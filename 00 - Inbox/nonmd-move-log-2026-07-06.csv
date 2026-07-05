@@ -20,3 +20,85 @@ src,dst,action
 03 - Projects/Crypto - etoro/L3_patches/mining_data.py,_code/Crypto - etoro/L3_patches/mining_data.py,moved-file
 03 - Projects/Crypto - etoro/L3_patches/test_fear_classifier.py,_code/Crypto - etoro/L3_patches/test_fear_classifier.py,moved-file
 03 - Projects/Crypto - etoro/L3_patches/__pycache__/fear_classifier.cpython-310.pyc,_code/Crypto - etoro/L3_patches/__pycache__/fear_classifier.cpython-310.pyc,moved-file
+03 - Projects/Mining/03 - Rigs/Mining-1/Hcash/files-v1.zip,_Duplicates/nonmd-Mining/03 - Rigs/Mining-1/Hcash/files-v1.zip,B2-moved
+03 - Projects/Mining/03 - Rigs/Mining-1/Hcash/files-v2.zip,_Duplicates/nonmd-Mining/03 - Rigs/Mining-1/Hcash/files-v2.zip,B2-moved
+03 - Projects/Mining/03 - Rigs/Mining-1/Hcash/files-v3.zip,_Duplicates/nonmd-Mining/03 - Rigs/Mining-1/Hcash/files-v3.zip,B2-moved
+03 - Projects/Crypto - etoro/crypto-research-clean.zip,_Duplicates/nonmd-Crypto - etoro/crypto-research-clean.zip,B2-moved
+03 - Projects/Crypto - etoro/cryptoquant_multi_2026-06-14-15-32-48.csv,_Duplicates/nonmd-Crypto - etoro/cryptoquant_multi_2026-06-14-15-32-48.csv,B2-moved
+03 - Projects/Crypto - etoro/cryptoquant_multi_2026-06-14-20-20-11.csv,_Duplicates/nonmd-Crypto - etoro/cryptoquant_multi_2026-06-14-20-20-11.csv,B2-moved
+03 - Projects/Crypto - etoro/cryptoquant_multi_2026-06-15-16-38-33.csv,_Duplicates/nonmd-Crypto - etoro/cryptoquant_multi_2026-06-15-16-38-33.csv,B2-moved
+03 - Projects/Crypto - etoro/lunarcrush_2026-06-15-06-20-22.csv,_Duplicates/nonmd-Crypto - etoro/lunarcrush_2026-06-15-06-20-22.csv,B2-moved
+03 - Projects/Crypto - etoro/lunarcrush_2026-06-15-08-42-31.csv,_Duplicates/nonmd-Crypto - etoro/lunarcrush_2026-06-15-08-42-31.csv,B2-moved
+03 - Projects/Crypto - etoro/lunarcrush_2026-06-15-16-38-43.csv,_Duplicates/nonmd-Crypto - etoro/lunarcrush_2026-06-15-16-38-43.csv,B2-moved
+03 - Projects/Crypto - etoro/lunarcrush_coins_2026-06-14-02-30-05.csv,_Duplicates/nonmd-Crypto - etoro/lunarcrush_coins_2026-06-14-02-30-05.csv,B2-moved
+03 - Projects/Crypto - etoro/lunarcrush_coins_2026-06-14-14-50-50.csv,_Duplicates/nonmd-Crypto - etoro/lunarcrush_coins_2026-06-14-14-50-50.csv,B2-moved
+03 - Projects/Crypto - etoro/lunarcrush_coins_2026-06-14-15-33-55.csv,_Duplicates/nonmd-Crypto - etoro/lunarcrush_coins_2026-06-14-15-33-55.csv,B2-moved
+03 - Projects/Crypto - etoro/lunarcrush_coins_2026-06-14-16-04-55.csv,_Duplicates/nonmd-Crypto - etoro/lunarcrush_coins_2026-06-14-16-04-55.csv,B2-moved
+03 - Projects/Mining/03 - Rigs/Mining-1/Mining E/Screenshot 2026-01-27 223427.png,08 - Assets/Mining/03 - Rigs/Mining-1/Mining E/Screenshot 2026-01-27 223427.png,B3-moved
+03 - Projects/Mining/03 - Rigs/Mining-1/Mining Q/Screenshot 2026-01-27 220105.png,08 - Assets/Mining/03 - Rigs/Mining-1/Mining Q/Screenshot 2026-01-27 220105.png,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-33-49.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-33-49.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-33-57.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-33-57.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-00.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-00.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-02.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-02.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-03.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-03.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-04.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-04.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-12.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-12.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-16.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-16.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-19.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-19.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-20.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-20.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-26.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-26.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-30.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-30.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-32.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-32.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-34.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-34.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-42.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-42.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-44.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-44.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-46.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-46.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-48.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-48.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-49.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-49.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-50.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-50.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-52.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-52.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-54.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-54.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-55.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-55.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-56.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-56.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-58.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-58.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-34-59.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-34-59.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-00.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-00.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-03.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-03.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-05.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-05.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-07.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-07.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-08.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-08.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-10.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-10.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-11.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-11.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-12.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-12.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-13.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-13.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-15.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-15.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-16.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-16.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-17.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-17.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-20.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-20.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-22.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-22.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-23.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-23.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-25.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-25.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-26.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-26.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-27.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-27.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-28.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-28.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-29.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-29.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-35-30.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-35-30.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_12-36-22.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_12-36-22.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_14-06-08.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_14-06-08.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_14-06-12.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_14-06-12.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_14-06-15.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_14-06-15.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_14-06-17.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_14-06-17.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_14-07-49.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_14-07-49.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_14-07-51.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_14-07-51.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_14-07-53.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_14-07-53.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_14-07-54.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_14-07-54.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_14-07-56.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_14-07-56.jpg,B3-moved
+03 - Projects/Mining/05 - Media/Pics/photo_2026-02-27_14-07-57.jpg,08 - Assets/Mining/05 - Media/Pics/photo_2026-02-27_14-07-57.jpg,B3-moved
+03 - Projects/اونلی فنز/test/photo_2026-07-03_20-34-55.jpg,08 - Assets/اونلی فنز/test/photo_2026-07-03_20-34-55.jpg,B3-moved
+03 - Projects/اونلی فنز/test/photo_2026-07-03_20-34-56.jpg,08 - Assets/اونلی فنز/test/photo_2026-07-03_20-34-56.jpg,B3-moved
+03 - Projects/اونلی فنز/test/photo_2026-07-03_20-34-58.jpg,08 - Assets/اونلی فنز/test/photo_2026-07-03_20-34-58.jpg,B3-moved
+03 - Projects/اونلی فنز/test/photo_2026-07-03_20-35-00.jpg,08 - Assets/اونلی فنز/test/photo_2026-07-03_20-35-00.jpg,B3-moved
+03 - Projects/اونلی فنز/test/photo_2026-07-03_20-35-02.jpg,08 - Assets/اونلی فنز/test/photo_2026-07-03_20-35-02.jpg,B3-moved
+03 - Projects/اونلی فنز/test/photo_2026-07-03_20-35-04.jpg,08 - Assets/اونلی فنز/test/photo_2026-07-03_20-35-04.jpg,B3-moved
+03 - Projects/اونلی فنز/test/photo_2026-07-03_20-35-06.jpg,08 - Assets/اونلی فنز/test/photo_2026-07-03_20-35-06.jpg,B3-moved
+03 - Projects/اونلی فنز/test/photo_2026-07-03_20-35-08.jpg,08 - Assets/اونلی فنز/test/photo_2026-07-03_20-35-08.jpg,B3-moved
