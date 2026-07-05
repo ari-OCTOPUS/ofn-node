@@ -1,0 +1,24 @@
+# Phase 0 security (2026-07-03) — هرگز commit نشود.
+# توجه: ریشه vault فعلاً git repo نیست؛ این فایل برای روز init آماده است.
+secrets-export/
+*.env
+*wallet*
+*seed*
+*key*
+*.pem
+_Archive/
+_Duplicates/
+__pycache__/
+node_modules/
+# سخت‌سازی init 2026-07-06 (گپ‌های build-proposals/04):
+*.env.*
+*secret*
+**/_code/
+.obsidian/workspace*
+*.db
+# init 2026-07-06 (session 17): کش اپ و git خراب قبلی
+.claude/
+# قرنطینه PHASE-0A تا ROTATED شدن ردیف ۶ (توکن‌های تلگرام) — بعد از rotation این ۳ خط حذف شود:
+07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/TODO.md
+07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/OpenQuestions.md
+07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/PROJECT_EXPORT_COMPLETE.md

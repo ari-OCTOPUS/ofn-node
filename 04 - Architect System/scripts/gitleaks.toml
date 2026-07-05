@@ -1,0 +1,39 @@
+# gitleaks config — backup vault (جلسه ۸، 2026-07-04)
+# vault گیت نیست، پس با --no-git اجرا کن:
+#   gitleaks detect --no-git --source "C:\Users\Armin\Desktop\backup" \
+#     -c "04 - Architect System/scripts/gitleaks.toml" -v --report-path gitleaks-report.json
+# هدف: کشفِ رازِ *جدید* در نوت/کد. secrets-export و .env.example عمداً allowlist نشده‌اند
+# تا تا وقتی داخل vaultند، اسکن بلند یادآوری کند.
+
+title = "backup-vault"
+
+[extend]
+useDefault = true   # قواعد پیش‌فرض gitleaks: AWS/GCP/GitHub/Stripe، PEM، sk-، telegram token، ...
+
+[[rules]]
+id = "telegram-bot-token"
+description = "Telegram bot token"
+regex = '''[0-9]{8,10}:[A-Za-z0-9_-]{35}'''
+tags = ["telegram", "token"]
+
+[[rules]]
+id = "anthropic-key"
+description = "Anthropic API key"
+regex = '''sk-ant-[A-Za-z0-9-]{20,}'''
+tags = ["anthropic", "apikey"]
+
+[[rules]]
+id = "monero-address"
+description = "Monero public address (95 chars)"
+regex = '''4[0-9AB][1-9A-HJ-NP-Za-km-z]{93}'''
+tags = ["crypto", "wallet"]
+
+[allowlist]
+description = "false-positive های بی‌خطر — نه رازِ واقعی"
+paths = [
+  '''.*cacert\.pem''',       # CA bundle (certifi) — راز نیست
+  '''.*/venv/.*''',
+  '''.*/node_modules/.*''',
+  '''_Duplicates/.*''',
+  '''\.git/.*''',
+]

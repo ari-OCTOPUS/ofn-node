@@ -1,0 +1,22 @@
+src,dst,action
+03 - Projects/Lead-نقاشی/AiFarm-Lead,_code/Lead-نقاشی/AiFarm-Lead,moved-dir
+03 - Projects/Lead-نقاشی/کاریابی/bot,_code/Lead-نقاشی/کاریابی/bot,moved-dir
+03 - Projects/Mining/02 - Code,_code/Mining/02 - Code,moved-dir
+03 - Projects/Crypto - etoro/lunarcrush-scraper,_code/Crypto - etoro/lunarcrush-scraper,moved-dir
+03 - Projects/Crypto - etoro/data scrapers,_code/Crypto - etoro/data scrapers,moved-dir
+03 - Projects/Ziman Galerry/control-brain,_code/Ziman Galerry/control-brain,moved-dir
+03 - Projects/Ziman Galerry/ziman-agent,_code/Ziman Galerry/ziman-agent,moved-dir
+03 - Projects/Accounting/importer,_code/Accounting/importer,moved-dir
+03 - Projects/Accounting/app,_code/Accounting/app,moved-dir
+03 - Projects/Mining/03 - Rigs/Mining-1/Hcash/00_base_hardening.sh,_code/Mining/03 - Rigs/Mining-1/Hcash/00_base_hardening.sh,moved-file
+03 - Projects/Mining/03 - Rigs/Mining-1/Hcash/01_install_fullnode.sh,_code/Mining/03 - Rigs/Mining-1/Hcash/01_install_fullnode.sh,moved-file
+03 - Projects/Mining/03 - Rigs/Mining-1/Hcash/02_install_miner.sh,_code/Mining/03 - Rigs/Mining-1/Hcash/02_install_miner.sh,moved-file
+03 - Projects/Mining/03 - Rigs/Mining-1/Hcash/03_monitor.sh,_code/Mining/03 - Rigs/Mining-1/Hcash/03_monitor.sh,moved-file
+03 - Projects/Mining/03 - Rigs/Mining-1/Hcash/04_ensure_autostart.sh,_code/Mining/03 - Rigs/Mining-1/Hcash/04_ensure_autostart.sh,moved-file
+03 - Projects/Mining/03 - Rigs/Mining-1/Hcash/deploy_all.sh,_code/Mining/03 - Rigs/Mining-1/Hcash/deploy_all.sh,moved-file
+03 - Projects/Mining/03 - Rigs/Mining-10- pro-plus/Verus coin/clusters_monitoring.py,_code/Mining/03 - Rigs/Mining-10- pro-plus/Verus coin/clusters_monitoring.py,moved-file
+03 - Projects/Mining/_archive/desktop.ini,_code/Mining/_archive/desktop.ini,moved-file
+03 - Projects/Crypto - etoro/L3_patches/fear_classifier.py,_code/Crypto - etoro/L3_patches/fear_classifier.py,moved-file
+03 - Projects/Crypto - etoro/L3_patches/mining_data.py,_code/Crypto - etoro/L3_patches/mining_data.py,moved-file
+03 - Projects/Crypto - etoro/L3_patches/test_fear_classifier.py,_code/Crypto - etoro/L3_patches/test_fear_classifier.py,moved-file
+03 - Projects/Crypto - etoro/L3_patches/__pycache__/fear_classifier.cpython-310.pyc,_code/Crypto - etoro/L3_patches/__pycache__/fear_classifier.cpython-310.pyc,moved-file

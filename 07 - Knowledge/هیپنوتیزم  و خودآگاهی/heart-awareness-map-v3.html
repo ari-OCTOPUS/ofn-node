@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>قلب و آگاهی — نسخه‌ی ۳ · عملی‌شده</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2430; --ink:#e6edf3; --muted:#9aa7b4;
+    --line:#2a3340; --accent:#ff5b6e; --accentdim:#4a1f28;
+    --E:#3fb950; --Ebg:#10371b; --S:#d29922; --Sbg:#3a2d0a; --P:#a371f7; --Pbg:#2a1f44;
+    --new:#58a6ff; --newbg:#0d2a4d;
+    --ok:#2ea043; --okbg:#0d2a1a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 70% -10%,#16202e 0,var(--bg) 60%);
+       color:var(--ink);font-family:"Vazirmatn","Segoe UI",Tahoma,sans-serif;line-height:1.85;padding:28px 18px 60px}
+  .wrap{max-width:1080px;margin:0 auto}
+  .crumb{letter-spacing:.18em;font-size:12px;color:var(--muted);text-align:center;margin-bottom:6px}
+  h1{font-size:30px;text-align:center;margin:4px 0 2px;font-weight:800}
+  .sub{text-align:center;color:var(--muted);font-size:15px;max-width:760px;margin:0 auto 10px}
+  .v3flag{display:block;width:fit-content;margin:14px auto 26px;background:var(--okbg);color:var(--ok);
+          border:1px solid #1e5e2e;border-radius:999px;padding:6px 16px;font-size:13px;font-weight:700}
+  .sec{margin:34px 0 12px;display:flex;align-items:center;gap:12px}
+  .sec .tag{background:var(--accentdim);color:var(--accent);border:1px solid #6b2530;border-radius:8px;
+            width:34px;height:34px;display:grid;place-items:center;font-weight:800;flex:none}
+  .sec h2{font-size:20px;margin:0}
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:1fr 1fr 1fr}
+  @media(max-width:760px){.g2,.g3{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .card h3{margin:0 0 10px;font-size:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .num{background:var(--panel2);border:1px solid var(--line);border-radius:7px;font-size:13px;color:var(--muted);
+       padding:1px 8px;font-weight:700}
+  .claim{margin:9px 0;padding-right:6px;font-size:14.5px}
+  .pill{display:inline-block;font-size:11px;font-weight:800;border-radius:6px;padding:1px 7px;margin-left:5px;
+        vertical-align:1px;border:1px solid}
+  .E{color:var(--E);background:var(--Ebg);border-color:#1e5e2e}
+  .S{color:var(--S);background:var(--Sbg);border-color:#6b531a}
+  .P{color:var(--P);background:var(--Pbg);border-color:#4b357f}
+  .NEW{color:var(--new);background:var(--newbg);border-color:#1f4d80}
+  .FIX{color:#ff7b72;background:#3a1418;border-color:#7a2630}
+  .OK{color:var(--ok);background:var(--okbg);border-color:#1e5e2e}
+  .src{font-size:11.5px;color:var(--muted)}
+  .src a{color:var(--new);text-decoration:none;border-bottom:1px dotted #2a4a73}
+  .src a:hover{color:#8cc4ff}
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;
+        background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;margin:8px 0}
+  .flow .b{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:13.5px}
+  .arrow{color:var(--accent);font-weight:800}
+  .loop{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .loop .when{color:var(--accent);font-weight:800;font-size:13px;margin-bottom:4px}
+  .rail{background:linear-gradient(180deg,var(--panel),#13181f);border:1px solid var(--line);
+        border-right:3px solid var(--accent);border-radius:12px;padding:8px 16px;margin:9px 0;font-size:14px}
+  .rail-ok{background:linear-gradient(180deg,var(--panel),#13181f);border:1px solid var(--line);
+        border-right:3px solid var(--ok);border-radius:12px;padding:8px 16px;margin:9px 0;font-size:14px}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin:6px 0 0;color:var(--muted);font-size:13px}
+  .foot{text-align:center;color:var(--muted);font-size:12px;margin-top:34px;border-top:1px solid var(--line);padding-top:16px}
+  .note{font-size:13px;color:var(--muted);font-style:normal;background:var(--panel2);border:1px dashed var(--line);
+        border-radius:10px;padding:10px 14px;margin:10px 0}
+  .srcsec{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 20px}
+  .srcsec li{margin:6px 0;font-size:13px}
+
+  /* --- practical additions --- */
+  .today{background:linear-gradient(135deg,#0d2a1a,#13181f);border:2px solid var(--ok);border-radius:16px;
+         padding:20px 22px;margin-bottom:24px}
+  .today h2{margin:0 0 14px;font-size:19px;color:var(--ok)}
+  .checklist{list-style:none;padding:0;margin:0}
+  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;margin:8px 0;padding:6px 0;
+                border-bottom:1px solid #1a2a1a}
+  .checklist li:last-child{border-bottom:none}
+  .step-num{background:var(--ok);color:#000;border-radius:50%;width:22px;height:22px;min-width:22px;
+            display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;margin-top:2px}
+  .step-time{color:var(--muted);font-size:12px;white-space:nowrap;margin-top:3px}
+
+  .proto{background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+         padding:10px 14px;margin:10px 0;font-size:13.5px}
+  .proto .step{display:flex;gap:8px;margin:5px 0;align-items:flex-start}
+  .proto .step .n{color:var(--accent);font-weight:800;min-width:18px}
+
+  .logtable{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+  .logtable th{background:var(--panel2);padding:7px 10px;text-align:right;color:var(--muted);
+               font-weight:700;border-bottom:1px solid var(--line)}
+  .logtable td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  .logtable tr:last-child td{border-bottom:none}
+  .tag-e{color:var(--E)}
+  .tag-s{color:var(--S)}
+  .tag-m{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="crumb">N-OF-1 · SELF-EXPERIMENT · V3 · PRACTICAL</div>
+  <h1>قلب و آگاهی — نقشه‌ی عملی</h1>
+  <p class="sub">نسخه‌ی ۳: شواهد همان، پروتکل‌ها مشخص‌تر — اکنون می‌دانی هر روز دقیقاً چه کار کنی.</p>
+  <span class="v3flag">✓ نسخه‌ی ۳ · بهینه‌سازی ساختار و عملی‌سازی · ژوئن ۲۰۲۶</span>
+
+  <!-- ===================== TODAY PROTOCOL ===================== -->
+  <div class="today">
+    <h2>▸ امروز، همین الان — چه کار کنم؟</h2>
+    <ul class="checklist">
+      <li>
+        <span class="step-num">۱</span>
+        <div><b>قبل از کافئین و مصرف:</b> دو دقیقه ساکت بنشین، Muse را روشن کن، RMSSD را بخوان.
+          <br><span class="step-time">⏱ ۲ دقیقه · صبح · پیش از هر چیز</span></div>
+      </li>
+      <li>
+        <span class="step-num">۲</span>
+        <div><b>تنفس رزونانس:</b> ۶ نفس در دقیقه (بازدم ۵ ثانیه + دم ۵ ثانیه). هر نفس را بشمار.
+          <br><span class="step-time">⏱ ۱۰–۱۵ دقیقه · همان صبح</span></div>
+      </li>
+      <li>
+        <span class="step-num">۳</span>
+        <div><b>لاگ روزانه را پر کن</b> (ببین جدول پایین — فقط ۵ فیلد):
+          RMSSD · خواب ۱–۵ · مصرف بله/خیر · مکان · یادداشت
+          <br><span class="step-time">⏱ ۱ دقیقه · هر روز</span></div>
+      </li>
+      <li>
+        <span class="step-num">۴</span>
+        <div><b>هر هفته — ۱۰ دقیقه:</b> ۷ روز RMSSD را نگاه کن. با خواب و مصرف cross-reference کن.
+          <br><span class="step-time">⏱ هفتگی · شنبه صبح</span></div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- ===================== B : EXPERIMENTS ===================== -->
+  <div class="sec"><span class="tag">B</span><h2>آزمایش‌های N-of-1 — پروتکلِ مشخص</h2></div>
+  <div class="grid g2">
+
+    <div class="card">
+      <h3><span class="num">E1</span> منحنیِ autonomic</h3>
+      <div class="claim"><b>سؤال:</b> نشئگی دقیقاً چطور سیستم خودکار را جابه‌جا می‌کند؟</div>
+      <div class="proto">
+        <div class="step"><span class="n">۱.</span> قبل از مصرف: Muse را ۲ دقیقه بخوان. <b>RMSSD و HR</b> را یادداشت کن.</div>
+        <div class="step"><span class="n">۲.</span> در اوج onset (۲۰–۴۰ دقیقه بعد): دوباره ۲ دقیقه بخوان. همان فیلدها.</div>
+        <div class="step"><span class="n">۳.</span> لحظه‌ای که احساس کردی اضطراب شروع شد: RMSSD آن لحظه = <b>عددِ tip-over شخصی‌ات</b>. علامت بزن.</div>
+        <div class="step"><span class="n">ثبت:</span> هر سه عدد + تخمین دوز + مسیر مصرف (استنشاق / خوراکی)</div>
+      </div>
+      <div class="claim src">↪ همیشه RMSSD بخوان نه SDNN — چون SDNN می‌تواند بالا برود در حالی که RMSSD (واگ‌محور) تغییر نمی‌کند. <span class="pill NEW">NEW</span></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">E2</span> accuracy × confidence</h3>
+      <div class="claim"><b>سؤال:</b> THC با خواندن بدن چه می‌کند؟</div>
+      <div class="proto">
+        <div class="step"><span class="n">۱.</span> ۱ دقیقه چشم‌ها را ببند. ضربان قلبت را بدون ساعت/نبض بشمار.</div>
+        <div class="step"><span class="n">۲.</span> بعد از ۳۰ ثانیه، شمارش را بنویس. Muse را ببین — خطا را محاسبه کن.</div>
+        <div class="step"><span class="n">۳.</span> روی کاغذ از ۱–۱۰ بگو: «چقدر مطمئنی که درست شمردی؟»</div>
+        <div class="step"><span class="n">۴.</span> این را در دو حالت انجام بده: هوشیار و نشئه. <b>فاصله‌ی خطا − اطمینان = داده.</b></div>
+        <div class="step"><span class="n">+</span> سنجه‌ی دوم: در ۱۰ ضربه‌ی متوالی، بگو کدام‌ها را «حس کردی». دقت را مقایسه کن. <span class="pill NEW">NEW</span></div>
+      </div>
+      <div class="claim src">↪ شمارشِ ضربان به‌تنهایی شکننده است (Ferentzi 2025) — حتماً یک سنجه‌ی دوم.</div>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">E3</span> تستِ زمان (tolerance)</h3>
+      <div class="claim"><b>سؤال:</b> tolerance تجربه‌ات چقدر واقعی است؟</div>
+      <div class="proto">
+        <div class="step"><span class="n">۱.</span> یک تایمرِ ۳۰ ثانیه را راه بینداز ولی صفحه را نگاه نکن.</div>
+        <div class="step"><span class="n">۲.</span> وقتی فکر کردی ۳۰ ثانیه گذشت، بزن. خطا را ثبت کن.</div>
+        <div class="step"><span class="n">۳.</span> هوشیار + نشئه هر دو را انجام بده.</div>
+        <div class="step"><span class="n">تفسیر:</span> خطای کم در نشئگی = tolerance واقعی → تست interoception E2 دقیق‌تر است. خطای زیاد = نتایج E2 آلوده.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">E4</span> retest بینش</h3>
+      <div class="claim"><b>سؤال:</b> کدام بینش جان به در می‌برد؟</div>
+      <div class="proto">
+        <div class="step"><span class="n">۱.</span> هر «بینش» در حال نشئگی را همان لحظه با 【E】/【S】/【P】 تگ بزن و بنویس.</div>
+        <div class="step"><span class="n">۲.</span> فردا صبح هوشیار دوباره بخوان. داوری کن: تأیید / رد / نامشخص.</div>
+        <div class="step"><span class="n">۳.</span> فقط تأییدشده‌ها را «بینش» بنام. بقیه = «حالِ خوشایند».</div>
+        <div class="step"><span class="n">لاگ:</span> تاریخ · متن بینش · تگ · داوری فردا</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">E5</span> baselineِ خالصِ واگ <span class="pill NEW">NEW</span></h3>
+      <div class="claim"><b>سؤال:</b> چه مقدار از نوسانِ HRV من THC است و چه مقدار نوسانِ روزانه‌ی طبیعی؟</div>
+      <div class="proto">
+        <div class="step"><span class="n">۱.</span> یک روز کاملاً بدون مصرف انتخاب کن.</div>
+        <div class="step"><span class="n">۲.</span> صبح: baseline RMSSD بخوان.</div>
+        <div class="step"><span class="n">۳.</span> ۱۵ دقیقه تنفس رزونانس ۶/۶ انجام بده. RMSSD بعدش را بخوان.</div>
+        <div class="step"><span class="n">۴.</span> عصر: دوباره RMSSD بخوان (بدون تنفس).</div>
+        <div class="step"><span class="n">تفسیر:</span> بازه‌ی روزانه‌ی RMSSD بدون THC = نویزِ طبیعی. هر چیزی بیرون از این بازه در روزهای مصرف = اثرِ THC.</div>
+      </div>
+      <div class="claim src">↪ بدون این baseline نمی‌توانی اثر THC را از نوسانِ روزانه جدا کنی. <span class="pill S">S</span></div>
+    </div>
+
+  </div>
+
+  <!-- ===================== LOG TEMPLATE ===================== -->
+  <div class="sec"><span class="tag">L</span><h2>قالبِ لاگِ روزانه — همین را پر کن</h2></div>
+  <div class="card">
+    <table class="logtable">
+      <thead>
+        <tr>
+          <th>فیلد</th>
+          <th>مقدار</th>
+          <th>یادداشت</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>تاریخ</b></td>
+          <td class="tag-m">YYYY-MM-DD</td>
+          <td>همیشه ثبت شود</td>
+        </tr>
+        <tr>
+          <td><b>RMSSD</b></td>
+          <td class="tag-e">عدد به ms</td>
+          <td>صبح · قبل از کافئین · ۲ دقیقه</td>
+        </tr>
+        <tr>
+          <td><b>خواب</b></td>
+          <td class="tag-m">۱–۵</td>
+          <td>۱=خیلی بد، ۵=عالی</td>
+        </tr>
+        <tr>
+          <td><b>مصرف</b></td>
+          <td class="tag-m">بله / خیر</td>
+          <td>اگر بله: دوز و زمان تقریبی</td>
+        </tr>
+        <tr>
+          <td><b>مکان</b></td>
+          <td class="tag-m">خانه / کار</td>
+          <td>بار روانیِ زمینه</td>
+        </tr>
+        <tr>
+          <td><b>یادداشت</b></td>
+          <td class="tag-s">اختیاری</td>
+          <td>رویداد مهم، بینش، تگ E/S/P</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note" style="margin-top:10px">همیشه <b>RMSSD</b> را ثبت کن، نه شاخص دیگری. اگر امروز اندازه نگرفتی، خالی بگذار — داده‌ی ناقص بهتر از داده‌ی اشتباه است.</div>
+  </div>
+
+  <!-- ===================== C : DAILY LOOP ===================== -->
+  <div class="sec"><span class="tag">C</span><h2>حلقه‌ی روزمره — ریتوال · سه نقطه</h2></div>
+  <div class="grid g3">
+    <div class="loop">
+      <div class="when">صبح · ۱۲–۱۵ دقیقه</div>
+      <b>۱. baseline</b><br>Muse · ساکت · قبل از کافئین و مصرف. RMSSD + سه تگ (خواب / مصرف دیشب / مکان).<br><br>
+      <b>۲. تنفس رزونانس</b><br>۶ نفس در دقیقه — دم ۵ ثانیه، بازدم ۵ ثانیه. سازنده‌ی ظرفیت، نه پُرکنِ وقت.
+    </div>
+    <div class="loop">
+      <div class="when">حین روز · on-demand</div>
+      <b>sigh دوگانه</b> هر وقت موجِ عاطفی بالا زد:<br>دو دم سریع + یک بازدم خیلی کند (۸–۱۰ ثانیه).<br><br>
+      مخصوصاً: تنشِ رابطه · جمع شلوغ · قبل از یک گفتگوی مهم.
+    </div>
+    <div class="loop">
+      <div class="when">هفتگی · ۱۰ دقیقه</div>
+      <b>مرورِ ترند</b><br>خطِ ۷ روزه. انحراف‌ها را با رویدادها cross-reference کن.<br><br>
+      سیگنال در <b>ترندِ چندهفته‌ای</b> است، نه در تپشِ یک روز.
+    </div>
+  </div>
+  <div class="note">یادآوری: HRVB برای <b>افسردگی</b> اثر معنادار دارد (g=−۰.۴۱) و برای <b>HRV</b> خودش (g=+۰.۴۴). برای اضطراب/استرس در متاآنالیز راه‌دور ۲۰۲۵ نتیجه‌ی قطعی نبود. ترندِ چندهفته‌ای را معیار بگیر، نه «حالِ بهتر» یک جلسه. <span class="pill NEW">NEW</span></div>
+
+  <!-- ===================== A : FIVE LAYERS ===================== -->
+  <div class="sec"><span class="tag">A</span><h2>پنج لایه‌ی شواهد — مرجع سریع</h2></div>
+  <div class="grid g2">
+
+    <div class="card">
+      <h3><span class="num">۱</span> امضای autonomic</h3>
+      <div class="claim">THC dose-dependent: HR↑، HF-HRV↓، اضطراب↑. مصرف‌کننده‌ی سنگین: پاسخ blunted (tolerance) — نوسانِ کوچک = بی‌اثری نیست. <span class="pill E">E</span></div>
+      <div class="claim">اثر biphasic: دوز پایین آرام، بالاتر → سمپاتیک/اضطراب. RMSSD نقطه‌ی tip-over شخصی‌ات را علامت می‌زند. <span class="pill S">S</span></div>
+      <div class="claim"><b>مدل ۲۰۲۵:</b> PBPK-PD تاکی‌کاردیِ THC را کمّی کرد — جهشِ ضربان قابل‌مدل است، نه تصادفی. <span class="pill E">E</span> <span class="pill NEW">NEW</span><br><span class="src">← <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11858910/">PBPK-PD model of THC & heart rate, 2025</a></span></div>
+      <div class="claim"><b>نکته‌ی ظریفِ taVNS ۲۰۲۵:</b> پارامترهای خاص SDNN (HRV کلی) را بالا بردند ولی RMSSD (واگ‌محور) تغییر نکرد. دلیل: کاهشِ سمپاتیک، نه افزایشِ پاراسمپاتیک. یعنی «HRV بالا» لزوماً «واگ قوی‌تر» نیست. <span class="pill E">E</span> <span class="pill NEW">NEW</span><br><span class="src">← <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11940630/">taVNS frequency × pulse-width RCT, 2025</a></span></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">۲</span> interoception</h3>
+      <div class="claim">دقتِ interoceptive هدفِ توست؛ همانی که با مصرف مزمن کاهش می‌یابد (insula). <span class="pill E">E</span></div>
+      <div class="claim">تستِ شمارش ضربان معیوب است: با دانستنِ HR و تخمینِ زمان «تقلب» می‌شود، r≈.16. <span class="pill E">E</span></div>
+      <div class="claim">THC زمان را کش می‌دهد → شمارش را آلوده می‌کند؛ ولی در تو blunted است → قابل سنجش. <span class="pill E">E</span></div>
+      <div class="claim"><b>Ferentzi 2025:</b> سه سنجه‌ی دقتِ قلبی هم‌پوشانی محدودی دارند — شمارشِ ضربان به‌تنهایی شکننده است. یک سنجه‌ی دوم لازم است. <span class="pill E">E</span> <span class="pill NEW">NEW</span><br><span class="src">← <a href="https://onlinelibrary.wiley.com/doi/10.1111/psyp.70078">Ferentzi et al., 2025, Psychophysiology</a></span></div>
+      <div class="claim">فاصله‌ی accuracy (خطا) و confidence (حس) = توهمِ بینش در سطحِ بدن. <span class="pill P">P</span></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">۳</span> خودتنظیمی (HRVB)</h3>
+      <div class="claim">برای <b>افسردگی</b>: اثرِ معنادار در متاآنالیز راه‌دور ۲۰۲۵ (g=−۰.۴۱). برای <b>HRV</b> خودش: g=+۰.۴۴. برای اضطراب/استرس: نتیجه قطعی نبود. <span class="pill S">S</span> <span class="pill NEW">NEW</span><br><span class="src">← <a href="https://link.springer.com/article/10.1007/s10484-025-09750-w">Remote HRVB meta-analysis, 2025</a></span></div>
+      <div class="claim">مکانیسم: تنفس آهسته → افرنتِ واگ → PFC، amygdala، insula. <span class="pill E">E</span></div>
+      <div class="claim">درمان نیست؛ یک training است. اثر متوسط، ناهمگن. <span class="pill S">S</span></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="num">۴</span> پیوندِ BPD</h3>
+      <div class="claim">vagal tone پایین‌تر با BPD همبسته است؛ HRV g=−۰.۵۹، بایومارکرِ فرا-تشخیصی. <span class="pill E">E</span></div>
+      <div class="claim">مکانیسم: ضعفِ کنترل مهاریِ PFC روی amygdala (neurovisceral integration). <span class="pill E">E</span></div>
+      <div class="claim">DBT ضربانِ بالای BPD را نرمال می‌کند → اهرم‌های فیزیولوژیک آشنا. <span class="pill E">E</span></div>
+      <div class="claim"><b>N-of-1 پشتوانه:</b> HRVِ پایه می‌تواند پیش‌بینی‌کننده‌ی پاسخِ فردی به تحریک واگ باشد. <span class="pill S">S</span> <span class="pill NEW">NEW</span><br><span class="src">← <a href="https://www.nature.com/articles/s41398-025-03780-y">«The heart knows best», Translational Psychiatry, 2025</a></span></div>
+    </div>
+
+  </div>
+
+  <div class="grid" style="margin-top:14px">
+    <div class="card">
+      <h3><span class="num">۵</span> epistemologyِ بینش</h3>
+      <div class="claim">حسِ بینش نویزِ محض نیست: برای مسائلِ قابل‌بررسی، با درستی همبسته است. <span class="pill E">E</span></div>
+      <div class="claim">اما قابل هک است — «Dark side of Eureka»: حسِ aha می‌تواند گزاره‌ی دلخواه را «درست» جلوه دهد. <span class="pill E">E</span></div>
+      <div class="claim">برای مسائلِ باز/خلاق، حسِ پیشرفت اعتبار را پیش‌بینی نمی‌کند. <span class="pill E">E</span></div>
+      <div class="claim">بینشِ نشئه = بدترین حالت (باز + آزمونِ تغییریافته). حال ≠ مقام — retest، تبدیل است. <span class="pill P">P</span></div>
+    </div>
+  </div>
+
+  <div class="note"><b>تصحیح مهم — Kaduk 2025 <span class="pill FIX">FIX</span></b><br>
+  taVNS، HRV را <b>مستقل از بار کالری</b> کاهش می‌دهد. Milkshake اثر معناداری نداشت. «غذا روی واگ» ادعای پشتیبانی‌نشده است. به‌علاوه: یافته‌ی ۲۰۲۵ نشان داد کاهشِ HRV از مسیرِ سمپاتیک است، نه واگ — پس «تحریکِ واگ = HRV بالا» فرمولِ ساده‌شده‌ای است که همیشه صادق نیست.</div>
+
+  <div class="flow" style="margin-top:18px">
+    <div class="b">کش زمان · افتِ accuracy · THC</div>
+    <span class="arrow">← کندکردن</span>
+    <div class="b" style="border-color:var(--accent)">قلب: نقطه‌ای که هر دو نیرو دیده می‌شوند</div>
+    <span class="arrow">ساختن →</span>
+    <div class="b">تنفس رزونانس · توجهِ بدنی · biofeedback</div>
+  </div>
+
+  <!-- ===================== D : GUARDRAILS ===================== -->
+  <div class="sec"><span class="tag">D</span><h2>دیسیپلینِ معرفتی — گاردریل</h2></div>
+  <div class="legend">
+    <span><span class="pill E">E</span> Established — علمِ مستحکم</span>
+    <span><span class="pill S">S</span> Speculation — حدس/موردِ مناقشه</span>
+    <span><span class="pill P">P</span> Metaphor — نگاشتِ مفهومی</span>
+    <span><span class="pill NEW">NEW</span> افزوده‌ی v3</span>
+  </div>
+  <div style="margin-top:12px">
+    <div class="rail">▸ سیگنال در ترندِ چندهفته‌ای است، نه در تپشِ امروز. PPGِ Muse نویزی است؛ تک‌روزها را جدی نگیر.</div>
+    <div class="rail">▸ هدف mastery و کالیبراسیون است، نه surveillance. دستگاه یک calibrator است، نه عصا.</div>
+    <div class="rail">▸ اگر ردیابی اضطراب تولید کرد، عقب بکش. علامتِ تنظیم است، نه شکست.</div>
+    <div class="rail">▸ HRV ابزارِ تشخیص پزشکی نیست. علامتِ واقعیِ قلبی → cardiology، نه اپ.</div>
+    <div class="rail-ok">▸ <b>گاردریلِ کلیدی:</b> همیشه RMSSD را گزارش کن. SDNN و RMSSD می‌توانند خلافِ هم حرکت کنند — مقایسه‌ی آن‌ها خودش منبعِ توهم است. <span class="pill NEW">NEW</span></div>
+    <div class="rail-ok">▸ <b>گاردریلِ تازه:</b> قبل از اینکه نوسانی را به THC نسبت دهی، baseline خالصِ E5 را داشته باش. بدون baseline، نمی‌دانی چه چیزی از کجا است. <span class="pill NEW">NEW</span></div>
+  </div>
+
+  <!-- ===================== SOURCES ===================== -->
+  <div class="sec"><span class="tag">★</span><h2>منابع</h2></div>
+  <div class="srcsec">
+    <ul>
+      <li>Kaduk et al., 2025 — <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11862327/">Non-Invasive Auricular Vagus Nerve Stimulation Decreases HRV Independent of Caloric Load</a> · <i>Psychophysiology</i> — پایه‌ی تصحیح</li>
+      <li>THC heart-rate PBPK-PD model, 2025 — <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11858910/">Quantifying Heart Rate Changes After Δ9-THC Administration</a> · <i>Pharmaceutics</i></li>
+      <li>taVNS frequency × pulse-width RCT, 2025 — <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11940630/">Acute Effects of Varying Frequency and Pulse Width of taVNS on HRV</a></li>
+      <li>Ferentzi et al., 2025 — <a href="https://onlinelibrary.wiley.com/doi/10.1111/psyp.70078">Cardiac Interoceptive Accuracy: Comparison of Three Ability Measures</a> · <i>Psychophysiology</i></li>
+      <li>Remote HRV-biofeedback meta-analysis, 2025 — <a href="https://link.springer.com/article/10.1007/s10484-025-09750-w">Efficacy of Remote HRV Biofeedback for Mental Health</a> · <i>Appl. Psychophysiol. Biofeedback</i></li>
+      <li>«The heart knows best», 2025 — <a href="https://www.nature.com/articles/s41398-025-03780-y">Baseline HRV as guide to taVNS in depression</a> · <i>Translational Psychiatry</i></li>
+      <li>روش‌شناسی — <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2017.00213/full">HRV & Cardiac Vagal Tone — Recommendations for Experiment Planning</a> · Frontiers in Psychology</li>
+    </ul>
+  </div>
+
+  <div class="foot">قلب و آگاهی · v3 · بهینه‌سازی ساختار و عملی‌سازی · ژوئن ۲۰۲۶<br>
+  تغییرات v3: پروتکل‌های مشخص برای E1–E5 · قالبِ لاگ · تصحیح HRVB (افسردگی معنادار) · مکانیسمِ taVNS (سمپاتیک نه واگ)</div>
+</div>
+</body>
+</html>

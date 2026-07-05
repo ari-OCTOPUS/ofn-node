@@ -1,0 +1,11 @@
+{
+  "colorGroups": [
+    { "query": "path:01-Project", "color": { "a": 1, "rgb": 5431378 } },
+    { "query": "path:02-Research", "color": { "a": 1, "rgb": 11657298 } },
+    { "query": "path:03-Exports", "color": { "a": 1, "rgb": 16748574 } },
+    { "query": "path:04-Docs", "color": { "a": 1, "rgb": 16113331 } },
+    { "query": "path:_code", "color": { "a": 1, "rgb": 8421504 } }
+  ],
+  "showTags": true,
+  "showAttachments": false
+}

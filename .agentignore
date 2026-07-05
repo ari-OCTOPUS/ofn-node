@@ -1,0 +1,24 @@
+# مسیرهای ممنوع برای همه ایجنت‌ها (Claude Code، architect، هر ابزار دیگر).
+# معنا: این مسیرها هرگز نوشته نمی‌شوند؛ فایل‌های secret هرگز خوانده یا در چت/نوت echo نمی‌شوند.
+# _Archive و _Duplicates فقط «مقصد انتقال»اند — mv به داخلشان مجاز، خواندن/ویرایش محتوا ممنوع مگر مالک بخواهد.
+
+.git/
+**/_code/
+_Archive/
+_Duplicates/
+
+# Phase 0 (2026-07-03): همه فایل‌های secret به secrets-export/ منتقل شدند (pointer note جایشان است).
+# secrets-export فقط برای import مالک به password manager است — ایجنت‌ها هرگز داخلش را نمی‌خوانند:
+secrets-export/
+
+# الگوهای secret — نه خواندن، نه echo:
+*.env
+*wallet*
+*seed*
+*key*
+*.pem
+
+# سفت‌سازی 2026-07-04 (جلسه ۸): الگوی *.env فایل‌های .env.example/.env.template را نمی‌گرفت
+# (طبق GAPS G-01 برخی .env.example مقدار واقعی دارند) — حالا پوشش داده شد:
+*.env.*
+*secret*
