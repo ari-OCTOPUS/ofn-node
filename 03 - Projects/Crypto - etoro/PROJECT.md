@@ -51,6 +51,8 @@ Security Gate بسته (کلیدهای exchange CRITICAL) · رجیستری خا
 
 ## Active Context
 
+- **2026-07-06 (جلسه ۱۷):** کد پروژه به `_code/` منتقل شد (B1 پلن NONMD-TRIAGE؛ propose→executed با verdict آری). لاگ کامل: `00 - Inbox/nonmd-move-log-2026-07-06.csv`.
+
 - تمرکز فعلی: ساخت رجیستری پوزیشن‌ها با exit_rules
 - تغییرات اخیر: 2026-07-03 — ارتقا به manifest فاز ۱ + سه نوت قالب · 2026-07-04 — [[03 - Projects/Crypto - etoro/Report - Crypto - etoro - Data Stack under AU30|Report - Data Stack under AU30]] از Inbox منتقل شد (استک free-API + مهاجرت اسکرپر به API رسمی) · 2026-07-04 — کیت مغز پروژه (INDEX·DecisionLog·OpenQuestions طبق LIVING-BRAIN-BLUEPRINT) ساخته شد
 - ۳ قدم بعدی: (۱) مالک: پوزیشن‌های فعلی را وارد رجیستری کند (۲) exit_rules هر پوزیشن (۳) rotation کلیدها → اسکرپرها روشن

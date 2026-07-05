@@ -53,6 +53,8 @@ seed کیف پول در انتظار چرخش · رجیستری خالی · با
 
 ## Active Context
 
+- **2026-07-06 (جلسه ۱۷):** کد پروژه به `_code/` منتقل شد (B1 پلن NONMD-TRIAGE؛ propose→executed با verdict آری). لاگ کامل: `00 - Inbox/nonmd-move-log-2026-07-06.csv`.
+
 - تمرکز فعلی: بازسازی پایه (رجیستری + چارچوب) پیش از آزمایش کوین بعدی
 - تغییرات اخیر: 2026-07-03 — Phase 0 (انتقال secretها) + ارتقا به manifest فاز ۱ + دو نوت چارچوب · 2026-07-04 — [[03 - Projects/Mining/04 - Research/SCOUT-B|SCOUT-B]] (تحقیق Track B) از Inbox به `04 - Research` منتقل شد · 2026-07-04 — کیت مغز پروژه (INDEX·DecisionLog·OpenQuestions طبق LIVING-BRAIN-BLUEPRINT) ساخته شد
 - ۳ قدم بعدی: (۱) چرخش wallet/کلیدها (مالک) (۲) تکمیل رجیستری نودها (۳) انتخاب کوین #۱ با چارچوب

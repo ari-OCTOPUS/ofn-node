@@ -54,6 +54,8 @@ updated: 2026-07-06
 
 ## Active Context
 
+- **2026-07-06 (جلسه ۱۷):** کد پروژه به `_code/` منتقل شد (B1 پلن NONMD-TRIAGE؛ propose→executed با verdict آری). لاگ کامل: `00 - Inbox/nonmd-move-log-2026-07-06.csv`.
+
 - تمرکز فعلی: rotation کلیدها → روشن کردن ربات → آزمایش #۱ (SEGMENT-DISCOVERY)
 - تغییرات اخیر: 2026-07-03 — بازسازی کامل ربات (فازهای ۰-۴، ۳۳ تست سبز) + ۱۰ پرامپت تحقیقاتی در `کاریابی/06_پرامپت‌های_تحقیقاتی_گسترش_لیدگیری.md` · 2026-07-04 — [[03 - Projects/Lead-نقاشی/Report - Lead-نقاشی - Sydney Lead Channels 2026|Report - Sydney Lead Channels 2026]] از Inbox منتقل شد (Google LSA هنوز در AU نیست) · 2026-07-04 — کیت مغز پروژه (INDEX·DecisionLog·OpenQuestions طبق LIVING-BRAIN-BLUEPRINT) ساخته شد
 - ۳ قدم بعدی: (۱) rotation ۵ کلید + `pytest tests/ -q` + `python test_run.py` (۲) اجرای main.py و بررسی push های تلگرام (۳) شروع آزمایش #۱ با دیتای واقعی ربات
