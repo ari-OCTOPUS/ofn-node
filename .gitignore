@@ -22,5 +22,8 @@ node_modules/
 07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/TODO.md
 07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/OpenQuestions.md
 07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/PROJECT_EXPORT_COMPLETE.md
-# کپی زندهٔ اجرا (جلسه ۱۷) — کد تکراری از _code، حاوی .env احتمالی:
-_launchpad/
+# _launchpad حالا version-controlled است (مأموریت v2 فاز ۰) — فقط runtime/secret ignore:
+_launchpad/**/.venv/
+_launchpad/**/drafts/
+_launchpad/**/status.md
+_launchpad/**/events.jsonl
