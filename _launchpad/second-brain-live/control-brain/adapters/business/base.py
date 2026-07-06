@@ -139,4 +139,8 @@ class GenericOwnerInteraction(OwnerInteractionEngine):
             text = (f"سلام {self.cfg.owner_name} جان 🌟\nیک ایده برای {self.cfg.name}: "
                     f"{brief.title}\nقدم پیشنهادی: {brief.action}")
         return OutboxMessage(business=self.cfg.id, channel=self.channel,
-                     
+                             to_ref=self.cfg.owner_ref, text=text.strip()[:3500],
+                             brief_id=brief.id)
+
+    def discover(self):
+        return []

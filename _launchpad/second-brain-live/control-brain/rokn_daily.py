@@ -107,4 +107,19 @@ def loop() -> None:
             print(f"— دور روزانهٔ {last_day} —")
             try:
                 run_all()
-            except Exception as e:  # 
+            except Exception as e:  # noqa: BLE001
+                print(f"خطای دور: {e}")
+        time.sleep(60)
+    print("STOP-ROKN دیده شد — خروج تمیز.")
+
+
+if __name__ == "__main__":
+    _load_env()
+    if "--selftest" in sys.argv:
+        raise SystemExit(selftest())
+    if "--once" in sys.argv:
+        i = sys.argv.index("--once")
+        only = sys.argv[i + 1] if len(sys.argv) > i + 1 else ""
+        run_all(only)
+    else:
+        loop()
