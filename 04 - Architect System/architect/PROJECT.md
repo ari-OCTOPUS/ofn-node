@@ -45,7 +45,8 @@ updated: 2026-07-06
 
 - چه کار می‌کند: لایهٔ ارگانیسم `_ops/` (سایه/propose-only) — سوئیت **۳۳ چک سبز** ($0، شامل تست rollback رزرو)؛ ژنوم **v0.4.3** هر ۵ سوئیت سبز (race قفل ledger + گارد نشت دوطرفهٔ کلید)؛ پنل مالک 8790 (پروفایل/پروژه‌ها/ارگانیسم) زنده؛ Home/ایندکس‌ها به همهٔ قطعات زنده وصل؛ budget_gate/budgets.yaml دست‌نخورده. بازبینی چندایجنتی سه‌دپارتمانی انجام شد — [[00 - Inbox/2026-07-07 1544 گزارش مهندسی چندایجنتی — بازبینی، تعمیر، آمادگی دیپلوی|گزارش جلسه ۲۴]].
 - چه مانده (نردبان مالک، به ترتیب): **فیکس git + commit (فوری‌ترین — حجم تغییرات ثبت‌نشده بزرگ)** · بک‌اپ off-box + `genome_guard --init` · ۳ verdict جلسه ۲۴ (AGENT_QUESTIONS ۰۷-۰۷) + V1/V2 + [[_ops/budget/budgets-proposed-diff|diff پیشنهادی]] · دابل‌کلیک RUN-ORGANISM (smoke شبانه، $0) · گسترش UI روی 8771.
-- مشکلات شناخته: هر دو `.git` مرده (git محیط خطای `/sessions`) · ددلاین فروش ۰۷/۲۰ بی‌متولی · ۳۳ خطای فرانت‌متر بسته‌های B (`_audit`/اونلی‌فنز/scout-digests — §۱۱ عمداً رها) · ۳ یافتهٔ verdict-خواه کد (شرط مرگ یک‌طرفه · fitness baseline · DISASTER unit) · تسک زمان‌بندی‌شدهٔ بی‌ناظر بدون pre-approve ابزار no-op می‌شود (درس vault-doctor).
+- تغییرات اخیر: 2026-07-07 ~۱۶:۳۰ (agent) — **🟢 git اصلی فیکس شد و commit زده شد.** ریشه: خط `core.worktree` در `.git/config` به مسیر sandbox قدیمی اشاره می‌کرد. با تأیید آری حذف شد؛ commit `76f58ca` (۱۷۷۶ فایل) کل backlog از ۰۷-۰۶ را گرفت؛ `git fsck --full` تمیز. جزئیات: [[01 - Dashboard/HANDOFF|HANDOFF جلسه ۲۵]]. حافظهٔ ماندگار ایجنت (خارج از vault) هم اولین‌بار نوشته شد.
+- مشکلات شناخته: ددلاین فروش ۰۷/۲۰ بی‌متولی · ۳۳ خطای فرانت‌متر بسته‌های B (`_audit`/اونلی‌فنز/scout-digests — §۱۱ عمداً رها) · ۴ یافتهٔ verdict-خواه (شرط مرگ یک‌طرفه · fitness baseline · DISASTER unit · genome-system submodule) در [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]] · تسک زمان‌بندی‌شدهٔ بی‌ناظر بدون pre-approve ابزار no-op می‌شود (درس vault-doctor). (git مرده ✅ بسته شد.)
 
 ## Next actions
 
