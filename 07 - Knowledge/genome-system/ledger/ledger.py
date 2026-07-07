@@ -31,6 +31,9 @@ from typing import Any, Iterator
 EVENT_TYPES = {
     "OBSERVE", "INDEX", "METRIC", "PROPOSAL", "APPROVAL", "APPLY",
     "GENOME_CHANGE", "HEARTBEAT", "NOTE",
+    # v0.4.4 (verdict V2 + آری 2026-07-07: append-only): money ground-truth events —
+    # written ONLY by the reconcile job, never by agents (anti reward-hacking wall).
+    "MONEY_ATTRIBUTION",
 }
 
 GENESIS = "0" * 64

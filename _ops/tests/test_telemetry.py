@@ -80,6 +80,24 @@ def t_divergence_death():
     assert opslib.STOP_METABOLIC.exists(), "شرط مرگ: STOP-METABOLIC باید ساخته می‌شد"
 
 
+def t_germline_lag_vital():
+    # verdict 2026-07-07 #4: کهنگی germline — غایب=None (ERROR بالادست)، >26h=ERROR، تازه=سالم
+    import os as _os
+    import tempfile
+    import time as _t
+    ob = Path(tempfile.mkdtemp(prefix="offbox-"))
+    assert opslib.germline_lag_hours(ob) is None
+    m = ob / "last_backup_manifest.json"
+    m.write_text("{}", "utf-8")
+    old = _t.time() - 30 * 3600
+    _os.utime(m, (old, old))
+    lag = opslib.germline_lag_hours(ob)
+    assert lag is not None and lag > opslib.GERMLINE_ERR_H, lag
+    (ob / "hourly-latest.bundle").write_text("x", "utf-8")
+    lag2 = opslib.germline_lag_hours(ob)
+    assert lag2 is not None and lag2 < 0.1, lag2   # تازه‌ترین مصنوع می‌بَرد
+
+
 if __name__ == "__main__":
     failed = harness.run([
         ("ژنوم: METRIC + تله or0", t_genome_metric_and_or0),
@@ -88,5 +106,6 @@ if __name__ == "__main__":
         ("تطبیق سالم", t_reconcile_healthy),
         ("عبور از سقف → FREEZE + CONFLICT", t_reconcile_cap_breach_freezes),
         ("واگرایی billed↔telemetry → STOP-METABOLIC", t_divergence_death),
+        ("germline_lag: غایب=None · کهنه>26h=ERROR · تازه=سالم", t_germline_lag_vital),
     ])
     sys.exit(1 if failed else 0)
