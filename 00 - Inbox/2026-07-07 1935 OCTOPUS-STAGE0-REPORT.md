@@ -285,3 +285,41 @@ human_verdicts_open: >
   A3 (open-decision #2): آیا live_gate از «تاریخ+پرچم» به «تاریخ+پرچم+marker سبزِ سوئیت» ارتقا یابد؟ (تغییر قفل = verdict).
   سایر open-decisionهای MASTER-PLAN v1 هنوز باز.
 ```
+
+## ضمیمهٔ ۹ (append-only) — Track A · A2 money_gate + A3 capability-gate (open-decision #2 قفل‌شد) ساخته و سبز (2026-07-07 ~۲۳:۱۰ — commit بعدی)
+
+verdict اپراتور: «A2 و A3 را همین حالا بساز؛ open-decision #2 قفل شد؛ کلیدِ انسانی = Telegram (فعلاً وصل‌نشده).» ساخته شد؛ **offline/paper، هیچ مسیرِ پولِ واقعی، هر دو گیت fail-closed.**
+
+**تعریفِ قفل‌شدهٔ live_gate (طبق درخواستِ اپراتور برای ثبت):**
+> `capability_gate.is_open(action)` = True فقط اگر **هر سه** با AND: (۱) **capability** — markerِ سبزِ کاملِ سوئیت (فقط `run_all` سبز می‌نویسدش؛ هر شکست revoke) · (۲) **LIVE_ENABLED** — پرچمی که فقط انسان از ApprovalChannel می‌سازد (نه ناوگان، نه تاریخ) · (۳) **per-action approval** — تأییدِ انسانیِ match‌خورده از ApprovalChannel. **calendar ≠ capability**: رسیدنِ 07-21 یا هر تاریخی به‌تنهایی هیچ باز نمی‌کند.
+> `money_gate.check(amount, action, channel)`: ≤AU$20 → allow (زیرِ Autonomy Ramp؛ سقفِ کل با budget_gate)؛ >AU$20 → فقط با تأییدِ انسانیِ معتبرِ match‌خورده (status ∈ approved/sent). خودگزارشیِ ایجنت هرگز معتبر نیست.
+> `require(action, amount, channel)` = هر اقدامِ پولِ واقعی باید **هم** از live_gate **هم** از money_gate رد شود.
+
+**چرا الان بسته است (اثباتِ runnable، محیطِ واقعی):** `capability_ok=True` (سوئیت سبز) ولی `live_enabled=False` (پرچمِ انسانی نیست) + کانال = NotWiredStub (Telegram وصل نیست) → `require('LEAD-TEST', 50)` = **deny در live_gate**؛ `money_gate.check(50)` = **deny** مستقل. این حالتِ مطلوبِ فازِ paper است.
+
+```yaml
+built: >
+  سه ماژولِ نو در _ops/budget: approval_channel.py (Approval/ApprovalChannel/NotWiredStub/MockApprovalChannel)،
+  money_gate.py (A2)، capability_gate.py (A3، شاملِ require() که دو گیت را زنجیر می‌کند). ApprovalChannel
+  pluggable؛ adapterِ عملیاتی=Telegram (وصل‌نشده→NotWiredStub، همیشه no-approval). run_all حالا markerِ
+  CAPABILITY-OK را روی سبزِ کامل می‌نویسد و روی هر شکست revoke می‌کند (fail-closed).
+verified_numbers:
+  - {what: "A2 money_gate", value: "۶/۶ سبز", source: "python -X utf8 _ops/tests/test_money_gate.py", tag: RUNNABLE}
+  - {what: "A3 capability_gate", value: "۶/۶ سبز", source: "python -X utf8 _ops/tests/test_capability_gate.py", tag: RUNNABLE}
+  - {what: "کلِ سوئیت", value: "۹/۹ فایل سبز (۷ + A2 + A3)", source: "python -X utf8 _ops/tests/run_all.py", tag: RUNNABLE}
+  - {what: "گیتِ پول بسته الان", value: "require(50 AUD)=deny(live_gate: LIVE_ENABLED off)؛ money_gate(50)=deny؛ human_gate_aud=20 از SoT", source: "python -c capability_gate.require/money_gate.check", tag: RUNNABLE}
+traps_hit:
+  - {trap: "cp1252 (باز)", fix: "python -X utf8"}
+invariants_touched: >
+  fail-closed سرتاسر (هر شرطِ غایب = بسته). «خودگزارشیِ ایجنت هرگز معتبر نیست» encode شد (فقط approved/sent
+  از کانالِ مستقل). calendar ≠ capability. هیچ مسیرِ پولِ واقعی باز نشد. تک-دروازهٔ effector = require()
+  (هم live هم money). opslib.live_gate_open (گیتِ فعال‌سازیِ لوپِ debate/replication، تاریخ+پرچم) عمداً
+  دست‌نخورده ماند — نگرانیِ جداست؛ یکی‌سازیِ اختیاری در آینده. budget_gate/budgets.yaml دست‌نخورده.
+open_for_next: >
+  وصلِ Telegram (قدمِ جدا و human-gated): adapterِ ApprovalChannel که core.db را می‌خواند + tokenِ botِ راز فقط
+  از env در زمانِ اجرا (هرگز commit/hardcode). سپس ساختِ LIVE-ENABLED فقط توسط انسان. · Track B: attribution.py +
+  reconcile.py → اولین دلارِ paper-CONFIRMED. · دو پرچمِ runtime (CAPABILITY-OK/LIVE-ENABLED در _ops/state)
+  کاندیدِ gitignore کنارِ soma (open-decision #8 / C6).
+human_verdicts_open: >
+  وصلِ Telegram (زمان + credential دستِ انسان). · gitignore دو پرچمِ نو (C6/#8). · فرمت/مسیرِ CSVِ reconcile (#5).
+```
