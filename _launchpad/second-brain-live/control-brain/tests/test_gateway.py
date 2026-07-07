@@ -70,4 +70,4 @@ def test_search_cached(td):
     r1 = g.search("بازار هدیه سیدنی")
     r2 = g.search("بازار هدیه سیدنی")
     assert r1 == r2 and r1[0]["title"] == "t"
-    ass
+    assert len(calls) == 1

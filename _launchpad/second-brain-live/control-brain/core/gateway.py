@@ -108,6 +108,10 @@ class Gateway:
         return (data.get("choices") or [{}])[0].get("message", {}).get("content", "").strip()
 
     def _call_fugu(self, prompt, system, business, max_tokens) -> str:
+        # قاعدهٔ سخت privacy (کشف pass-2، C17): pool ی Fugu Ultra ثابت است و opt-out ندارد
+        # → دیتای Project-F هرگز به Fugu نمی‌رود. escalation آن فقط مسیر عادی/محلی.
+        if business == "projectf":
+            raise GatewayError("Project-F به Fugu نمی‌رود (قاعدهٔ privacy — pool ثابت Ultra)")
         if not self._fugu_key:
             raise GatewayError("SAKANA_API_KEY تنظیم نیست")
         if self.mem.month_cost("fugu") >= self.fugu_budget:

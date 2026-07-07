@@ -1,3 +1,11 @@
+---
+type: report
+status: inbox
+tags: [architecture, patterns]
+created: 2026-07-06
+updated: 2026-07-07
+---
+
 # الگوهای معماری قوی و قابل‌استفاده مجدد — مغز دوم v2
 
 ## ۱) خلاصه اجرایی

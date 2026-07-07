@@ -22,15 +22,46 @@ _BRIEF_FORMAT = (
 
 
 @dataclass
-class BusinessConfig:
+class PersonalGenome:
+    """ژنوم شخصیِ یک بخش — DNA منحصربه‌فردش. کنار ژنوم اصلیِ مشترک (core/ + contracts).
+
+    فیلدهای «هویت/استراتژی» از BusinessConfig نسل قبل به ارث رسیده‌اند (سازگاری کامل).
+    فیلدهای «شخصیت/استقلال» نو هستند و همه default دارند → کد قدیمی بدون تغییر کار می‌کند.
+    قیدهای استقلال (autonomy/budget_share/privacy_class) زیرِ سقفِ ژنوم اصلی اجرا می‌شوند.
+    """
+    # — هویت (ژنوم پایه) —
     id: str                       # همان id در projects.yaml
     name: str
     owner_ref: str                # id گیرنده در users.yaml (mom/admin/saba)
     owner_name: str
     market: str                   # بازار/جغرافیا برای جستجو
-    tone: str                     # لحن پیام رکن B
+    tone: str                     # لحن پیام رکن B (سازگاری؛ voice جایگزین غنی‌ترش است)
     topics: List[str] = field(default_factory=list)   # زوایای تحقیق (چرخشی + وزن‌دار)
     context_note: str = ""        # واقعیت‌های ثابت بیزنس (ظرفیت، قواعد، قیود)
+    # — شخصیت (نو: هویت صریح، جایگزینِ خودشیفتگی) —
+    persona: str = ""             # سیستم‌پرامپت هویتِ رکن A؛ خالی = پیش‌فرض حرفه‌ای متواضع
+    voice: str = ""               # لحن رکن B؛ خالی = همان tone
+    values: List[str] = field(default_factory=list)   # خط‌قرمز/سبک برند (مثلاً ToS-safe)
+    # — استراتژی (نو) —
+    goals: List[str] = field(default_factory=list)    # اهداف درآمدی/رشد این بخش
+    channels: List[str] = field(default_factory=lambda: ["telegram"])  # آماده برای whatsapp/instagram
+    # — استقلال و حکومت (نو؛ زیر سقف ژنوم اصلی) —
+    autonomy: str = "propose_only"   # propose_only | bounded_auto | status_only
+    budget_share: float = 0.0        # سهم سقف روزانه (جمع همه ≤ ۱.۰)
+    privacy_class: str = "normal"    # normal | sensitive (→ هرگز Fugu، مثل Project-F/حسابداری)
+    evolution_optin: bool = False    # مغز تکاملی حق پیشنهاد جهش روی این ژنوم دارد؟
+    kpis: List[str] = field(default_factory=list)     # سنجهٔ «برازندگی» این بخش
+
+    def __post_init__(self):
+        if not self.voice:
+            self.voice = self.tone
+        if not self.persona:
+            self.persona = (f"همکار ارشد درآمدزایی «{self.name}» — حرفه‌ای، کمک‌کننده، "
+                            f"متواضع با اعتمادبه‌نفس. بدون خودستایی.")
+
+
+# سازگاری عقب‌رو: کد قدیمی هنوز BusinessConfig(...) می‌سازد — همان کلاس است.
+BusinessConfig = PersonalGenome
 
 
 def parse_brief(business: str, text: str) -> Brief:
@@ -99,7 +130,7 @@ class GenericResearchEngine(ResearchEngine):
                             for r in web[:4]) or "نتیجه وب در دسترس نبود — از تحلیل داخلی استفاده کن"
         prompt = (f"{context}\n\nموضوع تحقیق امروز: {topic}\n\nیافته‌های وب:\n{web_txt}\n\n"
                   f"یک فرصت درآمدزایی مشخص و عملی برای این بیزنس پیشنهاد بده. {_BRIEF_FORMAT}")
-        out = self.gw.llm(prompt, system="تو تحلیل‌گر ارشد درآمدزایی کسب‌وکارهای کوچک استرالیایی هستی. عملی و بی‌تعارف.",
+        out = self.gw.llm(prompt, system=self.cfg.persona + " تحلیل‌گر کسب‌وکارهای کوچک استرالیا؛ عملی و بی‌تعارف.",
                           business=self.cfg.id, use_cache=False)
         brief = parse_brief(self.cfg.id, out)
         self.mem.add_brief(brief)
@@ -130,7 +161,7 @@ class GenericOwnerInteraction(OwnerInteractionEngine):
 
     def compose(self, brief: Brief) -> OutboxMessage:
         prompt = (f"این بریف را به یک پیام تلگرامی کوتاه (حداکثر ۶ جمله) برای "
-                  f"«{self.cfg.owner_name}» تبدیل کن. لحن: {self.cfg.tone}. "
+                  f"«{self.cfg.owner_name}» تبدیل کن. لحن: {self.cfg.voice}. "
                   f"بدون اصطلاح فنی؛ آخرش یک قدم سادهٔ پیشنهادی.\n\n"
                   f"عنوان: {brief.title}\nفرصت: {brief.opportunity}\nاقدام: {brief.action}")
         try:
@@ -142,5 +173,6 @@ class GenericOwnerInteraction(OwnerInteractionEngine):
                              to_ref=self.cfg.owner_ref, text=text.strip()[:3500],
                              brief_id=brief.id)
 
-    def discover(self):
+    def discover(self) -> List[OutboxMessage]:
+        """پیش‌فرض: هیچ — بیزنس‌ها override می‌کنند (مثلاً مناسبت‌های زیمان)."""
         return []

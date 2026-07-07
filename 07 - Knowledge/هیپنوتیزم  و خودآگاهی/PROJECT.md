@@ -152,3 +152,9 @@ updated: 2026-07-06
 - [[07 - Knowledge/هیپنوتیزم  و خودآگاهی/برنامه_تحقیق_و_چک‌لیست_مجهول‌ها|برنامه تحقیق و چک‌لیست مجهول‌ها]]
 - [[07 - Knowledge/هیپنوتیزم  و خودآگاهی/هیپنوتیزم و خودآگاهی|لاگ پیام‌های تلگرام]]
 - [[07 - Knowledge/هیپنوتیزم  و خودآگاهی/MAP|MAP — نقشهٔ ساختار (canonical)]]
+
+## 🎛 کابین کنترل (two-brain)
+
+- کابین مشترک: ارتیفکت `fleet-live-dashboard` · نقشه: [[_memory/TWO-BRAIN-CONTROL-BLUEPRINT|TWO-BRAIN]] · نقشهٔ ساخت: [[_memory/FRANKENSTEIN-BUILD-PLAN|FRANKENSTEIN-BUILD-PLAN]]
+- عملیات استاندارد از کابین (intent → sendPrompt): «تست <پروژه>» = validators + چک کد + تست قرارداد · «بساز» = اسکلت از `_Templates` + ثبت همین‌جا · «آرشیو» = فقط انتقال به `_Archive`/`_Duplicates` (هرگز حذف واقعی).
+- تست قرارداد این پروژه: هنوز تعریف نشده — طبق BUILD-PLAN §۲ تعریف شود.

@@ -24,4 +24,4 @@ updated: 2026-07-04
 - `app/README.md` · `app/PROJECT_STRUCTURE.pdf`
 
 ## غیر-نوت (بک‌لاگ قاعدهٔ ۴ — جابه‌جایی بعد از گیت)
-- `app/` (کد بات و داشبوردها) · `importer/
+- `app/` (کد بات و داشبوردها) · `importer/` · `data/حساب کتاب/` · `photos/`

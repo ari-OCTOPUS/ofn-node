@@ -4,7 +4,7 @@
   "risk_posture_verdict": "آری 2026-07-06 — بیشترین autonomy مجاز؛ ارتقای خودکار به مد بعدی به‌محض سبز شدن پیش‌شرط‌های human-only؛ لیست سیاه (secret/پول/پیام خارجی/charter/git) و §Security Gate ساختاراً human-only",
   "autonomy_level": "L0-shadow",
   "autonomy_target": "L3",
-  "security_gate_status": "OPEN",
+  "security_gate_status": "LIFTED",
   "git_ready": false,
   "external_calls_allowed": true,
   "external_calls_unlock_conditions": [
@@ -35,7 +35,7 @@
   "spec": "00 - Inbox/2026-07-06 0222 LEARNING-ENGINE-DEPENDENCY-CONTRACT-v1.1-verdicts.md",
   "budget_per_call_ceiling": 0.5,
   "fugu_key_registered": "ROTATED (ردیف ۲۴، توسط مالک 2026-07-06)",
-  "security_gate_status_note": "boot 2026-07-06: آری اعلام کرد هر ۴ CRITICAL rotate/revoke شد — lift رسمی معوق ویرایش دستی مالک (ستون وضعیت + charter)",
+  "security_gate_status_note": "synced 2026-07-06 با ARCHITECT_CHARTER §۲ (LIFTED؛ هر ۴ CRITICAL ROTATED؛ verdict «جمعش کن»). رفعِ دریفتِ D2 تحتِ verdict «اعمال کن» — برگشت‌پذیر (git/backup).",
   "git_verdict": "آری 2026-07-06 boot#4: «تو بزن — verdict صریح» (تغییر از «نه» جلسه ۱۳)",
   "last_boot": "2026-07-06",
   "boot_answers": {
@@ -60,4 +60,6 @@
     "verdict": "آری: «زنده کن کل ساختارو»",
     "week": 1,
     "scope_live": "6 ratified + 19 scouts + survival-heartbeat + learning-engine-loop = 26 تسک",
-    "scope_dark": "لاین‌های پرفرکانس selfimprove (*/3�
+    "scope_dark": "لاین‌های پرفرکانس selfimprove (*/3، */15، */5) — تنها استثنا، محافظ سهمیه تعاملی؛ روشن‌کردن = یک کلمه verdict"
+  }
+}

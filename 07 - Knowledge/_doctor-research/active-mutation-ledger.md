@@ -20,6 +20,12 @@ sources:
   - https://arxiv.org/abs/2603.11768
   - https://arxiv.org/abs/2512.06749
   - https://arxiv.org/abs/2509.25370
+  - https://arxiv.org/abs/2604.11641
+  - https://arxiv.org/abs/2606.04990
+  - https://arxiv.org/abs/2603.21522
+  - https://arxiv.org/abs/2601.07190
+  - https://arxiv.org/abs/2606.06240
+  - https://arxiv.org/abs/2509.25238
 ---
 
 # Active Mutation Ledger — از لاگ منفعل شکست تا منبع ترمیم فعال
@@ -94,9 +100,18 @@ CausalFlow جفت contrastive می‌سازد؛ اما یک الگوی وسیع�
 - **MemSkill** ([2602.02474](https://arxiv.org/abs/2602.02474)): یک *designer* دوره‌ای hard caseها (جایی که مهارت فعلی حافظهٔ غلط تولید کرد) را بازبینی و skillها را تکامل می‌دهد — closed loop روی شکست.
 - **MemPro** ([2606.00619](https://arxiv.org/abs/2606.00619)): کل pipelineِ حافظه را یک *evolvable program* با version tree می‌بیند؛ یک Evolving Agent شکست‌های تکرارشونده را diagnose و نسخهٔ بهترِ فرزند می‌سازد (failure-mode-guided edit-debug).
 
+### ۳-۰) رقیبِ retrieval-based در برابر generative-repair — PALADIN
+[PALADIN (۲۰۲۵)](https://arxiv.org/abs/2509.25238) از زاویهٔ دیگری همان مسئلهٔ محور ۳ را حل می‌کند: به‌جای اینکه هر بار یک LLM را برای ساختنِ اصلاح صدا بزند (مسیر CausalFlow)، اول با **systematic failure injection** روی ToolBench بیش از ۵۰هزار trajectoryِ «recovery-annotated» ساخته (Error-Trajectory Dataset)، بعد در inference یک بانکِ ۵۵+ نمونهٔ شکستِ برچسب‌خورده (طبق taxonomy ToolScan) نگه می‌دارد: هر خطای runtime به نزدیک‌ترین نمونه match می‌شود و **اکشنِ ترمیمِ متناظر** اجرا می‌شود — یعنی repair از طریق retrieval، نه تولید از صفر. مدل با LoRA روی همین دیتاست fine-tune می‌شود تا fault-tolerance را بدون افتِ توانِ پایه یاد بگیرد. برای جهش‌نامهٔ دکتر یعنی: مرحلهٔ ۳ (REPAIR) دو گزینهٔ معماری دارد — «تولید مینیمالِ per-case» (CausalFlow، دقیق‌تر ولی گران‌تر) در برابر «تطبیق با بانکِ exemplar از پیش validated» (PALADIN، ارزان‌تر و قابل‌مقیاس‌تر وقتی الگوهای شکست تکراری‌اند). دوتایی مکمل‌اند: بانکِ exemplarِ PALADIN می‌تواند دقیقاً همان چیزی باشد که از repair-ledgerِ ما، بعد از عبور از VALIDATE، بیرون می‌آید.
+
 یک نکتهٔ محتاطانه از بیرونِ خانوادهٔ repair: [«Where LLM Agents Fail and How They Can Learn From Failures» (۲۰۲۵/۲۰۲۶)](https://arxiv.org/abs/2509.25370) پیش از هر ادعای «یادگیری از شکست»، تأکید می‌کند که خودِ **failure attribution** باید در سطحِ step دقیق باشد وگرنه درسِ استخراج‌شده نویزی خواهد بود — یعنی محور ۲ (CausalFlow) و محور ۳ (ReasoningBank/MemSkill/MemPro) به‌هم وابسته‌اند: بدون attributionِ دقیق، تبدیلِ شکست به supervision صرفاً نویز را به لایهٔ حافظه منتقل می‌کند.
 
 جمع‌بندی محور ۳: **ledgerِ فعال = ledgerی که خروجی‌اش خوراک آموزش/تکامل است، نه فقط بایگانی — و این فقط وقتی درست کار می‌کند که attribution زیرش دقیق باشد.**
+
+### ۳-۱) سه تأییدِ تازهٔ ۲۰۲۶ روی همین ایده (trace → dataset ساخت‌یافته)
+
+- **CodeTracer** ([2604.11641](https://arxiv.org/abs/2604.11641)، آوریل ۲۰۲۶): برای failureهای code-agent، کل تاریخچهٔ state-transition را به یک **trace tree سلسله‌مراتبی** با حافظهٔ پایدار بازسازی می‌کند و «failure onset localization» انجام می‌دهد — یعنی نه‌فقط اینکه کجا fail شد، بلکه زنجیرهٔ downstream را هم مشخص می‌کند. از این کار، **CodeTraceBench** ساخته شده: دیتاستی با supervision هم در سطح stage و هم در سطح step، مستقیماً از trajectoryهای واقعیِ چهار framework کد-agent (bug-fixing، refactoring، terminal interaction). این دقیقاً همان الگوی «failure-trace → دادهٔ supervision ساخت‌یافته» است که محور ۳ ادعا می‌کند، اما این‌بار در دامنهٔ کد و با benchmark عمومی.
+- **EAGER** ([2603.21522](https://arxiv.org/abs/2603.21522)، مارس ۲۰۲۶): برای سیستم‌های چندعاملی، یک Representation Model با **Reasoning-Scoped Contrastive Learning** الگوهای reasoning درون‌عامل و بین‌عامل را به یک فضای نهفتهٔ مشترک می‌برد تا تجربه‌های مشابهِ گذشته سریع بازیابی شوند. نکتهٔ مرتبط با ledger: وقتی خروجیِ نهایی توسط کاربر «غلط» تأیید شد، یک چرخهٔ «Expert Inspect + Agent RCA» هم دانشِ شکستِ سطح-عامل و هم سطح-سیستم را **به‌روزرسانی** می‌کند — یعنی یک نمونهٔ دیگر از lifecycle-write (نه صرفاً append) روی دانشِ شکست.
+- **«From Agent Traces to Trust» (سروِی)** ([2606.04990](https://arxiv.org/abs/2606.04990)، ژوئن ۲۰۲۶): این سروِی یک taxonomy برای کل میدان می‌سازد — trace source، evidence/execution unit، و جهت‌های روشیِ provenance representation / evidence attribution / failure diagnosis. برای جهش‌نامهٔ دکتر مفید است چون واژگان مشترکِ CausalFlow/CodeTracer/MemTrace/EAGER را در یک framework می‌گذارد و تأیید می‌کند که «تبدیل trace به دادهٔ قابل‌اعتماد» در ۲۰۲۶ به یک زیرحوزهٔ مستقل تبدیل شده، نه یک ترفندِ تک‌مقاله‌ای.
 
 ---
 
@@ -134,6 +149,9 @@ CausalFlow جفت contrastive می‌سازد؛ اما یک الگوی وسیع�
 ### ب-۰.۵) وقتی خطا در خودِ لایهٔ حافظه رخ داده — MemTrace
 اگر CausalFlow روی attributionِ شکستِ reasoning/action تمرکز دارد، [MemTrace (Deng, Zhong, Zhang و همکاران، مه ۲۰۲۶)](https://arxiv.org/abs/2605.28732) یک لایهٔ مکمل و باریک‌تر را هدف می‌گیرد: خطاهایی که ریشه‌شان **خودِ سیستم حافظه** است — یعنی storage، retrieval، یا integration معیوب. این کار trace‌های اجراییِ annotate‌شده با faulty-operation-id، نوع خطا و توضیح می‌سازد تا خطا را دقیقاً به فاز مقصر (نوشتن غلط؟ بازیابیِ نامرتبط؟ ادغامِ اشتباه؟) نسبت دهد. برای جهش‌نامهٔ دکتر یعنی: وقتی شکست از خودِ ledger/lifecycle-writer می‌آید (نه از تصمیمِ اصلیِ agent)، باید attributionِ جدا داشته باشیم — «باگ در حافظه» با «باگ در reasoning» یک نوع repair نمی‌خواهند.
 
+### ب-۱.۵) قراردادِ صریح برای «حذف» — TOKI
+[TOKI (Wang، HKUST، ژوئن ۲۰۲۶)](https://arxiv.org/abs/2606.06240) دقیقاً روی نقطه‌ای انگشت می‌گذارد که Mem0/GEM آن را صریح نمی‌کنند: وقتی یک فکتِ نو با یک فکتِ ذخیره‌شده تناقض دارد، **کدام قاعده برنده می‌شود و چرا؟** این مقاله چهار heuristic رایجِ صنعتی را نام می‌برد — last-writer-wins، evidence-weighted merge، await-confirmation، per-rule policy — و نشان می‌دهد هیچ‌کدام سطح ایزولاسیون یا anomalyِ زمانِ نوشتن را که می‌پذیرند اعلام نمی‌کنند. راه‌حل: یک جبرِ عملگرِ **bitemporal** (transaction-time × valid-time) روی یک schemaِ dual-row، به‌طوری‌که فکتِ بازنده هرگز physically حذف نمی‌شود بلکه در یک **audit row** با provenance نگه داشته می‌شود — دقیقاً معادلِ «ابطال به‌جای حذف فیزیکی» که در Mem0 گرافی و در قانون خودِ vault دیدیم. نکتهٔ اضافه‌ای که TOKI می‌آورد: DELETE در پایپ‌لاین ما (مرحلهٔ ۵) باید بگوید **کدام heuristicِ تناقض‌حل‌کنی** را اجرا می‌کند (مثلاً: آخرین repairِ تأییدشده برنده است، مگر consensus-score قدیمی بالاتر باشد) — یعنی DELETE/UPDATE را از یک تصمیمِ ضمنی به یک قراردادِ صریح و قابل‌بازرسی تبدیل کند.
+
 ### ب-۲) وقتی خودِ ledger نیاز به repair دارد — cascade invalidation
 مشکلی که Mem0/GEM کمتر به آن می‌پردازند: وقتی یک رکوردِ منبع (source fact) بعداً **باطل یا اصلاح** شود، هر چیزی که از آن مشتق شده (خلاصه، skill آموخته‌شده، رکورد repair مشتق) ممکن است stale بماند و دیده شود. [MemoRepair (۲۰۲۶)](https://arxiv.org/abs/2605.07242) این را «**cascade update problem**» می‌نامد و یک قرارداد barrier-first پیشنهاد می‌دهد: اول همهٔ فرزندانِ متأثر از سرویس خارج (withdraw) می‌شوند، بعد جانشین‌ها فقط از میانِ support معتبرِ پس‌رویداد و پیشینیانِ ترمیم‌شده ساخته می‌شوند، و **انتشارِ مجدد فقط برای جانشینِ کاملاً predecessor-closed مجاز است.** برای جهش‌نامهٔ دکتر یعنی: اگر یک درسِ پایه (root lesson) در repair-ledger باطل شد، هر جفتِ contrastive یا skill مشتق‌شده از آن هم باید به‌جای ماندنِ خاموش، صراحتاً withdraw و بازسازی شود — وگرنه ledger پر از derived-artifactهای یتیم می‌ماند که هیچ‌کس دیگر منبعشان را چک نمی‌کند.
 
@@ -165,5 +183,41 @@ CausalFlow جفت contrastive می‌سازد؛ اما یک الگوی وسیع�
 4. **Gated consolidation (Zhang و همکاران):** consolidation را زمان‌بندی‌شده و مشروط اجرا کن، نه هر تعامل.
 5. **Biologically-inspired forgetting (FadeMem، [2601.18642](https://arxiv.org/abs/2601.18642)):** decayِ نمایی تطبیقی + salience (relevance، فرکانس دسترسی، الگوی زمانی) + consolidation با conflict-resolution → **۴۵٪ کاهش storage** بدون افت روی multi-hop. یعنی «فراموشیِ ارزش‌محور» جایگزین «فراموشیِ ظرفیت‌محورِ» بد می‌شود.
 6. **Version-tree pruning (MemPro):** به‌جای انباشتِ خطی، نسخه‌های ضعیف هرس می‌شوند و فقط شاخهٔ برنده می‌ماند.
+7. **Sawtooth consolidate-and-collapse (Active Context Compression، [2601.07190](https://arxiv.org/abs/2601.07190)):** یک الگوی تازهٔ ژانویهٔ ۲۰۲۶، الهام‌گرفته از استراتژیِ کاوشِ کپک-لجنیِ *Physarum polycephalum*. خودِ agent (نه یک summarizer بیرونی) تصمیم می‌گیرد کِی sub-task تمام شده یا به بن‌بست خورده؛ آن‌وقت یک خلاصه به بلوکِ پایدارِ «Knowledge» اضافه می‌کند و **همهٔ پیام‌های بینِ آن checkpoint و اکنون را حذف می‌کند**. نتیجه: به‌جای لاگِ یکنواخت رو-به-رشد، یک الگوی «دندانه‌اره‌ای» (رشد حین کاوش، فروریزش حین consolidation). تفاوت کلیدی با Mem0/GEM: کنترلِ pruning دستِ خودِ عامل است، نه یک فرایند بیرونیِ heuristic — نکته‌ای که برای مرحلهٔ ۷ پایپ‌لاین ما (DECAY/CONSOLIDATE) گزینهٔ جایگزین «self-triggered checkpoint» را مطرح می‌کند، در کنارِ زمان‌بندیِ دوره‌ایِ بیرونی.
 
-اصل حاکم: **رشد باید تابع ارزشِ اطلاعاتی باشد، نه تابعِ زمان.** یک ledgerِ فعالِ سالم، در حالت پایدار **همگرا**
+اصل حاکم: **رشد باید تابع ارزشِ اطلاعاتی باشد، نه تابعِ زمان.** یک ledgerِ فعالِ سالم، در حالت پایدار **همگرا** می‌شود، نه اینکه بی‌نهایت رشد کند.
+
+---
+
+## ۶. طرح FAILURE→REPAIR برای جهش‌نامهٔ دکتر ما
+
+خلاصهٔ اجرایی؛ ترکیبِ CausalFlow (attribution+repair) + Mem0-lifecycle (مهار رشد) + گیتِ consolidation (ضدفساد).
+
+**پایپ‌لاین هفت‌مرحله‌ای (هر شکستِ دکتر از این تسمه‌نقاله رد می‌شود):**
+
+1. **CAPTURE (append-only, idempotent):** هر شکست به‌صورت یک episodeِ خامِ تاریخ‌دار ثبت می‌شود. این لایه دست‌نخورده و برگشت‌پذیر است — «first-class evidence». پیش از ثبت، dedup با شناسهٔ یکتا (سبک `message_id`).
+2. **ATTRIBUTE (CRS):** با counterfactual intervention، stepِ مقصر پیدا می‌شود. اگر هیچ intervention آن را flip نکرد → این شکست **غیرقابل‌ترمیمِ محلی** است (مثلاً اطلاعات لازم اصلاً وجود ندارد) → فقط به‌عنوان episode می‌ماند، وارد repair-ledger نمی‌شود. attribution باید تشخیص دهد شکست از **reasoning عامل** آمده یا از **خودِ لایهٔ حافظه** (سبک MemTrace) — دو مسیر repair متفاوت می‌خواهند.
+3. **REPAIR (minimal):** کوچک‌ترین editای که outcome را flip کند تولید و انتخاب می‌شود → جفتِ `(step غلط → step درست)`. دو مسیر ممکن: تولید per-case (CausalFlow) یا تطبیق با بانکِ exemplarِ از‌پیش‌validated (PALADIN) — دومی برای الگوهای شکستِ تکراری ارزان‌تر است.
+4. **VALIDATE (consensus-gate):** repair با re-execution و اجماع چندعاملی تأیید می‌شود. زیر آستانه → دور ریخته می‌شود، وارد ledger نمی‌شود.
+5. **LIFECYCLE-WRITE (ADD/UPDATE/DELETE/NOOP):** جفتِ تأییدشده در برابر ledger موجود سنجیده می‌شود:
+   - نو و مجزا → **ADD**
+   - مکملِ یک درسِ موجود → **UPDATE**
+   - نقض‌کنندهٔ یک درسِ کهنه → **DELETE/invalidate** (ابطال، نه حذف فیزیکی — همسو با قاعدهٔ vault؛ طبق TOKI باید مشخص شود کدام heuristicِ تناقض‌حل‌کنی برنده تعیین می‌کند، و فکتِ بازنده در یک audit row با provenance می‌ماند)
+   - تکراری → **NOOP**
+   - (مسیر بلندمدت: این تصمیم می‌تواند مثل Memory-R1 به یک policyِ آموزش‌دیده با outcome-reward تبدیل شود، نه فقط heuristic.)
+   - **اگر یک درسِ ریشه باطل شد:** طبق الگوی barrier-first MemoRepair، هر رکورد/skillِ مشتق‌شده از آن باید صراحتاً withdraw و سپس از support معتبرِ پس‌رویداد بازسازی شود — نه اینکه صامت stale بماند.
+6. **SUPERVISE:** جفت‌های تأییدشده به‌صورت دسته‌ای (نه بعد از هر رویداد — gated) به دو کانال می‌روند: (الف) contrastive dataset برای preference optimization/reward، (ب) درس‌های failure-aware سبک ReasoningBank برای تزریق در promptِ آینده.
+7. **DECAY/CONSOLIDATE (زمان‌بندی‌شده):** به‌صورت دوره‌ای — نه پیوسته — forgettingِ ارزش‌محور (salience × decay) اجرا می‌شود و درس‌های هم‌خانواده fuse می‌شوند. این مرحله رشد را همگرا نگه می‌دارد.
+
+**پنج قاعدهٔ طلایی طرح:**
+- **شکست = feedstock، نه بن‌بست.** هر fail یا repair می‌شود یا (اگر غیرقابل‌ترمیم) به‌عنوان درسِ پیشگیرانه می‌ماند.
+- **دو لایه:** episodeِ خامِ append-only (شاهد) + repair-ledgerِ دارای lifecycle (دانش فعال). هرگز فقط یکی.
+- **هر ورودی minimal و validated.** بدون consensus-gate، ledger پر از نویز می‌شود.
+- **UPDATE/consolidation همیشه gated.** پیوسته‌سازیِ حریص، حافظهٔ خوب را فاسد می‌کند (شواهد: ۵۴٪ regression).
+- **رشد تابع ارزش است، نه زمان.** DELETE/invalidate + forgettingِ salience-محور تضمین می‌کنند ledger همگرا شود.
+
+**معیارهای سلامت که باید پایش شوند:** repair-rate (چند درصد شکست‌ها ترمیم شد؟)، minimality-score (اصلاح‌ها کوچک‌اند؟)، growth-rate ledger (خطی است یا sub-linear؟)، و post-consolidation utility (آیا utility بعد از هر consolidation بالا ماند یا افتاد؟).
+
+---
+
+*منابع کلیدی: CausalFlow ([2605.25338](https://arxiv.org/abs/2605.25338)) · DoVer ([2512.06749](https://arxiv.org/abs/2512.06749)) · «Where LLM Agents Fail…» ([2509.25370](https://arxiv.org/abs/2509.25370)) · PALADIN ([2509.25238](https://arxiv.org/abs/2509.25238)) · Mem0 ([2504.19413](https://arxiv.org/abs/2504.19413)) · ReasoningBank ([2509.25140](https://arxiv.org/abs/2509.25140)) · GEM/«Is Agent Memory a Database?» ([2605.26252](https://arxiv.org/abs/2605.26252)) · TOKI ([2606.06240](https://arxiv.org/abs/2606.06240)) · «Useful Memories Become Faulty…» ([2605.12978](https://arxiv.org/abs/2605.12978)) · FadeMem ([2601.18642](https://arxiv.org/abs/2601.18642)) · MemPro ([2606.00619](https://arxiv.org/abs/2606.00619)) · MemSkill ([2602.02474](https://arxiv.org/abs/2602.02474)) · Memory-R1 ([2508.19828](https://arxiv.org/abs/2508.19828)) · MemoRepair ([2605.07242](https://arxiv.org/abs/2605.07242)) · MemTrace ([2605.28732](https://arxiv.org/abs/2605.28732)) · SSGM ([2603.11768](https://arxiv.org/abs/2603.11768)) · CodeTracer ([2604.11641](https://arxiv.org/abs/2604.11641)) · EAGER ([2603.21522](https://arxiv.org/abs/2603.21522)) · «From Agent Traces to Trust» ([2606.04990](https://arxiv.org/abs/2606.04990)) · Active Context Compression ([2601.07190](https://arxiv.org/abs/2601.07190)).*

@@ -97,11 +97,26 @@ class Notifier(threading.Thread):
             if ok:
                 self.mem.mark_outbox_notified(m.id)
 
+    def _push_proposals(self) -> None:
+        """کارت Proposal مغز تکاملی (فاز ۴) — ✅ تأیید / ❌ رد."""
+        for row in self.mem.unnotified_proposals():
+            pid, title, problem, solution, risk, impact, rollback = row
+            text = (f"🧬 پیشنهاد بازمهندسی #{pid}\n\n📌 {title}\n\n"
+                    f"⚠️ مشکل: {problem[:400]}\n\n🛠 راه‌حل: {solution[:400]}\n\n"
+                    f"🎲 ریسک: {risk[:250]}\n📈 اثر: {impact[:250]}\n"
+                    f"↩️ برگشت: {rollback[:250]}")
+            ok = self.tg.send_card(self.admin, text,
+                                   [[("✅ تأیید (ثبت CHANGELOG)", f"ev:ok:{pid}"),
+                                     ("❌ رد", f"ev:no:{pid}")]])
+            if ok:
+                self.mem.mark_proposal_notified(pid)
+
     def run(self) -> None:
         while not self._stop.is_set():
             try:
                 self._push_briefs()
                 self._push_outbox()
+                self._push_proposals()
             except Exception:  # noqa: BLE001 — notifier هرگز نباید بمیرد
                 pass
             self._stop.wait(self.interval)

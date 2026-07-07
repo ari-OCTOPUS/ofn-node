@@ -19,4 +19,21 @@ users:
     telegram_chat_id: 0
     enabled: true
 
-  # نمونه‌های آینده (خاموش تا وقتی بخواهی) — id را یکت�
+  # مامان — صاحب زیمان؛ گیرندهٔ پیام‌های رکن B (فقط viewer، هیچ کنترلی).
+  - id: mom
+    name: "مامان (زیمان)"
+    role: viewer
+    telegram_chat_id: 0
+    enabled: true
+
+  # نمونه‌های آینده (خاموش تا وقتی بخواهی) — id را یکتا نگه‌دار:
+  # - id: mom
+  #   name: "مامان (تولید)"
+  #   role: viewer
+  #   telegram_chat_id: 0
+  #   enabled: true
+  # - id: helper
+  #   name: "دستیارِ مارکتینگ"
+  #   role: operator
+  #   telegram_chat_id: 0
+  #   enabled: true

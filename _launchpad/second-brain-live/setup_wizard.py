@@ -29,6 +29,7 @@ FIELDS = [
     ("TELEGRAM_TOKEN", "توکن ربات تلگرامِ مغز دوم (نو، از BotFather — قدیمی‌ها افشا شده‌اند)", "password", "", True),
     ("OWNER_CHAT_ID", "Chat ID عددی خودت (از @userinfobot)", "text", "", True),
     ("SABA_CHAT_ID", "Chat ID تلگرام صبا (از @userinfobot — نقش: operator فقط Project-F)", "text", "", False),
+    ("MOM_CHAT_ID", "Chat ID تلگرام مامان (گیرندهٔ پیام‌های زیمان — رکن B)", "text", "", False),
     ("DEEPSEEK_API_KEY", "کلید DeepSeek ‏(platform.deepseek.com) — موتور اصلی تولید زنده؛ خالی = آفلاین", "password", "", False),
     ("SAKANA_API_KEY", "کلید Sakana Fugu ‏(شرکت ژاپنی Sakana AI) — طبق verdict: فقط escalation پشت سقف بودجه، ضریب هزینهٔ پنهان ۵–۱۵×", "password", "", False),
     ("PAINTING_TELEGRAM_TOKEN", "توکن تلگرام ربات نقاشی (نو — جدا از توکن مغز)", "password", "", False),
@@ -81,13 +82,14 @@ def save_env(form):
         p2 = CB / "config" / "users.yaml"
         p2.write_text(re.sub(r"(\s*telegram_chat_id:\s*)\d+", r"\g<1>" + cid,
                              p2.read_text(encoding="utf-8"), count=1, flags=re.M), encoding="utf-8")
-    # chat_id صبا → کاربر saba در users.yaml (operator فقط Project-F)
-    sid = form.get("SABA_CHAT_ID", [""])[0].strip() or existing.get("SABA_CHAT_ID", "")
-    if sid.isdigit():
-        p2 = CB / "config" / "users.yaml"
-        t = p2.read_text(encoding="utf-8")
-        t = re.sub(r"(-\s*id:\s*saba[\s\S]*?telegram_chat_id:\s*)\d+", r"\g<1>" + sid, t, count=1)
-        p2.write_text(t, encoding="utf-8")
+    # chat_id صبا و مامان → users.yaml (صبا: operator فقط Project-F · مامان: viewer/گیرنده زیمان)
+    for fkey, uid in (("SABA_CHAT_ID", "saba"), ("MOM_CHAT_ID", "mom")):
+        val = form.get(fkey, [""])[0].strip() or existing.get(fkey, "")
+        if val.isdigit():
+            p2 = CB / "config" / "users.yaml"
+            t = p2.read_text(encoding="utf-8")
+            t = re.sub(rf"(-\s*id:\s*{uid}[\s\S]*?telegram_chat_id:\s*)\d+", r"\g<1>" + val, t, count=1)
+            p2.write_text(t, encoding="utf-8")
     sd = form.get("CONTROL_STATE_DIR", [""])[0].strip()
     if sd:
         Path(sd).mkdir(parents=True, exist_ok=True)
@@ -329,12 +331,17 @@ class H(BaseHTTPRequestHandler):
         elif self.path == "/launch":
             env = read_env()
             # ۱) مغز کنترل (داشبورد + ربات تلگرام + ماژول‌ها)
+            # گارد ضد-Conflict: اگر داشبورد از قبل جواب می‌دهد، نمونهٔ دوم ساخته نمی‌شود.
             # نکتهٔ ویندوز: عنوانِ start حتماً باید داخل کوتیشن باشد وگرنه به‌جای title، command فرض می‌شود.
-            if os.name == "nt":
-                subprocess.Popen('start "SecondBrain" cmd /k start.bat', shell=True,
-                                 cwd=str(CB), env=utf8_env())
-            else:
-                subprocess.Popen([venv_python(), "app.py"], cwd=str(CB), env=utf8_env())
+            dp = env.get("DASHBOARD_PORT", "8770") or "8770"
+            brain_note = "مغز کنترل از قبل روشن بود — نمونهٔ دوم اجرا نشد (ضد Conflict تلگرام)."
+            if not port_open(dp):
+                if os.name == "nt":
+                    subprocess.Popen('start "SecondBrain" cmd /k start.bat', shell=True,
+                                     cwd=str(CB), env=utf8_env())
+                else:
+                    subprocess.Popen([venv_python(), "app.py"], cwd=str(CB), env=utf8_env())
+                brain_note = "مغز کنترل در پنجرهٔ جدید روشن شد."
             # ۲) پنل‌های گوشی (اگر روشن نیستند)
             pp = env.get("PANEL_PORT", "8899") or "8899"
             panels_note = "پنل‌های گوشی از قبل روشن بودند."
@@ -346,8 +353,16 @@ class H(BaseHTTPRequestHandler):
                     subprocess.Popen([venv_python(), "panel_server.py"],
                                      cwd=str(ROOT / "panels"), env=utf8_env())
                 panels_note = "پنل‌های گوشی هم روشن شدند (پنجرهٔ دوم)."
-            dp = env.get("DASHBOARD_PORT", "8770") or "8770"
             threading.Timer(6, lambda: webbrowser.open(f"http://localhost:{dp}")).start()
             self._send(page(f'<div class="card"><h1 class="ok">🚀 مغز دوم در حال روشن شدن…</h1>'
-                            f'<p>پنجرهٔ جدید باز شد؛ ربات تلگرام + همهٔ ماژول‌های enabled بالا می‌آیند. داشبورد: <a href="http://localhost:{dp}">localhost:{dp}</a></p>'
-                            f'<p>📱 {panels_note} آدرس روی گوشی (همان وای‌فای): <code>http://{lan_ip()}:{pp}/z</code>
+                            f'<p>{brain_note} ربات تلگرام + همهٔ ماژول‌های enabled. داشبورد: <a href="http://localhost:{dp}">localhost:{dp}</a></p>'
+                            f'<p>📱 {panels_note} آدرس روی گوشی (همان وای‌فای): <code>http://{lan_ip()}:{pp}/z</code> و <code>/f</code></p>'
+                            f'<p>۳۰ ثانیه بعد دوباره 📡 گزارش اتصال بزن تا وضعیت زنده را ببینی.</p>{back}</div>'))
+        else:
+            self._send(page("<h1>?</h1>"), 404)
+
+
+if __name__ == "__main__":
+    print("مغز دوم — Setup wizard → http://localhost:%d  (Ctrl+C خروج)" % WIZARD_PORT)
+    threading.Timer(1.2, lambda: webbrowser.open(f"http://localhost:{WIZARD_PORT}")).start()
+    HTTPServer(("127.0.0.1", WIZARD_PORT), H).serve_forever()

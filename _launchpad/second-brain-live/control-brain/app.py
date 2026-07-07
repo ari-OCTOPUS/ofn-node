@@ -40,6 +40,25 @@ def _state_dir() -> Path:
     return Path(os.environ.get("CONTROL_STATE_DIR") or ROOT)
 
 
+def _single_instance_lock():
+    """قفل تک‌نمونه: سوکت انحصاری روی لوپ‌بک (پیش‌فرض 127.0.0.1:8768، env: BRAIN_LOCK_PORT).
+
+    تا وقتی پروسه زنده است سوکت باز می‌ماند؛ kill/crash → آزادسازی خودکار.
+    برگشتی: سوکت (باید تا پایان عمر پروسه نگه داشته شود) یا None اگر نمونهٔ دیگری قفل را دارد."""
+    import socket
+    port = int(os.environ.get("BRAIN_LOCK_PORT", "8768"))
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):  # ویندوز — جلوی bind دوباره حتی با SO_REUSEADDR
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+    try:
+        s.bind(("127.0.0.1", port))
+        s.listen(1)
+        return s
+    except OSError:
+        s.close()
+        return None
+
+
 # نگاشت عنوان رمز → متغیر .env (پچ «مغز دوم» — fallback بدون KeePass)
 ENV_SECRET_MAP = {
     "deepseek-key": "DEEPSEEK_API_KEY",
@@ -142,6 +161,14 @@ def cli(action: str, args) -> None:
 
 def serve() -> None:
     _load_env()
+    _lock = _single_instance_lock()   # noqa: F841 — عمداً نگه داشته می‌شود تا قفل آزاد نشود
+    if _lock is None:
+        dp = os.environ.get("DASHBOARD_PORT", "8770")
+        print("⛔ یک نمونهٔ دیگر از مغز کنترل همین حالا روشن است — این نمونه اجرا نشد (ضد Conflict تلگرام).")
+        print(f"   از همان نمونه استفاده کن: http://127.0.0.1:{dp}")
+        print("   اگر پنجره‌ای نمی‌بینی، احتمالاً نمونهٔ مخفی autostart است؛ بستنش (PowerShell):")
+        print("   Get-CimInstance Win32_Process | ? {$_.CommandLine -match 'app\\.py'} | % {Stop-Process -Id $_.ProcessId -Force}")
+        raise SystemExit(1)
     secrets = _build_secrets()   # رمزِ KeePassXC یک‌بار همین‌جا پرسیده می‌شود
     registry, store, safety, manager, authz = build_context(secrets=secrets)
     from adapters.dashboard import start_dashboard
@@ -155,5 +182,46 @@ def serve() -> None:
     token = os.environ.get("TELEGRAM_TOKEN", "").strip()
     owner = int(os.environ.get("OWNER_CHAT_ID") or registry.owner_chat_id or 0)
     if token and owner:
+        # --- مغز دوم v2: حافظه + دروازه + صف تأیید + کارت‌رسان (فاز ۲) ---
+        from core.approval import ApprovalQueueDB, Notifier
+        from core.channels import TelegramChannel, WhatsAppChannel
+        from core.gateway import Gateway
+        from core.memory import Memory
+
+        memory = Memory(ROOT / "core.db")
+        gateway = Gateway(memory)
+
+        def _resolve_chat(to_ref: str):
+            u = next((u for u in authz.all_users() if u.id == to_ref and u.enabled), None)
+            return u.telegram_chat_id if (u and u.telegram_chat_id) else None
+
+        tg_channel = TelegramChannel(token, _resolve_chat)
+        queue = ApprovalQueueDB(memory, {"telegram": tg_channel, "whatsapp": WhatsAppChannel()})
+        Notifier(memory, tg_channel, owner).start()
+        print("🧠 لایهٔ v2 فعال: حافظه + دروازه + صف تأیید (approve-first).")
+
+        from evolution.brain import EvolutionBrain
+        evolution = EvolutionBrain(memory, gateway)
+
         from adapters import telegram_bot
- 
+        telegram_bot.set_token(token)
+        app = telegram_bot.build_application(manager, safety, owner,
+                                             memory=memory, queue=queue, gateway=gateway,
+                                             evolution=evolution)
+        print("🤖 ربات تلگرام روشن شد. در تلگرام /status بزن. (/queue و /briefs هم هست)")
+        app.run_polling()
+    else:
+        print("ℹ️ رمز تلگرام یا آی‌دی مالک تنظیم نشده — فقط داشبورد بالاست. (Ctrl+C برای خروج)")
+        import time
+        try:
+            while True:
+                time.sleep(3600)
+        except KeyboardInterrupt:
+            print("خداحافظ.")
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        cli(sys.argv[1], sys.argv[2:])
+    else:
+        serve()

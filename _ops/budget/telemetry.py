@@ -1,0 +1,205 @@
+#!/usr/bin/env python3
+"""
+telemetry.py — T1 پک: خوانندهٔ واحد مصرف هر دو استک در فضای micro-USD.
+
+منابع حقیقت (نقشهٔ 2026-07-06، هر دو verify‌شده path:line):
+  1) genome-system → ledger/ledger.jsonl، رویدادهای METRIC با payload.llm_cost_usd
+     (نوشته‌شده در common/llm.py:82-85). ارگان: GENOME_SYS.
+  2) control-brain → core.db جدول usage(day,provider,business,tokens_in,tokens_out,cost_usd)
+     (نوشته‌شده در core/gateway.py:86-96 → core/memory.py:188-195). خواندن فقط mode=ro.
+بقیهٔ فایل‌های state (budget-state.json، doctor_lite_runs.jsonl، leads.db) فقط در کد
+رفرنس‌اند — نبودشان fail-soft هندل می‌شود.
+
+تله‌های هدف (تست‌کیس اول، پک T1):
+  «متر or 0»: رویداد METRIC با هزینهٔ صفر و رکورد usage با هزینهٔ NULL/صفر در حالی که
+  توکن مصرف شده → شمارش در suspects به‌جای بلعیدن بی‌صدا.
+  «واحد ارز»: هزینه‌ها USD، سقف‌ها AUD — تبدیل فقط با نرخ پین‌شده (fx_aud_per_usd).
+
+I3 (fail-closed): اگر جمع ماه از cap_monthly گذشت، یا billed (budget-state) با تلمتری
+بیش از ۲۰٪ اختلاف داشت → FREEZE + [CONFLICT] به صف انسان + STOP-METABOLIC (شرط مرگ پک).
+"""
+from __future__ import annotations
+
+import json
+import sqlite3
+import sys
+from pathlib import Path
+from urllib.parse import quote
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import opslib  # noqa: E402
+
+DIVERGENCE_DEATH = 0.20   # |billed−telemetry|/billed > 0.2 → STOP-METABOLIC (پک، شرط مرگ)
+
+# نگاشت business/actor → ارگان budgets.yaml؛ ناشناخته‌ها UNMAPPED می‌شوند (نه حدس، نه حذف)
+ORGAN_MAP = {
+    "ziman": "ZIMAN",
+    "projectf": "PROJECT_F",
+    "debate": "DEBATE_LOOP",
+    "metabolism": "ARCHITECT_SYS",
+    "governor": "ARCHITECT_SYS",
+    "evolution": "ARCHITECT_SYS",
+}
+
+
+def _organ_of(business: str) -> str:
+    b = (business or "").strip().lower()
+    return ORGAN_MAP.get(b, f"UNMAPPED:{b or 'none'}")
+
+
+def read_genome() -> dict:
+    """METRICهای llm_cost_usd از ledger ژنوم. همهٔ مصرف این استک = ارگان GENOME_SYS."""
+    out = {"events": 0, "cost_musd": 0, "by_day": {}, "suspect_zero": 0, "source": None}
+    path = opslib.GENOME_DIR / "ledger" / "ledger.jsonl"
+    if not path.exists():
+        return out
+    out["source"] = str(path)
+    with open(path, "r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError:
+                continue  # سطر پاره‌شده وسط crash — خواننده تحمل می‌کند (قرارداد ledger)
+            if rec.get("type") != "METRIC":
+                continue
+            p = rec.get("payload") or {}
+            if "llm_cost_usd" not in p:
+                continue
+            day = (rec.get("ts") or "")[:10]
+            cost = p.get("llm_cost_usd")
+            m = opslib.micro(float(cost or 0.0))
+            out["events"] += 1
+            out["cost_musd"] += m
+            out["by_day"][day] = out["by_day"].get(day, 0) + m
+            if not cost:  # صفر/None با وجود call واقعی = مشکوک به تلهٔ «or 0» (llm.py:75-78)
+                out["suspect_zero"] += 1
+    return out
+
+
+def _brain_db() -> Path | None:
+    """core.db: کنار کد هاردکد است (app.py)؛ نسخهٔ تولیدی ممکن است زیر پروفایل کاربر باشد.
+    جدیدترینِ موجودها انتخاب و منبع ثبت می‌شود."""
+    import os
+    candidates = [
+        opslib.BRAIN_DIR / "core.db",
+        Path(os.environ.get("USERPROFILE", "")) / ".ziman-control" / "core.db",
+    ]
+    existing = [p for p in candidates if p.exists()]
+    if not existing:
+        return None
+    return max(existing, key=lambda p: p.stat().st_mtime)
+
+
+def read_brain() -> dict:
+    """جدول usage در core.db — فقط‌خواندنی (mode=ro) تا با سه نویسندهٔ موجود sqlite رقابت نکنیم."""
+    out = {"rows": 0, "cost_musd": 0, "by_day": {}, "by_organ": {},
+           "suspect_zero": 0, "unmapped": {}, "source": None}
+    db = _brain_db()
+    if db is None:
+        return out
+    out["source"] = str(db)
+    uri = "file:///" + quote(str(db.resolve()).replace("\\", "/")) + "?mode=ro"
+    try:
+        con = sqlite3.connect(uri, uri=True, timeout=5)
+    except sqlite3.Error as e:
+        opslib.alert([f"telemetry: core.db unreadable ro: {e}"])
+        return out
+    try:
+        rows = con.execute(
+            "SELECT day, provider, business, tokens_in, tokens_out, cost_usd FROM usage").fetchall()
+    except sqlite3.Error as e:
+        opslib.alert([f"telemetry: usage table query failed: {e}"])
+        return out
+    finally:
+        con.close()
+    for day, provider, business, tin, tout, cost in rows:
+        m = opslib.micro(float(cost or 0.0))
+        organ = _organ_of(business)
+        out["rows"] += 1
+        out["cost_musd"] += m
+        out["by_day"][day] = out["by_day"].get(day, 0) + m
+        out["by_organ"][organ] = out["by_organ"].get(organ, 0) + m
+        if organ.startswith("UNMAPPED:"):
+            out["unmapped"][organ] = out["unmapped"].get(organ, 0) + m
+        if not cost and ((tin or 0) + (tout or 0)) > 0:
+            out["suspect_zero"] += 1   # تلهٔ «or 0» سمت gateway (gateway.py:87-93)
+    return out
+
+
+def snapshot(write: bool = True) -> dict:
+    """عکس واحد micro-USD از کل ارگانیسم + ثبت روی دیسک برای UI/گاورنر."""
+    fx, fx_tag = opslib.fx_aud_per_usd()
+    g, b = read_genome(), read_brain()
+    mon = opslib.month()
+    month_musd = (sum(v for d, v in g["by_day"].items() if d.startswith(mon))
+                  + sum(v for d, v in b["by_day"].items() if d.startswith(mon)))
+    today_musd = g["by_day"].get(opslib.today(), 0) + b["by_day"].get(opslib.today(), 0)
+    per_organ = dict(b["by_organ"])
+    per_organ["GENOME_SYS"] = per_organ.get("GENOME_SYS", 0) + g["cost_musd"]
+    snap = {
+        "ts": opslib.now_iso(),
+        "unit": "micro-USD (int)",
+        "fx_aud_per_usd": {"rate": fx, "tag": fx_tag},
+        "sources": {"genome_ledger": g["source"], "brain_core_db": b["source"]},
+        "genome": {k: g[k] for k in ("events", "cost_musd", "suspect_zero")},
+        "brain": {k: b[k] for k in ("rows", "cost_musd", "suspect_zero")},
+        "per_organ_alltime_musd": per_organ,
+        "unmapped_musd": b["unmapped"],
+        "month": {"key": mon, "musd": month_musd,
+                  "usd": round(opslib.usd(month_musd), 6),
+                  "aud": round(opslib.usd(month_musd) * fx, 6)},
+        "today": {"musd": today_musd, "usd": round(opslib.usd(today_musd), 6)},
+        "suspect_zero_total": g["suspect_zero"] + b["suspect_zero"],
+    }
+    if write:
+        day_dir = opslib.STATE_DIR / "telemetry"
+        with opslib.LockedJson(opslib.STATE_DIR / "telemetry-latest.json") as lj:
+            lj.write(snap)
+        with opslib.LockedJson(day_dir / f"{opslib.today()}.json") as lj:
+            lj.write(snap)
+    return snap
+
+
+def reconcile(snap: dict) -> list[str]:
+    """I3 + شرط مرگ پک. خروجی: لیست ناسازگاری‌ها (خالی = سالم)."""
+    problems: list[str] = []
+    caps = opslib.load_budgets()["global"]
+    cap_aud = float(caps.get("cap_monthly", 30))
+    if snap["month"]["aud"] > cap_aud:
+        problems.append(
+            f"telemetry month AU${snap['month']['aud']:.2f} > cap_monthly AU${cap_aud:.2f}")
+    # billed = آنچه budget_gate رزرو/تسویه کرده (اگر state هنوز ساخته نشده → مقایسه‌ای نیست)
+    if opslib.BUDGET_STATE.exists():
+        try:
+            billed = json.loads(opslib.BUDGET_STATE.read_text("utf-8"))
+            billed_aud = float(billed.get("spent_month_aud", 0.0))
+            if billed_aud > 0.05:  # زیر ۵ سنت مقایسه بی‌معناست
+                div = abs(billed_aud - snap["month"]["aud"]) / billed_aud
+                if div > DIVERGENCE_DEATH:
+                    problems.append(
+                        f"billed↔telemetry divergence {div:.0%} > {DIVERGENCE_DEATH:.0%} "
+                        f"(billed AU${billed_aud:.2f} vs telemetry AU${snap['month']['aud']:.2f})")
+        except (OSError, ValueError) as e:
+            problems.append(f"budget-state unreadable: {e}")
+    if problems:
+        opslib.freeze("; ".join(problems))
+        if any("divergence" in p for p in problems):
+            # شرط مرگ متابولیسم (پک): توقف خودخواسته + سوال برای انسان
+            opslib.STOP_METABOLIC.write_text(opslib.now_iso() + "\n" + "\n".join(problems) + "\n",
+                                             "utf-8")
+        opslib.conflict_to_human(
+            "METABOLIC",
+            "تلمتری متابولیسم با حسابداری/سقف نمی‌خواند؛ grantها FREEZE شدند:\n"
+            + "\n".join(f"- {p}" for p in problems)
+            + "\nرفع: بررسی منابع تلمتری، سپس حذف دستی `_ops/budget/FREEZE.flag`"
+              " (و `_ops/STOP-METABOLIC` اگر ساخته شده).")
+    return problems
+
+
+if __name__ == "__main__":
+    s = snapshot(write="--dry" not in sys.argv)
+    probs = reconcile(s) if "--no-reconcile" not in sys.argv else []
+    print(json.dumps({**s, "conflicts": probs}, ensure_ascii=False, indent=2))

@@ -7,6 +7,7 @@ updated: 2026-07-06
 ---
 
 > [!warning] وضعیت: spec پیشنهادی (draft) — **منبع عملیاتی حلقه = MUTATION-WHITELIST.md + prompts/PROMPT-vN.md + پرامپت تسک.** این سند برای نسل v2 معماری نگه داشته می‌شود؛ دو منبع حقیقت نسازید (#108).
+> ⟳ رفعِ D3 (2026-07-06، verdict «اعمال کن»): تعارضِ §۰.۷ (call خارجی) حل شد — حلقهٔ خودجهش **internal-Claude-only** است طبق MUTATION-WHITELIST؛ callهای خارجیِ Fugu/partner متعلق به L2b/L2c قراردادند، نه به این حلقه. `MUTATION-WHITELIST.md` تنها whitelistِ معتبرِ عملیاتی است.
 
 # ENGINE-PROMPT v1 — هسته خودجهش‌ده Learning Engine
 

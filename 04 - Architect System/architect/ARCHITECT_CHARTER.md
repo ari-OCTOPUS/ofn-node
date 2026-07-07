@@ -62,4 +62,8 @@ updated: 2026-07-06
 | SELL/TRIM از پیش ثبت‌شده (فقط §۳، بعد از باز شدن گیت) | هر خرج کردن / پرداخت |
 | پیشنهاد (proposal) با شناسه در ledger | ارسال پیام به خارج (ایمیل/SMS/پست عمومی) |
 | — | حذف، deploy، تغییر کد، تغییر هر قاعده §۳ |
-| — | تغییر این منشور / مجوزها / لایه ایمنی (فقط انسان، هرگ
+| — | تغییر این منشور / مجوزها / لایه ایمنی (فقط انسان، هرگز ایجنت) |
+
+## ۸. ارجاع‌ها
+
+[[ROTATION_CHECKLIST]] · [[04 - Architect System/architect/01-Project/DECISIONS|DECISIONS]] · [[05 - Agents/AGENT_REGISTRY|AGENT_REGISTRY]] · [[06 - Architecture Maps/SYSTEM_MAP|SYSTEM_MAP]] · [[00 - Inbox/Prompt - Phase 4 Real Integration|پرامپت Phase 4]]

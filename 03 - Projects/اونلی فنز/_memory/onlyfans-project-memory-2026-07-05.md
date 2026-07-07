@@ -1,6 +1,6 @@
 ---
 created: 2026-07-05
-updated: 2026-07-05
+updated: 2026-07-06
 status: active
 type: memory-synthesis
 tags: [project-f, memory, durable-facts]
@@ -40,6 +40,7 @@ tags: [project-f, memory, durable-facts]
 - Track B verdict: GO conditional (separate finances, advisor, dual-platform, accept 90-day freeze scenario). Track C: GO limited (hygiene pipeline, ToS-safe scheduling, weekly analytics only).
 - MONETIZATION-EXPANSION awaits explicit human verdict.
 - 2026-07-05 (later): 8 external-AI research files ingested → `external-research-2026-07-05/` (01 Reddit / 02 X / 03 Content / 04 OF-funnel / 06 OPSEC + 100-topics automation KB for Prompt 2) + synthesis in research-results/13. Adopted risk-free: content taxonomy codes, ≥7-day buffer rule, WM/NOWM dual versions, x-bio/x-pin link split, 30–35% tax set-aside, doxxing/leak response plans, monthly cross-contamination test. Rejected: OF-single-platform. Flagged: Persian/Sydney copy conflict, 3rd pricing ladder, ABN timing. Phoenix algorithm weights [EXT-unverified]. Ziman DM bot + self-improvement map = other domains → `_inbox-other-projects/`.
+- **2026-07-06: Round-1 external research integrated** → `RESEARCH-INTEGRATION-round1.md` (delta-map, 4 axes). Confirms independently: authenticity premium, low median revenue, "AI drafts / human sends", social=funnel-only, dual-platform, AU tax/SERR. REJECTED: Telegram+crypto direct sales (locked rule #3). Web-verified [FACT — Reuters]: OF ToS explicitly bans "AI chatbot to write chats or DMs"; "co-pilot is allowed" claims are vendor-only [EST/COI] → conservative pattern KEPT (draft in fully separate console + manual paste; NO third-party tool connected to OF without verdict). Flagged→open questions: Persian text/voice positioning (#9; H1/H2 gated, H3 AU-evening testable post-GATE 0), agency-scale ops deferred to G3+, marketplaces still non-growth per P1. NEW open Qs: #14 DM-transparency policy, #15 C2PA device, #16 B2B layer (stock/parts, anonymity tension). NEW KPI candidates: PPV unlock-rate, $/script-start, custom cycle-time, $/DM-hour. GATE 0 still blocks all execution.
 - 2026-07-05: STATE-REPORT verified (8/9 contradictions confirmed, 1 corrected) · blueprint §11 patch APPLIED to PROJECT.md/DecisionLog · **Prompt 3 verification sprint executed** → research-results/12-prelaunch-verification-2026-07-05.md: all Day-Zero/budget numbers held (Social Rise $29.99 official, GAML $9 + Geo Filter, Fansly 80/20 + min $20 Paxum/$100 bank); Fanvue 12-month dormant-forfeiture confirmed from official legal pages; brand collision scan: **Anar Soles = zero collision (recommended #1)**, Yalda Arch clear, Arch & Amber near amberarch.com, The House Red generic; NEW WARNING: r/VerifiedFeet possibly quarantined [stale source] — first in-app check before warm-up. All patches applied to blueprint/Playbook/MONETIZATION. OpenQuestions rewritten (8 open, 6 closed).
 
 ## Known contradictions (status after 07-05 verification)

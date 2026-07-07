@@ -1,6 +1,6 @@
 ---
 type: proposal
-status: draft
+status: done
 created: 2026-07-06
 updated: 2026-07-06
 tags: [triage, backlog, non-md, cleanup]
@@ -35,6 +35,11 @@ tags: [triage, backlog, non-md, cleanup]
 
 **ترتیب:** B1 → validator سبز → B2 → B3. هر batch یک جلسه، بعدش commit (وقتی git init شد). قبل از B1 اگر git هنوز init نشده، پیشنهاد: اول runbook 04 (rollback داشته باشیم).
 
-## برای verdict آری
+## ✅ اجرا شد — 2026-07-06 (verdict آری: «برو کاملش کن»)
 
-فقط یک کلمه کافی است: «B1 برو» (یا B1+B2+B3). بدون verdict، این فایل فقط طراحی می‌ماند و از مرور هفتگی حذفش نکن.
+- **B1:** ۹ پوشهٔ کد + ۱۲ فایل منفرد → `_code/<project>/` · ۴ نوت md معماری (path-linked) برگردانده شد تا لینک نشکند.
+- **B2:** ۱۴ فایل دیتا/آرشیو بدون‌ارجاع → `_Duplicates/nonmd-*`.
+- **B3:** ۶۸ تصویر orphan → `08 - Assets/<project>/` · ۱۹۲ فایل ارجاع‌دار عمداً سر جایشان ماند.
+- **git init هم انجام شد** (متادیتا روی fs امن ساخته و verify شد؛ ‏`.git` خراب قبلی → `_Duplicates/broken-dot-git-*`).
+- تست پذیرش: link-checker = فقط ۱ شکستهٔ از-قبل‌موجود · frontmatter بدون خطای نو · لاگ کامل: `nonmd-move-log-2026-07-06.csv` (همین پوشه).
+- **rollback:** همه‌چیز mv بود + snapshot git — هیچ حذفی رخ نداد.

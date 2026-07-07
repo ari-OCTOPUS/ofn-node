@@ -51,6 +51,7 @@ units/week نسبت به سقف · سفارش per کانال `[To measure]` · �
 ## Active Context
 
 - **2026-07-06 (جلسه ۱۷):** کد پروژه به `_code/` منتقل شد (B1 پلن NONMD-TRIAGE؛ propose→executed با verdict آری). لاگ کامل: `00 - Inbox/nonmd-move-log-2026-07-06.csv`.
+- **2026-07-06 — Ziman Live:** کپی قابل‌اجرای control-brain + ziman-agent در `_launchpad/ziman-live/` با setup wizard ‏(HTML، ‏localhost:8877) و `START-HERE.bat` — منتظر اولین اجرای آری با توکن تلگرام نو. v2 = کاستوم‌سازی UI داشبورد.
 
 - تمرکز فعلی: گرفتن عدد ظرفیت از production owner
 - تغییرات اخیر: 2026-07-03 — ارتقا به manifest فاز ۱ + نوت Capacity & Channels · 2026-07-04 — ۲۰ عکس WhatsApp → `08 - Assets/Photos/WhatsApp-2026` و `files.zip` → `_Archive` (قواعد ۳ و ۶ قانون اساسی؛ رفع یافته M18 نقشه روابط v3) · ⚠️ بخش «Current state» این نوت کهنه است — پوشه اکنون `control-brain/`، `ziman-agent/` و چند نوت سیستم دارد (آپدیت در جلسه Ziman) · 2026-07-04 — کیت مغز پروژه (INDEX·DecisionLog·OpenQuestions طبق LIVING-BRAIN-BLUEPRINT) ساخته شد

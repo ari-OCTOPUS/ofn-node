@@ -187,4 +187,12 @@ def _batch(cfg, kind, n, context, header_label, variants):
     picked = variants[:max(1, int(n))]
     body = "\n\n".join(f"**{i + 1}) {t}**\n> {msg}" for i, (t, msg) in enumerate(picked))
     head = f"# [OFFLINE {header_label} — بدونِ کلید] {cfg['business']['name']} · {date.today()}\n\n"
-   
+    return head + body + "\n\n—\nپیش‌نویس؛ [اسم] را شخصی کن و دستی بفرست. انتشار با تأییدِ انسانی.", "offline"
+
+
+def generate_dms(cfg, n=5, context=""):
+    return _batch(cfg, "dm", n, context, "DMs", _dm_variants(cfg))
+
+
+def generate_posts(cfg, n=3, context=""):
+    return _batch(cfg, "posts", n, context, "POSTS", _post_variants(cfg))

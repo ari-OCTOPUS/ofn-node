@@ -74,6 +74,7 @@ updated: 2026-07-06
 
 ## Active Context
 
+- **2026-07-06 (جلسه ۱۷):** کد پروژه به `_code/` منتقل شد (B1 پلن NONMD-TRIAGE؛ propose→executed با verdict آری). لاگ کامل: `00 - Inbox/nonmd-move-log-2026-07-06.csv`.
 - تمرکز فعلی: تبدیل به tenant #1 — اول تکمیل رجیستر انطباق و انتخاب حسابدار
 - تغییرات اخیر: 2026-07-03 — ارتقا به manifest فاز ۱ (رجیستر انطباق + گردش‌کار + agent interface) · 2026-07-04 — [[03 - Projects/Accounting/Report - Accounting - Tax Map FY2025-26|Report - Tax Map FY2025-26]] از Inbox به این پوشه منتقل شد (نکته کلیدی: سقف instant asset write-off از 1 Jul 2026 → $1,000) · 2026-07-04 — کیت مغز پروژه (INDEX·DecisionLog·OpenQuestions طبق LIVING-BRAIN-BLUEPRINT) ساخته شد
 - ۳ قدم بعدی: (۱) مالک: ACN/ABN/تاریخ‌ها را پر کند (۲) انتخاب حسابدار (۳) تست گردش‌کار رسید با ۱۰ رسید واقعی
@@ -101,4 +102,10 @@ updated: 2026-07-06
 ## مرتبط
 
 <!-- Tier A · CONNECTIONS-MAP (_memory) · اعمال 2026-07-04 -->
-- [[03 - Projects/Lead-نقاشی/Lead-نقاشی|Lead-نقاش�
+- [[03 - Projects/Lead-نقاشی/Lead-نقاشی|Lead-نقاشی]]
+
+## 🎛 کابین کنترل (two-brain)
+
+- کابین مشترک: ارتیفکت `fleet-live-dashboard` · نقشه: [[_memory/TWO-BRAIN-CONTROL-BLUEPRINT|TWO-BRAIN]] · نقشهٔ ساخت: [[_memory/FRANKENSTEIN-BUILD-PLAN|FRANKENSTEIN-BUILD-PLAN]]
+- عملیات استاندارد از کابین (intent → sendPrompt): «تست <پروژه>» = validators + چک کد + تست قرارداد · «بساز» = اسکلت از `_Templates` + ثبت همین‌جا · «آرشیو» = فقط انتقال به `_Archive`/`_Duplicates` (هرگز حذف واقعی).
+- تست قرارداد این پروژه: هنوز تعریف نشده — طبق BUILD-PLAN §۲ تعریف شود.

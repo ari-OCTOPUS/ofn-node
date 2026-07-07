@@ -32,6 +32,10 @@ CREATE INDEX IF NOT EXISTS idx_know_tag ON knowledge(tag);
 CREATE TABLE IF NOT EXISTS usage(
   id INTEGER PRIMARY KEY, day TEXT, provider TEXT, business TEXT,
   tokens_in INTEGER DEFAULT 0, tokens_out INTEGER DEFAULT 0, cost_usd REAL DEFAULT 0);
+CREATE TABLE IF NOT EXISTS proposals(
+  id INTEGER PRIMARY KEY, title TEXT, problem TEXT, solution TEXT, risk TEXT,
+  impact TEXT, rollback TEXT, status TEXT DEFAULT 'pending',
+  notified INTEGER DEFAULT 0, ts TEXT, resolved_ts TEXT);
 """
 
 
@@ -204,6 +208,62 @@ class Memory:
                 "SELECT COALESCE(SUM(cost_usd),0) FROM usage WHERE provider=? AND day=?",
                 (provider, date.today().isoformat())).fetchone()
         return float(r[0] or 0)
+
+    # ---------- proposals (مغز تکاملی — فاز ۴) ----------
+    def add_proposal(self, title: str, problem: str, solution: str, risk: str,
+                     impact: str, rollback: str) -> int:
+        with self._lock:
+            cur = self._c.execute(
+                "INSERT INTO proposals(title,problem,solution,risk,impact,rollback,ts)"
+                " VALUES(?,?,?,?,?,?,?)",
+                (title, problem, solution, risk, impact, rollback, _now()))
+            self._c.commit()
+            return cur.lastrowid
+
+    def get_proposal(self, pid: int):
+        with self._lock:
+            return self._c.execute("SELECT * FROM proposals WHERE id=?", (pid,)).fetchone()
+
+    def pending_proposals(self) -> list:
+        with self._lock:
+            return self._c.execute(
+                "SELECT id,title,problem,solution,risk,impact,rollback,ts FROM proposals"
+                " WHERE status='pending' ORDER BY id").fetchall()
+
+    def unnotified_proposals(self) -> list:
+        with self._lock:
+            return self._c.execute(
+                "SELECT id,title,problem,solution,risk,impact,rollback FROM proposals"
+                " WHERE status='pending' AND notified=0 ORDER BY id").fetchall()
+
+    def mark_proposal_notified(self, pid: int) -> None:
+        with self._lock:
+            self._c.execute("UPDATE proposals SET notified=1 WHERE id=?", (pid,))
+            self._c.commit()
+
+    def set_proposal(self, pid: int, status: str) -> None:
+        with self._lock:
+            self._c.execute("UPDATE proposals SET status=?, resolved_ts=? WHERE id=?",
+                            (status, _now(), pid))
+            self._c.commit()
+
+    def expire_proposals(self, max_age_days: int = 30) -> int:
+        """الگوی TTL (توصیه pass-1): پیشنهاد بی‌verdict > سقف → expired (fail-closed)."""
+        cutoff = datetime.now().timestamp() - max_age_days * 86400
+        n = 0
+        with self._lock:
+            rows = self._c.execute("SELECT id, ts FROM proposals WHERE status='pending'").fetchall()
+            for pid, ts in rows:
+                try:
+                    if datetime.fromisoformat(ts).timestamp() < cutoff:
+                        self._c.execute(
+                            "UPDATE proposals SET status='expired', resolved_ts=? WHERE id=?",
+                            (_now(), pid))
+                        n += 1
+                except Exception:  # noqa: BLE001
+                    continue
+            self._c.commit()
+        return n
 
     def stats(self) -> dict:
         with self._lock:

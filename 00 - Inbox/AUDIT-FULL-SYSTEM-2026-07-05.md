@@ -3,13 +3,12 @@ type: report
 status: done
 tags: [audit, system-state, ground-truth, security, handoff]
 created: 2026-07-05
-updated: 2026-07-05
-scope: کل vault (backup) — پیمایش تک‌تک دایرکتوری‌ها روی فایل‌سیستم، بدون اتکا به اسناد داخلی
-method: filesystem walk (find/du/stat) + live scheduler diff — نه HANDOFF/registry
-audience: مهندس ارشد (سازمان‌دهی و هندل کل سیستم)
+updated: 2026-07-07
 ---
 
 # 🔍 AUDIT — گزارش کامل وضعیت سیستم (ground-truth)
+
+> **دامنه:** کل vault (backup) — پیمایش تک‌تک دایرکتوری‌ها روی فایل‌سیستم، بدون اتکا به اسناد داخلی · **روش:** filesystem walk (find/du/stat) + live scheduler diff — نه HANDOFF/registry · **مخاطب:** مهندس ارشد (سازمان‌دهی و هندل کل سیستم)
 
 > **چرا این گزارش:** آری اعلام کرد «آپدیت داشتیم، به اسناد vault اعتماد نکن — تک‌تک دایرکتوری‌ها را چک کن.» این گزارش **از روی فایل‌سیستم واقعی** ساخته شده، نه از HANDOFF/AGENT_REGISTRY/PROJECT.md (که ثابت شد drift دارند). همه اعداد از `find/du/stat` روی ۶٬۸۹۸ فایل. **هیچ مقدار secret خوانده/echo نشده** — فقط مسیر و اندازه.
 > **هدف:** یک مهندس ارشد بتواند با همین یک فایل کل سیستم را مرتب و هندل کند.

@@ -15,6 +15,14 @@ MODULES = [
     "tests.test_secrets",
     "tests.test_authz",
     "tests.test_smoke_real",
+    # v2 — فاز ۲:
+    "tests.test_memory",
+    "tests.test_gateway",
+    "tests.test_approval",
+    # v2 — فاز ۳:
+    "tests.test_rokn",
+    # v2 — فاز ۴:
+    "tests.test_evolution",
 ]
 
 passed = failed = 0

@@ -8,7 +8,7 @@
   python rokn_daily.py --selftest      → سیم‌کشی آفلاین با gateway فیک (بدون شبکه)
   python rokn_daily.py --once [biz]    → یک دور واقعی (همهٔ بیزنس‌ها یا یکی)
   python rokn_daily.py                 → حلقهٔ روزانه: هر روز ساعت RESEARCH_HOUR (پیش‌فرض ۸)
-kill: فایل STOP کنار همین فایل.
+kill: فایل STOP-ROKN کنار همین فایل.
 """
 from __future__ import annotations
 
@@ -107,7 +107,7 @@ def loop() -> None:
             print(f"— دور روزانهٔ {last_day} —")
             try:
                 run_all()
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:  # noqa: BLE001 — حلقه نباید بمیرد
                 print(f"خطای دور: {e}")
         time.sleep(60)
     print("STOP-ROKN دیده شد — خروج تمیز.")

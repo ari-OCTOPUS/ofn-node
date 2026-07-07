@@ -12,7 +12,7 @@ if errorlevel 1 (
 )
 
 if not exist control-brain\.venv (
-  echo [1/3] ساخت محیط مجازی و نصب پکیج‌ها (فقط بار اول، ~۱-۲ دقیقه)...
+  echo [1/3] ساخت محیط مجازی و نصب پکیج‌ها — فقط بار اول، حدود ۱ تا ۲ دقیقه...
   python -m venv control-brain\.venv
   call control-brain\.venv\Scripts\activate
   pip install -q -r control-brain\requirements.txt
@@ -24,10 +24,12 @@ if not exist control-brain\.venv (
 where node >nul 2>nul
 if not errorlevel 1 (
   if exist accounting-bot\package.json if not exist accounting-bot\node_modules (
-    echo [+] نصب پکیج‌های ربات حسابداری (npm)...
+    echo [+] نصب پکیج‌های ربات حسابداری با npm...
     pushd accounting-bot & call npm install --silent & popd
   )
 )
 
 echo [2/3] باز کردن صفحهٔ راه‌اندازی مغز دوم در مرورگر...
-echo [3/3] ترتیب: فرم → ذخیره → 📡 گزارش اتصال → 🚀 روشن کردن. این پنجره با
+echo [3/3] ترتیب: فرم → ذخیره → 📡 گزارش اتصال → 🚀 روشن کردن. این پنجره باز بماند.
+python setup_wizard.py
+pause

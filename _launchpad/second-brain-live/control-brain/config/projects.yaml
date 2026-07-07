@@ -48,3 +48,39 @@ projects:
     start: ["node", "bot.js"]
     test: ["node", "-e", "require('./bot.js') && console.log('load ok')"]
     enabled: true
+    secrets:
+      TELEGRAM_TOKEN: "accounting-telegram-token"
+
+  # Project-F 🔒 — ماژول قفل‌دار: تا GATE 0 فقط status، صفر اجرا (قاعدهٔ پروژه).
+  #   صبا operator این ماژول است (allowed) — start/stop/test همین یکی، نه بقیه.
+  - id: projectf
+    name: "Project-F 🔒 (status-only تا GATE 0)"
+    workdir: "../projectf-agent"
+    start: ["python", "worker.py"]
+    test: ["python", "worker.py", "--selftest"]
+    enabled: true
+    allowed: ["saba"]
+
+  # پنل‌های سادهٔ گوشی — UI برای صبا و تولید زیمان؛ backend کامل (PIN/sqlite/audit/GATE).
+  - id: panels
+    name: "پنل‌های گوشی (زیمان + Project-F)"
+    workdir: "../panels"
+    start: ["python", "panel_server.py"]
+    test: ["python", "panel_server.py", "--selftest"]
+    enabled: true
+
+  # دو رکن (v2 فاز ۳) — تحقیق روزانه + پیام‌های صف تأیید برای هر ۳ بیزنس.
+  - id: rokn-daily
+    name: "دو رکن — تحقیق و تعامل روزانه"
+    workdir: "."
+    start: ["python", "rokn_daily.py"]
+    test: ["python", "rokn_daily.py", "--selftest"]
+    enabled: true
+
+  # مغز تکاملی (v2 فاز ۴) — هفته‌ای یک Proposal بازمهندسی، propose-only، TTL ۳۰روزه.
+  - id: evolution
+    name: "🧬 مغز تکاملی (هفتگی، propose-only)"
+    workdir: "."
+    start: ["python", "evolution_loop.py"]
+    test: ["python", "evolution_loop.py", "--selftest"]
+    enabled: true

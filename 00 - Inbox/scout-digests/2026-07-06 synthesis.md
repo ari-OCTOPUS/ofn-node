@@ -39,9 +39,38 @@ updated: 2026-07-06
 
 یافتهٔ HRV («نوسانِ روزانه ۳–۱۳٪ CV اغلب نویز است، نه سیگنالِ واقعی؛ فقط افتِ چندروزه معنادار است») هم‌شکلِ مستقیمِ P10 (استقلالِ مؤثر/n_eff) موجود در نقشه است — خودِ اسکات این را به تصمیمِ بار/استراحتِ Mining/Crypto وصل کرد. مصداقِ نو از الگوی موجود؛ نیازِ ردیفِ جداگانه در نقشه ندارد.
 
+## دورِ دوم — ۷ دیجستِ بعدازظهر (mycelium · lead · ziman · mining · accounting · hypnosis · projectf)
+
+> اجرای دومِ consolidator امروز. سنتزِ صبح فقط ۹ اسکاتِ دامنه‌ایِ شبانه/بامدادی را پوشش داد؛ این ۷ دیجست بعد از ۰۶:۰۷ رسیدند و تازه‌اند. این‌ها **تحقیقِ دامنه‌ای** (نه پیشنهادِ معماری) هستند → مستقیم به PROJECTِ هر دامنه promote می‌شوند؛ الگوهای عرضی زیر.
+
+### ۶. بستهٔ بهداشتِ کسب‌وکار پیش از اولین درآمد (ziman + lead + accounting) — الگوی نو **P14**
+
+سه اسکاتِ مستقل به یک پیش‌شرطِ مشترک رسیدند: پیش از اولین فروش/استخدام، یک بستهٔ حداقلیِ ثبت/بیمه لازم است و هزینه‌اش front-loaded است.
+- `ziman` — The Rocks برای تریدْ **ABN** می‌خواهد؛ آستانهٔ GST اتسی A$۷۵k؛ تصمیمِ بیمهٔ PLIِ **سالانه (~$۱۸۰) در برابر per-day** حدودِ ۳ روزِ بازار سربه‌سر می‌شود و هر کانالِ بدونِ بیمهٔ سرِ صندوق (Glebe/Paddington/Rouse Hill) را باز می‌کند.
+- `accounting` — Payday Super از ۰۱-۰۷ زنده شد؛ **SBSCHِ رایگانِ ATO حذف شد** → انتخابِ نرم‌افزارِ حقوق حالا کانالِ پرداختِ super هم هست؛ لیستِ ۷مرحله‌ایِ pre-first-hire (PAYG/STP/icare/MVR/…) دقیقاً روی ردیف‌های خالیِ رجیسترِ انطباق می‌نشیند.
+- `lead` — hire-readiness گیتِ بینِ «نقاشِ تنها» و «اکیپ» است؛ PLI برای کارِ نقاشی هم لازم است → یک تصمیمِ بیمهٔ PLIِ سالانه اقتصادِ بین‌پروژه‌ای دارد.
+
+**دلالت:** append شد به نقشه [P14]. مکملِ C5 (Accounting=هابِ درآمد) از سمتِ *پیش‌ازدرآمد*. اقدامِ نزدیک-به-رایگان (propose-only): پرچمِ «ABN + PLIِ سالانه + نرم‌افزارِ حقوقِ super-capable» در Ziman و Lead.
+
+### ۷. ارزش‌گذاری به قیمتِ قابل‌خروج، نه قیمتِ اسمی (mining → crypto)
+
+`mining` گپِ ~۵۰–۷۰٪ قیمتِ VRSC را یافت: DEXِ زنجیره‌ای ~$۰.۷۰ در برابر CEX ~$۰.۴۴ (حجمِ CEX چنان نازک که DEX «قیمتِ راست‌تر» است) — همان الگوی mispricingِ نقدینگیِ نازک که exit-rulesِ `crypto` رویش کار می‌کند. مصداقِ P13 (بت به قیمتِ *قابل‌اجرا*) + P8 (عمقِ basket-reserve = سیگنالِ مرگِ زودهنگامِ PBaaS). یک readِ مشترک: «slippageِ خروجِ $۵۰–۱۰۰ روی VRSC چقدر است؟». مصداق از الگوهای موجود؛ ردیفِ نقشهٔ نو لازم ندارد. ضمناً merge-mining اقتصادِ ماینینگ را نجات نداد (+۳–۱۰٪ روی روزِ زیرِسنت) → free-option نه strategy-pivot، به Mining PROJECT.
+
+### ۸. یک نوبِ decay + گیتِ کیفیِ جداگانهٔ «capture» برای ارتقا (mycelium → selfimprove) — پالایشِ P3
+
+`mycelium` اسپورِ دیروز را بست: طبیعت برای *TTL* یک نوبِ decay دارد (citation/wikilink-in = رسوبِ فرومون که TTL را reset می‌کند)، ولی برای *permanence* یک گامِ کیفیِ مجزا لازم است (کربنِ خاک: pool پایدار ≠ لَبایلِ دیرترمانده؛ synaptic tag-and-capture: تکرارِ ضعیف کافی نیست). precedentِ زندهٔ ۲۰۲۶: «Oblivion» (forgetting = افتِ اولویتِ بازیابی، نه حذف). **دلالت برای consolidator:** ارتقا به `07 - Knowledge` باید گیتِ تأییدِ ≥۲ دامنهٔ مستقل را رد کند (= رویدادِ captureِ ما)؛ تکرارِ هم‌اسکات فقط TTL را تمدید کند. این **پالایشِ P3** است نه الگوی نو؛ متنِ canonicalِ P3 بازنویسی نشد (لیستِ سیاه §۴ منشور = verdict آری).
+
+### ۹. convert-then-durable + skill-not-exposure (hypnosis + health + learning)
+
+`hypnosis`: اثرِ هیپنوتراپی پس از دوره **بادوام** است (follow-up دوساله ۶۱.۸٪ responder) ولی مشروط به responder-بودنِ اولیه؛ self-administered تقریباً هم‌سطحِ therapist-led، امّا برای درد لزوماً بهتر از self-careِ فعال نیست؛ تریتِ hypnotizability شاید با *آموزشِ مهارت* (نه صرفِ exposure) جابه‌جا شود — همان تمایزِ deliberate-practice-vs-mere-exposure که `learning` ردیابی می‌کند. مصداقِ دامنه‌ایِ P2/P5؛ ردیفِ نقشهٔ نو لازم ندارد — به PROJECT هیپنوتیزم (OQ3/OQ6).
+
+### ۱۰. رتبه‌بندیِ segmentِ Lead با ماتریسِ ارزش×مارجین×هزینهٔ‌کانال (lead → jobs/accounting)
+
+`lead` denominatorهای قاعدهٔ ۲۰٪ را ساخت: interiorِ تک‌اتاق ($۳۴۵–۹۲۰) روی کانالِ پولی خون‌ریزی می‌کند (kill)، exteriorِ مسکونی ($۵k–۱۸k) sweet-spotِ خرجِ پولی، strata (تا $۳۰۰k) کانالِ رابطه‌ای نه marketplace، builder فقط gap-filler. مصداقِ مستقیمِ P11 با اعداد؛ به Lead PROJECT (Experiment #1: exterior اول). خوراکِ `jobs` و `accounting`.
+
 ## Evaporation (L2)
 
-دیجستِ >۱۴روزِ خودِ ناوگان: **صفر** (قدیمی‌ترین فایلِ تاریخ‌دار هنوز ۰۷-۰۴، دوروزه). batch اجرا نشد. اولین کاندیدِ واقعی ~۲۰۲۶-۰۷-۱۸.
+دیجستِ >۱۴روزِ خودِ ناوگان: **صفر** (قدیمی‌ترین فایلِ تاریخ‌دار هنوز ۰۷-۰۴، دوروزه). batch اجرا نشد (اجرای صبحِ امروز هم صفر داد — سقفِ یک‌batch‌درروز رعایت شد). اولین کاندیدِ واقعی ~۲۰۲۶-۰۷-۱۸.
 
 ## تختهٔ تریاژ
 
@@ -50,3 +79,4 @@ updated: 2026-07-06
 ## مرتبط
 
 [[00 - Inbox/scout-digests/_Mycorrhizal Map|نقشهٔ مایکوریزایی]] · [[00 - Inbox/scout-digests/_TRIAGE-BOARD|تختهٔ تریاژ]] · [[00 - Inbox/scout-digests/2026-07-06 experience-review|experience-review]] · [[00 - Inbox/scout-digests/2026-07-06 security|security]] · [[00 - Inbox/scout-digests/2026-07-06 tools|tools]] · [[00 - Inbox/scout-digests/2026-07-06 ai-watch|ai-watch]] · [[00 - Inbox/scout-digests/2026-07-06 markets|markets]] · [[00 - Inbox/scout-digests/2026-07-06 world|world]]
+**دورِ دوم:** [[00 - Inbox/scout-digests/2026-07-06 mycelium|mycelium]] · [[00 - Inbox/scout-digests/2026-07-06 lead|lead]] · [[00 - Inbox/scout-digests/2026-07-06 ziman|ziman]] · [[00 - Inbox/scout-digests/2026-07-06 mining|mining]] · [[00 - Inbox/scout-digests/2026-07-06 accounting|accounting]] · [[00 - Inbox/scout-digests/2026-07-06 hypnosis|hypnosis]] · [[00 - Inbox/scout-digests/2026-07-06 projectf|projectf]]

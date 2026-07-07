@@ -169,4 +169,4 @@ updated: 2026-07-04
 - [Chattel mortgage — NAB](https://www.nab.com.au/business/small-business/moments/grow/buy-equipment/chattel-mortgage)
 - [Self-employed / low-doc home loans 2026](https://www.money.com.au/home-loans/low-doc-home-loans)
 
-*نوت‌های مرتبط: [[03 - Projects/Accounting/PROJECT|PROJECT — Accounting]] · [[03 - Projects/Accounting/app/README|R
+*نوت‌های مرتبط: [[03 - Projects/Accounting/PROJECT|PROJECT — Accounting]] · [[03 - Projects/Accounting/app/README|README]]*

@@ -4,14 +4,15 @@ project: "[[03 - Projects/اونلی فنز/PROJECT]]"
 status: active
 tags: [creator-business, faceless]
 created: 2026-07-04
-updated: 2026-07-05
+updated: 2026-07-06
 ---
 
 # INDEX — MOC پروژه اونلی فنز (Project-F)
 
 > کیت مغز پروژه ([[_memory/LIVING-BRAIN-BLUEPRINT|بلوپرینت]]) — 2026-07-04. خارج از این پوشه فقط کد «Project-F».
 
-## وضعیت و حافظه (جدید — 2026-07-05)
+## وضعیت و حافظه (جدید — 2026-07-06)
+- [[03 - Projects/اونلی فنز/RESEARCH-INTEGRATION-round1|RESEARCH-INTEGRATION-round1]] — 🆕 **07-06:** delta-map تحقیق بیرونی Round 1 (۴ محور)؛ REJECT تلگرام/کریپتو؛ [FACT-Reuters] ممنوعیت AI-chat در ToS ‏OF → الگوی DM محافظه‌کار ابقا؛ سؤال‌های باز #۱۴–۱۶ جدید
 - [[03 - Projects/اونلی فنز/STATE-REPORT-2026-07-05|STATE-REPORT-2026-07-05]] — گزارش جامع وضعیت (ingestion کامل ۲۹ فایل؛ نقشه دانش، تناقض‌ها، اقدام‌های بعدی)
 - [[03 - Projects/اونلی فنز/_memory/onlyfans-project-memory-2026-07-05|onlyfans-project-memory-2026-07-05]] — سنتز فشرده حافظه بلندمدت (اول این را لود کن)
 - [[03 - Projects/اونلی فنز/PROMPTS-2026-07-05|PROMPTS-2026-07-05]] — سه پرامپت ماموریت Cowork (ingestion + اتوماسیون/تلگرام + verification sprint)

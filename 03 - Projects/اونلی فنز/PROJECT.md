@@ -37,7 +37,7 @@ delivery-rate پارتنر در trial sprint `[To measure]` · engagement روی
 ## Active Context
 
 - تمرکز فعلی: بلوپرینت معماری 2026-07-04 آماده؛ **منتظر G0**
-- تغییرات اخیر: 2026-07-03 — ثبت [[03 - Projects/اونلی فنز/پرسشنامه پارتنر - پاسخ‌های صبا|پاسخ‌های صبا]]؛ مرز محتوا قفل شد: فقط پا، بدون صورت/بدن + geo-block ایران · 2026-07-04 — کیت مغز پروژه ساخته شد · 2026-07-05 — [[03 - Projects/اونلی فنز/STATE-REPORT-2026-07-05|STATE-REPORT]] + verification pass (۸/۹ تناقض تأیید، ۱ اصلاح) + اعمال patch بلوپرینت §۱۱
+- تغییرات اخیر: 2026-07-03 — ثبت [[03 - Projects/اونلی فنز/پرسشنامه پارتنر - پاسخ‌های صبا|پاسخ‌های صبا]]؛ مرز محتوا قفل شد: فقط پا، بدون صورت/بدن + geo-block ایران · 2026-07-04 — کیت مغز پروژه ساخته شد · 2026-07-05 — [[03 - Projects/اونلی فنز/STATE-REPORT-2026-07-05|STATE-REPORT]] + verification pass (۸/۹ تناقض تأیید، ۱ اصلاح) + اعمال patch بلوپرینت §۱۱ · **2026-07-06 — Round 1 تحقیق بیرونی integrate شد → [[03 - Projects/اونلی فنز/RESEARCH-INTEGRATION-round1|RESEARCH-INTEGRATION-round1]]**: مسیر فعلی تأیید مستقل؛ REJECT تلگرام/کریپتو (قاعدهٔ #۳)؛ ToS ‏OF ممنوعیت AI-chat را [FACT] کرد → الگوی «درفت در کنسول جدا + paste دستی» ابقا؛ ۳ سؤال باز جدید (#۱۴ شفافیت DM، #۱۵ ‏C2PA، #۱۶ ‏B2B)؛ KPI کاندید: unlock-rate، $/script-start، چرخهٔ Custom، $/ساعت DM
 - ۳ قدم بعدی: (۱) Track B/C — تحقیق desk درباره payment/banking و automation-fit، time-box یک هفته (۲) بازپرسیدن سؤال آخر پرسشنامه به زبان ساده‌تر (۳) طراحی Track A sprint با متریک صریح و گزارش‌دهی زودهنگام نتیجه مالی به صبا
 - تصمیم‌های باز: «مسیر safe expansion به body» در production plan — صبا فعلاً بدن را رد کرده؛ منجمد یا حذف؟
 
@@ -67,3 +67,9 @@ delivery-rate پارتنر در trial sprint `[To measure]` · engagement روی
 
 <!-- Tier A · CONNECTIONS-MAP (_memory) · اعمال 2026-07-04 -->
 - [[04 - Architect System/architect/ARCHITECT_CHARTER|ARCHITECT_CHARTER]]
+
+## 🎛 کابین کنترل (two-brain)
+
+- کابین مشترک: ارتیفکت `fleet-live-dashboard` · نقشه: [[_memory/TWO-BRAIN-CONTROL-BLUEPRINT|TWO-BRAIN]] · نقشهٔ ساخت: [[_memory/FRANKENSTEIN-BUILD-PLAN|FRANKENSTEIN-BUILD-PLAN]]
+- عملیات استاندارد از کابین (intent → sendPrompt): «تست <پروژه>» = validators + چک کد + تست قرارداد · «بساز» = اسکلت از `_Templates` + ثبت همین‌جا · «آرشیو» = فقط انتقال به `_Archive`/`_Duplicates` (هرگز حذف واقعی).
+- تست قرارداد این پروژه: هنوز تعریف نشده — طبق BUILD-PLAN §۲ تعریف شود.

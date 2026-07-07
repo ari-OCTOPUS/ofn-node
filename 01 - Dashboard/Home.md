@@ -2,7 +2,7 @@
 type: dashboard
 status: active
 tags: [dashboard]
-updated: 2026-07-05
+updated: 2026-07-07
 ---
 
 # خانه — داشبورد اصلی
@@ -27,7 +27,8 @@ updated: 2026-07-05
 - درآمد و کسب‌وکار: [[03 - Projects/Lead-نقاشی/PROJECT|Lead-نقاشی]] (درآمد اصلی)، [[03 - Projects/Ziman Galerry/PROJECT|Ziman Gallery]]، [[03 - Projects/اونلی فنز/PROJECT|اونلی فنز]]
 - سرمایه‌گذاری و سخت‌افزار: [[03 - Projects/Mining/PROJECT|Mining]]، [[03 - Projects/Crypto - etoro/PROJECT|Crypto - etoro]]
 - زیرساخت مالی: [[03 - Projects/Accounting/PROJECT|Accounting]]
-- دانش شخصی: [[07 - Knowledge/هیپنوتیزم  و خودآگاهی/PROJECT|هیپنوتیزم و خودآگاهی]]
+- دانش شخصی: [[07 - Knowledge/هیپنوتیزم  و خودآگاهی/PROJECT|هیپنوتیزم و خودآگاهی]]، [[07 - Knowledge/Time-Architecture/PROJECT|Time-Architecture (معماری زمان)]]
+- زیرساخت زنده (`_ops` + ژنوم): [[_ops/ORGANISM-SPEC|ORGANISM-SPEC]] (ارگانیسم متابولیسم-مناظره-تکثیر، سایه $0) · پنل مالک `_ops/panel/` (`http://127.0.0.1:8790` — پروفایل/پروژه‌ها/ارگانیسم) · [[07 - Knowledge/genome-system/INDEX|genome-system]] (v0.4.3)
 
 ## بخش‌ها
 

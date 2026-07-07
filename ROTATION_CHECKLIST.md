@@ -71,4 +71,4 @@ tags: [security, rotation, phase-0]
 2. مقدار جدید فقط در password manager یا `.env` خارج از vault — هرگز در کد، نوت، chat export یا zip.
 3. وقتی همه CRITICALها ROTATED شد: Security Gate در ARCHITECT_CHARTER (فاز ۱) با verdict صریح تو برداشته می‌شود.
 4. اعتبارسنجی نهایی: `gitleaks detect` روی `_code`
-<!-- Stage 0 ingest 2026-07-03: بایت ناقص UTF-8 انتهای فایل حذف شد�
+<!-- Stage 0 ingest 2026-07-03: بایت ناقص UTF-8 انتهای فایل حذف شد؛ جمله gitleaks از قبل بریده بود -->

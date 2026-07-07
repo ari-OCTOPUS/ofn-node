@@ -2,7 +2,7 @@
 type: moc
 status: active
 tags: [moc]
-updated: 2026-07-04
+updated: 2026-07-06
 ---
 
 # ایندکس دانش
@@ -34,3 +34,12 @@ updated: 2026-07-04
 - [[07 - Knowledge/Time-Architecture/RFC - HRV bridge|RFC — پل دادهٔ HRV (Propose-only)]]
 
 > هم‌پوشانی HRV/ترس با area «هیپنوتیزم و خودآگاهی» (cross-link دوطرفه).
+
+## سیستم ژنوم (genome-system)
+
+- [[07 - Knowledge/genome-system/INDEX|INDEX — نقشهٔ canonical]]
+- [[07 - Knowledge/genome-system/HANDOFF|HANDOFF — قواعد ایجنت‌ها (propose-only)]]
+- [[07 - Knowledge/genome-system/CHANGELOG|CHANGELOG]] · [[07 - Knowledge/genome-system/README|README]]
+- [[07 - Knowledge/genome-system|🧬 genome-system (اشاره‌گر ریشه)]]
+
+> سیستمِ دانشِ خودبهبودِ امن. `genome/` فقط-خواندنی؛ همه propose-only؛ حلقهٔ plan-gated ۳بار/روز. وضعیتِ ماشین‌خوان: `genome-system/STATUS.json`.

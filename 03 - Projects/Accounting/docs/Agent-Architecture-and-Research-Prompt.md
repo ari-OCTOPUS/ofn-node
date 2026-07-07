@@ -268,4 +268,4 @@ else:
 - [Xero AU — Pricing plans](https://www.xero.com/au/pricing-plans/)
 - [ATO — Division 7A benchmark rate](https://www.ato.gov.au/tax-rates-and-codes/division-7a-benchmark-interest-rate)
 
-*نوت‌های مرتبط: [[03 - Projects/Accounting/PROJECT|PROJECT]] · [[03 - Projects/Accounting/docs/Tax-and-Loan-Guide|راهنمای مالیات و وام]] · [[03 - Projects/Accounting/app/README|R
+*نوت‌های مرتبط: [[03 - Projects/Accounting/PROJECT|PROJECT]] · [[03 - Projects/Accounting/docs/Tax-and-Loan-Guide|راهنمای مالیات و وام]] · [[03 - Projects/Accounting/app/README|README]]*

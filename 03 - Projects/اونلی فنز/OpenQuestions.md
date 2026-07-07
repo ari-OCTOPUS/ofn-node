@@ -4,7 +4,7 @@ project: "[[03 - Projects/اونلی فنز/PROJECT]]"
 status: active
 tags: [creator-business]
 created: 2026-07-04
-updated: 2026-07-05
+updated: 2026-07-06
 ---
 
 # OpenQuestions — اونلی فنز (Project-F)
@@ -19,11 +19,14 @@ updated: 2026-07-05
 6. برند: انتخاب دونفره از شورت‌لیست — پیشنهاد 07-05: ‏**Anar Soles** (صفر collision) · رزرو Yalda Arch؛ چک نهایی handle موقع ساخت اکانت + جستجوی دستی IP Australia `[OPEN — P1]` [12-prelaunch-verification §۲].
 7. وضعیت quarantine ‏r/VerifiedFeet + چک‌لیست دستی ۲۵ sub داخل اپ — قبل از warm-up `[OPEN — P1]`.
 8. verdict انسانی MONETIZATION-EXPANSION + سؤال اولویت Fansly (mirror vs هم‌وزن) `[OPEN — P1]`.
-9. **«Persian» و «Sydney» در کپی عمومی؟** — تحقیق بیرونی توصیه می‌کند، ۲ قاعدهٔ قفل‌شدهٔ ما ممنوع؛ Playbook خودمان هم در bioها «Sydney light» دارد (تعارض داخلی) `[OPEN — P0-opsec]` [13-external-integration §۲].
-10. نردبان قیمت: حالا **۳ نسخه** (MASTER-BUILD / Playbook / EXT-04) — یکی قبل از Fable5 قفل شود `[OPEN — P1]`.
-11. زمان ABN: روز صفر (توصیه EXT-06) یا G3 (بلوپرینت)؟ → سؤال مشخص مشاور Track B `[OPEN — P1]`.
+9. **«Persian» و «Sydney» در کپی عمومی؟** — تحقیق بیرونی توصیه می‌کند، ۲ قاعدهٔ قفل‌شدهٔ ما ممنوع؛ Playbook خودمان هم در bioها «Sydney light» دارد (تعارض داخلی) `[OPEN — P0-opsec]` [13-external-integration §۲]. · **ورودی round1 (07-06):** تحقیق جدید دوباره توصیه می‌کند + نسخهٔ «اثبات سطح ۴» (دست‌خط/voice-note فارسی)، ولی خودش ریسک شناسایی در کامیونیتی را هم flag کرده؛ فرضیه‌های H1/H2 پشت همین سؤال قفل‌اند [[RESEARCH-INTEGRATION-round1|round1 §۴–۵]].
+10. نردبان قیمت: حالا **۳ نسخه** (MASTER-BUILD / Playbook / EXT-04) — یکی قبل از Fable5 قفل شود `[OPEN — P1]`. · ورودی round1: بنچمارک جدید (عکس $5–15، باندل، charm pricing $14/$24/$39، کاستوم ۲–۴×) به نسخهٔ EXT-04/ACQUISITION نزدیک‌تر است `[EST — vendor]` [[RESEARCH-INTEGRATION-round1|round1 §۳]].
+11. زمان ABN: روز صفر (توصیه EXT-06) یا G3 (بلوپرینت)؟ → سؤال مشخص مشاور Track B `[OPEN — P1]`. · ورودی round1: سمت «زودتر» را تقویت می‌کند (نکتهٔ تصحیح: کسر ۴۷٪ بدون ABN فقط مال پرداخت B2B داخل استرالیاست، نه payout پلتفرم خارجی) [[RESEARCH-INTEGRATION-round1|round1 §۳]].
 12. وزن‌های الگوریتم Phoenix ادعایی X (reply نویسنده +۷۵ و…) — راستی‌آزمایی وب `[VERIFY — P2]`.
 13. اسناد غایب سری بیرونی (00 master، 05 فروش DM، 09 داشبورد KPI) موجودند؟ آپلود شوند `[OPEN — P2]`.
+14. **سیاست شفافیت DM** (آری چت می‌کند، نه صبا؛ AI درفت می‌زند): چه ادعایی دربارهٔ «چه کسی پشت چت است» مجاز است؟ بند مکتوب در قرارداد دونفره + Boundaries — ریسک impersonation رسانه‌ای شده `[OPEN — P1]` [[RESEARCH-INTEGRATION-round1|round1 §۵ ردیف ۶]].
+15. دیوایس شوت فعلی C2PA دارد؟ آیا سرمایه‌گذاری گوشی C2PA-دار (Pixel 10 / S25) برای «Human-Authorship اثبات‌پذیر» توجیه دارد؟ — تصمیم بعد از validation؛ فعلاً RAWها نگه داشته شوند `[OPEN — P2]` [[RESEARCH-INTEGRATION-round1|round1 §۱]].
+16. **لایهٔ درآمد B2B** (استاک Adobe/Foap + parts modeling، AUD 350–600/نیم‌روز `[EST]`): الحاق به verdict ‏MONETIZATION-EXPANSION؟ ⚠️ tension با ناشناسی (invoice/ABN/هویت واقعی) — حل tension پیش‌شرط است `[OPEN — P1/P2]` [[RESEARCH-INTEGRATION-round1|round1 §۱]].
 
 ### بسته‌شده (2026-07-04/05)
 - ~~نتیجهٔ Track B~~ → GO conditional (2026-07-04).

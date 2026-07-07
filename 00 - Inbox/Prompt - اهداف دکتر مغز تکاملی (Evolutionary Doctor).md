@@ -1,14 +1,15 @@
 ---
 type: prompt
-status: partially-ratified
+status: draft
 tags: [doctor, evolution, autonomy, fugu, goals, prompt]
 created: 2026-07-05
-updated: 2026-07-05
+updated: 2026-07-07
 related: "[[EXPERIENCE-LEDGER]] · [[DOCTOR-BLUEPRINT-v1]] · [[LIVING-BRAIN-BLUEPRINT]] · [[AGENT_REGISTRY]] · [[HANDOFF]]"
 ---
 
 # پرامپت جامع اهداف — «دکتر مغز تکاملی» (Evolutionary Doctor)
 
+> وضعیت دقیق پیش از تطبیق با schema (2026-07-07): «partially-ratified» — بخشی از تصمیم‌ها ratify شده بود؛ در schema به `draft` نگاشت شد.
 > **این سند فقط اهداف و نیت را ثبت می‌کند. هیچ‌چیزی ساخته یا اجرا نشده** (دستور آری: «اول پرامپت جامع بده، هیچی اجرا نکن»).
 > خروجی این جلسه = همین پرامپت. گام بعد (طراحی/ساخت) فقط با verdict آری و **پس از بسته‌شدن Security Gate** (چرخش secretها).
 > این پرامپت را می‌توان بعداً به یک جلسهٔ طراحی یا به خودِ Fugu داد تا معماری اجرایی از آن مشتق شود.

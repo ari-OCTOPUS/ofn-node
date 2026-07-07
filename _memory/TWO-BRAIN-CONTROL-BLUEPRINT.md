@@ -76,4 +76,9 @@ L0 گزارش · L1 پیشنهاد · **L2 bounded-auto** (فقط لیست سف�
 
 1. **تابع برازندگی** ✅ — کیفی می‌ماند (درآمد/خروجیِ پروژه‌ها + سادگی/سرعتِ workflow)؛ آستانهٔ عددی **بعد از ~۴ هفته دادهٔ EXPERIENCE-LEDGER** کالیبره می‌شود، نه الان (عدد بدون داده = دعوت به metric-gaming — یافتهٔ [[07 - Knowledge/_doctor-research/fitness-function-design|P1]]).
 2. **اولین فاز بعد از گیت** ✅ — **فاز ۲**: ادراکِ زمان‌بندی‌شده. تسک `perception-refresh` ساخته شد (هر ۲ ساعت، propose-only، فقط `_memory/SYSTEM-STATE.md` را بازتولید می‌کند) — چون کم‌ریسک است، پیش‌نیاز گیت ندارد، از امروز فعال.
-3. **موتورِ ستون۳** ✅ — **Claude پلکانی**: Haiku برای ادراک/روتین → Opus/Fable 5 فقط برای تحلیلِ سختِ جهش. Fugu **پیش‌فرض نیست*
+3. **موتورِ ستون۳** ✅ — **Claude پلکانی**: Haiku برای ادراک/روتین → Opus/Fable 5 فقط برای تحلیلِ سختِ جهش. Fugu **پیش‌فرض نیست**؛ فقط escalation اختیاری پشتِ سقفِ بودجهٔ روزانه (راستی‌آزمایی وب 2026-07-06: Fugu واقعی است ولی Ultra ضریب پنهان ۵–۱۵× توکن دارد → ناسازگار با سقف AU$30/ماه D-25 به‌عنوان پیش‌فرض؛ ضمناً Fugu خودش Claude را صدا می‌زند، پس دوگانهٔ مطلق نیست).
+4. **ریتمِ حلقه** ✅ — **burstهای زمان‌بندی‌شدهٔ کران‌دار**، نه daemon: هر burst = ۳–۵ round، بودجهٔ سخت per-cycle، kill-switch هر round، کفِ همگرایی دو-دوره (یافتهٔ [[07 - Knowledge/_doctor-research/loop-rhythm-convergence|P5]]: trigger-not-tick؛ polling پیوسته ۵–۱۰× گران‌تر) — سازگار با قید «فقط وقتی اپ باز است».
+
+## مرتبط
+
+- [[00 - Inbox/Prompt - اهداف دکتر مغز تکاملی (Evolutionary Doctor)|اهداف دکتر (۴ تصمیم قفل)]] · [[05 - Agents/AGENT_REGISTRY|AGENT_REGISTRY]] · [[01 - Dashboard/HANDOFF|HANDOFF]] · ارتیفکت: `fleet-live-dashboard`

@@ -61,3 +61,44 @@ verdict آری روی §۷ گرفته شد (area مستقل + cross-link · kind
 3. **نام پوشه:** `Time-Architecture` (لاتین، هم‌راستا با Crypto/Mining/Accounting) — تأیید یا rename به فارسی «معماری زمان»؟
 4. **RFC HRV:** آیا به `status: ready` برود؟ اجرا پشت Security Gate + verdict قفل است.
 5. **git checkpoint:** این mount فاقد git repo فعال است؛ «commit یک‌فرمانه» ممکن نشد. کل تغییر additive-only است — manifest برگشت‌پذیری در پاسخ چت. اگر repo جایی هست، مسیرش را بده تا checkpoint واقعی بزنیم.
+
+## 2026-07-06 — Claude (Cowork) — جلسه ۲۰ب: git repo با worktree غلط، commit بلاک شد
+
+هنگام checkpointِ پایانِ جلسهٔ HYBRID-SPEC، هر فرمان git با `fatal: Invalid path '/sessions'` می‌افتد. ریشه پیدا شد: `F:\backup\.git/config` یک خط دارد که به مسیرِ مردهٔ سندباکس اشاره می‌کند (بازماندهٔ یک commitِ سندباکس‌ساید):
+
+```
+[core]
+    worktree = /sessions/eager-brave-archimedes/mnt/backup
+```
+
+چون `.git` خودش داخلِ worktreeِ واقعی (`F:\backup`) است، این خط باید کلاً حذف شود تا git دوباره کار کند. **ولی قاعده §۰-۲ («هرگز به `.git` دست نزن») مطلق است → دست نزدم، طبق meta-rule توقف کردم و اینجا ثبت شد.** چون این mount نسخهٔ Windows-side است (نه سندباکس)، هر ۵ فایلِ این جلسه سالم روی دیسک‌اند و هر دو validator سبز — فقط snapshotِ برگشت‌پذیر گرفته نشد.
+
+**اقدام مالک (یک‌بار، دستی):** در PowerShell → `git -C "F:\backup" config --unset core.worktree` (یا خط `worktree` را از `.git/config` پاک کن) → بعد `git -C "F:\backup" add -A && git -C "F:\backup" commit -m "agent-checkpoint: HYBRID-SPEC + handoff جلسه ۲۰ب"`. پرسش باز: آیا اجازه می‌دهی ایجنت در جلسات بعد **فقط همین یک خطِ worktree** را در `.git/config` اصلاح کند (استثنای محدود به §۰-۲)، یا اصلاح git همیشه دستِ مالک بماند؟
+
+## 2026-07-06 — Claude Code (جلسه متابولیسم) — تصحیح دستور فیکس git بالا ⬆
+
+دستور ثبت‌شدهٔ بالا (`git -C "F:\backup" config --unset core.worktree`) **کار نمی‌کند** — تست شد: تا وقتی خط worktree هست، خودِ `git config` هم با `fatal: Invalid path '/sessions'` می‌افتد (git موقع کشف repo مسیر worktree را validate می‌کند). دستور درست که repo-discovery را دور می‌زند:
+
+```powershell
+git config --file "F:\backup\.git\config" --unset core.worktree
+git -C "F:\backup" config core.filemode false
+git -C "F:\backup" add -A
+git -C "F:\backup" commit -m "agent-checkpoint: baseline پیش از لایه متابولیسم"
+```
+
+و برای genome-system (صفر آبجکت، init خالی):
+
+```powershell
+git -C "F:\backup\07 - Knowledge\genome-system" add -A
+git -C "F:\backup\07 - Knowledge\genome-system" commit -m "initial commit: genome-system v0.4.x"
+```
+
+ایجنت طبق §۰-۲ + deny rule اجرایی به `.git` دست نزد؛ کل ساخت این جلسه additive است (فایل‌های نو زیر `_ops/`) و بدون checkpoint پیش رفت — بعد از فیکس، یک `add -A` همه را می‌گیرد.
+
+## 2026-07-07 ~15:45 — سه verdict از بازبینی چندایجنتی (جلسه ۲۴)
+
+بازبینی سه‌دپارتمانی (کد/سلامت/دیپلوی) شش یافته داد؛ سه‌تای agent-fixable همان جلسه فیکس و تست شد (rollback رزرو organ_gate · گارد نشت دوطرفه llm.py v0.4.3 · فنس ضدتزریق topics). این سه فقط با تصمیم تو حرکت می‌کنند:
+
+1. **عدم‌تقارن «شرط مرگ» واگرایی — `_ops/budget/telemetry.py:179-184`:** مخرج واگرایی `billed` است با گارد `billed_aud > 0.05`؛ اگر حسابدار (budget-state) خرجی را از دست بدهد و تلمتری ببیند (خطرناک‌ترین جهت)، STOP-METABOLIC فایر نمی‌شود — فقط جهت معکوس فایر می‌شود. پیشنهاد: مخرج `max(billed, telemetry)`. چون تعریف شرط مرگ در پک قفل است، تغییرش verdict می‌خواهد. موافقی؟
+2. **baseline کارایی خودارجاع — `_ops/budget/fitness.py:186-187`:** هر اجرا baseline را با نرخ همان اجرا بازنویسی می‌کند → efficiency عملاً همیشه ~0.5 می‌ماند و سیگنال کارایی هرگز فعال نمی‌شود (تا ۲۸ روز به‌هرحال shadow است). پیشنهاد: baseline از اجرای قبلی خوانده شود. تصمیم مدل‌سازی است — verdict؟
+3. **(یادآوری V1، از قبل باز)** خط DISASTER در `budget_gate.py:90` مقدار AUD را با ثابت `DISASTER_USD=500` مقایسه می‌کند → فاجعه در ~۳۳۳ USD فایر می‌شود نه ۵۰۰. داخل بستهٔ V1 (CEIL_DAY_USD/قیمت‌ها) تصمیم بگیر.
