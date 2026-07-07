@@ -197,3 +197,10 @@ master اکنون = جلسه ۲۷ کامل + STAGE 0 + پاسخ‌های اپر�
 8. همین ضمیمه + HANDOFF + PROJECT.
 
 **گپ‌های باز:** tier ابری رمزنگاری‌شده · محتوای واقعی core.db پس از اولین اجرای brain · enforcement آستانهٔ AU$20 (ماژول trust/ramp — P2) · بازبینی smoke ‏۲۴ساعته فردا (organism روشن مانده؛ kill تمیز = فایل `_ops\STOP-ORGANISM`).
+
+## ضمیمهٔ ۵ (append-only) — PLAN-ONLY: ‏MASTER-PLAN v1 + دو INCIDENT از audit زنده (2026-07-07 ~۲۱:۱۰)
+
+دستور plan-only اپراتور اجرا شد — هیچ ساختی، هیچ تغییر live، فقط audit + پلن + ثبت:
+
+- **audit زنده سه یافتهٔ نو داد:** 🔴 ‏INC-1: ارگانیسم پس از ۳ tick سالم از ~20:53 مرده (پورت refused؛ هیچ python/cmd؛ هیچ crash-log/heartbeat خروج → ‏kill خارجی پروسه+launcher؛ محتمل: teardown ‏job سندباکس ایجنت — **درس: تولد پایدار فقط با لانچ مالک یا Scheduled Task**) · 🟠 ‏INC-2: اولین اجرای scheduled ‏germline-hourly ‏FAIL ‏(20:49، ‏exit 1؛ stderr در log نیست؛ اجرای دستی سبز بود) — لایهٔ روزانه+دستی پوشش می‌دهد؛ [RE-VERIFY @21:49] · 🟡 سه فایل soma-state ناخواسته tracked → repo با هر tick دائم dirty (تصمیم gitignore = C6).
+- **خروجی:** [[00 - Inbox/2026-07-07 2110 OCTOPUS-MASTER-PLAN v1|OCTOPUS-MASTER-PLAN v1]] — چهار Track ‏(A ایمنی پول: bg-v2/money_gate/capability-gate/V2/MAX_LAG · ‏B اولین tentacle ‏paper = Lead-نقاشی تا اولین دلار CONFIRMED · ‏C سخت‌سازی/رصد: فیکس دو INCIDENT، smoke ‏۲۴h، tier ابری، داشبورد 8771، ‏gitignore ‏soma · ‏D فروش 07-20 ‏human-gated مستقل) + گراف وابستگی/critical-path + ‏۱۰ ‏open-decision + ‏[RE-VERIFY]ها. **هیچ فرضی به‌جای verdict گذاشته نشد.**
