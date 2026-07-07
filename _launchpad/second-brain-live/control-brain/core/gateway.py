@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """API Gateway واحد — تنها راه آداپترها به دنیا (ARCHITECTURE §۴، ADR-004).
 
-- llm(tier="cheap")   → DeepSeek deepseek-chat
+- llm(tier="cheap")   → DeepSeek deepseek-v4-flash
 - llm(tier="escalate")→ Fugu (پشت دروازه بودجه FUGU_BUDGET_MONTHLY، پیش‌فرض $40)
 - search()            → Tavily
 - cache ۲۴ساعته در Memory · هر call یک ردیف usage · خطای بودجه = BudgetExceeded
@@ -17,7 +17,7 @@ from typing import Optional
 
 # قیمت تخمینی هر ۱M توکن (USD) — منبع: pricing رسمی 2026-07
 _PRICES = {
-    "deepseek": (0.28, 1.10),          # deepseek-chat in/out
+    "deepseek": (0.14, 0.28),          # deepseek-v4-flash in/out (aliasهای chat/reasoner از 2026-07-24 بازنشسته)
     "fugu": (5.00, 30.00),             # fugu-ultra rates (محافظه‌کارانه برای هر دو)
 }
 
@@ -101,7 +101,7 @@ class Gateway:
         if self.mem.day_cost("deepseek") >= self.ds_daily_budget:
             raise BudgetExceeded(f"سقف روزانه DeepSeek (${self.ds_daily_budget}) پر شد")
         data = self._post("https://api.deepseek.com/chat/completions",
-                          {"model": "deepseek-chat", "max_tokens": max_tokens,
+                          {"model": "deepseek-v4-flash", "max_tokens": max_tokens,
                            "messages": self._messages(prompt, system)},
                           {"Authorization": f"Bearer {self._ds_key}"})
         self._record("deepseek", data.get("usage") or {}, business)

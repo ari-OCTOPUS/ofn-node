@@ -73,7 +73,7 @@ def save_env(form):
     if ds:
         lines.append(f"ANTHROPIC_API_KEY={ds}")  # کد قدیمی همین نام را می‌خواند؛ مقصدش DeepSeek است
         lines.append("ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic")
-        lines.append("LLM_MODEL=deepseek-chat")
+        lines.append("LLM_MODEL=deepseek-v4-flash")
     ENV.write_text("\n".join(lines) + "\n", encoding="utf-8")
     if cid.isdigit():
         p1 = CB / "config" / "projects.yaml"
@@ -172,7 +172,7 @@ def build_report():
         code, _ = http_get("https://api.deepseek.com/models",
                            {"Authorization": f"Bearer {k}"})
         rows.append(("DeepSeek (موتور اصلی)", "ok" if code == 200 else "no",
-                     "متصل ✔ مدل: deepseek-chat" if code == 200 else f"کلید رد شد ({code or 'شبکه'})"))
+                     "متصل ✔ مدل: deepseek-v4-flash" if code == 200 else f"کلید رد شد ({code or 'شبکه'})"))
     else:
         rows.append(("DeepSeek (موتور اصلی)", "warn", "کلید نیست → حالت آفلاین"))
     # Sakana Fugu

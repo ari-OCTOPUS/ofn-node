@@ -49,7 +49,7 @@ everything from the LIVE vault in Phase 0. Do NOT trust this list, memory, or an
   "04 - Architect System/scripts/{validate_frontmatter,find_broken_links}.py" (run from WINDOWS python;
   the Linux sandbox view can truncate). Obsidian .base files exist (DB views) — catalog them.
   CLAUDE.md, _PROJECT_INSTRUCTIONS.md, ROTATION_CHECKLIST.md, .agentignore, .gitignore.
-- Vault root: C:\Users\Armin\Desktop\backup  (confirm before touching anything).
+- Vault root: F:\backup  (confirm before touching anything).
 
 # PRIME DIRECTIVES (non-negotiable)
 0. NO SAFETY NET. The vault is untracked -> you cannot `git reset`. Before ANY mutation, confirm the
@@ -176,7 +176,7 @@ not ingest/build until ROTATION_CHECKLIST CRITICAL rows are closed.
 ```
 
 ## وضعیت نهایی‌سازی (حل‌شده — 2026-07-04)
-- ✅ **مسیر vault:** `C:\Users\Armin\Desktop\backup` — داخل بلوک پرامپت (خط `Vault root`) جای‌گذاری شد.
+- ✅ **مسیر vault:** `F:\backup` — داخل بلوک پرامپت (خط `Vault root`) جای‌گذاری شد.
 - ✅ **مسیر خروجی:** روی `/_memory/` قفل شد (از قبل موجود است؛ در Phase 0a هم self-exclude شد تا خروجی خودش را ingest نکند).
 - ✅ **rotation per-service:** نیازی به دادن دستیِ سرویس‌ها نیست — [[ROTATION_CHECKLIST]] (canonical) هر ۲۳ ردیف را با
   Issuer/محلِ چرخشِ per-service دارد (bybit · okx · console.anthropic · platform.openai · BotFather · github ·

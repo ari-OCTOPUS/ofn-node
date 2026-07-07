@@ -3,7 +3,7 @@ type: log
 status: active
 tags: [agents, escalation]
 created: 2026-07-03
-updated: 2026-07-04
+updated: 2026-07-07
 ---
 
 # سوالات ایجنت‌ها — کانال escalation
@@ -108,3 +108,7 @@ git -C "F:\backup\07 - Knowledge\genome-system" commit -m "initial commit: genom
 ✅ ریشهٔ خرابی git پیدا و فیکس شد (با تأیید تو): `.git/config` خط `core.worktree` به مسیر sandbox قدیمی (`/sessions/eager-brave-archimedes/...`) اشاره می‌کرد که روی این ویندوز وجود نداشت. خط حذف شد، backup در `.git/config.bak-pre-worktree-fix` ماند. **commit زده شد** (۱۷۷۶ فایل، `76f58ca`) — کل backlog از ۰۷-۰۶ ۱۱:۵۳ تا الان (لایهٔ ارگانیسم، پنل، فیکس‌های genome v0.4.3، بازبینی چندایجنتی) الان در تاریخچهٔ git است. `git fsck --full` و diff فایل‌های کلیدی صفر مشکل نشان داد.
 
 🆕 **یافتهٔ جانبی دربارهٔ genome-system:** `.git` داخل `07 - Knowledge/genome-system/` تقریباً خالی/بی‌اعتبار بود (فقط `filemode=false`، صفر commit) — برای همین git ریپوی اصلی آن را submodule نشناخت و کل محتوایش را مثل فایل عادی داخل همین commit گرفت. یعنی genome-system از نظر عملی الان کامل در تاریخچهٔ ریپوی اصلی ثبت است. تصمیم باز: (الف) همین‌طور بماند — genome-system بخشی از ریپوی اصلی حساب شود، ریپوی خالی داخلی‌اش نادیده گرفته شود، یا (ب) بخواهی genome-system واقعاً ریپوی مستقل خودش باشد (مثلاً برای جداسازی/انتشار بعدی) که آن‌وقت باید `.git` داخلی درست init و اولین commit جدا زده شود، و از ریپوی اصلی به‌عنوان submodule/gitlink اضافه شود. تا verdict، دست به `.git` دوم نمی‌زنم.
+
+## 2026-07-07 ~۱۸:۱۵ — Claude Code (جلسه ۲۷، worktree jolly-ardinghelli)
+
+**langar (کد legacy داخل `architect/_code/`) هنوز پیش‌فرض `deepseek-reasoner` دارد** — طبق [[04 - Architect System/architect/_meta/knowledge-inventory|knowledge-inventory]] (بخش langar/brain/providers) و [[04 - Architect System/architect/01-Project/SYSTEM-BLUEPRINT-v1|SYSTEM-BLUEPRINT-v1]]؛ این alias از 2026-07-24 می‌میرد. چون `_code` طبق §۰-۲ برای ایجنت ممنوع است، دست نزدم. اگر langar قرار است دوباره زنده شود، یا خودت فیکسش کن یا اجازهٔ صریح با نام فایل بده (`langar/brain/providers.py` → `deepseek-v4-flash`). کدهای زندهٔ بیرون از `_code` (gateway / setup_wizard / learning-engine providers) همین جلسه مهاجرت کردند — [[00 - Inbox/2026-07-07 1815 گزارش جلسه ۲۷ — اجرای دستور کار جلسه ۲۶|گزارش جلسه ۲۷]].

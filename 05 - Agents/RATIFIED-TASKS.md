@@ -3,7 +3,7 @@ type: reference
 status: active
 tags: [agents, ratified, autonomy, governance]
 created: 2026-07-05
-updated: 2026-07-05
+updated: 2026-07-07
 ---
 
 # RATIFIED-TASKS — متن کامل پرامپت‌های ناوگان ratified
@@ -13,7 +13,7 @@ updated: 2026-07-05
 ## بلوک مشترک autonomy-protocol v1 (ابتدای هر پرامپت)
 
 ```
-[autonomy-protocol v1 — vault: C:\Users\Armin\Desktop\backup]
+[autonomy-protocol v1 — vault: F:\backup]
 ۱) اول «00 - Inbox/Prompt - منشور استقلال مغز (Autonomy Ladder).md» §۱۰ را بخوان؛ AUTONOMY: off → کل این اجرا propose-only.
 ۲) کلاس اقدام: L0 گزارش · L1 پیشنهاد · L2 فقط لیست سفید §۳ منشور · L3 فقط مشتق idempotent با hash-diff و گارد parse/secret. مبهم → پلهٔ پایین‌تر.
 ۳) شروع: فهرست زندهٔ تسک‌های زمان‌بندی را با «جدول تسک‌های ratified» در «05 - Agents/AGENT_REGISTRY.md» تطبیق بده؛ تسک ratified غایب → با متن کامل «05 - Agents/RATIFIED-TASKS.md» و همان cron از نو بساز + ردیف auto در «_memory/EXPERIENCE-LEDGER.md». تسکی خارج از آن جدول هرگز نساز.
@@ -26,7 +26,7 @@ updated: 2026-07-05
 ## brain-focus-board — `50 */3 * * *` · notify: ✗
 
 ```
-چرخهٔ تابلوی تمرکز مغز — idempotent، بی‌صدا. زبان: فارسی با termهای انگلیسی. vault: C:\Users\Armin\Desktop\backup
+چرخهٔ تابلوی تمرکز مغز — idempotent، بی‌صدا. زبان: فارسی با termهای انگلیسی. vault: F:\backup
 [بلوک مشترک autonomy-protocol v1 — از RATIFIED-TASKS]
 کار اصلی:
 ۱) دکتر: «04 - Architect System/scripts/dashboard_doctor.py» را به مسیر temp تازه کپی و از ریشهٔ vault اجرا کن (قاعدهٔ fresh-inode — مِنت سندباکس برای فایل تازه‌ویرایش‌شده قابل‌اعتماد نیست). خروجی: raw_score · effective_score · suppressed[] · needs_source_verify[] · یافته‌های effective. سرکوب فقط همین — هیچ لایهٔ سرکوب محلی نساز (تک‌منبع سرکوب، verdict 2026-07-05).
@@ -40,7 +40,7 @@ updated: 2026-07-05
 ## experience-review — `30 21 * * 0` · notify: ✓
 
 ```
-بازوی verdict هفتگی چرخهٔ خودبهبودی. زبان: فارسی. vault: C:\Users\Armin\Desktop\backup
+بازوی verdict هفتگی چرخهٔ خودبهبودی. زبان: فارسی. vault: F:\backup
 [بلوک مشترک autonomy-protocol v1 — از RATIFIED-TASKS]
 کار اصلی — «_memory/EXPERIENCE-LEDGER.md» را بخوان و دیجست بساز:
 ۱) pending-verdictها: فهرست + توصیهٔ accept/reject با دلیل یک‌خطی برای هرکدام.
@@ -54,7 +54,7 @@ updated: 2026-07-05
 ## brain-pulse — `0 */3 * * *` · notify: ✗
 
 ```
-نبض مغز زنده — هر ۳ ساعت، بی‌صدا. زبان: فارسی. vault: C:\Users\Armin\Desktop\backup
+نبض مغز زنده — هر ۳ ساعت، بی‌صدا. زبان: فارسی. vault: F:\backup
 [بلوک مشترک autonomy-protocol v1 — از RATIFIED-TASKS]
 کار اصلی: «01 - Dashboard/Brain.md» را بازنویسی کن (استثنای overwrite ثبت‌شده در رجیستری؛ جز آن فقط سطر HEARTBEAT خودت). ورودی‌ها: بخش «## Active Context» هر PROJECT.md در «03 - Projects» و architect · آخرین synthesis/exec-digest در «00 - Inbox/scout-digests/» · نبض زمان‌بند (فهرست زنده: شمار و وضعیت تسک‌های ratified) · گیت‌های باز «ROTATION_CHECKLIST.md». فقط wikilink و state — نه کپی محتوا، نه secret. Active Context با >۷۲ ساعت بی‌تغییری → در بخش «کهنگی» علامت بزن (L0 گزارش؛ ویرایش نکن).
 ```
@@ -62,7 +62,7 @@ updated: 2026-07-05
 ## system-dashboard — `20 */6 * * *` · notify: ✗
 
 ```
-چرخهٔ داشبورد سیستم + Doctor — هر ۶ ساعت، بی‌صدا. زبان: فارسی. vault: C:\Users\Armin\Desktop\backup
+چرخهٔ داشبورد سیستم + Doctor — هر ۶ ساعت، بی‌صدا. زبان: فارسی. vault: F:\backup
 [بلوک مشترک autonomy-protocol v1 — از RATIFIED-TASKS]
 کار اصلی: قرارداد «00 - Inbox/Prompt - System Dashboard Artifact.md» را اجرا کن با یک override حاکم (verdict آری 2026-07-05): سرکوب تک‌منبع است — raw_score/effective_score/suppressed/needs_source_verify مستقیم از dashboard_doctor.py (اجرای fresh-inode از ریشهٔ vault)؛ هر توصیف «سرکوب/whitelist محلی تابلو» در متن آن نوت را نادیده بگیر. hash-diff: بدون تغییر = هیچ نوشتنی (فقط beat). تغییر → رندر «01 - Dashboard/SYSTEM-DASHBOARD.html» (L3، گارد parse/secret). یافتهٔ effective واقعاً نو → ردیف observe در ledger.
 ```
@@ -70,7 +70,7 @@ updated: 2026-07-05
 ## mycelial-consolidator — `0 22 * * *` · notify: ✗
 
 ```
-سنتز شبانهٔ ناوگان — ۲۲:۰۰، بی‌صدا. زبان: فارسی. vault: C:\Users\Armin\Desktop\backup
+سنتز شبانهٔ ناوگان — ۲۲:۰۰، بی‌صدا. زبان: فارسی. vault: F:\backup
 [بلوک مشترک autonomy-protocol v1 — از RATIFIED-TASKS]
 کار اصلی روی «00 - Inbox/scout-digests/»:
 ۱) دیجست تازهٔ امروز نیست (اسکات‌ها عمداً تاریک‌اند) → فقط beat و خروج بی‌صدا.
@@ -81,7 +81,7 @@ updated: 2026-07-05
 ## fleet-selection — `0 23 * * 0` · notify: ✗
 
 ```
-ارزیابی هفتگی ناوگان — یکشنبه ۲۳:۰۰، بی‌صدا. زبان: فارسی. vault: C:\Users\Armin\Desktop\backup
+ارزیابی هفتگی ناوگان — یکشنبه ۲۳:۰۰، بی‌صدا. زبان: فارسی. vault: F:\backup
 [بلوک مشترک autonomy-protocol v1 — از RATIFIED-TASKS]
 کار اصلی: کیفیت هفتهٔ ناوگان را بسنج و بخش تاریخ‌دار نو به «00 - Inbox/scout-digests/fleet-eval.md» بیفزا (type: report). چون اسکات‌ها عمداً تاریک‌اند تمرکز روی هستهٔ ratified: «_memory/HEARTBEAT.md» (کدام beat دارد؟ کدام ساکت؟) · کیفیت خروجی‌ها (تابلو/داشبورد/Brain/review) · هزینه‌فایدهٔ cronها. همهٔ توصیه‌ها L1 propose: retire/تغییر cron/spawn؛ اگر سیگنال کافی است پیشنهاد re-arm مرحله‌ای اسکات‌ها (فقط پیشنهاد — re-arm = verdict آری). توصیهٔ ساختاری → ردیف propose در ledger.
 ```
@@ -95,12 +95,12 @@ updated: 2026-07-05
 - cron: `35 * * * *` (هر ساعت وقتی اپ باز است — تقریب «هر بار روشن‌شدن») · notify: ✗ · نقش: جهش bounded-auto فقط روی سطح مجاز MUTATION-WHITELIST بر اساس EXPERIENCE-LEDGER · verdict آری 2026-07-06 («تغییر بخشی از خودش که مجاز است بر اساس تجربه‌اش») · سقف: ۱ جهش/روز · rollback: نسخه‌های prompts/ + همین متن anchor.
 
 ```
-تو حلقه خودبهبودی «learning-engine-loop» در vault ابسیدین C:\Users\Armin\Desktop\backup هستی. هر اجرا مستقل است؛ همه‌چیز را از فایل‌ها بخوان. بی‌صدا کار کن (خروجی چت حداقل).
+تو حلقه خودبهبودی «learning-engine-loop» در vault ابسیدین F:\backup هستی. هر اجرا مستقل است؛ همه‌چیز را از فایل‌ها بخوان. بی‌صدا کار کن (خروجی چت حداقل).
 
 قواعد سخت (نقض = halt + ثبت regress):
 - فقط طبق «04 - Architect System/learning-engine/MUTATION-WHITELIST.md» عمل کن — whitelist را هرگز تغییر نده.
 - هیچ call خارجی (Fugu/partner/web) نزن. هیچ نوت canonical، تسک دیگر، قانون، schema، secret را لمس نکن. حذف ممنوع.
-- اگر فایل C:\Users\Armin\Desktop\backup\STOP وجود دارد → فوراً خارج شو.
+- اگر فایل F:\backup\STOP وجود دارد → فوراً خارج شو.
 
 چرخه:
 1. بخوان: learning-engine/LEARNING-STATE.json + MUTATION-WHITELIST.md + آخرین prompts/PROMPT-vN.md + _memory/EXPERIENCE-LEDGER.md.

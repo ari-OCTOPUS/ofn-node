@@ -5,6 +5,16 @@ updated: 2026-07-07
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+## جلسه بیست‌وهفتم 2026-07-07 ~۱۸:۱۵ (Claude Code، worktree jolly-ardinghelli) — دستور کار جلسه ۲۶ اجرا شد: مهاجرت DeepSeek + قتل مسیر مرده + تست دیوار باربر + فیکس کوریِ validator
+
+آری گزارش جلسه ۲۶ (راستی‌آزمایی زمینی، worktree ‏modest-gould-1c7bac، **merge‌نشده** — شماره ۲۶ برای همان رزرو ماند) را به این جلسه سپرد؛ هر ادعا پیش از ویرایش روی ریپو دوباره verify شد — همه دقیق بودند. گزارش کامل: [[00 - Inbox/2026-07-07 1815 گزارش جلسه ۲۷ — اجرای دستور کار جلسه ۲۶|گزارش جلسه ۲۷]].
+
+- 🔴→✅ **مهاجرت DeepSeek کد زنده (مهلت 07-24):** ‏`gateway.py` (مدل :104 + قیمت‌ها :20 → ‏`deepseek-v4-flash` ‏$0.14/$0.28) · ‏`setup_wizard.py` (:76 ‏`LLM_MODEL` در ‏.env-ساز + :175 برچسب) · learning-engine ‏`app/providers.py` (:46) · اسناد bundle هم‌سو (README-FA/ARCHITECTURE). ‏`_ops` از قبل v4-flash — دست‌نخورده. ⚠️ اگر `.env` موجود هنوز `LLM_MODEL=deepseek-chat` دارد فقط مالک دستی عوض کند (ایجنت ‏.env را نمی‌خواند) یا ویزارد دوباره اجرا شود.
+- 🔴→✅ **مسیر مردهٔ `C:\Users\Armin\Desktop\backup` → `F:\backup` در ۷ فایل عملیاتی:** [[05 - Agents/RATIFIED-TASKS|RATIFIED-TASKS]] (۹ جا شامل مسیر STOP) · ‏PROMPT-v1/v2 ‏learning-engine · [[04 - Architect System/architect/01-Project/M0.5-RESTORE-RUNBOOK-proposal|M0.5-runbook]] (همهٔ rclone/schtasks) · ‏`_memory/BUILD-PROMPT.md` · README ‏app · ‏gitleaks.toml. ارجاع‌های تاریخی و `backup-Archive`/`deploy-lab` عمداً دست‌نخورده. ناوگان زمان‌بند خالی بود → تسکی برای همگام‌سازی نبود (قید RATIFIED-TASKS برقرار)؛ restore بعدی با مسیر درست متولد می‌شود.
+- 🟠→✅ **تست دیوار باربر** در `_ops/tests/test_fitness_sigma.py`: جعل ۵ APPROVAL + ۱ EXPERIENCE در ledger → σ بالا می‌رود (اثبات رسیدن حمله) ولی `acceptance_rate`/`judged` بی‌حرکت + cell حذف نمی‌شود + ‏authoritative سایه می‌ماند. سوئیت ۶ فایل/۴۰ چک سبز ($0).
+- 🆕✅ **کشف+فیکس این جلسه: هر دو validator داخل worktree «سبزِ خالی» می‌دادند** — ‏EXCLUDE ‏`.claude` روی مسیر مطلق چک می‌شد و worktreeها زیر `.claude/worktrees/`اند → «بررسی شد: ۰ نوت» با exit 0. فیلتر → مسیر نسبی‌به‌ROOT (رفتار اجرا از ریشهٔ واقعی عیناً همان). الان ۳۰۴/۵۷۳ نوت اسکن؛ فقط همان ۳۳ خطای backlog جلسه ۲۴ + ۱ placeholder کهنه (§۱۱ عمداً رها) — **صفر خطای نو از این جلسه**.
+- **میز آری:** merge دو branch (‏`claude/modest-gould-1c7bac` = گزارش ۲۶ · ‏`claude/jolly-ardinghelli-0e33f4` = این تغییرات) · ‏.env دستی (بالا ⬆) · سؤال نو ‏langar (‏`_code`) در [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]] · نردبان قبلی دست‌نخورده: بک‌اپ off-box + restore-drill (M0.5) → verdictها (V1/V2 + ۳ مورد ۰۷-۰۷) → دابل‌کلیک RUN-ORGANISM → متولی فروش 07-20. ‏leftover ایجنت بعدی: `ZIMAN-BRAIN-SETUP.md:36` (cd مسیر مرده، یک‌خطی).
+
 ## جلسه بیست‌وپنجم 2026-07-07 ~۱۶:۳۰ (Claude Code) — 🟢 git اصلی فیکس و commit شد؛ حافظهٔ ماندگار ایجنت تکمیل شد
 
 آری: «مطمئن شو همه‌چیز ذخیره بشه، مسیر تغییرات را مهندس/ایجنت بعدی بفهمد.»
