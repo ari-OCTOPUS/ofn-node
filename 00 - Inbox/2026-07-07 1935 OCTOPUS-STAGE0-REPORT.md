@@ -155,3 +155,15 @@ epoch_mode: "allostatic — تابعِ فشار [VERIFIED در governor_epoch.py
 | حاکمیت | ✅ تأیید: فقط فیکس verdict-دار اعمال شد؛ شل‌کردن ترمز رد شد | — |
 
 **تنها گیت باقی‌مانده پیش از P2: merge دو branch (فقط-مالک) → اولین tick.** سؤال‌های هنوز باز: Fugu ‏base_url/دسترسی AU [OPEN] · MAX_LAG عددی (P1) · منحنی رشد trust (P2).
+
+## ضمیمهٔ ۲ (append-only) — اجرای دستور merge اپراتور + سبزی پس از ادغام (2026-07-07 ~۲۰:۴۵)
+
+دستور human-gated اپراتور («فقط همین کار») اجرا شد:
+
+1. merge نیمه‌تمام موجود بود (MERGE_HEAD=`720de99`، **صفر conflict** — توقف تلاش قبلی = خطای مجوز گذرای `.git/objects`، نه تعارض) → `git merge --abort` تمیز.
+2. tag ‏`pre-merge-20260707` از قبل وجود داشت؛ verify شد → دقیقاً `6a1d493` ✅ (واگرد اضطراری: `git reset --hard pre-merge-20260707`).
+3. ‏modest-gould طبق دستور merge نشد. ⚠ **یافتهٔ دقیق برای مالک:** tip آن شاخه = `5356cd7` یعنی **صفر کامیت اختصاصی** — «در master بودن» فقط ancestor بودن است؛ **فایل گزارش جلسه ۲۶ («…1745 گزارش راستی‌آزمایی زمینی….md») در master نیست** (نه tracked، نه روی دیسک Inbox اصلی) و تنها نسخه‌اش uncommitted روی دیسک worktree قدیمی است: `F:\backup\.claude\worktrees\modest-gould-1c7bac\00 - Inbox\`. HANDOFF ‏master هم ورودی جلسه ۲۶ ندارد. بازیابی = کپی همان فایل به Inbox اصلی + commit (یک‌دقیقه‌ای؛ خارج از mandate این دستور — انجام نشد).
+4. **merge انجام شد: `35c383f`** — ۲۷ فایل، +489/−66، **صفر conflict**، تلاش اول، بدون خطای مجوز، درخت کار تمیز (SYSTEM-OVERVIEW فقط سمت master تغییر کرده بود و HANDOFF فقط سمت شاخهٔ ما → تداخلی نبود).
+5. **سبزی پس از merge روی F:\backup:** سوئیت `_ops` ۶ فایل/۴۰ چک سبز · فرانت‌متر: ۳۳۲ نوت، همان ۳۳ خطای backlog شناختهٔ §۱۱ · لینک‌ها: ۶۱۹ نوت، همان ۱ placeholder کهنه — **صفر خطای نو**. (اختلاف شمارش با worktree = فایل‌های ignored/محلیِ روی دیسک master که در git نیستند.)
+
+master اکنون = جلسه ۲۷ کامل + STAGE 0 + پاسخ‌های اپراتور + SYSTEM-OVERVIEW. گیت بعدی: **P0.5** (rclone به دیسک دوم → restore-drill) → tick اول.
