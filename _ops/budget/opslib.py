@@ -54,6 +54,33 @@ ALERTS_MD      = OPS / "governor" / "governor-alerts.md"     # همان مقصد
 HEARTBEAT_MD   = ORG_ROOT / "_memory" / "HEARTBEAT.md"       # صریحاً _memory ریشه (نه 04/_memory)
 AGENT_QUESTIONS = ORG_ROOT / "00 - Inbox" / "AGENT_QUESTIONS.md"
 
+# germline vital (verdict آری 2026-07-07 #4): سن تازه‌ترین مصنوع بک‌آپ off-box
+OFFBOX_DIR      = pathlib.Path(os.environ.get("GERMLINE_OFFBOX", r"E:\germline"))
+GERMLINE_WARN_H = 2.0
+GERMLINE_ERR_H  = 26.0
+
+
+def germline_lag_hours(offbox=None):
+    """سن تازه‌ترین مصنوع germline (ساعت)؛ None = هیچ مصنوعی در دسترس نیست (خودش ERROR-سطح).
+    فقط می‌خواند — دسترس‌ناپذیری دیسک دوم نباید حلقه را بکشد (fail-soft؛ آلارم با مصرف‌کننده)."""
+    ob = pathlib.Path(offbox) if offbox else OFFBOX_DIR
+    cands = [ob / "last_backup_manifest.json", ob / "hourly-latest.bundle"]
+    try:
+        cands += list(ob.glob("vault-*.bundle"))
+    except OSError:
+        pass
+    stamps = []
+    for p in cands:
+        try:
+            if p.exists():
+                stamps.append(p.stat().st_mtime)
+        except OSError:
+            continue
+    if not stamps:
+        return None
+    import time as _time
+    return round((_time.time() - max(stamps)) / 3600.0, 2)
+
 # فعال‌سازی زندهٔ مناظره/تکثیر پیش از این تاریخ ممنوع است (سپر pitch فاز −۱، پک §D.3)
 LIVE_GATE_DATE = _dt.date(2026, 7, 21)
 # پرچم‌های فعال‌سازی فقط-مالک (وجود فایل = verdict؛ کد هرگز خودش نمی‌سازد)

@@ -143,6 +143,14 @@ def main() -> int:
                 return 0
             snap = telemetry.snapshot()
             conflicts = telemetry.reconcile(snap)
+            # vital ناوردی ۳ (verdict 2026-07-07 #4): کهنگی germline — warn>2h، ERROR>26h/غایب
+            lag = opslib.germline_lag_hours()
+            germ = {"germline_lag_h": lag}
+            if lag is None or lag > opslib.GERMLINE_ERR_H:
+                germ["germline_alert"] = "ERROR"
+                opslib.alert([f"germline_lag ERROR: {lag}h — بک‌آپ off-box کهنه/غایب (ناوردی ۳)"])
+            elif lag > opslib.GERMLINE_WARN_H:
+                germ["germline_alert"] = "warn"
             epoch_info = {}
             now = time.time()
             if now >= next_epoch_at:
@@ -172,7 +180,7 @@ def main() -> int:
                 last_heartbeat = now
             _write_state({"month": snap["month"], "today": snap["today"],
                           "suspect_zero_total": snap["suspect_zero_total"],
-                          "conflicts": conflicts, **epoch_info, **daily})
+                          "conflicts": conflicts, **germ, **epoch_info, **daily})
         except KeyboardInterrupt:
             opslib.heartbeat("organism=STOP (KeyboardInterrupt)")
             return 0

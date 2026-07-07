@@ -202,5 +202,14 @@ master اکنون = جلسه ۲۷ کامل + STAGE 0 + پاسخ‌های اپر�
 
 دستور plan-only اپراتور اجرا شد — هیچ ساختی، هیچ تغییر live، فقط audit + پلن + ثبت:
 
+## ضمیمهٔ ۶ (append-only) — BUILD ‏Track 0: پایدارسازی ✅ (2026-07-07 ~۲۱:۵۰ — commit ‏`49312fa`)
+
+- **C6 ✅** سه فایل soma ‏untrack (`git rm --cached` — فایل‌ها روی دیسک) + ‏.gitignore (شامل الگوی `telemetry/` برای فایل‌های dated فردا)؛ حضورشان در بک‌آپ verify شد؛ repo تمیز. ‏follow-up کوچک: ‏fitness/replication-latest هم daily-churn دارند (سؤال باز).
+- **C2 ✅** ‏`scripts/organism-watchdog.ps1` + تسک ‏`organism-watchdog` ‏(Ready): هر ۱۵ دقیقه از +2h؛ اول تسلیم به STOP/STOP-ORGANISM؛ **فقط revive** (تولد اول همیشه دست مالک). انحراف: trigger ‏AtLogOn ‏Access-denied (الویشن) → پوشش ری‌بوت با همان تکرار ‏۱۵دقیقه‌ای.
+- **INC-2 ✅ ریشه:** با مهار stderr پیدا شد — «`remote: unable to write .../vault.git/objects/tmp_... Permission denied`» یعنی **git.exe زیر توکن task روی E: نمی‌نویسد ولی PowerShell می‌نویسد** (ACL سالم بود، CFA=0، ‏RunLevel Highest هم ثبت‌نشدنی). فیکس معماری: **git → ‏TEMP محلی، ‏Move با PowerShell به E:** · ‏hourly: push سبک مسیر اول + ‏fallback غلتان تک‌فایلی `hourly-latest.bundle` (‏~196MB ثابت — انباشته نمی‌شود، سازگار با نگرانی دیسک verdict) · ‏daily هم TEMP→Move. **verify در context واقعی زمان‌بند: hourly ‏`OK bundle-fallback` ✅ · ‏daily ‏result=0، ‏manifest ‏`2026-07-07_2144` ✅.** ‏[OPEN-DIAG غیرباربر: چراییِ دقیق رفتار git زیر task.]
+- **🟢 اقدام مالک: دابل‌کلیک `F:\backup\_ops\RUN-ORGANISM.bat`** → تولد پایدار + شروع کلاک smoke ‏۲۴h؛ watchdog از این پس مرگ ناخواسته را ≤۱۵min جبران می‌کند.
+
+## ضمیمهٔ ۵ → یادداشت زمینه (audit پیش از BUILD):
+
 - **audit زنده سه یافتهٔ نو داد:** 🔴 ‏INC-1: ارگانیسم پس از ۳ tick سالم از ~20:53 مرده (پورت refused؛ هیچ python/cmd؛ هیچ crash-log/heartbeat خروج → ‏kill خارجی پروسه+launcher؛ محتمل: teardown ‏job سندباکس ایجنت — **درس: تولد پایدار فقط با لانچ مالک یا Scheduled Task**) · 🟠 ‏INC-2: اولین اجرای scheduled ‏germline-hourly ‏FAIL ‏(20:49، ‏exit 1؛ stderr در log نیست؛ اجرای دستی سبز بود) — لایهٔ روزانه+دستی پوشش می‌دهد؛ [RE-VERIFY @21:49] · 🟡 سه فایل soma-state ناخواسته tracked → repo با هر tick دائم dirty (تصمیم gitignore = C6).
 - **خروجی:** [[00 - Inbox/2026-07-07 2110 OCTOPUS-MASTER-PLAN v1|OCTOPUS-MASTER-PLAN v1]] — چهار Track ‏(A ایمنی پول: bg-v2/money_gate/capability-gate/V2/MAX_LAG · ‏B اولین tentacle ‏paper = Lead-نقاشی تا اولین دلار CONFIRMED · ‏C سخت‌سازی/رصد: فیکس دو INCIDENT، smoke ‏۲۴h، tier ابری، داشبورد 8771، ‏gitignore ‏soma · ‏D فروش 07-20 ‏human-gated مستقل) + گراف وابستگی/critical-path + ‏۱۰ ‏open-decision + ‏[RE-VERIFY]ها. **هیچ فرضی به‌جای verdict گذاشته نشد.**

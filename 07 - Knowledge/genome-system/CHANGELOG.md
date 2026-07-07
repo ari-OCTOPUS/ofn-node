@@ -11,6 +11,11 @@ updated: 2026-07-07
 همهٔ نسخه‌ها **propose-only** ساخته و تست شده‌اند. تاریخ: ۲۰۲۶-۰۷-۰۶.
 نقشه: [[07 - Knowledge/genome-system/INDEX|INDEX]] · قواعدِ ایجنت‌ها: [[07 - Knowledge/genome-system/HANDOFF|HANDOFF]].
 
+## v0.4.4 — گسترش append-only ‏EVENT_TYPES: ‏`MONEY_ATTRIBUTION` (2026-07-07)
+- **چرا (verdict V2 آری، ‏STAGE-0 + دستور BUILD):** لایهٔ پول (attribution/reconcile — طرح MONEY-ATTRIBUTION v1) به رویداد درجه‌یک در ledger نیاز دارد؛ گزینهٔ NOTE/subtype رد شد.
+- **تغییر:** فقط append به مجموعهٔ بسته — `MONEY_ATTRIBUTION` (نویسنده فقط job ‏reconcile، هرگز ایجنت‌ها — دیوار ضدreward-hacking). هیچ type قدیمی/رفتار دیگری دست نخورد.
+- تست: `tests/money_event_test.py` — append نوع نو + زنجیره سالم بین انواع مخلوط + بسته‌ماندن مجموعه (نوع ناشناس هنوز رد می‌شود).
+
 ## v0.4.3 — گارد نشت کلید دوطرفه شد در `common/llm.py` (2026-07-07)
 - **گپ (کشف بازبینی چندایجنتی):** گارد v0.4.1 فقط جهتِ «کلید غیرآنتروپیک → api.anthropic.com» را می‌بست و با substring چک می‌کرد؛ کلید واقعی `sk-ant-` می‌توانست به هر هاست دیگری (typo در `ANTHROPIC_BASE_URL`) ارسال شود.
 - **فیکس:** چک روی hostname واقعی (`urllib.parse.urlsplit`) + جهت معکوس: کلید `sk-ant-*` به هر endpoint غیرآنتروپیک → `RuntimeError` پیش از I/O؛ کلید هرگز echo نمی‌شود. مسیر عمدی DeepSeek (کلید غیر sk-ant به هاست deepseek) دست‌نخورده.
