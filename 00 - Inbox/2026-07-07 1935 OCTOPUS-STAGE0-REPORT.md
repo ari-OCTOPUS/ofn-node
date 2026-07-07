@@ -167,3 +167,18 @@ epoch_mode: "allostatic — تابعِ فشار [VERIFIED در governor_epoch.py
 5. **سبزی پس از merge روی F:\backup:** سوئیت `_ops` ۶ فایل/۴۰ چک سبز · فرانت‌متر: ۳۳۲ نوت، همان ۳۳ خطای backlog شناختهٔ §۱۱ · لینک‌ها: ۶۱۹ نوت، همان ۱ placeholder کهنه — **صفر خطای نو**. (اختلاف شمارش با worktree = فایل‌های ignored/محلیِ روی دیسک master که در git نیستند.)
 
 master اکنون = جلسه ۲۷ کامل + STAGE 0 + پاسخ‌های اپراتور + SYSTEM-OVERVIEW. گیت بعدی: **P0.5** (rclone به دیسک دوم → restore-drill) → tick اول.
+
+## ضمیمهٔ ۳ (append-only) — P0.5 اجرا شد: germline off-box + restore-drill سبز (2026-07-07 ~۲۰:۲۲)
+
+اسکریپت P0.5 اپراتور اجرا شد با سه تطبیق [RE-VERIFY]شده: (۱) گیت `ledger.py verify` فعال شد — CLI واقعاً موجود بود (exit 0/1)؛ (۲) حذف `2>$null` از ‏git clone — تلهٔ PS5.1 با ‏EAP=Stop روی stderr پیشرفت؛ (۳) manifest با utf8. پیش‌فرض‌ها verify شد: درایو E ‏(«Game»، ۷۲GB آزاد) ≠ F ✅ · ۵۷۸ نوت tracked ≥ آستانهٔ ۳۰۰ ✅ · ‏ledger.jsonl ژنوم tracked (داخل bundle) ✅ · در `_ops` فقط `__pycache__` ‏ignored ✅.
+
+زنجیرهٔ fail-closed (هر پله شکست = توقف کل):
+
+1. `git fsck --full` روی vault ✅ · `ledger.py verify` زنجیرهٔ hash ژنوم ✅
+2. bundle کل تاریخچه → `E:\germline\vault-2026-07-07_2022.bundle` (**196.9MB**) + robocopy ‏`_ops` → ‏`state-2026-07-07_2022\`
+3. **restore-drill واقعی (هرگز روی vault ‏live):** clone از bundle به scratch → ‏fsck ✅ → **۵۷۸ نوت بازیابی** (= دقیقاً شمار tracked) → **verify زنجیرهٔ ledger «بازیابی‌شده»** ✅ (round-trip کامل) → scratch پاک
+4. manifest: ‏`drill: PASS`، ‏`germline_lag = 0`
+
+**ناوردی ۳ (germline-first) روی tier محلی بسته شد** — «بک‌آپ تست‌نشده = بک‌آپ نامعلوم» دیگر برقرار نیست؛ مسیر restore اثبات‌شده موجود است. **🟢 گیت tick اول باز است** (دابل‌کلیک `RUN-ORGANISM.bat` — فقط-مالک).
+
+باقی‌مانده/گپ ثبت‌شده: tier ابری رمزنگاری‌شده (هشدار خود اپراتور: آتش/سرقت) · زمان‌بندی تکرار بک‌اپ (کاندید: schtasks با همین اسکریپت bundle) · `core.db` و `_launchpad/**/events.jsonl` ‏gitignore‌اند و در bundle نیستند — الان تقریباً خالی؛ از اولین اجرای واقعی brain باید جداگانه (بدون `.env`!) به STATE_DIRS اضافه شوند.
