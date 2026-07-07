@@ -116,3 +116,7 @@ git -C "F:\backup\07 - Knowledge\genome-system" commit -m "initial commit: genom
 ## 2026-07-07 ~۱۹:۳۵ — Claude Code (ادامهٔ جلسه ۲۷، OCTOPUS STAGE 0) — چهار verdict گرفته و اعمال شد
 
 آری در چیپ چهارگزینه‌ای همین جلسه جواب داد: (۱) **اولویت = ستاپ کامل**؛ فروش 07-20 دستی/موازی خودش. (۲) **آستانهٔ human-gate پول = «$10»** → به‌عنوان AU$10 در `budgets.yaml` (کلید نو `human_gate_aud`) ثبت شد — **اگر USD منظورت بود بگو** (≈AU$15؛ اصلاح یک‌خطی). (۳) **V1 بسته: همه-AUD** (روز 2 / ماه 30 / فاجعه 500 / MAX_DRAWDOWN ≡ spike_pct) → `budget_gate` v1.1 اعمال و تست شد؛ آیتم ۳ ورودیِ ~15:45 (واحد DISASTER) با همین بسته حل شد. (۴) **V2 بسته: type جدید در EVENT_TYPES** — پیاده‌سازی آیتم P1 (ویرایش ledger.py + تست زنجیره). جزئیات و build-plan: [[00 - Inbox/2026-07-07 1935 OCTOPUS-STAGE0-REPORT|STAGE0-REPORT]].
+
+## 2026-07-07 ~۲۰:۰۰ — Claude Code (ادامهٔ جلسه ۲۷) — پاسخ‌های STAGE-0 رسید و اعمال شد
+
+بستهٔ OPERATOR ANSWERS آری همهٔ سؤال‌های باز STAGE-0 را بست و اعمال شد: گیت پول → **AU$20** (ارز حل شد) · لوپ مناظره **AU$10/ماه** (SoT) · قیمت DeepSeek از api-docs کشیده و **[VERIFIED] قفل** شد · off-box = دیسک دوم محلی (M0.5-runbook) · سه تصمیم attribution قفل → طرح فایل شد · فروش 07-20 = tentacle فعال human-gated. **هیچ سؤال جدیدی از این بسته باز نماند**؛ بازِ قبلی‌ها: Fugu ‏base_url/دسترسی AU [OPEN] · MAX_LAG (P1) · منحنی رشد trust (P2) · langar در `_code` (ورودی ۱۸:۱۵). ضمیمهٔ ۱ [[00 - Inbox/2026-07-07 1935 OCTOPUS-STAGE0-REPORT|STAGE0-REPORT]].

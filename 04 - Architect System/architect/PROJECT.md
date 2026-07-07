@@ -41,6 +41,7 @@ updated: 2026-07-07
 - تغییرات اخیر: 2026-07-06 (agent، ادامهٔ جلسه) — **پنل آشناییِ مالک** ساخته و زنده شد: `_ops/panel/` (server.py stdlib + RUN-PANEL.bat) — فرم کوتاه، ذخیرهٔ پروفایل در `_ops/state/OWNER-PROFILE.json`، بازشناسی در بازدید بعدی. تست end-to-end سبز. جزئیات در [[01 - Dashboard/HANDOFF|HANDOFF]].
 - تغییرات اخیر: 2026-07-07 (agent، جلسه ۲۷ — worktree) — **دستور کار جلسه ۲۶ اجرا شد:** مهاجرت DeepSeek کد زنده (`gateway.py` مدل+قیمت → v4-flash · `setup_wizard.py` ‏LLM_MODEL · learning-engine ‏`providers.py`؛ ‏`_ops` از قبل مهاجرت‌کرده دست‌نخورده) · مسیر مردهٔ `Desktop\backup` → `F:\backup` در ۷ فایل عملیاتی (RATIFIED-TASKS/PROMPT-v1v2/M0.5-runbook/BUILD-PROMPT/README app/gitleaks.toml) · تست نو «APPROVAL جعلی → acceptance بی‌حرکت» در `_ops/tests` · **فیکس کوریِ هر دو validator در worktree** (فیلتر EXCLUDE → مسیر نسبی؛ قبلاً سبزِ خالی می‌دادند). گزارش: [[00 - Inbox/2026-07-07 1815 گزارش جلسه ۲۷ — اجرای دستور کار جلسه ۲۶|گزارش جلسه ۲۷]].
 - تغییرات اخیر: 2026-07-07 (agent، ادامهٔ جلسه ۲۷) — **OCTOPUS STAGE 0 اجرا شد** (پرامپت آری): audit کامل + goal-lock + **چهار verdict قفل** (اولویت=ستاپ کامل · human_gate_aud=AU$10 · V1 همه-AUD · V2=type جدید ledger) + **budget_gate v1.1** (فیکس باگ واحد DISASTER پشت V1؛ governor_epoch/تست هماهنگ؛ سوئیت ۴۰ چک سبز). خروجی: [[00 - Inbox/2026-07-07 1935 OCTOPUS-STAGE0-REPORT|STAGE0-REPORT]] (test-backed) + [[00 - Inbox/Prompt - OCTOPUS STAGE 0 (v-final) 2026-07-07|پرامپت فایل‌شده]]. قدم بعد: P0.5 germline-first (فقط-مالک).
+- تغییرات اخیر: 2026-07-07 (agent، ادامهٔ ۲) — **پاسخ‌های STAGE-0 اپراتور اعمال شد:** گیت پول → **AU$20** · لوپ مناظره **AU$10/ماه** (ردیف SoT) · قیمت DeepSeek **[VERIFIED از api-docs]** قفل · مقصد off-box = دیسک دوم محلی (ثبت در M0.5-runbook؛ tier ابری بعداً) · سه تصمیم attribution قفل → [[00 - Inbox/2026-07-07 2000 MONEY-ATTRIBUTION-design v1|MONEY-ATTRIBUTION v1]] (ready، ساخت P2) · فروش 07-20 = tentacle فعال human-gated (Next actions). تنها گیت ماندهٔ P2: merge (مالک).
 - تصمیم‌های باز: خارج‌سازی secrets-export (مالک) · O-01 (VPS) · O-04 (محل داده شخصی — default: لپ‌تاپ) · verdict ۶ دلتای v3 (مالک) · **۱۰ verdictِ HYBRID-SPEC §۸** (سرآمد: ۵ خط هستهٔ DECADE blank · git init control-brain · بودجهٔ ساعت-به-فاز) · **GOVERNOR+MUSE:** جهتِ D1 (L1 محافظه‌کار اعمال شد؛ اگر L3-active می‌خواهی بگو) · مقصدِ بک‌اپ (B2؟) · **ارگانیسم:** V1/V2 ✅ بسته 2026-07-07 (همه-AUD + type جدید — STAGE0-REPORT)؛ باقی‌مانده: قفل قیمت DeepSeek از platform + عدد لوپ مناظره (پیش‌فرض AU$5 برقرار) + diff پیشنهادی budgets
 
 ## Progress
@@ -52,7 +53,7 @@ updated: 2026-07-07
 
 ## Next actions
 
-- [ ] —
+- [ ] tentacle فروش 07-20 (human-gated — verdict 2026-07-07): پر کردن ۳ مخاطب [[00 - Inbox/2026-07-06 1410 COHERENCE-AUDIT-PITCH-draft|COHERENCE-AUDIT §۶]] + ارسال outreach؛ هر اقدام واقعی فقط دست آری — سیستم پس از merge+tick فقط draft/تحقیق می‌دهد.
 
 ## مرتبط
 

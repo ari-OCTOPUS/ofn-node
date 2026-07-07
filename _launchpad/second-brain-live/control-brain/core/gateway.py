@@ -17,7 +17,7 @@ from typing import Optional
 
 # قیمت تخمینی هر ۱M توکن (USD) — منبع: pricing رسمی 2026-07
 _PRICES = {
-    "deepseek": (0.14, 0.28),          # deepseek-v4-flash in/out (aliasهای chat/reasoner از 2026-07-24 بازنشسته)
+    "deepseek": (0.14, 0.28),          # deepseek-v4-flash in/out — [VERIFIED 2026-07-07 api-docs] cache-hit in $0.0028؛ aliasها از 2026-07-24 بازنشسته
     "fugu": (5.00, 30.00),             # fugu-ultra rates (محافظه‌کارانه برای هر دو)
 }
 

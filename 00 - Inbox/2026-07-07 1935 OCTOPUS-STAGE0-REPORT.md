@@ -139,3 +139,19 @@ epoch_mode: "allostatic — تابعِ فشار [VERIFIED در governor_epoch.py
 | `_ops/budget/governor_epoch.py` | ‏burst_cap = ‏CEIL_DAY_AUD/AUD (نسبت velocity بی‌بعد ماند) | چک‌های epoch سبز |
 | `_ops/tests/test_organ_gate.py` | اعداد تست زنجیر روزانه به semantics ‏AUD نو | «زنجیر به budget_gate» سبز |
 | `_ops/budget/organ_gate.py` + `_ops/budget/budgets.yaml` | فقط کامنت/SoT: بستن [OPEN] قدیمی + کلید نو `human_gate_aud: 10` + نگاشت MAX_DRAWDOWN≡spike_pct | validatorها صفر خطای نو |
+
+## ضمیمهٔ ۱ (append-only) — پاسخ‌های اپراتور + اعمال (2026-07-07 ~۲۰:۰۰)
+
+آری به سؤال‌های باز جواب داد (بلوک OPERATOR ANSWERS، چت). حکم‌ها و اعمال:
+
+| سؤال باز | verdict اپراتور | اعمال |
+|---|---|---|
+| carrier/ارزش (ورودی ۱) | feed مستقل (بانک/Stripe/فاکتور) = ground-truth؛ Lead شماره‌فاکتور ندارد → سیستم **id یکتا mint کند**؛ پنجرهٔ attribution = **۷ روز** | ✅ سه تصمیم قفل → [[00 - Inbox/2026-07-07 2000 MONEY-ATTRIBUTION-design v1|MONEY-ATTRIBUTION v1]] فایل شد (status: ready، ساخت P2) |
+| کد (ورودی ۲) | فقط merge مانده؛ ترتیب: **merge → tick اول** | — فقط-مالک |
+| محیط (ورودی ۳) | off-box = **دیسک/ماشین دوم محلی (T1/T2)**؛ هشدار خود اپراتور: از آتش/سرقت محافظت نمی‌کند → tier ابری رمزنگاری‌شده بعداً؛ برای drill کافی است | ✅ verdict در [[04 - Architect System/architect/01-Project/M0.5-RESTORE-RUNBOOK-proposal|M0.5-runbook]] ثبت شد |
+| گیت پول | **AU$20** (جایگزین $10؛ enforcer سفت می‌ماند) | ✅ `budgets.yaml: human_gate_aud: 20` |
+| V1 باقی‌مانده | لوپ مناظره = **AU$10/ماه**؛ قیمت DeepSeek از platform قفل شود، [VERIFIED]، تخمین ممنوع | ✅ `DEBATE_LOOP: {cap_monthly: 10}` در SoT · قیمت‌ها **[VERIFIED 2026-07-07 · api-docs.deepseek.com/quick_start/pricing]**: flash in $0.14 (cache-hit $0.0028) / out $0.28 — عین عدد موجود gateway، برچسب ارتقا یافت؛ pro $0.435 (hit $0.003625) / $0.87؛ بازنشستگی aliasها 07-24 15:59 UTC روی صفحه تأیید |
+| متولی فروش 07-20 | **tentacle فعالِ human-gated موازی** (نه منتفی، نه خودکار)؛ اولویت کلی ستاپ | ✅ تسک در Next actions ‏[[04 - Architect System/architect/PROJECT|PROJECT آرشیتکت]]؛ سیستم پس از merge+tick فقط draft/تحقیق؛ هر اقدام واقعی دست آری |
+| حاکمیت | ✅ تأیید: فقط فیکس verdict-دار اعمال شد؛ شل‌کردن ترمز رد شد | — |
+
+**تنها گیت باقی‌مانده پیش از P2: merge دو branch (فقط-مالک) → اولین tick.** سؤال‌های هنوز باز: Fugu ‏base_url/دسترسی AU [OPEN] · MAX_LAG عددی (P1) · منحنی رشد trust (P2).
