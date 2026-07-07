@@ -182,3 +182,18 @@ master اکنون = جلسه ۲۷ کامل + STAGE 0 + پاسخ‌های اپر�
 **ناوردی ۳ (germline-first) روی tier محلی بسته شد** — «بک‌آپ تست‌نشده = بک‌آپ نامعلوم» دیگر برقرار نیست؛ مسیر restore اثبات‌شده موجود است. **🟢 گیت tick اول باز است** (دابل‌کلیک `RUN-ORGANISM.bat` — فقط-مالک).
 
 باقی‌مانده/گپ ثبت‌شده: tier ابری رمزنگاری‌شده (هشدار خود اپراتور: آتش/سرقت) · زمان‌بندی تکرار بک‌اپ (کاندید: schtasks با همین اسکریپت bundle) · `core.db` و `_launchpad/**/events.jsonl` ‏gitignore‌اند و در bundle نیستند — الان تقریباً خالی؛ از اولین اجرای واقعی brain باید جداگانه (بدون `.env`!) به STATE_DIRS اضافه شوند.
+
+## ضمیمهٔ ۴ (append-only) — دستور واحد اجرا شد: بازیابی ژنوم + زمان‌بندی germline + BIRTH (2026-07-07 ~۲۰:۵۵)
+
+هشت پلهٔ دستور human-gated آری، fail-closed و به ترتیب اجرا شد (جابه‌جایی اعلام‌شده: ثبتِ پلهٔ ۸ پیش از بک‌آپِ پلهٔ ۷ تا خود رکوردها هم داخل bundle بیفتند و germline_lag واقعاً صفر شود):
+
+1. **ژنوم:** گزارش جلسه ۲۶ از worktree قدیمی → Inbox اصلی (append-only، بدون overwrite) — commit ‏**`5924926`** ‏(`592492653c3ce2f468001d29baec0010c865ebd4`).
+2. **اسکوپ state:** ‏`core.db` + ‏`events.jsonl` به هر دو لایهٔ بک‌آپ اضافه شد — SECRET-GUARD دولایه: whitelist دقیق نام فایل + رد الگوی `env/secret/wallet/seed`؛ هرگز `.env`.
+3. **زمان‌بندی germline دولایه** (Register-ScheduledTask — بدون نیاز به elevation، هر دو Ready): ‏`germline-hourly` هر ۱ ساعت = push افزایشی همهٔ شاخه‌ها/tagها به bare repo ‏`E:\germline\vault.git` + کپی state غلتان (تستِ زنده: سبز، refs verify شد) · ‏`germline-daily` ‏۰۳:۳۰ = bundle کامل + restore-drill + prune با retention ‏۷ روزانه/۴ هفتگی. اسکریپت‌ها داخل خود vault: `04 - Architect System/scripts/germline-backup.ps1` و `germline-hourly.ps1` (خودشان هم بک‌آپ می‌شوند).
+4. **drill پیشا-تولد سبز:** ‏`vault-2026-07-07_2040.bundle` — **۵۷۹ نوت** بازیابی (+۱ = گزارش ۲۶) · زنجیرهٔ ledger دوسویه OK · ‏core.db در state گرفته شد.
+5. **pre-flight ‏۱۵/۱۵ ‏PASS** + سوئیت ۴۰ چک سبز: kill مسلح و نپریده (STOP-ORGANISM غایب، halted/frozen false) · ‏budget_gate v1.1 با deny ‏functional روی رزرو بزرگ (reason=daily) · ‏SoT: ‏human_gate_aud=20 / لوپ=10 / ماه=30 AUD · **هر دو live-gate قفل تا 2026-07-21 + هر دو پرچم فعال‌سازی غایب = صفر مسیر پول واقعی (paper-only مطلق)**. نکتهٔ صداقتی: ماژول enforcement آستانهٔ AU$20 = P2؛ الان خاصیت اکیداً قوی‌تر برقرار است.
+6. **BIRTH ✅ (observed) — 2026-07-07 20:42:55:** ‏`RUN-ORGANISM.bat` لانچ مستقل؛ tick اول در همان ثانیه: **اولین pulse آلوستاتیک: pressure=0.047** (تماماً deadline_proximity ‏= ‏PROJECT_F@2026-07-20، ‏۱۳ روز؛ spend_velocity=0، anomaly=0) → ‏next_epoch=**57.9min** · organs/telemetry خوانده شد ($0، صفر conflict، صفر suspect) · σ=0.0 ‏(pre-replication) · fitness در سایه (authoritative=false) · **دو NOTE به ledger ژنوم نشست: ‏ALLOCATION_SHADOW ‏(h1_ok=true) + ‏ORGANISM_DAILY — و زنجیرهٔ hash پس از append دوباره verify شد** · ‏HTTP ‏`127.0.0.1:8771` زنده (‏/api/organism ‏۲۰۰) · هیچ alert/anomaly/تلاش irreversible — halt لازم نشد. debate طبق طراحی در tick لود نمی‌شود؛ وقتی human-triggered اجرا شود هر call از ‏organ_gate با سقف AU$10/ماه می‌گذرد.
+7. **post-birth backup:** بلافاصله پس از commit همین رکورد اجرا (germline_lag=0)؛ manifest در `E:\germline\last_backup_manifest.json`.
+8. همین ضمیمه + HANDOFF + PROJECT.
+
+**گپ‌های باز:** tier ابری رمزنگاری‌شده · محتوای واقعی core.db پس از اولین اجرای brain · enforcement آستانهٔ AU$20 (ماژول trust/ramp — P2) · بازبینی smoke ‏۲۴ساعته فردا (organism روشن مانده؛ kill تمیز = فایل `_ops\STOP-ORGANISM`).

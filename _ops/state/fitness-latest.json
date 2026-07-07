@@ -1,0 +1,16 @@
+{
+  "ts": "2026-07-07T20:42:56",
+  "authoritative": false,
+  "experience_span_days": 0,
+  "authoritative_note": "قفل verdict جلسه ۱۶: تا ~۴ هفته دادهٔ ledger فقط سایه",
+  "acceptance_source": "logs/outbox.jsonl ⟂ core.db/outbox (فقط بعد از کلیک انسان)",
+  "integrity_alerts": [],
+  "cells": {},
+  "weights": {
+    "value": 0.3,
+    "urgency": 0.25,
+    "efficiency": 0.2,
+    "human": 0.2,
+    "waste": 0.05
+  }
+}
