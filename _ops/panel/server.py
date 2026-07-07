@@ -100,7 +100,7 @@ STYLE = """
 
 def _page(body: str, title: str = "پنل آشنایی") -> bytes:
     nav = ('<div class="nav"><a href="/">پروفایل</a><a href="/projects">پروژه‌ها</a>'
-           '<a href="/organism">ارگانیسم</a></div>')
+           '<a href="/lead">لید</a><a href="/organism">ارگانیسم</a></div>')
     return (
         '<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8">'
         f"<title>{title}</title><style>{STYLE}</style></head>"
@@ -441,6 +441,75 @@ def render_saved() -> bytes:
     return _page(body)
 
 
+# ─── B3: فرمِ لید → mint LEAD-YYYYMMDD-NNN + رویدادِ PROPOSAL (فقط propose؛ CONFIRM دستِ reconcile) ───
+LEAD_CELLS = [("lead.doer", "نقاشی (Lead)"), ("ziman.doer", "Ziman"), ("crypto.doer", "Crypto")]
+
+
+def submit_lead(lead_name: str, lead_desc: str, expected_aud: str, cell: str) -> dict:
+    """ورودیِ انسانیِ لید → attribution.propose (mint id + PROPOSAL). هیچ CONFIRM/پول/fitness.
+    fail-closed: ورودیِ نامعتبر یا خطای ثبت → {ok:False, error}؛ هرگز نیمه‌ثبت."""
+    name = (lead_name or "").strip()
+    if not name:
+        return {"ok": False, "error": "نام/کارِ لید لازم است"}
+    try:
+        exp = float(str(expected_aud).strip() or "0")
+    except ValueError:
+        return {"ok": False, "error": "ارزشِ تخمینی باید عدد باشد (AUD)"}
+    if exp < 0:
+        return {"ok": False, "error": "ارزشِ تخمینی منفی نمی‌شود"}
+    if cell not in {c for c, _ in LEAD_CELLS}:
+        cell = "lead.doer"
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "budget"))
+        import attribution  # lazy: خطای import پنل را نمی‌شکند (fail-closed فقط برای مسیرِ لید)
+        desc = name if not (lead_desc or "").strip() else f"{name} — {lead_desc.strip()}"
+        rec = attribution.propose(cell, exp, lead=desc)
+        return {"ok": True, "attribution_id": rec["payload"]["attribution_id"], "cell": cell}
+    except Exception as e:  # noqa: BLE001 — پیام امن (بدون echo راز)، هیچ نیمه‌ثبت
+        return {"ok": False, "error": f"ثبت نشد: {type(e).__name__}"}
+
+
+def render_lead_form(error: str = "") -> bytes:
+    cells = "".join(
+        f'<label class="opt"><input type="radio" name="cell" value="{c}"'
+        f'{" checked" if i == 0 else ""}> {lbl}</label>'
+        for i, (c, lbl) in enumerate(LEAD_CELLS))
+    err = f'<p class="sub" style="color:#a33">{html.escape(error)}</p>' if error else ""
+    body = (
+        "<h1>لید جدید</h1>"
+        '<p class="sub">لید را وارد کن؛ سیستم یک کدِ یکتا (LEAD-…) می‌سازد که روی کوت/فاکتور می‌نویسی. '
+        'فقط ثبتِ فرصت است (PROPOSAL) — هیچ پولی اینجا تأیید نمی‌شود.</p>'
+        f"{err}"
+        '<form method="post" action="/lead">'
+        '<div class="q"><label class="qlabel">نام/کارِ لید</label>'
+        '<input type="text" name="lead_name" required></div>'
+        '<div class="q"><label class="qlabel">توضیح کوتاه (اختیاری)</label>'
+        '<textarea name="lead_desc"></textarea></div>'
+        '<div class="q"><label class="qlabel">ارزشِ تخمینی (AUD)</label>'
+        '<input type="text" name="expected_aud" value="0"></div>'
+        f'<div class="q"><label class="qlabel">کدام پا اعتبار می‌گیرد؟</label>'
+        f'<div class="opts">{cells}</div></div>'
+        '<button type="submit">ثبتِ لید (mint کد)</button></form>'
+        '<p class="note">کد فقط carrier است؛ تأییدِ پول بعداً از reconcile با CSVِ بانک/حسابداری می‌آید — '
+        'سیستم هرگز خودش پول را تأیید نمی‌کند.</p>'
+    )
+    return _page(body, title="لید جدید")
+
+
+def render_lead_done(aid: str, cell: str) -> bytes:
+    body = (
+        "<h1>لید ثبت شد ✅</h1>"
+        '<p class="sub">کدِ carrier ساخته شد. این را روی کوت/فاکتور بنویس:</p>'
+        '<p style="font-size:22px;font-weight:700;letter-spacing:1px;direction:ltr;text-align:center;'
+        f'background:#f0efe9;border-radius:10px;padding:1rem">{html.escape(aid)}</p>'
+        f'<p class="sub">پا: {html.escape(cell)} · وضعیت: PROPOSAL (هنوز واردِ fitness نشده)</p>'
+        '<p><a href="/lead">لید دیگر</a> · <a href="/">خانه</a></p>'
+        '<p class="note">وقتی پول نشست: ردیفِ CSV با همین کد در <code>_ops/reconcile</code> بگذار → '
+        'reconcile آن را در پنجرهٔ ۷ روز CONFIRMED می‌کند.</p>'
+    )
+    return _page(body, title="لید ثبت شد")
+
+
 class _ExclusivePanelServer(ThreadingHTTPServer):
     """تلهٔ شناختهٔ ویندوز (جلسه ۱۹): http.server با SO_REUSEADDR پیش‌فرض double-bind
     ساکت می‌سازد — bind را انحصاری می‌کنیم تا دو نمونهٔ پنل هرگز هم‌زمان بالا نیایند."""
@@ -479,6 +548,9 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/projects":
             self._send(render_projects(_scan_projects()))
             return
+        if path == "/lead":
+            self._send(render_lead_form())
+            return
         if path == "/organism":
             self._send(render_organism())
             return
@@ -489,12 +561,19 @@ class Handler(BaseHTTPRequestHandler):
             self._send(render_form())
 
     def do_POST(self):
-        if self.path.rstrip("/") != "/submit":
-            self._send(b"not found", status=404)
-            return
+        path = self.path.rstrip("/") or "/"
         length = int(self.headers.get("Content-Length", 0))
         raw = self.rfile.read(length).decode("utf-8") if length else ""
         parsed = parse_qs(raw)
+        if path == "/lead":
+            res = submit_lead(parsed.get("lead_name", [""])[0], parsed.get("lead_desc", [""])[0],
+                              parsed.get("expected_aud", ["0"])[0], parsed.get("cell", ["lead.doer"])[0])
+            self._send(render_lead_done(res["attribution_id"], res["cell"]) if res["ok"]
+                       else render_lead_form(res["error"]))
+            return
+        if path != "/submit":
+            self._send(b"not found", status=404)
+            return
         answers = {}
         for key, _label, kind, _opts in QUESTIONS:
             if kind == "checkbox":

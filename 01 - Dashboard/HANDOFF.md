@@ -1,9 +1,18 @@
 ---
 type: handoff
-updated: 2026-07-07
+updated: 2026-07-08
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
+
+## جلسه بیست‌ونهم 2026-07-08 ~۰۰:۳۰ (Claude Code Opus، master) — B3 فرمِ لید + موازیِ ۲-sub-agent (INC-2 git-race · Track D) — سوئیت ۱۱/۱۱ سبز
+
+اپراتور: «B3 برای تو، دو sub-agent موازی، تو merge/commit». گزارشِ کامل: [[00 - Inbox/2026-07-07 1935 OCTOPUS-STAGE0-REPORT|STAGE0-REPORT ضمیمهٔ ۱۱]]. قواعدِ موازی رعایت شد (مالکیتِ انحصاری · فقط primary commit · offline · ارگانیسمِ زنده restart نشد).
+
+- **✅ B3 (primary):** پنل `_ops/panel/server.py` مسیرِ `/lead` گرفت — انسان لید وارد می‌کند → `attribution.propose` = **mint LEAD-YYYYMMDD-NNN + PROPOSAL**. فقط propose؛ هیچ CONFIRM/پول. تستِ نو `test_panel_lead` (۷ چک) + e2eِ HTTP (GET /lead=200). مالک `RUN-PANEL.bat` را دابل‌کلیک کند تا تبِ «لید» را ببیند.
+- **✅ INC-2 (sub-agent + یکپارچه‌سازیِ primary):** `git-serialize.ps1` (lockِ cross-process، آینهٔ LockedJson، fail-loud) + تست (**PASS از master: ۱۷ commit، ۰ overlap، fsck تمیز**). lock در اسکریپت‌های **واقعیِ** master (`germline-hourly` push+bundle · `germline-backup` fsck+bundle) یکپارچه شد. ⚠️ **درسِ مهم:** sub-agent روی worktreeِ کهنه spawn شد و master را ندید (یک germline-backup تکراری ساخت که دور ریخته شد) — خروجیِ sub-agent باید در برابرِ master بازوارسی شود نه کورکورانه copy.
+- **✅ Track D (sub-agent):** [[00 - Inbox/2026-07-08 Track D — Coherence-Audit shortlist + drafts|shortlist]] — ۱۱ پروفایلِ خریدار + draft هرکدام (آری مخاطبِ آماده ندارد)، schema-compliant، صفر نشتِ Project-F. **verdictِ آری لازم:** کدام ۳ پروفایل (پیشنهاد: #1 solo + #4 vertical RAG + #11 کانال) + ۴ سؤالِ positioning.
+- **موازی‌کاریِ خارجی (نه من):** ارگانیسمِ زنده ledger/HEARTBEAT/soma را churn می‌کند + دو فایلِ untracked Ziman (یکی خطای فرانت‌متر `note`) — خارج از commit/اسکوپِ من.
 
 ## جلسه بیست‌وهشتم 2026-07-07 ~۲۳:۵۵ (Claude Code Opus، master) — CONSOLIDATE + Track A (A1·A2·A3) + Track B (attribution+reconcile) — سوئیت ۱۰/۱۰ سبز · ارگانیسم زنده شد
 

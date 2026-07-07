@@ -359,3 +359,40 @@ human_verdicts_open: >
   وصلِ Telegram. · untrack کردنِ fitness-latest/replication-latest/epochs (توسعهٔ #8). · B3 فرمِ پنل.
 ```
 > **ارگانیسم زنده شد (2026-07-07 ~۲۳:۳۷):** 8771 LISTENING، epoch آلوستاتیک، ledger verify سبز. نردبانِ مالکِ «تولدِ پایدار» محقق شد؛ smoke ۲۴h از این نقطه می‌چرخد.
+
+## ضمیمهٔ ۱۱ (append-only) — B3 (فرمِ لید) + موازیِ ۲-sub-agent (INC-2 git-race · Track D) — merge واحد (2026-07-08 ~۰۰:۳۰ — commit بعدی)
+
+verdict اپراتور: primary (من) B3، دو sub-agent موازی برای INC-2 و Track D، من merge/commit. قواعدِ موازی رعایت شد: **مالکیتِ فایلِ انحصاری · فقط primary commit · offline/paper · fail-closed · ارگانیسمِ زنده restart نشد.**
+
+```yaml
+built: >
+  B3 (primary): _ops/panel/server.py — مسیرِ /lead (GET فرم + POST) → submit_lead → attribution.propose
+  (mint LEAD-YYYYMMDD-NNN + PROPOSAL). فقط propose؛ هیچ CONFIRM/پول (CONFIRM دستِ reconcile، دست‌نخورده).
+  attribution lazy-import (خطایش پنل را نمی‌شکند). + test_panel_lead (۷ چک).
+  INC-2 (sub-agent + merge توسط primary): git-serialize.ps1 (lock helperِ cross-process: atomic CreateNew +
+  bounded back-off + Wait-GitIndexLock + stale-steal + fail-loud، آینهٔ LockedJson) + test-git-serialize.ps1.
+  lock در اسکریپت‌های **واقعیِ** master یکپارچه شد: germline-hourly.ps1 (push+bundle) و germline-backup.ps1
+  (fsck+bundle) — هر git-writeِ F:\backup\.git حالا زیرِ lock سریال می‌شود.
+  Track D (sub-agent): «00 - Inbox/2026-07-08 Track D — Coherence-Audit shortlist + drafts» — ۱۱ پروفایلِ
+  خریدار + draft هرکدام (چون آری مخاطبِ آماده ندارد)، آفرِ قفل‌شده، schema-compliant، هیچ نشتِ Project-F.
+verified_numbers:
+  - {what: "سوئیتِ python", value: "۱۱/۱۱ فایل سبز (+test_panel_lead)", source: "python -X utf8 _ops/tests/run_all.py", tag: RUNNABLE}
+  - {what: "B3 test", value: "۷/۷ (propose→PROPOSAL، id یکتا، بدونِ fitness، fail-closed) + e2eِ HTTP GET /lead=200", source: "test_panel_lead + urllib روی پورتِ موقت", tag: RUNNABLE}
+  - {what: "INC-2 test از master", value: "PASS — ۱۷ commit، ۰ overlap، fsck تمیز، stale-steal؛ .git واقعی لمس نشد", source: "test-git-serialize.ps1", tag: RUNNABLE}
+  - {what: "parse ۴ اسکریپت PowerShell", value: "همه OK", source: "PSParser.ParseFile", tag: RUNNABLE}
+traps_hit:
+  - {trap: "sub-agent INC-2 روی worktreeِ کهنه (modest-gould) کار کرد → master را ندید و یک germline-backup.ps1 تکراری/کهنه ساخت", fix: "primary تشخیص داد (چکِ محلِ فایل)، نسخهٔ تکراری دور ریخته شد، lock در اسکریپت‌های واقعیِ master یکپارچه شد"}
+invariants_touched: >
+  B3: propose-only (CONFIRM انحصاراً reconcile-job)؛ هیچ live/پول؛ fail-closed روی ورودیِ بد.
+  INC-2: lock fail-loud (timeout=FAILED.flag+throw، هرگز silent-skip)؛ فقط سریال‌سازی، منطقِ backup دست‌نخورده.
+  فقط primary commit کرد (sub-agentها هیچ‌چیز stage/commit نکردند). ارگانیسمِ زنده (8771) restart نشد.
+open_for_next: >
+  Track D: verdictِ آری — کدام ۳ پروفایل؟ (پیشنهادِ sub-agent: #1 solo سریع + #4 vertical RAG بزرگ + #11 کانال) +
+  ۴ سؤالِ دیگرِ positioning در نوت. · B3: مالک RUN-PANEL.bat را دابل‌کلیک کند تا تبِ «لید» را ببیند.
+  · INC-2 residual: lock فقط نویسندگانِ opt-in را سریال می‌کند؛ commitهای ad-hocِ من/انسان از طریقِ Wait-GitIndexLock
+  پوشش می‌یابند (پنجرهٔ برخورد نزدیکِ صفر) — اگر مالک بخواهد هر committer هم از Invoke-SerializedGit رد شود، سنگین‌تر است (verdict).
+human_verdicts_open: >
+  Track D: انتخابِ ۳ مخاطب + tiltِ positioning + گارانتیِ enterprise + مدلِ کانال (۵ سؤالِ نوت). ·
+  INC-2: آیا index.lock-deferral کافی است یا هر committer هم wrap شود؟ · وصلِ Telegram (هنوز، از فاز قبل).
+```
+> **نکتهٔ multi-agent:** sub-agentها روی worktreeِ کهنه spawn می‌شوند (cwdِ سشن). Track D به F:\backup (master) نوشت ولی INC-2 به worktree — درسِ عملیاتی: خروجیِ هر sub-agent را primary باید **در برابرِ master** بازوارسی و یکپارچه کند، نه کورکورانه copy.

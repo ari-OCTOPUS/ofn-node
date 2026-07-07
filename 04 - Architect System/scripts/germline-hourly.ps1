@@ -25,18 +25,30 @@ try {
     # write to E: under the task token (receive-pack Permission denied) while PowerShell can.
     # So on push failure -> FALLBACK: git writes a full bundle to LOCAL temp, PowerShell moves
     # it to E: as a single ROLLING file (constant disk use - never accumulates).
-    $ErrorActionPreference = "Continue"
-    $out1 = & git -C $VAULT push --quiet $BARE --all 2>&1; $c1 = $LASTEXITCODE
-    $out2 = & git -C $VAULT push --quiet $BARE --tags 2>&1; $c2 = $LASTEXITCODE
-    $ErrorActionPreference = "Stop"
-    if ($c1 -eq 0 -and $c2 -eq 0) {
-        $mode = "push"
-    } else {
-        $tmpB = Join-Path $env:TEMP "germline-hourly.bundle"
-        git -C $VAULT bundle create $tmpB --all
-        if ($LASTEXITCODE -ne 0) { throw ("push failed AND bundle fallback failed. push: " + (@($out1 + $out2 | ForEach-Object { "$_" }) -join " | ")) }
-        Move-Item -Force $tmpB (Join-Path $OFFBOX "hourly-latest.bundle")
-        $mode = "bundle-fallback (push err: " + (@($out1 | Select-Object -First 1 | ForEach-Object { "$_" }) -join "") + ")"
+    # INC-2 fix (2026-07-08): route all F:\backup\.git access through the shared git-write lock
+    # so it defers while a commit holds .git\index.lock and never overlaps the daily bundle.
+    # Fail-loud: lock/index-lock timeout throws -> caught below -> logged, exit 1.
+    . (Join-Path $PSScriptRoot "git-serialize.ps1")
+    $gitLock  = Join-Path $VAULT "_ops\backup\gitwrite.lock"
+    $gitFlags = Join-Path $VAULT "_ops\backup"
+    $lockHandle = Enter-GitWriteLock -LockPath $gitLock -FlagDir $gitFlags
+    try {
+        Wait-GitIndexLock -RepoRoot $VAULT -FlagDir $gitFlags
+        $ErrorActionPreference = "Continue"
+        $out1 = & git -C $VAULT push --quiet $BARE --all 2>&1; $c1 = $LASTEXITCODE
+        $out2 = & git -C $VAULT push --quiet $BARE --tags 2>&1; $c2 = $LASTEXITCODE
+        $ErrorActionPreference = "Stop"
+        if ($c1 -eq 0 -and $c2 -eq 0) {
+            $mode = "push"
+        } else {
+            $tmpB = Join-Path $env:TEMP "germline-hourly.bundle"
+            git -C $VAULT bundle create $tmpB --all
+            if ($LASTEXITCODE -ne 0) { throw ("push failed AND bundle fallback failed. push: " + (@($out1 + $out2 | ForEach-Object { "$_" }) -join " | ")) }
+            Move-Item -Force $tmpB (Join-Path $OFFBOX "hourly-latest.bundle")
+            $mode = "bundle-fallback (push err: " + (@($out1 | Select-Object -First 1 | ForEach-Object { "$_" }) -join "") + ")"
+        }
+    } finally {
+        Exit-GitWriteLock -Handle $lockHandle -LockPath $gitLock
     }
 
     # rolling state copy (single folder, overwritten hourly). SECRET-GUARD: whitelist only.

@@ -9,7 +9,7 @@ HERE = Path(__file__).resolve().parent
 TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_epoch.py", "test_debate.py", "test_fitness_sigma.py",
          "test_budget_gate_v2.py", "test_money_gate.py", "test_capability_gate.py",
-         "test_attribution.py"]
+         "test_attribution.py", "test_panel_lead.py"]
 
 if __name__ == "__main__":
     failed = []

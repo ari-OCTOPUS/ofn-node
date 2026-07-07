@@ -20,21 +20,30 @@ if ($VAULT.Substring(0,2).ToUpper() -eq $OFFBOX.Substring(0,2).ToUpper()) {
 }
 New-Item -ItemType Directory -Force -Path $OFFBOX | Out-Null
 
-# -- 1) integrity gates (fail-closed) --
-Write-Host "[1/5] integrity gates (fsck + ledger verify)..."
-git -C $VAULT fsck --full
-if ($LASTEXITCODE -ne 0) { throw "GIT FSCK FAILED - backup aborted" }
-python "$VAULT\07 - Knowledge\genome-system\ledger\ledger.py" "$VAULT\07 - Knowledge\genome-system\ledger\ledger.jsonl" verify
-if ($LASTEXITCODE -ne 0) { throw "LEDGER VERIFY FAILED - backup aborted" }
-
-# -- 2) snapshot: bundle + state (dirs + explicit ground-truth files) --
+# -- 1+2) integrity gates + snapshot bundle, under the INC-2 git-write lock (2026-07-08) --
+# Serialize all F:\backup\.git access: defer while a commit holds .git\index.lock, and never
+# overlap the hourly push. Fail-loud: lock/verify/bundle failure throws (ErrorActionPreference=Stop).
 # INC-2 lesson: git.exe cannot write to E: under the task token -> git writes to LOCAL temp,
 # PowerShell (which CAN write to E:) moves the finished bundle into OFFBOX.
-Write-Host "[2/5] bundle + state copy..."
-$bundle = Join-Path $OFFBOX "vault-$STAMP.bundle"
+. (Join-Path $PSScriptRoot "git-serialize.ps1")
+$bundle    = Join-Path $OFFBOX "vault-$STAMP.bundle"
 $tmpBundle = Join-Path $env:TEMP "vault-$STAMP.bundle"
-git -C $VAULT bundle create $tmpBundle --all
-if ($LASTEXITCODE -ne 0) { throw "BUNDLE FAILED" }
+$gitLock   = Join-Path $VAULT "_ops\backup\gitwrite.lock"
+$gitFlags  = Join-Path $VAULT "_ops\backup"
+$lockHandle = Enter-GitWriteLock -LockPath $gitLock -FlagDir $gitFlags
+try {
+    Wait-GitIndexLock -RepoRoot $VAULT -FlagDir $gitFlags
+    Write-Host "[1/5] integrity gates (fsck + ledger verify)..."
+    git -C $VAULT fsck --full
+    if ($LASTEXITCODE -ne 0) { throw "GIT FSCK FAILED - backup aborted" }
+    python "$VAULT\07 - Knowledge\genome-system\ledger\ledger.py" "$VAULT\07 - Knowledge\genome-system\ledger\ledger.jsonl" verify
+    if ($LASTEXITCODE -ne 0) { throw "LEDGER VERIFY FAILED - backup aborted" }
+    Write-Host "[2/5] bundle..."
+    git -C $VAULT bundle create $tmpBundle --all
+    if ($LASTEXITCODE -ne 0) { throw "BUNDLE FAILED" }
+} finally {
+    Exit-GitWriteLock -Handle $lockHandle -LockPath $gitLock
+}
 Move-Item -Force $tmpBundle $bundle
 
 $stateRoot = Join-Path $OFFBOX "state-$STAMP"
