@@ -21,11 +21,23 @@ try {
         Log "bare repo initialized at $BARE"
     }
 
-    # incremental push of all branches + tags (object transfer is integrity-checked by git)
-    git -C $VAULT push --quiet $BARE --all
-    if ($LASTEXITCODE -ne 0) { throw "push --all failed (exit $LASTEXITCODE)" }
-    git -C $VAULT push --quiet $BARE --tags
-    if ($LASTEXITCODE -ne 0) { throw "push --tags failed (exit $LASTEXITCODE)" }
+    # PRIMARY: incremental push (light - operator verdict). Known issue INC-2: git.exe cannot
+    # write to E: under the task token (receive-pack Permission denied) while PowerShell can.
+    # So on push failure -> FALLBACK: git writes a full bundle to LOCAL temp, PowerShell moves
+    # it to E: as a single ROLLING file (constant disk use - never accumulates).
+    $ErrorActionPreference = "Continue"
+    $out1 = & git -C $VAULT push --quiet $BARE --all 2>&1; $c1 = $LASTEXITCODE
+    $out2 = & git -C $VAULT push --quiet $BARE --tags 2>&1; $c2 = $LASTEXITCODE
+    $ErrorActionPreference = "Stop"
+    if ($c1 -eq 0 -and $c2 -eq 0) {
+        $mode = "push"
+    } else {
+        $tmpB = Join-Path $env:TEMP "germline-hourly.bundle"
+        git -C $VAULT bundle create $tmpB --all
+        if ($LASTEXITCODE -ne 0) { throw ("push failed AND bundle fallback failed. push: " + (@($out1 + $out2 | ForEach-Object { "$_" }) -join " | ")) }
+        Move-Item -Force $tmpB (Join-Path $OFFBOX "hourly-latest.bundle")
+        $mode = "bundle-fallback (push err: " + (@($out1 | Select-Object -First 1 | ForEach-Object { "$_" }) -join "") + ")"
+    }
 
     # rolling state copy (single folder, overwritten hourly). SECRET-GUARD: whitelist only.
     $stateRoot = Join-Path $OFFBOX "state-hourly"
@@ -43,7 +55,7 @@ try {
         Copy-Item $f.FullName $dst -Force
     }
 
-    Log "OK push+state"
+    Log ("OK " + $mode + " +state")
     exit 0
 }
 catch {

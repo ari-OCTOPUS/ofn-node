@@ -28,10 +28,14 @@ python "$VAULT\07 - Knowledge\genome-system\ledger\ledger.py" "$VAULT\07 - Knowl
 if ($LASTEXITCODE -ne 0) { throw "LEDGER VERIFY FAILED - backup aborted" }
 
 # -- 2) snapshot: bundle + state (dirs + explicit ground-truth files) --
+# INC-2 lesson: git.exe cannot write to E: under the task token -> git writes to LOCAL temp,
+# PowerShell (which CAN write to E:) moves the finished bundle into OFFBOX.
 Write-Host "[2/5] bundle + state copy..."
 $bundle = Join-Path $OFFBOX "vault-$STAMP.bundle"
-git -C $VAULT bundle create $bundle --all
+$tmpBundle = Join-Path $env:TEMP "vault-$STAMP.bundle"
+git -C $VAULT bundle create $tmpBundle --all
 if ($LASTEXITCODE -ne 0) { throw "BUNDLE FAILED" }
+Move-Item -Force $tmpBundle $bundle
 
 $stateRoot = Join-Path $OFFBOX "state-$STAMP"
 foreach ($d in $STATE_DIRS) {

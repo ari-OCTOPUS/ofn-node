@@ -27,3 +27,8 @@ _launchpad/**/.venv/
 _launchpad/**/drafts/
 _launchpad/**/status.md
 _launchpad/**/events.jsonl
+# soma/runtime projections (verdict آری 2026-07-07 #8): از germline جدا؛ در STATE_DIRS بک‌آپ (E:\germline\state-*) می‌مانند
+_ops/state/ORGANISM-STATE.json
+_ops/state/telemetry-latest.json
+_ops/state/telemetry/
+_ops/state/watchdog.log
