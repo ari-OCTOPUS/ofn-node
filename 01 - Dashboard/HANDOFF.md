@@ -5,14 +5,16 @@ updated: 2026-07-07
 
 # HANDOFF — وضعیت برای جلسه بعد
 
-## جلسه بیست‌وهشتم 2026-07-07 ~۲۲:۲۷ (Claude Code Opus، master) — CONSOLIDATE: کارِ in-flightِ Track A گم‌نشده به master + verify سبز
+## جلسه بیست‌وهشتم 2026-07-07 ~۲۲:۴۰ (Claude Code Opus، master) — CONSOLIDATE + Track A · A1 (budget_gate v2 SoT-read) ساخته و سبز
 
-آری این سشن را (که روی worktree کهنهٔ modest-gould بود) اجراگرِ اصلیِ master کرد: «اول consolidateِ بی‌گم‌شدن، بعد Track A». هیچ اقدام live/پولی/irreversible. گزارش کامل با فیلدهای STATE-REPORT: [[00 - Inbox/2026-07-07 1935 OCTOPUS-STAGE0-REPORT|STAGE0-REPORT ضمیمهٔ ۷]].
+آری این سشن را (که روی worktree کهنهٔ modest-gould بود) اجراگرِ اصلیِ master کرد: «اول consolidateِ بی‌گم‌شدن، بعد Track A». هیچ اقدام live/پولی/irreversible. گزارش کامل با فیلدهای STATE-REPORT: [[00 - Inbox/2026-07-07 1935 OCTOPUS-STAGE0-REPORT|STAGE0-REPORT ضمیمهٔ ۷+۸]].
+
+- **✅ A1 · budget_gate v2 (SoT-read):** `budget_gate.py` حالا سقف‌ها را از `budgets.yaml` می‌خواند (`_caps()`) با fail-closed strictest=min(yaml, کفِ هاردکد)؛ non-breaking (اعداد = v1.1: day 2/month 30/disaster 500، aud 1.5). تستِ نو `_ops/tests/test_budget_gate_v2.py` (۷ چک) در run_all → **سوئیت ۷/۷ فایل سبز**. per-organ از قبل در `organ_gate` بود؛ گپِ A1 فقط سقفِ سراسری بود. A4/A5 (MONEY_ATTRIBUTION + MAX_LAG vital) هم قبلاً در همان in-flight تمام شده بودند.
 
 - **کارِ commit‌نشدهٔ Track A/A4 روی master گم‌نشده ثبت شد:** ۷ فایل (opslib germline-vital MAX_LAG · organism · telemetry-test · ledger · CHANGELOG · STAGE0-REPORT + `money_event_test.py` untracked) → tag لنگر `pre-consolidate-20260707-2227`(=49312fa) → برنچ `wip/trackA-20260707-2227`(2089358) → merge `--no-ff` به master (`b2e754d`). **هیچ برنچی جلوتر از master نبود** (jolly قبلاً merge؛ sad-bartik=master؛ بقیه فقط behind) → merge `<AHEAD>` عمداً skip.
 - **verify سبز:** `_ops` ۶/۶ فایل ($0، UTF-8) · `money_event_test` ۳/۳ (V2 = EVENT_TYPE پول، chain mixed-type، set بسته) · تستِ ضدِ APPROVAL جعلی present و سبز · validatorها صفر خطای نو (فقط backlog §۱۱ + ۱ لینک placeholder). تلهٔ `cp1252` دوباره خورد → `python -X utf8`.
 - **ارگانیسم خاموش** (نه 8771، نه process؛ INC-1 مرگ ~20:53) — σ=0/pre-replication؛ تولد دوباره = دابل‌کلیک مالک `RUN-ORGANISM.bat`.
-- **باز برای جلسهٔ بعد (Track A، همه offline/paper):** budget_gate v2 (SoT-read + fail-closed) → money_gate (AU$20 با token انسانی) → A3 capability-gate (07-21) · reconcile `_ops/reconcile/*.csv` هنوز نیست (بلاکر Track B) · نگه‌داشتنِ wip+tag تا verdict مالک (rollback: `git reset --hard pre-consolidate-20260707-2227`).
+- **باز برای جلسهٔ بعد (Track A، همه offline/paper):** A2 money_gate (ماژول نو، `check(amount_aud, token)` > AU$20 بدون token = deny؛ هنوز مصرف‌کننده ندارد) → **A3 capability-gate** ⚠️ نیازمند verdict مالک (open-decision #2: تغییر تعریفِ live_gate از «تاریخ+پرچم» به «+marker سبزِ سوئیت») — پیش از ساختش متوقف می‌شوم · reconcile `_ops/reconcile/*.csv` هنوز نیست (بلاکر Track B) · نگه‌داشتنِ wip+tag تا verdict مالک (rollback: `git reset --hard pre-consolidate-20260707-2227`).
 - ⚠️ **flag امنیتی (فقط گزارش):** `C:\Users\Armin` یک git repo است — ولی فقط ۲ فایل زیر Documents track شده، **هیچ .ssh/secret/.env**؛ نشتِ فعال نیست، footgun است. دست نزدم؛ تصمیم مالک. · worktreeهای کهنهٔ modest-gould/vigilant (۱۱ behind) کاندید prune.
 
 ## جلسه بیست‌وهفتم 2026-07-07 ~۱۸:۱۵ (Claude Code، worktree jolly-ardinghelli) — دستور کار جلسه ۲۶ اجرا شد: مهاجرت DeepSeek + قتل مسیر مرده + تست دیوار باربر + فیکس کوریِ validator

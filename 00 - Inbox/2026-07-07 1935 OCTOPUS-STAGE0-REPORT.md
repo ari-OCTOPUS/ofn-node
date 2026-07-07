@@ -255,3 +255,33 @@ human_verdicts_open: >
 ```
 
 - **تصحیح یک ادعای کهنه:** گزارشِ راستی‌آزماییِ ۱۷:۴۵ (روی worktree کهنهٔ modest-gould) چند آیتم را «باز» دید که در واقع روی master بسته‌اند (money-gate AU$20، loop AU$10، DeepSeek [VERIFIED]، DISASTER فیکس، MAX_DRAWDOWN≡spike_pct، germline اثبات‌شده). علتش صرفاً کهنه‌بودنِ آن worktree بود — نه خطای master. سند صحیح = همین STAGE0-REPORT.
+
+## ضمیمهٔ ۸ (append-only) — Track A · A1 budget_gate v2 (SoT-read) ساخته و تست شد (2026-07-07 ~۲۲:۴۰ — commit بعدی)
+
+اجراگرِ نو (Opus، master) پس از consolidate، اولین آیتمِ باقی‌ماندهٔ Track A را ساخت. **offline/paper، هیچ مسیر پول واقعی، non-breaking.**
+
+```yaml
+built: >
+  budget_gate.py حالا سقف‌ها را از budgets.yaml (SoT) می‌خواند (`_caps()`) به‌جای ثابتِ هاردکد.
+  fail-closed = strictest: cap مؤثر = min(yaml, کفِ هاردکد)؛ yaml ناخوانا/غایب/بی‌PyYAML → کفِ هاردکد.
+  نرخ ارز آینهٔ opslib (yaml.aud_per_usd یا 1.5) تا دو لایه واگرا نشوند. امضای reserve/settle/release دست‌نخورد.
+  به‌روزرسانی: `04 - Architect System/scripts/budget_gate.py` + کامنتِ زنجیر `_ops/budget/organ_gate.py`
+  (per-organ از قبل آنجا enforce می‌شد — گپِ A1 فقط سقفِ سراسریِ خودِ budget_gate بود) +
+  تستِ نو `_ops/tests/test_budget_gate_v2.py` (۷ چک) در run_all.
+verified_numbers:
+  - {what: "تستِ A1", value: "۷/۷ سبز (SoT-read · strictest-min · fail-closed · non-breaking · daily/disaster از SoT)", source: "python -X utf8 _ops/tests/test_budget_gate_v2.py", tag: RUNNABLE}
+  - {what: "کلِ سوئیت", value: "۷/۷ فایل سبز (۶ قبلی + A1)", source: "python -X utf8 _ops/tests/run_all.py", tag: RUNNABLE}
+  - {what: "CLI روی budgets.yaml واقعی", value: "caps_effective = day 2 · month 30 · disaster 500 · aud 1.5؛ src='budgets.yaml ∧ hardcode-floor' (= v1.1، non-breaking)", source: "python -X utf8 budget_gate.py", tag: RUNNABLE}
+traps_hit:
+  - {trap: "cp1252 (باز هم) روی run_all/print", fix: "python -X utf8"}
+invariants_touched: >
+  I2 (تک-enforcer) حفظ شد — budget_gate همچنان تنها نقطهٔ enforce؛ فقط منبعِ اعدادش SoT شد.
+  fail-closed سخت‌تر شد (min → هرگز شل‌تر از هاردکد). budgets.yaml دست‌نخورده (I6). هیچ مسیر live/پول لمس نشد.
+open_for_next: >
+  A2 money_gate (ماژول نو `_ops/budget/money_gate.py`: check(amount_aud, approval_token) > AU$20 بدون token = deny؛
+  هنوز مصرف‌کننده ندارد=paper) · سپس A3 capability-gate (⚠ open-decision #2 — تغییر تعریفِ live_gate = نیازمند verdict مالک،
+  پیش از ساخت متوقف می‌شوم) · Track B هنوز به reconcile plumbing نیاز دارد.
+human_verdicts_open: >
+  A3 (open-decision #2): آیا live_gate از «تاریخ+پرچم» به «تاریخ+پرچم+marker سبزِ سوئیت» ارتقا یابد؟ (تغییر قفل = verdict).
+  سایر open-decisionهای MASTER-PLAN v1 هنوز باز.
+```

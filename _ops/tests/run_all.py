@@ -7,7 +7,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
-         "test_epoch.py", "test_debate.py", "test_fitness_sigma.py"]
+         "test_epoch.py", "test_debate.py", "test_fitness_sigma.py",
+         "test_budget_gate_v2.py"]
 
 if __name__ == "__main__":
     failed = []

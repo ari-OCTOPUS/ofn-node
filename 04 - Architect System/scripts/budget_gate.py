@@ -10,9 +10,35 @@ import json, pathlib, datetime, os, time
 
 STATE = pathlib.Path(os.environ.get("BUDGET_STATE", r"F:\backup\_ops\budget\budget-state.json"))
 LOCK  = pathlib.Path(str(STATE) + ".lock")
-CEIL_DAY_AUD, CEIL_MONTH_AUD, DISASTER_AUD = 2.0, 30.0, 500.0   # همه AUD — verdict V1 آری 2026-07-07 (روز 2 · ماه 30 · فاجعه 500)
-AUD = 1.5            # نرخِ تقریبیِ USD→AUD (قابلِ تنظیم)
+# ─── v2 (A1 · SoT-read): سقف‌ها از budgets.yaml خوانده می‌شوند؛ این ثابت‌ها فقط «کفِ fail-closed»اند.
+# هرگز از این‌ها شل‌تر نمی‌شویم (strictest = min(yaml, hardcode))؛ yaml ناخوانا = همین‌ها.
+# اعداد: verdict V1 آری 2026-07-07 (روز 2 · ماه 30 · فاجعه 500 AUD).
+CEIL_DAY_AUD_HARD, CEIL_MONTH_AUD_HARD, DISASTER_AUD_HARD = 2.0, 30.0, 500.0
+AUD_DEFAULT = 1.5    # نرخِ USD→AUD پیش‌فرض (هم‌ارزِ opslib.fx_aud_per_usd؛ yaml.global.aud_per_usd override می‌کند)
+BUDGETS_YAML = pathlib.Path(os.environ.get("BUDGETS_YAML", str(STATE.parent / "budgets.yaml")))
 STALE_LOCK_S = 30    # قفلِ رهاشده بعد از این ثانیه‌ها steal می‌شود (ضدِ deadlock)
+
+
+def _caps():
+    """v2/A1: سقف‌ها را از budgets.yaml (تک‌منبع حقیقت) می‌خواند. fail-closed:
+      • yaml ناخوانا/غایب/بی‌PyYAML → کفِ هاردکد (هرگز نامحدود، هرگز crash).
+      • cap شل‌تر از هاردکد در yaml → هاردکد می‌ماند (strictest = min).
+    فقط سقف‌ها SoT-read‌اند؛ نرخ ارز آینهٔ opslib است (yaml.aud_per_usd یا 1.5) تا دو لایه واگرا نشوند.
+    بی‌کش — هر بار تازه می‌خواند تا ویرایش مالک روی yaml بدون ری‌استارت اعمال شود."""
+    day, month, disaster, aud, src = (
+        CEIL_DAY_AUD_HARD, CEIL_MONTH_AUD_HARD, DISASTER_AUD_HARD, AUD_DEFAULT, "hardcode-floor")
+    try:
+        import yaml
+        g = (yaml.safe_load(BUDGETS_YAML.read_text("utf-8")) or {}).get("global", {})
+        if isinstance(g, dict):
+            if g.get("cap_monthly")  is not None: month    = min(month,    float(g["cap_monthly"]))
+            if g.get("cap_daily")    is not None: day      = min(day,      float(g["cap_daily"]))
+            if g.get("cap_disaster") is not None: disaster = min(disaster, float(g["cap_disaster"]))
+            if g.get("aud_per_usd")  is not None: aud      = float(g["aud_per_usd"])
+            src = "budgets.yaml ∧ hardcode-floor"
+    except Exception:
+        pass  # fail-closed → کفِ هاردکد
+    return {"day_aud": day, "month_aud": month, "disaster_aud": disaster, "aud": aud, "src": src}
 
 
 def _load():
@@ -66,14 +92,15 @@ def reserve(agent, est_usd):
             d = _roll(_load())
         except Exception:
             return {"allow": False, "reason": "state-unreadable"}   # fail-closed (نه crash)
+        c = _caps()                                # v2: سقف‌ها از SoT (با کفِ fail-closed)
         if d["halted"]:
             return {"allow": False, "reason": "halted"}
-        if (d["spent_today_usd"] + est_usd) * AUD > CEIL_DAY_AUD:
+        if (d["spent_today_usd"] + est_usd) * c["aud"] > c["day_aud"]:
             return {"allow": False, "reason": "daily"}
-        if d["spent_month_aud"] + est_usd * AUD > CEIL_MONTH_AUD:
+        if d["spent_month_aud"] + est_usd * c["aud"] > c["month_aud"]:
             d["halted"] = True; _save(d); return {"allow": False, "reason": "monthly-halt"}
         d["spent_today_usd"] += est_usd            # ← رزرو واقعاً persist می‌شود
-        d["spent_month_aud"] += est_usd * AUD
+        d["spent_month_aud"] += est_usd * c["aud"]
         _save(d)
         return {"allow": True, "reserved": est_usd}
     finally:
@@ -84,10 +111,11 @@ def settle(agent, est_usd, actual_usd):
     """بعد از call: تخمین را با هزینهٔ واقعی جایگزین کن."""
     fd = _lock()
     try:
+        c = _caps()                                # v2: نرخ/خطِ فاجعه از SoT (با کفِ fail-closed)
         d = _roll(_load()); delta = actual_usd - est_usd
         d["spent_today_usd"] = max(0.0, d["spent_today_usd"] + delta)
-        d["spent_month_aud"] = max(0.0, d["spent_month_aud"] + delta * AUD)
-        if d["spent_month_aud"] >= DISASTER_AUD:
+        d["spent_month_aud"] = max(0.0, d["spent_month_aud"] + delta * c["aud"])
+        if d["spent_month_aud"] >= c["disaster_aud"]:
             d["halted"] = True                     # خطِ فاجعه (D-22) = halt کامل
         _save(d); return d
     finally:
@@ -100,8 +128,9 @@ def release(agent, est_usd):
 
 
 if __name__ == "__main__":
-    # CLI کوچک برای بازرسی: python budget_gate.py  → وضعیتِ امروز
+    # CLI کوچک برای بازرسی: python -X utf8 budget_gate.py  → سقف‌های مؤثر (SoT) + وضعیتِ امروز
     try:
-        print(json.dumps(_roll(_load()), ensure_ascii=False, indent=2))
+        print(json.dumps({"caps_effective": _caps(), "state": _roll(_load())},
+                         ensure_ascii=False, indent=2))
     except Exception as e:
         print(json.dumps({"error": str(e)}))
