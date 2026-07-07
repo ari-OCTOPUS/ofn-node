@@ -75,6 +75,16 @@ def t_require_chains_live_then_money():
     assert r["allow"] is False and r["gate"] == "live_gate", r
 
 
+def t_stale_capability_marker_revoked():
+    _clear(); _live_on()
+    # markerِ سبز ولی fingerprintِ غلط = شبیه‌سازیِ کدِ پول که پس از سبزی تغییر کرده → بی‌اعتبار (fail-closed)
+    cg.CAPABILITY_MARKER.parent.mkdir(parents=True, exist_ok=True)
+    cg.CAPABILITY_MARKER.write_text('{"ts":"x","evidence":"stale","fingerprint":"deadbeef"}', "utf-8")
+    ch = MockApprovalChannel([Approval(ACTION, AMT, "approved")])
+    ok, why = cg.is_open(ACTION, AMT, ch)
+    assert ok is False and "capability" in why, why
+
+
 if __name__ == "__main__":
     failed = harness.run([
         ("بدونِ کانالِ وصل (paper) → بسته", t_closed_when_not_wired),
@@ -83,5 +93,6 @@ if __name__ == "__main__":
         ("فقط با هر سه شرط → باز", t_open_only_with_all_three),
         ("تاریخ به‌تنهایی هیچ باز نمی‌کند", t_calendar_alone_opens_nothing),
         ("require زنجیرِ live_gate ∧ money_gate", t_require_chains_live_then_money),
+        ("markerِ کهنه (fingerprint نامنطبق) → بی‌اعتبار", t_stale_capability_marker_revoked),
     ])
     sys.exit(1 if failed else 0)

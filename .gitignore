@@ -32,3 +32,7 @@ _ops/state/ORGANISM-STATE.json
 _ops/state/telemetry-latest.json
 _ops/state/telemetry/
 _ops/state/watchdog.log
+# پرچم‌های گیتِ توانایی/live + گزارشِ reconcile — runtime، بازتولیدشونده (verdict آری 2026-07-07 #8)
+_ops/state/CAPABILITY-OK.flag
+_ops/state/LIVE-ENABLED.flag
+_ops/state/reconcile-latest.json

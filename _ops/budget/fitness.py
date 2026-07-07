@@ -186,6 +186,17 @@ def compute(write: bool = True) -> dict:
             history.setdefault(biz, {})["eff_baseline"] = max(
                 1e-9, sent / (tokens[biz] / 1000.0))
 
+    # اتصالِ attribution (Track B): فقط CONFIRMED/ATTRIBUTED واردِ fitness می‌شود (ناوردی: هرگز زیرِ CONFIRMED).
+    # افزایشی و شادو — فرمولِ وزنیِ بالا دست‌نخورده؛ revenue-fitnessِ کامل هنوز شادو (طرحِ MONEY-ATTRIBUTION).
+    try:
+        import attribution
+        attr = attribution.confirmed_revenue()
+    except Exception as e:  # noqa: BLE001 — مشاهده fail-soft است (خرج جای دیگر گیت می‌شود)
+        attr = {"by_cell": {}, "attribution_coverage": None, "claimed": 0, "confirmed": 0, "error": str(e)}
+    for biz, rev in attr.get("by_cell", {}).items():
+        if biz in cells and not cells[biz].get("excluded"):
+            cells[biz]["confirmed_revenue_aud"] = rev
+
     report = {
         "ts": opslib.now_iso(),
         "authoritative": span >= AUTHORITATIVE_AFTER_DAYS,
@@ -194,6 +205,10 @@ def compute(write: bool = True) -> dict:
                                if span < AUTHORITATIVE_AFTER_DAYS else "بازهٔ داده کافی است"),
         "acceptance_source": "logs/outbox.jsonl ⟂ core.db/outbox (فقط بعد از کلیک انسان)",
         "integrity_alerts": tamper,
+        "attribution": {"revenue_by_cell": attr.get("by_cell", {}),
+                        "coverage": attr.get("attribution_coverage"),
+                        "claimed": attr.get("claimed", 0), "confirmed": attr.get("confirmed", 0),
+                        "note": "فقط CONFIRMED؛ فرمولِ fitness هنوز شادو — این سیگنالِ پولِ محقق است"},
         "cells": cells,
         "weights": weights,
     }

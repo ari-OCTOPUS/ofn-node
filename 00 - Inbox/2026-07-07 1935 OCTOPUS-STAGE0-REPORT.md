@@ -323,3 +323,39 @@ open_for_next: >
 human_verdicts_open: >
   وصلِ Telegram (زمان + credential دستِ انسان). · gitignore دو پرچمِ نو (C6/#8). · فرمت/مسیرِ CSVِ reconcile (#5).
 ```
+
+## ضمیمهٔ ۱۰ (append-only) — Track B: attribution.py + reconcile.py (اولین دلارِ paper) ساخته و سبز (2026-07-07 ~۲۳:۵۵ — commit بعدی)
+
+verdict اپراتور «GO Track B» با قفل‌های موجود اجرا شد. **offline/paper، fail-closed، هیچ شبکه/بانک، هیچ live.** حین کار، ارگانیسم توسطِ مالک/watchdog زنده شد (8771، epoch 23:37) — جمع‌آوریِ دیتای paper آغاز شد؛ کدِ من isolated بود (تست‌ها temp-ledger، صفر نشت به ledgerِ واقعی — verify شد).
+
+```yaml
+built: >
+  _ops/budget/attribution.py — چرخهٔ PROPOSAL(mint LEAD-YYYYMMDD-NNN)→CLAIMED→CONFIRMED→ATTRIBUTED؛
+  fold() آخرین وضعیت per-id (CONFLICT چسبنده)؛ confirmed_revenue() فقط CONFIRMED/ATTRIBUTED + coverage.
+  _ops/budget/reconcile.py — فقط CSVِ _ops/reconcile/*.csv (date,amount_aud,lead_id,source)؛ صفر شبکه.
+  تطبیقِ محافظه‌کار: lead_id ∧ CLAIMED ∧ مبلغِ دقیق ∧ پنجرهٔ ۷روز؛ هر نقص → UNMATCHED (گزارش)، هرگز fitness.
+  fitness.py — بلاکِ additiveِ attribution (فقط CONFIRMED؛ فرمولِ وزنی دست‌نخورده، شادو). + README دراپ‌زون reconcile.
+  سفت‌کاری‌ها: capability-marker حالا به fingerprintِ SHA256 کدِ پول گره خورد (markerِ کهنه≠مجوزِ کدِ نو)؛
+  CAPABILITY-OK/LIVE-ENABLED/reconcile-latest به .gitignore (#8، در STATE_DIRS می‌مانند).
+verified_numbers:
+  - {what: "Track B test", value: "۸/۸ سبز", source: "python -X utf8 _ops/tests/test_attribution.py", tag: RUNNABLE}
+  - {what: "اثباتِ ناوردی", value: "claim بدونِ CSV=هیچ fitness؛ CSVِ match=CONFIRMED→fitness(paper)؛ out-of-window/mismatch/no-lead_id=UNMATCHED؛ double-claim=درآمد یک‌بار", source: "test_attribution", tag: RUNNABLE}
+  - {what: "کلِ سوئیت", value: "۱۰/۱۰ فایل سبز", source: "python -X utf8 _ops/tests/run_all.py", tag: RUNNABLE}
+  - {what: "capability staleness", value: "markerِ با fingerprintِ نامنطبق → بی‌اعتبار", source: "test_capability_gate", tag: RUNNABLE}
+  - {what: "ledgerِ واقعی سالم و بی‌آلودگی", value: "verify=OK؛ صفر LEAD- در ledger واقعی (تست‌ها temp)", source: "ledger.py verify + grep", tag: RUNNABLE}
+traps_hit:
+  - {trap: "fold() فیلد cell را هنگام تا‌خوردنِ CLAIMED (که cell ندارد) گم می‌کرد → reconcile با cell='unknown' تأیید می‌کرد", fix: "carry-forwardِ cell/تاریخ‌ها/lead در fold — تست این را گرفت پیش از commit"}
+  - {trap: "cp1252 (باز)", fix: "python -X utf8"}
+invariants_touched: >
+  fitness هرگز زیرِ CONFIRMED نمی‌خواند (تست) · CONFIRMED فقط actor=reconcile-job (تست) · خودگزارشیِ ایجنت
+  هرگز CONFIRMED · پولِ تأییدنشده هرگز fitness را تکان نمی‌دهد · double-claim هرگز درآمدِ دوباره یا override ·
+  append-only ledger + زنجیره سالم · fitness formula دست‌نخورده (فقط additive). دیوارِ A2/A3 پابرجا.
+open_for_next: >
+  وصلِ Telegram (human-gated، جدا) → ApprovalChannelِ core.db + LIVE-ENABLED → آن‌گاه هر مسیرِ live.
+  · B3 فرمِ lead در پنل 8790 (ورودیِ انسانیِ propose) · B4 اتصالِ عمیق‌ترِ fitness (revenue-fitness کامل، پس از ~۴ هفته)
+  · فایل‌های runtimeِ tracked که ارگانیسمِ زنده churn می‌کند (fitness-latest/replication-latest/epochs/) کاندیدِ
+  gitignore مثل #8 (الان tracked؛ untrack = git rm --cached، verdictِ کوچک).
+human_verdicts_open: >
+  وصلِ Telegram. · untrack کردنِ fitness-latest/replication-latest/epochs (توسعهٔ #8). · B3 فرمِ پنل.
+```
+> **ارگانیسم زنده شد (2026-07-07 ~۲۳:۳۷):** 8771 LISTENING، epoch آلوستاتیک، ledger verify سبز. نردبانِ مالکِ «تولدِ پایدار» محقق شد؛ smoke ۲۴h از این نقطه می‌چرخد.

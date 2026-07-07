@@ -13,6 +13,8 @@ calendar ≠ capability: رسیدنِ 2026-07-21 یا هر تاریخِ دیگر
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import sys
 from pathlib import Path
 
@@ -25,8 +27,35 @@ CAPABILITY_MARKER = opslib.STATE_DIR / "CAPABILITY-OK.flag"   # فقط اجرا�
 LIVE_ENABLED_FLAG = opslib.STATE_DIR / "LIVE-ENABLED.flag"    # فقط انسان می‌سازد (مثل ACTIVATION-*.flag)
 
 
+def _gate_source_files() -> list[Path]:
+    """کدِ پول که سبزیِ سوئیت اثباتش می‌کند. تغییرِ هرکدام → fingerprintِ نو → markerِ کهنه بی‌اعتبار
+    (markerِ سبزِ کدِ قدیم هرگز مجوزِ کدِ نو نمی‌شود — سفت‌کاریِ verdict آری Track B)."""
+    here = Path(__file__).resolve().parent
+    return [Path(__file__).resolve(),
+            Path(money_gate.__file__).resolve(),
+            here / "approval_channel.py",
+            here / "organ_gate.py",
+            opslib.SCRIPTS / "budget_gate.py"]
+
+
+def _source_fingerprint() -> str:
+    h = hashlib.sha256()
+    for f in sorted(_gate_source_files(), key=lambda p: p.name):
+        try:
+            h.update(f.name.encode("utf-8") + b"\0" + f.read_bytes())
+        except OSError:
+            h.update(b"<MISSING:" + f.name.encode("utf-8") + b">")
+    return h.hexdigest()
+
+
 def capability_ok() -> bool:
-    return CAPABILITY_MARKER.exists()
+    """marker موجود باشد و fingerprintِ کدِ پول همان باشد که هنگام آخرین سبزیِ سوئیت ثبت شد.
+    کد پس از آن تغییر کرده → mismatch → بی‌اعتبار (fail-closed). هر خطای خواندن/parse = بسته."""
+    try:
+        data = json.loads(CAPABILITY_MARKER.read_text("utf-8"))
+    except (OSError, ValueError):
+        return False
+    return bool(data.get("fingerprint")) and data.get("fingerprint") == _source_fingerprint()
 
 
 def live_enabled() -> bool:
@@ -34,9 +63,11 @@ def live_enabled() -> bool:
 
 
 def mark_capability(evidence: str) -> None:
-    """فقط از مسیرِ اجرای سبزِ کاملِ سوئیت (run_all) صدا زده می‌شود — نوشتنِ عمدی، نه auto از ناوگان."""
+    """فقط از مسیرِ اجرای سبزِ کاملِ سوئیت (run_all). fingerprintِ کدِ پول را به marker می‌بندد."""
     CAPABILITY_MARKER.parent.mkdir(parents=True, exist_ok=True)
-    CAPABILITY_MARKER.write_text(f"{opslib.now_iso()} {evidence}\n", "utf-8")
+    CAPABILITY_MARKER.write_text(json.dumps(
+        {"ts": opslib.now_iso(), "evidence": evidence, "fingerprint": _source_fingerprint()},
+        ensure_ascii=False), "utf-8")
 
 
 def revoke_capability() -> None:
