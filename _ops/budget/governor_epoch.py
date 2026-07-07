@@ -8,7 +8,7 @@ governor_epoch.py — T3 پک: حلقهٔ Governor در shadow-mode. صفر enfo
     epoch_minutes = clamp( base · (1 − k·pressure), base/4 .. base·2 )
     pressure = max(spend_velocity, deadline_proximity, anomaly)
 
-  spend_velocity     = مصرف امروز / سقف burst روزانه (budget_gate.CEIL_DAY_USD — SHARD V1)
+  spend_velocity     = مصرف امروز / سقف burst روزانه (budget_gate.CEIL_DAY_AUD تبدیل‌شده به USD — V1 قفل 2026-07-07)
   deadline_proximity = سیگموید ۱۴روزهٔ نزدیک‌ترین deadline ارگان‌ها (DEADLINE SHIELD، H5)
   anomaly            = FREEZE/halt/suspectهای متر صفر
 
@@ -61,9 +61,9 @@ def pressure_state(snap: dict) -> dict:
         import budget_gate  # noqa: F401
         sys.path.insert(0, str(opslib.SCRIPTS))
         import budget_gate as bg
-        burst_cap = bg.CEIL_DAY_USD          # SHARD V1: تفسیر = سقف burst روزانه
+        burst_cap = bg.CEIL_DAY_AUD / bg.AUD  # سقف burst روزانه به USD (V1: سقف AUD، state به USD)
     except Exception:
-        burst_cap = 2.0
+        burst_cap = 2.0 / 1.5
     velocity = min(1.0, snap["today"]["usd"] / burst_cap) if burst_cap else 1.0
     deadline, deadline_ref = _deadline_proximity(organs)
     anomaly = 1.0 if (opslib.frozen() or opslib.halted()) else \

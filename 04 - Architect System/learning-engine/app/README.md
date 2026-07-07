@@ -3,7 +3,7 @@ type: runbook
 status: active
 tags: [doctor, app, pilot, local]
 created: 2026-07-06
-updated: 2026-07-06
+updated: 2026-07-07
 ---
 
 # doctor_lite — نسخهٔ آزمایشیِ محلیِ دکتر تکاملی
@@ -15,7 +15,7 @@ updated: 2026-07-06
 PowerShell را باز کن و بزن:
 
 ```powershell
-cd "C:\Users\Armin\Desktop\backup\04 - Architect System\learning-engine\app"
+cd "F:\backup\04 - Architect System\learning-engine\app"
 python doctor_lite.py --once      # یک چرخه
 python doctor_lite.py --once      # دوباره — می‌بینی موضوعِ متفاوتی انتخاب می‌کند
 python doctor_lite.py --status    # وضعیت: چه یاد گرفته

@@ -3,7 +3,7 @@ type: log
 status: active
 tags: [agents, escalation]
 created: 2026-07-03
-updated: 2026-07-04
+updated: 2026-07-07
 ---
 
 # سوالات ایجنت‌ها — کانال escalation
@@ -108,3 +108,15 @@ git -C "F:\backup\07 - Knowledge\genome-system" commit -m "initial commit: genom
 ✅ ریشهٔ خرابی git پیدا و فیکس شد (با تأیید تو): `.git/config` خط `core.worktree` به مسیر sandbox قدیمی (`/sessions/eager-brave-archimedes/...`) اشاره می‌کرد که روی این ویندوز وجود نداشت. خط حذف شد، backup در `.git/config.bak-pre-worktree-fix` ماند. **commit زده شد** (۱۷۷۶ فایل، `76f58ca`) — کل backlog از ۰۷-۰۶ ۱۱:۵۳ تا الان (لایهٔ ارگانیسم، پنل، فیکس‌های genome v0.4.3، بازبینی چندایجنتی) الان در تاریخچهٔ git است. `git fsck --full` و diff فایل‌های کلیدی صفر مشکل نشان داد.
 
 🆕 **یافتهٔ جانبی دربارهٔ genome-system:** `.git` داخل `07 - Knowledge/genome-system/` تقریباً خالی/بی‌اعتبار بود (فقط `filemode=false`، صفر commit) — برای همین git ریپوی اصلی آن را submodule نشناخت و کل محتوایش را مثل فایل عادی داخل همین commit گرفت. یعنی genome-system از نظر عملی الان کامل در تاریخچهٔ ریپوی اصلی ثبت است. تصمیم باز: (الف) همین‌طور بماند — genome-system بخشی از ریپوی اصلی حساب شود، ریپوی خالی داخلی‌اش نادیده گرفته شود، یا (ب) بخواهی genome-system واقعاً ریپوی مستقل خودش باشد (مثلاً برای جداسازی/انتشار بعدی) که آن‌وقت باید `.git` داخلی درست init و اولین commit جدا زده شود، و از ریپوی اصلی به‌عنوان submodule/gitlink اضافه شود. تا verdict، دست به `.git` دوم نمی‌زنم.
+
+## 2026-07-07 ~۱۸:۱۵ — Claude Code (جلسه ۲۷، worktree jolly-ardinghelli)
+
+**langar (کد legacy داخل `architect/_code/`) هنوز پیش‌فرض `deepseek-reasoner` دارد** — طبق [[04 - Architect System/architect/_meta/knowledge-inventory|knowledge-inventory]] (بخش langar/brain/providers) و [[04 - Architect System/architect/01-Project/SYSTEM-BLUEPRINT-v1|SYSTEM-BLUEPRINT-v1]]؛ این alias از 2026-07-24 می‌میرد. چون `_code` طبق §۰-۲ برای ایجنت ممنوع است، دست نزدم. اگر langar قرار است دوباره زنده شود، یا خودت فیکسش کن یا اجازهٔ صریح با نام فایل بده (`langar/brain/providers.py` → `deepseek-v4-flash`). کدهای زندهٔ بیرون از `_code` (gateway / setup_wizard / learning-engine providers) همین جلسه مهاجرت کردند — [[00 - Inbox/2026-07-07 1815 گزارش جلسه ۲۷ — اجرای دستور کار جلسه ۲۶|گزارش جلسه ۲۷]].
+
+## 2026-07-07 ~۱۹:۳۵ — Claude Code (ادامهٔ جلسه ۲۷، OCTOPUS STAGE 0) — چهار verdict گرفته و اعمال شد
+
+آری در چیپ چهارگزینه‌ای همین جلسه جواب داد: (۱) **اولویت = ستاپ کامل**؛ فروش 07-20 دستی/موازی خودش. (۲) **آستانهٔ human-gate پول = «$10»** → به‌عنوان AU$10 در `budgets.yaml` (کلید نو `human_gate_aud`) ثبت شد — **اگر USD منظورت بود بگو** (≈AU$15؛ اصلاح یک‌خطی). (۳) **V1 بسته: همه-AUD** (روز 2 / ماه 30 / فاجعه 500 / MAX_DRAWDOWN ≡ spike_pct) → `budget_gate` v1.1 اعمال و تست شد؛ آیتم ۳ ورودیِ ~15:45 (واحد DISASTER) با همین بسته حل شد. (۴) **V2 بسته: type جدید در EVENT_TYPES** — پیاده‌سازی آیتم P1 (ویرایش ledger.py + تست زنجیره). جزئیات و build-plan: [[00 - Inbox/2026-07-07 1935 OCTOPUS-STAGE0-REPORT|STAGE0-REPORT]].
+
+## 2026-07-07 ~۲۰:۰۰ — Claude Code (ادامهٔ جلسه ۲۷) — پاسخ‌های STAGE-0 رسید و اعمال شد
+
+بستهٔ OPERATOR ANSWERS آری همهٔ سؤال‌های باز STAGE-0 را بست و اعمال شد: گیت پول → **AU$20** (ارز حل شد) · لوپ مناظره **AU$10/ماه** (SoT) · قیمت DeepSeek از api-docs کشیده و **[VERIFIED] قفل** شد · off-box = دیسک دوم محلی (M0.5-runbook) · سه تصمیم attribution قفل → طرح فایل شد · فروش 07-20 = tentacle فعال human-gated. **هیچ سؤال جدیدی از این بسته باز نماند**؛ بازِ قبلی‌ها: Fugu ‏base_url/دسترسی AU [OPEN] · MAX_LAG (P1) · منحنی رشد trust (P2) · langar در `_code` (ورودی ۱۸:۱۵). ضمیمهٔ ۱ [[00 - Inbox/2026-07-07 1935 OCTOPUS-STAGE0-REPORT|STAGE0-REPORT]].

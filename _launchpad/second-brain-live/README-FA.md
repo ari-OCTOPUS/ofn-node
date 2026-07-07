@@ -31,7 +31,7 @@ tags: [second-brain, launchpad, runbook]
 ## نکته‌های فنی
 
 - **بدون KeePass هم کار می‌کند:** پچ «مغز دوم» در `app.py` — اگر KEEPASS_DB خالی باشد، رمزهای هر ماژول از همین `.env` تزریق می‌شوند (نگاشت در `ENV_SECRET_MAP`).
-- **موتور LLM = DeepSeek (تصمیم آری، بدون Anthropic):** از endpoint سازگار DeepSeek استفاده می‌شود (`api.deepseek.com/anthropic` + مدل `deepseek-chat`) — کدهای موجود بدون بازنویسی به DeepSeek می‌روند. متغیر `ANTHROPIC_API_KEY` در `.env` عمداً حاوی کلید DeepSeek است چون کد قدیمی همین نام را می‌خواند؛ مقصد واقعی DeepSeek است.
+- **موتور LLM = DeepSeek (تصمیم آری، بدون Anthropic):** از endpoint سازگار DeepSeek استفاده می‌شود (`api.deepseek.com/anthropic` + مدل `deepseek-v4-flash`؛ aliasهای chat/reasoner از 2026-07-24 بازنشسته) — کدهای موجود بدون بازنویسی به DeepSeek می‌روند. متغیر `ANTHROPIC_API_KEY` در `.env` عمداً حاوی کلید DeepSeek است چون کد قدیمی همین نام را می‌خواند؛ مقصد واقعی DeepSeek است.
 - **Fugu:** کلید ذخیره و به ماژول‌ها تزریق می‌شود (`sakana-fugu-key`) ولی طبق verdict ثبت‌شده فقط برای escalation پشت سقف بودجه است — مصرف خودکار ندارد.
 - **ربات نقاشی:** ‏`config.py` قدیمی آن ممکن است مقدار hardcoded داشته باشد؛ env تزریقی override می‌کند، ولی مرور مالک توصیه می‌شود (بدون فرستادن محتوا به چت).
 

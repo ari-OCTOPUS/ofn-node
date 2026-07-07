@@ -43,7 +43,7 @@ ENDPOINTS = {
     "deepseek": {
         "url": "https://api.deepseek.com/chat/completions",
         "env": "DEEPSEEK_API_KEY",
-        "model": "deepseek-chat",
+        "model": "deepseek-v4-flash",
         "kind": "chat",
     },
     "fugu": {

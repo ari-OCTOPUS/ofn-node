@@ -1,6 +1,6 @@
 # gitleaks config — backup vault (جلسه ۸، 2026-07-04)
 # vault گیت نیست، پس با --no-git اجرا کن:
-#   gitleaks detect --no-git --source "C:\Users\Armin\Desktop\backup" \
+#   gitleaks detect --no-git --source "F:\backup" \
 #     -c "04 - Architect System/scripts/gitleaks.toml" -v --report-path gitleaks-report.json
 # هدف: کشفِ رازِ *جدید* در نوت/کد. secrets-export و .env.example عمداً allowlist نشده‌اند
 # تا تا وقتی داخل vaultند، اسکن بلند یادآوری کند.

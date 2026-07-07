@@ -43,7 +43,7 @@
 
 یک کلاس واحد؛ همه‌ی آداپترها فقط از این رد می‌شوند (هیچ call مستقیم):
 
-- `llm(prompt, tier="cheap"|"escalate")` → ‏cheap = DeepSeek ‏(`deepseek-chat`، ‏OpenAI-compatible) · escalate = Fugu ‏(`api.sakana.ai/v1`، فقط با بودجه‌ی باقی‌مانده در جدول usage؛ توکن‌های orchestration هم شمرده می‌شوند)
+- `llm(prompt, tier="cheap"|"escalate")` → ‏cheap = DeepSeek ‏(`deepseek-v4-flash`، ‏OpenAI-compatible) · escalate = Fugu ‏(`api.sakana.ai/v1`، فقط با بودجه‌ی باقی‌مانده در جدول usage؛ توکن‌های orchestration هم شمرده می‌شوند)
 - `search(query)` → Tavily (کلید موجود)
 - `tg(token_ref).send(...)` → تلگرام با rate-limit مرکزی (۲۰ پیام/دقیقه، backoff)
 - cache: پاسخ‌های تحقیق ۲۴ساعته در `knowledge` (کلید = hash پرامپت)
@@ -57,7 +57,7 @@
 
 | مصرف | مدل | دلیل | برآورد ماهانه |
 |---|---|---|---|
-| رکن A (۳-۴ تحقیق/روز) + رکن B (compose) | `deepseek-chat` | ارزان، ‏OpenAI/Anthropic-compatible، کیفیت کافی برای بریف | ~US$3-8 (خیلی زیر سقف $2-3/روز) |
+| رکن A (۳-۴ تحقیق/روز) + رکن B (compose) | `deepseek-v4-flash` | ارزان، ‏OpenAI/Anthropic-compatible، کیفیت کافی برای بریف | ~US$3-8 (خیلی زیر سقف $2-3/روز) |
 | escalation مسائل سخت (مغز تکاملی/تحلیل عمیق) | Fugu / Fugu Ultra | پلن **Standard ‏$20/ماه** (شامل هر دو مدل؛ زیر سقف $40؛ ماه دوم رایگان تا ۳۱ جولای) | $20 ثابت |
 | کش | جدول knowledge + cached-input Fugu ($0.5/M) | تحقیق تکراری نزنیم | — |
 

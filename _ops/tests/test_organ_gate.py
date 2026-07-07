@@ -43,12 +43,12 @@ def t_debate_loop_default_cap():
 
 
 def t_budget_gate_daily_chain():
-    # سقف burst روزانه budget_gate (SHARD V1: CEIL_DAY_USD=2.0) از پشت گیت ما هم دیده شود
-    r1 = organ_gate.reserve("DEBATE_LOOP", 1.5)
+    # سقف burst روزانه budget_gate (V1 همه-AUD 2026-07-07: CEIL_DAY_AUD=2.0) از پشت گیت ما هم دیده شود
+    r1 = organ_gate.reserve("DEBATE_LOOP", 0.8)   # (0.05+0.8)×1.5 = 1.275 AUD ≤ 2
     assert r1["allow"], r1
-    r2 = organ_gate.reserve("DEBATE_LOOP", 1.5)   # روز: 0.05 + 1.5 + 1.5 > 2.0
+    r2 = organ_gate.reserve("DEBATE_LOOP", 0.8)   # (0.85+0.8)×1.5 = 2.475 AUD > 2
     assert not r2["allow"] and "budget_gate:daily" in r2["reason"], r2
-    organ_gate.release("DEBATE_LOOP", 1.5)
+    organ_gate.release("DEBATE_LOOP", 0.8)
 
 
 def t_freeze_denies():

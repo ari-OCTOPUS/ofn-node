@@ -1,7 +1,7 @@
 # budgets.yaml — SINGLE SOURCE OF TRUTH بودجهٔ API کل ارگانیسم
 # تعارض #۴ STATE-MAP بسته شد: verdict آری 2026-07-06 → cap_monthly = AU$30
 # مصرف‌کننده: METABOLIC-GOVERNOR (shadow) — سند: "04 - Architect System/2026-07-06 METABOLIC-GOVERNOR-proposal.md"
-# enforce: فعلاً budget_gate.py هاردکد خودش را دارد (CEIL_MONTH_AUD=30 — هم‌خوان)؛ v2 باید از این فایل بخواند.
+# enforce: budget_gate v1.1 هاردکد هم‌خوان (همهٔ سقف‌ها AUD — verdict V1 آری 2026-07-07: روز 2 · ماه 30 · فاجعه 500)؛ v2 باید از این فایل بخواند.
 # config-only: خواندنِ این فایل هیچ اتوماسیونی روشن نمی‌کند.
 
 global:
@@ -9,12 +9,13 @@ global:
   currency: AUD
   epoch: daily               # re-plan استراتژیک: هفتگی، جمعه (هم‌راستا با حلقهٔ KPI)
   explore_pct: 0.10          # سهم MUSE / جهش — ارگان‌های جاافتاده حق برداشت ندارند
-  spike_pct: 25              # آستانهٔ kill-switch: ٪ بودجهٔ epoch در <۱ ساعت
+  spike_pct: 25              # آستانهٔ kill-switch: ٪ بودجهٔ epoch در <۱ ساعت — MAX_DRAWDOWN پک OCTOPUS ≡ همین کلید (verdict 2026-07-07)
   idle_epochs: 5             # خواب خودکار سلول بی‌خروجی
   lend_max_pct: 15           # سقف قرض بین‌پروژه‌ای بدون verdict
+  human_gate_aud: 20         # Autonomy Ramp: بالای این مبلغ هر اقدام پولی همیشه human-gated — verdict آری 2026-07-07 (پاسخ‌های STAGE-0: AU$20، جایگزین $10 اولیه)
   weights: {value: 0.30, urgency: 0.25, efficiency: 0.20, human: 0.20, waste: 0.05}
-  # ناسازگاری شناخته‌شده [OPEN]: budget_gate فعلی CEIL_DAY_USD=2.0 دارد؛ با سقف AU$30/ماه،
-  # daily = سقف burst است نه نرخ پایدار (2$×۳۰روز > AU$30). حل نهایی: budget_gate v2.
+  # ✅ بسته شد 2026-07-07 (verdict V1 همه-AUD): budget_gate v1.1 — روز AU$2 (سقف burst، نه نرخ پایدار)،
+  # ماه AU$30، فاجعه AU$500؛ باگ واحد DISASTER (:90) فیکس شد. حل نهایی (خواندن از همین فایل): budget_gate v2.
 
 projects:
   PROJECT_F:      {floor: 3,  human_priority: 2.0, deadline: 2026-07-20}   # فاز −۱ فروش؛ deadline shield فعال
@@ -23,16 +24,20 @@ projects:
   ZIMAN:          {floor: 1,  human_priority: 0.5}
   # جمع floorها = AU$8 + explore 10% = AU$3 → headroom رقابتی ≈ AU$19/ماه.
 
+loop:
+  # مرجع رسمی سقف لوپ مناظره — opslib.organ_table از همین بخش می‌خواند (پیش‌فرض کد 5 = fallback)
+  DEBATE_LOOP: {cap_monthly: 10, floor: 0}   # verdict آری 2026-07-07 (پاسخ‌های STAGE-0: AU$10/ماه)
+
 routing:
   # 🔴 اصلاح 2026-07-06: aliasهای deepseek-chat/reasoner از 2026-07-24 (15:59 UTC) بازنشسته می‌شوند [FACT — چند منبع].
-  # قیمت‌ها [EST] از منابع ثانویهٔ هم‌رأی — قبل از قفل نهایی: platform.deepseek.com
+  # قیمت‌ها ✅ [VERIFIED 2026-07-07 · api-docs.deepseek.com/quick_start/pricing] — قفل شد (verdict پاسخ‌های STAGE-0؛ تخمین بی‌مدرک ممنوع)
   econ:
     provider: deepseek
-    model: deepseek-v4-flash          # ~$0.14/$0.28 per 1M؛ cache-hit ~$0.003–0.014 [EST]
+    model: deepseek-v4-flash          # [VERIFIED 2026-07-07] in $0.14 (cache-hit $0.0028) / out $0.28 per 1M
     base_url: "https://api.deepseek.com"
   reason:
     provider: deepseek
-    model: deepseek-v4-flash          # thinking-mode؛ [OPEN] جایگزین: deepseek-v4-pro ($0.435/$0.87 پرومو؛ استاندارد $1.74/$3.48)
+    model: deepseek-v4-flash          # thinking پیش‌فرض؛ همان قیمت flash [VERIFIED]. جایگزین: deepseek-v4-pro — [VERIFIED 2026-07-07] $0.435 (hit $0.003625) / $0.87
     mode: thinking
     base_url: "https://api.deepseek.com"
   anthropic:

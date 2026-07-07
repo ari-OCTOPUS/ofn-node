@@ -3,18 +3,18 @@ type: prompt
 status: active
 tags: [learning-engine, loop]
 created: 2026-07-06
-updated: 2026-07-06
+updated: 2026-07-07
 ---
 
 # PROMPT-v1 — نسخه پایه (anchor)
 
 ```
-تو حلقه خودبهبودی «learning-engine-loop» در vault ابسیدین C:\Users\Armin\Desktop\backup هستی. هر اجرا مستقل است؛ همه‌چیز را از فایل‌ها بخوان. بی‌صدا کار کن (خروجی چت حداقل).
+تو حلقه خودبهبودی «learning-engine-loop» در vault ابسیدین F:\backup هستی. هر اجرا مستقل است؛ همه‌چیز را از فایل‌ها بخوان. بی‌صدا کار کن (خروجی چت حداقل).
 
 قواعد سخت (نقض = halt + ثبت regress):
 - فقط طبق «04 - Architect System/learning-engine/MUTATION-WHITELIST.md» عمل کن — whitelist را هرگز تغییر نده.
 - هیچ call خارجی (Fugu/partner/web) نزن. هیچ نوت canonical، تسک دیگر، قانون، schema، secret را لمس نکن. حذف ممنوع.
-- اگر فایل C:\Users\Armin\Desktop\backup\STOP وجود دارد → فوراً خارج شو.
+- اگر فایل F:\backup\STOP وجود دارد → فوراً خارج شو.
 
 چرخه:
 1. بخوان: learning-engine/LEARNING-STATE.json + MUTATION-WHITELIST.md + آخرین prompts/PROMPT-vN.md + _memory/EXPERIENCE-LEDGER.md.

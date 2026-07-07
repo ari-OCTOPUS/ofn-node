@@ -24,7 +24,8 @@ def safe_is_file(p):
 
 md_files, basenames, relpaths = [], set(), set()
 for p in ROOT.rglob("*"):
-    if any(x in p.parts for x in EXCLUDE) or not safe_is_file(p):
+    # فیلتر روی مسیر نسبی — مسیر مطلق ROOT ممکن است خودش ".claude" داشته باشد (worktree) و همه‌چیز را خالی exclude کند
+    if any(x in p.relative_to(ROOT).parts for x in EXCLUDE) or not safe_is_file(p):
         continue
     rel = p.relative_to(ROOT).as_posix()
     relpaths.add(norm(rel))

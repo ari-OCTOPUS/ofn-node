@@ -13,10 +13,10 @@ organ_gate.py — T2 پک: گیت per-organ *روی* budget_gate (نه جایگ�
 تفسیر فاز سایه: تا Governor زنده نشده، سقف ماهانهٔ هر ارگان = FLOOR خودش (سهمیهٔ حیات)؛
 grant بیشتر فقط از مسیر Governor→verdict انسانی خواهد آمد.
 
-⚠ SHARD (V1، دست‌نخورده طبق پک): budget_gate.py سه مسئلهٔ ثبت‌شده دارد —
-  CEIL_DAY_USD=2.0 هاردکد (تفسیر فعلی: سقف burst روزانه)؛ پارامتر agent بی‌اثر
-  (همین فایل جبرانش می‌کند)؛ خط DISASTER مقدار AUD را با ثابت USD مقایسه می‌کند
-  (budget_gate.py:90). فیکس فقط با verdict مالک؛ این لایه دفاعی رفتار می‌کند:
+⚠ SHARD (به‌روزرسانی 2026-07-07 — verdict V1 همه-AUD): budget_gate v1.1 —
+  CEIL_DAY_AUD=2.0 (سقف burst روزانه)؛ باگ واحد DISASTER فیکس شد (AUD ≥ AUD)؛
+  پارامتر agent هنوز بی‌اثر است (همین فایل جبرانش می‌کند؛ حل کامل: budget_gate v2
+  با خواندن از budgets.yaml). این لایه دفاعی رفتار می‌کند:
   settle ناموفق/استثنا → FREEZE (حسابداری نامعلوم = توقف خرج، نه ادامهٔ کور).
 """
 from __future__ import annotations

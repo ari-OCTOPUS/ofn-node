@@ -10,7 +10,7 @@ import json, pathlib, datetime, os, time
 
 STATE = pathlib.Path(os.environ.get("BUDGET_STATE", r"F:\backup\_ops\budget\budget-state.json"))
 LOCK  = pathlib.Path(str(STATE) + ".lock")
-CEIL_DAY_USD, CEIL_MONTH_AUD, DISASTER_USD = 2.0, 30.0, 500.0
+CEIL_DAY_AUD, CEIL_MONTH_AUD, DISASTER_AUD = 2.0, 30.0, 500.0   # همه AUD — verdict V1 آری 2026-07-07 (روز 2 · ماه 30 · فاجعه 500)
 AUD = 1.5            # نرخِ تقریبیِ USD→AUD (قابلِ تنظیم)
 STALE_LOCK_S = 30    # قفلِ رهاشده بعد از این ثانیه‌ها steal می‌شود (ضدِ deadlock)
 
@@ -68,7 +68,7 @@ def reserve(agent, est_usd):
             return {"allow": False, "reason": "state-unreadable"}   # fail-closed (نه crash)
         if d["halted"]:
             return {"allow": False, "reason": "halted"}
-        if d["spent_today_usd"] + est_usd > CEIL_DAY_USD:
+        if (d["spent_today_usd"] + est_usd) * AUD > CEIL_DAY_AUD:
             return {"allow": False, "reason": "daily"}
         if d["spent_month_aud"] + est_usd * AUD > CEIL_MONTH_AUD:
             d["halted"] = True; _save(d); return {"allow": False, "reason": "monthly-halt"}
@@ -87,7 +87,7 @@ def settle(agent, est_usd, actual_usd):
         d = _roll(_load()); delta = actual_usd - est_usd
         d["spent_today_usd"] = max(0.0, d["spent_today_usd"] + delta)
         d["spent_month_aud"] = max(0.0, d["spent_month_aud"] + delta * AUD)
-        if d["spent_month_aud"] >= DISASTER_USD:
+        if d["spent_month_aud"] >= DISASTER_AUD:
             d["halted"] = True                     # خطِ فاجعه (D-22) = halt کامل
         _save(d); return d
     finally:

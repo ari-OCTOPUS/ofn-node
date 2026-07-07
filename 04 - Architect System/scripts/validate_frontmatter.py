@@ -64,7 +64,8 @@ def parse_frontmatter(text):
 errors = []
 count = 0
 for p in ROOT.rglob("*.md"):
-    if any(x in p.parts for x in EXCLUDE) or not in_scope(p):
+    # فیلتر روی مسیر نسبی — مسیر مطلق ROOT ممکن است خودش ".claude" داشته باشد (worktree) و همه‌چیز را خالی exclude کند
+    if any(x in p.relative_to(ROOT).parts for x in EXCLUDE) or not in_scope(p):
         continue
     rel = p.relative_to(ROOT).as_posix()
     count += 1
