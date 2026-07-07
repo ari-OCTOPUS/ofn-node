@@ -5,6 +5,16 @@ updated: 2026-07-07
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+## جلسه بیست‌وهشتم 2026-07-07 ~۲۲:۲۷ (Claude Code Opus، master) — CONSOLIDATE: کارِ in-flightِ Track A گم‌نشده به master + verify سبز
+
+آری این سشن را (که روی worktree کهنهٔ modest-gould بود) اجراگرِ اصلیِ master کرد: «اول consolidateِ بی‌گم‌شدن، بعد Track A». هیچ اقدام live/پولی/irreversible. گزارش کامل با فیلدهای STATE-REPORT: [[00 - Inbox/2026-07-07 1935 OCTOPUS-STAGE0-REPORT|STAGE0-REPORT ضمیمهٔ ۷]].
+
+- **کارِ commit‌نشدهٔ Track A/A4 روی master گم‌نشده ثبت شد:** ۷ فایل (opslib germline-vital MAX_LAG · organism · telemetry-test · ledger · CHANGELOG · STAGE0-REPORT + `money_event_test.py` untracked) → tag لنگر `pre-consolidate-20260707-2227`(=49312fa) → برنچ `wip/trackA-20260707-2227`(2089358) → merge `--no-ff` به master (`b2e754d`). **هیچ برنچی جلوتر از master نبود** (jolly قبلاً merge؛ sad-bartik=master؛ بقیه فقط behind) → merge `<AHEAD>` عمداً skip.
+- **verify سبز:** `_ops` ۶/۶ فایل ($0، UTF-8) · `money_event_test` ۳/۳ (V2 = EVENT_TYPE پول، chain mixed-type، set بسته) · تستِ ضدِ APPROVAL جعلی present و سبز · validatorها صفر خطای نو (فقط backlog §۱۱ + ۱ لینک placeholder). تلهٔ `cp1252` دوباره خورد → `python -X utf8`.
+- **ارگانیسم خاموش** (نه 8771، نه process؛ INC-1 مرگ ~20:53) — σ=0/pre-replication؛ تولد دوباره = دابل‌کلیک مالک `RUN-ORGANISM.bat`.
+- **باز برای جلسهٔ بعد (Track A، همه offline/paper):** budget_gate v2 (SoT-read + fail-closed) → money_gate (AU$20 با token انسانی) → A3 capability-gate (07-21) · reconcile `_ops/reconcile/*.csv` هنوز نیست (بلاکر Track B) · نگه‌داشتنِ wip+tag تا verdict مالک (rollback: `git reset --hard pre-consolidate-20260707-2227`).
+- ⚠️ **flag امنیتی (فقط گزارش):** `C:\Users\Armin` یک git repo است — ولی فقط ۲ فایل زیر Documents track شده، **هیچ .ssh/secret/.env**؛ نشتِ فعال نیست، footgun است. دست نزدم؛ تصمیم مالک. · worktreeهای کهنهٔ modest-gould/vigilant (۱۱ behind) کاندید prune.
+
 ## جلسه بیست‌وهفتم 2026-07-07 ~۱۸:۱۵ (Claude Code، worktree jolly-ardinghelli) — دستور کار جلسه ۲۶ اجرا شد: مهاجرت DeepSeek + قتل مسیر مرده + تست دیوار باربر + فیکس کوریِ validator
 
 آری گزارش جلسه ۲۶ (راستی‌آزمایی زمینی، worktree ‏modest-gould-1c7bac، **merge‌نشده** — شماره ۲۶ برای همان رزرو ماند) را به این جلسه سپرد؛ هر ادعا پیش از ویرایش روی ریپو دوباره verify شد — همه دقیق بودند. گزارش کامل: [[00 - Inbox/2026-07-07 1815 گزارش جلسه ۲۷ — اجرای دستور کار جلسه ۲۶|گزارش جلسه ۲۷]].

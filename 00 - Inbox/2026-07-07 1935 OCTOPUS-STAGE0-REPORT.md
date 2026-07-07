@@ -213,3 +213,45 @@ master اکنون = جلسه ۲۷ کامل + STAGE 0 + پاسخ‌های اپر�
 
 - **audit زنده سه یافتهٔ نو داد:** 🔴 ‏INC-1: ارگانیسم پس از ۳ tick سالم از ~20:53 مرده (پورت refused؛ هیچ python/cmd؛ هیچ crash-log/heartbeat خروج → ‏kill خارجی پروسه+launcher؛ محتمل: teardown ‏job سندباکس ایجنت — **درس: تولد پایدار فقط با لانچ مالک یا Scheduled Task**) · 🟠 ‏INC-2: اولین اجرای scheduled ‏germline-hourly ‏FAIL ‏(20:49، ‏exit 1؛ stderr در log نیست؛ اجرای دستی سبز بود) — لایهٔ روزانه+دستی پوشش می‌دهد؛ [RE-VERIFY @21:49] · 🟡 سه فایل soma-state ناخواسته tracked → repo با هر tick دائم dirty (تصمیم gitignore = C6).
 - **خروجی:** [[00 - Inbox/2026-07-07 2110 OCTOPUS-MASTER-PLAN v1|OCTOPUS-MASTER-PLAN v1]] — چهار Track ‏(A ایمنی پول: bg-v2/money_gate/capability-gate/V2/MAX_LAG · ‏B اولین tentacle ‏paper = Lead-نقاشی تا اولین دلار CONFIRMED · ‏C سخت‌سازی/رصد: فیکس دو INCIDENT، smoke ‏۲۴h، tier ابری، داشبورد 8771، ‏gitignore ‏soma · ‏D فروش 07-20 ‏human-gated مستقل) + گراف وابستگی/critical-path + ‏۱۰ ‏open-decision + ‏[RE-VERIFY]ها. **هیچ فرضی به‌جای verdict گذاشته نشد.**
+
+## ضمیمهٔ ۷ (append-only) — CONSOLIDATE: کارِ in-flightِ Track A گم‌نشده به master + verify سبز (2026-07-07 ~۲۲:۲۷ — merge `b2e754d`)
+
+اجراگرِ نو (همین سشن، Opus 4.8) طبق verdict اپراتور «تو اجراگرِ اصلیِ masterی؛ اول consolidateِ بی‌گم‌شدن، بعد Track A» اجرا شد. **هیچ اقدام live/پولی/irreversible.**
+
+```yaml
+built: >
+  کارِ commit‌نشدهٔ Track A/A4 روی master (۷ فایل incl. money_event_test.py untracked) گم‌نشده
+  ثبت شد: (۱) tag لنگر pre-consolidate-20260707-2227 = 49312fa · (۲) برنچ wip/trackA-20260707-2227
+  (commit 2089358) کل tree in-flight را گرفت · (۳) merge --no-ff به master = b2e754d.
+  merge برنچِ <AHEAD> عمداً skip شد چون هیچ برنچی جلوتر از master نیست (توپولوژی زیر).
+verified_numbers:
+  - {what: "_ops suite", value: "۶/۶ فایل سبز (هدر: ۴۰ چک)", source: "python -X utf8 _ops/tests/run_all.py", tag: RUNNABLE}
+  - {what: "money EVENT_TYPE (V2)", value: "۳/۳ چک سبز؛ chain mixed-type verified + set بسته می‌ماند", source: "genome-system/tests/money_event_test.py", tag: RUNNABLE}
+  - {what: "سفت‌کاری ضدِ APPROVAL جعلی", value: "تست present و سبز: acceptance_rate بی‌حرکت", source: "_ops/tests (test_fitness_sigma)", tag: RUNNABLE}
+  - {what: "validatorها", value: "فقط backlog شناختهٔ §۱۱ (_audit/اونلی‌فنز/scout-digests) + ۱ لینک placeholder؛ صفر خطای نو", source: "scripts/validate_frontmatter.py + find_broken_links.py (621 نوت)", tag: RUNNABLE}
+  - {what: "توپولوژی برنچ‌ها", value: "master جلوترین؛ behind: jolly8/nifty11/vigilant11/modest11؛ sad-bartik 0/0 (=master)؛ هیچ‌کدام ahead نیست", source: "git rev-list --left-right --count master...<b>", tag: RUNNABLE}
+traps_hit:
+  - {trap: "cp1252: چاپِ '─' در run_all.py روی کنسول ویندوز می‌ترکد (UnicodeEncodeError) — تلهٔ شناخته", fix: "PYTHONUTF8=1 / python -X utf8 (مطابق هدر همین گزارش)"}
+invariants_touched: >
+  هیچ ناوردی تضعیف نشد. append-only حفظ شد (هیچ hard-delete؛ برنچ wip + tag نگه داشته شد).
+  budget_gate/budgets.yaml دست‌نخورده. live_gate دوقفله سالم (تست سبز). هیچ مسیر پولی/live لمس نشد.
+  دست‌نزدن به C:\Users\Armin رعایت شد.
+sigma_epoch_state: >
+  ارگانیسم خاموش است (نه 8771 listen، نه پروسهٔ python) — مطابق INC-1 (مرگ ~20:53).
+  σ=0 / pre-replication (تست). epoch آلوستاتیک، هیچ epoch زنده‌ای نمی‌چرخد.
+  تولدِ دوباره = دابل‌کلیک مالک `F:\backup\_ops\RUN-ORGANISM.bat` (watchdog فقط revive، تولد اول دستِ مالک).
+open_for_next: >
+  Track A: budget_gate v2 (خواندن از budgets.yaml SoT + fail-closed) → money_gate (AU$20 با token انسانی)
+  → A3 capability-gate (07-21). همه offline/paper. · reconcile plumbing `_ops/reconcile/*.csv` هنوز ساخته نشده
+  (بلاکر Track B). · worktreeهای کهنه modest-gould/vigilant-williamson روی 5356cd7 (۱۱ behind)؛ modest-gould یک
+  نسخهٔ dupِ گزارش جلسه ۲۶ دارد که فقط روی همان برنچ است (master معادلش را دارد) — کاندید prune با verdict.
+ledger_events_written: >
+  هیچ — این Stage فقط git است (capture/merge)، هیچ tick ارگانیسم و هیچ append به ledger نشد.
+human_verdicts_open: >
+  ⚠️ امنیت: C:\Users\Armin یک git repo است (فقط ۲ فایل زیر Documents track شده؛ هیچ .ssh/secret/.env)
+  — نشتِ فعال نیست ولی footgun است؛ فقط flag شد، تصمیم با مالک. · prune دو worktree کهنه. · نگه‌داشتنِ
+  wip/trackA-20260707-2227 + tag pre-consolidate تا تأیید مالک (rollback: git reset --hard pre-consolidate-20260707-2227).
+  · [OPEN] base_url/دسترسی AU سakana · منحنی trust-ramp · هر قیمت/آفر/مخاطبِ نو = بپرس.
+```
+
+- **تصحیح یک ادعای کهنه:** گزارشِ راستی‌آزماییِ ۱۷:۴۵ (روی worktree کهنهٔ modest-gould) چند آیتم را «باز» دید که در واقع روی master بسته‌اند (money-gate AU$20، loop AU$10، DeepSeek [VERIFIED]، DISASTER فیکس، MAX_DRAWDOWN≡spike_pct، germline اثبات‌شده). علتش صرفاً کهنه‌بودنِ آن worktree بود — نه خطای master. سند صحیح = همین STAGE0-REPORT.
