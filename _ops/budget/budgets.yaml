@@ -1,7 +1,7 @@
 # budgets.yaml — SINGLE SOURCE OF TRUTH بودجهٔ API کل ارگانیسم
 # تعارض #۴ STATE-MAP بسته شد: verdict آری 2026-07-06 → cap_monthly = AU$30
 # مصرف‌کننده: METABOLIC-GOVERNOR (shadow) — سند: "04 - Architect System/2026-07-06 METABOLIC-GOVERNOR-proposal.md"
-# enforce: فعلاً budget_gate.py هاردکد خودش را دارد (CEIL_MONTH_AUD=30 — هم‌خوان)؛ v2 باید از این فایل بخواند.
+# enforce: budget_gate v1.1 هاردکد هم‌خوان (همهٔ سقف‌ها AUD — verdict V1 آری 2026-07-07: روز 2 · ماه 30 · فاجعه 500)؛ v2 باید از این فایل بخواند.
 # config-only: خواندنِ این فایل هیچ اتوماسیونی روشن نمی‌کند.
 
 global:
@@ -9,12 +9,13 @@ global:
   currency: AUD
   epoch: daily               # re-plan استراتژیک: هفتگی، جمعه (هم‌راستا با حلقهٔ KPI)
   explore_pct: 0.10          # سهم MUSE / جهش — ارگان‌های جاافتاده حق برداشت ندارند
-  spike_pct: 25              # آستانهٔ kill-switch: ٪ بودجهٔ epoch در <۱ ساعت
+  spike_pct: 25              # آستانهٔ kill-switch: ٪ بودجهٔ epoch در <۱ ساعت — MAX_DRAWDOWN پک OCTOPUS ≡ همین کلید (verdict 2026-07-07)
   idle_epochs: 5             # خواب خودکار سلول بی‌خروجی
   lend_max_pct: 15           # سقف قرض بین‌پروژه‌ای بدون verdict
+  human_gate_aud: 10         # Autonomy Ramp: بالای این مبلغ هر اقدام پولی همیشه human-gated — verdict آری 2026-07-07 («$10»؛ ارز = ارز SoT یعنی AUD)
   weights: {value: 0.30, urgency: 0.25, efficiency: 0.20, human: 0.20, waste: 0.05}
-  # ناسازگاری شناخته‌شده [OPEN]: budget_gate فعلی CEIL_DAY_USD=2.0 دارد؛ با سقف AU$30/ماه،
-  # daily = سقف burst است نه نرخ پایدار (2$×۳۰روز > AU$30). حل نهایی: budget_gate v2.
+  # ✅ بسته شد 2026-07-07 (verdict V1 همه-AUD): budget_gate v1.1 — روز AU$2 (سقف burst، نه نرخ پایدار)،
+  # ماه AU$30، فاجعه AU$500؛ باگ واحد DISASTER (:90) فیکس شد. حل نهایی (خواندن از همین فایل): budget_gate v2.
 
 projects:
   PROJECT_F:      {floor: 3,  human_priority: 2.0, deadline: 2026-07-20}   # فاز −۱ فروش؛ deadline shield فعال
