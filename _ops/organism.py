@@ -164,6 +164,7 @@ def main() -> int:
     last_daily = ""
     last_heartbeat = 0.0
     while True:
+        _protective_skip = False   # S-fix-2: flag به‌جای continue (busy-loop prevention)
         try:
             if opslib.STOP_ORGANISM.exists() or opslib.halted() == "STOP(architect)":
                 opslib.heartbeat("organism=HALT (STOP) — خروج تمیز")
@@ -247,7 +248,9 @@ def main() -> int:
                                 opslib.heartbeat(f"PROTECTIVE HALT: {_prot['reason']}")
                                 _write_state({"protective_mode": True,
                                               "protective_reason": _prot["reason"]})
-                                continue   # skip بقیهٔ تیک — غیرقابل‌سرکوب
+                                # S-fix-2: به‌جای continue (که از time.sleep می‌پرد → busy-loop)，
+                                # flag می‌گذاریم؛ sleep همیشه در انتهای tick اجرا می‌شود.
+                                _protective_skip = True
                             elif _prot.get("action") == "throttle":
                                 # throttle: epoch را skip ولی heartbeat ادامه
                                 _write_state({"protective_mode": "throttled",

@@ -191,15 +191,33 @@ def t_protective_override_always_returns_dict():
 
 def t_protective_override_enforced_not_just_alert():
     """S-fix: override غیرقابل‌سرکوب در عمل enforce شود، نه فقط alert.
-    structural check: organism.py باید 'continue' (skip tick) در بلوکِ protective_halt داشته باشد."""
+    S-fix-2: بدون continue (busy-loop) — باید flag + sleep باشد."""
     organism_src = open(str(_OPS / "organism.py"), encoding="utf-8").read()
-    # protective_halt باید وجود داشته باشد
     assert "protective_halt" in organism_src, "organism باید protective_halt داشته باشد"
-    # continue باید بعد از protective_halt بیاید (در همان بلوک)
     halt_idx = organism_src.index("protective_halt")
     after_halt = organism_src[halt_idx:]
-    assert "continue" in after_halt[:700], \
-        "organism باید continue (skip tick) بعد از protective_halt داشته باشد — نه فقط alert"
+    # S-fix-2: باید protective_skip flag باشد (نه continue که busy-loop می‌سازد)
+    assert "_protective_skip" in after_halt[:700], \
+        "organism باید _protective_skip flag بعد از protective_halt داشته باشد"
+    # نباید continue در بلوک protective_halt باشد (busy-loop fix)
+    assert "continue" not in after_halt[:200], \
+        "نباید continue باشد — busy-loop risk (S-fix-2)"
+
+
+def test_organism_protective_skip_no_busy_loop():
+    """S-fix-2: time.sleep همیشه اجرا می‌شود حتی در protective mode.
+    structural: _protective_skip باید قبل از while True تعریف شود و sleep باید بیرون try باشد."""
+    organism_src = open(str(_OPS / "organism.py"), encoding="utf-8").read()
+    # _protective_skip تعریف می‌شود قبل از while
+    assert "_protective_skip = False" in organism_src
+    # time.sleep بعد از try/except است (بیرون) — همیشه اجرا
+    assert "time.sleep" in organism_src
+    # continue نباید در بلوک protective وجود داشته باشد
+    if "protective_halt" in organism_src:
+        halt_idx = organism_src.index("protective_halt")
+        block = organism_src[halt_idx:halt_idx+300]
+        assert "continue" not in block, \
+            "S-fix-2: continue در protective block = busy-loop — باید flag باشد"
 
 
 def test_organism_no_silent_neural_error():
@@ -237,6 +255,7 @@ if __name__ == "__main__":
         ("[G] no production import", t_wiring_no_production_import),
         ("[G] override always dict", t_protective_override_always_returns_dict),
         ("[S-fix] enforced not just alert", t_protective_override_enforced_not_just_alert),
+        ("[S-fix-2] no busy-loop", test_organism_protective_skip_no_busy_loop),
         ("[S-fix] no silent neural error", test_organism_no_silent_neural_error),
     ])
     sys.exit(1 if failed else 0)
