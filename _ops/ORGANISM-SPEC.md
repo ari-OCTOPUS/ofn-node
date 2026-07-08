@@ -90,7 +90,55 @@ sources:
 
 تست: `test_doctor.py` (۲۷ چک). reward-integrity تست شد (uptime → reject). **گیتِ Phase 2:** ≥۱ RFC از traceِ seed تولید، sandbox-tested، و بدونِ human-append به production نمی‌رسد.
 
-⚑ برای معمار: اتصالِ `run_cycle` به Pacemaker (هر N ضربان) + جایگزینیِ واقعیِ `VERIFY_RULES` در `dashboard_doctor.py` با `stable_read` = فازِ بعد (مهاجرتِ جداگانه).
+⚑ برای معمار: اتصالِ `run_cycle` به Pacemaker (هر N ضضان) + جایگزینیِ واقعیِ `VERIFY_RULES` در `dashboard_doctor.py` با `stable_read` = فازِ بعد (مهاجرتِ جداگانه).
+
+### ۲.۷.۱) Doctor Wiring + Inner Chamber (افزایشی)
+
+**Wiring (بسته‌شدنِ گاف‌های تحلیل):**
+- `_gather_trace` اکنون واقعی است: `organs` (از تله‌متری)، `errors` (با ساختار `{organ,msg}` از conflicts)، `sigma_effective` (از replication، dict تودرتو)، `effects_pending` (از chrono.db). mine/spectral حالا دادهٔ واقعی می‌خوانند.
+- `knowledge/internal/` در `__init__` ساخته می‌شود (گاف ۳ بسته شد). RFCها روی دیسک می‌مانند.
+- `db` قابل‌تزریق به Doctor (برای effects_pending).
+
+**Inner Chamber (`_ops/doctor/chamber.py`):**
+اتاقِ گفت‌وگوی درونیِ کران‌دار و تخاصمی — RFC را قوی‌تر می‌کند، نه دکتر را خودمختارتر. ۴ صدا (Proposer/Red-Critic/Skeptic/Synthesizer) + ۶ مهار: کران‌دار (≤۳ دور) · تخاصمی (Skeptic=falsifier) · propose-only · λ_persist منفی · auditable · stub ($0).
+⚠ UNPROVEN: Chamber فعلاً offline/stub است. تا Doctor در runtime اجرا شود و trace واقعی بخواند، سبزیِ تست‌ها فقط نشان‌دهندهٔ مکانیزم است. الگوی امن از `_ops/debate/` (≤۳ دور، gated).
+
+### ۲.۷.۲) Doctor Calibration + Full Wiring (افزایشی)
+
+**Feedback loop (`calibration.py`):** verdict_history + `should_skip_bottleneck` (۳ reject → دیگر پیشنهاد نده) + `effective_mine`. ضدِ agreement-spiral.
+**Attention-budget:** `attention_gate` — soft-cap=۳، hard-cap=۵. critical همیشه می‌گذرد. دکتر خودش را throttle می‌کند.
+**Wiring (`wiring.py` + organism.py):** ۵ لایه پشتِ env-flags (پیش‌فرض خاموز = no regression، تست شد): `OCTOPUS_WIRE_DOCTOR`/`TELEGRAM_BOT_TOKEN`/`OCTOPUS_WIRE_UNIFIED`/`OCTOPUS_WIRE_LEAD`. `enrich_state_with_germline` همیشه روشن (read-only). `run_cycle` حالا از calibration + Chamber می‌گذرد.
+
+### ۲.۷.۳) Box-of-Agents — B0 Numeric Core (`_ops/doctor/box/`)
+
+میکرو‌جهانِ بستهٔ عددیِ داخلِ دکتر. $0 (صفر LLM/شبکه). spec: `DOCTOR-BOX-OF-AGENTS-SPEC.md`.
+
+| جزء | کار |
+|---|---|
+| `agent_state.py` | Part 10 schema: clip z∈[0,1]، energy.tokens_spent_episode، goal_stack screened (ممنوعه: self-preservation/budget-seeking) |
+| `dynamics.py` | x/z/M/G update (Part 4/5): contractive f، clip u، bounded h. g/h/f stubs |
+| `warden.py` | E_box_max=0.02·E_total fail-closed، STOP supreme، ρ(J)<1، allostatic cooldown |
+| `topology.py` | tree+k shortcuts (Part 11). full-mesh ممنوع. یال O(N log N) |
+| `archivist.py` | multiscale coarse-grain memory (MERA-like). |M_t| sublinear، evict کم‌امتیازترین |
+| `primitive.py` | recursive Proposer→Skeptic→Integrator. depth از بودجه برش |
+| `sensors.py` | ρ(J) (spectral radius) + I(a;x) (mutual info). neural vs random جداکننده |
+| `null_dreamer.py` | baseline random control (علمی) |
+| `box.py` | Box class (glue): run_tick/run_episode |
+
+تست: `test_box.py` (۲۹ چک). هر ۷ شرط DoD سبز. هیچ import از *_gate/chrono/money/genome.
+
+### ۲.۷.۴) Doctor Evolution Upgrades (`_ops/doctor/evolution.py`)
+
+۳ تکنیکِ صنعتی (DOCTOR-EVOLUTION-BENCHMARK-10systems.md §۳): هوش را برمی‌داریم، نه خودمختاری را — merge همچنان human-append.
+
+| ماژول | تکنیکِ صنعتی | کار |
+|---|---|---|
+| `RFCArchive` | MAP-Elites + DGM lineage | سلول = (bottleneck_key × organ)، بهترین-در-سلول، cap+evict، sample/mutate با generation |
+| `measured_lift` | AlphaEvolve/FunSearch | lift واقعی در sandbox؛ زیرِ آستانه (0.05) → drop خودکار (به انسان نمی‌رسد) |
+| `tournament_rank` | Co-Scientist Elo | چند variant → مسابقهٔ pairwise/Elo؛ فقط بازمانده submit (`survivor`) |
+
+non-destructive: mine/propose/submit فعلی دست‌نخورده. λ_persist منفی. هیچ import از *_gate/chrono/money.
+تست: `test_evolution.py` (۲۰ چک).
 
 ## ۲.۸) لایهٔ Survival / 24-7 (Phase 5) — `_ops/watchdog.py` + `germline.py` + `unified_bus.py` + `checkpoint.py` + `smoke_24h.py`
 

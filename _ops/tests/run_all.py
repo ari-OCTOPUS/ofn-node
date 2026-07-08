@@ -12,16 +12,20 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_attribution.py", "test_panel_lead.py",
          "test_chrono_heartbeat.py", "test_chrono_langar.py",
          "test_telegram_channel.py", "test_leg.py", "test_doctor.py",
-         "test_phase5.py"]
+         "test_phase5.py", "test_spectral.py", "test_chamber.py",
+         "test_calibration.py", "test_box.py", "test_evolution.py"]
+# تست‌های خارج از _ops/tests/ (path tuyệtق)
+EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py"]
 
 if __name__ == "__main__":
     failed = []
-    for t in TESTS:
-        print(f"\n── {t} " + "─" * (60 - len(t)))
-        r = subprocess.run([sys.executable, "-X", "utf8", str(HERE / t)],
-                           cwd=str(HERE), timeout=300)
+    for t in TESTS + EXTRA_TESTS:
+        label = Path(t).name
+        print(f"\n── {label} " + "─" * (60 - len(label)))
+        r = subprocess.run([sys.executable, "-X", "utf8", str(t)],
+                           cwd=str(Path(t).parent), timeout=300)
         if r.returncode != 0:
-            failed.append(t)
+            failed.append(label)
     print("\n" + "=" * 66)
 
     # A3: markerِ capability فقط با اجرای سبزِ کاملِ سوئیت نوشته می‌شود (با fingerprintِ کدِ پول)؛

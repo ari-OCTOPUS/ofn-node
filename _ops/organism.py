@@ -139,6 +139,20 @@ def main() -> int:
 
     print(f"organism: زنده روی http://127.0.0.1:{port} — kill تمیز: فایل _ops/STOP-ORGANISM")
     opslib.heartbeat(f"organism=START port={port}")
+    # ── W-1..W-5 wiring (پشتِ flag، paper-mode؛ پیش‌فرض خاموز = no regression)
+    _wire = {}
+    _doctor_inst = None
+    try:
+        import wiring as _w
+        _wire = _w.wire_summary()
+        _chan = _w.make_telegram_channel()   # auto-on اگر توکن
+        _doctor_inst = _w.make_doctor(state_dir=str(opslib.STATE_DIR), channel=_chan)
+        _w.make_unified_bus()
+        _w.make_lead_leg()
+        if any(_wire.values()):
+            opslib.heartbeat(f"organism wiring: {_wire}")
+    except Exception as _e:  # noqa: BLE001 — wiring اختیاریِ additive
+        opslib.alert([f"organism wiring failed (non-fatal): {_e}"])
     if chrono is not None:
         try:   # P-Chrono-1: pacemaker به‌عنوان background task (additive، fail-soft)
             chrono.start_pacemaker_thread()
@@ -201,7 +215,14 @@ def main() -> int:
             _write_state({"month": snap["month"], "today": snap["today"],
                           "suspect_zero_total": snap["suspect_zero_total"],
                           "conflicts": conflicts, **germ, **epoch_info, **daily,
-                          **pulse})
+                          **pulse, "wiring": _wire})
+            # ── W-2: Doctor beat (هر N beat، پشتِ flag، kill-switch اول)
+            if _doctor_inst is not None and chrono is not None:
+                try:
+                    _beat = chrono.status().get("beat", 0) if chrono.status() else 0
+                    _w.doctor_beat(_doctor_inst, _beat)
+                except Exception:  # noqa: BLE001 — Doctor نباید tick را بکشد
+                    pass
         except KeyboardInterrupt:
             opslib.heartbeat("organism=STOP (KeyboardInterrupt)")
             return 0

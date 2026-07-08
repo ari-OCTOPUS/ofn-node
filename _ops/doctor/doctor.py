@@ -192,13 +192,15 @@ class Doctor:
     """
 
     def __init__(self, state_dir=None, knowledge_dir=None, ledger=None,
-                 approval_channel=None, sandbox_runner=None):
+                 approval_channel=None, sandbox_runner=None, db=None):
         self._state_dir = Path(state_dir) if state_dir else (opslib.STATE_DIR)
         self._knowledge_dir = Path(knowledge_dir) if knowledge_dir else (
             _OPS.parent / "07 - Knowledge" / "genome-system" / "knowledge" / "internal")
+        self._knowledge_dir.mkdir(parents=True, exist_ok=True)  # ⚑ گاف ۳ بسته شد
         self._ledger = ledger                            # genome ledger (lazy via opslib)
         self._channel = approval_channel                 # P3 TelegramApprovalChannel (D-5)
         self._sandbox_runner = sandbox_runner            # قابل‌تزریق (تست)
+        self._db = db                                    # chrono ChronoDB (effects_pending)
         self._rfcs: dict[str, RFC] = {}                  # registry در حافظه
 
     def _lg(self):
@@ -256,21 +258,62 @@ class Doctor:
                 "severity": sev}
 
     def _gather_trace(self) -> dict:
-        """جمعِ متریک از state/*.json + heartbeat. fail-soft: نبود = trace خالی."""
-        trace: dict[str, Any] = {}
+        """جمعِ متریک از state/*.json + heartbeat. fail-soft: نبود = trace خالی.
+        ساختارِ غنی برای mine() و spectral_mine():
+          organs: {name: {spend, errors}} — نودهای گراف
+          errors: [{organ, msg}] — یال‌های هم‌وقوعی
+          sigma_effective, effects_pending, frozen, halted."""
+        trace: dict[str, Any] = {"organs": {}, "errors": []}
         org = _read_json_safe(self._state_dir / "ORGANISM-STATE.json")
         if org:
             trace["frozen"] = bool(org.get("frozen"))
             trace["halted"] = org.get("halted")
-            trace["errors_24h"] = len(org.get("conflicts") or [])
+            conflicts = org.get("conflicts") or []
+            trace["errors_24h"] = len(conflicts)
+            # تبدیلِ conflicts به ساختارِ {organ, msg} برای spectral graph
+            for c in conflicts:
+                if isinstance(c, dict):
+                    trace["errors"].append({"organ": c.get("organ", "_global"),
+                                            "msg": str(c.get("msg", c.get("reason", "")))[:200]})
+                elif isinstance(c, str):
+                    trace["errors"].append({"organ": "_global", "msg": c[:200]})
         rep = _read_json_safe(self._state_dir / "replication-latest.json")
         if rep:
-            try:
-                trace["sigma_effective"] = float(rep.get("sigma") or rep.get("sigma_effective") or 0)
-            except (TypeError, ValueError):
-                pass
-        # effects_pending از chrono (اگر db وصل باشد) — در production از Pacemaker
+            # sigma یک dict تودرتو است: {"sigma_effective": N, ...}
+            sigma_obj = rep.get("sigma") or {}
+            if isinstance(sigma_obj, dict):
+                try:
+                    trace["sigma_effective"] = float(sigma_obj.get("sigma_effective", 0))
+                except (TypeError, ValueError):
+                    pass
+            elif isinstance(sigma_obj, (int, float)):
+                trace["sigma_effective"] = float(sigma_obj)
+        # effects_pending از chrono (اگر db وصل باشد)
+        trace["effects_pending"] = self._count_effects_pending()
+        # organs از telemetry (spend per organ) — برای گراف
+        tel = _read_json_safe(self._state_dir / "telemetry-latest.json")
+        if tel:
+            per_organ = tel.get("per_organ_alltime_musd") or {}
+            if isinstance(per_organ, dict):
+                trace["organs"] = {k: {"spend_musd": v} for k, v in per_organ.items()
+                                   if isinstance(v, (int, float))}
+            # errors را به organ مربوط کن
+            for err in trace["errors"]:
+                o = err.get("organ", "_global")
+                if o not in trace["organs"]:
+                    trace["organs"][o] = {}
+                trace["organs"][o]["errors"] = trace["organs"][o].get("errors", 0) + 1
         return trace
+
+    def _count_effects_pending(self) -> int:
+        """تعدادِ gated_effect با status='pending' از chrono.db (اگر وصل باشد)."""
+        if self._db is None:
+            return 0
+        try:
+            row = self._db.q("SELECT COUNT(*) FROM gated_effect WHERE status='pending'")
+            return int(row[0][0]) if row else 0
+        except Exception:  # noqa: BLE001 — fail-soft
+            return 0
 
     # ─── D-3 · propose_rfc — تولیدِ RFC (proposal-event) ─────────────────────────
     def propose_rfc(self, bottleneck: dict, fix: str, expected_lift: str,
@@ -420,21 +463,66 @@ class Doctor:
         except Exception:  # noqa: BLE001 — restart نباید crash کند
             return False
 
-    def run_cycle(self, beat: int | None = None, trace: dict | None = None) -> dict | None:
-        """یک دورِ کامل دکتر: mine → propose_rfc → sandbox → submit.
+    def run_cycle(self, beat: int | None = None, trace: dict | None = None,
+                  use_calibration: bool = True, use_chamber: bool = True) -> dict | None:
+        """یک دورِ کامل دکتر: mine → (calibration filter) → Chamber → propose_rfc → sandbox → submit.
         هر N ضربان از Pacemaker صدا زده می‌شود. خروجی = خلاصه یا None.
         trace قابل‌تزریق (Pacemaker می‌تواند trace را پاس دهد، یا تست).
-        propose-only: هیچ merge بدونِ human-append."""
-        bottleneck = self.mine(trace=trace)
+        propose-only: هیچ merge بدونِ human-append.
+
+        use_calibration: اگر True، effective_mine را به‌جای mine صدا می‌زند (attention-budget
+        + verdict-history). اگر False، mine خالص (سازگار با تست‌های قدیمی).
+        use_chamber: اگر True، RFC از Chamber تخاصمی می‌گذرد پیش از sandbox/submit."""
+        # calibration: mine + attention-budget + verdict-history filter
+        if use_calibration:
+            try:
+                from calibration import effective_mine
+                bottleneck = effective_mine(self, trace=trace, db=self._db)
+            except Exception:  # noqa: BLE001 — fail-soft: برگرد به mine خالص
+                bottleneck = self.mine(trace=trace)
+        else:
+            bottleneck = self.mine(trace=trace)
         if bottleneck is None:
-            return None   # چیزی برای فیکس نیست
-        rfc = self.propose_rfc(bottleneck, fix="(auto-detected — نیاز به تعامل)",
+            return None   # چیزی برای فیکس نیست (یا attention-budget ساکت کرد)
+        # اگر attention-budget ساختارِ _suppressed دارد → ثبت کن ولی RFC نده
+        if isinstance(bottleneck, dict) and bottleneck.get("_suppressed_by_attention_budget"):
+            self._note("DOCTOR_ATTENTION_BLOCKED", bottleneck)
+            return {"suppressed": bottleneck["_suppressed_by_attention_budget"], "beat": beat}
+        rfc = self.propose_rfc(bottleneck, fix=_suggest_fix(bottleneck),
                                expected_lift=f"رفعِ {bottleneck['severity']}: {bottleneck['bottleneck']}",
                                rollback="revert flag")
+        # Chamber: RFC از دیالکتیکِ تخاصمی بگذرد (اگر use_chamber)
+        if use_chamber:
+            try:
+                from chamber import run_chamber
+                result = run_chamber(trace=trace or {}, initial_rfc={
+                    "bottleneck": rfc.bottleneck, "fix": rfc.fix,
+                    "expected_lift": rfc.expected_lift, "rollback": rfc.rollback})
+                if result.get("rfc") and "confidence" in result["rfc"]:
+                    rfc.fix = result["rfc"].get("fix", rfc.fix)
+                    # confidence را در sandbox_result نگه دار
+                    if rfc.sandbox_result is None:
+                        rfc.sandbox_result = {}
+                    rfc.sandbox_result["chamber"] = {"confidence": result["rfc"]["confidence"],
+                                                      "rounds": result["rounds_run"]}
+            except Exception:  # noqa: BLE001 — Chamber fail-soft
+                pass
         self.run_sandbox(rfc)   # sandbox + critic (propose-only)
         self.submit_for_approval(rfc)   # کارتِ P3 یا pending
         return {"rfc_id": rfc.rfc_id, "status": rfc.status,
                 "bottleneck": bottleneck["bottleneck"], "beat": beat}
+
+
+def _suggest_fix(bottleneck: dict) -> str:
+    """از bottleneck یک fixِ پیشنهادیِ ساده بساز (propose-only — انسان آن را ویرایش می‌کند)."""
+    key = (bottleneck.get("evidence") or {}).get("key", "")
+    fixes = {
+        "error-rate-high": "افزودنِ guard برای کاهشِ نرخِ خطا در ارگان‌های متأثر",
+        "effects-stuck": "بازبینیِ اثرهای pending گیرکرده — settle یا refuse",
+        "frozen-conflict": "رفعِ تعارضِ تلمتری که FREEZE کرده",
+        "sigma-cancer-risk": "افزایشِ گاردِ replication (σ>1 = خطِ قرمز)",
+    }
+    return fixes.get(key, "بازبینیِ گلوگاهِ شناسایی‌شده (propose-only)")
 
 
 def _read_json_safe(path) -> dict:

@@ -5,6 +5,61 @@ updated: 2026-07-08
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+## جلسه چهلم 2026-07-09 (ZCode GLM-5.2) — 🧬 Doctor Evolution: ۳ تکنیکِ صنعتی (RFCArchive + measured_lift + tournament)
+
+طبقِ بنچمارکِ ۱۰ سیستمِ برتر (DGM/AlphaEvolve/Co-Scientist)، ۳ ماژولِ کم‌ریسک را ساختم. هوش را برمی‌داریم، نه خودمختاری را.
+
+- **✅ `RFCArchive` (MAP-Elites + DGM):** سلول = (bottleneck × organ)، بهترین-در-سلول، cap+evict، sample/mutate با lineage/generation. mine می‌تواند از آرشیو نمونه بگیرد.
+- **✅ `measured_lift` (AlphaEvolve):** lift واقعی در sandbox؛ زیرِ 0.05 → drop خودکار (هرگز به submit نمی‌رسد). eval_fn قابل‌تزریق. uptime → جریمه (λ_persist).
+- **✅ `tournament_rank` (Co-Scientist):** چند variant → Elo/pairwise؛ `survivor` فقط top-k را برمی‌گرداند برای submit.
+- **non-destructive:** mine/propose/submit فعلی دست‌نخورده (تست شد). λ_persist=-1.0. هیچ import از production.
+- ۲۰ تستِ نو. کل سوئیت **۲۲ فایل سبز**.
+
+⚑ **برای معمار:** این‌ها additive هستند — هنوز به `run_cycle` وصل نشده‌اند. اتصال (mine از آرشیو sample، tournament قبل از submit، measured_lift به‌جای lift موردِانتظار) = فازِ بعد. adoption ۴/۵ (bug-injector، verify-layer) نیز باز.
+
+**میز آری:** commit path-scoped به `evolution.py`(نو) + `test_evolution.py`(نو) + `run_all.py`(M) + `ORGANISM-SPEC.md`(M) + `HANDOFF.md`(M).
+
+## جلسه سی‌ونهم 2026-07-09 (ZCode GLM-5.2) — 📦 B0 Box-of-Agents: هستهٔ عددیِ آفلاین ساخته شد (sandbox، $0، zero-LLM)
+
+طبقِ پرامپتِ B0، میکرو‌جهانِ بستهٔ عددیِ داخلِ دکتر را ساختم. ۹ ماژول زیرِ `_ops/doctor/box/`، ۲۹ تست، همگی سبز. **صفر LLM/شبکه/tool. هیچ import از production.**
+
+- **✅ Numeric core کامل:** `agent_state` (Part 10: clip z، energy، goal_stack screened) + `dynamics` (x/z/M/G contractive) + `warden` (2% fail-closed، STOP supreme، ρ<1) + `topology` (tree+k، full-mesh ممنوع، O(N log N)) + `archivist` (multiscale، sublinear، evict) + `primitive` (recursive P→S→I، depth-from-budget) + `sensors` (ρ(J) + I(a;x)) + `null_dreamer` (baseline) + `box` (glue).
+- **✅ هر ۷ شرط DoD سبز:** ρ<1 · budget fail-closed · full-mesh ممنوع · memory sublinear · neural≫null · contradiction spiral-alarm · STOP yield + no-production.
+- **✅ خطوط قرمز:** صفر LLM/شبکه · هیچ نوشتن بیرونِ box/ · compliance=پیرویِ سیاست نه موافقت · goal_stack screened · λ_persist منفی · هیچ import از *_gate/chrono/money.
+- کل سوئیت **۲۱ فایل سبز**.
+
+⚑ **برای معمار:** B0 فقط عدد است — B1 (falsifiability harness)، B2 (LLM voices پشتِ budget)، B3 (Doctor integration)، B4 (fusion φ_t) هنوز باز. وقتی B2 انجام شود، Box به `submit_for_approval` Doctor وصل می‌شود (propose-only).
+
+**میز آری:** commit path-scoped به `_ops/doctor/box/` (۹ فایل نو) + `test_box.py` (نو) + `run_all.py`(M) + `ORGANISM-SPEC.md`(M) + `HANDOFF.md`(M).
+
+## جلسه سی‌وهشتم 2026-07-09 (ZCode GLM-5.2) — 🔌 تمامِ کدِ جا‌مانده تکمیل: feedback loop + attention-budget + Chamber→run_cycle + full wiring
+
+آخرین قطعات جا‌مانده بسته شد. Doctor حالا حافظه دارد (feedback)، خود-throttle می‌کند (attention-budget)، از Chamber تخاصمی می‌گذرد، و ۵ لایه به organism وصل‌اند (پشتِ flag).
+
+- **✅ Feedback loop (`calibration.py`):** verdict_history در chrono.db + `should_skip_bottleneck` (۳ reject روی همان گلوگاه → دیگر پیشنهاد نده). دکتر از رد/قبول می‌آموزد.
+- **✅ Attention-budget:** soft-cap=۳، hard-cap=۵. اگر pending زیاد → فقط critical. critical همیشه می‌گذرد. دکتر خودش را محدود می‌کند (anti-self-preservation).
+- **✅ Chamber → run_cycle:** `run_cycle(use_calibration=True, use_chamber=True)` پیش‌فرض. RFC از دیالکتیکِ ۴صدایی می‌گذرد.
+- **✅ Full wiring (`wiring.py` + organism.py):** W-1..W-5 پشتِ env-flags. پیش‌فرض خاموز (no regression — تست شد: organism بدونِ flag تمیز load می‌شود).
+- ۲۲ تستِ نو. کل سوئیت **۲۰ فایل سبز**.
+
+⚑ **برای مالک:** wiring واقعاً فعال می‌شود فقط با set flag‌ها (`OCTOPUS_WIRE_DOCTOR=1` و غیره) + restart organism. بدونِ flag = paper-mode امن (همان قبل).
+
+**میز آری:** commit path-scoped به `calibration.py`(نو) + `wiring.py`(نو) + `test_calibration.py`(نو) + `doctor.py`(M:run_cycle) + `organism.py`(M:wiring) + `run_all.py`(M) + `ORGANISM-SPEC.md`(M) + `HANDOFF.md`(M).
+
+## جلسه سی‌وهفتم 2026-07-09 (ZCode GLM-5.2) — 🔌 Doctor Wiring + 🗣️ Inner Chamber ساخته شد
+
+پس از تحلیلِ عمیق (دکتر = جزیرهٔ تست‌سبز که در runtime اجرا نمی‌شد)، گاف‌های بنیادی را بستم + Chamber را به‌عنوان بُعدِ تخاصمی ساختم.
+
+- **✅ Wiring (گاف ۱/۲/۳ بسته شد):** `_gather_trace` واقعی شد — `organs`/`errors`/`sigma_effective`/`effects_pending` از state واقعی. mine/spectral حالا داده می‌خوانند (نه None ابدی). `knowledge/internal/` ساخته می‌شود. `db` قابل‌تزریق.
+- **✅ Inner Chamber (`chamber.py`):** ۴ صدا (Proposer/Red-Critic/Skeptic/Synthesizer) + ۶ مهار: کران‌دار(≤۳) · تخاصمی · propose-only · λ_persist · auditable · stub($0). الگوی امن از debate_loop.
+- **⚠ UNPROVEN صادقانه:** Chamber فعلاً offline/stub است. تا Doctor در runtime اجرا شود و trace واقعی بخواند، سبزیِ تست‌ها فقط مکانیزم را نشان می‌دهد نه کیفیتِ واقعی. این در کد+ORGANISM-SPEC علامت‌گذاری شد.
+- **ناوردی‌ها:** هر ۶ مهار تست شد. هیچ وابستگی به *_gate/chrono. λ_persist دست‌نخورده. no regression در doctor tests موجود.
+- ۲۰ تستِ نو (۶ wiring + ۱۴ chamber). کل سوئیت ۱۹ فایل سبز.
+
+⚑ **برای معمار:** Doctor هنوز در runtime وصل نیست (organism.py صدا نمی‌زند). اتصالِ run_cycle به Pacemaker = فازِ بعد (§۲ wiring). Chamber وقتی LLM وصل شود، هر call از گیتِ ارگان می‌گذرد (مثلِ debate).
+
+**میز آری:** (۱) `python -X utf8 run_all.py` → ۱۹ فایل سبز · (۲) commit path-scoped: `doctor.py`(M) + `chamber.py`(نو) + `test_chamber.py`(نو) + `run_all.py`(M) + `ORGANISM-SPEC.md`(M) + `HANDOFF.md`(M).
+
 ## جلسه سی‌وششم 2026-07-08 (ZCode GLM-5.2) — ♾️ Octopus Phase 5: ۲۴/۷ survival + همگرایی ساخته شد (S-1..S-6، watchdog + germline MAX_LAG + unified bus + checkpoint/replay)
 
 طبقِ پرامپتِ P5، منطقِ ۲۴/۷ survival + همگرایی را به ماژول‌های Pythonِ آزمون‌پذیر منتقل کردم (PS1های موجود دست‌نخورده — twin). ۲۴ تستِ جدید، همگی سبز، $0 آفلاین. **kill-switch مطلق** تست شد.
