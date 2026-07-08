@@ -189,6 +189,27 @@ def t_protective_override_always_returns_dict():
     assert isinstance(wiring.protective_override({"pain":{"level":1.0},"reflexes":[]}), dict)
 
 
+def t_protective_override_enforced_not_just_alert():
+    """S-fix: override غیرقابل‌سرکوب در عمل enforce شود، نه فقط alert.
+    structural check: organism.py باید 'continue' (skip tick) در بلوکِ protective_halt داشته باشد."""
+    organism_src = open(str(_OPS / "organism.py"), encoding="utf-8").read()
+    # protective_halt باید وجود داشته باشد
+    assert "protective_halt" in organism_src, "organism باید protective_halt داشته باشد"
+    # continue باید بعد از protective_halt بیاید (در همان بلوک)
+    halt_idx = organism_src.index("protective_halt")
+    after_halt = organism_src[halt_idx:]
+    assert "continue" in after_halt[:700], \
+        "organism باید continue (skip tick) بعد از protective_halt داشته باشد — نه فقط alert"
+
+
+def test_organism_no_silent_neural_error():
+    """§۴: بلوکِ neural نباید except: pass داشته باشد — باید alert."""
+    organism_src = open(str(_OPS / "organism.py"), encoding="utf-8").read()
+    # بلوکِ neural error باید opslib.alert داشته باشد
+    assert "neural wiring error" in organism_src, \
+        "organism neural error باید alert شود (§۴ خطای خاموش ممنوع)"
+
+
 if __name__ == "__main__":
     failed = harness.run([
         # W
@@ -215,5 +236,7 @@ if __name__ == "__main__":
         # Guards
         ("[G] no production import", t_wiring_no_production_import),
         ("[G] override always dict", t_protective_override_always_returns_dict),
+        ("[S-fix] enforced not just alert", t_protective_override_enforced_not_just_alert),
+        ("[S-fix] no silent neural error", test_organism_no_silent_neural_error),
     ])
     sys.exit(1 if failed else 0)

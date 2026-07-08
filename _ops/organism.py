@@ -235,13 +235,26 @@ def main() -> int:
                         "spectral": {},
                         "sensory": {},
                     })
-                    # S: protective-override — غیرقابل‌سرکوب
+                    # S: protective-override — غیرقابل‌سرکوب (arXiv fix)
                     if _neural_r:
                         _prot = _w.protective_override(_neural_r)
                         if _prot.get("override") and not _prot.get("suppressible", True):
                             opslib.alert([f"NEURAL OVERRIDE: {_prot['reason']}"])
-                except Exception:  # noqa: BLE001
-                    pass
+                            # S-fix: action را enforce کن، نه فقط alert
+                            if _prot.get("action") == "protective_halt":
+                                # skip مسیرهای غیرضروری در این تیک (epoch/fitness/replication)
+                                # فقط heartbeat + safety می‌ماند
+                                opslib.heartbeat(f"PROTECTIVE HALT: {_prot['reason']}")
+                                _write_state({"protective_mode": True,
+                                              "protective_reason": _prot["reason"]})
+                                continue   # skip بقیهٔ تیک — غیرقابل‌سرکوب
+                            elif _prot.get("action") == "throttle":
+                                # throttle: epoch را skip ولی heartbeat ادامه
+                                _write_state({"protective_mode": "throttled",
+                                              "protective_reason": _prot["reason"]})
+                                next_epoch_at = now + 600  # ۱۰ دقیقه تأخیر
+                except Exception as _ne:  # noqa: BLE001 — §۴: خطای خاموش ممنون
+                    opslib.alert([f"neural wiring error (non-fatal): {type(_ne).__name__}: {_ne}"])
         except KeyboardInterrupt:
             opslib.heartbeat("organism=STOP (KeyboardInterrupt)")
             return 0
