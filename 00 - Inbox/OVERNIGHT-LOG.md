@@ -45,6 +45,14 @@ created: 2026-07-09
 - `age_tick` هنوز ۰ است (organism با pacemaker کافی اجرا نشده). اولین heartbeat-driven age tick وقتی می‌آید که `AGE_PER_N_BEATS`=۱۴۴۰ ضربان رخ دهد.
 - B2 skip شد چون gateway در دسترس نبود — وقتی مالک کلید بدهد، B2 قابل‌ساخت است.
 
+## ⚑ برای صبح — Research Engine (پرامپتِ تحلیلی، نه build)
+یک پرامپتِ طولانیِ «Octopus Research Engine» اومد که مأموریتش **تحلیل/تولیدِ اصولِ ساختاری** است (نه کد): Time&Awareness × Business × Architecture. ۶ بخش: grounding snapshot → focused questions → cross-domain patterns → structural principles → architectural proposals → growth loop. **برای صبحِ آری** — نیازمندِ تمرکز، نه اجرای شبانه.
+
+## SM-B0 (اضافه بر overnight queue)
+- ✅ ساخته شد: `07 - Knowledge/school-memory/curriculum.py` — curriculum graph + L(G) + awareness diffusion + insight-events. ۱۷ تست سبز.
+- commit `ad925da`.
+
+
 
 ---
 
