@@ -15,7 +15,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_phase5.py", "test_spectral.py", "test_chamber.py",
          "test_calibration.py", "test_box.py", "test_evolution.py",
          "test_box_b134.py", "test_sensory.py", "test_rhythm.py",
-         "test_cockpit.py", "test_project_f.py"]
+         "test_cockpit.py", "test_project_f.py", "test_studio_telegram.py"]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
                HERE.parents[1] / "07 - Knowledge" / "school-memory" / "test_curriculum.py"]
@@ -23,10 +23,11 @@ EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_
 if __name__ == "__main__":
     failed = []
     for t in TESTS + EXTRA_TESTS:
-        label = Path(t).name
+        p = HERE / t          # نام‌های نسبیِ TESTS → _ops/tests؛ EXTRA_TESTSِ absolute دست‌نخورده می‌ماند
+        label = p.name
         print(f"\n── {label} " + "─" * (60 - len(label)))
-        r = subprocess.run([sys.executable, "-X", "utf8", str(t)],
-                           cwd=str(Path(t).parent), timeout=300)
+        r = subprocess.run([sys.executable, "-X", "utf8", str(p)],
+                           cwd=str(p.parent), timeout=300)
         if r.returncode != 0:
             failed.append(label)
     print("\n" + "=" * 66)
