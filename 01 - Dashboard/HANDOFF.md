@@ -5,6 +5,17 @@ updated: 2026-07-08
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+## جلسه چهل‌ویکم 2026-07-09 (Claude/Opus — master) — 🛡️ S-fix-3: protective-halt واقعاً enforce شد + یافتهٔ flaky
+
+سه دور S-fix (GLM: d7557cb → fd0e650) هنوز گپ داشت: `_protective_skip` ست می‌شد ولی **هرگز مصرف نمی‌شد** و تصمیمِ neural انتهای tick (بعد از epoch/fitness/doctor) گرفته می‌شد → protective_halt هیچ کاری را جلو نمی‌گرفت (فقط alert). ریشه‌ای فیکس شد.
+
+- **✅ enforceِ واقعی (commit `c67c591`):** تصمیمِ `protective_override` حالا **پیش از** epoch محاسبه می‌شود و epoch/fitness/replication/doctor روی `not _protective_skip` گیت‌اند — flag واقعاً مصرف می‌شود، همان تیک کار را جلو می‌گیرد. صادقانه: protective = **detect + enforce** (نه صرفاً alert).
+- **✅ بدونِ busy-loop:** `time.sleep(TICK_SECONDS)` همیشه انتهای while؛ هیچ `continue` در tick. doctor `except: pass` → `opslib.alert` (منشور §۴). `chrono.status()` یک‌بار در تیک.
+- **✅ تست:** `test_organism_protective.py` (۸ تست: رفتاریِ تصمیم + ساختاری-هدف‌مندِ گیت که دقیقاً همان گپِ ۳ دور را می‌گیرد) در run_all. ایزوله ۸/۸ سبز.
+- **⚑ یافته (flaky، خارج از تسک):** `test_box_b134.py::[B1] suite neural majority` احتمالاتی است و ~۱/۳ اجرا می‌افتد (neural-vs-null majority-vote). چون در `capability_gate` fail-closed است، هر اجرا markerِ capability را تصادفی revoke می‌کند — ولی جهت **امن** است (revoke = پول قفل می‌ماند). فایلِ GLM-hot، دست نزدم؛ نیازِ seed/نمونهٔ بزرگ‌تر دارد.
+
+**میز آری:** commit `c67c591` انجام شد (path-scoped: organism.py + test نو + run_all). کارِ uncommittedِ این جلسه از قبل (audit/ingestion/school_bridge) هنوز جدا و uncommitted است.
+
 ## جلسه چهلم 2026-07-09 (ZCode GLM-5.2) — 🧬 Doctor Evolution: ۳ تکنیکِ صنعتی (RFCArchive + measured_lift + tournament)
 
 طبقِ بنچمارکِ ۱۰ سیستمِ برتر (DGM/AlphaEvolve/Co-Scientist)، ۳ ماژولِ کم‌ریسک را ساختم. هوش را برمی‌داریم، نه خودمختاری را.
