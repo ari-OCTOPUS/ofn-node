@@ -1,0 +1,285 @@
+# CHRONOS-FABLE OS — PHASES 3+4+5 DELIVERABLE
+# Patterns · Anti-Patterns · Invariants
+# evidence: A=primary | B=conversation | I=inference   confidence: 0-100
+
+# ============================================================
+# PHASE 3 — META PATTERNS (recurring design shapes)
+# ============================================================
+patterns:
+  - id: PAT-01
+    name: "Event → Guard → Append → Effect"
+    structure: "producer emits Event → Guard evaluates (class/state/autonomy) → human-append settles if irreversible → effect fires"
+    primitive_seq: [PRIM-01, PRIM-03, PRIM-04, PRIM-05]
+    appears_in: [DOC-02, DOC-B/C(TINV-7)]
+    problem_solved: "no irreversible action without policy + human root-of-trust"
+    failure_modes: ["guard bypass via direct call (see AP-08)"]
+    confidence: 93; evidence_level: A
+
+  - id: PAT-02
+    name: "Propose → Review → Human-Append → Merge (behind flag) → Log"
+    structure: "agent writes proposal → Critic/gap-report → human verdict → feature-flagged merge → lesson to /knowledge/internal"
+    primitive_seq: [PRIM-08, PRIM-14, PRIM-04, PRIM-15]
+    appears_in: [DOC-02(P4/P5), DOC-C(H-4), DOC-A(PR), DOC-D(clinician)]
+    problem_solved: "self-improvement without unanchored self-modification"
+    confidence: 92; evidence_level: A
+
+  - id: PAT-03
+    name: "Claim → Evidence Tag → Falsifier → Experiment"
+    structure: "each claim gets a tag + a cited source + an explicit refutation condition + a test"
+    primitive_seq: [PRIM-07, PRIM-10]
+    appears_in: [DOC-01(C1-C8/E1-E5), DOC-05(source law), DOC-A(vault), DOC-03]
+    problem_solved: "self-sealing / metaphor-as-mechanism"
+    confidence: 92; evidence_level: A
+
+  - id: PAT-04
+    name: "Raw Log → Semantic Cache → (evict) — authoritative-vs-cache split"
+    structure: "append-only log is truth; async job extracts evictable summaries; cache reconstructable from log"
+    primitive_seq: [PRIM-01, PRIM-02]
+    appears_in: [DOC-C(H-2), DOC-A(vault), DOC-06(memory fusion)]
+    problem_solved: "context overflow after many cycles; unbounded memory (anti-AI-god)"
+    confidence: 90; evidence_level: A
+
+  - id: PAT-05
+    name: "Mortal Sub-Leg spawn (isolated, cost-billed, capped, parent-return)"
+    structure: "leg spawns mortal sub-agent w/ forked HLC, isolated context, no ledger write, killed after N beats, tokens billed to parent"
+    primitive_seq: [PRIM-11, PRIM-05, PRIM-06]
+    appears_in: [DOC-C(H-1), DOC-06]
+    problem_solved: "fixed-topology parallelism ceiling"
+    failure_modes: ["scheduling contention on single process; needs hard concurrency cap"]
+    confidence: 90; evidence_level: A
+
+  - id: PAT-06
+    name: "State → Mode → Guard-Behavior (hormonal modulation)"
+    structure: "Personal State Layer signals → Mode Engine → Guards change strictness"
+    primitive_seq: [PRIM-13, PRIM-03]
+    appears_in: [DOC-02(State Guard/Modes), DOC-D(baseline)]
+    problem_solved: "protect an ADHD/BPD operator from own impulsive/low states (GOAL-9)"
+    confidence: 88; evidence_level: A
+
+  - id: PAT-07
+    name: "Fabric Fusion → Bottleneck → RFC (Evolution Doctor)"
+    structure: "read /knowledge/{fable,external,internal} + metrics → find bottleneck → RFC → sandbox → anchored merge"
+    primitive_seq: [PRIM-14, PRIM-08, PRIM-04]
+    appears_in: [DOC-02(P5), DOC-C(H-4)]
+    problem_solved: "turning 'evolve' from a name into a mechanism"
+    confidence: 88; evidence_level: A
+
+  - id: PAT-08
+    name: "Ingest: Raw(sacred) → Derived(claims/experiments/meta) → Register → Propose-link → Guard"
+    structure: "the 5-cowork INGEST/DERIVE/REGISTER/PROPOSE/GUARD pipeline"
+    primitive_seq: [PRIM-15, PRIM-07, PRIM-12, PRIM-08, PRIM-03]
+    appears_in: [DOC-01(5 coworks)]
+    problem_solved: "floating knowledge → registered asset without losing it (GOAL-1)"
+    confidence: 92; evidence_level: A
+    note: "Generalize to a Research-Ingest-Template for the whole 2-year corpus."
+
+  - id: PAT-09
+    name: "Effect/Cognition Split"
+    structure: "irreversible effects BLOCK on human-append; internal cognition/aging MAY continue (bounded)"
+    primitive_seq: [PRIM-04, PRIM-05, PRIM-06]
+    appears_in: [DOC-06(resolves stasis↔autonomy), DOC-C(open Q6)]
+    problem_solved: "24/7 cognition without unanchored irreversible action"
+    confidence: 85; evidence_level: A
+    note: "Key fusion decision; still owed an operator canon verdict (OQ-1)."
+
+  - id: PAT-10
+    name: "Wrap-not-Rewrite (Adapter + Feature Flag + Legacy Vault)"
+    structure: "new module beside old, behind flag, via adapter; deprecate to /_legacy; migration ledger"
+    primitive_seq: [PRIM-15, PRIM-09]
+    appears_in: [DOC-02(§3 six principles, Fable5 runbook)]
+    problem_solved: "evolve without breakage or rework (GOAL-11)"
+    confidence: 95; evidence_level: A
+
+  - id: PAT-11
+    name: "Three-tier Truth Maintenance"
+    structure: "semantic (falsifier/validity, A) → epistemic (tags/gap-report, D) → cryptographic (hash-chain, B). A stale fact fails ≥1 layer."
+    primitive_seq: [PRIM-10, PRIM-07, PRIM-01]
+    appears_in: [DOC-06]
+    problem_solved: "no single point of truth-decay"
+    confidence: 88; evidence_level: A
+
+  - id: PAT-12
+    name: "Money-gated Prioritization"
+    structure: "priority_score = (money_potential×probability×speed_to_cash×strategic_leverage)/(risk×energy_cost); no money_link ⇒ incubating"
+    primitive_seq: [PRIM-16, PRIM-12, PRIM-05]
+    appears_in: [DOC-01, DOC-02(GOAL-7), DOC-07]
+    problem_solved: "beautiful research eating cash engines (rabbit-hole)"
+    confidence: 90; evidence_level: A
+
+# ============================================================
+# PHASE 4 — ANTI-PATTERNS (recurring failure modes to guard against)
+# ============================================================
+anti_patterns:
+  - id: AP-01
+    name: "Meta-escalation / planning-instead-of-shipping"
+    why_dangerous: "a 'hybrid that updates everything' replaces delivery with redesign"
+    appears_in: [SRC-2:17, DOC-06]
+    guard_against: "no hybrid module before Phase-0 ship; hard rule in DOC-C"
+    severity: high; evidence_level: A
+  - id: AP-02
+    name: "Rabbit-hole expansion (esp. ADHD)"
+    why_dangerous: "unbounded research consumes energy/cash engines"
+    appears_in: [DOC-01(RABBIT_HOLE_RISK, max_daily_research_time=120min), DOC-02(State Guard)]
+    guard_against: "guard_flag + time budget + priority_score"
+    severity: high; evidence_level: A
+  - id: AP-03
+    name: "Self-referential improvement loop (agreement spiral)"
+    why_dangerous: "model grades model → drift with false confidence"
+    appears_in: [SRC-2:46, DOC-06]
+    guard_against: "human-anchored trace-grader (PAT-07) + gap-report"
+    severity: high; evidence_level: A
+  - id: AP-04
+    name: "Metaphor-as-mechanism"
+    why_dangerous: "narrative/analogy smuggled in as physical/causal fact"
+    appears_in: [DOC-05(walls 1&3, golden rule), DOC-06(quantum-stance conflict)]
+    guard_against: "eliminability test + homonym firewall + tags"
+    severity: high; evidence_level: A
+  - id: AP-05
+    name: "Evidence = Derivation (self-sealing)"
+    why_dangerous: "internal consistency/repetition mistaken for external proof"
+    appears_in: [DOC-05(wall 4)]
+    guard_against: "only independent external data upgrades to 【E】; mandatory gap-report"
+    severity: high; evidence_level: A
+  - id: AP-06
+    name: "Memory without invalidation"
+    why_dangerous: "stale facts persist silently; cache treated as truth"
+    appears_in: [DOC-06(A's fix), DOC-C(cache non-authoritative)]
+    guard_against: "falsifier + validity window (PRIM-10); cache reconstructable"
+    severity: medium; evidence_level: A
+  - id: AP-07
+    name: "Cost-free capability / unbounded memory / unbounded spawn"
+    why_dangerous: "'AI-god' — capability with no metabolic brake"
+    appears_in: [SRC-2(H-1/H-2), DOC-06(cost as alignment)]
+    guard_against: "every module has metabolic cost; mandatory eviction"
+    severity: high; evidence_level: A
+  - id: AP-08
+    name: "Direct call / agent writes to source-of-truth"
+    why_dangerous: "spaghetti coupling; one death kills all; bypasses guards"
+    appears_in: [DOC-02(§2.1), SRC-2(sub-leg no ledger write)]
+    guard_against: "event-bus only; agents write proposals/ only; sub-legs return via parent"
+    severity: high; evidence_level: A
+  - id: AP-09
+    name: "Autonomy without human anchor"
+    why_dangerous: "unanchored 24/7 action drifts; no arrow of time"
+    appears_in: [DOC-06, all four docs]
+    guard_against: "human-append as root-of-trust; effect/cognition split"
+    severity: high; evidence_level: A
+  - id: AP-10
+    name: "Zero isolation (single-process, shared memory)"
+    why_dangerous: "prompt-injection in one leg contaminates whole body"
+    appears_in: [SRC-2:61(🔴), DOC-06(open problem)]
+    guard_against: "process-level isolation for sub-legs (best on constrained HW)"
+    severity: medium; evidence_level: A
+    note: "Unsolved by ALL FOUR source architectures — biggest residual risk."
+  - id: AP-11
+    name: "Business idea without money_link"
+    why_dangerous: "activity with no path to revenue; fitness undefined"
+    appears_in: [DOC-01, DOC-02(GOAL-7)]
+    guard_against: "money_link required to leave 'incubating'"
+    severity: medium; evidence_level: A
+  - id: AP-12
+    name: "Translation-machine (zero added value)"
+    why_dangerous: "re-labeling established facts in Π/framework language, feeling explanatory without predicting"
+    appears_in: [DOC-05(§2 added-value, §7.2 warning)]
+    guard_against: "added-value constraint: must make a novel falsifiable prediction or stay 【P】"
+    severity: medium; evidence_level: A
+  - id: AP-13
+    name: "Bus-factor = 1 / stasis-coma"
+    why_dangerous: "operator absence = business coma (contradicts 24/7 mission)"
+    appears_in: [SRC-2:63, DOC-06]
+    guard_against: "effect/cognition split; explicit stasis canon (OQ-1)"
+    severity: medium; evidence_level: A
+
+# ============================================================
+# PHASE 5 — INVARIANTS (architectural laws that must always hold)
+# ============================================================
+invariants:
+  - id: INV-01
+    statement: "No irreversible effect without a human-append (root-of-trust)."
+    source: [DOC-B/C(TINV-7), DOC-02(Money/Autonomy Guard), DOC-A(merge)]
+    enforcement: "Guard layer + effect-gate on ledger append"
+    violation_consequence: "unanchored drift; loss of arrow-of-time"
+    confidence: 95; evidence_level: A
+  - id: INV-02
+    statement: "Self-modification follows propose → test → human-approve → merge; never auto-merge to production."
+    source: [DOC-02(Evolution Guard), DOC-C(H-4)]
+    confidence: 94; evidence_level: A
+  - id: INV-03
+    statement: "LLM/agent output is a proposal, not truth."
+    source: [DOC-02(Truth Guard), DOC-D(evidence≠derivation)]
+    confidence: 95; evidence_level: A
+  - id: INV-04
+    statement: "Ordering is logical (beats/HLC), never wall-clock; execution is replayable."
+    source: [DOC-B/C(TINV-5)]
+    enforcement: "no direct clock read; event-sourced replay"
+    confidence: 88; evidence_level: A
+  - id: INV-05
+    statement: "Source-of-truth is append-only; sacred source is immutable."
+    source: [DOC-02(Event Bus), DOC-01(theory.md), DOC-B(LANGAR)]
+    confidence: 95; evidence_level: A
+  - id: INV-06
+    statement: "Extracted memory is non-authoritative and must be reconstructable from the log; forgetting/eviction is mandatory."
+    source: [DOC-C(H-2), DOC-06]
+    confidence: 88; evidence_level: A
+  - id: INV-07
+    statement: "Every capability has an accounted cost; no cost ⇒ does not enter the system."
+    source: [SRC-2:69, DOC-06]
+    confidence: 90; evidence_level: A
+  - id: INV-08
+    statement: "Every claim/write carries an evidence tag and (for E/S) a cited source."
+    source: [DOC-05(source law), METHOD]
+    confidence: 92; evidence_level: A
+  - id: INV-09
+    statement: "No proposition upgrades to 【E】 by repetition/consistency — only by independent external data (Evidence ≠ Derivation)."
+    source: [DOC-05(wall 4)]
+    confidence: 92; evidence_level: A
+  - id: INV-10
+    statement: "Every agent action emits an event (full auditability)."
+    source: [DOC-02, METHOD]
+    confidence: 90; evidence_level: A
+  - id: INV-11
+    statement: "Sub-legs are mortal, isolated, and never write to the ledger; output returns only through the parent (no core fragmentation)."
+    source: [SRC-2(H-1), DOC-06]
+    confidence: 90; evidence_level: A
+  - id: INV-12
+    statement: "Nothing is deleted; deprecate + version into /_legacy (additive-only)."
+    source: [DOC-02(Non-Destruct Guard, §3), METHOD]
+    confidence: 96; evidence_level: A
+  - id: INV-13
+    statement: "A metaphor/quantum node must pass the eliminability test (removable without changing any empirical prediction, else it needs independent support)."
+    source: [DOC-05]
+    confidence: 90; evidence_level: A
+  - id: INV-14
+    statement: "A project without a resolved money_link cannot become 'active' (stays incubating); fitness = real money + speed."
+    source: [DOC-01, DOC-02(GOAL-7)]
+    confidence: 88; evidence_level: A
+  - id: INV-15
+    statement: "Guard strictness is a function of operator/system State/Mode (impulsive/low-energy/offline tighten it)."
+    source: [DOC-02(State Guard, Modes)]
+    confidence: 86; evidence_level: A
+  - id: INV-16
+    statement: "Every synthesis ends with a mandatory gap-report naming where sources are silent."
+    source: [DOC-05(§9), METHOD]
+    confidence: 90; evidence_level: A
+
+# ============================================================
+# RATIFIED LAWS — operator-approved 2026-07-08 (Ari: «پیشنهادت برا ایمنی قبوله»)
+# Source: 08_Safety/IsolationModel.md (CFL-03 deep-drill) + Master Handoff §5.
+# NOW COUNTED: invariants 16→17, anti-patterns 13→14.
+# ============================================================
+ratified_invariants:
+  - id: INV-17
+    statement: "Worker isolation is STRUCTURAL, not behavioral: a worker's maximum possible output is an inspectable proposal; it can never reach secrets, the ledger, or unrelated files — by construction (process boundary), not by trusting its behavior."
+    source: [MasterHandoff(§5.1-5.2 D1/D3), IsolationModel.md]
+    enforcement: "separate non-root process + seccomp-bpf + dropped caps/userns + cgroups v2 + brokered egress; secrets:[] always"
+    status: RATIFIED 2026-07-08 (invariants 16→17)
+    confidence: 88; evidence_level: EST
+
+ratified_anti_patterns:
+  - id: AP-14
+    name: "Trust-boundary fallacy"
+    why_dangerous: "Believing a worker is safe because it was INSTRUCTED to behave, or because its prompt is 'trusted'. Injection defeats behavioral trust; only a structural boundary holds."
+    guard_against: "treat every worker + every LLM call as potentially compromised; confine by structure (INV-17*), catch residue with human review + Critic"
+    appears_in: [MasterHandoff(§5.2 residual risk), IsolationModel.md(R1/R2)]
+    status: RATIFIED 2026-07-08 (anti_patterns 13→14)
+    severity: high; evidence_level: EST

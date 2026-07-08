@@ -676,19 +676,47 @@ def t_reentry_packet_with_gate():
 # ════════════════════════════════════════════════════════════════════════════════
 
 def t_router_dispatches_all_commands():
-    """handle_command تمامِ UIها را dispatch می‌کند (هر کدام یک UIِ متمایز)."""
+    """handle_command تمامِ UIهای v2 را dispatch می‌کند (هر کدام یک UIِ متمایز).
+    UX v2: /start_exp, /reveal, /lab, /reentry حذف شدند. /start اضافه شد."""
     sd = ENV["ops"] / "state"
     sd.mkdir(parents=True, exist_ok=True)
     ch = TC(token="FAKETOKEN123456", owner_chat_id=42, state_dir=str(sd),
             http_post=_fake_post_factory([]))
+    assert ch.handle_command("/start") is not None      # UX v2: منوی اصلی
     assert ch.handle_command("/status") is not None
     assert ch.handle_command("/lead") is not None
-    assert ch.handle_command("/start_exp1") is not None
-    assert ch.handle_command("/reveal exp1") is not None
-    assert ch.handle_command("/lab") is not None
     assert ch.handle_command("/stop") is not None
-    assert ch.handle_command("/reentry") is not None
+    # حذف‌شده در UX v2:
+    assert ch.handle_command("/start_exp1") is None     # T-4 حذف شد
+    assert ch.handle_command("/reveal exp1") is None     # T-4 حذف شد
+    assert ch.handle_command("/lab") is None             # T-4 حذف شد
+    assert ch.handle_command("/reentry") is None         # T-7 reentry حذف شد
     (sd.parent / "STOP-ORGANISM").unlink(missing_ok=True)
+
+
+def t_ux_v2_start_menu_has_icon():
+    """UX v2 §۲: /start منوی اصلی با آیکن 🐙."""
+    ch = TC(token="FAKETOKEN123456", owner_chat_id=42)
+    menu = ch.handle_command("/start")
+    assert menu is not None and "🐙" in menu, f"منو باید آیکن 🐙 داشته باشد: {menu}"
+
+
+def t_ux_v2_status_has_html_and_mode():
+    """UX v2 §۲: /status غنی با HTML + mode color (🟢/🟡/🔴)."""
+    ch = TC(token="FAKETOKEN123456", owner_chat_id=42, state_dir=str(ENV["ops"] / "state"))
+    r = ch.status_report_v2()
+    assert "──────" in r  # خط‌جداکننده
+    assert "🐙" in r or "🟢" in r or "🟡" in r or "🔴" in r  # mode color
+
+
+def t_ux_v2_approval_card_rich_html():
+    """UX v2 §۲: کارتِ تأیید غنی با خط‌جداکننده + گارد + آیکن."""
+    ch = TC(token="FAKETOKEN123456", owner_chat_id=42, http_post=_fake_post_factory([]))
+    ch.request_approval_card("E1", 25.0, "تست", "over-gate")
+    # بررسیِ متنِ کارت
+    card = ch._render_approval_card("E1", 25.0, "تست", "over-gate")
+    assert "──────" in card and "🛡" in card and "🦑" in card or "🐙" in card
+    assert "AU$25.00" in card
 
 
 if __name__ == "__main__":
@@ -751,6 +779,9 @@ if __name__ == "__main__":
         ("[T-7] /reentry با gate → اثرهای freeze‌شده", t_reentry_packet_with_gate),
         # Router
         ("[Router] handle_command همهٔ UIها را dispatch می‌کند", t_router_dispatches_all_commands),
+        ("[UX v2] /start منو با آیکن 🐙", t_ux_v2_start_menu_has_icon),
+        ("[UX v2] /status غنی با mode color", t_ux_v2_status_has_html_and_mode),
+        ("[UX v2] کارتِ تأیید غنی", t_ux_v2_approval_card_rich_html),
     ])
     sys.exit(1 if failed else 0)
 

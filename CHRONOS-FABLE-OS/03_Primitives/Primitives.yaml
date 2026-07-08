@@ -1,0 +1,206 @@
+# CHRONOS-FABLE OS — PHASE 2 DELIVERABLE
+# Primitive Mining — low-level design units that recur across ≥2 documents
+# evidence: A=primary | B=conversation | I=inference   confidence: 0-100
+# A "primitive" is the smallest reusable unit that can become a module/interface in the target OS.
+
+primitives:
+
+  - id: PRIM-01
+    name: Event
+    definition: "An immutable, append-only record of something that happened. The sole inter-module communication unit."
+    appears_in: [DOC-02(EventBus), DOC-B/C(LANGAR entry), DOC-A(governance log), METHOD(event_emitted)]
+    kind: engineering
+    universal: true
+    abstract_function: "decouple producers from consumers; make history replayable & auditable"
+    concrete_forms: ["canonical/events/ record", "LANGAR hash-chain entry"]
+    becomes_module: "Event/Ledger substrate (L0)"
+    confidence: 95
+    evidence_level: A
+
+  - id: PRIM-02
+    name: Memory
+    definition: "Persisted knowledge with an explicit truth status and lifecycle."
+    appears_in: [DOC-A(vault+falsifier), DOC-C(memory ladder+eviction), DOC-D(reconsolidation), DOC-02(Knowledge Fabric), DOC-01(theory/claims split)]
+    kind: cognitive+engineering
+    universal: true
+    abstract_function: "hold knowledge that can decay, be invalidated, cached, and reconstructed"
+    concrete_forms: ["authoritative vault {tag,confidence,falsifier,valid_until}", "evictable semantic cache", "reconsolidation-on-mismatch"]
+    invariant_link: [INV-05, INV-06]
+    confidence: 90
+    evidence_level: A
+
+  - id: PRIM-03
+    name: Guard
+    definition: "A middleware predicate on an event that returns allow / deny / queue-cooldown, based on class + state + autonomy."
+    appears_in: [DOC-02(7 Guards), DOC-A(kill-switch/cost-cap/quarantine), DOC-B/C(TINV-7 gate), DOC-D(4 walls+eliminability)]
+    kind: safety
+    universal: true
+    abstract_function: "interpose a policy check before any state change or effect"
+    becomes_module: "Guard/Safety layer"
+    confidence: 95
+    evidence_level: A
+
+  - id: PRIM-04
+    name: Human Anchor
+    definition: "A human-append operation that is the root-of-trust and (in CHRONOS) the arrow of time."
+    appears_in: [DOC-B/C(human-append), DOC-A(git-merge quarantine), DOC-D(clinician gate), DOC-02(verdict/approval)]
+    kind: safety+epistemic
+    universal: true
+    abstract_function: "gate irreversible effects and self-modification on external human judgment"
+    invariant_link: [INV-01, INV-02]
+    confidence: 95
+    evidence_level: A
+    note: "The single most universal primitive — present in all four architectures under three names."
+
+  - id: PRIM-05
+    name: Cost
+    definition: "An accounted price attached to every capability. No capability without cost."
+    appears_in: [DOC-A($budget/cap), DOC-B/C(metabolic aging/spawn cost), DOC-D(added-value/epistemic cost), DOC-01(energy_cost in priority_score)]
+    kind: economic+safety
+    universal: true
+    abstract_function: "bound capability by a metered resource; alignment lever stronger than rules"
+    concrete_forms: ["dollar budget", "experience_rate/age_tick", "spawn token accounting", "added-value≠0 test"]
+    invariant_link: [INV-07]
+    confidence: 92
+    evidence_level: A
+    note: "DOC-06 critical insight #2: cost is the alignment mechanism."
+
+  - id: PRIM-06
+    name: Time
+    definition: "Ordered progression represented logically (beats/HLC), not by wall-clock."
+    appears_in: [DOC-B/C(HLC, beat, TINV-5), DOC-01(retrospective vs real-time time), DOC-03(architecture of time), METHOD(no direct clock read)]
+    kind: engineering+cognitive
+    universal: true
+    abstract_function: "give deterministic, replayable ordering; decouple experience-rate from real time"
+    invariant_link: [INV-04]
+    confidence: 88
+    evidence_level: A
+
+  - id: PRIM-07
+    name: Evidence Tag
+    definition: "A label on every claim: 【E】established / 🌀【S】speculative / 【P】portrait / ⚠️ warning (+ project set E/P/S/M/I/R/C/G)."
+    appears_in: [DOC-05(canonical tag system), DOC-06(tags on writes), DOC-01(claim status), METHOD(8-tag set), SRC-2(【E】【P】【S】)]
+    kind: epistemic
+    universal: true
+    abstract_function: "make the confidence & provenance of knowledge machine-readable and non-self-sealing"
+    invariant_link: [INV-08, INV-09]
+    confidence: 95
+    evidence_level: A
+
+  - id: PRIM-08
+    name: Proposal
+    definition: "A non-authoritative suggestion that must pass review + human-append before it becomes truth or effect."
+    appears_in: [DOC-02(agents write only to proposals/), DOC-C(trace-grader proposals), DOC-A(PR/merge), DOC-D(recommendation to clinician)]
+    kind: safety+engineering
+    universal: true
+    abstract_function: "separate generation from commitment; 'LLM output is proposal, not truth'"
+    invariant_link: [INV-03]
+    confidence: 93
+    evidence_level: A
+
+  - id: PRIM-09
+    name: Snapshot / Replay
+    definition: "A restorable state capture + the ability to re-run history from a point."
+    appears_in: [DOC-02(rollback_ref, replay(from_ts)), DOC-C(per-beat checkpoint + time-travel), DOC-B(event-sourced replay), DOC-A(git-recoverable)]
+    kind: engineering
+    universal: true
+    abstract_function: "debuggability, crash recovery, non-destructive rollback"
+    confidence: 90
+    evidence_level: A
+
+  - id: PRIM-10
+    name: Falsifier
+    definition: "An explicit condition under which a claim/memory is declared refuted or expired."
+    appears_in: [DOC-A(vault falsifier + validity window), DOC-01(E1-E5 'refuted if...'), DOC-05(eliminability test), DOC-03(falsifiable roadmap)]
+    kind: epistemic
+    universal: true
+    abstract_function: "prevent silent decay & self-sealing; every belief carries its own kill-condition"
+    invariant_link: [INV-09]
+    confidence: 90
+    evidence_level: A
+
+  - id: PRIM-11
+    name: Agent / Leg
+    definition: "An isolated-context worker with a mission; may be persistent (leg) or mortal (sub-leg)."
+    appears_in: [DOC-02(specialist agents), DOC-C(6 legs + dynamic sub-legs), DOC-A(orchestrator-worker), METHOD(16-agent team)]
+    kind: engineering
+    universal: true
+    abstract_function: "parallelize cognition under isolated context; contain failure/injection"
+    invariant_link: [INV-10, INV-11]
+    confidence: 90
+    evidence_level: A
+
+  - id: PRIM-12
+    name: Registry
+    definition: "A canonical index of first-class objects (projects, experiments, decisions, risks) with lifecycle status."
+    appears_in: [DOC-01(project_registry), DOC-02(Project/Money/Decision/Risk registers), METHOD(experiment registry)]
+    kind: engineering+business
+    universal: true
+    abstract_function: "control everything without losing it (GOAL-1); attach economics & guards to each object"
+    concrete_forms: ["project_registry card + priority_score + money_link", "experiment registry"]
+    confidence: 90
+    evidence_level: A
+
+  - id: PRIM-13
+    name: State / Mode
+    definition: "A discrete operating mode of the whole system that changes guard behavior."
+    appears_in: [DOC-02(Normal/Low-Energy/Offline/High-Energy-Guard/Recovery + Personal State Layer), DOC-B/C(stasis), DOC-D(baseline hot vs cool)]
+    kind: safety+cognitive
+    universal: true
+    abstract_function: "modulate autonomy & guard strictness by operator/system condition (hormonal analogy)"
+    confidence: 88
+    evidence_level: A
+
+  - id: PRIM-14
+    name: Reflection / Critic
+    definition: "A second pass that grades or adversarially critiques a proposal before it advances."
+    appears_in: [DOC-02(Critic/Reflection loop), DOC-C(trace-grader), DOC-A(golden-set eval), DOC-D(gap-report), METHOD(Critic agent)]
+    kind: cognitive+safety
+    universal: true
+    abstract_function: "raise decision quality; break agreement/self-referential spirals via labeling + human anchor"
+    confidence: 90
+    evidence_level: A
+
+  - id: PRIM-15
+    name: Boundary / Vault (Non-Destruct)
+    definition: "A protected edge where nothing is deleted; deprecated content is versioned into a legacy store."
+    appears_in: [DOC-02(Non-Destruct Guard, /_legacy, adapter, migration ledger), DOC-05(source law: theory sacred), DOC-01(theory.md immutable), METHOD(additive-only)]
+    kind: engineering+epistemic
+    universal: true
+    abstract_function: "guarantee additive-only evolution; separate sacred source from working layers"
+    invariant_link: [INV-12, INV-13]
+    confidence: 95
+    evidence_level: A
+
+  - id: PRIM-16
+    name: Money Link
+    definition: "A required pointer from any project to a cash engine; absent link ⇒ project stays incubating."
+    appears_in: [DOC-01(money_link=UNRESOLVED gate), DOC-02(GOAL-7 fitness=real money+speed, Money Ledger), DOC-07(revenue blueprints)]
+    kind: business
+    universal: true
+    abstract_function: "keep research/creativity from cannibalizing revenue; fitness = money + speed"
+    invariant_link: [INV-14]
+    confidence: 90
+    evidence_level: A
+
+  - id: PRIM-17
+    name: Seam / Anticipation (precision)
+    definition: "A precision-weighted link that stitches state across time/self/other and drives anticipation."
+    appears_in: [DOC-05(Π, Seam, precision-weighting), DOC-06(active-inference #11, anticipation_queue), DOC-01(predictive time)]
+    kind: cognitive
+    universal: false
+    abstract_function: "world-model / anticipation substrate (precision-weighted prediction error)"
+    confidence: 65
+    evidence_level: I
+    note: "【S】 by corpus; must earn mechanism status via added-value test (DOC-05 §2)."
+
+  - id: PRIM-18
+    name: Attractor / Reconsolidation
+    definition: "A stable basin of behavior; lasting change = re-sculpting the basin via mismatch, not force."
+    appears_in: [DOC-05(attractor landscape, T→C→R, reconsolidation), DOC-06(reconsolidation memory update), DOC-04(identity change)]
+    kind: cognitive
+    universal: false
+    abstract_function: "model durable change of state/priors; anti-'push the ball' doctrine"
+    confidence: 72
+    evidence_level: A
+    note: "Established in dynamical-systems literature; its mapping to system-level 'change' is 🌀【S】."

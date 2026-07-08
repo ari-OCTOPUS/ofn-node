@@ -1,10 +1,17 @@
 {
-  "ts": "2026-07-07T20:42:56",
+  "ts": "2026-07-09T00:02:47",
   "authoritative": false,
   "experience_span_days": 0,
   "authoritative_note": "قفل verdict جلسه ۱۶: تا ~۴ هفته دادهٔ ledger فقط سایه",
   "acceptance_source": "logs/outbox.jsonl ⟂ core.db/outbox (فقط بعد از کلیک انسان)",
   "integrity_alerts": [],
+  "attribution": {
+    "revenue_by_cell": {},
+    "coverage": null,
+    "claimed": 0,
+    "confirmed": 0,
+    "note": "فقط CONFIRMED؛ فرمولِ fitness هنوز شادو — این سیگنالِ پولِ محقق است"
+  },
   "cells": {},
   "weights": {
     "value": 0.3,

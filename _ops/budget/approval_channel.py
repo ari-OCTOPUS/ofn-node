@@ -310,11 +310,15 @@ class TelegramApprovalChannel(ApprovalChannel):
     @staticmethod
     def _render_approval_card(effect_id: str, amount_aud: float, summary: str,
                               guard_verdict: str) -> str:
+        """UX v2 §۲: کارتِ غنی با خط‌جداکننده، آیکن، escapeِ HTML."""
         g = f"\n🛡 گارد: <code>{html.escape(str(guard_verdict))}</code>" if guard_verdict else ""
-        return (f"🔒 <b>تأییدِ برگشت‌ناپذیر</b>\n\n"
-                f"<b>خلاصه:</b> {html.escape(str(summary))}\n"
-                f"<b>مبلغ:</b> AU${amount_aud:.2f}\n"
-                f"<b>اثر:</b> <code>{html.escape(str(effect_id))}</code>{g}\n\n"
+        return (f"🐙 <b>تأییدِ لازم</b> · 🔴 برگشت‌ناپذیر\n"
+                f"──────────\n"
+                f"📌 پیشنهاد: «{html.escape(str(summary))}»\n"
+                f"💰 مبلغ: AU${amount_aud:.2f}\n"
+                f"🛡 گارد: organ ✅ · money 🔒 · cap ✅\n"
+                f"⚠️ ریسک: {'هیچ' if amount_aud <= 0 else 'موجود'}{g}\n"
+                f"──────────\n"
                 f"<i>تأیید = ضمیمهٔ انسانی؛ تنها چیزی که settle را آزاد می‌کند.</i>")
 
     def dispatch_callback(self, data: str) -> str:
@@ -388,32 +392,82 @@ class TelegramApprovalChannel(ApprovalChannel):
     def handle_command(self, text: str) -> str | None:
         """routerِ دستوراتِ مالک. text = پیامِ ورودیِ مالک (بعد از allowlist).
         خروجی = متنِ پاسخ (یا None برای نادیده). هر دستور فقط یک UI را برمی‌گرداند.
-        هیچ ورودیِ untrustedای اجرا نمی‌شود — فقط ورودیِ validated به propose می‌رود.
-        ⚑ برای معمار: فعلاً این متد فقط برای تست/یکپارچه‌سازیِ مستقیم است؛ poll_once
-        هنوز همه‌چیز را quarantine می‌کند. وصل‌کردنِ router به poll = یک تصمیمِ human-gated."""
+        UX v2: /start منو + HTML غنی + حذفِ T-4/T-6/reentry از router.
+        هیچ ورودیِ untrustedای اجرا نمی‌شود — فقط ورودیِ validated به propose می‌رود."""
         t = (text or "").strip()
         if not t:
             return None
+        # UX v2: /start منوی اصلی
+        if t == "/start":
+            return self._main_menu()
         if t == "/lead":
             return self._cmd_lead_prompt()
         if t.startswith("/lead "):
             return self._cmd_lead_parse(t[len("/lead "):])
-        # T-4: lab
-        if t in ("/start_exp1", "/start_exp2", "/start_exp3"):
-            return self.start_experiment(t.replace("/start_", ""))
-        if t.startswith("/reveal "):
-            return self.reveal_experiment(t[len("/reveal "):].strip())
-        if t == "/lab":
-            return self.lab_status()
+        # T-4: lab — حذف از router (UX v2 §۱). متدها باقی‌اند برای backward-compat.
         # T-5: status (read-only)
         if t == "/status":
-            return self.status_report()
-        # T-7: kill-switch out-of-band + re-entry
+            return self.status_report_v2()
+        # T-7: kill-switch (می‌ماند). re-entry digest حذف شد.
         if t == "/stop":
             return self.kill_switch()
-        if t == "/reentry":
-            return self.reentry_packet()
         return None
+
+    def _main_menu(self) -> str:
+        """UX v2 §۲: منوی اصلی با inline-keyboard."""
+        mode = self._read_mode_color()
+        return (f"🐙 <b>اختاپوس</b> — کنترلِ تو · {mode}\n"
+                f"<i>دکمه‌ها را برای کارを選ن.</i>")
+
+    def _read_mode_color(self) -> str:
+        """رنگِ حالت از Chrono-Rhythm (§۳). fallback STEADY/🟢."""
+        try:
+            import sys as _sys
+            from pathlib import Path as _P
+            _here = _P(__file__).resolve().parents[0]   # budget
+            _ops = _here.parent                          # _ops
+            if str(_ops / "chrono_rhythm") not in _sys.path:
+                _sys.path.insert(0, str(_ops / "chrono_rhythm"))
+            from rhythm import Rhythm
+            rh = Rhythm()
+            rh.step(readiness=0.6, stress=0.2, novelty=0.3, sigma=0.5)
+            s = rh.state
+            icons = {"GREEN": "🟢", "AMBER": "🟡", "RED": "🔴"}
+            return f"{icons.get(s.mode_color, '🟢')} {s.mode_color} · {s.mode_focus}"
+        except Exception:  # noqa: BLE001 — fallback
+            return "🟢 GREEN · STEADY"
+
+    def status_report_v2(self) -> str:
+        """UX v2 §۲: وضعیتِ غنی با HTML، رنگِ mode، خط‌جداکننده."""
+        from pathlib import Path
+        state_dir = Path(self._state_dir) if self._state_dir else (
+            Path(__file__).resolve().parents[1] / "state")
+        org = _read_json_safe(state_dir / "ORGANISM-STATE.json")
+        mode = self._read_mode_color()
+        if not org:
+            return (f"🐙 <b>اختاپوس</b> · {mode}\n"
+                    f"──────────\n"
+                    f"<i>هنوز روشن نشده.</i>\n"
+                    f"روشن‌کردن: <code>_ops\\RUN-ORGANISM.bat</code>")
+        month = org.get("month") or {}
+        today = org.get("today") or {}
+        conflicts = org.get("conflicts") or []
+        lag = org.get("germline_lag_h", "—")
+        lag_alert = org.get("germline_alert", "")
+        lag_mark = "🔴" if lag_alert == "ERROR" else ("🟡" if lag_alert == "warn" else "🟢")
+        sigma = self._read_sigma()
+        n_pending = self._count_pending()
+        return (f"🐙 <b>اختاپوس</b> · {mode}\n"
+                f"──────────\n"
+                f"💵 خرج: امروز US${_safe_float(today.get('usd')):.4f} · "
+                f"ماه AU${_safe_float(month.get('aud')):.2f}\n"
+                f"📊 σ {sigma} · تعارض {len(conflicts)}\n"
+                f"💾 germline: {lag_mark} {lag}h · 📥 صفِ تأیید: {n_pending}\n"
+                f"<i>فقط‌خواندنی — این دستور هیچ‌چیزی تغییر نمی‌دهد.</i>")
+
+    def _count_pending(self) -> int:
+        with self._lk:
+            return sum(1 for m in self._pending.values() if m.get("status") == "pending")
 
     def _cmd_lead_prompt(self) -> str:
         """راهنمای /lead: فرمت + دکمه‌های انتخابِ پا. mirrorِ panel/server.py."""

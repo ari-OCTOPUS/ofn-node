@@ -1,0 +1,47 @@
+{
+  "ts": "2026-07-08T01:34:28",
+  "channels": {
+    "dashboard": {
+      "channel": "dashboard",
+      "live": true,
+      "mode": "read-only-local",
+      "organism_8771": true,
+      "panel_8790": false,
+      "notices_file": "channel-notices.jsonl"
+    },
+    "telegram": {
+      "channel": "telegram",
+      "live": false,
+      "mode": "stub(no-creds)",
+      "allowlist": false,
+      "required_env": [
+        "TELEGRAM_BOT_TOKEN",
+        "TELEGRAM_OWNER_CHAT_ID"
+      ],
+      "sends_last_min": 0
+    },
+    "whatsapp": {
+      "channel": "whatsapp",
+      "live": false,
+      "mode": "NotWiredStub",
+      "activation": "human-gated (قدمِ جدا)",
+      "required_env": [
+        "WHATSAPP_ACCESS_TOKEN",
+        "WHATSAPP_PHONE_ID",
+        "WHATSAPP_OWNER_NUMBER"
+      ]
+    },
+    "email": {
+      "channel": "email",
+      "live": false,
+      "mode": "NotWiredStub",
+      "activation": "human-gated (قدمِ جدا)",
+      "required_env": [
+        "SMTP_HOST",
+        "SMTP_USER",
+        "SMTP_PASS",
+        "EMAIL_OWNER_ADDR"
+      ]
+    }
+  }
+}

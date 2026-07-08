@@ -29,6 +29,7 @@ updated: 2026-07-07
 - زیرساخت مالی: [[03 - Projects/Accounting/PROJECT|Accounting]]
 - دانش شخصی: [[07 - Knowledge/هیپنوتیزم  و خودآگاهی/PROJECT|هیپنوتیزم و خودآگاهی]]، [[07 - Knowledge/Time-Architecture/PROJECT|Time-Architecture (معماری زمان)]]
 - زیرساخت زنده (`_ops` + ژنوم): [[_ops/ORGANISM-SPEC|ORGANISM-SPEC]] (ارگانیسم متابولیسم-مناظره-تکثیر، سایه $0) · پنل مالک `_ops/panel/` (`http://127.0.0.1:8790` — پروفایل/پروژه‌ها/ارگانیسم) · [[07 - Knowledge/genome-system/INDEX|genome-system]] (v0.4.3)
+- لایهٔ تئوری/معماری (agent-ready): [[CHRONOS-FABLE-OS/PROJECT|CHRONOS-FABLE OS]] — سنتزِ ۱۶‌پوشه‌ایِ کورپوسِ OCTOPUS/CHRONOS، تئوریِ همین ارگانیسم زنده · ورود: [[CHRONOS-FABLE-OS/HANDOFF|HANDOFF]] · [[CHRONOS-FABLE-OS/13_MasterPrompts/MasterSystemPrompt.v2|Master Prompt v2]]
 
 ## بخش‌ها
 
