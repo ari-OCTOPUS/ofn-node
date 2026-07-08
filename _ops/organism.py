@@ -164,7 +164,7 @@ def main() -> int:
     last_daily = ""
     last_heartbeat = 0.0
     while True:
-        _protective_skip = False   # S-fix-2: flag به‌جای continue (busy-loop prevention)
+        _protective_skip = False   # آیا این تیک کارِ غیرضروری را skip کند؟ (protective-halt، enforceِ واقعی)
         try:
             if opslib.STOP_ORGANISM.exists() or opslib.halted() == "STOP(architect)":
                 opslib.heartbeat("organism=HALT (STOP) — خروج تمیز")
@@ -172,6 +172,15 @@ def main() -> int:
                 return 0
             snap = telemetry.snapshot()
             conflicts = telemetry.reconcile(snap)
+            now = time.time()
+            # نبضِ chrono یک‌بار (استفادهٔ مشترک: neural + doctor + داشبورد)
+            _cstat = None
+            if chrono is not None:
+                try:
+                    _cstat = chrono.status()
+                except Exception:  # noqa: BLE001
+                    _cstat = None
+            pulse = {"chrono": _cstat} if _cstat else {}
             # vital ناوردی ۳ (verdict 2026-07-07 #4): کهنگی germline — warn>2h، ERROR>26h/غایب
             lag = opslib.germline_lag_hours()
             germ = {"germline_lag_h": lag}
@@ -180,16 +189,44 @@ def main() -> int:
                 opslib.alert([f"germline_lag ERROR: {lag}h — بک‌آپ off-box کهنه/غایب (ناوردی ۳)"])
             elif lag > opslib.GERMLINE_WARN_H:
                 germ["germline_alert"] = "warn"
+
+            # ── S (S-fix-3): protective-override ابتدای کار محاسبه و enforce می‌شود (arXiv fix)
+            # غیرقابل‌سرکوب و واقعی: تصمیم اینجا (پیش از epoch/fitness/doctor) گرفته می‌شود تا همان تیک
+            # آن‌ها را جلو بگیرد (نه بعد از اجرا). sleep همیشه در انتهای tick → بدونِ busy-loop.
+            prot_state = {}
+            if _neural_stack is not None:
+                try:
+                    _beat_n = (_cstat.get("beat", 0) if _cstat else 0)
+                    _neural_r = _w.neural_beat(_neural_stack, _beat_n, {
+                        "rhythm": pulse.get("chrono", {}),
+                        "budget": {"pct": snap["month"].get("musd", 0) / max(opslib.load_budgets().get("global", {}).get("cap_monthly", 30), 1)},
+                        "spectral": {},
+                        "sensory": {},
+                    })
+                    if _neural_r:
+                        _prot = _w.protective_override(_neural_r)
+                        if _prot.get("override") and not _prot.get("suppressible", True):
+                            opslib.alert([f"NEURAL OVERRIDE: {_prot['reason']}"])
+                            if _prot.get("action") == "protective_halt":
+                                _protective_skip = True   # ← epoch/fitness/doctor این تیک skip می‌شوند
+                                prot_state = {"protective_mode": True, "protective_reason": _prot["reason"]}
+                                opslib.heartbeat(f"PROTECTIVE HALT: {_prot['reason']}")
+                            elif _prot.get("action") == "throttle":
+                                prot_state = {"protective_mode": "throttled", "protective_reason": _prot["reason"]}
+                                next_epoch_at = now + 600  # ۱۰ دقیقه تأخیرِ epoch
+                except Exception as _ne:  # noqa: BLE001 — §۴: خطای خاموش ممنوع
+                    opslib.alert([f"neural wiring error (non-fatal): {type(_ne).__name__}: {_ne}"])
+
+            # ── کارِ غیرضروری فقط وقتی protective-halt فعال نیست (enforceِ واقعیِ گیت)
             epoch_info = {}
-            now = time.time()
-            if now >= next_epoch_at:
+            if not _protective_skip and now >= next_epoch_at:
                 rec = governor_epoch.run_epoch()
                 next_epoch_at = now + rec["next_epoch_minutes"] * 60
                 epoch_info = {"last_epoch": rec["ts"],
                               "pressure": rec["pressure"],
                               "next_epoch_minutes": rec["next_epoch_minutes"]}
             daily = {}
-            if opslib.today() != last_daily:
+            if not _protective_skip and opslib.today() != last_daily:
                 fit = fitness.compute()
                 rep = replication.evaluate()
                 last_daily = opslib.today()
@@ -201,63 +238,25 @@ def main() -> int:
                     "suspects": snap["suspect_zero_total"],
                     "sigma": rep["sigma"]["sigma_effective"],
                     "conflicts": len(conflicts)}, actor="organism")
+            # ── W-2: Doctor beat (غیرضروری → زیرِ همان گیت؛ STOP/protective مقدم)
+            if not _protective_skip and _doctor_inst is not None and _cstat is not None:
+                try:
+                    _w.doctor_beat(_doctor_inst, _cstat.get("beat", 0))
+                except Exception:  # noqa: BLE001 — §۴: خطای خاموش ممنوع (Doctor نباید tick را بکشد)
+                    opslib.alert(["doctor_beat error (non-fatal)"])
+
             if now - last_heartbeat > 3600:
                 opslib.heartbeat(
                     f"organism=ok · ماه AU${snap['month']['aud']:.2f} · "
                     f"مشکوک متر صفر={snap['suspect_zero_total']} · "
-                    f"{'CONFLICT×' + str(len(conflicts)) if conflicts else 'سالم'}")
+                    f"{'CONFLICT×' + str(len(conflicts)) if conflicts else 'سالم'}"
+                    f"{' · PROTECTIVE' if _protective_skip else ''}")
                 last_heartbeat = now
-            pulse = {}
-            if chrono is not None:
-                try:   # نبض روی داشبورد (فقط‌خواندنی؛ fail-soft)
-                    st = chrono.status()
-                    if st:
-                        pulse = {"chrono": st}
-                except Exception:  # noqa: BLE001
-                    pulse = {}
             _write_state({"month": snap["month"], "today": snap["today"],
                           "suspect_zero_total": snap["suspect_zero_total"],
                           "conflicts": conflicts, **germ, **epoch_info, **daily,
-                          **pulse, "wiring": _wire})
-            # ── W-2: Doctor beat (هر N beat، پشتِ flag، kill-switch اول)
-            if _doctor_inst is not None and chrono is not None:
-                try:
-                    _beat = chrono.status().get("beat", 0) if chrono.status() else 0
-                    _w.doctor_beat(_doctor_inst, _beat)
-                except Exception:  # noqa: BLE001 — Doctor نباید tick را بکشد
-                    pass
-            # ── W-neural: neural snapshot + protective-override (پشتِ flag)
-            if _neural_stack is not None:
-                try:
-                    _beat_n = (chrono.status().get("beat", 0) if chrono and chrono.status() else 0)
-                    _neural_r = _w.neural_beat(_neural_stack, _beat_n, {
-                        "rhythm": pulse.get("chrono", {}),
-                        "budget": {"pct": snap["month"].get("musd", 0) / max(opslib.load_budgets().get("global", {}).get("cap_monthly", 30), 1)},
-                        "spectral": {},
-                        "sensory": {},
-                    })
-                    # S: protective-override — غیرقابل‌سرکوب (arXiv fix)
-                    if _neural_r:
-                        _prot = _w.protective_override(_neural_r)
-                        if _prot.get("override") and not _prot.get("suppressible", True):
-                            opslib.alert([f"NEURAL OVERRIDE: {_prot['reason']}"])
-                            # S-fix: action را enforce کن، نه فقط alert
-                            if _prot.get("action") == "protective_halt":
-                                # skip مسیرهای غیرضروری در این تیک (epoch/fitness/replication)
-                                # فقط heartbeat + safety می‌ماند
-                                opslib.heartbeat(f"PROTECTIVE HALT: {_prot['reason']}")
-                                _write_state({"protective_mode": True,
-                                              "protective_reason": _prot["reason"]})
-                                # S-fix-2: به‌جای continue (که از time.sleep می‌پرد → busy-loop)，
-                                # flag می‌گذاریم؛ sleep همیشه در انتهای tick اجرا می‌شود.
-                                _protective_skip = True
-                            elif _prot.get("action") == "throttle":
-                                # throttle: epoch را skip ولی heartbeat ادامه
-                                _write_state({"protective_mode": "throttled",
-                                              "protective_reason": _prot["reason"]})
-                                next_epoch_at = now + 600  # ۱۰ دقیقه تأخیر
-                except Exception as _ne:  # noqa: BLE001 — §۴: خطای خاموش ممنون
-                    opslib.alert([f"neural wiring error (non-fatal): {type(_ne).__name__}: {_ne}"])
+                          **pulse, **prot_state,
+                          "protective_skip": _protective_skip, "wiring": _wire})
         except KeyboardInterrupt:
             opslib.heartbeat("organism=STOP (KeyboardInterrupt)")
             return 0
