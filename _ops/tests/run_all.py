@@ -16,7 +16,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_calibration.py", "test_box.py", "test_evolution.py",
          "test_box_b134.py"]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
-EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py"]
+EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
+               HERE.parents[1] / "07 - Knowledge" / "school-memory" / "test_curriculum.py"]
 
 if __name__ == "__main__":
     failed = []
