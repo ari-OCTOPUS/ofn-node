@@ -1,0 +1,32 @@
+{
+  "_comment": "Project-F Content Studio config. قابل‌تنظیم، نه hardcoded. صفر PII.",
+  "analytics": {
+    "churn_rate": 0.27,
+    "arpu": 60.0,
+    "ppv_unlock_rate": 0.28,
+    "retention_30d": 0.65,
+    "segments": {"vip": 0.05, "regular": 0.25, "lurker": 0.70}
+  },
+  "ppv": {
+    "wall_pct": 0.55,
+    "tiers": {
+      "low": {"price": 5, "desc": "low-ticket"},
+      "mid": {"price": 15, "desc": "mid-tier"},
+      "premium": {"price": 50, "desc": "premium"}
+    }
+  },
+  "trends": [
+    {"tag": "faceless-feet", "note": "ترندِ نیشِ اصلی", "optimal_time": "evening AEST"},
+    {"tag": "pedicure-asmr", "note": "ASMR پدیکور—رشد بالا", "optimal_time": "night AEST"},
+    {"tag": "seasonal-visual", "note": "سیگنال بصری فصلی (انار/ترمه)", "optimal_time": "any"}
+  ],
+  "calendar": {
+    "season": "summer",
+    "slots": [
+      {"week": 1, "theme": "warm-up", "task": "۳ پست SFW Reddit"},
+      {"week": 2, "theme": "warm-up", "task": "کارما‌سازی + X bio"},
+      {"week": 3, "theme": "launch", "task": "OF Free page + اولین پست"},
+      {"week": 4, "theme": "launch", "task": "اولین PPV"}
+    ]
+  }
+}

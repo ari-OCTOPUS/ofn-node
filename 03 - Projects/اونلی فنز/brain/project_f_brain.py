@@ -22,9 +22,13 @@ Compliance-Guard · Ethics-Guard.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+import json
+from dataclasses import dataclass, field, asdict
+from pathlib import Path
 
 LAMBDA_PERSIST = -1.0   # §۵: دست‌نخورده منفی
+
+_ARCHIVE_PATH = Path(__file__).resolve().parent / "archive.json"
 
 
 # ─── Compliance rules (hard gate) ─────────────────────────────────────────────
@@ -76,9 +80,29 @@ class ProjectFBrain:
     بینِ صبا و آری. HITLِ tiered."""
 
     def __init__(self):
-        self._archive: list[ArchiveEntry] = []
+        self._archive: list[ArchiveEntry] = self._load_archive()
         self._budget_tokens = 0
         self._budget_cap = 2000   # 2% of E_total=100000
+
+    # ─── FIX 7: archive persistence ─────────────────────────────────────────────
+    def _load_archive(self) -> list[ArchiveEntry]:
+        """FIX 7: بارگذاریِ archive از دیسک (restart-safe)."""
+        try:
+            data = json.loads(_ARCHIVE_PATH.read_text(encoding="utf-8"))
+            return [ArchiveEntry(**e) for e in data]
+        except (json.JSONDecodeError, OSError, TypeError):
+            return []
+
+    def _save_archive(self) -> None:
+        """FIX 7: ذخیرهٔ archive روی دیسک (atomic)."""
+        try:
+            tmp = _ARCHIVE_PATH.with_suffix(".tmp")
+            tmp.write_text(json.dumps(
+                [asdict(e) for e in self._archive], ensure_ascii=False, indent=2),
+                encoding="utf-8")
+            tmp.replace(_ARCHIVE_PATH)
+        except OSError:
+            pass
 
     # ─── Strategist ─────────────────────────────────────────────────────────────
     def strategist(self, draft_title: str) -> Proposal:
@@ -150,12 +174,17 @@ class ProjectFBrain:
     def process_draft(self, draft_title: str, checks: dict | None = None,
                       risk_override: str | None = None) -> dict:
         """جریانِ کاملِ HITL: تحلیل → Guard → route (low→صبا، high→آری).
-        خروجی: {proposals, routed_to, guards_passed}."""
+        خروجی: {proposals, routed_to, guards_passed}.
+        FIX 5: Pricer اضافه شد — pricing proposal تولید می‌کند."""
         # ۱. تولیدِ پیشنهادها
+        pricing = self.pricer(content_type="standard", time_slot="evening")
         proposals = [
             self.strategist(draft_title),
             self.copywriter(draft_title),
             self.scheduler(),
+            Proposal(kind="price",
+                     content=f"PPV suggestion: ${pricing.suggested_price} ({pricing.tier} tier)",
+                     risk_level="high"),   # قیمت = high-risk → آری
         ]
         # ۲. Guards
         c = checks or {}
@@ -180,11 +209,13 @@ class ProjectFBrain:
     # ─── Archive (یادگیری از تأییدشده‌ها) ────────────────────────────────────────
     def archive(self, kind: str, outcome: str,
                 metric_before: float = 0.0, metric_after: float = 0.0) -> ArchiveEntry:
-        """ثبت در آرشیو. فقط از تأییدشده‌ها یاد می‌گیرد. λ_persist<0."""
+        """ثبت در آرشیو. فقط از تأییدشده‌ها یاد می‌گیرد. λ_persist<0.
+        FIX 7: persist to disk."""
         entry = ArchiveEntry(proposal_kind=kind, outcome=outcome,
                              metric_before=metric_before, metric_after=metric_after,
                              learned=(outcome in ("approved", "published")))
         self._archive.append(entry)
+        self._save_archive()   # FIX 7: persist
         return entry
 
     @property
