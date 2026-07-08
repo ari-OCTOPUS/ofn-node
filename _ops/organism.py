@@ -139,9 +139,10 @@ def main() -> int:
 
     print(f"organism: زنده روی http://127.0.0.1:{port} — kill تمیز: فایل _ops/STOP-ORGANISM")
     opslib.heartbeat(f"organism=START port={port}")
-    # ── W-1..W-5 wiring (پشتِ flag، paper-mode؛ پیش‌فرض خاموز = no regression)
+    # ── W-1..W-5 + neural wiring (پشتِ flag، paper-mode؛ پیش‌فرض خاموز = no regression)
     _wire = {}
     _doctor_inst = None
+    _neural_stack = None
     try:
         import wiring as _w
         _wire = _w.wire_summary()
@@ -149,6 +150,7 @@ def main() -> int:
         _doctor_inst = _w.make_doctor(state_dir=str(opslib.STATE_DIR), channel=_chan)
         _w.make_unified_bus()
         _w.make_lead_leg()
+        _neural_stack = _w.make_neural_stack()   # W: neural ۸ ماژول
         if any(_wire.values()):
             opslib.heartbeat(f"organism wiring: {_wire}")
     except Exception as _e:  # noqa: BLE001 — wiring اختیاریِ additive
@@ -222,6 +224,23 @@ def main() -> int:
                     _beat = chrono.status().get("beat", 0) if chrono.status() else 0
                     _w.doctor_beat(_doctor_inst, _beat)
                 except Exception:  # noqa: BLE001 — Doctor نباید tick را بکشد
+                    pass
+            # ── W-neural: neural snapshot + protective-override (پشتِ flag)
+            if _neural_stack is not None:
+                try:
+                    _beat_n = (chrono.status().get("beat", 0) if chrono and chrono.status() else 0)
+                    _neural_r = _w.neural_beat(_neural_stack, _beat_n, {
+                        "rhythm": pulse.get("chrono", {}),
+                        "budget": {"pct": snap["month"].get("musd", 0) / max(opslib.load_budgets().get("global", {}).get("cap_monthly", 30), 1)},
+                        "spectral": {},
+                        "sensory": {},
+                    })
+                    # S: protective-override — غیرقابل‌سرکوب
+                    if _neural_r:
+                        _prot = _w.protective_override(_neural_r)
+                        if _prot.get("override") and not _prot.get("suppressible", True):
+                            opslib.alert([f"NEURAL OVERRIDE: {_prot['reason']}"])
+                except Exception:  # noqa: BLE001
                     pass
         except KeyboardInterrupt:
             opslib.heartbeat("organism=STOP (KeyboardInterrupt)")

@@ -138,5 +138,155 @@ def wire_summary() -> dict:
         "wire_telegram": bool(os.environ.get("TELEGRAM_BOT_TOKEN")),
         "wire_unified": flag("OCTOPUS_WIRE_UNIFIED"),
         "wire_lead": flag("OCTOPUS_WIRE_LEAD"),
+        "wire_neural": flag("OCTOPUS_WIRE_NEURAL"),
+        "wire_school": flag("OCTOPUS_WIRE_SCHOOL"),
         "doctor_every_n": int(os.environ.get("CHRONO_DOCTOR_EVERY_N_BEATS", "1440")),
     }
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# W · neural wiring — ۸ ماژول + school_bridge به tick وصل، پشتِ flag
+# ════════════════════════════════════════════════════════════════════════════════
+
+def make_neural_stack():
+    """ساختِ NeuralDriver + Hebbian + Consolidation + HookBus.
+    پشتِ OCTOPUS_WIRE_NEURAL. اگر خاموش → None."""
+    if not flag("OCTOPUS_WIRE_NEURAL"):
+        return None
+    try:
+        sys.path.insert(0, str(_HERE / "neural"))
+        from neural_driver import NeuralDriver
+        from hebbian import HebbianAssociator
+        from consolidation import ConsolidationCycle
+        from hooks import HookBus
+        from nociceptor import Nociceptor
+        from reflex import ReflexArc
+        return {
+            "driver": NeuralDriver(),
+            "hebbian": HebbianAssociator(),
+            "consolidation": ConsolidationCycle(),
+            "hooks": HookBus(),
+            "nociceptor": Nociceptor(),
+            "reflex": ReflexArc(),
+        }
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"wiring: neural stack ساخت نشد: {e}"])
+        return None
+
+
+def neural_beat(neural_stack, beat: int, snap_inputs: dict | None = None) -> dict | None:
+    """هر tick: neural snapshot + reflex + nociceptor. پشتِ flag.
+    kill-switch: اول STOP. advisory فقط."""
+    if neural_stack is None:
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    try:
+        driver = neural_stack["driver"]
+        inputs = snap_inputs or {}
+        result = driver.evaluate(
+            beat=beat,
+            rhythm=inputs.get("rhythm"),
+            sensory=inputs.get("sensory"),
+            spectral=inputs.get("spectral"),
+            budget=inputs.get("budget"))
+        # hebbian observe
+        signals = []
+        if inputs.get("rhythm", {}).get("mode_color") == "GREEN":
+            signals.append("green_mode")
+        if inputs.get("spectral", {}).get("sigma", 0) < 0.8:
+            signals.append("stable")
+        if signals:
+            neural_stack["hebbian"].observe(signals)
+        # consolidation every 10 beats
+        if beat > 0 and beat % 10 == 0:
+            sources = {}
+            if inputs.get("acquisition"):
+                sources["acquisition"] = inputs["acquisition"]
+            if sources:
+                neural_stack["consolidation"].run(sources)
+        return result
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"wiring: neural_beat خطا: {e}"])
+        return None
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# S · protective-override — غیرقابل‌سرکوب توسط orchestrator
+# ════════════════════════════════════════════════════════════════════════════════
+
+def protective_override(neural_result: dict | None) -> dict:
+    """بررسیِ protective signals. اگر خطر → override غیرقابل‌سرکوب.
+    خروجی: {override: bool, action: str, reason: str}.
+    این تابع Structural است — orchestrator نمی‌تواند نادیده بگیرد."""
+    if neural_result is None:
+        return {"override": False, "action": "none", "reason": "no neural data"}
+    pain = neural_result.get("pain", {}).get("level", 0)
+    reflexes = neural_result.get("reflexes", [])
+    triggered = [r for r in reflexes if r.get("triggered")]
+
+    # pain > 0.7 → protective redirect (غیرقابل‌سرکوب)
+    if pain > 0.7:
+        return {"override": True, "action": "protective_halt",
+                "reason": f"pain={pain:.2f}>0.7 — non-essential paused",
+                "suppressible": False}   # ← کلید: غیرقابل‌سرکوب
+
+    # reflex triggered → throttle
+    critical = [r for r in triggered if r.get("severity") == "critical"]
+    if critical:
+        return {"override": True, "action": "throttle",
+                "reason": f"critical reflex: {critical[0].get('name')}",
+                "suppressible": False}
+
+    # high reflex → warning (قابل‌سرکوب ولی logged)
+    high = [r for r in triggered if r.get("severity") == "high"]
+    if high:
+        return {"override": False, "action": "warn",
+                "reason": f"high reflex: {high[0].get('name')}",
+                "suppressible": True}
+
+    return {"override": False, "action": "none", "reason": "all clear"}
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# M · canonical consolidation — یک مسیرِ واحد با verification-gate
+# ════════════════════════════════════════════════════════════════════════════════
+
+def canonical_consolidation(neural_stack, school_bridge=None,
+                            acquisition_data=None,
+                            doctor_archive=None) -> dict | None:
+    """یک مسیرِ canonical consolidation. فقط verified.
+    دو مسیرِ موازی نماند — همه از اینجا.
+    verification-gate: فقط CONFIRMED/verified منابع."""
+    if neural_stack is None:
+        return None
+    try:
+        consolidation = neural_stack["consolidation"]
+        sources = {}
+        # acquisition: فقط اگر real numeric data
+        if acquisition_data and isinstance(acquisition_data, dict):
+            verified_acq = {k: v for k, v in acquisition_data.items()
+                           if isinstance(v, (int, float)) and v > 0}
+            if verified_acq:
+                sources["acquisition"] = verified_acq
+        # doctor archive: فقط outcome=approved/rejected
+        if doctor_archive and isinstance(doctor_archive, list):
+            verified_doc = [d for d in doctor_archive
+                           if isinstance(d, dict)
+                           and d.get("outcome") in ("approved", "rejected", "published")]
+            if verified_doc:
+                sources["doctor_archive"] = verified_doc
+        # school: فقط اگر awareness numeric
+        if school_bridge:
+            try:
+                awareness = school_bridge.mean_awareness()
+                if isinstance(awareness, (int, float)):
+                    sources["school_awareness"] = {"mean_awareness": awareness}
+            except Exception:  # noqa: BLE001
+                pass
+        if not sources:
+            return None   # هیچ منبعِ verified
+        return consolidation.run(sources)
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"wiring: canonical_consolidation خطا: {e}"])
+        return None
