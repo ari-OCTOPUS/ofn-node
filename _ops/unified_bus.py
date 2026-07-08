@@ -44,6 +44,23 @@ class UnifiedBus:
         self._db = db                                  # chrono ChronoDB instance
         # note_fn قابل‌تزریق (opslib.ledger_note) برای audit log جدا
         self._note = note_fn or _default_note
+        # W-2: subscribers برای advisory signals (یک bus)
+        self._subscribers: list = []   # list of (event_type_filter|None, callback)
+
+    def subscribe(self, callback, event_type: str | None = None) -> None:
+        """ثبتِ مشترک. callback(event_dict). event_type=None = همه.
+        مشترک‌ها فقط advisory می‌بینند — هیچ‌کدام settle/effect نمی‌کنند."""
+        self._subscribers.append((event_type, callback))
+
+    def _notify(self, event: dict) -> None:
+        """اعلانِ رویداد به مشترک‌ها. fail-soft: مشترکِ خراب bus را نمی‌کشد."""
+        etype = event.get("type", "")
+        for filt, cb in self._subscribers:
+            if filt is None or filt == etype:
+                try:
+                    cb(event)
+                except Exception:  # noqa: BLE001 — مشترکِ خراب
+                    pass
 
     def _lg(self):
         return self._ledger or opslib.genome_ledger()
@@ -74,6 +91,9 @@ class UnifiedBus:
                                             "hash": entry.get("hash", "") if isinstance(entry, dict) else ""})
         except Exception:  # noqa: BLE001
             pass
+        # ۴) W-2: notify subscribers (advisory — هیچ‌کدام settle نمی‌کنند)
+        if isinstance(entry, dict):
+            self._notify(entry)
         return entry
 
     def _checkpoint(self, entry: dict) -> None:
