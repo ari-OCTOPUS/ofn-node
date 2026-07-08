@@ -5,6 +5,112 @@ updated: 2026-07-08
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+## جلسه سی‌وششم 2026-07-08 (ZCode GLM-5.2) — ♾️ Octopus Phase 5: ۲۴/۷ survival + همگرایی ساخته شد (S-1..S-6، watchdog + germline MAX_LAG + unified bus + checkpoint/replay)
+
+طبقِ پرامپتِ P5، منطقِ ۲۴/۷ survival + همگرایی را به ماژول‌های Pythonِ آزمون‌پذیر منتقل کردم (PS1های موجود دست‌نخورده — twin). ۲۴ تستِ جدید، همگی سبز، $0 آفلاین. **kill-switch مطلق** تست شد.
+
+- **✅ S-1 `watchdog.py`:** `should_revive` — revive فقط اگر port مرده ∧ no STOP ∧ prior run. **yield بی‌قید به STOP** (persistence نه resistance، LifeDoctrine §۴). first-birth = owner-only (INC-1).
+- **✅ S-2/S-5 `germline.py`:** `compute_lag_hours` + `lag_severity` (warn>2h/ERROR>26h/CRIT>72h) + `run_with_retry` (backoff، خطاها لاگ نه بی‌صدا).
+- **✅ S-3 `unified_bus.py`:** پلِ همگراییِ additive — `publish` → genome ledger (LANGAR) + chrono checkpoint. یک نویسنده، دو نما (UnifiedArchitecture L0). **non-destructive:** مسیرهای قدیمی دست‌نخورده (تست شد).
+- **✅ S-4 `checkpoint.py`:** `checkpoint` در chrono.db + `replay`/`replay_state_at` از ledger. بازسازی <۵s (DoD اثبات شد با ۱۰۰ event).
+- **✅ S-6 `smoke_24h.py`:** چک‌لیست: state-fresh/heartbeat/no-freeze/ledger-verify/zero-spend/epoch-log. اجرای دستی مالک.
+- **ناوردی‌ها:** kill-switch مطلق (STOP همیشه برنده) · تولدِ owner-launched (INC-1) · non-destructive (مسیر قدیمی باقی) · germline-first (MAX_LAG).
+
+⚑ **برای مالک (فقط-مالک):** (۱) Scheduled Task برای `organism-watchdog.ps1` (هر ۵ دقیقه) + `germline-hourly.ps1` (ساعتی) — این کارِ توست · (۲) off-siteِ رمزنگاری‌شده: credential در `.env` تو، هرگز repo · (۳) اجرای ۲۴ساعته via at-logon نه شلِ ایجنت.
+
+⚑ **برای معمار:** S-3 یک **additive bridge** است نه destructive merge — genome/agents/doctor.py قدیمی باقی می‌ماند. مهاجرتِ تدریجی. اتصالِ `UnifiedBus.publish` به legs/doctor/telegram در runtime = فازِ بعد.
+
+**میز آری (Windows-side):** (۱) `python -X utf8 F:\backup\_ops\tests\run_all.py` → انتظار **۱۷ فایل سبز** · (۲) `python _ops/smoke_24h.py` برای چکِ سریع · (۳) commit **path-scoped** به `_ops/watchdog.py`+`germline.py`+`unified_bus.py`+`checkpoint.py`+`smoke_24h.py` (نو) + `test_phase5.py` (نو) + `run_all.py` + ۳ داک.
+
+## جلسه سی‌وپنجم 2026-07-08 (ZCode GLM-5.2) — 🩺 Octopus Phase 2: دکترِ تکاملی ساخته شد (D-1..D-6، stable-read gate + sandbox + Critic + human-append merge)
+
+طبقِ پرامپتِ P2، دکترِ تکاملی (انگلِ روی سرِ ارگانیسم) را ساختم. ۲۷ تستِ جدید، همگی سبز، $0 آفلاین. **هیچ merge بدونِ human-append** — نرخِ تکامل = نرخِ حضورِ انسان.
+
+- **✅ D-1 `stable_read`:** دروازهٔ خواندنِ پایدار (BLUEPRINT §۴ پیاده شد). verdict ∈ {stable, stale, corrupt, needs_source_verify, missing}. ضدِ torn-snapshot FP: U+FFFD → needs_source_verify نه false-corrupt (§۴ residual بسته شد).
+- **✅ D-2 `mine(trace)`:** گلوگاه از heartbeat/ledger/state. **reward-integrity:** بر اساسِ اختلال (errors/freeze/σ)، نه activity/uptime. `λ_persist=-1.0` (HeartDesign §۱) — خودحفظی جریمه می‌شود.
+- **✅ D-3 `propose_rfc`:** RFCِ ساختاریافته → knowledge/internal (proposal-event). production دست‌نخورده.
+- **✅ D-4 `run_sandbox` + Critic:** اعمال در sandbox موقت + سوئیت + بازبینیِ adversarial. **ایزولاسیون اثبات شد** (sandbox پاک می‌شود، production لمس‌نشده).
+- **✅ D-5 `submit_for_approval`:** P3 کارتِ [merge پشتِ flag]/[reject]. **بدونِ channel = ابدی pending.** merge فقط بعد از human-append + درسِ آموخته.
+- **✅ D-6 `restart_from_known_good` + `run_cycle`:** قلابِ Pacemaker از P1 (خطِ ۴۸۳) وصل. پای failed → alive. حلقهٔ کامل mine→rfc→sandbox→submit.
+- **ناوردی‌ها (همگی تست‌شد):** Sandbox-only (Evolution Guard) · human-append برای merge · reward-integrity (uptime → reject) · propose-only · هر تنظیم یک ledger_ref.
+
+⚑ **برای معمار (Claude) — تصمیماتِ باز:**
+1. **اتصالِ runtime:** `run_cycle` هنوز به Pacemaker (هر N ضربان) وصل نیست. Pacemaker باید `doctor.run_cycle(beat, trace)` را صدا بزند. فازِ بعد.
+2. **مهاجرتِ `VERIFY_RULES`:** `stable_read` در ماژولِ نو ساخته شد ولی `dashboard_doctor.py` هنوز `VERIFY_RULES` دارد. جایگزینیِ واقعی = مهاجرتِ جداگانه (تستِ feasibilityِ F2 لازم).
+3. **`genome/agents/doctor.py` قدیمی:** نسخهٔ هفتگیِ restart-only در genome tree باقی می‌ماند (کانِنِ موازی، additive). P2 Doctor در `_ops/doctor/` زندگی می‌کند.
+
+**میز آری (Windows-side):** (۱) `python -X utf8 F:\backup\_ops\tests\run_all.py` → انتظار **۱۶ فایل سبز** · (۲) commit **path-scoped** به `_ops/doctor/` (نو) + `_ops/tests/test_doctor.py` (نو) + `run_all.py` + ۳ داک (`DOCTOR-BLUEPRINT`/`ORGANISM-SPEC`/`HANDOFF`).
+
+## جلسه سی‌وچهارم 2026-07-08 (ZCode GLM-5.2) — 🦵 Octopus Phase 4: چارچوبِ پا (L-0) + Lead-نقاشی paper-dollar (L-1) ساخته شد؛ گیتِ P4 عبور
+
+طبقِ پرامپتِ P4، L-0 (harnessِ مشترکِ `Leg`) و L-1 (پای `Lead-نقاشی`، حلقهٔ paper کامل) را ساختم. ۲۴ تستِ جدید، همگی سبز، $0 آفلاین. **گیتِ P4:** اولین دلارِ paper با attributionِ درست CONFIRMED شد.
+
+- **✅ L-0 (`_ops/legs/leg.py`):** `TaskPacket` (read-allowlist فقط IDهای مشخص، `secrets=[]`، `spawn=0`، budget سخت — verify ساختاری در `__init__`) + `Leg` (پایه: خواندنِ allowlistedش، تولیدِ `Proposal` با HLC-stamp، `organ_gate.reserve/settle`). **propose-only:** هیچ متدِ send/publish/pay. `money_link` (INV-14): organِ حل‌نشده = `incubating`.
+- **✅ L-1 (`_ops/legs/lead_leg.py`):** `LeadLeg(Leg)` — `intake` (از P3 /lead یا panel /lead، بازاستفاده) → `draft_quote` (attribution_id چاپ‌شده) → `claim` (CLAIMED نه CONFIRMED). CONFIRMED کارِ `reconcile` است (بازاستفاده، از نو ننوشته). هر تماسِ مشتری human-gated.
+- **✅ گیتِ P4 عبور:** تستِ `t_paper_dollar_full_cycle` اثبات کرد یک دلارِ paper مسیرِ PROPOSAL→CLAIMED→CONFIRMED→ATTRIBUTED را با `attribution_coverage` طی می‌کند، و پا هرگز CONFIRMED نمی‌نویسد (فقط `reconcile-job`).
+- **ناوردی‌ها (همگی تست‌شد):** INV-17 ایزولاسیون (wildcard/secrets/spawn رد می‌شود) · D3 خروجی فقط proposal · INV-14 money_link · propose-only (متدهای ممنوع وجود ندارند) · PII محلی.
+
+⚑ **برای معمار (Claude) — تصمیماتِ باز:**
+1. **`Lead-نقاشی` در `budgets.yaml` نیست:** پا فعلاً `incubating` است. اضافه‌کردنِ organ (مثلاً `LEAD_PAINTING: {floor: 1, human_priority: ...}`) human-gated است — SoT را خودم تغییر ندادم.
+2. **اتصالِ runtime:** Leg هنوز به `ChronoBus.register_leg` وصل نیست؛ intake از P3 channel هنوز مستقیم فراخوانی نمی‌شود. این فازِ بعد است.
+3. **`run_reconcile` در production:** در تست paper `write=True` مجاز است؛ در production، reconcile باید یک jobِ جدا باشد، نه فراخوانیِ پا (docstring علامت‌گذاری شد).
+4. **task_packet فعلاً dict/dataclass است:** فایلِ فیزیکیِ task_packet (per-worker YAML) را نساختم — هر instance تزریق می‌شود. وقتی پاها واقعاً spawn می‌شوند، packet باید از یک مسیرِ مشخص لود شود.
+
+**میز آری (Windows-side):** (۱) `python -X utf8 F:\backup\_ops\tests\run_all.py` → انتظار **۱۵ فایل سبز** · (۲) commit **path-scoped** به ۵ مسیرِ نو: `_ops/legs/leg.py`، `_ops/legs/lead_leg.py`، `_ops/tests/test_leg.py`، `_ops/tests/run_all.py` + ۳ داک (`ORGANISM-SPEC.md`/`HANDOFF.md`/`PROJECT.md`).
+
+## جلسه سی‌وسوم 2026-07-08 (ZCode GLM-5.2) — 🤖 Octopus Phase 3: سطحِ human-append تلگرام ساخته شد (T-1..T-7، additive؛ پنلِ ۸۷۹۰ fallback باقی ماند)
+
+طبقِ پرامپتِ P3، `NotWiredStub` را با یک آداپترِ واقعیِ `TelegramApprovalChannel` در `_ops/budget/approval_channel.py` جایگزین کردم. هفت UIِ اینلاین + ۵۰+ تست، همگی سبز، $0 آفلاین (هیچ شبکه/کلیدی لمس نشد).
+
+- **✅ T-1 لوله:** stdlib-only (`urllib`)، long-pollingِ $0-idle، owner-allowlist، quarantine (ورودی = DATA نه دستور)، توکن فقط از env، نبودِ آن = no-opِ امن.
+- **✅ T-2 تأییدِ برگشت‌ناپذیر:** کارتِ [proposal+مبلغ+verdict] با [تأیید✅][رد❌][بعداً⏳]. تأیید → `on_human_judgment` (human-append، age_tick+1) → `EffectorGate.settle` — **تنها مسیرِ TINV-7** (تستِ end-to-end اثبات کرد). تأییدِ جعلی (توکنِ نامنطبق) رد؛ approve دوم رد (ضدِ replay).
+- **✅ T-3 لید:** `/lead` → `attribution.propose` (mint `LEAD-YYYYMMDD-nnn`، فقط PROPOSAL) — mirrorِ `panel/server.py`.
+- **✅ T-4 آزمایش (lab N=1):** `/start_exp1..3` تقویمِ ۱۴روزه تولید و قفل (exp2 با `random.seed` ثابت). `/reveal` فقط بعد از end_date + verifyِ sha256 از **محتوایِ decoded**. prediction مهر-و-موم هرگز زودتر decode نمی‌شود (تست شد).
+- **✅ T-5 وضعیت:** `/status` فقط‌خواندنی از `_ops/state/*.json` (هیچ write — تست شد).
+- **✅ T-6 RFC:** کارتِ مرور با `[merge پشتِ flag ✅][رد ❌]`.
+- **✅ T-7 kill-switch + Re-entry:** `/stop` → `_ops/STOP-ORGANISM` (authoritative؛ بات فقط trigger)؛ `/reentry` → Re-entry Packet (کارت‌های معلق + اثرهای freeze‌شده).
+- **✅ offset persistence (بسته شد، roundِ verify):** `_load_offset`/`_save_offset` → فایلِ `_ops/state/telegram_offset.json` (اتمیک). restart دیگر quarantine را تکرار نمی‌کند. ۲ تستِ جدید.
+- **ناوردی‌ها:** توکن هرگز hardcode/log/commit (تستِ masking) · هر ورودی untrusted = DATA · approve تنها مسیرِ settle · offline → اثرها freeze، cognition ادامه · kill out-of-band. **چند تصمیم به معمار علامت‌دار شد (⚑ زیر).**
+- **میز آری (Windows-side):** (۱) `python -X utf8 F:\backup\_ops\tests\run_all.py` → انتظار ۱۴ فایل سبز · (۲) commit **path-scoped** به ۳ مسیر: `approval_channel.py`، `tests/test_telegram_channel.py`، `tests/run_all.py` + ۲ داک (`ORGANISM-SPEC.md`/`HANDOFF.md`) · (۳) برای اجرای واقعیِ بات: توکن از `@BotFather` در `.env` (`TELEGRAM_BOT_TOKEN` + `TELEGRAM_OWNER_CHAT_ID`).
+
+⚑ **برای معمار (Claude) — تصمیماتِ باز:**
+1. **poll_once → router وصل نیست:** `handle_command`/`dispatch_callback` فعلاً فقط برای تست/یکپارچه‌سازیِ مستقیم قابلِفراخوانی‌اند. `poll_once` هنوز همه‌چیز را quarantine می‌کند. **وصل‌کردنِ router به poll = human-gated** (هیچ دور زدنِ allowlist/quarantine بدونِ تأیید).
+2. **money_gate/organism.py وصل نیست:** adapter به سیستمِ زنده متصل نشده (همان‌طور docstring می‌گوید). وصل‌کردنش human-gated است.
+3. **doctor.submit_for_approval فعلاً نیست (Phase 2):** T-6 یک seam است؛ وقتی doctor ساخته شد وصل می‌شود.
+4. **lab buttons هنوز POST نمی‌شوند:** `start_experiment` تقویم می‌سازد ولی button-metricهای روزانه (07:00) هنوز در یک scheduler وصل نشده‌اند — نیاز به Pacemaker.schedule دارد.
+5. **offset persistence بسته شد** (roundِ verify): فایلِ `_ops/state/telegram_offset.json` (اتمیک، fail-soft). دیگر در این فهرست نیست.
+
+## جلسه سی‌ودوم 2026-07-08 (Cowork Opus) — راستی‌آزماییِ P1 HEART + دو verdict آری + بستهٔ Windows-side (هیچ کدی از سندباکس commit/اجرا نشد؛ همه additive)
+
+آری گزارشِ [[00 - Inbox/2026-07-08 OCTOPUS-P1-HEART-REPORT — قلب ساخته شد (chrono substrate)|P1-HEART-REPORT]] را به‌عنوان «ایجنت بعدی» سپرد. این جلسه = راستی‌آزمایی + داک‌های امن + بستهٔ فرمانِ Windows-side.
+
+- **✅ راستی‌آزماییِ state (از طریق Read-tool = فایلِ واقعیِ ویندوز):** هر ۹ deliverable کامل؛ `_ops/state/chrono.db` هنوز ساخته نشده (pacemaker اجرای واقعی نداشته — منتظر restart مالک، INC-1)؛ دو verdict در AGENT_QUESTIONS.
+- **⚠️ یافتهٔ عملیاتی (تأییدِ مستقلِ [[04 - Architect System/scripts/DOCTOR-BLUEPRINT-v1|DOCTOR-BLUEPRINT §4-residual]]):** سندباکس دقیقاً ۵ فایلِ لمس‌شدهٔ جلسه ۳۱ را **بریده** می‌بیند (`run_all.py`/`chrono.py`/`organism.py`/`ledger.py`/`test_chrono_heartbeat.py`)؛ ۲۸ فایلِ دیگر سالم. **پیامد:** commit از سندباکس = stageِ نسخهٔ بریده = خرابی → **تست/validator/commit همه Windows-side**.
+- **✅ دو verdict آری (چیپ):** (۱) اعداد chrono = پیش‌فرض‌ها پذیرفته. (۲) ⚠️ **میرایی → `age_tick` ضربان‌محور** (گزینهٔ B) = **لغوِ TINV-3ِ ratified** (جلسه ۳۰). → **پیاده شد (genome v0.4.6، versioned):** age_tick با human یا heartbeat (`beat=1`، هر ۱۴۴۰ ضربان=روزانه، env-tunable)؛ الگوریتم سندباکس ۱۵/۱۵ + py_compile سبز؛ legacy با TINV-3ِ قدیم verify. تأییدِ Windows-side + commit مانده. ثبت: [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS 2026-07-08]].
+- **✅ داک‌های امن (file-tools) به‌روز شد:** [[04 - Architect System/octopus-build-prompts/P1-HEART|P1-HEART]] (status→implemented + §۶ resolved) · [[04 - Architect System/octopus-build-prompts/00-INDEX|00-INDEX]] (گیت P1 + annotate shared-law) · [[_ops/ORGANISM-SPEC|ORGANISM-SPEC §۲.۵ Chrono]] · [[04 - Architect System/architect/PROJECT|PROJECT آرشیتکت]] · AGENT_QUESTIONS.
+- **میز آری (Windows-side؛ بستهٔ فرمانِ کامل در پاسخ چتِ جلسه ۳۲):** (۱) `python -X utf8 F:\backup\_ops\tests\run_all.py` → انتظار ۱۳ فایل سبز · (۲) دو validator در `04 - Architect System/scripts/` · (۳) commit **path-scoped ۹ مسیر** (نه `add -A` — درختِ کاری M زیاد دارد؛ **`chrono.db` را commit نکن**) · (۴) `age_tick` heart-driven **پیاده شد** (genome v0.4.6؛ ledger.py/chrono.py/test/CHANGELOG) — در همان commit می‌رود · (۵) restart ارگانیسم برای سوارشدنِ ضربان (INC-1: از شلِ ایجنت روشن نکن).
+
+## جلسه سی‌ویکم 2026-07-08 (Cowork Fable) — 🫀 Octopus Phase 1: THE HEART ساخته و سبز شد؛ توقف به دستور آری وسط hand-back
+
+آری: «این ۴ فایل [پرامپت‌های octopus-build] را واقعی کن و به کد تبدیل کن» → سه verdict چیپ (فقط P1 · پیش‌فرض‌ها بساز · میرایی «heart-driven هم» ⚠️ تعارض با TINV-3 ratified — حل: `metabolic_age` additive، `age_tick` دست‌نخورده؛ re-ratify لازم) → اجرای کامل [[04 - Architect System/octopus-build-prompts/P1-HEART|P1-HEART]]. وسط hand-back دستور توقف: «گزارش کن، ذخیره کن، ایجنت بعدی».
+
+- **گزارش کامل + نقشهٔ ادامه (ایجنت بعدی از این‌جا شروع کند):** [[00 - Inbox/2026-07-08 OCTOPUS-P1-HEART-REPORT — قلب ساخته شد (chrono substrate)|OCTOPUS-P1-HEART-REPORT]] — §۵ = چک‌لیست مانده (اجرای Windows-side سوئیت، commit ‏owner-gated با لیست ۹ مسیر، ORGANISM-SPEC §Chrono، status پرامپت‌ها، PROJECT.md، validatorها، دو verdict باز).
+- **ساخته شد:** [[04 - Architect System/OCTOPUS-RECON-MAP|OCTOPUS-RECON-MAP]] (گیت Phase 0، نبود) · `_ops/chrono.py` (~۴۹۰ خط: HLC/phi/pacemaker/EffectorGate/scheduler=F19 بسته) · ledger ژنوم → **v0.4.5 LANGAR** (`age_tick`/`is_human` داخل hash؛ [[07 - Knowledge/genome-system/CHANGELOG|CHANGELOG]]) · سیم‌کشی additive در `_ops/organism.py` · دو فایل تست نو.
+- **سبز:** ۱۳/۱۳ فایل `_ops` (۱۱ قبلی + ۲ نو) + ۶/۶ سوئیت ژنوم — در shadow-vault سندباکس؛ اجرای Windows-side مانده.
+- ⚠️ **درس عملیاتی:** فایل‌های ویرایش‌شدهٔ همین‌جلسه روی mount سندباکس torn منجمد شدند (تأیید تجربی [[04 - Architect System/scripts/DOCTOR-BLUEPRINT-v1|DOCTOR-BLUEPRINT]] §4-residual) — تست با shadow-overlay اجرا شد؛ جزئیات در گزارش §۳.
+- **میز آری:** دو verdict در [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]] (re-ratify میرایی · اعداد PENDING-VERDICT) + commit + restart ارگانیسم برای سوارشدن ضربان.
+
+## جلسه سی‌ام 2026-07-08 (Cowork Opus) — سازمان‌دهیِ agent-ready کورپوسِ OCTOPUS/CHRONOS + audit + ingestِ درون‌vault
+
+آری در Cowork: «کورپوس را دسته‌بندی/مرتب کن، همه‌چیز قبل از implement برای ایجنتِ دیگر آماده باشد» + سپس اتصال به دایرکتوریِ پروژه. همهٔ کار additive/read-only؛ هیچ اثرِ live/پولی.
+
+- **audit + سازمان‌دهی:** کل کورپوس → درختِ ۱۶‌پوشه‌ای [[CHRONOS-FABLE-OS/README|CHRONOS-FABLE-OS]]؛ ۶ یافته بسته شد ([[CHRONOS-FABLE-OS/00_Executive/Audit_2026-07-08|Audit]]). ورودِ ایجنت: [[CHRONOS-FABLE-OS/HANDOFF|HANDOFF]] → [[CHRONOS-FABLE-OS/13_MasterPrompts/MasterSystemPrompt.v2|Master Prompt v2]].
+- **DOC-B حاضر بود** → MER-1 بسته؛ DDLِ واقعیِ LANGAR از §۸ → [[CHRONOS-FABLE-OS/10_Implementation/DataSchemas|DataSchemas]]. قانونِ `age_tick=is_human` نهایی (OQ-2 فقط ratify).
+- **ingestِ درون‌vault (additive):** [[07 - Knowledge/Time-Architecture/theory|Time-Architecture]] = DOC-01/03 → MER-6 نیمهٔ زمان بسته (E1..E5 در [[CHRONOS-FABLE-OS/09_Research/FalsifiableTests|FalsifiableTests]]) · `Octopus_Heart_Design_v1` → [[CHRONOS-FABLE-OS/08_Safety/HeartDesign_PulseCore|HeartDesign]]. MER-2 (DOC-A: فیلدهای vault + routing) باز ماند.
+- **گره به vault:** [[CHRONOS-FABLE-OS/PROJECT|PROJECT]] ساخته و از [[01 - Dashboard/Home|Home]] لینک شد. validatorها: **صفر خطای نو** (۳۵ frontmatter backlog + ۱ placeholder کهنه = همان §۱۱).
+- **میز آری (verdictها):** OQ-1 stasis · OQ-2 `age_tick=is_human` · OQ-4 نام · ratify کردنِ INV-17*/AP-14* · آپلودِ Survival-Stack(DOC-A) و lab-seed برای MER-2/MER-3 · **commitِ این تغییرات (owner-gated — پایین).**
+
+
 ## جلسه بیست‌ونهم 2026-07-08 ~۰۰:۳۰ (Claude Code Opus، master) — B3 فرمِ لید + موازیِ ۲-sub-agent (INC-2 git-race · Track D) — سوئیت ۱۱/۱۱ سبز
 
 اپراتور: «B3 برای تو، دو sub-agent موازی، تو merge/commit». گزارشِ کامل: [[00 - Inbox/2026-07-07 1935 OCTOPUS-STAGE0-REPORT|STAGE0-REPORT ضمیمهٔ ۱۱]]. قواعدِ موازی رعایت شد (مالکیتِ انحصاری · فقط primary commit · offline · ارگانیسمِ زنده restart نشد).

@@ -36,3 +36,11 @@ sources: TODO.md · OpenQuestions.md · Roadmap.md · ROTATION_CHECKLIST · READ
 - KB: پوشه‌های `04_Mining`، `06_Robotics`، `07_Marketing`، `17_Archive` عملاً خالی (صادقانه اعلام شده — تصمیم: بمانند یا حذف شوند؟).
 - `photos/` فقط ۱ عکس بدون شرح.
 - بعد از P7: هیچ roadmap جدیدی برای «بعد از تکمیل زنجیره» نوشته نشده — پروژه‌ی تحقیق به milestone رسیده ولی قدم بعد تعریف نشده.
+
+## ⚡ شکاف‌های DEEP-DOUBLECHECK (2026-07-08 — منبع: [[00 - Inbox/DEEP-DOUBLECHECK-2026-07-08]])
+- [ ] **۶۵٪ دادهٔ خامِ پاهای فعال transcription ندارد** (۳۱ از ۴۸ فایل). Accounting = ۶ xlsx/۰ نوت؛ Mining = ۱۶ PDF/۰ نوت؛ Crypto = ۸ PDF/۰ نوت.
+- [ ] **Track B هرگز روی ledger زنده نرفته** — ۰ رویدادِ MONEY_ATTRIBUTION در `ledger.jsonl`؛ `reconcile/` فقط README. حلقهٔ paper-dollar در تست سبز ولی در runtime فعال نیست.
+- [ ] **۷ worktree کهنه در `.claude/worktrees/*`** — drift risk. canonical = درختِ اصلی. verdict: prune؟
+- [ ] صفِ ingestionِ اولویت‌دار (۱۰تایی) در گزارشِ DEEP-DOUBLECHECK §E.
+- [ ] ⚑ برای معمار: ابزارِ audit باید pathcite را محدود کند (~۹۰۰ از ۱۰۴۰ dangling = regex-noise رشته‌های عددی).
+

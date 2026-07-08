@@ -3,13 +3,23 @@ type: log
 status: active
 tags: [changelog, genome-system]
 aliases: ["CHANGELOG - genome-system"]
-updated: 2026-07-07
+updated: 2026-07-08
 ---
 
 # CHANGELOG — genome-system
 
 همهٔ نسخه‌ها **propose-only** ساخته و تست شده‌اند. تاریخ: ۲۰۲۶-۰۷-۰۶.
 نقشه: [[07 - Knowledge/genome-system/INDEX|INDEX]] · قواعدِ ایجنت‌ها: [[07 - Knowledge/genome-system/HANDOFF|HANDOFF]].
+
+## v0.4.6 — فلشِ میرا heart-driven شد (‏`age_rule` نسخه‌بندی‌شده) (2026-07-08)
+- **چرا (verdict مالک آری 2026-07-08، re-ratify ِ TINV-3):** جلسه ۳۰ قانونِ `age_tick=is_human` را ratify کرد؛ امروز مالک صریحاً رأی داد «age_tick هم heart-driven شود» (ماشین خودش پیر می‌شود). این هستهٔ tamper-evident را تغییر می‌دهد → با **نسخه‌بندی** امن شد تا تاریخِ موجود نشکند.
+- **تغییر (additive + versioned):** `append(..., beat=False)` نو؛ فلش +۱ می‌رود با `is_human=True` **یا** `beat=True` (append ِ HEARTBEAT ِ pacemaker). هر رکوردِ نو دو فیلدِ hashed ِ `age_rule="heart"` و `beat` می‌گیرد. `verify()` نسخه‌بندی‌شد: رکوردهای legacy (بدونِ `age_rule`) طبق TINV-3ِ قدیم (فقط human) چک می‌شوند؛ رکوردهای `heart` با قاعدهٔ نو (human یا beat، دقیقاً +۱). پس تاریخِ پیش از v0.4.6 هنوز verify می‌شود. `_ops/chrono.py`: pacemaker هر `CHRONO_AGE_PER_N_BEATS` (پیش‌فرض ۱۴۴۰ ≈ روزانه، verdict جلسه ۳۲) یک بار فلش را می‌برد (env-tunable؛ ضدِ تورمِ زنجیره).
+- **راستی‌آزمایی:** الگوریتمِ `append`/`verify` مستقل در سندباکس (۱۵ چک: beat فلش را می‌برد · legacy طبق TINV-3 · جهش/برگشت/tamper = مرگ) سبز؛ سوئیتِ کاملِ **Windows-side** (run_all ۱۳ + ژنوم ۶) دستِ مالک. تست: `_ops/tests/test_chrono_langar.py` +۳ چکِ نو (beat، verify نسخه‌بندی‌شده، جهشِ beat = مرگ) → ۹ چک.
+
+## v0.4.5 — گسترش ledger به شکل LANGAR: ‏`age_tick` + ‏`is_human` (2026-07-08)
+- **چرا (Octopus Phase 1 · P-Chrono-4، طرح DOC-B §8 + DataSchemas.sql):** فلشِ میرای زمان (TINV-3) به ستون درجه‌یک در همین زنجیره نیاز داشت — قانون «extend, don't rival»: جدول/دفتر دوم ساخته نشد.
+- **تغییر (additive):** هر رکورد از این پس `age_tick` و `is_human` دارد و هر دو داخل بدنهٔ hash‌شده‌اند → بازنویسی تاریخِ سن = شکست زنجیره (مرگ منطقی). `age_tick` فقط با `append(..., is_human=True)` و دقیقاً ‏+1 جلو می‌رود؛ appendهای ماشینی سن را حمل می‌کنند ولی نمی‌برند. `verify()` علاوه بر hash، یکنواختی فلش را هم چک می‌کند. رکوردهای legacy (بدون این فیلدها) همچنان verify می‌شوند (کلیدها شرطی hash می‌شوند). API نو: `last_age_tick()` و `last_hash()` (checkpoint سبک per-beat).
+- تست: `_ops/tests/test_chrono_langar.py` (۶ چک: فلش فقط انسانی، برگشت/پیریِ خودسرانه = مرگ منطقی، legacy سالم، رگرسیون پل ledger_note) + هر ۶ سوئیت ژنوم دوباره سبز (از جمله review_test همزمانی و integration).
 
 ## v0.4.4 — گسترش append-only ‏EVENT_TYPES: ‏`MONEY_ATTRIBUTION` (2026-07-07)
 - **چرا (verdict V2 آری، ‏STAGE-0 + دستور BUILD):** لایهٔ پول (attribution/reconcile — طرح MONEY-ATTRIBUTION v1) به رویداد درجه‌یک در ledger نیاز دارد؛ گزینهٔ NOTE/subtype رد شد.

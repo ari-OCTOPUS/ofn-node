@@ -40,10 +40,78 @@ sources:
 | `debate/debate_loop.py` | ‏limit cycle خلاق×معمار ‏≤۳ دور؛ هر call گیت‌خورده؛ هر دور ‏NOTE(EXPERIENCE)؛ بازمانده → ‏`SURVIVORS-QUEUE.md` + ‏PROPOSAL هفت‌فیلدی برای دکتر ژنوم؛ ‏stub آفلاین $0 پیش‌فرض |
 | `organism.py` | وحدت‌بخش: kill-check → تلمتری/تطبیق → epoch در سررسید → روزانه fitness/σ + ‏NOTE(ORGANISM_DAILY) → heartbeat ساعتی → state + HTTP ‏127.0.0.1:8771؛ ‏bind انحصاری = قفل تک‌نمونه |
 | `RUN-ORGANISM.bat` | لانچر ۳۰روزه (UTF-8، حلقهٔ restart، CRLF)؛ kill تمیز = فایل `_ops/STOP-ORGANISM` |
-| `tests/` | سوئیت ایزوله (vault موقت در TEMP): ‏`python -X utf8 _ops/tests/run_all.py` — ۶ فایل، ۳۲ چک |
+| `tests/` | سوئیت ایزوله (vault موقت در TEMP): ‏`python -X utf8 _ops/tests/run_all.py` — ۱۳ فایل (شامل chrono heart/langar) |
 | `04 - Architect System/prompts/` | سه role-prompt: ‏metabolic-governor-v0.1 · debate-muse · debate-architect |
 
-## ۳) ناوردی‌ها (نقض = شکست/توقف)
+## ۲.۵) لایهٔ Chrono (Phase 1: THE HEART) — `_ops/chrono.py`
+
+بسترِ زمان/ضربان که روی سیستم سوار شد (additive؛ منطق کسب‌وکار دست‌نخورده — DOC-B §۰). منابع: `CHRONOS-FABLE-OS/10_Implementation/DataSchemas.sql` + `OCTOPUS_CHRONO_ARCHITECTURE §۸/۹/۱۱` + `HeartDesign_PulseCore`. env-tunable؛ $0 آفلاین.
+
+| جزء | کار |
+|---|---|
+| **Pacemaker** | تیک ~۶۰s (`CHRONO_PERIOD_S`): ack→phi→اکنونِ مشترک (`hlc_max`)→broadcast→experience+wear→scheduler بر حسب نبض (**F19 بسته شد**)→heartbeat row + checkpoint سبک. تنها writerِ دیسک (تک-writer). |
+| **HLC** | ساعتِ منطقیِ هر پا (CockroachDB algo)؛ هر رویداد مهرِ HLC می‌گیرد. **TINV-5:** پا هرگز wall-clock نمی‌خواند. |
+| **phi-accrual** | liveness هر پا: alive→suspected→failed (`CHRONO_PHI_SUSPECT/DEAD`)؛ قلاب `doctor.restart_from_known_good(leg, db)` برای Phase 2. |
+| **LANGAR arrow `age_tick`** | روی ledger ژنوم (v0.4.5؛ جدولِ رقیب نه). **TINV-3 (as-built):** ‏+۱ فقط با `is_human=1`؛ برگشت = شکست زنجیره = مرگ منطقی. ✅ **v0.4.6 (verdict مالک 2026-07-08): heart-driven پیاده شد** — ‏+۱ با `is_human=1` **یا** heartbeat (`beat=1`، هر `CHRONO_AGE_PER_N_BEATS`=۱۴۴۰، روزانه)؛ versioned با `age_rule` تا legacy (TINV-3ِ قدیم) verify شود. تأییدِ Windows-side مانده — [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]]. |
+| **دو-ساعت** | `experience_rate`=events/Δt_pacemaker، کران‌دار [0,`CHRONO_XP_RATE_CAP`]؛ `metabolic_age`=فرسایشِ ضربان‌محورِ per-leg (`CHRONO_WEAR_BASE`). |
+| **EffectorGate** | **TINV-7:** هیچ اثرِ برگشت‌ناپذیر (`send/publish/sync/pay`) بدونِ LANGAR-append قبلی settle نمی‌شود؛ تک‌گلوگاه؛ kill/FREEZE = force-close. |
+| **state** | `_ops/state/chrono.db` (SQLite/WAL) — runtime؛ در اولین beat ساخته می‌شود؛ کاندید gitignore (open-decision #8). |
+
+سوار در `organism.py` با `start_pacemaker_thread()` (additive، fail-soft — شکست chrono متابولیسم را نمی‌کشد)؛ فقط پس از restartِ مالک سوار می‌شود (INC-1). تست: `test_chrono_heartbeat.py` (۹ چک) + `test_chrono_langar.py` (۶ چک).
+
+## ۲.۶) لایهٔ Legs / Worker (Phase 4) — `_ops/legs/`
+
+چارچوبِ پاهای پروژه (workerهای ایزوله). ایزولاسیون طبقِ `CHRONOS-FABLE-OS/08_Safety/IsolationModel.md` (INV-17) و `11_Agents/AgentInstructions.md` (Worker Guard). additive؛ $0 آفلاین.
+
+| جزء | کار |
+|---|---|
+| **`TaskPacket`** | بستهٔ حداقلیِ هر پا: read-allowlist (فقط IDهای مشخص، هرگز wildcard)، toolsِ scoped، budget سخت، `spawn=0`، `secrets=[]` (همیشه خالی). verify ساختاری در `__init__` (fail-closed). |
+| **`Leg`** (پایه) | workerِ ایزوله: بارگذاریِ packet، خواندنِ بریفِ allowlistedش، تولیدِ `Proposal` (HLC-stamped)، عبور از `organ_gate.reserve/settle`. **propose-only:** هیچ متدِ send/publish/pay. `money_link` (INV-14): organِ حل‌نشده = `incubating`. |
+| **`Proposal`** | تنها خروجیِ مجازِ پا (D3 structural output confinement): proposal_id، leg_id، kind، payload، hlc، hash (provenance D5). approval = eventِ جداگانهٔ انسانی. |
+| **`LeadLeg`** (L-1) | پا Lead-نقاشی: `intake` → `draft_quote` (attribution_id چاپ‌شده) → `claim` (CLAIMED نه CONFIRMED)؛ CONFIRMED کارِ `reconcile` است. هر تماسِ مشتری human-gated (از کانالِ P3). |
+
+تست: `test_leg.py` (۲۴ چک — ایزولاسیونِ L-0 + دلارِ paperِ L-1). **گیتِ P4:** اولین دلارِ paper با attributionِ درست CONFIRMED شد (`t_paper_dollar_full_cycle`: PROPOSAL→CLAIMED→CONFIRMED→ATTRIBUTED).
+
+⚑ برای معمار: `Lead-نقاشی` هنوز در `budgets.yaml` به‌عنوان organ ثبت نشده → پا `incubating` می‌ماند تا اضافه شود (INV-14؛ SoT، human-gated). اتصالِ Leg به `ChronoBus.register_leg` و intake از P3 channel در runtime = فازِ بعد.
+
+## ۲.۷) لایهٔ Doctor / Evolutionary (Phase 2) — `_ops/doctor/`
+
+انگلِ تکاملیِ روی سرِ ارگانیسم (DOCTOR-BLUEPRINT-v1.md §۴ پیاده شد). هر N ضربان از Pacemaker اجرا می‌شود، گلوگاه پیدا می‌کند، RFC تولید، sandbox+Critic، و برای merge فقط `submit_for_approval` را صدا می‌زند (P3 کارتِ [merge]/[reject]). **هیچ merge بدونِ human-append.** نرخِ تکامل = نرخِ حضورِ انسان. منابع: `CHRONOS-FABLE-OS/11_Agents/AgentInstructions.md` AGENT-08 + `08_Safety/HeartDesign_PulseCore.md` (reward-integrity، λ_persist منفی). additive؛ $0 آفلاین.
+
+| جزء | کار |
+|---|---|
+| **`stable_read(path)`** (D-1) | دروازهٔ خواندنِ پایدار (جایگزینِ heuristicِ `VERIFY_RULES`). verdict ∈ {stable, stale, corrupt, needs_source_verify, missing}. ضدِ torn-snapshot FP: U+FFFD → needs_source_verify نه false-corrupt. |
+| **`mine(trace)`** (D-2) | گلوگاه از heartbeat/ledger/state. reward-integrity: بر اساسِ اختلال (errors/freeze/σ)، نه activity/uptime (λ_persist=-1.0). |
+| **`propose_rfc(bottleneck, fix, lift)`** (D-3) | RFCِ ساختاریافته → knowledge/internal (proposal-event، نه تغییرِ کد). |
+| **`run_sandbox(rfc)` + Critic** (D-4) | اعمال در sandbox موقت + اجرای سوئیت + بازبینیِ adversarial. ایزولاسیون: production لمس‌نشده، sandbox پاک می‌شود. |
+| **`submit_for_approval(rfc)`** (D-5) | P3 کارتِ [merge پشتِ flag]/[reject]. بدونِ channel = ابدی pending. |
+| **`restart_from_known_good(leg, db)`** (D-6) | قلابِ Pacemaker از P1 (خطِ ۴۸۳): پای failed → alive. |
+| **`run_cycle(beat, trace)`** | حلقهٔ کامل: mine → rfc → sandbox → submit. هر N ضربان. |
+
+تست: `test_doctor.py` (۲۷ چک). reward-integrity تست شد (uptime → reject). **گیتِ Phase 2:** ≥۱ RFC از traceِ seed تولید، sandbox-tested، و بدونِ human-append به production نمی‌رسد.
+
+⚑ برای معمار: اتصالِ `run_cycle` به Pacemaker (هر N ضربان) + جایگزینیِ واقعیِ `VERIFY_RULES` در `dashboard_doctor.py` با `stable_read` = فازِ بعد (مهاجرتِ جداگانه).
+
+## ۲.۸) لایهٔ Survival / 24-7 (Phase 5) — `_ops/watchdog.py` + `germline.py` + `unified_bus.py` + `checkpoint.py` + `smoke_24h.py`
+
+زنده‌ماندنِ ۲۴/۷ + همگرایی به یک ارگانیسمِ واحد. LifeDoctrine §۴: «You fight to keep Octopus alive. Octopus never fights to stay alive» — watchdog = ابزارِ مالک، نه self-persistenceِ سیستم. additive؛ $0 آفلاین؛ stdlib-only.
+
+| جزء | کار |
+|---|---|
+| **`watchdog.py`** (S-1) | `should_revive(port, stops, state)` → revive فقط اگر port مرده ∧ no STOP ∧ prior run. **yield بی‌قید به STOP** (persistence نه resistance). first-birth = owner-only (INC-1). |
+| **`germline.py`** (S-2/S-5) | `compute_lag_hours` + `lag_severity` (warn>2h/ERROR>26h/CRIT>72h) + `run_with_retry` (backoff، لاگ نه بی‌صدا). germline_lag در ORGANISM-STATE. |
+| **`unified_bus.py`** (S-3) | پلِ همگراییِ additive: `publish` → genome ledger (LANGAR) + chrono checkpoint. یک نویسنده، دو نما (UnifiedArchitecture L0). **non-destructive:** مسیرهای قدیمی دست‌نخورده. |
+| **`checkpoint.py`** (S-4) | `checkpoint(beat,hlc,hash)` در chrono.db + `replay`/`replay_state_at` از ledger. بازسازی <۵s (DoD). |
+| **`smoke_24h.py`** (S-6) | چک‌لیست: state-fresh/heartbeat/no-freeze/ledger-verify/zero-spend/epoch-log. اجرای دستی مالک. |
+
+تست: `test_phase5.py` (۲۴ چک). kill-switch مطلق تست شد (STOP → yield). germline MAX_LAG تست شد. non-destructive تست شد (مسیر قدیمی هنوز کار می‌کند). بازسازی <۵s اثبات شد.
+
+⚑ **برای مالک (فقط-مالک، ⚑):**
+1. **Scheduled Task / autostart:** ساختِ Task Scheduler برای `organism-watchdog.ps1` (هر ۵ دقیقه) + `germline-hourly.ps1` (ساعتی). این کارِ مالک است، نه ایجنت.
+2. **off-siteِ رمزنگاری‌شده:** credential کلاود در `.env` مالک — هرگز در repo. runbook جدا.
+3. **اجرای ۲۴ساعته:** `python _ops/organism.py` باید via Scheduled Task/at-logon اجرا شود، نه شلِ ایجنت.
+
+
 
 - **I1 append-only:** ‏ledger، ‏SURVIVORS-QUEUE، ‏heartbeat، لاگ‌ها — هرگز بازنویسی/حذف.
 - **I2 تک-enforcer:** ‏budget_gate تنها نقطهٔ enforce؛ این لایه فقط MEASURE/propose؛ ‏organ_gate می‌پیچد، جایگزین نمی‌کند.
@@ -79,6 +147,21 @@ sources:
 | `/api/replication` | ‏`replication-latest.json` — ‏σ_effective، zone، پیشنهادهای SPAWN |
 
 الگوی پنل: [[00 - Inbox/2026-07-06 PANEL-SPEC-ادمین-و-شرکا|PANEL-SPEC]] + ‏`/api/genomes` داشبورد 8770.
+
+**فاز ۳ سطحِ human-append تلگرام (P3، additive — پنلِ محلی ۸۷۹۰ همچنان fallback):** `TelegramApprovalChannel` در `_ops/budget/approval_channel.py` — stdlib-only (`urllib`)، long-pollingِ $0-idle، owner-allowlist (`TELEGRAM_OWNER_CHAT_ID`)، quarantine (هر ورودی = DATA نه دستور). توکنِ بات فقط از env (`TELEGRAM_BOT_TOKEN`)؛ نبودِ آن = no-opِ امن (fail-closed). هفت UI:
+
+| دستور | کار |
+|---|---|
+| `/status` | فقط‌خواندنی: خرج ماه/امروز، σ، تعارض‌ها، germline_lag، halted/frozen از `_ops/state/*.json` |
+| `/lead name \| AUD \| cell` | mint `LEAD-YYYYMMDD-nnn` (PROPOSAL فقط) از `attribution.propose` |
+| `/start_exp1..3` | تقویمِ ۱۴روزه را تولید و قفل می‌کند (exp2 با `random.seed` ثابت) |
+| `/reveal exp<N>` | فقط بعد از end_date + verifyِ sha256 — prediction مهر-و-موم هرگز زودتر decode نمی‌شود |
+| کارتِ تأیید | proposal + مبلغ + verdict + [تأیید✅][رد❌][بعداً⏳] — تأیید = `on_human_judgment` (human-append) → `EffectorGate.settle` (تنها مسیرِ TINV-7) |
+| کارتِ RFC | `[merge پشتِ flag ✅][رد ❌]` — merge نیازِ human-append |
+| `/stop` | فایلِ `_ops/STOP-ORGANISM` را می‌نویسد (authoritative؛ بات فقط trigger) |
+| `/reentry` | Re-entry Packet از کارت‌های معلق + اثرهای freeze‌شده (پس از gapِ آفلاین) |
+
+تست‌ها: `_ops/tests/test_telegram_channel.py` (۵۰+ مورد؛ $0 آفلاین با `http_get`/`http_post` فیک). رجیستری در `run_all.py`.
 
 ## ۶) اجرا (مرجع سریع)
 

@@ -1,8 +1,10 @@
 ---
 title: INVENTORY — 07 - Knowledge
 created: 2026-07-05
+updated: 2026-07-08
 scope: فقط شاخه‌ی 07 - Knowledge (ریشه‌ی backup در دسترس نبود)
 method: read-only crawl
+refresh: "2026-07-08: full-tree inventory in DEEP-DOUBLECHECK-2026-07-08 (12,378 files; این فایل فقط 07-Knowledge را نگه می‌دارد)"
 ---
 
 # 📋 INVENTORY — 07 - Knowledge

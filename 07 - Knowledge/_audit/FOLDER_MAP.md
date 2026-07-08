@@ -1,7 +1,9 @@
 ---
 title: FOLDER_MAP — 07 - Knowledge
 created: 2026-07-05
+updated: 2026-07-08
 scope: فقط 07 - Knowledge
+refresh: "2026-07-08: full-tree top-level map در DEEP-DOUBLECHECK-2026-07-08 §A (10 top-level dirs؛ این فایل فقط 07-Knowledge folders را نگه می‌دارد)"
 ---
 
 # 🗺️ FOLDER_MAP — نقشه‌ی پوشه‌ها

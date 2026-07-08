@@ -41,6 +41,13 @@ import governor_epoch  # noqa: E402
 import fitness         # noqa: E402
 import replication     # noqa: E402
 
+sys.path.insert(0, str(_HERE))
+try:
+    import chrono      # noqa: E402 — Phase 1 (P-Chrono-1): بسترِ زمان/ضربان
+except Exception as _e:  # noqa: BLE001 — chrono اختیاریِ additive است؛ متابولیسم نمی‌میرد
+    chrono = None
+    print(f"organism: chrono لود نشد ({_e}) — بدون ضربان ادامه می‌دهیم")
+
 PORT = 8771
 TICK_SECONDS = 300           # تیک سبک ۵ دقیقه‌ای؛ epoch واقعی آلوستاتیک است
 STATE_FILE = opslib.STATE_DIR / "ORGANISM-STATE.json"
@@ -132,6 +139,11 @@ def main() -> int:
 
     print(f"organism: زنده روی http://127.0.0.1:{port} — kill تمیز: فایل _ops/STOP-ORGANISM")
     opslib.heartbeat(f"organism=START port={port}")
+    if chrono is not None:
+        try:   # P-Chrono-1: pacemaker به‌عنوان background task (additive، fail-soft)
+            chrono.start_pacemaker_thread()
+        except Exception as e:  # noqa: BLE001
+            opslib.alert([f"chrono pacemaker start failed: {e}"])
     next_epoch_at = 0.0
     last_daily = ""
     last_heartbeat = 0.0
@@ -178,9 +190,18 @@ def main() -> int:
                     f"مشکوک متر صفر={snap['suspect_zero_total']} · "
                     f"{'CONFLICT×' + str(len(conflicts)) if conflicts else 'سالم'}")
                 last_heartbeat = now
+            pulse = {}
+            if chrono is not None:
+                try:   # نبض روی داشبورد (فقط‌خواندنی؛ fail-soft)
+                    st = chrono.status()
+                    if st:
+                        pulse = {"chrono": st}
+                except Exception:  # noqa: BLE001
+                    pulse = {}
             _write_state({"month": snap["month"], "today": snap["today"],
                           "suspect_zero_total": snap["suspect_zero_total"],
-                          "conflicts": conflicts, **germ, **epoch_info, **daily})
+                          "conflicts": conflicts, **germ, **epoch_info, **daily,
+                          **pulse})
         except KeyboardInterrupt:
             opslib.heartbeat("organism=STOP (KeyboardInterrupt)")
             return 0

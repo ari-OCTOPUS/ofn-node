@@ -1,7 +1,9 @@
 ---
 title: KNOWLEDGE_MAP — 07 - Knowledge
 created: 2026-07-05
+updated: 2026-07-08
 method: تحلیل [[wikilink]] + ارجاع‌های مسیری + هم‌جواری موضوعی روی ۷۹ فایل MD
+refresh: "2026-07-08: full-tree reference graph (659 md/jsonl scanned, 2340 targets) در DEEP-DOUBLECHECK-2026-07-08 §B/C؛ این فایل فقط 07-Knowledge graph را نگه می‌دارد"
 ---
 
 # 🕸️ KNOWLEDGE_MAP — نقشه‌ی دانش

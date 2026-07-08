@@ -8,7 +8,7 @@ risk_level: medium
 autonomy_level: read-only
 tags: [lead-gen, painting, sydney, business]
 created: 2026-07-03
-updated: 2026-07-06
+updated: 2026-07-08
 ---
 
 # پروژه: Lead-نقاشی
@@ -35,6 +35,7 @@ updated: 2026-07-06
 ## Active workstreams
 
 1. آزمایش #۱: کشف segment — کدام بخش (residential/strata/builder) بیشترین ارزش per lead می‌دهد. 2. احیای brushline بعد از rotation. 3. تعمیر symlink دیتا.
+4. **🦵 پا (Worker) ساخته شد (Phase 4 · L-0/L-1، 2026-07-08):** `_ops/legs/lead_leg.py` — `LeadLeg(Leg)` حلقهٔ paper را می‌راند: `intake` → `draft_quote` (با attribution_id) → `claim` (CLAIMED نه CONFIRMED) → `reconcile` (CSV اپراتور). **propose-only:** پا فقط draft تولید می‌کند؛ هر تماس/ارسال/پول human-gated (از کانالِ P3 تلگرام). **گیتِ P4 عبور شد:** اولین دلارِ paper با attributionِ درست CONFIRMED شد (تستِ `t_paper_dollar_full_cycle`). ایزولاسیون طبقِ INV-17: read-allowlist فقط به نوت‌های این پروژه، `secrets=[]`، `spawn=0`. **فعلاً incubating** (organ هنوز در `budgets.yaml` نیست — ⚑ برای معمار).
 
 ## KPIs
 

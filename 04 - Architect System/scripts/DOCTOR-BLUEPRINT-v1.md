@@ -1,11 +1,12 @@
 ---
 type: design
-status: draft
+status: implemented (Phase 2, 2026-07-08)
 version: v1
 tags: [scripts, doctor, architecture, stale-view]
 created: 2026-07-05
-updated: 2026-07-05
+updated: 2026-07-08
 related: "[[EXPERIENCE-LEDGER]] · [[LIVING-BRAIN-BLUEPRINT]] · [[HANDOFF]] · [[AGENT_REGISTRY]]"
+implemented_in: "_ops/doctor/doctor.py (stable_read + Doctor class) · _ops/tests/test_doctor.py (27 tests)"
 ---
 
 # بلوپرینت «دکتر مغز» v1 — نقشهٔ معماری + حل ریشه‌ای stale-view
