@@ -77,7 +77,62 @@ walls (نقض=ردِ کار): additive-only · propose-only · fail-closed · hu
 
 ---
 
-# GROUP W — اتصالِ عصب‌کشی (اولویتِ اول؛ «مغز روشن = کلِ بدن وصل») · مرجع: [[../2026-07-09 OCTOPUS-WIRING-MAP — nervous system + boot connection|WIRING-MAP]]
+# ⭐ P-WIRE-ALL — پرامپتِ جامع (کشف → اتصال → profile → self-test)
+> یک directiveِ واحد که خودش **همهٔ اتصالاتِ باقی‌مانده را کشف، وصل، و اثبات می‌کند** — جایگزینِ dripِ W3/W5/W6/W7/W4. برای وقتی که می‌خواهی کلِ کارِ اتصال را یک‌جا به کدنویس بسپاری.
+
+```
+هدف: هر ماژولِ ساخته‌شدهٔ هنوز-غیرمتصل را کشف کن و به مغزِ زنده (organism tick / UnifiedBus)
+وصل کن، پشتِ profile/flag، تا بوتِ OCTOPUS_PROFILE=paper-full کلِ بدنِ امن را فعال کند — و با
+یک connection-self-test اثبات کن هیچ ماژولی جا نمانده. additive · propose-only مطلق.
+
+═ پیش‌پرواز (الزامی — یک context‌ِ stale/truncated قبلاً P0 کاذبِ «core بریده» داد):
+  1) git -C F:\backup rev-parse --short HEAD            # باید a60ec67 یا جدیدتر، نه 6a12197
+  2) python -c "print(sum(1 for _ in open(r'F:\backup\_ops\wiring.py',encoding='utf-8')))"  # ~532 نه 127
+  3) python -X utf8 _ops/tests/run_all.py               # باید 46/46 سبز
+  اگر هرکدام نخواند → متوقف شو و بگو «context stale/truncated». core سالم است؛ restore نزن؛ checkout را تازه کن.
+
+═ walls (نقض = ردِ کار):
+  - additive؛ اگر فایلی را بریده خواندی = مشکلِ محیطِ توست نه دیسک → متوقف شو، هرگز core را بازنویسی نکن.
+  - propose-only مطلق: صفر effectorِ خودکار؛ legs/box/doctor فقط proposal؛ settle فقط از approval_channel/EffectorGate (دست‌نخورده).
+  - money/live جدا و capability-gated: هیچ profile/flag مسیرِ پول را باز نمی‌کند (capability_gate.is_open و money_gate بسته می‌مانند؛ LIVE_ENABLED/تاریخِ live دست‌نخورده).
+  - بدونِ ledger/جدولِ موازی (LANGAR = همان genome ledger). secret فقط env. Project-F صفر PII/رسانه بیرونِ پوشه. afferent صفر PII (فقط لیبلِ انتزاعی).
+  - box isolation: هیچ import از production در box/ — حتی در کامنت نامِ opslib/chrono/*_gate/EffectorGate/genome نیاور (تستِ no-production یک substring-scan است).
+  - هر اتصال زیرِ گاردِ not _protective_skip، kill-switch/STOP اول، fail-soft (try→opslib.alert، §۴)، flag/profile خاموش → no-op.
+
+═ فاز ۰ — کشف: از organism.main() reachability را ترسیم کن. هر ماژولِ _ops/*.py که ساخته+تست شده
+  ولی از بوت/tick قابلِ‌رسیدن نیست = shelfware. مرجع: «04.../2026-07-09 OCTOPUS-WIRING-MAP — nervous
+  system + boot connection.md» §۵ (۲۱ shelfware) — ولی به آن اکتفا نکن؛ خودت grep بزن (نامِ ماژول در
+  organism/wiring/live_loop هست؟ فقط در test؟). لیستِ shelfwareِ باقی‌مانده (پس از W1/W2/N1/N2/L1 که
+  وصل شده‌اند) را چاپ کن. money_gate را وصل نکن (عمداً deferred تا live).
+
+═ فاز ۱ — اتصال (هرکدام یک commitِ path-scopedِ جدا):
+  - germline: بلوکِ inlineِ germline در organism tick را با wiring.enrich_state_with_germline(state) جایگزین کن (CRIT-tier + retry).
+  - checkpoint: unified_bus._checkpoint به checkpoint.checkpoint() delegate کند (حذفِ DDLِ تکراری)، یا per-beat checkpointِ سبک در حلقه.
+  - spectral: spectral.spectral_mine(trace) را در Doctor.run_cycle/_gather_trace به‌عنوان advisory اضافه کن.
+  - هر ماژولِ نویافته: مشابه، پشتِ profile/flag، propose-only.
+  هرکدام: تستِ رفتاریِ واقعی (با آبجکتِ واقعی، اثبات کن که fire می‌شود — نه فقط ساختاری/توخالی) + flag-off no-op + kill-switch.
+
+═ فاز ۲ — profileِ بوت: OCTOPUS_PROFILE ∈ {bare, paper-full, live} در wiring. paper-full (پیش‌فرضِ نو
+  وقتی متغیر ست نشده) همهٔ wiringِ امنِ propose-only را ON کند (neural/consolidation/school/sensory/
+  doctor/evolution/box/unified/lead-incubating/germline/checkpoint/spectral). bare = همه off. flagهای
+  مجزای OCTOPUS_WIRE_* اگر صریحاً ست شده باشند override. money/live مطلقاً جدا. تستِ سخت: هیچ profile
+  capability_gate/money را باز نمی‌کند.
+
+═ فاز ۳ — connection self-test (اثباتِ نهایی): تستی که organism را در paper-full با beatهای تزریقی
+  (بدونِ sleepِ واقعی) چند دور می‌راند و assert می‌کند هر ماژول ≥۱ بار fire کرد: sensory→school ·
+  neural · consolidation · doctor(+evolution+box) · leg(proposal) · germline · checkpoint · spectral ·
+  advisory روی bus · unified bus events>0. اگر یکی fire نکرد → fail با نامِ همان ماژول (تشخیصِ اتصالِ
+  گمشده). در bare → assert فقط متابولیک fire می‌کند. در run_all ثبت شود.
+
+═ DoD: فاز۰ لیست داد؛ هر shelfware وصل یا صریحاً deferred؛ هر اتصال تستِ رفتاریِ سبز + flag-off no-op +
+  kill-switch؛ profile: paper-full همه‌ی امن‌ها را روشن، هیچ profile پول را باز نمی‌کند (تستِ سخت)؛
+  connection-self-test سبز = بوتِ مغز کلِ بدنِ امن را fire می‌کند؛ کلِ run_all سبز (خام paste کن)؛
+  هر commit path-scoped با hash؛ Gap-report (چه وصل شد، چه معوق ماند، هر ⚑ برای معمار).
+```
+
+---
+
+# GROUP W — اتصالِ عصب‌کشی (drip؛ اگر تک‌به‌تک ترجیح دادی) · مرجع: [[../2026-07-09 OCTOPUS-WIRING-MAP — nervous system + boot connection|WIRING-MAP]]
 
 ## P-W1 · [بحرانی] نخاع: organism ↔ LiveLoop/UnifiedBus
 ```
