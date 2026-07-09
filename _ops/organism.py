@@ -281,6 +281,11 @@ def main() -> int:
                     "suspects": snap["suspect_zero_total"],
                     "sigma": rep["sigma"]["sigma_effective"],
                     "conflicts": len(conflicts)}, actor="organism")
+                # A1 (Phase 3): reconcile در بلوکِ روزانه، پشتِ flag. $0، بدون spend.
+                try:
+                    _w.reconcile_beat(day=opslib.today())
+                except Exception:  # noqa: BLE001 — §۴
+                    opslib.alert(["reconcile_beat error (non-fatal)"])
             # ── W-2: Doctor beat (غیرضروری → زیرِ همان گیت؛ STOP/protective مقدم)
             _doctor_result = None
             if not _protective_skip and _doctor_inst is not None and _cstat is not None:

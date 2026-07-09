@@ -304,6 +304,8 @@ def wire_summary() -> dict:
         "wire_barbell": flag("OCTOPUS_WIRE_BARBELL"),    # barbell allocation
         "wire_debate": flag("OCTOPUS_WIRE_DEBATE"),      # debate loop
         "wire_scheduler": flag("OCTOPUS_WIRE_SCHEDULER"), # B6: F19 scheduler
+        "wire_reconcile": flag("OCTOPUS_WIRE_RECONCILE"), # A1: Track-B reconcile
+        "wire_fitness": flag("OCTOPUS_WIRE_FITNESS"),    # A2: outbox/EXPERIENCE
         "profile": resolve_profile(),                    # P-W3: boot profile
         "doctor_every_n": int(os.environ.get("CHRONO_DOCTOR_EVERY_N_BEATS", "1440")),
         "consolidation_every_n": int(os.environ.get("CHRONO_CONSOLIDATION_EVERY_N_BEATS", "720")),
@@ -428,6 +430,71 @@ def scheduler_seed_doctor_rfc(doctor, pacemaker):
                                    leg_id=None, in_beats=10)
     except Exception:  # noqa: BLE001 — fail-soft
         pass
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# A1 · reconcile_beat — Track-B money reconciliation (پشتِ flag، propose-only)
+# ════════════════════════════════════════════════════════════════════════════════
+
+def reconcile_beat(reconcile_dir=None, day: str = "") -> dict | None:
+    """A1: reconcile.run() را در حلقهٔ روزانه صدا بزن. پشتِ OCTOPUS_WIRE_RECONCILE.
+    kill-switch اول. هرگز budget_gate.reserve صدا نزن (I2). $0، بدون spend.
+    reconcile.run خودش idempotency دارد (seen set + CONFIRMED_STATES check).
+    خروجی: گزارشِ reconcile یا None."""
+    if not flag("OCTOPUS_WIRE_RECONCILE"):
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    try:
+        import reconcile
+        report = reconcile.run(reconcile_dir=reconcile_dir, write=True)
+        opslib.ledger_note("RECONCILE_BEAT", {
+            "confirmed": len(report.get("confirmed", [])),
+            "unmatched": len(report.get("unmatched", [])),
+            "double_claims": len(report.get("double_claims", [])),
+            "rows_read": report.get("rows_read", 0),
+            "day": day,
+        }, actor="reconcile-beat")
+        return report
+    except Exception as e:  # noqa: BLE001 — §۴
+        opslib.alert([f"wiring: reconcile_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# A2 · append_outbox + EXPERIENCE — fitness feed (پشتِ flag)
+# ════════════════════════════════════════════════════════════════════════════════
+
+def append_outbox(business: str, status: str, channel: str = "",
+                  to_ref: str = "", text: str = "", detail: str = "") -> bool:
+    """A2: یک ردیفِ sent/rejected به outbox.jsonl append کن + EXPERIENCE به ledger.
+    پشتِ OCTOPUS_WIRE_FITNESS. measure-only (فیتنس تا ۲۸ روز authoritative=False می‌ماند).
+    $0، بدون spend. kill-switch اول."""
+    if not flag("OCTOPUS_WIRE_FITNESS"):
+        return False
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return False
+    try:
+        import json
+        import time as _time
+        outbox_path = opslib.BRAIN_DIR / "logs" / "outbox.jsonl"
+        outbox_path.parent.mkdir(parents=True, exist_ok=True)
+        entry = {
+            "ts": _time.time(),
+            "business": business, "status": status, "channel": channel,
+            "to_ref": to_ref, "text": text[:200], "detail": detail[:500],
+        }
+        with open(outbox_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        # EXPERIENCE event در ledger (measure-only)
+        opslib.ledger_note("EXPERIENCE", {
+            "business": business, "status": status,
+            "channel": channel, "to_ref": to_ref,
+        }, actor="outbox-append")
+        return True
+    except Exception as e:  # noqa: BLE001 — §۴
+        opslib.alert([f"wiring: append_outbox خطا: {type(e).__name__}: {e}"])
+        return False
 
 
 def make_neural_stack():
