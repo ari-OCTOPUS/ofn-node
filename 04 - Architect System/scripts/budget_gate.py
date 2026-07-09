@@ -12,8 +12,9 @@ STATE = pathlib.Path(os.environ.get("BUDGET_STATE", r"F:\backup\_ops\budget\budg
 LOCK  = pathlib.Path(str(STATE) + ".lock")
 # ─── v2 (A1 · SoT-read): سقف‌ها از budgets.yaml خوانده می‌شوند؛ این ثابت‌ها فقط «کفِ fail-closed»اند.
 # هرگز از این‌ها شل‌تر نمی‌شویم (strictest = min(yaml, hardcode))؛ yaml ناخوانا = همین‌ها.
-# اعداد: verdict V1 آری 2026-07-07 (روز 2 · ماه 30 · فاجعه 500 AUD).
-CEIL_DAY_AUD_HARD, CEIL_MONTH_AUD_HARD, DISASTER_AUD_HARD = 2.0, 30.0, 500.0
+# اعداد: verdict آری 2026-07-09 (روز 2 · ماه 200 · فاجعه 500 AUD). قبلاً ماه=30 (verdict 2026-07-07)؛
+# با routingِ GLM+Fugu و سابسکرایبِ فلت، ۲۰۰ شد (disaster/kill دست‌نخورده).
+CEIL_DAY_AUD_HARD, CEIL_MONTH_AUD_HARD, DISASTER_AUD_HARD = 2.0, 200.0, 500.0
 AUD_DEFAULT = 1.5    # نرخِ USD→AUD پیش‌فرض (هم‌ارزِ opslib.fx_aud_per_usd؛ yaml.global.aud_per_usd override می‌کند)
 BUDGETS_YAML = pathlib.Path(os.environ.get("BUDGETS_YAML", str(STATE.parent / "budgets.yaml")))
 STALE_LOCK_S = 30    # قفلِ رهاشده بعد از این ثانیه‌ها steal می‌شود (ضدِ deadlock)
