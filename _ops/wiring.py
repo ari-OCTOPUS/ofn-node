@@ -303,6 +303,7 @@ def wire_summary() -> dict:
         "wire_sprint": flag("OCTOPUS_WIRE_NEURAL"),      # sprint (shares neural flag)
         "wire_barbell": flag("OCTOPUS_WIRE_BARBELL"),    # barbell allocation
         "wire_debate": flag("OCTOPUS_WIRE_DEBATE"),      # debate loop
+        "wire_scheduler": flag("OCTOPUS_WIRE_SCHEDULER"), # B6: F19 scheduler
         "profile": resolve_profile(),                    # P-W3: boot profile
         "doctor_every_n": int(os.environ.get("CHRONO_DOCTOR_EVERY_N_BEATS", "1440")),
         "consolidation_every_n": int(os.environ.get("CHRONO_CONSOLIDATION_EVERY_N_BEATS", "720")),
@@ -382,6 +383,51 @@ def make_sprint_runner():
     except Exception as e:  # noqa: BLE001
         opslib.alert([f"wiring: SprintRunner ساخت نشد: {e}"])
         return None
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# B6 · scheduler F19 — dispatcherِ propose-only (پشتِ flag)
+# ════════════════════════════════════════════════════════════════════════════════
+
+def make_scheduler():
+    """ساختِ یک dispatcherِ propose-only برای F19 scheduler. پشتِ OCTOPUS_WIRE_SCHEDULER.
+    dispatcher یک callable است: (task_dict) → None. task را به advisory NOTE در ledger
+    تبدیل می‌کند — هیچ effector، هیچ settle. propose-only مطلق."""
+    if not flag("OCTOPUS_WIRE_SCHEDULER"):
+        return None
+    def _dispatcher(task: dict):
+        """task را به advisory NOTE تبدیل کن. propose-only — هیچ اثرِ برگشت‌ناپذیر."""
+        try:
+            opslib.ledger_note("SCHEDULER_DISPATCH", {
+                "kind": task.get("kind", "unknown"),
+                "task_ref": task.get("task_ref", ""),
+                "leg_id": task.get("leg_id"),
+                "due_beat": task.get("due_beat"),
+                "fired_beat": task.get("fired_beat"),
+                "advisory_only": True,
+                "no_effector": True,
+            }, actor="scheduler")
+        except Exception:  # noqa: BLE001 — §۴: خطای خاموش ممنون
+            opslib.alert([f"scheduler dispatch failed: {task.get('task_ref', '?')}"])
+    return _dispatcher
+
+
+def scheduler_seed_doctor_rfc(doctor, pacemaker):
+    """یک تولیدکنندهٔ حداقلی: RFCهای دکتر را به‌عنوانِ follow-up در scheduler ثبت کن.
+    پشتِ OCTOPUS_WIRE_SCHEDULER. propose-only — فقط schedule() می‌زند، نه effector."""
+    if not flag("OCTOPUS_WIRE_SCHEDULER"):
+        return
+    if doctor is None or pacemaker is None:
+        return
+    try:
+        # RFCهای اخیر را به‌عنوانِ follow-up در N beat ثبت کن
+        for rfc_id, rfc in doctor._rfcs.items():
+            if rfc.status in ("submitted", "submitted-no-channel"):
+                # یک follow-up در ۱۰ beat بعدی ثبت کن (اگر تکراری نباشد)
+                pacemaker.schedule(kind="rfc-followup", task_ref=rfc_id,
+                                   leg_id=None, in_beats=10)
+    except Exception:  # noqa: BLE001 — fail-soft
+        pass
 
 
 def make_neural_stack():

@@ -186,7 +186,8 @@ def main() -> int:
         opslib.alert([f"organism wiring failed (non-fatal): {_e}"])
     if chrono is not None:
         try:   # P-Chrono-1: pacemaker به‌عنوان background task (additive، fail-soft)
-            _pacemaker = chrono.start_pacemaker_thread(doctor=_doctor_inst)   # P-L1+B5: doctor برای self-heal
+            _pacemaker = chrono.start_pacemaker_thread(
+                doctor=_doctor_inst, dispatcher=_w.make_scheduler())   # B5+B6: self-heal + scheduler
         except Exception as e:  # noqa: BLE001
             opslib.alert([f"chrono pacemaker start failed: {e}"])
     next_epoch_at = 0.0
