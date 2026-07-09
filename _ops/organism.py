@@ -172,12 +172,13 @@ def main() -> int:
         opslib.alert([f"organism wiring failed (non-fatal): {_e}"])
     if chrono is not None:
         try:   # P-Chrono-1: pacemaker به‌عنوان background task (additive، fail-soft)
-            chrono.start_pacemaker_thread()
+            _pacemaker = chrono.start_pacemaker_thread()   # P-L1: نمونه را نگه دار
         except Exception as e:  # noqa: BLE001
             opslib.alert([f"chrono pacemaker start failed: {e}"])
     next_epoch_at = 0.0
     last_daily = ""
     last_heartbeat = 0.0
+    _pacemaker = None   # P-L1: نمونهٔ Pacemaker برای HLC/ackِ LeadLeg
     while True:
         _protective_skip = False   # آیا این تیک کارِ غیرضروری را skip کند؟ (protective-halt، enforceِ واقعی)
         try:
@@ -289,6 +290,15 @@ def main() -> int:
                                             afferent_status=_afferent_status, doctor_result=None)
                 except Exception as _pe:  # noqa: BLE001 — §۴: publish نباید tick را بکشد
                     opslib.alert([f"publish_tick_signals error (non-fatal): {type(_pe).__name__}: {_pe}"])
+            # ── L (P-L1): LeadLeg حلقهٔ خودمختار — HLC محلی + ack + propose-only.
+            # آبجکتِ _leg (از P-W1 نگه‌داشته‌شده) به LegHandle/HLC روی pacemaker.bus بسته می‌شود.
+            # هر tick: HLC می‌زند + ack می‌دهد. هیچ effector؛ settle فقط از approval_channel.
+            if not _protective_skip and _leg is not None and _pacemaker is not None:
+                try:
+                    _w.leg_beat(_leg, pacemaker=_pacemaker,
+                                beat=_cstat.get("beat", 0) if _cstat else 0)
+                except Exception as _le:  # noqa: BLE001 — §۴: leg نباید tick را بکشد
+                    opslib.alert([f"leg_beat error (non-fatal): {type(_le).__name__}: {_le}"])
 
             if now - last_heartbeat > 3600:
                 opslib.heartbeat(

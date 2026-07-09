@@ -171,6 +171,49 @@ def publish_tick_signals(live_loop, *, beat=None, neural_result=None,
     return n
 
 
+# ════════════════════════════════════════════════════════════════════════════════
+# L · LeadLeg autonomous loop — HLC + ack + propose-only (P-L1)
+# ════════════════════════════════════════════════════════════════════════════════
+
+def leg_beat(lead_leg, pacemaker=None, beat: int = 0) -> dict | None:
+    """هر tick: LeadLeg را در حلقهٔ ضربان بران — HLC محلی بزند + ack + کارِ propose-only.
+    پشتِ OCTOPUS_WIRE_LEAD_TICK (پیش‌فرض خاموز = no-op). kill-switch: اول STOP.
+
+    آبجکتِ LeadLeg را به یک LegHandle/HLC روی pacemaker.bus می‌بند (اگر نباشد، ثبت می‌کند).
+    سپس leg_handle.event() را صدا می‌زند → HLC محلی +۱ و ack حیات (TINV-1، TINV-4).
+    هیچ effector؛ پا فقط proposal تولید می‌کند (propose-only مطلق). settle فقط از
+    approval_channel/EffectorGate (دست‌نخورده). single-writer حفظ: LegHandle فقط در حافظه
+    بافر می‌کند، pacemaker تنها writer دیسک است.
+
+    خروجی: {leg_id, hlc, events_this_beat, money_link, proposals_emitted} یا None (advisory)."""
+    if not flag("OCTOPUS_WIRE_LEAD_TICK"):
+        return None   # flag خاموش = no-op (no regression)
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None   # kill-switch
+    if lead_leg is None or pacemaker is None:
+        return None   # بدونِ leg یا pacemaker → نمی‌توان HLC زد
+    try:
+        bus = getattr(pacemaker, "bus", None)
+        if bus is None:
+            return None
+        leg_id = lead_leg.packet.leg_id
+        # ثبتِ LegHandle روی bus (idempotent — اگر هست، همان را برمی‌گرداند)
+        handle = bus.register_leg(leg_id)
+        # HLC محلی +۱ + ack حیات (پا یک «رویداد» تولید کرد = زنده است)
+        hlc = handle.event()
+        # status فقط‌خواندنی (propose-only — هیچ effector)
+        st = lead_leg.status()
+        return {"leg_id": leg_id, "hlc": list(hlc),
+                "events_this_beat": handle.events_this_beat,
+                "last_beat_seen": handle.last_beat_seen,
+                "money_link": st.get("money_link"),
+                "proposals_emitted": st.get("proposals_emitted", 0),
+                "propose_only": True}
+    except Exception as e:  # noqa: BLE001 — §۴: leg نباید tick را بکشد
+        opslib.alert([f"wiring: leg_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
 # ─── W-2 · Doctor hook به Pacemaker ────────────────────────────────────────────
 def doctor_beat(doctor, beat: int, trace: dict | None = None) -> dict | None:
     """هر N beat دکتر را اجرا کن. kill-switch: اول STOP را چک کن.
@@ -202,6 +245,7 @@ def wire_summary() -> dict:
         "wire_live_loop": flag("OCTOPUS_WIRE_UNIFIED"),   # نخاع = bus + LiveLoop
         "wire_evolution": flag("OCTOPUS_WIRE_EVOLUTION"), # P-N1: Doctor evolution
         "wire_box": flag("OCTOPUS_WIRE_BOX"),             # P-N2: Box-of-Agents
+        "wire_leg_tick": flag("OCTOPUS_WIRE_LEAD_TICK"),  # P-L1: LeadLeg HLC loop
         "doctor_every_n": int(os.environ.get("CHRONO_DOCTOR_EVERY_N_BEATS", "1440")),
         "consolidation_every_n": int(os.environ.get("CHRONO_CONSOLIDATION_EVERY_N_BEATS", "720")),
         "afferent_every_n": int(os.environ.get("CHRONO_AFFERENT_EVERY_N_BEATS", "1440")),
