@@ -67,9 +67,9 @@ def apply_profile() -> str:
 
 # ─── W-1 · germline_lag → ORGANISM-STATE (همیشه روشن، read-only) ───────────────
 def enrich_state_with_germline(state: dict) -> dict:
-    """germline_lag را از germline.py به state اضافه کن.
+    """germline_lag را از germline.py به state اضافه کن + CRIT-tier alert.
     اگر germline.py نباشد → fallback به opslib.germline_lag_hours (همان قبل).
-    همیشه روشن چون read-only است و ریسک صفر دارد."""
+    همیشه روشن چون read-only است و ریسک صفر دارد. CRIT/ERROR → opslib.alert."""
     try:
         import germline
         alarm = germline.lag_alarm()
@@ -85,6 +85,11 @@ def enrich_state_with_germline(state: dict) -> dict:
                 state["germline_alert"] = "warn"
         except Exception:  # noqa: BLE001
             pass
+    # CRIT-tier alert (ناوردی ۳): ERROR/CRIT → opslib.alert (نه بی‌صدا)
+    alert = state.get("germline_alert", "")
+    lag = state.get("germline_lag_h")
+    if alert in ("ERROR", "CRIT"):
+        opslib.alert([f"germline_lag {alert}: {lag}h — بک‌آپ off-box کهنه/غایب (ناوردی ۳)"])
     return state
 
 

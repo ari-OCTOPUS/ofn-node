@@ -202,14 +202,11 @@ def main() -> int:
                 except Exception:  # noqa: BLE001
                     _cstat = None
             pulse = {"chrono": _cstat} if _cstat else {}
-            # vital ناوردی ۳ (verdict 2026-07-07 #4): کهنگی germline — warn>2h، ERROR>26h/غایب
-            lag = opslib.germline_lag_hours()
-            germ = {"germline_lag_h": lag}
-            if lag is None or lag > opslib.GERMLINE_ERR_H:
-                germ["germline_alert"] = "ERROR"
-                opslib.alert([f"germline_lag ERROR: {lag}h — بک‌آپ off-box کهنه/غایب (ناوردی ۳)"])
-            elif lag > opslib.GERMLINE_WARN_H:
-                germ["germline_alert"] = "warn"
+            # vital ناوردی ۳: کهنگی germline — از طریقِ wiring.enrich_state_with_germline
+            # (قراردادِ testable germline.py با CRIT-tier alert + fallback). پشتِ flag:
+            # OCTOPUS_WIRE_GERMLINE=1 → ماژولِ غنی؛ خاموز → fallback (رفتارِ فعلی، safety-vital).
+            germ = {}
+            _w.enrich_state_with_germline(germ)
 
             # ── S (S-fix-3): protective-override ابتدای کار محاسبه و enforce می‌شود (arXiv fix)
             # غیرقابل‌سرکوب و واقعی: تصمیم اینجا (پیش از epoch/fitness/doctor) گرفته می‌شود تا همان تیک
