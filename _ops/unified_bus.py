@@ -97,22 +97,30 @@ class UnifiedBus:
         return entry
 
     def _checkpoint(self, entry: dict) -> None:
-        """checkpointِ سبک در chrono.db. entry باید dict با hash باشد."""
+        """checkpointِ سبک در chrono.db — delegate به checkpoint.checkpoint().
+        P-S4: قراردادِ testable checkpoint.py را وصل می‌کند (نه inline DDL).
+        entry باید dict با hash + type باشد. fail-soft: chrono نباشد → عبور (ledger source of truth)."""
         if not isinstance(entry, dict):
             return
-        # استفاده از جدولِ checkpoint موجود (chrono.py DDL) اگر db باشد
-        # اینجا فقط یک note در جدولِ duration_marker می‌زنیم (additive، بدونِ schema change)
-        import json
-        h = entry.get("hash", "")
-        etype = entry.get("type", event_type if 'event_type' in dir() else "UNKNOWN")
         try:
-            import time as _t
-            self._db.ex(
-                "INSERT OR REPLACE INTO duration_marker(event_id, hlc_phys, hlc_logical, "
-                "wall_ts, label) VALUES (?,?,?,?,?)",
-                (f"unified-{h[:16]}", 0, 0, int(_t.time() * 1000),
-                 json.dumps({"type": etype, "is_human": entry.get("is_human", 0)})))
-        except Exception:  # noqa: BLE001 — chrono checkpoint fail-soft
+            import checkpoint as _cp
+            h = entry.get("hash", "")
+            etype = entry.get("type", "UNKNOWN")
+            # beat_id: آخرین beat_seq از chrono (اگر دسترس‌پذیر)، وگرنه hash→int
+            beat_id = 0
+            try:
+                row = self._db.q("SELECT MAX(beat_seq) FROM heartbeat")
+                if row and row[0][0] is not None:
+                    beat_id = int(row[0][0])
+            except Exception:  # noqa: BLE001
+                pass
+            if beat_id == 0:
+                # fallback: hash را به int تبدیل کن (سطحِ bus، بدونِ heartbeat)
+                beat_id = abs(hash(h)) % (2**31) if h else 0
+            _cp.checkpoint(beat=beat_id, hlc=(0, 0), ledger_hash=h,
+                           db=self._db, snapshot={"type": etype,
+                                                  "is_human": entry.get("is_human", 0)})
+        except Exception:  # noqa: BLE001 — chrono checkpoint fail-soft (ledger source of truth)
             pass
 
     def replay(self, from_hash: str = "", to_hash: str = "",
