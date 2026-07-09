@@ -282,8 +282,8 @@ def canonical_consolidation(neural_stack, school_bridge=None,
                 awareness = school_bridge.mean_awareness()
                 if isinstance(awareness, (int, float)):
                     sources["school_awareness"] = {"mean_awareness": awareness}
-            except Exception:  # noqa: BLE001
-                pass
+            except Exception as _se:  # noqa: BLE001 — §۴: خطای خاموش ممنون
+                opslib.alert([f"wiring: school mean_awareness خطا: {type(_se).__name__}: {_se}"])
         if not sources:
             return None   # هیچ منبعِ verified
         return consolidation.run(sources)
