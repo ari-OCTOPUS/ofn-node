@@ -77,6 +77,47 @@ walls (نقض=ردِ کار): additive-only · propose-only · fail-closed · hu
 
 ---
 
+# GROUP W — اتصالِ عصب‌کشی (اولویتِ اول؛ «مغز روشن = کلِ بدن وصل») · مرجع: [[../2026-07-09 OCTOPUS-WIRING-MAP — nervous system + boot connection|WIRING-MAP]]
+
+## P-W1 · [بحرانی] نخاع: organism ↔ LiveLoop/UnifiedBus
+```
+تسک (P-W1، بحرانی‌ترین) · اتصالِ مغز به بدن:
+بخوان: _ops/organism.py (main() init خط ~143-162: make_unified_bus/make_lead_leg صدا زده می‌شود ولی return دور ریخته می‌شود؛ + tick loop) · _ops/live_loop.py (LiveLoop + _InMemoryBus + publish_*_advisory + process_lead/apply_ari_verdict) · _ops/unified_bus.py (UnifiedBus.publish) · _ops/wiring.py (make_unified_bus/make_lead_leg/wire_summary).
+گپ (recon 🔴): organism حلقهٔ لخت می‌زند؛ LiveLoop (bus+legs+doctor+advisory) هیچ‌جا instantiate/run نمی‌شود = shelfware. make_unified_bus()/make_lead_leg() return نگه‌داشته نمی‌شود.
+بساز (additive، پشتِ profile/flag): (۱) در boot، bus=make_unified_bus() و leg=make_lead_leg() را **نگه دار**؛ یک LiveLoop با bus/leg/doctor/channel بساز و نگه دار. (۲) در tick، سیگنال‌های موجود (neural result، rhythm/spectral، doctor، afferent) را به bus **publish** کن. (۳) propose-only مطلق؛ settle فقط از approval_channel/EffectorGate (دست‌نخورده). (۴) fail-soft هر جزء (§۴: alert نه crash).
+DoD: boot یک bus+LiveLoopِ واقعی می‌سازد و نگه می‌دارد؛ tick publish می‌کند؛ تستِ رفتاری: بعد از چند tick، bus event دارد و LiveLoop.advisory_signals پُر است؛ profile=bare → رفتارِ فعلی؛ run_all سبز. path-scoped: organism.py + wiring.py(اگر لازم) + test.
+بعدش run_all خام + hash.
+```
+
+## P-W2 · آورانِ واقعی: sensory_bus → school_bridge در حلقه
+```
+تسک (P-W2) · sensory → school در حلقهٔ زنده:
+بخوان: _ops/afferent/sensory_bus.py (SensoryBus/AfferentEvent/classify/PII) · _ops/afferent/school_bridge.py (learn_from) · _ops/organism.py (tick) · _ops/live_loop.py (publish_afferent_advisory).
+گپ: sensory_bus و school_bridge فقط در اسکریپتِ ingest_raw صدا می‌شوند نه در حلقهٔ زنده → «کلاس درس» از جریانِ زنده یاد نمی‌گیرد.
+بساز (پشتِ profile/flag، propose-only): در حلقه (هر N beat) observationهای afferent (فقط لیبلِ انتزاعی، صفر PII) → school_bridge.learn_from → insightهای propose-only به bus؛ awareness persist. verification-gate (فقط CONFIRMED به یادگیریِ تثبیت‌شده — با P-M3 هماهنگ). صفر رکوردِ خام/PII.
+DoD: تستِ رفتاری: afferent در حلقه → mean_awareness تغییر → insight روی bus؛ PII هرگز وارد نمی‌شود (تست)؛ خاموش=no-op؛ run_all سبز. path-scoped.
+```
+
+## P-W3 · profileِ بوت: OCTOPUS_PROFILE (paper-full پیش‌فرض)
+```
+تسک (P-W3) · سوئیچِ profile به‌جای ۶ flagِ پراکنده:
+بخوان: _ops/wiring.py (flag() + همهٔ OCTOPUS_WIRE_*) · _ops/organism.py (boot) · WIRING-MAP §۲.
+گپ: ۶ flag پیش‌فرض خاموش → بوتِ عادی = حلقهٔ لخت؛ مغز از بدن استفاده نمی‌کند.
+بساز: تابعِ profile در wiring: OCTOPUS_PROFILE ∈ {bare, paper-full, live}. `paper-full` (پیش‌فرضِ نو) همهٔ wiringِ امنِ propose-only را ON کند (neural/consolidation/school/sensory/doctor+evolution+box/unified/lead-incubating). `bare`=رفتارِ فعلی. flagهای مجزا override بمانند (سازگاری). **money/live مطلقاً جدا:** profile هیچ‌کدام از capability_gate/LIVE_ENABLED/effectorِ پول را باز نمی‌کند.
+DoD: paper-full → wire_summary همهٔ امن‌ها True؛ bare → همه False؛ **تستِ سخت: هیچ profile مسیرِ پول را باز نمی‌کند** (capability_gate بسته می‌ماند)؛ run_all سبز. path-scoped: wiring.py + organism.py + test.
+```
+
+## P-W4 · [اثباتِ نهایی] connection self-test — «همه‌چیز وصل است»
+```
+تسک (P-W4، اثبات) · connection self-test:
+هدف: تستِ رفتاری که organism را در profile=paper-full برای چند beatِ **تزریقی** (بدونِ sleep واقعی) اجرا/شبیه‌سازی کند و assert کند **هر ماژول ≥۱ بار fire کرد**: sensory→school (mean_awareness تغییر/insight) · neural (snapshot) · canonical_consolidation (خروجی) · doctor.run_cycle (advisory) · evolution (اگر flag) · box (اگر flag) · leg (proposal) · rhythm/spectral advisory روی bus · unified bus (events>0).
+بخوان: organism.py (boot+tick پس از W1/W2/W3) · live_loop.py · ماژول‌های wired.
+بساز: تستی که instanceِ سبکِ organism/LiveLoop با busِ واقعی می‌سازد، N beat می‌زند، و برای هر ماژول assert «fire شد» دارد؛ اگر یکی fire نکرد → fail با نامِ همان ماژول (تشخیصِ اتصالِ گمشده). در bare → assert فقط متابولیک fire می‌کند.
+DoD: paper-full سبز = اثباتِ اینکه بوتِ مغز کلِ بدن را فعال می‌کند؛ در run_all ثبت شود. path-scoped: test + run_all.
+```
+
+---
+
 # GROUP A — Chrono deltas
 
 ## P-A1 · HLC-stamp روی رکوردِ LANGAR (versioned، additive)
