@@ -192,7 +192,8 @@ class Doctor:
     """
 
     def __init__(self, state_dir=None, knowledge_dir=None, ledger=None,
-                 approval_channel=None, sandbox_runner=None, db=None):
+                 approval_channel=None, sandbox_runner=None, db=None,
+                 archive=None):
         self._state_dir = Path(state_dir) if state_dir else (opslib.STATE_DIR)
         self._knowledge_dir = Path(knowledge_dir) if knowledge_dir else (
             _OPS.parent / "07 - Knowledge" / "genome-system" / "knowledge" / "internal")
@@ -202,6 +203,9 @@ class Doctor:
         self._sandbox_runner = sandbox_runner            # قابل‌تزریق (تست)
         self._db = db                                    # chrono ChronoDB (effects_pending)
         self._rfcs: dict[str, RFC] = {}                  # registry در حافظه
+        # N (P-N1): RFCArchive برای evolution (MAP-Elites). lazy: اگر None،
+        # با flag روشن در اولین run_cycle ساخته می‌شود. قابل‌تزریق برای تست.
+        self._archive = archive
 
     def _lg(self):
         return self._ledger or opslib.genome_ledger()
@@ -508,9 +512,78 @@ class Doctor:
             except Exception:  # noqa: BLE001 — Chamber fail-soft
                 pass
         self.run_sandbox(rfc)   # sandbox + critic (propose-only)
+        # N (P-N1): Doctor Evolution — RFCArchive + measured_lift + tournament_rank.
+        # پشتِ flag (OCTOPUS_WIRE_EVOLUTION، پیش‌فرض خاموز = رفتارِ فعلی).
+        # mine از آرشیو نمونه می‌گیرد، tournament قبل از submit، measured_lift به‌جای expected.
+        # verifier-independence دست‌نخورده: دکتر هرگز معیارِ سنجشِ خودش را ویرایش نمی‌کند.
+        evolution_report = None
+        if os.environ.get("OCTOPUS_WIRE_EVOLUTION") == "1":
+            evolution_report = self._evolve_rfc(rfc, bottleneck, trace)
         self.submit_for_approval(rfc)   # کارتِ P3 یا pending
-        return {"rfc_id": rfc.rfc_id, "status": rfc.status,
-                "bottleneck": bottleneck["bottleneck"], "beat": beat}
+        result = {"rfc_id": rfc.rfc_id, "status": rfc.status,
+                  "bottleneck": bottleneck["bottleneck"], "beat": beat}
+        if evolution_report is not None:
+            result["evolution"] = evolution_report
+        return result
+
+    def _evolve_rfc(self, rfc: RFC, bottleneck: dict, trace: dict | None) -> dict:
+        """P-N1: مسیرِ Doctor Evolution (پشتِ flag). RFC فعلی + mutationهای آرشیو →
+        measured_lift → tournament_rank → survivor (فقط برنده submit).
+        verifier-independence: lift از measured_lift مستقل (eval_fn)، نه از خودِ دکتر.
+
+        خروجی: گزارشِ {archive_size, candidates, winner_lift, survivor_rfc_id}.
+        هرگز معیارِ سنجشِ دکتر را ویرایش نمی‌کند (حلقهٔ حرام)."""
+        try:
+            from evolution import (RFCArchive, measured_lift, tournament_rank, survivor)
+        except Exception as e:  # noqa: BLE001 — evolution fail-soft
+            return {"error": f"evolution import failed: {e}"}
+        # آرشیو lazy بساز اگر نباشد
+        if self._archive is None:
+            self._archive = RFCArchive()
+        archive = self._archive
+        # bottleneck_key + organ برای سلول
+        bkey = (bottleneck.get("evidence") or {}).get("key", "unknown")
+        organ = (bottleneck.get("evidence") or {}).get("organ", "_global")
+        # ۱) RFC فعلی را در آرشیو ثبت (بهترین-در-هر-سلول)
+        crit_ok = (rfc.critic_review or {}).get("reward_integrity_ok", True)
+        base_score = 0.3 if crit_ok else 0.0   # پایه: lift تخمینی از critic
+        archive.insert(bkey, organ, rfc.rfc_id, base_score, fix=rfc.fix,
+                       parent_id=None)
+        # ۲) mutation از آرشیو sample کن (اگر سلولی هست)
+        candidates = []
+        cell = archive.sample()
+        if cell is not None:
+            mutation = archive.mutate(cell)
+            # verifier-independence: measured_lift از eval_fn مستقل — دکتر معیار را
+            # نمی‌نویسد؛ eval_fn خارجی (default یا تزریق‌شده).
+            ml = measured_lift({
+                "fix": mutation.get("fix", ""),
+                "evidence": bottleneck.get("evidence"),
+            })
+            if not ml["dropped"]:
+                candidates.append({"fix": mutation["fix"], "lift": ml["lift"],
+                                   "rfc_id": rfc.rfc_id, "parent": cell.rfc_id})
+        # RFC فعلی هم کاندید (baseline lift)
+        candidates.append({"fix": rfc.fix, "lift": base_score,
+                           "rfc_id": rfc.rfc_id, "parent": None})
+        # ۳) tournament_rank بین کاندیدها
+        ranked = tournament_rank(candidates)
+        winners = survivor(ranked, top_k=1)
+        winner = winners[0] if winners else candidates[0]
+        # ۴) اگر برنده mutation است و بهتر از baseline → fix را به‌روز کن (propose-only)
+        if winner.get("parent") and winner["lift"] > base_score:
+            rfc.fix = winner["fix"]
+            # ثبتِ update (propose-only — finalize با human-append)
+            rfc.ledger_ref = self._note("DOCTOR_EVOLUTION_WINNER", {
+                "rfc_id": rfc.rfc_id, "parent": winner["parent"],
+                "lift": winner.get("lift"), "elo": winner.get("elo")})
+        # ثبتِ cell بهتر در آرشیو (feedback loop بدونِ حلقهٔ حرام — فقط score می‌نویسد)
+        archive.insert(bkey, organ, rfc.rfc_id, winner.get("lift", base_score),
+                       fix=rfc.fix, parent_id=winner.get("parent"))
+        return {"archive_size": archive.size, "candidates": len(candidates),
+                "winner_lift": winner.get("lift", 0.0),
+                "winner_parent": winner.get("parent"),
+                "survivor_rfc_id": winner.get("rfc_id")}
 
 
 def _suggest_fix(bottleneck: dict) -> str:
