@@ -3,7 +3,7 @@ type: log
 status: active
 tags: [agents, escalation]
 created: 2026-07-03
-updated: 2026-07-07
+updated: 2026-07-10
 ---
 
 # سوالات ایجنت‌ها — کانال escalation
@@ -153,3 +153,12 @@ Ari شش سندِ طراحیِ Octopus/Chrono (تلگرام) داد: «همه ر
 8. **D-H** = genome-system فعلاً فایلِ ساده بماند (ورودیِ 07-07 هم باز بود)؛ لایهٔ نامیِ V2/alias حداقلی در repo authored شود.
 
 **همچنین یک تصادمِ بحرانیِ باز:** «لنگر/LANGAR/Anchor» ≥۶ موجودِ متمایز را نام می‌دهد؛ قانونِ هم‌نامی فقط ۳ را پوشش می‌دهد → پیش از هر لمسِ کدِ named-langar باید تکمیل شود (P-D1).
+
+## 2026-07-10 09:30 — Claude Fable 5 (جلسه مگاپرامپت) — ۳ verdict + ۱ هشدار امنیتی
+
+طبق [[00 - Inbox/2026-07-08 OCTOPUS-MEGA-PROMPT-CLAude5-Full-Engage|مگاپرامپت]] فاز ۳ بلوپرینت (BCM forgetting) ساخته و تست شد (۷۲/۷۳ سبز، صفر regression، held-out 5/5). موارد نیازمند رأی تو:
+
+1. **🔐 هشدار امنیتی (اقدام من: redact انجام شد؛ اقدام تو: چرخش توکن):** نوت مگاپرامپت (ایجنت‌ساختهٔ جلسه قبل) توکن بات تلگرام + chat ID را **متنی داخل نوت** نوشته بود — نقض §۱۰. من هر دو را در نوت redact کردم و الگوی token در هیچ mdِ دیگری نیست (rg چک شد). ولی توکن قبلاً وارد نوت (و احتمالاً لاگ چت جلسه قبل) شده → توصیهٔ اکید: **revoke/rotate از @BotFather** طبق [[04 - Architect System/architect/01-Project/SECRETS-ROTATION-CHECKLIST|چک‌لیست چرخش]]، سپس مقدار نو فقط در `_ops/OCTOPUS.env`.
+2. **verdict — فعال‌سازی BCM در runtime؟** `OCTOPUS_WIRE_BCM=1` (پیش‌فرض خاموش؛ عمداً خارج از PAPER_FULL_FLAGS). اثر: هر cycle واقعیِ consolidation (پیش‌فرض هر ۷۲۰ beat) وزن حافظه‌های latent به‌روز می‌شود، حافظه‌های مرده هرس (فقط ایندکس retrieval — تاریخچه append-only دست‌نخورده). متریک‌ها پیش‌ثبت در `_ops/state/phase-metrics.jsonl`. پیشنهاد من: ۱ هفته shadow با flag روشن + پایش `bcm-weights.json`، بعد تصمیم دائمی.
+3. **verdict — سوئیچ held-out به verify-scars؟** شکستگی ledger (record 40) جرم‌شناسی شد: torn-write که hash واقعی‌اش در دُم خط سالم است و `prev` رکورد ۴۱ دقیقاً به آن لنگر انداخته؛ زنجیرهٔ ۴۱..۹۴ سالم. `ledger.py v0.4.7` حالا `verify-scars` دارد (additive، read-only): نتیجه «ok-with-scars: 1». **گزینه A (پیشنهاد من):** `held_out_evaluator.verify_ledger_chain` به `verify-scars` سوئیچ شود — زخم می‌ماند، صادقانه شمرده می‌شود، هیچ بازنویسی. **گزینه B:** تو خودت (ارگانیسم خاموش + بک‌اپ) خط ۴۰ را جراحی کنی — بازنویسی تاریخ، فقط با دست مالک. تا رأی ندهی هیچ‌کدام اعمال نمی‌شود.
+4. **یادداشت (بدون نیاز به رأی):** برای revert کل جلسه: `git revert 94cd597..HEAD` (همه commitها با پیشوند مشخص). فایل‌های runtime (ledger زنده، HEARTBEAT، state) commit نشدند.

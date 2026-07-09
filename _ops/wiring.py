@@ -708,10 +708,40 @@ def _enrich_with_latent(result, sources, school_bridge, latent_space) -> None:
         latent_space.embed(cycle_key, integrated, layer="consolidation", source="cycle")
         latent_space.store()
 
+def _apply_bcm(result, latent_space, bcm) -> None:
+    """Blueprint Phase 3: BCM forgetting روی ایندکسِ retrieval (latent space).
+
+    فقط ایندکسِ بازیابی هرس می‌شود — consolidation.json (تاریخچهٔ append-only، I1)
+    هرگز لمس نمی‌شود؛ حافظهٔ بلندمدت cold-reconstructable می‌ماند.
+
+    فعال‌سازی این گام: کلیدهای همین cycle = 1.0 (حافظهٔ تازهٔ gate-passed)،
+    کلیدهای بازیابی‌شده = cosine score (بازیابی = فعال‌سازی)، بقیه = 0 (زوال β).
+    گزارش در result: bcm_pruned / bcm_theta / bcm_saturation."""
+    cycle_key = f"cycle-{result.cycle}"
+    prefix = f"{cycle_key}:"
+    activations: dict[str, float] = {}
+    all_keys = latent_space.keys()
+    for k in all_keys:
+        if k == cycle_key or k.startswith(prefix):
+            activations[k] = 1.0
+    for k, score in latent_space.nearest(cycle_key, top_k=5):
+        if k != cycle_key and not k.startswith(prefix):
+            activations[k] = max(0.0, float(score))
+    report = bcm.step(activations, known_keys=all_keys)
+    for k in report.pruned:
+        latent_space.remove(k)
+    if report.pruned:
+        latent_space.store()
+    result.bcm_pruned = report.pruned
+    result.bcm_theta = report.theta_mean
+    result.bcm_saturation = report.saturation
+
+
 def canonical_consolidation(neural_stack, school_bridge=None,
                             acquisition_data=None,
                             doctor_archive=None,
-                            latent_space=None):
+                            latent_space=None,
+                            bcm=None):
     """یک مسیرِ canonical consolidation. فقط verified.
     دو مسیرِ موازی نماند — همه از اینجا.
     verification-gate: فقط CONFIRMED/verified منابع.
@@ -720,7 +750,8 @@ def canonical_consolidation(neural_stack, school_bridge=None,
       None                  → precondition failure (neural_stack is None) or exception
       ConsolidatedInsight()  → ran (empty insights = nothing to consolidate, NOT error)
 
-    Phase 2: اگر latent_space موجود → هر verified source را encode + retrieve."""
+    Phase 2: اگر latent_space موجود → هر verified source را encode + retrieve.
+    Phase 3: اگر bcm موجود (پشتِ OCTOPUS_WIRE_BCM) → فراموشیِ BCM روی ایندکسِ retrieval."""
     # lazy import: Avoid circular at module level — consolidation.py is under neural/
     from neural.consolidation import ConsolidatedInsight
 
@@ -762,6 +793,12 @@ def canonical_consolidation(neural_stack, school_bridge=None,
                 _enrich_with_latent(result, sources, school_bridge, latent_space)
             except Exception as _le:  # noqa: BLE001 — latent نباید consolidation را بکشد
                 opslib.alert([f"consolidation latent خطا: {type(_le).__name__}: {_le}"])
+        # Phase 3: BCM forgetting (advisory-only، fail-soft — فقط ایندکس retrieval)
+        if bcm is not None and latent_space is not None and result is not None:
+            try:
+                _apply_bcm(result, latent_space, bcm)
+            except Exception as _be:  # noqa: BLE001 — BCM نباید consolidation را بکشد
+                opslib.alert([f"consolidation bcm خطا: {type(_be).__name__}: {_be}"])
         return result
     except Exception as e:  # noqa: BLE001
         opslib.alert([f"wiring: canonical_consolidation خطا: {e}"])
@@ -813,11 +850,23 @@ def consolidation_beat(neural_stack, school_bridge=None, beat: int = 0,
             neural_stack["latent_space"] = latent_space  # cache
         except Exception:  # noqa: BLE001 — latent fail-soft
             latent_space = None
+    # Phase 3: BCM stabilizer پشتِ OCTOPUS_WIRE_BCM — پیش‌فرض خاموش (human-gated؛
+    # عمداً در PAPER_FULL_FLAGS نیست تا بدونِ verdict مالک در profile روشن نشود)
+    bcm = None
+    if flag("OCTOPUS_WIRE_BCM") and latent_space is not None:
+        bcm = neural_stack.get("bcm")
+        if bcm is None:
+            try:
+                from neural.bcm import BCMStabilizer
+                bcm = BCMStabilizer()
+                neural_stack["bcm"] = bcm  # cache
+            except Exception:  # noqa: BLE001 — BCM fail-soft
+                bcm = None
     try:
         return canonical_consolidation(
             neural_stack, school_bridge=school_bridge,
             acquisition_data=acquisition_data, doctor_archive=doctor_archive,
-            latent_space=latent_space)
+            latent_space=latent_space, bcm=bcm)
     except Exception as e:  # noqa: BLE001 — §۴: خطای خاموش ممنون، ولی consolidation نباید tick را بکشد
         opslib.alert([f"wiring: consolidation_beat خطا: {type(e).__name__}: {e}"])
         return None

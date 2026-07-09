@@ -1,9 +1,20 @@
 ---
 type: handoff
-updated: 2026-07-08
+updated: 2026-07-10
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
+
+## جلسه چهل‌وسوم 2026-07-10 (Claude Fable 5 — master) — 🧬 Blueprint Phase 3: BCM forgetting ساخته شد + scar-aware ledger verify + checkpoint نجاتِ کار uncommitted
+
+ورودی: [[00 - Inbox/2026-07-08 OCTOPUS-MEGA-PROMPT-CLAude5-Full-Engage|مگاپرامپت]] («فاز ۳ یا بالاترین اولویت»). یافتهٔ اول: کار جلسهٔ مگا (P0/P1/Blueprint-P2: baseline/held-out/phase_gate/review_bus/latent_space/encoders/sweeps — ~۸۰ فایل) **هرگز commit نشده بود** و فقط در working tree زندگی می‌کرد.
+
+- **✅ checkpoint نجات (`94cd597`):** کل کار uncommitted جلسهٔ قبل path-scoped commit شد (بعد از چک secret-pattern: صفر). نکتهٔ عملیاتی: آنتی‌ویروس/ایندکسر روی `.git/objects` قفل transient می‌گیرد → `git add` با retry-loop (۱۴ تلاش) رد شد.
+- **🔐 توکن لو رفته redact شد:** نوت مگاپرامپت توکن بات + chat ID را متنی داشت (نقض §۱۰) → redact شد؛ کل vault با الگوی generic گشته شد — جای دیگری نبود. **چرخش توکن = میز آری** ([[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]] ورودی 2026-07-10 بند ۱).
+- **✅ Blueprint Phase 3 — BCM forgetting (`_ops/neural/bcm.py`):** ‏`Δw = η·y(y−θ) − β·w`، آستانهٔ متحرک `θ=EMA(y²)` per-key، هرس زیر کف + سقف اشباع (saturation≤1)، هومئوستاتیک (فعال‌سازی اشباع‌شده خودش سرکوب می‌شود — ضد memory reward-hacking). **فقط ایندکس retrieval هرس می‌شود؛ consolidation.json (I1) هرگز.** گزارش در `ConsolidatedInsight.bcm_*`. متریک‌ها **قبل از پیاده‌سازی** در `_ops/state/phase-metrics.jsonl` پیش‌ثبت شد. پشتِ `OCTOPUS_WIRE_BCM` — پیش‌فرض خاموش، عمداً خارج از PAPER_FULL_FLAGS (فعال‌سازی = verdict، بند ۲ AGENT_QUESTIONS). تست: `test_bcm_forgetting.py` (۱۹ چک، شامل گیت ساختاری).
+- **✅ ledger break (issue #1) جرم‌شناسی + راه‌حل additive:** خط ۴۰ torn-write است ولی hash در دُمش سالم و دقیقاً لنگرِ `prev` رکورد ۴۱؛ زنجیرهٔ ۴۱..۹۴ داخلی سالم → integrity قابل اثبات بدون بازنویسی. `ledger.py` **v0.4.7**: متد `verify_scar_aware()` + CLI ‏`verify-scars` → «ok-with-scars: 1». **`verify()` قدیمی عمداً FAIL می‌ماند** (LAW unchanged). سوئیچ held-out یا جراحی مالک = verdict (بند ۳). تست نو: `genome-system/tests/scar_verify_test.py` (۶ چک) + ۶ سوئیت قدیمی ژنوم سبز.
+- **✅ سلامت:** سوئیت کامل **۷۲/۷۳ سبز** (تنها شکست: `test_llm_routing_smoke.py` خارجی/شناخته‌شده) · held-out canary ‏**5/5** · ژنوم **۷/۷** · صفر regression (تست‌های همسایه consolidation همه سبز). ارگانیسم در طول جلسه زنده و دست‌نخورده (INC-1 رعایت شد — هیچ restart).
+- **میز آری:** (۱) سه verdict + هشدار امنیتی در [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]] «2026-07-10» — مهم‌ترین: **چرخش توکن بات**. (۲) revert کل جلسه: `git revert 94cd597..HEAD`. (۳) فعال‌سازی آزمایشی BCM: ‏`OCTOPUS_WIRE_BCM=1` + restart مالک (نه ایجنت).
 
 ## جلسه چهل‌ودوم 2026-07-09 (Claude/Opus — master) — 🗺️ گراندینگِ ۶ سندِ Chrono + ۳۵ پرامپتِ build (هیچ کدی زده نشد)
 

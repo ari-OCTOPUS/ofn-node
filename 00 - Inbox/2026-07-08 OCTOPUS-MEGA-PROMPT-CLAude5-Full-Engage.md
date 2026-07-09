@@ -1,3 +1,13 @@
+---
+type: proposal
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: active
+tags: [octopus, prompt, blueprint, bcm, mega]
+created: 2026-07-08
+updated: 2026-07-10
+created_by: agent
+---
+
 # 🐙 OCTOPUS — MEGA-PROMPT for Claude 5 — Full Engagement & Autonomous Planning
 
 > **Purpose:** This document contains everything needed to understand, plan, and continue building the Octopus organism — a self-evolving, self-learning autonomous system. Claude 5 should read this entirely, internalize the architecture, assess current state, plan remaining work, and begin execution — using full capacity across all reasoning dimensions.

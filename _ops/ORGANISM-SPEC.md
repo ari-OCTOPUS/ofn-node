@@ -159,6 +159,20 @@ non-destructive: mine/propose/submit فعلی دست‌نخورده. λ_persist 
 2. **off-siteِ رمزنگاری‌شده:** credential کلاود در `.env` مالک — هرگز در repo. runbook جدا.
 3. **اجرای ۲۴ساعته:** `python _ops/organism.py` باید via Scheduled Task/at-logon اجرا شود، نه شلِ ایجنت.
 
+## ۲.۹) لایهٔ Blueprint (دکترِ تکاملی — خودیادگیری) — Phase 0..3
+
+| فاز | چه ساخت | فایل‌ها |
+|---|---|---|
+| **P0 ایمنی** | baseline snapshot · held-out (۵ canary ثابت + verify زنجیرهٔ ژنوم + sealed) · phase_gate · review_bus | `baseline.py` · `held_out_evaluator.py` · `phase_gate.py` · `review_bus.py` |
+| **P1 پنج ریشه** | RFC auto-expire (۲۴h) · تفکیک None/empty در consolidation · sweep اثرهای معلق کهنه (۷۲h) · هوکِ tick · sweep در epoch | `doctor/doctor.py` · `wiring.py` · `chrono.py` · `organism.py` · `budget/governor_epoch.py` |
+| **P2 فضای latent مشترک** | R^32، cosine retrieval، mean-pool integration، persist؛ ۵ encoderِ deterministic (بدون LLM) — enrichment در `canonical_consolidation` (advisory، fail-soft) | `neural/latent_space.py` · `neural/encoders.py` |
+| **P3 BCM forgetting** | قانون BCM: ‏`Δw = η·y(y−θ) − β·w`؛ آستانهٔ متحرک `θ = EMA(y²)` per-key؛ هرسِ زیرِ کف + سقفِ اشباع (`max_keys`، ‏saturation ≤ 1). **فقط ایندکسِ retrieval (latent-vectors) هرس می‌شود — consolidation.json (تاریخچهٔ append-only، I1) هرگز.** هومئوستاتیک: فعال‌سازیِ اشباع‌شدهٔ دائمی خودش سرکوب می‌شود (ضدِ memory reward-hacking). | `neural/bcm.py` (+ گزارش در `ConsolidatedInsight.bcm_*`) |
+
+- **گیت P3:** پشتِ `OCTOPUS_WIRE_BCM` — پیش‌فرض خاموش و **عمداً خارج از PAPER_FULL_FLAGS**؛ فعال‌سازی در runtime = verdict مالک ([[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]] 2026-07-10).
+- **متریک‌های پیش‌ثبت‌شده (قبل از پیاده‌سازی):** `state/phase-metrics.jsonl` → memory_decay_rate=β>0 · memory_saturation≤1.0 · held-out 5/5 · no_regression.
+- تست: `test_bcm_forgetting.py` (۱۹ چک: ریاضی + هومئوستاز + wiring + fail-soft + گیتِ ساختاری). سوئیت‌های P0-P2: `test_baseline` · `test_held_out_evaluator` · `test_phase_gate` · `test_rfc_sweep` · `test_consolidation_distinguish` · `test_gate_sweep` · `test_latent_space` · `test_encoders` · `test_consolidation_latent`.
+- **زنجیرهٔ ژنوم (issue #1):** خط ۴۰ torn ولی hash در دُم لنگرِ `prev` رکورد ۴۱ است → `ledger.py v0.4.7` متدِ `verify_scar_aware()` / CLI ‏`verify-scars` (additive، read-only): «ok-with-scars: 1». ‏`verify()` قدیمی دست‌نخورده و FAIL می‌ماند تا verdict مالک برای سوئیچِ held-out.
+
 
 
 - **I1 append-only:** ‏ledger، ‏SURVIVORS-QUEUE، ‏heartbeat، لاگ‌ها — هرگز بازنویسی/حذف.

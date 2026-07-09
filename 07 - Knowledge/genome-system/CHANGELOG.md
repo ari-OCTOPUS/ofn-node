@@ -3,13 +3,19 @@ type: log
 status: active
 tags: [changelog, genome-system]
 aliases: ["CHANGELOG - genome-system"]
-updated: 2026-07-08
+updated: 2026-07-10
 ---
 
 # CHANGELOG — genome-system
 
 همهٔ نسخه‌ها **propose-only** ساخته و تست شده‌اند. تاریخ: ۲۰۲۶-۰۷-۰۶.
 نقشه: [[07 - Knowledge/genome-system/INDEX|INDEX]] · قواعدِ ایجنت‌ها: [[07 - Knowledge/genome-system/HANDOFF|HANDOFF]].
+
+## v0.4.7 — تشخیصِ scar-aware برای زنجیرهٔ پاره (additive، read-only) (2026-07-10)
+- **چرا (issue #1 مگاپرامپت — «chain break at record 40»):** جرم‌شناسی نشان داد خط ۴۰ ledger.jsonl یک torn-write است که **سرش** از دست رفته ولی **hash در دُم سالم مانده** و `prev` رکورد ۴۱ دقیقاً به همان لنگر انداخته؛ زنجیرهٔ ۴۱..۹۴ داخلی سالم است. یعنی integrity قابل اثبات است بدون هیچ بازنویسی (I1/append-only حفظ).
+- **تغییر (additive):** متد `verify_scar_aware()` + فرمان CLI ‏`verify-scars`. خطِ JSON-ناپذیر فقط وقتی scar پذیرفته می‌شود که hash ۶۴-hex دُمش توسط `prev` اولین رکوردِ سالمِ بعدی تأیید شود؛ نتیجه «ok-with-scars: n» است (صادقانه، زخم می‌ماند). سنِ رکوردِ پاره نامعلوم → از روی scar فقط monotonicity، بعدش دوباره قواعد سخت. **`verify()` پیش‌فرض عمداً دست‌نخورده** (LAW unchanged) و روی همین پارگی FAIL می‌ماند.
+- **گیتِ مصرف (verdict مالک لازم):** سوئیچِ `held_out_evaluator` از `verify` به `verify-scars` در [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]] ثبت شد — تا رأی ندهی held-out همچنان «broken» گزارش می‌کند.
+- تست: `tests/scar_verify_test.py` (۶ چک: سالم=ok · پارگیِ لنگرشده=ok-with-scars ولی verify قدیمی FAIL · برگشتِ پیکان بعد از scar=مرگ · لنگر جعلی=مرگ · tamper=مرگ · پارگیِ بی‌لنگرِ خط آخر=مرگ) + هر ۶ سوئیت قدیمی دوباره سبز.
 
 ## v0.4.6 — فلشِ میرا heart-driven شد (‏`age_rule` نسخه‌بندی‌شده) (2026-07-08)
 - **چرا (verdict مالک آری 2026-07-08، re-ratify ِ TINV-3):** جلسه ۳۰ قانونِ `age_tick=is_human` را ratify کرد؛ امروز مالک صریحاً رأی داد «age_tick هم heart-driven شود» (ماشین خودش پیر می‌شود). این هستهٔ tamper-evident را تغییر می‌دهد → با **نسخه‌بندی** امن شد تا تاریخِ موجود نشکند.

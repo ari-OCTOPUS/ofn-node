@@ -101,6 +101,10 @@ class SharedLatentSpace:
         """تعداد embeddingهای ذخیره‌شده."""
         return len(self._vectors)
 
+    def keys(self) -> list[str]:
+        """همه keyهای ذخیره‌شده (برای sync لایه‌های بالاتر مثل BCM — Phase 3)."""
+        return list(self._vectors.keys())
+
     def keys_by_layer(self, layer: str) -> list[str]:
         """همه keyهایی که از یک layer هستند."""
         return [k for k, m in self._metadata.items() if m.get("layer") == layer]

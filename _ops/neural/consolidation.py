@@ -32,6 +32,10 @@ class ConsolidatedInsight:
     # Phase 2: latent representation (backward compatible — None when no latent space)
     latent_vector: list[float] | None = None
     similar_keys: list[str] | None = None
+    # Phase 3 (Blueprint): گزارش BCM forgetting (backward compatible — None وقتی BCM خاموش)
+    bcm_pruned: list[str] | None = None
+    bcm_theta: float | None = None
+    bcm_saturation: float | None = None
 
 
 def _verify_source(name: str, data: dict) -> bool:

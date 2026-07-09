@@ -277,6 +277,96 @@ class Ledger:
             prev = rec["hash"]
         return True, "ok"
 
+    def verify_scar_aware(self) -> tuple[bool, str]:
+        """v0.4.7 (additive, read-only diagnostic): مثل verify()، ولی «خطِ پاره با
+        hashِ لنگرشده» را scar گزارش می‌کند نه شکست.
+
+        شرط پذیرش scar (هر دو لازم):
+          ۱) خط JSON-ناپذیر است (torn write)، و
+          ۲) یک hash کامل ۶۴-hex در دُمِ خط سالم مانده که رکوردِ سالمِ بعدی
+             دقیقاً با prev=همان hash به آن لنگر انداخته است.
+        در این حالت زنجیره از همان hash ادامه می‌یابد و نتیجه «ok-with-scars» است —
+        تاریخ بازنویسی نمی‌شود؛ زخم می‌ماند و صادقانه شمرده می‌شود.
+
+        سنِ رکوردِ پاره نامعلوم است → برای اولین رکوردِ سن‌دارِ بعد از scar فقط
+        monotonicity (عدم بازگشت پیکان) چک می‌شود، سپس قواعدِ سختِ verify از سر
+        گرفته می‌شوند. verify() پیش‌فرض عمداً دست‌نخورده است (LAW unchanged) —
+        سوئیچِ مصرف‌کننده‌ها (مثلاً held_out_evaluator) verdict مالک می‌خواهد."""
+        import re as _re
+        if not self.path.exists():
+            return True, "ok (empty)"
+        try:
+            with open(self.path, "r", encoding="utf-8", errors="replace") as fh:
+                lines = [ln.rstrip("\n") for ln in fh if ln.strip()]
+        except OSError as e:
+            return False, f"read error: {e}"
+        prev = GENESIS
+        prev_age = 0
+        scars: list[int] = []
+        age_grace = False
+        for lineno, raw in enumerate(lines, 1):
+            try:
+                rec = json.loads(raw)
+            except json.JSONDecodeError:
+                m = _re.search(r'([0-9a-f]{64})"?\}?\s*$', raw)
+                if m is None:
+                    return False, (f"corrupt line {lineno}: unparseable and no "
+                                   f"anchored hash in tail")
+                # لنگر باید توسط رکوردِ سالمِ بعدی تأیید شود (نه صرفاً وجودِ hash)
+                anchor = m.group(1)
+                nxt = None
+                for j in range(lineno, len(lines)):
+                    try:
+                        nxt = json.loads(lines[j])
+                        break
+                    except json.JSONDecodeError:
+                        continue
+                if nxt is None or nxt.get("prev") != anchor:
+                    return False, (f"corrupt line {lineno}: tail hash not anchored "
+                                   f"by next record's prev")
+                scars.append(lineno)
+                prev = anchor
+                age_grace = True
+                continue
+            body = {k: rec[k] for k in
+                    ("id", "ts", "type", "actor", "payload", "meta", "prev",
+                     "age_tick", "is_human", "age_rule", "beat")
+                    if k in rec}
+            recomputed = hashlib.sha256(_canonical(body)).hexdigest()
+            if rec.get("prev") != prev:
+                return False, f"chain break at line {lineno}: prev mismatch"
+            if rec.get("hash") != recomputed:
+                return False, f"tamper detected at line {lineno}: hash mismatch"
+            if "age_tick" in rec:
+                age = rec["age_tick"]
+                if not isinstance(age, int) or age < prev_age:
+                    return False, f"age reversal at line {lineno}: {age} < {prev_age}"
+                if age_grace:
+                    # سنِ رکوردِ scar نامعلوم — فقط monotonic؛ از رکوردِ بعد قواعدِ سخت
+                    age_grace = False
+                elif rec.get("age_rule") == "heart":
+                    advances = rec.get("is_human") == 1 or rec.get("beat") == 1
+                    if advances:
+                        if age != prev_age + 1:
+                            return False, (f"age-advancing append at line {lineno} must "
+                                           f"advance age by exactly 1 ({prev_age} -> {age})")
+                    elif age != prev_age:
+                        return False, (f"non-advancing append at line {lineno} moved the "
+                                       f"arrow ({prev_age} -> {age}) — heart-rule")
+                elif rec.get("is_human") == 1:
+                    if age != prev_age + 1:
+                        return False, (f"human append at line {lineno} must advance "
+                                       f"age by exactly 1 ({prev_age} -> {age})")
+                elif age != prev_age:
+                    return False, (f"non-human append at line {lineno} moved the "
+                                   f"arrow ({prev_age} -> {age}) — TINV-3")
+                prev_age = age
+            prev = rec["hash"]
+        if scars:
+            return True, (f"ok-with-scars: {len(scars)} torn-but-anchored record(s) "
+                          f"at line(s) {scars}")
+        return True, "ok"
+
 
 if __name__ == "__main__":
     import sys
@@ -285,6 +375,10 @@ if __name__ == "__main__":
     lg = Ledger(p)
     if cmd == "verify":
         ok, msg = lg.verify()
+        print(("OK: " if ok else "FAIL: ") + msg)
+        sys.exit(0 if ok else 1)
+    if cmd == "verify-scars":
+        ok, msg = lg.verify_scar_aware()
         print(("OK: " if ok else "FAIL: ") + msg)
         sys.exit(0 if ok else 1)
     for r in lg.tail(int(sys.argv[3]) if len(sys.argv) > 3 else 20):
