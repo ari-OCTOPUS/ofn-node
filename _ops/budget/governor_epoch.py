@@ -29,6 +29,7 @@ from __future__ import annotations
 import datetime as dt
 import json
 import math
+import os
 import sys
 from pathlib import Path
 
@@ -302,6 +303,29 @@ def run_epoch(base_min: float = BASE_MIN_DEFAULT) -> dict:
         llm = allocate_llm(snap, record["allocation_dry"])
         if llm:
             record["allocation_llm"] = llm
+        # پول‌بر‌درصد: barbell allocation پشتِ flag (additive، propose-only).
+        # allocation_dry دست‌نخورده می‌ماند؛ barbell یک نمایِ parallel است.
+        if os.environ.get("OCTOPUS_WIRE_BARBELL") == "1":
+            try:
+                import attribution as _attr_mod
+                rev = _attr_mod.confirmed_revenue()
+                confirmed_by_organ = {}
+                for cell, aud in (rev.get("by_cell") or {}).items():
+                    confirmed_by_organ[cell] = aud
+                record["allocation_barbell"] = barbell_allocate(
+                    confirmed_by_organ=confirmed_by_organ)
+            except Exception as _be:  # noqa: BLE001 — §۴
+                opslib.alert([f"governor barbell failed (non-fatal): {type(_be).__name__}: {_be}"])
+        # Debate loop (Stage-2 creator×architect) پشتِ flag. run_debate خودش live-gated است
+        # (live_gate_open تا ۲۰۲۶-۰۷-۲۱). propose-only در paper.
+        if os.environ.get("OCTOPUS_WIRE_DEBATE") == "1":
+            try:
+                sys.path.insert(0, str(opslib.DEBATE_DIR))
+                from debate_loop import run_debate as _run_debate
+                record["debate"] = _run_debate(
+                    {"topic": "epoch-strategy-review", "snap": snap}, live=False)
+            except Exception as _de:  # noqa: BLE001 — §۴
+                opslib.alert([f"governor debate failed (non-fatal): {type(_de).__name__}: {_de}"])
     EPOCH_DIR.mkdir(parents=True, exist_ok=True)
     fname = EPOCH_DIR / ("epoch-" + dt.datetime.now().strftime("%Y%m%dT%H%M%S%f") + ".json")
     fname.write_text(json.dumps(record, ensure_ascii=False, indent=2), "utf-8")

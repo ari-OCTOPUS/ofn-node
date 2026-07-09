@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import os
 import sqlite3
 import sys
 from pathlib import Path
@@ -196,6 +197,18 @@ def compute(write: bool = True) -> dict:
     for biz, rev in attr.get("by_cell", {}).items():
         if biz in cells and not cells[biz].get("excluded"):
             cells[biz]["confirmed_revenue_aud"] = rev
+            # پول‌بر‌درصد: اگر flag روشن است، CONFIRMED AUD را به value score تزریق کن.
+            # رابطهٔ واقعی: شاخکی که دلارِ CONFIRMED می‌سازد → value بالاتر → fitness بالاتر.
+            if os.environ.get("OCTOPUS_WIRE_BARBELL") == "1":
+                rev_signal = min(1.0, float(rev or 0) / 1000.0)   # کران [0,1]: AU$1000 → سقف
+                boosted_value = 0.5 * (cells[biz].get("acceptance_rate") or 0.0) + 0.5 * rev_signal
+                cells[biz]["fitness"] = round(
+                    weights.get("value", .3) * boosted_value
+                    + weights.get("urgency", .25) * 0.0
+                    + weights.get("efficiency", .2) * cells[biz].get("efficiency", 0.0)
+                    + weights.get("human", .2) * 0.5
+                    - weights.get("waste", .05) * cells[biz].get("waste", 0.0), 4)
+                cells[biz]["revenue_boost_applied"] = True
 
     report = {
         "ts": opslib.now_iso(),

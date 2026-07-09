@@ -298,6 +298,11 @@ def wire_summary() -> dict:
         "wire_leg_tick": flag("OCTOPUS_WIRE_LEAD_TICK"),  # P-L1: LeadLeg HLC loop
         "wire_ideas": flag("OCTOPUS_WIRE_IDEAS"),        # P-I: idea-graph engine
         "wire_spectral": flag("OCTOPUS_WIRE_SPECTRAL"),  # P-spectral: spectral bottleneck
+        "wire_rhythm": flag("OCTOPUS_WIRE_NEURAL"),      # rhythm (shares neural flag)
+        "wire_circadian": flag("OCTOPUS_WIRE_NEURAL"),   # circadian (shares neural flag)
+        "wire_sprint": flag("OCTOPUS_WIRE_NEURAL"),      # sprint (shares neural flag)
+        "wire_barbell": flag("OCTOPUS_WIRE_BARBELL"),    # barbell allocation
+        "wire_debate": flag("OCTOPUS_WIRE_DEBATE"),      # debate loop
         "profile": resolve_profile(),                    # P-W3: boot profile
         "doctor_every_n": int(os.environ.get("CHRONO_DOCTOR_EVERY_N_BEATS", "1440")),
         "consolidation_every_n": int(os.environ.get("CHRONO_CONSOLIDATION_EVERY_N_BEATS", "720")),
@@ -308,6 +313,76 @@ def wire_summary() -> dict:
 # ════════════════════════════════════════════════════════════════════════════════
 # W · neural wiring — ۸ ماژول + school_bridge به tick وصل، پشتِ flag
 # ════════════════════════════════════════════════════════════════════════════════
+
+def make_rhythm():
+    """ساختِ Rhythm (mode_color GREEN/AMBER/RED). پشتِ OCTOPUS_WIRE_NEURAL.
+    اگر خاموش → None. advisory فقط."""
+    try:
+        sys.path.insert(0, str(_HERE / "chrono_rhythm"))
+        from rhythm import Rhythm
+        return Rhythm()
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"wiring: Rhythm ساخت نشد: {e}"])
+        return None
+
+
+def rhythm_beat(rhythm, readiness: float = 0.6, stress: float = 0.2,
+                novelty: float = 0.3, sigma: float = 0.5) -> dict | None:
+    """یک گامِ Rhythm → mode_color + T_beat + HRV. advisory فقط.
+    kill-switch: اول STOP. خروجی برای neural_beat (rhythm input) + publish_advisory."""
+    if rhythm is None:
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    try:
+        st = rhythm.step(readiness=readiness, stress=stress,
+                         novelty=novelty, sigma=sigma)
+        return {"mode_color": st.mode_color, "T_beat": round(st.T_beat, 2),
+                "hrv": round(st.hrv, 4), "tau": round(st.tau, 3),
+                "mode_focus": st.mode_focus}
+    except Exception as e:  # noqa: BLE001 — §۴
+        opslib.alert([f"wiring: rhythm_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
+def make_circadian():
+    """ساختِ CircadianMap (آگاهیِ ساعتِ روز). پشتِ OCTOPUS_WIRE_NEURAL."""
+    try:
+        sys.path.insert(0, str(_HERE / "neural"))
+        from circadian import CircadianMap
+        return CircadianMap()
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"wiring: CircadianMap ساخت نشد: {e}"])
+        return None
+
+
+def circadian_readiness(circadian, hour: int | None = None) -> dict | None:
+    """readiness ساعتِ روز → advisory. kill-switch اول."""
+    if circadian is None:
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    try:
+        import datetime as _dt
+        h = hour if hour is not None else _dt.datetime.now().hour
+        return {"hour": h, "phase": circadian.phase(h),
+                "readiness": circadian.readiness(h),
+                "is_maintenance": circadian.is_maintenance(h)}
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"wiring: circadian_readiness خطا: {e}"])
+        return None
+
+
+def make_sprint_runner():
+    """ساختِ SprintRunner. پشتِ OCTOPUS_WIRE_NEURAL."""
+    try:
+        sys.path.insert(0, str(_HERE / "neural"))
+        from sprint import SprintRunner
+        return SprintRunner()
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"wiring: SprintRunner ساخت نشد: {e}"])
+        return None
+
 
 def make_neural_stack():
     """ساختِ NeuralDriver + Hebbian + Consolidation + HookBus.

@@ -150,6 +150,9 @@ def main() -> int:
     _live_loop = None
     _idea_graph = None
     _pacemaker = None   # P-L1: نمونهٔ Pacemaker (HLC/ackِ LeadLeg). در boot پر می‌شود.
+    _rhythm = None      # Rhythm (mode_color GREEN/AMBER/RED)
+    _circadian = None   # CircadianMap (readiness ساعتِ روز)
+    _sprint_runner = None  # SprintRunner (sprint management)
     try:
         import wiring as _w
         _profile = _w.apply_profile()   # P-W3: paper-full → flagهای امن
@@ -160,6 +163,11 @@ def main() -> int:
         _bus = _w.make_unified_bus()
         _leg = _w.make_lead_leg()
         _neural_stack = _w.make_neural_stack()   # W: neural ۸ ماژول
+        # W: rhythm + circadian + sprint (neural subsystems)
+        if _wire.get("wire_neural"):
+            _rhythm = _w.make_rhythm()
+            _circadian = _w.make_circadian()
+            _sprint_runner = _w.make_sprint_runner()
         # M (P-M2): اگر consolidation وصل است، SchoolBridge بساز (منبعِ awareness)
         if _wire.get("wire_consolidation"):
             _school_bridge = _w.make_school_bridge()
@@ -212,11 +220,27 @@ def main() -> int:
             # غیرقابل‌سرکوب و واقعی: تصمیم اینجا (پیش از epoch/fitness/doctor) گرفته می‌شود تا همان تیک
             # آن‌ها را جلو بگیرد (نه بعد از اجرا). sleep همیشه در انتهای tick → بدونِ busy-loop.
             prot_state = {}
+            # ── Rhythm: mode_color (GREEN/AMBER/RED) + circadian readiness برای neural_beat
+            _rhythm_state = None
+            _circadian_state = None
+            if _rhythm is not None:
+                try:
+                    _budget_pct = snap["month"].get("musd", 0) / max(opslib.load_budgets().get("global", {}).get("cap_monthly", 30), 1)
+                    _rhythm_state = _w.rhythm_beat(_rhythm, readiness=0.6,
+                                                   stress=min(1.0, _budget_pct * 2),
+                                                   novelty=0.3, sigma=0.5)
+                except Exception:  # noqa: BLE001
+                    _rhythm_state = None
+            if _circadian is not None:
+                try:
+                    _circadian_state = _w.circadian_readiness(_circadian)
+                except Exception:  # noqa: BLE001
+                    _circadian_state = None
             if _neural_stack is not None:
                 try:
                     _beat_n = (_cstat.get("beat", 0) if _cstat else 0)
                     _neural_r = _w.neural_beat(_neural_stack, _beat_n, {
-                        "rhythm": pulse.get("chrono", {}),
+                        "rhythm": _rhythm_state or pulse.get("chrono", {}),
                         "budget": {"pct": snap["month"].get("musd", 0) / max(opslib.load_budgets().get("global", {}).get("cap_monthly", 30), 1)},
                         "spectral": {},
                         "sensory": {},
@@ -288,7 +312,7 @@ def main() -> int:
             # W7: doctor_result واقعی را به bus منتقل کن (نه None).
             if not _protective_skip and _live_loop is not None:
                 try:
-                    _rh = pulse.get("chrono") or None   # rhythm/chrono state موجود این tick
+                    _rh = _rhythm_state or pulse.get("chrono") or None   # rhythm (mode_color) یا chrono
                     _w.publish_tick_signals(_live_loop, beat=_cstat.get("beat", 0) if _cstat else 0,
                                             rhythm_state=_rh, spectral_result=None,
                                             afferent_status=_afferent_status,
