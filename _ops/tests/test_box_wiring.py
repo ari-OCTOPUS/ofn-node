@@ -169,9 +169,13 @@ def t_warden_cap_is_2pct():
 def t_warden_obeyed_on_stop():
     """STOP-ORGANISM → Warden yield می‌کند (kill-switch supreme).
 
-    این از طریقِ _stop_file() در warden.py چک می‌شود. توجه: _stop_file() از
-    parents[3] محاسبه می‌شود (F:\\backup\\STOP-ORGANISM)، نه opslib.STOP_ORGANISM
-    (F:\\backup\\_ops\\STOP-ORGANISM) — پس در همان مسیرِ warden می‌نویسیم."""
+    فیکسِ off-by-one (verify pass): _stop_file() باید به مسیرِ canonicalِ
+    _ops/STOP-ORGANISM (parents[2]) اشاره کند تا با opslib.STOP_ORGANISM و
+    organism/chrono/watchdog هم‌راستا باشد — پیش‌تر parents[3] (ریشهٔ vault) بود و
+    Box فایلِ STOPِ واقعی را نمی‌دید. برای امنیت فایلِ canonicalِ واقعی را نمی‌سازیم
+    (ممکن است ارگانیسمِ زنده را halt کند)؛ _stop_file را به temp monkeypatch می‌کنیم
+    و جداگانه alignmentِ مسیر را assert می‌کنیم."""
+    import tempfile
     _box_dir = str(_OPS / "doctor" / "box")
     if sys.path[0] != _box_dir:
         if _box_dir in sys.path:
@@ -180,17 +184,27 @@ def t_warden_obeyed_on_stop():
     sys.modules.pop("box", None)
     sys.modules.pop("warden", None)
     from box import Box, BoxConfig  # noqa: E402
-    from warden import _stop_file  # noqa: E402
-    box = Box(BoxConfig(E_total=100000))
-    stop_path = _stop_file()
-    stop_path.write_text("kill", "utf-8")
+    import warden as _wmod  # noqa: E402
+
+    # (۱) alignment: مسیرِ STOP باید canonical (_ops/STOP-ORGANISM) باشد، نه ریشهٔ vault
+    real = _wmod._stop_file()
+    assert real.name == "STOP-ORGANISM" and real.parent.name == "_ops", \
+        f"_stop_file باید به _ops/STOP-ORGANISM اشاره کند (canonical)، نه {real}"
+
+    # (۲) رفتاری: با STOP، Warden halt می‌کند — روی temp (بدونِ لمسِ فایلِ canonicalِ واقعی)
+    _tmp = Path(tempfile.mkdtemp()) / "STOP-ORGANISM"
+    _orig = _wmod._stop_file
+    _wmod._stop_file = lambda: _tmp
     try:
+        box = Box(BoxConfig(E_total=100000))
+        _tmp.write_text("kill", "utf-8")
         can_go, reason = box.warden.can_continue(box.agents, 0.5)
         assert can_go is False, "STOP باید Warden را halt کند"
         assert "STOP" in reason
     finally:
+        _wmod._stop_file = _orig
         try:
-            stop_path.unlink()
+            _tmp.unlink()
         except OSError:
             pass
 

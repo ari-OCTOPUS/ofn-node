@@ -11,7 +11,10 @@ from agent_state import AgentState
 
 
 def _stop_file() -> Path:
-    return Path(__file__).resolve().parents[3] / "STOP-ORGANISM"
+    # canonical kill-switch = _ops/STOP-ORGANISM (همان مسیری که کلِ سیستم چک می‌کند).
+    # warden در _ops/doctor/box است → parents[2] = _ops. پیش‌تر parents[3] (ریشهٔ vault)
+    # بود = واگراییِ kill-switch؛ Box فایلِ STOPِ واقعی را نمی‌دید. isolation حفظ: فقط مسیر.
+    return Path(__file__).resolve().parents[2] / "STOP-ORGANISM"
 
 
 class Warden:
