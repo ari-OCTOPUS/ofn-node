@@ -148,8 +148,11 @@ def main() -> int:
     _bus = None
     _leg = None
     _live_loop = None
+    _idea_graph = None
+    _pacemaker = None   # P-L1: نمونهٔ Pacemaker (HLC/ackِ LeadLeg). در boot پر می‌شود.
     try:
         import wiring as _w
+        _profile = _w.apply_profile()   # P-W3: paper-full → flagهای امن
         _wire = _w.wire_summary()
         _chan = _w.make_telegram_channel()   # auto-on اگر توکن
         _doctor_inst = _w.make_doctor(state_dir=str(opslib.STATE_DIR), channel=_chan)
@@ -163,6 +166,9 @@ def main() -> int:
         # W (P-W2): آورانِ واقعی — اگر school/afferent وصل است، SensoryBus بساز
         if _wire.get("wire_school"):
             _sensory_bus = _w.make_sensory_bus()
+        # I (P-I): موتورِ ایده-گراف — اگر ideas وصل است، IdeaGraph بساز
+        if _wire.get("wire_ideas"):
+            _idea_graph = _w.make_idea_graph()
         # W (P-W1): LiveLoop روی همان bus (نخاع). مغز و بدن روی یک حلقه.
         _live_loop = _w.make_live_loop(bus=_bus, leg=_leg, doctor=_doctor_inst,
                                        channel=_chan)
@@ -178,7 +184,6 @@ def main() -> int:
     next_epoch_at = 0.0
     last_daily = ""
     last_heartbeat = 0.0
-    _pacemaker = None   # P-L1: نمونهٔ Pacemaker برای HLC/ackِ LeadLeg
     while True:
         _protective_skip = False   # آیا این تیک کارِ غیرضروری را skip کند؟ (protective-halt، enforceِ واقعی)
         try:
@@ -255,9 +260,10 @@ def main() -> int:
                     "sigma": rep["sigma"]["sigma_effective"],
                     "conflicts": len(conflicts)}, actor="organism")
             # ── W-2: Doctor beat (غیرضروری → زیرِ همان گیت؛ STOP/protective مقدم)
+            _doctor_result = None
             if not _protective_skip and _doctor_inst is not None and _cstat is not None:
                 try:
-                    _w.doctor_beat(_doctor_inst, _cstat.get("beat", 0))
+                    _doctor_result = _w.doctor_beat(_doctor_inst, _cstat.get("beat", 0))
                 except Exception:  # noqa: BLE001 — §۴: خطای خاموش ممنوع (Doctor نباید tick را بکشد)
                     opslib.alert(["doctor_beat error (non-fatal)"])
             # ── M (P-M2): canonical consolidation در حلقهٔ زنده (هر N beat، پشتِ flag)
@@ -282,12 +288,14 @@ def main() -> int:
             # ── W (P-W1): سیگنال‌های این tick را به bus (نخاع) منتشر کن.
             # مغز ← bus → subscriberها (LiveLoop.advisory_signals و غیره) فایر می‌شوند.
             # advisory فقط — هیچ effector. هر سیگنال در try مستقل (fail-soft، §۴).
+            # W7: doctor_result واقعی را به bus منتقل کن (نه None).
             if not _protective_skip and _live_loop is not None:
                 try:
                     _rh = pulse.get("chrono") or None   # rhythm/chrono state موجود این tick
                     _w.publish_tick_signals(_live_loop, beat=_cstat.get("beat", 0) if _cstat else 0,
                                             rhythm_state=_rh, spectral_result=None,
-                                            afferent_status=_afferent_status, doctor_result=None)
+                                            afferent_status=_afferent_status,
+                                            doctor_result=_doctor_result)
                 except Exception as _pe:  # noqa: BLE001 — §۴: publish نباید tick را بکشد
                     opslib.alert([f"publish_tick_signals error (non-fatal): {type(_pe).__name__}: {_pe}"])
             # ── L (P-L1): LeadLeg حلقهٔ خودمختار — HLC محلی + ack + propose-only.
@@ -299,6 +307,13 @@ def main() -> int:
                                 beat=_cstat.get("beat", 0) if _cstat else 0)
                 except Exception as _le:  # noqa: BLE001 — §۴: leg نباید tick را بکشد
                     opslib.alert([f"leg_beat error (non-fatal): {type(_le).__name__}: {_le}"])
+            # ── I (P-I): موتورِ ایده-گراف — هر N beat گرافِ vault را تحلیل کن.
+            # هاب‌ها/خوشه‌ها/پل‌ها/یال‌های پیشنهادی. propose-only مطلق (هیچ effector).
+            if not _protective_skip and _idea_graph is not None and _cstat is not None:
+                try:
+                    _w.idea_beat(_idea_graph, beat=_cstat.get("beat", 0))
+                except Exception as _ie:  # noqa: BLE001 — §۴: idea نباید tick را بکشد
+                    opslib.alert([f"idea_beat error (non-fatal): {type(_ie).__name__}: {_ie}"])
 
             if now - last_heartbeat > 3600:
                 opslib.heartbeat(

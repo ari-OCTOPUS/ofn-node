@@ -75,7 +75,9 @@ def t_afferent_changes_awareness():
 
 
 def t_afferent_status_published_to_bus():
-    """afferent_status از afferent_beat → publish_afferent_advisory روی bus."""
+    """afferent_status از afferent_beat → advisory signal در LiveLoop.
+    advisory signals در _advisory_signals ثبت می‌شوند (نه bus.events، چون advisory
+    نباید ردیفِ ledger بسازند)."""
     os.environ["OCTOPUS_WIRE_SCHOOL"] = "1"
     sb = _real_sensory_bus()
     bridge = _real_bridge()
@@ -84,13 +86,13 @@ def t_afferent_status_published_to_bus():
     result = wiring.afferent_beat(sb, school_bridge=bridge, snap=snap, beat=1440)
     status = result.get("sensory_status")
     os.environ.pop("OCTOPUS_WIRE_SCHOOL")
-    # حالا status را به bus publish کن (شبیه‌سازیِ organism tick)
+    # حالا status را به advisory publish کن (شبیه‌سازیِ organism tick)
     bus = _InMemoryBus()
     ll = LiveLoop(bus=bus)
     n = wiring.publish_tick_signals(ll, afferent_status=status)
-    assert n == 1, "باید یک AFFERENT event publish شود"
-    assert len(bus.events) == 1
-    assert bus.events[0]["type"] == "AFFERENT"
+    assert n == 1, "باید یک AFFERENT advisory publish شود"
+    assert len(ll.advisory_signals) == 1
+    assert ll.advisory_signals[0]["type"] == "AFFERENT"
 
 
 def t_afferent_observation_count():

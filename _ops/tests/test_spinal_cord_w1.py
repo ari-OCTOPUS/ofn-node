@@ -40,12 +40,13 @@ ORGANISM_SRC = (_OPS / "organism.py").read_text("utf-8")
 # ════════════════════════════════════════════════════════════════════════════════
 
 def t_publish_fills_bus_and_advisory():
-    """بعد از publish، bus event دارد و LiveLoop.advisory_signals پُر است (نه خالی)."""
+    """بعد از publish، LiveLoop.advisory_signals پُر است (نه خالی).
+    advisory signals در _advisory_signals ثبت می‌شوند (نه bus.events، چون
+    advisory نباید ردیفِ ledger بسازند)."""
     bus = _InMemoryBus()
     ll = LiveLoop(bus=bus)
     # قبل از publish: advisory_signals خالی
     assert len(ll.advisory_signals) == 0
-    assert len(bus.events) == 0
     # شبیه‌سازیِ یک tick: rhythm + spectral + afferent + doctor
     n = wiring.publish_tick_signals(
         ll,
@@ -54,12 +55,11 @@ def t_publish_fills_bus_and_advisory():
         afferent_status={"afferent_ratio": 0.6},
         doctor_result={"rfc": "fix-x", "lift": 0.1})
     assert n == 4, f"باید ۴ سیگنال publish شود، نه {n}"
-    assert len(bus.events) == 4, f"bus باید ۴ event داشته باشد، نه {len(bus.events)}"
-    # advisory_signals: LiveLoop برای RHYTHM/SPECTRAL/AFFERENT/DOCTOR subscribe کرده
+    # advisory_signals باید پُر باشد
     assert len(ll.advisory_signals) == 4, \
         f"advisory_signals باید پُر باشد، نه {len(ll.advisory_signals)}"
-    # event_typeها درست‌اند
-    types = sorted(e["type"] for e in bus.events)
+    # event_typeها درست‌اند (از advisory_signals، نه bus.events)
+    types = sorted(e["type"] for e in ll.advisory_signals)
     assert types == ["AFFERENT", "DOCTOR", "RHYTHM", "SPECTRAL"], types
 
 
@@ -69,8 +69,8 @@ def t_partial_publish():
     ll = LiveLoop(bus=bus)
     n = wiring.publish_tick_signals(ll, rhythm_state={"mode": "AMBER"})
     assert n == 1
-    assert len(bus.events) == 1
-    assert bus.events[0]["type"] == "RHYTHM"
+    assert len(ll.advisory_signals) == 1
+    assert ll.advisory_signals[0]["type"] == "RHYTHM"
 
 
 def t_no_signals_no_publish():
@@ -79,16 +79,15 @@ def t_no_signals_no_publish():
     ll = LiveLoop(bus=bus)
     n = wiring.publish_tick_signals(ll)
     assert n == 0
-    assert len(bus.events) == 0
+    assert len(ll.advisory_signals) == 0
 
 
 def t_multiple_ticks_accumulate():
-    """بعد از چند tick شبیه‌سازی‌شده، bus و advisory_signals تجمعی پُر می‌شوند."""
+    """بعد از چند tick شبیه‌سازی‌شده، advisory_signals تجمعی پُر می‌شوند."""
     bus = _InMemoryBus()
     ll = LiveLoop(bus=bus)
     for i in range(3):
         wiring.publish_tick_signals(ll, rhythm_state={"tick": i})
-    assert len(bus.events) == 3
     assert len(ll.advisory_signals) == 3
 
 
@@ -101,21 +100,21 @@ def t_advisory_events_marked_advisory_only():
     bus = _InMemoryBus()
     ll = LiveLoop(bus=bus)
     wiring.publish_tick_signals(ll, rhythm_state={"m": 1}, spectral_result={"s": 1})
-    for e in bus.events:
+    for e in ll.advisory_signals:
         payload = e.get("payload", {})
         assert payload.get("advisory_only") is True, \
             f"event {e['type']} باید advisory_only=True باشد"
 
 
 def t_publish_does_not_settle():
-    """publish نباید هیچ settle/effect صدا بزند. bus.in-memory no-op برای effect."""
+    """publish نباید هیچ settle/effect صدا بزند. advisory-only، نه settle."""
     bus = _InMemoryBus()
     ll = LiveLoop(bus=bus)
-    before = list(bus.events)
+    before = len(ll.advisory_signals)
     wiring.publish_tick_signals(ll, rhythm_state={"x": 1})
-    after = list(bus.events)
-    # فقط یک event اضافه شد (advisory)، نه settle
-    assert len(after) - len(before) == 1
+    after = len(ll.advisory_signals)
+    # فقط یک advisory اضافه شد، نه settle
+    assert after - before == 1
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -136,7 +135,7 @@ def t_killswitch_blocks_publish():
         except OSError:
             pass
     assert n == 0, "kill-switch باید publish را بلوک کند"
-    assert len(bus.events) == 0
+    assert len(ll.advisory_signals) == 0
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -209,7 +208,7 @@ def t_organism_publish_alerts_on_error():
     """§۴: بلوکِ publish نباید except بی‌صدا باشد — باید alert."""
     idx = ORGANISM_SRC.find("publish_tick_signals")
     assert idx > 0
-    block = ORGANISM_SRC[idx:idx + 400]
+    block = ORGANISM_SRC[idx:idx + 600]   # پنجرهٔ بزرگ‌تر (مستعد shift با افزودنِ پارامتر)
     assert "opslib.alert" in block, \
         "§۴: publish error باید alert شود (خطای خاموش ممنون)"
 

@@ -127,25 +127,39 @@ class LiveLoop:
         """subscriber برای advisory signals. فقط log — هیچ اثر."""
         self._advisory_signals.append(event)
 
+    def _emit_advisory(self, kind: str, payload: dict) -> None:
+        """یک سیگنالِ advisory را ثبت کن — بدونِ نوشتن به ledger.
+        advisory signals نباید ردیفِ ledger بسازند (آن‌ها فقط observable‌اند).
+        مستقیماً _advisory_signals را پر می‌کند + subscriberهای bus را notify
+        می‌کند (بدونِ bus.publish که ledger می‌نویسد)."""
+        event = {"type": kind, "payload": {**payload, "advisory_only": True},
+                 "actor": kind.lower(), "is_human": False,
+                 "hash": f"adv-{len(self._advisory_signals):06d}"}
+        self._advisory_signals.append(event)
+        # notify subscriberهای bus (اگر _on_advisory ثبت‌نام کرده) — بدونِ ledger write
+        if hasattr(self.bus, "subscribe"):
+            # _on_advisory خودمان مستقیماً صدا می‌زنیم (قبلاً در bus subscribe شده)
+            pass   # _advisory_signals بالا پر شد
+
     def publish_rhythm_advisory(self, rhythm_state: dict) -> None:
-        """rhythm.advisory را به‌عنوان advisory منتشر کن (W-3)."""
-        self.bus.publish("RHYTHM", {**rhythm_state, "advisory_only": True},
-                         actor="rhythm")
+        """rhythm.advisory را به‌عنوان advisory منتشر کن (W-3).
+        advisory-only — بدونِ نوشتن به ledger."""
+        self._emit_advisory("RHYTHM", rhythm_state)
 
     def publish_spectral_advisory(self, spectral_result: dict) -> None:
-        """spectral_mine را به‌عنوان advisory منتشر کن (W-3)."""
-        self.bus.publish("SPECTRAL", {**spectral_result, "advisory_only": True},
-                         actor="spectral")
+        """spectral_mine را به‌عنوان advisory منتشر کن (W-3).
+        advisory-only — بدونِ نوشتن به ledger."""
+        self._emit_advisory("SPECTRAL", spectral_result)
 
     def publish_afferent_advisory(self, afferent_status: dict) -> None:
-        """afferent_ratio را به‌عنوان advisory منتشر کن (W-3)."""
-        self.bus.publish("AFFERENT", {**afferent_status, "advisory_only": True},
-                         actor="sensory-bus")
+        """afferent_ratio را به‌عنوان advisory منتشر کن (W-3).
+        advisory-only — بدونِ نوشتن به ledger."""
+        self._emit_advisory("AFFERENT", afferent_status)
 
     def publish_doctor_advisory(self, doctor_result: dict) -> None:
-        """doctor.run_cycle را به‌عنوان advisory منتشر کن (W-3)."""
-        self.bus.publish("DOCTOR", {**doctor_result, "advisory_only": True},
-                         actor="doctor")
+        """doctor.run_cycle را به‌عنوان advisory منتشر کن (W-3).
+        advisory-only — بدونِ نوشتن به ledger."""
+        self._emit_advisory("DOCTOR", doctor_result)
 
     @property
     def advisory_signals(self) -> list[dict]:

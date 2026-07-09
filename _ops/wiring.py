@@ -31,6 +31,40 @@ def flag(name: str) -> bool:
     return os.environ.get(name, "0") == "1"
 
 
+# ════════════════════════════════════════════════════════════════════════════════
+# W3 · boot profile — یک سوئیچ به‌جای ۶ flagِ پراکنده (P-W3)
+# ════════════════════════════════════════════════════════════════════════════════
+
+# paper-full = همهٔ wiringِ امن روشن (نورال + consolidation + school + sensory +
+# doctor + evolution + box + unified + legs + ideas). پول/live جدا و همچنان
+# capability-gated (profile آن را باز نمی‌کند).
+PAPER_FULL_FLAGS = (
+    "OCTOPUS_WIRE_DOCTOR", "OCTOPUS_WIRE_NEURAL", "OCTOPUS_WIRE_UNIFIED",
+    "OCTOPUS_WIRE_LEAD", "OCTOPUS_WIRE_SCHOOL", "OCTOPUS_WIRE_CONSOLIDATION",
+    "OCTOPUS_WIRE_EVOLUTION", "OCTOPUS_WIRE_BOX", "OCTOPUS_WIRE_LEAD_TICK",
+    "OCTOPUS_WIRE_IDEAS",
+)
+
+
+def resolve_profile() -> str:
+    """profile را از OCTOPUS_PROFILE بخوان (پیش‌فرض bare = no-regression).
+    خروجی: 'bare' | 'paper-full'. money/live جدا است (در این تابع نیست)."""
+    return os.environ.get("OCTOPUS_PROFILE", "bare")
+
+
+def apply_profile() -> str:
+    """profile را resolve کن و flagهای مربوطه را در env ست کن.
+    bare = هیچ flagی (رفتارِ فعلی، no-regression).
+    paper-full = همهٔ flagهای امن = 1 (اگر هنوز ست نشده‌اند).
+    برمی‌گرداند: نامِ profile. بی‌اثر اگر bare."""
+    profile = resolve_profile()
+    if profile == "paper-full":
+        for f in PAPER_FULL_FLAGS:
+            if os.environ.get(f, "0") == "0":
+                os.environ[f] = "1"
+    return profile
+
+
 # ─── W-1 · germline_lag → ORGANISM-STATE (همیشه روشن، read-only) ───────────────
 def enrich_state_with_germline(state: dict) -> dict:
     """germline_lag را از germline.py به state اضافه کن.
@@ -246,6 +280,8 @@ def wire_summary() -> dict:
         "wire_evolution": flag("OCTOPUS_WIRE_EVOLUTION"), # P-N1: Doctor evolution
         "wire_box": flag("OCTOPUS_WIRE_BOX"),             # P-N2: Box-of-Agents
         "wire_leg_tick": flag("OCTOPUS_WIRE_LEAD_TICK"),  # P-L1: LeadLeg HLC loop
+        "wire_ideas": flag("OCTOPUS_WIRE_IDEAS"),        # P-I: idea-graph engine
+        "profile": resolve_profile(),                    # P-W3: boot profile
         "doctor_every_n": int(os.environ.get("CHRONO_DOCTOR_EVERY_N_BEATS", "1440")),
         "consolidation_every_n": int(os.environ.get("CHRONO_CONSOLIDATION_EVERY_N_BEATS", "720")),
         "afferent_every_n": int(os.environ.get("CHRONO_AFFERENT_EVERY_N_BEATS", "1440")),
@@ -529,4 +565,52 @@ def afferent_beat(sensory_bus, school_bridge=None, snap=None, beat: int = 0) -> 
                 "alarm": sensory_bus.alarms[-1] if sensory_bus.alarms else None}
     except Exception as e:  # noqa: BLE001 — §۴: خطای خاموش ممنون، ولی afferent نباید tick را بکشد
         opslib.alert([f"wiring: afferent_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# I · idea-graph — موتورِ اتصالِ ایده‌ها/پروژه‌ها (P-I، نو)
+# ════════════════════════════════════════════════════════════════════════════════
+
+def make_idea_graph(vault_root=None):
+    """ساختِ IdeaGraph. پشتِ OCTOPUS_WIRE_IDEAS. lazy: گراف در اولین idea_beat ساخته
+    می‌شود (build کند است). $0 آفلاین، stdlib-only."""
+    try:
+        from idea_graph import IdeaGraph
+        return IdeaGraph()
+    except Exception as e:  # noqa: BLE001 — idea_graph اختیاریِ additive
+        opslib.alert([f"wiring: IdeaGraph ساخت نشد: {e}"])
+        return None
+
+
+def idea_beat(idea_graph, vault_root=None, beat: int = 0,
+              rebuild_every_n: int = 1440) -> dict | None:
+    """هر N beat: گرافِ ایده‌ها را بازساز/تحلیل کن و insightها را گزارش کن.
+    پشتِ OCTOPUS_WIRE_IDEAS. kill-switch: اول STOP. هر N beat (نه هر tick).
+    rebuild_every_n = هر چند beat گراف را از نو بساز (۱۴۴۰ = روزانه).
+
+    propose-only مطلق: فقط تحلیل + پیشنهادِ یالِ نو (human-append). هیچ effector.
+
+    خروجی: گزارشِ تحلیل (hubs/clusters/bridges/proposed-edges) یا None."""
+    if not flag("OCTOPUS_WIRE_IDEAS"):
+        return None   # flag خاموش = no-op (no regression)
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None   # kill-switch
+    every_n = int(os.environ.get("CHRONO_IDEAS_EVERY_N_BEATS", "1440"))
+    if beat <= 0 or (every_n > 0 and beat % every_n != 0):
+        return None   # هنوز نوبتِ idea نیست
+    if idea_graph is None:
+        return None   # بدونِ graph engine → هیچ تحلیلی
+    try:
+        # گراف را بساز/به‌روز کن. cache ساده: هر rebuild_every_n یک بار.
+        should_rebuild = (not hasattr(idea_graph, "_last_built_beat")
+                          or (beat - getattr(idea_graph, "_last_built_beat", 0)) >= rebuild_every_n)
+        if should_rebuild:
+            root = vault_root or str(_HERE.parent)
+            idea_graph.build(root)
+            idea_graph._last_built_beat = beat
+        # تحلیل (propose-only)
+        return idea_graph.analyze()
+    except Exception as e:  # noqa: BLE001 — §۴: خطای خاموش ممنون، ولی idea نباید tick را بکشد
+        opslib.alert([f"wiring: idea_beat خطا: {type(e).__name__}: {e}"])
         return None
