@@ -31,6 +31,24 @@ loop:
   # مرجع رسمی سقف لوپ مناظره — opslib.organ_table از همین بخش می‌خواند (پیش‌فرض کد 5 = fallback)
   DEBATE_LOOP: {cap_monthly: 10, floor: 0}   # verdict آری 2026-07-07 (پاسخ‌های STAGE-0: AU$10/ماه)
 
+allocation:
+  # پول‌بر‌درصد — تخصیصِ barbell (verdict آری 2026-07-09). propose-only: تخصیصِ کوشش/API، نه پولِ بیزنس.
+  barbell:
+    core_share: 0.70              # CORE = Ziman+Lead (امن/اثبات‌نزدیک)
+    satellite_share: 0.30         # SATELLITE = Project-F/Crypto/Mining/experiment (انفجاری/capped)
+    satellite_cap_pct: 0.10       # هیچ satelliteِ منفرد از ۱۰٪ کل بیشتر نمی‌گیرد
+    cull_zero_streak_days: 30     # survival-cull: satellite با سیگنالِ صفرِ پایدار (۳۰ روز) → cull
+    hysteresis_max_delta: 0.05    # تغییرِ درصدِ هر organ در هر epoch حداکثر ۵٪ (ضدِ نوسان)
+  core_members: [ZIMAN, ARCHITECT_SYS, GENOME_SYS]
+  satellite_members: [PROJECT_F, MINING]
+  partners_default:
+    # انتسابِ سهمِ پیش‌فرض (attribution partners[]) — verdict آری 2026-07-09
+    PROJECT_F: [{who: Ari, pct: 50}, {who: Saba, pct: 50}]
+    ZIMAN: [{who: Ari, pct: 70}, {who: Mother, pct: 30}]
+    ARCHITECT_SYS: [{who: Ari, pct: 100}]
+    GENOME_SYS: [{who: Ari, pct: 100}]
+    MINING: [{who: Ari, pct: 100}]
+
 routing:
   # 🔴 اصلاح 2026-07-06: aliasهای deepseek-chat/reasoner از 2026-07-24 (15:59 UTC) بازنشسته می‌شوند [FACT — چند منبع].
   # قیمت‌ها ✅ [VERIFIED 2026-07-07 · api-docs.deepseek.com/quick_start/pricing] — قفل شد (verdict پاسخ‌های STAGE-0؛ تخمین بی‌مدرک ممنوع)

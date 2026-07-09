@@ -30,6 +30,37 @@ def _ledger():
     return opslib.genome_ledger()
 
 
+def _partners_for(cell: str, partners=None):
+    """partners[]/pct برای یک cell. اگر صریحاً داده نشد، از partners_default در budgets.yaml.
+    نرمال‌سازی: مجموعِ pct باید ۱۰۰ باشد. خروجی: [{who, pct}]."""
+    if partners is not None:
+        # نرمال‌سازیِ صریح
+        total = sum(float(p.get("pct", 0)) for p in partners) or 1
+        return [{"who": p.get("who", "?"), "pct": round(float(p.get("pct", 0)) / total * 100, 2)}
+                for p in partners]
+    # از budgets.yaml (partners_default)
+    try:
+        b = opslib.load_budgets()
+        defaults = (b.get("allocation") or {}).get("partners_default", {})
+        # cell ممکن است به organ نگاشت شود (cell = lead.doer → organ = ?). سعی با cell مستقیم.
+        # partner_defaults بر اساسِ organ هستند؛ اگر cell مستقیم نیست، organ را از organ_table بگیر.
+        organs = opslib.organ_table()
+        organ_for_cell = None
+        for organ, cfg in organs.items():
+            cells = cfg.get("cells") or []
+            if cell in cells:
+                organ_for_cell = organ
+                break
+        key = organ_for_cell or cell
+        ps = defaults.get(key) or defaults.get(cell)
+        if ps:
+            return [{"who": p.get("who", "?"), "pct": float(p.get("pct", 0))} for p in ps]
+    except Exception:  # noqa: BLE001
+        pass
+    # پیش‌فرض: ۱۰۰٪ صاحبِ نامشخص
+    return [{"who": "unknown", "pct": 100.0}]
+
+
 def mint_id(seq: int, day: str | None = None) -> str:
     return f"LEAD-{(day or opslib.today()).replace('-', '')}-{seq:03d}"
 
@@ -48,14 +79,19 @@ def _next_seq(day: str) -> int:
     return mx + 1
 
 
-def propose(cell: str, expected_aud: float, lead: str = "", day: str | None = None) -> dict:
-    """mintِ id + PROPOSAL. هرگز واردِ fitness نمی‌شود (expected فقط [EST])."""
+def propose(cell: str, expected_aud: float, lead: str = "", day: str | None = None,
+            partners: list | None = None) -> dict:
+    """mintِ id + PROPOSAL. هرگز واردِ fitness نمی‌شود (expected فقط [EST]).
+    partners: [{who, pct}] اختیاری — اگر نباشد، از partners_default در budgets.yaml."""
     day = day or opslib.today()
     aid = mint_id(_next_seq(day), day)
-    return _ledger().append("MONEY_ATTRIBUTION", {
+    payload = {
         "attribution_id": aid, "state": "PROPOSAL", "cell": cell,
         "expected_aud": round(float(expected_aud), 2), "amount_aud": 0.0,
-        "lead": lead, "decision_date": day}, actor="attribution")
+        "lead": lead, "decision_date": day}
+    if partners is not None:
+        payload["partners"] = _partners_for(cell, partners)
+    return _ledger().append("MONEY_ATTRIBUTION", payload, actor="attribution")
 
 
 def claim(attribution_id: str, ref: str, amount_aud: float, day: str | None = None) -> dict:
@@ -66,17 +102,22 @@ def claim(attribution_id: str, ref: str, amount_aud: float, day: str | None = No
         "claim_date": day or opslib.today()}, actor="attribution")
 
 
-def confirm(attribution_id: str, cell: str, amount_aud: float, matched: dict) -> dict:
-    """CONFIRMED (+ATTRIBUTED، single-touch 100٪). فقط reconcile.py صدا می‌زند."""
+def confirm(attribution_id: str, cell: str, amount_aud: float, matched: dict,
+            partners: list | None = None) -> dict:
+    """CONFIRMED (+ATTRIBUTED، single-touch 100٪). فقط reconcile.py صدا می‌زند.
+    partners: [{who, pct}] — split سهمِ هر شریک را در ATTRIBUTED ثبت می‌کند."""
     lg = _ledger()
     amt = round(float(amount_aud), 2)
     rec = lg.append("MONEY_ATTRIBUTION", {
         "attribution_id": attribution_id, "state": "CONFIRMED", "cell": cell,
         "amount_aud": amt, "matched": matched, "confirm_date": opslib.today()},
         actor=RECONCILE_ACTOR)
+    # partners را resolve کن و split بساز
+    ps = _partners_for(cell, partners)
+    split = {p["who"]: round(amt * p["pct"] / 100.0, 2) for p in ps}
     lg.append("MONEY_ATTRIBUTION", {
         "attribution_id": attribution_id, "state": "ATTRIBUTED", "cell": cell,
-        "amount_aud": amt, "split": {cell: 1.0}}, actor=RECONCILE_ACTOR)
+        "amount_aud": amt, "split": split, "partners": ps}, actor=RECONCILE_ACTOR)
     return rec
 
 
@@ -128,7 +169,19 @@ def confirmed_revenue(window_days: int | None = None) -> dict:
             c = p.get("cell", "unknown")
             by_cell[c] = round(by_cell.get(c, 0.0) + float(p.get("amount_aud", 0) or 0), 2)
     coverage = round(confirmed / claimed, 3) if claimed else None
-    return {"by_cell": by_cell, "attribution_coverage": coverage,
+    # by_partner: جمعِ AUD per partner از split در ATTRIBUTED
+    by_partner: dict[str, float] = {}
+    for p in latest.values():
+        if p.get("state") in CONFIRMED_STATES:
+            split = p.get("split") or {}
+            if isinstance(split, dict):
+                for who, amt in split.items():
+                    by_partner[who] = round(by_partner.get(who, 0.0) + float(amt or 0), 2)
+            else:
+                # legacy (no split): کل به cell
+                pass
+    return {"by_cell": by_cell, "by_partner": by_partner,
+            "attribution_coverage": coverage,
             "claimed": claimed, "confirmed": confirmed,
             "window_days": window_days or ATTR_WINDOW_DAYS}
 

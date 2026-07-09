@@ -141,6 +141,106 @@ def allocate_dry(snap: dict) -> dict:
                          "ok": total_u <= cap_u}}
 
 
+# ─── POOL-BAR-DARSAD — barbell allocation (propose-only، additive) ────────────
+# تخصیصِ کوشش/API بر اساسِ barbell: CORE~70/SATELLITE~30، satellite_cap،
+# تنظیمِ درصد بر اساسِ CONFIRMED AUD، survival-cull (نه payback)، hysteresis.
+# این یک مسیرِ parallel/additive است — allocate_dry دست‌نخورده.
+
+def barbell_allocate(confirmed_by_organ: dict | None = None,
+                     prev_pcts: dict | None = None,
+                     zero_streak: dict | None = None,
+                     budgets: dict | None = None) -> dict:
+    """تخصیصِ barbell بر اساسِ CONFIRMED AUD. propose-only.
+    - confirmed_by_organ: {organ: AUD_confirmed} از attribution.confirmed_revenue
+    - prev_pcts: درصدِ قبلیِ هر organ (برای hysteresis). None = شروعِ مساوی.
+    - zero_streak: {organ: days_since_last_confirmed} برای survival-cull.
+    - budgets: قابل‌تزریق برای تست (نه harness mock). None = opslib.load_budgets().
+    خروجی: {organ: pct, barbell: {core_share, satellite_share}, culled: [...], propose_only: True}.
+    satellite_cap_pct = سقفِ سختِ هر satellite. hysteresis_max_delta = تغییرِ مجاز."""
+    b = budgets or opslib.load_budgets()
+    alloc_cfg = (b.get("allocation") or {}).get("barbell", {})
+    core_share = float(alloc_cfg.get("core_share", 0.70))
+    sat_share = float(alloc_cfg.get("satellite_share", 0.30))
+    sat_cap = float(alloc_cfg.get("satellite_cap_pct", 0.10))
+    cull_days = int(alloc_cfg.get("cull_zero_streak_days", 30))
+    hyst = float(alloc_cfg.get("hysteresis_max_delta", 0.05))
+    core_members = set((b.get("allocation") or {}).get("core_members", []))
+    sat_members = set((b.get("allocation") or {}).get("satellite_members", []))
+    confirmed = confirmed_by_organ or {}
+    prev = prev_pcts or {}
+    streak = zero_streak or {}
+
+    # ۱) survival-cull: satellite با سیگنالِ صفرِ پایدار → cull (نه payback)
+    culled = []
+    for org in sat_members:
+        days = streak.get(org, 0)
+        if days >= cull_days and confirmed.get(org, 0) <= 0:
+            culled.append(org)
+
+    # ۲) percentage اولیه: بر اساسِ CONFIRMED AUD درونِ هر گروه
+    def _group_pcts(members, total_share):
+        # سهم هر organ بر اساسِ CONFIRMED AUD (نسبی درونِ گروه)
+        active = [m for m in members if m not in culled]
+        confirmed_sum = sum(max(0.0, confirmed.get(m, 0.0)) for m in active)
+        pcts = {}
+        for m in active:
+            if confirmed_sum > 0:
+                pcts[m] = (max(0.0, confirmed.get(m, 0.0)) / confirmed_sum) * total_share
+            else:
+                # بدونِ داده → مساوی تقسیم
+                pcts[m] = total_share / max(1, len(active))
+        return pcts
+
+    raw_pcts = {}
+    raw_pcts.update(_group_pcts(core_members, core_share))
+    raw_pcts.update(_group_pcts(sat_members, sat_share))
+
+    # ۳) satellite cap: هیچ satellite از sat_cap بیشتر نگیرد
+    capped = {}
+    overflow = 0.0
+    for org, pct in raw_pcts.items():
+        if org in sat_members:
+            capped_val = min(pct, sat_cap)
+            overflow += (pct - capped_val)
+            capped[org] = capped_val
+        else:
+            capped[org] = pct
+    # overflow را به core بده (تناسبی)
+    if overflow > 0 and core_members:
+        core_confirmed_sum = sum(max(0.0, confirmed.get(m, 0.0)) for m in core_members if m not in culled)
+        for org in core_members:
+            if org in culled:
+                continue
+            if core_confirmed_sum > 0:
+                capped[org] = capped.get(org, 0) + overflow * (max(0.0, confirmed.get(org, 0.0)) / core_confirmed_sum)
+            else:
+                capped[org] = capped.get(org, 0) + overflow / len([m for m in core_members if m not in culled])
+
+    # ۴) hysteresis: تغییر نسبت به prev محدود کن
+    final = {}
+    for org, pct in capped.items():
+        if org in prev and prev[org] is not None:
+            delta = pct - prev[org]
+            if abs(delta) > hyst:
+                pct = prev[org] + (hyst if delta > 0 else -hyst)
+        final[org] = round(max(0.0, pct), 4)
+
+    # normalise: مجموع باید ۱.۰ باشد (یا نزدیک)
+    total = sum(final.values())
+    if total > 0:
+        final = {k: round(v / total, 4) for k, v in final.items()}
+
+    return {
+        "organ_pct": final,
+        "barbell": {"core_share": core_share, "satellite_share": sat_share,
+                    "satellite_cap_pct": sat_cap},
+        "culled": culled,
+        "cull_zero_streak_days": cull_days,
+        "hysteresis_max_delta": hyst,
+        "propose_only": True,
+    }
+
+
 def allocate_llm(snap: dict, alloc_dry: dict) -> dict | None:
     """مود LLM (دوقفله + خود-متر). شکست هر پله = برگشت امن به dry (fail-closed برای خرج)."""
     ok, why = opslib.live_gate_open(opslib.ACT_GOV_LLM)
