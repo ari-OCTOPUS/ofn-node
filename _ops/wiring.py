@@ -202,6 +202,7 @@ def wire_summary() -> dict:
         "wire_live_loop": flag("OCTOPUS_WIRE_UNIFIED"),   # نخاع = bus + LiveLoop
         "doctor_every_n": int(os.environ.get("CHRONO_DOCTOR_EVERY_N_BEATS", "1440")),
         "consolidation_every_n": int(os.environ.get("CHRONO_CONSOLIDATION_EVERY_N_BEATS", "720")),
+        "afferent_every_n": int(os.environ.get("CHRONO_AFFERENT_EVERY_N_BEATS", "1440")),
     }
 
 
@@ -395,4 +396,91 @@ def consolidation_beat(neural_stack, school_bridge=None, beat: int = 0,
             acquisition_data=acquisition_data, doctor_archive=doctor_archive)
     except Exception as e:  # noqa: BLE001 — §۴: خطای خاموش ممنون، ولی consolidation نباید tick را بکشد
         opslib.alert([f"wiring: consolidation_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# W · afferent path (آوران واقعی) — sensory_bus → school_bridge در حلقهٔ زنده (P-W2)
+# ════════════════════════════════════════════════════════════════════════════════
+
+def make_sensory_bus():
+    """ساختِ SensoryBus (مسیرِ آورانِ واحد). پشتِ OCTOPUS_WIRE_SCHOOL.
+    $0 آفلاین، stdlib-only. اگر import موفق نباشد → None (fail-soft)."""
+    try:
+        sys.path.insert(0, str(_HERE / "afferent"))
+        from sensory_bus import SensoryBus
+        return SensoryBus()
+    except Exception as e:  # noqa: BLE001 — SensoryBus اختیاریِ additive
+        opslib.alert([f"wiring: SensoryBus ساخت نشد: {e}"])
+        return None
+
+
+def _observations_from_snapshot(snap: dict) -> list:
+    """از snapshotِ telemetry یک‌دسته observationِ کاملاً انتزاعی بساز.
+    هیچ رکوردِ خام/PII. فقط نوع/ساختارِ کلی (مانندِ ingest_raw: برچسبِ انتزاعی).
+    این منبعِ آورانِ زندهٔ ارگانیسم است — سیستم از «شکلِ کلیِ فعالیت» یاد می‌گیرد،
+    نه از دادهٔ مشتری."""
+    from sensory_bus import Observation
+    obs = []
+    if not isinstance(snap, dict):
+        return obs
+    per_organ = snap.get("per_organ_alltime_musd") or {}
+    # هر organ فعال یک observationِ status (لیبلِ کاملاً انتزاعی)
+    n_organs = len([v for v in per_organ.values() if isinstance(v, (int, float)) and v > 0])
+    if n_organs > 0:
+        obs.append(Observation(
+            source="organism", obs_type="status",
+            label=f"organ activity · {n_organs} organs with spend (structure only)",
+            intensity=min(0.6, 0.3 + n_organs * 0.05)))
+    sz = snap.get("suspect_zero_total", 0)
+    if isinstance(sz, (int, float)) and sz > 0:
+        obs.append(Observation(
+            source="organism", obs_type="error",
+            label=f"{sz} suspect zero-cost records (anomaly signal)",
+            intensity=0.4))
+    mon = snap.get("month") or {}
+    mon_musd = mon.get("musd", 0) if isinstance(mon, dict) else 0
+    if isinstance(mon_musd, (int, float)) and mon_musd > 0:
+        obs.append(Observation(
+            source="organism", obs_type="payment",
+            label=f"month spend · {int(mon_musd)} micro-USD (aggregate only)",
+            intensity=0.35))
+    return obs
+
+
+def afferent_beat(sensory_bus, school_bridge=None, snap=None, beat: int = 0) -> dict | None:
+    """هر N beat: آورانِ واقعی. observationهای انتزاعی (ازِ snapshot، صفر PII) →
+    sensory_bus.ingest → school_bridge.learn_from → خروجی = afferent_status برای bus.
+
+    پشتِ OCTOPUS_WIRE_SCHOOL. kill-switch: اول STOP. هر N beat (نه هر tick).
+    صفر رکوردِ خام/PII (classifier فقط لیبل می‌بیند؛ PII رد می‌شود).
+    verification-gate: فقط afferent=True یاد گرفته می‌شود (PII-رد/internal نادیده).
+
+    خروجی: {school_report, sensory_status, n_observations} یا None (advisory)."""
+    if not flag("OCTOPUS_WIRE_SCHOOL"):
+        return None   # flag خاموش = no-op (no regression)
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None   # kill-switch
+    every_n = int(os.environ.get("CHRONO_AFFERENT_EVERY_N_BEATS", "1440"))  # روزانه
+    if beat <= 0 or (every_n > 0 and beat % every_n != 0):
+        return None   # هنوز نوبتِ afferent نیست
+    if sensory_bus is None:
+        return None   # بدونِ SensoryBus → هیچ آورانی
+    try:
+        # ۱) observationهای انتزاعی از snapshot (صفر PII)
+        observations = _observations_from_snapshot(snap)
+        # ۲) ingest هر observation → AfferentEvent (PII اینجا رد می‌شود)
+        events = [sensory_bus.ingest(o) for o in observations]
+        # ۳) alarm check
+        sensory_bus.check_alarm()
+        # ۴) school_bridge یاد بگیرد ازِ afferent events (فقط afferent=True)
+        school_report = None
+        if school_bridge is not None and any(getattr(e, "afferent", False) for e in events):
+            school_report = school_bridge.learn_from(events, persist=False)
+        return {"n_observations": len(observations),
+                "school_report": school_report,
+                "sensory_status": sensory_bus.status(),
+                "alarm": sensory_bus.alarms[-1] if sensory_bus.alarms else None}
+    except Exception as e:  # noqa: BLE001 — §۴: خطای خاموش ممنون، ولی afferent نباید tick را بکشد
+        opslib.alert([f"wiring: afferent_beat خطا: {type(e).__name__}: {e}"])
         return None

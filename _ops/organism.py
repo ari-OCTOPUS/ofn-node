@@ -144,6 +144,7 @@ def main() -> int:
     _doctor_inst = None
     _neural_stack = None
     _school_bridge = None
+    _sensory_bus = None
     _bus = None
     _leg = None
     _live_loop = None
@@ -159,6 +160,9 @@ def main() -> int:
         # M (P-M2): اگر consolidation وصل است، SchoolBridge بساز (منبعِ awareness)
         if _wire.get("wire_consolidation"):
             _school_bridge = _w.make_school_bridge()
+        # W (P-W2): آورانِ واقعی — اگر school/afferent وصل است، SensoryBus بساز
+        if _wire.get("wire_school"):
+            _sensory_bus = _w.make_sensory_bus()
         # W (P-W1): LiveLoop روی همان bus (نخاع). مغز و بدن روی یک حلقه.
         _live_loop = _w.make_live_loop(bus=_bus, leg=_leg, doctor=_doctor_inst,
                                        channel=_chan)
@@ -263,6 +267,17 @@ def main() -> int:
                                           beat=_cstat.get("beat", 0))
                 except Exception as _ce:  # noqa: BLE001 — §۴: خطای خاموش ممنون (consolidation نباید tick را بکشد)
                     opslib.alert([f"consolidation_beat error (non-fatal): {type(_ce).__name__}: {_ce}"])
+            # ── W (P-W2): آورانِ واقعی — observationهای انتزاعی (ازِ snapshot، صفر PII)
+            # → sensory_bus → school_bridge.learn_from → afferent_status. هر N beat، پشتِ flag.
+            _afferent_status = None
+            if not _protective_skip and _sensory_bus is not None and _cstat is not None:
+                try:
+                    _aff = _w.afferent_beat(_sensory_bus, school_bridge=_school_bridge,
+                                            snap=snap, beat=_cstat.get("beat", 0))
+                    if _aff and _aff.get("school_report"):
+                        _afferent_status = _aff.get("sensory_status")
+                except Exception as _ae:  # noqa: BLE001 — §۴: afferent نباید tick را بکشد
+                    opslib.alert([f"afferent_beat error (non-fatal): {type(_ae).__name__}: {_ae}"])
             # ── W (P-W1): سیگنال‌های این tick را به bus (نخاع) منتشر کن.
             # مغز ← bus → subscriberها (LiveLoop.advisory_signals و غیره) فایر می‌شوند.
             # advisory فقط — هیچ effector. هر سیگنال در try مستقل (fail-soft، §۴).
@@ -271,7 +286,7 @@ def main() -> int:
                     _rh = pulse.get("chrono") or None   # rhythm/chrono state موجود این tick
                     _w.publish_tick_signals(_live_loop, beat=_cstat.get("beat", 0) if _cstat else 0,
                                             rhythm_state=_rh, spectral_result=None,
-                                            afferent_status=None, doctor_result=None)
+                                            afferent_status=_afferent_status, doctor_result=None)
                 except Exception as _pe:  # noqa: BLE001 — §۴: publish نباید tick را بکشد
                     opslib.alert([f"publish_tick_signals error (non-fatal): {type(_pe).__name__}: {_pe}"])
 
