@@ -385,8 +385,9 @@ def make_sprint_runner():
 
 
 def make_neural_stack():
-    """ساختِ NeuralDriver + Hebbian + Consolidation + HookBus.
-    پشتِ OCTOPUS_WIRE_NEURAL. اگر خاموش → None."""
+    """ساختِ NeuralDriver + Hebbian + Consolidation.
+    پشتِ OCTOPUS_WIRE_NEURAL. اگر خاموش → None.
+    C9: hooks/nociceptor/reflex حذف شدند (مرده در stack — pain/reflex از NeuralDriver داخلی وصل است)."""
     if not flag("OCTOPUS_WIRE_NEURAL"):
         return None
     try:
@@ -394,16 +395,10 @@ def make_neural_stack():
         from neural_driver import NeuralDriver
         from hebbian import HebbianAssociator
         from consolidation import ConsolidationCycle
-        from hooks import HookBus
-        from nociceptor import Nociceptor
-        from reflex import ReflexArc
         return {
             "driver": NeuralDriver(),
             "hebbian": HebbianAssociator(),
             "consolidation": ConsolidationCycle(),
-            "hooks": HookBus(),
-            "nociceptor": Nociceptor(),
-            "reflex": ReflexArc(),
         }
     except Exception as e:  # noqa: BLE001
         opslib.alert([f"wiring: neural stack ساخت نشد: {e}"])

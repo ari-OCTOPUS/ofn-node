@@ -513,7 +513,7 @@ class Doctor:
         if use_chamber:
             try:
                 from chamber import run_chamber
-                result = run_chamber(trace=trace or {}, initial_rfc={
+                result = run_chamber(trace=trace or self._gather_trace(), initial_rfc={
                     "bottleneck": rfc.bottleneck, "fix": rfc.fix,
                     "expected_lift": rfc.expected_lift, "rollback": rfc.rollback})
                 if result.get("rfc") and "confidence" in result["rfc"]:
@@ -592,9 +592,16 @@ class Doctor:
             return {"stepped": False,
                     "cycle_ended_reason": (snap or {}).get("reason", "no-snap")}
         # ── b4_fusion: φ_t به‌عنوانِ سیگنالِ novelty (advisory)
+        # B8: φ_t از cycleِ قبلی به noveltyِ این cycle تبدیل می‌شود (lag عمدی: feedback loop).
+        # cycle اول بدونِ phi_tِ قبلی → novelty دست‌نخورده (graceful).
         phi_report = None
+        novelty_from_phi = None
         try:
-            from b4_fusion import compute_phi_t
+            from b4_fusion import compute_phi_t, phi_to_novelty
+            # اگر phi_t از cycle قبلی موجود است → novelty بساز
+            if getattr(self, "_last_phi_t", None) is not None:
+                novelty_from_phi = phi_to_novelty(self._last_phi_t)
+            # phi_t این cycle را محاسبه و نگه‌دار برایِ cycle بعد
             edges = []
             for i in range(len(self._box.agents) - 1):
                 edges.append((i, i + 1))
@@ -602,6 +609,7 @@ class Doctor:
             agent_states = [a.cognitive.hidden_state[0] if a.cognitive.hidden_state else 0.5
                             for a in self._box.agents]
             phi_report = compute_phi_t(edges, n, agent_states)
+            self._last_phi_t = phi_report   # برایِ cycle بعد
         except Exception:  # noqa: BLE001 — b4 advisory fail-soft
             phi_report = {"available": False}
         # ── bottlenecks adapter: snapshot → bottlenecks (برای b3_bridge)
@@ -627,6 +635,7 @@ class Doctor:
         report = {"stepped": True,
                   "tick": snap.get("tick"),
                   "phi_t": phi_report,
+                  "novelty_from_phi": novelty_from_phi,
                   "submitted_count": submitted_count,
                   "submit_results_count": len(submit_results),
                   "falsif_majority": falsif_majority,

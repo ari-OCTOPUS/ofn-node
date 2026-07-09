@@ -490,10 +490,24 @@ class Pacemaker:
             leg.state = new_state
             (present if new_state == "alive" else absent).append(leg.id)
             if new_state == "failed" and was != "failed" and self.doctor is not None:
-                try:  # Phase 2 قلاب: OTP-style restart از حالتِ known-good لجر
-                    self.doctor.restart_from_known_good(leg, self.db)
-                except Exception as e:  # noqa: BLE001
-                    opslib.alert([f"doctor restart hook failed ({leg.id}): {e}"])
+                # B5: self-heal پشتِ flag + circuit-breaker (ضدِ restart-storm)
+                import os as _os
+                if _os.environ.get("OCTOPUS_WIRE_SELFHEAL") == "1":
+                    import time as _time
+                    now_s = _time.time()
+                    window = 300   # ۵ دقیقه
+                    max_restarts = 3   # حداکثر ۳ restart در ۵ دقیقه
+                    recent = [t for t in getattr(self, "_restart_log", []) if now_s - t < window]
+                    if len(recent) < max_restarts:
+                        recent.append(now_s)
+                        self._restart_log = recent
+                        try:  # Phase 2 قلاب: OTP-style restart از حالتِ known-good لجر
+                            self.doctor.restart_from_known_good(leg, self.db)
+                        except Exception as e:  # noqa: BLE001
+                            opslib.alert([f"doctor restart hook failed ({leg.id}): {e}"])
+                    else:
+                        opslib.alert([f"self-heal circuit-breaker: {len(recent)} restarts "
+                                      f"in {window}s — throttled ({leg.id})"])
 
         # 2) «اکنونِ مشترک» = max HLCهای پاهای غیرمرده + تیکِ خودِ pacemaker
         self.hlc = hlc_tick(hlc_max([leg.hlc for leg in self.bus.legs.values()
@@ -603,12 +617,16 @@ class Pacemaker:
 _default: Pacemaker | None = None
 
 
-def start_pacemaker_thread(period_s: float | None = None) -> Pacemaker:
+def start_pacemaker_thread(period_s: float | None = None,
+                           doctor=None, dispatcher=None) -> Pacemaker:
     """pacemaker پیش‌فرض به‌عنوان background task (daemon).
+    B5: doctor برای restart_from_known_good (self-heal پشتِ flag).
+    B6: dispatcher برای F19 scheduler (پشتِ flag).
     fail-soft: شکستِ chrono نباید متابولیسمِ موجود را بکشد — تماس‌گیرنده try می‌کند."""
     global _default
     if _default is None:
-        _default = Pacemaker(period_s=period_s or PERIOD_S)
+        _default = Pacemaker(period_s=period_s or PERIOD_S,
+                             doctor=doctor, dispatcher=dispatcher)
         threading.Thread(target=_default.run_forever, daemon=True,
                          name="chrono-pacemaker").start()
         opslib.heartbeat(f"chrono=START period={_default.period_s:.0f}s "

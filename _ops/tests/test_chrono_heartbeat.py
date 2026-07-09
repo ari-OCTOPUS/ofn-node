@@ -7,6 +7,7 @@ alive→suspected→failed در آستانه‌های درست + قلابِ دک
 · scheduler بر حسبِ نبض نه ساعتِ دیواری (F19) · effect-gate: بدونِ append settle
 ممنوع؛ kill گیت را force-close می‌کند (TINV-7). همه $0 آفلاین."""
 import inspect
+import os
 import sys
 from pathlib import Path
 
@@ -92,6 +93,10 @@ def t_phi_transitions_and_doctor_hook():
         def restart_from_known_good(self, leg, db):
             calls.append(leg.id)
 
+    # B5: self-heal پشتِ flag
+    _prev = os.environ.get("OCTOPUS_WIRE_SELFHEAL")
+    os.environ["OCTOPUS_WIRE_SELFHEAL"] = "1"
+
     pm, clock, _ = _pm("phi", doctor=DoctorStub())
     leg = pm.bus.register_leg("A")
     for _ in range(5):                    # تاریخچهٔ منظم: ack هر 60s
@@ -109,6 +114,11 @@ def t_phi_transitions_and_doctor_hook():
     pm.beat_once()
     assert leg.state == "failed", leg.state
     assert calls == ["A"], calls          # قلابِ Phase 2 دقیقاً یک‌بار
+    # restore flag
+    if _prev is not None:
+        os.environ["OCTOPUS_WIRE_SELFHEAL"] = _prev
+    else:
+        os.environ.pop("OCTOPUS_WIRE_SELFHEAL", None)
 
 
 def t_experience_bounded_coupling_two_clock():

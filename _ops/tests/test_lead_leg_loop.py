@@ -218,7 +218,7 @@ def t_no_leg_or_pacemaker_noop():
 
 def t_organism_captures_pacemaker():
     """بوت باید pacemaker را در متغیر نگه دارد (برای HLC/ackِ leg)."""
-    assert "_pacemaker = chrono.start_pacemaker_thread()" in ORGANISM_SRC, \
+    assert "_pacemaker = chrono.start_pacemaker_thread(" in ORGANISM_SRC, \
         "بوت باید _pacemaker را نگه دارد"
 
 

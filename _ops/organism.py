@@ -186,7 +186,7 @@ def main() -> int:
         opslib.alert([f"organism wiring failed (non-fatal): {_e}"])
     if chrono is not None:
         try:   # P-Chrono-1: pacemaker به‌عنوان background task (additive، fail-soft)
-            _pacemaker = chrono.start_pacemaker_thread()   # P-L1: نمونه را نگه دار
+            _pacemaker = chrono.start_pacemaker_thread(doctor=_doctor_inst)   # P-L1+B5: doctor برای self-heal
         except Exception as e:  # noqa: BLE001
             opslib.alert([f"chrono pacemaker start failed: {e}"])
     next_epoch_at = 0.0
@@ -314,7 +314,7 @@ def main() -> int:
                 try:
                     _rh = _rhythm_state or pulse.get("chrono") or None   # rhythm (mode_color) یا chrono
                     _w.publish_tick_signals(_live_loop, beat=_cstat.get("beat", 0) if _cstat else 0,
-                                            rhythm_state=_rh, spectral_result=None,
+                                            rhythm_state=_rh,
                                             afferent_status=_afferent_status,
                                             doctor_result=_doctor_result)
                 except Exception as _pe:  # noqa: BLE001 — §۴: publish نباید tick را بکشد

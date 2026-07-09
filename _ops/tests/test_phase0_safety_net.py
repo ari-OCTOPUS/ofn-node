@@ -45,14 +45,14 @@ def t_0a_doctor_not_passed_to_pacemaker():
 
 
 def t_0a_start_pacemaker_thread_no_doctor_param():
-    """[CHARACTERIZE] امضای start_pacemaker_thread فقط period_s دارد."""
+    """[FIXED in Phase 1 B5] start_pacemaker_thread اکنون doctor و dispatcher دارد."""
     import inspect
     sig = inspect.signature(chrono.start_pacemaker_thread)
     params = list(sig.parameters.keys())
-    assert "doctor" not in params, \
-        f"characterization: start_pacemaker_thread نباید doctor داشته باشد (هنوز): {params}"
-    assert "dispatcher" not in params, \
-        f"characterization: start_pacemaker_thread نباید dispatcher داشته باشد: {params}"
+    assert "doctor" in params, \
+        f"B5 fix: start_pacemaker_thread باید doctor داشته باشد: {params}"
+    assert "dispatcher" in params, \
+        f"B5 fix: start_pacemaker_thread باید dispatcher داشته باشد: {params}"
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -114,13 +114,10 @@ def t_0c_fitness_reads_empty_outbox_gracefully():
 # ════════════════════════════════════════════════════════════════════════════════
 
 def t_0d_phi_to_novelty_not_called_in_doctor():
-    """[CHARACTERIZE] phi_to_novelty در doctor.py هرگز صدا زده نمی‌شود.
-
-    compute_phi_t اجرا می‌شود و در report ذخیره، ولی phi_to_novelty مرده."""
+    """[FIXED in Phase 1 B8] phi_to_novelty اکنون در doctor.py صدا زده می‌شود."""
     doctor_src = (_OPS / "doctor" / "doctor.py").read_text("utf-8")
-    assert "phi_to_novelty" not in doctor_src, \
-        "characterization: phi_to_novelty نباید در doctor.py صدا زده شود (هنوز مرده)"
-    # ولی compute_phi_t صدا زده می‌شود
+    assert "phi_to_novelty" in doctor_src, \
+        "B8 fix: phi_to_novelty باید در doctor.py صدا زده شود (وصل شد)"
     assert "compute_phi_t" in doctor_src, \
         "compute_phi_t باید در doctor.py صدا زده شود (این بخش زنده است)"
 
