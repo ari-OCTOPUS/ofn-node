@@ -95,4 +95,22 @@ updated: 2026-07-09
 ## ۴. معیارِ «تمام» (پاسخِ نهایی به «وگرنه فایده‌اش چیه»)
 بوتِ `organism.py` در `paper-full` → `connection self-test` (P-W4) سبز = هر یک از این‌ها در ≥۱ beat واقعاً fire کرد: sensory→school · neural · consolidation · doctor(+evolution+box) · legs(proposal) · rhythm/spectral advisory · unified bus. تا این تست سبز نشود، «وصل» یک ادعاست نه واقعیت.
 
-**نوتِ خواهر:** پرامپت‌ها → [[octopus-build-prompts/CHRONO-BUILD-PROMPTS — grounded]] (GROUP W). گراندینگ → [[2026-07-09 CHRONO-GROUNDING-PLAN — design↔reality + roadmap + decision-gates]].
+---
+
+## ۵. اینونتوریِ کاملِ orphanها (ممیزیِ اتصال — ۷۱ ماژول → ۲۱ shelfware)
+
+> یک ممیزیِ فقط‌خواندنیِ کلِ `_ops` هر ماژول را طبقه‌بندی کرد (wired-boot / flag-gated / support-lib / **shelfware** / alt-entrypoint / test-only). ۲۱ ماژول shelfware‌اند (ساخته+تست، بی‌مسیرِ زنده). این جدول disposition هرکدام را می‌دهد تا **هیچ‌کدام بی‌تکلیف نماند**:
+
+| shelfware | disposition |
+|---|---|
+| `live_loop.py` · `brain/cockpit.py` · `unified_bus.py`* | **P-W1** (نخاع؛ *unified_bus هم flag-gated و هم return-discard است) |
+| `afferent/sensory_bus.py` | **P-W2** |
+| **کلِ خوشهٔ `doctor/box/` (۱۲ فایل:** box, b3_bridge, b4_fusion, falsif_harness, agent_state, dynamics, archivist, topology, warden, sensors, null_dreamer, __init__**)** | **P-N2 (گسترش‌یافته):** box.py در run_cycle instantiate + step روی trace → b3_bridge.box_to_doctor_pipeline → مسیرِ propose-onlyِ doctor؛ b4_fusion=novelty، falsif=کنترلِ دوره‌ای. بقیه support-libِ box‌اند → با wire‌شدنِ box.py خودکار reachable |
+| `germline.py` (CRIT-tier alarm + retry بی‌مصرف؛ tick از `opslib.germline_lag_hours` inline استفاده می‌کند) | **P-W5 (نو)** |
+| `checkpoint.py` (per-beat checkpoint/replay بی‌مصرف؛ unified_bus نسخهٔ تکراریِ خودش را دارد) | **P-W6 (نو)** |
+| `doctor/spectral.py` (`spectral_mine` در run_cycle صدا زده نمی‌شود) | **P-W7 (نو)** |
+| `budget/money_gate.py` | **عمداً deferred تا فاز live** (D-32؛ money قفل — از `capability_gate.require` قابلِ‌رسیدن است ولی چون spend رخ نمی‌دهد dormant است). **gap نیست.** |
+
+**نتیجه:** پس از GROUP W (W1/W2/W3/W4) + N1/N2(گسترش)/L1 + W5/W6/W7، **هر ۲۱ shelfware یا وصل می‌شود یا عمداً deferred است** → هیچ فایلی بی‌دلیل جا نمی‌ماند. `P-W4` (connection self-test) اثباتش می‌کند.
+
+**نوتِ خواهر:** پرامپت‌ها → [[octopus-build-prompts/CHRONO-BUILD-PROMPTS — grounded]] (GROUP W + W5/W6/W7). گراندینگ → [[2026-07-09 CHRONO-GROUNDING-PLAN — design↔reality + roadmap + decision-gates]].

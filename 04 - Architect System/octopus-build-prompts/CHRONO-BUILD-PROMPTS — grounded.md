@@ -116,6 +116,33 @@ DoD: paper-full → wire_summary همهٔ امن‌ها True؛ bare → همه F
 DoD: paper-full سبز = اثباتِ اینکه بوتِ مغز کلِ بدن را فعال می‌کند؛ در run_all ثبت شود. path-scoped: test + run_all.
 ```
 
+## P-W5 · فعال‌سازیِ germline.py (CRIT-tier alarm + retry) — از ممیزیِ اتصال
+```
+تسک (P-W5) · germline.py shelfware است:
+بخوان: _ops/germline.py (lag_alarm/lag_severity/run_with_retry — warn2h/ERR26h/CRIT72h) · _ops/wiring.py (enrich_state_with_germline — تعریف شده ولی هیچ‌جا صدا زده نمی‌شود) · _ops/organism.py (tick ~۱۸۸-۱۹۵: از opslib.germline_lag_hours inline استفاده می‌کند، نه germline.py).
+گپ: tick نسخهٔ فقیرترِ inline را دارد (بدونِ CRIT tier)؛ germline.py غنی‌تر بی‌مصرف مانده.
+بساز: بلوکِ inlineِ germline در tick را با wiring.enrich_state_with_germline(state) جایگزین کن (که germline.lag_alarm را استفاده می‌کند)؛ قرارداد یکی شود. fail-soft (نبودِ دیسک هرگز tick را نکشد).
+DoD: tick از germline.py استفاده می‌کند (CRIT tier فعال)؛ تستِ رفتاری: lag>72h → CRIT؛ run_all سبز. path-scoped.
+```
+
+## P-W6 · فعال‌سازیِ checkpoint.py (per-beat replay) — پس از P-W1
+```
+تسک (P-W6) · checkpoint.py shelfware است:
+بخوان: _ops/checkpoint.py (checkpoint(beat,hlc,ledger_hash) + replay) · _ops/unified_bus.py (_checkpoint داخلیِ تکراری، خط ~۹۹-۱۱۵) · _ops/chrono.py.
+گپ: checkpoint.py بی‌مصرف؛ unified_bus نسخهٔ DDLِ تکراریِ خودش را دارد.
+بساز: unified_bus._checkpoint به checkpoint.checkpoint() delegate کند (حذفِ DDLِ تکراری) — پس از P-W1 که unified_bus را واقعاً به حلقه وصل می‌کند. یک قالبِ checkpointِ واحد. صفر spend.
+DoD: یک مسیرِ checkpointِ واحد (بدونِ تکرار)؛ تستِ رفتاریِ replay؛ run_all سبز. path-scoped. (وابسته به P-W1.)
+```
+
+## P-W7 · اتصالِ spectral.py به Doctor — از ممیزیِ اتصال
+```
+تسک (P-W7) · spectral.py shelfware است:
+بخوان: _ops/doctor/spectral.py (spectral_mine(trace) → spectral-criticality) · _ops/doctor/doctor.py (run_cycle / _gather_trace / mine).
+گپ: spectral_mine در run_cycle صدا زده نمی‌شود.
+بساز: spectral.spectral_mine(trace) را داخلِ Doctor.run_cycle/_gather_trace صدا بزن تا advisoryِ spectral-criticality کنارِ mine() اضافه شود (trace از قبل organs+errors دارد). advisory/propose-only؛ دکتر معیارِ سنجشِ خودش را ویرایش نکند.
+DoD: run_cycle خروجیِ spectral را به‌عنوان advisory دارد؛ تستِ رفتاری؛ run_all سبز. path-scoped.
+```
+
 ---
 
 # GROUP A — Chrono deltas
@@ -265,8 +292,8 @@ DoD: flag روشن→archive/tournament/measured_lift در چرخه fire (تست
 ```
 بخوان: _ops/doctor/box/ (box.py/b3_bridge/falsif_harness/b4_fusion/warden) · doctor.py (submit_for_approval).
 گپ (MED): box/* هیچ مسیرِ runtime ندارد.
-بساز پشتِ flag (خاموش، D-E): خروجیِ Box از b3_bridge به doctor.submit_for_approval (propose-only، human-gate). Wardenِ ۲٪ + STOP-obey حفظ. خاموش=on-shelf.
-DoD: flag روشن→box در چرخه propose می‌کند (نه merge)؛ خاموش→no-op؛ run_all سبز. commit path-scoped.
+بساز پشتِ flag (خاموش، D-E) — **کلِ خوشهٔ box (۱۲ فایل)، نه فقط seam** (ممیزیِ اتصال: همه shelfware): box.py را در run_cycle instantiate کن و روی trace step بزن → box.step() metrics → b3_bridge.box_to_doctor_pipeline(metrics, doctor) → doctor.submit_for_approval (propose-only، human-gate)؛ b4_fusion.compute_phi_t = سیگنالِ novelty به Box؛ falsif_suite = کنترلِ دوره‌ای. با wire‌شدنِ box.py، support-libهایش (agent_state/dynamics/archivist/topology/warden/sensors/null_dreamer) خودکار reachable می‌شوند. Wardenِ ۲٪ + STOP-obey حفظ. خاموش=on-shelf.
+DoD: flag روشن → Box در چرخه step می‌کند و از b3_bridge به doctor propose می‌رسد (نه merge)؛ b4/falsif فعال؛ خاموش→no-op؛ run_all سبز. commit path-scoped.
 ```
 
 ## P-N3 · [در حالِ اجرا: task_aed6ebad] رفعِ گمراهیِ B1 stub/flaky
