@@ -63,8 +63,11 @@ def t_no_busyloop_continue():
 
 
 def t_sleep_always_reached():
-    # time.sleep در سطحِ بدنهٔ while (نه داخلِ گاردِ protective) → همیشه اجرا
-    assert "\n        time.sleep(TICK_SECONDS)" in ORG, "time.sleep باید همیشه انتهای while اجرا شود"
+    # time.sleep در سطحِ بدنهٔ while (نه داخلِ گاردِ protective) → همیشه اجرا.
+    # CARDIAC-ALLOMETRY: sleep ممکن است داینامیک باشد (OCTOPUS_WIRE_BIO) ولی باید همیشه
+    # در انتها اجرا شود. پذیرفتن هر دو: static (TICK_SECONDS) یا dynamic (متغیر).
+    assert re.search(r"\n        time\.sleep\(", ORG), \
+        "time.sleep باید همیشه انتهای while اجرا شود (busy-loop ban)"
 
 
 if __name__ == "__main__":

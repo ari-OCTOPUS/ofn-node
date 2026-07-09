@@ -64,6 +64,7 @@ WIRE_FLAGS = [
     ("OCTOPUS_WIRE_FITNESS", "فیتنس outbox (A2، measure-only)", "risky"),
     ("OCTOPUS_WIRE_EPISTEMICS", "لایهٔ معرفت‌شناسی (۵ متریک)", "risky"),
     ("OCTOPUS_WIRE_SELFHEAL", "خودترمیمیِ pacemaker (circuit-breaker)", "risky"),
+    ("OCTOPUS_WIRE_BIO", "ضربانِ آلوستاتیک (bio_rhythm + budget + baroreflex)", "risky"),
 ]
 
 CADENCE_FLAGS = [
@@ -349,6 +350,20 @@ def page_organism() -> bytes:
         _metric("germline lag", f"{st.get('germline_lag_h', '—')}h",
                 "warn" if isinstance(st.get('germline_lag_h'), (int, float)) and st.get('germline_lag_h', 0) > 4 else "good"),
     ])
+    # کارتِ ضربانِ آلوستاتیک (اگر OCTOPUS_WIRE_BIO فعّال باشد)
+    cardio = st.get("cardiac") or {}
+    if cardio.get("enabled"):
+        bio = cardio.get("bio_rhythm") or {}
+        bud = cardio.get("budget") or {}
+        pace = bio.get("pace", "—")
+        pace_cls = {"mice": "warn", "whale": "good", "balanced": ""}.get(pace, "")
+        period = bio.get("period_s")
+        period_str = f"{period:.0f}ث" if isinstance(period, (int, float)) else "—"
+        cards += _metric("ضربان (bio)", f"{pace} · {period_str}", pace_cls)
+        if bud.get("daily_cap"):
+            rem = bud.get("remaining", 0)
+            cap = bud.get("daily_cap", 0)
+            cards += _metric("بودجهٔ ضربان", f"{rem}/{cap}", "bad" if bud.get("depleted") else "")
 
     # جدولِ کامل
     rows = [

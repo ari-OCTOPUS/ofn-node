@@ -53,6 +53,16 @@ TICK_SECONDS = 300           # تیک سبک ۵ دقیقه‌ای؛ epoch واق
 STATE_FILE = opslib.STATE_DIR / "ORGANISM-STATE.json"
 START_TS = opslib.now_iso()
 
+# CARDIAC-ALLOMETRY: لایهٔ آلوستاتیکِ ضربان (additive، پشتِ OCTOPUS_WIRE_BIO).
+# اگر flag off باشد، _cardiac None می‌ماند و رفتار عیناً فعلی است (no regression).
+# نظریه: 07 - Knowledge/CARDIAC-ALLOMETRY-v1.md
+try:
+    import cardiac as _cardiac_mod   # noqa: E402
+    _cardiac_budget, _cardiac_baro = _cardiac_mod.get_layer()
+except Exception:  # noqa: BLE001 — additive، نباید بوت را بکشد
+    _cardiac_mod = None
+    _cardiac_budget, _cardiac_baro = None, None
+
 
 class _ExclusiveHTTPServer(ThreadingHTTPServer):
     """سرور وضعیت = خودِ قفل تک‌نمونه. تلهٔ شناختهٔ ویندوز (جلسه ۱۹): http.server
@@ -360,14 +370,30 @@ def main() -> int:
                           "suspect_zero_total": snap["suspect_zero_total"],
                           "conflicts": conflicts, **germ, **epoch_info, **daily,
                           **pulse, **prot_state,
-                          "protective_skip": _protective_skip, "wiring": _wire})
+                          "protective_skip": _protective_skip, "wiring": _wire,
+                          **({"cardiac": _cardiac_mod.status_snapshot()}
+                             if _cardiac_mod is not None else {})})
         except KeyboardInterrupt:
             opslib.heartbeat("organism=STOP (KeyboardInterrupt)")
             return 0
         except Exception as e:  # noqa: BLE001 — خطای خاموش = شدیدترین باگ (منشور §۴)
             opslib.alert([f"organism tick error: {type(e).__name__}: {e}"])
             _write_state({"last_error": f"{type(e).__name__}: {e}"})
-        time.sleep(TICK_SECONDS)
+        # CARDIAC-ALLOMETRY: periodِ داینامیک (پشتِ OCTOPUS_WIRE_BIO، advisory).
+        # اگر flag off یا خطا → عیناً TICK_SECONDS (رفتارِ فعلی).
+        _sleep_s = TICK_SECONDS
+        if _cardiac_mod is not None:
+            try:
+                _eff = _cardiac_mod.effective_period(
+                    base_period_s=TICK_SECONDS,
+                    budget=_cardiac_budget, baro=_cardiac_baro)
+                _sleep_s = _eff["period_s"]
+                # خرجِ بودجهٔ این تیک (active = کارِ ارزشمند انجام شد)
+                if _cardiac_budget is not None:
+                    _cardiac_budget.spend("active")
+            except Exception:  # noqa: BLE001 — §۴: cardiac نباید tick را بکشد
+                pass
+        time.sleep(_sleep_s)
 
 
 if __name__ == "__main__":
