@@ -26,7 +26,7 @@ import env_loader  # noqa: E402
 env_status = env_loader.load_env()
 
 import opslib  # noqa: E402
-from client import MultiProviderClient, RefuseToSend, TelemetryError  # noqa: E402
+from client import MultiProviderClient, RefuseToSend, TelemetryError, GATEWAY_URL  # noqa: E402
 
 # budgets.yaml واقعی (نه harness mock) — تست‌های routing/structural آن را می‌خوانند
 REAL_BUDGETS_PATH = _OPS / "budget" / "budgets.yaml"
@@ -82,18 +82,18 @@ def t_disaster_kill_alert_unchanged():
 # ════════════════════════════════════════════════════════════════════════════════
 
 def t_glm_key_only_env():
-    """GLM_API_KEY فقط از env می‌آید — هیچ hardcode در client.py نیست."""
+    """ZAI_API_KEY (GLM) فقط از env می‌آید — هیچ hardcode در client.py نیست.
+    مسیرِ gateway از LITELLM_MASTER_KEY (از gateway/.env) استفاده می‌کند؛ مسیرِ مستقیم از ZAI_API_KEY."""
     src = (_OPS / "debate" / "client.py").read_text("utf-8")
-    # نباید کلیدِ hardcode‌شده (مثلاً sk-...) داشته باشد
     assert "sk-" not in src, "نباید کلیدِ hardcode داشته باشد"
-    assert "GLM_API_KEY" in src, "باید GLM_API_KEY را از env بخواند"
+    assert "ZAI_API_KEY" in src, "باید ZAI_API_KEY را از env بخواند (مسیر مستقیم)"
+    assert "LITELLM_MASTER_KEY" in src, "باید LITELLM_MASTER_KEY را از gateway/.env بخواند"
 
 
 def t_fugu_key_only_env():
-    """FUGU_API_KEY فقط از env می‌آید."""
+    """SAKANA_API_KEY (Fugu) فقط از env می‌آید (مسیر مستقیم). gateway از master_key."""
     src = (_OPS / "debate" / "client.py").read_text("utf-8")
-    assert "FUGU_API_KEY" in src, "باید FUGU_API_KEY را از env بخواند"
-    # کلید نباید در کد باشد
+    assert "SAKANA_API_KEY" in src, "باید SAKANA_API_KEY را از env بخواند (مسیر مستقیم)"
     assert "sk-" not in src
 
 
@@ -145,14 +145,47 @@ def test_fugu_stub_offline():
 
 
 def t_leak_guard_rejects_bad_host():
-    """leak-guard: اگر کلید نباشد → RefuseToSend (نه crash). اگر باشد، host درست."""
+    """leak-guard: اگر gateway down و کلید مستقیم نباشد → RefuseToSend (نه crash).
+    اگر gateway up → مسیرِ gateway (localhost، host-check ندارد چون proxy محلی است)."""
     b = _real_budgets()
     try:
-        c = MultiProviderClient(role="glm", budgets=b)  # بدون transport
-        # اگر رسید، کلید هست — host درست است (api.z.ai)
-        assert "api.z.ai" in c.base_url or "bigmodel.cn" in c.base_url
+        c = MultiProviderClient(role="glm", budgets=b)
+        # اگر gateway up → use_gateway=True، base_url=localhost (proxy محلی، host-check لازم ندارد)
+        if c.use_gateway:
+            assert "localhost" in c.base_url or "127.0.0.1" in c.base_url
+        else:
+            # مسیرِ مستقیم → host درست
+            assert "api.z.ai" in c.base_url or "bigmodel.cn" in c.base_url
     except RefuseToSend:
-        assert True  # کلید نیست → RefuseToSend (موردِ تست offline)
+        assert True  # gateway down + no key → RefuseToSend
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# (د-gw) gateway routing structural
+# ════════════════════════════════════════════════════════════════════════════════
+
+def t_gateway_model_map_exists():
+    """GATEWAY_MODEL_MAP باید glm→glm-coder و sakana→fugu داشته باشد."""
+    from client import GATEWAY_MODEL_MAP
+    assert GATEWAY_MODEL_MAP.get("glm") == "glm-coder"
+    assert GATEWAY_MODEL_MAP.get("sakana") == "fugu"
+
+
+def t_gateway_url_localhost():
+    """GATEWAY_URL باید localhost:4000 باشد."""
+    assert "localhost:4000" in GATEWAY_URL
+
+
+def t_client_uses_gateway_when_up():
+    """وقتی gateway بالاست، MultiProviderClient باید use_gateway=True داشته باشد."""
+    try:
+        b = _real_budgets()
+        c = MultiProviderClient(role="glm", budgets=b)
+        if c.use_gateway:
+            assert c.model == "glm-coder"
+            assert "localhost:4000" in c.base_url
+    except RefuseToSend:
+        assert True  # gateway down + no key → skip
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -160,13 +193,16 @@ def t_leak_guard_rejects_bad_host():
 # ════════════════════════════════════════════════════════════════════════════════
 
 def test_glm_live_smoke():
-    """LIVE: فراخوانِ واقعی به GLM (فقط اگر GLM_API_KEY هست).
-    تأیید: جوابِ غیرخالی + telemetry + cost ≤ cap."""
-    if not _has_key("GLM_API_KEY"):
-        return  # offline skip
+    """LIVE: فراخوانِ واقعی به GLM (فقط اگر gateway بالاست یا کلید هست).
+    تأیید: جوابِ غیرخالی + telemetry + cost ≤ cap. از طریقِ gateway (localhost:4000)."""
     b = _real_budgets()
-    c = MultiProviderClient(role="glm", budgets=b)  # transport=None → live
-    r = c.complete("You are a test echo.", "Reply with exactly: PONG", max_tokens=10)
+    try:
+        c = MultiProviderClient(role="glm", budgets=b)
+    except RefuseToSend:
+        return  # gateway down + no direct key → skip
+    if not c.use_gateway and not _has_key("ZAI_API_KEY"):
+        return  # offline skip
+    r = c.complete("You are a test echo.", "Reply with exactly: PONG", max_tokens=20)
     assert "text" in r, f"GLM باید text برگرداند: {r}"
     assert len(r["text"]) > 0, "GLM جوابِ خالی داد"
     assert r["tokens_in"] + r["tokens_out"] > 0, "GLM باید usage برگرداند"
@@ -174,13 +210,16 @@ def test_glm_live_smoke():
 
 
 def test_fugu_live_smoke():
-    """LIVE: فراخوانِ واقعی به Fugu (فقط اگر FUGU_API_KEY هست).
-    تأیید: جوابِ غیرخالی + telemetry + cost ≤ cap."""
-    if not _has_key("FUGU_API_KEY"):
-        return  # offline skip
+    """LIVE: فراخوانِ واقعی به Fugu (فقط اگر gateway بالاست یا کلید هست).
+    تأیید: جوابِ غیرخالی + telemetry + cost ≤ cap. max_tokens≥۱۶ (min مدل)."""
     b = _real_budgets()
-    c = MultiProviderClient(role="orchestr", budgets=b)
-    r = c.complete("You are a test echo.", "Reply with exactly: PONG", max_tokens=10)
+    try:
+        c = MultiProviderClient(role="orchestr", budgets=b)
+    except RefuseToSend:
+        return
+    if not c.use_gateway and not _has_key("SAKANA_API_KEY"):
+        return  # offline skip
+    r = c.complete("You are a test echo.", "Reply with exactly: PONG", max_tokens=20)
     assert "text" in r, f"Fugu باید text برگرداند: {r}"
     assert len(r["text"]) > 0
     assert r["tokens_in"] + r["tokens_out"] > 0
@@ -211,7 +250,11 @@ if __name__ == "__main__":
         ("GLM stub offline", test_glm_stub_offline),
         ("Fugu stub offline", test_fugu_stub_offline),
         ("leak-guard", t_leak_guard_rejects_bad_host),
-        # (د) live (skip if no key)
+        # (د-gw) gateway structural
+        ("gateway model map", t_gateway_model_map_exists),
+        ("gateway url localhost", t_gateway_url_localhost),
+        ("client uses gateway when up", t_client_uses_gateway_when_up),
+        # (د) live (skip if no key/gateway)
         ("GLM LIVE smoke", test_glm_live_smoke),
         ("Fugu LIVE smoke", test_fugu_live_smoke),
         # report

@@ -119,19 +119,59 @@ class DeepSeekClient:
 
 # ─── MultiProviderClient (GLM/Fugu/DeepSeek) — تسکِ routing اصلی ──────────────
 
+# ─── GATEWAY (LiteLLM proxy) — مسیرِ اصلی ─────────────────────────────────────
+# تو یک پروکسی LiteLLM روی localhost:4000 دارد که مدل‌های مجازی expose می‌کند
+# (glm-coder, deepseek-bulk, orchestr, fugu) با cost-cap + audit + fallback.
+# کد از طریقِ gateway می‌زند، نه مستقیم. کلید = LITELLM_MASTER_KEY از gateway/.env.
+GATEWAY_URL = "http://localhost:4000"
+GATEWAY_ENV_PATH = Path(__file__).resolve().parent.parent.parent / "survival-gateway" / ".env"
+
+# نگاشتِ role (در budgets.yaml) → نامِ مدلِ مجازیِ gateway
+GATEWAY_MODEL_MAP = {
+    "glm": "glm-coder",          # GLM (reason)
+    "sakana": "fugu",            # Fugu (orchestrator) — مدلِ سبک‌تر
+    "deepseek": "deepseek-bulk", # DeepSeek (econ)
+}
+
+
+def _gateway_master_key():
+    """LITELLM_MASTER_KEY را از gateway/.env بخوان (هرگز log/commit).
+    fail-soft: نبود → None (تست با stub یا transport کار می‌کند)."""
+    try:
+        if not GATEWAY_ENV_PATH.exists():
+            return None
+        for line in GATEWAY_ENV_PATH.read_text(encoding="utf-8").splitlines():
+            if line.startswith("LITELLM_MASTER_KEY="):
+                return line.split("=", 1)[1].strip()
+    except OSError:
+        pass
+    return None
+
+
+def _gateway_is_up():
+    """آیا gateway روی localhost:4000 بالاست؟ fail-soft."""
+    try:
+        urllib.request.urlopen(GATEWAY_URL + "/health/live", timeout=2)
+        return True
+    except urllib.error.HTTPError:
+        return True   # 404 یعنی سرور بالاست (مسیر نیست)، ولی gateway زنده
+    except Exception:
+        return False
+
+
 # نگاشتِ provider → (env-var-name, base_url-allowed-substring, price_in, price_out)
-# price برای subscription=flat (GLM) صفر است (سابسکرایب سقف است، نه متری).
+# فقط برای مسیرِ مستقیمِ fallback (اگر gateway down باشد).
 _PROVIDER_REGISTRY = {
     "glm": {
-        "env_key": "GLM_API_KEY",
-        "base_url_env": "GLM_BASE_URL",   # از .env
+        "env_key": "ZAI_API_KEY",
+        "base_url_env": "GLM_BASE_URL",
         "base_url_default": "https://api.z.ai",
         "allowed_hosts": ("api.z.ai", "bigmodel.cn"),
         "price_in": 0.6,     # $0.6/M [VERIFIED docs.z.ai] — فقط برای telemetry؛ flat اگر subscription=max
         "price_out": 2.2,    # $2.2/M
     },
     "sakana": {
-        "env_key": "FUGU_API_KEY",
+        "env_key": "SAKANA_API_KEY",
         "base_url_default": "https://api.sakana.ai/v1",
         "allowed_hosts": ("api.sakana.ai",),
         "price_in": 5.0,     # $5/M [VERIFIED]
@@ -187,22 +227,34 @@ class MultiProviderClient:
         if self.provider not in _PROVIDER_REGISTRY:
             raise RefuseToSend(f"provider «{self.provider}» ناشناخته (مجاز: glm/sakana/deepseek)")
         reg = _PROVIDER_REGISTRY[self.provider]
-        self.model = cfg.get("model", "")
-        self.base_url = _resolve_base_url(cfg, self.provider)
         self.subscription = cfg.get("subscription")   # "max" = flat
         self.transport = transport
-        # leak-guard: host مجاز
-        host_ok = any(h in self.base_url for h in reg["allowed_hosts"])
-        if transport is None and not host_ok:
-            raise RefuseToSend(
-                f"leak-guard: base_url «{self.base_url}» host مجازِ {self.provider} نیست — refusing")
-        # کلید فقط از env (هرگز hardcode)
-        if transport is None:
-            self.api_key = os.environ.get(reg["env_key"], "")
-            if not self.api_key:
-                raise RefuseToSend(f"{reg['env_key']} تنظیم نیست — کلید فقط از env")
-        else:
-            self.api_key = ""
+        # ── مسیرِ اصلی: LiteLLM gateway (localhost:4000) ────────────────────────
+        # gateway مدل‌های مجازی expose می‌کند + cost-cap + audit. اولویت با gateway است.
+        self.use_gateway = False
+        if transport is None and _gateway_is_up():
+            gw_key = _gateway_master_key()
+            if gw_key and self.provider in GATEWAY_MODEL_MAP:
+                self.use_gateway = True
+                self.api_key = gw_key
+                self.model = GATEWAY_MODEL_MAP[self.provider]
+                self.base_url = GATEWAY_URL
+        # ── مسیرِ مستقیمِ fallback (اگر gateway down یا بدون کلید) ──────────────
+        if not self.use_gateway:
+            self.model = cfg.get("model", "")
+            self.base_url = _resolve_base_url(cfg, self.provider)
+            # leak-guard: host مجاز
+            host_ok = any(h in self.base_url for h in reg["allowed_hosts"])
+            if transport is None and not host_ok:
+                raise RefuseToSend(
+                    f"leak-guard: base_url «{self.base_url}» host مجازِ {self.provider} نیست — refusing")
+            # کلید فقط از env (هرگز hardcode)
+            if transport is None:
+                self.api_key = os.environ.get(reg["env_key"], "")
+                if not self.api_key:
+                    raise RefuseToSend(f"{reg['env_key']} تنظیم نیست — کلید فقط از env")
+            else:
+                self.api_key = ""
         # قیمت از registry (برای telemetry). flat subscription → cost محاسبه ولی گزارش می‌شود
         self.price_in = float(cfg.get("price_in", reg["price_in"]))
         self.price_out = float(cfg.get("price_out", reg["price_out"]))
@@ -224,6 +276,15 @@ class MultiProviderClient:
         }
         if self.transport is not None:
             raw = self.transport(body)
+        elif self.use_gateway:
+            # مسیرِ gateway: localhost:4000 + master_key + virtual model name
+            req = urllib.request.Request(
+                self.base_url + "/v1/chat/completions",
+                data=json.dumps(body).encode("utf-8"),
+                headers={"Authorization": f"Bearer {self.api_key}",
+                         "Content-Type": "application/json"})
+            with urllib.request.urlopen(req, timeout=120) as resp:  # pragma: no cover
+                raw = json.loads(resp.read().decode("utf-8"))
         else:
             req = urllib.request.Request(
                 self.base_url + "/chat/completions",
@@ -249,4 +310,5 @@ class MultiProviderClient:
         return {"text": text, "model": self.model, "provider": self.provider,
                 "tokens_in": tin, "tokens_out": tout, "cost_usd": cost,
                 "subscription": self.subscription or "metered",
+                "via_gateway": self.use_gateway,
                 "stub": self.transport is not None}
