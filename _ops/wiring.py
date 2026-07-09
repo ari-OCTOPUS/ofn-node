@@ -140,7 +140,9 @@ def wire_summary() -> dict:
         "wire_lead": flag("OCTOPUS_WIRE_LEAD"),
         "wire_neural": flag("OCTOPUS_WIRE_NEURAL"),
         "wire_school": flag("OCTOPUS_WIRE_SCHOOL"),
+        "wire_consolidation": flag("OCTOPUS_WIRE_CONSOLIDATION"),
         "doctor_every_n": int(os.environ.get("CHRONO_DOCTOR_EVERY_N_BEATS", "1440")),
+        "consolidation_every_n": int(os.environ.get("CHRONO_CONSOLIDATION_EVERY_N_BEATS", "720")),
     }
 
 
@@ -289,4 +291,49 @@ def canonical_consolidation(neural_stack, school_bridge=None,
         return consolidation.run(sources)
     except Exception as e:  # noqa: BLE001
         opslib.alert([f"wiring: canonical_consolidation خطا: {e}"])
+        return None
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# M · live-loop wiring — canonical_consolidation در حلقهٔ زنده (P-M2)
+# ════════════════════════════════════════════════════════════════════════════════
+
+def make_school_bridge(state_path=None):
+    """ساختِ SchoolBridge (منبعِ awareness برای consolidation). پشتِ flag لازم نیست —
+    فقط اگر consolidation نیازش داشته باشد ساخته می‌شود. همیشه یک instance برمی‌گرداند
+    اگر import موفق باشد، وگرنه None (fail-soft). $0 آفلاین، stdlib-only."""
+    try:
+        sys.path.insert(0, str(_HERE / "afferent"))
+        from school_bridge import SchoolBridge
+        kw = {}
+        if state_path is not None:
+            kw["state_path"] = state_path
+        return SchoolBridge(**kw)
+    except Exception as e:  # noqa: BLE001 — SchoolBridge اختیاریِ additive
+        opslib.alert([f"wiring: SchoolBridge ساخت نشد: {e}"])
+        return None
+
+
+def consolidation_beat(neural_stack, school_bridge=None, beat: int = 0,
+                       acquisition_data=None, doctor_archive=None) -> dict | None:
+    """هر N beat: canonical_consolidation را در حلقهٔ زنده صدا بزن.
+    پشتِ OCTOPUS_WIRE_CONSOLIDATION. kill-switch: اول STOP. هر N beat (نه هر tick).
+    فقط verified/CONFIRMED (verification-gate حفظ می‌شود). صفر مسیرِ spend.
+
+    خروجی: ConsolidatedInsight یا None. advisory فقط — هیچ اثرِ جانبیِ irreversible."""
+    if not flag("OCTOPUS_WIRE_CONSOLIDATION"):
+        return None   # flag خاموش = no-op (no regression)
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None   # kill-switch
+    every_n = int(os.environ.get("CHRONO_CONSOLIDATION_EVERY_N_BEATS", "720"))  # ۱۲ ساعت
+    if beat <= 0 or (every_n > 0 and beat % every_n != 0):
+        return None   # هنوز نوبتِ consolidation نیست
+    if neural_stack is None:
+        return None   # بدونِ neural_stack → چیزی برای consolidate نیست
+    try:
+        return canonical_consolidation(
+            neural_stack, school_bridge=school_bridge,
+            acquisition_data=acquisition_data, doctor_archive=doctor_archive)
+    except Exception as e:  # noqa: BLE001 — §۴: خطای خاموش ممنون، ولی consolidation نباید tick را بکشد
+        opslib.alert([f"wiring: consolidation_beat خطا: {type(e).__name__}: {e}"])
         return None

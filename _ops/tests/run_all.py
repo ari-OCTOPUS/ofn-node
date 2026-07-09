@@ -19,7 +19,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_live_loop.py", "test_dual_brain.py", "test_acquisition.py",
              "test_neural.py", "test_deep_pf.py", "test_pf_full.py", "test_frontier.py",
              "test_organism_protective.py", "test_canonical_consolidation.py",
-             "test_sprint_beat.py", "test_approval_queue_consistency.py"]
+             "test_sprint_beat.py", "test_approval_queue_consistency.py",
+             "test_consolidation_wiring.py"]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
                HERE.parents[1] / "07 - Knowledge" / "school-memory" / "test_curriculum.py"]

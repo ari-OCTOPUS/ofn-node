@@ -143,6 +143,7 @@ def main() -> int:
     _wire = {}
     _doctor_inst = None
     _neural_stack = None
+    _school_bridge = None
     try:
         import wiring as _w
         _wire = _w.wire_summary()
@@ -151,6 +152,9 @@ def main() -> int:
         _w.make_unified_bus()
         _w.make_lead_leg()
         _neural_stack = _w.make_neural_stack()   # W: neural ۸ ماژول
+        # M (P-M2): اگر consolidation وصل است، SchoolBridge بساز (منبعِ awareness)
+        if _wire.get("wire_consolidation"):
+            _school_bridge = _w.make_school_bridge()
         if any(_wire.values()):
             opslib.heartbeat(f"organism wiring: {_wire}")
     except Exception as _e:  # noqa: BLE001 — wiring اختیاریِ additive
@@ -244,6 +248,14 @@ def main() -> int:
                     _w.doctor_beat(_doctor_inst, _cstat.get("beat", 0))
                 except Exception:  # noqa: BLE001 — §۴: خطای خاموش ممنوع (Doctor نباید tick را بکشد)
                     opslib.alert(["doctor_beat error (non-fatal)"])
+            # ── M (P-M2): canonical consolidation در حلقهٔ زنده (هر N beat، پشتِ flag)
+            # یک مسیرِ حافظهٔ واحد — منبعِ School را می‌گنجاند. advisory فقط، صفر spend.
+            if not _protective_skip and _neural_stack is not None and _cstat is not None:
+                try:
+                    _w.consolidation_beat(_neural_stack, school_bridge=_school_bridge,
+                                          beat=_cstat.get("beat", 0))
+                except Exception as _ce:  # noqa: BLE001 — §۴: خطای خاموش ممنون (consolidation نباید tick را بکشد)
+                    opslib.alert([f"consolidation_beat error (non-fatal): {type(_ce).__name__}: {_ce}"])
 
             if now - last_heartbeat > 3600:
                 opslib.heartbeat(
