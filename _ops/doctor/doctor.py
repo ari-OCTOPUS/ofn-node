@@ -490,6 +490,17 @@ class Doctor:
         else:
             bottleneck = self.mine(trace=trace)
         if bottleneck is None:
+            # P-spectral: سنسورِ طیفیِ read-only به‌عنوان گلوگاهِ مکمل (advisory، propose-only).
+            # پشتِ OCTOPUS_WIRE_SPECTRAL. وقتی mine() چیزی پیدا نکرد، spectral_mine گرافِ رویداد
+            # را تحلیل می‌کند (σ≈1/شکافِ کوچک = شکننده). reward-integrity دست‌نخورده (σ توصیفی).
+            if os.environ.get("OCTOPUS_WIRE_SPECTRAL") == "1":
+                try:
+                    from spectral import spectral_mine
+                    _spec_trace = trace if trace is not None else self._gather_trace()
+                    bottleneck = spectral_mine(_spec_trace)
+                except Exception:  # noqa: BLE001 — spectral fail-soft (fail-closed: برگرد به None)
+                    bottleneck = None
+        if bottleneck is None:
             return None   # چیزی برای فیکس نیست (یا attention-budget ساکت کرد)
         # اگر attention-budget ساختارِ _suppressed دارد → ثبت کن ولی RFC نده
         if isinstance(bottleneck, dict) and bottleneck.get("_suppressed_by_attention_budget"):
