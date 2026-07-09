@@ -5,7 +5,10 @@
 # config-only: خواندنِ این فایل هیچ اتوماسیونی روشن نمی‌کند.
 
 global:
-  cap_monthly: 30            # AUD — verdict انسانی 2026-07-06 (قضاوت ارزشی مالک)
+  cap_monthly: 200           # AUD — balanced، verdict آری 2026-07-09 (multi-agent + GLM/Fugu). قبلاً ۳۰.
+  # ⚠️ enforceِ واقعیِ این عدد نیازِ راست‌کردنِ hardcode-floor در budget_gate.py دارد (تسکِ GLM)؛
+  #    تا آن، سقفِ مؤثر همان min(yaml, hardcode) می‌ماند. disaster line=۵۰۰ (ترمزِ recursive-loop) و
+  #    spike_pct=۲۵ (kill-switch) و alert ۵۰/۸۰٪ همه دست‌نخورده. GLM=سابسکرایبِ فلت؛ Fugu=متریِ AU$100.
   currency: AUD
   epoch: daily               # re-plan استراتژیک: هفتگی، جمعه (هم‌راستا با حلقهٔ KPI)
   explore_pct: 0.10          # سهم MUSE / جهش — ارگان‌های جاافتاده حق برداشت ندارند
@@ -40,6 +43,13 @@ routing:
     model: deepseek-v4-flash          # thinking پیش‌فرض؛ همان قیمت flash [VERIFIED]. جایگزین: deepseek-v4-pro — [VERIFIED 2026-07-07] $0.435 (hit $0.003625) / $0.87
     mode: thinking
     base_url: "https://api.deepseek.com"
+    # 🔀 verdict آری 2026-07-09: reason باید به GLM (زیر ↓) سوییچ کند — ولی فقط پس از multi-providerشدنِ
+    #    client.py (تسکِ GLM)؛ تا آن، deepseek فعال می‌ماند تا leak-guard چیزی را RefuseToSend نکند.
+  glm:                                # مغزِ اصلیِ reasoning (پلنِ MAX سابسکرایبِ Ari — فلت/غیرمتری)
+    provider: glm
+    model: "glm-4.6"                  # [نیازِ تأییدِ GLM از dashboardِ پلنِ MAX — مدلِ دقیق را بگذارد]
+    base_url: "${GLM_BASE_URL}"       # از env (Ari نوشته)؛ کلید فقط env: GLM_API_KEY — هرگز hardcode
+    subscription: max                 # فلت → سقفِ دلاریِ متری ندارد؛ خودِ سابسکرایب سقف است
   anthropic:
     provider: anthropic
     note: >
@@ -49,7 +59,8 @@ routing:
   orchestr:
     provider: sakana
     model: fugu                        # نرخ = top-model فعال pool؛ fee انباشته نمی‌شود [FACT: sakana.ai/fugu]
-    base_url: "TBD"                    # [OPEN] از console.sakana.ai بعد از login؛ دسترسی AU تأییدنشده (EU/EEA ندارد)
+    base_url: "https://api.sakana.ai/v1"   # verdict آری 2026-07-09 — باید /v1 داشته باشد وگرنه ۴۰۴ (مستند Sakana). کلید فقط env: FUGU_API_KEY
+    cap_monthly: 100                   # AUD — بودجهٔ متریِ Fugu، verdict آری 2026-07-09 (پس از اطمینانِ پایداری → ۵۰۰)
   premium:
     provider: sakana
     model: fugu-ultra-20260615         # [FACT] $5/$30؛ >272K: $10/$45؛ cache $0.50/$1.00 — توکن orchestration هم شارژ می‌شود
