@@ -94,8 +94,13 @@ def _discretize(vals: list, n_bins: int) -> list:
     try:
         nums = [float(v) for v in vals]
     except (ValueError, TypeError):
-        # labels → hash به bin
-        return [hash(str(v)) % n_bins for v in vals]
+        # labels گسسته‌اند → categorical encoding (کدِ صحیح، به ترتیبِ ظهور).
+        # عمداً hash نمی‌زنیم: hash(str) در پایتون per-process تصادفی است
+        # (PYTHONHASHSEED)، و چون run_all.py هر تست را در subprocessِ جدا اجرا می‌کند،
+        # MI روی لیبل‌ها بین اجراها flaky می‌شد (B1 majority ~۱۶٪ مواقع revoke). binning
+        # هم مخصوصِ مقادیرِ پیوسته است نه لیبلِ گسسته؛ هر لیبلِ متمایز categoryِ خودش را می‌گیرد.
+        codes: dict = {}
+        return [codes.setdefault(str(v), len(codes)) for v in vals]
     lo, hi = min(nums), max(nums)
     if hi == lo:
         return [0] * len(nums)
