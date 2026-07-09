@@ -39,7 +39,7 @@ class LiveLoop:
     فقط آن‌ها را به هم وصل می‌کند."""
 
     def __init__(self, bus=None, brain=None, studio=None, cockpit=None,
-                 approval_channel=None, doctor=None):
+                 approval_channel=None, doctor=None, effect_status_fn=None):
         # bus: اگر نباشد → یک busِ in-memory (تست)
         self.bus = bus or _InMemoryBus()
         self.brain = brain
@@ -47,6 +47,11 @@ class LiveLoop:
         self.cockpit = cockpit
         self.channel = approval_channel
         self.doctor = doctor
+        # P-L6: اگر cockpit موجود است ولی منبعِ status ندارد، effect_status_fn را تزریق کن
+        # تا صفِ cockpit به‌جایِ shadow، نمایِ فقط‌خواندنیِ گیتِ تک‌گلوگاه باشد.
+        if cockpit is not None and effect_status_fn is not None \
+                and getattr(cockpit, "_effect_status_fn", None) is None:
+            cockpit._effect_status_fn = effect_status_fn
         self._verdicts: list[VerdictResult] = []
         self._advisory_signals: list[dict] = []
 

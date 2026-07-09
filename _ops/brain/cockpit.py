@@ -41,12 +41,54 @@ class ApprovalItem:
 
 class BrainCockpit:
     """کاکپیتِ آری. خروجی = HTML غنی (propose-only، shadow).
-    منبعِ داده: state/*.json (read-only) + صفِ تأیید (advisory)."""
+    منبعِ داده: state/*.json (read-only) + صفِ تأیید (advisory).
 
-    def __init__(self, state_dir: str | Path | None = None):
+    P-L6: صفِ تأیید یک **نمایِ فقط‌خواندنی** است، نه یک منبعِ حقیقتِ موازی.
+    اگر `effect_status_fn` تزریق شود، وضعیتِ هر آیتم از منبعِ authoritative
+    (gateِ تک‌گلوگاه) مشتق می‌شود و هرگز خودسرانه «approved» نمی‌شود. بدونِ آن،
+    صف صریحاً به‌عنوانِ shadow برچسب می‌خورد. cockpit هرگز settle نمی‌کند."""
+
+    def __init__(self, state_dir: str | Path | None = None,
+                 effect_status_fn=None):
+        """effect_status_fn: callable اختیاری `(effect_id: str) -> str | None`.
+        منبعِ authoritative وضعیتِ effect (مثلاً متدِ status_of روی گیتِ تک‌گلوگاه).
+        اگر None → صفِ تأیید به‌عنوانِ shadow نمایش داده می‌شود و هرگز
+        «approved/settled» ادعا نمی‌کند."""
         self._state_dir = Path(state_dir) if state_dir else (
             Path(__file__).resolve().parents[1] / "state")
         self._approval_queue: list[ApprovalItem] = []
+        self._effect_status_fn = effect_status_fn
+
+    @property
+    def is_shadow(self) -> bool:
+        """آیا صف بدونِ منبعِ authoritative است؟ (shadow = ممکن است واگرا باشد)."""
+        return self._effect_status_fn is None
+
+    def _reconcile_effect_status(self) -> None:
+        """وضعیتِ هر آیتمِ دارایِ effect_id را از منبعِ authoritative مشتق کن.
+        P-L6: این تنها راهی است که آیتمِ cockpit «approved» می‌شود — از منبعِ
+        authoritative، نه از تصمیمِ خودسرانهٔ cockpit. بدونِ status_fn → بدونِ
+        تغییر (shadow). status همیشه به‌طور کامل از منبع مشتق می‌شود، تا حتی
+        دستکاریِ دستیِ محلی هم برگردانده شود به حقیقتِ منبع.
+
+        نگاشت: settled/releasable → approved (تأییدشده/آزادشده)
+                refused          → denied
+                pending/None/ناموجود → pending (صریحاً، حتی اگر محلی چیز دیگری باشد)"""
+        if self._effect_status_fn is None:
+            return   # shadow: هیچ ادعایی بدونِ منبع
+        for item in self._approval_queue:
+            if not item.effect_id:
+                continue
+            try:
+                real = self._effect_status_fn(item.effect_id)
+            except Exception:  # noqa: BLE001 — منبع fail-soft
+                continue
+            if real in ("settled", "releasable"):
+                item.status = "approved"
+            elif real == "refused":
+                item.status = "denied"
+            else:
+                item.status = "pending"   # pending/None/ناموجود — صریحاً بازنویسی
 
     def _read_json(self, name: str) -> dict:
         p = self._state_dir / name
@@ -101,11 +143,15 @@ class BrainCockpit:
 
     # ─── ✅ صفِ تأییدِ تجمیعی ──────────────────────────────────────────────────
     def approval_queue_html(self) -> str:
-        """§۲: صفِ تأیید از همهٔ پاها. آری تنها نقطهٔ human-append."""
+        """§۲: صفِ تأیید از همهٔ پاها. آری تنها نقطهٔ human-append.
+        P-L6: ابتدا وضعیت از منبعِ authoritative همگام می‌شود (اگر موجود)،
+        تا هرگز با گیتِ تک‌گلوگاه واگرا نگردد. در غیرِ این‌صورت shadow برچسب می‌خورد."""
+        self._reconcile_effect_status()   # تازه‌سازیِ وضعیت از منبعِ حقیقت
+        shadow_tag = " 👤<i>shadow</i>" if self.is_shadow else ""
         pending = [a for a in self._approval_queue if a.status == "pending"]
         if not pending:
-            return "✅ <b>صفِ تأیید</b>\n──────────\n<i>صف خالی است.</i>"
-        lines = ["✅ <b>صفِ تأییدِ تجمیعی</b>", "──────────"]
+            return f"✅ <b>صفِ تأیید</b>{shadow_tag}\n──────────\n<i>صف خالی است.</i>"
+        lines = [f"✅ <b>صفِ تأییدِ تجمیعی</b>{shadow_tag}", "──────────"]
         for i, a in enumerate(pending, 1):
             lines.append(f"{i}. [{a.project}] {a.action} · AU${a.amount_aud:.2f} · {a.guard}")
         lines.append("<i>تأیید = human-append (TINV-7).</i>")

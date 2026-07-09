@@ -376,6 +376,15 @@ class EffectorGate:
                          "WHERE status='pending'", (ref,))
         return cur.rowcount
 
+    def status_of(self, effect_id: str) -> str | None:
+        """وضعیتِ authoritative یک effect را فقط‌خواندنی برمی‌گرداند.
+        pending | releasable | settled | refused | None (ناموجود).
+        خواندن، نه نوشتن — کاربرد: نمایِ فقط‌خواندنیِ صفِ تأیید (مانند cockpit)
+        تا هرگز با gate واگرا نشود. هیچ اثرِ جانبی."""
+        row = self.db.q("SELECT status FROM gated_effect WHERE effect_id=?",
+                        (effect_id,))
+        return row[0][0] if row else None
+
     def settle(self, effect_id: str) -> bool:
         """تنها نقطهٔ عبورِ اثر به جهان. False = مجاز نیست (fail-closed)."""
         kill = self.force_closed()
