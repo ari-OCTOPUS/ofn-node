@@ -136,3 +136,20 @@ git -C "F:\backup\07 - Knowledge\genome-system" commit -m "initial commit: genom
 **یافتهٔ عملیاتی (تأییدِ مستقلِ DOCTOR-BLUEPRINT §4-residual):** سندباکسِ لینوکس دقیقاً ۵ فایلِ لمس‌شدهٔ جلسه ۳۱ را **بریده/truncated** می‌بیند (`run_all.py`، `chrono.py`، `organism.py`، `ledger.py`، `test_chrono_heartbeat.py`)؛ ۲۸ فایلِ دیگر `.py` سالم. Read-tool نسخهٔ درست را می‌خواند اما bash/git/python سندباکس نسخهٔ بریده را. **درسِ اجرایی:** `git add` از سندباکس نسخهٔ بریده را stage می‌کند = خرابیِ ریپو → تست/validator/commit همه Windows-side.
 
 **به‌روزرسانی (همان جلسه، پس از «خودت تصمیم بگیر» آری):** مدلِ versioned انتخاب و **پیاده شد (genome v0.4.6)** — `age_tick` با human **یا** heartbeat (`beat=1`، هر `CHRONO_AGE_PER_N_BEATS`=۱۴۴۰ ضربان، روزانه — verdict جلسه ۳۲) ‏+۱؛ رکوردهای legacy با TINV-3ِ قدیم verify (فیلدِ `age_rule` per-record). الگوریتمِ append/verify در سندباکس ۱۵/۱۵ + py_compile سبز. فایل‌ها: `ledger/ledger.py` · `_ops/chrono.py` · `_ops/tests/test_chrono_langar.py` (+۳ چک) · [[07 - Knowledge/genome-system/CHANGELOG|CHANGELOG v0.4.6]]. **مانده (فقط مالک):** سوئیتِ کاملِ Windows-side (run_all ۱۳ + ژنوم ۶) → commit → restart ارگانیسم. کد از سندباکس commit نمی‌شود (torn).
+
+## 2026-07-09 — Claude Code (Opus، master) — گراندینگِ ۶ سندِ Chrono + ۸ تصمیمِ اتخاذشده (قابلِ وتو)
+
+Ari شش سندِ طراحیِ Octopus/Chrono (تلگرام) داد: «همه را بخوان، هیچ کدی نزن، بگرد و معماری/برنامه کن و پرامپت بده به ایجنتِ کدنویس». یک reconِ موازیِ ۷-بُعدیِ فقط‌خواندنی (workflow wthvcewz9، HEAD=fb90fab) اجرا شد. **یافتهٔ محوری:** اسناد یک سیستمِ «Brushline/60_code/V2_REDESIGN با TINV-1..11/E15–E25/C1–C12» فرض می‌کنند که **در repo غایب است**؛ کدِ واقعیِ اختاپوس کاملاً در `_ops/` است و هستهٔ Chrono از قبل ساخته/تست‌شده. خروجی: دو نوت — [[04 - Architect System/2026-07-09 CHRONO-GROUNDING-PLAN — design↔reality + roadmap + decision-gates|GROUNDING-PLAN]] + [[04 - Architect System/octopus-build-prompts/CHRONO-BUILD-PROMPTS — grounded|BUILD-PROMPTS]] (۳۲ پرامپت، هر گپ یک پرامپت).
+
+به‌دستورِ صریحِ Ari («تموم پرامپت‌ها را انتخاب کن، هیچی جا نذار») این ۸ گیت با **پیش‌فرضِ توصیه‌شده بسته شد** — این‌ها defaultِ **قابلِ‌وتو**اند؛ اگر با یکی مخالفی همین‌جا بگو تا پرامپتِ متناظر HOLD شود:
+
+1. **D-A** (زمانِ ذهنی، E19) = HLC فقط علّی + نرخ در experience_meter (نه merge به max).
+2. **D-B** (E20) = بله، صفِ world-deadline کنارِ beat-deadline اضافه شود.
+3. **D-C** (قلبِ احرازشده، E16 🔴) = امضای entry + wire کردنِ کانالِ تلگرامِ موجود به‌عنوان تنها نویسندهٔ `is_human`. **بحرانی — پیش از هر پولِ live؛ pre-merge نیازِ germline-backup + review.**
+4. **D-D** (TINV-3) = تثبیتِ heart-driven (v0.4.6) + آپدیتِ متنِ spec (فقط سند).
+5. **D-E** = Doctor Evolution + Box B3 پشتِ flagِ **خاموش** wire شوند (قابلِ آزمایش، بی‌ریسک).
+6. **D-F** = فعلاً فقط اتصالِ HLC + حلقهٔ خودمختار به همان LeadLeg؛ ناوگانِ ۶-پا ساخته نشود.
+7. **D-G** = فقط effect-lease (idempotencyِ E18) پذیرفته؛ sleep-leg/quarantine-reader/lineage-archive بعداً.
+8. **D-H** = genome-system فعلاً فایلِ ساده بماند (ورودیِ 07-07 هم باز بود)؛ لایهٔ نامیِ V2/alias حداقلی در repo authored شود.
+
+**همچنین یک تصادمِ بحرانیِ باز:** «لنگر/LANGAR/Anchor» ≥۶ موجودِ متمایز را نام می‌دهد؛ قانونِ هم‌نامی فقط ۳ را پوشش می‌دهد → پیش از هر لمسِ کدِ named-langar باید تکمیل شود (P-D1).
