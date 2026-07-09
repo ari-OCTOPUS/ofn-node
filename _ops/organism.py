@@ -341,6 +341,13 @@ def main() -> int:
                     _w.idea_beat(_idea_graph, beat=_cstat.get("beat", 0))
                 except Exception as _ie:  # noqa: BLE001 — §۴: idea نباید tick را بکشد
                     opslib.alert([f"idea_beat error (non-fatal): {type(_ie).__name__}: {_ie}"])
+            # ── Phase 5: epistemics wiring (پشتِ flag، advisory، non-enforcer).
+            # هر N beat، پنج متریک را محاسبه و advisory publish کن. annotate، نه fork.
+            if not _protective_skip and _cstat is not None:
+                try:
+                    _w.epistemics_beat(live_loop=_live_loop, beat=_cstat.get("beat", 0))
+                except Exception as _ee:  # noqa: BLE001 — §۴: epistemics نباید tick را بکشد
+                    opslib.alert([f"epistemics_beat error (non-fatal): {type(_ee).__name__}: {_ee}"])
 
             if now - last_heartbeat > 3600:
                 opslib.heartbeat(

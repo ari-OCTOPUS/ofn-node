@@ -306,6 +306,7 @@ def wire_summary() -> dict:
         "wire_scheduler": flag("OCTOPUS_WIRE_SCHEDULER"), # B6: F19 scheduler
         "wire_reconcile": flag("OCTOPUS_WIRE_RECONCILE"), # A1: Track-B reconcile
         "wire_fitness": flag("OCTOPUS_WIRE_FITNESS"),    # A2: outbox/EXPERIENCE
+        "wire_epistemics": flag("OCTOPUS_WIRE_EPISTEMICS"), # Phase 5: epistemics wiring
         "profile": resolve_profile(),                    # P-W3: boot profile
         "doctor_every_n": int(os.environ.get("CHRONO_DOCTOR_EVERY_N_BEATS", "1440")),
         "consolidation_every_n": int(os.environ.get("CHRONO_CONSOLIDATION_EVERY_N_BEATS", "720")),
@@ -495,6 +496,45 @@ def append_outbox(business: str, status: str, channel: str = "",
     except Exception as e:  # noqa: BLE001 — §۴
         opslib.alert([f"wiring: append_outbox خطا: {type(e).__name__}: {e}"])
         return False
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# Phase 5 · epistemics_beat — wiringِ epistemics به tick (پشتِ flag)
+# ════════════════════════════════════════════════════════════════════════════════
+
+def epistemics_beat(live_loop=None, beat: int = 0) -> dict | None:
+    """Phase 5: هر N beat، epistemics.compute_all() را اجرا کن و خروجی را advisory publish کن.
+    پشتِ OCTOPUS_WIRE_EPISTEMICS (پیش‌فرض off). kill-switch اول.
+    advisory فقط — non-enforcer. no-collision: فقط annotate، نه fork.
+
+    خروجی: گزارشِ {metrics_count, authoritative_count} یا None."""
+    if not flag("OCTOPUS_WIRE_EPISTEMICS"):
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    every_n = int(os.environ.get("CHRONO_EPISTEMICS_EVERY_N_BEATS", "720"))   # ۱۲ ساعت
+    if beat <= 0 or (every_n > 0 and beat % every_n != 0):
+        return None
+    try:
+        from epistemics.run_offloop import compute_all
+        results = compute_all()
+        auth_count = sum(1 for r in results if isinstance(r, dict) and r.get("authoritative"))
+        # advisory publish روی bus (نه control-path، annotate)
+        if live_loop is not None:
+            for r in results:
+                if isinstance(r, dict) and r.get("metric"):
+                    live_loop._emit_advisory("EPISTEMICS", {
+                        "metric": r["metric"],
+                        "value_summary": str(r.get("value"))[:120],
+                        "authoritative": r.get("authoritative", False),
+                        "confidence": r.get("confidence", 0),
+                    })
+        return {"metrics_count": len(results),
+                "authoritative_count": auth_count,
+                "advisory_only": True}
+    except Exception as e:  # noqa: BLE001 — §۴: epistemics نباید tick را بکشد
+        opslib.alert([f"wiring: epistemics_beat خطا: {type(e).__name__}: {e}"])
+        return None
 
 
 def make_neural_stack():
