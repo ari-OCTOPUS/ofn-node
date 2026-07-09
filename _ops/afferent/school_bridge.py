@@ -96,6 +96,14 @@ class SchoolBridge:
         field مستقل بماند (موافق با awareness_of)."""
         return self.field.mean_awareness()
 
+    def full_awareness_vector(self) -> list[float] | None:
+        """کل awareness vector [0,1]^N — نه فقط mean.
+        Phase 2: برای encode_awareness در latent space."""
+        try:
+            return self.field.awareness.tolist()
+        except Exception:  # noqa: BLE001 — fail-soft
+            return None
+
 
 if __name__ == "__main__":
     sb = SchoolBridge()

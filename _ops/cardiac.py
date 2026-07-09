@@ -6,7 +6,7 @@ cardiac.py — لایهٔ آلوستاتیکِ ضربان: سه قانونِ ب�
 
 سه قانون (همه پشتِ OCTOPUS_WIRE_BIO=1، پیش‌فرض خاموز = no regression):
   ۱) bio_rhythm(mass) → period_s   نرخ تابعِ حجم (M^(−۱/۴)، نه ثابت)
-  ۲) BeatBudget(daily_cap)          بودجهٔ ضربان (~۱۰⁹ ضربه/عمر، مجبور به انتخاب)
+  ۲) BeatBudget(daily_cap)          بودجهٔ ضربان (سقفِ روزانه، مجبور به انتخاب)
   ۳) baroreflex(stimulus)           پاسخِ فوریِ محیط (شتاب/کُندیِ موقت)
 
 خطوطِ قرمز:
@@ -197,7 +197,9 @@ class Baroreflex:
             return 1.0
         # geometric mean (عادلانه برای شتاب/کُندی)
         log_sum = sum(math.log(f) for f in live)
-        return math.exp(log_sum / len(live))
+        raw = math.exp(log_sum / len(live))
+        # کف/سقف دوباره: خطای اعشاریِ exp(log) ممکنه bounds رو رد کنه
+        return max(0.2, min(3.0, raw))
 
 
 # ════════════════════════════════════════════════════════════════════════════════

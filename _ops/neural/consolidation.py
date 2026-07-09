@@ -29,6 +29,9 @@ class ConsolidatedInsight:
     verified_sources: list[str]
     discarded_sources: list[str]
     timestamp: float = field(default_factory=time.time)
+    # Phase 2: latent representation (backward compatible — None when no latent space)
+    latent_vector: list[float] | None = None
+    similar_keys: list[str] | None = None
 
 
 def _verify_source(name: str, data: dict) -> bool:

@@ -168,6 +168,13 @@ def main() -> int:
         _profile = _w.apply_profile()   # P-W3: paper-full → flagهای امن
         _wire = _w.wire_summary()
         _chan = _w.make_telegram_channel()   # auto-on اگر توکن
+        # T-8: شروعِ long-poll thread برای دریافتِ پیام‌های تلگرام
+        if _chan is not None:
+            import threading as _tg
+            _poll_t = _tg.Thread(target=_chan.run_forever, daemon=True,
+                                name="telegram-poll")
+            _poll_t.start()
+            opslib.heartbeat("telegram poll thread started (T-8)")
         _doctor_inst = _w.make_doctor(state_dir=str(opslib.STATE_DIR), channel=_chan)
         # W (P-W1): returnها را نگه دار، نه دور بریز — نخاع: bus + leg + LiveLoop
         _bus = _w.make_unified_bus()
@@ -278,6 +285,18 @@ def main() -> int:
                 epoch_info = {"last_epoch": rec["ts"],
                               "pressure": rec["pressure"],
                               "next_epoch_minutes": rec["next_epoch_minutes"]}
+            # Phase 1: epoch-based sweep of stale gated_effects
+            try:
+                if chrono is not None:
+                    _db_path = opslib.STATE_DIR / "chrono.db"
+                    if _db_path.exists():
+                        _cdb = chrono.ChronoDB(str(_db_path))
+                        _gate = chrono.EffectorGate(db=_cdb)
+                        _sw = _gate.sweep_stale_effects()
+                        if _sw["refused"] > 0:
+                            epoch_info["effect_sweep"] = _sw
+            except Exception:  # noqa: BLE001 — sweep نباید tick را بکشد
+                pass
             daily = {}
             if not _protective_skip and opslib.today() != last_daily:
                 fit = fitness.compute()

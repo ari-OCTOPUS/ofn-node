@@ -119,13 +119,24 @@ def make_doctor(state_dir=None, db=None, channel=None):
 
 
 def make_telegram_channel():
-    """ساختِ TelegramApprovalChannel. auto-on اگر توکن باشد."""
+    """ساختِ TelegramApprovalChannel. auto-on اگر توکن باشد.
+    T-8: gate و ledger از chrono تزریق می‌شوند تا T-2 settle فعال باشد."""
     if not os.environ.get("TELEGRAM_BOT_TOKEN"):
         return None
     try:
         sys.path.insert(0, str(_HERE / "budget"))
         from approval_channel import TelegramApprovalChannel
-        return TelegramApprovalChannel()   # no-op امن اگر توکن نباشد
+        # T-8: gate/ledger injection — T-2 settle فقط با این دو فعال است.
+        _gate = _ledger = None
+        try:
+            import chrono as _chrono_mod
+            _gate = _chrono_mod.EffectorGate(db=None)
+        except Exception:  # noqa: BLE001 — chrono import شکست = بدون gate
+            pass
+        return TelegramApprovalChannel(
+            gate=_gate, ledger=None,
+            state_dir=str(opslib.STATE_DIR),
+        )   # no-op امن اگر توکن نباشد
     except Exception as e:  # noqa: BLE001
         opslib.alert([f"wiring: Telegram ساخت نشد: {e}"])
         return None
@@ -636,14 +647,86 @@ def protective_override(neural_result: dict | None) -> dict:
 # M · canonical consolidation — یک مسیرِ واحد با verification-gate
 # ════════════════════════════════════════════════════════════════════════════════
 
+def _enrich_with_latent(result, sources, school_bridge, latent_space) -> None:
+    """Phase 2: encode هر verified source → latent vector → retrieval.
+
+    result: ConsolidatedInsight (mutated in-place — latent_vector + similar_keys)
+    sources: dict of verified sources passed to consolidation.run()
+    school_bridge: برای full_awareness_vector (richer encoding)
+    latent_space: SharedLatentSpace instance
+
+    advisory-only: اگر خطا → latent fields می‌مانند None (backward compat)."""
+    from neural.encoders import (
+        encode_observation, encode_awareness, encode_rfc, encode_phi_t,
+        encode_calibration)
+    import numpy as _np
+
+    cycle_key = f"cycle-{result.cycle}"
+    encoded_keys = []
+    dim = latent_space.dim
+
+    # acquisition → hash-based encoding از نام + مقدار
+    if "acquisition" in sources:
+        data = sources["acquisition"]
+        best = max(data.items(), key=lambda x: x[1]) if data else None
+        if best:
+            vec = encode_observation("acquisition", best[0], dim=dim)
+            key = f"{cycle_key}:acquisition:{best[0]}"
+            latent_space.embed(key, vec, layer="acquisition", source="consolidation")
+            encoded_keys.append(key)
+
+    # doctor_archive → hash-based encoding
+    if "doctor_archive" in sources:
+        data = sources["doctor_archive"]
+        n_approved = sum(1 for d in data
+                        if isinstance(d, dict) and d.get("outcome") in ("approved", "published"))
+        vec = encode_rfc(f"archive-{result.cycle}", f"{n_approved} approved", "medium", dim=dim)
+        key = f"{cycle_key}:doctor_archive:{n_approved}"
+        latent_space.embed(key, vec, layer="doctor", source="consolidation")
+        encoded_keys.append(key)
+
+    # school_awareness → full vector encoding (richer)
+    if "school_awareness" in sources and school_bridge:
+        try:
+            aw_vec = school_bridge.full_awareness_vector()
+            if aw_vec and len(aw_vec) > 0:
+                vec = encode_awareness(aw_vec, dim=dim)
+                key = f"{cycle_key}:school_awareness"
+                latent_space.embed(key, vec, layer="school", source="consolidation")
+                encoded_keys.append(key)
+        except Exception as _awe:  # noqa: BLE001 — §۴
+            opslib.alert([f"latent school_awareness خطا: {type(_awe).__name__}: {_awe}"])
+
+    # mean-pool از همه encoded sources → latent_vector
+    if encoded_keys:
+        integrated = latent_space.integrate(encoded_keys)
+        result.latent_vector = integrated.tolist()
+        # retrieval: nearest از cycles قبلی
+        nn = latent_space.nearest(cycle_key, top_k=5)
+        result.similar_keys = [k for k, _ in nn if k != cycle_key]
+        # خود cycle را هم embed کن
+        latent_space.embed(cycle_key, integrated, layer="consolidation", source="cycle")
+        latent_space.store()
+
 def canonical_consolidation(neural_stack, school_bridge=None,
                             acquisition_data=None,
-                            doctor_archive=None) -> dict | None:
+                            doctor_archive=None,
+                            latent_space=None):
     """یک مسیرِ canonical consolidation. فقط verified.
     دو مسیرِ موازی نماند — همه از اینجا.
-    verification-gate: فقط CONFIRMED/verified منابع."""
+    verification-gate: فقط CONFIRMED/verified منابع.
+
+    Return semantics (Phase 1):
+      None                  → precondition failure (neural_stack is None) or exception
+      ConsolidatedInsight()  → ran (empty insights = nothing to consolidate, NOT error)
+
+    Phase 2: اگر latent_space موجود → هر verified source را encode + retrieve."""
+    # lazy import: Avoid circular at module level — consolidation.py is under neural/
+    from neural.consolidation import ConsolidatedInsight
+
     if neural_stack is None:
-        return None
+        opslib.alert(["consolidation: neural_stack is None — WIRE_CONSOLIDATION off"])
+        return None  # precondition failure
     try:
         consolidation = neural_stack["consolidation"]
         sources = {}
@@ -669,11 +752,20 @@ def canonical_consolidation(neural_stack, school_bridge=None,
             except Exception as _se:  # noqa: BLE001 — §۴: خطای خاموش ممنون
                 opslib.alert([f"wiring: school mean_awareness خطا: {type(_se).__name__}: {_se}"])
         if not sources:
-            return None   # هیچ منبعِ verified
-        return consolidation.run(sources)
+            # nothing to consolidate — bare object, NOT None (تمایز با error)
+            return ConsolidatedInsight(
+                cycle=0, insights=[], verified_sources=[], discarded_sources=[])
+        result = consolidation.run(sources)
+        # Phase 2: latent integration (advisory-only، fail-soft)
+        if latent_space is not None and result is not None:
+            try:
+                _enrich_with_latent(result, sources, school_bridge, latent_space)
+            except Exception as _le:  # noqa: BLE001 — latent نباید consolidation را بکشد
+                opslib.alert([f"consolidation latent خطا: {type(_le).__name__}: {_le}"])
+        return result
     except Exception as e:  # noqa: BLE001
         opslib.alert([f"wiring: canonical_consolidation خطا: {e}"])
-        return None
+        return None  # real error
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -712,10 +804,20 @@ def consolidation_beat(neural_stack, school_bridge=None, beat: int = 0,
         return None   # هنوز نوبتِ consolidation نیست
     if neural_stack is None:
         return None   # بدونِ neural_stack → چیزی برای consolidate نیست
+    # Phase 2: latent space instance از neural_stack یا lazy construction
+    latent_space = neural_stack.get("latent_space")
+    if latent_space is None:
+        try:
+            from neural.latent_space import SharedLatentSpace
+            latent_space = SharedLatentSpace()
+            neural_stack["latent_space"] = latent_space  # cache
+        except Exception:  # noqa: BLE001 — latent fail-soft
+            latent_space = None
     try:
         return canonical_consolidation(
             neural_stack, school_bridge=school_bridge,
-            acquisition_data=acquisition_data, doctor_archive=doctor_archive)
+            acquisition_data=acquisition_data, doctor_archive=doctor_archive,
+            latent_space=latent_space)
     except Exception as e:  # noqa: BLE001 — §۴: خطای خاموش ممنون، ولی consolidation نباید tick را بکشد
         opslib.alert([f"wiring: consolidation_beat خطا: {type(e).__name__}: {e}"])
         return None

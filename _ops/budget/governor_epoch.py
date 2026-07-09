@@ -300,6 +300,23 @@ def run_epoch(base_min: float = BASE_MIN_DEFAULT) -> dict:
     }
     if not stop and not conflicts:
         record["allocation_dry"] = allocate_dry(snap)
+        # Phase 1: epoch-based sweep of stale gated_effects (fail-soft).
+        # چون chrono.db فقط در organism موجود است، sweep hook واقعی
+        # در organism.py tick loop قرار دارد. اینجا فقط placeholder record.
+        try:
+            _chrono_dir = Path(__file__).resolve().parent.parent
+            sys.path.insert(0, str(_chrono_dir))
+            import chrono as _chrono_mod
+            if _chrono_mod is not None and hasattr(_chrono_mod, "ChronoDB"):
+                _db_path = _chrono_dir / "state" / "chrono.db"
+                if _db_path.exists():
+                    _cdb = _chrono_mod.ChronoDB(str(_db_path))
+                    _gate = _chrono_mod.EffectorGate(db=_cdb)
+                    _sweep = _gate.sweep_stale_effects()
+                    if _sweep["refused"] > 0:
+                        record["effect_sweep"] = _sweep
+        except Exception:  # noqa: BLE001 — sweep نباید epoch را بکشد
+            pass
         llm = allocate_llm(snap, record["allocation_dry"])
         if llm:
             record["allocation_llm"] = llm

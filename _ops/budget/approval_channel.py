@@ -208,7 +208,8 @@ class TelegramApprovalChannel(ApprovalChannel):
 
     def poll_once(self) -> int:
         """یک دورِ long-poll. خروجی = تعداد updateهای پردازش‌شده. وقتی not wired → 0 (no-opِ
-        امن، بدونِ هیچ فراخوانیِ شبکه). خطای شبکه fail-soft: ۰ برمی‌گردد، حلقه کشته نمی‌شود."""
+        امن، بدونِ هیچ فراخوانیِ شبکه). خطای شبکه fail-soft: ۰ برمی‌گردد، حلقه کشته نمی‌شود.
+        T-8 router: پیام‌های متنی مالک → handle_command + پاسخ. callback_query → dispatch_callback + answer."""
         if not self.wired:
             return 0
         if self._killed():
@@ -227,28 +228,66 @@ class TelegramApprovalChannel(ApprovalChannel):
             if isinstance(uid, int) and uid + 1 > self._offset:
                 self._offset = uid + 1
                 offset_dirty = True
-            msg = upd.get("message") or upd.get("callback_query", {}).get("message") or {}
-            chat_id = msg.get("chat", {}).get("id")
-            text = (msg.get("text")
-                    or (upd.get("callback_query", {}).get("data") if "callback_query" in upd else ""))
+
+            # ── تشخیص نوع update: callback_query یا text message ──
+            is_callback = "callback_query" in upd
+            cbq = upd.get("callback_query") if is_callback else {}
+
+            msg = upd.get("message") or cbq.get("message") or {}
+            chat_id = msg.get("chat", {}).get("id") or cbq.get("message", {}).get("chat", {}).get("id")
+            text = msg.get("text") or (cbq.get("data") if is_callback else "")
+            from_id = (msg.get("from") or cbq.get("from") or {}).get("id")
+            cbq_id = cbq.get("id")  # callback_query ID برای answerCallbackQuery
+
             # allowlist: فقط chat_idِ مالک پذیرفته می‌شود؛ بقیه ignore (قانونِ P3 §5).
             if chat_id != self._owner:
                 processed += 1              # پردازش‌شده ولی رد‌شده (offset جلو رفت)
                 continue
-            # DATA نه دستور: هر پیامِ مالک در quarantine ثبت می‌شود و هرگز اجرا نمی‌شود.
+
+            # ── T-8: quarantine همیشه ثبت می‌شود (DATA) ──
             with self._lk:
                 self._quarantine.append({
                     "update_id": uid, "chat_id": chat_id,
-                    "from_id": (msg.get("from") or {}).get("id"),
+                    "from_id": from_id,
                     "text": str(text or "")[:1000],   # کران: پیامِ غول‌پیکر = حافظهٔ نا‌محدود ممنوع
                     "date": msg.get("date"),
                 })
+
+            # ── T-8: پردازشِ واقعی — command یا callback ──
+            try:
+                if is_callback:
+                    # callback_query → dispatch + answer
+                    reply = self.dispatch_callback(str(text))
+                    if cbq_id:
+                        self._answer_callback_query(cbq_id, reply or "📝")
+                else:
+                    # text message → handle_command + send reply
+                    reply = self.handle_command(str(text))
+                    if reply is not None:
+                        self.send_text(reply)
+            except Exception as e:  # noqa: BLE001 — fail-soft: ارسال شکست → alert، حلقه ادامه
+                opslib.alert([f"telegram T-8 dispatch error: {type(e).__name__}: {e}"])
+
             processed += 1
         # offset persistence: اگر offset جلو رفت و state_dir هست، در فایل ذخیره کن
         # (restart-safe). state_dir نباشد → همان رفتارِ حافظه‌ایِ T-1 (تست‌ها).
         if offset_dirty and self._state_dir:
             _save_offset(self._offset, self._state_dir)
         return processed
+
+    def _answer_callback_query(self, callback_query_id: str, text: str = "") -> bool:
+        """T-8: ارسال answerCallbackQuery برای dismiss کردنِ spinner روی دکمه.
+        fail-soft: شکست = alert، بدونِ killِ حلقه."""
+        if not self.wired:
+            return False
+        try:
+            self._http_post(self._build_url("answerCallbackQuery", {}),
+                            {"callback_query_id": callback_query_id,
+                             "text": str(text)[:200], "cache_time": 0})
+            return True
+        except Exception as e:  # noqa: BLE001 — fail-soft
+            opslib.alert([f"telegram answerCallbackQuery error: {type(e).__name__}: {e}"])
+            return False
 
     def run_forever(self) -> None:
         """حلقهٔ long-pollِ پس‌زمینه. not wired → فوراً برمی‌گردد (no-opِ امن). kill supreme:

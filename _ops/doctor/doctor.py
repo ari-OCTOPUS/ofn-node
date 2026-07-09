@@ -145,6 +145,7 @@ class RFC:
     status: str = "draft"                              # draft/sandboxed/critic/submitted/merged/rejected
     ledger_ref: str = ""                               # پیوند به genome ledger
     rfc_hash: str = ""                                 # provenance
+    created_ts: float = 0.0                            # time.time() hنگام ساخت — sweep/expire
 
     def __post_init__(self):
         if not self.rfc_hash:
@@ -152,6 +153,8 @@ class RFC:
                                 "fix": self.fix, "expected_lift": self.expected_lift},
                                ensure_ascii=False, sort_keys=True)
             self.rfc_hash = hashlib.sha256(canon.encode("utf-8")).hexdigest()[:24]
+        if self.created_ts <= 0:
+            self.created_ts = time.time()
 
     def to_dict(self) -> dict:
         return {"rfc_id": self.rfc_id, "bottleneck": self.bottleneck, "fix": self.fix,
@@ -470,6 +473,40 @@ class Doctor:
         except Exception:  # noqa: BLE001 — restart نباید crash کند
             return False
 
+    # ─── RFC sweep — expire stale + re-submit no-channel ──────────────────────
+    def _sweep_stale_rfcs(self, max_age_hours: int = 24) -> dict:
+        """RFCهایی که بیش از max_age_hours در وضعیت non-terminal گیر کرده‌اند:
+        - submitted-no-channel با channel وصل → re-submit
+        - submitted-no-channel / submit-failed / submitted قدیمی → expired
+        max_age_hours=0 → sweep خاموش (rollback knob).
+        """
+        if max_age_hours <= 0:
+            return {"swept": 0, "details": [], "resubmitted": []}
+        now = time.time()
+        expired, resubmitted = [], []
+        for rfc_id, rfc in list(self._rfcs.items()):
+            if rfc.status not in ("submitted-no-channel", "submit-failed", "submitted"):
+                continue
+            age_h = (now - rfc.created_ts) / 3600
+            if age_h <= max_age_hours:
+                continue
+            # re-submit opportunity: channel الان وصل شده ولی RFC هنوز no-channel
+            if rfc.status == "submitted-no-channel" and self._channel is not None:
+                try:
+                    ok = self.submit_for_approval(rfc)
+                    resubmitted.append({"rfc_id": rfc_id, "age_h": round(age_h, 1),
+                                        "new_status": rfc.status, "ok": ok})
+                except Exception:  # noqa: BLE001 — sweep نباید crash کند
+                    rfc.status = "expired"
+                    expired.append({"rfc_id": rfc_id, "old_status": "submitted-no-channel",
+                                    "age_h": round(age_h, 1)})
+            else:
+                rfc.status = "expired"
+                expired.append({"rfc_id": rfc_id, "old_status": rfc.status, "age_h": round(age_h, 1)})
+        if expired or resubmitted:
+            self._note("DOCTOR_SWEEP", {"expired": expired, "resubmitted": resubmitted})
+        return {"swept": len(expired), "details": expired, "resubmitted": resubmitted}
+
     def run_cycle(self, beat: int | None = None, trace: dict | None = None,
                   use_calibration: bool = True, use_chamber: bool = True) -> dict | None:
         """یک دورِ کامل دکتر: mine → (calibration filter) → Chamber → propose_rfc → sandbox → submit.
@@ -480,6 +517,8 @@ class Doctor:
         use_calibration: اگر True، effective_mine را به‌جای mine صدا می‌زند (attention-budget
         + verdict-history). اگر False، mine خالص (سازگار با تست‌های قدیمی).
         use_chamber: اگر True، RFC از Chamber تخاصمی می‌گذرد پیش از sandbox/submit."""
+        # sweep RFCهای گیر کرده (expire stale, re-submit no-channel)
+        self._sweep_stale_rfcs()
         # calibration: mine + attention-budget + verdict-history filter
         if use_calibration:
             try:

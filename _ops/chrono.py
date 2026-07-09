@@ -404,6 +404,24 @@ class EffectorGate:
         self._note("EFFECT_SETTLED", {"effect_id": effect_id, "release_ref": row[0][1]})
         return True
 
+    def sweep_stale_effects(self, max_age_hours: int = 72) -> dict:
+        """gated_effectهایی که بیش از max_age_hours pending هستند → auto-refuse.
+        max_age_hours=0 → sweep خاموش (rollback knob).
+        هر epoch از governor_epoch.run_epoch() صدا زده می‌شود."""
+        if max_age_hours <= 0:
+            return {"refused": 0, "ids": []}
+        cutoff_ms = _utc_ms() - (max_age_hours * 3600_000)
+        rows = self.db.q(
+            "SELECT effect_id FROM gated_effect WHERE status='pending' AND created_ts < ?",
+            (cutoff_ms,))
+        refused = []
+        for (eid,) in rows:
+            self.db.ex("UPDATE gated_effect SET status='refused' WHERE effect_id=?", (eid,))
+            refused.append(eid)
+        if refused:
+            self._note("EFFECT_SWEEP", {"refused_count": len(refused), "ids": refused})
+        return {"refused": len(refused), "ids": refused}
+
 
 # ─── LANGAR — فلشِ میرا (P-Chrono-4؛ ledger ژنوم v0.4.5 گسترش‌یافته) ─────────────
 def on_human_judgment(judgment: dict, gate: EffectorGate | None = None,

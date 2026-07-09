@@ -212,10 +212,13 @@ def t_unverified_school_discarded():
         def mean_awareness(self):
             return "not a number"   # غیرِ عددی → باید discard شود
 
-    # بدونِ منبعِ verified دیگر → None
+    # بدونِ منبعِ verified دیگر → bare ConsolidatedInsight (نه None — تمایز Phase 1)
     result = wiring.consolidation_beat(stack, school_bridge=BadBridge(), beat=720)
     os.environ.pop("OCTOPUS_WIRE_CONSOLIDATION")
-    assert result is None, "school غیرِ عددی نباید verified شود"
+    from neural.consolidation import ConsolidatedInsight
+    assert isinstance(result, ConsolidatedInsight), \
+        f"school غیرعددی → bare object انتظار می‌رود، نه None یا {type(result)}"
+    assert result.insights == [], "هیچ منبعی نباید insights تولید کند"
 
 
 if __name__ == "__main__":

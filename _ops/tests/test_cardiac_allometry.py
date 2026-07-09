@@ -19,6 +19,7 @@ sys.path.insert(0, str(_HERE.parent))           # _ops/
 sys.path.insert(0, str(_HERE.parent / "budget"))
 
 import cardiac
+import harness
 
 
 def _setbio(on: bool):
@@ -279,3 +280,29 @@ def test_cardiac_does_not_import_chrono_internals():
                  "leg_clock", "gated_effect"]
     found = [f for f in forbidden if f in src]
     assert not found, f"cardiac نباید به chrono internals دست بزند: {found}"
+
+
+if __name__ == "__main__":
+    failed = harness.run([
+        ("bio_rhythm خاموش = base", test_bio_rhythm_flag_off_is_base),
+        ("bio_rhythm تابعِ حجم", test_bio_rhythm_mass_monotonic),
+        ("bio_rhythm کف/سقف", test_bio_rhythm_floor_and_ceiling),
+        ("bio_rhythm حداقلِ حجم", test_bio_rhythm_mass_minimum),
+        ("budget خاموش = نامحدود", test_budget_flag_off_unlimited),
+        ("budget خرج + depleted", test_budget_spends_and_depletes),
+        ("budget reset روزانه", test_budget_resets_on_new_day),
+        ("budget resting رایگان", test_budget_resting_free),
+        ("budget thread-safety", test_budget_thread_safety),
+        ("baroreflex خاموش = noop", test_baroreflex_flag_off_noop),
+        ("baroreflex شتاب", test_baroreflex_acceleration),
+        ("baroreflex فشار → کُندی", test_baroreflex_pressure_slowdown),
+        ("baroreflex decay", test_baroreflex_decay),
+        ("baroreflex factor clamped", test_baroreflex_factor_clamped),
+        ("effective_period خاموش", test_effective_period_flag_off),
+        ("effective_period ترکیبی", test_effective_period_combines_all),
+        ("effective_period depleted → resting", test_effective_period_depleted_forces_resting),
+        ("status_snapshot خاموش", test_status_snapshot_flag_off),
+        ("status_snapshot روشن", test_status_snapshot_flag_on),
+        ("TINV حفظ: chrono داخلی لمس نمی‌شود", test_cardiac_does_not_import_chrono_internals),
+    ])
+    sys.exit(1 if failed else 0)

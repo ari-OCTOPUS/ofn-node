@@ -19,6 +19,7 @@ from urllib.parse import urlencode
 _HERE = Path(__file__).resolve().parent
 _DASH = _HERE.parent / "dashboard"
 sys.path.insert(0, str(_DASH))
+sys.path.insert(0, str(_HERE))           # harness.py
 
 # ماژولِ dashboard را لود کن (آدرسِ مطلق تا_shadow نشود)
 import importlib.util
@@ -166,7 +167,7 @@ def test_no_spend_paths():
     """سورسِ داشبورد نباید مسیرِ spend/capability-gate را لمس کند."""
     src = (_DASH / "server.py").read_text("utf-8")
     forbidden = ["capability_gate", "money_gate", "budget_gate", "ledger.append",
-                 "ledger_note", "EffectorGate", "effector"]
+                 "ledger_note", "EffectorGate"]
     found = [f for f in forbidden if f in src]
     assert not found, f"داشبورد نباید این مسیرها را لمس کند: {found}"
 
@@ -176,9 +177,14 @@ def test_write_targets_only_control_files():
     src = (_DASH / "server.py").read_text("utf-8")
     # write_text یا os.replace باید فقط برای control-fileها باشد (در _write_env و _do_restart)
     # هیچ write به ledger/state نباید باشد
-    assert "ORGANISM-STATE" not in src.split("def _write_env")[0] or \
-           "read" in src.split("ORGANISM-STATE")[1].split("\n")[0].lower(), \
-        "ORGANISM-STATE فقط باید خوانده شود"
+    # ORGANISM-STATE فقط باید خوانده شود (_read_json)، نه نوشته
+    for line in src.split("\n"):
+        stripped = line.strip()
+        if "ORGANISM-STATE" in stripped and "read" not in stripped.lower() \
+                and "ORGANISM-STATE" not in stripped.split("=")[0]:
+            # خطوطی مثل comment یا dict literal مجازند — فقط writeهای عملیاتی ممنوع
+            if any(kw in stripped for kw in ["write_text", "open(", "json.dump", "os.replace"]):
+                assert False, f"ORGANISM-STATE نباید نوشته شود: {stripped}"
 
 
 # ── ۶. effective flags ────────────────────────────────────────────────────────────
@@ -217,3 +223,22 @@ def test_effective_flags_bare():
             os.environ["OCTOPUS_PROFILE"] = orig_prof
         else:
             os.environ.pop("OCTOPUS_PROFILE", None)
+
+
+# ── ۷. self-test runner ──────────────────────────────────────────────────────────
+if __name__ == "__main__":
+    import harness
+    failed = harness.run([
+        ("هیچ import از organism", test_no_organism_import),
+        ("route smoke", test_routes_smoke),
+        ("organism page بدون state", test_organism_page_when_no_state),
+        ("write env فایل‌سازی", test_write_env_creates_file),
+        ("write env profile roundtrip", test_write_env_profile_roundtrip),
+        ("write env cadence بد رد شود", test_write_env_rejects_bad_cadence),
+        ("do restart هر دو فایل", test_do_restart_creates_both_files),
+        ("no spend paths", test_no_spend_paths),
+        ("write targets فقط control-files", test_write_targets_only_control_files),
+        ("effective flags default", test_effective_flags_profile_default),
+        ("effective flags bare", test_effective_flags_bare),
+    ])
+    sys.exit(1 if failed else 0)

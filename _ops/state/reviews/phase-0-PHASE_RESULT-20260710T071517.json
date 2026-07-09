@@ -1,0 +1,30 @@
+{
+  "phase_id": "phase-0",
+  "review_type": "PHASE_RESULT",
+  "ts": "20260710T071517",
+  "payload": {
+    "summary": "فاز ۰ تثبیت و ایمن‌سازی تکمیل شد",
+    "modules_created": [
+      "baseline.py",
+      "held_out_evaluator.py",
+      "phase_gate.py",
+      "review_bus.py"
+    ],
+    "tests_added": [
+      "test_baseline.py",
+      "test_held_out_evaluator.py",
+      "test_phase_gate.py"
+    ],
+    "suite_count": 66,
+    "suite_green": 65,
+    "pre_existing_failure": "test_llm_routing_smoke.py (Fugu 429 rate-limit)",
+    "held_out_result": {
+      "fixed_suite": "5/5",
+      "ledger_chain": "broken at record 40 (pre-existing corruption from organism heartbeat)"
+    },
+    "baseline_captured": true,
+    "baseline_path": "state/baseline-phase-0-pre-*.json",
+    "finding": "held_out evaluator ledger chain break را کشف کرد — رفع در فاز بعدی"
+  },
+  "verdict": null
+}
