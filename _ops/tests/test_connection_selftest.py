@@ -33,19 +33,19 @@ import chrono  # noqa: E402
 
 
 # ════════════════════════════════════════════════════════════════════════════════
-# (الف) profile = bare (پیش‌فرض، no-regression)
+# (الف) profile = bare (صریحاً، no-regression)
 # ════════════════════════════════════════════════════════════════════════════════
 
-def t_default_profile_is_bare():
-    """بدونِ env، profile = bare (no-regression)."""
-    os.environ.pop("OCTOPUS_PROFILE", None)
+def t_bare_profile_is_explicit():
+    """OCTOPUS_PROFILE=bare (صریح) → bare (debug/emergency)."""
+    os.environ["OCTOPUS_PROFILE"] = "bare"
     assert wiring.resolve_profile() == "bare"
+    os.environ.pop("OCTOPUS_PROFILE", None)
 
 
 def t_bare_profile_no_flags():
     """bare → apply_profile هیچ flagی را ست نمی‌کند."""
-    os.environ.pop("OCTOPUS_PROFILE", None)
-    # همهٔ flagها را پاک کن
+    os.environ["OCTOPUS_PROFILE"] = "bare"
     for f in wiring.PAPER_FULL_FLAGS:
         os.environ.pop(f, None)
     wiring.apply_profile()
@@ -53,6 +53,7 @@ def t_bare_profile_no_flags():
     assert s["wire_doctor"] is False
     assert s["wire_neural"] is False
     assert s["wire_ideas"] is False
+    os.environ.pop("OCTOPUS_PROFILE", None)
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -247,8 +248,8 @@ def t_pacemaker_bug_fixed():
 
 if __name__ == "__main__":
     failed = harness.run([
-        # (الف) bare
-        ("default profile = bare", t_default_profile_is_bare),
+        # (الف) bare (صریح)
+        ("bare profile explicit", t_bare_profile_is_explicit),
         ("bare → no flags", t_bare_profile_no_flags),
         # (ب) paper-full flags
         ("paper-full → همهٔ flagها", t_paper_full_sets_all_flags),

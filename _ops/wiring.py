@@ -35,33 +35,44 @@ def flag(name: str) -> bool:
 # W3 · boot profile — یک سوئیچ به‌جای ۶ flagِ پراکنده (P-W3)
 # ════════════════════════════════════════════════════════════════════════════════
 
-# paper-full = همهٔ wiringِ امن روشن (نورال + consolidation + school + sensory +
-# doctor + evolution + box + unified + legs + ideas). پول/live جدا و همچنان
-# capability-gated (profile آن را باز نمی‌کند).
+# paper-full = همهٔ wiringِ امنِ propose-only روشن (neural + consolidation + school +
+# sensory + doctor + evolution + box + unified + legs + ideas + germline + checkpoint +
+# spectral). پول/live جدا و همچنان capability-gated (profile آن را باز نمی‌کند).
 PAPER_FULL_FLAGS = (
     "OCTOPUS_WIRE_DOCTOR", "OCTOPUS_WIRE_NEURAL", "OCTOPUS_WIRE_UNIFIED",
     "OCTOPUS_WIRE_LEAD", "OCTOPUS_WIRE_SCHOOL", "OCTOPUS_WIRE_CONSOLIDATION",
     "OCTOPUS_WIRE_EVOLUTION", "OCTOPUS_WIRE_BOX", "OCTOPUS_WIRE_LEAD_TICK",
     "OCTOPUS_WIRE_IDEAS",
+    "OCTOPUS_WIRE_SPECTRAL",   # P-spectral: complementary spectral bottleneck
+    # NOTE: germline/checkpoint همیشه‌رون‌اند (safety-vital) — enrich_state_with_
+    # germline و unified_bus._checkpoint همیشه اجرا می‌شوند، flag لازم ندارند.
 )
 
 
 def resolve_profile() -> str:
-    """profile را از OCTOPUS_PROFILE بخوان (پیش‌فرض bare = no-regression).
-    خروجی: 'bare' | 'paper-full'. money/live جدا است (در این تابع نیست)."""
-    return os.environ.get("OCTOPUS_PROFILE", "bare")
+    """profile را از OCTOPUS_PROFILE بخوان. پیش‌فرضِ نو = paper-full (وقتی متغیر ست
+    نشده) → بوتِ عادی کلِ بدنِ امن را فعال می‌کند. bare = همه off (debug/emergency).
+    live = paper-full + (در آینده) effectorهای پول، ولی فقط با capability_gate + history.
+    money/live مطلقاً جدا: این تابع فقط flagهای امن را ست می‌کند، هرگز capability/money."""
+    return os.environ.get("OCTOPUS_PROFILE", "paper-full")
 
 
 def apply_profile() -> str:
     """profile را resolve کن و flagهای مربوطه را در env ست کن.
-    bare = هیچ flagی (رفتارِ فعلی، no-regression).
     paper-full = همهٔ flagهای امن = 1 (اگر هنوز ست نشده‌اند).
-    برمی‌گرداند: نامِ profile. بی‌اثر اگر bare."""
+    bare = همه off (debug/emergency).
+    live = همانِ paper-full + (effectorها جدا، فقط با capability_gate).
+    flagهای مجزای OCTOPUS_WIRE_* اگر صریحاً ست شده باشند → override (پایین می‌مانند اگر 0).
+    money/live مطلقاً جدا: این تابع هرگز capability_gate/money_gate را باز نمی‌کند.
+    برمی‌گرداند: نامِ profile."""
     profile = resolve_profile()
-    if profile == "paper-full":
+    if profile in ("paper-full", "live"):
         for f in PAPER_FULL_FLAGS:
-            if os.environ.get(f, "0") == "0":
+            # فقط اگر هنوز ست نشده (override: اگر کاربر صریحاً 0 ست کرده، پایین می‌ماند)
+            if f not in os.environ:
                 os.environ[f] = "1"
+    # live: effectorهای پول به‌طور جداگانه capability-gated می‌شوند (این تابع بازشان نمی‌کند)
+    return profile
     return profile
 
 
@@ -286,6 +297,7 @@ def wire_summary() -> dict:
         "wire_box": flag("OCTOPUS_WIRE_BOX"),             # P-N2: Box-of-Agents
         "wire_leg_tick": flag("OCTOPUS_WIRE_LEAD_TICK"),  # P-L1: LeadLeg HLC loop
         "wire_ideas": flag("OCTOPUS_WIRE_IDEAS"),        # P-I: idea-graph engine
+        "wire_spectral": flag("OCTOPUS_WIRE_SPECTRAL"),  # P-spectral: spectral bottleneck
         "profile": resolve_profile(),                    # P-W3: boot profile
         "doctor_every_n": int(os.environ.get("CHRONO_DOCTOR_EVERY_N_BEATS", "1440")),
         "consolidation_every_n": int(os.environ.get("CHRONO_CONSOLIDATION_EVERY_N_BEATS", "720")),
