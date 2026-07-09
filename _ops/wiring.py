@@ -201,6 +201,7 @@ def wire_summary() -> dict:
         "wire_consolidation": flag("OCTOPUS_WIRE_CONSOLIDATION"),
         "wire_live_loop": flag("OCTOPUS_WIRE_UNIFIED"),   # نخاع = bus + LiveLoop
         "wire_evolution": flag("OCTOPUS_WIRE_EVOLUTION"), # P-N1: Doctor evolution
+        "wire_box": flag("OCTOPUS_WIRE_BOX"),             # P-N2: Box-of-Agents
         "doctor_every_n": int(os.environ.get("CHRONO_DOCTOR_EVERY_N_BEATS", "1440")),
         "consolidation_every_n": int(os.environ.get("CHRONO_CONSOLIDATION_EVERY_N_BEATS", "720")),
         "afferent_every_n": int(os.environ.get("CHRONO_AFFERENT_EVERY_N_BEATS", "1440")),

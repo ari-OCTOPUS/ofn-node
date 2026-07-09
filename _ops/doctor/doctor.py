@@ -193,7 +193,7 @@ class Doctor:
 
     def __init__(self, state_dir=None, knowledge_dir=None, ledger=None,
                  approval_channel=None, sandbox_runner=None, db=None,
-                 archive=None):
+                 archive=None, box=None):
         self._state_dir = Path(state_dir) if state_dir else (opslib.STATE_DIR)
         self._knowledge_dir = Path(knowledge_dir) if knowledge_dir else (
             _OPS.parent / "07 - Knowledge" / "genome-system" / "knowledge" / "internal")
@@ -206,6 +206,9 @@ class Doctor:
         # N (P-N1): RFCArchive برای evolution (MAP-Elites). lazy: اگر None،
         # با flag روشن در اولین run_cycle ساخته می‌شود. قابل‌تزریق برای تست.
         self._archive = archive
+        # N (P-N2): Box-of-Agents (میکرو‌جهانِ بسته). lazy: اگر None، با flag
+        # روشن در اولین run_cycle ساخته می‌شود. قابل‌تزریق برای تست.
+        self._box = box
 
     def _lg(self):
         return self._ledger or opslib.genome_ledger()
@@ -512,9 +515,16 @@ class Doctor:
             except Exception:  # noqa: BLE001 — Chamber fail-soft
                 pass
         self.run_sandbox(rfc)   # sandbox + critic (propose-only)
+        # N (P-N2): Box-of-Agents — کلِ خوشهٔ box در run_cycle (پشتِ flag).
+        # Box.run_tick → bottlenecks adapter → b3_bridge → doctor.submit (propose-only، human-gate).
+        # b4_fusion.compute_phi_t = novelty به Box؛ falsif کنترلِ دوره‌ای.
+        # Wardenِ ۲٪ + STOP-obey حفظ. خاموش = on-shelf (رفتارِ فعلی).
+        box_report = None
+        if os.environ.get("OCTOPUS_WIRE_BOX") == "1":
+            box_report = self._run_box_cycle(trace=trace)
         # N (P-N1): Doctor Evolution — RFCArchive + measured_lift + tournament_rank.
         # پشتِ flag (OCTOPUS_WIRE_EVOLUTION، پیش‌فرض خاموز = رفتارِ فعلی).
-        # mine از آرشیو نمونه می‌گیرد، tournament قبل از submit، measured_lift به‌جای expected.
+        # mine از آرکیو نمونه می‌گیرد، tournament قبل از submit، measured_lift به‌جای expected.
         # verifier-independence دست‌نخورده: دکتر هرگز معیارِ سنجشِ خودش را ویرایش نمی‌کند.
         evolution_report = None
         if os.environ.get("OCTOPUS_WIRE_EVOLUTION") == "1":
@@ -524,7 +534,123 @@ class Doctor:
                   "bottleneck": bottleneck["bottleneck"], "beat": beat}
         if evolution_report is not None:
             result["evolution"] = evolution_report
+        if box_report is not None:
+            result["box"] = box_report
         return result
+
+    def _run_box_cycle(self, trace: dict | None = None) -> dict:
+        """P-N2: کلِ خوشهٔ box در run_cycle (پشتِ flag OCTOPUS_WIRE_BOX).
+        Box.run_tick → bottlenecks adapter → b3_bridge.box_to_doctor_pipeline →
+        doctor.submit (propose-only، human-gate؛ هرگز merge خودکار).
+        b4_fusion.compute_phi_t = سیگنالِ novelty به Box.
+        falsif_suite = کنترلِ دوره‌ای (هر M beat).
+        Wardenِ ۲٪ + STOP-obey حفظ می‌شود (داخلِ Box خودش).
+
+        خروجی: {stepped, phi_t, submitted_count, falsif_majority}.
+        با wire شدنِ box.py، support-libهایش (agent_state/dynamics/archivist/
+        topology/sensors/null_dreamer) خودکار reachable می‌شوند."""
+        # مسیرِ box را روی path بگذار (داخلِ _ops/doctor/box/). __init__.py خالی
+        # است ولی چون پوشهٔ والد (_ops/doctor) هم روی path است، `box` به‌عنوانِ پکیج
+        # دیده می‌شود و box.py را shadow می‌کند. راه‌حل: پوشهٔ box را اولِ path بگذار
+        # تا box.py ماژولِ سطحِ بالا شود (مثلِ test_box.py).
+        box_dir = str(_HERE / "box")
+        if box_dir not in sys.path:
+            sys.path.insert(0, box_dir)
+        # اگر _ops/doctor روی path است، پکیجِ box با __init__.pyِ خالی interference
+        # می‌کند. path box_dir را مقدم می‌کنیم تا `from box import Box` فایلِ box.py
+        # را ببرد (نه __init__). این همان الگوی test_box.py.
+        # Box lazy بساز اگر نباشد
+        if self._box is None:
+            try:
+                # path box_dir را اولِ sys.path مطمئن کن (push به index 0)
+                if sys.path[0] != box_dir:
+                    sys.path.remove(box_dir)
+                    sys.path.insert(0, box_dir)
+                from box import Box, BoxConfig  # noqa: E402
+                self._box = Box(BoxConfig(seed=42))
+            except Exception as e:  # noqa: BLE001 — box fail-soft
+                return {"stepped": False, "error": f"box import/build failed: {e}"}
+        try:
+            from b3_bridge import box_to_doctor_pipeline  # noqa: E402
+        except Exception as e:  # noqa: BLE001
+            return {"stepped": False, "error": f"b3_bridge import failed: {e}"}
+        # ── یک step از Box روی trace (Wardenِ ۲٪ + STOP داخلِ Box)
+        snap = self._box.run_tick(trace=trace)
+        stepped = bool(snap and not snap.get("cycle_ended"))
+        if not stepped:
+            return {"stepped": False,
+                    "cycle_ended_reason": (snap or {}).get("reason", "no-snap")}
+        # ── b4_fusion: φ_t به‌عنوانِ سیگنالِ novelty (advisory)
+        phi_report = None
+        try:
+            from b4_fusion import compute_phi_t
+            edges = []
+            for i in range(len(self._box.agents) - 1):
+                edges.append((i, i + 1))
+            n = len(self._box.agents)
+            agent_states = [a.cognitive.hidden_state[0] if a.cognitive.hidden_state else 0.5
+                            for a in self._box.agents]
+            phi_report = compute_phi_t(edges, n, agent_states)
+        except Exception:  # noqa: BLE001 — b4 advisory fail-soft
+            phi_report = {"available": False}
+        # ── bottlenecks adapter: snapshot → bottlenecks (برای b3_bridge)
+        metrics_with_bn = dict(snap)
+        metrics_with_bn["bottlenecks"] = self._box_metrics_to_bottlenecks(snap)
+        # ── b3_bridge: insights → doctor.submit (propose-only، human-gate)
+        submit_results = []
+        try:
+            submit_results = box_to_doctor_pipeline(metrics_with_bn, doctor=self)
+        except Exception as e:  # noqa: BLE001 — b3 fail-soft
+            submit_results = [{"submitted": False, "error": str(e)[:200]}]
+        submitted_count = sum(1 for r in submit_results if r.get("submitted"))
+        # ── falsif_suite: کنترلِ دوره‌ای (هر M beat)
+        falsif_majority = None
+        if self._box.tick_count % int(os.environ.get("CHRONO_BOX_FALSIF_EVERY_N_TICKS", "100")) == 0:
+            try:
+                from falsif_harness import run_falsif_suite
+                falsif_report = run_falsif_suite()
+                falsif_majority = falsif_report.get("neural_majority")
+            except Exception:  # noqa: BLE001 — falsif advisory fail-soft
+                falsif_majority = None
+        # ── گزارش (propose-only؛ هیچ merge)
+        report = {"stepped": True,
+                  "tick": snap.get("tick"),
+                  "phi_t": phi_report,
+                  "submitted_count": submitted_count,
+                  "submit_results_count": len(submit_results),
+                  "falsif_majority": falsif_majority,
+                  "warden_cap_2pct": self._box.warden.E_box_max,
+                  "budget_used": self._box.warden.tokens_spent_total,
+                  "propose_only": True}
+        return report
+
+    def _box_metrics_to_bottlenecks(self, snap: dict) -> list[dict]:
+        """آداپتور: Box snapshot → bottlenecks برای b3_bridge.
+        Box.run_tick bottlenecks تولید نمی‌کند (فقط metrics)؛ این تابع آن را
+        از flagged/stress/coherence استخراج می‌کند. propose-only."""
+        bottlenecks = []
+        flagged = snap.get("flagged") or []
+        if flagged:
+            bottlenecks.append({
+                "description": f"agents flagged by Warden (safety<τ): {flagged[:4]}",
+                "suggested_fix": "review flagged agents — propose-only، human-gate",
+                "expected_lift": "reduce safety-flag count",
+                "confidence": 0.6})
+        stress = snap.get("mean_stress", 0)
+        if isinstance(stress, (int, float)) and stress > 0.6:
+            bottlenecks.append({
+                "description": f"mean_stress={stress:.2f} elevated in Box",
+                "suggested_fix": "review load/allocation — propose-only",
+                "expected_lift": "lower mean_stress",
+                "confidence": 0.5})
+        rho = snap.get("rho_J", 0)
+        if isinstance(rho, (int, float)) and rho > 0.9:
+            bottlenecks.append({
+                "description": f"ρ(J)={rho:.2f} near-instability",
+                "suggested_fix": "monitor coupling — propose-only",
+                "expected_lift": "stable ρ(J) < ρ_max",
+                "confidence": 0.55})
+        return bottlenecks
 
     def _evolve_rfc(self, rfc: RFC, bottleneck: dict, trace: dict | None) -> dict:
         """P-N1: مسیرِ Doctor Evolution (پشتِ flag). RFC فعلی + mutationهای آرشیو →
