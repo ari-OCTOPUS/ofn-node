@@ -155,10 +155,11 @@ def t_sprint_completes():
 
 def t_sprint_timeout():
     runner = SprintRunner()
+    # TINV-5: انقضا بر حسبِ beat_seq، نه wall-clock
     c = SprintContract(sprint_id="s2", scope="timeout test", budget_beats=10,
-                        deadline_ts=time.time() - 1)  # گذشته
+                        start_beat=100, deadline_beat=101)  # انقضا در beat 101
     runner.start(c)
-    cont = runner.tick()
+    cont = runner.tick(now_beat=101)  # به deadline رسیده → False
     assert cont is False
 
 def t_sprint_budget_exhausted():

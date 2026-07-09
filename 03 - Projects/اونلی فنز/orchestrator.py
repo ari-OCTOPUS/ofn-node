@@ -133,13 +133,13 @@ class PFOrchestrator:
             if sources:
                 self.consolidation.run(sources)
 
-        # ۸. Sprint management
+        # ۸. Sprint management — TINV-5: beat_seq تزریق می‌شود (نه wall-clock)
         if not self.sprint_runner.is_active:
             self.sprint_runner.start(SprintContract(
                 sprint_id=f"tick-{self._beat}", scope="pf-cycle",
-                budget_beats=1, budget_tokens=50))
-        self.sprint_runner.tick(tokens=0)
-        self.sprint_runner.finish()
+                budget_beats=1, budget_tokens=50), start_beat=self._beat)
+        self.sprint_runner.tick(tokens=0, now_beat=self._beat)
+        self.sprint_runner.finish(now_beat=self._beat)
 
         self.hooks.fire("post_sprint", {"beat": self._beat, "completed": True})
 
