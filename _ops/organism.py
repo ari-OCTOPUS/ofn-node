@@ -144,17 +144,24 @@ def main() -> int:
     _doctor_inst = None
     _neural_stack = None
     _school_bridge = None
+    _bus = None
+    _leg = None
+    _live_loop = None
     try:
         import wiring as _w
         _wire = _w.wire_summary()
         _chan = _w.make_telegram_channel()   # auto-on اگر توکن
         _doctor_inst = _w.make_doctor(state_dir=str(opslib.STATE_DIR), channel=_chan)
-        _w.make_unified_bus()
-        _w.make_lead_leg()
+        # W (P-W1): returnها را نگه دار، نه دور بریز — نخاع: bus + leg + LiveLoop
+        _bus = _w.make_unified_bus()
+        _leg = _w.make_lead_leg()
         _neural_stack = _w.make_neural_stack()   # W: neural ۸ ماژول
         # M (P-M2): اگر consolidation وصل است، SchoolBridge بساز (منبعِ awareness)
         if _wire.get("wire_consolidation"):
             _school_bridge = _w.make_school_bridge()
+        # W (P-W1): LiveLoop روی همان bus (نخاع). مغز و بدن روی یک حلقه.
+        _live_loop = _w.make_live_loop(bus=_bus, leg=_leg, doctor=_doctor_inst,
+                                       channel=_chan)
         if any(_wire.values()):
             opslib.heartbeat(f"organism wiring: {_wire}")
     except Exception as _e:  # noqa: BLE001 — wiring اختیاریِ additive
@@ -256,6 +263,17 @@ def main() -> int:
                                           beat=_cstat.get("beat", 0))
                 except Exception as _ce:  # noqa: BLE001 — §۴: خطای خاموش ممنون (consolidation نباید tick را بکشد)
                     opslib.alert([f"consolidation_beat error (non-fatal): {type(_ce).__name__}: {_ce}"])
+            # ── W (P-W1): سیگنال‌های این tick را به bus (نخاع) منتشر کن.
+            # مغز ← bus → subscriberها (LiveLoop.advisory_signals و غیره) فایر می‌شوند.
+            # advisory فقط — هیچ effector. هر سیگنال در try مستقل (fail-soft، §۴).
+            if not _protective_skip and _live_loop is not None:
+                try:
+                    _rh = pulse.get("chrono") or None   # rhythm/chrono state موجود این tick
+                    _w.publish_tick_signals(_live_loop, beat=_cstat.get("beat", 0) if _cstat else 0,
+                                            rhythm_state=_rh, spectral_result=None,
+                                            afferent_status=None, doctor_result=None)
+                except Exception as _pe:  # noqa: BLE001 — §۴: publish نباید tick را بکشد
+                    opslib.alert([f"publish_tick_signals error (non-fatal): {type(_pe).__name__}: {_pe}"])
 
             if now - last_heartbeat > 3600:
                 opslib.heartbeat(

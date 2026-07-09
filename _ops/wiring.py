@@ -113,6 +113,64 @@ def make_lead_leg():
         return None
 
 
+# ════════════════════════════════════════════════════════════════════════════════
+# W · spinal cord (نخاع) — organism ↔ LiveLoop/UnifiedBus (P-W1)
+# ════════════════════════════════════════════════════════════════════════════════
+
+def make_live_loop(bus=None, leg=None, doctor=None, channel=None, brain=None,
+                   studio=None, effect_status_fn=None):
+    """ساختِ LiveLoop روی همان bus که organism ساخته. مغز + بدن روی یک نخاع.
+    پشتِ OCTOPUS_WIRE_UNIFIED (اگر bus نباشد → LiveLoop یک busِ in-memory می‌سازد،
+    که برای تست کافی است ولی LIVE_FLAG_NEEDED برای production). هرگز None برنمی‌گرداند
+    اگر LiveLoop import شود — همیشه یک instance. fail-soft: استثنا → None.
+
+    عقب‌رو: اگر bus=None و UnifiedBus هم نباشد → LiveLoop._InMemoryBus درست می‌کند.
+    صفر effectorِ خودکار — publish/subscribe فقط. settle فقط از approval_channel/EffectorGate."""
+    try:
+        sys.path.insert(0, str(_HERE))
+        from live_loop import LiveLoop
+        return LiveLoop(bus=bus, brain=brain, studio=studio, cockpit=None,
+                        approval_channel=channel, doctor=doctor,
+                        effect_status_fn=effect_status_fn)
+    except Exception as e:  # noqa: BLE001 — LiveLoop اختیاریِ additive
+        opslib.alert([f"wiring: LiveLoop ساخت نشد: {e}"])
+        return None
+
+
+def publish_tick_signals(live_loop, *, beat=None, neural_result=None,
+                         rhythm_state=None, spectral_result=None,
+                         afferent_status=None, doctor_result=None) -> int:
+    """سیگنال‌های موجودِ یک tick را به bus منتشر کن — از طریقِ LiveLoop.
+    هر سیگنال فقط اگر داده‌اش موجود باشد publish می‌شود (نباید None پابلیش کنیم).
+    kill-switch: اول STOP. advisory فقط — هیچ effector. $0.
+
+    خروجی: تعدادِ سیگنال‌های publishشده (برای observability/self-test).
+
+    توجه: این تابع از publish_*_advisoryهای LiveLoop استفاده می‌کند تا منطقِ
+    wiring در wiring.py بماند، نه در organism.py (اصلِ جداییِ concern)."""
+    if live_loop is None:
+        return 0
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return 0
+    n = 0
+    try:
+        if rhythm_state:
+            live_loop.publish_rhythm_advisory(rhythm_state)
+            n += 1
+        if spectral_result:
+            live_loop.publish_spectral_advisory(spectral_result)
+            n += 1
+        if afferent_status:
+            live_loop.publish_afferent_advisory(afferent_status)
+            n += 1
+        if doctor_result:
+            live_loop.publish_doctor_advisory(doctor_result)
+            n += 1
+    except Exception as e:  # noqa: BLE001 — §۴: خطای خاموش ممنون، ولی publish نباید tick را بکشد
+        opslib.alert([f"wiring: publish_tick_signals خطا: {type(e).__name__}: {e}"])
+    return n
+
+
 # ─── W-2 · Doctor hook به Pacemaker ────────────────────────────────────────────
 def doctor_beat(doctor, beat: int, trace: dict | None = None) -> dict | None:
     """هر N beat دکتر را اجرا کن. kill-switch: اول STOP را چک کن.
@@ -141,6 +199,7 @@ def wire_summary() -> dict:
         "wire_neural": flag("OCTOPUS_WIRE_NEURAL"),
         "wire_school": flag("OCTOPUS_WIRE_SCHOOL"),
         "wire_consolidation": flag("OCTOPUS_WIRE_CONSOLIDATION"),
+        "wire_live_loop": flag("OCTOPUS_WIRE_UNIFIED"),   # نخاع = bus + LiveLoop
         "doctor_every_n": int(os.environ.get("CHRONO_DOCTOR_EVERY_N_BEATS", "1440")),
         "consolidation_every_n": int(os.environ.get("CHRONO_CONSOLIDATION_EVERY_N_BEATS", "720")),
     }
