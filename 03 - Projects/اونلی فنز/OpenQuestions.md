@@ -14,7 +14,7 @@ updated: 2026-07-06
 1. **GATE 0: محل اقامت صبا؟** → ثبت در PROJECT.md + انتخاب Branch A/B — بلاکر همه‌چیز `[OPEN — P0]`.
 2. «مسیر safe expansion به body» در production plan: منجمد یا حذف؟ — پارتنر فعلاً بدن را رد کرده؛ تضاد `[OPEN — P0]`.
 3. سؤال آخر پرسشنامه نامفهوم ماند — بازپرسیدن به زبان ساده‌تر (متن آماده: بلوپرینت §۴.۲) `[OPEN — P0]`.
-4. ساعت واقعی پارتنر: ~۳۰h (master-reference [FACT]) یا ۳–۵h (MASTER-BUILD [ASSUMED])؟ `[OPEN — P0]`
+4. ~~ساعت واقعی پارتنر~~ → **بسته 2026-07-10 (ورودی انسانی آری): ~۳h/هفته.** پلن M3 با اصلاحیهٔ M3-a (شوت دو-جلسه‌ای) سازگار شد `[CLOSED]`.
 5. ریسک #۱ (consistency پارتنر زیر friction) هنوز تست‌نشده — Track A sprint با چه متریکی؟ `[OPEN — P1]`
 6. برند: انتخاب دونفره از شورت‌لیست — پیشنهاد 07-05: ‏**Anar Soles** (صفر collision) · رزرو Yalda Arch؛ چک نهایی handle موقع ساخت اکانت + جستجوی دستی IP Australia `[OPEN — P1]` [12-prelaunch-verification §۲].
 7. وضعیت quarantine ‏r/VerifiedFeet + چک‌لیست دستی ۲۵ sub داخل اپ — قبل از warm-up `[OPEN — P1]`.
@@ -27,6 +27,13 @@ updated: 2026-07-06
 14. **سیاست شفافیت DM** (آری چت می‌کند، نه صبا؛ AI درفت می‌زند): چه ادعایی دربارهٔ «چه کسی پشت چت است» مجاز است؟ بند مکتوب در قرارداد دونفره + Boundaries — ریسک impersonation رسانه‌ای شده `[OPEN — P1]` [[RESEARCH-INTEGRATION-round1|round1 §۵ ردیف ۶]].
 15. دیوایس شوت فعلی C2PA دارد؟ آیا سرمایه‌گذاری گوشی C2PA-دار (Pixel 10 / S25) برای «Human-Authorship اثبات‌پذیر» توجیه دارد؟ — تصمیم بعد از validation؛ فعلاً RAWها نگه داشته شوند `[OPEN — P2]` [[RESEARCH-INTEGRATION-round1|round1 §۱]].
 16. **لایهٔ درآمد B2B** (استاک Adobe/Foap + parts modeling، AUD 350–600/نیم‌روز `[EST]`): الحاق به verdict ‏MONETIZATION-EXPANSION؟ ⚠️ tension با ناشناسی (invoice/ABN/هویت واقعی) — حل tension پیش‌شرط است `[OPEN — P1/P2]` [[RESEARCH-INTEGRATION-round1|round1 §۱]].
+
+17. **Bluesky به‌عنوان کانال ارگانیک درجه‌۳؟** adult-tolerant با labeling بومی؛ جامعهٔ کوچک، آنالیتیکس ضعیف — پیشنهاد: تست ۱۵دقیقه/هفته بعد از G1 `[OPEN — P2]` [[RESEARCH-INTEGRATION-round2-2026-07-10|round2 §۴/D6]].
+18. **سقف واقعی PPV و tip در داشبورد OF** — منابع متناقض ($50/$100/$200 و tip ‏$100/۴ماه→$200)؛ چک روز اول داشبورد `[OPEN — P1]` [round2 §۲].
+19. **بلاک جغرافیایی استرالیا: بله (privacy از آشنایان) یا خیر (بازار محلی)؟** تصمیم دونفره قبل از launch؛ geo-filter ‏GAML لایهٔ دوم `[OPEN — P1]` [round2 §۷.۳].
+20. **سقف مطلق هزینهٔ مغز AI: AUD 15/ماه تا اولین درآمد؟** (۲٪-cap با درآمد صفر = بودجهٔ صفر) `[OPEN — P2]` [round2 §۵.۴].
+
+> **ورودی round2 (07-10) به سؤالات قبلی:** #۱۰ — یافتهٔ «فقط free-page می‌تواند تایم‌لاین را price-lock کند» + قیمت‌های نیش، نسخهٔ EXT-04 را تقویت می‌کند؛ آمادهٔ بستن · #۷ — وضعیت r/VerifiedFeet همچنان نامشخص؛ چک in-app می‌ماند · #۱۲ — بررسی نشد، باز · #۱۶ — tension بیشتر شد (parts-modeling نیاز به هویت واقعی دارد).
 
 ### بسته‌شده (2026-07-04/05)
 - ~~نتیجهٔ Track B~~ → GO conditional (2026-07-04).

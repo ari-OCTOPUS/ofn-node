@@ -4,6 +4,8 @@ prompt: P8
 project: Project-F
 created: 2026-07-04
 status: draft-for-human-review
+tags: [project-f, research, research-grounded]
+up: "[[PROJECT]]"
 ---
 
 # P8 — اقتصاد S4S / Shoutout و شبکه Collab برای Project-F (وضعیت ۲۰۲۶)

@@ -1,3 +1,11 @@
+---
+type: research-report
+project: "[[PROJECT]]"
+tags: [project-f, external-research, research, research-grounded]
+up: "[[PROJECT]]"
+updated: 2026-07-10
+---
+
 # پایگاه دانش تحقیقاتی — ۱۰۰ موضوع بازاریابی اتوماتیک (نسخه ۲۰۲۶)
 
 > **متادیتا:** تاریخ تحقیق: ژوئیه ۲۰۲۶ | روش: جستجوی زنده وب از ۵۵+ منبع صنعتی (Gartner, McKinsey, Juniper, Meta/Kantar, Klaviyo, Princeton KDD و...) | زبان: فارسی + اصطلاحات انگلیسی | ساختار: ۱۰ دسته × ۱۰ موضوع با شناسه یکتا (A1 تا J10) | منابع کامل در بخش ۳.

@@ -4,6 +4,8 @@ prompt: P9
 project: Project-F
 created: 2026-07-04
 status: draft-for-human-review
+tags: [project-f, research, research-grounded]
+up: "[[PROJECT]]"
 ---
 
 # P9 — پایپ‌لاین بازتولید و زمان‌بندی محتوا (یک شوت در هفته → ده‌ها خروجی)

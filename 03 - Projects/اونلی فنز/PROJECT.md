@@ -9,6 +9,7 @@ autonomy_level: read-only
 tags: [creator-business, faceless]
 created: 2026-07-03
 updated: 2026-07-06
+aliases: ["Project-F", "پروژه اونلی فنز", "Active Context"]
 ---
 
 # پروژه: اونلی فنز
@@ -18,6 +19,10 @@ updated: 2026-07-06
 **وضعیت:** creator brand با مدل faceless (فقط پا در فاز فعلی) — تیم دونفره ۵۰/۵۰، فاز validation. سند کامل: [[03 - Projects/اونلی فنز/project-master-reference|master-reference]].
 
 **نقش در اکوسیستم:** درآمد آزمایشی؛ زیر نظارت architect (رئیس کل). کد ارجاع در خروجی‌های cross-domain: **«Project-F»**.
+
+## 🎛 رابطِ کنترلِ ایجنتِ مادر (Architect) — cross-domain
+- قراردادِ ماشین‌خوان: `PROJECT-F-CONTROL-MANIFEST.json` (صفر-PII، کدِ A/C) · روایت: [[03 - Projects/اونلی فنز/AGENT-CONTROL-INTERFACE|AGENT-CONTROL-INTERFACE]].
+- مدلِ کنترلِ مادر: **رصد + صف‌بندیِ verdict + قطعِ اضطراری** — اجرای هیچ اکشنِ بیرونی، بدونِ دورزدنِ GATE 0/Hard-Gated، بدونِ تغییرِ قاعدهٔ قفل‌شده. مجریِ نهاییِ کارِ پرمخاطره = انسان (A).
 
 ## Agent interface (تا پیش از ARCHITECT_CHARTER — نسخه حداقلی)
 
@@ -37,6 +42,8 @@ delivery-rate پارتنر در trial sprint `[To measure]` · engagement روی
 ## Active Context
 
 - تمرکز فعلی: بلوپرینت معماری 2026-07-04 آماده؛ **منتظر G0**
+- **2026-07-10 — Round 2 تحقیق جامع ۷-محوره integrate شد** → [[03 - Projects/اونلی فنز/RESEARCH-INTEGRATION-round2-2026-07-10|round2]]: تأیید سوم مسیر (dual-platform/Reddit-engine/AI-درفت-انسان-می‌فرستد) · ریسک جدید R4 (فوت Radvinsky + فروش سهم OF ‏>$3B) · AU زیر-۱۶ live · یافتهٔ free-page/price-lock → تقویت EXT-04 برای #۱۰ · کاتالوگ ۵۸-روشی جذب + unit-economics + spec تکمیلی مغز (~AUD 8–12/ماه) + سؤالات مشاور AU · سؤال‌های باز جدید #۱۷–#۲۰
+- **2026-07-10 — M2/M3/M4 + PROMPT D + لنگر:** ماتریس تصمیم ‏[[03 - Projects/اونلی فنز/DECISION-MATRIX-M2-2026-07-10|M2]] · پلن ‏[[03 - Projects/اونلی فنز/COMPLIANT-PLAYBOOK-M3-2026-07-10|M3]] · بستن threadها ‏[[03 - Projects/اونلی فنز/THREAD-CLOSURE-D-2026-07-10|THREAD-CLOSURE-D]] (T1–T8) · ۵ درفت در `drafts-awaiting-gate/` · **کاکپیت تلگرامی «لنگر»** در `langar/` (propose-only، خودآگاه، مسئول ارتقا، ۸/۸ تست منطق سبز، فعال‌سازی گیت‌دار). ساعت صبا بسته (~۳h). ۱۱ verdict منتظر تصمیم آری (THREAD-CLOSURE §۹).
 - تغییرات اخیر: 2026-07-03 — ثبت [[03 - Projects/اونلی فنز/پرسشنامه پارتنر - پاسخ‌های صبا|پاسخ‌های صبا]]؛ مرز محتوا قفل شد: فقط پا، بدون صورت/بدن + geo-block ایران · 2026-07-04 — کیت مغز پروژه ساخته شد · 2026-07-05 — [[03 - Projects/اونلی فنز/STATE-REPORT-2026-07-05|STATE-REPORT]] + verification pass (۸/۹ تناقض تأیید، ۱ اصلاح) + اعمال patch بلوپرینت §۱۱ · **2026-07-06 — Round 1 تحقیق بیرونی integrate شد → [[03 - Projects/اونلی فنز/RESEARCH-INTEGRATION-round1|RESEARCH-INTEGRATION-round1]]**: مسیر فعلی تأیید مستقل؛ REJECT تلگرام/کریپتو (قاعدهٔ #۳)؛ ToS ‏OF ممنوعیت AI-chat را [FACT] کرد → الگوی «درفت در کنسول جدا + paste دستی» ابقا؛ ۳ سؤال باز جدید (#۱۴ شفافیت DM، #۱۵ ‏C2PA، #۱۶ ‏B2B)؛ KPI کاندید: unlock-rate، $/script-start، چرخهٔ Custom، $/ساعت DM
 - ۳ قدم بعدی: (۱) Track B/C — تحقیق desk درباره payment/banking و automation-fit، time-box یک هفته (۲) بازپرسیدن سؤال آخر پرسشنامه به زبان ساده‌تر (۳) طراحی Track A sprint با متریک صریح و گزارش‌دهی زودهنگام نتیجه مالی به صبا
 - تصمیم‌های باز: «مسیر safe expansion به body» در production plan — صبا فعلاً بدن را رد کرده؛ منجمد یا حذف؟
@@ -49,6 +56,7 @@ delivery-rate پارتنر در trial sprint `[To measure]` · engagement روی
 
 ## Next actions
 
+- [ ] **۱۱ verdict منتظر تو** (THREAD-CLOSURE §۹): G0 · Playbook+M3-a · قاعدهٔ بالانس >$100 · سقف مغز AUD 15 · نردبان EXT-04 · برند Anar Soles · Fansly discovery-first · حالت labeling X · بلاک AU · فعال‌سازی لنگر · انجماد body
 - [ ] **G0** — ثبت محل اقامت پارتنر + انتخاب Branch A/B (بلوپرینت §۱)
 - [ ] ارسال پیام آماده به صبا (بازپرسیدن سؤال آخر + انتظارات — بلوپرینت §۴.۲) و ثبت جواب
 - [ ] توافق مکتوب دونفره (بلوپرینت §۴.۱) — فقط بعد از Branch A

@@ -4,6 +4,7 @@ updated: 2026-07-05
 status: active
 type: state-report
 tags: [project-f, state-report, synthesis]
+aliases: ["State Report", "گزارش وضعیت"]
 ---
 
 # STATE REPORT — Project-F ("اونلی فنز" / Feet Content Business)

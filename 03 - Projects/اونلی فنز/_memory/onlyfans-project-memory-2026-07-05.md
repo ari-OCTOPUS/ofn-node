@@ -58,6 +58,10 @@ tags: [project-f, memory, durable-facts]
 ## Canonical acquisition doc (2026-07-05, latest)
 - **ACQUISITION-ENGINE-2026-07-05.md is the governing doc for customer acquisition** — 5-layer semi-automated funnel (content factory → Reddit/X distribution → GAML/OF conversion → human DM with AI drafts → retention), ToS-safe automation only, verified costs (warm-up ~A$13, sprint ~A$75–105), kill criteria = G1/G2 gates. Supersedes overlapping sections of MASTER-BUILD/Playbook for acquisition; locked rules still supreme. Execution blocked on GATE 0.
 
+- **2026-07-10: Round-2 تحقیق جامع** → `RESEARCH-INTEGRATION-round2-2026-07-10.md` (WS-1..7). تأیید سوم مسیر فعلی. NEW [FACT]: Radvinsky فوت (03/2026) + فروش سهم OF ‏>$3B (04/2026) → R4؛ AU under-16 ban live (12/2025، شامل Reddit/X)؛ paid-page نمی‌تواند تایم‌لاین را price-lock کند → EXT-04 برای #۱۰ تقویت؛ tip cap ‏$100/۴ماه اول؛ «بازار $2.1B feet» جعلی — استفاده نشود. کاتالوگ ۵۸-روشی + مدل هزینهٔ مغز ‏≈AUD 8–12/ماه (سقف پیشنهادی AUD 15 تا درآمد، #۲۰). سؤالات باز جدید #۱۷–#۲۰. GATE 0 همچنان بلاکر.
+
+- **2026-07-10: PROMPT D + لنگر.** threadها بسته → `THREAD-CLOSURE-D-2026-07-10.md` (T1–T8). ساعت صبا **بسته: ~۳h/هفته** (ورودی انسانی). T6: ‏B2 در M2 ‏re-score شد (7.65، خارج Top-5؛ برچسب‌گذاری محافظه‌کارانهٔ X). reconcile پیشنهادی: برند=Anar Soles، نردبان=EXT-04، Fansly=«mirror با discovery-first». ۵ درفت امن در `drafts-awaiting-gate/`. OpSec ۲۴-بندی + ۱۲ سؤال مشاور AU. **لنگر ساخته شد** (`langar/`): کاکپیت تلگرامی خودآگاه آری — propose-only، OpsecGuard، kill-switch، سقف هزینه fail-closed، مسئول ارتقا (upgrade-loop دوکلیده)، ۸/۸ تست منطق سبز؛ فعال‌سازی گیت‌دار (BotFather دست آری + هفته shadow). ۱۱ verdict منتظر آری. GATE 0 بلاکر.
+
 ## Top 3 next actions
 1. Send GATE 0 + re-ask message to صبا; record Branch A/B in PROJECT.md + DecisionLog.
 2. If Branch A: sign the drafted two-person agreement.

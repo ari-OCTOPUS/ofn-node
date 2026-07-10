@@ -7,6 +7,7 @@ relates_to: "[[TELEGRAM-CONTENT-STUDIO-v2]] (صبا) · [[TELEGRAM-BRAIN-COCKPIT
 tags: [project-f, brain, orchestration, multi-agent, hitl, propose-only]
 created: 2026-07-09
 updated: 2026-07-09
+aliases: ["Brain Spec", "مغز Project-F"]
 ---
 
 # PROJECT-F INTELLIGENT BRAIN — مغزِ هوشمندِ بینِ دو UI

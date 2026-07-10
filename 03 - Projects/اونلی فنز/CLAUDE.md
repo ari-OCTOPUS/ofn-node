@@ -6,6 +6,7 @@ autonomy_level: autonomous-up-to-ToS (hard-gated actions require human verdict)
 tags: [project-f, charter, agent-instructions]
 created: 2026-07-06
 updated: 2026-07-06
+aliases: ["منشور", "charter", "Operating Charter", "منشور کاری"]
 ---
 
 # CLAUDE.md — منشور کاری پروژه «اونلی فنز» (Project-F)

@@ -1,3 +1,11 @@
+---
+type: research-report
+project: "[[PROJECT]]"
+tags: [project-f, external-research, research, research-grounded]
+up: "[[PROJECT]]"
+updated: 2026-07-10
+---
+
 # پرامپت ۱ — پلن ۹۰ روزه رشد Reddit
 **نیچ:** Faceless Feet | **برند:** Persian | **بازار هدف:** آمریکا و اروپا | **بازار زمانی:** سیدنی (AEST)
 

@@ -1,3 +1,11 @@
+---
+type: research-report
+project: "[[PROJECT]]"
+tags: [project-f, external-research, research, research-grounded]
+up: "[[PROJECT]]"
+updated: 2026-07-10
+---
+
 # پرامپت ۲ — پلی‌بوک رشد X (Twitter)
 **نیچ:** Faceless Feet | **برند:** Persian | **شروع:** صفر فالوور | **نقش در فانل:** موتور ترافیک شماره ۲ (بعد از Reddit)
 

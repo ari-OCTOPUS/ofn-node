@@ -4,6 +4,8 @@ prompt: P7
 project: Project-F
 created: 2026-07-04
 status: draft-for-human-review
+tags: [project-f, research, research-grounded]
+up: "[[PROJECT]]"
 ---
 
 # P7 — اتوماسیون امن پیام‌های خصوصی (DM) و گفتگو با فن‌ها

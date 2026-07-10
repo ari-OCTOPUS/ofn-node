@@ -4,6 +4,8 @@ prompt: P1
 project: Project-F
 created: 2026-07-04
 status: draft-for-human-review
+tags: [project-f, research, research-grounded]
+up: "[[PROJECT]]"
 ---
 
 # P1 — نقشه کانال‌ها و آناتومی جذب مشترک در نیچ feet (برای Project-F)

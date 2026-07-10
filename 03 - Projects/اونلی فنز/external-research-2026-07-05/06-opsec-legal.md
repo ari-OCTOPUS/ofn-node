@@ -1,3 +1,11 @@
+---
+type: research-report
+project: "[[PROJECT]]"
+tags: [project-f, external-research, research, research-grounded]
+up: "[[PROJECT]]"
+updated: 2026-07-10
+---
+
 # پرامپت ۶ — امنیت، حریم خصوصی، حقوقی (OPSEC)
 **نیچ:** Faceless Feet | **برند:** Persian | **پایگاه:** سیدنی، استرالیا
 **آخرین وریفای:** ۴ جولای ۲۰۲۶ | ⚠️ بخش مالیات = اطلاعات عمومی، نه مشاوره — با حسابدار تایید شود

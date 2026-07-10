@@ -4,6 +4,8 @@ prompt: P10
 project: Project-F
 created: 2026-07-04
 status: draft-for-human-review
+tags: [project-f, research, research-grounded]
+up: "[[PROJECT]]"
 ---
 
 # P10 — لایه اندازه‌گیری، Attribution و حلقه آزمایش هفتگی برای Project-F

@@ -1,0 +1,38 @@
+[
+  {
+    "signals": [
+      "good_data",
+      "summer"
+    ],
+    "strength": 1.0,
+    "co_occurrences": 154,
+    "last_seen": 1783643275.7908316
+  },
+  {
+    "signals": [
+      "green_mode",
+      "stable_sigma"
+    ],
+    "strength": 1.0,
+    "co_occurrences": 77,
+    "last_seen": 1783643275.7774582
+  },
+  {
+    "signals": [
+      "green_mode",
+      "summer"
+    ],
+    "strength": 1.0,
+    "co_occurrences": 77,
+    "last_seen": 1783643275.7774594
+  },
+  {
+    "signals": [
+      "stable_sigma",
+      "summer"
+    ],
+    "strength": 1.0,
+    "co_occurrences": 77,
+    "last_seen": 1783643275.7774606
+  }
+]

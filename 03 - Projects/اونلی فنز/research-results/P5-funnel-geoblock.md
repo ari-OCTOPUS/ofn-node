@@ -4,6 +4,8 @@ prompt: P5
 project: Project-F
 created: 2026-07-04
 status: draft-for-human-review
+tags: [project-f, research, research-grounded]
+up: "[[PROJECT]]"
 ---
 
 # P5 — فانل SFW→NSFW، ابزارهای link-in-bio و گیت‌های سن و جغرافیا (age-gate / geo-block)

@@ -1,3 +1,11 @@
+---
+type: research-report
+project: "[[PROJECT]]"
+tags: [project-f, external-research, research, research-grounded]
+up: "[[PROJECT]]"
+updated: 2026-07-10
+---
+
 # پرامپت ۳ — موتور تولید محتوا (Content Engine)
 **نیچ:** Faceless Feet | **برند:** Persian | **خروجی:** یک شوت = ۱۴+ روز محتوا برای همه کانال‌ها
 **آخرین وریفای:** ۴ جولای ۲۰۲۶

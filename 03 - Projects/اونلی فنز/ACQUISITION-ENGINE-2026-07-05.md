@@ -4,6 +4,7 @@ updated: 2026-07-05
 status: canonical-draft (awaiting GATE 0)
 type: operating-system
 tags: [project-f, acquisition, automation, funnel]
+aliases: ["Acquisition Engine", "موتور جذب", "مرجع جذب"]
 ---
 
 # ACQUISITION ENGINE — سیستم نیمه‌خودکار جذب مشتری Project-F
