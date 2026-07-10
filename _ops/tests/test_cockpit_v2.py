@@ -411,9 +411,35 @@ def test_phaseverdict_via_rfc():
     assert "RFC" in card
 
 
+def test_toast_strips_html_tags():
+    """باگِ جلسه ۴۶: toast/answerCallbackQuery متنِ ساده است — تگِ <i> نباید خام دیده شود."""
+    # helper مستقیم
+    assert ac.TelegramApprovalChannel._toast_plain(
+        "📨 ثبت شد\n<i>صف: x · (INV-7)</i>") == "📨 ثبت شد\nصف: x · (INV-7)"
+    assert "<" not in ac.TelegramApprovalChannel._toast_plain("<b>a</b><code>b</code>")
+    assert ac.TelegramApprovalChannel._toast_plain("&lt;ok&gt;") == "<ok>"  # unescape
+    # مسیرِ کامل: پاسخِ رشته‌ای با تگ → postِ answerCallbackQuery بدونِ تگ
+    ch, fh = make_channel()
+    ch._answer_callback_query("cbq1", "📨 درخواست ثبت شد <i>state/cockpit-requests.jsonl (INV-7)</i>")
+    toasts = [b.get("text", "") for m, b in fh.posts if "answerCallbackQuery" in m]
+    assert toasts and "<i>" not in toasts[0] and "</i>" not in toasts[0]
+    assert "درخواست ثبت شد" in toasts[0] and "INV-7" in toasts[0]
+
+
+def test_oob_ack_message_is_toast_clean():
+    """پیامِ واقعیِ out-of-band بعد از strip، پاک است (نه <i> خام)."""
+    ch, _ = make_channel()
+    raw = ch._run_act("doctor", "runcycle")   # فعلِ OOB
+    assert "درخواست ثبت شد" in raw
+    clean = ac.TelegramApprovalChannel._toast_plain(raw)
+    assert "<i>" not in clean and "<" not in clean and "INV-7" in clean
+
+
 if __name__ == "__main__":
     failed = harness.run([
         ("routing ۸ تب + main + queue", test_menu_routing),
+        ("toast تگ HTML را strip می‌کند", test_toast_strips_html_tags),
+        ("پیامِ OOB بعد از strip پاک", test_oob_ack_message_is_toast_clean),
         ("امضای رشته‌ایِ dispatch", test_dispatch_signature),
         ("backcompat: stop/app/rfc", test_callback_backcompat),
         ("read بی‌توکن؛ act توکن‌دار", test_new_schemes_no_token_for_reads),

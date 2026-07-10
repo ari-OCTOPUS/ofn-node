@@ -87,6 +87,7 @@ class MockApprovalChannel(ApprovalChannel):
 import html                                  # noqa: E402
 import json                                  # noqa: E402
 import os                                    # noqa: E402
+import re                                    # noqa: E402 — جلسه ۴۶: strip تگ برای toast
 import threading                             # noqa: E402
 import time                                  # noqa: E402 — جلسه ۴۶: throttle هشدارِ 409
 import urllib.error                          # noqa: E402
@@ -333,6 +334,12 @@ class TelegramApprovalChannel(ApprovalChannel):
             _save_offset(self._offset, self._state_dir)
         return processed
 
+    @staticmethod
+    def _toast_plain(text: str) -> str:
+        """answerCallbackQuery متنِ ساده است (HTML render نمی‌شود) — تگ‌ها را بردار و
+        entityها را باز کن تا `<i>...</i>` خام دیده نشود (باگِ toastِ جلسه ۴۶)."""
+        return html.unescape(re.sub(r"<[^>]+>", "", str(text))).strip()
+
     def _answer_callback_query(self, callback_query_id: str, text: str = "") -> bool:
         """T-8: ارسال answerCallbackQuery برای dismiss کردنِ spinner روی دکمه.
         fail-soft: شکست = alert، بدونِ killِ حلقه."""
@@ -341,8 +348,10 @@ class TelegramApprovalChannel(ApprovalChannel):
         try:
             self._http_post(self._build_url("answerCallbackQuery", {}),
                             {"callback_query_id": callback_query_id,
-                             # Cockpit v2 · INV-12: toast هم مثل sendMessage از redaction می‌گذرد
-                             "text": self._redact(str(text))[:200], "cache_time": 0})
+                             # Cockpit v2 · INV-12: toast هم مثل sendMessage از redaction می‌گذرد؛
+                             # + strip تگ چون toast متنِ ساده است (HTML parse نمی‌شود)
+                             "text": self._redact(self._toast_plain(text))[:200],
+                             "cache_time": 0})
             return True
         except Exception as e:  # noqa: BLE001 — fail-soft
             opslib.alert([f"telegram answerCallbackQuery error: {type(e).__name__}: {e}"])
