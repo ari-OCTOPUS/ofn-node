@@ -85,14 +85,17 @@ def t_c_actions_isolated_to_env_ops():
         assert "زنده" in r3["note"]
 
 
-def t_d_no_secret_leak_and_html():
-    """خروجیِ تجمیعی از پاسِ redaction می‌گذرد؛ صفحهٔ HTML شاملِ چت و اقدام‌هاست."""
+def t_d_no_secret_leak_and_hologram_page():
+    """خروجیِ تجمیعی از پاسِ redaction می‌گذرد؛ صفحهٔ هولوگرام: قلبِ تپنده +
+    گره‌های اعضا + چت + اقدام — و members برای رنگِ گره‌ها در API هست."""
     out = live._redact(json.dumps(live.aggregate(probe=lambda p: False),
                                   ensure_ascii=False))
     assert "TELEGRAM" not in out.upper() or "TOKEN" not in out.upper()
-    assert "اتاق کنترل زنده" in live.PAGE
-    assert "/api/live" in live.PAGE and "/api/ask" in live.PAGE
-    assert "restart-organism" in live.PAGE
+    for marker in ("هولوگرام", "heartG", "cohRing", "nodePos", "LABELS",
+                   "/api/live", "/api/ask", "restart-organism"):
+        assert marker in live.PAGE, marker
+    d = live.aggregate(probe=lambda p: False)
+    assert "members" in d["cortex"]              # خوراکِ رنگِ گره‌ها
 
 
 if __name__ == "__main__":

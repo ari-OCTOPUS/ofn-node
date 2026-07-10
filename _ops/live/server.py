@@ -141,6 +141,7 @@ def aggregate(probe=None) -> dict:
             "present": bool(cortex_st),
             "age_min": _age_min(STATE / "cortex" / "cortex-state.json"),
             "coherence": cortex_st.get("coherence"),
+            "members": cortex_st.get("members"),
             "stale": cortex_st.get("stale_members"),
             "rhythm": cortex_st.get("rhythm"),
             "thought": cortex_st.get("thought"),
@@ -218,75 +219,131 @@ def do_ask(task: str, prompt: str) -> dict:
 
 PAGE = """<!doctype html><html dir="rtl" lang="fa"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>🐙 اتاق کنترل زنده</title>
+<title>🐙 هولوگرامِ اختاپوس</title>
 <style>
-body{font-family:Tahoma,sans-serif;background:#111;color:#ddd;margin:0;padding:14px}
-h1{font-size:18px;margin:0 0 10px} h2{font-size:14px;margin:0 0 8px;color:#8fd}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px}
-.card{background:#1b1b1f;border:1px solid #333;border-radius:10px;padding:10px 12px}
-.kv{margin:2px 0;font-size:13px} .kv b{color:#fff}
-.ok{color:#6f6}.bad{color:#f66}.warn{color:#fc6}.dim{color:#888;font-size:12px}
-button{background:#264;color:#fff;border:0;border-radius:8px;padding:8px 12px;margin:3px;cursor:pointer;font-family:inherit}
-button.red{background:#622} textarea{width:100%;background:#222;color:#eee;border:1px solid #444;border-radius:8px;padding:8px;font-family:inherit}
-pre{white-space:pre-wrap;font-size:12px;background:#222;border-radius:8px;padding:8px;direction:rtl}
-.small{font-size:12px}
+:root{--beat:2.4s;--glow:#4de8ff;--warm:#ffb84d;--bad:#ff5d5d}
+body{font-family:Tahoma,sans-serif;background:radial-gradient(ellipse at 50% 42%,#0c1622 0%,#070a10 62%,#04060a 100%);color:#cfe8f5;margin:0;min-height:100vh;overflow-x:hidden}
+#chips{display:flex;gap:10px;justify-content:center;padding:14px 8px 0;flex-wrap:wrap}
+.chip{background:rgba(20,40,60,.55);border:1px solid rgba(77,232,255,.35);border-radius:999px;padding:7px 16px;font-size:14px;backdrop-filter:blur(4px);cursor:default}
+.chip b{color:#fff;font-size:16px}
+#stage{display:block;margin:0 auto;max-width:720px;width:100%}
+.orbit{fill:none;stroke:rgba(77,232,255,.14);stroke-width:1;stroke-dasharray:3 7}
+.spin{transform-origin:350px 250px;animation:spin 70s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#heartG{transform-origin:350px 250px;animation:pulse var(--beat) ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}18%{transform:scale(1.14)}30%{transform:scale(1.02)}42%{transform:scale(1.1)}}
+.ray{stroke-width:1.2}
+.node{cursor:pointer}
+.node circle{stroke-width:1.4}
+.nl{font-size:12px;fill:#bfe6f2;text-anchor:middle}
+.ok{fill:rgba(45,120,110,.75);stroke:#39e6c0;filter:drop-shadow(0 0 7px rgba(57,230,192,.8))}
+.warn{fill:rgba(120,90,30,.75);stroke:var(--warm);filter:drop-shadow(0 0 7px rgba(255,184,77,.8))}
+.bad{fill:rgba(110,35,35,.78);stroke:var(--bad);filter:drop-shadow(0 0 8px rgba(255,93,93,.85))}
+.off{fill:rgba(60,70,80,.4);stroke:#5a6a75;stroke-dasharray:3 3}
+#thought{max-width:640px;margin:2px auto;text-align:center;font-size:13px;color:#9fd8ea;min-height:20px;padding:0 12px}
+#panel{position:fixed;inset:auto 12px 96px 12px;max-width:420px;margin:0 auto;background:rgba(10,22,32,.94);border:1px solid rgba(77,232,255,.4);border-radius:14px;padding:12px 14px;font-size:13px;display:none;backdrop-filter:blur(6px);box-shadow:0 0 24px rgba(77,232,255,.25)}
+#bar{position:fixed;bottom:0;left:0;right:0;display:flex;gap:8px;padding:10px;background:rgba(6,10,16,.9);backdrop-filter:blur(8px);border-top:1px solid rgba(77,232,255,.25)}
+#q{flex:1;background:rgba(20,36,50,.8);color:#eaf7ff;border:1px solid rgba(77,232,255,.35);border-radius:10px;padding:10px;font-family:inherit;font-size:14px}
+button{background:linear-gradient(180deg,#155a66,#0d3a44);color:#dffaff;border:1px solid rgba(77,232,255,.4);border-radius:10px;padding:9px 14px;cursor:pointer;font-family:inherit;font-size:13px}
+.dim{color:#6f93a3;font-size:11px;text-align:center;padding:4px 0 84px}
 </style><body>
-<h1>🐙 اتاق کنترل زنده <span id="ts" class="dim"></span></h1>
-<div class="grid" id="grid">در حال بارگذاری…</div>
-<div class="card" style="margin-top:10px"><h2>💬 گفت‌وگو با مغز (محلی $0 — بعداً fugu/glm)</h2>
-<textarea id="q" rows="2" placeholder="از مجموعه بپرس… (مثلاً: الان مهم‌ترین کار چیه؟)"></textarea>
-<button onclick="ask()">بپرس</button> <span id="askst" class="dim"></span>
-<pre id="ans" style="display:none"></pre></div>
+<div id="chips">
+ <span class="chip">💗 <b id="cPeriod">—</b><span style="font-size:11px"> ضربان</span></span>
+ <span class="chip">🧠 هم‌آهنگی <b id="cCoh">—</b></span>
+ <span class="chip" id="cNeedsChip" style="cursor:pointer" onclick="showNeeds()">📌 <b id="cNeeds">—</b> نیاز</span>
+</div>
+<svg id="stage" viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg">
+ <circle class="orbit" cx="350" cy="250" r="120"/>
+ <circle class="orbit spin" cx="350" cy="250" r="168"/>
+ <circle class="orbit" cx="350" cy="250" r="210"/>
+ <g id="rays"></g>
+ <circle id="cohRing" cx="350" cy="250" r="74" fill="none" stroke="#39e6c0" stroke-width="3"
+   stroke-linecap="round" stroke-dasharray="465" stroke-dashoffset="465"
+   transform="rotate(-90 350 250)" style="filter:drop-shadow(0 0 8px rgba(57,230,192,.7));transition:stroke-dashoffset 1.2s"/>
+ <g id="heartG">
+   <circle cx="350" cy="250" r="56" fill="rgba(210,50,90,.28)" stroke="#ff5d8f" stroke-width="2"
+     style="filter:drop-shadow(0 0 18px rgba(255,93,143,.85))"/>
+   <text x="350" y="243" text-anchor="middle" style="font-size:30px">🫀</text>
+   <text id="heartTxt" x="350" y="272" class="nl" style="font-size:13px;fill:#ffd7e4">—</text>
+ </g>
+ <g id="nodes"></g>
+</svg>
+<div id="thought">…</div>
+<div class="dim" id="mode">—</div>
+<div id="panel" onclick="this.style.display='none'"></div>
+<div id="bar">
+ <input id="q" placeholder="از مغز بپرس…" onkeydown="if(event.key==='Enter')ask()">
+ <button onclick="ask()">💬</button>
+ <button id="actBtn" onclick="mainAct()">⚡</button>
+</div>
 <script>
-function esc(s){return String(s??"—").replace(/&/g,"&amp;").replace(/</g,"&lt;")}
-function pill(b){return b?'<span class="ok">🟢</span>':'<span class="bad">🔴</span>'}
-async function act(k,msg){ if(msg&&!confirm(msg))return;
+const LABELS={organism:'بدن',heart:'قلب',producers:'سنجه‌ها',work_pump:'پمپ کار',
+ doctor_setpoint:'دکتر',governor:'گاورنر',sigma:'ایمنی',fitness:'برازندگی',
+ school:'مدرسه',reconcile:'پول'};
+const IDS=Object.keys(LABELS); let LIVE=null;
+function esc(s){return String(s??'—').replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function nodePos(i){const a=-Math.PI/2+i*(2*Math.PI/IDS.length);
+ return [350+168*Math.cos(a),250+168*Math.sin(a)]}
+function build(){let n='',r='';IDS.forEach((id,i)=>{const[x,y]=nodePos(i);
+ r+=`<line class="ray" id="ray-${id}" x1="350" y1="250" x2="${x}" y2="${y}" stroke="rgba(77,232,255,.15)"/>`;
+ n+=`<g class="node" id="nd-${id}" onclick="info('${id}')">
+     <circle cx="${x}" cy="${y}" r="24" class="off"/>
+     <text x="${x}" y="${y+4}" class="nl" style="font-size:15px">·</text>
+     <text x="${x}" y="${y+42}" class="nl">${LABELS[id]}</text></g>`});
+ document.getElementById('rays').innerHTML=r;
+ document.getElementById('nodes').innerHTML=n}
+function cls(a,present){if(!present)return'off';if(a>=0.7)return'ok';if(a>=0.35)return'warn';return'bad'}
+function icon(c){return c==='ok'?'●':c==='warn'?'◐':c==='bad'?'▲':'·'}
+function info(id){const m=((LIVE?.cortex?.members)||[]).find(x=>x.id===id)||{};
+ const p=document.getElementById('panel');
+ p.innerHTML=`<b>${LABELS[id]}</b><br>${esc(m.note||'مغز هنوز جارو نکرده')}`+
+  (m.age_s!=null?`<br><span style="color:#7fb">تازگی: ${Math.round(m.age_s/60)} دقیقه پیش</span>`:'')+
+  extra(id); p.style.display='block'}
+function extra(id){const d=LIVE||{};const h=d.heart||{};
+ if(id==='heart')return h.present?`<br>ضربان سایه: ${h.period_shadow_s}s · شتاب‌سنج Δ: ${h.delta??'—'}<br>سیمِ زنده: ${h.wire_open?'باز 🟢':'بسته 🔴 ('+((h.wire_reasons||[]).length)+' شرط)'}`:'<br>هنوز نتپیده';
+ if(id==='work_pump'){const l=((d.pump||{}).log_tail||[]).slice(-2).map(x=>(x.kind||'')+' '+(x.ok?'✓':(x.skipped?'⏭':'·'))).join(' · ');return l?'<br>'+esc(l):''}
+ if(id==='sigma')return `<br>σ=${esc((d.sigma||{}).sigma_effective)} (${esc((d.sigma||{}).zone)})`;
+ if(id==='reconcile')return (d.needs?.items||[]).some(x=>x.includes('CSV'))?'<br>منتظرِ CSV بانکی 💵':'';
+ return ''}
+function showNeeds(){const p=document.getElementById('panel');
+ const items=(LIVE?.needs?.items)||[];
+ p.innerHTML='<b>📌 الان</b><br>'+(items.length?items.map((x,i)=>(i+1)+'. '+esc(x)).join('<br>'):'هیچ‌چیز منتظرت نیست ✅');
+ p.style.display='block'}
+async function mainAct(){const c=LIVE?.processes?.cortex;
+ const k=c?'restart-organism':'start-cortex';
+ const msg=c?'بدن یک tick می‌خوابد و تازه برمی‌گردد. ادامه؟':null;
+ if(msg&&!confirm(msg))return;
  const r=await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:k})});
- alert((await r.json()).note); }
-async function ask(){ const q=document.getElementById('q').value.trim(); if(!q)return;
- document.getElementById('askst').textContent='در حال فکر…';
- const r=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:'daily',prompt:q})});
- const j=await r.json(); const a=document.getElementById('ans'); a.style.display='block';
- a.textContent=j.ok?('['+(j.tier||'?')+'] '+j.text):('❌ '+(j.reason||'نشد'));
- document.getElementById('askst').textContent=j.ok?('⏱ '+(j.ms||'')+'ms'):''; }
-async function tick(){ try{
- const d=await (await fetch('/api/live')).json();
- document.getElementById('ts').textContent='· '+d.ts;
- const p=d.processes, b=d.body, h=d.heart, c=d.cortex, br=(c.brains||{});
- let cards='';
- cards+=`<div class="card"><h2>⚙️ فرایندها</h2>
- <div class="kv">بدن (8771): ${pill(p.organism)} ${d.new_code_live?'<span class=ok>کدِ نو</span>':'<span class=warn>کدِ قدیم — restart لازم</span>'}</div>
- <div class="kv">مغز (8772): ${pill(p.cortex)} · ollama: ${pill(p.ollama)}</div>
- <div class="kv">flags: ${d.flags_file?'🟢 مستقر':'🔴 غایب'} · STOPها: بدن ${d.stops.organism?'🔴':'—'} مغز ${d.stops.cortex?'🔴':'—'} · freeze ${d.stops.freeze?'🔴':'—'}</div>
- <button onclick="act('restart-organism','بدن یک tick می‌خوابد و با کدِ نو (قلب/پمپ/نوتیف) برمی‌گردد. ادامه؟')">🔄 restart بدن با کدِ نو</button>
- ${p.cortex?'<button class=red onclick="act(\\'stop-cortex\\')">⏸ توقف مغز</button>':'<button onclick="act(\\'start-cortex\\')">🧠 راه‌اندازی مغز</button>'}</div>`;
- cards+=`<div class="card"><h2>🐙 بدن</h2>
- <div class="kv">state: <b>${esc(b.state_age_min)}</b> دقیقه پیش · beat: <b>${esc(b.beat)}</b> · پروفایل: ${esc(b.profile)}</div>
- <div class="kv">ماه: AU$${esc(b.month_aud)} · suspect: ${esc(b.suspects)} · germline: ${esc(b.germline_lag_h)}h</div>
- <div class="kv">پاها: ${esc(JSON.stringify(b.legs))} · protective: ${b.protective?'🔴':'—'}</div>
- <div class="dim small">${(b.wiring_on||[]).length} سیمِ روشن</div></div>`;
- cards+=`<div class="card"><h2>🫀 قلب</h2>${h.present?`
- <div class="kv">period سایه: <b>${esc(h.period_shadow_s)}s</b> · velocity: <b>${esc(h.velocity)}</b>/hr · باند: ${esc(JSON.stringify(h.band))}</div>
- <div class="kv">CPI: ${esc(h.cpi)} · Δ: ${esc(h.delta)} · Gate-0: ${h.gate0?'🟢':'⏳'}</div>
- <div class="kv">سیمِ زنده: ${h.wire_open?'🟢 باز':'🔴 بسته ('+((h.wire_reasons||[]).length)+' شرط)'}</div>`
- :'<div class="kv warn">هنوز نتپیده — بعد از restart بدن شروع می‌شود</div>'}</div>`;
- cards+=`<div class="card"><h2>🛠 پمپ کار</h2>${d.pump.plan?`
- <div class="kv">${d.pump.plan.map(t=>esc(t.kind)+(t.paid?'💰':'')).join(' · ')}</div>
- <pre>${esc((d.pump.log_tail||[]).map(l=>l.ts+' '+(l.kind||'')+' '+(l.skipped||l.idle||(l.ok?'✓':''))).join('\\n')||'هنوز کاری ثبت نشده')}</pre>`
- :'<div class="kv warn">نقشهٔ کار بعد از restart ساخته می‌شود</div>'}</div>`;
- cards+=`<div class="card"><h2>🧠 مغز مرکزی</h2>${c.present?`
- <div class="kv">coherence: <b>${esc(c.coherence)}</b> · کهنه‌ها: ${esc((c.stale||[]).join('، ')||'هیچ')}</div>
- <div class="kv">ریتم: هر ${esc((c.rhythm||{}).period_s)}s (${esc((c.rhythm||{}).source)})</div>
- <div class="kv">مرتب‌سازی: ${esc(((c.alignment||{}).changed?((c.alignment||{}).diff||[]).join('،'):(c.alignment||{}).reason))}</div>
- <div class="kv small">💭 ${esc(c.thought)}</div>
- <div class="kv small">مغزها: local <b>${esc((br.brains||br).local_model||(br.local_model))}</b> · fugu ${((br.keys||{}).fugu)?'🔑':'⚪'} · glm ${((br.keys||{}).glm)?'🔑':'⚪'}</div>`
- :'<div class="kv warn">مغز روشن نیست — دکمهٔ راه‌اندازی بالا</div>'}</div>`;
- cards+=`<div class="card"><h2>📌 نیازها + ایمنی</h2>
- <div class="kv">${(d.needs.items||[]).map((x,i)=>(i+1)+'. '+esc(x)).join('<br>')||'<span class=ok>هیچ‌چیز منتظرت نیست ✅</span>'}</div>
- <div class="kv">σ: ${esc(d.sigma.sigma_effective)} (${esc(d.sigma.zone)}) · هشدارِ امروز: ${d.alerts_today}</div></div>`;
- document.getElementById('grid').innerHTML=cards;
- }catch(e){} }
-tick(); setInterval(tick, 4000);
+ alert((await r.json()).note)}
+async function ask(){const q=document.getElementById('q');const t=q.value.trim();if(!t)return;
+ q.value='';const p=document.getElementById('panel');p.innerHTML='💭 در حال فکر…';p.style.display='block';
+ const r=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:'daily',prompt:t})});
+ const j=await r.json();
+ p.innerHTML=j.ok?('<b>['+(j.tier||'مغز')+']</b><br>'+esc(j.text)):('❌ '+esc(j.reason))}
+async function tick(){try{
+ const d=await (await fetch('/api/live')).json(); LIVE=d;
+ const h=d.heart||{}, c=d.cortex||{};
+ const per=h.period_shadow_s;
+ document.getElementById('cPeriod').textContent=per?Math.round(per)+'s':'—';
+ document.getElementById('heartTxt').textContent=per?Math.round(per)+'s':'خواب';
+ document.documentElement.style.setProperty('--beat',(per?Math.max(1,Math.min(6,per/60)):3)+'s');
+ const coh=c.coherence; document.getElementById('cCoh').textContent=coh!=null?Math.round(coh*100)+'%':'—';
+ document.getElementById('cohRing').style.strokeDashoffset=coh!=null?String(465*(1-coh)):'465';
+ document.getElementById('cNeeds').textContent=(d.needs||{}).n??'—';
+ const th=c.thought||''; document.getElementById('thought').textContent=th?('💭 '+th.slice(0,160)):'';
+ document.getElementById('mode').textContent=(d.new_code_live?'کدِ نو':'کدِ قدیم')+
+  ' · بدن '+(d.processes.organism?'🟢':'🔴')+' · مغز '+(d.processes.cortex?'🟢':'🔴')+
+  ' · ollama '+(d.processes.ollama?'🟢':'🔴')+(h.wire_open?' · سیمِ زنده باز':'');
+ document.getElementById('actBtn').textContent=d.processes.cortex?'🔄':'🧠';
+ const members={}; (c.members||[]).forEach(m=>members[m.id]=m);
+ IDS.forEach(id=>{const m=members[id];const cl=cls(m?m.awareness:0,!!(m&&m.present));
+  const g=document.getElementById('nd-'+id); if(!g)return;
+  const circ=g.querySelector('circle'); circ.setAttribute('class',cl);
+  g.querySelectorAll('text')[0].textContent=icon(cl);
+  const ray=document.getElementById('ray-'+id);
+  ray.setAttribute('stroke',`rgba(77,232,255,${m?Math.max(0.08,m.awareness*0.55):0.06})`)});
+}catch(e){}}
+build(); tick(); setInterval(tick, 4000);
 </script></body></html>"""
 
 
