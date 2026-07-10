@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import html
 import json
+import os
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
@@ -36,8 +37,10 @@ COMPLIANCE_CHECKS = [
     "over_18",         # ۱۸+/رضایت
 ]
 
-_CONFIG_PATH = Path(__file__).resolve().parent / "config.json"
-_DATA_PATH = Path(__file__).resolve().parent / "drafts.json"
+# state/config قابل‌انحراف با PF_STUDIO_DIR (تست/harness)؛ بدونِ env = کنارِ ماژول (production)
+_STUDIO_DIR = Path(os.environ.get("PF_STUDIO_DIR") or Path(__file__).resolve().parent)
+_CONFIG_PATH = _STUDIO_DIR / "config.json"
+_DATA_PATH = _STUDIO_DIR / "drafts.json"
 
 
 def _load_config() -> dict:

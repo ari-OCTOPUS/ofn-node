@@ -1,9 +1,23 @@
 ---
 type: handoff
-updated: 2026-07-10
+updated: 2026-07-11
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
+
+## جلسه ۴۷ 2026-07-11 (~۰۳:۱۵، Claude Fable 5 — worktree `claude/exciting-vaughan-26c965`) — 🧹 ریشه‌کنیِ آلودگیِ سوییت: تست دیگر داخلِ repo/vault نمی‌نویسد + اثباتِ git-clean
+
+دو آلودگیِ گزارش‌شدهٔ مالک (ساختِ `rfc-abc-lesson.md` در 07 - Knowledge و حذفِ `archive.json` ِ Project-F در اجرای سوییت با REAL_VAULT روی worktree) ریشه‌یابی شد و **کلِ خانوادهٔ باگ** بسته شد — ۶۲ فایل، همه روی این شاخه:
+
+- **ریشه ۱ — doctor:** `doctor.py` بدونِ تزریقِ `knowledge_dir`، مسیر را از ریشهٔ checkout می‌ساخت (`_OPS.parent`) نه از envِ harness → **env-اول (GENOME_DIR)** شد؛ بدونِ env همان رفتارِ production. مقصرِ مستقیمِ آلودگیِ ۱: `test_p0_security_fixes` (ساختِ Doctor بدونِ knowledge_dir).
+- **ریشه ۲ — Project-F:** هفت ماژول state را کنارِ خودشان persist می‌کردند (`archive/drafts/bandit_state/lifecycle/ab_tests/acquisition_memory/{acq,hebb,con}_orch.json`) و تست‌ها با مسیرِ هاردکدِ `F:\backup` از درختِ **زنده** import می‌کردند → دو envِ نو **`PF_BRAIN_DIR`/`PF_STUDIO_DIR`** (harness → sandboxِ tmp + seedِ config)؛ بدونِ env = production. آلودگیِ ۲ (`archive.json`) کارِ `test_project_f` بود که با `__file__` نسخهٔ repo را unlink می‌کرد → حالا فقط sandbox.
+- **ریشه ۳ — neural:** پیش‌فرضِ `__file__`-محورِ `consolidation.py`/`hebbian.py`/`latent_space.py` (در اجرای کامل، `_ops/neural/consolidation.json` ِ tracked واقعاً M می‌شد) → **OPS_DIR-اول** به همان idiom ِ درسِ bcm ‏2026-07-10.
+- **۴۹ فایلِ تست** از `Path(r"F:\backup\…")` به **`harness.REAL_VAULT`** گره خوردند — اجرای worktree حالا کدِ همان worktree را تست می‌کند، نه کدِ زنده را. + `run_all.py` markerِ capability را در **همان درختِ تست‌شده** می‌نویسد (ORG_ROOT←REAL_VAULT) — اجرای worktree دیگر marker/state درختِ زنده را refresh/revoke نمی‌کند.
+- **T-4 تلگرام** (نیازمندِ دادهٔ آزمایشگاهِ untracked ِ فقط-زنده) → **skipِ صادقانه** به‌جای قرمزِ env (الگوی «آفلاین skip امن» ِ test_held_out).
+- **اثبات:** سوییتِ کامل در worktree تمیز با REAL_VAULT → **۹۷/۹۷ سبز** و `git status` بعد از سوییت **فقط ویرایش‌های عمدی** (صفر untracked/حذف/M ِ ناخواسته). درختِ زنده در طولِ هر دو اجرا دست‌نخورده (mtimeهای state ثابت روی 02:53 ِ قبل از فیکس).
+- **جابه‌جایی طبق قانون (بدونِ حذف):** فسیلِ تستیِ `rfc-abc-lesson.md` از knowledge/internal ِ زنده → `_Archive/Logs/test-contamination-2026-07-11/`.
+
+**میزِ آری — آلودگیِ از-قبل-موجودِ درختِ زنده (۵ رأی، جزئیات در [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS «2026-07-11»]]):** پاک‌سازیِ stateِ تستیِ committed ِ Project-F (`drafts.json` ~۱۳۶ فسیل، `archive.json` تماماً تستی، `.bak` ِ tracked) · دو فایلِ M ِ زندهٔ 02:53 · gitignore ِ `fitness-latest`/`replication-latest` · فایلِ سرگردانِ `_ops/2026-07-21` · **refresh ِ markerِ capability ِ زنده بعد از merge** (الان با fingerprintِ worktree نوشته شده → گیتِ پول fail-closed تا `run_all` روی درختِ زنده سبز شود).
 
 ## جلسه ۴۶ ادامه (~۰۵:۳۰) — 🧠 مغزِ دوم: عملیاتِ کسب‌وکار (رأی مالک «دو پروژه اونلی‌فنز و نقاشی وصل شد؛ مهندسیشونو درست کن به‌عنوان مغز دوم»)
 

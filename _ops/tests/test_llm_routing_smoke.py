@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 ENV = harness.setup("llm-routing-smoke")
 
-_OPS = Path(r"F:\backup\_ops")
+_OPS = (harness.REAL_VAULT / r"_ops")
 for _p in [str(_OPS), str(_OPS / "budget"), str(_OPS / "debate")]:
     if _p not in sys.path:
         sys.path.insert(0, _p)

@@ -59,6 +59,7 @@ def setup(name: str) -> dict:
     (ops / "budget").mkdir(parents=True)
     (ops / "state").mkdir(parents=True)
     (ops / "debate").mkdir(parents=True)
+    (ops / "neural").mkdir(parents=True)   # state ماژول‌های neural (OPS_DIR-اول)
     genome = root / "genome-system"
     (genome / "ledger").mkdir(parents=True)
     brain = root / "brain"
@@ -68,6 +69,15 @@ def setup(name: str) -> dict:
     (root / "_memory").mkdir(parents=True)
     (root / "00 - Inbox").mkdir(parents=True)
     (root / "00 - Inbox" / "AGENT_QUESTIONS.md").write_text("# سوالات\n", "utf-8")
+    # sandbox ِ state ماژول‌های Project-F (PF_BRAIN_DIR/PF_STUDIO_DIR): تست هرگز کنارِ
+    # ماژول (داخلِ repo) نمی‌نویسد. config واقعیِ استودیو فقط کپی/خوانده می‌شود.
+    pf_brain = root / "pf" / "brain"
+    pf_brain.mkdir(parents=True)
+    pf_studio = root / "pf" / "studio"
+    pf_studio.mkdir(parents=True)
+    _src_cfg = REAL_VAULT / "03 - Projects" / "اونلی فنز" / "studio" / "config.json"
+    if _src_cfg.exists():
+        shutil.copy2(_src_cfg, pf_studio / "config.json")
 
     (ops / "budget" / "budgets.yaml").write_text(TEST_BUDGETS, "utf-8")
     # ledger.py واقعی ژنوم — تست پل ledger روی کد واقعی، ولی فایل jsonl موقت
@@ -94,6 +104,8 @@ def setup(name: str) -> dict:
         "GENOME_DIR": str(genome),
         "BRAIN_DIR": str(brain),
         "BUDGET_STATE": str(ops / "budget" / "budget-state.json"),
+        "PF_BRAIN_DIR": str(pf_brain),
+        "PF_STUDIO_DIR": str(pf_studio),
     }
     os.environ.update(env)
     sys.path.insert(0, str(REAL_VAULT / "_ops" / "budget"))

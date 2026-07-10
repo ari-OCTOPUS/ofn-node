@@ -3,7 +3,7 @@
 neural → brain → acquisition → hebbian → consolidation → comm → studio.
 propose-only، $0، advisory. λ_persist<0."""
 from __future__ import annotations
-import sys, json, time
+import sys, json, os, time
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
@@ -23,6 +23,9 @@ from consolidation import ConsolidationCycle
 from sprint import SprintContract, SprintRunner
 from hooks import HookBus
 from circadian import CircadianMap
+
+# state ارکستر قابل‌انحراف با PF_BRAIN_DIR (تست/harness)؛ بدونِ env = brain/ کنارِ ماژول
+_BRAIN_STATE = Path(os.environ.get("PF_BRAIN_DIR") or (_HERE / "brain"))
 
 LAMBDA_PERSIST = -1.0
 
@@ -49,17 +52,17 @@ class PFOrchestrator:
         self.studio = studio or ContentStudio()
         self.brain = brain or DualBrainV3()
         self.acquisition = acquisition or AcquisitionBrain(
-            memory=AcquisitionMemory(data_path=str(_HERE / "brain" / "acq_orch.json")))
+            memory=AcquisitionMemory(data_path=str(_BRAIN_STATE / "acq_orch.json")))
         self.neural = NeuralDriver()
-        self.hebbian = HebbianAssociator(data_path=str(_HERE / "brain" / "hebb_orch.json"))
-        self.consolidation = ConsolidationCycle(data_path=str(_HERE / "brain" / "con_orch.json"))
+        self.hebbian = HebbianAssociator(data_path=str(_BRAIN_STATE / "hebb_orch.json"))
+        self.consolidation = ConsolidationCycle(data_path=str(_BRAIN_STATE / "con_orch.json"))
         self.circadian = CircadianMap()
         self.hooks = HookBus()
         self.sprint_runner = SprintRunner()
         self.sprint_runner.set_hooks(self.hooks)
         self._beat = 0
         self._protective = False
-        self._data_dir = Path(data_dir) if data_dir else _HERE / "brain"
+        self._data_dir = Path(data_dir) if data_dir else _BRAIN_STATE
         self._data_dir.mkdir(parents=True, exist_ok=True)
 
     def tick(self, rhythm=None, sensory=None, spectral=None, budget=None,

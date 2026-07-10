@@ -11,13 +11,23 @@ Persist: JSON (state/latent-vectors.json).
 from __future__ import annotations
 
 import json
+import os
 import time
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 
-_DEFAULT_PERSIST = Path(__file__).resolve().parent.parent / "state" / "latent-vectors.json"
+
+def _default_persist() -> Path:
+    """env-اول (OPS_DIR) تا تستِ harness-ایزوله state واقعی/repo را آلوده نکند
+    (همان درسِ bcm 2026-07-10)؛ بدونِ env = _ops/state کنارِ ماژول (production)."""
+    ops = os.environ.get("OPS_DIR")
+    base = Path(ops) if ops else Path(__file__).resolve().parent.parent
+    return base / "state" / "latent-vectors.json"
+
+
+_DEFAULT_PERSIST = _default_persist()
 
 # آستانهٔ cosine similarity — نتایج زیر این مقدار discard می‌شوند
 _SIMILARITY_THRESHOLD = 0.1

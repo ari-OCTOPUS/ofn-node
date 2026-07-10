@@ -18,6 +18,7 @@
 from __future__ import annotations
 
 import json
+import os
 import time
 import math
 from dataclasses import dataclass, field, asdict
@@ -64,8 +65,10 @@ class AcquisitionMemory:
     persistence: JSON file (restart-safe)."""
 
     def __init__(self, data_path: str | Path | None = None):
+        # پیش‌فرض قابل‌انحراف با PF_BRAIN_DIR (تست/harness)؛ بدونِ env = کنارِ ماژول
         self._path = Path(data_path) if data_path else (
-            Path(__file__).resolve().parent / "acquisition_memory.json")
+            Path(os.environ.get("PF_BRAIN_DIR") or Path(__file__).resolve().parent)
+            / "acquisition_memory.json")
         self._signals: list[dict] = self._load()
         self._post_results: list[dict] = [s for s in self._signals if s.get("type") == "post_result"]
         self._competitor_data: list[dict] = [s for s in self._signals if s.get("type") == "competitor"]

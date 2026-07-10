@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("acquisition")
-_BRAIN = Path(r"F:\backup\03 - Projects\اونلی فنز\brain")
+_BRAIN = (harness.REAL_VAULT / r"03 - Projects\اونلی فنز\brain")
 if str(_BRAIN) not in sys.path:
     sys.path.insert(0, str(_BRAIN))
 

@@ -6,8 +6,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 ENV = harness.setup("deep-pf")
-_PF = Path(r"F:\backup\03 - Projects\اونلی فنز")
-_NEURAL = Path(r"F:\backup\_ops\neural")
+_PF = (harness.REAL_VAULT / r"03 - Projects\اونلی فنز")
+_NEURAL = (harness.REAL_VAULT / r"_ops\neural")
 for _p in (str(_PF / "brain"), str(_PF / "studio"), str(_NEURAL)):
     if _p not in sys.path: sys.path.insert(0, _p)
 

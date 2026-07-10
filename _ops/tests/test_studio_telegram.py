@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("studio-telegram")
-_STUDIO = Path(r"F:\backup\03 - Projects\اونلی فنز\studio")
+_STUDIO = (harness.REAL_VAULT / r"03 - Projects\اونلی فنز\studio")
 if str(_STUDIO) not in sys.path:
     sys.path.insert(0, str(_STUDIO))
 from studio_telegram import StudioTelegram  # noqa: E402

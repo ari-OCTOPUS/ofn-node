@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 ENV = harness.setup("canonical-consolidation")
 
-_OPS = Path(r"F:\backup\_ops")
+_OPS = (harness.REAL_VAULT / r"_ops")
 for _p in [str(_OPS), str(_OPS / "neural"), str(_OPS / "afferent")]:
     if _p not in sys.path:
         sys.path.insert(0, _p)
@@ -29,7 +29,7 @@ for _p in [str(_OPS), str(_OPS / "neural"), str(_OPS / "afferent")]:
 import wiring  # noqa: E402
 
 # school-memory و afferent روی path مالِ real vault هستند (harness فقط ops/ را اضافه می‌کند)
-_SM = Path(r"F:\backup\07 - Knowledge\school-memory")
+_SM = (harness.REAL_VAULT / r"07 - Knowledge\school-memory")
 if str(_SM) not in sys.path:
     sys.path.insert(0, str(_SM))
 

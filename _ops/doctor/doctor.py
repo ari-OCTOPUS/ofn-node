@@ -198,7 +198,11 @@ class Doctor:
                  approval_channel=None, sandbox_runner=None, db=None,
                  archive=None, box=None):
         self._state_dir = Path(state_dir) if state_dir else (opslib.STATE_DIR)
+        # ⚑ ضدِ آلودگیِ تست: بدونِ تزریق، مسیر از envِ harness (GENOME_DIR) می‌آید؛
+        # فقط وقتی env نیست به ریشهٔ checkout برمی‌گردد (production دست‌نخورده).
         self._knowledge_dir = Path(knowledge_dir) if knowledge_dir else (
+            Path(os.environ["GENOME_DIR"]) / "knowledge" / "internal"
+            if os.environ.get("GENOME_DIR") else
             _OPS.parent / "07 - Knowledge" / "genome-system" / "knowledge" / "internal")
         self._knowledge_dir.mkdir(parents=True, exist_ok=True)  # ⚑ گاف ۳ بسته شد
         self._ledger = ledger                            # genome ledger (lazy via opslib)

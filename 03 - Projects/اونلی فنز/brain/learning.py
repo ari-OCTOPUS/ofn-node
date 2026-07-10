@@ -20,12 +20,15 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import random
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
-_DATA_PATH = Path(__file__).resolve().parent / "bandit_state.json"
+# state قابل‌انحراف با PF_BRAIN_DIR (تست/harness)؛ بدونِ env = کنارِ ماژول (production)
+_DATA_PATH = Path(os.environ.get("PF_BRAIN_DIR")
+                  or Path(__file__).resolve().parent) / "bandit_state.json"
 
 # فلور/سقفِ اکتشاف — هرگز خارج از این بازه نمی‌رود (governance)
 EXPLORE_FLOOR = 0.05        # حداقل ۵٪ احتمالِ اکتشاف

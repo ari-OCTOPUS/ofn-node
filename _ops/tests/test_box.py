@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("box")
-_BOX = Path(r"F:\backup\_ops\doctor\box")
+_BOX = (harness.REAL_VAULT / r"_ops\doctor\box")
 if str(_BOX) not in sys.path:
     sys.path.insert(0, str(_BOX))
 
@@ -236,7 +236,7 @@ def t_warden_yields_to_stop():
 def t_no_production_import():
     """هیچ import از *_gate/chrono/money/genome production در box/ نیست."""
     import glob
-    box_dir = Path(r"F:\backup\_ops\doctor\box")
+    box_dir = (harness.REAL_VAULT / r"_ops\doctor\box")
     forbidden = ["import chrono", "from chrono", "organ_gate", "money_gate",
                  "capability_gate", "budget_gate", "EffectorGate",
                  "import genome", "from genome", "opslib"]

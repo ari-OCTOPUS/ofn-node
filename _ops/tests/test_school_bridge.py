@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("school-bridge")
-_AFF = Path(r"F:\backup\_ops\afferent")
+_AFF = (harness.REAL_VAULT / r"_ops\afferent")
 if str(_AFF) not in sys.path:
     sys.path.insert(0, str(_AFF))
 from school_bridge import SchoolBridge  # noqa: E402

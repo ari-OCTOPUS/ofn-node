@@ -12,8 +12,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("project-f")
-_STUDIO = Path(r"F:\backup\03 - Projects\اونلی فنز\studio")
-_BRAIN = Path(r"F:\backup\03 - Projects\اونلی فنز\brain")
+_STUDIO = (harness.REAL_VAULT / r"03 - Projects\اونلی فنز\studio")
+_BRAIN = (harness.REAL_VAULT / r"03 - Projects\اونلی فنز\brain")
 for _p in (str(_STUDIO), str(_BRAIN)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
@@ -164,9 +164,10 @@ def t_brain_hitl_guard_fail_drops():
 
 def t_brain_archive_learned_only():
     """آرشیو: فقط از تأییدشده‌ها یاد می‌گیرد."""
-    # پاک‌سازیِ archive persisted برای تستِ ایزوله
-    from pathlib import Path as _P
-    arch_path = _P(__file__).resolve().parents[2] / "03 - Projects" / "اونلی فنز" / "brain" / "archive.json"
+    # پاک‌سازیِ archive persisted برای تستِ ایزوله — فقط sandboxِ ماژول (PF_BRAIN_DIR)،
+    # هرگز نسخهٔ داخلِ repo/vault
+    import project_f_brain as _pfb
+    arch_path = _pfb._ARCHIVE_PATH
     arch_path.unlink(missing_ok=True)
     brain = ProjectFBrain()
     brain.archive("price", "approved", 10, 15)

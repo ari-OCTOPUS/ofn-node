@@ -6,12 +6,22 @@ persist (JSON). فقط aggregate.
 """
 from __future__ import annotations
 import json
+import os
 import time
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from collections import defaultdict
 
-_DATA_PATH = Path(__file__).resolve().parent / "hebbian.json"
+
+def _default_data_path() -> Path:
+    """env-اول (OPS_DIR) تا تستِ harness-ایزوله state واقعی/repo را آلوده نکند
+    (همان درسِ bcm 2026-07-10)؛ بدونِ env = کنارِ ماژول (production)."""
+    ops = os.environ.get("OPS_DIR")
+    base = Path(ops) / "neural" if ops else Path(__file__).resolve().parent
+    return base / "hebbian.json"
+
+
+_DATA_PATH = _default_data_path()
 
 DECAY_RATE = 0.95     # per tick without co-occurrence
 LEARN_RATE = 0.1      # per co-occurrence

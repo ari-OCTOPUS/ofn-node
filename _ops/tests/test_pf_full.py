@@ -6,7 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 ENV = harness.setup("pf-full")
-_PF = Path(r"F:\backup\03 - Projects\اونلی فنز")
+_PF = (harness.REAL_VAULT / r"03 - Projects\اونلی فنز")
 for _p in [str(_PF), str(_PF/"brain"), str(_PF/"studio"),
            str(_PF.parent/"_ops"/"neural"), str(_PF.parent/"_ops")]:
     if _p not in sys.path: sys.path.insert(0, _p)

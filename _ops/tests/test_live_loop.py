@@ -12,8 +12,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("live-loop")
-_OPS = Path(r"F:\backup\_ops")
-_PF = Path(r"F:\backup\03 - Projects\اونلی فنز")
+_OPS = (harness.REAL_VAULT / r"_ops")
+_PF = (harness.REAL_VAULT / r"03 - Projects\اونلی فنز")
 for _p in (str(_OPS), str(_OPS / "brain"), str(_OPS / "budget"),
            str(_PF / "studio"), str(_PF / "brain"), str(_OPS / "legs")):
     if _p not in sys.path:

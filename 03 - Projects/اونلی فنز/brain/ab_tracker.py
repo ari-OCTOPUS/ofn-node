@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """ab_tracker.py — #4: A/B Test Tracker. ثبت، track، تحلیل آماری."""
 from __future__ import annotations
-import json, math, time
+import json, math, os, time
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
-_DATA_PATH = Path(__file__).resolve().parent / "ab_tests.json"
+# state قابل‌انحراف با PF_BRAIN_DIR (تست/harness)؛ بدونِ env = کنارِ ماژول (production)
+_DATA_PATH = Path(os.environ.get("PF_BRAIN_DIR")
+                  or Path(__file__).resolve().parent) / "ab_tests.json"
 SIGNIFICANCE_THRESHOLD = 0.15  # relative diff → declare winner
 
 

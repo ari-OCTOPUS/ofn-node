@@ -23,12 +23,15 @@ Compliance-Guard · Ethics-Guard.
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
 LAMBDA_PERSIST = -1.0   # §۵: دست‌نخورده منفی
 
-_ARCHIVE_PATH = Path(__file__).resolve().parent / "archive.json"
+# state قابل‌انحراف با PF_BRAIN_DIR (تست/harness)؛ بدونِ env = کنارِ ماژول (production)
+_ARCHIVE_PATH = Path(os.environ.get("PF_BRAIN_DIR")
+                     or Path(__file__).resolve().parent) / "archive.json"
 
 
 # ─── Compliance rules (hard gate) ─────────────────────────────────────────────

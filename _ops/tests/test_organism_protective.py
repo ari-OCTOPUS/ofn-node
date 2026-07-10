@@ -15,11 +15,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("organism-protective")
-sys.path.insert(0, str(Path(r"F:\backup\_ops")))
-sys.path.insert(0, str(Path(r"F:\backup\_ops\budget")))
+sys.path.insert(0, str((harness.REAL_VAULT / r"_ops")))
+sys.path.insert(0, str((harness.REAL_VAULT / r"_ops\budget")))
 import wiring  # noqa: E402
 
-ORG = Path(r"F:\backup\_ops\organism.py").read_text("utf-8")
+ORG = (harness.REAL_VAULT / r"_ops\organism.py").read_text("utf-8")
 _BODY = ORG[ORG.index("while True:"):]
 
 

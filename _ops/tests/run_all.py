@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """اجرای کل سوئیت متابولیسم/مناظره/تکثیر — هر تست در پروسهٔ جدا (env ایزوله).
 اجرا: python -X utf8 run_all.py"""
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -64,6 +65,11 @@ if __name__ == "__main__":
 
     # A3: markerِ capability فقط با اجرای سبزِ کاملِ سوئیت نوشته می‌شود (با fingerprintِ کدِ پول)؛
     # هر شکست revokeش می‌کند (fail-closed). تنها یکی از سه شرطِ گیت است — به‌تنهایی هیچ باز نمی‌کند.
+    # markerِ capability در همان درختی نوشته می‌شود که تست شد (REAL_VAULT)، نه vault زنده —
+    # اجرای worktree هرگز marker/state درختِ زنده را refresh/revoke نمی‌کند.
+    _rv = os.environ.get("REAL_VAULT")
+    if _rv and not os.environ.get("ORG_ROOT"):
+        os.environ["ORG_ROOT"] = _rv
     sys.path.insert(0, str(HERE.parent / "budget"))
     try:
         import capability_gate as _cg

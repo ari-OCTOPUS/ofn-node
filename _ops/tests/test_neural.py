@@ -6,7 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 ENV = harness.setup("neural")
-_NEURAL = Path(r"F:\backup\_ops\neural")
+_NEURAL = (harness.REAL_VAULT / r"_ops\neural")
 if str(_NEURAL) not in sys.path:
     sys.path.insert(0, str(_NEURAL))
 

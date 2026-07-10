@@ -3,7 +3,7 @@ type: log
 status: active
 tags: [agents, escalation]
 created: 2026-07-03
-updated: 2026-07-10
+updated: 2026-07-11
 ---
 
 # سوالات ایجنت‌ها — کانال escalation
@@ -206,3 +206,11 @@ Ari شش سندِ طراحیِ Octopus/Chrono (تلگرام) داد: «همه ر
 9. **دو گافِ P0 امنیتی که ممیزیِ ۱۲-ایجنتی پیدا کرد (حلقه خودش در /upgrades پیشنهاد می‌دهد):** (الف) `human_append_guard` کدمردهٔ غیرفعال است → `is_human` جعل‌پذیر؛ (ب) `apply_merge` هرگز صدا زده نمی‌شود → تأییدِ تو اثرِ واقعی ندارد. چون هستهٔ امنیت/خود-تغییردهی‌اند عمداً auto نکردم. رأیت: (۱) بگو خودم با احتیاق + تست اعمال کنم، یا (۲) بگذار به‌عنوان RFC در تلگرام بماند تا خودت تأیید کنی.
 10. **اهرمِ تحقیقِ زودهنگام:** اگر خواستی سرچ/تحقیقِ پولی (fugu/glm) قبل از 2026-07-21 زنده شود، فایلِ `_ops\ACTIVATION-RESEARCH-EARLY.flag` + `_ops\ACTIVATION-CORTEX-PAID.flag` را بساز (هر دو). سپرِ تاریخ دور می‌زند ولی organ_gate/بودجه همچنان حاکم. مغزِ محلی ($0) از قبل زنده است.
 11. **auto-tuneِ خودارتقا:** اگر بخواهی حلقه knobهای $0 برگشت‌پذیر (cadenceها) را خودکار تنظیم کند، `_ops\ACTIVATION-SELF-IMPROVE-AUTO.flag` را بساز. پیش‌فرض: خاموش (propose-only مطلق).
+
+## 2026-07-11 ~03:15 — جلسه ۴۷ (بهداشتِ سوییت — worktree `claude/exciting-vaughan-26c965`)
+
+12. **پاک‌سازیِ stateِ تستیِ committed در Project-F (رأی تو — state بیزنسی است):** `studio/drafts.json` زنده ۲۴۴ درفت دارد که ~۱۳۶تا فسیلِ تست‌اند («t»/«title»/«عنوان») و `brain/archive.json` حتی در HEAD فقط ورودیِ تستی دارد (۳ ورودی «strategy»/«x» با متریکِ 0.0)؛ `drafts.json.bak` ‏(162KB) هم tracked است. پیشنهاد: ریست/پاک‌سازی + commit — تا نشود، آنالیز/dedupeِ استودیو روی دادهٔ جعلی می‌نشیند.
+13. **دو فایلِ M ِ درختِ زنده:** `hebb_orch.json` و `drafts.json` نسبت به HEAD تغییرِ ساعت 02:53 (اجرای سوییتِ قبل-از-فیکس) را دارند — `git checkout --` برای برگشت یا commit؛ رأی تو.
+14. **دو stateِ runtime ِ tracked:** `_ops/state/fitness-latest.json` و `_ops/state/replication-latest.json` را ارگانیسمِ زنده دائم M می‌کند (soma/projection طبق verdict 07-07 #8 قرار بود ignore باشد) → پیشنهاد: `git rm --cached` + دو خط `.gitignore` (اجرا روی درختِ زنده با تو).
+15. **فایلِ خالیِ سرگردانِ `_ops/2026-07-21`** (‏10 Jul 22:52، صفر بایت — به‌احتمالِ قوی touch ِ اشتباهیِ یک مسیرِ date-gate): بایگانی‌اش با تو؛ اگر بخواهی جلسهٔ بعد منبعش را ردیابی می‌کنم.
+16. **markerِ capability ِ زنده (02:55) را اجرای worktree ِ قبل-از-فیکس نوشته** و fingerprintش احتمالاً با کدِ زنده نمی‌خواند = گیتِ پول عملاً fail-closed تا سوییت دوباره روی درختِ زنده سبز شود. بعد از mergeِ شاخهٔ این جلسه، یک‌بار `python -X utf8 "F:\backup\_ops\tests\run_all.py"` روی درختِ زنده بزن. (از این به بعد اجرای worktree با `REAL_VAULT` markerِ خودش را در همان worktree می‌نویسد، نه در زنده.)

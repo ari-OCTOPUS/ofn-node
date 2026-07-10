@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 ENV = harness.setup("phase4-epistemics")
 
-_OPS = Path(r"F:\backup\_ops")
+_OPS = (harness.REAL_VAULT / r"_ops")
 if str(_OPS) not in sys.path:
     sys.path.insert(0, str(_OPS))
 

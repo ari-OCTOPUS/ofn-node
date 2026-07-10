@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 ENV = harness.setup("idea-graph")
 
-_OPS = Path(r"F:\backup\_ops")
+_OPS = (harness.REAL_VAULT / r"_ops")
 if str(_OPS) not in sys.path:
     sys.path.insert(0, str(_OPS))
 
@@ -205,7 +205,7 @@ def t_proposed_edges_are_human_append():
 def t_real_vault_builds_meaningful_graph():
     """روی vaultِ واقعی: گراف معنی‌دار می‌سازد (nodes/edges > 0)."""
     g = IdeaGraph()
-    report = g.build(r"F:\backup")
+    report = g.build(str(harness.REAL_VAULT))
     assert report["n_nodes"] > 100, f"vault واقعی باید ≥۱۰۰ node داشته باشد: {report['n_nodes']}"
     assert report["n_edges"] > 50, f"vault واقعی باید ≥۵۰ edge داشته باشد: {report['n_edges']}"
 
@@ -213,7 +213,7 @@ def t_real_vault_builds_meaningful_graph():
 def t_real_vault_hubs_meaningful():
     """روی vaultِ واقعی: هاب‌ها عنوانِ معنی‌دار دارند."""
     g = IdeaGraph()
-    g.build(r"F:\backup")
+    g.build(str(harness.REAL_VAULT))
     hubs = g.hubs()
     assert len(hubs) > 0
     # هابِ اول باید in-degree > 0 داشته باشد

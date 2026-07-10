@@ -19,7 +19,7 @@ import harness  # noqa: E402
 
 ENV = harness.setup("chamber-temperature")
 
-_REAL_DOCTOR = Path(r"F:\backup\_ops\doctor")
+_REAL_DOCTOR = (harness.REAL_VAULT / r"_ops\doctor")
 if str(_REAL_DOCTOR) not in sys.path:
     sys.path.insert(0, str(_REAL_DOCTOR))
 

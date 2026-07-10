@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """lifecycle.py — #5: Subscriber Lifecycle + Churn Predictor. aggregate فقط، صفر PII."""
 from __future__ import annotations
-import json, math, time
+import json, math, os, time
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
-_DATA_PATH = Path(__file__).resolve().parent / "lifecycle.json"
+# state قابل‌انحراف با PF_BRAIN_DIR (تست/harness)؛ بدونِ env = کنارِ ماژول (production)
+_DATA_PATH = Path(os.environ.get("PF_BRAIN_DIR")
+                  or Path(__file__).resolve().parent) / "lifecycle.json"
 STAGES = ("new", "active", "engaged", "at_risk", "churned", "win_back")
 
 

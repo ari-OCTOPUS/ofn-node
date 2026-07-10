@@ -14,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("calibration")
-_REAL = Path(r"F:\backup\_ops")
+_REAL = (harness.REAL_VAULT / r"_ops")
 for _p in (str(_REAL / "doctor"), str(_REAL)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
