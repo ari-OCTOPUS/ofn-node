@@ -36,3 +36,5 @@ _ops/state/watchdog.log
 _ops/state/CAPABILITY-OK.flag
 _ops/state/LIVE-ENABLED.flag
 _ops/state/reconcile-latest.json
+# dashboard-generated NON-secret flag overrides (runtime, local) — never a secret store
+_ops/OCTOPUS-flags.cmd

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """dashboard/server.py — داشبورد زندهٔ اکتوپوس روی 127.0.0.1:8770.
 
-سروری فقط‌خواندنی (به state) + کنترلی (فقط به OCTOPUS.env و STOP-ORGANISM).
+سروری فقط‌خواندنی (به state) + کنترلی (فقط به OCTOPUS-flags.cmd و STOP-ORGANISM).
 کاملاً جدا از organism.py — **هیچ import از organism ندارد** (crash 独立性، $0).
 
 دو نکتهٔ ایمنیِ حیاتی:
   ۱) فقط فایل‌های state/ledger را می‌خواند (read-only).
-  ۲) تنها writeها: _ops/OCTOPUS.env (flag overrides) و _ops/STOP-ORGANISM (kill تمیز).
+  ۲) تنها writeها: _ops/OCTOPUS-flags.cmd (flag overrides) و _ops/STOP-ORGANISM (kill تمیز).
      هر دو control-file هستند و عین الگوی موجود در organism.py:199 هستند. هیچ ledger-write،
      هیچ spend، هیچ capability-gate باز نمی‌شود.
 
@@ -38,7 +38,7 @@ _ROOT = _OPS.parent                                  # F:\backup
 STATE_DIR = _OPS / "state"
 STOP_ORGANISM = _OPS / "STOP-ORGANISM"
 RESTART_REQUESTED = _OPS / "RESTART-REQUESTED"         # همراه STOP → bat ری‌استارت می‌کند
-ENV_FILE = _OPS / "OCTOPUS.env"                       # flag overrides (بوسیلهٔ bat لود می‌شود)
+ENV_FILE = _OPS / "OCTOPUS-flags.cmd"                 # NON-secret flag overrides (batch-safe .cmd; loaded by RUN-ORGANISM.bat). Secrets belong in F:\backup\.env (env_loader), NEVER here.
 FREEZE_FLAG = _OPS / "budget" / "FREEZE.flag"
 LEDGER = _ROOT / "07 - Knowledge" / "genome-system" / "ledger" / "ledger.jsonl"
 PORT = int(os.environ.get("DASHBOARD_PORT", "8770"))
@@ -168,7 +168,7 @@ def _read_json(name: str) -> dict:
 
 
 def _read_env_overrides() -> dict[str, str]:
-    """flag overrides از OCTOPUS.env (اگر هست). خطوطِ `set KEY=VALUE` یا `KEY=VALUE`."""
+    """flag overrides از OCTOPUS-flags.cmd (اگر هست). خطوطِ `set KEY=VALUE` یا `KEY=VALUE`."""
     out: dict[str, str] = {}
     if not ENV_FILE.exists():
         return out
@@ -429,7 +429,7 @@ def page_capabilities(flash: str = "", flash_kind: str = "ok") -> bytes:
         on = eff.get(name, False)
         risk_badge = _badge("ریسکی", "amber") if risk == "risky" else _badge("امن", "green")
         overridden = name in overrides
-        ov_mark = ' <span class="badge b-blue" title="از OCTOPUS.env override شده">override</span>' if overridden else ""
+        ov_mark = ' <span class="badge b-blue" title="از OCTOPUS-flags.cmd override شده">override</span>' if overridden else ""
         flags_html.append(
             f'<div class="flag {"risky" if risk == "risky" else ""}">'
             f'<div class="ftxt"><div class="ftitle">{html.escape(name)} {ov_mark}</div>'
@@ -463,12 +463,12 @@ def page_capabilities(flash: str = "", flash_kind: str = "ok") -> bytes:
         '<div class="card"><h2>وضعیتِ فعلی</h2>'
         f'<p class="sub">پروفایلِ مؤثر: <b>{html.escape(profile)}</b> · '
         f'{sum(eff.values())} flag روشن از {len(eff)} · '
-        f'{"OCTOPUS.env موجود" if overrides else "بدون OCTOPUS.env (پیش‌فرض‌ها)"}</p>'
+        f'{"OCTOPUS-flags.cmd موجود" if overrides else "بدون OCTOPUS-flags.cmd (پیش‌فرض‌ها)"}</p>'
         '<form method="post" action="/save"><div class="actions">'
         '<button type="submit" name="action" value="save">💾 ذخیرهٔ موقت</button>'
         '<button type="submit" name="action" value="restart" class="danger">💾 ذخیره + ری‌استارت ارگانیسم</button>'
         '</div></form>'
-        '<p class="note">ذخیره → <code>_ops/OCTOPUS.env</code> · '
+        '<p class="note">ذخیره → <code>_ops/OCTOPUS-flags.cmd</code> · '
         'ری‌استارت → STOP-ORGANISM (تمیز) + شروع مجدد با env جدید</p>'
         '</div>'
     )
@@ -618,7 +618,8 @@ def page_channels() -> bytes:
         '<p class="sub">صف‌های تأیید در RAM-only هستند. برای دیدنِ کارت‌های تأیید باید '
         'Telegram را فعال کنی (توکن لازم). بدونِ کانال، Doctor RFCها را '
         'به‌صورت <code>submitted-no-channel</code> نگه می‌دارد (بی‌خطر).</p>'
-        '<p class="note">راه‌اندازی: <code>set TELEGRAM_BOT_TOKEN=...</code> در OCTOPUS.env + ری‌استارت.</p>'
+        '<p class="note">راه‌اندازی: خطِ <code>TELEGRAM_BOT_TOKEN=...</code> را در <code>F:\\backup\\.env</code> بگذار '
+        '(نه در فایلِ flags — آنجا secret git-ignored و توسط env_loader در بوت لود می‌شود) + ری‌استارت.</p>'
         '</div>'
     )
     return _shell(body, "ch")
@@ -666,8 +667,8 @@ _WRITE_LOCK = threading.Lock()
 
 
 def _write_env(form: dict[str, str]) -> str:
-    """نوشتنِ _ops/OCTOPUS.env به‌صورتِ atomic. برمی‌گرداند: خلاصه."""
-    lines = ["rem OCTOPUS.env — تولید‌شده توسط dashboard. در زمانِ بوت توسط RUN-ORGANISM.bat لود می‌شود."]
+    """نوشتنِ _ops/OCTOPUS-flags.cmd به‌صورتِ atomic. برمی‌گرداند: خلاصه."""
+    lines = ["rem OCTOPUS-flags.cmd — تولید‌شده توسط dashboard. در زمانِ بوت توسط RUN-ORGANISM.bat لود می‌شود."]
     profile = form.get("OCTOPUS_PROFILE", "paper-full")
     lines.append(f"set OCTOPUS_PROFILE={profile}")
     for name, _, _ in WIRE_FLAGS:
@@ -681,12 +682,12 @@ def _write_env(form: dict[str, str]) -> str:
             val = default
         lines.append(f"set {name}={val}")
     content = "\r\n".join(lines) + "\r\n"
-    tmp = ENV_FILE.with_suffix(".env.tmp")
+    tmp = ENV_FILE.with_name(ENV_FILE.name + ".tmp")
     with _WRITE_LOCK:
         tmp.write_text(content, "utf-8")
         os.replace(tmp, ENV_FILE)   # atomic
     on_count = sum(1 for n, _, _ in WIRE_FLAGS if form.get(n) == "1")
-    return f"ذخیره شد: پروفایل={profile} · {on_count} flag روشن · فایل: _ops/OCTOPUS.env"
+    return f"ذخیره شد: پروفایل={profile} · {on_count} flag روشن · فایل: _ops/OCTOPUS-flags.cmd"
 
 
 def _do_restart() -> str:

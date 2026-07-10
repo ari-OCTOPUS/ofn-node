@@ -24,7 +24,8 @@ _ENV_PATH = _VAULT_ROOT / ".env"
 
 # کلیدهایی که ممکن است در .env باشند (برای گزارشِ امنِ "set/not-set")
 _KNOWN_KEYS = ("GLM_API_KEY", "GLM_BASE_URL", "FUGU_API_KEY",
-               "DEEPSEEK_API_KEY", "ZAI_API_KEY", "ANTHROPIC_API_KEY")
+               "DEEPSEEK_API_KEY", "ZAI_API_KEY", "ANTHROPIC_API_KEY",
+               "TELEGRAM_BOT_TOKEN", "TELEGRAM_OWNER_CHAT_ID")
 
 _LOADED = False   # فقط یک‌بار load کن
 

@@ -140,6 +140,13 @@ def _write_state(extra: dict) -> None:
 
 def main() -> int:
     import os
+    # secrets/keys از فایلِ کانونیِ .env (env_loader؛ fail-soft، idempotent، هرگز مقدار را echo نمی‌کند).
+    # پیش از wiring لود می‌شود تا make_telegram_channel توکنِ TELEGRAM_BOT_TOKEN را در os.environ ببیند.
+    try:
+        import env_loader
+        env_loader.load_env()
+    except Exception:  # noqa: BLE001 — additive؛ نبودِ .env نباید بوت را بکشد
+        pass
     port = int(os.environ.get("ORGANISM_PORT", PORT))
     try:
         _serve(port)   # bind انحصاری = قفل تک‌نمونه + endpoint وضعیت، هم‌زمان
