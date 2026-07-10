@@ -75,7 +75,7 @@ flowchart TD
     HUB["cortex.run_cycle + registry.coherence<br/>[یکپارچه‌سازیِ سراسری]"]
     SELF["self_model.py AST<br/>[خود-مدل / higher-order]"]
     SYN["synthesis.py<br/>[محتوای گزارش‌پذیر — قفلِ live]"]
-    IGN["غایبِ تعیین‌کننده — ignition / winner-take-all + re-entry"]
+    IGN["ignition.py (propose-only، CORTEX_IGNITION) — winner-take-all + re-entry"]
   end
   O1 --> BUS
   O3 --> BUS
@@ -96,9 +96,9 @@ flowchart TD
 |---|---|---|---|---|
 | **GNWT** فضای کاری | باسِ پخش | `events.py` emit/dashboard_state | broadcast width, attention() | 🟢 |
 | GNWT | هابِ یکپارچه‌سازی | `cortex.run_cycle` + `registry.sweep` | coherence scalar | 🟢 |
-| GNWT | **ignition / winner-take-all** | **غایب** | ignition-rate, تک‌برنده/چرخه | 🔴 |
+| GNWT | **ignition / winner-take-all** | `cortex/ignition.py` (propose-only، پشتِ `CORTEX_IGNITION`) | ignition_rate, broadcast_width, تک‌برنده/چرخه | 🟡 ساخته‌شد |
 | GNWT | نقشهٔ رِیچِ پخش | `innervation.py` | coverage %, dead-spots | 🟡 |
-| GNWT | **re-entry / بازخورد** | **غایب** (loop فقط feed-forward) | عمقِ re-entry | 🔴 |
+| GNWT | **re-entry / بازخورد** | `cortex/ignition.py` `next_reentry` (prior رو-به-فرسایش) | عمقِ re-entry, stability | 🟡 ساخته‌شد |
 | GNWT | محتوای گزارش‌پذیرِ نو | `synthesis.py` | proposal (قفلِ live) | 🟡 |
 | **Predictive processing** | prior / setpoint | `interface.py` HeartParams | باند [lo,hi] | 🟡 |
 | PP | خطای پیش‌بینی | `control_law.py` heart_step | سری‌زمانیِ err | 🟡 |
@@ -123,8 +123,8 @@ flowchart TD
 
 ## ۴. جهت (چه بسازیم — همه $۰/shadow، بدونِ بازکردنِ خطِ live)
 
-**۱) GNWT — پرایمریتِ غایبِ تعیین‌کننده = ignition + re-entry.**
-در `cortex.run_cycle` به‌جای اجرای ثابت‌ترتیبِ همهٔ اندام‌ها، یک **آستانهٔ ignition** بگذار: هر چرخه فقط **یک** محتوای برنده (بالاترین `stress.salience` × `goal_directed.impact`) انتخاب و با یک `event` نوع‌دار به همهٔ مشترک‌ها پخش شود؛ خروجیِ برنده را چرخهٔ بعد به‌عنوان prior به hub بازتزریق کن (**re-entry**). سنجش: `broadcast_width`, `ignition_rate`. *(پروپوزال — تغییرِ رفتارِ کورتکس، رأیِ مالک.)*
+**۱) GNWT — پرایمریتِ تعیین‌کننده = ignition + re-entry. ✅ گامِ اول ساخته شد.**
+`cortex/ignition.py` (۲۰۲۶-۰۷-۱۱): رقابتِ نامزدها (استرسِ زیرسیستم‌ها + نقاطِ مرده) → **آتش‌گیریِ تک‌برنده** اگر از آستانه بگذرد (`select_winner`) → **بازوروِد** برنده به‌عنوان priorِ رو-به-فرسایش برای چرخهٔ بعد (`next_reentry`) → متریک‌های `ignition_rate`/`broadcast_width`/`stability`. تست `test_ignition` ۹/۹. **propose-only پشتِ `CORTEX_IGNITION`** (خاموش پیش‌فرض؛ رفتارِ کورتکسِ زنده را تغییر نمی‌دهد). **قدمِ بعد (رأیِ مالک):** وصل‌کردنِ گیت‌دارِ آن به `cortex.run_cycle` (جایگزینِ اجرای ثابت‌ترتیب) + candidateهای بیشتر (goal_directed.impact، discoveries).
 
 **۲) Predictive processing — قلب دقیقاً همین است ولی inert.**
 تنها سوییچِ زنده‌کننده = `OCTOPUS_WIRE_HEART=1` (رستارتِ مالک) → `producers.compute_all` شروع می‌کند، err واقعی جاری می‌شود، پنج ماژول از never-called به computing می‌روند. `HEART_W_SHADOW>0` ترمِ E_shadow را روشن می‌کند (**اما ویرایشِ `control_law.py` هش-مچِ cond 4 را می‌شکند → باید `sim_heart` دوباره اجرا شود = رأی/سنکشنِ مالک، نه ایجنت**).
