@@ -33,8 +33,10 @@ class FakeHTTP:
     def __init__(self, updates=None):
         self.updates = list(updates or [])
         self.posts: list[tuple[str, dict]] = []
+        self.get_urls: list[str] = []
 
     def get(self, url: str, timeout: float) -> dict:
+        self.get_urls.append(url)
         batch, self.updates = self.updates, []
         return {"ok": True, "result": batch}
 
@@ -302,6 +304,20 @@ def test_no_secret_in_output():
     (OPS / "governor" / "governor-alerts.md").unlink(missing_ok=True)
 
 
+# ── ۲۳) getUpdates صریحاً callback_query می‌خواهد (فیکسِ باگِ دکمه‌ها) ──────────
+def test_getupdates_requests_callbacks():
+    import urllib.parse
+    fh = FakeHTTP()
+    ch = ac.TelegramApprovalChannel(token="123:abc", owner_chat_id=1,
+                                    state_dir=str(STATE),
+                                    http_get=fh.get, http_post=fh.post)
+    ch.poll_once()
+    assert fh.get_urls, "getUpdates صدا زده نشد"
+    url = urllib.parse.unquote(fh.get_urls[0])
+    assert "getUpdates" in url and "callback_query" in url and "message" in url, \
+        f"allowed_updates بدونِ callback_query: {url}"
+
+
 # ── ۲۲) flaggo مقدارِ مطلقِ زمانِ رندر را می‌نویسد (C4)، اتمیک با مصرف ──────────
 def test_act_flag_absolute_target():
     ch, _ = make_channel()
@@ -410,5 +426,6 @@ if __name__ == "__main__":
         ("حفظِ رفتارِ قبلی", test_existing_commands_preserved),
         ("verdictِ فاز فقط rfc", test_phaseverdict_via_rfc),
         ("flaggo target مطلق (C4)", test_act_flag_absolute_target),
+        ("getUpdates → callback_query", test_getupdates_requests_callbacks),
     ])
     sys.exit(1 if failed else 0)

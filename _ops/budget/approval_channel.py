@@ -231,7 +231,11 @@ class TelegramApprovalChannel(ApprovalChannel):
             return 0
         if self._killed():
             return 0
-        params = {"offset": self._offset, "timeout": self._lp}
+        # Cockpit v2 fix (2026-07-10): بدونِ allowed_updates صریح، تلگرام «آخرین تنظیم» را
+        # نگه می‌دارد؛ چون این همان باتِ control-brain است و ممکن است جایی به فقط ["message"]
+        # قفل شده باشد، دکمه‌ها (callback_query) هرگز نمی‌رسیدند. صریح هر دو نوع را می‌خواهیم.
+        params = {"offset": self._offset, "timeout": self._lp,
+                  "allowed_updates": json.dumps(["message", "callback_query"])}
         try:
             data = self._http_get(self._build_url("getUpdates", params), float(self._lp))
         except Exception:  # noqa: BLE001 — خطای شبکه، بدونِ leakِ URL/token
