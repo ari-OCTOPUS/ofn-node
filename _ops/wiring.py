@@ -1126,6 +1126,15 @@ def heart_beat(beat: int = 0, snap: dict | None = None) -> dict | None:
                 from heart import doctor_setpoint as _ds
                 sp = _ds.run_epoch_setpoint(write=True)
                 out["setpoint_epoch_seq"] = sp.get("epoch_seq")
+        # HH-P9: پمپِ کار — «طبق ضربان، کارِ واقعی». پشتِ flag دوم (پیش‌فرض خاموش،
+        # خارج از profile). cadenceِ کار از periodِ سایهٔ همین ضربان فرمان می‌گیرد؛
+        # ردهٔ paid (سرچ/LLM) داخلِ پمپ پشتِ live-gateِ دوقفله می‌ماند.
+        if flag("OCTOPUS_WIRE_HEART_WORK"):
+            try:
+                from heart import work_pump as _wp
+                out["work"] = _wp.pump_step(beat=beat, period_s=rec.get("period_s"))
+            except Exception as _we:  # noqa: BLE001 — §۴: کار نباید ضربان را بکشد
+                opslib.alert([f"wiring: work_pump خطا: {type(_we).__name__}: {_we}"])
         return out
     except Exception as e:  # noqa: BLE001 — §۴: قلب نباید tick را بکشد
         opslib.alert([f"wiring: heart_beat خطا: {type(e).__name__}: {e}"])

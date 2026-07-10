@@ -188,3 +188,9 @@ Ari شش سندِ طراحیِ Octopus/Chrono (تلگرام) داد: «همه ر
 
 1. **فایلِ آزمایشگاه در worktreeها نیست → سوییت ۸۳/۸۴:** `lab_seed_data.json` (تقویمِ آزمایش‌های T-4 تلگرام) فقط در درختِ زنده است و untracked؛ نامش با الگوی ممنوعِ `*seed*` در `.agentignore` می‌خواند، پس ایجنت نه خواندش نه کپی‌اش کرد. تصمیمِ تو: (الف) خودت commit اش کنی (اگر secret نیست، فقط دادهٔ آزمایش است) تا worktreeها سبزِ کامل شوند، یا (ب) الگوی `.agentignore` را دقیق‌تر کنی (`*wallet-seed*`؟)، یا (ج) وضعِ فعلی بماند و ۱ قرمزِ محیطیِ شناخته در worktreeها پذیرفته شود. پیش‌فرضِ اعمال‌شده: (ج) — هیچ دورزدنی انجام نشد.
 2. **رأی قلبِ ترکیبی (سایه، $0):** شاخهٔ `claude/heartbeat-velocity-governor-777b92` کاملِ HH-P0..P7 را دارد (قفلِ ریاضی + SIM-PASS + ۴۱ چکِ سبز). فعال‌سازیِ سایه = بعد از merge: `OCTOPUS_WIRE_HEART=1` + restart (عمداً خارج از profile). زنده‌شدنِ واقعیِ period ساختاراً تا 2026-07-21 + ‏`ACTIVATION-PULSE.flag` (فقط تو) + Gate-0 (۴۸ نمونهٔ ساعتی) ناممکن است.
+
+## 2026-07-10 ~20:10 — جلسه ۴۶ ادامه (همیشه-روشنِ خودگردان، HH-P9)
+
+3. **دو تسکِ boot (فقط تو، یک‌بار، بعد از merge):** `schtasks /Create /TN "OCTOPUS-Organism" /SC ONLOGON /TR "F:\backup\_ops\RUN-ORGANISM.bat"` و `schtasks /Create /TN "OCTOPUS-Watchdog" /SC MINUTE /MO 5 /TR "powershell -NoProfile -ExecutionPolicy Bypass -File F:\backup\_ops\organism-watchdog.ps1"` — نتیجه: روشن‌شدنِ لپ‌تاپ = تولد خودکار + احیای ≤۵ دقیقه (STOP همیشه برنده).
+4. **رأی پمپِ کار ($0):** `OCTOPUS_WIRE_HEART_WORK=1` کنارِ `OCTOPUS_WIRE_HEART=1` — پنجره‌های کار از ضربانِ سایه فرمان می‌گیرند (health/gap-report؛ log در state/pulse/work-log.jsonl). پیش‌فرض: خاموش تا رأی تو.
+5. **providerِ سرچِ واقعی (برای بعد از 2026-07-21):** کدام API؟ (کلید در .env تو؛ ارگانِ SEARCH_WEB در budgets.yaml با floor کوچک = ویرایشِ SoT توسط تو). تا این رأی + پرچمِ ACTIVATION-WORK-LLM.flag، ردهٔ paid پمپ صادقانه skip می‌شود.
