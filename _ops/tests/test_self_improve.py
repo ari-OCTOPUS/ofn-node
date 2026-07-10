@@ -108,6 +108,45 @@ def t_g_local_brain_optional_failsoft():
     assert "maturity_pct" in d          # حتی اگر ollama نباشد، digest ساخته می‌شود
 
 
+def t_i_observability_gate_blocks_auto():
+    """SPEC §۲۱-۱: مشاهدهٔ degraded (ORGANISM-STATE غایب/کهنه) → L2 سخت‌قفل + P0 در صدر."""
+    ok, why = improve.observability_ok()
+    assert ok is False                              # vault تست ORGANISM-STATE ندارد
+    improve.ACT_AUTO.parent.mkdir(parents=True, exist_ok=True)
+    improve.ACT_AUTO.write_text("owner", "utf-8")
+    try:
+        d = improve.run(write=False, use_local_brain=False)
+        assert d["observability_ok"] is False
+        assert d["auto_eligible"] == []             # حتی با پرچم — گارد حاکم است
+        assert d["top"][0]["priority"] == "P0" and "degraded" in d["top"][0]["title"].lower() \
+            or "مشاهده" in d["top"][0]["title"]
+    finally:
+        improve.ACT_AUTO.unlink()
+    # با ORGANISM-STATEِ تازه → گارد باز
+    (STATE / "ORGANISM-STATE.json").write_text("{}", "utf-8")
+    ok2, _ = improve.observability_ok()
+    assert ok2 is True
+
+
+def t_j_refractory_blocks_consecutive_auto():
+    """SPEC §۱۴: بعد از یک auto، تا ۲۴h دورهٔ نقاهت — auto دوم رد."""
+    import datetime as dt
+    (STATE / "ORGANISM-STATE.json").write_text("{}", "utf-8")   # مشاهده تازه
+    ok, why = improve.refractory_open()
+    assert ok is True                                # هنوز autoیی نبوده
+    with __import__("opslib").LockedJson(improve.AUTO_STATE_PATH) as lj:
+        lj.write({"last_auto_ts": dt.datetime.now().timestamp()})
+    ok2, why2 = improve.refractory_open()
+    assert ok2 is False and "refractory" in why2
+    improve.ACT_AUTO.write_text("owner", "utf-8")
+    try:
+        assert improve.maybe_auto_apply(
+            [{"auto_applicable": True, "id": "x", "title": "CORTEX_THINK_EVERY_N"}]) == []
+    finally:
+        improve.ACT_AUTO.unlink()
+        improve.AUTO_STATE_PATH.unlink()
+
+
 def t_h_structural_readonly_no_money_import():
     """ساختاری: self_audit/improve فقط state خودشان را می‌نویسند؛ هیچ importِ گیتِ پول."""
     for mod in (self_audit, improve):

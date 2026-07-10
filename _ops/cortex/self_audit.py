@@ -325,6 +325,64 @@ def _probe_drift():
                  "P2", "observability", "§16 time-loops")
 
 
+def _probe_spec_2027():
+    p = OPS.parent / "06 - Architecture Maps" / "SPEC-OCTOPUS-2027-v0.md"
+    return _item("SPEC v0 (2027) + autonomy ladder L0-L5 formalized",
+                 "Done" if p.exists() else "Missing",
+                 "SPEC-OCTOPUS-2027-v0.md §۴ (نگاشتِ L0..L5 به گیت‌های واقعی)",
+                 "P1", "none" if p.exists() else "governance", "2027§4 autonomy-ladder")
+
+
+def _probe_observability_gate():
+    ok = _grep(_HERE / "improve.py", "def observability_ok")
+    return _item("self-improvement halts when observability dies (GAAT)",
+                 "Done" if ok else "Missing",
+                 "improve.observability_ok → auto سخت‌قفل + آیتمِ P0 در digest",
+                 "P0", "none" if ok else "governance", "2027§21-1 hard-questions")
+
+
+def _probe_refractory():
+    ok = _grep(_HERE / "improve.py", "def refractory_open")
+    return _item("refractory period between self-changes",
+                 "Done" if ok else "Missing",
+                 "improve.refractory_open (۲۴h بینِ دو auto) — pulse→gate→refractory",
+                 "P1", "none" if ok else "governance", "2027§14 rhythm-governance")
+
+
+def _probe_handoff_contract():
+    # قراردادِ state-file: هر فایلِ نو schema نسخه‌دار دارد؟ (نمونه‌گیری)
+    samples = [STATE / "cortex" / "cortex-state.json",
+               STATE / "pulse" / "heart-signals-latest.json",
+               STATE / "cortex" / "audit-matrix.json"]
+    with_schema = sum(1 for p in samples
+                      if (_read(p) or {}).get("schema"))
+    st = "Done" if with_schema >= 2 else ("Partial" if with_schema else "Missing")
+    return _item("handoff = versioned state-file contract (schema field)", st,
+                 f"{with_schema}/{len(samples)} فایلِ نمونه schema-دار (SPEC §۷)",
+                 "P2", "none" if st == "Done" else "architecture", "2027§7 handoff")
+
+
+def _probe_decision_ledger():
+    aq = opslib.AGENT_QUESTIONS.exists()
+    return _item("decision ledger (verdicts aggregated)", "Partial" if aq else "Missing",
+                 "AGENT_QUESTIONS verdicts + ledger NOTEها + improve-verdicts.jsonl؛ "
+                 "تجمیعِ واحدِ query-پذیر نیست",
+                 "P2", "governance", "2027§22 artifacts")
+
+
+def _probe_cost_governance():
+    ok = _grep(OPS / "budget" / "budgets.yaml", "cap_monthly")
+    return _item("cost governance (multi-model/internet loops)", "Done" if ok else "Partial",
+                 "budgets.yaml cap_monthly + organ_gate metering + system_share سهمیهٔ اشتراک",
+                 "P1", "none" if ok else "governance", "2027§19 cost")
+
+
+def _probe_identity_drift():
+    return _item("identity drift monitoring in self-modifying agents", "Missing",
+                 "none — سنجهٔ driftِ هویتی (پایداریِ رفتار/ارزش بعد از تغییر) هنوز نیست",
+                 "P2", "theory", "2027§11 self-modify")
+
+
 def _probe_change_backlog():
     ok = MATRIX_PATH.exists()
     return _item("prioritized implementation backlog", "Partial" if ok else "Missing",
@@ -343,7 +401,10 @@ PROBES = [
     _probe_human_append_enforced, _probe_owner_verdict_effect, _probe_autonomy_consumed,
     _probe_approval_gates,
     _probe_secrets_isolation, _probe_output_sanitization, _probe_tool_registry, _probe_dry_run,
-    _probe_math_versioned, _probe_agent_graph, _probe_drift, _probe_change_backlog,
+    _probe_math_versioned, _probe_agent_graph, _probe_drift,
+    _probe_spec_2027, _probe_observability_gate, _probe_refractory,
+    _probe_handoff_contract, _probe_decision_ledger, _probe_cost_governance,
+    _probe_identity_drift, _probe_change_backlog,
 ]
 
 

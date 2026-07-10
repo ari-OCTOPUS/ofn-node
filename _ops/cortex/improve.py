@@ -36,8 +36,13 @@ import self_audit  # noqa: E402
 STATE = opslib.STATE_DIR
 DIGEST_PATH = STATE / "cortex" / "upgrades-digest.json"
 VERDICTS_PATH = STATE / "cortex" / "improve-verdicts.jsonl"
+AUTO_STATE_PATH = STATE / "cortex" / "improve-auto-state.json"
 RFC_DIR = opslib.GENOME_DIR / "knowledge" / "internal"
 ACT_AUTO = opslib.OPS / "ACTIVATION-SELF-IMPROVE-AUTO.flag"
+
+# SPEC-OCTOPUS-2027 §۸/§۱۴ — دو گاردِ سختِ خود-تغییری:
+OBS_MAX_AGE_MIN = float(os.environ.get("IMPROVE_OBS_MAX_AGE_MIN", "60"))
+REFRACTORY_H = float(os.environ.get("IMPROVE_REFRACTORY_H", "24"))
 
 # whitelistِ knobهای $0 برگشت‌پذیر که (فقط با پرچم) خودکار قابلِ‌تنظیم‌اند.
 # هرکدام: (env_var، کف، سقف) — هرگز کد/پول/ژنوم/پرچمِ wire.
@@ -192,12 +197,49 @@ def generate_proposals(signals: dict) -> list[dict]:
     return out
 
 
+def observability_ok() -> tuple[bool, str]:
+    """گاردِ GAAT (SPEC §۲۱-۱): «مشاهده مُرد = خود-تغییری می‌ایستد.»
+    معیار: ORGANISM-STATE موجود و تازه (≤OBS_MAX_AGE_MIN). فایلِ غایب (pre-birth/تست)
+    هم degraded حساب می‌شود — L1 آزاد می‌ماند ولی L2 هرگز."""
+    p = STATE / "ORGANISM-STATE.json"
+    try:
+        if not p.exists():
+            return False, "ORGANISM-STATE غایب (pre-birth یا مشاهدهٔ مرده)"
+        import datetime as _dt
+        age_min = (_dt.datetime.now().timestamp() - p.stat().st_mtime) / 60.0
+        if age_min > OBS_MAX_AGE_MIN:
+            return False, f"ORGANISM-STATE کهنه ({age_min:.0f}min > {OBS_MAX_AGE_MIN:.0f})"
+        return True, "fresh"
+    except OSError as e:
+        return False, f"probe-error: {type(e).__name__}"
+
+
+def refractory_open() -> tuple[bool, str]:
+    """SPEC §۱۴: بینِ دو auto-apply حداقل REFRACTORY_H — ضدِ دستکاریِ پشتِ‌سرِهمِ معماری."""
+    st = _read(AUTO_STATE_PATH) or {}
+    last = float(st.get("last_auto_ts", 0.0))
+    if last <= 0:
+        return True, "first"
+    import datetime as _dt
+    hours = (_dt.datetime.now().timestamp() - last) / 3600.0
+    if hours < REFRACTORY_H:
+        return False, f"refractory: {hours:.1f}h < {REFRACTORY_H:.0f}h"
+    return True, "open"
+
+
 def maybe_auto_apply(proposals: list[dict]) -> list[dict]:
-    """فقط knobهای $0 برگشت‌پذیرِ whitelist و فقط با پرچم. هر اعمال log می‌شود.
-    (v1: هیچ knobِ واقعی auto نمی‌شود مگر پرچم؛ صرفاً علامت‌گذاری برای شفافیت.)"""
+    """L2 نردبان (SPEC §۴): فقط knobهای $0 برگشت‌پذیرِ whitelist، فقط با پرچمِ مالک،
+    فقط با مشاهدهٔ زنده، فقط بیرونِ دورهٔ refractory. هر اعمال log می‌شود."""
     applied = []
     if not ACT_AUTO.exists():
         return applied
+    obs_ok, obs_why = observability_ok()
+    if not obs_ok:
+        opslib.alert([f"self-improve auto BLOCKED — observability degraded: {obs_why}"])
+        return applied
+    ref_ok, ref_why = refractory_open()
+    if not ref_ok:
+        return applied          # ساکت — دورهٔ نقاهت، رفتارِ عادی
     # v1 محافظه‌کار: فقط علامت + لاگ؛ اعمالِ واقعیِ knob در نسخهٔ بعد پس از تأییدِ سازوکار.
     for p in proposals:
         if p.get("auto_applicable"):
@@ -206,6 +248,14 @@ def maybe_auto_apply(proposals: list[dict]) -> list[dict]:
                                actor="self-improve")
             p["status"] = "auto-eligible"
             applied.append(p["id"])
+    if applied:
+        try:
+            import datetime as _dt
+            with opslib.LockedJson(AUTO_STATE_PATH) as lj:
+                lj.write({"last_auto_ts": _dt.datetime.now().timestamp(),
+                          "ts": opslib.now_iso(), "applied": applied})
+        except Exception as e:  # noqa: BLE001
+            opslib.alert([f"improve auto-state write failed: {e}"])
     return applied
 
 
@@ -233,8 +283,17 @@ def run(write: bool = True, use_local_brain: bool = True) -> dict:
                 thought = f"[{r.get('tier')}] {r['text']}"
         except Exception:  # noqa: BLE001 — مغزِ محلی اختیاری
             thought = None
+    obs_ok, obs_why = observability_ok()
+    if not obs_ok:
+        # SPEC §۲۱-۱: degraded → یک آیتمِ P0 صدرِ صف + هیچ L2
+        top = [{"id": "up-obs-degraded", "priority": "P0",
+                "title": f"⚠ مشاهده degraded: {obs_why}",
+                "suggested_action": "اول بدن/observability را زنده کن؛ خود-تغییری تا آن موقع L1.",
+                "change_level": "reconfig", "source": "guard",
+                "status_now": "Degraded", "status": "proposed"}] + top[:7]
     digest = {
         "ts": opslib.now_iso(), "schema": "upgrades-digest.v1",
+        "observability_ok": obs_ok,
         "maturity_pct": signals["matrix"].get("maturity_pct"),
         "n_proposals": len(proposals),
         "by_category": by_cat,
