@@ -156,6 +156,19 @@ def part_loops_run(cycle: int) -> dict | None:
         return None
 
 
+def business_brain_run(cycle: int) -> dict | None:
+    """مغزِ دومِ عملیاتِ کسب‌وکار (جلسه ۴۶): Lead-نقاشی + Project-F لوپِ درآمدیِ خودشان.
+    propose-only؛ Project-F content-free. $0، fail-soft."""
+    try:
+        import business_brain
+        d = business_brain.run_all(beat=cycle)
+        return {"n_projects": len(d.get("projects", [])),
+                "n_proposals": d.get("n_proposals", 0)}
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"cortex business_brain error: {type(e).__name__}: {e}"])
+        return None
+
+
 def run_cycle(cycle: int) -> dict:
     sweep = registry.sweep()
     alignment = align_work_plan(sweep)
@@ -164,6 +177,8 @@ def run_cycle(cycle: int) -> dict:
                      if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
     parts_summary = (part_loops_run(cycle)
                      if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
+    business_summary = (business_brain_run(cycle)
+                        if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
     improve_summary = (self_improve(cycle)
                        if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
     period, rhythm_src = heart_rhythm_period()
@@ -181,6 +196,7 @@ def run_cycle(cycle: int) -> dict:
         **({"self_improve": improve_summary} if improve_summary else {}),
         **({"self_model": model_summary} if model_summary else {}),
         **({"part_loops": parts_summary} if parts_summary else {}),
+        **({"business_brain": business_summary} if business_summary else {}),
         "schema": "cortex-state.v1",
     }
     CORTEX_DIR.mkdir(parents=True, exist_ok=True)

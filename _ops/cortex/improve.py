@@ -132,6 +132,7 @@ def gather_signals() -> dict:
     synthesis = _read(STATE / "cortex" / "synthesis-latest.json") or {}  # سنتزِ مغز
     self_model = _read(STATE / "cortex" / "self-model.json") or {}       # نقشهٔ خود
     part_loops = _read(STATE / "cortex" / "part-loops-latest.json") or {}  # لوپِ هر بخش
+    business = _read(STATE / "cortex" / "business-brain-latest.json") or {}  # مغزِ دوم
     rfcs = []
     try:
         if RFC_DIR.exists():
@@ -143,7 +144,8 @@ def gather_signals() -> dict:
         pass
     return {"matrix": matrix, "idea": idea, "cortex": cortex,
             "research": research, "synthesis": synthesis,
-            "self_model": self_model, "part_loops": part_loops, "doctor_rfcs": rfcs}
+            "self_model": self_model, "part_loops": part_loops,
+            "business": business, "doctor_rfcs": rfcs}
 
 
 _PRI_RANK = {"P0": 0, "P1": 1, "P2": 2, "P3": 3}
@@ -226,6 +228,19 @@ def generate_proposals(signals: dict) -> list[dict]:
             "suggested_action": pp.get("action", "بازبینِ مالک")[:180],
             "change_level": lvl,
             "auto_applicable": bool(pp.get("auto_ok")) and _auto_ok(lvl, title),
+            "status": "proposed",
+        })
+    # ۲.۸) از مغزِ دوم (کسب‌وکار جلسه ۴۶): پیشنهادهای درآمد/لید — همیشه به مالک (propose-only)
+    for bp in (signals.get("business") or {}).get("proposals", [])[:5]:
+        title = f"{bp.get('part', 'کسب‌وکار')}: {bp.get('title', '')[:70]}"
+        out.append({
+            "id": _pid("biz:" + title), "source": "business-brain", "category": "business",
+            "priority": "P1", "_rank": 1.0,     # کسب‌وکار = درآمدِ واقعی = اولویتِ بالا
+            "title": title, "rationale": "مغزِ دومِ کسب‌وکار این را یافت",
+            "evidence": "business-brain-latest.json",
+            "suggested_action": bp.get("action", "بازبینِ مالک")[:180],
+            "change_level": bp.get("change_level", "reconfig"),
+            "auto_applicable": False,           # کسب‌وکار هرگز خودکار نیست
             "status": "proposed",
         })
     # ۳) از idea_graph (پل‌های پیشنهادیِ vault، اگر باشد)
