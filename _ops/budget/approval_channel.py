@@ -88,6 +88,7 @@ import html                                  # noqa: E402
 import json                                  # noqa: E402
 import os                                    # noqa: E402
 import threading                             # noqa: E402
+import time                                  # noqa: E402 — جلسه ۴۶: throttle هشدارِ 409
 import urllib.error                          # noqa: E402
 import urllib.parse                          # noqa: E402
 import urllib.request                        # noqa: E402
@@ -241,7 +242,25 @@ class TelegramApprovalChannel(ApprovalChannel):
         except Exception:  # noqa: BLE001 — خطای شبکه، بدونِ leakِ URL/token
             return 0
         if not isinstance(data, dict) or not data.get("ok"):
+            # جلسه ۴۶ — تشخیصِ pollerِ دوم: 409 یعنی مصرف‌کنندهٔ دیگری روی همین بات
+            # getUpdates می‌زند و دکمه‌ها را می‌بلعد (مثلاً control-brainِ قدیمی/دستگاهِ دیگر).
+            if isinstance(data, dict) and data.get("error_code") == 409:
+                if time.time() - getattr(self, "_last_409_alert", 0.0) > 3600:
+                    self._last_409_alert = time.time()
+                    opslib.alert(["telegram getUpdates 409 Conflict — pollerِ دوم روی "
+                                  "همین بات! دکمه‌ها را او می‌بلعد (control-brain قدیمی؟)"])
             return 0
+        # نبضِ poll برای اتاقِ زنده/کابین: thread زنده است و آپدیت می‌گیرد (fail-soft).
+        try:
+            p = opslib.STATE_DIR / "pulse" / "telegram-poll.json"
+            p.parent.mkdir(parents=True, exist_ok=True)
+            tmp = p.with_suffix(".json.tmp")
+            tmp.write_text(json.dumps({"ts": opslib.now_iso(),
+                                       "batch": len(data.get("result") or [])},
+                                      ensure_ascii=False), "utf-8")
+            os.replace(tmp, p)
+        except OSError:
+            pass
         processed = 0
         offset_dirty = False
         for upd in data.get("result") or []:
