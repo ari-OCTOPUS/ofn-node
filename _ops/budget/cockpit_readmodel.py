@@ -149,6 +149,10 @@ class CockpitReadModel:
     def read_hebbian(self) -> dict:
         return _read_json(self.ops / "neural" / "hebbian.json")
 
+    def read_doctor_rfcs(self) -> dict:
+        """جلسه ۴۶: RFCهای persistشدهٔ دکتر (با restart گم نمی‌شوند). فقط‌خواندنی."""
+        return _read_json(self.state / "doctor" / "rfcs.json")
+
     def read_upgrades(self) -> dict:
         """جلسه ۴۶: دایجستِ خودارتقا (پیشنهادهای دسته‌بندی‌شدهٔ owner-facing). فقط‌خواندنی."""
         return _read_json(self.state / "cortex" / "upgrades-digest.json")

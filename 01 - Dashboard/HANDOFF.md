@@ -5,6 +5,31 @@ updated: 2026-07-10
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+## جلسه ۴۶ ادامه (~۰۰:۳۰) — 🔓 GO-LIVE: قفل‌های سایه/تاریخ برداشته شد (رأی مالک «قفلا رو بردار واقعی بشن» — tier 1+2)، ایمنیِ هسته نگه‌داشته شد
+
+مالک در سوالِ ساختاریافته دستهٔ ۱+۲ را انتخاب کرد (شادو→زنده $0 + گیتِ پولی باز الان)، سقفِ AU$30 و ایمنیِ هسته بماند. اجرا:
+- **✅ اهرمِ واحدِ `ACTIVATION-GO-LIVE.flag` در `opslib.live_gate_open`:** سپرِ تاریخِ 2026-07-21 را زودتر باز می‌کند ولی **پرچمِ per-activation همچنان لازم است**. تمامِ مسیرهای date-gated (governor/replication/heart-doctor/work-llm/pulse) یک‌جا با همین اهرم باز می‌شوند.
+- **✅ فایل‌های activation ساخته شد (۸):** GO-LIVE, CORTEX-PAID, RESEARCH-EARLY, WORK-LLM, PULSE, SELF-IMPROVE-AUTO, HEART-DOCTOR, GOVERNOR-LLM. حذفِ هرکدام = بازگشت.
+- **✅ env در `OCTOPUS-flags.cmd`:** WIRE_BIO/PULSE/DOCTOR_PERSIST/SELF_IMPROVE_AUTO + `HEART_SAMPLE_INTERVAL_S=900` (Gate-0 در ~۱۲h دادهٔ واقعی باز می‌شود — نه جعلی).
+- **🛡 ایمنیِ هسته دست‌نخورده (اثبات‌شده با `test_go_live` ۴/۴):** سقفِ AU$30 (budget_gate)، kill-switch، σ≤1، human-append — همه مسیرِ جدا؛ go-live هیچ‌کدام را باز نمی‌کند.
+- **🔑 نکتهٔ ایمنیِ کلیدی:** کلیدهای fugu/glm در `.env` **نیستند** (router: همه false) → گیتِ پولی باز است ولی **صفر خرج تا تو کلیدها را بگذاری**. یعنی go-live الان امن است؛ خرجِ واقعی فقط بعد از کلید.
+- **رفعِ بدهیِ فنی + باگِ pre-existing:** persist RFC (پشتِ `OCTOPUS_WIRE_DOCTOR_PERSIST`، فقط غیرِterminal، backward-compat) — دو تستِ دکتر که شکسته بود بسته شد.
+
+- **🔎 تحقیقِ خصمانهٔ ۵-ایجنتی دو یافتهٔ مهم داد (دقیقاً چرا اجراش کردم):** kill-switch/σ≤1/human-append همه **INTACT** تأیید شدند. ولی: **(الف)** سقفِ بودجه واقعاً **AU$۲۰۰ بود نه ۳۰** (verdictِ 07-09 آن را از ۳۰ balanced کرده بود) — من به‌اشتباه گفتم «۳۰ دست‌نخورده» (تستم فقط fixtureِ ۳۰ی harness را دید). **رفع شد: `budgets.yaml` + `budget_gate.py` هر دو → ۳۰** (رأی صریحِ مالک «۳۰ بماند»). اگر ۲۰۰ عمدی بود، مالک بگوید. **(ب)** گیتویِ LiteLLM روی 4000 **زنده است (401)** → callِ پولی حتی بدونِ کلید در `.env`ِ cortex از گیتوی خرج می‌کند — ولی چون هر call از `organ_gate→budget_gate` رد می‌شود، **خرج به سقفِ AU$30 مقید است** (نه صفر). پس «go-live واقعاً خرج می‌کند، ولی حداکثر AU$30/ماه».
+- **✅ سوییت ۹۰/۹۰** با همهٔ تغییرات + رفعِ ۴ تستِ متأثر (dashboard bare-flags، budget_gate cap ۲۰۰→۳۰).
+
+**میز آری — واقعیتِ صادقانهٔ الان:** (۱) گیتِ پولی **باز است و گیتوی زنده** → از restart بعدی، هر پیشنهادِ تحقیق/مغزِ پولی **واقعاً خرج می‌کند** (سقفِ AU$30/ماه). اگر نمی‌خواهی الان خرج شود، `_ops\ACTIVATION-CORTEX-PAID.flag` را پاک کن. (۲) `HEART_SAMPLE_INTERVAL_S=900` → قلب ~۱۲h بعد به Gate-0 می‌رسد و tick را واقعاً کنترل می‌کند. (۳) restart بدن + مغز = همه‌چیز زنده. (۴) اگر سقفِ ۲۰۰ عمدی بود، بگو برگردانم.
+
+## جلسه ۴۶ ادامه (~۲۳:۳۰) — 🔴✅ دو گافِ P0 امنیتی که حلقه دربارهٔ خودش پیدا کرد، بسته شد (دستور مالک «خودت اعمال کن»)
+
+`3fb7cda` (tag واگرد: `pre-p0-fixes-20260710`). سوییت **۸۹/۸۹**، بلوغِ ماتریس ۷۰.۹→**۷۵.۶٪**.
+
+- **✅ P0-1 human-append enforced (ضدِ جعلِ E16):** گارد در بوتِ `organism.py` با رازِ per-boot **configure** می‌شود و در `chrono.on_human_judgment` **enforce** (پشتِ `OCTOPUS_WIRE_HUMAN_APPEND_GUARD`). فقط کانالِ تلگرام می‌تواند توکنِ معتبر **mint** کند؛ appendِ بی‌توکن/جعلی → `is_human` به 0 **downgrade** می‌شود (age_tickِ میرا با جعل جلو نمی‌رود). **مسیرِ settle/پول دست‌نخورده** (گیتِ جدا). fail-safe: پرچمِ خاموش/گاردِ پیکربندی‌نشده → رفتارِ قبلی. اثباتِ زنده: جعلِ بی‌توکن=is_human False، تأییدِ واقعیِ کانال=True.
+- **✅ P0-2 apply_merge وایر شد:** در `run_cycle` بعد از verdictِ merged، `apply_merge` صدا زده می‌شود (lesson+NOTE، پشتِ `OCTOPUS_WIRE_APPLY_MERGE`) → **تأییدِ مالک حالا اثرِ واقعی دارد**، نه فقط برچسب. **+ رفعِ باگِ pre-existing:** `RFC.to_markdown()` یک float را بدونِ str() join می‌کرد → apply_merge در production هم کرش می‌کرد (تست گرفتش).
+- **تست:** `test_p0_security_fixes.py` **۹/۹** (توکنِ معتبر→human، بی‌توکن/جعلی/replay→downgrade، flag-off=legacy، mint sanitize، apply_merge effect/flag-off). هر دو پرچم در `OCTOPUS-flags.cmd` (از restart بعدی فعال). probeهای ممیزی به‌روز (P0ها حالا Done).
+
+**میز آری:** دو P0 بسته شد. باقیِ P0ها (evalِ واقعیِ measured_lift — «shadow-eval قبل از promote») و بقیهٔ گاف‌ها در `/upgrades` صف‌اند. بعد از restart بدن، همه‌چیز زنده: قلب+پمپ+مغز+حلقهٔ خودارتقا+گاردهای امنیتی+نوتیف.
+
 ## جلسه ۴۶ ادامه (~۲۲:۳۰) — 🧬 حلقهٔ خودارتقاییِ owner-facing ساخته شد (self-audit + مدیرِ ارتقا) + Audit Matrix از ممیزیِ ۱۲-ایجنتی
 
 vision مالک: «سیستم در لوپ خودش را تحلیل کند (هندسه/ریاضی/تجربه/یادگیری/اینترنت)، برای ارتقا با من مشورت بگیرد، تا جای امن اتوماتیک، بقیه پیشنهاد؛ مسئولِ خودش.» + چک‌لیستِ حاکمیتِ ۲۰-بخشیِ production-grade. recon: دکترِ تکاملی از قبل هست (mine/rfc/sandbox/chamber/کارت تلگرام/calibration) ولی **لایهٔ تجمیعِ owner-facing غایب** بود + دو گافِ ساختاری (db، apply_merge).

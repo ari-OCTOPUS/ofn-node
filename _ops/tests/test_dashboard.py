@@ -210,15 +210,21 @@ def test_effective_flags_profile_default():
 
 
 def test_effective_flags_bare():
-    """bare باید همه را خاموش کند."""
+    """bare + بدونِ env-override باید همه را خاموش کند (منطقِ profile).
+    جلسه ۴۶: OCTOPUS-flags.cmdِ واقعی حالا برای go-live چند flag را force می‌کند (override
+    بر profile مقدم است — precedence درست). این تست منطقِ profile را می‌سنجد، پس override-file
+    را ایزوله می‌کند."""
     orig_prof = os.environ.pop("OCTOPUS_PROFILE", None)
+    orig_ov = dash._read_env_overrides
     try:
+        dash._read_env_overrides = lambda: {}   # ایزوله از OCTOPUS-flags.cmdِ واقعی
         os.environ["OCTOPUS_PROFILE"] = "bare"
         for n, _, _ in dash.WIRE_FLAGS:
             os.environ.pop(n, None)
         eff = dash._effective_flags()
         assert all(not v for v in eff.values()), "bare باید همه را خاموش کند"
     finally:
+        dash._read_env_overrides = orig_ov
         if orig_prof is not None:
             os.environ["OCTOPUS_PROFILE"] = orig_prof
         else:

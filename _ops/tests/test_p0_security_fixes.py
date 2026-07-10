@@ -179,6 +179,40 @@ def t_i_apply_merge_flag_off_no_effect():
     assert not (d._knowledge_dir / "rfc-off-lesson.md").exists()
 
 
+def t_j_rfc_registry_persists_across_restart():
+    """جلسه ۴۶: RFCها روی دیسک persist و در بوتِ Doctorِ نو بارگذاری می‌شوند."""
+    sys.path.insert(0, str(_HERE.parent / "doctor"))
+    import importlib
+    import doctor as _docmod
+    importlib.reload(_docmod)
+    sd = str(Path(ENV["ops"]) / "state")
+    os.environ["OCTOPUS_WIRE_DOCTOR_PERSIST"] = "1"
+    try:
+        d1 = _docmod.Doctor(state_dir=sd)
+        d1._rfcs["rfc-persist"] = _docmod.RFC(rfc_id="rfc-persist", bottleneck="b",
+                                              fix="f", expected_lift=0.2, status="submitted")
+        d1._persist_rfcs()
+        assert d1._rfc_store.exists()
+        # «restart»: Doctorِ نو باید RFC را از دیسک بخواند
+        d2 = _docmod.Doctor(state_dir=sd)
+        assert "rfc-persist" in d2._rfcs, "RFC باید بعد از restart بارگذاری شود"
+        assert d2._rfcs["rfc-persist"].status == "submitted"
+        on_disk = json.loads(d1._rfc_store.read_text("utf-8"))
+        assert on_disk["schema"] == "doctor-rfcs.v1"
+        # terminal RFC نباید بعد از restart بارگذاری شود (ضدِ باد‌کردنِ pending)
+        d2._rfcs["rfc-done"] = _docmod.RFC(rfc_id="rfc-done", bottleneck="b", fix="f",
+                                           expected_lift=0.1, status="merged")
+        d2._persist_rfcs()
+        d3 = _docmod.Doctor(state_dir=sd)
+        assert "rfc-done" not in d3._rfcs and "rfc-persist" in d3._rfcs
+        # flag خاموش → هیچ load (backward-compat)
+        os.environ.pop("OCTOPUS_WIRE_DOCTOR_PERSIST", None)
+        d4 = _docmod.Doctor(state_dir=sd)
+        assert d4._rfcs == {}
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_DOCTOR_PERSIST", None)
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

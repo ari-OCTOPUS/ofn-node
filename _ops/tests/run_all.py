@@ -42,7 +42,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_heart_control.py", "test_heart_loop.py", "test_heart_work.py",
          "test_needs_nudge.py", "test_cortex.py", "test_live_cockpit.py",
          "test_telegram_poll_e2e.py", "test_self_improve.py",
-         "test_p0_security_fixes.py"]
+         "test_p0_security_fixes.py", "test_go_live.py"]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
                HERE.parents[1] / "07 - Knowledge" / "school-memory" / "test_curriculum.py"]

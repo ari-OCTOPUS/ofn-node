@@ -5,7 +5,7 @@
 # config-only: خواندنِ این فایل هیچ اتوماسیونی روشن نمی‌کند.
 
 global:
-  cap_monthly: 200           # AUD — balanced، verdict آری 2026-07-09 (multi-agent + GLM/Fugu). قبلاً ۳۰.
+  cap_monthly: 30            # AUD — verdict آری 2026-07-10 «۳۰ بماند» هنگام go-live (بازگشت از ۲۰۰ که 07-09 balanced شده بود). سقفِ سختِ خرجِ ماهانه با گیتِ پولیِ باز.
   # ⚠️ enforceِ واقعیِ این عدد نیازِ راست‌کردنِ hardcode-floor در budget_gate.py دارد (تسکِ GLM)؛
   #    تا آن، سقفِ مؤثر همان min(yaml, hardcode) می‌ماند. disaster line=۵۰۰ (ترمزِ recursive-loop) و
   #    spike_pct=۲۵ (kill-switch) و alert ۵۰/۸۰٪ همه دست‌نخورده. GLM=سابسکرایبِ فلت؛ Fugu=متریِ AU$100.

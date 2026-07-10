@@ -42,17 +42,17 @@ def t_caps_read_from_sot():
 
 def t_caps_strictest_min():
     # yaml شل‌تر از کف → کف می‌ماند (هرگز looser از hardcode).
-    # hardcode-floor=200 (verdict 2026-07-09). yaml=100 < 200 → yaml برنده (سخت‌تر).
+    # hardcode-floor=30 (go-live 2026-07-10). yaml=100 > 30 → hardcode برنده (سخت‌تر).
     _write_yaml("global:\n  cap_monthly: 100\n  cap_daily: 9\n  cap_disaster: 9000\nprojects: {}\n")
     c = budget_gate._caps()
-    assert c["month_aud"] == 100.0 and c["day_aud"] == 2.0 and c["disaster_aud"] == 500.0, c
+    assert c["month_aud"] == 30.0 and c["day_aud"] == 2.0 and c["disaster_aud"] == 500.0, c
 
 
-def t_caps_hardcode_floor_is_200():
-    # کفِ hardcode-floor = 200 (verdict 2026-07-09). yaml شل‌تر (مثلاً 300) → کف می‌ماند.
+def t_caps_hardcode_floor_is_30():
+    # کفِ hardcode-floor = 30 (go-live 2026-07-10، رأی مالک «۳۰ بماند»). yaml شل‌تر → کف می‌ماند.
     _write_yaml("global:\n  cap_monthly: 300\n  cap_daily: 9\n  cap_disaster: 9000\nprojects: {}\n")
     c = budget_gate._caps()
-    assert c["month_aud"] == 200.0, f"hardcode-floor باید ۲۰۰ باشد (نه ۳۰): {c}"
+    assert c["month_aud"] == 30.0, f"hardcode-floor باید ۳۰ باشد: {c}"
 
 
 def t_caps_tighten_honored():
@@ -65,8 +65,8 @@ def t_caps_tighten_honored():
 def t_caps_failclosed_on_garbage():
     _write_yaml("{{{ this is not yaml ::::")
     c = budget_gate._caps()
-    # yaml ناخوانا → hardcode-floor (month=200, day=2, disaster=500)
-    assert c["month_aud"] == 200.0 and c["day_aud"] == 2.0 and c["disaster_aud"] == 500.0, c
+    # yaml ناخوانا → hardcode-floor (month=30, day=2, disaster=500)
+    assert c["month_aud"] == 30.0 and c["day_aud"] == 2.0 and c["disaster_aud"] == 500.0, c
     assert c["src"] == "hardcode-floor", c
 
 
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     failed = harness.run([
         ("سقف‌ها از budgets.yaml خوانده می‌شوند (SoT)", t_caps_read_from_sot),
         ("strictest=min: yaml شل‌تر → کفِ هاردکد می‌ماند", t_caps_strictest_min),
-        ("hardcode-floor = ۲۰۰", t_caps_hardcode_floor_is_200),
+        ("hardcode-floor = ۳۰", t_caps_hardcode_floor_is_30),
         ("yaml سخت‌تر → همان اعمال می‌شود", t_caps_tighten_honored),
         ("yaml ناخوانا → کفِ fail-closed (نه crash/نامحدود)", t_caps_failclosed_on_garbage),
         ("سقف روزانه واقعاً از SoT enforce می‌شود", t_daily_enforced_from_sot),

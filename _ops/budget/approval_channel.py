@@ -1770,13 +1770,23 @@ class TelegramApprovalChannel(ApprovalChannel):
             ch = rm.read_chrono_ro() if rm else {}
             eff = (ch.get("effects_by_status") or {})
             caps = (rm.read_capabilities() if rm else {"flags": {}})["flags"]
+            # جلسه ۴۶: RFCهای persistشده (با restart گم نمی‌شوند) + وضعیتِ apply_merge
+            rfc_persist = (rm.read_doctor_rfcs() if rm else {}) or {}
+            all_rfcs = rfc_persist.get("rfcs") or []
+            merged = sum(1 for r in all_rfcs if r.get("status") == "merged")
+            am_on = os.environ.get("OCTOPUS_WIRE_APPLY_MERGE", "1") == "1"
+            hg_on = os.environ.get("OCTOPUS_WIRE_HUMAN_APPEND_GUARD") == "1"
             return (self._hdr("🩺 <b>دکتر و تکامل</b>")
-                    + f"🔧 RFCهای این نشست: {n_rfc} · اثرها: {eff or '—'}\n"
+                    + f"🔧 RFCها: {len(all_rfcs)} ذخیره‌شده ({merged} merged) · "
+                      f"این نشست: {n_rfc} · اثرها: {eff or '—'}\n"
+                    + f"✅ apply-merge: {'🟢 اثرِ واقعی' if am_on else '🟡 OFF'} · "
+                      f"🔒 human-append گارد: {'🟢 enforce' if hg_on else '🟡 OFF'}\n"
                     + f"⏰ دیسپچر: {'🟢' if caps.get('OCTOPUS_WIRE_SCHEDULER') else '🟡 OFF'} · "
                       f"🩹 خوددرمانی: {'🟢' if caps.get('OCTOPUS_WIRE_SELFHEAL') else '🟡 OFF'} · "
                       f"🔭 معرفت‌شناسی: {'🟢' if caps.get('OCTOPUS_WIRE_EPISTEMICS') else '🟡 OFF'}\n"
                     + "🥊 مناظره: 🔴 needs-live-gate (قفل تا 2026-07-21)\n"
-                    + "<i>merge فقط از کارتِ RFC با ضمیمهٔ انسانی — دکمهٔ مستقیم وجود ندارد.</i>")
+                    + "<i>merge فقط از کارتِ RFC با ضمیمهٔ انسانی. measured_lift هنوز proxy "
+                      "(evalِ واقعی نیازِ RFCِ اجرایی/L4 = رأی مالک).</i>")
         if page == "money":
             tel = rm.read_telemetry() if rm else {}
             fit = rm.read_fitness() if rm else {}

@@ -206,12 +206,59 @@ class Doctor:
         self._sandbox_runner = sandbox_runner            # قابل‌تزریق (تست)
         self._db = db                                    # chrono ChronoDB (effects_pending)
         self._rfcs: dict[str, RFC] = {}                  # registry در حافظه
+        # جلسه ۴۶ (رفعِ گافِ «RFC persist نمی‌شود»): registry روی دیسک نگه داشته می‌شود
+        # تا با restart گم نشود. state/doctor/rfcs.json. fail-soft، load در بوت.
+        self._rfc_store = self._state_dir / "doctor" / "rfcs.json"
+        self._load_rfcs()
         # N (P-N1): RFCArchive برای evolution (MAP-Elites). lazy: اگر None،
         # با flag روشن در اولین run_cycle ساخته می‌شود. قابل‌تزریق برای تست.
         self._archive = archive
         # N (P-N2): Box-of-Agents (میکرو‌جهانِ بسته). lazy: اگر None، با flag
         # روشن در اولین run_cycle ساخته می‌شود. قابل‌تزریق برای تست.
         self._box = box
+
+    # RFCهای terminal (نتیجه ثبت‌شده) نباید بارگذاری شوند — نه به pending اضافه می‌کنند
+    # (که attention-gate را باد می‌کند) و نه actionable‌اند. فقط RFCهای در جریان persist می‌شوند.
+    _TERMINAL_RFC = ("merged", "rejected", "expired", "human-merged", "human-rejected")
+
+    def _persist_enabled(self) -> bool:
+        """persistence پشتِ flag (backward-compat: تست‌های قدیمی بدونِ flag دست‌نخورده؛
+        production در profile روشن). حلقهٔ یادگیریِ owner-facing به این نیاز دارد."""
+        return os.environ.get("OCTOPUS_WIRE_DOCTOR_PERSIST") == "1"
+
+    def _load_rfcs(self) -> None:
+        """RFCهای در جریانِ (غیرِterminal) persistشده را در بوت بارگذاری کن — تا PENDINGهای
+        منتظرِ verdict با restart گم نشوند. fail-soft (خراب/غایب → خالی)."""
+        if not self._persist_enabled():
+            return
+        try:
+            if self._rfc_store.exists():
+                data = json.loads(self._rfc_store.read_text("utf-8"))
+                for d in (data.get("rfcs") or []):
+                    try:
+                        if d.get("status") in self._TERMINAL_RFC:
+                            continue   # نتیجه ثبت شده — بارگذاری نکن
+                        fields = {k: d[k] for k in RFC.__dataclass_fields__ if k in d}
+                        self._rfcs[fields["rfc_id"]] = RFC(**fields)
+                    except Exception:  # noqa: BLE001 — یک RFCِ خراب کلِ load را نکشد
+                        continue
+        except (OSError, ValueError):
+            pass
+
+    def _persist_rfcs(self) -> None:
+        """registry را اتمیک روی دیسک بنویس (بعد از هر تغییرِ چرخهٔ‌عمر). fail-soft.
+        پشتِ OCTOPUS_WIRE_DOCTOR_PERSIST (backward-compat)."""
+        if not self._persist_enabled():
+            return
+        try:
+            self._rfc_store.parent.mkdir(parents=True, exist_ok=True)
+            payload = {"ts": opslib.now_iso(), "schema": "doctor-rfcs.v1",
+                       "rfcs": [r.to_dict() for r in self._rfcs.values()]}
+            tmp = self._rfc_store.with_suffix(".json.tmp")
+            tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), "utf-8")
+            os.replace(tmp, self._rfc_store)
+        except OSError:
+            pass
 
     def _lg(self):
         return self._ledger or opslib.genome_ledger()
@@ -342,6 +389,7 @@ class Doctor:
         rfc.ledger_ref = self._note("DOCTOR_RFC_DRAFT", rfc.to_dict())
         rfc.status = "drafted"
         self._rfcs[rfc.rfc_id] = rfc
+        self._persist_rfcs()   # جلسه ۴۶: RFC روی دیسک (با restart گم نشود)
         # نوشتن به knowledge/internal (propose-only = یک فایلِ RFC، نه تغییرِ production)
         try:
             self._knowledge_dir.mkdir(parents=True, exist_ok=True)
@@ -552,6 +600,7 @@ class Doctor:
                                 opslib.alert([f"doctor apply_merge failed: {type(_ame).__name__}"])
                         if not _applied:   # apply نشد/flag خاموش → همان برچسبِ قبلی
                             self._rfcs[rfc_id].status = "human-" + mapped
+                self._persist_rfcs()   # جلسه ۴۶: تغییراتِ چرخهٔ‌عمر روی دیسک
         except Exception as e:  # noqa: BLE001 — مصرفِ verdict هرگز cycle را نمی‌کشد
             try:
                 opslib.alert([f"doctor: rfc-verdict consumption failed: {str(e)[:120]}"])

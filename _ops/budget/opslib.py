@@ -275,11 +275,21 @@ def ledger_note(subtype: str, payload: dict, actor: str) -> dict | None:
         return None
 
 
+GO_LIVE_FLAG = OPS / "ACTIVATION-GO-LIVE.flag"
+
+
 def live_gate_open(activation_flag: pathlib.Path) -> tuple[bool, str]:
     """گیت دوقفله برای هر مسیر زنده: (۱) تاریخ ≥ 2026-07-21 (سپر فاز −۱)، (۲) فایل پرچم
-    که فقط مالک می‌سازد. کد حتی با پرچم، پیش از تاریخ باز نمی‌شود."""
-    if _dt.date.today() < LIVE_GATE_DATE:
+    که فقط مالک می‌سازد.
+
+    اهرمِ go-live (تصمیمِ صریحِ مالک 2026-07-10): اگر `ACTIVATION-GO-LIVE.flag` باشد
+    (فقط مالک می‌سازد)، سپرِ تاریخ زودتر باز می‌شود — ولی پرچمِ per-activation همچنان
+    لازم است. **این هیچ‌یک از ایمنی‌های هسته را دور نمی‌زند:** سقفِ بودجهٔ ماهانه
+    (budget_gate)، kill-switch، σ≤1، و human-append همه مسیرهای جدا و دست‌نخورده‌اند."""
+    early = GO_LIVE_FLAG.exists()
+    if _dt.date.today() < LIVE_GATE_DATE and not early:
         return False, f"live locked until {LIVE_GATE_DATE.isoformat()} (phase -1 shield)"
     if not activation_flag.exists():
         return False, f"activation flag missing: {activation_flag.name} (owner-only)"
-    return True, "open"
+    return True, ("open (owner go-live — سپرِ تاریخ زودتر باز شد)"
+                  if (early and _dt.date.today() < LIVE_GATE_DATE) else "open")

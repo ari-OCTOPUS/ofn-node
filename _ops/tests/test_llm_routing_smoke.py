@@ -62,11 +62,12 @@ def t_routing_has_fugu():
     assert "fugu" in str(orch.get("model", "")), "orchestr model باید fugu باشد"
 
 
-def t_cap_is_raised():
-    """cap_monthly باید بالا رفته باشد (≥ 50، قبلاً 30 بود)."""
+def t_cap_is_owner_30():
+    """cap_monthly = ۳۰ (رأی مالک go-live 2026-07-10 «۳۰ بماند»؛ قبلاً 07-09 balanced=200 شده بود).
+    سقفِ سختِ خرجِ ماهانه با گیتِ پولیِ باز."""
     b = _real_budgets()
     cap = b.get("global", {}).get("cap_monthly", 0)
-    assert cap >= 50, f"cap باید بالا رفته باشد (≥50)، نه {cap}"
+    assert cap == 30, f"cap باید ۳۰ باشد (رأی مالک)، نه {cap}"
 
 
 def t_disaster_kill_alert_unchanged():
@@ -239,7 +240,7 @@ if __name__ == "__main__":
         # (الف) routing
         ("routing glm موجود", t_routing_has_glm),
         ("routing fugu موجود", t_routing_has_fugu),
-        ("cap بالا رفته", t_cap_is_raised),
+        ("cap = ۳۰ (رأی مالک)", t_cap_is_owner_30),
         ("disaster/kill/alert دست‌نخورده", t_disaster_kill_alert_unchanged),
         # (ب) key only env
         ("GLM key فقط env", t_glm_key_only_env),
