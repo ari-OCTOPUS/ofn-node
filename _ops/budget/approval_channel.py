@@ -647,6 +647,9 @@ class TelegramApprovalChannel(ApprovalChannel):
         "inline_keyboard": [
             [
                 {"text": "📊 نمای کلی", "callback_data": "menu:overview"},
+                {"text": "🧠 مغز مرکزی", "callback_data": "menu:cortex"},
+            ],
+            [
                 {"text": "🧭 بلوپرینت", "callback_data": "menu:blueprint"},
             ],
             [
@@ -1095,7 +1098,7 @@ class TelegramApprovalChannel(ApprovalChannel):
     # هیچ subsystem cycleِ inline (INV-7)، redaction روی هر خروجی (INV-12).
     # ═══════════════════════════════════════════════════════════════════════════
 
-    TAB_PAGES = ("overview", "blueprint", "brain", "doctor", "money",
+    TAB_PAGES = ("overview", "cortex", "blueprint", "brain", "doctor", "money",
                  "school", "safety", "alerts")
 
     # allowlistِ بستهٔ act (§۲.۴ — ضدquarantine). chamber_t عمداً غایب است:
@@ -1633,6 +1636,30 @@ class TelegramApprovalChannel(ApprovalChannel):
                        if chr_ else "")
                     + f"🛡 protective: {'فعال' if (st.get('protective_mode') or st.get('protective_skip')) else 'نه'}\n"
                     + "<i>🟢 read-now — این تب هیچ‌چیزی را تغییر نمی‌دهد.</i>")
+        if page == "cortex":
+            cx = rm.read_cortex() if rm else {}
+            st = cx.get("state") or {}
+            if not st:
+                return (self._hdr("🧠 <b>مغزِ مرکزی</b>")
+                        + "🟡 کورتکس هنوز روشن نشده — <code>RUN-CORTEX.bat</code>\n"
+                        + "<i>پروسهٔ جدا روی 8772؛ ریتمش را از قلبِ سایه می‌گیرد.</i>")
+            br = st.get("brains") or {}
+            keys = br.get("keys") or {}
+            th = html.escape(str(st.get("thought", "—"))[:220])
+            align = st.get("alignment") or {}
+            return (self._hdr("🧠 <b>مغزِ مرکزی</b>")
+                    + f"🧩 coherence مجموعه: <b>{st.get('coherence', '—')}</b> · "
+                      f"اعضای کهنه: {len(st.get('stale_members') or [])}\n"
+                    + f"⏱ ریتم: هر {(st.get('rhythm') or {}).get('period_s', '—')}s "
+                      f"({html.escape(str((st.get('rhythm') or {}).get('source', '')))})\n"
+                    + f"🗂 مرتب‌سازی: {'🟢 ' + ' · '.join(align.get('diff', [])) if align.get('changed') else 'ℹ️ ' + html.escape(str(align.get('reason', '—')))}\n"
+                    + f"🤖 مغزها: local {'🟢' if br.get('local_model') else '—'} "
+                      f"(<code>{html.escape(str(br.get('local_model', '')))}</code>) · "
+                      f"fugu {'🔑' if keys.get('fugu') else '⚪ بی‌کلید'} · "
+                      f"glm {'🔑' if keys.get('glm') else '⚪ بی‌کلید'} · "
+                      f"paid: 🔴 {html.escape(str(br.get('paid_gate', '')))}\n"
+                    + f"💭 آخرین فکر: <i>{th}</i>\n"
+                    + "<i>مغز جداست؛ فقط کارِ $0 را مرتب می‌کند — پول/merge هرگز (رأی مالک).</i>")
         if page == "blueprint":
             phase = rm.read_phase() if rm else {}
             bcm, sp = (rm.read_bcm() if rm else {}), (rm.read_sparse() if rm else {})

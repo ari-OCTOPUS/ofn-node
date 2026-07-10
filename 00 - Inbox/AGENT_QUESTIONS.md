@@ -194,3 +194,9 @@ Ari شش سندِ طراحیِ Octopus/Chrono (تلگرام) داد: «همه ر
 3. **دو تسکِ boot (فقط تو، یک‌بار، بعد از merge):** `schtasks /Create /TN "OCTOPUS-Organism" /SC ONLOGON /TR "F:\backup\_ops\RUN-ORGANISM.bat"` و `schtasks /Create /TN "OCTOPUS-Watchdog" /SC MINUTE /MO 5 /TR "powershell -NoProfile -ExecutionPolicy Bypass -File F:\backup\_ops\organism-watchdog.ps1"` — نتیجه: روشن‌شدنِ لپ‌تاپ = تولد خودکار + احیای ≤۵ دقیقه (STOP همیشه برنده).
 4. **رأی پمپِ کار ($0):** `OCTOPUS_WIRE_HEART_WORK=1` کنارِ `OCTOPUS_WIRE_HEART=1` — پنجره‌های کار از ضربانِ سایه فرمان می‌گیرند (health/gap-report؛ log در state/pulse/work-log.jsonl). پیش‌فرض: خاموش تا رأی تو.
 5. **providerِ سرچِ واقعی (برای بعد از 2026-07-21):** کدام API؟ (کلید در .env تو؛ ارگانِ SEARCH_WEB در budgets.yaml با floor کوچک = ویرایشِ SoT توسط تو). تا این رأی + پرچمِ ACTIVATION-WORK-LLM.flag، ردهٔ paid پمپ صادقانه skip می‌شود.
+
+## 2026-07-10 ~21:15 — جلسه ۴۶ ادامه (مغز مرکزی سه‌مغزی، HH-P10)
+
+6. **کلیدهای دو مغزِ پولی در `F:\backup\.env` (فقط تو — ایجنت هرگز این فایل را نمی‌خواند):** سه خط اضافه کن: `FUGU_API_KEY=...` و `GLM_API_KEY=...` و `GLM_BASE_URL=...` (از dashboard پلن MAX). تا نباشند، کورتکس صادقانه «بی‌کلید» نشان می‌دهد و فقط مغز محلی کار می‌کند.
+7. **schtask سوم برای مغز:** `schtasks /Create /TN "OCTOPUS-Cortex" /SC ONLOGON /TR "F:\backup\_ops\RUN-CORTEX.bat"` — و برای همین الان یک دابل‌کلیک روی `_ops\RUN-CORTEX.bat` (مغز روی 8772 بالا می‌آید، جدا از بدن).
+8. **2026-07-21+:** ساختن `ACTIVATION-CORTEX-PAID.flag` در `_ops\` → مغز اصلی fugu و فرعی glm در router زنده می‌شوند (متر سهمیه‌ای — نصف اشتراک سهم سیستم، طبق رأی‌ات).

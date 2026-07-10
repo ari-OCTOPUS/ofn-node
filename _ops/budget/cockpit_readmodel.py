@@ -149,6 +149,20 @@ class CockpitReadModel:
     def read_hebbian(self) -> dict:
         return _read_json(self.ops / "neural" / "hebbian.json")
 
+    def read_cortex(self) -> dict:
+        """جلسه ۴۶: مغزِ مرکزی (پروسهٔ جدا 8772) — state + آخرین فکرها. فقط‌خواندنی."""
+        out = {"state": _read_json(self.state / "cortex" / "cortex-state.json"),
+               "journal_tail": []}
+        try:
+            jp = self.state / "cortex" / "journal.jsonl"
+            if jp.exists():
+                out["journal_tail"] = [json.loads(x) for x in
+                                       jp.read_text("utf-8").splitlines()[-5:]
+                                       if x.strip()]
+        except (OSError, ValueError):
+            pass
+        return out
+
     def read_heart(self) -> dict:
         """HH-P7: قلبِ ترکیبی — سایه/سیگنال‌ها/setpoint/قفل‌ها. توجه: زیرشاخه‌های
         state/pulse و state/sim (نه ریشهٔ state — یافتهٔ ریویو). فقط‌خواندنی؛
