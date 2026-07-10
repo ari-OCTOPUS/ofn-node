@@ -144,12 +144,36 @@ def t_g_production_wire_closed_today_and_unforgeable():
 
 
 def t_h_organism_seam_is_conditional_and_guarded():
-    """ساختاری: seam ارگانیسم فقط پشتِ نتیجهٔ heart_beat + کلیدِ شرطی + init پیش از try."""
+    """ساختاری: seam ارگانیسم فقط پشتِ نتیجهٔ heart_beat + کلیدِ شرطی + init پیش از try
+    + کفِ زندهٔ ۶۰s (HH-P8 رأی ۳)."""
     src = (Path(__file__).resolve().parent.parent / "organism.py").read_text("utf-8")
     assert '_heart_status = None       # HH-P5' in src          # init پیش از try
     assert '**({"heart": _heart_status} if _heart_status else {})' in src
     assert '_heart_status.get("wire_open")' in src              # زنده فقط با predicate
     assert 'production_wire_open()' not in src                  # هیچ I/O predicate در tick
+    assert 'HEART_LIVE_FLOOR_S", "60"' in src                   # کفِ زندهٔ مصوب (HH-P8)
+    assert 'max(30.0, min(900.0' not in src                     # کفِ ۳۰ از seam حذف شد
+
+
+def t_h2_setpoint_seeds_from_first_observation():
+    """HH-P8 رأی ۱: بدونِ setpointِ قبلی + مشاهدهٔ v → باندِ seedشده حولِ واقعیت؛
+    بدونِ مشاهده → نوشتن به تعویق."""
+    import heart.doctor_setpoint as ds2
+    if hi.SETPOINT_PATH.exists():
+        hi.SETPOINT_PATH.unlink()                       # بدونِ prev
+    _write_signals(v=None, cpi=None)
+    out0 = ds2.run_epoch_setpoint(write=True)
+    assert out0["written"] is False
+    assert out0["reason"] == "awaiting-first-velocity"
+    assert hi.read_setpoint() is None
+    _write_signals(v=0.08, cpi=None)
+    out1 = ds2.run_epoch_setpoint(write=True)
+    assert out1["written"] is True, out1
+    assert out1.get("rationale", "").startswith("seeded")
+    sp = hi.read_setpoint()
+    assert sp is not None and sp.epoch_seq == 1
+    assert sp.viable_band_lo <= 0.08 <= sp.viable_band_hi
+    assert sp.viable_band_hi < 0.5                      # نه پیش‌فرضِ 0.5..6 (کالیبره)
 
 
 # ── P6: دکترِ w-slow ─────────────────────────────────────────────────────────────

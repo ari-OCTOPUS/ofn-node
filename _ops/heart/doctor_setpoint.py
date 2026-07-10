@@ -89,9 +89,38 @@ def propose_setpoint(prev: "hi.HeartParams | None", signals: dict) -> "hi.HeartP
 
 
 def run_epoch_setpoint(write: bool = True) -> dict:
-    """یک epochِ w-slow: بخوان → پیشنهاد → بنویس + NOTE. propose-only."""
+    """یک epochِ w-slow: بخوان → پیشنهاد → بنویس + NOTE. propose-only.
+
+    HH-P8 رأی ۱ (مصوبِ مالک 2026-07-10): بدونِ setpointِ قبلی، باندِ اولیه از
+    velocityِ واقعاً مشاهده‌شده seed می‌شود (یک‌باره، معاف از hysteresis)؛ اگر هنوز
+    هیچ مشاهده‌ای نیست، نوشتن به تعویق می‌افتد تا اولین velocity برسد."""
     prev = hi.read_setpoint()
     signals = producers.read_signals()
+    if prev is None:
+        v_obs = (signals.get("velocity") or {}).get("velocity_per_hr")
+        if v_obs is None:
+            return {"ts": opslib.now_iso(), "written": False,
+                    "reason": "awaiting-first-velocity",
+                    "note": "seed باند به تعویق افتاد — هنوز مشاهده‌ای نیست (HH-P8)"}
+        mid = max(float(v_obs), 0.02)
+        width = max(float(v_obs), 0.1)
+        seeded = hi.HeartParams(
+            viable_band_lo=round(max(0.02, mid - width / 2.0), 4),
+            viable_band_hi=round(min(hi.ABS_BAND_MAX_PER_HR, mid + width / 2.0), 4),
+            epoch_seq=1)
+        if not seeded.validate():
+            out = {"ts": opslib.now_iso(), "epoch_seq": 1,
+                   "band": [seeded.viable_band_lo, seeded.viable_band_hi],
+                   "prev_band": None, "llm": None, "written": False,
+                   "rationale": "seeded-from-observation (HH-P8)"}
+            if write:
+                out["written"] = hi.write_setpoint(seeded)
+                if out["written"]:
+                    opslib.ledger_note("HEART_SETPOINT", {
+                        "epoch_seq": 1, "band_lo": seeded.viable_band_lo,
+                        "band_hi": seeded.viable_band_hi, "seeded": True,
+                    }, actor="heart-doctor")
+            return out
     params = propose_setpoint(prev, signals)
     llm = llm_refine(params, signals)
     out = {"ts": opslib.now_iso(), "epoch_seq": params.epoch_seq,

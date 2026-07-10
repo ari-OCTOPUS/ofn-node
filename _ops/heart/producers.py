@@ -155,8 +155,12 @@ def velocity_meter(window_hours: float = 24.0, now: dt.datetime | None = None) -
     components = {"confirmed": confirmed, "effects": effects,
                   "consolidation": consolidation, "beats": beats}
     available = {k: v for k, v in components.items() if v is not None}
-    # beats فقط سیگنالِ حیات است نه شناخت — با وزنِ کم (۰.۱)؛ بقیه وزنِ ۱.
-    weights = {"confirmed": 1.0, "effects": 1.0, "consolidation": 1.0, "beats": 0.1}
+    # HH-P8 رأی ۲ (مصوبِ مالک): پول سنگین‌تر — CONFIRMED پیش‌فرض ×۳ (velocity of
+    # money). beats فقط سیگنالِ حیات است (۰.۱). sample_size خام می‌ماند تا وزن،
+    # authoritative را مصنوعی نسازد.
+    w_confirmed = float(os.environ.get("HEART_W_CONFIRMED", "3.0"))
+    weights = {"confirmed": w_confirmed, "effects": 1.0,
+               "consolidation": 1.0, "beats": 0.1}
     total = sum(v * weights[k] for k, v in available.items())
     sample_size = sum(v for k, v in available.items() if k != "beats")
     v_per_hr = (total / window_hours) if available else None

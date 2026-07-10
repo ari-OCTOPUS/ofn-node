@@ -1,7 +1,7 @@
----
+﻿---
 type: prompt
 project: "[[04 - Architect System/architect/PROJECT]]"
-status: ready
+status: done
 tags: [pulse, calibration, post-merge]
 created: 2026-07-10
 updated: 2026-07-10
@@ -12,37 +12,37 @@ sources:
 aligns_to: "[[06 - Architecture Maps/ADR-001 Pulse-Source coupled-not-merged]]"
 ---
 
-# HH-P8 — کالیبراسیونِ پس از merge (سه رأیِ مصوبِ مالک، 2026-07-10)
+# HH-P8 â€” Ú©Ø§Ù„ÛŒØ¨Ø±Ø§Ø³ÛŒÙˆÙ†Ù Ù¾Ø³ Ø§Ø² merge (Ø³Ù‡ Ø±Ø£ÛŒÙ Ù…ØµÙˆØ¨Ù Ù…Ø§Ù„Ú©ØŒ 2026-07-10)
 
-> اجرا: **فقط بعد از merge** شاخهٔ `claude/heartbeat-velocity-governor-777b92` به master، روی درختِ زنده. این سه تصمیم در مشورتِ مستقیم با مالک قفل شده‌اند — گزینه‌ها را دوباره باز نکن؛ فقط پیاده و تست کن.
+> Ø§Ø¬Ø±Ø§: **ÙÙ‚Ø· Ø¨Ø¹Ø¯ Ø§Ø² merge** Ø´Ø§Ø®Ù‡Ù” `claude/heartbeat-velocity-governor-777b92` Ø¨Ù‡ masterØŒ Ø±ÙˆÛŒ Ø¯Ø±Ø®ØªÙ Ø²Ù†Ø¯Ù‡. Ø§ÛŒÙ† Ø³Ù‡ ØªØµÙ…ÛŒÙ… Ø¯Ø± Ù…Ø´ÙˆØ±ØªÙ Ù…Ø³ØªÙ‚ÛŒÙ… Ø¨Ø§ Ù…Ø§Ù„Ú© Ù‚ÙÙ„ Ø´Ø¯Ù‡â€ŒØ§Ù†Ø¯ â€” Ú¯Ø²ÛŒÙ†Ù‡â€ŒÙ‡Ø§ Ø±Ø§ Ø¯ÙˆØ¨Ø§Ø±Ù‡ Ø¨Ø§Ø² Ù†Ú©Ù†Ø› ÙÙ‚Ø· Ù¾ÛŒØ§Ø¯Ù‡ Ùˆ ØªØ³Øª Ú©Ù†.
 
-## رأی ۱ — seedِ خودکارِ باندِ اولیه از واقعیت
+## Ø±Ø£ÛŒ Û± â€” seedÙ Ø®ÙˆØ¯Ú©Ø§Ø±Ù Ø¨Ø§Ù†Ø¯Ù Ø§ÙˆÙ„ÛŒÙ‡ Ø§Ø² ÙˆØ§Ù‚Ø¹ÛŒØª
 
-**مشکل:** باندِ پیش‌فرضِ `HeartParams` (0.5..6.0 بر ساعت) برای ارگانیسمِ فعلی (velocity واقعی ~۰.۰۸) خیلی بالاست؛ همگراییِ w-slow با ±۲۰٪/روز ۲-۳ هفته طول می‌کشد.
+**Ù…Ø´Ú©Ù„:** Ø¨Ø§Ù†Ø¯Ù Ù¾ÛŒØ´â€ŒÙØ±Ø¶Ù `HeartParams` (0.5..6.0 Ø¨Ø± Ø³Ø§Ø¹Øª) Ø¨Ø±Ø§ÛŒ Ø§Ø±Ú¯Ø§Ù†ÛŒØ³Ù…Ù ÙØ¹Ù„ÛŒ (velocity ÙˆØ§Ù‚Ø¹ÛŒ ~Û°.Û°Û¸) Ø®ÛŒÙ„ÛŒ Ø¨Ø§Ù„Ø§Ø³ØªØ› Ù‡Ù…Ú¯Ø±Ø§ÛŒÛŒÙ w-slow Ø¨Ø§ Â±Û²Û°Ùª/Ø±ÙˆØ² Û²-Û³ Ù‡ÙØªÙ‡ Ø·ÙˆÙ„ Ù…ÛŒâ€ŒÚ©Ø´Ø¯.
 
-**پیاده‌سازی در `_ops/heart/doctor_setpoint.py`:**
-- در `propose_setpoint`، وقتی `prev is None` (هیچ setpointِ قبلی روی دیسک نیست) **و** `velocity_per_hr` موجود است (حتی non-authoritative): باند را از مشاهده seed کن — `mid = max(v_obs, 0.02)`، `width = max(v_obs, 0.1)` → `lo = max(0.02, mid − width/2)`، `hi = mid + width/2` (validate طبقِ کران‌های مطلق). در rationale صریح بنویس `seeded-from-observation`.
-- اگر در اولین epoch velocity هنوز None بود، **seed را به تعویق بینداز**: setpoint ننویس (return با `written:false, reason:"awaiting-first-velocity"`)، تا اولین epochی که مشاهده هست. hysteresis ±۲۰٪ فقط از epoch دوم به بعد اعمال می‌شود (seed از قیدش معاف است — یک‌باره).
-- تست: `test_heart_loop.py` — یک چکِ نو: بدونِ setpointِ قبلی + سیگنالِ v=0.08 → باندِ نوشته‌شده حدودِ [0.02..0.13] (نه 0.5..6.0) و rationale شاملِ seed؛ و بدونِ velocity → `written:false`.
+**Ù¾ÛŒØ§Ø¯Ù‡â€ŒØ³Ø§Ø²ÛŒ Ø¯Ø± `_ops/heart/doctor_setpoint.py`:**
+- Ø¯Ø± `propose_setpoint`ØŒ ÙˆÙ‚ØªÛŒ `prev is None` (Ù‡ÛŒÚ† setpointÙ Ù‚Ø¨Ù„ÛŒ Ø±ÙˆÛŒ Ø¯ÛŒØ³Ú© Ù†ÛŒØ³Øª) **Ùˆ** `velocity_per_hr` Ù…ÙˆØ¬ÙˆØ¯ Ø§Ø³Øª (Ø­ØªÛŒ non-authoritative): Ø¨Ø§Ù†Ø¯ Ø±Ø§ Ø§Ø² Ù…Ø´Ø§Ù‡Ø¯Ù‡ seed Ú©Ù† â€” `mid = max(v_obs, 0.02)`ØŒ `width = max(v_obs, 0.1)` â†’ `lo = max(0.02, mid âˆ’ width/2)`ØŒ `hi = mid + width/2` (validate Ø·Ø¨Ù‚Ù Ú©Ø±Ø§Ù†â€ŒÙ‡Ø§ÛŒ Ù…Ø·Ù„Ù‚). Ø¯Ø± rationale ØµØ±ÛŒØ­ Ø¨Ù†ÙˆÛŒØ³ `seeded-from-observation`.
+- Ø§Ú¯Ø± Ø¯Ø± Ø§ÙˆÙ„ÛŒÙ† epoch velocity Ù‡Ù†ÙˆØ² None Ø¨ÙˆØ¯ØŒ **seed Ø±Ø§ Ø¨Ù‡ ØªØ¹ÙˆÛŒÙ‚ Ø¨ÛŒÙ†Ø¯Ø§Ø²**: setpoint Ù†Ù†ÙˆÛŒØ³ (return Ø¨Ø§ `written:false, reason:"awaiting-first-velocity"`)ØŒ ØªØ§ Ø§ÙˆÙ„ÛŒÙ† epochÛŒ Ú©Ù‡ Ù…Ø´Ø§Ù‡Ø¯Ù‡ Ù‡Ø³Øª. hysteresis Â±Û²Û°Ùª ÙÙ‚Ø· Ø§Ø² epoch Ø¯ÙˆÙ… Ø¨Ù‡ Ø¨Ø¹Ø¯ Ø§Ø¹Ù…Ø§Ù„ Ù…ÛŒâ€ŒØ´ÙˆØ¯ (seed Ø§Ø² Ù‚ÛŒØ¯Ø´ Ù…Ø¹Ø§Ù Ø§Ø³Øª â€” ÛŒÚ©â€ŒØ¨Ø§Ø±Ù‡).
+- ØªØ³Øª: `test_heart_loop.py` â€” ÛŒÚ© Ú†Ú©Ù Ù†Ùˆ: Ø¨Ø¯ÙˆÙ†Ù setpointÙ Ù‚Ø¨Ù„ÛŒ + Ø³ÛŒÚ¯Ù†Ø§Ù„Ù v=0.08 â†’ Ø¨Ø§Ù†Ø¯Ù Ù†ÙˆØ´ØªÙ‡â€ŒØ´Ø¯Ù‡ Ø­Ø¯ÙˆØ¯Ù [0.02..0.13] (Ù†Ù‡ 0.5..6.0) Ùˆ rationale Ø´Ø§Ù…Ù„Ù seedØ› Ùˆ Ø¨Ø¯ÙˆÙ†Ù velocity â†’ `written:false`.
 
-## رأی ۲ — وزنِ پول در velocity: CONFIRMED ×۳
+## Ø±Ø£ÛŒ Û² â€” ÙˆØ²Ù†Ù Ù¾ÙˆÙ„ Ø¯Ø± velocity: CONFIRMED Ã—Û³
 
-**پیاده‌سازی در `_ops/heart/producers.py`:**
-- در `velocity_meter`، دیکشنریِ وزن‌ها: `confirmed = float(os.environ.get("HEART_W_CONFIRMED", "3.0"))`؛ بقیه بی‌تغییر (`effects=1.0, consolidation=1.0, beats=0.1`).
-- `sample_size` همچنان شمارشِ خام (بدونِ وزن) بماند — وزن فقط روی `velocity_per_hr` اثر می‌گذارد، نه روی authoritative (وگرنه وزنِ بالا مصنوعی authoritative می‌سازد).
-- تست: `test_heart_producers.py` — چکِ نو: با ۱ CONFIRMED و ۱ effect در پنجره، velocity برابرِ `(3+1)/window` (نه `2/window`).
+**Ù¾ÛŒØ§Ø¯Ù‡â€ŒØ³Ø§Ø²ÛŒ Ø¯Ø± `_ops/heart/producers.py`:**
+- Ø¯Ø± `velocity_meter`ØŒ Ø¯ÛŒÚ©Ø´Ù†Ø±ÛŒÙ ÙˆØ²Ù†â€ŒÙ‡Ø§: `confirmed = float(os.environ.get("HEART_W_CONFIRMED", "3.0"))`Ø› Ø¨Ù‚ÛŒÙ‡ Ø¨ÛŒâ€ŒØªØºÛŒÛŒØ± (`effects=1.0, consolidation=1.0, beats=0.1`).
+- `sample_size` Ù‡Ù…Ú†Ù†Ø§Ù† Ø´Ù…Ø§Ø±Ø´Ù Ø®Ø§Ù… (Ø¨Ø¯ÙˆÙ†Ù ÙˆØ²Ù†) Ø¨Ù…Ø§Ù†Ø¯ â€” ÙˆØ²Ù† ÙÙ‚Ø· Ø±ÙˆÛŒ `velocity_per_hr` Ø§Ø«Ø± Ù…ÛŒâ€ŒÚ¯Ø°Ø§Ø±Ø¯ØŒ Ù†Ù‡ Ø±ÙˆÛŒ authoritative (ÙˆÚ¯Ø±Ù†Ù‡ ÙˆØ²Ù†Ù Ø¨Ø§Ù„Ø§ Ù…ØµÙ†ÙˆØ¹ÛŒ authoritative Ù…ÛŒâ€ŒØ³Ø§Ø²Ø¯).
+- ØªØ³Øª: `test_heart_producers.py` â€” Ú†Ú©Ù Ù†Ùˆ: Ø¨Ø§ Û± CONFIRMED Ùˆ Û± effect Ø¯Ø± Ù¾Ù†Ø¬Ø±Ù‡ØŒ velocity Ø¨Ø±Ø§Ø¨Ø±Ù `(3+1)/window` (Ù†Ù‡ `2/window`).
 
-## رأی ۳ — کفِ periodِ حالتِ زنده: ۶۰ ثانیه
+## Ø±Ø£ÛŒ Û³ â€” Ú©ÙÙ periodÙ Ø­Ø§Ù„ØªÙ Ø²Ù†Ø¯Ù‡: Û¶Û° Ø«Ø§Ù†ÛŒÙ‡
 
-**پیاده‌سازی:**
-- در seam ِ `organism.py` (بلوکِ override بعد از cardiac): `_sleep_s = max(60.0, min(900.0, _hp))` — عددِ ۳۰ فقط برای ریاضی/سایه/sim معتبر می‌ماند (`control_law.FLOOR_S` دست‌نخورده؛ ریل‌های M-HEART عوض نمی‌شوند). env-پذیر: `HEART_LIVE_FLOOR_S` پیش‌فرض `60`.
-- دلیلِ ثبت‌شده: هر tick تلمتریِ کامل می‌خواند؛ کفِ ۳۰ یعنی تا ۱۰× I/O فعلی — مالک ۶۰ را انتخاب کرد (تا ۵×).
-- تست: `test_heart_loop.py::t_h_organism_seam...` را به‌روز کن (رشتهٔ ساختاریِ seam حالا `max(60.0` یا `HEART_LIVE_FLOOR_S` را چک کند).
+**Ù¾ÛŒØ§Ø¯Ù‡â€ŒØ³Ø§Ø²ÛŒ:**
+- Ø¯Ø± seam Ù `organism.py` (Ø¨Ù„ÙˆÚ©Ù override Ø¨Ø¹Ø¯ Ø§Ø² cardiac): `_sleep_s = max(60.0, min(900.0, _hp))` â€” Ø¹Ø¯Ø¯Ù Û³Û° ÙÙ‚Ø· Ø¨Ø±Ø§ÛŒ Ø±ÛŒØ§Ø¶ÛŒ/Ø³Ø§ÛŒÙ‡/sim Ù…Ø¹ØªØ¨Ø± Ù…ÛŒâ€ŒÙ…Ø§Ù†Ø¯ (`control_law.FLOOR_S` Ø¯Ø³Øªâ€ŒÙ†Ø®ÙˆØ±Ø¯Ù‡Ø› Ø±ÛŒÙ„â€ŒÙ‡Ø§ÛŒ M-HEART Ø¹ÙˆØ¶ Ù†Ù…ÛŒâ€ŒØ´ÙˆÙ†Ø¯). env-Ù¾Ø°ÛŒØ±: `HEART_LIVE_FLOOR_S` Ù¾ÛŒØ´â€ŒÙØ±Ø¶ `60`.
+- Ø¯Ù„ÛŒÙ„Ù Ø«Ø¨Øªâ€ŒØ´Ø¯Ù‡: Ù‡Ø± tick ØªÙ„Ù…ØªØ±ÛŒÙ Ú©Ø§Ù…Ù„ Ù…ÛŒâ€ŒØ®ÙˆØ§Ù†Ø¯Ø› Ú©ÙÙ Û³Û° ÛŒØ¹Ù†ÛŒ ØªØ§ Û±Û°Ã— I/O ÙØ¹Ù„ÛŒ â€” Ù…Ø§Ù„Ú© Û¶Û° Ø±Ø§ Ø§Ù†ØªØ®Ø§Ø¨ Ú©Ø±Ø¯ (ØªØ§ ÛµÃ—).
+- ØªØ³Øª: `test_heart_loop.py::t_h_organism_seam...` Ø±Ø§ Ø¨Ù‡â€ŒØ±ÙˆØ² Ú©Ù† (Ø±Ø´ØªÙ‡Ù” Ø³Ø§Ø®ØªØ§Ø±ÛŒÙ seam Ø­Ø§Ù„Ø§ `max(60.0` ÛŒØ§ `HEART_LIVE_FLOOR_S` Ø±Ø§ Ú†Ú© Ú©Ù†Ø¯).
 
-## پس از اعمال
+## Ù¾Ø³ Ø§Ø² Ø§Ø¹Ù…Ø§Ù„
 
-۱) چهار فایلِ تستِ heart + سوییتِ کامل سبز (`REAL_VAULT` لازم نیست — روی درختِ زنده‌ای). ۲) یک‌بار `python -X utf8 _ops/heart/sog_math.py` اگر هنوز اجرا نشده (lock + NOTE). ۳) HANDOFF + این فایل → `status: done`. ۴) commit با `agent-checkpoint:`.
+Û±) Ú†Ù‡Ø§Ø± ÙØ§ÛŒÙ„Ù ØªØ³ØªÙ heart + Ø³ÙˆÛŒÛŒØªÙ Ú©Ø§Ù…Ù„ Ø³Ø¨Ø² (`REAL_VAULT` Ù„Ø§Ø²Ù… Ù†ÛŒØ³Øª â€” Ø±ÙˆÛŒ Ø¯Ø±Ø®ØªÙ Ø²Ù†Ø¯Ù‡â€ŒØ§ÛŒ). Û²) ÛŒÚ©â€ŒØ¨Ø§Ø± `python -X utf8 _ops/heart/sog_math.py` Ø§Ú¯Ø± Ù‡Ù†ÙˆØ² Ø§Ø¬Ø±Ø§ Ù†Ø´Ø¯Ù‡ (lock + NOTE). Û³) HANDOFF + Ø§ÛŒÙ† ÙØ§ÛŒÙ„ â†’ `status: done`. Û´) commit Ø¨Ø§ `agent-checkpoint:`.
 
-## خطوطِ قرمز (بی‌تغییر)
+## Ø®Ø·ÙˆØ·Ù Ù‚Ø±Ù…Ø² (Ø¨ÛŒâ€ŒØªØºÛŒÛŒØ±)
 
-هیچ دستکاریِ predicateِ ۸شرطی، σ-taint، درخت‌وارهٔ پول، یا chrono/HLC. این پرامپت فقط سه knob کالیبراسیون است.
+Ù‡ÛŒÚ† Ø¯Ø³ØªÚ©Ø§Ø±ÛŒÙ predicateÙ Û¸Ø´Ø±Ø·ÛŒØŒ Ïƒ-taintØŒ Ø¯Ø±Ø®Øªâ€ŒÙˆØ§Ø±Ù‡Ù” Ù¾ÙˆÙ„ØŒ ÛŒØ§ chrono/HLC. Ø§ÛŒÙ† Ù¾Ø±Ø§Ù…Ù¾Øª ÙÙ‚Ø· Ø³Ù‡ knob Ú©Ø§Ù„ÛŒØ¨Ø±Ø§Ø³ÛŒÙˆÙ† Ø§Ø³Øª.

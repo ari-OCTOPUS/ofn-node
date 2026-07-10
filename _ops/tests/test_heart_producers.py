@@ -65,6 +65,9 @@ def t_b_velocity_counts_confirmed_and_effects():
     assert v["components"]["effects"] == 1
     assert v["velocity_per_hr"] is not None and v["velocity_per_hr"] > 0
     assert "confirmed" in v["sources_available"]
+    # HH-P8 رأی ۲: پول ×۳ — دو CONFIRMED و یک effect → (2·3+1)/24؛ sample_size خام
+    assert abs(v["velocity_per_hr"] - (2 * 3.0 + 1) / 24.0) < 1e-3, v   # خروجی ۴رقمی گرد است
+    assert v["sample_size"] == 3
 
 
 def t_c_velocity_counts_consolidation():

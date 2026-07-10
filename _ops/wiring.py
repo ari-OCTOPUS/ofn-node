@@ -1139,3 +1139,65 @@ def heart_beat(beat: int = 0, snap: dict | None = None) -> dict | None:
     except Exception as e:  # noqa: BLE001 — §۴: قلب نباید tick را بکشد
         opslib.alert([f"wiring: heart_beat خطا: {type(e).__name__}: {e}"])
         return None
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# جلسه ۴۶ — needs_nudge: نوتیفِ هوشمند «وقتی به داده/تأییدت نیاز است» (ADHD-first)
+# ════════════════════════════════════════════════════════════════════════════════
+_NUDGE_STATE = {"last_epoch": 0}
+
+
+def needs_nudge_beat(channel=None, beat: int = 0) -> dict | None:
+    """هر N beat (پیش‌فرض ۳۶۰ = ~۶ ساعت با ضربانِ ۶۰s) نیازها را حساب کن و فقط اگر
+    چیزی «عوض شده» یک پیامِ کوتاه به مالک بفرست. پشتِ OCTOPUS_WIRE_NEEDS_NUDGE.
+
+    ضدِ اسپم (مغزِ ADHD را بمباران نکن): throttle با hashِ نیازها در
+    state/needs-nudge.json — همان نیازها دوباره فرستاده نمی‌شوند مگر ۲۴h بگذرد و
+    هنوز کارتِ معلق باشد. kill-switch اول؛ فقط‌خواندنی + یک sendMessage."""
+    if not flag("OCTOPUS_WIRE_NEEDS_NUDGE"):
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    every_n = int(os.environ.get("CHRONO_NUDGE_EVERY_N_BEATS", "360"))
+    if beat <= 0 or every_n <= 0:
+        return None
+    epoch = beat // every_n
+    if epoch < 1 or epoch <= _NUDGE_STATE["last_epoch"]:
+        return None
+    _NUDGE_STATE["last_epoch"] = epoch
+    try:
+        import json
+        sys.path.insert(0, str(_HERE / "budget"))
+        import needs_digest
+        pending = None
+        if channel is not None and hasattr(channel, "_count_pending"):
+            try:
+                pending = channel._count_pending()
+            except Exception:  # noqa: BLE001
+                pending = None
+        d = needs_digest.compute(pending_count=pending)
+        st_path = opslib.STATE_DIR / "needs-nudge.json"
+        try:
+            st = json.loads(st_path.read_text("utf-8")) if st_path.exists() else {}
+        except (OSError, ValueError):
+            st = {}
+        import datetime as _dt
+        now = _dt.datetime.now().timestamp()
+        aged = (now - float(st.get("last_ts", 0))) > 86400
+        changed = d["hash"] != st.get("last_hash")
+        should_send = d["n"] > 0 and (changed or (aged and pending))
+        sent = False
+        if should_send and channel is not None and getattr(channel, "wired", False):
+            body = "\n".join(f"• {it}" for it in d["items"])
+            kb = {"inline_keyboard": [[
+                {"text": "📌 الان — کارای من", "callback_data": "menu:now"}]]}
+            sent = bool(channel.send_text(
+                f"🔔 <b>نیازت دارم</b> ({d['n']})\n──────────\n{body}", kb))
+            if sent:
+                with opslib.LockedJson(st_path) as lj:
+                    lj.write({"last_hash": d["hash"], "last_ts": now,
+                              "last_n": d["n"], "ts": opslib.now_iso()})
+        return {"n": d["n"], "changed": changed, "sent": sent}
+    except Exception as e:  # noqa: BLE001 — §۴: نوتیف نباید tick را بکشد
+        opslib.alert([f"wiring: needs_nudge خطا: {type(e).__name__}: {e}"])
+        return None

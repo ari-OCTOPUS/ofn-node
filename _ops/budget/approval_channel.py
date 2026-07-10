@@ -521,10 +521,35 @@ class TelegramApprovalChannel(ApprovalChannel):
                     "reply_markup": None}
         if page == "main":
             return self._main_menu()
+        # ── ADHD (جلسه ۴۶): «الان» = فقط چیزهایی که به مالک نیاز دارند؛ «بیشتر» = گریدِ کامل ──
+        if page == "now":
+            return self._menu_now()
+        if page == "more":
+            return {"text": "🧭 <b>همهٔ امکانات</b>\n<i>هر تب فقط‌خواندنی است؛ "
+                            "پول/merge همچنان فقط از کارت‌های تأیید.</i>",
+                    "reply_markup": self.MENU_KEYBOARD}
         # ── Cockpit v2: ۸ تبِ کابین به‌عنوانِ صفحاتِ menu (read-safe، بدونِ توکن) ──
         if page in self.TAB_PAGES:
             return self._render_tab(page)
         return "نادیده"
+
+    def _menu_now(self) -> dict:
+        """📌 الان — یک صفحه، فقط نیازها (ADHD-first: کم، مرتب، قابلِ‌اقدام)."""
+        try:
+            import needs_digest
+            d = needs_digest.compute(pending_count=self._count_pending())
+        except Exception:  # noqa: BLE001 — صفحه هرگز کرش نمی‌کند
+            d = {"items": [], "n": 0}
+        if d["n"] == 0:
+            body = "هیچ‌چیز منتظرِ تو نیست ✅\n<i>سیستم خودش می‌چرخد؛ برو به زندگی‌ات.</i>"
+        else:
+            body = "\n".join(f"{i}. {it}" for i, it in enumerate(d["items"], 1))
+        kb = {"inline_keyboard": [
+            [{"text": "📮 صف تأیید", "callback_data": "menu:queue"},
+             {"text": "🔄 منو", "callback_data": "menu:main"}],
+        ]}
+        return {"text": f"📌 <b>الان — کارای من</b>\n──────────\n{body}",
+                "reply_markup": kb}
 
     def _menu_queue(self) -> str:
         """نمایشِ صفِ تأییدهای در انتظار (فقط‌خواندنی)."""
@@ -605,7 +630,19 @@ class TelegramApprovalChannel(ApprovalChannel):
     LEAD_CELLS = [("lead.doer", "نقاشی (Lead)"), ("ziman.doer", "Ziman"),
                   ("crypto.doer", "Crypto")]      # هم‌سان با panel/server.py
 
-    # ── منوی inline اختاپوس (Cockpit v2: ۸ تبِ کابین + دکمه‌های UX v3 حفظ‌شده) ──
+    # ── منوی سادهٔ ADHD (جلسه ۴۶): ۳ ردیف، یک اولویت — عمقِ کامل زیرِ «همهٔ امکانات» ──
+    SIMPLE_KEYBOARD: dict = {
+        "inline_keyboard": [
+            [{"text": "📌 الان — کارای من", "callback_data": "menu:now"}],
+            [{"text": "🫀 وضعیت سریع", "callback_data": "menu:status"}],
+            [
+                {"text": "🧭 همهٔ امکانات", "callback_data": "menu:more"},
+                {"text": "🛑 توقف", "callback_data": "menu:stop"},
+            ],
+        ],
+    }
+
+    # ── منوی کاملِ inline اختاپوس (حالا زیرِ «همهٔ امکانات» — بدونِ حذفِ هیچ قابلیت) ──
     MENU_KEYBOARD: dict = {
         "inline_keyboard": [
             [
@@ -692,17 +729,24 @@ class TelegramApprovalChannel(ApprovalChannel):
         return None
 
     def _main_menu(self) -> dict:
-        """UX v3: منوی اصلی با متن + inline-keyboard. خروجی dict برای send_text."""
+        """منوی اصلیِ ADHD (جلسه ۴۶): یک خطِ اولویت + ۳ ردیف دکمه — نه دیوارِ گزینه.
+        عمقِ کاملِ ۸-تب دست‌نخورده زیرِ «همهٔ امکانات» (backward-compat کامل)."""
         mode = self._read_mode_color()
         n_pending = self._count_pending()
+        top = ""
+        try:
+            import needs_digest
+            d = needs_digest.compute(pending_count=n_pending)
+            if d["n"]:
+                top = f"👉 {d['items'][0]}\n"
+        except Exception:  # noqa: BLE001 — منو هرگز کرش نمی‌کند
+            top = ""
         return {
-            "text": (f"🐙 <b>اختاپوس</b> — مغزِ دومِ شما\n"
+            "text": (f"🐙 <b>اختاپوس</b> {mode}\n"
                      f"──────────\n"
-                     f"حالت: {mode}\n"
-                     f"📥 صفِ تأیید: {n_pending}\n"
-                     f"──────────\n"
-                     f"<i>دکمه‌ای که خواستی را انتخاب کن.</i>"),
-            "reply_markup": self.MENU_KEYBOARD,
+                     f"{top}"
+                     f"<i>{'هیچ‌چیز منتظرت نیست ✅' if not top else 'بقیه در «الان».'}</i>"),
+            "reply_markup": self.SIMPLE_KEYBOARD,
         }
 
     def _read_mode_color(self) -> str:

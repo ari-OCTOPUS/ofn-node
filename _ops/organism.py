@@ -170,6 +170,7 @@ def main() -> int:
     _rhythm = None      # Rhythm (mode_color GREEN/AMBER/RED)
     _circadian = None   # CircadianMap (readiness ساعتِ روز)
     _sprint_runner = None  # SprintRunner (sprint management)
+    _chan = None        # جلسه ۴۶: pre-init تا شکستِ wiring، nudge را NameError نکند
     try:
         import wiring as _w
         _profile = _w.apply_profile()   # P-W3: paper-full → flagهای امن
@@ -404,6 +405,13 @@ def main() -> int:
                     _heart_status = _w.heart_beat(beat=_cstat.get("beat", 0), snap=snap)
                 except Exception as _hbe:  # noqa: BLE001 — §۴: قلب نباید tick را بکشد
                     opslib.alert([f"heart_beat error (non-fatal): {type(_hbe).__name__}: {_hbe}"])
+            # ── جلسه ۴۶: نوتیفِ «نیازت دارم» — پشتِ OCTOPUS_WIRE_NEEDS_NUDGE، هر N beat،
+            # ضدِ اسپم با hash. فقط‌خواندنی + یک sendMessage به مالک (fail-soft).
+            if not _protective_skip and _cstat is not None:
+                try:
+                    _w.needs_nudge_beat(_chan, beat=_cstat.get("beat", 0))
+                except Exception as _nne:  # noqa: BLE001 — §۴: نوتیف نباید tick را بکشد
+                    opslib.alert([f"needs_nudge error (non-fatal): {type(_nne).__name__}: {_nne}"])
             if now - last_heartbeat > 3600:
                 opslib.heartbeat(
                     f"organism=ok · ماه AU${snap['month']['aud']:.2f} · "
@@ -445,8 +453,12 @@ def main() -> int:
         # باز باشد. flag خاموش → _heart_status=None → این بلوک no-op (بایت‌به‌بایت رفتارِ فعلی).
         if _heart_status is not None and _heart_status.get("wire_open"):
             try:
+                # HH-P8 رأی ۳ (مصوبِ مالک): کفِ tickِ زنده ۶۰s — هر tick تلمتریِ کامل
+                # می‌خواند؛ کفِ ۳۰ فقط برای ریاضی/سایه/sim معتبر می‌ماند.
+                import os as _os
+                _floor = float(_os.environ.get("HEART_LIVE_FLOOR_S", "60"))
                 _hp = float(_heart_status.get("period_shadow_s") or TICK_SECONDS)
-                _sleep_s = max(30.0, min(900.0, _hp))
+                _sleep_s = max(_floor, min(900.0, _hp))
             except Exception:  # noqa: BLE001 — §۴: قلب نباید sleep را بشکند
                 pass
         time.sleep(_sleep_s)

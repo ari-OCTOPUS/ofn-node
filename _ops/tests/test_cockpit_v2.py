@@ -61,18 +61,27 @@ def mint(ch, verb, key):
     return ch._new_act_token(verb, key)
 
 
-# ── ۱) routing ۸ تب + main + queue ─────────────────────────────────────────────
+# ── ۱) routing ۸ تب + main ساده (ADHD جلسه ۴۶) + now/more + queue ───────────────
 def test_menu_routing():
     ch, _ = make_channel()
     for t in ac.TelegramApprovalChannel.TAB_PAGES:
         r = ch.dispatch_callback(f"menu:{t}")
         assert isinstance(r, dict) and r.get("text"), f"tab {t}"
         assert r.get("reply_markup"), f"tab {t} بدونِ keyboard"
+    # منوی اصلی حالا ساده است (ADHD): «الان» + «وضعیت» + «همهٔ امکانات» — ≤۳ ردیف
     m = ch.dispatch_callback("menu:main")
     assert isinstance(m, dict) and "reply_markup" in m
     kb = json.dumps(m["reply_markup"], ensure_ascii=False)
+    assert "menu:now" in kb and "menu:more" in kb and "menu:status" in kb
+    assert len(m["reply_markup"]["inline_keyboard"]) <= 3
+    # عمقِ کامل دست‌نخورده زیرِ «همهٔ امکانات»
+    more = ch.dispatch_callback("menu:more")
+    kb_more = json.dumps(more["reply_markup"], ensure_ascii=False)
     for t in ac.TelegramApprovalChannel.TAB_PAGES:
-        assert f"menu:{t}" in kb, f"MENU_KEYBOARD بدونِ تبِ {t}"
+        assert f"menu:{t}" in kb_more, f"MENU_KEYBOARD بدونِ تبِ {t}"
+    # «الان» رندر می‌شود و کرش نمی‌کند (با state خالی هم)
+    now_page = ch.dispatch_callback("menu:now")
+    assert isinstance(now_page, dict) and "الان" in now_page["text"]
     q = ch.dispatch_callback("menu:queue")
     assert isinstance(q, dict) and "صفِ تأیید" in q["text"]
 
