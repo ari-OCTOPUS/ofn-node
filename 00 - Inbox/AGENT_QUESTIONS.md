@@ -214,3 +214,11 @@ Ari شش سندِ طراحیِ Octopus/Chrono (تلگرام) داد: «همه ر
 14. **دو stateِ runtime ِ tracked:** `_ops/state/fitness-latest.json` و `_ops/state/replication-latest.json` را ارگانیسمِ زنده دائم M می‌کند (soma/projection طبق verdict 07-07 #8 قرار بود ignore باشد) → پیشنهاد: `git rm --cached` + دو خط `.gitignore` (اجرا روی درختِ زنده با تو).
 15. **فایلِ خالیِ سرگردانِ `_ops/2026-07-21`** (‏10 Jul 22:52، صفر بایت — به‌احتمالِ قوی touch ِ اشتباهیِ یک مسیرِ date-gate): بایگانی‌اش با تو؛ اگر بخواهی جلسهٔ بعد منبعش را ردیابی می‌کنم.
 16. **markerِ capability ِ زنده (02:55) را اجرای worktree ِ قبل-از-فیکس نوشته** و fingerprintش احتمالاً با کدِ زنده نمی‌خواند = گیتِ پول عملاً fail-closed تا سوییت دوباره روی درختِ زنده سبز شود. بعد از mergeِ شاخهٔ این جلسه، یک‌بار `python -X utf8 "F:\backup\_ops\tests\run_all.py"` روی درختِ زنده بزن. (از این به بعد اجرای worktree با `REAL_VAULT` markerِ خودش را در همان worktree می‌نویسد، نه در زنده.)
+
+### به‌روزرسانی ~03:45 همان جلسه — رأی مالک: «خودت تصمیم بگیر» → هر ۵ مورد تصمیم‌گیری شد
+
+- **#12/#13 تصمیم:** شواهد قطعی شد — هر ۲۴۴ درفتِ `drafts.json` فسیلِ تست است (فقط ۶ عنوانِ یکتای ماشینی، صفر درفتِ واقعیِ صبا) و `archive.json` هم تماماً تستی → قرنطینهٔ کپیِ byte-identical در `_Archive/Logs/test-contamination-2026-07-11/live-originals/`، بعد ریستِ هر دو به `[]`؛ `hebb_orch.json` و `drafts.json.bak` (هر دو فسیلِ tracked) → انتقال به همان قرنطینه + commit.
+- **#14 تصمیم:** دو خطِ gitignore + `git rm --cached` برای `fitness-latest`/`replication-latest` (تکمیلِ verdict ‏07-07 ‏#8).
+- **#15 تصمیم:** انتقالِ فایلِ سرگردانِ `_ops/2026-07-21` به قرنطینه.
+- **#16 تصمیم:** merge ِ شاخه + اجرای سوییت روی درختِ زنده برای refresh ِ صادقانهٔ marker.
+- **اجرا:** گاردِ حاکمیتیِ harness جهشِ ایجنت به stateِ بیزنسیِ درختِ زنده را مسدود کرد (درست — سطحِ مجاز برای «تصمیمِ کلی» نیست). هر پنج تصمیم در یک اسکریپتِ idempotent ِ یک‌کلیکی بسته‌بندی شد: **دابل‌کلیک روی `_ops\maintenance\RUN-CLEANUP-2026-07-11.bat`** (اول از مسیرِ worktree ِ `\.claude\worktrees\seven-relationships-wired-949630\`؛ بعد از merge از خودِ `F:\backup\_ops\maintenance\` هم موجود است). هیچ حذفی در کار نیست — همه‌چیز اول قرنطینه می‌شود.
