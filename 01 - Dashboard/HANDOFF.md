@@ -19,6 +19,18 @@ updated: 2026-07-11
 
 **میزِ آری — آلودگیِ از-قبل-موجودِ درختِ زنده (۵ رأی، جزئیات در [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS «2026-07-11»]]):** پاک‌سازیِ stateِ تستیِ committed ِ Project-F (`drafts.json` ~۱۳۶ فسیل، `archive.json` تماماً تستی، `.bak` ِ tracked) · دو فایلِ M ِ زندهٔ 02:53 · gitignore ِ `fitness-latest`/`replication-latest` · فایلِ سرگردانِ `_ops/2026-07-21` · **refresh ِ markerِ capability ِ زنده بعد از merge** (الان با fingerprintِ worktree نوشته شده → گیتِ پول fail-closed تا `run_all` روی درختِ زنده سبز شود).
 
+**به‌روزرسانیِ همان جلسه (~۰۳:۴۵ — رأی مالک «خودت تصمیم بگیر» روی ۵ مورد):** تصمیم‌ها گرفته و تا مرزِ مجاز اجرا شد — شواهد: هر ۲۴۴ درفتِ `drafts.json` فسیلِ تست بود (فقط ۶ عنوانِ یکتای ماشینی، صفر درفتِ واقعی) و `archive.json` هم تماماً تستی → تصمیم: ریست هر دو به `[]` بعد از قرنطینهٔ کامل در `_Archive`؛ `hebb_orch.json`/`drafts.json.bak` → انتقال به قرنطینه؛ gitignore ِ دو projection ِ runtime + `git rm --cached`؛ merge ِ شاخه + `run_all` روی درختِ زنده برای refresh ِ marker. **گاردِ حاکمیتیِ harness جهش به stateِ بیزنسیِ درختِ زنده را برای ایجنت مسدود کرد (درست)** → اجرای زنده در یک اسکریپتِ یک‌کلیکیِ idempotent بسته‌بندی شد: `_ops/maintenance/RUN-CLEANUP-2026-07-11.bat` (تگ+merge → قرنطینه/ریست → gitignore → سوییتِ زنده). master ِ موازی (vault-updater) هم در شاخه ادغام و کلِ اجتماع دوباره اثبات شد.
+
+## جلسه ۴۶ ادامه (~۰۶:۰۰) — 🩹 VAULT-UPDATER: propose-only «تولیدکنندهٔ patch» (اسپکِ مالک: cognition ≠ effect)
+
+مالک اسپکِ دقیقی داد: «به‌روزرسانی نباید بنویسد — patch تولید کند؛ شناخت را از اثر جدا کن؛ EffectorGate تنها نویسنده.» ساخته شد (هر دو گزینهٔ α و β):
+- **✅ `_ops/vault_updater.py` (proposer، هرگز دیسک):** raw_input → PATCH PROPOSALِ JSONِ سخت‌گیر. رویه: classify → HOLD-rails → dedup(Jaccard، merge نه create) → risk → commit_mode → ledger_entry. تست `t_j` تضمین: صفر open/write/mkdir.
+- **✅ `_ops/vault_updater_gate.py` (validatorِ stdlib، β):** دومین گاردِ مستقل که proposalِ ناامن را **پیش از commit** رد می‌کند (defense-in-depth).
+- **✅ LAYER_MAP واقعیِ vault (Ring×risk×envelope):** Ring0 ژنوم→HOLD · Ring1 schema/index/PROJECT→GATE · Ring2-3 دامنه→AUTO اگر LOW+envelope · Ring4 inbox→AUTO اگر LOW · **Project-F→HOLD مطلق** · PII/CRITICAL→HOLD/GATE.
+- **✅ ریل‌های سخت (fail-closed):** هرگز delete/overwrite (فقط append/supersede-with-pointer)؛ بی‌provenance→HOLD؛ Ring0/1 هرگز AUTO؛ CRITICAL هرگز AUTO/suppress.
+- **اثباتِ زنده:** «یادداشتِ inbox»→AUTO/LOW · «ویرایشِ ایندکس»→GATE/REVIEW · «اونلی فنز»→HOLD (containment). تست `test_vault_updater` **۱۲/۱۲**؛ سوییت ۹۸/۹۸ هدف. طرح: [[06 - Architecture Maps/VAULT-UPDATER-spec|VAULT-UPDATER-spec]].
+- **قدمِ بعد (backlog):** ارتقای dedup به cosineِ `neural/encoders` · لایهٔ cognitionِ LLM روی classify/draft · applierِ AUTO-tier از مسیرِ human-append.
+
 ## جلسه ۴۶ ادامه (~۰۵:۳۰) — 🧠 مغزِ دوم: عملیاتِ کسب‌وکار (رأی مالک «دو پروژه اونلی‌فنز و نقاشی وصل شد؛ مهندسیشونو درست کن به‌عنوان مغز دوم»)
 
 مغزِ اول = خودنگه‌داری (self_audit/improve/part_loops). **مغزِ دوم = عملیاتِ کسب‌وکار** — هر پروژهٔ درآمدزا لوپِ observe→learn→propose خودش را دارد که به‌سمتِ لید/درآمدِ واقعی هل می‌دهد.
