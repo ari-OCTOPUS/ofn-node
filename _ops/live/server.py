@@ -286,6 +286,11 @@ def ops_state() -> dict:
                                      for v in (sa.get("subsystems") or {}).values()]}
         except Exception:  # noqa: BLE001
             st["stress"] = {}
+        try:
+            import innervation
+            st["innervation"] = innervation.summary()
+        except Exception:  # noqa: BLE001
+            st["innervation"] = {}
         return st
     except Exception as e:  # noqa: BLE001
         return {"overall": "—", "error": f"{type(e).__name__}", "log": [], "parts": []}
@@ -317,6 +322,7 @@ OPS_PAGE = """<!doctype html><html dir="rtl" lang="fa"><meta charset="utf-8">
  <div style="text-align:left"><div id="stress" style="font-size:12px">—</div>
   <button class="btn" id="act" onclick="act()">🔄</button></div></div>
 <div class="card" id="stressCard" style="margin-bottom:10px;display:none"><div class="lbl">🫀 استرس/ترسِ زیرسیستم‌ها (عینِ تنشِ انسانی — بدکارکن‌ها مهار می‌شوند)</div><div id="stressSubs" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div></div>
+<div class="card" id="nervCard" style="margin-bottom:10px;display:none"><div class="lbl">🦴 عصب‌کشی — قلب → ستونِ فقرات → اندام‌ها (<span id="nervCov">—</span> پوشش · ضربان <span id="nervHb">—</span>)</div><div id="nervOrgans" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div></div>
 <div class="cards">
  <div class="card"><div class="lbl">الان چیکار می‌کند</div><div class="val" id="now">…</div></div>
  <div class="card"><div class="lbl">آخرین نتیجه</div><div class="val" id="last">…</div></div>
@@ -359,6 +365,11 @@ async function tick(){try{
   const c=s.fear?'#f85149':(s.stress>=0.4?'#e3b341':'#3fb950');
   return '<span style="background:#161b22;border:1px solid '+c+';border-radius:7px;padding:4px 8px;font-size:11px">'
    +(s.fear?'🔴':(s.stress>=0.4?'🟡':'🟢'))+' '+esc(s.name)+' <span style=color:#6e7681>'+esc(s.detail||'')+'</span></span>'}).join('');
+ const nv=d.innervation||{}; const orgs=nv.organs||[];
+ const nc=document.getElementById('nervCard'); nc.style.display=orgs.length?'block':'none';
+ document.getElementById('nervCov').textContent=(nv.coverage_pct!=null?nv.coverage_pct+'%':'—');
+ document.getElementById('nervHb').textContent=(nv.heart_period_s!=null?Math.round(nv.heart_period_s)+'s':'—');
+ document.getElementById('nervOrgans').innerHTML=orgs.map(o=>chip({status:o.status.split(' ')[0],name:o.name,detail:o.status.split(' ').slice(1).join(' ')})).join('');
  const s=d.summary_5m||{};
  document.getElementById('k_c').textContent=s.completed||0;
  document.getElementById('k_w').textContent=(s.waiting||d.pending||0);

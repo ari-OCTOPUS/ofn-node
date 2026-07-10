@@ -182,10 +182,24 @@ def stress_tick(cycle: int) -> dict | None:
         return None
 
 
+def innervation_tick(cycle: int) -> dict | None:
+    """نقشهٔ عصب‌کشی هر چرخه (رأی مالک «قلب به تمومِ اندام‌ها وصل باشه، کم‌نقطهٔ مرده»):
+    آیا هر اندام beat می‌خورد؟ نقطهٔ مرده → هشدار. $0، fail-soft."""
+    try:
+        import innervation
+        a = innervation.persist()
+        return {"coverage_pct": a["coverage_pct"], "dead_spots": a["dead_spots"],
+                "heart_period_s": a["heart_period_s"]}
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"cortex innervation error: {type(e).__name__}: {e}"])
+        return None
+
+
 def run_cycle(cycle: int) -> dict:
     sweep = registry.sweep()
     alignment = align_work_plan(sweep)
     stress_summary = stress_tick(cycle)
+    innervation_summary = innervation_tick(cycle)
     thought = think(sweep, cycle) if (cycle % THINK_EVERY_N == 0) else None
     model_summary = (self_model_refresh(cycle)
                      if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
@@ -212,6 +226,7 @@ def run_cycle(cycle: int) -> dict:
         **({"part_loops": parts_summary} if parts_summary else {}),
         **({"business_brain": business_summary} if business_summary else {}),
         **({"stress": stress_summary} if stress_summary else {}),
+        **({"innervation": innervation_summary} if innervation_summary else {}),
         "schema": "cortex-state.v1",
     }
     CORTEX_DIR.mkdir(parents=True, exist_ok=True)

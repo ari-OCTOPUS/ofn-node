@@ -1117,15 +1117,24 @@ def heart_beat(beat: int = 0, snap: dict | None = None) -> dict | None:
                "gate0": rec.get("gate0_live_producer"),
                "sampled": rec.get("sampled_this_step"),
                "beat": beat}
-        # HH-P6: setpointِ w-slow (روزانه) — همان الگوی cadence دکتر
+        # HH-P6: setpointِ w-slow (روزانه) — همان الگوی cadence دکتر.
+        # جلسه ۴۶ (فیکسِ #۱، ممیزیِ قلب): seedِ اولیه را جلو بینداز — به‌جای انتظارِ کادنسِ
+        # ۱۴۴۰ (روزها)، همان اولین ضربانی که velocity هست و هنوز باندی نیست، seed کن. تا آن،
+        # قلب روی باندِ پیش‌فرضِ اشتباه قضاوت می‌کرد و در حداکثر استراحت گیر می‌کرد.
         sp_n = int(os.environ.get("CHRONO_HEART_SETPOINT_EVERY_N_BEATS", "1440"))
-        if sp_n > 0:
-            sp_epoch = beat // sp_n
-            if sp_epoch >= 1 and sp_epoch > _HEART_STATE["last_setpoint_epoch"]:
+        from heart import doctor_setpoint as _ds
+        try:
+            _need_seed = _ds.hi.read_setpoint() is None
+        except Exception:  # noqa: BLE001
+            _need_seed = False
+        sp_epoch = beat // sp_n if sp_n > 0 else 0
+        _cadence_due = sp_n > 0 and sp_epoch >= 1 and sp_epoch > _HEART_STATE["last_setpoint_epoch"]
+        if _need_seed or _cadence_due:
+            if _cadence_due:
                 _HEART_STATE["last_setpoint_epoch"] = sp_epoch
-                from heart import doctor_setpoint as _ds
-                sp = _ds.run_epoch_setpoint(write=True)
-                out["setpoint_epoch_seq"] = sp.get("epoch_seq")
+            sp = _ds.run_epoch_setpoint(write=True)
+            out["setpoint_epoch_seq"] = sp.get("epoch_seq")
+            out["setpoint_seeded"] = sp.get("written") and sp.get("rationale", "").startswith("seeded")
         # HH-P9: پمپِ کار — «طبق ضربان، کارِ واقعی». پشتِ flag دوم (پیش‌فرض خاموش،
         # خارج از profile). cadenceِ کار از periodِ سایهٔ همین ضربان فرمان می‌گیرد؛
         # ردهٔ paid (سرچ/LLM) داخلِ پمپ پشتِ live-gateِ دوقفله می‌ماند.
@@ -1201,6 +1210,29 @@ def needs_nudge_beat(channel=None, beat: int = 0) -> dict | None:
     except Exception as e:  # noqa: BLE001 — §۴: نوتیف نباید tick را بکشد
         opslib.alert([f"wiring: needs_nudge خطا: {type(e).__name__}: {e}"])
         return None
+
+
+def cortex_vitals_beat(beat: int = 0) -> dict | None:
+    """جلسه ۴۶ (رأی مالک «قلب به تمومِ اندام‌ها، کم‌نقطهٔ مرده»): علائمِ حیاتیِ سبک —
+    استرس + عصب‌کشی — را مستقیم از ستونِ فقراتِ اصلی beat می‌زند، تا حتی اگر دیمنِ
+    کورتکس بخوابد، مانیتور کور نشود و نقطهٔ مردهٔ کورتکس تشخیص داده شود. $0، fail-soft."""
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    out = {}
+    try:
+        sys.path.insert(0, str(_HERE / "cortex"))
+        import stress
+        out["stress"] = stress.persist().get("level")
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        import innervation
+        a = innervation.persist()
+        out["coverage"] = a.get("coverage_pct")
+        out["dead"] = a.get("dead_spots")
+    except Exception:  # noqa: BLE001
+        pass
+    return out or None
 
 
 _HEARTBEAT_STATE = {"last_epoch": -1}

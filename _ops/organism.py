@@ -443,6 +443,9 @@ def main() -> int:
                     _w.discovery_nudge_beat(_chan, beat=_cstat.get("beat", 0))
                     # جلسه ۴۶: heartbeat summary هر ~۵min — خوراکِ داشبوردِ اتوماسیون.
                     _w.heartbeat_summary_beat(_chan, beat=_cstat.get("beat", 0))
+                    # جلسه ۴۶: علائمِ حیاتی (استرس+عصب‌کشی) مستقیم از ستونِ فقرات —
+                    # تا حتی با خوابِ دیمنِ کورتکس، مانیتور کور نشود و نقطهٔ مرده لو برود.
+                    _w.cortex_vitals_beat(beat=_cstat.get("beat", 0))
                 except Exception as _nne:  # noqa: BLE001 — §۴: نوتیف نباید tick را بکشد
                     opslib.alert([f"needs_nudge error (non-fatal): {type(_nne).__name__}: {_nne}"])
             if now - last_heartbeat > 3600:
