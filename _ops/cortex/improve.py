@@ -320,6 +320,19 @@ def maybe_auto_apply(proposals: list[dict]) -> list[dict]:
 def run(write: bool = True, use_local_brain: bool = True) -> dict:
     signals = gather_signals()
     proposals = generate_proposals(signals)
+    # جلسه ۴۶ (رأی مالک «دایره‌ای الکی نباشه، هدف‌دار باشه»): بازچینیِ هدف‌محور —
+    # دایره‌ای‌ها (خودمتریک/سندی) به ته، هدف‌محورها (کسب‌وکار/درآمد/هدف) بالا.
+    goal_report = {}
+    try:
+        import goal_directed
+        gr = goal_directed.rerank(proposals)
+        proposals = gr["ranked"]
+        goal_report = {"n_goal_serving": gr["n_goal_serving"],
+                       "n_circular_dropped": gr["n_circular_dropped"],
+                       "goals_count": gr["goals_count"],
+                       "outcome": goal_directed.measure()}
+    except Exception as e:  # noqa: BLE001 — بازچینی نباید حلقه را بکشد
+        opslib.alert([f"goal_directed error (non-fatal): {type(e).__name__}: {e}"])
     auto = maybe_auto_apply(proposals)
     # دسته‌بندی (رأی مالک: «دسته‌بندی‌شده»)
     by_cat: dict = {}
@@ -328,7 +341,16 @@ def run(write: bool = True, use_local_brain: bool = True) -> dict:
             {k: p[k] for k in ("id", "priority", "title", "suggested_action",
                                "change_level", "source", "status_now", "status")
              if k in p})
-    top = [p for p in proposals if p["priority"] in ("P0", "P1")][:8]
+    # هدف‌محور: proposals از قبل بر اساسِ impact مرتب‌اند (goal_directed). top = صدرِ
+    # هدف‌محور + هر P0، نه صرفاً P0/P1 (تا کارِ دایره‌ای بالا نیاید).
+    top = [p for p in proposals
+           if p.get("priority") == "P0" or p.get("impact", 1.0) >= 1.5
+           or p["priority"] == "P1"][:8]
+    try:
+        import goal_directed
+        goal_directed.record_intent(top)   # نیتِ سنجش را ثبت کن (لوپ را ببند)
+    except Exception:  # noqa: BLE001
+        pass
     thought = None
     if use_local_brain and top:
         try:
@@ -359,6 +381,7 @@ def run(write: bool = True, use_local_brain: bool = True) -> dict:
         "auto_eligible": auto,
         "auto_enabled": ACT_AUTO.exists(),
         **({"brain_note": thought} if thought else {}),
+        **({"goal_directed": goal_report} if goal_report else {}),
         "learning": {"rejected_categories": _load_verdict_penalty()},
     }
     if write:
