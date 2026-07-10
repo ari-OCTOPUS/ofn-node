@@ -109,6 +109,31 @@ def t_h_persist_on_writes_and_broadcasts():
     os.environ.pop("CORTEX_IGNITION", None)
 
 
+def t_j_real_candidates_full_workspace():
+    """فانکشنِ واقعی: gather_candidates کلِ فضای کاری را می‌خواند — استرس + نقطهٔ مرده +
+    کشفِ تازه + توجهِ مالک — نه فقط دو منبع."""
+    import time
+    c = opslib.STATE_DIR / "cortex"
+    c.mkdir(parents=True, exist_ok=True)
+    (c / "stress-latest.json").write_text(json.dumps(
+        {"subsystems": {"money": {"name": "money", "stress": 0.6}}}), "utf-8")
+    (c / "innervation-latest.json").write_text(json.dumps(
+        {"dead_spots": ["🧠 مغزِ مرکزی"]}), "utf-8")
+    (opslib.STATE_DIR / "discoveries.jsonl").write_text(
+        json.dumps({"ts": time.time(), "kind": "research", "summary": "کشفِ نو"}) + "\n", "utf-8")
+    (opslib.STATE_DIR / "events.jsonl").write_text(
+        json.dumps({"event_name": "task.blocked", "approval_state": "required",
+                    "summary": "منتظرِ تأییدِ مالک"}) + "\n", "utf-8")
+    cands = ig.gather_candidates()
+    kinds = {c["source"] for c in cands}
+    assert {"money", "innervation", "discovery", "attention"} <= kinds   # هر ۴ منبع
+    att = next(c for c in cands if c["source"] == "attention")
+    assert att["salience"] == 0.85                                       # توجهِ مالک = برجسته
+    # و رقابت روی این فضای کاریِ واقعی یک برندهٔ معنادار می‌دهد
+    sel = ig.select_winner(cands, reentry_prior={})
+    assert sel["ignited"] is True and sel["broadcast_width"] >= 1
+
+
 def t_i_content_free():
     """بی‌محتوا: خروجی فقط source/kind/salience دارد، هیچ secret/محتوای خصوصی."""
     rec = ig.step({}, candidates=_cands())

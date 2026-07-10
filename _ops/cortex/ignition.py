@@ -5,8 +5,9 @@
 باید واقعی شود. امروز کورتکس همهٔ اندام‌ها را ثابت‌ترتیب اجرا می‌کند و چیزی «برنده»
 نمی‌شود. این ماژول همان مکانیزمِ تعیین‌کننده را می‌سازد:
 
-  ۱) رقابت (competition): محتواهای نامزد (استرسِ هر زیرسیستم، نقاطِ مرده، پروپوزال‌ها)
-     بر سرِ فضای کاری رقابت می‌کنند؛ salience هرکدام ۰..۱.
+  ۱) رقابت (competition): محتواهای نامزدِ واقعیِ فضای کاری — استرسِ هر زیرسیستم (تهدید،
+     پایین-به-بالا)، نقاطِ مرده، کشف/یادگیریِ تازه (نو، بالا-به-پایین)، و توجهِ مالک
+     (blocked/approval) — بر سرِ فضای کاری رقابت می‌کنند؛ salience هرکدام ۰..۱.
   ۲) آتش‌گیری (ignition): فقط اگر برندهٔ effective از آستانه بگذرد، «ignite» می‌شود و
      تک‌برنده به همهٔ مشترک‌ها پخش می‌شود (winner-take-all). وگرنه چرخهٔ خاموش.
   ۳) بازورود (re-entry): برندهٔ این چرخه به‌عنوان priorِ کوچکِ رو-به-فرسایش، salienceِ
@@ -128,6 +129,35 @@ def gather_candidates() -> list[dict]:
         for name in (nv.get("dead_spots") or []):
             cands.append({"source": "innervation", "kind": "dead_spot",
                           "salience": 0.8, "summary": str(name)})
+    except (OSError, ValueError, TypeError):
+        pass
+    # کشف/یادگیریِ تازه = محتوای نو که برای توجه رقابت می‌کند (recency-weighted، بالا-به-پایین)
+    try:
+        import time as _t
+        dp = STATE / "discoveries.jsonl"
+        if dp.exists():
+            rows = [json.loads(l) for l in dp.read_text("utf-8").splitlines()[-10:] if l.strip()]
+            now = _t.time()
+            for r in rows[-3:]:
+                age_h = max(0.0, (now - float(r.get("ts", 0))) / 3600.0)
+                sal = round(max(0.2, 0.55 - 0.05 * age_h), 3)   # تازه‌تر = برجسته‌تر، فرسایشِ ملایم
+                cands.append({"source": "discovery", "kind": str(r.get("kind", "learn"))[:12],
+                              "salience": sal, "summary": str(r.get("summary", ""))[:80]})
+    except (OSError, ValueError, TypeError):
+        pass
+    # چیزی که منتظرِ مالک است یا گیر کرده = برجستگیِ پایین-به-بالا (جدیدترین)
+    try:
+        ep = STATE / "events.jsonl"
+        if ep.exists():
+            for l in reversed(ep.read_text("utf-8").splitlines()[-60:]):
+                try:
+                    e = json.loads(l)
+                except ValueError:
+                    continue
+                if e.get("event_name") == "task.blocked" or e.get("approval_state") == "required":
+                    cands.append({"source": "attention", "kind": "owner_wait",
+                                  "salience": 0.85, "summary": str(e.get("summary", ""))[:80]})
+                    break
     except (OSError, ValueError, TypeError):
         pass
     return cands
