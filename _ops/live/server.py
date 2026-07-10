@@ -277,6 +277,15 @@ def ops_state() -> dict:
             st["business"] = business_brain.summary().get("projects", [])
         except Exception:  # noqa: BLE001
             st["business"] = []
+        try:
+            import stress
+            sa = _read_json(STATE / "cortex" / "stress-latest.json") or stress.assess()
+            st["stress"] = {"level": sa.get("level"), "organism": sa.get("organism_stress"),
+                            "subs": [{"name": v["name"], "stress": v["stress"], "fear": v["fear"],
+                                      "detail": v.get("detail")}
+                                     for v in (sa.get("subsystems") or {}).values()]}
+        except Exception:  # noqa: BLE001
+            st["stress"] = {}
         return st
     except Exception as e:  # noqa: BLE001
         return {"overall": "—", "error": f"{type(e).__name__}", "log": [], "parts": []}
@@ -305,7 +314,9 @@ OPS_PAGE = """<!doctype html><html dir="rtl" lang="fa"><meta charset="utf-8">
 .ok{color:#3fb950}.fail{color:#f85149}.blk{color:#e3b341}
 </style><body>
 <div class="bar"><div><b id="ov">…</b><div class="upd" id="upd">—</div></div>
- <button class="btn" id="act" onclick="act()">🔄</button></div>
+ <div style="text-align:left"><div id="stress" style="font-size:12px">—</div>
+  <button class="btn" id="act" onclick="act()">🔄</button></div></div>
+<div class="card" id="stressCard" style="margin-bottom:10px;display:none"><div class="lbl">🫀 استرس/ترسِ زیرسیستم‌ها (عینِ تنشِ انسانی — بدکارکن‌ها مهار می‌شوند)</div><div id="stressSubs" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div></div>
 <div class="cards">
  <div class="card"><div class="lbl">الان چیکار می‌کند</div><div class="val" id="now">…</div></div>
  <div class="card"><div class="lbl">آخرین نتیجه</div><div class="val" id="last">…</div></div>
@@ -341,6 +352,13 @@ async function tick(){try{
   ||'<span style=color:#6e7681;font-size:11px>لوپ‌ها هنوز نچرخیده‌اند</span>';
  document.getElementById('biz').innerHTML=(d.business||[]).map(chip).join('')
   ||'<span style=color:#6e7681;font-size:11px>مغزِ دوم هنوز نچرخیده</span>';
+ const sd=d.stress||{}; document.getElementById('stress').textContent=(sd.level||'')+(sd.organism!=null?(' '+Math.round(sd.organism*100)+'%'):'');
+ const sc=document.getElementById('stressCard'); const subs=sd.subs||[];
+ sc.style.display=subs.length?'block':'none';
+ document.getElementById('stressSubs').innerHTML=subs.map(s=>{
+  const c=s.fear?'#f85149':(s.stress>=0.4?'#e3b341':'#3fb950');
+  return '<span style="background:#161b22;border:1px solid '+c+';border-radius:7px;padding:4px 8px;font-size:11px">'
+   +(s.fear?'🔴':(s.stress>=0.4?'🟡':'🟢'))+' '+esc(s.name)+' <span style=color:#6e7681>'+esc(s.detail||'')+'</span></span>'}).join('');
  const s=d.summary_5m||{};
  document.getElementById('k_c').textContent=s.completed||0;
  document.getElementById('k_w').textContent=(s.waiting||d.pending||0);

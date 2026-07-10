@@ -80,7 +80,16 @@ def goal_aligned(p: dict) -> bool:
 
 
 def self_test() -> tuple[bool, str]:
-    """«سیستم خودش تست کند»: سوییتِ سبز (CAPABILITY-OK) + مشاهدهٔ زنده + بیرونِ refractory."""
+    """«سیستم خودش تست کند»: سوییتِ سبز (CAPABILITY-OK) + مشاهدهٔ زنده + بیرونِ refractory
+    + **آرام بودن** (رأی مالک: ترس = محافظه‌کاری، خود-تغییری تحتِ استرس مکث)."""
+    # جلسه ۴۶ — گیتِ ترس: زیرسیستمی بد کار می‌کند → هیچ خود-تغییرِ خودکار (fail-closed)
+    try:
+        import stress
+        feared, why = stress.organism_in_fear()
+        if feared:
+            return False, f"سیستم تحتِ ترس — خود-تغییری مکث: {why}"
+    except Exception:  # noqa: BLE001 — نبودِ stress نباید گیت را بشکند
+        pass
     try:
         import capability_gate
         if not capability_gate.capability_ok():

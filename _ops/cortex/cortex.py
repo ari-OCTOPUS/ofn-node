@@ -169,9 +169,23 @@ def business_brain_run(cycle: int) -> dict | None:
         return None
 
 
+def stress_tick(cycle: int) -> dict | None:
+    """هومئوستاتِ استرس/ترس هر چرخه (رأی مالک): علائمِ حیاتیِ زیرسیستم‌ها.
+    ترس → auto_approve.self_test مکث می‌کند (fail-closed). $0، fail-soft."""
+    try:
+        import stress
+        a = stress.persist()
+        return {"level": a["level"], "organism_stress": a["organism_stress"],
+                "in_fear": a["in_fear"]}
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"cortex stress error: {type(e).__name__}: {e}"])
+        return None
+
+
 def run_cycle(cycle: int) -> dict:
     sweep = registry.sweep()
     alignment = align_work_plan(sweep)
+    stress_summary = stress_tick(cycle)
     thought = think(sweep, cycle) if (cycle % THINK_EVERY_N == 0) else None
     model_summary = (self_model_refresh(cycle)
                      if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
@@ -197,6 +211,7 @@ def run_cycle(cycle: int) -> dict:
         **({"self_model": model_summary} if model_summary else {}),
         **({"part_loops": parts_summary} if parts_summary else {}),
         **({"business_brain": business_summary} if business_summary else {}),
+        **({"stress": stress_summary} if stress_summary else {}),
         "schema": "cortex-state.v1",
     }
     CORTEX_DIR.mkdir(parents=True, exist_ok=True)
