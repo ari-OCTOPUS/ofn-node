@@ -275,7 +275,14 @@ class TelegramApprovalChannel(ApprovalChannel):
 
             msg = upd.get("message") or cbq.get("message") or {}
             chat_id = msg.get("chat", {}).get("id") or cbq.get("message", {}).get("chat", {}).get("id")
-            text = msg.get("text") or (cbq.get("data") if is_callback else "")
+            # 🐛 فیکسِ جلسه ۴۶ (علتِ واقعیِ «نادیده»): برای callback، پیامِ ضمیمهٔ دکمه خودش
+            # `text` دارد (بدنهٔ منو). فرمِ قبلی `msg.get("text") or cbq.data` آن متن را
+            # می‌خواند و callback data هرگز خوانده نمی‌شد → dispatch("متنِ منو") → «نادیده».
+            # برای callback همیشه data؛ برای پیام همیشه text. (تستِ e2e این را می‌گیرد.)
+            if is_callback:
+                text = cbq.get("data") or ""
+            else:
+                text = msg.get("text") or ""
             from_id = (msg.get("from") or cbq.get("from") or {}).get("id")
             cbq_id = cbq.get("id")  # callback_query ID برای answerCallbackQuery
 

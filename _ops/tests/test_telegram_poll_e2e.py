@@ -52,10 +52,13 @@ class QueuedHTTP:
 
 
 def _cbq(data, uid=1, chat=OWNER):
+    # واقع‌گرایانه: پیامِ ضمیمهٔ دکمه، متنِ خودش (بدنهٔ منو) را دارد — دقیقاً مثلِ تلگرامِ
+    # واقعی. باگِ جلسه ۴۶: کد این متن را به‌جای callback data می‌خواند → «نادیده».
     return {"update_id": uid,
             "callback_query": {"id": f"cbq{uid}", "data": data,
                                "from": {"id": chat},
-                               "message": {"chat": {"id": chat}, "date": 0}}}
+                               "message": {"chat": {"id": chat}, "date": 0,
+                                           "text": "🐙 اختاپوس — منوی اصلی\nحالت: STEADY"}}}
 
 
 def _channel(updates):
@@ -67,11 +70,13 @@ def _channel(updates):
 
 
 def t_a_valid_menu_button_opens_new_message():
-    """دکمهٔ منوی معتبر → answer «✅» + پیامِ نو با کیبورد (نه toastِ نادیده)."""
+    """دکمهٔ منوی معتبر → answer «✅» + پیامِ نو با کیبورد (نه toastِ نادیده).
+    رگرسیونِ باگِ جلسه ۴۶: callback.message.text نباید callback data را سایه بیندازد."""
     ch, fh = _channel([_cbq("menu:overview")])
     ch.poll_once()
     ans = fh.answers()
     assert ans and "✅" in json.dumps(ans[0], ensure_ascii=False), ans
+    assert "نادیده" not in json.dumps(ans, ensure_ascii=False)   # ضدِ باگِ متنِ منو
     sends = fh.sends()
     assert sends, "دکمهٔ معتبر باید پیامِ نو بفرستد"
     assert sends[0].get("reply_markup"), "پیامِ تب باید کیبورد داشته باشد"
