@@ -182,6 +182,15 @@ def main() -> int:
         opslib.heartbeat("human-append guard configured (per-boot secret)")
     except Exception as _hge:  # noqa: BLE001 — گارد اختیاری؛ نبودش = passthrough امن
         opslib.alert([f"human-append guard configure failed (non-fatal): {type(_hge).__name__}"])
+    # جلسه ۴۶: knobهای auto-اعمال‌شده را از دیسک بازگردان (تا با restart گم نشوند).
+    try:
+        sys.path.insert(0, str(_HERE / "cortex"))
+        import auto_approve as _aa
+        _knobs = _aa.load_persisted_knobs()
+        if _knobs:
+            opslib.heartbeat(f"auto-tuned knobs restored: {list(_knobs)}")
+    except Exception as _ake:  # noqa: BLE001 — اختیاری
+        opslib.alert([f"auto-knobs restore failed (non-fatal): {type(_ake).__name__}"])
     try:
         import wiring as _w
         _profile = _w.apply_profile()   # P-W3: paper-full → flagهای امن

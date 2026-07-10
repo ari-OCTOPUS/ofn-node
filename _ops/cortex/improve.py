@@ -286,22 +286,19 @@ def maybe_auto_apply(proposals: list[dict]) -> list[dict]:
     ref_ok, ref_why = refractory_open()
     if not ref_ok:
         return applied          # ساکت — دورهٔ نقاهت، رفتارِ عادی
-    # v1 محافظه‌کار: فقط علامت + لاگ؛ اعمالِ واقعیِ knob در نسخهٔ بعد پس از تأییدِ سازوکار.
-    for p in proposals:
-        if p.get("auto_applicable"):
-            opslib.ledger_note("SELF_IMPROVE_AUTO", {"id": p["id"], "title": p["title"],
-                                                     "note": "auto-eligible (v1: logged only)"},
-                               actor="self-improve")
-            p["status"] = "auto-eligible"
-            applied.append(p["id"])
-    if applied:
-        try:
-            import datetime as _dt
-            with opslib.LockedJson(AUTO_STATE_PATH) as lj:
-                lj.write({"last_auto_ts": _dt.datetime.now().timestamp(),
-                          "ts": opslib.now_iso(), "applied": applied})
-        except Exception as e:  # noqa: BLE001
-            opslib.alert([f"improve auto-state write failed: {e}"])
+    # جلسه ۴۶ (رأی مالک «براساس درجه خطر و اهداف مجوز بده»): موتورِ تصمیمِ درجه‌بندیِ خطر.
+    # فقط knobِ کم‌خطر + هم‌راستا با هدف + سوییتِ سبز واقعاً اعمال می‌شود؛ بقیه escalate.
+    try:
+        import auto_approve
+        cand = [p for p in proposals if p.get("auto_applicable")]
+        res = auto_approve.run(cand)
+        for a in res.get("applied", []):
+            p_match = next((p for p in cand if p.get("title") == a.get("title")), None)
+            if p_match:
+                p_match["status"] = "auto-applied"
+                applied.append(p_match["id"])
+    except Exception as e:  # noqa: BLE001 — auto نباید حلقه را بکشد
+        opslib.alert([f"auto_approve error (non-fatal): {type(e).__name__}: {e}"])
     return applied
 
 

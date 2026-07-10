@@ -191,11 +191,18 @@ def run_all(beat: int = 0) -> dict:
 
 
 def summary() -> dict:
-    """خلاصهٔ سبکِ آخرین دور (خوراکِ داشبورد/خانه)."""
+    """خلاصهٔ سبکِ آخرین دور (خوراکِ داشبورد/خانه) + وضعیتِ مجوزِ خودکار."""
     d = _r(OUT)
+    autonomy = {}
+    try:
+        aa = _r(STATE / "cortex" / "auto-knobs.json")
+        autonomy = {"granted": (opslib.OPS / "ACTIVATION-SELF-IMPROVE-AUTO.flag").exists(),
+                    "auto_knobs": aa}
+    except Exception:  # noqa: BLE001
+        pass
     return {"parts": [{"name": p["name"], "status": p["status"], "detail": p.get("detail")}
                       for p in (d.get("parts") or [])],
-            "n_proposals": d.get("n_proposals", 0)}
+            "n_proposals": d.get("n_proposals", 0), "autonomy": autonomy}
 
 
 if __name__ == "__main__":
