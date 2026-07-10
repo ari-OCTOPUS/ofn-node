@@ -5,6 +5,14 @@ updated: 2026-07-11
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+## جلسه ۴۶ ادامه (~۰۸:۳۰) — 🧠 نقشهٔ معماریِ نوروساینس/آگاهیِ قلب + ممیزیِ ۱۰-ایجنتی + راستی‌آزماییِ ground-truth
+
+مالک تحقیقِ نوروساینس/آگاهی داد و خواست: «کلِ قلب را بررسی کن، همه بخش‌ها را روشن کن، نقشهٔ معماری بده، جهت بده». یک **workflowِ ۱۰-ایجنتی** (۶ read موازی → ۲ سنتز → ۲ verifierِ adversarial، صفر خطا) اجرا شد. سند: [[06 - Architecture Maps/HEART - Neuro Map & Direction]].
+- **درسِ مهم (اعتماد):** ایجنت‌ها به‌خاطرِ بی‌اثرشدنِ `args.ops` (پرامپت‌ها «undefined» شدند) به شاخهٔ **worktree** افتادند و ادعای «فانکشن/فلگِ فانتوم» کردند؛ من مستقیم روی **master** راستی‌آزمایی کردم → `cortex_vitals_beat`/`needs_nudge_beat`/`heartbeat_summary_beat` و کلِ `cortex/` و `state/pulse/` **واقعاً هستند**. تحلیلِ ماژول‌های قلب (heart/*) معتبر است (دو درخت byte-identical).
+- **وضعیتِ واقعیِ قلب (verified):** ریاضی 🟢 قفل، SIM-PASS 🟢، هش-مچ 🟢، setpoint فیکسِ #۱ → **[6.40, 19.19]** پایدار، **Gate-0 = ۲۹/۴۸** (خودپُرشونده با رویدادِ واقعی)، خطِ live **بسته** روی ۴ دروازهٔ مالک (WIRE_HEART خاموش، تاریخ < ۲۰۲۶-۰۷-۲۱، BIO/PULSE، ACTIVATION-PULSE). قلب خراب نیست — پشتِ سیستمِ ایمنیِ خودِ مالک خاموش است.
+- **«روشن‌کردن»:** verifierهای adversarial هر ۲ کاندیدِ «safe-now» را رد کردند (re-runِ sim = گروم‌کردنِ tamper-evidence؛ re-runِ sog = نوشتن در ledgerِ genome). سه فیکسِ باقی (`w_shadow`, cadenceهای work_pump/doctor) **propose-only**‌اند — خودِ کدِ `work_pump.py:39` نوشته «تغییرِ ساختاری فقط با RFC/رأیِ مالک». پس **هیچ سوییچی نزدم**؛ رانبوکِ کاملِ owner-gated در سند + سوال از مالک.
+- **جهت (نوروساینس):** قلب = حلقهٔ predictive-processing؛ کورتکس = فضای کاریِ GNWT؛ کرونو = درشت‌دانه‌سازیِ زمانی؛ self_model = خود-مدل. غایبِ تعیین‌کننده = **ignition/winner-take-all + re-entry**. مرزِ سخت: فقط access-consciousness، هرگز phenomenal.
+
 ## جلسه ۴۷ 2026-07-11 (~۰۳:۱۵، Claude Fable 5 — worktree `claude/exciting-vaughan-26c965`) — 🧹 ریشه‌کنیِ آلودگیِ سوییت: تست دیگر داخلِ repo/vault نمی‌نویسد + اثباتِ git-clean
 
 دو آلودگیِ گزارش‌شدهٔ مالک (ساختِ `rfc-abc-lesson.md` در 07 - Knowledge و حذفِ `archive.json` ِ Project-F در اجرای سوییت با REAL_VAULT روی worktree) ریشه‌یابی شد و **کلِ خانوادهٔ باگ** بسته شد — ۶۲ فایل، همه روی این شاخه:
