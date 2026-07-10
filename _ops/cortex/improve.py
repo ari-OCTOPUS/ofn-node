@@ -128,6 +128,7 @@ def gather_signals() -> dict:
     matrix = self_audit.run_audit(write=True)      # ممیزیِ تازه
     idea = _read(STATE / "idea-graph-latest.json") or {}
     cortex = _read(STATE / "cortex" / "cortex-state.json") or {}
+    research = _read(STATE / "pulse" / "research-latest.json") or {}  # جلسه ۴۶: وبِ رایگان
     rfcs = []
     try:
         if RFC_DIR.exists():
@@ -137,7 +138,8 @@ def gather_signals() -> dict:
                 rfcs.append(f.stem)
     except OSError:
         pass
-    return {"matrix": matrix, "idea": idea, "cortex": cortex, "doctor_rfcs": rfcs}
+    return {"matrix": matrix, "idea": idea, "cortex": cortex,
+            "research": research, "doctor_rfcs": rfcs}
 
 
 _PRI_RANK = {"P0": 0, "P1": 1, "P2": 2, "P3": 3}

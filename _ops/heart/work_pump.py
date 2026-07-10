@@ -42,8 +42,10 @@ DEFAULT_PLAN = {
          "goal": "اسنپ‌شاتِ سلامتِ بدن برای حافظه/کابین"},
         {"kind": "gap_report", "every_s": 43200, "paid": False,
          "goal": "کم‌آگاه‌ترین موضوع‌های مدرسه — خوراکِ نقشهٔ یادگیری"},
+        {"kind": "web_research", "every_s": 43200, "paid": False,
+         "goal": "تحقیقِ وبِ رایگانِ $0 (DDG+Wikipedia+arXiv) روی گپِ مدرسه — لایهٔ فراشناختی"},
         {"kind": "search", "every_s": 86400, "paid": True,
-         "goal": "سرچِ واقعیِ وب برای گپِ روز (provider = رأی مالک)"},
+         "goal": "سرچِ پولیِ عمیق‌ترِ وب برای گپِ روز (provider = رأی مالک)"},
         {"kind": "llm_learn", "every_s": 86400, "paid": True,
          "goal": "چکیده‌سازی/یادگیریِ LLM از یافته‌ها → حافظهٔ ماندگار"},
     ],
@@ -123,7 +125,23 @@ def _exec_paid_lane(kind: str, tpl: dict) -> dict:
     return {"ok": False, "skipped": "provider-not-wired: رأی مالک برای provider لازم است"}
 
 
-_EXECUTORS = {"health": _exec_health, "gap_report": _exec_gap_report}
+def _exec_web_research() -> dict:
+    """تحقیقِ وبِ رایگانِ $0 روی موضوع‌های کم‌آگاهِ مدرسه (لایهٔ فراشناختی، جلسه ۴۶).
+    موضوع‌ها فقط عمومی‌اند (نه محتوای خصوصیِ vault). پشتِ OCTOPUS_WIRE_WEB_RESEARCH."""
+    gaps = _exec_gap_report()
+    topics = [g["topic"] for g in (gaps.get("gaps") or []) if g.get("topic")]
+    if not topics:
+        return {"ok": True, "skipped": "گپِ مدرسه خالی — موضوعی برای تحقیق نیست"}
+    try:
+        sys.path.insert(0, str(_HERE.parent / "cortex"))
+        import web_research as _wr
+        return _wr.run_and_persist(topics)
+    except Exception as e:  # noqa: BLE001 — تحقیق نباید pump را بکشد
+        return {"ok": False, "error": f"{type(e).__name__}: {str(e)[:100]}"}
+
+
+_EXECUTORS = {"health": _exec_health, "gap_report": _exec_gap_report,
+              "web_research": _exec_web_research}
 
 
 # ─── پمپ ────────────────────────────────────────────────────────────────────────

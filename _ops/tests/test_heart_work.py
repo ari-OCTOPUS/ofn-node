@@ -28,7 +28,7 @@ def t_a_plan_seeded_on_first_use():
     plan = wp.load_plan()
     assert plan["schema"] == "work-plan.v1"
     kinds = [t["kind"] for t in plan["templates"]]
-    assert kinds == ["health", "gap_report", "search", "llm_learn"]
+    assert kinds == ["health", "gap_report", "web_research", "search", "llm_learn"]
     assert wp.PLAN_PATH.exists()
     on_disk = json.loads(wp.PLAN_PATH.read_text("utf-8"))
     assert [t["kind"] for t in on_disk["templates"]] == kinds
@@ -75,20 +75,19 @@ def t_d_cadence_follows_shadow_period():
 
 
 def t_e_paid_search_live_locked_today():
-    """ردهٔ paid (سرچ): امروز skipِ صادق با دلیلِ live-locked — نه اجرای خاموش."""
-    r = wp.pump_step(beat=20, period_s=60.0, now=T0 + dt.timedelta(seconds=200))
-    assert r.get("kind") == "search", r
+    """ردهٔ paid (سرچ): امروز skipِ صادق با دلیلِ live-locked — نه اجرای خاموش.
+    (مستقیمِ لِینِ paid — مستقل از ترتیبِ انتخابِ پمپ، که حالا web_researchِ $0 هم دارد.)"""
+    tpl = {"kind": "search", "paid": True}
+    r = wp._exec_paid_lane("search", tpl)
     assert r.get("ok") is False and "live-locked" in r.get("skipped", ""), r
-    log = wp.read_log()
-    assert log[-1]["kind"] == "search" and "live-locked" in log[-1]["skipped"]
 
 
 def t_f_paid_llm_learn_live_locked_today():
     """ردهٔ paid (یادگیریِ LLM): همان گیتِ دوقفله؛ سندِ unlock در خروجی."""
-    r = wp.pump_step(beat=30, period_s=60.0, now=T0 + dt.timedelta(seconds=400))
-    assert r.get("kind") == "llm_learn", r
+    r = wp._exec_paid_lane("llm_learn", {"kind": "llm_learn", "paid": True})
     assert r.get("ok") is False and "live-locked" in r.get("skipped", ""), r
     assert "ACTIVATION-WORK-LLM" in r.get("unlock", "")
+    # گیتِ دوقفله: بدونِ ACTIVATION-GO-LIVE، سپرِ تاریخ امروز بسته است
     ok, why = opslib.live_gate_open(wp.ACT_WORK_LLM)
     assert ok is False and "live locked" in why
 
