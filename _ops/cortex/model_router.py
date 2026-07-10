@@ -29,6 +29,10 @@ import opslib  # noqa: E402
 import local_llm  # noqa: E402
 
 ACT_CORTEX_PAID = opslib.OPS / "ACTIVATION-CORTEX-PAID.flag"
+# اهرمِ مالک (رأی 2026-07-10 «اینترنت هرچه زودتر»): اگر مالک این فایل را بسازد،
+# سپرِ تاریخِ فاز-۱ (2026-07-21) برای تحقیقِ پولی دور زده می‌شود — تصمیمِ آگاهانهٔ
+# خودِ مالک، نه ایجنت. کلید همچنان لازم است؛ organ_gate/بودجه همچنان حاکم.
+ACT_RESEARCH_EARLY = opslib.OPS / "ACTIVATION-RESEARCH-EARLY.flag"
 
 # نگاشتِ نوعِ کار → ردهٔ پیش‌فرض (قابلِ override با tier=)
 TASK_TIERS = {
@@ -54,7 +58,13 @@ def keys_present() -> dict:
 
 
 def paid_gate() -> tuple[bool, str]:
-    """دوقفلهٔ ردهٔ پولی: تاریخِ phase−1 + پرچمِ مالک."""
+    """دوقفلهٔ ردهٔ پولی: تاریخِ phase−1 + پرچمِ مالک.
+    اهرمِ زودهنگام: اگر ACTIVATION-RESEARCH-EARLY.flag باشد (فقط مالک می‌سازد)، سپرِ
+    تاریخ دور زده می‌شود ولی پرچمِ فعال‌سازی همچنان لازم است (تصمیمِ آگاهانهٔ مالک)."""
+    if ACT_RESEARCH_EARLY.exists():
+        if ACT_CORTEX_PAID.exists():
+            return True, "open (owner research-early override — سپرِ تاریخ دور زده شد)"
+        return False, "research-early فعال ولی ACTIVATION-CORTEX-PAID.flag نیست"
     return opslib.live_gate_open(ACT_CORTEX_PAID)
 
 

@@ -81,6 +81,28 @@ def t_c_router_paid_closed_falls_back_local():
     assert r2["ok"] is False and "local-llm-unavailable" in r2["reason"]
 
 
+def t_c2_research_early_lever_bypasses_date():
+    """اهرمِ مالک: research-early + cortex-paid → گیت باز (سپرِ تاریخ دور)؛ بدونِ paid → بسته."""
+    early = model_router.ACT_RESEARCH_EARLY
+    paid = model_router.ACT_CORTEX_PAID
+    early.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        early.write_text("owner", "utf-8")
+        # research-early ولی بدونِ paid-flag → همچنان بسته (نیازِ تصمیمِ دوم)
+        ok, why = model_router.paid_gate()
+        assert ok is False and "CORTEX-PAID" in why
+        paid.write_text("owner", "utf-8")
+        ok2, why2 = model_router.paid_gate()
+        assert ok2 is True and "research-early" in why2
+    finally:
+        for f in (early, paid):
+            if f.exists():
+                f.unlink()
+    # بدونِ اهرم → سپرِ تاریخِ عادی حاکم (امروز بسته)
+    ok3, why3 = model_router.paid_gate()
+    assert ok3 is False and "live locked" in why3
+
+
 def t_d_router_kill_switch_and_key_presence_bool():
     opslib.STOP_ORGANISM.write_text("s", "utf-8")
     try:

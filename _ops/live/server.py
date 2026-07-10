@@ -85,6 +85,7 @@ def aggregate(probe=None) -> dict:
     signals = _read_json(STATE / "pulse" / "heart-signals-latest.json") or {}
     setpoint = _read_json(STATE / "pulse" / "heart-setpoint-latest.json") or {}
     cortex_st = _read_json(STATE / "cortex" / "cortex-state.json") or {}
+    upgrades = _read_json(STATE / "cortex" / "upgrades-digest.json") or {}
     tel = _read_json(STATE / "telemetry-latest.json") or {}
     rep = _read_json(STATE / "replication-latest.json") or {}
     needs = None
@@ -148,6 +149,16 @@ def aggregate(probe=None) -> dict:
             "alignment": cortex_st.get("alignment"),
             "journal_tail": _tail_jsonl(STATE / "cortex" / "journal.jsonl", 6),
             "brains": cortex_st.get("brains"),
+        },
+        "upgrades": {
+            "maturity_pct": upgrades.get("maturity_pct"),
+            "n": upgrades.get("n_proposals"),
+            "categories": {k: len(v) for k, v in (upgrades.get("by_category") or {}).items()},
+            "top": [{"title": t.get("title"), "priority": t.get("priority"),
+                     "action": t.get("suggested_action"), "level": t.get("change_level")}
+                    for t in (upgrades.get("top") or [])[:5]],
+            "auto_enabled": upgrades.get("auto_enabled"),
+            "brain_note": upgrades.get("brain_note"),
         },
         "money": {"month": tel.get("month"), "suspects": tel.get("suspect_zero_total")},
         "sigma": (rep.get("sigma") or {}),
@@ -251,6 +262,7 @@ button{background:linear-gradient(180deg,#155a66,#0d3a44);color:#dffaff;border:1
  <span class="chip">💗 <b id="cPeriod">—</b><span style="font-size:11px"> ضربان</span></span>
  <span class="chip">🧠 هم‌آهنگی <b id="cCoh">—</b></span>
  <span class="chip" id="cNeedsChip" style="cursor:pointer" onclick="showNeeds()">📌 <b id="cNeeds">—</b> نیاز</span>
+ <span class="chip" style="cursor:pointer" onclick="showUpgrades()">🧬 بلوغ <b id="cMat">—</b></span>
 </div>
 <svg id="stage" viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg">
  <circle class="orbit" cx="350" cy="250" r="120"/>
@@ -309,6 +321,12 @@ function showNeeds(){const p=document.getElementById('panel');
  const items=(LIVE?.needs?.items)||[];
  p.innerHTML='<b>📌 الان</b><br>'+(items.length?items.map((x,i)=>(i+1)+'. '+esc(x)).join('<br>'):'هیچ‌چیز منتظرت نیست ✅');
  p.style.display='block'}
+function showUpgrades(){const p=document.getElementById('panel');const u=LIVE?.upgrades||{};
+ if(u.n==null){p.innerHTML='<b>🧬 خودارتقا</b><br>حلقه هنوز نچرخیده (هر ۱۰ چرخهٔ مغز).';p.style.display='block';return}
+ const cats=Object.entries(u.categories||{}).map(([k,v])=>esc(k)+':'+v).join(' · ');
+ const tops=(u.top||[]).map(t=>'• <b>'+esc(t.priority)+'</b> '+esc(t.title)+' <span style=color:#6f93a3>['+esc(t.level)+']</span><br><span style=color:#9fd8ea;font-size:12px>↳ '+esc(t.action)+'</span>').join('<br>');
+ p.innerHTML='<b>🧬 خودارتقا — بلوغ '+esc(u.maturity_pct)+'%</b><br>'+esc(u.n)+' پیشنهاد · auto '+(u.auto_enabled?'🟢':'⚪ خاموش')+'<br><span style=color:#6f93a3>'+cats+'</span><br><br>'+tops+(u.brain_note?'<br><br>💭 '+esc(u.brain_note):'')+'<br><br><span style=color:#6f93a3>propose-only · هر تغییرِ جدی از تو می‌پرسد</span>';
+ p.style.display='block'}
 async function mainAct(){const c=LIVE?.processes?.cortex;
  const k=c?'restart-organism':'start-cortex';
  const msg=c?'بدن یک tick می‌خوابد و تازه برمی‌گردد. ادامه؟':null;
@@ -330,6 +348,7 @@ async function tick(){try{
  const coh=c.coherence; document.getElementById('cCoh').textContent=coh!=null?Math.round(coh*100)+'%':'—';
  document.getElementById('cohRing').style.strokeDashoffset=coh!=null?String(465*(1-coh)):'465';
  document.getElementById('cNeeds').textContent=(d.needs||{}).n??'—';
+ document.getElementById('cMat').textContent=(d.upgrades?.maturity_pct!=null)?(d.upgrades.maturity_pct+'%'):'—';
  const th=c.thought||''; document.getElementById('thought').textContent=th?('💭 '+th.slice(0,160)):'';
  document.getElementById('mode').textContent=(d.new_code_live?'کدِ نو':'کدِ قدیم')+
   ' · بدن '+(d.processes.organism?'🟢':'🔴')+' · مغز '+(d.processes.cortex?'🟢':'🔴')+

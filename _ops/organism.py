@@ -185,7 +185,16 @@ def main() -> int:
                                 name="telegram-poll")
             _poll_t.start()
             opslib.heartbeat("telegram poll thread started (T-8)")
-        _doctor_inst = _w.make_doctor(state_dir=str(opslib.STATE_DIR), channel=_chan)
+        # جلسه ۴۶: تزریقِ db به دکتر — بدونِ آن calibration/effects_pending داده‌مرده بود
+        # (اولین پیشنهادِ خودِ حلقهٔ خودارتقایی به خودش). زنده‌کنندهٔ حلقهٔ یادگیری. fail-soft.
+        _doctor_db = None
+        try:
+            if chrono is not None:
+                _doctor_db = chrono.ChronoDB(str(opslib.STATE_DIR / "chrono.db"))
+        except Exception as _dde:  # noqa: BLE001 — db اختیاری؛ نبودش = رفتارِ قبلی
+            opslib.alert([f"doctor db init failed (non-fatal): {type(_dde).__name__}"])
+        _doctor_inst = _w.make_doctor(state_dir=str(opslib.STATE_DIR), db=_doctor_db,
+                                      channel=_chan)
         # W (P-W1): returnها را نگه دار، نه دور بریز — نخاع: bus + leg + LiveLoop
         _bus = _w.make_unified_bus()
         _neural_stack = _w.make_neural_stack()   # W: neural ۸ ماژول

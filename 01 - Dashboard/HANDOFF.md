@@ -5,6 +5,20 @@ updated: 2026-07-10
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+## جلسه ۴۶ ادامه (~۲۲:۳۰) — 🧬 حلقهٔ خودارتقاییِ owner-facing ساخته شد (self-audit + مدیرِ ارتقا) + Audit Matrix از ممیزیِ ۱۲-ایجنتی
+
+vision مالک: «سیستم در لوپ خودش را تحلیل کند (هندسه/ریاضی/تجربه/یادگیری/اینترنت)، برای ارتقا با من مشورت بگیرد، تا جای امن اتوماتیک، بقیه پیشنهاد؛ مسئولِ خودش.» + چک‌لیستِ حاکمیتِ ۲۰-بخشیِ production-grade. recon: دکترِ تکاملی از قبل هست (mine/rfc/sandbox/chamber/کارت تلگرام/calibration) ولی **لایهٔ تجمیعِ owner-facing غایب** بود + دو گافِ ساختاری (db، apply_merge).
+
+- **✅ Audit Matrix واقعی (نه تئوری):** workflowِ ۱۲-ایجنتی (۱.۵M توکن) کلِ چک‌لیست را مقابلِ کدِ واقعی ممیزی کرد + verifyِ خصمانه → [[06 - Architecture Maps/AUDIT-MATRIX-self-improvement-2026-07-10|AUDIT-MATRIX]]. بلوغ ~۶۹٪. **دو گافِ P0 که probeهای اولیه ندیده بودند:** `human_append_guard` کدمردهٔ غیرفعال (is_human جعل‌پذیر!) + `apply_merge` هرگز صدا زده نمی‌شود (verdictِ مالک بی‌اثر).
+- **✅ `_ops/cortex/self_audit.py`** — ۳۶ probeِ ماشین‌خوان؛ ماتریسِ زنده در لوپ (`state/cortex/audit-matrix.json`)؛ honest Missing/Partial نه سبزِ دروغ (بلوغ بعد از افزودنِ probeهای امنیتی صادقانه از ۷۴→۶۹ افتاد).
+- **✅ `_ops/cortex/improve.py`** — مدیرِ خودارتقایی: از audit + RFCهای دکتر + idea_graph + coherence → **۲۴+ پیشنهادِ دسته‌بندی‌شدهٔ** اولویت‌دار (رأی مالک)؛ سطح‌بندیِ تغییر (tune/reconfig/rewrite/code)؛ **propose-only مطلق مگر `ACTIVATION-SELF-IMPROVE-AUTO`** (فقط knobهای $0 برگشت‌پذیرِ whitelist)؛ یادگیری از verdict؛ مغزِ محلیِ ollama $0. دایجست: `state/cortex/upgrades-digest.json`.
+- **✅ وایرینگ:** در چرخهٔ cortex هر ۱۰ چرخه (`self_improve`)؛ `/upgrades` تلگرام؛ چیپِ 🧬 «بلوغ X%» در اتاقِ هولوگرام (لمس→دایجست).
+- **✅ فیکسِ زندهٔ db دکتر** (`organism.py`) — اولین پیشنهادِ خودِ حلقه به خودش؛ calibration/effects_pending زنده شد (از restart بعدی).
+- **✅ اهرمِ `ACTIVATION-RESEARCH-EARLY`** — مالک می‌تواند سپرِ تاریخِ تحقیقِ پولی را زودتر باز کند (رأی «اینترنت زودتر»)؛ من سپرِ داردِ خودش را بی‌صدا دور نزدم.
+- **✅ تست:** `test_self_improve.py` ۸/۸ + `test_cortex` ۹/۹ (اهرمِ research-early) + **سوییتِ کامل ۸۸/۸۸**.
+
+**میز آری — رأی‌ها ([[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS «22:30»]]):** (۱) دو P0 امنیتی (human_append_guard + apply_merge) — خودم با تست اعمال کنم یا RFC بماند؟ (۲) اهرمِ research-early اگر خواستی. (۳) auto-tune اگر خواستی. مستقل از این: بعد از restart بدن، حلقهٔ خودارتقا زنده می‌چرخد و در `/upgrades` + اتاقِ زنده پیشنهاد می‌دهد.
+
 ## جلسه ۴۶ ادامه (~۲۱:۳۰) — 🐛🔧 باگِ «نادیده»ی دکمه‌های تلگرام ریشه‌یابی و رفع شد + 🧠 مغزِ مرکزیِ سه‌مغزی + 🖥️ اتاقِ کنترلِ زنده/هولوگرام
 
 **🐛 THE dead-button bug (commit `ad6504b`) — علتِ واقعیِ «نادیده» که مالک چند بار دید:** در `poll_once`، برای callback_query خطِ استخراجِ متن `text = msg.get("text") or cbq.data` بود — ولی پیامِ ضمیمهٔ دکمه خودش `text` دارد (بدنهٔ منو)، پس آن متن خوانده می‌شد و **callback data هرگز**. dispatch متنِ منو را می‌گرفت → فرمتِ ناشناخته → «نادیده». **فرمان‌ها (`/alerts`) کار می‌کردند چون پیامِ متنیِ واقعی‌اند؛ لمسِ دکمه نه.** فیکس: `if is_callback: text = cbq.data else: text = msg.text`. **درسِ مهم:** unit-dispatch + ماتریسِ آفلاین + یک workflow چهار-ایجنتی همه سبز شدند چون dispatcher را با رشتهٔ *درست* تست کردند؛ باگ یک لایه بالاتر بود. فقط `test_telegram_poll_e2e.py` با fixtureِ **واقع‌گرایانه** (متنِ منو داخلِ callback.message) آن را گرفت — حالا ۷/۷ و رگرسیون‌گیر. مسیرِ کاملِ getUpdates→dispatch→answer اولین‌بار تست‌پوشش شد.

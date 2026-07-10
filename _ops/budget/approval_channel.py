@@ -590,6 +590,28 @@ class TelegramApprovalChannel(ApprovalChannel):
             return self._render_tab(page)
         return "نادیده"
 
+    def _upgrades_text(self) -> str:
+        """🧬 خودارتقا — دایجستِ پیشنهادهای اولویت‌دار (owner-facing، فقط‌خواندنی)."""
+        rm = self._rm()
+        u = (rm.read_upgrades() if rm else {}) or {}
+        if not u:
+            return ("🧬 <b>خودارتقا</b>" + self._DIV
+                    + "حلقه هنوز نچرخیده — هر ۱۰ چرخهٔ مغز یک‌بار.\n"
+                    + "<i>مغز روی 8772 باید روشن باشد (RUN-CORTEX.bat).</i>")
+        cats = " · ".join(f"{k}:{len(v)}" for k, v in (u.get("by_category") or {}).items())
+        tops = "\n".join(
+            f"{t.get('priority')} · {html.escape(str(t.get('title','')))} "
+            f"<code>[{t.get('change_level')}]</code>\n  ↳ {html.escape(str(t.get('suggested_action',''))[:90])}"
+            for t in (u.get("top") or [])[:5])
+        return ("🧬 <b>خودارتقا — بلوغِ سیستم "
+                f"{u.get('maturity_pct','—')}%</b>" + self._DIV
+                + f"{u.get('n_proposals','—')} پیشنهاد · auto: "
+                + ("🟢 روشن" if u.get("auto_enabled") else "⚪ خاموش (propose-only)") + "\n"
+                + f"دسته‌ها: {cats}\n\n{tops}\n"
+                + (f"\n💭 {html.escape(str(u.get('brain_note',''))[:140])}\n"
+                   if u.get("brain_note") else "")
+                + "<i>هر تغییرِ جدی از کارتِ RFC می‌پرسد؛ این فقط دایجست است.</i>")
+
     def _menu_now(self) -> dict:
         """📌 الان — یک صفحه، فقط نیازها (ADHD-first: کم، مرتب، قابلِ‌اقدام)."""
         try:
@@ -775,6 +797,8 @@ class TelegramApprovalChannel(ApprovalChannel):
         if t in ("/overview", "/blueprint", "/brain", "/doctor", "/money",
                  "/school", "/safety", "/alerts"):
             return self._render_tab(t[1:])
+        if t == "/upgrades":
+            return self._upgrades_text()
         if t == "/queue":
             return {"text": self._menu_queue(), "reply_markup": self.MENU_KEYBOARD}
         if t == "/reentry":

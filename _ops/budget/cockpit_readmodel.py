@@ -149,6 +149,10 @@ class CockpitReadModel:
     def read_hebbian(self) -> dict:
         return _read_json(self.ops / "neural" / "hebbian.json")
 
+    def read_upgrades(self) -> dict:
+        """جلسه ۴۶: دایجستِ خودارتقا (پیشنهادهای دسته‌بندی‌شدهٔ owner-facing). فقط‌خواندنی."""
+        return _read_json(self.state / "cortex" / "upgrades-digest.json")
+
     def read_cortex(self) -> dict:
         """جلسه ۴۶: مغزِ مرکزی (پروسهٔ جدا 8772) — state + آخرین فکرها. فقط‌خواندنی."""
         out = {"state": _read_json(self.state / "cortex" / "cortex-state.json"),

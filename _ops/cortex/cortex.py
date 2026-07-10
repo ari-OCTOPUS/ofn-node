@@ -36,6 +36,7 @@ STATE_PATH = CORTEX_DIR / "cortex-state.json"
 JOURNAL_PATH = CORTEX_DIR / "journal.jsonl"
 STOP_CORTEX = opslib.OPS / "STOP-CORTEX"
 THINK_EVERY_N = int(os.environ.get("CORTEX_THINK_EVERY_N", "5"))
+IMPROVE_EVERY_N = int(os.environ.get("CORTEX_IMPROVE_EVERY_N", "10"))
 DEFAULT_PERIOD_S = float(os.environ.get("CORTEX_PERIOD_S", "120"))
 
 
@@ -116,10 +117,26 @@ def think(sweep: dict, cycle: int) -> str:
     return f"[det] {summary}"
 
 
+def self_improve(cycle: int) -> dict | None:
+    """هر IMPROVE_EVERY_N چرخه: حلقهٔ خودارتقایی — ممیزیِ خود + پیشنهادهای دسته‌بندی‌شده.
+    propose-only (رأی مالک/قانون)؛ $0؛ fail-soft. خروجی برای state/کابین."""
+    try:
+        import improve
+        d = improve.run(write=True)
+        return {"maturity_pct": d.get("maturity_pct"),
+                "n_proposals": d.get("n_proposals"),
+                "top": [t.get("title") for t in (d.get("top") or [])[:3]]}
+    except Exception as e:  # noqa: BLE001 — خودارتقا نباید مغز را بکشد
+        opslib.alert([f"cortex self_improve error: {type(e).__name__}: {e}"])
+        return None
+
+
 def run_cycle(cycle: int) -> dict:
     sweep = registry.sweep()
     alignment = align_work_plan(sweep)
     thought = think(sweep, cycle) if (cycle % THINK_EVERY_N == 0) else None
+    improve_summary = (self_improve(cycle)
+                       if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
     period, rhythm_src = heart_rhythm_period()
     state = {
         "ts": opslib.now_iso(), "cycle": cycle,
@@ -132,6 +149,7 @@ def run_cycle(cycle: int) -> dict:
                    "paid_gate": model_router.paid_gate()[1],
                    "local_model": os.environ.get("OLLAMA_MODEL", "qwen2.5:1.5b")},
         **({"thought": thought} if thought else {}),
+        **({"self_improve": improve_summary} if improve_summary else {}),
         "schema": "cortex-state.v1",
     }
     CORTEX_DIR.mkdir(parents=True, exist_ok=True)
