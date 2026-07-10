@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+"""doctor_setpoint.py — HH-P6: دکترِ تکاملی = مدولاتورِ w-slow.
+
+Doctor **setpoint** می‌نویسد نه نرخ (ADR-001): per-epoch باندِ target-velocity را
+پیشنهاد می‌کند و از نتیجهٔ محقق‌شده یاد می‌گیرد. سیاستِ پیش‌فرض قطعی و $0 است؛
+مسیرِ چند-ایجنتیِ LLM (4d_system/brain) پشتِ live-gateِ دوقفلهٔ مالک+تاریخ.
+
+w-slow یعنی: تغییرِ کند، کران‌دار، hysteresis سخت — Doctor هرگز نمی‌تواند قلب را
+تسخیر کند؛ فقط باند را ذره‌ذره جابه‌جا می‌کند و σ/کران‌های مطلق همیشه حاکم‌اند.
+"""
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent / "budget"))
+import opslib  # noqa: E402
+
+sys.path.insert(0, str(_HERE.parent))
+from heart import interface as hi   # noqa: E402
+from heart import producers        # noqa: E402
+
+ACT_HEART_DOCTOR = opslib.OPS / "ACTIVATION-HEART-DOCTOR.flag"
+MAX_BAND_DELTA_PCT = 0.20        # hysteresis: حداکثر ±۲۰٪ per epoch
+DEFAULT_BAND = (0.5, 6.0)
+EMA_ALPHA = 0.3
+
+
+def propose_setpoint(prev: "hi.HeartParams | None", signals: dict) -> "hi.HeartParams":
+    """سیاستِ قطعیِ w-slow: باند به سمتِ velocityِ پایدارِ محقق‌شده میل می‌کند؛
+    Δ_selfِ authoritative سقف را (تا +۵۰٪) بالا می‌برد؛ CPI/σ-alert باند را جمع می‌کند."""
+    prev = prev or hi.HeartParams(viable_band_lo=DEFAULT_BAND[0],
+                                  viable_band_hi=DEFAULT_BAND[1])
+    lo, hiband = prev.viable_band_lo, prev.viable_band_hi
+    mid, width = (lo + hiband) / 2.0, (hiband - lo)
+    v_state = signals.get("velocity") or {}
+    d_state = signals.get("delta_self") or {}
+    c_state = signals.get("cpi") or {}
+    rationale = []
+    target_mid = mid
+    # یادگیریِ کند: EMA به سمتِ velocityِ واقعاً محقق‌شده (فقط اگر authoritative)
+    v = v_state.get("velocity_per_hr")
+    if v is not None and v_state.get("authoritative"):
+        target_mid = (1 - EMA_ALPHA) * mid + EMA_ALPHA * float(v)
+        rationale.append(f"EMA به سمتِ v={v}")
+    # Δ_self بالا (یادگیریِ فعالِ اثبات‌شده) → گشایشِ سقف تا +۵۰٪
+    stretch = 1.0
+    if d_state.get("authoritative") and d_state.get("delta_self_live") is not None \
+            and d_state.get("ceiling_live"):
+        g = max(0.0, min(1.0, d_state["delta_self_live"] / d_state["ceiling_live"]))
+        stretch = 1.0 + 0.5 * g
+        if g > 0:
+            rationale.append(f"Δ_self g={round(g, 3)} → گشایشِ سقف ×{round(stretch, 2)}")
+    # CPI بالا → جمع‌شدنِ باند (استراحت/احتیاط)
+    cpi = c_state.get("cpi_0_1")
+    shrink = 1.0
+    if cpi is not None and cpi > 0.5:
+        shrink = 1.0 - 0.4 * (cpi - 0.5) / 0.5      # تا ×۰.۶
+        rationale.append(f"CPI={cpi} → جمع‌شدن ×{round(shrink, 2)}")
+    target_mid *= shrink
+    # hysteresis سخت: میانه حداکثر ±۲۰٪ حرکت کند
+    delta_cap = mid * MAX_BAND_DELTA_PCT
+    new_mid = max(mid - delta_cap, min(mid + delta_cap, target_mid))
+    new_width = max(width * shrink, new_mid * 0.5)   # باند هرگز تیغ‌نازک نشود
+    new_lo = max(0.05, new_mid - new_width / 2.0)
+    new_hi = min(hi.ABS_BAND_MAX_PER_HR, (new_mid + new_width / 2.0) * stretch)
+    params = hi.HeartParams(
+        target_sigma=prev.target_sigma,
+        viable_band_lo=round(new_lo, 4),
+        viable_band_hi=round(max(new_hi, new_lo + 0.1), 4),
+        epoch_seq=prev.epoch_seq + 1,                # monotonic
+        target_mass_scale=prev.target_mass_scale,
+        daily_beat_cap=prev.daily_beat_cap,
+        baroreflex_gain=prev.baroreflex_gain,
+    )
+    if params.validate():
+        # هر نقضی → عقب‌نشینی به باندِ قبلی با seq+1 (fail-safe، هرگز setpointِ خراب)
+        params = hi.HeartParams(
+            target_sigma=prev.target_sigma,
+            viable_band_lo=prev.viable_band_lo,
+            viable_band_hi=prev.viable_band_hi,
+            epoch_seq=prev.epoch_seq + 1,
+            target_mass_scale=prev.target_mass_scale,
+            daily_beat_cap=prev.daily_beat_cap,
+            baroreflex_gain=prev.baroreflex_gain)
+    return params
+
+
+def run_epoch_setpoint(write: bool = True) -> dict:
+    """یک epochِ w-slow: بخوان → پیشنهاد → بنویس + NOTE. propose-only."""
+    prev = hi.read_setpoint()
+    signals = producers.read_signals()
+    params = propose_setpoint(prev, signals)
+    llm = llm_refine(params, signals)
+    out = {"ts": opslib.now_iso(), "epoch_seq": params.epoch_seq,
+           "band": [params.viable_band_lo, params.viable_band_hi],
+           "prev_band": None if prev is None else
+                        [prev.viable_band_lo, prev.viable_band_hi],
+           "llm": llm, "written": False}
+    if write:
+        out["written"] = hi.write_setpoint(params)
+        if out["written"]:
+            opslib.ledger_note("HEART_SETPOINT", {
+                "epoch_seq": params.epoch_seq,
+                "band_lo": params.viable_band_lo,
+                "band_hi": params.viable_band_hi,
+                "llm": bool(llm),
+            }, actor="heart-doctor")
+    return out
+
+
+def llm_refine(setpoint: "hi.HeartParams", signals: dict) -> dict | None:
+    """مسیرِ چند-ایجنتیِ پولی (الگوی allocate_llm): دوقفله — تاریخ + فایلِ مالک.
+    بسته/شکست = None (برگشتِ امن به سیاستِ قطعی). امروز ساختاراً بسته است."""
+    ok, why = opslib.live_gate_open(ACT_HEART_DOCTOR)
+    if not ok:
+        return None
+    # (پشتِ گیت — فقط وقتی مالک باز کند اجرا می‌شود؛ $0 تا آن روز)
+    try:
+        sys.path.insert(0, str(opslib.DEBATE_DIR))
+        from client import DeepSeekClient  # noqa: E402
+        import organ_gate                  # noqa: E402
+        system = ("You are the w-slow modulator of a hybrid heart. Given signals, "
+                  "propose ONLY a JSON viable_band {lo,hi} for target velocity. "
+                  "Never propose a rate/period.")
+        user = json.dumps({"setpoint": setpoint.to_json(),
+                           "signals": {k: signals.get(k) for k in
+                                       ("velocity", "cpi", "delta_self")}},
+                          ensure_ascii=False)
+        cli = DeepSeekClient(role="econ")
+        est = cli.est_worst_case(len(system) + len(user), max_tokens=400)
+        r = organ_gate.reserve("ARCHITECT_SYS", est, task="heart-doctor")
+        if not r.get("allow"):
+            return None
+        try:
+            out = cli.complete(system, user, max_tokens=400)
+        except Exception:
+            organ_gate.release("ARCHITECT_SYS", est, task="heart-doctor")
+            raise
+        organ_gate.settle("ARCHITECT_SYS", est, out["cost_usd"], task="heart-doctor")
+        from client import extract_json  # noqa: E402
+        return {"suggestion": extract_json(out["text"]), "cost_usd": out["cost_usd"]}
+    except Exception as e:  # noqa: BLE001 — fail-safe به سیاستِ قطعی
+        opslib.alert([f"heart doctor llm failed (fallback قطعی): {e}"])
+        return None
+
+
+if __name__ == "__main__":
+    print(json.dumps(run_epoch_setpoint(write=False), ensure_ascii=False, indent=2))

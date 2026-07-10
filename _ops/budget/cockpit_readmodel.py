@@ -149,6 +149,18 @@ class CockpitReadModel:
     def read_hebbian(self) -> dict:
         return _read_json(self.ops / "neural" / "hebbian.json")
 
+    def read_heart(self) -> dict:
+        """HH-P7: قلبِ ترکیبی — سایه/سیگنال‌ها/setpoint/قفل‌ها. توجه: زیرشاخه‌های
+        state/pulse و state/sim (نه ریشهٔ state — یافتهٔ ریویو). فقط‌خواندنی؛
+        دلایلِ production_wire از فایلِ سایه می‌آیند (INV-7: هیچ importِ heart)."""
+        return {
+            "shadow": _read_json(self.state / "pulse" / "heart-shadow-latest.json"),
+            "signals": _read_json(self.state / "pulse" / "heart-signals-latest.json"),
+            "setpoint": _read_json(self.state / "pulse" / "heart-setpoint-latest.json"),
+            "lock": _read_json(self.state / "sim" / "PULSE-EQUATIONS-LOCKED.json"),
+            "sim": _read_json(self.state / "sim" / "HEART-SIM-REPORT.json"),
+        }
+
     def read_requests(self, n: int = 10) -> list[dict]:
         """صفِ out-of-bandِ کابین (درخواست‌های act که organism مصرف می‌کند)."""
         out = []

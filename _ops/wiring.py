@@ -1079,3 +1079,54 @@ def idea_beat(idea_graph, vault_root=None, beat: int = 0,
     except Exception as e:  # noqa: BLE001 — §۴: خطای خاموش ممنون، ولی idea نباید tick را بکشد
         opslib.alert([f"wiring: idea_beat خطا: {type(e).__name__}: {e}"])
         return None
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# HH-P5 — heart_beat: قلبِ تکاملیِ ترکیبی در سایه (velocity + SOG-setpoint + Governor)
+# ════════════════════════════════════════════════════════════════════════════════
+_HEART_STATE = {"last_epoch": 0, "last_setpoint_epoch": 0}
+
+
+def heart_beat(beat: int = 0, snap: dict | None = None) -> dict | None:
+    """هر N beat قلبِ سایه را بزن (HH-P5). پشتِ OCTOPUS_WIRE_HEART — پیش‌فرض خاموش و
+    **عمداً خارج از PAPER_FULL_FLAGS** (ورود به profile فقط با رأی صریحِ مالک).
+    kill-switch اول؛ ضدِ aliasing با پنجرهٔ N-تایی (tick ۳۰۰s ضربانِ ۶۰s را
+    نمونه‌برداری می‌کند). **هرگز period ارگانیسم را set نمی‌کند** — فقط محاسبهٔ سایه
+    به سینکِ جدا (state/pulse/) + خلاصه برای ORGANISM-STATE. propose-only مطلق.
+
+    HH-P6 داخلِ همین ضربان: هر CHRONO_HEART_SETPOINT_EVERY_N_BEATS (پیش‌فرض ۱۴۴۰ =
+    روزانه؛ واحدِ beat=۶۰s) دکترِ w-slow باندِ target-velocity را propose می‌کند."""
+    if not flag("OCTOPUS_WIRE_HEART"):
+        return None   # flag خاموش = no-op (no regression)
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None   # kill-switch
+    every_n = int(os.environ.get("CHRONO_HEART_EVERY_N_BEATS", "5"))
+    if beat <= 0 or every_n <= 0:
+        return None
+    epoch = beat // every_n
+    if epoch < 1 or epoch <= _HEART_STATE["last_epoch"]:
+        return None   # هنوز نوبتِ قلب نیست (پنجرهٔ ضدِ aliasing)
+    try:
+        sys.path.insert(0, str(_HERE))
+        from heart import shadow as _shadow
+        _HEART_STATE["last_epoch"] = epoch
+        rec = _shadow.shadow_step(beat=beat, snap=snap)
+        out = {"period_shadow_s": rec.get("period_s"),
+               "wire_open": bool(rec.get("production_wire", {}).get("open", False)),
+               "wire_reasons_n": len(rec.get("production_wire", {}).get("reasons", [])),
+               "gate0": rec.get("gate0_live_producer"),
+               "sampled": rec.get("sampled_this_step"),
+               "beat": beat}
+        # HH-P6: setpointِ w-slow (روزانه) — همان الگوی cadence دکتر
+        sp_n = int(os.environ.get("CHRONO_HEART_SETPOINT_EVERY_N_BEATS", "1440"))
+        if sp_n > 0:
+            sp_epoch = beat // sp_n
+            if sp_epoch >= 1 and sp_epoch > _HEART_STATE["last_setpoint_epoch"]:
+                _HEART_STATE["last_setpoint_epoch"] = sp_epoch
+                from heart import doctor_setpoint as _ds
+                sp = _ds.run_epoch_setpoint(write=True)
+                out["setpoint_epoch_seq"] = sp.get("epoch_seq")
+        return out
+    except Exception as e:  # noqa: BLE001 — §۴: قلب نباید tick را بکشد
+        opslib.alert([f"wiring: heart_beat خطا: {type(e).__name__}: {e}"])
+        return None

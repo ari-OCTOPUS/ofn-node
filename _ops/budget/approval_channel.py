@@ -1669,6 +1669,45 @@ class TelegramApprovalChannel(ApprovalChannel):
                     + "<i>mirrorهای خام پس از redaction نمایش داده می‌شوند (INV-12).</i>")
         return "<i>تبِ ناشناخته.</i>"
 
+    def _hybrid_heart_lines(self, hh: dict) -> str:
+        """HH-P7: خطوطِ قلبِ ترکیبی برای کارتِ ضربان. fail-soft (فایلِ غایب → 🟡)؛
+        دلایلِ سیم از فایلِ سایه (INV-7 — هیچ importِ heart در poll-thread)."""
+        try:
+            sh = hh.get("shadow") or {}
+            sigs = hh.get("signals") or {}
+            sp = hh.get("setpoint") or {}
+            lock = (hh.get("lock") or {}).get("status") or {}
+            sim = hh.get("sim") or {}
+            if not (sh or sigs or lock or sim):
+                return ("\n🫀 قلبِ ترکیبی: 🟡 هنوز سایه‌ای ثبت نشده "
+                        "(<code>OCTOPUS_WIRE_HEART</code> خاموش — طبقِ طراحی)")
+            v = (sigs.get("velocity") or {}).get("velocity_per_hr")
+            cpi = (sigs.get("cpi") or {}).get("cpi_0_1")
+            d = (sigs.get("delta_self") or {}).get("delta_self_live")
+            band = (f"[{sp.get('viable_band_lo', '—')}..{sp.get('viable_band_hi', '—')}]"
+                    if sp else "[پیش‌فرض 0.5..6.0]")
+            wire = (sh.get("production_wire") or {})
+            reasons = wire.get("reasons") or []
+            first = html.escape(str(reasons[0])) if reasons else ""
+            def _lk(name):
+                s = lock.get(name)
+                return "✅" if s == "locked" else ("⛔" if s else "—")
+            return (
+                "\n🫀 <b>قلبِ ترکیبی (سایه)</b>\n"
+                + f"period سایه: {sh.get('period_s', '—')}s (tick واقعی: 300s) · "
+                  f"σ={((sh.get('signal') or {}).get('sigma_now', '—'))}\n"
+                + f"velocity: {v if v is not None else '—'}/hr · باندِ هدف: {band} · "
+                  f"CPI: {cpi if cpi is not None else '—'} · Δ_self: {d if d is not None else '—'}\n"
+                + f"قفل‌ها: Δ {_lk('delta_self')} · E_shadow {_lk('e_shadow')} · "
+                  f"I_pred {_lk('i_pred')} (gates-nothing) · SIM {'✅' if sim.get('sim_pass') else '⛔'} · "
+                  f"Gate-0 {'✅' if sh.get('gate0_live_producer') else '🟡 در حالِ جمعِ نمونه'}\n"
+                + (f"🔌 سیمِ زنده: 🟢 باز" if wire.get("open")
+                   else f"🔌 سیمِ زنده: 🔴 بسته ({len(reasons)} شرط) — {first}")
+                + f"\n📈 setpoint epoch: {sp.get('epoch_seq', '—')} · "
+                  f"<i>Doctor فقط باند می‌نویسد؛ نرخ ظاهر می‌شود (ADR-001)</i>")
+        except Exception:  # noqa: BLE001 — کارت هرگز کرش نمی‌کند (INV-7)
+            return "\n🫀 قلبِ ترکیبی: 🟡 خطای خواندنِ state (fail-soft)"
+
     # ── رندرِ کارت‌های جزئی ──────────────────────────────────────────────────────
     def _render_card(self, tab: str, key: str) -> str:
         rm = self._rm()
@@ -1691,13 +1730,17 @@ class TelegramApprovalChannel(ApprovalChannel):
             legs = cstat.get("legs") or {}
             legs_txt = (f"alive={legs.get('alive', '—')}/susp={legs.get('suspected', '—')}"
                         f"/failed={legs.get('failed', '—')}" if isinstance(legs, dict) else str(legs))
+            # HH-P7: بخشِ قلبِ ترکیبی (velocity/باند/CPI/قفل‌ها/predicate) — فقط‌خواندنی
+            hh = rm.read_heart() if rm else {}
+            hh_txt = self._hybrid_heart_lines(hh)
             return ("♥️ <b>ضربان</b>" + self._DIV
                     + f"beat: {cstat.get('beat', '—')} · age_tick: {cstat.get('age_tick', '—')} · "
                       f"سنِ متابولیک: {cstat.get('metabolic_age', '—')}\n"
                     + f"HLC: <code>{html.escape(str(cstat.get('hlc', '—')))}</code>\n"
                     + f"پاها: {html.escape(legs_txt)} · اثرهای معلق: {cstat.get('effects_pending', '—')}\n"
                     + f"chrono.db: {('🟢 ' + str((ch.get('beats') or {}).get('count', '?')) + ' ضربان') if ch else '🟡 خوانا نیست/قفل'}"
-                    + (f" · اثرها: {ch.get('effects_by_status')}" if ch.get('effects_by_status') else ""))
+                    + (f" · اثرها: {ch.get('effects_by_status')}" if ch.get('effects_by_status') else "")
+                    + hh_txt)
         if (tab, key) == ("overview", "legs"):
             try:
                 import sys as _sys

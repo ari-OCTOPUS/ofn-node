@@ -298,6 +298,27 @@ def run_epoch(base_min: float = BASE_MIN_DEFAULT) -> dict:
         "halted": stop, "frozen": opslib.frozen(), "conflicts": conflicts,
         "telemetry_month": snap["month"], "suspects": snap["suspect_zero_total"],
     }
+    # HH-P3: autoregulation قلب — velocity استال → فشارِ کران‌دار؛ Internal-CPI بالا →
+    # Governor سفت (epoch کش می‌آید). additive پشتِ OCTOPUS_WIRE_HEART؛ فقط cadence —
+    # allocate_dry/pressure_state بایت‌به‌بایت دست‌نخورده (نرخِ خام هرگز spend را تعیین نمی‌کند).
+    if not stop and not conflicts and os.environ.get("OCTOPUS_WIRE_HEART") == "1":
+        try:
+            sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+            from heart import autoregulation as _autoreg
+            _hv = _autoreg.governor_view(snap)
+            record["heart_autoreg"] = _hv
+            if _hv.get("available"):
+                _p_eff = min(1.0, max(pres["pressure"],
+                                      float(_hv.get("heart_pressure", 0.0))))
+                _nxt_h = epoch_length_minutes(_p_eff, base_min)
+                _nxt_h = min(base_min * 2.0,
+                             _nxt_h * float(_hv.get("epoch_damping", 1.0)))
+                record["next_epoch_minutes_raw"] = record["next_epoch_minutes"]
+                record["next_epoch_minutes"] = round(_nxt_h, 1)
+                record["heart_pressure_effective"] = round(_p_eff, 3)
+        except Exception as _hge:  # noqa: BLE001 — §۴: کوپل نباید epoch را بکشد
+            opslib.alert([f"governor heart autoreg failed (non-fatal): "
+                          f"{type(_hge).__name__}: {_hge}"])
     if not stop and not conflicts:
         record["allocation_dry"] = allocate_dry(snap)
         # Phase 1: epoch-based sweep of stale gated_effects (fail-soft).

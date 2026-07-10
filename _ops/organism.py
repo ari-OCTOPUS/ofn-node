@@ -220,6 +220,7 @@ def main() -> int:
     last_heartbeat = 0.0
     while True:
         _protective_skip = False   # آیا این تیک کارِ غیرضروری را skip کند؟ (protective-halt، enforceِ واقعی)
+        _heart_status = None       # HH-P5: پیش از try تعریف می‌شود تا بلوکِ _sleep_s (بیرونِ try) هرگز NameError نخورد
         try:
             if opslib.STOP_ORGANISM.exists() or opslib.halted() == "STOP(architect)":
                 opslib.heartbeat("organism=HALT (STOP) — خروج تمیز")
@@ -396,6 +397,13 @@ def main() -> int:
                 except Exception as _ee:  # noqa: BLE001 — §۴: epistemics نباید tick را بکشد
                     opslib.alert([f"epistemics_beat error (non-fatal): {type(_ee).__name__}: {_ee}"])
 
+            # ── HH-P5: قلبِ ترکیبی (سایه) — پشتِ OCTOPUS_WIRE_HEART، هر N beat.
+            # فقط محاسبه + سینکِ جدا؛ periodِ واقعی در بلوکِ انتهایی و فقط با predicateِ ۸شرطی.
+            if not _protective_skip and _cstat is not None:
+                try:
+                    _heart_status = _w.heart_beat(beat=_cstat.get("beat", 0), snap=snap)
+                except Exception as _hbe:  # noqa: BLE001 — §۴: قلب نباید tick را بکشد
+                    opslib.alert([f"heart_beat error (non-fatal): {type(_hbe).__name__}: {_hbe}"])
             if now - last_heartbeat > 3600:
                 opslib.heartbeat(
                     f"organism=ok · ماه AU${snap['month']['aud']:.2f} · "
@@ -409,6 +417,7 @@ def main() -> int:
                           **pulse, **prot_state,
                           "protective_skip": _protective_skip, "wiring": _wire,
                           **({"leg": _leg_status} if _leg_status else {}),
+                          **({"heart": _heart_status} if _heart_status else {}),
                           **({"cardiac": _cardiac_mod.status_snapshot()}
                              if _cardiac_mod is not None else {})})
         except KeyboardInterrupt:
@@ -430,6 +439,15 @@ def main() -> int:
                 if _cardiac_budget is not None:
                     _cardiac_budget.spend("active")
             except Exception:  # noqa: BLE001 — §۴: cardiac نباید tick را بکشد
+                pass
+        # HH-P5: قلبِ ترکیبی — سایه همیشه در سینکِ جدا؛ periodِ زنده فقط اگر predicateِ
+        # ۸شرطیِ مالک (production_wire، محاسبه‌شده داخلِ همین heart_beat — صفر I/O اینجا)
+        # باز باشد. flag خاموش → _heart_status=None → این بلوک no-op (بایت‌به‌بایت رفتارِ فعلی).
+        if _heart_status is not None and _heart_status.get("wire_open"):
+            try:
+                _hp = float(_heart_status.get("period_shadow_s") or TICK_SECONDS)
+                _sleep_s = max(30.0, min(900.0, _hp))
+            except Exception:  # noqa: BLE001 — §۴: قلب نباید sleep را بشکند
                 pass
         time.sleep(_sleep_s)
 

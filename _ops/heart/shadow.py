@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+"""shadow.py — HH-P5: زنجیرهٔ کاملِ قلب در سایه + predicateِ سیم‌کشیِ زنده.
+
+shadow_step: producers → استریم → setpoint → control_law → سینکِ جدا
+(`state/pulse/heart-params-shadow.jsonl` + `heart-shadow-latest.json`).
+**هرگز periodِ ارگانیسم را نمی‌نویسد** — تنها مصرف‌کنندهٔ مجازِ خروجی برای periodِ
+واقعی، seamِ organism.py است آن هم فقط وقتی production_wire_open()==True.
+
+production_wire_open — predicateِ کاملِ M-HEART §۴ (۸ شرط، همه لازم):
+SIM_PASS ∧ equations-locked ∧ Gate-0 (producerِ زندهٔ authoritative) ∧ hash-match ∧
+OCTOPUS_WIRE_BIO ∧ OCTOPUS_WIRE_PULSE ∧ ACTIVATION-PULSE.flag (فقط مالک) ∧
+تاریخ ≥ 2026-07-21. امروز ساختاراً بسته — درست همین است.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import sys
+from pathlib import Path
+
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent / "budget"))
+import opslib  # noqa: E402
+
+sys.path.insert(0, str(_HERE.parent))
+from heart import control_law as cl               # noqa: E402
+from heart import interface as hi                 # noqa: E402
+from heart import producers, sim_heart, sog_math  # noqa: E402
+
+SHADOW_SINK = opslib.STATE_DIR / "pulse" / "heart-params-shadow.jsonl"
+SHADOW_LATEST = opslib.STATE_DIR / "pulse" / "heart-shadow-latest.json"
+ACT_PULSE = opslib.OPS / "ACTIVATION-PULSE.flag"
+
+
+def shadow_step(beat: int = 0, snap: dict | None = None) -> dict:
+    """یک ضربانِ سایه: محاسبهٔ کامل، ثبت در سینکِ جدا، صفر effector."""
+    signals = producers.compute_all(write=True)
+    v = (signals.get("velocity") or {}).get("velocity_per_hr")
+    comps = (signals.get("velocity") or {}).get("components", {})
+    # کوواریت‌ها فقط برون‌زاد/بالادستی (ضدِ self-grading — ریویوی خصمانه):
+    # confirmed/effects از بازیگرانِ خارجی؛ hour برون‌زادِ محض. هیچ beat/cycle.
+    import datetime as _dt
+    cov = {"confirmed": comps.get("confirmed") or 0,
+           "effects": comps.get("effects") or 0,
+           "hour": _dt.datetime.now().hour}
+    sampled = False
+    if v is not None:
+        # نمونه‌گیری روی ساعتِ ثابت (نه ضربان) — decision-frequency invariance
+        sampled = producers.append_velocity_sample({"v": v, "cov": cov})
+    inputs = cl.gather_inputs(beat)
+    inputs["velocity"] = signals.get("velocity")
+    inputs["cpi"] = signals.get("cpi")
+    inputs["delta"] = signals.get("delta_self")
+    setpoint = hi.read_setpoint()
+    sig, tel = cl.heart_step(inputs, setpoint)
+    wire_ok, wire_reasons = production_wire_open()
+    record = {
+        "ts": opslib.now_iso(),
+        "beat": beat,
+        "signal": sig.to_json(),
+        "period_s": sig.period_s,
+        "telemetry": tel,
+        "setpoint": None if setpoint is None else setpoint.to_json(),
+        "gate0_live_producer": signals.get("gate0_live_producer"),
+        "sampled_this_step": sampled,
+        "production_wire": {"open": wire_ok, "reasons": wire_reasons},
+        "mode": "shadow",
+    }
+    try:
+        SHADOW_SINK.parent.mkdir(parents=True, exist_ok=True)
+        opslib.append_jsonl(SHADOW_SINK, {"ts": record["ts"], "beat": beat,
+                                          "period_s": sig.period_s,
+                                          "sigma_now": sig.sigma_now,
+                                          "baro_factor": sig.baro_factor,
+                                          "wire_open": wire_ok})
+        with opslib.LockedJson(SHADOW_LATEST) as lj:
+            lj.write(record)
+    except Exception as e:  # noqa: BLE001 — سایه نباید tick را بکشد
+        opslib.alert([f"heart shadow sink write failed: {e}"])
+    return record
+
+
+def production_wire_open() -> tuple[bool, list[str]]:
+    """۸ شرطِ لازمِ سیم‌کشیِ زنده. خروجی: (باز؟، دلایلِ هر شرطِ بسته)."""
+    reasons: list[str] = []
+    # ۱) SIM_PASS
+    rep = sim_heart.read_report()
+    if not rep.get("sim_pass"):
+        reasons.append("SIM_PASS غایب/false (HEART-SIM-REPORT)")
+    # ۲) equations-locked (Δ_self لازم؛ e_shadow یا locked یا excluded-با-w0)
+    lock = sog_math.read_lock()
+    status = lock.get("status") or {}
+    if status.get("delta_self") != "locked":
+        reasons.append("ریاضیِ Δ_self قفل نیست (PULSE-EQUATIONS-LOCKED)")
+    w_shadow = float(os.environ.get("HEART_W_SHADOW", "0.0"))
+    if w_shadow > 0 and status.get("e_shadow") != "locked":
+        reasons.append("w_shadow>0 ولی E_shadow قفل نیست")
+    if not lock.get("full_run"):
+        reasons.append("lock رسمی نیست (full_run=false)")
+    # ۳) Gate-0: producerِ زندهٔ Δ_self با authoritative=true
+    signals = producers.read_signals()
+    if not (signals.get("delta_self") or {}).get("authoritative"):
+        reasons.append("Gate-0: producerِ زندهٔ Δ_self هنوز authoritative نیست")
+    # ۴) hash-match: control_law فعلی == ثبت‌شده در sim-report
+    cur = hashlib.sha256(Path(cl.__file__).read_bytes()).hexdigest()
+    if rep.get("code_sha256") != cur:
+        reasons.append("hash قانونِ کنترل با SIM-REPORT نمی‌خواند (کد عوض شده — sim دوباره)")
+    # ۵،۶) flagهای env (هر دو صریح)
+    if os.environ.get("OCTOPUS_WIRE_BIO") != "1":
+        reasons.append("OCTOPUS_WIRE_BIO خاموش")
+    if os.environ.get("OCTOPUS_WIRE_PULSE") != "1":
+        reasons.append("OCTOPUS_WIRE_PULSE خاموش")
+    # ۷،۸) فعال‌سازیِ مالک + سپرِ تاریخ (live_gate_open هر دو را چک می‌کند)
+    ok, why = opslib.live_gate_open(ACT_PULSE)
+    if not ok:
+        reasons.append(f"live-gate: {why}")
+    return (len(reasons) == 0, reasons)
+
+
+def read_shadow_latest() -> dict:
+    try:
+        return (json.loads(SHADOW_LATEST.read_text("utf-8"))
+                if SHADOW_LATEST.exists() else {})
+    except (OSError, ValueError):
+        return {}
+
+
+if __name__ == "__main__":
+    print(json.dumps(shadow_step(beat=0), ensure_ascii=False, indent=2))

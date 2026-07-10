@@ -83,3 +83,13 @@ sigma_now ← از رویدادهای CONFIRMED محاسبه می‌شود، ن�
 | Security/Safety | 9 | 2 (self-grading + shared failure) |
 
 با ارزش‌های صریحِ پروژه (safety-before-capability، fail-closed، external-gate)، ایدهٔ ۱ برندهٔ روشنِ ROI است.
+
+## Ratified in code — 2026-07-10 (append-only؛ HH-P2)
+
+interfaceِ این ADR به کدِ typed تبدیل و **ratify** شد (بازنویسی نشد):
+
+- **`_ops/heart/interface.py`** — `HeartParams` (frozen dataclass؛ **هیچ فیلدِ rate/bpm/period ندارد — حذفِ ساختاریِ anti-patternِ §۳.۱**) + `HeartSignal` با دقیقاً چهار فیلدِ این سند + `HeartTelemetry` (متادیتای additive، جدا، غیرِauthorization).
+- **تفسیرِ hybrid** ([[04 - Architect System/octopus-build-prompts/HYBRID-HEART-MASTER-PLAN|master-plan]]): `viable_band` = باندِ هدفِ **velocity** (item/hr) — Doctor باند می‌دهد؛ نرخ (period) از dynamics در `_ops/heart/control_law.py` *ظاهر* می‌شود.
+- **σ همچنان فقط از CONFIRMED**: `replication.sigma_state` روی ledger؛ control-law چکِ taint دارد (اجزای درونی سازگار + producer∉{doctor,heart}).
+- **فرمالیسمِ فعلی allostatic** است؛ FHN = milestone `M-♥` (بی‌تغییر).
+- ماژول‌ها coupled-not-merged ماندند: Doctor فقط `HeartParams` می‌نویسد (`_ops/heart/doctor_setpoint.py`، w-slow، hysteresis ±۲۰٪/epoch)؛ Heart فقط `HeartSignal` برمی‌گرداند؛ سیم‌کشیِ زنده پشتِ predicateِ ۸شرطیِ مالک (`_ops/heart/shadow.py: production_wire_open`).
