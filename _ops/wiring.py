@@ -46,9 +46,14 @@ PAPER_FULL_FLAGS = (
     "OCTOPUS_WIRE_SPECTRAL",   # P-spectral: complementary spectral bottleneck
     "OCTOPUS_WIRE_BCM",        # P3 blueprint: BCM forgetting — default-applied
                                # 2026-07-10 (قابل‌وتو، AGENT_QUESTIONS)؛ فقط ایندکس retrieval
+    "OCTOPUS_WIRE_SPARSE",     # P4 blueprint: sparse input filter — verdict آری
+                               # «برو» 2026-07-10؛ فقط ورودیِ acquisition را باریک می‌کند
+    "OCTOPUS_WIRE_FISHER",     # P6 blueprint: Fisher advisory — verdict آری «برو»
+                               # 2026-07-10؛ فقط fisher-latest.json، هیچ تغییرِ scoring (I4/I6)
     # NOTE: germline/checkpoint همیشه‌رون‌اند (safety-vital) — enrich_state_with_
     # germline و unified_bus._checkpoint همیشه اجرا می‌شوند، flag لازم ندارند.
-    # NOTE: OCTOPUS_WIRE_CHAMBER_T (P5، برچسب RED) عمداً اینجا نیست — فقط verdict صریح.
+    # NOTE: OCTOPUS_WIRE_CHAMBER_T (P5، برچسب RED) همچنان عمداً اینجا نیست —
+    # «برو»ِ کلی کافی نیست؛ فقط جملهٔ صریحِ مالک دربارهٔ خودِ chamber-T.
 )
 
 

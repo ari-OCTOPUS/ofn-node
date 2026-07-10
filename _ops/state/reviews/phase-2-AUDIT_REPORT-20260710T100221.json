@@ -6,5 +6,8 @@
     "summary": "35 چک روی latent/encoders/ادغام؛ backward-compat اثبات شد",
     "note": "retroactive submission 2026-07-10 (جلسه ۴۴) — کار در جلسات قبل انجام شده بود ولی هرگز در review_bus ثبت نشده بود (issue #2 مگاپرامپت). verdict = میز آری."
   },
-  "verdict": null
+  "verdict": "approved",
+  "_file": "phase-2-AUDIT_REPORT-20260710T100221.json",
+  "verdict_ts": "20260710T110602",
+  "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
 }

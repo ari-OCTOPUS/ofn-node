@@ -173,3 +173,13 @@ Ari شش سندِ طراحیِ Octopus/Chrono (تلگرام) داد: «همه ر
 4. **🔐 فقط-مالک (از جلسه ۴۳ باز):** چرخش توکن بات از @BotFather → مقدار نو فقط در `_ops/OCTOPUS.env` → restart با `RUN-ORGANISM.bat` (لانچر از قبل `call OCTOPUS.env` دارد؛ خط ۱۲). بعد از آن تلگرام end-to-end زنده است: poll→router→کارت‌های RFC توکن‌دار→verdict→یادگیری doctor.
 5. **میز مالک (باقی از قبل):** ‏Scheduled Task برای watchdog/germline (germline lag الان >۱۰h) · ‏verdict §۵ diff پیشنهادی budgets (ارگان PAINTING — حالا پای Lead-نقاشی را هم active می‌کند) · کامنت کهنهٔ OCTOPUS.env (خط ۶) — من *.env را لمس نمی‌کنم (§۱۰).
 6. **اطلاع:** چیپ «فیکس clobber ِ sandbox_result» که ایجنت سازنده ساخته بود را استارت زده‌ای — آن باگ در همین جلسه فیکس و تست شد (doctor.py merge + `t_chamber_report_survives_sandbox`)؛ آن جلسه را می‌توانی ببندی.
+
+## 2026-07-10 13:30 — Claude Fable 5 (جلسه ۴۴ ادامه) — «برو»ی آری اعمال شد
+
+آری در چت: «درجواب سوالت: برو» → موارد معلق اعمال شد (همه قابل‌وتو):
+
+1. **✅ verdict رسمی فازها:** هر ۱۹ رکورد review ِ ‏phase-0..6 با `mark_human_verdict("approved")` مهر شد (note: استناد به دستور مستقیم چت). همهٔ فازها الان `handoff_ready=True`.
+2. **✅ ‏OCTOPUS_WIRE_SPARSE + OCTOPUS_WIRE_FISHER → داخل PAPER_FULL_FLAGS** — با restart بعدی‌ات فعال می‌شوند. ۹ تست عضویت/رفتار سبز.
+3. **⛔ ‏OCTOPUS_WIRE_CHAMBER_T همچنان خاموش** — برچسب RED بلوپرینت؛ «برو»ی کلی را برای گیت قرمز کافی ندانستم. اگر می‌خواهی: دقیقاً بنویس «chamber-T را روشن کن» تا در profile بگذارم.
+4. **☑️ germline:** ‏lag از >۱۰h به ‏0.23h رسیده (سبز) — ظاهراً task را خودت راه انداختی؛ دیگر اقدامی لازم نبود.
+5. **یادآوری تنها قدم باقی‌مانده برای زنده‌شدن تلگرام:** چرخش توکن از @BotFather → ‏`_ops/OCTOPUS.env` → ‏restart (همان restart، ‏BCM/sparse/fisher را هم سوار می‌کند).

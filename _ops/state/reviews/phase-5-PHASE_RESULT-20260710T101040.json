@@ -12,5 +12,8 @@
     "metrics_preregistered": "phase-metrics.jsonl → blueprint-phase-5-chamber-temperature",
     "note": "جلسه ۴۴. باگ pre-existing clobber ِ sandbox_result هم فیکس شد (merge + تست)."
   },
-  "verdict": null
+  "verdict": "approved",
+  "_file": "phase-5-PHASE_RESULT-20260710T101040.json",
+  "verdict_ts": "20260710T110602",
+  "verdict_note": "verdict مستقیم مالک (آری) در چت 2026-07-10: «درجواب سوالت: برو» — ثبت توسط ایجنت به‌نیابت، طبق الگوی جلسه ۴۲ (قابل‌وتو)"
 }
