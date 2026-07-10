@@ -271,13 +271,24 @@ class TelegramApprovalChannel(ApprovalChannel):
                 if is_callback:
                     # callback_query → dispatch + answer
                     reply = self.dispatch_callback(str(text))
-                    if cbq_id:
-                        self._answer_callback_query(cbq_id, reply or "📝")
+                    # reply می‌تواند str باشد (toast) یا dict (پیام جداگانه با کیبورد)
+                    if isinstance(reply, dict):
+                        if cbq_id:
+                            self._answer_callback_query(cbq_id, "✅")
+                        self.send_text(reply.get("text", ""),
+                                       reply_markup=reply.get("reply_markup"))
+                    else:
+                        if cbq_id:
+                            self._answer_callback_query(cbq_id, reply or "📝")
                 else:
                     # text message → handle_command + send reply
                     reply = self.handle_command(str(text))
                     if reply is not None:
-                        self.send_text(reply)
+                        if isinstance(reply, dict):
+                            self.send_text(reply.get("text", ""),
+                                           reply_markup=reply.get("reply_markup"))
+                        else:
+                            self.send_text(reply)
             except Exception as e:  # noqa: BLE001 — fail-soft: ارسال شکست → alert، حلقه ادامه
                 opslib.alert([f"telegram T-8 dispatch error: {type(e).__name__}: {e}"])
 
@@ -307,8 +318,25 @@ class TelegramApprovalChannel(ApprovalChannel):
         با اولین سیگنالِ kill_check/STOP می‌ایستد. خطای هر دور fail-soft است."""
         if not self.wired:
             return
+        self._set_my_commands()   # پاک‌سازیِ منوی قدیمی + ثبتِ منوی تمیز اختاپوس
         while not self._killed():
             self.poll_once()
+
+    def _set_my_commands(self) -> None:
+        """منوی command تلگرام را پاک و دوباره ثبت می‌کند.
+        حذفِ کشِ قدیمی (deleteMyCommands) برای رفعِ مشکلِ دستوراتِ رباتِ قبلی."""
+        commands = [
+            {"command": "start", "description": "🐙 منوی اصلی"},
+            {"command": "status", "description": "📊 وضعیت ارگانیسم"},
+            {"command": "lead", "description": "📝 ثبت لید جدید"},
+            {"command": "stop", "description": "🛑 توقف اضطراری"},
+        ]
+        try:
+            self._http_post(self._build_url("deleteMyCommands", {}), {})
+            self._http_post(self._build_url("setMyCommands", {}),
+                             {"commands": commands})
+        except Exception:  # noqa: BLE001 — fail-soft: منو بیاید یا نیاید، بات کار می‌کند
+            pass
 
     # ─── T-2 · تأییدِ irreversible/مالی → human-append → EffectorGate.settle ────
     # جریانِ ستونی (تنها مسیرِ settle طبقِ TINV-7):
@@ -373,12 +401,15 @@ class TelegramApprovalChannel(ApprovalChannel):
                 f"──────────\n"
                 f"<i>تأیید = ضمیمهٔ انسانی؛ تنها چیزی که settle را آزاد می‌کند.</i>")
 
-    def dispatch_callback(self, data: str) -> str:
+    def dispatch_callback(self, data: str) -> str | dict:
         """routerِ callbackهای کارت‌ها. data = 'app:<verb>:<effect_id>:<token>' (پول، T-2)
-        یا 'rfc:<verb>:<rfc_id>:<token>' (تکامل، W-3). خروجی = متنِ پاسخ برای
-        answerCallbackQuery. هر callback نامعتبر/جعلی → 'رد'.
+        یا 'rfc:<verb>:<rfc_id>:<token>' (تکامل، W-3)، یا 'menu:<page>' (UX v3).
+        خروجی = متنِ پاسخ برای answerCallbackQuery یا dict (پیام جداگانه با کیبورد).
+        هر callback نامعتبر/جعلی → 'رد'.
         این متد از poll_once (T-8 router) برای هر callback_queryِ مالک صدا زده می‌شود."""
         parts = str(data or "").split(":")
+        if parts[0] == "menu":
+            return self._dispatch_menu(parts)
         if parts[0] == "rfc":
             return self._dispatch_rfc(parts)
         if len(parts) != 4 or parts[0] != "app":
@@ -425,6 +456,66 @@ class TelegramApprovalChannel(ApprovalChannel):
             return False
         # release از آخرین append (on_human_judgment بالا gate را هم release کرده)
         return bool(self._gate.settle(effect_id))
+
+    # ─── UX v3 · routerِ منوی inline: menu:<page> ──────────────────────────────────
+    def _dispatch_menu(self, parts: list[str]) -> str | dict:
+        """شاخهٔ منوی dispatch_callback. parts = ['menu', '<page>'].
+        هیچ اثرِ پولی/settle/gate‌ای اینجا نیست — فقط نمایشِ اطلاعات و هدایتِ کاربر.
+        خروجی dict = پیامِ جداگانه با کیبورد؛ str = فقط toast روی دکمه."""
+        if len(parts) < 2:
+            return "نادیده"
+        page = parts[1]
+        if page == "status":
+            return {"text": self.status_report_v2(),
+                    "reply_markup": self.MENU_KEYBOARD}
+        if page == "lead":
+            return {"text": self._cmd_lead_prompt(),
+                    "reply_markup": self.MENU_KEYBOARD}
+        if page == "queue":
+            return {"text": self._menu_queue(),
+                    "reply_markup": self.MENU_KEYBOARD}
+        if page == "lab":
+            return {"text": self.lab_status(),
+                    "reply_markup": self.MENU_KEYBOARD}
+        if page == "stop":
+            # تأییدِ kill-switch با دکمه‌های بله/خیر
+            kb = {"inline_keyboard": [[
+                {"text": "✅ بله، متوقف کن", "callback_data": "menu:stop_confirm"},
+                {"text": "❌ خیر", "callback_data": "menu:main"},
+            ]]}
+            return {"text": ("🛑 <b>توقفِ اضطراری</b>\n\n"
+                             "آیا مطمئنی؟ این کار ارگانیسم را متوقف می‌کند.\n"
+                             "<i>برای راه‌اندازیِ دوباره: <code>_ops\\RUN-ORGANISM.bat</code></i>"),
+                    "reply_markup": kb}
+        if page == "stop_confirm":
+            return {"text": self.kill_switch(),
+                    "reply_markup": None}
+        if page == "main":
+            return self._main_menu()
+        return "نادیده"
+
+    def _menu_queue(self) -> str:
+        """نمایشِ صفِ تأییدهای در انتظار (فقط‌خواندنی)."""
+        n_pending = self._count_pending()
+        if n_pending == 0:
+            return ("📮 <b>صفِ تأیید</b>\n"
+                    "──────────\n"
+                    "خالی است ✅\n"
+                    "<i>هیچ کارتِ تأییدی در انتظار نیست.</i>")
+        items = []
+        with self._lk:
+            for eid, meta in self._pending.items():
+                if meta.get("status") != "pending":
+                    continue
+                amt = meta.get("amount_aud", 0)
+                summary = meta.get("summary", "")[:60]
+                items.append(f"• <code>{html.escape(str(eid))}</code> — AU${amt:.2f}\n"
+                             f"  {html.escape(str(summary))}")
+        body = "\n".join(items) if items else "خالی"
+        return (f"📮 <b>صفِ تأیید</b> ({n_pending} مورد)\n"
+                f"──────────\n"
+                f"{body}\n"
+                f"<i>تأیید از طریقِ دکمه‌های کارت‌ها انجام می‌شود.</i>")
 
     # ─── W-3 · routerِ RFC: rfc:<verb>:<rfc_id>:<token> — فقط ثبتِ verdict ─────────
     def _dispatch_rfc(self, parts: list[str]) -> str:
@@ -474,6 +565,23 @@ class TelegramApprovalChannel(ApprovalChannel):
     LEAD_CELLS = [("lead.doer", "نقاشی (Lead)"), ("ziman.doer", "Ziman"),
                   ("crypto.doer", "Crypto")]      # هم‌سان با panel/server.py
 
+    # ── منوی inline اختاپوس (UX v3) ──
+    MENU_KEYBOARD: dict = {
+        "inline_keyboard": [
+            [
+                {"text": "📊 وضعیت", "callback_data": "menu:status"},
+                {"text": "📝 ثبت لید", "callback_data": "menu:lead"},
+            ],
+            [
+                {"text": "📮 صف تأیید", "callback_data": "menu:queue"},
+                {"text": "🧪 آزمایش‌ها", "callback_data": "menu:lab"},
+            ],
+            [
+                {"text": "🛑 توقف اضطراری", "callback_data": "menu:stop"},
+            ],
+        ],
+    }
+
     def send_text(self, text: str, reply_markup: dict | None = None) -> bool:
         """پیامِ ساده (یا با کیبورد) به مالک. not wired → False. خطای شبکه fail-soft."""
         if not self.wired:
@@ -511,11 +619,19 @@ class TelegramApprovalChannel(ApprovalChannel):
             return self.kill_switch()
         return None
 
-    def _main_menu(self) -> str:
-        """UX v2 §۲: منوی اصلی با inline-keyboard."""
+    def _main_menu(self) -> dict:
+        """UX v3: منوی اصلی با متن + inline-keyboard. خروجی dict برای send_text."""
         mode = self._read_mode_color()
-        return (f"🐙 <b>اختاپوس</b> — کنترلِ تو · {mode}\n"
-                f"<i>دکمه‌ها را برای کارを選ن.</i>")
+        n_pending = self._count_pending()
+        return {
+            "text": (f"🐙 <b>اختاپوس</b> — مغزِ دومِ شما\n"
+                     f"──────────\n"
+                     f"حالت: {mode}\n"
+                     f"📥 صفِ تأیید: {n_pending}\n"
+                     f"──────────\n"
+                     f"<i>دکمه‌ای که خواستی را انتخاب کن.</i>"),
+            "reply_markup": self.MENU_KEYBOARD,
+        }
 
     def _read_mode_color(self) -> str:
         """رنگِ حالت از Chrono-Rhythm (§۳). fallback STEADY/🟢."""
