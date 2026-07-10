@@ -73,6 +73,17 @@ class LiveLoop:
         خروجی: {routed, guards_passed, submitted_to_ari}."""
         if self.brain is None:
             return {"ok": False, "error": "no brain"}
+        # جلسه ۴۶: کنترلِ content-free مالک از کابین — pause = نگه‌داشتنِ روتِ درفت‌های نو.
+        # فقط وجودِ فلگ چک می‌شود (هیچ محتوا). صف/پول دست‌نخورده. مسیر با stdlib خالص
+        # ساخته می‌شود (هم‌ارزِ STATE_DIR) تا خطِ قرمزِ «بدونِ production import» نشکند.
+        try:
+            import os as _os
+            _sd = _os.environ.get("OPS_DIR") or str(Path(__file__).resolve().parent)
+            if (Path(_sd) / "state" / "projectf-paused.flag").exists():
+                return {"routed": [], "guards_passed": False,
+                        "submitted_to_ari": [], "paused": True}
+        except Exception:  # noqa: BLE001 — کنترل نباید حلقه را بکشد
+            pass
         result = self.brain.process_draft(draft_title, checks=checks,
                                           risk_override=risk_override)
         # route: اگر چیزی به آری رفت → به صفِ تأییدِ کاکپیت اضافه کن

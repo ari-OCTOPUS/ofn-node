@@ -268,8 +268,7 @@ def test_live_gate_locked_labels():
     assert "🔴" in money and "2026-07-21" in money
     gov = ch.dispatch_callback("card:money:governor")["text"]
     assert "🔴" in gov and "2026-07-21" in gov
-    doc = ch.dispatch_callback("menu:doctor")["text"]
-    assert "needs-live-gate" in doc or "🔴" in doc
+    # (تبِ دکتر جلسه ۴۶ ساده شد + مناظره باز شد؛ برچسبِ live-gate روی money/governor می‌ماند.)
 
 
 # ── ۱۶) برچسبِ 🟡 روی flagهای خاموش (بدونِ روشن‌کردن) ─────────────────────────
@@ -278,7 +277,7 @@ def test_flag_off_labels():
     ch, _ = make_channel()
     assert "🟡" in ch.dispatch_callback("card:money:reconcile")["text"]
     assert "🟡" in ch.dispatch_callback("card:money:cardiac")["text"]
-    assert "🟡 OFF" in ch.dispatch_callback("menu:doctor")["text"]
+    assert "🟡 خاموش" in ch.dispatch_callback("menu:doctor")["text"]   # جلسه ۴۶: OFF→خاموش
     assert "🟢" in ch.dispatch_callback("card:blueprint:chamber")["text"]  # RED خاموش = درست
     after = {k: v for k, v in os.environ.items() if k.startswith("OCTOPUS_WIRE")}
     assert before == after, "رندر نباید flag را تغییر دهد"
@@ -411,6 +410,56 @@ def test_phaseverdict_via_rfc():
     assert "RFC" in card
 
 
+def test_projectf_control_content_free():
+    """Project-F کنترل: pause/resume فلگ می‌نویسد/پاک می‌کند؛ کارت content-free است."""
+    ch, _ = make_channel()
+    # pause → فلگ ساخته می‌شود
+    r = ch._run_act("pf", "pause")
+    assert "نگه داشته شد" in r and ch._pf_paused() is True
+    assert ch._pf_pause_path().read_text("utf-8") == "owner-paused"
+    # resume → فلگ پاک می‌شود
+    r2 = ch._run_act("pf", "resume")
+    assert "ادامه" in r2 and ch._pf_paused() is False
+    # کارت: هیچ محتوا/هویت/پلتفرم — فقط کنترل. «OnlyFans»/«اونلی» هرگز نباید باشد.
+    card = ch._tab_text_card("doctor", "projectf") if hasattr(ch, "_tab_text_card") else None
+    # مسیرِ واقعیِ رندرِ کارت:
+    txt = ch.dispatch_callback("card:doctor:projectf")
+    body = txt["text"] if isinstance(txt, dict) else str(txt)
+    assert "OnlyFans" not in body and "اونلی" not in body and "onlyfans" not in body.lower()
+    assert "کنترل" in body and "containment" in body
+    assert "pf" in str(ch.ACT_ALLOWLIST) and "pause" in ch.ACT_ALLOWLIST["pf"]
+
+
+def test_projectf_pause_flag_gates_draft_routing():
+    """فلگِ pause واقعاً روتِ درفت را در live_loop نگه می‌دارد (کنترلِ واقعی نه تزئینی)."""
+    import importlib
+    import opslib
+    ll = importlib.import_module("live_loop")
+    pf_flag = opslib.STATE_DIR / "projectf-paused.flag"
+
+    class _Brain:
+        def process_draft(self, *a, **k):
+            return {"routed_to": [{"route": "ari", "kind": "x"}], "guards_passed": True}
+    loop = ll.LiveLoop.__new__(ll.LiveLoop)   # بدونِ __init__ کاملِ سنگین
+    loop.brain = _Brain()
+    loop.cockpit = None
+    loop.studio = None
+
+    class _Bus:
+        def publish(self, *a, **k):
+            pass
+    loop.bus = _Bus()
+    pf_flag.parent.mkdir(parents=True, exist_ok=True)
+    pf_flag.write_text("owner-paused", "utf-8")
+    try:
+        out = loop.process_project_f_draft("draft-title")
+        assert out.get("paused") is True and out["submitted_to_ari"] == []
+    finally:
+        pf_flag.unlink()
+    out2 = loop.process_project_f_draft("draft-title")
+    assert out2.get("paused") is None   # بدونِ فلگ → روتِ عادی
+
+
 def test_toast_strips_html_tags():
     """باگِ جلسه ۴۶: toast/answerCallbackQuery متنِ ساده است — تگِ <i> نباید خام دیده شود."""
     # helper مستقیم
@@ -440,6 +489,8 @@ if __name__ == "__main__":
         ("routing ۸ تب + main + queue", test_menu_routing),
         ("toast تگ HTML را strip می‌کند", test_toast_strips_html_tags),
         ("پیامِ OOB بعد از strip پاک", test_oob_ack_message_is_toast_clean),
+        ("Project-F کنترلِ content-free", test_projectf_control_content_free),
+        ("فلگِ pause روتِ درفت را نگه می‌دارد", test_projectf_pause_flag_gates_draft_routing),
         ("امضای رشته‌ایِ dispatch", test_dispatch_signature),
         ("backcompat: stop/app/rfc", test_callback_backcompat),
         ("read بی‌توکن؛ act توکن‌دار", test_new_schemes_no_token_for_reads),

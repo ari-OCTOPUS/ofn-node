@@ -1226,6 +1226,7 @@ class TelegramApprovalChannel(ApprovalChannel):
         "ingest":      frozenset({"crypto", "acct"}),
         "lab":         frozenset({"start1", "start2", "start3"}),
         "baseline":    frozenset({"capture"}),
+        "pf":          frozenset({"pause", "resume"}),   # Project-F کنترلِ content-free
     }
     # هیچ verbِ پول‌خوری در allowlist نیست (act:reconcile:run / act:epoch:run عمداً
     # وجود ندارند — §۲.۵). این مجموعه دفاعی است: verbِ پولیِ آینده بدونِ گیتِ باز رد می‌شود.
@@ -1238,6 +1239,8 @@ class TelegramApprovalChannel(ApprovalChannel):
         ("doctor", "lab"): [("🧪 شروع exp1", "lab", "start1"),
                             ("🧪 شروع exp2", "lab", "start2"),
                             ("🧪 شروع exp3", "lab", "start3")],
+        ("doctor", "projectf"): [("⏸ نگه‌دار", "pf", "pause"),
+                                 ("▶️ ادامه بده", "pf", "resume")],
     }
 
     TAB_CARDS: dict = {
@@ -1458,6 +1461,41 @@ class TelegramApprovalChannel(ApprovalChannel):
             opslib.alert([f"cockpit act error ({action_id}): {type(e).__name__}: {e}"])
             return "❌ اجرای act ناموفق — ثبت شد."
 
+    # ─── Project-F کنترلِ content-free (جلسه ۴۶، رأی مالک «اونلی‌فنزم بیار زیرمجموعه») ──
+    def _pf_pause_path(self):
+        return opslib.STATE_DIR / "projectf-paused.flag"
+
+    def _pf_paused(self) -> bool:
+        return self._pf_pause_path().exists()
+
+    def _pf_pending_count(self) -> int:
+        """شمارِ آیتم‌های Project-Fِ منتظرِ تأیید — فقط effect_idهای pf- (بی‌محتوا)."""
+        try:
+            with self._lk:
+                return sum(1 for eid, m in self._pending.items()
+                           if str(eid).startswith("pf-") and m.get("status") == "pending")
+        except Exception:  # noqa: BLE001
+            return 0
+
+    def _act_pf_control(self, key: str) -> str:
+        """کنترلِ content-free: pause = نگه‌داشتنِ روتِ درفت‌های نو؛ resume = ادامه.
+        فقط یک فلگِ خالی می‌نویسد/پاک می‌کند — صفر محتوا/هویت/پلتفرم. مسیرِ پول/تأیید
+        دست‌نخورده (آیتم‌های در صف با همان human-append تأیید می‌شوند)."""
+        p = self._pf_pause_path()
+        try:
+            if key == "pause":
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_text("owner-paused", "utf-8")
+                return ("⏸ Project-F نگه داشته شد — درفت‌های نو تا «ادامه» روت نمی‌شوند.\n"
+                        "آیتم‌های در صف دست‌نخورده‌اند.")
+            if key == "resume":
+                if p.exists():
+                    p.unlink()
+                return "▶️ Project-F ادامه یافت — درفت‌های نو دوباره به صفِ تأیید می‌روند."
+            return "نامعتبر"
+        except OSError as e:
+            return f"❌ ثبتِ کنترل ناموفق: {type(e).__name__}"
+
     def _run_act(self, verb: str, key: str, target=None):
         """اجرای actِ تأییدشده. inline فقط read/فایل‌های کنترلِ امن (§۲.۶)؛
         subsystem cycleها → صفِ out-of-band. (هرگز run_cycle/run_epoch مستقیم صدا زده نمی‌شود.)
@@ -1467,6 +1505,8 @@ class TelegramApprovalChannel(ApprovalChannel):
             return ("📨 درخواست ثبت شد (out-of-band) — organism در ضربانِ بعدی مصرف می‌کند.\n"
                     "<i>صف: state/cockpit-requests.jsonl · هیچ اجرای inline (INV-7)</i>"
                     if ok else "❌ ثبتِ درخواست ناموفق")
+        if verb == "pf":
+            return self._act_pf_control(key)
         if verb == "export":
             return self._act_export()
         if verb == "flag":
@@ -1786,16 +1826,13 @@ class TelegramApprovalChannel(ApprovalChannel):
             am_on = os.environ.get("OCTOPUS_WIRE_APPLY_MERGE", "1") == "1"
             hg_on = os.environ.get("OCTOPUS_WIRE_HUMAN_APPEND_GUARD") == "1"
             return (self._hdr("🩺 <b>دکتر و تکامل</b>")
-                    + f"🔧 RFCها: {len(all_rfcs)} ذخیره‌شده ({merged} merged) · "
-                      f"این نشست: {n_rfc} · اثرها: {eff or '—'}\n"
-                    + f"✅ apply-merge: {'🟢 اثرِ واقعی' if am_on else '🟡 OFF'} · "
-                      f"🔒 human-append گارد: {'🟢 enforce' if hg_on else '🟡 OFF'}\n"
-                    + f"⏰ دیسپچر: {'🟢' if caps.get('OCTOPUS_WIRE_SCHEDULER') else '🟡 OFF'} · "
-                      f"🩹 خوددرمانی: {'🟢' if caps.get('OCTOPUS_WIRE_SELFHEAL') else '🟡 OFF'} · "
-                      f"🔭 معرفت‌شناسی: {'🟢' if caps.get('OCTOPUS_WIRE_EPISTEMICS') else '🟡 OFF'}\n"
-                    + "🥊 مناظره: 🔴 needs-live-gate (قفل تا 2026-07-21)\n"
-                    + "<i>merge فقط از کارتِ RFC با ضمیمهٔ انسانی. measured_lift هنوز proxy "
-                      "(evalِ واقعی نیازِ RFCِ اجرایی/L4 = رأی مالک).</i>")
+                    + f"🔧 پیشنهادها: {len(all_rfcs)} ذخیره ({merged} اعمال‌شده) · اثر: {eff or '—'}\n"
+                    + f"✅ تأییدِ تو اثرِ واقعی دارد: {'🟢 بله' if am_on else '🟡 نه'} · "
+                      f"🔒 امضای انسانی جعل‌ناپذیر: {'🟢 بله' if hg_on else '🟡 نه'}\n"
+                    + f"⏰ برنامه‌ریز: {'🟢' if caps.get('OCTOPUS_WIRE_SCHEDULER') else '🟡 خاموش'} · "
+                      f"🩹 خودترمیم: {'🟢' if caps.get('OCTOPUS_WIRE_SELFHEAL') else '🟡 خاموش'} · "
+                      f"🔭 خودشناسی: {'🟢' if caps.get('OCTOPUS_WIRE_EPISTEMICS') else '🟡 خاموش'}\n"
+                    + "<i>سیستم خودش را بهتر می‌کند، ولی هر تغییرِ جدی اول از تو می‌پرسد.</i>")
         if page == "money":
             tel = rm.read_telemetry() if rm else {}
             fit = rm.read_fitness() if rm else {}
@@ -2039,14 +2076,28 @@ class TelegramApprovalChannel(ApprovalChannel):
                       "propose-only (B6)")
         if (tab, key) == ("doctor", "selfheal"):
             caps = (rm.read_capabilities() if rm else {"flags": {}})["flags"]
-            return ("🩹 <b>خوددرمانی</b>" + self._DIV
-                    + f"flag: {'🟢 روشن' if caps.get('OCTOPUS_WIRE_SELFHEAL') else '🟡 OFF'} · "
-                      "circuit-breaker روی pacemaker")
+            on = caps.get("OCTOPUS_WIRE_SELFHEAL")
+            return ("🩹 <b>خودترمیم</b>" + self._DIV
+                    + f"وضعیت: {'🟢 روشن' if on else '🟡 خاموش'}\n"
+                    + "اگر عضوی از کار بیفتد، خودش دوباره راهش می‌اندازد — "
+                      "با محدودیتِ حداکثر ۳ بار در ۵ دقیقه تا حلقه نزند.")
         if (tab, key) == ("doctor", "projectf"):
-            return ("🎬 <b>Project-F routing</b>" + self._DIV
-                    + "درفت‌های high-risk به صفِ تأیید می‌روند ($0 · money-locked).\n"
-                    + "ردلاین: <code>verify_no_pii_in_signals</code> (containment) — "
-                      "جزئیاتِ محتوایی اینجا عمداً نمایش داده نمی‌شود.")
+            paused = self._pf_paused()
+            npf = self._pf_pending_count()
+            t = rm.read_telemetry() if rm else {}
+            organs = (t or {}).get("per_organ_alltime_musd") or {}
+            pf_spend = next((v for k, v in organs.items()
+                             if "project_f" in str(k).lower() or str(k).lower() == "pf"), None)
+            status = "⏸ نگه‌داشته" if paused else "🟢 فعال"
+            lines = ["🎬 <b>Project-F — کنترل</b>" + self._DIV,
+                     f"وضعیت: {status} · پول: 🔒 قفل · مهلت: 2026-07-20",
+                     f"در صفِ تأیید: <b>{npf}</b> کار"]
+            if pf_spend is not None:
+                lines.append(f"مصرفِ ارگان: {pf_spend}μ$")
+            lines += ["",
+                      "دکمه‌های پایین: نگه‌دار / ادامه. برای تأیید یا ردِ کارها، از منوی اصلی «📮 صف تأیید».",
+                      "<i>محتوا و هویت اینجا نشان داده نمی‌شود — فقط کنترل (containment).</i>"]
+            return "\n".join(lines)
         if (tab, key) == ("doctor", "lab"):
             kb_note = ("\n<i>شروع: دکمه‌های زیرِ همین کارت. آشکارسازی پس از پایان: "
                        "<code>/reveal exp1</code></i>")
