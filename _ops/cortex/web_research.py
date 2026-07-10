@@ -165,10 +165,31 @@ def research_topics(topics: list[str], *, per_topic: int = 3,
     return digest
 
 
-def run_and_persist(topics: list[str], *, opener: Optional[Opener] = None) -> dict:
-    """تحقیق + نوشتنِ اتمیک به state/pulse/research-latest.json (خوراکِ improve/کابین)."""
+# موضوع‌های کنجکاویِ پیش‌فرض — تا وقتی گپِ مدرسه خالی است هم یادگیری بایستد نماند
+# (رأی مالک «الان یادگیری نداره»). عمومی و بی‌خطر؛ نوبتی چرخانده می‌شوند.
+FALLBACK_TOPICS = [
+    "autonomous ai agents", "self-improving systems", "reinforcement learning",
+    "vector memory databases", "multi-agent orchestration", "local llm inference",
+    "prompt engineering", "knowledge graphs", "small business lead generation",
+    "painting business marketing",
+]
+
+
+def fallback_topics(beat: int = 0, k: int = 3) -> list[str]:
+    """k موضوعِ چرخانِ پیش‌فرض بر اساس beat (تنوع بدونِ Math.random)."""
+    if not FALLBACK_TOPICS:
+        return []
+    start = (beat // 1) % len(FALLBACK_TOPICS)
+    return [FALLBACK_TOPICS[(start + i) % len(FALLBACK_TOPICS)] for i in range(k)]
+
+
+def run_and_persist(topics: list[str], *, opener: Optional[Opener] = None,
+                    beat: int = 0) -> dict:
+    """تحقیق + نوشتنِ اتمیک به state/pulse/research-latest.json (خوراکِ improve/کابین).
+    اگر موضوعی نبود، از موضوع‌های کنجکاویِ پیش‌فرض استفاده می‌شود تا یادگیری همیشه زنده باشد."""
     if not enabled():
         return {"ok": False, "skipped": f"{FLAG_ENV} خاموش — هیچ egress"}
+    topics = [t for t in (topics or []) if str(t).strip()] or fallback_topics(beat)
     digest = research_topics(topics, opener=opener)
     try:
         RESEARCH_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -177,4 +198,17 @@ def run_and_persist(topics: list[str], *, opener: Optional[Opener] = None) -> di
     except Exception as e:  # noqa: BLE001
         return {"ok": False, "error": str(e)}
     total = sum(f["n"] for f in digest["findings"])
+    # کشف را دیدنی کن: یک جملهٔ سادهٔ فارسی برای خانه/نوتیف (بی‌محتوا).
+    # اولین یافته‌ای که واقعاً نتیجه دارد (نه لزوماً findings[0]).
+    try:
+        sys.path.insert(0, str(_HERE))
+        import discoveries
+        top = next((f for f in digest["findings"] if f.get("hits")), None)
+        if top:
+            ttl = str(top["hits"][0].get("title", "")).strip()[:80]
+            discoveries.record("research",
+                               f"دربارهٔ «{top['topic']}» تحقیق کردم" +
+                               (f" — «{ttl}»" if ttl else "") + f" ({total} نتیجه)")
+    except Exception:  # noqa: BLE001 — ثبتِ کشف نباید تحقیق را بکشد
+        pass
     return {"ok": True, "n_topics": digest["n_topics"], "n_hits": total}

@@ -430,6 +430,8 @@ def main() -> int:
             if not _protective_skip and _cstat is not None:
                 try:
                     _w.needs_nudge_beat(_chan, beat=_cstat.get("beat", 0))
+                    # جلسه ۴۶: نوتیفِ «چی یاد گرفتم» — کشف/یادگیری را دیدنی می‌کند.
+                    _w.discovery_nudge_beat(_chan, beat=_cstat.get("beat", 0))
                 except Exception as _nne:  # noqa: BLE001 — §۴: نوتیف نباید tick را بکشد
                     opslib.alert([f"needs_nudge error (non-fatal): {type(_nne).__name__}: {_nne}"])
             if now - last_heartbeat > 3600:

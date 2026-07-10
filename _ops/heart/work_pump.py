@@ -140,12 +140,13 @@ def _exec_web_research() -> dict:
     موضوع‌ها فقط عمومی‌اند (نه محتوای خصوصیِ vault). پشتِ OCTOPUS_WIRE_WEB_RESEARCH."""
     gaps = _exec_gap_report()
     topics = [g["topic"] for g in (gaps.get("gaps") or []) if g.get("topic")]
-    if not topics:
-        return {"ok": True, "skipped": "گپِ مدرسه خالی — موضوعی برای تحقیق نیست"}
+    # گپِ مدرسه خالی → web_research خودش از موضوع‌های کنجکاویِ پیش‌فرض استفاده می‌کند
+    # (رأی مالک: یادگیری همیشه زنده باشد، نه فقط وقتی گپ هست).
     try:
         sys.path.insert(0, str(_HERE.parent / "cortex"))
         import web_research as _wr
-        return _wr.run_and_persist(topics)
+        _seed = int(dt.datetime.now().timestamp() // 43200)   # چرخشِ موضوعِ پیش‌فرض هر ~۱۲h
+        return _wr.run_and_persist(topics, beat=_seed)
     except Exception as e:  # noqa: BLE001 — تحقیق نباید pump را بکشد
         return {"ok": False, "error": f"{type(e).__name__}: {str(e)[:100]}"}
 

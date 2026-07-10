@@ -575,20 +575,36 @@ class TelegramApprovalChannel(ApprovalChannel):
         except OSError:
             return 0
 
+    def _learn_bits(self) -> tuple[str, int]:
+        """خطِ «چی یاد گرفتم» + شمارِ کشف‌های تازه (بی‌محتوا)."""
+        try:
+            import sys as _s
+            _s.path.insert(0, str(_HERE.parent / "cortex"))
+            import discoveries
+            n = discoveries.unseen_count()
+            return ((f"\n🧠 اخیراً {n} چیزِ جدید یاد گرفتم — «📚 چی یاد گرفتی؟»" if n else ""), n)
+        except Exception:  # noqa: BLE001
+            return ("", 0)
+
     def _simple_home(self) -> dict:
         """خانهٔ ساده: یا «همه‌چیز خوبه»، یا چند سوالِ آره/نه. صفر جارگون."""
         decs = self._gather_decisions()
         heal = self._selfheal_recent()
         heal_line = (f"\n🩹 اخیراً {heal} بار یه چیزی خراب شد و خودم درستش کردم." if heal else "")
+        learn_line, n_learn = self._learn_bits()
+        learn_btn = ([{"text": "📚 چی یاد گرفتی؟", "callback_data": "menu:learned"}]
+                     if n_learn else [])
         if not decs:
+            kb = [[{"text": "📊 حالت چطوره؟", "callback_data": "menu:status"},
+                   {"text": "⚙️ بیشتر", "callback_data": "menu:more"}]]
+            if learn_btn:
+                kb.insert(0, learn_btn)
             return {
                 "text": ("🐙 <b>همه‌چیز خوبه</b>\n"
                          "خودم دارم کار می‌کنم، یاد می‌گیرم و خودمو درست می‌کنم.\n"
                          "هر وقت کاری ازت داشتم همین‌جا می‌پرسم — فقط آره یا نه. ✅"
-                         + heal_line),
-                "reply_markup": {"inline_keyboard": [[
-                    {"text": "📊 حالت چطوره؟", "callback_data": "menu:status"},
-                    {"text": "⚙️ بیشتر", "callback_data": "menu:more"}]]},
+                         + heal_line + learn_line),
+                "reply_markup": {"inline_keyboard": kb},
             }
         lines = ["🐙 <b>چند چیز ازت می‌پرسم:</b>", ""]
         rows = []
@@ -596,9 +612,26 @@ class TelegramApprovalChannel(ApprovalChannel):
             lines.append(f"<b>{i}.</b> {html.escape(d['q'])}")
             rows.append([{"text": f"✅ آره ({i})", "callback_data": d["yes"]},
                          {"text": f"❌ نه ({i})", "callback_data": d["no"]}])
+        if learn_btn:
+            rows.append(learn_btn)
         rows.append([{"text": "⚙️ بیشتر", "callback_data": "menu:more"}])
-        return {"text": "\n".join(lines) + heal_line,
+        return {"text": "\n".join(lines) + heal_line + learn_line,
                 "reply_markup": {"inline_keyboard": rows}}
+
+    def _menu_learned(self) -> dict:
+        """صفحهٔ «چی یاد گرفتم» — خطوطِ سادهٔ کشف/یادگیری (بی‌محتوا). دیدن = seen."""
+        try:
+            import sys as _s
+            _s.path.insert(0, str(_HERE.parent / "cortex"))
+            import discoveries
+            ls = discoveries.lines(8)
+            discoveries.mark_seen()
+            body = "\n".join(ls) if ls else "هنوز چیزِ تازه‌ای یاد نگرفتم — به‌زودی!"
+        except Exception:  # noqa: BLE001
+            body = "الان نمی‌تونم لیست رو بیارم."
+        return {"text": "📚 <b>تازه‌ها — چی یاد گرفتم/کشف کردم</b>\n──────────\n" + body,
+                "reply_markup": {"inline_keyboard": [[
+                    {"text": "🏠 خانه", "callback_data": "menu:main"}]]}}
 
     def _dispatch_home(self, parts: list[str]):
         """آره/نهِ خانه → همان منطقِ امنِ rfc/app (توکن‌چک، ضدِ جعل)، بعد خانه را تازه نشان بده."""
@@ -686,6 +719,8 @@ class TelegramApprovalChannel(ApprovalChannel):
         # ── ADHD (جلسه ۴۶): «الان» = فقط چیزهایی که به مالک نیاز دارند؛ «بیشتر» = گریدِ کامل ──
         if page == "now":
             return self._menu_now()
+        if page == "learned":
+            return self._menu_learned()
         if page == "more":
             return {"text": "🧭 <b>همهٔ امکانات</b>\n<i>هر تب فقط‌خواندنی است؛ "
                             "پول/merge همچنان فقط از کارت‌های تأیید.</i>",

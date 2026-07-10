@@ -141,6 +141,14 @@ def run_and_persist(ask=None) -> dict:
                                          "n_proposals": len(digest["proposals"]),
                                          "cost_usd": digest["cost_usd"]},
                            actor="cortex-synthesis")
+        # کشف را دیدنی کن (رأی مالک): اولین ایدهٔ مغز به‌صورتِ جملهٔ ساده
+        try:
+            import discoveries
+            props = digest.get("proposals") or []
+            if props:
+                discoveries.record("idea", f"یه ایده برای بهترشدن: {props[0].get('title', '')[:80]}")
+        except Exception:  # noqa: BLE001
+            pass
     except Exception as e:  # noqa: BLE001
         return {"ok": False, "error": str(e)}
     return {"ok": True, "tier": digest["tier"],

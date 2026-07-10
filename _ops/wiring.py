@@ -1201,3 +1201,40 @@ def needs_nudge_beat(channel=None, beat: int = 0) -> dict | None:
     except Exception as e:  # noqa: BLE001 — §۴: نوتیف نباید tick را بکشد
         opslib.alert([f"wiring: needs_nudge خطا: {type(e).__name__}: {e}"])
         return None
+
+
+_DISCOVERY_STATE = {"last_epoch": -1}
+
+
+def discovery_nudge_beat(channel=None, beat: int = 0) -> dict | None:
+    """رأی مالک «کشف و نوتیف به من نداره»: هر N beat اگر سیستم چیزِ تازه‌ای یاد گرفت/کشف
+    کرد، یک نوتیفِ ملایمِ اطلاعی می‌فرستد («یه چیزِ جدید یاد گرفتم»). پشتِ
+    OCTOPUS_WIRE_NEEDS_NUDGE (همان پرچمِ نوتیف). ضدِ اسپم با epoch. kill-switch اول."""
+    if not flag("OCTOPUS_WIRE_NEEDS_NUDGE"):
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    every_n = int(os.environ.get("CHRONO_DISCOVERY_NUDGE_EVERY_N_BEATS", "480"))  # ~۸h
+    if beat <= 0 or every_n <= 0:
+        return None
+    epoch = beat // every_n
+    if epoch < 1 or epoch <= _DISCOVERY_STATE["last_epoch"]:
+        return None
+    _DISCOVERY_STATE["last_epoch"] = epoch
+    try:
+        sys.path.insert(0, str(_HERE / "cortex"))
+        import discoveries
+        n = discoveries.unseen_count()
+        if n <= 0:
+            return {"n": 0, "sent": False}
+        sent = False
+        if channel is not None and getattr(channel, "wired", False):
+            preview = "\n".join(discoveries.lines(3))
+            kb = {"inline_keyboard": [[
+                {"text": "📚 ببین چی یاد گرفتم", "callback_data": "menu:learned"}]]}
+            sent = bool(channel.send_text(
+                f"🔍 <b>{n} چیزِ جدید یاد گرفتم!</b>\n──────────\n{preview}", kb))
+        return {"n": n, "sent": sent}
+    except Exception as e:  # noqa: BLE001 — نوتیف نباید tick را بکشد
+        opslib.alert([f"wiring: discovery_nudge خطا: {type(e).__name__}: {e}"])
+        return None

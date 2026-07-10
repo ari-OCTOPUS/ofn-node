@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+"""discoveries.py — «چی یاد گرفتم / چی کشف کردم» به زبانِ آدمیزاد (جلسه ۴۶).
+
+رأی مالک: «الان یادگیری نداره ... کشف و نوتیف به من نداره.» این ماژول کشف/یادگیری
+را دیدنی می‌کند: هر بار سیستم چیزی از وب یاد گرفت یا مغز ایده‌ای ساخت، یک جملهٔ
+سادهٔ فارسی در `state/discoveries.jsonl` ثبت می‌شود؛ خانهٔ ساده و نوتیف آن را نشان می‌دهند.
+
+$0، stdlib-only، fail-soft، بی‌محتوا (فقط خلاصهٔ عمومی؛ هیچ secret/محتوای خصوصی).
+"""
+from __future__ import annotations
+
+import json
+import sys
+import time
+from pathlib import Path
+
+_HERE = Path(__file__).resolve().parent
+if str(_HERE.parent / "budget") not in sys.path:
+    sys.path.insert(0, str(_HERE.parent / "budget"))
+import opslib  # noqa: E402
+
+LOG = opslib.STATE_DIR / "discoveries.jsonl"
+SEEN = opslib.STATE_DIR / "discoveries-seen.json"
+MAX_KEEP = 200
+
+
+def record(kind: str, summary: str) -> None:
+    """یک کشف/یادگیریِ تازه ثبت کن. kind: research|idea|learn. summary: جملهٔ کوتاهِ فارسی."""
+    summary = str(summary or "").strip()[:160]
+    if not summary:
+        return
+    try:
+        LOG.parent.mkdir(parents=True, exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write(json.dumps({"ts": time.time(), "kind": str(kind)[:20],
+                                "summary": summary}, ensure_ascii=False) + "\n")
+    except OSError:
+        pass
+
+
+def _all() -> list[dict]:
+    try:
+        if not LOG.exists():
+            return []
+        rows = []
+        for ln in LOG.read_text("utf-8").splitlines()[-MAX_KEEP:]:
+            try:
+                rows.append(json.loads(ln))
+            except ValueError:
+                continue
+        return rows
+    except OSError:
+        return []
+
+
+def recent(n: int = 5, within_h: float = 72) -> list[dict]:
+    cutoff = time.time() - within_h * 3600
+    return [r for r in _all() if float(r.get("ts", 0)) >= cutoff][-n:][::-1]
+
+
+def unseen_count() -> int:
+    """چند کشفِ تازه از آخرین باری که مالک دید."""
+    try:
+        seen_ts = float((json.loads(SEEN.read_text("utf-8")) if SEEN.exists() else {})
+                        .get("ts", 0))
+    except (OSError, ValueError):
+        seen_ts = 0.0
+    return sum(1 for r in _all() if float(r.get("ts", 0)) > seen_ts)
+
+
+def mark_seen() -> None:
+    try:
+        SEEN.parent.mkdir(parents=True, exist_ok=True)
+        SEEN.write_text(json.dumps({"ts": time.time()}), "utf-8")
+    except OSError:
+        pass
+
+
+def lines(n: int = 5) -> list[str]:
+    """خطوطِ سادهٔ فارسی برای نمایش (بی‌محتوا)."""
+    icons = {"research": "🔍", "idea": "💡", "learn": "🧠"}
+    return [f"{icons.get(r.get('kind'), '•')} {r.get('summary', '')}" for r in recent(n)]
