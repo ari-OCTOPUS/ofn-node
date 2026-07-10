@@ -14,7 +14,6 @@ $LIVE = 'F:\backup'
 $BR   = 'claude/exciting-vaughan-26c965'
 $TAG  = 'pre-merge-20260711-suite-hygiene'
 $QUAR = Join-Path $LIVE '_Archive\Logs\test-contamination-2026-07-11\live-originals'
-$PF   = Join-Path $LIVE '03 - Projects\____PF____'   # placeholder replaced below
 # real PF folder name contains Persian; build it from unicode escapes to keep this file ASCII:
 $pfName = [char]0x0627 + [char]0x0648 + [char]0x0646 + [char]0x0644 + [char]0x06CC + ' ' + [char]0x0641 + [char]0x0646 + [char]0x0632
 $PF   = Join-Path $LIVE ("03 - Projects\" + $pfName)
@@ -24,11 +23,11 @@ function Step($msg) { Write-Host "== $msg" -ForegroundColor Cyan }
 # --- 1) merge branch into master (tag first) --------------------------------
 Step "1) merge $BR into master"
 Set-Location $LIVE
-$merged = (git merge-base --is-ancestor $BR master 2>$null; $LASTEXITCODE -eq 0)
-if ($merged) {
+git merge-base --is-ancestor $BR master
+if ($LASTEXITCODE -eq 0) {
     Write-Host "   already merged - skip"
 } else {
-    git tag $TAG master 2>$null
+    if (-not (git tag -l $TAG)) { git tag $TAG master }
     git merge --ff-only $BR
     if ($LASTEXITCODE -ne 0) { throw "ff-merge failed - run: git merge $BR (then re-run this script)" }
     Write-Host "   merged OK (rollback tag: $TAG)"
@@ -56,8 +55,10 @@ if (Test-Path $stray) { Move-Item $stray (Join-Path $QUAR '_ops-2026-07-21-stray
 foreach ($f in @($drafts, $arch)) {
     if (Test-Path $f) { [IO.File]::WriteAllText($f, '[]') ; Write-Host "   reset to []: $(Split-Path $f -Leaf)" }
 }
-git add -- $drafts $arch $hebb $bak 2>$null
-git commit -m "chore(pf): quarantine test-state fossils to _Archive, reset drafts/archive (session 47 delegated cleanup)" 2>$null
+foreach ($f in @($drafts, $arch, $hebb, $bak)) {
+    if ((Test-Path $f) -or (git ls-files -- $f)) { git add -- $f }
+}
+git commit -m "chore(pf): quarantine test-state fossils to _Archive, reset drafts/archive (session 47 delegated cleanup)"
 if ($LASTEXITCODE -eq 0) { Write-Host "   committed" } else { Write-Host "   nothing to commit (already clean)" }
 
 # --- 3) untrack runtime projections + gitignore ------------------------------
@@ -69,9 +70,9 @@ $added = $false
 foreach ($l in $lines) {
     if ($giText -notmatch [regex]::Escape($l)) { [IO.File]::AppendAllText($gi, "$l`n"); $added = $true }
 }
-foreach ($l in $lines) { git rm --cached --quiet -- $l 2>$null }
+foreach ($l in $lines) { if (git ls-files -- $l) { git rm --cached --quiet -- $l } }
 git add -- .gitignore
-git commit -m "chore(git): ignore runtime projections fitness/replication-latest (verdict 07-07 no.8 completion)" 2>$null
+git commit -m "chore(git): ignore runtime projections fitness/replication-latest (verdict 07-07 no.8 completion)"
 if ($LASTEXITCODE -eq 0) { Write-Host "   committed" } else { Write-Host "   nothing to commit" }
 
 # --- 4) full suite on live tree (marker refresh) -----------------------------
