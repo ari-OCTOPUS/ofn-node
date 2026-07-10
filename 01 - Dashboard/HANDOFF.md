@@ -5,6 +5,14 @@ updated: 2026-07-10
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+## جلسه ۴۶ ادامه (~۰۴:۰۰) — 📟 داشبوردِ اتوماسیونِ مینیمالِ رویداد-محور (اسپکِ مالک)
+
+مالک اسپکِ یک «داشبوردِ اتوماسیونِ مینیمال و عمل‌گرا» داد (event-driven، Now/آخرین/گیرکرده، خلاصهٔ ۵min، لاگِ کوتاه، بدونِ نمودار). رویکردِ عمل‌گرا (نه بازنویسیِ همه‌چیز):
+- **✅ `_ops/events.py` — ستون‌فقراتِ رویدادِ ساختاریافته** با **دقیقاً همان schema** (timestamp/trace_id/agent_id/event_name/status/summary/duration_ms/next_action/approval_state صریح). ۷ نوعِ رویداد (task.started/completed/failed/blocked, handoff.created, system.heartbeat, approval.required). `dashboard_state()` = Now/آخرین‌نتیجه/گیرکرده/خلاصهٔ۵min/لاگ. $0، fail-soft، بی‌محتوا.
+- **✅ emit در نقاطِ کلیدی (نه همهٔ ماژول‌ها):** `work_pump` (started/completed/failed/blocked هر لِین) · `chrono` self-heal (blocked→completed) · `approval_channel` (approval.required) · `wiring.heartbeat_summary_beat` هر ~۵min (system.heartbeat با شمارِ کارها) — در حلقهٔ organism وصل.
+- **✅ داشبوردِ فشرده در سرورِ زنده:** `http://127.0.0.1:8773/ops` — نوارِ وضعیت (🟢روان/🟡منتظرِ تو/🔴گیر + دکمهٔ ری‌استارت) + ۳ کارت (الان/آخرین/گیرکرده) + ۴ KPI (تمام/منتظر/خطا/رویداد۵m) + لاگِ کوتاه. poll هر ۵s. تایپوگرافیِ کوچک، بدونِ نمودار. هولوگرام (`/`) دست‌نخورده.
+- **✅ اثباتِ زنده:** رویدادها → داشبورد؛ approval.required = 🟡 منتظرِ تو (نه 🔴). تست `test_events` ۶/۶؛ سوییت ۹۴/۹۴ هدف.
+
 ## جلسه ۴۶ ادامه (~۰۳:۳۰) — 🏠 خانهٔ سادهٔ «آره/نه» (رأی مالک «هیچی نمیفهمم، ساده و اتوماتیک، فقط آره یا نه با نوتیف»)
 
 منوی اصلی حالا **خانهٔ ساده** است (کابینِ ۸-تب زیرِ «⚙️ بیشتر» دست‌نخورده):

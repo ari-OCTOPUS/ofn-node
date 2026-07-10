@@ -60,6 +60,16 @@ def _read_json(p: Path) -> dict:
         return {}
 
 
+def _emit_event(name: str, agent: str, **kw) -> None:
+    """emitِ رویدادِ ساختاریافته برای داشبورد — fail-soft، هرگز پمپ را نمی‌کشد."""
+    try:
+        sys.path.insert(0, str(_HERE.parent))
+        import events
+        events.emit(name, agent, **kw)
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def load_plan() -> dict:
     """plan را بخوان؛ اولین بار seed کن (تنها نوشتنِ ساختاری، atomic)."""
     plan = _read_json(PLAN_PATH)
@@ -188,12 +198,30 @@ def pump_step(beat: int = 0, period_s: float | None = None,
         result = {"idle": "no-task-due"}
     else:
         kind = picked["kind"]
+        _labels = {"health": "بررسیِ سلامت", "gap_report": "یافتنِ گپِ یادگیری",
+                   "web_research": "تحقیقِ وبِ رایگان", "search": "سرچِ عمیق",
+                   "llm_learn": "سنتزِ مغز"}
+        _label = _labels.get(kind, kind)
+        _t0 = ts
+        _emit_event("task.started", f"pump/{kind}", summary=_label, trace_id=f"pump-{beat}")
         if picked.get("paid"):
             result = {"kind": kind, **_exec_paid_lane(kind, picked)}
         else:
             fn = _EXECUTORS.get(kind)
             result = {"kind": kind, **(fn() if fn
                                        else {"ok": False, "error": "no-executor"})}
+        _dur = int((_now_ts(now) - _t0) * 1000)
+        if result.get("ok"):
+            _emit_event("task.completed", f"pump/{kind}", summary=f"{_label} انجام شد",
+                        duration_ms=_dur, trace_id=f"pump-{beat}")
+        elif result.get("skipped"):
+            _emit_event("task.blocked", f"pump/{kind}",
+                        summary=f"{_label}: {str(result.get('skipped'))[:80]}",
+                        status="skipped", trace_id=f"pump-{beat}")
+        else:
+            _emit_event("task.failed", f"pump/{kind}",
+                        summary=f"{_label}: {str(result.get('error', 'خطا'))[:80]}",
+                        status="failed", duration_ms=_dur, trace_id=f"pump-{beat}")
         last_run[kind] = ts
         rec = {"ts": opslib.now_iso(), "beat": beat,
                "period_s": period_s, **result}

@@ -554,6 +554,19 @@ class Pacemaker:
                                                           "ts": _t2.time()}) + "\n")
                             except OSError:
                                 pass
+                            # جلسه ۴۶: رویدادِ ساختاریافته برای داشبورد (blocked→completed)
+                            try:
+                                _sp = str(_HERE)
+                                if _sp not in sys.path:
+                                    sys.path.insert(0, _sp)
+                                import events as _ev
+                                _lg = getattr(leg, "id", "?")
+                                _ev.emit("task.blocked", f"leg/{_lg}",
+                                         summary=f"عضو «{_lg}» از کار افتاد", status="failed")
+                                _ev.emit("task.completed", "self-heal",
+                                         summary=f"عضو «{_lg}» را خودم دوباره راه انداختم")
+                            except Exception:  # noqa: BLE001
+                                pass
                         except Exception as e:  # noqa: BLE001
                             opslib.alert([f"doctor restart hook failed ({leg.id}): {e}"])
                     else:

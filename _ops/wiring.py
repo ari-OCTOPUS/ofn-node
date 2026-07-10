@@ -1203,6 +1203,42 @@ def needs_nudge_beat(channel=None, beat: int = 0) -> dict | None:
         return None
 
 
+_HEARTBEAT_STATE = {"last_epoch": -1}
+
+
+def heartbeat_summary_beat(channel=None, beat: int = 0) -> dict | None:
+    """رأی مالک «هر ۵ دقیقه heartbeat summary بده». هر N beat یک رویدادِ
+    system.heartbeat با شمارِ کارها emit می‌کند (خوراکِ داشبوردِ اتوماسیون).
+    فقط رویداد — بی‌صدا (نوتیفِ تلگرام جداست). kill-switch اول."""
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    every_n = int(os.environ.get("CHRONO_HEARTBEAT_EVERY_N_BEATS", "300"))  # ~۵min با ۱s beat
+    if beat <= 0 or every_n <= 0:
+        return None
+    epoch = beat // every_n
+    if epoch <= _HEARTBEAT_STATE["last_epoch"]:
+        return None
+    _HEARTBEAT_STATE["last_epoch"] = epoch
+    try:
+        sys.path.insert(0, str(_HERE))
+        import events
+        s = events.summary_window(5)
+        pending = None
+        if channel is not None and hasattr(channel, "_count_pending"):
+            try:
+                pending = channel._count_pending()
+            except Exception:  # noqa: BLE001
+                pending = None
+        summ = (f"{s['completed']} تمام، {s.get('waiting', pending or 0)} منتظر، "
+                f"{s['failed']} خطا، {s['blocked']} گیر")
+        events.emit("system.heartbeat", "organism", summary=summ,
+                    approval_state="required" if pending else "none")
+        return {"summary": summ, "pending": pending}
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"wiring: heartbeat_summary خطا: {type(e).__name__}: {e}"])
+        return None
+
+
 _DISCOVERY_STATE = {"last_epoch": -1}
 
 

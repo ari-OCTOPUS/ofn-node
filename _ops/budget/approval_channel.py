@@ -458,6 +458,16 @@ class TelegramApprovalChannel(ApprovalChannel):
                                         "summary": str(summary)[:500],
                                         "guard": str(guard_verdict)[:200],
                                         "token": token, "status": "pending"}
+        # جلسه ۴۶: رویدادِ ساختاریافته برای داشبورد (بی‌محتوا — بدونِ خودِ summaryِ کارت)
+        try:
+            import sys as _s
+            _s.path.insert(0, str(_HERE.parent))
+            import events as _ev
+            _ev.emit("approval.required", "approval-channel",
+                     summary="یه کار منتظرِ تأییدِ توست", approval_state="required",
+                     next_action="تلگرام: آره/نه")
+        except Exception:  # noqa: BLE001
+            pass
         # C2/C5 · INV-12: کارتِ پول هم از پاسِ redaction می‌گذرد (summary/guard ممکن است
         # از subsystemِ بالادست رشتهٔ secret-شکل بیاورد). این تنها sendِ مستقیمِ باقی‌مانده بود.
         text = self._redact(

@@ -255,6 +255,87 @@ def do_ask(task: str, prompt: str) -> dict:
             return {"ok": False, "reason": f"router: {type(e).__name__}"}
 
 
+def ops_state() -> dict:
+    """state داشبوردِ اتوماسیونِ مینیمال — رویدادها + شمارِ تصمیم‌های منتظر."""
+    try:
+        sys.path.insert(0, str(_OPS))
+        import events
+        pending = 0
+        try:
+            needs = _read_json(STATE / "needs-nudge.json") or {}
+            pending = int(needs.get("last_n", 0) or 0)
+        except Exception:  # noqa: BLE001
+            pending = 0
+        return events.dashboard_state(pending_count=pending)
+    except Exception as e:  # noqa: BLE001
+        return {"overall": "—", "error": f"{type(e).__name__}", "log": []}
+
+
+# ── داشبوردِ اتوماسیونِ مینیمال (رأی مالک): وضعیت + Now/آخرین/گیرکرده + خلاصهٔ ۵min + لاگ ──
+OPS_PAGE = """<!doctype html><html dir="rtl" lang="fa"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>اختاپوس — کنترل</title>
+<style>
+*{box-sizing:border-box;margin:0}body{background:#0d1117;color:#c9d1d9;font:13px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;padding:10px;max-width:640px;margin:0 auto}
+.bar{display:flex;justify-content:space-between;align-items:center;background:#161b22;border:1px solid #30363d;border-radius:10px;padding:10px 12px;position:sticky;top:0}
+.bar b{font-size:16px}.upd{color:#6e7681;font-size:11px}
+.btn{background:#21262d;border:1px solid #30363d;color:#c9d1d9;border-radius:7px;padding:6px 12px;cursor:pointer;font:inherit}
+.btn:active{background:#30363d}
+.cards{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0}
+.card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:10px 12px}
+.card .lbl{color:#6e7681;font-size:11px;margin-bottom:2px}.card .val{font-size:14px}
+.att{border-color:#9e6a03}.att .lbl{color:#e3b341}
+.kpis{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.kpi{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:6px 10px;flex:1;text-align:center;min-width:70px}
+.kpi b{display:block;font-size:18px}.kpi span{font-size:10px;color:#6e7681}
+.log{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:8px;max-height:46vh;overflow:auto}
+.ev{display:flex;gap:8px;padding:4px 2px;border-bottom:1px solid #21262d;font-size:12px}
+.ev .tm{color:#6e7681;font-variant-numeric:tabular-nums}.ev .nm{font-size:10px;padding:1px 5px;border-radius:5px;background:#21262d}
+.ok{color:#3fb950}.fail{color:#f85149}.blk{color:#e3b341}
+</style><body>
+<div class="bar"><div><b id="ov">…</b><div class="upd" id="upd">—</div></div>
+ <button class="btn" id="act" onclick="act()">🔄</button></div>
+<div class="cards">
+ <div class="card"><div class="lbl">الان چیکار می‌کند</div><div class="val" id="now">…</div></div>
+ <div class="card"><div class="lbl">آخرین نتیجه</div><div class="val" id="last">…</div></div>
+ <div class="card att" id="attc" style="display:none"><div class="lbl">⚠ منتظرِ تو / گیرکرده</div><div class="val" id="att"></div></div>
+</div>
+<div class="kpis">
+ <div class="kpi"><b id="k_c">0</b><span>تمام‌شده</span></div>
+ <div class="kpi"><b id="k_w">0</b><span>منتظر</span></div>
+ <div class="kpi"><b id="k_f">0</b><span>خطا</span></div>
+ <div class="kpi"><b id="k_e">0</b><span>رویداد (۵m)</span></div>
+</div>
+<div class="log" id="log"></div>
+<script>
+function esc(s){return String(s==null?'':s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}
+async function act(){if(!confirm('ری‌استارتِ بدن؟ یک لحظه می‌خوابد و تازه برمی‌گردد.'))return;
+ const r=await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'restart-organism'})});
+ try{alert((await r.json()).note)}catch(e){}}
+const NM={'task.started':'▶ شروع','task.completed':'✓ تمام','task.failed':'✗ خطا','task.blocked':'⏸ گیر','system.heartbeat':'💓 ضربان','approval.required':'🙋 تأیید','handoff.created':'🤝 تحویل'};
+async function tick(){try{
+ const d=await(await fetch('/api/ops')).json();
+ document.getElementById('ov').textContent=d.overall||'—';
+ document.getElementById('upd').textContent='آخرین به‌روزرسانی: '+new Date().toLocaleTimeString('fa-IR');
+ document.getElementById('now').textContent=d.now||'—';
+ document.getElementById('last').textContent=(d.last_outcome||'—')+(d.last_status==='failed'?' ✗':'');
+ const att=d.attention||''; const ac=document.getElementById('attc');
+ ac.style.display=att?'block':'none';
+ document.getElementById('att').textContent=att+(d.attention_next?(' — '+d.attention_next):'');
+ const s=d.summary_5m||{};
+ document.getElementById('k_c').textContent=s.completed||0;
+ document.getElementById('k_w').textContent=(s.waiting||d.pending||0);
+ document.getElementById('k_f').textContent=s.failed||0;
+ document.getElementById('k_e').textContent=s.events||0;
+ const lg=document.getElementById('log');
+ lg.innerHTML=(d.log||[]).map(e=>{const cl=e.status==='failed'?'fail':(e.event_name==='task.blocked'?'blk':'ok');
+  return '<div class=ev><span class=tm>'+esc(e.t)+'</span><span class=nm>'+esc(NM[e.name]||e.name)+'</span><span class="'+cl+'">'+esc(e.summary||e.agent)+'</span></div>'}).join('')
+  ||'<div style=color:#6e7681;padding:8px>هنوز رویدادی نیست — به‌زودی.</div>';
+}catch(e){document.getElementById('ov').textContent='قطع'}}
+tick(); setInterval(tick, 5000);
+</script></body></html>"""
+
+
 PAGE = """<!doctype html><html dir="rtl" lang="fa"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>🐙 هولوگرامِ اختاپوس</title>
@@ -429,6 +510,12 @@ class _Handler(BaseHTTPRequestHandler):
         if self.path == "/api/live":
             out = _redact(json.dumps(aggregate(), ensure_ascii=False))
             self._send(200, out.encode("utf-8"))
+            return
+        if self.path == "/api/ops":
+            self._send(200, _redact(json.dumps(ops_state(), ensure_ascii=False)).encode("utf-8"))
+            return
+        if self.path in ("/ops", "/ops/"):
+            self._send(200, OPS_PAGE.encode("utf-8"), "text/html; charset=utf-8")
             return
         if self.path == "/":
             self._send(200, PAGE.encode("utf-8"), "text/html; charset=utf-8")
