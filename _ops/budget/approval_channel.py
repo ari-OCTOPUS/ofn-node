@@ -346,9 +346,40 @@ class TelegramApprovalChannel(ApprovalChannel):
         با اولین سیگنالِ kill_check/STOP می‌ایستد. خطای هر دور fail-soft است."""
         if not self.wired:
             return
+        self._diagnose_webhook()  # جلسه ۴۶: کشفِ webhookِ رقیب (علتِ ۴۰۹ ابدیِ دکمه‌ها)
         self._set_my_commands()   # پاک‌سازیِ منوی قدیمی + ثبتِ منوی تمیز اختاپوس
         while not self._killed():
             self.poll_once()
+
+    def _diagnose_webhook(self, delete: bool | None = None) -> dict:
+        """یک‌بار در شروع: getWebhookInfo. اگر webhook ست باشد، getUpdates ما همیشه
+        ۴۰۹ می‌گیرد و دکمه‌ها هرگز نمی‌رسند — علتِ محتملِ «نادیده» با باتِ مشترک.
+        delete=True → deleteWebhook(drop_pending_updates=False) تا getUpdatesِ ما کار کند
+        (پیش‌فرض از env: TELEGRAM_TAKE_OVER_WEBHOOK=1 → مالک صریحاً بات را از control-brain
+        می‌گیرد). فقط لاگ/هشدار؛ هرگز token را echo نمی‌کند."""
+        if delete is None:
+            delete = os.environ.get("TELEGRAM_TAKE_OVER_WEBHOOK") == "1"
+        try:
+            info = self._http_get(self._build_url("getWebhookInfo", {}), 8.0)
+            url = ((info or {}).get("result") or {}).get("url") or ""
+            pending = ((info or {}).get("result") or {}).get("pending_update_count", 0)
+            if url:
+                opslib.alert([
+                    f"telegram: webhookِ رقیب ست است (pending={pending})! دکمه‌ها به "
+                    f"getUpdatesِ ما نمی‌رسند → «نادیده». علت: باتِ مشترک با control-brain. "
+                    f"چاره: باتِ اختصاصی، یا TELEGRAM_TAKE_OVER_WEBHOOK=1 برای گرفتنِ بات."])
+                if delete:
+                    self._http_post(self._build_url("deleteWebhook", {}),
+                                    {"drop_pending_updates": False})
+                    opslib.alert(["telegram: deleteWebhook زده شد — بات از control-brain "
+                                  "گرفته شد (رأی مالک TELEGRAM_TAKE_OVER_WEBHOOK)."])
+                return {"webhook": True, "url_set": True, "deleted": delete,
+                        "pending": pending}
+            return {"webhook": False}
+        except Exception as e:  # noqa: BLE001 — تشخیص نباید thread را بکشد
+            opslib.alert([f"telegram getWebhookInfo failed (non-fatal): "
+                          f"{type(e).__name__}"])
+            return {"webhook": None, "error": type(e).__name__}
 
     def _set_my_commands(self) -> None:
         """منوی command تلگرام را پاک و دوباره ثبت می‌کند.
