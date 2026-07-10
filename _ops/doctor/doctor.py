@@ -167,7 +167,7 @@ class RFC:
         lines = [f"# RFC {self.rfc_id}", "", f"**status:** {self.status}", "",
                  f"## مسئله (bottleneck)", self.bottleneck, "",
                  f"## فیکس پیشنهادی", self.fix, "",
-                 f"## lift موردِانتظار", self.expected_lift, ""]
+                 f"## lift موردِانتظار", f"{self.expected_lift}", ""]
         if self.rollback:
             lines += ["## rollback", self.rollback, ""]
         if self.sandbox_result:
@@ -539,7 +539,19 @@ class Doctor:
                     from calibration import record_verdict
                     record_verdict(self._db, rfc_id, mapped)
                     if rfc_id in self._rfcs:
-                        self._rfcs[rfc_id].status = "human-" + mapped
+                        # جلسه ۴۶ (P0): verdictِ merged حالا اثرِ واقعی دارد — apply_merge
+                        # (فقط lesson + NOTE، هیچ جهشِ production؛ human-append قبلاً enforce شده).
+                        # apply_merge نیاز به status=submitted دارد، پس *پیش از* برچسب صدا زده
+                        # می‌شود. پشتِ flag (پیش‌فرض روشن؛ خاموش → فقط برچسبِ قبلی).
+                        _applied = False
+                        if mapped == "merged" and \
+                                os.environ.get("OCTOPUS_WIRE_APPLY_MERGE", "1") == "1":
+                            try:
+                                _applied = self.apply_merge(self._rfcs[rfc_id])
+                            except Exception as _ame:  # noqa: BLE001 — merge نباید cycle را بکشد
+                                opslib.alert([f"doctor apply_merge failed: {type(_ame).__name__}"])
+                        if not _applied:   # apply نشد/flag خاموش → همان برچسبِ قبلی
+                            self._rfcs[rfc_id].status = "human-" + mapped
         except Exception as e:  # noqa: BLE001 — مصرفِ verdict هرگز cycle را نمی‌کشد
             try:
                 opslib.alert([f"doctor: rfc-verdict consumption failed: {str(e)[:120]}"])

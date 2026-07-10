@@ -524,7 +524,11 @@ class TelegramApprovalChannel(ApprovalChannel):
                     "amount_aud": amount, "source": "telegram",
                     "summary": meta.get("summary", "")}
         try:
-            entry = _on_human_judgment(judgment, gate=self._gate, ledger=self._ledger)
+            # جلسه ۴۶: توکنِ human-append — اثباتِ اینکه این append از تلگرام (مالک) است،
+            # نه کدِ جعل‌کننده. گاردِ خاموش → None → رفتارِ قبلی (downgrade در chrono، بی‌خطر).
+            _ha = _mint_ha_token(effect_id, "APPROVAL")
+            entry = _on_human_judgment(judgment, gate=self._gate, ledger=self._ledger,
+                                       ha_token=_ha)
             release_hash = entry.get("hash", "") if isinstance(entry, dict) else ""
             settled = self._settle_effect(effect_id) if self._gate is not None else False
         except Exception:  # noqa: BLE001 — هر شکست = رد (fail-closed، هیچ settleِ نیمه)
@@ -2361,9 +2365,11 @@ def _cteq(a: str, b: str) -> bool:
         return False
 
 
-def _on_human_judgment(judgment: dict, gate=None, ledger=None) -> dict:
+def _on_human_judgment(judgment: dict, gate=None, ledger=None,
+                       ha_token: str | None = None) -> dict:
     """پلِ تنک به chrono.on_human_judgment (lazy import) تا approval_channel به chrono
-    وابستهٔ import-time نشود (جلوگیری از circular). فقط هنگامِ approve واقعی لود می‌شود."""
+    وابستهٔ import-time نشود (جلوگیری از circular). فقط هنگامِ approve واقعی لود می‌شود.
+    ha_token: توکنِ human-append (جلسه ۴۶) که فقط تلگرام mint می‌کند."""
     try:
         import sys as _sys
         from pathlib import Path as _Path
@@ -2371,7 +2377,22 @@ def _on_human_judgment(judgment: dict, gate=None, ledger=None) -> dict:
         if str(_here) not in _sys.path:
             _sys.path.insert(0, str(_here))
         import chrono  # noqa: WPS433
-        return chrono.on_human_judgment(judgment, gate=gate, ledger=ledger)
+        return chrono.on_human_judgment(judgment, gate=gate, ledger=ledger,
+                                        ha_token=ha_token)
     except Exception:  # noqa: BLE001 — chrono نبود = fail-closed (entry خالی → رد در caller)
         return {}
+
+
+def _mint_ha_token(approval_id: str, event_type: str = "APPROVAL") -> str | None:
+    """توکنِ human-append برای یک approval بساز — فقط اگر گارد پیکربندی شده باشد.
+    شکست/گاردِ خاموش → None (→ downgrade در chrono؛ هرگز crash، هرگز بلاکِ settle)."""
+    try:
+        from human_append_guard import default_guard
+        g = default_guard()
+        if not g.enabled:
+            return None
+        safe_id = str(approval_id).replace(".", "-")   # mint نقطه نمی‌پذیرد
+        return g.mint(safe_id, event_type)
+    except Exception:  # noqa: BLE001
+        return None
 

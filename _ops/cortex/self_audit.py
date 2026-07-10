@@ -237,25 +237,24 @@ def _probe_named_owner():
 
 
 def _probe_human_append_enforced():
-    """یافتهٔ workflow (P0): human_append_guard غیرفعالِ کدمرده است → is_human جعل‌پذیر."""
-    src = OPS / "budget" / "human_append_guard.py"
-    dead = _grep(src, "_default_guard") and not _grep(OPS / "organism.py", "configure_guard")
+    """P0 رفع‌شده (جلسه ۴۶): configure در بوت + authorize در chrono (پشتِ flag)."""
+    wired = _grep(OPS / "organism.py", "configure as _cfg_guard") and \
+        _grep(OPS / "chrono.py", "from human_append_guard import default_guard")
     return _item("human-append anti-forgery ENFORCED (is_human unforgeable)",
-                 "Missing" if dead else "Partial",
-                 "human_append_guard._default_guard=DISABLED passthrough؛ configure/authorize "
-                 "هرگز در production صدا زده نمی‌شود (فقط تست) → is_human جعل‌پذیر",
-                 "P0", "governance", "§15 human-in-loop")
+                 "Done" if wired else "Missing",
+                 "organism configure(per-boot secret) + chrono authorize→downgrade؛ "
+                 "mint فقط تلگرام؛ جعلِ بی‌توکن→is_human=0 (test_p0_security_fixes)",
+                 "P0", "none" if wired else "governance", "§15 human-in-loop")
 
 
 def _probe_owner_verdict_effect():
-    """یافتهٔ workflow (P0): apply_merge هرگز در runtime صدا زده نمی‌شود."""
-    called = _grep(OPS / "doctor" / "doctor.py", "apply_merge") and \
-        _grep(OPS / "doctor" / "doctor.py", "self.apply_merge(")
-    st = "Partial" if called else "Missing"
-    return _item("owner merge verdict has real effect (apply_merge wired)", st,
-                 "run_cycle verdictها را فقط به calibration می‌دهد؛ apply_merge تعریف‌شده "
-                 "ولی در هیچ‌جای runtime صدا زده نمی‌شود",
-                 "P0", "implementation", "§15 human-in-loop")
+    """P0 رفع‌شده (جلسه ۴۶): apply_merge در run_cycle بعد از verdictِ merged."""
+    called = _grep(OPS / "doctor" / "doctor.py", "self.apply_merge(self._rfcs[rfc_id])")
+    return _item("owner merge verdict has real effect (apply_merge wired)",
+                 "Done" if called else "Missing",
+                 "run_cycle: merged→apply_merge (lesson+NOTE، پشتِ OCTOPUS_WIRE_APPLY_MERGE) "
+                 "+ رفعِ باگِ to_markdown float",
+                 "P0", "none" if called else "implementation", "§15 human-in-loop")
 
 
 def _probe_autonomy_consumed():

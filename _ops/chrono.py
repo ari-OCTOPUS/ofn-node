@@ -425,11 +425,35 @@ class EffectorGate:
 
 # ─── LANGAR — فلشِ میرا (P-Chrono-4؛ ledger ژنوم v0.4.5 گسترش‌یافته) ─────────────
 def on_human_judgment(judgment: dict, gate: EffectorGate | None = None,
-                      event_type: str = "APPROVAL", ledger=None) -> dict:
+                      event_type: str = "APPROVAL", ledger=None,
+                      ha_token: str | None = None) -> dict:
     """DOC-B §9: تنها قضاوتِ انسانی فلش را می‌برد (age_tick=last+1 داخلِ ledger،
-    اتمیک زیرِ قفلِ append) → سپس اثرهای منتظرِ گیت آزاد می‌شوند (TINV-7)."""
+    اتمیک زیرِ قفلِ append) → سپس اثرهای منتظرِ گیت آزاد می‌شوند (TINV-7).
+
+    جلسه ۴۶ (رفعِ P0/E16): گاردِ human-append. فقط تلگرام (که رازِ mint را دارد) می‌تواند
+    توکنِ معتبر بسازد؛ بی‌توکن یا توکنِ جعلی → `is_human` به 0 downgrade می‌شود تا age_tickِ
+    میرا با یک append جعلی جلو نرود. مسیرِ settle/release دست‌نخورده (گیتِ پول جداست).
+    flag-gated + fail-safe: پرچمِ خاموش یا گاردِ پیکربندی‌نشده → رفتارِ قبلی."""
     lg = ledger or opslib.genome_ledger()
-    entry = lg.append(event_type, judgment, actor="human", is_human=True)
+    is_human = True
+    if os.environ.get("OCTOPUS_WIRE_HUMAN_APPEND_GUARD") == "1":
+        try:
+            _bp = str(_HERE / "budget")
+            if _bp not in sys.path:
+                sys.path.insert(0, _bp)
+            from human_append_guard import default_guard
+            _raw = judgment.get("effect_id") if isinstance(judgment, dict) else None
+            _aid = str(_raw).replace(".", "-") if _raw is not None else None  # هم‌راستا با mint
+            allow, reason = default_guard().authorize(event_type, True,
+                                                      token=ha_token, approval_id=_aid)
+            if not allow and reason != "guard-disabled-passthrough":
+                is_human = False
+                opslib.alert([f"human-append guard: is_human downgraded ({reason}) "
+                              f"— append بدونِ توکنِ معتبر (ضدِ جعلِ E16)"])
+        except Exception:  # noqa: BLE001 — fail-safe: خطای گارد → رفتارِ قبلی
+            pass
+    entry = lg.append(event_type, judgment,
+                      actor="human" if is_human else "system", is_human=is_human)
     if gate is not None:
         gate.release_gated_effects(entry)
     return entry

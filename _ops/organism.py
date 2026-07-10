@@ -171,6 +171,17 @@ def main() -> int:
     _circadian = None   # CircadianMap (readiness ساعتِ روز)
     _sprint_runner = None  # SprintRunner (sprint management)
     _chan = None        # جلسه ۴۶: pre-init تا شکستِ wiring، nudge را NameError نکند
+    # جلسه ۴۶ (رفعِ P0/E16): گاردِ human-append را با رازِ per-boot پیکربندی کن (ENABLE).
+    # از این پس فقط approval_channel (که همین گاردِ ماژول-سطح را mint می‌کند) می‌تواند توکنِ
+    # معتبر بسازد؛ enforce پشتِ OCTOPUS_WIRE_HUMAN_APPEND_GUARD در chrono. fail-safe.
+    try:
+        import secrets as _secrets
+        sys.path.insert(0, str(_HERE / "budget"))
+        from human_append_guard import configure as _cfg_guard
+        _cfg_guard(_secrets.token_bytes(32))
+        opslib.heartbeat("human-append guard configured (per-boot secret)")
+    except Exception as _hge:  # noqa: BLE001 — گارد اختیاری؛ نبودش = passthrough امن
+        opslib.alert([f"human-append guard configure failed (non-fatal): {type(_hge).__name__}"])
     try:
         import wiring as _w
         _profile = _w.apply_profile()   # P-W3: paper-full → flagهای امن
