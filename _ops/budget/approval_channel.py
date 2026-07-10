@@ -498,6 +498,8 @@ class TelegramApprovalChannel(ApprovalChannel):
         parts = str(data or "").split(":")
         if parts[0] == "menu":
             return self._dispatch_menu(parts)
+        if parts[0] == "home":              # جلسه ۴۶: آره/نهِ خانهٔ ساده
+            return self._dispatch_home(parts)
         if parts[0] == "rfc":
             return self._dispatch_rfc(parts)
         # ── Cockpit v2: لایهٔ read/nav/act — کنارِ schemeهای موجود، بدونِ دست‌زدن به آن‌ها ──
@@ -525,6 +527,96 @@ class TelegramApprovalChannel(ApprovalChannel):
         if verb == "later":
             return "بعداً ⏳ (pending باقی می‌ماند)"
         return "نادیده"
+
+    # ─── خانهٔ سادهٔ آره/نه (جلسه ۴۶، رأی مالک «فقط آره یا نه بگم») ──────────────────
+    def _gather_decisions(self) -> list[dict]:
+        """هر چیزی که یک آره/نهِ ساده لازم دارد، به زبانِ آدمیزاد. منبع: پیشنهادهای
+        بهبودِ خودِ سیستم (RFC) + کارهای منتظرِ تأیید (پول/Project-F). هر آیتم {q,yes,no}."""
+        out: list[dict] = []
+        with self._lk:
+            rfcs = [(k, dict(v)) for k, v in self._pending_rfc.items()]
+            apps = [(k, dict(v)) for k, v in self._pending.items()]
+        for rid, m in rfcs:
+            if m.get("status") != "pending":
+                continue
+            tok = m.get("token", "")
+            summ = str(m.get("summary", "") or "").strip()
+            q = "🔧 می‌خوام یه چیزی رو تو خودم بهتر کنم" + (f" ({summ[:50]})" if summ else "") + ". باشه؟"
+            out.append({"q": q, "yes": f"home:rfcyes:{rid}:{tok}",
+                        "no": f"home:rfcno:{rid}:{tok}"})
+        for eid, m in apps:
+            if m.get("status") != "pending":
+                continue
+            tok = m.get("token", "")
+            amt = float(m.get("amount_aud", 0) or 0)
+            summ = str(m.get("summary", "") or "").strip() or "یه کار"
+            money = f" ({amt:.0f} دلار)" if amt > 0 else ""
+            q = f"💰 {summ[:50]}{money} — تأیید کنم؟"
+            out.append({"q": q, "yes": f"home:appyes:{eid}:{tok}",
+                        "no": f"home:appno:{eid}:{tok}"})
+        return out[:5]
+
+    def _selfheal_recent(self) -> int:
+        """چند بار در ۲۴ ساعتِ اخیر عضوی خراب شد و سیستم خودش درستش کرد (بی‌محتوا)."""
+        try:
+            import datetime as _dt
+            p = opslib.STATE_DIR / "selfheal-events.jsonl"
+            if not p.exists():
+                return 0
+            cutoff = _dt.datetime.now().timestamp() - 86400
+            n = 0
+            for ln in p.read_text("utf-8").splitlines()[-50:]:
+                try:
+                    if float(json.loads(ln).get("ts", 0)) >= cutoff:
+                        n += 1
+                except (ValueError, TypeError):
+                    continue
+            return n
+        except OSError:
+            return 0
+
+    def _simple_home(self) -> dict:
+        """خانهٔ ساده: یا «همه‌چیز خوبه»، یا چند سوالِ آره/نه. صفر جارگون."""
+        decs = self._gather_decisions()
+        heal = self._selfheal_recent()
+        heal_line = (f"\n🩹 اخیراً {heal} بار یه چیزی خراب شد و خودم درستش کردم." if heal else "")
+        if not decs:
+            return {
+                "text": ("🐙 <b>همه‌چیز خوبه</b>\n"
+                         "خودم دارم کار می‌کنم، یاد می‌گیرم و خودمو درست می‌کنم.\n"
+                         "هر وقت کاری ازت داشتم همین‌جا می‌پرسم — فقط آره یا نه. ✅"
+                         + heal_line),
+                "reply_markup": {"inline_keyboard": [[
+                    {"text": "📊 حالت چطوره؟", "callback_data": "menu:status"},
+                    {"text": "⚙️ بیشتر", "callback_data": "menu:more"}]]},
+            }
+        lines = ["🐙 <b>چند چیز ازت می‌پرسم:</b>", ""]
+        rows = []
+        for i, d in enumerate(decs, 1):
+            lines.append(f"<b>{i}.</b> {html.escape(d['q'])}")
+            rows.append([{"text": f"✅ آره ({i})", "callback_data": d["yes"]},
+                         {"text": f"❌ نه ({i})", "callback_data": d["no"]}])
+        rows.append([{"text": "⚙️ بیشتر", "callback_data": "menu:more"}])
+        return {"text": "\n".join(lines) + heal_line,
+                "reply_markup": {"inline_keyboard": rows}}
+
+    def _dispatch_home(self, parts: list[str]):
+        """آره/نهِ خانه → همان منطقِ امنِ rfc/app (توکن‌چک، ضدِ جعل)، بعد خانه را تازه نشان بده."""
+        if len(parts) != 4:
+            return self._simple_home()
+        kind, _id, tok = parts[1], parts[2], parts[3]
+        if kind in ("rfcyes", "rfcno"):
+            self._dispatch_rfc(["rfc", "merge" if kind == "rfcyes" else "deny", _id, tok])
+        elif kind in ("appyes", "appno"):
+            with self._lk:
+                meta = self._pending.get(_id)
+            if meta and meta.get("status") == "pending" and _cteq(tok, meta.get("token", "")):
+                if kind == "appyes":
+                    self._do_approve(_id, meta)
+                else:
+                    with self._lk:
+                        meta["status"] = "denied"
+        return self._simple_home()
 
     def _do_approve(self, effect_id: str, meta: dict) -> str:
         """human-append (is_human=1) → release gated effects → settle. تنها مسیرِ settle."""
@@ -826,25 +918,9 @@ class TelegramApprovalChannel(ApprovalChannel):
         return None
 
     def _main_menu(self) -> dict:
-        """منوی اصلیِ ADHD (جلسه ۴۶): یک خطِ اولویت + ۳ ردیف دکمه — نه دیوارِ گزینه.
-        عمقِ کاملِ ۸-تب دست‌نخورده زیرِ «همهٔ امکانات» (backward-compat کامل)."""
-        mode = self._read_mode_color()
-        n_pending = self._count_pending()
-        top = ""
-        try:
-            import needs_digest
-            d = needs_digest.compute(pending_count=n_pending)
-            if d["n"]:
-                top = f"👉 {d['items'][0]}\n"
-        except Exception:  # noqa: BLE001 — منو هرگز کرش نمی‌کند
-            top = ""
-        return {
-            "text": (f"🐙 <b>اختاپوس</b> {mode}\n"
-                     f"──────────\n"
-                     f"{top}"
-                     f"<i>{'هیچ‌چیز منتظرت نیست ✅' if not top else 'بقیه در «الان».'}</i>"),
-            "reply_markup": self.SIMPLE_KEYBOARD,
-        }
+        """خانهٔ اصلی (جلسه ۴۶، رأی مالک «فقط آره یا نه»): خانهٔ سادهٔ تصمیم‌ها.
+        عمقِ کاملِ ۸-تب دست‌نخورده زیرِ «⚙️ بیشتر» (backward-compat کامل)."""
+        return self._simple_home()
 
     def _read_mode_color(self) -> str:
         """رنگِ حالت از Chrono-Rhythm (§۳). fallback STEADY/🟢."""

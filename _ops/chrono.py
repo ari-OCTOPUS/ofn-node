@@ -545,6 +545,15 @@ class Pacemaker:
                         self._restart_log = recent
                         try:  # Phase 2 قلاب: OTP-style restart از حالتِ known-good لجر
                             self.doctor.restart_from_known_good(leg, self.db)
+                            # جلسه ۴۶: لاگِ بی‌محتوا برای خانهٔ ساده («خودم درستش کردم»)
+                            try:
+                                import time as _t2
+                                with open(opslib.STATE_DIR / "selfheal-events.jsonl",
+                                          "a", encoding="utf-8") as _hf:
+                                    _hf.write(json.dumps({"leg": getattr(leg, "id", "?"),
+                                                          "ts": _t2.time()}) + "\n")
+                            except OSError:
+                                pass
                         except Exception as e:  # noqa: BLE001
                             opslib.alert([f"doctor restart hook failed ({leg.id}): {e}"])
                     else:

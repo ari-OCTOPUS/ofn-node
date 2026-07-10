@@ -72,7 +72,8 @@ def test_menu_routing():
     m = ch.dispatch_callback("menu:main")
     assert isinstance(m, dict) and "reply_markup" in m
     kb = json.dumps(m["reply_markup"], ensure_ascii=False)
-    assert "menu:now" in kb and "menu:more" in kb and "menu:status" in kb
+    # جلسه ۴۶: خانهٔ ساده = تصمیم‌های آره/نه؛ منوی now دیگر لازم نیست، فقط status + more
+    assert "menu:more" in kb and "menu:status" in kb
     assert len(m["reply_markup"]["inline_keyboard"]) <= 3
     # عمقِ کامل دست‌نخورده زیرِ «همهٔ امکانات»
     more = ch.dispatch_callback("menu:more")
@@ -385,7 +386,7 @@ def test_failsoft_loop():
 def test_existing_commands_preserved():
     ch, _ = make_channel()
     r = ch.handle_command("/start")
-    assert isinstance(r, dict) and "اختاپوس" in r["text"]
+    assert isinstance(r, dict) and "🐙" in r["text"]   # جلسه ۴۶: خانهٔ سادهٔ برند-اختاپوس
     assert "ثبتِ لید" in ch.handle_command("/lead")
     assert isinstance(ch.handle_command("/status"), str)
     assert ch.handle_command("سلام") is None
@@ -408,6 +409,62 @@ def test_phaseverdict_via_rfc():
     assert ch.dispatch_callback("act:phase:transition:tok") == "نادیده"
     card = ch.dispatch_callback("card:blueprint:transition")["text"]
     assert "RFC" in card
+
+
+def test_simple_home_all_good_when_empty():
+    """خانهٔ ساده: هیچ تصمیمِ منتظر → «همه‌چیز خوبه» + دکمه‌های کم، بدونِ جارگون."""
+    ch, _ = make_channel()
+    home = ch._main_menu()
+    assert isinstance(home, dict)
+    assert "همه‌چیز خوبه" in home["text"]
+    # هیچ اصطلاحِ فنی
+    for jargon in ("RFC", "apply-merge", "sigma", "OCTOPUS", "flag", "gate"):
+        assert jargon not in home["text"], f"جارگون در خانهٔ ساده: {jargon}"
+
+
+def test_simple_home_yes_no_decisions_and_wiring():
+    """یک RFCِ منتظر → خانه یک سوالِ ساده با دکمهٔ آره/نه نشان می‌دهد؛ «آره» ثبتش می‌کند."""
+    ch, _ = make_channel()
+    tok = ch._new_act_token("rfc", "r1") if hasattr(ch, "_new_act_token") else "tk"
+    with ch._lk:
+        ch._pending_rfc["r1"] = {"summary": "کمتر شدنِ خطا", "token": tok, "status": "pending"}
+    home = ch._main_menu()
+    assert "می‌پرسم" in home["text"] and "بهتر کنم" in home["text"]
+    btns = [b for row in home["reply_markup"]["inline_keyboard"] for b in row]
+    yes = next(b for b in btns if b["text"].startswith("✅"))
+    no = next(b for b in btns if b["text"].startswith("❌"))
+    assert yes["callback_data"] == f"home:rfcyes:r1:{tok}"
+    assert no["callback_data"] == f"home:rfcno:r1:{tok}"
+    # «آره» → verdict ثبت + خانهٔ تازه (dict) که حالا «همه‌چیز خوبه» است
+    refreshed = ch.dispatch_callback(f"home:rfcyes:r1:{tok}")
+    assert isinstance(refreshed, dict) and "همه‌چیز خوبه" in refreshed["text"]
+    assert ch._pending_rfc["r1"]["status"] == "merge-approved"
+
+
+def test_simple_home_no_rejects():
+    """«نه» رویِ RFC → denied، و توکنِ جعلی رد می‌شود (ضدِ جعل حفظ)."""
+    ch, _ = make_channel()
+    with ch._lk:
+        ch._pending_rfc["r2"] = {"summary": "x", "token": "goodtok", "status": "pending"}
+    # توکنِ جعلی → تغییری نمی‌کند
+    ch.dispatch_callback("home:rfcno:r2:BADTOK")
+    assert ch._pending_rfc["r2"]["status"] == "pending"
+    # توکنِ درست → denied
+    ch.dispatch_callback("home:rfcno:r2:goodtok")
+    assert ch._pending_rfc["r2"]["status"] == "denied"
+
+
+def test_selfheal_reassurance_line():
+    """لاگِ self-heal → خطِ اطمینان‌بخشِ «خودم درستش کردم» در خانه (بی‌محتوا)."""
+    import time
+    ch, _ = make_channel()
+    p = opslib.STATE_DIR / "selfheal-events.jsonl"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({"leg": "x", "ts": time.time()}) + "\n", "utf-8")
+    try:
+        assert "خودم درستش کردم" in ch._main_menu()["text"]
+    finally:
+        p.unlink()
 
 
 def test_projectf_control_content_free():
@@ -489,6 +546,10 @@ if __name__ == "__main__":
         ("routing ۸ تب + main + queue", test_menu_routing),
         ("toast تگ HTML را strip می‌کند", test_toast_strips_html_tags),
         ("پیامِ OOB بعد از strip پاک", test_oob_ack_message_is_toast_clean),
+        ("خانهٔ ساده: همه‌چیز خوبه", test_simple_home_all_good_when_empty),
+        ("خانهٔ ساده: آره/نه + وایرینگ", test_simple_home_yes_no_decisions_and_wiring),
+        ("خانهٔ ساده: نه/ضدِ جعل", test_simple_home_no_rejects),
+        ("خطِ اطمینانِ self-heal", test_selfheal_reassurance_line),
         ("Project-F کنترلِ content-free", test_projectf_control_content_free),
         ("فلگِ pause روتِ درفت را نگه می‌دارد", test_projectf_pause_flag_gates_draft_routing),
         ("امضای رشته‌ایِ dispatch", test_dispatch_signature),
