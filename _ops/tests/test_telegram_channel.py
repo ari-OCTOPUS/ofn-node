@@ -686,11 +686,13 @@ def t_router_dispatches_all_commands():
     assert ch.handle_command("/status") is not None
     assert ch.handle_command("/lead") is not None
     assert ch.handle_command("/stop") is not None
-    # حذف‌شده در UX v2:
-    assert ch.handle_command("/start_exp1") is None     # T-4 حذف شد
-    assert ch.handle_command("/reveal exp1") is None     # T-4 حذف شد
-    assert ch.handle_command("/lab") is None             # T-4 حذف شد
-    assert ch.handle_command("/reentry") is None         # T-7 reentry حذف شد
+    # حذف‌شده در UX v2 و همچنان بدونِ route:
+    assert ch.handle_command("/start_exp1") is None     # T-4: فقط از دکمهٔ act
+    assert ch.handle_command("/lab") is None             # T-4: فقط از منو
+    # به‌روزرسانی 2026-07-10 (Cockpit v2 §۸): reveal/reentry عمداً resurface شدند —
+    # مگاپرامپت TELEGRAM-BRAIN-COCKPIT-v2-FULL-BODY آن‌ها را به router برگرداند.
+    assert ch.handle_command("/reveal exp1") is not None
+    assert ch.handle_command("/reentry") is not None
     (sd.parent / "STOP-ORGANISM").unlink(missing_ok=True)
 
 
@@ -698,7 +700,10 @@ def t_ux_v2_start_menu_has_icon():
     """UX v2 §۲: /start منوی اصلی با آیکن 🐙."""
     ch = TC(token="FAKETOKEN123456", owner_chat_id=42)
     menu = ch.handle_command("/start")
-    assert menu is not None and "🐙" in menu, f"منو باید آیکن 🐙 داشته باشد: {menu}"
+    # fix 2026-07-10: منو از UX v3 یک dict است؛ `in` روی dict کلیدها را می‌گردد نه متن —
+    # این چک با کدِ HEAD هم قرمز بود (باگِ خودِ تست). حالا متنِ واقعی چک می‌شود.
+    text = menu["text"] if isinstance(menu, dict) else str(menu or "")
+    assert menu is not None and "🐙" in text, f"منو باید آیکن 🐙 داشته باشد: {text[:120]}"
 
 
 def t_ux_v2_status_has_html_and_mode():

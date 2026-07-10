@@ -146,7 +146,8 @@ class TelegramApprovalChannel(ApprovalChannel):
     def __init__(self, token: str | None = None, owner_chat_id: int | None = None,
                  http_get=None, http_post=None, kill_check=None,
                  longpoll_timeout: int | None = None,
-                 gate=None, ledger=None, state_dir=None, leg=None):
+                 gate=None, ledger=None, state_dir=None, leg=None,
+                 readmodel=None):
         self._token = (token if token is not None else _env_str("TELEGRAM_BOT_TOKEN"))
         self._owner = int(owner_chat_id) if owner_chat_id is not None else (
             _env_int("TELEGRAM_OWNER_CHAT_ID", 0) or None)
@@ -159,6 +160,9 @@ class TelegramApprovalChannel(ApprovalChannel):
         self._ledger = ledger                        # ledger ژنوم (human-append)
         self._state_dir = state_dir                  # None = _ops/state (پیش‌فرض)
         self._leg = leg                              # W-3: پای Lead (اختیاری) — /lead → leg.intake
+        self._readmodel = readmodel                  # Cockpit v2: read-model تزریقی (تست) یا lazy
+        self._pending_act: dict[str, dict] = {}      # Cockpit v2: رجیستریِ act تک‌مصرف (INV-13)
+        self._dash_mod = None                        # Cockpit v2: کشِ ماژولِ dashboard (importlib، بدونِ تصادمِ نام)
         self._lk = threading.Lock()
         # offset از فایل بارگذاری می‌شود (restart-safe)؛ نبودِ فایل = ۰.
         # state_dir=None → پیش‌فرضِ _ops/state که در نمونهٔ واقعی هست.
@@ -307,7 +311,8 @@ class TelegramApprovalChannel(ApprovalChannel):
         try:
             self._http_post(self._build_url("answerCallbackQuery", {}),
                             {"callback_query_id": callback_query_id,
-                             "text": str(text)[:200], "cache_time": 0})
+                             # Cockpit v2 · INV-12: toast هم مثل sendMessage از redaction می‌گذرد
+                             "text": self._redact(str(text))[:200], "cache_time": 0})
             return True
         except Exception as e:  # noqa: BLE001 — fail-soft
             opslib.alert([f"telegram answerCallbackQuery error: {type(e).__name__}: {e}"])
@@ -326,9 +331,19 @@ class TelegramApprovalChannel(ApprovalChannel):
         """منوی command تلگرام را پاک و دوباره ثبت می‌کند.
         حذفِ کشِ قدیمی (deleteMyCommands) برای رفعِ مشکلِ دستوراتِ رباتِ قبلی."""
         commands = [
-            {"command": "start", "description": "🐙 منوی اصلی"},
+            {"command": "start", "description": "🐙 منوی اصلی (کابین ۸-تبی)"},
+            {"command": "overview", "description": "📊 نمای کلی"},
+            {"command": "money", "description": "💰 پول و متابولیسم"},
+            {"command": "doctor", "description": "🩺 دکتر و تکامل"},
+            {"command": "brain", "description": "🧠 حافظه و مغز"},
+            {"command": "blueprint", "description": "🧭 بلوپرینت P0–P6"},
+            {"command": "school", "description": "🎓 مدرسه"},
+            {"command": "safety", "description": "🛡️ ایمنی"},
+            {"command": "alerts", "description": "🚨 هشدارها و خام"},
+            {"command": "queue", "description": "📥 صف تأیید"},
             {"command": "status", "description": "📊 وضعیت ارگانیسم"},
             {"command": "lead", "description": "📝 ثبت لید جدید"},
+            {"command": "reentry", "description": "📋 بستهٔ بازگشت از gap"},
             {"command": "stop", "description": "🛑 توقف اضطراری"},
         ]
         try:
@@ -373,7 +388,10 @@ class TelegramApprovalChannel(ApprovalChannel):
                                         "summary": str(summary)[:500],
                                         "guard": str(guard_verdict)[:200],
                                         "token": token, "status": "pending"}
-        text = self._render_approval_card(effect_id, amount_aud, summary, guard_verdict)
+        # C2/C5 · INV-12: کارتِ پول هم از پاسِ redaction می‌گذرد (summary/guard ممکن است
+        # از subsystemِ بالادست رشتهٔ secret-شکل بیاورد). این تنها sendِ مستقیمِ باقی‌مانده بود.
+        text = self._redact(
+            self._render_approval_card(effect_id, amount_aud, summary, guard_verdict))
         kb = {"inline_keyboard": [[
             {"text": "تأیید ✅", "callback_data": f"app:approve:{effect_id}:{token}"},
             {"text": "رد ❌", "callback_data": f"app:deny:{effect_id}:{token}"},
@@ -412,6 +430,13 @@ class TelegramApprovalChannel(ApprovalChannel):
             return self._dispatch_menu(parts)
         if parts[0] == "rfc":
             return self._dispatch_rfc(parts)
+        # ── Cockpit v2: لایهٔ read/nav/act — کنارِ schemeهای موجود، بدونِ دست‌زدن به آن‌ها ──
+        if parts[0] == "card":
+            return self._dispatch_card(parts)
+        if parts[0] == "pg":
+            return self._dispatch_page(parts)
+        if parts[0] == "act":
+            return self._dispatch_act(parts)
         if len(parts) != 4 or parts[0] != "app":
             return "نادیده"
         verb, effect_id, token = parts[1], parts[2], parts[3]
@@ -492,6 +517,9 @@ class TelegramApprovalChannel(ApprovalChannel):
                     "reply_markup": None}
         if page == "main":
             return self._main_menu()
+        # ── Cockpit v2: ۸ تبِ کابین به‌عنوانِ صفحاتِ menu (read-safe، بدونِ توکن) ──
+        if page in self.TAB_PAGES:
+            return self._render_tab(page)
         return "نادیده"
 
     def _menu_queue(self) -> str:
@@ -504,13 +532,21 @@ class TelegramApprovalChannel(ApprovalChannel):
                     "<i>هیچ کارتِ تأییدی در انتظار نیست.</i>")
         items = []
         with self._lk:
-            for eid, meta in self._pending.items():
-                if meta.get("status") != "pending":
-                    continue
-                amt = meta.get("amount_aud", 0)
-                summary = meta.get("summary", "")[:60]
-                items.append(f"• <code>{html.escape(str(eid))}</code> — AU${amt:.2f}\n"
-                             f"  {html.escape(str(summary))}")
+            pend = [(eid, meta) for eid, meta in self._pending.items()
+                    if meta.get("status") == "pending"]
+        for eid, meta in pend:
+            amt = meta.get("amount_aud", 0)
+            summary = meta.get("summary", "")[:60]
+            # Cockpit v2 (تستِ ۱۸): وضعیتِ authoritative از گیتِ تک‌گلوگاه، نه خوداظهاری.
+            auth = ""
+            if self._gate is not None and hasattr(self._gate, "status_of"):
+                try:
+                    st = self._gate.status_of(eid)
+                    auth = f" · gate:<code>{html.escape(str(st))}</code>" if st else " · gate:—"
+                except Exception:  # noqa: BLE001 — fail-soft
+                    auth = ""
+            items.append(f"• <code>{html.escape(str(eid))}</code> — AU${amt:.2f}{auth}\n"
+                         f"  {html.escape(str(summary))}")
         body = "\n".join(items) if items else "خالی"
         return (f"📮 <b>صفِ تأیید</b> ({n_pending} مورد)\n"
                 f"──────────\n"
@@ -565,9 +601,25 @@ class TelegramApprovalChannel(ApprovalChannel):
     LEAD_CELLS = [("lead.doer", "نقاشی (Lead)"), ("ziman.doer", "Ziman"),
                   ("crypto.doer", "Crypto")]      # هم‌سان با panel/server.py
 
-    # ── منوی inline اختاپوس (UX v3) ──
+    # ── منوی inline اختاپوس (Cockpit v2: ۸ تبِ کابین + دکمه‌های UX v3 حفظ‌شده) ──
     MENU_KEYBOARD: dict = {
         "inline_keyboard": [
+            [
+                {"text": "📊 نمای کلی", "callback_data": "menu:overview"},
+                {"text": "🧭 بلوپرینت", "callback_data": "menu:blueprint"},
+            ],
+            [
+                {"text": "🧠 حافظه و مغز", "callback_data": "menu:brain"},
+                {"text": "🩺 دکتر و تکامل", "callback_data": "menu:doctor"},
+            ],
+            [
+                {"text": "💰 پول و متابولیسم", "callback_data": "menu:money"},
+                {"text": "🎓 مدرسه", "callback_data": "menu:school"},
+            ],
+            [
+                {"text": "🛡️ ایمنی", "callback_data": "menu:safety"},
+                {"text": "🚨 هشدارها و خام", "callback_data": "menu:alerts"},
+            ],
             [
                 {"text": "📊 وضعیت", "callback_data": "menu:status"},
                 {"text": "📝 ثبت لید", "callback_data": "menu:lead"},
@@ -586,6 +638,7 @@ class TelegramApprovalChannel(ApprovalChannel):
         """پیامِ ساده (یا با کیبورد) به مالک. not wired → False. خطای شبکه fail-soft."""
         if not self.wired:
             return False
+        text = self._redact(text)   # Cockpit v2 · INV-12: هر خروجی از پاسِ redaction می‌گذرد
         body = {"chat_id": self._owner, "text": text, "parse_mode": "HTML"}
         if reply_markup:
             body["reply_markup"] = reply_markup
@@ -617,6 +670,21 @@ class TelegramApprovalChannel(ApprovalChannel):
         # T-7: kill-switch (می‌ماند). re-entry digest حذف شد.
         if t == "/stop":
             return self.kill_switch()
+        # ── Cockpit v2: میان‌بُرهای تب + دستورهای جدید (هر ورودی همچنان DATA است) ──
+        if t in ("/overview", "/blueprint", "/brain", "/doctor", "/money",
+                 "/school", "/safety", "/alerts"):
+            return self._render_tab(t[1:])
+        if t == "/queue":
+            return {"text": self._menu_queue(), "reply_markup": self.MENU_KEYBOARD}
+        if t == "/reentry":
+            return self.reentry_packet()
+        if t.startswith("/claim "):
+            return self._cmd_claim(t[len("/claim "):])
+        if t.startswith("/conflict "):
+            return self._cmd_conflict(t[len("/conflict "):])
+        if t == "/reveal" or t.startswith("/reveal "):
+            arg = t[len("/reveal"):].strip()
+            return self.reveal_experiment(arg) if arg else self.lab_status()
         return None
 
     def _main_menu(self) -> dict:
@@ -971,6 +1039,994 @@ class TelegramApprovalChannel(ApprovalChannel):
         lines.append("")
         lines.append("<i>cognition + heartbeat در طولِ gap ادامه داشت. اثرها freeze بودند.</i>")
         return "\n".join(lines)
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Cockpit v2 — کابینِ بازرسیِ ۸-تبی (مگاپرامپت TELEGRAM-BRAIN-COCKPIT-v2-FULL-BODY)
+    # read آزاد (menu:/card:/pg: بدونِ توکن) · هر کنترل act:<verb>:<key>:<token>
+    # (تک‌مصرف، ضدجعل، allowlistِ بسته — INV-13). هیچ settleِ جدید (INV-1)،
+    # هیچ subsystem cycleِ inline (INV-7)، redaction روی هر خروجی (INV-12).
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    TAB_PAGES = ("overview", "blueprint", "brain", "doctor", "money",
+                 "school", "safety", "alerts")
+
+    # allowlistِ بستهٔ act (§۲.۴ — ضدquarantine). chamber_t عمداً غایب است:
+    # RED — فعال‌سازی فقط با verdict صریحِ مالک، هرگز از دکمهٔ تلگرام (P5).
+    FLAG_KEYS = frozenset({
+        "doctor", "neural", "unified", "lead", "lead_tick", "school",
+        "consolidation", "evolution", "box", "ideas", "spectral", "barbell",
+        "debate", "scheduler", "reconcile", "fitness", "epistemics",
+        "selfheal", "bio"})
+    RISKY_FLAGS = frozenset({"barbell", "debate", "reconcile", "fitness",
+                             "epistemics", "selfheal", "bio"})
+    # C9 (بازبینیِ خصمانه): allowlist = دقیقاً مجموعهٔ reachable (هر key دکمه‌ای دارد که
+    # tokenش را mint می‌کند). verbهای نیازمندِ آرگومان بدونِ UIِ انتخاب (latent:forget با
+    # کدام key؟ idea:accept کدام یال؟ cardiac:stimulate چقدر؟) عمداً حذف شدند — کارتشان
+    # «not-wired/از CLI» می‌ماند تا سطحِ حمله = قابلیتِ واقعی. reveal از /reveal command
+    # می‌رود (نه act). C11: act:phase:transition/metric:prereg/restart:<leg> عمداً پیاده
+    # نشدند (governance/args) — narrowingِ ثبت‌شده؛ گذارِ فاز از رجیستریِ rfc، prereg از CLI.
+    ACT_ALLOWLIST: dict = {
+        "export":      frozenset({"raw"}),
+        "flag":        FLAG_KEYS,          # قدمِ ۱: کارتِ confirm (دکمه در safety:flags paged)
+        "flaggo":      FLAG_KEYS,          # قدمِ ۲: نوشتنِ merged به OCTOPUS-flags.cmd
+        "restart":     frozenset({"organism"}),
+        "restartgo":   frozenset({"organism"}),
+        "freeze":      frozenset({"on"}),
+        "freezego":    frozenset({"on"}),
+        "sweep":       frozenset({"effects"}),
+        "doctor":      frozenset({"run"}),
+        "consolidate": frozenset({"run"}),
+        "ideas":       frozenset({"rebuild"}),
+        "school":      frozenset({"learn"}),
+        "ingest":      frozenset({"crypto", "acct"}),
+        "lab":         frozenset({"start1", "start2", "start3"}),
+        "baseline":    frozenset({"capture"}),
+    }
+    # هیچ verbِ پول‌خوری در allowlist نیست (act:reconcile:run / act:epoch:run عمداً
+    # وجود ندارند — §۲.۵). این مجموعه دفاعی است: verbِ پولیِ آینده بدونِ گیتِ باز رد می‌شود.
+    MONEY_VERBS = frozenset()
+    # این verbها هرگز inline اجرا نمی‌شوند (INV-7) — فقط ثبتِ درخواستِ out-of-band
+    # در state/cockpit-requests.jsonl تا organism در ضربانِ بعدی مصرف کند.
+    OOB_VERBS = frozenset({"doctor", "consolidate", "ideas", "school", "ingest"})
+    # کارت‌هایی که خودشان دکمه‌ی act دارند (C9: هر act در allowlist باید reachable باشد).
+    CARD_ACTIONS: dict = {
+        ("doctor", "lab"): [("🧪 شروع exp1", "lab", "start1"),
+                            ("🧪 شروع exp2", "lab", "start2"),
+                            ("🧪 شروع exp3", "lab", "start3")],
+    }
+
+    TAB_CARDS: dict = {
+        "overview":  [("vitals", "🩺 علائم"), ("heart", "♥️ ضربان"),
+                      ("legs", "🐙 ۶ پا"), ("projects", "📁 پروژه‌ها")],
+        "blueprint": [("phases", "🧭 فازها"), ("baselines", "📸 baselineها"),
+                      ("bcm", "🧬 BCM (P3)"), ("sparse", "🕸 Sparse (P4)"),
+                      ("chamber", "🌡 Chamber-T (P5)"), ("fisher", "📐 Fisher (P6)"),
+                      ("prereg", "📋 پیش‌ثبت"), ("transition", "🚪 گذارِ فاز")],
+        "brain":     [("consolidation", "🧠 تحکیم"), ("latent", "🌀 Latent R³²"),
+                      ("idea", "💡 ایده-گراف"), ("hebbian", "🔗 Hebbian"),
+                      ("sprint", "🏃 اسپرینت")],
+        "doctor":    [("rfc", "🔧 RFCها"), ("box", "📦 جعبهٔ دکتر"),
+                      ("evolution", "🧬 تکامل"), ("epi", "🔭 معرفت‌شناسی"),
+                      ("scheduler", "⏰ دیسپچر"), ("selfheal", "🩹 خوددرمانی"),
+                      ("projectf", "🎬 Project-F"), ("lab", "🧪 آزمایشگاه")],
+        "money":     [("telemetry", "💵 مصرف"), ("organs", "🫀 ارگان‌ها"),
+                      ("fitness", "📊 فیتنس"), ("attribution", "🧾 درآمد/لیدها"),
+                      ("cardiac", "♥️ ضربانِ بودجه"), ("reconcile", "🔁 تطبیق"),
+                      ("barbell", "⚖️ باربل"), ("governor", "🤖 گاورنر LLM")],
+        "school":    [("awareness", "🎓 آگاهی"), ("cells", "🧫 سلول‌ها"),
+                      ("afferent", "🔌 آوران"), ("crypto", "📈 بریفِ کریپتو")],
+        "safety":    [("gates", "🔒 گیت‌ها"), ("flags", "🚦 flagها"),
+                      ("germline", "💾 germline"), ("conflicts", "⚔️ تعارض"),
+                      ("integrity", "🔏 اثرانگشتِ پول"), ("pii", "🕵️ گاردِ PII"),
+                      ("llm", "🧭 مسیرِ LLM"), ("reentry", "📋 بازگشت")],
+        "alerts":    [("rules", "✅ ۲۴ قاعده"), ("governor", "🚨 هشدارها"),
+                      ("genome", "🧬 زنجیرهٔ ژنوم"), ("chrono", "⏱ chrono"),
+                      ("channels", "📡 کانال‌ها"), ("raw", "🗂 state خام"),
+                      ("log", "📜 لاگ"), ("requests", "📨 صفِ درخواست")],
+    }
+    PG_KEYS = {("alerts", "rules"), ("safety", "flags")}
+    _DIV = "\n➖➖➖➖➖\n"
+
+    # ── زیرساخت: read-model ، redaction ، توکنِ act ─────────────────────────────
+    def _rm(self):
+        """read-modelِ کابین (lazy، قابلِ تزریق برای تست). شکست → None (کارت «بی‌داده»).
+        C8: وقتی state_dir تزریق شده، ops_dir را هم از parentِ آن مشتق کن — وگرنه readerهای
+        مبتنی بر ops (governor-alerts, neural/*, OCTOPUS-flags) از vaultِ واقعی می‌خوانند
+        (نشتِ ایزوله‌سازیِ تست + خواندنِ ناخواستهٔ prod)."""
+        if self._readmodel is not None:
+            return self._readmodel
+        try:
+            import cockpit_readmodel as _crm
+            from pathlib import Path as _P
+            ops = _P(self._state_dir).parent if self._state_dir else None
+            self._readmodel = _crm.CockpitReadModel(state_dir=self._state_dir, ops_dir=ops)
+            return self._readmodel
+        except Exception:  # noqa: BLE001 — fail-soft
+            return None
+
+    def _redact(self, text: str) -> str:
+        """INV-12: پاسِ redactionِ خروجی. secretِ سخت → کلِ بدنه؛ hex64 → per-match (C7).
+        C3/C6: اگر لایهٔ redaction بشکند، fail-open و ساکت نیست — یک‌بار alert می‌زند و متن
+        را دست‌نخورده می‌فرستد (بهتر از سکوت). مسیرِ خوش‌کار از cockpit_readmodel.redact می‌رود."""
+        try:
+            import cockpit_readmodel as _crm
+            return _crm.redact(text)
+        except Exception as e:  # noqa: BLE001
+            if not getattr(self, "_redact_warned", False):
+                self._redact_warned = True
+                opslib.alert([f"INV-12 redaction layer unavailable: {type(e).__name__}: {e}"])
+            return text
+
+    def _redact_pii(self, text: str) -> str:
+        """لایهٔ دومِ INV-12 فقط برای mirrorهای خام (state/log/alerts/quarantine):
+        PII (تشخیصِ sensory_bus._contains_pii) → کلِ بدنه حذف می‌شود."""
+        try:
+            import sys as _sys
+            from pathlib import Path as _P
+            _aff = _P(__file__).resolve().parents[1] / "afferent"
+            if str(_aff) not in _sys.path:
+                _sys.path.insert(0, str(_aff))
+            from sensory_bus import _contains_pii
+            if _contains_pii(str(text or "")):
+                import cockpit_readmodel as _crm
+                return _crm.REDACTED_BODY
+        except Exception:  # noqa: BLE001 — گاردِ PII در دسترس نیست → لایهٔ secret کافی است
+            pass
+        return text
+
+    def _new_act_token(self, verb: str, key: str, ttl_s: int = 3600, target=None) -> str:
+        """توکنِ تک‌مصرفِ ضدجعلِ act (INV-13). زیرِ قفل در _pending_act ثبت می‌شود؛
+        رندرِ دوباره = mintِ دوباره (آخرین رندر معتبر است).
+        target: مقدارِ مطلقِ تصمیم (C4) — برای flaggo همان «not cur» در زمانِ رندرِ کارتِ confirm،
+        تا کلیکِ روی کارتِ کهنه flag را به سمتِ اشتباه flip نکند."""
+        import hashlib
+        import time as _time
+        action_id = f"{verb}:{key}"
+        payload = f"{action_id}|{_time.time_ns()}|{len(self._pending_act)}"
+        token = hashlib.sha256(payload.encode()).hexdigest()[:24]
+        with self._lk:
+            self._pending_act[action_id] = {
+                "token": token, "verb": verb, "key": key, "target": target,
+                "status": "pending", "expires_at": _time.time() + ttl_s}
+        return token
+
+    def _act_btn(self, label: str, verb: str, key: str) -> dict:
+        """دکمهٔ act با توکنِ تازه‌mint‌شده. توکن فقط در callback_data، هرگز در متن."""
+        return {"text": label,
+                "callback_data": f"act:{verb}:{key}:{self._new_act_token(verb, key)}"}
+
+    def _live_gate_status(self) -> tuple[bool, str]:
+        """وضعیتِ گیتِ زندهٔ دوقفله (fail-closed). تا 2026-07-21 قفل است."""
+        try:
+            import capability_gate
+            if capability_gate.capability_ok() and capability_gate.live_enabled():
+                return True, "باز"
+            return False, "قفل تا 2026-07-21 (capability/LIVE_ENABLED بسته)"
+        except Exception:  # noqa: BLE001 — گیتِ ناخوانا = بسته
+            return False, "قفل (گیت خوانا نیست — fail-closed)"
+
+    def _dashboard(self):
+        """ماژولِ dashboard/server.py با importlib و نامِ یکتا (بدونِ تصادم با panel/server)."""
+        if self._dash_mod is not None:
+            return self._dash_mod
+        import importlib.util
+        from pathlib import Path as _P
+        p = _P(__file__).resolve().parents[1] / "dashboard" / "server.py"
+        spec = importlib.util.spec_from_file_location("octo_dashboard_server", str(p))
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        self._dash_mod = mod
+        return mod
+
+    def _append_request(self, verb: str, key: str) -> bool:
+        """صفِ out-of-band (INV-7): درخواستِ کنترلی به state/cockpit-requests.jsonl.
+        اجرا نمی‌کند — organism/مالک مصرف می‌کند. append-only، fail-soft."""
+        from pathlib import Path as _P
+        state_dir = _P(self._state_dir) if self._state_dir else (
+            _P(__file__).resolve().parents[1] / "state")
+        try:
+            state_dir.mkdir(parents=True, exist_ok=True)
+            with open(state_dir / "cockpit-requests.jsonl", "a", encoding="utf-8") as f:
+                f.write(json.dumps({"ts": _today_iso(), "verb": verb, "key": key,
+                                    "source": "telegram-cockpit",
+                                    "status": "requested"}, ensure_ascii=False) + "\n")
+            return True
+        except OSError:
+            return False
+
+    # ── routerهای جدید: card / pg / act ─────────────────────────────────────────
+    def _dispatch_card(self, parts: list[str]):
+        """card:<tab>:<key> — رندرِ یک detail-card فقط‌خواندنی. بدونِ توکن (read-safe)."""
+        if len(parts) != 3:
+            return "نادیده"
+        tab, key = parts[1], parts[2]
+        if not any(k == key for k, _ in self.TAB_CARDS.get(tab, [])):
+            return "نادیده"
+        try:
+            text = self._render_card(tab, key)
+        except Exception as e:  # noqa: BLE001 — INV-9: رندر نباید loop را بکشد
+            opslib.alert([f"cockpit card error ({tab}:{key}): {type(e).__name__}: {e}"])
+            text = "❌ خطای رندرِ کارت — ثبت شد."
+        rows: list[list[dict]] = []
+        for lbl, v, k in self.CARD_ACTIONS.get((tab, key), []):   # C9: actهای این کارت
+            rows.append([self._act_btn(lbl, v, k)])
+        rows.append([{"text": "⬅️ بازگشت", "callback_data": f"menu:{tab}"}])
+        return {"text": text, "reply_markup": {"inline_keyboard": rows}}
+
+    def _dispatch_page(self, parts: list[str]):
+        """pg:<tab>:<key>:<n> — صفحه‌بندیِ لیست‌های بلند. فقط کلیدهای PG_KEYS."""
+        if len(parts) != 4:
+            return "نادیده"
+        tab, key = parts[1], parts[2]
+        if (tab, key) not in self.PG_KEYS:
+            return "نادیده"
+        try:
+            n = max(1, int(parts[3]))
+        except ValueError:
+            return "نادیده"
+        try:
+            return self._render_paged(tab, key, n)
+        except Exception as e:  # noqa: BLE001 — INV-9
+            opslib.alert([f"cockpit pg error ({tab}:{key}): {type(e).__name__}: {e}"])
+            return "❌ خطای صفحه‌بندی — ثبت شد."
+
+    def _dispatch_act(self, parts: list[str]):
+        """act:<verb>:<key>:<token> — تنها مسیرِ کنترلیِ کابین (INV-13).
+        allowlistِ بسته → توکنِ ذخیره‌شده (_cteq) → مصرفِ قبل از اجرا → kill-check →
+        گیتِ سختِ live برای verbهای پولی (§۲.۵) → اجرا. هیچ settleِ پول اینجا نیست."""
+        import time as _time
+        if len(parts) != 4:
+            return "نادیده"
+        verb, key, token = parts[1], parts[2], parts[3]
+        allowed = self.ACT_ALLOWLIST.get(verb)
+        if allowed is None or key not in allowed:
+            return "نادیده"
+        action_id = f"{verb}:{key}"
+        # C1 (بازبینیِ خصمانه 2026-07-10): اعتبارسنجی + مصرف باید اتمیک باشند — وگرنه دو
+        # dispatchِ همزمان با یک توکن هر دو 'pending' می‌بینند و act دوبار اجرا می‌شود (نقضِ
+        # تک‌مصرفیِ INV-13). همه‌چیز داخلِ یک بلوکِ قفل: get → check → cteq → consume.
+        with self._lk:
+            entry = self._pending_act.get(action_id)
+            if entry is None or entry.get("status") != "pending" \
+                    or _time.time() > entry.get("expires_at", 0):
+                return "رد: توکن ناموجود/منقضی — کارت را دوباره باز کن"
+            if not _cteq(token, entry.get("token", "")):
+                return "رد: توکنِ act نامنطبق (ضدجعل)"
+            entry["status"] = "consumed"     # تک‌مصرف، اتمیک با اعتبارسنجی (anti-replay)
+            target = entry.get("target")     # C4: مقدارِ مطلقِ ذخیره‌شده در mint (flaggo)
+        if self._killed():
+            return "🛑 STOP فعال است — اجرا نشد"
+        if verb in self.MONEY_VERBS:          # دفاعی: امروز خالی است (§۲.۵)
+            ok, why = self._live_gate_status()
+            if not ok:
+                return f"🔒 قفلِ live-gate: {why}"
+        try:
+            result = self._run_act(verb, key, target=target)
+            if self._killed():                # C14 · §۲.۶: چک بعد از اثر هم
+                note = "\n🛑 STOP اکنون فعال است."
+                if isinstance(result, dict):
+                    result["text"] = result.get("text", "") + note
+                    return result
+                return str(result) + note
+            return result
+        except Exception as e:  # noqa: BLE001 — INV-9
+            opslib.alert([f"cockpit act error ({action_id}): {type(e).__name__}: {e}"])
+            return "❌ اجرای act ناموفق — ثبت شد."
+
+    def _run_act(self, verb: str, key: str, target=None):
+        """اجرای actِ تأییدشده. inline فقط read/فایل‌های کنترلِ امن (§۲.۶)؛
+        subsystem cycleها → صفِ out-of-band. (هرگز run_cycle/run_epoch مستقیم صدا زده نمی‌شود.)
+        target: مقدارِ مطلقِ ذخیره‌شده در mint (فعلاً فقط flaggo)."""
+        if verb in self.OOB_VERBS:
+            ok = self._append_request(verb, key)
+            return ("📨 درخواست ثبت شد (out-of-band) — organism در ضربانِ بعدی مصرف می‌کند.\n"
+                    "<i>صف: state/cockpit-requests.jsonl · هیچ اجرای inline (INV-7)</i>"
+                    if ok else "❌ ثبتِ درخواست ناموفق")
+        if verb == "export":
+            return self._act_export()
+        if verb == "flag":
+            return self._act_flag_confirm(key)
+        if verb == "flaggo":
+            return self._act_flag_write(key, target=target)
+        if verb == "restart":
+            kb = {"inline_keyboard": [[
+                self._act_btn("✅ بله، ری‌استارت کن", "restartgo", "organism"),
+                {"text": "❌ انصراف", "callback_data": "menu:safety"}]]}
+            return {"text": ("♻️ <b>ری‌استارتِ تمیزِ ارگانیسم</b>\n"
+                             "STOP-ORGANISM + RESTART-REQUESTED نوشته می‌شود؛ "
+                             "organism در تیکِ بعد (≤۵ دقیقه) تمیز خارج و با env جدید بوت می‌شود.\n"
+                             "مطمئنی؟"), "reply_markup": kb}
+        if verb == "restartgo":
+            return self._act_restart()
+        if verb == "freeze":
+            kb = {"inline_keyboard": [[
+                self._act_btn("✅ بله، FREEZE کن", "freezego", "on"),
+                {"text": "❌ انصراف", "callback_data": "menu:safety"}]]}
+            return {"text": ("❄️ <b>FREEZE متابولیک</b>\n"
+                             "FREEZE.flag نوشته می‌شود — هر spend/effect تا رفعِ دستی یخ می‌زند.\n"
+                             "(رفع: حذفِ دستیِ فایلِ <code>_ops/budget/FREEZE.flag</code> توسطِ خودت)\n"
+                             "مطمئنی؟"), "reply_markup": kb}
+        if verb == "freezego":
+            try:
+                opslib.freeze("cockpit: act:freeze توسطِ مالک (تلگرام)")
+                return "❄️ FREEZE.flag نوشته شد — متابولیسم یخ زد. رفع: حذفِ دستیِ فایل."
+            except Exception as e:  # noqa: BLE001
+                return f"❌ FREEZE ناموفق: {type(e).__name__}"
+        if verb == "sweep":
+            return self._act_sweep()
+        if verb == "lab":
+            return self.start_experiment({"start1": "exp1", "start2": "exp2",
+                                          "start3": "exp3"}[key])
+        # reveal از /reveal command می‌رود (نه act) — §۸ resurface.
+        if verb == "baseline":
+            return self._act_baseline()
+        return "نادیده"
+
+    def _act_export(self) -> str:
+        """بازتولیدِ بستهٔ وضعیت — read-only + secret-scanِ fail-closedِ خودِ export_status."""
+        try:
+            import sys as _sys
+            from pathlib import Path as _P
+            _ops = _P(__file__).resolve().parents[1]
+            if str(_ops) not in _sys.path:
+                _sys.path.insert(0, str(_ops))
+            import export_status
+            rc = export_status.main()
+            if rc == 0:
+                p = (_P(self._state_dir) if self._state_dir else _ops / "state") \
+                    / "export" / "octopus-status-bundle.json"
+                kb = (p.stat().st_size // 1024) if p.exists() else 0
+                return f"✅ بستهٔ وضعیت بازتولید شد ({kb} KB · secret-scanned)"
+            return "⛔ ABORT: اسکنِ secret جلوی export را گرفت — چیزی نوشته نشد"
+        except Exception as e:  # noqa: BLE001
+            return f"❌ export ناموفق: {type(e).__name__}"
+
+    def _act_flag_confirm(self, key: str):
+        """قدمِ ۱ از تغییرِ flag: کارتِ confirm با توکنِ تازه (flagهای ریسکی هشدار دارند)."""
+        env_name = f"OCTOPUS_WIRE_{key.upper()}"
+        rm = self._rm()
+        cur = False
+        if rm is not None:
+            try:
+                cur = bool(rm.read_capabilities().get("flags", {}).get(env_name, False))
+            except Exception:  # noqa: BLE001
+                cur = False
+        want = not cur                       # C4: تصمیمِ مطلق در زمانِ رندر
+        target_word = "روشن" if want else "خاموش"
+        risk = "⚠️ <b>ریسکی</b>" if key in self.RISKY_FLAGS else "🟢 امن"
+        # توکنِ flaggo با target=want ثبت می‌شود؛ کلیکِ کارتِ کهنه همان مقدارِ ثابت را می‌نویسد.
+        go_tok = self._new_act_token("flaggo", key, target=want)
+        kb = {"inline_keyboard": [[
+            {"text": f"✅ بله، {target_word} کن",
+             "callback_data": f"act:flaggo:{key}:{go_tok}"},
+            {"text": "❌ انصراف", "callback_data": "menu:safety"}]]}
+        return {"text": (f"🚦 <b>تغییرِ flag</b> — <code>{html.escape(env_name)}</code>\n"
+                         f"وضعیتِ فعلی: {'🟢 روشن' if cur else '⚪ خاموش'} · {risk}\n"
+                         f"بعد از تأیید <b>{target_word}</b> می‌شود — اثر فقط در بوتِ بعدی "
+                         f"(act:restart یا RESTART-ORGANISM.bat)."), "reply_markup": kb}
+
+    def _act_flag_write(self, key: str, target=None) -> str:
+        """قدمِ ۲: نوشتنِ merged به OCTOPUS-flags.cmd از راهِ dashboard._write_env —
+        همهٔ flagهای دیگر حفظ می‌شوند (نه reset). human-append: خودِ کلیک = ضمیمهٔ انسانی.
+        C4: مقدار = targetِ مطلقِ زمانِ رندر (نه toggleِ زمانِ کلیک).
+        C10: flagهای ریسکی فقط با capability_gate بازِ اثبات‌شده؛ + ثبتِ auditِ تاریخ‌دار."""
+        env_name = f"OCTOPUS_WIRE_{key.upper()}"
+        want = (not self._current_flag(env_name)) if target is None else bool(target)
+        # C10: گیتِ سختِ capability برای flagهای ریسکی (سوییتِ سبزِ اثبات‌شده لازم است)
+        if key in self.RISKY_FLAGS:
+            try:
+                import capability_gate
+                if not capability_gate.capability_ok():
+                    return ("🔒 نوشتنِ flagِ ریسکی رد شد: سوییتِ سبزِ اثبات‌شده نیست "
+                            "(capability_gate بسته). اول تست‌ها را سبز کن.")
+            except Exception:  # noqa: BLE001 — گیتِ ناخوانا = fail-closed برای ریسکی
+                return "🔒 نوشتنِ flagِ ریسکی رد شد (capability_gate خوانا نیست — fail-closed)."
+        try:
+            dash = self._dashboard()
+            eff = dash._effective_flags()
+            eff[env_name] = want
+            form = {"OCTOPUS_PROFILE": dash._effective_profile()}
+            form.update({n: ("1" if v else "0") for n, v in eff.items()})
+            form.update(dash._effective_cadences())
+            msg = dash._write_env(form)
+        except Exception as e:  # noqa: BLE001
+            return f"❌ نوشتنِ flag ناموفق: {type(e).__name__}"
+        # C10: auditِ تاریخ‌دارِ human-append (فراتر از خودِ کلیک) — صفِ append-only
+        self._append_request("flagwrite", f"{env_name}={'1' if want else '0'}")
+        return (f"💾 {html.escape(msg)}\n"
+                f"<code>{html.escape(env_name)}</code> → "
+                f"{'🟢 روشن' if want else '⚪ خاموش'} در بوتِ بعدی.\n"
+                f"♻️ اعمال: دکمهٔ ری‌استارت در تبِ ایمنی.")
+
+    def _current_flag(self, env_name: str) -> bool:
+        rm = self._rm()
+        if rm is None:
+            return False
+        try:
+            return bool(rm.read_capabilities().get("flags", {}).get(env_name, False))
+        except Exception:  # noqa: BLE001
+            return False
+
+    def _act_restart(self) -> str:
+        """ری‌استارتِ تمیز از مسیرِ موجودِ dashboard._do_restart (فایل authoritative است)."""
+        try:
+            dash = self._dashboard()
+            return "♻️ " + html.escape(dash._do_restart())
+        except Exception as e:  # noqa: BLE001
+            return f"❌ restart ناموفق: {type(e).__name__}"
+
+    def _act_sweep(self) -> str:
+        """جاروی اثرهای کهنه (>72h pending) — متدِ موجودِ گیتِ تک‌گلوگاه، bounded."""
+        if self._gate is None:
+            return "gate وصل نیست — sweep ممکن نیست"
+        try:
+            r = self._gate.sweep_stale_effects()
+            return f"🧹 sweep انجام شد: {r.get('refused', 0)} اثرِ کهنه refuse شد"
+        except Exception as e:  # noqa: BLE001
+            return f"❌ sweep ناموفق: {type(e).__name__}"
+
+    def _act_baseline(self) -> str:
+        """گرفتنِ baselineِ فازِ جاری (baseline.capture_baseline — bounded، فقط state-write)."""
+        try:
+            import sys as _sys
+            from pathlib import Path as _P
+            _ops = _P(__file__).resolve().parents[1]
+            if str(_ops) not in _sys.path:
+                _sys.path.insert(0, str(_ops))
+            import baseline as _baseline
+            rm = self._rm()
+            phase = (rm.read_phase() or {}).get("current_phase") if rm else None
+            if not phase:
+                return ("فازِ جاری از state خوانا نیست — baseline را از CLI بگیر:\n"
+                        "<code>python _ops/baseline.py</code>")
+            # C13 · §۲.۶ (bounded inline، فقط state-write): از state_dirِ تزریقی استفاده کن
+            # تا baselineِ تست به vaultِ واقعی نشت نکند.
+            from pathlib import Path as _P
+            kw = {"state_dir": _P(self._state_dir)} if self._state_dir else {}
+            _baseline.capture_baseline(str(phase), "cockpit", **kw)
+            return f"📸 baseline گرفته شد برای فازِ <code>{html.escape(str(phase))}</code>"
+        except Exception as e:  # noqa: BLE001
+            return f"❌ baseline ناموفق: {type(e).__name__}"
+
+    # ── دستورهای متنی جدید (پول: فقط human-append — هیچ settle) ────────────────
+    def _cmd_claim(self, raw: str) -> str:
+        """/claim ATTR-ID | شماره‌کوت | مبلغ — ثبتِ CLAIMED (attribution.claim، human-append).
+        CONFIRMED فقط از reconcile-actor می‌آید؛ این دستور پول جابه‌جا نمی‌کند."""
+        parts = [p.strip() for p in raw.split("|")]
+        if len(parts) < 3:
+            return "⚠ فرمت: <code>/claim ATTR-ID | شماره‌کوت | مبلغ AUD</code>"
+        try:
+            amount = float(parts[2])
+        except ValueError:
+            return "⚠ مبلغ باید عدد باشد (AUD)."
+        if amount < 0:
+            return "⚠ مبلغ منفی نمی‌شود."
+        try:
+            import attribution
+            attribution.claim(parts[0], parts[1], amount)
+            return (f"✅ <b>CLAIMED</b> ثبت شد: <code>{html.escape(parts[0])}</code> · "
+                    f"AU${amount:.2f}\n<i>تأییدِ نهایی (CONFIRMED) فقط از reconcile می‌آید.</i>")
+        except Exception as e:  # noqa: BLE001 — fail-closed، هیچ نیمه‌ثبت
+            return f"❌ ثبتِ claim ناموفق: {type(e).__name__}"
+
+    def _cmd_conflict(self, raw: str) -> str:
+        """/conflict ATTR-ID | دلیل — علامتِ تعارضِ انسانی روی یک attribution."""
+        parts = [p.strip() for p in raw.split("|")]
+        if len(parts) < 2:
+            return "⚠ فرمت: <code>/conflict ATTR-ID | دلیل</code>"
+        try:
+            import attribution
+            attribution.conflict(parts[0], parts[1])
+            return f"⚔️ تعارض ثبت شد روی <code>{html.escape(parts[0])}</code>"
+        except Exception as e:  # noqa: BLE001
+            return f"❌ ثبتِ conflict ناموفق: {type(e).__name__}"
+
+    # ── رندرِ تب‌ها ──────────────────────────────────────────────────────────────
+    def _render_tab(self, page: str):
+        """یک تبِ کابین: سربرگِ mode-color + خلاصهٔ زنده + دکمه‌های card/act + back.
+        INV-9: هر خطا → alert + کارتِ خطا؛ loop هرگز نمی‌میرد."""
+        try:
+            text = self._tab_text(page)
+        except Exception as e:  # noqa: BLE001
+            opslib.alert([f"cockpit tab error ({page}): {type(e).__name__}: {e}"])
+            text = f"❌ خطای رندرِ تبِ <code>{html.escape(page)}</code> — ثبت شد."
+        try:
+            kb = self._tab_keyboard(page)
+        except Exception:  # noqa: BLE001
+            kb = {"inline_keyboard": [[{"text": "🔄 منوی اصلی", "callback_data": "menu:main"}]]}
+        return {"text": text, "reply_markup": kb}
+
+    def _tab_keyboard(self, page: str) -> dict:
+        rows: list[list[dict]] = []
+        cards = self.TAB_CARDS.get(page, [])
+        for i in range(0, len(cards), 2):
+            rows.append([{"text": lbl, "callback_data": f"card:{page}:{k}"}
+                         for k, lbl in cards[i:i + 2]])
+        acts = {
+            "blueprint": [("📸 گرفتنِ baseline", "baseline", "capture")],
+            "brain": [("🧠 تحکیمِ الان", "consolidate", "run"),
+                      ("💡 بازسازیِ ایده-گراف", "ideas", "rebuild")],
+            "doctor": [("🩺 اجرای چرخهٔ دکتر", "doctor", "run")],
+            "school": [("🎓 یادگیریِ الان", "school", "learn"),
+                       ("📥 ingest کریپتو", "ingest", "crypto"),
+                       ("📥 ingest حساب", "ingest", "acct")],
+            "safety": [("❄️ FREEZE", "freeze", "on"),
+                       ("🧹 جاروی اثرها", "sweep", "effects"),
+                       ("♻️ ری‌استارتِ تمیز", "restart", "organism")],
+            "alerts": [("📦 بازتولیدِ بسته", "export", "raw")],
+        }.get(page, [])
+        for i in range(0, len(acts), 2):
+            rows.append([self._act_btn(lbl, v, k) for lbl, v, k in acts[i:i + 2]])
+        rows.append([{"text": "🔄 منوی اصلی", "callback_data": "menu:main"}])
+        return {"inline_keyboard": rows}
+
+    def _hdr(self, title: str) -> str:
+        return (f"{title} · {self._read_mode_color()}\n"
+                f"📥 صفِ تأیید: {self._count_pending()}{self._DIV}")
+
+    def _tab_text(self, page: str) -> str:
+        rm = self._rm()
+        if page == "overview":
+            st = rm.read_state() if rm else {}
+            rep = rm.read_sigma() if rm else {}
+            if not st:
+                return self._hdr("📊 <b>نمای کلی</b>") + "<i>داده در دسترس نیست.</i>"
+            month, today = st.get("month") or {}, st.get("today") or {}
+            sig = (rep.get("sigma") or {})
+            germ = st.get("germline_lag_h", "—")
+            chr_ = st.get("chrono") or {}
+            return (self._hdr("📊 <b>نمای کلی</b>")
+                    + f"🫀 halted={st.get('halted') or '—'} · frozen={'✅' if st.get('frozen') else 'نه'}"
+                      f" · stop={'✅' if st.get('stop_organism') else 'نه'}\n"
+                    + f"💵 ماه AU${_safe_float(month.get('aud')):.2f} · امروز US${_safe_float(today.get('usd')):.4f}\n"
+                    + f"🔍 suspect-zero: {st.get('suspect_zero_total', '—')} · ⚔️ تعارض: {len(st.get('conflicts') or [])}\n"
+                    + f"🦠 σ={sig.get('sigma_effective', '—')} ({sig.get('zone', '—')}) · 💾 germline {germ}h\n"
+                    + (f"⏳ سنِ متابولیک: {chr_.get('metabolic_age', '—')} · 🧬 age_tick: {chr_.get('age_tick', '—')}\n"
+                       if chr_ else "")
+                    + f"🛡 protective: {'فعال' if (st.get('protective_mode') or st.get('protective_skip')) else 'نه'}\n"
+                    + "<i>🟢 read-now — این تب هیچ‌چیزی را تغییر نمی‌دهد.</i>")
+        if page == "blueprint":
+            phase = rm.read_phase() if rm else {}
+            bcm, sp = (rm.read_bcm() if rm else {}), (rm.read_sparse() if rm else {})
+            fish, cht = (rm.read_fisher() if rm else {}), (rm.read_chamber_t() if rm else {})
+            return (self._hdr("🧭 <b>بلوپرینت P0–P6</b>")
+                    + f"فازِ جاری: <code>{html.escape(str(phase.get('current_phase', 'نامشخص')))}</code>\n"
+                    + f"P3 BCM: {'🟢 داده دارد' if bcm else 'ℹ️ هنوز نچرخیده'} · "
+                      f"P4 Sparse: {'🟢' if sp else '🟡 OFF/بی‌فایل'}\n"
+                    + f"P5 Chamber-T: {'🔴 فایلِ دما هست!' if cht else '🟢 RED خاموش (طبقِ طراحی)'}\n"
+                    + f"P6 Fisher: {('🟢 cond=' + str(fish.get('fisher_condition_number'))) if fish else '🟡 OFF/بی‌فایل'}\n"
+                    + "<i>رأیِ فازها human-only است — از کارتِ RFC، نه دکمه (§۲.۵).</i>")
+        if page == "brain":
+            cons = rm.read_consolidation() if rm else {}
+            lat, idea = (rm.read_latent() if rm else {}), (rm.read_idea() if rm else {})
+            return (self._hdr("🧠 <b>حافظه و مغز</b>")
+                    + f"تحکیم: {'🟢 ' + str(len(cons.get('cycles', cons) if isinstance(cons, dict) else [])) + ' رکورد' if cons else '🟡 بی‌داده'}\n"
+                    + f"Latent R³²: {'🟢 ' + str(len(lat.get('vectors', lat))) + ' کلید' if lat else '🟡 بی‌فایل'}\n"
+                    + f"ایده-گراف: {('🟢 ' + str(idea.get('nodes_count', '?')) + ' نوت · ' + str(idea.get('edges_count', '?')) + ' یال') if idea else '🟡 هنوز تحلیلی ننوشته'}\n"
+                    + "🏃 اسپرینت: 🟡 stub (ساخته‌شده، tick نشده)\n"
+                    + "<i>کنترل‌ها out-of-band ثبت می‌شوند — هیچ اجرای inline (INV-7).</i>")
+        if page == "doctor":
+            n_rfc = len(self._pending_rfc)
+            ch = rm.read_chrono_ro() if rm else {}
+            eff = (ch.get("effects_by_status") or {})
+            caps = (rm.read_capabilities() if rm else {"flags": {}})["flags"]
+            return (self._hdr("🩺 <b>دکتر و تکامل</b>")
+                    + f"🔧 RFCهای این نشست: {n_rfc} · اثرها: {eff or '—'}\n"
+                    + f"⏰ دیسپچر: {'🟢' if caps.get('OCTOPUS_WIRE_SCHEDULER') else '🟡 OFF'} · "
+                      f"🩹 خوددرمانی: {'🟢' if caps.get('OCTOPUS_WIRE_SELFHEAL') else '🟡 OFF'} · "
+                      f"🔭 معرفت‌شناسی: {'🟢' if caps.get('OCTOPUS_WIRE_EPISTEMICS') else '🟡 OFF'}\n"
+                    + "🥊 مناظره: 🔴 needs-live-gate (قفل تا 2026-07-21)\n"
+                    + "<i>merge فقط از کارتِ RFC با ضمیمهٔ انسانی — دکمهٔ مستقیم وجود ندارد.</i>")
+        if page == "money":
+            tel = rm.read_telemetry() if rm else {}
+            fit = rm.read_fitness() if rm else {}
+            ok, why = self._live_gate_status()
+            return (self._hdr("💰 <b>پول و متابولیسم</b>")
+                    + f"💵 ماه: {((tel.get('month') or {}).get('aud', 0)) if tel.get('month') else (tel.get('genome') or {}).get('cost_musd', 0)} · "
+                      f"suspect-zero: {tel.get('suspect_zero_total', '—')}\n"
+                    + f"📊 fitness: {'authoritative' if fit.get('authoritative') else '🟡 سایه (درست — تا ۲۸ روز)'}\n"
+                    + f"🔒 live-gate: {'🟢 ' + why if ok else '🔴 ' + why}\n"
+                    + "🤖 گاورنرِ LLM: 🔴 قفل تا 2026-07-21\n"
+                    + "<i>تنها settleِ پول = کارتِ تأییدِ موجود؛ reconcile/epoch دکمه ندارند (§۲.۵).</i>\n"
+                    + "<i>ثبتِ کوت: <code>/claim ATTR-ID | ref | مبلغ</code> · "
+                      "تعارض: <code>/conflict ATTR-ID | دلیل</code></i>")
+        if page == "school":
+            sch = rm.read_school() if rm else {}
+            aw = sch.get("awareness") or {}
+            mean = sch.get("mean", (sum(aw.values()) / len(aw)) if aw else None)
+            return (self._hdr("🎓 <b>مدرسه</b>")
+                    + f"آگاهیِ میانگین: {mean if mean is not None else '—'} · سلول‌ها: {len(aw)}\n"
+                    + f"🔥 روشن‌ترین: {max(aw, key=aw.get) if aw else '—'}\n"
+                    + "🔌 آوران: 🟡 transient (persist نشده — شفاف)\n"
+                    + "<i>یادگیری/ingest از صفِ out-of-band می‌روند ($0، propose-only).</i>")
+        if page == "safety":
+            st = rm.read_state() if rm else {}
+            caps = rm.read_capabilities() if rm else {"profile": "?", "flags": {}}
+            n_on = sum(1 for v in caps["flags"].values() if v)
+            ok, why = self._live_gate_status()
+            return (self._hdr("🛡️ <b>ایمنی</b>")
+                    + f"🛑 halted={st.get('halted') or '—'} · ❄️ frozen={'✅' if st.get('frozen') else 'نه'} · "
+                      f"STOP={'✅' if st.get('stop_organism') else 'نه'}\n"
+                    + f"🔒 live-gate: {'🟢' if ok else '🔴'} {why}\n"
+                    + f"🚦 flagها: {n_on}/{len(caps['flags'])} روشن · پروفایل: <code>{html.escape(str(caps.get('profile')))}</code>\n"
+                    + f"📡 لوله: {'🟢 wired' if self.wired else '⚪ قطع'} (توکن masked: {_mask_token(self._token)})\n"
+                    + "<i>فایل‌ها authoritativeاند؛ بات فقط trigger است (INV-4).</i>")
+        if page == "alerts":
+            rules = rm.rules() if rm else []
+            g = sum(1 for r in rules if r["status"] == "🟢")
+            y = sum(1 for r in rules if r["status"] == "🟡")
+            rr = sum(1 for r in rules if r["status"] == "🔴")
+            tail = rm.tail_governor_alerts(60) if rm else []
+            warns = sum(1 for ln in tail if "⚠" in ln)
+            return (self._hdr("🚨 <b>هشدارها و خام</b>")
+                    + (f"چکِ سلامت: {g} 🟢 · {y} 🟡 · {rr} 🔴 (از {len(rules)})\n" if rules
+                       else "چکِ سلامت: ℹ️ بسته/داده در دسترس نیست\n")
+                    + f"هشدارهای اخیرِ گاورنر: {warns} ⚠\n"
+                    + "<i>mirrorهای خام پس از redaction نمایش داده می‌شوند (INV-12).</i>")
+        return "<i>تبِ ناشناخته.</i>"
+
+    # ── رندرِ کارت‌های جزئی ──────────────────────────────────────────────────────
+    def _render_card(self, tab: str, key: str) -> str:
+        rm = self._rm()
+        nod = "<i>داده در دسترس نیست.</i>"
+
+        def _j(d, *keys, default="—"):
+            cur = d
+            for k in keys:
+                if not isinstance(cur, dict):
+                    return default
+                cur = cur.get(k)
+            return default if cur is None else cur
+
+        if (tab, key) == ("overview", "vitals"):
+            return self.status_report()          # resurface T-5 (فقط‌خواندنی)
+        if (tab, key) == ("overview", "heart"):
+            st = rm.read_state() if rm else {}
+            ch = rm.read_chrono_ro() if rm else {}
+            cstat = st.get("chrono") or {}
+            legs = cstat.get("legs") or {}
+            legs_txt = (f"alive={legs.get('alive', '—')}/susp={legs.get('suspected', '—')}"
+                        f"/failed={legs.get('failed', '—')}" if isinstance(legs, dict) else str(legs))
+            return ("♥️ <b>ضربان</b>" + self._DIV
+                    + f"beat: {cstat.get('beat', '—')} · age_tick: {cstat.get('age_tick', '—')} · "
+                      f"سنِ متابولیک: {cstat.get('metabolic_age', '—')}\n"
+                    + f"HLC: <code>{html.escape(str(cstat.get('hlc', '—')))}</code>\n"
+                    + f"پاها: {html.escape(legs_txt)} · اثرهای معلق: {cstat.get('effects_pending', '—')}\n"
+                    + f"chrono.db: {('🟢 ' + str((ch.get('beats') or {}).get('count', '?')) + ' ضربان') if ch else '🟡 خوانا نیست/قفل'}"
+                    + (f" · اثرها: {ch.get('effects_by_status')}" if ch.get('effects_by_status') else ""))
+        if (tab, key) == ("overview", "legs"):
+            try:
+                import sys as _sys
+                from pathlib import Path as _P
+                _ops = _P(__file__).resolve().parents[1]
+                if str(_ops) not in _sys.path:
+                    _sys.path.insert(0, str(_ops))
+                from brain.cockpit import LEGS
+                lines = [f"{lg['icon']} <b>{html.escape(lg['name'])}</b> {lg['color']} — "
+                         f"{html.escape(lg['desc'])}" for lg in LEGS]
+                return "🐙 <b>۶ پا</b>" + self._DIV + "\n".join(lines)
+            except Exception:  # noqa: BLE001
+                return "🐙 <b>۶ پا</b>" + self._DIV + nod
+        if (tab, key) == ("overview", "projects"):
+            return ("📁 <b>پروژه‌ها</b>" + self._DIV
+                    + "mirror کاملِ پروژه‌ها در پنلِ محلی است: <code>http://127.0.0.1:8790/projects</code>\n"
+                    + "<i>(اسکنِ vault در poll-thread اجرا نمی‌شود — INV-7)</i>")
+        if (tab, key) == ("blueprint", "phases"):
+            ph = rm.read_phase() if rm else {}
+            if not ph:
+                return "🧭 <b>فازها</b>" + self._DIV + nod
+            return ("🧭 <b>فازها</b>" + self._DIV
+                    + f"<pre>{html.escape(json.dumps(ph, ensure_ascii=False, indent=1)[:900])}</pre>")
+        if (tab, key) == ("blueprint", "baselines"):
+            try:
+                import sys as _sys
+                from pathlib import Path as _P
+                _ops = _P(__file__).resolve().parents[1]
+                if str(_ops) not in _sys.path:
+                    _sys.path.insert(0, str(_ops))
+                import baseline as _b
+                items = _b.get_all_baselines()
+                lines = [f"• <code>{html.escape(str(x.get('phase_id', '?')))}</code> "
+                         f"{html.escape(str(x.get('label', '')))} · {str(x.get('ts', ''))[:16]}"
+                         for x in items[-8:]]
+                return "📸 <b>baselineها</b>" + self._DIV + ("\n".join(lines) or nod)
+            except Exception:  # noqa: BLE001
+                return "📸 <b>baselineها</b>" + self._DIV + nod
+        if (tab, key) == ("blueprint", "bcm"):
+            b = rm.read_bcm() if rm else {}
+            return ("🧬 <b>BCM (P3)</b>" + self._DIV
+                    + (f"کلیدها: {len(b.get('weights', b))} · θ/saturation در فایل\n"
+                       f"<i>فقط ایندکسِ retrieval هرس می‌شود؛ تاریخچه append-only (I1).</i>"
+                       if b else "ℹ️ BCM هنوز نچرخیده (بعد از restart با flag روشن می‌شود)"))
+        if (tab, key) == ("blueprint", "sparse"):
+            s = rm.read_sparse() if rm else {}
+            return ("🕸 <b>Sparse (P4)</b>" + self._DIV
+                    + (f"sparsity: {_j(s, 'sparsity_ratio')} · heavy-tail: {_j(s, 'heavy_tail_share')}"
+                       if s else "🟡 OFF/بی‌فایل (خارج از profile — عمداً)"))
+        if (tab, key) == ("blueprint", "chamber"):
+            c = rm.read_chamber_t() if rm else {}
+            return ("🌡 <b>Chamber-T (P5) — RED</b>" + self._DIV
+                    + ("🔴 فایلِ دما وجود دارد!" if c else "🟢 خاموش — طبقِ طراحی.")
+                    + "\n<i>فعال‌سازی فقط با verdict صریحِ مالک؛ دکمهٔ تلگرام عمداً وجود ندارد.</i>")
+        if (tab, key) == ("blueprint", "fisher"):
+            f = rm.read_fisher() if rm else {}
+            return ("📐 <b>Fisher (P6)</b>" + self._DIV
+                    + (f"cond: {_j(f, 'fisher_condition_number')} · advisory-only (I4/I6)"
+                       if f else "🟡 not-wired — فایلِ fisher-latest.json نیست"))
+        if (tab, key) == ("blueprint", "prereg"):
+            return ("📋 <b>پیش‌ثبتِ متریک (R13)</b>" + self._DIV
+                    + "پیش‌ثبت آرگومان می‌خواهد و از دکمه امن نیست؛ از CLI:\n"
+                    + "<code>python -c \"import baseline; baseline.pre_register_metric("
+                      "'phase-X','metric',0.5)\"</code>\n"
+                    + "<i>ثبت قبل از پیاده‌سازی — جعل‌ناپذیر.</i>")
+        if (tab, key) == ("blueprint", "transition"):
+            return ("🚪 <b>گذارِ فاز</b>" + self._DIV
+                    + "گذارِ فاز governance است و از رجیستریِ RFC می‌رود (نه act) — §۲.۵.\n"
+                    + "<i>doctor کارتِ RFC صادر می‌کند؛ همین‌جا merge/رد کن.</i>")
+        if (tab, key) == ("brain", "consolidation"):
+            c = rm.read_consolidation() if rm else {}
+            n = len(c.get("cycles", c) if isinstance(c, dict) else [])
+            return ("🧠 <b>تحکیمِ حافظه</b>" + self._DIV
+                    + (f"{n} رکورد · منبعِ کانونی neural/consolidation.json" if c else nod))
+        if (tab, key) == ("brain", "latent"):
+            v = rm.read_latent() if rm else {}
+            return ("🌀 <b>Latent R³²</b>" + self._DIV
+                    + (f"{len(v.get('vectors', v))} کلید · dim=32" if v else "🟡 بی‌فایل"))
+        if (tab, key) == ("brain", "idea"):
+            i = rm.read_idea() if rm else {}
+            if not i:
+                return "💡 <b>ایده-گراف</b>" + self._DIV + "🟡 هنوز تحلیلی ننوشته"
+            return ("💡 <b>ایده-گراف</b>" + self._DIV
+                    + f"نوت: {i.get('nodes_count', '?')} · یال: {i.get('edges_count', '?')} · "
+                      f"شکسته: {len(i.get('broken_targets', []) or [])}\n"
+                    + f"هاب‌ها: {', '.join(html.escape(str(h.get('title', h))) for h in (i.get('hubs') or [])[:4]) or '—'}")
+        if (tab, key) == ("brain", "hebbian"):
+            h = rm.read_hebbian() if rm else {}
+            return ("🔗 <b>Hebbian</b>" + self._DIV
+                    + (f"{len(h.get('pairs', h))} جفتِ fire-together" if h else "🟡 بی‌فایل"))
+        if (tab, key) == ("brain", "sprint"):
+            return ("🏃 <b>اسپرینت</b>" + self._DIV
+                    + "🟡 stub — ساخته‌شده ولی هرگز tick نشده (شفاف، جعل نمی‌کنیم).")
+        if (tab, key) == ("doctor", "rfc"):
+            with self._lk:
+                items = [(rid, m.get("status"), m.get("summary", "")[:60])
+                         for rid, m in self._pending_rfc.items()]
+            lines = [f"• <code>{html.escape(str(r))}</code> [{html.escape(str(s))}] "
+                     f"{html.escape(str(t))}" for r, s, t in items[:8]]
+            return ("🔧 <b>RFCها (این نشست)</b>" + self._DIV
+                    + ("\n".join(lines) or "صف خالی است ✅")
+                    + "\n<i>merge پشتِ flag و با ضمیمهٔ انسانی (مسیرِ موجودِ rfc:).</i>")
+        if (tab, key) == ("doctor", "box"):
+            b = rm.read_box() if rm else {}
+            return ("📦 <b>جعبهٔ دکتر (B0–B4)</b>" + self._DIV
+                    + (f"<pre>{html.escape(json.dumps(b, ensure_ascii=False, indent=1)[:800])}</pre>"
+                       if b else "🟡 not-wired — نیازمندِ persist در doctor (doctor_box.json)"))
+        if (tab, key) == ("doctor", "evolution"):
+            return ("🧬 <b>تکاملِ RFC</b>" + self._DIV
+                    + "🟡 گزارشِ evolution هنوز persist نمی‌شود (not-wired — شفاف).\n"
+                    + "<i>tournament/measured_lift پشتِ flag، propose-only.</i>")
+        if (tab, key) == ("doctor", "epi"):
+            e = rm.read_epi() if rm else {}
+            return ("🔭 <b>معرفت‌شناسی</b>" + self._DIV
+                    + (f"<pre>{html.escape(json.dumps(e, ensure_ascii=False, indent=1)[:700])}</pre>"
+                       if e else "🟡 OFF (flag خاموش) — advisory، non-enforcer"))
+        if (tab, key) == ("doctor", "scheduler"):
+            caps = (rm.read_capabilities() if rm else {"flags": {}})["flags"]
+            return ("⏰ <b>دیسپچر/صفِ پیش‌بینی</b>" + self._DIV
+                    + f"flag: {'🟢 روشن' if caps.get('OCTOPUS_WIRE_SCHEDULER') else '🟡 OFF'} · "
+                      "propose-only (B6)")
+        if (tab, key) == ("doctor", "selfheal"):
+            caps = (rm.read_capabilities() if rm else {"flags": {}})["flags"]
+            return ("🩹 <b>خوددرمانی</b>" + self._DIV
+                    + f"flag: {'🟢 روشن' if caps.get('OCTOPUS_WIRE_SELFHEAL') else '🟡 OFF'} · "
+                      "circuit-breaker روی pacemaker")
+        if (tab, key) == ("doctor", "projectf"):
+            return ("🎬 <b>Project-F routing</b>" + self._DIV
+                    + "درفت‌های high-risk به صفِ تأیید می‌روند ($0 · money-locked).\n"
+                    + "ردلاین: <code>verify_no_pii_in_signals</code> (containment) — "
+                      "جزئیاتِ محتوایی اینجا عمداً نمایش داده نمی‌شود.")
+        if (tab, key) == ("doctor", "lab"):
+            kb_note = ("\n<i>شروع: دکمه‌های زیرِ همین کارت. آشکارسازی پس از پایان: "
+                       "<code>/reveal exp1</code></i>")
+            return "🧪 " + self.lab_status() + kb_note
+        if (tab, key) == ("money", "telemetry"):
+            t = rm.read_telemetry() if rm else {}
+            if not t:
+                return "💵 <b>مصرف</b>" + self._DIV + nod
+            return ("💵 <b>مصرف</b>" + self._DIV
+                    + f"genome: {_j(t, 'genome', 'cost_musd')}μ$ ({_j(t, 'genome', 'events')} رویداد) · "
+                      f"brain: {_j(t, 'brain', 'cost_musd')}μ$\n"
+                    + f"FX: {_j(t, 'fx_aud_per_usd', 'rate')} ({_j(t, 'fx_aud_per_usd', 'tag')}) · "
+                      f"suspect-zero: {t.get('suspect_zero_total', '—')}")
+        if (tab, key) == ("money", "organs"):
+            t = rm.read_telemetry() if rm else {}
+            organs = t.get("per_organ_alltime_musd") or {}
+            lines = [f"• <code>{html.escape(str(k))}</code>: {v}μ$" for k, v in list(organs.items())[:10]]
+            paint = any("paint" in str(k).lower() for k in organs)
+            return ("🫀 <b>ارگان‌ها (R22)</b>" + self._DIV
+                    + ("\n".join(lines) or nod)
+                    + ("" if paint else "\n🟡 ارگانِ PAINTING غایب — منتظرِ verdict §۵"))
+        if (tab, key) == ("money", "fitness"):
+            f = rm.read_fitness() if rm else {}
+            att = f.get("attribution") or {}
+            return ("📊 <b>فیتنس (R10)</b>" + self._DIV
+                    + f"authoritative: {'✅' if f.get('authoritative') else '🟡 سایه (درست — تا ۲۸ روز)'}\n"
+                    + f"CLAIMED: {att.get('claimed', '—')} · CONFIRMED: {att.get('confirmed', '—')} · "
+                      f"هشدارِ یکپارچگی: {len(f.get('integrity_alerts') or [])}")
+        if (tab, key) == ("money", "attribution"):
+            return ("🧾 <b>درآمد/لیدها</b>" + self._DIV
+                    + "ثبتِ لید: <code>/lead نام | ارزش | پا</code>\n"
+                    + "ثبتِ کوت (CLAIMED): <code>/claim ATTR-ID | ref | مبلغ</code>\n"
+                    + "تعارض: <code>/conflict ATTR-ID | دلیل</code>\n"
+                    + "<i>CONFIRMED فقط از reconcile-actor — هیچ دکمهٔ settle (§۲.۵).</i>")
+        if (tab, key) == ("money", "cardiac"):
+            caps = (rm.read_capabilities() if rm else {"flags": {}})["flags"]
+            st = (rm.read_state() if rm else {}).get("cardiac") or {}
+            return ("♥️ <b>ضربانِ بودجه (WIRE_BIO)</b>" + self._DIV
+                    + f"flag: {'🟢 روشن' if caps.get('OCTOPUS_WIRE_BIO') else '🟡 OFF'}\n"
+                    + (f"<pre>{html.escape(json.dumps(st, ensure_ascii=False)[:400])}</pre>" if st else ""))
+        if (tab, key) == ("money", "reconcile"):
+            caps = (rm.read_capabilities() if rm else {"flags": {}})["flags"]
+            return ("🔁 <b>تطبیقِ Track-B (R11)</b>" + self._DIV
+                    + f"flag: {'🟢 روشن' if caps.get('OCTOPUS_WIRE_RECONCILE') else '🟡 OFF'}\n"
+                    + "<i>reconcile settle-driverِ پول است — دکمهٔ اجرایِ مستقیم عمداً وجود ندارد (§۲.۵).</i>")
+        if (tab, key) == ("money", "barbell"):
+            caps = (rm.read_capabilities() if rm else {"flags": {}})["flags"]
+            return ("⚖️ <b>تخصیصِ باربل (CORE/SATELLITE)</b>" + self._DIV
+                    + f"flag: {'🟢 روشن' if caps.get('OCTOPUS_WIRE_BARBELL') else '🟡 OFF'} · propose-only\n"
+                    + "<i>ریسکی — فعال‌سازی از تبِ ایمنی (act:flag) با capability-gate.</i>")
+        if (tab, key) == ("money", "governor"):
+            return ("🤖 <b>گاورنرِ LLM</b>" + self._DIV
+                    + "🔴 قفل تا 2026-07-21 — تخصیصِ خودمتریک (allocate_llm) پشتِ گیتِ دوقفله.\n"
+                    + "<i>هر فعال‌سازی فقط از کارتِ تأییدِ پول (token → settle) — هیچ triggerِ زودتر.</i>")
+        if (tab, key) == ("school", "awareness"):
+            s = rm.read_school() if rm else {}
+            aw = s.get("awareness") or {}
+            mean = s.get("mean", (sum(aw.values()) / len(aw)) if aw else None)
+            return ("🎓 <b>آگاهیِ مدرسه (R17)</b>" + self._DIV
+                    + (f"میانگین: {mean} · {len(aw)} سلول" if aw or mean else nod))
+        if (tab, key) == ("school", "cells"):
+            s = rm.read_school() if rm else {}
+            aw = s.get("awareness") or {}
+            lines = [f"• <code>{html.escape(str(k))}</code>: {v}"
+                     for k, v in sorted(aw.items(), key=lambda kv: -kv[1])[:8]]
+            return "🧫 <b>سلول‌ها</b>" + self._DIV + ("\n".join(lines) or nod)
+        if (tab, key) == ("school", "afferent"):
+            return ("🔌 <b>آوران</b>" + self._DIV
+                    + "🟡 transient — persist نشده (not-wired؛ شفاف، جعل نمی‌کنیم).")
+        if (tab, key) == ("school", "crypto"):
+            return ("📈 <b>بریفِ کریپتو</b>" + self._DIV
+                    + "🟡 not-wired — خروجیِ summarize_crypto_file هنوز state ندارد.\n"
+                    + "درخواست: دکمهٔ «ingest کریپتو» در تبِ مدرسه (out-of-band).")
+        if (tab, key) == ("safety", "gates"):
+            ok, why = self._live_gate_status()
+            return ("🔒 <b>گیت‌ها</b>" + self._DIV
+                    + f"live-gate دوقفله: {'🟢' if ok else '🔴'} {why}\n"
+                    + f"لوله: {'🟢 wired' if self.wired else '⚪'} · owner-allowlist فعال\n"
+                    + "زنجیره: organ → money → capability → live (fail-closed)\n"
+                    + "توکن‌ها: پول (_new_token) · act (_new_act_token، تک‌مصرف) · _cteq ثابت‌زمانی")
+        if (tab, key) == ("safety", "flags"):
+            return self._render_paged("safety", "flags", 1)
+        if (tab, key) == ("safety", "germline"):
+            st = rm.read_state() if rm else {}
+            lag = st.get("germline_lag_h", "—")
+            return ("💾 <b>germline (R8)</b>" + self._DIV
+                    + f"lag: {lag} ساعت (آستانه: &lt;2h سبز · &lt;26h زرد)")
+        if (tab, key) == ("safety", "conflicts"):
+            st = rm.read_state() if rm else {}
+            c = st.get("conflicts") or []
+            return ("⚔️ <b>تعارضِ متابولیک (I3)</b>" + self._DIV
+                    + (f"{len(c)} تعارض\n<pre>{html.escape(json.dumps(c, ensure_ascii=False)[:500])}</pre>"
+                       if c else "صف خالی ✅")
+                    + "\n<i>رفعِ تعارض دستی است — بات auto-clear نمی‌کند.</i>")
+        if (tab, key) == ("safety", "integrity"):
+            try:
+                import sys as _sys
+                from pathlib import Path as _P
+                _ops = _P(__file__).resolve().parents[1]
+                if str(_ops) not in _sys.path:
+                    _sys.path.insert(0, str(_ops))
+                import baseline as _b
+                fp = _b._fingerprint_money_sources(_ops)
+                return ("🔏 <b>اثرانگشتِ کدِ پول</b>" + self._DIV
+                        + f"<code>{html.escape(str(fp))}</code>")
+            except Exception:  # noqa: BLE001
+                return "🔏 <b>اثرانگشتِ کدِ پول</b>" + self._DIV + nod
+        if (tab, key) == ("safety", "pii"):
+            return ("🕵️ <b>گاردِ PII</b>" + self._DIV
+                    + "sensory_bus._contains_pii + live_loop.verify_no_pii_in_signals (containment)\n"
+                    + "mirrorهای خامِ همین کابین هم از پاسِ PII می‌گذرند (INV-12).")
+        if (tab, key) == ("safety", "llm"):
+            return ("🧭 <b>مسیرِ LLM</b>" + self._DIV
+                    + "host-allowlist + کلید فقط از env + قیمتِ قفل + no-fallback (I9/I10)\n"
+                    + "مناظره: 🔴 پشتِ live-gate — topics فقط whitelist (topic-as-data).")
+        if (tab, key) == ("safety", "reentry"):
+            return self.reentry_packet()
+        if (tab, key) == ("alerts", "rules"):
+            return self._render_paged("alerts", "rules", 1)
+        if (tab, key) == ("alerts", "governor"):
+            tail = rm.tail_governor_alerts(30) if rm else []
+            body = "\n".join(html.escape(ln) for ln in tail[-15:]) or nod
+            return self._redact_pii("🚨 <b>هشدارهای گاورنر (R23)</b>" + self._DIV
+                                    + f"<pre>{body[:1500]}</pre>")
+        if (tab, key) == ("alerts", "genome"):
+            b = (rm.read_bundle() if rm else {}).get("genome_ledger") or {}
+            return ("🧬 <b>زنجیرهٔ ژنوم (R14)</b>" + self._DIV
+                    + (f"<pre>{html.escape(json.dumps(b, ensure_ascii=False, indent=1)[:700])}</pre>"
+                       if b else nod))
+        if (tab, key) == ("alerts", "chrono"):
+            ch = rm.read_chrono_ro() if rm else {}
+            return ("⏱ <b>chrono (R15/R16)</b>" + self._DIV
+                    + (f"<pre>{html.escape(json.dumps(ch, ensure_ascii=False, indent=1)[:700])}</pre>"
+                       if ch else "🟡 chrono.db خوانا نیست (busy/نبود) — fail-soft"))
+        if (tab, key) == ("alerts", "channels"):
+            c = (rm.read_channels() if rm else {}).get("channels") or {}
+            lines = [f"• {html.escape(str(n))}: {'🟢' if i.get('live') else '🔴'} "
+                     f"{html.escape(str(i.get('mode', '')))}" for n, i in c.items()]
+            return "📡 <b>کانال‌ها</b>" + self._DIV + ("\n".join(lines) or nod)
+        if (tab, key) == ("alerts", "raw"):
+            st = rm.read_state() if rm else {}
+            raw = json.dumps(st, ensure_ascii=False, indent=1)[:1600]
+            return self._redact_pii("🗂 <b>ORGANISM-STATE (خام، redacted)</b>" + self._DIV
+                                    + f"<pre>{html.escape(raw)}</pre>")
+        if (tab, key) == ("alerts", "log"):
+            tail = rm.tail_structured_log(15) if rm else []
+            body = "\n".join(html.escape(ln[:160]) for ln in tail) or \
+                "🟡 فایلِ لاگِ ساختاریافته پیدا نشد (FileEmitter وصل نیست)"
+            return self._redact_pii("📜 <b>لاگِ ساختاریافته</b>" + self._DIV
+                                    + f"<pre>{body[:1500]}</pre>")
+        if (tab, key) == ("alerts", "requests"):
+            reqs = rm.read_requests(8) if rm else []
+            lines = [f"• {html.escape(str(r.get('ts', ''))[:16])} "
+                     f"<code>{html.escape(str(r.get('verb')))}:{html.escape(str(r.get('key')))}</code> "
+                     f"[{html.escape(str(r.get('status', '')))}]" for r in reqs]
+            return ("📨 <b>صفِ درخواستِ out-of-band</b>" + self._DIV
+                    + ("\n".join(lines) or "صف خالی است ✅")
+                    + "\n<i>state/cockpit-requests.jsonl — organism مصرف می‌کند.</i>")
+        return nod
+
+    # ── صفحه‌بندی (pg:) ─────────────────────────────────────────────────────────
+    def _render_paged(self, tab: str, key: str, n: int, per_page: int = 8):
+        """لیست‌های بلند: rules (۲۴ قاعده) و flags (۱۹ flag با دکمهٔ toggle)."""
+        rm = self._rm()
+        rows_kb: list[list[dict]] = []
+        cad_line = ""
+        if (tab, key) == ("alerts", "rules"):
+            items = rm.rules() if rm else []
+            title = "✅ <b>۲۴ قاعدهٔ سلامت</b>"
+            render = lambda r: (f"{r['status']} <b>{r['id']}</b> {html.escape(r['label'])} — "  # noqa: E731
+                                f"<i>{html.escape(r['evidence'])}</i>")
+        else:  # ("safety", "flags")
+            caps = rm.read_capabilities() if rm else {"flags": {}, "cadences": {}}
+            items = sorted(caps["flags"].items())
+            cad = caps.get("cadences") or {}                    # C15: cadenceها زیرِ لیست
+            cad_line = (self._DIV + "⏱ <b>cadence</b>: "
+                        + " · ".join(f"{html.escape(k.replace('CHRONO_', '').replace('_EVERY_N_BEATS', ''))}={v}"
+                                     for k, v in cad.items())) if cad else ""
+            title = "🚦 <b>flagهای wiring</b>"
+            render = lambda kv: (f"{'🟢' if kv[1] else '⚪'} <code>{html.escape(kv[0])}</code>")  # noqa: E731
+        total = max(1, (len(items) + per_page - 1) // per_page)
+        n = min(max(1, n), total)
+        page_items = items[(n - 1) * per_page: n * per_page]
+        body = "\n".join(render(it) for it in page_items) or "<i>خالی</i>"
+        if (tab, key) == ("safety", "flags"):
+            # دکمهٔ toggle برای هر flagِ این صفحه (act دومرحله‌ای؛ chamber_t عمداً نیست)
+            for env_name, on in page_items:
+                short = env_name.replace("OCTOPUS_WIRE_", "").lower()
+                if short in self.FLAG_KEYS:
+                    rows_kb.append([self._act_btn(
+                        f"{'🟢' if on else '⚪'} {short} → {'خاموش' if on else 'روشن'}",
+                        "flag", short)])
+        nav = []
+        if n > 1:
+            nav.append({"text": "◀️", "callback_data": f"pg:{tab}:{key}:{n - 1}"})
+        nav.append({"text": f"{n}/{total}", "callback_data": f"pg:{tab}:{key}:{n}"})
+        if n < total:
+            nav.append({"text": "▶️", "callback_data": f"pg:{tab}:{key}:{n + 1}"})
+        rows_kb.append(nav)
+        rows_kb.append([{"text": "⬅️ بازگشت", "callback_data": f"menu:{tab}"}])
+        return {"text": f"{title} · صفحهٔ {n}/{total}{self._DIV}{body}{cad_line}",
+                "reply_markup": {"inline_keyboard": rows_kb}}
 
 
 def _attribution_propose(cell: str, expected_aud: float, lead: str = "") -> dict:
