@@ -13,6 +13,7 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE.parent))
 import harness
+ENV = harness.setup("held-out-evaluator")   # ایزولاسیون — alert/state به vault موقت، نه واقعی
 
 import held_out_evaluator as hoe
 
@@ -92,6 +93,46 @@ def t_ledger_chain_not_found():
     assert result["valid"] is None
 
 
+def _genome_ledger_dir() -> Path:
+    return _HERE.parents[2] / "07 - Knowledge" / "genome-system" / "ledger"
+
+
+def t_ledger_chain_scar_aware():
+    """v0.4.7 + verdict 2026-07-10: پارگیِ لنگرشده → valid=True با ok-with-scars؛
+    tamper واقعی → همچنان FAIL. (ledger مصنوعی در tmpdir — state واقعی لمس نمی‌شود.)"""
+    src = _genome_ledger_dir()
+    if not (src / "ledger.py").is_file():
+        return  # آفلاین بدون ژنوم — skip امن
+    with tempfile.TemporaryDirectory() as td:
+        td = Path(td)
+        (td / "ledger.py").write_text((src / "ledger.py").read_text("utf-8"), "utf-8")
+        sys.path.insert(0, str(td))
+        try:
+            import importlib
+            import ledger as _lg_mod
+            _lg_mod = importlib.reload(_lg_mod)
+            lg = _lg_mod.Ledger(td / "ledger.jsonl")
+            for i in range(5):
+                lg.append("HEARTBEAT", {"n": i}, actor="guardian", beat=True)
+        finally:
+            sys.path.remove(str(td))
+        # tear خط ۲ مثل torn-write واقعی (دُم با hash می‌ماند)
+        lines = (td / "ledger.jsonl").read_text("utf-8").splitlines()
+        lines[1] = lines[1][lines[1].index('"payload"'):]
+        (td / "ledger.jsonl").write_text("\n".join(lines) + "\n", "utf-8")
+        result = hoe.verify_ledger_chain(ledger_path=td)
+        assert result["valid"] is True, f"پارگی لنگرشده باید pass شود: {result}"
+        assert result.get("scars") is True
+        assert "ok-with-scars" in result["details"]
+        # tamper واقعی → FAIL می‌ماند
+        rec = json.loads(lines[-1])
+        rec["payload"] = {"n": 999}
+        lines[-1] = json.dumps(rec, ensure_ascii=False)
+        (td / "ledger.jsonl").write_text("\n".join(lines) + "\n", "utf-8")
+        result2 = hoe.verify_ledger_chain(ledger_path=td)
+        assert result2["valid"] is False, "tamper نباید از scar-aware رد شود"
+
+
 def t_sealed_predictions_counts():
     """active و expired درست شمرده می‌شوند."""
     with tempfile.TemporaryDirectory() as td:
@@ -161,6 +202,7 @@ if __name__ == "__main__":
         ("fixed suite اجرا می‌شود", t_fixed_suite_runs),
         ("تست ناموجود = missing", t_fixed_suite_detects_missing),
         ("ledger ناموجود = invalid", t_ledger_chain_not_found),
+        ("scar-aware: پارگی لنگرشده pass، tamper fail", t_ledger_chain_scar_aware),
         ("sealed predictions شمارش", t_sealed_predictions_counts),
         ("بدون experiments = 0", t_sealed_no_experiments),
         ("ساختار evaluate_held_out", t_evaluate_held_out_structure),

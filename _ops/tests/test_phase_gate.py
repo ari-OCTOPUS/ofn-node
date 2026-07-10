@@ -14,6 +14,7 @@ from unittest.mock import patch
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE.parent))
 import harness
+ENV = harness.setup("phase-gate")   # ایزولاسیون — alert/state به vault موقت، نه واقعی
 
 import phase_gate
 import review_bus

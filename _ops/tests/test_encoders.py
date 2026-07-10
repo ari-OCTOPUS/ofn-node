@@ -9,6 +9,7 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE.parent))
 import harness
+ENV = harness.setup("encoders")   # ایزولاسیون — alert/state به vault موقت، نه واقعی
 
 import numpy as np
 from neural.encoders import (encode_observation, encode_awareness, encode_rfc,

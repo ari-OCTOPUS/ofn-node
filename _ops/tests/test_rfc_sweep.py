@@ -12,6 +12,7 @@ _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE.parent))
 sys.path.insert(0, str(_HERE.parent / "doctor"))
 import harness
+ENV = harness.setup("rfc-sweep")   # ایزولاسیون — alert/state به vault موقت، نه واقعی
 
 from doctor import Doctor, RFC
 

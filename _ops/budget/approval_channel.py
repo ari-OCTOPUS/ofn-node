@@ -11,7 +11,18 @@ secret-guard: وصلِ Telegram یک قدمِ جدا و human-gated است؛ tok
 """
 from __future__ import annotations
 
+import sys
 from dataclasses import dataclass
+from pathlib import Path
+
+# ── W-3 bootstrap: این ماژول در _ops/budget کنارِ opslib.py می‌نشیند. مسیرِ خودمان را
+# جلو می‌گذاریم تا importِ opslib همیشه resolve شود (حتی وقتی approval_channel مستقیم و
+# خارج از sys.pathِ budget بارگذاری شده). بدونِ این، opslib.alert در مسیرهای خطای
+# poll_once/_answer_callback_query یک NameErrorِ نهفته بود که run_forever را می‌کشت.
+_HERE = Path(__file__).resolve().parent
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE))
+import opslib  # noqa: E402 — بعد از bootstrapِ مسیر؛ برای alertهای fail-soft لازم است
 
 # فقط این وضعیت‌ها = «کلیکِ انسانیِ واقعی» در صف کنترل‌برین/core.db (هم‌راستا با I7 outbox status='sent')
 VALID_STATUSES = frozenset({"approved", "sent"})
@@ -135,7 +146,7 @@ class TelegramApprovalChannel(ApprovalChannel):
     def __init__(self, token: str | None = None, owner_chat_id: int | None = None,
                  http_get=None, http_post=None, kill_check=None,
                  longpoll_timeout: int | None = None,
-                 gate=None, ledger=None, state_dir=None):
+                 gate=None, ledger=None, state_dir=None, leg=None):
         self._token = (token if token is not None else _env_str("TELEGRAM_BOT_TOKEN"))
         self._owner = int(owner_chat_id) if owner_chat_id is not None else (
             _env_int("TELEGRAM_OWNER_CHAT_ID", 0) or None)
@@ -147,12 +158,14 @@ class TelegramApprovalChannel(ApprovalChannel):
         self._gate = gate                            # EffectorGate (TINV-7) — T-2 وصل می‌کند
         self._ledger = ledger                        # ledger ژنوم (human-append)
         self._state_dir = state_dir                  # None = _ops/state (پیش‌فرض)
+        self._leg = leg                              # W-3: پای Lead (اختیاری) — /lead → leg.intake
         self._lk = threading.Lock()
         # offset از فایل بارگذاری می‌شود (restart-safe)؛ نبودِ فایل = ۰.
         # state_dir=None → پیش‌فرضِ _ops/state که در نمونهٔ واقعی هست.
         self._offset: int = _load_offset(self._state_dir) if self._state_dir else 0
         self._approvals: dict[str, Approval] = {}    # seam: T-2 اینجا می‌نویسد
         self._pending: dict[str, dict] = {}          # T-2: کارت‌های تأییدِ منتظر (registry ضدِ جعل)
+        self._pending_rfc: dict[str, dict] = {}      # W-3: کارت‌های RFCِ منتظرِ verdict (token + ضدِ replay)
         self._quarantine: list[dict] = []            # پیام‌های ورودی = DATA (نه دستور)
         self._stop = False
 
@@ -361,11 +374,13 @@ class TelegramApprovalChannel(ApprovalChannel):
                 f"<i>تأیید = ضمیمهٔ انسانی؛ تنها چیزی که settle را آزاد می‌کند.</i>")
 
     def dispatch_callback(self, data: str) -> str:
-        """routerِ callbackهای کارتِ تأیید. data = 'app:<verb>:<effect_id>:<token>'.
-        خروجی = متنِ پاسخ برای answerCallbackQuery. هر callback نامعتبر/جعلی → 'رد'.
-        ⚑ برای معمار: این متد مستقیماً در poll_once از callback_query خوانده نمی‌شود؛
-        فعلاً فقط برای تست/یکپارچه‌سازیِ بعدی (T-8 router) قابلِ فراخوانی است."""
+        """routerِ callbackهای کارت‌ها. data = 'app:<verb>:<effect_id>:<token>' (پول، T-2)
+        یا 'rfc:<verb>:<rfc_id>:<token>' (تکامل، W-3). خروجی = متنِ پاسخ برای
+        answerCallbackQuery. هر callback نامعتبر/جعلی → 'رد'.
+        این متد از poll_once (T-8 router) برای هر callback_queryِ مالک صدا زده می‌شود."""
         parts = str(data or "").split(":")
+        if parts[0] == "rfc":
+            return self._dispatch_rfc(parts)
         if len(parts) != 4 or parts[0] != "app":
             return "نادیده"
         verb, effect_id, token = parts[1], parts[2], parts[3]
@@ -410,6 +425,50 @@ class TelegramApprovalChannel(ApprovalChannel):
             return False
         # release از آخرین append (on_human_judgment بالا gate را هم release کرده)
         return bool(self._gate.settle(effect_id))
+
+    # ─── W-3 · routerِ RFC: rfc:<verb>:<rfc_id>:<token> — فقط ثبتِ verdict ─────────
+    def _dispatch_rfc(self, parts: list[str]) -> str:
+        """شاخهٔ RFCِ dispatch_callback. ثبتِ verdict یک اثرِ پولی نیست — هیچ
+        settle/gate/effectorی اینجا صدا زده نمی‌شود. اعمالِ merge پشتِ flag و با
+        human-append در مسیرِ doctor است (مصرفِ pop_rfc_verdicts).
+        ضدِ replay: فقط status == 'pending' پذیرفته می‌شود؛ token با _cteq چک می‌شود."""
+        if len(parts) == 3:
+            # کارتِ قدیمیِ ۳-تکه (پیش از W-3، بدونِ token/registry) — graceful، بدونِ crash
+            return "رد: کارتِ قدیمی — کارتِ نو صادر می‌شود"
+        if len(parts) != 4:
+            return "نادیده"
+        verb, rfc_id, token = parts[1], parts[2], parts[3]
+        with self._lk:
+            meta = self._pending_rfc.get(rfc_id)
+        if meta is None or meta.get("status") != "pending":
+            return "رد: RFC ناشناخته یا قبلاً تصمیم‌گرفته"
+        if not _cteq(token, meta.get("token", "")):
+            return "رد: توکنِ تأیید نامنطبق (ضدِ جعل)"
+        if verb == "merge":
+            with self._lk:
+                meta["status"] = "merge-approved"
+            return "ثبت شد ✅ — merge فقط پشتِ flag و با human-append اعمال می‌شود"
+        if verb == "deny":
+            with self._lk:
+                meta["status"] = "denied"
+            return "رد شد ❌"
+        return "نادیده"
+
+    def pop_rfc_verdicts(self) -> list[tuple[str, str]]:
+        """صفِ خروجیِ verdictهای RFC برای doctor (poll). هر verdict دقیقاً یک‌بار تحویل
+        می‌شود (پرچمِ consumed زیرِ قفل) — تحویلِ دوباره ممنوع تا doctor دوبار merge نکند.
+        ترتیبِ قطعی (deterministic): sorted by rfc_id. فقط خواندن/علامت‌گذاری — هیچ اثرِ پولی."""
+        out: list[tuple[str, str]] = []
+        with self._lk:
+            for rfc_id in sorted(self._pending_rfc):
+                meta = self._pending_rfc[rfc_id]
+                if meta.get("consumed"):
+                    continue
+                st = meta.get("status")
+                if st in ("merge-approved", "denied"):
+                    meta["consumed"] = True
+                    out.append((rfc_id, st))
+        return out
 
     # ─── T-3 · UIِ Lead: /lead → attribution.propose (mint LEAD-YYYYMMDD-nnn) ──────
     LEAD_CELLS = [("lead.doer", "نقاشی (Lead)"), ("ziman.doer", "Ziman"),
@@ -532,6 +591,21 @@ class TelegramApprovalChannel(ApprovalChannel):
         cell = parts[2] if len(parts) >= 3 else self.LEAD_CELLS[0][0]
         if cell not in {c for c, _ in self.LEAD_CELLS}:
             cell = self.LEAD_CELLS[0][0]
+        # W-3: اگر پای Lead تزریق شده (leg=)، intake از خودِ پا (قراردادِ lead_leg.intake:
+        # فقط PROPOSAL mint می‌کند — نه پول، نه ارسال). هر خطا/ناموفق → fail-soft:
+        # alert + سقوط به مسیرِ موجودِ _attribution_propose. leg=None → رفتارِ قبلی byte-identical.
+        if self._leg is not None:
+            try:
+                res = self._leg.intake(lead_name, exp, cell=cell)
+            except Exception as e:  # noqa: BLE001 — پای خراب نباید UIِ مالک را بکشد
+                opslib.alert([f"telegram /lead leg intake error: {type(e).__name__}: {e}"])
+                res = None
+            if isinstance(res, dict) and res.get("ok"):
+                aid = res.get("attribution_id", "?")
+                return (f"✅ <b>لید ثبت شد</b>\n\n"
+                        f"کد: <code>{html.escape(str(aid))}</code>\n"
+                        f"این را روی کوت/فاکتور بنویس.\n"
+                        f"<i>وضعیت: PROPOSAL — پول بعداً از reconcile تأیید می‌شود.</i>")
         try:
             rec = _attribution_propose(cell, exp, lead=lead_name)
         except Exception:  # noqa: BLE001 — fail-closed، هیچ نیمه‌ثبتی
@@ -714,18 +788,30 @@ class TelegramApprovalChannel(ApprovalChannel):
     # نشان می‌دهد. merge نیازِ human-append دارد (همان مسیرِ T-2).
     def rfc_card(self, rfc_id: str, summary: str) -> bool:
         """کارتِ مرورِ RFC با دکمه‌های [merge پشتِ flag ✅][رد ❌].
-        merge = human-append (همان T-2: فقط تأیید → on_human_judgment).
-        ⚑ برای معمار: فعلاً effect_id = rfc:<id> و آن را به gate نمی‌فرستد مگر
-        doctor.submit_for_approval وصل شود. فعلاً فقط نمایش."""
+        W-3: کارت حالا token + registry دارد (self._pending_rfc) — همان ضدِ جعل/ضدِ
+        replayِ کارت‌های پول (T-2). کلیک فقط verdict را ثبت می‌کند (_dispatch_rfc)؛
+        اعمالِ merge پشتِ flag و با human-append در مسیرِ doctor است (pop_rfc_verdicts).
+        هیچ settle/gate اینجا نیست. not wired → False (no-opِ امن)."""
         if not self.wired:
             return False
+        token = self._new_token(rfc_id, 0.0)
+        with self._lk:
+            # ضدِ clobber (بازبینیِ خصمانه 2026-07-10): اگر برای همین rfc_id یک verdict
+            # تصمیم‌گرفته ولی هنوز مصرف‌نشده داریم، کارتِ دوباره (مثلاً از resubmit ِ
+            # sweep) نباید رأیِ ثبت‌شدهٔ مالک را بی‌صدا به pending برگرداند.
+            existing = self._pending_rfc.get(rfc_id)
+            if (existing and not existing.get("consumed")
+                    and existing.get("status") in ("merge-approved", "denied")):
+                return False   # verdict معلق داریم — کارتِ نو صادر نکن تا مصرف شود
+            self._pending_rfc[rfc_id] = {"summary": str(summary)[:500],
+                                         "token": token, "status": "pending"}
         text = (f"🔧 <b>پیشنهادِ تکامل (RFC)</b>\n\n"
                 f"<b>خلاصه:</b> {html.escape(str(summary))}\n"
                 f"<b>RFC:</b> <code>{html.escape(str(rfc_id))}</code>\n\n"
                 f"<i>merge فقط پشتِ flag و با ضمیمهٔ انسانی.</i>")
         kb = {"inline_keyboard": [[
-            {"text": "merge پشتِ flag ✅", "callback_data": f"rfc:merge:{rfc_id}"},
-            {"text": "رد ❌", "callback_data": f"rfc:deny:{rfc_id}"},
+            {"text": "merge پشتِ flag ✅", "callback_data": f"rfc:merge:{rfc_id}:{token}"},
+            {"text": "رد ❌", "callback_data": f"rfc:deny:{rfc_id}:{token}"},
         ]]}
         return self.send_text(text, reply_markup=kb)
 

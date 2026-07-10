@@ -179,7 +179,13 @@ class Leg:
     # -- تولیدِ proposal (D3 — تنها خروجیِ مجاز) --------------------------------
     def emit_proposal(self, kind: str, payload: dict, hlc: tuple = (0, 0)) -> Proposal:
         """تولیدِ یک proposal. هیچ متدِ send/publish/pay در Leg نیست (propose-only).
-        leg_id و provenance رویش مهر می‌خورد. approval = eventِ جداگانهٔ انسانی (D5)."""
+        leg_id و provenance رویش مهر می‌خورد. approval = eventِ جداگانهٔ انسانی (D5).
+        W-3 (2026-07-10): اگر hlc پیش‌فرضِ (0,0) باشد و leg_beat قبلاً last_hlc را
+        مهر کرده باشد، همان مهرِ علّی استفاده می‌شود (پا هنوز از bus نمی‌خواند)."""
+        if tuple(hlc) == (0, 0):
+            stamped = getattr(self, "last_hlc", None)
+            if isinstance(stamped, tuple) and len(stamped) == 2:
+                hlc = stamped
         p = Proposal(proposal_id=f"P-{uuid.uuid4().hex[:12]}", leg_id=self.packet.leg_id,
                      kind=kind, payload=dict(payload), hlc=tuple(hlc))
         self._proposals_emitted.append(p)

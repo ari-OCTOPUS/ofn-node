@@ -101,16 +101,20 @@ def verify_ledger_chain(ledger_path: Path | str | None = None) -> dict:
                 "details": "ledger files not found"}
 
     # ledger.py را از طریق CLI subprocess صدا بزن (avoid import side-effects)
+    # v0.4.7 + verdict default-applied 2026-07-10 (قابل‌وتو، AGENT_QUESTIONS):
+    # scar-aware — خطِ پاره فقط با hashِ لنگرشده در prev رکوردِ بعدی پذیرفته
+    # می‌شود («ok-with-scars: n»)؛ هر شکست/tamper واقعی همچنان FAIL.
     try:
         r = subprocess.run(
             [sys.executable, "-X", "utf8", str(ledger_py),
-             str(ledger_db), "verify"],
+             str(ledger_db), "verify-scars"],
             capture_output=True, text=True, timeout=30)
         stdout = (r.stdout or "").strip()
         valid = r.returncode == 0
         msg = stdout.replace("OK: ", "") if valid else stdout.replace("FAIL: ", "")
         return {"valid": valid, "broken_at": msg if not valid else None,
-                "details": msg}
+                "details": msg, "scar_aware": True,
+                "scars": ("ok-with-scars" in msg) if valid else None}
     except Exception as e:
         return {"valid": False, "broken_at": None,
                 "details": f"ledger verify error: {e}"}

@@ -1,0 +1,10 @@
+{
+  "phase_id": "phase-4",
+  "review_type": "ROADMAP",
+  "ts": "20260710T101040",
+  "payload": {
+    "summary": "بعد از فعال‌سازی: پایش input_sparsity_ratio و توزیع خطا روی دادهٔ واقعی",
+    "note": "جلسه ۴۴"
+  },
+  "verdict": null
+}

@@ -85,12 +85,33 @@ if os.path.isdir(PROJECTS_DIR):
                             f"افزودن wikilink «{base}» به INDEX (با verdict)")
 
 # ۳+۵ — UTF-8 خراب + کهنگی PROJECT.md + نبود project: binding در کیت
+def _stable_read_verdict(path):
+    """شاهدِ اضافه برای فایلِ undecodable — از doctor.stable_read (D-1، بلوپرینت §4).
+    فقط در شاخهٔ خطا صدا زده می‌شود (vault سالم = صفر اثر). lazy-import چون doctor
+    در import خودش opslib را می‌آورد (stdout→utf8) — فقط وقتی واقعاً corruption هست.
+    نمره/label دست‌نخورده می‌ماند (VERIFY_RULES سر جایش) — این فقط evidence است؛
+    swap کامل طبق GROUNDING-PLAN منتظر گیتِ F2 است."""
+    try:
+        _ops = os.path.join(ROOT, "_ops")
+        if _ops not in sys.path:
+            sys.path.insert(0, _ops)
+            sys.path.insert(0, os.path.join(_ops, "budget"))
+            sys.path.insert(0, os.path.join(_ops, "doctor"))
+        from doctor import stable_read as _sr   # flat module _ops/doctor/doctor.py
+        _txt, verdict, _ev = _sr(path)
+        return verdict
+    except Exception:
+        return "unavailable"
+
 for f in walk_md():
     try:
         text = open(f, encoding="utf-8").read()
     except UnicodeDecodeError as e:
-        add("CRITICAL", "utf8-corrupt", f, f"بایت خراب UTF-8: {e.reason} @ {e.start}",
-            "باز و ذخیره در Obsidian یا تعمیر دستی بایت")
+        _v = _stable_read_verdict(f)
+        add("CRITICAL", "utf8-corrupt", f,
+            f"بایت خراب UTF-8: {e.reason} @ {e.start} · stable_read={_v}",
+            "باز و ذخیره در Obsidian یا تعمیر دستی بایت"
+            + ("" if _v in ("corrupt", "unavailable") else f" — stable_read می‌گوید {_v}: اول نمای منبع را verify کن"))
         continue
     base = os.path.basename(f)
     if base == "PROJECT.md":

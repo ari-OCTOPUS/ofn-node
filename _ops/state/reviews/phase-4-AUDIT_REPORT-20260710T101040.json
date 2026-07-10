@@ -1,0 +1,10 @@
+{
+  "phase_id": "phase-4",
+  "review_type": "AUDIT_REPORT",
+  "ts": "20260710T101040",
+  "payload": {
+    "summary": "15 چک + همسایه‌ها سبز؛ فیلتر فقط ورودی consolidation را باریک می‌کند، هیچ دادهٔ خام حذف نمی‌شود",
+    "note": "جلسه ۴۴"
+  },
+  "verdict": null
+}

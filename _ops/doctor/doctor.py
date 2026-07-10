@@ -382,7 +382,14 @@ class Doctor:
                     result["tests"] = {"error": f"{type(e).__name__}: {e}"}
             # Critic: بازبینیِ adversarial before→after
             result["critic"] = self._critic_review(rfc, result)
-            rfc.sandbox_result = result
+            # 2026-07-10: merge نه replace — گزارشی که run_cycle پیش از sandbox روی rfc
+            # گذاشته (مثل sandbox_result["chamber"]) نباید پاک شود (auditability تا کارت تأیید).
+            if isinstance(rfc.sandbox_result, dict) and rfc.sandbox_result:
+                merged = dict(rfc.sandbox_result)
+                merged.update(result)
+                rfc.sandbox_result = merged
+            else:
+                rfc.sandbox_result = result
             rfc.status = "sandboxed" if result.get("applied") else "sandbox-skip"
             rfc.ledger_ref = self._note("DOCTOR_SANDBOX", {"rfc_id": rfc.rfc_id,
                                                             "result": {k: v for k, v in result.items()
@@ -508,7 +515,8 @@ class Doctor:
         return {"swept": len(expired), "details": expired, "resubmitted": resubmitted}
 
     def run_cycle(self, beat: int | None = None, trace: dict | None = None,
-                  use_calibration: bool = True, use_chamber: bool = True) -> dict | None:
+                  use_calibration: bool = True, use_chamber: bool = True,
+                  temperature: float | None = None) -> dict | None:
         """یک دورِ کامل دکتر: mine → (calibration filter) → Chamber → propose_rfc → sandbox → submit.
         هر N ضربان از Pacemaker صدا زده می‌شود. خروجی = خلاصه یا None.
         trace قابل‌تزریق (Pacemaker می‌تواند trace را پاس دهد، یا تست).
@@ -519,6 +527,24 @@ class Doctor:
         use_chamber: اگر True، RFC از Chamber تخاصمی می‌گذرد پیش از sandbox/submit."""
         # sweep RFCهای گیر کرده (expire stale, re-submit no-channel)
         self._sweep_stale_rfcs()
+        # Phase 5: مصرفِ verdictهای انسانی از کانال (اگر کانال pop_rfc_verdicts داشته باشد؛
+        # hasattr-guard = ایمن حتی قبل از این‌که کانالِ تلگرام آن را عرضه کند).
+        # human-append منبعِ حقیقت می‌ماند — اینجا فقط ثبتِ calibration + وضعیتِ registry.
+        try:
+            if self._channel is not None and hasattr(self._channel, "pop_rfc_verdicts"):
+                for rfc_id, verdict in self._channel.pop_rfc_verdicts():
+                    mapped = {"merge-approved": "merged", "denied": "rejected"}.get(verdict)
+                    if mapped is None:
+                        continue   # verdict ناشناخته → skip (calibration فقط merged/rejected/ignored)
+                    from calibration import record_verdict
+                    record_verdict(self._db, rfc_id, mapped)
+                    if rfc_id in self._rfcs:
+                        self._rfcs[rfc_id].status = "human-" + mapped
+        except Exception as e:  # noqa: BLE001 — مصرفِ verdict هرگز cycle را نمی‌کشد
+            try:
+                opslib.alert([f"doctor: rfc-verdict consumption failed: {str(e)[:120]}"])
+            except Exception:  # noqa: BLE001 — حتی alert هم نباید cycle را بکشد
+                pass
         # calibration: mine + attention-budget + verdict-history filter
         if use_calibration:
             try:
@@ -552,16 +578,26 @@ class Doctor:
         if use_chamber:
             try:
                 from chamber import run_chamber
+                # Phase 5: دمای Chamber — فقط پشتِ flag OCTOPUS_WIRE_CHAMBER_T.
+                # fail-soft: هر خطا → temperature=None = رفتارِ قبلی (بدونِ اثرِ دما).
+                if temperature is None and os.environ.get("OCTOPUS_WIRE_CHAMBER_T") == "1":
+                    try:
+                        from temperature import TemperatureController
+                        temperature = TemperatureController(db=self._db).current()
+                    except Exception:  # noqa: BLE001 — دما advisory؛ خطا = بدونِ دما
+                        temperature = None
                 result = run_chamber(trace=trace or self._gather_trace(), initial_rfc={
                     "bottleneck": rfc.bottleneck, "fix": rfc.fix,
-                    "expected_lift": rfc.expected_lift, "rollback": rfc.rollback})
+                    "expected_lift": rfc.expected_lift, "rollback": rfc.rollback},
+                    temperature=temperature)
                 if result.get("rfc") and "confidence" in result["rfc"]:
                     rfc.fix = result["rfc"].get("fix", rfc.fix)
                     # confidence را در sandbox_result نگه دار
                     if rfc.sandbox_result is None:
                         rfc.sandbox_result = {}
                     rfc.sandbox_result["chamber"] = {"confidence": result["rfc"]["confidence"],
-                                                      "rounds": result["rounds_run"]}
+                                                      "rounds": result["rounds_run"],
+                                                      "temperature": result.get("temperature")}
             except Exception:  # noqa: BLE001 — Chamber fail-soft
                 pass
         self.run_sandbox(rfc)   # sandbox + critic (propose-only)

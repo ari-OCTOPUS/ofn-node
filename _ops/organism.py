@@ -167,7 +167,9 @@ def main() -> int:
         import wiring as _w
         _profile = _w.apply_profile()   # P-W3: paper-full → flagهای امن
         _wire = _w.wire_summary()
-        _chan = _w.make_telegram_channel()   # auto-on اگر توکن
+        # W-3 (2026-07-10): پا پیش از کانال ساخته می‌شود تا /lead از مسیرِ LeadLeg.intake برود
+        _leg = _w.make_lead_leg()
+        _chan = _w.make_telegram_channel(leg=_leg)   # auto-on اگر توکن
         # T-8: شروعِ long-poll thread برای دریافتِ پیام‌های تلگرام
         if _chan is not None:
             import threading as _tg
@@ -178,7 +180,6 @@ def main() -> int:
         _doctor_inst = _w.make_doctor(state_dir=str(opslib.STATE_DIR), channel=_chan)
         # W (P-W1): returnها را نگه دار، نه دور بریز — نخاع: bus + leg + LiveLoop
         _bus = _w.make_unified_bus()
-        _leg = _w.make_lead_leg()
         _neural_stack = _w.make_neural_stack()   # W: neural ۸ ماژول
         # W: rhythm + circadian + sprint (neural subsystems)
         if _wire.get("wire_neural"):
@@ -315,6 +316,15 @@ def main() -> int:
                     _w.reconcile_beat(day=opslib.today())
                 except Exception:  # noqa: BLE001 — §۴
                     opslib.alert(["reconcile_beat error (non-fatal)"])
+                # Blueprint P6 (2026-07-10): متریک فیشر — advisory فقط، پشتِ flag
+                # (عمداً خارج از profile؛ وزن‌های واقعی فقط از budgets.yaml — I4/I6).
+                if _w.flag("OCTOPUS_WIRE_FISHER"):
+                    try:
+                        import fisher as _fisher_mod
+                        _fr = _fisher_mod.compute_fisher(write=True) or {}
+                        daily["fisher_condition"] = _fr.get("fisher_condition_number")
+                    except Exception as _fe:  # noqa: BLE001 — advisory نباید tick را بکشد
+                        opslib.alert([f"fisher advisory error (non-fatal): {type(_fe).__name__}: {_fe}"])
             # ── W-2: Doctor beat (غیرضروری → زیرِ همان گیت؛ STOP/protective مقدم)
             _doctor_result = None
             if not _protective_skip and _doctor_inst is not None and _cstat is not None:
@@ -357,10 +367,11 @@ def main() -> int:
             # ── L (P-L1): LeadLeg حلقهٔ خودمختار — HLC محلی + ack + propose-only.
             # آبجکتِ _leg (از P-W1 نگه‌داشته‌شده) به LegHandle/HLC روی pacemaker.bus بسته می‌شود.
             # هر tick: HLC می‌زند + ack می‌دهد. هیچ effector؛ settle فقط از approval_channel.
+            _leg_status = None
             if not _protective_skip and _leg is not None and _pacemaker is not None:
                 try:
-                    _w.leg_beat(_leg, pacemaker=_pacemaker,
-                                beat=_cstat.get("beat", 0) if _cstat else 0)
+                    _leg_status = _w.leg_beat(_leg, pacemaker=_pacemaker,
+                                              beat=_cstat.get("beat", 0) if _cstat else 0)
                 except Exception as _le:  # noqa: BLE001 — §۴: leg نباید tick را بکشد
                     opslib.alert([f"leg_beat error (non-fatal): {type(_le).__name__}: {_le}"])
             # ── I (P-I): موتورِ ایده-گراف — هر N beat گرافِ vault را تحلیل کن.
@@ -390,6 +401,7 @@ def main() -> int:
                           "conflicts": conflicts, **germ, **epoch_info, **daily,
                           **pulse, **prot_state,
                           "protective_skip": _protective_skip, "wiring": _wire,
+                          **({"leg": _leg_status} if _leg_status else {}),
                           **({"cardiac": _cardiac_mod.status_snapshot()}
                              if _cardiac_mod is not None else {})})
         except KeyboardInterrupt:

@@ -5,6 +5,19 @@ updated: 2026-07-10
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+## جلسه چهل‌وچهارم 2026-07-10 (Claude Fable 5 — master) — 🐙 «همرو کامل انجام بده»: بلوپرینت P4+P5+P6 + W-3 تلگرام + همهٔ cleanupها — سوئیت ۷۷/۷۷ سبز
+
+دستور آری: «همرو کامل انجام بده». اجرا: recon ۹-عاملیِ فقط‌خواندنی → ۴ سازندهٔ موازی روی فایل‌های مجزا → glue/cleanup سریالی → ۶ بازبینِ خصمانه. **اولین سوئیت تمام‌سبزِ پروژه: ۷۷/۷۷** (حتی llm_routing این بار پاس شد؛ capability marker نوشته شد).
+
+- **✅ Blueprint P4 — sparse filter (`neural/sparse_filter.py`، ۱۵ تست):** پیش‌بینِ EMA per-key؛ فقط سیگنالِ novel/خطای‌بالا واردِ consolidation؛ L1 soft-shrink؛ eviction deterministic. پشتِ `OCTOPUS_WIRE_SPARSE` (خاموش، خارج از profile).
+- **✅ Blueprint P5 — chamber temperature 🔴 (`doctor/temperature.py`، ۲۴ تست):** ‏T∈[t_min,t_max] از verdict-history (رکود→اکتشاف)؛ فقط max_rounds را با سقفِ مطلقِ ۳ تنظیم می‌کند؛ **مهارهای ایمنی عمداً خارج از دما**؛ zero-auto-merge ساختاری تست‌شده. `OCTOPUS_WIRE_CHAMBER_T` — RED، فقط رأی صریح.
+- **✅ Blueprint P6 — Fisher (`budget/fisher.py`، ۱۳ تست):** گرادیانِ طبیعی advisory (‏G+εI، ‏cond کران‌دار)؛ فقط `fisher-latest.json` — وزن‌های واقعی (I4/I6) دست‌نخورده. هوکِ روزانه پشتِ `OCTOPUS_WIRE_FISHER` (خاموش).
+- **✅ W-3 تلگرام (`approval_channel.py`، ۱۸ تست نو + ۵۳ قدیمی سبز):** باگِ پنهانِ `import opslib` غایب (NameError-کُشِ run_forever) فیکس؛ کارت‌های RFC حالا توکنِ ضدجعل + رجیستری + ضدreplay؛ شاخهٔ `rfc:*` بدونِ هیچ settle/gate؛ `pop_rfc_verdicts()` → مصرف در `run_cycle` → `calibration.record_verdict` — **حلقهٔ یادگیریِ RFC بسته شد.** ‏`/lead` از مسیرِ `LeadLeg.intake` (fallback امن). مسیرِ پول (app:*) بایت-به-بایت دست‌نخورده.
+- **✅ پیش‌فرض‌های default-applied (قابل‌وتو — [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]] «12:30»):** ‏held-out → `verify-scars` (لایهٔ ledger سبز) · ‏`OCTOPUS_WIRE_BCM` داخل PAPER_FULL_FLAGS.
+- **✅ cleanupها:** آلودگیِ تستیِ governor-alerts ریشه‌کن (۱۱ فایل تست حالا `harness.setup` دارند — ریشهٔ alertهای «neural_stack is None» ۱۰۰٪ تستی بود) · تک‌منبع‌سازی `LAMBDA_PERSIST` (chamber/spectral/evolution → doctor.py) · ضدِ aliasing کادنس در `doctor_beat`/`consolidation_beat` (عبور از پنجرهٔ N-تایی، نه تساویِ دقیق — tick ۳۰۰s ضربانِ ۶۰s را نمونه‌برداری می‌کند) · فیکسِ باگِ pre-existing ِ clobber ِ `sandbox_result` (گزارش chamber حالا تا کارت زنده می‌ماند + تست) · مهرِ HLC روی proposalهای پا (leg_beat → `last_hlc` → `emit_proposal`) · ترتیبِ boot: پا پیش از کانال + `leg` به LiveLoop (دیگر drop نمی‌شود) + وضعیتِ پا در ORGANISM-STATE · هم‌راستاسازیِ organ پا با §۵ diff (‏PAINTING) · ثبتِ رسمی phase-1..6 در `state/reviews/` (verdictها = میز آری) · شاهدِ `stable_read` در dashboard_doctor (فقط شاخهٔ خطا؛ نمره دست‌نخورده) · pre-register متریک‌های P4/P5/P6 **قبل از** پیاده‌سازی + retro-registration صادقانهٔ P0-P2 (`state/phase-metrics.jsonl`).
+- **تأیید خصمانه:** ۶ بازبینِ مستقل با مأموریتِ «رد کن» روی مسیرِ پول/zero-auto-merge/گیت‌ها/ایمنیِ حافظه/advisory-فیشر/vacuity تست‌ها — نتیجه در ادامهٔ همین ورودی.
+- **میز آری:** [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]] ورودی «2026-07-10 12:30» — مهم‌ترین: چرخش توکن (بعدش تلگرام end-to-end زنده است) · رأی sparse/fisher/chamber-T · verdict فازها (یک‌خطی آماده) · Scheduled Task ِ germline (lag >۱۰h).
+
 ## جلسه چهل‌وسوم 2026-07-10 (Claude Fable 5 — master) — 🧬 Blueprint Phase 3: BCM forgetting ساخته شد + scar-aware ledger verify + checkpoint نجاتِ کار uncommitted
 
 ورودی: [[00 - Inbox/2026-07-08 OCTOPUS-MEGA-PROMPT-CLAude5-Full-Engage|مگاپرامپت]] («فاز ۳ یا بالاترین اولویت»). یافتهٔ اول: کار جلسهٔ مگا (P0/P1/Blueprint-P2: baseline/held-out/phase_gate/review_bus/latent_space/encoders/sweeps — ~۸۰ فایل) **هرگز commit نشده بود** و فقط در working tree زندگی می‌کرد.

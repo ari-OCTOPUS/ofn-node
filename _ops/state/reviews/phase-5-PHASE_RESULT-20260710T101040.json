@@ -1,0 +1,16 @@
+{
+  "phase_id": "phase-5",
+  "review_type": "PHASE_RESULT",
+  "ts": "20260710T101040",
+  "payload": {
+    "summary": "Chamber Temperature (doctor/temperature.py): T∈[t_min,t_max] deterministic از verdict-history (stagnation↑→T↑، merge_rate↑→T↓)؛ run_chamber(temperature=) با سقف مطلق MAX_ROUNDS=3؛ مهارهای ایمنی (Red-Critic/λ_persist) عمداً خارج از دما. مصرف verdictهای RFC تلگرام در run_cycle (pop_rfc_verdicts→calibration).",
+    "completed_ts": "2026-07-10T12:00:00",
+    "tests": [
+      "test_chamber_temperature.py (24)"
+    ],
+    "risk_label": "RED — sandbox-only؛ OCTOPUS_WIRE_CHAMBER_T خارج از profile؛ فعال‌سازی فقط verdict صریح",
+    "metrics_preregistered": "phase-metrics.jsonl → blueprint-phase-5-chamber-temperature",
+    "note": "جلسه ۴۴. باگ pre-existing clobber ِ sandbox_result هم فیکس شد (merge + تست)."
+  },
+  "verdict": null
+}

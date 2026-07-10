@@ -1,0 +1,10 @@
+{
+  "phase_id": "phase-1",
+  "review_type": "AUDIT_REPORT",
+  "ts": "20260710T100220",
+  "payload": {
+    "summary": "پوشش تست: 20 چک روی سه ریشه + گزارش در مگاپرامپت Part 4.1",
+    "note": "retroactive submission 2026-07-10 (جلسه ۴۴) — کار در جلسات قبل انجام شده بود ولی هرگز در review_bus ثبت نشده بود (issue #2 مگاپرامپت). verdict = میز آری."
+  },
+  "verdict": null
+}

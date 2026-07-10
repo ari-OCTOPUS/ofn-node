@@ -10,6 +10,7 @@ from unittest.mock import MagicMock
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE.parent))
 import harness
+ENV = harness.setup("consolidation-distinguish")   # ایزولاسیون — alert/state به vault موقت، نه واقعی
 
 from neural.consolidation import ConsolidatedInsight
 

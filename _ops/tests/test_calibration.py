@@ -202,6 +202,23 @@ def t_run_cycle_backward_compatible():
     assert result is not None and "rfc_id" in result
 
 
+def t_chamber_report_survives_sandbox():
+    """فیکس 2026-07-10: run_sandbox دیگر sandbox_result از-پیش-گذاشته را clobber نمی‌کند —
+    گزارش chamber (که run_cycle قبل از sandbox می‌گذارد) باید تا کارت تأیید زنده بماند."""
+    doc = Doctor(state_dir=str(ENV["ops"] / "state"),
+                 knowledge_dir=str(ENV["ops"] / "ki"))
+    result = doc.run_cycle(beat=1, trace={"errors_24h": 3},
+                           use_calibration=False, use_chamber=True)
+    assert result is not None and "rfc_id" in result
+    rfc = doc._rfcs.get(result["rfc_id"])
+    assert rfc is not None
+    assert isinstance(rfc.sandbox_result, dict)
+    assert "chamber" in rfc.sandbox_result, \
+        f"گزارش chamber بعد از sandbox باید بماند؛ keys={list(rfc.sandbox_result.keys())}"
+    # کلیدهای خودِ sandbox هم باید باشند (merge، نه فقط حفظِ قدیمی)
+    assert "critic" in rfc.sandbox_result
+
+
 if __name__ == "__main__":
     failed = harness.run([
         # Feedback
@@ -213,6 +230,7 @@ if __name__ == "__main__":
         ("[FB] skip_bottleneck بدونِ db → no-skip", t_skip_bottleneck_no_db_never_skips),
         ("[FB] count_pending_rfc", t_count_pending_rfc),
         ("[FB] effective_mine بدونِ db = mine", t_effective_mine_uses_mine_when_no_calibration),
+        ("[CH] گزارش chamber از sandbox زنده می‌ماند", t_chamber_report_survives_sandbox),
         # Wiring
         ("[W] flags پیش‌فرض خاموز", t_flag_default_off),
         ("[W] flag=1 → True", t_flag_on_when_set),

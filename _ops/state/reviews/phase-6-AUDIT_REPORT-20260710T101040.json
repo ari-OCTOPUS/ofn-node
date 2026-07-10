@@ -1,0 +1,10 @@
+{
+  "phase_id": "phase-6",
+  "review_type": "AUDIT_REPORT",
+  "ts": "20260710T101040",
+  "payload": {
+    "summary": "13 چک: advisory-only ساختاری + regularization + fallback بدون numpy",
+    "note": "جلسه ۴۴"
+  },
+  "verdict": null
+}

@@ -31,8 +31,8 @@ try:
 except ImportError:
     _HAS_NUMPY = False
 
-# λ_persist از doctor.py (دست‌نخورده منفی — §۵.۳)
-LAMBDA_PERSIST = -1.0
+# λ_persist از doctor.py (دست‌نخورده منفی — §۵.۳) — تک‌منبع 2026-07-10
+from doctor import LAMBDA_PERSIST  # noqa: E402
 
 
 def build_event_graph(trace: dict) -> "tuple[list, int]":

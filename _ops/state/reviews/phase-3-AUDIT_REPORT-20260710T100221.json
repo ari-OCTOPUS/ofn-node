@@ -1,0 +1,10 @@
+{
+  "phase_id": "phase-3",
+  "review_type": "AUDIT_REPORT",
+  "ts": "20260710T100221",
+  "payload": {
+    "summary": "19 چک شامل هومئوستاز ضد reward-hacking + گیت ساختاری flag + fail-soft",
+    "note": "جلسه ۴۳"
+  },
+  "verdict": null
+}

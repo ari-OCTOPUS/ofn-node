@@ -1,0 +1,10 @@
+{
+  "phase_id": "phase-2",
+  "review_type": "ROADMAP",
+  "ts": "20260710T100221",
+  "payload": {
+    "summary": "بعدی: Blueprint P3 (BCM forgetting)",
+    "note": "retroactive submission 2026-07-10 (جلسه ۴۴) — کار در جلسات قبل انجام شده بود ولی هرگز در review_bus ثبت نشده بود (issue #2 مگاپرامپت). verdict = میز آری."
+  },
+  "verdict": null
+}

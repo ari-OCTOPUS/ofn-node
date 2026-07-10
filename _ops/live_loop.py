@@ -39,7 +39,8 @@ class LiveLoop:
     فقط آن‌ها را به هم وصل می‌کند."""
 
     def __init__(self, bus=None, brain=None, studio=None, cockpit=None,
-                 approval_channel=None, doctor=None, effect_status_fn=None):
+                 approval_channel=None, doctor=None, effect_status_fn=None,
+                 leg=None):
         # bus: اگر نباشد → یک busِ in-memory (تست)
         self.bus = bus or _InMemoryBus()
         self.brain = brain
@@ -47,6 +48,9 @@ class LiveLoop:
         self.cockpit = cockpit
         self.channel = approval_channel
         self.doctor = doctor
+        # W-3 (2026-07-10): نگهداریِ پا — دیگر پارامترِ leg در wiring drop نمی‌شود.
+        # process_lead می‌تواند بدونِ آرگومانِ صریح از همین استفاده کند.
+        self.leg = leg
         # P-L6: اگر cockpit موجود است ولی منبعِ status ندارد، effect_status_fn را تزریق کن
         # تا صفِ cockpit به‌جایِ shadow، نمایِ فقط‌خواندنیِ گیتِ تک‌گلوگاه باشد.
         if cockpit is not None and effect_status_fn is not None \
@@ -171,10 +175,12 @@ class LiveLoop:
         return list(self._verdicts)
 
     # ─── W-1: Lead-نقاشی path (همان حلقهٔ واحد) ────────────────────────────────
-    def process_lead(self, leg, lead_name: str, expected_aud: float,
+    def process_lead(self, leg=None, lead_name: str = "", expected_aud: float = 0.0,
                      cell: str = "lead.doer") -> dict:
         """لیدِ Lead-نقاشی → همان bus → attribution → CONFIRMED (paper).
-        این نشان می‌دهد Lead-نقاشی و Project-F روی یک حلقه می‌چرخند."""
+        این نشان می‌دهد Lead-نقاشی و Project-F روی یک حلقه می‌چرخند.
+        W-3 (2026-07-10): leg=None → از self.leg (تزریق‌شده در ساخت) استفاده می‌شود."""
+        leg = leg if leg is not None else self.leg
         if leg is None:
             return {"ok": False, "error": "no leg"}
         intake = leg.intake(lead_name, expected_aud, cell)

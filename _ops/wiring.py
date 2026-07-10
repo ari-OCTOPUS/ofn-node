@@ -44,8 +44,11 @@ PAPER_FULL_FLAGS = (
     "OCTOPUS_WIRE_EVOLUTION", "OCTOPUS_WIRE_BOX", "OCTOPUS_WIRE_LEAD_TICK",
     "OCTOPUS_WIRE_IDEAS",
     "OCTOPUS_WIRE_SPECTRAL",   # P-spectral: complementary spectral bottleneck
+    "OCTOPUS_WIRE_BCM",        # P3 blueprint: BCM forgetting — default-applied
+                               # 2026-07-10 (قابل‌وتو، AGENT_QUESTIONS)؛ فقط ایندکس retrieval
     # NOTE: germline/checkpoint همیشه‌رون‌اند (safety-vital) — enrich_state_with_
     # germline و unified_bus._checkpoint همیشه اجرا می‌شوند، flag لازم ندارند.
+    # NOTE: OCTOPUS_WIRE_CHAMBER_T (P5، برچسب RED) عمداً اینجا نیست — فقط verdict صریح.
 )
 
 
@@ -118,9 +121,10 @@ def make_doctor(state_dir=None, db=None, channel=None):
         return None
 
 
-def make_telegram_channel():
+def make_telegram_channel(leg=None):
     """ساختِ TelegramApprovalChannel. auto-on اگر توکن باشد.
-    T-8: gate و ledger از chrono تزریق می‌شوند تا T-2 settle فعال باشد."""
+    T-8: gate و ledger از chrono تزریق می‌شوند تا T-2 settle فعال باشد.
+    W-3 (2026-07-10): leg اختیاری — /lead از مسیرِ LeadLeg.intake برود (propose-only)."""
     if not os.environ.get("TELEGRAM_BOT_TOKEN"):
         return None
     try:
@@ -133,10 +137,15 @@ def make_telegram_channel():
             _gate = _chrono_mod.EffectorGate(db=None)
         except Exception:  # noqa: BLE001 — chrono import شکست = بدون gate
             pass
-        return TelegramApprovalChannel(
-            gate=_gate, ledger=None,
-            state_dir=str(opslib.STATE_DIR),
-        )   # no-op امن اگر توکن نباشد
+        kw = {"gate": _gate, "ledger": None, "state_dir": str(opslib.STATE_DIR)}
+        if leg is not None:
+            kw["leg"] = leg
+        try:
+            return TelegramApprovalChannel(**kw)   # no-op امن اگر توکن نباشد
+        except TypeError:
+            # نسخهٔ قدیمیِ channel بدونِ پارامترِ leg — عقب‌رو امن
+            kw.pop("leg", None)
+            return TelegramApprovalChannel(**kw)
     except Exception as e:  # noqa: BLE001
         opslib.alert([f"wiring: Telegram ساخت نشد: {e}"])
         return None
@@ -165,7 +174,10 @@ def make_lead_leg():
         from leg import TaskPacket
         from lead_leg import LeadLeg
         packet = TaskPacket(
-            leg_id="lead-naghshi", organ="LEAD_PAINTING",
+            # 2026-07-10: organ با §۵ِ budgets-proposed-diff هم‌راستا شد (PAINTING نه
+            # LEAD_PAINTING) — تا verdict مالک روی diff، پا incubating می‌ماند (INV-14)
+            # و بعد از اعمالِ diff بدون تغییرِ کدِ دیگر active می‌شود.
+            leg_id="lead-naghshi", organ="PAINTING",
             read_allowlist=("03 - Projects/Lead-نقاشی/PROJECT.md",),
             tools=("draft_quote",), budget_aud=5.0)
         return LeadLeg(packet, organ_table=opslib.organ_table())
@@ -190,9 +202,16 @@ def make_live_loop(bus=None, leg=None, doctor=None, channel=None, brain=None,
     try:
         sys.path.insert(0, str(_HERE))
         from live_loop import LiveLoop
-        return LiveLoop(bus=bus, brain=brain, studio=studio, cockpit=None,
-                        approval_channel=channel, doctor=doctor,
-                        effect_status_fn=effect_status_fn)
+        kw = dict(bus=bus, brain=brain, studio=studio, cockpit=None,
+                  approval_channel=channel, doctor=doctor,
+                  effect_status_fn=effect_status_fn)
+        if leg is not None:
+            kw["leg"] = leg   # W-3 (2026-07-10): پارامترِ leg دیگر drop نمی‌شود
+        try:
+            return LiveLoop(**kw)
+        except TypeError:
+            kw.pop("leg", None)   # LiveLoop قدیمی بدونِ leg — عقب‌رو امن
+            return LiveLoop(**kw)
     except Exception as e:  # noqa: BLE001 — LiveLoop اختیاریِ additive
         opslib.alert([f"wiring: LiveLoop ساخت نشد: {e}"])
         return None
@@ -262,6 +281,11 @@ def leg_beat(lead_leg, pacemaker=None, beat: int = 0) -> dict | None:
         handle = bus.register_leg(leg_id)
         # HLC محلی +۱ + ack حیات (پا یک «رویداد» تولید کرد = زنده است)
         hlc = handle.event()
+        # W-3 (2026-07-10): آخرین HLC روی خودِ leg — proposalهای بعدی مهرِ زمانِ علّی بگیرند
+        try:
+            lead_leg.last_hlc = tuple(hlc)
+        except Exception:  # noqa: BLE001 — مهرِ HLC هرگز beat را نمی‌کشد
+            pass
         # status فقط‌خواندنی (propose-only — هیچ effector)
         st = lead_leg.status()
         return {"leg_id": leg_id, "hlc": list(hlc),
@@ -284,9 +308,18 @@ def doctor_beat(doctor, beat: int, trace: dict | None = None) -> dict | None:
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
         return None
     every_n = int(os.environ.get("CHRONO_DOCTOR_EVERY_N_BEATS", "1440"))   # روزانه
-    if beat % every_n != 0:
+    if beat <= 0 or every_n <= 0:
+        return None   # ضربان ۰/منفی هرگز fire نمی‌کند (گاردِ fresh-db)
+    # ضدِ aliasing (2026-07-10): tick ارگانیسم (۳۰۰s) ضربانِ ۶۰s را نمونه‌برداری می‌کند و
+    # ممکن است دقیقاً مضربِ N دیده نشود → به‌جای «beat % N == 0»، عبور از پنجرهٔ N-تایی.
+    epoch = beat // every_n
+    last = getattr(doctor, "_beat_epoch_fired", 0)
+    if not isinstance(last, int):
+        last = 0   # doctorهای mock/قدیمی بدونِ attr
+    if epoch < 1 or epoch <= last:
         return None
     try:
+        doctor._beat_epoch_fired = epoch
         return doctor.run_cycle(beat=beat, trace=trace)
     except Exception as e:  # noqa: BLE001 — دکتر نباید ضربان را بکشد
         opslib.alert([f"wiring: doctor.run_cycle خطا: {e}"])
@@ -318,6 +351,9 @@ def wire_summary() -> dict:
         "wire_reconcile": flag("OCTOPUS_WIRE_RECONCILE"), # A1: Track-B reconcile
         "wire_fitness": flag("OCTOPUS_WIRE_FITNESS"),    # A2: outbox/EXPERIENCE
         "wire_epistemics": flag("OCTOPUS_WIRE_EPISTEMICS"), # Phase 5: epistemics wiring
+        "wire_bcm": flag("OCTOPUS_WIRE_BCM"),            # Blueprint P3: BCM forgetting
+        "wire_sparse": flag("OCTOPUS_WIRE_SPARSE"),      # Blueprint P4: sparse input filter
+        "wire_chamber_t": flag("OCTOPUS_WIRE_CHAMBER_T"), # Blueprint P5 (RED): chamber temperature
         "profile": resolve_profile(),                    # P-W3: boot profile
         "doctor_every_n": int(os.environ.get("CHRONO_DOCTOR_EVERY_N_BEATS", "1440")),
         "consolidation_every_n": int(os.environ.get("CHRONO_CONSOLIDATION_EVERY_N_BEATS", "720")),
@@ -756,7 +792,9 @@ def canonical_consolidation(neural_stack, school_bridge=None,
     from neural.consolidation import ConsolidatedInsight
 
     if neural_stack is None:
-        opslib.alert(["consolidation: neural_stack is None — WIRE_CONSOLIDATION off"])
+        # پیام صادقانه (2026-07-10): این تابع flag را نمی‌بیند؛ در مسیرِ production
+        # consolidation_beat قبلاً گارد کرده — رسیدن به اینجا یعنی caller بدونِ گارد.
+        opslib.alert(["consolidation: neural_stack=None (caller بدونِ گارد — precondition)"])
         return None  # precondition failure
     try:
         consolidation = neural_stack["consolidation"]
@@ -837,10 +875,20 @@ def consolidation_beat(neural_stack, school_bridge=None, beat: int = 0,
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
         return None   # kill-switch
     every_n = int(os.environ.get("CHRONO_CONSOLIDATION_EVERY_N_BEATS", "720"))  # ۱۲ ساعت
-    if beat <= 0 or (every_n > 0 and beat % every_n != 0):
+    if beat <= 0 or every_n <= 0:
         return None   # هنوز نوبتِ consolidation نیست
     if neural_stack is None:
         return None   # بدونِ neural_stack → چیزی برای consolidate نیست
+    # ضدِ aliasing (2026-07-10، مثل doctor_beat): tick ۳۰۰sِ ارگانیسم ضربانِ ۶۰s را
+    # نمونه‌برداری می‌کند و ممکن است مضربِ دقیقِ N دیده نشود → عبور از پنجرهٔ N-تایی.
+    epoch = beat // every_n
+    last = neural_stack.get("_consolidation_epoch_fired", 0) if isinstance(neural_stack, dict) else 0
+    if not isinstance(last, int):
+        last = 0
+    if epoch < 1 or epoch <= last:
+        return None   # این پنجره قبلاً fire شده (یا هنوز به پنجرهٔ اول نرسیده)
+    if isinstance(neural_stack, dict):
+        neural_stack["_consolidation_epoch_fired"] = epoch
     # Phase 2: latent space instance از neural_stack یا lazy construction
     latent_space = neural_stack.get("latent_space")
     if latent_space is None:
@@ -850,8 +898,9 @@ def consolidation_beat(neural_stack, school_bridge=None, beat: int = 0,
             neural_stack["latent_space"] = latent_space  # cache
         except Exception:  # noqa: BLE001 — latent fail-soft
             latent_space = None
-    # Phase 3: BCM stabilizer پشتِ OCTOPUS_WIRE_BCM — پیش‌فرض خاموش (human-gated؛
-    # عمداً در PAPER_FULL_FLAGS نیست تا بدونِ verdict مالک در profile روشن نشود)
+    # Phase 3: BCM stabilizer پشتِ OCTOPUS_WIRE_BCM — env-default خاموش؛ از 2026-07-10
+    # در PAPER_FULL_FLAGS است (verdict default-applied «همرو کامل انجام بده»، قابل‌وتو —
+    # AGENT_QUESTIONS). سوار شدن در runtime = restart مالک (INC-1).
     bcm = None
     if flag("OCTOPUS_WIRE_BCM") and latent_space is not None:
         bcm = neural_stack.get("bcm")
@@ -862,11 +911,31 @@ def consolidation_beat(neural_stack, school_bridge=None, beat: int = 0,
                 neural_stack["bcm"] = bcm  # cache
             except Exception:  # noqa: BLE001 — BCM fail-soft
                 bcm = None
+    # Phase 4: فیلترِ ورودیِ sparse (L1/prediction-error) پشتِ OCTOPUS_WIRE_SPARSE —
+    # فقط acquisition فیلتر می‌شود؛ دادهٔ خام جایی حذف نمی‌شود (منابع اصلی دست‌نخورده).
+    sparse_report = None
+    if flag("OCTOPUS_WIRE_SPARSE") and acquisition_data:
+        try:
+            sf = neural_stack.get("sparse_filter")
+            if sf is None:
+                from neural.sparse_filter import SparseInputFilter
+                sf = SparseInputFilter()
+                neural_stack["sparse_filter"] = sf  # cache
+            sparse_report = sf.filter(acquisition_data)
+            acquisition_data = sparse_report.passed   # فقط novel/high-error
+        except Exception as _spe:  # noqa: BLE001 — sparse fail-soft
+            opslib.alert([f"wiring: sparse filter خطا: {type(_spe).__name__}: {_spe}"])
+            sparse_report = None
     try:
-        return canonical_consolidation(
+        result = canonical_consolidation(
             neural_stack, school_bridge=school_bridge,
             acquisition_data=acquisition_data, doctor_archive=doctor_archive,
             latent_space=latent_space, bcm=bcm)
+        # Phase 4: گزارشِ sparse روی result (additive، advisory)
+        if sparse_report is not None and result is not None:
+            result.sparse_ratio = sparse_report.sparsity_ratio
+            result.sparse_filtered = list(sparse_report.filtered)
+        return result
     except Exception as e:  # noqa: BLE001 — §۴: خطای خاموش ممنون، ولی consolidation نباید tick را بکشد
         opslib.alert([f"wiring: consolidation_beat خطا: {type(e).__name__}: {e}"])
         return None

@@ -1,0 +1,15 @@
+{
+  "phase_id": "phase-4",
+  "review_type": "PHASE_RESULT",
+  "ts": "20260710T101040",
+  "payload": {
+    "summary": "Sparse Input Filter (neural/sparse_filter.py): EMA predictor per-key، گذر فقط با prediction_error بالا (novel بی‌قید)، L1 soft-shrink، eviction deterministic، heavy_tail_share. ادغام در consolidation_beat پشت OCTOPUS_WIRE_SPARSE (پیش‌فرض خاموش، خارج از profile).",
+    "completed_ts": "2026-07-10T12:00:00",
+    "tests": [
+      "test_sparse_filter.py (15)"
+    ],
+    "metrics_preregistered": "phase-metrics.jsonl → blueprint-phase-4-sparse",
+    "note": "جلسه ۴۴. فعال‌سازی = verdict (AGENT_QUESTIONS)."
+  },
+  "verdict": null
+}

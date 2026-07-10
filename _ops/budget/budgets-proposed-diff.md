@@ -69,6 +69,7 @@ projects:
 
 - ⚠️ جمع floorها بعد از این دو: ‏AU$8 → ‏AU$10 (+ explore ‏AU$3 + ‏DEBATE_LOOP ‏AU$5) → headroom رقابتی ≈ ‏AU$12/ماه. اگر تنگ است، floor این دو را 0.5 بگذار.
 - بعد از verdict، این تغییر کدی هم لازم است (یک‌خطی، additive): افزودن `"painting": "PAINTING"` و `"accounting": "ACCOUNTING"` به `ORGAN_MAP` در `_ops/budget/telemetry.py`.
+- **به‌روزرسانی 2026-07-10 (جلسه ۴۴):** پای Lead-نقاشی (`wiring.make_lead_leg`) حالا `organ="PAINTING"` است (قبلاً `LEAD_PAINTING` — با این diff ناسازگار بود و حتی بعد از verdict هم incubating می‌ماند). یعنی **همین §۵ بعد از verdict تو، money_link پا را هم active می‌کند** — هیچ تغییر کد دیگری لازم نیست. تا آن موقع پا incubating و propose-only است (INV-14).
 
 ## تکلیف باز (خارج از این diff — verdict V1)
 

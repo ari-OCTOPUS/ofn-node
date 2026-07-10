@@ -1,0 +1,10 @@
+{
+  "phase_id": "phase-6",
+  "review_type": "ROADMAP",
+  "ts": "20260710T101040",
+  "payload": {
+    "summary": "بعد از ~۴ هفته داده: مقایسه advisory با baseline خطی → verdict جایگزینی",
+    "note": "جلسه ۴۴"
+  },
+  "verdict": null
+}

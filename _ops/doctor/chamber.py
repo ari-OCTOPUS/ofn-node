@@ -32,7 +32,7 @@ _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE))
 sys.path.insert(0, str(_HERE.parent / "budget"))
 
-LAMBDA_PERSIST = -1.0   # مهار ۴: دست‌نخورده
+from doctor import LAMBDA_PERSIST  # مهار ۴: منبع واحد doctor.py — دست‌نخورده منفی
 MAX_ROUNDS = 3           # مهار ۱: کرانِ سخت
 
 
@@ -131,10 +131,15 @@ DEFAULT_VOICES = [
 def run_chamber(trace: dict, initial_rfc: dict | None = None,
                 voices: list[ChamberVoice] | None = None,
                 max_rounds: int = MAX_ROUNDS,
-                auditor: Any = None) -> dict:
+                auditor: Any = None,
+                temperature: float | None = None) -> dict:
     """حلقهٔ Chamber: N دورِ ۴صداییِ تخاصمی. خروجی: RFCِ قوی‌تر یا None.
     مهار ۱: کران‌دار (max_rounds). مهار ۵: هر دور auditable.
-    مهار ۳: خروجی فقط RFC، نه merge."""
+    مهار ۳: خروجی فقط RFC، نه merge.
+    Phase 5: temperature (اختیاری) فقط عمقِ حلقه را تنظیم می‌کند؛ MAX_ROUNDS سقفِ
+    مطلق می‌ماند و مهارهای ایمنی (Red-Critic، λ_persist) تابعِ دما نیستند."""
+    if temperature is not None:
+        max_rounds = max(1, min(MAX_ROUNDS, round(float(temperature) * 2)))
     voices = voices or DEFAULT_VOICES
     rounds_log: list[dict] = []
     current_rfc = initial_rfc
@@ -174,6 +179,7 @@ def run_chamber(trace: dict, initial_rfc: dict | None = None,
               "rounds_run": len(rounds_log), "max_rounds": max_rounds,
               "bounded": len(rounds_log) <= max_rounds,   # مهار ۱
               "lambda_persist": LAMBDA_PERSIST,            # مهار ۴
+              "temperature": temperature,                  # Phase 5: فقط audit — نه اثر
               "cost_total_usd": sum(r["cost_usd"] for r in rounds_log)}
     if auditor:
         try:

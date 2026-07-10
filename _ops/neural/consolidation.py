@@ -36,6 +36,9 @@ class ConsolidatedInsight:
     bcm_pruned: list[str] | None = None
     bcm_theta: float | None = None
     bcm_saturation: float | None = None
+    # Phase 4 (Blueprint): گزارش فیلتر sparse (backward compatible — None وقتی خاموش)
+    sparse_ratio: float | None = None
+    sparse_filtered: list[str] | None = None
 
 
 def _verify_source(name: str, data: dict) -> bool:

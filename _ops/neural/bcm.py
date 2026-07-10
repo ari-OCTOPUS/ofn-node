@@ -32,7 +32,13 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
-_DEFAULT_PERSIST = Path(__file__).resolve().parent.parent / "state" / "bcm-weights.json"
+def _default_persist() -> Path:
+    """مسیرِ پیش‌فرضِ persist — env-اول (OPS_DIR) تا تست‌های harness-ایزوله هرگز
+    state واقعی را آلوده نکنند (درسِ 2026-07-10: پیش‌فرضِ __file__-محور از
+    ایزولاسیونِ tmp-vault فرار می‌کرد و وزنِ جعلیِ تست وارد state واقعی می‌شد)."""
+    ops = os.environ.get("OPS_DIR")
+    base = Path(ops) if ops else Path(__file__).resolve().parent.parent
+    return base / "state" / "bcm-weights.json"
 
 
 def _env_float(name: str, default: float) -> float:
@@ -90,7 +96,7 @@ class BCMStabilizer:
         self._w_floor = w_floor if w_floor is not None else _env_float("OCTOPUS_BCM_W_FLOOR", 0.05)
         self._w_cap = w_cap
         self._max_keys = max_keys if max_keys is not None else _env_int("OCTOPUS_BCM_MAX_KEYS", 512)
-        self._path = Path(persist_path) if persist_path else _DEFAULT_PERSIST
+        self._path = Path(persist_path) if persist_path else _default_persist()
         self._weights: dict[str, dict] = {}
         self._step_count = 0
         self._load()

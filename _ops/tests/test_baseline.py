@@ -12,6 +12,7 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE.parent))
 import harness
+ENV = harness.setup("baseline")   # ایزولاسیون — alert/state به vault موقت، نه واقعی
 
 import baseline
 

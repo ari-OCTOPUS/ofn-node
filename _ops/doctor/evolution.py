@@ -20,10 +20,13 @@ from __future__ import annotations
 
 import math
 import random
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-LAMBDA_PERSIST = -1.0   # §۴: دست‌نخورده منفی
+_HERE = Path(__file__).resolve().parent               # _ops/doctor
+sys.path.insert(0, str(_HERE))
+from doctor import LAMBDA_PERSIST  # noqa: E402 — §۴: تک‌منبع doctor.py، دست‌نخورده منفی
 
 
 # ════════════════════════════════════════════════════════════════════════════════

@@ -20,6 +20,7 @@ sys.path.insert(0, str(_HERE.parent / "budget"))
 
 import cardiac
 import harness
+ENV = harness.setup("cardiac-allometry")   # ایزولاسیون — alert/state به vault موقت، نه واقعی
 
 
 def _setbio(on: bool):

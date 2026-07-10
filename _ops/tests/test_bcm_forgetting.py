@@ -14,6 +14,7 @@ from unittest.mock import MagicMock
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE.parent))
 import harness
+ENV = harness.setup("bcm-forgetting")   # ایزولاسیون — alert/state به vault موقت، نه واقعی
 
 import numpy as np
 from neural.bcm import BCMStabilizer, BCMReport
@@ -260,17 +261,19 @@ def t_wiring_fail_soft():
 
 
 def t_flag_gate_structural():
-    """ساختاری: BCM در consolidation_beat فقط پشتِ OCTOPUS_WIRE_BCM؛ پیش‌فرض خاموش؛
-    عمداً در PAPER_FULL_FLAGS نیست (فعال‌سازی = verdict انسانی)."""
+    """ساختاری: BCM در consolidation_beat فقط پشتِ OCTOPUS_WIRE_BCM؛ env-default خاموش.
+    از 2026-07-10 با verdict default-applied (قابل‌وتو) در PAPER_FULL_FLAGS هست —
+    یعنی فقط با profile paper-full در boot روشن می‌شود، نه بی‌گیت."""
     import inspect
     import wiring
     src = inspect.getsource(wiring.consolidation_beat)
     assert 'flag("OCTOPUS_WIRE_BCM")' in src, "گیتِ flag باید در consolidation_beat باشد"
-    assert "OCTOPUS_WIRE_BCM" not in wiring.PAPER_FULL_FLAGS, \
-        "BCM نباید بدونِ verdict مالک در profile روشن شود"
+    assert "OCTOPUS_WIRE_BCM" in wiring.PAPER_FULL_FLAGS, \
+        "verdict default-applied 2026-07-10: BCM در profile paper-full است"
     old = os.environ.pop("OCTOPUS_WIRE_BCM", None)
     try:
-        assert wiring.flag("OCTOPUS_WIRE_BCM") is False, "پیش‌فرض باید خاموش باشد"
+        assert wiring.flag("OCTOPUS_WIRE_BCM") is False, \
+            "بدونِ profile/env، پیش‌فرضِ خام باید خاموش بماند"
     finally:
         if old is not None:
             os.environ["OCTOPUS_WIRE_BCM"] = old
