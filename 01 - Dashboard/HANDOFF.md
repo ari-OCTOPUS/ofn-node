@@ -10,7 +10,13 @@ updated: 2026-07-10
 - **✅ باگِ toast رفع شد** (`1df3927`): `answerCallbackQuery` متنِ ساده است ولی چند ackِ رشته‌ای تگِ `<i>` داشتند → خام دیده می‌شد. `_toast_plain` در گلوگاهِ واحد تگ‌ها را strip می‌کند. کارت‌ها (HTML) دست‌نخورده. سوییت ۹۲/۹۲.
 - **✅ قفل‌های خود-تکامل باز شد (در `OCTOPUS-flags.cmd`، ASCII خالص):** `SCHEDULER` (propose-only dispatcher, $0) · `EPISTEMICS` (advisory read-only, $0) · `SELFHEAL` (بازیابیِ پای failed با **circuit-breaker: حداکثر ۳ ری‌استارت/۵دقیقه**، fail-soft) · `DEBATE` (پولی، سقفِ AU$10/ماه، پشتِ live-gate + kill-switch؛ `ACTIVATION-DEBATE.flag` ساخته شد). **تکامل از قبل روشن بود** (paper-full profile: جهش sandbox → RFC → merge با تأییدِ تو).
 - **🛑 خطِ قرمزی که باز نکردم:** `measured_lift` واقعی / **L4 (خود-نوشتنِ کدِ production)** — خود-تغییردهیِ هسته. تکامل **propose-only** می‌ماند: هر جهش فقط پیشنهاد است تا تو merge کنی. این یکی رأیِ صریحِ جدا می‌خواهد (میزِ آری).
-- **اسموکِ زنده:** scheduler/epistemics/debate/evolution=wired، هر دو ماژول بی‌کرش import، فایل ASCII. تحقیقِ خصمانهٔ ۵-ایجنتی روی این‌ها در حالِ اجرا (نتیجه پیش از جمع‌بندی).
+- **اسموکِ زنده + تحقیقِ خصمانهٔ ۵-ایجنتی = همه INTACT (none found):** تکامل/replication propose-only می‌مانند (حتی verdictِ merged جعلی فقط یک فایلِ lesson می‌نویسد، نه کدِ production) · self-heal restart-storm ندارد (circuit-breaker حاکم) · debate سقفِ AU$10/AU$30 و kill-switch · scheduler propose-only · epistemics read-only. فایل ASCII، هر دو ماژول بی‌کرش import.
+
+## جلسه ۴۶ ادامه (~۰۳:۰۰) — 🎬 کنترلِ Project-F از کابین (content-free) + ساده‌سازیِ کارت‌ها + رفعِ toast
+
+- **✅ باگِ toast (`1df3927`):** `answerCallbackQuery` متنِ ساده است ولی ackها تگِ `<i>` داشتند → `_toast_plain` در گلوگاهِ واحد strip می‌کند.
+- **✅ کنترلِ Project-F (`7416869`، content-free طبقِ containment):** کارتِ کنترل = وضعیت (فعال/نگه‌داشته) + شمارِ صف (فقط effect_idهای `pf-`) + بودجه + مهلت. دکمه‌های ⏸ نگه‌دار / ▶️ ادامه یک فلگِ خالیِ `state/projectf-paused.flag` می‌نویسند/پاک می‌کنند که در `live_loop.process_project_f_draft` واقعاً روتِ درفت‌های نو را نگه می‌دارد. **هرگز هویت/پلتفرم/محتوا echo نمی‌شود** (تست تأیید می‌کند: بدونِ «OnlyFans»/«اونلی»). مسیرِ پول/تأیید دست‌نخورده.
+- **✅ ساده‌سازی:** کارت‌های دکتر و خودترمیم به فارسیِ ساده (بدونِ جارگونِ انگلیسی؛ فقط لایهٔ نمایش). سوییت ۹۲/۹۲.
 
 **میز آری:** (۱) restart بدن تا این چهار زنده شوند. (۲) رأیِ **L4/measured_lift واقعی** (خود-نوشتنِ کد در sandbox با eval واقعی) — تنها قفلی که باز نکردم؛ اگر بخواهی، جدا می‌سازمش با گاردهای shadow-eval + rollback.
 
