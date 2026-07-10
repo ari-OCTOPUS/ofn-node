@@ -5,6 +5,16 @@ updated: 2026-07-10
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+## جلسه ۴۶ ادامه (~۰۶:۰۰) — 🩹 VAULT-UPDATER: propose-only «تولیدکنندهٔ patch» (اسپکِ مالک: cognition ≠ effect)
+
+مالک اسپکِ دقیقی داد: «به‌روزرسانی نباید بنویسد — patch تولید کند؛ شناخت را از اثر جدا کن؛ EffectorGate تنها نویسنده.» ساخته شد (هر دو گزینهٔ α و β):
+- **✅ `_ops/vault_updater.py` (proposer، هرگز دیسک):** raw_input → PATCH PROPOSALِ JSONِ سخت‌گیر. رویه: classify → HOLD-rails → dedup(Jaccard، merge نه create) → risk → commit_mode → ledger_entry. تست `t_j` تضمین: صفر open/write/mkdir.
+- **✅ `_ops/vault_updater_gate.py` (validatorِ stdlib، β):** دومین گاردِ مستقل که proposalِ ناامن را **پیش از commit** رد می‌کند (defense-in-depth).
+- **✅ LAYER_MAP واقعیِ vault (Ring×risk×envelope):** Ring0 ژنوم→HOLD · Ring1 schema/index/PROJECT→GATE · Ring2-3 دامنه→AUTO اگر LOW+envelope · Ring4 inbox→AUTO اگر LOW · **Project-F→HOLD مطلق** · PII/CRITICAL→HOLD/GATE.
+- **✅ ریل‌های سخت (fail-closed):** هرگز delete/overwrite (فقط append/supersede-with-pointer)؛ بی‌provenance→HOLD؛ Ring0/1 هرگز AUTO؛ CRITICAL هرگز AUTO/suppress.
+- **اثباتِ زنده:** «یادداشتِ inbox»→AUTO/LOW · «ویرایشِ ایندکس»→GATE/REVIEW · «اونلی فنز»→HOLD (containment). تست `test_vault_updater` **۱۲/۱۲**؛ سوییت ۹۸/۹۸ هدف. طرح: [[06 - Architecture Maps/VAULT-UPDATER-spec|VAULT-UPDATER-spec]].
+- **قدمِ بعد (backlog):** ارتقای dedup به cosineِ `neural/encoders` · لایهٔ cognitionِ LLM روی classify/draft · applierِ AUTO-tier از مسیرِ human-append.
+
 ## جلسه ۴۶ ادامه (~۰۵:۳۰) — 🧠 مغزِ دوم: عملیاتِ کسب‌وکار (رأی مالک «دو پروژه اونلی‌فنز و نقاشی وصل شد؛ مهندسیشونو درست کن به‌عنوان مغز دوم»)
 
 مغزِ اول = خودنگه‌داری (self_audit/improve/part_loops). **مغزِ دوم = عملیاتِ کسب‌وکار** — هر پروژهٔ درآمدزا لوپِ observe→learn→propose خودش را دارد که به‌سمتِ لید/درآمدِ واقعی هل می‌دهد.
