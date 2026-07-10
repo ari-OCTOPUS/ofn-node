@@ -49,4 +49,6 @@ updated: 2026-07-09
 
 ## نوت‌های مرتبط
 
+- [[06 - Architecture Maps/CELLULAR-MODEL-ROSETTA|Cellular Model Rosetta]] — نگاشتِ استعارهٔ سلولی به ارگانیسمِ موجود (توصیفی، نه دستورِ ساخت)
+- [[06 - Architecture Maps/SPEC-OCTOPUS-2027-v0|SPEC-OCTOPUS-2027-v0]] — قراردادِ ۲۰۲۷ + نردبانِ خودمختاری
 - [[01 - Dashboard/Home|Home]]

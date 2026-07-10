@@ -86,6 +86,9 @@ def aggregate(probe=None) -> dict:
     setpoint = _read_json(STATE / "pulse" / "heart-setpoint-latest.json") or {}
     cortex_st = _read_json(STATE / "cortex" / "cortex-state.json") or {}
     upgrades = _read_json(STATE / "cortex" / "upgrades-digest.json") or {}
+    research_st = _read_json(STATE / "pulse" / "research-latest.json") or {}
+    selfmodel_st = _read_json(STATE / "cortex" / "self-model.json") or {}
+    synth_st = _read_json(STATE / "cortex" / "synthesis-latest.json") or {}
     tel = _read_json(STATE / "telemetry-latest.json") or {}
     rep = _read_json(STATE / "replication-latest.json") or {}
     needs = None
@@ -159,6 +162,30 @@ def aggregate(probe=None) -> dict:
                     for t in (upgrades.get("top") or [])[:5]],
             "auto_enabled": upgrades.get("auto_enabled"),
             "brain_note": upgrades.get("brain_note"),
+        },
+        # جلسه ۴۶ — لایهٔ فراشناختی: تحقیقِ وبِ $0 + نقشهٔ خود + سنتزِ مغز
+        "research": {
+            "present": bool(research_st),
+            "age_min": _age_min(STATE / "pulse" / "research-latest.json"),
+            "n_topics": research_st.get("n_topics"),
+            "topics": [{"topic": f.get("topic"), "n": f.get("n"),
+                        "sample": ((f.get("hits") or [{}])[0].get("title") or "")[:70]}
+                       for f in (research_st.get("findings") or [])[:4]],
+        },
+        "self_model": {
+            "present": bool(selfmodel_st),
+            "n_modules": selfmodel_st.get("n_modules"),
+            "total_lines": selfmodel_st.get("total_lines"),
+            "awareness_pct": selfmodel_st.get("self_awareness_pct"),
+            "n_wire_flags": selfmodel_st.get("n_wire_flags"),
+        },
+        "synthesis": {
+            "present": bool(synth_st),
+            "age_min": _age_min(STATE / "cortex" / "synthesis-latest.json"),
+            "tier": synth_st.get("tier"),
+            "cost_usd": synth_st.get("cost_usd"),
+            "proposals": [{"title": p.get("title"), "step": p.get("first_step")}
+                          for p in (synth_st.get("proposals") or [])[:3]],
         },
         "money": {"month": tel.get("month"), "suspects": tel.get("suspect_zero_total")},
         "sigma": (rep.get("sigma") or {}),
@@ -263,6 +290,8 @@ button{background:linear-gradient(180deg,#155a66,#0d3a44);color:#dffaff;border:1
  <span class="chip">🧠 هم‌آهنگی <b id="cCoh">—</b></span>
  <span class="chip" id="cNeedsChip" style="cursor:pointer" onclick="showNeeds()">📌 <b id="cNeeds">—</b> نیاز</span>
  <span class="chip" style="cursor:pointer" onclick="showUpgrades()">🧬 بلوغ <b id="cMat">—</b></span>
+ <span class="chip" style="cursor:pointer" onclick="showResearch()">🌐 تحقیق <b id="cRes">—</b></span>
+ <span class="chip" style="cursor:pointer" onclick="showMind()">🪞 خود <b id="cSelf">—</b></span>
 </div>
 <svg id="stage" viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg">
  <circle class="orbit" cx="350" cy="250" r="120"/>
@@ -327,6 +356,18 @@ function showUpgrades(){const p=document.getElementById('panel');const u=LIVE?.u
  const tops=(u.top||[]).map(t=>'• <b>'+esc(t.priority)+'</b> '+esc(t.title)+' <span style=color:#6f93a3>['+esc(t.level)+']</span><br><span style=color:#9fd8ea;font-size:12px>↳ '+esc(t.action)+'</span>').join('<br>');
  p.innerHTML='<b>🧬 خودارتقا — بلوغ '+esc(u.maturity_pct)+'%</b><br>'+esc(u.n)+' پیشنهاد · auto '+(u.auto_enabled?'🟢':'⚪ خاموش')+'<br><span style=color:#6f93a3>'+cats+'</span><br><br>'+tops+(u.brain_note?'<br><br>💭 '+esc(u.brain_note):'')+'<br><br><span style=color:#6f93a3>propose-only · هر تغییرِ جدی از تو می‌پرسد</span>';
  p.style.display='block'}
+function showResearch(){const p=document.getElementById('panel');const r=LIVE?.research||{};
+ if(!r.present){p.innerHTML='<b>🌐 تحقیقِ وب</b><br>هنوز نچرخیده — پمپِ کار هر ~۱۲h روی گپِ مدرسه سرچِ رایگان ($0) می‌زند.';p.style.display='block';return}
+ const rows=(r.topics||[]).map(t=>'• <b>'+esc(t.topic)+'</b> ('+esc(t.n)+')'+(t.sample?'<br><span style=color:#9fd8ea;font-size:12px>↳ '+esc(t.sample)+'</span>':'')).join('<br>');
+ p.innerHTML='<b>🌐 تحقیقِ وبِ رایگان — '+esc(r.n_topics)+' موضوع</b> <span style=color:#6f93a3>('+esc(r.age_min==null?'—':Math.round(r.age_min)+' دقیقه پیش')+' · $0 · DDG+Wiki+arXiv)</span><br><br>'+rows;
+ p.style.display='block'}
+function showMind(){const p=document.getElementById('panel');const m=LIVE?.self_model||{};const s=LIVE?.synthesis||{};
+ let html='<b>🪞 خودمدلی</b><br>';
+ html+=m.present?('بدن: <b>'+esc(m.n_modules)+'</b> ماژول · <b>'+esc(m.total_lines)+'</b> خط · خودآگاهیِ سند <b>'+esc(m.awareness_pct)+'%</b> · '+esc(m.n_wire_flags)+' پرچم<br>'):'نقشهٔ خود هنوز ساخته نشده.<br>';
+ if(s.present){html+='<br><b>🔮 سنتزِ مغز</b> <span style=color:#6f93a3>['+esc(s.tier||'—')+' · $'+esc(s.cost_usd??0)+']</span><br>';
+  html+=(s.proposals||[]).map(x=>'• '+esc(x.title)+(x.step?'<br><span style=color:#9fd8ea;font-size:12px>↳ '+esc(x.step)+'</span>':'')).join('<br>')||'<span style=color:#6f93a3>(پیشنهادی پارس نشد)</span>'}
+ else{html+='<br><span style=color:#6f93a3>🔮 سنتزِ مغز هنوز نچرخیده (لِینِ llm_learn پمپ).</span>'}
+ p.innerHTML=html;p.style.display='block'}
 async function mainAct(){const c=LIVE?.processes?.cortex;
  const k=c?'restart-organism':'start-cortex';
  const msg=c?'بدن یک tick می‌خوابد و تازه برمی‌گردد. ادامه؟':null;
@@ -349,6 +390,8 @@ async function tick(){try{
  document.getElementById('cohRing').style.strokeDashoffset=coh!=null?String(465*(1-coh)):'465';
  document.getElementById('cNeeds').textContent=(d.needs||{}).n??'—';
  document.getElementById('cMat').textContent=(d.upgrades?.maturity_pct!=null)?(d.upgrades.maturity_pct+'%'):'—';
+ document.getElementById('cRes').textContent=(d.research?.n_topics!=null)?d.research.n_topics:'—';
+ document.getElementById('cSelf').textContent=(d.self_model?.n_modules!=null)?d.self_model.n_modules:'—';
  const th=c.thought||''; document.getElementById('thought').textContent=th?('💭 '+th.slice(0,160)):'';
  document.getElementById('mode').textContent=(d.new_code_live?'کدِ نو':'کدِ قدیم')+
   ' · بدن '+(d.processes.organism?'🟢':'🔴')+' · مغز '+(d.processes.cortex?'🟢':'🔴')+

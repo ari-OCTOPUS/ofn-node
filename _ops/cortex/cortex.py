@@ -131,10 +131,23 @@ def self_improve(cycle: int) -> dict | None:
         return None
 
 
+def self_model_refresh(cycle: int) -> dict | None:
+    """هر IMPROVE_EVERY_N چرخه (لایهٔ فراشناختی جلسه ۴۶): نقشهٔ سورسِ خود را تازه کن —
+    «کدِ خودش رو بخونه و درک کنه». $0، read-only، fail-soft."""
+    try:
+        import self_model
+        return self_model.run_and_persist()
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"cortex self_model error: {type(e).__name__}: {e}"])
+        return None
+
+
 def run_cycle(cycle: int) -> dict:
     sweep = registry.sweep()
     alignment = align_work_plan(sweep)
     thought = think(sweep, cycle) if (cycle % THINK_EVERY_N == 0) else None
+    model_summary = (self_model_refresh(cycle)
+                     if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
     improve_summary = (self_improve(cycle)
                        if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
     period, rhythm_src = heart_rhythm_period()
@@ -150,6 +163,7 @@ def run_cycle(cycle: int) -> dict:
                    "local_model": os.environ.get("OLLAMA_MODEL", "qwen2.5:1.5b")},
         **({"thought": thought} if thought else {}),
         **({"self_improve": improve_summary} if improve_summary else {}),
+        **({"self_model": model_summary} if model_summary else {}),
         "schema": "cortex-state.v1",
     }
     CORTEX_DIR.mkdir(parents=True, exist_ok=True)

@@ -114,15 +114,25 @@ def _exec_gap_report() -> dict:
 
 
 def _exec_paid_lane(kind: str, tpl: dict) -> dict:
-    """ردهٔ paid (search/llm_learn): دوقفله — تاریخ + پرچمِ مالک. بسته → skipِ صادق.
-    روزی که باز شود، هر call موظف است lazy از organ_gate بگذرد (الگوی allocate_llm)."""
+    """ردهٔ paid (search/llm_learn): دوقفله — تاریخ/GO-LIVE + پرچمِ مالک. بسته → skipِ صادق.
+    باز → از مسیرِ متردارِ روتر (organ_gate داخلِ _ask_paid) اجرا می‌شود."""
     ok, why = opslib.live_gate_open(ACT_WORK_LLM)
     if not ok:
         return {"ok": False, "skipped": f"live-locked: {why}",
-                "unlock": "تاریخ ≥ 2026-07-21 + ACTIVATION-WORK-LLM.flag (فقط مالک) "
-                          "+ providerِ سرچ با رأی مالک (HH-P9)"}
-    # (فقط پشتِ گیتِ باز اجرا می‌شود — پیاده‌سازیِ providerها در HH-P9 گامِ ۳)
-    return {"ok": False, "skipped": "provider-not-wired: رأی مالک برای provider لازم است"}
+                "unlock": "GO-LIVE/تاریخ + ACTIVATION-WORK-LLM.flag (فقط مالک)"}
+    if kind == "llm_learn":
+        # جلسه ۴۶ (لایهٔ فراشناختی): یادگیریِ LLM = سنتزِ مغز (fugu→glm→local، متر داخلِ روتر)
+        try:
+            sys.path.insert(0, str(_HERE.parent / "cortex"))
+            import synthesis as _syn
+            return _syn.run_and_persist()
+        except Exception as e:  # noqa: BLE001 — سنتز نباید pump را بکشد
+            return {"ok": False, "error": f"{type(e).__name__}: {str(e)[:100]}"}
+    if kind == "search":
+        # سرچِ پولیِ عمیق: providerِ اختصاصی هنوز نامشخص — لِینِ $0 (web_research) فعال است
+        return {"ok": False,
+                "skipped": "paid-search provider هنوز انتخاب نشده (لِینِ $0 web_research فعال است)"}
+    return {"ok": False, "skipped": f"unknown paid kind: {kind}"}
 
 
 def _exec_web_research() -> dict:

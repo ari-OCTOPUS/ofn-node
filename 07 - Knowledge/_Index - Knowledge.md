@@ -11,6 +11,12 @@ updated: 2026-07-06
 
 - [[07 - Knowledge/10 رویکرد فلسفی شرکت‌های بزرگ AI در پرورش مدل|۱۰ رویکرد فلسفی شرکت‌های بزرگ AI در پرورش مدل]]
 
+## سیستم‌های سلولی (Cellular Systems)
+
+- [[07 - Knowledge/cellular-systems/spudcell-notes|spudcell-notes — منطقِ سلولِ زنده به‌عنوان الگو]]
+- [[07 - Knowledge/cellular-systems/synthetic-cell-to-agent-metaphor|نگاشتِ مفهومی سلول → ایجنت]]
+- نگاشتِ اجرایی: [[06 - Architecture Maps/CELLULAR-MODEL-ROSETTA|Cellular Model Rosetta]]
+
 ## هیپنوتیزم و خودآگاهی
 
 - [[07 - Knowledge/هیپنوتیزم  و خودآگاهی/PROJECT|PROJECT (شناسنامه — manifest فاز ۱)]]

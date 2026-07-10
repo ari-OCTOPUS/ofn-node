@@ -129,6 +129,8 @@ def gather_signals() -> dict:
     idea = _read(STATE / "idea-graph-latest.json") or {}
     cortex = _read(STATE / "cortex" / "cortex-state.json") or {}
     research = _read(STATE / "pulse" / "research-latest.json") or {}  # جلسه ۴۶: وبِ رایگان
+    synthesis = _read(STATE / "cortex" / "synthesis-latest.json") or {}  # سنتزِ مغز
+    self_model = _read(STATE / "cortex" / "self-model.json") or {}       # نقشهٔ خود
     rfcs = []
     try:
         if RFC_DIR.exists():
@@ -139,7 +141,8 @@ def gather_signals() -> dict:
     except OSError:
         pass
     return {"matrix": matrix, "idea": idea, "cortex": cortex,
-            "research": research, "doctor_rfcs": rfcs}
+            "research": research, "synthesis": synthesis,
+            "self_model": self_model, "doctor_rfcs": rfcs}
 
 
 _PRI_RANK = {"P0": 0, "P1": 1, "P2": 2, "P3": 3}
@@ -183,6 +186,31 @@ def generate_proposals(signals: dict) -> list[dict]:
             "evidence": f"knowledge/internal/{rid}.md",
             "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
             "change_level": "reconfig", "auto_applicable": False, "status": "proposed",
+        })
+    # ۲.۵) از سنتزِ مغز (فراشناختی جلسه ۴۶): پروپوزال‌های fugu/glm/local — همیشه propose-only
+    for sp in (signals.get("synthesis") or {}).get("proposals", [])[:3]:
+        t = f"سنتزِ مغز: {sp.get('title', '')[:80]}"
+        out.append({
+            "id": _pid("synth:" + t), "source": "synthesis", "category": "architecture",
+            "priority": "P2", "_rank": 1.8 + pen.get("architecture", 0) * 0.5, "title": t,
+            "rationale": (sp.get("why") or "سنتزِ وب+کد+جهت‌های مالک")[:180],
+            "evidence": f"synthesis-latest.json [{(signals['synthesis'].get('tier') or '?')}]",
+            "suggested_action": (sp.get("first_step") or "بازبینِ مالک")[:180],
+            "change_level": "reconfig", "auto_applicable": False, "status": "proposed",
+        })
+    # ۲.۶) از نقشهٔ خود: ماژول‌های بدونِ خودتوصیفی = گپِ خودآگاهی ($0، سندی)
+    sm = signals.get("self_model") or {}
+    if sm.get("undocumented"):
+        n = len(sm["undocumented"])
+        t = f"خودآگاهیِ سند: {n} ماژول بدونِ docstring"
+        out.append({
+            "id": _pid("selfmodel:" + t), "source": "self_model", "category": "observability",
+            "priority": "P3", "_rank": 2.8, "title": t,
+            "rationale": f"self-awareness {sm.get('self_awareness_pct')}% — "
+                         f"نمونه: {', '.join(sm['undocumented'][:3])}",
+            "evidence": "self-model.json", "suggested_action":
+                "به هر ماژول یک docstringِ یک‌خطی بده (تغییرِ سندی، بی‌خطر).",
+            "change_level": "tune", "auto_applicable": False, "status": "proposed",
         })
     # ۳) از idea_graph (پل‌های پیشنهادیِ vault، اگر باشد)
     edges = (signals.get("idea") or {}).get("proposed_edges") or []

@@ -52,6 +52,16 @@ def t_b_aggregate_reads_all_sections():
     (STATE / "pulse" / "work-plan.json").write_text(json.dumps(
         {"schema": "work-plan.v1",
          "templates": [{"kind": "health", "paid": False}]}), "utf-8")
+    # جلسه ۴۶ — لایهٔ فراشناختی: تحقیق/خودمدل/سنتز هم بخشِ پنل‌اند
+    (STATE / "pulse" / "research-latest.json").write_text(json.dumps(
+        {"schema": "research-latest.v1", "n_topics": 2,
+         "findings": [{"topic": "rl", "n": 3, "hits": [{"title": "RL intro"}]}]}), "utf-8")
+    (STATE / "cortex" / "self-model.json").write_text(json.dumps(
+        {"schema": "self-model.v1", "n_modules": 109, "total_lines": 23107,
+         "self_awareness_pct": 100.0, "n_wire_flags": 12}), "utf-8")
+    (STATE / "cortex" / "synthesis-latest.json").write_text(json.dumps(
+        {"schema": "synthesis.v1", "tier": "secondary", "cost_usd": 0.0,
+         "proposals": [{"title": "سایه‌زنی", "first_step": "flag"}]}), "utf-8")
     d = live.aggregate(probe=lambda p: p == 8771)
     assert d["processes"]["organism"] is True and d["processes"]["cortex"] is False
     assert d["new_code_live"] is True
@@ -60,6 +70,9 @@ def t_b_aggregate_reads_all_sections():
     assert len(d["heart"]["wire_reasons"]) == 2
     assert d["cortex"]["coherence"] == 0.8
     assert d["pump"]["plan"][0]["kind"] == "health"
+    assert d["research"]["n_topics"] == 2 and d["research"]["topics"][0]["topic"] == "rl"
+    assert d["self_model"]["n_modules"] == 109 and d["self_model"]["awareness_pct"] == 100.0
+    assert d["synthesis"]["tier"] == "secondary" and d["synthesis"]["proposals"][0]["title"] == "سایه‌زنی"
 
 
 def t_c_actions_isolated_to_env_ops():
