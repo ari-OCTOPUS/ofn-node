@@ -131,6 +131,7 @@ def gather_signals() -> dict:
     research = _read(STATE / "pulse" / "research-latest.json") or {}  # جلسه ۴۶: وبِ رایگان
     synthesis = _read(STATE / "cortex" / "synthesis-latest.json") or {}  # سنتزِ مغز
     self_model = _read(STATE / "cortex" / "self-model.json") or {}       # نقشهٔ خود
+    part_loops = _read(STATE / "cortex" / "part-loops-latest.json") or {}  # لوپِ هر بخش
     rfcs = []
     try:
         if RFC_DIR.exists():
@@ -142,7 +143,7 @@ def gather_signals() -> dict:
         pass
     return {"matrix": matrix, "idea": idea, "cortex": cortex,
             "research": research, "synthesis": synthesis,
-            "self_model": self_model, "doctor_rfcs": rfcs}
+            "self_model": self_model, "part_loops": part_loops, "doctor_rfcs": rfcs}
 
 
 _PRI_RANK = {"P0": 0, "P1": 1, "P2": 2, "P3": 3}
@@ -211,6 +212,21 @@ def generate_proposals(signals: dict) -> list[dict]:
             "evidence": "self-model.json", "suggested_action":
                 "به هر ماژول یک docstringِ یک‌خطی بده (تغییرِ سندی، بی‌خطر).",
             "change_level": "tune", "auto_applicable": False, "status": "proposed",
+        })
+    # ۲.۷) از لوپِ هر بخش (جلسه ۴۶): هر بخش پیشنهادِ بهبودِ خودش را می‌دهد
+    for pp in (signals.get("part_loops") or {}).get("proposals", [])[:8]:
+        title = f"{pp.get('part', '?')}: {pp.get('title', '')[:70]}"
+        lvl = pp.get("change_level", "reconfig")
+        out.append({
+            "id": _pid("part:" + title), "source": "part-loop", "category": "architecture",
+            "priority": "P2" if lvl != "tune" else "P3",
+            "_rank": (2.2 if lvl != "tune" else 3.1) + pen.get("architecture", 0) * 0.5,
+            "title": title, "rationale": f"لوپِ بخشِ «{pp.get('part')}» این را یافت",
+            "evidence": "part-loops-latest.json",
+            "suggested_action": pp.get("action", "بازبینِ مالک")[:180],
+            "change_level": lvl,
+            "auto_applicable": bool(pp.get("auto_ok")) and _auto_ok(lvl, title),
+            "status": "proposed",
         })
     # ۳) از idea_graph (پل‌های پیشنهادیِ vault، اگر باشد)
     edges = (signals.get("idea") or {}).get("proposed_edges") or []

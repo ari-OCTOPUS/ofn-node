@@ -142,11 +142,27 @@ def self_model_refresh(cycle: int) -> dict | None:
         return None
 
 
+def part_loops_run(cycle: int) -> dict | None:
+    """لوپِ یادگیری+خود-تغییرِ هر بخش (جلسه ۴۶، «برای هر بخش لوپ طرح کن»).
+    هر بخش observe→learn→propose؛ propose-only. $0، fail-soft."""
+    try:
+        import part_loops
+        d = part_loops.run_all(beat=cycle)
+        bad = [p["name"] for p in d.get("parts", []) if p["status"] in ("🔴", "🟡")]
+        return {"n_parts": len(d.get("parts", [])),
+                "n_proposals": d.get("n_proposals", 0), "attention": bad[:5]}
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"cortex part_loops error: {type(e).__name__}: {e}"])
+        return None
+
+
 def run_cycle(cycle: int) -> dict:
     sweep = registry.sweep()
     alignment = align_work_plan(sweep)
     thought = think(sweep, cycle) if (cycle % THINK_EVERY_N == 0) else None
     model_summary = (self_model_refresh(cycle)
+                     if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
+    parts_summary = (part_loops_run(cycle)
                      if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
     improve_summary = (self_improve(cycle)
                        if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
@@ -164,6 +180,7 @@ def run_cycle(cycle: int) -> dict:
         **({"thought": thought} if thought else {}),
         **({"self_improve": improve_summary} if improve_summary else {}),
         **({"self_model": model_summary} if model_summary else {}),
+        **({"part_loops": parts_summary} if parts_summary else {}),
         "schema": "cortex-state.v1",
     }
     CORTEX_DIR.mkdir(parents=True, exist_ok=True)

@@ -266,9 +266,15 @@ def ops_state() -> dict:
             pending = int(needs.get("last_n", 0) or 0)
         except Exception:  # noqa: BLE001
             pending = 0
-        return events.dashboard_state(pending_count=pending)
+        st = events.dashboard_state(pending_count=pending)
+        try:
+            import part_loops
+            st["parts"] = part_loops.summary().get("parts", [])
+        except Exception:  # noqa: BLE001
+            st["parts"] = []
+        return st
     except Exception as e:  # noqa: BLE001
-        return {"overall": "—", "error": f"{type(e).__name__}", "log": []}
+        return {"overall": "—", "error": f"{type(e).__name__}", "log": [], "parts": []}
 
 
 # ── داشبوردِ اتوماسیونِ مینیمال (رأی مالک): وضعیت + Now/آخرین/گیرکرده + خلاصهٔ ۵min + لاگ ──
@@ -300,6 +306,7 @@ OPS_PAGE = """<!doctype html><html dir="rtl" lang="fa"><meta charset="utf-8">
  <div class="card"><div class="lbl">آخرین نتیجه</div><div class="val" id="last">…</div></div>
  <div class="card att" id="attc" style="display:none"><div class="lbl">⚠ منتظرِ تو / گیرکرده</div><div class="val" id="att"></div></div>
 </div>
+<div class="card" style="margin-bottom:10px"><div class="lbl">بخش‌ها (هرکدام لوپِ خودش را دارد)</div><div id="parts" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div></div>
 <div class="kpis">
  <div class="kpi"><b id="k_c">0</b><span>تمام‌شده</span></div>
  <div class="kpi"><b id="k_w">0</b><span>منتظر</span></div>
@@ -322,6 +329,10 @@ async function tick(){try{
  const att=d.attention||''; const ac=document.getElementById('attc');
  ac.style.display=att?'block':'none';
  document.getElementById('att').textContent=att+(d.attention_next?(' — '+d.attention_next):'');
+ document.getElementById('parts').innerHTML=(d.parts||[]).map(p=>
+  '<span style="background:#161b22;border:1px solid #30363d;border-radius:7px;padding:4px 8px;font-size:11px">'
+  +esc(p.status)+' '+esc(p.name)+' <span style=color:#6e7681>'+esc(p.detail||'')+'</span></span>').join('')
+  ||'<span style=color:#6e7681;font-size:11px>لوپ‌ها هنوز نچرخیده‌اند</span>';
  const s=d.summary_5m||{};
  document.getElementById('k_c').textContent=s.completed||0;
  document.getElementById('k_w').textContent=(s.waiting||d.pending||0);
