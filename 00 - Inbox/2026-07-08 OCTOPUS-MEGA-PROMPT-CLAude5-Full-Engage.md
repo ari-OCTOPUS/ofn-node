@@ -1,7 +1,7 @@
 ---
 type: proposal
 project: "[[04 - Architect System/architect/PROJECT]]"
-status: active
+status: done
 tags: [octopus, prompt, blueprint, bcm, mega]
 created: 2026-07-08
 updated: 2026-07-10
@@ -9,6 +9,17 @@ created_by: agent
 ---
 
 # 🐙 OCTOPUS — MEGA-PROMPT for Claude 5 — Full Engagement & Autonomous Planning
+
+> ## ✅ ADDENDUM — این پرامپت اجرا و تکمیل شد (2026-07-10، جلسه‌های ۴۳-۴۴)
+>
+> **ایجنت بعدی: این سند را دوباره اجرا نکن** — سند تاریخی است. همهٔ بخش‌های agent-پذیر انجام شد
+> (commitهای `94cd597` → `0fb9b67` → `e33b8c9`؛ سوئیت **۷۷/۷۷ سبز**، سه اجرای متوالی):
+> بلوپرینت **P0..P6 کامل** (BCM/sparse/chamber-T/Fisher) · ‏W-3 تلگرام (کارت RFC توکن‌دار +
+> حلقهٔ verdict→calibration) · ledger scar-aware (v0.4.7؛ held-out سبز) · هر ۵ cleanup ·
+> هر ۹ known-issue (به‌جز مواردِ ذاتاً فقط-مالک). آمارهای Part 3 این سند دیگر کهنه‌اند.
+> وضعیتِ جاری: [[01 - Dashboard/HANDOFF|HANDOFF جلسه‌های ۴۳-۴۴]] + `_ops/ORGANISM-SPEC.md` §۲.۹.
+> باقی‌ماندهٔ فقط-مالک: چرخش توکن بات + restart · رأی‌های [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]]
+> «2026-07-10» · ‏Scheduled Task ‏germline/watchdog · §۵ ‏diff بودجه (ارگان PAINTING).
 
 > **Purpose:** This document contains everything needed to understand, plan, and continue building the Octopus organism — a self-evolving, self-learning autonomous system. Claude 5 should read this entirely, internalize the architecture, assess current state, plan remaining work, and begin execution — using full capacity across all reasoning dimensions.
 
