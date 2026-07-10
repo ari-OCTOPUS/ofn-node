@@ -5,6 +5,19 @@ updated: 2026-07-10
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+## جلسه چهل‌وپنجم 2026-07-10 (Claude Opus 4.8) — 🫀 کابین تلگرام v2 زنده + منبعِ نبضِ SOG: سنتز A–K + ADR-001 + پرامپت‌ها + master-plan (قلبِ تکاملیِ ترکیبی)
+
+شروع از باگِ restart-loop (اسکرین‌شاتِ مالک) → پایان با نقشهٔ کاملِ «قلبِ تکاملیِ ترکیبی». **تلگرام حالا end-to-end زنده است.**
+
+- **✅ باگِ restart-loop + دیالوگِ .env حل شد (`942d738`):** ارگانیسم سالم بود؛ یک لانچرِ تکراری روی 8771 + باگِ `call OCTOPUS.env` (که `.env` را shell-open می‌کرد و varها را لود نمی‌کرد). `RUN-ORGANISM.bat` دیگر `.env` را call نمی‌کند + گاردِ `Get-NetTCPConnection`؛ `organism.py` حالا `env_loader.load_env()` در بوت؛ داشبورد → `OCTOPUS-flags.cmd`.
+- **✅ تلگرام زنده شد:** مالک توکن را از `OCTOPUS.env` به `F:\backup\.env` منتقل کرد (helper `_ops/setup-telegram.ps1`) + restart → `telegram poll thread started (T-8)` · `wire_telegram=True`. (rotation رد شد.) helperهای ماندگار: `_ops/RESTART-ORGANISM.bat` · `_ops/stop-organism.ps1`. **درسِ عملیاتی:** یک stale `STOP-ORGANISM` باعث می‌شود ارگانیسمِ تازه `زنده` چاپ کند ولی فوری خارج شود؛ + `.bat`ِ owner-facing باید pure-ASCII باشد (فارسی cmd را می‌شکند).
+- **✅ کابین تلگرام v2 (کامل، `bcc552c`+`37440bc`+`96ada12`):** [[04 - Architect System/octopus-build-prompts/TELEGRAM-BRAIN-COCKPIT-v2-FULL-BODY|پرامپت کابین v2]] (۲۶۰ قابلیت) → `_ops/budget/cockpit_readmodel.py` نو + گسترشِ `approval_channel.py` (۸ تب `menu:` + `card:/pg:/act:` + توکنِ تک‌مصرفِ `_pending_act` + redaction). ۲۲ تستِ `test_cockpit_v2.py`، سوییت **۷۸/۷۸**. باگِ دکمه‌ها فیکس (`allowed_updates=[message,callback_query]` — باتِ control-brain به message-only قفل بود). سخت‌شده با ۳ منتقدِ خصمانه (۱۵ یافتهٔ تأییدشده، همه رفع).
+- **✅ سنتزِ SOG (evidence base):** [[04 - Architect System/SOG-Doctor-Synthesis-A-K|SOG-Synthesis A–K]] — ۱۹۹ ادعای تگ‌دار از کورپوسِ 4D مالک (`Desktop/4D/*` + `4.py`). **کلیدی:** فقط Δ_self (=SMS) توسطِ `4.py` عمدتاً MC-validated؛ **E_shadow و I_pred قفل‌نشده‌اند** (conflicting/draft — باید مستقل MC شوند). SOG-learnerِ مالک واقعاً ساخته شده: `C:\Users\Armin\Desktop\4d_system` (LangGraph؛ `core/scores.py`=SMS/SLS خالص-numpy **$0**؛ `brain/`+`llm/`=پولی).
+- **✅ ADR-001 — منبعِ نبض:** [[06 - Architecture Maps/ADR-001 Pulse-Source coupled-not-merged|ADR-001]] — Heart ⟂ Doctor: **coupled، نه merged.** Doctor **setpoint** می‌نویسد نه نرخ؛ σ از CONFIRMED. formalismِ فعلی = allostatic (نه FHN؛ FHN = milestone `M-♥`).
+- **✅ نقشهٔ قلبِ تکاملیِ ترکیبی:** [[04 - Architect System/octopus-build-prompts/HYBRID-HEART-MASTER-PLAN|MASTER-PLAN]] + [[04 - Architect System/octopus-build-prompts/M-HEART-SOG-Pacemaker-BUILD-PROMPT|M-HEART build-prompt]]. **طراحیِ نرخِ ضربان (توصیهٔ مالک):** ضربان = **velocity** (توان‌عبورِ شناخت)، نه تورم؛ **Governor (`governor_epoch.py`) = autoregulation** بین ضربان و spend؛ SOG = باندِ هدف. seamِ واقعی = حلقهٔ متابولیسمِ `organism.py:420-431` (نه HLC/`chrono.py`). **Gate-0:** producerِ زندهٔ Δ_self وجود ندارد → بدونش ضربانِ emergent توهم است. **sim-first اجباری.**
+
+**میز آری — ایجنتِ بعدی:** لیستِ ۸-پرامپتِ [[04 - Architect System/octopus-build-prompts/HYBRID-HEART-MASTER-PLAN|MASTER-PLAN]] را به‌ترتیب اجرا کن — مسیرِ بحرانی: **P0 (قفلِ ریاضیِ SOG — E_shadow/I_pred مستقل MC) + P1 (producerهای زندهٔ Gate-0)** پیش‌شرطِ همه‌چیزند. هر پرامپت adversarial-review شود. اصول: coupled-not-merged · velocity-not-inflation · autoregulation-between-beat-and-spend · sim-before-wire · $0-until-live-gate · هیچ self-grading.
+
 ## جلسه چهل‌وچهارم 2026-07-10 (Claude Fable 5 — master) — 🐙 «همرو کامل انجام بده»: بلوپرینت P4+P5+P6 + W-3 تلگرام + همهٔ cleanupها — سوئیت ۷۷/۷۷ سبز
 
 دستور آری: «همرو کامل انجام بده». اجرا: recon ۹-عاملیِ فقط‌خواندنی → ۴ سازندهٔ موازی روی فایل‌های مجزا → glue/cleanup سریالی → ۶ بازبینِ خصمانه. **اولین سوئیت تمام‌سبزِ پروژه: ۷۷/۷۷** (حتی llm_routing این بار پاس شد؛ capability marker نوشته شد).
