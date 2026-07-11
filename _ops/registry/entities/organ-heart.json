@@ -1,0 +1,13 @@
+{
+  "logical_id": "urn:octopus:organ:heart",
+  "entity_type": "Organ",
+  "display_name": "Heart (Living-Beat)",
+  "physical_path": "_ops/heart",
+  "owner": "ari",
+  "risk_tier": "R2",
+  "autonomy_level": "L2",
+  "live_state": "shadow",
+  "approval_state": "approved",
+  "capabilities": ["C0_observe", "C2_write_staging"],
+  "notes": "WIRE_HEART خاموش — پشتِ ۴ دروازهٔ مالک. SIM-PASS + hash-match ِ tamper-evidence. HEART_PRECISION_WEIGHT خاموش (replay-validated §۵)."
+}

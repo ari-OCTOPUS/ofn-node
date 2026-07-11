@@ -62,7 +62,7 @@ sources:
 
 ## ۵. نقشهٔ انطباقِ additive — سه قدم، همه پشتِ رأی مالک
 
-**پیشنهاد #۱۰ — Phase-0 Registry (پیش‌نیازِ همهٔ بقیه):** `chronos.entity.yaml` برای هر پروژهٔ `03 - Projects` + `agent.manifest.yaml` برای ایجنت‌های `05 - Agents` (فیلدها: logical_id، owner، risk_tier، allowed paths، capabilities، ARI، همه با پیش‌فرضِ unknown) + اسکنرِ read-only (`_ops/registry_scan.py`) که snapshot ِ `state/registry/registry-latest.json` بسازد + کارتِ داشبورد. **فایلِ نو فقط، $0، صفر تغییرِ رفتار.** خروجی‌اش همان دیدِ «همه‌چیز از یک پنجره» است که خواسته‌ای.
+**پیشنهاد #۱۰ — Phase-0 Registry (پیش‌نیازِ همهٔ بقیه):** ✅ **ساخته شد** (۲۰۲۶-۰۷-۱۱، رأی «کاملاً موافقم» — `_ops/registry_scan.py` + ۵ seed، تست ۸/۸، snapshot ِ اول ۱۳ موجودیت، containment ِ صفر-echo). `chronos.entity.yaml` برای هر پروژهٔ `03 - Projects` + `agent.manifest.yaml` برای ایجنت‌های `05 - Agents` (فیلدها: logical_id، owner، risk_tier، allowed paths، capabilities، ARI، همه با پیش‌فرضِ unknown) + اسکنرِ read-only (`_ops/registry_scan.py`) که snapshot ِ `state/registry/registry-latest.json` بسازد + کارتِ داشبورد. **فایلِ نو فقط، $0، صفر تغییرِ رفتار.** خروجی‌اش همان دیدِ «همه‌چیز از یک پنجره» است که خواسته‌ای.
 
 **پیشنهاد #۱۱ — غنی‌سازیِ EventEnvelope:** سه فیلدِ اختیاریِ `schema_version/correlation_id/idempotency_key` در `events.emit` (backward-compatible؛ خواننده‌های فعلی نمی‌شکنند).
 
@@ -73,4 +73,4 @@ sources:
 ترتیبِ درست همان حرفِ تحلیل است: **اول #۱۰ (دید)، بعد #۱۱–۱۳ (قراردادها)، بعد — فقط اگر خواستی — مهاجرتِ تدریجیِ مسیرهای قدیمی به gateway، هرکدام با رأیِ جدا.** هیچ‌کدام حذف/بازنویسی ندارد؛ همه فایلِ نو یا فیلدِ اختیاری‌اند.
 
 ---
-*جلسهٔ ۴۸ ادامه (۲۰۲۶-۰۷-۱۱) — بررسیِ تحلیلِ بیرونیِ URCP به‌دستورِ مالک. هیچ‌کدام از پیشنهادهای #۱۰–۱۳ ساخته نشده‌اند — منتظرِ رأی.*
+*جلسهٔ ۴۸ ادامه (۲۰۲۶-۰۷-۱۱) — بررسیِ تحلیلِ بیرونیِ URCP به‌دستورِ مالک. #۱۰ ساخته شد (رأی مالک)؛ #۱۱–۱۳ منتظرِ رأی.*

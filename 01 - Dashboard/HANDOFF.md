@@ -5,6 +5,15 @@ updated: 2026-07-11
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+## جلسه ۴۸ ادامه (~۱۲:۳۰) — 🗂 #۱۰ ساخته شد: URCP Phase-0 Registry (رأی مالک «کاملاً موافقم»)
+
+اولین قدمِ انطباق با تحلیلِ URCP ([[06 - Architecture Maps/URCP Reconciliation - control-plane on OCTOPUS|سند انطباق]]) — «You cannot govern what you cannot see». همه additive، read-only، $0:
+- **✅ `_ops/registry_scan.py`** — اسکنرِ read-only: پوشه‌های `03 - Projects` (فرانت‌مترِ PROJECT.md) + داک‌های `05 - Agents` + merge با seedهای curated در `_ops/registry/entities/*.json` (۵ فایل: Project-F، قلب، کورتکس، دکتر، پول). پیش‌فرضِ همه‌چیز `unknown` (اصلِ A5)؛ اسکنر هرگز R4/R5 نمی‌دهد (فقط manifest ِ مالک). خروجی: `state/registry/registry-latest.json` (schema: registry.v0، untracked) + یک رویدادِ خلاصه در events (داشبورد لمس نشد).
+- **✅ containment ِ Project-F:** تطبیق فقط با sha256 ِ نامِ پوشه؛ پوشهٔ content-free **اصلاً خوانده نمی‌شود**؛ scrub ِ دفاعی روی کلِ snapshot؛ تستِ سختِ صفر-echo (حتی خودِ hash هم واردِ snapshot نمی‌شود).
+- **✅ تست `test_registry_scan` ۸/۸** — ثبت در run_all (سوییت ۱۰۷ فایل).
+- **✅ اولین snapshot ِ واقعی: ۱۳ موجودیت** (۶ پروژه، ۳ ایجنت، ۴ اندام) · avg conformance ۰٫۷۲ · **unknownهای پیداشده (هدفِ فاز): ۳ ایجنت بی‌مالک/بی‌ریسک، Crypto - etoro بی‌risk_level در PROJECT.md.**
+- **میزِ آری:** (۱) unknownها را تعیین کن — یا فرانت‌مترِ PROJECT.md/داکِ ایجنت را پر کن یا بگو manifest ِ seed بسازم؛ (۲) کارتِ گرافیکیِ registry در `8773/ops` = ویرایشِ فایلِ داشبوردِ زنده → جلسهٔ ویندوزی/رأی جدا (فعلاً خلاصه در لاگِ ops می‌آید)؛ (۳) #۱۱–۱۳ همچنان propose-only.
+
 ## جلسه ۴۸ ادامه (~۱۲:۰۰) — 🔥 #۶ ساخته شد: soft-WTA فقط-سایه (رأی مالک «اول کامل کن هرچی مونده» + پیش‌شرطِ PASS ِ replay)
 
 «باقی‌ماندهٔ مصوب» = #۶ بعد از PASS ِ replay (دستورِ قبلیِ مالک: «فقط اگر replay پاس شد → #۶، آن هم فقط shadow-only»). ساخته شد — additive ِ مطلق:
