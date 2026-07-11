@@ -150,6 +150,24 @@ def t_k_collect_feeds_empty_state_all_keys():
     assert isinstance(s, str) and 1 <= len(s.splitlines()) <= 5
 
 
+def t_l_visual_branding_icons_divider():
+    """ارتقای بصری (رأی مالک): آیکنِ برندِ هر پا + عنوانِ تاپیکِ آیکن‌دار + دیوایدر در status."""
+    assert set(render.LEG_ICONS) >= set(render.LEGS), "هر پا باید آیکن داشته باشد"
+    t = render.topic_title("lead")
+    assert t.startswith("🎨") and "Lead-نقاشی" in t
+    # config مالک نامِ نمایشی را عوض می‌کند ولی آیکنِ برند می‌ماند
+    t2 = render.topic_title("studio_pf", {"display_names": {"studio_pf": "کارگاه"}})
+    assert t2.startswith("🎬") and "کارگاه" in t2
+    # کلیدِ ناشناس → بدونِ آیکن، بدونِ crash
+    assert render.topic_title("nope") == "nope"
+    # status: دیوایدرِ برند حاضر است و سقفِ ≤۵ خط حفظ شده (t_a همین را هم چک می‌کند)
+    s = render.render_status({"board": {"counts": {}}, "guidance": {"n": 1}})
+    assert render.DIVIDER in s and len(s.splitlines()) <= 5
+    # دایجست: آیکنِ پا در هدر
+    d = render.render_leg_digest("crypto", {"status": "🟢", "detail": "x"})
+    assert d.startswith("📈")
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

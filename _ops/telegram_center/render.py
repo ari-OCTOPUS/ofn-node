@@ -47,6 +47,23 @@ LEGS = {
     "knowledge":  "دانش",
 }
 
+# برندینگِ بصریِ هر پا (رأی مالک: media-first، آیکنِ ثابت per پا) — جدا از LEGS تا
+# قراردادِ نام‌ها (تست/`display_name`) دست‌نخورده بماند. HQ برای تاپیک/هدرِ فرماندهی.
+LEG_ICONS = {
+    "lead": "🎨", "ziman": "🖼", "mining": "⛏", "crypto": "📈",
+    "accounting": "🧾", "studio_pf": "🎬", "system": "⚙️", "knowledge": "🧠",
+    "hq": "🐙",
+}
+DIVIDER = "─────── ✦ ───────"
+
+
+def topic_title(leg_key: str, config: dict | None = None) -> str:
+    """عنوانِ تاپیکِ یک پا در سایدبارِ تلگرام: آیکنِ برند + نامِ نمایشیِ مالک.
+    fail-soft: کلیدِ ناشناس = بدونِ آیکن."""
+    name = display_name(leg_key, config)
+    icon = LEG_ICONS.get(str(leg_key or ""))
+    return f"{icon} {name}" if icon else name
+
 # کلیدهای قراردادیِ خروجیِ collect_feeds — همیشه همه حاضرند ({} در شکست).
 FEED_KEYS = ("board", "guidance", "business", "heart", "registry", "telemetry")
 
@@ -196,26 +213,28 @@ def render_status(feeds: dict | None) -> str:
 
     lanes = (f"🧵 صف {q} · ▶️ {run} · ⏸ {blk} · 🙋 {aw} · ✅ {done} · ☣️ {quar}")
 
+    # ضربان + پول در یک خطِ فشرده (ارتقای بصری: عددها monospace با <code>) —
+    # خطِ آزادشده صرفِ دیوایدرِ برند می‌شود؛ سقفِ ≤۵ خط (قانونِ ADHD) حفظ است.
     if heart:
         period = heart.get("period_s")
         pw = heart.get("production_wire") if isinstance(heart.get("production_wire"), dict) else {}
-        wire = bool(pw.get("open"))
-        beat = (f"💓 ضربان {period}s" if period is not None else "💓 ضربانِ سایه")
-        beat += " · سیم باز 🟢" if wire else " · سیم بسته 🔒"
+        wire = "سیم باز 🟢" if bool(pw.get("open")) else "سیم بسته 🔒"
+        beat = (f"💓 <code>{_esc(period)}s</code> · {wire}" if period is not None
+                else f"💓 سایه · {wire}")
     else:
         beat = "💓 قلب هنوز نتپیده (سایه)"
 
     aud = (tel.get("month") or {}).get("aud") if isinstance(tel.get("month"), dict) else None
     try:
-        money = f"💰 ماهِ جاری AU${float(aud):.2f}" if aud is not None else "💰 پول: —"
+        money = f"💰 <code>AU${float(aud):.2f}</code>" if aud is not None else "💰 —"
     except (TypeError, ValueError):
-        money = "💰 پول: —"
+        money = "💰 —"
 
     ask = (f"🧭 {n_guid} تصمیم منتظرِ توست — یک‌تاپ آره/نه" if n_guid
            else "🧭 چیزی همین حالا ازت نمی‌خواد")
 
     return scrub("\n".join([f"{overall} <b>اختاپوس</b> — {mood}",
-                            lanes, beat, money, ask][:5]))
+                            lanes, f"{beat} · {money}", DIVIDER, ask][:5]))
 
 
 # ─── نمایش: دایجستِ یک پا (≤ ۳ خط) ────────────────────────────────────────────────
@@ -226,10 +245,13 @@ def render_leg_digest(leg_key: str, leg: dict | None, config: dict | None = None
     می‌شوند؛ هر چه نبود، خطش حذف می‌شود. نامِ نمایشی از configِ مالک (پیش‌فرض LEGS)."""
     d = leg if isinstance(leg, dict) else {}
     name = display_name(leg_key, config)
+    icon = LEG_ICONS.get(str(leg_key or ""), "")
     status = _one(d.get("status"), 12) or "⚪"
     detail = _one(d.get("detail") if d.get("detail") is not None else d.get("summary"))
     nxt = _one(d.get("next") if d.get("next") is not None else d.get("next_action"), 100)
-    lines = [f"{_esc(status)} <b>{_esc(name)}</b>"]
+    head = f"{icon} <b>{_esc(name)}</b> {_esc(status)}" if icon \
+        else f"{_esc(status)} <b>{_esc(name)}</b>"
+    lines = [head]
     if detail:
         lines.append(_esc(detail))
     if nxt:
@@ -261,9 +283,11 @@ def render_decision(item: dict | None) -> tuple:
     icon = _SOURCE_ICON.get(str(d.get("source") or ""), "🙋")
     q = _one(d.get("q") if d.get("q") is not None else d.get("summary"), 160) or "یک تصمیم"
     why = _one(d.get("why"), 160)
-    text = f"{icon} <b>تصمیم</b>\n{_esc(q)}"
+    prio = _one(d.get("priority"), 12)
+    head = f"{icon} <b>تصمیم</b>" + (f" · <i>{_esc(prio)}</i>" if prio else "")
+    text = f"{head}\n{_esc(q)}"
     if why:
-        text += f"\n<i>{_esc(why)}</i>"
+        text += f"\n<i>↳ {_esc(why)}</i>"
     keyboard = [[
         {"text": "✅ آره", "callback_data": f"ok:{did}"},
         {"text": "❌ نه", "callback_data": f"no:{did}"},

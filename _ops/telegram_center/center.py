@@ -276,11 +276,18 @@ class Center:
         topics = cfg.setdefault("topics", {})
         if not isinstance(topics, dict):
             topics = cfg["topics"] = {}
+        r = self._rmod()
         for leg in self._legs():
             if isinstance(topics.get(leg), int):
                 continue                            # قبلاً ساخته شده — idempotent
+            # عنوانِ تاپیک: آیکنِ برندِ پا + نامِ نمایشی (render.topic_title)؛ fallback = نامِ خالی
             try:
-                tid = self._client.create_topic(_scrub(names.get(leg, leg)),
+                title = r.topic_title(leg, cfg) if (r is not None and hasattr(r, "topic_title")) \
+                    else names.get(leg, leg)
+            except Exception:  # noqa: BLE001
+                title = names.get(leg, leg)
+            try:
+                tid = self._client.create_topic(_scrub(title),
                                                 chat_id=chat_id)
             except Exception:  # noqa: BLE001 — یک تلاش، بدونِ storm
                 tid = None
