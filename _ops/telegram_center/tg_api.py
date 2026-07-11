@@ -1,0 +1,339 @@
+#!/usr/bin/env python3
+"""tg_api.py — کلاینتِ نازکِ Bot API تلگرام برای «مرکزِ تلگرام» (telegram_center).
+
+نقش: فقط لولهٔ HTTP (stdlib/urllib) — صفر منطقِ business. الگوی approval_channel
+(لایهٔ budget) بازمصرف شده: token فقط از env، هرگز hardcode/لاگ/echo؛ long-poll =
+$0-idle؛ تنها میزبانِ مجاز api.telegram.org؛ هر متد دقیقاً یک تلاشِ HTTP (بدونِ
+retry-storm) و fail-soft (هر خطا → پیش‌فرضِ امن: None/False/[]، هرگز crashِ صداکننده).
+
+flag-off = no-op: بدونِ TELEGRAM_BOT_TOKEN (یا بدونِ هیچ chat id) همهٔ متدهای عمومی
+no-opِ تمیزند و **صفر** تماسِ شبکه رخ می‌دهد. import-time خالص است: نه شبکه، نه
+نوشتنِ دیسک، نه importِ هستهٔ ارگانیسم (opslib فقط lazy برای هشدارِ fail-soft).
+
+تزریق‌پذیر برای تست: post_fn(url, body) / get_fn(url, timeout_s) — هم‌سان با
+http_get/http_post ِ TelegramApprovalChannel، تا تست بدونِ شبکه/کلید برود.
+
+containment: هر متنِ خروجی از scrubِ _BANNED_ECHO می‌گذرد (هیچ رشتهٔ هویتِ ممنوع
+echo نمی‌شود — parity با events._scrub_str / registry_scan.scrub). نام‌های نمایشی
+در زمانِ اجرا از configِ مالک می‌آیند؛ کد فقط legهای کلیدیِ بی‌محتوا می‌شناسد.
+
+secret-guard (I9): token فقط در URL است و URL هرگز لاگ/alert نمی‌شود؛ repr و
+خطاها فقط نسخهٔ mask‌شده را نشان می‌دهند.
+"""
+from __future__ import annotations
+
+import html
+import json
+import os
+import re
+import time
+import urllib.parse
+import urllib.request
+
+TELEGRAM_API_BASE = "https://api.telegram.org"   # تنها میزبانِ مجازِ این ماژول
+DEFAULT_LONGPOLL_S = 25                          # $0-idle: getUpdates روی سرور بلوکه می‌ماند
+_ALERT_THROTTLE_S = 3600                         # هشدارِ شکست: حداکثر ۱/ساعت به‌ازای هر متد
+_TEXT_CAP = 4096                                 # سقفِ متنِ پیامِ تلگرام
+_TOAST_CAP = 200                                 # سقفِ متنِ answerCallbackQuery
+
+# containment — تنها جای مجاز برای این رشته‌ها (parity با events/_scrub، registry_scan)
+_BANNED_ECHO = ("اونلی", "onlyfans", "صبا")
+
+
+# ─── env / کمکی‌های کوچک (الگوی approval_channel) ────────────────────────────
+def _env_str(name: str, default: str = "") -> str:
+    v = os.environ.get(name, default)
+    return v.strip() if isinstance(v, str) else default
+
+
+def _env_int(name: str, default: int) -> int:
+    try:
+        return int(os.environ.get(name, default))
+    except (TypeError, ValueError):
+        return default
+
+
+def _coerce_id(v) -> int | None:
+    """chat id → int (سوپرگروه‌ها منفی‌اند). خرابی → None (fail-soft)."""
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def _mask_token(tok: str) -> str:
+    """برای repr/خطا: فقط ۴ نویسهٔ نخست + … (هرگز کلِ token)."""
+    if not tok:
+        return "∅"
+    return (tok[:4] + "…") if len(tok) > 4 else "…"
+
+
+def _scrub(text: str) -> str:
+    """containment: هر رخدادِ رشتهٔ ممنوع در متنِ خروجی → ▮ (لاتین case-insensitive).
+    برخلافِ events._scrub_str (که کلِ رشته را redact می‌کند)، این‌جا فقط رخدادها
+    جایگزین می‌شوند تا بقیهٔ دایجستِ بی‌گناه از بین نرود."""
+    v = str(text or "")
+    for b in _BANNED_ECHO:
+        if b.isascii():
+            v = re.sub(re.escape(b), "▮", v, flags=re.IGNORECASE)
+        else:
+            v = v.replace(b, "▮")
+    return v
+
+
+def _scrub_keyboard(keyboard) -> list:
+    """کیبوردِ inline را کپی + متنِ دکمه‌ها را scrub می‌کند (callback_data = legهای
+    کلیدیِ بی‌محتوا، دست‌نخورده). فرمِ خراب → [] (fail-soft)."""
+    try:
+        return [[{**dict(b), "text": _scrub(str(dict(b).get("text", "")))}
+                 for b in row] for row in keyboard]
+    except Exception:  # noqa: BLE001
+        return []
+
+
+def _toast_plain(text: str) -> str:
+    """answerCallbackQuery متنِ ساده است (HTML render نمی‌شود) — تگ‌ها را بردار و
+    entityها را باز کن (همان الگوی TelegramApprovalChannel._toast_plain)."""
+    return html.unescape(re.sub(r"<[^>]+>", "", str(text or ""))).strip()
+
+
+def _alert_soft(msg: str) -> None:
+    """هشدارِ fail-soft و lazy به opslib.alert — importِ opslib فقط هنگامِ نیاز تا
+    import-time این ماژول خالص/stdlib-only بماند. msg هرگز token/URL ندارد. شکست = سکوت."""
+    try:
+        import sys as _s
+        from pathlib import Path as _P
+        _budget = _P(__file__).resolve().parents[1] / "budget"
+        if str(_budget) not in _s.path:
+            _s.path.insert(0, str(_budget))
+        import opslib  # lazy — هشدار هرگز مسیرِ caller را نمی‌کشد
+        opslib.alert([msg])
+    except Exception:  # noqa: BLE001
+        pass
+
+
+# ─── transportهای پیش‌فرض (stdlib-only، فقط api.telegram.org) ─────────────────
+def _url_json_get(url: str, timeout_s: float) -> dict:
+    """getterِ پیش‌فرض. timeout کمی بیشتر از longpoll تا پاسخِ دیررس هم خوانده شود.
+    هرگز URL را لاگ نمی‌کند (token داخلش است)."""
+    if not url.startswith(TELEGRAM_API_BASE + "/"):
+        raise ValueError("blocked host (only api.telegram.org)")
+    req = urllib.request.Request(url, headers={"User-Agent": "octopus-tg-center/0.1"})
+    with urllib.request.urlopen(req, timeout=timeout_s + 5) as resp:  # noqa: S310 — only TELEGRAM_API_BASE
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def _url_json_post(url: str, body: dict, timeout_s: float = 10.0) -> dict:
+    """posterِ پیش‌فرض (JSON body). body هرگز token ندارد (token در URL است)."""
+    if not url.startswith(TELEGRAM_API_BASE + "/"):
+        raise ValueError("blocked host (only api.telegram.org)")
+    data = json.dumps(body, ensure_ascii=False).encode("utf-8")
+    req = urllib.request.Request(url, data=data,
+                                 headers={"User-Agent": "octopus-tg-center/0.1",
+                                          "Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=timeout_s) as resp:  # noqa: S310 — only TELEGRAM_API_BASE
+        return json.loads(resp.read().decode("utf-8"))
+
+
+class TgClient:
+    """کلاینتِ نازک و بی‌حالتِ Bot API. همهٔ متدهای عمومی fail-soft و flag-off-امن‌اند:
+    not wired → پیش‌فرضِ امن، صفر شبکه. keyboard = list[list[{'text','callback_data'}]].
+    parse_mode همیشه HTML."""
+
+    def __init__(self, token: str | None = None, owner_chat_id=None,
+                 center_chat_id=None, post_fn=None, get_fn=None):
+        self._token = token if token is not None else _env_str("TELEGRAM_BOT_TOKEN")
+        self._owner = (_coerce_id(owner_chat_id) if owner_chat_id is not None
+                       else (_env_int("TELEGRAM_OWNER_CHAT_ID", 0) or None))
+        self._center = (_coerce_id(center_chat_id) if center_chat_id is not None
+                        else (_env_int("TG_CENTER_CHAT_ID", 0) or None))
+        self._post = post_fn or _url_json_post
+        self._get = get_fn or _url_json_get
+        self._last_alert: dict[str, float] = {}   # ضدِ اسپم: هشدارِ شکست ۱/ساعت/متد
+
+    # ── وضعیت ────────────────────────────────────────────────────────────────
+    def wired(self) -> bool:
+        """لوله وصل است؟ token + دست‌کم یک chat id لازم. نبودِ هر = no-opِ امن."""
+        return bool(self._token) and (self._owner is not None or self._center is not None)
+
+    def __repr__(self) -> str:
+        return (f"<TgClient wired={self.wired()} token={_mask_token(self._token)} "
+                f"owner={self._owner} center={self._center}>")
+
+    # ── allowlist (قانونِ P3 §5: فقط مالک فرمان/کلیک می‌دهد) ──────────────────
+    def is_owner(self, update) -> bool:
+        """آیا این update از خودِ مالک است؟ منبعِ حقیقت = from.id (نه chat.id، چون در
+        سوپرگروهِ مرکز chat.id ≠ مالک). مالکِ پیکربندی‌نشده → False (fail-closed)."""
+        if self._owner is None:
+            return False
+        try:
+            u = update or {}
+            frm = ((u.get("message") or {}).get("from")
+                   or (u.get("callback_query") or {}).get("from")
+                   or (u.get("edited_message") or {}).get("from") or {})
+            return int(frm.get("id")) == int(self._owner)
+        except (TypeError, ValueError, AttributeError):
+            return False
+
+    # ── هستهٔ HTTP (یک تلاش، fail-soft، بدونِ leakِ URL/token) ────────────────
+    def _build_url(self, method: str, params: dict | None = None) -> str:
+        """ساختِ URLِ Bot API. هرگز کلِ URL را لاگ نکن (token داخلش است)."""
+        url = f"{TELEGRAM_API_BASE}/bot{self._token}/{method}"
+        if params:
+            url += "?" + urllib.parse.urlencode(params)
+        return url
+
+    def _call_post(self, method: str, body: dict) -> dict | None:
+        """یک POST؛ خطا/پاسخِ نامعتبر → None. هشدارِ شکست throttled و بدونِ token."""
+        try:
+            data = self._post(self._build_url(method), body)
+        except Exception as e:  # noqa: BLE001 — fail-soft، بدونِ leakِ URL/token
+            self._note_fail(method, e)
+            return None
+        if not isinstance(data, dict) or not data.get("ok"):
+            return None
+        return data
+
+    def _note_fail(self, method: str, exc: Exception) -> None:
+        """هشدارِ fail-softِ throttled (۱/ساعت/متد) — فقط نامِ متد + نوعِ خطا؛
+        هرگز URL/token/پیام. حلقهٔ poll جدا و ساکت است (poll_updates)."""
+        now = time.time()
+        if now - self._last_alert.get(method, 0.0) < _ALERT_THROTTLE_S:
+            return
+        self._last_alert[method] = now
+        _alert_soft(f"tg_api {method} failed: {type(exc).__name__}")
+
+    def _resolve_chat(self, chat_id) -> int | None:
+        """chatِ مقصد: صریح > مرکز > مالک. نامعتبر → None (fail-soft)."""
+        if chat_id is not None:
+            return _coerce_id(chat_id)
+        return self._center if self._center is not None else self._owner
+
+    # ── متدهای عمومی (قراردادِ telegram_center) ───────────────────────────────
+    def send(self, text: str, *, topic_id=None, keyboard=None,
+             chat_id=None, pin: bool = False) -> int | None:
+        """sendMessage (HTML). خروجی = message_id یا None. topic_id → message_thread_id
+        (تاپیکِ سوپرگروه). pin=True → بعد از ارسالِ موفق، pin هم می‌شود (شکستِ pin
+        ارسال را باطل نمی‌کند). not wired / متنِ خالی / chatِ نامعتبر → None، صفر شبکه."""
+        if not self.wired():
+            return None
+        cid = self._resolve_chat(chat_id)
+        body_text = _scrub(text)[:_TEXT_CAP]
+        if cid is None or not body_text.strip():
+            return None
+        body: dict = {"chat_id": cid, "text": body_text, "parse_mode": "HTML"}
+        if topic_id is not None:
+            tid = _coerce_id(topic_id)
+            if tid is not None:
+                body["message_thread_id"] = tid
+        if keyboard:
+            body["reply_markup"] = {"inline_keyboard": _scrub_keyboard(keyboard)}
+        data = self._call_post("sendMessage", body)
+        if data is None:
+            return None
+        mid = _coerce_id((data.get("result") or {}).get("message_id"))
+        if mid is not None and pin:
+            self.pin_message(mid, chat_id=cid)   # fail-soft: pin نشد → پیام سرِ جایش است
+        return mid
+
+    def edit(self, message_id, text: str, keyboard=None, chat_id=None) -> bool:
+        """editMessageText (HTML). خروجی = موفق شد؟ not wired/نامعتبر → False، صفر شبکه."""
+        if not self.wired():
+            return False
+        cid = self._resolve_chat(chat_id)
+        mid = _coerce_id(message_id)
+        body_text = _scrub(text)[:_TEXT_CAP]
+        if cid is None or mid is None or not body_text.strip():
+            return False
+        body: dict = {"chat_id": cid, "message_id": mid,
+                      "text": body_text, "parse_mode": "HTML"}
+        if keyboard:
+            body["reply_markup"] = {"inline_keyboard": _scrub_keyboard(keyboard)}
+        return self._call_post("editMessageText", body) is not None
+
+    def pin_message(self, message_id, chat_id=None) -> bool:
+        """pinChatMessage (بی‌صدا — بدونِ نوتیفِ اضافه). not wired/نامعتبر → False."""
+        if not self.wired():
+            return False
+        cid = self._resolve_chat(chat_id)
+        mid = _coerce_id(message_id)
+        if cid is None or mid is None:
+            return False
+        return self._call_post("pinChatMessage",
+                               {"chat_id": cid, "message_id": mid,
+                                "disable_notification": True}) is not None
+
+    def create_topic(self, name: str, chat_id=None) -> int | None:
+        """createForumTopic در سوپرگروهِ مرکز. خروجی = message_thread_id یا None."""
+        if not self.wired():
+            return None
+        cid = self._resolve_chat(chat_id)
+        topic_name = _scrub(name)[:128].strip()
+        if cid is None or not topic_name:
+            return None
+        data = self._call_post("createForumTopic",
+                               {"chat_id": cid, "name": topic_name})
+        if data is None:
+            return None
+        return _coerce_id((data.get("result") or {}).get("message_thread_id"))
+
+    def set_commands(self, commands) -> bool:
+        """setMyCommands از list[tuple[str, str]] = (command, description).
+        فرمِ خراب/لیستِ خالی → False، صفر شبکه."""
+        if not self.wired():
+            return False
+        cmds: list[dict] = []
+        try:
+            for c, d in list(commands or []):
+                cmd = str(c).strip().lstrip("/")[:32]
+                if cmd:
+                    cmds.append({"command": cmd, "description": _scrub(d)[:256]})
+        except (TypeError, ValueError):
+            return False
+        if not cmds:
+            return False
+        return self._call_post("setMyCommands", {"commands": cmds}) is not None
+
+    def poll_updates(self, offset: int = 0, timeout_s: int = DEFAULT_LONGPOLL_S) -> list[dict]:
+        """یک دورِ long-pollِ getUpdates ($0-idle). خروجی = لیستِ updateها (dict) —
+        خطای شبکه/پاسخِ بد → [] بی‌صدا (حلقهٔ poll نباید alert-spam کند؛ الگوی
+        approval_channel.poll_once). offsetِ بعدی با next_offset حساب می‌شود."""
+        if not self.wired():
+            return []
+        try:
+            params = {"offset": int(offset), "timeout": int(timeout_s),
+                      "allowed_updates": json.dumps(["message", "callback_query"])}
+            data = self._get(self._build_url("getUpdates", params), float(timeout_s))
+        except Exception:  # noqa: BLE001 — بی‌صدا، بدونِ leakِ URL/token
+            return []
+        if not isinstance(data, dict) or not data.get("ok"):
+            return []
+        return [u for u in (data.get("result") or []) if isinstance(u, dict)]
+
+    @staticmethod
+    def next_offset(updates, current: int = 0) -> int:
+        """ریاضیِ offsetِ getUpdates: بیشینهٔ update_id + 1 (وگرنه همان current).
+        همان قاعدهٔ TelegramApprovalChannel.poll_once — caller بینِ pollها نگه می‌دارد."""
+        try:
+            off = int(current or 0)
+        except (TypeError, ValueError):
+            off = 0
+        for u in updates or []:
+            try:
+                uid = int((u or {}).get("update_id"))
+            except (TypeError, ValueError, AttributeError):
+                continue
+            if uid + 1 > off:
+                off = uid + 1
+        return off
+
+    def answer_callback(self, callback_id, text: str = "") -> bool:
+        """answerCallbackQuery — بستنِ spinnerِ دکمه. متنِ toast ساده است (HTML render
+        نمی‌شود) → strip تگ + unescape (باگِ toastِ جلسه ۴۶ تکرار نشود)."""
+        if not self.wired() or not callback_id:
+            return False
+        return self._call_post(
+            "answerCallbackQuery",
+            {"callback_query_id": str(callback_id),
+             "text": _toast_plain(_scrub(text))[:_TOAST_CAP],
+             "cache_time": 0}) is not None

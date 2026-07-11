@@ -55,7 +55,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_standards_s.py", "test_replay_s.py", "test_softwta_shadow.py",
          "test_registry_scan.py", "test_phase1_envelope.py",
          "test_route_scorer.py", "test_calibration_probe.py", "test_consolidate.py",
-         "test_execution_board.py", "test_depth_guard.py", "test_guidance_box.py"]
+         "test_execution_board.py", "test_depth_guard.py", "test_guidance_box.py",
+         "test_tg_api.py", "test_tg_render.py", "test_tg_center.py"]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
                HERE.parents[1] / "07 - Knowledge" / "school-memory" / "test_curriculum.py"]

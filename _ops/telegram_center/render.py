@@ -1,0 +1,277 @@
+#!/usr/bin/env python3
+"""render.py — لایهٔ نمایشِ «مرکزِ تلگرام» (telegram_center): متن/کیبورد، خالص و بدونِ شبکه.
+
+نقش: تنها جایی که feedهای کنترل-پلین به متنِ HTMLِ تلگرام و کیبوردِ inline تبدیل
+می‌شوند. هیچ ارسالی اینجا نیست — tg_api می‌فرستد، center تصمیم می‌گیرد؛ این ماژول
+فقط «چه چیزی دیده شود» را می‌سازد (ADHD-first: کوتاه، emoji-اول، هر تصمیم یک‌تاپ).
+
+قواعد (قانونِ لایه):
+  • خالص: هیچ شبکه‌ای، هیچ نوشتنی روی دیسک، هیچ اثرِ import-time.
+  • fail-soft: هر ورودیِ خراب/غایب → خروجیِ امن (رشتهٔ کوتاه/{})، هرگز crashِ صداکننده.
+  • collect_feeds تنها نقطهٔ I/O است — فقط «خواندنِ» تنبل و fail-soft از aggregatorهای
+    موجود (execution_board/guidance_box/business_brain) + دو state-file (قلب/registry)،
+    با الگویِ sys.path ِ live/server.py. هر feed مستقل try می‌شود؛ شکست = {} همان کلید.
+  • containment: کلیدهای پا (leg) content-free اند؛ نامِ نمایشی از config ِ مالک در
+    runtime می‌آید. هر رشتهٔ حاویِ echo ِ ممنوع (پاریته با execution_board._scrub /
+    registry_scan.scrub) پیش از خروج redact می‌شود — هرگز نشتِ جزئی.
+  • status ≤ ۵ خطِ کوتاه؛ دایجستِ هر پا ≤ ۳ خط؛ کیبوردِ تصمیم = ok/no/later:<id>.
+
+$0 · stdlib-only · Persian-ok. مصرف‌کننده: _ops/telegram_center/center.py.
+"""
+from __future__ import annotations
+
+import hashlib
+import html
+import json
+import re
+import sys
+from pathlib import Path
+
+_OPS = Path(__file__).resolve().parent.parent          # _ops
+
+# containment (پاریته با execution_board / guidance_box / registry_scan) —
+# تنها جای مجاز برای این رشته‌ها در کد؛ هرگز جای دیگری echo نمی‌شوند.
+_BANNED_ECHO = ("اونلی", "onlyfans", "صبا")
+_REDACTED = "(redacted:containment)"
+
+# ۸ پای ارگانیسم — کلیدها content-free و پایدار (کد/لاگ/state فقط با همین کلیدها).
+# مقدارها = نامِ نمایشیِ پیش‌فرض؛ مالک در runtime از config (display_names) عوض می‌کند.
+LEGS = {
+    "lead":       "Lead-نقاشی",
+    "ziman":      "Ziman Galerry",
+    "mining":     "Mining",
+    "crypto":     "Crypto-etoro",
+    "accounting": "Accounting",
+    "studio_pf":  "استودیو",
+    "system":     "سیستم",
+    "knowledge":  "دانش",
+}
+
+# کلیدهای قراردادیِ خروجیِ collect_feeds — همیشه همه حاضرند ({} در شکست).
+FEED_KEYS = ("board", "guidance", "business", "heart", "registry", "telemetry")
+
+_SOURCE_ICON = {"money": "💰", "blocked": "⏸", "approval": "🙋",
+                "fear": "😨", "needs": "📌"}
+# callback_data باید ASCII-تمیز و کوتاه بماند (سقفِ ۶۴ بایتِ تلگرام + بدونِ leak)
+_ID_SAFE = re.compile(r"[^A-Za-z0-9_.\-]")
+
+
+# ─── ابزارهای خالصِ کوچک ─────────────────────────────────────────────────────────
+def scrub(text) -> str:
+    """هر خطِ حاویِ echo ِ ممنوع → کلِ همان خط redact (هرگز نشتِ جزئی؛ بقیهٔ خطوط سالم).
+
+    پاریته با execution_board._scrub در سطحِ فیلد؛ اینجا خط‌به‌خط تا یک فیلدِ آلوده
+    کلِ statusِ مالک را نکشد. همیشه str برمی‌گرداند (fail-soft روی None/عدد)."""
+    out = []
+    for ln in str(text if text is not None else "").splitlines():
+        low = ln.lower()
+        out.append(_REDACTED if any(b in low or b in ln for b in _BANNED_ECHO) else ln)
+    return "\n".join(out)
+
+
+def _esc(s) -> str:
+    """HTML escape (parse_mode=HTML) — fail-soft روی None."""
+    return html.escape(str(s if s is not None else ""))
+
+
+def _int(v, default: int = 0) -> int:
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return default
+
+
+def _one(s, cap: int = 120) -> str:
+    """یک‌خطی‌سازِ امن: فاصله‌های تو‌در‌تو/خطِ‌نو → یک فاصله؛ کران‌دار."""
+    return " ".join(str(s if s is not None else "").split())[:cap]
+
+
+def _import_soft(modname: str):
+    """importِ تنبل و fail-soft از _ops (الگوی live/server.py: sys.path insert).
+
+    فقط collect_feeds صدایش می‌زند — import-time ِ خودِ render خالص می‌ماند."""
+    try:
+        for sub in ("budget", "cortex", ""):
+            p = str(_OPS / sub) if sub else str(_OPS)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        import importlib
+        return importlib.import_module(modname)
+    except Exception:  # noqa: BLE001 — feedِ غایب هرگز صداکننده را نمی‌کشد
+        return None
+
+
+def _read_json(p: Path) -> dict:
+    try:
+        d = json.loads(p.read_text("utf-8")) if p.exists() else {}
+        return d if isinstance(d, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def display_name(leg_key: str, config: dict | None = None) -> str:
+    """نامِ نمایشیِ یک پا: اول configِ مالک (display_names یا نگاشتِ مستقیم)، بعد
+    پیش‌فرضِ LEGS، بعد خودِ کلید. fail-soft: configِ خراب = پیش‌فرض."""
+    key = str(leg_key or "")
+    try:
+        cfg = config or {}
+        names = cfg.get("display_names") if isinstance(cfg.get("display_names"), dict) else cfg
+        n = names.get(key) if isinstance(names, dict) else None
+        if n:
+            return str(n)
+    except Exception:  # noqa: BLE001
+        pass
+    return LEGS.get(key, key or "?")
+
+
+# ─── I/O ِ فقط‌خواندنی: جمعِ feedها ────────────────────────────────────────────────
+def collect_feeds() -> dict:
+    """همهٔ feedهای کنترل-پلین در یک dict — هر کلید مستقل، fail-soft، {} در شکست.
+
+    کلیدها (FEED_KEYS): board (execution_board.board) · guidance (guidance_box.guidance)
+    · business (business_brain.summary) · heart (pulse/heart-shadow-latest.json)
+    · registry (registry/registry-latest.json) · telemetry (telemetry-latest.json — پول).
+    هیچ نوشتنی، هیچ شبکه‌ای؛ فقط خواندنِ stateِ موجود."""
+    feeds: dict = {k: {} for k in FEED_KEYS}
+
+    eb = _import_soft("execution_board")
+    if eb is not None:
+        try:
+            b = eb.board()
+            feeds["board"] = b if isinstance(b, dict) else {}
+        except Exception:  # noqa: BLE001
+            feeds["board"] = {}
+
+    gb = _import_soft("guidance_box")
+    if gb is not None:
+        try:
+            g = gb.guidance()
+            feeds["guidance"] = g if isinstance(g, dict) else {}
+        except Exception:  # noqa: BLE001
+            feeds["guidance"] = {}
+
+    bb = _import_soft("business_brain")
+    if bb is not None:
+        try:
+            s = bb.summary()
+            feeds["business"] = s if isinstance(s, dict) else {}
+        except Exception:  # noqa: BLE001
+            feeds["business"] = {}
+
+    ops = _import_soft("opslib")
+    if ops is not None:
+        try:
+            state = ops.STATE_DIR
+            feeds["heart"] = _read_json(state / "pulse" / "heart-shadow-latest.json")
+            feeds["registry"] = _read_json(state / "registry" / "registry-latest.json")
+            feeds["telemetry"] = _read_json(state / "telemetry-latest.json")
+        except Exception:  # noqa: BLE001
+            pass
+    return feeds
+
+
+# ─── نمایش: status ِ پین‌شده (≤ ۵ خط، یک‌نگاه) ────────────────────────────────────
+def render_status(feeds: dict | None) -> str:
+    """statusِ یک‌نگاه (ADHD-first): کل + شمارشِ خطوط + ضربان + پول + «چی ازم می‌خوای».
+
+    ≤ ۵ خطِ کوتاهِ HTML. ورودیِ خراب/خالی = statusِ آرامِ پیش‌فرض (هرگز crash)."""
+    f = feeds if isinstance(feeds, dict) else {}
+    board = f.get("board") if isinstance(f.get("board"), dict) else {}
+    counts = board.get("counts") if isinstance(board.get("counts"), dict) else {}
+    q, run = _int(counts.get("queued")), _int(counts.get("running"))
+    blk, aw = _int(counts.get("blocked")), _int(counts.get("awaiting_user"))
+    done, quar = _int(counts.get("done")), _int(counts.get("quarantined"))
+    guid = f.get("guidance") if isinstance(f.get("guidance"), dict) else {}
+    n_guid = _int(guid.get("n"))
+    heart = f.get("heart") if isinstance(f.get("heart"), dict) else {}
+    tel = f.get("telemetry") if isinstance(f.get("telemetry"), dict) else {}
+
+    # کل: قرنطینه = 🔴؛ چیزی منتظرِ مالک/مسدود = 🟡؛ وگرنه 🟢 (ساده و صادق)
+    if quar > 0:
+        overall, mood = "🔴", "یه چیزی قرنطینه شده"
+    elif aw + blk + n_guid > 0:
+        overall, mood = "🟡", "چند چیز منتظرِ توئه"
+    else:
+        overall, mood = "🟢", "همه‌چیز روبه‌راهه"
+
+    lanes = (f"🧵 صف {q} · ▶️ {run} · ⏸ {blk} · 🙋 {aw} · ✅ {done} · ☣️ {quar}")
+
+    if heart:
+        period = heart.get("period_s")
+        pw = heart.get("production_wire") if isinstance(heart.get("production_wire"), dict) else {}
+        wire = bool(pw.get("open"))
+        beat = (f"💓 ضربان {period}s" if period is not None else "💓 ضربانِ سایه")
+        beat += " · سیم باز 🟢" if wire else " · سیم بسته 🔒"
+    else:
+        beat = "💓 قلب هنوز نتپیده (سایه)"
+
+    aud = (tel.get("month") or {}).get("aud") if isinstance(tel.get("month"), dict) else None
+    try:
+        money = f"💰 ماهِ جاری AU${float(aud):.2f}" if aud is not None else "💰 پول: —"
+    except (TypeError, ValueError):
+        money = "💰 پول: —"
+
+    ask = (f"🧭 {n_guid} تصمیم منتظرِ توست — یک‌تاپ آره/نه" if n_guid
+           else "🧭 چیزی همین حالا ازت نمی‌خواد")
+
+    return scrub("\n".join([f"{overall} <b>اختاپوس</b> — {mood}",
+                            lanes, beat, money, ask][:5]))
+
+
+# ─── نمایش: دایجستِ یک پا (≤ ۳ خط) ────────────────────────────────────────────────
+def render_leg_digest(leg_key: str, leg: dict | None, config: dict | None = None) -> str:
+    """دایجستِ کوتاهِ یک پا: «وضعیت + نام» / جزئیات / قدمِ بعد. حداکثر ۳ خط.
+
+    شکلِ leg آزاد است (fail-soft): status/detail|summary/next|next_action خوانده
+    می‌شوند؛ هر چه نبود، خطش حذف می‌شود. نامِ نمایشی از configِ مالک (پیش‌فرض LEGS)."""
+    d = leg if isinstance(leg, dict) else {}
+    name = display_name(leg_key, config)
+    status = _one(d.get("status"), 12) or "⚪"
+    detail = _one(d.get("detail") if d.get("detail") is not None else d.get("summary"))
+    nxt = _one(d.get("next") if d.get("next") is not None else d.get("next_action"), 100)
+    lines = [f"{_esc(status)} <b>{_esc(name)}</b>"]
+    if detail:
+        lines.append(_esc(detail))
+    if nxt:
+        lines.append(f"↳ {_esc(nxt)}")
+    return scrub("\n".join(lines[:3]))
+
+
+# ─── نمایش: کارتِ تصمیم (یک‌تاپ: ok/no/later) ─────────────────────────────────────
+def _decision_id(item: dict) -> str:
+    """شناسهٔ تصمیم برای callback_data: idِ داده‌شده (فقط نویسه‌های امنِ ASCII، کران‌دار،
+    هرگز حاویِ echo ِ ممنوع) وگرنه هشِ پایدارِ محتوا (deterministic، content-free)."""
+    raw = str(item.get("id") or "").strip()
+    if raw:
+        clean = _ID_SAFE.sub("", raw)[:48]
+        if clean and not any(b in clean.lower() for b in _BANNED_ECHO):
+            return clean
+    basis = f"{item.get('q', '')}|{item.get('source', '')}|{item.get('why', '')}"
+    return hashlib.sha256(basis.encode("utf-8")).hexdigest()[:12]
+
+
+def render_decision(item: dict | None) -> tuple:
+    """کارتِ تصمیمِ یک‌تاپ: (متنِ HTML، کیبورد). کیبورد = یک ردیفِ ۳ دکمه با
+    callback_data دقیقاً 'ok:<id>' / 'no:<id>' / 'later:<id>' (قراردادِ center).
+
+    item = آیتمِ guidance ({q, why, source, priority[, id]}) یا هر dictِ مشابه؛
+    fail-soft: ورودیِ خراب = کارتِ عمومی با هشِ پایدار."""
+    d = item if isinstance(item, dict) else {}
+    did = _decision_id(d)
+    icon = _SOURCE_ICON.get(str(d.get("source") or ""), "🙋")
+    q = _one(d.get("q") if d.get("q") is not None else d.get("summary"), 160) or "یک تصمیم"
+    why = _one(d.get("why"), 160)
+    text = f"{icon} <b>تصمیم</b>\n{_esc(q)}"
+    if why:
+        text += f"\n<i>{_esc(why)}</i>"
+    keyboard = [[
+        {"text": "✅ آره", "callback_data": f"ok:{did}"},
+        {"text": "❌ نه", "callback_data": f"no:{did}"},
+        {"text": "⏳ بعداً", "callback_data": f"later:{did}"},
+    ]]
+    return scrub(text), keyboard
+
+
+if __name__ == "__main__":
+    # فقط‌خواندنی: نمونهٔ statusِ زنده از stateِ موجود (هیچ ارسال/نوشتنی)
+    print(render_status(collect_feeds()))
