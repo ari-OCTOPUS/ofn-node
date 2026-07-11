@@ -11,7 +11,14 @@ aliases: ["Project-F Handoff", "برنامه ایجنت بعدی"]
 
 # 🤝 HANDOFF — برنامهٔ کامل برای ایجنت بعدی (Project-F)
 
-> **وضعیت لحظهٔ تحویل (2026-07-12):** نقشه‌برداری کامل و راستی‌آزمایی‌شده انجام شد؛ ۵ سند کنترل ساخته شد؛ **هیچ فایلی جابه‌جا نشده، هیچ کدی اجرا نشده.** GATE 0 هنوز باز؛ Security Gate بسته؛ پوسچر = contained propose-only.
+> **وضعیت لحظهٔ تحویل (2026-07-12):** نقشه‌برداری کامل + بلوک A و D اجرا شد (۶ سند با ورک‌فلوِ ۶-ایجنتهٔ موازی نوشته شد)؛ **هیچ فایلی جابه‌جا نشده، هیچ کدی اجرا نشده.** GATE 0 هنوز باز؛ پوسچر = contained propose-only.
+
+## ✅ انجام‌شده در این جلسه (2026-07-12)
+
+- **کارتوگرافی + ۴ سند کنترل** (00 - Control): CARTOGRAPHY، SOURCE-OF-TRUTH-MATRIX، RISK-LADDER، MIGRATION-MAP (+ بلوک اجراییِ آماده)، همین HANDOFF.
+- **بلوک A (docs):** ✅ A1 [[07 - Compliance & Privacy/OPSEC-ITEMS|OPSEC-ITEMS]] · ✅ A3 [[01 - Strategy/STRATEGY-RECONCILE-2026-07-12|STRATEGY-RECONCILE]] · ✅ A2 تازه‌سازیِ `_INDEX` پوشه‌های 01/06/07 · ✅ A5 sync ‏VERDICT_QUEUE. (باقی: A4 بنرِ HOME — انجام شد پایینِ همین جلسه.)
+- **بلوک D (proposals، propose-only):** ✅ [[06 - Ops & Runtime/PROP-D1-project_f_brain-fate|D1]] · ✅ [[06 - Ops & Runtime/PROP-D2-wire-learning-to-acquisition|D2]] · ✅ [[06 - Ops & Runtime/PROP-D3-missing-tests-plan|D3]] · ✅ [[06 - Ops & Runtime/PROP-D4-identifier-rename-opsec|D4]]. اسکلتِ خالیِ 01/06/07 حالا محتوای واقعی دارد.
+- **⛔ بلوک B (moves) + C (drafts reset):** آماده در MIGRATION-MAP «بلوک اجراییِ آماده»، ولی auto-mode اجازهٔ اجرای دسته‌ایِ `mv` را نداد → **معطلِ اجرای مالک یا اجازهٔ Bash.** هیچ انتقالی رخ نداد.
 
 ## ۰. ترتیب لود (قبل از هر کاری)
 

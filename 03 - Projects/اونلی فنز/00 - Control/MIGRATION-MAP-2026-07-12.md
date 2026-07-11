@@ -112,6 +112,52 @@ PF-STATE-RESET-V1:
   default: later
 ```
 
+## ▶️ بلوک اجراییِ آماده (Phase 1+2 + reset + foreign) — کپی/اجرا پس از approve
+
+> این بلوک reversible است (فقط انتقال، هیچ حذف). ایجنت در auto-mode اجازهٔ اجرای دسته‌ایِ mv را نگرفت؛ مالک یا ایجنتِ دارای اجازهٔ Bash اجرا کند. **کد جابه‌جا نمی‌شود جز ۳ فایلِ مردهٔ تأییدشده (zero importer).**
+
+```bash
+cd "F:/backup"
+P="03 - Projects/اونلی فنز"
+DUP="_Duplicates/03 - Projects/اونلی فنز"; ARC="_Archive/Projects/اونلی فنز/mirrors-2026-07-12"
+ST="_Archive/Projects/اونلی فنز/state-2026-07-12"; CODE="_Archive/Projects/اونلی فنز/dead-code-2026-07-12"
+mkdir -p "$DUP/docs" "$DUP/research" "$ARC/docs" "$ARC/research" "$ST" "$CODE" "03 - Projects/Ziman Galerry/_inbox"
+
+# Group A — 13 byte-identical → _Duplicates
+for f in docs/PROJECT-F-BRAIN-SPEC.md docs/PROJECT-F-FULL-REPORT-2026-07-09.md docs/TELEGRAM-CONTENT-STUDIO-v1.md docs/TELEGRAM-CONTENT-STUDIO-v2.md \
+  research/ACQUISITION-ENGINE-2026-07-05.md research/COMPLIANT-PLAYBOOK-M3-2026-07-10.md research/DECISION-MATRIX-M2-2026-07-10.md \
+  research/DECISIONLOG-ENTRIES-M4-2026-07-10.md research/PROMPTS-2026-07-05.md research/RESEARCH-INTEGRATION-round1.md \
+  research/RESEARCH-INTEGRATION-round2-2026-07-10.md research/STATE-REPORT-2026-07-05.md research/THREAD-CLOSURE-D-2026-07-10.md; do
+  git mv "$P/$f" "$DUP/$f" 2>/dev/null || mv "$P/$f" "$DUP/$f"; done
+
+# Group B — 9 stale/encoding mirrors → _Archive
+for f in docs/MASTER-BUILD-2026-07-04.md docs/Feet-Content-Business-Master-Playbook.md docs/MONETIZATION-EXPANSION-2026-07-04.md \
+  docs/architecture-blueprint-2026-07-04.md docs/Fable5-Build-Spec.md docs/Content-Topics-Trends-2027.md docs/30-Faceless-Clips-ReadyToFilm.md \
+  research/research-prompts-lead-generation.md research/research-track-BC-2026-07-04.md; do
+  git mv "$P/$f" "$ARC/$f" 2>/dev/null || mv "$P/$f" "$ARC/$f"; done
+
+# Dead code (zero importers verified) → _Archive
+for f in brain/dual_brain.py studio/studio_telegram.py studio/studio_telegram_v3.py; do
+  git mv "$P/$f" "$CODE/$(basename $f)" 2>/dev/null || mv "$P/$f" "$CODE/$(basename $f)"; done
+
+# Polluted runtime state → archive + reset (drafts.json is a JSON list)
+mv "$P/studio/drafts.json" "$ST/drafts-2026-07-12.json"; mv "$P/studio/drafts.json.bak" "$ST/drafts-2026-07-12.json.bak"
+printf '[]' > "$P/studio/drafts.json"
+
+# Foreign files out of Project-F
+mv "$P/_inbox-other-projects/Ziman_DM_Bot_Package.docx" "03 - Projects/Ziman Galerry/_inbox/"
+mv "$P/_inbox-other-projects/self-improvement-root-map.md" "00 - Inbox/"
+
+# remove now-empty dirs (only if empty)
+for d in "$P/docs" "$P/research" "$P/_inbox-other-projects"; do [ -z "$(ls -A "$d" 2>/dev/null)" ] && rmdir "$d"; done
+
+# validate
+python "04 - Architect System/scripts/validate_frontmatter.py" | tail -3
+python "04 - Architect System/scripts/find_broken_links.py" | tail -3
+```
+
+**رول‌بک:** `git status` → هر انتقال با `git mv <dest> <src>` برمی‌گردد؛ drafts با بازگرداندن `$ST/drafts-2026-07-12.json`.
+
 ## Verdict این نقشه
 
 ```yaml

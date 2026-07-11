@@ -51,7 +51,7 @@ aliases: ["Project-F Cartography", "نقشه‌برداری Project-F"]
 - **تست‌ها:** langar=۹ (spec می‌گوید ۸)، studio=۱۰، learning=۱۱ (benchmark می‌گوید ۱۰) — پوشش فقط بات‌ها + bandit؛ هیچ تستی برای brain-core/orchestrator وجود ندارد.
 
 ### ۲.۴ سایر یافته‌ها
-- **HOME.md «داشبورد زنده» موتور ندارد** — `.obsidian/plugins` در vault نیست → Dataview نصب نیست؛ فقط fallback ایستا رندر می‌شود.
+- **HOME.md در واقع static است** (۰ بلوکِ Dataview) → درست رندر می‌شود؛ برچسبِ «Dataview» در INDEX aspirational است، نه وابستگیِ شکسته. (تصحیحِ ادعای اولیه.) Dataview در vault نصب نیست (`.obsidian/plugins` غایب) — اگر بعداً بلوکِ زنده خواستی، نصبش تصمیمِ مالک است.
 - **فایل‌های غایبِ ارجاع‌شده:** `RISK-LADDER.md` (ارجاع RUNBOOK) — با همین جلسه ساخته شد. لینک‌های cross-vault (`MYCELIAL-MASTER-SPEC`، `_memory/*-BLUEPRINT`) تأییدنشده.
 - **فایل خارجی/جابه‌جا:** `_inbox-other-projects/` (docx زیمان + نقشهٔ شخصی) · `test/*.jpg` (۸ عکس حساس → باید ذیل 08-PII برود) · `اونلی فنز.md` (لاگ تلگرام هم‌نام پوشه → rename به `TELEGRAM-LOG.md`).
 

@@ -1,118 +1,68 @@
 ---
 type: dashboard
-project: "[[PROJECT]]"
-aliases: ["Project-F HOME", "خانه پروژه", "داشبورد اونلی فنز", "Project-F Dashboard"]
-tags: [project-f, dashboard, moc, home]
-cssclasses: [dashboard, wide-page]
-up: "[[PROJECT]]"
-status: active
-updated: 2026-07-10
+kind: project-home
+project: "[[03 - Projects/اونلی فنز/PROJECT]]"
+status: active-contained
+owner: آری
+risk_level: high
+autonomy_level: read-only
+public_alias: Project-F
+updated: 2026-07-12
+aliases: ["Project-F Home"]
+tags: [dashboard, project-f, contained]
 ---
 
-# 🎛 Project-F — HOME (داشبورد زنده)
+# 🏠 Project-F — Home (Obsidian Dashboard)
 
-> نقطهٔ ورودِ vault. برای نقشهٔ curated: [[INDEX]] · منشور: [[CLAUDE]] · وضعیت: [[PROJECT]] · کنترلِ ایجنتِ مادر: [[AGENT-CONTROL-INTERFACE]] + `PROJECT-F-CONTROL-MANIFEST.json`.
-> بلاک‌های `dataview` نیازِ افزونهٔ **Dataview** دارند؛ اگر نصب نیست، لینک‌های استاتیکِ زیرِ هر بخش کار می‌کنند.
-
-> [!warning] بلاکرِ فعال — GATE 0
-> محل اقامتِ Creator ثبت نشده → Branch A/B نامشخص. **هیچ اکشنِ بیرونی تا حل نشدنش اجرا نمی‌شود.** فاز: **validation** · اجرا: **صفر**. صفِ تصمیم: [[THREAD-CLOSURE-D-2026-07-10#§۹ — منتظر verdict تو|۱۱ verdict منتظر]].
-
----
-
-## 🧭 مسیرِ لودِ اجباری (طبق [[CLAUDE|منشور]])
-۱) [[onlyfans-project-memory-2026-07-05|حافظهٔ فشرده]] → ۲) [[STATE-REPORT-2026-07-05|گزارش وضعیت]] → ۳) [[CLAUDE|منشور]] → ۴) [[PROJECT|Active Context]] → مرجعِ جذب: [[ACQUISITION-ENGINE-2026-07-05]].
+> ⚠️ **Containment:** خارج از این پوشه فقط کد `Project-F`. هیچ نام/هویت/محتوا/پلتفرم/PII در گراف ریشه یا خروجی cross-domain.
+> **State:** validation · **ZERO outward execution** · منتظر GATE 0.
+> ℹ️ این داشبورد **static** است (بدون بلوکِ Dataview؛ به پلاگین وابسته نیست). نمای زندهٔ خودکار = آتی، در صورت نصبِ Dataview توسط مالک.
 
 ---
 
-## 🔴 تصمیم‌های باز (Open Questions)
-```dataview
-TABLE WITHOUT ID file.link AS "سند", status
-FROM "03 - Projects/اونلی فنز"
-WHERE type = "knowledge" OR file.name = "OpenQuestions"
-```
-استاتیک: [[OpenQuestions]] · [[THREAD-CLOSURE-D-2026-07-10]] (§۹ verdictها).
+## 🚦 وضعیت یک‌نگاهی
 
----
-
-## 🆕 آخرین به‌روزرسانی‌ها
-```dataview
-TABLE WITHOUT ID file.link AS "سند", type AS "نوع", updated AS "تاریخ"
-FROM "03 - Projects/اونلی فنز"
-WHERE updated
-SORT updated DESC
-LIMIT 12
+```yaml
+phase: validation
+gate0: unresolved
+branch: unknown
+security_gate: see ROTATION (lifted 2026-07-06 at ecosystem level)
+outward_actions_allowed: false
+pending_verdicts: 11 (see PROJECT.md Next actions)
 ```
 
 ---
 
-## 🏗 معماریِ سیستم (سه لایه + کنترل)
-```
-                    ┌─────────── ایجنتِ مادر (Architect) ───────────┐
-                    │  رصد + صف‌بندیِ verdict + قطعِ اضطراری          │
-                    │  قرارداد: PROJECT-F-CONTROL-MANIFEST.json      │
-                    └───────────────────┬───────────────────────────┘
-   🎬 Creator (استودیو)  ──►  🧠 مغز (brain/)  ──►  ⚓ Operator (لنگر)
-   saba_studio.py            control-plane+۷عامل      langar_bot.py
-   درفت/تقویم/ظرفیت          +دو Guard+یادگیرنده       status/verdict/kill
-        └──── drafts.json · to_ari.json · for_saba.json · HALT ────┘
-```
-اسناد: [[SABA-STUDIO-SPEC]] · [[PROJECT-F-BRAIN-SPEC]] · [[BRAIN-BENCHMARK-2026-07-10]] · [[LANGAR-SPEC]] · [[AGENT-CONTROL-INTERFACE]].
+## 🧭 نقشهٔ پوشه‌ها (Obsidian structure v1)
+
+- [[03 - Projects/اونلی فنز/00 - Control/_INDEX|00 - Control]] — قرارداد، منشور، gates، kill-switch
+- [[03 - Projects/اونلی فنز/01 - Strategy/_INDEX|01 - Strategy]] — master-reference، blueprint، decision matrix
+- [[03 - Projects/اونلی فنز/02 - Research/_INDEX|02 - Research]] — corpus P1–P13، external، integration rounds
+- [[03 - Projects/اونلی فنز/03 - Experiments/_INDEX|03 - Experiments]] — Track A/B/C، hypotheses، KPI logs
+- [[03 - Projects/اونلی فنز/04 - Content Studio/_INDEX|04 - Content Studio]] — studio (Saba)، درفت‌ها، content specs
+- [[03 - Projects/اونلی فنز/05 - Acquisition/_INDEX|05 - Acquisition]] — funnel، channels، acquisition engine
+- [[03 - Projects/اونلی فنز/06 - Ops & Runtime/_INDEX|06 - Ops & Runtime]] — brain، langar cockpit، orchestrator
+- [[03 - Projects/اونلی فنز/07 - Compliance & Privacy/_INDEX|07 - Compliance & Privacy]] — opsec، legal، geo-block، ToS
+- [[03 - Projects/اونلی فنز/08 - Partner (PII)/_INDEX|08 - Partner (PII)]] — 🔒 پرسشنامه و PII (فقط داخل پوشه)
+- [[03 - Projects/اونلی فنز/09 - Archive/_INDEX|09 - Archive]] — نسخه‌های کهنه (فقط انتقال، بدون حذف)
 
 ---
 
-## 📄 اسناد بر اساس نوع
+## 📌 کنترل و قرارداد
 
-### استراتژی و ساخت
-```dataview
-LIST
-FROM "03 - Projects/اونلی فنز"
-WHERE type = "operating-system" OR type = "playbook" OR contains(file.name, "MASTER-BUILD") OR contains(file.name, "architecture-blueprint") OR contains(file.name, "MONETIZATION")
-```
-استاتیک: [[MASTER-BUILD-2026-07-04]] · [[Feet-Content-Business-Master-Playbook]] · [[architecture-blueprint-2026-07-04]] · [[MONETIZATION-EXPANSION-2026-07-04]] · [[ACQUISITION-ENGINE-2026-07-05]].
-
-### تصمیم و پلن (۱۰ جولای)
-```dataview
-LIST
-FROM "03 - Projects/اونلی فنز"
-WHERE type = "decision-matrix" OR type = "playbook" OR type = "decision-entries" OR type = "thread-closure"
-```
-استاتیک: [[DECISION-MATRIX-M2-2026-07-10]] · [[COMPLIANT-PLAYBOOK-M3-2026-07-10]] · [[DECISIONLOG-ENTRIES-M4-2026-07-10]] · [[THREAD-CLOSURE-D-2026-07-10]].
-
-### تحقیق (corpus)
-```dataview
-TABLE WITHOUT ID file.link AS "گزارش"
-FROM "03 - Projects/اونلی فنز/research-results" OR "03 - Projects/اونلی فنز/external-research-2026-07-05"
-SORT file.name ASC
-```
-استاتیک (round): [[RESEARCH-INTEGRATION-round1]] · [[RESEARCH-INTEGRATION-round2-2026-07-10]].
-
-### کد و اسپک (مغز/بات‌ها)
-```dataview
-LIST
-FROM "03 - Projects/اونلی فنز"
-WHERE type = "spec" OR type = "benchmark" OR contains(file.name, "BRAIN") OR contains(file.name, "LANGAR") OR contains(file.name, "SABA")
-```
-استاتیک: [[PROJECT-F-BRAIN-SPEC]] · [[BRAIN-BENCHMARK-2026-07-10]] · [[LANGAR-SPEC]] · [[SABA-STUDIO-SPEC]] · [[README-RUNBOOK|Langar Runbook]] · [[README-SABA-RUNBOOK|Saba Runbook]].
-
-### محتوا و ops
-استاتیک: [[30-Faceless-Clips-ReadyToFilm]] · [[Content-Topics-Trends-2027]] · [[Fable5-Build-Spec]] · [[DecisionLog]] · [[OpenQuestions]] · [[پرسشنامه پارتنر - پاسخ‌های صبا]].
+- 🏆 قرارداد کامل: `PROJECT-F-CONTROL-MANIFEST.json`
+- روایت: [[03 - Projects/اونلی فنز/AGENT-CONTROL-INTERFACE|AGENT-CONTROL-INTERFACE]]
+- منشور کاری: [[03 - Projects/اونلی فنز/CLAUDE|CLAUDE]]
+- runbook: [[03 - Projects/اونلی فنز/RUNBOOK|RUNBOOK]]
+- registry: [[03 - Projects/اونلی فنز/REGISTRY|REGISTRY]]
+- verdicts: [[03 - Projects/اونلی فنز/VERDICT_QUEUE|VERDICT_QUEUE]]
 
 ---
 
-## 🎛 کنترلِ عملیاتی (kill-switch و بودجه)
-| کنترل | ماشه | اثر |
-|---|---|---|
-| کاکپیت | `/kill` یا فایلِ `langar/KILL` | جز /status,/revive رد |
-| مرزِ Creator (مقدم) | `/halt` یا `studio/HALT` | استودیو halt + اعلانِ Operator |
-| بودجه | ابزار A$100 · LLM A$15 · مغز ۲٪ | fail-closed |
-| اخطارِ پلتفرم | هر اخطار | توقفِ فوری + ثبت در [[DecisionLog]] |
+## 🎯 قدم بعدی (owner)
 
-اجرا/تست: `python3 -m unittest` در `brain/` (۱۱) · `langar/` (۸) · `studio/` (۱۰).
+1. GATE 0 — محل اقامت پارتنر + Branch A/B
+2. ۱۱ verdict معلق (PROJECT.md → Next actions)
+3. تصمیم body expansion (freeze/remove)
 
----
-
-## 🔗 گرافِ گیت‌ها
-`G0 (باز، بلاکر) → G1 (هفتهٔ۶: ۲۰۰کلیک/۱۰٪/۸۰٪) → G2 (هفتهٔ۱۲: ۳۰sub/۵٪/A$100) → G3 (A$2k×۳→ABN) → G4 (۱۲ماه سود→Tools)`
-
----
-> این داشبورد صفر-PII است (کدِ A/C). خارج از پوشه فقط «Project-F».
+> این فایل داشبورد است؛ overwrite-مجاز. محتوای canonical در PROJECT.md و MANIFEST است.
