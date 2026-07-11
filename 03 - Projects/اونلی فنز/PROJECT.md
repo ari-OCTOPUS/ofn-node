@@ -8,7 +8,7 @@ risk_level: high
 autonomy_level: read-only
 tags: [creator-business, faceless]
 created: 2026-07-03
-updated: 2026-07-06
+updated: 2026-07-12
 aliases: ["Project-F", "پروژه اونلی فنز", "Active Context"]
 ---
 
@@ -42,6 +42,7 @@ delivery-rate پارتنر در trial sprint `[To measure]` · engagement روی
 ## Active Context
 
 - تمرکز فعلی: بلوپرینت معماری 2026-07-04 آماده؛ **منتظر G0**
+- **2026-07-12 — نقشه‌برداری (Cartography) + بستهٔ handoff:** نقشهٔ راستی‌آزمایی‌شده در [[03 - Projects/اونلی فنز/00 - Control/CARTOGRAPHY-2026-07-12|CARTOGRAPHY]] (dedup دقیق md5: ۱۳ identical + ۹ stale mirror؛ root = canonical تأیید شد؛ code deep-read: project_f_brain مرده در runtime، learning سیم‌نشده، drafts.json = ۲۴۴ ردیف تستی، secretها پاک، kill-switchها واقعی) · [[03 - Projects/اونلی فنز/00 - Control/SOURCE-OF-TRUTH-MATRIX|SoT-Matrix]] · [[03 - Projects/اونلی فنز/00 - Control/RISK-LADDER|RISK-LADDER]] · [[03 - Projects/اونلی فنز/00 - Control/MIGRATION-MAP-2026-07-12|MIGRATION-MAP]] (⛔ اجرا نشده — verdict ‏PF-STRUCT-V2) · برنامهٔ ایجنت بعدی: [[03 - Projects/اونلی فنز/00 - Control/HANDOFF-NEXT-AGENT|HANDOFF-NEXT-AGENT]] · ۳ verdict جدید در VERDICT_QUEUE (STRUCT-V2 / STATE-RESET-V1 / CODE-REFACTOR-V1)
 - **2026-07-10 — Round 2 تحقیق جامع ۷-محوره integrate شد** → [[03 - Projects/اونلی فنز/RESEARCH-INTEGRATION-round2-2026-07-10|round2]]: تأیید سوم مسیر (dual-platform/Reddit-engine/AI-درفت-انسان-می‌فرستد) · ریسک جدید R4 (فوت Radvinsky + فروش سهم OF ‏>$3B) · AU زیر-۱۶ live · یافتهٔ free-page/price-lock → تقویت EXT-04 برای #۱۰ · کاتالوگ ۵۸-روشی جذب + unit-economics + spec تکمیلی مغز (~AUD 8–12/ماه) + سؤالات مشاور AU · سؤال‌های باز جدید #۱۷–#۲۰
 - **2026-07-10 — M2/M3/M4 + PROMPT D + لنگر:** ماتریس تصمیم ‏[[03 - Projects/اونلی فنز/DECISION-MATRIX-M2-2026-07-10|M2]] · پلن ‏[[03 - Projects/اونلی فنز/COMPLIANT-PLAYBOOK-M3-2026-07-10|M3]] · بستن threadها ‏[[03 - Projects/اونلی فنز/THREAD-CLOSURE-D-2026-07-10|THREAD-CLOSURE-D]] (T1–T8) · ۵ درفت در `drafts-awaiting-gate/` · **کاکپیت تلگرامی «لنگر»** در `langar/` (propose-only، خودآگاه، مسئول ارتقا، ۸/۸ تست منطق سبز، فعال‌سازی گیت‌دار). ساعت صبا بسته (~۳h). ۱۱ verdict منتظر تصمیم آری (THREAD-CLOSURE §۹).
 - تغییرات اخیر: 2026-07-03 — ثبت [[03 - Projects/اونلی فنز/پرسشنامه پارتنر - پاسخ‌های صبا|پاسخ‌های صبا]]؛ مرز محتوا قفل شد: فقط پا، بدون صورت/بدن + geo-block ایران · 2026-07-04 — کیت مغز پروژه ساخته شد · 2026-07-05 — [[03 - Projects/اونلی فنز/STATE-REPORT-2026-07-05|STATE-REPORT]] + verification pass (۸/۹ تناقض تأیید، ۱ اصلاح) + اعمال patch بلوپرینت §۱۱ · **2026-07-06 — Round 1 تحقیق بیرونی integrate شد → [[03 - Projects/اونلی فنز/RESEARCH-INTEGRATION-round1|RESEARCH-INTEGRATION-round1]]**: مسیر فعلی تأیید مستقل؛ REJECT تلگرام/کریپتو (قاعدهٔ #۳)؛ ToS ‏OF ممنوعیت AI-chat را [FACT] کرد → الگوی «درفت در کنسول جدا + paste دستی» ابقا؛ ۳ سؤال باز جدید (#۱۴ شفافیت DM، #۱۵ ‏C2PA، #۱۶ ‏B2B)؛ KPI کاندید: unlock-rate، $/script-start، چرخهٔ Custom، $/ساعت DM
