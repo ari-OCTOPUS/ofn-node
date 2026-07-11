@@ -4,6 +4,7 @@
 را لمس نمی‌کند؛ flag-off = بدونِ نوشتنِ state. همه با run_fn/monkeypatch فیک — صفر git، صفر سوییت.
 """
 import io
+import json
 import sys
 from pathlib import Path
 
@@ -144,6 +145,111 @@ def t_h_never_touches_live_tree_guarantee():
     # هدفِ deny حتی مسیرِ واقعی را هم نمی‌رسد (fail-closed قبل از هر subprocess).
     r = CA.shadow_test(".git/hooks/pre-commit", "evil")
     assert not r["ok"] and "not-allowed" in r["reason"]
+
+
+# ── سطح A actuator: هفت گیتِ apply_approved ───────────────────────────────────────
+def _activate():
+    CA.ACTIVATION.parent.mkdir(parents=True, exist_ok=True)
+    CA.ACTIVATION.write_text("owner", "utf-8")
+    if CA.KILL.exists():
+        CA.KILL.unlink()
+
+
+def _approve(aid):
+    CA.APPROVALS_DIR.mkdir(parents=True, exist_ok=True)
+    (CA.APPROVALS_DIR / f"{aid}.json").write_text(
+        json.dumps({"verdict": "ok", "id": aid}), "utf-8")
+
+
+def _fresh_log():
+    if CA.APPLIED_LOG.exists():
+        CA.APPLIED_LOG.unlink()
+
+
+def t_i_actuator_seven_gates():
+    patch = {"target": "_ops/cortex/stress.py", "content": "# x\n",
+             "shadow_green": True, "id": "code-1"}
+    calls = {"n": 0}
+    def fake(t, c):
+        calls["n"] += 1
+        return {"applied": True, "green": True}
+    _fresh_log()
+    # ۱ بدونِ فعال‌سازی → رد
+    if CA.ACTIVATION.exists():
+        CA.ACTIVATION.unlink()
+    CA.heart_mood = _mood_with(0.35)
+    r = CA.apply_approved(patch, "code-1", apply_fn=fake)
+    check("gate: not-activated blocks", (not r["ok"]) and "not-activated" in r["reason"] and calls["n"] == 0)
+    _activate()
+    # ۲ قلبِ freeze → رد
+    CA.heart_mood = _mood_with(0.9, in_fear=True)
+    r = CA.apply_approved(patch, "code-1", apply_fn=fake)
+    check("gate: heart-freeze blocks", (not r["ok"]) and r["reason"] == "heart-freeze" and calls["n"] == 0)
+    CA.heart_mood = _mood_with(0.35)
+    # ۳ بدونِ تأییدِ مالک → رد
+    r = CA.apply_approved(patch, "code-1", apply_fn=fake)
+    check("gate: no-owner-approval blocks", (not r["ok"]) and r["reason"] == "no-owner-approval" and calls["n"] == 0)
+    _approve("code-1")
+    # ۴ هدفِ deny → رد
+    r = CA.apply_approved({**patch, "target": "_ops/budget/money_gate.py"}, "code-1", apply_fn=fake)
+    check("gate: deny target blocks", (not r["ok"]) and "not-allowed" in r["reason"])
+    # ۵ بدونِ سبزِ سایه → رد
+    r = CA.apply_approved({**patch, "shadow_green": False}, "code-1", apply_fn=fake)
+    check("gate: shadow-not-green blocks", (not r["ok"]) and "shadow-not-green" in r["reason"])
+    # ۷ همه پاس → اعمال
+    r = CA.apply_approved(patch, "code-1", apply_fn=fake)
+    check("all gates pass -> applied once", r["ok"] and r.get("applied") and calls["n"] == 1)
+    # ۶ refractory: بلافاصله دوباره → رد
+    r = CA.apply_approved({**patch, "id": "code-1b"}, "code-1", apply_fn=fake)
+    check("gate: refractory blocks 2nd", (not r["ok"]) and "refractory" in r["reason"] and calls["n"] == 1)
+
+
+def t_j_canary_red_auto_freezes():
+    _activate(); _approve("code-2"); _fresh_log()
+    CA.heart_mood = _mood_with(0.35)
+    if CA.KILL.exists():
+        CA.KILL.unlink()
+    patch = {"target": "_ops/cortex/stress.py", "content": "# x\n",
+             "shadow_green": True, "id": "code-2"}
+    CA.apply_approved(patch, "code-2", apply_fn=lambda t, c: {"applied": True, "green": False})
+    check("canary red -> auto-freeze (KILL created)", CA.KILL.exists())
+    # و بعدِ freeze، active() = False → هیچ اعمالِ دیگری
+    check("after freeze active() is False", CA.active() is False)
+    CA.KILL.unlink()
+
+
+def t_k_consume_approvals_applies_approved():
+    _activate(); _fresh_log()
+    CA.heart_mood = _mood_with(0.35)
+    pend = CA.opslib.STATE_DIR / "cortex" / "pending-patches"
+    pend.mkdir(parents=True, exist_ok=True)
+    (pend / "code-9.json").write_text(json.dumps(
+        {"id": "code-9", "target": "_ops/cortex/stress.py", "content": "# x\n",
+         "shadow_green": True}), "utf-8")
+    _approve("code-9")
+    out = CA.consume_approvals(apply_fn=lambda t, c: {"applied": True, "green": True})
+    check("consume applies approved code patch", out["applied"] == 1)
+    # patchِ بی‌تأیید مصرف نمی‌شود
+    (pend / "code-10.json").write_text(json.dumps(
+        {"id": "code-10", "target": "_ops/cortex/stress.py", "content": "# y\n",
+         "shadow_green": True}), "utf-8")
+    _fresh_log()
+    out2 = CA.consume_approvals(apply_fn=lambda t, c: {"applied": True, "green": True})
+    check("unapproved patch is skipped", out2["applied"] == 0 and out2["skipped"] >= 1)
+
+
+def t_l_propose_to_owner_stores_pending_fail_soft():
+    # سایهٔ سبز + هدفِ مجاز → pending ذخیره، id=code-*، بی‌تلگرام fail-soft (posted=None)
+    r = CA.propose_to_owner({"target": "_ops/cortex/stress.py", "content": "# p\n",
+                             "shadow_green": True, "intent": "تست"})
+    check("propose stores pending + returns code-id",
+          r["ok"] and str(r["id"]).startswith("code-") and r["posted"] is None)
+    pend = CA.opslib.STATE_DIR / "cortex" / "pending-patches" / f"{r['id']}.json"
+    check("pending patch file written", pend.exists())
+    # بدونِ سبزِ سایه یا هدفِ deny → رد، صفر pending
+    assert not CA.propose_to_owner({"target": "_ops/cortex/stress.py", "content": "x"})["ok"]
+    assert not CA.propose_to_owner({"target": "_ops/budget/money_gate.py", "content": "x",
+                                    "shadow_green": True})["ok"]
 
 
 if __name__ == "__main__":

@@ -185,5 +185,247 @@ def tick(patch: dict | None = None, *, run_fn=None) -> dict:
     return out
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+# سطح A — اکچوایتورِ اعمال (بعد از تپِ ✅ مالک، زیرِ قانونِ قلب). به شاخه اعمال می‌کند،
+# canary می‌گیرد، روی قرمز auto-rollback + freeze. merge به masterِ زنده = گامِ جداگانه.
+# ══════════════════════════════════════════════════════════════════════════════
+ACTIVATION = opslib.OPS / "ACTIVATION-CODE-AUTONOMY.flag"   # فقط مالک می‌سازد
+KILL = opslib.OPS / "STOP-CODE-AUTONOMY"                    # کیل‌سوئیچِ آنی
+APPLIED_LOG = opslib.STATE_DIR / "cortex" / "code-autonomy-applied.jsonl"
+REFRACTORY_S = 3600.0     # حداقل فاصلهٔ دو اعمال (کادنسِ قلب بعداً تیزترش می‌کند)
+APPROVALS_DIR = opslib.STATE_DIR / "telegram" / "approvals"
+
+
+def active() -> bool:
+    """سطح A زنده است؟ فلگِ مالک هست و کیل‌سوئیچ نیست."""
+    try:
+        return ACTIVATION.exists() and not KILL.exists()
+    except OSError:
+        return False
+
+
+def _owner_approved(approval_id: str) -> bool:
+    """تپِ ✅ مالک ثبت شده؟ (approvals/<id>.json با verdict=ok) — نوشتهٔ center.py."""
+    try:
+        d = json.loads((APPROVALS_DIR / f"{approval_id}.json").read_text("utf-8"))
+        return d.get("verdict") == "ok"
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def _in_refractory(clock=None) -> bool:
+    import time
+    now = float((clock or time.time)())
+    try:
+        last = [json.loads(x) for x in APPLIED_LOG.read_text("utf-8").splitlines() if x.strip()]
+        if last:
+            t = float(last[-1].get("epoch", 0) or 0)
+            return (now - t) < REFRACTORY_S
+    except Exception:  # noqa: BLE001
+        pass
+    return False
+
+
+def freeze_autonomy(reason: str) -> None:
+    """کیل‌سوئیچِ خودکار: روی هر قرمزِ canary، خودمختاری فوراً می‌خوابد + هشدارِ مالک."""
+    try:
+        KILL.write_text(f"auto-freeze: {reason}", "utf-8")
+        opslib.alert([f"CODE-AUTONOMY freeze: {reason}"])
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def apply_approved(patch: dict, approval_id: str, *, apply_fn=None, clock=None) -> dict:
+    """اکچوایتورِ سطح A. **هفت گیتِ هم‌زمان، همه لازم:**
+    ۱ فعال‌سازی (ACTIVATION + not KILL) · ۲ قلب ≠ freeze (بازچکِ لحظهٔ اعمال) ·
+    ۳ تأییدِ مالک (تپِ ✅) · ۴ deny-list · ۵ shadow سبز (در patch) · ۶ refractory ·
+    ۷ محتوای معتبر. هر کدام نبود → رد، صفر اعمال. apply_fn تزریق‌پذیر (تست)."""
+    if not active():
+        return {"ok": False, "reason": "not-activated (ACTIVATION-CODE-AUTONOMY خاموش یا KILL)"}
+    m = heart_mood()
+    if m["verdict"] == "freeze":                       # بازچکِ قلب در لحظهٔ اعمال (نه فقط propose)
+        return {"ok": False, "reason": "heart-freeze", "mood": m}
+    if not _owner_approved(approval_id):
+        return {"ok": False, "reason": "no-owner-approval"}
+    tgt = str((patch or {}).get("target", ""))
+    if not allowed_target(tgt):
+        return {"ok": False, "reason": "target-not-allowed"}
+    if not (patch or {}).get("shadow_green"):
+        return {"ok": False, "reason": "shadow-not-green (باید اول سبزِ سایه باشد)"}
+    content = str((patch or {}).get("content", ""))
+    if not content.strip():
+        return {"ok": False, "reason": "empty-content"}
+    if _in_refractory(clock):
+        return {"ok": False, "reason": "refractory (خیلی زود بعد از اعمالِ قبل)"}
+
+    res = apply_fn(tgt, content) if apply_fn is not None else _git_apply_canary(tgt, content)
+    import time
+    rec = {"ts": opslib.now_iso(), "epoch": float((clock or time.time)()),
+           "target": tgt, "approval_id": approval_id, "mood": m["mood"],
+           "applied": bool(res.get("applied")), "canary_green": res.get("green"),
+           "rolled_back": res.get("rolled_back"), "reason": res.get("reason")}
+    try:
+        opslib.append_jsonl(APPLIED_LOG, rec)
+    except Exception:  # noqa: BLE001
+        pass
+    if res.get("applied") and res.get("green") is False:
+        freeze_autonomy(f"canary-red on {tgt}")
+    return {"ok": True, **res, "record": rec}
+
+
+def _git_apply_canary(target_rel: str, new_content: str) -> dict:
+    """مسیرِ واقعی: نوشتنِ patch در شاخهٔ کاری → commit → canary (سوییتِ کامل) →
+    سبز: می‌ماند · قرمز: auto-rollback (git restore + reset) + freeze. masterِ زنده لمس نمی‌شود
+    (merge = گامِ جداگانهٔ مالک). fail-soft."""
+    import os as _os
+    repo = _OPS.parent
+    tgt = repo.joinpath(*target_rel.split("/"))
+    if not tgt.exists():
+        return {"applied": False, "reason": "target-missing"}
+    before = tgt.read_text("utf-8")
+    try:
+        tgt.write_text(new_content, "utf-8")
+        add = subprocess.run(["git", "-C", str(repo), "add", target_rel],
+                             capture_output=True, text=True, timeout=60)
+        cm = subprocess.run(["git", "-C", str(repo), "commit", "-m",
+                             f"auto(code-autonomy L-A): {target_rel} — approved+shadow-green, canary…"],
+                            capture_output=True, text=True, timeout=60)
+        committed = cm.returncode == 0
+        env = dict(_os.environ); env["REAL_VAULT"] = str(repo); env["PYTHONUTF8"] = "1"
+        run = subprocess.run([sys.executable, "-X", "utf8",
+                              str(repo / "_ops" / "tests" / "run_all.py")],
+                             capture_output=True, text=True, timeout=600, env=env)
+        green = run.returncode == 0
+        if not green:                                   # auto-rollback
+            if committed:
+                subprocess.run(["git", "-C", str(repo), "revert", "--no-edit", "HEAD"],
+                               capture_output=True, text=True, timeout=60)
+            else:
+                tgt.write_text(before, "utf-8")
+                subprocess.run(["git", "-C", str(repo), "restore", "--staged", "--worktree",
+                                target_rel], capture_output=True, text=True, timeout=30)
+        return {"applied": committed, "green": green, "target": target_rel,
+                "rolled_back": (not green), "branch_only": True}
+    except Exception as e:  # noqa: BLE001
+        try:
+            tgt.write_text(before, "utf-8")             # بازگرداندنِ محتوا روی هر خطا
+        except Exception:  # noqa: BLE001
+            pass
+        return {"applied": False, "reason": f"apply-error:{type(e).__name__}", "rolled_back": True}
+
+
+def propose_to_owner(patch: dict) -> dict:
+    """patchِ سبزِ سایه را به مالک پیشنهاد می‌دهد: pending ذخیره + کارتِ تصمیم در تاپیکِ سیستم.
+    id = code-<hash>؛ تپِ ✅ مالک → approvals/<id>.json → consume_approvals اعمال می‌کند.
+    fail-soft: بی‌تلگرام هم pending را ذخیره می‌کند. هرگز خودش اعمال نمی‌کند."""
+    if not (patch or {}).get("shadow_green"):
+        return {"ok": False, "reason": "not-shadow-green"}
+    tgt = str((patch or {}).get("target", ""))
+    if not allowed_target(tgt):
+        return {"ok": False, "reason": "target-not-allowed"}
+    import hashlib
+    did = "code-" + hashlib.sha256(
+        (tgt + str(patch.get("content", ""))).encode("utf-8")).hexdigest()[:10]
+    rec = {**patch, "id": did, "target": tgt}
+    pend = opslib.STATE_DIR / "cortex" / "pending-patches"
+    try:
+        pend.mkdir(parents=True, exist_ok=True)
+        (pend / f"{did}.json").write_text(json.dumps(rec, ensure_ascii=False), "utf-8")
+    except OSError:
+        return {"ok": False, "reason": "pending-write-failed"}
+    posted = None
+    try:                                                # پستِ کارت — fail-soft
+        sys.path.insert(0, str(_OPS / "telegram_center"))
+        import tg_api
+        import render
+        cfg = json.loads((opslib.STATE_DIR / "telegram" / "center-config.json").read_text("utf-8"))
+        item = {"q": f"مغز یک patch نوشت + سایهٔ سبز — اعمال کنم؟ ({tgt})",
+                "why": str(patch.get("intent", "") or patch.get("diff", ""))[:140],
+                "source": "approval", "id": did, "priority": "کد"}
+        text, kb = render.render_decision(item)
+        text = "🧠🫀 <b>خودمختاریِ کد — زیرِ قانونِ قلب</b>\n" + text
+        c = tg_api.TgClient()
+        posted = c.send(text, keyboard=kb, chat_id=cfg.get("chat_id"),
+                        topic_id=(cfg.get("topics") or {}).get("system"))
+    except Exception:  # noqa: BLE001
+        posted = None
+    return {"ok": True, "id": did, "posted": posted}
+
+
+def _applied_ids() -> set:
+    """approval_idهایی که قبلاً applied=True شده‌اند — dedup (هرگز دوباره اعمال)."""
+    ids = set()
+    try:
+        for x in APPLIED_LOG.read_text("utf-8").splitlines():
+            if x.strip():
+                d = json.loads(x)
+                if d.get("applied"):
+                    ids.add(d.get("approval_id"))
+    except Exception:  # noqa: BLE001
+        pass
+    return ids
+
+
+def consume_approvals(*, apply_fn=None) -> dict:
+    """approvalهای تأییدشدهٔ code-* را می‌خواند و patchِ متناظر (pending-patches/<id>.json)
+    را **یک‌بار** اعمال می‌کند: dedup با applied-log + حذفِ patchِ مصرف‌شده از صف.
+    زیرِ همهٔ گیت‌های apply_approved (فعال‌سازی/قلب/تأیید/deny/سایه/refractory)."""
+    out = {"applied": 0, "skipped": 0}
+    if not active():
+        out["reason"] = "not-activated"; return out
+    done = _applied_ids()
+    pend = opslib.STATE_DIR / "cortex" / "pending-patches"
+    try:
+        files = sorted(pend.glob("*.json")) if pend.exists() else []
+    except OSError:
+        files = []
+    for pf in files:
+        try:
+            patch = json.loads(pf.read_text("utf-8"))
+        except Exception:  # noqa: BLE001
+            continue
+        aid = patch.get("id") or pf.stem
+        if aid in done or not _owner_approved(aid):     # قبلاً اعمال یا بی‌تأیید → رد
+            out["skipped"] += 1
+            continue
+        r = apply_approved(patch, aid, apply_fn=apply_fn)
+        if r.get("ok") and r.get("applied"):
+            out["applied"] += 1
+            try:
+                pf.unlink()                             # patchِ مصرف‌شده از صف حذف
+            except OSError:
+                pass
+        else:
+            out["skipped"] += 1
+    return out
+
+
+def run_forever(*, every_s: float = 300.0) -> None:
+    """درایورِ سطح A: هر every_s ثانیه consume_approvals. active()/قلب/refractory همه‌چیز را
+    گیت می‌کنند. kill: فایلِ STOP-CODE-AUTONOMY (توقفِ آنی). بدونِ ACTIVATION = no-opِ امن."""
+    import time
+    while not KILL.exists():
+        try:
+            if active():
+                consume_approvals()
+        except Exception:  # noqa: BLE001
+            pass
+        for _ in range(max(1, int(every_s // 5))):
+            if KILL.exists():
+                break
+            time.sleep(5)
+
+
 if __name__ == "__main__":
-    print(json.dumps(tick(), ensure_ascii=False, indent=2))
+    if len(sys.argv) > 1 and sys.argv[1] == "run":
+        try:
+            import env_loader
+            env_loader.load_env()
+        except Exception:  # noqa: BLE001
+            pass
+        print("code-autonomy driver: زنده — kill: فایلِ _ops/STOP-CODE-AUTONOMY")
+        run_forever()
+    else:
+        print(json.dumps({"mood": heart_mood(), "active": active(),
+                          "activation_flag": str(ACTIVATION), "tick": tick()},
+                         ensure_ascii=False, indent=2))
