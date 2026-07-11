@@ -63,7 +63,7 @@ sources:
 - additive به `self_model.py` (اسکنِ AST دست‌نخورده): ادعای اخیرِ خود-مدل را با نتیجهٔ واقعیِ **ledgerهای بیرونی** (`outcomes.jsonl`+`discoveries.jsonl`) جفت می‌کند، Brier+AURC نگه می‌دارد، رویدادِ متاکاگنیشنِ برچسب‌دار emit می‌کند، آستانهٔ `abstain_below` می‌دهد. حقیقتِ زمینه = ledgerِ بیرونی، **نه خود-نمره‌دهی** (طبقِ Kamoi 2024). فلگِ `CORTEX_SELF_MONITOR` (خاموش).
 - **چرا:** گافِ (b) (بی خود-مانیتورِ برخط) را با پایهٔ سنجشِ دهه‌ها-پایدار می‌بندد.
 
-**۶. گیتِ ignitionِ گلوگاه-رقابت (candidateهای غنی + soft-WTA)** — M
+**۶. گیتِ ignitionِ گلوگاه-رقابت (candidateهای غنی + soft-WTA)** — M · ✅ **ساخته شد — فقط سایه** (۲۰۲۶-۰۷-۱۱، بعد از PASS ِ replay ِ §۵ طبقِ پیش‌شرطِ مالک): ماژولِ **جداگانهٔ** `cortex/ignition_softwta.py` (صفر لمسِ ignition.py) — score ِ ۷-جزئیِ شفاف + softmax(s/τ) + شلیکِ floor/margin؛ boost ِ اشباع‌شوندهٔ `w·(1−base)` برای توجه/کشف/گیر (توجهِ مالک هرگز سیگنالِ قوی‌تر را override نمی‌کند — تست‌شده)؛ گاردِ #۳ متخلف را از رقابتِ سایه حذف می‌کند؛ hype هرگز برنده نمی‌سازد. فقط با `IGNITION_SOFT_WTA_SHADOW=1` در `state/cortex/ignition-softwta-shadow.jsonl` می‌نویسد؛ `IGNITION_SOFT_WTA_LIVE` در این فاز **هرگز رفتار نمی‌سازد** (فقط echo). تست `test_softwta_shadow` ۱۰/۱۰. **live شدن = فازِ بعد، فقط رأیِ مالک.**
 - additive به `cortex/ignition.py` (بدونِ بازنویسیِ run_cycle): `collect_candidates()` (یک salience از هر منبع) + `ignition_gate(...,τ)` با softmax(s/τ) که فقط اگر `best>floor` و `(best − runner-up)>margin` شلیک کند (همه-یا-هیچ). فلگِ `CORTEX_IGNITION`؛ فقط `state/ignition_shadow.jsonl` می‌نویسد. **قدمِ بعدیِ طبیعیِ ignition.py که قبلاً ساختم.**
 - **چرا:** invariantی که هر خطِ متعارفِ GWT قبول دارد؛ ایرادِ (a) (استخرِ نازک) را می‌بندد. shadow-only، مثلِ w_shadow=0/SIM-PASSِ قلب.
 
