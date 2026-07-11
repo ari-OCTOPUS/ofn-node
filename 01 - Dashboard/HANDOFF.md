@@ -5,6 +5,17 @@ updated: 2026-07-11
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+## جلسه ۴۸ 2026-07-11 (~۱۱:۳۰، Claude Fable 5 — سندباکسِ لینوکسیِ Cowork) — 🔬 S-batch Replay & Edge-Case Validation: دروازهٔ #۶ PASS + یک کرشِ واقعی در ریشه بسته شد
+
+رأی مالک: «نه #۶، نه بک‌لاگِ نو، نه live شدنِ فلگ — اول replay/سایه روی #۲ و #۳: اول اندازه‌گیری، بعد کالیبراسیون، بعد گیت، بعد canary/live.» دقیقاً همان ساخته و اجرا شد — همه additive/shadow-only، صفر تغییرِ رفتارِ زنده:
+
+- **✅ هارنسِ replay:** `_ops/heart/replay_s.py` — counterfactual ِ فلگ خاموش/روشن روی هر ورودی؛ π همیشه از خودِ `control_law.precision_weight` (صفر کپیِ منطق). داده: ۱۵ رژیمِ مرزیِ قطعی + ۳۲ ردیفِ واقعی از `velocity-stream.jsonl` + فضای کاریِ زندهٔ ignition (read-only). گزارش: `state/replay/S-BATCH-REPLAY.json` + [[06 - Architecture Maps/2027 Standards Base & Backlog|§۵ سند]].
+- **✅ گاردِ سه‌حالتهٔ سایه:** `_ops/epistemics/guard_review.py` (block/allow/**needs_review**؛ فارسی+انگلیسی؛ سلبِ مقید به همان جمله). گاردِ زندهٔ contracts **دست‌نخورده**.
+- **🔴→✅ کشفِ فازِ replay (ایرادِ واقعی، نه quick-fix):** `precision_weight` با ts ِ inf/nan **کرش می‌کرد** (OverflowError ِ pstdev) — فلگ-روشن + state ِ خراب = مرگِ beat به‌جای استراحت. در ریشه بسته شد (سم‌زداییِ non-finite در control_law؛ ورودیِ سالم بیت‌به‌بیت همان) → sim بازاجرا → **SIM-PASS سبز، hash-match بازسازی (`17dac993`)**.
+- **✅ نتیجهٔ دروازه‌ها (۴۷ ردیف قلب + ۶ سناریو ignition):** ریاضی ۱۰۰٪ finite/بدونِ NaN‑Inf · کیفی regular>bursty · churn خام ۳۸٪ ولی **معنادار فقط ۱۰٫۶٪** (بررسیِ دستی شد؛ دادهٔ واقعی max Δ=1.6s) · |err_eff|≤|err| همه‌جا · hype برنده نساخت · توجهِ مالک boost نه override (۰٫۸۵ به ۰٫۹۰ می‌بازد) · گارد ۰FP/۰FN. **وردیکت: #۶ مجاز شد ولی فقط shadow-only و با «برو»ی مالک. HEART_PRECISION_WEIGHT همچنان خاموش. fail-closed #۱ همچنان نزده (رأی مالک).**
+- **✅ تست:** `test_replay_s` ۱۳/۱۳ (مرزهای π: n∈{0,1,2}، ts غایب/تکراری/نامرتب/صفر-واریانس/بورست/outlier/inf/nan/غیرعددی + استرسِ گاردِ en/fa) — ثبت در run_all (سوییت حالا ۱۰۵ فایل). heart/epistemics/cortex/standards همه سبز در سندباکس.
+- **⚠️ میزِ آری (۳ مورد):** (۱) سوییت روی این سندباکسِ لینوکسی: ۸۵ فایل سبز؛ **~۲۰ فایل فقط به‌خاطرِ مسیرِ خامِ ویندوزی** (مثلِ `test_leg.py` ‏`r"_ops\legs"`) اینجا import-fail شدند (روی ویندوزِ تو سبزند) + `test_dashboard` ‏(f-string ِ py3.12+) + `test_phase_gate` (آبشاریِ همان). فیکسِ portable = **پیشنهادِ #۹ در سند، فقط با رأی تو**. (۲) بعد از این جلسه، `run_all` را روی درختِ زندهٔ ویندوز بزن تا markerِ capability با fingerprint ِ تازه refresh شود (اینجا عمداً ننوشتم). (۳) لایهٔ syncِ سندباکس↔ویندوز روی فایل‌های *ویرایش‌شده* ناقص sync می‌کرد (فایلِ نو سالم بود) — دو فایل (control_law، replay_s) با محتوای کاملِ شناخته بازنویسی شدند؛ اگر git چیزِ عجیبی نشان داد، ریشه‌اش این است. پوشهٔ زبالهٔ `F:\backup` (مسیرِ نسبیِ اشتباهِ اجرای اولِ CLI خودم) طبق قانون به `_Archive/Logs/test-contamination-2026-07-11-replay/` منتقل شد.
+
 ## جلسه ۴۶ ادامه (~۱۰:۰۰) — 🫀 «قلب + برچسب S» ساخته شد (رأی مالک از بک‌لاگِ ۲۰۲۷)
 
 مالک از بک‌لاگ **«قلب + برچسب S» (#۲+#۳)** را انتخاب کرد (نه fail-closed #۱، گیتِ ignition #۶ فازِ بعد). فلسفه: safety-first نه — «جهشِ کنترل‌شده روی مرزِ نظم/فروپاشی با ریسکِ حساب‌شده».
@@ -940,20 +951,4 @@ verdict مستقیم آری (هر ۴ مورد: بازبینی · ratify · Tier 
 - **ثبت:** [[05 - Agents/AGENT_REGISTRY|AGENT_REGISTRY]] (بخش fleet + ردیف selfimprove) · [[05 - Agents/_Index - Agents|ایندکس Agents]] (active شد) · استیجینگ [[00 - Inbox/scout-digests/_README - Scout Digests|scout-digests]].
 - **لایهٔ ارکستراسیون (بستن حلقه):** `mycelial-consolidator` شبانه (`0 22 * * *`) دیجست‌های روز را سنتز و الگوهای بین‌پروژه‌ای + promote/prune پیشنهاد می‌دهد → `synthesis.md` (خواندنی‌ترین، «مرتب‌کردنِ همه»). `fleet-selection` یکشنبه‌شب (`0 23 * * 0`) کیفیت ناوگان را ارزیابی و retire/spawn پیشنهاد می‌دهد → `fleet-eval.md`. هر دو propose-only.
 - **جمع: ۱۱ تسک زمان‌بندی.** ۸ اسکات روزانه + selfimprove هر ۳۰دقیقه + consolidator شبانه + fleet-selection هفتگی.
-- **دور اولِ زنده اجرا شد (دستور آری «تا یک ساعت»):** ۹ ایجنت موازی → ۹ دیجست منبع‌دار در [[00 - Inbox/scout-digests/_README - Scout Digests|scout-digests]] (`2026-07-04 <slug>.md`) + [[00 - Inbox/scout-digests/2026-07-04 synthesis|synthesis]] (الگوهای بین‌پروژه‌ای). اعتبارسنجی: **۳۵۵ نوت، صفر لینک شکسته؛ صفر خطای فرانت‌متر جدید.** یافته‌های شاخص: Crypto stack زیر AU$30 (~$0.01/ماه) · Mining VerusHash ~۹وات بردهٔ کارایی · Lead: Google LSA در AU نیست → GBP+Ads · selfimprove طرح R-08 (Certificate-Transparency برای لینک دو زنجیرهٔ آدیت). ۵ الگوی مایکوریزایی در synthesis (مالکیت substrate · نگه‌داشت>جذب · evaporation/hرس · AI بک‌اند نامرئی · verified≠speculative).
-- **باز برای آری:** (۱) برای پیش‌تأییدِ ابزارها، هر تسک را یک‌بار «Run now» بزن تا اجراهای بعدی روی permission مکث نکنند. (۲) دایال شدت selfimprove: ساعتی=۷۵٪ دقیق ولی ریسک سقف نرخ؛ `0 */2 * * *` سبک‌تر. (۳) هرس هفتگی scout-digests را consolidator پیشنهاد می‌دهد ولی اجرا با آری (ایجنت حذف نمی‌کند).
-
-## جلسه چهارم 2026-07-04 (Cowork) — رفع خطای EACCES ابسیدین
-
-- علت: `_Archive/Venvs/karyabi-bot-venv` یک venv ساخته‌شده در WSL بود (symlinkهای `bin/python` که ویندوز نمی‌تواند lstat کند) → Obsidian هنگام لود EACCES می‌داد.
-- اقدام با تایید صریح آری: همان venv حذف شد (استثنای مجاز `.agentignore` — دستور مستقیم مالک). `QuantumAlphaBot-venv` بررسی شد: venv خالص ویندوزی، صفر symlink، بی‌خطر و دست‌نخورده ماند.
-- درس قاعده‌ای: venvهای WSL/لینوکسی حتی در `_Archive` هم برای Obsidian سمی‌اند (ویندوز symlinkهای WSL را lstat نمی‌کند).
-- **اجرا شد (توسط خود آری، PowerShell):** کل `_Archive` → `Desktop\backup-Archive` (بیرون vault). ریشه vault دیگر `_Archive` ندارد؛ `_Duplicates` هنوز داخل است. `QuantumAlphaBot-venv` (سالم، ویندوزی) هم با همان انتقال بیرون رفت.
-- هماهنگ‌سازی: [[01 - Dashboard/Home|Home]] (بخش پوشه‌های سیستمی) به‌روز شد. چون [[_PROJECT_INSTRUCTIONS|قانون اساسی]] فقط‌خواندنی است، پیشنهاد کامل آپدیت قواعد (§۰/§۲/§۳/§۱۲ + `.agentignore`/`.gitignore` + SOP تلگرام + Weekly Review + CLAUDE.md + مسیرهای stale نوت‌ها) در [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]] ثبت شد — منتظر verdict آری.
-
-## جلسه سوم 2026-07-04 (Cowork) — Triage کامل vault با verdict مستقیم آری
-
-استثنای گیت فقط برای مرتب‌سازی/triage با دستور مستقیم مالک اعمال شد؛ هیچ secret و هیچ `_code` لمس نشد؛ گیت برای هر کار autonomous پابرجاست.
-
-- **Inbox: ۲۸ → ۵ فایل.** مانده‌ها فقط موارد باز: [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]] (خالی) + ۴ پرامپت در انتظار اجرا (Security Ops G-01 · Phase 4 · [[00 - Inbox/Prompt - Research Pack 7 Projects 2026-07-03|Research Pack]] با پرامپت‌های باقیمانده Mining/Ziman/Project-F · [[00 - Inbox/Prompt - اتصال همه پروژه‌ها به مغز کنترل|اتصال به مغز کنترل]]).
-- **corpus تحقیق → `04 - Architect System/architect/02-Research/`:** SCOUT-A/C/DEEP-Governance/[[04 - Architect System/architect/02-Research/SCOUT-SUMMARY|SUMMARY]] · [[04 - Architect System/architect/02-Research/Report - 20 AGI Architectures 2026|Report - 20 AGI]] · [[04 - Architect System/architect/02-Research/Report - Architect - Adversarial Review v3 2026-07-04|Adversarial Review v3]] · [[04 - Architect System/architect/02-Research/Report - Architec
+- **دور اولِ زنده اجرا شد (دستور آری «تا یک ساعت»):** ۹ ایجنت موازی → ۹ دیجست منبع‌دار در [[

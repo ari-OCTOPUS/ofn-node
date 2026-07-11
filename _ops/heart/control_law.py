@@ -60,9 +60,14 @@ def precision_weight(vstate: "dict | None") -> float:
     ts = v.get("confirmed_ts") or []
     if len(ts) >= 3:
         try:
-            gaps = [float(b) - float(a) for a, b in zip(ts, ts[1:]) if float(b) > float(a)]
+            fts = [float(t) for t in ts]
         except (TypeError, ValueError):
-            gaps = []
+            fts = []
+        # پادزهرِ S-batch replay (۲۰۲۶-۰۷-۱۱): ts ِ inf/nan وارد gaps می‌شد و pstdev با
+        # OverflowError کرش می‌کرد (نقضِ قیدِ «π همیشه finite، بدون کرش»). non-finite → پاک؛
+        # ورودیِ سالم بیت‌به‌بیت همان مسیرِ قبلی را می‌رود (فقط سم‌زدایی، نه تغییرِ منطق).
+        fts = [t for t in fts if math.isfinite(t)]
+        gaps = [b - a for a, b in zip(fts, fts[1:]) if b > a]
         if len(gaps) >= 2:
             m = sum(gaps) / len(gaps)
             if m > 0:

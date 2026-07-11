@@ -45,12 +45,12 @@ sources:
 - تغییرِ additive: پارامترِ `strict=False` به `__init__` (پیش‌فرض = رفتارِ امروز)، + `configure_from_env()` که فلگِ `HH_HUMAN_GUARD_STRICT` (خاموش) را می‌خواند. با strict + بی‌سکرت، `authorize()` شاخهٔ **DENY** جدید می‌گیرد (`(False,'fail-closed-no-secret')`) به‌جای `(True,'guard-disabled-passthrough')` در `human_append_guard.py:78-80`. مسیرِ HMAC دست‌نخورده.
 - **چرا:** تنها ایرادِ **زندهٔ قابلِ‌سوءاستفاده** را می‌بندد (امروز هر مسیرِ کد می‌تواند `is_human=1` جعل کند و arrowِ فناپذیریِ ledger را جلو ببرد). قالبِ قابلِ‌استفادهٔ مجدد برای مورد ۴.
 
-**۲. خطای پیش‌بینیِ precision-weighted در `heart_step`** — S · ✅ **ساخته شد** (رأی مالک «قلب+برچسب»)
+**۲. خطای پیش‌بینیِ precision-weighted در `heart_step`** — S · ✅ **ساخته شد + replay-validated** (رأی مالک «قلب+برچسب»؛ فازِ replay ↓ §۵ — یک کرشِ inf/nan در `precision_weight` پیدا و در ریشه بسته شد، sim/hash بازسازی)
 - استاندارد: precision = inverse-variance (pymdp γ).
 - additive: تابعِ خالصِ `precision_weight(samples)→π∈[0,1]` (`1/(1+pvariance)`، با <۲ نمونه = ۱.۰ → خروجی byte-identical). فلگِ `HEART_PRECISION_WEIGHT` (خاموش). با روشن: `err_eff = π·err` در همان `period=BASE·exp(K_P·err_eff)`. قانونِ exp/باند/ترمزِ σ دست‌نخورده. چون π≤۱ فقط gain را کم می‌کند، اثباتِ پایداریِ `G=0.38<1` حفظ (سفت‌تر) می‌شود.
 - **چرا:** gainِ دستیِ ثابت (ایرادی که مالک می‌خواست تکرار نشود) را با precisionِ استاندارد جایگزین می‌کند؛ از همان بافرِ Gate-0 (۲۹/۴۸) استفاده می‌کند.
 
-**۳. برچسبِ fact/emerging/hype + validator روی `epistemics/contracts.py`** — S · ✅ **ساخته شد** (رأی مالک «قلب+برچسب»)
+**۳. برچسبِ fact/emerging/hype + validator روی `epistemics/contracts.py`** — S · ✅ **ساخته شد + replay-validated** (رأی مالک «قلب+برچسب»؛ کلاسیفایرِ سه‌حالتهٔ سایه در `epistemics/guard_review.py` — §۵)
 - additive: فیلدِ اختیاریِ `epistemic_label ∈ {fact|emerging|hype}` + validatorِ ~۱۰-خطی که اگر رشته‌ای شاملِ `phenomenal|qualia|sentient|feels` بود raise کند. روی dataclassِ موجود، off-loop، بی‌وایرینگِ لوپ.
 - **چرا:** گافِ (d) را از «نیمه» به artifactِ اجراشده می‌برد — روی لایه‌ای که **از قبل هست**.
 
@@ -88,5 +88,30 @@ sources:
 
 **نکتهٔ درختی (صادقانه):** ماژول‌های `cortex/*` روی شاخهٔ master هستند (نه این worktreeِ heart-branch)، پس موارد ۵–۸ روی درختِ یکپارچهٔ master اعمال می‌شوند — که `ignition.py` را همین جلسه آنجا ساختم.
 
+## ۵. فازِ میانی: S-batch Replay & Edge-Case Validation (۲۰۲۶-۰۷-۱۱ — رأی مالک: «اول اندازه‌گیری، بعد کالیبراسیون، بعد گیت، بعد canary/live»)
+
+**اجزا (همه additive/shadow-only، صفر تغییرِ رفتارِ زنده):**
+- `_ops/heart/replay_s.py` — هارنسِ counterfactual: هر ورودی یک‌بار با فلگ خاموش (مسیرِ زندهٔ امروز) و یک‌بار روشن (سایه)؛ π همیشه از خودِ `control_law.precision_weight` (صفر کپیِ منطق). داده: ۱۵ رژیمِ مرزیِ قطعی + ۳۲ ردیفِ stream-proxy از `velocity-stream.jsonl` ِ واقعی + فضای کاریِ زندهٔ ignition (read-only). خروجی: `state/replay/S-BATCH-REPLAY.json`.
+- `_ops/epistemics/guard_review.py` — کلاسیفایرِ سه‌حالتهٔ سایه (block/allow/needs_review): واژگانِ گسترده‌تر (فارسی + «subjective awareness» که گاردِ زنده جا می‌انداخت)، سلبِ مقید به همان جمله، مبهم = needs_review نه passِ خاموش. **گاردِ زندهٔ `contracts.assert_access_only` دست‌نخورده** — ارتقایش به کلاسیفایر = پیشنهادِ فازِ بعد.
+- `_ops/tests/test_replay_s.py` — ۱۳ چک: قیدهای سختِ π روی ۱۶ مرز (finite، ∈[0,1]، بدونِ NaN/Inf/div0/کرش: n∈{0,1,2}، ts ِ غایب/تکراری/نامرتب/صفر-واریانس/بورست/outlier/inf/nan/غیرعددی)، استرسِ گارد (en+fa)، سلامتِ هارنس.
+
+**نتیجهٔ اجرای واقعی (۴۷ ردیفِ قلب + ۶ سناریوی ignition):**
+
+| گیت | نتیجه |
+|---|---|
+| سلامتِ ریاضی (finite=۱۰۰٪، NaN/Inf=۰، π∈[0,1]) | ✅ PASS |
+| رابطهٔ کیفی: median π(regular)=۱٫۰ > π(bursty)=۰٫۹۸ (سنتتیکِ حاد تا ۰٫۳۲) | ✅ PASS |
+| churn: خام ۳۸٪ ولی **معنادار (Δ≥1s) فقط ۱۰٫۶٪** — ناحیهٔ سالمِ ۵–۲۵٪؛ روی دادهٔ واقعی max Δ=۱٫۶s | ✅ PASS (بررسیِ دستی انجام شد) |
+| پایداری: |err_eff|≤|err| در ۱۰۰٪ ردیف‌ها (π فقط ترمز، G<1 حفظ) | ✅ PASS |
+| hype برنده نمی‌سازد + توجهِ مالک boost است نه override (۰٫۸۵ در برابرِ ۰٫۹۰ می‌بازد، در برابرِ ۰٫۳۰ می‌برد) | ✅ PASS |
+| گارد: ۰ false-negative روی ۷ ادعای مثبت، ۰ false-positive روی ۱۴ سلب/disclaimer، مبهم→needs_review | ✅ PASS |
+
+**کشفِ فازِ replay (اثباتِ ارزشِ خودِ فاز):** `precision_weight` با timestamp ِ inf/nan **کرش می‌کرد** (OverflowError در pstdev — مسیرِ فلگ-روشن با state ِ خراب کلِ beat را می‌کشت به‌جای استراحت). در ریشه بسته شد (سم‌زداییِ non-finite در `control_law.py`؛ ورودیِ سالم بیت‌به‌بیت همان). ویرایشِ control_law هش را شکست → sim بازاجرا → **SIM-PASS سبز، hash-match بازسازی (`17dac993`)**.
+
+**وردیکتِ دروازهٔ #۶: PASS** — ساختِ #۶ مجاز شد ولی **فقط shadow-only** (`IGNITION_SOFT_WTA_SHADOW=1`، `IGNITION_SOFT_WTA_LIVE=0`) و فقط با «برو»ی مالک. `HEART_PRECISION_WEIGHT` همچنان **خاموش** (رأی مالک). fail-closed #۱ همچنان نزده (رأی مالک؛ گزینهٔ میانیِ `HUMAN_APPEND_GUARD_SHADOW_ALERT` هم فقط پیشنهاد ماند).
+
+**۹. (پیشنهادِ نو — بهداشتِ تست) مسیرهای portable در ~۲۰ فایلِ تست** — S
+- در اجرای سوییت روی لینوکس/سندباکس، فایل‌هایی مثل `test_leg.py:25` با سگمنتِ خامِ ویندوزی (`r"_ops\legs"`) شکستند (روی ویندوزِ مالک سبزند). جایگزینیِ `REAL_VAULT / r"a\b"` با `REAL_VAULT / "a" / "b"` = دنبالهٔ طبیعیِ درسِ جلسهٔ ۴۷ (تست باید همه‌جا اجراشدنی باشد). + `test_dashboard.py` یک f-string ِ نیازمندِ py3.12+ دارد. propose-only — بدونِ رأی مالک دست نزدم.
+
 ---
-*ساخت: جلسهٔ ۴۶ ادامه (۲۰۲۶-۰۷-۱۱) — ممیزیِ ۶-ستونیِ وب (۷ ایجنت، web_used=true، ۶/۶ ستون با منبعِ واقعی) + سنتز. همراهِ [[06 - Architecture Maps/HEART - Neuro Map & Direction]].*
+*ساخت: جلسهٔ ۴۶ ادامه (۲۰۲۶-۰۷-۱۱) — ممیزیِ ۶-ستونیِ وب (۷ ایجنت، web_used=true، ۶/۶ ستون با منبعِ واقعی) + سنتز. §۵: جلسهٔ ۴۸ (۲۰۲۶-۰۷-۱۱، Claude Fable 5). همراهِ [[06 - Architecture Maps/HEART - Neuro Map & Direction]].*
