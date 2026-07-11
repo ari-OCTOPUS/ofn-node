@@ -1,12 +1,13 @@
 ---
 type: agent
-status: proposed
-domain: architect (spine عرضی — نقشه‌برداری)
-autonomy_target: read-only / propose-only
-runtime: "`.claude/agents/vault-cartographer.md`"
+status: active
+owner: آری
+risk_level: low
+autonomy_level: read-only
+code: ".claude/agents/vault-cartographer.md"
 trigger: "on-demand (نقشه/ممیزی/گراندینگِ معماری)"
 created: 2026-07-09
-updated: 2026-07-09
+updated: 2026-07-11
 created_by: agent
 tags: [agents, registry, architecture, read-only]
 sources:

@@ -5,6 +5,15 @@ updated: 2026-07-11
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+## جلسه ۴۸ ادامه (~۱۴:۱۰) — ✅ URCP Phase-0 کامل شد: الحاقِ risk + شناختِ critical + ratify Cartographer + کارتِ /ops (رأی مالک «۱:الحاق، ۲:بشناس، UTF-8، Cartographer نه… بعد: همین حالا»)
+
+سه دستور مالک روی #۱۰، همه اجرا و commit روی شاخهٔ `claude/urcp-registry-phase-0-73e6e7` (worktree `seven-relationships-wired-949630`):
+- **`df07a1d`** — الحاقِ `risk_level` ایجنت‌ها (هلپرِ مشترکِ `_lift_risk`، parity با پروژه‌ها) + شناختِ `critical` → `risk_tier="R4-pending"` + فیلدِ `risk_declared` (تفکیکِ «critical اعلام‌شده» از «هیچ نگفت») + شمارشِ `pending_r4`. **اصلِ «R4/R5 هرگز خودکار» دست‌نخورده** — R4 واقعی فقط از manifest. + فیکسِ cp1252 در `run_all` (`reconfigure utf-8`). Mycelium Scout + Research Scout Fleet → `owner: آری`/`risk_level: low` (→R1).
+- **`b42bd58`** — ratify Vault Cartographer → `active`/`آری`/R1 (یک ایجنتِ واقعیِ read-only، نه مرده)؛ ۳ تخلفِ frontmatterش با نگاشت به کلیدهای موجود رفع شد.
+- **`1c518a5`** — کارتِ registry در داشبوردِ `/ops`: هلپرِ کش‌دارِ `_registry_summary` → `ops_state()` → کارت/JS. تستِ `t_e` در `test_live_cockpit` (۵/۵). رندر روی مرورگر اثبات شد (۱۳ چیپ؛ Crypto-etoro زرد=R4-pending/critical؛ Cartographer R1/آری).
+- **گیت (REAL_VAULT=worktree):** سوییتِ کامل **۱۰۷/۱۰۷** · اعتبارسنج baseline (**۵** لینک‌شکستهٔ پیش‌موجود، صفر تخلفِ جدید). **snapshotِ نهایی: unknown_owner ۰ · unknown_risk ۰ · pending_r4 ۱ (فقط Crypto، درست‌برچسب) · conformance ۰٫۸۳۱ · صفر نشتِ هویت.**
+- **میزِ آری:** (۱) **merge** — کلِ زنجیره روی `claude/urcp-registry-phase-0-73e6e7`، هنوز ادغام‌نشده؛ بعد از merge روی درختِ زنده `run_all` بزن تا markerِ capability با fingerprintِ تازه refresh شود. (۲) **#۱۱–۱۳** (envelope enrichment، HeartState adapter، Incident record) همچنان propose-only — [[06 - Architecture Maps/URCP Reconciliation - control-plane on OCTOPUS]]. (۳) بدهیِ frontmatterِ پیش‌موجود (اونلی‌فنز doc-package + scout-digests) خارج از §۱۱، از این کار نیست.
+
 ## جلسه ۴۸ ادامه (~۱۲:۳۰) — 🗂 #۱۰ ساخته شد: URCP Phase-0 Registry (رأی مالک «کاملاً موافقم»)
 
 اولین قدمِ انطباق با تحلیلِ URCP ([[06 - Architecture Maps/URCP Reconciliation - control-plane on OCTOPUS|سند انطباق]]) — «You cannot govern what you cannot see». همه additive، read-only، $0:

@@ -111,6 +111,19 @@ def t_d_no_secret_leak_and_hologram_page():
     assert "members" in d["cortex"]              # خوراکِ رنگِ گره‌ها
 
 
+def t_e_registry_card_fail_soft():
+    """کارتِ registry در /ops: _registry_summary همیشه dict ِ fail-soft می‌دهد،
+    و OPS_PAGE کارت + خواندنِ d.registry را دارد. (vault موقت خالی → present با total=0)."""
+    reg = live._registry_summary()
+    assert isinstance(reg, dict) and "present" in reg
+    if reg.get("present"):
+        assert "counts" in reg and isinstance(reg.get("entities"), list)
+    st = live.ops_state()
+    assert "registry" in st                                # در خروجیِ /api/ops هست
+    for marker in ("regCard", "رجیستری", "d.registry"):
+        assert marker in live.OPS_PAGE, marker
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

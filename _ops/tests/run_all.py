@@ -6,6 +6,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")   # کنسولِ پیش‌فرضِ ویندوز (cp1252) وگرنه روی برچسبِ ─/فارسی کرش می‌کند
+
 HERE = Path(__file__).resolve().parent
 TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_epoch.py", "test_debate.py", "test_fitness_sigma.py",

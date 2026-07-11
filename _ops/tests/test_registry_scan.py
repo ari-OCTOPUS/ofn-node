@@ -28,6 +28,9 @@ def _mk_vault(root: Path, with_pf: bool = True) -> Path:
         "---\ntype: project\nstatus: active\nowner: آری\nrisk_level: medium\n"
         "autonomy_level: read-only\n---\n# Alpha\n", "utf-8")
     (pj / "Beta").mkdir(exist_ok=True)                     # بدونِ PROJECT.md → همه unknown
+    (pj / "Gamma").mkdir(exist_ok=True)                    # critical → R4-pending (نه unknown، نه R4)
+    (pj / "Gamma" / "PROJECT.md").write_text(
+        "---\ntype: project\nstatus: active\nowner: آری\nrisk_level: critical\n---\n# Gamma\n", "utf-8")
     (pj / "_Index").mkdir(exist_ok=True)                   # باید skip شود
     if with_pf:
         secret = pj / _PF_NAME
@@ -37,6 +40,8 @@ def _mk_vault(root: Path, with_pf: bool = True) -> Path:
     ag = root / "05 - Agents"
     ag.mkdir(exist_ok=True)
     (ag / "Research Scout Fleet.md").write_text("---\nowner: آری\n---\n# scout\n", "utf-8")
+    (ag / "Mycelium Scout.md").write_text(
+        "---\ntype: agent\nowner: آری\nrisk_level: high\n---\n# scout2\n", "utf-8")   # الحاقِ risk ایجنت
     (ag / "AGENT_REGISTRY.md").write_text("# registry\n", "utf-8")   # skip
     (ag / "_Index - Agents.md").write_text("# idx\n", "utf-8")       # skip
     return root
@@ -132,6 +137,38 @@ def t_fail_soft_missing_dirs():
     empty.mkdir(exist_ok=True)
     s = rs.build_snapshot(root=empty, entities_dir=empty / "none")
     assert s["counts"]["total"] == 0 and s["entities"] == []
+
+
+def t_agent_risk_lifted():
+    """الحاق (#۱): risk_level ِ ایجنت هم خوانده می‌شود — parity با پروژه‌ها."""
+    s = _snap()
+    m = next(e for e in s["entities"] if e["display_name"] == "Mycelium Scout")
+    assert m["entity_type"] == "Agent"
+    assert m["risk_tier"] == "R3" and m["risk_declared"] == "high"
+    # ایجنتِ بدونِ risk_level → همان unknown (تضادِ صادقانه)
+    f = next(e for e in s["entities"] if e["display_name"] == "Research Scout Fleet")
+    assert f["risk_tier"] == rs.UNKNOWN and f["risk_declared"] == ""
+
+
+def t_critical_recognized_not_unknown():
+    """«بشناس» (#۲): critical صادقانه ثبت می‌شود، از unknown متمایز، ولی R4 خودکار نمی‌گیرد."""
+    s = _snap()
+    g = next(e for e in s["entities"] if e["display_name"] == "Gamma")
+    assert g["risk_declared"] == "critical"                     # صادقانه ثبت شد
+    assert g["risk_tier"] == rs.TIER_R4_PENDING                 # نه unknown، نه R4
+    assert g["risk_tier"] not in ("R4", "R5", rs.UNKNOWN)       # نه ارتقای خودکار، نه گم‌شدن
+    beta = next(e for e in s["entities"] if e["display_name"] == "Beta")
+    assert g["risk_tier"] != beta["risk_tier"]                  # critical ≠ «مالک هیچ نگفت»
+    assert s["counts"]["pending_r4"] >= 1                       # در summary دیده می‌شود
+
+
+def t_critical_counts_as_known():
+    """critical در سطلِ unknown_risk نمی‌افتد؛ مالک ریسک را اعلام کرده → بیش از «هیچ» می‌ارزد."""
+    s = _snap()
+    g = next(e for e in s["entities"] if e["display_name"] == "Gamma")
+    beta = next(e for e in s["entities"] if e["display_name"] == "Beta")
+    assert g["risk_tier"] != rs.UNKNOWN
+    assert g["conformance_score"] > beta["conformance_score"]
 
 
 if __name__ == "__main__":
