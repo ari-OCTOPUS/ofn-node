@@ -65,7 +65,7 @@ def topic_title(leg_key: str, config: dict | None = None) -> str:
     return f"{icon} {name}" if icon else name
 
 # کلیدهای قراردادیِ خروجیِ collect_feeds — همیشه همه حاضرند ({} در شکست).
-FEED_KEYS = ("board", "guidance", "business", "heart", "registry", "telemetry")
+FEED_KEYS = ("board", "guidance", "business", "heart", "registry", "telemetry", "legs")
 
 _SOURCE_ICON = {"money": "💰", "blocked": "⏸", "approval": "🙋",
                 "fear": "😨", "needs": "📌"}
@@ -141,6 +141,61 @@ def display_name(leg_key: str, config: dict | None = None) -> str:
     return LEGS.get(key, key or "?")
 
 
+# نگاشتِ ۸ پا به دایجستِ زنده — هر کلیدِ پا → {status, detail[, next]} از بهترینِ
+# سیگنالِ موجود؛ پیش‌فرضِ آرام وقتی منبعِ زنده نیست (fail-soft).
+_LEG_DEFAULT = {"status": "⚪", "detail": "سیگنالِ زنده‌ای نیست"}
+_LEG_RANK = {"🔴": 3, "🟡": 2, "🟢": 1, "⚪": 0}
+
+
+def _collect_legs(feeds: dict) -> dict:
+    """۸ پا → {status, detail[, next]}: business_brain (نگاشتِ نام → lead / studio_pf)،
+    part_loops (خلاصهٔ سلامت → system)، و پیش‌فرضِ آرام برای بقیه.
+
+    fail-soft: هر منبعِ غایب/خراب → پیش‌فرض. containment: studio_pf فقط status/detail
+    از pf projection ِ content-free را برمی‌دارد — نامِ نمایشی از LEGS/config
+    می‌آید، هرگز از این‌جا (نامِ واقعی هیچ‌گاه لمس نمی‌شود)."""
+    legs = {k: dict(_LEG_DEFAULT) for k in LEGS}
+
+    # business_brain.summary() → projects: نگاشت با نام → lead / studio_pf
+    biz = feeds.get("business") if isinstance(feeds.get("business"), dict) else {}
+    for p in (biz.get("projects") or []):
+        if not isinstance(p, dict):
+            continue
+        low = str(p.get("name") or "").lower()
+        cell = {"status": _one(p.get("status"), 12) or "⚪",
+                "detail": _one(p.get("detail"))}
+        if "lead" in low:
+            legs["lead"] = cell
+        elif "project-f" in low or "project_f" in low:
+            legs["studio_pf"] = cell            # content-free: فقط وضعیت/جزئیات، نه نام
+
+    # part_loops.summary() → parts: خلاصهٔ سلامتِ درونی روی پای system
+    pl = _import_soft("part_loops")
+    if pl is not None:
+        try:
+            s = pl.summary()
+            parts = s.get("parts") if isinstance(s.get("parts"), list) else []
+            n_prop = _int(s.get("n_proposals"))
+        except Exception:  # noqa: BLE001
+            parts, n_prop = [], 0
+        if parts:
+            worst, attention = "🟢", 0
+            for p in parts:
+                st = str(p.get("status") or "") if isinstance(p, dict) else ""
+                if _LEG_RANK.get(st, 0) > _LEG_RANK.get(worst, 0):
+                    worst = st
+                if st in ("🔴", "🟡"):
+                    attention += 1
+            cell = {"status": worst,
+                    "detail": (f"{len(parts)} بخش · {attention} نیازِ توجه" if attention
+                               else f"{len(parts)} بخش سالم")}
+            if n_prop:
+                cell["next"] = f"{n_prop} پیشنهاد در صف"
+            legs["system"] = cell
+
+    return legs
+
+
 # ─── I/O ِ فقط‌خواندنی: جمعِ feedها ────────────────────────────────────────────────
 def collect_feeds() -> dict:
     """همهٔ feedهای کنترل-پلین در یک dict — هر کلید مستقل، fail-soft، {} در شکست.
@@ -184,6 +239,12 @@ def collect_feeds() -> dict:
             feeds["telemetry"] = _read_json(state / "telemetry-latest.json")
         except Exception:  # noqa: BLE001
             pass
+
+    # ۸ پا → دایجستِ زنده (مصرفِ center.beat: feeds['legs'][leg]) — fail-soft
+    try:
+        feeds["legs"] = _collect_legs(feeds)
+    except Exception:  # noqa: BLE001
+        feeds["legs"] = {k: dict(_LEG_DEFAULT) for k in LEGS}
     return feeds
 
 

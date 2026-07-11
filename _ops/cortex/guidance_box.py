@@ -18,6 +18,7 @@ $0 · stdlib + opslib · read-only · fail-soft · content-free (scrub containme
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -155,6 +156,33 @@ def _needs() -> list[dict]:
 
 
 # ── API ─────────────────────────────────────────────────────────────────────
+# ── فیلترِ «مالک قبلاً رأی داده» (approvalهای تلگرام) ──────────────────────────
+# مالک در تلگرام ✅/❌ می‌زند → center فایلِ STATE/telegram/approvals/<id>.json می‌نویسد
+# ({verdict: ok|no|later}). آیتمی که رأیِ نهایی خورده باید از جعبه بیفتد (وگرنه n کم نمی‌شود).
+_RESOLVED_VERDICTS = frozenset({"ok", "no"})   # «later» رأیِ نهایی نیست → آیتم می‌ماند
+
+
+def _decision_ids(it: dict) -> tuple:
+    """idهای ممکنِ این آیتم روی approvals — هم‌ریخت با هر دو مسیرِ ساختِ کارت (فقط هش):
+      • center: sha256(json([q, source]))[:16]  (مسیرِ واقعی)
+      • fallbackِ render: sha256("q|source|why")[:12]."""
+    q, src, why = it.get("q", ""), it.get("source", ""), it.get("why", "")
+    center = json.dumps([q, src], ensure_ascii=False).encode("utf-8")
+    rnd = f"{q}|{src}|{why}".encode("utf-8")
+    return (hashlib.sha256(center).hexdigest()[:16],
+            hashlib.sha256(rnd).hexdigest()[:12])
+
+
+def _acted_on(it: dict) -> bool:
+    """مالک قبلاً رأیِ نهایی (ok/no) برای این تصمیم ثبت کرده؟ fail-soft (نبود → False)."""
+    base = STATE / "telegram" / "approvals"
+    for did in _decision_ids(it):
+        rec = _read_json(base / f"{did}.json")
+        if str(rec.get("verdict") or "") in _RESOLVED_VERDICTS:
+            return True
+    return False
+
+
 def guidance() -> dict:
     """جعبهٔ راهنمایی: چند سوالِ پُراهرم که همین حالا به مالک نیاز دارند.
 
@@ -172,6 +200,8 @@ def guidance() -> dict:
     seen: set[str] = set()
     ranked: list[dict] = []
     for it in items:
+        if _acted_on(it):            # مالک قبلاً در تلگرام رأی داده → از فهرست بیفتد
+            continue
         key = re.sub(r"\s+", " ", it["q"]).strip().casefold()
         if key in seen:
             continue

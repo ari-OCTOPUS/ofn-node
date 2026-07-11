@@ -171,10 +171,12 @@ def dashboard_state(pending_count: int = 0) -> dict:
     att = attention()
     lo = last_outcome()
     # 🔴 فقط برای خرابی/گیرِ واقعی؛ منتظرِ تأییدِ تو = 🟡 نه 🔴
+    # att فقط وقتی 🔴/🟡 می‌کند که رویدادِ محرک تازه باشد (~۳۰min) — رفعِ sticky-red
+    att_recent = bool(att) and float(att.get("ts", 0) or 0) >= time.time() - 30 * 60
     is_blocked = bool(s5["failed"] or s5["blocked"]
-                      or (att and att.get("event_name") == "task.blocked"))
+                      or (att_recent and att.get("event_name") == "task.blocked"))
     is_waiting = bool(pending_count or s5["waiting"]
-                      or (att and att.get("approval_state") == "required"))
+                      or (att_recent and att.get("approval_state") == "required"))
     overall = "🔴 گیر" if is_blocked else ("🟡 منتظرِ تو" if is_waiting else "🟢 روان")
     return {
         "ts": opslib.now_iso(), "schema": "dashboard-state.v1",
