@@ -566,6 +566,13 @@ class Center:
 
 
 if __name__ == "__main__":
+    # مسیرِ رسمیِ لودِ .env (مثل model_router/approval_channel): بدونِ این،
+    # TELEGRAM_* در os.environ نیست و رانر «not wired»ِ کاذب می‌دهد. fail-soft.
+    try:
+        import env_loader
+        env_loader.load_env()
+    except Exception:  # noqa: BLE001
+        pass
     c = Center()
     if not c.wired():
         print("tg-center: not wired (TELEGRAM_BOT_TOKEN/چت پیکربندی نشده) — خروجِ امنِ no-op")
