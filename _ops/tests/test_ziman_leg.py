@@ -146,6 +146,18 @@ def test_status_and_digest():
     assert "D4" in d
 
 
+def test_digest_labels_capacity_as_unverified():
+    # I-5: دیجست نباید عددِ خامِ ۳۰ را واقعیتِ تأییدشده جا بزند.
+    leg = ZimanLeg(organ_table={"ZIMAN": {}}, capacity_ceiling=30)
+    d = leg.telegram_digest()
+    assert "تأییدنشده" in d
+    assert "~6/هفته" in d
+    s = leg.status_snapshot()
+    assert s["capacity_ceiling_effective"] == 6
+    assert s["capacity_ceiling_raw_unverified"] == 30
+    assert s["inventory_evidence_class"] in ("UNVERIFIED", "UNKNOWN")
+
+
 def test_tick_ok():
     leg = ZimanLeg(organ_table={"ZIMAN": {}}, capacity_ceiling=30)
     r = leg.tick()

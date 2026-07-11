@@ -208,7 +208,11 @@ class ZimanLeg(Leg):
             "organ": self.packet.organ,
             "money_link": self.money_link,
             "capacity_ceiling_per_week": ceiling,
+            "capacity_ceiling_raw_unverified": ceiling,       # I-5: خامِ yaml (تأییدنشده)
+            "capacity_ceiling_effective": capacity_fail_closed(
+                ceiling, self._owner_revalidated),            # سقفِ محتاطانه‌ای که واقعاً اعمال می‌شود
             "inventory_hint": inv,
+            "inventory_evidence_class": "UNVERIFIED" if inv is not None else "UNKNOWN",
             "product_families": list(PRODUCT_FAMILIES.keys()),
             "drafts_count": drafts_n,
             "autonomy": "propose-only",
@@ -359,13 +363,17 @@ class ZimanLeg(Leg):
     def telegram_digest(self) -> str:
         """۳ خط ADHD-first برای telegram_center."""
         s = self.status_snapshot()
-        ceil = s.get("capacity_ceiling_per_week") or "?"
+        # I-5: هرگز عددِ خامِ yaml را به‌عنوان واقعیتِ تأییدشده نشان نده.
+        eff = s.get("capacity_ceiling_effective")
+        raw = s.get("capacity_ceiling_raw_unverified")
+        cap_s = (f"~{eff}/هفته (محتاطانه؛ خام {raw} تأییدنشده)"
+                 if eff else "ثبت/تأییدنشده")
         inv = s.get("inventory_hint")
-        inv_s = str(inv) if inv is not None else "?"
+        inv_s = f"≈{inv} [تأییدنشده]" if inv is not None else "?"
         link = s.get("money_link", "?")
         drafts = s.get("drafts_count", 0)
         return (
             f"🖼 Ziman · {link}\n"
-            f"ظرفیت {ceil}/هفته · موجودی≈{inv_s} · drafts={drafts}\n"
+            f"ظرفیت {cap_s} · موجودی {inv_s} · drafts={drafts}\n"
             f"propose-only · D4 on · zero external exec"
         )
