@@ -333,6 +333,16 @@ def ops_state() -> dict:
         except Exception:  # noqa: BLE001
             st["incidents"] = []
         try:
+            import execution_board                           # Wave-3 — تختهٔ اجرا (read-only)
+            st["execution_board"] = execution_board.board()
+        except Exception:  # noqa: BLE001
+            st["execution_board"] = {}
+        try:
+            import guidance_box                              # Wave-3 — جعبهٔ راهنماییِ انسان (read-only)
+            st["guidance"] = guidance_box.guidance()
+        except Exception:  # noqa: BLE001
+            st["guidance"] = {}
+        try:
             sys.path.insert(0, str(_OPS / "heart"))
             import heartstate
             st["heartstate"] = heartstate.build()             # #۱۲ — telemetry ِ read-only (بدونِ نوشتن)
@@ -380,6 +390,8 @@ OPS_PAGE = """<!doctype html><html dir="rtl" lang="fa"><meta charset="utf-8">
 <div class="card" id="regCard" style="margin-bottom:10px;display:none"><div class="lbl">🗂 رجیستری — control-plane (<span id="regHdr">—</span>)</div><div id="regEnts" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div></div>
 <div class="card att" id="incCard" style="margin-bottom:10px;display:none"><div class="lbl">🚨 حوادث — Incident (باز/مهار؛ ریسکِ بالا = منتظرِ تو، نه اکشنِ خودکار)</div><div id="incs" style="display:flex;flex-direction:column;gap:4px;margin-top:4px"></div></div>
 <div class="card" id="hsCard" style="margin-bottom:10px;display:none"><div class="lbl">🫀 HeartState — telemetry (سایه: <span id="hsShadow">—</span>)</div><div id="hsBody" style="font-size:12px;margin-top:4px">—</div></div>
+<div class="card" id="ebCard" style="margin-bottom:10px;display:none"><div class="lbl">📋 تختهٔ اجرا — Execution Board (<span id="ebHdr">—</span>)</div><div id="ebLanes" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div></div>
+<div class="card att" id="gbCard" style="margin-bottom:10px;display:none"><div class="lbl">🧭 راهنماییِ تو — الان چه تصمیمی لازم است</div><div id="gbItems" style="display:flex;flex-direction:column;gap:4px;margin-top:4px"></div></div>
 <div class="kpis">
  <div class="kpi"><b id="k_c">0</b><span>تمام‌شده</span></div>
  <div class="kpi"><b id="k_w">0</b><span>منتظر</span></div>
@@ -434,6 +446,22 @@ async function tick(){try{
    return '<span title="'+esc(e.type)+' · انطباق '+esc(e.conf)+'" style="background:#161b22;border:1px solid '+col+';border-radius:7px;padding:4px 8px;font-size:11px">'+ic+' '+esc(e.name)+' <span style=color:#6e7681>'+sub+'</span></span>'}).join('')
    ||'<span style=color:#6e7681;font-size:11px>هنوز اسکن نشده</span>';
  }
+ const eb=d.execution_board||{}; const ebc=document.getElementById('ebCard');
+ const ebt=(eb.counts||{}).total||0; ebc.style.display=ebt?'block':'none';
+ if(ebt){const c=eb.counts||{};
+  const lane=(ic,lbl,n,col)=>'<span style="background:#161b22;border:1px solid '+col+';border-radius:7px;padding:4px 8px;font-size:11px">'+ic+' '+lbl+' <b>'+(n||0)+'</b></span>';
+  document.getElementById('ebHdr').textContent=ebt+' کار';
+  document.getElementById('ebLanes').innerHTML=
+   lane('📥','صف',c.queued,'#30363d')+lane('▶','اجرا',c.running,'#3fb950')
+   +lane('⏸','گیر',c.blocked,'#e3b341')+lane('🙋','منتظرِ تو',c.awaiting_user,'#9e6a03')
+   +lane('✓','تمام',c.done,'#30363d')+lane('🗑','قرنطینه',c.quarantined,'#f85149');
+ }
+ const gb=d.guidance||{}; const gbc=document.getElementById('gbCard'); const gi=gb.items||[];
+ gbc.style.display=gi.length?'block':'none';
+ document.getElementById('gbItems').innerHTML=gi.map(it=>
+  '<div style="font-size:12px"><b style=color:#e3b341>['+esc(it.priority)+']</b> '+esc(it.q)
+  +'<div style=color:#6e7681;font-size:11px>↳ '+esc(it.why)+' <span style=color:#484f58>('+esc(it.source)+')</span></div></div>').join('')
+  ||'<span style=color:#6e7681;font-size:11px>هیچ تصمیمی منتظرت نیست ✅</span>';
  const inc=d.incidents||[]; const icc=document.getElementById('incCard');
  icc.style.display=inc.length?'block':'none';
  document.getElementById('incs').innerHTML=inc.map(e=>{

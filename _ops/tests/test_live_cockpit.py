@@ -124,6 +124,16 @@ def t_e_registry_card_fail_soft():
         assert marker in live.OPS_PAGE, marker
 
 
+def t_f_wave4_controlplane_cards():
+    """Wave-4: کارت‌های Execution Board + Human-Guidance Box در /ops.
+    ops_state هر دو کلید را fail-soft می‌دهد، و OPS_PAGE کارت + JSِ خواندن‌شان را دارد."""
+    st = live.ops_state()
+    assert "execution_board" in st and "guidance" in st    # هر دو در /api/ops
+    for marker in ("ebCard", "تختهٔ اجرا", "d.execution_board",
+                   "gbCard", "راهنماییِ تو", "d.guidance"):
+        assert marker in live.OPS_PAGE, marker
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)
