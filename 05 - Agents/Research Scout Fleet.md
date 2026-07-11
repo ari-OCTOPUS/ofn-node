@@ -2,12 +2,14 @@
 type: agent
 project: "[[04 - Architect System/architect/PROJECT]]"
 status: active
+owner: آری
+risk_level: low
 model: claude-fable-5
 trigger: cron
 code: 'Documents/Claude/Scheduled/<scout>/SKILL.md — ۸ تسک زمان‌بندی، بدون کد اجرایی'
 tags: [agents, ai, research, biomimicry]
 created: 2026-07-04
-updated: 2026-07-04
+updated: 2026-07-11
 ---
 
 # Research Scout Fleet — ناوگان اسکات تحقیق میسیلیومی

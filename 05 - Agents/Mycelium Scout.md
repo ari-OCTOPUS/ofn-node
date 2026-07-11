@@ -2,12 +2,14 @@
 type: agent
 project: "[[04 - Architect System/architect/PROJECT]]"
 status: active
+owner: آری
+risk_level: low
 model: claude-fable-5
 trigger: cron
 code: 'Documents/Claude/Scheduled/mycelium-scout/SKILL.md — پرامپت تسک زمان‌بندی، بدون کد اجرایی'
 tags: [agents, ai, biomimicry, research]
 created: 2026-07-04
-updated: 2026-07-04
+updated: 2026-07-11
 ---
 
 # ایجنت: Mycelium Scout (قارچ‌بان)

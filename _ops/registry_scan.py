@@ -13,8 +13,9 @@ registry ِ runtime ِ read-only از موجودیت‌های اکوسیستم (
   - **containment ِ Project-F:** تطبیق فقط با sha256 ِ نامِ پوشه (`folder_sha256`)؛
     برای موجودیتِ `content_free: true` اسکنر **پوشه را اصلاً نمی‌خواند** و هویت/پلتفرم
     هرگز echo نمی‌شود؛ + scrub ِ دفاعی روی کلِ snapshot.
-  - **risk:** اسکنر حداکثر R3 می‌دهد (نگاشتِ low/medium/high→R1/R2/R3)؛
-    R4/R5 فقط از manifest ِ دست‌نوشتهٔ مالک می‌آید — هرگز خودکار.
+  - **risk:** اسکنر حداکثر R3 می‌دهد (نگاشتِ low/medium/high→R1/R2/R3)؛ سطحِ اعلام‌شدهٔ
+    `critical` را می‌شناسد ولی خودکار به R4 ارتقا نمی‌دهد → `R4-pending` (رأی #۲ «بشناس»:
+    صداقتِ observability، نه ارتقای خودکار). R4/R5 ِ اجرایی فقط از manifest ِ دست‌نوشتهٔ مالک.
   - خروجی: `state/registry/registry-latest.json` (schema: registry.v0) +
     اختیاری یک رویدادِ خلاصه در events (فقط CLI با --emit؛ داشبورد لمس نمی‌شود).
 
@@ -43,6 +44,7 @@ SNAPSHOT_DIR = opslib.STATE_DIR / "registry"
 REQUIRED = ("owner", "risk_tier", "live_state", "approval_state", "physical_path")
 # نگاشت‌های محافظه‌کار از فرانت‌مترِ PROJECT.md
 RISK_MAP = {"low": "R1", "medium": "R2", "high": "R3"}         # R4/R5 هرگز خودکار
+TIER_R4_PENDING = "R4-pending"   # «بشناس، ولی خودکار ارتقا نده»: critical اعلام‌شده، منتظرِ رأیِ مالک (manifest) برای R4/R5
 STATUS_MAP = {"active": "live", "paused": "paused", "done": "retired",
               "archived": "retired", "superseded": "retired"}
 # scrub ِ دفاعیِ containment (تستِ سخت هم دارد)
@@ -60,7 +62,8 @@ def _slug(name: str) -> str:
 def _blank(entity_type: str, logical_id: str, display: str) -> dict:
     return {"logical_id": logical_id, "entity_type": entity_type,
             "display_name": display, "physical_path": UNKNOWN,
-            "owner": UNKNOWN, "risk_tier": UNKNOWN, "autonomy_level": UNKNOWN,
+            "owner": UNKNOWN, "risk_tier": UNKNOWN, "risk_declared": "",
+            "autonomy_level": UNKNOWN,
             "live_state": UNKNOWN, "approval_state": UNKNOWN,
             "capabilities": [], "content_free": False,
             "source": "scan", "notes": ""}
@@ -89,6 +92,27 @@ def _read_frontmatter(p: Path) -> dict:
                 k, _, v = line.partition(":")
                 out[k.strip()] = v.strip().strip('"')
         return out
+
+
+def _lift_risk(fm: dict, e: dict) -> None:
+    """risk_level ِ فرانت‌متر → risk_tier + risk_declared روی entity (درجا).
+
+    - low/medium/high → R1/R2/R3 (سقفِ خودکار؛ اصلِ «R4/R5 هرگز خودکار»).
+    - critical → tier=R4-pending (رأی #۲ «بشناس»): نه unknown، نه R4 خودکار —
+      صداقتِ observability بدونِ ارتقای خودکار؛ R4/R5 ِ اجرایی فقط از manifest می‌آید
+      (merge بعداً هر مقدارِ manifest را override می‌کند).
+    - مقدارِ ناشناخته → tier همان unknown می‌ماند، ولی declared خام حفظ می‌شود.
+    risk_declared همیشه = مقدارِ خامِ اعلام‌شده — تفکیکِ «مالک critical گفت» از «مالک هیچ نگفت».
+    """
+    raw = str(fm.get("risk_level", "")).strip().lower()
+    if not raw:
+        return
+    e["risk_declared"] = raw
+    if raw in RISK_MAP:
+        e["risk_tier"] = RISK_MAP[raw]
+    elif raw == "critical":
+        e["risk_tier"] = TIER_R4_PENDING
+    # هر مقدارِ دیگر: tier دست‌نخورده (unknown)، ولی declared ثبت شد (صداقت)
 
 
 def load_manifests(entities_dir: "Path | None" = None) -> list[dict]:
@@ -125,9 +149,7 @@ def discover_projects(root: Path, manifests: list[dict]) -> list[dict]:
         if fm:
             if fm.get("owner"):
                 e["owner"] = str(fm["owner"])
-            rl = str(fm.get("risk_level", "")).lower()
-            if rl in RISK_MAP:
-                e["risk_tier"] = RISK_MAP[rl]           # سقفِ خودکار: R3
+            _lift_risk(fm, e)                           # low/med/high→R1-3؛ critical→R4-pending
             st = str(fm.get("status", "")).lower()
             if st in STATUS_MAP:
                 e["live_state"] = STATUS_MAP[st]
@@ -155,6 +177,7 @@ def discover_agents(root: Path) -> list[dict]:
         fm = _read_frontmatter(f)
         if fm.get("owner"):
             e["owner"] = str(fm["owner"])
+        _lift_risk(fm, e)                               # parity با پروژه‌ها: ایجنت هم risk_level (اگر اعلام شد)
         ents.append(e)
     return ents
 
@@ -214,6 +237,7 @@ def build_snapshot(root: "Path | None" = None,
         "organs": sum(1 for e in ents if e["entity_type"] == "Organ"),
         "unknown_owner": sum(1 for e in ents if e.get("owner") == UNKNOWN),
         "unknown_risk": sum(1 for e in ents if e.get("risk_tier") == UNKNOWN),
+        "pending_r4": sum(1 for e in ents if e.get("risk_tier") == TIER_R4_PENDING),
         "avg_conformance": round(sum(e["conformance_score"] for e in ents)
                                  / max(1, len(ents)), 3),
     }
@@ -226,9 +250,10 @@ def build_snapshot(root: "Path | None" = None,
 def summary(snap: "dict | None" = None) -> str:
     s = snap or build_snapshot()
     c = s["counts"]
+    crit = f" · critical-pending {c['pending_r4']}" if c.get("pending_r4") else ""
     return (f"🗂 registry: {c['projects']} پروژه · {c['agents']} ایجنت · "
             f"{c['organs']} اندام · مالکِ نامعلوم {c['unknown_owner']} · "
-            f"conformance {c['avg_conformance']}")
+            f"conformance {c['avg_conformance']}{crit}")
 
 
 def main(out_dir: "Path | None" = None, emit_event: bool = False) -> dict:
