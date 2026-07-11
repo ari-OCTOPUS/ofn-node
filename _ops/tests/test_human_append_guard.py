@@ -8,6 +8,9 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "budget"))
 import human_append_guard as G  # noqa: E402
 
+# ایزولاسیونِ تست: هرگز به alertِ زندهٔ opslib دست نزن (این تست standalone است، بدونِ harness).
+G._emit_shadow_alert = lambda msg: None
+
 
 class _C:
     failed = 0
@@ -72,6 +75,37 @@ try:
     check("disabled guard cannot mint", False)
 except G.HumanAppendError:
     check("disabled guard cannot mint", True)
+
+# ۱۱) strict + بی‌سکرت → DENY (fail-closed، default-deny) — رفعِ #۱ سند ۲۰۲۷، رأی مالک «برو»
+g_strict = G.HumanAppendGuard(None, strict=True)
+ok11, r11 = g_strict.authorize("VERDICT", True, token=None)
+check("strict fail-closed denies (no secret)", (not ok11) and r11 == "fail-closed-no-secret")
+
+# ۱۲) strict + سکرتِ واقعی → مسیرِ HMAC دست‌نخورده (strict فقط شاخهٔ بی‌سکرت را می‌بندد)
+g_strict_sec = G.HumanAppendGuard(secret, strict=True)
+tokS = g_strict_sec.mint("appr-s", "VERDICT")
+ok12, r12 = g_strict_sec.authorize("VERDICT", True, token=tokS, approval_id="appr-s")
+check("strict + secret keeps HMAC path", ok12 and r12 == "ok")
+
+# ۱۳) shadow_alert + بی‌سکرت → همان passthrough (رفتار عوض نمی‌شود)
+g_shadow = G.HumanAppendGuard(None, shadow_alert=True)
+ok13, r13 = g_shadow.authorize("VERDICT", True, token=None)
+check("shadow-alert keeps passthrough (no behavior change)",
+      ok13 and r13 == "guard-disabled-passthrough")
+
+# ۱۴) default (نه strict) + بی‌سکرت → passthrough (byte-identical با امروز)
+ok14, r14 = G.HumanAppendGuard(None).authorize("VERDICT", True, token=None)
+check("default still passthrough (backward-compat)",
+      ok14 and r14 == "guard-disabled-passthrough")
+
+# ۱۵) guard_from_env: با فلگ → deny؛ بدونِ فلگ → passthrough
+os.environ[G._ENV_STRICT] = "1"
+oke, re_ = G.guard_from_env(None).authorize("VERDICT", True, token=None)
+os.environ.pop(G._ENV_STRICT, None)
+okf, rf = G.guard_from_env(None).authorize("VERDICT", True, token=None)
+check("guard_from_env flag->deny, unset->passthrough",
+      (not oke) and re_ == "fail-closed-no-secret"
+      and okf and rf == "guard-disabled-passthrough")
 
 print("\n== %d failure(s) ==" % _C.failed)
 sys.exit(1 if _C.failed else 0)

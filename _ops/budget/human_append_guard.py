@@ -11,21 +11,44 @@
   * token به approval_id + event_type + انقضا bind می‌شود؛ HMAC-SHA256.
   * `authorize()` می‌گوید آیا این is_human-append مجاز است.
   * approval_id یک‌بارمصرف است → محافظتِ replay درونِ پروسه.
-  * اگر راز پیکربندی نشده باشد → گارد DISABLED (passthrough) تا پیش از وصلِ
-    approval_channel چیزی نشکند؛ فقط یک alertِ مشورتی یک‌بار می‌زند.
+  * اگر راز پیکربندی نشده باشد → پیش‌فرض DISABLED (passthrough) تا پیش از وصلِ
+    approval_channel چیزی نشکند. با فلگِ مالک HH_HUMAN_GUARD_STRICT=1 همین شاخه
+    default-deny می‌شود (fail-closed، Saltzer-Schroeder/CISA/NIST)؛ با
+    HH_HUMAN_GUARD_SHADOW_ALERT=1 فقط would-deny را یک‌بار لاگ می‌کند بی‌آنکه رفتار
+    عوض شود. (پیش‌فرضِ هر دو خاموش = byte-identical با رفتارِ امروز؛ رأی مالک «برو» 2026-07-11.)
 
-هرگز به ledgerِ ژنوم دست نمی‌زند. فقط stdlib: hmac, time.
-تست: `_ops/tests/test_human_append_guard.py` (standalone، بدونِ pytest).
+هرگز به ledgerِ ژنوم دست نمی‌زند. import-time فقط stdlib (hmac/os/time)؛ opslib فقط
+lazy/best-effort برای هشدارِ سایه (fail-soft). تست: `_ops/tests/test_human_append_guard.py`.
 """
 from __future__ import annotations
 
 import hmac
+import os
 import time
 from typing import Callable, Optional, Tuple
 
 _ALG = "sha256"
 _TOKEN_VERSION = "v1"
 DEFAULT_TTL_S = 900  # ۱۵ دقیقه
+
+# فلگ‌های env (فقط مالک؛ پیش‌فرضِ خاموش = رفتارِ امروز، byte-identical).
+_ENV_STRICT = "HH_HUMAN_GUARD_STRICT"          # روشن → بی‌سکرت DENY (default-deny)
+_ENV_SHADOW = "HH_HUMAN_GUARD_SHADOW_ALERT"    # روشن → فقط هشدارِ would-deny، همان passthrough
+_TRUTHY = {"1", "true", "yes", "on", "strict"}
+
+
+def _env_truthy(name: str) -> bool:
+    return str(os.environ.get(name, "")).strip().lower() in _TRUTHY
+
+
+def _emit_shadow_alert(msg: str) -> None:
+    """هشدارِ fail-soft و lazy — importِ opslib فقط در زمانِ فراخوان تا خاصیتِ
+    stdlib-only در import-time نشکند (این ماژول باید بدونِ هستهٔ ارگانیسم هم import شود)."""
+    try:
+        import opslib  # lazy, best-effort
+        opslib.alert([msg])
+    except Exception:  # noqa: BLE001 — هشدار هرگز مسیرِ گارد را نمی‌کشد
+        pass
 
 
 class HumanAppendError(Exception):
@@ -39,16 +62,23 @@ def _sig(secret: bytes, approval_id: str, event_type: str, exp: int) -> str:
 
 class HumanAppendGuard:
     """گاردِ human-append. approval_channel با راز می‌سازد؛ unified_bus بدونِ راز
-    فقط authorize می‌کند (راز را لازم ندارد اگر همان instance به اشتراک گذاشته شود)."""
+    فقط authorize می‌کند (راز را لازم ندارد اگر همان instance به اشتراک گذاشته شود).
+
+    strict/shadow_alert فقط شاخهٔ «بی‌سکرت» را می‌سازند؛ وقتی راز هست (enabled)،
+    مسیرِ HMAC حاکم است و این دو هیچ اثری ندارند."""
 
     def __init__(self, secret: Optional[bytes] = None, *,
                  ttl_s: int = DEFAULT_TTL_S,
-                 clock: Callable[[], float] = time.time) -> None:
+                 clock: Callable[[], float] = time.time,
+                 strict: bool = False,
+                 shadow_alert: bool = False) -> None:
         self._secret = secret
         self._ttl = int(ttl_s)
         self._clock = clock
         self._used: set[str] = set()   # replay: approval_id یک‌بارمصرف
         self._warned = False
+        self._strict = bool(strict)            # بی‌سکرت → DENY (fail-closed)
+        self._shadow_alert = bool(shadow_alert)  # بی‌سکرت → هشدار ولی passthrough
 
     @property
     def enabled(self) -> bool:
@@ -76,7 +106,16 @@ class HumanAppendGuard:
         if not is_human:
             return (False, "not-human-append")
         if not self.enabled:
-            self._warned = True
+            # strict (رأی مالک، قابلِ‌فلیپ): بی‌سکرت = default-deny
+            # (Saltzer-Schroeder / CISA SBD / NIST SA-8(23)). پیش‌فرض strict=False → رفتارِ امروز.
+            if self._strict:
+                return (False, "fail-closed-no-secret")
+            if not self._warned:
+                self._warned = True
+                if self._shadow_alert:
+                    _emit_shadow_alert(
+                        "HumanAppendGuard unconfigured → passthrough "
+                        "(would DENY under HH_HUMAN_GUARD_STRICT=1)")
             return (True, "guard-disabled-passthrough")
         if not token:
             return (False, "missing-token")
@@ -108,11 +147,24 @@ class HumanAppendGuard:
 
 
 # راحتیِ wiring: یک گاردِ ماژول-سطح که پیش‌فرض DISABLED است (backward-compat).
-_default_guard = HumanAppendGuard(None)
+# strict/shadow را از env می‌خواند تا مالک بتواند بدونِ تغییرِ کد فلیپ کند
+# (پیش‌فرضِ هر دو خاموش = byte-identical با امروز).
+_default_guard = HumanAppendGuard(None, strict=_env_truthy(_ENV_STRICT),
+                                  shadow_alert=_env_truthy(_ENV_SHADOW))
 
 
 def default_guard() -> HumanAppendGuard:
     return _default_guard
+
+
+def guard_from_env(secret: Optional[bytes] = None, *,
+                   ttl_s: int = DEFAULT_TTL_S) -> "HumanAppendGuard":
+    """گاردی که strict/shadow را از env می‌خواند (پیش‌فرضِ هر دو خاموش = رفتارِ امروز).
+    مسیرِ توصیه‌شدهٔ فلیپِ مالک: HH_HUMAN_GUARD_STRICT=1 (enforce) یا
+    HH_HUMAN_GUARD_SHADOW_ALERT=1 (فقط مشاهده)."""
+    return HumanAppendGuard(secret, ttl_s=ttl_s,
+                            strict=_env_truthy(_ENV_STRICT),
+                            shadow_alert=_env_truthy(_ENV_SHADOW))
 
 
 def configure(secret: bytes, *, ttl_s: int = DEFAULT_TTL_S) -> HumanAppendGuard:
