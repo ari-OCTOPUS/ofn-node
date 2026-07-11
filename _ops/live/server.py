@@ -255,6 +255,39 @@ def do_ask(task: str, prompt: str) -> dict:
             return {"ok": False, "reason": f"router: {type(e).__name__}"}
 
 
+_REG_CACHE = {"ts": 0.0, "data": None}
+
+
+def _registry_summary(ttl: float = 60.0) -> dict:
+    """خلاصهٔ registry ِ read-only برای کارتِ /ops — کششِ زندهٔ build_snapshot با کشِ
+    درون‌پروسه‌ایِ TTL (هر poll دوباره کلِ vault را اسکن نمی‌کند). fail-soft: هر خطا → present:false.
+    داده از قبل scrub ِ containment را داخلِ build_snapshot خورده؛ + _redact ِ لایهٔ HTTP."""
+    now = time.time()
+    cached = _REG_CACHE["data"]
+    if cached is not None and (now - _REG_CACHE["ts"]) < ttl:
+        return cached
+    try:
+        sys.path.insert(0, str(_OPS))
+        import registry_scan
+        snap = registry_scan.build_snapshot()          # خالص/read-only
+        c = snap.get("counts") or {}
+        data = {
+            "present": True,
+            "counts": {k: c.get(k) for k in
+                       ("total", "projects", "agents", "organs",
+                        "unknown_owner", "unknown_risk", "pending_r4", "avg_conformance")},
+            "entities": [{"type": e.get("entity_type"), "name": e.get("display_name"),
+                          "owner": e.get("owner"), "tier": e.get("risk_tier"),
+                          "declared": e.get("risk_declared"), "conf": e.get("conformance_score")}
+                         for e in (snap.get("entities") or [])],
+        }
+    except Exception:  # noqa: BLE001 — registry هرگز داشبورد را نمی‌کشد
+        data = {"present": False}
+    _REG_CACHE["ts"] = now
+    _REG_CACHE["data"] = data
+    return data
+
+
 def ops_state() -> dict:
     """state داشبوردِ اتوماسیونِ مینیمال — رویدادها + شمارِ تصمیم‌های منتظر."""
     try:
@@ -291,6 +324,10 @@ def ops_state() -> dict:
             st["innervation"] = innervation.summary()
         except Exception:  # noqa: BLE001
             st["innervation"] = {}
+        try:
+            st["registry"] = _registry_summary()
+        except Exception:  # noqa: BLE001
+            st["registry"] = {"present": False}
         return st
     except Exception as e:  # noqa: BLE001
         return {"overall": "—", "error": f"{type(e).__name__}", "log": [], "parts": []}
@@ -330,6 +367,7 @@ OPS_PAGE = """<!doctype html><html dir="rtl" lang="fa"><meta charset="utf-8">
 </div>
 <div class="card" style="margin-bottom:10px"><div class="lbl">بخش‌ها (هرکدام لوپِ خودش را دارد)</div><div id="parts" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div></div>
 <div class="card" style="margin-bottom:10px"><div class="lbl">🧠 مغزِ دوم — کسب‌وکارها</div><div id="biz" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div></div>
+<div class="card" id="regCard" style="margin-bottom:10px;display:none"><div class="lbl">🗂 رجیستری — control-plane (<span id="regHdr">—</span>)</div><div id="regEnts" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div></div>
 <div class="kpis">
  <div class="kpi"><b id="k_c">0</b><span>تمام‌شده</span></div>
  <div class="kpi"><b id="k_w">0</b><span>منتظر</span></div>
@@ -370,6 +408,20 @@ async function tick(){try{
  document.getElementById('nervCov').textContent=(nv.coverage_pct!=null?nv.coverage_pct+'%':'—');
  document.getElementById('nervHb').textContent=(nv.heart_period_s!=null?Math.round(nv.heart_period_s)+'s':'—');
  document.getElementById('nervOrgans').innerHTML=orgs.map(o=>chip({status:o.status.split(' ')[0],name:o.name,detail:o.status.split(' ').slice(1).join(' ')})).join('');
+ const rg=d.registry||{}; const rgc=document.getElementById('regCard');
+ rgc.style.display=rg.present?'block':'none';
+ if(rg.present){const rc=rg.counts||{};
+  document.getElementById('regHdr').textContent=
+   (rc.total||0)+' موجودیت · '+(rc.projects||0)+'پ/'+(rc.agents||0)+'ا/'+(rc.organs||0)+'ن · مالکِ نامعلوم '
+   +(rc.unknown_owner??'—')+' · ریسکِ نامعلوم '+(rc.unknown_risk??'—')+' · R4-pending '+(rc.pending_r4??'—')
+   +' · انطباق '+(rc.avg_conformance??'—');
+  document.getElementById('regEnts').innerHTML=(rg.entities||[]).map(e=>{
+   const unk=(e.owner==='unknown'||e.tier==='unknown'); const pend=(e.tier==='R4-pending');
+   const col=unk?'#f85149':(pend?'#e3b341':'#3fb950'); const ic=unk?'🔴':(pend?'🟡':'🟢');
+   const sub=esc(e.tier)+(pend&&e.declared?('/'+esc(e.declared)):'')+' · '+esc(e.owner);
+   return '<span title="'+esc(e.type)+' · انطباق '+esc(e.conf)+'" style="background:#161b22;border:1px solid '+col+';border-radius:7px;padding:4px 8px;font-size:11px">'+ic+' '+esc(e.name)+' <span style=color:#6e7681>'+sub+'</span></span>'}).join('')
+   ||'<span style=color:#6e7681;font-size:11px>هنوز اسکن نشده</span>';
+ }
  const s=d.summary_5m||{};
  document.getElementById('k_c').textContent=s.completed||0;
  document.getElementById('k_w').textContent=(s.waiting||d.pending||0);
