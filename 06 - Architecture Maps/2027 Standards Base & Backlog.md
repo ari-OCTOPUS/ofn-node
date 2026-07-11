@@ -45,12 +45,12 @@ sources:
 - تغییرِ additive: پارامترِ `strict=False` به `__init__` (پیش‌فرض = رفتارِ امروز)، + `configure_from_env()` که فلگِ `HH_HUMAN_GUARD_STRICT` (خاموش) را می‌خواند. با strict + بی‌سکرت، `authorize()` شاخهٔ **DENY** جدید می‌گیرد (`(False,'fail-closed-no-secret')`) به‌جای `(True,'guard-disabled-passthrough')` در `human_append_guard.py:78-80`. مسیرِ HMAC دست‌نخورده.
 - **چرا:** تنها ایرادِ **زندهٔ قابلِ‌سوءاستفاده** را می‌بندد (امروز هر مسیرِ کد می‌تواند `is_human=1` جعل کند و arrowِ فناپذیریِ ledger را جلو ببرد). قالبِ قابلِ‌استفادهٔ مجدد برای مورد ۴.
 
-**۲. خطای پیش‌بینیِ precision-weighted در `heart_step`** — S
+**۲. خطای پیش‌بینیِ precision-weighted در `heart_step`** — S · ✅ **ساخته شد** (رأی مالک «قلب+برچسب»)
 - استاندارد: precision = inverse-variance (pymdp γ).
 - additive: تابعِ خالصِ `precision_weight(samples)→π∈[0,1]` (`1/(1+pvariance)`، با <۲ نمونه = ۱.۰ → خروجی byte-identical). فلگِ `HEART_PRECISION_WEIGHT` (خاموش). با روشن: `err_eff = π·err` در همان `period=BASE·exp(K_P·err_eff)`. قانونِ exp/باند/ترمزِ σ دست‌نخورده. چون π≤۱ فقط gain را کم می‌کند، اثباتِ پایداریِ `G=0.38<1` حفظ (سفت‌تر) می‌شود.
 - **چرا:** gainِ دستیِ ثابت (ایرادی که مالک می‌خواست تکرار نشود) را با precisionِ استاندارد جایگزین می‌کند؛ از همان بافرِ Gate-0 (۲۹/۴۸) استفاده می‌کند.
 
-**۳. برچسبِ fact/emerging/hype + validator روی `epistemics/contracts.py`** — S
+**۳. برچسبِ fact/emerging/hype + validator روی `epistemics/contracts.py`** — S · ✅ **ساخته شد** (رأی مالک «قلب+برچسب»)
 - additive: فیلدِ اختیاریِ `epistemic_label ∈ {fact|emerging|hype}` + validatorِ ~۱۰-خطی که اگر رشته‌ای شاملِ `phenomenal|qualia|sentient|feels` بود raise کند. روی dataclassِ موجود، off-loop، بی‌وایرینگِ لوپ.
 - **چرا:** گافِ (d) را از «نیمه» به artifactِ اجراشده می‌برد — روی لایه‌ای که **از قبل هست**.
 

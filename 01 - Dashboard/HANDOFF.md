@@ -5,6 +5,14 @@ updated: 2026-07-11
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+## جلسه ۴۶ ادامه (~۱۰:۰۰) — 🫀 «قلب + برچسب S» ساخته شد (رأی مالک از بک‌لاگِ ۲۰۲۷)
+
+مالک از بک‌لاگ **«قلب + برچسب S» (#۲+#۳)** را انتخاب کرد (نه fail-closed #۱، گیتِ ignition #۶ فازِ بعد). فلسفه: safety-first نه — «جهشِ کنترل‌شده روی مرزِ نظم/فروپاشی با ریسکِ حساب‌شده».
+- **#۲ precision-weighting در `control_law.heart_step`** (active-inference، pymdp γ): تابعِ خالصِ `precision_weight(vstate)` از inverse-varianceِ گپ‌های ورود (`confirmed_ts`) + کفایتِ نمونه؛ `err_eff = π·err`. π≤۱ فقط gain را کم می‌کند → پایداریِ `G<1` حفظ. **فلگِ `HEART_PRECISION_WEIGHT` خاموش = byte-identical.** جایگزینِ gainِ دستیِ σ-brake (ایرادی که مالک نخواست تکرار شود). **ویرایشِ control_law هش را شکست → sim دوباره اجرا شد → SIM-PASS سبز، hash-match بازسازی (`fc931a55`).**
+- **#۳ برچسبِ fact/emerging/hype + گاردِ access-only** روی `epistemics/contracts.py`: فیلدِ `epistemic_label` + `assert_access_only()` که با رشتهٔ phenomenal/qualia/sentient raise می‌کند. additive، backward-compatible.
+- تست `test_standards_s` ۷/۷. (سوییت در حالِ اجرا — هدف ۱۰۴/۱۰۴.)
+- **ایرادِ زندهٔ باز (رأی مالک):** #۱ fail-closed HumanAppendGuard **نزده ماند** (`is_human` جعل‌شدنی) — مالک الان نخواست؛ در سند ثبت است.
+
 ## جلسه ۴۶ ادامه (~۰۹:۳۰) — 🧠 ignitionِ فانکشنِ واقعی + پایهٔ استانداردِ ۲۰۲۷ (۶-ستون وب) — همه propose-only
 
 رأیِ مالک: «ایرادها را رفع کن، ignition فانکشنِ واقعی باشد، برای هر بخش از استانداردهای ۲۰۲۷ کمک بگیر، پایهٔ استاندارد، فقط پیشنهاد، ساختار را بازنویسی نکن.» + رأیِ «ب» (حذفِ دروازهٔ تاریخ).

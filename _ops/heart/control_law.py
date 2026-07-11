@@ -14,6 +14,7 @@ import datetime as dt
 import json
 import math
 import os
+import statistics
 import sys
 from pathlib import Path
 
@@ -36,6 +37,38 @@ DAILY_BEAT_CAP = int(os.environ.get("CARDIAC_DAILY_BEAT_CAP", "288"))
 
 def _clamp(x: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, x))
+
+
+PRECISION_MIN_N = float(os.environ.get("HEART_PRECISION_MIN_N", "5.0"))
+
+
+def precision_weight(vstate: "dict | None") -> float:
+    """precisionِ سیگنالِ velocity ∈ [0,1] — استانداردِ active-inference (وزنِ inverse-variance
+    خطای پیش‌بینی؛ pymdp γ / predictive-coding، بک‌لاگِ ۲۰۲۷ #۲). جایگزینِ اصولیِ gainِ دستی:
+    π پایین وقتی سیگنال کم‌نمونه یا نامنظم (بورست‌دار) است، π=۱ در رژیمِ سالم → gainِ کامل.
+    چون π≤۱ فقط gain را کم می‌کند، اثباتِ پایداریِ G<1 حفظ (سفت‌تر) می‌شود.
+    دادهٔ ناکافی (n<۲) → ۱.۰ (رفتارِ byte-identical با امروز)."""
+    v = vstate or {}
+    try:
+        n = float(v.get("sample_size") or 0)
+    except (TypeError, ValueError):
+        n = 0.0
+    if n < 2:
+        return 1.0
+    pi_n = min(1.0, n / PRECISION_MIN_N)                       # کفایتِ نمونه (اشباع در n≥۵)
+    pi_reg = 1.0
+    ts = v.get("confirmed_ts") or []
+    if len(ts) >= 3:
+        try:
+            gaps = [float(b) - float(a) for a, b in zip(ts, ts[1:]) if float(b) > float(a)]
+        except (TypeError, ValueError):
+            gaps = []
+        if len(gaps) >= 2:
+            m = sum(gaps) / len(gaps)
+            if m > 0:
+                cv = statistics.pstdev(gaps) / m              # ضریبِ تغییراتِ گپِ ورود
+                pi_reg = 1.0 / (1.0 + max(0.0, cv - 1.0) ** 2)  # Poisson (CV≈۱) = سالم → ۱
+    return _clamp(pi_n * pi_reg, 0.0, 1.0)
 
 
 def gather_inputs(beat: int = 0) -> dict:
@@ -147,8 +180,18 @@ def heart_step(inputs: dict, setpoint: "hi.HeartParams | None" = None
     if v is None:
         return _rest("no-velocity-source", sigma_now)
     err = _clamp((float(v) - mid_eff) / width, -3.0, 3.0)
-    period_raw = BASE_PERIOD_S * math.exp(K_P * err)
-    baro = math.exp(K_P * err)
+    # precision-weighting (active-inference، فلگِ HEART_PRECISION_WEIGHT، پیش‌فرض خاموش،
+    # بک‌لاگِ ۲۰۲۷ #۲): خطا با اطمینانِ سیگنال وزن می‌شود (err_eff = π·err). π≤۱ فقط gain
+    # را کم می‌کند → پایداریِ G<1 حفظ. خاموش → err_eff=err → خروجی byte-identical با امروز.
+    if os.environ.get("HEART_PRECISION_WEIGHT", "0") == "1":
+        pi = precision_weight(vstate)
+        err_eff = pi * err
+        gates["precision"] = round(pi, 4)
+        gates["err_eff"] = round(err_eff, 4)
+    else:
+        err_eff = err
+    period_raw = BASE_PERIOD_S * math.exp(K_P * err_eff)
+    baro = math.exp(K_P * err_eff)
     gates["err"] = round(err, 4)
 
     # ۴ب) گاردِ بی‌ثمری (anti-futility): اگر شتابِ قبلی throughput را بالا نبرد،

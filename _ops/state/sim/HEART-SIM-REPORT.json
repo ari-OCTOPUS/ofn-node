@@ -1,5 +1,5 @@
 {
-  "ts": "2026-07-10T19:04:24",
+  "ts": "2026-07-11T10:16:11",
   "schema": "HEART-SIM-REPORT.v1",
   "sim_pass": true,
   "gates": {
@@ -67,5 +67,5 @@
     "MAX": 900.0,
     "capacity_per_beat": 0.05
   },
-  "code_sha256": "24ea47c0755211b954e17f6521168ac2737eafa6cb3804b3ecde1e9115c47ffd"
+  "code_sha256": "fc931a55d4cf82040fa4ae0c09d46c8c0be0ed899e1fea2f653be16bb20623d6"
 }

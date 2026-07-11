@@ -21,6 +21,28 @@ from typing import Any
 SCHEMA_VERSION = 1
 RECORD_TYPE = "EPI_METRIC"
 
+# access-only معرفتی (بک‌لاگِ ۲۰۲۷ #۳، رأی مالک): هر متریک می‌تواند برچسبِ سه‌گانهٔ
+# تریاژ بگیرد (Block 1995 / C2PA / Butlin 2023). گاردِ سخت: هیچ رشتهٔ معرفتی هرگز
+# ادعای phenomenal/qualia/sentience نمی‌کند — فقط access-consciousness.
+EPISTEMIC_LABELS = frozenset({"fact", "emerging", "hype"})
+_PHENOMENAL_BANNED = ("phenomenal", "qualia", "sentient", "sentience",
+                      "conscious experience", "subjective experience", "feels")
+# ذکرِ سلبی (disclaimer) مجاز است: لایهٔ epistemics عمداً خودش را با «not a phenomenal
+# claim / never …» سلب‌مسئولیت می‌کند. فقط ادعای *مثبت* را می‌بندیم.
+_NEGATIONS = ("not", "never", "no ", "n't", "non-", "without", "excluded", "disclaim",
+              "هرگز", "نه ", "بدون", "غیرِ", "غیر ")
+
+
+def assert_access_only(*texts: str) -> None:
+    """اگر رشتهٔ معرفتی ادعای *مثبتِ* phenomenal/qualia/sentience کند raise می‌کند.
+    «conscious» تنها مجاز است (access-consciousness)؛ ذکرِ سلبیِ phenomenal هم مجاز است."""
+    for t in texts:
+        low = str(t or "").lower()
+        hit = next((w for w in _PHENOMENAL_BANNED if w in low), None)
+        if hit and not any(neg in low for neg in _NEGATIONS):
+            raise ValueError(
+                f"access-only violation: ادعای مثبتِ '{hit}' — فقط access-consciousness، نه phenomenal/qualia")
+
 # metric names
 IDENTIFIABILITY = "identifiability"   # N_eff (effective number of internal states)
 CHANNEL = "channel"                   # DPI / mutual information I(H; H_hat)
@@ -51,6 +73,7 @@ class EpiMetric:
     value: Any
     sample_size: int
     notes: str = ""
+    epistemic_label: str = ""          # "" | fact | emerging | hype (access-only، بک‌لاگ #۳)
     ts: float = field(default_factory=time.time)
     schema: int = SCHEMA_VERSION
     type: str = RECORD_TYPE
@@ -60,11 +83,18 @@ class EpiMetric:
     def __post_init__(self) -> None:
         self.confidence = round(_confidence(self.metric, self.sample_size), 4)
         self.authoritative = self.sample_size >= MIN_SAMPLES.get(self.metric, 1)
+        if self.epistemic_label and self.epistemic_label not in EPISTEMIC_LABELS:
+            raise ValueError(
+                f"epistemic_label نامعتبر: {self.epistemic_label!r} — یکی از {sorted(EPISTEMIC_LABELS)}")
+        assert_access_only(self.notes, self.epistemic_label)   # گاردِ ضدِ phenomenal
 
     def to_record(self) -> dict:
         return asdict(self)
 
 
-def make_metric(metric: str, value: Any, sample_size: int, notes: str = "") -> dict:
-    """Stamp a metric with confidence/authoritative and return a plain dict record."""
-    return EpiMetric(metric=metric, value=value, sample_size=sample_size, notes=notes).to_record()
+def make_metric(metric: str, value: Any, sample_size: int, notes: str = "",
+                epistemic_label: str = "") -> dict:
+    """Stamp a metric with confidence/authoritative + optional access-only triage label.
+    epistemic_label ∈ {fact|emerging|hype}؛ notes/label نمی‌توانند ادعای phenomenal کنند."""
+    return EpiMetric(metric=metric, value=value, sample_size=sample_size,
+                     notes=notes, epistemic_label=epistemic_label).to_record()
