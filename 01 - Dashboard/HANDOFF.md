@@ -5,6 +5,15 @@ updated: 2026-07-11
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+## جلسه ۴۸ ادامه (~۱۵:۰۰) — 🧩 URCP Phase-1 (#۱۱–۱۳) ساخته شد: EventEnvelope + HeartState + Incident (رأی مالک «طراحی و اجرا»)
+
+Phase-0 اول تمیز به `master` merge شد (`989a89c`، --no-ff، snapshot ۰/۰/pending۱ + سوییت ۱۰۷/۱۰۷ روی درختِ زنده). بعد Phase-1 روی شاخهٔ `claude/urcp-phase1-envelope-incident` (از master) ساخته شد — همه additive/shadow/flag-gated، صفر سیم‌کشیِ زنده:
+- **#۱۱ EventEnvelope** (`_ops/events.py`): فیلدهای اختیاریِ schema_version/correlation_id/idempotency_key + `enrich=True` → بلوکِ content-freeِ `control_plane` از registry (owner/risk_tier/…) بر پایهٔ agent_id (کش‌دار بر mtime، fail-soft).
+- **#۱۲ HeartState** (`_ops/heart/heartstate.py` نو): adapterِ read-only (shadow+stress+innervation → heartstate.v1)؛ نوشتنِ `state/pulse/heartstate-latest.json` فقط با فلگِ `HEARTSTATE_SHADOW`؛ regulator نه commander.
+- **#۱۳ Incident** (`_ops/events.py`): `incident.opened/contained` + open/contain_incident + رکوردِ ساختاریافته (what/where/risk/path/policy/outcome/evidence/replay)؛ ریسکِ بالا→approval required (بدونِ اکشنِ خودکار)؛ scrub containment؛ کارت‌های `/ops`.
+- **گیت:** `test_phase1_envelope` ۹/۹ · سوییت **۱۰۸/۱۰۸** · اثباتِ زندهٔ رندر روی /ops (هر سه کارت). **ریویوی خصمانهٔ ۱۶-ایجنتی ۸ باگِ واقعیِ heartstate را گرفت** (نگاشتِ تودرتوی رکوردِ shadow — به‌ویژه wire_open از production_wire.open نه truthiness دیکشنری)، همه رفع و با تستِ فیکسچرِ واقعی قفل شد (درسِ «pipeline نه unit»).
+- **میزِ آری:** commit ِ Phase-1 = `3707b7d`. اگر merge شد، برای زنده‌شدنِ telemetry ِ #۱۲ فقط `HEARTSTATE_SHADOW=1` (سایه)، و enrich/incident آماده‌اند برای سیم‌کشی به مسیرهای رویداد در فازِ بعد. #۱۴+ (مهاجرتِ تدریجیِ مسیرها به gateway) هنوز باز است — [[06 - Architecture Maps/URCP Reconciliation - control-plane on OCTOPUS]].
+
 ## جلسه ۴۸ ادامه (~۱۴:۱۰) — ✅ URCP Phase-0 کامل شد: الحاقِ risk + شناختِ critical + ratify Cartographer + کارتِ /ops (رأی مالک «۱:الحاق، ۲:بشناس، UTF-8، Cartographer نه… بعد: همین حالا»)
 
 سه دستور مالک روی #۱۰، همه اجرا و commit روی شاخهٔ `claude/urcp-registry-phase-0-73e6e7` (worktree `seven-relationships-wired-949630`):
