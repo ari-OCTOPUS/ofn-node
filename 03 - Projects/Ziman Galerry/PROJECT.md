@@ -8,7 +8,7 @@ risk_level: low
 autonomy_level: read-only
 tags: [marketing, branding, sydney]
 created: 2026-07-03
-updated: 2026-07-06
+updated: 2026-07-12
 ---
 
 # پروژه: Ziman Gift (Ziman Galerry)
@@ -53,16 +53,17 @@ units/week نسبت به سقف · سفارش per کانال `[To measure]` · �
 - **2026-07-06 (جلسه ۱۷):** کد پروژه به `_code/` منتقل شد (B1 پلن NONMD-TRIAGE؛ propose→executed با verdict آری). لاگ کامل: `00 - Inbox/nonmd-move-log-2026-07-06.csv`.
 - **2026-07-06 — Ziman Live:** کپی قابل‌اجرای control-brain + ziman-agent در `_launchpad/ziman-live/` با setup wizard ‏(HTML، ‏localhost:8877) و `START-HERE.bat` — منتظر اولین اجرای آری با توکن تلگرام نو. v2 = کاستوم‌سازی UI داشبورد.
 
-- تمرکز فعلی: گرفتن عدد ظرفیت از production owner
-- تغییرات اخیر: 2026-07-03 — ارتقا به manifest فاز ۱ + نوت Capacity & Channels · 2026-07-04 — ۲۰ عکس WhatsApp → `08 - Assets/Photos/WhatsApp-2026` و `files.zip` → `_Archive` (قواعد ۳ و ۶ قانون اساسی؛ رفع یافته M18 نقشه روابط v3) · ⚠️ بخش «Current state» این نوت کهنه است — پوشه اکنون `control-brain/`، `ziman-agent/` و چند نوت سیستم دارد (آپدیت در جلسه Ziman) · 2026-07-04 — کیت مغز پروژه (INDEX·DecisionLog·OpenQuestions طبق LIVING-BRAIN-BLUEPRINT) ساخته شد
-- ۳ قدم بعدی: (۱) ثبت عدد ظرفیت [Estimate] (۲) تکمیل چک‌لیست برند (۳) طراحی آزمایش کانال #۱ زیر سقف
-- تصمیم‌های باز: کانال اول (IG محلی؟ مارکت‌پلیس؟) `[To measure]`
+- **2026-07-12 — Calibration audit (Perception-Geometry):** ۴۰/۴۰ تستِ Ziman **واقعاً اجرا و سبز** شد (leg 17 + phase2/wiring 23 + smoke) → T11 ارتقا به VERIFIED (T16). ممیزی: [[03 - Projects/Ziman Galerry/00-Control/PERCEPTION-GEOMETRY-AUDIT-2026-07-12|CALIBRATION-AUDIT]] · handoff: [[03 - Projects/Ziman Galerry/11-Reports/Handoffs/PERCEPTION-PHASE2-HANDOFF|PERCEPTION-PHASE2-HANDOFF]]. ۵ conflict جدید (CF-06..CF-10): 🔴 D4 fail-open (گاردِ ۶/هفته unwired؛ گیت روی ۳۰ approve) · 🔴 درختِ ۴مِ `_launchpad/second-brain-live/` قابلیتِ SEND واقعی + PII + کلیدِ DeepSeek با برچسبِ Anthropic (ناقضِ zero-outward) · ATP fail-open روی timestampِ کهنه/آینده · memory کاملاً paper. همه propose-only؛ هیچ کد اجرا-تغییر/انتقال/اکشنِ بیرونی. (لایهٔ «biology» به‌طور هم‌زمان توسط پروسهٔ دیگری اضافه شد — خارج از دامنهٔ این ممیزی.)
+- تمرکز فعلی: نرمال‌سازی موجودی و تکمیل اتصال propose-only به ارگانیسم.
+- تغییرات اخیر: 2026-07-12 — Foundation Phase 2 و seam واقعی `organism → ziman_beat → ORGANISM-STATE.ziman` تکمیل شد. سپس پای زیمان زیرمجموعهٔ control-plane زیستی اختاپوس شد: قلب فقط ریتم می‌دهد، SignalHub اعصاب snapshot مشورتی می‌سازد، و دکتر تکاملی فقط از anomalyهای content-free یک RFC sandbox/propose-only می‌سازد. زیمان حق تغییر قلب، merge، انتشار، پیام، پول یا قیمت ندارد. قرارداد: `10-Interfaces/BIOLOGY-CONTRACT.md`.
+- ۳ قدم بعدی: (۱) اجرای تست‌های Ziman روی ویندوز (۲) انتخاب دامنهٔ دسته‌بندی A/B/C (۳) شمارش مالک و اولین `inventory_snapshot.v1`.
+- تصمیم‌های باز: دامنهٔ دسته‌بندی موجودی و نام عمومی برند؛ کانال اول پس از دادهٔ محصول/ظرفیت.
 
 ## Progress
 
-- چه کار می‌کند: برند Bloom تعریف اولیه دارد
-- چه مانده: ظرفیت، کانال، اولین کمپین
-- مشکلات شناخته: بدون عدد ظرفیت، هر برنامه‌ای هواست
+- چه کار می‌کند: ZimanLeg propose-only، D4، schemaهای محصول/موجودی، CLI محلی و اتصال organism ساخته شده‌اند. biology adapter نیز قلب→اعصاب→زیمان→دکتر را با مرزهای `σ≤1`، STOP-first، advisory-only و human-append پیاده می‌کند.
+- چه مانده: اجرای تست‌های biology/wiring روی ویندوز، شمارش مالک، Product Cardهای واقعی، نقشهٔ عکس‌ها و آزمایش انسانی.
+- مشکلات شناخته: 30/week و 20 inventory با ورودی مالک 50 محصول سازگار/تأیید نشده‌اند؛ سه کپی runtime می‌توانند drift کنند.
 
 ## Next actions
 
