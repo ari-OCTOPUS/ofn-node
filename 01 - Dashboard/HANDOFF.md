@@ -5,6 +5,15 @@ updated: 2026-07-11
 
 # HANDOFF — وضعیت برای جلسه بعد
 
+## جلسه ۴۸ ادامه (~۱۵:۰۰) — 🧩 URCP Phase-1 (#۱۱–۱۳) ساخته شد: EventEnvelope + HeartState + Incident (رأی مالک «طراحی و اجرا»)
+
+Phase-0 اول تمیز به `master` merge شد (`989a89c`، --no-ff، snapshot ۰/۰/pending۱ + سوییت ۱۰۷/۱۰۷ روی درختِ زنده). بعد Phase-1 روی شاخهٔ `claude/urcp-phase1-envelope-incident` (از master) ساخته شد — همه additive/shadow/flag-gated، صفر سیم‌کشیِ زنده:
+- **#۱۱ EventEnvelope** (`_ops/events.py`): فیلدهای اختیاریِ schema_version/correlation_id/idempotency_key + `enrich=True` → بلوکِ content-freeِ `control_plane` از registry (owner/risk_tier/…) بر پایهٔ agent_id (کش‌دار بر mtime، fail-soft).
+- **#۱۲ HeartState** (`_ops/heart/heartstate.py` نو): adapterِ read-only (shadow+stress+innervation → heartstate.v1)؛ نوشتنِ `state/pulse/heartstate-latest.json` فقط با فلگِ `HEARTSTATE_SHADOW`؛ regulator نه commander.
+- **#۱۳ Incident** (`_ops/events.py`): `incident.opened/contained` + open/contain_incident + رکوردِ ساختاریافته (what/where/risk/path/policy/outcome/evidence/replay)؛ ریسکِ بالا→approval required (بدونِ اکشنِ خودکار)؛ scrub containment؛ کارت‌های `/ops`.
+- **گیت:** `test_phase1_envelope` ۹/۹ · سوییت **۱۰۸/۱۰۸** · اثباتِ زندهٔ رندر روی /ops (هر سه کارت). **ریویوی خصمانهٔ ۱۶-ایجنتی ۸ باگِ واقعیِ heartstate را گرفت** (نگاشتِ تودرتوی رکوردِ shadow — به‌ویژه wire_open از production_wire.open نه truthiness دیکشنری)، همه رفع و با تستِ فیکسچرِ واقعی قفل شد (درسِ «pipeline نه unit»).
+- **میزِ آری:** commit ِ Phase-1 = `3707b7d`. اگر merge شد، برای زنده‌شدنِ telemetry ِ #۱۲ فقط `HEARTSTATE_SHADOW=1` (سایه)، و enrich/incident آماده‌اند برای سیم‌کشی به مسیرهای رویداد در فازِ بعد. #۱۴+ (مهاجرتِ تدریجیِ مسیرها به gateway) هنوز باز است — [[06 - Architecture Maps/URCP Reconciliation - control-plane on OCTOPUS]].
+
 ## جلسه ۴۸ ادامه (~۱۴:۱۰) — ✅ URCP Phase-0 کامل شد: الحاقِ risk + شناختِ critical + ratify Cartographer + کارتِ /ops (رأی مالک «۱:الحاق، ۲:بشناس، UTF-8، Cartographer نه… بعد: همین حالا»)
 
 سه دستور مالک روی #۱۰، همه اجرا و commit روی شاخهٔ `claude/urcp-registry-phase-0-73e6e7` (worktree `seven-relationships-wired-949630`):
@@ -13,6 +22,13 @@ updated: 2026-07-11
 - **`1c518a5`** — کارتِ registry در داشبوردِ `/ops`: هلپرِ کش‌دارِ `_registry_summary` → `ops_state()` → کارت/JS. تستِ `t_e` در `test_live_cockpit` (۵/۵). رندر روی مرورگر اثبات شد (۱۳ چیپ؛ Crypto-etoro زرد=R4-pending/critical؛ Cartographer R1/آری).
 - **گیت (REAL_VAULT=worktree):** سوییتِ کامل **۱۰۷/۱۰۷** · اعتبارسنج baseline (**۵** لینک‌شکستهٔ پیش‌موجود، صفر تخلفِ جدید). **snapshotِ نهایی: unknown_owner ۰ · unknown_risk ۰ · pending_r4 ۱ (فقط Crypto، درست‌برچسب) · conformance ۰٫۸۳۱ · صفر نشتِ هویت.**
 - **میزِ آری:** (۱) **merge** — کلِ زنجیره روی `claude/urcp-registry-phase-0-73e6e7`، هنوز ادغام‌نشده؛ بعد از merge روی درختِ زنده `run_all` بزن تا markerِ capability با fingerprintِ تازه refresh شود. (۲) **#۱۱–۱۳** (envelope enrichment، HeartState adapter، Incident record) همچنان propose-only — [[06 - Architecture Maps/URCP Reconciliation - control-plane on OCTOPUS]]. (۳) بدهیِ frontmatterِ پیش‌موجود (اونلی‌فنز doc-package + scout-digests) خارج از §۱۱، از این کار نیست.
+
+## جلسه ۴۸ ادامه (~۱۳:۰۰) — 🚦 لدرِ ریسکِ چهاررنگ + کانالِ حیاتی مصوب شد (۳ رأی مالک) + SYSTEM PROMPT v2
+
+مالک لدرِ سبز/زرد/نارنجی/قرمز + کانالِ حیاتی را تصویب کرد و سه رأیِ مکانیزمی داد: **زرد = اجرای مستقیم با لاگ** (نه عبور از patch ِ vault_updater — ریسکِ دو-مسیر-write صادقانه در سند ثبت شد + جبران: rollback-note ِ اجباری، دو rollback ِ متوالی → de-promote به نارنجی)؛ **کانالِ حیاتی = نامحدود ولی لاگ‌شده** (هر استفاده: تحلیل+پیشنهاد+گزینه‌ها در AGENT_QUESTIONS + رویدادِ approval.required ِ critical)؛ **ساختِ سند + prompt**.
+- **✅ [[06 - Architecture Maps/RISK-LADDER-2026-07-11|RISK-LADDER-2026-07-11]]** — نگاشتِ رسمیِ رنگ‌ها به حاکمیتِ موجود (LAYER_MAP/L0-L3/auto_approve/خانهٔ آره-نه)؛ لدرِ رنگی پوسته است، L0–L3 canonical می‌ماند؛ گیت‌های سخت در هر رنگی مقدم‌اند؛ R4/R5/R4-pending همیشه قرمز.
+- **✅ [[05 - Agents/Vault Operator SYSTEM-PROMPT v2|Vault Operator SYSTEM-PROMPT v2]]** — نسخهٔ آمادهٔ paste ِ درفتِ بیرونی با ۶ فیکس: (۱) تایپوی معکوسِ مرگبارِ بخش ۸ («you do self-modify» → **NOT**)؛ (۲) `_Archive/_Duplicates` فقط مقصدِ انتقال؛ (۳) زرد طبقِ رأی = مستقیم+لاگ+rollback-note+ممنوعیتِ حذف؛ (۴) containment از مسیرِ registry (هویتِ Project-F هرگز echo نمی‌شود، حتی تلگرام)؛ (۵) قلابِ L0–L3 ِ RATIFIED-TASKS؛ (۶) سبزِ تیز = فقط خواندن/گزارش/فایلِ نو.
+- **تحلیلِ بستهٔ cartographer (چت، بدونِ کد):** vault_scanner ِ دسکتاپ read-only ِ واقعی است و خروجی‌اش تمیز؛ دو ریسک: نشتِ containment در حالتِ `--scope Projects`+تلگرام، و خواندنِ `.env` (سرِ جایش روی دسکتاپ بماند). **میزِ آری (از این تحلیل، هنوز بی‌رأی):** (۱) جایگاهِ vault_scanner (توصیه: دسکتاپ بماند)؛ (۲) قفلِ price_in/price_out در budgets.yaml (ریشهٔ ۴۷ خطای governor — پول، رأی/دادهٔ خودت)؛ (۳) باگِ debate ‏KeyError:'text' (ثبت برای فیکسِ رأی‌دار).
 
 ## جلسه ۴۸ ادامه (~۱۲:۳۰) — 🗂 #۱۰ ساخته شد: URCP Phase-0 Registry (رأی مالک «کاملاً موافقم»)
 

@@ -328,6 +328,16 @@ def ops_state() -> dict:
             st["registry"] = _registry_summary()
         except Exception:  # noqa: BLE001
             st["registry"] = {"present": False}
+        try:
+            st["incidents"] = events.recent_incidents(8)      # #۱۳ — رکوردهای Incident
+        except Exception:  # noqa: BLE001
+            st["incidents"] = []
+        try:
+            sys.path.insert(0, str(_OPS / "heart"))
+            import heartstate
+            st["heartstate"] = heartstate.build()             # #۱۲ — telemetry ِ read-only (بدونِ نوشتن)
+        except Exception:  # noqa: BLE001
+            st["heartstate"] = {}
         return st
     except Exception as e:  # noqa: BLE001
         return {"overall": "—", "error": f"{type(e).__name__}", "log": [], "parts": []}
@@ -368,6 +378,8 @@ OPS_PAGE = """<!doctype html><html dir="rtl" lang="fa"><meta charset="utf-8">
 <div class="card" style="margin-bottom:10px"><div class="lbl">بخش‌ها (هرکدام لوپِ خودش را دارد)</div><div id="parts" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div></div>
 <div class="card" style="margin-bottom:10px"><div class="lbl">🧠 مغزِ دوم — کسب‌وکارها</div><div id="biz" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div></div>
 <div class="card" id="regCard" style="margin-bottom:10px;display:none"><div class="lbl">🗂 رجیستری — control-plane (<span id="regHdr">—</span>)</div><div id="regEnts" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div></div>
+<div class="card att" id="incCard" style="margin-bottom:10px;display:none"><div class="lbl">🚨 حوادث — Incident (باز/مهار؛ ریسکِ بالا = منتظرِ تو، نه اکشنِ خودکار)</div><div id="incs" style="display:flex;flex-direction:column;gap:4px;margin-top:4px"></div></div>
+<div class="card" id="hsCard" style="margin-bottom:10px;display:none"><div class="lbl">🫀 HeartState — telemetry (سایه: <span id="hsShadow">—</span>)</div><div id="hsBody" style="font-size:12px;margin-top:4px">—</div></div>
 <div class="kpis">
  <div class="kpi"><b id="k_c">0</b><span>تمام‌شده</span></div>
  <div class="kpi"><b id="k_w">0</b><span>منتظر</span></div>
@@ -422,6 +434,24 @@ async function tick(){try{
    return '<span title="'+esc(e.type)+' · انطباق '+esc(e.conf)+'" style="background:#161b22;border:1px solid '+col+';border-radius:7px;padding:4px 8px;font-size:11px">'+ic+' '+esc(e.name)+' <span style=color:#6e7681>'+sub+'</span></span>'}).join('')
    ||'<span style=color:#6e7681;font-size:11px>هنوز اسکن نشده</span>';
  }
+ const inc=d.incidents||[]; const icc=document.getElementById('incCard');
+ icc.style.display=inc.length?'block':'none';
+ document.getElementById('incs').innerHTML=inc.map(e=>{
+  const o=(e.incident||{}); const cp=(e.control_plane||{});
+  const open=(e.event_name==='incident.opened'&&o.outcome==='open');
+  const col=open?'#f85149':'#3fb950'; const icn=open?'🚨':'✓';
+  const risk=esc(o.risk||cp.risk_tier||'—'); const who=esc(o.where||cp.owner||'');
+  return '<span style="border-right:2px solid '+col+';padding:2px 8px;font-size:11px">'+icn+' '
+   +esc(e.summary||o.what||'—')+' <span style=color:#6e7681>· ریسک '+risk+(who?(' · '+who):'')+'</span></span>'}).join('');
+ const hs=d.heartstate||{}; const sh=hs.shadow||{}; const hsc=document.getElementById('hsCard');
+ const hsHas=(sh.velocity!=null||hs.stress||hs.innervation);
+ hsc.style.display=hsHas?'block':'none';
+ if(hsHas){const st2=hs.stress||{},iv=hs.innervation||{}; const bnd=sh.band;
+  const bstr=(bnd&&bnd[0]!=null)?(esc(bnd[0])+'–'+esc(bnd[1])):'—';
+  document.getElementById('hsShadow').textContent=hs.shadow_only?'بله (فقط سایه)':'⚠ live';
+  document.getElementById('hsBody').innerHTML='سرعت '+esc(sh.velocity)+' · باند '+bstr
+   +' · استرسِ ارگانیسم '+(st2.organism!=null?Math.round(st2.organism*100)+'%':'—')
+   +' · پوششِ عصب '+esc(iv.coverage_pct)+'% · نقاطِ مرده '+esc(iv.dead_count);}
  const s=d.summary_5m||{};
  document.getElementById('k_c').textContent=s.completed||0;
  document.getElementById('k_w').textContent=(s.waiting||d.pending||0);
