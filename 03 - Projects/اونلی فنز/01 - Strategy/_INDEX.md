@@ -4,6 +4,7 @@
 
 ## Curated content (this folder)
 
+- [[01 - Strategy/Identity/_INDEX|Identity/ — Brand pack]] — 🆕 2026-07-12: لایهٔ برند (IDENTITY، BRAND-CHARTER، VOICE-AND-STYLE، CLAIMS-REGISTER، BRAND-NAME-DECISION)، propose-only
 - [[01 - Strategy/STRATEGY-RECONCILE-2026-07-12|STRATEGY-RECONCILE-2026-07-12]] — 🆕 نقشهٔ تعارضِ دو master (MASTER-BUILD ↔ Playbook)، propose-only، بدون انتخاب برنده
 
 ## Canonical sources (at project root — SoT)
