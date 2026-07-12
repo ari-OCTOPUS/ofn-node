@@ -24,6 +24,7 @@ This folder is for control-plane docs only. No content/media/PII here.
 - `MIGRATION-MAP-2026-07-12.md` — staged, executable migration (⛔ not executed; verdict PF-STRUCT-V2)
 - `HANDOFF-NEXT-AGENT.md` — full step-by-step plan for the next agent
 - `OBSIDIAN-STRUCTURE-v1.md` — superseded by MIGRATION-MAP-2026-07-12
+- `ROADMAP-10-STAGES-2026-07-12.md` — دستورالعملِ ۱۰-مرحله‌ایِ بعدی (owner/agent split + gates + done-criteria), گراند‌شده روی [[03 - Projects/اونلی فنز/02 - Research/COMPETITOR-MARKET-LANDSCAPE-2026-07-12|تحقیقِ رقبا]]
 
 ## Suggested future move (manual/verdict)
 

@@ -41,7 +41,8 @@ delivery-rate پارتنر در trial sprint `[To measure]` · engagement روی
 
 ## Active Context
 
-- تمرکز فعلی: بلوپرینت معماری 2026-07-04 آماده؛ **منتظر G0**
+- تمرکز فعلی: اسکلتِ موتورِ اکتساب ساخته/تست‌شده؛ **منتظر G0** برای زنده‌شدن
+- **2026-07-12 — موتورِ اکتساب + تحقیقِ رقبا + ROADMAP:** اسکلتِ کدِ propose-only ساخته و تست شد (commitها `1d5b363`/`c7124df`/`ae31bfd`؛ ۲۲/۲۲ تست): `brain/acquisition_pipeline.py` (draft→صف→approve→آمادهٔ پستِ دستی، بدونِ افکتورِ بیرونی) + `studio/affirm.py` + سیم‌کشیِ `/pf_*` در لنگر + `affirm` در استودیوی صبا. **تحقیقِ رقبا/بازار** → [[03 - Projects/اونلی فنز/02 - Research/COMPETITOR-MARKET-LANDSCAPE-2026-07-12|COMPETITOR-MARKET-LANDSCAPE]] (dual-platform؛ FeetFinder = موتورِ فروشِ سریعِ ۷–۱۴روزه؛ پولِ واقعی در PPV/custom؛ **retention = گافِ اصلیِ ما**). **دستورالعملِ کاملِ ۱۰-مرحلهٔ بعدی** → [[03 - Projects/اونلی فنز/00 - Control/ROADMAP-10-STAGES-2026-07-12|ROADMAP-10-STAGES]]. همه پشتِ GATE 0.
 - **2026-07-12 — Brand pack (propose-only):** لایهٔ هویتِ برند در [[03 - Projects/اونلی فنز/01 - Strategy/Identity/_INDEX|01-Strategy/Identity]] ساخته شد (IDENTITY، BRAND-CHARTER، VOICE-AND-STYLE، CLAIMS-REGISTER، BRAND-NAME-DECISION) با ورک‌فلوِ ۴-ایجنتهٔ کالیبراسیون. یافته‌ها: نامِ #۱ = **Anar Soles** / reserve Yalda Arch (تنها صفر-collision؛ منتظر verdict #۶، به #۹ گره‌خورده) · نام‌های شهری (Softly Sydney/Harbour Soles) حذف شدند (نقضِ #۶) · #۹ نامتقارن است (قاعدهٔ #۶ حاکم؛ سیگنالِ دیاسپورا فقط غیرمتنی) · صدا = warm/unhurried/wry · گافِ AI-image بسته شد (قفلِ human-only پیشنهادی) · نقصِ انطباقِ «Sydney light» در Playbook برای اصلاحِ گیت‌دار flag شد. هیچ انتشار/اکانت/کپیِ فارسی.
 - **2026-07-12 — نقشه‌برداری (Cartography) + بستهٔ handoff:** نقشهٔ راستی‌آزمایی‌شده در [[03 - Projects/اونلی فنز/00 - Control/CARTOGRAPHY-2026-07-12|CARTOGRAPHY]] (dedup دقیق md5: ۱۳ identical + ۹ stale mirror؛ root = canonical تأیید شد؛ code deep-read: project_f_brain مرده در runtime، learning سیم‌نشده، drafts.json = ۲۴۴ ردیف تستی، secretها پاک، kill-switchها واقعی) · [[03 - Projects/اونلی فنز/00 - Control/SOURCE-OF-TRUTH-MATRIX|SoT-Matrix]] · [[03 - Projects/اونلی فنز/00 - Control/RISK-LADDER|RISK-LADDER]] · [[03 - Projects/اونلی فنز/00 - Control/MIGRATION-MAP-2026-07-12|MIGRATION-MAP]] (⛔ اجرا نشده — verdict ‏PF-STRUCT-V2) · برنامهٔ ایجنت بعدی: [[03 - Projects/اونلی فنز/00 - Control/HANDOFF-NEXT-AGENT|HANDOFF-NEXT-AGENT]] · ۳ verdict جدید در VERDICT_QUEUE (STRUCT-V2 / STATE-RESET-V1 / CODE-REFACTOR-V1)
 - **2026-07-10 — Round 2 تحقیق جامع ۷-محوره integrate شد** → [[03 - Projects/اونلی فنز/RESEARCH-INTEGRATION-round2-2026-07-10|round2]]: تأیید سوم مسیر (dual-platform/Reddit-engine/AI-درفت-انسان-می‌فرستد) · ریسک جدید R4 (فوت Radvinsky + فروش سهم OF ‏>$3B) · AU زیر-۱۶ live · یافتهٔ free-page/price-lock → تقویت EXT-04 برای #۱۰ · کاتالوگ ۵۸-روشی جذب + unit-economics + spec تکمیلی مغز (~AUD 8–12/ماه) + سؤالات مشاور AU · سؤال‌های باز جدید #۱۷–#۲۰
@@ -58,6 +59,7 @@ delivery-rate پارتنر در trial sprint `[To measure]` · engagement روی
 
 ## Next actions
 
+- [ ] 🗺 **دستورالعملِ اجرا = [[03 - Projects/اونلی فنز/00 - Control/ROADMAP-10-STAGES-2026-07-12|ROADMAP ۱۰-مرحله]]** — مرحلهٔ ۱ (بستنِ GATE 0) کلِ زنجیره را باز می‌کند
 - [ ] **۱۱ verdict منتظر تو** (THREAD-CLOSURE §۹): G0 · Playbook+M3-a · قاعدهٔ بالانس >$100 · سقف مغز AUD 15 · نردبان EXT-04 · برند Anar Soles · Fansly discovery-first · حالت labeling X · بلاک AU · فعال‌سازی لنگر · انجماد body
 - [ ] **G0** — ثبت محل اقامت پارتنر + انتخاب Branch A/B (بلوپرینت §۱)
 - [ ] ارسال پیام آماده به صبا (بازپرسیدن سؤال آخر + انتظارات — بلوپرینت §۴.۲) و ثبت جواب
