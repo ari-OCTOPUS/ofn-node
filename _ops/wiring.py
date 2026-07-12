@@ -52,6 +52,9 @@ PAPER_FULL_FLAGS = (
                                # «برو» 2026-07-10؛ فقط ورودیِ acquisition را باریک می‌کند
     "OCTOPUS_WIRE_FISHER",     # P6 blueprint: Fisher advisory — verdict آری «برو»
                                # 2026-07-10؛ فقط fisher-latest.json، هیچ تغییرِ scoring (I4/I6)
+    "OCTOPUS_WIRE_CARTOGRAPHER",  # verdictِ مالک 2026-07-12: پای نقشه‌بردار با بوتِ اختاپوس
+                                  # روشن شود (read-only sentinel، content-free، صفر spend/outward).
+                                  # kill/rollback: حذفِ همین خط یا OCTOPUS_WIRE_CARTOGRAPHER=0.
     # NOTE: germline/checkpoint همیشه‌رون‌اند (safety-vital) — enrich_state_with_
     # germline و unified_bus._checkpoint همیشه اجرا می‌شوند، flag لازم ندارند.
     # NOTE: OCTOPUS_WIRE_CHAMBER_T (P5، برچسب RED) همچنان عمداً اینجا نیست —

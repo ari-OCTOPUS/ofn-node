@@ -54,7 +54,7 @@ _BANNED_ECHO = ("اونلی", "onlyfans", "صبا")
 
 # کلیدهای ۸ پا — content-free (fallback وقتی render.LEGS در دسترس نیست)
 LEG_KEYS = ("lead", "ziman", "mining", "crypto", "accounting",
-            "studio_pf", "system", "knowledge")
+            "studio_pf", "system", "knowledge", "cartographer")
 
 # نامِ نمایشیِ پیش‌فرض — configِ مالک (display_names) همیشه برنده است.
 # پای pf فقط با aliasِ سازمانیِ «استودیو» دیده می‌شود (containment).

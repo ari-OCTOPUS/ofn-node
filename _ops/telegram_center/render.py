@@ -45,6 +45,7 @@ LEGS = {
     "studio_pf":  "استودیو",
     "system":     "سیستم",
     "knowledge":  "دانش",
+    "cartographer": "نقشه‌بردار",
 }
 
 # برندینگِ بصریِ هر پا (رأی مالک: media-first، آیکنِ ثابت per پا) — جدا از LEGS تا
@@ -52,6 +53,7 @@ LEGS = {
 LEG_ICONS = {
     "lead": "🎨", "ziman": "🖼", "mining": "⛏", "crypto": "📈",
     "accounting": "🧾", "studio_pf": "🎬", "system": "⚙️", "knowledge": "🧠",
+    "cartographer": "🗺",
     "hq": "🐙",
 }
 DIVIDER = "─────── ✦ ───────"

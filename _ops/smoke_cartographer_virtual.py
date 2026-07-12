@@ -55,7 +55,8 @@ def main() -> int:
     print("=== VIRTUAL ACTIVATION (flag set in THIS process only) ===")
     print("OCTOPUS_WIRE_CARTOGRAPHER =", os.environ.get("OCTOPUS_WIRE_CARTOGRAPHER"))
     print("in PAPER_FULL_FLAGS (live default)?:",
-          "OCTOPUS_WIRE_CARTOGRAPHER" in wiring.PAPER_FULL_FLAGS, "(must be False)")
+          "OCTOPUS_WIRE_CARTOGRAPHER" in wiring.PAPER_FULL_FLAGS,
+          "(True → boot-coupled per owner verdict 2026-07-12)")
     print()
 
     # 1) مسیرِ organism، ولی standalone: build → beat → همان dictی که به ORGANISM-STATE می‌رفت

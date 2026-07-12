@@ -23,8 +23,10 @@ identity:
   parent_system: "OCTOPUS"
   parent_authority: "Architect/_ops"
   owner: "آری"
-  status: "registered / not-deployed (phase-4)"
-  kind: "on-demand read-only — does NOT tick per beat (unlike ziman/lead)"
+  status: "ACTIVATED (boot-coupled) — owner verdict 2026-07-12; effective next octopus boot"
+  kind: "boot-coupled read-only sentinel (ticks with the organism; on-demand full map = subagent)"
+  boot_coupled: "OCTOPUS_WIRE_CARTOGRAPHER in PAPER_FULL_FLAGS → activates on octopus boot; kill = remove line or OCTOPUS_WIRE_CARTOGRAPHER=0"
+  subordination: "fully under OCTOPUS: central governance (Architect/_ops), central telegram (telegram_center key 'cartographer'), boot lifecycle coupled to the organism"
 
 status_snapshot:
   execution_state: "ZERO mutation · ZERO outward · ZERO spend — map/report/propose only"
@@ -88,8 +90,11 @@ interfaces:
   octopus:
     registry_key: "limb:vault-cartographer"
     control_plane_enrich: true
+    telegram_center_key: "cartographer"        # ثبت در render.LEGS/LEG_ICONS + center.LEG_KEYS
   telegram:
-    enabled: false                             # gateway-only if ever enabled; owner action
+    enabled: true                              # via central telegram_center (owner verdict 2026-07-12)
+    mode: "gateway-only via _ops/telegram_center — leg key 'cartographer' (نقشه‌بردار 🗺)"
+    surface: "read-only status/digest; owner-allowlist; STOP-TG-CENTER supreme; NO send/publish/spend"
   model_gateway:
     mode: "inherits session model; no external spend"
 
@@ -105,7 +110,7 @@ roadmap_state:
   increment_2_manifest_ledger: "this file"
   step_3_code_leg: "done — _ops/legs/cartographer_leg.py + test_cartographer_leg.py (10/10); inert until wired"
   step_4_wiring_tick: "done — wiring.make_cartographer_leg/cartographer_beat + organism seam + test_cartographer_wiring (6/6) + run_all; flag default-off (NOT in PAPER_FULL_FLAGS)"
-  step_5_activation: "pending (owner verdict + rotation + per-domain audit)"
+  step_5_activation: "DONE — owner verdict 2026-07-12: boot-coupled (PAPER_FULL_FLAGS) + central telegram key 'cartographer'; effective next boot; kill=remove flag"
 
 safety:
   fail_closed: true

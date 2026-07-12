@@ -6,6 +6,7 @@ propose-only، STOP/HALT مقدم، None-leg امن. هیچ اثرِ بیرون�
 """
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -23,9 +24,27 @@ def test_flag_off_returns_none(monkeypatch):
     assert wiring.cartographer_beat(object()) is None       # beat هم پشتِ همان flag
 
 
-def test_not_in_paper_full_flags():
-    # عمداً default-off: نباید در PAPER_FULL_FLAGS باشد (تا گام ۵/verdict مالک)
-    assert "OCTOPUS_WIRE_CARTOGRAPHER" not in wiring.PAPER_FULL_FLAGS
+def test_boot_coupled_in_paper_full_flags():
+    # verdictِ مالک 2026-07-12: با بوتِ اختاپوس روشن شود → در PAPER_FULL_FLAGS
+    assert "OCTOPUS_WIRE_CARTOGRAPHER" in wiring.PAPER_FULL_FLAGS
+
+
+def test_apply_profile_activates_on_boot(monkeypatch):
+    # apply_profile (پیش‌فرض paper-full) باید فلگ را روشن کند اگر ست‌نشده باشد
+    monkeypatch.delenv("OCTOPUS_WIRE_CARTOGRAPHER", raising=False)
+    monkeypatch.delenv("OCTOPUS_PROFILE", raising=False)
+    wiring.apply_profile()
+    assert os.environ.get("OCTOPUS_WIRE_CARTOGRAPHER") == "1"
+
+
+def test_registered_in_central_telegram():
+    # محیطِ تلگرام از طریقِ اختاپوس: کلیدِ 'cartographer' در مرکز ثبت شده
+    import importlib
+    render = importlib.import_module("telegram_center.render")
+    center = importlib.import_module("telegram_center.center")
+    assert "cartographer" in render.LEGS
+    assert "cartographer" in render.LEG_ICONS
+    assert "cartographer" in center.LEG_KEYS
 
 
 def test_flag_on_builds_incubating_leg(monkeypatch):
