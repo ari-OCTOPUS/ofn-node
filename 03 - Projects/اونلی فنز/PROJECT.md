@@ -53,9 +53,9 @@ delivery-rate پارتنر در trial sprint `[To measure]` · engagement روی
 
 ## Progress
 
-- چه کار می‌کند: master-reference کامل، production plan، funnel دیاسپورا، رجیستر ۵ ریسک، پرسشنامه پارتنر پاسخ‌داده‌شده
-- چه مانده: Track A/B/C validation، زیرساخت legal/banking (مشروط به عبور از گیت‌ها)
-- مشکلات شناخته: تعهد پارتنر مشروط به دیدنِ مسیر پول‌دهی است؛ تضاد مرز body با production plan
+- چه کار می‌کند: master-reference کامل، production plan، funnel دیاسپورا، رجیستر ۵ ریسک، پرسشنامه پارتنر پاسخ‌داده‌شده · **موتورِ اکتساب (اسکلتِ propose-only): pipeline + affirm + سیم‌کشیِ لنگر، ۲۲/۲۲ تست، بدونِ افکتورِ زنده** · brand pack + cartography + تحقیقِ رقبا + [[03 - Projects/اونلی فنز/00 - Control/ROADMAP-10-STAGES-2026-07-12|ROADMAP ۱۰-مرحله]]
+- چه مانده: زنده‌سازیِ اکتساب پشتِ GATE 0 (مراحلِ ۳/۶ روڈمپ) · **مرحلهٔ ۵ (کارِ بعدیِ ایجنت، بی‌نیاز به گیت): بانکِ کپیِ واقعی + رفعِ باگِ greedyِ learning و سیم‌کردنش** · Track A/B/C validation · زیرساختِ legal/banking
+- مشکلات شناخته: تعهد پارتنر مشروط به دیدنِ مسیر پول‌دهی است؛ تضاد مرز body با production plan · `learning.py` باگِ greedy هنوز به `acquisition` سیم‌نشده ([[03 - Projects/اونلی فنز/06 - Ops & Runtime/PROP-D2-wire-learning-to-acquisition|PROP-D2]]) · نوت‌های top-levelِ پروژه ۱۳۵ خطای frontmatterِ pre-existing دارند (واژگانِ type محلی — پاکسازیِ جدا)
 
 ## Next actions
 

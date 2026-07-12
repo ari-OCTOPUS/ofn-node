@@ -11,7 +11,9 @@ aliases: ["Project-F Handoff", "برنامه ایجنت بعدی"]
 
 # 🤝 HANDOFF — برنامهٔ کامل برای ایجنت بعدی (Project-F)
 
-> **وضعیت لحظهٔ تحویل (2026-07-12):** نقشه‌برداری کامل + بلوک A و D اجرا شد (۶ سند با ورک‌فلوِ ۶-ایجنتهٔ موازی نوشته شد)؛ **هیچ فایلی جابه‌جا نشده، هیچ کدی اجرا نشده.** GATE 0 هنوز باز؛ پوسچر = contained propose-only.
+> 🧭 **از اینجا شروع کن:** [[03 - Projects/اونلی فنز/00 - Control/ROADMAP-10-STAGES-2026-07-12|ROADMAP-10-STAGES]] = نقشهٔ راهِ عملیاتیِ بعدی. مرحلهٔ ۱ (GATE 0) دستِ مالک است و کلِ زنجیره را باز می‌کند؛ **کارِ بلافاصلهٔ ایجنت بدونِ نیاز به GATE 0 = مرحلهٔ ۵** (بانکِ کپیِ واقعی + رفعِ باگِ greedyِ learning و سیم‌کردنش، طبق [[03 - Projects/اونلی فنز/06 - Ops & Runtime/PROP-D2-wire-learning-to-acquisition|PROP-D2]]).
+
+> **وضعیت لحظهٔ تحویل (2026-07-12، جلسهٔ اکتساب):** موتورِ اکتساب به‌صورتِ **کدِ propose-only ساخته و تست شد (۲۲/۲۲)** — ولی هیچ افکتورِ زنده، هیچ اکانت، هیچ پست. GATE 0 هنوز باز؛ moves (بلوک B/C) هنوز اجرا نشده. پوسچر = contained propose-only، بدونِ تغییر.
 
 ## ✅ انجام‌شده در این جلسه (2026-07-12)
 
@@ -19,6 +21,17 @@ aliases: ["Project-F Handoff", "برنامه ایجنت بعدی"]
 - **بلوک A (docs):** ✅ A1 [[07 - Compliance & Privacy/OPSEC-ITEMS|OPSEC-ITEMS]] · ✅ A3 [[01 - Strategy/STRATEGY-RECONCILE-2026-07-12|STRATEGY-RECONCILE]] · ✅ A2 تازه‌سازیِ `_INDEX` پوشه‌های 01/06/07 · ✅ A5 sync ‏VERDICT_QUEUE. (باقی: A4 بنرِ HOME — انجام شد پایینِ همین جلسه.)
 - **بلوک D (proposals، propose-only):** ✅ [[06 - Ops & Runtime/PROP-D1-project_f_brain-fate|D1]] · ✅ [[06 - Ops & Runtime/PROP-D2-wire-learning-to-acquisition|D2]] · ✅ [[06 - Ops & Runtime/PROP-D3-missing-tests-plan|D3]] · ✅ [[06 - Ops & Runtime/PROP-D4-identifier-rename-opsec|D4]]. اسکلتِ خالیِ 01/06/07 حالا محتوای واقعی دارد.
 - **⛔ بلوک B (moves) + C (drafts reset):** آماده در MIGRATION-MAP «بلوک اجراییِ آماده»، ولی auto-mode اجازهٔ اجرای دسته‌ایِ `mv` را نداد → **معطلِ اجرای مالک یا اجازهٔ Bash.** هیچ انتقالی رخ نداد.
+
+## ✅ انجام‌شده در جلسهٔ اکتساب/تحقیق/roadmap (2026-07-12، بعد از کارتوگرافی)
+
+- **موتورِ اکتساب — کدِ propose-only، ساخته + تست‌شده، هیچ افکتورِ زنده:**
+  - `brain/acquisition_pipeline.py` — draft→صف→approve→آمادهٔ پستِ **دستیِ انسان**. ساختاراً **هیچ متدِ post/send/dm/publish/pay ندارد**؛ `PF_LIVE_PUBLISH` فقط برچسب می‌زند (`auto_posted` همیشه False)؛ finalize fail-closed. (commit `c7124df`)
+  - `studio/affirm.py` — لایهٔ گرم/تحسین‌گرِ استودیوی خالق (content-free، **بی‌هیچ برچسبِ شخصیت**، `/halt` همیشه حاضر). (commit `c7124df`)
+  - سیم‌کشی: `langar/pf_admin.py` (دستورهای `/pf_status·plan·queue·ok·no·ready`) + هوکِ `/pf_*` در `langar_bot.py` + `affirm` در `saba_studio.home()`. (commit `ae31bfd`)
+  - **تست ۲۲/۲۲ آفلاین** (pipeline + affirm + pf_admin). طراحی: [[03 - Projects/اونلی فنز/05 - Acquisition/AUTO-ACQUISITION-BLUEPRINT|AUTO-ACQUISITION-BLUEPRINT]] (commit `1d5b363`).
+  - ⚠️ **دو بار ریویوِ خصمانهٔ ایجنتی** روی pipeline اجرا شد → گافِ گاردِ کپی (فقط caption گارد می‌شد، hook/tag رد می‌شدند؛ codename/platform در banlist نبود) پیدا و بسته شد. حالا containment روی **caption+hook+tag** + banlistِ هم‌تراز با `_ops/events.py` است.
+- **تحقیقِ رقبا/بازار:** [[03 - Projects/اونلی فنز/02 - Research/COMPETITOR-MARKET-LANDSCAPE-2026-07-12|COMPETITOR-MARKET-LANDSCAPE]] — اولین نوتِ رقیب‌محور (۸ منبع؛ FeetFinder فروشِ سریعِ ۷–۱۴روزه، پولِ واقعی در PPV/custom، **retention گافِ اصلیِ ما**؛ منابع جهت‌نما نه حسابرسی‌شده). (commit `e7889b6`)
+- **دستورالعملِ ۱۰-مرحله:** [[03 - Projects/اونلی فنز/00 - Control/ROADMAP-10-STAGES-2026-07-12|ROADMAP-10-STAGES]] — **نقشهٔ راهِ عملیاتیِ بعدی.** (commit `e7889b6`)
 
 ## ۰. ترتیب لود (قبل از هر کاری)
 
@@ -28,6 +41,8 @@ aliases: ["Project-F Handoff", "برنامه ایجنت بعدی"]
 4. `PROJECT.md` (Active Context)
 5. `00 - Control/CARTOGRAPHY-2026-07-12.md` ← **نقشهٔ فعلی؛ BASE-DATA-REPORT را تصحیح می‌کند**
 6. `00 - Control/SOURCE-OF-TRUTH-MATRIX.md` · `RISK-LADDER.md` · `MIGRATION-MAP-2026-07-12.md`
+7. `00 - Control/ROADMAP-10-STAGES-2026-07-12.md` ← 🧭 **بعدی چه کن (۱۰ مرحله با گیت/owner-agent split)**
+8. `02 - Research/COMPETITOR-MARKET-LANDSCAPE-2026-07-12.md` ← **چرا این مسیر (رقبا/بازار)**
 
 ## ۱. حکم‌های قفل‌شدهٔ این جلسه (دوباره‌کاری نکن)
 
@@ -79,6 +94,10 @@ Active Context/Progress در `PROJECT.md` تازه شود · HANDOFF vault (01 -
 1. BASE-DATA-REPORT طرح پوشهٔ ۰۰–۱۲ پیشنهاد داده — **منسوخ است**؛ طرح canonical = `00–09` موجود.
 2. `docs/` و `research/` را «محتوای جدید» فرض نکن — آینهٔ stale‌اند؛ همیشه نسخهٔ root را بخوان.
 3. `studio/drafts.json` را صف واقعی نگیر — ۱۰۰٪ fixture تستی است.
-4. ادعای «۲۹ تست سبز» تاریخی است (2026-07-10) — بازاجرا نشده؛ بدون اجازهٔ sandbox اجرا نکن.
+4. ادعای «۲۹ تست سبز»ِ brain تاریخی است (2026-07-10، بازاجرا نشده). ولی **suiteِ اکتساب ۲۲/۲۲ در جلسهٔ 2026-07-12 واقعاً اجرا و سبز شد** (`brain/test_acquisition_pipeline.py` + `studio/test_affirm.py` + `langar/test_pf_admin.py`). تستِ brain-core را بدون اجازه اجرا نکن.
 5. `orchestrator.py` را standalone اجرا نکن و مسیر پروژه را تغییر نده.
 6. لینک‌های cross-vault (MYCELIAL-MASTER-SPEC، `_memory/*-BLUEPRINT`) تأییدنشده‌اند — قبل از استناد، وجودشان را چک کن.
+7. **worktree/main-vault:** فایل‌های واقعیِ پروژه در main-vault `F:\backup\03 - Projects\...` روی `master`اند. کپیِ داخلِ `.claude/worktrees/*` ممکن است **قدیمی** باشد (Glob بدونِ path آنجا را می‌گردد و ساختارِ ۰۰–۰۹ را از دست می‌دهد). همیشه با مسیرِ مطلقِ main-vault کار کن + `git worktree list`.
+8. **commit با pathspec:** این tree ~۷۶۰ فایلِ dirty از پروسهٔ همزمانِ `_ops` دارد. `git commit` بدونِ pathspec کلِ index را می‌گیرد (یک‌بار `_ops/budget/reconcile.py`ِ همسایه را جارو کرد). **همیشه `git commit -- <files>`.**
+9. **قفلِ آنتی‌ویروس:** `git add` گاهی «Permission denied `.git/objects`» می‌دهد → retry با `sleep` per-file.
+10. **گاردِ containment روی خروجی:** هر متنِ برون‌ده (caption/hook/tag) باید از banlist رد شود؛ ریویوِ خصمانه ثابت کرد گاردِ تک‌فیلدی کافی نیست. الگوی «AI draft، انسان send» و صفر echo هویت/شهر/قومیت مطلق است.
