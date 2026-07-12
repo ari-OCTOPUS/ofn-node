@@ -47,6 +47,9 @@ Inventory → Anchor-read (`HANDOFF` → `06` → `ORGANISM-SPEC` + لیستِ `
 ## verification
 هر نامِ ماژول/فایلِ ذکرشده دوباره با `Glob`/`Bash` تأیید شود؛ نبودِ secret/هویتِ Project-F چک شود؛ نحوِ Mermaid سالم باشد.
 
+## انطباقِ لیمب (OLP-1)
+> autonomy: **floor = read-only** (کفِ سخت، حتی با گیتِ باز) · **ceiling = propose-only** (فقط پیشنهادِ متنی). parent = **Architect/_ops**. risk = R1 (contained). قراردادِ کاملِ پا + روادمپِ گیت‌دار: [[05 - Agents/Vault-Cartographer-LIMB|Vault-Cartographer-LIMB]]. ثبت‌شده در [[05 - Agents/AGENT_REGISTRY|AGENT_REGISTRY]] (phase-4، not-deployed).
+
 ## اتصال‌ها
 - خروجیِ کانونی: [[06 - Architecture Maps/MASTER-ARCHITECTURE-2026-07-09]]
 - منبعِ قواعد: [[04 - Architect System/architect/ARCHITECT_CHARTER]]
