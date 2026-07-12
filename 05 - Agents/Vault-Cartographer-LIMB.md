@@ -80,3 +80,22 @@ kill_switch: "§Security Gate (ROTATION_CHECKLIST) → autonomyِ مؤثر=read-
 
 ## چرا «پا»یِ درست، نه بیشتر
 این لیمب on-demand و read-only است؛ الزامی به تیک‌زدنِ هر beat یا organ بودجه ندارد. الگوی امن = `lead` (incubating تا organ). هرگز خودش را deploy/activate نمی‌کند — این تصمیمِ L0 است. کفِ read-only حتی با گیتِ باز حفظ می‌شود (عمدی).
+
+## Step 5 — Activation readiness + go-live runbook (owner-gated)
+> **ایجنت این را اجرا نمی‌کند.** فلیپِ فلگ = عملِ deployِ L0 (self-approval توسطِ خودِ لیمب طبقِ manifest/`AGENT_REGISTRY` ممنوع است). این بخش = بخشِ «audit»ِ قابل‌انجامِ گام ۵ + دستورِ دقیقِ فعال‌سازیِ مالک.
+
+### Readiness audit (agent-attested, read-only)
+- ✅ کد کامل (increments ۱–۴)؛ `organism.py`/`wiring.py`/`cartographer_leg.py` همه `ast.parse` سالم؛ تست‌ها سبز (leg ۱۰/۱۰، wiring ۶/۶).
+- ✅ ایمنی: بدونِ send/publish/pay؛ incubating (بدونِ organ/بودجه)؛ content-free؛ read-only floor؛ STOP/HALT مقدم؛ seam با None-guard.
+- ✅ inert-by-default: فلگ در PAPER_FULL_FLAGS نیست → با فلگِ خاموش، `make_cartographer_leg()=None` → beat رد. سطحِ فعالِ واقعی = فقط یک بلوکِ `cartographer` در ORGANISM-STATE؛ **beat هیچ ledger emit/mutate ندارد** (فقط `propose_refresh`ِ on-demand می‌نویسد، که حلقه صدایش نمی‌زند).
+- ⏳ پیش‌شرط‌هایی که ایجنت attest نمی‌کند (مالک/ops): چرخشِ secret (ROTATION_CHECKLIST) · verdictِ per-domain.
+
+### فعال‌سازی (مالک — یک عمل، برگشت‌پذیر)
+- **گزینهٔ A (توصیه‌شده، per-run، کم‌ترین commitment):** در محیطِ launchِ organism `OCTOPUS_WIRE_CARTOGRAPHER=1` را ست کن و organism را restart کن. **rollback:** متغیر را unset + restart.
+- **گزینهٔ B (پایدار، default-on هر بوت):** خطِ `"OCTOPUS_WIRE_CARTOGRAPHER",` را به `PAPER_FULL_FLAGS` در `_ops/wiring.py` اضافه کن. **rollback:** همان خط را حذف کن.
+
+### پس از فعال‌سازی (یک هفته shadow)
+1. بعد از restart: `_ops/state/ORGANISM-STATE.json` باید کلیدِ `cartographer` (status، `propose_only:true`, `read_only:true`) داشته باشد.
+2. `_ops/state/events.jsonl`: نباید ورودیِ غیرمنتظره‌ای از `vault-cartographer` ببینی (beat emit نمی‌کند).
+3. هر رفتارِ ناخواسته → rollback (unset/حذفِ خط) + در صورتِ لزوم `_ops/STOP-ORGANISM`.
+4. تستِ رگرسیون: `python -m pytest _ops/tests/test_cartographer_wiring.py _ops/tests/test_cartographer_leg.py -q` (باید ۱۶/۱۶ بماند).
