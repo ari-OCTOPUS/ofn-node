@@ -37,6 +37,15 @@ except Exception:
     ContentStudio = None
     COMPLIANCE_CHECKS = ["faceless", "feet_only", "no_explicit", "over_18"]
 
+# لایهٔ گرم/تحسین‌گر (اختیاری — fail-soft؛ محتوا-آزاد، بدونِ برچسبِ شخصیت)
+try:
+    import sys as _sys
+    if str(HERE) not in _sys.path:
+        _sys.path.insert(0, str(HERE))
+    import affirm
+except Exception:
+    affirm = None
+
 CERT_LABELS = {
     "faceless": "بدون چهره",
     "feet_only": "فقط پا",
@@ -127,6 +136,11 @@ class SabaStudio:
         unread = len([m for m in _load(INBOX_JSON, []) if not m.get("read")])
         greet = self._greeting()
         lines = [f"🎬 <b>استودیوی محتوا</b>", f"<i>{greet}</i>", "━━━━━━━━━━"]
+        if affirm is not None:                       # یک خطِ گرم/تحسین‌گر (fail-soft)
+            try:
+                lines.append(f"<i>{_e(affirm.spotlight(pend))}</i>")
+            except Exception:
+                pass
         lines.append(f"📋 درفت‌های منتظر تأیید: <b>{pend}</b>")
         if theme: lines.append(f"🗓 تم این هفته: <b>{_e(theme)}</b>")
         if cap.get("hours"): lines.append(f"🫶 ظرفیت اعلامی: <b>{_e(str(cap['hours']))}</b> ساعت")

@@ -319,7 +319,16 @@ class LangarBot:
         if cmd in ("/start", "/help"):
             return ("⚓ لنگر — کاکپیت Project-F (propose-only)\n"
                     "/status /gates /verdicts /saba /brief /think <موضوع>\n"
-                    "/kpi /report /upgrade /rules /kill /revive")
+                    "/kpi /report /upgrade /rules /kill /revive\n"
+                    "اکتساب: /pf_status /pf_plan [n] /pf_queue /pf_ok <id> /pf_no <id> /pf_ready <id>")
+        if cmd.startswith("/pf_"):
+            # خطِ لولهٔ اکتساب (propose-only، هیچ اکشنِ بیرونی) — آداپتورِ ایزوله
+            try:
+                import pf_admin
+            except ImportError:
+                sys.path.insert(0, str(Path(__file__).resolve().parent))
+                import pf_admin
+            return pf_admin.handle_pf(cmd, arg)
         if cmd == "/rules":
             return "قواعد قفل‌شده:\n" + "\n".join(LOCKED_RULES)
         if cmd == "/gates":

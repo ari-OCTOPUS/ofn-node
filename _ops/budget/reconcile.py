@@ -5,7 +5,13 @@
   date, amount_aud, lead_id, source  (قفل‌شدهٔ verdict آری).
 
 قاعدهٔ محافظه‌کارِ fail-closed (ضدِ گیم): تطبیق فقط وقتی CONFIRMED می‌شود که هر چهار برقرار باشند —
-  lead_id موجود · attribution در وضعیتِ CLAIMED · مبلغ دقیقاً match · تاریخِ پرداخت در پنجرهٔ ۷ روز.
+  lead_id موجود · attribution در وضعیتِ CLAIMED · مبلغ match (exact یا جمعِ ردیف‌ها) ·
+  تاریخِ پرداخت در پنجرهٔ ۷ روز.
+
+v2: پرداختِ جزئی — اگر چند ردیف CSV برای یک lead_id وجود داشته باشد، جمع مبالغ با
+claim_amount تطبیق داده می‌شود. این اجازه می‌دهد بیعانه + مابقی (یا هر پرداختِ مرحله‌ای)
+به‌درستی CONFIRMED شود. هر ردیفِ تکی هم کار می‌کند (backward-compat).
+
 هر تطبیقِ ناقص/مبهم/خارج‌ازپنجره/بی‌lead_id/دابل → CONFIRMED نمی‌شود؛ UNMATCHED علامت می‌خورد و
 در گزارش می‌آید. پولِ تأییدنشده هرگز fitness را تکان نمی‌دهد. CONFIRMED را فقط همین job می‌نویسد.
 """
@@ -14,6 +20,7 @@ from __future__ import annotations
 import csv
 import datetime
 import sys
+from collections import OrderedDict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -61,47 +68,98 @@ def run(reconcile_dir=None, write: bool = True) -> dict:
     double: list[dict] = []
     seen = set()   # dedup درون همین ران
 
+    # ── v2: group rows by lead_id for partial payment support ──────────
+    # Multiple CSV rows for the same lead_id → sum their amounts.
+    # This allows deposit + balance (or staged payments) to match total.
+    grouped: dict[str, list[dict]] = OrderedDict()
     for row in rows:
         lead = row["lead_id"]
-        rec = latest.get(lead) if lead else None
-        try:
-            amt = float(row["amount_aud"])
-        except ValueError:
-            amt = None
-
-        if not lead:
-            reason = "no-lead_id"
-        elif amt is None:
-            reason = "bad-amount"
-        elif rec is None:
-            reason = "unknown-lead_id"
-        elif rec.get("state") in attribution.CONFIRMED_STATES or lead in seen:
-            # دابل‌کلیمِ یک دلار → گزارش + alert؛ CONFIRMEDِ اصلی سرِ جایش می‌ماند (هرگز override/اعتبارِ دوباره)
-            double.append({**row, "reason": "double-claim"})
-            if write:
-                opslib.alert([f"reconcile double-claim: {lead} ({row['_file']}:{row['_line']}) — قبلاً CONFIRMED، نادیده"])
-            continue
-        elif rec.get("state") == "CONFLICT":
-            reason = "in-conflict"
-        elif rec.get("state") != "CLAIMED":
-            reason = f"not-claimed(state={rec.get('state')})"
+        if lead:
+            grouped.setdefault(lead, []).append(row)
         else:
-            claim_amt = float(rec.get("amount_aud") or 0)
-            base_date = rec.get("claim_date") or rec.get("decision_date") or ""
-            if abs(claim_amt - amt) > AMOUNT_TOL:
-                reason = f"amount-mismatch(claim={claim_amt},csv={amt})"
-            elif not _within_window(base_date, row["date"], attribution.ATTR_WINDOW_DAYS):
-                reason = "out-of-window(>7d یا پیش از تصمیم)"
-            else:
-                cell = rec.get("cell", "unknown")
+            # no lead_id — immediate unmatched
+            unmatched.append({**row, "reason": "no-lead_id"})
+
+    for lead, lead_rows in grouped.items():
+        rec = latest.get(lead) if lead else None
+
+        # ── pre-checks (per lead, not per row) ─────────────────────────
+        if rec is None:
+            for r in lead_rows:
+                unmatched.append({**r, "reason": "unknown-lead_id"})
+            continue
+        if rec.get("state") in attribution.CONFIRMED_STATES or lead in seen:
+            for r in lead_rows:
+                double.append({**r, "reason": "double-claim"})
                 if write:
-                    attribution.confirm(lead, cell, amt, {
-                        "date": row["date"], "source": row["source"], "lead_id": lead,
-                        "file": row["_file"], "line": row["_line"]})
-                seen.add(lead)
-                confirmed.append({"attribution_id": lead, "cell": cell, "amount_aud": amt})
-                continue
-        unmatched.append({**row, "reason": reason})
+                    opslib.alert([f"reconcile double-claim: {lead} ({r['_file']}:{r['_line']}) — قبلاً CONFIRMED، نادیده"])
+            continue
+        if rec.get("state") == "CONFLICT":
+            for r in lead_rows:
+                unmatched.append({**r, "reason": "in-conflict"})
+            continue
+        if rec.get("state") != "CLAIMED":
+            for r in lead_rows:
+                unmatched.append({**r, "reason": f"not-claimed(state={rec.get('state')})"})
+            continue
+
+        # ── sum amounts for this lead_id ────────────────────────────────
+        total_csv = 0.0
+        bad_rows: list[dict] = []
+        for r in lead_rows:
+            try:
+                total_csv += float(r["amount_aud"])
+            except ValueError:
+                bad_rows.append(r)
+        for r in bad_rows:
+            unmatched.append({**r, "reason": "bad-amount"})
+
+        if not lead_rows or all(r in bad_rows for r in lead_rows):
+            continue  # all rows for this lead were bad
+
+        # ── amount match (sum vs claim) ────────────────────────────────
+        claim_amt = float(rec.get("amount_aud") or 0)
+        base_date = rec.get("claim_date") or rec.get("decision_date") or ""
+        if abs(claim_amt - total_csv) > AMOUNT_TOL:
+            if len(lead_rows) == 1:
+                reason = f"amount-mismatch(claim={claim_amt},csv={total_csv})"
+            else:
+                reason = f"amount-mismatch(claim={claim_amt},csv_sum={total_csv} from {len(lead_rows)} rows)"
+            for r in lead_rows:
+                if r not in bad_rows:
+                    unmatched.append({**r, "reason": reason})
+            continue
+
+        # ── window check (all payments must be within window) ───────────
+        out_of_window_rows: list[dict] = []
+        for r in lead_rows:
+            if not _within_window(base_date, r["date"], attribution.ATTR_WINDOW_DAYS):
+                out_of_window_rows.append(r)
+        if out_of_window_rows:
+            for r in out_of_window_rows:
+                unmatched.append({**r, "reason": "out-of-window(>7d یا پیش از تصمیم)"})
+            for r in lead_rows:
+                if r not in bad_rows and r not in out_of_window_rows:
+                    unmatched.append({**r, "reason": "cohort-partial-out-of-window"})
+            continue
+
+        # ── all checks passed → CONFIRM ────────────────────────────────
+        cell = rec.get("cell", "unknown")
+        if write:
+            proof = {
+                "date": ",".join(r["date"] for r in lead_rows if r not in bad_rows),
+                "source": ",".join(r["source"] for r in lead_rows if r not in bad_rows),
+                "lead_id": lead,
+                "file": ",".join(f"{r['_file']}:{r['_line']}" for r in lead_rows if r not in bad_rows),
+                "n_rows": len(lead_rows) - len(bad_rows),
+                "csv_total": total_csv,
+            }
+            attribution.confirm(lead, cell, total_csv, proof)
+        seen.add(lead)
+        confirmed.append({
+            "attribution_id": lead, "cell": cell, "amount_aud": total_csv,
+            "n_payments": len(lead_rows) - len(bad_rows),
+        })
 
     rev = attribution.confirmed_revenue()
     report = {
