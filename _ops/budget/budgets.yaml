@@ -49,6 +49,22 @@ allocation:
     GENOME_SYS: [{who: Ari, pct: 100}]
     MINING: [{who: Ari, pct: 100}]
 
+# ─── business identity (invoice/quote — config-only, no secrets) ──────────
+business:
+  abn: ""                        # Australian Business Number — REQUIRED for tax invoice
+  trading_name: ""               # Business trading name
+  address: ""                    # Business address
+  payment_terms: "Due within 14 days"
+  payment_methods: "Bank Transfer"
+  bank_details: ""               # BSB + Account number
+
+# ─── email integration (P3 — flag-off, secrets in .env) ────────────────
+email:
+  gmail_client_id: ""            # Google Cloud OAuth client ID
+  gmail_client_secret: ""         # Google Cloud OAuth client secret
+  gmail_token_path: "state/email/gmail_token.json"
+  polling_interval_minutes: 30
+
 routing:
   # 🔴 اصلاح 2026-07-06: aliasهای deepseek-chat/reasoner از 2026-07-24 (15:59 UTC) بازنشسته می‌شوند [FACT — چند منبع].
   # قیمت‌ها ✅ [VERIFIED 2026-07-07 · api-docs.deepseek.com/quick_start/pricing] — قفل شد (verdict پاسخ‌های STAGE-0؛ تخمین بی‌مدرک ممنوع)
