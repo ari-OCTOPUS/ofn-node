@@ -74,6 +74,22 @@ def test_staleness_fresh_vs_stale():
     assert leg.map_staleness_check("2099-01-01", _now=_NOW)["stale"] is False
 
 
+def test_assess_map_drift_pulse():
+    leg = CartographerLeg(organ_table={})
+    # تازه، بدونِ drift → 🟢، بدونِ refresh
+    a = leg.assess_map("2026-07-10", drift_count=0, _now=_NOW)
+    assert a["mood"] == "🟢" and a["refresh_recommended"] is False and a["age_days"] == 2
+    # کهنه → 🔴 + refresh
+    a = leg.assess_map("2026-05-01", drift_count=0, _now=_NOW)
+    assert a["mood"] == "🔴" and a["refresh_recommended"] is True and a["stale"] is True
+    # تاریخِ تازه ولی driftِ زیادِ کد (>=۵) → refresh (محتواً کهنه) 🔴
+    a = leg.assess_map("2026-07-10", drift_count=9, _now=_NOW)
+    assert a["refresh_recommended"] is True and a["mood"] == "🔴" and a["drift_files"] == 9
+    # driftِ کوچک → 🟡، بدونِ refresh
+    a = leg.assess_map("2026-07-11", drift_count=2, _now=_NOW)
+    assert a["mood"] == "🟡" and a["refresh_recommended"] is False
+
+
 def test_propose_refresh_is_proposal_only():
     leg, captured = _capturing_leg()
     p = leg.propose_refresh("map looks stale", map_updated_iso="2026-05-01")

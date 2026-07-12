@@ -153,6 +153,39 @@ class CartographerLeg(Leg):
                 "reason": (f"کهنه: {age} روز > سقفِ {max_age_days}." if stale
                            else f"تازه: {age} روز ≤ {max_age_days}.")}
 
+    # ─── drift-pulse assessment (pure؛ سیگنالِ propose-only، بدونِ I/O) ──────────
+    def assess_map(self, map_updated_iso, drift_count: int = 0,
+                   max_age_days: int = _STALE_DAYS_DEFAULT, _now=None) -> dict:
+        """ارزیابیِ drift-pulse: کهنگیِ نقشه (age) + دریفتِ کد (فایل‌های _ops تغییرکرده
+        از تاریخِ نقشه). pure — beat مقادیرِ واقعی را تزریق می‌کند. صفر I/O، صفر mutate.
+
+        refresh_recommended = نقشه کهنه است، یا دریفتِ کد قابل‌توجه (>=۵ فایل) — حتی اگر
+        تاریخِ نقشه تازه باشد (نقشه‌ای که ۳ روزه ولی ۴۰ فایل بعدش عوض شده = محتواً کهنه).
+        """
+        st = self.map_staleness_check(map_updated_iso, max_age_days=max_age_days, _now=_now)
+        try:
+            drift = max(0, int(drift_count))
+        except (TypeError, ValueError):
+            drift = 0
+        stale = bool(st.get("stale"))
+        age = st.get("age_days")
+        refresh = stale or drift >= 5
+        if stale or drift >= 5:
+            mood = "🔴"
+        elif drift > 0 or (age is not None and age > max(1, max_age_days // 2)):
+            mood = "🟡"
+        else:
+            mood = "🟢"
+        return {
+            "map_updated": map_updated_iso if isinstance(map_updated_iso, str) else None,
+            "age_days": age,
+            "stale": stale,
+            "drift_files": drift,
+            "refresh_recommended": refresh,
+            "mood": mood,
+            "reason": st.get("reason"),
+        }
+
     # ─── propose refresh (propose-only + ledger) ─────────────────────────────────
     def propose_refresh(self, reason: str, map_updated_iso=None,
                         trace_id: str = "", hlc: tuple = (0, 0)) -> Proposal:

@@ -98,4 +98,11 @@ kill_switch: "§Security Gate (ROTATION_CHECKLIST) → autonomyِ مؤثر=read-
 1. بعد از restart: `_ops/state/ORGANISM-STATE.json` باید کلیدِ `cartographer` (status، `propose_only:true`, `read_only:true`) داشته باشد.
 2. `_ops/state/events.jsonl`: نباید ورودیِ غیرمنتظره‌ای از `vault-cartographer` ببینی (beat emit نمی‌کند).
 3. هر رفتارِ ناخواسته → rollback (unset/حذفِ خط) + در صورتِ لزوم `_ops/STOP-ORGANISM`.
-4. تستِ رگرسیون: `python -m pytest _ops/tests/test_cartographer_wiring.py _ops/tests/test_cartographer_leg.py -q` (باید ۱۶/۱۶ بماند).
+4. تستِ رگرسیون: `python -m pytest _ops/tests/test_cartographer_wiring.py _ops/tests/test_cartographer_leg.py -q` (باید ۲۱/۲۱ بماند).
+
+## Increment 6 — drift-pulse function + central-Telegram digest (2026-07-12)
+> رأی مالک: «UI را بر اساسِ عملکردهاش بهینه کن؛ اول تابعِ واقعی، بعد UI (A).» عملکردِ زندهٔ قبلی فقط یک heartbeatِ ایستا بود؛ حالا **سیگنالِ واقعی** دارد.
+- **تابع (drift-pulse):** `CartographerLeg.assess_map(map_updated, drift_count)` (pure) + `wiring._cartographer_map_signal()` (read-only: آخرین `MASTER-ARCHITECTURE-*.md` + شمارِ فایل‌های `_ops/*.py` با mtime جدیدتر از تاریخِ نقشه). `cartographer_beat` هر tick این را **محاسبه و برمی‌گرداند** (بدونِ emit/mutate — read-only floor حفظ شد؛ organism آن را در ORGANISM-STATE می‌نویسد). خروجی: `{map_updated, map_age_days, map_stale, drift_files, refresh_recommended, mood}`.
+- **قاعده:** `refresh_recommended = نقشه کهنه (age>۱۴روز) یا drift≥۵ فایل` — نقشهٔ ۳روزه ولی ۲۴۵ فایل‌تغییر = محتواً کهنه → 🔴. اکشنِ refresh همچنان human-gated (subagentِ on-demand نقشه را می‌کشد).
+- **UI (تلگرامِ مرکزی):** `render.collect_feeds` حالا `ORGANISM-STATE.json` را می‌خواند؛ `_collect_legs` بلوکِ `cartographer` را به سلولِ دایجست نگاشت می‌کند: `🗺 نقشه‌بردار · نقشه Nd · drift M فایل · [refresh پیشنهاد]`. mood (🟢/🟡/🔴) وضعیتِ سلول است.
+- تست: ۲۱/۲۱ (assess_map + beat-drift-pulse + render-mapping). caveat: `drift_files` مبتنی بر mtime است (هیوریستیک؛ نسخهٔ git-diff دقیق‌تر = بهبودِ آتی).

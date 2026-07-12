@@ -195,6 +195,20 @@ def _collect_legs(feeds: dict) -> dict:
                 cell["next"] = f"{n_prop} پیشنهاد در صف"
             legs["system"] = cell
 
+    # cartographer: drift-pulse از ORGANISM-STATE (سنتینلِ کهنگیِ نقشه) — content-free
+    org = feeds.get("organism") if isinstance(feeds.get("organism"), dict) else {}
+    carto = org.get("cartographer") if isinstance(org.get("cartographer"), dict) else {}
+    if carto:
+        mood = str(carto.get("mood") or "🟢")
+        age = carto.get("map_age_days")
+        drift = _int(carto.get("drift_files"))
+        age_s = f"{age}d" if isinstance(age, int) else "?"
+        cell = {"status": mood if mood in _LEG_RANK else "🟢",
+                "detail": f"نقشه {age_s} · drift {drift} فایل"}
+        if carto.get("refresh_recommended"):
+            cell["next"] = "refresh پیشنهاد — نقشه را دوباره بکش"
+        legs["cartographer"] = cell
+
     return legs
 
 
@@ -239,6 +253,7 @@ def collect_feeds() -> dict:
             feeds["heart"] = _read_json(state / "pulse" / "heart-shadow-latest.json")
             feeds["registry"] = _read_json(state / "registry" / "registry-latest.json")
             feeds["telemetry"] = _read_json(state / "telemetry-latest.json")
+            feeds["organism"] = _read_json(state / "ORGANISM-STATE.json")   # per-leg blocks (cartographer…)
         except Exception:  # noqa: BLE001
             pass
 

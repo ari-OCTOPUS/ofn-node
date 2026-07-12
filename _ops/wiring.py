@@ -336,6 +336,40 @@ def ziman_beat(ziman_leg, beat: int = 0) -> dict | None:
         return None
 
 
+def _cartographer_map_signal():
+    """(map_updated_iso, drift_count) — read-only، fail-soft، content-free.
+    آخرین `06 - Architecture Maps/MASTER-ARCHITECTURE-*.md` و شمارِ فایل‌های .py در `_ops`
+    که mtimeشان از تاریخِ نقشه جدیدتر است (= دریفتِ کد از زمانِ ترسیمِ خودنگاره).
+    هیچ محتوایی خوانده نمی‌شود جز خطِ `updated:` نقشه (metadata)."""
+    import re as _re
+    from datetime import datetime as _dt
+    try:
+        vault = opslib.STATE_DIR.parent.parent               # _ops/state → vault root
+        maps = sorted((vault / "06 - Architecture Maps").glob("MASTER-ARCHITECTURE-*.md"))
+        if not maps:
+            return None, 0
+        m = _re.search(r"^updated:\s*(\S+)",
+                       maps[-1].read_text("utf-8", errors="replace"), _re.M)
+        updated = m.group(1).strip() if m else None
+        drift = 0
+        if updated:
+            try:
+                cutoff = _dt.fromisoformat(updated).timestamp()
+                for p in (vault / "_ops").rglob("*.py"):
+                    if "__pycache__" in p.parts:
+                        continue
+                    try:
+                        if p.stat().st_mtime > cutoff:
+                            drift += 1
+                    except OSError:
+                        continue
+            except (ValueError, OSError):
+                drift = 0
+        return updated, drift
+    except Exception:  # noqa: BLE001 — سیگنال اختیاری؛ نبودش نباید beat را بکشد
+        return None, 0
+
+
 def cartographer_beat(cartographer_leg, beat: int = 0) -> dict | None:
     """یک ضربانِ سبک برای CartographerLeg — فقط status (سنتینلِ کهنگیِ نقشه).
     پشتِ OCTOPUS_WIRE_CARTOGRAPHER (پیش‌فرض خاموش). STOP/HALT مقدم. content-free.
@@ -349,6 +383,8 @@ def cartographer_beat(cartographer_leg, beat: int = 0) -> dict | None:
         return None
     try:
         s = cartographer_leg.tick()
+        map_updated, drift = _cartographer_map_signal()      # read-only FS metadata
+        a = cartographer_leg.assess_map(map_updated, drift_count=drift)
         return {
             "leg_id": s.get("leg_id", "vault-cartographer"),
             "organ": s.get("organ", "CARTOGRAPHER"),
@@ -359,6 +395,13 @@ def cartographer_beat(cartographer_leg, beat: int = 0) -> dict | None:
             "propose_only": True,
             "outward_execution": False,
             "beat": beat,
+            # ── drift-pulse (سیگنالِ واقعی؛ beat فقط محاسبه/برمی‌گرداند — نه emit/mutate) ──
+            "map_updated": a.get("map_updated"),
+            "map_age_days": a.get("age_days"),
+            "map_stale": a.get("stale"),
+            "drift_files": a.get("drift_files"),
+            "refresh_recommended": a.get("refresh_recommended"),
+            "mood": a.get("mood"),
         }
     except Exception as e:  # noqa: BLE001 — یک limb نباید ارگانیسم را بکشد
         opslib.alert([f"wiring: cartographer_beat خطا: {type(e).__name__}: {e}"])

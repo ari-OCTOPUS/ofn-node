@@ -79,3 +79,29 @@ def test_stop_organism_wins(monkeypatch):
     leg = wiring.make_cartographer_leg()
     monkeypatch.setattr(wiring.opslib, "halted", lambda: True)   # STOP/HALT مقدم
     assert wiring.cartographer_beat(leg) is None
+
+
+def test_beat_includes_real_drift_pulse(monkeypatch):
+    # عملکردِ واقعی: beat باید سیگنالِ drift-pulse را از repoِ واقعی برگرداند
+    monkeypatch.setenv("OCTOPUS_WIRE_CARTOGRAPHER", "1")
+    leg = wiring.make_cartographer_leg()
+    st = wiring.cartographer_beat(leg, beat=1)
+    assert st is not None
+    for k in ("map_updated", "map_age_days", "map_stale", "drift_files",
+              "refresh_recommended", "mood"):
+        assert k in st, f"missing drift-pulse field: {k}"
+    assert st["mood"] in ("🟢", "🟡", "🔴")
+    assert isinstance(st["refresh_recommended"], bool)
+
+
+def test_render_maps_cartographer_drift_pulse():
+    # UI: _collect_legs باید بلوکِ cartographerِ ORGANISM-STATE را به سلولِ دایجست نگاشت کند
+    import importlib
+    render = importlib.import_module("telegram_center.render")
+    feeds = {"organism": {"cartographer": {
+        "mood": "🔴", "map_age_days": 21, "drift_files": 7, "refresh_recommended": True}}}
+    legs = render._collect_legs(feeds)
+    c = legs["cartographer"]
+    assert c["status"] == "🔴"
+    assert "drift 7" in c["detail"] and "21d" in c["detail"]
+    assert "refresh" in c.get("next", "")
