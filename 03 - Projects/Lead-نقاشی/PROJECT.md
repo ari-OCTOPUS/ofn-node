@@ -4,11 +4,11 @@ kind: area
 project: "[[03 - Projects/Lead-نقاشی/PROJECT]]"
 status: active
 owner: آری
-risk_level: medium
+risk_level: low
 autonomy_level: read-only
-tags: [lead-gen, painting, sydney, business]
+tags: [lead-gen, painting, sydney, business, painting-os]
 created: 2026-07-03
-updated: 2026-07-08
+updated: 2026-07-12
 ---
 
 # پروژه: Lead-نقاشی
@@ -34,8 +34,19 @@ updated: 2026-07-08
 
 ## Active workstreams
 
-1. آزمایش #۱: کشف segment — کدام بخش (residential/strata/builder) بیشترین ارزش per lead می‌دهد. 2. احیای brushline بعد از rotation. 3. تعمیر symlink دیتا.
-4. **🦵 پا (Worker) ساخته شد (Phase 4 · L-0/L-1، 2026-07-08):** `_ops/legs/lead_leg.py` — `LeadLeg(Leg)` حلقهٔ paper را می‌راند: `intake` → `draft_quote` (با attribution_id) → `claim` (CLAIMED نه CONFIRMED) → `reconcile` (CSV اپراتور). **propose-only:** پا فقط draft تولید می‌کند؛ هر تماس/ارسال/پول human-gated (از کانالِ P3 تلگرام). **گیتِ P4 عبور شد:** اولین دلارِ paper با attributionِ درست CONFIRMED شد (تستِ `t_paper_dollar_full_cycle`). ایزولاسیون طبقِ INV-17: read-allowlist فقط به نوت‌های این پروژه، `secrets=[]`، `spawn=0`. **فعلاً incubating** (organ هنوز در `budgets.yaml` نیست — ⚑ برای معمار).
+1. **🎨 Painting-OS — محصول اصلی بیزنس نقاشی (2026-07-12, P1-P3 ساخته شده):**
+   - **P1 کوتیشن:** `pricing.py` + `lead_quote.py` — نرخ‌های واقعی سیدنی ($18-65/m²)، QuoteIntake 14 فیلدی، QT-YYYYMMDD-NNN
+   - **P2 فاکتور:** `invoice.py` — ATO Tax Invoice، ABN، GST 10%، INV-FY{YY}-{NNN}، PAID از attribution CONFIRMED
+   - **P3 ایمیل:** `email_inbound.py` — Gmail OAuth readonly، flag-gated (OCTOPUS_WIRE_EMAIL)، parse_lead_from_email
+   - **reconcile v2:** گروه‌بندی CSV بر lead_id → پرداخت جزئی (deposit + balance)
+   - **42 تست سبز** (pricing 10 + lead_quote 9 + lead_intake 6 + invoice 8 + email 9)
+   - **محدودیت‌ها:** propose-only، $0 stdlib-only، صفر راز جدید، backward-compat
+   - **نقشهٔ راه ۱۰ مرحله‌ای:** `کاریابی/08_Painting-OS_Roadmap_v2.md`
+   - **تحقیق بازار:** ServiceM8 ($29-79)، Tradify ($70+/user)، AroFlo ($120+)، QuoteIQ ($150-700 USD)، hipages ($129+/ماه)
+
+2. **🦵 پا (Worker):** `_ops/legs/lead_leg.py` — `LeadLeg(Leg)` حلقهٔ paper: `intake` → `draft_quote` → `claim` → `reconcile`. **propose-only:** فقط draft تولید؛ ارسال/پول human-gated. اولین دلارِ paper CONFIRMED شد.
+
+3. آزمایش #۱: کشف segment — کدام بخش بیشترین ارزش per lead می‌دهد.
 
 ## KPIs
 
@@ -64,15 +75,18 @@ updated: 2026-07-08
 
 ## Progress
 
-- چه کار می‌کند: زیرساخت brushline موجود؛ چارچوب آزمایش تعریف شد
-- چه مانده: rotation، آزمایش #۱، pipeline با دیتای واقعی
-- مشکلات شناخته: symlink خراب paint-data؛ هیچ لید ساختاریافته ثبت نشده
+- چه کار می‌کند: Painting-OS P1-P3 کامل (کوتیشن + فاکتور + ایمیل) · زیرساخت brushline · چارچوب آزمایش
+- چه مانده: وایر `/lead` تلگرام · Gmail OAuth E2E · فرم وب‌سایت · PDF کوتیشن · فاکتور خودکار · داشبورد · SEO
+- مشکلات شناخته: ABN واقعی هنوز وارد نشده · Gmail token هنوز صادر نشده
 
 ## Next actions
 
-- [ ] rotation کلیدها (مالک): Anthropic + Telegram (revoke در BotFather) + Tavily + PlanningAlerts + Serper → مقادیر جدید در `کاریابی/bot/.env`
-- [ ] شروع آزمایش #۱
+- [ ] وایر `/lead` تلگرام → `parse_lead_intake()` + `render_quote_html()` (مرحله ۱ roadmap)
+- [ ] پر کردن ABN واقعی در `budgets.yaml` (مرحله ۲ roadmap)
+- [ ] Gmail OAuth token → تست E2E ایمیل لید (مرحله ۳ roadmap)
+- [ ] rotation کلیدها (مالک): Anthropic + Telegram + Tavily + PlanningAlerts + Serper
 - [x] تعمیر symlink (2026-07-03)
+- [x] Painting-OS P1-P3 ساخته و تست شده (2026-07-12)
 
 ## نوت‌های مرتبط
 
@@ -80,3 +94,5 @@ updated: 2026-07-08
 - [[03 - Projects/Lead-نقاشی/Report - Lead-نقاشی - Sydney Lead Channels 2026|Report - Sydney Lead Channels 2026]]
 - [[03 - Projects/Lead-نقاشی/knowledge-base|knowledge-base]] · [[03 - Projects/Lead-نقاشی/AiFarm-Lead/ARCHITECTURE_MASTER|AiFarm ARCHITECTURE_MASTER]]
 - [[03 - Projects/Lead-نقاشی/Lead-نقاشی|لاگ پیام‌های تلگرام]]
+- [[03 - Projects/Lead-نقاشی/کاریابی/07_Painting-OS_P1_Quotation_Design|P1 Quotation Design]]
+- [[03 - Projects/Lead-نقاشی/کاریابی/08_Painting-OS_Roadmap_v2|10-Stage Roadmap v2]]
