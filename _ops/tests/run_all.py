@@ -57,10 +57,25 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_route_scorer.py", "test_calibration_probe.py", "test_consolidate.py",
          "test_execution_board.py", "test_depth_guard.py", "test_guidance_box.py",
          "test_tg_api.py", "test_tg_render.py", "test_tg_center.py",
-         "test_code_autonomy.py"]
+         "test_code_autonomy.py",
+         "test_ziman_leg.py",
+         "test_ziman_phase2.py",
+         "test_ziman_wiring.py",
+         "test_ziman_biology.py",
+         "test_cartographer_leg.py",
+         "test_cartographer_wiring.py",
+         ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
                HERE.parents[1] / "07 - Knowledge" / "school-memory" / "test_curriculum.py"]
+
+# این فایل‌ها pytest-style هستند (fixtureهای monkeypatch/tmp_path) و اجرای مستقیمشان
+# سبزِ دروغین می‌دهد. run_all باید واقعاً pytest را اجرا کند.
+PYTEST_TESTS = {
+    "test_ziman_leg.py", "test_ziman_phase2.py",
+    "test_ziman_wiring.py", "test_ziman_biology.py",
+    "test_cartographer_leg.py", "test_cartographer_wiring.py",
+}
 
 if __name__ == "__main__":
     failed = []
@@ -68,8 +83,10 @@ if __name__ == "__main__":
         p = HERE / t          # نام‌های نسبیِ TESTS → _ops/tests؛ EXTRA_TESTSِ absolute دست‌نخورده می‌ماند
         label = p.name
         print(f"\n── {label} " + "─" * (60 - len(label)))
-        r = subprocess.run([sys.executable, "-X", "utf8", str(p)],
-                           cwd=str(p.parent), timeout=300)
+        cmd = ([sys.executable, "-X", "utf8", "-m", "pytest", "-q", str(p)]
+               if label in PYTEST_TESTS else
+               [sys.executable, "-X", "utf8", str(p)])
+        r = subprocess.run(cmd, cwd=str(p.parent), timeout=300)
         if r.returncode != 0:
             failed.append(label)
     print("\n" + "=" * 66)

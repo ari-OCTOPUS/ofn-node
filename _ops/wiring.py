@@ -10,6 +10,7 @@ Flags (همه پیش‌فرض خاموز):
   OCTOPUS_WIRE_TELEGRAM=1  → TelegramApprovalChannel (auto-on اگر توکن باشد)
   OCTOPUS_WIRE_UNIFIED=1   → UnifiedBus.publish به ledger+chrono
   OCTOPUS_WIRE_LEAD=1      → LeadLeg (incubating تا organ در budgets.yaml)
+  OCTOPUS_WIRE_ZIMAN=1     → ZimanLeg (organ=ZIMAN؛ propose-only، D4 capacity)
   (W-1 germline_lag همیشه روشن — flag لازم ندارد، فقط read-only enrichment)
 
 additive؛ stdlib-only؛ kill-switch مطلق (هر حلقه اول STOP را چک می‌کند).
@@ -40,7 +41,8 @@ def flag(name: str) -> bool:
 # spectral). پول/live جدا و همچنان capability-gated (profile آن را باز نمی‌کند).
 PAPER_FULL_FLAGS = (
     "OCTOPUS_WIRE_DOCTOR", "OCTOPUS_WIRE_NEURAL", "OCTOPUS_WIRE_UNIFIED",
-    "OCTOPUS_WIRE_LEAD", "OCTOPUS_WIRE_SCHOOL", "OCTOPUS_WIRE_CONSOLIDATION",
+    "OCTOPUS_WIRE_LEAD", "OCTOPUS_WIRE_ZIMAN", "OCTOPUS_WIRE_SCHOOL",
+    "OCTOPUS_WIRE_CONSOLIDATION",
     "OCTOPUS_WIRE_EVOLUTION", "OCTOPUS_WIRE_BOX", "OCTOPUS_WIRE_LEAD_TICK",
     "OCTOPUS_WIRE_IDEAS",
     "OCTOPUS_WIRE_SPECTRAL",   # P-spectral: complementary spectral bottleneck
@@ -191,6 +193,42 @@ def make_lead_leg():
         return None
 
 
+def make_ziman_leg():
+    """ساختِ ZimanLeg. پشتِ OCTOPUS_WIRE_ZIMAN.
+    organ=ZIMAN از budgets.yaml (floor AU$1) — money_link active وقتی organ موجود.
+    propose-only + D4 capacity؛ هیچ publish/send/spend.
+    """
+    if not flag("OCTOPUS_WIRE_ZIMAN"):
+        return None
+    try:
+        sys.path.insert(0, str(_HERE / "legs"))
+        sys.path.insert(0, str(_HERE / "budget"))
+        from ziman_leg import ZimanLeg, default_packet
+        return ZimanLeg(default_packet(), organ_table=opslib.organ_table())
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"wiring: ZimanLeg ساخت نشد: {e}"])
+        return None
+
+
+def make_cartographer_leg():
+    """ساختِ CartographerLeg. پشتِ OCTOPUS_WIRE_CARTOGRAPHER.
+    ⚠️ عمداً در PAPER_FULL_FLAGS نیست → پیش‌فرض خاموش (incubating) تا verdictِ مالک (گام ۵).
+    read-only floor، propose-only ceiling؛ هیچ send/publish/spend. organ=CARTOGRAPHER در
+    budgets نیست → money_link=incubating (هرگز بودجه رزرو نمی‌کند).
+    """
+    if not flag("OCTOPUS_WIRE_CARTOGRAPHER"):
+        return None
+    try:
+        sys.path.insert(0, str(_HERE / "legs"))
+        sys.path.insert(0, str(_HERE / "budget"))
+        from cartographer_leg import CartographerLeg, default_packet
+        return CartographerLeg(default_packet(), organ_table=opslib.organ_table())
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"wiring: CartographerLeg ساخت نشد: {e}"])
+        return None
+
+
+
 # ════════════════════════════════════════════════════════════════════════════════
 # W · spinal cord (نخاع) — organism ↔ LiveLoop/UnifiedBus (P-W1)
 # ════════════════════════════════════════════════════════════════════════════════
@@ -259,6 +297,70 @@ def publish_tick_signals(live_loop, *, beat=None, neural_result=None,
 # ════════════════════════════════════════════════════════════════════════════════
 # L · LeadLeg autonomous loop — HLC + ack + propose-only (P-L1)
 # ════════════════════════════════════════════════════════════════════════════════
+
+def ziman_beat(ziman_leg, beat: int = 0) -> dict | None:
+    """یک ضربان محلی برای ZimanLeg؛ فقط status + proposalهای داخلی.
+
+    برخلاف ``leg_beat`` برای Lead، زیمان هنوز به HLC/Pacemaker متصل نیست: کار آن
+    inventory/content intelligence است، نه intake مالی. این seam عمداً فقط
+    ``ZimanLeg.tick()`` را فرا می‌خواند و نتیجه را برای ORGANISM-STATE برمی‌گرداند.
+    STOP/HALT همیشه مقدم است؛ هیچ Telegram/publish/send/spend از این مسیر وجود ندارد.
+    """
+    if not flag("OCTOPUS_WIRE_ZIMAN"):
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    if ziman_leg is None:
+        return None
+    try:
+        result = ziman_leg.tick()
+        status = result.get("status", {}) if isinstance(result, dict) else {}
+        return {
+            "leg_id": status.get("leg_id", "ziman-gallery"),
+            "organ": status.get("organ", "ZIMAN"),
+            "money_link": status.get("money_link", "incubating"),
+            "capacity_ceiling_per_week": status.get("capacity_ceiling_per_week", 0),
+            "inventory_hint": status.get("inventory_hint"),
+            "drafts_count": status.get("drafts_count", 0),
+            "proposals_delta": result.get("proposals_delta", 0),
+            "proposals_total": result.get("proposals_total", 0),
+            "propose_only": True,
+            "outward_execution": False,
+            "beat": beat,
+        }
+    except Exception as e:  # noqa: BLE001 — یک limb نباید ارگانیسم را بکشد
+        opslib.alert([f"wiring: ziman_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
+def cartographer_beat(cartographer_leg, beat: int = 0) -> dict | None:
+    """یک ضربانِ سبک برای CartographerLeg — فقط status (سنتینلِ کهنگیِ نقشه).
+    پشتِ OCTOPUS_WIRE_CARTOGRAPHER (پیش‌فرض خاموش). STOP/HALT مقدم. content-free.
+    خودِ beat هیچ emit/mutate نمی‌کند؛ propose_refresh فقط on-demand صدا زده می‌شود.
+    هیچ Telegram/publish/send/spend از این مسیر نیست."""
+    if not flag("OCTOPUS_WIRE_CARTOGRAPHER"):
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    if cartographer_leg is None:
+        return None
+    try:
+        s = cartographer_leg.tick()
+        return {
+            "leg_id": s.get("leg_id", "vault-cartographer"),
+            "organ": s.get("organ", "CARTOGRAPHER"),
+            "money_link": s.get("money_link", "incubating"),
+            "autonomy_floor": "read-only",
+            "read_only": True,
+            "proposals_total": s.get("proposals_emitted", 0),
+            "propose_only": True,
+            "outward_execution": False,
+            "beat": beat,
+        }
+    except Exception as e:  # noqa: BLE001 — یک limb نباید ارگانیسم را بکشد
+        opslib.alert([f"wiring: cartographer_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
 
 def leg_beat(lead_leg, pacemaker=None, beat: int = 0) -> dict | None:
     """هر tick: LeadLeg را در حلقهٔ ضربان بران — HLC محلی بزند + ack + کارِ propose-only.
@@ -1272,6 +1374,111 @@ def heartbeat_summary_beat(channel=None, beat: int = 0) -> dict | None:
 
 
 _DISCOVERY_STATE = {"last_epoch": -1}
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# Z · Ziman limb — ZimanLeg seam (propose-only، D4، organ=ZIMAN)
+# ════════════════════════════════════════════════════════════════════════════════
+
+_ZIMAN_STATE: dict = {"leg": None, "state_path": None}
+_ZIMAN_BEAT_EVERY_N = 60   # یک بار در هر ۶۰ beat (~۱h با tick=60s)
+
+
+def make_ziman_leg(organ_table: dict | None = None) -> "ZimanLeg | None":
+    """ساختِ ZimanLeg پشتِ OCTOPUS_WIRE_ZIMAN. fail-soft: None اگر flag خاموش یا import نشد.
+
+    organ_table قابلِ تزریق (تست بدونِ budgets.yaml). None = opslib.organ_table().
+    پا حداکثر یک‌بار در هر اجرا ساخته می‌شود (singleton slab، ذخیره در _ZIMAN_STATE)."""
+    if not flag("OCTOPUS_WIRE_ZIMAN"):
+        return None
+    if _ZIMAN_STATE["leg"] is not None:
+        return _ZIMAN_STATE["leg"]
+    try:
+        sys.path.insert(0, str(_HERE / "legs"))
+        sys.path.insert(0, str(_HERE / "budget"))
+        from ziman_leg import ZimanLeg   # noqa: WPS433 — lazy import (not at module level)
+        table = organ_table
+        if table is None:
+            try:
+                table = opslib.organ_table()
+            except Exception:  # noqa: BLE001
+                table = {"ZIMAN": {"floor": 1}}
+        leg = ZimanLeg(organ_table=table)
+        _ZIMAN_STATE["leg"] = leg
+        _ZIMAN_STATE["state_path"] = opslib.STATE_DIR / "ORGANISM-STATE.ziman"
+        return leg
+    except Exception as e:  # noqa: BLE001 — additive: pا نباید organism را بکشد
+        opslib.alert([f"wiring: ZimanLeg ساخت نشد: {type(e).__name__}: {e}"])
+        return None
+
+
+def ziman_beat(leg=None, beat: int = 0, doctor=None) -> dict | None:
+    """یک tick سبک از ZimanLeg پشتِ OCTOPUS_WIRE_ZIMAN.
+
+    قرارداد:
+    * propose-only: هیچ publish/send/spend/DM داخل این تابع نیست.
+    * هر ZIMAN_BEAT_EVERY_N beat وضعیت را به ORGANISM-STATE.ziman می‌نویسد.
+    * اگر leg نیاید، make_ziman_leg() را یک‌بار امتحان می‌کند.
+    * خروجی dict با کلیدهای ثابت (برای test_ziman_wiring) یا None.
+    * kill-switch اول.
+    """
+    if not flag("OCTOPUS_WIRE_ZIMAN"):
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    every_n = int(os.environ.get("CHRONO_ZIMAN_EVERY_N_BEATS", str(_ZIMAN_BEAT_EVERY_N)))
+    if every_n > 0 and beat > 0 and beat % every_n != 0:
+        return None
+    _leg = leg
+    if _leg is None:
+        _leg = make_ziman_leg()
+    if _leg is None:
+        return None
+    try:
+        snap = _leg.status_snapshot()
+        digest = _leg.telegram_digest()
+        biology = None
+        try:
+            sys.path.insert(0, str(_HERE / "legs"))
+            from ziman_biology import biology_beat  # noqa: WPS433 — lazy adapter
+            biology = biology_beat(_leg, beat=beat, doctor=doctor)
+            if biology is not None and hasattr(_leg, "accept_biology_status"):
+                _leg.accept_biology_status(biology)
+        except Exception as _bioe:  # noqa: BLE001 — biology advisory must fail-soft
+            opslib.alert([f"wiring: ziman biology خطا: {type(_bioe).__name__}: {_bioe}"])
+        result = {
+            "leg_id": snap.get("leg_id", "ziman-gallery"),
+            "organ": snap.get("organ", "ZIMAN"),
+            "money_link": snap.get("money_link", "?"),
+            "capacity_ceiling": snap.get("capacity_ceiling_per_week"),
+            "inventory_hint": snap.get("inventory_hint"),
+            "drafts_count": snap.get("drafts_count", 0),
+            "propose_only": True,
+            "outward_execution": False,
+            "beat": beat,
+            "digest": digest,
+            "biology": biology,
+        }
+        # ORGANISM-STATE.ziman — وضعیت پایدار برای organism و داشبورد
+        sp = _ZIMAN_STATE.get("state_path")
+        if sp is None:
+            sp = opslib.STATE_DIR / "ORGANISM-STATE.ziman"
+            _ZIMAN_STATE["state_path"] = sp
+        try:
+            sp.parent.mkdir(parents=True, exist_ok=True)
+            tmp = sp.with_suffix(".ziman.tmp")
+            import json as _json
+            tmp.write_text(_json.dumps(
+                {**result, "updated_at": opslib.now_iso()},
+                ensure_ascii=False, indent=2
+            ), "utf-8")
+            os.replace(tmp, sp)
+        except (OSError, TypeError, ValueError):
+            pass
+        return result
+    except Exception as e:  # noqa: BLE001 — §۴: Ziman نباید tick را بکشد
+        opslib.alert([f"wiring: ziman_beat خطا: {type(e).__name__}: {e}"])
+        return None
 
 
 def discovery_nudge_beat(channel=None, beat: int = 0) -> dict | None:

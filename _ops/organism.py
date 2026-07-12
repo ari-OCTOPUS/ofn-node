@@ -164,6 +164,8 @@ def main() -> int:
     _sensory_bus = None
     _bus = None
     _leg = None
+    _ziman_leg = None
+    _cartographer_leg = None
     _live_loop = None
     _idea_graph = None
     _pacemaker = None   # P-L1: نمونهٔ Pacemaker (HLC/ackِ LeadLeg). در boot پر می‌شود.
@@ -197,6 +199,8 @@ def main() -> int:
         _wire = _w.wire_summary()
         # W-3 (2026-07-10): پا پیش از کانال ساخته می‌شود تا /lead از مسیرِ LeadLeg.intake برود
         _leg = _w.make_lead_leg()
+        _ziman_leg = _w.make_ziman_leg()
+        _cartographer_leg = _w.make_cartographer_leg()   # default-off flag → None تا گام ۵
         _chan = _w.make_telegram_channel(leg=_leg)   # auto-on اگر توکن
         # T-8: شروعِ long-poll thread برای دریافتِ پیام‌های تلگرام
         if _chan is not None:
@@ -412,6 +416,29 @@ def main() -> int:
                                               beat=_cstat.get("beat", 0) if _cstat else 0)
                 except Exception as _le:  # noqa: BLE001 — §۴: leg نباید tick را بکشد
                     opslib.alert([f"leg_beat error (non-fatal): {type(_le).__name__}: {_le}"])
+            # ── Ziman limb: local proposal-only beat. جدا از Lead/HLC است تا
+            # status و D4-gated inventory proposals به state برسند، بدون اجرای بیرونی.
+            _ziman_status = None
+            if not _protective_skip and _ziman_leg is not None:
+                try:
+                    _ziman_status = _w.ziman_beat(
+                        _ziman_leg,
+                        beat=_cstat.get("beat", 0) if _cstat else 0,
+                        doctor=_doctor_inst)
+                except Exception as _ze:  # noqa: BLE001 — limb نباید tick را بکشد
+                    opslib.alert([f"ziman_beat error (non-fatal): {type(_ze).__name__}: {_ze}"])
+
+            # ── Cartographer limb: read-only map-staleness sentinel. پشتِ
+            # OCTOPUS_WIRE_CARTOGRAPHER (پیش‌فرض خاموش) → None تا فعال‌سازیِ مالک. inert.
+            _cartographer_status = None
+            if not _protective_skip and _cartographer_leg is not None:
+                try:
+                    _cartographer_status = _w.cartographer_beat(
+                        _cartographer_leg,
+                        beat=_cstat.get("beat", 0) if _cstat else 0)
+                except Exception as _ce:  # noqa: BLE001 — limb نباید tick را بکشد
+                    opslib.alert([f"cartographer_beat error (non-fatal): {type(_ce).__name__}: {_ce}"])
+
             # ── I (P-I): موتورِ ایده-گراف — هر N beat گرافِ vault را تحلیل کن.
             # هاب‌ها/خوشه‌ها/پل‌ها/یال‌های پیشنهادی. propose-only مطلق (هیچ effector).
             if not _protective_skip and _idea_graph is not None and _cstat is not None:
@@ -461,6 +488,8 @@ def main() -> int:
                           **pulse, **prot_state,
                           "protective_skip": _protective_skip, "wiring": _wire,
                           **({"leg": _leg_status} if _leg_status else {}),
+                          **({"ziman": _ziman_status} if _ziman_status else {}),
+                          **({"cartographer": _cartographer_status} if _cartographer_status else {}),
                           **({"heart": _heart_status} if _heart_status else {}),
                           **({"cardiac": _cardiac_mod.status_snapshot()}
                              if _cardiac_mod is not None else {})})

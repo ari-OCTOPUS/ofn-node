@@ -104,7 +104,7 @@ roadmap_state:
   increment_1_governance: "done (342f001)"
   increment_2_manifest_ledger: "this file"
   step_3_code_leg: "done — _ops/legs/cartographer_leg.py + test_cartographer_leg.py (10/10); inert until wired"
-  step_4_wiring_tick: "pending"
+  step_4_wiring_tick: "done — wiring.make_cartographer_leg/cartographer_beat + organism seam + test_cartographer_wiring (6/6) + run_all; flag default-off (NOT in PAPER_FULL_FLAGS)"
   step_5_activation: "pending (owner verdict + rotation + per-domain audit)"
 
 safety:
