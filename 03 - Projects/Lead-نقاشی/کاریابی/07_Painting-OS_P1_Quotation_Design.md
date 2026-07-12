@@ -1,7 +1,9 @@
 # Painting-OS — P1 Quotation Design (پایه + ایراد + پرامپت‌های تحقیقاتی)
 
 > **تاریخ:** 2026-07-12  
-> **وضعیت:** propose-only · فلگ‌خاموش · صفر تغییر کد  
+> **وضعیت:** ✅ P1 ساخته‌شده · propose-only · فلگ‌خاموش  
+> **کامیت:** `de16794` (worktree) · `reconcile v2` در `_ops/budget/`  
+> **تست‌ها:** ۲۳/۲۳ سبز (pricing 10 + lead_quote 9 + lead_draft 4)  
 > **بستر:** LeadLeg + attribution + reconcile (کد موجود) + OPS-01 Framework (مشخصات)  
 
 ---
@@ -121,7 +123,38 @@ $250k جریمه — گارد بینِ کشف و ایمیل.
 
 ---
 
-## ۵. پرامپت‌های تحقیقاتی
+## ۵. نتایجِ تحقیق (۲۰۲۶-۰۷-۱۲)
+
+### ساختار کوتِ AU
+- فرمت استاندارد: header (business name, ABN, quote#) + scope + line items + GST + terms
+- Residential معمولاً price all-inclusive؛ Commercial جدا labor vs material
+- اعتبار: ۳۰–۹۰ روز
+- **NSW Home Building Act §8:** بیعانه نهایتاً **۱۰٪** از کل قرارداد
+- >AUD 5,000: قرارداد کتبی الزامی، Consumer Building Guide
+
+### نرخ‌های سیدنی (AUD/m²)
+| نوع | standard | premium |
+|---|---|---|
+| Interior wall | $18–30 | $30–45 |
+| Interior ceiling | $20–35 | $35–50 |
+| Exterior wall | $22–40 | $40–65 |
+| Hourly rate | $65–95/hr | $65–95/hr |
+| Per room (interior) | $400–1,200 | — |
+
+**Sources:** [hipages](https://hipages.com.au/article/how_much_do_painters_cost), [service.com.au](https://www.service.com.au/articles/painters/how-much-does-house-painting-cost), [painters.edu.au](https://painters.edu.au/Consumer-Information/House-painting-cost-calculator.htm), [thequoteyard.com.au](https://www.thequoteyard.com.au/services/painter-pricing-guide-2026-nsw)
+
+### ATO Tax Invoice
+- عبارت "Tax Invoice" الزامی (اگر GST registered)
+- ABN الزامی · >$1,000: ABN یا نام خریدار الزامی
+- GST 10% روی تمام sales > $82.50
+- پاسخ ظرف ۲۸ روز
+- اگر GST registered نیست: "Invoice" نه "Tax Invoice"
+
+### Gmail OAuth
+- Scope: `https://www.googleapis.com/auth/gmail.readonly` (least-privilege)
+- Free tier: 1B quota units/day; 250/sec/user
+- Internal app (under 100 users): "Testing" status → بدون verification
+- **توصیه:** Google Cloud project + OAuth consent screen = "Testing" + readonly scope
 
 ### P-R1: ساختار و ترمِ کوتِ AU
 > در صنعت نقاشی ساختمان سیدنی 2026، ساختار استانداردِ کوتیشن شامل چه ردیف‌هایی است؟ تفکیک labor vs material رایج است؟ آیا quoting per room یا per m² رایج‌تر؟ حداکثرِ بیعانه قانونی NSW چند درصد است و آیا باید separate invoice برای بیعانه صادر شود؟
@@ -142,5 +175,7 @@ $250k جریمه — گارد بینِ کشف و ایمیل.
 واقعی و شدنی — چون بیشترش **سیم‌کشیِ ماشینی است که ارگانیسم از قبل دارد**، نه ماشینِ نو. با P1+P2 و ارسالِ دستی + CSVِ reconcile، درآمدِ واقعیِ end-to-end بدونِ رازِ نو و بدونِ اتوماسیون داری.
 
 **تصمیم‌های موردِ نیاز از مالک:**
-1. مدلِ بیعانه/پرداختِ جزئی؟ (راه‌حل A/B/C)
-2. از P1 (کوتیشن) شروع کنم بسازم — یا اول یکی از پرامپت‌های تحقیقاتی را اجرا کنم؟
+1. ~~مدلِ بیعانه/پرداختِ جزئی؟~~ ✅ راه‌حل A: reconcile v2 — جمع CSV ردیف‌ها
+2. ~~از P1 (کوتیشن) شروع کنم بسازم؟~~ ✅ ساخته‌شده (`de16794`)
+
+**قدم بعدی:** P2 (اینویس) یا اتصالِ `/lead` تلگرام به `create_quote` (intake ساختاریافته)
