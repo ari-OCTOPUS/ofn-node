@@ -67,12 +67,13 @@ kill_switch: "§Security Gate (ROTATION_CHECKLIST) → autonomyِ مؤثر=read-
 ## چک‌لیستِ کاملِ‌بودنِ لیمب (OLP-1 §۱۱)
 ✅ Owner/Authority روشن · ✅ Source-of-truth (repoِ واقعی) · ✅ Risk tier (R1) · ✅ Hard gates · ✅ Autonomy floor/ceiling · ✅ Obsidian map (خروجیِ کانونی) · ✅ اتصالِ sanitised (propose-only، صفر echo)
 ✅ **Manifest ماشین‌خوان** (`vault-cartographer.manifest.yaml` — Increment 2) · ✅ **Anchor-Ledger contract** (binding تعریف‌شده — Increment 2)
-⏳ code leg در `_ops/legs/` (گام ۳؛ emitِ زنده اینجا سیم می‌شود) · ⏳ wiring + tick (گام ۴) · ⏳ ثبتِ verdictِ مالک برای «live» (گام ۵)
+✅ **code leg** `_ops/legs/cartographer_leg.py` + تست ۱۰/۱۰ (گام ۳؛ inert تا wiring)
+⏳ wiring + tick در `_ops/wiring.py`+`organism.py` پشتِ `OCTOPUS_WIRE_CARTOGRAPHER` (گام ۴؛ emitِ زنده اینجا فعال می‌شود) · ⏳ ثبتِ verdictِ مالک برای «live» (گام ۵)
 
 ## روادمپِ «آروم آروم» (هر گام گیت‌دار)
 1. **Increment 1 — عضویتِ حکمرانی (این جلسه، انجام‌شده):** registry row + index + limb-contract + parent + floor/ceiling. صفر کد، صفر deploy.
 2. ✅ **گام ۲ — manifest + Anchor-Ledger contract (این جلسه، انجام‌شده):** `vault-cartographer.manifest.yaml` (ماشین‌خوان، zero-PII) + بایندینگِ ledger به `_ops/events.py` (قرارداد، نه emitِ زنده). §Anchor-Ledger contract بالا.
-3. **گام ۳ — code leg (گیت‌دار):** اسکلتِ `_ops/legs/cartographer_leg.py` بر الگوی `lead_leg` — پایهٔ `Leg`، `TaskPacket` با `read_allowlist` + `secrets=()` + `spawn=0`، **بدونِ متدِ send/publish/pay**، خروجی فقط `emit_proposal`. پشتِ flag `OCTOPUS_WIRE_CARTOGRAPHER` (incubating چون organ در budgets نیست). + تست‌های آفلاین. **verdictِ مالک لازم.**
+3. ✅ **گام ۳ — code leg (این جلسه، انجام‌شده):** `_ops/legs/cartographer_leg.py` (`CartographerLeg(Leg)` — سنتینلِ کهنگیِ نقشه: `default_packet` با allowlistِ باریک + `secrets=()` + `spawn=0` + budget 0، **بدونِ send/publish/pay**، `status_snapshot`/`map_staleness_check`(pure)/`propose_refresh`(proposal+ledger)/`tick`، emitter تزریق‌پذیر) + `_ops/tests/test_cartographer_leg.py` **۱۰/۱۰ سبز**. **inert:** هیچ ارجاعی در wiring/organism ندارد → در production اجرا نمی‌شود تا گام ۴. ledgerِ واقعی دست‌نخورده (۰ ورودی).
 4. **گام ۴ — wiring + tick (گیت‌دار):** `make_cartographer_leg()` در `wiring.py` + (اختیاری) beatِ کم‌فرکانس برای «architecture-drift pulse». پشتِ flag، paper-first، یک هفته shadow.
 5. **گام ۵ — activation:** فقط verdictِ صریحِ مالک + عبور از rotation/audit (قاعدهٔ deploy AGENT_REGISTRY §۴).
 

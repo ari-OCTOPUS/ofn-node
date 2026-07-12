@@ -70,7 +70,7 @@ ledger:
     summary/next_action carry only generic phrasing + citation refs (file:line) — never
     secret/identity/content; events.py _BANNED_ECHO scrub is the backstop.
   correlation: "one trace_id per cartography run; idempotency_key = run content digest"
-  binding_status: "contract-defined; NOT yet wired (no emit() calls until the code leg, step 3)"
+  binding_status: "leg implements the emit contract (injectable emitter, content-free); still NOT wired into organism — live emit begins at step 4"
 
 kill_switches:
   - "§Security Gate (ROTATION_CHECKLIST) → effective autonomy = read-only"
@@ -103,7 +103,7 @@ sources_of_truth:
 roadmap_state:
   increment_1_governance: "done (342f001)"
   increment_2_manifest_ledger: "this file"
-  step_3_code_leg: "pending owner verdict"
+  step_3_code_leg: "done — _ops/legs/cartographer_leg.py + test_cartographer_leg.py (10/10); inert until wired"
   step_4_wiring_tick: "pending"
   step_5_activation: "pending (owner verdict + rotation + per-domain audit)"
 
