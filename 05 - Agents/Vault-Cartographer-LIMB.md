@@ -54,13 +54,24 @@ kill_switch: "§Security Gate (ROTATION_CHECKLIST) → autonomyِ مؤثر=read-
 - ✅ واژگانِ limb/OLP-1 + `parent: Architect/_ops` صریح (همین سند).
 - ✅ رفعِ ناسازگاریِ autonomy: floor=read-only / ceiling=propose-only (بدنهٔ شناسنامه).
 
+## Anchor-Ledger contract (Increment 2 — تعریف‌شده، هنوز سیم‌نشده)
+هر اجرای نقشه‌برداری باید یک ردِ ساختاریافته در Anchor Ledger بگذارد (قاعدهٔ سراسریِ AGENT_REGISTRY §۲: «هر اکشن = ورودیِ ledger»). قرارداد:
+- **module/sink:** `_ops/events.py` → `state/events.jsonl` (append-only، content-free، scrubِ `_BANNED_ECHO`).
+- **`agent_id`:** `vault-cartographer` · **event_names:** `task.started/completed/failed/blocked` + `approval.required`.
+- **`enrich=true`:** زمینهٔ control-plane (owner/risk_tier) از `state/registry/registry-latest.json` می‌چسبد.
+- **approval policy:** هر پیشنهادی که موضوعِ گیت‌دار را لمس کند → `approval_state=required` (هرگز auto).
+- **content rule:** فقط عبارتِ عمومی + citation (file:line)؛ هرگز secret/هویت/محتوا.
+- **binding status:** فقط **قرارداد** است؛ تماسِ واقعیِ `emit()` با code leg (گام ۳) می‌آید.
+- قراردادِ ماشین‌خوانِ کامل: `05 - Agents/vault-cartographer.manifest.yaml` (فایلِ YAML — لینکِ ویکی نیست).
+
 ## چک‌لیستِ کاملِ‌بودنِ لیمب (OLP-1 §۱۱)
 ✅ Owner/Authority روشن · ✅ Source-of-truth (repoِ واقعی) · ✅ Risk tier (R1) · ✅ Hard gates · ✅ Autonomy floor/ceiling · ✅ Obsidian map (خروجیِ کانونی) · ✅ اتصالِ sanitised (propose-only، صفر echo)
-⏳ Manifest ماشین‌خوان (اختیاری برای read-limb) · ⏳ code leg در `_ops/legs/` (گام ۳) · ⏳ ثبتِ verdictِ مالک برای «live» · ⏳ Anchor-Ledger wiring (گام ۴)
+✅ **Manifest ماشین‌خوان** (`vault-cartographer.manifest.yaml` — Increment 2) · ✅ **Anchor-Ledger contract** (binding تعریف‌شده — Increment 2)
+⏳ code leg در `_ops/legs/` (گام ۳؛ emitِ زنده اینجا سیم می‌شود) · ⏳ wiring + tick (گام ۴) · ⏳ ثبتِ verdictِ مالک برای «live» (گام ۵)
 
 ## روادمپِ «آروم آروم» (هر گام گیت‌دار)
 1. **Increment 1 — عضویتِ حکمرانی (این جلسه، انجام‌شده):** registry row + index + limb-contract + parent + floor/ceiling. صفر کد، صفر deploy.
-2. **گام ۲ — قرارداد + Anchor-Ledger:** یک بلوکِ manifest ماشین‌خوان (اختیاری) + قاعدهٔ «هر اجرا → ورودیِ ledger» (طبق AGENT_REGISTRY §قواعد سراسری). propose-only.
+2. ✅ **گام ۲ — manifest + Anchor-Ledger contract (این جلسه، انجام‌شده):** `vault-cartographer.manifest.yaml` (ماشین‌خوان، zero-PII) + بایندینگِ ledger به `_ops/events.py` (قرارداد، نه emitِ زنده). §Anchor-Ledger contract بالا.
 3. **گام ۳ — code leg (گیت‌دار):** اسکلتِ `_ops/legs/cartographer_leg.py` بر الگوی `lead_leg` — پایهٔ `Leg`، `TaskPacket` با `read_allowlist` + `secrets=()` + `spawn=0`، **بدونِ متدِ send/publish/pay**، خروجی فقط `emit_proposal`. پشتِ flag `OCTOPUS_WIRE_CARTOGRAPHER` (incubating چون organ در budgets نیست). + تست‌های آفلاین. **verdictِ مالک لازم.**
 4. **گام ۴ — wiring + tick (گیت‌دار):** `make_cartographer_leg()` در `wiring.py` + (اختیاری) beatِ کم‌فرکانس برای «architecture-drift pulse». پشتِ flag، paper-first، یک هفته shadow.
 5. **گام ۵ — activation:** فقط verdictِ صریحِ مالک + عبور از rotation/audit (قاعدهٔ deploy AGENT_REGISTRY §۴).
