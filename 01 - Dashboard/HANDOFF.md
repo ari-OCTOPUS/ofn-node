@@ -1,9 +1,45 @@
 ---
 type: handoff
-updated: 2026-07-11
+updated: 2026-07-14
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
+
+## 2026-07-14 (Claude Code) — فایل‌گذاریِ تحقیقِ گم‌شدهٔ Mining + تناقضِ عددِ سخت‌افزار
+
+کاربر مسیر `03 - Projects/Mining/04 - Research/Quantum Physics Dataset/new data` را داد. آن پوشه واقعاً برای مقالاتِ کوانتوم است (تأییدشده در INDEX.md)؛ ولی `new data.txt` یک پیستِ خامِ AI-chat (۱۳۳۲ خط) دربارهٔ استراتژیِ ماینینگِ CPU/ARM + Solana DeFi بود — کاملاً بی‌ربط به کوانتوم، احتمالاً فقط اشتباهِ محلِ ذخیره.
+
+**کارهای انجام‌شده (همه additive، فقط فایل‌گذاری/مستندسازی — هیچ کدی لمس نشد):**
+- فایل به `03 - Projects/Mining/04 - Research/2026-07-14 1512 solar-swarm-mining-research.md` منتقل شد + frontmatter/provenance اضافه شد.
+- `Mining/INDEX.md`، `Mining/PROJECT.md` (Active Context + Assets + Open blockers + Next actions)، `Mining/OpenQuestions.md` (دو سؤالِ نو #۶/#۷) به‌روزشدند.
+
+**⚠️ مهم‌ترین یافته برای مالک:** تحقیقِ تازه ۱۶ Orange Pi 5 Pro + ۱۴۰ ESP32 + ۲ FPGA (۱۶۲ نود) را «already bought» فرض می‌کند — این با فرضِ فعلیِ پروژه («۶ نود» طبق config قدیمیِ Hcash) در تناقضِ مستقیم است. کدام درست است؟ رجیستریِ سخت‌افزار تا حلِ این تناقض کامل نمی‌شود. همان تحقیق یک چیدمانِ دوسایتهٔ سیدنی+ایران هم پیشنهاد می‌دهد (فقط تحقیق/پیش‌نویس، D-10/D-20 دست‌نخورده) — جزئیات در [[03 - Projects/Mining/OpenQuestions|OpenQuestions]] #۶/#۷.
+
+## 2026-07-12 (Cowork Claude) — بک‌لاگِ ۲۰۲۷ #۱-۴ ساخته شد (رأیِ مالک «کدهاشو بساز»؛ اجرا/تست‌رانی Windows-side مانده)
+
+طبقِ [[06 - Architecture Maps/2027 Standards Base & Backlog]] و [[00 - Inbox/build-proposals/08-agent-orchestration-durability-2026-07-05]]، چهار موردِ اولِ بک‌لاگ ساخته شد — همه additive، تست نوشته شد، ولی **اجرای واقعیِ تست‌ها این‌جا (سندباکسِ Cowork) به‌خاطرِ یک torn-mount شناخته‌نشده بلاک شد** (پایین توضیح).
+
+1. **✅ #۱ Fail-closed HumanAppendGuard — زنده شد.** کد (`strict=`/`HH_HUMAN_GUARD_STRICT`) از قبل در `_ops/budget/human_append_guard.py:70-167` کامل بود؛ فقط `set HH_HUMAN_GUARD_STRICT=1` به `_ops/OCTOPUS-flags.cmd` اضافه شد. تست: `test_human_append_guard.py` **۱۵/۱۵** + `test_p0_security_fixes.py` **۱۰/۱۰** — هر دو واقعاً اجرا و سبز شدند (با `REAL_VAULT` صریح، پیش از کشفِ مشکلِ mount).
+2. **⚠️ #۲ (P-08) idempotency-key + run-journal — کد نوشته شد، اجرا نشد.** `_ops/chrono.py`: `EffectorGate.request_idempotent()` (exactly-once روی `idempotency_key`، ستونِ نو + migration در `ChronoDB._migrate_schema`؛ `request()` قدیمی دست‌نخورده). `_ops/durable_journal.py` (نو): run-journal سبک (`record/resume_point/incomplete_runs`)، به سه گامِ RFC در `_ops/doctor/doctor.py` (`run_sandbox`/`submit_for_approval`/`apply_merge`) وصل شد — فقط observability، fail-soft. تست‌های نو: `test_effector_idempotency.py`، `test_durable_journal.py`.
+3. **✅ #۳ enforcerِ زنده‌ی kill-switchِ drawdown — کد نوشته شد، پیش‌فرض shadow-count (خاموش عمداً).** `04 - Architect System/scripts/budget_gate.py`: `reserve()` حالا `recent_spend` را رصد می‌کند و اگر ٪ سقفِ روزانه در پنجرهٔ ۱ساعته از `spike_pct` (کفِ ۲۵، از yaml فقط سخت‌تر می‌شود) بگذرد، رویداد را در `drawdown-events.jsonl` لاگ می‌کند. `HH_DRAWDOWN_ENFORCE=1` (**عمداً در flags.cmd نیامد** — نزدیکِ پول) لازم است تا واقعاً `halted=True` بزند (همان مسیرِ fail-closed ِ موجود). `drawdown_status()` نمای فقط‌خواندنی برای dashboard/cockpit (هنوز جایی وصل نشده — فقط API آماده است). تست: `test_drawdown_enforcer.py` (۹ چک).
+4. **✅ #۹ بهداشتِ مسیرهای پرتابل — تمام شد.** همهٔ ۲۷ رخدادِ `REAL_VAULT / r"...\..."` (۲۶ فایلِ تست) به `REAL_VAULT / "a" / "b"` تبدیل شد (`test_box.py`, `test_leg.py`, `test_project_f.py`, `test_deep_pf.py`, و ۲۲ فایلِ دیگر — لیستِ کامل در دیفِ گیت). f-stringِ py3.12+ در `test_dashboard.py` که همان جلسه اشاره شده بود پیدا نشد — دست‌نخورده ماند.
+
+هر ۴ فایلِ تستِ نو در `run_all.py` ثبت شدند.
+
+**🔴 مشکلِ زیرساختی (باید قبل از commit حل شود):** نیمهٔ اول جلسه (مورد ۱) تست‌ها واقعاً روی سندباکسِ Cowork سبز اجرا شدند. بعد از چند ادیت به `chrono.py`، bash همان vault را **۶۸۸ خط/۳۵۶۴۳ بایت بریده** می‌دید (نسخهٔ واقعی ۷۵۶ خط، وسطِ یک رشتهٔ SQL قطع) درحالی‌که Read tool کاملاً سالم می‌خواند — دقیقاً همان کلاسِ باگِ «سندباکس فایلِ لمس‌شده را می‌بُرد» که جلسه‌های ۴۷/۴۸ قبلاً مستند کرده بودند. `git status` هم روی bash ده‌ها فایلِ کاملاً بی‌ربط (`.obsidian/*.json`، نوت‌های ۰۷-۰۴ تا ۰۷-۰۶) را M نشان داد و `.git/index.lock` موجود بود → **هیچ git/test از این سندباکس اجرا نشد** (موردِ ۲/۳/۴ فقط با بازخوانیِ دقیقِ خط‌به‌خط از Windows-side/Read-tool تایید شدند، نه با اجرای واقعی).
+
+**میزِ آری — قدمِ بعدی (فقط تو، Windows-side):**
+1. `cd F:\backup\_ops\tests && python -X utf8 test_effector_idempotency.py && python -X utf8 test_durable_journal.py && python -X utf8 test_drawdown_enforcer.py && python -X utf8 test_doctor.py && python -X utf8 test_budget_gate_v2.py`
+2. اگر سبز: `python -X utf8 run_all.py` کامل، بعد هر دو validator در `04 - Architect System/scripts/` (`find_broken_links.py`, `validate_frontmatter.py`).
+3. `git status`/`git diff` را خودت چک کن — احتمالاً `.git/index.lock` رهاشده از یک اجرای قطع‌شده است؛ اگر پروسه‌ای زنده نیست، حذفش کن. commit با `agent-checkpoint: 2027 backlog #1-4 (drawdown shadow, idempotency, journal, portable paths)` فقط بعد از سوییتِ سبز.
+4. تصمیم: `HH_DRAWDOWN_ENFORCE=1` کِی روشن شود (بعد از چند روز شاهدِ shadow-log)؟ `request_idempotent` هنوز جایی (Crypto/Lead leg) واقعاً صدا زده نمی‌شود — فقط API آماده است، migration خودِ caller ها کارِ جدا/رأیِ جداست.
+
+در `[[03 - Projects/Ziman Galerry/PROJECT]]`، فقط تغییرات محلی و additive انجام شد: `ziman-agent/phase2_cli.py` از syntax نامعتبرِ subparser با نام `--...` به CLI واقعی تبدیل شد؛ `--price` را reject می‌کند (ایجنت حقِ owner approval ندارد)؛ snapshot بدون revalidation ظرفیت را null نگه می‌دارد؛ `product.py` کارت‌های JSON خروجی CLI را می‌خواند و ATP را روی timestamp کهنه/naive/future fail-closed می‌کند. دو تست رگرسیون اضافه شد. همچنین `wiring.py` تکمیل شد: `make_ziman_leg()` و `ziman_beat()` که قبلاً وجود نداشتند اضافه شدند؛ `test_ziman_wiring.py` با تست‌های آفلاین بازنویسی شد؛ چهار فایل تست زیمان در `run_all.py` ثبت شد. Telegram/API/price/publish/spend فعال نشده است. **پیش از استفاده:**
+1. `cd /d "F:\backup\03 - Projects\Ziman Galerry\ziman-agent" && START-ZIMAN.bat`
+2. `cd /d F:\backup\_ops && RUN-ZIMAN-OCTOPUS-TESTS.bat`
+
+Biology delta: `_ops/legs/ziman_biology.py` implements heart read-model, SignalHub advisory snapshot, anomaly assessment and content-free Doctor trace. `organism.py` injects the existing Doctor into `ziman_beat`; Doctor remains sandbox/RFC-only and human-append is mandatory. Ziman is now registered in `cortex/innervation.py` as organ `ziman` with state `ORGANISM-STATE.ziman` and 120-minute SLA. Contract: `[[03 - Projects/Ziman Galerry/10-Interfaces/BIOLOGY-CONTRACT|BIOLOGY-CONTRACT]]`. No external action was activated.
+
 
 ## جلسه ۴۸ ادامه (~۱۵:۰۰) — 🧩 URCP Phase-1 (#۱۱–۱۳) ساخته شد: EventEnvelope + HeartState + Incident (رأی مالک «طراحی و اجرا»)
 

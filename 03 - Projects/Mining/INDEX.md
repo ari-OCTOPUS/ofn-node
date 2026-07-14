@@ -4,7 +4,7 @@ project: "[[03 - Projects/Mining/PROJECT]]"
 status: active
 tags: [mining, index]
 created: 2026-07-03
-updated: 2026-07-04
+updated: 2026-07-14
 ---
 
 # INDEX — فهرست کامل پوشه Mining
@@ -23,6 +23,24 @@ updated: 2026-07-04
 | `OpenQuestions.md` | کیت مغز پروژه — مجهول‌ها (نودها، بنچ H/s، profitability) |
 
 ## 01 - Docs — مستندات
+
+### Phase Status & Execution Plan
+| فایل | محتوا |
+|---|---|
+| `Phase Status - Execution Plan & Prompt v2.0.md` | **truth anchor** — Mining Leg فعال در اختاپوس (2026-07-12). `OCTOPUS_WIRE_MINING=1`. read-only, propose-only, secrets=(). VERDICT_QUEUE هنوز باز — leg فقط status گزارش می‌دهد. |
+| `NEXT_AGENT_HANDOFF_MINING_PREEXEC_v2.0.md` | **ایجنت بعدی اول این را بخواند.** v2.0 — وضعیت Leg فعال، ۱۰ مرحله بعدی، فایل‌های خواندنی، قواعد حاکمیتی، source-of-truth hierarchy، مکانیزم ری‌استارت، rollback. |
+| `NEXT_AGENT_HANDOFF_MINING_PREEXEC_v1.0.md` | نسخه v1.0 (pre-execution only) — فقط مرجع تاریخی |
+| `NEXT_AGENT_HANDOFF_MINING_PREEXEC_v1.0.md` | پرامپت کامل و دستورالعمل مهندس/ایجنت بعدی برای ادامه Sprint 01 در حالت report-only؛ شامل ممنوعیت‌ها، فایل‌های خواندنی، اولویت‌ها، acceptance criteria و خروجی مورد انتظار. |
+
+### 10-Step Roadmap — Competitive Intel & Execution
+| فایل | محتوا |
+|---|---|
+| `10-Step Roadmap — Competitive Intel & Execution.md` | **۱۰ مرحله بعدی + تحلیل ۱۲ رقیب بازار.** ترتیب دقیق: VERDICT → رقبا → ریگ‌ها → برق → ماینر → کوین → deploy → fleet → تلگرام → گزارش. |
+
+### Tentacle-Alpha v3.0 — Mining Intelligence Mega-Prompt
+| فایل | محتوا |
+|---|---|
+| `TENTACLE-ALPHA-MINING_Hybrid_MegaPrompt_v3.0.md` | مگا پرامپت ۷۶۷ خط، ۱۷ سکشن — ۸ ایجنت، OSINT v3، Black-Box v3، Audit Merkle-tree، Competitor Intel، Telegram interface، رودمپ ۱۶ هفته‌ای. **⚠️ حالا inactive — فقط spec فاز execution** |
 
 ### Strategy & Roadmap
 | فایل | محتوا |
@@ -50,6 +68,8 @@ updated: 2026-07-04
 | مورد | محتوا |
 |---|---|
 | `Ai bots/` | کدبیس اصلی ناوگان (۷۹ فایل py): `sentinel` (جمع‌آوری داده CryptoQuant/LunarCrush + تست‌ها + داده parquet)، `coordinator`، `fleet` (manager/watchdog/worker)، `QuantumAlphaBot` (داشبورد + ماژول‌ها)، `deploy` (systemd + esp32) |
+| `mining_preexec_mvp/` | **اسکلت پایه جدید ۲۰۲۶-۰۷-۱۲** — ابزار read-only / INFORM-only برای pre-execution: گیت‌های governance، validator رجیستری سخت‌افزار، loader verdict queue، الگوریتم‌کلاسیفایر CPU/ARM، draft coin scout، death-watch، تولید گزارش Markdown. شامل طرح اتصال به اختاپوس (`docs/OCTOPUS_LEG_DESIGN.md`) و ماتریس نیازمندی‌ها (`docs/OCTOPUS_LEG_REQUIREMENTS_MATRIX.md`). عمداً بدون SSH/deploy/wallet/miner-control. |
+| `_ops/legs/mining_leg.py` | پای runtime اختاپوس برای Mining با دو مغز: HardwareControlBrain + CoinDiscoveryBrain؛ از طریق `_ops/wiring.py` و `ORGANISM-STATE.mining` به Telegram Center وصل شده؛ پشت فلگ default-off `OCTOPUS_WIRE_MINING`. |
 | `Robo-data/` | نسل قبلی ربات‌ها: scout، tesseract v0.4 (DualTrack/PQC)، pqc_classifier، ربات sentinel اولیه + استراتژی‌ها (docx) و نوت‌های فارسی ایده‌ها |
 | `cryptoquant-scraper.zip` | اسکریپر دیتاست CryptoQuant |
 | `cryptoquant dump.pdf` | سورس‌کد cryptoquant_dump.py به‌صورت PDF |
@@ -67,12 +87,18 @@ updated: 2026-07-04
 
 `Quantum Physics Dataset/` (نام قبلی: «dataset Quantum physiscs») — ۷ مقاله/گزارش: نقشه‌راه فناوری کوانتومی CSIRO، گذار Quantum-Safe، اصول حاکمیت WEF، مقالات QAOA/quantum walks، دیتاست QDataSet برای ML، قوانین برنامه iPhD.
 
+| فایل | محتوا |
+|---|---|
+| `2026-07-14 1512 solar-swarm-mining-research.md` | خامِ AI-chat (جابجا از داخل پوشهٔ Quantum Physics Dataset — بی‌ربط موضوعی به آن) — رتبه‌بندی کوین‌های CPU/ARM (Salvium/CoinCync/Wownero/Ratio1...) + مگاپرامپت Solana DeFi + طرح تخصیص ۱۶ Orange Pi/۱۴۰ ESP32/۲ FPGA سیدنی+ایران. **⚠️ عدد سخت‌افزار (۱۶۲ نود) با فرض PROJECT.md (۶ نود) در تناقض** — [[03 - Projects/Mining/OpenQuestions|OpenQuestions]] #۶. |
+
 ## 05 - Media — تصاویر
 
 | پوشه | محتوا |
 |---|---|
 | `Pics/` | ۵۸ عکس (۲۷ فوریه ۲۰۲۶) + زیرپوشه خالی `s5` |
 | `photos/` | ۵ عکس (۱۴ و ۲۷ ژانویه ۲۰۲۶) |
+| `TENTACLE-ALPHA_Architecture_Diagram.png` | دیاگرام معماری ۴ لایه Tentacle-Alpha v3.0 (Hardware → Target → Tentacle → COO) |
+| `TENTACLE-ALPHA_Competitor_Matrix_2027.png` | ماتریس هوش رقابتی ۲۰۲۷ — ۴ چارت: نقشه رقبا، رادار تهدید، الگوریتم‌ها، رودمپ |
 
 ## _archive — موارد زائد (قابل حذف پس از بررسی)
 
