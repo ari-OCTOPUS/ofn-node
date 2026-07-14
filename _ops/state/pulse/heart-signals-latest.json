@@ -1,0 +1,57 @@
+{
+  "ts": "2026-07-14T13:58:59",
+  "velocity": {
+    "velocity_per_hr": 0.125,
+    "components": {
+      "confirmed": 0,
+      "effects": 0,
+      "consolidation": 3,
+      "beats": 0
+    },
+    "confirmed_ts": [],
+    "window_hours": 24.0,
+    "sample_size": 3,
+    "sources_available": [
+      "beats",
+      "confirmed",
+      "consolidation",
+      "effects"
+    ],
+    "authoritative": false,
+    "provenance": "external: reconcile-job/effector-gate/consolidation/pacemaker",
+    "ts": "2026-07-14T13:58:59"
+  },
+  "cpi": {
+    "cpi_0_1": 0.0,
+    "components": {
+      "suspect_zero": 0.0
+    },
+    "attribution_events": 0,
+    "sample_size": 1,
+    "authoritative": false,
+    "window_hours": 72.0,
+    "ts": "2026-07-14T13:58:59"
+  },
+  "delta_self": {
+    "stream_rows": 315,
+    "sample_size": 315,
+    "min_samples": 48,
+    "ts": "2026-07-14T13:58:59",
+    "delta_self_live": 0.0,
+    "delta_self_raw": -0.190881,
+    "S_blind": 0.0030768797512002516,
+    "S_informed": 0.004507209191506804,
+    "ceiling_live": 0.05,
+    "holdout_n": 158,
+    "authoritative": true,
+    "estimator": "proxy-OLS (نه P_closed کانونی — قفلِ P0 جدا می‌ماند)",
+    "provenance": "append-only velocity-stream (fixed-clock) + کوواریت‌های برون‌زاد",
+    "covariates": [
+      "confirmed",
+      "effects",
+      "hour"
+    ]
+  },
+  "schema": "heart-signals.v1",
+  "gate0_live_producer": true
+}

@@ -50,6 +50,7 @@ STOP_ARCHITECT = ARCHITECT / "STOP"            # kill کلان (governor_shadow 
 STOP_METABOLIC = OPS / "STOP-METABOLIC"
 STOP_DEBATE    = OPS / "STOP-DEBATE"
 STOP_ORGANISM  = OPS / "STOP-ORGANISM"
+HALT_ALL       = OPS / "HALT-ALL"          # 🔴 مرزِ سختِ سراسری (پنیک): هر حلقه/کانکتور/باتِ بیرونی بی‌استثنا honor می‌کند
 ALERTS_MD      = OPS / "governor" / "governor-alerts.md"     # همان مقصد governor_shadow
 HEARTBEAT_MD   = ORG_ROOT / "_memory" / "HEARTBEAT.md"       # صریحاً _memory ریشه (نه 04/_memory)
 AGENT_QUESTIONS = ORG_ROOT / "00 - Inbox" / "AGENT_QUESTIONS.md"
@@ -58,6 +59,12 @@ AGENT_QUESTIONS = ORG_ROOT / "00 - Inbox" / "AGENT_QUESTIONS.md"
 OFFBOX_DIR      = pathlib.Path(os.environ.get("GERMLINE_OFFBOX", r"E:\germline"))
 GERMLINE_WARN_H = 2.0
 GERMLINE_ERR_H  = 26.0
+
+# de-mask بک‌آپ (OBS-02): پرچمِ صریحِ شکستِ git-write. مصنوعِ mtime می‌تواند دروغ بگوید
+# (لاگی که کارِ شکست‌خورده «FAIL» به آن append می‌کند mtimeِ تازه دارد → بک‌آپِ مدام‌شکست‌خورده
+# سبز خوانده می‌شود). این پرچم تنها منبعِ حقیقتِ صریح است — تا امروز هیچ‌کس نمی‌خواندش.
+BACKUP_DIR      = OPS / "backup"
+GITWRITE_FAILED = BACKUP_DIR / "GITWRITE-FAILED.flag"
 
 
 def germline_lag_hours(offbox=None):
@@ -80,6 +87,78 @@ def germline_lag_hours(offbox=None):
         return None
     import time as _time
     return round((_time.time() - max(stamps)) / 3600.0, 2)
+
+
+def gitwrite_failed() -> str | None:
+    """دلیلِ شکستِ آخرین git-write اگر پرچمِ GITWRITE-FAILED.flag برافراشته باشد؛ وگرنه None.
+    (OBS-02: تا امروز هیچ مصرف‌کننده‌ای این پرچم را نمی‌خواند.) فقط می‌خواند، fail-soft — ولی
+    وجودِ فایل هرگز پنهان نمی‌شود: حتی اگر خواندنِ محتوا شکست بخورد، یک دلیلِ پیش‌فرض برمی‌گردد
+    (پرچمِ برافراشته باید همیشه ناسالم شود، نه سبزِ کاذب)."""
+    try:
+        if not GITWRITE_FAILED.exists():
+            return None
+    except OSError:
+        return None
+    try:
+        txt = GITWRITE_FAILED.read_text("utf-8", errors="replace")
+    except OSError:
+        txt = ""
+    txt = txt.lstrip("﻿").strip()          # BOMِ ویندوز/فاصلهٔ ابتدایی
+    first = txt.splitlines()[0].strip() if txt else ""
+    return first or "GITWRITE-FAILED (بدونِ دلیلِ متنی)"
+
+
+def backup_health(offbox=None) -> dict:
+    """سلامتِ بک‌آپ = تازگیِ germline (mtime) + پرچمِ صریحِ شکستِ git-write.
+    پرچمِ برافراشته همیشه غالب است و ناسالم می‌کند — صرف‌نظر از اینکه mtimeِ تازه سبز نشان دهد
+    (رفعِ OBS-02: لاگِ مدامِ FAIL دیگر سبزِ کاذب نمی‌سازد). فقط می‌خواند، fail-soft، بدونِ وابستگیِ نو.
+    خروجی: {healthy, level(ok|warn|err), lag_h, gitwrite_failed, reason}."""
+    try:
+        lag = germline_lag_hours(offbox)
+    except Exception:  # noqa: BLE001 — مشاهده هرگز حلقه را نمی‌کشد
+        lag = None
+    try:
+        failed = gitwrite_failed()
+    except Exception:  # noqa: BLE001
+        failed = None
+    # سطح از سنِ mtime (رفتارِ germline_lag_hours دست‌نخورده — فقط تفسیر می‌شود)
+    if lag is None:
+        lag_level, lag_reason = "err", "هیچ مصنوعِ germline در دسترس نیست"
+    elif lag >= GERMLINE_ERR_H:
+        lag_level, lag_reason = "err", f"germline lag {lag}h ≥ {GERMLINE_ERR_H}h"
+    elif lag >= GERMLINE_WARN_H:
+        lag_level, lag_reason = "warn", f"germline lag {lag}h ≥ {GERMLINE_WARN_H}h"
+    else:
+        lag_level, lag_reason = "ok", None
+    # پرچمِ صریحِ شکست غالب است — mtime هرچه باشد، ناسالم
+    if failed:
+        return {"healthy": False, "level": "err", "lag_h": lag,
+                "gitwrite_failed": failed, "reason": f"GITWRITE-FAILED: {failed}"}
+    return {"healthy": lag_level == "ok", "level": lag_level, "lag_h": lag,
+            "gitwrite_failed": None, "reason": lag_reason}
+
+
+def armed_activation_flags() -> list[str]:
+    """نامِ همهٔ ACTIVATION-*.flag ِ برافراشته در _ops (اهرمِ فعال‌سازیِ فقط-مالک؛ وجودِ فایل = verdict).
+    DSH-02: این کلیدها روی داشبورد نامرئی بودند. فقط می‌خواند، fail-soft."""
+    try:
+        return sorted(p.name for p in OPS.glob("ACTIVATION-*.flag"))
+    except OSError:
+        return []
+
+
+def halt_reason() -> str | None:
+    """اوراکلِ توقفِ سراسری برای نمایشِ داشبورد (fail-soft). اگر master_halted موجود بود
+    (مرزِ سختِ سراسری) از همان استفاده می‌کند — HALT-ALL ← STOP(architect)؛ وگرنه به halted()
+    برمی‌گردد (سازگارِ عقب: STOP معمار → 'STOP(architect)'). None = هیچ توقفِ سراسری.
+    این تابع فقط سطحِ نمایش است و master_halted را باز تعریف نمی‌کند (نه شرطِ توقف اضافه/کم)."""
+    fn = globals().get("master_halted")
+    try:
+        if callable(fn):
+            return fn()
+        return halted()
+    except Exception:  # noqa: BLE001
+        return None
 
 # فعال‌سازی زندهٔ مناظره/تکثیر پیش از این تاریخ ممنوع است (سپر pitch فاز −۱، پک §D.3)
 LIVE_GATE_DATE = _dt.date(2026, 7, 21)
@@ -199,15 +278,48 @@ def append_jsonl(path: pathlib.Path, record: dict) -> None:
 
 
 # ─── پرچم‌ها ─────────────────────────────────────────────────────────────────
-def halted(*, for_debate: bool = False) -> str | None:
-    """اولین دلیل توقف یا None. ترتیب = شدت."""
+def master_halted() -> str | None:
+    """🔴 مرزِ سختِ سراسری: دو سوییچی که هر حلقه/کانکتور/باتِ بیرونی **بی‌استثنا** honor
+    می‌کند. ترتیب = شدت (HALT-ALL ِ پنیک مقدم بر STOP ِ معمار). این تنها لایه‌ای است که
+    هیچ‌کس حق نادیده‌گرفتنش را ندارد — نه tg-center، نه launchpad، نه هیچ connector.
+    (رجوع: نقشهٔ کنترل‌پلین [[06 - Architecture Maps/CONTROL-PLANE-HALT-2026-07-13]].)"""
+    if HALT_ALL.exists():
+        return "HALT-ALL"
     if STOP_ARCHITECT.exists():
         return "STOP(architect)"
+    return None
+
+
+def halted(*, for_debate: bool = False) -> str | None:
+    """اولین دلیل توقف یا None. ترتیب = شدت؛ مرزِ سختِ سراسری (master_halted) همیشه مقدم است.
+    سازگارِ عقب: با STOP ِ معمار همچنان دقیقاً "STOP(architect)" برمی‌گرداند."""
+    m = master_halted()
+    if m:
+        return m
     if STOP_METABOLIC.exists():
         return "STOP-METABOLIC"
     if for_debate and STOP_DEBATE.exists():
         return "STOP-DEBATE"
     return None
+
+
+def raise_halt_all(reason: str) -> None:
+    """🔴 پنیک: مرزِ سختِ سراسری را می‌نویسد (idempotent). هر حلقه تیکِ بعد تمیز می‌ایستد.
+    آزادسازی فقط با clear_halt_all (مالک/پنل). کد این فایل را فقط از مسیرِ پنیکِ صریح می‌سازد
+    (هم‌الگو با نوشتنِ STOP-ORGANISM توسط dashboard/approval_channel)."""
+    HALT_ALL.parent.mkdir(parents=True, exist_ok=True)
+    if not HALT_ALL.exists():
+        HALT_ALL.write_text(f"{now_iso()} {reason}\n", "utf-8")
+    alert([f"HALT-ALL raised: {reason}"])
+
+
+def clear_halt_all() -> bool:
+    """آزادسازیِ مرزِ سخت. خروجی: آیا فایلی وجود داشت که آزاد شود."""
+    try:
+        HALT_ALL.unlink()
+        return True
+    except OSError:
+        return False
 
 
 def frozen() -> bool:

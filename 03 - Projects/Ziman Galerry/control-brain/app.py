@@ -1,0 +1,183 @@
+"""نقطهٔ ورودِ مغزِ کنترل.
+
+حالت‌ها:
+  python app.py                 → داشبورد وب + (اگر رمز تلگرام باشد) ربات. رمزِ KeePassXC یک‌بار پرسیده می‌شود.
+  python app.py status          → وضعیت همه
+  python app.py start demo      → روشن‌کردن (رمزهای پروژه تزریق می‌شوند)
+  python app.py stop demo
+  python app.py test demo
+  python app.py halt | resume
+  python app.py secrets-check    → بررسیِ اینکه همهٔ رمزهای موردنیاز در KeePassXC هستند (بدون نمایشِ مقدار)
+
+محلِ نگه‌داریِ حالت با CONTROL_STATE_DIR قابل‌تغییر است (توصیه: بیرون از vault)."""
+import os
+import sys
+from pathlib import Path
+
+from core.manager import ProjectManager
+from core.authz import Authz
+from core.registry import Registry
+from core.runner import ProcessRunner
+from core.safety import SafetyGate
+from core.store import Store
+
+ROOT = Path(__file__).resolve().parent
+
+
+def _load_env() -> None:
+    env = ROOT / ".env"
+    if not env.exists():
+        return
+    for line in env.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, _, v = line.partition("=")
+        os.environ.setdefault(k.strip(), v.strip())
+
+
+def _state_dir() -> Path:
+    return Path(os.environ.get("CONTROL_STATE_DIR") or ROOT)
+
+
+def _under_octopus() -> bool:
+    """آیا زیر چترِ اختاپوس اجرا می‌شویم؟ اگر بله، باتِ تلگرامِ جدا بالا نمی‌آید —
+    رابطِ تلگرام از gatewayِ مرکزیِ اختاپوس (approval_channel) می‌رود تا تصادمِ
+    getUpdates 409 رخ ندهد. سیگنال: ZIMAN_UNDER_OCTOPUS=1 یا OCTOPUS_WIRE_ZIMAN=1."""
+    return (os.environ.get("ZIMAN_UNDER_OCTOPUS", "0") == "1"
+            or os.environ.get("OCTOPUS_WIRE_ZIMAN", "0") == "1")
+
+
+def _build_secrets():
+    """اگر KEEPASS_DB تنظیم شده باشد، فایل KeePassXC را باز می‌کند؛ وگرنه None."""
+    kdbx = os.environ.get("KEEPASS_DB", "").strip()
+    if not kdbx:
+        return None
+    keyfile = os.environ.get("KEEPASS_KEYFILE", "").strip() or None
+    pw = os.environ.get("KEEPASS_PASSWORD", "")
+    if not pw:
+        import getpass
+        pw = getpass.getpass("🔐 رمزِ اصلیِ KeePassXC (یک‌بار): ")
+    from core.secrets import KeePassSecrets
+    try:
+        return KeePassSecrets(kdbx, pw, keyfile)
+    except Exception as e:  # noqa: BLE001
+        print(f"❌ باز کردنِ فایلِ رمزها نشد: {e}")
+        raise SystemExit(1)
+
+
+def _build_authz(registry):
+    users_yaml = ROOT / "config" / "users.yaml"
+    owner = int(os.environ.get("OWNER_CHAT_ID") or registry.owner_chat_id or 0)
+    if users_yaml.exists():
+        az = Authz.from_yaml(users_yaml)
+        if az.all_users():
+            adm = az.admin()
+            if adm and not adm.telegram_chat_id and owner:
+                adm.telegram_chat_id = owner
+            return az
+    return Authz.seeded_admin(owner, "admin")
+
+
+def build_context(secrets=None):
+    state = _state_dir()
+    registry = Registry(ROOT / "config" / "projects.yaml")
+    store = Store(state / "data" / "state.db")
+    safety = SafetyGate(store, state / "STOP")
+    authz = _build_authz(registry)
+    manager = ProjectManager(registry, store, safety, ProcessRunner(), secrets=secrets, authz=authz)
+    return registry, store, safety, manager, authz
+
+
+def _secrets_check(registry, secrets) -> None:
+    if secrets is None:
+        print("ℹ️ KEEPASS_DB تنظیم نشده — لایهٔ رمز غیرفعال است.")
+        return
+    missing = False
+    for p in registry.all():
+        for env_var, ref in (p.secrets or {}).items():
+            ok = secrets.has(ref)
+            missing = missing or (not ok)
+            print(f"{'✅' if ok else '❌'} {p.id}: {env_var} ← «{ref}»")
+    print("\nهمهٔ رمزها پیدا شد ✅" if not missing else "\nبعضی رمزها در KeePassXC نیستند ❌")
+
+
+def cli(action: str, args) -> None:
+    _load_env()
+    need_secrets = action in ("start", "test", "secrets-check")
+    secrets = _build_secrets() if need_secrets else None
+    registry, store, safety, manager, authz = build_context(secrets=secrets)
+    actor = authz.admin()
+    if action == "status":
+        if safety.is_halted():
+            print("⛔ قفل ایمنی روشن است.")
+        for s in manager.status_all(actor):
+            print(f"- {s.name} [{s.state}] فعال={s.enabled} شناسه={s.pid or '-'} {s.detail}")
+    elif action == "secrets-check":
+        _secrets_check(registry, secrets)
+    elif action in ("start", "stop", "test") and args:
+        pid = args[0]
+        if action == "test":
+            ok, out = manager.test(pid, actor)
+            print(("✅ سبز" if ok else "❌ قرمز") + f"\n{out}")
+        else:
+            r = getattr(manager, action)(pid, actor)
+            print(f"{r.name}: {r.detail} [{r.state}]")
+    elif action == "users":
+        for u in authz.all_users():
+            print(f"- {u.id}: {u.name} [{u.role.value}] chat={u.telegram_chat_id or '-'} فعال={u.enabled}")
+    elif action == "halt":
+        safety.halt("از خط فرمان"); print("⛔ متوقف شد.")
+    elif action == "resume":
+        safety.resume(); print("✅ ادامه.")
+    else:
+        print(__doc__)
+
+
+def serve() -> None:
+    _load_env()
+    secrets = _build_secrets()   # رمزِ KeePassXC یک‌بار همین‌جا پرسیده می‌شود
+    registry, store, safety, manager, authz = build_context(secrets=secrets)
+    from adapters.dashboard import start_dashboard
+
+    port = int(os.environ.get("DASHBOARD_PORT", "8770"))
+    start_dashboard(manager, safety, store=store, port=port)
+    print(f"🌐 داشبورد: http://127.0.0.1:{port}")
+    if secrets:
+        print("🔐 لایهٔ رمزها فعال است (KeePassXC).")
+
+    token = os.environ.get("TELEGRAM_TOKEN", "").strip()
+    owner = int(os.environ.get("OWNER_CHAT_ID") or registry.owner_chat_id or 0)
+    if _under_octopus():
+        # زیرِ اختاپوس: باتِ جدا بالا نمی‌آید (وگرنه getUpdates 409 با gatewayِ مرکزی).
+        # رابطِ تلگرامِ زیمان از approval_channelِ اختاپوس می‌رود؛ اینجا فقط داشبورد.
+        print("🐙 زیرِ اختاپوس: باتِ تلگرامِ جدا خاموش است — رابط از gatewayِ مرکزیِ "
+              "اختاپوس می‌رود (تصادمِ 409 پیشگیری شد). داشبورد بالاست.")
+        import time
+        try:
+            while True:
+                time.sleep(3600)
+        except KeyboardInterrupt:
+            print("خداحافظ.")
+    elif token and owner:
+        from adapters import telegram_bot
+        telegram_bot.set_token(token)
+        app = telegram_bot.build_application(manager, safety, owner,
+                                             store=store, authz=authz)
+        print("🤖 ربات تلگرام روشن شد. در تلگرام /status بزن.")
+        app.run_polling()
+    else:
+        print("ℹ️ رمز تلگرام یا آی‌دی مالک تنظیم نشده — فقط داشبورد بالاست. (Ctrl+C برای خروج)")
+        import time
+        try:
+            while True:
+                time.sleep(3600)
+        except KeyboardInterrupt:
+            print("خداحافظ.")
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        cli(sys.argv[1], sys.argv[2:])
+    else:
+        serve()

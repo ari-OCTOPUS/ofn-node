@@ -26,6 +26,14 @@ if str(_OPS / "budget") not in sys.path:
 import opslib  # noqa: E402
 
 MODEL_PATH = opslib.STATE_DIR / "cortex" / "self-model.json"
+# ── طرفِ «خود» برای واسنجیِ برخط (ORPH-SELF-CLAIMS) ────────────────────────────
+# calibration_probe فقط این لِجِر را می‌خواند و هرگز خودش نمی‌نویسدش؛ اینجا تنها
+# تولیدکننده است. رکورد: {key, confidence∈[0,1], ts, ...} — دقیقاً شِمایی که
+# calibration_probe._load_claims انتظار دارد (key + confidence). هم‌مسیر با
+# calibration_probe.CLAIMS.
+SELF_CLAIMS_PATH = opslib.STATE_DIR / "cortex" / "self-claims.jsonl"
+# همان فلگی که calibration_probe استفاده می‌کند — خاموش (پیش‌فرض) = صفر نوشتن.
+SELF_MONITOR_FLAG = "CORTEX_SELF_MONITOR"
 # دفاعِ عمقی: حتی داخلِ _ops هم الگوهای حساس را رد کن (هم‌راستا با .agentignore)
 _SKIP_PAT = re.compile(r"(secret|wallet|seed|\.env|key)", re.I)
 _SKIP_DIRS = {"__pycache__", "state", "secrets-export", "node_modules", ".git"}
@@ -107,6 +115,55 @@ def summarize(model: dict, max_modules: int = 12) -> str:
     return "\n".join(lines)
 
 
+def _self_monitor_on() -> bool:
+    """فلگِ CORTEX_SELF_MONITOR روشن؟ (وجود/truthy = روشن — دقیقاً منطقِ calibration_probe)."""
+    v = str(os.environ.get(SELF_MONITOR_FLAG, "")).strip().lower()
+    return v not in ("", "0", "false", "no", "off")
+
+
+def _self_claims(model: dict) -> list[dict]:
+    """ادعاهای صادقانهٔ خود را از سیگنال‌های واقعیِ نقشهٔ خود بساز.
+
+    تنها سیگنالِ [0,1]-پذیرِ موجود، «خودآگاهیِ سند» است (نسبتِ ماژول‌های دارای
+    داکِ‌استرینگ) — یک پروکسیِ راستِ انسجام/خوداکتشافی. هیچ چیزی جعل نمی‌شود؛ اگر
+    self_awareness_pct نبود، ادعایی صادر نمی‌شود. calibration_probe این را با
+    حقیقتِ بیرونیِ لِجِرها (نه با خودِ ادعا) گرید می‌کند."""
+    claims: list[dict] = []
+    ts = opslib.now_iso()
+    pct = model.get("self_awareness_pct")
+    if isinstance(pct, (int, float)):
+        conf = max(0.0, min(1.0, float(pct) / 100.0))
+        claims.append({
+            "key": "self_model.coherence",           # key ماتِ پایدار (بی‌محتوای خصوصی)
+            "confidence": round(conf, 6),
+            "ts": ts,
+            "source": "self_model",
+            "schema": "self-claim.v1",
+        })
+    return claims
+
+
+def emit_self_claims(model: dict) -> int:
+    """ادعاهای خود را زیرِ فلگ به self-claims.jsonl الحاق کن (تولیدکنندهٔ ORPH-SELF-CLAIMS).
+
+    فلگ خاموش (پیش‌فرض) → صفر نوشتن (byte-identical). fail-soft: هر خطا بلعیده
+    می‌شود تا حلقهٔ فراخوان هرگز نمیرد. خروجی = تعدادِ رکوردهای نوشته‌شده."""
+    if not _self_monitor_on():
+        return 0
+    try:
+        written = 0
+        for claim in _self_claims(model):
+            opslib.append_jsonl(SELF_CLAIMS_PATH, claim)
+            written += 1
+        return written
+    except Exception as e:  # noqa: BLE001 — تولیدِ ادعا هرگز run_and_persist را نمی‌کشد
+        try:
+            opslib.alert([f"self_model emit_self_claims failed: {e}"])
+        except Exception:  # noqa: BLE001
+            pass
+        return 0
+
+
 def run_and_persist(root: Path | None = None) -> dict:
     """ساخت + نوشتنِ اتمیک. خروجیِ کوچک برای لاگ/کورتکس."""
     model = build_model(root)
@@ -116,9 +173,11 @@ def run_and_persist(root: Path | None = None) -> dict:
             lj.write(model)
     except Exception as e:  # noqa: BLE001
         return {"ok": False, "error": str(e)}
+    claims_written = emit_self_claims(model)   # زیرِ فلگ؛ خاموش → صفر اثر، fail-soft
     return {"ok": True, "n_modules": model["n_modules"],
             "total_lines": model["total_lines"],
-            "self_awareness_pct": model["self_awareness_pct"]}
+            "self_awareness_pct": model["self_awareness_pct"],
+            "self_claims_written": claims_written}
 
 
 if __name__ == "__main__":

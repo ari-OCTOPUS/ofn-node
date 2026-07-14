@@ -1,0 +1,31 @@
+# کاربران و نقش‌ها (فاز ۱ چند-کاربره). نقش‌ها: admin | operator | viewer
+# - admin: همه‌کار روی همهٔ پروژه‌ها + مدیریت + رمز + halt/resume.
+# - operator: فقط start/stop/test روی پروژه‌های assign‌شده (owner/allowed در projects.yaml).
+# - viewer: فقط دیدنِ وضعیت.
+# فعلاً فقط تو (ادمین) هستی → رفتار دقیقاً مثلِ تک‌کاربرهٔ قبلی است.
+# telegram_chat_id را با آی‌دیِ عددیِ خودت پر کن (همان OWNER_CHAT_ID) تا در تلگرام شناخته شوی.
+#
+# ziman_role (اختیاری): نقشِ حاکمیتِ زیمان — owner | admin | viewer.
+#   owner = SahebZiman، تنها تأییدکنندهٔ RED. اگر خالی باشد از role مشتق می‌شود
+#   (adminِ کنترل → owner؛ operator/viewer → viewer). fail-closed: اختیارِ approve
+#   خودکار داده نمی‌شود مگر صراحتاً.
+
+users:
+  - id: admin
+    name: "آری (ادمین)"
+    role: admin
+    ziman_role: owner        # SahebZiman — تنها تأییدکنندهٔ RED
+    telegram_chat_id: 0
+    enabled: true
+
+  # نمونه‌های آینده (خاموش تا وقتی بخواهی) — id را یکتا نگه‌دار:
+  # - id: mom
+  #   name: "مامان (تولید)"
+  #   role: viewer
+  #   telegram_chat_id: 0
+  #   enabled: true
+  # - id: helper
+  #   name: "دستیارِ مارکتینگ"
+  #   role: operator
+  #   telegram_chat_id: 0
+  #   enabled: true

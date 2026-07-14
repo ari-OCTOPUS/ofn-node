@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>دنیای ارگان‌ها · Organs World</title>
+<style>
+  *{margin:0;box-sizing:border-box}
+  html,body{height:100%;background:#05060a;overflow:hidden;touch-action:none;overscroll-behavior:none;font-family:-apple-system,"Segoe UI",Tahoma,sans-serif;color:#e5e7eb}
+  #g{position:fixed;inset:0}
+  .top{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:6;pointer-events:none;text-align:right}
+  .top b{font-size:15px;font-weight:700;color:#a5b4fc;display:block;text-shadow:0 0 10px #6366f1aa}
+  .top span{font-size:11px;color:#6b7280}
+  .legend{position:fixed;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 30px);z-index:6;display:flex;flex-wrap:wrap;gap:4px 10px;max-width:70%;font-size:10.5px;color:#cbd5e1;pointer-events:none}
+  .legend i{display:inline-flex;align-items:center;gap:4px}
+  .legend b{width:8px;height:8px;border-radius:50%}
+  .foot{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);left:12px;right:12px;z-index:6;display:flex;gap:12px;align-items:center;font-size:10.5px;color:#5b6270;direction:ltr}
+  .foot a{color:#818cf8;text-decoration:none;font-size:12px;pointer-events:auto}
+</style>
+</head>
+<body>
+<div id="g"></div>
+<div class="top"><b>دنیای ارگان‌ها — organism/_ops</b><span>هر خوشه = یک پوشه/ارگان · یال‌ها = [[wikilink]]های واقعی</span></div>
+<div class="legend" id="legend"></div>
+<div class="foot"><a href="index.html">‹ hub</a><span id="st"></span></div>
+<script src="graph-data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script>window.THREE||document.write('<script src="https://unpkg.com/three@0.128.0/build/three.min.js">\x3C/script>');</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>(window.THREE&&THREE.OrbitControls)||document.write('<script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js">\x3C/script>');</script>
+<script>
+const G=window.OCTOPUS_GRAPH;
+const scene=new THREE.Scene(); scene.fog=new THREE.FogExp2(0x05060a,0.004);
+const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,2000); camera.position.set(0,40,150);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(innerWidth,innerHeight);
+renderer.setClearColor(0x05060a,1); document.getElementById('g').appendChild(renderer.domElement);
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true; controls.autoRotate=true; controls.autoRotateSpeed=0.5; controls.minDistance=60; controls.maxDistance=400;
+scene.add(new THREE.AmbientLight(0xffffff,0.6));
+const dl=new THREE.DirectionalLight(0xffffff,0.6); dl.position.set(40,60,40); scene.add(dl);
+
+// cluster centers per folder on a fibonacci sphere
+const groups=G.groups.map(g=>g.name);
+const gi={}; groups.forEach((g,i)=>gi[g]=i);
+const centers=groups.map((g,i)=>{ const k=i+0.5, phi=Math.acos(1-2*k/groups.length), th=Math.PI*(1+Math.sqrt(5))*k;
+  const R=70; return new THREE.Vector3(R*Math.cos(th)*Math.sin(phi), R*(Math.cos(phi))*0.7, R*Math.sin(th)*Math.sin(phi)); });
+
+const pos=[]; const col=[];
+const P=new Array(G.nodes.length);
+for(let i=0;i<G.nodes.length;i++){ const n=G.nodes[i]; const c=centers[gi[n.g]]||new THREE.Vector3();
+  const r=8+Math.sqrt(n.d)*1.5; const p=c.clone().add(new THREE.Vector3((Math.random()-0.5)*r,(Math.random()-0.5)*r,(Math.random()-0.5)*r));
+  P[i]=p; pos.push(p.x,p.y,p.z); const cc=new THREE.Color(n.c); col.push(cc.r,cc.g,cc.b); }
+const pg=new THREE.BufferGeometry(); pg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+pg.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+scene.add(new THREE.Points(pg,new THREE.PointsMaterial({size:2.6,vertexColors:true,transparent:true,opacity:0.95,sizeAttenuation:true})));
+
+// edges
+const ep=[]; const ec=[];
+for(const e of G.edges){ const a=P[e[0]],b=P[e[1]]; ep.push(a.x,a.y,a.z,b.x,b.y,b.z);
+  for(let t=0;t<2;t++){ec.push(0.35,0.5,0.7);} }
+const eg=new THREE.BufferGeometry(); eg.setAttribute('position',new THREE.Float32BufferAttribute(ep,3));
+eg.setAttribute('color',new THREE.Float32BufferAttribute(ec,3));
+scene.add(new THREE.LineSegments(eg,new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.10})));
+
+// core organism
+const core=new THREE.Mesh(new THREE.IcosahedronGeometry(7,1),
+  new THREE.MeshStandardMaterial({color:0xffffff,emissive:0x6366f1,emissiveIntensity:0.5,flatShading:true}));
+scene.add(core);
+const cl=new THREE.PointLight(0x818cf8,1.2,300); scene.add(cl);
+
+// pulses along a sample of edges (data moving between organs)
+const pulses=[]; const sample=G.edges.filter((_,i)=>i%40===0).slice(0,36);
+sample.forEach(e=>{ const s=new THREE.Mesh(new THREE.SphereGeometry(1.1,8,8),new THREE.MeshBasicMaterial({color:0xe0e7ff}));
+  s.userData={a:P[e[0]],b:P[e[1]],t:Math.random(),sp:0.2+Math.random()*0.3}; scene.add(s); pulses.push(s); });
+
+// legend
+const lg=document.getElementById('legend');
+G.groups.slice(0,8).forEach(g=>{const el=document.createElement('i');el.innerHTML='<b style="background:'+g.color+'"></b>'+g.name.replace(/^\d+ - /,'')+' ('+g.n+')';lg.appendChild(el);});
+document.getElementById('st').textContent=G.total_files+' notes · '+G.groups.length+' organs';
+
+const clock=new THREE.Clock();
+function animate(){ requestAnimationFrame(animate); const dt=clock.getDelta();
+  core.rotation.y+=0.3*dt; core.scale.setScalar(1+Math.sin(clock.elapsedTime*2)*0.08);
+  pulses.forEach(p=>{ p.userData.t=(p.userData.t+dt*p.userData.sp)%1; p.position.lerpVectors(p.userData.a,p.userData.b,p.userData.t); });
+  controls.update(); renderer.render(scene,camera);
+}
+animate();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+</script>
+</body>
+</html>

@@ -33,6 +33,60 @@ PORT = int(os.environ.get("LIVE_PORT", "8773"))
 STATE = opslib.STATE_DIR
 PORTS = {"organism": 8771, "cortex": 8772, "ollama": 11434, "dashboard": 8770}
 
+# ORPH-* — سطح‌نماییِ فقط‌خواندنیِ سه آرتیفکتِ سایه که نوشته می‌شدند ولی خوانده نمی‌شدند
+# (calibration-latest · work-health · route-decisions). پرچمِ default-off: خاموش = صفر اثر،
+# صفر خواندن، خروجیِ JSON بایت‌به‌بایت مثلِ الان. روشن = فقط رصدپذیری (هیچ نوشتن/رفتار).
+DEADWRITE_FLAG = "OCTOPUS_WIRE_DEADWRITE_CARDS"
+
+
+def _deadwrite_flag_on() -> bool:
+    v = str(os.environ.get(DEADWRITE_FLAG, "")).strip().lower()
+    return v not in ("", "0", "false", "no", "off")
+
+
+def deadwrite_shadows() -> dict:
+    """سه آرتیفکتِ سایه را فقط می‌خواند و خلاصهٔ کوچک برمی‌گرداند (ORPH-CALIB-LATEST /
+    ORPH-WORK-HEALTH / ORPH-ROUTE-DECISIONS). نبودِ هر فایل → present:false (—/absent).
+    fail-soft مطلق: هیچ خطایی صداکننده را نمی‌کشد. صفر نوشتن."""
+    out = {"calibration": {"present": False},
+           "work_health": {"present": False},
+           "route_decisions": {"present": False}}
+    try:
+        cal = _read_json(STATE / "cortex" / "calibration-latest.json")
+        if cal:
+            out["calibration"] = {
+                "present": True, "n": cal.get("n"), "brier": cal.get("brier"),
+                "aurc": cal.get("aurc"), "abstain_below": cal.get("abstain_below"),
+                "ungraded": cal.get("ungraded"),
+                "age_min": _age_min(STATE / "cortex" / "calibration-latest.json"),
+            }
+    except Exception:  # noqa: BLE001 — رصد هرگز داشبورد را نمی‌کشد
+        pass
+    try:
+        wh = _read_json(STATE / "pulse" / "work-health.json")
+        if wh:
+            out["work_health"] = {
+                "present": True, "sigma": wh.get("sigma"),
+                "period_shadow_s": wh.get("period_shadow_s"), "gate0": wh.get("gate0"),
+                "wire_open": wh.get("wire_open"), "month_aud": wh.get("month_aud"),
+                "suspect_zero": wh.get("suspect_zero"),
+                "age_min": _age_min(STATE / "pulse" / "work-health.json"),
+            }
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        tail = _tail_jsonl(STATE / "cortex" / "route-decisions.jsonl", 6)
+        if tail:
+            out["route_decisions"] = {
+                "present": True, "n": len(tail),
+                "recent": [{"tier": r.get("tier"), "task": (r.get("task") or "")[:60],
+                            "est_cost": r.get("est_cost")} for r in tail[-5:]],
+                "age_min": _age_min(STATE / "cortex" / "route-decisions.jsonl"),
+            }
+    except Exception:  # noqa: BLE001
+        pass
+    return out
+
 
 def _read_json(p: Path):
     try:
@@ -348,6 +402,22 @@ def ops_state() -> dict:
             st["heartstate"] = heartstate.build()             # #۱۲ — telemetry ِ read-only (بدونِ نوشتن)
         except Exception:  # noqa: BLE001
             st["heartstate"] = {}
+        try:
+            # مرزِ سختِ توقفِ سراسری + اهرم‌های فعال‌سازی (DSH-02) — فقط‌خواندنی، fail-soft
+            st["halt"] = {"reason": opslib.halt_reason(),
+                          "flags": opslib.armed_activation_flags()}
+        except Exception:  # noqa: BLE001
+            st["halt"] = {}
+        try:
+            st["backup"] = opslib.backup_health()             # OBS-02 — شکستِ git-write دیگر سبزِ کاذب نیست
+        except Exception:  # noqa: BLE001
+            st["backup"] = {}
+        try:
+            # ORPH-* — فقط پشتِ پرچمِ default-off؛ خاموش = کلید اضافه نمی‌شود (بایت‌همسان)
+            if _deadwrite_flag_on():
+                st["deadwrites"] = deadwrite_shadows()
+        except Exception:  # noqa: BLE001
+            pass
         return st
     except Exception as e:  # noqa: BLE001
         return {"overall": "—", "error": f"{type(e).__name__}", "log": [], "parts": []}
@@ -378,6 +448,9 @@ OPS_PAGE = """<!doctype html><html dir="rtl" lang="fa"><meta charset="utf-8">
 <div class="bar"><div><b id="ov">…</b><div class="upd" id="upd">—</div></div>
  <div style="text-align:left"><div id="stress" style="font-size:12px">—</div>
   <button class="btn" id="act" onclick="act()">🔄</button></div></div>
+<div class="card" id="haltCard" style="margin-bottom:10px;display:none"><div class="lbl">🛑 توقفِ سراسری + اهرم‌های فعال‌سازی</div><div id="haltVal" style="font-size:15px;margin-top:2px">—</div><div id="haltFlags" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div></div>
+<div class="card" id="backupCard" style="margin-bottom:10px;display:none"><div class="lbl">💾 سلامتِ بک‌آپ (germline lag + پرچمِ شکستِ git-write)</div><div id="backupVal" style="font-size:14px;margin-top:2px">—</div></div>
+<div class="card" id="dwCard" style="margin-bottom:10px;display:none"><div class="lbl">🩺 آرتیفکت‌های سایه — فقط‌خواندنی (calibration · work-health · route-decisions: نوشته‌می‌شد، خوانده‌نمی‌شد)</div><div id="dwBody" style="font-size:12px;margin-top:4px">—</div></div>
 <div class="card" id="stressCard" style="margin-bottom:10px;display:none"><div class="lbl">🫀 استرس/ترسِ زیرسیستم‌ها (عینِ تنشِ انسانی — بدکارکن‌ها مهار می‌شوند)</div><div id="stressSubs" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div></div>
 <div class="card" id="nervCard" style="margin-bottom:10px;display:none"><div class="lbl">🦴 عصب‌کشی — قلب → ستونِ فقرات → اندام‌ها (<span id="nervCov">—</span> پوشش · ضربان <span id="nervHb">—</span>)</div><div id="nervOrgans" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div></div>
 <div class="cards">
@@ -420,6 +493,32 @@ async function tick(){try{
   ||'<span style=color:#6e7681;font-size:11px>لوپ‌ها هنوز نچرخیده‌اند</span>';
  document.getElementById('biz').innerHTML=(d.business||[]).map(chip).join('')
   ||'<span style=color:#6e7681;font-size:11px>مغزِ دوم هنوز نچرخیده</span>';
+ const hl=d.halt||{}; const hc=document.getElementById('haltCard');
+ const hr=hl.reason; const hfl=hl.flags||[];
+ hc.style.display=(hr||hfl.length)?'block':'none';
+ const hv=document.getElementById('haltVal');
+ if(hr){hv.innerHTML='<span class=fail>🔴 '+esc(hr)+'</span>'}
+ else{hv.innerHTML='<span class=ok>🟢 بدونِ توقفِ سراسری</span>'}
+ document.getElementById('haltFlags').innerHTML=hfl.length
+  ?hfl.map(f=>'<span class=blk style="border:1px solid #9e6a03;border-radius:7px;padding:3px 8px;font-size:11px">⚡ '+esc(f)+'</span>').join('')
+  :'<span style=color:#6e7681;font-size:11px>هیچ اهرمِ فعال‌سازی برافراشته نیست</span>';
+ const bk=d.backup||{}; const bc=document.getElementById('backupCard');
+ const bkHas=(bk.level!=null||bk.gitwrite_failed!=null||bk.lag_h!=null);
+ bc.style.display=bkHas?'block':'none';
+ if(bkHas){const bad=(bk.healthy===false); const cl=bad?'fail':(bk.level==='warn'?'blk':'ok');
+  const ic=bad?'🔴':(bk.level==='warn'?'🟡':'🟢');
+  const lagS=(bk.lag_h!=null?bk.lag_h+'h':'—');
+  document.getElementById('backupVal').innerHTML='<span class='+cl+'>'+ic+' '
+   +esc(bk.reason||(bad?'ناسالم':'سالم'))+'</span> <span style=color:#6e7681>· lag '+esc(lagS)+'</span>';}
+ const dw=d.deadwrites||{}; const dwc=document.getElementById('dwCard');
+ const cal=dw.calibration||{},wh=dw.work_health||{},rd=dw.route_decisions||{};
+ const dwHas=(cal.present||wh.present||rd.present);
+ dwc.style.display=dwHas?'block':'none';
+ if(dwHas){
+  const calS=cal.present?('Brier '+esc(cal.brier)+' · AURC '+esc(cal.aurc)+' · n='+esc(cal.n)+' · abstain&lt;'+esc(cal.abstain_below)):'—/absent';
+  const whS=wh.present?('σ '+esc(wh.sigma)+' · ضربان '+esc(wh.period_shadow_s)+'s · gate0 '+(wh.gate0?'🟢':'🔴')):'—/absent';
+  const rdS=rd.present?(esc(rd.n)+' تصمیم · اخیر: '+((rd.recent||[]).map(x=>esc(x.tier)).join('/')||'—')):'—/absent';
+  document.getElementById('dwBody').innerHTML='📐 واسنجی: '+calS+'<br>🫀 سلامتِ کار: '+whS+'<br>🧭 مسیریابی: '+rdS;}
  const sd=d.stress||{}; document.getElementById('stress').textContent=(sd.level||'')+(sd.organism!=null?(' '+Math.round(sd.organism*100)+'%'):'');
  const sc=document.getElementById('stressCard'); const subs=sd.subs||[];
  sc.style.display=subs.length?'block':'none';

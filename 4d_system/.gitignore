@@ -1,0 +1,20 @@
+# Secrets — هرگز commit نشود
+.env
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Runtime artifacts
+outputs/
+streamlit*.log
+*.log
+
+# Local caches
+.obsidian/workspace*
+
+# Claude session artifacts (نه کد پروژه)
+.claude/worktrees/
+.pytest_cache/

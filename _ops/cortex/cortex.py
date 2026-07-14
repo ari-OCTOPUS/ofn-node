@@ -195,11 +195,92 @@ def innervation_tick(cycle: int) -> dict | None:
         return None
 
 
+def ignition_tick(cycle: int) -> dict | None:
+    """CORTEX-01 (شعله‌ورشدنِ فضای کاری): فقط با CORTEX_IGNITION=1 برندهٔ winner-take-all
+    را COMPUTE + در state-fileِ خودش (ignition-latest.json) LOG کن — SHADOW/مشاهده‌ای.
+    هرگز ترتیبِ اجرای اعضا را عوض/skip نمی‌کند (بازچینشِ اجرا رأیِ جداگانهٔ مالک است).
+    flag-off → کاملاً skip (byte-identical). $0، fail-soft."""
+    if os.environ.get("CORTEX_IGNITION", "0") != "1":
+        return None                                   # پیش‌فرض: skip → رفتار دست‌نخورده
+    try:
+        import ignition
+        rec = ignition.persist()                      # خودش هم STOP-aware + flag-gated است
+        if rec.get("enabled") is False:               # flag همین‌جا هم دوباره چک شد → no-op
+            return None
+        if rec.get("halted"):                         # STOP فعال بود → مغز فقط تماشا
+            return {"halted": True}
+        w = rec.get("winner") or {}
+        return {"ignited": rec.get("ignited"), "winner": w.get("source"),
+                "broadcast_width": rec.get("broadcast_width"),
+                "n_candidates": rec.get("n_candidates")}
+    except Exception as e:  # noqa: BLE001 — شعلهٔ سایه هرگز مغز را نمی‌کشد
+        opslib.alert([f"cortex ignition error: {type(e).__name__}: {e}"])
+        return None
+
+
+def calibration_tick(cycle: int) -> dict | None:
+    """CORTEX-03 (خود-پایشِ واسنجی): فقط با CORTEX_SELF_MONITOR روشن، ادعاهای اخیرِ خود را
+    با لِجِرِ بیرونی بسنج (Brier/AURC) و snapshot را زیرِ STATE_DIR بنویس — مشاهده‌ای،
+    بی‌اثرِ زنده. flag-off → skip. $0، fail-soft."""
+    v = str(os.environ.get("CORTEX_SELF_MONITOR", "")).strip().lower()
+    if v in ("", "0", "false", "no", "off"):
+        return None
+    try:
+        import calibration_probe
+        d = calibration_probe.probe()                 # نوشتن را خودش با همین flag گیت می‌کند
+        return {"n": d.get("n"), "brier": d.get("brier"),
+                "aurc": d.get("aurc"), "ungraded": d.get("ungraded")}
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"cortex calibration error: {type(e).__name__}: {e}"])
+        return None
+
+
+def consolidate_tick(cycle: int) -> dict | None:
+    """CORTEX-04 (تثبیتِ حافظه): فقط با CORTEX_CONSOLIDATE=1 یک دورِ tail→نوتِ سِمانتیک را
+    اجرا کن (idempotent با cursor؛ فقط زیرِ STATE_DIR). flag-off → no-op مطلق/skip.
+    $0، fail-soft."""
+    if os.environ.get("CORTEX_CONSOLIDATE", "0") != "1":
+        return None
+    try:
+        import consolidate
+        d = consolidate.consolidate_once()
+        if not d.get("flag"):
+            return None
+        return {"n_in": d.get("n_in"), "n_semantic": d.get("n_semantic"),
+                "archived": d.get("archived")}
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"cortex consolidate error: {type(e).__name__}: {e}"])
+        return None
+
+
+def softwta_tick(cycle: int) -> dict | None:
+    """CORTEX-05 (مقایسهٔ سایهٔ soft-WTA): فقط با IGNITION_SOFT_WTA_SHADOW=1 برندهٔ منطقِ
+    فعلی را در برابرِ soft-WTA بسنج و رکوردِ سایه را append کن — رفتارِ زنده در هر حالت
+    همان مسیرِ فعلی می‌ماند (این تابع هیچ مسیرِ زنده‌ای را عوض نمی‌کند). flag-off → skip.
+    $0، fail-soft."""
+    if os.environ.get("IGNITION_SOFT_WTA_SHADOW", "0") != "1":
+        return None
+    try:
+        import ignition_softwta
+        rec = ignition_softwta.shadow_compare()
+        return {"winner_current": rec.get("winner_current"),
+                "winner_soft_wta_shadow": rec.get("winner_soft_wta_shadow"),
+                "disagreement": rec.get("disagreement"),
+                "n_candidates": rec.get("n_candidates")}
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"cortex softwta error: {type(e).__name__}: {e}"])
+        return None
+
+
 def run_cycle(cycle: int) -> dict:
     sweep = registry.sweep()
     alignment = align_work_plan(sweep)
     stress_summary = stress_tick(cycle)
     innervation_summary = innervation_tick(cycle)
+    ignition_summary = ignition_tick(cycle)
+    calibration_summary = calibration_tick(cycle)
+    consolidate_summary = consolidate_tick(cycle)
+    softwta_summary = softwta_tick(cycle)
     thought = think(sweep, cycle) if (cycle % THINK_EVERY_N == 0) else None
     model_summary = (self_model_refresh(cycle)
                      if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
@@ -227,6 +308,10 @@ def run_cycle(cycle: int) -> dict:
         **({"business_brain": business_summary} if business_summary else {}),
         **({"stress": stress_summary} if stress_summary else {}),
         **({"innervation": innervation_summary} if innervation_summary else {}),
+        **({"ignition": ignition_summary} if ignition_summary else {}),
+        **({"calibration": calibration_summary} if calibration_summary else {}),
+        **({"consolidate": consolidate_summary} if consolidate_summary else {}),
+        **({"softwta": softwta_summary} if softwta_summary else {}),
         "schema": "cortex-state.v1",
     }
     CORTEX_DIR.mkdir(parents=True, exist_ok=True)
@@ -324,7 +409,7 @@ def main() -> int:
     opslib.heartbeat(f"cortex=START port={PORT}")
     cycle = 0
     while True:
-        if STOP_CORTEX.exists() or opslib.halted() == "STOP(architect)":
+        if STOP_CORTEX.exists() or opslib.master_halted():
             opslib.heartbeat("cortex=HALT (STOP) — خروجِ تمیز")
             return 0
         cycle += 1

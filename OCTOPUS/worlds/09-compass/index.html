@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>قطب‌نمای ارزش · compass</title>
+<style>
+  *{margin:0;box-sizing:border-box}
+  html,body{height:100%;background:#0a0800;overflow:hidden;touch-action:none;overscroll-behavior:none;font-family:"Segoe UI",Tahoma,sans-serif;color:#fde68a}
+  canvas{position:fixed;inset:0;display:block}
+  .top{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:6;pointer-events:none;text-align:right}
+  .top b{font-size:15px;font-weight:700;color:#fcd34d;display:block;text-shadow:0 0 12px #f59e0baa}
+  .top span{font-size:11px;color:#8a7333}
+  .act{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 64px);z-index:6;background:rgba(28,20,2,.66);border:1px solid #5b451d;border-radius:12px;padding:9px 12px;text-align:right;pointer-events:none}
+  .act b{color:#fde68a;font-size:12.5px}.act span{color:#eab308;font-size:11.5px;display:block;margin-top:2px}
+  .tabs{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);left:12px;right:12px;z-index:6;display:flex;gap:8px}
+  .tabs button{flex:1;background:#1c1402;border:1px solid #5b451d;color:#fcd34d;border-radius:9px;padding:8px 4px;font-size:12px;font-family:inherit}
+  .tabs button.on{background:#3b2d06;border-color:#fcd34d}
+  .back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;z-index:7;color:#fcd34d;text-decoration:none;font-size:12px}
+</style>
+</head>
+<body>
+<a class="back" href="../index.html">‹ خانه</a>
+<canvas id="c"></canvas>
+<div class="top"><b>قطب‌نمای ارزش</b><span>نقشهٔ کیفیتِ frontier (QD) · سوزن به بالاترین MI · gen زنده</span></div>
+<div style="position:fixed;top:calc(env(safe-area-inset-top,0px)+36px);right:12px;z-index:6;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.3);color:#22d3ee;border-radius:999px;padding:2px 10px;font-size:10px;font-weight:700;pointer-events:none">READ-ONLY</div>
+<div class="act"><b id="an"></b><span id="ad"></span></div>
+<div class="tabs">
+  <button data-m="0" class="on">قطب‌نما</button>
+  <button data-m="1">ماندالا</button>
+  <button data-m="2">هم‌ترازی</button>
+</div>
+<!-- real organism blood (read-only extract from F:/backup/4d_system/outputs) -->
+<script src="../../../nervous-system/live-data.js"></script>
+<script src="../octo-data.js"></script>
+<script>
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+let W,H,DPR; function fit(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);}
+fit();
+const L=window.LIVE_DATA||null,_fr=(L&&L.frontier)||{};
+const NORTH=(L?('بالاترین کیفیت · gen '+(_fr.generation!=null?_fr.generation:'?')):'درآمدِ پایدار از تلاشِ خودم');
+function mkValues(){
+ const def=[{v:'استقلال',a:'یک تصمیم را امروز خودت بگیر.'},{v:'یادگیری',a:'۲۰ دقیقه مهارتِ درآمدزا.'},{v:'سلامت',a:'یک پیاده‌رویِ کوتاه.'},{v:'ساختن',a:'یک چیزِ کوچک را تمام کن.'},{v:'ثروتِ حلال',a:'یک قدم روی پروژهٔ درآمدزا.'},{v:'رابطه',a:'به یک نفر پیام بده.'},{v:'معنا',a:'دو خط بنویس چرا مهم است.'},{v:'آزادی',a:'یک کارِ اضافه را حذف کن.'}];
+ if(!L||!(_fr.cells&&_fr.cells.length))return def;
+ return _fr.cells.slice().sort((a,b)=>(b.mi||0)-(a.mi||0)).slice(0,8).map(c=>({v:(c.family||c.key||'رفتار').toString().slice(0,12),a:'ناحیهٔ rho='+(c.rho||'?')+' · MI '+(typeof c.mi==='number'?c.mi.toFixed(3):(c.mi||'?'))}));
+}
+const VALUES=mkValues();
+let mode=0,sel=-1,rot=0;
+function setMode(m){mode=m;sel=-1;document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',+b.dataset.m===m));
+ if(m===0){an('کارِ بعدی → یک اقدامِ هم‌سو','سوزن به ستارهٔ شمالی اشاره می‌کند: «'+NORTH+'».');}
+ if(m===1){an('کارِ بعدی → یک نفس بکش','ماندالا = وحدتِ ارزش‌ها. ۳۰ ثانیه فقط نگاه کن.');}
+ if(m===2){an('یک ارزش را لمس کن','تا کارِ هم‌سویش را ببینی.');}
+}
+function an(a,b){document.getElementById('an').textContent=a;document.getElementById('ad').textContent=b;}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setMode(+b.dataset.m));
+cv.addEventListener('pointerdown',e=>{ if(mode!==2)return;
+  const cx=W/2,cy=H*0.46,R=Math.min(W,H)*0.32;
+  for(let i=0;i<VALUES.length;i++){const ang=-Math.PI/2+i/VALUES.length*Math.PI*2;
+   const x=cx+Math.cos(ang)*R,y=cy+Math.sin(ang)*R; if((e.clientX-x)**2+(e.clientY-y)**2<900){sel=i;
+     an('هم‌سو با «'+VALUES[i].v+'»',VALUES[i].a);}}});
+
+function poly(cx,cy,r,n,rot,col,w){ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();
+ for(let i=0;i<=n;i++){const a=rot+i/n*Math.PI*2;const x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.stroke();}
+function draw(now){requestAnimationFrame(draw);rot+=0.0025;
+ ctx.clearRect(0,0,W,H);ctx.fillStyle='#0a0800';ctx.fillRect(0,0,W,H);
+ const cx=W/2,cy=H*0.46,R=Math.min(W,H)*0.32;
+ if(mode===1){ // mandala
+   for(let k=1;k<=7;k++){poly(cx,cy,R*k/7,6,rot*(k%2?1:-1),'rgba(252,211,77,'+(0.5-k*0.05)+')',1);}
+   for(let i=0;i<12;i++){const a=rot+i/12*Math.PI*2;poly(cx+Math.cos(a)*R*0.5,cy+Math.sin(a)*R*0.5,R*0.5,6,-rot,'rgba(251,191,36,0.10)',1);}
+ } else {
+   // compass rose
+   ctx.strokeStyle='rgba(252,211,77,0.25)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(cx,cy,R,0,6.283);ctx.stroke();
+   ctx.beginPath();ctx.arc(cx,cy,R*0.62,0,6.283);ctx.stroke();
+   for(let i=0;i<VALUES.length;i++){const ang=-Math.PI/2+i/VALUES.length*Math.PI*2;
+     const x=cx+Math.cos(ang)*R,y=cy+Math.sin(ang)*R;
+     ctx.beginPath();ctx.arc(x,y,sel===i?9:5,0,6.283);ctx.fillStyle=sel===i?'#fffbeb':'#fcd34d';
+     ctx.shadowColor='#fcd34d';ctx.shadowBlur=sel===i?18:8;ctx.fill();ctx.shadowBlur=0;
+     ctx.fillStyle='#fde68a';ctx.font=(sel===i?'700 13px':'12px')+' Tahoma';ctx.textAlign='center';
+     ctx.fillText(VALUES[i].v,x,y-14);}
+   // needle to north star (top)
+   ctx.strokeStyle='#fbbf24';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx,cy-R*0.62);ctx.stroke();
+   ctx.beginPath();ctx.arc(cx,cy-R*0.62,4,0,6.283);ctx.fillStyle='#fffbeb';ctx.fill();
+   ctx.fillStyle='#fcd34d';ctx.font='700 12px Tahoma';ctx.textAlign='center';ctx.fillText('★ '+NORTH,cx,cy-R-6);
+ }
+ // center
+ ctx.beginPath();ctx.arc(cx,cy,6,0,6.283);ctx.fillStyle='#fffbeb';ctx.shadowColor='#fcd34d';ctx.shadowBlur=16;ctx.fill();ctx.shadowBlur=0;
+}
+setMode(0);requestAnimationFrame(draw);
+addEventListener('resize',fit);
+</script>
+<script>window.MATHVIZ={type:'vectors',color:0xfcd34d,dist:26,formula:'cos(theta) = (a . v)/(|a| |v|)',value:'cos = 0.62',gap:'values not vectorized'};</script>
+<script src="../shared-ui.js"></script>
+<script src="../octo-info.js"></script>
+</body>
+</html>

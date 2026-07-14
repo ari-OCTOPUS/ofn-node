@@ -41,6 +41,19 @@ SCHEMA_VERSION = "1.0.0"
 SYSTEM_NAME = "octopus"
 DEFAULT_ORGAN = "unknown"
 
+# ── Self-wiring file sink (WP2 · ORPH-OCTOPUS-LOG) ────────────────────────────
+# رفعِ ارتباطِ‌قطع: بدونِ این، octo_log فقط به stream می‌رفت و فایلی که کاکپیت
+# tail می‌کند هرگز نوشته نمی‌شد. با OCTOPUS_WIRE_STRUCTLOG=1، هر رویداد ALSO به
+# مسیرِ JSONLِ کاکپیت (`_ops/state/octopus-log.jsonl`) append می‌شود.
+# پیش‌فرض خاموش → هیچ نوشتنی، رفتار بایت‌به‌بایت مثلِ حالتِ stream-only.
+# نوشتن bounded/rotating + fail-soft است (یک خطا هرگز حلقهٔ ارگانیسم را نمی‌کشد).
+STRUCTLOG_FLAG = "OCTOPUS_WIRE_STRUCTLOG"
+# مسیرِ پیش‌فرض = اولین کاندیدِ tailِ کاکپیت (cockpit_readmodel.tail_structured_log):
+# self.state / "octopus-log.jsonl"، که self.state = _ops/state.
+STRUCTLOG_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "state", "octopus-log.jsonl"
+)
+
 # Schema status enum (matches log-event-v1.schema.json)
 VALID_STATUS = {"started", "success", "failed", "blocked", "retrying", "skipped", "unknown"}
 VALID_LEVEL = {"DEBUG", "INFO", "WARN", "ERROR", "CRIT"}
@@ -186,9 +199,17 @@ def octo_log(
     level: str = "INFO",
     **kwargs: Any,
 ) -> None:
-    """Build and emit a structured log event as a single JSON line."""
+    """Build and emit a structured log event as a single JSON line.
+
+    Stream emission (stdout) is unconditional and unchanged. When the
+    OCTOPUS_WIRE_STRUCTLOG flag is set, the SAME serialized line is ALSO
+    appended to the JSONL file the cockpit tails; when the flag is off
+    (default) nothing is written to disk — byte-identical to before.
+    """
     ev = _build_event(ctx, event, msg, level=level, **kwargs)
-    _log.info(_serialize(ev))
+    line = _serialize(ev)
+    _log.info(line)
+    _maybe_file_emit(line)
 
 
 def octo_log_debug(ctx: OctoContext, event: str, msg: str, **kwargs: Any) -> None:
@@ -226,7 +247,18 @@ class FileEmitter:
         line = _serialize(ev) + "\n"
         self._append(line)
 
+    def write_line(self, line: str) -> None:
+        """Append an already-serialized JSON line (ensures a trailing newline)."""
+        self._append(line if line.endswith("\n") else line + "\n")
+
     def _append(self, line: str) -> None:
+        # Ensure parent dir exists (fail-soft — never crash over a missing dir).
+        try:
+            parent = os.path.dirname(self._path)
+            if parent and not os.path.isdir(parent):
+                os.makedirs(parent, exist_ok=True)
+        except OSError:
+            pass
         # Rotation: if file > max, rename to .bak and start fresh
         if os.path.exists(self._path):
             try:
@@ -240,6 +272,39 @@ class FileEmitter:
 
         with open(self._path, "a", encoding="utf-8") as f:
             f.write(line)
+
+
+# ── Self-wiring sink plumbing (flag-gated, fail-soft) ────────────────────────
+
+_FILE_SINK: Optional["FileEmitter"] = None
+
+
+def _structlog_enabled() -> bool:
+    """True only when OCTOPUS_WIRE_STRUCTLOG=1 (default off → byte-identical)."""
+    return os.environ.get(STRUCTLOG_FLAG, "0") == "1"
+
+
+def _file_sink() -> "FileEmitter":
+    """Lazy, path-aware FileEmitter. Rebuilt if STRUCTLOG_PATH is monkeypatched."""
+    global _FILE_SINK
+    target = str(STRUCTLOG_PATH)
+    if _FILE_SINK is None or _FILE_SINK._path != target:
+        _FILE_SINK = FileEmitter(target)
+    return _FILE_SINK
+
+
+def _maybe_file_emit(line: str) -> None:
+    """Append the serialized event to the cockpit JSONL iff the flag is on.
+
+    Fail-soft: any disk/rotation error is swallowed — logging must never take
+    down a caller loop. No-op (nothing written) when the flag is off.
+    """
+    if not _structlog_enabled():
+        return
+    try:
+        _file_sink().write_line(line)
+    except Exception:  # noqa: BLE001 — fail-soft, logging must not crash organism
+        pass
 
 
 # ── Convenience: global context ──────────────────────────────────────────────

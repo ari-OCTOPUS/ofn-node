@@ -1,0 +1,2 @@
+{"ts": "2026-07-10T23:49:32", "op": "reserve", "organ": "ARCHITECT_SYS", "est_usd": 0.0, "task": "cortex-secondary", "allow": true, "reserved": 0.0}
+{"ts": "2026-07-10T23:50:17", "op": "settle", "organ": "ARCHITECT_SYS", "est_usd": 0.0, "task": "cortex-secondary", "ok": true, "actual_usd": 0.0}

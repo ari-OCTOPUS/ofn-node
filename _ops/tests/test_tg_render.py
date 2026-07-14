@@ -80,9 +80,12 @@ def t_e_studio_pf_default_display_name():
     assert "نقاشیِ ساختمان" in d3
 
 
-def t_f_legs_eight_ordered_keys():
+def t_f_legs_nine_ordered_keys():
+    # ۲۰۲۶-۰۷-۱۳: پای نهم «cartographer» افزوده شده بود ولی این تست روی ۸ مانده بود
+    # (drift ِ تست-vs-کد؛ render.LEGS مرجع است). به ۹ کلید هم‌ترتیبِ کد اصلاح شد.
     assert list(render.LEGS) == ["lead", "ziman", "mining", "crypto",
-                                 "accounting", "studio_pf", "system", "knowledge"]
+                                 "accounting", "studio_pf", "system", "knowledge",
+                                 "cartographer"]
     assert render.LEGS["studio_pf"] == "استودیو"
 
 

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>گراف ۳بعدی جریان · 3D Flow</title>
+<style>
+  *{margin:0;box-sizing:border-box}
+  html,body{height:100%;background:#03060a;overflow:hidden;touch-action:none;overscroll-behavior:none;font-family:-apple-system,"Segoe UI",Tahoma,sans-serif;color:#cffafe}
+  #g{position:fixed;inset:0}
+  .top{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:6;pointer-events:none;text-align:right}
+  .top b{font-size:15px;font-weight:700;color:#67e8f9;display:block;text-shadow:0 0 10px #06b6d4aa}
+  .top span{font-size:11px;color:#5b8a95}
+  .cap{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 52px);z-index:6;background:rgba(6,20,28,.66);border:1px solid #164e5b;border-radius:12px;padding:9px 12px;text-align:right;pointer-events:none}
+  .cap b{font-size:13px;color:#a5f3fc}.cap span{font-size:11.5px;color:#7dd3fc;display:block;margin-top:2px}
+  .foot{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);left:12px;right:12px;z-index:6;display:flex;gap:12px;align-items:center;font-size:10.5px;color:#4b7480;direction:ltr}
+  .foot a{color:#22d3ee;text-decoration:none;font-size:12px;pointer-events:auto}
+  #load{position:fixed;inset:0;display:grid;place-items:center;color:#22d3ee;font-size:13px;z-index:7}
+</style>
+</head>
+<body>
+<div id="g"></div>
+<div class="top"><b>گراف ۳بعدی جریان — engine: 3d-force-graph</b><span>ذرات روی یال‌ها = دیتا از ورودی به خروجی · همان موتور پلاگین 3D Graph ابسیدین</span></div>
+<div class="cap"><b id="cn">راه‌اندازی…</b><span id="cd"></span></div>
+<div class="foot"><a href="index.html">‹ hub</a><span id="st"></span></div>
+<div id="load">در حال ساختِ گرافِ سه‌بعدی از گرافِ واقعی والت…</div>
+<script src="graph-data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/3d-force-graph"></script>
+<script>window.ForceGraph3D||document.write('<script src="https://unpkg.com/3d-force-graph">\x3C/script>');</script>
+<script>
+(function(){
+  const G=window.OCTOPUS_GRAPH;
+  const STAGE={'00 - Inbox':0,'04 - Architect System':1,'05 - Agents':2,'07 - Knowledge':3,'06 - Architecture Maps':4,'03 - Projects':5,'_memory':6,'01 - Dashboard':6};
+  const STAGES=[['۱ دریافت','00 Inbox — دربِ ورود، سیگنال خام'],
+    ['۲ کورتکس','04 Architect — تصمیم و مسیریابی (ignition)'],
+    ['۳ کارمندها','05 Agents — لیمب‌ها کار را برمی‌دارند'],
+    ['۴ دانش','07 Knowledge — غنی‌سازی با مرجع'],
+    ['۵ حکمرانی','06 Architecture — قواعد و ریسک‌لدر'],
+    ['۶ پروژه‌ها','03 Projects — کارِ واقعی'],
+    ['۷ خروجی','memory/dashboard — ثبت و انتشار']];
+  function st(n){ return STAGE[n.g]===undefined?3:STAGE[n.g]; }
+
+  const nodes=G.nodes.map((n,i)=>({id:i,name:n.l+' ('+n.g+')',color:n.c,val:1+n.d*0.5,stage:st(n)}));
+  const links=G.edges.map(e=>{ let a=e[0],b=e[1]; if(nodes[a].stage>nodes[b].stage){const t=a;a=b;b=t;} return {source:a,target:b}; });
+
+  function start(){
+    if(!window.ForceGraph3D){ return setTimeout(start,200); }
+    document.getElementById('load').style.display='none';
+    const Graph = ForceGraph3D()(document.getElementById('g'))
+      .backgroundColor('#03060a')
+      .graphData({nodes,links})
+      .nodeVal('val').nodeColor(n=>n.color).nodeOpacity(0.92)
+      .nodeLabel(n=>n.name)
+      .linkColor(()=> 'rgba(103,232,249,0.20)')
+      .linkWidth(0.4)
+      .linkDirectionalParticles(1)
+      .linkDirectionalParticleWidth(1.8)
+      .linkDirectionalParticleSpeed(0.012)
+      .warmupTicks(60).cooldownTicks(120)
+      .width(window.innerWidth).height(window.innerHeight);
+    try{ Graph.d3Force('charge').strength(-40); }catch(e){}
+
+    // guided film: camera tours stage centroids input->output
+    let stage=0, started=false;
+    function centroid(s){ let x=0,y=0,z=0,c=0; nodes.forEach(n=>{ if(n.stage===s&&n.x!=null){x+=n.x;y+=n.y;z+=n.z;c++;} }); return c?{x:x/c,y:y/c,z:z/c,c}:null; }
+    function tour(){
+      const ct=centroid(stage);
+      const cn=document.getElementById('cn'), cd=document.getElementById('cd');
+      cn.textContent='صحنه '+STAGES[stage][0]; cd.textContent=STAGES[stage][1];
+      if(ct){ const d=90; Graph.cameraPosition({x:ct.x+d,y:ct.y+d*0.5,z:ct.z+d},{x:ct.x,y:ct.y,z:ct.z},2200); }
+      stage=(stage+1)%7;
+    }
+    setTimeout(()=>{ started=true; tour(); setInterval(tour,4200); }, 2500);
+    document.getElementById('st').textContent=G.total_files+' notes · '+G.shown_edges+' links shown';
+    addEventListener('resize',()=>Graph.width(window.innerWidth).height(window.innerHeight));
+  }
+  start();
+})();
+</script>
+</body>
+</html>

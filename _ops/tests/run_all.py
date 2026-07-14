@@ -60,10 +60,20 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_code_autonomy.py",
          "test_ziman_leg.py",
          "test_ziman_phase2.py",
-         "test_ziman_wiring.py",
-         "test_ziman_biology.py",
+         # 2026-07-13: دو ورودیِ phantom حذف شدند — test_ziman_wiring.py و
+         # test_ziman_biology.py هرگز در تاریخِ گیت وجود نداشتند (pytest exit=4 →
+         # سوییت را دائم قرمز و markerِ capability را دائم revoke می‌کرد؛ ریشهٔ C-01/C-04).
+         # اگر قرار است نوشته شوند، رجوع: AGENT_QUESTIONS «2026-07-13». پوششِ ziman فعلی =
+         # test_ziman_leg + test_ziman_phase2.
          "test_cartographer_leg.py",
          "test_cartographer_wiring.py",
+         "test_master_halt.py",
+         "test_panic_command.py", "test_tg_restart.py", "test_backup_visibility.py",
+         "test_cortex_shadow_wiring.py", "test_route_scorer_wire.py",
+         "test_leg_chain_wire.py", "test_render_legs.py", "test_new_legs.py",
+         "test_school_bridge.py",   # 2026-07-14: orphan test بود (فایل موجود، ثبت‌نشده) — ثبت شد
+         "test_self_claims.py", "test_octopus_logger_wire.py", "test_improve_refractory.py",
+         "test_wiring_cleanup.py", "test_deadwrite_readers.py",
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
@@ -73,7 +83,7 @@ EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_
 # سبزِ دروغین می‌دهد. run_all باید واقعاً pytest را اجرا کند.
 PYTEST_TESTS = {
     "test_ziman_leg.py", "test_ziman_phase2.py",
-    "test_ziman_wiring.py", "test_ziman_biology.py",
+    # test_ziman_wiring/biology حذف شدند (phantom — فایل هرگز وجود نداشت)
     "test_cartographer_leg.py", "test_cartographer_wiring.py",
 }
 

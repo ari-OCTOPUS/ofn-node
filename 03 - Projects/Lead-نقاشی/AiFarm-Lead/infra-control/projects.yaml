@@ -1,0 +1,43 @@
+# projects.yaml — infra-control project registry
+# stackctl reads this file to know where each project lives and how to manage it.
+#
+# Fields per project:
+#   path:           absolute path on the VPS where the repo is cloned
+#   compose:        path to docker-compose.yml (relative to `path`)
+#   health_url:     HTTP endpoint for health check (null = process-based check)
+#   health_timeout: seconds to wait for health (default: 60)
+#   container_name: primary container name for process-based health (if health_url is null)
+#   image:          GHCR image reference (used by CI deploy)
+#   description:    human-readable note
+
+projects:
+
+  brushline:
+    path: /opt/projects/brushline
+    compose: docker-compose.yml
+    health_url: null                          # Telegram bot — process-based check
+    container_name: brushline-bot
+    health_timeout: 30
+    image: ghcr.io/GITHUB_USERNAME/brushline:latest
+    description: "Brushline — AI lead-gen for Sister Painting (Sydney)"
+
+  # ── Placeholder: project-b ─────────────────────────────────────────────
+  # Uncomment and fill when ready.
+  # project-b:
+  #   path: /opt/projects/project-b
+  #   compose: docker-compose.yml
+  #   health_url: http://localhost:8002/health
+  #   health_timeout: 60
+  #   container_name: project-b-app
+  #   image: ghcr.io/GITHUB_USERNAME/project-b:latest
+  #   description: "Project B — description here"
+
+  # ── Placeholder: project-c ─────────────────────────────────────────────
+  # project-c:
+  #   path: /opt/projects/project-c
+  #   compose: docker-compose.yml
+  #   health_url: null
+  #   container_name: project-c-app
+  #   health_timeout: 60
+  #   image: ghcr.io/GITHUB_USERNAME/project-c:latest
+  #   description: "Project C — description here"

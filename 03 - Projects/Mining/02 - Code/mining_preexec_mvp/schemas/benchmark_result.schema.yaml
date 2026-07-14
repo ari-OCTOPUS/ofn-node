@@ -1,0 +1,51 @@
+# Schema: benchmark_result.yaml
+# Purpose: manual, evidence-based benchmark record for one node + one algorithm.
+# Scope: report-only. Does not grant execution permission.
+
+benchmark_id: "BENCH-YYYYMMDD-OPI-1-yespower"
+created_at: "YYYY-MM-DDTHH:MM:SSZ"
+operator: "human"
+
+node:
+  node_id: "OPI-1"
+  device_type: "Orange Pi 5 Pro"
+  soc: "RK3588/RK3588S"
+  ram_gb: null
+  storage: "eMMC/NVMe/SD/unknown"
+  cooling: "passive/active/wind-tunnel/unknown"
+  power_source: "solar/free/grid/mixed/unknown"
+  electricity_cost_usd_kwh: null
+
+software:
+  os: "Armbian/DietPi/Ubuntu/unknown"
+  miner: "xmrig/cpuminer/ccminer/other"
+  miner_version: "unknown"
+  algorithm: "yespower/randomx/verushash/..."
+  threads: null
+  cpu_affinity: "A76-only/all/unknown"
+  huge_pages: null
+  governor: "performance/schedutil/unknown"
+  command_redacted: "never include wallet/seed/private key"
+
+measurement:
+  duration_minutes: null
+  hashrate_avg: null
+  hashrate_unit: "H/s"
+  hashrate_min: null
+  hashrate_max: null
+  power_w_avg: null
+  temp_c_avg: null
+  temp_c_max: null
+  rejected_shares_pct: null
+  uptime_ok: null
+  reboot_count: null
+
+verdict:
+  benchmark_valid: false
+  invalid_reasons: []
+  notes: ""
+
+attachments:
+  screenshots: []
+  logs_redacted: []
+  pool_dashboard_redacted: []

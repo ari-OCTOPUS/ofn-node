@@ -256,7 +256,7 @@ def main() -> int:
         _protective_skip = False   # آیا این تیک کارِ غیرضروری را skip کند؟ (protective-halt، enforceِ واقعی)
         _heart_status = None       # HH-P5: پیش از try تعریف می‌شود تا بلوکِ _sleep_s (بیرونِ try) هرگز NameError نخورد
         try:
-            if opslib.STOP_ORGANISM.exists() or opslib.halted() == "STOP(architect)":
+            if opslib.STOP_ORGANISM.exists() or opslib.master_halted():
                 opslib.heartbeat("organism=HALT (STOP) — خروج تمیز")
                 _write_state({"exited": "STOP"})
                 return 0
@@ -439,6 +439,31 @@ def main() -> int:
                 except Exception as _ce:  # noqa: BLE001 — limb نباید tick را بکشد
                     opslib.alert([f"cartographer_beat error (non-fatal): {type(_ce).__name__}: {_ce}"])
 
+            # ── Business legs (blind-spot LEG-01): جمعِ status ِ ۴ پای نو (mining/crypto/
+            # accounting/knowledge) → ORGANISM-STATE.business_legs تا داشبورد تاریک نباشد.
+            # read-only/safe (بی‌فلگ، STOP-gated داخلِ خودش)؛ write=False → بی sidecarِ اضافه.
+            _biz_legs = None
+            if not _protective_skip:
+                try:
+                    _biz_legs = _w.business_legs_beat(
+                        beat=_cstat.get("beat", 0) if _cstat else 0, write=False)
+                except Exception as _ble:  # noqa: BLE001 — §۴: نباید tick را بکشد
+                    opslib.alert([f"business_legs_beat error (non-fatal): {type(_ble).__name__}: {_ble}"])
+            # ── Email inbound (blind-spot LEG-06): پشتِ OCTOPUS_WIRE_EMAIL (پیش‌فرض خاموش)
+            # → None (dry، بی polling). فقط با فلگِ مالک زنده می‌شود.
+            if not _protective_skip:
+                try:
+                    _w.email_beat(beat=_cstat.get("beat", 0) if _cstat else 0)
+                except Exception as _eme:  # noqa: BLE001 — §۴: نباید tick را بکشد
+                    opslib.alert([f"email_beat error (non-fatal): {type(_eme).__name__}: {_eme}"])
+            # ── F3 (2026-07-14): seed ِ scheduler برای RFCهای دکتر — پشتِ OCTOPUS_WIRE_SCHEDULER
+            # (پیش‌فرض خاموش) → no-op. producer (scheduler_seed_doctor_rfc) قبلاً سیم‌نشده بود.
+            if not _protective_skip:
+                try:
+                    _w.scheduler_seed_beat(doctor=_doctor_inst, pacemaker=_pacemaker,
+                                           beat=_cstat.get("beat", 0) if _cstat else 0)
+                except Exception as _sse:  # noqa: BLE001 — §۴: نباید tick را بکشد
+                    opslib.alert([f"scheduler_seed_beat error (non-fatal): {type(_sse).__name__}: {_sse}"])
             # ── I (P-I): موتورِ ایده-گراف — هر N beat گرافِ vault را تحلیل کن.
             # هاب‌ها/خوشه‌ها/پل‌ها/یال‌های پیشنهادی. propose-only مطلق (هیچ effector).
             if not _protective_skip and _idea_graph is not None and _cstat is not None:
@@ -490,6 +515,7 @@ def main() -> int:
                           **({"leg": _leg_status} if _leg_status else {}),
                           **({"ziman": _ziman_status} if _ziman_status else {}),
                           **({"cartographer": _cartographer_status} if _cartographer_status else {}),
+                          **({"business_legs": _biz_legs} if _biz_legs else {}),
                           **({"heart": _heart_status} if _heart_status else {}),
                           **({"cardiac": _cardiac_mod.status_snapshot()}
                              if _cardiac_mod is not None else {})})

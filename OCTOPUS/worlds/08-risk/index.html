@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>گنبد ریسک · risk</title>
+<style>
+  *{margin:0;box-sizing:border-box}
+  html,body{height:100%;background:#020a06;overflow:hidden;touch-action:none;overscroll-behavior:none;font-family:"Consolas","Segoe UI",monospace;color:#86efac}
+  canvas{position:fixed;inset:0;display:block}
+  .top{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:6;pointer-events:none;text-align:right}
+  .top b{font-size:15px;font-weight:700;color:#4ade80;display:block;text-shadow:0 0 12px #22c55eaa}
+  .top span{font-size:11px;color:#3f6b4f}
+  .act{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 64px);z-index:6;background:rgba(3,20,10,.7);border:1px solid #166534;border-radius:8px;padding:9px 12px;text-align:right;pointer-events:none}
+  .act b{color:#bbf7d0;font-size:12.5px}.act span{color:#4ade80;font-size:11.5px;display:block;margin-top:2px}
+  .tabs{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);left:12px;right:12px;z-index:6;display:flex;gap:8px}
+  .tabs button{flex:1;background:#04140a;border:1px solid #166534;color:#4ade80;border-radius:7px;padding:8px 4px;font-size:12px;font-family:inherit}
+  .tabs button.on{background:#0a2f1a;border-color:#4ade80}
+  .back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;z-index:7;color:#4ade80;text-decoration:none;font-size:12px}
+</style>
+</head>
+<body>
+<a class="back" href="../index.html">‹ خانه</a>
+<canvas id="c"></canvas>
+<div class="top"><b>گنبدِ ریسک</b><span>رادارِ فسفری · خطرهای زندهٔ ارگانیسم (drift · بودجه · daemon · gate)</span></div>
+<div style="position:fixed;top:calc(env(safe-area-inset-top,0px)+36px);right:12px;z-index:6;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.3);color:#22d3ee;border-radius:999px;padding:2px 10px;font-size:10px;font-weight:700;pointer-events:none">READ-ONLY</div>
+<div class="act"><b id="an"></b><span id="ad"></span></div>
+<div class="tabs">
+  <button data-m="0" class="on">رادار</button>
+  <button data-m="1">نردبان</button>
+  <button data-m="2">گیت‌ها</button>
+</div>
+<!-- real organism blood (read-only extract from F:/backup/4d_system/outputs) -->
+<script src="../../../nervous-system/live-data.js"></script>
+<script src="../../../nervous-system/health-data.js"></script>
+<script src="../octo-data.js"></script>
+<script>
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+let W,H,DPR;function fit(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);}fit();
+const TIERC=['#4ade80','#facc15','#fb923c','#ef4444'];
+const TIERN=['سبز · عادی','زرد · مراقب','نارنجی · مهم','قرمز · بحرانی'];
+const L=window.LIVE_DATA||null;
+const tier=c=>(c>=7?3:c>=4?2:c>=2?1:0);
+function mkRisks(){
+ const O=window.OCTO_DATA;
+ if(O&&O.risks){
+  const rs=O.risks();
+  if(rs&&rs.length) return rs.map((r,i)=>{
+   const angle=(i/rs.length)*Math.PI*2 + 0.3;
+   const dist=0.35+0.55*(r.level/3);
+   return {k:r.k,L:r.level,I:r.impact,a:angle,d:dist,score:r.level*r.impact,t:tier(r.level*r.impact)};
+  });
+ }
+ if(!L)return [{k:'runway کوتاه',L:2,I:3,a:0.7,d:0.55},{k:'تک‌منبعِ درآمد',L:2,I:3,a:2.1,d:0.7},{k:'خستگی',L:2,I:2,a:3.4,d:0.5},{k:'گیتِ پول باز',L:3,I:3,a:4.6,d:0.8},{k:'حواس‌پرتی',L:3,I:1,a:5.6,d:0.4},{k:'پراکندگی',L:2,I:2,a:0.3,d:0.35}].map(r=>({...r,score:r.L*r.I,t:tier(r.L*r.I)}));
+ const s=L.sog||{},bg=L.budget||{},dm=L.daemon||{},ev=L.events||{},pk=(L.packets||[]).length;
+ const drift=s.drift_now||0,bf=(bg.remaining!=null&&bg.cap?bg.remaining/bg.cap:1),fail=(ev.by_status&&(ev.by_status.failed||ev.by_status.error))||0;
+ return [
+  {k:'drift هویت',L:(drift>1e-4?3:1),I:3,a:0.6,d:0.6},
+  {k:'ته‌کشیدنِ بودجه',L:(bf<0.15?3:bf<0.4?2:1),I:2,a:2.0,d:0.7},
+  {k:'توقفِ daemon',L:(dm.stopped_at!=null?3:1),I:3,a:3.5,d:0.55},
+  {k:'صفِ owner-gate',L:(pk>5?3:pk>0?2:1),I:2,a:4.7,d:0.78},
+  {k:'رویدادِ failed',L:(fail>10?3:fail>0?2:1),I:2,a:5.6,d:0.5},
+  {k:'واگراییِ frontier',L:1,I:2,a:0.3,d:0.35},
+ ].map(r=>({...r,score:r.L*r.I,t:tier(r.L*r.I)}));
+}
+const RISKS=mkRisks();
+const GATES=(!L)?[{k:'گیتِ پول',open:true},{k:'Gate-0 قلب',open:true},{k:'انتشارِ عمومی',open:false}]
+ :[{k:'daemon (حلقه)',open:(L.daemon||{}).stopped_at!=null},{k:'دروازهٔ مالک · '+((L.packets||[]).length),open:((L.packets||[]).length>0)},{k:'لنگرِ هویت (fail-closed)',open:!(L.sog||{}).healthy},{k:'بودجهٔ ابری',open:(function(b){return b.remaining!=null&&b.cap?b.remaining/b.cap<0.15:false;})(L.budget||{})}];
+let mode=0,sweep=0,sel=-1;
+function setMode(m){mode=m;document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',+b.dataset.m===m));
+ if(m===0)an('کارِ بعدی → یک خطر را ببند','قرمزها اول. «گیتِ پول باز» را همین امروز تعیین‌تکلیف کن.');
+ if(m===1)an('نردبانِ ریسکِ چهاررنگ','از سبز تا قرمز؛ هر اکشنِ پرخطر باید گیت بخورد.');
+ if(m===2)an('وضعیتِ گیت‌ها (فقط نمایش)','گیتِ باز = خطرِ فعال. اینجا فقط می‌بینی — تعیین‌تکلیف از طریق صفِ تأیید.');}
+function an(a,b){document.getElementById('an').textContent=a;document.getElementById('ad').textContent=b;}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setMode(+b.dataset.m));
+cv.addEventListener('pointerdown',e=>{ if(mode!==0)return;const cx=W/2,cy=H*0.44,R=Math.min(W,H)*0.34;
+ RISKS.forEach((r,i)=>{const x=cx+Math.cos(r.a)*R*r.d,y=cy+Math.sin(r.a)*R*r.d;
+   if((e.clientX-x)**2+(e.clientY-y)**2<900){sel=i;an('خطر: «'+r.k+'» ('+TIERN[r.t]+')','کارِ بعدی: یک قدمِ کوچک که این را یک پله پایین بیاورد.');}});});
+function draw(now){requestAnimationFrame(draw);sweep+=0.02;const cx=W/2,cy=H*0.44,R=Math.min(W,H)*0.34;
+ ctx.clearRect(0,0,W,H);ctx.fillStyle='#020a06';ctx.fillRect(0,0,W,H);
+ if(mode===1){ ctx.textAlign='right';TIERN.forEach((n,i)=>{const y=120+i*54;ctx.fillStyle=TIERC[i];ctx.fillRect(W-40-((W-80)*(i+1)/4),y,(W-80)*(i+1)/4,30);
+   ctx.strokeStyle='#0a2f1a';ctx.strokeRect(W-40-((W-80)*(i+1)/4),y,(W-80)*(i+1)/4,30);
+   ctx.fillStyle=TIERC[i];ctx.font='13px Tahoma';ctx.fillText(n,W-24,y-4);});return; }
+ if(mode===2){ ctx.textAlign='right';GATES.forEach((g,i)=>{const y=130+i*50;ctx.fillStyle=g.open?'#ef4444':'#4ade80';
+   ctx.beginPath();ctx.arc(W-30,y,8,0,6.283);ctx.fill();ctx.fillStyle='#bbf7d0';ctx.font='13px Tahoma';
+   ctx.fillText(g.k+(g.open?' — باز':' — بسته'),W-48,y+4);});return; }
+ // radar rings
+ ctx.strokeStyle='rgba(74,222,128,0.25)';ctx.lineWidth=1;
+ for(let r=1;r<=4;r++){ctx.beginPath();ctx.arc(cx,cy,R*r/4,0,6.283);ctx.stroke();}
+ ctx.beginPath();ctx.moveTo(cx-R,cy);ctx.lineTo(cx+R,cy);ctx.moveTo(cx,cy-R);ctx.lineTo(cx,cy+R);ctx.stroke();
+ // sweep
+ const grad=ctx.createConicGradient?null:null;
+ ctx.save();ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R,sweep-0.5,sweep);ctx.closePath();
+ ctx.fillStyle='rgba(74,222,128,0.12)';ctx.fill();ctx.restore();
+ ctx.strokeStyle='rgba(134,239,172,0.8)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(sweep)*R,cy+Math.sin(sweep)*R);ctx.stroke();
+ // blips
+ RISKS.forEach((r,i)=>{const x=cx+Math.cos(r.a)*R*r.d,y=cy+Math.sin(r.a)*R*r.d;
+   const near=Math.abs(((sweep-r.a)%(Math.PI*2)+Math.PI*2)%(Math.PI*2))<0.4;
+   ctx.beginPath();ctx.arc(x,y,sel===i?8:5,0,6.283);ctx.fillStyle=TIERC[r.t];
+   ctx.shadowColor=TIERC[r.t];ctx.shadowBlur=near||sel===i?18:6;ctx.fill();ctx.shadowBlur=0;
+   if(near||sel===i){ctx.fillStyle='#bbf7d0';ctx.font='11px Tahoma';ctx.textAlign='center';ctx.fillText(r.k,x,y-12);}});
+ // scanline
+ ctx.fillStyle='rgba(74,222,128,0.04)';for(let y=(now*0.05)%3;y<H;y+=3)ctx.fillRect(0,y,W,1);
+}
+setMode(0);requestAnimationFrame(draw);addEventListener('resize',fit);
+</script>
+<script>window.MATHVIZ={type:'matrix',color:0x4ade80,dist:40,formula:'score = L x I',value:'max = 9 (red)',gap:'no aggregation / decay'};</script>
+<script src="../shared-ui.js"></script>
+<script src="../octo-info.js"></script>
+</body>
+</html>

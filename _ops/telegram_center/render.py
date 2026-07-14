@@ -209,6 +209,51 @@ def _collect_legs(feeds: dict) -> dict:
             cell["next"] = "refresh پیشنهاد — نقشه را دوباره بکش"
         legs["cartographer"] = cell
 
+    # ziman: ضربانِ محلیِ ZimanLeg (ORGANISM-STATE["ziman"] — نوشتهٔ ziman_beat پشتِ
+    # OCTOPUS_WIRE_ZIMAN). LEG-07: بدونِ این خواندن، پای زندهٔ زیمان تاریک می‌ماند.
+    # block نبود = flag خاموش → پیش‌فرضِ آرام (byte-identical به قبل). content-free:
+    # فقط money_link/شمارش‌ها؛ هیچ نامِ اثر/گالری اینجا نیست.
+    zi = org.get("ziman") if isinstance(org.get("ziman"), dict) else {}
+    if zi:
+        ml = _one(zi.get("money_link"), 16) or "incubating"
+        drafts = _int(zi.get("drafts_count"))
+        prop = _int(zi.get("proposals_total"))
+        cell = {"status": "🟢" if ml == "active" else "🟡",
+                "detail": f"{ml} · {drafts} پیش‌نویس · {prop} پیشنهاد"}
+        hint = _one(zi.get("inventory_hint"), 80)
+        if hint:
+            cell["next"] = hint
+        legs["ziman"] = cell
+
+    # ۴ پای بیزنسِ تازه (mining/crypto/accounting/knowledge): قراردادِ مشترک —
+    # WP-C در business_legs_beat هر <name>_status() ({"leg","live","signal","note"})
+    # را در ORGANISM-STATE["business_legs"] جمع می‌کند؛ اینجا فقط سطحی‌سازی می‌شود.
+    # شکلِ مقدار آزاد (dict-به-نام یا list) — هر دو fail-soft. skeleton (live=False)
+    # note ِ صادقش را نشان می‌دهد نه پیش‌فرضِ خالی. غیاب = پیش‌فرضِ آرام (بدون crash).
+    bl = org.get("business_legs")
+    entries: dict = {}
+    if isinstance(bl, dict):
+        for k, v in bl.items():
+            if isinstance(v, dict):
+                entries[str(v.get("leg") or k)] = v
+    elif isinstance(bl, list):
+        for v in bl:
+            if isinstance(v, dict) and v.get("leg"):
+                entries[str(v.get("leg"))] = v
+    for name in ("mining", "crypto", "accounting", "knowledge"):
+        e = entries.get(name)
+        if not isinstance(e, dict):
+            continue
+        live = bool(e.get("live"))
+        signal = _one(e.get("signal"))
+        note = _one(e.get("note"))
+        # زنده → signalِ سرخط؛ skeleton/خاموش → note ِ صادق (چرا داده‌ای نیست).
+        detail = (signal or note if live else note or signal) or _LEG_DEFAULT["detail"]
+        cell = {"status": "🟢" if live else "⚪", "detail": detail}
+        if live and note and note != detail:
+            cell["next"] = note
+        legs[name] = cell
+
     return legs
 
 
@@ -257,7 +302,7 @@ def collect_feeds() -> dict:
         except Exception:  # noqa: BLE001
             pass
 
-    # ۸ پا → دایجستِ زنده (مصرفِ center.beat: feeds['legs'][leg]) — fail-soft
+    # ۹ پا → دایجستِ زنده (مصرفِ center.beat: feeds['legs'][leg]) — fail-soft
     try:
         feeds["legs"] = _collect_legs(feeds)
     except Exception:  # noqa: BLE001

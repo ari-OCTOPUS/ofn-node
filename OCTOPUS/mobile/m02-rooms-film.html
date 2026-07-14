@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>سفر دیتا · اتاق‌های شرکت</title>
+<style>
+  *{margin:0;box-sizing:border-box}
+  html,body{height:100%;background:#03060a;overflow:hidden;touch-action:none;overscroll-behavior:none;font-family:-apple-system,"Segoe UI",Tahoma,sans-serif;color:#cffafe}
+  canvas{display:block;position:fixed;inset:0}
+  .top{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:6;pointer-events:none;text-align:right}
+  .top b{font-size:15px;font-weight:700;color:#67e8f9;display:block;text-shadow:0 0 10px #06b6d4aa}
+  .top span{font-size:11px;color:#5b8a95}
+  .cap{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 58px);z-index:6;background:rgba(6,20,28,.72);border:1px solid #164e5b;border-radius:12px;padding:10px 12px;backdrop-filter:blur(4px);text-align:right}
+  .cap .rn{font-size:13px;font-weight:700;color:#a5f3fc}
+  .cap .rd{font-size:11.5px;color:#7dd3fc;margin-top:3px;line-height:1.7}
+  .foot{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);left:12px;right:12px;z-index:6;display:flex;gap:12px;align-items:center;font-size:10.5px;color:#4b7480;direction:ltr}
+  .foot a{color:#22d3ee;text-decoration:none;font-size:12px;pointer-events:auto}
+  .foot .pp{pointer-events:auto;color:#67e8f9;border:1px solid #164e5b;border-radius:6px;padding:2px 9px}
+  .rail{position:fixed;top:0;bottom:0;left:6px;width:6px;z-index:6;display:flex;flex-direction:column;justify-content:center;gap:6px;pointer-events:none}
+  .rail i{width:6px;height:6px;border-radius:50%;background:#164e5b}
+  .rail i.on{background:#22d3ee;box-shadow:0 0 8px #22d3ee}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="top"><b>سفر دیتا — اتاق‌های شرکت</b><span>دوربین از ورودی تا خروجی · گراف واقعی والت</span></div>
+<div class="rail" id="rail"></div>
+<div class="cap"><div class="rn" id="rn"></div><div class="rd" id="rd"></div></div>
+<div class="foot"><a href="index.html">‹ hub</a><span class="pp" id="pp">⏸ توقف</span><span id="st"></span></div>
+<script src="graph-data.js"></script>
+<script src="octo-core.js"></script>
+<script>
+const cv=document.getElementById('c'); let S=OCTO.fit(cv),ctx=S.ctx,W=S.w,H=S.h;
+const G=OCTO.G;
+// group real notes by folder
+const byG={}; G.nodes.forEach(n=>{(byG[n.g]=byG[n.g]||[]).push(n);});
+Object.values(byG).forEach(a=>a.sort((x,y)=>y.d-x.d));
+function emp(folders){ let a=[]; folders.forEach(f=>{(byG[f]||[]).forEach(n=>a.push(n));}); return a.sort((x,y)=>y.d-x.d).slice(0,5); }
+
+// pipeline rooms mapped to REAL folders (input -> output)
+const ROOMS=[
+ {fa:'اتاق ۱ — دریافت (INTAKE)', en:'00 Inbox', c:'#9ca3af', folders:['00 - Inbox'],
+  note:'همهٔ سیگنال‌های خام اینجا وارد می‌شوند — مثل دربِ ورودیِ شرکت.'},
+ {fa:'اتاق ۲ — کورتکس / مسیریابی', en:'04 Architect · cortex', c:'#a855f7', folders:['04 - Architect System'],
+  note:'مغز تصمیم می‌گیرد کدام سیگنال «آتش‌گیری» شود و کجا برود (GNWT ignition).'},
+ {fa:'اتاق ۳ — کارمندها (Agents)', en:'05 Agents', c:'#22c55e', folders:['05 - Agents'],
+  note:'لیمب‌ها/اسکات‌ها کار را برمی‌دارند: cartographer، mycelium، scouts.'},
+ {fa:'اتاق ۴ — دانش', en:'07 Knowledge', c:'#eab308', folders:['07 - Knowledge'],
+  note:'دیتا با دانشِ ذخیره‌شده غنی می‌شود — بایگانیِ مرجع.'},
+ {fa:'اتاق ۵ — نقشه/حکمرانی', en:'06 Architecture Maps', c:'#ef4444', folders:['06 - Architecture Maps'],
+  note:'قواعد و ریسک‌لدر اعمال می‌شود؛ هر اکشنِ پرخطر گیت می‌خورد.'},
+ {fa:'اتاق ۶ — پروژه‌ها', en:'03 Projects', c:'#3b82f6', folders:['03 - Projects'],
+  note:'کارِ واقعی انجام می‌شود: Lead-نقاشی، Accounting، …'},
+ {fa:'اتاق ۷ — حافظه و خروجی', en:'_memory · 01 Dashboard', c:'#f59e0b', folders:['_memory','01 - Dashboard'],
+  note:'نتیجه در حافظه ثبت و به بیرون منتشر می‌شود — خروجیِ شرکت.'},
+];
+ROOMS.forEach(r=>r.staff=emp(r.folders));
+const rail=document.getElementById('rail'); ROOMS.forEach(()=>{const i=document.createElement('i');rail.appendChild(i);});
+
+let scene=0, sceneT=0, playing=true, camY=0, pktT=0;
+const DUR=3.8;
+document.getElementById('pp').onclick=()=>{playing=!playing; document.getElementById('pp').textContent=playing?'⏸ توقف':'▶ پخش';};
+cv.addEventListener('pointerdown',()=>{ if(!playing){playing=true;document.getElementById('pp').textContent='⏸ توقف';} else {scene=(scene+1)%ROOMS.length;sceneT=0;pktT=0;} });
+
+function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+const ROOM_H=Math.max(220, H*0.62);
+
+function drawRoom(idx, yTop){
+  const R=ROOMS[idx]; const x=18,w=W-36,h=ROOM_H-40;
+  // holo panel
+  ctx.save();
+  ctx.shadowColor=R.c; ctx.shadowBlur=18;
+  ctx.strokeStyle=R.c; ctx.lineWidth=1.6; ctx.globalAlpha=0.9; roundRect(x,yTop,w,h,16); ctx.stroke();
+  ctx.shadowBlur=0; ctx.globalAlpha=1;
+  // floor grid
+  ctx.strokeStyle='rgba(34,211,238,0.10)'; ctx.lineWidth=1;
+  for(let gy=yTop+30; gy<yTop+h; gy+=26){ctx.beginPath();ctx.moveTo(x+8,gy);ctx.lineTo(x+w-8,gy);ctx.stroke();}
+  // header
+  ctx.fillStyle=R.c; ctx.font='700 15px Tahoma'; ctx.textAlign='right';
+  ctx.fillText(R.fa, x+w-14, yTop+28);
+  ctx.fillStyle='#5eead4'; ctx.font='11px monospace'; ctx.textAlign='left';
+  ctx.fillText(R.en+'  ·  '+(byG_count(R.folders))+' notes', x+14, yTop+28);
+  // employee desks (real note names)
+  const staff=R.staff, n=staff.length; const dy=yTop+64, gap=(h-90)/Math.max(n,1);
+  R._desk=[];
+  for(let i=0;i<n;i++){
+    const cy=dy+gap*i+gap*0.3, dx=x+w-70;
+    ctx.fillStyle='rgba(8,30,38,0.9)'; ctx.strokeStyle=R.c; ctx.lineWidth=1;
+    roundRect(x+16,cy-13,w-40,26,7); ctx.fill(); ctx.stroke();
+    // employee dot
+    ctx.beginPath();ctx.arc(dx,cy,5,0,6.283);ctx.fillStyle=staff[i].c;ctx.fill();
+    ctx.fillStyle='#bff3fb'; ctx.font='11px Tahoma'; ctx.textAlign='right';
+    const lbl=staff[i].l.length>26?staff[i].l.slice(0,25)+'…':staff[i].l;
+    ctx.fillText(lbl, dx-12, cy+4);
+    R._desk.push({x:dx,y:cy});
+  }
+  ctx.restore();
+  return {x,yTop,w,h};
+}
+function byG_count(folders){let c=0;folders.forEach(f=>c+=(byG[f]||[]).length);return c;}
+
+function draw(now){
+  requestAnimationFrame(draw);
+  const dt=Math.min(0.05,(now-(draw._l||now))/1000); draw._l=now;
+  if(playing){ sceneT+=dt; pktT+=dt*0.55; if(sceneT>=DUR){scene=(scene+1)%ROOMS.length;sceneT=0;pktT=0;} }
+
+  // camera eases to focus current room (rooms stacked vertically)
+  const targetY = scene*ROOM_H - (H-ROOM_H)/2 + 20;
+  camY += (targetY-camY)*Math.min(1,dt*3);
+
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#03060a'; ctx.fillRect(0,0,W,H);
+  // background scanlines (holographic)
+  ctx.fillStyle='rgba(34,211,238,0.03)';
+  for(let y=(now*0.03)%4-4;y<H;y+=4) ctx.fillRect(0,y,W,1.4);
+
+  // draw the rooms near camera
+  let focusRoom=null;
+  for(let i=0;i<ROOMS.length;i++){
+    const yTop=i*ROOM_H - camY + 20;
+    if(yTop>H||yTop+ROOM_H<0) continue;
+    const alpha = i===scene?1:0.32; ctx.globalAlpha=alpha;
+    const info=drawRoom(i,yTop); if(i===scene) focusRoom=ROOMS[i];
+    ctx.globalAlpha=1;
+    // connector arrow to next room
+    if(i<ROOMS.length-1){ const ax=W/2, ay=yTop+ROOM_H-40; ctx.strokeStyle='rgba(34,211,238,0.5)';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(ax,ay+20);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(ax-5,ay+13);ctx.lineTo(ax,ay+20);ctx.lineTo(ax+5,ay+13);ctx.stroke(); }
+  }
+
+  // data packet visits desks of current room, then flows to next
+  const R=ROOMS[scene];
+  if(R && R._desk && R._desk.length){
+    const seg=R._desk.length+1; const p=Math.min(pktT,seg)/seg; const fi=Math.min(R._desk.length-1,Math.floor(pktT));
+    let px,py;
+    const enterY = scene*ROOM_H - camY + 20 + 44;
+    if(pktT<R._desk.length){ const a=R._desk[Math.max(0,fi)]; const b=R._desk[Math.min(R._desk.length-1,fi+1)]||a; const f=pktT-fi;
+      px=(a.x)*(1-f)+b.x*f; py=(a.y)*(1-f)+b.y*f; }
+    else { const a=R._desk[R._desk.length-1]; px=W/2; py=a.y+(pktT-R._desk.length)*40; }
+    // glow packet
+    ctx.beginPath();ctx.arc(px,py,10,0,6.283);ctx.fillStyle='rgba(103,232,249,0.25)';ctx.fill();
+    ctx.beginPath();ctx.arc(px,py,4.5,0,6.283);ctx.fillStyle='#ecfeff';ctx.fill();
+  }
+
+  // rail + caption
+  document.querySelectorAll('#rail i').forEach((el,i)=>el.className=i===scene?'on':'');
+  if(focusRoom){ document.getElementById('rn').textContent=focusRoom.fa;
+    document.getElementById('rd').textContent=focusRoom.note; }
+  document.getElementById('st').textContent='صحنه '+(scene+1)+'/'+ROOMS.length+' · '+G.total_files+' notes';
+}
+requestAnimationFrame(draw);
+addEventListener('resize',()=>{S=OCTO.fit(cv);ctx=S.ctx;W=S.w;H=S.h;});
+</script>
+</body>
+</html>

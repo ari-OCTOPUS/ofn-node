@@ -61,12 +61,16 @@ def heart_mood() -> dict:
     except (TypeError, ValueError):
         arousal = 0.0
     in_fear = bool(stress.get("in_fear"))
-    heart = hs.get("heart") if isinstance(hs.get("heart"), dict) else {}
-    sig = heart.get("sigma", hs.get("sigma"))
+    # σ از ساختارِ واقعیِ heartstate.build(): hs['shadow']['sigma'] (نه heart/سطحِ بالا).
+    # کلیدِ اشتباهِ قبلی (heart/sigma) → sig همیشه None → فیوزِ σ≥۱ مرده بود (HEART-02).
+    shadow = hs.get("shadow") if isinstance(hs.get("shadow"), dict) else {}
+    sig = shadow.get("sigma")
     try:
+        # σ≥۱ = محورِ فروپاشی → freeze. fail-soft محافظه‌کار: مقدارِ حاضرِ خراب = bad؛
+        # غیابِ کامل (sig=None، حالتِ عادیِ سایه) = bad نیست تا اندام بی‌جهت freeze نشود.
         sigma_bad = sig is not None and float(sig) >= 1.0     # σ=۱ = محورِ فروپاشی
     except (TypeError, ValueError):
-        sigma_bad = False
+        sigma_bad = True
 
     if in_fear or arousal >= FEAR or sigma_bad:
         mood = "فروپاشی"

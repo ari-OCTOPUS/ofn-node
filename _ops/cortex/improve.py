@@ -278,7 +278,10 @@ def observability_ok() -> tuple[bool, str]:
 def refractory_open() -> tuple[bool, str]:
     """SPEC §۱۴: بینِ دو auto-apply حداقل REFRACTORY_H — ضدِ دستکاریِ پشتِ‌سرِهمِ معماری."""
     st = _read(AUTO_STATE_PATH) or {}
-    last = float(st.get("last_auto_ts", 0.0))
+    try:
+        last = float(st.get("last_auto_ts", 0.0))
+    except (TypeError, ValueError):
+        last = 0.0
     if last <= 0:
         return True, "first"
     import datetime as _dt
@@ -286,6 +289,25 @@ def refractory_open() -> tuple[bool, str]:
     if hours < REFRACTORY_H:
         return False, f"refractory: {hours:.1f}h < {REFRACTORY_H:.0f}h"
     return True, "open"
+
+
+def _persist_auto_ts(ts: float | None = None) -> None:
+    """SPEC §۱۴ — مُهرِ زمانِ آخرین auto-apply را اتمیک بنویس تا گاردِ refractory
+    واقعاً اجراشدنی شود. پیش از این last_auto_ts هرگز نوشته نمی‌شد → refractory_open
+    همیشه «first» می‌دید و cooldown هرگز اعمال نمی‌شد (اصلاحِ محافظه‌کارِ ایمنی:
+    فقط سخت‌گیرانه‌تر). کلیدهای موجود حفظ می‌شوند؛ fail-soft: خطای نوشتن هرگز
+    حلقهٔ auto را نمی‌کشد."""
+    import datetime as _dt
+    now_ts = float(ts) if ts is not None else _dt.datetime.now().timestamp()
+    try:
+        with opslib.LockedJson(AUTO_STATE_PATH) as lj:
+            st = lj.read() or {}
+            st["last_auto_ts"] = now_ts
+            st["last_auto_iso"] = opslib.now_iso()
+            lj.write(st)
+    except Exception as e:  # noqa: BLE001 — persist نباید auto را بکشد
+        opslib.alert([f"improve auto-state persist failed (non-fatal): "
+                      f"{type(e).__name__}: {e}"])
 
 
 def maybe_auto_apply(proposals: list[dict]) -> list[dict]:
@@ -314,6 +336,10 @@ def maybe_auto_apply(proposals: list[dict]) -> list[dict]:
                 applied.append(p_match["id"])
     except Exception as e:  # noqa: BLE001 — auto نباید حلقه را بکشد
         opslib.alert([f"auto_approve error (non-fatal): {type(e).__name__}: {e}"])
+    # SPEC §۱۴: هر بار که یک auto-apply واقعاً رخ داد، مُهرِ refractory را ثبت کن
+    # تا اعمالِ بعدیِ درونِ پنجرهٔ نقاهت مسدود شود (گاردِ cooldown را اجراشدنی می‌کند).
+    if applied:
+        _persist_auto_ts()
     return applied
 
 

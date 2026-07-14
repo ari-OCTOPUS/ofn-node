@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""lead_quote.py — چرخهٔ حیاتِ کوتیشنِ ساختاریافته (توسعهٔ lead_draft).
+"""lead_quote.py — چرخهٔ حیاتِ کوتیشنِ ساختاریافته (self-contained؛ جانشینِ lead_draft).
 
-از lead_draft.py ارث می‌برد (persist در state/legs/lead-drafts/) و OPS-01 را زمین
-می‌زند: intake ساختاریافته → pricing → line_items → Proposal → persist → render.
+منبعِ حقیقتِ persist = state/legs/lead-drafts/ (همان مسیرِ lead_draftِ حذف‌شده). OPS-01 را
+زمین می‌زند: intake ساختاریافته → pricing → line_items → Proposal → persist → render.
+(LEG-04 2026-07-13: pending/mark_sent/summary دیگر importِ مردهٔ lead_draft ندارند.)
 
 افزوده نسبت به lead_draft:
   - QuoteIntake (dataclass): فیلدهای ساختاریافته بجای scope ساده
@@ -296,23 +297,54 @@ def render_quote_html(rec: dict) -> str:
     return "\n".join(lines)
 
 
-# ─── backward-compat wrappers (lead_draft API) ───────────────────────────────
+# ─── dashboard/lifecycle helpers (lead_draft API — حالا self-contained) ──────────
+# LEG-04 (2026-07-13): ماژولِ lead_draft.py حذف شده بود؛ این wrapperها هنگام فراخوانی
+# آن ماژولِ حذف‌شده را lazy-import می‌کردند و ImportError می‌دادند (pending/mark_sent/
+# summary/__main__). منبعِ حقیقتِ همان wrapperها — دقیقاً همان persistence که
+# create_quote اینجا می‌نویسد: state/legs/lead-drafts/*.json با کلیدِ `sent`. پس به‌جای
+# import مرده، مستقیم روی همان دایرکتوری کار می‌کنیم (route to real persistence, بدونِ
+# منطقِ کسب‌وکارِ نو). fail-soft مطلق. counterِ _qt_seq.json کوت نیست → رد می‌شود.
 def pending(state_dir=None) -> list:
-    """draftهای ارسال‌نشده — سازگار با lead_draft.pending()."""
-    from lead_draft import pending as _pending
-    return _pending(state_dir=state_dir)
+    """draftهای ارسال‌نشده (sent=False). fail-soft. (جایگزینِ lead_draft.pending.)"""
+    out = []
+    counter_name = f"{_safe(_QT_SEQ_KEY)}.json"
+    try:
+        for p in sorted(_drafts_dir(state_dir).glob("*.json")):
+            if p.name == counter_name:
+                continue                       # شمارندهٔ QT، نه draft
+            r = _read(p)
+            if r and r.get("schema") == "lead-quote.v1" and not r.get("sent"):
+                out.append(r)
+    except OSError:
+        pass
+    return out
 
 
 def mark_sent(attribution_id: str, state_dir=None) -> bool:
-    """علامتِ ارسال‌شده — سازگار با lead_draft.mark_sent()."""
-    from lead_draft import mark_sent as _mark_sent
-    return _mark_sent(attribution_id, state_dir=state_dir)
+    """draft را «ارسال‌شده» علامت بزن (وقتی مالک دستی فرستاد). idempotent، fail-soft.
+    (جایگزینِ lead_draft.mark_sent.) هیچ ارسالِ واقعی — فقط علامتِ محلی."""
+    if not attribution_id:
+        return False
+    path = _drafts_dir(state_dir) / f"{_safe(attribution_id)}.json"
+    rec = _read(path)
+    if not rec or rec.get("sent"):             # نبود یا قبلاً ارسال‌شده → idempotent
+        return False
+    rec["sent"] = True
+    rec["sent_ts"] = opslib.now_iso()
+    try:
+        with opslib.LockedJson(path) as lj:
+            lj.write(rec)
+        return True
+    except Exception:  # noqa: BLE001
+        return False
 
 
 def summary(state_dir=None) -> dict:
-    """داشبورد — سازگار با lead_draft.summary()."""
-    from lead_draft import summary as _summary
-    return _summary(state_dir=state_dir)
+    """یک‌خطِ داشبورد: «N پیش‌نویسِ کوت منتظرِ ارسالِ دستی». (جایگزینِ lead_draft.summary.)"""
+    n = len(pending(state_dir))
+    line = (f"📄 {n} پیش‌نویسِ کوت منتظرِ ارسالِ دستی" if n
+            else "📄 پیش‌نویسِ کوتِ معطلی نیست — 🟢")
+    return {"n_pending": n, "line": line}
 
 
 if __name__ == "__main__":

@@ -1,0 +1,37 @@
+# ===================================================================
+# MANIFEST — نقشه اختاپوس (Vault Cartographer Tool)
+# ابزار read-only برای inventory و hygiene یک Obsidian vault
+# ===================================================================
+manifest_version: "1.0"
+generated: 2026-07-11
+
+identity:
+  code: "VaultScanner"
+  name: "نقشه اختاپوس (Octopus Map)"
+  domain: "vault inventory + hygiene diagnostics"
+  role_in_ecosystem: "DIAGNOSTIC TOOL — read-only cartographer for Obsidian vaults"
+  phase: "working — produces inventory reports"
+
+status_snapshot:
+  execution_state: "tool works; last run scanned F:\backup (NOT this directory)"
+  important_note: "vault-report.md describes F:\backup (7235 files, 535MB) — a DIFFERENT, LARGER tree. Do NOT treat its findings as describing this workspace."
+
+blackbox_potential:
+  - id: "vault_scanner"
+    desc: "read-only inventory: folder-role taxonomy (Brain/Memory/Arm/Watcher), 6-field registry, green/yellow/red action model"
+    runtime: "vault_scanner.py"
+    readiness: "COMPLETE — needs retargeting to scan THIS directory instead of F:\backup"
+    output: "vault-report.md + vault-inventory.json"
+
+control_surface:
+  entrypoint: "python vault_scanner.py <root_dir>"
+  mode: "READ-ONLY — no file modified, moved, renamed, or deleted"
+  safety: "hard constraints: never touch secrets, propose-don't-apply, respect _ops organism"
+
+dependencies:
+  self_contained: true
+  target: "any Obsidian vault directory"
+
+ecosystem_connections:
+  relationship: "DIAGNOSTIC — should be run on this workspace to produce an honest inventory"
+  recommendation: "retarget to scan 'C:\\Users\\Armin\\Desktop\\پازل هشت پا' for an accurate map"

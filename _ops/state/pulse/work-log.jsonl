@@ -1,0 +1,31 @@
+{"ts": "2026-07-10T20:47:27", "beat": 407, "period_s": 166.09, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 166.09, "gate0": false}}
+{"ts": "2026-07-10T20:52:29", "beat": 411, "period_s": 166.09, "kind": "gap_report", "ok": true, "gaps": [{"topic": "C01", "awareness": 0.06}, {"topic": "C03", "awareness": 0.06}, {"topic": "E01", "awareness": 0.06}]}
+{"ts": "2026-07-10T20:57:31", "beat": 416, "period_s": 166.09, "kind": "search", "ok": false, "skipped": "live-locked: live locked until 2026-07-21 (phase -1 shield)", "unlock": "تاریخ ≥ 2026-07-21 + ACTIVATION-WORK-LLM.flag (فقط مالک) + providerِ سرچ با رأی مالک (HH-P9)"}
+{"ts": "2026-07-10T21:02:31", "beat": 421, "period_s": 166.09, "kind": "llm_learn", "ok": false, "skipped": "live-locked: live locked until 2026-07-21 (phase -1 shield)", "unlock": "تاریخ ≥ 2026-07-21 + ACTIVATION-WORK-LLM.flag (فقط مالک) + providerِ سرچ با رأی مالک (HH-P9)"}
+{"ts": "2026-07-11T02:53:39", "beat": 750, "period_s": 336.59, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 336.59, "gate0": false}}
+{"ts": "2026-07-11T09:01:15", "beat": 1052, "period_s": 900.0, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 900.0, "gate0": false}}
+{"ts": "2026-07-11T09:19:15", "beat": 1070, "period_s": 900.0, "kind": "gap_report", "ok": true, "gaps": [{"topic": "C01", "awareness": 0.06}, {"topic": "C03", "awareness": 0.06}, {"topic": "E01", "awareness": 0.06}]}
+{"ts": "2026-07-11T15:07:36", "beat": 1413, "period_s": 900.0, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 900.0, "gate0": true}}
+{"ts": "2026-07-11T21:22:07", "beat": 1767, "period_s": 900.0, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 900.0, "gate0": true}}
+{"ts": "2026-07-11T21:37:10", "beat": 1781, "period_s": 900.0, "kind": "gap_report", "ok": true, "gaps": [{"topic": "C01", "awareness": 0.06}, {"topic": "C03", "awareness": 0.06}, {"topic": "E01", "awareness": 0.06}]}
+{"ts": "2026-07-11T21:52:11", "beat": 1796, "period_s": 900.0, "kind": "search", "ok": false, "skipped": "paid-search provider هنوز انتخاب نشده (لِینِ $0 web_research فعال است)"}
+{"ts": "2026-07-11T22:07:26", "beat": 1811, "period_s": 900.0, "kind": "llm_learn", "ok": true, "tier": "local", "n_proposals": 0, "cost_usd": 0.0}
+{"ts": "2026-07-12T03:27:00", "beat": 2125, "period_s": 68.22, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 68.22, "gate0": true}}
+{"ts": "2026-07-12T09:28:37", "beat": 2481, "period_s": 900.0, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 900.0, "gate0": true}}
+{"ts": "2026-07-12T09:43:38", "beat": 2495, "period_s": 900.0, "kind": "gap_report", "ok": true, "gaps": [{"topic": "C01", "awareness": 0.06}, {"topic": "C03", "awareness": 0.06}, {"topic": "E01", "awareness": 0.06}]}
+{"ts": "2026-07-12T15:29:39", "beat": 2835, "period_s": 900.0, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 900.0, "gate0": true}}
+{"ts": "2026-07-12T21:31:03", "beat": 3190, "period_s": 900.0, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 900.0, "gate0": true}}
+{"ts": "2026-07-12T21:46:05", "beat": 3205, "period_s": 900.0, "kind": "gap_report", "ok": true, "gaps": [{"topic": "C01", "awareness": 0.06}, {"topic": "C03", "awareness": 0.06}, {"topic": "E01", "awareness": 0.06}]}
+{"ts": "2026-07-12T22:01:06", "beat": 3220, "period_s": 900.0, "kind": "search", "ok": false, "skipped": "paid-search provider هنوز انتخاب نشده (لِینِ $0 web_research فعال است)"}
+{"ts": "2026-07-12T22:16:26", "beat": 3235, "period_s": 900.0, "kind": "llm_learn", "ok": true, "tier": "local", "n_proposals": 0, "cost_usd": 0.0}
+{"ts": "2026-07-13T03:31:34", "beat": 3545, "period_s": 72.55, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 72.55, "gate0": true}}
+{"ts": "2026-07-13T09:36:40", "beat": 3904, "period_s": 900.0, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 900.0, "gate0": true}}
+{"ts": "2026-07-13T09:51:40", "beat": 3919, "period_s": 900.0, "kind": "gap_report", "ok": true, "gaps": [{"topic": "C01", "awareness": 0.06}, {"topic": "C03", "awareness": 0.06}, {"topic": "E01", "awareness": 0.06}]}
+{"ts": "2026-07-13T15:36:52", "beat": 4259, "period_s": 900.0, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 900.0, "gate0": true}}
+{"ts": "2026-07-13T22:07:18", "beat": 4469, "period_s": 900.0, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 900.0, "gate0": true}}
+{"ts": "2026-07-13T22:22:23", "beat": 4483, "period_s": 900.0, "kind": "gap_report", "ok": true, "gaps": [{"topic": "C01", "awareness": 0.06}, {"topic": "C03", "awareness": 0.06}, {"topic": "E01", "awareness": 0.06}]}
+{"ts": "2026-07-13T22:37:27", "beat": 4498, "period_s": 900.0, "kind": "search", "ok": false, "skipped": "paid-search provider هنوز انتخاب نشده (لِینِ $0 web_research فعال است)"}
+{"ts": "2026-07-13T22:52:37", "beat": 4513, "period_s": 900.0, "kind": "llm_learn", "ok": false, "reason": "local-llm-unavailable · secondary بسته: paid-call-failed", "ctx_sizes": {"goals": 6, "gaps": 6, "web": 6, "body": 1}}
+{"ts": "2026-07-14T04:13:27", "beat": 4830, "period_s": 900.0, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 900.0, "gate0": true}}
+{"ts": "2026-07-14T10:13:48", "beat": 5184, "period_s": 900.0, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 900.0, "gate0": true}}
+{"ts": "2026-07-14T10:28:49", "beat": 5199, "period_s": 900.0, "kind": "gap_report", "ok": true, "gaps": [{"topic": "C01", "awareness": 0.06}, {"topic": "C03", "awareness": 0.06}, {"topic": "E01", "awareness": 0.06}]}

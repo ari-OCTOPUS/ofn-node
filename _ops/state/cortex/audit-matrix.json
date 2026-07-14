@@ -1,0 +1,496 @@
+{
+  "ts": "2026-07-11T08:03:40",
+  "schema": "audit-matrix.v1",
+  "n": 43,
+  "tally": {
+    "Done": 26,
+    "Partial": 13,
+    "Missing": 4,
+    "Unknown": 0
+  },
+  "maturity_pct": 75.6,
+  "items": [
+    {
+      "item": "kill switch + stop reasons",
+      "status": "Done",
+      "evidence": "opslib.STOP_ORGANISM/halted/frozen + STOP-CORTEX",
+      "priority": "P0",
+      "gap_type": "none",
+      "section": "§13 governance"
+    },
+    {
+      "item": "long-running loop watchdog",
+      "status": "Done",
+      "evidence": "watchdog.py + organism-watchdog.ps1",
+      "priority": "P1",
+      "gap_type": "none",
+      "section": "§16 time-loops"
+    },
+    {
+      "item": "heartbeat / pulse system",
+      "status": "Done",
+      "evidence": "heart-shadow period=900.0",
+      "priority": "P1",
+      "gap_type": "none",
+      "section": "§16 time-loops"
+    },
+    {
+      "item": "fast/slow/epoch loops separated",
+      "status": "Done",
+      "evidence": "tick+cardiac(fast) · governor_epoch(slow) · doctor_beat 1440(epoch)",
+      "priority": "P2",
+      "gap_type": "none",
+      "section": "§16 time-loops"
+    },
+    {
+      "item": "truth source explicit (ledger/verdict)",
+      "status": "Done",
+      "evidence": "genome ledger (hash-chained) + owner verdict via RFC",
+      "priority": "P1",
+      "gap_type": "none",
+      "section": "§5 state"
+    },
+    {
+      "item": "replay from state+logs",
+      "status": "Done",
+      "evidence": "checkpoint.py replay/replay_state_at + chrono.db",
+      "priority": "P2",
+      "gap_type": "none",
+      "section": "§5 state"
+    },
+    {
+      "item": "stale state detection",
+      "status": "Done",
+      "evidence": "cortex registry.sweep → stale_members + این audit",
+      "priority": "P2",
+      "gap_type": "none",
+      "section": "§5 state"
+    },
+    {
+      "item": "memory has librarian logic (dedupe/aging)",
+      "status": "Done",
+      "evidence": "consolidation.py + bcm.py (forgetting/aging) + dedupe by message_id",
+      "priority": "P2",
+      "gap_type": "none",
+      "section": "§6 memory"
+    },
+    {
+      "item": "memory poisoning / false-canon guard",
+      "status": "Partial",
+      "evidence": "constitution §7: created_by:agent + sources≥2؛ ولی مانیتورِ خودکار نیست",
+      "priority": "P1",
+      "gap_type": "governance",
+      "section": "§6 memory"
+    },
+    {
+      "item": "trace layer independent of self-report",
+      "status": "Done",
+      "evidence": "ledger events + governor-alerts + heartbeat (external to agents)",
+      "priority": "P1",
+      "gap_type": "none",
+      "section": "§8 observability"
+    },
+    {
+      "item": "tool-call cost/latency logging",
+      "status": "Partial",
+      "evidence": "organ_gate.settle logs est/actual usd؛ latency در local_llm.ms",
+      "priority": "P2",
+      "gap_type": "observability",
+      "section": "§8 observability"
+    },
+    {
+      "item": "dashboard for system vitals",
+      "status": "Done",
+      "evidence": "live/server.py (8773 hologram) + cockpit v2 telegram",
+      "priority": "P2",
+      "gap_type": "none",
+      "section": "§8 observability"
+    },
+    {
+      "item": "epistemic signals (uncertainty/disagreement/missing-evidence)",
+      "status": "Partial",
+      "evidence": "epistemics/* (MI, identifiability) + این audit's Unknown/gap flags؛ off در profile",
+      "priority": "P2",
+      "gap_type": "observability",
+      "section": "§8 observability"
+    },
+    {
+      "item": "self-analysis loop observe→critique→propose→validate→promote",
+      "status": "Partial",
+      "evidence": "doctor.run_cycle(mine→rfc→sandbox→chamber→submit) + cortex.align + این audit؛ گاف: apply_merge/eval واقعی",
+      "priority": "P0",
+      "gap_type": "architecture",
+      "section": "§9 self-analysis"
+    },
+    {
+      "item": "self-analysis is trace-based not self-talk",
+      "status": "Done",
+      "evidence": "doctor._gather_trace از ORGANISM-STATE/replication/telemetry/chrono.db — external",
+      "priority": "P1",
+      "gap_type": "none",
+      "section": "§9 self-analysis"
+    },
+    {
+      "item": "self-analysis loop has stop-condition",
+      "status": "Partial",
+      "evidence": "calibration.should_skip_bottleneck (3 rejects→skip) + attention_gate soft3/hard5",
+      "priority": "P1",
+      "gap_type": "governance",
+      "section": "§9 self-analysis"
+    },
+    {
+      "item": "improvement proposals shadow-eval before promote",
+      "status": "Partial",
+      "evidence": "run_sandbox (tempfile isolated) + critic؛ ولی measured_lift eval هنوز stub",
+      "priority": "P0",
+      "gap_type": "implementation",
+      "section": "§9/§10 self-improve"
+    },
+    {
+      "item": "change leveled: tune/reconfig/rewrite + contract",
+      "status": "Missing",
+      "evidence": "none — سطح‌بندیِ صریحِ تغییر و change-contract هنوز نیست (کارِ improve.py)",
+      "priority": "P1",
+      "gap_type": "governance",
+      "section": "§10 self-modify"
+    },
+    {
+      "item": "rollback path before apply",
+      "status": "Partial",
+      "evidence": "RFC.rollback field + measured_lift drop<0.05 + git tags (pre-merge)",
+      "priority": "P1",
+      "gap_type": "governance",
+      "section": "§10 self-modify"
+    },
+    {
+      "item": "regression suite / golden tasks",
+      "status": "Done",
+      "evidence": "tests/run_all.py (87 files) + capability_gate marker + held_out_evaluator canaries",
+      "priority": "P0",
+      "gap_type": "none",
+      "section": "§11 validation"
+    },
+    {
+      "item": "deterministic tests for routing logic",
+      "status": "Done",
+      "evidence": "test_telegram_poll_e2e (dispatch matrix) + test_cortex router fallback",
+      "priority": "P1",
+      "gap_type": "none",
+      "section": "§11 validation"
+    },
+    {
+      "item": "blind-vs-informed evaluation harness",
+      "status": "Done",
+      "evidence": "sog_math (blind/informed losses, MC-validated) + producers.delta_self_estimator",
+      "priority": "P1",
+      "gap_type": "none",
+      "section": "§11 validation"
+    },
+    {
+      "item": "single-agent / null baseline",
+      "status": "Partial",
+      "evidence": "baseline.py + box/null_dreamer؛ ولی مقایسهٔ سیستمیِ multi-vs-single خودکار نیست",
+      "priority": "P2",
+      "gap_type": "theory",
+      "section": "§11/§20 validation"
+    },
+    {
+      "item": "named human owner per subsystem",
+      "status": "Partial",
+      "evidence": "owner=ari (single operator)؛ ولی per-agent owner-mapping صریح نیست",
+      "priority": "P2",
+      "gap_type": "governance",
+      "section": "§13 governance"
+    },
+    {
+      "item": "human-append anti-forgery ENFORCED (is_human unforgeable)",
+      "status": "Done",
+      "evidence": "organism configure(per-boot secret) + chrono authorize→downgrade؛ mint فقط تلگرام؛ جعلِ بی‌توکن→is_human=0 (test_p0_security_fixes)",
+      "priority": "P0",
+      "gap_type": "none",
+      "section": "§15 human-in-loop"
+    },
+    {
+      "item": "owner merge verdict has real effect (apply_merge wired)",
+      "status": "Done",
+      "evidence": "run_cycle: merged→apply_merge (lesson+NOTE، پشتِ OCTOPUS_WIRE_APPLY_MERGE) + رفعِ باگِ to_markdown float",
+      "priority": "P0",
+      "gap_type": "none",
+      "section": "§15 human-in-loop"
+    },
+    {
+      "item": "owner autonomy preference modulates behavior",
+      "status": "Missing",
+      "evidence": "panel autonomy radio → OWNER-PROFILE؛ ولی export/cockpit عمداً آن را نمی‌خوانند → رفتار hard-coded",
+      "priority": "P2",
+      "gap_type": "governance",
+      "section": "§1 autonomy"
+    },
+    {
+      "item": "approval gates for high-impact + policy change",
+      "status": "Done",
+      "evidence": "live_gate_open (date+flag) + RFC human-append + money organ_gate + human-append-guard",
+      "priority": "P0",
+      "gap_type": "none",
+      "section": "§13 governance"
+    },
+    {
+      "item": "secrets isolated from agent context",
+      "status": "Done",
+      "evidence": ".agentignore (*.env/*key/*seed) + env_loader never echoes + keys_present bool-only",
+      "priority": "P0",
+      "gap_type": "none",
+      "section": "§14 security"
+    },
+    {
+      "item": "output sanitization (redaction)",
+      "status": "Done",
+      "evidence": "cockpit_readmodel.redact/contains_secret on every telegram+live output",
+      "priority": "P0",
+      "gap_type": "none",
+      "section": "§14 security"
+    },
+    {
+      "item": "tool/model registry + trust levels",
+      "status": "Partial",
+      "evidence": "model_router (local/glm/fugu tiers, paid double-gated) + budgets.yaml routing؛ tool-contract صریح ناقص",
+      "priority": "P2",
+      "gap_type": "architecture",
+      "section": "§18 tools"
+    },
+    {
+      "item": "dry-run/simulate before external action",
+      "status": "Done",
+      "evidence": "sim_heart (closed-loop) + governor allocate_dry + sandbox + shadow-mode everywhere",
+      "priority": "P1",
+      "gap_type": "none",
+      "section": "§18 tools"
+    },
+    {
+      "item": "core formulas reusable+versioned+locked",
+      "status": "Done",
+      "evidence": "PULSE-EQUATIONS-LOCKED.json (schema v1, sha256 provenance, MC-validated)",
+      "priority": "P1",
+      "gap_type": "none",
+      "section": "§3/§17 math"
+    },
+    {
+      "item": "formal agent graph + centrality/coupling",
+      "status": "Partial",
+      "evidence": "cortex.registry (10 members, vital-weighted coherence)؛ ولی edge-types/centrality صریح نیست",
+      "priority": "P2",
+      "gap_type": "architecture",
+      "section": "§17 geometry"
+    },
+    {
+      "item": "drift over time measured",
+      "status": "Missing",
+      "evidence": "none — drift-metric صریح (coherence/velocity trend) هنوز نیست (کاندید improve.py)",
+      "priority": "P2",
+      "gap_type": "observability",
+      "section": "§16 time-loops"
+    },
+    {
+      "item": "SPEC v0 (2027) + autonomy ladder L0-L5 formalized",
+      "status": "Done",
+      "evidence": "SPEC-OCTOPUS-2027-v0.md §۴ (نگاشتِ L0..L5 به گیت‌های واقعی)",
+      "priority": "P1",
+      "gap_type": "none",
+      "section": "2027§4 autonomy-ladder"
+    },
+    {
+      "item": "self-improvement halts when observability dies (GAAT)",
+      "status": "Done",
+      "evidence": "improve.observability_ok → auto سخت‌قفل + آیتمِ P0 در digest",
+      "priority": "P0",
+      "gap_type": "none",
+      "section": "2027§21-1 hard-questions"
+    },
+    {
+      "item": "refractory period between self-changes",
+      "status": "Done",
+      "evidence": "improve.refractory_open (۲۴h بینِ دو auto) — pulse→gate→refractory",
+      "priority": "P1",
+      "gap_type": "none",
+      "section": "2027§14 rhythm-governance"
+    },
+    {
+      "item": "handoff = versioned state-file contract (schema field)",
+      "status": "Done",
+      "evidence": "3/3 فایلِ نمونه schema-دار (SPEC §۷)",
+      "priority": "P2",
+      "gap_type": "none",
+      "section": "2027§7 handoff"
+    },
+    {
+      "item": "decision ledger (verdicts aggregated)",
+      "status": "Partial",
+      "evidence": "AGENT_QUESTIONS verdicts + ledger NOTEها + improve-verdicts.jsonl؛ تجمیعِ واحدِ query-پذیر نیست",
+      "priority": "P2",
+      "gap_type": "governance",
+      "section": "2027§22 artifacts"
+    },
+    {
+      "item": "cost governance (multi-model/internet loops)",
+      "status": "Done",
+      "evidence": "budgets.yaml cap_monthly + organ_gate metering + system_share سهمیهٔ اشتراک",
+      "priority": "P1",
+      "gap_type": "none",
+      "section": "2027§19 cost"
+    },
+    {
+      "item": "identity drift monitoring in self-modifying agents",
+      "status": "Missing",
+      "evidence": "none — سنجهٔ driftِ هویتی (پایداریِ رفتار/ارزش بعد از تغییر) هنوز نیست",
+      "priority": "P2",
+      "gap_type": "theory",
+      "section": "2027§11 self-modify"
+    },
+    {
+      "item": "prioritized implementation backlog",
+      "status": "Partial",
+      "evidence": "این audit-matrix + AGENT_QUESTIONS + HANDOFF؛ ولی backlogِ زندهٔ owner-facing = کارِ improve.py",
+      "priority": "P1",
+      "gap_type": "implementation",
+      "section": "§19 coding-ready"
+    }
+  ],
+  "gaps": [
+    {
+      "item": "self-analysis loop observe→critique→propose→validate→promote",
+      "status": "Partial",
+      "evidence": "doctor.run_cycle(mine→rfc→sandbox→chamber→submit) + cortex.align + این audit؛ گاف: apply_merge/eval واقعی",
+      "priority": "P0",
+      "gap_type": "architecture",
+      "section": "§9 self-analysis"
+    },
+    {
+      "item": "improvement proposals shadow-eval before promote",
+      "status": "Partial",
+      "evidence": "run_sandbox (tempfile isolated) + critic؛ ولی measured_lift eval هنوز stub",
+      "priority": "P0",
+      "gap_type": "implementation",
+      "section": "§9/§10 self-improve"
+    },
+    {
+      "item": "change leveled: tune/reconfig/rewrite + contract",
+      "status": "Missing",
+      "evidence": "none — سطح‌بندیِ صریحِ تغییر و change-contract هنوز نیست (کارِ improve.py)",
+      "priority": "P1",
+      "gap_type": "governance",
+      "section": "§10 self-modify"
+    },
+    {
+      "item": "memory poisoning / false-canon guard",
+      "status": "Partial",
+      "evidence": "constitution §7: created_by:agent + sources≥2؛ ولی مانیتورِ خودکار نیست",
+      "priority": "P1",
+      "gap_type": "governance",
+      "section": "§6 memory"
+    },
+    {
+      "item": "self-analysis loop has stop-condition",
+      "status": "Partial",
+      "evidence": "calibration.should_skip_bottleneck (3 rejects→skip) + attention_gate soft3/hard5",
+      "priority": "P1",
+      "gap_type": "governance",
+      "section": "§9 self-analysis"
+    },
+    {
+      "item": "rollback path before apply",
+      "status": "Partial",
+      "evidence": "RFC.rollback field + measured_lift drop<0.05 + git tags (pre-merge)",
+      "priority": "P1",
+      "gap_type": "governance",
+      "section": "§10 self-modify"
+    },
+    {
+      "item": "prioritized implementation backlog",
+      "status": "Partial",
+      "evidence": "این audit-matrix + AGENT_QUESTIONS + HANDOFF؛ ولی backlogِ زندهٔ owner-facing = کارِ improve.py",
+      "priority": "P1",
+      "gap_type": "implementation",
+      "section": "§19 coding-ready"
+    },
+    {
+      "item": "owner autonomy preference modulates behavior",
+      "status": "Missing",
+      "evidence": "panel autonomy radio → OWNER-PROFILE؛ ولی export/cockpit عمداً آن را نمی‌خوانند → رفتار hard-coded",
+      "priority": "P2",
+      "gap_type": "governance",
+      "section": "§1 autonomy"
+    },
+    {
+      "item": "drift over time measured",
+      "status": "Missing",
+      "evidence": "none — drift-metric صریح (coherence/velocity trend) هنوز نیست (کاندید improve.py)",
+      "priority": "P2",
+      "gap_type": "observability",
+      "section": "§16 time-loops"
+    },
+    {
+      "item": "identity drift monitoring in self-modifying agents",
+      "status": "Missing",
+      "evidence": "none — سنجهٔ driftِ هویتی (پایداریِ رفتار/ارزش بعد از تغییر) هنوز نیست",
+      "priority": "P2",
+      "gap_type": "theory",
+      "section": "2027§11 self-modify"
+    },
+    {
+      "item": "tool-call cost/latency logging",
+      "status": "Partial",
+      "evidence": "organ_gate.settle logs est/actual usd؛ latency در local_llm.ms",
+      "priority": "P2",
+      "gap_type": "observability",
+      "section": "§8 observability"
+    },
+    {
+      "item": "epistemic signals (uncertainty/disagreement/missing-evidence)",
+      "status": "Partial",
+      "evidence": "epistemics/* (MI, identifiability) + این audit's Unknown/gap flags؛ off در profile",
+      "priority": "P2",
+      "gap_type": "observability",
+      "section": "§8 observability"
+    },
+    {
+      "item": "single-agent / null baseline",
+      "status": "Partial",
+      "evidence": "baseline.py + box/null_dreamer؛ ولی مقایسهٔ سیستمیِ multi-vs-single خودکار نیست",
+      "priority": "P2",
+      "gap_type": "theory",
+      "section": "§11/§20 validation"
+    },
+    {
+      "item": "named human owner per subsystem",
+      "status": "Partial",
+      "evidence": "owner=ari (single operator)؛ ولی per-agent owner-mapping صریح نیست",
+      "priority": "P2",
+      "gap_type": "governance",
+      "section": "§13 governance"
+    },
+    {
+      "item": "tool/model registry + trust levels",
+      "status": "Partial",
+      "evidence": "model_router (local/glm/fugu tiers, paid double-gated) + budgets.yaml routing؛ tool-contract صریح ناقص",
+      "priority": "P2",
+      "gap_type": "architecture",
+      "section": "§18 tools"
+    },
+    {
+      "item": "formal agent graph + centrality/coupling",
+      "status": "Partial",
+      "evidence": "cortex.registry (10 members, vital-weighted coherence)؛ ولی edge-types/centrality صریح نیست",
+      "priority": "P2",
+      "gap_type": "architecture",
+      "section": "§17 geometry"
+    },
+    {
+      "item": "decision ledger (verdicts aggregated)",
+      "status": "Partial",
+      "evidence": "AGENT_QUESTIONS verdicts + ledger NOTEها + improve-verdicts.jsonl؛ تجمیعِ واحدِ query-پذیر نیست",
+      "priority": "P2",
+      "gap_type": "governance",
+      "section": "2027§22 artifacts"
+    }
+  ]
+}

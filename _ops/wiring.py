@@ -196,21 +196,11 @@ def make_lead_leg():
         return None
 
 
-def make_ziman_leg():
-    """ساختِ ZimanLeg. پشتِ OCTOPUS_WIRE_ZIMAN.
-    organ=ZIMAN از budgets.yaml (floor AU$1) — money_link active وقتی organ موجود.
-    propose-only + D4 capacity؛ هیچ publish/send/spend.
-    """
-    if not flag("OCTOPUS_WIRE_ZIMAN"):
-        return None
-    try:
-        sys.path.insert(0, str(_HERE / "legs"))
-        sys.path.insert(0, str(_HERE / "budget"))
-        from ziman_leg import ZimanLeg, default_packet
-        return ZimanLeg(default_packet(), organ_table=opslib.organ_table())
-    except Exception as e:  # noqa: BLE001
-        opslib.alert([f"wiring: ZimanLeg ساخت نشد: {e}"])
-        return None
+# LEG-08 (2026-07-13): make_ziman_leg و ziman_beatِ «نسخهٔ اول» (dead duplicate) از
+# اینجا حذف شدند — نسخهٔ زندهٔ غنی‌تر پایین‌تر است (§ Z · Ziman limb): singleton via
+# _ZIMAN_STATE + status_snapshot/telegram_digest/biology + persist به ORGANISM-STATE.ziman،
+# با امضایِ ziman_beat(leg=None, beat, doctor=…) که organism.py صدا می‌زند. تعریفِ دومی
+# بایندِ نهایی بود → این جفتِ اول عملاً هرگز اجرا نمی‌شد (module-level shadowing).
 
 
 def make_cartographer_leg():
@@ -299,42 +289,8 @@ def publish_tick_signals(live_loop, *, beat=None, neural_result=None,
 
 # ════════════════════════════════════════════════════════════════════════════════
 # L · LeadLeg autonomous loop — HLC + ack + propose-only (P-L1)
+# (LEG-08: ziman_beatِ «نسخهٔ اول» که اینجا بود حذف شد — نسخهٔ زندهٔ § Z پایین‌تر است.)
 # ════════════════════════════════════════════════════════════════════════════════
-
-def ziman_beat(ziman_leg, beat: int = 0) -> dict | None:
-    """یک ضربان محلی برای ZimanLeg؛ فقط status + proposalهای داخلی.
-
-    برخلاف ``leg_beat`` برای Lead، زیمان هنوز به HLC/Pacemaker متصل نیست: کار آن
-    inventory/content intelligence است، نه intake مالی. این seam عمداً فقط
-    ``ZimanLeg.tick()`` را فرا می‌خواند و نتیجه را برای ORGANISM-STATE برمی‌گرداند.
-    STOP/HALT همیشه مقدم است؛ هیچ Telegram/publish/send/spend از این مسیر وجود ندارد.
-    """
-    if not flag("OCTOPUS_WIRE_ZIMAN"):
-        return None
-    if opslib.STOP_ORGANISM.exists() or opslib.halted():
-        return None
-    if ziman_leg is None:
-        return None
-    try:
-        result = ziman_leg.tick()
-        status = result.get("status", {}) if isinstance(result, dict) else {}
-        return {
-            "leg_id": status.get("leg_id", "ziman-gallery"),
-            "organ": status.get("organ", "ZIMAN"),
-            "money_link": status.get("money_link", "incubating"),
-            "capacity_ceiling_per_week": status.get("capacity_ceiling_per_week", 0),
-            "inventory_hint": status.get("inventory_hint"),
-            "drafts_count": status.get("drafts_count", 0),
-            "proposals_delta": result.get("proposals_delta", 0),
-            "proposals_total": result.get("proposals_total", 0),
-            "propose_only": True,
-            "outward_execution": False,
-            "beat": beat,
-        }
-    except Exception as e:  # noqa: BLE001 — یک limb نباید ارگانیسم را بکشد
-        opslib.alert([f"wiring: ziman_beat خطا: {type(e).__name__}: {e}"])
-        return None
-
 
 def _cartographer_map_signal():
     """(map_updated_iso, drift_count) — read-only، fail-soft، content-free.
@@ -441,15 +397,63 @@ def leg_beat(lead_leg, pacemaker=None, beat: int = 0) -> dict | None:
             pass
         # status فقط‌خواندنی (propose-only — هیچ effector)
         st = lead_leg.status()
-        return {"leg_id": leg_id, "hlc": list(hlc),
-                "events_this_beat": handle.events_this_beat,
-                "last_beat_seen": handle.last_beat_seen,
-                "money_link": st.get("money_link"),
-                "proposals_emitted": st.get("proposals_emitted", 0),
-                "propose_only": True}
+        out = {"leg_id": leg_id, "hlc": list(hlc),
+               "events_this_beat": handle.events_this_beat,
+               "last_beat_seen": handle.last_beat_seen,
+               "money_link": st.get("money_link"),
+               "proposals_emitted": st.get("proposals_emitted", 0),
+               "propose_only": True}
+        # ── LEG-02/03/05 (money · DRY): زنجیرهٔ درآمدِ Lead پشتِ OCTOPUS_WIRE_LEAD_DRAFT
+        # (پیش‌فرض خاموش و عمداً خارج از PAPER_FULL_FLAGS → حتی در profileِ paper-full هم
+        # روشن نمی‌شود). با flag خاموش این بلوک عیناً no-op است (بایت‌به‌بایتِ رفتارِ فعلی).
+        # روشن = فقط artifact/draft می‌سازد؛ هیچ ارسال/تماس/ایمیل/پرداخت. fail-soft.
+        if flag("OCTOPUS_WIRE_LEAD_DRAFT"):
+            try:
+                out["lead_chain"] = _lead_draft_chain(lead_leg, beat=beat)
+            except Exception as _de:  # noqa: BLE001 — §۴: زنجیرهٔ درآمد نباید beat را بکشد
+                opslib.alert([f"wiring: lead_draft_chain خطا: {type(_de).__name__}: {_de}"])
+        return out
     except Exception as e:  # noqa: BLE001 — §۴: leg نباید tick را بکشد
         opslib.alert([f"wiring: leg_beat خطا: {type(e).__name__}: {e}"])
         return None
+
+
+def _lead_draft_chain(lead_leg, beat: int = 0) -> dict:
+    """LEG-02/03/05 · زنجیرهٔ درآمدِ Lead به‌صورت DRY (propose-only مطلق).
+
+    پشتِ OCTOPUS_WIRE_LEAD_DRAFT از leg_beat صدا زده می‌شود. دو کارِ کاملاً «خشک»:
+      (۱) LeadLeg.draft_quote → یک draft proposalِ درون‌حافظه‌ای (اثبات دسترس‌پذیریِ مسیر؛
+          هیچ mintِ لیدِ واقعی، هیچ persist، هیچ send/تماس).
+      (۲) LEG-05: invoice.py را از همان زنجیره reachable کن — فقط برای draftهای *واقعیِ*
+          pending (منبعِ داده = state/legs/lead-drafts/)، حداکثر یکی در هر beat، صرفاً
+          create_invoice (artifact). هرگز mark_paid و هرگز reconcileِ واقعی (اثرِ پرداخت).
+    هیچ‌کدام پول/بیرون را لمس نمی‌کند؛ همه محلی + fail-soft."""
+    out = {"drafted": False, "invoice": None}
+    try:
+        sys.path.insert(0, str(_HERE / "legs"))
+        # (۱) draft proposal — probe carrier (نه لیدِ واقعی؛ attribution mint نمی‌شود)
+        prop = lead_leg.draft_quote(
+            f"LEAD-PROBE-{beat}",
+            scope="probe · propose-only draft (wiring reachability · DRY)",
+            price_range_aud=(0.0, 0.0),
+        )
+        out["drafted"] = True
+        out["proposal_id"] = getattr(prop, "proposal_id", None)
+    except Exception as _pe:  # noqa: BLE001 — draft نباید زنجیره را بکشد
+        opslib.alert([f"wiring: lead draft_quote خطا: {type(_pe).__name__}: {_pe}"])
+    # (۲) LEG-05: invoice artifact از draftِ واقعیِ pending (DRY — بدونِ mark_paid/reconcile)
+    try:
+        import lead_quote as _lq          # noqa: WPS433 — lazy
+        import invoice as _inv            # noqa: WPS433 — lazy
+        pend = _lq.pending()
+        if pend:
+            aid = str((pend[0] or {}).get("attribution_id") or "")
+            if aid:
+                r = _inv.create_invoice(aid)   # persist سندِ invoice؛ paid فقط اگر از قبل CONFIRMED (read-only fold)
+                out["invoice"] = r.get("inv_number") if isinstance(r, dict) and r.get("ok") else None
+    except Exception as _ie:  # noqa: BLE001 — invoice نباید زنجیره را بکشد
+        opslib.alert([f"wiring: lead invoice خطا: {type(_ie).__name__}: {_ie}"])
+    return out
 
 
 # ─── W-2 · Doctor hook به Pacemaker ────────────────────────────────────────────
@@ -631,6 +635,33 @@ def scheduler_seed_doctor_rfc(doctor, pacemaker):
                                    leg_id=None, in_beats=10)
     except Exception:  # noqa: BLE001 — fail-soft
         pass
+
+
+def scheduler_seed_beat(doctor=None, pacemaker=None, beat: int = 0) -> dict | None:
+    """F3 wiring (2026-07-14): نقطهٔ اتصالِ آمادهٔ scheduler_seed_doctor_rfc به حلقهٔ ضربان.
+
+    این تولیدکننده (scheduler_seed_doctor_rfc) پشتِ flag تعریف شده بود ولی هیچ‌جا صدا
+    نمی‌شد (unwired). این wrapper همان producer را با kill-switch + observability به یک
+    beat می‌بندد تا organism.py فقط یک خط صدا بزند (جداییِ concern: منطقِ wiring اینجا
+    می‌ماند، نه در organism.py).
+
+    پشتِ OCTOPUS_WIRE_SCHEDULER (پیش‌فرض خاموش). با flag خاموش عیناً no-op است
+    (بایت‌به‌بایتِ رفتارِ فعلی: نه schedule، نه ledger، نه هیچ اثر). kill-switch اول.
+    propose-only مطلق — فقط pacemaker.schedule() (صفِ anticipation، advisory)، هیچ effector.
+
+    خروجی: {seeded: bool, beat} یا None (flag خاموش/kill/precondition/خطا)."""
+    if not flag("OCTOPUS_WIRE_SCHEDULER"):
+        return None   # flag خاموش = no-op (no regression)
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None   # kill-switch
+    if doctor is None or pacemaker is None:
+        return None   # بدونِ doctor/pacemaker چیزی برای seed نیست
+    try:
+        scheduler_seed_doctor_rfc(doctor, pacemaker)
+        return {"seeded": True, "beat": beat, "propose_only": True}
+    except Exception as e:  # noqa: BLE001 — §۴: seed نباید tick را بکشد
+        opslib.alert([f"wiring: scheduler_seed_beat خطا: {type(e).__name__}: {e}"])
+        return None
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -1152,6 +1183,10 @@ def afferent_beat(sensory_bus, school_bridge=None, snap=None, beat: int = 0) -> 
     verification-gate: فقط afferent=True یاد گرفته می‌شود (PII-رد/internal نادیده).
 
     خروجی: {school_report, sensory_status, n_observations} یا None (advisory)."""
+    # LEG-09: پلِ ingest_raw (crypto/accounting) پشتِ OCTOPUS_WIRE_INGEST — مستقل از
+    # OCTOPUS_WIRE_SCHOOL. ingest_beat خودش STOP + flag + cadence را چک می‌کند و با flag
+    # خاموش بی‌درنگ None برمی‌گرداند (no-op) → این تماس رفتارِ afferent_beat را عوض نمی‌کند.
+    ingest_beat(beat=beat)
     if not flag("OCTOPUS_WIRE_SCHOOL"):
         return None   # flag خاموش = no-op (no regression)
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
@@ -1178,6 +1213,43 @@ def afferent_beat(sensory_bus, school_bridge=None, snap=None, beat: int = 0) -> 
                 "alarm": sensory_bus.alarms[-1] if sensory_bus.alarms else None}
     except Exception as e:  # noqa: BLE001 — §۴: خطای خاموش ممنون، ولی afferent نباید tick را بکشد
         opslib.alert([f"wiring: afferent_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
+_INGEST_STATE = {"last_epoch": 0}
+
+
+def ingest_beat(beat: int = 0) -> dict | None:
+    """LEG-09 · پلِ ورودیِ خامِ واقعی → مصرف‌کننده (sensory_bus/School).
+
+    پشتِ OCTOPUS_WIRE_INGEST (پیش‌فرض خاموش و خارج از PAPER_FULL_FLAGS). با flag خاموش
+    بی‌درنگ None (no-op؛ بایت‌به‌بایتِ رفتارِ فعلی — ingest_raw.run هیچ‌وقت صدا نمی‌شود).
+    روشن = هر N beat (پیش‌فرض روزانه) ``afferent/ingest_raw.run()`` را اجرا می‌کند تا
+    obsهای واقعیِ crypto/accounting (aggregate/structure-only، صفر PII) به SensoryBus +
+    SchoolBridge برسند. kill-switch اول؛ ضدِ aliasing با پنجرهٔ N-تایی؛ fail-soft مطلق.
+    propose-only: ingest_raw فقط نوتِ draft/summary می‌سازد — هیچ send/spend/outward."""
+    if not flag("OCTOPUS_WIRE_INGEST"):
+        return None   # flag خاموش = no-op (no regression)
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None   # kill-switch مقدم
+    every_n = int(os.environ.get("CHRONO_INGEST_EVERY_N_BEATS", "1440"))  # روزانه
+    if beat <= 0 or every_n <= 0:
+        return None
+    epoch = beat // every_n
+    if epoch < 1 or epoch <= _INGEST_STATE["last_epoch"]:
+        return None   # هنوز نوبتِ ingest نیست (پنجرهٔ ضدِ aliasing)
+    try:
+        _INGEST_STATE["last_epoch"] = epoch
+        sys.path.insert(0, str(_HERE / "afferent"))
+        import ingest_raw  # noqa: WPS433 — lazy (سنگین: فایل‌های بازار/حساب را می‌خواند)
+        report = ingest_raw.run()
+        return {"observations": report.get("observations", 0),
+                "crypto_notes": len(report.get("crypto_notes") or []),
+                "acct_notes": len(report.get("acct_notes") or []),
+                "pii_flags": len(report.get("pii_flags") or []),
+                "beat": beat}
+    except Exception as e:  # noqa: BLE001 — §۴: ingest نباید tick را بکشد
+        opslib.alert([f"wiring: ingest_beat خطا: {type(e).__name__}: {e}"])
         return None
 
 
@@ -1244,6 +1316,10 @@ def heart_beat(beat: int = 0, snap: dict | None = None) -> dict | None:
 
     HH-P6 داخلِ همین ضربان: هر CHRONO_HEART_SETPOINT_EVERY_N_BEATS (پیش‌فرض ۱۴۴۰ =
     روزانه؛ واحدِ beat=۶۰s) دکترِ w-slow باندِ target-velocity را propose می‌کند."""
+    # HEART-01: پایداریِ heartstate (envelope) در سایه — مستقل از OCTOPUS_WIRE_HEART،
+    # پشتِ HEARTSTATE_SHADOW. heartstate_beat خودش STOP + فلگِ سایه را چک می‌کند و با فلگ
+    # خاموش None برمی‌گرداند (no-op) → این تماس رفتارِ heart_beat را عوض نمی‌کند.
+    heartstate_beat(beat=beat)
     if not flag("OCTOPUS_WIRE_HEART"):
         return None   # flag خاموش = no-op (no regression)
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
@@ -1296,6 +1372,111 @@ def heart_beat(beat: int = 0, snap: dict | None = None) -> dict | None:
     except Exception as e:  # noqa: BLE001 — §۴: قلب نباید tick را بکشد
         opslib.alert([f"wiring: heart_beat خطا: {type(e).__name__}: {e}"])
         return None
+
+
+def heartstate_beat(beat: int = 0) -> dict | None:
+    """HEART-01 · envelope حیاتِ قلب را در سایه persist کن (heartstate-latest.json).
+
+    پشتِ HEARTSTATE_SHADOW (پیش‌فرض خاموش). heartstate.persist خودش هم فلگ را چک می‌کند
+    (double-safe): با فلگ خاموش envelope را می‌سازد ولی چیزی نمی‌نویسد. اینجا هم اگر
+    heartstate.enabled() خاموش باشد بی‌درنگ None برمی‌گردانیم (no-op؛ صفر I/O، بایت‌به‌بایت).
+    kill-switch مقدم. read/observe-only — هیچ کنترل/رفتار (ADR-001). fail-soft."""
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None   # kill-switch مقدم
+    try:
+        sys.path.insert(0, str(_HERE))
+        from heart import heartstate as _hs  # noqa: WPS433 — lazy
+        if not _hs.enabled():                # HEARTSTATE_SHADOW خاموش → no-op کامل
+            return None
+        env = _hs.persist()
+        return {"written": bool(env.get("written")),
+                "shadow_only": bool(env.get("shadow_only", True)),
+                "beat": beat}
+    except Exception as e:  # noqa: BLE001 — §۴: heartstate نباید tick را بکشد
+        opslib.alert([f"wiring: heartstate_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
+def email_beat(beat: int = 0) -> dict | None:
+    """LEG-06 · پلِ ایمیلِ ورودی (لیدِ نقاشی از ایمیل) پشتِ OCTOPUS_WIRE_EMAIL.
+
+    پیش‌فرض خاموش و خارج از PAPER_FULL_FLAGS. با فلگ خاموش، email_inbound.poll_and_digest
+    خودش no-op برمی‌گرداند و اینجا هم پیش از هر کاری فلگ را چک می‌کنیم → صفر pollِ صندوق
+    (بایت‌به‌بایتِ امروز: «not wired»). روشن = هر N beat یک بار صندوق را می‌خواند/parse می‌کند
+    (propose-only: فقط تشخیصِ لیدِ کاندید؛ هیچ replyِ خودکار/send). kill-switch مقدم؛ fail-soft.
+    ⚠️ هیچ‌گاه پیش‌فرضِ pollِ صندوقِ واقعی را روشن نمی‌کند."""
+    if not flag("OCTOPUS_WIRE_EMAIL"):
+        return None   # flag خاموش = «not wired» (رفتارِ فعلی)
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None   # kill-switch مقدم
+    every_n = int(os.environ.get("CHRONO_EMAIL_EVERY_N_BEATS", "60"))  # ~۱h با tick=60s
+    if every_n > 0 and beat > 0 and beat % every_n != 0:
+        return None
+    try:
+        sys.path.insert(0, str(_HERE / "legs"))
+        import email_inbound  # noqa: WPS433 — lazy
+        d = email_inbound.poll_and_digest()
+        return {"n_unread": d.get("n_unread", 0),
+                "n_leads": len(d.get("leads") or []),
+                "note": d.get("note"),
+                "beat": beat}
+    except Exception as e:  # noqa: BLE001 — §۴: email نباید tick را بکشد
+        opslib.alert([f"wiring: email_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
+# ─── قرارداد مشترکِ ۴ پای بیزنسیِ نو (mining/crypto/accounting/knowledge) ─────────
+# WP-F ماژول‌ها را می‌سازد؛ اینجا (WP-C) status()های read-only را جمع می‌کنیم؛ WP-D در
+# رندر می‌خواند. هر پا یک helperِ ماژول‌سطحِ فقط‌خواندنی دارد:
+#   <name>_leg.<name>_status() -> {"leg","live","signal","note"}.
+_BUSINESS_LEGS_SPEC = (
+    ("mining", "mining_leg", "mining_status"),
+    ("crypto", "crypto_leg", "crypto_status"),
+    ("accounting", "accounting_leg", "accounting_status"),
+    ("knowledge", "knowledge_leg", "knowledge_status"),
+)
+
+
+def business_legs_beat(beat: int = 0, write: bool = True) -> dict | None:
+    """۴ پای بیزنسیِ نو را جمع کن → ORGANISM-STATE key «business_legs».
+
+    status()ها read-only + بی‌خطرند (صفر spend/outward) پس این beat فلگ لازم ندارد؛ فقط
+    kill-switch مقدم است. هر helper در try مستقل: نبودِ ماژول/helper یا خطا →
+    {"live": False, "note": "…"} (fail-soft، هرگز beat را نمی‌کشد). خروجی برای merge در
+    ORGANISM-STATE توسطِ organism.py، و — چون organism.py تنها writerِ فایلِ اصلی است —
+    یک سایدکارِ ORGANISM-STATE.business_legs هم نوشته می‌شود تا مستقلاً قابل‌مشاهده باشد
+    (همان الگوی ORGANISM-STATE.ziman)."""
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None   # kill-switch مقدم
+    sys.path.insert(0, str(_HERE / "legs"))
+    legs: dict = {}
+    for name, mod_name, fn_name in _BUSINESS_LEGS_SPEC:
+        try:
+            mod = __import__(mod_name)
+            fn = getattr(mod, fn_name, None)
+            if fn is None:
+                raise AttributeError(f"{fn_name} missing")
+            st = fn()
+            if not isinstance(st, dict):
+                raise TypeError("status is not a dict")
+            st.setdefault("leg", name)
+            legs[name] = st
+        except Exception as e:  # noqa: BLE001 — نبودِ یک پا نباید بقیه/beat را بکشد
+            legs[name] = {"leg": name, "live": False, "signal": "unknown",
+                          "note": f"status unavailable ({type(e).__name__})"}
+    result = {"business_legs": legs, "beat": beat}
+    if write:
+        try:
+            sp = opslib.STATE_DIR / "ORGANISM-STATE.business_legs"
+            sp.parent.mkdir(parents=True, exist_ok=True)
+            import json as _json  # noqa: WPS433
+            tmp = sp.with_suffix(".business_legs.tmp")
+            tmp.write_text(_json.dumps({**result, "updated_at": opslib.now_iso()},
+                                       ensure_ascii=False, indent=2), "utf-8")
+            os.replace(tmp, sp)
+        except (OSError, TypeError, ValueError):
+            pass   # fail-soft: سایدکار اختیاری است
+    return result
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -1483,15 +1664,12 @@ def ziman_beat(leg=None, beat: int = 0, doctor=None) -> dict | None:
     try:
         snap = _leg.status_snapshot()
         digest = _leg.telegram_digest()
+        # LEG-08 cleanup (2026-07-14 · F2): بلوکِ biology_beat حذف شد — ماژولِ ziman_biology
+        # هرگز در repo یا تاریخِ گیت وجود نداشت (phantom adapter، testِ phantom آن قبلاً پاک شد).
+        # importِ fail-soft در *هر* ziman beat یک alertِ ModuleNotFoundError تولید می‌کرد
+        # (نویزِ لاگ) و biology همیشه None می‌ماند → accept_biology_status هرگز واقعاً صدا نمی‌شد.
+        # خروجی بایت‌به‌بایت حفظ شد (biology=None مثلِ قبل)؛ صفر callerِ واقعی، صفر تغییرِ رفتار.
         biology = None
-        try:
-            sys.path.insert(0, str(_HERE / "legs"))
-            from ziman_biology import biology_beat  # noqa: WPS433 — lazy adapter
-            biology = biology_beat(_leg, beat=beat, doctor=doctor)
-            if biology is not None and hasattr(_leg, "accept_biology_status"):
-                _leg.accept_biology_status(biology)
-        except Exception as _bioe:  # noqa: BLE001 — biology advisory must fail-soft
-            opslib.alert([f"wiring: ziman biology خطا: {type(_bioe).__name__}: {_bioe}"])
         result = {
             "leg_id": snap.get("leg_id", "ziman-gallery"),
             "organ": snap.get("organ", "ZIMAN"),

@@ -1,0 +1,41 @@
+{
+  "ts": "2026-07-14T13:59:02",
+  "schema": "stress.v1",
+  "organism_stress": 0.75,
+  "in_fear": [
+    "legs"
+  ],
+  "level": "🔴 ترس",
+  "subsystems": {
+    "money": {
+      "name": "💰 جریانِ مالی",
+      "stress": 0.0,
+      "fear": false,
+      "detail": "0/30 دلار"
+    },
+    "heart": {
+      "name": "❤️ ضربانِ قلب",
+      "stress": 0.0,
+      "fear": false,
+      "detail": "σ=0.00"
+    },
+    "legs": {
+      "name": "🦿 اعضا",
+      "stress": 0.75,
+      "fear": true,
+      "detail": "6 خودترمیم/روز"
+    },
+    "doctor": {
+      "name": "🩺 دکتر",
+      "stress": 0.0,
+      "fear": false,
+      "detail": "0 پیشنهادِ معطل"
+    },
+    "alerts": {
+      "name": "🚨 هشدارها",
+      "stress": 0.5,
+      "fear": false,
+      "detail": "786 خطِ هشدار"
+    }
+  }
+}

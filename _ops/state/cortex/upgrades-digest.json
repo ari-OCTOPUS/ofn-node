@@ -1,0 +1,374 @@
+{
+  "ts": "2026-07-10T21:53:48",
+  "schema": "upgrades-digest.v1",
+  "maturity_pct": 75.8,
+  "n_proposals": 24,
+  "by_category": {
+    "architecture": [
+      {
+        "id": "up-d6065f91ae",
+        "priority": "P0",
+        "title": "self-analysis loop observe→critique→propose→validate→promote",
+        "suggested_action": "دکتر را داده‌زنده کن: db را در make_doctor تزریق کن (organism.py) + apply_merge را در run_cycle بعد از verdictِ merged صدا بزن (پشتِ flag).",
+        "change_level": "code",
+        "source": "audit",
+        "status_now": "Partial",
+        "status": "proposed"
+      },
+      {
+        "id": "up-0dd8fa5cdc",
+        "priority": "P2",
+        "title": "tool/model registry + trust levels",
+        "suggested_action": "این بند را از «Partial» به Done ببر (بخشِ §18 tools).",
+        "change_level": "reconfig",
+        "source": "audit",
+        "status_now": "Partial",
+        "status": "proposed"
+      },
+      {
+        "id": "up-a1c23767af",
+        "priority": "P2",
+        "title": "formal agent graph + centrality/coupling",
+        "suggested_action": "این بند را از «Partial» به Done ببر (بخشِ §17 geometry).",
+        "change_level": "reconfig",
+        "source": "audit",
+        "status_now": "Partial",
+        "status": "proposed"
+      }
+    ],
+    "implementation": [
+      {
+        "id": "up-1363aae4df",
+        "priority": "P0",
+        "title": "improvement proposals shadow-eval before promote",
+        "suggested_action": "measured_lift._default_eval را از stub به سنجشِ واقعیِ suite-delta در sandbox ارتقا بده.",
+        "change_level": "code",
+        "source": "audit",
+        "status_now": "Partial",
+        "status": "proposed"
+      },
+      {
+        "id": "up-81fe6de7c7",
+        "priority": "P1",
+        "title": "prioritized implementation backlog",
+        "suggested_action": "همین دایجست backlog owner-facing است — به کابین/اتاقِ زنده وصلش کن.",
+        "change_level": "reconfig",
+        "source": "audit",
+        "status_now": "Partial",
+        "status": "proposed"
+      },
+      {
+        "id": "up-ba606d72c9",
+        "priority": "P1",
+        "title": "RFCِ دکتر: RFC-ef4667fb",
+        "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
+        "change_level": "reconfig",
+        "source": "doctor",
+        "status": "proposed"
+      },
+      {
+        "id": "up-4bfe513b01",
+        "priority": "P1",
+        "title": "RFCِ دکتر: RFC-efb62282",
+        "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
+        "change_level": "reconfig",
+        "source": "doctor",
+        "status": "proposed"
+      },
+      {
+        "id": "up-60bc988c31",
+        "priority": "P1",
+        "title": "RFCِ دکتر: RFC-f0080fc4",
+        "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
+        "change_level": "reconfig",
+        "source": "doctor",
+        "status": "proposed"
+      },
+      {
+        "id": "up-3952143790",
+        "priority": "P1",
+        "title": "RFCِ دکتر: RFC-f2bc93b2",
+        "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
+        "change_level": "reconfig",
+        "source": "doctor",
+        "status": "proposed"
+      },
+      {
+        "id": "up-4937e9a408",
+        "priority": "P1",
+        "title": "RFCِ دکتر: RFC-f2fb5091",
+        "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
+        "change_level": "reconfig",
+        "source": "doctor",
+        "status": "proposed"
+      },
+      {
+        "id": "up-70e6323e00",
+        "priority": "P1",
+        "title": "RFCِ دکتر: RFC-f59a8772",
+        "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
+        "change_level": "reconfig",
+        "source": "doctor",
+        "status": "proposed"
+      },
+      {
+        "id": "up-630529a1c9",
+        "priority": "P1",
+        "title": "RFCِ دکتر: RFC-f64eafcd",
+        "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
+        "change_level": "reconfig",
+        "source": "doctor",
+        "status": "proposed"
+      },
+      {
+        "id": "up-d68a6b143a",
+        "priority": "P1",
+        "title": "RFCِ دکتر: RFC-f7a271c3",
+        "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
+        "change_level": "reconfig",
+        "source": "doctor",
+        "status": "proposed"
+      },
+      {
+        "id": "up-2a7c9a1b5d",
+        "priority": "P1",
+        "title": "RFCِ دکتر: RFC-f83cac08",
+        "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
+        "change_level": "reconfig",
+        "source": "doctor",
+        "status": "proposed"
+      },
+      {
+        "id": "up-7500be803f",
+        "priority": "P1",
+        "title": "RFCِ دکتر: RFC-f9c89527",
+        "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
+        "change_level": "reconfig",
+        "source": "doctor",
+        "status": "proposed"
+      }
+    ],
+    "governance": [
+      {
+        "id": "up-b229e6ba53",
+        "priority": "P1",
+        "title": "change leveled: tune/reconfig/rewrite + contract",
+        "suggested_action": "همین ماژول (improve.py) سطح‌بندیِ change_level را اضافه کرد — تأیید و در RFC schema رسمی کن.",
+        "change_level": "reconfig",
+        "source": "audit",
+        "status_now": "Missing",
+        "status": "proposed"
+      },
+      {
+        "id": "up-1f41a4499b",
+        "priority": "P1",
+        "title": "memory poisoning / false-canon guard",
+        "suggested_action": "مانیتورِ خودکارِ created_by:agent بدونِ sources≥2 → هشدار (validate_frontmatter در لوپ).",
+        "change_level": "code",
+        "source": "audit",
+        "status_now": "Partial",
+        "status": "proposed"
+      },
+      {
+        "id": "up-93d8ef7b6b",
+        "priority": "P1",
+        "title": "self-analysis loop has stop-condition",
+        "suggested_action": "این بند را از «Partial» به Done ببر (بخشِ §9 self-analysis).",
+        "change_level": "reconfig",
+        "source": "audit",
+        "status_now": "Partial",
+        "status": "proposed"
+      },
+      {
+        "id": "up-6013ab05d7",
+        "priority": "P1",
+        "title": "rollback path before apply",
+        "suggested_action": "قبل از هر apply_merge یک git tag/checkpoint خودکار بزن (twin of pre-merge tags).",
+        "change_level": "code",
+        "source": "audit",
+        "status_now": "Partial",
+        "status": "proposed"
+      },
+      {
+        "id": "up-1bf7588f78",
+        "priority": "P2",
+        "title": "named human owner per subsystem",
+        "suggested_action": "این بند را از «Partial» به Done ببر (بخشِ §13 governance).",
+        "change_level": "reconfig",
+        "source": "audit",
+        "status_now": "Partial",
+        "status": "proposed"
+      }
+    ],
+    "observability": [
+      {
+        "id": "up-ae4a7476a9",
+        "priority": "P2",
+        "title": "drift over time measured",
+        "suggested_action": "سریِ زمانیِ coherence/velocity را نگه‌دار و شیبِ منفی را به‌عنوان drift هشدار بده.",
+        "change_level": "code",
+        "source": "audit",
+        "status_now": "Missing",
+        "status": "proposed"
+      },
+      {
+        "id": "up-457093196f",
+        "priority": "P2",
+        "title": "tool-call cost/latency logging",
+        "suggested_action": "latency/costِ هر model_router.ask را به یک trace-log واحد بنویس.",
+        "change_level": "code",
+        "source": "audit",
+        "status_now": "Partial",
+        "status": "proposed"
+      },
+      {
+        "id": "up-b44a5eaeae",
+        "priority": "P2",
+        "title": "epistemic signals (uncertainty/disagreement/missing-evidence)",
+        "suggested_action": "OCTOPUS_WIRE_EPISTEMICS را بعد از یک هفته shadow روشن کن (رأی مالک).",
+        "change_level": "reconfig",
+        "source": "audit",
+        "status_now": "Partial",
+        "status": "proposed"
+      }
+    ],
+    "theory": [
+      {
+        "id": "up-40e5e44d0e",
+        "priority": "P2",
+        "title": "single-agent / null baseline",
+        "suggested_action": "مقایسهٔ خودکارِ neural-vs-null (box/null_dreamer) را per-epoch ثبت کن.",
+        "change_level": "reconfig",
+        "source": "audit",
+        "status_now": "Partial",
+        "status": "proposed"
+      }
+    ]
+  },
+  "top": [
+    {
+      "id": "up-d6065f91ae",
+      "source": "audit",
+      "category": "architecture",
+      "priority": "P0",
+      "_rank": 0.0,
+      "title": "self-analysis loop observe→critique→propose→validate→promote",
+      "status_now": "Partial",
+      "rationale": "چک‌لیست §§9 self-analysis — الان Partial",
+      "evidence": "doctor.run_cycle(mine→rfc→sandbox→chamber→submit) + cortex.align + این audit؛ گاف: apply_merge/eval واقعی",
+      "suggested_action": "دکتر را داده‌زنده کن: db را در make_doctor تزریق کن (organism.py) + apply_merge را در run_cycle بعد از verdictِ merged صدا بزن (پشتِ flag).",
+      "change_level": "code",
+      "auto_applicable": false,
+      "status": "proposed"
+    },
+    {
+      "id": "up-1363aae4df",
+      "source": "audit",
+      "category": "implementation",
+      "priority": "P0",
+      "_rank": 0.0,
+      "title": "improvement proposals shadow-eval before promote",
+      "status_now": "Partial",
+      "rationale": "چک‌لیست §§9/§10 self-improve — الان Partial",
+      "evidence": "run_sandbox (tempfile isolated) + critic؛ ولی measured_lift eval هنوز stub",
+      "suggested_action": "measured_lift._default_eval را از stub به سنجشِ واقعیِ suite-delta در sandbox ارتقا بده.",
+      "change_level": "code",
+      "auto_applicable": false,
+      "status": "proposed"
+    },
+    {
+      "id": "up-b229e6ba53",
+      "source": "audit",
+      "category": "governance",
+      "priority": "P1",
+      "_rank": 1.0,
+      "title": "change leveled: tune/reconfig/rewrite + contract",
+      "status_now": "Missing",
+      "rationale": "چک‌لیست §§10 self-modify — الان Missing",
+      "evidence": "none — سطح‌بندیِ صریحِ تغییر و change-contract هنوز نیست (کارِ improve.py)",
+      "suggested_action": "همین ماژول (improve.py) سطح‌بندیِ change_level را اضافه کرد — تأیید و در RFC schema رسمی کن.",
+      "change_level": "reconfig",
+      "auto_applicable": false,
+      "status": "proposed"
+    },
+    {
+      "id": "up-1f41a4499b",
+      "source": "audit",
+      "category": "governance",
+      "priority": "P1",
+      "_rank": 1.0,
+      "title": "memory poisoning / false-canon guard",
+      "status_now": "Partial",
+      "rationale": "چک‌لیست §§6 memory — الان Partial",
+      "evidence": "constitution §7: created_by:agent + sources≥2؛ ولی مانیتورِ خودکار نیست",
+      "suggested_action": "مانیتورِ خودکارِ created_by:agent بدونِ sources≥2 → هشدار (validate_frontmatter در لوپ).",
+      "change_level": "code",
+      "auto_applicable": false,
+      "status": "proposed"
+    },
+    {
+      "id": "up-93d8ef7b6b",
+      "source": "audit",
+      "category": "governance",
+      "priority": "P1",
+      "_rank": 1.0,
+      "title": "self-analysis loop has stop-condition",
+      "status_now": "Partial",
+      "rationale": "چک‌لیست §§9 self-analysis — الان Partial",
+      "evidence": "calibration.should_skip_bottleneck (3 rejects→skip) + attention_gate soft3/hard5",
+      "suggested_action": "این بند را از «Partial» به Done ببر (بخشِ §9 self-analysis).",
+      "change_level": "reconfig",
+      "auto_applicable": false,
+      "status": "proposed"
+    },
+    {
+      "id": "up-6013ab05d7",
+      "source": "audit",
+      "category": "governance",
+      "priority": "P1",
+      "_rank": 1.0,
+      "title": "rollback path before apply",
+      "status_now": "Partial",
+      "rationale": "چک‌لیست §§10 self-modify — الان Partial",
+      "evidence": "RFC.rollback field + measured_lift drop<0.05 + git tags (pre-merge)",
+      "suggested_action": "قبل از هر apply_merge یک git tag/checkpoint خودکار بزن (twin of pre-merge tags).",
+      "change_level": "code",
+      "auto_applicable": false,
+      "status": "proposed"
+    },
+    {
+      "id": "up-81fe6de7c7",
+      "source": "audit",
+      "category": "implementation",
+      "priority": "P1",
+      "_rank": 1.0,
+      "title": "prioritized implementation backlog",
+      "status_now": "Partial",
+      "rationale": "چک‌لیست §§19 coding-ready — الان Partial",
+      "evidence": "این audit-matrix + AGENT_QUESTIONS + HANDOFF؛ ولی backlogِ زندهٔ owner-facing = کارِ improve.py",
+      "suggested_action": "همین دایجست backlog owner-facing است — به کابین/اتاقِ زنده وصلش کن.",
+      "change_level": "reconfig",
+      "auto_applicable": false,
+      "status": "proposed"
+    },
+    {
+      "id": "up-ba606d72c9",
+      "source": "doctor",
+      "category": "implementation",
+      "priority": "P1",
+      "_rank": 1.2,
+      "title": "RFCِ دکتر: RFC-ef4667fb",
+      "rationale": "دکترِ تکاملی یک گلوگاهِ سلامت mine کرد",
+      "evidence": "knowledge/internal/RFC-ef4667fb.md",
+      "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
+      "change_level": "reconfig",
+      "auto_applicable": false,
+      "status": "proposed"
+    }
+  ],
+  "auto_eligible": [],
+  "auto_enabled": false,
+  "learning": {
+    "rejected_categories": {}
+  }
+}

@@ -64,13 +64,20 @@ def emit(event_name: str, agent_id: str, *, status: str = "ok",
     #۱۳: incident=dict یک زیرشاخهٔ scrub-شدهٔ `incident` اضافه می‌کند.
     خواننده‌های فعلی هیچ‌کدام را لازم ندارند (فقط .get) — صفر شکست."""
     ts = time.time()
+    # رفعِ E2 (2026-07-13): نامِ رویدادِ خارج از taxonomy دیگر به task.completed (سبز) coerce
+    # نمی‌شود — به task.failed (قرمز) می‌رود تا drift ِ تولیدکننده «موفق» جلوه نکند؛ نامِ اصلی
+    # در summary ثبت می‌شود (fail-loud). خواننده‌ها بی‌تغییر (فقط .get).
+    _known = event_name in EVENT_NAMES
+    _summary = str(summary or "")
+    if not _known:
+        _summary = f"[drift:unknown-event={str(event_name)[:32]}] " + _summary
     ev = {
         "timestamp": _iso(ts), "ts": ts,
         "trace_id": str(trace_id or "")[:40],
         "agent_id": str(agent_id or "system")[:40],
-        "event_name": event_name if event_name in EVENT_NAMES else "task.completed",
+        "event_name": event_name if _known else "task.failed",
         "status": str(status or "ok")[:20],
-        "summary": str(summary or "")[:200],
+        "summary": _summary[:200],
         "duration_ms": int(duration_ms or 0),
         "next_action": str(next_action or "")[:120],
         "approval_state": approval_state if approval_state in APPROVAL_STATES else "unknown",

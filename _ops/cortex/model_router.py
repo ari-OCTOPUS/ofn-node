@@ -104,13 +104,41 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int) -> dict | No
         return None
 
 
+def _scored_tier(task: str) -> str | None:
+    """مشاورِ route_scorer پشتِ پرچمِ CORTEX_ROUTE_SCORER (CORTEX-02).
+
+    فقط وقتی صدا زده می‌شود که پرچم روشن باشد و tier صریح داده نشده باشد. خالص و
+    $۰ (route_scorer فقط امتیاز می‌دهد، هیچ callِ LLM ندارد). هر خطا/خروجیِ نامعتبر
+    → None تا مسیرِ ایستای TASK_TIERS دقیقاً مثلِ امروز جاری شود (fail-soft)."""
+    try:
+        import route_scorer  # noqa: E402 — هم‌ماژول در cortex؛ در sys.path هست
+        out = route_scorer.score_route(task, None)
+        tier = out.get("tier") if isinstance(out, dict) else None
+        if tier in ("local", "secondary", "primary"):
+            return tier
+    except Exception as e:  # noqa: BLE001 — مشاور هرگز صداکننده را نکشد
+        try:
+            opslib.alert([f"cortex route_scorer consult failed (static fallback): "
+                          f"{type(e).__name__}: {e}"])
+        except Exception:  # noqa: BLE001
+            pass
+    return None
+
+
 def ask(task: str, prompt: str, system: str = "", max_tokens: int = 400,
         tier: str | None = None, opener=None) -> dict:
     """درِ واحد. خروجی همیشه dict: {ok, tier?, text?, reason?}.
-    ردهٔ پولی بسته/ناموفق → local؛ local خاموش → ok=False با دلیلِ صادق."""
+    ردهٔ پولی بسته/ناموفق → local؛ local خاموش → ok=False با دلیلِ صادق.
+
+    CORTEX-02: اگر پرچمِ CORTEX_ROUTE_SCORER روشن باشد و tier صریح نداده شده باشد،
+    route_scorer.score_route مشورت می‌شود (fail-soft)؛ خطا/خالی → نگاشتِ ایستای
+    TASK_TIERS. پرچمِ خاموش (پیش‌فرض) = رفتار byte-identical با امروز."""
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
         return {"ok": False, "reason": "kill-switch"}
-    want = tier or TASK_TIERS.get(task, "local")
+    want = tier
+    if not want and os.environ.get("CORTEX_ROUTE_SCORER"):
+        want = _scored_tier(task)
+    want = want or TASK_TIERS.get(task, "local")
     if want in ("secondary", "primary"):
         out = _ask_paid(want, prompt, system, max_tokens)
         if out:

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>ORGANISM · سه‌قلبِ اختاپوس</title>
+<style>
+  *{margin:0;box-sizing:border-box}
+  html,body{height:100%;background:#01020a;overflow:hidden;touch-action:none;overscroll-behavior:none;font-family:"Segoe UI",Tahoma,sans-serif;color:#dbeafe}
+  #g{position:fixed;inset:0}
+  #scan{position:fixed;inset:0;pointer-events:none;z-index:3;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(120,180,255,.05) 2px 3px);mix-blend-mode:screen}
+  #vig{position:fixed;inset:0;pointer-events:none;z-index:3;background:radial-gradient(120% 90% at 50% 45%,transparent 52%,rgba(0,0,4,.88) 100%)}
+  .top{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:0;right:0;text-align:center;z-index:5;pointer-events:none}
+  .top b{font-size:16px;font-weight:800;letter-spacing:2px;background:linear-gradient(90deg,#7dd3fc,#a5b4fc,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 22px #38bdf855}
+  .top span{display:block;font-size:11px;color:#5b6b85;margin-top:2px;letter-spacing:1px}
+  #hud{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);right:14px;z-index:5;font-size:11px;color:#7dd3fc;pointer-events:none;text-align:left;direction:ltr}
+  #hud b{color:#93c5fd}
+  .back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:14px;z-index:6;color:#67e8f9;text-decoration:none;font-size:12px}
+  #hint{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);left:0;right:0;text-align:center;z-index:5;pointer-events:none;font-size:11.5px;color:#5b6b85}
+  #hint b{color:#bae6fd}
+</style>
+</head>
+<body>
+<div id="g"></div>
+<div id="scan"></div><div id="vig"></div>
+<a class="back" href="../worlds/index.html">‹ خانه</a>
+<div class="top"><b>ORGANISM</b><span>سه قلبِ اختاپوس · خونِ آبی · تارِ اعصاب از گرافِ والت</span></div>
+<div id="hud"></div>
+<div id="hint">بکش تا بچرخانی · <b>لمس = تپشِ قوی + آتش‌گیریِ عصبی</b></div>
+
+<script src="graph-data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script>window.THREE||document.write('<script src="https://unpkg.com/three@0.128.0/build/three.min.js">\x3C/script>');</script>
+<script>
+(function(){
+function boot(){
+if(!window.THREE){return setTimeout(boot,120);}
+var G=window.OCTOPUS_GRAPH||{nodes:[],edges:[],groups:[]}, ADD=THREE.AdditiveBlending;
+var scene=new THREE.Scene(); scene.fog=new THREE.FogExp2(0x01020a,0.0016);
+var camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,0.1,5000);
+var renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(innerWidth,innerHeight);
+renderer.setClearColor(0x01020a,1); document.getElementById('g').appendChild(renderer.domElement);
+scene.add(new THREE.AmbientLight(0xffffff,0.32));
+var keyLight=new THREE.PointLight(0x8fd0ff,2.2,800); scene.add(keyLight);
+function rnd(){return Math.random();}
+function unit(){var v=new THREE.Vector3(rnd()-0.5,rnd()-0.5,rnd()-0.5);if(v.length()<0.01)v.set(0,1,0);return v.normalize();}
+
+// ---------------- moods (blue hemocyanin family) ----------------
+var MOODS=[
+ {name:'آرام · calm',   fog:0x02030e, heart:0x38bdf8, nerve:0x67e8f9, plankton:0x67e8f9, halo:0xfcd34d, tents:[0x22d3ee,0x38bdf8,0x818cf8,0x2dd4bf,0x34d399,0x60a5fa,0x5eead4,0x93c5fd]},
+ {name:'آتش · ignite', fog:0x050216, heart:0x22d3ee, nerve:0xc4b5fd, plankton:0xa5f3fc, halo:0xfde68a, tents:[0x22d3ee,0x06b6d4,0x818cf8,0xa855f7,0x38bdf8,0x0ea5e9,0x60a5fa,0xc084fc]},
+ {name:'شکوفه · bloom', fog:0x02120c, heart:0x2dd4bf, nerve:0x86efac, plankton:0xbbf7d0, halo:0xfde68a, tents:[0x34d399,0x22d3ee,0x2dd4bf,0x4ade80,0x5eead4,0x14b8a6,0x86efac,0x67e8f9]},
+ {name:'رؤیا · dream',  fog:0x0a0320, heart:0xa5b4fc, nerve:0xa5b4fc, plankton:0xc7d2fe, halo:0xfcd34d, tents:[0x818cf8,0xc084fc,0x60a5fa,0x93c5fd,0x22d3ee,0xa5b4fc,0x818cf8,0x67e8f9]}
+];
+var mood=0, cur={heart:new THREE.Color(MOODS[0].heart), nerve:new THREE.Color(MOODS[0].nerve), fog:new THREE.Color(MOODS[0].fog), plankton:new THREE.Color(MOODS[0].plankton), halo:new THREE.Color(MOODS[0].halo)};
+var tentCols=MOODS[0].tents.map(function(h){return new THREE.Color(h);});
+
+// ---------------- THREE octopus hearts (1 systemic + 2 branchial) ----------------
+var heartsGroup=new THREE.Group(); scene.add(heartsGroup);
+var HPOS=[new THREE.Vector3(0,1,0), new THREE.Vector3(-16,-3,2), new THREE.Vector3(16,-3,-2)];
+var HSIZE=[9.5,5.6,5.6], HOFF=[0,-0.13,-0.13], HNAME=['systemic','gill-L','gill-R'];
+function skin(geo){return new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:0x081826,emissive:0x2a8fd6,emissiveIntensity:0.6,roughness:0.35,metalness:0.45,transparent:true,opacity:0.6,flatShading:true}));}
+function wire(geo,col,op){return new THREE.LineSegments(new THREE.EdgesGeometry(geo,18),new THREE.LineBasicMaterial({color:col,transparent:true,opacity:op,blending:ADD}));}
+function glow(r,col,op){return new THREE.Mesh(new THREE.SphereGeometry(r,20,20),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op,blending:ADD,depthWrite:false}));}
+var hearts=[];
+for(var hi=0;hi<3;hi++){
+  var size=HSIZE[hi], grp=new THREE.Group(); grp.position.copy(HPOS[hi]);
+  var body=skin(new THREE.IcosahedronGeometry(size,2)); grp.add(body);
+  var w=wire(new THREE.IcosahedronGeometry(size*1.03,1),0xbfe9ff,0.55); grp.add(w);
+  var g=glow(size*1.9,0x38bdf8,0.12); grp.add(g);
+  var li=new THREE.PointLight(0x9fd8ff,1.2,140); grp.add(li);
+  var bands=[]; var nb=hi===0?6:3;
+  for(var b=0;b<nb;b++){var y=size*0.7-b*(size*1.4/nb);var rr=Math.sqrt(Math.max(0.2,1-Math.pow(y/(size*1.15),2)))*size;
+    var tor=new THREE.Mesh(new THREE.TorusGeometry(rr,size*0.03,6,30),new THREE.MeshBasicMaterial({color:0xcdeeffff&0xffffff,transparent:true,opacity:0.45,blending:ADD,depthWrite:false}));
+    tor.rotation.x=Math.PI/2; tor.position.y=y; grp.add(tor); bands.push(tor);}
+  heartsGroup.add(grp);
+  hearts.push({grp:grp,body:body,glow:g,light:li,bands:bands,off:HOFF[hi],pos:HPOS[hi],size:size});
+}
+// vessels: branchial hearts -> gills (up-out) and -> systemic
+function vessel(a,b,r){var mid=a.clone().add(b).multiplyScalar(0.5); mid.y+=6;
+  var c=new THREE.CatmullRomCurve3([a,mid,b]);
+  return new THREE.Mesh(new THREE.TubeGeometry(c,20,r,8,false),new THREE.MeshBasicMaterial({color:0x7fc7ff,transparent:true,opacity:0.35,blending:ADD,depthWrite:false}));}
+var gillL=new THREE.Vector3(-26,12,6), gillR=new THREE.Vector3(26,12,-6);
+heartsGroup.add(vessel(HPOS[1],HPOS[0],1.2),vessel(HPOS[2],HPOS[0],1.2),vessel(HPOS[1],gillL,1.0),vessel(HPOS[2],gillR,1.0));
+// gill filaments (feathery)
+[gillL,gillR].forEach(function(gp,gi){for(var f=0;f<7;f++){var pts=[];for(var s=0;s<6;s++){pts.push(new THREE.Vector3(gp.x+(gi?-1:1)*s*1.6+(rnd()-0.5),gp.y+s*1.4,gp.z+Math.sin(s*0.9+f)*2));}
+  heartsGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x67e8f9,transparent:true,opacity:0.3,blending:ADD})));}});
+// lease token (single-writer pacemaker) hops between the 3 hearts
+var lease=new THREE.Mesh(new THREE.SphereGeometry(2,14,14),new THREE.MeshBasicMaterial({color:0xffffff,blending:ADD,depthWrite:false})); scene.add(lease);
+var leaseRing=new THREE.Mesh(new THREE.RingGeometry(3,3.6,32),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.7,side:THREE.DoubleSide,blending:ADD,depthWrite:false})); leaseRing.rotation.x=Math.PI/2; scene.add(leaseRing);
+var leaseIdx=0;
+
+// ---------------- 3D ECG ring ----------------
+var ECGN=260, ecgGeo=new THREE.BufferGeometry(); ecgGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(ECGN*3),3));
+var ecgLine=new THREE.LineLoop(ecgGeo,new THREE.LineBasicMaterial({color:0x67e8f9,transparent:true,opacity:0.9,blending:ADD})); ecgLine.rotation.x=Math.PI/2; scene.add(ecgLine);
+var ecgDot=new THREE.Mesh(new THREE.SphereGeometry(1.4,10,10),new THREE.MeshBasicMaterial({color:0xffffff,blending:ADD,depthWrite:false})); scene.add(ecgDot);
+function ecg(u){u=((u%1)+1)%1;var v=0;v+=0.10*Math.exp(-Math.pow((u-0.16)/0.03,2));v+=-0.14*Math.exp(-Math.pow((u-0.275)/0.010,2));v+=1.00*Math.exp(-Math.pow((u-0.30)/0.010,2));v+=-0.20*Math.exp(-Math.pow((u-0.325)/0.012,2));v+=0.24*Math.exp(-Math.pow((u-0.50)/0.045,2));return v;}
+
+// ---------------- nerve web from the three hearts ----------------
+var nerve=new THREE.Group(); scene.add(nerve);
+var fibers=[], segPos=[], syn=[];
+function grow(origin,dir,len,depth){var pts=[origin.clone()],pos=origin.clone(),d=dir.clone();
+  for(var i=0;i<len;i++){d.x+=(rnd()-0.5)*0.30;d.y+=(rnd()-0.5)*0.30;d.z+=(rnd()-0.5)*0.30;d.normalize();pos=pos.clone().add(d.clone().multiplyScalar(6+i*0.9));pts.push(pos.clone());
+    if(depth<2&&rnd()<0.16){grow(pos.clone(),unit().lerp(d,0.5).normalize(),Math.floor(len*0.6),depth+1);}}
+  for(var i2=0;i2<pts.length-1;i2++){segPos.push(pts[i2].x,pts[i2].y,pts[i2].z,pts[i2+1].x,pts[i2+1].y,pts[i2+1].z);}
+  var cum=[0];for(var i3=1;i3<pts.length;i3++){cum.push(cum[i3-1]+pts[i3].distanceTo(pts[i3-1]));}
+  fibers.push({pts:pts,cum:cum,len:cum[cum.length-1]}); syn.push(pts[pts.length-1]);}
+for(var m=0;m<36;m++){var h2=Math.floor(rnd()*3),o=HPOS[h2],dir=unit();grow(o.clone().add(dir.clone().multiplyScalar(HSIZE[h2]+2)),dir,9+Math.floor(rnd()*4),0);}
+var fg=new THREE.BufferGeometry();fg.setAttribute('position',new THREE.Float32BufferAttribute(segPos,3));
+var fibersLine=new THREE.LineSegments(fg,new THREE.LineBasicMaterial({color:0x3ec8ff,transparent:true,opacity:0.22,blending:ADD}));nerve.add(fibersLine);
+var sp=[];syn.forEach(function(p){sp.push(p.x,p.y,p.z);});var sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.Float32BufferAttribute(sp,3));
+var synPts=new THREE.Points(sg,new THREE.PointsMaterial({color:0x9be7ff,size:2.6,transparent:true,opacity:0.7,blending:ADD,depthWrite:false}));nerve.add(synPts);
+var SIG=80,sigArr=new Float32Array(SIG*3),signals=[];
+for(var i=0;i<SIG;i++){signals.push({f:Math.floor(rnd()*fibers.length),d:rnd()*fibers[0].len,sp:26+rnd()*22,on:rnd()<0.5});}
+var sigGeo=new THREE.BufferGeometry();sigGeo.setAttribute('position',new THREE.BufferAttribute(sigArr,3));
+var sigPts=new THREE.Points(sigGeo,new THREE.PointsMaterial({color:0xffffff,size:3.4,transparent:true,opacity:0.95,blending:ADD,depthWrite:false}));nerve.add(sigPts);
+function fiberPos(f,dist){var F=fibers[f];var d=((dist%F.len)+F.len)%F.len;for(var i=1;i<F.cum.length;i++){if(F.cum[i]>=d){var t=(d-F.cum[i-1])/(F.cum[i]-F.cum[i-1]+1e-6);return F.pts[i-1].clone().lerp(F.pts[i],t);}}return F.pts[F.pts.length-1].clone();}
+
+// ---------------- graph mind-cloud ----------------
+var N=G.nodes.length||100,Pn=[];
+for(var i=0;i<N;i++){var deg=G.nodes[i]?G.nodes[i].d:1;var phi=Math.acos(1-2*((i+0.5)/N));var th=Math.PI*(1+Math.sqrt(5))*i;var R=150+(1/(1+deg))*40+(i%9)*3;
+  Pn.push(new THREE.Vector3(R*Math.sin(phi)*Math.cos(th),R*Math.cos(phi)*0.75,R*Math.sin(phi)*Math.sin(th)));}
+var np=[],ncl=[];for(var i=0;i<N;i++){var p=Pn[i];np.push(p.x,p.y,p.z);var c=new THREE.Color(G.nodes[i]?G.nodes[i].c:0x88aaff);ncl.push(c.r,c.g,c.b);}
+var mgg=new THREE.BufferGeometry();mgg.setAttribute('position',new THREE.Float32BufferAttribute(np,3));mgg.setAttribute('color',new THREE.Float32BufferAttribute(ncl,3));
+var mindG=new THREE.Group();mindG.add(new THREE.Points(mgg,new THREE.PointsMaterial({size:2.4,vertexColors:true,transparent:true,opacity:0.9,blending:ADD,depthWrite:false})));scene.add(mindG);
+
+// ---------------- 8 tentacles ----------------
+var SEG=30,TENTS=[];
+for(var ti=0;ti<8;ti++){var geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(SEG*3),3));
+  var line=new THREE.Line(geo,new THREE.LineBasicMaterial({color:tentCols[ti],transparent:true,opacity:0.55,blending:ADD}));scene.add(line);
+  TENTS.push({geo:geo,line:line,base:ti/8*Math.PI*2,phase:rnd()*6.28,turns:1.5+rnd()*0.5,maxR:120+rnd()*30});}
+function tent(T,t,time,idx){var ang=T.base+t*T.turns*Math.PI*2,rad=t*T.maxR,lift=(idx%2?1:-1);
+  var y=Math.sin(t*Math.PI)*30+lift*Math.sin(t*3+time*1.1+T.phase)*10*t-6;var und=Math.sin(t*7+time*2.2+T.phase)*8*t;
+  return new THREE.Vector3(Math.cos(ang)*rad+Math.cos(ang+1.57)*und,y,Math.sin(ang)*rad+Math.sin(ang+1.57)*und);}
+
+// ---------------- halo, plankton, grid, rings ----------------
+var halo=new THREE.Group();scene.add(halo);
+for(var ring=0;ring<3;ring++){var pts=[],n=6+ring*6,R=32+ring*11;for(var i=0;i<=n;i++){var a=i/n*Math.PI*2;pts.push(new THREE.Vector3(Math.cos(a)*R,0,Math.sin(a)*R));}
+  var loop=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0xfcd34d,transparent:true,opacity:0.22-ring*0.05,blending:ADD}));loop.userData.spin=(ring%2?1:-1)*(0.12+ring*0.05);halo.add(loop);}
+halo.rotation.x=Math.PI/2.3;
+var PN=300,parr=new Float32Array(PN*3);for(var i=0;i<PN;i++){var r=45+rnd()*180,a=rnd()*6.28,b=Math.acos(2*rnd()-1);parr[i*3]=r*Math.sin(b)*Math.cos(a);parr[i*3+1]=r*Math.cos(b);parr[i*3+2]=r*Math.sin(b)*Math.sin(a);}
+var pgg=new THREE.BufferGeometry();pgg.setAttribute('position',new THREE.BufferAttribute(parr,3));
+var plankton=new THREE.Points(pgg,new THREE.PointsMaterial({color:0x67e8f9,size:1.2,transparent:true,opacity:0.5,blending:ADD,depthWrite:false}));scene.add(plankton);
+var grid=new THREE.GridHelper(760,60,0x14243a,0x0b1220);grid.position.y=-84;grid.material.transparent=true;grid.material.opacity=0.3;scene.add(grid);
+var rings=[];for(var i=0;i<8;i++){var mm=new THREE.Mesh(new THREE.RingGeometry(1,1.5,48),new THREE.MeshBasicMaterial({color:0x67e8f9,transparent:true,opacity:0,side:THREE.DoubleSide,blending:ADD,depthWrite:false}));mm.rotation.x=Math.PI/2;mm.userData.on=false;scene.add(mm);rings.push(mm);}
+function spawnRing(col,at){for(var i=0;i<rings.length;i++){if(!rings[i].userData.on){var r=rings[i];r.userData.on=true;r.userData.r=6;r.material.color.setHex(col);r.material.opacity=0.85;r.position.copy(at||new THREE.Vector3());return;}}}
+
+// ---------------- interaction ----------------
+var theta=0.6,phi=1.12,rad=255,tGoal=theta,pGoal=phi,drag=false,moved=false,lx=0,ly=0,el=renderer.domElement;
+el.addEventListener('pointerdown',function(e){drag=true;moved=false;lx=e.clientX;ly=e.clientY;});
+el.addEventListener('pointermove',function(e){if(!drag)return;var dx=e.clientX-lx,dy=e.clientY-ly;if(Math.abs(dx)+Math.abs(dy)>8)moved=true;tGoal-=dx*0.006;pGoal=Math.max(0.35,Math.min(2.7,pGoal-dy*0.006));lx=e.clientX;ly=e.clientY;});
+addEventListener('pointerup',function(){drag=false;if(!moved)ignite();});
+var surgeT=-9;
+function ignite(){surgeT=clock.getElapsedTime();spawnRing(MOODS[mood].heart);fireSignals(34);}
+function fireSignals(k){var c=0;for(var i=0;i<signals.length&&c<k;i++){if(!signals[i].on){signals[i].on=true;signals[i].d=0;signals[i].f=Math.floor(rnd()*fibers.length);c++;}}}
+
+// ---------------- animate ----------------
+var clock=new THREE.Clock(),moodT=0,P=0.92,lastPhase=0,bpm=Math.round(60/P);
+function animate(){
+  requestAnimationFrame(animate);
+  var t=clock.getElapsedTime(),dt=Math.min(0.05,clock.getDelta());
+  var phase=(t/P)%1; if(phase<lastPhase){ leaseIdx=(leaseIdx+1)%3; spawnRing(MOODS[mood].heart,hearts[0].pos); fireSignals(22); } lastPhase=phase;
+  var eSys=Math.max(0,ecg(phase)); var beat=Math.min(1.2,eSys); var surge=Math.max(0,1-(t-surgeT)*0.9);
+
+  moodT+=dt; if(moodT>10){moodT=0;mood=(mood+1)%MOODS.length;}
+  var M=MOODS[mood];
+  cur.heart.lerp(new THREE.Color(M.heart),dt*0.6);cur.nerve.lerp(new THREE.Color(M.nerve),dt*0.6);cur.fog.lerp(new THREE.Color(M.fog),dt*0.6);cur.plankton.lerp(new THREE.Color(M.plankton),dt*0.6);cur.halo.lerp(new THREE.Color(M.halo),dt*0.6);
+  scene.fog.color.copy(cur.fog);renderer.setClearColor(cur.fog,1);keyLight.color.copy(cur.heart);
+  fibersLine.material.color.copy(cur.nerve);synPts.material.color.copy(cur.nerve);ecgLine.material.color.copy(cur.heart);
+  plankton.material.color.copy(cur.plankton);halo.children.forEach(function(l){l.material.color.copy(cur.halo);});
+  for(var i=0;i<8;i++){tentCols[i].lerp(new THREE.Color(M.tents[i]),dt*0.6);TENTS[i].line.material.color.copy(tentCols[i]);}
+
+  // three hearts pulse (branchials lead systemic)
+  hearts.forEach(function(H,idx){var e=Math.max(0,ecg(phase+H.off));var sc=1-e*0.18+surge*0.04;
+    H.grp.scale.set(sc,1-e*0.22+surge*0.03,sc); H.grp.rotation.y+=dt*(idx===0?0.15:-0.25);
+    H.body.material.emissive.copy(cur.heart); H.glow.material.color.copy(cur.heart);
+    H.glow.material.opacity=0.12+e*0.4+surge*0.35; H.glow.scale.setScalar(1+e*0.35+surge*0.25);
+    H.light.color.copy(cur.heart); H.light.intensity=1+e*3.5+surge*3;
+    H.bands.forEach(function(b,bi){var k=1-e*0.16;b.scale.set(k,k,1);b.material.opacity=0.3+e*0.5;b.rotation.z+=dt*(0.2+bi*0.03);});});
+  keyLight.position.copy(hearts[0].pos); keyLight.intensity=2+beat*5+surge*5;
+  heartsGroup.rotation.y+=dt*0.06;
+
+  // lease token hops to the active pacemaker heart
+  var lp=hearts[leaseIdx].pos; lease.position.lerp(lp,0.25); lease.scale.setScalar(1+beat*1.5);
+  leaseRing.position.copy(lease.position); leaseRing.scale.setScalar(1+beat*2.2); leaseRing.material.opacity=0.4+beat*0.5;
+
+  // ECG ring (systemic)
+  var ea=ecgGeo.attributes.position.array;
+  for(var i=0;i<ECGN;i++){var a=i/ECGN*Math.PI*2,u=i/ECGN,rr=44+ecg(u)*16;ea[i*3]=Math.cos(a)*rr;ea[i*3+1]=0;ea[i*3+2]=Math.sin(a)*rr;}
+  ecgGeo.attributes.position.needsUpdate=true;ecgLine.material.opacity=0.5+beat*0.5;
+  var aa=phase*Math.PI*2,rrr=44+ecg(phase)*16;ecgDot.position.set(Math.cos(aa)*rrr,0,Math.sin(aa)*rrr);ecgDot.scale.setScalar(1+beat*2);
+
+  // nerve signals
+  for(var i=0;i<SIG;i++){var s2=signals[i];if(s2.on){s2.d+=dt*s2.sp*(1+surge);var F=fibers[s2.f];if(s2.d>=F.len){s2.on=false;}var p=fiberPos(s2.f,s2.d);sigArr[i*3]=p.x;sigArr[i*3+1]=p.y;sigArr[i*3+2]=p.z;}else{sigArr[i*3]=99999;sigArr[i*3+1]=99999;sigArr[i*3+2]=99999;}}
+  sigGeo.attributes.position.needsUpdate=true;fibersLine.material.opacity=0.18+beat*0.3+surge*0.4;synPts.material.opacity=0.5+beat*0.4;synPts.material.size=2.6+beat*2;nerve.rotation.y+=dt*0.02;
+
+  // tentacles
+  for(var i=0;i<8;i++){var T=TENTS[i],lp2=T.geo.attributes.position.array;for(var kk=0;kk<SEG;kk++){var tt=kk/(SEG-1);var Pp=tent(T,tt,t,i);lp2[kk*3]=Pp.x;lp2[kk*3+1]=Pp.y;lp2[kk*3+2]=Pp.z;}T.geo.attributes.position.needsUpdate=true;T.line.material.opacity=0.4+beat*0.3+surge*0.3;}
+
+  mindG.rotation.y+=dt*0.03;mindG.rotation.x=Math.sin(t*0.1)*0.14;
+  halo.children.forEach(function(l){l.rotation.z+=l.userData.spin*dt;l.material.opacity=0.12+beat*0.25+surge*0.4;});halo.rotation.z+=dt*0.05;
+  var pa=plankton.geometry.attributes.position.array;for(var i=0;i<PN;i++){pa[i*3+1]+=dt*4;if(pa[i*3+1]>190)pa[i*3+1]=-190;}plankton.geometry.attributes.position.needsUpdate=true;plankton.rotation.y+=dt*0.02;
+  rings.forEach(function(r){if(r.userData.on){r.userData.r+=dt*(95+surge*120);r.scale.setScalar(r.userData.r);r.material.opacity-=dt*0.5;if(r.material.opacity<=0){r.userData.on=false;r.material.opacity=0;}}});
+
+  if(!drag)tGoal+=dt*0.05;theta+=(tGoal-theta)*0.08;phi+=(pGoal-phi)*0.08;var pb=phi+Math.sin(t*0.2)*0.05;
+  camera.position.set(Math.sin(pb)*Math.cos(theta)*rad,Math.cos(pb)*rad,Math.sin(pb)*Math.sin(theta)*rad);camera.lookAt(0,0,0);
+
+  document.getElementById('hud').innerHTML=M.name+' · <b>۳ قلب</b> · '+bpm+' bpm · lease→'+HNAME[leaseIdx];
+  renderer.render(scene,camera);
+}
+animate();
+addEventListener('resize',function(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+}
+boot();
+})();
+</script>
+</body>
+</html>

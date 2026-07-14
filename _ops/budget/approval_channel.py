@@ -943,6 +943,12 @@ class TelegramApprovalChannel(ApprovalChannel):
         # T-7: kill-switch (می‌ماند). re-entry digest حذف شد.
         if t == "/stop":
             return self.kill_switch()
+        # مرزِ سختِ سراسری (پنیک): /panic HALT-ALL می‌نویسد، /resume آزاد می‌کند.
+        # هم‌الگوی /stop (owner-only از allowlistِ poll_once)، ولی سراسری نه فقط ارگانیسم.
+        if t == "/panic":
+            return self.panic_all()
+        if t == "/resume":
+            return self.resume_all()
         # ── Cockpit v2: میان‌بُرهای تب + دستورهای جدید (هر ورودی همچنان DATA است) ──
         if t in ("/overview", "/blueprint", "/brain", "/doctor", "/money",
                  "/school", "/safety", "/alerts"):
@@ -1233,8 +1239,8 @@ class TelegramApprovalChannel(ApprovalChannel):
         return str(d.get("sigma") or d.get("status") or "—")
 
     # ─── T-6 · RFC/تکامل: doctor.submit_for_approval پشتِ flag ───────────────────
-    # ⚑ برای معمار: doctor.submit_for_approval فعلاً در کد نیست (Phase 2). من یک seam
-    # می‌سازم که آن را وقتی وجود داشت صدا بزند. تا آن‌جا، فقط کارتِ مرورِ RFC را
+    # ⚑ برای معمار: doctor.submit_for_approval حالا در کد هست و وایر شده (به‌روزرسانی
+    # 2026-07-14: ادعای «Phase 2/در کد نیست» کهنه بود). این کارتِ مرورِ RFC را
     # نشان می‌دهد. merge نیازِ human-append دارد (همان مسیرِ T-2).
     def rfc_card(self, rfc_id: str, summary: str) -> bool:
         """کارتِ مرورِ RFC با دکمه‌های [merge پشتِ flag ✅][رد ❌].
@@ -1282,6 +1288,26 @@ class TelegramApprovalChannel(ApprovalChannel):
         return ("🛑 <b>KILL-SWITCH فعال شد</b>\n\n"
                 f"فایلِ <code>_ops\\STOP-ORGANISM</code> نوشته شد.\n"
                 "<i>این فایل authoritative است. ارگانیسم در تیکِ بعدی متوقف می‌شود.</i>")
+
+    def panic_all(self) -> str:
+        """/panic → مرزِ سختِ سراسری HALT-ALL را می‌نویسد (opslib.raise_halt_all).
+        هم‌الگوی kill_switch ولی سراسری: هر حلقه/کانکتور/باتِ بیرونی تیکِ بعد بی‌استثنا
+        می‌ایستد (opslib.master_halted honor می‌کند). حلقهٔ خودِ بات را عمداً stop نمی‌کنیم
+        تا /resume همچنان قابلِ دریافت بماند. fail-soft: خطا = پیامِ خطا، بدونِ crash."""
+        try:
+            opslib.raise_halt_all("telegram /panic")
+        except Exception:  # noqa: BLE001 — fail-soft: نوشتن نشد، حلقه نمی‌میرد
+            return "❌ نوشتنِ HALT-ALL ناموفق."
+        return "🔴 HALT-ALL نوشته شد — همهٔ حلقه‌ها تیکِ بعد می‌ایستند"
+
+    def resume_all(self) -> str:
+        """/resume → مرزِ سختِ سراسری را آزاد می‌کند (opslib.clear_halt_all). قرینهٔ /panic.
+        fail-soft: خطا = پیامِ خطا، بدونِ crash."""
+        try:
+            opslib.clear_halt_all()
+        except Exception:  # noqa: BLE001 — fail-soft
+            return "❌ آزادسازیِ HALT-ALL ناموفق."
+        return "🟢 HALT-ALL آزاد شد"
 
     def reentry_packet(self) -> str:
         """Re-entry Packet: پس از gapِ آفلاین، اثرهای freeze/queue‌شده را نشان می‌دهد.

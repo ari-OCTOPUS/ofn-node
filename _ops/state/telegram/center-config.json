@@ -1,0 +1,38 @@
+{
+  "chat_id": -1004475788460,
+  "display_names": {
+    "studio_pf": "استودیو"
+  },
+  "topics": {
+    "lead": 22,
+    "ziman": 23,
+    "mining": 24,
+    "crypto": 25,
+    "accounting": 26,
+    "studio_pf": 27,
+    "system": 28,
+    "knowledge": 29
+  },
+  "commands_set": true,
+  "status_message_id": 6,
+  "last_digest": {
+    "lead": 1783783940.3547862,
+    "ziman": 1783783940.3547862,
+    "mining": 1783783940.3547862,
+    "crypto": 1783783940.3547862,
+    "accounting": 1783783940.3547862,
+    "studio_pf": 1783783940.3547862,
+    "system": 1783783940.3547862,
+    "knowledge": 1783783940.3547862
+  },
+  "seen": [
+    "d6042424a8432b00",
+    "76e9749566bc19e9",
+    "1eeff2f382f1a716",
+    "2dc3b138f5b2145b",
+    "0c32749f50ee8d7e",
+    "c77783397779c64d",
+    "9cde8351e8a30849"
+  ],
+  "last_offset": 732409079
+}

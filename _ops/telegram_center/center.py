@@ -12,7 +12,11 @@
     + answer_callback. ok اگر رازِ HH_HUMAN_GUARD_SECRET در env باشد یک توکنِ
     HumanAppendGuard هم mint می‌کند؛ بی‌راز = ثبتِ بدونِ توکن، هرگز crash.
   * run_once() — یک دورِ poll + dispatch (offset در config، restart-safe).
-  * فایلِ STOP: `_ops/STOP-TG-CENTER` حلقهٔ run را می‌ایستاند (kill supreme).
+  * توقف (رفعِ G-no-master-halt، 2026-07-13؛ restart-aware WP3، owner decision #25):
+    حلقهٔ run با هر یک از این‌ها می‌ایستد — `HALT-ALL` یا `STOP(architect)` (مرزِ سختِ
+    سراسریِ opslib.master_halted؛ هیچ‌کس نادیده نمی‌گیرد) یا `STOP-TG-CENTER` (scoped ِ خودِ
+    این کانکتور). `STOP-ORGANISM` هم می‌ایستاند مگر هم‌راهش `RESTART-REQUESTED` باشد — که
+    یعنی ری‌استارتِ روتینِ داشبورد و tg-center باید تا relaunch جان به‌در ببرد.
 
 ناوردی‌ها: $0/stdlib-only · flag-off (بدونِ token/چت = هر متدِ عمومی no-opِ امن با
 خروجیِ پیش‌فرض) · import-time خالص (نه شبکه، نه نوشتن) · fail-soft همه‌جا (هر خطا →
@@ -43,6 +47,25 @@ import opslib  # noqa: E402 — import خالص (فقط مسیرها/env)
 
 # فایلِ توقفِ حلقه (هم‌خانوادهٔ STOP-ORGANISM/STOP-CORTEX؛ فقط مالک می‌سازد)
 STOP_TG_CENTER = opslib.OPS / "STOP-TG-CENTER"
+
+# نشانگرِ ری‌استارتِ داشبورد (dashboard/server.py می‌سازدش هم‌راهِ STOP-ORGANISM؛ RUN-ORGANISM.bat
+# هر دو را پاک و با env نو دوباره بوت می‌کند). حضورش یعنی «STOP-ORGANISM موقتی است»، پس این
+# کانکتور نباید در یک ری‌استارتِ روتین بمیرد (owner decision #25). مرزِ سختِ سراسری استثنا ندارد.
+RESTART_REQUESTED = opslib.OPS / "RESTART-REQUESTED"
+RESTART_FRESH_S = 900   # carve-outِ ری‌استارت فقط وقتی markerِ RESTART-REQUESTED «تازه» است
+                        # مجاز است؛ markerِ کهنه نباید STOP-ORGANISMِ «ایستِ کامل» را نامحدود ماسک کند.
+
+
+def _restart_pending() -> bool:
+    """آیا یک ری‌استارتِ روتینِ تازه در جریان است؟ RESTART-REQUESTED فقط اگر وجود داشته
+    باشد و mtimeاش تازه‌تر از RESTART_FRESH_S باشد معتبر است. در تردید/خطا → False
+    (یعنی «ری‌استارتِ معتبر نیست» → STOP-ORGANISMِ کامل غالب می‌شود؛ fail-safe به‌سمتِ توقف)."""
+    try:
+        if not RESTART_REQUESTED.exists():
+            return False
+        return (time.time() - RESTART_REQUESTED.stat().st_mtime) <= RESTART_FRESH_S
+    except OSError:
+        return False
 
 DEFAULT_DIGEST_S = 86400          # cadence پیش‌فرضِ دایجستِ هر پا: ۲۴ ساعت
 SEEN_CAP = 200                    # سقفِ حافظهٔ dedupeِ تصمیم‌ها در config
@@ -203,9 +226,18 @@ class Center:
     _wired = wired  # نامِ داخلیِ هم‌معنا (خوانایی در متدها)
 
     def stopped(self) -> bool:
-        """فایلِ STOP-TG-CENTER = توقف. خطای دیسک در چکِ توقف → «ایست» (امن‌ترین)."""
+        """توقفِ حلقه.
+        **مرزِ سختِ سراسری** (HALT-ALL / STOP ِ معمار via master_halted) و STOP-TG-CENTER
+        همیشه می‌ایستانند — این کانکتورِ بیرونی هرگز حق ندارد مرزِ سراسری را نادیده بگیرد
+        (رفعِ یافتهٔ G-no-master-halt؛ این شرط‌ها هرگز ضعیف نمی‌شوند).
+        اما STOP-ORGANISM فقط وقتی یک «ایستِ کامل» است این کانکتور را می‌ایستاند؛ اگر
+        هم‌راهش RESTART-REQUESTED باشد یعنی یک ری‌استارتِ روتینِ داشبورد است و tg-center باید
+        از آن جان به‌در ببرد تا relaunch (owner decision #25 / WP3). خطای دیسک در چکِ توقف →
+        «ایست» (امن‌ترین: fail-safe)."""
         try:
-            return STOP_TG_CENTER.exists()
+            return (STOP_TG_CENTER.exists()
+                    or opslib.master_halted() is not None
+                    or (opslib.STOP_ORGANISM.exists() and not _restart_pending()))
         except OSError:
             return True
 

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>OCTOPUS · ده دنیا</title>
+<style>
+  :root{--ink:#e8eef2}
+  *{margin:0;box-sizing:border-box}
+  html,body{min-height:100%;background:radial-gradient(1100px 620px at 50% -10%,#141b26,#05070b 62%);color:var(--ink);font-family:"Segoe UI",Tahoma,sans-serif}
+  .wrap{max-width:680px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 20px) 14px calc(env(safe-area-inset-bottom,0px) + 44px)}
+  h1{font-size:27px;text-align:center;letter-spacing:1.5px;font-weight:800;background:linear-gradient(90deg,#7dd3fc,#c084fc,#f0abfc,#fcd34d);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{text-align:center;color:#7d8b98;font-size:12.5px;margin-top:5px;line-height:1.8}
+  .law{margin:14px auto;max-width:520px;background:#0c131b;border:1px solid #1b2735;border-radius:12px;padding:11px 13px;font-size:12px;color:#9fb2c0;text-align:center;line-height:1.9}
+  .law b{color:#a5f3fc}
+  .stat{max-width:600px;margin:0 auto 6px;text-align:center;font-size:11.5px;color:#67e8f9}
+  .vitals{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+  .vitals .v{background:#0c131b;border:1px solid #1b2735;border-radius:999px;padding:4px 10px;font-size:11px;color:#cbd5e1;white-space:nowrap;direction:ltr}
+  .vitals .v i{color:#67e8f9;font-style:normal;opacity:.82;margin-inline-start:5px}
+  .dataflow{max-width:600px;margin:10px auto 6px;text-align:center;font-size:11px;color:#9fb2c0}
+  .dataflow .df{display:flex;justify-content:center;align-items:center;gap:4px;flex-wrap:wrap}
+  .dataflow .df .step{background:#0c131b;border:1px solid #1b2735;border-radius:8px;padding:5px 8px;font-size:10.5px;white-space:nowrap;direction:ltr}
+  .dataflow .df .step .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
+  .dataflow .df .arr{color:#5b6b78;font-size:10px}
+  a.gate{position:relative;display:block;text-decoration:none;color:inherit;background:#0b1119;border:1px solid #1b2735;border-radius:16px;padding:13px;overflow:hidden;transition:transform .12s,border-color .12s}
+  a.gate:active{transform:scale(.97)}
+  .gate .num{font-size:11px;color:#5b6b78}
+  .gate h3{font-size:15px;margin:2px 0 0}
+  .gate .en{font-size:10.5px;color:#6b7c88;letter-spacing:.5px}
+  .gate .st{margin-top:8px;font-size:10.5px;color:#8aa0ad}
+  .gate .act{margin-top:9px;font-size:10.5px;border-top:1px dashed #1b2735;padding-top:7px;color:#93c5fd}
+  .gate .act b{color:#bfdbfe}
+  .glyph{position:absolute;top:10px;left:12px;width:30px;height:30px;opacity:.9}
+  footer{margin-top:20px;text-align:center;color:#48586a;font-size:11px;line-height:2}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ده دنیا</h1>
+  <div class="sub">یک سیستم برای دیدن، تصمیم‌گرفتن، و حرکت — با ریشهٔ اختاپوس</div>
+  <div class="law">قانونِ طراحی: <b>هر دنیا به یک کارِ روشنِ بعدی می‌رسد.</b> بصری برای خیره‌شدن نیست، برای حرکت است. سیستم عاملیتِ تو را زیاد می‌کند، نه اینکه جایش را بگیرد.</div>
+  <div class="stat" id="stat"></div>
+  <div class="dataflow" id="dataflow"></div>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>هر دنیا سبکِ بصریِ خودش را دارد · هستهٔ مشترک وصل شد: گرافِ والتِ واقعی + خونِ زندهٔ ارگانیسم (events · SOG · frontier · budget · neural) · بهترین در حالتِ عمودی</footer>
+</div>
+<script src="graph-data.js"></script>
+<!-- real organism blood: events · SOG · frontier · budget · packets · neural (read-only extract from F:/backup/4d_system/outputs + _ops) -->
+<script src="../../nervous-system/live-data.js"></script>
+<script src="../../nervous-system/neural-data.js"></script>
+<script src="../../nervous-system/task-summary-data.js"></script>
+<script src="../../nervous-system/git-data.js"></script>
+<script src="../../nervous-system/crypto-data.js"></script>
+<script src="../../nervous-system/mining-data.js"></script>
+<script src="../../nervous-system/health-data.js"></script>
+<script src="../../nervous-system/research-data.js"></script>
+<script src="../octo-data.js"></script>
+<script>
+const WORLDS=[
+ {n:1,dir:'01-cockpit',fa:'اتاق فرمان',en:'cockpit · mission control',st:'کاکپیتِ سازمانی',act:'یک کارِ امروز',c:'#22d3ee',g:'<rect x=3 y=3 width=24 height=24 rx=4 fill=none stroke=#22d3ee stroke-width=1.6/><line x1=3 y1=13 x2=27 y2=13 stroke=#22d3ee stroke-width=1.2/><line x1=13 y1=13 x2=13 y2=27 stroke=#22d3ee stroke-width=1.2/>'},
+ {n:2,dir:'02-ontology',fa:'هستی‌شناسی',en:'ontology · life as code',st:'بلوپرینت سیمی',act:'یک رابطه را ببند',c:'#60a5fa',g:'<circle cx=8 cy=8 r=4 fill=none stroke=#60a5fa stroke-width=1.5/><circle cx=22 cy=20 r=4 fill=none stroke=#60a5fa stroke-width=1.5/><line x1=11 y1=10 x2=19 y2=18 stroke=#60a5fa stroke-width=1.2/>'},
+ {n:3,dir:'03-money',fa:'موتور پول',en:'money engine',st:'هولوگرافیک · سنکی',act:'یک ریال را جابه‌جا کن',c:'#34d399',g:'<path d="M4 8 C14 8 16 22 26 22" fill=none stroke=#34d399 stroke-width=2/><path d="M4 20 C14 20 16 10 26 10" fill=none stroke=#fbbf24 stroke-width=2/>'},
+ {n:4,dir:'04-twin',fa:'دوقلوی دیجیتال',en:'digital twin',st:'ارگانیک · زنده',act:'یک مراقبت از خودت',c:'#f0abfc',g:'<circle cx=15 cy=15 r=9 fill=none stroke=#f0abfc stroke-width=1.5/><circle cx=15 cy=15 r=3 fill=#f0abfc/>'},
+ {n:5,dir:'05-galaxy',fa:'کهکشان دانش',en:'knowledge galaxy',st:'میدانِ ستاره‌ای',act:'یک پیوندِ تازه',c:'#c084fc',g:'<circle cx=15 cy=15 r=2 fill=#c084fc/><circle cx=6 cy=9 r=1.4 fill=#c084fc/><circle cx=24 cy=11 r=1.4 fill=#c084fc/><circle cx=20 cy=23 r=1.4 fill=#c084fc/><circle cx=9 cy=22 r=1.4 fill=#c084fc/>'},
+ {n:6,dir:'06-time',fa:'رودخانهٔ زمان',en:'time river · chronos',st:'ویپرویو',act:'یک ساعتِ فردا',c:'#fb7185',g:'<path d="M3 20 Q9 12 15 18 T27 14" fill=none stroke=#fb7185 stroke-width=2/>'},
+ {n:7,dir:'07-decision',fa:'درخت تصمیم',en:'decision tree',st:'اسکچِ دست‌کش',act:'یک انتخابِ بزرگ',c:'#fca5a5',g:'<line x1=15 y1=27 x2=15 y2=16 stroke=#fca5a5 stroke-width=1.6/><line x1=15 y1=16 x2=7 y2=6 stroke=#fca5a5 stroke-width=1.4/><line x1=15 y1=16 x2=23 y2=6 stroke=#fca5a5 stroke-width=1.4/>'},
+ {n:8,dir:'08-risk',fa:'گنبد ریسک',en:'risk radar dome',st:'رادار HUD',act:'یک خطر را ببند',c:'#4ade80',g:'<circle cx=15 cy=15 r=11 fill=none stroke=#4ade80 stroke-width=1.2/><circle cx=15 cy=15 r=5 fill=none stroke=#4ade80 stroke-width=1.2/><line x1=15 y1=15 x2=24 y2=9 stroke=#4ade80 stroke-width=1.4/>'},
+ {n:9,dir:'09-compass',fa:'قطب‌نمای ارزش',en:'value compass',st:'هندسهٔ طلایی',act:'یک اقدامِ هم‌سو',c:'#fcd34d',g:'<circle cx=15 cy=15 r=11 fill=none stroke=#fcd34d stroke-width=1.2/><polygon points="15,6 18,15 15,24 12,15" fill=none stroke=#fcd34d stroke-width=1.2/>'},
+ {n:10,dir:'10-habit',fa:'بلور عادت',en:'habit lattice',st:'ایزومتریکِ بلورین',act:'یک تکرارِ امروز',c:'#a5b4fc',g:'<polygon points="15,4 26,10 26,20 15,26 4,20 4,10" fill=none stroke=#a5b4fc stroke-width=1.4/><line x1=15 y1=4 x2=15 y2=26 stroke=#a5b4fc stroke-width=1/>'},
+];
+const grid=document.getElementById('grid');
+function worldBadge(w){
+ const O=window.OCTO_DATA; if(!O) return '';
+ const s='position:absolute;top:8px;right:8px;border-radius:999px;padding:1px 7px;font:700 10px Tahoma;';
+ if(w.n===1){
+  const tk=O.tasks?O.tasks():null;
+  if(tk&&tk.open) return '<span style="'+s+'background:'+w.c+';color:#000">'+O.nf(tk.open)+'</span>';
+ }
+ if(w.n===3){
+  const cr=O.crypto?O.crypto():null;
+  if(cr) return '<span style="'+s+'background:'+(cr.score>=50?w.c:'#ef4444')+';color:'+(cr.score>=50?'#000':'#fff')+'">'+cr.score+'</span>';
+ }
+ if(w.n===7){
+  const g=O.gateCount?O.gateCount():0;
+  if(g) return '<span style="'+s+'background:#ef4444;color:#fff">'+g+'</span>';
+ }
+ if(w.n===8){
+  const rs=O.risks?O.risks():[];
+  const red=rs.filter(x=>x.level>=3).length;
+  if(red) return '<span style="'+s+'background:#ef4444;color:#fff">'+red+'</span>';
+ }
+ return '';
+}
+function worldModeLabel(w){
+ const s='position:absolute;bottom:8px;left:8px;border-radius:999px;padding:1px 7px;font:700 9px Tahoma;white-space:nowrap;';
+ if(w.n===3) return '<span style="'+s+'background:rgba(168,85,247,.12);color:#a855f7;border:1px solid rgba(168,85,247,.3)">SHADOW MODE</span>';
+ return '<span style="'+s+'background:rgba(34,211,238,.08);color:#22d3ee;border:1px solid rgba(34,211,238,.2)">READ-ONLY</span>';
+}
+WORLDS.forEach(w=>{
+  const a=document.createElement('a'); a.className='gate'; a.href=w.dir+'/index.html';
+  a.style.borderColor=w.c+'55';
+  a.innerHTML='<svg class="glyph" viewBox="0 0 30 30">'+w.g+'</svg>'+worldBadge(w)+worldModeLabel(w)+
+    '<div style="text-align:right"><div class="num">'+w.n+'</div><h3 style="color:'+w.c+'">'+w.fa+'</h3><div class="en">'+w.en+'</div>'+
+    '<div class="st">سبک: '+w.st+'</div><div class="act">می‌رسد به → <b>'+w.act+'</b></div></div>';
+  grid.appendChild(a);
+});
+/* ── shared data core: the vault graph + the live organism blood + neural ── */
+const G=window.OCTOPUS_GRAPH||{}, L=window.LIVE_DATA||null, N=window.NEURAL_DATA||null;
+window.OCTO_CORE={graph:G, live:L, neural:N};                 // one core every world can read
+const nf=n=>(n==null?'—':Number(n).toLocaleString('fa-IR'));
+const stat=document.getElementById('stat');
+if(L){
+  const s=L.sog||{}, ev=L.events||{}, fr=L.frontier||{}, bg=L.budget||{}, dm=L.daemon||{};
+  const ok=!!s.healthy, beat=ok?'#34d399':'#ef4444';
+  const idv=(s.identity_now!=null?s.identity_now.toFixed(6):'—');
+  const dr =(s.drift_now!=null?s.drift_now.toExponential(1):'—');
+  const top=Object.entries(ev.by_name||{}).sort((a,b)=>b[1]-a[1]).slice(0,3)
+             .map(e=>e[0].replace(/^.*\./,'')+'·'+e[1]).join('  ')||'—';
+  const paused=dm.stopped_at!=null;
+  let neuralVital='';
+  if(N&&N.vitals){
+    const v=N.vitals, nc=v.mode_color==='GREEN'?'#34d399':v.mode_color==='AMBER'?'#f59e0b':'#ef4444';
+    neuralVital='<span class="v" style="color:'+nc+'">🧠 neural · '+v.mode_color+'<i>readiness '+Math.round((v.readiness||0)*100)+'%'+(v.protective?' · PROTECTIVE':'')+'</i></span>';
+  }
+  let html='<div class="vitals">'
+   +'<span class="v" style="color:'+beat+'">❤ identity '+idv+' '+(ok?'✓':'⚠')+'<i>drift '+dr+'</i></span>'
+   +'<span class="v">📡 '+nf(ev.total_rows)+' events<i>'+(ev.recent?ev.recent.length:0)+' live · '+top+'</i></span>'
+   +'<span class="v">🧬 gen '+nf(fr.generation)+'<i>'+nf(fr.total_cells)+' frontier</i></span>'
+   +'<span class="v">🔋 '+nf(bg.remaining)+'/'+nf(bg.cap)+'<i>cloud '+nf(bg.cloud_calls)+' · '+(paused?'daemon paused':'daemon '+nf(dm.total_ticks)+' ticks')+'</i></span>'
+   +'<span class="v">🕸 '+nf(G.total_files)+' notes · '+nf(G.total_links)+' links</span>'
+   +neuralVital;
+  // Wave 5: append task + git counts if available
+  const TK=window.TASK_SUMMARY_DATA||window.TASK_DATA||null;
+  if(TK&&TK.summary){
+    const tsm=TK.summary;
+    html+='<span class="v">✓ '+nf(tsm.open_tasks||0)+' task باز<i>'+nf(tsm.total_tasks||0)+' total · '+Math.round((tsm.completion_rate||0)*100)+'% done</i></span>';
+  }
+  const GD=window.GIT_DATA||null;
+  if(GD&&GD.summary){
+    const gsm=GD.summary;
+    html+='<span class="v">⛓ git '+nf(gsm.clean_repos||0)+' clean<i>'+nf(gsm.dirty_repos||0)+' dirty · '+nf(gsm.total_repos||0)+' repos</i></span>';
+  }
+  html+='</div>';
+  stat.innerHTML=html;
+}else{
+  stat.textContent='⚠ خونِ زنده لود نشد — «python extract_live_data.py» را اجرا کن تا live-data.js تازه شود.';
+  stat.style.color='#fca5a5';
+}
+/* ── DATAFLOW freshness bar ── */
+(function(){
+  var df=document.getElementById('dataflow'); if(!df)return;
+  var F=(window.OCTO_DATA&&window.OCTO_DATA.freshness)?window.OCTO_DATA.freshness():{};
+  var steps=[
+    {label:'۴d_system', src:F.live},
+    {label:'_ops/state', src:F.ops},
+    {label:'vault/graph', src:F.graph},
+    {label:'neural', src:F.neural},
+    {label:'اکسترکتور', src:null},
+    {label:'live-data.js', src:F.live},
+    {label:'neural-data.js', src:F.neural},
+    {label:'octo-data.js', src:F.live},
+    {label:'۱۰ دنیا', src:F.live}
+  ];
+  var out='<div class="df">';
+  steps.forEach(function(s,i){
+    var color=s.src?s.src.color:'#ef4444';
+    var emoji=s.src?s.src.emoji:'🔴';
+    out+='<span class="step"><span class="dot" style="background:'+color+'"></span>'+emoji+' '+s.label+'</span>';
+    if(i<steps.length-1) out+='<span class="arr">→</span>';
+  });
+  out+='</div>';
+  df.innerHTML=out;
+})();
+</script>
+<script>
+(function(){var L=window.LIVE_DATA;
+ window.MATHVIZ={type:'layers',color:0x7dd3fc,dist:36,formula:'blood -> heart -> worlds',
+  value:(L&&L.sog?('identity '+L.sog.identity_now.toFixed(6)+' · '+((L.events||{}).total_rows||0)+' events'):'10 worlds'),
+  gap:(L?'':'live-data.js not loaded — run extract_live_data.py')};})();</script>
+<script src="../shared-ui.js"></script>
+<script src="octo-info.js"></script>
+</body>
+</html>

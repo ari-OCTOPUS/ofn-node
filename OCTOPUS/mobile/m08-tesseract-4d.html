@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>تسرکت ۴بعدی · 4D Relations</title>
+<style>
+  *{margin:0;box-sizing:border-box}
+  html,body{height:100%;background:#04040a;overflow:hidden;touch-action:none;overscroll-behavior:none;font-family:-apple-system,"Segoe UI",Tahoma,sans-serif;color:#c7d2fe}
+  #g{position:fixed;inset:0}
+  .top{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:6;pointer-events:none;text-align:right}
+  .top b{font-size:15px;font-weight:700;color:#a5b4fc;display:block;text-shadow:0 0 10px #6366f1aa}
+  .top span{font-size:11px;color:#6b7280}
+  .cap{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 52px);z-index:6;background:rgba(12,12,30,.62);border:1px solid #312e81;border-radius:12px;padding:9px 12px;text-align:right;pointer-events:none}
+  .cap span{font-size:11.5px;color:#a5b4fc}
+  .foot{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);left:12px;right:12px;z-index:6;display:flex;gap:12px;align-items:center;font-size:10.5px;color:#585f80;direction:ltr}
+  .foot a{color:#818cf8;text-decoration:none;font-size:12px;pointer-events:auto}
+</style>
+</head>
+<body>
+<div id="g"></div>
+<div class="top"><b>تسرکت ۴بعدی — روابطِ ابعادِ بالاتر</b><span>گراف واقعی روی یک ۳-کرهٔ ۴بعدی · چرخشِ دوصفحه‌ای</span></div>
+<div class="cap"><span id="cd">هر گره روی بُعد چهارم می‌چرخد؛ عمق = مختصاتِ w</span></div>
+<div class="foot"><a href="index.html">‹ hub</a><span id="st"></span></div>
+<script src="graph-data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script>window.THREE||document.write('<script src="https://unpkg.com/three@0.128.0/build/three.min.js">\x3C/script>');</script>
+<script>
+const G=window.OCTOPUS_GRAPH, N=G.nodes.length;
+const scene=new THREE.Scene(); scene.fog=new THREE.FogExp2(0x04040a,0.006);
+const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,2000); camera.position.set(0,0,155);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(innerWidth,innerHeight);
+renderer.setClearColor(0x04040a,1); document.getElementById('g').appendChild(renderer.domElement);
+const grp=new THREE.Group(); scene.add(grp);
+
+// 4D coords on a 3-sphere, spread by index/folder/degree
+const R=52, C4=new Array(N);
+for(let i=0;i<N;i++){ const n=G.nodes[i];
+  const a=(i*2.399)+n.g.length*0.7, b=Math.acos(1-2*((i+0.5)/N)), c=(i*1.618)+n.d*0.15;
+  C4[i]={x:R*Math.cos(a)*Math.sin(b), y:R*Math.sin(a)*Math.sin(b), z:R*Math.cos(b)*Math.cos(c*0.3), w:R*Math.cos(b)*Math.sin(c*0.3)};
+}
+// colors
+const colArr=[]; G.nodes.forEach(n=>{const c=new THREE.Color(n.c);colArr.push(c.r,c.g,c.b);});
+const pgeo=new THREE.BufferGeometry();
+pgeo.setAttribute('position',new THREE.Float32BufferAttribute(new Float32Array(N*3),3));
+pgeo.setAttribute('color',new THREE.Float32BufferAttribute(colArr,3));
+const points=new THREE.Points(pgeo,new THREE.PointsMaterial({size:2.8,vertexColors:true,transparent:true,opacity:0.95}));
+grp.add(points);
+
+const egeo=new THREE.BufferGeometry();
+egeo.setAttribute('position',new THREE.Float32BufferAttribute(new Float32Array(G.edges.length*6),3));
+const edges=new THREE.LineSegments(egeo,new THREE.LineBasicMaterial({color:0x6366f1,transparent:true,opacity:0.10}));
+grp.add(edges);
+
+const proj=new Array(N);
+let t1=0,t2=0;
+// touch drag -> extra rotation
+let drag=false,px=0,py=0,yaw=0,pit=0;
+const el=renderer.domElement;
+el.addEventListener('pointerdown',e=>{drag=true;px=e.clientX;py=e.clientY;});
+el.addEventListener('pointermove',e=>{if(!drag)return;yaw+=(e.clientX-px)*0.005;pit+=(e.clientY-py)*0.005;px=e.clientX;py=e.clientY;});
+addEventListener('pointerup',()=>drag=false);
+
+function frame(){
+  requestAnimationFrame(frame);
+  t1+=0.006; t2+=0.004;
+  const c1=Math.cos(t1),s1=Math.sin(t1),c2=Math.cos(t2),s2=Math.sin(t2);
+  const pp=pgeo.attributes.position.array;
+  for(let i=0;i<N;i++){ let {x,y,z,w}=C4[i];
+    // rotate plane (x,w) and (y,z)
+    let nx=x*c1 - w*s1, nw=x*s1 + w*c1;
+    let ny=y*c2 - z*s2, nz=y*s2 + z*c2;
+    const s=2.4/(3.0 - nw/R);           // 4D->3D perspective by w
+    const X=nx*s, Y=ny*s, Z=nz*s;
+    proj[i]={x:X,y:Y,z:Z};
+    pp[i*3]=X; pp[i*3+1]=Y; pp[i*3+2]=Z;
+  }
+  pgeo.attributes.position.needsUpdate=true;
+  const ea=egeo.attributes.position.array;
+  for(let k=0;k<G.edges.length;k++){ const a=proj[G.edges[k][0]],b=proj[G.edges[k][1]];
+    ea[k*6]=a.x;ea[k*6+1]=a.y;ea[k*6+2]=a.z; ea[k*6+3]=b.x;ea[k*6+4]=b.y;ea[k*6+5]=b.z; }
+  egeo.attributes.position.needsUpdate=true;
+  grp.rotation.y=yaw+t1*0.1; grp.rotation.x=pit;
+  renderer.render(scene,camera);
+}
+frame();
+document.getElementById('st').textContent=N+' nodes · '+G.edges.length+' links (4D)';
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+</script>
+</body>
+</html>

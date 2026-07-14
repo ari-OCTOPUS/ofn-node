@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>تار آگاهی · Consciousness Web</title>
+<style>
+  *{margin:0;box-sizing:border-box}
+  html,body{height:100%;background:#08080c;overflow:hidden;touch-action:none;overscroll-behavior:none;font-family:-apple-system,"Segoe UI",Tahoma,sans-serif;color:#e5e7eb}
+  canvas{display:block;position:fixed;inset:0}
+  .octo-chip{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;right:12px;z-index:5;pointer-events:none;text-align:right}
+  .octo-chip b{font-size:15px;font-weight:700;display:block}
+  .octo-chip span{font-size:11px;color:#9aa0aa}
+  .octo-foot{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);left:12px;right:12px;z-index:5;display:flex;flex-wrap:wrap;gap:3px 12px;align-items:center;font-size:10.5px;color:#7b818c;direction:ltr}
+  .octo-foot a{color:#60a5fa;text-decoration:none;font-size:12px;pointer-events:auto}
+  .octo-foot .ep{opacity:.65;font-style:italic}
+  .hint{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 40px);text-align:center;font-size:11px;color:#6b7280;z-index:5;pointer-events:none}
+  #coh{position:fixed;top:calc(env(safe-area-inset-top,0px) + 52px);left:12px;z-index:5;font-size:11px;color:#93c5fd;pointer-events:none}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hint">لمس کن → آتش‌گیریِ آگاهی از آن گره پخش می‌شود</div>
+<div id="coh"></div>
+<script src="graph-data.js"></script>
+<script src="octo-core.js"></script>
+<script>
+const cv=document.getElementById('c');
+let S=OCTO.fit(cv), ctx=S.ctx, W=S.w, H=S.h;
+const G=OCTO.G, adj=OCTO.adjacency();
+let P=OCTO.forceLayout(W,H,110);
+OCTO.chrome('تار آگاهی — Consciousness Web','گراف واقعی والت (GNWT: ignition → broadcast → coherence)');
+
+let ig={src:0,t:-999,dist:null};
+const SPEED=6; // hops per second
+function ignite(src){ ig.src=src; ig.t=performance.now()/1000; ig.dist=OCTO.bfs(src,adj); }
+function nearest(x,y){ let bi=0,bd=1e9; for(let i=0;i<P.length;i++){const dx=P[i].x-x,dy=P[i].y-y,d=dx*dx+dy*dy; if(d<bd){bd=d;bi=i;}} return bi; }
+cv.addEventListener('pointerdown',e=>ignite(nearest(e.clientX,e.clientY)));
+
+let last=0;
+function draw(now){
+  requestAnimationFrame(draw);
+  const t=now/1000; const front=(t-ig.t)*SPEED;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#08080c'; ctx.fillRect(0,0,W,H);
+
+  // edges
+  ctx.lineWidth=0.6;
+  for(const e of G.edges){
+    const a=P[e[0]],b=P[e[1]];
+    let act=0;
+    if(ig.dist){ const da=ig.dist[e[0]],db=ig.dist[e[1]];
+      if(da>=0&&db>=0){ const m=Math.min(da,db); act=Math.max(0,1-Math.abs(front-m)*0.7); } }
+    ctx.strokeStyle = act>0.02 ? 'rgba(147,197,253,'+(0.10+act*0.6)+')' : 'rgba(120,130,150,0.06)';
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+  }
+  // nodes
+  let lit=0;
+  for(let i=0;i<G.nodes.length;i++){
+    const n=G.nodes[i], p=P[i], r=OCTO.radius(n.d);
+    let glow=0;
+    if(ig.dist&&ig.dist[i]>=0){ const d=ig.dist[i]; glow=Math.max(0,1-Math.abs(front-d)*0.9); if(front>=d) lit++; }
+    const breathe=0.5+0.5*Math.sin(t*1.6+i*0.3);
+    if(glow>0.03){ ctx.beginPath(); ctx.arc(p.x,p.y,r+6*glow,0,6.283);
+      ctx.fillStyle='rgba(191,219,254,'+(glow*0.35)+')'; ctx.fill(); }
+    ctx.beginPath(); ctx.arc(p.x,p.y,r,0,6.283);
+    ctx.fillStyle=n.c; ctx.globalAlpha=0.55+0.45*breathe*(0.4+glow); ctx.fill(); ctx.globalAlpha=1;
+  }
+  const coh=Math.round(100*lit/G.nodes.length);
+  document.getElementById('coh').textContent='coherence ≈ '+coh+'%  ·  broadcast front '+Math.max(0,front).toFixed(1)+' hops';
+
+  // idle auto-ignite from biggest hub
+  if(t-ig.t>4){ ignite(0); }
+}
+requestAnimationFrame(draw);
+addEventListener('resize',()=>{ S=OCTO.fit(cv); ctx=S.ctx; W=S.w; H=S.h; P=OCTO.forceLayout(W,H,90); });
+</script>
+</body>
+</html>

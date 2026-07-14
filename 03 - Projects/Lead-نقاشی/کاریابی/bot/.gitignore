@@ -1,0 +1,15 @@
+.env
+*.db
+*.db-journal
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+data/logs/*.log
+data/leads.db
+data/channels.db
+data/hunter_memory.md
+.playwright/

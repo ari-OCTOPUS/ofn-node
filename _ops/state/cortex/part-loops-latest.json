@@ -1,0 +1,66 @@
+{
+  "ts": "2026-07-11T01:49:47",
+  "schema": "part-loops.v1",
+  "beat": 1,
+  "parts": [
+    {
+      "id": "heart",
+      "name": "❤️ قلب",
+      "status": "🟢",
+      "detail": "ضربان 212s"
+    },
+    {
+      "id": "cortex",
+      "name": "🧠 مغز",
+      "status": "🟢",
+      "detail": "هم‌آهنگی 88٪"
+    },
+    {
+      "id": "doctor",
+      "name": "🩺 دکتر",
+      "status": "🟢",
+      "detail": "0 منتظر"
+    },
+    {
+      "id": "money",
+      "name": "💰 پول",
+      "status": "🟢",
+      "detail": "0.0$/۳۰"
+    },
+    {
+      "id": "learning",
+      "name": "📚 یادگیری",
+      "status": "🟢",
+      "detail": "1 کشفِ ۴۸h"
+    },
+    {
+      "id": "legs",
+      "name": "🦿 اعضا",
+      "status": "🟢",
+      "detail": "0 خودترمیم/روز"
+    },
+    {
+      "id": "self",
+      "name": "🪞 خودمدلی",
+      "status": "🟢",
+      "detail": "100.0٪ سند"
+    }
+  ],
+  "n_proposals": 2,
+  "proposals": [
+    {
+      "part": "قلب",
+      "title": "قلب هنوز دادهٔ کافی برای هدایتِ زنده ندارد",
+      "action": "بگذار ~۱۲ ساعت نمونه جمع شود؛ خودکار باز می‌شود.",
+      "change_level": "tune",
+      "auto_ok": false
+    },
+    {
+      "part": "قلب",
+      "title": "قلب در سایه می‌تپد (هنوز واقعی نمی‌راند)",
+      "action": "بعد از Gate-0 خودش زنده می‌شود؛ کاری لازم نیست.",
+      "change_level": "tune",
+      "auto_ok": false
+    }
+  ]
+}

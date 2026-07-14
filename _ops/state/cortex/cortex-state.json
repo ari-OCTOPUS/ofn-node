@@ -1,0 +1,117 @@
+{
+  "ts": "2026-07-10T21:53:49",
+  "cycle": 10,
+  "coherence": 0.882,
+  "stale_members": [
+    "doctor_setpoint",
+    "reconcile"
+  ],
+  "members": [
+    {
+      "id": "organism",
+      "present": true,
+      "awareness": 0.988,
+      "age_s": 44,
+      "sla_s": 1800,
+      "note": "تازه"
+    },
+    {
+      "id": "heart",
+      "present": true,
+      "awareness": 0.994,
+      "age_s": 44,
+      "sla_s": 3600,
+      "note": "تازه"
+    },
+    {
+      "id": "producers",
+      "present": true,
+      "awareness": 0.994,
+      "age_s": 44,
+      "sla_s": 3600,
+      "note": "تازه"
+    },
+    {
+      "id": "work_pump",
+      "present": true,
+      "awareness": 0.997,
+      "age_s": 44,
+      "sla_s": 7200,
+      "note": "تازه"
+    },
+    {
+      "id": "doctor_setpoint",
+      "present": false,
+      "awareness": 0.0,
+      "age_s": null,
+      "note": "state غایب"
+    },
+    {
+      "id": "governor",
+      "present": true,
+      "awareness": 0.997,
+      "age_s": 44,
+      "sla_s": 7200,
+      "note": "تازه"
+    },
+    {
+      "id": "sigma",
+      "present": true,
+      "awareness": 0.996,
+      "age_s": 1545,
+      "sla_s": 172800,
+      "note": "تازه"
+    },
+    {
+      "id": "fitness",
+      "present": true,
+      "awareness": 0.996,
+      "age_s": 1545,
+      "sla_s": 172800,
+      "note": "تازه"
+    },
+    {
+      "id": "school",
+      "present": true,
+      "awareness": 0.734,
+      "age_s": 137889,
+      "sla_s": 259200,
+      "note": "تازه"
+    },
+    {
+      "id": "reconcile",
+      "present": false,
+      "awareness": 0.0,
+      "age_s": null,
+      "note": "state غایب"
+    }
+  ],
+  "alignment": {
+    "changed": false,
+    "reason": "هم‌راستا بود"
+  },
+  "rhythm": {
+    "period_s": 332.18,
+    "source": "×۲ قلبِ سایه (166.09s)"
+  },
+  "brains": {
+    "keys": {
+      "fugu": false,
+      "glm": false,
+      "deepseek": false
+    },
+    "paid_gate": "live locked until 2026-07-21 (phase -1 shield)",
+    "local_model": "qwen2.5:1.5b"
+  },
+  "thought": "[local] ان مهم‌ترین کار مجموعه انسان‌ها از تحقیق در عمل و به دنبال آسیابی بشریت است.",
+  "self_improve": {
+    "maturity_pct": 75.8,
+    "n_proposals": 24,
+    "top": [
+      "self-analysis loop observe→critique→propose→validate→promote",
+      "improvement proposals shadow-eval before promote",
+      "change leveled: tune/reconfig/rewrite + contract"
+    ]
+  },
+  "schema": "cortex-state.v1"
+}

@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>ادمین تلگرام · OCTOPUS</title>
+<style>
+  :root{--ink:#e8eef2;--cyan:#22d3ee;--green:#34d399;--red:#ef4444;--gold:#fcd34d;--purple:#a855f7}
+  *{margin:0;box-sizing:border-box}
+  html,body{min-height:100%;background:radial-gradient(1100px 620px at 50% -10%,#141b26,#05070b 62%);color:var(--ink);font-family:"Segoe UI",Tahoma,sans-serif}
+  .wrap{max-width:720px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 20px) 14px calc(env(safe-area-inset-bottom,0px) + 44px)}
+  h1{font-size:24px;text-align:center;letter-spacing:1px;font-weight:800;background:linear-gradient(90deg,var(--cyan),var(--purple),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{text-align:center;color:#7d8b98;font-size:12px;margin-top:4px}
+  .panel{background:#0c131b;border:1px solid #1b2735;border-radius:12px;padding:12px;margin-top:12px}
+  .panel h2{font-size:13px;color:var(--cyan);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none}
+  .panel h2 .status{font-size:11px;color:#7d8b98}
+  .panel h2::after{content:'▼';font-size:10px;color:#5b6b78;transition:transform .2s}
+  .panel.collapsed h2::after{transform:rotate(-90deg)}
+  .panel.collapsed .panel-body{display:none}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .chip{background:#0a1118;border:1px solid #1b2735;border-radius:8px;padding:6px 10px;font-size:11px;color:#cbd5e1;white-space:nowrap;direction:ltr;flex:1;min-width:120px}
+  .chip b{color:var(--cyan);display:block;font-size:12px}
+  .chip.bad b{color:var(--red)}
+  .chip.warn b{color:var(--gold)}
+  .chip.ok b{color:var(--green)}
+  .actions{display:flex;gap:8px;margin-top:10px}
+  .actions button{flex:1;background:#0a1118;border:1px solid #1b2735;color:#cbd5e1;border-radius:8px;padding:8px;font-size:11px;cursor:pointer}
+  .actions button.approve{border-color:var(--green);color:var(--green)}
+  .actions button.reject{border-color:var(--red);color:var(--red)}
+  .actions button:hover{filter:brightness(1.2)}
+  .queue-item{background:#0a1118;border:1px solid #1b2735;border-radius:8px;padding:8px 10px;margin-top:6px;font-size:11px}
+  .queue-item .top{display:flex;justify-content:space-between}
+  .queue-item .top .id{color:#7d8b98;font-size:10px}
+  .queue-item .top .risk{padding:2px 6px;border-radius:999px;font-size:10px}
+  .queue-item .top .risk.r1{background:rgba(52,211,153,.15);color:var(--green)}
+  .queue-item .top .risk.r2{background:rgba(252,211,77,.15);color:var(--gold)}
+  .queue-item .top .risk.r3{background:rgba(239,68,68,.15);color:var(--red)}
+  .queue-item .title{color:#e2e8f0;margin-top:4px}
+  .queue-item .meta{color:#5b6b78;font-size:10px;margin-top:2px}
+  .log{background:#0a1118;border:1px solid #1b2735;border-radius:8px;padding:8px;font-size:10px;color:#5b6b78;max-height:120px;overflow-y:auto;margin-top:8px;font-family:Consolas,monospace;direction:ltr}
+  .nav{display:flex;gap:6px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+  .nav a{display:block;text-decoration:none;color:#7d8b98;font-size:11px;padding:5px 10px;border:1px solid #1b2735;border-radius:999px}
+  .nav a:hover{color:var(--cyan);border-color:var(--cyan)}
+  .badge{background:var(--red);color:#fff;border-radius:999px;padding:2px 6px;font-size:10px;font-weight:700;margin-right:4px}
+  footer{margin-top:20px;text-align:center;color:#48586a;font-size:11px;line-height:2}
+  /* Wave 3 additions */
+  .detail-box{background:#0a1118;border:1px solid #1b2735;border-radius:8px;padding:8px 10px;margin-top:6px;font-size:11px;color:#cbd5e1}
+  .detail-box.hidden{display:none}
+  .detail-box .title{color:var(--cyan);font-size:11px;margin-bottom:4px;font-weight:700}
+  .detail-box ul{margin:4px 0 0 18px;padding:0;font-size:11px;color:#9aa6b6}
+  .detail-box li{margin-bottom:3px}
+  .toggle-btn{background:transparent;border:1px solid #1b2735;color:#7d8b98;border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;margin-top:6px}
+  .toggle-btn:hover{color:var(--cyan);border-color:var(--cyan)}
+  .copy-btn{background:transparent;border:1px solid #1b2735;color:#7d8b98;border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;margin-top:6px}
+  .copy-btn:hover{color:var(--green);border-color:var(--green)}
+  .copy-btn.copied{color:var(--green)}
+  .coin-chip{background:#0a1118;border:1px solid #1b2735;border-radius:8px;padding:5px 8px;font-size:10px;color:#cbd5e1;display:inline-block;margin:3px;direction:ltr}
+  .coin-chip b{color:var(--cyan);font-size:11px}
+  .blocker-row{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:11px}
+  .blocker-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .blocker-dot.on{background:var(--red)}
+  .blocker-dot.off{background:var(--green)}
+  .blocker-label{flex:1}
+  .filter-bar{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .filter-bar button{background:#0a1118;border:1px solid #1b2735;color:#7d8b98;border-radius:999px;padding:3px 10px;font-size:10px;cursor:pointer}
+  .filter-bar button.active{background:var(--cyan);color:#000;border-color:var(--cyan);font-weight:700}
+  .gate-chip{display:inline-block;padding:3px 8px;border-radius:999px;font-size:10px;margin:2px;border:1px solid #1b2735}
+  .gate-chip.open{background:rgba(52,211,153,.12);color:var(--green);border-color:var(--green)}
+  .gate-chip.closed{background:rgba(239,68,68,.12);color:var(--red);border-color:var(--red)}
+  .gate-chip.warn{background:rgba(252,211,77,.12);color:var(--gold);border-color:var(--gold)}
+  /* ── Wave 5 · Control-Readiness ── */
+  .system-banner{background:linear-gradient(90deg,rgba(34,211,238,.08),rgba(168,85,247,.08),rgba(252,211,77,.08));border:1px solid #1b2735;border-radius:12px;padding:10px 14px;margin-top:12px;font-size:11px;color:#9aa6b6;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+  .system-banner .left{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .system-banner .right{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .system-banner b{color:var(--cyan)}
+  .mode-label{font-size:10px;padding:2px 8px;border-radius:999px;border:1px solid #1b2735;font-weight:700;white-space:nowrap}
+  .mode-ro{color:var(--cyan);border-color:rgba(34,211,238,.3);background:rgba(34,211,238,.08)}
+  .mode-shadow{color:var(--purple);border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.08)}
+  .mode-propose{color:var(--gold);border-color:rgba(252,211,77,.3);background:rgba(252,211,77,.08)}
+  .mode-unwired{color:#5b6b78;border-color:#1b2735;background:rgba(91,107,120,.08)}
+  .mode-verdict{color:var(--red);border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.08)}
+  .action-placeholder{background:rgba(239,68,68,.08);border:1px dashed var(--red);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--red);text-align:center;margin-top:8px}
+  .action-placeholder .why{color:#9aa6b6;font-size:10px;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ادمین تلگرام</h1>
+  <div class="sub"> unified bot · queue · health · wallet · mining · actions</div>
+
+  <!-- SYSTEM MODE BANNER — Wave 5 Control-Readiness -->
+  <div class="system-banner" id="sys-banner">
+    <div class="left">
+      <span class="mode-label mode-shadow" id="sys-mode">SHADOW MODE</span>
+      <b id="sys-fresh">⏳ در حالِ محاسبه...</b>
+    </div>
+    <div class="right">
+      <span>مالک: <span style="color:var(--red)">نیاز به رأی</span></span>
+      <span>کانال: <b id="sys-channels">—</b></span>
+    </div>
+  </div>
+
+  <!-- Vitals -->
+  <!-- MODE: READ-ONLY — Displays live organism vitals. No actions. Data from extract_live_data.py. -->
+  <div class="panel">
+    <h2 onclick="togglePanel(this)">وضعیتِ زنده <span class="mode-label mode-ro">READ-ONLY</span> <span class="status" id="bot-status">در حالِ لود...</span></h2>
+    <div class="panel-body">
+      <div class="row" id="vitals"></div>
+    </div>
+  </div>
+
+  <!-- Queue -->
+  <!-- MODE: OWNER VERDICT REQUIRED + PROPOSE-ONLY — Action buttons do NOT execute. They log a proposal that requires owner approval via Telegram. Data from extract_queue_data.py. -->
+  <div class="panel">
+    <h2 onclick="togglePanel(this)">صفِ تأیید <span class="mode-label mode-verdict">OWNER VERDICT</span> <span class="status">HITL / owner-gate</span></h2>
+    <div class="panel-body">
+      <!-- Wave 6 · Status flow diagram -->
+      <div id="queue-flow" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;font-size:10px"></div>
+      <div id="queue"></div>
+      <div style="margin-top:8px;margin-bottom:4px">
+        <span class="mode-label mode-propose">PROPOSE-ONLY</span>
+        <span style="font-size:10px;color:#9aa6b6;margin-right:6px">هیچ اثری اجرا نمی‌شود — نیاز به تأیید مالک در تلگرام</span>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="actAll('approve')">✓ تأییدِ همه (غیرفعال)</button>
+        <button class="reject" onclick="actAll('reject')">✕ ردِ همه (غیرفعال)</button>
+        <button onclick="refresh()">🔄 تازه‌سازی</button>
+      </div>
+      <div class="log" id="log">Waiting for data...</div>
+    </div>
+  </div>
+
+  <!-- Health -->
+  <!-- MODE: READ-ONLY — Composite health score from organism state. No actions. Data from extract_health_data.py. -->
+  <div class="panel">
+    <h2 onclick="togglePanel(this)">سلامتِ سیستم <span class="mode-label mode-ro">READ-ONLY</span> <span class="status">composite score</span></h2>
+    <div class="panel-body">
+      <div class="row" id="health"></div>
+    </div>
+  </div>
+
+  <!-- Neural -->
+  <!-- MODE: READ-ONLY — Neural rhythm and circadian readiness. No actions. Data from extract_neural_data.py. -->
+  <div class="panel">
+    <h2 onclick="togglePanel(this)">شبکهٔ عصبی <span class="mode-label mode-ro">READ-ONLY</span> <span class="status">neural stack</span></h2>
+    <div class="panel-body">
+      <div class="row" id="neural"></div>
+    </div>
+  </div>
+
+  <!-- Wallet -->
+  <!-- MODE: SHADOW MODE — Advisory display of wallet gate, positions, budget. No trades executed. Data from extract_wallet_data.py. -->
+  <div class="panel collapsed">
+    <h2 onclick="togglePanel(this)">کیف پول / eToro <span class="mode-label mode-shadow">SHADOW MODE</span> <span class="status">CH-08 governance</span></h2>
+    <div class="panel-body">
+      <div class="row" id="wallet"></div>
+      <div id="wallet-details"></div>
+    </div>
+  </div>
+
+  <!-- Mining -->
+  <!-- MODE: SHADOW MODE — Advisory fleet monitor, readiness score, security gates. No mining commands sent. Data from extract_mining_data.py. -->
+  <div class="panel collapsed">
+    <h2 onclick="togglePanel(this)">⛏ ماینینگ <span class="mode-label mode-shadow">SHADOW MODE</span> <span class="status">fleet monitor</span></h2>
+    <div class="panel-body">
+      <div class="row" id="mining"></div>
+      <div id="mining-details"></div>
+      <div class="filter-bar" id="mining-filters" style="display:none">
+        <button class="active" onclick="filterMining('all',this)">همه</button>
+        <button onclick="filterMining('open',this)">باز</button>
+        <button onclick="filterMining('closed',this)">بسته</button>
+      </div>
+      <div id="mining-gates" style="margin-top:8px"></div>
+      <div id="mining-coins" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <!-- Crypto -->
+  <!-- MODE: SHADOW MODE — Advisory market signals, composite score, blockers. ZERO live trades. EdgeClassifier unwired → permanent NO_ACTION. Data from extract_crypto_data.py. -->
+  <div class="panel collapsed">
+    <h2 onclick="togglePanel(this)">📈 کریپتو / eToro <span class="mode-label mode-shadow">SHADOW MODE</span> <span class="status">market signals</span></h2>
+    <div class="panel-body">
+      <div class="row" id="crypto"></div>
+      <div id="crypto-blockers"></div>
+      <div id="crypto-signals" style="margin-top:8px"></div>
+      <div class="log" id="crypto-log">Waiting for crypto data...</div>
+    </div>
+  </div>
+
+
+  <!-- Research / Scout -->
+  <!-- MODE: READ-ONLY — Research pipeline, fleet health, synthesis digest. No actions. Data from extract_research_data.py. -->
+  <div class="panel collapsed">
+    <h2 onclick="togglePanel(this)">🔬 اسکاوت / تحقیق <span class="mode-label mode-ro">READ-ONLY</span> <span class="status">CH-01</span></h2>
+    <div class="panel-body">
+      <div class="row" id="research"></div>
+      <div id="research-details"></div>
+    </div>
+  </div>
+
+  <!-- Git Status -->
+  <!-- MODE: READ-ONLY — Git branch, commit, dirty files. No actions. Data from extract_git_data.py. -->
+  <div class="panel collapsed">
+    <h2 onclick="togglePanel(this)">⛓ وضعیتِ گیت <span class="mode-label mode-ro">READ-ONLY</span> <span class="status">CH-02</span></h2>
+    <div class="panel-body">
+      <div class="row" id="git"></div>
+      <div id="git-details"></div>
+    </div>
+  </div>
+
+  <!-- Task Queue -->
+  <!-- MODE: READ-ONLY — Task counts, priorities, completion rate, next action. No actions. Data from extract_task_data.py. -->
+  <div class="panel collapsed">
+    <h2 onclick="togglePanel(this)">✓ صفِ کارها <span class="mode-label mode-ro">READ-ONLY</span> <span class="status">CH-05</span></h2>
+    <div class="panel-body">
+      <div class="row" id="tasks"></div>
+      <div id="tasks-details"></div>
+    </div>
+  </div>
+
+  <!-- Ideas Backlog -->
+  <!-- MODE: READ-ONLY — Ideas by tier, strategic scores, readiness. No actions. Data from extract_ideas_data.py. -->
+  <div class="panel collapsed">
+    <h2 onclick="togglePanel(this)">💡 بک‌لاگِ ایده‌ها <span class="mode-label mode-ro">READ-ONLY</span> <span class="status">CH-12</span></h2>
+    <div class="panel-body">
+      <div class="row" id="ideas"></div>
+      <div id="ideas-details"></div>
+    </div>
+  </div>
+
+  <!-- Project Index -->
+  <!-- MODE: READ-ONLY — Project cards, health, blockers, phases. No actions. Data from extract_project_data.py. -->
+  <div class="panel collapsed">
+    <h2 onclick="togglePanel(this)">📁 ایندکسِ پروژه‌ها <span class="mode-label mode-ro">READ-ONLY</span> <span class="status">CH-13</span></h2>
+    <div class="panel-body">
+      <div class="row" id="projects"></div>
+      <div id="projects-details"></div>
+    </div>
+  </div>
+
+  <!-- Telegram Control -->
+  <!-- MODE: READ-ONLY + PROPOSE-ONLY — center.py has REAL handlers for /status /queue /approvals /risk /help /refresh. Callback verdicts (ok/no/later) are WIRED. Credentials are human-gated. -->
+  <div class="panel collapsed">
+    <h2 onclick="togglePanel(this)">📡 کنترلِ تلگرام <span class="mode-label mode-ro">HANDLERS WIRED</span> <span class="status">CH-15b · credentials human-gated</span></h2>
+    <div class="panel-body">
+      <div class="row" id="telegram"></div>
+      <div id="telegram-details"></div>
+      <div id="telegram-commands"></div>
+      <div class="detail-box" style="margin-top:8px">
+        <div class="title">🔒 وضعیتِ امنیتی</div>
+        <div class="row" style="margin-top:4px">
+          <div class="chip"><b>مالک</b>****1234</div>
+          <div class="chip warn"><b>credential</b>نیاز به env</div>
+          <div class="chip ok"><b>گیت</b>⛔ بسته</div>
+          <div class="chip warn"><b>batch</b>غیرفعال</div>
+        </div>
+        <div style="margin-top:6px;font-size:10px;color:#9aa6b6">هیچ توکنِ hardcoded نیست. تزریق فقط از env.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audit Trail — Wave 6 · D -->
+  <!-- MODE: READ-ONLY — Immutable append-only log of control plane actions. No actions. Data from extract_audit_trail.py. -->
+  <div class="panel collapsed">
+    <h2 onclick="togglePanel(this)">🔍 Audit Trail <span class="mode-label mode-ro">READ-ONLY</span> <span class="status" id="audit-status">log</span></h2>
+    <div class="panel-body">
+      <div class="row" id="audit-summary"></div>
+      <div id="audit-recent"></div>
+      <div id="audit-rollback"></div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <a href="../worlds/index.html">‹ هاب</a>
+    <a href="../worlds/01-cockpit/index.html">کاکپیت</a>
+    <a href="../worlds/08-risk/index.html">ریسک</a>
+    <a href="../worlds/03-money/index.html">پول</a>
+  </div>
+
+  <footer>Unified Telegram Admin · read-only + propose-only · no execution without owner verdict</footer>
+</div>
+
+<script src="../../nervous-system/live-data.js"></script>
+<script src="../../nervous-system/ops-data.js"></script>
+<script src="../../nervous-system/health-data.js"></script>
+<script src="../../nervous-system/queue-data.js"></script>
+<script src="../../nervous-system/neural-data.js"></script>
+<script src="../../nervous-system/watchdog-data.js"></script>
+<script src="../../nervous-system/crypto-data.js"></script>
+<script src="../../nervous-system/mining-data.js"></script>
+<script src="../../nervous-system/wallet-data.js"></script>
+<script src="../../nervous-system/research-data.js"></script>
+<script src="../../nervous-system/git-data.js"></script>
+  <!-- Task data: lightweight summary loads by default; full data lazy-loaded on demand -->
+  <script src="../../nervous-system/task-summary-data.js"></script>
+<script src="../../nervous-system/ideas-data.js"></script>
+<script src="../../nervous-system/project-data.js"></script>
+<script src="../../nervous-system/telegram-data.js"></script>
+  <script src="../../nervous-system/telegram-commands-data.js"></script>
+  <script src="../../nervous-system/audit-trail-data.js"></script>
+<script src="../worlds/octo-data.js"></script>
+<script>
+(function(){
+  const L=window.LIVE_DATA||{}, O=window.OPS_DATA||{}, H=window.HEALTH_DATA||{},
+        Q=window.QUEUE_DATA||{}, N=window.NEURAL_DATA||{}, W=window.WATCHDOG_DATA||{},
+        C=window.CRYPTO_DATA||{}, M=window.MINING_DATA||{}, WL=window.WALLET_DATA||{},
+        R=window.RESEARCH_DATA||{}, G=window.GIT_DATA||{}, TK=window.TASK_SUMMARY_DATA||window.TASK_DATA||{},
+        I=window.IDEAS_DATA||{}, P=window.PROJECT_DATA||{}, T=window.TELEGRAM_DATA||{},
+        TC=window.TELEGRAM_COMMANDS_DATA||{}, AT=window.AUDIT_TRAIL_DATA||{};
+  const nf=n=>n==null?'—':Number(n).toLocaleString('fa-IR');
+
+  function statusDot(ok){return ok?'🟢':'🔴';}
+  function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+  // ── Panel toggle ──
+  window.togglePanel=function(el){
+    el.parentElement.classList.toggle('collapsed');
+  };
+
+  // ── Copy to clipboard ──
+  window.copyText=function(text,btn){
+    navigator.clipboard.writeText(text).then(function(){
+      btn.textContent='✓ کپی شد';
+      btn.classList.add('copied');
+      setTimeout(function(){btn.textContent='📋 کپی';btn.classList.remove('copied');},1500);
+    });
+  };
+
+  // ── Bot vitals ──
+  const botStatus=document.getElementById('bot-status');
+  const vitals=document.getElementById('vitals');
+  if(L&&O){
+    botStatus.textContent=' unified bot online';
+    const s=L.sog||{}, bg=L.budget||{}, dm=L.daemon||{};
+    const ev=L.events||{};
+    vitals.innerHTML=
+      '<div class="chip ok"><b>'+statusDot(s.healthy)+' identity</b>'+(s.identity_now?s.identity_now.toFixed(6):'—')+'</div>'+
+      '<div class="chip '+(bg.remaining>100?'ok':'warn')+'"><b>🔋 budget</b>'+nf(bg.remaining)+'/'+nf(bg.cap)+'</div>'+
+      '<div class="chip '+(dm.stopped_at!=null?'bad':'ok')+'"><b>⏱ daemon</b>'+(dm.stopped_at!=null?'paused':'ticks '+nf(dm.total_ticks))+'</div>'+
+      '<div class="chip ok"><b>📡 events</b>'+nf(ev.total_rows)+'</div>'+
+      '<div class="chip ok"><b>🧠 chrono</b>'+nf(O.time&&O.time.chrono_beat)+'</div>'+
+      '<div class="chip '+(O.time&&O.time.wires_on===O.time.wires_total?'ok':'warn')+'"><b>🔌 wires</b>'+(O.time?O.time.wires_on:'?')+'/'+(O.time?O.time.wires_total:'?')+'</div>';
+  }else{
+    botStatus.textContent='⚠ داده لود نشد — extract_live_data.py را اجرا کن';
+    vitals.innerHTML='<div class="chip bad"><b>🔴 offline</b>دادهٔ زنده یافت نشد</div>';
+  }
+
+  // ── Queue ──
+  const queueEl=document.getElementById('queue');
+  const logEl=document.getElementById('log');
+  const flowEl=document.getElementById('queue-flow');
+  const qItems=(Q&&Q.queue&&Q.queue.items)?Q.queue.items:[];
+  const qCounts=(Q&&Q.queue&&Q.queue.counts)?Q.queue.counts:{};
+
+  // Wave 6 · Status flow diagram
+  if(flowEl){
+    const flow=(Q&&Q.queue&&Q.queue.status_flow)?Q.queue.status_flow:[
+      {status:'suggested',label:'پیشنهاد'},
+      {status:'queued',label:'در صف'},
+      {status:'owner_approved',label:'تأیید مالک'},
+      {status:'executed',label:'اجرا'}
+    ];
+    flowEl.innerHTML=flow.map(function(step,idx){
+      const active=step.active?' style="background:rgba(34,211,238,.15);color:var(--cyan);border-color:rgba(34,211,238,.3)"':'';
+      return '<span class="gate-chip"'+active+'>'+esc(step.label)+'</span>'+(idx<flow.length-1?' <span style="color:#5b6b78">→</span> ':'');
+    }).join('');
+  }
+
+  if(qItems.length){
+    queueEl.innerHTML=qItems.map(it=>{
+      const r=it.risk_level||'R1';
+      const rc='r'+(r==='R4'||r==='R3'?'3':r==='R2'?'2':'1');
+      const cst=it.explicit_status_label||it.status||'queued';
+      const tiq=it.time_in_queue||'—';
+      const req=it.required_action||'مالک باید تأیید/رد کند';
+      const dry=it.dry_run?' <span style="color:var(--gold)">[DRY-RUN]</span>':'';
+      const deny=(it.status==='rejected')?'<div style="color:var(--red);font-size:10px;margin-top:4px">رد شده — نیاز به review دستی</div>':'';
+      const canAct=(cst==='queued'||cst==='pending'||cst==='suggested');
+      return '<div class="queue-item">'+
+        '<div class="top"><span class="id">#'+esc(it.id)+'</span><span class="risk '+rc+'">'+r+'</span></div>'+
+        '<div class="title">'+esc(it.summary||it.title||'—')+dry+'</div>'+
+        '<div class="meta">'+esc(it.source)+' · <b>'+esc(cst)+'</b> · '+(it.amount_aud?'AUD '+it.amount_aud:'—')+' · '+esc(tiq)+'</div>'+
+        '<div style="color:var(--gold);font-size:10px;margin-top:3px">نیاز: '+esc(req)+'</div>'+
+        deny+
+        '<div class="actions" style="margin-top:6px">'+
+          (canAct?'<button class="approve" onclick="actOne(\''+String(it.id).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\',\'approve\')">✓ تأیید</button>':'<button disabled style="opacity:.4">✓ تأیید</button>')+
+          (canAct?'<button class="reject" onclick="actOne(\''+String(it.id).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\',\'reject\')">✕ رد</button>':'<button disabled style="opacity:.4">✕ رد</button>')+
+        '</div>'+
+      '</div>';
+    }).join('');
+    logEl.textContent='Queue loaded: '+qItems.length+' items ('+(qCounts.pending||0)+' pending)';
+  }else{
+    queueEl.innerHTML='<div class="queue-item"><div class="title">صف خالی است</div><div class="meta">هیچ موردی برای تأیید نیست</div></div>';
+    logEl.textContent='Queue empty';
+  }
+
+  // ── Health ──
+  const healthEl=document.getElementById('health');
+  if(H){
+    const sc=H.overall||0;
+    const ss=H.subscores||{};
+    const status=sc>=80?'سالم':sc>=60?'هشدار سبک':sc>=40?'هشدار متوسط':sc>=20?'بحرانی':'بحران';
+    const color=sc>=80?'ok':sc>=60?'warn':sc>=40?'warn':'bad';
+    healthEl.innerHTML=
+      '<div class="chip '+color+'"><b>🫀 overall</b>'+Math.round(sc)+' · '+status+'</div>'+
+      '<div class="chip"><b>system</b>'+Math.round(ss.system||0)+'</div>'+
+      '<div class="chip"><b>fitness</b>'+Math.round(ss.fitness||0)+'</div>'+
+      '<div class="chip"><b>telemetry</b>'+Math.round(ss.telemetry||0)+'</div>';
+  }else{
+    healthEl.innerHTML='<div class="chip bad"><b>🔴 health</b>health-data.js لود نشد</div>';
+  }
+
+  // ── Neural ──
+  const neuralEl=document.getElementById('neural');
+  if(N){
+    const r=N.rhythm||{};
+    neuralEl.innerHTML=
+      '<div class="chip"><b>mode</b>'+(r.mode_color||'—')+'</div>'+
+      '<div class="chip"><b>T_beat</b>'+(r.T_beat?r.T_beat.toFixed(1)+'s':'—')+'</div>'+
+      '<div class="chip"><b>readiness</b>'+(N.circadian?Math.round(N.circadian.readiness*100)+'%':'—')+'</div>'+
+      '<div class="chip"><b>stress</b>'+(r.stress?r.stress.toFixed(2):'—')+'</div>';
+  }else{
+    neuralEl.innerHTML='<div class="chip bad"><b>🔴 neural</b>neural-data.js لود نشد</div>';
+  }
+
+  // ── Wallet ──
+  const walletEl=document.getElementById('wallet');
+  const walletDetails=document.getElementById('wallet-details');
+  if(WL){
+    const g=WL.gate||{};
+    const p=WL.portfolio||{};
+    const b=WL.budget||{};
+    const gateClosed=(g.security_gate||'').toLowerCase().indexOf('closed')!==-1;
+    const gateColor=gateClosed?'bad':'ok';
+    const posColor=p.position_count>0?'ok':'warn';
+    const budgetColor=b.depleted?'bad':b.remaining>50?'ok':'warn';
+    walletEl.innerHTML=
+      '<div class="chip '+gateColor+'"><b>⛔ gate</b>'+esc(g.security_gate).substring(0,40)+'</div>'+
+      '<div class="chip '+posColor+'"><b>📋 positions</b>'+p.position_count+' active · '+p.approved_count+' approved</div>'+
+      '<div class="chip '+budgetColor+'"><b>💰 budget</b>'+nf(b.remaining)+'/'+nf(b.daily_cap)+' AUD</div>'+
+      '<div class="chip"><b>📊 spent</b>'+nf(b.spent)+' (depleted: '+(b.depleted?'YES':'no')+')</div>';
+
+    let detailsHTML='<div class="detail-box">'+
+      '<div class="title">🚧 blockers</div>'+
+      '<div style="color:#9aa6b6;font-size:11px;margin-top:4px">'+esc(g.primary_blocker||'—')+'</div>';
+    if(g.hard_rules&&g.hard_rules.length){
+      detailsHTML+='<ul>'+g.hard_rules.map(r=>'<li>'+esc(r)+'</li>').join('')+'</ul>'+
+        '<button class="copy-btn" onclick="copyText(this.dataset.txt,this)" data-txt="'+esc(g.hard_rules.join('\n'))+'">📋 کپی</button>';
+    }
+    detailsHTML+='</div>';
+    walletDetails.innerHTML=detailsHTML;
+  }else{
+    walletEl.innerHTML='<div class="chip bad"><b>🔴 wallet</b>wallet-data.js لود نشد</div>';
+  }
+
+  // ── Mining ──
+  const miningEl=document.getElementById('mining');
+  const miningDetails=document.getElementById('mining-details');
+  const miningGates=document.getElementById('mining-gates');
+  const miningCoins=document.getElementById('mining-coins');
+  if(M){
+    const fl=M.fleet||{};
+    const rd=M.readiness||{};
+    const sc=rd.score||0;
+    const rdColor=sc>=70?'ok':sc>=40?'warn':'bad';
+    const elec=fl.electricity_safe?'ok':fl.electricity_mood==='🟡'?'warn':'bad';
+    miningEl.innerHTML=
+      '<div class="chip '+rdColor+'"><b>⛏ readiness</b>'+Math.round(sc)+' · '+(rd.mood||'—')+'</div>'+
+      '<div class="chip '+elec+'"><b>برق</b>'+(fl.electricity_mood||'—')+'</div>'+
+      '<div class="chip"><b>نودها</b>'+(fl.nodes_running||0)+'/'+(fl.nodes_total||0)+' running</div>'+
+      '<div class="chip"><b>beat</b>'+nf((M.runtime||{}).beat)+'</div>';
+
+    // readiness reasons
+    let det='<div class="detail-box"><div class="title">📋 readiness breakdown</div><ul>'+
+      (rd.reasons||[]).map(r=>'<li>'+esc(r)+'</li>').join('')+'</ul></div>';
+    miningDetails.innerHTML=det;
+
+    // security gates
+    const gates=(M.security||{}).gates||{};
+    let gatesHTML='<div class="detail-box"><div class="title">🔒 security gates</div>';
+    Object.keys(gates).forEach(function(k){
+      const g=gates[k];
+      const cls=g.pass?'open':g.mood==='🟡'?'warn':'closed';
+      gatesHTML+='<div class="blocker-row"><span class="blocker-dot '+(g.pass?'off':'on')+'"></span>'+
+        '<span class="blocker-label">'+esc(g.note)+'</span>'+
+        '<span class="gate-chip '+cls+'">'+(g.pass?'✓ PASS':'✗ FAIL')+'</span></div>';
+    });
+    gatesHTML+='</div>';
+    miningGates.innerHTML=gatesHTML;
+
+    // coin candidates
+    const top=(M.coins||{}).top_candidates||[];
+    if(top.length){
+      miningCoins.innerHTML='<div class="detail-box"><div class="title">⛏ top candidates ('+top.length+')</div>'+
+        '<div style="margin-top:4px">'+top.map(function(c){
+          return '<span class="coin-chip"><b>'+esc(c.symbol)+'</b> '+esc(c.name)+' · score '+Math.round(c.score)+'</span>';
+        }).join('')+'</div>'+
+        '<button class="toggle-btn" onclick="var el=document.getElementById(\'coin-full\');el.classList.toggle(\'hidden\');this.textContent=el.classList.contains(\'hidden\')?\'نمایش همه\':\'پنهان\'">نمایش همه</button>'+
+        '<div id="coin-full" class="detail-box hidden" style="margin-top:6px"><ul>'+
+        top.map(function(c){return '<li><b>'+esc(c.symbol)+'</b> '+esc(c.name)+' — score '+Math.round(c.score)+' · age '+c.age_days+'d · vol '+nf(c.volume_24h)+'</li>';}).join('')+
+        '</ul></div>';
+    }else{
+      miningCoins.innerHTML='<div class="detail-box"><div class="title">⛏ coin candidates</div><div style="color:#5b6b78;font-size:11px">کاندیدی یافت نشد — coin_hunter_cache خالی</div></div>';
+    }
+  }else{
+    miningEl.innerHTML='<div class="chip bad"><b>🔴 mining</b>mining-data.js لود نشد</div>';
+  }
+
+  // ── Crypto ──
+  const cryptoEl=document.getElementById('crypto');
+  const cryptoBlockers=document.getElementById('crypto-blockers');
+  const cryptoSignals=document.getElementById('crypto-signals');
+  const cryptoLog=document.getElementById('crypto-log');
+  if(C){
+    const comp=C.composite||{};
+    const proj=C.project||{};
+    const reg=C.registry||{};
+    const compColor=comp.score>=80?'ok':comp.score>=50?'warn':'bad';
+    cryptoEl.innerHTML=
+      '<div class="chip '+compColor+'"><b>📈 composite</b>'+Math.round(comp.score||0)+' · '+esc(comp.status||'—')+'</div>'+
+      '<div class="chip '+(reg.registry_empty?'warn':'ok')+'"><b>📋 registry</b>'+(reg.registry_empty?'خالی':reg.positions_active_count+' pos')+'</div>'+
+      '<div class="chip"><b>🛡 gate</b>'+esc(proj.security_gate||'—').substring(0,35)+'</div>'+
+      '<div class="chip"><b>⚡ mode</b>'+esc(proj.action_mode||'—')+'</div>';
+
+    // blockers
+    const blockers=C.blockers||[];
+    if(blockers.length){
+      let bHTML='<div class="detail-box"><div class="title">🚧 blockers</div>';
+      blockers.forEach(function(b){
+        bHTML+='<div class="blocker-row"><span class="blocker-dot '+(b.active?'on':'off')+'"></span>'+
+          '<span class="blocker-label">'+esc(b.label)+'</span>'+
+          '<span class="gate-chip '+(b.active?'closed':'open')+'">'+(b.active?'ACTIVE':'clear')+'</span></div>';
+      });
+      bHTML+='</div>';
+      cryptoBlockers.innerHTML=bHTML;
+    }
+
+    // signals
+    const lc=C.lunarcrush||{};
+    const cq=C.cryptoquant||{};
+    let sigHTML='<div class="detail-box"><div class="title">📡 signals</div>';
+    if(lc.stale){
+      sigHTML+='<div style="margin:4px 0;font-size:11px">LunarCrush: <span style="color:'+lc.stale.color+'">'+lc.stale.emoji+' '+esc(lc.stale.label)+'</span> · buy '+nf(lc.summary.buy_signals)+' · sell '+nf(lc.summary.sell_signals)+'</div>';
+    }
+    if(cq.stale){
+      sigHTML+='<div style="margin:4px 0;font-size:11px">CryptoQuant: <span style="color:'+cq.stale.color+'">'+cq.stale.emoji+' '+esc(cq.stale.label)+'</span> · agg '+esc(cq.aggregate.verdict||'—')+'</div>';
+    }
+    if(lc.top_buy&&lc.top_buy.length){
+      sigHTML+='<div style="margin-top:6px;font-size:10px;color:#7d8b98">Top buy:</div>'+
+        lc.top_buy.map(function(c){return '<span class="coin-chip"><b>'+esc(c.symbol)+'</b> '+nf(c.price)+' · '+Math.round(c.change_24h||0)+'% · gs '+Math.round(c.galaxy_score||0)+'</span>';}).join('');
+    }
+    sigHTML+='</div>';
+    cryptoSignals.innerHTML=sigHTML;
+    cryptoLog.textContent='Crypto data: '+esc(proj.execution_state||'unknown').substring(0,120);
+  }else{
+    cryptoEl.innerHTML='<div class="chip bad"><b>🔴 crypto</b>crypto-data.js لود نشد</div>';
+  }
+
+
+  // ── Research / Scout ──
+  const researchEl=document.getElementById('research');
+  const researchDetails=document.getElementById('research-details');
+  if(R&&R.pipeline){
+    const p=R.pipeline||{}, f=R.fleet||{}, s=R.synthesis||{}, t=R.triage||{};
+    const h=R.health||{};
+    const healthScore=h.score!=null?h.score:0;
+    const healthColor=healthScore>=0.8?'ok':healthScore>=0.5?'warn':'bad';
+    researchEl.innerHTML=
+      '<div class="chip '+healthColor+'"><b>🔬 digest</b>'+nf(p.total_digests||0)+'</div>'+
+      '<div class="chip"><b>یافته‌ها</b>'+nf(p.total_findings||0)+'</div>'+
+      '<div class="chip"><b>اسکاوت‌ها</b>'+nf(f.active_scouts||0)+'</div>'+
+      '<div class="chip '+(f.stale_scouts&&f.stale_scouts.length>5?'warn':'ok')+'"><b>کهنه</b>'+nf(f.stale_scouts?f.stale_scouts.length:0)+'</div>';
+    let det='<div class="detail-box"><div class="title">🔬 جزئیاتِ اسکاوت</div>'+
+      '<div style="margin:4px 0">منابع: '+nf(p.total_sources||0)+' · spores: '+nf(p.total_spores||0)+' · cross-domain: '+nf(p.cross_domain_links||0)+'</div>'+
+      '<div style="margin:4px 0">پوشش ۲۴ساعته: '+(f.coverage_24h!=null?Math.round(f.coverage_24h*100)+'%':'—')+' · ۷روزه: '+(f.coverage_7d!=null?Math.round(f.coverage_7d*100)+'%':'—')+'</div>'+
+      '<div style="margin:4px 0">سنتز: '+nf(s.count||0)+' (آخرین: '+esc(s.latest_date||'—')+')</div>'+
+      '<div style="margin:4px 0">پیشنهادِ باز: '+nf(t.open_proposals||0)+' · salience: '+(t.top_salience!=null?t.top_salience.toFixed(2):'—')+'</div>';
+    if(f.stale_scouts&&f.stale_scouts.length){
+      det+='<div style="margin-top:6px;font-size:10px;color:#7d8b98">اسکاوت‌های کهنه ('+f.stale_scouts.length+'):</div>'+
+        '<div style="font-size:10px;color:#9aa6b6">'+esc(f.stale_scouts.slice(0,10).join(' · '))+(f.stale_scouts.length>10?' ...':'')+'</div>';
+    }
+    det+='</div>';
+    researchDetails.innerHTML=det;
+  }else{
+    researchEl.innerHTML='<div class="chip bad"><b>🔴 research</b>research-data.js لود نشد</div>';
+  }
+
+  // ── Git Status ──
+  const gitEl=document.getElementById('git');
+  const gitDetails=document.getElementById('git-details');
+  if(G&&G.repos&&G.repos.length){
+    const repo=G.repos[0]||{}, st=repo.status||{}, lc=repo.last_commit||{};
+    const sm=G.summary||{};
+    const dirty=st.dirty_total||0;
+    const dirtyColor=dirty===0?'ok':dirty>200?'bad':'warn';
+    gitEl.innerHTML=
+      '<div class="chip '+dirtyColor+'"><b>⛓ شاخه</b>'+esc(repo.branch||'—')+'</div>'+
+      '<div class="chip"><b>کامیت</b>'+esc(lc.hash_short||'—')+'</div>'+
+      '<div class="chip '+dirtyColor+'"><b>تغییرات</b>'+nf(dirty)+' dirty</div>'+
+      '<div class="chip"><b>repoها</b>'+nf(sm.clean_repos||0)+' clean / '+nf(sm.dirty_repos||0)+' dirty</div>';
+    let det='<div class="detail-box"><div class="title">⛓ جزئیاتِ گیت</div>'+
+      '<div style="margin:4px 0">پیام: '+esc((lc.message||'—').substring(0,80))+'</div>'+
+      '<div style="margin:4px 0">نویسنده: '+esc(lc.author||'—')+' · '+esc(lc.date_relative||'—')+'</div>'+
+      '<div style="margin:4px 0">modified: '+nf(st.modified||0)+' · untracked: '+nf(st.untracked||0)+' · ahead: '+nf(st.ahead||0)+' · behind: '+nf(st.behind||0)+'</div>';
+    if(repo.files&&repo.files.length){
+      det+='<button class="toggle-btn" onclick="var el=document.getElementById(\'git-files\');el.classList.toggle(\'hidden\');this.textContent=el.classList.contains(\'hidden\')?\'نمایش فایل‌ها\':\'پنهان\'">نمایش فایل‌ها</button>'+
+        '<div id="git-files" class="detail-box hidden" style="margin-top:6px"><ul>'+
+        repo.files.slice(0,20).map(function(f){return '<li>'+esc(f.status)+' '+esc(f.path)+'</li>';}).join('')+
+        (repo.files.length>20?'<li>... و '+nf(repo.files.length-20)+' فایل دیگر</li>':'')+
+        '</ul></div>';
+    }
+    det+='</div>';
+    gitDetails.innerHTML=det;
+  }else{
+    gitEl.innerHTML='<div class="chip bad"><b>🔴 git</b>git-data.js لود نشد</div>';
+  }
+
+  // ── Task Queue ──
+  const tasksEl=document.getElementById('tasks');
+  const tasksDetails=document.getElementById('tasks-details');
+  if(TK&&TK.summary){
+    const sm=TK.summary||{}, bp=sm.by_priority||{};
+    const open=sm.open_tasks||0, done=sm.done_tasks||0, total=sm.total_tasks||0;
+    const rate=sm.completion_rate||0;
+    const crit=bp['بحرانی']||0, high=bp['بالا']||0, med=bp['متوسط']||0, low=bp['کم']||0;
+    const rateColor=rate>=0.5?'ok':rate>=0.2?'warn':'bad';
+    const critColor=crit>0?'bad':high>0?'warn':'ok';
+    tasksEl.innerHTML=
+      '<div class="chip '+critColor+'"><b>✓ باز</b>'+nf(open)+' / '+nf(total)+'</div>'+
+      '<div class="chip"><b>انجام‌شده</b>'+nf(done)+'</div>'+
+      '<div class="chip '+rateColor+'"><b>نرخِ تکمیل</b>'+Math.round(rate*100)+'%</div>'+
+      '<div class="chip '+critColor+'"><b>بحرانی</b>'+nf(crit)+' · بالا: '+nf(high)+'</div>';
+    let det='<div class="detail-box"><div class="title">✓ جزئیاتِ کارها</div>'+
+      '<div style="margin:4px 0">اولویت‌ها — بحرانی: '+nf(crit)+' · بالا: '+nf(high)+' · متوسط: '+nf(med)+' · کم: '+nf(low)+'</div>'+
+      '<div style="margin:4px 0">فایل‌های اسکن‌شده: '+nf(sm.files_scanned||0)+' · فایل‌های دارای task: '+nf(sm.files_with_tasks||0)+'</div>';
+    if(sm.next_action){
+      const na=sm.next_action;
+      det+='<div style="margin-top:6px;font-size:11px;color:var(--cyan)">➤ next action:</div>'+
+        '<div style="font-size:11px;color:#cbd5e1">'+esc(na.text||'—').substring(0,120)+'</div>'+
+        '<div style="font-size:10px;color:#7d8b98">'+esc(na.project||'—')+' · '+esc(na.priority||'—')+' · '+esc(na.file||'—').substring(0,60)+'</div>';
+    }
+    det+='</div>';
+    // Lazy-load trigger: only show if full task-data.js is not already loaded
+    const hasFullData=window.TASK_DATA&&window.TASK_DATA.open_tasks;
+    if(!hasFullData){
+      det+='<button class="toggle-btn" id="tasks-lazy-btn" onclick="loadFullTasks()">📂 جزئیات کامل ('+nf(open)+' کار)</button>'+
+        '<div id="tasks-lazy" style="margin-top:8px"></div>';
+    }else{
+      // Full data already available (e.g. preview.html) — container only; auto-render after fn defined
+      det+='<div id="tasks-lazy" style="margin-top:8px"></div>';
+    }
+    tasksDetails.innerHTML=det;
+  }else{
+    tasksEl.innerHTML='<div class="chip bad"><b>🔴 tasks</b>task-summary-data.js لود نشد</div>';
+  }
+
+  // ── Ideas Backlog ──
+  const ideasEl=document.getElementById('ideas');
+  const ideasDetails=document.getElementById('ideas-details');
+  if(I&&I.summary){
+    const sm=I.summary||{}, ideas=I.ideas||[];
+    const total=sm.total_ideas||0;
+    const gold=ideas.filter(function(x){return x.tier==='gold';}).length;
+    const silver=ideas.filter(function(x){return x.tier==='silver';}).length;
+    const bronze=ideas.filter(function(x){return x.tier==='bronze';}).length;
+    const ready=sm.ready_to_build_count||0;
+    ideasEl.innerHTML=
+      '<div class="chip"><b>💡 ایده‌ها</b>'+nf(total)+'</div>'+
+      '<div class="chip ok"><b>🥇 gold</b>'+nf(gold)+'</div>'+
+      '<div class="chip warn"><b>🥈 silver</b>'+nf(silver)+'</div>'+
+      '<div class="chip"><b>🥉 bronze</b>'+nf(bronze)+'</div>'+
+      '<div class="chip '+(ready>0?'ok':'warn')+'"><b>آمادهٔ ساخت</b>'+nf(ready)+'</div>';
+    let det='<div class="detail-box"><div class="title">💡 ۵ ایدهٔ برتر</div><ul>';
+    ideas.slice(0,5).forEach(function(it){
+      const tierEmoji=it.tier==='gold'?'🥇':it.tier==='silver'?'🥈':it.tier==='bronze'?'🥉':'⚪';
+      det+='<li><b>'+tierEmoji+' '+esc(it.title||'—').substring(0,70)+'</b> · score '+(it.strategic_score!=null?it.strategic_score.toFixed(1):'—')+' · '+esc(it.status||'—')+'</li>';
+    });
+    det+='</ul>';
+    if(sm.avg_strategic_score!=null){
+      det+='<div style="margin-top:4px;font-size:10px;color:#7d8b98">میانگینِ strategic score: '+sm.avg_strategic_score.toFixed(1)+'</div>';
+    }
+    det+='</div>';
+    ideasDetails.innerHTML=det;
+  }else{
+    ideasEl.innerHTML='<div class="chip bad"><b>🔴 ideas</b>ideas-data.js لود نشد</div>';
+  }
+
+  // ── Project Index ──
+  const projectsEl=document.getElementById('projects');
+  const projectsDetails=document.getElementById('projects-details');
+  if(P&&P.summary){
+    const sm=P.summary||{}, projs=P.projects||[];
+    const avgHealth=sm.average_health||0;
+    const healthColor=avgHealth>=80?'ok':avgHealth>=60?'warn':'bad';
+    projectsEl.innerHTML=
+      '<div class="chip"><b>📁 پروژه‌ها</b>'+nf(sm.total_projects||0)+'</div>'+
+      '<div class="chip ok"><b>فعال</b>'+nf(sm.active||0)+'</div>'+
+      '<div class="chip '+(sm.stalled>0?'warn':'ok')+'"><b>معطل</b>'+nf(sm.stalled||0)+'</div>'+
+      '<div class="chip '+healthColor+'"><b>میانگینِ سلامت</b>'+avgHealth.toFixed(1)+'%</div>';
+    let det='<div class="detail-box"><div class="title">📁 کارت‌های پروژه</div>';
+    projs.forEach(function(pr){
+      const phc=pr.health>=80?'ok':pr.health>=60?'warn':'bad';
+      det+='<div style="margin:6px 0;padding:6px;background:#0a1118;border:1px solid #1b2735;border-radius:6px">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center"><b>'+esc(pr.name||'—')+'</b><span class="gate-chip '+phc+'">'+pr.health+'%</span></div>'+
+        '<div style="font-size:10px;color:#7d8b98;margin-top:2px">'+esc(pr.phase||'—').substring(0,80)+' · '+esc(pr.autonomy_level||'—')+'</div>'+
+        '<div style="font-size:10px;color:#9aa6b6;margin-top:2px">blockers: '+nf(pr.blockers||0)+' · todos: '+nf(pr.open_todos||0)+' · files: '+nf(pr.file_count||0)+'</div>'+
+        '</div>';
+    });
+    det+='</div>';
+    projectsDetails.innerHTML=det;
+  }else{
+    projectsEl.innerHTML='<div class="chip bad"><b>🔴 projects</b>project-data.js لود نشد</div>';
+  }
+
+  // ── Telegram Control ──
+  const telegramEl=document.getElementById('telegram');
+  const telegramDetails=document.getElementById('telegram-details');
+  const telegramCommandsEl=document.getElementById('telegram-commands');
+
+  // Truthful state: center.py has REAL handlers; credentials are human-gated.
+  var _tgHandlerWired=false, _tgCredsPresent=false;
+  if(TC&&TC.commands){
+    const implemented=TC.commands.filter(function(c){return c.wired==='implemented';});
+    _tgHandlerWired=implemented.length>0;
+  }
+  if(T&&T.channel){
+    _tgCredsPresent=T.channel.live===true;
+  }
+  if(T&&T.channel){
+    const ch=T.channel||{}, poll=T.poll||{}, app=T.approvals||{}, q=T.queue||{}, bg=T.budget_gate||{}, h=T.health||{};
+    const live=ch.live===true;
+    const liveColor=live?'ok':'bad';
+    const healthScore=h.score||0;
+    const healthColor=healthScore>=80?'ok':healthScore>=60?'warn':'bad';
+    telegramEl.innerHTML=
+      '<div class="chip '+liveColor+'"><b>📡 کانال</b>'+(live?'زنده':'خاموش')+' · '+esc(ch.mode||'—')+'</div>'+
+      '<div class="chip '+healthColor+'"><b>سلامت</b>'+healthScore+' · '+esc(h.label||'—')+' '+esc(h.emoji||'')+'</div>'+
+      '<div class="chip"><b>تأییدها</b>'+nf(app.total||0)+'</div>'+
+      '<div class="chip '+(bg.halted?'bad':'ok')+'"><b>بودجه</b>'+(bg.halted?'⛔ halt':'✓ ok')+'</div>';
+    let det='<div class="detail-box"><div class="title">📡 جزئیاتِ تلگرام</div>'+
+      '<div style="margin:4px 0">poll offset: '+nf(poll.last_offset||0)+' · age: '+(poll.offset_age_hours!=null?poll.offset_age_hours.toFixed(1)+'h':'—')+'</div>'+
+      '<div style="margin:4px 0">تأییدهای اخیر: '+nf((app.recent||[]).length)+' · ok: '+nf((app.by_verdict||{}).ok||0)+' · denied: '+nf((app.by_verdict||{}).denied||0)+'</div>'+
+      '<div style="margin:4px 0">صف: pending '+nf(q.pending_count||0)+' · approved '+nf(q.approved_count||0)+' · rejected '+nf(q.rejected_count||0)+'</div>'+
+      '<div style="margin:4px 0">budget gate: spent today $'+nf(bg.spent_today_usd||0)+' · month AUD '+nf(bg.spent_month_aud||0)+'</div>';
+    if(T.admin_actions&&T.admin_actions.needs_attention){
+      det+='<div style="margin-top:6px;color:var(--gold)">⚠ نیاز به توجه: '+nf(T.admin_actions.action_count||0)+' action</div>';
+    }
+    det+='</div>';
+    telegramDetails.innerHTML=det;
+  }else{
+    telegramEl.innerHTML='<div class="chip bad"><b>🔴 telegram</b>telegram-data.js لود نشد</div>';
+  }
+
+  // Wave 6: Command surface panel (from telegram-commands-data.js)
+  if(TC&&TC.commands){
+    const b=TC.bot||{};
+    const cmds=TC.commands||[];
+    const sm=TC.safety_summary||{};
+    const botColor=b.connection_health&&b.connection_health.connected?'ok':'bad';
+    telegramEl.innerHTML=
+      '<div class="chip '+botColor+'"><b>🤖 بات</b>'+(b.connection_health&&b.connection_health.connected?'وصل':'ناوصل')+'</div>'+
+      '<div class="chip '+(sm.read_only_count>0?'ok':'warn')+'"><b>ایمن</b>'+nf(sm.read_only_count)+' / '+nf(cmds.length)+'</div>'+
+      '<div class="chip"><b>دستورات</b>'+nf(cmds.length)+'</div>'+
+      '<div class="chip"><b>مالک</b>'+esc(b.owner_chat_id_masked||'—')+'</div>';
+
+    let cmdHTML='<div class="detail-box"><div class="title">📋 دستوراتِ تلگرام — با برچسبِ ایمنی</div>';
+    cmdHTML+='<div style="margin:4px 0;font-size:10px;color:#7d8b98">READ-ONLY = فقط نمایش · PROPOSE-ONLY = ثبت intent · OWNER VERDICT = نیاز به تأیید · NOT YET WIRED = هنوز وایر نشده</div>';
+    cmdHTML+='<div style="margin-top:6px">';
+    cmds.forEach(function(c){
+      const modeClass=c.mode==='READ-ONLY'?'mode-ro':(c.mode==='PROPOSE-ONLY'?'mode-propose':(c.mode==='OWNER VERDICT'?'mode-verdict':'mode-unwired'));
+      const safeEmoji=c.mode==='READ-ONLY'?'✓':(c.mode==='PROPOSE-ONLY'?'◐':'✗');
+      cmdHTML+='<div style="display:flex;gap:8px;align-items:flex-start;margin:4px 0;padding:5px;background:#0a1118;border:1px solid #1b2735;border-radius:6px">'+
+        '<span style="white-space:nowrap;font-family:Consolas,monospace;font-size:11px;color:var(--cyan)">'+esc(c.command)+'</span>'+
+        '<span style="flex:1;font-size:11px;color:#cbd5e1">'+esc(c.description)+'</span>'+
+        '<span class="mode-label '+modeClass+'" style="font-size:9px">'+esc(c.mode)+'</span>'+
+        '<span style="font-size:10px;color:#5b6b78;white-space:nowrap" title="'+esc(c.safety_label)+'">'+safeEmoji+'</span>'+
+        '</div>';
+    });
+    cmdHTML+='</div>';
+    cmdHTML+='<div style="margin-top:6px;font-size:10px;color:#5b6b78">'+nf(sm.read_only_count)+' read-only · '+nf(sm.propose_only_count)+' propose-only · '+nf(sm.not_yet_wired_count)+' not-yet-wired · '+nf(sm.unsafe_count)+' unsafe</div>';
+    cmdHTML+='</div>';
+
+    // Safety notice box
+    cmdHTML+='<div class="action-placeholder" style="border-color:'+(_tgCredsPresent?'var(--green)':'var(--gold)')+';color:'+(_tgCredsPresent?'var(--green)':'var(--gold)')+';background:'+(_tgCredsPresent?'rgba(52,211,153,.06)':'rgba(252,211,77,.06)')+'">'+
+      '<div>'+(_tgCredsPresent?'✓ ':'⚠ ')+'وضعیتِ واقعی — <b>'+(_tgCredsPresent?'handlers wired + creds present':'handlers wired · creds MISSING (human-gated)')+'</b></div>'+
+      '<div class="why">center.py has real handlers for /status /queue /approvals /risk /help /refresh. Callback verdicts (ok/no/later) are wired. '+(_tgCredsPresent?'Bot can start live.':'Bot cannot start until owner injects TELEGRAM_BOT_TOKEN + TELEGRAM_OWNER_CHAT_ID into .env')+'</div>'+
+      '</div>';
+
+    telegramCommandsEl.innerHTML=cmdHTML;
+  }else{
+    telegramCommandsEl.innerHTML='<div class="chip bad"><b>🔴 commands</b>telegram-commands-data.js لود نشد</div>';
+  }
+
+  // ── Audit Trail — Wave 6 · D ──
+  const auditSummaryEl=document.getElementById('audit-summary');
+  const auditRecentEl=document.getElementById('audit-recent');
+  const auditRollbackEl=document.getElementById('audit-rollback');
+  const auditStatusEl=document.getElementById('audit-status');
+  if(AT&&AT.stats){
+    const st=AT.stats||{};
+    const rc=AT.rollback_classification||{};
+    auditStatusEl.textContent='log ('+nf(st.total_actions||0)+' رکورد)';
+    const sr=st.success_rate;
+    const srColor=(sr!=null&&sr>=0.9)?'ok':(sr!=null&&sr>=0.7)?'warn':'bad';
+    auditSummaryEl.innerHTML=
+      '<div class="chip '+srColor+'"><b>نرخِ موفقیت</b>'+(sr!=null?Math.round(sr*100)+'%':'—')+'</div>'+
+      '<div class="chip"><b>کل</b>'+nf(st.total_actions||0)+'</div>'+
+      '<div class="chip"><b>dry-run</b>'+nf(Math.round((st.dry_run_ratio||0)*100))+'%</div>'+
+      '<div class="chip"><b>live</b>'+nf(Math.round((st.live_ratio||0)*100))+'%</div>';
+
+    // Recent actions table
+    const recent=AT.recent_actions||[];
+    if(recent.length){
+      let recHTML='<div class="detail-box"><div class="title">🔍 '+Math.min(recent.length,10)+' اقدامِ اخیر</div>'+
+        '<div style="font-size:10px;color:#7d8b98;margin-bottom:4px">Actor · Action · Mode · Result</div>';
+      recent.slice(-10).forEach(function(a){
+        const rClass=a.rollback_class==='reversible'?'ok':(a.rollback_class==='irreversible'?'bad':'warn');
+        const ts=a.timestamp?a.timestamp.substring(0,16):'—';
+        recHTML+='<div style="display:flex;gap:6px;align-items:center;margin:3px 0;padding:4px;background:#0a1118;border:1px solid #1b2735;border-radius:4px;font-size:10px">'+
+          '<span style="color:#5b6b78;white-space:nowrap">'+esc(ts)+'</span>'+
+          '<span style="color:var(--cyan);white-space:nowrap">'+esc(a.actor)+'</span>'+
+          '<span style="flex:1;color:#cbd5e1">'+esc(a.action_type)+'</span>'+
+          '<span class="gate-chip '+rClass+'" style="font-size:9px">'+esc(a.rollback_class)+'</span>'+
+          '<span style="color:#7d8b98;white-space:nowrap">'+esc(a.execution_mode)+'</span>'+
+          '<span style="white-space:nowrap">'+(a.result==='success'?'✓':(a.result==='failure'?'✗':'—'))+' '+esc(a.result)+'</span>'+
+          '</div>';
+      });
+      recHTML+='</div>';
+      auditRecentEl.innerHTML=recHTML;
+    }else{
+      auditRecentEl.innerHTML='<div class="detail-box"><div class="title">🔍 اقدامات</div><div style="color:#5b6b78;font-size:11px">هنوز رکوردی ثبت نشده</div></div>';
+    }
+
+    // Rollback coverage
+    const br=st.by_rollback||{};
+    const totalRoll=(br.reversible||0)+(br.irreversible||0)+(br.requires_manual||0)+(br.unknown||0);
+    if(totalRoll>0){
+      const revPct=Math.round((br.reversible||0)/totalRoll*100);
+      const irrPct=Math.round((br.irreversible||0)/totalRoll*100);
+      const manPct=Math.round((br.requires_manual||0)/totalRoll*100);
+      let rollHTML='<div class="detail-box"><div class="title">🔧 پوششِ Rollback</div>'+
+        '<div style="margin:6px 0">'+
+        '<div class="blocker-row"><span class="blocker-dot off"></span><span class="blocker-label">'+esc(rc.reversible||'')+'</span><span class="gate-chip open">'+revPct+'%</span></div>'+
+        '<div class="blocker-row"><span class="blocker-dot on"></span><span class="blocker-label">'+esc(rc.irreversible||'')+'</span><span class="gate-chip closed">'+irrPct+'%</span></div>'+
+        '<div class="blocker-row"><span class="blocker-dot" style="background:var(--gold)"></span><span class="blocker-label">'+esc(rc.requires_manual||'')+'</span><span class="gate-chip warn">'+manPct+'%</span></div>'+
+        '</div></div>';
+      auditRollbackEl.innerHTML=rollHTML;
+    }else{
+      auditRollbackEl.innerHTML='<div class="detail-box"><div class="title">🔧 پوششِ Rollback</div><div style="color:#5b6b78;font-size:11px">هنوز دادهٔ کافی برای roll-up نیست</div></div>';
+    }
+  }else{
+    auditSummaryEl.innerHTML='<div class="chip bad"><b>🔴 audit</b>audit-trail-data.js لود نشد</div>';
+  }
+
+  // ── Actions ──
+  // WIRED BEHAVIOR (if approval_channel.py TelegramApprovalChannel were wired):
+  //   actOne(id,'approve') → POST approval card to Telegram owner → owner clicks ✅
+  //   → dispatch_callback parses 'app:approve:<id>:<token>' → _do_approve → human-append → gate.settle
+  //   actOne(id,'reject')  → marks pending as denied, no settle
+  //   actAll('approve')    → would batch-approve all pending items (NOT IMPLEMENTED — too risky)
+  // CURRENT BEHAVIOR (fail-safe): all actions are propose-only and require owner verdict via Telegram.
+  window.actOne=function(id,action){
+    const msg='ACT: '+action+' '+id+' — PROPOSE-ONLY. اینجا هیچ اثری اجرا نمی‌شود. مالک باید در تلگرام ✅/❌ بزند.';
+    logEl.textContent=msg;
+    // Visual placeholder injection
+    let ph=document.getElementById('act-placeholder');
+    if(!ph){ph=document.createElement('div');ph.id='act-placeholder';ph.className='action-placeholder';queueEl.parentNode.insertBefore(ph,queueEl.nextSibling);}
+    ph.innerHTML='<div>⛔ '+esc(action)+' #'+esc(id)+' — <b>نیاز به تأیید صاحب</b></div><div class="why">هیچ اثری اجرا نمی‌شود. کارت تأیید باید از طریق TelegramApprovalChannel برای مالک ارسال شود (T-2).</div>';
+    setTimeout(function(){if(ph)ph.innerHTML='';},5000);
+  };
+  window.actAll=function(action){
+    const msg='ACT ALL: '+action+' — PROPOSE-ONLY. batch-approve پیاده‌سازی نشده (ریسک بالا). هر آیتم جداگانه باید تأیید شود.';
+    logEl.textContent=msg;
+    let ph=document.getElementById('act-placeholder');
+    if(!ph){ph=document.createElement('div');ph.id='act-placeholder';ph.className='action-placeholder';queueEl.parentNode.insertBefore(ph,queueEl.nextSibling);}
+    ph.innerHTML='<div>⛔ '+esc(action)+' همه — <b>نیاز به تأیید صاحب</b></div><div class="why">batch-approve پیاده‌سازی نشده. هر آیتم باید در تلگرام جداگانه تأیید شود (INV-13: registry ضدِ جعل).</div>';
+    setTimeout(function(){if(ph)ph.innerHTML='';},8000);
+  };
+  window.refresh=function(){location.reload();};
+
+  // ── Lazy-load full task data — Wave 5 Data Weight ──
+  window.renderTaskList=function(items){
+    if(!items||!items.length)return'<div class="detail-box"><div class="title">✓ لیستِ کامل</div><div style="color:#5b6b78;font-size:11px">کارهای باز یافت نشد</div></div>';
+    let html='<div class="detail-box"><div class="title">✓ لیستِ کامل ('+items.length+' کار باز)</div><ul style="max-height:300px;overflow-y:auto">';
+    items.slice(0,50).forEach(function(it){
+      const pColor=it.priority>=4?'bad':it.priority>=3?'warn':'ok';
+      html+='<li><span class="gate-chip '+pColor+'">'+(it.priority_label||'—')+'</span> '+esc(it.text||'—').substring(0,100)+(it.text&&it.text.length>100?'…':'')+' <span style="color:#5b6b78;font-size:10px">'+esc(it.project||'—')+'</span></li>';
+    });
+    if(items.length>50)html+='<li style="color:#5b6b78;font-size:10px">... و '+nf(items.length-50)+' مورد دیگر</li>';
+    html+='</ul></div>';
+    return html;
+  };
+  window.loadFullTasks=function(){
+    const btn=document.getElementById('tasks-lazy-btn');
+    const container=document.getElementById('tasks-lazy');
+    if(!container)return;
+    if(btn){btn.textContent='⏳ در حالِ لود...';btn.disabled=true;}
+    const s=document.createElement('script');
+    s.src='../../nervous-system/task-data.js';
+    s.onload=function(){
+      const data=window.TASK_DATA||{};
+      container.innerHTML=renderTaskList(data.open_tasks||[]);
+      if(btn){btn.textContent='✓ لود شد';btn.style.display='none';}
+    };
+    s.onerror=function(){
+      container.innerHTML='<div class="detail-box" style="color:var(--red)">❌ لودِ task-data.js ناموفق بود</div>';
+      if(btn){btn.textContent='❌ خطا';btn.disabled=false;}
+    };
+    document.head.appendChild(s);
+  };
+  // Auto-render full task list if data already available (e.g. preview.html)
+  (function(){
+    const container=document.getElementById('tasks-lazy');
+    if(container&&window.TASK_DATA&&window.TASK_DATA.open_tasks){
+      container.innerHTML=renderTaskList(window.TASK_DATA.open_tasks||[]);
+    }
+  })();
+
+  // ── System Mode Banner — Wave 5 ──
+  (function(){
+    const banner=document.getElementById('sys-banner');
+    const modeEl=document.getElementById('sys-mode');
+    const freshEl=document.getElementById('sys-fresh');
+    const chanEl=document.getElementById('sys-channels');
+    if(!banner)return;
+    // Compute freshest timestamp across all data sources
+    const sources=[L,O,H,Q,N,W,C,M,WL,R,G,TK,I,P,T];
+    let freshest=null, freshestAge=Infinity, activeCount=0;
+    sources.forEach(function(s){
+      if(s&&s.generated){
+        activeCount++;
+        const gen=new Date(s.generated).getTime();
+        const ageMin=Math.round((Date.now()-gen)/60000);
+        if(ageMin<freshestAge){freshestAge=ageMin;freshest=s.generated;}
+      }
+    });
+    const totalChannels=16;
+    const modeText='SHADOW / PROPOSE-ONLY';
+    const modeClass='mode-shadow';
+    modeEl.textContent=modeText;
+    modeEl.className='mode-label '+modeClass;
+    if(freshest){
+      const ageStr=freshestAge<1?'تازه':freshestAge<60?freshestAge+' دقیقه':(freshestAge/60).toFixed(1)+' ساعت';
+      const ageColor=freshestAge>120?'var(--red)':freshestAge>45?'var(--gold)':'var(--green)';
+      let staleBadge='';
+      if(freshestAge>45){staleBadge='<span class="mode-label mode-propose" style="margin-left:8px">🟡 کهنه</span>';}
+      freshEl.innerHTML=staleBadge+'آخرین تازه‌سازی: <span style="color:'+ageColor+'">'+esc(ageStr)+'</span> · '+esc(freshest.substring(0,16))+'Z';
+    }else{
+      freshEl.innerHTML='<span class="mode-label mode-unwired" style="margin-left:8px">🔴 غایب</span>هیچ داده‌ای لود نشد';
+    }
+    chanEl.innerHTML=activeCount+' / '+totalChannels;
+  })();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "ts": "2026-07-12T22:16:25",
+  "schema": "synthesis.v1",
+  "tier": "local",
+  "model": "qwen2.5:1.5b",
+  "cost_usd": 0.0,
+  "fallback_from": "secondary: paid-call-failed",
+  "n_inputs": {
+    "goals": 6,
+    "gaps": 6,
+    "web": 6
+  },
+  "proposals": [],
+  "raw_text": "برای ارتقای مشخص و عملی بهترین پروپوزال ممکن است شامل باشه:\n\n### جهت‌ها:\n- ارگانیسم خودش را تحلیل، تحقیق و ارتقا بدهد — تا جای امن خودکار، بقیه پیشنهاد به من.\n- حافظهٔ ماندگار مثلِ شرکت‌های بزرگ: با خاموش/روشن هیچ‌چیز گم نشود.\n- هر مغز (fugu اصلی، glm فرعی، ollama محلی) موازی روی ردهٔ کارِ خودش پیش برود.\n- خرجِ پولی همیشه زیرِ سقفِ AU$30/ماه و قابلِ‌گزارش در پنل/تلگرام.\n- Ziman و Lead-نقاشی: لیدِ واقعی و درآمدِ اثبات‌پذیر مقدم بر هر آزمایش.\n- یادگیریِ سیستم باید در خدمتِ تصمیم‌های عملی باشد، نه دانشِ تزئینی.\n\n### گپ‌ها:\n- self-analysis loop observe→critique→propose→validate→promote\n- improvement proposals shadow-eval before promote\n- change leveled: tune/reconfig/rewrite + contract\n- memory poisoning / false-canon guard\n- self-analysis loop has stop-condition\n- rollback path before apply\n\n### یافته‌های تازهٔ وب:\n- vector memory databases: Infinite Probabilistic Databases [arxiv]\n- vector memory databases: Graph Neural Networks for Databases: A Survey [arxiv]\n- multi-agent orchestration: A Survey of Multi-Agent Deep Reinforcement Learning with Communication [arxiv]\n- multi-agent orchestration: A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Sim [arxiv]\n- local llm inference: YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transiti [arxiv]\n- local llm inference:"
+}

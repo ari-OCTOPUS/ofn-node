@@ -25,8 +25,10 @@ def t_a_emit_schema_complete():
         assert k in e, f"فیلدِ گمشده: {k}"
     assert e["approval_state"] == "unknown"      # پیش‌فرضِ صریح
     assert e["event_name"] == "task.completed" and e["duration_ms"] == 1200
-    # نامِ نامعتبر → به task.completed نرمال می‌شود
-    assert ev.emit("bogus.name", "x")["event_name"] == "task.completed"
+    # نامِ نامعتبر → fail-loud به task.failed (رفعِ E2 2026-07-13؛ دیگر «سبزِ موفق» جلوه نمی‌کند)
+    _drift = ev.emit("bogus.name", "x")
+    assert _drift["event_name"] == "task.failed"
+    assert "drift" in _drift["summary"] and "bogus.name" in _drift["summary"]
     assert ev.emit("task.failed", "x", approval_state="weird")["approval_state"] == "unknown"
 
 

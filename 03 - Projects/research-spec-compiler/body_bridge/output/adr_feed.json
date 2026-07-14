@@ -1,0 +1,652 @@
+{
+  "adrs": [
+    {
+      "adr_number": 1,
+      "date": "2026-07-13",
+      "decision_rule": "transfer_accuracy < 0.67 → DISCARD · [0.67, 0.72) → OPTIMIZE · ≥ 0.72 → INTEGRATE",
+      "filename": "ADR-001-wm-bottleneck-real-harness.md",
+      "spec": "`specs/wm_abstraction.yaml` (H-OWN-03 / EXP-001) — PASS 6/6 blocker gates [FACT: `rsc.py validate`, 2026-07-13]",
+      "status": "Closed — machine verdict REJECTED (see §Verdict)",
+      "title": "Information Bottleneck as inductive bias (H-OWN-03) + real-experiment wiring pattern",
+      "verdict": "REJECTED",
+      "verdict_table": [
+        {
+          "condition": "unlimited_memory",
+          "mean": "0.270",
+          "std": "0.007",
+          "Δ vs baseline": "+0.000"
+        },
+        {
+          "condition": "**limited_wm (K=6)**",
+          "mean": "**0.520**",
+          "std": "0.070",
+          "Δ vs baseline": "**+0.250**"
+        },
+        {
+          "condition": "limited_wm_k2",
+          "mean": "0.175",
+          "std": "0.087",
+          "Δ vs baseline": "−0.095"
+        },
+        {
+          "condition": "limited_wm_k4",
+          "mean": "0.476",
+          "std": "0.034",
+          "Δ vs baseline": "+0.206"
+        },
+        {
+          "condition": "limited_wm_k8",
+          "mean": "0.498",
+          "std": "0.054",
+          "Δ vs baseline": "+0.228"
+        },
+        {
+          "condition": "limited_wm_no_gating",
+          "mean": "0.177",
+          "std": "0.020",
+          "Δ vs baseline": "−0.093"
+        },
+        {
+          "condition": "oracle_no_taskid",
+          "mean": "0.281",
+          "std": "0.010",
+          "Δ vs baseline": "+0.011"
+        }
+      ]
+    },
+    {
+      "adr_number": 2,
+      "date": "2026-07-13",
+      "decision_rule": "f_transfer < 0.4 → DISCARD · [0.4, 0.7) → OPTIMIZE · ≥ 0.7 → INTEGRATE",
+      "filename": "ADR-002-drake-census-pattern.md",
+      "spec": "`specs/drake_kernels.yaml` (PASS 6/6) · `specs/drake_multiverse.yaml` (FAIL 4/6, by design)",
+      "status": "Closed — machine verdict OPTIMIZE (see §Verdict)",
+      "title": "Monte-Carlo Drake census over seeded universes",
+      "verdict": "OPTIMIZE",
+      "verdict_table": []
+    },
+    {
+      "adr_number": 3,
+      "date": "2026-07-14",
+      "decision_rule": "geo_transfer_rho < 0.4 → DISCARD · [0.4,0.7) → OPTIMIZE · ≥0.7 → INTEGRATE",
+      "filename": "ADR-003-geometric-layer.md",
+      "spec": "`specs/geometry_abstraction.yaml` (H-GEO-01, PASS 6/6) · map: `GEOMETRY.md`",
+      "status": "Closed — machine verdict OPTIMIZE (see §Verdict)",
+      "title": "Geometric layer for the Cognitive Kernel (abstraction quality space)",
+      "verdict": "OPTIMIZE",
+      "verdict_table": [
+        {
+          "condition": "geo_alignment",
+          "mean ρ": "**0.662**",
+          "std": "0.106"
+        },
+        {
+          "condition": "shuffle_control (null)",
+          "mean ρ": "0.022",
+          "std": "0.175"
+        }
+      ]
+    },
+    {
+      "adr_number": 4,
+      "date": "2026-07-14",
+      "decision_rule": "transfer_gain < 0.10 → DISCARD · [0.10,0.20) → OPTIMIZE · ≥0.20 → INTEGRATE",
+      "filename": "ADR-004-relative-threshold-preregistration.md",
+      "spec": "`specs/wm_abstraction_v2.yaml` (H-OWN-03 v2 / EXP-001b, PASS 6/6)",
+      "status": "Closed — machine verdict OPTIMIZE (see §Verdict)",
+      "title": "Relative-threshold preregistration for capacity manipulations",
+      "verdict": "OPTIMIZE",
+      "verdict_table": [
+        {
+          "condition": "**paired_gain** (limited − unlimited)",
+          "mean": "**0.169**",
+          "std": "0.093"
+        },
+        {
+          "condition": "null_gain (unlimited − unlimited)",
+          "mean": "0.000",
+          "std": "0.000"
+        }
+      ]
+    },
+    {
+      "adr_number": 5,
+      "date": "2026-07-14",
+      "decision_rule": "advantage_ood < 0.02 → DISCARD · [0.02,0.05) → OPTIMIZE · ≥0.05 → INTEGRATE",
+      "filename": "ADR-005-homeostasis-allostasis.md",
+      "spec": "`specs/homeostasis.yaml` (EXP-003, PASS 6/6) · env: `experiments/homeostasis.py` · map: GEOMETRY.md §3",
+      "status": "Closed — machine verdict OPTIMIZE (see §Verdict)",
+      "title": "Homeostatic self-model (allostasis) vs reactive control",
+      "verdict": "OPTIMIZE",
+      "verdict_table": [
+        {
+          "condition": "**ood_advantage** (primary)",
+          "mean": "**0.029**",
+          "std": "0.005"
+        },
+        {
+          "condition": "indist_advantage (control)",
+          "mean": "0.015",
+          "std": "0.006"
+        },
+        {
+          "condition": "null_control (reactive vs reactive)",
+          "mean": "0.000",
+          "std": "0.000"
+        }
+      ]
+    },
+    {
+      "adr_number": 6,
+      "date": "2026-07-14",
+      "decision_rule": "schema_minus_replay < 0.0 → DISCARD · [0.0,0.03) → OPTIMIZE · ≥0.03 → INTEGRATE",
+      "filename": "ADR-006-consolidation-library-learning.md",
+      "spec": "`specs/consolidation.yaml` (H-OWN-04 / EXP-002, PASS 6/6) · `experiments/consolidation.py`",
+      "status": "Closed — machine verdict INTEGRATE (see §Verdict)",
+      "title": "Consolidation as library learning vs raw replay",
+      "verdict": "INTEGRATE",
+      "verdict_table": [
+        {
+          "condition": "**schema_vs_replay** (primary)",
+          "mean": "**0.045**",
+          "std": "0.051"
+        },
+        {
+          "condition": "schema_vs_base (control)",
+          "mean": "0.057",
+          "std": "0.008"
+        }
+      ]
+    },
+    {
+      "adr_number": 7,
+      "date": "2026-07-14",
+      "decision_rule": "",
+      "filename": "ADR-007-central-law-governance.md",
+      "spec": "",
+      "status": "Accepted (governance; not an experiment — no machine verdict applies)",
+      "title": "Owner's Central Law as the governance layer (science ≠ bent by revenue)",
+      "verdict": "APPLIES",
+      "verdict_table": []
+    },
+    {
+      "adr_number": 8,
+      "date": "2026-07-14",
+      "decision_rule": "bottleneck_advantage < 0.02 → DISCARD · [0.02,0.05) → OPTIMIZE (shadow-only) · ≥0.05 → INTEGRATE (sanctioned observing cortex, still propose-only)",
+      "filename": "ADR-008-hybrid-cortex-organism-attach.md",
+      "spec": "`specs/hybrid_organism.yaml` (H-HYBRID-01, PASS 6/6) · `experiments/hybrid_organism.py` · bridge: `experiments/organism_bridge.py`",
+      "status": "Closed — machine verdict OPTIMIZE after adversarial re-gating (see §Verdict & §Correction) · **shadow attachment PERFORMED 2026-07-14 (owner authorized Q1)**: one additive `PROJECT.md` in `F:\\backup\\03 - Projects\\research-spec-compiler\\` registers the organ read-only/propose-only in URCP; zero existing body files modified; reversible. Effect-upgrades remain separate ORANGE gates.",
+      "title": "Hybrid cortex organ: the kernel learns the body and decides to attach",
+      "verdict": "OPTIMIZE",
+      "verdict_table": [
+        {
+          "condition": "**bottleneck_advantage** (primary)",
+          "mean": "**0.036**",
+          "role": "gated",
+          "std": "0.009"
+        },
+        {
+          "condition": "hybrid_selfpred",
+          "mean": "0.946",
+          "role": "reported (trivially high)",
+          "std": "0.004"
+        },
+        {
+          "condition": "gain_over_single",
+          "mean": "0.157",
+          "role": "reported (vs fair baseline)",
+          "std": "0.002"
+        }
+      ]
+    },
+    {
+      "adr_number": 9,
+      "date": "2026-07-14",
+      "decision_rule": "`social_specific_advantage` < 0.10 → DISCARD (also the `failure_condition`) · [0.10, 0.25) → OPTIMIZE · ≥ 0.25 → INTEGRATE",
+      "filename": "ADR-009-social-mirror.md",
+      "spec": "`specs/social_mirror.yaml` (H-OWN-01, PASS 6/6) · `experiments/social_mirror.py` · reuses `experiments/gridworld_wm.{_step, train, evaluate}` verbatim (improve-not-rewrite)",
+      "status": "Closed — machine verdict **INTEGRATE** (`social_specific_advantage` = 0.398 ≥ 0.25 band) · honest reading: effect is real but ~¼ of the DiD is a control-arm penalty, not pure transfer; the conservative pure-transfer component (`gain_social`) is ≈ +0.30",
+      "title": "Social Mirror: a self/other model that transfers only when the goal is defined by the other",
+      "verdict": "INTEGRATE",
+      "verdict_table": [
+        {
+          "condition": "null_control",
+          "mean": "0.008",
+          "role": "zero-point (≈ 0 ✓)",
+          "std": "0.043"
+        },
+        {
+          "condition": "irrelevant_other_gain (`gain_control`)",
+          "mean": "-0.099",
+          "role": "control (≤ 0, as predicted)",
+          "std": "0.047"
+        },
+        {
+          "condition": "social_gain (`gain_social`)",
+          "mean": "0.313",
+          "role": "reported (pure transfer)",
+          "std": "0.049"
+        },
+        {
+          "condition": "**social_specific_advantage** (DiD, primary)",
+          "mean": "**0.398**",
+          "role": "**gated**",
+          "std": "0.077"
+        }
+      ]
+    },
+    {
+      "adr_number": 10,
+      "date": "2026-07-14",
+      "decision_rule": "brier_reduction < 0.005 → DISCARD · [0.005, 0.015) → OPTIMIZE · ≥ 0.015 → INTEGRATE. Falsifier: `brier_reduction < 0.005` rejects H-OWN-02. [FACT: spec `decision_rule` + `failure_condition`]",
+      "filename": "ADR-010-comparison-metacog.md",
+      "spec": "`specs/comparison_metacog.yaml` (H-OWN-02, PASS 6/6) · `experiments/comparison_metacog.py` · pilot family 980500 (frozen) → confirmatory family 981000+",
+      "status": "Closed — machine verdict **INTEGRATE** on preregistered bands; recorded with an honest mechanism-attribution caveat (see §Confirmed caveats)",
+      "title": "Comparison-driven metacognition: social comparison as a self-calibration signal",
+      "verdict": "INTEGRATE",
+      "verdict_table": [
+        {
+          "condition": "**comparison_gain** (primary)",
+          "mean": "**+0.019**",
+          "role": "calibration gain over self-only baseline",
+          "std": "0.003"
+        },
+        {
+          "condition": "shuffled_gain",
+          "mean": "−0.032",
+          "role": "discriminating control (alignment destroyed)",
+          "std": "0.011"
+        },
+        {
+          "condition": "null_control",
+          "mean": "0.000",
+          "role": "plumbing zero-point (base vs base)",
+          "std": "0.000"
+        }
+      ]
+    },
+    {
+      "adr_number": 11,
+      "date": "2026-07-14",
+      "decision_rule": "pm_advantage_highload < 0.10 → DISCARD · [0.10, 0.40) → OPTIMIZE · ≥ 0.40 → INTEGRATE",
+      "filename": "ADR-011-prospective-memory.md",
+      "spec": "`specs/prospective_memory.yaml` (EXP-005 / H-OWN-05, PASS 6/6) · env: `experiments/prospective_memory.py`",
+      "status": "Closed — machine verdict INTEGRATE (see §Verdict)",
+      "title": "Prospective memory: an explicit intention buffer that survives interruptions",
+      "verdict": "INTEGRATE",
+      "verdict_table": [
+        {
+          "advantage (mean)": "**0.475**",
+          "buffer": "1.0",
+          "condition": "**pm_advantage_highload** (primary)",
+          "reactive": "0.5254",
+          "role": "gated",
+          "std": "0.022"
+        },
+        {
+          "advantage (mean)": "0.000",
+          "buffer": "1.0",
+          "condition": "low_load_advantage",
+          "reactive": "1.0",
+          "role": "control (measured)",
+          "std": "0.000"
+        },
+        {
+          "advantage (mean)": "0.000",
+          "buffer": "0.0",
+          "condition": "null_control",
+          "reactive": "0.0",
+          "role": "zero-point (by construction)",
+          "std": "0.000"
+        }
+      ]
+    },
+    {
+      "adr_number": 12,
+      "date": "2026-07-14",
+      "decision_rule": "gated_advantage < 0.05 → DISCARD · [0.05,0.10) → OPTIMIZE · ≥0.10 → INTEGRATE",
+      "filename": "ADR-012-memory-policy.md",
+      "spec": "`specs/memory_policy.yaml` (H-OWN-06 / EXP-003b, PASS 6/6) · `experiments/memory_policy.py` · reuses `experiments/gridworld_wm.py` (improve-not-rewrite)",
+      "status": "Closed — machine verdict INTEGRATE (see §Verdict)",
+      "title": "Memory as a resource-rational retention policy (utility-gated write/forget)",
+      "verdict": "INTEGRATE",
+      "verdict_table": [
+        {
+          "condition": "**gated_advantage** (primary)",
+          "role": "gated − append_all @ equal bounded C",
+          "value": "**+0.204**"
+        },
+        {
+          "condition": "gated_vs_recency",
+          "role": "reported control (gated − FIFO), outside the verdict",
+          "value": "+0.247"
+        },
+        {
+          "condition": "null_unbounded",
+          "role": "control: unbounded capacity pins the zero-point",
+          "value": "0.000"
+        }
+      ]
+    },
+    {
+      "adr_number": 13,
+      "date": "2026-07-14",
+      "decision_rule": "causal_advantage < 0.02 → DISCARD/REJECT · [0.02,0.05) → OPTIMIZE · ≥0.05 → INTEGRATE · failure_condition: `causal_advantage < 0.02` → reject",
+      "filename": "ADR-013-causal-selfmodel.md",
+      "spec": "`specs/causal_selfmodel.yaml` (H-OWN-07 / EXP-007, PASS 6/6) · `experiments/causal_selfmodel.py`",
+      "status": "Closed — machine verdict **REJECTED** (failure_condition triggered) (see §Verdict)",
+      "title": "Self-model requires causal access? (H-OWN-07) — an honest negative",
+      "verdict": "REJECTED",
+      "verdict_table": [
+        {
+          "condition": "status_auc",
+          "mean": "0.748",
+          "role": "descriptive baseline",
+          "std": "0.046"
+        },
+        {
+          "condition": "causal_auc",
+          "mean": "0.650",
+          "role": "self-model",
+          "std": "0.083"
+        },
+        {
+          "condition": "shuffled_causal_auc",
+          "mean": "0.554",
+          "role": "null control (≈ chance)",
+          "std": "0.062"
+        },
+        {
+          "condition": "**causal_advantage** (primary)",
+          "mean": "**−0.098**",
+          "role": "PRIMARY: causal − status",
+          "std": "0.064"
+        }
+      ]
+    },
+    {
+      "adr_number": 14,
+      "date": "2026-07-14",
+      "decision_rule": "advantage_ood < 0.06 → DISCARD · [0.06, 0.20) → OPTIMIZE · ≥ 0.20 → INTEGRATE — the gate reads the **raw** `regret_advantage_ood`.",
+      "filename": "ADR-014-control-signals.md",
+      "spec": "`specs/control_signals.yaml` (H-OWN-08 / EXP-008, PASS 6/6) · `experiments/control_signals.py` · dataset `contextual-choice-ood`",
+      "status": "Closed — machine verdict **INTEGRATE** · effect strong and clean on a synthetic environment built to exhibit it",
+      "title": "Regret as a shift-invariant control signal (a defined math signal, NOT an emotion)",
+      "verdict": "INTEGRATE",
+      "verdict_table": [
+        {
+          "condition": "**regret_advantage_ood** (primary)",
+          "mean": "**0.355**",
+          "per-seed": "0.350 / 0.400 / 0.200 / 0.375 / 0.450",
+          "role": "gated",
+          "std": "0.084"
+        },
+        {
+          "condition": "regret_advantage_indist",
+          "mean": "0.070",
+          "per-seed": "0.050 / 0.075 / 0.025 / 0.025 / 0.175",
+          "role": "control (~0)",
+          "std": "0.056"
+        },
+        {
+          "condition": "shuffled_null_ood",
+          "mean": "−0.135",
+          "per-seed": "−0.125 / 0.050 / −0.475 / −0.150 / 0.025",
+          "role": "control (~0/neg)",
+          "std": "0.187"
+        },
+        {
+          "condition": "premium (ood − indist)",
+          "mean": "0.285",
+          "per-seed": "0.300 / 0.325 / 0.175 / 0.350 / 0.275",
+          "role": "reported",
+          "std": "—"
+        }
+      ]
+    },
+    {
+      "adr_number": 15,
+      "date": "2026-07-14",
+      "decision_rule": "adaptive_advantage < 0.03 → DISCARD · [0.03,0.06) → OPTIMIZE · ≥0.06 → INTEGRATE",
+      "filename": "ADR-015-adaptive-forgetting.md",
+      "spec": "`specs/adaptive_forgetting.yaml` (EXP-004, PASS 6/6) · `experiments/adaptive_forgetting.py`",
+      "status": "Closed — machine verdict OPTIMIZE (see §Verdict)",
+      "title": "Adaptive forgetting under distribution drift (EXP-004)",
+      "verdict": "OPTIMIZE",
+      "verdict_table": [
+        {
+          "condition": "**adaptive_advantage** (vs cumulative, primary)",
+          "mean": "**0.056**",
+          "std": "0.041"
+        },
+        {
+          "condition": "adaptive_vs_random",
+          "mean": "0.032",
+          "std": "—"
+        },
+        {
+          "condition": "adaptive_vs_fifo",
+          "mean": "0.018",
+          "std": "—"
+        },
+        {
+          "condition": "null_unbounded",
+          "mean": "0.000",
+          "std": "0.000"
+        },
+        {
+          "condition": "null_nodrift",
+          "mean": "−0.056",
+          "std": "—"
+        }
+      ]
+    },
+    {
+      "adr_number": 16,
+      "date": "2026-07-14",
+      "decision_rule": "scheduler_advantage < 0.01 → DISCARD · [0.01,0.03) → OPTIMIZE · ≥0.03 → INTEGRATE",
+      "filename": "ADR-016-retrieve-vs-compute.md",
+      "spec": "`specs/retrieve_compute.yaml` (EXP-005, PASS 6/6) · `experiments/retrieve_compute.py`",
+      "status": "Closed — machine verdict INTEGRATE (see §Verdict)",
+      "title": "Retrieve-vs-compute scheduler with costs in the objective (EXP-005)",
+      "verdict": "INTEGRATE",
+      "verdict_table": [
+        {
+          "condition": "**scheduler_advantage** (vs better pure, primary)",
+          "mean": "**0.031**",
+          "std": "0.010"
+        },
+        {
+          "condition": "shuffled_signal (control)",
+          "mean": "−0.022",
+          "std": "0.021"
+        },
+        {
+          "condition": "no_drift_null",
+          "mean": "0.000",
+          "std": "0.000"
+        }
+      ]
+    },
+    {
+      "adr_number": 17,
+      "date": "2026-07-14",
+      "decision_rule": "lifting_advantage < 0.05 → DISCARD · [0.05,0.12) → OPTIMIZE · ≥0.12 → INTEGRATE",
+      "filename": "ADR-017-ontology-shift.md",
+      "spec": "`specs/ontology_shift.yaml` (H-GEO-02, PASS 6/6) · `experiments/ontology_shift.py`",
+      "status": "Closed — machine verdict INTEGRATE (see §Verdict)",
+      "title": "Goal lifting under ontology shift: U_D = U_C ∘ F̂ (H-GEO-02)",
+      "verdict": "INTEGRATE",
+      "verdict_table": [
+        {
+          "condition": "**lifting_advantage** (primary)",
+          "mean": "**0.190**",
+          "std": "0.067"
+        },
+        {
+          "condition": "null_no_shift (control)",
+          "mean": "−0.014",
+          "std": "0.019"
+        },
+        {
+          "condition": "no_mapping_reuse (ablation)",
+          "mean": "−0.055",
+          "std": "0.091"
+        },
+        {
+          "condition": "unlearnable_shift (control)",
+          "mean": "−0.029",
+          "std": "0.008"
+        }
+      ]
+    },
+    {
+      "adr_number": 18,
+      "date": "2026-07-14",
+      "decision_rule": "retrieval_advantage < 0.05 → DISCARD · [0.05,0.10) → OPTIMIZE · ≥0.10 → INTEGRATE",
+      "filename": "ADR-018-multimetric-memory.md",
+      "spec": "`specs/multimetric_memory.yaml` (PASS 6/6) · `experiments/multimetric_memory.py`",
+      "status": "Closed — machine verdict INTEGRATE (see §Verdict)",
+      "title": "Multi-metric episodic memory: retrieval beyond semantic similarity (GEOMETRY.md §4)",
+      "verdict": "INTEGRATE",
+      "verdict_table": [
+        {
+          "condition": "**retrieval_advantage** (primary)",
+          "mean": "**0.157**",
+          "std": "0.039"
+        },
+        {
+          "condition": "recency_only_gain (ablation)",
+          "mean": "−0.015",
+          "std": "0.045"
+        },
+        {
+          "condition": "clean_stream_control",
+          "mean": "0.000",
+          "std": "0.000"
+        },
+        {
+          "condition": "null_same_vs_same",
+          "mean": "0.000",
+          "std": "0.000"
+        }
+      ]
+    },
+    {
+      "adr_number": 19,
+      "date": "2026-07-14",
+      "decision_rule": "noisy_retrieval_advantage < 0.10 → DISCARD · [0.10,0.40) → OPTIMIZE · ≥0.40 → INTEGRATE",
+      "filename": "ADR-019-attractor-memory.md",
+      "spec": "`specs/attractor_memory.yaml` (H-GEO-02, PASS 6/6) · `experiments/attractor_memory.py`",
+      "status": "Closed — machine verdict INTEGRATE (see §Verdict)",
+      "title": "Attractor memory: noisy retrieval as basin descent (H-GEO-02)",
+      "verdict": "INTEGRATE",
+      "verdict_table": [
+        {
+          "condition": "**noisy_retrieval_advantage** (primary)",
+          "mean": "**+0.612**",
+          "std": "0.160"
+        },
+        {
+          "condition": "null_same_vs_same",
+          "mean": "0.000",
+          "std": "0.000"
+        },
+        {
+          "condition": "clean_probe_gap (control)",
+          "mean": "−0.051",
+          "std": "0.101"
+        },
+        {
+          "condition": "saturating_noise_gap (control)",
+          "mean": "−0.119",
+          "std": "0.022"
+        },
+        {
+          "condition": "overload_gap (capacity ablation)",
+          "mean": "−0.051",
+          "std": "0.013"
+        }
+      ]
+    },
+    {
+      "adr_number": 20,
+      "date": "2026-07-14",
+      "decision_rule": "delta_gain < 0.002 → DISCARD · [0.002, 0.008) → OPTIMIZE · ≥ 0.008 → INTEGRATE. Falsifier: `delta_gain < 0.002` rejects H-OWN-02b. [FACT: spec `decision_rule` + `failure_condition`]",
+      "filename": "ADR-020-comparison-metacog-v2.md",
+      "spec": "`specs/comparison_metacog_v2.yaml` (H-OWN-02b, PASS 6/6) · `experiments/comparison_metacog_v2.py` · declared follow-up to `adr/ADR-010-comparison-metacog.md`",
+      "status": "Closed — machine verdict OPTIMIZE (see §Verdict)",
+      "title": "Skill-gap attribution: gating the increment v1 was named for (H-OWN-02b)",
+      "verdict": "OPTIMIZE",
+      "verdict_table": [
+        {
+          "condition": "**delta_gain** (primary)",
+          "mean": "**+0.005**",
+          "role": "skill-gap correction's own increment over aligned fusion",
+          "std": "0.001"
+        },
+        {
+          "condition": "shuffled_delta_gain (control)",
+          "mean": "−0.001",
+          "role": "exchangeability-null gap (information-free shift)",
+          "std": "0.002"
+        },
+        {
+          "condition": "aligned_gain (context, not gated)",
+          "mean": "+0.015",
+          "role": "mechanism-light share of the v1 effect",
+          "std": "0.001"
+        },
+        {
+          "condition": "null_control",
+          "mean": "0.000",
+          "role": "plumbing zero-point (aligned vs aligned)",
+          "std": "0.000"
+        }
+      ]
+    },
+    {
+      "adr_number": 21,
+      "date": "2026-07-14",
+      "decision_rule": "adaptive_advantage_v2 < 0.03 → DISCARD · [0.03,0.06) → OPTIMIZE · ≥0.06 → INTEGRATE (SESOI and bands inherited FROZEN from v1 / ADR-015)",
+      "filename": "ADR-021-adaptive-forgetting-v2.md",
+      "spec": "`specs/adaptive_forgetting_v2.yaml` (EXP-004b, PASS 6/6, one accepted WARN) · `experiments/adaptive_forgetting_v2.py`",
+      "status": "Closed — machine verdict REJECTED / DISCARD band (failure condition triggered, see §Verdict)",
+      "title": "Adaptive forgetting v2: utility eviction vs the strong FIFO baseline (EXP-004b)",
+      "verdict": "REJECTED",
+      "verdict_table": [
+        {
+          "condition": "**adaptive_advantage_v2** (rate-adaptive − FIFO, primary)",
+          "mean": "**+0.023**",
+          "std": "0.021"
+        },
+        {
+          "condition": "null_unbounded (control)",
+          "mean": "0.000",
+          "std": "0.000"
+        },
+        {
+          "condition": "null_nodrift (decay-necessity control)",
+          "mean": "−0.008",
+          "std": "0.013"
+        },
+        {
+          "condition": "vs_raw_decay (strengthening delta, reported)",
+          "mean": "+0.005",
+          "std": "0.020"
+        },
+        {
+          "condition": "v1_rule_vs_fifo (ADR-015 replication, reported)",
+          "mean": "+0.018",
+          "std": "0.017"
+        }
+      ]
+    }
+  ],
+  "checksum": "a82e00c89129b99eacce90bab66247dc18c7f533685898b9cacfb0e13263ad70",
+  "feed_type": "adr",
+  "kernel_name": "Cognitive Kernel 0.1",
+  "last_updated": "2026-07-14T08:03:44+00:00",
+  "ring": 2,
+  "total": 21
+}

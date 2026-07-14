@@ -1,0 +1,384 @@
+{
+  "adrs": [
+    {
+      "date": "2026-07-13",
+      "decision_rule": "transfer_accuracy < 0.67 → DISCARD · [0.67, 0.72) → OPTIMIZE · ≥ 0.72 → INTEGRATE",
+      "filename": "ADR-001-wm-bottleneck-real-harness.md",
+      "number": "ADR-001",
+      "spec": "specs/wm_abstraction.yaml` (H-OWN-03 / EXP-001) — PASS 6/6 blocker gates [FACT: `rsc.py validate`, 2026-07-13]",
+      "title": "Information Bottleneck as inductive bias (H-OWN-03) + real-experiment wiring pattern",
+      "verdict": "REJECTED"
+    },
+    {
+      "date": "2026-07-13",
+      "decision_rule": "f_transfer < 0.4 → DISCARD · [0.4, 0.7) → OPTIMIZE · ≥ 0.7 → INTEGRATE",
+      "filename": "ADR-002-drake-census-pattern.md",
+      "number": "ADR-002",
+      "spec": "specs/drake_kernels.yaml` (PASS 6/6) · `specs/drake_multiverse.yaml` (FAIL 4/6, by design)",
+      "title": "Monte-Carlo Drake census over seeded universes",
+      "verdict": "OPTIMIZE"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "geo_transfer_rho < 0.4 → DISCARD · [0.4,0.7) → OPTIMIZE · ≥0.7 → INTEGRATE",
+      "filename": "ADR-003-geometric-layer.md",
+      "number": "ADR-003",
+      "spec": "specs/geometry_abstraction.yaml` (H-GEO-01, PASS 6/6) · map: `GEOMETRY.md",
+      "title": "Geometric layer for the Cognitive Kernel (abstraction quality space)",
+      "verdict": "OPTIMIZE"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "transfer_gain < 0.10 → DISCARD · [0.10,0.20) → OPTIMIZE · ≥0.20 → INTEGRATE",
+      "filename": "ADR-004-relative-threshold-preregistration.md",
+      "number": "ADR-004",
+      "spec": "specs/wm_abstraction_v2.yaml` (H-OWN-03 v2 / EXP-001b, PASS 6/6)",
+      "title": "Relative-threshold preregistration for capacity manipulations",
+      "verdict": "OPTIMIZE"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "advantage_ood < 0.02 → DISCARD · [0.02,0.05) → OPTIMIZE · ≥0.05 → INTEGRATE",
+      "filename": "ADR-005-homeostasis-allostasis.md",
+      "number": "ADR-005",
+      "spec": "specs/homeostasis.yaml` (EXP-003, PASS 6/6) · env: `experiments/homeostasis.py` · map: GEOMETRY.md §3",
+      "title": "Homeostatic self-model (allostasis) vs reactive control",
+      "verdict": "OPTIMIZE"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "schema_minus_replay < 0.0 → DISCARD · [0.0,0.03) → OPTIMIZE · ≥0.03 → INTEGRATE",
+      "filename": "ADR-006-consolidation-library-learning.md",
+      "number": "ADR-006",
+      "spec": "specs/consolidation.yaml` (H-OWN-04 / EXP-002, PASS 6/6) · `experiments/consolidation.py",
+      "title": "Consolidation as library learning vs raw replay",
+      "verdict": "INTEGRATE"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "",
+      "filename": "ADR-007-central-law-governance.md",
+      "number": "ADR-007",
+      "spec": "",
+      "title": "Owner's Central Law as the governance layer (science ≠ bent by revenue)",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "bottleneck_advantage < 0.02 → DISCARD · [0.02,0.05) → OPTIMIZE (shadow-only) · ≥0.05 → INTEGRATE (sanctioned observing cortex, still propose-only)",
+      "filename": "ADR-008-hybrid-cortex-organism-attach.md",
+      "number": "ADR-008",
+      "spec": "specs/hybrid_organism.yaml` (H-HYBRID-01, PASS 6/6) · `experiments/hybrid_organism.py` · bridge: `experiments/organism_bridge.py",
+      "title": "Hybrid cortex organ: the kernel learns the body and decides to attach",
+      "verdict": "OPTIMIZE"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "`social_specific_advantage` < 0.10 → DISCARD (also the `failure_condition`) · [0.10, 0.25) → OPTIMIZE · ≥ 0.25 → INTEGRATE",
+      "filename": "ADR-009-social-mirror.md",
+      "number": "ADR-009",
+      "spec": "specs/social_mirror.yaml` (H-OWN-01, PASS 6/6) · `experiments/social_mirror.py` · reuses `experiments/gridworld_wm.{_step, train, evaluate}` verbatim (improve-not-rewrite)",
+      "title": "Social Mirror: a self/other model that transfers only when the goal is defined by the other",
+      "verdict": "INTEGRATE"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "brier_reduction < 0.005 → DISCARD · [0.005, 0.015) → OPTIMIZE · ≥ 0.015 → INTEGRATE. Falsifier: `brier_reduction < 0.005` rejects H-OWN-02. [FACT: spec `decision_rule` + `failure_condition`]",
+      "filename": "ADR-010-comparison-metacog.md",
+      "number": "ADR-010",
+      "spec": "specs/comparison_metacog.yaml` (H-OWN-02, PASS 6/6) · `experiments/comparison_metacog.py` · pilot family 980500 (frozen) → confirmatory family 981000+",
+      "title": "Comparison-driven metacognition: social comparison as a self-calibration signal",
+      "verdict": "INTEGRATE"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "pm_advantage_highload < 0.10 → DISCARD · [0.10, 0.40) → OPTIMIZE · ≥ 0.40 → INTEGRATE",
+      "filename": "ADR-011-prospective-memory.md",
+      "number": "ADR-011",
+      "spec": "specs/prospective_memory.yaml` (EXP-005 / H-OWN-05, PASS 6/6) · env: `experiments/prospective_memory.py",
+      "title": "Prospective memory: an explicit intention buffer that survives interruptions",
+      "verdict": "INTEGRATE"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "gated_advantage < 0.05 → DISCARD · [0.05,0.10) → OPTIMIZE · ≥0.10 → INTEGRATE",
+      "filename": "ADR-012-memory-policy.md",
+      "number": "ADR-012",
+      "spec": "specs/memory_policy.yaml` (H-OWN-06 / EXP-003b, PASS 6/6) · `experiments/memory_policy.py` · reuses `experiments/gridworld_wm.py` (improve-not-rewrite)",
+      "title": "Memory as a resource-rational retention policy (utility-gated write/forget)",
+      "verdict": "INTEGRATE"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "causal_advantage < 0.02 → DISCARD/REJECT · [0.02,0.05) → OPTIMIZE · ≥0.05 → INTEGRATE · failure_condition: `causal_advantage < 0.02` → reject",
+      "filename": "ADR-013-causal-selfmodel.md",
+      "number": "ADR-013",
+      "spec": "specs/causal_selfmodel.yaml` (H-OWN-07 / EXP-007, PASS 6/6) · `experiments/causal_selfmodel.py",
+      "title": "Self-model requires causal access? (H-OWN-07) — an honest negative",
+      "verdict": "REJECTED"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "advantage_ood < 0.06 → DISCARD · [0.06, 0.20) → OPTIMIZE · ≥ 0.20 → INTEGRATE — the gate reads the **raw** `regret_advantage_ood`.",
+      "filename": "ADR-014-control-signals.md",
+      "number": "ADR-014",
+      "spec": "specs/control_signals.yaml` (H-OWN-08 / EXP-008, PASS 6/6) · `experiments/control_signals.py` · dataset `contextual-choice-ood",
+      "title": "Regret as a shift-invariant control signal (a defined math signal, NOT an emotion)",
+      "verdict": "INTEGRATE"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "adaptive_advantage < 0.03 → DISCARD · [0.03,0.06) → OPTIMIZE · ≥0.06 → INTEGRATE",
+      "filename": "ADR-015-adaptive-forgetting.md",
+      "number": "ADR-015",
+      "spec": "specs/adaptive_forgetting.yaml` (EXP-004, PASS 6/6) · `experiments/adaptive_forgetting.py",
+      "title": "Adaptive forgetting under distribution drift (EXP-004)",
+      "verdict": "OPTIMIZE"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "scheduler_advantage < 0.01 → DISCARD · [0.01,0.03) → OPTIMIZE · ≥0.03 → INTEGRATE",
+      "filename": "ADR-016-retrieve-vs-compute.md",
+      "number": "ADR-016",
+      "spec": "specs/retrieve_compute.yaml` (EXP-005, PASS 6/6) · `experiments/retrieve_compute.py",
+      "title": "Retrieve-vs-compute scheduler with costs in the objective (EXP-005)",
+      "verdict": "INTEGRATE"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "lifting_advantage < 0.05 → DISCARD · [0.05,0.12) → OPTIMIZE · ≥0.12 → INTEGRATE",
+      "filename": "ADR-017-ontology-shift.md",
+      "number": "ADR-017",
+      "spec": "specs/ontology_shift.yaml` (H-GEO-02, PASS 6/6) · `experiments/ontology_shift.py",
+      "title": "Goal lifting under ontology shift: U_D = U_C ∘ F̂ (H-GEO-02)",
+      "verdict": "INTEGRATE"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "retrieval_advantage < 0.05 → DISCARD · [0.05,0.10) → OPTIMIZE · ≥0.10 → INTEGRATE",
+      "filename": "ADR-018-multimetric-memory.md",
+      "number": "ADR-018",
+      "spec": "specs/multimetric_memory.yaml` (PASS 6/6) · `experiments/multimetric_memory.py",
+      "title": "Multi-metric episodic memory: retrieval beyond semantic similarity (GEOMETRY.md §4)",
+      "verdict": "INTEGRATE"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "noisy_retrieval_advantage < 0.10 → DISCARD · [0.10,0.40) → OPTIMIZE · ≥0.40 → INTEGRATE",
+      "filename": "ADR-019-attractor-memory.md",
+      "number": "ADR-019",
+      "spec": "specs/attractor_memory.yaml` (H-GEO-02, PASS 6/6) · `experiments/attractor_memory.py",
+      "title": "Attractor memory: noisy retrieval as basin descent (H-GEO-02)",
+      "verdict": "INTEGRATE"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "delta_gain < 0.002 → DISCARD · [0.002, 0.008) → OPTIMIZE · ≥ 0.008 → INTEGRATE. Falsifier: `delta_gain < 0.002` rejects H-OWN-02b. [FACT: spec `decision_rule` + `failure_condition`]",
+      "filename": "ADR-020-comparison-metacog-v2.md",
+      "number": "ADR-020",
+      "spec": "specs/comparison_metacog_v2.yaml` (H-OWN-02b, PASS 6/6) · `experiments/comparison_metacog_v2.py` · declared follow-up to `adr/ADR-010-comparison-metacog.md",
+      "title": "Skill-gap attribution: gating the increment v1 was named for (H-OWN-02b)",
+      "verdict": "OPTIMIZE"
+    },
+    {
+      "date": "2026-07-14",
+      "decision_rule": "adaptive_advantage_v2 < 0.03 → DISCARD · [0.03,0.06) → OPTIMIZE · ≥0.06 → INTEGRATE (SESOI and bands inherited FROZEN from v1 / ADR-015)",
+      "filename": "ADR-021-adaptive-forgetting-v2.md",
+      "number": "ADR-021",
+      "spec": "specs/adaptive_forgetting_v2.yaml` (EXP-004b, PASS 6/6, one accepted WARN) · `experiments/adaptive_forgetting_v2.py",
+      "title": "Adaptive forgetting v2: utility eviction vs the strong FIFO baseline (EXP-004b)",
+      "verdict": "REJECTED"
+    }
+  ],
+  "autonomy": "L1-propose-only",
+  "capabilities": [
+    "spec_compilation",
+    "falsifiable_experimentation",
+    "adr_verdict",
+    "claims_ledger",
+    "geometric_abstraction",
+    "sensitivity_grading",
+    "adversarial_review"
+  ],
+  "commands": {
+    "adr_feed.refresh": "LOW",
+    "body.write": "HIGH",
+    "daemon.start": "HIGH",
+    "daemon.stop": "HIGH",
+    "dashboard_sync.sync": "LOW",
+    "financial": "HIGH",
+    "list": "LOW",
+    "manifest_generator.generate": "LOW",
+    "persistent_config": "HIGH",
+    "publish": "HIGH",
+    "run": "LOW",
+    "validate": "LOW",
+    "verdict_stream.refresh": "LOW"
+  },
+  "experiments": [
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "adaptive_forgetting",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "adaptive_forgetting_v2",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "attractor_memory",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "causal_selfmodel",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "comparison_metacog",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "comparison_metacog_v2",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "consolidation",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "control_signals",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "drake_kernels",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "geometry_abstraction",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "gridworld_wm",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "homeostasis",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "hybrid_organism",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "memory_policy",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "multimetric_memory",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "ontology_shift",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "organism_bridge",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "prospective_memory",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "retrieve_compute",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "social_mirror",
+      "seed_family": null,
+      "status": "done"
+    },
+    {
+      "last_verdict": "UNKNOWN",
+      "name": "wm_transfer_gain",
+      "seed_family": null,
+      "status": "done"
+    }
+  ],
+  "integrity": {
+    "CLAIMS_LEDGER.csv": "162427ca6647daed4e72b81a837f7337dbdc31be35e347ea0ce26eb55cb2a47e",
+    "GEOMETRY.md": "fe56dda2d8078b61463eb48f3065294a62fb370a5e74dbb15aa219f1355b55f4",
+    "SENSITIVITY-LADDER.md": "20d2fc233e945793b01c2ef69a6c931c0fee653298d0f6188c4e0aa559dff1fb",
+    "rsc.py": "96a1c8ba69c78bb131095e8a05285340776cff2e6d331153f882c0fa061ab2c9"
+  },
+  "interfaces": [
+    {
+      "description": "Body dashboards may query kernel outputs via read-only SQLite attachments.",
+      "name": "read-only SQLite",
+      "sensitivity": "LOW"
+    },
+    {
+      "description": "manifest.json, adr_feed.json, verdict_stream.jsonl in body_bridge/output/.",
+      "name": "JSON feeds",
+      "sensitivity": "LOW"
+    },
+    {
+      "description": "Direct markdown scan of adr/ADR-*.md files (fallback).",
+      "name": "ADR directory",
+      "sensitivity": "LOW"
+    },
+    {
+      "description": "Python class in body that reads kernel outputs and emits body events.",
+      "name": "kernel_consumer",
+      "sensitivity": "LOW"
+    }
+  ],
+  "kernel_name": "Cognitive Kernel 0.1",
+  "last_updated": "2026-07-14T08:03:47.056656+00:00",
+  "ring": 2,
+  "risk_tier": "green",
+  "sensitivity_ladder": {
+    "HIGH": "owner approval required",
+    "LOW": "read-only",
+    "MEDIUM": "edits with rollback note"
+  },
+  "status": "shadow-attached"
+}

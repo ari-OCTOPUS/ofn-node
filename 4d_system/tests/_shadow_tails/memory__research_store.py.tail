@@ -1,0 +1,117 @@
+def get_proposals(limit: int = 50, status: str = None) -> list[dict]:
+    """Retrieve upgrade proposals."""
+    _ensure_research_tables()
+    conn = sqlite3.connect(str(DB_PATH))
+    if status:
+        rows = conn.execute(
+            "SELECT * FROM upgrade_proposals WHERE status=? ORDER BY id DESC LIMIT ?",
+            (status, limit)
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT * FROM upgrade_proposals ORDER BY id DESC LIMIT ?", (limit,)
+        ).fetchall()
+    cols = [d[0] for d in conn.execute("SELECT * FROM upgrade_proposals LIMIT 0").description]
+    conn.close()
+    result = []
+    for row in rows:
+        d = dict(zip(cols, row))
+        d["references"] = json.loads(d.get("ref_urls") or "[]")
+        result.append(d)
+    return result
+
+
+def update_proposal_status(proposal_id: int, status: str):
+    """Update the status of a proposal."""
+    _ensure_research_tables()
+    conn = sqlite3.connect(str(DB_PATH))
+    try:
+        conn.execute("UPDATE upgrade_proposals SET status=? WHERE id=?", (status, proposal_id))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def save_research_session(topic: str, direction: str, sources_found: int,
+                          insights: str, proposals: list[int]) -> int:
+    """Save a meta-research session."""
+    _ensure_research_tables()
+    conn = sqlite3.connect(str(DB_PATH))
+    cur = conn.execute(
+        """INSERT INTO research_sessions
+           (timestamp, topic, direction, sources_found, insights, proposals, status)
+           VALUES (?, ?, ?, ?, ?, ?, 'completed')""",
+        (datetime.now().isoformat(), topic, direction,
+         sources_found, insights, json.dumps(proposals))
+    )
+    conn.commit()
+    sid = cur.lastrowid
+    conn.close()
+    return sid
+
+
+def get_research_sessions(limit: int = 20) -> list[dict]:
+    """Retrieve meta-research sessions."""
+    _ensure_research_tables()
+    conn = sqlite3.connect(str(DB_PATH))
+    rows = conn.execute(
+        "SELECT * FROM research_sessions ORDER BY id DESC LIMIT ?", (limit,)
+    ).fetchall()
+    cols = [d[0] for d in conn.execute("SELECT * FROM research_sessions LIMIT 0").description]
+    conn.close()
+    result = []
+    for row in rows:
+        d = dict(zip(cols, row))
+        d["proposals"] = json.loads(d.get("proposals") or "[]")
+        result.append(d)
+    return result
+
+
+# ════════════════════════════════════════════════════════════════════════
+#  Self-test
+# ════════════════════════════════════════════════════════════════════════
+
+if __name__ == "__main__":
+    _ensure_research_tables()
+    print(f"✓ Research tables initialized at {DB_PATH}")
+
+    # Test pattern save
+    p = SavedPattern(
+        name="high-memory-config", rho=0.8, lam=0.6, se=0.1, sz=0.05, sd=0.1,
+        delta_self=0.15, e_shadow=0.02, pcai=0.88, sms=0.15,
+        detectable=True, note="حافظه‌ی قوی، نشت متوسط", tags="memory,strong"
+    )
+    pid = save_pattern(p)
+    print(f"✓ Saved pattern #{pid}")
+
+    # Test architecture save
+    a = SavedArchitecture(
+        name="dual-layer-shadow",
+        description="ترکیب لایه‌ی حافظه‌دار با لایه‌ی نشت‌پذیر",
+        parent_ids=[pid],
+        config={"layers": 2, "coupling": "serial"},
+        note="آزمایش ترکیبی"
+    )
+    aid = save_architecture(a)
+    print(f"✓ Saved architecture #{aid}")
+
+    # Test note
+    n = ResearchNote(
+        title="کشف مهم",
+        content="وقتی ρ بالاست و λ متوسط، PCAI بالاترین است",
+        linked_pattern_id=pid
+    )
+    nid = save_note(n)
+    print(f"✓ Saved note #{nid}")
+
+    # Query
+    patterns = get_patterns()
+    print(f"\n✓ Retrieved {len(patterns)} patterns")
+    archs = get_architectures()
+    print(f"✓ Retrieved {len(archs)} architectures")
+    notes = get_notes()
+    print(f"✓ Retrieved {len(notes)} notes")
+
+    stats = get_research_stats()
+    print(f"\n✓ Stats: {stats}")
+    print(f"✓ Tags: {get_all_tags()}")

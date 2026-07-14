@@ -41,6 +41,11 @@ RESTART_REQUESTED = _OPS / "RESTART-REQUESTED"         # همراه STOP → bat
 ENV_FILE = _OPS / "OCTOPUS-flags.cmd"                 # NON-secret flag overrides (batch-safe .cmd; loaded by RUN-ORGANISM.bat). Secrets belong in F:\backup\.env (env_loader), NEVER here.
 FREEZE_FLAG = _OPS / "budget" / "FREEZE.flag"
 LEDGER = _ROOT / "07 - Knowledge" / "genome-system" / "ledger" / "ledger.jsonl"
+# de-mask بک‌آپ (OBS-02) + توقفِ سراسری/اهرم‌ها (DSH-02) — خودکفا خوانده می‌شوند (این فایل
+# عمداً از opslib/organism چیزی import نمی‌کند؛ مسیرها آینهٔ opslib.GITWRITE_FAILED/HALT_ALL‌اند).
+GITWRITE_FAILED = _OPS / "backup" / "GITWRITE-FAILED.flag"
+HALT_ALL = _OPS / "HALT-ALL"
+STOP_ARCHITECT = _ROOT / "04 - Architect System" / "STOP"
 PORT = int(os.environ.get("DASHBOARD_PORT", "8770"))
 
 # ── تعریفِ flagها + توضیحِ فارسی ─────────────────────────────────────────────────
@@ -165,6 +170,106 @@ def _read_json(name: str) -> dict:
         return json.loads(p.read_text("utf-8")) if p.exists() else {}
     except (OSError, ValueError):
         return {}
+
+
+def _read_jsonl_tail(name: str, n: int = 5) -> list[dict]:
+    """آخرین n خطِ یک jsonl زیرِ state (read-only، fail-soft). نبود/خطا → []."""
+    p = STATE_DIR / name
+    if not p.exists():
+        return []
+    try:
+        lines = [ln for ln in p.read_text("utf-8").splitlines() if ln.strip()][-n:]
+    except OSError:
+        return []
+    out = []
+    for ln in lines:
+        try:
+            out.append(json.loads(ln))
+        except ValueError:
+            continue
+    return out
+
+
+# ORPH-* — پرچمِ default-off برای سطح‌نماییِ سه آرتیفکتِ سایه. خاموش = هیچ کارتی افزوده
+# نمی‌شود (خروجیِ صفحه بایت‌همسانِ الان). فقط‌خواندنی مطلق — صفر نوشتن، صفر رفتار.
+DEADWRITE_FLAG = "OCTOPUS_WIRE_DEADWRITE_CARDS"
+
+
+def _deadwrite_on() -> bool:
+    ov = _read_env_overrides().get(DEADWRITE_FLAG)
+    if ov is not None:
+        return ov == "1"
+    return os.environ.get(DEADWRITE_FLAG) == "1"
+
+
+def _deadwrite_card() -> str:
+    """کارتِ فقط‌خواندنیِ سه آرتیفکتِ سایه که نوشته می‌شدند ولی خوانده نمی‌شدند
+    (calibration-latest · work-health · route-decisions). نبودِ هر فایل → «—/absent».
+    صفر نوشتن، صفر رفتار — فقط رصدپذیری. fail-soft."""
+    cal = _read_json("cortex/calibration-latest.json")
+    wh = _read_json("pulse/work-health.json")
+    rd = _read_jsonl_tail("cortex/route-decisions.jsonl", 5)
+    if cal:
+        cal_row = (f'Brier {html.escape(str(cal.get("brier", "—")))} · '
+                   f'AURC {html.escape(str(cal.get("aurc", "—")))} · '
+                   f'n={html.escape(str(cal.get("n", "—")))} · '
+                   f'abstain&lt;{html.escape(str(cal.get("abstain_below", "—")))}')
+    else:
+        cal_row = "—/absent"
+    if wh:
+        wh_row = (f'σ {html.escape(str(wh.get("sigma", "—")))} · '
+                  f'ضربان {html.escape(str(wh.get("period_shadow_s", "—")))}s · '
+                  f'gate0 {"🟢" if wh.get("gate0") else "🔴"}')
+    else:
+        wh_row = "—/absent"
+    if rd:
+        tiers = "/".join(html.escape(str(r.get("tier", "—"))) for r in rd)
+        rd_row = f'{len(rd)} تصمیمِ اخیر · {tiers}'
+    else:
+        rd_row = "—/absent"
+    rows = (f'<tr><td class="k">📐 واسنجی (calibration)</td><td>{cal_row}</td></tr>'
+            f'<tr><td class="k">🫀 سلامتِ کار (work-health)</td><td>{wh_row}</td></tr>'
+            f'<tr><td class="k">🧭 مسیریابی (route-decisions)</td><td>{rd_row}</td></tr>')
+    return ('<div class="card"><h2>🩺 آرتیفکت‌های سایه (نوشته‌می‌شد، خوانده‌نمی‌شد)</h2>'
+            '<p class="sub">فقط‌خواندنی — این سه فایل سایه‌اند؛ صفر نوشتن، صفر رفتار.</p>'
+            f'<table>{rows}</table></div>')
+
+
+def _gitwrite_failed() -> str | None:
+    """دلیلِ شکستِ آخرین git-write اگر GITWRITE-FAILED.flag برافراشته باشد؛ وگرنه None (OBS-02).
+    خودکفا و fail-soft — ولی وجودِ فایل هرگز پنهان نمی‌شود (پرچمِ برافراشته = همیشه قرمز)."""
+    try:
+        if not GITWRITE_FAILED.exists():
+            return None
+    except OSError:
+        return None
+    try:
+        txt = GITWRITE_FAILED.read_text("utf-8", errors="replace")
+    except OSError:
+        txt = ""
+    txt = txt.lstrip("﻿").strip()
+    first = txt.splitlines()[0].strip() if txt else ""
+    return first or "GITWRITE-FAILED (بدونِ دلیلِ متنی)"
+
+
+def _armed_activation_flags() -> list[str]:
+    """نامِ ACTIVATION-*.flag ِ برافراشته در _ops (اهرمِ فعال‌سازیِ فقط-مالک) — DSH-02. fail-soft."""
+    try:
+        return sorted(p.name for p in _OPS.glob("ACTIVATION-*.flag"))
+    except OSError:
+        return []
+
+
+def _halt_reason() -> str | None:
+    """توقفِ سراسری برای نمایش (خودکفا، fail-soft): HALT-ALL ← STOP(architect). None = هیچ."""
+    try:
+        if HALT_ALL.exists():
+            return "HALT-ALL"
+        if STOP_ARCHITECT.exists():
+            return "STOP(architect)"
+    except OSError:
+        return None
+    return None
 
 
 def _read_env_overrides() -> dict[str, str]:
@@ -350,6 +455,13 @@ def page_organism() -> bytes:
         _metric("germline lag", f"{st.get('germline_lag_h', '—')}h",
                 "warn" if isinstance(st.get('germline_lag_h'), (int, float)) and st.get('germline_lag_h', 0) > 4 else "good"),
     ])
+    # سلامتِ بک‌آپ (OBS-02): پرچمِ صریحِ شکستِ git-write غالب است — mtimeِ germline بالا
+    # سبزِ کاذب می‌سازد، این کارت آن را قرمز می‌کند. فقط‌خواندنی، خودکفا.
+    _gw_fail = _gitwrite_failed()
+    if _gw_fail:
+        cards += _metric("بک‌آپ (git-write)", _badge("🔴 شکست‌خورده", "red"), "bad")
+    else:
+        cards += _metric("بک‌آپ (git-write)", _badge("🟢 سالم", "green"), "good")
     # کارتِ ضربانِ آلوستاتیک (اگر OCTOPUS_WIRE_BIO فعّال باشد)
     cardio = st.get("cardiac") or {}
     if cardio.get("enabled"):
@@ -394,12 +506,32 @@ def page_organism() -> bytes:
     else:
         wbox = '<p class="sub">هیچ wiring‌ای فعّال نیست (profile = bare).</p>'
 
+    # توقفِ سراسری + اهرم‌های فعال‌سازی (DSH-02) + شکستِ بک‌آپ (OBS-02) — کارتِ صریح
+    halt_r = _halt_reason()
+    armed = _armed_activation_flags()
+    halt_flash = ""
+    if halt_r:
+        halt_flash += f'<div class="flash warn">🛑 توقفِ سراسری فعّال است: <b>{html.escape(halt_r)}</b></div>'
+    if _gw_fail:
+        halt_flash += (f'<div class="flash warn">💾 بک‌آپ شکست خورده — git-write ناموفق '
+                       f'(<code>_ops/backup/GITWRITE-FAILED.flag</code>): {html.escape(_gw_fail)[:160]}</div>')
+    if armed:
+        arm_badges = "".join(_badge(f"⚡ {a}", "blue") for a in armed)
+        arm_box = (f'<div class="card"><h2>اهرم‌های فعال‌سازی برافراشته (فقط-مالک)</h2>'
+                   f'<div style="display:flex;gap:.3rem;flex-wrap:wrap">{arm_badges}</div>'
+                   f'<p class="note">وجودِ هر فایلِ <code>ACTIVATION-*.flag</code> = verdictِ صریحِ تو.</p></div>')
+    else:
+        arm_box = ('<div class="card"><h2>اهرم‌های فعال‌سازی</h2>'
+                   '<p class="sub">هیچ <code>ACTIVATION-*.flag</code> برافراشته نیست — همه‌چیز propose-only.</p></div>')
+
     body = (
         '<div class="refresh-bar">🔄 auto-refresh هر ۱۰ ثانیه</div>'
         "<h1>🫀 ارگانیسم — وضعیت زنده</h1>"
         '<p class="sub">همه‌چیز سایه و $۰. بودجهٔ زنده پشتِ گیتِ دوقفلهٔ خودت.</p>'
+        + halt_flash +
         f'<div class="metrics">{cards}</div>'
         f'<div class="card"><h2>جزئیات</h2><table>{table}</table></div>'
+        + arm_box +
         f'<div class="card">{wbox}</div>'
         '<p class="note">دستگاهِ کنترل: <a href="/capabilities">قابلیت‌ها</a> · '
         '<a href="/activity">فعالیت</a></p>'
@@ -561,6 +693,9 @@ def page_activity() -> bytes:
                             f'AU${total} <span class="note">{html.escape(str(tag))[:60]}</span></td></tr>')
             ep_rows += "</table>"
 
+    # ORPH-* — کارتِ آرتیفکت‌های سایه (فقط پشتِ پرچمِ default-off؛ خاموش = "" = بایت‌همسان)
+    dw_card = _deadwrite_card() if _deadwrite_on() else ""
+
     body = (
         "<h1>📊 فعالیت</h1>"
         '<p class="sub">تلمتری، فیتنس، ریپلیکیشن و آخرین epoch — همه سایه/propose-only.</p>'
@@ -569,6 +704,7 @@ def page_activity() -> bytes:
         f'<div style="margin-top:.6rem;display:flex;gap:.3rem;flex-wrap:wrap">{w_items}</div></div>'
         f'<div class="card"><h2>ریپلیکیشن (σ)</h2><table>{rep_t}</table></div>'
         f'<div class="card"><h2>آخرین epoch</h2>{ep_rows or "<p class=\"sub\">داده‌ای نیست</p>"}</div>'
+        + dw_card
     )
     return _shell(body, "act")
 

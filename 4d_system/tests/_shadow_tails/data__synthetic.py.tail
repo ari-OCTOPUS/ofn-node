@@ -1,0 +1,21 @@
+    "ARMA(1,1)":                    {"fn": lambda n, s: arma11(n, seed=s), "desc": "ساختار دقیق سایه‌ی SOG"},
+    "Mixture Gaussian":             {"fn": lambda n, s: mixture_gaussian(n, seed=s), "desc": "غیرگوسی — تست کاذب"},
+    "Logistic map (chaos)":         {"fn": lambda n, s: logistic_map(n), "desc": "آشوب قطعی"},
+}
+
+
+def generate(name: str, n: int = 10000, seed: int = 42) -> np.ndarray:
+    """Generate by catalog name."""
+    entry = CATALOG[name]
+    fn = entry["fn"]
+    try:
+        return fn(n, seed)
+    except TypeError:
+        return fn(n)
+
+
+if __name__ == "__main__":
+    for name in CATALOG:
+        data = generate(name, n=5000)
+        print(f"{name:35s}  mean={data.mean():+.4f}  var={data.var():.4f}  "
+              f"lag1_ac={np.corrcoef(data[:-1], data[1:])[0,1]:+.4f}")

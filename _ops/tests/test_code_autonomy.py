@@ -24,6 +24,9 @@ ENV = harness.setup("code-autonomy")
 
 from cortex import code_autonomy as CA  # noqa: E402
 
+# رفرنسِ تابعِ واقعی، پیش از این‌که تست‌ها CA.heart_mood را با fake جایگزین کنند
+_REAL_HEART_MOOD = CA.heart_mood
+
 
 class _C:
     failed = 0
@@ -252,9 +255,62 @@ def t_l_propose_to_owner_stores_pending_fail_soft():
                                     "shadow_green": True})["ok"]
 
 
+# ── HEART-02: فیوزِ σ≥۱ روی heart_mood ِ *واقعی* (نه fake) ─────────────────────────
+# رگرسیون‌گیر: باگِ قبلی σ را از hs['heart']/hs['sigma'] می‌خواند (همیشه None) پس فیوز مرده بود؛
+# t_b آن را می‌پوشاند چون یک heart_mood ِ fake با منطقِ درستِ σ می‌سازد. اینجا heart_mood ِ
+# واقعی را با یک heartstate ِ ساختگی (ساختارِ واقعی: shadow.sigma) اجرا می‌کنیم.
+def _install_fake_heart(sigma, *, arousal=0.0, in_fear=False):
+    import types
+    hs = types.ModuleType("heartstate")
+    hs.build = lambda: {"shadow": {"sigma": sigma}}
+    st = types.ModuleType("stress")
+    st.assess = lambda: {"organism_stress": arousal, "in_fear": in_fear, "level": ""}
+    sys.modules["heartstate"] = hs
+    sys.modules["stress"] = st
+
+
+def t_m_real_sigma_fuse_fires():
+    saved = {k: sys.modules.get(k) for k in ("heartstate", "stress")}
+    try:
+        # assert (نه check ِ نرم که harness نمی‌بیند) — این تستِ رگرسیونِ فیوزِ ایمنی
+        # باید واقعاً بتواند شکست بخورد؛ وگرنه سبزِ دروغین است (یافتهٔ verifier).
+        # σ=۱ → sig باید از shadow.sigma خوانده شود و فیوز شلیک کند (freeze)
+        _install_fake_heart(1.0)
+        m = _REAL_HEART_MOOD()
+        assert m["verdict"] == "freeze" and m["mood"] == "فروپاشی" and m.get("sigma") == 1.0, \
+            f"shadow.sigma>=1 باید freeze کند (sig درست خوانده شود): {m}"
+        # σ=۰٫۵ (< ۱) و استرسِ صفر → freeze نباید شلیک کند
+        _install_fake_heart(0.5)
+        m2 = _REAL_HEART_MOOD()
+        assert m2["verdict"] != "freeze" and m2.get("sigma") == 0.5, \
+            f"shadow.sigma<1 نباید freeze کند: {m2}"
+        # غیابِ σ (حالتِ عادیِ سایه، shadow خالی) → freeze نباید شلیک کند (اندام بی‌جهت freeze نشود)
+        import types
+        hs = types.ModuleType("heartstate"); hs.build = lambda: {"shadow": {}}
+        sys.modules["heartstate"] = hs
+        m3 = _REAL_HEART_MOOD()
+        assert m3["verdict"] != "freeze", f"غیابِ sigma نباید freeze کند (اندام بی‌جهت neutered): {m3}"
+        # مقدارِ حاضرِ خرابِ σ → محافظه‌کارانه freeze (fail-soft bad)
+        _install_fake_heart("nan-ish-garbage")
+        m4 = _REAL_HEART_MOOD()
+        assert m4["verdict"] == "freeze", f"sigmaِ خراب باید محافظه‌کارانه freeze کند: {m4}"
+    finally:
+        for k, v in saved.items():
+            if v is None:
+                sys.modules.pop(k, None)
+            else:
+                sys.modules[k] = v
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items())
               if n.startswith("t_") and callable(f)]
     failed = harness.run(checks)
-    print(f"\n{'✅' if not failed else '❌'} test_code_autonomy: {len(checks) - failed}/{len(checks)}")
-    sys.exit(1 if failed else 0)
+    # رفعِ green-lie: check()های نرم فقط _C.failed را بالا می‌برند و raise نمی‌کنند،
+    # پس harness.run آن‌ها را نمی‌بیند. exit باید به هر دو نگاه کند وگرنه شکستِ
+    # درون‌تابعیِ check() بی‌صدا سبز می‌شود.
+    total_failed = failed + _C.failed
+    print(f"\n{'✅' if not total_failed else '❌'} test_code_autonomy: "
+          f"{len(checks) - failed}/{len(checks)}"
+          + (f" · +{_C.failed} soft-check failure(s)" if _C.failed else ""))
+    sys.exit(1 if total_failed else 0)

@@ -1,0 +1,1040 @@
+﻿{
+    "products":  [
+                     {
+                         "product_id":  "ZIM-OTHER-01",
+                         "family":  "OTHER",
+                         "photo_files":  [
+                                             "739F7727-AAF5-4C19-A497-E56E6285B585.jpg"
+                                         ],
+                         "one_line":  "Blank all-white image with no product visible; likely an export/capture error or placeholder.",
+                         "form":  "blank image / no product",
+                         "palette":  "pure white (empty)",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+
+                                    ],
+                         "occasion_fit":  [
+
+                                          ],
+                         "personalisation":  "none",
+                         "photo_count":  1
+                     },
+                     {
+                         "product_id":  "ZIM-F4-01",
+                         "family":  "F4_mixed_hamper",
+                         "photo_files":  [
+                                             "IMG_2718.jpg"
+                                         ],
+                         "one_line":  "Blue monochrome graduation/back-to-school hamper in a fabric-wrapped box: Scholar stationery mixed with chocolate wafer bars, hazelnut sticks, biscuits and blue candy eyeballs on picks.",
+                         "form":  "rectangular fabric-wrapped box, bouquet-style upright picks",
+                         "palette":  "blue monochrome (royal + light blue, white, navy)",
+                         "edible":  "mixed",
+                         "perishable":  true,
+                         "medium":  [
+                                        "packaged chocolate wafer bars",
+                                        "chocolate biscuits",
+                                        "hazelnut cocoa wafer sticks",
+                                        "candy eyeballs",
+                                        "stationery (pencils/pad/ruler)",
+                                        "blue paper straws",
+                                        "glitter pipe-cleaner hearts",
+                                        "blue cellophane/tinsel"
+                                    ],
+                         "occasion_fit":  [
+                                              "back-to-school",
+                                              "graduation",
+                                              "exam success / congratulations",
+                                              "boy birthday"
+                                          ],
+                         "personalisation":  "none visible; theme-colour (blue) and Scholar stationery drive a study/graduation message"
+                     },
+                     {
+                         "product_id":  "ZIM-F4-02",
+                         "family":  "F4_mixed_hamper",
+                         "photo_files":  [
+                                             "IMG_2733.jpg"
+                                         ],
+                         "one_line":  "Red firefighter/Cars themed children\u0027s hamper in a red fabric box: pull-back fire-truck toy and Lightning McQueen car with paper shirt-and-tie picks, doily cones, foil chocolate hearts and an organza bag of candy.",
+                         "form":  "rectangular fabric-wrapped box, bouquet-style picks with embedded toys",
+                         "palette":  "red monochrome (red, white accents, foil red)",
+                         "edible":  "mixed",
+                         "perishable":  true,
+                         "medium":  [
+                                        "pull-back fire-truck toy",
+                                        "Cars/Lightning McQueen toy",
+                                        "foil-wrapped chocolate hearts",
+                                        "organza bag of jelly/candy",
+                                        "paper origami shirt-\u0026-tie picks",
+                                        "white paper doily cones",
+                                        "red foam glider",
+                                        "curling ribbon / paper fans"
+                                    ],
+                         "occasion_fit":  [
+                                              "boy birthday (age 3+)",
+                                              "firefighter theme party",
+                                              "kids congratulations"
+                                          ],
+                         "personalisation":  "none printed; heavily themed (firefighter + Cars) toward a young boy"
+                     },
+                     {
+                         "product_id":  "ZIM-F1-01",
+                         "family":  "F1_floral",
+                         "photo_files":  [
+                                             "IMG_2770.jpg"
+                                         ],
+                         "one_line":  "Two gift bags (bright yellow and ivory) each dressed with a silk yellow blossom posy, baby\u0027s-breath filler, green leaves and satin bows; no edible content.",
+                         "form":  "gift bag(s) with attached silk-flower posy; paper doily cone on the yellow bag",
+                         "palette":  "yellow + white/ivory, green foliage, gold accents",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "silk / real-touch yellow blossoms",
+                                        "artificial baby\u0027s breath",
+                                        "silk green leaves",
+                                        "satin ribbon bow",
+                                        "paper doily cone",
+                                        "kraft gift bags"
+                                    ],
+                         "occasion_fit":  [
+                                              "thank you / friendship",
+                                              "get well",
+                                              "spring / Mother\u0027s Day",
+                                              "wedding or party favour bag"
+                                          ],
+                         "personalisation":  "blank gift bags — ready for a card or name tag"
+                     },
+                     {
+                         "product_id":  "ZIM-F3-01",
+                         "family":  "F3_candy_basket",
+                         "photo_files":  [
+                                             "IMG_2812.jpg"
+                                         ],
+                         "one_line":  "Mint-green farm-animal candy basket in a woven wicker basket: tissue-paper flowers and yarn pom-poms among wrapped hard candies, watermelon candy balls, pastel candy necklaces and farm-animal cutouts.",
+                         "form":  "round woven wicker basket with ribbon-wrapped handle, upright candy/paper picks",
+                         "palette":  "mint / teal green + white, pastel candy accents",
+                         "edible":  "candy",
+                         "perishable":  false,
+                         "medium":  [
+                                        "individually wrapped hard candies",
+                                        "watermelon-striped candy balls",
+                                        "pastel candy-bead necklaces",
+                                        "green foil-wrapped candies",
+                                        "tissue-paper flowers",
+                                        "yarn pom-poms",
+                                        "farm-animal card cutouts",
+                                        "tinsel pipe-cleaners"
+                                    ],
+                         "occasion_fit":  [
+                                              "kids birthday",
+                                              "farm / barnyard party",
+                                              "gender-neutral baby shower",
+                                              "Easter/spring"
+                                          ],
+                         "personalisation":  "none printed; farm theme + mint palette (image needs 90° rotation for display)"
+                     },
+                     {
+                         "product_id":  "ZIM-F4-03",
+                         "family":  "F4_mixed_hamper",
+                         "photo_files":  [
+                                             "IMG_2978.jpg"
+                                         ],
+                         "one_line":  "Gold/champagne luxury hamper on a round rattan tray: ivory foam roses with dusty-mauve glitter fillers, a gold glitter-wrapped gift box, Ferrero Rocher chocolates and natural vine balls.",
+                         "form":  "round rattan/wicker tray basket with jute-bow rim, gift box + posy + chocolates",
+                         "palette":  "gold / champagne + ivory, dusty mauve, brown/kraft",
+                         "edible":  "chocolate",
+                         "perishable":  true,
+                         "medium":  [
+                                        "Ferrero Rocher chocolates",
+                                        "foam / real-touch ivory roses",
+                                        "glittered mauve filler flowers",
+                                        "gold glitter-wrapped gift box",
+                                        "natural rattan vine balls",
+                                        "jute twine bows",
+                                        "kraft/gold tissue",
+                                        "confetti bubble balloons (backdrop)"
+                                    ],
+                         "occasion_fit":  [
+                                              "engagement / wedding",
+                                              "anniversary",
+                                              "premium birthday",
+                                              "congratulations",
+                                              "Valentine\u0027s"
+                                          ],
+                         "personalisation":  "wrapped gift box included (contents/recipient not shown); elegant unisex styling"
+                     },
+                     {
+                         "product_id":  "ZIM-F1-02",
+                         "family":  "F1_floral",
+                         "photo_files":  [
+                                             "IMG_3101.jpg"
+                                         ],
+                         "one_line":  "Red-and-white silk floral arrangement in a red bag-shaped box with tartan bow and jute twine: fluffy white silk mums and carnations with red-tipped carnations and artificial red berry sprays.",
+                         "form":  "red rectangular bag/box-shaped planter with plaid ribbon bow and twine",
+                         "palette":  "red + white, green foliage",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "silk chrysanthemums / mums",
+                                        "silk carnations (white and red-tipped)",
+                                        "artificial red berry sprays",
+                                        "cream button/pom filler flowers",
+                                        "silk green foliage",
+                                        "netting/coral filler",
+                                        "tartan ribbon bow"
+                                    ],
+                         "occasion_fit":  [
+                                              "Valentine\u0027s / anniversary",
+                                              "birthday",
+                                              "get well",
+                                              "Canada Day / red-white national day",
+                                              "congratulations"
+                                          ],
+                         "personalisation":  "none printed; red bag-box with plaid bow, giftable as-is"
+                     },
+                     {
+                         "product_id":  "ZIM-F1-03",
+                         "family":  "F1_floral",
+                         "photo_files":  [
+                                             "IMG_3106.jpg"
+                                         ],
+                         "one_line":  "Deep-red silk rose arrangement with white filler, wrapped in red tissue over a burlap cube box tied with a red bow.",
+                         "form":  "compact rounded rose posy in a burlap-covered cube box with red tissue/mesh wrap and satin bow",
+                         "palette":  "deep red + natural burlap/tan",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "silk/real-touch roses",
+                                        "artificial white filler flowers",
+                                        "red tissue paper",
+                                        "red mesh",
+                                        "burlap-covered box",
+                                        "grosgrain/satin ribbon"
+                                    ],
+                         "occasion_fit":  [
+                                              "Valentine\u0027s Day",
+                                              "anniversary",
+                                              "romantic/love",
+                                              "I\u0027m sorry"
+                                          ],
+                         "personalisation":  "none visible; box/bow color could be customized"
+                     },
+                     {
+                         "product_id":  "ZIM-F1-04",
+                         "family":  "F1_floral",
+                         "photo_files":  [
+                                             "IMG_3107.jpg"
+                                         ],
+                         "one_line":  "Autumn-toned silk dahlia arrangement in orange, mustard and yellow with white gypsophila filler in a rustic wooden \u0027STORAGE No.01\u0027 crate.",
+                         "form":  "domed silk-flower arrangement seated in a small stenciled wooden slat crate",
+                         "palette":  "autumn orange / mustard-yellow / brown with white accents",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "silk dahlias/mums",
+                                        "artificial gypsophila filler",
+                                        "dried-look brown accents",
+                                        "stenciled wooden crate",
+                                        "raffia/sisal nest"
+                                    ],
+                         "occasion_fit":  [
+                                              "autumn/fall decor",
+                                              "thank you",
+                                              "get well",
+                                              "housewarming",
+                                              "hostess gift"
+                                          ],
+                         "personalisation":  "printed \u0027STORAGE No.01\u0027 text on the crate (stock crate, not custom)"
+                     },
+                     {
+                         "product_id":  "ZIM-F1-05",
+                         "family":  "F1_floral",
+                         "photo_files":  [
+                                             "IMG_3111.jpg"
+                                         ],
+                         "one_line":  "Red roses with abundant white baby\u0027s-breath in a red cellophane fan, set in a white gift box with a red glitter bow.",
+                         "form":  "fan-shaped upright arrangement of red roses and white filler behind a red cellophane fan, in a rectangular white box",
+                         "palette":  "red + white",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "artificial red foam/silk roses",
+                                        "artificial baby\u0027s-breath (gypsophila)",
+                                        "red cellophane wrap",
+                                        "white gift box",
+                                        "red glitter ribbon bow"
+                                    ],
+                         "occasion_fit":  [
+                                              "Valentine\u0027s Day",
+                                              "anniversary",
+                                              "romantic/love",
+                                              "congratulations"
+                                          ],
+                         "personalisation":  "none visible"
+                     },
+                     {
+                         "product_id":  "ZIM-F2-01",
+                         "family":  "F2_framed",
+                         "photo_files":  [
+                                             "IMG_3116.jpg"
+                                         ],
+                         "one_line":  "Wall-mount shadow-box frame holding terracotta/orange silk ranunculus in a small burlap-and-rope pot.",
+                         "form":  "light wood shadow-box (glass-fronted) with a 3D silk floral spray rising from a burlap-wrapped pot",
+                         "palette":  "terracotta / orange with cream accents on light natural wood",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "silk ranunculus/peony buds",
+                                        "artificial white filler",
+                                        "burlap + rope covered pot",
+                                        "light-wood shadow-box frame with glass"
+                                    ],
+                         "occasion_fit":  [
+                                              "home/wall decor",
+                                              "housewarming",
+                                              "birthday",
+                                              "autumn gift"
+                                          ],
+                         "personalisation":  "open frame interior suits an added photo/name plaque; none present"
+                     },
+                     {
+                         "product_id":  "ZIM-F2-02",
+                         "family":  "F2_framed",
+                         "photo_files":  [
+                                             "IMG_3117.jpg"
+                                         ],
+                         "one_line":  "Wall-mount shadow-box frame with dusty mauve/blush silk ranunculus, daisies and peonies in a jute-wrapped pot.",
+                         "form":  "light wood shadow-box (glass-fronted) with a 3D silk floral spray from a jute-rope wrapped pot",
+                         "palette":  "dusty mauve / blush pink / rose-brown with green and cream on light wood",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "silk ranunculus/peony",
+                                        "silk gerbera-style daisies",
+                                        "artificial white filler \u0026 greenery",
+                                        "burlap + jute-rope pot",
+                                        "light-wood shadow-box frame with glass"
+                                    ],
+                         "occasion_fit":  [
+                                              "home/wall decor",
+                                              "wedding/anniversary",
+                                              "housewarming",
+                                              "Mother\u0027s Day"
+                                          ],
+                         "personalisation":  "open frame interior suits an added photo/name plaque; none present"
+                     },
+                     {
+                         "product_id":  "ZIM-F1-06",
+                         "family":  "F1_floral",
+                         "photo_files":  [
+                                             "IMG_3127.jpg"
+                                         ],
+                         "one_line":  "Lavender-and-purple silk flower basket with lavender sprigs, white filler and a two-tone purple satin bow in a woven wicker basket.",
+                         "form":  "low mounded silk arrangement filling a rectangular wicker handle-basket with purple mesh and bow",
+                         "palette":  "purple / lilac / lavender with white accents",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "silk freesia/blossoms",
+                                        "artificial lavender sprigs",
+                                        "artificial white filler",
+                                        "purple decorative mesh",
+                                        "wicker basket",
+                                        "two-tone satin ribbon"
+                                    ],
+                         "occasion_fit":  [
+                                              "birthday",
+                                              "get well",
+                                              "thank you",
+                                              "Mother\u0027s Day",
+                                              "sympathy/thinking of you"
+                                          ],
+                         "personalisation":  "none visible"
+                     },
+                     {
+                         "product_id":  "ZIM-F1-07",
+                         "family":  "F1_floral",
+                         "photo_files":  [
+                                             "IMG_3131.jpg"
+                                         ],
+                         "one_line":  "Mocha and cream paper/raffia pom-pom flowers wrapped in ivory tissue over a jute-wound square vase with brown and champagne bows.",
+                         "form":  "rounded bouquet of paper pom-pom blooms in a jute-wrapped cube vase with tissue collar and layered bows",
+                         "palette":  "brown / mocha / tan / cream (neutral)",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "paper/raffia pom-pom flowers",
+                                        "ivory tissue/organza wrap",
+                                        "jute-rope wound vase",
+                                        "brown and champagne satin ribbon"
+                                    ],
+                         "occasion_fit":  [
+                                              "neutral/unisex gift",
+                                              "coffee lover",
+                                              "thank you",
+                                              "housewarming",
+                                              "get well",
+                                              "masculine-leaning gift"
+                                          ],
+                         "personalisation":  "none visible"
+                     },
+                     {
+                         "product_id":  "ZIM-F3-02",
+                         "family":  "F3_candy_basket",
+                         "photo_files":  [
+                                             "IMG_3136.jpg"
+                                         ],
+                         "one_line":  "Baby-boy blue-and-white themed wooden basket with candy, blue plush teddy bear, silk flowers and accessories.",
+                         "form":  "rectangular wooden box/basket with arched ribbon-wrapped handle and large blue bow",
+                         "palette":  "baby blue + white",
+                         "edible":  "candy",
+                         "perishable":  false,
+                         "medium":  [
+                                        "blue/white twist marshmallow",
+                                        "rock candy",
+                                        "jelly candy on skewers",
+                                        "plush teddy bear",
+                                        "silk/real-touch green flowers + gypsophila",
+                                        "glass cherries",
+                                        "cup candle",
+                                        "tulle/netting"
+                                    ],
+                         "occasion_fit":  [
+                                              "new baby boy",
+                                              "baby shower",
+                                              "gender reveal",
+                                              "newborn gift"
+                                          ],
+                         "personalisation":  "boy colour theme (blue); can add name/tag"
+                     },
+                     {
+                         "product_id":  "ZIM-F1-08",
+                         "family":  "F1_floral",
+                         "photo_files":  [
+                                             "IMG_3140.jpg"
+                                         ],
+                         "one_line":  "Pink/magenta silk rose arrangement in a striped pink glitter cylindrical box-vase.",
+                         "form":  "cylindrical fabric-covered striped box/vase (pink/magenta, glossy)",
+                         "palette":  "pink + blush + magenta (fuchsia)",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "silk roses",
+                                        "decorative pip-berry/willow stems",
+                                        "pink decorative leaves"
+                                    ],
+                         "occasion_fit":  [
+                                              "Valentine\u0027s",
+                                              "birthday",
+                                              "anniversary",
+                                              "Mother\u0027s Day",
+                                              "romantic"
+                                          ],
+                         "personalisation":  "none visible"
+                     },
+                     {
+                         "product_id":  "ZIM-F4-04",
+                         "family":  "F4_mixed_hamper",
+                         "photo_files":  [
+                                             "IMG_3153.jpg"
+                                         ],
+                         "one_line":  "Black-and-gold luxury hamper with Ferrero/Merci chocolate, a chocolate tree/cone, sparkling wine and a birthday topper.",
+                         "form":  "rectangular black-gold glitter tray with wavy edge",
+                         "palette":  "black + gold",
+                         "edible":  "chocolate",
+                         "perishable":  true,
+                         "medium":  [
+                                        "Ferrero Rocher chocolate",
+                                        "Merci chocolate",
+                                        "chocolate tree/cone with gold paper flower",
+                                        "Wolf Blass sparkling wine",
+                                        "gold-rimmed crystal glass",
+                                        "Happy Birthday topper",
+                                        "gold backdrop disc"
+                                    ],
+                         "occasion_fit":  [
+                                              "birthday",
+                                              "congratulations",
+                                              "anniversary",
+                                              "luxury gift"
+                                          ],
+                         "personalisation":  "\u0027Happy Birthday\u0027 topper replaceable with name/message"
+                     },
+                     {
+                         "product_id":  "ZIM-F1-09",
+                         "family":  "F1_floral",
+                         "photo_files":  [
+                                             "IMG_3203.jpg"
+                                         ],
+                         "one_line":  "Grey woven handbag-basket with a white orchid hoop and teal/cream silk flowers, finished with a turquoise satin bow.",
+                         "form":  "grey woven handbag-shaped basket with hoop handle",
+                         "palette":  "white + teal/blue-green + cream",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "real-touch phalaenopsis orchid",
+                                        "teal silk peony",
+                                        "cream silk ranunculus",
+                                        "gypsophila",
+                                        "turquoise satin ribbon"
+                                    ],
+                         "occasion_fit":  [
+                                              "wedding/engagement",
+                                              "Mother\u0027s Day",
+                                              "birthday",
+                                              "housewarming",
+                                              "get well"
+                                          ],
+                         "personalisation":  "sister of IMG_3358 but with turquoise bow accent instead of pearls"
+                     },
+                     {
+                         "product_id":  "ZIM-F3-03",
+                         "family":  "F3_candy_basket",
+                         "photo_files":  [
+                                             "IMG_3254.jpg"
+                                         ],
+                         "one_line":  "All-yellow themed basket with lollipop/marshmallow candy, sola/dried flowers and gold decorative eggs.",
+                         "form":  "rectangular bamboo/wicker basket with arched handle and yellow bow",
+                         "palette":  "yellow + gold + white (yellow monochrome)",
+                         "edible":  "candy",
+                         "perishable":  false,
+                         "medium":  [
+                                        "cellophane-wrapped candy/marshmallow on skewers",
+                                        "smiley lollipops",
+                                        "yellow candy blocks",
+                                        "sola wood flowers",
+                                        "dried craspedia/billy-balls",
+                                        "silk chrysanthemums",
+                                        "gold decorative eggs"
+                                    ],
+                         "occasion_fit":  [
+                                              "Nowruz/new year (gold eggs)",
+                                              "Easter",
+                                              "get well",
+                                              "friendship/thank you",
+                                              "congratulations"
+                                          ],
+                         "personalisation":  "yellow colour theme; can add tag"
+                     },
+                     {
+                         "product_id":  "ZIM-F1-10",
+                         "family":  "F1_floral",
+                         "photo_files":  [
+                                             "IMG_3358.jpg"
+                                         ],
+                         "one_line":  "Grey woven handbag-basket with a white orchid hoop, green/white silk flowers and a blue pearl-studded hoop handle.",
+                         "form":  "grey woven handbag-shaped basket with pearl-studded hoop handle (outdoor shot, brick wall)",
+                         "palette":  "white + sage green + blue pearl accent",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "real-touch phalaenopsis orchid",
+                                        "green silk peony",
+                                        "white silk ranunculus/rose",
+                                        "gypsophila",
+                                        "blue pearl beads on hoop",
+                                        "blue rhinestones on body"
+                                    ],
+                         "occasion_fit":  [
+                                              "wedding/engagement",
+                                              "Mother\u0027s Day",
+                                              "birthday",
+                                              "anniversary"
+                                          ],
+                         "personalisation":  "sister of IMG_3203; no bow, pearl accent instead"
+                     },
+                     {
+                         "product_id":  "ZIM-F1-11",
+                         "family":  "F1_floral",
+                         "photo_files":  [
+                                             "IMG_3371.jpg"
+                                         ],
+                         "one_line":  "Purple/lilac/mauve silk rose arrangement in a lilac fabric box with purple ribbon and bow.",
+                         "form":  "rectangular lilac fabric-covered box with purple ribbon and bow",
+                         "palette":  "purple + lilac/lavender + mauve",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "silk roses (purple, lilac, mauve)",
+                                        "purple silk eucalyptus",
+                                        "purple pip-berry stems",
+                                        "green decorative leaves"
+                                    ],
+                         "occasion_fit":  [
+                                              "birthday",
+                                              "anniversary",
+                                              "Mother\u0027s Day",
+                                              "sympathy/condolence",
+                                              "congratulations"
+                                          ],
+                         "personalisation":  "none visible"
+                     },
+                     {
+                         "product_id":  "ZIM-F1-12",
+                         "family":  "F1_floral",
+                         "photo_files":  [
+                                             "IMG_3373.jpg"
+                                         ],
+                         "one_line":  "Lilac handbag-box with gold chain handle, filled with deep-purple silk hydrangeas and an \u0027Always By Your Side\u0027 ribbon.",
+                         "form":  "lilac cardboard handbag box with gold chain handle and gold clasp",
+                         "palette":  "purple/lilac + deep violet (purple monotone)",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "silk/real-touch hydrangea",
+                                        "cardboard handbag box",
+                                        "satin printed ribbon",
+                                        "gold chain handle"
+                                    ],
+                         "occasion_fit":  [
+                                              "birthday",
+                                              "anniversary",
+                                              "appreciation/thank you",
+                                              "Mother\u0027s Day"
+                                          ],
+                         "personalisation":  "printed satin ribbon with \u0027Always By Your Side\u0027 text"
+                     },
+                     {
+                         "product_id":  "ZIM-F1-13",
+                         "family":  "F1_floral",
+                         "photo_files":  [
+                                             "IMG_3378.jpg"
+                                         ],
+                         "one_line":  "Brown woven jute handbag-basket with blush/mauve silk roses and an \u0027always love\u0027 ribbon (image is a phone screenshot).",
+                         "form":  "brown woven jute paper-bag basket — image is a screenshot, not a studio photo",
+                         "palette":  "dusty pink/mauve and blush with natural brown",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "silk/real-touch roses",
+                                        "dried filler / pussy-willow stems",
+                                        "woven jute bag"
+                                    ],
+                         "occasion_fit":  [
+                                              "anniversary",
+                                              "Valentine\u0027s",
+                                              "birthday",
+                                              "appreciation"
+                                          ],
+                         "personalisation":  "printed \u0027always love\u0027 ribbon"
+                     },
+                     {
+                         "product_id":  "ZIM-F4-05",
+                         "family":  "F4_mixed_hamper",
+                         "photo_files":  [
+                                             "IMG_3386.jpg"
+                                         ],
+                         "one_line":  "All-blue themed hamper: blue foil heart balloon, white teddy, SHERO chocolate, blue candy and a novelty character bottle.",
+                         "form":  "navy-blue fabric box with felt hearts, filled with a heart balloon on a pick",
+                         "palette":  "blue monochrome (navy to light blue)",
+                         "edible":  "mixed",
+                         "perishable":  true,
+                         "medium":  [
+                                        "foil heart balloon",
+                                        "plush teddy bear",
+                                        "candy/lollipops",
+                                        "SHERO chocolate bars",
+                                        "novelty character bottle",
+                                        "gift boxes",
+                                        "cellophane wrap"
+                                    ],
+                         "occasion_fit":  [
+                                              "birthday",
+                                              "new baby boy",
+                                              "for him (masculine)",
+                                              "welcome/congratulations"
+                                          ],
+                         "personalisation":  "custom blue colour theme; box with felt hearts"
+                     },
+                     {
+                         "product_id":  "ZIM-F1-14",
+                         "family":  "F1_floral",
+                         "photo_files":  [
+                                             "IMG_3389.jpg"
+                                         ],
+                         "one_line":  "Light-blue cube box with blue silk carnations and white gypsophila, finished with blue satin ribbon.",
+                         "form":  "light-blue cardboard cube box with navy/blue ribbon and bow",
+                         "palette":  "blue (blue carnations + white baby\u0027s breath, blue cellophane)",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "silk carnations/roses (dyed blue)",
+                                        "baby\u0027s breath filler",
+                                        "blue cellophane",
+                                        "cube gift box",
+                                        "satin ribbon"
+                                    ],
+                         "occasion_fit":  [
+                                              "new baby boy",
+                                              "birthday",
+                                              "for him",
+                                              "appreciation"
+                                          ],
+                         "personalisation":  "coordinated blue colour theme"
+                     },
+                     {
+                         "product_id":  "ZIM-F4-06",
+                         "family":  "F4_mixed_hamper",
+                         "photo_files":  [
+                                             "IMG_3399.jpg"
+                                         ],
+                         "one_line":  "Large pink-themed wooden hamper: two rose-gold heart balloons, pink teddy, Show Pop lollipops, marshmallow and toys.",
+                         "form":  "large light-wood rectangular box with fuchsia pink bow and tulle netting",
+                         "palette":  "full pink monochrome with rose-gold accent",
+                         "edible":  "candy",
+                         "perishable":  false,
+                         "medium":  [
+                                        "rose-gold foil heart balloons",
+                                        "plush teddy bear",
+                                        "Show Pop lollipops",
+                                        "marshmallow flower picks",
+                                        "candy pearls/sixlets",
+                                        "novelty camera \u0026 bottle toys",
+                                        "envelope",
+                                        "candy sticks"
+                                    ],
+                         "occasion_fit":  [
+                                              "birthday",
+                                              "Valentine\u0027s",
+                                              "for her (feminine)",
+                                              "welcome"
+                                          ],
+                         "personalisation":  "fuchsia grosgrain bow on box; pink colour theme"
+                     },
+                     {
+                         "product_id":  "ZIM-F3-04",
+                         "family":  "F3_candy_basket",
+                         "photo_files":  [
+                                             "IMG_3403.jpg"
+                                         ],
+                         "one_line":  "Edible marshmallow bouquet in pink/white in a fuchsia glitter box — all blooms are marshmallow and stick candy.",
+                         "form":  "rectangular fuchsia glitter box with glitter ribbon and bow; marshmallow skewers arranged as a bouquet",
+                         "palette":  "pink and white",
+                         "edible":  "candy",
+                         "perishable":  false,
+                         "medium":  [
+                                        "marshmallow sticks",
+                                        "pink/white twist marshmallow candy",
+                                        "marshmallow flower picks",
+                                        "cellophane",
+                                        "tulle"
+                                    ],
+                         "occasion_fit":  [
+                                              "birthday",
+                                              "Valentine\u0027s",
+                                              "for a child/girl",
+                                              "small celebration"
+                                          ],
+                         "personalisation":  "no visible personalised text"
+                     },
+                     {
+                         "product_id":  "ZIM-F4-07",
+                         "family":  "F4_mixed_hamper",
+                         "photo_files":  [
+                                             "IMG_3410.jpg"
+                                         ],
+                         "one_line":  "Red Valentine\u0027s hamper with a white picket fence: white teddy in a red dress, silk roses, a Lindt Lindor chocolate heart and a heart balloon.",
+                         "form":  "red glitter rectangular box with white wooden fence and \u0027LOVE\u0027 ribbons",
+                         "palette":  "red monochrome (Valentine\u0027s)",
+                         "edible":  "mixed",
+                         "perishable":  true,
+                         "medium":  [
+                                        "silk red roses (wrapped bouquet)",
+                                        "plush teddy bear in red dress",
+                                        "Lindt Lindor chocolate heart box",
+                                        "Show Pop lollipops",
+                                        "heart foil balloons",
+                                        "novelty red bottle",
+                                        "glitter heart picks"
+                                    ],
+                         "occasion_fit":  [
+                                              "Valentine\u0027s",
+                                              "anniversary",
+                                              "romantic gift"
+                                          ],
+                         "personalisation":  "printed \u0027LOVE\u0027 ribbons; teddy in red tartan dress"
+                     },
+                     {
+                         "product_id":  "ZIM-F1-15",
+                         "family":  "F1_floral",
+                         "photo_files":  [
+                                             "IMG_3476.jpg"
+                                         ],
+                         "one_line":  "Tall deep-purple real-touch calla lilies with cream billy-balls, lavender globe amaranth and frosted foliage in a purple glitter box with burlap-and-lace band.",
+                         "form":  "tall upright arrangement in a glittery cube box",
+                         "palette":  "purple / violet / lavender / cream",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "real-touch calla lily",
+                                        "silk/artificial flower",
+                                        "dried-look accents (craspedia, globe amaranth, frosted fern)",
+                                        "glitter box",
+                                        "burlap \u0026 lace"
+                                    ],
+                         "occasion_fit":  [
+                                              "birthday",
+                                              "anniversary",
+                                              "home-decor",
+                                              "congratulations",
+                                              "housewarming"
+                                          ],
+                         "personalisation":  "none visible"
+                     },
+                     {
+                         "product_id":  "ZIM-F1-16",
+                         "family":  "F1_floral",
+                         "photo_files":  [
+                                             "IMG_3500.jpg"
+                                         ],
+                         "one_line":  "Plum silk orchid spray cascading over a wire hoop handle above burgundy and dusty-mauve silk roses in a natural wooden tray with a wine-red ribbon.",
+                         "form":  "hoop-handle wooden tray arrangement",
+                         "palette":  "plum / burgundy / dusty-mauve / natural wood",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "silk orchid",
+                                        "silk roses",
+                                        "artificial filler blossoms",
+                                        "wooden tray",
+                                        "satin ribbon",
+                                        "wire hoop"
+                                    ],
+                         "occasion_fit":  [
+                                              "anniversary",
+                                              "birthday",
+                                              "home-decor",
+                                              "housewarming",
+                                              "congratulations"
+                                          ],
+                         "personalisation":  "none visible"
+                     },
+                     {
+                         "product_id":  "ZIM-F4-08",
+                         "family":  "F4_mixed_hamper",
+                         "photo_files":  [
+                                             "IMG_3524.jpg"
+                                         ],
+                         "one_line":  "Black-and-gold gift-box hamper: heart-shaped bouquet of gold-sprayed roses studded with Ferrero Rocher, plus Twix and gold chocolate bars, an Adidas cap, and black \u0026 gold balloons.",
+                         "form":  "upright gift-box hamper with balloons",
+                         "palette":  "black / gold",
+                         "edible":  "chocolate",
+                         "perishable":  true,
+                         "medium":  [
+                                        "chocolate (Ferrero Rocher, Twix, gold bars)",
+                                        "gold-painted artificial roses",
+                                        "balloons (black + gold)",
+                                        "apparel (Adidas cap)",
+                                        "glitter heart picks",
+                                        "decorative box"
+                                    ],
+                         "occasion_fit":  [
+                                              "birthday",
+                                              "men-gift",
+                                              "anniversary",
+                                              "graduation",
+                                              "fathers-day"
+                                          ],
+                         "personalisation":  "branded cap included (no name tag visible); cap could be swapped/personalised"
+                     },
+                     {
+                         "product_id":  "ZIM-F4-09",
+                         "family":  "F4_mixed_hamper",
+                         "photo_files":  [
+                                             "IMG_3591.jpg"
+                                         ],
+                         "one_line":  "Luxury black round hat-box hamper with a bottle of Brut sparkling wine, gold roses with Ferrero Rocher, two heart-decorated flutes, a gold masquerade mask and gold glitter hearts.",
+                         "form":  "round hat-box celebration hamper",
+                         "palette":  "black / gold",
+                         "edible":  "chocolate",
+                         "perishable":  true,
+                         "medium":  [
+                                        "sparkling wine (alcohol)",
+                                        "chocolate (Ferrero Rocher)",
+                                        "gold paper/silk roses",
+                                        "glassware (champagne flutes)",
+                                        "masquerade mask",
+                                        "glitter heart picks",
+                                        "round gift box"
+                                    ],
+                         "occasion_fit":  [
+                                              "new-year",
+                                              "anniversary",
+                                              "birthday",
+                                              "celebration",
+                                              "congratulations"
+                                          ],
+                         "personalisation":  "none visible"
+                     },
+                     {
+                         "product_id":  "ZIM-F1-17",
+                         "family":  "F1_floral",
+                         "photo_files":  [
+                                             "IMG_4054.jpg",
+                                             "IMG_4058.jpg"
+                                         ],
+                         "one_line":  "Light-blue wicker handle-basket filled with royal-blue glitter-dusted fabric roses and blue baby\u0027s-breath, finished with pale-blue ribbon bows.",
+                         "form":  "handled wicker basket bouquet",
+                         "palette":  "royal blue / sky blue",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "fabric/silk glitter roses",
+                                        "artificial baby\u0027s-breath (gypsophila)",
+                                        "light-blue wicker basket",
+                                        "satin bows"
+                                    ],
+                         "occasion_fit":  [
+                                              "birthday",
+                                              "congratulations",
+                                              "new-baby-boy",
+                                              "get-well"
+                                          ],
+                         "personalisation":  "none visible"
+                     },
+                     {
+                         "product_id":  "ZIM-F1-18",
+                         "family":  "F1_floral",
+                         "photo_files":  [
+                                             "IMG_4066.jpg",
+                                             "IMG_4067.jpg"
+                                         ],
+                         "one_line":  "Domed arrangement of blush and peach silk/real-touch roses with coral and cream filler blossoms in a champagne-gold glitter cube box with fine curled wire accents.",
+                         "form":  "domed arrangement in a gold glitter cube box",
+                         "palette":  "peach / blush / terracotta / cream / gold",
+                         "edible":  "none",
+                         "perishable":  false,
+                         "medium":  [
+                                        "real-touch/silk cream \u0026 peach roses",
+                                        "artificial filler blossoms",
+                                        "gold glitter cube box",
+                                        "curled wire/looped twig accents"
+                                    ],
+                         "occasion_fit":  [
+                                              "wedding",
+                                              "engagement",
+                                              "anniversary",
+                                              "mothers-day",
+                                              "birthday",
+                                              "home-decor"
+                                          ],
+                         "personalisation":  "none visible"
+                     },
+                     {
+                         "product_id":  "ZIM-F4-10",
+                         "family":  "F4_mixed_hamper",
+                         "photo_files":  [
+                                             "IMG_4084.jpg",
+                                             "IMG_4095.jpg",
+                                             "IMG_4096.jpg"
+                                         ],
+                         "one_line":  "Purple monochrome mixed gift hamper in a pom-pom fabric basket with plush teddy, Beauty and the Beast tumbler, owl tin, candle, lollipops and Turkish Delight chocolate.",
+                         "form":  "rectangular fabric/pom-pom trimmed basket packed with mixed gift items and star-balloon picks",
+                         "palette":  "all-purple / lilac monochrome with white pom-pom trim",
+                         "edible":  "mixed",
+                         "perishable":  true,
+                         "medium":  [
+                                        "plush purple teddy bear",
+                                        "purple foil star balloon picks",
+                                        "reusable tumbler (Beauty and the Beast)",
+                                        "decorative owl tin",
+                                        "scented candle in glass",
+                                        "Chupa Chups-style lollipops (candy)",
+                                        "Fry\u0027s Turkish Delight bars (chocolate)",
+                                        "bagged treats/popcorn",
+                                        "pom-pom trimmed fabric basket",
+                                        "shredded paper filler"
+                                    ],
+                         "occasion_fit":  [
+                                              "birthday",
+                                              "get well",
+                                              "congratulations",
+                                              "theatre/musical fan gift"
+                                          ],
+                         "personalisation":  "Beauty and the Beast the Musical themed tumbler (fan/show theming)"
+                     },
+                     {
+                         "product_id":  "ZIM-F4-11",
+                         "family":  "F4_mixed_hamper",
+                         "photo_files":  [
+                                             "IMG_4109.jpg",
+                                             "IMG_4113.jpg"
+                                         ],
+                         "one_line":  "Blue monochrome mixed gift hamper with plush blue teddy, foil heart balloon, baby pacifier accent, lollipops and Shero chocolate bars in a glitter box.",
+                         "form":  "blue glitter gift box packed with plush, balloon and treats, tied with a bow",
+                         "palette":  "all-blue monochrome (royal + baby blue) with white accents",
+                         "edible":  "mixed",
+                         "perishable":  true,
+                         "medium":  [
+                                        "plush blue teddy bear",
+                                        "blue foil heart balloon",
+                                        "decorative baby pacifier pick",
+                                        "blue lollipops / candy swirls (candy)",
+                                        "Shero chocolate bars (chocolate)",
+                                        "blue tulle/burlap wrap",
+                                        "\u0027love you\u0027 \u0026 heartbeat ribbon",
+                                        "blue glitter gift box",
+                                        "shredded paper filler"
+                                    ],
+                         "occasion_fit":  [
+                                              "new baby boy",
+                                              "baby shower",
+                                              "birthday",
+                                              "get well",
+                                              "love/appreciation"
+                                          ],
+                         "personalisation":  "\u0027love you\u0027 and heartbeat/ECG printed ribbon; pacifier suggests newborn-boy theming"
+                     }
+                 ],
+    "stats":  {
+                  "photo_count":  41,
+                  "distinct_product_count":  37,
+                  "family_counts":  [
+                                        {
+                                            "family":  "F1_floral",
+                                            "products":  18
+                                        },
+                                        {
+                                            "family":  "F4_mixed_hamper",
+                                            "products":  11
+                                        },
+                                        {
+                                            "family":  "F3_candy_basket",
+                                            "products":  4
+                                        },
+                                        {
+                                            "family":  "F2_framed",
+                                            "products":  2
+                                        },
+                                        {
+                                            "family":  "OTHER",
+                                            "products":  1
+                                        },
+                                        {
+                                            "family":  "F1_floral (handbag-basket sub-cluster)",
+                                            "products":  0
+                                        }
+                                    ]
+              },
+    "taxonomy_assessment":  "The F1..F4 taxonomy held up well and cleanly absorbed 40 of 41 photos (one blank image → OTHER). Every physical product mapped to exactly one family with no forced fits, and the four families are genuinely distinct on the axis that matters commercially: F1_floral = non-edible silk/real-touch arrangements (dominant, ~49% of products); F4_mixed_hamper = multi-item themed gift boxes containing chocolate/candy plus toys/balloons/props (~30%); F3_candy_basket = edible-candy-forward baskets/bouquets where sweets ARE the display (~11%); F2_framed = wall-mount shadow-box floral frames (a small but structurally unique form, ~5%). The edible/perishable flags cut across families usefully and should be treated as independent facets, not folded into family. Grouping reduced 40 product photos to 36 distinct products via four confident multi-shot merges (4054/4058, 4066/4067, 4084/4095/4096, 4109/4113). I deliberately kept several conservative splits: the handbag-basket \u0027sisters\u0027 IMG_3203 vs IMG_3358 (different accents: turquoise bow vs blue-pearl hoop) and the two shadow-box frames IMG_3116 vs IMG_3117 (different palettes) are near-identical forms but not provably the same SKU, so they remain separate. Net: the taxonomy is sound for launch; the main strain is that F1 is doing a lot of work and would benefit from sub-tagging rather than new top-level families.",
+    "taxonomy_adjustments":  [
+                                 "Keep F1..F4 as the top-level families - no new top-level family is warranted by this sample.",
+                                 "Add facet tags WITHIN F1_floral rather than splitting it, since it holds ~50% of products. Suggested sub-tags: \u0027box-arrangement\u0027 (cube/cylinder/fabric box: 3106, 3140, 3371, 3389, 3476, 4066/4067), \u0027basket-arrangement\u0027 (wicker handle basket: 3127), \u0027handbag-basket\u0027 (grey woven purse baskets with hoop handle: 3203, 3358, 3373, 3378), \u0027tray-hoop\u0027 (3500), \u0027gift-bag-posy\u0027 (2770).",
+                                 "Treat \u0027handbag-basket / purse-basket floral\u0027 as a recognised sub-cluster of F1 (4 products: 3203, 3358, 3373, 3378) - it is a repeated distinctive form and a likely merchandising collection.",
+                                 "Consider whether F2_framed (only 2 products) stays its own family or becomes an F1 sub-tag \u0027framed/wall-decor\u0027. Recommend keeping F2 separate because the wall-mount glass shadow-box is a fundamentally different product use (home decor vs gift bouquet).",
+                                 "The F3 vs F4 boundary needs an explicit rule: F3 = display is candy/marshmallow itself (2812, 3254, 3403, 3136); F4 = box contains packaged chocolate/candy plus non-food items (teddy, balloon, tumbler, wine). IMG_3136 was borderline (candy + teddy + flowers) and placed in F3 because candy dominates the visible display - flag for owner review.",
+                                 "Add an independent \u0027baby/gender\u0027 facet, not a family. A strong blue-boy vs pink-girl vs neutral cluster spans F1, F3 and F4 (2718, 3136, 3386, 3389, 4054/4058, 4109/4113 = boy; 3399, 3403 = girl) and is more useful as a filter than as a family.",
+                                 "Add an \u0027alcohol\u0027 flag: IMG_3153 and IMG_3591 contain sparkling wine, which has shipping/age-restriction implications distinct from the generic perishable flag."
+                             ],
+    "data_gaps":  [
+                      "IMG_739F7727... is a pure-white blank image with no product - either a capture/export error or a missing photo. Needs re-shoot or deletion; classified OTHER as a placeholder.",
+                      "IMG_2812 (mint farm candy basket) is rotated 90 degrees and needs re-orientation before catalog display.",
+                      "IMG_3378 is a phone screenshot (not a studio photo) of the brown \u0027always love\u0027 handbag-basket - lower image quality; a proper product shot is needed.",
+                      "IMG_3378 and IMG_3373 are both handbag-basket florals with printed romantic ribbons; possible they are colour variants of one SKU line but shown as different products - owner should confirm whether these are distinct SKUs or variants.",
+                      "IMG_3203 vs IMG_3358 kept separate conservatively; owner should confirm if these are the same base product photographed with different accents (bow vs pearls) or two distinct SKUs.",
+                      "IMG_3116 vs IMG_3117 shadow-box frames kept separate on palette difference; confirm whether they are one product in two colourways or two SKUs.",
+                      "No pricing, stock, or capacity data was inferable from images and none was fabricated, as instructed - these fields are entirely absent and must come from owner input.",
+                      "Several hampers include branded/licensed items (Beauty and the Beast tumbler, Lightning McQueen/Cars, Adidas cap, Lindt, Ferrero, Merci, Wolf Blass wine) - licensing/trademark and restocking availability of these components is unverified and should be reviewed.",
+                      "Persian-language records (IMG_3136, 3140, 3153, 3203, 3254, 3358, 3371, 3373, 3378, 3386, 3389, 3399, 3403, 3410) were translated/normalised into the English catalog fields; original nuance should be spot-checked by a bilingual reviewer."
+                  ]
+}
