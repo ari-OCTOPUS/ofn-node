@@ -1,7 +1,0 @@
-{
-  "blocklist": [],
-  "city_terms": ["Sydney", "سیدنی", "sydney"],
-  "name_map": {"صبا": "C", "آری": "A"},
-  "project_code": "Project-F",
-  "_note": "blocklist را با نام/نام‌خانوادگی واقعی و هر شناسهٔ حساس پر کن؛ redact خودکار در همهٔ پیام‌های خروجی."
-}
