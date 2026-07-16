@@ -35,6 +35,11 @@ updated: 2026-07-16
 - تنظیمِ سخت‌افزاری قلب ✅ (12t/16GB/1660Ti → timeout/فاصلهٔ ollama، سقفِ لید) + متابولیسمِ $0 مستند.
 - **بستهٔ ممیزی** ✅ (رأی مالک «اره»): `_agent_audit_output/` — ۸ فایل (inventory/معماری/ریسک/سوال‌ها/مگاپرامپتِ خود-ممیزی/قالبِ پاسخ/V2/نقشهٔ تست).
 
+## ممیزیِ امنیت‌ومعماریِ ۶-محوره + پرامپتِ ایجنت بعدی (2026-07-16، کامیت `4a1c5a5`)
+
+- **[[../_agent_audit_output/20_security_architecture_review_2026-07-16|گزارش کامل]]** — ۳۰۵ ایجنت، ۲۱ محور × ۳ عدسیِ خصمانه، ۸۴ تأیید/۱۰ رد/۲ شکافِ منتقد. **صفر Critical.** سه High **دستی-تأییدشده**: `CWE-93` (RCE: `/save` مقدارِ profile را بدونِ CRLF-strip داخلِ `OCTOPUS-flags.cmd` می‌نویسد → `RUN-ORGANISM.bat:21` آن را `call` می‌کند؛ CSRF-پذیر از مرورگر) · `OCT-AUTHZ-3` (پاک‌کردنِ `STOP-ORGANISM` بی‌احرازهویت روی ۸۷۷۳) · `OWASP-A05` (`_write_env` بی‌صدا ۲۴/۲۹ فلگ + دو گاردِ امنیتی را پاک می‌کند). هر سه ریشه = RC1 («۱۲۷.۰.۰.۱ = مالک»).
+- **[[../04 - Architect System/octopus-build-prompts/NEXT-AGENT-PROMPT-2026-07-16-security|پرامپتِ ایجنت بعدی (امنیت)]]** — S1 دروازهٔ auth مشترک (~۴۰خط، می‌بندد F-1+F-2) · S2 غیرمخرب‌کردنِ `_write_env` · S3 split-brainِ ناظر (=رأیِ [WATCHDOG-NOTE]) · S4 notifierِ بیرون‌بدنی+escape+SSRF · S5 chrono/package. **همه additive+flag-off+پیشنهاد-محور**؛ اعمالِ live/فلگ/schtasks = ردهٔ مهم، رأی مالک. رویِ [[../04 - Architect System/octopus-build-prompts/NEXT-AGENT-PROMPT-2026-07-16|پرامپتِ ادراک]] سوار است، نه جایگزینش.
+
 ## حسابدارِ مولتی‌ایجنت + کارتِ /finance (2026-07-16)
 
 - **شبکهٔ حسابداریِ واقعی ساخته شد:** PocketSmith زندهٔ read-only + CSVها → ۵۷۶ تراکنشِ یکتا، سنتِ صحیح، reconcile GREEN. کد در `_ops/legs/` (money·txn_store·attributor·accountant·pocketsmith_api·txn_categorize). گزارش + دادهٔ خام همه **gitignore** در `03 - Projects/Accounting/personal/` (نه در چت، نه در git).
