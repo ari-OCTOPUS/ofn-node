@@ -1,7 +1,7 @@
 ---
 type: reference
-project: "[[07 - Knowledge/هیپنوتیزم  و خودآگاهی/PROJECT]]"
-status: idea
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: done
 tags: [math, research-protocol]
 created: 2026-07-16
 updated: 2026-07-16
@@ -13,6 +13,8 @@ sources:
 ---
 
 # پروتکل تحقیق: بی‌نهایت‌های Exacting / Ultra-Exacting
+
+> ✅ **اجرا شد (2026-07-16، دستور مالک «اجرا کن و فاز ۱۲ رو کامل کن»):** گزارش کامل فاز ۱۲ در [[07 - Knowledge/Exacting-Ultraexacting-Cardinals-v1|Exacting-Ultraexacting-Cardinals-v1]] + نگاشت تأثیر بر اختاپوس در [[07 - Knowledge/EXACTING-to-OCTOPUS-impact-v1|EXACTING-to-OCTOPUS-impact-v1]].
 
 > ⚠️ فرانت‌متر `project` موقتی است — این موضوع ریاضیاتِ بنیادی است نه هیپنوتیزم؛ اگر مالک بخواهد، خانهٔ درستش یک نوت Knowledge مستقل بعد از اجرای تحقیق کامل است. فعلاً طبق قانون Inbox-اول اینجاست.
 

@@ -15,6 +15,11 @@ updated: 2026-07-16
 
 - [[07 - Knowledge/AUTHORITY-TREE-doctrine-v1|AUTHORITY-TREE-doctrine-v1]] — دکترین «درختِ authority، نه درختِ فایل‌ها» (از آشتی 4D، ۰۷-۱۶)
 
+## ریاضیات بنیادی
+
+- [[07 - Knowledge/Exacting-Ultraexacting-Cardinals-v1|Exacting-Ultraexacting-Cardinals-v1]] — گزارش کامل فاز-۱۲: کاردینال‌های exacting/ultraexacting ‏(Aguilera–Bagaria–Lücke ‏۲۰۲۴؛ بین I3 و I2؛ ‏V≠HOD؛ اعلان PNAS ‏۲۰۲۶) — ۲۵/۲۵ ادعا verify شده
+- [[07 - Knowledge/EXACTING-to-OCTOPUS-impact-v1|EXACTING-to-OCTOPUS-impact-v1]] — نگاشت صادقانهٔ تأثیر این ریاضیات روی اختاپوس (۱ تست کدشدنی + ۳ قاعدهٔ دکترینی؛ تزئین ممنوع)
+
 ## سیستم‌های سلولی (Cellular Systems)
 
 - [[07 - Knowledge/cellular-systems/spudcell-notes|spudcell-notes — منطقِ سلولِ زنده به‌عنوان الگو]]
