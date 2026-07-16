@@ -22,6 +22,14 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent
 DEFAULT_STORE = _HERE / "acq_queue.json"
 
+# safety nets (اختیاری — fail-soft اگه guards.py غایب باشد)
+try:
+    from guards import check_all_guards, WarmupGuard, ChannelLocks
+except ImportError:  # pragma: no cover — standalone use بدونِ guards
+    check_all_guards = None  # type: ignore
+    WarmupGuard = None       # type: ignore
+    ChannelLocks = None      # type: ignore
+
 CHANNELS = ("reddit", "x", "of", "fansly")
 # گاردِ کپیِ عمومی — best-effort denylist (نه جامع؛ انسان هر آیتم را هم بازبینی می‌کند).
 # پاریته با _ops/events.py _BANNED_ECHO (هویت/پلتفرم) + شهرِ ممنوع + قومیتِ متنی + claimِ ممنوع.
@@ -49,11 +57,18 @@ def _now() -> float:
 
 
 class AcquisitionPipeline:
-    """صفِ محتوایِ propose-only. هیچ افکتورِ بیرونی. انسان پست می‌کند."""
+    """صفِ محتوایِ propose-only. هیچ افکتورِ بیرونی. انسان پست می‌کند.
 
-    def __init__(self, store_path=None, brain=None):
+    Safety nets (2026-07-16 launch guard):
+      - ``warmup`` (WarmupGuard): جلوی finalizeِ آیتمِ فروشی تا رسیدنِ کارما به آستانه.
+      - ``locks`` (ChannelLocks): kill-switch per-channel و full_stop.
+    هر دو اختیاری‌اند (None = guard غیرفعال) ولی در production باید وصل باشند."""
+
+    def __init__(self, store_path=None, brain=None, warmup=None, locks=None):
         self._store = Path(store_path) if store_path else DEFAULT_STORE
         self._brain = brain                      # AcquisitionBrain (injectable؛ None → هوکِ امن)
+        self._warmup = warmup                     # WarmupGuard اختیاری
+        self._locks = locks                       # ChannelLocks اختیاری
         self._items = self._load()
 
     # ── persistence (fail-soft) ──────────────────────────────────────────────
@@ -180,6 +195,19 @@ class AcquisitionPipeline:
             it["reject_reason"] = "containment/rule#6 at finalize (fail-closed)"
             self._save()
             return {"ok": False, "error": "payload failed containment guard at finalize (fail-closed)"}
+        # safety-net (2026-07-16): warm-up guard + channel-lock check قبل از ready.
+        # اگه فروشی است و کارما کم، یا کانال locked، یا full_stop → deny (fail-closed).
+        # توجه: آیتم reject نمی‌شود — فقط finalize می‌ایستد تا شرایط جور شود (آری بعداً دوباره).
+        if self._warmup is not None or self._locks is not None:
+            ok, reason = check_all_guards(
+                it.get("channel", "reddit"),
+                hook=it.get("hook", ""), caption=it.get("caption", ""), tag=it.get("tag", ""),
+                warmup=self._warmup, locks=self._locks)
+            if not ok:
+                self._save()   # state بدون تغییرِ آیتم
+                return {"ok": False, "error": f"finalize blocked by safety net — {reason}",
+                        "item_status": it.get("status"),
+                        "note": "آیتم approved ماند؛ وقتی شرایط جور شد دوباره /pf_ready بزن."}
         live_labeled = os.environ.get("PF_LIVE_PUBLISH", "0") == "1"
         it["status"] = "ready"
         it["ready_at"] = _now()
@@ -195,7 +223,7 @@ class AcquisitionPipeline:
 
     # ── admin digest (content-free — برای UIِ ادمینِ اختاپوس) ─────────────────
     def admin_digest(self) -> dict:
-        return {
+        d = {
             "drafted": len(self.by_status("drafted")),
             "approved": len(self.by_status("approved")),
             "ready": len(self.by_status("ready")),
@@ -204,6 +232,14 @@ class AcquisitionPipeline:
             "next": "approve/reject در تلگرام؛ انتشارِ واقعی = دستیِ انسان پس از GATE 0",
             "outward_execution": False,
         }
+        # safety-net snapshot اگه guards وصل باشند
+        if self._warmup is not None:
+            d["warmup"] = {"karma": self._warmup.get_karma(),
+                           "threshold": self._warmup.threshold(),
+                           "met": self._warmup.threshold_met()}
+        if self._locks is not None:
+            d["locks"] = self._locks.snapshot()
+        return d
 
     # ── KPI feedback → brain (یادگیری) ────────────────────────────────────────
     def record_kpi(self, item_id: str, upvotes: int = 0, comments: int = 0,

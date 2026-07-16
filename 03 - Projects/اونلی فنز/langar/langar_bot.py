@@ -34,6 +34,17 @@ try:
 except Exception:
     DualBrainV3 = None  # noqa: N816
 
+# رجیستریِ قابلیت (اختیاری — fail-soft به help/dispatch استاتیک)
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+try:
+    from capability_registry import CapabilityRegistry  # type: ignore
+except Exception:
+    CapabilityRegistry = None  # noqa: N816
+
+# دستورهایی که هرگز گیت/‏revoke نمی‌شوند (fail-safe: کاکپیت هیچ‌وقت کور یا قفل نشود)
+UNGATED = ("/start", "/help", "/status", "/kill", "/revive")
+
 LOCKED_RULES = [
     "1) فقط پا — بدون صورت/بدن/explicit",
     "2) geo-block کامل ایران در همهٔ لایه‌ها",
@@ -72,23 +83,45 @@ def _read_text(path: Path, max_chars: int = 40000) -> str:
 
 
 class OpsecGuard:
-    """هر متن خروجی به تلگرام از این گیت رد می‌شود. fail-closed:
-    اگر config خراب باشد، سخت‌گیرترین حالت اعمال می‌شود."""
+    """Egress gate for every outbound Telegram message. FAIL-CLOSED (deny-by-default):
+    an empty/unloadable blocklist, an unloaded policy, or ANY scrub error BLOCKS the
+    send. A send proceeds only when an explicit, non-empty scrub policy is present.
+    Real identifiers are NEVER hardcoded here — the operator supplies them via
+    langar_config.json (blocklist + name_map)."""
 
     DEFAULT = {
-        "blocklist": [],                      # نام‌های واقعی — توسط آری پر شود
+        "blocklist": [],                      # real identifiers — operator fills langar_config.json
         "city_terms": ["Sydney", "سیدنی", "sydney"],
-        "name_map": {"صبا": "C", "آری": "A"},
+        "name_map": {},                       # real first-names live in config only, never in source
         "project_code": "Project-F",
     }
 
     def __init__(self, config: dict | None = None):
         cfg = dict(self.DEFAULT)
-        try:
-            cfg.update(config or _load_json(CONFIG_FILE, {}))
-        except Exception:
-            pass
+        loaded_ok = False
+        if config is not None:
+            try:
+                cfg.update(config)
+                loaded_ok = True
+            except Exception:
+                loaded_ok = False
+        else:
+            loaded = _load_json(CONFIG_FILE, None)
+            if isinstance(loaded, dict):
+                cfg.update(loaded)
+                loaded_ok = True
         self.cfg = cfg
+        self.policy_loaded = loaded_ok       # False = config missing/corrupt → fail-closed
+
+    def policy_ok(self) -> bool:
+        """True only when an explicit, non-empty blocklist policy is loaded.
+        Empty/unloadable policy ⇒ False ⇒ egress denied."""
+        if not self.policy_loaded:
+            return False
+        bl = self.cfg.get("blocklist") or []
+        if not isinstance(bl, (list, tuple)):
+            return False
+        return any(isinstance(t, str) and t.strip().strip("_") for t in bl)
 
     def clean(self, text: str) -> str:
         out = text or ""
@@ -102,6 +135,16 @@ class OpsecGuard:
         out = re.sub(r"[A-Z]:\\\\?[^\s]*", "⟦path⟧", out)      # مسیر ویندوزی
         out = re.sub(r"/sessions/[^\s]*", "⟦path⟧", out)        # مسیر sandbox
         return out
+
+    def scrub(self, text: str) -> tuple[bool, str]:
+        """FAIL-CLOSED egress decision. Returns (allowed, cleaned_text).
+        (False, "") when no explicit non-empty policy is loaded or on ANY scrub error."""
+        try:
+            if not self.policy_ok():
+                return False, ""
+            return True, self.clean(text)
+        except Exception:
+            return False, ""
 
 
 class CostMeter:
@@ -222,7 +265,8 @@ class UpgradeEngine:
         cfg = _load_json(CONFIG_FILE, {})
         if not cfg.get("blocklist"):
             out.append("پرکردن blocklist واقعی OpsecGuard در langar_config.json "
-                       "(الان خالی است — redact نام‌ها فقط روی name_map پیش‌فرض) — اثر: بالا، هزینه: ۵ دقیقه.")
+                       "(الان خالی است → scrubber fail-closed: هر send بلاک می‌شود تا سیاست پر شود) "
+                       "— اثر: بالا (کانال خروجی بسته)، هزینه: ۵ دقیقه.")
         if not s["llm_key"]:
             out.append("فعال‌کردن لایهٔ LLM (Haiku) زیر CostMeter برای /brief و /think "
                        "— نیازمند ANTHROPIC_API_KEY و verdict V3؛ تا آن‌موقع heuristics کافی است.")
@@ -266,11 +310,85 @@ class LangarBot:
         self._offset = 0
         self._stop = False
         self._last_weekly: str | None = None
+        self.registry = CapabilityRegistry() if CapabilityRegistry else None
+
+    # ── capability advertisement (dynamic — هر فراخوانی تازه محاسبه می‌شود) ──
+    def _advertise(self):
+        """هر دستور = یک capability با وضعیت صادقانه. برگشتی: registry یا None."""
+        if not self.registry:
+            return None
+        caps = [
+            ("/status", "وضعیت زندهٔ پروژه/خودم", "live", "", 10),
+            ("/gates", "GATEها + وضعیت قفل", "live", "", 20),
+            ("/verdicts", "صف verdictهای منتظر", "live", "", 30),
+            ("/saba", "پل read-only استودیوی صبا", "live", "", 40),
+            ("/brief", "بریف (brain یا heuristic برچسب‌دار)", "live", "", 50),
+            ("/think", "تحلیل موضوع (heuristic/LLM زیر سقف)", "live", "", 60),
+            ("/upgrade", "پیشنهاد ارتقا (propose-only)", "live", "", 70),
+            ("/rules", "قواعد قفل‌شده", "live", "", 80),
+            ("/pf", "اکتساب /pf_* (propose-only)", "live", "", 90),
+            ("/dm", "DM HITL /dm_* (AI draft، آری approve، ارسال دستی)", "live", "", 92),
+            ("/guards", "snapshot safety nets (warm-up + channel locks)", "live", "", 93),
+            ("/report_warning", "ثبتِ warning پلتفرمی → lock کانال", "live", "", 94),
+            ("/report_karma", "ثبتِ کارمای Reddit → warm-up guard", "live", "", 95),
+            ("/spine", "وضعیت ستون‌فقرات اجرا (bus/telemetry/actuator، read-only)", "live", "", 96),
+            ("/kpi", "داشبورد KPI", "disabled",
+             "pre-launch — صفر دادهٔ واقعی؛ عدد ساختگی رندر نمی‌شود", 100),
+            ("/report", "گزارش خودکار جمعه", "disabled",
+             "نیازمند دادهٔ post-launch؛ تا آن‌موقع SOP دستی در DecisionLog", 110),
+            ("/kill", "توقف اضطراری", "live", "", 200),
+            ("/revive", "بازگشت از KILL", "live", "", 210),
+        ]
+        for cid, label, st, rs, o in caps:
+            self.registry.advertise(cid, "langar", label, kind="command",
+                                    status=st, reason=rs, order=o)
+        return self.registry
+
+    def _help_text(self) -> str:
+        """help از رجیستری: live عادی، disabled با 🔒+دلیل، revoked غایب."""
+        reg = self._advertise()
+        if not reg:
+            return ("⚓ لنگر — کاکپیت Project-F (propose-only)\n"
+                    "/status /gates /verdicts /saba /brief /think <موضوع>\n"
+                    "/upgrade /rules /kill /revive\n"
+                    "اکتساب: /pf_status /pf_plan [n] /pf_queue /pf_ok <id> /pf_no <id> /pf_ready <id>\n"
+                    "DM HITL: /dm_status /dm_queue /dm_ok <id> /dm_no <id> /dm_sent <id>\n"
+                    "safety: /guards /report_warning <ch> /clear_warning <ch> /report_karma <n>\n"
+                    "🔒 خاموش: /kpi (pre-launch، صفر داده) · /report (تا post-launch دستی/SOP)")
+        rows = reg.surface("langar")
+        live = [r["id"] for r in rows if r["status"] == "live" and r["id"] != "/pf"]
+        locked = [f"🔒 {r['id']} — {r['reason']}" for r in rows if r["status"] == "disabled"]
+        out = ["⚓ لنگر — کاکپیت Project-F (propose-only)", " ".join(live)]
+        if any(r["id"] == "/pf" and r["status"] == "live" for r in rows):
+            out.append("اکتساب: /pf_status /pf_plan [n] /pf_queue /pf_ok <id> /pf_no <id> /pf_ready <id>")
+        out += locked
+        return "\n".join(out)
+
+    def _cap_gate(self, cmd: str) -> str | None:
+        """None=مجاز؛ متن=پیام بلاکِ صادقانه. UNGATED هرگز گیت نمی‌شود (fail-safe)."""
+        if cmd in UNGATED:
+            return None
+        reg = self._advertise()
+        if not reg:
+            return None
+        # /pf_*, /dm_* و زیردستورها به capability والد (<code> نگاشت می‌شوند)
+        if cmd.startswith("/pf_"):
+            cap_id = "/pf"
+        elif cmd.startswith("/dm_"):
+            cap_id = "/dm"
+        else:
+            cap_id = cmd
+        eff = reg.effective(cap_id)
+        if eff["status"] == "live" or cap_id not in [r["id"] for r in reg.surface("langar")]:
+            return None   # ناشناخته‌ها به مسیر «دستور ناشناخته» می‌روند، نه بلاکِ گمراه‌کننده
+        if eff["status"] == "revoked":
+            return f"⛔ {cmd} برداشته شده — {eff.get('reason') or 'توسط اپراتور'}"
+        return f"🔒 {cmd} خاموش است — {eff.get('reason') or 'به قابلیت واقعی وصل نیست'}"
 
     # ── HTTP ──
     @staticmethod
     def _default_get(url: str, timeout: int = 35):
-        req = urllib.request.Request(url, headers={"User-Agent": "langar/0.1"})
+        req = urllib.request.Request(url, headers={"User-Agent": "octopus-langar"})
         with urllib.request.urlopen(req, timeout=timeout + 5) as r:
             return json.loads(r.read().decode())
 
@@ -278,7 +396,7 @@ class LangarBot:
     def _default_post(url: str, body: dict, timeout: int = 10):
         data = json.dumps(body, ensure_ascii=False).encode()
         req = urllib.request.Request(url, data=data, headers={
-            "User-Agent": "langar/0.1", "Content-Type": "application/json"})
+            "User-Agent": "octopus-langar", "Content-Type": "application/json"})
         with urllib.request.urlopen(req, timeout=timeout) as r:
             return json.loads(r.read().decode())
 
@@ -295,8 +413,17 @@ class LangarBot:
         return bool(self.ari) and chat_id == self.ari
 
     def send(self, text: str) -> None:
-        """تنها کانال خروجی. متن → OpsecGuard → تلگرام. هیچ متد رسانه‌ای وجود ندارد."""
-        safe = self.guard.clean(text)[:4000]
+        """تنها کانال خروجی. متن → OpsecGuard.scrub (FAIL-CLOSED) → تلگرام.
+        سیاست scrub غایب/خالی/خراب = بلاک کامل (deny-by-default). صفر متد رسانه‌ای."""
+        allowed, safe = self.guard.scrub(text)
+        if not allowed:
+            # fail-closed: no active scrub policy → block egress, log via alert path.
+            self._log("send_blocked", {"reason": "opsec_fail_closed", "chars": len(text or "")})
+            if not (self.token and self.ari):
+                print("⛔ [opsec fail-closed] پیام بلاک شد — سیاست scrub فعال نیست "
+                      "(blocklist خالی/بارنشده). langar_config.json را پر کن تا کانال باز شود.")
+            return
+        safe = safe[:4000]
         if not (self.token and self.ari):
             print(safe)  # shadow-mode بدون توکن
             return
@@ -317,10 +444,11 @@ class LangarBot:
         if KILL_FILE.exists() and cmd not in ("/revive", "/status"):
             return "⚓ لنگر در حالت KILL است. فقط /status و /revive."
         if cmd in ("/start", "/help"):
-            return ("⚓ لنگر — کاکپیت Project-F (propose-only)\n"
-                    "/status /gates /verdicts /saba /brief /think <موضوع>\n"
-                    "/kpi /report /upgrade /rules /kill /revive\n"
-                    "اکتساب: /pf_status /pf_plan [n] /pf_queue /pf_ok <id> /pf_no <id> /pf_ready <id>")
+            # UI-truth: help از رجیستری — فقط دستورهای واقعی؛ disabled با 🔒 + دلیل.
+            return self._help_text()
+        blocked = self._cap_gate(cmd)
+        if blocked:
+            return blocked
         if cmd.startswith("/pf_"):
             # خطِ لولهٔ اکتساب (propose-only، هیچ اکشنِ بیرونی) — آداپتورِ ایزوله
             try:
@@ -329,6 +457,14 @@ class LangarBot:
                 sys.path.insert(0, str(Path(__file__).resolve().parent))
                 import pf_admin
             return pf_admin.handle_pf(cmd, arg)
+        if cmd.startswith("/dm_"):
+            # صفِ DMِ HITL (safety net #1: AI draft، آری approve، ارسال دستی)
+            try:
+                import dm_admin
+            except ImportError:
+                sys.path.insert(0, str(Path(__file__).resolve().parent))
+                import dm_admin
+            return dm_admin.handle_dm(cmd, arg)
         if cmd == "/rules":
             return "قواعد قفل‌شده:\n" + "\n".join(LOCKED_RULES)
         if cmd == "/gates":
@@ -370,20 +506,101 @@ class LangarBot:
         if cmd == "/think":
             return self._think(arg or "وضعیت کلی")
         if cmd == "/kpi":
+            # disabled-with-reason: no data exists pre-launch; never render fabricated numbers.
             p = self.model.root / "drafts-awaiting-gate" / "kpi-dashboard-spec.md"
-            return ("داشبورد هنوز داده ندارد (pre-launch). اسپک آماده است: kpi-dashboard-spec"
-                    if p.exists() else "اسپک داشبورد پیدا نشد.")
+            spec_note = "اسپک: kpi-dashboard-spec.md" if p.exists() else "اسپک پیدا نشد."
+            return ("🔒 /kpi — داشبورد KPI نیازمند دادهٔ post-launch و عبور از GATE 0 است.\n"
+                    f"وضعیت فعلی: pre-launch، صفر داده. {spec_note}\n"
+                    "تا راه‌اندازی، /status و /verdicts را ببین.")
         if cmd == "/report":
-            return ("قالب گزارش جمعه (برای C):\n"
-                    "«این هفته: ⟨n⟩ نفر دیدن، ⟨n⟩ کلیک، ⟨$x⟩ اومد (حتی اگر صفر).\n"
-                    "هفتهٔ بعد: ⟨تم⟩. سؤالی داری؟»\n"
-                    "+ ردیف داشبورد را پر کن (SOP جمعه).")
+            # disabled-with-reason: automated reporting needs real data; manual SOP until then.
+            return ("🔒 /report — گزارش‌گیری خودکار نیازمند دادهٔ واقعی (post-launch) است.\n"
+                    "تا آن‌موقع SOP جمعه را دستی در DecisionLog ثبت کن.\n"
+                    "قالب دستی: این هفته: ⟨n⟩ دیدن، ⟨n⟩ کلیک، ⟨$x⟩؛ هفتهٔ بعد: ⟨تم⟩.")
+        if cmd == "/spine":
+            return self._spine_card()
         if cmd == "/upgrade":
             path, items = self.upgrader.propose()
             self._log("upgrade", {"file": path.name, "n": len(items)})
             return ("پیشنهادهای ارتقا (اعمال = دست تو):\n" +
                     "\n".join(f"{i+1}. {t}" for i, t in enumerate(items)) +
                     f"\n📄 ثبت شد: langar/upgrade_proposals/{path.name}")
+        # ── safety-net commands (2026-07-16 launch guard) ──
+        if cmd == "/report_warning":
+            # /report_warning <channel> [reason...] — ثبتِ warning پلتفرمی → lock کانال
+            parts = arg.split(maxsplit=1)
+            if not parts:
+                return "❌ /report_warning <channel> [reason]"
+            try:
+                sys.path.insert(0, str(PROJECT_ROOT / "brain"))
+                from guards import ChannelLocks
+                locks = ChannelLocks()
+                ch = parts[0]
+                reason = parts[1] if len(parts) > 1 else "platform warning"
+                r = locks.report_warning(ch, reason)
+                self._log("platform_warning", r)
+                head = (f"⛔ FULL STOP فعال — {r.get('warning_count')} warning روی {ch}. "
+                        f"verdict لازم: /clear_full_stop" if r.get("full_stop")
+                        else f"🔒 {ch} lock شد ({r.get('warning_count')} warning). "
+                             f"/clear_warning {ch} برای بازگشت.")
+                return head
+            except Exception as e:  # noqa: BLE001
+                return f"❌ guards error: {type(e).__name__}"
+        if cmd == "/clear_warning":
+            if not arg:
+                return "❌ /clear_warning <channel>"
+            try:
+                sys.path.insert(0, str(PROJECT_ROOT / "brain"))
+                from guards import ChannelLocks
+                r = ChannelLocks().clear_warning(arg.strip())
+                return f"✅ {arg} باز شد" if r.get("ok") else f"❌ {r.get('error')}"
+            except Exception as e:  # noqa: BLE001
+                return f"❌ guards error: {type(e).__name__}"
+        if cmd == "/clear_full_stop":
+            try:
+                sys.path.insert(0, str(PROJECT_ROOT / "brain"))
+                from guards import ChannelLocks
+                ChannelLocks().clear_full_stop()
+                self._log("clear_full_stop", {"by": "operator"})
+                return "✅ full_stop پاک شد. همهٔ کانال‌ها باز. قیف از سر گرفته شد."
+            except Exception as e:  # noqa: BLE001
+                return f"❌ guards error: {type(e).__name__}"
+        if cmd in ("/report_karma", "/set_karma"):
+            # /report_karma <n> — ثبتِ کارمای دستی Reddit (هر جمعه از داشبورد)
+            if not arg.strip().isdigit():
+                return "❌ /report_karma <number> — عدد کارما از داشبارد Reddit"
+            try:
+                sys.path.insert(0, str(PROJECT_ROOT / "brain"))
+                from guards import WarmupGuard
+                wg = WarmupGuard()
+                r = wg.set_karma(int(arg.strip()), note="manual via langar")
+                self._log("karma_update", r)
+                flag = "✅ آستانه محقق — فروش باز شد" if r.get("threshold_met") \
+                    else f"🔒 هنوز {wg.threshold() - r.get('karma', 0)} کارما لازم"
+                return f" karma ثبت شد: {r['karma']}/{wg.threshold()} · {flag}"
+            except Exception as e:  # noqa: BLE001
+                return f"❌ guards error: {type(e).__name__}"
+        if cmd == "/guards":
+            # /guards — snapshot کاملِ safety nets (read-only)
+            try:
+                sys.path.insert(0, str(PROJECT_ROOT / "brain"))
+                from guards import WarmupGuard, ChannelLocks
+                wg = WarmupGuard()
+                cl = ChannelLocks()
+                w = {"karma": wg.get_karma(), "threshold": wg.threshold(),
+                     "met": wg.threshold_met()}
+                lk = cl.snapshot()
+                line = f"🛡 safety nets:\n"
+                flag = "✅" if w["met"] else "🔒"
+                line += f"{flag} warm-up: {w['karma']}/{w['threshold']}\n"
+                if lk.get("full_stop"):
+                    line += f"⛔ FULL STOP: {lk.get('full_stop_reason','')}\n"
+                for ch, c in lk.get("channels", {}).items():
+                    s = "🔒" if c.get("locked") else "✅"
+                    line += f"{s} {ch}: {c.get('warnings',0)} warning\n"
+                return line or "🛡 safety nets: همه سبز"
+            except Exception as e:  # noqa: BLE001
+                return f"❌ guards error: {type(e).__name__}"
         if cmd == "/kill":
             KILL_FILE.write_text(_now(), encoding="utf-8")
             self._log("kill", {})
@@ -393,6 +610,36 @@ class LangarBot:
             self._log("revive", {})
             return "لنگر برگشت. /status بزن."
         return "دستور ناشناخته. /help"
+
+    # ── ستون‌فقرات اجرا (read-only truth card) ──
+    def _spine_card(self) -> str:
+        """وضعیت صادقانهٔ bus/telemetry/actuator/registry — فقط خواندن، صفر اکشن."""
+        try:
+            from event_bus import EventBus
+            from telemetry import Telemetry
+            from actuator import Actuator
+        except Exception:
+            return ("🦴 ستون‌فقرات نصب نیست (event_bus/telemetry/actuator import نشد) — "
+                    "این یعنی هنوز فقط file-handoff قدیمی داریم.")
+        bus_snap = EventBus().snapshot()
+        tel_sum = Telemetry().summary()
+        act_snap = Actuator().snapshot()
+        reg = self._advertise()
+        reg_line = ""
+        if reg:
+            s = reg.snapshot()
+            reg_line = (f"رجیستری: {s['advertised']} قابلیت — live {s['live']} · "
+                        f"🔒 {s['disabled']} · ⛔ {s['revoked']}\n")
+        topics = bus_snap.get("topics", {})
+        topics_line = (" · ".join(f"{t}:{n}" for t, n in sorted(topics.items()))
+                       if topics else "خالی (هنوز رویدادی publish نشده)")
+        return ("🦴 ستون‌فقرات اجرا (read-only)\n"
+                + reg_line +
+                f"bus: {topics_line}\n"
+                f"telemetry: {tel_sum.get('jobs', 0)} job"
+                + (f" · error-rate {tel_sum['error_rate']}" if tel_sum.get("jobs") else "") + "\n"
+                f"actuator: mode={act_snap['mode']} · adapters={act_snap['adapters_count']} · "
+                f"live={'ممکن' if act_snap['live_possible'] else 'غیرممکن (صفر adapter — fail-closed)'}")
 
     # ── مغز ──
     def _brief(self) -> str:

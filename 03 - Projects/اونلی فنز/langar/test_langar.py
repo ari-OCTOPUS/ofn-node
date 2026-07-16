@@ -96,10 +96,12 @@ class T(unittest.TestCase):
             self.assertNotIn("video", name.lower())
             self.assertNotIn("document", name.lower())
 
-    # ۸) خروجی send از گارد رد می‌شود (shadow-mode → print)
+    # ۸) خروجی send از گارد رد می‌شود (سیاست معتبر → عبور + redact)
     def test_send_passes_guard(self):
         captured = []
-        self.bot.guard = L.OpsecGuard({"name_map": {"صبا": "C"}, "city_terms": [], "blocklist": []})
+        # سیاست معتبر (blocklist ناخالی) لازم است وگرنه fail-closed بلاک می‌کند
+        self.bot.guard = L.OpsecGuard({"name_map": {"صبا": "C"}, "city_terms": [],
+                                       "blocklist": ["RealName"]})
         self.bot.token, self.bot.ari = "T", 111
         self.bot._http_post = lambda url, body, timeout=10: captured.append(body) or {}
         self.bot.send("گزارش صبا آماده است")

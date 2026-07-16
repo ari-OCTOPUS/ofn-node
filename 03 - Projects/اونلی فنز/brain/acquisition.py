@@ -162,18 +162,51 @@ class AcquisitionMemory:
 
 class AcquisitionBrain:
     """مغزِ یافتنِ مشتری. تحلیل + یادگیری + پیشنهاد.
-    خطِ قرمز: پیشنهاد فقط. هیچ targeting/DM/follow خودکار."""
+    خطِ قرمز: پیشنهاد فقط. هیچ targeting/DM/follow خودکار.
 
-    def __init__(self, memory: AcquisitionMemory | None = None):
+    PROP-D2 (2026-07-16): لایهٔ یادگیریِ exploration-aware (LearningBridge /
+    ThompsonBandit) تزریق‌پذیر است. در صورت حضور، رتبه‌بندیِ tag از بندیت می‌آید
+    (ضدِّ lock-inِ greedy)؛ در غیرِ این صورت fallback به heuristicِ میانگینِ خام.
+    منبعِ حقیقت همیشه AcquisitionMemory است — بندیت ephemeral است، کانِن نمی‌سازد."""
+
+    def __init__(self, memory: AcquisitionMemory | None = None,
+                 learner=None):
         self.memory = memory or AcquisitionMemory()
+        self._learner = learner    # LearningBridge اختیاری (PROP-D2)؛ None = heuristic
+
+    @classmethod
+    def with_bandit(cls, memory: AcquisitionMemory | None = None,
+                    halflife_days=None, seed: int | None = None):
+        """سازندهٔ پیشنهادی: AcquisitionBrain با LearningBridge وصل (PROP-D2).
+        اگر learning.py غایب/خراب باشد، fail-soft به بدون-bandit."""
+        try:
+            from learning import LearningBridge, DEFAULT_HALFLIFE_DAYS
+            mem = memory or AcquisitionMemory()
+            hl = halflife_days if halflife_days is not None else DEFAULT_HALFLIFE_DAYS
+            bridge = LearningBridge(mem, halflife_days=hl, seed=seed)
+            return cls(memory=mem, learner=bridge)
+        except Exception:  # noqa: BLE001 — fail-soft: بدون بندیت هم کار می‌کند
+            return cls(memory=memory)
 
     def analyze(self) -> list[ContentInsight]:
         """تحلیلِ کامل: داده‌ی خودی + رقبا + فصلی → اولویت‌بندی.
-        خروجی: لیستِ ContentInsight مرتب بر اساس predicted_score."""
+        خروجی: لیستِ ContentInsight مرتب بر اساس predicted_score.
+        اگه learner وصل باشه، رتبه‌بندی از ThompsonBandit می‌آید (exploration-aware)."""
         insights: list[ContentInsight] = []
         own_perf = self.memory.tag_performance()
         comp_hot = self.memory.competitor_hot_tags()
         confidence = self.memory.learning_confidence()
+
+        # PROP-D2: اگلر learner وصل است و دادهٔ کافی داریم، رتبه‌بندیِ exploration-aware
+        # اعمال کن — نه جایگزینِ heuristic، بلکه بازترتیب بر اساس Thompson sample.
+        ranked_overrides: dict[str, float] = {}
+        if self._learner is not None and own_perf:
+            try:
+                tags = list(own_perf.keys())
+                rec = self._learner.recommend(tags)
+                ranked_overrides = {tag: score for tag, score in rec.get("ranked", [])}
+            except Exception:  # noqa: BLE001 — learner خطا داد → heuristic باقی بماند
+                ranked_overrides = {}
 
         # ۱. tagهایی که خودمان خوب عمل کرده‌ایم
         for tag, score in own_perf.items():
@@ -204,6 +237,16 @@ class AcquisitionBrain:
                 predicted_score=min(1.0, combined + 0.1),   # bonus
                 confidence=max(confidence, 0.7),
                 platform="reddit"))
+
+        # PROP-D2: اگه Thompson sample برای tag داریم، predicted_score را override کن —
+        # این یعنی ترتیب نهایی از بندیت می‌آید، نه از میانگین خام. heuristic همچنان
+        # به‌عنوان baseline/fallback نگه‌ داشته می‌شود (اگه learner نمونه ندهد).
+        if ranked_overrides:
+            for ins in insights:
+                if ins.tag in ranked_overrides:
+                    ins.predicted_score = float(ranked_overrides[ins.tag])
+                    if not ins.reason.startswith("[bandit]"):
+                        ins.reason = f"[bandit] {ins.reason}"
 
         # sort by predicted_score desc
         insights.sort(key=lambda i: i.predicted_score, reverse=True)
@@ -261,6 +304,17 @@ class AcquisitionBrain:
                       upvotes: int, comments: int, unlocks: int = 0,
                       day: str = "", time_slot: str = "") -> None:
         """ثبتِ نتیجه‌ی واقعی → سیستم یاد می‌گیرد.
-        این متد را بعد از هر پست صدا بزن تا مغز به‌روزرسانی شود."""
+        این متد را بعد از هر پست صدا بزن تا مغز به‌روزرسانی شود.
+        PROP-D2: هم memory پر می‌شود (منبعِ حقیقت) هم learner.observe (اگه وصل باشد)."""
         self.memory.record_post_result(tag, platform, upvotes, comments,
                                         unlocks, day, time_slot)
+        # PROP-D2: learner را هم به‌روز کن تا Thompson posterior تازه شود.
+        # توجه: LearningBridge از memory بازسازی نمی‌کند؛ observe مستقیم لازم است.
+        if self._learner is not None:
+            try:
+                # LearningBridge پشتِ پرده ThompsonBandit دارد؛ متد observe آن را صدا بزن.
+                from learning import normalize_reward
+                reward = normalize_reward(upvotes, comments, unlocks)
+                self._learner.bandit.observe(tag, reward, approved=True)
+            except Exception:  # noqa: BLE001 — learner خطا داد → فقط memory معتبر است
+                pass

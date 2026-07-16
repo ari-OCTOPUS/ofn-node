@@ -58,14 +58,25 @@ MAIN_MENU = {"inline_keyboard": [
      {"text": "📋 درفت‌های من", "callback_data": "s:drafts"}],
     [{"text": "🌟 امروز چیکار کنم؟", "callback_data": "s:today"},
      {"text": "🗓 تقویم هفته", "callback_data": "s:cal"}],
-    [{"text": "🔎 ترند و ایده", "callback_data": "s:trend"},
-     {"text": "💡 پلن قیمت (PPV)", "callback_data": "s:ppv"}],
-    [{"text": "📈 نتیجه‌ها", "callback_data": "s:stats"},
-     {"text": "🫶 ظرفیت من این هفته", "callback_data": "s:cap"}],
-    [{"text": "📬 پیام‌های آری", "callback_data": "s:inbox"},
-     {"text": "✋ محدودهٔ من", "callback_data": "s:scope"}],
-    [{"text": "🔒 قول‌های ما", "callback_data": "s:rules"},
-     {"text": "🧠 بریف هفته", "callback_data": "s:brief"}],
+    [{"text": "🫶 ظرفیت من این هفته", "callback_data": "s:cap"},
+     {"text": "📬 پیام‌های آری", "callback_data": "s:inbox"}],
+    [{"text": "✋ محدودهٔ من", "callback_data": "s:scope"},
+     {"text": "🔒 قول‌های ما", "callback_data": "s:rules"}],
+    [{"text": "🧠 بریف هفته (heuristic)", "callback_data": "s:brief"}],
+]}
+
+# دکمه‌های غیرواقعی (read-only / not-wired) — فقط وقتی brain/LLM وصل شد نمایش داده شوند.
+# s:trend (🔎 ترند) → نیازمند live trend feed (brain wired) — فعلاً حذف
+# s:ppv (💡 پلن قیمت) → نیازمند live pricing engine wired — فعلاً حذف
+# s:stats (📈 نتیجه‌ها) → نیازمند دادهٔ واقعی post-launch — فعلاً حذف
+# s:brief → brain offline = heuristic-only label
+
+# Coming-soon menu (فقط اگر capabilities flag فعال باشد)
+ADVANCED_MENU = {"inline_keyboard": [
+    [{"text": "🔎 ترند و ایده (🔒 brain)", "callback_data": "s:trend"},
+     {"text": "💡 پلن قیمت (🔒 engine)", "callback_data": "s:ppv"}],
+    [{"text": "📈 نتیجه‌ها (🔒 pre-launch)", "callback_data": "s:stats"},
+     {"text": "↩️ منوی اصلی", "callback_data": "s:menu"}],
 ]}
 BACK_KB = {"inline_keyboard": [[{"text": "↩️ منوی اصلی", "callback_data": "s:menu"}]]}
 
@@ -278,14 +289,18 @@ class SabaStudio:
                 "<i>هر چیزی خلافِ این‌ها = drop.</i>")
 
     def brief_page(self) -> str:
+        brain_status = "online ✅" if self.brain else "offline 🔒"
         if self.brain:
             try:
                 out = self.brain.think_and_communicate(draft_title="weekly")
                 msgs = out.get("messages", []) if isinstance(out, dict) else []
                 body = "\n".join(getattr(m, "text", str(m))[:280] for m in msgs[:3])
-                if body: return "🧠 <b>بریف هفته</b>\n━━━━━━━━━━\n" + _e(body)
-            except Exception: pass
-        return ("🧠 <b>بریف هفته</b>\n━━━━━━━━━━\n"
+                if body: return f"🧠 <b>بریف هفته</b> (brain {brain_status})\n━━━━━━━━━━\n" + _e(body)
+            except Exception as e:
+                return (f"🧠 <b>بریف هفته</b> (brain {brain_status})\n━━━━━━━━━━\n"
+                        f"مغز خطا داد: {e}\n"
+                        f"پیش‌فرض: تمِ تقویم این هفته + ۱ ست تازه.")
+        return (f"🧠 <b>بریف هفته</b> (brain {brain_status})\n━━━━━━━━━━\n"
                 "تمرکز: تمِ تقویمِ این هفته + ۱ ست تازه با بافر.\n"
                 "پیشنهادِ کپشن/قیمت رو آری از مغز می‌گیره و برات می‌فرسته.\n"
                 "<i>بریفِ کاملِ AI بعد از وصل‌شدن مغز فعال می‌شه.</i>")

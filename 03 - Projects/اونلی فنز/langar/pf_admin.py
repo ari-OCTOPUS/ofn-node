@@ -25,10 +25,24 @@ def _default_pipe():
     brain = None
     try:
         from acquisition import AcquisitionBrain
-        brain = AcquisitionBrain()
+        # PROP-D2: ترجیحاً با ThompsonBandit (exploration-aware)؛ fail-soft به heuristic.
+        if hasattr(AcquisitionBrain, "with_bandit"):
+            brain = AcquisitionBrain.with_bandit()
+        else:
+            brain = AcquisitionBrain()
     except Exception:  # noqa: BLE001 — brain اختیاری؛ fallback به هوکِ امن
         brain = None
-    return AcquisitionPipeline(brain=brain)
+    # safety nets (2026-07-16): warm-up guard + channel locks — live در production.
+    warmup = None
+    locks = None
+    try:
+        from guards import WarmupGuard, ChannelLocks
+        warmup = WarmupGuard()
+        locks = ChannelLocks()
+    except Exception:  # noqa: BLE001 — guards اختیاری؛ بدونشان finalize باز می‌ماند
+        warmup = None
+        locks = None
+    return AcquisitionPipeline(brain=brain, warmup=warmup, locks=locks)
 
 
 def handle_pf(cmd: str, arg: str = "", pipe=None) -> str:
@@ -39,10 +53,27 @@ def handle_pf(cmd: str, arg: str = "", pipe=None) -> str:
         p = pipe if pipe is not None else _default_pipe()
         if cmd == "/pf_status":
             d = p.admin_digest()
-            return (f"🎛 Project-F · acquisition\n"
+            line = (f"🎛 Project-F · acquisition\n"
                     f"drafted {d['drafted']} · approved {d['approved']} · "
                     f"ready {d['ready']} · rejected {d['rejected']} · flagged {d['flagged']}\n"
                     f"outward: خاموش (GATE 0) · {d['next']}")
+            # safety-net status (اگه guards وصل باشند)
+            if "warmup" in d:
+                w = d["warmup"]
+                flag = "✅" if w["met"] else "🔒"
+                line += (f"\n{flag} warm-up: karma {w['karma']}/{w['threshold']}"
+                         + (" — آستانه محقق" if w["met"] else " — فروش مسدود، SFW پست کن"))
+            if "locks" in d:
+                lk = d["locks"]
+                if lk.get("full_stop"):
+                    line += f"\n⛔ FULL STOP — {lk.get('full_stop_reason', 'verdict لازم')}"
+                else:
+                    locked = [ch for ch, c in lk.get("channels", {}).items() if c.get("locked")]
+                    if locked:
+                        line += f"\n🔒 کانال‌های قفل‌شده: {', '.join(locked)} (/clear_warning <ch>)"
+                    else:
+                        line += "\n✅ locks: هیچ کانال قفل نیست"
+            return line
         if cmd == "/pf_plan":
             n = int(arg) if arg.isdigit() else 3
             items = p.auto_plan(n)
