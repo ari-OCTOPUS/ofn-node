@@ -41,3 +41,24 @@ _ops/OCTOPUS-flags.cmd
 
 # PII: langar opsec policy holds real names/phone/address — never commit
 03 - Projects/اونلی فنز/langar/langar_config.json
+
+# PII: دفترِ شخصی/مشترک حاوی دادهٔ مالیِ واقعی — هرگز commit نشود
+03 - Projects/Accounting/personal/ledger.json
+
+# PII: منبعِ خامِ مالی (PocketSmith export) — هرگز commit نشود
+03 - Projects/Accounting/personal/source/
+
+# PII: انبارِ تجمیعیِ تراکنش (txn_store) حاوی دادهٔ مالیِ واقعی — هرگز commit نشود
+03 - Projects/Accounting/personal/txn-store.json
+
+# PII: اکسترکت‌های خامِ دفتر (CSVِ مالیِ واقعی) — هرگز commit نشود
+03 - Projects/Accounting/drafts/ledger-extract/
+
+# PII: configِ دسته‌بندِ AI حاوی نامِ واقعیِ همکار (blocklistِ scrub) — هرگز commit نشود
+03 - Projects/Accounting/personal/categorize-config.json
+
+# PII: صف/نگاشتِ بازبینی + دسته‌های ریز + گزارش‌ها حاوی مبلغ و نامِ مشتریِ واقعی — هرگز commit نشود
+03 - Projects/Accounting/personal/review-queue.json
+03 - Projects/Accounting/personal/review-idmap.json
+03 - Projects/Accounting/personal/fine-categories.json
+03 - Projects/Accounting/personal/REPORT-*.md
