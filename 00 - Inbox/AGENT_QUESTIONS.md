@@ -267,3 +267,15 @@ Ari شش سندِ طراحیِ Octopus/Chrono (تلگرام) داد: «همه ر
 - **[4D-C-ARCHIVE]** کپیِ دسکتاپ `C:\Users\Armin\Desktop\4d_system` (۲۴هزار فایل با venvها) دیگر مرجع نیست و ماندنش ریسکِ sync معکوس/دوپارگی دارد. طبق قانونِ «هرگز حذف نکن»: منتقل شود به `_Archive`؟ (پیشنهاد: bundle/فشرده در `_Archive/Projects/2026 - 4d_system-desktop-copy`؛ توجه: خارج از vault است، انتقال = کارِ مالک یا رأی صریح.)
 - **[B6-BUS]** گامِ ۲ (B6Adapter پشتِ flag خاموش) روی کدام باس بنشیند؟ **الف)** باسِ داشبوردِ `brain/events.py` — کم‌اصطکاک، همین حالا زنده، shadow از امروز ممکن؛ **ب)** ledgerِ زنجیرهٔ هشِ `nbb_cp` — طبق منشورِ B6 خانهٔ دکترینی، ولی نصب‌نشده. (توصیهٔ ایجنت: shadow روی الف؛ مهاجرت به ب بعد از نصبِ nbb_cp با رأی جدا.)
 - **[NBB-INSTALL]** ‏`pip install -e` برای `nbb_cp` در F — روی محیطِ پایتونِ سیستم اثر می‌گذارد؛ بدونِ این نصب ۴۷ تستِ l0/l1/l2 فقط زیرِ pytest-conftest می‌دوند و ۴۷ خطای fixture ارثی (test_api_contract/test_service_flow — fixtureِ 'service' در هیچ نسخه‌ای وجود ندارد) هم مستقل از نصب باز می‌ماند. نصب کنم؟ (پیش‌فرض: نه.)
+
+## 2026-07-16 — گزارش بهینه‌سازی Orchestrator: داوری شد، هیچ حذفی اجرا نشد — رأی‌ها
+
+**زمینه:** گزارش پیست‌شدهٔ مالک ۶ «حذف سریع» می‌خواست. راستی‌آزمایی ۶-ایجنته چهارتایش را **رد** کرد (approval_channel = بات زندهٔ تلگرام ۳۴۸۴خطی؛ unified_bus = نخاع default-ON؛ watchdog دوقلوی واگرا با تسک زنده؛ nbb_cp فورک ایمن‌تر نه کپی) و توصیهٔ «NBB-CP مغز canonical» = گزینهٔ Cِ ممنوع TRI-PLANE. داوری کامل: «00 - Inbox/2026-07-16 VERDICT — گزارش بهینه‌سازی Orchestrator». فیکس کامیت‌نشدهٔ watchdog با `b317c0a` محافظت شد.
+
+- **[TASK-REFRESH]** ⚠️ تسک `OctopusLiveDataRefresh` به bat حذف‌شدهٔ دسکتاپ اشاره دارد و از ۰۷-۱۲ هر ۳۰ دقیقه می‌شکند (0x80070002) — داشبوردهای OCTOPUS دادهٔ منجمد نشان می‌دهند. رأی: repoint به `F:\backup\nervous-system\refresh-live-data.bat` (نسخهٔ ۱۷-extractor) یا غیرفعال‌سازی عمدی؟ (تغییر schtasks = کار خودت.)
+- **[OPT-EXTRACT]** ‏framework واحد extractor + cache/mtime (برد واقعی، ~۲-۳ روز). بسازم؟
+- **[OPT-CONFIG]** ‏env-loader واحد + alias map نام کلیدها (additive، بدون تغییر رفتار). بسازم؟
+- **[OPT-BIND]** ‏helper مشترک exclusive-bind در opslib + افزودنش به dashboard (که الان قفل تک‌نمونه ندارد). بسازم؟
+- **[OPT-ARCHIVE-NS]** انتقال `OCTOPUS/nervous-system/` (snapshot منجمد ۰۷-۱۲، صفر مصرف‌کننده) به `_Archive`؟
+- **[OPT-APP-FATE]** سرنوشت `app/` (snapshot قدیمی‌تر nbb_cp) — بماند به‌عنوان دوقلوی قابل‌حمل یا آرشیو؟ (گره‌خورده به VQ-ROOT-001.)
+- یادآوری: `STOP-ORGANISM` فعلی kill-switch عمدی خودت است (16:07) — احیا فقط با خودت.

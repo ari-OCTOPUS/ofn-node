@@ -56,6 +56,13 @@ updated: 2026-07-16
 - سخت‌سازی: gitignoreِ ‏4d_system برای cassettes (فقط دموی سنتتیک whitelisted) + ‏.test-venv.
 - **۳ رأیِ نو:** ‏[4D-C-ARCHIVE] ‏· [B6-BUS] (الف/ب) ‏· [NBB-INSTALL] — بخشِ «4d_system» در AGENT_QUESTIONS.
 
+## داوریِ گزارشِ بهینه‌سازیِ Orchestrator (2026-07-16، جلسهٔ جدا) — هیچ حذفی اجرا نشد
+
+- ۴ از ۶ «حذفِ سریعِ» گزارش با راستی‌آزماییِ ۶-ایجنته **رد شد** — دوتایش مرگبار بود: `approval_channel.py` = باتِ زندهٔ تأیید انسانی (نه dead code)؛ `unified_bus.py` = نخاعِ default-ON. توصیهٔ «NBB-CP مغزِ canonical» = گزینهٔ Cِ ممنوعِ [[../06 - Architecture Maps/TRI-PLANE RECONCILIATION - ops vs NBB-CP vs 4D-control-plane|TRI-PLANE]]. داوری کامل: [[../00 - Inbox/2026-07-16 VERDICT — گزارش بهینه‌سازی Orchestrator (راستی‌آزمایی شواهدمحور)|VERDICT]].
+- **کشف جانبی ⚠️:** تسکِ `OctopusLiveDataRefresh` از ۰۷-۱۲ شکسته (به batِ دسکتاپِ حذف‌شده اشاره دارد) — داشبوردها دادهٔ منجمد نشان می‌دهند ([TASK-REFRESH]). فیکسِ کامیت‌نشدهٔ watchdog/cortex-supervision با `b317c0a` محافظت شد.
+- `STOP-ORGANISM` فعلی = kill-switchِ عمدیِ مالک (16:07 امروز) — هیچ ایجنتی دست نزند.
+- ۶ رأیِ نو: TASK-REFRESH ‏· OPT-EXTRACT ‏· OPT-CONFIG ‏· OPT-BIND ‏· OPT-ARCHIVE-NS ‏· OPT-APP-FATE.
+
 ## منتظرِ رأی/اقدامِ مالک — [[../00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]] بخشِ 2026-07-16
 
 AXON-PHI · DUP-01-APPLY · DRAWDOWN (فانتوم: merge یا حذف) · CORTEX-REVIVE (bat+ONLOGON، ۲ دقیقه) · CAPABILITY-REBLESS (پنجرهٔ خاموشی) · mergeِ برنچ‌ها (احکام #17-35) · **4d_system: ‏4D-C-ARCHIVE ‏· B6-BUS ‏· NBB-INSTALL**.
