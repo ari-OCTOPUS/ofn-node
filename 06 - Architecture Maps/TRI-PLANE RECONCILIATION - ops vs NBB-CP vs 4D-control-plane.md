@@ -3,7 +3,7 @@ type: architecture
 status: draft
 tags: [control-plane, governance, reconciliation, tri-plane, ops, nbb-cp, 4d, coupled-not-merged]
 created: 2026-07-12
-updated: 2026-07-12
+updated: 2026-07-16
 created_by: agent
 decision_ref: [VQ-ROOT-001, VQ-NBB-001, VQ-4D-001]
 sources:
@@ -12,7 +12,7 @@ sources:
   - "[[06 - Architecture Maps/MASTER-ARCHITECTURE-2026-07-09]] (استکِ لایه‌ای)"
   - "[[06 - Architecture Maps/LANGAR-ALIAS-REGISTRY]] (قاعدهٔ extend-don't-rival)"
   - "[[VERDICT_QUEUE]] (VQ-ROOT-001, VQ-NBB-001, VQ-4D-001)"
-  - "کدِ زنده: _ops/ · app/nbb-control-plane-history.bundle · C:\\Users\\Armin\\Desktop\\4d_system\\control_plane (۲۱۴ تست)"
+  - "کدِ زنده: _ops/ · app/nbb-control-plane-history.bundle · F:\\backup\\4d_system\\control_plane (v1..v5؛ از ۲۰۲۶-۰۷-۱۶ منبعِ حقیقت — بخش ۷)"
 ---
 
 # آشتیِ سه‌پلینِ کنترلی — `_ops` × `NBB-CP` × `4D control_plane`
@@ -39,7 +39,7 @@ fail-closed برای پول/خارجی · evidence/ledger · propose-only · hum
 |---|---|---|---|---|
 | **`_ops`** | ارگانیسمِ خودگاورنورِ همیشه‌روشن: organism.py + cortex + heart + budget(governor/epoch/fitness/replication) + epistemics(hash-chain) + neural + doctor + events + governor | `F:\backup\_ops` | 🟢 سرِ زنده (رییس). URCP: ~۶۰٪ control-plane از قبل این‌جاست؛ registry ساخته (`registry_scan.py`، ۱۳ موجودیت) | **HEAD** — حکمرانیِ کلِ اکوسیستم، منبعِ حقیقتِ حاکمیت |
 | **`NBB-CP`** | control-plane سخت‌شده‌ی قابل‌حمل (governor/invariants) — «دوقلوی حاکمِ هم‌دکترین» | `F:\backup\app\nbb-control-plane-history.bundle` + خطِ زنده‌ی `_launchpad/second-brain-live` (control-brain/painting-bot/accounting-bot) + worktree دسکتاپ | 🟡 اسکلت هارد‌شده (طبق حافظه ~۱۶۲–۲۰۷ تست، REPORTED — باید rerun شود) | **PORTABLE TWIN** — الگوی قابل‌حملِ governor؛ نسبتش با `_ops` هنوز رأی‌نخورده |
-| **`4D control_plane`** | پلینِ observe→shadow→approve→kill→self-heal، خودبسنده، درونِ یک limb | `C:\Users\Armin\Desktop\4d_system\control_plane` (۲۱۴ تست، v1..v5) + آینه‌ی بی‌گیتِ `F:\backup\4d_system` | 🟢 production-grade در سطحِ پا | **LIMB PLANE** — حاکمیتِ داخلیِ پای پژوهشی |
+| **`4D control_plane`** | پلینِ observe→shadow→approve→kill→self-heal، خودبسنده، درونِ یک limb | `F:\backup\4d_system\control_plane` (v1..v5، داخلِ git، کامیتِ `5a69f2c`) — از ۲۰۲۶-۰۷-۱۶ منبعِ حقیقت؛ کپیِ دسکتاپ C منسوخ (بخش ۷) | 🟢 production-grade در سطحِ پا (۲۷۵ تستِ هسته سبز، راستی‌آزمایی‌شده) | **LIMB PLANE** — حاکمیتِ داخلیِ پای پژوهشی |
 
 سه چیزِ متمایز، نه سه رقیب. مثلِ سه معنیِ «قلب» در [[06 - Architecture Maps/ADR-001 Pulse-Source coupled-not-merged|ADR-001]] که اول de-metaphor شدند.
 
@@ -95,7 +95,7 @@ fail-closed برای پول/خارجی · evidence/ledger · propose-only · hum
 - **merge نکن.** ADR-001 صریح: coupled-not-merged. crashِ یکی نباید بقیه را بکشد.
 - **ledger/registry موازی نساز** — [[06 - Architecture Maps/LANGAR-ALIAS-REGISTRY|قاعده‌ی extend-don't-rival]]: `registry_scan` موجود تنها نقطه‌ی حقیقتِ حاکمیت است.
 - **روی `_ops` سیستمِ زنده است** — بدون رأیِ صریحِ مالک هیچ کد/اجرا. ورک‌اسپیسِ امنِ آزمایش = `C:\Desktop`.
-- **`4D` مرجعِ زنده = `C:\...\4d_system`** (git دارد)؛ `F:\backup\4d_system` فقط آینه (بی‌.git).
+- **`4D` مرجعِ زنده = `F:\backup\4d_system`** (داخلِ مخزنِ git ‏F:\backup، از کامیتِ `5a69f2c`). ~~کپیِ دسکتاپ `C:\...\4d_system`~~ از ۲۰۲۶-۰۷-۱۶ **منسوخ** است — هرگز از C به F سینک نکن؛ جهتِ قبلیِ این خط معکوسِ واقعیت شده بود (بخش ۷).
 - گپ‌های واقعیِ باز (نه توهمِ «ساخته‌نشده»): Telegram Gateway مرکزیِ forum/topics (جزئی) · ۴۷ خطای گاورنر + قفلِ قیمتِ بودجه · وایرینگِ `NBB-CP`↔`_ops` (VQ-ROOT-001).
 
 ## ۶. یک تصمیمِ مالک (فقط همین)
@@ -103,5 +103,15 @@ fail-closed برای پول/خارجی · evidence/ledger · propose-only · hum
 **VQ-ROOT-001 را ببند:** نسبتِ سه‌پلین = **A / B / C / D** بالا؟
 (توصیه: A.) بقیه‌ی صف — VQ-NBB-001 (نقشِ آینده‌ی NBB-CP)، VQ-4D-001 (اجرای ۳۰روزه) — بعد از این.
 
+## ۷. ضمیمهٔ ۲۰۲۶-۰۷-۱۶ — وارونگیِ منبعِ حقیقتِ 4D (اصلاحِ واقعیت، نه تغییرِ دکترین)
+
+رویداد: ایجنتِ موازی هم‌سطح‌سازیِ C→F را اجرا کرد (۱۱ آپدیت + ۹۷ افزودنی)؛ جلسهٔ بعدی با راستی‌آزماییِ ۵-ایجنته صحتش را تأیید و با کامیتِ `agent-checkpoint`‏ `5a69f2c` (۱۱۱ فایل) durable کرد.
+
+- **منبعِ حقیقتِ 4D اکنون: `F:\backup\4d_system`** (داخلِ git). کپیِ دسکتاپ C منسوخ؛ سرنوشتش (آرشیو) در صفِ [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]].
+- راستی‌آزمایی: ۷ فیکسِ تولیدیِ F سالم (md5 ده فایل با snapshot پیش از sync یکسان) · ۲۷۵ تستِ هسته سبز · suite کامل ۴۱۸ سبز + ۴۷ خطای fixture ارثیِ nbb_cp (نه محصولِ sync) · اسکنِ secret صفر.
+- **محوشدگیِ نسبیِ مرزِ پلین ۲/۳:** اسکلتِ NBB-CP ‏(`src/nbb_cp`، نصب‌نشده) + منشورهای second-brain حالا فیزیکی داخلِ 4d_system زندگی می‌کنند. دکترینِ coupled-not-merged عوض نشده — هم‌مکانیِ فایل ≠ merge شدنِ authority؛ درختِ واقعی درختِ authority است نه درختِ فایل‌ها.
+- طرحِ B6 (تحلیل‌گرِ فقط‌خواندنیِ SOG، رأی فوگو گزینه B): گامِ ۱ انجام شد — سند + schema منجمد در `4d_system/docs/B6-SOG-INTEGRATION-STEP1.md` و `4d_system/docs/schemas/b6.sog.proposal.v1.json`. خطِ قرمز: B6 هیچ write authority ندارد. گامِ ۲ (adapter پشتِ flag خاموش) پشتِ رأیِ «انتخابِ باس» در AGENT_QUESTIONS.
+- rollback کامل: ‏`git revert 5a69f2c` یا snapshot ‏`F:\backup_snapshots\4d_system_20260716_154902`.
+
 ---
-*propose-only · جلسه‌ی ۲۰۲۶-۰۷-۱۲ · هم‌راستا با ADR-001 + URCP Reconciliation · هیچ کد/merge/wire انجام نشد.*
+*propose-only · جلسه‌ی ۲۰۲۶-۰۷-۱۲ · ضمیمهٔ ۲۰۲۶-۰۷-۱۶ · هم‌راستا با ADR-001 + URCP Reconciliation · تنها اقدامِ اجرایی: کامیتِ checkpoint و اسناد.*

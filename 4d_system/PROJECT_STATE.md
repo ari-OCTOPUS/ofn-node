@@ -143,6 +143,18 @@ streamlit run run.py            # داشبورد (اختیاری، برای دی
 **راهنمای کامل و خطوطِ قرمز: `control_plane/README.md` — اول آن را بخوان.**
 اجرای ۲۴/۷: `SELF_HEAL.md`.
 
+## ۸.۶) هم‌سطح‌سازی C→F و منبعِ حقیقت (افزوده‌ی ۲۰۲۶-۰۷-۱۶)
+
+از این تاریخ **منبعِ حقیقتِ این پروژه `F:\backup\4d_system` است** (داخلِ مخزنِ git ‏`F:\backup`؛
+کپیِ دسکتاپ C منسوخ — رأیِ آرشیوش در AGENT_QUESTIONS ِ vault). هم‌سطح‌سازیِ C→F
+(۱۱ آپدیت + ۹۷ افزودنی: ‏`src/nbb_cp` ‏· `second-brain/` ‏· `docs/` ‏· تکمیلِ `control_plane/`)
+با راستی‌آزماییِ مستقل تأیید و با کامیتِ **`5a69f2c`** durable شد: ۷ فیکسِ تولیدی سالم
+(md5 با snapshot ‏`F:\backup_snapshots\4d_system_20260716_154902` یکسان) · ۲۷۵ تستِ هسته سبز ·
+suite کامل ۴۱۸ سبز + ۴۷ خطای fixture ارثیِ nbb_cp (نه محصولِ sync) · اسکنِ secret صفر.
+**B6 (تحلیل‌گرِ فقط‌خواندنیِ SOG):** گامِ ۱ انجام شد — `docs/B6-SOG-INTEGRATION-STEP1.md` +
+schemaی منجمدِ `docs/schemas/b6.sog.proposal.v1.json`. خطِ قرمز: B6 هیچ write authority ندارد.
+گامِ ۲ (adapter پشتِ flag خاموش) پشتِ رأیِ «انتخابِ باس».
+
 ## ۹) کارهای باز / قدم‌های بعدی
 
 - **Control Plane:** ۳ قدمِ دستیِ مالک (token تلگرام · روشن‌کردنِ flagها در .env ·

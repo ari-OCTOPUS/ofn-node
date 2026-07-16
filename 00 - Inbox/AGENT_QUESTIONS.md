@@ -222,3 +222,48 @@ Ari شش سندِ طراحیِ Octopus/Chrono (تلگرام) داد: «همه ر
 - **#15 تصمیم:** انتقالِ فایلِ سرگردانِ `_ops/2026-07-21` به قرنطینه.
 - **#16 تصمیم:** merge ِ شاخه + اجرای سوییت روی درختِ زنده برای refresh ِ صادقانهٔ marker.
 - **اجرا:** گاردِ حاکمیتیِ harness جهشِ ایجنت به stateِ بیزنسیِ درختِ زنده را مسدود کرد (درست — سطحِ مجاز برای «تصمیمِ کلی» نیست). هر پنج تصمیم در یک اسکریپتِ idempotent ِ یک‌کلیکی بسته‌بندی شد: **دابل‌کلیک روی `_ops\maintenance\RUN-CLEANUP-2026-07-11.bat`** (اول از مسیرِ worktree ِ `\.claude\worktrees\seven-relationships-wired-949630\`؛ بعد از merge از خودِ `F:\backup\_ops\maintenance\` هم موجود است). هیچ حذفی در کار نیست — همه‌چیز اول قرنطینه می‌شود.
+
+
+## 2026-07-16 — Claude (موجِ ده‌برنامه) — تلفیقِ احکامِ بازِ پراکنده + احکامِ نو
+
+**زمینه:** اسکنِ ۶-جبهه‌ای نشان داد این فایلِ زنده از 07-11 خشک بوده و احکامِ 07-12..07-15 فقط روی برنچ‌های mergeنشده‌اند — مرورِ هفتگی نمی‌دیدشان. این بخش کانال را زنده می‌کند. نقشهٔ کامل: `public/octopus-patches-2026-07-15/NEXT-10-PROGRAMS-2026-07-16.md`.
+
+- **[AXON-PHI] (پورت از worktree، 07-15):** گاردِ PHI هر Read ی روی کلِ AXON-MS را می‌بندد، حتی نوت‌های معماریِ غیر-PHI (`obsidian/*.md`، `STATE.md`، `README.md`). سوال: استثنای باریکِ غیر-PHI تعریف شود یا ارزیابیِ AXON-MS همیشه دستیِ خودت بماند؟ (تا رأی: deny کامل حفظ است.)
+- **[DUP-01-APPLY]:** فیکسِ اثرانگشتِ پولِ baseline (مسیرِ درستِ `scripts/budget_gate.py` + سنتینلِ MISSING بجای skipِ خاموش) در worktree ساخته و تست شده — اعمالش به live یعنی یک re-baseline یک‌بارهٔ `money_fingerprint`. رأی: اعمال کنم؟
+- **[DRAWDOWN]:** ترمزِ drawdown فانتوم است (تستش توابعی می‌خواهد که در enforcerِ زنده نیست — برنچ هرگز merge نشد). رأی: merge از برنچِ اصلی، یا حذفِ تستِ فانتوم؟
+- **[CORTEX-REVIVE] (برنامهٔ ۵ — سهمِ تو، ۲ دقیقه):** کورتکس از 07-10 مرده. (۱) دابل‌کلیک `_ops\RUN-CORTEX.bat` (idempotent، دوقفله)؛ (۲) ثبتِ ONLOGON با همان خطِ schtasksِ مستند در `RUN-CORTEX.bat:4-5`. سهمِ من انجام شد: watchdog حالا 8772 را هم با backoff+سقف (۳ بار/۶ساعت) احیا می‌کند.
+- **[CAPABILITY-REBLESS]:** مهرِ CAPABILITY-OK غایب است (ویرایش‌های کابین درست revoke اش کرده‌اند). برای احیا: در یک پنجرهٔ خاموشیِ ارگانیسم (ری‌استارتِ برنامه‌ریزی‌شده)، `run_all` روی درختِ زنده سبز شود. رأی: کِی؟
+- **[برنچ‌ها]:** احکامِ تاریخیِ بازِ #17-35 (organ/halt/loose-ends) + CFG-01 روی برنچِ `claude/three-heartbeat-systems-523a74` و worktreeهای قبلی‌اند؛ با merge یکجا دیده می‌شوند. رأی: merge برنچ به master؟
+
+### تکمیلِ [DUP-01-APPLY] و [DRAWDOWN] (2026-07-16، جزئیاتِ دقیق از ایجنتِ برنامه ۱۰)
+
+- **DUP-01:** پچ در worktree سبز است (test_baseline ‏11/11). اعمال روی live = تغییرِ money_fingerprint + یک re-baseline یک‌باره: `cd /d F:ackup\_ops && python -c "import baseline; print(baseline.capture_baseline('dup01-fix','rebaseline'))"` → ✅ اعمال+re-baseline / ❌ فعلاً نه؟
+- **DRAWDOWN:** تستِ `test_drawdown_enforcer.py` فانتومِ قطعی است — APIای که import می‌کند در **هیچ** نسخه‌ای از budget_gate.py وجود ندارد (live/worktree/هیچ برنچی). پیاده‌سازیِ واقعی = `drawdown_guard.py` فقط روی برنچِ `claude/three-heart-rhythm-math-c69082` (کامیت d0bfa7b). گزینه A: انتقالِ تستِ فانتوم به `_Archive` (کوچک‌ترین حلِ صادقانه) / گزینه B: cherry-pickِ d0bfa7b (گارد + تستِ هم‌API، shadow-default). کدام؟
+
+## 2026-07-16 — ممیزیِ شواهدمحورِ ۲۰۲۷ (L2 «مهارشده ولی کور») — ۴ تصحیح + رأی‌های نو
+
+بستهٔ کامل: `_agent_audit_output/` (شروع از `00_INDEX.md`). تصحیح‌های مهم: پول $۰ نیست (metered، سقفِ AU$30 حاکم)؛ گیتِ پولی الان بازِ؛ پروفایل paper-full؛ langar_bot ارسالِ زندهٔ تلگرام با scrubberِ fail-open دارد. رأی‌های تازهٔ فوری (کاملِ ۱۵ مورد در `14_questions_and_answers.md`):
+- **[PAID-GATE]** گیتِ پولیِ باز عمداً بماند یا یک فلگ برداشته شود تا سپرِ تاریخ برگردد؟
+- **[PII-GUARD]** ‏`08 - Partner` + DNA/EEG به `.agentignore` + گاردِ کدِ واقعی + رویهٔ حذف؟ (تناقض با «هرگز حذف»)
+- **[LANGAR-FAILCLOSED]** ‏langar_bot را fail-closed + حذفِ نامِ پارتنر از شناسه‌ها، قبل از هر ارسال؟
+- **[EVAL-GATE]** eval-datasetِ خصمانه به‌عنوان gate قبل از هر فلگِ اتونومیِ جدید؟
+- **[REFACTOR-B]** جهت = گزینهٔ B (نگه‌داشتِ ستونِ ایمنی + بازآراییِ ماژولار)؟ با ترتیبِ eval+PII+manifest قبل از اتونومی؟
+
+## 2026-07-16 — پای حسابداری: dedup انجام شد + واگراییِ نسخه‌ای منتظرِ رأی
+
+**انجام‌شده (امن، برگشت‌پذیر):** پوشهٔ خودتکراریِ `03 - Projects/Accounting/Accounting/` ۵۷ فایلِ byte-identical داشت → به `_Duplicates` منتقل شد (لاگ در `_گزارش تکراری‌ها.txt`، هیچ حذفی). دادهٔ اصلیِ پا (`data/حساب کتاب/*.xlsx`) دست‌نخورده.
+
+**منتظرِ رأیِ تو (واگراییِ محتوایی — خودسر merge نکردم):** همان پوشهٔ نستد **۳۶ فایلِ یکتا** هم دارد که فقط آنجاست:
+- ۹ نسخهٔ **واگرا** از فایل‌های اصلی (PROJECT.md / Accounting.md / DecisionLog.md / INDEX.md / MANIFEST.yaml / OpenQuestions.md / REGISTRY.md / Report-TaxMap / VERDICT_QUEUE.md) که با نسخهٔ سطحِ بالا **فرق دارند** → کدام canonical است؟
+- ~۲۷ فایلِ کاملاً یکتا و ارزشمند که فقط در نستد است: نقشه‌های `obsidian/` (MOC/Architecture/Data-Flow/Registry/Dedup/Integration/Runbook)، `drafts/`، `reports/`، `flags/`، `finance/_RECONCILE-ledger-variants/`.
+- **گزینه A:** نسخهٔ نستد را canonical بگیر → یکتاها را به سطحِ بالا بیاور، واگراها را جایگزین. **گزینه B:** سطحِ بالا canonical → فقط ۲۷ یکتا را بالا بیاور، ۹ واگرا را به _Duplicates. **گزینه C:** فعلاً همین‌طور بماند.
+- **پوشه‌های خالیِ `1/` و `2/`** (drop-zoneِ رهاشده) — حذف/انتقال؟
+- ⚠️ **PII:** شمارهٔ حسابِ `ANZ-BE-654214278` در نامِ پوشه + نامِ افرادِ ثالث → توصیه: گاردِ deny-read روی مسیرهای مالی (مثلِ پارتنر/DNA). رأی؟
+
+## 2026-07-16 — 4d_system: هم‌سطح‌سازی C→F تأیید و durable شد — ۳ رأی
+
+**زمینه:** ایجنتِ موازی هم‌سطح‌سازیِ C→F را اجرا کرده بود ولی **کامیت نکرده بود** (۱۱۲ مسیرِ بی‌دفاع در working tree). این جلسه با راستی‌آزماییِ ۵-ایجنته صحتش را تأیید (۷ فیکس سالم/md5 · ۲۷۵ تست سبز · secret صفر) و با کامیتِ `5a69f2c` روی master ‏durable کرد. نقشهٔ TRI-PLANE که معکوسِ واقعیت شده بود اصلاح شد (§۷). گامِ ۱ طرحِ B6 فوگو (سند + schemaی منجمد) انجام شد — صفر سیم‌کشی. جزئیات: `4d_system/docs/B6-SOG-INTEGRATION-STEP1.md`.
+
+- **[4D-C-ARCHIVE]** کپیِ دسکتاپ `C:\Users\Armin\Desktop\4d_system` (۲۴هزار فایل با venvها) دیگر مرجع نیست و ماندنش ریسکِ sync معکوس/دوپارگی دارد. طبق قانونِ «هرگز حذف نکن»: منتقل شود به `_Archive`؟ (پیشنهاد: bundle/فشرده در `_Archive/Projects/2026 - 4d_system-desktop-copy`؛ توجه: خارج از vault است، انتقال = کارِ مالک یا رأی صریح.)
+- **[B6-BUS]** گامِ ۲ (B6Adapter پشتِ flag خاموش) روی کدام باس بنشیند؟ **الف)** باسِ داشبوردِ `brain/events.py` — کم‌اصطکاک، همین حالا زنده، shadow از امروز ممکن؛ **ب)** ledgerِ زنجیرهٔ هشِ `nbb_cp` — طبق منشورِ B6 خانهٔ دکترینی، ولی نصب‌نشده. (توصیهٔ ایجنت: shadow روی الف؛ مهاجرت به ب بعد از نصبِ nbb_cp با رأی جدا.)
+- **[NBB-INSTALL]** ‏`pip install -e` برای `nbb_cp` در F — روی محیطِ پایتونِ سیستم اثر می‌گذارد؛ بدونِ این نصب ۴۷ تستِ l0/l1/l2 فقط زیرِ pytest-conftest می‌دوند و ۴۷ خطای fixture ارثی (test_api_contract/test_service_flow — fixtureِ 'service' در هیچ نسخه‌ای وجود ندارد) هم مستقل از نصب باز می‌ماند. نصب کنم؟ (پیش‌فرض: نه.)

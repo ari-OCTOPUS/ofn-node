@@ -3,7 +3,7 @@ type: architecture
 status: active
 tags: [overview, architecture, master-map, organism, second-brain, mermaid]
 created: 2026-07-09
-updated: 2026-07-09
+updated: 2026-07-16
 created_by: agent
 sources:
   - "[[06 - Architecture Maps/SYSTEM-OVERVIEW]]"
@@ -288,6 +288,7 @@ flowchart LR
 | تصادمِ نامِ «LANGAR» | 🔴 ≥۶ موجود | [[06 - Architecture Maps/LANGAR-ALIAS-REGISTRY]] `[OPEN]` |
 | Project-F guard | ⚠️ فقط UI | enforceِ کدی پیدا نشد `[OPEN]` |
 | ⏳ live-gate | ~۱۲ روز | 2026-07-21 → «Pre-Live Checklist» = P0 |
+| پای 4D ‏(`4d_system`) | ✅ هم‌سطح‌سازیِ C→F ‏durable شد (۰۷-۱۶) | منبعِ حقیقت حالا `F:\backup\4d_system` (کامیت `5a69f2c`، ۱۱۱ فایل)؛ ۷ فیکسِ تولیدی سالم، ۲۷۵ تستِ هسته سبز؛ کپیِ دسکتاپ C منسوخ — جزئیات و خطِ قرمزِ B6: [[06 - Architecture Maps/TRI-PLANE RECONCILIATION - ops vs NBB-CP vs 4D-control-plane|TRI-PLANE]] §۷ `[FACT]` |
 
 ---
 

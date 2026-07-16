@@ -2,7 +2,7 @@
 type: moc
 status: active
 tags: [moc]
-updated: 2026-07-06
+updated: 2026-07-16
 ---
 
 # ایندکس دانش
@@ -10,6 +10,10 @@ updated: 2026-07-06
 ## هوش مصنوعی
 
 - [[07 - Knowledge/10 رویکرد فلسفی شرکت‌های بزرگ AI در پرورش مدل|۱۰ رویکرد فلسفی شرکت‌های بزرگ AI در پرورش مدل]]
+
+## حاکمیت و کنترل (Governance)
+
+- [[07 - Knowledge/AUTHORITY-TREE-doctrine-v1|AUTHORITY-TREE-doctrine-v1]] — دکترین «درختِ authority، نه درختِ فایل‌ها» (از آشتی 4D، ۰۷-۱۶)
 
 ## سیستم‌های سلولی (Cellular Systems)
 

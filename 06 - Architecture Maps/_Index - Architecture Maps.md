@@ -2,7 +2,7 @@
 type: moc
 status: active
 tags: [architecture, diagrams]
-updated: 2026-07-09
+updated: 2026-07-16
 ---
 
 # ایندکس Architecture Maps
@@ -21,6 +21,7 @@ updated: 2026-07-09
 - [[06 - Architecture Maps/SYSTEM_MAP|SYSTEM_MAP]] — نقشهٔ اجزا و مالکیت
 - [[06 - Architecture Maps/SYSTEM-OVERVIEW|SYSTEM-OVERVIEW]] — تصویرِ کلانِ سیستم
 - [[06 - Architecture Maps/LANGAR-ALIAS-REGISTRY|LANGAR-ALIAS-REGISTRY]] — رجیستریِ هم‌نامیِ «لنگر/LANGAR/Anchor» (≥۶ referent)
+- [[06 - Architecture Maps/TRI-PLANE RECONCILIATION - ops vs NBB-CP vs 4D-control-plane|TRI-PLANE RECONCILIATION]] — آشتیِ سه پلینِ کنترلی؛ §۷: از ۰۷-۱۶ منبعِ حقیقتِ 4D = ‏`F:\backup\4d_system`
 
 ## وضعیتِ صادقانهٔ «اسنادِ زنده» (D6، بازبینی 2026-07-09)
 
