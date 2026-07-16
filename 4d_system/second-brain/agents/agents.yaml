@@ -1,0 +1,98 @@
+# Second Brain — execution config (spec §11). Fugu, standard tier, NOT ultra.
+# This is CONFIG ONLY (Phase 1). No runtime reads it yet; wired in Phase 3.
+
+llm:
+  provider: fugu_api
+  model: fugu
+  tier: standard
+  use_ultra: false          # explicit: standard tier only
+  default_temperature: 0.2
+  max_tokens: 4096
+  # API key is supplied at runtime via env / gitignored .env — NEVER in this file
+  # or any committed file (CLAUDE.md rule 6). Placeholder name only:
+  api_key_env: FUGU_API_KEY
+
+superbrain:
+  id: SUPERBRAIN
+  model: fugu
+  temperature: 0.15
+  role: governor
+  can_route: true
+  can_execute: false        # the governor proposes; it never executes (INV-4)
+
+# Every brain: independent prompt + scoped folders + a max risk tier. Gated action
+# classes never execute directly — they become an ActionProposal through B6.
+brains:
+  B1:
+    id: B1_INTAKE
+    model: fugu
+    temperature: 0.1
+    max_risk: high
+    folders:
+      - "00 - Inbox"
+      - "10 - Telegram processing"
+      - "04 - Architect System/_intake-photos"
+      - "08 - Assets/Photos"
+  B2:
+    id: B2_DASHBOARD
+    model: fugu
+    temperature: 0.2
+    max_risk: medium
+    folders: ["01 - Dashboard"]
+  B3:
+    id: B3_LIFE_CHRONOS
+    model: fugu
+    temperature: 0.25
+    max_risk: medium
+    folders:
+      - "02 - Life OS"
+      - "CHRONOS EAGLE OS"
+      - "07 - Knowledge/Time-Architecture"
+  B4:
+    id: B4_PROJECTS
+    model: fugu
+    temperature: 0.2
+    max_risk: critical
+    folders: ["03 - Projects"]
+    gated_actions: [financial, external_communication, content_publish]
+  B5:
+    id: B5_ARCHITECT
+    model: fugu
+    temperature: 0.15
+    max_risk: high
+    folders:
+      - "04 - Architect System"
+      - "06 - Architecture Maps"
+      - "scripts"
+    gated_actions: [architecture_mutation, code_execution, vault_mass_update]
+  B6:
+    id: B6_AGENTOPS_NBB
+    model: fugu
+    temperature: 0.05
+    role: control_plane       # = the existing NBB Control Plane in this repo
+    folders: ["05 - Agents", "_ops"]
+  B7:
+    id: B7_KNOWLEDGE
+    model: fugu
+    temperature: 0.2
+    max_risk: medium
+    requires_evidence: true
+    folders: ["07 - Knowledge"]
+  B8:
+    id: B8_PEOPLE_COMMS
+    model: fugu
+    temperature: 0.25
+    max_risk: critical
+    folders: ["09 - People", "10 - Telegram processing"]
+    gated_actions: [external_communication, private_data_export]
+
+# Restated for the runtime (spec §14): these never auto-execute.
+gated_action_classes:
+  - external_communication    # never send directly; draft + REQUIRE_REVIEW
+  - financial                 # Crypto-etoro / Accounting → REQUIRE_REVIEW (owner)
+  - content_publish
+  - architecture_mutation     # REQUIRE_REVIEW (owner)
+  - code_execution            # sandbox first
+  - vault_mass_update         # DEGRADE_TO_SAFE_MODE
+  - memory_promote            # no canonical without evidence → REQUIRE_REVIEW
+  - private_data_export       # People / restricted → ALLOW_WITH_REDACTION or deny

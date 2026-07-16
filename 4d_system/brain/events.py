@@ -30,6 +30,7 @@ VALID_EVENTS = {
     "handoff.created",
     "system.heartbeat",
     "approval.required",
+    "kernel.notice",
 }
 
 # وضعیت‌های approval — همیشه صریح (نه null)

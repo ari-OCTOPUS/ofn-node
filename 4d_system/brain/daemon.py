@@ -195,6 +195,41 @@ def run_forever(max_ticks: int | None = None) -> dict:
                 except Exception as e:
                     logger.error("git_watcher error: %s", e)
 
+            # ۲c) kernel awareness — read cognitive kernel state periodically
+            if tick % 30 == 0:
+                try:
+                    from brain import kernel_consumer as kc
+                    consumer = kc.KernelConsumer()
+                    health = consumer.check_kernel_health()
+                    action = consumer.suggest_automation_action()
+                    if health.get("reachable"):
+                        logger.info("daemon: kernel reachable, action=%s priority=%s",
+                                    action.get("action"), action.get("priority"))
+                        if action.get("priority") == "high":
+                            notify.queue_for_digest(
+                                "blocked", "کرنل: نیاز به review",
+                                f"{action.get('reason')} detected in kernel",
+                                "بررسیِ گزارشِ کرنل در داشبورد",
+                                "High-priority kernel verdict requires owner attention",
+                            )
+                            try:
+                                from brain import events
+                                events.emit("kernel.notice",
+                                    f"Kernel HIGH: {action.get('reason')}",
+                                    status="blocked", agent_id="daemon")
+                            except Exception:
+                                pass
+                        elif action.get("priority") == "medium":
+                            try:
+                                from brain import events
+                                events.emit("kernel.notice",
+                                    f"Kernel MEDIUM: {action.get('reason')}",
+                                    status="info", agent_id="daemon")
+                            except Exception:
+                                pass
+                except Exception as e:
+                    logger.debug("kernel awareness check error: %s", e)
+
             # ۳) flush digest (خودش ≤ سقفِ روزانه را رعایت می‌کند)
             if tick % max(1, digest_every) == 0:
                 try:
@@ -237,6 +272,21 @@ def run_forever(max_ticks: int | None = None) -> dict:
                 }
             except Exception:
                 pass
+            # kernel awareness state (lightweight read-only)
+            try:
+                from brain import kernel_consumer as kc
+                consumer = kc.KernelConsumer()
+                khealth = consumer.check_kernel_health()
+                kaction = consumer.suggest_automation_action()
+                state["kernel"] = {
+                    "reachable": khealth.get("reachable", False),
+                    "manifest_fresh": khealth.get("manifest_fresh", False),
+                    "integrity_ok": khealth.get("integrity_ok", False),
+                    "action": kaction.get("action", "unknown"),
+                    "priority": kaction.get("priority", "unknown"),
+                }
+            except Exception:
+                state["kernel"] = {"reachable": False}
             _save_state(state)
 
             if max_ticks is None or tick < max_ticks:
@@ -248,7 +298,7 @@ def run_forever(max_ticks: int | None = None) -> dict:
                     tick, props_made, errors,
                     state.get("git_watcher", {}).get("proposals_total", 0))
 
-    return {"ticks": tick, "proposals": props_made, "errors": errors}
+    return {"ticks": tick, "proposals": props_made, "errors": errors, "kernel": state.get("kernel", {})}
 
 
 if __name__ == "__main__":

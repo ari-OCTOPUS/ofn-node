@@ -57,7 +57,9 @@ def _bus_count(db: Path, agent_ids: list[str], event_names: list[str]) -> int | 
 
 def check_channel(ch: dict[str, Any], root: Path, db: Path) -> dict[str, Any]:
     """چکِ یک کانال → dict شامل checks + verdict."""
-    declared = ch.get("status", "UNKNOWN")
+    # normalize: حکم نباید به حروفِ بزرگ/کوچکِ دست‌نوشته‌ی YAML وابسته باشد.
+    declared = str(ch.get("status", "UNKNOWN")).strip().upper()
+    VALID = {"CONNECTED", "PARTIAL", "MISSING", "UNKNOWN"}
 
     # source: اگر شبیه مسیر است، وجودش را بسنج؛ وگرنه n/a
     src = str(ch.get("source", "")).split("::")[0].strip()
@@ -99,7 +101,8 @@ def check_channel(ch: dict[str, Any], root: Path, db: Path) -> dict[str, Any]:
     # ── حکم ──
     if declared == "MISSING":
         verdict = "FAIL"
-    elif declared == "UNKNOWN":
+    elif declared not in VALID or declared == "UNKNOWN":
+        # UNKNOWN یا هر مقدارِ نامعتبر/تایپی → هرگز PASS (قاعده‌ی طلایی)
         verdict = "UNKNOWN"
     elif source_exists is False:
         verdict = "FAIL"
@@ -109,14 +112,17 @@ def check_channel(ch: dict[str, Any], root: Path, db: Path) -> dict[str, Any]:
             or (bus_n == 0)
             or (tests_ok is False)
             or (not meta_ok)
-            or (declared == "PARTIAL")
+            or (declared != "CONNECTED")   # فقط CONNECTED می‌تواند PASS شود
             or (not replay_known)
         )
+        # PASS فقط با دستِ‌کم یک شاهدِ مثبتِ راستی‌آزمایی‌شده (نه صرفاً وجودِ source):
+        has_positive_evidence = (sinks_ok is True) or (tests_ok is True) or \
+                                (isinstance(bus_n, int) and bus_n > 0)
         hard_unknown = (source_exists is None and sinks_ok is None
                         and bus_n is None and tests_ok is None)
         if hard_unknown:
             verdict = "UNKNOWN"
-        elif soft_bad:
+        elif soft_bad or not has_positive_evidence:
             verdict = "WARN"
         else:
             verdict = "PASS"

@@ -80,7 +80,8 @@ class TestFlags(unittest.TestCase):
         f = all_flags()
         self.assertTrue(f["CONTROL_PLANE_OBSERVE_ONLY"])
         for name in ("CONTROL_PLANE_SHADOW_POLICY", "CONTROL_PLANE_APPROVALS_LIVE",
-                     "CONTROL_PLANE_LIVE_GOVERNANCE", "CONTROL_PLANE_KILL_SWITCH_LIVE"):
+                     "CONTROL_PLANE_LIVE_GOVERNANCE", "CONTROL_PLANE_KILL_SWITCH_LIVE",
+                     "CONTROL_PLANE_SELF_HEAL"):
             self.assertFalse(f[name], f"{name} باید default-off باشد")
         self.assertEqual(governance_mode(), "observe-only (v1)")
 
@@ -96,7 +97,7 @@ class TestFlags(unittest.TestCase):
             set(FLAG_DEFAULTS),
             {"CONTROL_PLANE_OBSERVE_ONLY", "CONTROL_PLANE_SHADOW_POLICY",
              "CONTROL_PLANE_APPROVALS_LIVE", "CONTROL_PLANE_LIVE_GOVERNANCE",
-             "CONTROL_PLANE_KILL_SWITCH_LIVE"})
+             "CONTROL_PLANE_KILL_SWITCH_LIVE", "CONTROL_PLANE_SELF_HEAL"})
 
 
 if __name__ == "__main__":

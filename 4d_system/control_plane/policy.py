@@ -53,8 +53,12 @@ ACTION_POLICY: dict[str, Level] = {
     "backup_create":          Level.SHADOW_LOG,
     "archive":                Level.SHADOW_LOG,   # archive-not-delete
     "self_code_propose":      Level.SHADOW_LOG,   # فقط پیشنهاد؛ اجرا نمی‌شود
+    "strategy_apply":         Level.SHADOW_LOG,   # self_evolve: گیتِ تستِ داخلی دارد؛ در لیستِ high-risk مالک نیست
     "write_local_file":       Level.SOFT_WARN,    # خارج از outputs ولی غیر TCB
     "vectorstore_rebuild":    Level.SOFT_WARN,
+    "self_heal_restart":      Level.SHADOW_LOG,   # ترمیمِ خود: راه‌اندازیِ دوباره‌ی همان
+                                                  # فرمان‌های شناخته‌شده بعد از crash —
+                                                  # خواسته‌ی صریحِ مالک؛ log + notify
 
     # high-risk (لیستِ مالک) — approval
     "self_code_approve":      Level.REQUIRE_APPROVAL,
@@ -71,6 +75,9 @@ ACTION_POLICY: dict[str, Level] = {
     "run_external_command":   Level.REQUIRE_APPROVAL,
     "model_promotion":        Level.REQUIRE_APPROVAL,
     "backup_restore":         Level.REQUIRE_APPROVAL,
+    "pause_subsystem":        Level.PAUSE_SUBSYSTEM,   # مکث/ادامه‌ی نرم (قراردادِ daemon.pause)
+    "restart_after_halt":     Level.REQUIRE_APPROVAL,  # HALT حفاظتی = نقضِ لنگر؛
+                                                       # ترمیمِ خودکار ممنوع، فقط مالک
     "spend_anomaly":          Level.PAUSE_SUBSYSTEM,   # ناهنجاریِ خرج → مکث تا بررسی
     "policy_bypass":          Level.PAUSE_SUBSYSTEM,   # تلاش برای دورزدن → مکث
     "kill_switch":            Level.KILL_SWITCH,

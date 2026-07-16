@@ -56,16 +56,31 @@ def daemon_status(out: Path = DEFAULT_OUT) -> dict[str, Any]:
     except ValueError:
         tick_s = 30.0
     last_tick = state.get("last_tick_at", "")
+    resumed = state.get("resumed_at", "")
+    started = state.get("started_at", "")
     stopped = state.get("stopped_at", "")
     age = _age_seconds(last_tick) if last_tick else None
 
-    # heuristic صادقانه: stopped_at جدیدتر/مساویِ آخرین tick → STOPPED؛
-    # heartbeat تازه (≤ ۳×tick) → RUNNING؛ وگرنه STALE.
-    if stopped and last_tick and stopped >= last_tick:
+    # «سیگنالِ زنده‌بودن» = تازه‌ترینِ heartbeat/resumed/started. رشته‌های ISO با
+    # فرمتِ یکسان (timespec=seconds) قابلِ مقایسه‌ی لغوی‌اند.
+    life_signals = [t for t in (last_tick, resumed, started) if t]
+    freshest = max(life_signals) if life_signals else ""
+    age_fresh = _age_seconds(freshest) if freshest else None
+    # daemon فقط وقتی «متوقف» است که بعد از آخرین stop، هیچ سیگنالِ زنده‌ی جدیدی نباشد.
+    # (رفعِ باگ: daemon هرگز stopped_at را روی restart پاک نمی‌کند؛ resumed/started
+    #  نشان می‌دهند که دوباره بالا آمده — پس STOPPED نگوییم.)
+    alive_after_stop = (
+        (resumed and resumed >= stopped)
+        or (started and started >= stopped)
+        or (last_tick and last_tick > stopped)
+    )
+    if stopped and not alive_after_stop:
         verdict = "STOPPED"
-    elif age is not None and age <= 3 * tick_s:
+    elif age_fresh is not None and age_fresh <= 3 * tick_s:
+        # heartbeat تازه، یا (در پنجره‌ی restart) resumed/started تازه ولی هنوز
+        # heartbeatِ tick نیامده — در هر دو حالت daemon زنده است.
         verdict = "PAUSED" if pause else "RUNNING"
-    elif age is not None:
+    elif age_fresh is not None:
         verdict = "STALE"
     else:
         verdict = _UNKNOWN
@@ -89,15 +104,18 @@ def daemon_status(out: Path = DEFAULT_OUT) -> dict[str, Any]:
 def budget_status(out: Path = DEFAULT_OUT) -> dict[str, Any]:
     data = _read_json(out / "llm_budget.json")
     try:
-        cap = int(os.getenv("LLM_DAILY_CALL_CAP", "1000"))
+        cap = max(0, int(os.getenv("LLM_DAILY_CALL_CAP", "1000")))
     except ValueError:
         cap = 1000
     if not data:
         return {"status": _UNKNOWN, "cap": cap}
     today = datetime.now().strftime("%Y-%m-%d")
     calls = data.get("calls", {}) if data.get("date") == today else {}
-    # مطابق brain/budget: ollama محلی است و در سقفِ ابری نمی‌شمارد
-    cloud = sum(v for k, v in calls.items() if k != "ollama")
+    # منبعِ حقیقت = brain/budget.CLOUD_PROVIDERS (whitelist)، نه blacklistِ «!=ollama».
+    # اگر روزی provider محلیِ جدیدی زیرِ کلیدِ دیگری ثبت شود، این whitelist اشتباه
+    # نمی‌شمارد. (brain/budget.py:22 → frozenset({"fugu","glm","langchain"}))
+    CLOUD_PROVIDERS = {"fugu", "glm", "langchain"}
+    cloud = sum(int(v) for k, v in calls.items() if k in CLOUD_PROVIDERS)
     return {"status": "OK", "date": data.get("date"), "cap": cap,
             "cloud_calls": cloud, "remaining": max(0, cap - cloud),
             "by_provider": calls}
@@ -231,11 +249,14 @@ def notify_status(out: Path = DEFAULT_OUT, tail: int = 5) -> dict[str, Any]:
                 packets.append(json.loads(line))
             except Exception:
                 continue
-        delivered_last = packets[-1].get("delivered", "") if packets else ""
-        telegram_configured = bool(delivered_last) and "not-configured" not in delivered_last
+        delivered_last = (packets[-1].get("delivered", "") if packets else "").strip()
+        # فقط «telegram» (تحویلِ موفق در brain/notify) یعنی واقعاً متصل. هر
+        # «queued (...)» — چه not-configured، چه خطای شبکه/HTTP — یعنی تحویل نشده.
+        telegram_delivering = delivered_last == "telegram"
         return {"status": "OK", "total_packets": len(lines),
                 "recent": packets,
-                "telegram_configured": telegram_configured,
+                "telegram_configured": telegram_delivering,
+                "telegram_delivering": telegram_delivering,
                 "last_delivered": delivered_last}
     except Exception as e:
         return {"status": _UNKNOWN, "reason": f"{type(e).__name__}"}
@@ -266,6 +287,20 @@ def memory_status(out: Path = DEFAULT_OUT) -> dict[str, Any]:
     }
 
 
+# ── supervisor (ترمیمِ خود — v5) ─────────────────────────────────────────
+def supervisor_status(out: Path = DEFAULT_OUT) -> dict[str, Any]:
+    """heartbeat خودِ supervisor — فقط خواندن از store خودش."""
+    data = _read_json(out / "control_plane" / "supervisor_state.json")
+    if not data:
+        return {"status": _UNKNOWN, "reason": "supervisor هنوز اجرا نشده"}
+    age = _age_seconds(data.get("last_tick_at", ""))
+    status = "RUNNING" if (age is not None and age <= 120) else "STALE"
+    return {"status": status,
+            "heartbeat_age_s": round(age, 1) if age is not None else None,
+            "flag_live": data.get("flag_live"),
+            "children": data.get("children", {})}
+
+
 # ── تجمیع ────────────────────────────────────────────────────────────────
 def collect_status(out: Path | None = None, db: Path | None = None) -> dict[str, Any]:
     """عکسِ کاملِ یک‌نگاهی برای UI/گزارش. فقط می‌خوانَد."""
@@ -284,4 +319,5 @@ def collect_status(out: Path | None = None, db: Path | None = None) -> dict[str,
         "evolution": evolution_status(out),
         "notify": notify_status(out),
         "memory": memory_status(out),
+        "supervisor": supervisor_status(out),
     }

@@ -35,7 +35,7 @@ HEARTBEAT_SECONDS = 300
 # تغذیه‌ی فرضیه‌ها نگه داشته می‌شود (SOG در دفترِ هدف‌ها زنده می‌ماند).
 _MODE_CYCLE = [
     "introspect", "create", "explore", "evolve",
-    "real", "create", "conclude", "synthesize",
+    "real", "create", "conclude", "synthesize", "kernel_consult",
     "introspect", "evolve", "mutate", "real", "guard",
 ]
 
@@ -626,6 +626,65 @@ class AutomationController:
                     status="ok", agent_id="guardrail", next_action="امن",
                     approval_state="not_required")
         return {"ok": True, "mode": "guard"}
+
+    # ── kernel_consult: مشاوره با کرنلِ شناختی ────────────────────────────
+    def _job_kernel_consult(self) -> dict:
+        events.emit("task.started", "مشاوره با کرنل: بررسیِ verdictها و ADRهای جدید",
+                    status="info", agent_id="kernel_consult", approval_state="not_required")
+        try:
+            from brain import kernel_consumer as kc
+            consumer = kc.KernelConsumer()
+            dash = consumer.read_dashboard()
+            action = consumer.suggest_automation_action()
+        except Exception as e:
+            logger.warning("kernel consult failed: %s", e)
+            events.emit("task.failed", f"خطا در مشاوره با کرنل: {type(e).__name__}",
+                        status="error", agent_id="kernel_consult", approval_state="not_required")
+            return {"ok": False, "mode": "kernel_consult"}
+
+        if not dash:
+            events.emit("task.completed", "کرنل در دسترس نیست — ادامهٔ خودکار",
+                        status="ok", agent_id="kernel_consult", next_action="ادامه",
+                        approval_state="not_required")
+            return {"ok": True, "mode": "kernel_consult", "summary": "unreachable"}
+
+        tally = dash.get("tally", {})
+        high = dash.get("high_priority_adr", [])
+        action_name = action.get("action", "no_op")
+        priority = action.get("priority", "low")
+
+        # اگر rejection زیاد باشد، خلاقیت را محتاط‌تر کن
+        if tally.get("REJECTED", 0) >= 2:
+            old = self.strategy["creativity"]
+            self.strategy["creativity"] = guardrails.clamp_param("creativity", old - 0.05)
+            strat_note = f" · creativity: {old:.2f} → {self.strategy['creativity']:.2f} (محتاط)"
+        else:
+            strat_note = ""
+
+        # اگر INTEGRATE جدید باشد، انگیزهٔ کاوش بالا برود
+        if tally.get("INTEGRATE", 0) >= 5:
+            strat_note += " · کاوشِ نواحیِ جدید تشویق می‌شود"
+
+        summary = (
+            f"ADR={tally.get('INTEGRATE',0)}I/{tally.get('OPTIMIZE',0)}O/"
+            f"{tally.get('REJECTED',0)}R · high={len(high)} · action={action_name}"
+        )
+
+        events.emit("task.completed",
+                    f"کرنل: {summary}{strat_note}",
+                    status="ok" if priority != "high" else "warning",
+                    agent_id="kernel_consult", next_action=action_name,
+                    approval_state="not_required")
+
+        # اگر priority HIGH بود، handoff بساز
+        if priority == "high" and high:
+            adr = high[0]
+            events.emit("handoff.created",
+                        f"کرنل: {adr.get('title','?')} → {adr.get('verdict','?')} (نیاز به review)",
+                        status="blocked", agent_id="kernel_consult",
+                        approval_state="not_required")
+
+        return {"ok": True, "mode": "kernel_consult", "summary": summary, "action": action_name}
 
     # ── heartbeat ────────────────────────────────────────────────────────
     def maybe_heartbeat(self, now: Optional[datetime] = None) -> bool:

@@ -16,6 +16,7 @@ FLAG_DEFAULTS: dict[str, bool] = {
     "CONTROL_PLANE_APPROVALS_LIVE": False, # v3: approval واقعی برای high-risk
     "CONTROL_PLANE_LIVE_GOVERNANCE": False,# v3+: هر نوع блок/enforcement زنده
     "CONTROL_PLANE_KILL_SWITCH_LIVE": False,  # v4: pause/stop از UI
+    "CONTROL_PLANE_SELF_HEAL": False,      # v5: watchdog ترمیمِ خود (۲۴/۷)
 }
 
 _TRUTHY = ("1", "true", "yes", "on")

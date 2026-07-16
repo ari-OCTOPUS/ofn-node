@@ -74,7 +74,7 @@ channels:
     risk_tier: high
     authority: kill-switch
     status: CONNECTED
-    notes: "pause=outputs/daemon.pause · stop=outputs/daemon.stop (قراردادِ موجود)"
+    notes: "pause=outputs/daemon.pause · stop=outputs/daemon.stop (قراردادِ موجود)؛ v4: همین قرارداد از تبِ Control Plane هم عمل می‌شود (flag-gated + تأییدِ سخت STOP)"
   - id: automation_cycle
     name: "run_one state cycle (13 حالت)"
     source: "brain/automation.py"
@@ -171,7 +171,7 @@ channels:
     risk_tier: high
     authority: approve
     status: CONNECTED
-    notes: "apply در مسیرِ امنِ فعلی می‌ماند (تصمیمِ مالک) — این‌جا فقط mirror"
+    notes: "apply همیشه از مسیرِ امنِ خودِ self_code؛ v3: تصمیمِ approve/reject از تبِ Control Plane هم ممکن است (flag-gated، double-confirm، audit-logged)"
   - id: guardrails_invariants
     name: "Invariant check (گامِ guard)"
     source: "brain/guardrails.py"
@@ -359,6 +359,20 @@ channels:
     risk_tier: medium
     authority: observe-only
     status: UNKNOWN
+  - id: self_heal_supervisor
+    name: "Self-heal supervisor (v5)"
+    source: "control_plane/supervisor.py"
+    sink: "spawn brain.daemon/brain.telegram_bot + outputs/control_plane/supervisor_state.json"
+    event_names: []
+    agent_ids: []
+    state_files: ["outputs/control_plane/supervisor_state.json"]
+    logs: ["outputs/control_plane/supervisor_log.jsonl"]
+    tests: ["tests/test_control_plane_supervisor.py"]
+    replay: "supervisor_log.jsonl (هر اقدام + rollback)"
+    risk_tier: high
+    authority: kill-switch
+    status: PARTIAL
+    notes: "crash→restart خودکار؛ HALT/توقفِ مالک/خروجِ تمیز هرگز restart نمی‌شود؛ flag: CONTROL_PLANE_SELF_HEAL"
   - id: financial_nervous
     name: "Financial nervous layer"
     source: "پیدا نشد"

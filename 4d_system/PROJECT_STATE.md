@@ -134,8 +134,20 @@ streamlit run run.py            # داشبورد (اختیاری، برای دی
 - کانال‌ها: Fugu+GLM (کلید در .env) · Ollama (روی ماشینِ مالک) · ۵ منبعِ داده‌ی واقعی ·
   Telegram (نیازمندِ توکنِ مالک). خودنگاره: `outputs/self_evolved/self_portrait.md`.
 
+## ۸.۵) Control Plane + Self-Heal (افزوده‌ی ۲۰۲۶-۰۷-۱۲)
+
+پکیجِ **additive** `control_plane/` اضافه شد: سطحِ واحدِ حاکمیتِ runtime
+(observe → shadow policy → live approvals → kill-switch → self-heal watchdog) +
+تبِ «🎛️ Control Plane» در UI. نردبان v0..v5 کامل و با ۴ راندِ بازبینیِ خصمانه
+سخت‌شده (۲۴۳ تستِ سبز، صفر تغییرِ TCB، همه flagهای live خاموش).
+**راهنمای کامل و خطوطِ قرمز: `control_plane/README.md` — اول آن را بخوان.**
+اجرای ۲۴/۷: `SELF_HEAL.md`.
+
 ## ۹) کارهای باز / قدم‌های بعدی
 
+- **Control Plane:** ۳ قدمِ دستیِ مالک (token تلگرام · روشن‌کردنِ flagها در .env ·
+  `scripts\install_supervisor_task.bat`) + ۱ تصمیمِ TCB (heartbeat تلگرام برای
+  تشخیصِ hang) — جزئیات در `control_plane/README.md` §۵–۶.
 - اجرای یک‌ماهه‌ی خودمختار + سنجشِ نتایج (`evaluation`).
 - تنظیمِ Telegram (توکن — کارِ مالک؛ `TELEGRAM_SETUP.md`).
 - (اختیاری، آینده) پروژه‌ی خواهرِ **NBB / Second Brain Super-Governor** —

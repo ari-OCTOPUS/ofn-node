@@ -102,5 +102,71 @@ class TestChannelDoctor(unittest.TestCase):
         self.assertNotEqual(v.get("financial_nervous"), "PASS")
 
 
+class TestVerdictHardening(unittest.TestCase):
+    def _reg(self, status: str) -> str:
+        return f"""\
+version: 1
+project: {{id: fake, name: fake, root: ".", owner: Armin}}
+subsystems: []
+channels:
+  - id: c1
+    name: n
+    source: "mod.py"
+    sink: "state.json"
+    state_files: ["state.json"]
+    tests: ["t.py"]
+    replay: "deterministic"
+    risk_tier: low
+    authority: observe-only
+    status: {status}
+"""
+
+    def _run(self, td: str, status: str):
+        root = Path(td)
+        (root / "mod.py").write_text("# ok", encoding="utf-8")
+        (root / "state.json").write_text("{}", encoding="utf-8")
+        (root / "t.py").write_text("# test", encoding="utf-8")
+        regp = root / "registry.yaml"
+        regp.write_text(self._reg(status), encoding="utf-8")
+        rep = run_doctor(registry_path=regp, root=root, db=root / "no.db",
+                         report_dir=root / "_r", write_reports=False)
+        return {c["id"]: c["verdict"] for c in rep["channels"]}["c1"]
+
+    def test_lowercase_or_typo_status_never_pass(self):
+        """#15: حروفِ کوچک/تایپی نباید PASS شود (قاعده‌ی طلایی وابسته به casing نباشد)."""
+        with tempfile.TemporaryDirectory() as td:
+            self.assertEqual(self._run(td, "CONNECTED"), "PASS")   # کنترل
+        with tempfile.TemporaryDirectory() as td:
+            self.assertEqual(self._run(td, "unknown"), "UNKNOWN")
+        with tempfile.TemporaryDirectory() as td:
+            self.assertEqual(self._run(td, "CONNETCED"), "UNKNOWN")  # تایپی
+
+    def test_thin_evidence_source_only_is_warn_not_pass(self):
+        """#18: کانالِ CONNECTED که فقط source دارد (بی state/test/bus) → WARN، نه PASS."""
+        reg = """\
+version: 1
+project: {id: fake, name: fake, root: ".", owner: Armin}
+subsystems: []
+channels:
+  - id: thin
+    name: n
+    source: "mod.py"
+    sink: "x"
+    replay: "n/a"
+    risk_tier: low
+    authority: observe-only
+    status: CONNECTED
+"""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "mod.py").write_text("# ok", encoding="utf-8")
+            regp = root / "registry.yaml"
+            regp.write_text(reg, encoding="utf-8")
+            rep = run_doctor(registry_path=regp, root=root, db=root / "no.db",
+                             report_dir=root / "_r", write_reports=False)
+            v = {c["id"]: c["verdict"] for c in rep["channels"]}["thin"]
+            self.assertEqual(v, "WARN")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

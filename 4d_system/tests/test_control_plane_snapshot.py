@@ -138,5 +138,48 @@ class TestBudgetAndEvents(unittest.TestCase):
             self.assertEqual(ap["self_code_counts"], {"pending_approval": 1})
 
 
+class TestHardeningFixes(unittest.TestCase):
+    def test_restarted_daemon_with_resumed_at_is_not_stopped(self):
+        """#3/#9: resumed_at تازه‌تر از stopped_at → RUNNING، نه STOPPED کاذب."""
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td)
+            now = datetime.now().isoformat(timespec="seconds")
+            (out / "daemon_state.json").write_text(json.dumps({
+                "last_tick_at": "2026-07-11T15:00:00",
+                "stopped_at": "2026-07-11T15:00:03",
+                "resumed_at": now, "pid": 1}), encoding="utf-8")
+            self.assertEqual(snapshot.daemon_status(out)["status"], "RUNNING")
+
+    def test_genuine_clean_stop_still_stopped(self):
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td)
+            (out / "daemon_state.json").write_text(json.dumps({
+                "last_tick_at": "2026-07-11T15:00:00",
+                "stopped_at": "2026-07-11T15:00:05", "pid": 1}), encoding="utf-8")
+            self.assertEqual(snapshot.daemon_status(out)["status"], "STOPPED")
+
+    def test_budget_whitelist_ignores_unknown_local_provider(self):
+        """#14: شمارشِ cloud با whitelist؛ providerِ محلیِ با کلیدِ دیگر بیش‌شماری نمی‌شود."""
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td)
+            today = datetime.now().strftime("%Y-%m-%d")
+            (out / "llm_budget.json").write_text(json.dumps(
+                {"date": today, "calls": {"fugu": 2, "glm": 3, "qwen2.5": 99, "mock": 50}}),
+                encoding="utf-8")
+            b = snapshot.budget_status(out)
+            self.assertEqual(b["cloud_calls"], 5)   # فقط fugu+glm، نه qwen/mock
+
+    def test_notify_badge_only_connected_on_real_delivery(self):
+        """#20: badge فقط با delivered=='telegram' متصل است، نه با queued(error)."""
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td)
+            jl = out / "decision_packets.jsonl"
+            jl.write_text(json.dumps({"delivered": "queued (error: ConnectionError)"}) + "\n",
+                          encoding="utf-8")
+            self.assertFalse(snapshot.notify_status(out)["telegram_configured"])
+            jl.write_text(json.dumps({"delivered": "telegram"}) + "\n", encoding="utf-8")
+            self.assertTrue(snapshot.notify_status(out)["telegram_configured"])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
