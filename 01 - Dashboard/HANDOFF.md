@@ -70,7 +70,7 @@ updated: 2026-07-16
 
 ## منتظرِ رأی/اقدامِ مالک — [[../00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]] بخشِ 2026-07-16
 
-AXON-PHI · DUP-01-APPLY · DRAWDOWN (فانتوم: merge یا حذف) · CORTEX-REVIVE (bat+ONLOGON، ۲ دقیقه) · CAPABILITY-REBLESS (پنجرهٔ خاموشی) · mergeِ برنچ‌ها (احکام #17-35) · **4d_system: ‏4D-C-ARCHIVE ‏· B6-BUS ‏· NBB-INSTALL**.
+AXON-PHI · DUP-01-APPLY · DRAWDOWN (فانتوم: merge یا حذف) · ~~CORTEX-REVIVE~~ → **CORTEX-ONLOGON** (فقط گامِ ۲؛ کورتکس زنده است، batِ دستی منتفی) · WATCHDOG-NOTE (کامنتِ وارونه در `_ops`) · CAPABILITY-REBLESS (پنجرهٔ خاموشی) · mergeِ برنچ‌ها (احکام #17-35) · **4d_system: ‏4D-C-ARCHIVE ‏· B6-BUS ‏· NBB-INSTALL**.
 
 ## نقشه‌های فعال
 
