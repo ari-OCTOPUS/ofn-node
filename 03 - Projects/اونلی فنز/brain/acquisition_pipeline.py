@@ -62,13 +62,16 @@ class AcquisitionPipeline:
     Safety nets (2026-07-16 launch guard):
       - ``warmup`` (WarmupGuard): جلوی finalizeِ آیتمِ فروشی تا رسیدنِ کارما به آستانه.
       - ``locks`` (ChannelLocks): kill-switch per-channel و full_stop.
-    هر دو اختیاری‌اند (None = guard غیرفعال) ولی در production باید وصل باشند."""
+      - ``vault`` (VaultBank): منبعِ draft از محتوای واقعی (لایهٔ ۲، 2026-07-16).
+    هر سه اختیاری‌اند (None = غیرفعال) ولی در production باید وصل باشند."""
 
-    def __init__(self, store_path=None, brain=None, warmup=None, locks=None):
+    def __init__(self, store_path=None, brain=None, warmup=None, locks=None,
+                 vault=None):
         self._store = Path(store_path) if store_path else DEFAULT_STORE
         self._brain = brain                      # AcquisitionBrain (injectable؛ None → هوکِ امن)
         self._warmup = warmup                     # WarmupGuard اختیاری
         self._locks = locks                       # ChannelLocks اختیاری
+        self._vault = vault                       # VaultBank اختیاری (لایهٔ ۲)
         self._items = self._load()
 
     # ── persistence (fail-soft) ──────────────────────────────────────────────
@@ -107,19 +110,40 @@ class AcquisitionPipeline:
 
     # ── AUTO: plan → draft → enqueue (propose-only) ──────────────────────────
     def _seeds(self, n: int) -> list:
-        """seedهای draft: از brain.plan_week (اگر باشد) وگرنه هوک‌های امن. content-free."""
+        """seedهای draft (ترتیبِ اولویت، fail-soft):
+          ۱. VaultBank (اگه وصل باشد و asset داشته باشد) — محتوای واقعی certify‌شده
+          ۲. brain.plan_week (اگه مغز وصل باشد) — insights هوشمند
+          ۳. _SAFE_HOOKS (همیشه) — fallback هوک‌های امنِ نمونه
+
+        لایهٔ ۲ (2026-07-16): vault اولویتِ اول است چون محتوای واقعی certify‌شده
+        دارد، نه نمونه. اگه vault خالی باشد، transparently به brain/fallback می‌رود."""
         seeds = []
-        if self._brain is not None:
+        # ۱. VaultBank — کم‌استفاده‌ترین assetها (fair rotation)
+        if self._vault is not None:
+            try:
+                # همهٔ channelها را بپرس، n تا
+                assets = self._vault.pick(n=n)
+                for a in assets:
+                    seeds.append({"channel": a.get("channel", "reddit"),
+                                  "tag": a.get("tag", ""),
+                                  "hook": a.get("hook", ""),
+                                  "caption": a.get("caption") or a.get("hook", ""),
+                                  "vault_id": a.get("id")})   # برای mark_used بعدی
+            except Exception:  # noqa: BLE001 — fail-soft به brain
+                seeds = []
+        # ۲. brain.plan_week (اگه هنوز تعداد کم است)
+        if len(seeds) < n and self._brain is not None:
             try:
                 plan = self._brain.plan_week()
                 posts = getattr(plan, "posts", None) or (plan.get("posts") if isinstance(plan, dict) else None)
-                for p in (posts or [])[:n]:
+                for p in (posts or [])[:n - len(seeds)]:
                     if isinstance(p, dict):
                         seeds.append({"channel": p.get("platform") or p.get("channel") or "reddit",
                                       "tag": p.get("tag", ""), "hook": p.get("hook") or p.get("title", ""),
                                       "caption": p.get("caption") or p.get("hook") or ""})
-            except Exception:  # noqa: BLE001 — fail-soft به هوکِ امن
-                seeds = []
+            except Exception:  # noqa: BLE001
+                pass
+        # ۳. fallback: هوک‌های امن (همیشه)
         while len(seeds) < n:
             ch, tag, hook = _SAFE_HOOKS[len(seeds) % len(_SAFE_HOOKS)]
             seeds.append({"channel": ch, "tag": tag, "hook": hook, "caption": hook})
@@ -145,6 +169,8 @@ class AcquisitionPipeline:
                 "flagged": flagged,
                 "created": _now(),
                 "approved_by": None,
+                # لایهٔ ۲: اگه از vault آمده، id را نگه دار برای mark_used در finalize
+                "vault_id": s.get("vault_id"),
             }
             self._items.append(item)
             out.append(item)
@@ -211,6 +237,13 @@ class AcquisitionPipeline:
         live_labeled = os.environ.get("PF_LIVE_PUBLISH", "0") == "1"
         it["status"] = "ready"
         it["ready_at"] = _now()
+        # لایهٔ ۲: اگه از vault آمده، استفاده را ثبت کن (fair rotation)
+        vault_id = it.get("vault_id")
+        if vault_id and self._vault is not None:
+            try:
+                self._vault.mark_used(vault_id)
+            except Exception:  # noqa: BLE001 — fail-soft، finalize را نمی‌شکند
+                pass
         self._save()
         return {
             "ok": True, "id": item_id, "status": "ready",

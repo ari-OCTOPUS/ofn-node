@@ -328,14 +328,15 @@ class LangarBot:
             ("/rules", "قواعد قفل‌شده", "live", "", 80),
             ("/pf", "اکتساب /pf_* (propose-only)", "live", "", 90),
             ("/dm", "DM HITL /dm_* (AI draft، آری approve، ارسال دستی)", "live", "", 92),
-            ("/guards", "snapshot safety nets (warm-up + channel locks)", "live", "", 93),
-            ("/report_warning", "ثبتِ warning پلتفرمی → lock کانال", "live", "", 94),
-            ("/report_karma", "ثبتِ کارمای Reddit → warm-up guard", "live", "", 95),
-            ("/spine", "وضعیت ستون‌فقرات اجرا (bus/telemetry/actuator، read-only)", "live", "", 96),
-            ("/kpi", "داشبورد KPI", "disabled",
-             "pre-launch — صفر دادهٔ واقعی؛ عدد ساختگی رندر نمی‌شود", 100),
-            ("/report", "گزارش خودکار جمعه", "disabled",
-             "نیازمند دادهٔ post-launch؛ تا آن‌موقع SOP دستی در DecisionLog", 110),
+            ("/fan", "Fan CRM /fan_* (segments، LTV، tags)", "live", "", 93),
+            ("/vault", "Vault /vault_* (بانک محتوا)", "live", "", 94),
+            ("/guards", "snapshot safety nets (warm-up + channel locks)", "live", "", 95),
+            ("/report_warning", "ثبتِ warning پلتفرمی → lock کانال", "live", "", 96),
+            ("/report_karma", "ثبتِ کارمای Reddit → warm-up guard", "live", "", 97),
+            ("/kpi", "داشبورد KPI واقعی (از rollup)", "live", "", 98),
+            ("/octopus", "bridge به orchestrator (heartbeat/tick)", "live", "", 99),
+            ("/dm_inbox", "incoming DM → FAQ auto-draft (HITL)", "live", "", 100),
+            ("/spine", "وضعیت ستون‌فقرات اجرا (bus/telemetry/actuator، read-only)", "live", "", 101),
             ("/kill", "توقف اضطراری", "live", "", 200),
             ("/revive", "بازگشت از KILL", "live", "", 210),
         ]
@@ -352,9 +353,12 @@ class LangarBot:
                     "/status /gates /verdicts /saba /brief /think <موضوع>\n"
                     "/upgrade /rules /kill /revive\n"
                     "اکتساب: /pf_status /pf_plan [n] /pf_queue /pf_ok <id> /pf_no <id> /pf_ready <id>\n"
-                    "DM HITL: /dm_status /dm_queue /dm_ok <id> /dm_no <id> /dm_sent <id>\n"
+                    "DM HITL: /dm_status /dm_queue /dm_ok <id> /dm_no <id> /dm_sent <id> /dm_inbox <text>\n"
+                    "Fan CRM: /fan_add <alias> /fan_list /fan_buy <alias> <usd> /fan_stats\n"
+                    "Vault: /vault_add <tag> <hook> /vault_list /vault_metric <id> <up>\n"
                     "safety: /guards /report_warning <ch> /clear_warning <ch> /report_karma <n>\n"
-                    "🔒 خاموش: /kpi (pre-launch، صفر داده) · /report (تا post-launch دستی/SOP)")
+                    "KPI: /kpi /kpi_record <usd> <ppv> [posts] [rate]\n"
+                    "Octopus: /octopus /octopus_tick")
         rows = reg.surface("langar")
         live = [r["id"] for r in rows if r["status"] == "live" and r["id"] != "/pf"]
         locked = [f"🔒 {r['id']} — {r['reason']}" for r in rows if r["status"] == "disabled"]
@@ -371,11 +375,21 @@ class LangarBot:
         reg = self._advertise()
         if not reg:
             return None
-        # /pf_*, /dm_* و زیردستورها به capability والد (<code> نگاشت می‌شوند)
+        # زیردستورها به capability والد (<code> نگاشت می‌شوند
         if cmd.startswith("/pf_"):
             cap_id = "/pf"
         elif cmd.startswith("/dm_"):
             cap_id = "/dm"
+        elif cmd.startswith("/fan_"):
+            cap_id = "/fan"
+        elif cmd.startswith("/vault_"):
+            cap_id = "/vault"
+        elif cmd.startswith("/octopus"):
+            cap_id = "/octopus"
+        elif cmd in ("/dm_inbox", "/inbox"):
+            cap_id = "/dm_inbox"
+        elif cmd == "/kpi_record":
+            cap_id = "/kpi"
         else:
             cap_id = cmd
         eff = reg.effective(cap_id)
@@ -457,6 +471,11 @@ class LangarBot:
                 sys.path.insert(0, str(Path(__file__).resolve().parent))
                 import pf_admin
             return pf_admin.handle_pf(cmd, arg)
+        # /dm_inbox و /inbox باید قبل از generic /dm_ چک شوند (prefix collision)
+        if cmd in ("/dm_inbox", "/inbox"):
+            if not arg:
+                return "❌ /dm_inbox <incoming message text>\nمثال: /dm_inbox \"hi how much for custom?\""
+            return self._dm_inbox(arg)
         if cmd.startswith("/dm_"):
             # صفِ DMِ HITL (safety net #1: AI draft، آری approve، ارسال دستی)
             try:
@@ -465,6 +484,22 @@ class LangarBot:
                 sys.path.insert(0, str(Path(__file__).resolve().parent))
                 import dm_admin
             return dm_admin.handle_dm(cmd, arg)
+        if cmd.startswith("/fan_"):
+            # Fan CRM (لایهٔ ۲): مدیریتِ هواداران
+            try:
+                import fan_admin
+            except ImportError:
+                sys.path.insert(0, str(Path(__file__).resolve().parent))
+                import fan_admin
+            return fan_admin.handle_fan(cmd, arg)
+        if cmd.startswith("/vault_"):
+            # Vault (لایهٔ ۲): بانکِ محتوا
+            try:
+                import vault_admin
+            except ImportError:
+                sys.path.insert(0, str(Path(__file__).resolve().parent))
+                import vault_admin
+            return vault_admin.handle_vault(cmd, arg)
         if cmd == "/rules":
             return "قواعد قفل‌شده:\n" + "\n".join(LOCKED_RULES)
         if cmd == "/gates":
@@ -506,17 +541,16 @@ class LangarBot:
         if cmd == "/think":
             return self._think(arg or "وضعیت کلی")
         if cmd == "/kpi":
-            # disabled-with-reason: no data exists pre-launch; never render fabricated numbers.
-            p = self.model.root / "drafts-awaiting-gate" / "kpi-dashboard-spec.md"
-            spec_note = "اسپک: kpi-dashboard-spec.md" if p.exists() else "اسپک پیدا نشد."
-            return ("🔒 /kpi — داشبورد KPI نیازمند دادهٔ post-launch و عبور از GATE 0 است.\n"
-                    f"وضعیت فعلی: pre-launch، صفر داده. {spec_note}\n"
-                    "تا راه‌اندازی، /status و /verdicts را ببین.")
+            # لایهٔ ۲ (2026-07-16): KPI واقعی از KPIRollup — دیگر disabled نیست.
+            # اگه داده نیست، صفر صادقانه نشان می‌دهد (نه fabricated template).
+            return self._kpi_card()
+        if cmd == "/kpi_record":
+            # /kpi_record <revenue_usd> <ppv_unlocks> [posts] [delivery_rate]
+            # آری هر جمعه از داشبورد عدد می‌زند.
+            return self._kpi_record(arg)
         if cmd == "/report":
-            # disabled-with-reason: automated reporting needs real data; manual SOP until then.
-            return ("🔒 /report — گزارش‌گیری خودکار نیازمند دادهٔ واقعی (post-launch) است.\n"
-                    "تا آن‌موقع SOP جمعه را دستی در DecisionLog ثبت کن.\n"
-                    "قالب دستی: این هفته: ⟨n⟩ دیدن، ⟨n⟩ کلیک، ⟨$x⟩؛ هفتهٔ بعد: ⟨تم⟩.")
+            # لایهٔ ۲: report از همون KPI واقعی — دیگر disabled نیست.
+            return self._kpi_card()
         if cmd == "/spine":
             return self._spine_card()
         if cmd == "/upgrade":
@@ -601,6 +635,11 @@ class LangarBot:
                 return line or "🛡 safety nets: همه سبز"
             except Exception as e:  # noqa: BLE001
                 return f"❌ guards error: {type(e).__name__}"
+        # ── لایهٔ ۲: Octopus bridge + DM inbox (FAQ auto-draft) ──
+        if cmd in ("/octopus", "/octopus_status"):
+            return self._octopus_card()
+        if cmd == "/octopus_tick":
+            return self._octopus_tick()
         if cmd == "/kill":
             KILL_FILE.write_text(_now(), encoding="utf-8")
             self._log("kill", {})
@@ -640,6 +679,119 @@ class LangarBot:
                 + (f" · error-rate {tel_sum['error_rate']}" if tel_sum.get("jobs") else "") + "\n"
                 f"actuator: mode={act_snap['mode']} · adapters={act_snap['adapters_count']} · "
                 f"live={'ممکن' if act_snap['live_possible'] else 'غیرممکن (صفر adapter — fail-closed)'}")
+
+    # ── لایهٔ ۲: KPI / Octopus / DM inbox ──────────────────────────────────
+    def _kpi_card(self) -> str:
+        """KPI واقعی از KPIRollup. اگه داده نیست، صفر صادقانه نشان می‌دهد."""
+        try:
+            sys.path.insert(0, str(PROJECT_ROOT / "brain"))
+            from store import KPIRollup, FanDB
+            k = KPIRollup()
+            cur = k.current_week()
+            trend = k.trend(4)
+            fans = FanDB().summary()
+            if not cur:
+                return ("📊 KPI (هنوز داده ثبت نشده — /kpi_record برای ثبت)\n"
+                        f"fans: {fans['total']} · LTV کل: ${fans['total_ltv_usd']:.2f}\n"
+                        "هفتهٔ جاری: صفر داده. /kpi_record <usd> <ppv> [posts] هر جمعه.")
+            seg = " · ".join(f"{k}:{v}" for k, v in sorted(fans["segments"].items())) or "خالی"
+            rev_trend = " → ".join(f"${w.get('revenue_usd', 0):.0f}" for w in trend) or "—"
+            return (f"📊 KPI هفتهٔ جاری\n"
+                    f"revenue: ${cur.get('revenue_usd', 0):.2f} · PPV unlocks: {cur.get('ppv_unlocks', 0)}\n"
+                    f"posts: {cur.get('posts', 0)} · delivery: {cur.get('delivery_rate', 0)*100:.0f}%\n"
+                    f"fans: {fans['total']} ({seg}) · LTV کل: ${fans['total_ltv_usd']:.2f}\n"
+                    f"trend (۴ هفته): {rev_trend}")
+        except Exception as e:  # noqa: BLE001
+            return f"❌ kpi error: {type(e).__name__}"
+
+    def _kpi_record(self, arg: str) -> str:
+        """/kpi_record <revenue_usd> <ppv_unlocks> [posts] [delivery_rate]"""
+        try:
+            parts = (arg or "").split()
+            if len(parts) < 2:
+                return "❌ /kpi_record <revenue_usd> <ppv_unlocks> [posts] [delivery_rate]\nمثال: /kpi_record 15 1 3 0.9"
+            rev = float(parts[0])
+            ppv = int(parts[1])
+            posts = int(parts[2]) if len(parts) > 2 else 0
+            dr = float(parts[3]) if len(parts) > 3 else 0.0
+            sys.path.insert(0, str(PROJECT_ROOT / "brain"))
+            from store import KPIRollup, FanDB
+            r = KPIRollup().record(revenue_usd=rev, ppv_unlocks=ppv, posts=posts,
+                                   delivery_rate=dr, fan_summary=FanDB().summary())
+            self._log("kpi_record", r)
+            return f"✅ KPI ثبت شد: ${rev:.2f} · {ppv} PPV · {posts} posts · delivery {dr*100:.0f}%"
+        except (ValueError, IndexError):
+            return "❌ اعداد نامعتبر — /kpi_record <usd> <ppv> [posts] [rate]"
+        except Exception as e:  # noqa: BLE001
+            return f"❌ kpi error: {type(e).__name__}"
+
+    def _octopus_card(self) -> str:
+        """وضعیتِ bridge به orchestrator. صادقانه: اگه _ops غایب است، isolated می‌گوید."""
+        try:
+            sys.path.insert(0, str(PROJECT_ROOT / "brain"))
+            from store import OctopusState
+            snap = OctopusState().snapshot()
+            neural = "✅ موجود" if snap["neural_available"] else "🔴 غایب (isolated)"
+            brain = "✅" if snap["brain_loaded"] else "—"
+            prot = "⛔ protective" if snap["protective"] else "✅ normal"
+            last = snap.get("last_tick")
+            now_ts = time.time()
+            last_str = "هیچ‌وقت" if not last else f"{int((now_ts - last)/60)} دقیقه پیش"
+            return (f"🪄 Octopus bridge\n"
+                    f"beat: {snap['beat']} · mode: {prot} · pain: {snap['pain']:.2f}\n"
+                    f"neural: {neural} · brain: {brain}\n"
+                    f"last tick: {last_str}\n"
+                    f"/octopus_tick برای یک tick advisory")
+        except Exception as e:  # noqa: BLE001
+            return f"❌ octopus error: {type(e).__name__}"
+
+    def _octopus_tick(self) -> str:
+        """یک tick از orchestrator اجرا کن (اگه موجود باشد)."""
+        try:
+            sys.path.insert(0, str(PROJECT_ROOT))
+            sys.path.insert(0, str(PROJECT_ROOT / "brain"))
+            # تلاش برای import orchestrator (وابسته به _ops/neural و غیره)
+            try:
+                from orchestrator import PFOrchestrator
+                orch = PFOrchestrator()
+                result = orch.tick()
+                sys.path.insert(0, str(PROJECT_ROOT / "brain"))
+                from store import OctopusState
+                OctopusState().record_tick(
+                    beat=result.beat, protective=result.mode == "protective",
+                    pain=result.pain, brain_loaded=True, neural_available=True)
+                self._log("octopus_tick", {"beat": result.beat, "mode": result.mode})
+                return (f"🪄 tick #{result.beat} اجرا شد · mode: {result.mode} · pain: {result.pain:.2f}\n"
+                        f"snapshot: {len(result.snapshot)} کلید · messages: {len(result.messages)}")
+            except ImportError:
+                # orchestrator یا _ops غایب — isolated heartbeat
+                from store import OctopusState
+                r = OctopusState().mark_isolated("orchestrator/_ops modules unavailable")
+                self._log("octopus_tick_isolated", r)
+                return ("🪄 tick isolated (orchestrator یا _ops غایب)\n"
+                        "heartbeat ثبت شد. برای tick واقعی، _ops/neural باید موجود باشد.\n"
+                        "این حالت صادقانه‌ست — bridge بدون dependency دروغ نمی‌گوید.")
+        except Exception as e:  # noqa: BLE001
+            return f"❌ octopus error: {type(e).__name__}"
+
+    def _dm_inbox(self, text: str) -> str:
+        """incoming DM از مشتری → FAQ auto-draft (HITL — هیچ auto-send)."""
+        try:
+            sys.path.insert(0, str(PROJECT_ROOT / "brain"))
+            from faq_engine import auto_draft_to_pipeline
+            sys.path.insert(0, str(Path(__file__).resolve().parent))
+            from dm_pipeline import DmPipeline
+            r = auto_draft_to_pipeline(text, DmPipeline(), channel="of")
+            if not r.get("ok"):
+                return f"❌ {r.get('error')}"
+            if not r.get("matched"):
+                return ("📭 HITL عادی — این پیام FAQ نیست.\n"
+                        "با /dm_new <channel> <kind> <body> دستی draft کن.")
+            return (f"🤖 FAQ auto-draft ساخته شد: {r['id']} [{r['kind']}]\n"
+                    f"intent: {r['intent']}\n"
+                    f"⚠️ placeholders را پر کن، بعد /dm_ok {r['id']} (هیچ auto-send نیست).")
+        except Exception as e:  # noqa: BLE001
+            return f"❌ dm_inbox error: {type(e).__name__}"
 
     # ── مغز ──
     def _brief(self) -> str:

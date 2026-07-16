@@ -62,20 +62,16 @@ MAIN_MENU = {"inline_keyboard": [
      {"text": "📬 پیام‌های آری", "callback_data": "s:inbox"}],
     [{"text": "✋ محدودهٔ من", "callback_data": "s:scope"},
      {"text": "🔒 قول‌های ما", "callback_data": "s:rules"}],
-    [{"text": "🧠 بریف هفته (heuristic)", "callback_data": "s:brief"}],
+    [{"text": "🧠 بریف هفته (heuristic)", "callback_data": "s:brief"},
+     {"text": "⚙️ بیشتر", "callback_data": "s:more"}],
 ]}
 
-# دکمه‌های غیرواقعی (read-only / not-wired) — فقط وقتی brain/LLM وصل شد نمایش داده شوند.
-# s:trend (🔎 ترند) → نیازمند live trend feed (brain wired) — فعلاً حذف
-# s:ppv (💡 پلن قیمت) → نیازمند live pricing engine wired — فعلاً حذف
-# s:stats (📈 نتیجه‌ها) → نیازمند دادهٔ واقعی post-launch — فعلاً حذف
-# s:brief → brain offline = heuristic-only label
-
-# Coming-soon menu (فقط اگر capabilities flag فعال باشد)
+# لایهٔ ۲ (2026-07-16): این صفحه‌ها executable هستند (از config.json می‌خوانند).
+# برچسب‌ها truthful شده‌اند — دیگری «🔒 brain/engine» غلط بود چون واقعاً کار می‌کردند.
 ADVANCED_MENU = {"inline_keyboard": [
-    [{"text": "🔎 ترند و ایده (🔒 brain)", "callback_data": "s:trend"},
-     {"text": "💡 پلن قیمت (🔒 engine)", "callback_data": "s:ppv"}],
-    [{"text": "📈 نتیجه‌ها (🔒 pre-launch)", "callback_data": "s:stats"},
+    [{"text": "🔎 ترند و ایده", "callback_data": "s:trend"},
+     {"text": "💡 پلن قیمت", "callback_data": "s:ppv"}],
+    [{"text": "📈 نتیجه‌ها", "callback_data": "s:stats"},
      {"text": "↩️ منوی اصلی", "callback_data": "s:menu"}],
 ]}
 BACK_KB = {"inline_keyboard": [[{"text": "↩️ منوی اصلی", "callback_data": "s:menu"}]]}
@@ -158,6 +154,15 @@ class SabaStudio:
         if unread: lines.append(f"📬 <b>{unread}</b> پیام خوانده‌نشده از آری")
         lines.append("\nیه دکمه رو بزن ↓")
         return "\n".join(lines)
+
+    def _advanced_page(self) -> str:
+        """صفحهٔ پیشرفته — ترند/قیمت/آمار. همه از config.json واقعی می‌خوانند."""
+        return ("⚙️ <b>بیشتر</b>\n"
+                "این صفحه‌ها از دادهٔ پیکربندی پروژه می‌خوانند:\n"
+                "• 🔎 ترند و ایده — تم‌های فعلی\n"
+                "• 💡 پلن قیمت — تی‌یرهای PPV\n"
+                "• 📈 نتیجه‌ها — آنالیتیکس پایه\n"
+                "هر کدام را بزن.")
 
     def _greeting(self) -> str:
         h = datetime.now().hour
@@ -416,6 +421,7 @@ class SabaStudio:
         if data == "s:drafts": return (self.drafts_page(), BACK_KB)
         if data == "s:today": return (self.today_page(), BACK_KB)
         if data == "s:cal": return (self.cal_page(), BACK_KB)
+        if data == "s:more": return (self._advanced_page(), ADVANCED_MENU)
         if data == "s:trend": return (self.trend_page(), BACK_KB)
         if data == "s:ppv": return (self.ppv_page(), BACK_KB)
         if data == "s:stats": return (self.stats_page(), BACK_KB)
