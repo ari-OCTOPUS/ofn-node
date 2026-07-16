@@ -279,3 +279,13 @@ Ari شش سندِ طراحیِ Octopus/Chrono (تلگرام) داد: «همه ر
 - **[OPT-ARCHIVE-NS]** انتقال `OCTOPUS/nervous-system/` (snapshot منجمد ۰۷-۱۲، صفر مصرف‌کننده) به `_Archive`؟
 - **[OPT-APP-FATE]** سرنوشت `app/` (snapshot قدیمی‌تر nbb_cp) — بماند به‌عنوان دوقلوی قابل‌حمل یا آرشیو؟ (گره‌خورده به VQ-ROOT-001.)
 - یادآوری: `STOP-ORGANISM` فعلی kill-switch عمدی خودت است (16:07) — احیا فقط با خودت.
+
+## 2026-07-16 19:30 — رأی مالک: بازتنظیم گیت خودمختاری — این صف از این پس فقط برای «مهم‌ها»
+
+**رأی (عین جمله):** «می‌خوام گیت تایید انسانی فقط برا موارد مهم در تلگرام تعاملی واقعی باشه بقیش ازاد بشه و بقیشم بگو تصمیم بگیره انجام بده سوال نپرسه.» → اجرا شد: `autonomy_matrix.py` + ردهٔ self در `auto_approve` + فلگ `OCTOPUS_AUTONOMY_FREE=1` (اثر در ری‌استارت ♻️). دکترین: «06 - Architecture Maps/AUTONOMY-MATRIX-2026-07-16».
+
+**خودتصمیم‌های ثبت‌شده طبق همین رأی (سوال نیستند — اطلاع‌اند):**
+- ‏[OPT-ARCHIVE-NS] ✅ اجرا شد (snapshot → `_Archive/OCTOPUS-nervous-system-snapshot-2026-07-12/`، git mv برگشت‌پذیر).
+- ‏[OPT-EXTRACT] / [OPT-CONFIG] / [OPT-BIND] ✅ ‏approve — بک‌لاگ تأییدشدهٔ بلوک بعدی (داخلی/$0/برگشت‌پذیر).
+
+**فقط این‌ها در ردهٔ مهم می‌مانند (رأی/اقدام خودت):** TASK-REFRESH (schtasks) · OPT-APP-FATE + VQ-ROOT-001 · B6-BUS · NBB-INSTALL · 4D-C-ARCHIVE · PAID-GATE/PII-GUARD/LANGAR-FAILCLOSED/EVAL-GATE/REFACTOR-B · احکام مالی/برنچ‌های قبلی.

@@ -114,19 +114,48 @@ def _knob_for(p: dict) -> tuple[str, tuple] | None:
     return None
 
 
+def _matrix():
+    """ماتریسِ خودمختاری (رأی مالک 2026-07-16) — fail-safe: نبودش = رفتارِ قبلی."""
+    try:
+        import autonomy_matrix
+        return autonomy_matrix
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def decide(p: dict) -> dict:
-    """تصمیمِ درجه‌بندیِ خطر برای یک پیشنهاد. خروجی: {action: auto|escalate, risk, reason}."""
+    """تصمیمِ درجه‌بندیِ خطر برای یک پیشنهاد.
+    خروجی: {action: auto|self|escalate, risk, reason}.
+
+    رأی مالک 2026-07-16 («گیتِ انسانی فقط برای مهم‌ها؛ بقیه تصمیم بگیر و انجام بده،
+    سوال نپرس»): با فلگِ OCTOPUS_AUTONOMY_FREE، پیشنهادِ *غیرمهم* دیگر به مالک
+    escalate نمی‌شود — یا auto (knobِ امن) یا **self** (خودتصمیمِ ثبت‌شده در ledger،
+    بدونِ سوال). ردهٔ مهم (پول/کد/secret/حذف/ارسال/kill/...) همیشه escalate می‌ماند."""
     risk = classify(p)
-    if risk == "high":
-        return {"action": "escalate", "risk": risk, "reason": "خطرِ بالا → رأیِ مالک"}
+    am = _matrix()
+    free_on = bool(am and am.free_enabled())
+    imp, imp_why = (am.is_important(p) if am else (False, ""))
+    if risk == "high" or imp:
+        return {"action": "escalate", "risk": "high" if risk == "high" else risk,
+                "reason": ("خطرِ بالا → رأیِ مالک" if risk == "high"
+                           else f"ردهٔ مهم ({imp_why}) → گیتِ تعاملیِ تلگرام")}
     if not goal_aligned(p):
+        if free_on:
+            return {"action": "self", "verdict": "defer", "risk": risk,
+                    "reason": "غیرمهم ولی با اهداف هم‌راستا نیست — خودتصمیم: defer (ثبت، بدونِ سوال)"}
         return {"action": "escalate", "risk": risk, "reason": "با اهداف هم‌راستا نیست → مالک"}
     knob = _knob_for(p)
     if knob is None:
+        if free_on:
+            return {"action": "self", "verdict": "approve", "risk": risk,
+                    "reason": "غیرمهم + هم‌راستا — خودتصمیم: approve (اجرا با مجریِ همان حوزه؛ ثبت‌شده)"}
         return {"action": "escalate", "risk": risk,
                 "reason": "مسیرِ اعمالِ خودکارِ امن ندارد (نیازِ کد/دست) → مالک"}
     ok, why = self_test()
     if not ok:
+        if free_on:
+            return {"action": "self", "verdict": "defer", "risk": risk,
+                    "reason": f"غیرمهم ولی تستِ خود رد ({why}) — خودتصمیم: defer تا سبزشدن"}
         return {"action": "escalate", "risk": risk, "reason": f"تستِ خود رد: {why}"}
     return {"action": "auto", "risk": risk, "knob": knob[0], "bounds": knob[1],
             "reason": "کم‌خطر + هم‌راستا + تستِ خود سبز"}
@@ -175,16 +204,29 @@ def _log(entry: dict) -> None:
 
 
 def run(proposals: list[dict]) -> dict:
-    """همهٔ پیشنهادها را درجه‌بندی کن. مجوزِ مالک (پرچم) نباشد → هیچ اعمالِ خودکار (فقط
-    درجه‌بندی برای شفافیت). خروجی: {applied:[...], escalated:[...], by_risk:{...}}."""
-    has_permission = improve.ACT_AUTO.exists()
-    applied, escalated = [], []
+    """همهٔ پیشنهادها را درجه‌بندی کن. مجوز (پرچمِ مالک یا OCTOPUS_AUTONOMY_FREE) نباشد →
+    هیچ اعمالِ خودکار (فقط درجه‌بندی برای شفافیت).
+    خروجی: {applied:[...], self_decided:[...], escalated:[...], by_risk:{...}} —
+    self_decided = خودتصمیم‌های ثبت‌شده (رأی مالک 07-16: به صفِ مالک نمی‌روند)."""
+    am = _matrix()
+    has_permission = improve.ACT_AUTO.exists() or bool(am and am.free_enabled())
+    applied, escalated, self_decided = [], [], []
     by_risk = {"low": 0, "medium": 0, "high": 0}
     # refractory را فقط یک‌بار در هر run مصرف کن (نه per-proposal)
     tested_once = None
     for p in proposals:
         d = decide(p)
         by_risk[d["risk"]] = by_risk.get(d["risk"], 0) + 1
+        if d["action"] == "self":
+            rec = {"title": p.get("title"), "verdict": d.get("verdict"),
+                   "risk": d["risk"], "why": d["reason"]}
+            self_decided.append(rec)
+            _log({"decision": "self-" + str(d.get("verdict")), **rec})
+            try:  # شفافیتِ بدونِ سوال: هر خودتصمیم در ledger
+                opslib.ledger_note("AUTONOMY_SELF_VERDICT", rec, actor="auto-approve")
+            except Exception:  # noqa: BLE001
+                pass
+            continue
         if d["action"] == "auto" and has_permission and not applied:
             # فقط یک اعمالِ خودکار در هر run (گامِ کوچک، ضدِ نوسان) + ثبتِ refractory
             r = apply_knob(d["knob"], d["bounds"])
@@ -206,7 +248,7 @@ def run(proposals: list[dict]) -> dict:
             _log({"decision": "escalated", "risk": d["risk"], "title": p.get("title"),
                   "why": reason})
     return {"permission": has_permission, "applied": applied,
-            "escalated": escalated, "by_risk": by_risk}
+            "self_decided": self_decided, "escalated": escalated, "by_risk": by_risk}
 
 
 def load_persisted_knobs() -> dict:

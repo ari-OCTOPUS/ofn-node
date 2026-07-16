@@ -49,6 +49,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_p0_security_fixes.py", "test_go_live.py",
          "test_web_research.py", "test_metacognitive.py", "test_discoveries.py",
          "test_events.py", "test_part_loops.py", "test_auto_approve.py",
+         # 2026-07-16: ماتریسِ ردهٔ خودمختاری (رأی مالک: گیتِ انسانی فقط برای مهم‌ها) —
+         # important هرگز آزاد نمی‌شود؛ غیرمهم پشتِ OCTOPUS_AUTONOMY_FREE خودتصمیمِ ثبت‌شده.
+         "test_autonomy_matrix.py",
          "test_business_brain.py", "test_vault_updater.py",
          "test_vault_updater_apply.py", "test_goal_directed.py",
          "test_stress.py", "test_innervation.py", "test_ignition.py",

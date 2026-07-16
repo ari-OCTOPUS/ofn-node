@@ -56,6 +56,11 @@ updated: 2026-07-16
 - سخت‌سازی: gitignoreِ ‏4d_system برای cassettes (فقط دموی سنتتیک whitelisted) + ‏.test-venv.
 - **۳ رأیِ نو:** ‏[4D-C-ARCHIVE] ‏· [B6-BUS] (الف/ب) ‏· [NBB-INSTALL] — بخشِ «4d_system» در AGENT_QUESTIONS.
 
+## بازتنظیمِ گیتِ خودمختاری (2026-07-16 19:30، رأی صریح مالک) ⚡
+
+- **«گیتِ انسانی فقط برای مهم‌ها؛ بقیه تصمیم بگیر و انجام بده، سوال نپرس»** → ساخته و فعال شد: [[../06 - Architecture Maps/AUTONOMY-MATRIX-2026-07-16|AUTONOMY-MATRIX]] + ماژول `_ops/cortex/autonomy_matrix.py` + ردهٔ **self** در `auto_approve` (خودتصمیمِ ثبت‌شده در ledger، `AUTONOMY_SELF_VERDICT`) + فلگ `OCTOPUS_AUTONOMY_FREE=1` — **اثر در ری‌استارتِ ♻️ بعدی**. ردهٔ مهم (پول/secret/حذف/ارسال/کد/kill/PII/schtasks) هرگز آزاد نمی‌شود؛ تست ۶چکی + رگرسیون auto_approve ‏۷/۷ سبز.
+- طبق همین رأی: OPT-ARCHIVE-NS اجرا شد (snapshot → ‏_Archive)؛ OPT-EXTRACT/CONFIG/BIND ‏approve و در بک‌لاگِ بلوکِ بعدی؛ AGENT_QUESTIONS از این پس فقط برای ردهٔ مهم.
+
 ## داوریِ گزارشِ بهینه‌سازیِ Orchestrator (2026-07-16، جلسهٔ جدا) — هیچ حذفی اجرا نشد
 
 - ۴ از ۶ «حذفِ سریعِ» گزارش با راستی‌آزماییِ ۶-ایجنته **رد شد** — دوتایش مرگبار بود: `approval_channel.py` = باتِ زندهٔ تأیید انسانی (نه dead code)؛ `unified_bus.py` = نخاعِ default-ON. توصیهٔ «NBB-CP مغزِ canonical» = گزینهٔ Cِ ممنوعِ [[../06 - Architecture Maps/TRI-PLANE RECONCILIATION - ops vs NBB-CP vs 4D-control-plane|TRI-PLANE]]. داوری کامل: [[../00 - Inbox/2026-07-16 VERDICT — گزارش بهینه‌سازی Orchestrator (راستی‌آزمایی شواهدمحور)|VERDICT]].
