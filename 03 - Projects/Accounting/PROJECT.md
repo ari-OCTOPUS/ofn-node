@@ -74,17 +74,19 @@ updated: 2026-07-06
 
 ## Active Context
 
+- **2026-07-16 (write-backِ PocketSmith — رأیِ مالک «همزمان تو پاکت‌اسمیتم ذخیره شه و سینک باشه»):** اولین استثنای کنترل‌شدهٔ دکترینِ صفر-نوشتن ساخته شد — `_ops/legs/ps_writeback.py`: تأییدهای `/review` (و `apply_review`) به‌صورتِ برچسبِ `oct-مالک-…`/`oct-نوع-…` روی همان تراکنش در PocketSmith نوشته می‌شوند. فقط PUT `labels` به `/transactions/{id}`، پشتِ فلگِ خاموشِ `OCTOPUS_WIRE_PS_WRITEBACK`، مرزِ HALT محترم، قفلِ flush، سقف+مهلت، auto-backfillِ یک‌باره، لاگِ ممیزیِ gitignoreشده. verify خصمانهٔ ۵-لنزی → ۲ یافتهٔ HIGH (gitignoreِ صف/لاگ + نمایشِ 403 در کارتِ /sync) و ۴ MED همه بسته شد؛ تست ۳۲چکی سبز. جزئیات و فعال‌سازی: [[RISK-DECISIONS]] §RD-004.
+- **2026-07-16 (فازِ صفرِ دفترِ واقعی):** نقدِ بیرونیِ متخصص پذیرفته شد — سیستمِ قبلی «مرور/برچسب‌زنیِ تراکنش» است نه حسابداری. رأیِ مالک: «فقط فازِ صفر». ساخته شد: `ledger_core.py` (دفترِ دوطرفهٔ متوازن، append-only، reversal، قفلِ دوره، GST fail-closed) + `raw_store.py` (شواهدِ خامِ immutable) + `recon.py` (reconciliation واقعیِ تراکنش‌به‌تراکنش — تستِ پرچم‌دار: خالصِ برابر با خطاهای متضاد **رد** می‌شود). واقعیتِ entity ثبت شد (شرکت/ABN به نامِ آرمین؛ عباس related-party). ریسک‌ها در [[RISK-DECISIONS]]؛ قالبِ policy در `personal/policy-profile.example.json`.
+- **2026-07-16 (جلسهٔ حسابدارِ مولتی‌ایجنت):** حسابدارِ شبکه‌ایِ واقعی ساخته شد — PocketSmith زندهٔ read-only + CSVهای طرف‌حساب‌ها → ۵۷۶ تراکنشِ یکتا (content-hash dedup)، موتورِ سنتِ صحیح (`money.py`، نه float)، آبشارِ قاعده‌محور (transfer/wage/vendor + صفِ مرور)، reconcile **GREEN**. کد در `_ops/legs/` (money·txn_store·attributor·accountant·pocketsmith_api·txn_categorize). کارتِ `/finance` تلگرام به خلاصهٔ **PII-امنِ** شبکه وصل شد + حسابدارِ گفتگومحورِ `/review` (فعلاً pause تا فازِ صفر کامل شود). گزارشِ کامل + دادهٔ خام همه **gitignore** در پوشهٔ `personal/`.
 - **2026-07-06 (جلسه ۱۷):** کد پروژه به `_code/` منتقل شد (B1 پلن NONMD-TRIAGE؛ propose→executed با verdict آری). لاگ کامل: `00 - Inbox/nonmd-move-log-2026-07-06.csv`.
-- تمرکز فعلی: تبدیل به tenant #1 — اول تکمیل رجیستر انطباق و انتخاب حسابدار
-- تغییرات اخیر: 2026-07-03 — ارتقا به manifest فاز ۱ (رجیستر انطباق + گردش‌کار + agent interface) · 2026-07-04 — [[03 - Projects/Accounting/Report - Accounting - Tax Map FY2025-26|Report - Tax Map FY2025-26]] از Inbox به این پوشه منتقل شد (نکته کلیدی: سقف instant asset write-off از 1 Jul 2026 → $1,000) · 2026-07-04 — کیت مغز پروژه (INDEX·DecisionLog·OpenQuestions طبق LIVING-BRAIN-BLUEPRINT) ساخته شد
-- ۳ قدم بعدی: (۱) مالک: ACN/ABN/تاریخ‌ها را پر کند (۲) انتخاب حسابدار (۳) تست گردش‌کار رسید با ۱۰ رسید واقعی
-- تصمیم‌های باز: نرم‌افزار حسابداری؛ چرخه BAS با حسابدار
+- تمرکز فعلی: حسابدارِ شبکه (فعال، propose-only) — مالک استثناهای صف مرور را دونه‌دونه تأیید می‌کند تا دقت بالا رود
+- ۳ قدم بعدی: (۱) مالک: ۳ موردِ بازِ گزارش را روشن کند (حقوق-عباس-به-آرمین $۷٬۱۰۰ · ۶ خروجیِ بی‌صاحب $۱۱٬۰۲۰ · تأییدِ مشتری‌ها) (۲) فعال‌سازیِ pull با فلگ در ری‌استارت (۳) گسترشِ دادهٔ طرف‌حساب‌ها تا امروز
+- تصمیم‌های باز: دسته‌بندیِ ریزِ خرج (مدلِ محلی ضعیف) · چرخه BAS با حسابدار
 
 ## Progress
 
-- چه کار می‌کند: manifest کامل؛ گردش‌کار تعریف‌شده (اجرا نشده)
-- چه مانده: داده واقعی، حسابدار، نرم‌افزار، اجرای گردش‌کار
-- مشکلات شناخته: هیچ سند مالی ساختاریافته‌ای هنوز در vault نیست
+- چه کار می‌کند: حسابدارِ شبکه‌ایِ زنده (PocketSmith read-only → ۵۷۶ تراکنش، سنتِ صحیح، reconcile GREEN، کارتِ `/finance` PII-امن) + manifestِ انطباق
+- چه مانده: تأییدِ استثناهای صف مرور (مالک)، دسته‌بندیِ ریزِ خرج، اجرای BAS با حسابدار
+- مشکلات شناخته: دسته‌بندیِ ریزِ خرج با مدلِ محلیِ کوچک ضعیف است (۵۲۸ قلم در صفِ مرور)؛ reconcile با اسکرین‌شاتِ قدیمی ~$۵٬۰۰۰ فرق دارد (دورهٔ جدیدتر، درست)
 
 ## Next actions
 
@@ -94,6 +96,8 @@ updated: 2026-07-06
 
 ## نوت‌های مرتبط
 
+- 📗 [[03 - Projects/Accounting/RAHNAMA-HESABDARI|راهنمای گام‌به‌گامِ حسابداری (برای مالک — ساده)]]
+- [[03 - Projects/Accounting/RISK-DECISIONS|RISK-DECISIONS — تصمیم‌های ریسک]]
 - [[03 - Projects/Accounting/Report - Accounting - Tax Map FY2025-26|Report - Tax Map FY2025-26]]
 - [[03 - Projects/Accounting/Accounting|لاگ پیام‌های تلگرام — Accounting]]
 - [[03 - Projects/Accounting/app/README|README]]

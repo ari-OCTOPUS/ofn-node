@@ -404,12 +404,20 @@ class TelegramApprovalChannel(ApprovalChannel):
             {"command": "start", "description": "🐙 منوی اصلی (کابین ۸-تبی)"},
             {"command": "overview", "description": "📊 نمای کلی"},
             {"command": "money", "description": "💰 پول و متابولیسم"},
+            {"command": "finance", "description": "💰 دارایی‌ها/حساب"},
+            {"command": "review", "description": "🧮 حسابداریِ دونه‌دونه"},
+            {"command": "books", "description": "📚 ثبتِ دفتر (تأییدِ ثبت‌ها)"},
+            {"command": "sync", "description": "🔄 همگام‌سازیِ حسابداری"},
             {"command": "doctor", "description": "🩺 دکتر و تکامل"},
             {"command": "brain", "description": "🧠 حافظه و مغز"},
             {"command": "blueprint", "description": "🧭 بلوپرینت P0–P6"},
             {"command": "school", "description": "🎓 مدرسه"},
             {"command": "safety", "description": "🛡️ ایمنی"},
             {"command": "alerts", "description": "🚨 هشدارها و خام"},
+            {"command": "organs", "description": "🦾 اندام‌ها (مدیریت)"},
+            {"command": "neworgan", "description": "🆕 ساختِ اندامِ نو"},
+            {"command": "wiring", "description": "🔌 نقشهٔ اتصال‌ها (راست‌گو)"},
+            {"command": "health", "description": "🫀 سلامتِ اختاپوس"},
             {"command": "queue", "description": "📥 صف تأیید"},
             {"command": "status", "description": "📊 وضعیت ارگانیسم"},
             {"command": "lead", "description": "📝 ثبت لید جدید"},
@@ -519,6 +527,12 @@ class TelegramApprovalChannel(ApprovalChannel):
             return self._dispatch_page(parts)
         if parts[0] == "act":
             return self._dispatch_act(parts)
+        if parts[0] == "rev":                 # حسابدارِ گفتگومحور (propose-only)
+            return self._dispatch_review(parts)
+        if parts[0] == "jrn":                 # صفِ ثبتِ دفتر (تأییدِ دومِ مالک → post_journal)
+            return self._dispatch_books(parts)
+        if parts[0] == "acct":                # میان‌بُرهای دکمه‌ایِ حسابداری (review/books/sync)
+            return self._dispatch_acct(parts)
         if len(parts) != 4 or parts[0] != "app":
             return "نادیده"
         verb, effect_id, token = parts[1], parts[2], parts[3]
@@ -886,7 +900,13 @@ class TelegramApprovalChannel(ApprovalChannel):
                 {"text": "🩺 دکتر و تکامل", "callback_data": "menu:doctor"},
             ],
             [
+                {"text": "🦾 اندام‌ها", "callback_data": "menu:organs"},
+            ],
+            [
                 {"text": "💰 پول و متابولیسم", "callback_data": "menu:money"},
+                {"text": "💰 دارایی‌ها/حساب", "callback_data": "menu:finance"},
+            ],
+            [
                 {"text": "🎓 مدرسه", "callback_data": "menu:school"},
             ],
             [
@@ -929,6 +949,15 @@ class TelegramApprovalChannel(ApprovalChannel):
         t = (text or "").strip()
         if not t:
             return None
+        # اگر مالک وسطِ حالتِ متنِ آزادِ حسابدار یک دستورِ / زد = تغییرِ زمینه → حالتِ متن را ببند
+        # (تا پیامِ بعدیِ نامرتبط اشتباهاً جوابِ حسابداری تلقی نشود — رفعِ sticky-flagِ audit)
+        if t.startswith("/"):
+            try:
+                import acct_review as _ar0
+                if _ar0.is_awaiting_free():
+                    _ar0.set_awaiting_free(False)
+            except Exception:  # noqa: BLE001
+                pass
         # UX v2: /start منوی اصلی
         if t == "/start":
             return self._main_menu()
@@ -951,7 +980,7 @@ class TelegramApprovalChannel(ApprovalChannel):
             return self.resume_all()
         # ── Cockpit v2: میان‌بُرهای تب + دستورهای جدید (هر ورودی همچنان DATA است) ──
         if t in ("/overview", "/blueprint", "/brain", "/doctor", "/money",
-                 "/school", "/safety", "/alerts"):
+                 "/finance", "/school", "/safety", "/alerts", "/organs"):
             return self._render_tab(t[1:])
         if t == "/upgrades":
             return self._upgrades_text()
@@ -966,7 +995,527 @@ class TelegramApprovalChannel(ApprovalChannel):
         if t == "/reveal" or t.startswith("/reveal "):
             arg = t[len("/reveal"):].strip()
             return self.reveal_experiment(arg) if arg else self.lab_status()
+        # ── کابینِ راست‌گو (P3 2026-07-15): read-only، وضعیت از تازگیِ فایل نه پیش‌فرضِ فلگ ──
+        if t == "/wiring":
+            return self._cmd_wiring()
+        if t == "/health":
+            return self._cmd_health()
+        # ── موج ۲: ساختِ اندامِ نو (data-driven، دو-مرحله‌ای، owner-only) ──
+        if t.startswith("/neworgan "):
+            return self._cmd_neworgan(t[len("/neworgan "):])
+        if t.startswith("/organ-approve "):
+            return self._cmd_organ_approve(t[len("/organ-approve "):])
+        # ── حسابداریِ گفتگومحورِ دونه‌دونه (2026-07-16) ──
+        if t == "/review":
+            return self._cmd_review_start()
+        # ── دفترِ واقعی: صفِ ثبت‌های پیشنهادی + رفرشِ امنِ شبکه (فازِ ۱، 2026-07-16) ──
+        if t == "/books":
+            return self._cmd_books()
+        if t == "/sync":
+            return self._cmd_acct_sync()
+        # متنِ آزاد فقط وقتی جلسه فعال است و منتظرِ متن → تجزیه به پیشنهاد (نه دستور، نه auto-apply)
+        # گیت روی is_active هم هست تا پرچمِ سرگردانِ یک جلسهٔ بسته پیامِ نامرتبط را ندزدد.
+        if not t.startswith("/"):
+            try:
+                import acct_review as _ar
+                if _ar.is_active() and _ar.is_awaiting_free():
+                    return self._cmd_review_freetext(t)
+            except Exception:  # noqa: BLE001 — fail-soft: نبودِ ماژول = نادیده
+                pass
         return None
+
+    # ─── حسابدارِ گفتگومحور (acct_review) — propose-only، پول‌جابه‌جا‌نمی‌کند ───────────
+    def _ar(self):
+        """import acct_review (lazy، fail-soft → None)."""
+        import sys as _s
+        legs = str(_HERE.parent / "legs")
+        if legs not in _s.path:
+            _s.path.insert(0, legs)
+        try:
+            import acct_review
+            return acct_review
+        except Exception:  # noqa: BLE001
+            return None
+
+    def _cmd_review_start(self):
+        ar = self._ar()
+        if ar is None:
+            return "🧮 حسابدار در دسترس نیست."
+        try:
+            q = ar.start()
+        except Exception as e:  # noqa: BLE001
+            return f"🧮 خطا در شروعِ مرور: {type(e).__name__}"
+        return self._review_card(q)
+
+    def _review_card(self, q: dict):
+        """payloadِ acct_review → (text, inline_keyboard). فقط به مالک؛ صفر دکمهٔ پول."""
+        if not isinstance(q, dict):
+            return "🧮 چیزی برای مرور نیست."
+        kind = q.get("kind")
+        if kind in ("empty", "done", "stopped"):
+            return "🧮 " + str(q.get("message", "تمام."))
+        if kind == "error":
+            return "🧮 " + str(q.get("message", "خطا."))
+        # question | stale — کارتِ سوال
+        idx = int(q.get("idx", 0))
+        g = q.get("guess") or {}
+        head = ("⚠️ سوالِ قبلی گذشته بود؛ این سوالِ فعلی است:\n"
+                if kind == "stale" else "")
+        lines = [head + f"🧾 <b>سوال {q.get('n','?')}/{q.get('total','?')}</b> "
+                 f"(تأییدشده تا حالا: {q.get('done',0)})",
+                 f"📅 {html.escape(str(q.get('date','')))} · "
+                 f"💵 <b>{html.escape(str(q.get('amount','?')))}</b> AUD ({q.get('sign','')})",
+                 f"📝 {html.escape(str(q.get('desc','')))}",
+                 f"🤖 حدسِ فعلی: {html.escape(str(g.get('owner_fa','?')))}/"
+                 f"{html.escape(str(g.get('ptype_fa','?')))} — مالِ کیه و چیه؟"]
+        # هویتِ پایدار: idِ همان تراکنش در callback (نه موقعیتِ idx) — ضدِ تپِ کارتِ گذشته
+        tid = str(q.get("txn_id", ""))[:32]
+        oc = g.get("owner"); pc = g.get("ptype")
+        code_o = {"armin": "a", "abbas": "b", "business": "z", "unknown": "u"}.get(oc)
+        code_p = {"income": "i", "expense": "e", "wage": "w", "transfer": "t"}.get(pc)
+        rows = []
+        if code_o and code_p and oc != "unknown" and pc != "unknown":
+            rows.append([{"text": f"✅ همین: {g.get('owner_fa')}/{g.get('ptype_fa')}",
+                          "callback_data": f"rev:a:{tid}:{code_o}:{code_p}"}])
+        rows += [
+            [{"text": "آرمین·خرج", "callback_data": f"rev:a:{tid}:a:e"},
+             {"text": "عباس·خرج", "callback_data": f"rev:a:{tid}:b:e"}],
+            [{"text": "آرمین·درآمد", "callback_data": f"rev:a:{tid}:a:i"},
+             {"text": "عباس·درآمد", "callback_data": f"rev:a:{tid}:b:i"}],
+            [{"text": "حقوقِ آرمین", "callback_data": f"rev:a:{tid}:a:w"},
+             {"text": "عبور/pass", "callback_data": f"rev:a:{tid}:a:t"}],
+            [{"text": "✍️ متنِ آزاد", "callback_data": f"rev:f:{tid}"},
+             {"text": "⏭ رد", "callback_data": f"rev:s:{tid}"},
+             {"text": "⏹ توقف", "callback_data": "rev:x"}],
+        ]
+        return {"text": "\n".join(lines), "reply_markup": {"inline_keyboard": rows}}
+
+    def _cmd_review_freetext(self, text: str):
+        """متنِ آزادِ مالک → پیشنهادِ تأییدشدنی (هرگز auto-apply). روی «نفهمیدم»/«ناقص»
+        حالتِ متنِ آزاد باز می‌ماند تا مالک دوباره بنویسد (رفعِ dead-endِ audit)."""
+        ar = self._ar()
+        if ar is None:
+            return None
+        try:
+            p = ar.parse_free(text)                     # awaiting را اینجا پاک نمی‌کنیم
+        except Exception:  # noqa: BLE001
+            return "🧮 نتونستم بخونم — دوباره بنویس یا با دکمه‌ها جواب بده."
+        if p.get("kind") == "need-clarify":
+            return "🧮 " + str(p.get("message", "واضح‌تر بگو.")) + " (هنوز منتظرِ متنم)"
+        oc, pc = p.get("owner_code"), p.get("ptype_code")
+        if not oc or not pc:                            # نیمه‌فهمیده → متن باز می‌ماند، دوباره بنویس
+            return (f"🧮 فهمیدم: {p.get('owner_fa','؟')}/{p.get('ptype_fa','؟')} — "
+                    "ناقصه؛ دوباره کامل بنویس (مثلاً «عباس، خرج») یا با دکمه‌ها جواب بده.")
+        # پیشنهادِ کامل → حالا حالتِ متنِ آزاد را ببند و کارتِ تأیید با هویتِ تراکنشِ فعلی بده
+        q = ar.question()
+        if q.get("kind") != "question":
+            ar.set_awaiting_free(False)
+            return "🧮 چیزی برای تأیید نمانده — /review بزن."
+        ar.set_awaiting_free(False)
+        tid = str(q.get("txn_id", ""))[:32]
+        txt = (f"🧮 پیشنهاد از متنت برای این تراکنش: <b>{html.escape(str(p.get('owner_fa')))}/"
+               f"{html.escape(str(p.get('ptype_fa')))}</b> — تأیید کنم؟")
+        kb = {"inline_keyboard": [[
+            {"text": "✅ تأیید", "callback_data": f"rev:a:{tid}:{oc}:{pc}"},
+            {"text": "✍️ دوباره", "callback_data": f"rev:f:{tid}"},
+            {"text": "⏭ رد", "callback_data": f"rev:s:{tid}"}]]}
+        return {"text": txt, "reply_markup": kb}
+
+    def _dispatch_review(self, parts: list):
+        """callbackهای حسابدار: rev:a:<txn_id>:oc:pc (جواب) · rev:f:<txn_id> (متنِ آزاد) ·
+        rev:s:<txn_id> (رد) · rev:x (توقف). propose-only — هیچ‌کدام پول جابه‌جا نمی‌کند.
+        هویتِ تراکنش (نه موقعیت) در callback است تا تپِ کارتِ گذشته سطرِ اشتباه را عوض نکند."""
+        ar = self._ar()
+        if ar is None:
+            return "نادیده"
+        verb = parts[1] if len(parts) > 1 else ""
+        try:
+            if verb == "a" and len(parts) == 5:
+                r = ar.answer(parts[3], parts[4], tid_token=parts[2])
+                kind = r.get("kind")
+                if kind == "applied":
+                    a = r.get("applied", {})
+                    nxt = self._review_card(r.get("next", {}))
+                    tag = f"ثبت شد: {a.get('owner_fa','')}/{a.get('ptype_fa','')} ✅\n"
+                    if isinstance(nxt, dict):
+                        nxt["text"] = tag + nxt.get("text", "")
+                        return nxt
+                    return tag + str(nxt)
+                if kind == "vanished":
+                    nxt = self._review_card(r.get("next", {}))
+                    if isinstance(nxt, dict):
+                        nxt["text"] = "این تراکنش دیگر در دیتا نیست — سراغِ بعدی.\n" + nxt.get("text", "")
+                        return nxt
+                    return "این تراکنش دیگر نیست — " + str(nxt)
+                if kind == "save-failed":
+                    return "🧮 " + str(r.get("message", "ثبت نشد."))
+                if kind == "stale":
+                    return self._review_card({**r, "kind": "stale"})
+                return self._review_card(r)
+            if verb == "f" and len(parts) >= 3:
+                ar.set_awaiting_free(True)
+                return {"text": "✍️ بنویس (مثلاً: «مالِ عباسه، خرجِ مصالح»). "
+                                "مبلغ به هیچ هوشِ ابری نمی‌رود.", "reply_markup": None}
+            if verb == "s" and len(parts) >= 3:
+                return self._review_card(ar.skip())
+            if verb == "x":
+                return self._review_card(ar.stop())
+        except Exception as e:  # noqa: BLE001
+            return f"رد: خطا {type(e).__name__}"
+        return "نادیده"
+
+    # ─── /books — صفِ ثبت‌های پیشنهادیِ دفتر (تأییدِ دومِ مالک؛ propose-only تا تأیید) ───
+    def _jb(self):
+        """import journal_bridge (lazy، fail-soft → None)."""
+        import sys as _s
+        legs = str(_HERE.parent / "legs")
+        if legs not in _s.path:
+            _s.path.insert(0, legs)
+        try:
+            import journal_bridge
+            return journal_bridge
+        except Exception:  # noqa: BLE001
+            return None
+
+    def _cmd_books(self):
+        jb = self._jb()
+        if jb is None:
+            return "📚 دفتر در دسترس نیست."
+        try:
+            rb = jb.rebuild()                       # idempotent — تصمیم‌های قبلی دست‌نخورده
+            plist = jb.pending()
+        except Exception as e:  # noqa: BLE001
+            return f"📚 خطا در ساختِ صف: {type(e).__name__}"
+        if not plist:
+            st = jb.stats()
+            return ("📚 <b>دفتر</b>: صفِ ثبت خالی است ✅\n"
+                    f"ثبت‌شده {st.get('posted', 0)} · ردشده {st.get('rejected', 0)} — "
+                    "تراکنشِ تازه را اول در /review تأیید کن، بعد این‌جا ثبت می‌شود.")
+        head = (f"📚 <b>صفِ ثبتِ دفتر</b>: {len(plist)} پیشنهاد"
+                + (f" (+{rb.get('built', 0)} تازه)" if rb.get("built") else "") + "\n")
+        card = self._books_card(plist[0])
+        if isinstance(card, dict):
+            card["text"] = head + card["text"]
+        return card
+
+    def _books_card(self, p: dict):
+        """کارتِ یک پیشنهادِ ثبت: پیش‌نمایشِ دوطرفه + دکمه‌های هویت‌دار (txn_id در callback).
+        هشدارهای صادق: عبور/تکراریِ احتمالی. tid بلندتر از ظرفیتِ callback → خطای صریح (#25)."""
+        if not isinstance(p, dict):
+            return "📚 پیشنهادی نیست."
+        tid = str(p.get("txn_id", ""))
+        if len(tid) > 48:
+            return "📚 idِ تراکنش برای دکمه بلند است — این مورد را دستی ثبت کن (گزارش به ایجنت)."
+        lines = [f"🧾 <b>ثبتِ پیشنهادی</b> — {html.escape(str(p.get('date', '')))} · "
+                 f"<b>{html.escape(str(p.get('amount', '?')))}</b> AUD",
+                 f"📝 {html.escape(str(p.get('desc', '')))}",
+                 f"🏷 {html.escape(str(p.get('owner', '')))}/{html.escape(str(p.get('ptype', '')))}",
+                 "<b>ثبتِ دوطرفه:</b>"]
+        for ln in (p.get("preview") or [])[:6]:
+            lines.append("  " + html.escape(str(ln)))
+        if p.get("note"):
+            lines.append("⚠️ " + html.escape(str(p.get("note"))[:160]))
+        if p.get("possible_dup_of"):
+            lines.append(f"⚠️ شاید تکراریِ ثبتِ <code>{html.escape(str(p['possible_dup_of']))}</code> "
+                         "باشد (همان مبلغ/تاریخ) — اگر واقعاً جداست، ثبت کن؛ وگرنه رد.")
+        if p.get("gst_pending"):
+            lines.append("<i>GST بعداً با حسابدار کدگذاری می‌شود (RD-002) — این ثبت بدونِ tax_code است.</i>")
+        kb = {"inline_keyboard": [
+            [{"text": "✅ ثبت در دفتر", "callback_data": f"jrn:a:{tid}"},
+             {"text": "❌ رد", "callback_data": f"jrn:r:{tid}"}],
+            [{"text": "⏭ بعدی", "callback_data": f"jrn:n:{tid}"},
+             {"text": "🏠 منو", "callback_data": "menu:main"}],
+        ]}
+        return {"text": "\n".join(lines), "reply_markup": kb}
+
+    def _dispatch_books(self, parts: list):
+        """jrn:a:<tid> ثبت · jrn:r:<tid> رد · jrn:n:<tid> بعدی. هویت با txn_id —
+        تپِ کارتِ کهنه/تکراری = «قبلاً تصمیم‌گرفته» (هرگز ثبتِ دوباره؛ ikey=txn-<id>)."""
+        jb = self._jb()
+        if jb is None:
+            return "نادیده"
+        verb = parts[1] if len(parts) > 1 else ""
+        tid = parts[2] if len(parts) > 2 else ""
+        try:
+            if verb == "a" and tid:
+                r = jb.apply(tid, actor="owner")
+                if not r.get("ok"):
+                    msg = "📚 ثبت نشد: " + "؛ ".join(str(e) for e in r.get("errors", ["خطا"]))[:180]
+                    if r.get("stale"):
+                        # کارت کهنه بود — کارتِ تازه را نشان بده (اگر هنوز proposed است)
+                        p = jb.get(tid)
+                        if isinstance(p, dict) and p.get("status") == "proposed":
+                            card = self._books_card(p)
+                            if isinstance(card, dict):
+                                card["text"] = msg + "\n\n" + card["text"]
+                                return card
+                    return msg
+                tag = f"ثبت شد ✅ journal <code>{html.escape(str(r.get('journal_id', '')))}</code>\n"
+                if r.get("duplicate"):
+                    tag = ("قبلاً در دفتر ثبت شده بود — صف ترمیم شد ✅ "
+                           f"<code>{html.escape(str(r.get('journal_id', '')))}</code>\n")
+                if r.get("warn"):
+                    tag += "⚠️ " + html.escape(str(r["warn"])) + "\n"
+                nxt = jb.pending()
+                if nxt:
+                    card = self._books_card(nxt[0])
+                    if isinstance(card, dict):
+                        card["text"] = tag + card["text"]
+                        return card
+                    return tag + str(card)
+                return tag + "صفِ ثبت خالی شد 🎉 — تراز در /finance."
+            if verb == "r" and tid:
+                rr = jb.reject(tid, reason="owner-reject")
+                if not rr.get("ok"):
+                    return "📚 رد ثبت نشد: " + "؛ ".join(str(e) for e in rr.get("errors", ["خطا"]))[:120]
+                nxt = jb.pending()
+                return (self._books_card(nxt[0]) if nxt
+                        else "رد شد ❌ — صفِ ثبت خالی است.")
+            if verb == "n" and tid:
+                # چرخشِ واقعی (audit #33): موردِ بعد از tid در ترتیب؛ آخرِ لیست → برگرد اول
+                plist = jb.pending()
+                if not plist:
+                    return "📚 صفِ ثبت خالی است."
+                ids = [str(p.get("txn_id")) for p in plist]
+                i = ids.index(tid) if tid in ids else -1
+                nxt = plist[(i + 1) % len(plist)]
+                return self._books_card(nxt)
+        except Exception as e:  # noqa: BLE001
+            return f"رد: خطا {type(e).__name__}"
+        return "نادیده"
+
+    def _cmd_acct_sync(self):
+        """رفرشِ امنِ شبکه: pull خام → شواهدِ immutable → attribute با **حفظِ تأییدهای مالک**
+        → بازسازیِ صفِ ثبت. read-only نسبت به بانک (GET) — تنها استثنا: write-backِ برچسبِ
+        دسته‌بندی به PocketSmith پشتِ فلگِ OCTOPUS_WIRE_PS_WRITEBACK (RD-004، فقط labels)."""
+        import sys as _s
+        legs = str(_HERE.parent / "legs")
+        if legs not in _s.path:
+            _s.path.insert(0, legs)
+        out = ["🔄 <b>همگام‌سازیِ حسابداری</b>"]
+        # ۱) **یک** fetch (اسکن #48: دو pullِ جدا = دو snapshotِ ناهم‌زمان → شواهد≠store)
+        rows = None
+        try:
+            import pocketsmith_api, raw_store  # noqa: WPS433
+            if pocketsmith_api._flag_on() if hasattr(pocketsmith_api, "_flag_on") \
+                    else os.environ.get("OCTOPUS_WIRE_POCKETSMITH") == "1":
+                raw = pocketsmith_api.fetch_transactions("2025-12-08", None)
+                if isinstance(raw, dict) and raw.get("ok") is False:
+                    out.append("⚠️ pull ناقص بود (صفحه‌ای شکست) — این دور از فایل/storeِ "
+                               "موجود ادامه می‌دهیم؛ دوباره /sync بزن")
+                    rows = None
+                else:
+                    rows = raw.get("transactions", []) if isinstance(raw, dict) else raw
+                    ri = raw_store.ingest("pocketsmith", "anz-main", rows or [])
+                    out.append(f"• شواهدِ خام: +{ri.get('ingested', 0)} نو · "
+                               f"{ri.get('skipped_existing', 0)} تکراری (immutable)")
+            else:
+                out.append("• شواهدِ خام: PocketSmith خاموش (فلگ)")
+        except Exception as e:  # noqa: BLE001
+            out.append(f"• شواهدِ خام: خطا {type(e).__name__}")
+        # ۲) شبکه با حفظِ تأییدها — از **همان** fetch (بدونِ pullِ دوم)
+        try:
+            import accountant  # noqa: WPS433
+            sn = accountant.sync_network(api_raw=rows)
+            if sn.get("ok"):
+                c = sn.get("counts") or {}
+                out.append(f"• شبکه: {sn.get('unique', '?')} تراکنش · "
+                           f"تأییدهای برگردانده‌شده {sn.get('restored_confirmed', 0)}/"
+                           f"{sn.get('kept_from_before', 0)} · "
+                           f"صفِ مرور {c.get('needs_review', '?')}")
+                dropped = sn.get("kept_from_before", 0) - sn.get("restored_confirmed", 0)
+                if dropped > 0:
+                    # صادق (audit #28): این‌ها واقعاً از storeِ تازه بیرون‌اند (محتوا/منبع
+                    # عوض شده) — دوباره در /review می‌آیند؛ ادعای «چیزی حذف نشده» نمی‌کنیم.
+                    out.append(f"⚠️ {dropped} تأیید به شبکهٔ تازه منتقل نشد (محتوا/منبع عوض "
+                               "شده) — همان‌ها دوباره در /review می‌آیند.")
+                psw = sn.get("ps_writeback") or {}
+                if psw.get("wired") or psw.get("written") or psw.get("kept"):
+                    # صادق (verify لنز ۴/۵): مالک باید written/kept و مخصوصاً 403ِ
+                    # کلیدِ فقط‌خواندنی را ببیند — نه فقط لاگِ محلی.
+                    mark = "✅" if psw.get("ok") else "⚠️"
+                    out.append(f"• write-back پاکت‌اسمیت: {mark} {psw.get('written', 0)} "
+                               f"نوشته · {psw.get('kept', 0)} در صف · "
+                               f"{html.escape(str(psw.get('note', '')))}")
+            else:
+                out.append(f"• شبکه: خطا {html.escape(str(sn.get('error', '?')))}")
+        except Exception as e:  # noqa: BLE001
+            out.append(f"• شبکه: خطا {type(e).__name__}")
+        # ۳) صفِ ثبتِ دفتر
+        jb = self._jb()
+        if jb is not None:
+            try:
+                rb = jb.rebuild()
+                out.append(f"• صفِ ثبت: +{rb.get('built', 0)} پیشنهادِ نو · "
+                           f"{rb.get('pending', 0)} منتظرِ تأیید → /books")
+            except Exception as e:  # noqa: BLE001
+                out.append(f"• صفِ ثبت: خطا {type(e).__name__}")
+        out.append("<i>هیچ ثبتِ خودکاری نشد — ثبت فقط با تأییدِ تو در /books.</i>")
+        # دکمه‌های ادامهٔ مسیر (اسکن #62: رشتهٔ خالی مالک را مجبور به تایپ می‌کرد)
+        return {"text": "\n".join(out), "reply_markup": {"inline_keyboard": [[
+            {"text": "🧮 مرور", "callback_data": "acct:review"},
+            {"text": "📚 ثبتِ دفتر", "callback_data": "acct:books"},
+            {"text": "💰 تراز", "callback_data": "menu:finance"}]]}}
+
+    def _dispatch_acct(self, parts: list):
+        """میان‌بُرهای دکمه‌ایِ حسابداری (اسکن #34/#35): acct:review/books/sync →
+        همان handlerهای دستوری (owner-only از قبل در poll_once، propose-only)."""
+        verb = parts[1] if len(parts) > 1 else ""
+        if verb == "review":
+            return self._cmd_review_start()
+        if verb == "books":
+            return self._cmd_books()
+        if verb == "sync":
+            return self._cmd_acct_sync()
+        return "نادیده"
+
+    # ─── موج ۲: ساختِ اندامِ نو — فقط نوشتنِ رجیستریِ داده (هرگز کدِ تولید) ──────────────
+    def _organ_registry_path(self):
+        from pathlib import Path as _P
+        sd = _P(self._state_dir) if self._state_dir else (_P(__file__).resolve().parents[1] / "state")
+        return sd / "organ-registry.json"
+
+    def _read_organ_registry(self) -> list:
+        import json as _json
+        p = self._organ_registry_path()
+        try:
+            if p.exists():
+                d = _json.loads(p.read_text("utf-8"))
+                return d.get("organs", []) if isinstance(d, dict) else []
+        except (OSError, ValueError):
+            pass
+        return []
+
+    @staticmethod
+    def _organ_slug(name: str) -> str:
+        s = re.sub(r"[^a-z0-9]+", "-", str(name).strip().lower()).strip("-")
+        return s[:32]
+
+    def _cmd_neworgan(self, arg: str):
+        """قدمِ ۱: پیشنهادِ اندامِ نو (فقط pending؛ هیچ نوشتنِ رجیستری). نامِ نمایشیِ آزاد، slug مشتق."""
+        import json as _json
+        name = str(arg or "").strip()[:60]
+        if len(name) < 2:
+            return "نام کوتاه است. مثال: <code>/neworgan فروشگاه ووکامرس</code>"
+        slug = self._organ_slug(name)
+        if not slug:
+            return "نامِ نامعتبر (باید حرف/عددِ لاتین در slug بسازد؛ یک نامِ لاتین‌دار بده)."
+        if slug in {o.get("key") for o in self._read_organ_registry()} or \
+                slug in {k for k, *_ in self.ORGANS}:
+            return f"اندامِ «{html.escape(slug)}» از قبل هست."
+        try:
+            pdir = self._organ_registry_path().parent / "organ-proposals"
+            pdir.mkdir(parents=True, exist_ok=True)
+            (pdir / f"{slug}.json").write_text(_json.dumps(
+                {"key": slug, "label": name, "live": False, "kind": "custom",
+                 "note": "اسکلتِ owner-ساخت (propose-only، بی‌پول)",
+                 "proposed_at": _today_iso(), "status": "proposed"}, ensure_ascii=False), "utf-8")
+        except OSError as e:  # noqa: BLE001
+            return f"❌ ثبتِ پیشنهاد ناموفق: {type(e).__name__}"
+        return (f"🆕 <b>اندامِ نو پیشنهاد شد</b>\n"
+                f"نام: {html.escape(name)} · کلید: <code>{html.escape(slug)}</code>\n"
+                f"{self._DIV.strip()}\n"
+                f"اسکلتِ propose-only (read-only، بی‌پول، live=false). برای ساخت بنویس:\n"
+                f"<code>/organ-approve {html.escape(slug)}</code>")
+
+    def _cmd_organ_approve(self, arg: str):
+        """قدمِ ۲: تأییدِ owner → افزودنِ پیشنهاد به رجیستریِ دادهٔ state/organ-registry.json.
+        هیچ کدِ تولید نوشته نمی‌شود؛ فقط یک ورودیِ داده (append، بدونِ حذف)."""
+        import json as _json
+        import os as _os
+        slug = self._organ_slug(arg)
+        pp = self._organ_registry_path().parent / "organ-proposals" / f"{slug}.json"
+        if not pp.exists():
+            return f"پیشنهادی برای «{html.escape(slug)}» نیست. اول <code>/neworgan &lt;نام&gt;</code>."
+        try:
+            entry = _json.loads(pp.read_text("utf-8"))
+        except (OSError, ValueError):
+            return "❌ پیشنهادِ ناخوانا."
+        organs = self._read_organ_registry()
+        if any(o.get("key") == slug for o in organs):
+            return f"«{html.escape(slug)}» از قبل در رجیستری است."
+        entry["status"] = "active"
+        entry["approved_at"] = _today_iso()
+        organs.append(entry)
+        try:
+            rp = self._organ_registry_path()
+            tmp = rp.with_suffix(".json.tmp")
+            tmp.write_text(_json.dumps({"schema": "organ-registry.v1", "organs": organs},
+                                       ensure_ascii=False, indent=1), "utf-8")
+            _os.replace(tmp, rp)
+            pp.unlink()
+        except OSError as e:  # noqa: BLE001
+            return f"❌ نوشتنِ رجیستری ناموفق: {type(e).__name__}"
+        self._append_request("organ-create", slug)      # auditِ append-only
+        return (f"✅ <b>اندام ساخته شد</b>: {html.escape(entry.get('label', slug))} "
+                f"(<code>{html.escape(slug)}</code>)\n"
+                f"در تبِ 🦾 اندام‌ها به‌عنوان اسکلت (⚪ live=false) دیده می‌شود تا دادهٔ واقعی وصل شود.\n"
+                f"<i>هیچ کدِ تولید نوشته نشد — فقط یک ورودیِ رجیستریِ داده.</i>")
+
+    # ─── کابینِ راست‌گو: /wiring + /health (read-only، هرگز stale/بی‌نویسنده را سبز نشان نمی‌دهد) ──
+    def _cmd_wiring(self) -> str:
+        """نقشهٔ اتصال‌ها از truth-cards: هر جزء با آیکنِ صادق (🟢 تازه · 🟠 کهنه · ⚫ غایب/فلگ-خاموش).
+        قانون: 🟢 فقط برای فایلِ موجودِ تازه؛ هیچ پیش‌فرضِ کدی «زنده» جا نمی‌زند."""
+        rm = self._rm()
+        if rm is None:
+            return "🔌 <b>اتصال‌ها</b>\n(read-model در دسترس نیست)"
+        try:
+            cards = rm.read_truth_cards()
+        except Exception as e:  # noqa: BLE001 — fail-soft
+            return f"🔌 <b>اتصال‌ها</b>\n❌ خطا: {type(e).__name__}"
+        lines = ["🔌 <b>نقشهٔ اتصال‌ها</b> (راست‌گو)", self._DIV.strip()]
+        for c in cards:
+            flag = f" · <code>{c['flag']}</code>" if c.get("flag") else ""
+            fo = ""
+            if c.get("flag"):
+                fo = " (فلگ روشن)" if c.get("flag_on") else " (فلگ خاموش)"
+            lines.append(f"{c['icon']} <b>{html.escape(str(c['label']))}</b> — "
+                         f"{html.escape(str(c['status']))}{fo}{flag}")
+        n_green = sum(1 for c in cards if c["icon"] == "🟢")
+        lines.append(self._DIV.strip())
+        lines.append(f"🟢 تازه: {n_green} · 🟠 کهنه/⚫ غایب: {len(cards) - n_green}")
+        lines.append("<i>سبز فقط برای فایلِ موجودِ تازه — snapshotِ کهنه یا بی‌نویسنده هرگز سبز نیست.</i>")
+        return "\n".join(lines)
+
+    def _cmd_health(self) -> str:
+        """سلامتِ راست‌گو: قلبِ shadow (تازگیِ واقعی)، capability marker، گیتِ پول، halt."""
+        rm = self._rm()
+        cards = {}
+        if rm is not None:
+            try:
+                cards = {c["id"]: c for c in rm.read_truth_cards()}
+            except Exception:  # noqa: BLE001
+                cards = {}
+        heart = cards.get("heart_shadow", {})
+        heart_line = f"{heart.get('icon', '❔')} {heart.get('status', '?')}" if heart else "❔"
+        # capability marker + گیتِ پول از فایل (نه پیش‌فرض)
+        from pathlib import Path as _P
+        sd = _P(self._state_dir) if self._state_dir else (_P(__file__).resolve().parents[1] / "state")
+        cap = "🟢 معتبر" if (sd / "CAPABILITY-OK.flag").exists() else "🔴 غایب"
+        money = ("🔓 مسلح" if (sd / "LIVE-ENABLED.flag").exists()
+                 else "🔒 بسته (LIVE-ENABLED نیست — paper، عمدی)")
+        try:
+            halt = "🔴 HALT فعال" if (opslib.STOP_ORGANISM.exists() or opslib.halted()) else "🟢 در حال اجرا"
+        except Exception:  # noqa: BLE001
+            halt = "❔"
+        # صداقتِ GO-LIVE (2026-07-16): کدام گیت‌های ACTIVATION مسلح‌اند — از فایل، نه ادعا.
+        # هیچ سطحِ کابین این را نشان نمی‌داد؛ ۹ فلگِ مسلح از 07-10 نامرئی بودند.
+        try:
+            gates = sorted(p.name for p in opslib.OPS.glob("ACTIVATION-*.flag"))
+        except Exception:  # noqa: BLE001
+            gates = []
+        gate_names = "، ".join(g[len("ACTIVATION-"):-len(".flag")] for g in gates)
+        gates_line = (f"گیت‌های مسلح: {len(gates)}"
+                      + (f" — {html.escape(gate_names)}" if gates else " (هیچ ACTIVATION-فلگی نیست)"))
+        return (f"🫀 <b>سلامتِ اختاپوس</b> · {self._read_mode_color()}\n"
+                f"{self._DIV.strip()}\n"
+                f"قلب (shadow): {heart_line}\n"
+                f"Capability marker: {cap}\n"
+                f"گیتِ پول: {money}\n"
+                f"{gates_line}\n"
+                f"وضعیتِ توقف: {halt}\n"
+                f"{self._DIV.strip()}\n"
+                f"<i>سلامتِ کاملِ تست‌ها: run_all (۱۳۷) + validators جدا اجرا می‌شوند.</i>")
 
     def _main_menu(self) -> dict:
         """خانهٔ اصلی (جلسه ۴۶، رأی مالک «فقط آره یا نه»): خانهٔ سادهٔ تصمیم‌ها.
@@ -1340,7 +1889,7 @@ class TelegramApprovalChannel(ApprovalChannel):
     # ═══════════════════════════════════════════════════════════════════════════
 
     TAB_PAGES = ("overview", "cortex", "blueprint", "brain", "doctor", "money",
-                 "school", "safety", "alerts")
+                 "finance", "school", "safety", "alerts", "organs")
 
     # allowlistِ بستهٔ act (§۲.۴ — ضدquarantine). chamber_t عمداً غایب است:
     # RED — فعال‌سازی فقط با verdict صریحِ مالک، هرگز از دکمهٔ تلگرام (P5).
@@ -1348,7 +1897,10 @@ class TelegramApprovalChannel(ApprovalChannel):
         "doctor", "neural", "unified", "lead", "lead_tick", "school",
         "consolidation", "evolution", "box", "ideas", "spectral", "barbell",
         "debate", "scheduler", "reconcile", "fitness", "epistemics",
-        "selfheal", "bio"})
+        "selfheal", "bio",
+        # 🦾 کنسولِ اندام (2026-07-15): legهای worker/business توگل‌پذیر (propose-only، بی‌پول،
+        # هیچ‌کدام RISKY نیستند). فعال‌سازی همان مسیرِ flag/flaggo — اثر در بوتِ بعدی.
+        "ziman", "cartographer", "mining"})
     RISKY_FLAGS = frozenset({"barbell", "debate", "reconcile", "fitness",
                              "epistemics", "selfheal", "bio"})
     # C9 (بازبینیِ خصمانه): allowlist = دقیقاً مجموعهٔ reachable (هر key دکمه‌ای دارد که
@@ -1420,6 +1972,17 @@ class TelegramApprovalChannel(ApprovalChannel):
                       ("log", "📜 لاگ"), ("requests", "📨 صفِ درخواست")],
     }
     PG_KEYS = {("alerts", "rules"), ("safety", "flags")}
+    # 🦾 کنسولِ اندام (2026-07-15): (key, label, env-flag یا None, kind). keyِ دارای env با
+    # همان مسیرِ flag/flaggo توگل می‌شود؛ بی‌flag = اسکلتِ همیشه‌روشنِ read-only.
+    ORGANS = (
+        ("lead",         "🎨 Lead-نقاشی",   "OCTOPUS_WIRE_LEAD",         "worker"),
+        ("ziman",        "🖼 Ziman",         "OCTOPUS_WIRE_ZIMAN",        "worker"),
+        ("cartographer", "🗺 Cartographer",  "OCTOPUS_WIRE_CARTOGRAPHER", "worker"),
+        ("mining",       "⛏ Mining",         "OCTOPUS_WIRE_MINING",       "business"),
+        ("crypto",       "📈 Crypto",         None,                        "business"),
+        ("accounting",   "🧾 Accounting",     None,                        "business"),
+        ("knowledge",    "📚 Knowledge",      None,                        "business"),
+    )
     _DIV = "\n➖➖➖➖➖\n"
 
     # ── زیرساخت: read-model ، redaction ، توکنِ act ─────────────────────────────
@@ -1499,6 +2062,23 @@ class TelegramApprovalChannel(ApprovalChannel):
             return False, "قفل تا 2026-07-21 (capability/LIVE_ENABLED بسته)"
         except Exception:  # noqa: BLE001 — گیتِ ناخوانا = بسته
             return False, "قفل (گیت خوانا نیست — fail-closed)"
+
+    def _activation_gate_line(self, flag_name: str) -> str:
+        """وضعیتِ راست‌گوی یک گیتِ دوقفله از فایل، نه متنِ hardcode (صداقتِ GO-LIVE 2026-07-16):
+        باز → 🟢 مسلح؛ فلگ هست ولی سپرِ تاریخ بسته → 🟡؛ فلگ غایب → 🔴 با تاریخِ واقعی.
+        فقط رندر است — هیچ گیتی را باز نمی‌کند (opslib.live_gate_open همان مرجعِ اجرایی)."""
+        try:
+            flag = opslib.OPS / flag_name
+            ok, _why = opslib.live_gate_open(flag)
+            if ok:
+                return "🟢 مسلح (فلگ + سپرِ تاریخ باز)"
+            if flag.exists():
+                return (f"🟡 فلگ مسلح ولی سپرِ تاریخ بسته "
+                        f"(تا {opslib.LIVE_GATE_DATE.isoformat()}، بدونِ GO-LIVE)")
+            return (f"🔴 قفل تا {opslib.LIVE_GATE_DATE.isoformat()} "
+                    f"(فلگِ {flag_name} غایب)")
+        except Exception:  # noqa: BLE001 — گیتِ ناخوانا = بسته (fail-closed)
+            return "🔴 قفل (گیت خوانا نیست — fail-closed)"
 
     def _dashboard(self):
         """ماژولِ dashboard/server.py با importlib و نامِ یکتا (بدونِ تصادم با panel/server)."""
@@ -1649,9 +2229,19 @@ class TelegramApprovalChannel(ApprovalChannel):
         target: مقدارِ مطلقِ ذخیره‌شده در mint (فعلاً فقط flaggo)."""
         if verb in self.OOB_VERBS:
             ok = self._append_request(verb, key)
-            return ("📨 درخواست ثبت شد (out-of-band) — organism در ضربانِ بعدی مصرف می‌کند.\n"
-                    "<i>صف: state/cockpit-requests.jsonl · هیچ اجرای inline (INV-7)</i>"
-                    if ok else "❌ ثبتِ درخواست ناموفق")
+            if not ok:
+                return "❌ ثبتِ درخواست ناموفق"
+            # 2026-07-15 صداقت: دیگر دروغِ «اجرا می‌شود» نمی‌گوییم. فقط doctor/consolidate با
+            # OCTOPUS_TG_EXEC=1 روی beat اجرا می‌شوند؛ بقیه مصرف‌کننده ندارند.
+            import os as _os
+            runnable = verb in ("doctor", "consolidate")
+            exec_on = _os.environ.get("OCTOPUS_TG_EXEC") == "1"
+            if runnable and exec_on:
+                return "📨 ثبت شد — organism در ضربانِ بعدی اجرا می‌کند.\n<i>صف: cockpit-requests.jsonl</i>"
+            if runnable:
+                return ("📨 ثبت شد — ولی <b>اجرا خاموش است</b>. برای اجرای واقعی "
+                        "<code>OCTOPUS_TG_EXEC=1</code> بگذار و restart کن.")
+            return "📨 ثبت شد — ولی این verb مصرف‌کنندهٔ اجرا ندارد (فقط doctor/consolidate اجرا می‌شوند)."
         if verb == "pf":
             return self._act_pf_control(key)
         if verb == "export":
@@ -1716,13 +2306,7 @@ class TelegramApprovalChannel(ApprovalChannel):
     def _act_flag_confirm(self, key: str):
         """قدمِ ۱ از تغییرِ flag: کارتِ confirm با توکنِ تازه (flagهای ریسکی هشدار دارند)."""
         env_name = f"OCTOPUS_WIRE_{key.upper()}"
-        rm = self._rm()
-        cur = False
-        if rm is not None:
-            try:
-                cur = bool(rm.read_capabilities().get("flags", {}).get(env_name, False))
-            except Exception:  # noqa: BLE001
-                cur = False
+        cur = self._current_flag(env_name)   # 2026-07-15: منبعِ واحد (شاملِ flagهای اندام via env)
         want = not cur                       # C4: تصمیمِ مطلق در زمانِ رندر
         target_word = "روشن" if want else "خاموش"
         risk = "⚠️ <b>ریسکی</b>" if key in self.RISKY_FLAGS else "🟢 امن"
@@ -1772,12 +2356,17 @@ class TelegramApprovalChannel(ApprovalChannel):
 
     def _current_flag(self, env_name: str) -> bool:
         rm = self._rm()
-        if rm is None:
-            return False
-        try:
-            return bool(rm.read_capabilities().get("flags", {}).get(env_name, False))
-        except Exception:  # noqa: BLE001
-            return False
+        if rm is not None:
+            try:
+                fl = rm.read_capabilities().get("flags", {}) or {}
+                if env_name in fl:
+                    return bool(fl.get(env_name))
+            except Exception:  # noqa: BLE001
+                pass
+        # fallback: env زنده — flagهای اندام (ZIMAN/CARTOGRAPHER/MINING) در لیستِ ۱۹تاییِ
+        # read_capabilities نیستند؛ os.environ حقیقتِ زمانِ اجراست.
+        import os as _os
+        return _os.environ.get(env_name) == "1"
 
     def _act_restart(self) -> str:
         """ری‌استارتِ تمیز از مسیرِ موجودِ dashboard._do_restart (فایل authoritative است)."""
@@ -1876,19 +2465,29 @@ class TelegramApprovalChannel(ApprovalChannel):
                          for k, lbl in cards[i:i + 2]])
         acts = {
             "blueprint": [("📸 گرفتنِ baseline", "baseline", "capture")],
-            "brain": [("🧠 تحکیمِ الان", "consolidate", "run"),
-                      ("💡 بازسازیِ ایده-گراف", "ideas", "rebuild")],
+            # 2026-07-15 حذفِ دکمه‌های مرده: مصرف‌کنندهٔ beat فقط doctor/consolidate را اجرا می‌کند
+            # (_TG_EXEC_SAFE، wiring.py). دکمه‌های ideas/school/ingest صف می‌شدند و هرگز اجرا نمی‌شدند
+            # (toastِ دروغینِ «اجرا می‌شود») → حذف شدند تا UI الکی نباشد. اجرای واقعیِ ingest/school
+            # از مسیرِ beatِ خودشان (OCTOPUS_WIRE_INGEST/SCHOOL) می‌رود، نه از دکمهٔ تلگرام.
+            "brain": [("🧠 تحکیمِ الان", "consolidate", "run")],
             "doctor": [("🩺 اجرای چرخهٔ دکتر", "doctor", "run")],
-            "school": [("🎓 یادگیریِ الان", "school", "learn"),
-                       ("📥 ingest کریپتو", "ingest", "crypto"),
-                       ("📥 ingest حساب", "ingest", "acct")],
             "safety": [("❄️ FREEZE", "freeze", "on"),
                        ("🧹 جاروی اثرها", "sweep", "effects"),
                        ("♻️ ری‌استارتِ تمیز", "restart", "organism")],
             "alerts": [("📦 بازتولیدِ بسته", "export", "raw")],
+            # 🦾 کنسولِ اندام: توگل‌ها از مسیرِ flag/flaggo (توکن + تأییدِ دومرحله‌ای) + دکتر
+            "organs": [("🎨 Lead", "flag", "lead"), ("🖼 Ziman", "flag", "ziman"),
+                       ("🗺 Cartographer", "flag", "cartographer"), ("⛏ Mining", "flag", "mining"),
+                       ("🩺 اجرای چرخهٔ دکتر", "doctor", "run")],
         }.get(page, [])
         for i in range(0, len(acts), 2):
             rows.append([self._act_btn(lbl, v, k) for lbl, v, k in acts[i:i + 2]])
+        if page == "finance":
+            # اسکن #35: تبِ مالی می‌گفت «/review بزن» ولی دکمه نداشت — سه میان‌بُرِ مستقیم
+            # (acct: → همان handlerهای دستوری؛ نه act: — این‌ها propose-only اند، نه اکشنِ پولی)
+            rows.append([{"text": "🧮 مرور", "callback_data": "acct:review"},
+                         {"text": "📚 ثبتِ دفتر", "callback_data": "acct:books"},
+                         {"text": "🔄 sync", "callback_data": "acct:sync"}])
         rows.append([{"text": "🔄 منوی اصلی", "callback_data": "menu:main"}])
         return {"inline_keyboard": rows}
 
@@ -1896,8 +2495,255 @@ class TelegramApprovalChannel(ApprovalChannel):
         return (f"{title} · {self._read_mode_color()}\n"
                 f"📥 صفِ تأیید: {self._count_pending()}{self._DIV}")
 
+    def _organs_text(self) -> str:
+        """🦾 کنسولِ اندام (Wave 1، read-only): لیستِ صادقِ همهٔ legها با وضعیتِ flag + زنده.
+        قانونِ راست‌گویی: 🟢 فقط برای flagِ واقعاً روشن؛ leg بدونِ داده = ⚪ اسکلت، نه سبز."""
+        rm = self._rm()
+        bl = {}
+        if rm is not None:
+            try:
+                st = rm.read_state() or {}
+                bl = st.get("business_legs") or {}
+                if isinstance(bl.get("business_legs"), dict):   # شکلِ دولایه (فیکسِ P0)
+                    bl = bl["business_legs"]
+            except Exception:  # noqa: BLE001
+                bl = {}
+        lines = [self._hdr("🦾 <b>اندام‌ها</b>")]
+        on = 0
+        for key, label, env, _kind in self.ORGANS:
+            if env:
+                is_on = self._current_flag(env)
+                fstate = "🟢 روشن" if is_on else "⚪ خاموش"
+            else:
+                is_on = True
+                fstate = "◽ همیشه‌روشن"
+            cell = bl.get(key) if isinstance(bl, dict) else None
+            if isinstance(cell, dict):
+                note = str(cell.get("signal") or cell.get("note") or "")[:44]
+                live_txt = ("🟢 زنده" if cell.get("live") else "⚪ اسکلت") + \
+                           (f" — {html.escape(note)}" if note else "")
+            elif env and is_on:
+                live_txt = "روشن (منتظرِ داده)"
+            elif env:
+                live_txt = "خاموش"
+            else:
+                live_txt = "—"
+            if is_on:
+                on += 1
+            lines.append(f"{label}: {fstate} · {live_txt}")
+        # موج ۲: اندام‌های owner-ساختِ رجیستری (data-driven، اسکلت تا دادهٔ واقعی)
+        customs = self._read_organ_registry()
+        for o in customs:
+            lbl = o.get("label") or o.get("key")
+            live = bool(o.get("live"))
+            lines.append(f"🆕 {html.escape(str(lbl))}: ◽ رجیستری · "
+                         + ("🟢 زنده" if live else "⚪ اسکلت"))
+        lines.append(self._DIV.strip())
+        lines.append(f"🟢 فعالِ built-in: {on}/{len(self.ORGANS)} · 🆕 owner-ساخت: {len(customs)}")
+        lines.append("<i>فعال/غیرفعال: دکمه‌ها (تأییدِ دومرحله‌ای، بوتِ بعدی) · 🩺 دکتر.\n"
+                     "ساختِ اندامِ نو: <code>/neworgan &lt;نام&gt;</code> سپس <code>/organ-approve</code>.</i>")
+        return "\n".join(lines)
+
+    # ── 💰 دارایی‌ها/حساب — نظارتِ داراییِ کل + دفترِ شخصی/مشترک (فقط‌خواندنی) ────────
+    def _finance_data(self):
+        """(asset_map_status, personal_status) — دو ماژولِ فقط‌خواندنیِ _ops/legs. fail-soft:
+        هر کدام None اگر ماژول غایب/خطا (→ کارتِ «خاموش/خالی»ِ صادق). صفر mutation، صفر settle،
+        صفر جابه‌جاییِ پول. seamِ تزریق برای تست (تست این متد را override می‌کند)."""
+        import sys as _s
+        legs_dir = str(_HERE.parent / "legs")
+        if legs_dir not in _s.path:
+            _s.path.insert(0, legs_dir)
+        asset = personal = None
+        try:
+            import asset_map as _am
+            asset = _am.asset_map_status()
+        except Exception:  # noqa: BLE001 — ماژول/پرچم غایب یا خطا → خاموش (هرگز عددِ ساختگی)
+            asset = None
+        try:
+            import personal_ledger as _pl
+            personal = _pl.personal_status()
+        except Exception:  # noqa: BLE001
+            personal = None
+        return asset, personal
+
+    def _finance_text(self) -> str:
+        """💰 دارایی‌ها/حساب — نقشهٔ نظارتِ دارایی (asset_map) + دفترِ شخصی/مشترک (personal_ledger).
+        data-driven و فقط‌خواندنی؛ صفر settle/جابه‌جاییِ پول. خط‌قرمزِ سخت: فقط سیگنالِ امن +
+        ترازِ تجمیعی + رشتهٔ پیشنهادِ تسویه — هرگز تراکنشِ منفرد و هرگز شماره‌حساب. منبعِ خاموش/
+        غایب → «خاموش/خالی»ِ صادق (هرگز عددِ ساختگی)."""
+        asset, personal = self._finance_data()
+        lines = [self._hdr("💰 <b>دارایی‌ها/حساب</b>")]
+
+        # ── ۱) نقشهٔ نظارتِ دارایی (فقط سیگنالِ whitelist شده از asset_map) ──
+        assets = (asset or {}).get("assets") or []
+        if not assets:
+            lines.append("🗺 <b>نقشهٔ دارایی</b>: ⚪ خاموش/خالی — asset_map در دسترس نیست.")
+        else:
+            cats = (asset or {}).get("categories", "—")
+            stale = (asset or {}).get("stale_count", 0)
+            lines.append(f"🗺 <b>نقشهٔ دارایی</b>: {cats} دسته · {stale} کهنه")
+            for a in assets[:8]:
+                live = "🟢" if a.get("live") else "⚪"
+                leg = html.escape(str(a.get("leg", "?")))
+                cat = html.escape(str(a.get("category", "?")))
+                sig = html.escape(str(a.get("signal", "unknown"))[:60])
+                age = a.get("age_days")
+                age_txt = (f" · {age:.0f}روز کهنگی"
+                           if isinstance(age, (int, float)) and not isinstance(age, bool)
+                           else "")
+                lines.append(f"{live} {leg} ({cat}): {sig}{age_txt}")
+            props = (asset or {}).get("proposals") or []
+            if props:
+                lines.append("💡 پیشنهادها (advisory — تأییدِ خودت، صفر اجرا):")
+                for p in props[:3]:
+                    lines.append(f"• {html.escape(str(p)[:130])}")
+
+        lines.append(self._DIV.strip())
+
+        # ── ۲) دفترِ شخصی/مشترک — فقط ترازِ تجمیعی + رشتهٔ تسویه (هرگز تراکنش/شماره‌حساب) ──
+        if not personal or not personal.get("live"):
+            note = str((personal or {}).get("note", "")).strip()
+            tail = (" — " + html.escape(note[:90])) if note else " — ledger پر نشده."
+            lines.append("🧾 <b>دفترِ شخصی/مشترک</b>: ⚪ خالی" + tail)
+        else:
+            bal = personal.get("balance") or {}
+            cur = html.escape(str(bal.get("currency", "AUD")))
+            per = bal.get("per_party") or {}
+            lines.append("🧾 <b>دفترِ شخصی/مشترک</b> (فقط ترازِ تجمیعی):")
+            for party, plabel in (("armin", "آرمین"), ("abbas", "عباس")):
+                pd = per.get(party) or {}
+                nw, cf = pd.get("net_worth"), pd.get("cashflow")
+                if nw is not None or cf is not None:
+                    lines.append(f"• {plabel}: ثروتِ خالص {nw} · جریانِ نقدی {cf} {cur}")
+            ato = bal.get("entity_ato") or {}
+            if ato.get("net_before_tax") is not None:
+                lines.append(f"• واحدِ ATO-NSW: خالصِ پیش‌از‌مالیات {ato.get('net_before_tax')} {cur}")
+            prop = str(personal.get("proposal", "")).strip()
+            if prop:
+                lines.append("⚖️ تسویهٔ مشترک: " + html.escape(prop[:220]))
+
+        lines.append(self._DIV.strip())
+
+        # ── ۳) شبکهٔ حسابدار (PocketSmith زنده، تجمیعِ PII-امن از accountant.network_summary_card) ──
+        # هرگز نامِ مشتری/طرف‌حساب/desc/شماره‌حساب؛ فقط خالصِ تجمیعیِ آرمین/عباس + جمع‌های بی‌نام.
+        net = self._network_summary()
+        if not net or not net.get("live"):
+            note = str((net or {}).get("note", "")).strip()
+            tail = (" — " + html.escape(note[:90])) if note else ""
+            lines.append("🌐 <b>شبکهٔ حساب</b>: ⚪ خاموش/خالی" + tail)
+        else:
+            # صادق: این علامت فقط «سازگاریِ داخلیِ سنت» را اثبات می‌کند (بی‌نشتِ گِردکردن)،
+            # نه تطبیقِ چند-منبعی با صورت‌حسابِ بانک. برچسبِ 'tie-out' گمراه بود (green-lie).
+            rec = "✅ سنتِ سازگار" if net.get("reconciled") else "⚠️ ناسازگار"
+            as_of = html.escape(str(net.get("as_of", ""))[:10])
+            lines.append(f"🌐 <b>شبکهٔ حساب</b> ({net.get('unique', '?')} تراکنش · {rec}"
+                         + (f" · تا {as_of}" if as_of else "") + "):")
+            # «خالصِ بانکی» = جمعِ جبریِ همه (هم‌ترازِ اپِ PocketSmith)؛ نه netِ تحلیلیِ report()
+            lines.append(f"• آرمین: خالصِ بانکی {html.escape(str(net.get('armin_net', '?')))} · "
+                         f"عباس: خالصِ بانکی {html.escape(str(net.get('abbas_net', '?')))} AUD")
+            lines.append(f"• درآمدِ مشتری‌ها: {html.escape(str(net.get('client_revenue', '?')))} · "
+                         f"به طرف‌حساب‌ها: {html.escape(str(net.get('assoc_total', '?')))} AUD")
+            # حقوق بخشی از خالصِ بانکیِ آرمین است (نه اضافه بر آن) — تا دوبار خوانده نشود
+            lines.append(f"• از این، حقوقِ آرمین: {html.escape(str(net.get('wage_total', '?')))} AUD "
+                         f"(~{net.get('wage_days', '?')} روز)")
+            c = net.get("counts") or {}
+            lines.append(f"• تأیید {c.get('confirmed', 0)} · خودکار {c.get('auto', 0)} · "
+                         f"در صفِ مرورِ تو {c.get('needs_review', 0)}")
+
+        lines.append(self._DIV.strip())
+
+        # ── ۴) ریلِ شرکت (ATO) — اپِ حسابداریِ حرفه‌ای via company_books (two-rails) ──
+        lines += self._company_lines()
+
+        # ── ۵) دفترِ داخلیِ خانوادگی (ledger_core) — تسویهٔ آرمین↔عباس، نه ATO ──
+        lines += self._ledger_lines()
+
+        lines.append(self._DIV.strip())
+        lines.append("<i>🟢 read-only — این تب هیچ‌چیزی را settle/جابه‌جا نمی‌کند. "
+                     "فقط سیگنال + ترازِ تجمیعی؛ هرگز تراکنشِ منفرد یا شماره‌حساب.</i>")
+        return "\n".join(lines)
+
+    def _company_lines(self) -> list:
+        """ریلِ شرکت (ATO) — وضعِ اتصالِ اپِ حسابداری + اینویس‌ها. PII/secret-free، fail-soft."""
+        import sys as _s
+        legs = str(_HERE.parent / "legs")
+        if legs not in _s.path:
+            _s.path.insert(0, legs)
+        try:
+            import company_books as _cbk
+            st = _cbk.status()
+        except Exception:  # noqa: BLE001
+            return ["🏢 <b>ریلِ شرکت (ATO)</b>: ⚪ در دسترس نیست."]
+        if not st.get("wired"):
+            note = html.escape(str(st.get("note", ""))[:90])
+            return [f"🏢 <b>ریلِ شرکت (ATO)</b>: ⚪ {note}"]
+        org = html.escape(str(st.get("org", "") or "وصل"))
+        out = [f"🏢 <b>ریلِ شرکت (ATO)</b>: 🟢 {org} — دفترِ مالیاتی داخلِ اپ"]
+        try:
+            import company_books as _cbk2
+            li = _cbk2.list_invoices(limit=50)
+            if li.get("ok"):
+                inv = li.get("invoices") or []
+                drafts = sum(1 for i in inv if str(i.get("status", "")).upper() == "DRAFT")
+                out.append(f"• اینویس‌ها: {len(inv)} اخیر · {drafts} پیش‌نویسِ منتظرِ تأییدِ تو (داخلِ اپ)")
+        except Exception:  # noqa: BLE001
+            pass
+        return out
+
+    def _ledger_lines(self) -> list:
+        """خلاصهٔ دفترِ داخلیِ خانوادگی (آرمین↔عباس): جمعِ Dr/Cr + سلامت + صفِ ثبت. PII-safe."""
+        import sys as _s
+        legs = str(_HERE.parent / "legs")
+        if legs not in _s.path:
+            _s.path.insert(0, legs)
+        try:
+            import ledger_core as _lc
+            import journal_bridge as _jb
+            tb = _lc.trial_balance()
+            st = _jb.stats()
+        except Exception:  # noqa: BLE001
+            return ["📚 <b>دفترِ رسمی</b>: ⚪ در دسترس نیست."]
+        out = []
+        if tb.get("total_debit_cents", 0) == 0 and not tb.get("accounts"):
+            out.append("📒 <b>دفترِ داخلی (خانوادگی)</b>: خالی — تأیید در /review، ثبت در /books.")
+        else:
+            hb = "✅" if tb.get("balanced") else "🔴 نامتوازن!"
+            tw = "" if tb.get("trustworthy") else " · ⚠️ فایلِ دفتر نیازِ بازبینی"
+            from money import fmt as _fmt  # noqa: WPS433
+            out.append(f"📒 <b>دفترِ داخلی (خانوادگی)</b>: Dr {_fmt(tb.get('total_debit_cents', 0))} = "
+                       f"Cr {_fmt(tb.get('total_credit_cents', 0))} {hb}{tw}")
+        pend = st.get("proposed", 0)
+        if pend:
+            out.append(f"• {pend} ثبتِ پیشنهادی منتظرِ تأییدِ توست → /books")
+        elif st.get("posted", 0):
+            out.append(f"• ثبت‌شده: {st.get('posted', 0)} · ردشده: {st.get('rejected', 0)}")
+        gstp = st.get("posted_gst_pending", 0)
+        if gstp:
+            out.append(f"• ⏳ {gstp} ثبت هنوز کدِ GST ندارد — با حسابدار کدگذاری شود (RD-002)")
+        if st.get("queue_error"):
+            out.append("• ⚠️ صفِ ثبت ناخوانا — بازبینیِ دستی")
+        return out
+
+    def _network_summary(self):
+        """accountant.network_summary_card() — تجمیعِ PII-امنِ شبکهٔ حسابدار (خالصِ تجمیعی،
+        بی‌نام). fail-soft → None (→ کارتِ «خاموش/خالی»). seamِ تزریق برای تست."""
+        import sys as _s
+        legs_dir = str(_HERE.parent / "legs")
+        if legs_dir not in _s.path:
+            _s.path.insert(0, legs_dir)
+        try:
+            import accountant as _ac
+            out = _ac.network_summary_card()
+            return out if isinstance(out, dict) else None
+        except Exception:  # noqa: BLE001 — ماژول/فایل غایب یا خطا → خاموش، هرگز crash
+            return None
+
     def _tab_text(self, page: str) -> str:
         rm = self._rm()
+        if page == "organs":
+            return self._organs_text()
+        if page == "finance":
+            return self._finance_text()
         if page == "overview":
             st = rm.read_state() if rm else {}
             rep = rm.read_sigma() if rm else {}
@@ -1924,6 +2770,19 @@ class TelegramApprovalChannel(ApprovalChannel):
                 return (self._hdr("🧠 <b>مغزِ مرکزی</b>")
                         + "🟡 کورتکس هنوز روشن نشده — <code>RUN-CORTEX.bat</code>\n"
                         + "<i>پروسهٔ جدا روی 8772؛ ریتمش را از قلبِ سایه می‌گیرد.</i>")
+            # صداقتِ GO-LIVE (2026-07-16): stateِ کهنه (mtime>2h) هرگز «در حالِ فکر» رندر نمی‌شود —
+            # مغزی که از 07-10 مرده بود، تا امروز «الان دارد فکر می‌کند» نشان داده می‌شد.
+            if cx.get("stale"):
+                age_h = cx.get("age_h")
+                age_txt = ("؟" if age_h is None else
+                           (f"{age_h / 24.0:.1f}d" if age_h >= 24 else f"{age_h:.1f}h"))
+                th_old = html.escape(str(st.get("thought", "—"))[:160])
+                return (self._hdr("🧠 <b>مغزِ مرکزی</b>")
+                        + f"⚫ کورتکس خاموش/کهنه (سن: {age_txt}) — stateِ قدیمی «الان» نیست.\n"
+                        + f"💤 آخرین فکرِ ثبت‌شده (کهنه): <i>{th_old}</i>\n"
+                        + "راه‌اندازیِ دوباره: <code>RUN-CORTEX.bat</code>\n"
+                        + "<i>صداقتِ کابین: تا cortex-state.json تازه نشود، این تب مغز را "
+                          "«در حالِ فکر» نشان نمی‌دهد.</i>")
             br = st.get("brains") or {}
             keys = br.get("keys") or {}
             th = html.escape(str(st.get("thought", "—"))[:220])
@@ -1989,7 +2848,7 @@ class TelegramApprovalChannel(ApprovalChannel):
                       f"suspect-zero: {tel.get('suspect_zero_total', '—')}\n"
                     + f"📊 fitness: {'authoritative' if fit.get('authoritative') else '🟡 سایه (درست — تا ۲۸ روز)'}\n"
                     + f"🔒 live-gate: {'🟢 ' + why if ok else '🔴 ' + why}\n"
-                    + "🤖 گاورنرِ LLM: 🔴 قفل تا 2026-07-21\n"
+                    + f"🤖 گاورنرِ LLM: {self._activation_gate_line('ACTIVATION-GOVERNOR-LLM.flag')}\n"
                     + "<i>تنها settleِ پول = کارتِ تأییدِ موجود؛ reconcile/epoch دکمه ندارند (§۲.۵).</i>\n"
                     + "<i>ثبتِ کوت: <code>/claim ATTR-ID | ref | مبلغ</code> · "
                       "تعارض: <code>/conflict ATTR-ID | دلیل</code></i>")
@@ -2297,7 +3156,8 @@ class TelegramApprovalChannel(ApprovalChannel):
                     + "<i>ریسکی — فعال‌سازی از تبِ ایمنی (act:flag) با capability-gate.</i>")
         if (tab, key) == ("money", "governor"):
             return ("🤖 <b>گاورنرِ LLM</b>" + self._DIV
-                    + "🔴 قفل تا 2026-07-21 — تخصیصِ خودمتریک (allocate_llm) پشتِ گیتِ دوقفله.\n"
+                    + f"{self._activation_gate_line('ACTIVATION-GOVERNOR-LLM.flag')} — "
+                      "تخصیصِ خودمتریک (allocate_llm) پشتِ گیتِ دوقفله.\n"
                     + "<i>هر فعال‌سازی فقط از کارتِ تأییدِ پول (token → settle) — هیچ triggerِ زودتر.</i>")
         if (tab, key) == ("school", "awareness"):
             s = rm.read_school() if rm else {}
@@ -2359,7 +3219,8 @@ class TelegramApprovalChannel(ApprovalChannel):
         if (tab, key) == ("safety", "llm"):
             return ("🧭 <b>مسیرِ LLM</b>" + self._DIV
                     + "host-allowlist + کلید فقط از env + قیمتِ قفل + no-fallback (I9/I10)\n"
-                    + "مناظره: 🔴 پشتِ live-gate — topics فقط whitelist (topic-as-data).")
+                    + f"مناظره: {self._activation_gate_line('ACTIVATION-DEBATE.flag')} "
+                      "— topics فقط whitelist (topic-as-data).")
         if (tab, key) == ("safety", "reentry"):
             return self.reentry_packet()
         if (tab, key) == ("alerts", "rules"):
@@ -2380,10 +3241,18 @@ class TelegramApprovalChannel(ApprovalChannel):
                     + (f"<pre>{html.escape(json.dumps(ch, ensure_ascii=False, indent=1)[:700])}</pre>"
                        if ch else "🟡 chrono.db خوانا نیست (busy/نبود) — fail-soft"))
         if (tab, key) == ("alerts", "channels"):
-            c = (rm.read_channels() if rm else {}).get("channels") or {}
-            lines = [f"• {html.escape(str(n))}: {'🟢' if i.get('live') else '🔴'} "
+            d = rm.read_channels() if rm else {}
+            c = d.get("channels") or {}
+            # 2026-07-15 راست‌گویی: این snapshot نویسندهٔ زنده ندارد — کهنه هرگز 🟢 نشان داده نمی‌شود.
+            stale = bool(d.get("_stale", True))
+            lines = [f"• {html.escape(str(n))}: "
+                     f"{'⚪' if stale else ('🟢' if i.get('live') else '🔴')} "
                      f"{html.escape(str(i.get('mode', '')))}" for n, i in c.items()]
-            return "📡 <b>کانال‌ها</b>" + self._DIV + ("\n".join(lines) or nod)
+            hdr = "📡 <b>کانال‌ها</b>"
+            if stale:
+                hdr += (f"  <i>⚠️ snapshotِ کهنه ({html.escape(str(d.get('_snapshot_ts', '?')))}) "
+                        f"— بی‌نویسنده، «زنده» نیست</i>")
+            return hdr + self._DIV + ("\n".join(lines) or nod)
         if (tab, key) == ("alerts", "raw"):
             st = rm.read_state() if rm else {}
             raw = json.dumps(st, ensure_ascii=False, indent=1)[:1600]

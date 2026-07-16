@@ -62,3 +62,18 @@ _ops/OCTOPUS-flags.cmd
 03 - Projects/Accounting/personal/review-idmap.json
 03 - Projects/Accounting/personal/fine-categories.json
 03 - Projects/Accounting/personal/REPORT-*.md
+
+# PII: حالتِ جلسهٔ مرورِ تلگرام (ترتیبِ تراکنش‌های واقعی) — هرگز commit نشود
+03 - Projects/Accounting/personal/review-session.json
+
+# PII: دفترِ رسمی (journal/audit) + انبارِ خامِ evidence + پروفایلِ policy (ABN) — هرگز commit نشود
+03 - Projects/Accounting/personal/ledger/
+03 - Projects/Accounting/personal/raw/
+03 - Projects/Accounting/personal/policy-profile.json
+
+# PII: حافظهٔ قواعدِ حسابدار + دفترچهٔ تصمیم‌ها (merchant/برچسبِ واقعی) — هرگز commit نشود
+03 - Projects/Accounting/personal/acct-memory.json
+03 - Projects/Accounting/personal/acct-decisions.jsonl
+
+# PII: صف/لاگ/مارکر/قفلِ write-backِ PocketSmith (tid + انتسابِ شخصیِ تراکنش) — هرگز commit نشود (RD-004)
+03 - Projects/Accounting/personal/ps-writeback-*

@@ -74,6 +74,77 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_school_bridge.py",   # 2026-07-14: orphan test بود (فایل موجود، ثبت‌نشده) — ثبت شد
          "test_self_claims.py", "test_octopus_logger_wire.py", "test_improve_refractory.py",
          "test_wiring_cleanup.py", "test_deadwrite_readers.py",
+         # 2026-07-15: تست‌های نوِ راست‌گویی/کابین + دو orphanِ ziman (سبز، ثبت‌نشده بودند)
+         "test_business_legs_shape.py", "test_correlation_id_generated.py",
+         "test_channel_status_stale_not_green.py", "test_cockpit_truthful.py",
+         "test_baseline_money_fingerprint.py", "test_tg_exec_consumer.py",
+         "test_ziman_wiring.py", "test_ziman_biology.py",
+         # 2026-07-15: فیکسِ مغزِ پولی (باگ ۱) + موتورِ کشفِ لید (نقشهٔ لید، مراحل ۱-۲)
+         "test_brain_fix.py",
+         "test_lead_scorer.py", "test_lead_discovery_beat.py",
+         # 2026-07-16: نقشهٔ لید مراحل ۳-۵ (پلِ ایمیل، غنی‌سازیِ LLM، پیش‌فاکتورِ واقعی)
+         "test_email_lead_bridge.py", "test_lead_llm_enrich.py",
+         "test_lead_quote_chain.py",
+         # 2026-07-16: ثبتِ یتیم‌های تأییدشده (برنامه ۳) — هر سه سبزِ ایزوله در worktree.
+         # ثبت‌نشده‌های عمداً کنارگذاشته: test_mining_leg/test_mining_wiring (phantom —
+         # MiningLeg دومغزی و wiring.make_mining_leg در این درخت وجود ندارد)،
+         # test_drawdown_enforcer (phantom — budget_gate.DRAWDOWN_LOG/drawdown_status نیست)،
+         # test_effector_idempotency (phantom — EffectorGate.request_idempotent نیست).
+         # 2026-07-16 (audit R-04): test_durable_journal دیگر phantom/قرمز نیست — تستِ setup
+         # اکنون دایرکتوریِ state/journal را می‌سازد (مثلِ _default_path) → ثبت شد (direct-run).
+         "test_durable_journal.py",
+         "test_ui_truth.py", "test_organ_console.py", "test_organ_create.py",
+         # 2026-07-16: موجِ ده‌برنامه — کالیبراسیون (برنامه ۶) + صداقتِ کابین پس از GO-LIVE (برنامه ۹)
+         "test_calibration_loop.py", "test_cockpit_golive_honesty.py",
+         "test_legs_freshness.py",   # برنامه ۷: صداقتِ تازگیِ پاها
+         "test_ziman_catalog_bridge.py",   # برنامه ۸: پلِ کاتالوگِ زیمان
+         # 2026-07-16: متابولیسمِ دادهٔ $0 همهٔ پاها (leg_cultivate + دکتر + مغزِ B)
+         "test_legs_cultivation.py",
+         # 2026-07-16: گاردِ read دادهٔ ویژهٔ PII/PHI (audit R-05 + R-15) — شریک/DNA/EEG/HRV/پروفایلِ روان‌درمانی
+         "test_pii_read_guard.py",
+         # 2026-07-16: EVAL-GATE (audit R-03) — دیتاستِ محکِ خصمانهٔ نسخه‌دار (adv-eval.v1)
+         # + اجراکنندهٔ $0 آفلاین که خودمختاری را گِیت می‌کند (_ops/eval/).
+         "test_adversarial_eval.py",
+         "test_personal_ledger.py", "test_pocketsmith_import.py",
+         # 2026-07-16: کلاینتِ فقط‌خواندنیِ PocketSmith API v2 (me/accounts/transactions/sync)
+         # پشتِ OCTOPUS_WIRE_POCKETSMITH؛ mockِ urlopen (صفر شبکه/کلیدِ واقعی)؛ حملِ category/labels.
+         "test_pocketsmith_api.py",
+         # 2026-07-16: write-backِ گاردشدهٔ برچسب‌ها به PocketSmith (رأی مالک) — فقط PUT labels
+         # به /transactions/{id}، whitelist سخت، سقفِ flush، صفِ محلی، پشتِ OCTOPUS_WIRE_PS_WRITEBACK.
+         "test_ps_writeback.py",
+         # 2026-07-16: حسابدارِ مولتی‌ایجنت (سنت/انتساب/ارکستراتور)
+         "test_accountant.py", "test_txn_store.py", "test_attributor.py",
+         # 2026-07-16: انبارِ تجمیعیِ تراکنش (txn_store) — xlsx+CSV → یک انبارِ cents-محور،
+         # dedupِ content-hash، reconcile tie-out. txn-store.json واقعی gitignore.
+         "test_txn_store.py",
+         # 2026-07-16: ASSET-OVERSIGHT — نقشهٔ داراییِ کل (asset_map + asset_map_beat)
+         # propose-only، fail-soft، صفر مبلغ/net-worth، پشتِ OCTOPUS_WIRE_ASSET_MAP.
+         "test_asset_map.py",
+         # 2026-07-16: تبِ 💰 دارایی‌ها/حساب کابین — asset_map + personal_ledger (فقط‌خواندنی،
+         # ترازِ تجمیعی، صفر تراکنش/شماره‌حساب، صفر مسیرِ mutation).
+         "test_finance_card.py",
+         # 2026-07-16: CATEGORIZER — attributor (قاعده‌های قطعی: wage/transfer-passthrough/
+         # vendor؛ enumِ auto|needs_review نه اطمینانِ عددی؛ propose-only، مالک تأیید نه ایجنت).
+         "test_attributor.py",
+         # 2026-07-16: دستیارِ AIِ دسته‌بندیِ پس‌ماند (txn_categorize) — محلی-اول ollama $0،
+         # ابری Fugu فقط پشتِ OCTOPUS_WIRE_ACCT_CLOUD + scrub_pii؛ هیچ مبلغ به LLM؛ propose-only.
+         "test_txn_categorize.py",
+         # 2026-07-16: حسابدارِ گفتگومحورِ تلگرام (/review) — موتور + لایهٔ تلگرام؛ گاردِ
+         # هویتِ تراکنش در callback، متنِ آزادِ proposal-only، هیچ مبلغ به LLM.
+         "test_acct_review.py", "test_review_telegram.py",
+         # 2026-07-16: فازِ صفرِ دفترِ واقعی (نقدِ بیرونی + سخت‌سازیِ auditِ ۴۸-ایجنتی):
+         # ledger_core (دوطرفهٔ متوازن، قفل‌دار، append-only+fsync، reversal، GST fail-closed)
+         # raw_store (شواهدِ خامِ immutable) · recon (reconciliation واقعی، ضدِ netِ برابرِ دروغ).
+         "test_ledger_core.py", "test_raw_store.py", "test_recon.py",
+         # 2026-07-16: فازِ ۱ — پلِ برچسب→دفتر (journal_bridge: نگاشتِ قطعی، دو-تأییدی،
+         # هیچ tax_code) + لایهٔ تلگرامِ /books (ثبت با هویتِ txn، تپِ تکراری امن).
+         "test_journal_bridge.py", "test_books_telegram.py",
+         # 2026-07-16: two-rails — آداپتورِ ریلِ شرکت (company_books: provider-agnostic،
+         # DRAFT-only تحمیلی، فلگ‌خاموش صادق، صفر secret-echo).
+         "test_company_books.py", "test_books_xero.py",
+         # 2026-07-16: جریانِ زندهٔ حسابداری — حافظهٔ ضدِ فراموشی (قواعدِ merchant از
+         # تأییدها، بازتولیدپذیر، drift) + ضربانِ acct_beat (فلگ‌خاموش، سایدکار).
+         "test_acct_memory.py", "test_acct_beat.py",
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
@@ -83,7 +154,11 @@ EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_
 # سبزِ دروغین می‌دهد. run_all باید واقعاً pytest را اجرا کند.
 PYTEST_TESTS = {
     "test_ziman_leg.py", "test_ziman_phase2.py",
-    # test_ziman_wiring/biology حذف شدند (phantom — فایل هرگز وجود نداشت)
+    # 2026-07-16 (audit R-04): test_ziman_wiring/biology پیش‌تر در TESTS بودند ولی نه در این
+    # set → run_all آن‌ها را direct-run می‌کرد (بدونِ __main__ → صفر assert → green-lie:
+    # exit 0 در حالی که زیرِ pytest واقعاً اجرا/اثبات می‌شوند). هر دو فایلِ pytest-style
+    # (fixtureِ monkeypatch/tmp_path) هستند؛ این‌جا ثبت شدند تا واقعاً اجرا شوند.
+    "test_ziman_wiring.py", "test_ziman_biology.py",
     "test_cartographer_leg.py", "test_cartographer_wiring.py",
 }
 
