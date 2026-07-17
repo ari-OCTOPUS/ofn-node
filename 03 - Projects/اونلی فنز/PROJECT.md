@@ -41,7 +41,12 @@ delivery-rate پارتنر در trial sprint `[To measure]` · engagement روی
 
 ## Active Context
 
-- تمرکز فعلی: اسکلتِ موتورِ اکتساب ساخته/تست‌شده؛ **منتظر G0** برای زنده‌شدن
+- تمرکز فعلی: **مرحلهٔ ۵ ROADMAP (بانکِ کپی + سیم‌کشیِ مغز) نصفه‌کاره انجام شد** — VaultBank وصل شد و با ۲۲ asset واقعی seed شد؛ هنوز صفر اجرای بیرونی.
+- **2026-07-17 — مسیر الف / Launch infra (جلسهٔ راستی‌آزمایی + تکمیل):** کارِ ایجنتِ قبلی روی UI Creator + VaultBank wiring را راستی‌آزمایی شد، تست‌ها اجرا شدند (۱۵۵/۱۵۵ سبز)، و کارهای ناتمام تکمیل/commit شدند:
+  - **commit `f72a83e`** — UI مخصوص Creator سخت‌شد (shadow-mode واقعاً کار می‌کند، alias‌های متنی برای تستِ بدونِ تلگرام، HALT fail-closed، navigation cancel-safe، ارقام فارسی، opsec copy)؛ `pf_admin._default_pipe()` حالا `VaultBank()` را inject می‌کند؛ `langar_bot._global_stop()` به STOP-ORGANISM اختاپوس احترام می‌گذارد + رفعِ RESIL-4. تست‌های سبا ۱۰→۱۶، pf_admin ۷→۸.
+  - **commit `0a871e0`** — **VaultBank با ۲۲ asset برند seed شد** (از P4-persona-hooks؛ همه از گاردِ containment + warm-up رد شدند؛ ۱۲ reddit SFW + ۷ x + ۳ of soft-cta). `/pf_plan` حالا از محتوای واقعی/certified draft می‌زند نه `_SAFE_HOOKS`. flow کامل راستی‌آزمایی شد: `/pf_plan 5` → `/pf_queue` → `/pf_ok` → `/pf_ready`، همگی از vault با fair rotation. **.gitignore سخت‌شد**: runtime state (drafts.json/acq_queue.json/state files/log) با wildcard‌های encoding-proof ignored شدند؛ دو فایل runtime که قبلاً tracked بودند (drafts.json/langar_log.jsonl) از tracking خارج شدند. `vault.json` عمداً commit شد (seedِ برند، صفر PII).
+  - ⚠️ **نکتهٔ ابزاری:** git روی ویندوز با کاراکتر فارسی در pathspec مشکلِ byte-exact دارد؛ همیشه با `-c core.quotepath=false` و مسیرهای glob-resolve‌شده کار کن.
+- **2026-07-12 — موتورِ اکتساب + تحقیقِ رقبا + ROADMAP:** اسکلتِ کدِ propose-only ساخته و تست شد (commitها `1d5b363`/`c7124df`/`ae31bfd`؛ ۲۲/۲۲ تست): `brain/acquisition_pipeline.py` (draft→صف→approve→آمادهٔ پستِ دستی، بدونِ افکتورِ بیرونی) + `studio/affirm.py` + سیم‌کشیِ `/pf_*` در لنگر + `affirm` در استودیوی صبا.
 - **2026-07-12 — موتورِ اکتساب + تحقیقِ رقبا + ROADMAP:** اسکلتِ کدِ propose-only ساخته و تست شد (commitها `1d5b363`/`c7124df`/`ae31bfd`؛ ۲۲/۲۲ تست): `brain/acquisition_pipeline.py` (draft→صف→approve→آمادهٔ پستِ دستی، بدونِ افکتورِ بیرونی) + `studio/affirm.py` + سیم‌کشیِ `/pf_*` در لنگر + `affirm` در استودیوی صبا. **تحقیقِ رقبا/بازار** → [[03 - Projects/اونلی فنز/02 - Research/COMPETITOR-MARKET-LANDSCAPE-2026-07-12|COMPETITOR-MARKET-LANDSCAPE]] (dual-platform؛ FeetFinder = موتورِ فروشِ سریعِ ۷–۱۴روزه؛ پولِ واقعی در PPV/custom؛ **retention = گافِ اصلیِ ما**). **دستورالعملِ کاملِ ۱۰-مرحلهٔ بعدی** → [[03 - Projects/اونلی فنز/00 - Control/ROADMAP-10-STAGES-2026-07-12|ROADMAP-10-STAGES]]. همه پشتِ GATE 0.
 - **2026-07-12 — Brand pack (propose-only):** لایهٔ هویتِ برند در [[03 - Projects/اونلی فنز/01 - Strategy/Identity/_INDEX|01-Strategy/Identity]] ساخته شد (IDENTITY، BRAND-CHARTER، VOICE-AND-STYLE، CLAIMS-REGISTER، BRAND-NAME-DECISION) با ورک‌فلوِ ۴-ایجنتهٔ کالیبراسیون. یافته‌ها: نامِ #۱ = **Anar Soles** / reserve Yalda Arch (تنها صفر-collision؛ منتظر verdict #۶، به #۹ گره‌خورده) · نام‌های شهری (Softly Sydney/Harbour Soles) حذف شدند (نقضِ #۶) · #۹ نامتقارن است (قاعدهٔ #۶ حاکم؛ سیگنالِ دیاسپورا فقط غیرمتنی) · صدا = warm/unhurried/wry · گافِ AI-image بسته شد (قفلِ human-only پیشنهادی) · نقصِ انطباقِ «Sydney light» در Playbook برای اصلاحِ گیت‌دار flag شد. هیچ انتشار/اکانت/کپیِ فارسی.
 - **2026-07-12 — نقشه‌برداری (Cartography) + بستهٔ handoff:** نقشهٔ راستی‌آزمایی‌شده در [[03 - Projects/اونلی فنز/00 - Control/CARTOGRAPHY-2026-07-12|CARTOGRAPHY]] (dedup دقیق md5: ۱۳ identical + ۹ stale mirror؛ root = canonical تأیید شد؛ code deep-read: project_f_brain مرده در runtime، learning سیم‌نشده، drafts.json = ۲۴۴ ردیف تستی، secretها پاک، kill-switchها واقعی) · [[03 - Projects/اونلی فنز/00 - Control/SOURCE-OF-TRUTH-MATRIX|SoT-Matrix]] · [[03 - Projects/اونلی فنز/00 - Control/RISK-LADDER|RISK-LADDER]] · [[03 - Projects/اونلی فنز/00 - Control/MIGRATION-MAP-2026-07-12|MIGRATION-MAP]] (⛔ اجرا نشده — verdict ‏PF-STRUCT-V2) · برنامهٔ ایجنت بعدی: [[03 - Projects/اونلی فنز/00 - Control/HANDOFF-NEXT-AGENT|HANDOFF-NEXT-AGENT]] · ۳ verdict جدید در VERDICT_QUEUE (STRUCT-V2 / STATE-RESET-V1 / CODE-REFACTOR-V1)
@@ -53,8 +58,8 @@ delivery-rate پارتنر در trial sprint `[To measure]` · engagement روی
 
 ## Progress
 
-- چه کار می‌کند: master-reference کامل، production plan، funnel دیاسپورا، رجیستر ۵ ریسک، پرسشنامه پارتنر پاسخ‌داده‌شده · **موتورِ اکتساب (اسکلتِ propose-only): pipeline + affirm + سیم‌کشیِ لنگر، ۲۲/۲۲ تست، بدونِ افکتورِ زنده** · brand pack + cartography + تحقیقِ رقبا + [[03 - Projects/اونلی فنز/00 - Control/ROADMAP-10-STAGES-2026-07-12|ROADMAP ۱۰-مرحله]]
-- چه مانده: زنده‌سازیِ اکتساب پشتِ GATE 0 (مراحلِ ۳/۶ روڈمپ) · **مرحلهٔ ۵ (کارِ بعدیِ ایجنت، بی‌نیاز به گیت): بانکِ کپیِ واقعی + رفعِ باگِ greedyِ learning و سیم‌کردنش** · Track A/B/C validation · زیرساختِ legal/banking
+- چه کار می‌کند: master-reference کامل، production plan، funnel دیاسپورا، رجیستر ۵ ریسک، پرسشنامه پارتنر پاسخ‌داده‌شده · **موتورِ اکتساب (اسکلتِ propose-only): pipeline + affirm + سیم‌کشیِ لنگر، ۱۵۵/۱۵۵ تست سبز، بدونِ افکتورِ زنده** · brand pack + cartography + تحقیقِ رقبا + ROADMAP ۱۰-مرحله · **مرحلهٔ ۵ نصفه‌کاره:** VaultBank به pipeline وصل + با ۲۲ asset واقعی seed شد (commit `0a871e0`)؛ UI Creator سخت‌شد (commit `f72a83e`)
+- چه مانده: **باقیِ مرحلهٔ ۵ (بی‌نیاز به گیت):** LearningBridge را در `_default_pipe` پیش‌فرض کن (الان `with_bandit()` اختیاری است ولی فعال نیست) · DM HITL active testing · حلقهٔ KPI recording روی دادهٔ واقعی · زنده‌سازیِ اکتساب پشتِ GATE 0 (مراحلِ ۳/۶ روڈمپ) · Track A/B/C validation · زیرساختِ legal/banking
 - مشکلات شناخته: تعهد پارتنر مشروط به دیدنِ مسیر پول‌دهی است؛ تضاد مرز body با production plan · `learning.py` باگِ greedy هنوز به `acquisition` سیم‌نشده ([[03 - Projects/اونلی فنز/06 - Ops & Runtime/PROP-D2-wire-learning-to-acquisition|PROP-D2]]) · نوت‌های top-levelِ پروژه ۱۳۵ خطای frontmatterِ pre-existing دارند (واژگانِ type محلی — پاکسازیِ جدا)
 
 ## Next actions
@@ -67,6 +72,8 @@ delivery-rate پارتنر در trial sprint `[To measure]` · engagement روی
 - [ ] تصمیم: انجماد/حذف «expansion به body» + تعیین hours واقعی (30h vs 3–5h)
 - [ ] روز صفر زیرساخت (بلوپرینت §۵، ~۴–۵ ساعت) → شروع warm-up هفته ۱
 - [x] Track B + C (desk research) — انجام شد 2026-07-04: GO conditional / GO limited
+- [x] 2026-07-17: UI Creator hardening + VaultBank wiring + 22-asset seed (commits f72a83e/0a871e0) — ۱۵۵ تست سبز
+- [ ] **مرحلهٔ ۵ (باقی‌مانده، بی‌نیاز به گیت):** `LearningBridge` را در `pf_admin._default_pipe()` پیش‌فرض کن (الان `AcquisitionBrain.with_bandit()` وجود دارد ولی به‌صورتِ اختیاری فعال نیست)؛ تستِ regression بنویس
 
 ## نوت‌های مرتبط
 
