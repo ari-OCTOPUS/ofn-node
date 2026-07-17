@@ -274,24 +274,107 @@ def _cap_history() -> None:
         pass
 
 
+def _hash_digest(snap: dict) -> dict:
+    """زیرمجموعهٔ معنادار و کم‌نوسانِ snapshot برای change-gate — کلاکِ خام (beat/ts) و
+    شمارشِ نوسانیِ خطا/لِین را حذف می‌کند تا فقط «تغییرِ مهم برای فهم» hash را عوض کند."""
+    legs = {k: [v.get("live"), v.get("money_link")] for k, v in (snap.get("legs") or {}).items()}
+    st = snap.get("stress") or {}
+    return {"legs": legs, "wire_on": snap.get("wire_on"), "wire_off": snap.get("wire_off"),
+            "fear": st.get("in_fear"), "level": st.get("level"),
+            "musd": (snap.get("money") or {}).get("musd"),
+            "prop": (snap.get("money") or {}).get("proposal_metrics"),
+            "dead_spots": (snap.get("innervation") or {}).get("dead_spots"),
+            "error_types": sorted((snap.get("recent_errors") or {}).keys()),
+            "rfcs": (snap.get("doctor_self") or {}).get("rfcs")}
+
+
+def _snapshot_hash(snap: dict) -> str:
+    import hashlib
+    blob = json.dumps(_hash_digest(snap), ensure_ascii=False, sort_keys=True).encode("utf-8")
+    return hashlib.sha256(blob).hexdigest()[:16]
+
+
+def _should_deep_dive(u: dict, prev: dict, focus) -> bool:
+    """hop-2 (کاوشِ عمیق) فقط وقتی ارزش دارد: focusِ نو، یا کم‌اطمینان، یا پاتولوژیِ بحرانی،
+    یا هرگز کاوش‌نشده. پایدار+مطمئن → رد (adaptive depth، الگوی Self-Refine/early-exit)."""
+    if focus != prev.get("focus"):
+        return True
+    if not prev.get("deep_dive"):
+        return True
+    conf = u.get("confidence")
+    if isinstance(conf, (int, float)) and conf < 0.75:
+        return True
+    for p in (u.get("pathology") or []):
+        if isinstance(p, dict) and str(p.get("severity", "")).lower() in ("high", "critical"):
+            return True
+    return False
+
+
+def _persist_latest(rec: dict, *, append_history: bool) -> None:
+    try:
+        _dir().mkdir(parents=True, exist_ok=True)
+        tmp = _latest_path().with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(rec, ensure_ascii=False, indent=2), "utf-8")
+        os.replace(tmp, _latest_path())
+        if append_history:   # روی no-change چیزی به history اضافه نمی‌شود (no-op suppression)
+            with _history_path().open("a", encoding="utf-8") as fh:
+                fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+            _cap_history()
+    except Exception as e:  # noqa: BLE001 — ذخیره نباید هیچ‌چیز را بکشد
+        try:
+            opslib.alert([f"doctor self-knowledge persist failed: {type(e).__name__}"])
+        except Exception:  # noqa: BLE001
+            pass
+
+
 def run(persist: bool = True) -> dict:
-    """یک دورِ خودشناسیِ عمیق: تاریخچه+فهمِ قبلی → snapshot → مرحلهٔ۱ (لایه‌ای) → مرحلهٔ۲
-    (deep-dive روی focus) → trajectory → ذخیره. version هر دور +۱ (رد پای بهبود)."""
+    """یک دورِ خودشناسیِ عمیقِ **بهینه** (2026-07-18، «سریع‌تر و بهینه‌تر»):
+    ۱) CHANGE-GATE: اگر hashِ تصویرِ معنادار = دورِ قبل → صفر کالِ LLM؛ فهمِ قبلی حمل می‌شود،
+       stable_cycles+۱، نه version بالا می‌رود نه به history اضافه می‌شود (no-op suppression).
+    ۲) در تغییر: مرحلهٔ۱ لایه‌ای، سپس مرحلهٔ۲ **فقط** اگر focus نو/کم‌اطمینان/بحرانی باشد
+       (adaptive hop-2)؛ وگرنه deep-diveِ قبلی حمل می‌شود.
+    نتیجه: در ارگانیسمِ کند بیشترِ tickها = ۰ کال؛ چرخهٔ پایدار = ۱ کال؛ سختِ نو = ۲ کال."""
     prev = _read_json("doctor/self-knowledge-latest.json", {})
     if not isinstance(prev, dict):
         prev = {}
-    history = _history_digest()
     snap = snapshot()
+    h = _snapshot_hash(snap)
+
+    # ── CHANGE-GATE: تصویرِ معنادار عوض نشده → هیچ کالِ LLM (بزرگ‌ترین صرفه) ──
+    if prev and prev.get("snapshot_hash") == h and prev.get("understanding"):
+        rec = dict(prev)
+        rec["ts"] = opslib.now_iso()
+        rec["beat"] = snap.get("beat")
+        rec["source"] = "cached:no-change"
+        rec["stable_cycles"] = int(prev.get("stable_cycles", 0) or 0) + 1
+        rec["llm_calls"] = 0
+        if persist:
+            _persist_latest(rec, append_history=False)
+        return rec
+
+    # ── CHANGED → تحلیل (مرحلهٔ۱ همیشه؛ مرحلهٔ۲ تطبیقی) ──
+    history = _history_digest()
     synth = synthesize(snap, prev, history)
     u = synth.get("understanding", {})
     focus = u.get("focus") if isinstance(u, dict) else None
-    # deep-dive فقط وقتی مرحلهٔ۱ با LLM بود (هیوریستیک focusِ معتبر برای کاوش نمی‌دهد)
-    deep = deep_dive(focus, snap) if (focus and str(synth.get("source", "")).startswith("llm")) else {}
+    is_llm = str(synth.get("source", "")).startswith("llm")
+    calls = 1 if is_llm else 0
+    if focus and is_llm and _should_deep_dive(u, prev, focus):
+        deep = deep_dive(focus, snap)
+        calls += 1
+        deep_ran = True
+    else:
+        deep = prev.get("deep_dive", {}) if focus == prev.get("focus") else {}
+        deep_ran = False
     rec = {
         "ts": opslib.now_iso(),
         "beat": snap.get("beat"),
         "version": int(prev.get("version", 0) or 0) + 1,
         "source": synth.get("source"),
+        "snapshot_hash": h,
+        "stable_cycles": 0,
+        "llm_calls": calls,
+        "deep_dive_ran": deep_ran,
         "focus": focus,
         "understanding": u,
         "deep_dive": deep,
@@ -302,19 +385,7 @@ def run(persist: bool = True) -> dict:
                             "recent_errors": snap.get("recent_errors")},
     }
     if persist:
-        try:
-            _dir().mkdir(parents=True, exist_ok=True)
-            tmp = _latest_path().with_suffix(".json.tmp")
-            tmp.write_text(json.dumps(rec, ensure_ascii=False, indent=2), "utf-8")
-            os.replace(tmp, _latest_path())
-            with _history_path().open("a", encoding="utf-8") as fh:
-                fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
-            _cap_history()
-        except Exception as e:  # noqa: BLE001 — ذخیره نباید هیچ‌چیز را بکشد
-            try:
-                opslib.alert([f"doctor self-knowledge persist failed: {type(e).__name__}"])
-            except Exception:  # noqa: BLE001
-                pass
+        _persist_latest(rec, append_history=True)
     return rec
 
 

@@ -57,6 +57,16 @@ def _clear_doctor():
     shutil.rmtree(_SB / "doctor", ignore_errors=True)
 
 
+def _counting_ask(jsonstr, tier="think"):
+    calls = {"n": 0}
+
+    def f(p, s, max_tokens=700):
+        calls["n"] += 1
+        return (jsonstr, tier)
+    f.calls = calls
+    return f
+
+
 # ── snapshotِ غنی ─────────────────────────────────────────────────────────────
 def t_snapshot_richer():
     _sandbox_paths(); _seed_state(in_fear=["legs"])
@@ -172,11 +182,69 @@ def t_run_improves_versions():
     _orig = sk._ask_llm
     sk._ask_llm = _fake_ask('{"focus":"legs","confidence":0.6}')
     try:
-        r1 = sk.run(persist=True); r2 = sk.run(persist=True)
+        r1 = sk.run(persist=True)
+        _seed_state(in_fear=[])          # تغییرِ معنادار → change-gate عبور می‌کند
+        r2 = sk.run(persist=True)
         assert r1["version"] == 1 and r2["version"] == 2
         assert r2["trajectory"]["focus_stable"] is True, "focus پایدار → همگرایی"
         hist = sk._history_path().read_text("utf-8").strip().splitlines()
         assert len(hist) == 2
+    finally:
+        sk._ask_llm = _orig
+
+
+# ── بهینه‌سازی: change-gate (صفر کال روی بی‌تغییر) ──────────────────────────────
+def t_change_gate_skips_llm():
+    _sandbox_paths(); _seed_state(in_fear=["legs"]); _clear_doctor()
+    _orig = sk._ask_llm
+    mock = _counting_ask('{"focus":"legs","confidence":0.6,"pathology":[{"severity":"high"}],"topic":"t"}')
+    sk._ask_llm = mock
+    try:
+        r1 = sk.run(persist=True)
+        n1 = mock.calls["n"]
+        assert r1["version"] == 1 and r1["llm_calls"] >= 1 and n1 >= 1
+        hist1 = len(sk._history_path().read_text("utf-8").strip().splitlines())
+        r2 = sk.run(persist=True)   # همان state → change-gate
+        assert mock.calls["n"] == n1, "روی بی‌تغییر نباید LLM صدا زده شود"
+        assert r2["source"] == "cached:no-change" and r2["llm_calls"] == 0
+        assert r2["version"] == r1["version"], "version روی no-change بالا نمی‌رود"
+        assert r2["stable_cycles"] == 1
+        hist2 = len(sk._history_path().read_text("utf-8").strip().splitlines())
+        assert hist2 == hist1, "history روی no-change رشد نمی‌کند"
+    finally:
+        sk._ask_llm = _orig
+
+
+def t_hash_ignores_clock():
+    _sandbox_paths(); _seed_state(beat=8000)
+    h1 = sk._snapshot_hash(sk.snapshot())
+    _seed_state(beat=9999)                      # فقط beat عوض شد
+    assert sk._snapshot_hash(sk.snapshot()) == h1, "تغییرِ beat نباید hash را عوض کند"
+    _seed_state(beat=9999, in_fear=["legs"])    # تغییرِ معنادار
+    assert sk._snapshot_hash(sk.snapshot()) != h1
+
+
+# ── بهینه‌سازی: adaptive hop-2 ─────────────────────────────────────────────────
+def t_should_deep_dive_logic():
+    prev = {"focus": "legs", "deep_dive": {"x": 1}}
+    assert sk._should_deep_dive({"focus": "money", "confidence": 0.9}, prev, "money") is True   # focusِ نو
+    assert sk._should_deep_dive({"focus": "legs", "confidence": 0.9, "pathology": []}, prev, "legs") is False  # پایدار+مطمئن
+    assert sk._should_deep_dive({"focus": "legs", "confidence": 0.5}, prev, "legs") is True     # کم‌اطمینان
+    assert sk._should_deep_dive({"focus": "legs", "confidence": 0.9, "pathology": [{"severity": "critical"}]}, prev, "legs") is True
+    assert sk._should_deep_dive({"focus": "legs"}, {"focus": "legs", "deep_dive": {}}, "legs") is True  # هرگز کاوش‌نشده
+
+
+def t_adaptive_hop2_skips_when_stable():
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    _orig = sk._ask_llm
+    sk._ask_llm = _fake_ask('{"focus":"legs","confidence":0.9,"pathology":[{"severity":"low"}],"topic":"t"}')
+    try:
+        r1 = sk.run(persist=True)                # اولین بار: hop-2 چون prev کاوش ندارد
+        assert r1["deep_dive_ran"] is True
+        _seed_state(legs={"mining": {"live": False}, "ziman": {"live": True}, "new": {"live": True}})
+        r2 = sk.run(persist=True)                # تغییر، ولی focus پایدار + مطمئن → فقط hop-1
+        assert r2["source"].startswith("llm") and r2["llm_calls"] == 1
+        assert r2["deep_dive_ran"] is False and r2["deep_dive"] == r1["deep_dive"]
     finally:
         sk._ask_llm = _orig
 
@@ -236,6 +304,10 @@ if __name__ == "__main__":
         ("روی هیوریستیک بدونِ hop2", t_no_deepdive_on_heuristic),
         ("trajectory همگرایی", t_trajectory_converging),
         ("run بهبودِ نسخه‌ای", t_run_improves_versions),
+        ("change-gate صفر کال", t_change_gate_skips_llm),
+        ("hash کلاک را نادیده", t_hash_ignores_clock),
+        ("منطقِ adaptive hop-2", t_should_deep_dive_logic),
+        ("hop-2 روی پایدار رد", t_adaptive_hop2_skips_when_stable),
         ("run فقط‌خواندنی", t_run_readonly),
         ("beat خاموش=no-op", t_beat_flag_off_noop),
         ("beat در ترس شلیک", t_beat_fires_under_fear),
