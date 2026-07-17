@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import threading
 import time
 import urllib.request
 from pathlib import Path
@@ -25,6 +26,10 @@ MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5:1.5b")
 TIMEOUT_S = float(os.environ.get("OLLAMA_TIMEOUT_S", "90"))   # cold-load مدل تا ~۶۰s
 MIN_INTERVAL_S = float(os.environ.get("OLLAMA_MIN_INTERVAL_S", "10"))
 _LAST_CALL = {"ts": 0.0}
+# قفلِ سراسری: read-check-then-write روی _LAST_CALL باید atomic باشد تا دو لاین
+# همزمان (مثلاً doctor self-knowledge + cortex/llm_learn) با هم از rate-limit رد
+# نشوند و روی یک GPU تک هم‌زمان /api/generate نزنند (منصفانه‌سازی latency).
+_LOCK = threading.Lock()
 
 
 def _post(path: str, payload: dict, timeout: float,
@@ -61,9 +66,10 @@ def ask(prompt: str, system: str = "", max_tokens: int = 256,
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
         return None
     now = time.time()
-    if not force and now - _LAST_CALL["ts"] < MIN_INTERVAL_S:
-        return None
-    _LAST_CALL["ts"] = now
+    with _LOCK:  # atomic: check-then-advance تا دو لاین همزمان از گارد رد نشوند
+        if not force and now - _LAST_CALL["ts"] < MIN_INTERVAL_S:
+            return None
+        _LAST_CALL["ts"] = now
     body = {
         "model": MODEL,
         "prompt": prompt,

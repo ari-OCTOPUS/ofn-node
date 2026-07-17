@@ -66,6 +66,43 @@ def t_b_local_llm_fake_and_rate_limit():
     assert bad is None                            # پاسخِ خالی → fail-soft
 
 
+def t_b2_local_llm_rate_limit_atomic_concurrent():
+    """گاردِ rate-limit باید atomic باشد: check-then-write روی _LAST_CALL زیرِ قفل.
+    برای قطعی‌سازیِ ریسِ read→write، پنجره را با یک ts که «اول می‌خوانَد بعد کمی
+    می‌خوابد» پهن می‌کنیم؛ آنگاه N لاینِ همزمان با ریستِ ts باید دقیقاً یکی رد شوند
+    (بدونِ قفل همه هم‌زمان 0.0 می‌بینند و همگی رد می‌شوند → دو call روی یک GPU)."""
+    import threading                              # محلی، مطابقِ سبکِ همین فایل
+
+    class _SlowTs(dict):                          # مقدارِ واقعی را می‌خوانَد، بعد تأخیر
+        def __getitem__(self, k):
+            v = super().__getitem__(k)
+            if k == "ts":
+                time.sleep(0.03)                  # پنجرهٔ read→write را پهن می‌کند
+            return v
+
+    saved = local_llm._LAST_CALL
+    local_llm._LAST_CALL = _SlowTs({"ts": 0.0})
+    try:
+        n = 6
+        start = threading.Barrier(n)
+        passed = []
+
+        def _worker():
+            start.wait()                          # همه هم‌زمان به check-then-write بزنند
+            if local_llm.ask("hi", opener=_fake_opener({"response": "x"})) is not None:
+                passed.append(1)
+
+        threads = [threading.Thread(target=_worker) for _ in range(n)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        assert len(passed) == 1, f"exactly one lane may pass, got {len(passed)}"
+    finally:
+        local_llm._LAST_CALL = saved
+        local_llm._LAST_CALL["ts"] = 0.0         # پاکسازی برای تست‌های بعدی
+
+
 def t_c_router_paid_closed_falls_back_local():
     """ردهٔ پولی امروز بسته (phase −1) → fallback به local با دلیلِ صادق."""
     ok, why = model_router.paid_gate()
