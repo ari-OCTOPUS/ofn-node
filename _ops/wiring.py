@@ -517,6 +517,21 @@ def doctor_beat(doctor, beat: int, trace: dict | None = None) -> dict | None:
         return None
 
 
+def wire_proposal_buttons(*, channel=None, live_loop=None) -> bool:
+    """G3 arc (ported to master 2026-07-18): هوکِ رأیِ کارتِ پیشنهاد را به کانالِ تلگرام
+    وصل کن. پشتِ OCTOPUS_WIRE_PROPOSAL_BUTTONS (پیش‌فرض خاموش). با فلگ خاموش → False و
+    کانال دست‌نخورده (کارت‌ها همان متنِ بی‌دکمهٔ قبلی). measurement-only: مسیرِ 'prop'
+    هرگز settle/ledger نمی‌زند — جدا از 'app' (پول)."""
+    if os.environ.get("OCTOPUS_WIRE_PROPOSAL_BUTTONS") != "1":
+        return False
+    if channel is None or live_loop is None:
+        return False
+    if not callable(getattr(live_loop, "record_proposal_outcome_by_token", None)):
+        return False
+    channel._proposal_hook = live_loop.record_proposal_outcome_by_token
+    return True
+
+
 def wire_summary() -> dict:
     """خلاصهٔ وضعیتِ wiring (برای startup-log / state)."""
     return {

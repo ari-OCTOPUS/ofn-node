@@ -294,6 +294,14 @@ def main() -> int:
         # W (P-W1): LiveLoop روی همان bus (نخاع). مغز و بدن روی یک حلقه.
         _live_loop = _w.make_live_loop(bus=_bus, leg=_leg, doctor=_doctor_inst,
                                        channel=_chan)
+        # G3 arc (ported to master 2026-07-18): اگر OCTOPUS_WIRE_PROPOSAL_BUTTONS=1، هوکِ
+        # رأیِ کارتِ پیشنهاد را وصل کن (prop: → record_proposal_outcome_by_token). فلگ خاموش
+        # → no-op و کارت‌ها همان متنِ بی‌دکمهٔ قبلی. measurement-only، هرگز settle.
+        try:
+            if _chan is not None and _live_loop is not None:
+                _w.wire_proposal_buttons(channel=_chan, live_loop=_live_loop)
+        except Exception as _pe:  # noqa: BLE001 — هوک نباید بوت را بکشد
+            opslib.alert([f"wire_proposal_buttons failed (non-fatal): {type(_pe).__name__}"])
         if any(_wire.values()):
             opslib.heartbeat(f"organism wiring: {_wire}")
     except Exception as _e:  # noqa: BLE001 — wiring اختیاریِ additive

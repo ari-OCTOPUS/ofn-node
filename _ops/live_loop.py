@@ -23,6 +23,12 @@ sys.path.insert(0, str(_HERE))
 sys.path.insert(0, str(_HERE / "budget"))
 sys.path.insert(0, str(_HERE / "brain"))
 
+# G3 arc (ported to master 2026-07-18، خاستگاه: شاخهٔ 484bafd). کارتِ پیشنهاد →
+# دکمهٔ مالک → outcome → متریک. پشتِ OCTOPUS_WIRE_PROPOSAL_BUTTONS، پیش‌فرض خاموش.
+_PROPOSAL_CB_MAX = 500                       # سقفِ نگاشتِ token→پیشنهاد (ارگانیسم ماه‌ها زنده است)
+_PROPOSAL_VERBS = {"ok": "approved", "no": "rejected"}   # verbِ دکمه → verdict (later عمداً نیست)
+_PROPOSAL_DEFER = "later"                    # «بعداً» تعویق است، نه تصمیم — کارت زنده می‌ماند
+
 
 @dataclass
 class VerdictResult:
@@ -66,6 +72,7 @@ class LiveLoop:
         # source is rewritten, and no irreversible effect is settled here.
         self._proposal_seen: set[str] = set()
         self._proposal_outcomes: list[dict] = []
+        self._proposal_cb: dict[str, dict] = {}   # G3: token→proposal meta (bounded)
 
         # W-2: ثبتِ advisory subscribers
         self.bus.subscribe(self._on_advisory, event_type="RHYTHM")
@@ -290,6 +297,33 @@ class LiveLoop:
                 "──────────\n"
                 "<i>این کارت هیچ اثر بیرونی/settle ندارد. تصمیم واقعی همچنان human-gated است.</i>")
 
+    @staticmethod
+    def _proposal_token(proposal_id) -> str:
+        """tokenِ کوتاه/امنِ callback برای proposal_id (deterministic، ۱۶ هگز). هش می‌زنیم نه
+        truncate: idِ خام ممکن است >۶۴ بایتِ callback_data یا ناامن باشد."""
+        import hashlib
+        return hashlib.sha256(str(proposal_id or "").encode("utf-8")).hexdigest()[:16]
+
+    @staticmethod
+    def _proposal_keyboard(token: str) -> dict:
+        """کیبوردِ کارتِ پیشنهاد: prop:<verb>:<token> با verb ∈ ok/no/later. schemeِ 'prop'
+        عمداً از 'app' (پول، توکن‌دار) جداست تا هرگز به مسیرِ settle نخورد (≈۲۴ بایت)."""
+        return {"inline_keyboard": [[
+            {"text": "✅ آره", "callback_data": f"prop:ok:{token}"},
+            {"text": "❌ نه", "callback_data": f"prop:no:{token}"},
+            {"text": "⏳ بعداً", "callback_data": f"prop:later:{token}"},
+        ]]}
+
+    @staticmethod
+    def _proposal_amount(d: dict) -> float:
+        """مبلغِ انتظاریِ پیشنهاد (asking price) از payload — برای متریک، نه settle."""
+        payload = d.get("payload") or {}
+        for _k in ("expected_aud", "amount_aud", "total_incl_gst"):
+            _v = payload.get(_k)
+            if isinstance(_v, (int, float)):
+                return float(_v)
+        return 0.0
+
     def route_leg_proposals(self, legs=None, *, deliver: bool = True, limit: int = 10) -> dict:
         """Gather/rank/dedupe proposals from legs and optionally deliver owner-visible cards.
 
@@ -325,21 +359,44 @@ class LiveLoop:
             key = d.pop("_router_key", self._proposal_key(d))
             self._proposal_seen.add(key)
             card = self._proposal_card(d)
+            # G3 arc: دکمهٔ اندازه‌گیری پشتِ OCTOPUS_WIRE_PROPOSAL_BUTTONS (پیش‌فرض خاموش).
+            # خاموش → kb=None → دقیقاً همان send_text قبلی (byte-identical).
+            import os as _os
+            kb = None
+            if _os.environ.get("OCTOPUS_WIRE_PROPOSAL_BUTTONS") == "1" and d.get("proposal_id"):
+                tok = self._proposal_token(d.get("proposal_id"))
+                self._proposal_cb[tok] = {"proposal_id": str(d.get("proposal_id")),
+                                          "amount": self._proposal_amount(d),
+                                          "kind": str(d.get("kind", "unknown")),
+                                          "leg_id": str(d.get("leg_id", "unknown"))}
+                if len(self._proposal_cb) > _PROPOSAL_CB_MAX:
+                    for _old in list(self._proposal_cb)[:-_PROPOSAL_CB_MAX]:
+                        self._proposal_cb.pop(_old, None)
+                kb = self._proposal_keyboard(tok)
             sent = False
             if deliver and self.channel is not None and hasattr(self.channel, "send_text"):
                 try:
-                    sent = bool(self.channel.send_text(card))
+                    if kb is not None:
+                        try:
+                            sent = bool(self.channel.send_text(card, reply_markup=kb))
+                        except TypeError:
+                            # کانالی که reply_markup نمی‌شناسد → کارتِ بی‌دکمه، router زنده می‌ماند.
+                            sent = bool(self.channel.send_text(card))
+                            kb = None
+                    else:
+                        sent = bool(self.channel.send_text(card))
                 except Exception:  # noqa: BLE001 — کارتِ بد نباید router را بکشد
                     sent = False
             event = {"event": "delivered", "proposal_id": d.get("proposal_id"),
                      "leg_id": d.get("leg_id"), "kind": d.get("kind"),
-                     "sent": sent, "advisory_only": True}
+                     "sent": sent, "buttons": kb is not None, "advisory_only": True}
             self._proposal_outcomes.append(event)
             self._emit_advisory("PROPOSAL", {**event, "card": card[:500]})
             # بهداشتِ state (P0-static 2026-07-17): payload خام واردِ خروجیِ router نمی‌شود —
             # organism این را در ORGANISM-STATE.json می‌نویسد که HTTPِ کابین (8771) هم سروش
             # می‌کند؛ کارت جدا و redactشده تحویل شده. فقط شناسه/نوع/ارسال کافی است.
-            delivered.append({k: v for k, v in {**d, "sent": sent}.items()
+            delivered.append({k: v for k, v in {**d, "sent": sent,
+                                                "buttons": kb is not None}.items()
                               if k != "payload"})
         return {"seen_total": len(self._proposal_seen), "new": len(candidates),
                 "delivered": len(delivered), "sent": sum(1 for d in delivered if d.get("sent")),
@@ -362,6 +419,29 @@ class LiveLoop:
         self._proposal_outcomes.append(rec)
         self._emit_advisory("PROPOSAL_OUTCOME", rec)
         return rec
+
+    def record_proposal_outcome_by_token(self, token: str, verb: str) -> dict | None:
+        """G3 arc: تپِ دکمهٔ کارت → outcome. از threadِ pollerِ تلگرام صدا زده می‌شود.
+        قوسی که تا امروز روی master بریده بود: کارت متنِ بی‌دکمه می‌رفت و رأیِ مالک هیچ‌جا
+        نمی‌نشست. مرزها (عمدی): هیچ approve/settle/pay/ledger — فقط record_proposal_outcome
+        (measurement-only). tokenِ ناشناخته → None. یک outcome به‌ازای هر پیشنهاد (اولین
+        تپِ تصمیم برنده). «بعداً» تصمیم نیست → deferred، کارت زنده می‌ماند."""
+        meta = self._proposal_cb.get(str(token or ""))
+        if meta is None or meta.get("decided"):
+            return None
+        v = str(verb or "").strip().lower()
+        if v == _PROPOSAL_DEFER:
+            return {"event": "deferred", "proposal_id": meta["proposal_id"],
+                    "advisory_only": True}
+        mapped = _PROPOSAL_VERBS.get(v)
+        if mapped is None:
+            return None
+        meta["decided"] = mapped
+        # ارزش فقط روی «آره» و فقط مبلغِ انتظاریِ خودِ پیشنهاد — proposal_value_aud را می‌جنباند،
+        # نه confirmed_revenue. هیچ پولی جابه‌جا نشده؛ فقط مالک گفته «این را ببر جلو».
+        value = float(meta.get("amount") or 0.0) if mapped == "approved" else 0.0
+        return self.record_proposal_outcome(meta["proposal_id"], mapped,
+                                            source="ari-button", value_aud=value)
 
     def proposal_metrics(self) -> dict:
         """Small near-action metric set for learning loops (G3)."""

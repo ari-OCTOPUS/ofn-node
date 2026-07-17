@@ -596,6 +596,8 @@ class TelegramApprovalChannel(ApprovalChannel):
             return self._dispatch_books(parts)
         if parts[0] == "acct":                # میان‌بُرهای دکمه‌ایِ حسابداری (review/books/sync)
             return self._dispatch_acct(parts)
+        if parts[0] == "prop":                # G3 arc: رأیِ کارتِ پیشنهاد (measurement-only، جدا از پول)
+            return self._dispatch_proposal(parts)
         if len(parts) != 4 or parts[0] != "app":
             return "نادیده"
         verb, effect_id, token = parts[1], parts[2], parts[3]
@@ -612,8 +614,37 @@ class TelegramApprovalChannel(ApprovalChannel):
                 meta["status"] = "denied"
             return "رد شد ❌ (هیچ اثری settle نشد)"
         if verb == "later":
-            return "بعداً ⏳ (pending باقی می‌ماند)"
+            # 2026-07-18: دیگر no-op نیست — یک ردِ تعویق ذخیره می‌کند (شمارش + زمان)
+            # تا دکمه واقعاً چیزی «عوض/ذخیره» کند، بدونِ settle. pending می‌ماند.
+            with self._lk:
+                meta["defer_count"] = int(meta.get("defer_count", 0)) + 1
+                try:
+                    meta["deferred_at"] = opslib.now_iso()
+                except Exception:  # noqa: BLE001 — بی‌timestamp هم مشکلی نیست
+                    pass
+            return f"بعداً ⏳ (ثبت شد ×{meta['defer_count']}؛ pending می‌ماند)"
         return "نادیده"
+
+    def _dispatch_proposal(self, parts: list) -> str:
+        """G3 arc (ported to master 2026-07-18): 'prop:<verb>:<token>' — رأیِ مالک به کارتِ
+        پیشنهاد را می‌سنجد. schemeِ 'prop' جدا از 'app' (پول): این مسیر هرگز
+        settle/ledger/spend نمی‌زند — فقط یک ردیفِ اندازه‌گیریِ in-memory. بدترین حالتِ یک
+        callbackِ جعلی = یک متریکِ اشتباه، نه یک ریال جابه‌جایی؛ ضمناً poll_once از قبل
+        allowlistِ chat_idِ مالک را اعمال کرده. قلابِ تزریق‌نشده (فلگ خاموش) → «نادیده»،
+        دقیقاً مثل هر schemeِ ناشناخته. هوک از wiring.wire_proposal_buttons ست می‌شود."""
+        hook = getattr(self, "_proposal_hook", None)
+        if hook is None or len(parts) != 3:
+            return "نادیده"
+        try:
+            rec = hook(parts[2], parts[1])
+        except Exception:  # noqa: BLE001 — تپِ بد نباید threadِ poller را بکشد
+            return "نادیده"
+        if rec is None:
+            return "قبلاً ثبت شده یا کارتِ کهنه ⏳"
+        if rec.get("event") == "deferred":
+            return "بعداً ⏳ (کارت زنده می‌ماند — هر وقت خواستی تصمیم بگیر)"
+        return {"ok": "ثبت شد ✅ (فقط اندازه‌گیری — هیچ اثری settle نشد)",
+                "no": "ثبت شد ❌"}.get(parts[1], "ثبت شد")
 
     # ─── خانهٔ سادهٔ آره/نه (جلسه ۴۶، رأی مالک «فقط آره یا نه بگم») ──────────────────
     def _gather_decisions(self) -> list[dict]:
