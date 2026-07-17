@@ -1,6 +1,6 @@
 ---
 type: handoff
-updated: 2026-07-16
+updated: 2026-07-17
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
@@ -9,6 +9,8 @@ updated: 2026-07-16
 
 ## وضعِ لحظه‌ای
 
+- **2026-07-17 — اصلاح معماریِ اختاپوس توسط fugu:** گپ G1/G3 با Proposal Router سبک بسته شد: `_ops/live_loop.py` حالا proposalهای پا را gather/rank/dedupe و به کارت advisory تلگرام تبدیل می‌کند؛ `_emit_advisory` subscriberها را واقعاً notify می‌کند؛ `_ops/organism.py` Router را روی beat صدا می‌زند و `proposal_router` را در state می‌نویسد. سند تصمیم: [[../04 - Architect System/ANALYSES/2026-07-17_ARCHITECTURE-CORRECTION-DECISIONS|Architecture Correction Decisions]]. تست‌های live-loop اضافه شد، اما اجرای Python در این محیط در دسترس نبود؛ ایجنت بعدی اجرا کند: `python -X utf8 "F:\backup\_ops\tests\test_live_loop.py"` و سپس `run_all.py`.
+- **2026-07-17 (ادامه، تأیید شد):** تست‌های fugu اجرا و همه سبز (live_loop کامل + سوئیتِ کاملِ ۱۸۹/۱۸۹). **P0-G3 وصل شد:** `organism.py` هر tick خروجیِ `proposal_metrics()` را در `ORGANISM-STATE.proposal_metrics` می‌نویسد و `goal_directed._baseline_metrics` آن را می‌خواند — `measure()` حالا proposals_delivered/outcomes/positive/accept_rate/value_aud را می‌بیند و شمارشی‌ها واردِ منطقِ moved شدند (accept_rate عمداً بیرون). **P0-static:** مسیرِ تلگرامِ کارت از redactionِ مرکزیِ INV-12 می‌گذرد (تأیید)؛ بهداشتِ state: payload خام دیگر واردِ خروجیِ router/ORGANISM-STATE نمی‌شود. **MVO flywheel در تستِ e2e بسته شد** (proposal→کارت→outcome→metrics→measure، صفر approve). تست‌های نو: goal_directed t_f + live_loop [MVO]. **نکردم (عمداً):** G4 canonical intake (جراحیِ چندماژوله، جلسهٔ خودش) + dedupe persistence (لازم نشد — هر دو سرِ dedupe در حافظهٔ یک پروسه‌اند و با هم ریست می‌شوند).
 - **ارگانیسم:** زنده روی 8771 (پرچم‌های نو فقط بعدِ ری‌استارتِ تمیز اثر می‌کنند — دکمهٔ ♻️ تلگرام).
 - **کورتکس (8772): زنده است ✅ — ادعای «مرده از 07-10» غلط بود** (تصحیحِ probe-محور 2026-07-16 20:24: ‏cycle ۱۸۸، ‏ts تازه، ‏HTTP پاسخ می‌دهد). ولی **coherence=0.235 و ۷ عضو کهنه گزارش می‌کند و هیچ‌کس نمی‌شنود** — کهنگیِ organism/heart/producers/work_pump/governor پیامدِ همین STOPِ عمدیِ توست، ولی **school ‏۱۸۰h کهنه (SLA=72h)** و **reconcile ‏`present:false` («state غایب»)** پوسیدگیِ واقعی و پیش از STOP‌اند. هشدارِ ساختاری: مسیرِ «سیستم می‌داند» → «مالک می‌داند» شکسته است.
 - **مهرِ CAPABILITY-OK: غایب (عمداً fail-closed)** — احیا: run_all سبز روی درختِ زنده در پنجرهٔ خاموشیِ ارگانیسم. پول double-closed (LIVE-ENABLED هم غایب).

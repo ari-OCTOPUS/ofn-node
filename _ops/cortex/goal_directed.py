@@ -17,6 +17,7 @@ $0 · stdlib · fail-soft · propose-only (فقط بازچینش/حاشیه‌ن
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -29,6 +30,16 @@ import opslib  # noqa: E402
 STATE = opslib.STATE_DIR
 GOALS_PATH = opslib.OPS / "GOALS-OCTOPUS.md"
 OUTCOMES = STATE / "cortex" / "outcomes.jsonl"
+# طرفِ «خود» برای واسنجیِ برخط — همان لِجِر و فلگِ self_model.emit_self_claims
+# (ORPH-SELF-CLAIMS): calibration_probe فقط می‌خواند؛ اینجا تولیدکنندهٔ دوم است.
+SELF_CLAIMS = STATE / "cortex" / "self-claims.jsonl"
+SELF_MONITOR_FLAG = "CORTEX_SELF_MONITOR"
+# متریک‌های برون‌دادیِ measure — کلیدِ مشترکِ baseline/بستار (یک منبعِ حقیقت).
+# P0-G3 (2026-07-17، ادامهٔ fugu): متریک‌های نزدیک‌به‌عملِ Proposal Router هم واردِ
+# منطقِ moved — تا حلقهٔ یادگیری deliver/outcome/value را ببیند، نه فقط درآمدِ نهایی.
+# accept_rate عمداً بیرونِ moved-keys است (نسبت است، پایین‌آمدنش خطا نیست) ولی در now هست.
+_METRIC_KEYS = ("confirmed_revenue", "revenue_cells", "total_discoveries",
+                "proposals_delivered", "proposal_outcomes", "proposal_value_aud")
 
 # نشانه‌های «دایره‌ای» — بهبودِ خودِ ماشینِ سنجش، نه یک هدفِ واقعی.
 _CIRCULAR = re.compile(
@@ -116,7 +127,9 @@ def rerank(proposals: list[dict], *, max_circular: int = 2) -> dict:
 
 def record_intent(top: list[dict]) -> None:
     """نیتِ سنجش را ثبت کن (لوپ را ببند، غیرِدایره‌ای کن): هر پیشنهادِ صدر چه هدفی و چه
-    متریکی را قرار است جابه‌جا کند + baseline. بعداً measure می‌گوید آیا شد."""
+    متریکی را قرار است جابه‌جا کند + baseline. بعداً measure می‌گوید آیا شد.
+    هم‌زمان (زیرِ فلگ) ادعای id-کلیددار صادر می‌شود تا با رکوردِ بستارِ measure
+    جفت شود — پیش از این، فضای نامِ ادعا و حقیقت disjoint بود (n=0 ابدی)."""
     try:
         base = _baseline_metrics()
         OUTCOMES.parent.mkdir(parents=True, exist_ok=True)
@@ -126,8 +139,41 @@ def record_intent(top: list[dict]) -> None:
                     "ts": opslib.now_iso(), "id": p.get("id"),
                     "title": p.get("title"), "serves_goal": p.get("serves_goal"),
                     "impact": p.get("impact"), "baseline": base}, ensure_ascii=False) + "\n")
+        _emit_intent_claims(top[:3])
     except OSError:
         pass
+
+
+def _self_monitor_on() -> bool:
+    """فلگِ CORTEX_SELF_MONITOR روشن؟ (دقیقاً منطقِ self_model/calibration_probe)."""
+    v = str(os.environ.get(SELF_MONITOR_FLAG, "")).strip().lower()
+    return v not in ("", "0", "false", "no", "off")
+
+
+def _emit_intent_claims(top: list[dict]) -> None:
+    """برای هر نیتِ ثبت‌شده یک ادعای id-کلیددار به self-claims.jsonl الحاق کن —
+    الگوی self_model.emit_self_claims: زیرِ فلگ (خاموش = صفر نوشتن، byte-identical)،
+    fail-soft. key = همان idِ نیت؛ confidence = impact/3.0 (هم‌مقیاسِ probe)."""
+    if not _self_monitor_on():
+        return
+    try:
+        ts = opslib.now_iso()
+        for p in top:
+            pid = p.get("id")
+            if pid is None or not str(pid).strip():
+                continue                      # ادعای بی‌key گرید‌ناپذیر است → صادر نکن
+            try:
+                conf = max(0.0, min(1.0, float(p.get("impact") or 0.0) / 3.0))
+            except (ValueError, TypeError):
+                continue
+            opslib.append_jsonl(SELF_CLAIMS, {
+                "key": str(pid).strip(), "confidence": round(conf, 6), "ts": ts,
+                "source": "goal_directed", "schema": "self-claim.v1"})
+    except Exception as e:  # noqa: BLE001 — صدورِ ادعا هرگز record_intent را نمی‌کشد
+        try:
+            opslib.alert([f"goal_directed intent claims failed: {e}"])
+        except Exception:  # noqa: BLE001
+            pass
 
 
 def _baseline_metrics() -> dict:
@@ -145,14 +191,26 @@ def _baseline_metrics() -> dict:
         n_disc = len(dp.read_text("utf-8").splitlines()) if dp.exists() else 0
     except OSError:
         n_disc = 0
+    # P0-G3: متریکِ Proposal Router از ORGANISM-STATE.json (نوشتهٔ organism هر tick).
+    # فقط اندازه‌گیری — هیچ approve/verdict؛ نبودِ فایل/کلید = صفرها (fail-soft).
+    pm = _r(STATE / "ORGANISM-STATE.json").get("proposal_metrics") or {}
+    if not isinstance(pm, dict):
+        pm = {}
     return {"confirmed_revenue": fit.get("confirmed", 0),
             "revenue_cells": len(fit.get("revenue_by_cell", {}) or {}),
-            "total_discoveries": n_disc}
+            "total_discoveries": n_disc,
+            "proposals_delivered": int(pm.get("proposals_delivered") or 0),
+            "proposal_outcomes": int(pm.get("proposal_outcomes") or 0),
+            "proposal_positive": int(pm.get("proposal_positive") or 0),
+            "proposal_accept_rate": float(pm.get("proposal_accept_rate") or 0.0),
+            "proposal_value_aud": float(pm.get("proposal_value_aud") or 0.0)}
 
 
 def measure() -> dict:
     """آیا پیشنهادهای اخیر واقعاً متریکی را جابه‌جا کردند؟ (بستنِ لوپ — ضدِ دایره).
-    اگر برون‌دادها ثابت مانده‌اند → سیگنالِ «کارِ خودبهبودی به هدف نمی‌رسد»."""
+    اگر برون‌دادها ثابت مانده‌اند → سیگنالِ «کارِ خودبهبودی به هدف نمی‌رسد».
+    بیتِ moved حالا persist هم می‌شود (رکوردِ بستار per-intent) — پیش از این محاسبه
+    می‌شد ولی هرگز نوشته نمی‌شد → calibration_probe ساختاراً کور بود (n=0)."""
     now = _baseline_metrics()
     try:
         if not OUTCOMES.exists():
@@ -160,12 +218,46 @@ def measure() -> dict:
         rows = [json.loads(l) for l in OUTCOMES.read_text("utf-8").splitlines()[-20:] if l.strip()]
     except (OSError, ValueError):
         return {"tracked": 0, "moved": False, "now": now}
-    if not rows:
+    # نیت (baseline دارد) از بستار (moved دارد) جدا — فایل حالا هر دو گونه را دارد.
+    intents = [r for r in rows if isinstance(r.get("baseline"), dict)]
+    if not intents:
         return {"tracked": 0, "moved": False, "now": now}
-    oldest = rows[0].get("baseline", {})
-    moved = any(now.get(k, 0) > oldest.get(k, 0) for k in
-                ("confirmed_revenue", "revenue_cells", "total_discoveries"))
-    return {"tracked": len(rows), "moved": moved, "now": now, "since": oldest}
+    oldest = intents[0].get("baseline", {})
+    moved = any(now.get(k, 0) > oldest.get(k, 0) for k in _METRIC_KEYS)
+    _close_intents(intents, rows, now)
+    return {"tracked": len(intents), "moved": moved, "now": now, "since": oldest}
+
+
+def _close_intents(intents: list[dict], rows: list[dict], now: dict) -> None:
+    """بستارِ لوپِ واسنجی: برای هر نیتِ ارزیابی‌شده یک رکوردِ حقیقتِ دودویی
+    {ts, key, moved} به outcomes.jsonl الحاق کن — دقیقاً شِمایی که
+    calibration_probe._load_truth جفت می‌کند (key + فیلدِ دودوییِ moved).
+    فقط وقتی می‌نویسد که بیت نسبت به آخرین بستارِ همان key عوض شده باشد
+    (رشدِ کران‌دار؛ «تازه‌ترین حقیقت» در probe برنده است). fail-soft."""
+    try:
+        last: dict[str, bool] = {}
+        for r in rows:                        # آخرین بستارِ ثبت‌شده per key (به ترتیبِ فایل)
+            if "moved" in r and r.get("key"):
+                last[str(r["key"])] = bool(r["moved"])
+        ts = opslib.now_iso()
+        for r in intents:
+            rid = r.get("id")
+            if rid is None or not str(rid).strip():
+                continue                      # نیتِ بی‌id بستار‌پذیر نیست
+            rid = str(rid).strip()
+            base = r.get("baseline") or {}
+            moved_i = any(now.get(k, 0) > base.get(k, 0) for k in _METRIC_KEYS)
+            if last.get(rid) == moved_i:
+                continue                      # بیت عوض نشده → دوباره‌نویسی نکن
+            opslib.append_jsonl(OUTCOMES, {
+                "ts": ts, "key": rid, "moved": bool(moved_i),
+                "kind": "closure", "schema": "outcome-closure.v1"})
+            last[rid] = moved_i
+    except Exception as e:  # noqa: BLE001 — بستار هرگز measure را نمی‌کشد
+        try:
+            opslib.alert([f"goal_directed close_intents failed: {e}"])
+        except Exception:  # noqa: BLE001
+            pass
 
 
 if __name__ == "__main__":

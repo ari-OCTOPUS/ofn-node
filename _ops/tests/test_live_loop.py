@@ -20,6 +20,7 @@ for _p in (str(_OPS), str(_OPS / "brain"), str(_OPS / "budget"),
         sys.path.insert(0, _p)
 
 from live_loop import LiveLoop, VerdictResult, _InMemoryBus  # noqa: E402
+from leg import Leg, TaskPacket  # noqa: E402
 from project_f_brain import ProjectFBrain, COMPLIANCE_RULES, ETHICS_RULES  # noqa: E402
 from content_studio import ContentStudio, COMPLIANCE_CHECKS  # noqa: E402
 from cockpit import BrainCockpit  # noqa: E402
@@ -38,6 +39,22 @@ def _make_loop():
         brain=ProjectFBrain(),
         studio=ContentStudio(),
         cockpit=BrainCockpit(state_dir=ENV["ops"] / "state"))
+
+
+class _FakeChannel:
+    def __init__(self):
+        self.sent = []
+
+    def send_text(self, text, reply_markup=None, chat_id=None):
+        self.sent.append({"text": text, "reply_markup": reply_markup, "chat_id": chat_id})
+        return True
+
+
+def _fake_leg():
+    packet = TaskPacket(leg_id="test-leg", organ="TEST",
+                        read_allowlist=("03 - Projects/Lead-نقاشی/PROJECT.md",),
+                        tools=("draft",), budget_aud=0.0)
+    return Leg(packet, organ_table={"TEST": {"floor": 0}})
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -188,6 +205,50 @@ def t_bus_subscribe_publish():
     assert received[0]["type"] == "RHYTHM"
 
 
+def t_advisory_subscribers_notified_without_ledger():
+    """_emit_advisory subscriberها را notify می‌کند، بدون bus.publish/ledger."""
+    bus = _InMemoryBus()
+    loop = LiveLoop(bus=bus)
+    received = []
+    bus.subscribe(lambda e: received.append(e), event_type="RHYTHM")
+    loop.publish_rhythm_advisory({"mode": "GREEN"})
+    assert len(received) == 1
+    assert received[0]["type"] == "RHYTHM"
+    assert received[0]["payload"]["advisory_only"] is True
+    assert len(bus.events) == 0, "advisory نباید ledger/bus.publish بسازد"
+
+
+def t_proposal_router_delivers_once_and_dedupes():
+    """G1: proposalهای پا به کارت owner-visible تبدیل می‌شوند و دوبار ارسال نمی‌شوند."""
+    leg = _fake_leg()
+    p1 = leg.emit_proposal("draft_quote", {"scope": "paint kitchen", "expected_aud": 1200})
+    leg.emit_proposal("inventory_report", {"title": "stock report"})
+    chan = _FakeChannel()
+    loop = LiveLoop(bus=_InMemoryBus(), approval_channel=chan, leg=leg)
+    r1 = loop.route_leg_proposals(deliver=True)
+    r2 = loop.route_leg_proposals(deliver=True)
+    assert r1["delivered"] == 2
+    assert r1["sent"] == 2
+    assert r2["delivered"] == 0
+    assert len(chan.sent) == 2
+    assert str(p1.proposal_id) in chan.sent[0]["text"] or "paint kitchen" in chan.sent[0]["text"]
+    assert loop.proposal_metrics()["proposals_delivered"] == 2
+
+
+def t_proposal_outcome_metrics_are_measurement_only():
+    """G3: outcome ثبت می‌شود ولی verdict/approval واقعی تولید نمی‌کند."""
+    leg = _fake_leg()
+    p = leg.emit_proposal("draft_quote", {"scope": "paint room", "expected_aud": 500})
+    loop = LiveLoop(bus=_InMemoryBus(), leg=leg)
+    loop.route_leg_proposals(deliver=False)
+    loop.record_proposal_outcome(p.proposal_id, "approved", value_aud=500)
+    m = loop.proposal_metrics()
+    assert m["proposal_outcomes"] == 1
+    assert m["proposal_accept_rate"] == 1.0
+    assert m["proposal_value_aud"] == 500
+    assert len(loop.verdicts) == 0, "outcome metric نباید approval/verdict واقعی بسازد"
+
+
 def t_unified_bus_subscribe_real():
     """UnifiedBus واقعی subscribe دارد."""
     sys.path.insert(0, str(_OPS))
@@ -197,6 +258,39 @@ def t_unified_bus_subscribe_real():
     bus.subscribe(lambda e: received.append(e))
     assert hasattr(bus, "subscribe")
     assert hasattr(bus, "_notify")
+
+
+def t_mvo_flywheel_to_measure():
+    """MVO (P1 ادامهٔ fugu): کوچک‌ترین حلقهٔ بسته — proposal → کارتِ advisory →
+    outcome ِ ثبت‌شده → metrics → ORGANISM-STATE (همان seamِ organism) →
+    goal_directed.measure آن را می‌بیند. صفر approve/settle در کلِ مسیر."""
+    import json
+    leg = _fake_leg()
+    p = leg.emit_proposal("draft_quote", {"scope": "paint hallway", "expected_aud": 800})
+    chan = _FakeChannel()
+    loop = LiveLoop(bus=_InMemoryBus(), approval_channel=chan, leg=leg)
+    r = loop.route_leg_proposals(deliver=True)
+    assert r["delivered"] == 1 and chan.sent, "کارت باید تحویل شود"
+    assert all("payload" not in d for d in r["proposals"]), \
+        "بهداشتِ state: payload خام نباید در خروجیِ router باشد"
+    loop.record_proposal_outcome(p.proposal_id, "won", source="ari", value_aud=800.0)
+    pm = loop.proposal_metrics()
+    assert pm["proposal_value_aud"] == 800.0 and pm["proposals_delivered"] == 1
+    # همان کاری که organism هر tick می‌کند: metrics → ORGANISM-STATE.json
+    sys.path.insert(0, str(_OPS / "cortex"))
+    import opslib
+    import goal_directed as gd
+    sp = opslib.STATE_DIR / "ORGANISM-STATE.json"
+    sp.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        sp.write_text(json.dumps({"proposal_metrics": pm}, ensure_ascii=False), "utf-8")
+        now = gd.measure()["now"]
+        assert now["proposals_delivered"] == 1 and now["proposal_outcomes"] == 1
+        assert abs(now["proposal_value_aud"] - 800.0) < 0.005, now
+        assert len(loop.verdicts) == 0, "حلقهٔ MVO هیچ verdict/approval واقعی نمی‌سازد"
+    finally:
+        if sp.exists():
+            sp.unlink()
 
 
 def t_no_production_import():
@@ -223,6 +317,10 @@ if __name__ == "__main__":
         ("[ج] money قفل در PF", t_money_locked_in_pf_path),
         ("[ج] دوکلیده حفظ", t_dual_gate_preserved),
         ("[W] bus subscribe/publish", t_bus_subscribe_publish),
+        ("[W] advisory subscriber notify بدون ledger", t_advisory_subscribers_notified_without_ledger),
+        ("[G1] proposal router deliver/dedupe", t_proposal_router_delivers_once_and_dedupes),
+        ("[G3] proposal outcome metrics", t_proposal_outcome_metrics_are_measurement_only),
+        ("[MVO] flywheel proposal→card→outcome→measure", t_mvo_flywheel_to_measure),
         ("[W] UnifiedBus.subscribe", t_unified_bus_subscribe_real),
         ("[S] no production import", t_no_production_import),
     ])

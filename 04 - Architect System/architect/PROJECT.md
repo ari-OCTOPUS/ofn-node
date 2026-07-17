@@ -8,7 +8,7 @@ risk_level: critical
 autonomy_level: read-only
 tags: [ai, automation, telegram, meta-system]
 created: 2026-07-03
-updated: 2026-07-16
+updated: 2026-07-17
 ---
 
 # پروژه: architect
@@ -28,6 +28,7 @@ updated: 2026-07-16
 
 ## Active Context
 
+- تغییرات اخیر: 2026-07-17 (fugu) — **Architecture Correction / Proposal Router**: طبق دیپ‌اسکن، G1/G3 با یک پچ additive و propose-only بسته شد: `_ops/live_loop.py` حالا proposalهای پاها را gather/rank/dedupe می‌کند، advisory subscriberها واقعاً notify می‌شوند، outcome metrics حداقلی ساخته شد؛ `_ops/organism.py` Router را در beat وصل می‌کند. سند تصمیم: [[04 - Architect System/ANALYSES/2026-07-17_ARCHITECTURE-CORRECTION-DECISIONS|ARCHITECTURE-CORRECTION-DECISIONS]]. اجرای تست در این محیط ممکن نبود؛ next: live-loop test + run_all.
 - تمرکز فعلی: فاز ۱ اجرا شد — [[04 - Architect System/architect/ARCHITECT_CHARTER|ARCHITECT_CHARTER]] نوشته شد (verdict Phase 0 داده شد 2026-07-03)؛ **Security Gate بسته** تا چرخش CRITICALها
 - تغییرات اخیر: 2026-07-03 — Phase 0 (secretها → secrets-export) + charter + manifest v2 همه دامنه‌ها + آدیت ۸-پاسه fusion-mvp کامل شد: ۰ Critical / ۴ High — [[04 - Architect System/architect/04-Docs/fusion-audit/AUDIT|AUDIT]] و [[04 - Architect System/architect/04-Docs/fusion-audit/REFACTOR_PLAN|REFACTOR_PLAN]] (TOP-5 با پرچم HUMAN-APPROVAL) · طراحی [[04 - Architect System/architect/01-Project/BRAIN-UPGRADE-LOOP|BRAIN-UPGRADE-LOOP]] (D-28) و [[04 - Architect System/architect/01-Project/OBSIDIAN-SYNC|OBSIDIAN-SYNC]] (D-29) ثبت شد؛ BACKLOG #21–#24
 - ۳ قدم بعدی: (۱) rotation کلیدها (مالک) → باز شدن گیت (۲) اجرای TOP-5 آدیت با تأیید انسانی (۳) پرامپت Phase 4 — [[00 - Inbox/Prompt - Phase 4 Real Integration|Real Integration]]
@@ -53,6 +54,7 @@ updated: 2026-07-16
 
 ## Progress
 
+- چه کار می‌کند: لایهٔ ارگانیسم `_ops/` (سایه/propose-only) اکنون یک **Proposal Router حداقلی** دارد که proposalهای پاها را owner-visible می‌کند و `proposal_metrics` نزدیک به action می‌دهد؛ اتصالِ metrics→`goal_directed.measure()` انجام شد (2026-07-17 ادامه؛ سوئیت ۱۸۹/۱۸۹ + تستِ MVO flywheel)؛ هدفِ بعدی canonical کردنِ Lead intake (G4) است. سند: [[04 - Architect System/ANALYSES/2026-07-17_ARCHITECTURE-CORRECTION-DECISIONS|Architecture Correction Decisions]]. اجرای تست لازم: `test_live_loop.py` + `run_all.py`.
 - چه کار می‌کند: لایهٔ ارگانیسم `_ops/` (سایه/propose-only) — سوئیت **۶ فایل/۴۰ چک سبز** ($0، شامل تست rollback رزرو و تست دیوار باربر ضد APPROVAL جعلی)؛ ژنوم **v0.4.3** هر ۵ سوئیت سبز (race قفل ledger + گارد نشت دوطرفهٔ کلید)؛ پنل مالک 8790 (پروفایل/پروژه‌ها/ارگانیسم) زنده؛ Home/ایندکس‌ها به همهٔ قطعات زنده وصل؛ budget_gate/budgets.yaml دست‌نخورده. بازبینی چندایجنتی سه‌دپارتمانی انجام شد — [[00 - Inbox/2026-07-07 1544 گزارش مهندسی چندایجنتی — بازبینی، تعمیر، آمادگی دیپلوی|گزارش جلسه ۲۴]].
 - چه مانده (نردبان مالک، به ترتیب — تازه‌شده 2026-07-07 ~۲۰:۵۵): **بازبینی smoke ‏۲۴ساعتهٔ ارگانیسم فردا** (روشن است؛ kill تمیز = `_ops\STOP-ORGANISM`) · `genome_guard --init` · verdictهای باز باقی (شرط مرگ reconcile · fitness baseline · genome-system submodule · [[_ops/budget/budgets-proposed-diff|diff پیشنهادی]]) · tier ابری رمزنگاری‌شدهٔ بک‌اپ · گسترش UI روی 8771 · P1 (budget_gate v2 + پیاده‌سازی V2 + MAX_LAG). (فیکس git ✅ · بک‌اپ+drill+زمان‌بندی دولایه ✅ · بازیابی گزارش ۲۶ ✅ · V1/V2 ✅ · **BIRTH ✅ 20:42**.)
 - چه مانده (Octopus P1، 2026-07-08 — Windows-side): اجرای سوئیتِ ۱۳ فایل + دو validator · commit path-scoped ۹ مسیر (نه `add -A`؛ `chrono.db` را commit نکن) · **`age_tick` heart-driven پیاده شد** (genome v0.4.6، versioned؛ الگوریتم سندباکس ۱۵/۱۵ + py_compile؛ تأییدِ Windows-side مانده) · restart ارگانیسم برای سوارشدنِ ضربان (INC-1). گیت P2 (Doctor) پس از P1 باز — قلاب `doctor.restart_from_known_good` و EffectorGate منتظرند.

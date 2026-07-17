@@ -83,6 +83,38 @@ def t_e_improve_run_is_goal_directed():
     assert "n_goal_serving" in d["goal_directed"] and "outcome" in d["goal_directed"]
 
 
+def t_f_measure_sees_proposal_router_metrics():
+    """P0-G3 (ادامهٔ fugu): metrics روتر از ORGANISM-STATE.json واردِ measure می‌شود —
+    فقط اندازه‌گیری (هیچ approve)؛ نبودِ کلید = صفرها؛ رشدِ شمارشی‌ها moved را روشن می‌کند."""
+    sp = opslib.STATE_DIR / "ORGANISM-STATE.json"
+    sp.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        # (۱) بدونِ state → صفرهای امن و کلیدها حاضر
+        if sp.exists():
+            sp.unlink()
+        base0 = gd._baseline_metrics()
+        for k in ("proposals_delivered", "proposal_outcomes", "proposal_positive",
+                  "proposal_accept_rate", "proposal_value_aud"):
+            assert k in base0, f"{k} باید همیشه در baseline باشد"
+        assert base0["proposals_delivered"] == 0
+        # (۲) با state → همان اعداد در now ِ measure دیده می‌شوند
+        sp.write_text(json.dumps({"proposal_metrics": {
+            "proposals_delivered": 3, "proposal_outcomes": 2, "proposal_positive": 1,
+            "proposal_accept_rate": 0.5, "proposal_value_aud": 480.0}},
+            ensure_ascii=False), "utf-8")
+        m = gd.measure()
+        now = m["now"]
+        assert now["proposals_delivered"] == 3 and now["proposal_outcomes"] == 2
+        assert abs(now["proposal_value_aud"] - 480.0) < 0.005
+        # (۳) شمارشی‌ها در moved-keys هستند؛ نسبت نیست (پایین‌آمدنِ نرخ خطا نیست)
+        assert "proposals_delivered" in gd._METRIC_KEYS
+        assert "proposal_value_aud" in gd._METRIC_KEYS
+        assert "proposal_accept_rate" not in gd._METRIC_KEYS
+    finally:
+        if sp.exists():
+            sp.unlink()
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

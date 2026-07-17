@@ -48,6 +48,12 @@ except Exception as _e:  # noqa: BLE001 — chrono اختیاریِ additive ا�
     chrono = None
     print(f"organism: chrono لود نشد ({_e}) — بدون ضربان ادامه می‌دهیم")
 
+try:   # R-12 (audit): correlation_idِ run-scoped — یک id برای کلِ emitهای یک tick
+    import events as _events   # noqa: E402
+except Exception as _ee:  # noqa: BLE001 — additive؛ نبودش نباید متابولیسم را بکشد
+    _events = None
+    print(f"organism: events لود نشد ({_ee}) — بدون correlation_idِ run-scoped ادامه می‌دهیم")
+
 PORT = 8771
 TICK_SECONDS = 300           # تیک سبک ۵ دقیقه‌ای؛ epoch واقعی آلوستاتیک است
 STATE_FILE = opslib.STATE_DIR / "ORGANISM-STATE.json"
@@ -252,9 +258,15 @@ def main() -> int:
     next_epoch_at = 0.0
     last_daily = ""
     last_heartbeat = 0.0
+    _ziman_last = None   # 2026-07-16 برنامه ۷: کشِ آخرین statusِ زیمان — کارت دیگر ۵۹/۶۰ تاریک نیست
+
     while True:
         _protective_skip = False   # آیا این تیک کارِ غیرضروری را skip کند؟ (protective-halt، enforceِ واقعی)
         _heart_status = None       # HH-P5: پیش از try تعریف می‌شود تا بلوکِ _sleep_s (بیرونِ try) هرگز NameError نخورد
+        # R-12 (audit): یک correlation_id برای کلِ این tick mint کن تا همهٔ emitهای این ضربان
+        # (heartbeat/leg/doctor/incident/…) همبسته شوند و runِ input→output بازسازی‌پذیر شود.
+        # نخ‌های هم‌زمان contextِ خالی دارند → آلوده نمی‌شوند. fail-soft (نبودِ events = None).
+        _run_token = _events.begin_run() if _events is not None else None
         try:
             if opslib.STOP_ORGANISM.exists() or opslib.master_halted():
                 opslib.heartbeat("organism=HALT (STOP) — خروج تمیز")
@@ -382,6 +394,15 @@ def main() -> int:
                                           beat=_cstat.get("beat", 0))
                 except Exception as _ce:  # noqa: BLE001 — §۴: خطای خاموش ممنون (consolidation نباید tick را بکشد)
                     opslib.alert([f"consolidation_beat error (non-fatal): {type(_ce).__name__}: {_ce}"])
+            # ── TG-EXEC (2026-07-15): مصرفِ verbهای صف‌شدهٔ تلگرام روی beat (پیش‌فرض خاموش). ──
+            if not _protective_skip:
+                try:
+                    _tgx = _w.cockpit_requests_beat(state_dir=str(opslib.STATE_DIR),
+                                                    doctor=_doctor_inst, channel=_chan)
+                    if _tgx.get("ran"):
+                        opslib.heartbeat(f"tg-exec ran: {_tgx['ran']}")
+                except Exception as _qe:  # noqa: BLE001 — §۴ non-fatal
+                    opslib.alert([f"cockpit_requests_beat error (non-fatal): {type(_qe).__name__}"])
             # ── W (P-W2): آورانِ واقعی — observationهای انتزاعی (ازِ snapshot، صفر PII)
             # → sensory_bus → school_bridge.learn_from → afferent_status. هر N beat، پشتِ flag.
             _afferent_status = None
@@ -427,6 +448,26 @@ def main() -> int:
                         doctor=_doctor_inst)
                 except Exception as _ze:  # noqa: BLE001 — limb نباید tick را بکشد
                     opslib.alert([f"ziman_beat error (non-fatal): {type(_ze).__name__}: {_ze}"])
+            _ziman_last = _ziman_status or _ziman_last   # برنامه ۷: کش برای رایت‌های off-beat
+
+            # ── G1/G3: Proposal Router — پاها propose-only می‌مانند؛ LiveLoop فقط پیشنهادهای
+            # محلیِ leg.proposals را dedupe/rank و به کارتِ owner-visible/advisory تبدیل می‌کند.
+            # هیچ approve/settle/pay/send واقعی اینجا نیست؛ delivery itself = سیگنالِ یادگیری.
+            _proposal_router = None
+            _proposal_metrics = None
+            if not _protective_skip and _live_loop is not None:
+                try:
+                    _proposal_router = _live_loop.route_leg_proposals(
+                        [x for x in (_leg, _ziman_leg, _cartographer_leg) if x is not None],
+                        deliver=True, limit=5)
+                except Exception as _pre:  # noqa: BLE001 — §۴: router نباید tick را بکشد
+                    opslib.alert([f"proposal_router error (non-fatal): {type(_pre).__name__}: {_pre}"])
+                try:
+                    # P0-G3 (2026-07-17): متریکِ نزدیک‌به‌عمل → state تا goal_directed.measure
+                    # بخواند (فقط اندازه‌گیری؛ هیچ approve/settle — I7 دست‌نخورده).
+                    _proposal_metrics = _live_loop.proposal_metrics()
+                except Exception:  # noqa: BLE001 — metrics هرگز tick را نمی‌کشد
+                    _proposal_metrics = None
 
             # ── Cartographer limb: read-only map-staleness sentinel. پشتِ
             # OCTOPUS_WIRE_CARTOGRAPHER (پیش‌فرض خاموش) → None تا فعال‌سازیِ مالک. inert.
@@ -449,6 +490,26 @@ def main() -> int:
                         beat=_cstat.get("beat", 0) if _cstat else 0, write=False)
                 except Exception as _ble:  # noqa: BLE001 — §۴: نباید tick را بکشد
                     opslib.alert([f"business_legs_beat error (non-fatal): {type(_ble).__name__}: {_ble}"])
+            # ── Asset oversight (ASSET-OVERSIGHT): نقشهٔ داراییِ کل → ORGANISM-STATE.asset_map
+            # پشتِ OCTOPUS_WIRE_ASSET_MAP (پیش‌فرض خاموش، خارج از PAPER_FULL_FLAGS) → None.
+            # فقط‌خواندنی/fail-soft؛ هرگز مبلغ echo نمی‌کند؛ propose-only مطلق.
+            _asset_map = None
+            if not _protective_skip:
+                try:
+                    _asset_map = _w.asset_map_beat(
+                        beat=_cstat.get("beat", 0) if _cstat else 0)
+                except Exception as _ame:  # noqa: BLE001 — §۴: نباید tick را بکشد
+                    opslib.alert([f"asset_map_beat error (non-fatal): {type(_ame).__name__}: {_ame}"])
+            # ── Accounting (ضربانِ ضدِ فراموشی): حافظهٔ قواعد + صفِ ثبت + drift →
+            # ORGANISM-STATE.accounting. پشتِ OCTOPUS_WIRE_ACCT_BEAT (پیش‌فرض خاموش،
+            # خارج از PAPER_FULL_FLAGS) → None. propose-only؛ صفر پول/LLM در ضربان.
+            _acct_beat = None
+            if not _protective_skip:
+                try:
+                    _acct_beat = _w.acct_beat(
+                        beat=_cstat.get("beat", 0) if _cstat else 0)
+                except Exception as _acbe:  # noqa: BLE001 — §۴: نباید tick را بکشد
+                    opslib.alert([f"acct_beat error (non-fatal): {type(_acbe).__name__}: {_acbe}"])
             # ── Email inbound (blind-spot LEG-06): پشتِ OCTOPUS_WIRE_EMAIL (پیش‌فرض خاموش)
             # → None (dry، بی polling). فقط با فلگِ مالک زنده می‌شود.
             if not _protective_skip:
@@ -456,6 +517,27 @@ def main() -> int:
                     _w.email_beat(beat=_cstat.get("beat", 0) if _cstat else 0)
                 except Exception as _eme:  # noqa: BLE001 — §۴: نباید tick را بکشد
                     opslib.alert([f"email_beat error (non-fatal): {type(_eme).__name__}: {_eme}"])
+            # ── Lead discovery (مرحلهٔ ۲ نقشهٔ لید 2026-07-15): SENSE→SCORE→propose پشتِ
+            # OCTOPUS_WIRE_LEAD_DISCOVERY (پیش‌فرض خاموش، خارج از PAPER_FULL_FLAGS) → None.
+            # propose-only مطلق؛ نیازمندِ _leg (OCTOPUS_WIRE_LEAD) — بدونِ آن no-op.
+            _lead_disc = None
+            if not _protective_skip:
+                try:
+                    _lead_disc = _w.lead_discovery_beat(
+                        _leg, beat=_cstat.get("beat", 0) if _cstat else 0)
+                except Exception as _lde:  # noqa: BLE001 — §۴: نباید tick را بکشد
+                    opslib.alert([f"lead_discovery_beat error (non-fatal): {type(_lde).__name__}: {_lde}"])
+            # ── Legs cultivation (2026-07-16): متابولیسمِ دادهٔ $0 برای همهٔ پاها —
+            # پشتِ OCTOPUS_WIRE_LEG_CULTIVATE (پیش‌فرض خاموش، خارج از PAPER_FULL_FLAGS)
+            # → None. digest → دکتر (گزارشِ گلوگاه) + مغزِ B (اگر bus/bridge زنده باشند).
+            _legs_cult = None
+            if not _protective_skip:
+                try:
+                    _legs_cult = _w.legs_cultivation_beat(
+                        beat=_cstat.get("beat", 0) if _cstat else 0,
+                        sensory_bus=_sensory_bus, school_bridge=_school_bridge)
+                except Exception as _lce:  # noqa: BLE001 — §۴: نباید tick را بکشد
+                    opslib.alert([f"legs_cultivation_beat error (non-fatal): {type(_lce).__name__}: {_lce}"])
             # ── F3 (2026-07-14): seed ِ scheduler برای RFCهای دکتر — پشتِ OCTOPUS_WIRE_SCHEDULER
             # (پیش‌فرض خاموش) → no-op. producer (scheduler_seed_doctor_rfc) قبلاً سیم‌نشده بود.
             if not _protective_skip:
@@ -513,9 +595,16 @@ def main() -> int:
                           **pulse, **prot_state,
                           "protective_skip": _protective_skip, "wiring": _wire,
                           **({"leg": _leg_status} if _leg_status else {}),
-                          **({"ziman": _ziman_status} if _ziman_status else {}),
+                          **({"ziman": (_ziman_status or _ziman_last)} if (_ziman_status or _ziman_last) else {}),
                           **({"cartographer": _cartographer_status} if _cartographer_status else {}),
                           **({"business_legs": _biz_legs} if _biz_legs else {}),
+                          **({"asset_map": _asset_map} if _asset_map else {}),
+                          **({"accounting": _acct_beat} if _acct_beat else {}),
+                          **({"lead_discovery": _lead_disc} if _lead_disc else {}),
+                          **({"proposal_router": _proposal_router} if _proposal_router else {}),
+                          **({"proposal_metrics": _proposal_metrics}
+                             if _proposal_metrics is not None else {}),
+                          **({"legs_cultivation": _legs_cult} if _legs_cult else {}),
                           **({"heart": _heart_status} if _heart_status else {}),
                           **({"cardiac": _cardiac_mod.status_snapshot()}
                              if _cardiac_mod is not None else {})})
@@ -525,6 +614,12 @@ def main() -> int:
         except Exception as e:  # noqa: BLE001 — خطای خاموش = شدیدترین باگ (منشور §۴)
             opslib.alert([f"organism tick error: {type(e).__name__}: {e}"])
             _write_state({"last_error": f"{type(e).__name__}: {e}"})
+        finally:
+            # R-12: پایانِ runِ این tick — contextِ correlation_id را همیشه بازگردان (حتی روی
+            # returnِ STOP/KeyboardInterrupt) تا sleepِ بینِ ضربان‌ها و ضربانِ بعدی idِ این tick
+            # را به ارث نبرند. fail-soft (_run_token=None → no-op).
+            if _events is not None:
+                _events.end_run(_run_token)
         # CARDIAC-ALLOMETRY: periodِ داینامیک (پشتِ OCTOPUS_WIRE_BIO، advisory).
         # اگر flag off یا خطا → عیناً TICK_SECONDS (رفتارِ فعلی).
         _sleep_s = TICK_SECONDS
