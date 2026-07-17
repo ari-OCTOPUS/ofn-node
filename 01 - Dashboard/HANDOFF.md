@@ -1,6 +1,6 @@
 ---
 type: handoff
-updated: 2026-07-17
+updated: 2026-07-18
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
@@ -9,6 +9,7 @@ updated: 2026-07-17
 
 ## وضعِ لحظه‌ای
 
+- **2026-07-18 — فیکسِ atomicِ rate-limiterِ مغزِ محلی:** `_ops/cortex/local_llm.py` حالا check-then-write روی `_LAST_CALL` را با `threading.Lock` ماژول‌سطح می‌بندد (POSTِ ollama بیرونِ قفل). دو لاینِ همزمان (نخِ doctor self-knowledge + لِنِ cortex/llm_learn) دیگر با هم از rate-limit رد نمی‌شوند و روی یک GPU دو `/api/generate` هم‌زمان نمی‌زنند — فقط latency/fairness، بی‌crash/spend. تستِ رگرسیونِ قطعیِ `t_b2_local_llm_rate_limit_atomic_concurrent` در test_cortex (۱۰/۱۰). کامیت `569badd` روی master (فقط ۲ فایلِ کد stage شد، نه churnِ state)؛ اثر بعدِ ری‌استارتِ ارگانیسم. آیتمِ بستهٔ `task_f5d205e3`. شناسنامه: [[../04 - Architect System/architect/PROJECT|architect]].
 - **2026-07-17 — اصلاح معماریِ اختاپوس توسط fugu:** گپ G1/G3 با Proposal Router سبک بسته شد: `_ops/live_loop.py` حالا proposalهای پا را gather/rank/dedupe و به کارت advisory تلگرام تبدیل می‌کند؛ `_emit_advisory` subscriberها را واقعاً notify می‌کند؛ `_ops/organism.py` Router را روی beat صدا می‌زند و `proposal_router` را در state می‌نویسد. سند تصمیم: [[../04 - Architect System/ANALYSES/2026-07-17_ARCHITECTURE-CORRECTION-DECISIONS|Architecture Correction Decisions]]. تست‌های live-loop اضافه شد، اما اجرای Python در این محیط در دسترس نبود؛ ایجنت بعدی اجرا کند: `python -X utf8 "F:\backup\_ops\tests\test_live_loop.py"` و سپس `run_all.py`.
 - **2026-07-17 (ادامه، تأیید شد):** تست‌های fugu اجرا و همه سبز (live_loop کامل + سوئیتِ کاملِ ۱۸۹/۱۸۹). **P0-G3 وصل شد:** `organism.py` هر tick خروجیِ `proposal_metrics()` را در `ORGANISM-STATE.proposal_metrics` می‌نویسد و `goal_directed._baseline_metrics` آن را می‌خواند — `measure()` حالا proposals_delivered/outcomes/positive/accept_rate/value_aud را می‌بیند و شمارشی‌ها واردِ منطقِ moved شدند (accept_rate عمداً بیرون). **P0-static:** مسیرِ تلگرامِ کارت از redactionِ مرکزیِ INV-12 می‌گذرد (تأیید)؛ بهداشتِ state: payload خام دیگر واردِ خروجیِ router/ORGANISM-STATE نمی‌شود. **MVO flywheel در تستِ e2e بسته شد** (proposal→کارت→outcome→metrics→measure، صفر approve). تست‌های نو: goal_directed t_f + live_loop [MVO]. **نکردم (عمداً):** G4 canonical intake (جراحیِ چندماژوله، جلسهٔ خودش) + dedupe persistence (لازم نشد — هر دو سرِ dedupe در حافظهٔ یک پروسه‌اند و با هم ریست می‌شوند).
 - **ارگانیسم:** زنده روی 8771 (پرچم‌های نو فقط بعدِ ری‌استارتِ تمیز اثر می‌کنند — دکمهٔ ♻️ تلگرام).

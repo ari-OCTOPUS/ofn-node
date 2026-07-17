@@ -8,7 +8,7 @@ risk_level: critical
 autonomy_level: read-only
 tags: [ai, automation, telegram, meta-system]
 created: 2026-07-03
-updated: 2026-07-17
+updated: 2026-07-18
 ---
 
 # پروژه: architect
@@ -28,6 +28,7 @@ updated: 2026-07-17
 
 ## Active Context
 
+- تغییرات اخیر: 2026-07-18 (agent) — **فیکسِ atomic شدنِ rate-limiterِ مغزِ محلی:** `_ops/cortex/local_llm.py` حالا check-then-write روی `_LAST_CALL` را با یک `threading.Lock` ماژول‌سطح می‌بندد (POSTِ ollama بیرونِ قفل ماند). دو لاینِ همزمان (نخِ daemonِ doctor self-knowledge + لِنِ cortex/llm_learn) دیگر نمی‌توانند با هم از گاردِ rate-limit در یک پنجرهٔ زیرِ-میلی‌ثانیه رد شوند و روی یک GPU دو `/api/generate` هم‌زمان بزنند — منصفانه‌سازیِ latency، بدونِ crash/deadlock/spend؛ باگِ از-پیش-موجود که با افزوده‌شدنِ لِنِ doctor قابل‌دسترس‌تر شده بود. تستِ رگرسیونِ قطعیِ `t_b2_local_llm_rate_limit_atomic_concurrent` (با قفل دقیقاً ۱ لاین رد می‌شود، بی‌قفل هر N تا) → test_cortex ۱۰/۱۰. کامیتِ live master `569badd` (فقط ۲ فایلِ کد stage شد، نه churnِ runtime state). اثر فقط روی دیسک تا ری‌استارتِ ارگانیسم (پروسه importهای قدیمی را نگه داشته). آیتمِ بازِ `task_f5d205e3` بسته شد.
 - تغییرات اخیر: 2026-07-17 (fugu) — **Architecture Correction / Proposal Router**: طبق دیپ‌اسکن، G1/G3 با یک پچ additive و propose-only بسته شد: `_ops/live_loop.py` حالا proposalهای پاها را gather/rank/dedupe می‌کند، advisory subscriberها واقعاً notify می‌شوند، outcome metrics حداقلی ساخته شد؛ `_ops/organism.py` Router را در beat وصل می‌کند. سند تصمیم: [[04 - Architect System/ANALYSES/2026-07-17_ARCHITECTURE-CORRECTION-DECISIONS|ARCHITECTURE-CORRECTION-DECISIONS]]. اجرای تست در این محیط ممکن نبود؛ next: live-loop test + run_all.
 - تمرکز فعلی: فاز ۱ اجرا شد — [[04 - Architect System/architect/ARCHITECT_CHARTER|ARCHITECT_CHARTER]] نوشته شد (verdict Phase 0 داده شد 2026-07-03)؛ **Security Gate بسته** تا چرخش CRITICALها
 - تغییرات اخیر: 2026-07-03 — Phase 0 (secretها → secrets-export) + charter + manifest v2 همه دامنه‌ها + آدیت ۸-پاسه fusion-mvp کامل شد: ۰ Critical / ۴ High — [[04 - Architect System/architect/04-Docs/fusion-audit/AUDIT|AUDIT]] و [[04 - Architect System/architect/04-Docs/fusion-audit/REFACTOR_PLAN|REFACTOR_PLAN]] (TOP-5 با پرچم HUMAN-APPROVAL) · طراحی [[04 - Architect System/architect/01-Project/BRAIN-UPGRADE-LOOP|BRAIN-UPGRADE-LOOP]] (D-28) و [[04 - Architect System/architect/01-Project/OBSIDIAN-SYNC|OBSIDIAN-SYNC]] (D-29) ثبت شد؛ BACKLOG #21–#24
