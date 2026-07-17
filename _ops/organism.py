@@ -64,11 +64,13 @@ START_TS = opslib.now_iso()
 # را تشخیص دهد — همان مشکلِ سه‌صفحه‌ای که ماه‌ها بی‌صدا بود. سایدکارِ جدا چون STATE_FILE
 # هر تیک بازساخته می‌شود و بلوکِ نسخه گم می‌شد.
 CODE_SIDECAR = opslib.STATE_DIR / "ORGANISM-STATE.code"
+# فقط ماژول‌هایی که خودِ این پروسه بار می‌کند. cortex.py عمداً نیست: پروسهٔ جداست
+# (8772، لایف‌سایکلِ مستقل) — سنجشِ کهنگیِ cortex به سنسورِ خودِ cortex نیاز دارد،
+# وگرنه ری‌استارتِ فقط-ارگانیسم، کهنگیِ cortex را false-fresh نشان می‌داد (بازبینی 2026-07-17).
 _KEY_MODULES = {
     "organism.py": _HERE / "organism.py",
     "wiring.py": _HERE / "wiring.py",
     "live_loop.py": _HERE / "live_loop.py",
-    "cortex.py": _HERE / "cortex" / "cortex.py",
 }
 
 
@@ -180,6 +182,8 @@ def _write_state(extra: dict, merge_prev: bool = False) -> None:
             prev = {}
         if isinstance(prev, dict):
             for k, v in prev.items():
+                if k in ("exited", "last_error"):
+                    continue   # markerهای گذرا را از prev حمل نکن (وگرنه STOPِ اجرای قبل می‌ماند)
                 state.setdefault(k, v)
     try:
         with opslib.LockedJson(STATE_FILE) as lj:

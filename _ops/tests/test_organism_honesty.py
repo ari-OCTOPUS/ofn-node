@@ -113,6 +113,28 @@ def t_freshness_none_when_no_sidecar():
     assert server._code_freshness()["live"] is None
 
 
+def t_freshness_nondict_sidecar_failsoft():
+    """بازبینی: سایدکارِ JSONِ غیر-object (list/null) → live=None بدونِ crash (fail-soft)."""
+    import server
+    sc = _SANDBOX / "ORGANISM-STATE.code"
+    for bad in ("[1,2,3]", "null", "42", "\"x\""):
+        sc.write_text(bad, "utf-8")
+        server._CODE_SIDECAR = sc
+        assert server._code_freshness()["live"] is None, bad
+
+
+# ── بازبینی: markerهای گذرا در merge حمل نمی‌شوند ──────────────────────────────
+def t_merge_prev_drops_transient_markers():
+    """exited/last_error از prev حمل نمی‌شوند — وگرنه STOPِ اجرای قبل روی اجرای نو می‌ماند."""
+    sp = _sandbox_state()
+    organism._write_state({"exited": "STOP", "beat": 9, "heart": {"beat": 9}})
+    organism._write_state({"last_error": "X: y"}, merge_prev=True)   # خطا قبل از اولین tickِ سالم
+    after = json.loads(sp.read_text("utf-8"))
+    assert "exited" not in after, "STOPِ اجرای قبل نباید حمل شود"
+    assert after["last_error"].startswith("X"), "markerِ نو باید باشد"
+    assert after["heart"]["beat"] == 9, "بلوکِ غنی همچنان حفظ می‌شود"
+
+
 if __name__ == "__main__":
     failed = harness.run([
         ("[A1] merge_prev بلوک‌ها را حفظ می‌کند", t_merge_prev_preserves_rich_blocks),
@@ -122,5 +144,7 @@ if __name__ == "__main__":
         ("[A3] کدِ کهنه تشخیص داده می‌شود", t_freshness_detects_stale),
         ("[A3] تطابق → live", t_freshness_live_when_matches),
         ("[A3] بی‌سایدکار → None", t_freshness_none_when_no_sidecar),
+        ("[A3] سایدکارِ غیر-object fail-soft", t_freshness_nondict_sidecar_failsoft),
+        ("[A1] markerهای گذرا حمل نمی‌شوند", t_merge_prev_drops_transient_markers),
     ])
     sys.exit(1 if failed else 0)

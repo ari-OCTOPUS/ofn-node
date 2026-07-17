@@ -36,11 +36,10 @@ PORTS = {"organism": 8771, "cortex": 8772, "ollama": 11434, "dashboard": 8770}
 # A3 (تری‌اسکن): حسگرِ نسخهٔ کد — سایدکارِ بوت را با mtimeِ فعلیِ دیسک مقایسه کن تا
 # «کدِ در حالِ اجرا کهنه‌تر از دیسک است» را صادقانه گزارش کنی (نه چون heart در state هست).
 _CODE_SIDECAR = STATE / "ORGANISM-STATE.code"
-_KEY_MODULES = {
+_KEY_MODULES = {   # فقط ماژول‌های پروسهٔ ارگانیسم؛ cortex پروسهٔ جداست (سنسورِ خودش)
     "organism.py": _OPS / "organism.py",
     "wiring.py": _OPS / "wiring.py",
     "live_loop.py": _OPS / "live_loop.py",
-    "cortex.py": _OPS / "cortex" / "cortex.py",
 }
 
 
@@ -50,6 +49,8 @@ def _code_freshness() -> dict:
     try:
         sc = json.loads(_CODE_SIDECAR.read_text("utf-8")) if _CODE_SIDECAR.exists() else {}
     except (OSError, ValueError):
+        sc = {}
+    if not isinstance(sc, dict):   # سایدکارِ JSONِ غیر-object (list/int/null) → fail-soft
         sc = {}
     booted = sc.get("modules")
     if not isinstance(booted, dict):
