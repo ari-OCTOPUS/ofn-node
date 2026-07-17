@@ -5,7 +5,7 @@ status: active
 layer: 09
 tags: [mining, architecture, coin-hunter, exit]
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-18
 ---
 
 # لایه ۹ — خروج، نقدشوندگی و حسابداری (Exit, Liquidity & Accounting)
@@ -13,6 +13,8 @@ updated: 2026-07-14
 این لایه، انباشت را به **ارزش قابل‌تحقق** (realisable value) تبدیل می‌کند — بی‌آنکه هیچ قانون سختی نقض شود. اگر لایه‌های SENSE/SCORE/ACT سکه پیدا و ماین می‌کنند، این لایه پاسخ می‌دهد: «آیا اصلاً می‌شود از این دارایی بیرون آمد؟ چه‌وقت؟ چقدر؟ و مالیاتش از روز اول کجا ثبت شده؟». شعار لایه: **انباشت بدون مسیر خروج = زباله دیجیتال** — این مستقیماً بازتاب R6 و اصل «count is gameable» است. ([[01 - GOVERNANCE-and-SAFETY]])
 
 > این لایه ماژول گم‌شده‌ی **«C64 veto / exit-feasibility»** را می‌سازد — همان قابلیتی که در handoff صریحاً MISSING علامت خورده بود: «سکه‌هایی که انباشتشان آسان اما خروج از آن‌ها ناممکن است، یک failure mode تأییدشده‌اند». [FACT]
+>
+> **مالکیتِ canonical:** این داک، مالکِ **گیتِ C64 (exit-feasibility)** است؛ [[03 - SCORE-Screening-and-Forensics]]، [[04 - Adversarial-Defense-and-Antifragility]] و [[08 - MONITORING-Telemetry-and-Deathwatch]] برای این گیت **به اینجا لینک می‌دهند** (تعریف عددی و verdictها در §۳). [SPEC]
 
 ---
 
@@ -20,6 +22,7 @@ updated: 2026-07-14
 
 - **ربات هرگز نمی‌فروشد، هرگز وجه جابه‌جا نمی‌کند** (R8). خروجی این لایه فقط **پیشنهاد خروج (exit proposal)** است؛ اجرا فقط با human gate و روی **signer ایرگپ** (R4). [SPEC]
 - هر disposal یک tx است و tx یعنی **gas = خروج نقدی** → با R1 برخورد می‌کند. راه‌حل: gasِ فروش یک **hard-gate تک‌رخدادی** است که از **عوایدِ همان فروش** تأمین می‌شود، نه از بودجه بازگشتی؛ باز هم owner-approved. این یک recurring cost نیست و **صفر برداشت از بودجه‌ی فیات AUD** دارد، پس ضمانت AUD-0 (Regime A) را نقض نمی‌کند اما باید صریحاً flag شود. [SPEC]
+  - **نکته‌ی per-chain (این «تأمین از عواید» بیش‌ازحد تعمیم داده شده):** «gas از عوایدِ همان فروش» فقط برای زنجیره‌های **UTXO / fee-from-output** (مثل بیت‌کوین، مونرو) صادق است که کارمزد مستقیماً از خروجیِ همان tx کسر می‌شود. اما برای **DEX swapهای مدل-حساب / EVM**، gasِ nativeِ زنجیره باید **از پیش** در آدرس موجود باشد — یک **chicken-and-egg** سرِ signer ایرگپ: برای امضا و پخشِ اولین فروش، به موجودیِ nativeِ pre-funded نیاز است که خودش خروج نقدی است. پس روی این زنجیره‌ها gas یک **pre-fundingِ آگاهانه‌ی owner-gated** است، نه تأمین از عواید. [SPEC]
 - کلید/سید هرگز در ledger، log یا چت نوشته نمی‌شود؛ آدرس‌های روی بردهای ماینر **receive-only** اند (R4). ledger فقط آدرس دریافت و مبلغ را می‌شناسد، نه هیچ کلید خصوصی. [FACT]
 - مالیات AU = **[OPEN]** و **مشاوره مالی/مالیاتی نیست**؛ این لایه فقط **دفترِ شواهد** می‌سازد تا وقتی مشاور دارای مجوز آمد، داده خام آماده باشد (R8). [OPEN]
 
@@ -27,18 +30,20 @@ updated: 2026-07-14
 
 ## ۱. جداسازی دو سبد — Income Basket در برابر Asymmetric-Tail
 
-مهم‌ترین تصمیم معماری این لایه، مقابله با **نقص ساختاری #۳ (سقف اکسترموفیل / extremophile ceiling)** است: لبه‌ی برق ارزان یک **جریان درآمد پایدار** می‌سازد، نه یک شرط ۱۰۰x. اگر این دو را قاطی کنیم، خودمان را فریب داده‌ایم. پس هر دارایی در ledger یک `basket_class` اجباری دارد: [SPEC]
+مهم‌ترین تصمیم معماری این لایه، مقابله با **نقصِ ساختاریِ «سقف اکسترموفیل / extremophile ceiling»** (روسترِ مرجع: [[04 - Adversarial-Defense-and-Antifragility]]) است: لبه‌ی برق ارزان یک **جریان درآمد پایدار** می‌سازد، نه یک شرط ۱۰۰x. اگر این دو را قاطی کنیم، خودمان را فریب داده‌ایم. پس هر دارایی در ledger یک `basket_class` اجباری دارد: [SPEC]
 
 | سبد | هدف | منطق خروج | Sizing |
 |---|---|---|---|
 | `income` | نقد کردن منظم مازاد ماین‌شده برای پوشش هزینه‌های واقعی EV (سایش CPU/فن، ریسک امنیتی، زمان) | نردبان فروش نسبتاً تهاجمی؛ multipleهای پایین‌تر | سهم بزرگ‌تر از fleet hashrate |
 | `tail` | شرط نامتقارن روی بقای بلندمدت (مثلاً Tari/XTM با hashpower حاشیه‌ای صفر) | نگه‌داری عبوری از multipleهای بالا؛ نردبان نازک‌تر | سهم کوچک، cap سخت‌تر |
 
-قاعده‌ی ضدفریب: **هیچ‌گاه ضرر سبد tail را با درآمد سبد income جبران‌شده نشان نده**؛ P&L هر سبد جدا گزارش می‌شود تا «توهم سوددهی» (نقص #۳ + خوداغواگری اپراتور، نقص #۷) شکل نگیرد. [SPEC]
+قاعده‌ی ضدفریب: **هیچ‌گاه ضرر سبد tail را با درآمد سبد income جبران‌شده نشان نده**؛ P&L هر سبد جدا گزارش می‌شود تا «توهم سوددهی» (extremophile ceiling + خودفریبیِ اپراتور) شکل نگیرد. [SPEC]
 
 ---
 
-## ۲. Sizing آگاه به Reflexivity (نقص ساختاری #۴ Observer Effect)
+## ۲. Sizing آگاه به Reflexivity (نقصِ ساختاریِ Reflexivity / Observer Effect)
+
+> **نکته‌ی محدوده (Regime — سرِ بخش):** مسیرِ `capital_aud` و هر «خریدِ سکه با پول فیات» در `sizing.py` (پایین) یک قابلیتِ **owner-gated Regime-B** است: dormant، پیش‌فرض **OFF**، و فعال‌سازی‌اش نیازمند یک **verdict تازه**. این مستقیماً با ضمانتِ **AUD-0 / «این یک ربات معامله‌گر نیست»** (Regime A، قفل‌شده — owner-confirmed 2026-07-18، D-006) در **تنش** است؛ بنابراین این بلوک صرفاً **سقفِ ارزش/ریسک** را می‌بندد، **هرگز مسیرِ پیش‌فرض یا خودکار نیست**، و پرداخت را فقط انسان و روی signer ایرگپ اجرا می‌کند. [SPEC]
 
 خرید/فروش شما روی یک سکه‌ی کم‌عمق، **خودِ قیمت را حرکت می‌دهد** — مثال نقد: یک خرید ۵هزار دلاری روی mcap ۲۰۰هزار دلاری ≈ ۲.۵٪ از کل mcap. پس اندازه‌ی نهایی، **کمینه‌ی سه سقف** است: [SPEC]
 
@@ -56,7 +61,7 @@ def max_position_aud(edge_kelly_aud, capital_aud, coin_mcap_aud):
 ```
 
 - برای frontierهای micro-cap، تقریباً همیشه `reflex_cap` قید فعال (binding) است، نه Kelly — یعنی **نقدشوندگی، نه اطمینان، سقف را تعیین می‌کند**. [EST]
-- Kelly در اینجا برای **بقا** تنظیم می‌شود نه رشد (non-ergodicity، نقص #۲): sub-Kelly عمدی + anti-correlation سبد. [SPEC]
+- Kelly در اینجا برای **بقا** تنظیم می‌شود نه رشد (نقصِ non-ergodicity): sub-Kelly عمدی + anti-correlation سبد. [SPEC]
 - **هشدار R1/R8 روی خرید:** ساختن پوزیشن در مدل AUD-0 عمدتاً از **تخصیص hashrate رایگان** (R2) است، نه خرید فیات. هر **خریدِ واقعیِ سکه با پول فیات** یک **spendِ owner-gated Regime-B** است (R1) — هرگز default، هرگز خودکار — و اجرایش فقط توسط انسان انجام می‌شود (propose-only، R8). این `capital_aud` صرفاً سقفِ ارزش/ریسک را می‌بندد؛ **مجوز خرج خودکار نیست** و از بودجه‌ی سرمایه‌گذاریِ جدا از سرمایه‌ی ماینینگ تغذیه می‌شود. [SPEC]
 - منطق sizing به‌عنوان propose-only اجرا می‌شود؛ ربات فقط عدد پیشنهادی و «سهم بازارِ خودت» را نشان می‌دهد. جزئیات reflexivity در [[04 - Adversarial-Defense-and-Antifragility]].
 
@@ -79,6 +84,7 @@ thresholds:              # همه [OPEN]/owner-set — placeholderهای زیر 
   min_pool_tvl_aud:        <OPEN e.g. 20000>
   min_venues:              <OPEN e.g. 2>     # تک‌صرافی = ریسک exit-liquidity
   max_days_to_liquidate:   <OPEN e.g. 30>
+  min_realizable_exit_ratio: <OPEN e.g. 0.5> # نسبت وجه قابل‌خروج به ارزش دفتری؛ زیر آستانه → VETO (severity canonical، نه صرفاً flag)
 verdict: LIMBO | PASS | VETO
 ```
 
@@ -118,7 +124,7 @@ time_based_abandon:
   action_on_abandon: mark_dead + stop_hashrate_alloc     # zero cash، فقط توقف تخصیص
 global_caps:
   weekly_review_budget_hours: <OPEN e.g. 2>   # سقف زمانِ مدیریت خروج در هفته
-  min_realizable_exit_ratio:  <OPEN e.g. 0.5> # اگر فقط ۵۰٪ ارزش دفتری قابل‌خروج است → flag
+  min_realizable_exit_ratio:  <OPEN e.g. 0.5> # اگر فقط ۵۰٪ ارزش دفتری قابل‌خروج است → VETO (severity canonical، هم‌راستا با گیتِ C64 §۳ — نه صرفاً flag)
 owner_set: false                       # تا مالک امضا نکند، policy فعال نیست
 updated: 2026-07-14
 ```
@@ -158,6 +164,8 @@ flowchart TD
 
 هر رخداد درآمد ماینینگ باید **در لحظه‌ی دریافت** ثبت شود؛ بعداً بازسازی‌اش ناممکن است. جدول‌ها در PostgreSQL + TimescaleDB زیرساخت ([[07 - SUBSTRATE-Fleet-Hub-and-Infra]]) می‌نشینند — بدون secret، پس نیازی به SQLCipher ندارند. Idempotency با `tx_hash` (سازگار با dedup سه‌لایه). مالیات AU = **[OPEN]، مشاوره نیست**. [SPEC]
 
+> **اسکیمای مرجع در [[10 - DATA-STATE-and-SCHEMA]]؛ اینجا برای زمینه بازتولید شده.** جدول‌های `receipts`/`disposals` زیر canonical نیستند و مرجعِ نهاییِ ستون‌ها و انومِ state همان داک ۱۰ است.
+
 ```sql
 -- receipts: هر بلاک/پرداختِ ماین‌شده یک ردیف. append-only.
 CREATE TABLE receipts (
@@ -191,6 +199,10 @@ CREATE TABLE disposals (
 );
 ```
 
+> [OPEN — Round 2] rubricِ تخصیصِ `basket_class` (income در برابر tail): این ستون روی `receipts` اجباری/CHECK-محدود است اما هیچ مرحله‌ای در این pipeline مقدارش را ست نمی‌کند — کدام مرحله و با چه معیاری income را از tail جدا می‌کند؟
+>
+> **جهتِ پیشنهادی (تا قفل‌شدن rubric):** برچسب باید در مرحله‌ی SCORE/screening ([[03 - SCORE-Screening-and-Forensics]]) هنگام عبور از SURVIVAL filter تعیین و به receipt **ارث** برسد؛ receipt هرگز خودش حدس نمی‌زند. مرجعِ اسکیما: [[10 - DATA-STATE-and-SCHEMA]].
+
 **آبشار قیمت‌گذاری AUD** (بسیاری از micro-capها جفت فیات ندارند): [SPEC]
 
 1. جفت مستقیم `…/AUD` روی CoinGecko (رایگان) → `HIGH`.
@@ -204,9 +216,9 @@ CREATE TABLE disposals (
 
 ## ۸. قلاب‌های خروجی این لایه به بقیه سیستم
 
-- **TG-OPS / SENTINEL:** هشدار «trigger خروج فعال شد» + کارت proposal → تلگرام (فقط whitelisted user ID). SENTINEL هرگز autotrade نمی‌کند. [FACT]
-- **Skin-in-the-game (نقص #۶):** هر disposal، پیش‌بینی‌های ۳۰/۶۰/۹۰ روزه‌ی verdict مربوطه را نمره می‌دهد؛ verdict های دقیق‌تر وزن بیشتری در [[05 - AGENT-BRAIN-Decision-Layer]] می‌گیرند. [SPEC]
-- **Regime B (owner-gated, OFF):** اگر روزی VPS پولی فعال شود، این لایه بدون تغییر می‌ماند؛ فقط منبع قیمت و backup ledger می‌تواند به cloud رمزنگاری‌شده برود. Default = آفلاین، Regime A. ([[00 - MASTER-ARCHITECTURE]]) [SPEC]
+- **TG-OPS / SENTINEL:** هشدار «trigger خروج فعال شد» + کارت proposal → تلگرام (فقط whitelisted user ID). SENTINEL هرگز autotrade نمی‌کند. تله‌متری و death-watch در [[08 - MONITORING-Telemetry-and-Deathwatch]]. [FACT]
+- **Skin-in-the-game (نقصِ alignment-faking):** هر disposal، پیش‌بینی‌های ۳۰/۶۰/۹۰ روزه‌ی verdict مربوطه را نمره می‌دهد؛ verdict های دقیق‌تر وزن بیشتری در [[05 - AGENT-BRAIN-Decision-Layer]] می‌گیرند. [SPEC]
+- **رژیمِ هزینه — Regime A (قفل‌شده، owner-confirmed 2026-07-18 = D-006):** پیش‌فرضِ **binding** این لایه **آفلاین / AUD-0 / Regime A** است؛ این یک قفلِ owner-confirmed است — **نه** یک تصمیمِ باز، نه «تنها گرهِ باز»، و نه یک forkِ زنده. **Regime B** (VPS پولی) صرفاً **dormant و owner-gated OFF** است و فعال‌سازی‌اش نیازمند یک **verdict تازه** است؛ هرگز مسیرِ پیش‌فرض نیست و مسیرِ پولی هرگز به‌عنوان default معرفی نمی‌شود. اگر روزی Regime B با verdict تازه فعال شود، این لایه بدون تغییر می‌ماند؛ فقط منبع قیمت و backup ledger می‌تواند به cloud رمزنگاری‌شده برود. ([[00 - MASTER-ARCHITECTURE]]) [SPEC]
 
 ---
 
@@ -229,4 +241,4 @@ CREATE TABLE disposals (
 - **SECURITY/STORAGE** بریف مشترک: سه‌لایه رمزنگاری، receive-only addresses، cold backup آفلاین (Regime A).
 - **SUBSTRATE = OPI AUTOMATION HUB** بریف مشترک: PostgreSQL + TimescaleDB برای ledger؛ dedup سه‌لایه (idempotency_key / SETNX / UNIQUE).
 
-خواهر-داک‌ها: [[01 - GOVERNANCE-and-SAFETY]] · [[00 - MASTER-ARCHITECTURE]] · [[07 - SUBSTRATE-Fleet-Hub-and-Infra]] · [[05 - AGENT-BRAIN-Decision-Layer]] · [[06 - ACT-Fleet-Execution-and-Orchestration]] · [[04 - Adversarial-Defense-and-Antifragility]]
+خواهر-داک‌ها: [[01 - GOVERNANCE-and-SAFETY]] · [[00 - MASTER-ARCHITECTURE]] · [[07 - SUBSTRATE-Fleet-Hub-and-Infra]] · [[05 - AGENT-BRAIN-Decision-Layer]] · [[06 - ACT-Fleet-Execution-and-Orchestration]] · [[04 - Adversarial-Defense-and-Antifragility]] · [[03 - SCORE-Screening-and-Forensics]] · [[08 - MONITORING-Telemetry-and-Deathwatch]] · [[10 - DATA-STATE-and-SCHEMA]]

@@ -5,7 +5,7 @@ status: active
 layer: 01
 tags: [mining, architecture, coin-hunter, governance]
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-18
 ---
 
 # لایه ۱ — حاکمیت و ایمنی (Governance & Safety) — قانون اساسی شکارچی کوین
@@ -228,18 +228,20 @@ sequenceDiagram
 
 ---
 
-## ۱۰. حاکمیتِ رژیم هزینه — A binding / B owner-gated
+## ۱۰. حاکمیتِ رژیم هزینه — A قفل‌شده (D-006) / B owner-gated
 
-تنها fork اجتناب‌ناپذیرِ کل معماری، **رژیم هزینه** است. حاکمیت آن به‌صورت داده اعمال می‌شود:
+رژیم هزینه **قفل‌شده** است: Regime A (owner-confirmed — D-006 در DecisionLog، 2026-07-18)؛ Regime B صرفاً گزینهٔ خفتهٔ owner-gated است، نه یک fork زندهٔ باز. حاکمیت آن به‌صورت داده اعمال می‌شود:
 
 ```yaml
 # coin_hunter_bot/governance/cost_regime.yaml
-cost_regime: A            # BINDING پیش‌فرض (طبق charter، Hard Rule 1)
+cost_regime: A                     # LOCKED / owner-confirmed (charter Hard Rule 1 + D-006)
+regime_a_confirmed: "2026-07-18"   # owner lock — DecisionLog D-006 (owner-confirmed)
+decision: "D-006 — Regime A قفل‌شده؛ Regime B گزینهٔ خفتهٔ owner-gated"
 regime_b_authorized: false
-regime_b_verdict: null    # نیازمند نوت مالکِ تاریخ‌دار + امضا (G4)
+regime_b_verdict: dormant_off      # owner-gated؛ فعال‌سازی نیازمند verdict جدید (G4)
 ```
 
-- **Regime A (AUD-0، BINDING):** همه‌چیز روی ناوگانِ موجودِ اپراتور؛ بدون VPS، بدون API متری per-call، بدون subscription پولی، بدون خرید کوین/سخت‌افزار. Tierهای بالا روی مدل local (Ollama/Qwen) + Claudeِ interactiveِ خودِ اپراتور (in-session، نه متری) اجرا می‌شوند. بکاپ روی سخت‌افزار آفلاین. [FACT — charter]
+- **Regime A (AUD-0، قفل‌شده / owner-confirmed — D-006):** همه‌چیز روی ناوگانِ موجودِ اپراتور؛ بدون VPS، بدون API متری per-call، بدون subscription پولی، بدون خرید کوین/سخت‌افزار. Tierهای بالا روی مدل local (Ollama/Qwen) + Claudeِ interactiveِ خودِ اپراتور (in-session، نه متری) اجرا می‌شوند. بکاپ روی سخت‌افزار آفلاین. [FACT — charter]
 - **Regime B (پولی، owner-gated OFF):** طرح اولیهٔ Plan v0.1 (Hetzner + API پولی، ~‎$80–150/ماه‎ [EST]) — **این مسیر پیش‌فرض نیست.** خودمختاریِ ۲۴/۷ بهتر، اما **R1 را نقض می‌کند** ⟶ فقط با verdict صریحِ مالک (G4) که R1 را به‌طور موقت و مستند کنار می‌گذارد. [SPEC]
 - **قاعده:** هیچ لایه‌ای وابستگیِ پولی را به‌عنوان مسیر پیش‌فرض ارائه نمی‌دهد؛ هر عنصر Regime-B صریحاً `owner-gated OFF` علامت می‌خورد و مسیر AUD-0-safe کنارش می‌آید. تضادهای شناخته‌شده (Plan v0.1 «AUD 2–3k/ماه»، «coin purchases») در [[00 - MASTER-ARCHITECTURE]] فهرست و به‌طور پیش‌فرض غیرفعال‌اند. [SPEC]
 

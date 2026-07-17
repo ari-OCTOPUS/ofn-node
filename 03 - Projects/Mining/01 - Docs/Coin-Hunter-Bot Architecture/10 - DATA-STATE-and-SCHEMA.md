@@ -5,10 +5,12 @@ status: active
 layer: 10
 tags: [mining, architecture, coin-hunter, data-schema]
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-18
 ---
 
 # لایه ۱۰ — داده، وضعیت و اسکیمای پایگاه (Data & Schema)
+
+> **مرجعِ متعارف (single source of truth):** این سند ([[10 - DATA-STATE-and-SCHEMA]]) صاحبِ اصلیِ اسکیمای پایگاه‌داده و state-ENUM کاندیدا برای کلِ معماری است. هر لایهٔ دیگر که جدول یا وضعیت را بازتولید کند باید به همین‌جا اشاره دهد؛ تعریفِ متعارف اینجاست، جای دیگر بازنویسی نمی‌شود.
 
 این لایه ستون‌فقرات و **moat** (خندق دفاعی) کل سیستم است. سنسورها ([[02 - SENSE-Discovery-Layer]]) کاندیدا کشف می‌کنند، مغز چندلایه ([[05 - AGENT-BRAIN-Decision-Layer]]) قضاوت می‌کند و ناوگان ([[06 - ACT-Fleet-Execution-and-Orchestration]]) اجرا می‌کند — اما همهٔ اینها **گذرا** هستند مگر اینکه در یک دیتاست ماندگارِ append-only ثبت شوند. ارزش انباشتیِ سیستم نه در هش‌ریت، بلکه در **تاریخچهٔ تصمیم‌ها + پیامدها** است: هر لانچی که دیدیم، سیگنالی که گرفتیم، حکمی که دادیم، و اینکه آن کوین بعداً **زنده ماند یا مُرد**. [SPEC]
 
@@ -20,8 +22,8 @@ updated: 2026-07-14
 2. **بدون راز (R4 hard gate).** هیچ seed/private key/xpriv/آدرسِ خرج‌شونده در هیچ جدول، لاگ یا blob وارد نمی‌شود. بوردهای mining فقط **آدرس receive-only** نگه می‌دارند. بند ۶ را ببینید و رجوع به [[01 - GOVERNANCE-and-SAFETY]]. [FACT — قانون]
 3. **پادزهر سوگیری بازماندگی.** رجکت‌ها و کوین‌هایی که هرگز واردشان نشدیم هم ردیابی می‌شوند تا `dead_coins` test-set ساخته شود. [SPEC]
 4. **Idempotent-by-design.** قرارداد dedup سه‌لایه (بند ۷)؛ پردازش دوباره هرگز رکورد تکراری نمی‌سازد. [SPEC]
-5. **Regime-aware storage.** پیش‌فرض **Regime A (AUD 0)** روی سخت‌افزار خودِ اپراتور؛ هر مؤلفهٔ ابری/API پولی = **Regime B، owner-gated OFF**. محور هزینه در بند ۵. [FACT — منشور]
-6. **بدون ویرایش مخرب (R7).** تغییر schema فقط با migration نسخه‌دار + کامیت تمیز؛ هیچ ستون/جدول انسانی بازنویسی نمی‌شود.
+5. **Regime-aware storage.** **Regime A (AUD 0، قفل‌شده — owner-confirmed 2026-07-18، D-006)** روی سخت‌افزار خودِ اپراتور؛ هر مؤلفهٔ ابری/API پولی = **Regime B، خفته و owner-gated OFF (فعال‌سازی = verdict جدید)**. محور هزینه در بند ۵. [FACT — منشور]
+6. **بدون ویرایش مخرب (R7).** تغییر schema فقط با migration نسخه‌دار + کامیت تمیز؛ هیچ ستون/جدول انسانی بازنویسی نمی‌شود. [FACT — قانون]
 
 ## ۱. توپولوژی ذخیره‌سازی و آشتی دو مرجع
 
@@ -38,6 +40,8 @@ updated: 2026-07-14
 | **بیلد سبکِ standalone** (بدون hub) | SQLite + SQLCipher (کلیدِ مشتق‌از-پسورد، **هرگز persist نمی‌شود**) | زیرمجموعه‌ای از همان DDL؛ برای یک Orange Pi تنها |
 
 Postgres = dialect متعارف؛ SQLite = زیرمجموعه‌اش. warm/cold در هر دو یکسان‌اند. [SPEC]
+
+> [OPEN — Round 2] نگاشتِ دقیقِ standalone از PostgreSQL به SQLite/SQLCipher تعریف‌نشده است: `ENUM`، `GENERATED ALWAYS AS IDENTITY`، `JSONB`، `TIMESTAMPTZ`، `hypertable` و `MATERIALIZED VIEW` همگی Postgres-only هستند و معادلِ صریحِ SQLite‌شان (CHECK-constraint، `INTEGER PRIMARY KEY AUTOINCREMENT`، `TEXT` JSON، `TEXT` ISO-8601، جدولِ rollup دستی، VIEW معمولی) باید مشخص شود.
 
 ## ۲. مدل ذخیره‌سازی سه‌لایه + محور رژیم هزینه
 
@@ -100,9 +104,12 @@ stateDiagram-v2
 - **`limbo`** = تأخیر ۷-روزهٔ خصمانه ([[04 - Adversarial-Defense-and-Antifragility]]): کوینِ جوان‌تر از ۷ روز از لیست/اولین کامیت در انتظار می‌مانَد تا پامپ مصنوعی تا روز ۷ خالی شود. `limbo_until = COALESCE(launch_date, first_commit_date, created) + 7d` — یعنی **سنِ کوین از مبدأ، نه از لحظهٔ کشف** (اگر کوین همان موقعِ کشف از ۷ روز پیرتر باشد، limbo بلافاصله می‌گذرد؛ `created` = اولین‌بار که ما ثبتش کردیم، جایگزینِ مبدأِ نامعلوم). [FACT — نقد خصمانه]
 - **گیت‌های انسانی (R8):** گذارهای `approved` و `*→exited` **الزاماً** human-gate دارند؛ ربات هرگز خودکار وارد کوین جدید نمی‌شود یا موجودی جابه‌جا نمی‌کند. [FACT — قانون]
 - **`rejected` پایانی نیست:** ردیف برای همیشه می‌ماند و `trajectory_snapshots` روی آن ادامه دارد (سوخت `dead_coins` set).
+- **`tracked` (فقط در نمودار) وضعیتِ ذخیره‌شدنی نیست:** عضو ENUM نیست و هرگز در `candidates.state` نمی‌نشیند؛ برچسبِ نموداریِ «ردیابیِ طولی ادامه دارد» است که اجرایش از مسیر `trajectory_snapshots` انجام می‌شود، نه با گذارِ state.
 - برچسب پیامد `outcome_label ∈ {unknown, survived, zombie, dead}` **متعامد** با state است و توسط labeler اعمال می‌شود (بند ۶.۲).
 
 ## ۵. DDL (dialect PostgreSQL — متعارف)
+
+> [OPEN — Round 2] **واژگانِ verdict واگراست:** ENUM اینجا `ACCUMULATE | WATCH | REJECT` در برابرِ [[05 - AGENT-BRAIN-Decision-Layer]] (`STRONG_ACCUMULATE | CAUTIOUS_ACCUMULATE | WATCH | REJECT`) و [[03 - SCORE-Screening-and-Forensics]] (`ACCUMULATE | WATCHLIST | REJECT | ABANDON | LIMBO`). این سند مالکِ نهایی است؛ در Round 2 واژگانِ واحد + نگاشتِ مهاجرت باید همین‌جا قفل شود.
 
 ```sql
 CREATE TYPE candidate_state AS ENUM
@@ -292,6 +299,8 @@ SELECT create_hypertable('trajectory_snapshots','ts');
 
 **تغییرناپذیریِ سخت:** پس از بوت، `REVOKE UPDATE, DELETE ON outcome_events, trajectory_snapshots, holdings_ledger FROM app_role;` + تریگرِ `BEFORE UPDATE/DELETE` که exception می‌اندازد. اصلاح فقط با append رویداد جدید. زنجیرهٔ `prev_hash→event_hash` هر دست‌کاریِ retroactive را آشکار می‌کند (الگوی ledger). [SPEC]
 
+> [OPEN — Round 2] مشخصاتِ محاسبهٔ `event_hash` تعریف‌نشده است: فیلدهای ورودی، ترتیبِ سریال‌سازیِ canonical و الگوریتمِ هش برای زنجیرهٔ `prev_hash→event_hash` باید دقیق تعیین شود.
+
 ### ۶.۲ Snapshotter و برچسب‌گذاریِ پیامد (پادزهر بازماندگی)
 
 **snapshotter همهٔ کوین‌ها را ردیابی می‌کند — از جمله رجکت‌ها** — با کادنسِ نزولی تا رکورد بی‌هزینه ساخته شود [EST]:
@@ -336,11 +345,15 @@ WHERE c.outcome_label='dead'
 2. **Redis SETNX (قفل کوتاه‌مدت).** `SETNX lock:{idem} 1 EX 300` پیش از پردازش؛ جلوگیری از پردازش هم‌زمانِ دوتایی. AOF روشن.
 3. **Postgres UNIQUE (dedup ماندگار).** `candidates.idempotency_key` مستقیماً UNIQUE است؛ برای `outcome_events` (hypertable) یکتاییِ سراسری از طریقِ جدولِ همراهِ `outcome_events_idem` (کلیدِ اصلی) و `INSERT ... ON CONFLICT DO NOTHING` تضمین می‌شود — درجِ تکراری no-op است.
 
+> [OPEN — Round 2] تضمینِ اتمیک‌بودنِ claim-then-insert تعریف‌نشده است: claimِ کلید در `outcome_events_idem` و درجِ رویداد در `outcome_events` باید در یک تراکنشِ واحد (single-transaction/atomic) انجام شود تا کرش میانِ دو مرحله رکوردِ یتیم یا تکراری نسازد.
+
 **تحلیل هویتِ متعارف کوین (canonical identity):** یک کوین که هم روی CoinGecko و هم DexScreener دیده شود **یک** `coin_uid` است، نه دو. resolver با کلید (chain + normalized contract) یا (algo + genesis/first-commit) ادغام می‌کند و همهٔ نام‌های مستعار را در `candidate_aliases(coin_uid, source, external_id)` نگه می‌دارد. اگر دو منبع در فیلدی >۳۰٪ واگرا باشند **میانگین نمی‌گیریم** → یک ردیف `data_integrity_alerts` با `action='held_no_average'` و رویداد `integrity_alert` (رجوع به [[04 - Adversarial-Defense-and-Antifragility]]). [FACT — triangulation]
 
 ## ۸. اجرای R4 — هیچ راز/کلید/آدرسِ خرج‌شونده وارد نمی‌شود
 
 - **no_secret_guard در زمان نوشتن:** یک هوکِ write-time روی هر payload اسکن regex می‌زند و درج را رد می‌کند اگر الگوی seed/mnemonic (۱۲/۲۴ کلمهٔ BIP39)، private key (hex ۶۴، WIF)، xpriv یا API-key ببیند. نقض = رویدادِ `security.write_blocked` + آلارم TG-OPS. [SPEC]
+
+> [OPEN — Round 2] مجموعهٔ دقیقِ regexهای `no_secret_guard` تعریف‌نشده است: الگوهای واقعیِ seed/mnemonic (BIP39)، private key (hex-64/WIF)، xpriv و API-key باید به‌صورت مجموعهٔ مشخص و تست‌شده نوشته شود.
 - **فقط receive-only:** `holdings.receive_address` عمومی است؛ خرج/انتقال فقط روی signerِ air-gapped بیرون از این سیستم رخ می‌دهد (R4). ربات هرگز کلید نمی‌بیند. [FACT — قانون]
 - warm (age) و cold (rclone crypt) با کلید عمومی می‌نویسند؛ سرور تاریخِ خودش را رمزگشایی نمی‌کند → حتی اگر HOT کاملاً کامپرومایز شود، مهاجم فقط ciphertext می‌گیرد. [FACT — README]
 - HANDOFF/لاگ‌ها هرگز secret echo نمی‌کنند (قانون امنیت vault).

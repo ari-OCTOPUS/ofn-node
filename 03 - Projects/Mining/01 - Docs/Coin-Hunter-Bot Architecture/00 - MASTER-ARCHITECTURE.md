@@ -5,7 +5,7 @@ status: active
 layer: 00
 tags: [mining, architecture, coin-hunter, master, moc]
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-18
 ---
 
 # ۰۰ — MASTER: معماری کاملِ Coin Hunter Bot (Autonomous Accumulator)
@@ -31,13 +31,15 @@ updated: 2026-07-14
 
 این سند این‌دو را در یک معماریِ واحد ادغام می‌کند: **بدنهٔ فنیِ A** روی **قیدهای ایمنیِ B**.
 
+> توجه: Reality A (طرحِ پولیِ قدیمی) ≡ Regime B ؛ Reality B (منشورِ رایگان) ≡ Regime A.
+
 ---
 
-## ۳. محورِ Regime هزینه (تنها تصمیمِ بازِ کلان)
+## ۳. محورِ Regime هزینه (✅ قفل‌شده — Regime A، D-006)
 
-`[OPEN — نیازمند verdict آری]` طراحیِ اصلی روی خرجِ ماهانه بنا شده بود؛ منشورِ امروز صفرِ نقدی را قفل کرده. راهِ حل = **محور Regime** در هر لایه:
+`[DECIDED ✅ — رأیِ مالک ۲۰۲۶-۰۷-۱۸ (D-006)]` طراحیِ اصلی روی خرجِ ماهانه بنا شده بود؛ منشور صفرِ نقدی را قفل کرد و **مالک صراحتاً Regime A را انتخاب کرد.** محور به‌عنوان مرجعِ طراحی نگه داشته می‌شود:
 
-- **Regime A — رایگان/AUD-0 (پیش‌فرض و فعلاً binding):** همه‌چیز روی ناوگانِ خودِ اپراتور؛ بدون VPS، بدون API متری، بدون اشتراک، بدون خرید سخت‌افزار/کوین. مدل‌های LLM محلی (Ollama/Qwen) + **Claude تعاملیِ خودِ اپراتور** برای لایه‌های بالا (in-session، نه per-call metered). بکاپ روی سخت‌افزارِ آفلاینِ اپراتور.
+- **Regime A — رایگان/AUD-0 (✅ انتخابِ قطعیِ مالک — binding):** همه‌چیز روی ناوگانِ خودِ اپراتور؛ بدون VPS، بدون API متری، بدون اشتراک، بدون خرید سخت‌افزار/کوین. مدل‌های LLM محلی (Ollama/Qwen) + **Claude تعاملیِ خودِ اپراتور** برای لایه‌های بالا (in-session، نه per-call metered). بکاپ روی سخت‌افزارِ آفلاینِ اپراتور.
 - **Regime B — Managed/پولی (owner-gated، خاموش):** طرحِ Hetzner + API پولی؛ آپتایمِ ۲۴/۷ بهتر ولی `$80–150/ماه`؛ **فعال‌سازی = نقضِ R1 → verdict انسانی لازم.**
 
 > قاعده: پیش‌فرض همیشه Regime A؛ هر جزءِ Regime B صریحاً `owner-gated OFF` علامت می‌خورد. هیچ وابستگیِ پولی به‌عنوان مسیرِ پیش‌فرض ارائه نمی‌شود.
@@ -77,7 +79,7 @@ flowchart TB
 
 ## ۵. جریانِ داده: چرخهٔ عمرِ یک کاندید
 
-`[SPEC]` `کشف (۰۲)` → `triage گیت‌های سخت — Tier1 (۰۵)` → `دوسیهٔ شواهد ۱۰-بُعدی — Tier2 (۰۵/۰۳)` → `verdict + survival score — Tier3 (۰۵)` → `تأخیرِ ۷-روزهٔ LIMBO + red-team (۰۴)` → **`گیت انسانی (۰۱)`** → `تخصیصِ hashrate ≤۲۰٪ + sandbox — ACT (۰۶)` → `پایش + Death-watch (۰۸)` → `holding` → **`گیت انسانی خروج`** → `exit + حسابداریِ AU (۰۹)`. وضعیت‌ها در register: `screening → rejected | watchlist | approved → mining → holding → exited` ([[10 - DATA-STATE-and-SCHEMA]]).
+`[SPEC]` `کشف (۰۲)` → `triage گیت‌های سخت — Tier1 (۰۵)` → `دوسیهٔ شواهد ۱۰-بُعدی — Tier2 (۰۵/۰۳)` → `verdict + survival score — Tier3 (۰۵)` → `تأخیرِ ۷-روزهٔ LIMBO + red-team (۰۴)` → **`گیت انسانی (۰۱)`** → `تخصیصِ hashrate ≤۲۰٪ + sandbox — ACT (۰۶)` → `پایش + Death-watch (۰۸)` → `holding` → **`گیت انسانی خروج`** → `exit + حسابداریِ AU (۰۹)`. وضعیت‌ها در register (اسکیمای مرجع در [[10 - DATA-STATE-and-SCHEMA]]؛ اینجا برای زمینه بازتولید شده): `discovered → limbo (limbo_until) → screening → rejected | watchlist → approved → mining → holding → exited`. (تأخیرِ ۷-روزهٔ LIMBO خانهٔ مرجعش [[04 - Adversarial-Defense-and-Antifragility]] است.)
 
 ---
 
@@ -96,6 +98,8 @@ flowchart TB
 | **حذف/rename/جابه‌جاییِ فایل** | | | ⛔ (git mv + verdict) |
 
 Kill-switch: هر ناهنجاری (CPU spike، اتصالِ خروجیِ ناشناخته، هشدارِ AV/EDR، رفتارِ عجیبِ wallet) → توقفِ فوریِ اتوماسیون + ثبت در DecisionLog.
+
+> پوینترها: منطق و تلمتریِ kill-switch/Death-watch → [[08 - MONITORING-Telemetry-and-Deathwatch]]؛ سقفِ تخصیصِ hashrate ≤۲۰٪ → [[06 - ACT-Fleet-Execution-and-Orchestration]].
 
 ---
 
@@ -128,8 +132,8 @@ Kill-switch: هر ناهنجاری (CPU spike، اتصالِ خروجیِ ناش
 
 ## ۹. تصمیم‌های بازِ کلان (برای verdict آری)
 
-1. **Regime هزینه** — پیش‌فرض A (AUD-0). آیا Regime B (پولی، ۲۴/۷) روزی فعال شود؟ → §۳.
-2. **OQ-1..OQ-8** (تعداد واقعیِ ناوگان، بنچ H/s، VM/isolation، هزینهٔ برق، wallet، مالیاتِ AU، آستانه‌های خروج) هنوز باز و گیتِ فازهای [[11 - BUILD-ROADMAP-and-Sequencing]].
+1. ~~**Regime هزینه**~~ ✅ **حل شد: Regime A (AUD-0)** — رأیِ مالک ۲۰۲۶-۰۷-۱۸ (D-006). Regime B همچنان owner-gated و خاموش؛ فعال‌سازی نیازمندِ verdict جدید. → §۳.
+2. **OQ-1..OQ-7** ([[03 - Projects/Mining/OpenQuestions|OpenQuestions]]) (تعداد واقعیِ ناوگان، بنچ H/s، VM/isolation، هزینهٔ برق، wallet، مالیاتِ AU، آستانه‌های خروج) هنوز باز و گیتِ فازهای [[11 - BUILD-ROADMAP-and-Sequencing]]؛ **OQ-8 (رژیم هزینه) رفع‌شده — D-006** و دیگر هیچ فازی را قفل نمی‌کند. (توجه: شماره‌گذاریِ OQ اینجا فضای داخلیِ سند ۱۱ است و با ترتیبِ نوتِ vault یکی نیست.)
 3. `04 - Research/Quantum Physics Dataset` — نسبتش با mining `[OPEN]`.
 
 ---

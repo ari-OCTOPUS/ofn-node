@@ -8,7 +8,7 @@ risk_level: medium
 autonomy_level: read-only
 tags: [mining, crypto, orange-pi, esp32]
 created: 2026-07-03
-updated: 2026-07-14
+updated: 2026-07-18
 ---
 
 # پروژه: Mining
@@ -55,6 +55,7 @@ seed کیف پول در انتظار چرخش · رجیستری خالی · با
 
 ## Active Context
 
+- **2026-07-18 (اینتگریشنِ معماری):** معماریِ کاملِ «Coin Hunter Bot / Autonomous Accumulator» (۱۳ سند در `01 - Docs/Coin-Hunter-Bot Architecture/`) به مغزِ پروژه وصل شد. **⏭️ نقطهٔ ورود: `[[00 - MASTER-ARCHITECTURE]]`، بعد `[[_STATUS-and-HANDOFF]]`.** تصمیمِ Regime هزینه **قطعی شد: Regime A (صفر دلار)** — رأی مالک، `[[03 - Projects/Mining/DecisionLog|D-006]]`. عددِ ناوگانِ معماری (۱۶–۵۰ Pi + ۵۰–۲۰۰ ESP32) با تحقیقِ solar-swarm (۱۶ Pi + ۱۴۰ ESP32) هم‌راستاست؛ «۶ نود» کهنه است (D-007). باقی‌مانده: git هنوز مسدود (قفلِ `.git/objects`) + بهبودهای محتواییِ اسناد (backlog در جریان).
 - **2026-07-14:** تحقیق خامِ درشتی (پیست AI-chat، ۱۳۳۲ خط) که در پوشهٔ بی‌ربطِ `04 - Research/Quantum Physics Dataset/` افتاده بود پیدا و جابجا شد → [[03 - Projects/Mining/04 - Research/2026-07-14 1512 solar-swarm-mining-research|فایل جدید]] (INDEX.md هم به‌روزشد). محتوا: کاندیدهای جدید کوین (Salvium، CoinCync، Wownero، Ratio1، Nodle، Grass) برای [[03 - Projects/Mining/Coin Scouting Framework|چارچوب شکار کوین]] + مگاپرامپت Solana DeFi off-ramp + طرح تخصیص سخت‌افزار سیدنی/ایران. **مهم‌ترین یافته:** این سند ۱۶۲ نود (۱۶ Orange Pi 5 Pro + ۱۴۰ ESP32 + ۲ FPGA) را «already bought» فرض می‌کند — در تناقض با فرض «۶ نود»ی که تا الان مبنای این پروژه بود؛ صرفاً تحقیق/پیش‌نویس است، هیچ اجرایی نشده.
 - **2026-07-06 (جلسه ۱۷):** کد پروژه به `_code/` منتقل شد (B1 پلن NONMD-TRIAGE؛ propose→executed با verdict آری). لاگ کامل: `00 - Inbox/nonmd-move-log-2026-07-06.csv`.
 
@@ -81,3 +82,4 @@ seed کیف پول در انتظار چرخش · رجیستری خالی · با
 - [[03 - Projects/Mining/Hardware Registry & Runbook|Hardware Registry & Runbook]] · [[03 - Projects/Mining/Coin Scouting Framework|Coin Scouting Framework]]
 - [[03 - Projects/Mining/Mining|لاگ پیام‌های تلگرام — Mining]] · [[03 - Projects/Mining/Ai bots/ARCHITECTURE|Ai bots ARCHITECTURE]]
 - [[03 - Projects/Mining/04 - Research/SCOUT-B|SCOUT-B (Track B)]] · [[03 - Projects/Mining/04 - Research/2026-07-14 1512 solar-swarm-mining-research|تحقیق خام Solar Swarm (۲۰۲۶-۰۷-۱۴)]]
+- 🏗️ **[[00 - MASTER-ARCHITECTURE|معماری Coin Hunter Bot — MASTER]]** · [[_STATUS-and-HANDOFF|وضعیت و Handoff معماری]] (پوشهٔ `01 - Docs/Coin-Hunter-Bot Architecture/`)

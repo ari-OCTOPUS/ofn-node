@@ -4,7 +4,7 @@ project: "[[03 - Projects/Mining/PROJECT]]"
 status: active
 tags: [mining, index]
 created: 2026-07-03
-updated: 2026-07-14
+updated: 2026-07-18
 ---
 
 # INDEX — فهرست کامل پوشه Mining
@@ -62,6 +62,9 @@ updated: 2026-07-14
 
 ### Orange Pi Automation System - 20 Projects
 معماری v1 (SelfAdaptive) و v2 (Hybrid Final) سیستم اتوماسیون ۲۰ پروژه‌ای.
+
+### ⭐ Coin-Hunter-Bot Architecture (سنتزِ ۲۰۲۶-۰۷-۱۸ — سندِ کانونیِ معماری)
+بلوپرینتِ کاملِ «Coin Hunter Bot / Autonomous Accumulator»: ۱۳ سند (`00 - MASTER-ARCHITECTURE` + ۱۱ لایهٔ GOVERNANCE/SENSE/SCORE/ADVERSARIAL/AGENT-BRAIN/ACT/SUBSTRATE/MONITORING/EXIT/DATA/BUILD-ROADMAP + `_STATUS-and-HANDOFF`). حلقهٔ SENSE→SCORE→ACT، مغزِ چندلایهٔ LLM، روی ناوگانِ Orange Pi 5، survival-first. **Regime A (صفر دلار) قطعی — D-006.** ▶️ شروع از `00 - MASTER-ARCHITECTURE`.
 
 ## 02 - Code — کد و ابزار
 

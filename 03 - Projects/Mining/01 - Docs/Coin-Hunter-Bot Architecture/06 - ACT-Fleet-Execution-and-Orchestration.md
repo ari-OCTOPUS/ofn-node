@@ -5,7 +5,7 @@ status: active
 layer: 06
 tags: [mining, architecture, coin-hunter, orchestration]
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-18
 ---
 
 # لایه ۶ — اجرا و ارکستراسیون ناوگان (ACT)
@@ -16,10 +16,10 @@ updated: 2026-07-14
 
 ## ۰. محور رژیم هزینه در این لایه
 
-- **Regime A (پیش‌فرض، الزام‌آور طبق charter):** کل orchestration روی ناوگان موجود اپراتور اجرا می‌شود. Tailscale free-tier یا Headscale سلف‌هاست، pyinfra/XMRigCC/Beszel/ESPHome همه open-source و رایگان. C2 روی یک Orange Pi هاب (نه VPS). صفر جریان نقدی. [FACT]
+- **Regime A (پیش‌فرض، قفل‌شده — owner-confirmed 2026-07-18، binding طبق D-006):** کل orchestration روی ناوگان موجود اپراتور اجرا می‌شود. Tailscale free-tier یا Headscale سلف‌هاست، pyinfra/XMRigCC/Beszel/ESPHome همه open-source و رایگان. C2 روی یک Orange Pi هاب (نه VPS). صفر جریان نقدی. [FACT]
 - **Regime B (owner-gated، پیش‌فرض OFF):** جایگزین‌های پولی — Tailscale تیمی پولی، یک C2 server ابری، یا نود همیشه‌روشن اجاره‌ای برای autonomy بهتر ۲۴/۷. هر کدام صریحاً با تگ `owner-gated OFF` علامت خورده و بدون وردیکت مالک که Rule 1 را override کند فعال نمی‌شود. [SPEC]
 
-هیچ عنصر Regime-B در این سند مسیر پیش‌فرض نیست.
+هیچ عنصر Regime-B در این سند مسیر پیش‌فرض نیست؛ Regime B خفته و owner-gated **OFF** می‌ماند و فعال‌سازی‌اش نیازمند یک وردیکت **جدید** مالک است (قفلِ D-006 فقط Regime A را تثبیت کرد، نه B).
 
 ## ۱. توپولوژی ناوگان
 
@@ -64,6 +64,8 @@ flowchart TB
 ### ترجیح استخر (dominant-pool avoidance)
 برای هر کوین، از `pools.yaml` استخری انتخاب کن که: (a) استخر غالب **نباشد** (سهم شبکه‌اش زیر آستانه)، (b) small یا solo باشد، (c) receive-only address پشتیبانی کند، (d) fee منطقی. این هم anti-51% است هم ضد chain-analysis targeting. [FACT]
 
+> [OPEN — Round 2] اسکیمای رجیستری استخر (`pools.yaml`) تعریف‌نشده — فیلدها (coin_id، pool_url/port، share_of_network، is_solo، fee، recv_only_support، last_checked)، منبع و کادنس به‌روزرسانی، و قرارداد اعتبارسنجی باید در Round 2 مشخص شوند.
+
 ```python
 # swarm_orchestrator/allocate.py  —  pseudo-code [SPEC]
 FLEET_HS_CAP   = 0.20   # <=20% از کل هش ناوگان روی هر کوین
@@ -94,8 +96,10 @@ def allocate(fleet, approved_coins, net_stats):
     return balance_across_boards(plan, fleet)  # پخش روی boardها برای camouflage
 ```
 
+> [OPEN — Round 2] قرارداد allocator تعریف‌نشده — امضا و خروجی `pick_pool(coin, net_stats)` (معیار انتخاب/رتبه‌بندی استخرِ non-dominant/small/solo/recv-only و رفتار روی no-safe-pool) و `balance_across_boards(plan, fleet)` (الگوریتم پخش هش روی boardها برای camouflage و رعایت سقف ۲۰٪) باید در Round 2 مشخص شوند.
+
 - **merge-mining استثناست:** جریان کاری merge-mined (بخش ۵) از نظر «کار PoW» یک stream است ولی دو کوین می‌دهد؛ سقف ۲۰٪ روی *هدف اصلی* (parent) اعمال می‌شود و XTM به‌عنوان بای‌پروداکت zero-marginal حساب می‌شود. [SPEC]
-- خروجی allocator یک **پلن**‌است؛ اعمالش روی boardها از طریق XMRigCC (بخش ۳) انجام می‌شود. allocator هرگز خودش start/stop سخت‌افزار را دور از C2 نمی‌زند.
+- خروجی allocator یک **پلن**‌است؛ اعمالش روی boardها از طریق XMRigCC (بخش ۳) انجام می‌شود. allocator هرگز خودش start/stop سخت‌افزار را دور از C2 نمی‌زند. [SPEC]
 
 ## ۳. استک بهینه‌سازی per-watt روی RK3588 (از SCOUT-B)
 
@@ -136,11 +140,13 @@ for c in 4 5 6 7; do echo performance > /sys/devices/system/cpu/cpu$c/cpufreq/sc
 
 ## ۴. صفحهٔ ارکستراسیون ناوگان
 
+> این استک روی زیرساخت substrate هاب/ناوگان می‌نشیند؛ جزئیات کامل هاب و infra در [[07 - SUBSTRATE-Fleet-Hub-and-Infra]].
+
 - **Mesh — Tailscale (free) یا Headscale (self-host).** جایگزین SSH دستی؛ WireGuard رمزنگاری‌شده بین همهٔ boardها و هاب. زیر Regime A هر دو رایگان‌اند؛ Headscale اگر مالک نخواهد به سرویس ثالث تکیه کند. [FACT]
 - **pyinfra — agentless، idempotent.** پیکربندی boardها (hugepages، governor، systemd unitها، کاربر sandbox، نصب باینری self-compiled) به‌صورت declarative و تکرارپذیر. هیچ agent روی board نصب نمی‌شود؛ pyinfra از روی mesh اجرا می‌کند. [FACT]
 - **XMRigCC — C2 بومی ARM.** `xmrigCCServer` روی هاب، `xmrigMiner` روی هر board: start/stop/reboot از راه دور + آلارم hashrate/offline به Telegram ([[01 - GOVERNANCE-and-SAFETY]] whitelist مالک). allocator پلن را به CC push می‌کند؛ CC به minerها اعمال می‌کند. [FACT]
 - **ESPHome** لایهٔ ESP32 را مدیریت می‌کند؛ MQTT + LWT (اعلان offline خودکار) + LittleFS بافر آفلاین. [FACT]
-- **Beszel** مانیتور فوق‌سبک — از جمله **فرسایش eMMC از طریق SMART**؛ ورودی مهم برای EV (R2: فرسایش سخت‌افزار هزینهٔ واقعی است، «رایگان» صفر نیست). [FACT]
+- **Beszel** مانیتور فوق‌سبک — از جمله **فرسایش eMMC از طریق SMART**؛ ورودی مهم برای EV (R2: فرسایش سخت‌افزار هزینهٔ واقعی است، «رایگان» صفر نیست). تله‌متری کامل و death-watch در [[08 - MONITORING-Telemetry-and-Deathwatch]] مالکیت دارند. [FACT]
 - **systemd watchdog + power-cycle خودکار (PoE / smart-plug)** پایهٔ self-healing (بخش ۶). [FACT]
 
 ```python
@@ -189,6 +195,8 @@ WatchdogSec=120                   # self-healing (بخش ۶)
 
 ## ۶. Self-healing / antifragile (Principle 4: شکست حالت نرمال است)
 
+> دفاع adversarial و اصول antifragility در [[04 - Adversarial-Defense-and-Antifragility]] مالکیت دارند؛ این بخش صرفاً اجرای ACT-side آن‌هاست.
+
 - **systemd `WatchdogSec` + `Restart=always`:** miner معلق → ری‌استارت خودکار با backoff. [SPEC]
 - **power-cycle سخت‌افزاری:** board که به heartbeat جواب نداد → هاب smart-plug/PoE آن را power-cycle می‌کند (بازیابی از هنگ سخت‌افزاری؛ این کنترل برق زیرساخت موجود است، نه اتصال سخت‌افزار trading/signing — R8). [FACT]
 - **backoff + cap:** ری‌استارت متوالی سقف دارد؛ board مکرراً fail → از پلن allocator بیرون گذاشته و به TG-OPS آلارم می‌رود (مبادا loop بی‌نهایت). [SPEC]
@@ -230,7 +238,7 @@ sequenceDiagram
 ```
 
 - بدون `human_gate == APPROVED`، allocator کوین را نادیده می‌گیرد (گارد صریح `if != APPROVED: continue` در بخش ۲ — عمداً نه `assert`، چون `python -O` آن را حذف می‌کند). [SPEC]
-- تأخیر adversarial ۷-روزه: کوین جوان‌تر از ۷ روز در LIMBO می‌ماند و حتی بعد از وردیکت وارد پلن اجرا نمی‌شود ([[02 - SENSE-Discovery-Layer]] / adversarial defenses). [FACT]
+- تأخیر adversarial ۷-روزه: کوین جوان‌تر از ۷ روز در LIMBO می‌ماند و حتی بعد از وردیکت وارد پلن اجرا نمی‌شود ([[04 - Adversarial-Defense-and-Antifragility]] / adversarial defenses؛ خانهٔ canonical تأخیر LIMBO آنجاست). [FACT]
 - ربات هرگز trade نمی‌کند، هرگز وجه حرکت نمی‌دهد، هرگز به سخت‌افزار mining بیرون از C2 وصل نمی‌شود، هرگز CORE_PRINCIPLES/kelly/scout را ویرایش نمی‌کند. [FACT]
 
 ## ۹. کادنس اجرا (runbook)
@@ -244,7 +252,7 @@ sequenceDiagram
 | ماهانه | مرور Group Two long-term + تصمیم procurement | انسان |
 | هر تغییر پلن | push کانفیگ idempotent، سپس تأیید hashrate | pyinfra + XMRigCC |
 
-> نکتهٔ reflexivity (نقص #4): allocator باید **سهم بازار خودِ ناوگان** را در هر کوین کوچک log کند؛ یک buy/mine روی mcap ~$200k قیمت را حرکت می‌دهد. این متریک به sizing و به [[03 - SCORE-Screening-and-Forensics]] برمی‌گردد. [SPEC]
+> نکتهٔ reflexivity (نقصِ ساختاریِ Reflexivity / observer effect — روسترِ مرجع: [[04 - Adversarial-Defense-and-Antifragility]]): allocator باید **سهم بازار خودِ ناوگان** را در هر کوین کوچک log کند؛ یک buy/mine روی mcap ~$200k قیمت را حرکت می‌دهد. این متریک به sizing و به [[03 - SCORE-Screening-and-Forensics]] برمی‌گردد. [SPEC]
 
 ## ۱۰. نقاط باز
 

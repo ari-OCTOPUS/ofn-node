@@ -4,7 +4,7 @@ project: "[[03 - Projects/Mining/PROJECT]]"
 status: active
 tags: [mining, architecture, coin-hunter, handoff]
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-18
 ---
 
 # 🧭 CONTINUATION BRIEF — معماری Coin Hunter Bot (برای ایجنت بعدی)
@@ -75,7 +75,7 @@ updated: 2026-07-14
 
 ## ۴. کارهای باقی‌مانده (به ترتیبِ اولویت)
 
-1. ~~**[owner-decision] تصمیمِ Regime هزینه.**~~ ✅ **حل شد (2026-07-14): رأی مالک = Regime A (AUD-0) قطعی.** Regime B همچنان owner-gated خاموش. ثبت در DecisionLog ‏D-006 و OpenQuestions ‏#۶.
+1. ~~**[owner-decision] تصمیمِ Regime هزینه.**~~ ✅ **حل شد (2026-07-18): رأی مالک = Regime A (AUD-0) قطعی — D-006 در DecisionLog.** Regime B همچنان owner-gated خاموش؛ فعال‌سازی = verdict جدید. (توجه: ‏OpenQuestions ‏#۶ ربطی به رژیم ندارد — آن شمارشِ سخت‌افزار است، D-007.)
 2. ~~**[پاکسازی] نرمال‌سازیِ wikilink/تجزیه** طبق §۳ بالا.~~ ✅ **انجام شد (2026-07-14):** همهٔ لینک‌های لایه‌ای در ۱۲ سند به نام‌های canonical نگاشت شدند (بر اساس مفهوم، نه شماره؛ موارد مبهم با خواندن متن حل شد — SCORE تفکیک شد به ۰۳=گیت/scorecard و ۰۵=مغز/Tier-meta؛ MENTOR/OPERATOR-VISION → ۰۵+۰۱). نودهای Mermaid و مثال‌های backtick همین سند عمداً دست‌نخورده ماندند. verify با grep کامل: صفر لینکِ غیر-canonical باقی مانده.
 3. ~~**[state] به‌روزرسانیِ فایل‌های مغزِ پروژه**~~ ✅ **کامل شد (2026-07-14):** `PROJECT.md` (Active Context + Next actions)، `DecisionLog.md` (D-005/D-006 با رأی)، `OpenQuestions.md` (#۶ بسته)، `INDEX.md` (بخشِ ⭐ Coin-Hunter-Bot Architecture اضافه شد). هر دو validator اجرا شد؛ فایل‌های این کار پاک‌اند (۷ گزارشِ این پوشه false-positiveاند: ۴ نودِ Mermaid در ۰۳/۰۹ + ۳ مثالِ backtick در §۳ همین سند — عمداً دست‌نخورده).
 4. **[git] commit مسدود است.** خطا: `Permission denied` روی `F:/backup/.git/objects` — قفلِ AV/هندلِ باز روی `.git`. **فایل‌ها روی دیسک امن‌اند.** رفع (سمتِ مالک): پروسهٔ قفل‌کننده/AV را ببند، سپس در worktree `git add "03 - Projects/Mining/01 - Docs/Coin-Hunter-Bot Architecture"` + commit. پیامِ آمادهٔ commit در §۶.

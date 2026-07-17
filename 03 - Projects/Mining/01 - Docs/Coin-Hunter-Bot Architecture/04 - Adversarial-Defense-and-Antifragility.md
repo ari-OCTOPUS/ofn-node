@@ -5,7 +5,7 @@ status: active
 layer: 04
 tags: [mining, architecture, coin-hunter, adversarial]
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-18
 ---
 
 # لایه ۴ — دفاع خصمانه و آنتی‌فراژیل (Adversarial Defense & Antifragility)
@@ -20,6 +20,8 @@ updated: 2026-07-14
 
 هفت نقصِ عمیقِ استراتژی، هرکدام با مکانیزمِ مشخص، مالکِ لایه و نوعِ دفاع. ردیف‌هایی که مالکشان **این لایه** است، در بخش‌های بعد به‌صورت buildable باز شده‌اند؛ بقیه به لایهٔ صاحبشان لینک شده‌اند. [SPEC]
 
+> **شماره‌گذاریِ مرجع (authoritative):** این جدول مالکِ رسمیِ شماره‌گذاریِ هفت نقصِ ساختاری (۱..۷) است. سایر اسناد — به‌ویژه [[03 - SCORE-Screening-and-Forensics]] و [[06 - ACT-Fleet-Execution-and-Orchestration]] — باید هنگام ارجاع به «نقص #n» به همین شماره‌گذاری وفادار بمانند و شماره‌گذاریِ موازیِ خودشان را نسازند. تا زمانِ هم‌ترازسازیِ نهایی (مارکرِ Round-2 پایینِ جدول)، ارجاعِ بین‌سندی با **نامِ نقص** انجام شود، نه شمارهٔ خام.
+
 | # | نقص (Flaw) | چرا اینجا می‌گزد | مکانیزمِ خنثی‌سازی | مالک |
 |---|---|---|---|---|
 | ۱ | Survivorship bias (داده فقط از بازمانده‌ها) — تورمِ ۲۰۰–۴۰۰٪ در برآوردِ بقا [EST] | comparableها همه بازمانده‌اند؛ ربات «الگوی برنده» را می‌آموزد که بازنده‌ها هم داشتند | `dead_coins` backtest set + اجبارِ Tier‑2 به آوردنِ comparableهای مرده (§۵) | این لایه |
@@ -31,6 +33,8 @@ updated: 2026-07-14
 | ۷ | Operator self‑deception (خودفریبیِ طراح) | «ریسک‌پذیریِ بالا» با Kelly‑۲۵٪ ناسازگار است؛ هویت با پروژه جوش‌خورده | Operator Vision Statement (immutable) + self‑image‑gap tracker + اصلِ Identity > Strategy | [[05 - AGENT-BRAIN-Decision-Layer]] + [[01 - GOVERNANCE-and-SAFETY]] (این لایه فقط تناقض را لاگ می‌کند) |
 
 > نکته: نقصِ **non‑ergodicity / خطای Kelly** (ensemble ≠ time‑path) در این لایه صرفاً **پرچم‌گذاری** می‌شود؛ اجرای واقعی‌اش (sub‑Kelly برای بقا، سدِ ruin، سقف ۲٪) در لایهٔ sizing/governance است — [[01 - GOVERNANCE-and-SAFETY]]. اینجا فقط تضمین می‌کنیم ربات کوینی را که **می‌داند ~۷۰٪ به صفر می‌رود** بی‌هشدار توصیه نکند (خروجی باید احتمالِ صفرشدن را صریح بنویسد). [SPEC]
+
+> [OPEN — Round 2] **عضویت و شماره‌گذاریِ هفت‌گانه بین اسناد واگراست و حکمِ مالک لازم دارد:** این جدول extremophile ceiling را داخلِ هفت‌گانه و non-ergodicity را بیرون (فقط پرچم‌گذاری) می‌داند؛ جدولِ §۸ در [[03 - SCORE-Screening-and-Forensics]] (میراثِ roadmap-v3) non-ergodicity را #۲ و reflexivity را #۳ می‌شمارد و extremophile ندارد؛ [[09 - EXIT-Liquidity-and-Accounting]] (بریفِ مشترک) non-ergodicity و extremophile هر دو را می‌شمارد و r-strategy را نمی‌آورد. روسترِ نهاییِ ۷ نام باید یک‌بار برای همیشه اینجا قفل شود؛ تا آن زمان ارجاعِ بین‌سندی فقط با نام.
 
 ---
 
@@ -121,7 +125,9 @@ pool_thresholds: {dominance_red_flag: 0.50, fleet_share_cap_per_coin: 0.20, pref
 **فقط** وقتی یک Sentinel Warning شلیک شود (`DATA_INTEGRITY_ALERT` یا `honeypot_suspicion` یا Red‑Team حل‌نشده یا drift بالا)، verdict به یک **مدلِ دومِ مستقل** برای توافق فرستاده می‌شود. اگر دو مدل مخالف باشند → escalation به انسان، نه ACCUMULATE خودکار. شرطی‌بودن، هزینه را پایین نگه می‌دارد. [SPEC]
 
 - **Regime A (پیش‌فرض، BINDING):** مدلِ دوم یک **مدلِ محلیِ خانوادهٔ متفاوت** (مثلاً یک مدلِ Llama/Mistral‑class در برابر Qwenِ Tier‑۲/۳ برای استقلالِ معماری) یا **Claudeِ تعاملیِ اپراتور در همان جلسه** (نه فراخوانِ متری). صفر نقدی، سازگار با R1. [SPEC]
-- **Regime B (owner‑gated، پیش‌فرض OFF):** فراخوانِ متریِ GPT‑4o. **این یک وابستگیِ نقدیِ per‑call است و اصل R1 را نقض می‌کند؛ فقط با رأیِ صریحِ مالک فعال می‌شود.** [SPEC]
+- **Regime B (owner‑gated، پیش‌فرض OFF):** فراخوانِ متریِ GPT‑4o برای چکِ dual‑model. **این یک وابستگیِ نقدیِ per‑call است و اصل R1 را نقض می‌کند؛ فقط با رأیِ صریحِ مالک فعال می‌شود.** چون Regime A طبق **D-006** (تأییدِ مالک، ۲۰۲۶-۰۷-۱۸) **قفل‌شده/binding** است، این چکِ مدلِ دومِ پولی (GPT‑4o) به‌صورتِ پیش‌فرض **غیرفعال** است و فعال‌سازی‌اش نیازمندِ یک **رأیِ جدیدِ صریحِ مالک** است؛ مسیرِ پولی هرگز پیش‌فرض نیست. [SPEC]
+
+> **تعریفِ `high_drift` (آستانهٔ موقتِ Sentinel):** انحرافِ توزیعِ verdict یا افتِ calibration روی پنجرهٔ N داوریِ اخیر (پیش‌فرضِ موقت N=۵۰) — اگر سهمِ ACCUMULATE یا خطای calibration نسبت به baselineِ متحرک از یک آستانهٔ ساده بگذرد، `high_drift` به‌عنوان Sentinel Warning شلیک و §۳٫۶ را فعال می‌کند. محاسبهٔ دقیق و مدلِ رسمیِ drift به [[05 - AGENT-BRAIN-Decision-Layer]] واگذار می‌شود.
 
 ### ۳.۷ `wallet_correlation_index`
 forensicِ on‑chain روی توزیعِ اولیهٔ توکن: خوشه‌بندیِ کیف‌پول‌ها و پرچمِ کیف‌پول‌هایی که **از نظر زمانی هم‌بسته‌اند** (در همان بلوک/پنجرهٔ باریک توکن گرفته‌اند) → امضای sybil/insider‑distribution. خروجی به red‑flag scan (top‑10 > 40٪) و به sizingِ reflexivity تغذیه می‌شود. سیگنالِ **سخت** که تئاترِ اجتماعیِ نقص #۵ را دور می‌زند. این تحلیل فقط دادهٔ عمومیِ on‑chain را **می‌خواند** (هیچ key/seed درگیر نیست، R4). [SPEC]
@@ -186,7 +192,7 @@ dead_coin_record:
 
 **اجبارِ Tier‑2 (§۶٫۶ نقد):** به prompt اضافه: «comparableها باید کوین‌های مرده‌ای با سیگنالِ مشابه را شامل شوند؛ اگر فقط بازمانده یافتی، عمداً مرده‌ها را جست‌وجو کن.» [SPEC]
 
-**cadence و گیت:** backtest روی **هر self‑modِ Tier‑4** و ماهانه اجرا می‌شود؛ auto‑rollback اگر `precision@6mo` در پنجرهٔ غلتانِ ۳۰‑روزه بیش از **۲۰٪** افت کند (هماهنگ با گاردریلِ CORE_PRINCIPLES). [SPEC]
+**cadence و گیت:** backtest روی **هر self‑modِ Tier‑4** و ماهانه اجرا می‌شود؛ auto‑rollback اگر `precision@6mo` بیش از **۲۰٪** نسبت به baselineِ پیش‌از‑تغییر افت کند. **تعریفِ مرجعِ متریک:** روی cohortِ متحرکِ ۳۰‑روزه از کوین‌های پیشنهادشده که به سنِ ۶‑ماهگی رسیده‌اند؛ `precision` = درصدِ هنوز‑زنده‌وترید (هماهنگ با گاردریلِ CORE_PRINCIPLES). [SPEC]
 
 **محدودیتِ صادقانه:** دادهٔ برخی کوین‌های مرده واقعاً بازیابی‌ناپذیر است (نه در CoinGecko، نه GitHub archive، نه Wayback) — و همین **خودِ سوگیریِ بقا** است. این‌جا را `[OPEN]` علامت می‌زنیم نه اینکه دادهٔ ساختگی بسازیم. منبعِ Regime‑A: آرشیوهای تاریخیِ رایگان + کیوریتِ دستیِ اپراتور. [OPEN]
 
@@ -204,9 +210,9 @@ adversarial:
   wallet_corr_flag: 0.30
   pool_dominance_red_flag: 0.50
   dual_model:
-    trigger_on: [DATA_INTEGRITY_ALERT, honeypot_suspicion, redteam_unresolved, high_drift]
+    trigger_on: [DATA_INTEGRITY_ALERT, honeypot_suspicion, redteam_unresolved, high_drift]  # high_drift: تعریفِ موقت در §۳٫۶؛ محاسبهٔ رسمی در layer 05
     regime_A_second_model: local_alt_family   # پیش‌فرض
-    regime_B_paid_second_model: gpt-4o         # owner-gated OFF (نقضِ R1)
+    regime_B_paid_second_model: gpt-4o         # owner-gated OFF؛ Regime A قفل D-006؛ فعال‌سازی=رأیِ جدید (نقضِ R1)
   redteam:
     run_on: tier3_survivors
     require_falsifiable_attack: true
@@ -235,4 +241,4 @@ adversarial:
 - **ingest:roadmap‑v3** — ۷ نقصِ ساختاری (چهار عدسی) + بخشِ ۶ (anti‑correlation, reflexivity, dead‑coins test set §۶٫۳، adversarial red‑team §۶٫۴، skin‑in‑the‑game §۶٫۵، sample‑bias §۶٫۶) + افقِ ۳۰/۶۰/۹۰ روز.
 - **ingest:critique** — §۵ نقدِ فاز‑۳ (۷ نقص + ۶ اصلاح)، ماژولِ «C64 veto»/exit‑feasibility، تفکیکِ mine‑branch/DCA‑buy، قاعدهٔ AUD‑0.
 - **CORE_PRINCIPLES** (پیش‌فرض REJECT، red‑flags، گاردریلِ self‑improvement + auto‑rollback ۲۰٪) و **SIX DESIGN PRINCIPLES** (اصولِ #۴ و #۶).
-- خواهرها: [[01 - GOVERNANCE-and-SAFETY]] · [[02 - SENSE-Discovery-Layer]] · [[03 - SCORE-Screening-and-Forensics]] · [[06 - ACT-Fleet-Execution-and-Orchestration]] · [[05 - AGENT-BRAIN-Decision-Layer]].
+- خواهرها: [[01 - GOVERNANCE-and-SAFETY]] · [[02 - SENSE-Discovery-Layer]] · [[03 - SCORE-Screening-and-Forensics]] · [[06 - ACT-Fleet-Execution-and-Orchestration]] · [[05 - AGENT-BRAIN-Decision-Layer]] · [[08 - MONITORING-Telemetry-and-Deathwatch]] · [[09 - EXIT-Liquidity-and-Accounting]] · [[10 - DATA-STATE-and-SCHEMA]].

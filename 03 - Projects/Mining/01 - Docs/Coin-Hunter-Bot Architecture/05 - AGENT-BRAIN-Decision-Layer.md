@@ -5,7 +5,7 @@ status: active
 layer: 05
 tags: [mining, architecture, coin-hunter, agent-brain]
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-18
 ---
 
 # لایه ۵ — مغز ایجنتی و تصمیم (Agent Brain / Decision Layer)
@@ -48,7 +48,7 @@ flowchart TD
 | **T4 Meta** | خودبهبود + drift detection | Claude تعاملی یا مدل محلی / Claude Sonnet | هفتگی (یکشنبه) | proposalهای git-commit |
 | **T5 Mentor** | نقش D'Amato: بازبینی Operator Vision + چالش Toynbee | انسان + مدل | هفتگی/ماهانه | چالش + گزارش gap هویت |
 
-`[SPEC]` **گرهِ Regime در این لایه:** طبق R1 (AUD-0) در [[01 - GOVERNANCE-and-SAFETY]]، مسیر **پیش‌فرض** استفاده از **API متری‌شدهٔ پولی نیست**. T3/T4 در Regime A روی مدل محلیِ بزرگ‌تر (اگر RAM ناوگان اجازه دهد) یا از طریق **Claude تعاملیِ خودِ اپراتور** (که همین حالا در اختیار است، per-session نه per-call metered) اجرا می‌شوند. Regime B (Opus/Sonnet با budget cap و `max_budget_usd`) یک سوییچ **owner-gated و خاموش** است — فعال‌سازی‌اش نقض R1 است و verdict انسانی می‌خواهد.
+`[FACT]` **Regime قفل‌شده در این لایه (D-006):** cost regime توسط مالک در ۲۰۲۶-۰۷-۱۸ روی **Regime A** قفل شد — owner-confirmed و binding (ثبت در [[00 - MASTER-ARCHITECTURE]] و طبق R1/AUD-0 در [[01 - GOVERNANCE-and-SAFETY]]). مسیر **پیش‌فرض** استفاده از **API متری‌شدهٔ پولی نیست**. T3/T4 در Regime A روی مدل محلیِ بزرگ‌تر (اگر RAM ناوگان اجازه دهد) یا از طریق **Claude تعاملیِ خودِ اپراتور** (که همین حالا در اختیار است، per-session نه per-call metered) اجرا می‌شوند. Regime B (Opus/Sonnet با budget cap و `max_budget_usd`) یک مسیرِ **خفته و owner-gated خاموش (OFF)** است — فعال‌سازی‌اش به یک **verdict جدیدِ** مالک نیاز دارد و مسیرِ پولی هرگز پیش‌فرض نیست.
 
 ---
 
@@ -98,9 +98,11 @@ flowchart TD
 1. T4 پیشنهاد را در `pending_changes/PROPOSAL-ID/` می‌نویسد، شاملِ: `hypothesis` / `metric` / `rollback_condition` / `review_date` (حداکثر ۳۰ روز).
 2. هر proposal در یک شاخهٔ git commit می‌شود.
 3. اپراتور خلاصهٔ هفتگی را می‌بیند و برای اعمال، `auto_apply: true` را در `tactics.yaml` می‌گذارد.
-4. **auto-rollback اجباری:** اگر precision@6mo نسبت به baseline بیش از **۲۰٪** در پنجرهٔ متحرکِ ۳۰-روزه افت کند، تغییر خودکار برگردانده می‌شود.
+4. **auto-rollback اجباری (precision@6mo):** این متریک روی cohortِ متحرکِ ۳۰-روزه از کوین‌های پیشنهادشده که به سنِ ۶-ماهگی رسیده‌اند تعریف می‌شود؛ precision = درصدِ هنوز-زنده‌وترید. اگر این نسبت بیش از **۲۰٪** نسبت به baselineِ پیش‌از-تغییر افت کند، تغییر خودکار برگردانده می‌شود.
 
 **Drift detection هفتگی (پنج محور):** mission creep (تحلیلِ کوینِ خارج از scope) · hype contamination (زبانِ کم‌شک‌تر) · confirmation bias (پیشنهادِ بیش‌ازحد) · edge neglect (فراموشیِ مزیتِ برق) · adversarial erosion (نساختنِ counter-narrative). `[SPEC]` هشدارِ drift با شدت **HIGH** → پیشنهادهای جدید تا بازبینیِ اپراتور **pause** می‌شوند.
+
+> [OPEN — Round 2] مدلِ رسمیِ drift هنوز تعریف نشده: [[04 - Adversarial-Defense-and-Antifragility]] محاسبهٔ دقیقِ `high_drift` را به این لایه واگذار کرده (آستانهٔ موقتِ Sentinel با N=۵۰ در ۰۴)، اما پنج محورِ بالا کیفی‌اند — متریکِ کمّی، پنجره، و آستانهٔ هر محور + نگاشت به `high_drift` باید اینجا مشخص شود.
 
 ## ۶. Tier 5 — Mentor (لنگرِ ضدِ خودفریبی)
 
@@ -137,7 +139,7 @@ coin_hunter_bot/
 
 ## ۸. ارکستراسیون: حلقهٔ SENSE → SCORE → ACT
 
-`orchestrator.py` زمان‌بندی tierها را با cron/interval اداره می‌کند، budget cap (Regime B) را اعمال می‌کند، و بین لایه‌ها state رد و بدل می‌کند. `[SPEC]` قرارداد بین‌لایه‌ای: هر tier یک رکورد در `task_runs` می‌نویسد ([[10 - DATA-STATE-and-SCHEMA]])؛ verdict نهاییِ T3 به صف «در انتظار گیت انسانی» می‌رود و **هرگز مستقیم به ACT نمی‌رود**. autonomy فقط برای اقدامات کم‌ریسکِ برگشت‌پذیر و فقط بعد از backtest شدنِ scorer باز می‌شود (اصل ۶؛ توالی در [[11 - BUILD-ROADMAP-and-Sequencing]]).
+`orchestrator.py` زمان‌بندی tierها را با cron/interval اداره می‌کند، budget cap (Regime B) را اعمال می‌کند (این مسیرِ متری‌شده تحت پیش‌فرضِ قفل‌شده — Regime A، D-006 — **غیرفعال/INACTIVE** است و فقط با verdict جدیدِ مالک فعال می‌شود)، و بین لایه‌ها state رد و بدل می‌کند. `[SPEC]` قرارداد بین‌لایه‌ای: هر tier یک رکورد در `task_runs` می‌نویسد ([[10 - DATA-STATE-and-SCHEMA]])؛ verdict نهاییِ T3 به صف «در انتظار گیت انسانی» می‌رود و **هرگز مستقیم به ACT نمی‌رود**. autonomy فقط برای اقدامات کم‌ریسکِ برگشت‌پذیر و فقط بعد از backtest شدنِ scorer باز می‌شود (اصل ۶؛ توالی در [[11 - BUILD-ROADMAP-and-Sequencing]]).
 
 ---
 

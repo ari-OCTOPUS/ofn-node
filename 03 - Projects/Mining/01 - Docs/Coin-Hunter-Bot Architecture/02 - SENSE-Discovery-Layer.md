@@ -5,7 +5,7 @@ status: active
 layer: 02
 tags: [mining, architecture, coin-hunter, discovery]
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-18
 ---
 
 # لایه ۲ — کشف / SENSE (خط‌لوله‌ی کاندیدایابی)
@@ -29,7 +29,7 @@ updated: 2026-07-14
 
 ---
 
-## ۲. معماری اجرایی تحت Regime A (پیش‌فرضِ الزام‌آور، AUD 0)
+## ۲. معماری اجرایی تحت Regime A (قفل‌شده — owner-confirmed 2026-07-18، D-006؛ AUD 0)
 
 کل SENSE روی **OPI Automation Hub** اجرا می‌شود (جزئیات زیرساخت: [[07 - SUBSTRATE-Fleet-Hub-and-Infra]]) — هیچ VPS، هیچ per-call API متِر‌شده، هیچ سابسکریپشن پولی. [SPEC]
 
@@ -42,7 +42,7 @@ updated: 2026-07-14
 
 > **قیدهای سختِ اعمال‌شده در SENSE (hard-rule guardrails):**
 > - **R1 (AUD 0):** هیچ sensor به‌صورت پیش‌فرض هزینه‌ی ماهانه نمی‌سازد. اگر free-tier یک منبع (به‌ویژه LunarCrush) در عمل پولی/حذف شد، آن sensor **خودکار** به `regime_b_only=true` (owner-gated) می‌افتد و تا وردیکتِ مالک خاموش می‌ماند؛ هرگز به‌صورت خاموش‌وار به حالتِ پولی سُر نمی‌خورد. [SPEC]
-> - **R3 (بدون باینریِ ناشناخته روی ماشین اصلی):** SENSE فقط **متادیتای ریلیز/چنج‌لاگ** ماینرها (SRBMiner/XMRig/cpuminer-opt) را از GitHub API می‌خواند؛ هیچ باینریِ ماینری روی OPI Hub دانلود یا اجرا نمی‌شود. اجرای هر ماینر فقط در fleet/sandbox با build-from-source/verify (لایه ۴). [SPEC]
+> - **R3 (بدون باینریِ ناشناخته روی ماشین اصلی):** SENSE فقط **متادیتای ریلیز/چنج‌لاگ** ماینرها (SRBMiner/XMRig/cpuminer-opt) را از GitHub API می‌خواند؛ هیچ باینریِ ماینری روی OPI Hub دانلود یا اجرا نمی‌شود. اجرای هر ماینر فقط در fleet/sandbox با build-from-source/verify (لایه ۶ — ACT). [SPEC]
 > - **R5 (بدون نقضِ ToS/سیبیل):** scraperها (bitcointalk/MiningPoolStats/CryptoMiso/Nitter) `robots.txt`، سقفِ نرخ و ToSِ منبع را رعایت می‌کنند؛ اگر ToSِ منبعی دسترسیِ خودکار را ممنوع کند، آن sensor owner-gated می‌شود، نه پیش‌فرض. چرخشِ نمونه‌های عمومیِ Nitter صرفاً برای تاب‌آوری در برابرِ mirrorهای شکننده است، نه برای دورزدنِ سقفِ نرخ؛ هیچ چرخشِ IP/حساب برای فرار از rate-limit انجام نمی‌شود. [SPEC]
 > - **R4/امنیت:** فیلدِ `auth` در هر sensor فقط یک **ارجاعِ نام‌دار** به رازِ ذخیره‌شده در secret store/env است؛ مقدارِ واقعیِ توکن هرگز داخلِ YAML یا هیچ فایلِ دیگری نوشته نمی‌شود.
 > - **R7/R8:** SENSE فقط رکوردِ intake تولید می‌کند — نه حذف، نه معامله، نه انتقالِ وجه، نه اتصال به سخت‌افزار. تعهد به هر کوینِ تازه از **گیتِ انسانیِ حاکمیت** (لایه ۱) عبور می‌کند؛ تولیدِ یک رکوردِ intake هرگز به‌تنهایی spend/commit را trigger نمی‌کند.
@@ -97,7 +97,7 @@ flowchart LR
 [FACT] الگوریتم‌های CPU تازه (مثل `randomalpha`، `randomjuno`، `yespowereqpay`) در چنج‌لاگ SRBMiner-Multi ظاهر می‌شوند؛ **فرضیه‌ی آلفا** این است که این ظهور معمولاً **پیش از توجهِ عمومیِ بازار** رخ می‌دهد [EST — فرضیه، نه قطعیت]. مکانیزم: هر ۲۰ دقیقه ریلیزِ `doktor83/SRBMiner-Multi` را با conditional-request (ETag → 304 = بدون کار) می‌گیریم، لیست `ALGORITHMS` را با نسخه‌ی قبلی diff می‌گیریم؛ هر الگوریتمِ **اضافه‌شده** یک event تولید می‌کند. این event خودش یک کوین نیست، بلکه یک *lead*: بلافاصله bitcointalk/MiningPoolStats را برای کوینی که آن الگوریتم را ادعا می‌کند جستجو می‌کنیم. این مستقیماً پنجره‌ی difficulty-arbitrage را باز می‌کند. توجه (R3): در این مرحله فقط **متادیتای ریلیز** خوانده می‌شود؛ باینریِ SRBMiner نه دانلود می‌شود نه اجرا. [SCOUT-B B?] — این یافته در SCOUT-B «killer feature» نامیده شده.
 
 ### ۴.۲ XMRig + cpuminer-opt releases (fast lane)
-پشتیبانیِ یک الگوریتم تازه در `xmrig/xmrig` یا `JayDDee/cpuminer-opt` یعنی «working open-source miner وجود دارد» — که یکی از **گیت‌های سخت** CORE_PRINCIPLES است. این استنتاج فقط از روی release-notes انجام می‌شود؛ هیچ باینری‌ای روی Hub اجرا نمی‌شود (R3 — تأییدِ اجرایی فقط در fleet/sandbox، لایه ۴). اگر minerِ اپن‌سورس نباشد، کوین در همان SENSE پرچمِ `closed_source_miner` می‌خورد و در intake با `algo_cpu_flag=unknown` وارد می‌شود تا SCORE ردش کند.
+پشتیبانیِ یک الگوریتم تازه در `xmrig/xmrig` یا `JayDDee/cpuminer-opt` یعنی «working open-source miner وجود دارد» — که یکی از **گیت‌های سخت** CORE_PRINCIPLES است. این استنتاج فقط از روی release-notes انجام می‌شود؛ هیچ باینری‌ای روی Hub اجرا نمی‌شود (R3 — تأییدِ اجرایی فقط در fleet/sandbox، لایه ۶ — ACT). اگر minerِ اپن‌سورس نباشد، کوین در همان SENSE پرچمِ `closed_source_miner` می‌خورد و در intake با `algo_cpu_flag=unknown` وارد می‌شود تا SCORE ردش کند.
 
 ### ۴.۳ CoinGecko new + market filter (fast lane)
 لیستینگ‌های تازه + فیلتر بازار `$50k ≤ mcap ≤ $50M` و `age ≤ 90d` (بندِ فیلتر = پارامترِ طراحی) [SPEC]. [FACT] free-tier با نرخ محدود؛ demo-key رایگان است و صرفاً سقف نرخ را بالا می‌برد (بدون هزینه‌ی ماهانه) — سازگار با Rule 1. کوین‌های مشهور (XMR/BTC/LTC/DOGE/ZEC/DASH/RVN/ETC) در همین‌جا با یک allow-block لیست حذف می‌شوند تا وارد رجیستر نشوند.
@@ -181,6 +181,9 @@ CREATE TABLE candidate_intake (
 CREATE INDEX ON candidate_intake (status, first_seen_ts);
 ```
 
+> **`candidate_intake` = جدولِ STAGING (نه ماخذِ حالت):** اسکیمای مرجعِ persistence و ENUMِ canonical برای `candidate_state` در [[10 - DATA-STATE-and-SCHEMA]] تعریف شده؛ اینجا برای زمینه بازتولید شده. **مسیرِ promotion:** هر رکوردِ intake که Tier1 Scout در [[03 - SCORE-Screening-and-Forensics]] triage کند، از این جدولِ staging به جدولِ canonicalِ `candidates` (اونِ [[10 - DATA-STATE-and-SCHEMA]]) با کلیدِ `coin_uid` ارتقا می‌یابد.
+> **نگاشتِ نام‌های حالت به ENUMِ canonical** (`discovered → limbo(limbo_until) → screening → rejected|watchlist → approved → mining → holding → exited`): مقدارِ محلیِ `new` = **`discovered`** و `limbo_7d` = **`limbo`** (با فیلدِ `limbo_until`)؛ این نام‌های staging در لحظه‌ی promotion به ENUMِ canonicalِ [[10 - DATA-STATE-and-SCHEMA]] ترجمه می‌شوند، نه اینکه ENUMِ جدیدی اختراع شود.
+
 نکته‌ی `algo_cpu_flag`: با احتیاطِ SCOUT-B، ادعای «RandomX = CPU-only» دیگر مطلق نیست (Bitmain X5/X9). [FACT] پس کوینی که فقط ادعای RandomX دارد `claimed_cpu` می‌گیرد نه `verified_cpu`؛ yespower/yescrypt/GhostRider در intake رتبه‌ی CPU-durability بالاتر می‌گیرند. تأییدِ نهایی در SCORE.
 
 ---
@@ -223,4 +226,4 @@ CREATE INDEX ON candidate_intake (status, first_seen_ts);
 - **Adversarial defenses**: injection sanitiser, cross-source triangulation, 7-day LIMBO.
 - **Cost-regime axis** و **LOCKED HARD RULES R1/R3/R4/R5/R7/R8** برای قیدهای Regime-A، بدونِ باینریِ ناشناخته روی ماشین اصلی، بدونِ راز در فایل، و بدونِ ToS-violation.
 - ingest:critique §۴ (Coin Hunter Bot infra: Hetzner + local Qwen، سه‌لایه رمزنگاری) — پایه‌ی نگاشتِ Regime B.
-- خواهرها: [[00 - MASTER-ARCHITECTURE]] · [[01 - GOVERNANCE-and-SAFETY]] · [[03 - SCORE-Screening-and-Forensics]] · [[06 - ACT-Fleet-Execution-and-Orchestration]] · [[04 - Adversarial-Defense-and-Antifragility]] · [[07 - SUBSTRATE-Fleet-Hub-and-Infra]]
+- خواهرها: [[00 - MASTER-ARCHITECTURE]] · [[01 - GOVERNANCE-and-SAFETY]] · [[03 - SCORE-Screening-and-Forensics]] · [[06 - ACT-Fleet-Execution-and-Orchestration]] · [[04 - Adversarial-Defense-and-Antifragility]] · [[07 - SUBSTRATE-Fleet-Hub-and-Infra]] · [[10 - DATA-STATE-and-SCHEMA]]

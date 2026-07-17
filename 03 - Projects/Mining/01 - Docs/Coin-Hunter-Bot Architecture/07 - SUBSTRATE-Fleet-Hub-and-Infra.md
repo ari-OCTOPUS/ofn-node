@@ -5,20 +5,22 @@ status: active
 layer: 07
 tags: [mining, architecture, coin-hunter, substrate]
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-18
 ---
 
 # لایه ۷ — بستر: ناوگان، هاب و زیرساخت (Substrate)
 
 این لایه، «بدن سخت‌افزاری» شکارچی کوین است: رجیستری ناوگان فیزیکی، هاب اتوماسیون OPI که مغز و پایپ‌لاین روی آن اجرا می‌شوند، و قیدهای فیزیکی (توان، حرارت، فرسایش eMMC) که هیچ لایه نرم‌افزاری نمی‌تواند دور بزند. حلقهٔ کنترل SENSE→SCORE→ACT (سیبلینگ) روی این بستر می‌نشیند؛ ایزوله‌سازی باینری (R3) و رمزنگاری سه‌لایه با [[10 - DATA-STATE-and-SCHEMA]] هم‌مرز است؛ بهینه‌سازی فنی ماینینگ RK3588 در [[06 - ACT-Fleet-Execution-and-Orchestration]] عمیق‌تر باز شده. اینجا فقط بستر را می‌سازیم.
 
-> اصل حاکم بر کل لایه: **محور رژیم هزینه**. پیش‌فرض و الزام فعلی = **Regime A (نقد صفر / AUD-0)** طبق Hard Rule 1؛ هر عنصر Regime B (Hetzner + ابر پولی) به‌صراحت **owner-gated OFF** علامت خورده و هرگز مسیر پیش‌فرض نیست. جزئیات حاکمیتی در [[01 - GOVERNANCE-and-SAFETY]].
+> اصل حاکم بر کل لایه: **رژیم هزینه قفل‌شده است**. پیش‌فرض و الزامِ **owner-confirmed / binding (D-006، تأیید مالک ۲۰۲۶-۰۷-۱۸)** = **Regime A (نقد صفر / AUD-0)** طبق Hard Rule 1؛ هر عنصر Regime B (Hetzner + ابر پولی) **خفته و owner-gated OFF** است و فعال‌سازی‌اش به یک **رأی جدید** مالک نیاز دارد؛ هرگز مسیر پیش‌فرض نیست. جزئیات حاکمیتی در [[01 - GOVERNANCE-and-SAFETY]].
 
 ---
 
 ## ۱. رجیستری سخت‌افزار (Hardware Registry)
 
 منبعِ حقیقتِ واحد برای «چه چیزی داریم و هرکدام چه نقشی دارد». دو سند منبع اعداد ناسازگار می‌دهند؛ رجیستری این ناسازگاری را **پنهان نمی‌کند** بلکه به‌عنوان [OPEN] ثبت می‌کند تا با موجودی فیزیکی مچ شود.
+
+> **این سند = مالکِ canonical شمارشِ ناوگان.** هر ذکر دیگری از تعداد نود در سایر لایه‌ها باید به اینجا ارجاع دهد، نه بازتعریف. تطبیقِ واحد: فرضِ معماری ۱۶–۵۰ Orange Pi 5 + ۵۰–۲۰۰ ESP32 + FPGAِ پارک؛ تحقیقِ solar-swarm ۱۶ Pi + ۱۴۰ ESP32 + ۲ FPGA؛ «۶ نود» کهنهٔ Hcash؛ رقمِ فیزیکیِ نهایی [OPEN] تا رجیستریِ مالک — OQ #۶ به شماره‌گذاریِ نوتِ vault ([[03 - Projects/Mining/OpenQuestions|OpenQuestions]])، D-007؛ در فضای OQ داخلیِ [[11 - BUILD-ROADMAP-and-Sequencing]] همین پرسش OQ-1 است.
 
 ### ۱.۱ جدول تطبیق شمارش (canonical view)
 
@@ -207,9 +209,11 @@ recover:  "current_price_kwh < 0.045 OR power_source == 'solar'"  # هیسترز
 
 ---
 
-## ۷. رژیم هزینهٔ زیرساخت — صریح و پیش‌فرض‌محور
+## ۷. رژیم هزینهٔ زیرساخت — قفل‌شده (owner-confirmed)
 
-| مؤلفه | **Regime A — AUD-0 (پیش‌فرض، الزام‌آور)** | **Regime B — Managed/Paid (owner-gated OFF)** |
+> رژیم هزینه **قفل‌شده** است: Regime A طبق تأیید مالک (۲۰۲۶-۰۷-۱۸، **D-006**) الزام‌آور و پیش‌فرض است؛ Regime B **خفتهٔ owner-gated OFF** — فعال‌سازی نیازمند یک **رأی جدید** مالک است و مسیر پولی هرگز پیش‌فرض نیست.
+
+| مؤلفه | **Regime A — AUD-0 (پیش‌فرض، الزام‌آور، قفل‌شده D-006)** | **Regime B — Managed/Paid (خفته، owner-gated OFF)** |
 |---|---|---|
 | هاب | یک Orange Pi 5 Plus موجود مالک | Hetzner CCX + RunPod burst |
 | بکاپ/رِپلیکا | **نود Pi دومِ محلی / سخت‌افزار آفلاین** | replica ابری + satellite-brain روی VPS |
@@ -236,7 +240,7 @@ recover:  "current_price_kwh < 0.045 OR power_source == 'solar'"  # هیسترز
 1. راستی‌آزمایی موجودی فیزیکی: شمارش واقعی OPi5/ESP32/FPGA و روشن‌کردن «۶ نود Hcash». (تضاد handoff↔Plan v0.1)
 2. تصمیم Plan v0.1 §9: ارکستراسیون روی یک نود اختصاصی OPi یا always-on box؟
 3. RAM هاب: نسخهٔ ۴GB برای Postgres+Redis+Nomad+Podman تنگ است → پیشنهاد ۸–۱۶GB variant (اگر مستلزم خرید برد جدید باشد، **hardware purchase یک‌باره و owner-gated طبق R1** — نه مسیر پیش‌فرض؛ گزینهٔ AUD-0 = standalone بند ۵ روی برد موجود). [SPEC]
-4. اوراکل قیمت توان برای HALT در حالت شبکه (ورودی دستی vs حسگر). 
+4. اوراکل قیمت توان برای HALT در حالت شبکه (ورودی دستی vs حسگر).
 5. جداسازی cold-storage/opsec (hardware/paper/multi-sig) — تحویل به [[10 - DATA-STATE-and-SCHEMA]].
 
 ---
@@ -248,4 +252,4 @@ recover:  "current_price_kwh < 0.045 OR power_source == 'solar'"  # هیسترز
 - **INGEST ingest:critique §4** (سخت‌افزار): تضاد شمارش handoff (۱۶–۵۰ / ۵۰–۲۰۰ / ۲×۲۰۰T+۱×۱۰۰T PARKED) در برابر Plan v0.1 (۱۷ OPi5 Pro / ۱۳۰ ESP32 / ۴× Artix-7)، تضاد مالک Cordelia↔Armin، لبهٔ برق <$0.05/kWh.
 - **INGEST ingest:critique §5/§7**: انبار سه‌لایهٔ رمزنگاری‌شده (SQLite+SQLCipher / MinIO+age / rclone crypt)، هزینهٔ ~$80–150/ماه به‌عنوان تعارض AUD-0.
 - **LOCKED HARD RULES R1–R8** و **SIX DESIGN PRINCIPLES 4/5** و **محور رژیم هزینه A/B** از بریف مشترک.
-- سیبلینگ‌ها: [[01 - GOVERNANCE-and-SAFETY]]، [[00 - MASTER-ARCHITECTURE]]، [[10 - DATA-STATE-and-SCHEMA]]، [[06 - ACT-Fleet-Execution-and-Orchestration]].
+- سیبلینگ‌ها: [[01 - GOVERNANCE-and-SAFETY]]، [[00 - MASTER-ARCHITECTURE]]، [[10 - DATA-STATE-and-SCHEMA]]، [[06 - ACT-Fleet-Execution-and-Orchestration]]، [[04 - Adversarial-Defense-and-Antifragility]]، [[05 - AGENT-BRAIN-Decision-Layer]].

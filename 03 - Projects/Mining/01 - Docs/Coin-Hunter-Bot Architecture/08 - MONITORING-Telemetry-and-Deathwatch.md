@@ -5,7 +5,7 @@ status: active
 layer: 08
 tags: [mining, architecture, coin-hunter, telemetry]
 created: 2026-07-14
-updated: 2026-07-14
+updated: 2026-07-18
 ---
 
 # لایه ۸ — پایش، تله‌متری و Death-watch
@@ -30,7 +30,8 @@ flowchart LR
   end
   H[Alert evaluator<br/>fleet_metrics] --> TG
   D2[D2 abandon score] --> TG
-  T4[Tier4 drift + precision monitor] --> TG
+  AB[AGENT-BRAIN 05<br/>Tier4 weekly drift] --> T4[Tier4 drift + precision monitor]
+  T4 --> TG
   H -->|CRITICAL| KS[(STOP flag)]
   KS --> MINERS[all miners down]
   TG[tg-ops Telegram] --> OP((Human verdict))
@@ -43,7 +44,7 @@ flowchart LR
 
 ## ۲. رژیم هزینه (Cost regime)
 
-- **Regime A (پیش‌فرض، AUD 0):** کل estack پایش روی ناوگانِ خودِ اپراتور خودمیزبان است — Beszel-hub، XMRigCC server، HEALTHD و tg-ops همه روی همان Orange Pi 5 Plus هابِ [[07 - SUBSTRATE-Fleet-Hub-and-Infra]] اجرا می‌شوند. هیچ Grafana Cloud / Datadog / هیچ سرویسِ alertِ پولی. dead-man's-switch از یک دستگاهِ دومِ محلی (Pi یدکی یا تلفنِ اپراتور) پینگ می‌گیرد. [SPEC]
+- **Regime A (قفل‌شده، owner-confirmed 2026-07-18، D-006 binding، AUD 0):** کل estack پایش روی ناوگانِ خودِ اپراتور خودمیزبان است — Beszel-hub، XMRigCC server، HEALTHD و tg-ops همه روی همان Orange Pi 5 Plus هابِ [[07 - SUBSTRATE-Fleet-Hub-and-Infra]] اجرا می‌شوند. هیچ Grafana Cloud / Datadog / هیچ سرویسِ alertِ پولی. dead-man's-switch از یک دستگاهِ دومِ محلی (Pi یدکی یا تلفنِ اپراتور) پینگ می‌گیرد. [owner-confirmed · D-006 · binding]
 - **Regime B (owner-gated، پیش‌فرض OFF):** افزودنِ healthchecks/Grafana-Cloud میزبان‌شده برای پایش 24/7 مستقل از هاب. هر عنصرِ Regime-B اینجا صریحاً OFF است و نقض R1 محسوب می‌شود مگر با verdict مالک. رجوع به [[00 - MASTER-ARCHITECTURE]].
 
 ## ۳. Stack تله‌متریِ ناوگان
@@ -100,6 +101,8 @@ CREATE TABLE system_flags (
 );
 ```
 
+> **اسکیمای مرجع در [[10 - DATA-STATE-and-SCHEMA]]؛ اینجا برای زمینه بازتولید شده.**
+
 retention: `fleet_metrics` خامِ ثانیه‌ای ۱۴ روز، سپس continuous-aggregate ساعتی برای ۱ سال (فشرده‌سازیِ Timescale). [SPEC]
 
 ## ۵. کاتالوگِ کاملِ شرایطِ Alert
@@ -121,7 +124,7 @@ retention: `fleet_metrics` خامِ ثانیه‌ای ۱۴ روز، سپس conti
 | Disk full | `disk_pct > 90` | WARN | چرخشِ log | [SPEC] |
 | **Power regime breach** | برآوردِ effective `$/kWh > 0.05` | CRITICAL | HALT-candidate + انسان (R2) | [SPEC] |
 | Coin D2 fired | `d2_score ≥ 0.6` | WARN | ABANDON_PROPOSED به انسان | [SPEC] |
-| Trading halted | `vol_24h < MIN` یا halt `≥ 3` روز | CRITICAL | تغذیه‌ی liquidity_death در D2 | [FACT] |
+| Trading halted | `vol_24h < MIN_VOL` یا halt `≥ 3` روز | CRITICAL | تغذیه‌ی liquidity_death در D2 | [FACT] |
 | Data integrity | واگراییِ منابع `> 30%` | CRITICAL | DATA_INTEGRITY_ALERT، میانگین نگیر | [FACT] |
 | Drift HIGH | هر محورِ Tier4 = HIGH | CRITICAL | `recommendations_paused=true` | [SPEC] |
 | Precision drop | precision@6mo افتِ `> 20%` در پنجره‌ی ۳۰ روزه | CRITICAL | auto-rollbackِ آخرین self-mod | [FACT] |
@@ -189,6 +192,8 @@ routing: WARN → digestِ روزانه؛ CRITICAL → push فوری. cooldown p
 
 ## ۹. Death-watch کوین و سیگنالِ D2
 
+> **مالکِ قاعده‌ی canonical:** این لایه (۰۸) صاحبِ قاعده‌ی مرجعِ Death-watch abandon است — **d2_scoreِ وزنی ≥ 0.6 → ABANDON_PROPOSED**. تله‌متریِ death-watch اینجا مالک است؛ سایر لایه‌ها (از جمله [[03 - SCORE-Screening-and-Forensics]]) باید به این قاعده ارجاع دهند، نه بازتعریفِ قاعده‌ی ناسازگار.
+
 ورودی‌ها (هر ۶–۲۴ ساعت، dedup + cite هر منبع):
 
 - **dev-activity:** CryptoMiso (رتبه‌بندیِ commit-activity = پراکسیِ بقا) + GitHub API. `last_commit_age_d > 30` = red-flagِ CORE_PRINCIPLES.
@@ -211,6 +216,8 @@ def d2(c):
 # score >= 0.6 → ABANDON_PROPOSED(evidence) ؛ هرگز auto-abandon (R8، verdict انسانی)
 ```
 
+> [OPEN — Round 2] فرمول‌های `decay()` / `hashrate_decay()` / `vol_decay()` / `community_decay()` و رتبه‌بندیِ `confidence()`، به‌همراه مقدارِ آستانه‌ی `MIN_VOL` و پنجره‌ی halt، هنوز تعریف نشده‌اند — calibration-deferred (پس از اولین سبدِ واقعی کالیبره می‌شود).
+
 - **خروجی = فقط پیشنهاد.** D2 یک ردیفِ `abandon_proposals` با evidence-dossier (منبع‌دار، confidence صریح، دوزبانه) می‌سازد و به `/verdict` می‌فرستد. باتِ هرگز خودش کوین را ترک نمی‌کند و بگ را نمی‌فروشد.
 - **اختیاریِ flag-gated (پیش‌فرض OFF):** با `D2_AUTOPAUSE_HASH=on` مینینگِ آن کوین موقتاً pause می‌شود (برگشت‌پذیر، loggedِ محافظه‌کارانه) تا رأی برسد؛ بازتخصیصِ hashpower به [[06 - ACT-Fleet-Execution-and-Orchestration]].
 - **حلقه‌ی ضدِ survivorship (FLAW 1):** هر کوینی که انسان ABANDON را approve کند، snapshotِ کاملِ ۹۰-روزِ نخستش + timestampِ مرگ به دیتاستِ `dead_coins` بایگانی می‌شود که hidden-test-setِ [[04 - Adversarial-Defense-and-Antifragility]] از آن تغذیه می‌شود.
@@ -230,6 +237,8 @@ CREATE TABLE abandon_proposals (
   verdict_by text, verdict_ts timestamptz );
 ```
 
+> **اسکیمای مرجع در [[10 - DATA-STATE-and-SCHEMA]]؛ اینجا برای زمینه بازتولید شده.**
+
 ## ۱۰. Drift-detection از Tier4
 
 Tier4 (هفتگی) پنج محورِ drift را می‌سنجد و به این لایه می‌دهد؛ ما آن‌ها را به alert و soft-halt تبدیل می‌کنیم:
@@ -238,6 +247,8 @@ Tier4 (هفتگی) پنج محورِ drift را می‌سنجد و به این �
 - هر HIGH → `DRIFT_ALERT` + ست‌کردنِ `recommendations_paused=true` (توقفِ ACCUMULATEهای **جدید** تا بازبینیِ انسانی). این soft-kill-switchِ مغز است، در برابرِ hard-kill-switchِ ماینرها.
 - **precision monitor:** این لایه precision@6mo را در پنجره‌ی چرخانِ ۳۰ روزه محاسبه می‌کند؛ افتِ `> 20%` → **auto-rollbackِ آخرین self-mod** (قاعده‌ی immutableِ CORE) + tg CRITICAL. رجوع به [[05 - AGENT-BRAIN-Decision-Layer]].
 - **regressِ بی‌نهایت (FLAW §5.1):** چیزی driftِ خودِ Tier4 را نمی‌بیند جز انسان — پس گزارشِ drift همیشه به اپراتور می‌رود و یک چکِ «Tier4 self-consistency» تجمعِ ویرایش‌های `tactics.yaml` را می‌سنجد؛ اگر آستانه‌ها در ۹۰ روز جمعاً `> X%` جابه‌جا شدند → flag برای انسان. [SPEC]
+
+> [OPEN — Round 2] آستانه‌ی «Tier4 self-consistency» (جابه‌جاییِ تجمعیِ `> X%` در ۹۰ روز) هنوز کمّی نشده — calibration-deferred.
 
 ## ۱۱. چک‌لیستِ روزانه‌ی ۲-دقیقه‌ای
 
@@ -287,4 +298,4 @@ Tier4 (هفتگی) پنج محورِ drift را می‌سنجد و به این �
 - **Tier4 drift axes** + **adversarial defenses** (DATA_INTEGRITY_ALERT، cross-source triangulation > 30%).
 - **Seven structural flaws** (FLAW 1 survivorship → dead_coins dataset؛ FLAW 5 preference-falsification → تخفیفِ وزنِ social).
 - **Handoff context** (Wownero trading-halt ~۲۲ روز → «C64 veto» / exit-liquidity).
-- خواهرلایه‌ها: [[01 - GOVERNANCE-and-SAFETY]] · [[00 - MASTER-ARCHITECTURE]] · [[05 - AGENT-BRAIN-Decision-Layer]] · [[06 - ACT-Fleet-Execution-and-Orchestration]] · [[04 - Adversarial-Defense-and-Antifragility]] · [[07 - SUBSTRATE-Fleet-Hub-and-Infra]].
+- خواهرلایه‌ها: [[01 - GOVERNANCE-and-SAFETY]] · [[00 - MASTER-ARCHITECTURE]] · [[03 - SCORE-Screening-and-Forensics]] · [[05 - AGENT-BRAIN-Decision-Layer]] · [[06 - ACT-Fleet-Execution-and-Orchestration]] · [[04 - Adversarial-Defense-and-Antifragility]] · [[07 - SUBSTRATE-Fleet-Hub-and-Infra]] · [[10 - DATA-STATE-and-SCHEMA]].
