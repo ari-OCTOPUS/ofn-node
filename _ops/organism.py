@@ -405,6 +405,17 @@ def main() -> int:
                 daily = {"fitness_authoritative": fit["authoritative"],
                          "sigma": rep["sigma"]["sigma_effective"],
                          "sigma_zone": rep["sigma"]["zone"]}
+                # B1 (تری‌اسکن 2026-07-17): verifyِ زنجیرهٔ هشِ لجر — فقط‌خواندنی، روزی یک‌بار.
+                # هرگز لجر را تغییر نمی‌دهد (قانونِ ژنوم)؛ دستکاری → alert، نه crash. تا امروز
+                # verify فقط در callerهای import‌نشده بود؛ حلقهٔ زنده هرگز چک نمی‌کرد.
+                try:
+                    _lok, _lreason = opslib.genome_ledger().verify()
+                    daily["ledger_ok"] = bool(_lok)
+                    if not _lok:
+                        opslib.alert([f"GENOME LEDGER verify FAILED: {_lreason}"])
+                except Exception as _lve:  # noqa: BLE001 — verify نباید tick را بکشد
+                    daily["ledger_ok"] = None
+                    opslib.alert([f"ledger verify error (non-fatal): {type(_lve).__name__}"])
                 opslib.ledger_note("ORGANISM_DAILY", {
                     "month_aud": snap["month"]["aud"],
                     "suspects": snap["suspect_zero_total"],

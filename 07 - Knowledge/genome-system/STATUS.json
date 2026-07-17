@@ -1,9 +1,10 @@
 {
   "system": "genome-system",
   "version": "0.4.3",
-  "updated": "2026-07-06",
-  "status": "active",
-  "epistemic_status": "canonical",
+  "updated": "2026-07-17",
+  "status": "retired",
+  "epistemic_status": "retired",
+  "retired_note": "Retired 2026-07-17 (tri-scan): the self-improving genome-LOOP app (run.py/research_loop.py/agents) is dead — zero _ops importers, no scheduled task, last agent write 2026-07-06. The genome LEDGER at ledger/ledger.jsonl remains LIVE, consumed by _ops/budget/opslib.genome_ledger(); this retirement scopes ONLY the loop app, NOT the directory or the ledger.",
   "location": "07 - Knowledge/genome-system",
   "one_line": "Safe self-improving local-first knowledge system. Propose-only. Expensive intelligence at rare decision points; everything routine is cheap and event-driven.",
   "invariants": [

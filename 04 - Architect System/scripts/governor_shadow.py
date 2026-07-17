@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 governor_shadow.py — سرپرستِ shadow: می‌خواند، چک می‌کند، گزارش می‌دهد. صفر اعمال، صفر LLM، $0.
-هر تیک: kill-check → heartbeat(سطرِ خودش) → dashboard_doctor → genome_guard → backup flags → budget.
+هر تیک: kill-check → heartbeat(سطرِ خودش) → dashboard_doctor → backup flags → budget.
 هر خطای اجرای دکتر/گارد = alert (منشور §۴: خطای خاموش = شدیدترین باگ).
 تست‌شده در سندباکس (integration): healthy=ok · tampered=alert · doctor-crash=alert · low-health=alert · STOP=halted.
 status: propose. زمان‌بندی: Task Scheduler هر ~۱۵ دقیقه (SETUP-README).
@@ -51,11 +51,8 @@ def main():
         a.append("doctor FAILED to run")
     elif doc.get("effective_score", 100) < 70:
         a.append(f"health effective_score={doc.get('effective_score')}")
-    gen = run_json([sys.executable, str(SCRIPTS / "genome_guard.py")])
-    if not isinstance(gen, dict) or gen.get("_error") or gen.get("error"):
-        a.append("genome_guard FAILED to run")
-    elif gen.get("genome_ok") is False:
-        a.append("GENOME unapproved change: " + str([f.get('file') for f in gen.get('findings', [])]))
+    # genome_guard.py بازنشسته و به _Archive منتقل شد (تری‌اسکن 2026-07-17): همیشه exit(2)
+    # می‌داد (GENOME-LOCK.json هرگز init نشد) و صفر callerِ زنده داشت جز همین خطِ مرده.
     if (OPS / "backup" / "FAILED.flag").exists():
         a.append("backup FAILED flag present")
     try:

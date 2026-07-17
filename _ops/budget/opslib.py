@@ -37,8 +37,11 @@ DEBATE_DIR = OPS / "debate"
 ARCHITECT  = ORG_ROOT / "04 - Architect System"
 SCRIPTS    = pathlib.Path(os.environ.get("SCRIPTS_DIR", str(ARCHITECT / "scripts")))
 PROMPTS    = ARCHITECT / "prompts"
-GENOME_DIR = pathlib.Path(os.environ.get("GENOME_DIR",
-                                         str(ORG_ROOT / "07 - Knowledge" / "genome-system")))
+# C1 (تری‌اسکن 2026-07-17): مسیرِ لجرِ ژنوم به absolute canonical پین شد تا worktreeی با
+# ORG_ROOTِ متفاوت لجرِ زنده را fork نکند. arm env همان اول است (تستِ harness که GENOME_DIR
+# را به sandbox می‌برد هنوز برنده است). لیترالِ F:\backup عیناً پیش‌فرضِ ORG_ROOT (خطِ ۳۲).
+_GENOME_CANONICAL = pathlib.Path(r"F:\backup") / "07 - Knowledge" / "genome-system"
+GENOME_DIR = pathlib.Path(os.environ.get("GENOME_DIR", str(_GENOME_CANONICAL)))
 BRAIN_DIR  = pathlib.Path(os.environ.get("BRAIN_DIR",
                                          str(ORG_ROOT / "_launchpad" / "second-brain-live" / "control-brain")))
 BUDGETS_YAML   = BUDGET_DIR / "budgets.yaml"
