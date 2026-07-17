@@ -477,6 +477,14 @@ def main() -> int:
                     _doctor_result = _w.doctor_beat(_doctor_inst, _cstat.get("beat", 0))
                 except Exception:  # noqa: BLE001 — §۴: خطای خاموش ممنوع (Doctor نباید tick را بکشد)
                     opslib.alert(["doctor_beat error (non-fatal)"])
+            # ── Doctor self-knowledge (2026-07-18): «باهوش و فعال» — یادگیریِ فقط‌خواندنیِ
+            # خودِ اختاپوس با LLM. عمداً بیرونِ گیتِ _protective_skip/fear است (یادگیری ≠
+            # تغییر) و در threadِ daemon اجرا می‌شود، پس نه tick را بلاک می‌کند نه ترس قفلش
+            # می‌کند. flag خاموش (پیش‌فرض) → no-op.
+            try:
+                _w.doctor_selfknowledge_beat(beat=_cstat.get("beat", 0) if _cstat else 0)
+            except Exception as _ske:  # noqa: BLE001 — خودشناسی نباید tick را بکشد
+                opslib.alert([f"doctor_selfknowledge_beat error (non-fatal): {type(_ske).__name__}"])
             # ── M (P-M2): canonical consolidation در حلقهٔ زنده (هر N beat، پشتِ flag)
             # یک مسیرِ حافظهٔ واحد — منبعِ School را می‌گنجاند. advisory فقط، صفر spend.
             if not _protective_skip and _neural_stack is not None and _cstat is not None:

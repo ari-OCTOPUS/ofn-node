@@ -517,6 +517,32 @@ def doctor_beat(doctor, beat: int, trace: dict | None = None) -> dict | None:
         return None
 
 
+def doctor_selfknowledge_beat(beat: int = 0) -> dict | None:
+    """حلقهٔ خودشناسیِ دکتر (2026-07-18، رأی مالک «باهوش و فعال») پشتِ
+    OCTOPUS_WIRE_DOCTOR_SELFKNOW (پیش‌فرض خاموش → no-op). «به‌محضِ روشن‌شدن»: چون
+    _EPOCH_STATE در بوت صفر می‌شود، اولین tick شلیک می‌کند؛ سپس هر
+    CHRONO_DOCTOR_SELFKNOW_EVERY_N_BEATS (پیش‌فرض ۳۰ ≈ نیم‌ساعت). فقط‌خواندنی، $0 محلی
+    (Ollama/هیوریستیک)، در threadِ daemon تا tick بلاک نشود. ترس قفلش نمی‌کند: این
+    یادگیری است نه تغییر — همان چیزی که بن‌بستِ ترس را دور می‌زند."""
+    if not flag("OCTOPUS_WIRE_DOCTOR_SELFKNOW"):
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    every_n = int(os.environ.get("CHRONO_DOCTOR_SELFKNOW_EVERY_N_BEATS", "30"))
+    if not _epoch_fire("doctor_selfknow", beat, every_n):
+        return None
+    try:
+        _dp = os.path.join(os.path.dirname(os.path.abspath(__file__)), "doctor")
+        if _dp not in sys.path:
+            sys.path.insert(0, _dp)
+        import self_knowledge  # noqa: E402
+        started = self_knowledge.run_async()   # non-blocking daemon thread
+        return {"self_knowledge": "spawned" if started else "busy"}
+    except Exception as e:  # noqa: BLE001 — خودشناسی نباید ضربان را بکشد
+        opslib.alert([f"doctor_selfknowledge_beat error (non-fatal): {type(e).__name__}: {e}"])
+        return None
+
+
 def wire_proposal_buttons(*, channel=None, live_loop=None) -> bool:
     """G3 arc (ported to master 2026-07-18): هوکِ رأیِ کارتِ پیشنهاد را به کانالِ تلگرام
     وصل کن. پشتِ OCTOPUS_WIRE_PROPOSAL_BUTTONS (پیش‌فرض خاموش). با فلگ خاموش → False و
