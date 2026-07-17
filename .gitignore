@@ -77,3 +77,33 @@ _ops/OCTOPUS-flags.cmd
 
 # PII: صف/لاگ/مارکر/قفلِ write-backِ PocketSmith (tid + انتسابِ شخصیِ تراکنش) — هرگز commit نشود (RD-004)
 03 - Projects/Accounting/personal/ps-writeback-*
+
+# Project-F runtime state (content-free, but regenerated per-session — never the seed):
+#   drafts.json    = creator draft queue (fixtures/test residue)
+#   acq_queue.json = acquisition pipeline draft queue (runtime)
+#   reddit_state / channel_locks = warm-up + warning kill-switch state (runtime)
+#   cost_meter / KILL / HALT     = cockpit runtime flags
+# Uses '*' wildcard for the Persian folder name to dodge Windows unicode-normalization quirks
+# (filesystem uses one NFC spelling; git pathspec matching is byte-exact and can mismatch).
+# NOTE: langar/vault.json IS committed on purpose (brand content seed, zero PII).
+03 - Projects/*/studio/drafts.json
+03 - Projects/*/studio/to_ari.json
+03 - Projects/*/studio/for_saba.json
+03 - Projects/*/studio/capacity.json
+03 - Projects/*/studio/boundary_log.json
+03 - Projects/*/studio/HALT
+03 - Projects/*/brain/acq_queue.json
+03 - Projects/*/brain/bandit_state.json
+03 - Projects/*/brain/acquisition_memory.json
+03 - Projects/*/brain/dm_queue.json
+03 - Projects/*/brain/ab_tests.json
+03 - Projects/*/brain/lifecycle.json
+03 - Projects/*/brain/archive.json
+03 - Projects/*/langar/reddit_state.json
+03 - Projects/*/langar/channel_locks.json
+03 - Projects/*/langar/cost_meter.json
+03 - Projects/*/langar/fan_db.json
+03 - Projects/*/langar/kpi.json
+03 - Projects/*/langar/octopus.json
+03 - Projects/*/langar/KILL
+03 - Projects/*/langar/langar_log.jsonl
