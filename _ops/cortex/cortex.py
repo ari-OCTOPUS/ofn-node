@@ -37,6 +37,12 @@ JOURNAL_PATH = CORTEX_DIR / "journal.jsonl"
 STOP_CORTEX = opslib.OPS / "STOP-CORTEX"
 THINK_EVERY_N = int(os.environ.get("CORTEX_THINK_EVERY_N", "5"))
 IMPROVE_EVERY_N = int(os.environ.get("CORTEX_IMPROVE_EVERY_N", "10"))
+# OCT-CORTISOL (رأی مالک 2026-07-18 «بودجه داریم، هوشمندتر»): ورود به ترس = رویدادِ
+# مهم → سنتزِ فوریِ مغز با زمینهٔ هشدار، نه انتظار برای تایمرِ پمپ. cooldown ضدِ طوفان.
+CORTISOL_EVENTS = os.environ.get("OCTOPUS_CORTISOL_EVENTS", "0") == "1"
+CORTISOL_COOLDOWN_S = float(os.environ.get("OCTOPUS_CORTISOL_COOLDOWN_S", "14400"))
+CORTISOL_PATH = CORTEX_DIR / "cortisol-state.json"
+ACT_WORK_LLM = opslib.OPS / "ACTIVATION-WORK-LLM.flag"   # همان قفلِ لِینِ کاریِ پمپ
 DEFAULT_PERIOD_S = float(os.environ.get("CORTEX_PERIOD_S", "120"))
 # RC3 فیوزِ سکوتِ مرگ (پیش‌فرض خاموش): وقتی مغز می‌داند مریض است (coherence پایین /
 # اعضای کهنهٔ زیاد)، به governor-alerts خبر بده تا مالک بشنود.
@@ -172,6 +178,83 @@ def business_brain_run(cycle: int) -> dict | None:
                 "n_proposals": d.get("n_proposals", 0)}
     except Exception as e:  # noqa: BLE001
         opslib.alert([f"cortex business_brain error: {type(e).__name__}: {e}"])
+        return None
+
+
+def _should_think(cycle: int) -> bool:
+    """فکرِ LLM هر THINK_EVERY_N چرخه. پیش‌فرض (۵) = رفتارِ همیشگی، بایت‌به‌بایت؛
+    deployِ مالک 2026-07-18 با CORTEX_THINK_EVERY_N=1 یعنی هر چرخه — و چون 1٪1==0،
+    خودِ چرخهٔ ۱ هم فکر می‌کند (مغز از لحظهٔ بوت گرم، نه ~۵۰ دقیقه بعد از restart)."""
+    return cycle % max(1, THINK_EVERY_N) == 0
+
+
+def cortisol_tick(cycle: int, stress_summary: dict | None) -> dict | None:
+    """OCT-CORTISOL: لحظهٔ ورود به ترس (سطحِ 🔴 یا عضوِ تازه در in_fear) → همان لحظه
+    سنتزِ مغز با زمینهٔ هشدار (synthesis.run_and_persist(extra=…)) — مصداقِ «Fugu =
+    کورتیزول برای لحظه‌های مهم»، این‌بار واقعاً رویدادمحور نه تایمرِ ۲۴ساعته.
+
+    حاکمیت: خودِ خرج همچنان پشتِ دوقفلهٔ روتر + متر organ_gate؛ این‌جا فقط ماشه +
+    همان قفلِ ACTIVATION-WORK-LLM لِینِ پمپ + cooldown (پیش‌فرض ۴h، ماندگار روی دیسک
+    تا restart دورش نزند). فقط لبهٔ ورود شلیک می‌کند — ترسِ ماندگار spam نمی‌شود.
+    flag خاموش (پیش‌فرض) = دقیقاً رفتارِ امروز. fail-soft: هر خطا فقط alert."""
+    if not CORTISOL_EVENTS or not stress_summary:
+        return None
+    try:
+        prev = _read_json(CORTISOL_PATH)
+        now_fear = set(stress_summary.get("in_fear") or [])
+        prev_fear = set(prev.get("in_fear") or [])
+        red_now = "🔴" in str(stress_summary.get("level", ""))
+        red_prev = "🔴" in str(prev.get("level", ""))
+        new_members = now_fear - prev_fear
+        # اولین مشاهده (state تازه، مثلاً wipe یا نصبِ نو) فقط baseline ثبت می‌کند —
+        # وگرنه هر بوتِ state-تازه وسطِ ترسِ مزمن = یک تماسِ پولیِ خودکار (بازبینی 07-18).
+        entered = bool(prev) and ((red_now and not red_prev) or bool(new_members))
+        state = {"ts": opslib.now_iso(), "level": stress_summary.get("level"),
+                 "in_fear": sorted(now_fear),
+                 "last_fire_ts": float(prev.get("last_fire_ts", 0.0))}
+        fired: dict | None = None
+        if entered:
+            since = time.time() - float(prev.get("last_fire_ts", 0.0))
+            gate_ok, gate_why = opslib.live_gate_open(ACT_WORK_LLM)
+            if since < CORTISOL_COOLDOWN_S:
+                fired = {"fired": False,
+                         "reason": f"cooldown {int(since)}s<{int(CORTISOL_COOLDOWN_S)}s"}
+            elif not gate_ok:
+                fired = {"fired": False, "reason": f"live-locked: {gate_why}"[:120]}
+            elif not model_router.paid_gate()[0]:
+                # دروازهٔ پولیِ خودِ روتر بسته = شلیک بی‌فایده است (سنتز به محلی/هیچ
+                # degrade می‌شد ولی cooldown می‌سوخت) — صادقانه گزارش، بدونِ سوختنِ لبه.
+                fired = {"fired": False, "reason": "paid-gate-closed (router)"}
+            else:
+                # ضدِ رگبارِ بودجه (بازبینی 2026-07-18): اولِ کار slotِ cooldown را
+                # اتمیک ثبت کن؛ اگر همین نوشتن شکست بخورد (قفل/AV)، اصلاً شلیک نکن —
+                # وگرنه last_fire_ts هرگز ذخیره نمی‌شد و هر چرخه یک تماسِ پولیِ تازه
+                # می‌رفت تا تهِ بودجهٔ ارگان (fail-closed برای خرج).
+                state["last_fire_ts"] = time.time()
+                try:
+                    CORTEX_DIR.mkdir(parents=True, exist_ok=True)
+                    with opslib.LockedJson(CORTISOL_PATH) as lj:
+                        lj.write(state)
+                except Exception as e:  # noqa: BLE001
+                    opslib.alert([f"cortex cortisol state-write failed پیش از شلیک "
+                                  f"(شلیک لغو شد): {type(e).__name__}: {e}"])
+                    return {"fired": False, "reason": "state-write-failed (no-spend)"}
+                import synthesis
+                alarm = ("ورود به ترس: "
+                         + (", ".join(sorted(new_members)) or "سطحِ کل")
+                         + f" · سطح {stress_summary.get('level')}"
+                         + f" · استرس {stress_summary.get('organism_stress')}")
+                r = synthesis.run_and_persist(extra={"alarm": alarm})
+                return {"fired": True, "trigger": alarm[:120], "ok": r.get("ok"),
+                        **({"tier": r.get("tier")} if r.get("tier") else {}),
+                        **({"n_proposals": r.get("n_proposals")}
+                           if r.get("n_proposals") is not None else {})}
+        CORTEX_DIR.mkdir(parents=True, exist_ok=True)
+        with opslib.LockedJson(CORTISOL_PATH) as lj:
+            lj.write(state)
+        return fired
+    except Exception as e:  # noqa: BLE001 — کورتیزول هرگز مغز را نمی‌کشد
+        opslib.alert([f"cortex cortisol error: {type(e).__name__}: {e}"])
         return None
 
 
@@ -311,12 +394,13 @@ def run_cycle(cycle: int) -> dict:
     sweep = registry.sweep()
     alignment = align_work_plan(sweep)
     stress_summary = stress_tick(cycle)
+    cortisol_summary = cortisol_tick(cycle, stress_summary)
     innervation_summary = innervation_tick(cycle)
     ignition_summary = ignition_tick(cycle)
     calibration_summary = calibration_tick(cycle)
     consolidate_summary = consolidate_tick(cycle)
     softwta_summary = softwta_tick(cycle)
-    thought = think(sweep, cycle) if (cycle % THINK_EVERY_N == 0) else None
+    thought = think(sweep, cycle) if _should_think(cycle) else None
     model_summary = (self_model_refresh(cycle)
                      if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
     parts_summary = (part_loops_run(cycle)
@@ -342,6 +426,7 @@ def run_cycle(cycle: int) -> dict:
         **({"part_loops": parts_summary} if parts_summary else {}),
         **({"business_brain": business_summary} if business_summary else {}),
         **({"stress": stress_summary} if stress_summary else {}),
+        **({"cortisol": cortisol_summary} if cortisol_summary else {}),
         **({"innervation": innervation_summary} if innervation_summary else {}),
         **({"ignition": ignition_summary} if ignition_summary else {}),
         **({"calibration": calibration_summary} if calibration_summary else {}),

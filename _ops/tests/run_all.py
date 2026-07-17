@@ -156,6 +156,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # 2026-07-16: جریانِ زندهٔ حسابداری — حافظهٔ ضدِ فراموشی (قواعدِ merchant از
          # تأییدها، بازتولیدپذیر، drift) + ضربانِ acct_beat (فلگ‌خاموش، سایدکار).
          "test_acct_memory.py", "test_acct_beat.py",
+         # 2026-07-18 رأی مالک «سریع‌تر + هوشمندتر» (فاز ب+الف؛ ج پارک): boot-think،
+         # گیتِ کیفیتِ محلی-اول (پایانِ گرسنگیِ Fugu)، ماشهٔ کورتیزولی (flag-off).
+         "test_brain_cortisol.py",
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",

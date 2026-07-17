@@ -82,9 +82,13 @@ def _lf_restore(mr, orig):
 
 
 def t_d_local_first_good_output_skips_paid():
-    """محلی-اول (2026-07-16): خروجیِ محلیِ باکیفیت → صفر callِ پولی + برچسبِ local_first."""
+    """محلی-اول (2026-07-16): خروجیِ محلیِ باکیفیت → صفر callِ پولی + برچسبِ local_first.
+    2026-07-18: فیکسچر «x×120» زیرِ گیتِ ساختاریِ جدید به‌درستی degenerate است —
+    جایگزین با متنِ واقعاً باکیفیت (چندواژه، غیرِ echo)؛ نیتِ تست همان است."""
     import model_router as mr
-    good = {"text": "x" * 120, "model": "qwen7b", "tier": "local", "cost_usd": 0.0}
+    good = {"text": ("پیشنهادِ نخست: سنجشِ دوره‌ایِ کیفیتِ پاسخ با معیارِ ساختاری\n"
+                     "پیشنهادِ دوم: ثبتِ نتیجه در ژورنالِ حافظه برای مرورِ هفتگی"),
+            "model": "qwen7b", "tier": "local", "cost_usd": 0.0}
     burned, orig = _lf_env(mr, good)
     try:
         r = mr.ask("synthesize", "hi", max_tokens=200)

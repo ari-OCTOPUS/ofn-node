@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -44,6 +45,43 @@ TASK_TIERS = {
     "orchestrate": "primary", "deep": "primary", "plan": "primary",
 }
 _TIER_ROLE = {"secondary": "glm", "primary": "orchestr"}   # roleهای واقعیِ budgets.yaml
+
+# نرمال‌سازی برای سنجشِ echo: اعراب/ZWNJ/RLM/گیومه حذف، فاصله فشرده — تا «قدمِ اول»
+# با «قدم اول» یکی دیده شود (مدلِ محلی موقعِ بازتاب، اعراب را می‌اندازد).
+_ECHO_STRIP = re.compile("[\\u064b-\\u0652\\u0670\\u200c\\u200f\\u00ab\\u00bb]")
+
+
+def _norm_echo(s: str) -> str:
+    return " ".join(_ECHO_STRIP.sub("", s or "").split())
+
+
+def _local_quality_ok(text: str, prompt: str, min_chars: int) -> bool:
+    """گیتِ کیفیتِ محلی-اول (رأی مالک 2026-07-18 «هوشمندتر»): طول به‌تنهایی کافی نیست.
+    جوابی که عمدتاً بازتابِ (echo) خودِ prompt/قالب یا خط‌های تکراری باشد رد می‌شود تا
+    نوبت واقعاً به ردهٔ پولی برسد — پیش از این، جوابِ آشغالِ بلندِ qwen گیتِ length-only
+    را پاس می‌کرد و Fugu ساختاراً هرگز صدا نمی‌خورد (synthesis 2026-07-17).
+    رد یا خطای گیت = همان مسیرِ پولیِ امروز (fail توی جهتِ کیفیت، نه سکوت)."""
+    t = (text or "").strip()
+    if len(t) < min_chars:
+        return False
+    p_norm = _norm_echo(prompt)
+    lines = [_norm_echo(ln) for ln in t.splitlines() if len(ln.strip()) >= 12]
+    if lines:
+        echo = sum(1 for ln in lines if ln and ln in p_norm)
+        if echo * 2 >= len(lines):        # ≥۵۰٪ خط‌ها بازتابِ خودِ prompt → طوطی، نه فکر
+            return False
+        if len(set(lines)) * 2 <= len(lines):   # اکثریتِ خط‌ها تکراری → degenerate
+            return False
+    # سقفِ هم‌پوشانیِ توکنی با prompt (مشخصهٔ مالک ~۰.۷): جوابی که تقریباً چیزی جز
+    # واژگانِ خودِ prompt ندارد، فکر نیست — حتی اگر خطی «عیناً» echo نباشد.
+    # کفِ واژگانِ یکتا: متنِ بلندِ کم‌واژه («بله بله بله…») degenerate است، نه جواب.
+    toks = {w for w in _norm_echo(t).split() if len(w) >= 2}
+    if len(toks) < 8:
+        return False
+    p_toks = {w for w in p_norm.split() if len(w) >= 2}
+    if len(toks & p_toks) / len(toks) > 0.7:
+        return False
+    return True
 
 
 def keys_present() -> dict:
@@ -128,19 +166,24 @@ def _scored_tier(task: str) -> str | None:
 
 
 def ask(task: str, prompt: str, system: str = "", max_tokens: int = 400,
-        tier: str | None = None, opener=None) -> dict:
+        tier: str | None = None, opener=None, quality=None) -> dict:
     """درِ واحد. خروجی همیشه dict: {ok, tier?, text?, reason?}.
     ردهٔ پولی بسته/ناموفق → local؛ local خاموش → ok=False با دلیلِ صادق.
 
     CORTEX-02: اگر پرچمِ CORTEX_ROUTE_SCORER روشن باشد و tier صریح نداده شده باشد،
     route_scorer.score_route مشورت می‌شود (fail-soft)؛ خطا/خالی → نگاشتِ ایستای
-    TASK_TIERS. پرچمِ خاموش (پیش‌فرض) = رفتار byte-identical با امروز."""
+    TASK_TIERS. پرچمِ خاموش (پیش‌فرض) = رفتار byte-identical با امروز.
+
+    quality (اختیاری): callable(text)->bool که فقط گیتِ محلی-اولِ ردهٔ secondary را
+    سخت‌گیرتر می‌کند (مثلاً synthesis حداقل ۲ پروپوزالِ واقعی می‌خواهد). None =
+    گیتِ عمومیِ _local_quality_ok. روی مسیرِ پولی/tierهای دیگر هیچ اثری ندارد."""
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
         return {"ok": False, "reason": "kill-switch"}
     want = tier
     if not want and os.environ.get("CORTEX_ROUTE_SCORER"):
         want = _scored_tier(task)
     want = want or TASK_TIERS.get(task, "local")
+    _lo_rejected = None      # جوابِ محلیِ رد-کیفیت — اگر پولی هم شکست، بهتر از هیچ
     if want in ("secondary", "primary"):
         # 2026-07-16 محلی-اول (اقتصادِ مغز، رأی مالک «محلی رایگان، پولی فقط برای کارِ بزرگ»):
         # پشتِ CORTEX_LOCAL_FIRST، ردهٔ میانی (secondary: research/synthesize/draft) اول از
@@ -152,8 +195,12 @@ def ask(task: str, prompt: str, system: str = "", max_tokens: int = 400,
                 _min_chars = int(os.environ.get("LOCAL_FIRST_MIN_CHARS", "80"))
                 _lo = local_llm.ask(prompt, system=system, max_tokens=max_tokens,
                                     opener=opener)
-                if _lo and len(str(_lo.get("text", "")).strip()) >= _min_chars:
+                # 2026-07-18 (رأی مالک «هوشمندتر»): گیتِ length-only جوابِ طوطی‌وار را
+                # پاس می‌کرد و Fugu گرسنه می‌ماند — حالا کیفیت (یا چکِ اختصاصیِ صداکننده).
+                _gate = quality or (lambda _t: _local_quality_ok(_t, prompt, _min_chars))
+                if _lo and _gate(str(_lo.get("text", ""))):
                     return {"ok": True, **_lo, "local_first": True}
+                _lo_rejected = _lo
             except Exception:  # noqa: BLE001 — محلی-اول هرگز مسیرِ پولی را نکشد
                 pass
         # 2026-07-15 key-aware: tierِ خواسته اول، بعد tierِ پولیِ دیگر — ولی فقط آن‌هایی که کلید
@@ -190,6 +237,10 @@ def ask(task: str, prompt: str, system: str = "", max_tokens: int = 400,
         fallback_reason = None
     out = local_llm.ask(prompt, system=system, max_tokens=max_tokens,
                         opener=opener)
+    if not out and _lo_rejected:
+        # rate-limit ۱۰ثانیه‌ای، callِ دومِ محلی را می‌بُرد — جوابِ رد-کیفیتِ همین چند
+        # ثانیه پیش صادقانه‌تر از «local-llm-unavailable» است (fallback_from می‌گوید چرا).
+        out = _lo_rejected
     if out:
         res = {"ok": True, **out}
         if fallback_reason:
