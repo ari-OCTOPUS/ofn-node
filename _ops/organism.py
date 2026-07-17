@@ -352,7 +352,10 @@ def main() -> int:
             _circadian_state = None
             if _rhythm is not None:
                 try:
-                    _budget_pct = snap["month"].get("musd", 0) / max(opslib.load_budgets().get("global", {}).get("cap_monthly", 30), 1)
+                    # fix (بازبینیِ خصمانهٔ 37cebf2): musd میکرو-دلار است؛ تقسیمِ مستقیم بر
+                    # سقفِ دلاری، pct را ۱۰⁶ برابر می‌کرد — اولین خرجِ paidِ ماه ریتم را
+                    # تا آخرِ ماه RED می‌چسباند. opslib.usd = مبدلِ رسمیِ میکرو→دلار.
+                    _budget_pct = opslib.usd(snap["month"].get("musd", 0)) / max(opslib.load_budgets().get("global", {}).get("cap_monthly", 30), 1)
                     _rhythm_state = _w.rhythm_beat(_rhythm, readiness=0.6,
                                                    stress=min(1.0, _budget_pct * 2),
                                                    novelty=0.3, sigma=0.5)
@@ -377,7 +380,7 @@ def main() -> int:
                         _err_rate = 0.0
                     _neural_r = _w.neural_beat(_neural_stack, _beat_n, {
                         "rhythm": _rhythm_state or pulse.get("chrono", {}),
-                        "budget": {"pct": snap["month"].get("musd", 0) / max(opslib.load_budgets().get("global", {}).get("cap_monthly", 30), 1)},
+                        "budget": {"pct": opslib.usd(snap["month"].get("musd", 0)) / max(opslib.load_budgets().get("global", {}).get("cap_monthly", 30), 1)},
                         "spectral": {"sigma": _last_sigma},
                         "sensory": {"afferent_ratio": _last_afferent_ratio,
                                     "error_rate": _err_rate},
@@ -495,8 +498,10 @@ def main() -> int:
                     # P3 (truth-map): تغذیهٔ عصبِ درد در tickهای بعدی — نسبتِ آورانِ واقعی.
                     if _aff and isinstance(_aff.get("sensory_status"), dict):
                         try:
-                            _last_afferent_ratio = float(
-                                _aff["sensory_status"].get("afferent_ratio", 1.0))
+                            _v = float(_aff["sensory_status"].get("afferent_ratio", 1.0))
+                            # NaN هر مقایسه‌ای را fail می‌کند → مقدارِ مسموم sticky نمی‌شود.
+                            if 0.0 <= _v <= 1.0:
+                                _last_afferent_ratio = _v
                         except (TypeError, ValueError):
                             pass
                 except Exception as _ae:  # noqa: BLE001 — §۴: afferent نباید tick را بکشد

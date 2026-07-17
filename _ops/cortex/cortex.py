@@ -468,7 +468,13 @@ def main() -> int:
             run_cycle(cycle)
         except Exception as e:  # noqa: BLE001 — خطای خاموش ممنوع، مرگِ حلقه هم ممنوع
             opslib.alert([f"cortex cycle error: {type(e).__name__}: {e}"])
-        period, _ = heart_rhythm_period()
+        # بازبینیِ خصمانه 2026-07-17: این تماس بیرونِ try بود — یک period_sِ آلودهٔ
+        # غیرعددی، دیمنِ کورتکس (تنها مانیتورِ مستقلِ مرگِ ارگانیسم) را می‌کشت.
+        try:
+            period, _ = heart_rhythm_period()
+        except Exception as e:  # noqa: BLE001
+            opslib.alert([f"cortex heart_rhythm_period error: {type(e).__name__}: {e}"])
+            period = 600.0
         time.sleep(period)
 
 

@@ -205,6 +205,79 @@ def t_box_trace_write_exists():
         "ردِ box باید بعد از ساختِ report نوشته شود"
 
 
+# ── فیکس‌های بازبینیِ خصمانهٔ 37cebf2 ────────────────────────────────────────
+def t_budget_pct_unit_fixed():
+    """مینِ واحد: musd (میکرو-دلار) باید قبل از تقسیم بر سقفِ دلاری تبدیل شود.
+    بدونِ این، اولین خرجِ paidِ ماه pain=1.0 و protective_halt دائمی می‌ساخت."""
+    src = (_OPS / "organism.py").read_text("utf-8")
+    assert src.count('opslib.usd(snap["month"].get("musd", 0))') == 2, \
+        "هر دو سایتِ budget_pct باید مبدلِ usd داشته باشند"
+    assert 'snap["month"].get("musd", 0) / max' not in src, "تقسیمِ خامِ میکرو-دلار باقی مانده"
+    # صحتِ عددی: ۳ دلار از سقفِ ۳۰ → pct=0.1 (نه ۱۰۰هزار)
+    assert abs(opslib.usd(3_000_000) / 30 - 0.1) < 1e-9
+
+
+def t_innervation_inf_and_cap():
+    """periodِ آلوده (inf/غول‌آسا) نه crash می‌کند نه مرگ را نامرئی."""
+    innervation.STATE = _SANDBOX
+    _orig = innervation.heart_period_now
+    try:
+        _age_file(_SANDBOX / "ORGANISM-STATE.json", 2.0)
+        innervation.heart_period_now = lambda: float("inf")
+        r = innervation.check()   # نباید OverflowError بدهد
+        spine = next(o for o in r["organs"] if o["id"] == "spine")
+        assert spine["sla_min"] == 5, "inf باید نادیده گرفته شود (fallbackِ جدولی)"
+        innervation.heart_period_now = lambda: 86400.0   # یک شبانه‌روز!
+        r = innervation.check()
+        spine = next(o for o in r["organs"] if o["id"] == "spine")
+        assert spine["sla_min"] == 5, "periodِ خارج از کران (>1800s) نباید SLA را باد کند"
+        innervation.heart_period_now = lambda: 1800.0
+        r = innervation.check()
+        spine = next(o for o in r["organs"] if o["id"] == "spine")
+        assert spine["sla_min"] <= 32, "سقفِ SLA=32min — کورتر از ۹۶min نمی‌شویم"
+    finally:
+        innervation.heart_period_now = _orig
+
+
+def t_cardiac_corrupt_file_no_keyerror():
+    """فایلِ دست‌کاری‌شده بدونِ spent → spend('resting') بدونِ KeyError."""
+    os.environ["OCTOPUS_WIRE_BIO"] = "1"
+    try:
+        p = _SANDBOX / "cardiac-corrupt.json"
+        _SANDBOX.mkdir(parents=True, exist_ok=True)
+        p.write_text(json.dumps({"date": opslib.today()}), "utf-8")   # بدونِ spent/resting
+        b = cardiac.BeatBudget(daily_cap=3, path=p)
+        st = b.spend("resting")
+        assert st["depleted"] is False and st["remaining"] == 3
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_BIO", None)
+
+
+def t_cardiac_status_day_rollover():
+    """روزِ نو: status دیگر depletedِ دیروز را گزارش نمی‌کند (اولین beat دوباره active)."""
+    os.environ["OCTOPUS_WIRE_BIO"] = "1"
+    try:
+        p = _SANDBOX / "cardiac-rollover.json"
+        p.write_text(json.dumps({"date": "2020-01-01", "spent": 999, "resting": 0}), "utf-8")
+        b = cardiac.BeatBudget(daily_cap=3, path=p)
+        st = b.status()
+        assert st["depleted"] is False and st["spent"] == 0, st
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_BIO", None)
+
+
+def t_neural_nan_inf_neutralized():
+    """NaN/inf در ورودی‌های حسی → defaultِ سالم، صفر crash، صفر مسمومیتِ sticky."""
+    d = NeuralDriver()
+    nan = float("nan")
+    r = d.evaluate(beat=1, sensory={"afferent_ratio": nan, "error_rate": nan,
+                                    "partner_stress": float("inf")},
+                   spectral={"sigma": 0.0}, budget={"pct": 0.0})
+    assert r["pain"]["level"] < 0.1, "NaN باید به defaultِ سالم بیفتد نه مقدارِ مسموم"
+    r2 = d.evaluate(beat=1, sensory={"error_rate": 99})
+    assert 0.0 <= r2["pain"]["level"] <= 1.0
+
+
 if __name__ == "__main__":
     failed = harness.run([
         ("[P3] بحران → protective_halt", t_pain_crisis_reaches_protective),
@@ -220,5 +293,10 @@ if __name__ == "__main__":
         ("[P7] کلیدهای journal", t_cortex_journal_keys),
         ("[P11] بلاکِ wiring کامل", t_wire_summary_complete),
         ("[box] ردِ ماندگار", t_box_trace_write_exists),
+        ("[rev] واحدِ budget_pct درست شد", t_budget_pct_unit_fixed),
+        ("[rev] inf/غول‌آسا در innervation", t_innervation_inf_and_cap),
+        ("[rev] فایلِ خراب بدونِ KeyError", t_cardiac_corrupt_file_no_keyerror),
+        ("[rev] rolloverِ روزِ status", t_cardiac_status_day_rollover),
+        ("[rev] NaN/inf خنثی می‌شود", t_neural_nan_inf_neutralized),
     ])
     sys.exit(1 if failed else 0)

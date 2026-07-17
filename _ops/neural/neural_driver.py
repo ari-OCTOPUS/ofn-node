@@ -68,12 +68,21 @@ class NeuralDriver:
         # nociceptor — P3 (truth-map 2026-07-17): error_rate و partner_stress دیگر drop
         # نمی‌شوند؛ قبلاً ۲ از ۶ ورودیِ درد هرگز به measure نمی‌رسید و pain ساختاراً کور بود.
         _sens = sensory or {}
+
+        def _unit(v, default):
+            """clamp امنِ 0..1 — NaN/inf/غیرعدد → default (NaN هر مقایسه را fail می‌کند)."""
+            try:
+                f = float(v)
+            except (TypeError, ValueError):
+                return default
+            return f if 0.0 <= f <= 1.0 else (1.0 if f > 1.0 and f != float("inf") else default)
+
         pain = self.nociceptor.measure(
             budget_pct=budget.get("pct", 0) if budget else 0,
-            error_rate=min(1.0, max(0.0, float(_sens.get("error_rate", 0.0) or 0.0))),
+            error_rate=_unit(_sens.get("error_rate", 0.0), 0.0),
             freeze_active=rhythm.get("mode_color") == "RED" if rhythm else False,
-            partner_stress=min(1.0, max(0.0, float(_sens.get("partner_stress", 0.0) or 0.0))),
-            afferent_ratio=_sens.get("afferent_ratio", 1.0),
+            partner_stress=_unit(_sens.get("partner_stress", 0.0), 0.0),
+            afferent_ratio=_unit(_sens.get("afferent_ratio", 1.0), 1.0),
             sigma=spectral.get("sigma", 0) if spectral else 0,
         )
         snap = self.hub.collect(

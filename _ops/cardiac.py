@@ -146,8 +146,9 @@ class BeatBudget:
             else:
                 d["resting"] = int(d.get("resting", 0)) + 1
             self._save(d)
-            remaining = max(0, self.daily_cap - d["spent"])
-            depleted = d["spent"] >= self.daily_cap
+            # .get: فایلِ دست‌کاری‌شدهٔ بدونِ spent در مسیرِ resting دیگر KeyError نمی‌دهد.
+            remaining = max(0, self.daily_cap - int(d.get("spent", 0)))
+            depleted = int(d.get("spent", 0)) >= self.daily_cap
             return {"remaining": remaining, "depleted": depleted,
                     "mode": "resting-only" if depleted else "active"}
 
@@ -156,6 +157,10 @@ class BeatBudget:
         if not flag("OCTOPUS_WIRE_BIO"):
             return {"enabled": False, "daily_cap": self.daily_cap}
         d = self._load()
+        # بازبینیِ خصمانه 2026-07-17: بدونِ این، اولین tickِ روزِ بعد از یک روزِ depleted،
+        # depletedِ کهنه (دیروز) را می‌دید — periodِ کش‌آمده + خرجِ resting به‌جای active.
+        if d.get("date") != self._today():
+            d = {"date": self._today(), "spent": 0, "resting": 0}
         return {"enabled": True, "date": d.get("date"),
                 "spent": d.get("spent", 0), "resting": d.get("resting", 0),
                 "daily_cap": self.daily_cap,

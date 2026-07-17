@@ -69,8 +69,13 @@ def check() -> dict:
     for oid, name, rel, sla in ORGANS:
         if oid == "spine" and _hp:
             try:
-                sla = max(sla, int(round(float(_hp) / 60.0)) + 2)
-            except (TypeError, ValueError):
+                # clamp (بازبینیِ خصمانه): مقدارِ فایل بی‌کران/آلوده می‌تواند باشد (inf →
+                # OverflowError کلِ نقشه را می‌کشت؛ periodِ غول‌آسا مرگ را نامرئی می‌کرد).
+                # سقفِ SLA=32min → قرمز حداکثر ۹۶min — هرگز کورتر از آن نمی‌شویم.
+                _hpf = float(_hp)
+                if 0.0 < _hpf <= 1800.0:
+                    sla = max(sla, min(32, int(round(_hpf / 60.0)) + 2))
+            except (TypeError, ValueError, OverflowError):
                 pass
         age = _age_min(rel)
         if age is None:
