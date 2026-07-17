@@ -33,6 +33,38 @@ PORT = int(os.environ.get("LIVE_PORT", "8773"))
 STATE = opslib.STATE_DIR
 PORTS = {"organism": 8771, "cortex": 8772, "ollama": 11434, "dashboard": 8770}
 
+# A3 (تری‌اسکن): حسگرِ نسخهٔ کد — سایدکارِ بوت را با mtimeِ فعلیِ دیسک مقایسه کن تا
+# «کدِ در حالِ اجرا کهنه‌تر از دیسک است» را صادقانه گزارش کنی (نه چون heart در state هست).
+_CODE_SIDECAR = STATE / "ORGANISM-STATE.code"
+_KEY_MODULES = {
+    "organism.py": _OPS / "organism.py",
+    "wiring.py": _OPS / "wiring.py",
+    "live_loop.py": _OPS / "live_loop.py",
+    "cortex.py": _OPS / "cortex" / "cortex.py",
+}
+
+
+def _code_freshness() -> dict:
+    """آیا کدِ در حالِ اجرا با دیسک می‌خواند؟ {live, stale:[names], booted}. fail-soft.
+    live=True یعنی هیچ ماژولِ بارشده‌ای کهنه‌تر از دیسک نیست؛ None = سایدکار نیست (نامعلوم)."""
+    try:
+        sc = json.loads(_CODE_SIDECAR.read_text("utf-8")) if _CODE_SIDECAR.exists() else {}
+    except (OSError, ValueError):
+        sc = {}
+    booted = sc.get("modules")
+    if not isinstance(booted, dict):
+        return {"live": None, "stale": [], "booted": sc.get("booted")}
+    stale = []
+    for name, disk_p in _KEY_MODULES.items():
+        rec = booted.get(name)
+        try:
+            cur = disk_p.stat().st_mtime
+        except OSError:
+            continue
+        if isinstance(rec, dict) and round(cur, 3) > rec.get("mtime", 0) + 0.5:
+            stale.append(name)   # دیسک تازه‌تر از لحظهٔ بوت
+    return {"live": len(stale) == 0, "stale": stale, "booted": sc.get("booted")}
+
 # ORPH-* — سطح‌نماییِ فقط‌خواندنیِ سه آرتیفکتِ سایه که نوشته می‌شدند ولی خوانده نمی‌شدند
 # (calibration-latest · work-health · route-decisions). پرچمِ default-off: خاموش = صفر اثر،
 # صفر خواندن، خروجیِ JSON بایت‌به‌بایت مثلِ الان. روشن = فقط رصدپذیری (هیچ نوشتن/رفتار).
@@ -158,12 +190,17 @@ def aggregate(probe=None) -> dict:
             alerts_today = a.read_text("utf-8")[-8000:].count(f"## {opslib.today()}")
     except OSError:
         pass
-    new_code_live = "heart" in org or bool(pulse_shadow)
+    code_fresh = _code_freshness()
+    # A3: «کدِ نو زنده» فقط وقتی کدِ بارشده با دیسک بخواند؛ اگر سایدکار نبود (None)،
+    # به هیوریستیکِ قبلی برگرد (عقب‌روِ امن، بایت‌به‌بایت رفتارِ قدیم).
+    new_code_live = (code_fresh["live"] if code_fresh["live"] is not None
+                     else ("heart" in org or bool(pulse_shadow)))
     return {
         "ts": opslib.now_iso(),
         "processes": {k: _port_alive(v, probe) for k, v in PORTS.items()},
         "flags_file": (ops / "OCTOPUS-flags.cmd").exists(),
         "new_code_live": new_code_live,
+        "code_version": code_fresh,
         "body": {
             "state_age_min": _age_min(STATE / "ORGANISM-STATE.json"),
             "month_aud": (org.get("month") or {}).get("aud"),

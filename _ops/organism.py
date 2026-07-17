@@ -59,6 +59,38 @@ TICK_SECONDS = 300           # تیک سبک ۵ دقیقه‌ای؛ epoch واق
 STATE_FILE = opslib.STATE_DIR / "ORGANISM-STATE.json"
 START_TS = opslib.now_iso()
 
+# A3 (تری‌اسکن 2026-07-17): حسگرِ نسخهٔ کد. در بوت، (mtime,size) ماژول‌های بارشده را
+# در یک سایدکارِ جدا می‌نویسیم تا کاکپیت بتواند «کدِ در حالِ اجرا کهنه‌تر از دیسک است»
+# را تشخیص دهد — همان مشکلِ سه‌صفحه‌ای که ماه‌ها بی‌صدا بود. سایدکارِ جدا چون STATE_FILE
+# هر تیک بازساخته می‌شود و بلوکِ نسخه گم می‌شد.
+CODE_SIDECAR = opslib.STATE_DIR / "ORGANISM-STATE.code"
+_KEY_MODULES = {
+    "organism.py": _HERE / "organism.py",
+    "wiring.py": _HERE / "wiring.py",
+    "live_loop.py": _HERE / "live_loop.py",
+    "cortex.py": _HERE / "cortex" / "cortex.py",
+}
+
+
+def _write_code_sidecar() -> None:
+    """عکسِ لحظهٔ بوت از (mtime,size) ماژول‌های کلیدی. fail-soft — نباید بوت را بکشد."""
+    mods = {}
+    for name, p in _KEY_MODULES.items():
+        try:
+            st = p.stat()
+            mods[name] = {"mtime": round(st.st_mtime, 3), "size": st.st_size}
+        except OSError:
+            mods[name] = None
+    try:
+        CODE_SIDECAR.parent.mkdir(parents=True, exist_ok=True)
+        tmp = CODE_SIDECAR.with_suffix(".code.tmp")
+        tmp.write_text(json.dumps({"booted": START_TS, "modules": mods},
+                                  ensure_ascii=False, indent=2), "utf-8")
+        import os as _os
+        _os.replace(tmp, CODE_SIDECAR)
+    except Exception as e:  # noqa: BLE001 — سایدکارِ اختیاری
+        opslib.alert([f"code sidecar write failed (non-fatal): {type(e).__name__}"])
+
 # CARDIAC-ALLOMETRY: لایهٔ آلوستاتیکِ ضربان (additive، پشتِ OCTOPUS_WIRE_BIO).
 # اگر flag off باشد، _cardiac None می‌ماند و رفتار عیناً فعلی است (no regression).
 # نظریه: 07 - Knowledge/CARDIAC-ALLOMETRY-v1.md
@@ -129,7 +161,7 @@ def _serve(port: int) -> _ExclusiveHTTPServer:
     return srv
 
 
-def _write_state(extra: dict) -> None:
+def _write_state(extra: dict, merge_prev: bool = False) -> None:
     state = {
         "ts": opslib.now_iso(), "started": START_TS,
         "epoch_mode": "allostatic — تابع فشار (نه clock)",
@@ -137,6 +169,18 @@ def _write_state(extra: dict) -> None:
         "stop_organism": opslib.STOP_ORGANISM.exists(),
         **extra,
     }
+    if merge_prev:
+        # مسیرِ خطا/STOP: بلوک‌های غنیِ آخرین tickِ سالم را حفظ کن، نه دور بریز.
+        # فقط کلیدهای غایب back-fill می‌شوند (base + markerِ نو برنده‌اند). خواندنِ
+        # ساده — نه LockedJson (re-entrant نیست). beatِ سطح‌بالا در fresh نیست پس از
+        # prev می‌آید و «یخ» می‌زند در حالی که ts جلو می‌رود → سیگنالِ «آخرین‌دانسته».
+        try:
+            prev = json.loads(STATE_FILE.read_text("utf-8")) if STATE_FILE.exists() else {}
+        except (OSError, ValueError):
+            prev = {}
+        if isinstance(prev, dict):
+            for k, v in prev.items():
+                state.setdefault(k, v)
     try:
         with opslib.LockedJson(STATE_FILE) as lj:
             lj.write(state)
@@ -162,6 +206,7 @@ def main() -> int:
 
     print(f"organism: زنده روی http://127.0.0.1:{port} — kill تمیز: فایل _ops/STOP-ORGANISM")
     opslib.heartbeat(f"organism=START port={port}")
+    _write_code_sidecar()   # A3: عکسِ نسخهٔ کدِ بارشده در بوت
     # ── W-1..W-5 + neural wiring (پشتِ flag، paper-mode؛ پیش‌فرض خاموز = no regression)
     _wire = {}
     _doctor_inst = None
@@ -270,7 +315,7 @@ def main() -> int:
         try:
             if opslib.STOP_ORGANISM.exists() or opslib.master_halted():
                 opslib.heartbeat("organism=HALT (STOP) — خروج تمیز")
-                _write_state({"exited": "STOP"})
+                _write_state({"exited": "STOP"}, merge_prev=True)
                 return 0
             snap = telemetry.snapshot()
             conflicts = telemetry.reconcile(snap)
@@ -599,6 +644,7 @@ def main() -> int:
                     f"{' · PROTECTIVE' if _protective_skip else ''}")
                 last_heartbeat = now
             _write_state({"month": snap["month"], "today": snap["today"],
+                          "beat": (_cstat.get("beat") if _cstat else None),
                           "suspect_zero_total": snap["suspect_zero_total"],
                           "conflicts": conflicts, **germ, **epoch_info, **daily,
                           **pulse, **prot_state,
@@ -623,7 +669,7 @@ def main() -> int:
             return 0
         except Exception as e:  # noqa: BLE001 — خطای خاموش = شدیدترین باگ (منشور §۴)
             opslib.alert([f"organism tick error: {type(e).__name__}: {e}"])
-            _write_state({"last_error": f"{type(e).__name__}: {e}"})
+            _write_state({"last_error": f"{type(e).__name__}: {e}"}, merge_prev=True)
         finally:
             # R-12: پایانِ runِ این tick — contextِ correlation_id را همیشه بازگردان (حتی روی
             # returnِ STOP/KeyboardInterrupt) تا sleepِ بینِ ضربان‌ها و ضربانِ بعدی idِ این tick
