@@ -7,7 +7,9 @@
   primary   → Fugu (اشتراکِ Pro — نصفِ سهمیه مالِ سیستم) — orchestration/عمیق.
 
 انضباطِ paid (I2 + phase −1): هر دو ردهٔ پولی دوقفله‌اند — تاریخ ≥ 2026-07-21 +
-`ACTIVATION-CORTEX-PAID.flag` (فقط مالک) — و هر call به‌صورتِ lazy از
+`ACTIVATION-CORTEX-PAID.flag` (فقط مالک) — توجه (truth-map 2026-07-17): سپرِ تاریخ با
+overrideهای مالک (`ACTIVATION-RESEARCH-EARLY.flag` / `ACTIVATION-GO-LIVE.flag`) دورزدنی
+است و از 07-17 گیت عملاً باز است — و هر call به‌صورتِ lazy از
 organ_gate.reserve/settle (ارگانِ ARCHITECT_SYS، الگوی allocate_llm) می‌گذرد؛ چون
 subscription است، settle با هزینهٔ نقدیِ ۰ ولی استفاده METER می‌شود (سهمیه).
 بسته/شکست = fallback به local؛ localِ خاموش = None با دلیل — هرگز کرش.

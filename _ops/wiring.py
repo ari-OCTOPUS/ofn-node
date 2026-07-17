@@ -545,6 +545,22 @@ def wire_summary() -> dict:
         "wire_bcm": flag("OCTOPUS_WIRE_BCM"),            # Blueprint P3: BCM forgetting
         "wire_sparse": flag("OCTOPUS_WIRE_SPARSE"),      # Blueprint P4: sparse input filter
         "wire_chamber_t": flag("OCTOPUS_WIRE_CHAMBER_T"), # Blueprint P5 (RED): chamber temperature
+        # P11 (truth-map 2026-07-17): این بلاک خودش را جدولِ حقیقتِ wiring جا می‌زد ولی
+        # ~۱۰ لایهٔ روشن را کم‌شماری می‌کرد — داشبورد/آدیت باید یک بلاک را بخواند.
+        "wire_heart": flag("OCTOPUS_WIRE_HEART"),
+        "wire_heart_work": flag("OCTOPUS_WIRE_HEART_WORK"),
+        "wire_bio": flag("OCTOPUS_WIRE_BIO"),
+        "wire_pulse": flag("OCTOPUS_WIRE_PULSE"),
+        "wire_selfheal": flag("OCTOPUS_WIRE_SELFHEAL"),
+        "wire_pocketsmith": flag("OCTOPUS_WIRE_POCKETSMITH"),
+        "wire_web_research": flag("OCTOPUS_WIRE_WEB_RESEARCH"),
+        "wire_ziman": flag("OCTOPUS_WIRE_ZIMAN"),
+        "wire_cartographer": flag("OCTOPUS_WIRE_CARTOGRAPHER"),
+        "wire_fisher": flag("OCTOPUS_WIRE_FISHER"),
+        "wire_mining": flag("OCTOPUS_WIRE_MINING"),
+        "wire_email": flag("OCTOPUS_WIRE_EMAIL"),
+        "wire_ingest": flag("OCTOPUS_WIRE_INGEST"),
+        "wire_harvest": flag("OCTOPUS_WIRE_HARVEST"),
         "profile": resolve_profile(),                    # P-W3: boot profile
         "doctor_every_n": int(os.environ.get("CHRONO_DOCTOR_EVERY_N_BEATS", "1440")),
         "consolidation_every_n": int(os.environ.get("CHRONO_CONSOLIDATION_EVERY_N_BEATS", "720")),

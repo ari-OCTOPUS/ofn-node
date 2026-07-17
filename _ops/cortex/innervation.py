@@ -62,7 +62,16 @@ def heart_period_now() -> float | None:
 def check() -> dict:
     """نقشهٔ عصب‌کشی: هر اندام عصب‌دار (تازه) است یا نقطهٔ مرده؟"""
     organs, dead = [], []
+    # P6 (truth-map 2026-07-17): SLAی spine پویا از cadenceِ واقعیِ قلب. SLAی ثابتِ ۵
+    # برای tickِ ۵دقیقه‌ای کالیبره شده بود؛ با قلبِ باز (period 900s) سنِ measured همیشه
+    # ~۱۵min بود و spine هر tick با ~۶ ثانیه اختلاف «نقطهٔ مرده» می‌شد (آرتیفکتِ U1).
+    _hp = heart_period_now()
     for oid, name, rel, sla in ORGANS:
+        if oid == "spine" and _hp:
+            try:
+                sla = max(sla, int(round(float(_hp) / 60.0)) + 2)
+            except (TypeError, ValueError):
+                pass
         age = _age_min(rel)
         if age is None:
             status, ok = "⚪ هنوز نزاده", False       # فایل نیست → هنوز beat نخورده

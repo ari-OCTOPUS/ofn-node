@@ -789,6 +789,17 @@ class Doctor:
             result["evolution"] = evolution_report
         if box_report is not None:
             result["box"] = box_report
+            # truth-map 2026-07-17: box هیچ ردِ دیسکی نداشت → «armed یا زنده؟» از state
+            # تصمیم‌ناپذیر بود (Open UNKNOWN #5). یک snapshotِ کوچکِ fail-soft کافی است.
+            try:
+                _bp = self._state_dir / "doctor" / "box-latest.json"
+                _bp.parent.mkdir(parents=True, exist_ok=True)
+                _bp.write_text(json.dumps(
+                    {"ts": opslib.now_iso(), "beat": beat,
+                     "rfc_id": rfc.rfc_id, "report": box_report},
+                    ensure_ascii=False, default=str)[:20000], "utf-8")
+            except Exception:  # noqa: BLE001 — ردِ box نباید cycle را بکشد
+                pass
         return result
 
     def _run_box_cycle(self, trace: dict | None = None) -> dict:

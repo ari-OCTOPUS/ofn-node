@@ -307,6 +307,11 @@ def main() -> int:
     next_epoch_at = 0.0
     last_daily = ""
     last_heartbeat = 0.0
+    # P3 (truth-map 2026-07-17): حافظهٔ حلقه برای تغذیهٔ عصبِ درد — sigma از آخرین
+    # ارزیابیِ روزانه، afferent_ratio از آخرین afferent_beat. بدونِ این‌ها nociceptor
+    # با dictِ خالی، ۴ از ۶ ورودی‌اش همیشه صفر بود و protective_halt غیرقابل‌وصول.
+    _last_sigma = 0.0
+    _last_afferent_ratio = 1.0
     _ziman_last = None   # 2026-07-16 برنامه ۷: کشِ آخرین statusِ زیمان — کارت دیگر ۵۹/۶۰ تاریک نیست
 
     while True:
@@ -361,11 +366,21 @@ def main() -> int:
             if _neural_stack is not None:
                 try:
                     _beat_n = (_cstat.get("beat", 0) if _cstat else 0)
+                    # P3 (truth-map): error_rate = استرسِ خودگزارشیِ کورتکس (selfheal/day،
+                    # هم‌واحدِ 0..1) از فایلِ state — fail-soft، بدونِ وابستگیِ import.
+                    _err_rate = 0.0
+                    try:
+                        _sj = json.loads((opslib.STATE_DIR / "cortex" / "stress-latest.json")
+                                         .read_text("utf-8"))
+                        _err_rate = min(1.0, max(0.0, float(_sj.get("organism_stress", 0.0) or 0.0)))
+                    except Exception:  # noqa: BLE001 — فایلِ غایب/خراب = صفر (رفتارِ قبلی)
+                        _err_rate = 0.0
                     _neural_r = _w.neural_beat(_neural_stack, _beat_n, {
                         "rhythm": _rhythm_state or pulse.get("chrono", {}),
                         "budget": {"pct": snap["month"].get("musd", 0) / max(opslib.load_budgets().get("global", {}).get("cap_monthly", 30), 1)},
-                        "spectral": {},
-                        "sensory": {},
+                        "spectral": {"sigma": _last_sigma},
+                        "sensory": {"afferent_ratio": _last_afferent_ratio,
+                                    "error_rate": _err_rate},
                     })
                     if _neural_r:
                         _prot = _w.protective_override(_neural_r)
@@ -409,6 +424,11 @@ def main() -> int:
                 daily = {"fitness_authoritative": fit["authoritative"],
                          "sigma": rep["sigma"]["sigma_effective"],
                          "sigma_zone": rep["sigma"]["zone"]}
+                # P3 (truth-map): sigmaی واقعی برای عصبِ درد در tickهای بعدی.
+                try:
+                    _last_sigma = float(rep["sigma"]["sigma_effective"] or 0.0)
+                except (TypeError, ValueError, KeyError):
+                    pass
                 # B1 (تری‌اسکن 2026-07-17): verifyِ زنجیرهٔ هشِ لجر — فقط‌خواندنی، روزی یک‌بار.
                 # هرگز لجر را تغییر نمی‌دهد (قانونِ ژنوم)؛ دستکاری → alert، نه crash. تا امروز
                 # verify فقط در callerهای import‌نشده بود؛ حلقهٔ زنده هرگز چک نمی‌کرد.
@@ -472,6 +492,13 @@ def main() -> int:
                                             snap=snap, beat=_cstat.get("beat", 0))
                     if _aff and _aff.get("school_report"):
                         _afferent_status = _aff.get("sensory_status")
+                    # P3 (truth-map): تغذیهٔ عصبِ درد در tickهای بعدی — نسبتِ آورانِ واقعی.
+                    if _aff and isinstance(_aff.get("sensory_status"), dict):
+                        try:
+                            _last_afferent_ratio = float(
+                                _aff["sensory_status"].get("afferent_ratio", 1.0))
+                        except (TypeError, ValueError):
+                            pass
                 except Exception as _ae:  # noqa: BLE001 — §۴: afferent نباید tick را بکشد
                     opslib.alert([f"afferent_beat error (non-fatal): {type(_ae).__name__}: {_ae}"])
             # ── W (P-W1): سیگنال‌های این tick را به bus (نخاع) منتشر کن.
@@ -700,9 +727,12 @@ def main() -> int:
                     base_period_s=TICK_SECONDS,
                     budget=_cardiac_budget, baro=_cardiac_baro)
                 _sleep_s = _eff["period_s"]
-                # خرجِ بودجهٔ این تیک (active = کارِ ارزشمند انجام شد)
+                # خرجِ بودجهٔ این تیک — P5 (truth-map 2026-07-17): بعد از depletion دیگر
+                # «active» شمرده نمی‌شود؛ resting = ضربانِ مجانیِ استراحت. بدونِ این، spent
+                # از سقف رد می‌شد (۳۲۷>۲۸۸) و شمارنده سنجهٔ صادقِ «کارِ ارزشمند» نبود.
                 if _cardiac_budget is not None:
-                    _cardiac_budget.spend("active")
+                    _depl = bool((_eff.get("budget") or {}).get("depleted"))
+                    _cardiac_budget.spend("resting" if _depl else "active")
             except Exception:  # noqa: BLE001 — §۴: cardiac نباید tick را بکشد
                 pass
         # HH-P5: قلبِ ترکیبی — سایه همیشه در سینکِ جدا؛ periodِ زنده فقط اگر predicateِ

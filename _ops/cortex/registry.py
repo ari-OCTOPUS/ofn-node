@@ -45,15 +45,20 @@ def member_awareness(m: dict, state_dir: Path | None = None) -> dict:
     state = state_dir or opslib.STATE_DIR
     p = Path(m["file"]) if str(m["file"]).find(":") == 1 else state / m["file"]
     age = _age_s(p)
+    # P8 (truth-map 2026-07-17): عضو خود-توصیف می‌شود — این نمره «تازگیِ فایل» است، نه
+    # فلگِ wiring. بدونِ این، /api/cortex «reconcile حاضر» می‌گفت و ارگانیسم
+    # «wire_reconcile=false» — دو سنجهٔ متفاوت با یک اسم (تناقضِ U11).
     if age is None:
         return {"id": m["id"], "present": False, "awareness": 0.0,
-                "age_s": None, "note": "state غایب"}
+                "age_s": None, "note": "state غایب",
+                "source": "file-freshness", "watches": str(m["file"])}
     sla = float(m.get("sla_s", 3600))
     freshness = max(0.0, min(1.0, 1.0 - (age / (2.0 * sla))))
     note = "تازه" if age <= sla else f"کهنه ({int(age / 3600)}h)"
     return {"id": m["id"], "present": True,
             "awareness": round(freshness, 3),
-            "age_s": int(age), "sla_s": int(sla), "note": note}
+            "age_s": int(age), "sla_s": int(sla), "note": note,
+            "source": "file-freshness", "watches": str(m["file"])}
 
 
 def sweep(state_dir: Path | None = None) -> dict:

@@ -355,9 +355,14 @@ def run_cycle(cycle: int) -> dict:
             lj.write(state)
     except Exception as e:  # noqa: BLE001
         opslib.alert([f"cortex state write failed: {e}"])
+    # P7 (truth-map 2026-07-17): «aligned» نامِ گمراه‌کننده بود — مقدارِ changed را حمل
+    # می‌کرد (false = حالتِ سالمِ «هم‌راستا بود»، ولی blocked/خطا هم همین را می‌نوشت).
+    # هر دو واقعیت journal می‌شود؛ کلیدِ قدیمی برای سازگاریِ مصرف‌کننده‌ها می‌ماند.
     rec = {"ts": state["ts"], "cycle": cycle,
            "coherence": sweep["coherence"],
            "aligned": alignment.get("changed", False),
+           "align_changed": alignment.get("changed", False),
+           "align_reason": str(alignment.get("reason", ""))[:120],
            **({"diff": alignment.get("diff")} if alignment.get("changed") else {}),
            **({"thought": thought} if thought else {})}
     try:
