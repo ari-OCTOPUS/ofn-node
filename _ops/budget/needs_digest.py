@@ -49,6 +49,18 @@ def compute(pending_count: int | None = None) -> dict:
             items.append("💵 CSV واریزی‌ها نیست → قلب پول را نمی‌بیند (بذار در _ops/reconcile)")
     except OSError:
         pass
+    # ۳.۵) حسابداری (اسکنِ 2026-07-16 #14): صفِ مرور/ثبت — از سایدکارِ acct_beat
+    # (فقط‌خواندنی؛ اگر ضربان خاموش/سایدکار غایب → سکوتِ صادق، نه عددِ کهنه)
+    acct = _read_json(state / "ORGANISM-STATE.accounting")
+    if acct:
+        pr = int(acct.get("pending_review", 0) or 0)
+        pb = int(acct.get("pending_books", 0) or 0)
+        if pr:
+            items.append(f"🧮 {pr} تراکنش منتظرِ دسته‌بندیِ توست — /review")
+        if pb:
+            items.append(f"📚 {pb} ثبتِ پیشنهادی منتظرِ تأییدِ توست — /books")
+        if acct.get("drift_alarm"):
+            items.append("⚠️ دقتِ قواعدِ حسابدار افت کرده (drift) — /review را مرور کن")
     # ۴) قلب: منتظرِ seedِ باند یا در حالِ جمعِ نمونه (Gate-0)
     pulse = state / "pulse"
     shadow = _read_json(pulse / "heart-shadow-latest.json")

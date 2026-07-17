@@ -38,6 +38,12 @@ STOP_CORTEX = opslib.OPS / "STOP-CORTEX"
 THINK_EVERY_N = int(os.environ.get("CORTEX_THINK_EVERY_N", "5"))
 IMPROVE_EVERY_N = int(os.environ.get("CORTEX_IMPROVE_EVERY_N", "10"))
 DEFAULT_PERIOD_S = float(os.environ.get("CORTEX_PERIOD_S", "120"))
+# RC3 فیوزِ سکوتِ مرگ (پیش‌فرض خاموش): وقتی مغز می‌داند مریض است (coherence پایین /
+# اعضای کهنهٔ زیاد)، به governor-alerts خبر بده تا مالک بشنود.
+OBS_ALERT = os.environ.get("OCTOPUS_OBS_ALERT", "0") == "1"
+OBS_COHERENCE_MIN = float(os.environ.get("OCTOPUS_OBS_COHERENCE_MIN", "0.5"))
+OBS_STALE_MAX = int(os.environ.get("OCTOPUS_OBS_STALE_MAX", "2"))
+OBS_ALERT_EVERY_S = float(os.environ.get("OCTOPUS_OBS_ALERT_EVERY_S", "3600"))
 
 
 def _read_json(p: Path) -> dict:
@@ -272,6 +278,35 @@ def softwta_tick(cycle: int) -> dict | None:
         return None
 
 
+_obs_last_alert = 0.0
+
+
+def obs_alert_check(sweep: dict) -> None:
+    """RC3: مغز می‌داند مریض است ولی کسی خبردار نمی‌شود. اگر coherence افت کند یا اعضای
+    کهنه از حد بگذرند، به governor-alerts.md خبر بده (تبِ /alerts). flag-gated (OBS_ALERT)،
+    throttle ساعتی، fail-soft — هرگز چرخه را نمی‌شکند."""
+    if not OBS_ALERT:
+        return
+    global _obs_last_alert
+    try:
+        coherence = float(sweep.get("coherence", 1.0))
+        stale = list(sweep.get("stale_members") or [])
+        problems = []
+        if coherence < OBS_COHERENCE_MIN:
+            problems.append(f"coherence={coherence} < {OBS_COHERENCE_MIN}")
+        if len(stale) > OBS_STALE_MAX:
+            problems.append(f"{len(stale)} stale > {OBS_STALE_MAX}: {','.join(stale)}")
+        if not problems:
+            return
+        now = time.time()
+        if now - _obs_last_alert < OBS_ALERT_EVERY_S:
+            return
+        _obs_last_alert = now
+        opslib.alert(["cortex obs: " + p for p in problems])
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def run_cycle(cycle: int) -> dict:
     sweep = registry.sweep()
     alignment = align_work_plan(sweep)
@@ -329,6 +364,7 @@ def run_cycle(cycle: int) -> dict:
         opslib.append_jsonl(JOURNAL_PATH, rec)
     except Exception as e:  # noqa: BLE001
         opslib.alert([f"cortex journal failed: {e}"])
+    obs_alert_check(sweep)
     return state
 
 
@@ -374,6 +410,16 @@ class _Handler(BaseHTTPRequestHandler):
         self._send(404, b"{}")
 
     def do_POST(self):  # noqa: N802
+        import sys as _s, os as _o
+        _p = _o.path.dirname(_o.path.dirname(_o.path.abspath(__file__)))
+        if _p not in _s.path:
+            _s.path.insert(0, _p)
+        try:
+            import httpauth as _ha  # RC1: گاردِ CSRF/Origin پشتِ OCTOPUS_HTTP_AUTH
+            if not _ha.guard_post(self):
+                return
+        except Exception:  # noqa: BLE001 — گارد اختیاری؛ فلگ‌خاموش/خطا = رفتارِ امروز
+            pass
         if self.path != "/ask":
             self._send(404, b"{}")
             return

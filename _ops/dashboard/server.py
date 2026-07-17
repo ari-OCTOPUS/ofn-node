@@ -711,19 +711,35 @@ def page_activity() -> bytes:
 
 def page_channels() -> bytes:
     ch = _read_json("channel-status.json")
+    # P1 راست‌گویی (2026-07-15): channel-status.json نویسندهٔ زنده ندارد (snapshot ِ فریز
+    # 2026-07-08). قانونِ کابین: دادهٔ کهنه/بی‌نویسنده هرگز «🟢 زنده» رندر نمی‌شود.
+    import time as _time
+    _stale, _snap_ts = True, "?"
+    try:
+        _mt = (STATE_DIR / "channel-status.json").stat().st_mtime
+        _snap_ts = _time.strftime("%Y-%m-%d %H:%M", _time.localtime(_mt))
+        _stale = (_time.time() - _mt) > 3600
+    except OSError:
+        pass
     channels = ch.get("channels") or {}
     ch_rows = ""
+    if _stale:
+        ch_rows += (f'<tr><td class="k">⚠️</td><td>snapshot ِ کهنه — آخرین نوشتن {_snap_ts}؛ '
+                    f'این فایل نویسندهٔ زنده ندارد؛ وضعیت‌های زیر «زنده» نیستند، عکسِ قدیمی‌اند.</td></tr>')
     for name, info in channels.items():
         live = info.get("live")
         mode = info.get("mode", "—")
-        b = "green" if live else "red"
         extra = ""
         req = info.get("required_env") or []
         if req and not live:
             extra = f'<br><span class="note">نیاز: {html.escape(", ".join(req))}</span>'
+        if _stale:
+            badge = f'⚪ {"زنده" if live else "خاموش"} <span class="note">(در snapshot ِ {_snap_ts})</span>'
+        else:
+            b = "green" if live else "red"
+            badge = f'<span class="badge b-{b}">{"🟢 زنده" if live else "🔴 خاموش"}</span>'
         ch_rows += (f'<tr><td class="k">{html.escape(name)}</td><td>'
-                    f'<span class="badge b-{b}">{"🟢 زنده" if live else "🔴 خاموش"}</span> '
-                    f'· {html.escape(str(mode))}{extra}</td></tr>')
+                    f'{badge} · {html.escape(str(mode))}{extra}</td></tr>')
 
     # ledger tail
     tails = _ledger_tail(10)
@@ -806,6 +822,8 @@ def _write_env(form: dict[str, str]) -> str:
     """نوشتنِ _ops/OCTOPUS-flags.cmd به‌صورتِ atomic. برمی‌گرداند: خلاصه."""
     lines = ["rem OCTOPUS-flags.cmd — تولید‌شده توسط dashboard. در زمانِ بوت توسط RUN-ORGANISM.bat لود می‌شود."]
     profile = form.get("OCTOPUS_PROFILE", "paper-full")
+    if profile not in PROFILES:  # F-1: allowlist ضدِ تزریقِ CRLF به فایلِ اجرایی (RCE در بوت)
+        profile = "paper-full"
     lines.append(f"set OCTOPUS_PROFILE={profile}")
     for name, _, _ in WIRE_FLAGS:
         val = "1" if form.get(name) == "1" else "0"
@@ -817,6 +835,12 @@ def _write_env(form: dict[str, str]) -> str:
         except ValueError:
             val = default
         lines.append(f"set {name}={val}")
+    # F-3: کلیدهای unmanaged (گاردهای ضدجعلِ human-append، مسیریابیِ مغز، اولاما، ...) را
+    # از فایلِ موجود seed کن تا این بازسازیِ atomic آن‌ها را بی‌صدا پاک نکند (OWASP-A05).
+    _managed = {"OCTOPUS_PROFILE"} | {n for n, _, _ in WIRE_FLAGS} | {n for n, _, _ in CADENCE_FLAGS}
+    for _k, _v in _read_env_overrides().items():
+        if _k not in _managed and _v is not None:
+            lines.append(f"set {_k}={_v}")
     content = "\r\n".join(lines) + "\r\n"
     tmp = ENV_FILE.with_name(ENV_FILE.name + ".tmp")
     with _WRITE_LOCK:
@@ -865,6 +889,16 @@ class _Handler(BaseHTTPRequestHandler):
             self.end_headers()
 
     def do_POST(self):  # noqa: N802
+        import sys as _s, os as _o
+        _p = _o.path.dirname(_o.path.dirname(_o.path.abspath(__file__)))
+        if _p not in _s.path:
+            _s.path.insert(0, _p)
+        try:
+            import httpauth as _ha  # RC1: گاردِ CSRF/Origin پشتِ OCTOPUS_HTTP_AUTH
+            if not _ha.guard_post(self):
+                return
+        except Exception:  # noqa: BLE001 — گارد اختیاری؛ فلگ‌خاموش/خطا = رفتارِ امروز
+            pass
         path = self.path.split("?", 1)[0]
         if path not in ("/save",):
             self.send_response(404)

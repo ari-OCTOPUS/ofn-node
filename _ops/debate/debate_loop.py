@@ -80,12 +80,16 @@ def _gated_call(client: DeepSeekClient, system: str, user: str,
     return out
 
 
-def _queue_survivor(topic: dict, muse: dict, architect: dict, status: str) -> None:
+def _queue_survivor(topic: dict, muse: dict, architect: dict, status: str) -> bool:
     QUEUE_MD.parent.mkdir(parents=True, exist_ok=True)
     if not QUEUE_MD.exists():
         QUEUE_MD.write_text(
             "# صف تأیید انسان — بازمانده‌های مناظره (append-only)\n\n"
             "> «بازمانده» فقط یعنی وارد این صف شد؛ تأیید = verdict آری.\n\n", "utf-8")
+    # idempotent (§۹): تا وقتی این topic در صف است، append تکراری ممنوع —
+    # وگرنه debateِ هر epoch (~۲۰ دقیقه) صف انسان و ledger را غرق می‌کند.
+    if f"— {topic['id']} ·" in QUEUE_MD.read_text("utf-8"):
+        return False
     with QUEUE_MD.open("a", encoding="utf-8") as f:
         f.write(f"## {opslib.now_iso()} — {topic['id']} · status: {status}\n\n"
                 f"- **topic** ({topic['source']}): {topic['text']}\n"
@@ -94,10 +98,17 @@ def _queue_survivor(topic: dict, muse: dict, architect: dict, status: str) -> No
                 f"- **why_insane:** {muse.get('why_insane', '—')}\n"
                 f"- **kill_condition:** {architect.get('kill_condition', '—')}\n"
                 f"- **cheapest_test:** {architect.get('cheapest_test', '—')}\n\n")
+    return True
 
 
 def run_debate(topic: dict, live: bool = False, rounds: int = MAX_ROUNDS,
                transport=None) -> dict:
+    # قرارداد topic (fail-soft): فقط شکل whitelist — id/source/text (خروجی topics.get_topic).
+    # dict آزاد (مثل {"topic": ...} که governor قبلاً می‌فرستاد) نباید KeyError عمیق بدهد.
+    if not isinstance(topic, dict) or not {"id", "source", "text"} <= topic.keys():
+        return {"status": "invalid-topic",
+                "reason": "topic باید از topics.get_topic بیاید (کلیدهای id/source/text)",
+                "got": sorted(topic) if isinstance(topic, dict) else type(topic).__name__}
     stop = opslib.halted(for_debate=True)
     if stop:
         return {"status": "halted", "reason": stop}
@@ -166,13 +177,17 @@ def _rounds(topic: dict, wrapped: str, topic_hash: str, rounds: int,
             break
         # needs-fix → دور بعد با قید (بازخورد منفی؛ همان که چرخه را پایدار می‌کند)
 
+    queued = False
     if final in ("survived", "queue-human"):
-        _queue_survivor(topic, muse_out, arch_out,
-                        "pending-human" if final == "survived" else "undecided-after-3-rounds")
-        if final == "survived":
+        queued = _queue_survivor(topic, muse_out, arch_out,
+                                 "pending-human" if final == "survived"
+                                 else "undecided-after-3-rounds")
+        if final == "survived" and queued:
             # قرارداد ۷فیلدی humility → دکترِ ژنوم هم در run بعدی داوری‌اش می‌کند
+            # (فقط بار اول — PROPOSAL تکراری برای topicِ هنوز-در-صف ممنوع)
             register_survivor_proposal(muse_out, arch_out, topic)
     return {"status": final, "topic_id": topic["id"], "rounds": len(history),
+            "queued": queued,
             "cost_usd": round(sum(h["cost_usd"] for h in history), 6), "history": history}
 
 

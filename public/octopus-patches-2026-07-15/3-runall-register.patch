@@ -1,0 +1,16 @@
+diff --git a/_ops/tests/run_all.py b/_ops/tests/run_all.py
+index ce2a5ba..9f62e01 100644
+--- a/_ops/tests/run_all.py
++++ b/_ops/tests/run_all.py
+@@ -74,6 +74,11 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
+          "test_school_bridge.py",   # 2026-07-14: orphan test بود (فایل موجود، ثبت‌نشده) — ثبت شد
+          "test_self_claims.py", "test_octopus_logger_wire.py", "test_improve_refractory.py",
+          "test_wiring_cleanup.py", "test_deadwrite_readers.py",
++         # 2026-07-15: تست‌های نوِ راست‌گویی/کابین + دو orphanِ ziman (سبز، ثبت‌نشده بودند)
++         "test_business_legs_shape.py", "test_correlation_id_generated.py",
++         "test_channel_status_stale_not_green.py", "test_cockpit_truthful.py",
++         "test_baseline_money_fingerprint.py", "test_tg_exec_consumer.py",
++         "test_ziman_wiring.py", "test_ziman_biology.py",
+          ]
+ # تست‌های خارج از _ops/tests/ (path tuyệtق)
+ EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",

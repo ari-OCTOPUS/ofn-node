@@ -140,12 +140,50 @@ def ask(task: str, prompt: str, system: str = "", max_tokens: int = 400,
         want = _scored_tier(task)
     want = want or TASK_TIERS.get(task, "local")
     if want in ("secondary", "primary"):
-        out = _ask_paid(want, prompt, system, max_tokens)
-        if out:
-            return {"ok": True, **out}
+        # 2026-07-16 محلی-اول (اقتصادِ مغز، رأی مالک «محلی رایگان، پولی فقط برای کارِ بزرگ»):
+        # پشتِ CORTEX_LOCAL_FIRST، ردهٔ میانی (secondary: research/synthesize/draft) اول از
+        # مغزِ محلیِ $0 می‌پرسد؛ یک گیتِ کیفیتِ قطعی (متنِ ناخالی با طولِ حداقلی) خروجی را
+        # می‌سنجد — پاس = همان جواب، رد/در دسترس نبودن = مسیرِ پولیِ امروز، بایت‌به‌بایت.
+        # ردهٔ سنگین (primary: plan/deep/orchestrate) هرگز محلی-اول نمی‌شود — کارِ بزرگ = API.
+        if want == "secondary" and os.environ.get("CORTEX_LOCAL_FIRST") == "1":
+            try:
+                _min_chars = int(os.environ.get("LOCAL_FIRST_MIN_CHARS", "80"))
+                _lo = local_llm.ask(prompt, system=system, max_tokens=max_tokens,
+                                    opener=opener)
+                if _lo and len(str(_lo.get("text", "")).strip()) >= _min_chars:
+                    return {"ok": True, **_lo, "local_first": True}
+            except Exception:  # noqa: BLE001 — محلی-اول هرگز مسیرِ پولی را نکشد
+                pass
+        # 2026-07-15 key-aware: tierِ خواسته اول، بعد tierِ پولیِ دیگر — ولی فقط آن‌هایی که کلید
+        # دارند (وگرنه یک failِ الکی می‌سوزانیم و به محلیِ آشغال می‌افتیم). این کاری می‌کند که
+        # اشتراکِ Fuguِ مالک واقعاً استفاده شود حتی وقتی tierِ خواسته GLMِ بی‌کلید بود (باگِ اصلی).
+        kp = keys_present()
+        _has = {"secondary": bool(kp.get("glm")), "primary": bool(kp.get("fugu"))}
+        order = [want] + [t for t in ("primary", "secondary") if t != want]
+        tried = []
+        for _t in order:
+            if not _has.get(_t):
+                continue
+            out = _ask_paid(_t, prompt, system, max_tokens)
+            tried.append(_t)
+            if out:
+                return {"ok": True, **out}
         gate_ok, gate_why = paid_gate()
-        # صادق: چرا پولی نشد + ادامه با local
-        fallback_reason = gate_why if not gate_ok else "paid-call-failed"
+        if not gate_ok:
+            fallback_reason = gate_why
+        elif not any(_has.values()):
+            fallback_reason = "no-paid-key"
+            try:
+                opslib.alert(["cortex: هیچ کلیدِ پولی (Fugu/GLM) در دسترس نیست — مغز روی محلیِ $0"])
+            except Exception:  # noqa: BLE001
+                pass
+        else:
+            fallback_reason = "paid-call-failed"
+            try:
+                opslib.alert([f"🔴 cortex: مغزِ پولی روی {tried or order} شکست خورد → "
+                              f"محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)"])
+            except Exception:  # noqa: BLE001
+                pass
     else:
         fallback_reason = None
     out = local_llm.ask(prompt, system=system, max_tokens=max_tokens,

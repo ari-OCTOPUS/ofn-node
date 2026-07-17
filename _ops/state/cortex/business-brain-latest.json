@@ -1,7 +1,7 @@
 {
-  "ts": "2026-07-11T02:34:02",
+  "ts": "2026-07-17T17:45:18",
   "schema": "business-brain.v1",
-  "beat": 1,
+  "beat": 130,
   "brain": "second (business ops)",
   "projects": [
     {

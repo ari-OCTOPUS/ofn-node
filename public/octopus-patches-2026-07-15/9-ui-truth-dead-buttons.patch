@@ -1,0 +1,171 @@
+diff --git a/_ops/budget/approval_channel.py b/_ops/budget/approval_channel.py
+index f39fa6c..4632a04 100644
+--- a/_ops/budget/approval_channel.py
++++ b/_ops/budget/approval_channel.py
+@@ -1818,9 +1818,19 @@ class TelegramApprovalChannel(ApprovalChannel):
+         target: مقدارِ مطلقِ ذخیره‌شده در mint (فعلاً فقط flaggo)."""
+         if verb in self.OOB_VERBS:
+             ok = self._append_request(verb, key)
+-            return ("📨 درخواست ثبت شد (out-of-band) — organism در ضربانِ بعدی مصرف می‌کند.\n"
+-                    "<i>صف: state/cockpit-requests.jsonl · هیچ اجرای inline (INV-7)</i>"
+-                    if ok else "❌ ثبتِ درخواست ناموفق")
++            if not ok:
++                return "❌ ثبتِ درخواست ناموفق"
++            # 2026-07-15 صداقت: دیگر دروغِ «اجرا می‌شود» نمی‌گوییم. فقط doctor/consolidate با
++            # OCTOPUS_TG_EXEC=1 روی beat اجرا می‌شوند؛ بقیه مصرف‌کننده ندارند.
++            import os as _os
++            runnable = verb in ("doctor", "consolidate")
++            exec_on = _os.environ.get("OCTOPUS_TG_EXEC") == "1"
++            if runnable and exec_on:
++                return "📨 ثبت شد — organism در ضربانِ بعدی اجرا می‌کند.\n<i>صف: cockpit-requests.jsonl</i>"
++            if runnable:
++                return ("📨 ثبت شد — ولی <b>اجرا خاموش است</b>. برای اجرای واقعی "
++                        "<code>OCTOPUS_TG_EXEC=1</code> بگذار و restart کن.")
++            return "📨 ثبت شد — ولی این verb مصرف‌کنندهٔ اجرا ندارد (فقط doctor/consolidate اجرا می‌شوند)."
+         if verb == "pf":
+             return self._act_pf_control(key)
+         if verb == "export":
+@@ -2044,12 +2054,12 @@ class TelegramApprovalChannel(ApprovalChannel):
+                          for k, lbl in cards[i:i + 2]])
+         acts = {
+             "blueprint": [("📸 گرفتنِ baseline", "baseline", "capture")],
+-            "brain": [("🧠 تحکیمِ الان", "consolidate", "run"),
+-                      ("💡 بازسازیِ ایده-گراف", "ideas", "rebuild")],
++            # 2026-07-15 حذفِ دکمه‌های مرده: مصرف‌کنندهٔ beat فقط doctor/consolidate را اجرا می‌کند
++            # (_TG_EXEC_SAFE، wiring.py). دکمه‌های ideas/school/ingest صف می‌شدند و هرگز اجرا نمی‌شدند
++            # (toastِ دروغینِ «اجرا می‌شود») → حذف شدند تا UI الکی نباشد. اجرای واقعیِ ingest/school
++            # از مسیرِ beatِ خودشان (OCTOPUS_WIRE_INGEST/SCHOOL) می‌رود، نه از دکمهٔ تلگرام.
++            "brain": [("🧠 تحکیمِ الان", "consolidate", "run")],
+             "doctor": [("🩺 اجرای چرخهٔ دکتر", "doctor", "run")],
+-            "school": [("🎓 یادگیریِ الان", "school", "learn"),
+-                       ("📥 ingest کریپتو", "ingest", "crypto"),
+-                       ("📥 ingest حساب", "ingest", "acct")],
+             "safety": [("❄️ FREEZE", "freeze", "on"),
+                        ("🧹 جاروی اثرها", "sweep", "effects"),
+                        ("♻️ ری‌استارتِ تمیز", "restart", "organism")],
+@@ -2603,10 +2613,18 @@ class TelegramApprovalChannel(ApprovalChannel):
+                     + (f"<pre>{html.escape(json.dumps(ch, ensure_ascii=False, indent=1)[:700])}</pre>"
+                        if ch else "🟡 chrono.db خوانا نیست (busy/نبود) — fail-soft"))
+         if (tab, key) == ("alerts", "channels"):
+-            c = (rm.read_channels() if rm else {}).get("channels") or {}
+-            lines = [f"• {html.escape(str(n))}: {'🟢' if i.get('live') else '🔴'} "
++            d = rm.read_channels() if rm else {}
++            c = d.get("channels") or {}
++            # 2026-07-15 راست‌گویی: این snapshot نویسندهٔ زنده ندارد — کهنه هرگز 🟢 نشان داده نمی‌شود.
++            stale = bool(d.get("_stale", True))
++            lines = [f"• {html.escape(str(n))}: "
++                     f"{'⚪' if stale else ('🟢' if i.get('live') else '🔴')} "
+                      f"{html.escape(str(i.get('mode', '')))}" for n, i in c.items()]
+-            return "📡 <b>کانال‌ها</b>" + self._DIV + ("\n".join(lines) or nod)
++            hdr = "📡 <b>کانال‌ها</b>"
++            if stale:
++                hdr += (f"  <i>⚠️ snapshotِ کهنه ({html.escape(str(d.get('_snapshot_ts', '?')))}) "
++                        f"— بی‌نویسنده، «زنده» نیست</i>")
++            return hdr + self._DIV + ("\n".join(lines) or nod)
+         if (tab, key) == ("alerts", "raw"):
+             st = rm.read_state() if rm else {}
+             raw = json.dumps(st, ensure_ascii=False, indent=1)[:1600]
+diff --git a/_ops/tests/test_cockpit_v2.py b/_ops/tests/test_cockpit_v2.py
+index 0a23770..68bdc13 100644
+--- a/_ops/tests/test_cockpit_v2.py
++++ b/_ops/tests/test_cockpit_v2.py
+@@ -181,7 +181,7 @@ def test_act_no_inline_subsystem():
+     ch, _ = make_channel()
+     tok = mint(ch, "doctor", "run")
+     r = ch.dispatch_callback(f"act:doctor:run:{tok}")
+-    assert "out-of-band" in r
++    assert "ثبت شد" in r   # 2026-07-15: toast صادق شد (دیگر «out-of-band»/«اجرا می‌شود»ِ دروغین نمی‌گوید)
+     reqs = (STATE / "cockpit-requests.jsonl").read_text(encoding="utf-8")
+     assert '"verb": "doctor"' in reqs
+ 
+@@ -536,9 +536,9 @@ def test_oob_ack_message_is_toast_clean():
+     """پیامِ واقعیِ out-of-band بعد از strip، پاک است (نه <i> خام)."""
+     ch, _ = make_channel()
+     raw = ch._run_act("doctor", "runcycle")   # فعلِ OOB
+-    assert "درخواست ثبت شد" in raw
++    assert "ثبت شد" in raw     # 2026-07-15: toast صادق (دیگر دروغِ «اجرا می‌شود» نمی‌گوید)
+     clean = ac.TelegramApprovalChannel._toast_plain(raw)
+-    assert "<i>" not in clean and "<" not in clean and "INV-7" in clean
++    assert "<i>" not in clean and "<" not in clean   # بعد از strip، HTMLِ خام باقی نمی‌ماند
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/_ops/tests/test_ui_truth.py b/_ops/tests/test_ui_truth.py
+new file mode 100644
+index 0000000..84be1bf
+--- /dev/null
++++ b/_ops/tests/test_ui_truth.py
+@@ -0,0 +1,73 @@
++"""test_ui_truth.py — 2026-07-15: حذفِ دکمه‌های مرده + toastِ صادق + گاردِ stalenessِ کانال‌ها.
++دکمه‌های ideas/school/ingest که صف می‌شدند و هرگز اجرا نمی‌شدند حذف شدند؛ toast دیگر دروغِ
++«اجرا می‌شود» نمی‌گوید؛ کارتِ کانال‌ها snapshotِ کهنه را 🟢 نشان نمی‌دهد."""
++import json
++import os
++import sys
++import tempfile
++import time
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(_HERE.parent))
++sys.path.insert(0, str(_HERE.parent / "budget"))
++
++import harness
++ENV = harness.setup("ui_truth")
++
++from approval_channel import TelegramApprovalChannel  # noqa: E402
++
++
++def _chan(sd=None):
++    return TelegramApprovalChannel(state_dir=str(sd) if sd else None)
++
++
++def t_a_dead_buttons_removed_from_all_tabs():
++    ch = _chan()
++    for page in ("brain", "school", "doctor", "organs", "safety", "alerts"):
++        cds = [b["callback_data"] for row in ch._tab_keyboard(page)["inline_keyboard"] for b in row]
++        for verb in ("ideas", "school", "ingest"):
++            assert not any(cd.startswith(f"act:{verb}:") for cd in cds), f"{verb} هنوز در {page}"
++    # consolidate + doctor (flag-دار، واقعی) باید بمانند
++    brain = [b["callback_data"] for row in ch._tab_keyboard("brain")["inline_keyboard"] for b in row]
++    assert any(cd.startswith("act:consolidate:run:") for cd in brain), brain
++    doctor = [b["callback_data"] for row in ch._tab_keyboard("doctor")["inline_keyboard"] for b in row]
++    assert any(cd.startswith("act:doctor:run:") for cd in doctor)
++
++
++def t_b_toast_no_longer_lies():
++    with tempfile.TemporaryDirectory() as td:
++        ch = _chan(td)
++        os.environ.pop("OCTOPUS_TG_EXEC", None)
++        # verbِ بی‌مصرف‌کننده → صادقانه می‌گوید مصرف‌کننده ندارد
++        r_ideas = ch._run_act("ideas", "rebuild")
++        assert "مصرف‌کنندهٔ اجرا ندارد" in r_ideas, r_ideas
++        assert "مصرف می‌کند" not in r_ideas       # دروغِ قدیمی رفته
++        # doctor با اجرای خاموش → می‌گوید خاموش است
++        r_doc = ch._run_act("doctor", "run")
++        assert "اجرا خاموش" in r_doc, r_doc
++        # با اجرای روشن → صادقانه «اجرا می‌کند»
++        os.environ["OCTOPUS_TG_EXEC"] = "1"
++        try:
++            assert "اجرا می‌کند" in ch._run_act("consolidate", "run")
++        finally:
++            os.environ.pop("OCTOPUS_TG_EXEC", None)
++
++
++def t_c_channels_card_stale_never_green():
++    with tempfile.TemporaryDirectory() as td:
++        p = Path(td) / "channel-status.json"
++        p.write_text(json.dumps({"channels": {"telegram": {"live": True, "mode": "poll"}}}), "utf-8")
++        old = time.time() - 8 * 24 * 3600
++        os.utime(p, (old, old))
++        card = _chan(td)._render_card("alerts", "channels")
++        assert "⚪" in card and "کهنه" in card, card
++        assert "🟢" not in card                    # snapshotِ کهنه هرگز سبز
++
++
++if __name__ == "__main__":
++    for f in (t_a_dead_buttons_removed_from_all_tabs, t_b_toast_no_longer_lies,
++              t_c_channels_card_stale_never_green):
++        f()
++        print("ok", f.__name__)
++    print("PASS test_ui_truth")

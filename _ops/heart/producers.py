@@ -46,7 +46,10 @@ def _parse_ts(raw) -> dt.datetime | None:
         return None
     if isinstance(raw, (int, float)):
         try:
-            return dt.datetime.fromtimestamp(float(raw))
+            v = float(raw)
+            if v > 1e11:   # CWE-681: wall_ts در chrono میلی‌ثانیه است (~1.7e12) نه ثانیه → velocity=0 دائمی
+                v /= 1000.0
+            return dt.datetime.fromtimestamp(v)
         except (OverflowError, OSError, ValueError):
             return None
     try:
@@ -129,9 +132,12 @@ def _count_beats(since: dt.datetime) -> int | None:
         return None
     try:
         import sqlite3
+        since_ms = int(since.timestamp() * 1000)  # OCT-DB-02: wall_ts در chrono میلی‌ثانیه است (_utc_ms)
         con = sqlite3.connect(f"file:{CHRONO_DB.as_posix()}?mode=ro", uri=True)
         try:
-            rows = con.execute("SELECT wall_ts FROM heartbeat").fetchall()
+            rows = con.execute(
+                "SELECT wall_ts FROM heartbeat WHERE wall_ts >= ?", (since_ms,)
+            ).fetchall()
         finally:
             con.close()
         n = 0

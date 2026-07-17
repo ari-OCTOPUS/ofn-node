@@ -114,6 +114,54 @@ def t_h_synthesis_propose_only_structural():
         assert banned not in joined, f"synthesis نباید {banned} را import کند"
 
 
+def t_i_synthesis_event_driven_idle_gate():
+    """گیتِ رویدادمحور: فلگ روشن + امضای ورودیِ بدون‌تغییر + پروپوزالِ قبلی → مغزِ پولی صدا نمی‌شود."""
+    fixed_ctx = {"goals": ["g1"], "gaps": ["p0"], "web": ["w1"],
+                 "body": {"n_modules": 3, "total_lines": 9, "self_awareness_pct": 50.0,
+                          "undocumented": []}}
+    orig_gather = syn.gather_context
+    syn.gather_context = lambda: dict(fixed_ctx)
+    calls = {"n": 0}
+
+    def counting_ask(task, prompt, system="", max_tokens=400, tier=None):
+        calls["n"] += 1
+        return {"ok": True, "tier": "primary", "model": "fugu-test", "cost_usd": 0.0,
+                "text": "1. تیتر | چرا | قدم"}
+
+    prev_flag = os.environ.get("OCTOPUS_SYNTH_EVENT_DRIVEN")
+    try:
+        sig = syn._input_sig(syn.gather_context())
+        with opslib.LockedJson(syn.SYNTH_PATH) as lj:
+            lj.write({"schema": "synthesis.v1", "input_sig": sig,
+                      "proposals": [{"title": "قبلی", "why": "x", "first_step": "y"}]})
+
+        # (۱) فلگ روشن + sig بدون‌تغییر → skip، ask صدا نمی‌شود
+        os.environ["OCTOPUS_SYNTH_EVENT_DRIVEN"] = "1"
+        r = syn.synthesize(ask=counting_ask)
+        assert r.get("skipped") == "no-new-signal", r
+        assert r["ok"] is True and r["input_sig"] == sig
+        assert calls["n"] == 0, "مغزِ پولی نباید وقتی ورودی تغییر نکرده صدا شود"
+
+        # (۲) ورودی تغییر کند (sig نو) → ask صدا می‌شود
+        syn.gather_context = lambda: {**fixed_ctx, "goals": ["g1", "g2-new"]}
+        r2 = syn.synthesize(ask=counting_ask)
+        assert not r2.get("skipped"), r2
+        assert r2["ok"] is True and calls["n"] == 1
+
+        # (۳) فلگ خاموش → همیشه ask صدا می‌شود حتی اگر sig برابرِ state باشد
+        syn.gather_context = lambda: dict(fixed_ctx)
+        os.environ.pop("OCTOPUS_SYNTH_EVENT_DRIVEN", None)
+        r3 = syn.synthesize(ask=counting_ask)
+        assert not r3.get("skipped"), "فلگ خاموش نباید گیت کند (رفتارِ امروز)"
+        assert calls["n"] == 2
+    finally:
+        syn.gather_context = orig_gather
+        if prev_flag is None:
+            os.environ.pop("OCTOPUS_SYNTH_EVENT_DRIVEN", None)
+        else:
+            os.environ["OCTOPUS_SYNTH_EVENT_DRIVEN"] = prev_flag
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

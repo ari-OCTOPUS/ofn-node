@@ -123,6 +123,19 @@ def _url_json_get(url: str, timeout_s: float) -> dict:
         return json.loads(resp.read().decode("utf-8"))
 
 
+def _http_err_desc(exc) -> str:
+    """descriptionِ Bot API از بدنهٔ HTTPError (مثلاً «Bad Request: message is not
+    modified») — generic و بدونِ token/URL. هر شکست → '' (fail-soft)."""
+    try:
+        import urllib.error
+        if isinstance(exc, urllib.error.HTTPError):
+            raw = exc.read(2048).decode("utf-8", "replace")
+            return str(json.loads(raw).get("description") or "")[:200]
+    except Exception:  # noqa: BLE001
+        return ""
+    return ""
+
+
 def _url_json_post(url: str, body: dict, timeout_s: float = 10.0) -> dict:
     """posterِ پیش‌فرض (JSON body). body هرگز token ندارد (token در URL است)."""
     if not url.startswith(TELEGRAM_API_BASE + "/"):
@@ -142,7 +155,10 @@ class TgClient:
 
     def __init__(self, token: str | None = None, owner_chat_id=None,
                  center_chat_id=None, post_fn=None, get_fn=None):
-        self._token = token if token is not None else _env_str("TELEGRAM_BOT_TOKEN")
+        # TG_CENTER_BOT_TOKEN = باتِ اختصاصیِ مرکزِ گروه (توصیه: باتِ دوم تا با pollerِ
+        # approval_channel داخلِ organism روی یک توکن جنگِ 409 نشود)؛ fallback = باتِ اصلی.
+        self._token = token if token is not None else (
+            _env_str("TG_CENTER_BOT_TOKEN") or _env_str("TELEGRAM_BOT_TOKEN"))
         self._owner = (_coerce_id(owner_chat_id) if owner_chat_id is not None
                        else (_env_int("TELEGRAM_OWNER_CHAT_ID", 0) or None))
         self._center = (_coerce_id(center_chat_id) if center_chat_id is not None
@@ -184,24 +200,30 @@ class TgClient:
         return url
 
     def _call_post(self, method: str, body: dict) -> dict | None:
-        """یک POST؛ خطا/پاسخِ نامعتبر → None. هشدارِ شکست throttled و بدونِ token."""
+        """یک POST؛ خطا/پاسخِ نامعتبر → None. هشدارِ شکست throttled و بدونِ token.
+        استثنا: «message is not modified» = وضعِ مطلوب از قبل برقرار → موفق، بی‌هشدار
+        (وگرنه هر بوت یک ⚠️ کاذب در /alerts می‌نشیند و کانال بی‌اعتبار می‌شود)."""
         try:
             data = self._post(self._build_url(method), body)
         except Exception as e:  # noqa: BLE001 — fail-soft، بدونِ leakِ URL/token
-            self._note_fail(method, e)
+            desc = _http_err_desc(e)
+            if "message is not modified" in desc:
+                return {"ok": True, "result": True, "not_modified": True}
+            self._note_fail(method, e, desc)
             return None
         if not isinstance(data, dict) or not data.get("ok"):
             return None
         return data
 
-    def _note_fail(self, method: str, exc: Exception) -> None:
-        """هشدارِ fail-softِ throttled (۱/ساعت/متد) — فقط نامِ متد + نوعِ خطا؛
-        هرگز URL/token/پیام. حلقهٔ poll جدا و ساکت است (poll_updates)."""
+    def _note_fail(self, method: str, exc: Exception, desc: str = "") -> None:
+        """هشدارِ fail-softِ throttled (۱/ساعت/متد) — نامِ متد + نوعِ خطا + descriptionِ
+        کوتاهِ Bot API (generic و بدونِ token/URL/پیام — عیب‌یابیِ آینده)."""
         now = time.time()
         if now - self._last_alert.get(method, 0.0) < _ALERT_THROTTLE_S:
             return
         self._last_alert[method] = now
-        _alert_soft(f"tg_api {method} failed: {type(exc).__name__}")
+        extra = f" ({desc[:80]})" if desc else ""
+        _alert_soft(f"tg_api {method} failed: {type(exc).__name__}{extra}")
 
     def _resolve_chat(self, chat_id) -> int | None:
         """chatِ مقصد: صریح > مرکز > مالک. نامعتبر → None (fail-soft)."""

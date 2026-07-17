@@ -54,13 +54,20 @@ class _Spy:
         return {"text": f"paid:{tier}", "tier": tier, "model": "spy"}
 
 
+_ORIG_KEYS = model_router.keys_present
+
+
 def _install(monkey_paid=True, local_ret=None):
-    """_ask_paid و local_llm.ask را مونکی‌پچ کن؛ نسخهٔ اصلی را برگردان تا restore شود."""
+    """_ask_paid و local_llm.ask را مونکی‌پچ کن؛ نسخهٔ اصلی را برگردان تا restore شود.
+    2026-07-15: keys_present هم mock می‌شود (هر دو کلیدِ پولی «حاضر») تا تست هرمتیک
+    بماند — routerِ کلید-آگاهِ نو بدونِ کلید اصلاً _ask_paid را صدا نمی‌زند (درست)،
+    و این تست دربارهٔ مسیریابیِ scorer است نه حضورِ کلیدِ محیط."""
     orig_paid = model_router._ask_paid
     orig_local = local_llm.ask
     spy = _Spy() if monkey_paid else orig_paid
     if monkey_paid:
         model_router._ask_paid = spy
+        model_router.keys_present = lambda: {"fugu": True, "glm": True, "deepseek": False}
     local_llm.ask = lambda prompt, system="", max_tokens=400, opener=None: (
         local_ret if local_ret is not None else {"text": "local", "tier": "local"})
     return spy, orig_paid, orig_local
@@ -68,6 +75,7 @@ def _install(monkey_paid=True, local_ret=None):
 
 def _restore(orig_paid, orig_local, orig_score):
     model_router._ask_paid = orig_paid
+    model_router.keys_present = _ORIG_KEYS
     local_llm.ask = orig_local
     route_scorer.score_route = orig_score
     os.environ.pop("CORTEX_ROUTE_SCORER", None)

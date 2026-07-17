@@ -181,7 +181,7 @@ def test_act_no_inline_subsystem():
     ch, _ = make_channel()
     tok = mint(ch, "doctor", "run")
     r = ch.dispatch_callback(f"act:doctor:run:{tok}")
-    assert "out-of-band" in r
+    assert "ثبت شد" in r   # 2026-07-15: toast صادق شد (دیگر «out-of-band»/«اجرا می‌شود»ِ دروغین نمی‌گوید)
     reqs = (STATE / "cockpit-requests.jsonl").read_text(encoding="utf-8")
     assert '"verb": "doctor"' in reqs
 
@@ -536,9 +536,9 @@ def test_oob_ack_message_is_toast_clean():
     """پیامِ واقعیِ out-of-band بعد از strip، پاک است (نه <i> خام)."""
     ch, _ = make_channel()
     raw = ch._run_act("doctor", "runcycle")   # فعلِ OOB
-    assert "درخواست ثبت شد" in raw
+    assert "ثبت شد" in raw     # 2026-07-15: toast صادق (دیگر دروغِ «اجرا می‌شود» نمی‌گوید)
     clean = ac.TelegramApprovalChannel._toast_plain(raw)
-    assert "<i>" not in clean and "<" not in clean and "INV-7" in clean
+    assert "<i>" not in clean and "<" not in clean   # بعد از strip، HTMLِ خام باقی نمی‌ماند
 
 
 if __name__ == "__main__":

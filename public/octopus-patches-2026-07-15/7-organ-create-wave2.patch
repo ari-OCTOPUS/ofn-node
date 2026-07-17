@@ -1,0 +1,207 @@
+diff --git a/_ops/budget/approval_channel.py b/_ops/budget/approval_channel.py
+index 54cae34..de9c965 100644
+--- a/_ops/budget/approval_channel.py
++++ b/_ops/budget/approval_channel.py
+@@ -974,8 +974,96 @@ class TelegramApprovalChannel(ApprovalChannel):
+             return self._cmd_wiring()
+         if t == "/health":
+             return self._cmd_health()
++        # ── موج ۲: ساختِ اندامِ نو (data-driven، دو-مرحله‌ای، owner-only) ──
++        if t.startswith("/neworgan "):
++            return self._cmd_neworgan(t[len("/neworgan "):])
++        if t.startswith("/organ-approve "):
++            return self._cmd_organ_approve(t[len("/organ-approve "):])
+         return None
+ 
++    # ─── موج ۲: ساختِ اندامِ نو — فقط نوشتنِ رجیستریِ داده (هرگز کدِ تولید) ──────────────
++    def _organ_registry_path(self):
++        from pathlib import Path as _P
++        sd = _P(self._state_dir) if self._state_dir else (_P(__file__).resolve().parents[1] / "state")
++        return sd / "organ-registry.json"
++
++    def _read_organ_registry(self) -> list:
++        import json as _json
++        p = self._organ_registry_path()
++        try:
++            if p.exists():
++                d = _json.loads(p.read_text("utf-8"))
++                return d.get("organs", []) if isinstance(d, dict) else []
++        except (OSError, ValueError):
++            pass
++        return []
++
++    @staticmethod
++    def _organ_slug(name: str) -> str:
++        s = re.sub(r"[^a-z0-9]+", "-", str(name).strip().lower()).strip("-")
++        return s[:32]
++
++    def _cmd_neworgan(self, arg: str):
++        """قدمِ ۱: پیشنهادِ اندامِ نو (فقط pending؛ هیچ نوشتنِ رجیستری). نامِ نمایشیِ آزاد، slug مشتق."""
++        import json as _json
++        name = str(arg or "").strip()[:60]
++        if len(name) < 2:
++            return "نام کوتاه است. مثال: <code>/neworgan فروشگاه ووکامرس</code>"
++        slug = self._organ_slug(name)
++        if not slug:
++            return "نامِ نامعتبر (باید حرف/عددِ لاتین در slug بسازد؛ یک نامِ لاتین‌دار بده)."
++        if slug in {o.get("key") for o in self._read_organ_registry()} or \
++                slug in {k for k, *_ in self.ORGANS}:
++            return f"اندامِ «{html.escape(slug)}» از قبل هست."
++        try:
++            pdir = self._organ_registry_path().parent / "organ-proposals"
++            pdir.mkdir(parents=True, exist_ok=True)
++            (pdir / f"{slug}.json").write_text(_json.dumps(
++                {"key": slug, "label": name, "live": False, "kind": "custom",
++                 "note": "اسکلتِ owner-ساخت (propose-only، بی‌پول)",
++                 "proposed_at": _today_iso(), "status": "proposed"}, ensure_ascii=False), "utf-8")
++        except OSError as e:  # noqa: BLE001
++            return f"❌ ثبتِ پیشنهاد ناموفق: {type(e).__name__}"
++        return (f"🆕 <b>اندامِ نو پیشنهاد شد</b>\n"
++                f"نام: {html.escape(name)} · کلید: <code>{html.escape(slug)}</code>\n"
++                f"{self._DIV.strip()}\n"
++                f"اسکلتِ propose-only (read-only، بی‌پول، live=false). برای ساخت بنویس:\n"
++                f"<code>/organ-approve {html.escape(slug)}</code>")
++
++    def _cmd_organ_approve(self, arg: str):
++        """قدمِ ۲: تأییدِ owner → افزودنِ پیشنهاد به رجیستریِ دادهٔ state/organ-registry.json.
++        هیچ کدِ تولید نوشته نمی‌شود؛ فقط یک ورودیِ داده (append، بدونِ حذف)."""
++        import json as _json
++        import os as _os
++        slug = self._organ_slug(arg)
++        pp = self._organ_registry_path().parent / "organ-proposals" / f"{slug}.json"
++        if not pp.exists():
++            return f"پیشنهادی برای «{html.escape(slug)}» نیست. اول <code>/neworgan &lt;نام&gt;</code>."
++        try:
++            entry = _json.loads(pp.read_text("utf-8"))
++        except (OSError, ValueError):
++            return "❌ پیشنهادِ ناخوانا."
++        organs = self._read_organ_registry()
++        if any(o.get("key") == slug for o in organs):
++            return f"«{html.escape(slug)}» از قبل در رجیستری است."
++        entry["status"] = "active"
++        entry["approved_at"] = _today_iso()
++        organs.append(entry)
++        try:
++            rp = self._organ_registry_path()
++            tmp = rp.with_suffix(".json.tmp")
++            tmp.write_text(_json.dumps({"schema": "organ-registry.v1", "organs": organs},
++                                       ensure_ascii=False, indent=1), "utf-8")
++            _os.replace(tmp, rp)
++            pp.unlink()
++        except OSError as e:  # noqa: BLE001
++            return f"❌ نوشتنِ رجیستری ناموفق: {type(e).__name__}"
++        self._append_request("organ-create", slug)      # auditِ append-only
++        return (f"✅ <b>اندام ساخته شد</b>: {html.escape(entry.get('label', slug))} "
++                f"(<code>{html.escape(slug)}</code>)\n"
++                f"در تبِ 🦾 اندام‌ها به‌عنوان اسکلت (⚪ live=false) دیده می‌شود تا دادهٔ واقعی وصل شود.\n"
++                f"<i>هیچ کدِ تولید نوشته نشد — فقط یک ورودیِ رجیستریِ داده.</i>")
++
+     # ─── کابینِ راست‌گو: /wiring + /health (read-only، هرگز stale/بی‌نویسنده را سبز نشان نمی‌دهد) ──
+     def _cmd_wiring(self) -> str:
+         """نقشهٔ اتصال‌ها از truth-cards: هر جزء با آیکنِ صادق (🟢 تازه · 🟠 کهنه · ⚫ غایب/فلگ-خاموش).
+@@ -2012,10 +2100,17 @@ class TelegramApprovalChannel(ApprovalChannel):
+             if is_on:
+                 on += 1
+             lines.append(f"{label}: {fstate} · {live_txt}")
++        # موج ۲: اندام‌های owner-ساختِ رجیستری (data-driven، اسکلت تا دادهٔ واقعی)
++        customs = self._read_organ_registry()
++        for o in customs:
++            lbl = o.get("label") or o.get("key")
++            live = bool(o.get("live"))
++            lines.append(f"🆕 {html.escape(str(lbl))}: ◽ رجیستری · "
++                         + ("🟢 زنده" if live else "⚪ اسکلت"))
+         lines.append(self._DIV.strip())
+-        lines.append(f"🟢 فعال: {on} / {len(self.ORGANS)}")
+-        lines.append("<i>دکمه‌ها: فعال/غیرفعال (تأییدِ دومرحله‌ای، اثر در بوتِ بعدی) · 🩺 دکتر.\n"
+-                     "ساختِ اندامِ نو + پیشنهادِ مغز = موج‌های بعدی.</i>")
++        lines.append(f"🟢 فعالِ built-in: {on}/{len(self.ORGANS)} · 🆕 owner-ساخت: {len(customs)}")
++        lines.append("<i>فعال/غیرفعال: دکمه‌ها (تأییدِ دومرحله‌ای، بوتِ بعدی) · 🩺 دکتر.\n"
++                     "ساختِ اندامِ نو: <code>/neworgan &lt;نام&gt;</code> سپس <code>/organ-approve</code>.</i>")
+         return "\n".join(lines)
+ 
+     def _tab_text(self, page: str) -> str:
+diff --git a/_ops/tests/test_organ_create.py b/_ops/tests/test_organ_create.py
+new file mode 100644
+index 0000000..baef2f1
+--- /dev/null
++++ b/_ops/tests/test_organ_create.py
+@@ -0,0 +1,79 @@
++"""test_organ_create.py — Wave 2 (2026-07-15): ساختِ اندامِ نو (data-driven، دو-مرحله‌ای).
++اثباتِ کلیدی: هیچ کدِ تولید نوشته نمی‌شود — فقط یک ورودی در state/organ-registry.json."""
++import json
++import sys
++import tempfile
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(_HERE.parent))
++sys.path.insert(0, str(_HERE.parent / "budget"))
++
++import harness
++ENV = harness.setup("organ_create")
++
++from approval_channel import TelegramApprovalChannel  # noqa: E402
++
++
++def _chan(sd):
++    return TelegramApprovalChannel(state_dir=str(sd))
++
++
++def t_a_propose_then_approve_writes_registry_only():
++    with tempfile.TemporaryDirectory() as td:
++        ch = _chan(td)
++        r1 = ch.handle_command("/neworgan Woo Shop")
++        assert isinstance(r1, str) and "woo-shop" in r1 and "/organ-approve" in r1
++        assert (Path(td) / "organ-proposals" / "woo-shop.json").exists()
++        assert not (Path(td) / "organ-registry.json").exists()   # هنوز رجیستری نه
++        r2 = ch.handle_command("/organ-approve woo-shop")
++        assert "ساخته شد" in r2
++        reg = json.loads((Path(td) / "organ-registry.json").read_text("utf-8"))
++        assert "woo-shop" in [o["key"] for o in reg["organs"]]
++        assert reg["organs"][0]["live"] is False              # اسکلت
++        assert not (Path(td) / "organ-proposals" / "woo-shop.json").exists()  # مصرف‌شده
++
++
++def t_b_organs_tab_lists_custom():
++    with tempfile.TemporaryDirectory() as td:
++        ch = _chan(td)
++        ch.handle_command("/neworgan Test Organ X")
++        ch.handle_command("/organ-approve test-organ-x")
++        out = ch.handle_command("/organs")
++        assert "Test Organ X" in out["text"] and "owner-ساخت: 1" in out["text"]
++
++
++def t_c_approve_without_proposal_refused():
++    with tempfile.TemporaryDirectory() as td:
++        assert "نیست" in _chan(td).handle_command("/organ-approve ghost")
++
++
++def t_d_duplicate_refused():
++    with tempfile.TemporaryDirectory() as td:
++        ch = _chan(td)
++        ch.handle_command("/neworgan Dup")
++        ch.handle_command("/organ-approve dup")
++        assert "از قبل" in ch.handle_command("/neworgan Dup")
++
++
++def t_e_short_name_refused():
++    with tempfile.TemporaryDirectory() as td:
++        assert "کوتاه" in _chan(td).handle_command("/neworgan x")
++
++
++def t_f_no_production_code_written():
++    """قویترین گارد: ساختِ اندام هیچ .py نمی‌نویسد — فقط دادهٔ state."""
++    with tempfile.TemporaryDirectory() as td:
++        ch = _chan(td)
++        ch.handle_command("/neworgan Safe Check")
++        ch.handle_command("/organ-approve safe-check")
++        assert list(Path(td).rglob("*.py")) == []
++
++
++if __name__ == "__main__":
++    for f in (t_a_propose_then_approve_writes_registry_only, t_b_organs_tab_lists_custom,
++              t_c_approve_without_proposal_refused, t_d_duplicate_refused,
++              t_e_short_name_refused, t_f_no_production_code_written):
++        f()
++        print("ok", f.__name__)
++    print("PASS test_organ_create")

@@ -231,6 +231,13 @@ def _collect_legs(feeds: dict) -> dict:
     # شکلِ مقدار آزاد (dict-به-نام یا list) — هر دو fail-soft. skeleton (live=False)
     # note ِ صادقش را نشان می‌دهد نه پیش‌فرضِ خالی. غیاب = پیش‌فرضِ آرام (بدون crash).
     bl = org.get("business_legs")
+    # فیکسِ P0 (2026-07-15): business_legs_beat خروجی را دولایه می‌نویسد —
+    # ORGANISM["business_legs"] == {"business_legs": {mining,...}, "beat": N} —
+    # ولی این‌جا شکلِ تخت فرض شده بود → هر ۴ پا ساکت default رندر می‌شدند.
+    # هر دو شکل پذیرفته می‌شود (backward-compatible): لایهٔ داخلی هست و بیرونی پا ندارد → سطحی‌سازی.
+    if (isinstance(bl, dict) and isinstance(bl.get("business_legs"), dict)
+            and "mining" not in bl):
+        bl = bl["business_legs"]
     entries: dict = {}
     if isinstance(bl, dict):
         for k, v in bl.items():
@@ -382,6 +389,63 @@ def render_leg_digest(leg_key: str, leg: dict | None, config: dict | None = None
     return scrub("\n".join(lines[:3]))
 
 
+# ─── نمایش: کارتِ پیشنهادِ بودجه (propose-only — هرگز budgets.yaml را دست نمی‌زند) ──
+def latest_epoch() -> dict:
+    """آخرین epoch-<ts>.json از governor (فقط‌خواندنی، fail-soft → {})."""
+    try:
+        d = _OPS / "budget" / "epochs"
+        files = sorted(d.glob("epoch-*.json"), key=lambda p: p.name,
+                       reverse=True) if d.exists() else []
+        return json.loads(files[0].read_text("utf-8")) if files else {}
+    except (OSError, ValueError, IndexError):
+        return {}
+
+
+def render_budget_proposal(epoch: dict | None = None) -> str:
+    """کارتِ «پیشنهادِ تخصیصِ ماهِ بعد» — خروجیِ زندهٔ governor_epoch را به کارتِ propose-only
+    تبدیل می‌کند. ناوردی: فقط نمایش/پیشنهاد؛ هیچ نوشتنی روی budgets.yaml، هیچ money-gate."""
+    e = epoch if isinstance(epoch, dict) else latest_epoch()
+    ad = e.get("allocation_dry") if isinstance(e.get("allocation_dry"), dict) else {}
+    grants = ad.get("grants") if isinstance(ad.get("grants"), dict) else {}
+    if not grants:
+        return scrub("🐙 <b>پیشنهادِ بودجه</b>\nهنوز epochِ تخصیصی نیست (governor نتپیده).")
+    cap, explore = ad.get("cap_monthly_aud"), ad.get("explore_reserve_aud")
+    ha = e.get("heart_autoreg") if isinstance(e.get("heart_autoreg"), dict) else {}
+    advice = _one(ha.get("explore_advice"), 60)
+    h1 = ad.get("h1_check") if isinstance(ad.get("h1_check"), dict) else {}
+    try:
+        cap_s = f"AU${float(cap):.2f}" if cap is not None else "—"
+    except (TypeError, ValueError):
+        cap_s = "—"
+    try:
+        exp_s = f"AU${float(explore):.2f}" if explore is not None else "—"
+    except (TypeError, ValueError):
+        exp_s = "—"
+    lines = ["🐙 <b>پیشنهادِ تخصیصِ ماهِ بعد</b> · <i>propose-only</i>",
+             f"سقف {_esc(cap_s)} · رزروِ کشف {_esc(exp_s)}"]
+    rows = []
+    for organ, g in grants.items():
+        if not isinstance(g, dict):
+            continue
+        try:
+            rows.append((float(g.get("total_month_aud") or 0), organ))
+        except (TypeError, ValueError):
+            continue
+    for tot, organ in sorted(rows, reverse=True)[:8]:
+        lines.append(f"• {_esc(organ)}: <code>AU${tot:.2f}</code>")
+    bb = e.get("allocation_barbell") if isinstance(e.get("allocation_barbell"), dict) else {}
+    pct = bb.get("organ_pct") if isinstance(bb.get("organ_pct"), dict) else {}
+    if pct:
+        top = sorted(((float(v or 0), k) for k, v in pct.items()), reverse=True)[:3]
+        lines.append("🎯 barbell: " + " · ".join(f"{_esc(k)} {v*100:.0f}%" for v, k in top))
+    if advice:
+        lines.append(f"↳ explore: {_esc(advice)}")
+    lines.append(DIVIDER)
+    lines.append("✅ جمعِ پیشنهاد ≤ سقف" if h1.get("ok") else "⚠️ جمعِ پیشنهاد را چک کن")
+    lines.append("<i>این فقط پیشنهاد است — budgets.yaml دست‌نخورده می‌ماند.</i>")
+    return scrub("\n".join(lines))
+
+
 # ─── نمایش: کارتِ تصمیم (یک‌تاپ: ok/no/later) ─────────────────────────────────────
 def _decision_id(item: dict) -> str:
     """شناسهٔ تصمیم برای callback_data: idِ داده‌شده (فقط نویسه‌های امنِ ASCII، کران‌دار،
@@ -411,12 +475,137 @@ def render_decision(item: dict | None) -> tuple:
     text = f"{head}\n{_esc(q)}"
     if why:
         text += f"\n<i>↳ {_esc(why)}</i>"
+    if str(d.get("source") or "") in ("money", "approval"):
+        # راست‌گوییِ دکمه (2026-07-17): این کارت settle نمی‌کند (idش نامرتبط با effect_id) —
+        # ✅ِ اینجا فقط ack بود و پولِ واقعی معلق می‌ماند. تأییدِ واقعی فقط در کارتِ توکنِ
+        # approval_channel است؛ پس دکمهٔ جعلیِ آره/نه حذف، فقط اطلاع + «دیدم».
+        text += "\n<i>⚠️ تأیید/رد فقط در کارتِ اصلیِ تأیید (approval_channel) انجام می‌شود.</i>"
+        return scrub(text), [[{"text": "⏳ باشه، دیدم", "callback_data": f"later:{did}"}]]
     keyboard = [[
         {"text": "✅ آره", "callback_data": f"ok:{did}"},
         {"text": "❌ نه", "callback_data": f"no:{did}"},
         {"text": "⏳ بعداً", "callback_data": f"later:{did}"},
     ]]
     return scrub(text), keyboard
+
+
+# ─── مرکزِ فرماندهی: منو + کارت‌های کنترل (رأی مالک 2026-07-17) ────────────────────
+# callback-verbهای قرارداد (ASCII، ≤64B): mn:<page> ناوبری · lg:<key>:p|r مکث/ادامه ·
+# pw:<act> مسلح‌کردنِ اکشنِ حساس · pwc:<act> تأییدِ نهایی · fg:<FLAG> toggleِ فلگ.
+_BACK = {"text": "🔙 منو", "callback_data": "mn:menu"}
+
+
+def render_menu(power: bool = False) -> tuple:
+    """منوی اصلیِ فرماندهی — دکمه‌ای، در همان پیام ناوبری می‌شود (edit)."""
+    text = ("🐙 <b>مرکزِ فرماندهیِ اختاپوس</b>\n"
+            + ("⚡ ردهٔ قدرت: روشن" if power else "🔒 ردهٔ قدرت: خاموش (OCTOPUS_TG_POWER)"))
+    kb = [[{"text": "📊 وضعیت", "callback_data": "mn:st"},
+           {"text": "✅ تأییدها", "callback_data": "mn:ap"}],
+          [{"text": "🦵 پاها", "callback_data": "mn:lg"},
+           {"text": "🐙 بودجه", "callback_data": "mn:bg"}],
+          [{"text": "💰 درآمد", "callback_data": "mn:rv"},
+           {"text": "⚙️ سیستم", "callback_data": "mn:sy"}]]
+    return scrub(text), kb
+
+
+def render_organs(paused: dict | None, config: dict | None = None) -> tuple:
+    """کارتِ پاها: وضعِ مکث/فعالِ هر پا + دکمهٔ برعکسش (راست‌گو: از فایلِ واقعی)."""
+    p = paused if isinstance(paused, dict) else {}
+    names = {**{k: k for k in p}, **(config or {}).get("display_names", {})} \
+        if isinstance((config or {}).get("display_names"), dict) else {k: k for k in p}
+    lines = ["🦵 <b>پاهای اختاپوس</b> — مکث/ادامه (بدونِ restart)"]
+    kb: list = []
+    for key, is_p in p.items():
+        label = _esc(str(names.get(key, key)))
+        lines.append(f"{'⏸' if is_p else '▶️'} {label}")
+        kb.append([{"text": (f"▶️ ادامهٔ {label}" if is_p else f"⏸ مکثِ {label}"),
+                    "callback_data": f"lg:{key}:{'r' if is_p else 'p'}"}])
+    kb.append([_BACK])
+    return scrub("\n".join(lines)), kb
+
+
+def render_power(power: bool, sentinels: dict | None = None) -> tuple:
+    """کارتِ سیستم: وضعِ واقعیِ سنتینل‌ها + اکشن‌ها (همه دوکلیک). ترمزِ اضطراری
+    (پنیک/توقف/ادامه) همیشه آزاد است؛ restart/فلگ/بودجه پشتِ فلگِ قدرت."""
+    s = sentinels if isinstance(sentinels, dict) else {}
+    lines = ["⚙️ <b>کنترلِ سیستم</b>",
+             f"{'🔴' if s.get('stop') else '🟢'} STOP-ORGANISM "
+             f"· {'🔴' if s.get('halt') else '🟢'} HALT-ALL "
+             f"· {'♻️' if s.get('restart') else '—'} restart-pending",
+             "🟢 اضطراری (همیشه آزاد، دوکلیک): پنیک · توقف · ادامه"]
+    if not power:
+        lines.append("🔒 بقیه (ری‌استارت/فلگ/بودجه) پشتِ <code>OCTOPUS_TG_POWER=1</code>.")
+    kb = [[{"text": "🚨 پنیک", "callback_data": "pw:pn"},
+           {"text": "⛔ توقف", "callback_data": "pw:st"}],
+          [{"text": "▶️ ادامه از پنیک", "callback_data": "pw:re"}],
+          [{"text": "♻️ ری‌استارت 🔒" if not power else "♻️ ری‌استارت",
+            "callback_data": "pw:rs"},
+           {"text": "🚩 فلگ‌ها 🔒" if not power else "🚩 فلگ‌ها",
+            "callback_data": "mn:fl"}],
+          [_BACK]]
+    return scrub("\n".join(lines)), kb
+
+
+def render_flags(states: dict | None) -> tuple:
+    """کارتِ فلگ‌ها (whitelist) — صادق: env=الان، file=بوتِ بعد؛ toggle دوکلیک."""
+    st = states if isinstance(states, dict) else {}
+    lines = ["🚩 <b>فلگ‌ها</b> — اثرِ تغییر فقط در بوتِ بعدی (♻️)"]
+    kb: list = []
+    for name, info in st.items():
+        lines.append(f"• <code>{_esc(name)}</code> — {_esc(str(info))}")
+        kb.append([{"text": f"🔁 {name}", "callback_data": f"pw:fg-{name}"}])
+    kb.append([_BACK])
+    return scrub("\n".join(lines)), kb
+
+
+def render_confirm(action_label: str, act_key: str) -> tuple:
+    """کارتِ تأییدِ دوکلیک — قدمِ دومِ هر اکشنِ حساس."""
+    text = f"❗ <b>مطمئنی؟</b>\n{_esc(action_label)}\n<i>این تأیید ۳ دقیقه اعتبار دارد.</i>"
+    kb = [[{"text": "✅ بله، اجرا کن", "callback_data": f"pwc:{act_key}"},
+           {"text": "❌ انصراف", "callback_data": "mn:sy"}]]
+    return scrub(text), kb
+
+
+# ─── نمایش: کارتِ درآمد (aggregate، PII-safe — نامِ شریک هرگز echo نمی‌شود) ────────
+def render_revenue(rev: dict | None = None) -> str:
+    """کارتِ نمایشِ درآمد (aggregate، PII-safe): جمعِ CONFIRMED AUD، پوششِ انتساب،
+    شمارشِ claimed/confirmed، و per-cell. نامِ شریک هرگز echo نمی‌شود (فقط شمارش + جمع).
+    دیدِ خودتأمینیِ اختاپوس؛ هیچ money-gate/نوشتنی."""
+    d = rev if isinstance(rev, dict) else {}
+    by_cell = d.get("by_cell") if isinstance(d.get("by_cell"), dict) else {}
+    by_partner = d.get("by_partner") if isinstance(d.get("by_partner"), dict) else {}
+    coverage = d.get("attribution_coverage")
+    claimed, confirmed = _int(d.get("claimed")), _int(d.get("confirmed"))
+    total = 0.0
+    for v in by_cell.values():
+        try:
+            total += float(v or 0)
+        except (TypeError, ValueError):
+            continue
+    cov_s = f"{float(coverage)*100:.0f}%" if isinstance(coverage, (int, float)) else "—"
+    lines = ["💰 <b>درآمدِ تأییدشده</b> (aggregate)",
+             f"جمع <code>AU${total:.2f}</code> · پوشش {cov_s} · "
+             f"{confirmed}/{claimed} تأیید/ادعا"]
+    rows = []
+    for cell, v in by_cell.items():
+        try:
+            rows.append((float(v or 0), cell))
+        except (TypeError, ValueError):
+            continue
+    for amt, cell in sorted(rows, reverse=True)[:8]:
+        lines.append(f"• {_esc(cell)}: <code>AU${amt:.2f}</code>")
+    if not rows:
+        lines.append("هنوز per-cellِ تأییدشده‌ای نیست.")
+    if by_partner:
+        psum = 0.0
+        for v in by_partner.values():
+            try:
+                psum += float(v or 0)
+            except (TypeError, ValueError):
+                continue
+        lines.append(DIVIDER)
+        lines.append(f"👥 {len(by_partner)} شریک · جمعِ سهم <code>AU${psum:.2f}</code>")
+    return scrub("\n".join(lines))
 
 
 if __name__ == "__main__":

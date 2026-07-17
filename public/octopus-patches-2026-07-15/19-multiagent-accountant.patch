@@ -1,0 +1,1260 @@
+commit 0a82814bd7dca23c131e89367c6d4530c69815c0
+Author: ari-vault <paintingdesign76@gmail.com>
+Date:   Thu Jul 16 10:18:59 2026 +1000
+
+    feat(accountant): multi-agent accountant on integer-cents + 2027 methods notes
+    
+    owner: build a multi-agent accountant; help refine accuracy (human-in-loop). Real model: Armin=
+    day-laborer for Abbas $250/day, mixed ownership, pass-through transfers excluded.
+    money.py (integer-cents+largest-remainder split, fixes P1 float bug) · txn_store.py (259 txns from
+    6 sources, dedup, reconcile tie-out GREEN) · attributor.py (deterministic cascade transfer/wage/
+    vendor, auto|needs_review enum, apply_corrections=owner learning) · accountant.py (orchestrator →
+    per-owner report transfers-excluded + review-queue.json). 259 txns: 7 auto, 252 owner-review.
+    Tests 5+5+12+3. Financial data all gitignored. propose-only, brain never computes figures.
+    
+    Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+
+diff --git a/.gitignore b/.gitignore
+index 1c1d574..e2761a7 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -44,3 +44,12 @@ _ops/OCTOPUS-flags.cmd
+ 
+ # PII: دفترِ شخصی/مشترک حاوی دادهٔ مالیِ واقعی — هرگز commit نشود
+ 03 - Projects/Accounting/personal/ledger.json
++
++# PII: منبعِ خامِ مالی (PocketSmith export) — هرگز commit نشود
++03 - Projects/Accounting/personal/source/
++
++# PII: انبارِ تجمیعیِ تراکنش (txn_store) حاوی دادهٔ مالیِ واقعی — هرگز commit نشود
++03 - Projects/Accounting/personal/txn-store.json
++
++# PII: اکسترکت‌های خامِ دفتر (CSVِ مالیِ واقعی) — هرگز commit نشود
++03 - Projects/Accounting/drafts/ledger-extract/
+diff --git a/03 - Projects/Accounting/ACCOUNTING-2027-METHODS-AND-ALIGNMENT.md b/03 - Projects/Accounting/ACCOUNTING-2027-METHODS-AND-ALIGNMENT.md
+new file mode 100644
+index 0000000..f27e9bd
+--- /dev/null
++++ b/03 - Projects/Accounting/ACCOUNTING-2027-METHODS-AND-ALIGNMENT.md	
+@@ -0,0 +1,43 @@
++---
++type: reference
++project: "[[03 - Projects/Accounting/PROJECT]]"
++status: active
++tags: [accounting, research, multi-agent, 2027, alignment]
++created: 2026-07-16
++updated: 2026-07-16
++---
++
++# حسابداریِ ۲۰۲۷ — ۱۰ روشِ مهندسی + هم‌راستاسازی با پروژهٔ ما
++
++> منشأ: workflow چند-ایجنتی (تحقیقِ وبِ Ramp/Midday/HighRadius/Puzzle/Xero + اسکنِ فارنزیکِ کدِ ما). دادهٔ کامل: `scratchpad/acct_audit.json`. برچسبِ بلوغ صادق است — ۲۰۲۷ = روند/پیش‌بینی، نه قطعیت.
++
++## دو حکمِ صادق دربارهٔ کدِ فعلیِ ما
++- 🔴 **دقتِ پول (P1، فوری):** کلِ زنجیره `float` است (`personal_ledger._num→float`، `attribution`, `reconcile`). برای پولِ واقعی خطای گِردکردن دارد. مسیرِ خرابیِ اثبات‌شده: **سهم‌های splitِ آرمین+عباس با هم دقیقاً برابرِ کل نمی‌شوند** (هرکدام جدا گِرد می‌شوند). فقط محورِ خرجِ ارگانیسم (opslib، integer micro-USD) درست است.
++- 🟡 **هوش: L2 «مهارشده ولی حساب‌ناشیانه»** — صادق + PII-امن + propose-only، ولی جایی که زنده است فقط **ذخیره + جمع** می‌کند؛ دسته‌بندیِ خودکار/مطابقت/تشخیصِ ناهنجاری ندارد.
++
++## ۱۰ روشِ مهندسی (از شرکت‌های واقعیِ ۲۰۲۶)
++| # | روش | بلوغ | برای ما |
++|---|---|---|---|
++| ۱ | **پول = integer-cents/Decimal**، هرگز float | استاندارد ۲۰۲۶ | **P0** — کلِ زنجیره را سنت کن |
++| ۲ | **دفترِ دوطرفهٔ append-only** + ناوردایِ جمع‌صفر + tie-out | استاندارد | افزودنِ trial-balance |
++| ۳ | **import idempotent** با کلیدِ hashِ محتوایی | استاندارد | ext_id فعلی شکننده — درست کن |
++| ۴ | **مطابقتِ لایه‌ای** (قطعی→احتمالی→embedding) + صفِ استثنا | استاندارد (هستهٔ قطعی) | تطبیقِ واریزی بانک با فاکتورِ لید |
++| ۵ | **جداییِ برنامه‌ریزی/محاسبه**: LLM استخراج/پیشنهاد، موتورِ قطعی هر عدد | استاندارد | مغز هرگز جمع نزند |
++| ۶ | **دسته‌بندیِ آبشاریِ گیت‌دار** (قاعده→مدلِ محلی→بازبینی) | استاندارد/emerging | Bunnings/Dulux→مواد |
++| ۷ | **تصمیمِ Approve/Reject/Needs-Review** + citation (نه confidence جعلی) | استاندارد | چون LLM confidence دروغ می‌گوید |
++| ۸ | **گیتِ انسانیِ سخت** — ایجنت کارِ خودش را تأیید نمی‌کند | استاندارد | ✅ **این را داریم** (AU$30 + whitelist + ladder) |
++| ۹ | **eval = unit-test** (dataset طلایی، edge-first، شکست→تست) | استاندارد | harnessِ تراکنشِ نقاشی بساز |
++| ۱۰ | **موتورِ قطعیِ مالیات + گاردِ provenance** جلوی گیتِ تأیید | استاندارد | GST = ۱۰٪ ثابت، نه مغز |
++
++## چه داریم / چه نداریم
++- ✅ **داریم (تولیدی):** روش ۸ (گیتِ انسانی) — کامل و اجراشده.
++- 🟡 **ناقص:** ۳ (idempotency شکننده)، ۴ (فقط مطابقتِ Track-B درآمد؛ دفترِ شخصی matcher ندارد)، ۵/۶/۷ (اسکلت).
++- 🔴 **نداریم:** ۱ (Decimal)، ۲ (دوطرفه)، ۹ (eval)، ۱۰ (موتورِ مالیات).
++
++## نقشهٔ هم‌راستاسازی (اولویت‌دار)
++**P0 (فوری — دقتِ پول):** ① همه‌جا integer-cents + splitِ largest-remainder (سهم‌ها دقیقاً جمع شوند) ② اعتبارِ split=۱۰۰٪ + tie-out assertion + `reconciled:bool` (کابین اگر ناسازگار = قرمز) ③ فیکسِ idempotencyِ PocketSmith (کلیدِ hashِ محتوایی، fail-loud).
++**P1:** نوعِ `settlement/transfer` (تسویهٔ $۲۰۰۰ + honoring credit/debit) · reconcile-to-source روی هر import (جمعِ مستقلِ ستونِ خام، رد اگر نخواند) · درایورِ مطابقتِ دفترِ شخصی + صفِ استثنا · کارتِ کابین با سیگنالِ PII-امن.
++**P2:** دسته‌بندیِ آبشاری (قاعده→7Bِ محلی→بازبینی) · harnessِ eval طلایی · موتورِ GSTِ قطعی + گاردِ provenance.
++**P3:** قفلِ فایل + بکاپِ پیش‌از‌نوشتن · گزارشِ import روی delta.
++
++**خطِ قرمز (تغییرناپذیر):** propose-only؛ هرگز حرکتِ خودکارِ پول؛ مغز عدد نسازد؛ گیتِ تأیید انسانی.
+diff --git a/03 - Projects/Accounting/personal/PROJECT.md b/03 - Projects/Accounting/personal/PROJECT.md
+index 1e521ef..16e8f62 100644
+--- a/03 - Projects/Accounting/personal/PROJECT.md	
++++ b/03 - Projects/Accounting/personal/PROJECT.md	
+@@ -45,3 +45,13 @@ updated: 2026-07-16
+ - ✅ ساخته: پوشه، PROJECT، CONSENT، قالبِ ledger، خوانندهٔ propose-only.
+ - ⏳ مانده: مالک دفتر را پر کند؛ اتصالِ اختیاریِ کارتِ کابین.
+ - مشکلات شناخته: هیچ (propose-only، صفر حرکتِ مالی).
++
++
++## ⚠️ مدلِ واقعی (تصحیحِ حیاتی، رأی owner 2026-07-16) — «شراکت» نیست
++- **آرمین برای عباس روزمزد کار می‌کند: $۲۵۰/روز.** حقوقش از حسابِ عباس پرداخت می‌شود.
++- طلبِ ~$۲۰۰۰ = **حقوقِ پرداخت‌نشدهٔ آرمین** که عباس بدهکار است.
++- داده **مختلط** است: بخشی از درآمد/خرج مالِ آرمین، بخشی مالِ عباس؛ حقوقِ آرمین هم داخلش.
++- **مورد بحرانی TRANSFER (pass-through):** گاهی پول از حسابِ بیزنس به حسابِ آرمین می‌آید ولی او برای عباس می‌ریزد → **نه درآمد نه خرج**؛ باید transfer برچسب بخورد و از رول‌آپ حذف شود (وگرنه دوبار شمرده می‌شود).
++- **حقیقت از داده استخراج می‌شود، نه حافظه:** owner برچسب‌های مبهم را تأیید/تصحیح می‌کند (human-in-the-loop) و همان تصحیح‌ها سیگنالِ یادگیری‌اند.
++- **مالیات:** GST-registered? نوعِ ساختار (sole-trader/PAYG)? سالِ مالی استرالیا ۱ جولای–۳۰ جون — مقادیر منتظرِ owner.
++- منبعِ فعلی (search-export) دسته‌بندیِ اصلی را ندارد → برای دقتِ کامل، exportِ PocketSmith **با ستونِ Category/Labels** لازم است.
+diff --git a/_ops/legs/accountant.py b/_ops/legs/accountant.py
+new file mode 100644
+index 0000000..1decf2d
+--- /dev/null
++++ b/_ops/legs/accountant.py
+@@ -0,0 +1,111 @@
++#!/usr/bin/env python3
++"""accountant.py — ارکستراتورِ حسابدارِ مولتی‌ایجنت (2026-07-16، propose-only).
++
++خط‌لولهٔ روش‌های ۲۰۲۷: txn_store.load_all (تجمیع، سنت، dedup، reconcile) →
++attributor.attribute (قاعده‌محور: wage/transfer/vendor + صفِ بازبینی) → گزارشِ قطعی
++(income/expense به تفکیکِ owner، **transferها حذف** تا دوبار شمرده نشوند؛ حقوقِ آرمین جدا).
++
++مرزها: هرگز پول جابه‌جا نمی‌کند؛ مغز عدد نمی‌سازد (همه از money.py سنت)؛ هر تصمیمِ مبهم =
++needs_review برای تأییدِ مالک. مقادیر فقط در فایلِ gitignore، نه echo در چت/بیرون.
++$0 · stdlib · fail-soft.
++"""
++from __future__ import annotations
++
++import json
++import sys
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(_HERE))
++sys.path.insert(0, str(_HERE.parent / "budget"))
++import opslib        # noqa: E402
++import money         # noqa: E402
++import txn_store     # noqa: E402
++import attributor    # noqa: E402
++
++
++def _store_path() -> Path:
++    return opslib.ORG_ROOT / "03 - Projects" / "Accounting" / "personal" / "txn-store.json"
++
++
++def _queue_path() -> Path:
++    return opslib.ORG_ROOT / "03 - Projects" / "Accounting" / "personal" / "review-queue.json"
++
++
++def report(txns: list[dict]) -> dict:
++    """گزارشِ قطعیِ سنتی. transferها از income/expense حذف می‌شوند (pass-through).
++    خروجی فقط تجمیعی — نه تراکنشِ منفرد."""
++    per = {}                       # owner → {income, expense, wage, transfer}(cents)
++    def slot(o):
++        return per.setdefault(o, {"income_cents": 0, "expense_cents": 0,
++                                  "wage_cents": 0, "transfer_cents": 0})
++    for t in txns:
++        if not isinstance(t, dict):
++            continue
++        owner = str(t.get("owner", "unknown"))
++        pt = str(t.get("ptype", "unknown"))
++        amt = int(t.get("amount_cents", 0) or 0)
++        s = slot(owner)
++        if pt == "transfer":
++            s["transfer_cents"] += abs(amt)          # فقط برای دید؛ در net نمی‌آید
++        elif pt == "wage":
++            s["wage_cents"] += abs(amt)
++        elif pt == "income" or (pt == "unknown" and amt > 0):
++            s["income_cents"] += amt
++        elif pt == "expense" or (pt == "unknown" and amt < 0):
++            s["expense_cents"] += -amt
++    for o, s in per.items():
++        s["net_cents"] = s["income_cents"] - s["expense_cents"]   # transfer/wage جدا
++        # نمایشِ خوانا (لبِ خروجی)
++        s["display"] = {k.replace("_cents", ""): money.fmt(v) for k, v in s.items() if k.endswith("_cents")}
++    return per
++
++
++def run(persist: bool = True) -> dict:
++    """کلِ خط‌لوله را اجرا کن و خلاصه بده (فقط شمارش/تجمیع)."""
++    try:
++        txns = txn_store.load_all()
++    except Exception as e:  # noqa: BLE001
++        return {"ok": False, "error": f"load_all: {type(e).__name__}"}
++    txns = attributor.attribute(txns)
++    rec = txn_store.reconcile_report(txns)
++    q = attributor.review_queue(txns)
++    if persist:
++        try:
++            txn_store.save(txns, _store_path())
++            # صفِ بازبینی برای مالک — فیلدهای برچسب‌زنی خالی، مهم‌ترین اول
++            qp = _queue_path()
++            qp.parent.mkdir(parents=True, exist_ok=True)
++            slim = [{"id": t.get("id"), "date": t.get("date"),
++                     "amount": money.fmt(t.get("amount_cents", 0)),
++                     "desc": str(t.get("desc", ""))[:80],
++                     "guess": {"owner": t.get("owner"), "ptype": t.get("ptype")},
++                     "basis": t.get("basis", ""),
++                     "__fill__": {"owner": "armin|abbas|business", "ptype": "income|expense|wage|transfer"}}
++                    for t in q]
++            tmp = qp.with_suffix(".json.tmp")
++            tmp.write_text(json.dumps({"_note": "owner: هر ردیف را با owner/ptype درست پر کن، بعد apply کن",
++                                       "count": len(slim), "items": slim}, ensure_ascii=False, indent=2), "utf-8")
++            import os
++            os.replace(tmp, qp)
++        except Exception as e:  # noqa: BLE001
++            opslib.alert([f"accountant persist خطا: {type(e).__name__}: {e}"])
++    return {"ok": True, "counts": attributor.counts(txns),
++            "reconcile": rec, "review_queue_size": len(q),
++            "report": report(txns)}
++
++
++def apply_review(corrections: dict, persist: bool = True) -> dict:
++    """تصحیحاتِ مالک را اعمال کن (مسیرِ یادگیری). corrections = {id:{owner,ptype,category?}}."""
++    txns = txn_store.load_all_from(_store_path()) if hasattr(txn_store, "load_all_from") else \
++        json.loads(_store_path().read_text("utf-8")) if _store_path().exists() else []
++    if isinstance(txns, dict):
++        txns = txns.get("txns", txns.get("items", []))
++    txns = attributor.apply_corrections(txns, corrections)
++    if persist and _store_path().exists():
++        txn_store.save(txns, _store_path())
++    return {"ok": True, "applied": len(corrections), "report": report(txns)}
++
++
++if __name__ == "__main__":
++    print(json.dumps(run(persist=("--dry" not in sys.argv)), ensure_ascii=False, indent=2))
+diff --git a/_ops/legs/attributor.py b/_ops/legs/attributor.py
+new file mode 100644
+index 0000000..1602953
+--- /dev/null
++++ b/_ops/legs/attributor.py
+@@ -0,0 +1,271 @@
++#!/usr/bin/env python3
++"""attributor.py — دسته‌بندِ قطعیِ تراکنش‌ها (CATEGORIZER) برای حسابدارِ چندایجنتی — 2026-07-16.
++
++مدلِ واقعی: آرمین برای عباس روزمزد $۲۵۰ کار می‌کند (حقوق از حسابِ عباس). داده مالکیتِ
++مخلوط دارد + یک موردِ بحرانیِ TRANSFER: پولِ کسب‌وکار به حسابِ آرمین می‌آید ولی او همان را
++به عباس می‌فرستد (pass-through — باید transfer برچسب بخورد، از درآمد/هزینه EXCLUDED، هرگز
++دوباره‌شمرده نشود).
++
++روش‌های تحقیقِ ۲۰۲۷ (از محصولاتِ واقعی Ramp/Midday/HighRadius):
++  · روش ۷ — تصمیم یک enumِ categorical است {auto | needs_review}، نه یک «اطمینانِ عددیِ»
++    قلابی (LLM اطمینانش صرف‌نظر از درستی حول ۷۰–۸۰٪ خوشه می‌زند — Ramp).
++  · روش ۶ — آبشارِ «قاعدهٔ قطعی-اول»؛ فقط پس‌ماند نامطمئن است و needs_review می‌شود.
++  · روش ۸ — گیتِ سختِ انسانی: دسته‌بند هرگز خودش تأیید نمی‌کند — پیشنهاد می‌دهد، مالک تأیید.
++
++مرزهای سخت (این ماژول):
++  - PROPOSE-ONLY مطلق: هرگز پول جابه‌جا نمی‌شود، هرگز کارِ خودش را auto-confirm نمی‌کند.
++    وضعیتِ «confirmed» فقط از مسیرِ apply_corrections (ورودیِ مالک) می‌آید، نه از خودِ ایجنت.
++  - وقتی نامطمئن → needs_review؛ روی پولِ واقعی هرگز حدس نمی‌زند.
++  - خروجی هیچ مبلغِ خامی را echo نمی‌کند مگر خودِ txn (که amount_cents دارد)؛ counts فقط شمارش.
++
++شِمای ورودی (از txn_store، ایجنتِ دیگر می‌سازد — این شکل فرض می‌شود):
++  txn = {id, date("YYYY-MM-DD"), amount_cents(int علامت‌دار), desc, source, account,
++         owner:"unknown", ptype:"unknown", category, review:"pending", note}
++  مثبت = ورودی (inbound)، منفی = خروجی (outbound).
++
++هستهٔ خروجی هر txn پس از attribute: owner / ptype / category / review + basis (citationِ قاعده).
++
++$0 · فقط stdlib (money.py هم‌بسته) · fail-soft.
++"""
++from __future__ import annotations
++
++import datetime as _dt
++import sys
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++if str(_HERE) not in sys.path:
++    sys.path.insert(0, str(_HERE))
++import money  # noqa: E402  — هر کارِ سنت از money.py (int cents، نه float)
++
++# ── ثابت‌های قاعده (قابل‌توسعه) ─────────────────────────────────────────────
++WAGE_UNIT_CENTS = money.to_cents("250")          # نرخِ روزمزدِ $۲۵۰ = ۲۵۰۰۰ سنت
++WAGE_HINTS = ("armin", "آرمین", "حقوق", "wage", "salary")
++# نشانه‌های pass-through در desc (همه → needs_review، هرگز auto، هرگز حرکتِ پول → over-tag امن)
++TRANSFER_HINTS = ("transfer", "passthrough", "pass-through", "pass through",
++                  "عباس→", "→عباس", "به عباس", "to abbas", "→")
++# نقشهٔ فروشنده (starter map — قابل‌توسعه): کلیدواژه → (category, ptype)
++VENDOR_RULES = {
++    "materials": ("bunnings", "dulux", "masters", "paint", "hardware"),
++    "transport": ("fuel", "petrol"),
++}
++# تلورانسِ «تقریباً برابر» برای جفتِ pass-through: بیشترِ $۲ یا ۲٪ (کارمزدِ احتمالی)
++_TOL_FLOOR_CENTS = money.to_cents("2")
++
++
++# ── کمک‌های fail-soft ───────────────────────────────────────────────────────
++def _amt(t: dict) -> int:
++    """amount_cents علامت‌دار به‌صورتِ int؛ هر خطا → 0."""
++    try:
++        return int(t.get("amount_cents") or 0)
++    except (TypeError, ValueError):
++        return 0
++
++
++def _desc(t: dict) -> str:
++    return str(t.get("desc") or "").lower()
++
++
++def _acct(t: dict) -> str:
++    return str(t.get("account") or "").strip().lower()
++
++
++def _date(t: dict):
++    """date("YYYY-MM-DD") → datetime.date؛ نامعتبر → None (→ جفت‌سازی رد می‌شود، محافظه‌کار)."""
++    try:
++        return _dt.date.fromisoformat(str(t.get("date") or "")[:10])
++    except (TypeError, ValueError):
++        return None
++
++
++def _near_equal(a_abs: int, b_abs: int) -> bool:
++    tol = max(_TOL_FLOOR_CENTS, int(round(0.02 * max(a_abs, b_abs))))
++    return abs(a_abs - b_abs) <= tol
++
++
++def _has_transfer_hint(desc: str) -> bool:
++    return any(h in desc for h in TRANSFER_HINTS)
++
++
++def _is_wage(desc: str, cents: int) -> bool:
++    """desc نامِ آرمین/حقوق را دارد و مبلغ مضربِ دقیقِ $۲۵۰ است (مضربِ روزمزد)."""
++    if cents == 0:
++        return False
++    if abs(cents) % WAGE_UNIT_CENTS != 0:
++        return False
++    return any(h in desc for h in WAGE_HINTS)
++
++
++def _vendor_hit(desc: str):
++    """اولین قاعدهٔ فروشندهٔ منطبق → (category, matched_keyword)؛ وگرنه None."""
++    for category, keys in VENDOR_RULES.items():
++        for k in keys:
++            if k in desc:
++                return category, k
++    return None
++
++
++def _set(t: dict, **kw) -> None:
++    for k, v in kw.items():
++        t[k] = v
++
++
++def _passthrough_indices(txns: list) -> set:
++    """اندیسِ txnهایی که کاندیدِ pass-through هستند: یک inbound (مثبت) که ظرفِ ~۳ روز با یک
++    outbound (منفی) تقریباً-برابر روی همان account دنبال می‌شود. جفتِ هر دو سمت علامت می‌خورد.
++    قطعی و محافظه‌کار — تاریخِ نامعتبر → جفت نمی‌شود."""
++    marked: set = set()
++    used_out: set = set()                       # اندیسِ outboundهای مصرف‌شده (یک‌به‌یک)
++    items = [(i, t) for i, t in enumerate(txns) if isinstance(t, dict)]
++    for i, t in items:
++        c = _amt(t)
++        if c <= 0:                              # فقط inbound را لنگر می‌کنیم
++            continue
++        din = _date(t)
++        if din is None:
++            continue
++        acct = _acct(t)
++        for j, u in items:
++            if j == i or j in used_out:
++                continue
++            cu = _amt(u)
++            if cu >= 0:                          # فقط outbound
++                continue
++            if _acct(u) != acct:
++                continue
++            dout = _date(u)
++            if dout is None:
++                continue
++            delta = (dout - din).days
++            if delta < 0 or delta > 3:           # outbound بعدِ inbound، تا ۳ روز
++                continue
++            if not _near_equal(abs(c), abs(cu)):
++                continue
++            marked.add(i)
++            marked.add(j)
++            used_out.add(j)
++            break
++    return marked
++
++
++# ── API عمومی ───────────────────────────────────────────────────────────────
++def attribute(txns: list) -> list:
++    """قاعده‌های قطعی را (آبشارِ روش ۶) به هر txn اعمال کن و owner/ptype/category/review + basis
++    را ست کن. کپیِ هر dict (بدونِ mutation ورودی). نامطمئن → needs_review (هرگز حدس روی پول).
++
++    اولویتِ آبشار (اول برنده): transfer(جفت) › transfer(desc) › wage › vendor › unmatched.
++    transfer اول است چون «هرگز دوباره‌نشمردنِ pass-through» بحرانی‌ترین مرزِ ایمنیِ پول است."""
++    if not isinstance(txns, list):
++        return []
++    pass_idx = _passthrough_indices(txns)
++    out = []
++    for i, t in enumerate(txns):
++        if not isinstance(t, dict):
++            out.append(t)
++            continue
++        r = dict(t)
++        desc = _desc(r)
++        c = _amt(r)
++        if i in pass_idx:
++            _set(r, ptype="transfer", category="transfer",
++                 review="needs_review", basis="passthrough-candidate:in→out")
++        elif _has_transfer_hint(desc):
++            _set(r, ptype="transfer", category="transfer",
++                 review="needs_review", basis="passthrough-candidate:desc")
++        elif _is_wage(desc, c):
++            n = abs(c) // WAGE_UNIT_CENTS
++            _set(r, owner="armin", ptype="wage", category="wages",
++                 review="needs_review", basis=f"wage-pattern:$250x{n}")
++        else:
++            hit = _vendor_hit(desc)
++            if hit:
++                cat, name = hit
++                _set(r, ptype="expense", category=cat,
++                     review="auto", basis=f"vendor:{name}->{cat}")
++            else:
++                _set(r, review="needs_review", basis="unmatched:needs-owner-label")
++        out.append(r)
++    return out
++
++
++def review_queue(txns: list) -> list:
++    """همهٔ txnهای review=="needs_review"، مهم‌ترین-اول بر اساسِ |amount_cents| (نزولی).
++    این صفِ کاری برای مالک است — دسته‌بند هرگز خودش این‌ها را قطعی نمی‌کند."""
++    q = [t for t in txns if isinstance(t, dict) and t.get("review") == "needs_review"]
++    return sorted(q, key=lambda t: abs(_amt(t)), reverse=True)
++
++
++def apply_corrections(txns: list, corrections: dict) -> list:
++    """مسیرِ یادگیری/human-in-the-loop: تصحیح‌های مالک را اعمال کن.
++    corrections = {id: {owner, ptype, category}} → همان txn را confirmed + basis="owner" کن.
++    این تنها مسیری است که review را به «confirmed» می‌رساند (روش ۸ — مالک تأیید، نه ایجنت)."""
++    if not isinstance(txns, list) or not isinstance(corrections, dict):
++        return txns if isinstance(txns, list) else []
++    out = []
++    for t in txns:
++        if not isinstance(t, dict):
++            out.append(t)
++            continue
++        r = dict(t)
++        corr = corrections.get(r.get("id"))
++        if isinstance(corr, dict):
++            for k in ("owner", "ptype", "category"):
++                if k in corr and corr[k] is not None:
++                    r[k] = corr[k]
++            r["review"] = "confirmed"
++            r["basis"] = "owner"
++        out.append(r)
++    return out
++
++
++def counts(txns: list) -> dict:
++    """شمارشِ تجمیعی (نه مبلغ): {auto, needs_review, confirmed, total, by_ptype}."""
++    auto = nr = conf = 0
++    by: dict = {}
++    total = 0
++    for t in txns:
++        if not isinstance(t, dict):
++            continue
++        total += 1
++        rv = t.get("review")
++        if rv == "auto":
++            auto += 1
++        elif rv == "needs_review":
++            nr += 1
++        elif rv == "confirmed":
++            conf += 1
++        pt = t.get("ptype") or "unknown"
++        by[pt] = by.get(pt, 0) + 1
++    return {"auto": auto, "needs_review": nr, "confirmed": conf,
++            "total": total, "by_ptype": by}
++
++
++if __name__ == "__main__":
++    # دودِ سریع — بدونِ echo مبلغِ خام
++    _t = [
++        {"id": "1", "date": "2026-07-01", "amount_cents": 75000, "desc": "Armin wage",
++         "account": "abbas", "owner": "unknown", "ptype": "unknown", "review": "pending"},
++        {"id": "2", "date": "2026-07-02", "amount_cents": 120000, "desc": "job deposit",
++         "account": "armin-main", "owner": "unknown", "ptype": "unknown", "review": "pending"},
++        {"id": "3", "date": "2026-07-03", "amount_cents": -120000, "desc": "send to abbas",
++         "account": "armin-main", "owner": "unknown", "ptype": "unknown", "review": "pending"},
++        {"id": "4", "date": "2026-07-04", "amount_cents": -8990, "desc": "BUNNINGS Warehouse",
++         "account": "armin-main", "owner": "unknown", "ptype": "unknown", "review": "pending"},
++        {"id": "5", "date": "2026-07-05", "amount_cents": -4200, "desc": "unknown cafe xyz",
++         "account": "armin-main", "owner": "unknown", "ptype": "unknown", "review": "pending"},
++    ]
++    a = attribute(_t)
++    by_id = {t["id"]: t for t in a}
++    assert by_id["1"]["ptype"] == "wage" and by_id["1"]["owner"] == "armin"
++    assert by_id["1"]["review"] == "needs_review" and by_id["1"]["basis"] == "wage-pattern:$250x3"
++    assert by_id["2"]["ptype"] == "transfer" and by_id["3"]["ptype"] == "transfer"
++    assert by_id["4"]["category"] == "materials" and by_id["4"]["review"] == "auto"
++    assert by_id["5"]["review"] == "needs_review" and by_id["5"]["ptype"] == "unknown"
++    q = review_queue(a)
++    assert q and abs(_amt(q[0])) >= abs(_amt(q[-1]))
++    c = counts(a)
++    assert c["auto"] == 1 and c["needs_review"] == 4 and c["by_ptype"]["transfer"] == 2
++    fixed = apply_corrections(a, {"5": {"owner": "armin", "ptype": "expense", "category": "dining"}})
++    f5 = {t["id"]: t for t in fixed}["5"]
++    assert f5["review"] == "confirmed" and f5["basis"] == "owner" and f5["ptype"] == "expense"
++    print("PASS attributor smoke")
+diff --git a/_ops/legs/money.py b/_ops/legs/money.py
+new file mode 100644
+index 0000000..d1dfb93
+--- /dev/null
++++ b/_ops/legs/money.py
+@@ -0,0 +1,103 @@
++#!/usr/bin/env python3
++"""money.py — موتورِ پولِ دقیق (integer cents، نه float) — 2026-07-16.
++
++روشِ ۱ از تحقیقِ ۲۰۲۷ (استاندارد، دهه‌ها در payments): پول هرگز IEEE-754 float نیست
++(0.1+0.2!=0.3). این‌جا هر مبلغ = عددِ صحیحِ سنت. parse با Decimal (امن)، ذخیره/جمع/تقسیم
++با int. تقسیمِ splitِ largest-remainder → سهم‌ها *دقیقاً* جمع می‌شوند به کل (بدونِ نشتِ سنت).
++
++مصرف: to_cents("۱٬۲۳۴.۵۶") → 123456 · fmt(123456) → "1234.56" · split_cents(101, {a:50,b:50}) → {a:51,b:50}
++$0 · stdlib (Decimal) · بدونِ وابستگی.
++"""
++from __future__ import annotations
++
++import re
++from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
++
++_CLEAN = re.compile(r"[^\d.\-]")
++
++
++def to_cents(x) -> int:
++    """هر ورودی (رشته/عدد) → عددِ صحیحِ سنت. پرانتز = منفی (قرارداد حسابداری). خطا → 0.
++    $, کاما، فاصله، و ارقامِ فارسی پاک می‌شوند."""
++    if isinstance(x, int):
++        return x * 100 if abs(x) < 10**7 else x  # هشدار: int خام مبهم است؛ ترجیح رشته
++    if x is None:
++        return 0
++    s = str(x).strip()
++    if not s:
++        return 0
++    neg = False
++    if s.startswith("(") and s.endswith(")"):     # (123.45) = -123.45
++        neg = True
++        s = s[1:-1]
++    # ارقامِ فارسی/عربی → لاتین
++    s = s.translate(str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789"))
++    s = _CLEAN.sub("", s)
++    if s in ("", "-", ".", "-."):
++        return 0
++    try:
++        d = Decimal(s)
++    except InvalidOperation:
++        return 0
++    cents = int((d * 100).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
++    return -cents if neg else cents
++
++
++def fmt(cents: int, sym: str = "") -> str:
++    """سنت → رشتهٔ دو-رقمی (برای نمایش فقط در لبِ خروجی). 123456 → '1234.56'."""
++    try:
++        c = int(cents)
++    except (TypeError, ValueError):
++        c = 0
++    sign = "-" if c < 0 else ""
++    c = abs(c)
++    return f"{sign}{sym}{c // 100}.{c % 100:02d}"
++
++
++def split_cents(total: int, weights: dict) -> dict:
++    """تقسیمِ largest-remainder: total سنت را طبقِ weights تقسیم کن طوری که مجموعِ سهم‌ها
++    *دقیقاً* = total (نشتِ سنت غیرممکن). weights مثل {'armin':60,'abbas':40} یا هر نسبت.
++    مجموعِ سهم‌های خروجی == total تضمین‌شده (assertion-safe)."""
++    total = int(total)
++    keys = [k for k, v in weights.items() if _num(v) > 0]
++    wsum = sum(_num(weights[k]) for k in keys)
++    if not keys or wsum <= 0:
++        return {}
++    # سهمِ کف (floor) + توزیعِ باقی‌مانده به بزرگ‌ترین کسرها
++    raw = {k: (total * _num(weights[k])) / wsum for k in keys}
++    floors = {k: int(raw[k]) if total >= 0 else -int(-raw[k]) for k in keys}
++    allocated = sum(floors.values())
++    remainder = total - allocated                  # چند سنت مانده
++    # مرتب بر اساسِ بزرگیِ کسرِ اعشاری (نزولی برای remainder مثبت)
++    fracs = sorted(keys, key=lambda k: (raw[k] - floors[k]),
++                   reverse=(remainder >= 0))
++    step = 1 if remainder >= 0 else -1
++    out = dict(floors)
++    for i in range(abs(remainder)):
++        out[fracs[i % len(fracs)]] += step
++    assert sum(out.values()) == total, f"split leak: {sum(out.values())} != {total}"
++    return out
++
++
++def _num(v) -> float:
++    try:
++        return float(v)
++    except (TypeError, ValueError):
++        return 0.0
++
++
++if __name__ == "__main__":
++    # دودِ سریع
++    assert to_cents("1,234.56") == 123456
++    assert to_cents("$250.00") == 25000
++    assert to_cents("(420.00)") == -42000
++    assert to_cents("۲۵۰") == 25000
++    assert fmt(123456) == "1234.56"
++    assert fmt(-42000) == "-420.00"
++    # splitِ فرد: ۱۰۱ سنت، ۵۰/۵۰ → 51+50=101 (بدونِ نشت)
++    s = split_cents(101, {"armin": 50, "abbas": 50})
++    assert sum(s.values()) == 101 and s == {"armin": 51, "abbas": 50}, s
++    # ۱۰۰۰۰ سنت ۶۰/۴۰
++    s2 = split_cents(10000, {"armin": 60, "abbas": 40})
++    assert sum(s2.values()) == 10000 and s2["armin"] == 6000, s2
++    print("PASS money smoke")
+diff --git a/_ops/legs/txn_store.py b/_ops/legs/txn_store.py
+new file mode 100644
+index 0000000..dec8e7b
+--- /dev/null
++++ b/_ops/legs/txn_store.py
+@@ -0,0 +1,243 @@
++#!/usr/bin/env python3
++"""txn_store.py — انبارِ تجمیعیِ تراکنش‌ها (یک منبعِ حقیقت، همه بر پایهٔ سنتِ صحیح) — 2026-07-16.
++
++همهٔ منابعِ در دسترسِ حسابداری را به یک انبارِ واحدِ cents-محور می‌ریزد:
++  (۱) اکسپورتِ .xlsxِ PocketSmith  (۲) پنج CSVِ اکسترکتِ دفتر.
++هر تراکنش شناسهٔ content-hash می‌گیرد (date|amount_cents|desc|account) → دوتاییِ یکسان
++از دو فایل = یک ردیف (dedupِ بین‌منبعی). پول همیشه عددِ صحیحِ سنت است (هرگز float) با موتورِ
++money.py؛ تاریخِ Excel-serial به ISO. propose-only مطلق — فقط فایل می‌خواند/می‌نویسد،
++صفر حرکتِ مالی.
++
++روش‌های ۲۰۲۷: پولِ integer-cents · واردِ idempotent با content-hash · تراز به منبع
++(reconcile_report با جمعِ مستقلِ دوباره → تضمینِ نبودِ نشتِ سنت).
++
++مرزها: مقادیرِ خام/نامِ فروشنده/شماره‌حساب هرگز echo نمی‌شوند — فقط شمارش/ترازِ تجمیعی.
++انبارِ واقعی (txn-store.json) gitignore + محلی است (دادهٔ مالیِ واقعی).
++$0 · stdlib + money/opslib · fail-soft.
++"""
++from __future__ import annotations
++
++import csv
++import datetime as _dt
++import hashlib
++import json
++import os
++import re
++import sys
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++if str(_HERE) not in sys.path:
++    sys.path.insert(0, str(_HERE))                 # money.py + pocketsmith_import.py کنارِ همین فایل
++sys.path.insert(0, str(_HERE.parent / "budget"))   # opslib
++
++import money                                        # noqa: E402 — موتورِ سنتِ صحیح
++from pocketsmith_import import read_xlsx            # noqa: E402 — پارسرِ stdlibِ xlsx (بازاستفاده)
++
++# نامِ فایلِ اکسپورتِ PocketSmith (منبعِ (۱))
++_XLSX_NAME = "pocketsmith-abbas-2025-12-08_2026-04-20.xlsx"
++
++# ─── نرمالِ تاریخ ────────────────────────────────────────────────────────────
++_ISO_RE = re.compile(r"^\d{4}-\d{2}-\d{2}")
++_SERIAL_RE = re.compile(r"^\d{1,6}$")
++_DATE_FMTS = ("%d/%m/%Y", "%Y/%m/%d", "%m/%d/%Y", "%d/%m/%y", "%d-%m-%Y", "%d %b %Y")
++
++
++def _excel_serial(n) -> str:
++    """Excel serial (epoch 1899-12-30) → YYYY-MM-DD."""
++    return (_dt.date(1899, 12, 30) + _dt.timedelta(days=int(float(n)))).isoformat()
++
++
++def _norm_date(raw) -> str:
++    """هر شکلِ تاریخ → ISO(YYYY-MM-DD) در حدِ امکان؛ ناموفق → همان رشتهٔ خام (fail-soft).
++    عددِ صحیح = Excel serial؛ ISO دست‌نخورده (فقط ۱۰ رقمِ اول)؛ اسلش/خط‌تیره → تلاش با قالب‌ها."""
++    s = str(raw or "").strip()
++    if not s:
++        return ""
++    if _ISO_RE.match(s):
++        return s[:10]
++    if _SERIAL_RE.match(s):
++        try:
++            return _excel_serial(s)
++        except (TypeError, ValueError, OverflowError):
++            return s
++    for fmt in _DATE_FMTS:
++        try:
++            return _dt.datetime.strptime(s, fmt).date().isoformat()
++        except ValueError:
++            continue
++    return s
++
++
++# ─── ساختِ تراکنش + شناسهٔ content-hash ──────────────────────────────────────
++def _hash(date: str, amount_cents: int, desc: str, account: str) -> str:
++    """شناسهٔ پایدارِ محتوا: sha1(date|amount_cents|desc|account) → ۱۶ رقمِ hex.
++    دوتاییِ یکسان از دو فایل → همین شناسه → dedup."""
++    raw = f"{date}|{int(amount_cents)}|{desc}|{account}"
++    return hashlib.sha1(raw.encode("utf-8")).hexdigest()[:16]
++
++
++def _mk(date: str, amount_raw, desc, account, category, source: str) -> dict:
++    """یک ردیفِ منبع → تراکنشِ استانداردِ انبار (schemaِ ثابت). مبلغ → سنتِ صحیحِ علامت‌دار."""
++    cents = money.to_cents(amount_raw)                       # علامت از خودِ Amount (پرانتز/منفی = خروج)
++    desc = str(desc or "").strip()[:120]
++    account = str(account or "").strip()
++    category = (str(category or "").strip() or "uncategorized")
++    return {
++        "id": _hash(date, cents, desc, account),
++        "date": date,
++        "amount_cents": cents,          # علامت‌دار: منفی=بدهکار/خروج، مثبت=بستانکار/ورود
++        "desc": desc,
++        "source": source,
++        "account": account,
++        "owner": "unknown",             # مالکیت (آرمین/عباس/pass-through) بعداً با مرورِ مالک
++        "ptype": "unknown",             # income/expense/transfer/pass-through — نامشخص تا مرور
++        "category": category,
++        "review": "pending",
++        "note": "",
++    }
++
++
++# ─── منابع ───────────────────────────────────────────────────────────────────
++def _accounting_root() -> Path:
++    import opslib  # noqa: WPS433 — lazy تا ORG_ROOTِ زنده/تست خوانده شود
++    return opslib.ORG_ROOT / "03 - Projects" / "Accounting"
++
++
++def _sources() -> dict:
++    """مسیرِ منابع نسبت به ORG_ROOT (زنده یا تست)."""
++    acc = _accounting_root()
++    return {
++        "xlsx": acc / "personal" / "source" / _XLSX_NAME,
++        "csv_dir": acc / "drafts" / "ledger-extract",
++    }
++
++
++def default_store_path() -> Path:
++    """مسیرِ انبارِ واقعی (gitignore + محلی)."""
++    return _accounting_root() / "personal" / "txn-store.json"
++
++
++def _from_xlsx(path: Path) -> list[dict]:
++    """اکسپورتِ PocketSmith → تراکنش‌ها. desc=Merchant|Memo، account=Account، date=Excel-serial→ISO."""
++    try:
++        rows = read_xlsx(path)
++    except Exception:  # noqa: BLE001 — منبعِ خراب نباید کلِ بارگذاری را بکشد
++        return []
++    src = "pocketsmith"
++    out = []
++    for r in rows:
++        out.append(_mk(
++            date=_norm_date(r.get("Date")),
++            amount_raw=r.get("Amount"),
++            desc=r.get("Merchant") or r.get("Memo") or "",
++            account=r.get("Account") or "",
++            category=r.get("Category") or "uncategorized",
++            source=src,
++        ))
++    return out
++
++
++def _from_csv(path: Path) -> list[dict]:
++    """CSVِ اکسترکت (Date,Merchant,Amount,Transaction Type,Category,Account,ID) → تراکنش‌ها."""
++    src = "csv:" + path.stem
++    out = []
++    try:
++        with path.open("r", encoding="utf-8-sig", newline="") as fh:
++            for r in csv.DictReader(fh):
++                out.append(_mk(
++                    date=_norm_date(r.get("Date")),
++                    amount_raw=r.get("Amount"),
++                    desc=r.get("Merchant") or r.get("Memo") or "",
++                    account=r.get("Account") or path.stem,
++                    category=r.get("Category") or "uncategorized",
++                    source=src,
++                ))
++    except OSError:
++        return []
++    return out
++
++
++def _dedup(txns: list[dict]) -> list[dict]:
++    """dedupِ content-hash: اولین بروزِ هر id می‌ماند، بقیه رد می‌شوند (بین‌منبعی)."""
++    seen: set[str] = set()
++    out = []
++    for t in txns:
++        tid = t["id"]
++        if tid in seen:
++            continue
++        seen.add(tid)
++        out.append(t)
++    return out
++
++
++def load_all() -> list[dict]:
++    """همهٔ منابعِ در دسترس را بخوان، به سنت درآور، dedupِ بین‌منبعی کن → یک لیستِ واحد.
++    منابعِ نبود = fail-soft (نادیده)؛ ترتیبِ dedup: xlsx اول، بعد CSVها به‌ترتیبِ نام."""
++    s = _sources()
++    txns: list[dict] = []
++    if s["xlsx"].exists():
++        txns += _from_xlsx(s["xlsx"])
++    if s["csv_dir"].is_dir():
++        for csvp in sorted(s["csv_dir"].glob("*.csv")):
++            txns += _from_csv(csvp)
++    return _dedup(txns)
++
++
++def save(txns: list[dict], path: Path | None = None) -> None:
++    """انبار را اتمیک بنویس (tmp + os.replace). پیش‌فرض: personal/txn-store.json (gitignore).
++    فقط ساختار/شمارش در سند؛ خودِ تراکنش‌ها دادهٔ محلیِ محافظت‌شده‌اند."""
++    p = Path(path) if path else default_store_path()
++    p.parent.mkdir(parents=True, exist_ok=True)
++    doc = {
++        "_schema": "txn-store.v1",
++        "currency": "AUD",
++        "count": len(txns),
++        "generated": _dt.datetime.now().isoformat(timespec="seconds"),
++        "txns": txns,
++    }
++    tmp = p.with_suffix(p.suffix + ".tmp")
++    tmp.write_text(json.dumps(doc, ensure_ascii=False, indent=2), "utf-8")
++    os.replace(tmp, p)
++
++
++def reconcile_report(txns: list[dict]) -> dict:
++    """ترازِ کنترلی به منبع: به‌ازای هر source شمارشِ ردیف + netِ سنت.
++    tie_out_ok با جمعِ مستقلِ دوباره اثبات می‌شود — مجموعِ کلِ همهٔ txnها باید *دقیقاً* برابرِ
++    مجموعِ netهای per-source باشد (و همین‌طور شمارش‌ها) → نشتِ سنت/باکت غیرممکن."""
++    per: dict[str, dict] = {}
++    for t in txns:
++        s = str(t.get("source", "?"))
++        d = per.setdefault(s, {"row_count": 0, "net_cents": 0})
++        d["row_count"] += 1
++        d["net_cents"] += int(t.get("amount_cents", 0))
++    total_rows = len(txns)                                          # مسیرِ مستقلِ ۱ (شمارش)
++    total_net = sum(int(t.get("amount_cents", 0)) for t in txns)    # مسیرِ مستقلِ ۱ (جمع)
++    sum_src_rows = sum(d["row_count"] for d in per.values())        # مسیرِ مستقلِ ۲ (شمارش)
++    sum_src_net = sum(d["net_cents"] for d in per.values())         # مسیرِ مستقلِ ۲ (جمع)
++    ok = (total_rows == sum_src_rows) and (total_net == sum_src_net)
++    return {
++        "per_source": per,
++        "total_rows": total_rows,
++        "total_net_cents": total_net,
++        "source_count": len(per),
++        "tie_out_ok": ok,
++    }
++
++
++if __name__ == "__main__":
++    # اجرای واقعی: فقط شمارش/ترازِ تجمیعی چاپ می‌شود — هرگز تراکنشِ خام/مبلغِ فردی.
++    # ذخیره فقط با آرگومانِ صریحِ "save" (تا اجرای گزارش‌گیری چیزی روی درختِ زنده ننویسد).
++    _txns = load_all()
++    _rep = reconcile_report(_txns)
++    _summary = {
++        "consolidated_count": len(_txns),
++        "source_count": _rep["source_count"],
++        "per_source_rows": {k: v["row_count"] for k, v in _rep["per_source"].items()},
++        "tie_out_ok": _rep["tie_out_ok"],
++        "total_net_cents": _rep["total_net_cents"],   # تجمیعی (مجاز)، نه تراکنشِ خام
++    }
++    print(json.dumps(_summary, ensure_ascii=False, indent=2))
++    if len(sys.argv) > 1 and sys.argv[1] == "save":
++        save(_txns)
++        print(f"saved → {default_store_path()}")
+diff --git a/_ops/tests/run_all.py b/_ops/tests/run_all.py
+index ea310f9..307b1a6 100644
+--- a/_ops/tests/run_all.py
++++ b/_ops/tests/run_all.py
+@@ -105,9 +105,21 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
+          # 2026-07-16: EVAL-GATE (audit R-03) — دیتاستِ محکِ خصمانهٔ نسخه‌دار (adv-eval.v1)
+          # + اجراکنندهٔ $0 آفلاین که خودمختاری را گِیت می‌کند (_ops/eval/).
+          "test_adversarial_eval.py",
++         "test_personal_ledger.py", "test_pocketsmith_import.py",
++         # 2026-07-16: حسابدارِ مولتی‌ایجنت (سنت/انتساب/ارکستراتور)
++         "test_accountant.py", "test_txn_store.py", "test_attributor.py",
++         # 2026-07-16: انبارِ تجمیعیِ تراکنش (txn_store) — xlsx+CSV → یک انبارِ cents-محور،
++         # dedupِ content-hash، reconcile tie-out. txn-store.json واقعی gitignore.
++         "test_txn_store.py",
+          # 2026-07-16: ASSET-OVERSIGHT — نقشهٔ داراییِ کل (asset_map + asset_map_beat)
+          # propose-only، fail-soft، صفر مبلغ/net-worth، پشتِ OCTOPUS_WIRE_ASSET_MAP.
+          "test_asset_map.py",
++         # 2026-07-16: تبِ 💰 دارایی‌ها/حساب کابین — asset_map + personal_ledger (فقط‌خواندنی،
++         # ترازِ تجمیعی، صفر تراکنش/شماره‌حساب، صفر مسیرِ mutation).
++         "test_finance_card.py",
++         # 2026-07-16: CATEGORIZER — attributor (قاعده‌های قطعی: wage/transfer-passthrough/
++         # vendor؛ enumِ auto|needs_review نه اطمینانِ عددی؛ propose-only، مالک تأیید نه ایجنت).
++         "test_attributor.py",
+          ]
+ # تست‌های خارج از _ops/tests/ (path tuyệtق)
+ EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
+diff --git a/_ops/tests/test_accountant.py b/_ops/tests/test_accountant.py
+new file mode 100644
+index 0000000..097a79d
+--- /dev/null
++++ b/_ops/tests/test_accountant.py
+@@ -0,0 +1,65 @@
++#!/usr/bin/env python3
++"""تستِ ارکستراتورِ حسابدار (2026-07-16): خط‌لوله + گزارشِ سنتی + حذفِ transfer.
++
++اثبات:
++  (الف) report: income/expense به تفکیکِ owner، **transfer در net نمی‌آید**، حقوق جدا، سنت.
++  (ب) run روی fixture: counts + reconcile + صفِ بازبینی تولید می‌شود.
++  (پ) apply_review تصحیحِ مالک را اعمال و گزارش را عوض می‌کند.
++$0 آفلاین، stdlib، fixture در tmp.
++"""
++import json
++import sys
++from pathlib import Path
++
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++import harness  # noqa: E402
++ENV = harness.setup("accountant")
++
++_LEGS = harness.REAL_VAULT / "_ops" / "legs"
++if str(_LEGS) not in sys.path:
++    sys.path.insert(0, str(_LEGS))
++import accountant  # noqa: E402
++import money       # noqa: E402
++
++
++def t_a_report_excludes_transfer():
++    """transfer نه در income نه expense؛ در net نمی‌آید (pass-through)."""
++    txns = [
++        {"owner": "armin", "ptype": "income", "amount_cents": 100000},
++        {"owner": "armin", "ptype": "expense", "amount_cents": -30000},
++        {"owner": "armin", "ptype": "transfer", "amount_cents": 500000},   # باید حذف شود
++        {"owner": "armin", "ptype": "wage", "amount_cents": 25000},
++    ]
++    rep = accountant.report(txns)
++    a = rep["armin"]
++    assert a["income_cents"] == 100000 and a["expense_cents"] == 30000
++    assert a["net_cents"] == 70000, a          # transfer/wage در net نیست
++    assert a["transfer_cents"] == 500000 and a["wage_cents"] == 25000
++    assert a["display"]["net"] == "700.00"     # سنت→نمایش
++
++
++def t_b_unknown_split_by_sign():
++    """ptype=unknown: مثبت→income، منفی→expense (تا مالک برچسب بزند)."""
++    txns = [{"owner": "unknown", "ptype": "unknown", "amount_cents": 5000},
++            {"owner": "unknown", "ptype": "unknown", "amount_cents": -8000}]
++    a = accountant.report(txns)["unknown"]
++    assert a["income_cents"] == 5000 and a["expense_cents"] == 8000
++
++
++def t_c_apply_review_changes_report():
++    """تصحیحِ مالک (unknown→transfer) درآمد را از net حذف می‌کند."""
++    txns = [{"id": "x1", "owner": "unknown", "ptype": "unknown", "amount_cents": 100000, "review": "needs_review"}]
++    rep0 = accountant.report(txns)["unknown"]
++    assert rep0["net_cents"] == 100000
++    # اعمالِ تصحیح مستقیم (بدونِ فایل)
++    import attributor
++    fixed = attributor.apply_corrections(txns, {"x1": {"owner": "armin", "ptype": "transfer"}})
++    rep1 = accountant.report(fixed)
++    assert rep1["armin"]["net_cents"] == 0 and rep1["armin"]["transfer_cents"] == 100000, rep1
++
++
++if __name__ == "__main__":
++    for f in (t_a_report_excludes_transfer, t_b_unknown_split_by_sign, t_c_apply_review_changes_report):
++        f()
++        print("ok", f.__name__)
++    print("PASS test_accountant")
+diff --git a/_ops/tests/test_attributor.py b/_ops/tests/test_attributor.py
+new file mode 100644
+index 0000000..97d9924
+--- /dev/null
++++ b/_ops/tests/test_attributor.py
+@@ -0,0 +1,162 @@
++#!/usr/bin/env python3
++"""تستِ دسته‌بندِ قطعیِ تراکنش (attributor) — CATEGORIZERِ حسابدارِ چندایجنتی (2026-07-16).
++
++اثبات:
++  (الف) WAGE: desc «armin» + مبلغ مضربِ $۲۵۰ → ptype=wage, owner=armin, review=needs_review،
++        basis="wage-pattern:$250xN".
++  (ب)  TRANSFER (pass-through): inbound سپس outboundِ تقریباً-برابر روی همان account ظرفِ ~۳ روز
++        → هر دو ptype=transfer, review=needs_review (از درآمد/هزینه EXCLUDED، دوباره‌شمرده نشود).
++        + نشانهٔ desc (send to abbas) هم → transfer.
++  (پ)  قاعدهٔ فروشنده: bunnings → category=materials, ptype=expense, review=auto.
++  (ت)  ناشناخته → review=needs_review (مالک برچسب می‌زند).
++  (ث)  apply_corrections: تصحیحِ مالک → review=confirmed + basis=owner (مسیرِ یادگیری).
++  (ج)  روش ۸ — دسته‌بند هرگز خودش confirm نمی‌کند: attribute هیچ txnی را confirmed نمی‌گذارد.
++  (چ)  هیچ مبلغِ خامی فراتر از خودِ txn نشت نمی‌کند (counts/basis فقط الگو/شمارش).
++$0 آفلاین، stdlib.
++"""
++import json
++import sys
++from pathlib import Path
++
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++import harness  # noqa: E402
++ENV = harness.setup("attributor")
++
++_LEGS = harness.REAL_VAULT / "_ops" / "legs"
++if str(_LEGS) not in sys.path:
++    sys.path.insert(0, str(_LEGS))
++import attributor as at  # noqa: E402
++
++
++def _txn(id, cents, desc, account="armin-main", date="2026-07-01"):
++    """txnِ خام مطابقِ شِمای txn_store (owner/ptype unknown، review pending)."""
++    return {"id": id, "date": date, "amount_cents": cents, "desc": desc,
++            "source": "test", "account": account, "owner": "unknown",
++            "ptype": "unknown", "category": "", "review": "pending", "note": ""}
++
++
++def _by_id(txns):
++    return {t["id"]: t for t in txns}
++
++
++def t_a_wage_detection():
++    """armin + مبلغ مضربِ $۲۵۰ (۳×۲۵۰=۷۵۰) → wage/armin/needs_review + citation."""
++    a = at.attribute([_txn("w", 75000, "Armin wage july")])
++    r = _by_id(a)["w"]
++    assert r["ptype"] == "wage", r
++    assert r["owner"] == "armin", r
++    assert r["review"] == "needs_review", r          # حقوق حساس است — مالک تأیید
++    assert r["basis"] == "wage-pattern:$250x3", r
++
++
++def t_a2_wage_non_multiple_not_wage():
++    """مبلغِ غیرمضربِ $۲۵۰ (حتی با نامِ armin) → wage نمی‌شود (قاعدهٔ محافظه‌کار)."""
++    a = at.attribute([_txn("w2", 73000, "Armin something")])
++    assert _by_id(a)["w2"]["ptype"] != "wage"
++
++
++def t_b_transfer_pair_passthrough():
++    """inbound سپس outboundِ برابر روی همان account ظرفِ ۳ روز → هر دو transfer/needs_review."""
++    a = at.attribute([
++        _txn("in", 120000, "job deposit", account="armin-main", date="2026-07-02"),
++        _txn("out", -120000, "payment", account="armin-main", date="2026-07-03"),
++    ])
++    r = _by_id(a)
++    assert r["in"]["ptype"] == "transfer" and r["out"]["ptype"] == "transfer", r
++    assert r["in"]["review"] == "needs_review", r
++    assert "passthrough-candidate" in r["in"]["basis"], r
++
++
++def t_b2_transfer_desc_hint():
++    """نشانهٔ desc «send to abbas» → transfer حتی بدونِ جفتِ ساختاری."""
++    a = at.attribute([_txn("x", -50000, "send to abbas")])
++    assert _by_id(a)["x"]["ptype"] == "transfer"
++
++
++def t_b3_diff_account_not_paired():
++    """inbound و outbound روی accountِ متفاوت → جفتِ pass-through نمی‌شود (محافظه‌کار)."""
++    a = at.attribute([
++        _txn("in2", 90000, "deposit", account="acct-A", date="2026-07-02"),
++        _txn("out2", -90000, "spend groceries", account="acct-B", date="2026-07-03"),
++    ])
++    r = _by_id(a)
++    assert r["in2"]["ptype"] != "transfer" and r["out2"]["ptype"] != "transfer", r
++
++
++def t_c_vendor_rule():
++    """bunnings → materials/expense/auto؛ petrol → transport/expense."""
++    a = at.attribute([_txn("v", -8990, "BUNNINGS Warehouse 123"),
++                      _txn("f", -6000, "Shell petrol")])
++    r = _by_id(a)
++    assert r["v"]["category"] == "materials" and r["v"]["ptype"] == "expense", r
++    assert r["v"]["review"] == "auto", r
++    assert r["f"]["category"] == "transport", r
++
++
++def t_d_unknown_needs_review():
++    """ناشناخته → needs_review، ptype همچنان unknown (مالک برچسب می‌زند)."""
++    a = at.attribute([_txn("u", -4200, "random cafe zzz")])
++    r = _by_id(a)["u"]
++    assert r["review"] == "needs_review" and r["ptype"] == "unknown", r
++
++
++def t_e_apply_corrections_confirms():
++    """تصحیحِ مالک → review=confirmed + basis=owner + فیلدهای برچسب‌خورده."""
++    a = at.attribute([_txn("u", -4200, "random cafe zzz")])
++    fixed = at.apply_corrections(a, {"u": {"owner": "armin", "ptype": "expense",
++                                           "category": "dining"}})
++    r = _by_id(fixed)["u"]
++    assert r["review"] == "confirmed" and r["basis"] == "owner", r
++    assert r["ptype"] == "expense" and r["owner"] == "armin" and r["category"] == "dining", r
++
++
++def t_f_agent_never_confirms():
++    """روش ۸ — گیتِ سختِ انسانی: attribute هیچ txnی را confirmed نمی‌گذارد (فقط auto/needs_review)."""
++    a = at.attribute([_txn("w", 75000, "Armin wage"), _txn("v", -8990, "bunnings"),
++                      _txn("u", -4200, "mystery")])
++    assert all(t["review"] in ("auto", "needs_review") for t in a)
++    assert not any(t["review"] == "confirmed" for t in a)
++
++
++def t_g_review_queue_material_first():
++    """صف نامطمئن‌ها، بزرگ‌ترین |amount| اول."""
++    a = at.attribute([_txn("small", -500, "mystery small"),
++                      _txn("big", -900000, "mystery big"),
++                      _txn("mid", -30000, "mystery mid")])
++    q = at.review_queue(a)
++    ids = [t["id"] for t in q]
++    assert ids == ["big", "mid", "small"], ids
++
++
++def t_h_counts_shape():
++    """counts = {auto, needs_review, by_ptype ...}؛ transfer دوتا شمرده شود."""
++    a = at.attribute([
++        _txn("in", 120000, "deposit", date="2026-07-02"),
++        _txn("out", -120000, "pay", date="2026-07-03"),
++        _txn("v", -8990, "bunnings"),
++        _txn("u", -4200, "mystery"),
++    ])
++    c = at.counts(a)
++    assert c["auto"] == 1 and c["needs_review"] == 3, c
++    assert c["by_ptype"]["transfer"] == 2, c
++
++
++def t_i_no_raw_amount_leak():
++    """هیچ مبلغِ خامی فراتر از خودِ txn نشت نمی‌کند: نه در basis، نه در counts (فقط الگو/شمارش)."""
++    secret = 987654                                   # مبلغِ خامِ متمایز
++    a = at.attribute([_txn("u", -secret, "mystery vendor")])
++    r = _by_id(a)["u"]
++    assert str(secret) not in r["basis"], "basis نباید مبلغِ خام را echo کند"
++    cblob = json.dumps(at.counts(a), ensure_ascii=False)
++    assert str(secret) not in cblob and "9876.54" not in cblob, "counts نباید مبلغ echo کند"
++
++
++if __name__ == "__main__":
++    for f in (t_a_wage_detection, t_a2_wage_non_multiple_not_wage,
++              t_b_transfer_pair_passthrough, t_b2_transfer_desc_hint,
++              t_b3_diff_account_not_paired, t_c_vendor_rule, t_d_unknown_needs_review,
++              t_e_apply_corrections_confirms, t_f_agent_never_confirms,
++              t_g_review_queue_material_first, t_h_counts_shape, t_i_no_raw_amount_leak):
++        f()
++        print("ok", f.__name__)
++    print("PASS test_attributor")
+diff --git a/_ops/tests/test_txn_store.py b/_ops/tests/test_txn_store.py
+new file mode 100644
+index 0000000..49d9680
+--- /dev/null
++++ b/_ops/tests/test_txn_store.py
+@@ -0,0 +1,137 @@
++#!/usr/bin/env python3
++"""تستِ انبارِ تجمیعیِ تراکنش (txn_store) — 2026-07-16.
++
++اثبات:
++  (الف) load_all منابعِ ساختگی (xlsx + csv در tmp) را به سنتِ صحیح می‌خواند:
++        $250.00 → 25000 · "(420.00)" → -42000 · Excel-serial → ISO.
++  (ب) dedupِ content-hash: همان تراکنش دوبار (دو فایل) → یک ردیف.
++  (پ) reconcile_report tie-out سبز (جمعِ مستقلِ دوباره برابر می‌شود).
++  (ت) هر تراکنش کاملِ schema است (id/date/amount_cents/owner/ptype/review/…).
++  (ث) save اتمیک می‌نویسد و دوباره خوانده می‌شود.
++$0 آفلاین، stdlib، منابعِ ساختگی در tmp (هیچ دادهٔ واقعی لمس نمی‌شود).
++"""
++import json
++import sys
++import zipfile
++from pathlib import Path
++
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++import harness  # noqa: E402
++ENV = harness.setup("txn-store")
++
++_LEGS = harness.REAL_VAULT / "_ops" / "legs"
++if str(_LEGS) not in sys.path:
++    sys.path.insert(0, str(_LEGS))
++import txn_store as ts   # noqa: E402
++import opslib            # noqa: E402
++
++
++def _make_xlsx(path: Path, rows: list[list]):
++    """xlsxِ حداقلی (sharedStrings + sheet1) بدونِ openpyxl — همان الگوی test_pocketsmith_import."""
++    strings, sidx = [], {}
++
++    def sref(v):
++        if v not in sidx:
++            sidx[v] = len(strings)
++            strings.append(v)
++        return sidx[v]
++
++    cells_xml = []
++    for ri, row in enumerate(rows, 1):
++        cs = []
++        for ci, v in enumerate(row):
++            col = chr(65 + ci)
++            cs.append(f'<c r="{col}{ri}" t="s"><v>{sref(str(v))}</v></c>')
++        cells_xml.append(f'<row r="{ri}">{"".join(cs)}</row>')
++    NS = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"'
++    sheet = f'<worksheet {NS}><sheetData>{"".join(cells_xml)}</sheetData></worksheet>'
++    ss = (f'<sst {NS} count="{len(strings)}" uniqueCount="{len(strings)}">'
++          + "".join(f"<si><t>{s}</t></si>" for s in strings) + "</sst>")
++    wb = f'<workbook {NS}><sheets><sheet name="S" sheetId="1" r:id="rId1"/></sheets></workbook>'
++    with zipfile.ZipFile(path, "w") as z:
++        z.writestr("xl/worksheets/sheet1.xml", sheet)
++        z.writestr("xl/sharedStrings.xml", ss)
++        z.writestr("xl/workbook.xml", wb)
++
++
++def _seed_sources():
++    """منابعِ ساختگی را دقیقاً در مسیرهایی که txn_store می‌خواند بساز (نسبت به ORG_ROOTِ tmp)."""
++    src = ts._sources()
++    src["xlsx"].parent.mkdir(parents=True, exist_ok=True)
++    src["csv_dir"].mkdir(parents=True, exist_ok=True)
++    # xlsx: یک ورود ($250 credit) + یک خروج (پرانتزی = -420)
++    _make_xlsx(src["xlsx"], [
++        ["Date", "Merchant", "Amount", "Transaction Type", "Category", "Account", "ID"],
++        ["45999", "MERCHANT_A", "$250.00", "credit", "wages", "acctX", "x1"],   # 2025-12-08
++        ["46000", "MERCHANT_B", "(420.00)", "debit", "supplies", "acctX", "x2"],
++    ])
++    # CSV یک: یک ردیفِ یکتا + یک ردیفِ *دقیقاً یکسان* با ردیفِ اول xlsx (برای dedupِ بین‌منبعی)
++    csv1 = src["csv_dir"] / "Armin.csv"
++    csv1.write_text(
++        "Date,Merchant,Amount,Transaction Type,Category,Account,ID\n"
++        "2026-01-15,MERCHANT_C,1000.00,credit,income,acctY,c1\n"
++        "2025-12-08,MERCHANT_A,$250.00,credit,wages,acctX,dup\n",   # == ردیفِ x1 → dedup
++        "utf-8")
++    return src
++
++
++def t_a_load_to_cents():
++    _seed_sources()
++    txns = ts.load_all()
++    by_desc = {t["desc"]: t for t in txns}
++    assert by_desc["MERCHANT_A"]["amount_cents"] == 25000, by_desc["MERCHANT_A"]
++    assert by_desc["MERCHANT_B"]["amount_cents"] == -42000, by_desc["MERCHANT_B"]
++    assert by_desc["MERCHANT_C"]["amount_cents"] == 100000, by_desc["MERCHANT_C"]
++    # Excel-serial → ISO
++    assert by_desc["MERCHANT_A"]["date"] == "2025-12-08", by_desc["MERCHANT_A"]["date"]
++    # منشأ: A از xlsx (اولین بار)، C از csv
++    assert by_desc["MERCHANT_A"]["source"] == "pocketsmith", by_desc["MERCHANT_A"]["source"]
++    assert by_desc["MERCHANT_C"]["source"].startswith("csv:"), by_desc["MERCHANT_C"]["source"]
++
++
++def t_b_dedup_cross_source():
++    txns = ts.load_all()
++    # سه ردیفِ منطقی: A، B، C — نه چهار (ردیفِ dupِ CSV باید با x1 ادغام شود)
++    assert len(txns) == 3, [t["desc"] for t in txns]
++    ids = [t["id"] for t in txns]
++    assert len(ids) == len(set(ids)), "شناسه‌ها باید یکتا باشند"
++
++
++def t_c_reconcile_tie_out():
++    txns = ts.load_all()
++    rep = ts.reconcile_report(txns)
++    assert rep["tie_out_ok"] is True, rep
++    # netِ کل = 25000 - 42000 + 100000 = 83000 (تجمیعی، برای اثباتِ تراز)
++    assert rep["total_net_cents"] == 83000, rep["total_net_cents"]
++    assert rep["total_rows"] == 3, rep
++    # جمعِ netهای per-source == کلِ net (مسیرِ مستقل)
++    assert sum(d["net_cents"] for d in rep["per_source"].values()) == rep["total_net_cents"]
++
++
++def t_d_schema_fields():
++    t = ts.load_all()[0]
++    for k in ("id", "date", "amount_cents", "desc", "source", "account",
++              "owner", "ptype", "category", "review", "note"):
++        assert k in t, f"فیلدِ {k} در schema نیست"
++    assert t["owner"] == "unknown" and t["ptype"] == "unknown" and t["review"] == "pending"
++    assert isinstance(t["amount_cents"], int), "مبلغ باید عددِ صحیحِ سنت باشد (نه float)"
++
++
++def t_e_save_atomic_roundtrip():
++    txns = ts.load_all()
++    out = opslib.STATE_DIR / "txn-store.json"
++    ts.save(txns, out)
++    doc = json.loads(out.read_text("utf-8"))
++    assert doc["_schema"] == "txn-store.v1" and doc["count"] == len(txns)
++    assert len(doc["txns"]) == len(txns)
++    # مسیرِ پیش‌فرض هم درست به personal/txn-store.json اشاره کند (gitignore)
++    assert ts.default_store_path().name == "txn-store.json"
++    assert ts.default_store_path().parent.name == "personal"
++
++
++if __name__ == "__main__":
++    for f in (t_a_load_to_cents, t_b_dedup_cross_source, t_c_reconcile_tie_out,
++              t_d_schema_fields, t_e_save_atomic_roundtrip):
++        f()
++        print("ok", f.__name__)
++    print("PASS test_txn_store")

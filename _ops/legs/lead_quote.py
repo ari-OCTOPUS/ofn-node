@@ -73,6 +73,58 @@ def _next_qt_num(state_dir=None) -> str:
         return f"{prefix}001"
 
 
+# ─── lead_to_intake (مرحلهٔ ۵ نقشهٔ لید، 2026-07-15) ─────────────────────────
+def lead_to_intake(lead: dict, scored: dict | None = None) -> QuoteIntake:
+    """نگاشتِ قطعیِ dictِ لیدِ discovery → QuoteIntake ساختاریافته.
+
+    این نگاشت همان حلقهٔ گمشده‌ای بود که create_quote را یتیم (۰ caller) نگه می‌داشت:
+    لیدِ کشف‌شده فقط description/address دارد؛ این‌جا با قواعدِ keyword به ۱۳ فیلدِ
+    intake ترجمه می‌شود — محافظه‌کار: هر چیزِ نامعلوم = پیش‌فرضِ امنِ QuoteIntake
+    (fail-soft خودِ dataclass). segment از دستهٔ امتیازدهنده (scored['category'])
+    می‌آید. $0، بدونِ LLM، بدونِ I/O."""
+    desc = str((lead or {}).get("description", "")).lower()
+    cat = str((scored or {}).get("category", ""))
+
+    # segment ← دستهٔ scorer (نگاشت به enumهای معتبرِ QuoteIntake)
+    segment = {"strata_remedial": "strata",
+               "commercial_fitout": "commercial",
+               "government_education": "commercial",
+               "new_residential_multi": "builder"}.get(cat, "residential")
+
+    # area_type ← نشانه‌های متن
+    outdoor = any(k in desc for k in ("facade", "external", "exterior", "balcony",
+                                      "balustrade", "render"))
+    indoor = any(k in desc for k in ("internal", "interior", "fitout", "fit out",
+                                     "fit-out", "room", "office"))
+    area_type = "both" if (outdoor and indoor) else ("exterior" if outdoor else "interior")
+
+    # prep/access/risk ← نشانه‌های متن (محافظه‌کار)
+    prep = "heavy" if any(k in desc for k in ("remedial", "peeling", "damaged",
+                                              "restoration")) else "standard"
+    access = "scaffold" if any(k in desc for k in ("scaffold", "flat building",
+                                                   "apartment", "storey", "multi")) \
+        else "ladder"
+    risks = tuple(r for r, kws in (("heritage", ("heritage",)),
+                                   ("lead_paint", ("lead paint", "lead-based")),
+                                   ("asbestos", ("asbestos",)))
+                  if any(k in desc for k in kws))
+
+    try:
+        size_m2 = max(float((lead or {}).get("size_m2") or 0.0), 0.0)
+    except (TypeError, ValueError):
+        size_m2 = 0.0
+
+    return QuoteIntake(
+        scope=str((lead or {}).get("description", ""))[:300],
+        size_m2=size_m2,
+        area_type=area_type,
+        prep_level=prep,
+        access_type=access,
+        segment=segment,
+        risk_flags=risks,
+    )
+
+
 # ─── create_quote ──────────────────────────────────────────────────────────
 def create_quote(leg, attribution_id: str, intake: QuoteIntake,
                  state_dir=None) -> dict:

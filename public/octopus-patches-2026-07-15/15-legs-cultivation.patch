@@ -1,0 +1,842 @@
+commit e0ef64b91922fe9b49cdb42efbfe060ac7c2e510
+Author: ari-vault <paintingdesign76@gmail.com>
+Date:   Thu Jul 16 01:00:20 2026 +1000
+
+    feat(cultivation): $0 data-metabolism for ALL legs + doctor governance + brain-B link
+    
+    - _ops/legs/leg_cultivate.py: generic SENSE→DIGEST cloned from lead_sense —
+      file inbox state/legs/<leg>-inbox/*.json, content-hash dedup, move-never-delete
+      + result sidecars, for mining/crypto/accounting/knowledge/ziman; read-only
+      bridges: mining decisions.jsonl age/size, ziman catalog (products/families/age);
+      starvation tracking (cultivation-last.json) + atomic cultivation-report.json.
+    - wiring.legs_cultivation_beat: behind OCTOPUS_WIRE_LEG_CULTIVATE (default OFF,
+      out of PAPER_FULL_FLAGS), cadence CHRONO_CULTIVATE_EVERY_N_BEATS=60, cap
+      LEG_CULTIVATE_MAX_PER_BEAT=10, kill-switch first, fail-soft; sidecar
+      ORGANISM-STATE.legs_cultivation; optional sensory_bus→school_bridge.learn_from
+      (persist=True) — one afferent event per real digest, zero PII.
+    - organism.py: one call site after lead_discovery_beat + merge key legs_cultivation.
+    - doctor.py: mine() reads fresh cultivation-report.json → starved/stale legs as
+      medium-severity bottleneck candidate (never outranks error/freeze/sigma);
+      propose-only RFC as today, zero new autonomy.
+    - tests/test_legs_cultivation.py (8 checks) registered in run_all.py.
+      Regressions green: test_lead_discovery_beat, test_legs_freshness 16/16,
+      test_doctor, test_new_legs 5/5.
+    
+    Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+
+diff --git a/_ops/doctor/doctor.py b/_ops/doctor/doctor.py
+index e293415..1f3c764 100644
+--- a/_ops/doctor/doctor.py
++++ b/_ops/doctor/doctor.py
+@@ -307,6 +307,13 @@ class Doctor:
+         if sigma > 1.0:
+             candidates.append(("sigma-cancer-risk",
+                                f"σ_effective={sigma} > ۱ (خطِ قرمزِ سرطان)", "critical", -100.0))
++        # ── governance متابولیسمِ پاها (2026-07-16): اگر گزارشِ cultivation تازه باشد
++        # و پایی گرسنه/منبعش راکد باشد → کاندیدِ گلوگاه با severity=medium (پایین‌تر از
++        # error/freeze — هرگز بحران را کنار نمی‌زند). فقط ورودیِ mine گسترده شد؛ خروجی
++        # همان RFCِ propose-only است، هیچ اتونومیِ نو. نبودِ فایل = رفتارِ قبلی بایت‌به‌بایت.
++        cult = self._cultivation_candidate()
++        if cult is not None:
++            candidates.append(cult)
+         # اگر چیزی نبود → گلوگاهی نیست (نه «همه‌چیز خوب» — just nothing to fix)
+         if not candidates:
+             return None
+@@ -318,6 +325,35 @@ class Doctor:
+                                                  "lambda_persist_applied": LAMBDA_PERSIST},
+                 "severity": sev}
+ 
++    def _cultivation_candidate(self) -> tuple | None:
++        """کاندیدِ گلوگاه از گزارشِ متابولیسمِ پاها (state/legs/cultivation-report.json —
++        نوشتهٔ wiring.legs_cultivation_beat). فقط اگر فایل *تازه* باشد (mtime ≤
++        DOCTOR_CULTIVATION_FRESH_S، پیش‌فرض ۲۴h) — گزارشِ کهنه یعنی خودِ cultivation
++        خوابیده؛ از روی دادهٔ مرده RFC نمی‌سازیم. fail-soft: نبود/خرابی → None
++        (رفتارِ قبلیِ mine بایت‌به‌بایت). خروجی: tuple هم‌شکلِ بقیهٔ کاندیدها."""
++        try:
++            p = self._state_dir / "legs" / "cultivation-report.json"
++            if not p.exists():
++                return None
++            fresh_s = float(os.environ.get("DOCTOR_CULTIVATION_FRESH_S", "86400"))
++            if (time.time() - p.stat().st_mtime) > fresh_s:
++                return None   # گزارشِ کهنه = سیگنالِ نامعتبر
++            data = _read_json_safe(p)
++            starved = [s for s in (data.get("starved_legs") or []) if isinstance(s, str)]
++            stale = [s for s in (data.get("stale_legs") or []) if isinstance(s, str)]
++            if not starved and not stale:
++                return None
++            parts = []
++            if starved:
++                parts.append("گرسنه (بی‌خوراک): " + "، ".join(starved))
++            if stale:
++                parts.append("منبعِ راکد: " + "، ".join(stale))
++            desc = "متابولیسمِ داده — " + " · ".join(parts)
++            return ("legs-starved", desc, "medium",
++                    -2.0 * float(len(starved) + len(stale)))
++        except Exception:  # noqa: BLE001 — governanceِ تغذیه هرگز mine را نمی‌کشد
++            return None
++
+     def _gather_trace(self) -> dict:
+         """جمعِ متریک از state/*.json + heartbeat. fail-soft: نبود = trace خالی.
+         ساختارِ غنی برای mine() و spectral_mine():
+@@ -516,6 +552,53 @@ class Doctor:
+             pass
+         return True
+ 
++    # ─── Wave 3 (2026-07-15) · تحلیلِ اندام‌ها → RFCِ بهبود (propose-only) ──────────
++    def analyze_organs(self) -> list:
++        """اندام‌های خاموش/اسکلت را می‌کاود؛ برای هرکدام یک RFCِ بهبود draft+submit می‌کند —
++        از همان پایپ‌لاینِ RFC (propose-only، lesson-only merge). dedup: اندامی که RFCِ باز
++        دارد دوباره پیشنهاد نمی‌شود (وگرنه هر cycle spam). هیچ تغییرِ کدِ تولید."""
++        import json as _json
++        dormant = []   # (key, label, reason)
++        # (۱) اندام‌های owner-ساختِ رجیستری (Wave 2) که هنوز زنده نیستند
++        try:
++            rp = self._state_dir / "organ-registry.json"
++            if rp.exists():
++                for o in (_json.loads(rp.read_text("utf-8")).get("organs") or []):
++                    if isinstance(o, dict) and not o.get("live"):
++                        dormant.append((o.get("key"), o.get("label") or o.get("key"),
++                                        "اندامِ owner-ساخت هنوز بی‌داده (اسکلت)"))
++        except (OSError, ValueError):
++            pass
++        # (۲) business_legsِ built-in که skeleton برمی‌گردانند
++        org = _read_json_safe(self._state_dir / "ORGANISM-STATE.json") or {}
++        bl = org.get("business_legs") or {}
++        if isinstance(bl, dict) and isinstance(bl.get("business_legs"), dict):
++            bl = bl["business_legs"]
++        if isinstance(bl, dict):
++            for k, v in bl.items():
++                if isinstance(v, dict) and not v.get("live"):
++                    dormant.append((k, k, "leg اسکلت — بی‌سیگنال"))
++        # dedup روی RFCهای باز
++        open_b = {r.bottleneck for r in self._rfcs.values()
++                  if r.status not in ("merged", "rejected", "human-merged", "human-rejected")}
++        drafted = []
++        for key, label, reason in dormant:
++            if not key:
++                continue
++            btag = f"organ:{key}"
++            if any(btag in b for b in open_b):
++                continue
++            rfc = self.propose_rfc(
++                {"bottleneck": f"{btag} — {reason}"},
++                fix=(f"اندامِ «{label}» {reason}. پیشنهادِ propose-only: یک منبعِ دادهٔ afferent "
++                     f"برایش وصل شود تا از اسکلت به زنده برسد؛ یا اگر لازم نیست، فلگش خاموش بماند. "
++                     f"هیچ تغییرِ کدِ تولید در این RFC نیست."),
++                expected_lift="اندامِ زنده به‌جای اسکلت (observability بهتر)",
++                rollback="خاموش‌کردنِ فلگ یا حذفِ ورودیِ رجیستری")
++            if self.submit_for_approval(rfc):
++                drafted.append(rfc.rfc_id)
++        return drafted
++
+     # ─── D-6 · restart_from_known_good + run_cycle ───────────────────────────────
+     def restart_from_known_good(self, leg, db=None) -> bool:
+         """قلابِ Pacemaker از P1 (خطِ ۴۸۳). پای failed از known-good ری‌استارت.
+@@ -579,6 +662,13 @@ class Doctor:
+         use_chamber: اگر True، RFC از Chamber تخاصمی می‌گذرد پیش از sandbox/submit."""
+         # sweep RFCهای گیر کرده (expire stale, re-submit no-channel)
+         self._sweep_stale_rfcs()
++        # Wave 3 (2026-07-15): اسکنِ اندام‌ها (پشتِ OCTOPUS_WIRE_ORGAN_DOCTOR، پیش‌فرض خاموش).
++        # با فلگِ خاموش byte-identicalِ رفتارِ قبلی؛ روشن → RFCِ بهبود برای اندامِ خاموش/اسکلت.
++        if os.environ.get("OCTOPUS_WIRE_ORGAN_DOCTOR") == "1":
++            try:
++                self.analyze_organs()
++            except Exception:  # noqa: BLE001 — اسکنِ اندام نباید cycle را بکشد
++                pass
+         # Phase 5: مصرفِ verdictهای انسانی از کانال (اگر کانال pop_rfc_verdicts داشته باشد؛
+         # hasattr-guard = ایمن حتی قبل از این‌که کانالِ تلگرام آن را عرضه کند).
+         # human-append منبعِ حقیقت می‌ماند — اینجا فقط ثبتِ calibration + وضعیتِ registry.
+@@ -880,6 +970,8 @@ def _suggest_fix(bottleneck: dict) -> str:
+         "effects-stuck": "بازبینیِ اثرهای pending گیرکرده — settle یا refuse",
+         "frozen-conflict": "رفعِ تعارضِ تلمتری که FREEZE کرده",
+         "sigma-cancer-risk": "افزایشِ گاردِ replication (σ>1 = خطِ قرمز)",
++        "legs-starved": ("اتصالِ منبعِ خوراک به صندوقِ state/legs/<leg>-inbox پای گرسنه، "
++                         "یا تازه‌سازیِ منبعِ راکد (propose-only — تصمیم با مالک)"),
+     }
+     return fixes.get(key, "بازبینیِ گلوگاهِ شناسایی‌شده (propose-only)")
+ 
+diff --git a/_ops/legs/leg_cultivate.py b/_ops/legs/leg_cultivate.py
+new file mode 100644
+index 0000000..ab9df63
+--- /dev/null
++++ b/_ops/legs/leg_cultivate.py
+@@ -0,0 +1,328 @@
++#!/usr/bin/env python3
++"""leg_cultivate.py — متابولیسمِ دادهٔ $0 برای همهٔ پاها (تعمیمِ الگوی lead_sense، 2026-07-16).
++
++الگوی SENSE→DIGEST که برای لید ساخته شد (lead_sense.py) اینجا برای هر پای بیزنسی
++عمومی می‌شود: هر پا یک صندوقِ فایل دارد — `state/legs/<leg>-inbox/*.json` — هر فایل
++یک dict (خوراکِ producer: ایمیل، هاروستر، دستِ مالک، cron). cultivate(leg) صندوق را
++هضم می‌کند و یک digestِ فشرده به وضعیت/آگاهیِ همان پا برمی‌گرداند.
++
++قواعد (قانونِ اساسی — عینِ lead_sense):
++  - هرگز حذف نمی‌کنیم؛ فقط انتقال: پردازش‌شده → `processed/` + سایدکارِ نتیجه؛
++    JSONِ خراب → `rejected/` + سایدکارِ دلیل.
++  - idempotent: هَشِ محتواییِ کاندید در `processed/_seen.json` — آیتمِ تکراری
++    دوباره هضم نمی‌شود (الگوی dedupِ message_id تلگرام).
++  - مسیرها در زمانِ فراخوانی از opslib خوانده می‌شوند (ایزولاسیونِ تستِ env-first).
++  - بدونِ PII-echo: از محتوای آیتم فقط فیلدهای اعلانیِ producer (label/kind/summary)
++    کوتاه‌شده گزارش می‌شوند، هرگز مقدار/نام/عددِ مالی.
++
++پل‌های خاصِ پا (فقط ADD، read-only):
++  - mining: سن/اندازهٔ منبعِ ماشینیِ واقعی (coordinator/data/decisions.jsonl — فقط stat،
++    شمارشِ خط فقط برای فایلِ کوچک؛ هرگز محتوای تصمیم echo نمی‌شود).
++  - ziman: پلِ کاتالوگ (همان ziman-catalog.jsonِ برنامهٔ ۸ — شمارشِ محصول/خانواده + سن).
++
++خروجیِ دکتر: cultivate_all یک گزارشِ فشرده در `state/legs/cultivation-report.json`
++می‌نویسد (اتمیک) — doctor.mine آن را (اگر تازه باشد) به‌عنوانِ کاندیدِ گلوگاهِ
++«پای گرسنه/منبعِ راکد» می‌خواند. propose-only؛ هیچ اتونومیِ نو.
++
++stdlib-فقط؛ صفر شبکه؛ صفر effector؛ fail-soft همه‌جا.
++"""
++from __future__ import annotations
++
++import hashlib
++import json
++import os
++import sys
++import time
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++if str(_HERE) not in sys.path:
++    sys.path.insert(0, str(_HERE))
++sys.path.insert(0, str(_HERE.parent / "budget"))
++import opslib  # noqa: E402
++
++try:
++    from leg_freshness import age_days
++except ImportError:                                       # fail-soft: سنِ نامعلوم → null
++    def age_days(_p):  # type: ignore[misc]
++        return None
++
++# پاهایی که متابولیسمِ داده دارند (lead صندوقِ خودش را در lead_sense دارد — تکرار نمی‌کنیم)
++CULTIVATED_LEGS = ("mining", "crypto", "accounting", "knowledge", "ziman")
++
++# آستانه‌ها (env-قابل‌تنظیم؛ پیش‌فرض‌های محافظه‌کار)
++STARVED_AFTER_H_DEFAULT = 72.0      # پا «گرسنه» = این‌قدر ساعت هیچ خوراکی هضم نشده
++SOURCE_STALE_DAYS_DEFAULT = 30.0    # منبعِ پل‌شده (mining/ziman) «راکد» = این‌قدر روز کهنه
++
++
++# ─── مسیرها (call-time تا OPS_DIR تستی اثر کند — عینِ lead_sense) ────────────────
++def _legs_state() -> Path:
++    return opslib.STATE_DIR / "legs"
++
++
++def _inbox(leg: str) -> Path:
++    return _legs_state() / f"{leg}-inbox"
++
++
++def _processed(leg: str) -> Path:
++    return _inbox(leg) / "processed"
++
++
++def _rejected(leg: str) -> Path:
++    return _inbox(leg) / "rejected"
++
++
++def _seen_index(leg: str) -> Path:
++    return _processed(leg) / "_seen.json"
++
++
++def _last_fed_path() -> Path:
++    return _legs_state() / "cultivation-last.json"
++
++
++def report_path() -> Path:
++    """مسیرِ گزارشِ فشرده برای دکتر — یک منبعِ حقیقتِ واحد (wiring/doctor/تست)."""
++    return _legs_state() / "cultivation-report.json"
++
++
++# ─── هویت و dedup ────────────────────────────────────────────────────────────────
++def content_hash(item: dict) -> str:
++    """هویتِ محتواییِ آیتم — JSONِ کانونیکالِ کلِ dict (کلیدمرتب). پایهٔ dedupِ عمومی."""
++    try:
++        canon = json.dumps(item, ensure_ascii=False, sort_keys=True)
++    except (TypeError, ValueError):
++        canon = repr(sorted(str(k) for k in item))
++    return hashlib.sha256(canon.encode("utf-8")).hexdigest()[:24]
++
++
++def _load_seen(leg: str) -> set:
++    try:
++        return set(json.loads(_seen_index(leg).read_text("utf-8")))
++    except (OSError, ValueError):
++        return set()
++
++
++def _save_seen(leg: str, seen: set) -> None:
++    try:
++        _processed(leg).mkdir(parents=True, exist_ok=True)
++        tmp = _seen_index(leg).with_suffix(".json.tmp")
++        tmp.write_text(json.dumps(sorted(seen), ensure_ascii=False, indent=0), "utf-8")
++        os.replace(tmp, _seen_index(leg))
++    except (OSError, TypeError, ValueError):
++        pass   # fail-soft: نبودِ ایندکس فقط dedup را ضعیف می‌کند، نه beat را
++
++
++def seen_before(leg: str, item: dict) -> bool:
++    return content_hash(item) in _load_seen(leg)
++
++
++# ─── SENSE: خواندنِ صندوق ────────────────────────────────────────────────────────
++def read_inbox(leg: str, limit: int | None = None) -> list:
++    """آیتم‌های معتبرِ صندوقِ یک پا، مرتب به نام (قطعی). JSONِ خراب/غیرdict →
++    rejected/ + سایدکارِ دلیل. فقط فایل‌های سطحِ اولِ inbox (نه processed/rejected)."""
++    box = _inbox(leg)
++    if not box.is_dir():
++        return []
++    out: list = []
++    for p in sorted(box.glob("*.json")):
++        try:
++            d = json.loads(p.read_text("utf-8"))
++            if not isinstance(d, dict) or not d:
++                raise ValueError("item must be a non-empty dict")
++            out.append((p, d))
++        except (OSError, ValueError) as e:
++            _move_with_sidecar(p, _rejected(leg), {"error": f"{type(e).__name__}: {e}"})
++        if limit is not None and len(out) >= limit:
++            break
++    return out
++
++
++def mark_processed(leg: str, path: Path, item: dict, result: dict) -> None:
++    """آیتم را به processed/ منتقل کن + سایدکارِ نتیجه + ثبتِ هش در dedup."""
++    seen = _load_seen(leg)
++    seen.add(content_hash(item))
++    _save_seen(leg, seen)
++    _move_with_sidecar(path, _processed(leg), result)
++
++
++def _move_with_sidecar(path: Path, dest_dir: Path, result: dict) -> None:
++    """انتقالِ اتمیک (نه حذف) + سایدکارِ `<name>.result.json` (fail-soft) — عینِ lead_sense."""
++    try:
++        dest_dir.mkdir(parents=True, exist_ok=True)
++        dest = dest_dir / path.name
++        if dest.exists():                       # تصادمِ نام → suffix عددی، نه بازنویسی
++            i = 1
++            while (dest_dir / f"{path.stem}.{i}{path.suffix}").exists():
++                i += 1
++            dest = dest_dir / f"{path.stem}.{i}{path.suffix}"
++        os.replace(path, dest)
++        side = dest.with_name(dest.name + ".result.json")
++        side.write_text(json.dumps({**result, "processed_at": opslib.now_iso()},
++                                   ensure_ascii=False, indent=2), "utf-8")
++    except (OSError, TypeError, ValueError):
++        pass   # fail-soft: انتقالِ ناموفق فقط باعثِ retry در beatِ بعدی می‌شود
++
++
++# ─── DIGEST: خلاصهٔ بی‌PII ───────────────────────────────────────────────────────
++def _summarize(item: dict) -> dict:
++    """خلاصهٔ فشردهٔ یک آیتم — فقط فیلدهای اعلانیِ producer (label/kind/summary،
++    کوتاه‌شده) + تعدادِ کلیدها. هرگز مقدار/نام/عددِ مالی echo نمی‌شود (خطِ قرمزِ
++    accounting و ingest_raw)."""
++    label = str(item.get("label") or item.get("kind") or item.get("summary") or "")[:80]
++    return {"label": label, "n_keys": len(item)}
++
++
++# ─── پل‌های خاصِ پا (فقط ADD، read-only، fail-soft) ─────────────────────────────
++def _enrich_mining() -> dict:
++    """پلِ منبعِ ماشینیِ واقعیِ Mining: coordinator/data/decisions.jsonl — read-only.
++    فقط stat (سن/اندازه) + شمارشِ خط برای فایلِ کوچک (<2MB). صفر echo از محتوا."""
++    out: dict = {"source": "coordinator/data/decisions.jsonl"}
++    try:
++        import mining_leg  # noqa: WPS433 — lazy؛ مسیرِ تأییدشده همان‌جا نگه‌داری می‌شود
++        p = Path(mining_leg.DECISIONS_PATH)
++        out["source_exists"] = p.exists()
++        if p.exists():
++            a = age_days(p)
++            out["source_age_days"] = round(a, 1) if a is not None else None
++            size = p.stat().st_size
++            out["source_bytes"] = size
++            if size <= 2_000_000:   # شمارشِ خط فقط برای فایلِ کوچک (سقفِ هزینهٔ IO)
++                with p.open("rb") as f:
++                    out["source_lines"] = sum(1 for _ in f)
++    except Exception as e:  # noqa: BLE001 — پل هرگز cultivate را نمی‌کشد
++        out["source_error"] = type(e).__name__
++    return out
++
++
++def _enrich_ziman() -> dict:
++    """پلِ کاتالوگِ زیمان (برنامهٔ ۸ — همان منبعِ حقیقتِ ziman_leg): شمارشِ محصول/
++    خانواده + سنِ فایل. read-only، utf-8-sig (فایلِ واقعی BOM دارد)، fail-soft."""
++    out: dict = {}
++    try:
++        import ziman_leg  # noqa: WPS433 — lazy؛ مسیرِ کاتالوگ همان ثابتِ پلِ برنامهٔ ۸
++        p = Path(opslib.ORG_ROOT) / ziman_leg.ZIMAN_CATALOG_NOTE
++        out["catalog"] = str(ziman_leg.ZIMAN_CATALOG_NOTE)
++        if not p.exists():
++            out["catalog_exists"] = False
++            return out
++        out["catalog_exists"] = True
++        a = age_days(p)
++        out["catalog_age_days"] = round(a, 1) if a is not None else None
++        data = json.loads(p.read_text(encoding="utf-8-sig", errors="replace"))
++        prods = data.get("products") if isinstance(data, dict) else None
++        if isinstance(prods, list):
++            out["catalog_products"] = len(prods)
++            fams = {str(pr.get("family") or "UNKNOWN")
++                    for pr in prods if isinstance(pr, dict)}
++            out["catalog_families"] = len(fams)
++    except Exception as e:  # noqa: BLE001 — پل هرگز cultivate را نمی‌کشد
++        out["catalog_error"] = type(e).__name__
++    return out
++
++
++_ENRICHERS = {"mining": _enrich_mining, "ziman": _enrich_ziman}
++
++
++# ─── حافظهٔ «آخرین خوراک» (starvation tracking، اتمیک) ──────────────────────────
++def _load_last_fed() -> dict:
++    try:
++        d = json.loads(_last_fed_path().read_text("utf-8"))
++        return d if isinstance(d, dict) else {}
++    except (OSError, ValueError):
++        return {}
++
++
++def _save_last_fed(d: dict) -> None:
++    try:
++        _last_fed_path().parent.mkdir(parents=True, exist_ok=True)
++        tmp = _last_fed_path().with_suffix(".json.tmp")
++        tmp.write_text(json.dumps(d, ensure_ascii=False, indent=2), "utf-8")
++        os.replace(tmp, _last_fed_path())
++    except (OSError, TypeError, ValueError):
++        pass   # fail-soft
++
++
++# ─── cultivate — هضمِ صندوقِ یک پا ──────────────────────────────────────────────
++def cultivate(leg: str, limit: int | None = None) -> dict:
++    """یک دورِ SENSE→DIGEST برای یک پا. هرگز crash نمی‌کند (fail-soft).
++    خروجی: {leg, sensed, digested, duplicates, pending, starved, last_fed_at, notes}
++    + کلیدهای پلِ خاصِ پا (mining/ziman) — فقط ADD، هیچ کلیدِ موجودی عوض نمی‌شود."""
++    items = read_inbox(leg, limit=limit)
++    digested = dups = 0
++    notes: list = []
++    for path, item in items:
++        if seen_before(leg, item):
++            mark_processed(leg, path, item, {"duplicate": True})
++            dups += 1
++            continue
++        summary = _summarize(item)
++        mark_processed(leg, path, item, {"digested": True, "summary": summary})
++        digested += 1
++        if len(notes) < 5:
++            notes.append(summary)
++    # pending = آنچه بعد از سقف در صندوق ماند (خوراکِ beatِ بعدی)
++    try:
++        pending = len([p for p in _inbox(leg).glob("*.json")]) if _inbox(leg).is_dir() else 0
++    except OSError:
++        pending = 0
++    # starvation: آخرین باری که این پا واقعاً خوراک هضم کرد
++    last_fed = _load_last_fed()
++    now = time.time()
++    if digested > 0:
++        last_fed[leg] = {"ts": now, "at": opslib.now_iso()}
++        _save_last_fed(last_fed)
++    rec = last_fed.get(leg) or {}
++    last_ts = rec.get("ts") if isinstance(rec, dict) else None
++    starved_after_h = float(os.environ.get("LEG_STARVED_AFTER_H",
++                                           str(STARVED_AFTER_H_DEFAULT)))
++    starved = (digested == 0 and pending == 0
++               and (not isinstance(last_ts, (int, float))
++                    or (now - last_ts) > starved_after_h * 3600.0))
++    out = {"leg": leg, "sensed": len(items), "digested": digested,
++           "duplicates": dups, "pending": pending, "starved": starved,
++           "last_fed_at": rec.get("at") if isinstance(rec, dict) else None,
++           "notes": notes}
++    enrich = _ENRICHERS.get(leg)
++    if enrich is not None:
++        try:
++            out.update(enrich())
++        except Exception as e:  # noqa: BLE001 — پل هرگز digest را نمی‌کشد
++            out["enrich_error"] = type(e).__name__
++    # stale-source: منبعِ پل‌شده کهنه است (فقط وقتی پل سن گزارش کرد)
++    stale_days = float(os.environ.get("LEG_SOURCE_STALE_DAYS",
++                                      str(SOURCE_STALE_DAYS_DEFAULT)))
++    src_age = out.get("source_age_days")
++    cat_age = out.get("catalog_age_days")
++    ages = [a for a in (src_age, cat_age) if isinstance(a, (int, float))]
++    out["stale_source"] = bool(ages and max(ages) > stale_days)
++    return out
++
++
++def cultivate_all(limit_per_leg: int | None = 10, write_report: bool = True) -> dict:
++    """همهٔ پاهای CULTIVATED_LEGS را هضم کن + گزارشِ فشردهٔ دکتر را اتمیک بنویس.
++    خروجی: {"legs": {name: digest}, "starved_legs": [...], "stale_legs": [...]}.
++    fail-soft: خطای یک پا بقیه را نمی‌کشد."""
++    legs: dict = {}
++    for name in CULTIVATED_LEGS:
++        try:
++            legs[name] = cultivate(name, limit=limit_per_leg)
++        except Exception as e:  # noqa: BLE001 — یک پا نباید بقیه را بکشد
++            legs[name] = {"leg": name, "error": f"{type(e).__name__}: {e}"}
++    starved = sorted(n for n, d in legs.items() if d.get("starved"))
++    stale = sorted(n for n, d in legs.items() if d.get("stale_source"))
++    report = {"schema": "cultivation-report.v1", "ts": opslib.now_iso(),
++              "legs": legs, "starved_legs": starved, "stale_legs": stale}
++    if write_report:
++        try:
++            rp = report_path()
++            rp.parent.mkdir(parents=True, exist_ok=True)
++            tmp = rp.with_suffix(".json.tmp")
++            tmp.write_text(json.dumps(report, ensure_ascii=False, indent=2), "utf-8")
++            os.replace(tmp, rp)
++        except (OSError, TypeError, ValueError):
++            pass   # fail-soft: گزارشِ دکتر اختیاری است، beat را نمی‌کشد
++    return report
++
++
++if __name__ == "__main__":
++    print(json.dumps(cultivate_all(write_report=False), ensure_ascii=False, indent=2))
+diff --git a/_ops/organism.py b/_ops/organism.py
+index 2c5c630..d6d223f 100644
+--- a/_ops/organism.py
++++ b/_ops/organism.py
+@@ -478,6 +478,17 @@ def main() -> int:
+                         _leg, beat=_cstat.get("beat", 0) if _cstat else 0)
+                 except Exception as _lde:  # noqa: BLE001 — §۴: نباید tick را بکشد
+                     opslib.alert([f"lead_discovery_beat error (non-fatal): {type(_lde).__name__}: {_lde}"])
++            # ── Legs cultivation (2026-07-16): متابولیسمِ دادهٔ $0 برای همهٔ پاها —
++            # پشتِ OCTOPUS_WIRE_LEG_CULTIVATE (پیش‌فرض خاموش، خارج از PAPER_FULL_FLAGS)
++            # → None. digest → دکتر (گزارشِ گلوگاه) + مغزِ B (اگر bus/bridge زنده باشند).
++            _legs_cult = None
++            if not _protective_skip:
++                try:
++                    _legs_cult = _w.legs_cultivation_beat(
++                        beat=_cstat.get("beat", 0) if _cstat else 0,
++                        sensory_bus=_sensory_bus, school_bridge=_school_bridge)
++                except Exception as _lce:  # noqa: BLE001 — §۴: نباید tick را بکشد
++                    opslib.alert([f"legs_cultivation_beat error (non-fatal): {type(_lce).__name__}: {_lce}"])
+             # ── F3 (2026-07-14): seed ِ scheduler برای RFCهای دکتر — پشتِ OCTOPUS_WIRE_SCHEDULER
+             # (پیش‌فرض خاموش) → no-op. producer (scheduler_seed_doctor_rfc) قبلاً سیم‌نشده بود.
+             if not _protective_skip:
+@@ -539,6 +550,7 @@ def main() -> int:
+                           **({"cartographer": _cartographer_status} if _cartographer_status else {}),
+                           **({"business_legs": _biz_legs} if _biz_legs else {}),
+                           **({"lead_discovery": _lead_disc} if _lead_disc else {}),
++                          **({"legs_cultivation": _legs_cult} if _legs_cult else {}),
+                           **({"heart": _heart_status} if _heart_status else {}),
+                           **({"cardiac": _cardiac_mod.status_snapshot()}
+                              if _cardiac_mod is not None else {})})
+diff --git a/_ops/tests/run_all.py b/_ops/tests/run_all.py
+index 916e35e..b16d4d0 100644
+--- a/_ops/tests/run_all.py
++++ b/_ops/tests/run_all.py
+@@ -97,6 +97,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
+          "test_calibration_loop.py", "test_cockpit_golive_honesty.py",
+          "test_legs_freshness.py",   # برنامه ۷: صداقتِ تازگیِ پاها
+          "test_ziman_catalog_bridge.py",   # برنامه ۸: پلِ کاتالوگِ زیمان
++         # 2026-07-16: متابولیسمِ دادهٔ $0 همهٔ پاها (leg_cultivate + دکتر + مغزِ B)
++         "test_legs_cultivation.py",
+          ]
+ # تست‌های خارج از _ops/tests/ (path tuyệtق)
+ EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
+diff --git a/_ops/tests/test_legs_cultivation.py b/_ops/tests/test_legs_cultivation.py
+new file mode 100644
+index 0000000..2b63cc9
+--- /dev/null
++++ b/_ops/tests/test_legs_cultivation.py
+@@ -0,0 +1,212 @@
++#!/usr/bin/env python3
++"""تستِ متابولیسمِ دادهٔ $0 پاها (2026-07-16): leg_cultivate + wiring.legs_cultivation_beat.
++
++اثبات می‌کند:
++  (الف) flag خاموش → None و صندوق‌ها بایت‌به‌بایت دست‌نخورده (رفتارِ امروز).
++  (ب) flag روشن → صندوقِ ≥۲ پا (mining/crypto) هضم می‌شود؛ انتقال-نه-حذف + سایدکارِ
++      نتیجه؛ سایدکارِ ORGANISM-STATE.legs_cultivation + گزارشِ دکتر نوشته می‌شوند.
++  (ج) dedup: همان محتوا دوباره → duplicate، هیچ digestِ دوم (idempotent).
++  (د) پیوندِ مغزِ B: digest → sensory_bus.ingest → school_bridge.learn_from(persist=True).
++  (هـ) kill-switch (STOP) → None حتی با flag روشن.
++  (و) cadence: beat غیرِ مضربِ N → None.
++  (ز) دکتر گزارش را می‌بیند: پای گرسنه → کاندیدِ گلوگاهِ legs-starved (فقط اگر گزارش
++      تازه باشد؛ کهنه → None)؛ بحران (error-rate) همچنان مقدم است.
++  (ح) ساختاری: organism.py واقعاً beat را صدا می‌زند + کلیدِ merge + flag خارج از
++      PAPER_FULL_FLAGS.
++$0 آفلاین؛ state ایزوله (OPS_DIR موقتِ harness)؛ صفر نوشتن روی درختِ زنده.
++"""
++import json
++import os
++import sys
++import time
++from pathlib import Path
++
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++import harness  # noqa: E402
++ENV = harness.setup("legs-cultivation")
++
++_OPS = harness.REAL_VAULT / "_ops"
++for _p in [str(_OPS), str(_OPS / "legs"), str(_OPS / "doctor"), str(_OPS / "afferent")]:
++    if _p not in sys.path:
++        sys.path.insert(0, _p)
++
++import opslib          # noqa: E402
++import wiring          # noqa: E402
++import leg_cultivate   # noqa: E402
++from doctor import Doctor  # noqa: E402
++
++ORGANISM_SRC = (_OPS / "organism.py").read_text("utf-8")
++WIRING_SRC = (_OPS / "wiring.py").read_text("utf-8")
++
++MINING_A = {"kind": "decision-batch", "label": "coordinator digest", "n_decisions": 3}
++MINING_B = {"kind": "fleet-note", "label": "orange-pi uptime report", "n_nodes": 5}
++CRYPTO_A = {"kind": "market-snapshot", "label": "btc-daily", "day": "2026-07-16"}
++
++
++def _drop(leg: str, name: str, item: dict) -> Path:
++    box = opslib.STATE_DIR / "legs" / f"{leg}-inbox"
++    box.mkdir(parents=True, exist_ok=True)
++    p = box / f"{name}.json"
++    p.write_text(json.dumps(item, ensure_ascii=False), "utf-8")
++    return p
++
++
++def t_a_flag_off_is_noop():
++    """flag خاموش → None؛ فایلِ صندوق دست‌نخورده."""
++    os.environ.pop("OCTOPUS_WIRE_LEG_CULTIVATE", None)
++    p = _drop("mining", "untouched", MINING_A)
++    assert wiring.legs_cultivation_beat(beat=0) is None
++    assert p.exists(), "flag خاموش نباید صندوق را لمس کند"
++    p.unlink()   # پاکسازیِ fixtureِ تستی (state موقت، نه vault)
++
++
++def t_b_digests_two_legs():
++    """flag روشن: ۲ آیتمِ mining + ۱ آیتمِ crypto هضم؛ انتقال + سایدکار + گزارش."""
++    os.environ["OCTOPUS_WIRE_LEG_CULTIVATE"] = "1"
++    try:
++        _drop("mining", "a-batch", MINING_A)
++        _drop("mining", "b-fleet", MINING_B)
++        _drop("crypto", "a-snap", CRYPTO_A)
++        r = wiring.legs_cultivation_beat(beat=0)
++        assert r is not None and r["propose_only"] is True, r
++        assert r["legs"]["mining"]["digested"] == 2, r["legs"]["mining"]
++        assert r["legs"]["crypto"]["digested"] == 1, r["legs"]["crypto"]
++        assert r["digested_total"] == 3, r
++        # همهٔ پاهای قرارداد حضور دارند (digestِ عمومی برای هر ۵ پا)
++        assert set(r["legs"]) == set(leg_cultivate.CULTIVATED_LEGS), set(r["legs"])
++        # فایل‌ها منتقل شدند (نه حذف) + سایدکارِ نتیجه
++        box = opslib.STATE_DIR / "legs" / "mining-inbox"
++        assert not list(box.glob("*.json")), "صندوقِ mining باید خالی شده باشد"
++        allj = list((box / "processed").glob("*.json"))
++        sides = [p for p in allj if p.name.endswith(".result.json")]
++        moved = [p for p in allj if not p.name.endswith(".result.json")
++                 and p.name != "_seen.json"]
++        assert len(moved) == 2, moved
++        assert len(sides) == 2, sides
++        side = json.loads(sides[0].read_text("utf-8"))
++        assert side.get("digested") is True and "processed_at" in side, side
++        # سایدکارِ وضعیتِ ارگانیسم (اتمیک، الگوی business_legs)
++        sp = opslib.STATE_DIR / "ORGANISM-STATE.legs_cultivation"
++        d = json.loads(sp.read_text("utf-8"))
++        assert d["digested_total"] == 3 and "updated_at" in d, d
++        # گزارشِ فشردهٔ دکتر
++        rep = json.loads(leg_cultivate.report_path().read_text("utf-8"))
++        assert rep["schema"] == "cultivation-report.v1", rep
++        assert rep["legs"]["mining"]["digested"] == 2, rep["legs"]["mining"]
++    finally:
++        os.environ.pop("OCTOPUS_WIRE_LEG_CULTIVATE", None)
++
++
++def t_c_dedup_idempotent():
++    """همان محتوایِ mining دوباره → duplicate؛ هیچ digestِ دوم (پایپ‌لاین idempotent)."""
++    os.environ["OCTOPUS_WIRE_LEG_CULTIVATE"] = "1"
++    try:
++        _drop("mining", "a-batch-again", MINING_A)
++        r = wiring.legs_cultivation_beat(beat=0)
++        m = r["legs"]["mining"]
++        assert m["duplicates"] == 1 and m["digested"] == 0, m
++    finally:
++        os.environ.pop("OCTOPUS_WIRE_LEG_CULTIVATE", None)
++
++
++class FakeBridge:
++    """ضبط‌کنندهٔ learn_from — قراردادِ SchoolBridge بدونِ curriculum واقعی."""
++    def __init__(self):
++        self.calls = []
++
++    def learn_from(self, events, persist=False):
++        evs = list(events)
++        self.calls.append({"events": evs, "persist": persist})
++        return {"taught_signals": len(evs), "mean_before": 0.0, "mean_after": 0.1,
++                "ignited": [], "insights": []}
++
++
++def t_d_school_link_absorbs_digest():
++    """پیوندِ مغزِ B: یک digestِ واقعی → یک AfferentEventِ afferent=True →
++    school_bridge.learn_from با persist=True (جذب در حافظهٔ School)."""
++    os.environ["OCTOPUS_WIRE_LEG_CULTIVATE"] = "1"
++    try:
++        from sensory_bus import SensoryBus
++        _drop("knowledge", "a-note", {"kind": "knowledge-drop",
++                                      "label": "hypnosis MOC updated"})
++        bus, bridge = SensoryBus(), FakeBridge()
++        r = wiring.legs_cultivation_beat(beat=0, sensory_bus=bus, school_bridge=bridge)
++        assert r["legs"]["knowledge"]["digested"] == 1, r["legs"]["knowledge"]
++        assert len(bridge.calls) == 1, bridge.calls
++        call = bridge.calls[0]
++        assert call["persist"] is True, "یادگیری باید persist=True باشد (حافظهٔ ماندگار)"
++        assert len(call["events"]) == 1, call["events"]   # یک event به‌ازای هر digest
++        ev = call["events"][0]
++        assert getattr(ev, "afferent", False) is True and ev.source == "legs.knowledge", ev
++        assert r["school"] == {"taught_signals": 1}, r["school"]
++    finally:
++        os.environ.pop("OCTOPUS_WIRE_LEG_CULTIVATE", None)
++
++
++def t_e_killswitch_wins():
++    """STOP مقدم بر flag — حتی روشن هم None."""
++    os.environ["OCTOPUS_WIRE_LEG_CULTIVATE"] = "1"
++    try:
++        opslib.STOP_ORGANISM.write_text("test", "utf-8")
++        try:
++            assert wiring.legs_cultivation_beat(beat=0) is None
++        finally:
++            opslib.STOP_ORGANISM.unlink()
++    finally:
++        os.environ.pop("OCTOPUS_WIRE_LEG_CULTIVATE", None)
++
++
++def t_f_cadence():
++    """beat غیرِ مضربِ N → None؛ مضربِ N → اجرا."""
++    os.environ["OCTOPUS_WIRE_LEG_CULTIVATE"] = "1"
++    try:
++        assert wiring.legs_cultivation_beat(beat=7) is None       # 7 % 60 != 0
++        assert wiring.legs_cultivation_beat(beat=120) is not None  # مضربِ ۶۰
++    finally:
++        os.environ.pop("OCTOPUS_WIRE_LEG_CULTIVATE", None)
++
++
++def t_g_doctor_sees_report():
++    """دکتر گزارشِ تازه را می‌بیند: پای گرسنه (هرگز خوراک نگرفته) → کاندیدِ گلوگاهِ
++    legs-starved با severity=medium؛ بحرانِ واقعی (error-rate) همچنان مقدم؛
++    گزارشِ کهنه → نادیده (None)."""
++    os.environ["OCTOPUS_WIRE_LEG_CULTIVATE"] = "1"
++    try:
++        # صندوق‌ها خالی؛ accounting/ziman هرگز خوراک نگرفته‌اند → starved در گزارش
++        r = wiring.legs_cultivation_beat(beat=0)
++        assert "accounting" in r["starved_legs"], r["starved_legs"]
++        doc = Doctor(state_dir=str(opslib.STATE_DIR),
++                     knowledge_dir=str(ENV["ops"] / "knowledge-internal-test"))
++        # trace خالی ({}) گاردِ قدیمیِ mine را فعال می‌کند (early None) — trace بی‌گلوگاه
++        bn = doc.mine(trace={"errors_24h": 0, "frozen": False})
++        assert bn is not None, "دکتر باید پای گرسنه را از گزارشِ تازه ببیند"
++        assert bn["evidence"]["key"] == "legs-starved", bn
++        assert bn["severity"] == "medium", bn
++        # بحرانِ واقعی مقدم است — تغذیه هرگز error/freeze را کنار نمی‌زند
++        bn2 = doc.mine(trace={"errors_24h": 5})
++        assert bn2["evidence"]["key"] == "error-rate-high", bn2
++        # گزارشِ کهنه (mtime قدیمی) → سیگنالِ نامعتبر → None
++        old = time.time() - 3 * 86400
++        os.utime(leg_cultivate.report_path(), (old, old))
++        assert doc.mine(trace={"errors_24h": 0, "frozen": False}) is None, \
++            "گزارشِ کهنه نباید RFC بسازد"
++    finally:
++        os.environ.pop("OCTOPUS_WIRE_LEG_CULTIVATE", None)
++
++
++def t_h_structurally_wired_and_out_of_profile():
++    """organism.py این beat را صدا می‌زند؛ flag عمداً خارج از PAPER_FULL_FLAGS."""
++    assert "legs_cultivation_beat(" in ORGANISM_SRC, "organism باید beat را صدا بزند"
++    assert '"legs_cultivation"' in ORGANISM_SRC, "کلیدِ merge در ORGANISM-STATE"
++    assert "OCTOPUS_WIRE_LEG_CULTIVATE" not in str(wiring.PAPER_FULL_FLAGS), \
++        "flag نباید در پروفایلِ paper-full باشد (فعال‌سازی فقط با رأی مالک)"
++    assert 'flag("OCTOPUS_WIRE_LEG_CULTIVATE")' in WIRING_SRC
++
++
++if __name__ == "__main__":
++    for f in (t_a_flag_off_is_noop, t_b_digests_two_legs, t_c_dedup_idempotent,
++              t_d_school_link_absorbs_digest, t_e_killswitch_wins, t_f_cadence,
++              t_g_doctor_sees_report, t_h_structurally_wired_and_out_of_profile):
++        f()
++        print("ok", f.__name__)
++    print("PASS test_legs_cultivation")
+diff --git a/_ops/wiring.py b/_ops/wiring.py
+index 5109af8..3cc4bf2 100644
+--- a/_ops/wiring.py
++++ b/_ops/wiring.py
+@@ -1730,6 +1730,85 @@ def business_legs_beat(beat: int = 0, write: bool = True) -> dict | None:
+     return result
+ 
+ 
++def legs_cultivation_beat(beat: int = 0, sensory_bus=None,
++                          school_bridge=None) -> dict | None:
++    """متابولیسمِ دادهٔ $0 برای همهٔ پاها (2026-07-16) — تعمیمِ SENSE→DIGESTِ لید.
++
++    پشتِ OCTOPUS_WIRE_LEG_CULTIVATE — پیش‌فرض خاموش و **عمداً خارج از PAPER_FULL_FLAGS**
++    (فعال‌سازی فقط با رأی صریحِ مالک). با فلگِ خاموش → None، صندوق‌ها بایت‌به‌بایت
++    دست‌نخورده (رفتارِ امروز). روشن = هر N beat (CHRONO_CULTIVATE_EVERY_N_BEATS،
++    پیش‌فرض ۶۰) صندوقِ هر پا (state/legs/<leg>-inbox) با سقفِ LEG_CULTIVATE_MAX_PER_BEAT
++    هضم می‌شود (leg_cultivate.cultivate_all): dedup محتوایی + انتقال-نه-حذف + سایدکار.
++
++    سه خروجی (همه propose-only، صفر ارسال/خرج):
++      ۱) digestِ پاها → merge در ORGANISM-STATE با کلیدِ legs_cultivation + سایدکارِ
++         اتمیکِ ORGANISM-STATE.legs_cultivation (الگوی business_legs).
++      ۲) گزارشِ فشردهٔ state/legs/cultivation-report.json برای دکترِ تکاملی —
++         doctor.mine پاهای گرسنه/منبعِ راکد را به‌عنوانِ کاندیدِ گلوگاه می‌بیند
++         (RFCِ propose-only مثلِ امروز؛ هیچ اتونومیِ نو).
++      ۳) پیوندِ مغزِ B: به‌ازای هر digestِ واقعی (digested>0) یک Observationِ انتزاعی
++         (فقط شمارش — صفر PII) → sensory_bus.ingest → school_bridge.learn_from
++         (persist=True). بدونِ bus/bridge (فلگ‌های SCHOOL خاموش) صادقانه skip می‌شود.
++    kill-switch مقدم؛ fail-soft (هرگز tick را نمی‌کشد)."""
++    if not flag("OCTOPUS_WIRE_LEG_CULTIVATE"):
++        return None   # flag خاموش = «not wired» (رفتارِ امروز، بایت‌به‌بایت)
++    if opslib.STOP_ORGANISM.exists() or opslib.halted():
++        return None   # kill-switch مقدم
++    every_n = int(os.environ.get("CHRONO_CULTIVATE_EVERY_N_BEATS", "60"))
++    if every_n > 0 and beat > 0 and beat % every_n != 0:
++        return None
++    try:
++        sys.path.insert(0, str(_HERE / "legs"))
++        import leg_cultivate   # noqa: WPS433 — lazy
++        max_n = int(os.environ.get("LEG_CULTIVATE_MAX_PER_BEAT", "10"))
++        report = leg_cultivate.cultivate_all(limit_per_leg=max_n, write_report=True)
++        legs = report.get("legs") or {}
++        result = {"legs": legs, "starved_legs": report.get("starved_legs") or [],
++                  "stale_legs": report.get("stale_legs") or [],
++                  "digested_total": sum(int(d.get("digested") or 0)
++                                        for d in legs.values() if isinstance(d, dict)),
++                  "beat": beat, "propose_only": True}
++        # ── پیوندِ مغزِ B (اختیاری): digestها → آورانِ School (صفر PII، فقط ساختار)
++        school_report = None
++        if sensory_bus is not None:
++            try:
++                sys.path.insert(0, str(_HERE / "afferent"))
++                from sensory_bus import Observation   # noqa: WPS433 — lazy
++                events = []
++                for name, d in legs.items():
++                    n = int(d.get("digested") or 0) if isinstance(d, dict) else 0
++                    if n <= 0:
++                        continue   # یک event به‌ازای هر digestِ واقعی — نه اسپم برای صفر
++                    ev = sensory_bus.ingest(Observation(
++                        source=f"legs.{name}", obs_type="status",
++                        label=f"cultivation · {name} digested {n} items (structure only)",
++                        intensity=min(0.5, 0.2 + 0.05 * n)))
++                    events.append(ev)
++                if school_bridge is not None and \
++                        any(getattr(e, "afferent", False) for e in events):
++                    school_report = school_bridge.learn_from(events, persist=True)
++            except Exception as _se:  # noqa: BLE001 — پیوندِ مغز نباید هضم را بکشد
++                opslib.alert([f"wiring: legs_cultivation school-link خطا: "
++                              f"{type(_se).__name__}: {_se}"])
++        result["school"] = ({"taught_signals": school_report.get("taught_signals")}
++                            if isinstance(school_report, dict) else None)
++        # ── سایدکارِ اتمیک (الگوی business_legs/lead_discovery)
++        try:
++            sp = opslib.STATE_DIR / "ORGANISM-STATE.legs_cultivation"
++            sp.parent.mkdir(parents=True, exist_ok=True)
++            import json as _json  # noqa: WPS433
++            tmp = sp.with_suffix(".legs_cultivation.tmp")
++            tmp.write_text(_json.dumps({**result, "updated_at": opslib.now_iso()},
++                                       ensure_ascii=False, indent=2), "utf-8")
++            os.replace(tmp, sp)
++        except (OSError, TypeError, ValueError):
++            pass   # fail-soft: سایدکار اختیاری است
++        return result
++    except Exception as e:  # noqa: BLE001 — §۴: cultivation نباید tick را بکشد
++        opslib.alert([f"wiring: legs_cultivation_beat خطا: {type(e).__name__}: {e}"])
++        return None
++
++
+ # ════════════════════════════════════════════════════════════════════════════════
+ # جلسه ۴۶ — needs_nudge: نوتیفِ هوشمند «وقتی به داده/تأییدت نیاز است» (ADHD-first)
+ # ════════════════════════════════════════════════════════════════════════════════

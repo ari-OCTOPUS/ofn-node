@@ -561,6 +561,16 @@ class Handler(BaseHTTPRequestHandler):
             self._send(render_form())
 
     def do_POST(self):
+        import sys as _s, os as _o
+        _p = _o.path.dirname(_o.path.dirname(_o.path.abspath(__file__)))
+        if _p not in _s.path:
+            _s.path.insert(0, _p)
+        try:
+            import httpauth as _ha  # RC1: گاردِ CSRF/Origin پشتِ OCTOPUS_HTTP_AUTH
+            if not _ha.guard_post(self):
+                return
+        except Exception:  # noqa: BLE001 — گارد اختیاری؛ فلگ‌خاموش/خطا = رفتارِ امروز
+            pass
         path = self.path.rstrip("/") or "/"
         length = int(self.headers.get("Content-Length", 0))
         raw = self.rfile.read(length).decode("utf-8") if length else ""

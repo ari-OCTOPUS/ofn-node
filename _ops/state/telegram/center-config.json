@@ -11,19 +11,20 @@
     "accounting": 26,
     "studio_pf": 27,
     "system": 28,
-    "knowledge": 29
+    "knowledge": 29,
+    "cartographer": 65
   },
-  "commands_set": true,
-  "status_message_id": 6,
+  "commands_set": 4,
   "last_digest": {
-    "lead": 1783783940.3547862,
-    "ziman": 1783783940.3547862,
-    "mining": 1783783940.3547862,
-    "crypto": 1783783940.3547862,
-    "accounting": 1783783940.3547862,
-    "studio_pf": 1783783940.3547862,
-    "system": 1783783940.3547862,
-    "knowledge": 1783783940.3547862
+    "lead": 1784251773.7386448,
+    "ziman": 1784251773.7386448,
+    "mining": 1784251773.7386448,
+    "crypto": 1784251773.7386448,
+    "accounting": 1784251773.7386448,
+    "studio_pf": 1784251773.7386448,
+    "system": 1784251773.7386448,
+    "knowledge": 1784251773.7386448,
+    "cartographer": 1784251773.7386448
   },
   "seen": [
     "d6042424a8432b00",
@@ -32,7 +33,11 @@
     "2dc3b138f5b2145b",
     "0c32749f50ee8d7e",
     "c77783397779c64d",
-    "9cde8351e8a30849"
+    "9cde8351e8a30849",
+    "2cce4f2fd20e2237",
+    "cd46a91fefce4357",
+    "2d63dcb74d16f620"
   ],
-  "last_offset": 732409079
+  "last_offset": 223882891,
+  "status_message_id": 66
 }

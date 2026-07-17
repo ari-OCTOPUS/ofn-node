@@ -32,6 +32,19 @@ def flag(name: str) -> bool:
     return os.environ.get(name, "0") == "1"
 
 
+def leg_paused(key: str) -> bool:
+    """مکثِ runtimeِ تک‌پا از مرکزِ تلگرام (رأی مالک 2026-07-17) — قالبِ اثبات‌شدهٔ
+    projectf-paused.flag: فایلِ سبکِ state/leg-<key>-paused.flag که هر ضربان بازخوانی
+    می‌شود (بدونِ restart). studio_pf به فایلِ موجودش نگاشت (یک حقیقت، دو نام ممنوع).
+    خطا → False (fail-open به‌سمتِ کار — مکث فقط با فایلِ سالم)."""
+    try:
+        name = ("projectf-paused.flag" if key == "studio_pf"
+                else f"leg-{key}-paused.flag")
+        return (opslib.STATE_DIR / name).exists()
+    except OSError:
+        return False
+
+
 # ════════════════════════════════════════════════════════════════════════════════
 # W3 · boot profile — یک سوئیچ به‌جای ۶ flagِ پراکنده (P-W3)
 # ════════════════════════════════════════════════════════════════════════════════
@@ -335,6 +348,8 @@ def cartographer_beat(cartographer_leg, beat: int = 0) -> dict | None:
         return None
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
         return None
+    if leg_paused("cartographer"):
+        return None   # مکثِ تک‌پا از مرکزِ تلگرام (runtime)
     if cartographer_leg is None:
         return None
     try:
@@ -377,6 +392,8 @@ def leg_beat(lead_leg, pacemaker=None, beat: int = 0) -> dict | None:
     خروجی: {leg_id, hlc, events_this_beat, money_link, proposals_emitted} یا None (advisory)."""
     if not flag("OCTOPUS_WIRE_LEAD_TICK"):
         return None   # flag خاموش = no-op (no regression)
+    if leg_paused("lead"):
+        return None   # مکثِ تک‌پا از مرکزِ تلگرام (runtime)
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
         return None   # kill-switch
     if lead_leg is None or pacemaker is None:
@@ -419,36 +436,26 @@ def leg_beat(lead_leg, pacemaker=None, beat: int = 0) -> dict | None:
 
 
 def _lead_draft_chain(lead_leg, beat: int = 0) -> dict:
-    """LEG-02/03/05 · زنجیرهٔ درآمدِ Lead به‌صورت DRY (propose-only مطلق).
+    """LEG-05 · دنبالهٔ زنجیرهٔ درآمدِ Lead به‌صورت DRY (propose-only مطلق).
 
-    پشتِ OCTOPUS_WIRE_LEAD_DRAFT از leg_beat صدا زده می‌شود. دو کارِ کاملاً «خشک»:
-      (۱) LeadLeg.draft_quote → یک draft proposalِ درون‌حافظه‌ای (اثبات دسترس‌پذیریِ مسیر؛
-          هیچ mintِ لیدِ واقعی، هیچ persist، هیچ send/تماس).
-      (۲) LEG-05: invoice.py را از همان زنجیره reachable کن — فقط برای draftهای *واقعیِ*
-          pending (منبعِ داده = state/legs/lead-drafts/)، حداکثر یکی در هر beat، صرفاً
-          create_invoice (artifact). هرگز mark_paid و هرگز reconcileِ واقعی (اثرِ پرداخت).
-    هیچ‌کدام پول/بیرون را لمس نمی‌کند؛ همه محلی + fail-soft."""
+    پشتِ OCTOPUS_WIRE_LEAD_DRAFT از leg_beat صدا زده می‌شود.
+    2026-07-15 (مرحلهٔ ۵ نقشهٔ لید): probeِ ساختگیِ LEAD-PROBE حذف شد — draftِ واقعی
+    حالا در lead_discovery_beat با attribution_id واقعی + lead_to_intake ساخته می‌شود
+    (create_quote دیگر یتیم نیست). این‌جا فقط قدمِ بعدیِ زنجیره می‌ماند:
+      LEG-05: برای draftهای *واقعیِ* pending (state/legs/lead-drafts/)، حداکثر یکی
+      در هر beat، create_invoice (artifact). هرگز mark_paid و هرگز reconcileِ واقعی.
+    هیچ‌چیز پول/بیرون را لمس نمی‌کند؛ همه محلی + fail-soft."""
     out = {"drafted": False, "invoice": None}
+    # LEG-05: invoice artifact از draftِ واقعیِ pending (DRY — بدونِ mark_paid/reconcile)
     try:
         sys.path.insert(0, str(_HERE / "legs"))
-        # (۱) draft proposal — probe carrier (نه لیدِ واقعی؛ attribution mint نمی‌شود)
-        prop = lead_leg.draft_quote(
-            f"LEAD-PROBE-{beat}",
-            scope="probe · propose-only draft (wiring reachability · DRY)",
-            price_range_aud=(0.0, 0.0),
-        )
-        out["drafted"] = True
-        out["proposal_id"] = getattr(prop, "proposal_id", None)
-    except Exception as _pe:  # noqa: BLE001 — draft نباید زنجیره را بکشد
-        opslib.alert([f"wiring: lead draft_quote خطا: {type(_pe).__name__}: {_pe}"])
-    # (۲) LEG-05: invoice artifact از draftِ واقعیِ pending (DRY — بدونِ mark_paid/reconcile)
-    try:
         import lead_quote as _lq          # noqa: WPS433 — lazy
         import invoice as _inv            # noqa: WPS433 — lazy
         pend = _lq.pending()
         if pend:
             aid = str((pend[0] or {}).get("attribution_id") or "")
             if aid:
+                out["drafted"] = True     # draftِ واقعیِ pending وجود دارد (نه probe)
                 r = _inv.create_invoice(aid)   # persist سندِ invoice؛ paid فقط اگر از قبل CONFIRMED (read-only fold)
                 out["invoice"] = r.get("inv_number") if isinstance(r, dict) and r.get("ok") else None
     except Exception as _ie:  # noqa: BLE001 — invoice نباید زنجیره را بکشد
@@ -813,6 +820,8 @@ def neural_beat(neural_stack, beat: int, snap_inputs: dict | None = None) -> dic
             signals.append("stable")
         if signals:
             neural_stack["hebbian"].observe(signals)
+        else:
+            neural_stack["hebbian"].decay()   # use-it-or-lose-it: بی‌سیگنال = تضعیفِ تدریجی + prune
         # consolidation every 10 beats
         if beat > 0 and beat % 10 == 0:
             sources = {}
@@ -1028,6 +1037,162 @@ def canonical_consolidation(neural_stack, school_bridge=None,
 
 
 # ════════════════════════════════════════════════════════════════════════════════
+# TG-EXEC (2026-07-15): مصرف‌کنندهٔ صفِ cockpit-requests روی beat-thread.
+# «دکمه‌های تلگرام واقعاً اجرا شوند» — _run_act فقط در state/cockpit-requests.jsonl صف می‌کند
+# (INV-7: هرگز inline روی poll-thread)؛ این تابع آن‌ها را روی beat اجرا می‌کند. امن به‌صورتِ سازه:
+# (۱) فلگِ OCTOPUS_TG_EXEC پیش‌فرض خاموش → no-op؛ (۲) هر لحظه halt-gated؛ (۳) allowlist فقط
+# verbهای داخلیِ بی‌پول (doctor/consolidate)؛ (۴) at-most-once با cursorِ byte (persist پیش از exec)؛
+# (۵) sقفِ هر beat + first-activation ffwd + truncation-reset + lock (ضدِ split-brain). دو بار
+# adversarial-review شد (wf_26797077 + wf_4cb7bcf2). school/ingest عمداً بیرون‌اند.
+# ════════════════════════════════════════════════════════════════════════════════
+_TG_EXEC_SAFE = frozenset({"doctor", "consolidate"})
+_TG_EXEC_KNOWN = frozenset({"doctor", "consolidate", "school", "ideas", "ingest"})
+_TG_EXEC_MAX_PER_BEAT = 5
+
+
+def _tg_ack(channel, text):
+    if channel is None:
+        return
+    try:
+        channel.send_text(text)
+    except Exception:  # noqa: BLE001 — outbound شکست نباید beat را بکشد
+        pass
+
+
+def _tg_halt_reason():
+    if opslib.STOP_ORGANISM.exists():
+        return "STOP"
+    h = opslib.halted()
+    if h:
+        return h
+    try:
+        if opslib.frozen():
+            return "FREEZE"
+    except Exception:  # noqa: BLE001
+        pass
+    return None
+
+
+def _tg_exec_run_one(verb, key, doctor=None) -> str:
+    """اجرای یک verbِ امن از entrypointِ واقعی. OCTOPUS_TG_EXEC = رضایتِ صریحِ مالک،
+    پس cadence-wrapperهای paper دور زده می‌شوند — هر verb ایمنیِ داخلیِ خودش را نگه می‌دارد.
+    خروجی: 'ran' | 'not-wired'."""
+    import sys as _sys
+    if verb == "consolidate" and key == "run":
+        p = str(_HERE / "cortex")
+        if p not in _sys.path:
+            _sys.path.insert(0, p)
+        import consolidate as _c
+        _c.consolidate_once()   # SELF-gate روی CORTEX_CONSOLIDATE؛ خاموش → no-op ولی 'ran'. state-only.
+        return "ran"
+    if verb == "doctor" and key == "run":
+        # doctor:run == همان کاری که doctor_beat دوره‌ای می‌کند — قابلیتِ نو نیست. propose-only،
+        # cost_usd=0. اگر OCTOPUS_WIRE_APPLY_MERGE=1 و RFCِ از-قبل-تأییدشده معلق باشد، merge می‌شود
+        # (state-only). برای propose-only محض: OCTOPUS_WIRE_APPLY_MERGE=0.
+        d = doctor if doctor is not None else make_doctor(state_dir=str(opslib.STATE_DIR))
+        if d is None:
+            return "not-wired"
+        d.run_cycle(beat=1_000_000)
+        return "ran"
+    return "not-wired"
+
+
+def cockpit_requests_beat(state_dir=None, doctor=None, channel=None) -> dict:
+    import json as _json
+    import os as _os
+    import time as _time
+    from pathlib import Path as _P
+    if not flag("OCTOPUS_TG_EXEC"):
+        return {"skipped": "flag-off"}
+    if _tg_halt_reason():
+        return {"skipped": "halt"}
+    sd = _P(state_dir) if state_dir else (_HERE / "state")
+    logp = sd / "cockpit-requests.jsonl"
+    curp = sd / "cockpit-requests.cursor"
+    lockp = sd / "cockpit-requests.lock"
+    if not logp.exists():
+        return {"skipped": "no-queue"}
+    pid = _os.getpid()
+    try:  # single-consumer lock (ضدِ split-brain)
+        if lockp.exists():
+            prev = (lockp.read_text(encoding="utf-8").strip() or ":")
+            if prev.split(":")[0] not in ("", str(pid)) and (_time.time() - lockp.stat().st_mtime) < 120:
+                return {"skipped": "locked-by-other"}
+        lockp.write_text(f"{pid}:{opslib.now_iso()}", encoding="utf-8")
+    except OSError:
+        pass
+    size = logp.stat().st_size
+    if not curp.exists():   # first-activation → ffwd، بدونِ replayِ backlog
+        try:
+            curp.write_text(str(size), encoding="utf-8")
+        except OSError:
+            pass
+        return {"skipped": "first-activation-ffwd", "at": size}
+    try:
+        off = int(curp.read_text(encoding="utf-8").strip() or 0)
+    except (OSError, ValueError):
+        off = 0
+    if off > size:   # rotation/truncation → reset + alert
+        opslib.alert([f"tg-exec: cockpit-requests کوچک شد ({off}>{size}) — cursor صفر شد"])
+        off = 0
+    try:
+        with open(logp, "rb") as f:
+            f.seek(off)
+            chunk = f.read()
+    except OSError:
+        return {"skipped": "read-fail"}
+    nl = chunk.rfind(b"\n")
+    if nl < 0:
+        return {"skipped": "no-complete-line"}
+    raw_lines = chunk[:nl + 1].decode("utf-8", "replace").splitlines(keepends=True)
+    take = raw_lines[:_TG_EXEC_MAX_PER_BEAT]
+    consumed = len("".join(take).encode("utf-8"))
+    new_off = off + consumed
+    try:  # at-most-once: cursor پیش از exec؛ شکستِ persist → بدونِ اجرا
+        tmp = curp.with_suffix(".cursor.tmp")
+        tmp.write_text(str(new_off), encoding="utf-8")
+        _os.replace(tmp, curp)
+    except OSError as e:
+        opslib.alert([f"tg-exec: نوشتنِ cursor شکست ({type(e).__name__}) — beat رد شد"])
+        return {"skipped": "cursor-persist-failed"}
+    ran, failed, skipped = [], [], []
+    for line in take:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            req = _json.loads(line)
+        except ValueError:
+            continue
+        if req.get("status") != "requested":
+            continue
+        verb, key = req.get("verb"), req.get("key")
+        if verb not in _TG_EXEC_KNOWN:
+            continue
+        if _tg_halt_reason():
+            _tg_ack(channel, f"⛔ «{verb}:{key}» اجرا نشد — halt/انجماد. بعد از /resume دوباره بزن.")
+            skipped.append(f"{verb}:{key}:halt")
+            continue
+        if verb not in _TG_EXEC_SAFE:
+            _tg_ack(channel, f"⏸ «{verb}» در این نسخه اجرا نمی‌شود (فعّال: doctor، consolidate).")
+            skipped.append(f"{verb}:{key}:not-enabled")
+            continue
+        try:
+            res = _tg_exec_run_one(verb, key, doctor=doctor)
+            if res == "ran":
+                ran.append(f"{verb}:{key}")
+                _tg_ack(channel, f"✅ اجرا شد (تلگرام→بیت): {verb}:{key}")
+            else:
+                skipped.append(f"{verb}:{key}:not-wired")
+                _tg_ack(channel, f"⚠️ «{verb}» وصل نیست (فلگِ زیرسیستم خاموش).")
+        except Exception as e:  # noqa: BLE001 — یک verbِ بد نباید beat را بکشد
+            failed.append(f"{verb}:{key}:{type(e).__name__}")
+            opslib.alert([f"tg-exec {verb}:{key} failed: {type(e).__name__}: {e}"])
+            _tg_ack(channel, f"⚠️ اجرای {verb}:{key} خطا داد: {type(e).__name__}")
+    return {"ran": ran, "failed": failed, "skipped": skipped}
+
+
+# ════════════════════════════════════════════════════════════════════════════════
 # M · live-loop wiring — canonical_consolidation در حلقهٔ زنده (P-M2)
 # ════════════════════════════════════════════════════════════════════════════════
 
@@ -1206,7 +1371,7 @@ def afferent_beat(sensory_bus, school_bridge=None, snap=None, beat: int = 0) -> 
         # ۴) school_bridge یاد بگیرد ازِ afferent events (فقط afferent=True)
         school_report = None
         if school_bridge is not None and any(getattr(e, "afferent", False) for e in events):
-            school_report = school_bridge.learn_from(events, persist=False)
+            school_report = school_bridge.learn_from(events, persist=True)   # 2026-07-15 باگ ۳: سیمِ یادگیری وصل شد — awareness حالا واقعاً می‌ماند (قبلاً persist=False = هرگز ذخیره)
         return {"n_observations": len(observations),
                 "school_report": school_report,
                 "sensory_status": sensory_bus.status(),
@@ -1425,6 +1590,113 @@ def email_beat(beat: int = 0) -> dict | None:
         return None
 
 
+def lead_discovery_beat(lead_leg, beat: int = 0) -> dict | None:
+    """مرحلهٔ ۲ نقشهٔ لید (2026-07-15) · SENSE→SCORE→propose پشتِ OCTOPUS_WIRE_LEAD_DISCOVERY.
+
+    پیش‌فرض خاموش و عمداً خارج از PAPER_FULL_FLAGS (تولیدکنندهٔ PROPOSALِ واقعی است؛
+    profile هرگز خودکار روشنش نمی‌کند). روشن = هر N beat صندوقِ state/legs/lead-inbox
+    را می‌خواند (lead_sense)، با موتورِ قطعیِ $0 امتیاز می‌دهد (lead_scorer)، و فقط برای
+    action=='draft' از leg.intake یک PROPOSAL می‌سازد (attribution.propose — پایین‌ترین
+    حالت؛ هرگز واردِ fitness نمی‌شود، صفر ارسال/خرج). save/skip فقط آرشیو می‌شوند.
+    dedup محتوایی + سقفِ LEAD_DISCOVERY_MAX_PER_BEAT ضدِ سیلِ لجر. kill-switch مقدم؛
+    fail-soft؛ سایدکارِ ORGANISM-STATE.lead_discovery (الگوی business_legs).
+    ⚠️ propose-only مطلق — این beat هیچ راهی به مشتری/بیرون ندارد."""
+    if not flag("OCTOPUS_WIRE_LEAD_DISCOVERY"):
+        return None   # flag خاموش = «not wired» (رفتارِ امروز، بایت‌به‌بایت)
+    if leg_paused("lead"):
+        return None   # مکثِ تک‌پا از مرکزِ تلگرام (runtime)
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None   # kill-switch مقدم
+    if lead_leg is None:
+        return None   # نیازمندِ OCTOPUS_WIRE_LEAD (make_lead_leg) — بدونِ پا، propose نداریم
+    every_n = int(os.environ.get("CHRONO_LEAD_DISCOVERY_EVERY_N_BEATS", "30"))
+    if every_n > 0 and beat > 0 and beat % every_n != 0:
+        return None
+    try:
+        sys.path.insert(0, str(_HERE / "legs"))
+        import lead_sense    # noqa: WPS433 — lazy
+        import lead_scorer   # noqa: WPS433 — lazy
+        max_n = int(os.environ.get("LEAD_DISCOVERY_MAX_PER_BEAT", "5"))
+        cands = lead_sense.read_inbox(limit=max_n)
+        scorer = lead_scorer.LeadScorer()
+        proposed = saved = skipped = dups = 0
+        for path, lead in cands:
+            if lead_sense.seen_before(lead):
+                lead_sense.mark_processed(path, lead, {"duplicate": True})
+                dups += 1
+                continue
+            sc = scorer.score(lead)
+            res = sc.as_dict()
+            # مرحلهٔ ۴ (2026-07-15): غنی‌سازیِ اختیاریِ $0 با LLMِ محلی — پشتِ
+            # OCTOPUS_WIRE_LEAD_LLM (پیش‌فرض خاموش). امتیازدهندهٔ قاعده‌محور «مرجع»
+            # می‌ماند: llm فقط res["llm_note"] می‌افزاید، هرگز score/action را عوض نمی‌کند.
+            if flag("OCTOPUS_WIRE_LEAD_LLM"):
+                try:
+                    sys.path.insert(0, str(_HERE / "cortex"))
+                    import model_router  # noqa: WPS433 — lazy
+                    _llm = model_router.ask(
+                        "classify",
+                        f"این آگهی/سرنخِ نقاشی را در یک جمله دسته‌بندی و فوریتش را بگو:\n"
+                        f"{str(lead.get('description', ''))[:400]}",
+                        max_tokens=120, tier="local")
+                    if _llm.get("ok") and _llm.get("text"):
+                        res["llm_note"] = str(_llm["text"])[:200]
+                except Exception:  # noqa: BLE001 — غنی‌سازی هرگز beat را نکشد
+                    pass
+            if sc.action == "draft":
+                name = str(lead.get("applicant") or lead.get("address")
+                           or str(lead.get("description", ""))[:60]).strip()
+                r = lead_leg.intake(name,
+                                    float(lead.get("expected_aud") or 0.0),
+                                    cell="lead.doer",
+                                    description=str(lead.get("description", ""))[:200],
+                                    day=lead.get("day"))
+                res["intake"] = r
+                if r.get("ok"):
+                    proposed += 1
+                    # مرحلهٔ ۵ (2026-07-15): لیدِ mint‌شده → پیش‌فاکتورِ قیمت‌خوردهٔ DRAFT
+                    # پشتِ OCTOPUS_WIRE_LEAD_DRAFT (خاموش). create_quote یتیم بود (۰ caller)؛
+                    # حالا با attribution_id واقعی + intakeِ نگاشتی صدا می‌شود. draft_only=True،
+                    # sent=False — هیچ ارسالی وجود ندارد.
+                    if flag("OCTOPUS_WIRE_LEAD_DRAFT"):
+                        try:
+                            import lead_quote  # noqa: WPS433 — lazy
+                            q = lead_quote.create_quote(
+                                lead_leg, r["attribution_id"],
+                                lead_quote.lead_to_intake(lead, res))
+                            if q.get("ok"):
+                                res["quote"] = {"qt_number": q.get("qt_number"),
+                                                "total_incl_gst": (q.get("breakdown") or {})
+                                                .get("total_incl_gst")}
+                        except Exception as _qe:  # noqa: BLE001 — quote نباید beat را بکشد
+                            opslib.alert([f"wiring: lead quote-draft خطا: "
+                                          f"{type(_qe).__name__}: {_qe}"])
+                else:
+                    skipped += 1   # intake fail-closed → صادقانه skip بشمار
+            elif sc.action == "save":
+                saved += 1
+            else:
+                skipped += 1
+            lead_sense.mark_processed(path, lead, res)
+        result = {"sensed": len(cands), "proposed": proposed, "saved": saved,
+                  "skipped": skipped, "duplicates": dups, "beat": beat,
+                  "propose_only": True}
+        try:
+            sp = opslib.STATE_DIR / "ORGANISM-STATE.lead_discovery"
+            sp.parent.mkdir(parents=True, exist_ok=True)
+            import json as _json  # noqa: WPS433
+            tmp = sp.with_suffix(".lead_discovery.tmp")
+            tmp.write_text(_json.dumps({**result, "updated_at": opslib.now_iso()},
+                                       ensure_ascii=False, indent=2), "utf-8")
+            os.replace(tmp, sp)
+        except (OSError, TypeError, ValueError):
+            pass   # fail-soft: سایدکار اختیاری است
+        return result
+    except Exception as e:  # noqa: BLE001 — §۴: discovery نباید tick را بکشد
+        opslib.alert([f"wiring: lead_discovery_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
 # ─── قرارداد مشترکِ ۴ پای بیزنسیِ نو (mining/crypto/accounting/knowledge) ─────────
 # WP-F ماژول‌ها را می‌سازد؛ اینجا (WP-C) status()های read-only را جمع می‌کنیم؛ WP-D در
 # رندر می‌خواند. هر پا یک helperِ ماژول‌سطحِ فقط‌خواندنی دارد:
@@ -1477,6 +1749,212 @@ def business_legs_beat(beat: int = 0, write: bool = True) -> dict | None:
         except (OSError, TypeError, ValueError):
             pass   # fail-soft: سایدکار اختیاری است
     return result
+
+
+def asset_map_beat(beat: int = 0) -> dict | None:
+    """نظارتِ دارایی (ASSET-OVERSIGHT): نقشهٔ داراییِ کل را جمع کن → ORGANISM-STATE key
+    «asset_map» + سایدکارِ اتمیکِ ORGANISM-STATE.asset_map.
+
+    پشتِ OCTOPUS_WIRE_ASSET_MAP — پیش‌فرض خاموش و **عمداً خارج از PAPER_FULL_FLAGS**
+    (فعال‌سازی فقط با رأیِ صریحِ مالک). با فلگِ خاموش → None (رفتارِ امروز، بایت‌به‌بایت).
+    kill-switch مقدم؛ هر N beat (CHRONO_ASSET_MAP_EVERY_N_BEATS، پیش‌فرض ۲۴۰).
+
+    asset_map_status() فقط‌خواندنی + fail-soft است (یک پای خراب نقشه را نمی‌کشد) و
+    **هرگز مبلغ/net-worth** محاسبه یا echo نمی‌کند — فقط سیگنالِ امن + پیشنهادِ advisory.
+    propose-only مطلق: هیچ اکشنِ اجراپذیر، صفر spend/outward/trade."""
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None   # kill-switch مقدم
+    if not flag("OCTOPUS_WIRE_ASSET_MAP"):
+        return None   # flag خاموش = «not wired» (رفتارِ امروز، بایت‌به‌بایت)
+    every_n = int(os.environ.get("CHRONO_ASSET_MAP_EVERY_N_BEATS", "240"))
+    if every_n > 0 and beat > 0 and beat % every_n != 0:
+        return None
+    try:
+        sys.path.insert(0, str(_HERE / "legs"))
+        import asset_map   # noqa: WPS433 — lazy تا env تست اثر کند
+        result = asset_map.asset_map_status()
+        # ── سایدکارِ اتمیک (الگوی business_legs/legs_cultivation)
+        try:
+            sp = opslib.STATE_DIR / "ORGANISM-STATE.asset_map"
+            sp.parent.mkdir(parents=True, exist_ok=True)
+            import json as _json  # noqa: WPS433
+            tmp = sp.with_suffix(".asset_map.tmp")
+            tmp.write_text(_json.dumps({**result, "beat": beat,
+                                        "updated_at": opslib.now_iso()},
+                                       ensure_ascii=False, indent=2), "utf-8")
+            os.replace(tmp, sp)
+        except (OSError, TypeError, ValueError):
+            pass   # fail-soft: سایدکار اختیاری است
+        return result
+    except Exception as e:  # noqa: BLE001 — §۴: نظارتِ دارایی نباید tick را بکشد
+        opslib.alert([f"wiring: asset_map_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
+_ACCT_STATE = {"last_epoch": 0}      # الگوی _HEART_STATE — پنجرهٔ epoch ضدِ aliasing
+
+
+def _ps_flag_on() -> bool:
+    """گرامرِ واحدِ فلگِ PocketSmith (اسکن #19): 1/true/yes/on — هم‌رفتار با pocketsmith_api."""
+    return str(os.environ.get("OCTOPUS_WIRE_POCKETSMITH", "") or "").strip().lower() \
+        in ("1", "true", "yes", "on")
+
+
+def acct_beat(beat: int = 0) -> dict | None:
+    """ضربانِ زندهٔ حسابداری (2026-07-16) — ضدِ فراموشی + دقت، propose-only مطلق.
+
+    پشتِ OCTOPUS_WIRE_ACCT_BEAT — پیش‌فرض خاموش و **عمداً خارج از PAPER_FULL_FLAGS**
+    (فعال‌سازی فقط با رأیِ صریحِ مالک). خاموش → None (رفتارِ امروز، بایت‌به‌بایت).
+    kill-switch مقدم؛ هر N beat (CHRONO_ACCT_EVERY_N_BEATS، پیش‌فرض ۲۴۰).
+
+    هر دور (همه $0، محلی، بدونِ LLM):
+      ۱) acct_memory.rebuild — قواعدِ merchant از تأییدهای مالک (بازتولیدپذیر؛ crash/sync
+         هیچ دانشی را نمی‌کشد) + evaluate → سنجهٔ drift (دقتِ قواعد روی طلایی).
+      ۲) journal_bridge.rebuild — صفِ ثبتِ /books تازه (idempotent، تصمیم‌ها دست‌نخورده).
+      ۳) شمارش‌های صادق → سایدکارِ اتمیکِ ORGANISM-STATE.accounting (خوراکِ دایجست/کابین):
+         needs_review، پیشنهادهای منتظر، قواعدِ فعال، drift_alarm.
+    pullِ شبکه (sync_network) فقط اگر مالک جدا ACCT_BEAT_SYNC=1 هم بدهد (پیش‌فرض: بدونِ
+    شبکه — ضربان local می‌ماند و /sync دستِ مالک). هرگز ثبت/پول/LLM در ضربان."""
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None   # kill-switch مقدم
+    if not flag("OCTOPUS_WIRE_ACCT_BEAT"):
+        return None   # flag خاموش = «not wired» (رفتارِ امروز، بایت‌به‌بایت)
+    # پنجرهٔ epoch (اسکن #26: tickِ ۳۰۰s ضربانِ ۶۰s را نمونه‌برداری می‌کند — `beat % N`
+    # شلیک‌ها را از دست می‌دهد؛ الگوی مستندِ درست: هر epoch حداکثر یک شلیک)
+    every_n = max(1, int(os.environ.get("CHRONO_ACCT_EVERY_N_BEATS", "240")))
+    epoch = beat // every_n
+    if epoch < 1 or epoch <= _ACCT_STATE["last_epoch"]:
+        return None
+    _ACCT_STATE["last_epoch"] = epoch
+    try:
+        sys.path.insert(0, str(_HERE / "legs"))
+        import acct_memory   # noqa: WPS433 — lazy تا env تست اثر کند
+        import journal_bridge  # noqa: WPS433
+        result: dict = {"synced": False}
+        if os.environ.get("ACCT_BEAT_SYNC") == "1" and _ps_flag_on():
+            try:
+                import accountant  # noqa: WPS433
+                sn = accountant.sync_network()          # confirm-preserving (content-hash pin)
+                result["synced"] = bool(sn.get("ok"))
+                result["sync_restored"] = sn.get("restored_confirmed")
+            except Exception:  # noqa: BLE001 — شبکه اختیاری است؛ ضربان local ادامه می‌دهد
+                result["synced"] = False
+        mem = acct_memory.rebuild()
+        ev = acct_memory.evaluate()
+        jb = journal_bridge.rebuild()
+        # شمارشِ صفِ مرور از store (بدونِ pull)
+        pending_review = 0
+        try:
+            txns = acct_memory._load_txns()
+            pending_review = sum(1 for t in txns if isinstance(t, dict)
+                                 and t.get("review") == "needs_review")
+        except Exception:  # noqa: BLE001
+            pass
+        result.update({
+            "memory_rules": mem.get("rules", 0), "memory_active": mem.get("active", 0),
+            "golden_n": ev.get("n", 0), "accuracy_pct": ev.get("accuracy_pct"),
+            "drift_alarm": bool(ev.get("drift_alarm")),
+            "pending_review": pending_review,
+            "pending_books": jb.get("pending", 0) if isinstance(jb, dict) else 0,
+        })
+        if result["drift_alarm"]:
+            opslib.alert(["accounting: دقتِ قواعدِ حافظه زیرِ ۹۰٪ افتاد (drift) — "
+                          "چند تأییدِ اخیر با الگو ناسازگارند؛ /review را مرور کن"])
+        # ── سایدکارِ اتمیک (الگوی asset_map_beat)
+        try:
+            sp = opslib.STATE_DIR / "ORGANISM-STATE.accounting"
+            sp.parent.mkdir(parents=True, exist_ok=True)
+            import json as _json  # noqa: WPS433
+            tmp = sp.with_suffix(".accounting.tmp")
+            tmp.write_text(_json.dumps({**result, "beat": beat,
+                                        "updated_at": opslib.now_iso()},
+                                       ensure_ascii=False, indent=2), "utf-8")
+            os.replace(tmp, sp)
+        except (OSError, TypeError, ValueError):
+            pass   # fail-soft: سایدکار اختیاری است
+        return result
+    except Exception as e:  # noqa: BLE001 — §۴: حسابداری نباید tick را بکشد
+        opslib.alert([f"wiring: acct_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
+def legs_cultivation_beat(beat: int = 0, sensory_bus=None,
+                          school_bridge=None) -> dict | None:
+    """متابولیسمِ دادهٔ $0 برای همهٔ پاها (2026-07-16) — تعمیمِ SENSE→DIGESTِ لید.
+
+    پشتِ OCTOPUS_WIRE_LEG_CULTIVATE — پیش‌فرض خاموش و **عمداً خارج از PAPER_FULL_FLAGS**
+    (فعال‌سازی فقط با رأی صریحِ مالک). با فلگِ خاموش → None، صندوق‌ها بایت‌به‌بایت
+    دست‌نخورده (رفتارِ امروز). روشن = هر N beat (CHRONO_CULTIVATE_EVERY_N_BEATS،
+    پیش‌فرض ۶۰) صندوقِ هر پا (state/legs/<leg>-inbox) با سقفِ LEG_CULTIVATE_MAX_PER_BEAT
+    هضم می‌شود (leg_cultivate.cultivate_all): dedup محتوایی + انتقال-نه-حذف + سایدکار.
+
+    سه خروجی (همه propose-only، صفر ارسال/خرج):
+      ۱) digestِ پاها → merge در ORGANISM-STATE با کلیدِ legs_cultivation + سایدکارِ
+         اتمیکِ ORGANISM-STATE.legs_cultivation (الگوی business_legs).
+      ۲) گزارشِ فشردهٔ state/legs/cultivation-report.json برای دکترِ تکاملی —
+         doctor.mine پاهای گرسنه/منبعِ راکد را به‌عنوانِ کاندیدِ گلوگاه می‌بیند
+         (RFCِ propose-only مثلِ امروز؛ هیچ اتونومیِ نو).
+      ۳) پیوندِ مغزِ B: به‌ازای هر digestِ واقعی (digested>0) یک Observationِ انتزاعی
+         (فقط شمارش — صفر PII) → sensory_bus.ingest → school_bridge.learn_from
+         (persist=True). بدونِ bus/bridge (فلگ‌های SCHOOL خاموش) صادقانه skip می‌شود.
+    kill-switch مقدم؛ fail-soft (هرگز tick را نمی‌کشد)."""
+    if not flag("OCTOPUS_WIRE_LEG_CULTIVATE"):
+        return None   # flag خاموش = «not wired» (رفتارِ امروز، بایت‌به‌بایت)
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None   # kill-switch مقدم
+    every_n = int(os.environ.get("CHRONO_CULTIVATE_EVERY_N_BEATS", "60"))
+    if every_n > 0 and beat > 0 and beat % every_n != 0:
+        return None
+    try:
+        sys.path.insert(0, str(_HERE / "legs"))
+        import leg_cultivate   # noqa: WPS433 — lazy
+        max_n = int(os.environ.get("LEG_CULTIVATE_MAX_PER_BEAT", "10"))
+        report = leg_cultivate.cultivate_all(limit_per_leg=max_n, write_report=True)
+        legs = report.get("legs") or {}
+        result = {"legs": legs, "starved_legs": report.get("starved_legs") or [],
+                  "stale_legs": report.get("stale_legs") or [],
+                  "digested_total": sum(int(d.get("digested") or 0)
+                                        for d in legs.values() if isinstance(d, dict)),
+                  "beat": beat, "propose_only": True}
+        # ── پیوندِ مغزِ B (اختیاری): digestها → آورانِ School (صفر PII، فقط ساختار)
+        school_report = None
+        if sensory_bus is not None:
+            try:
+                sys.path.insert(0, str(_HERE / "afferent"))
+                from sensory_bus import Observation   # noqa: WPS433 — lazy
+                events = []
+                for name, d in legs.items():
+                    n = int(d.get("digested") or 0) if isinstance(d, dict) else 0
+                    if n <= 0:
+                        continue   # یک event به‌ازای هر digestِ واقعی — نه اسپم برای صفر
+                    ev = sensory_bus.ingest(Observation(
+                        source=f"legs.{name}", obs_type="status",
+                        label=f"cultivation · {name} digested {n} items (structure only)",
+                        intensity=min(0.5, 0.2 + 0.05 * n)))
+                    events.append(ev)
+                if school_bridge is not None and \
+                        any(getattr(e, "afferent", False) for e in events):
+                    school_report = school_bridge.learn_from(events, persist=True)
+            except Exception as _se:  # noqa: BLE001 — پیوندِ مغز نباید هضم را بکشد
+                opslib.alert([f"wiring: legs_cultivation school-link خطا: "
+                              f"{type(_se).__name__}: {_se}"])
+        result["school"] = ({"taught_signals": school_report.get("taught_signals")}
+                            if isinstance(school_report, dict) else None)
+        # ── سایدکارِ اتمیک (الگوی business_legs/lead_discovery)
+        try:
+            sp = opslib.STATE_DIR / "ORGANISM-STATE.legs_cultivation"
+            sp.parent.mkdir(parents=True, exist_ok=True)
+            import json as _json  # noqa: WPS433
+            tmp = sp.with_suffix(".legs_cultivation.tmp")
+            tmp.write_text(_json.dumps({**result, "updated_at": opslib.now_iso()},
+                                       ensure_ascii=False, indent=2), "utf-8")
+            os.replace(tmp, sp)
+        except (OSError, TypeError, ValueError):
+            pass   # fail-soft: سایدکار اختیاری است
+        return result
+    except Exception as e:  # noqa: BLE001 — §۴: cultivation نباید tick را بکشد
+        opslib.alert([f"wiring: legs_cultivation_beat خطا: {type(e).__name__}: {e}"])
+        return None
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -1651,6 +2129,8 @@ def ziman_beat(leg=None, beat: int = 0, doctor=None) -> dict | None:
     """
     if not flag("OCTOPUS_WIRE_ZIMAN"):
         return None
+    if leg_paused("ziman"):
+        return None   # مکثِ تک‌پا از مرکزِ تلگرام (runtime)
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
         return None
     every_n = int(os.environ.get("CHRONO_ZIMAN_EVERY_N_BEATS", str(_ZIMAN_BEAT_EVERY_N)))

@@ -1,0 +1,1104 @@
+commit 5b95c5c70ca3854f921a1dc2457cc919e36dd281
+Author: ari-vault <paintingdesign76@gmail.com>
+Date:   Thu Jul 16 10:33:52 2026 +1000
+
+    feat(accountant-connect): read-only PocketSmith API + local-first AI categorizer (privacy-guarded)
+    
+    owner: connect to PocketSmith (semi-categorized) + use Fugu/ollama for the residue.
+    - pocketsmith_api.py: READ-ONLY v2 client (GET only, X-Developer-Key from POCKETSMITH_API_KEY env,
+      never echoed), fetches transactions carrying the owner's category+labels (the accuracy source),
+      amount via money.to_cents, dedup by PS id, behind OCTOPUS_WIRE_POCKETSMITH (off). test 7/7.
+    - txn_categorize.py: local-first AI suggest (ollama 7B $0/on-device default → Fugu only if
+      OCTOPUS_WIRE_ACCT_CLOUD on). HARD privacy: money figures NEVER sent to any LLM (prompt from desc
+      only); PII scrubbed (name blocklist from gitignored config + \d{4,} → placeholders) BEFORE any
+      cloud call; propose-only (sets suggestion, review stays needs_review — owner confirms). test 5/5.
+    Chain: PocketSmith(your categories) → txn_store → attributor → AI suggest → your review → cents engine → dashboard.
+    All 5 connection tests green live. Financial data + name-config gitignored.
+    
+    Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+
+diff --git a/.gitignore b/.gitignore
+index e2761a7..59bf2c3 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -53,3 +53,6 @@ _ops/OCTOPUS-flags.cmd
+ 
+ # PII: اکسترکت‌های خامِ دفتر (CSVِ مالیِ واقعی) — هرگز commit نشود
+ 03 - Projects/Accounting/drafts/ledger-extract/
++
++# PII: configِ دسته‌بندِ AI حاوی نامِ واقعیِ همکار (blocklistِ scrub) — هرگز commit نشود
++03 - Projects/Accounting/personal/categorize-config.json
+diff --git a/_ops/legs/pocketsmith_api.py b/_ops/legs/pocketsmith_api.py
+new file mode 100644
+index 0000000..06970a0
+--- /dev/null
++++ b/_ops/legs/pocketsmith_api.py
+@@ -0,0 +1,325 @@
++#!/usr/bin/env python3
++"""pocketsmith_api.py — کلاینتِ فقط‌خواندنیِ PocketSmith API v2 (2026-07-16).
++
++منبعِ زندهٔ حسابداری: PocketSmith تراکنش‌های *نیمه‌دسته‌بندی‌شده* مالک را نگه می‌دارد
++(هر تراکنش category + labels دارد — همان دسته‌بندیِ دستیِ خودِ مالک). این کلاینت آن‌ها را
++می‌کشد و به schemaِ txn_store می‌ریزد تا اختاپوس روی «حقیقتِ زمینیِ خودِ مالک» بنشیند، نه حدس.
++
++خط‌قرمزهای سخت (این ماژول هرگز نقض نمی‌کند):
++  • فقط GET — هرگز POST/PUT/DELETE به PocketSmith. صفر حرکتِ مالی، صفر نوشتن روی حساب.
++  • کلید (POCKETSMITH_API_KEY) فقط از os.environ (بعد از env_loader.load_env) خوانده می‌شود؛
++    مقدارش هرگز log/echo/print/return نمی‌شود — نه در note، نه در exception، نه در __main__.
++  • پشتِ فلگِ OCTOPUS_WIRE_POCKETSMITH (پیش‌فرض خاموش → no-op، صفر شبکه).
++  • fail-soft مطلق: نبودِ کلید / rate-limit / timeout / خطای شبکه → خروجیِ خالیِ صادق،
++    هرگز crash. propose-only: sync فقط فایلِ انبار را می‌نویسد؛ صفر side-effect بیرونی.
++
++هدر احراز: `X-Developer-Key: <POCKETSMITH_API_KEY>` (developer key فقط‌خواندنی).
++پایه: https://api.pocketsmith.com/v2
++$0 آفلاین در تست · stdlib-only (urllib) · بدونِ SDK/requests.
++"""
++from __future__ import annotations
++
++import json
++import os
++import sys
++import time
++import urllib.error
++import urllib.parse
++import urllib.request
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent          # _ops/legs
++_OPS = _HERE.parent
++for _p in (str(_HERE), str(_OPS / "budget")):
++    if _p not in sys.path:
++        sys.path.insert(0, _p)
++
++import money                                       # noqa: E402 — موتورِ سنتِ صحیح (integer cents)
++
++# ─── ثابت‌ها ─────────────────────────────────────────────────────────────────
++BASE = "https://api.pocketsmith.com/v2"
++FLAG = "OCTOPUS_WIRE_POCKETSMITH"                  # پیش‌فرض خاموش → no-op
++KEY_ENV = "POCKETSMITH_API_KEY"                    # نامِ متغیر (فقط نام؛ مقدار هرگز echo نمی‌شود)
++SOURCE = "pocketsmith-api"                         # برچسبِ منبع در انبار (جدا از اکسپورتِ xlsx)
++_DEFAULT_TIMEOUT = 30                              # ثانیه
++_MAX_RETRIES = 3                                   # سقفِ backoffِ 429
++_MAX_PAGES = 1000                                  # گاردِ ضدِ حلقهٔ بی‌پایانِ pagination
++
++
++def _sleep(seconds: float) -> None:
++    """seam برای تست (backoffِ 429 بدونِ خوابِ واقعی override می‌شود)."""
++    time.sleep(seconds)
++
++
++# ─── فلگ + کلید ──────────────────────────────────────────────────────────────
++def _flag_on() -> bool:
++    """آیا OCTOPUS_WIRE_POCKETSMITH روشن است؟ (پیش‌فرض خاموش)."""
++    return str(os.environ.get(FLAG, "")).strip().lower() in {"1", "true", "yes", "on"}
++
++
++def _api_key() -> str | None:
++    """کلید را از os.environ بخوان (بعد از تلاش برای load_env). هرگز مقدار را برنمی‌گرداند
++    به‌جز به‌عنوانِ هدرِ داخلی؛ اگر نبود → None (فراخوان‌ها fail-soft می‌شوند)."""
++    try:
++        import env_loader
++        env_loader.load_env()
++    except Exception:  # noqa: BLE001 — نبودِ .env نباید کلاینت را بکشد
++        pass
++    val = os.environ.get(KEY_ENV)
++    return val or None
++
++
++# ─── لایهٔ HTTP (فقط GET) ─────────────────────────────────────────────────────
++def _build_url(path: str, params: dict | None = None) -> str:
++    """path نسبی → BASE+path؛ URLِ کاملِ (http…) دست‌نخورده. paramهای None حذف می‌شوند."""
++    url = path if path.startswith("http") else BASE + path
++    if params:
++        q = {k: v for k, v in params.items() if v is not None}
++        if q:
++            sep = "&" if "?" in url else "?"
++            url = url + sep + urllib.parse.urlencode(q)
++    return url
++
++
++def _get(path: str, params: dict | None = None, *, key: str | None = None,
++         timeout: int = _DEFAULT_TIMEOUT, max_retries: int = _MAX_RETRIES) -> dict:
++    """یک GETِ فقط‌خواندنی. خروجی همیشه dictِ صادق:
++      {"ok":bool, "status":int, "data":<json|None>, "link":<Link header|None>, "note":str}
++    429 → backoff (Retry-After را محترم می‌شمارد)؛ timeout/شبکه/HTTP-error → ok=False fail-soft.
++    کلید در هدرِ X-Developer-Key می‌رود و هرگز در خروجی/note ظاهر نمی‌شود."""
++    key = key or _api_key()
++    if not key:
++        return {"ok": False, "status": 0, "data": None, "link": None,
++                "note": f"{KEY_ENV} تنظیم نیست — no-op (کلیدِ فقط‌خواندنی لازم است)."}
++    url = _build_url(path, params)
++    attempt = 0
++    while True:
++        req = urllib.request.Request(url, method="GET", headers={
++            "X-Developer-Key": key,
++            "Accept": "application/json",
++            "User-Agent": "octopus-accounting-readonly/1.0",
++        })
++        try:
++            with urllib.request.urlopen(req, timeout=timeout) as resp:
++                body = resp.read()
++                try:
++                    link = resp.headers.get("Link")
++                except Exception:  # noqa: BLE001
++                    link = None
++                data = json.loads(body.decode("utf-8")) if body else None
++                return {"ok": True, "status": getattr(resp, "status", 200) or 200,
++                        "data": data, "link": link, "note": "ok"}
++        except urllib.error.HTTPError as e:
++            if e.code == 429 and attempt < max_retries:
++                attempt += 1
++                try:
++                    ra = int((e.headers.get("Retry-After") if e.headers else None) or 0)
++                except (TypeError, ValueError):
++                    ra = 0
++                _sleep(min(ra if ra > 0 else 2 ** attempt, 60))
++                continue
++            reason = "rate-limit (429)" if e.code == 429 else f"HTTP {e.code}"
++            return {"ok": False, "status": e.code, "data": None, "link": None,
++                    "note": f"خطای API — {reason} (fail-soft)."}
++        except (urllib.error.URLError, TimeoutError, OSError) as e:
++            return {"ok": False, "status": 0, "data": None, "link": None,
++                    "note": f"شبکه/timeout ناموفق — {type(e).__name__} (fail-soft)."}
++
++
++def _parse_next_link(link_header: str | None) -> str | None:
++    """هدرِ Link را برای rel="next" پارس کن → URLِ صفحهٔ بعد یا None.
++    قالب: '<https://…?page=2>; rel="next", <…>; rel="last"'."""
++    if not link_header:
++        return None
++    for part in link_header.split(","):
++        seg = part.strip()
++        if 'rel="next"' in seg or "rel=next" in seg:
++            lt, gt = seg.find("<"), seg.find(">")
++            if lt != -1 and gt != -1 and gt > lt:
++                return seg[lt + 1:gt]
++    return None
++
++
++# ─── endpointهای عمومی (همه فقط GET، همه پشتِ فلگ) ────────────────────────────
++def me(*, key: str | None = None, timeout: int = _DEFAULT_TIMEOUT) -> dict:
++    """GET /me — تأییدِ کارکردِ کلید + گرفتنِ user id.
++    خروجی: {"ok","wired","user_id","note"}. فلگ خاموش → wired=False no-op."""
++    if not _flag_on():
++        return {"ok": False, "wired": False, "user_id": None,
++                "note": f"فلگِ {FLAG} خاموش است — no-op (صفر شبکه)."}
++    r = _get("/me", key=key, timeout=timeout)
++    if not r["ok"]:
++        return {"ok": False, "wired": True, "user_id": None, "note": r["note"]}
++    data = r["data"] or {}
++    uid = data.get("id")
++    return {"ok": uid is not None, "wired": True, "user_id": uid,
++            "note": "ok" if uid is not None else "پاسخِ /me بدونِ id."}
++
++
++def list_accounts(user_id, *, key: str | None = None, timeout: int = _DEFAULT_TIMEOUT) -> dict:
++    """GET /users/{id}/transaction_accounts — فقط برای تأیید/نگاشتِ عنوانِ حساب.
++    خروجی PII-امن: فقط id/title/type/currency (هرگز موجودی/balance echo نمی‌شود).
++    خروجی: {"ok","wired","count","accounts":[...],"note"}. فلگ خاموش → no-op."""
++    if not _flag_on():
++        return {"ok": False, "wired": False, "count": 0, "accounts": [],
++                "note": f"فلگِ {FLAG} خاموش است — no-op."}
++    r = _get(f"/users/{user_id}/transaction_accounts", key=key, timeout=timeout)
++    if not r["ok"]:
++        return {"ok": False, "wired": True, "count": 0, "accounts": [], "note": r["note"]}
++    rows = r["data"] or []
++    safe = []
++    for a in rows if isinstance(rows, list) else []:
++        if not isinstance(a, dict):
++            continue
++        safe.append({                                # ⚠️ صفر balance/موجودی — فقط شناسه/عنوان
++            "id": a.get("id"),
++            "title": str(a.get("title") or a.get("name") or "").strip(),
++            "type": a.get("type"),
++            "currency": a.get("currency_code"),
++        })
++    return {"ok": True, "wired": True, "count": len(safe), "accounts": safe, "note": "ok"}
++
++
++def fetch_transactions(start_date, end_date, *, user_id=None, key: str | None = None,
++                       timeout: int = _DEFAULT_TIMEOUT, per_page: int = 100,
++                       max_pages: int = _MAX_PAGES) -> dict:
++    """GET /users/{id}/transactions?start_date=&end_date=&per_page=100 با دنبال‌کردنِ
++    pagination (هدرِ Link rel="next")، لیستِ خامِ تراکنش‌ها را برمی‌گرداند.
++    user_id نیامده → از me() حل می‌شود. فلگ خاموش/بی‌کلید → لیستِ خالیِ صادق.
++    خروجی: {"ok","wired","transactions":[...],"pages":int,"note"}."""
++    if not _flag_on():
++        return {"ok": False, "wired": False, "transactions": [], "pages": 0,
++                "note": f"فلگِ {FLAG} خاموش است — no-op (صفر شبکه)."}
++    key = key or _api_key()
++    if not key:
++        return {"ok": False, "wired": True, "transactions": [], "pages": 0,
++                "note": f"{KEY_ENV} تنظیم نیست — لیستِ خالی (کلید لازم است)."}
++    if user_id is None:
++        m = me(key=key, timeout=timeout)
++        if not m["ok"]:
++            return {"ok": False, "wired": True, "transactions": [], "pages": 0,
++                    "note": "me() ناموفق: " + m["note"]}
++        user_id = m["user_id"]
++    txns: list[dict] = []
++    url = _build_url(f"/users/{user_id}/transactions",
++                     {"start_date": start_date, "end_date": end_date, "per_page": per_page})
++    pages = 0
++    while url and pages < max_pages:
++        r = _get(url, key=key, timeout=timeout)
++        if not r["ok"]:
++            return {"ok": False, "wired": True, "transactions": txns, "pages": pages,
++                    "note": f"صفحهٔ {pages + 1} ناموفق: " + r["note"]}
++        page = r["data"] or []
++        if isinstance(page, list):
++            txns.extend(x for x in page if isinstance(x, dict))
++        pages += 1
++        url = _parse_next_link(r["link"])
++    return {"ok": True, "wired": True, "transactions": txns, "pages": pages, "note": "ok"}
++
++
++# ─── نگاشت به schemaِ txn_store ───────────────────────────────────────────────
++def to_store_txns(raw) -> list[dict]:
++    """هر تراکنشِ خامِ PocketSmith → یک ردیفِ schemaِ txn_store.
++
++    نکتهٔ کلیدی (دقتِ کل سیستم): `category` (transaction.category.title) و `labels`
++    (لیست) — دسته‌بندیِ *موجودِ خودِ مالک* (نیمه‌دسته‌بندی‌شده) — عیناً حمل می‌شوند تا
++    اختاپوس روی حقیقتِ زمینیِ مالک بنشیند، نه حدسِ خودش.
++
++    مبلغ با money.to_cents (integer cents، هرگز float). علامتِ PocketSmith حفظ می‌شود:
++    مثبت = بستانکار/بازپرداخت، منفی = بدهکار (خروج)."""
++    out: list[dict] = []
++    for t in (raw or []):
++        if not isinstance(t, dict):
++            continue
++        cat_obj = t.get("category")
++        category = str(cat_obj.get("title") or "").strip() if isinstance(cat_obj, dict) else ""
++        acc_obj = t.get("transaction_account")
++        account = (str(acc_obj.get("title") or acc_obj.get("name") or "").strip()
++                   if isinstance(acc_obj, dict) else "")
++        labels = t.get("labels")
++        labels = [str(x) for x in labels] if isinstance(labels, list) else []
++        desc = str(t.get("payee") or t.get("merchant") or t.get("memo") or "").strip()[:120]
++        out.append({
++            "id": str(t.get("id") or ""),              # idِ پایدارِ PocketSmith → dedup میان‌sync
++            "date": str(t.get("date") or "")[:10],     # PocketSmith از پیش ISO (YYYY-MM-DD) می‌دهد
++            "amount_cents": money.to_cents(t.get("amount")),   # علامت‌دار: منفی=خروج، مثبت=ورود
++            "desc": desc,
++            "source": SOURCE,
++            "account": account,
++            "owner": "unknown",                        # مالکیت بعداً با مرورِ مالک
++            "ptype": "unknown",                        # income/expense/transfer — نامشخص تا مرور
++            "category": category,                      # ← دسته‌بندیِ خودِ مالک
++            "labels": labels,                          # ← برچسب‌های خودِ مالک
++            "review": "pending",
++            "note": "",
++        })
++    return out
++
++
++# ─── sync: fetch + map + merge → انبار (شمارش/تراز، هرگز مقدارِ خام) ───────────
++def _load_existing_store(store_path: Path | None) -> list[dict]:
++    """انبارِ موجود (txn-store.json) را بخوان → لیستِ txns (fail-soft به خالی)."""
++    import txn_store
++    p = Path(store_path) if store_path else txn_store.default_store_path()
++    try:
++        if p.exists():
++            doc = json.loads(p.read_text("utf-8"))
++            rows = doc.get("txns", [])
++            return list(rows) if isinstance(rows, list) else []
++    except Exception:  # noqa: BLE001 — انبارِ خراب نباید sync را بکشد
++        pass
++    return []
++
++
++def sync(start_date, end_date, persist: bool = True, *, store_path: Path | None = None,
++         key: str | None = None, timeout: int = _DEFAULT_TIMEOUT) -> dict:
++    """fetch + map + merge (dedup by id) → انبارِ txn_store. propose-only، صفر حرکتِ مالی.
++
++    خروجی فقط شمارش + تراز (هرگز مقدار/ردیفِ خام): fetched/mapped/new_added/total + reconcile.
++    فلگ خاموش → no-op. dedup با txn_store._dedup روی id (idِ PocketSmith) → sync دوباره
++    idempotent است (تراکنشِ تکراری دوباره اضافه نمی‌شود)."""
++    if not _flag_on():
++        return {"ok": False, "wired": False, "fetched": 0, "mapped": 0, "new_added": 0,
++                "note": f"فلگِ {FLAG} خاموش است — no-op (صفر شبکه، صفر نوشتن)."}
++    fetched = fetch_transactions(start_date, end_date, key=key, timeout=timeout)
++    if not fetched["ok"]:
++        return {"ok": False, "wired": True, "fetched": 0, "mapped": 0, "new_added": 0,
++                "note": "fetch ناموفق: " + fetched["note"]}
++    import txn_store
++    raw = fetched["transactions"]
++    mapped = to_store_txns(raw)
++    existing = _load_existing_store(store_path)
++    combined = txn_store._dedup(existing + mapped)     # dedup by id (اولین بروز می‌ماند)
++    new_added = len(combined) - len(existing)
++    if persist:
++        txn_store.save(combined, path=store_path)      # نوشتِ اتمیک (tmp+replace)
++    rep = txn_store.reconcile_report(combined)
++    return {
++        "ok": True,
++        "wired": True,
++        "fetched": len(raw),
++        "mapped": len(mapped),
++        "existing": len(existing),
++        "new_added": new_added,
++        "total_after_merge": len(combined),
++        "persisted": bool(persist),
++        "reconcile": {                                 # تجمیعیِ امن — هرگز تراکنشِ خام
++            "total_rows": rep["total_rows"],
++            "source_count": rep["source_count"],
++            "per_source_rows": {k: v["row_count"] for k, v in rep["per_source"].items()},
++            "total_net_cents": rep["total_net_cents"],  # aggregate (مجاز)، نه مبلغِ فردی
++            "tie_out_ok": rep["tie_out_ok"],
++        },
++        "note": "sync ok — نگاشت + merge (dedup by id) روی انبار انجام شد.",
++    }
++
++
++if __name__ == "__main__":
++    # اجرای واقعی: فقط وضعیتِ فلگ/کلید (set/not-set، هرگز مقدار) + گزارشِ تجمیعی.
++    _status = {
++        "flag_" + FLAG: _flag_on(),
++        KEY_ENV: "set" if _api_key() else "not-set",   # فقط set/not-set — هرگز مقدار
++        "base": BASE,
++        "read_only": True,
++    }
++    print(json.dumps(_status, ensure_ascii=False, indent=2))
+diff --git a/_ops/legs/txn_categorize.py b/_ops/legs/txn_categorize.py
+new file mode 100644
+index 0000000..0f42f06
+--- /dev/null
++++ b/_ops/legs/txn_categorize.py
+@@ -0,0 +1,230 @@
++#!/usr/bin/env python3
++"""txn_categorize.py — دستیارِ هوشمندِ دسته‌بندیِ پس‌ماندِ صفِ بازبینی (2026-07-16، propose-only).
++
++پس از attributor، هر txnِ needs_review (owner=unknown, ptype=unknown) در صفِ بازبینیِ مالک
++می‌ماند. این ماژول با مغزِ محلی-اول ($0، خصوصی) یک *پیشنهادِ* برچسب برای این پس‌ماند می‌سازد —
++هرگز قطعی نمی‌کند. روش ۵ (تحقیقِ ۲۰۲۷): «LLM برچسب پیشنهاد می‌دهد، هرگز پول حساب نمی‌کند».
++
++نردبانِ مغز (محلی-اول → ابری فقط برای سخت‌ها):
++  ۱) tier='local' (ollama 7B) — پیش‌فرض. روی دستگاهِ مالک، $۰، descِ خام مجاز است.
++  ۲) اگر use_cloud=True و پرچمِ OCTOPUS_WIRE_ACCT_CLOUD روشن باشد و محلی «کم‌سیگنال»
++     برگرداند → tier='primary' (Fugu، پشتِ گیتِ پولی) — ولی *فقط* بعد از scrub_pii(desc).
++
++مرزهای سختِ پول/PII (این ماژول):
++  - هیچ مبلغی هرگز به هیچ LLM نمی‌رود. prompt *فقط* از متنِ desc ساخته می‌شود؛ amount_cents
++    هرگز در prompt نمی‌آید — همهٔ اعداد در موتورِ قطعی (money.py/attributor) می‌مانند.
++  - قبل از هر ارسال به Fugu (ابریِ شخصِ‌ثالث): scrub_pii نامِ همکار/شماره‌حساب/رشتهٔ رقمیِ بلند
++    را حذف می‌کند. نامِ واقعی فقط از configِ gitignore می‌آید، هرگز در سورس hardcode نیست.
++  - PROPOSE-ONLY: suggestion ست می‌شود ولی review همان needs_review می‌ماند — مالک تأیید،
++    نه ایجنت (روش ۸). apply_corrections (مسیرِ مالک) تنها راهِ confirmed است.
++  - fail-soft: مدل خاموش / JSONِ خراب → txn دست‌نخورده (بدونِ کرش) + شمارشِ صادق.
++
++$0 (محلی) · stdlib · fail-soft.
++"""
++from __future__ import annotations
++
++import json
++import os
++import re
++import sys
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++for _p in (str(_HERE.parent / "budget"), str(_HERE.parent / "cortex"), str(_HERE)):
++    if _p not in sys.path:
++        sys.path.insert(0, _p)
++import opslib  # noqa: E402
++
++# ── واژگانِ برچسب (مرجع: مدلِ واقعیِ حسابدار) ────────────────────────────────
++OWNERS = ("armin", "abbas", "business")
++PTYPES = ("income", "expense", "wage", "transfer")
++# نامِ مدل برای citationِ basis (نه کلید، نه endpoint)
++_BASIS_MODEL = {"local": "ollama-7b", "cloud": "fugu"}
++
++
++def _config_path() -> Path:
++    """configِ gitignore که name_blocklistِ واقعیِ همکار را نگه می‌دارد (هرگز در سورس)."""
++    return (opslib.ORG_ROOT / "03 - Projects" / "Accounting" / "personal"
++            / "categorize-config.json")
++
++
++def _load_blocklist() -> list[str]:
++    """blocklistِ نام (برای scrub قبل از ابری). منبع: env (تست/override) + configِ gitignore.
++    نامِ واقعی هرگز این‌جا نیست — الگوی OpsecGuardِ langar (اپراتور فایل را پر می‌کند)."""
++    names: list[str] = []
++    env = os.environ.get("ACCT_NAME_BLOCKLIST", "")
++    if env:
++        names += [n.strip() for n in env.split(",") if n.strip()]
++    try:
++        p = _config_path()
++        if p.exists():
++            cfg = json.loads(p.read_text("utf-8"))
++            bl = cfg.get("name_blocklist") or cfg.get("blocklist") or []
++            if isinstance(bl, list):
++                names += [str(n).strip() for n in bl if str(n).strip()]
++    except (OSError, ValueError):
++        pass
++    seen: set = set()
++    out: list[str] = []
++    for n in names:                       # یکتا، بی‌حساس به حروف، حفظِ ترتیب
++        k = n.lower()
++        if k and k not in seen:
++            seen.add(k)
++            out.append(n)
++    return out
++
++
++def scrub_pii(text: str, blocklist: list[str] | None = None) -> str:
++    """PII را قبل از هر ارسال به ابری (Fugu) پاک کن — الگوی scrubِ OpsecGuard:
++      · هر نامِ blocklist → ⟦name⟧ (بی‌حساس به حروف).
++      · هر رشتهٔ رقمیِ ≥۴ (شماره‌حساب/مبلغ/رشتهٔ بلند) → ⟦num⟧.
++    محلی (ollama) هرگز از این عبور نمی‌کند (روی دستگاه، خصوصی). fail-soft: خطا → رشتهٔ خام
++    برنمی‌گردانیم بلکه امن‌ترین‌کار = حذفِ همهٔ ارقام حتی اگر blocklist بارنشد."""
++    out = text or ""
++    bl = blocklist if blocklist is not None else _load_blocklist()
++    for name in bl:
++        if name and name.strip():
++            out = re.sub(re.escape(name), "⟦name⟧", out, flags=re.IGNORECASE)
++    out = re.sub(r"\d{4,}", "⟦num⟧", out)     # شماره‌حساب/رشتهٔ رقمیِ بلند
++    return out
++
++
++# ── ساختِ prompt (فقط از desc — هرگز مبلغ) ───────────────────────────────────
++def _categories_hint() -> str:
++    """فهرستِ فشردهٔ دسته‌ها از personal_ledger.CATEGORIES (grounding). fail-soft → ''."""
++    try:
++        import personal_ledger  # noqa: WPS433 — هم‌پوشه
++        cats: list[str] = []
++        for group in personal_ledger.CATEGORIES.values():
++            cats += list(group)
++        return ", ".join(cats[:40])
++    except Exception:  # noqa: BLE001
++        return ""
++
++
++def _system_prompt() -> str:
++    cats = _categories_hint()
++    cat_line = f"دسته‌های مجاز: {cats}.\n" if cats else ""
++    return (
++        "تو دسته‌بندِ تراکنشِ حسابداری هستی. فقط از «متنِ توضیحِ» تراکنش (بدونِ هیچ مبلغی) "
++        "برچسب بزن. مدلِ واقعی: آرمین برای عباس روزمزد کار می‌کند (حقوق=wage)؛ پولِ کسب‌وکار "
++        "که از حسابِ آرمین به عباس رد می‌شود transfer است.\n"
++        + cat_line +
++        'خروجی فقط یک JSONِ کوچک: {"owner":"armin|abbas|business",'
++        '"ptype":"income|expense|wage|transfer","category":"..."}. '
++        'اگر نامطمئنی owner یا ptype را "unknown" بگذار. هیچ توضیحِ اضافه نده — فقط JSON.'
++    )
++
++
++def _user_prompt(desc: str) -> str:
++    """prompt فقط از desc ساخته می‌شود — هیچ amount/مبلغ اینجا راه ندارد."""
++    return f'توضیحِ تراکنش: "{desc}"\nبرچسب را فقط به‌صورتِ JSON بده.'
++
++
++# ── پارسِ دفاعیِ خروجیِ مدل ───────────────────────────────────────────────────
++def _parse_labels(text) -> dict | None:
++    """اولین بلوکِ {...} را از خروجیِ مدل بردار و امن پارس کن. بدترین‌حالت → None
++    (→ تراکنش دست‌نخورده). owner/ptypeِ نامعتبر → 'unknown' (هرگز حدسِ بی‌پایه)."""
++    if not text:
++        return None
++    m = re.search(r"\{.*\}", str(text), re.DOTALL)
++    if not m:
++        return None
++    try:
++        d = json.loads(m.group(0))
++    except (ValueError, TypeError):
++        return None
++    if not isinstance(d, dict):
++        return None
++    owner = str(d.get("owner", "unknown")).strip().lower()
++    ptype = str(d.get("ptype", "unknown")).strip().lower()
++    category = str(d.get("category", "")).strip().lower()
++    return {
++        "owner": owner if owner in OWNERS else "unknown",
++        "ptype": ptype if ptype in PTYPES else "unknown",
++        "category": category,
++    }
++
++
++def _low_signal(labels) -> bool:
++    """پس‌ماندِ «کم‌سیگنال» که ارزشِ رفتن به ابری دارد: مدل خاموش/JSONِ خراب (None)،
++    یا owner/ptypeِ unknown، یا دسته‌ی خالی."""
++    if not labels:
++        return True
++    return (labels.get("owner") == "unknown" or labels.get("ptype") == "unknown"
++            or not labels.get("category"))
++
++
++def _classify(desc: str, tier: str, blocklist: list[str]) -> dict | None:
++    """یک فراخوانِ مدل با tierِ داده‌شده. برای ابری (primary/Fugu) descِ خام *اول* scrub
++    می‌شود — هیچ نام/شماره از مرزِ ابری عبور نمی‌کند. fail-soft: هر خطا/خروجیِ بد → None."""
++    prompt_desc = scrub_pii(desc, blocklist) if tier == "primary" else desc
++    try:
++        import model_router  # noqa: WPS433 — lazy، مونکی‌پچ‌پذیرِ تست
++        out = model_router.ask("classify", _user_prompt(prompt_desc),
++                               system=_system_prompt(), max_tokens=120, tier=tier)
++    except Exception:  # noqa: BLE001 — مغز هرگز دسته‌بندی را نکشد
++        return None
++    if not isinstance(out, dict) or not out.get("ok"):
++        return None
++    return _parse_labels(out.get("text", ""))
++
++
++# ── API عمومی ────────────────────────────────────────────────────────────────
++def suggest(txns: list, use_cloud: bool = False) -> dict:
++    """برای هر txnِ review=='needs_review' یک *پیشنهادِ* برچسب بساز (روش ۵).
++
++    - tier='local' (ollama، $۰، خصوصی) پیش‌فرض. prompt فقط از desc — هرگز مبلغ.
++    - ابری فقط وقتی: use_cloud=True *و* پرچمِ OCTOPUS_WIRE_ACCT_CLOUD روشن *و* محلی
++      کم‌سیگنال بود؛ آن‌هم بعد از scrub_pii(desc).
++    - txn['suggestion'] = {owner, ptype, category, by, basis}؛ review همان needs_review
++      می‌ماند (LLM هرگز auto-confirm نمی‌کند — مالک تأیید).
++    - fail-soft: مدل خاموش/JSONِ خراب → txn دست‌نخورده، شمارشِ صادق.
++
++    خروجی: {ok, suggested_local, suggested_cloud, skipped}."""
++    if not isinstance(txns, list):
++        return {"ok": False, "suggested_local": 0, "suggested_cloud": 0, "skipped": 0}
++    cloud_on = bool(use_cloud) and bool(os.environ.get("OCTOPUS_WIRE_ACCT_CLOUD"))
++    blocklist = _load_blocklist()
++    n_local = n_cloud = n_skip = 0
++    for t in txns:
++        if not isinstance(t, dict) or t.get("review") != "needs_review":
++            continue
++        desc = str(t.get("desc") or "").strip()
++        if not desc:
++            n_skip += 1
++            continue
++        labels = _classify(desc, "local", blocklist)
++        by = "local"
++        if cloud_on and _low_signal(labels):
++            cloud_labels = _classify(desc, "primary", blocklist)
++            if cloud_labels is not None:
++                labels, by = cloud_labels, "cloud"
++        if not labels:                     # محلی+ابری هر دو ناموفق → دست‌نخورده
++            n_skip += 1
++            continue
++        t["suggestion"] = {
++            "owner": labels["owner"], "ptype": labels["ptype"],
++            "category": labels["category"], "by": by,
++            "basis": f"llm-suggest:{_BASIS_MODEL.get(by, by)}",
++        }
++        t["review"] = "needs_review"       # صریح: پیشنهاد ≠ تأیید (روش ۸)
++        if by == "cloud":
++            n_cloud += 1
++        else:
++            n_local += 1
++    return {"ok": True, "suggested_local": n_local,
++            "suggested_cloud": n_cloud, "skipped": n_skip}
++
++
++if __name__ == "__main__":
++    # دودِ سریع — بدونِ echo مبلغِ خام؛ مدل mock (بدونِ ollama)
++    import model_router as _mr
++    _mr.ask = lambda *a, **k: {"ok": True, "tier": k.get("tier"),
++                               "text": '{"owner":"armin","ptype":"expense","category":"materials"}'}
++    _t = [{"id": "1", "desc": "BUNNINGS Warehouse", "amount_cents": -8990,
++           "review": "needs_review", "owner": "unknown", "ptype": "unknown"}]
++    print(json.dumps({"result": suggest(_t), "suggestion": _t[0].get("suggestion"),
++                      "review": _t[0]["review"],
++                      "scrub": scrub_pii("pay to Abbas acct 123456 desc")},
++                     ensure_ascii=False, indent=2))
+diff --git a/_ops/tests/run_all.py b/_ops/tests/run_all.py
+index 307b1a6..f599b7d 100644
+--- a/_ops/tests/run_all.py
++++ b/_ops/tests/run_all.py
+@@ -106,6 +106,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
+          # + اجراکنندهٔ $0 آفلاین که خودمختاری را گِیت می‌کند (_ops/eval/).
+          "test_adversarial_eval.py",
+          "test_personal_ledger.py", "test_pocketsmith_import.py",
++         # 2026-07-16: کلاینتِ فقط‌خواندنیِ PocketSmith API v2 (me/accounts/transactions/sync)
++         # پشتِ OCTOPUS_WIRE_POCKETSMITH؛ mockِ urlopen (صفر شبکه/کلیدِ واقعی)؛ حملِ category/labels.
++         "test_pocketsmith_api.py",
+          # 2026-07-16: حسابدارِ مولتی‌ایجنت (سنت/انتساب/ارکستراتور)
+          "test_accountant.py", "test_txn_store.py", "test_attributor.py",
+          # 2026-07-16: انبارِ تجمیعیِ تراکنش (txn_store) — xlsx+CSV → یک انبارِ cents-محور،
+@@ -120,6 +123,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
+          # 2026-07-16: CATEGORIZER — attributor (قاعده‌های قطعی: wage/transfer-passthrough/
+          # vendor؛ enumِ auto|needs_review نه اطمینانِ عددی؛ propose-only، مالک تأیید نه ایجنت).
+          "test_attributor.py",
++         # 2026-07-16: دستیارِ AIِ دسته‌بندیِ پس‌ماند (txn_categorize) — محلی-اول ollama $0،
++         # ابری Fugu فقط پشتِ OCTOPUS_WIRE_ACCT_CLOUD + scrub_pii؛ هیچ مبلغ به LLM؛ propose-only.
++         "test_txn_categorize.py",
+          ]
+ # تست‌های خارج از _ops/tests/ (path tuyệtق)
+ EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
+diff --git a/_ops/tests/test_pocketsmith_api.py b/_ops/tests/test_pocketsmith_api.py
+new file mode 100644
+index 0000000..6b739ec
+--- /dev/null
++++ b/_ops/tests/test_pocketsmith_api.py
+@@ -0,0 +1,277 @@
++#!/usr/bin/env python3
++"""test_pocketsmith_api.py — کلاینتِ فقط‌خواندنیِ PocketSmith API v2 (2026-07-16).
++
++اثبات‌ها (صفر شبکهٔ واقعی، صفر کلیدِ واقعی — urllib.request.urlopen mock می‌شود):
++  * فلگِ خاموش → me/fetch/sync همه no-op (wired=False، صفر شبکه).
++  * کلیدِ نبود (فلگ روشن) → خروجیِ خالیِ صادق، هرگز crash.
++  * پاسخِ mockِ تراکنش‌ها → to_store_txns سنتِ درست می‌سازد و category/labelsِ خودِ مالک
++    را عیناً حمل می‌کند (دقتِ کل سیستم).
++  * pagination: هدرِ Link rel="next" دنبال می‌شود (۲ صفحه → همهٔ ردیف‌ها).
++  * rate-limit 429 → backoff (Retry-After) و retry (با _sleep تزریقی، بدونِ خواب).
++  * sync: fetch+map+merge روی انبار؛ dedup by id ⇒ syncِ دوباره idempotent.
++  * صفر نشتِ کلید: مقدارِ کلیدِ جعلی هرگز در هیچ خروجی/note ظاهر نمی‌شود.
++
++اجرا: REAL_VAULT=worktree PYTHONIOENCODING=utf-8 python -X utf8 test_pocketsmith_api.py
++"""
++from __future__ import annotations
++
++import json
++import os
++import sys
++import urllib.error
++import urllib.request
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(_HERE.parent))
++sys.path.insert(0, str(_HERE.parent / "budget"))
++sys.path.insert(0, str(_HERE.parent / "legs"))
++
++import harness  # noqa: E402
++ENV = harness.setup("pocketsmith_api")
++
++import pocketsmith_api as ps   # noqa: E402
++
++FAKE_KEY = "TEST-DEV-KEY-DO-NOT-USE"   # جعلی — فقط برای مسیرِ کد؛ هرگز شبکه، هرگز واقعی
++FLAG = ps.FLAG
++BASE_ME = ps.BASE + "/me"
++
++
++# ─── mockِ urllib.request.urlopen (صفر شبکه) ─────────────────────────────────
++class FakeResp:
++    """پاسخِ جعلیِ context-manager (مثلِ HTTPResponse): read()/headers/status."""
++
++    def __init__(self, obj, link=None, status=200):
++        self._body = json.dumps(obj).encode("utf-8")
++        self.headers = {"Link": link} if link else {}
++        self.status = status
++
++    def read(self):
++        return self._body
++
++    def __enter__(self):
++        return self
++
++    def __exit__(self, *a):
++        return False
++
++
++class FakeUrlopen:
++    """صفِ actionها را pop می‌کند؛ هر action یا FakeResp است یا Exception (raise).
++    هر فراخوان (url, headers) را capture می‌کند تا pagination/هدرِ کلید assert شود."""
++
++    def __init__(self, actions):
++        self.actions = list(actions)
++        self.calls = []
++
++    def __call__(self, req, timeout=None):
++        self.calls.append((req.full_url, dict(req.headers)))
++        if not self.actions:
++            raise AssertionError("urlopen بیش از انتظار صدا زده شد")
++        act = self.actions.pop(0)
++        if isinstance(act, Exception):
++            raise act
++        return act
++
++
++def _patch(actions):
++    """urllib.request.urlopen را با FakeUrlopen جایگزین کن؛ callerِ restore را برمی‌گرداند."""
++    fake = FakeUrlopen(actions)
++    orig = urllib.request.urlopen
++    urllib.request.urlopen = fake
++
++    def restore():
++        urllib.request.urlopen = orig
++    return fake, restore
++
++
++def _flag_on():
++    os.environ[FLAG] = "1"
++
++
++def _flag_off():
++    os.environ.pop(FLAG, None)
++
++
++def _set_key():
++    os.environ[ps.KEY_ENV] = FAKE_KEY   # env_loader idempotent است → overwrite نمی‌کند
++
++
++def _clear_key():
++    os.environ.pop(ps.KEY_ENV, None)
++
++
++# نمونهٔ تراکنشِ خامِ PocketSmith (شکلِ واقعیِ v2) — دو ردیف: یک بدهکار، یک بستانکار
++def _raw_txns():
++    return [
++        {"id": 1001, "date": "2026-03-15", "amount": -50.25, "payee": "Woolworths",
++         "labels": ["groceries", "essential"],
++         "category": {"id": 7, "title": "Groceries"},
++         "transaction_account": {"id": 3, "title": "Everyday", "name": "acc-ever",
++                                 "type": "bank", "currency_code": "aud",
++                                 "current_balance": 987654.21}},   # balance نباید leak شود
++        {"id": 1002, "date": "2026-03-16", "amount": 12.00, "payee": "Refund Co",
++         "labels": [], "category": {"id": 9, "title": "Income"},
++         "transaction_account": {"id": 3, "title": "Everyday"}},
++    ]
++
++
++# ─── تست‌ها ──────────────────────────────────────────────────────────────────
++def test_flag_off_is_noop():
++    """فلگِ خاموش → me/fetch/sync هیچ شبکه‌ای نمی‌زنند و wired=False می‌دهند."""
++    _flag_off()
++    _set_key()
++    fake, restore = _patch([FakeResp({"id": 1})])   # نباید اصلاً مصرف شود
++    try:
++        assert ps.me()["wired"] is False
++        assert ps.fetch_transactions("2026-01-01", "2026-12-31")["wired"] is False
++        s = ps.sync("2026-01-01", "2026-12-31")
++        assert s["wired"] is False and s["fetched"] == 0
++        assert fake.calls == [], "فلگ خاموش نباید urlopen صدا بزند"
++    finally:
++        restore()
++
++
++def test_missing_key_honest_empty():
++    """فلگ روشن ولی بی‌کلید → خروجیِ خالیِ صادق، صفر crash، صفر شبکه."""
++    _flag_on()
++    _clear_key()
++    orig_api_key = ps._api_key
++    ps._api_key = lambda: None   # قطعی: هیچ کلیدی در دسترس نیست (مستقل از .env محیط)
++    fake, restore = _patch([FakeResp({"id": 1})])
++    try:
++        m = ps.me()
++        assert m["ok"] is False and m["user_id"] is None
++        f = ps.fetch_transactions("2026-01-01", "2026-12-31")
++        assert f["ok"] is False and f["transactions"] == []
++        assert ps.KEY_ENV in f["note"]           # note نامِ متغیر را می‌گوید (نه مقدار)
++        assert fake.calls == [], "بی‌کلید نباید urlopen صدا بزند"
++    finally:
++        ps._api_key = orig_api_key
++        restore()
++
++
++def test_to_store_txns_cents_and_category_labels():
++    """نگاشت: سنتِ درستِ علامت‌دار + حملِ category/labelsِ خودِ مالک؛ صفر leakِ balance."""
++    rows = ps.to_store_txns(_raw_txns())
++    assert len(rows) == 2
++    a, b = rows[0], rows[1]
++    # سنت‌ها: -50.25 → -5025 (بدهکار/خروج) ، +12.00 → 1200 (بستانکار/ورود)
++    assert a["amount_cents"] == -5025, a["amount_cents"]
++    assert b["amount_cents"] == 1200, b["amount_cents"]
++    # دسته‌بندیِ خودِ مالک عیناً حمل شد
++    assert a["category"] == "Groceries" and b["category"] == "Income"
++    assert a["labels"] == ["groceries", "essential"] and b["labels"] == []
++    # schema/منبع/عنوانِ حساب
++    assert a["id"] == "1001" and a["date"] == "2026-03-15"
++    assert a["source"] == ps.SOURCE and a["account"] == "Everyday"
++    assert a["desc"] == "Woolworths"
++    assert a["owner"] == "unknown" and a["ptype"] == "unknown" and a["review"] == "pending"
++    # balance/PII هرگز در ردیفِ نگاشته نیست
++    dump = json.dumps(rows, ensure_ascii=False)
++    assert "987654.21" not in dump and "current_balance" not in dump
++
++
++def test_pagination_follows_next_link():
++    """fetch_transactions هدرِ Link rel="next" را دنبال می‌کند → هر دو صفحه جمع می‌شوند."""
++    _flag_on()
++    _set_key()
++    next_url = "https://api.pocketsmith.com/v2/users/42/transactions?page=2&per_page=100"
++    actions = [
++        FakeResp({"id": 42}),                                    # me()
++        FakeResp([_raw_txns()[0]], link=f'<{next_url}>; rel="next"'),  # صفحهٔ ۱
++        FakeResp([_raw_txns()[1]], link=None),                   # صفحهٔ ۲ (بدونِ next)
++    ]
++    fake, restore = _patch(actions)
++    try:
++        r = ps.fetch_transactions("2026-03-01", "2026-03-31")
++        assert r["ok"] is True and r["pages"] == 2
++        assert len(r["transactions"]) == 2
++        # صفحهٔ دومِ درخواست‌شده باید عیناً همان URLِ Link باشد
++        assert fake.calls[2][0] == next_url, fake.calls[2][0]
++        # هدرِ احرازِ کلید در همهٔ فراخوان‌ها هست (بدونِ echoِ مقدار)
++        for _url, hdrs in fake.calls:
++            assert any(k.lower() == "x-developer-key" for k in hdrs), hdrs
++    finally:
++        restore()
++
++
++def test_rate_limit_backoff_then_success():
++    """429 با Retry-After → backoff (بدونِ خوابِ واقعی) و retry تا موفقیت."""
++    _flag_on()
++    _set_key()
++    err = urllib.error.HTTPError(BASE_ME, 429, "Too Many Requests",
++                                 {"Retry-After": "0"}, None)
++    fake, restore = _patch([err, FakeResp({"id": 7})])   # اول 429 بعد موفق
++    orig_sleep = ps._sleep
++    ps._sleep = lambda s: None                            # backoff بدونِ خواب
++    try:
++        m = ps.me()
++        assert m["ok"] is True and m["user_id"] == 7
++        assert len(fake.calls) == 2, "باید یک‌بار retry شده باشد"
++    finally:
++        ps._sleep = orig_sleep
++        restore()
++
++
++def test_sync_merges_and_is_idempotent():
++    """sync: fetch+map+merge روی انبار؛ tie-out سبز؛ syncِ دوباره → new_added=0 (dedup by id)."""
++    _flag_on()
++    _set_key()
++    store = Path(ENV["root"]) / "ps-store.json"
++    # هر sync دو urlopen می‌زند: me() + یک صفحهٔ تراکنش
++    actions = [FakeResp({"id": 42}), FakeResp(_raw_txns(), link=None),
++               FakeResp({"id": 42}), FakeResp(_raw_txns(), link=None)]
++    fake, restore = _patch(actions)
++    try:
++        s1 = ps.sync("2026-03-01", "2026-03-31", persist=True, store_path=store)
++        assert s1["ok"] and s1["fetched"] == 2 and s1["mapped"] == 2
++        assert s1["new_added"] == 2 and s1["total_after_merge"] == 2
++        assert s1["reconcile"]["tie_out_ok"] is True
++        assert store.exists(), "انبار نوشته نشد"
++        doc = json.loads(store.read_text("utf-8"))
++        # category/labelsِ خودِ مالک در انبارِ ذخیره‌شده حاضرند
++        cats = {t["category"] for t in doc["txns"]}
++        assert {"Groceries", "Income"} <= cats, cats
++        assert any(t["labels"] == ["groceries", "essential"] for t in doc["txns"])
++        # syncِ دوباره روی همان انبار → idempotent (dedup by id)
++        s2 = ps.sync("2026-03-01", "2026-03-31", persist=True, store_path=store)
++        assert s2["new_added"] == 0 and s2["total_after_merge"] == 2, s2
++    finally:
++        restore()
++
++
++def test_key_value_never_leaks():
++    """مقدارِ کلیدِ جعلی هرگز در خروجی/note ظاهر نمی‌شود (فقط در هدرِ داخلی)."""
++    _flag_on()
++    _set_key()
++    fake, restore = _patch([FakeResp({"id": 5}),
++                            FakeResp([_raw_txns()[0]], link=None)])
++    try:
++        m = ps.me()
++        f = ps.fetch_transactions("2026-03-01", "2026-03-31", user_id=5)
++        blob = json.dumps([m, f], ensure_ascii=False)
++        assert FAKE_KEY not in blob, "مقدارِ کلید leak شد!"
++    finally:
++        restore()
++
++
++if __name__ == "__main__":
++    _tests = [v for k, v in sorted(globals().items())
++              if k.startswith("test_") and callable(v)]
++    _fail = 0
++    for _t in _tests:
++        try:
++            _t()
++            print(f"  ✓ {_t.__name__}")
++        except AssertionError as e:
++            _fail += 1
++            print(f"  ✗ {_t.__name__}: {e}")
++        except Exception as e:  # noqa: BLE001
++            _fail += 1
++            print(f"  💥 {_t.__name__}: {type(e).__name__}: {e}")
++    if _fail:
++        print(f"❌ test_pocketsmith_api: {_fail}/{len(_tests)} شکست")
++        sys.exit(1)
++    print(f"✅ test_pocketsmith_api: {len(_tests)}/{len(_tests)} سبز")
++# BASE_ME بالای فایل تعریف شده (نزدیکِ ثابت‌ها).
+diff --git a/_ops/tests/test_txn_categorize.py b/_ops/tests/test_txn_categorize.py
+new file mode 100644
+index 0000000..43f35af
+--- /dev/null
++++ b/_ops/tests/test_txn_categorize.py
+@@ -0,0 +1,194 @@
++#!/usr/bin/env python3
++"""تستِ txn_categorize — دستیارِ دسته‌بندیِ صفِ بازبینی (2026-07-16، $0 آفلاین).
++
++اثبات می‌کند (مرزهای امنیتیِ پول واقعی + PIIِ شخصِ‌ثالث):
++  (الف) هیچ مبلغی هرگز در promptِ ارسالی به مدل نیست (prompt capture → assertِ نبودِ cents/amount).
++  (ب) tier='local' پیش‌فرض؛ ابری (primary) فقط با use_cloud=True + پرچمِ OCTOPUS_WIRE_ACCT_CLOUD.
++  (پ) scrub_pii نامِ fixture + عددِ ۶رقمی را قبل از ابری حذف می‌کند (و محلی descِ خام می‌بیند).
++  (ت) suggestion ست می‌شود ولی review همان needs_review می‌ماند (هرگز auto-confirm).
++  (ث) JSONِ خرابِ مدل → txn دست‌نخورده (fail-soft).
++
++ask مونکی‌پچ (بدونِ ollama/شبکه)؛ state ایزوله.
++"""
++import os
++import sys
++from pathlib import Path
++
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++import harness  # noqa: E402
++ENV = harness.setup("txn-categorize")
++
++_OPS = harness.REAL_VAULT / "_ops"
++for _p in (str(_OPS), str(_OPS / "legs"), str(_OPS / "budget"), str(_OPS / "cortex")):
++    if _p not in sys.path:
++        sys.path.insert(0, _p)
++
++import model_router     # noqa: E402
++import txn_categorize as tc   # noqa: E402
++
++
++# نامِ همکار + عددِ ۶رقمی برای تستِ scrub؛ desc *بدونِ* مبلغِ تراکنش (مبلغ در amount_cents است)
++_NAME = "Reza"
++_SIX = "482913"
++_GOOD_LOCAL = '{"owner":"armin","ptype":"expense","category":"materials"}'
++_LOW_LOCAL = '{"owner":"unknown","ptype":"unknown","category":""}'
++_GOOD_CLOUD = '{"owner":"business","ptype":"transfer","category":"transfer"}'
++
++
++def _txn(desc, amount_cents=-25000, review="needs_review", tid="1"):
++    return {"id": tid, "date": "2026-07-01", "amount_cents": amount_cents,
++            "desc": desc, "account": "armin-main",
++            "owner": "unknown", "ptype": "unknown", "review": review,
++            "basis": "unmatched:needs-owner-label"}
++
++
++class _Capture:
++    """ask را جایگزین می‌کند و promptها را برای assert نگه می‌دارد."""
++    def __init__(self, local_text=_GOOD_LOCAL, cloud_text=_GOOD_CLOUD):
++        self.calls = []
++        self.local_text, self.cloud_text = local_text, cloud_text
++
++    def ask(self, task, prompt, system="", max_tokens=400, tier=None, **kw):
++        self.calls.append({"task": task, "prompt": prompt, "system": system, "tier": tier})
++        text = self.cloud_text if tier == "primary" else self.local_text
++        return {"ok": True, "tier": tier, "text": text}
++
++    def tiers(self):
++        return [c["tier"] for c in self.calls]
++
++    def prompt_for(self, tier):
++        for c in self.calls:
++            if c["tier"] == tier:
++                return c["prompt"]
++        return None
++
++
++def _patch(cap):
++    orig = model_router.ask
++    model_router.ask = cap.ask
++    return orig
++
++
++# ── (الف) هیچ مبلغی در prompt ────────────────────────────────────────────────
++def t_a_amount_never_in_prompt():
++    cap = _Capture()
++    orig = _patch(cap)
++    try:
++        # مبلغ‌ها فقط در amount_cents؛ descِ خالص از عدد
++        txns = [_txn("BUNNINGS Warehouse hardware", amount_cents=-25000),
++                _txn("job deposit from client", amount_cents=1200000, tid="2")]
++        tc.suggest(txns, use_cloud=False)
++        assert cap.calls, "باید حداقل یک ask صدا شود"
++        for c in cap.calls:
++            blob = (c["prompt"] or "") + (c["system"] or "")
++            for forbidden in ("25000", "250.00", "1200000", "12000.00", "amount_cents"):
++                assert forbidden not in blob, f"مبلغ در prompt نشت کرد: {forbidden}"
++    finally:
++        model_router.ask = orig
++
++
++# ── (ب) محلی پیش‌فرض؛ ابری فقط با flag + use_cloud ───────────────────────────
++def t_b_local_default_cloud_only_with_flag():
++    # پیش‌فرض: فقط محلی، هیچ primary
++    cap = _Capture()
++    orig = _patch(cap)
++    os.environ.pop("OCTOPUS_WIRE_ACCT_CLOUD", None)
++    try:
++        tc.suggest([_txn("something ambiguous xyz")], use_cloud=False)
++        assert cap.tiers() == ["local"], cap.tiers()
++    finally:
++        model_router.ask = orig
++
++    # use_cloud=True ولی flag خاموش → همچنان فقط محلی
++    cap2 = _Capture(local_text=_LOW_LOCAL)
++    orig = _patch(cap2)
++    os.environ.pop("OCTOPUS_WIRE_ACCT_CLOUD", None)
++    try:
++        tc.suggest([_txn("something ambiguous xyz")], use_cloud=True)
++        assert cap2.tiers() == ["local"], f"flag خاموش نباید ابری بزند: {cap2.tiers()}"
++    finally:
++        model_router.ask = orig
++
++    # use_cloud=True + flag روشن + محلیِ کم‌سیگنال → escalate به primary
++    cap3 = _Capture(local_text=_LOW_LOCAL)
++    orig = _patch(cap3)
++    os.environ["OCTOPUS_WIRE_ACCT_CLOUD"] = "1"
++    try:
++        r = tc.suggest([_txn("something ambiguous xyz")], use_cloud=True)
++        assert cap3.tiers() == ["local", "primary"], cap3.tiers()
++        assert r["suggested_cloud"] == 1 and r["suggested_local"] == 0, r
++    finally:
++        model_router.ask = orig
++        os.environ.pop("OCTOPUS_WIRE_ACCT_CLOUD", None)
++
++
++# ── (پ) scrub قبل از ابری؛ محلی descِ خام می‌بیند ────────────────────────────
++def t_c_scrub_pii_before_cloud():
++    # unit: scrub مستقیم
++    cleaned = tc.scrub_pii(f"transfer to {_NAME} account {_SIX} deposit", blocklist=[_NAME])
++    assert _NAME not in cleaned and _SIX not in cleaned, cleaned
++    assert "⟦name⟧" in cleaned and "⟦num⟧" in cleaned, cleaned
++
++    # مسیرِ کامل: blocklist از env؛ محلیِ کم‌سیگنال → ابری با promptِ scrub‌شده
++    cap = _Capture(local_text=_LOW_LOCAL)
++    orig = _patch(cap)
++    os.environ["OCTOPUS_WIRE_ACCT_CLOUD"] = "1"
++    os.environ["ACCT_NAME_BLOCKLIST"] = _NAME
++    try:
++        desc = f"payment to {_NAME} ref {_SIX} works"
++        tc.suggest([_txn(desc)], use_cloud=True)
++        cloud_p = cap.prompt_for("primary")
++        local_p = cap.prompt_for("local")
++        assert cloud_p is not None and local_p is not None
++        # ابری: نام/عدد پاک شده
++        assert _NAME not in cloud_p and _SIX not in cloud_p, cloud_p
++        # محلی (روی دستگاه): descِ خام مجاز — نام هست
++        assert _NAME in local_p, local_p
++    finally:
++        model_router.ask = orig
++        os.environ.pop("OCTOPUS_WIRE_ACCT_CLOUD", None)
++        os.environ.pop("ACCT_NAME_BLOCKLIST", None)
++
++
++# ── (ت) suggestion ست؛ review همان needs_review (propose-only) ───────────────
++def t_d_suggestion_set_review_stays():
++    cap = _Capture()
++    orig = _patch(cap)
++    try:
++        txns = [_txn("BUNNINGS Warehouse")]
++        r = tc.suggest(txns, use_cloud=False)
++        s = txns[0].get("suggestion")
++        assert s is not None, "suggestion باید ست شود"
++        assert s["owner"] == "armin" and s["ptype"] == "expense", s
++        assert s["by"] == "local" and s["basis"].startswith("llm-suggest:"), s
++        # هرگز auto-confirm
++        assert txns[0]["review"] == "needs_review", txns[0]["review"]
++        assert r["suggested_local"] == 1, r
++    finally:
++        model_router.ask = orig
++
++
++# ── (ث) JSONِ خراب → txn دست‌نخورده (fail-soft) ──────────────────────────────
++def t_e_bad_json_leaves_txn_unchanged():
++    cap = _Capture(local_text="ببخشید نمی‌دانم، این یک جوابِ بدونِ JSON است.")
++    orig = _patch(cap)
++    try:
++        txns = [_txn("gibberish vendor zzz")]
++        before = dict(txns[0])
++        r = tc.suggest(txns, use_cloud=False)
++        assert "suggestion" not in txns[0], "JSONِ خراب نباید suggestion بسازد"
++        assert txns[0] == before, "txn باید دست‌نخورده بماند"
++        assert r["skipped"] == 1 and r["suggested_local"] == 0, r
++    finally:
++        model_router.ask = orig
++
++
++if __name__ == "__main__":
++    failed = harness.run([
++        ("(الف) هیچ مبلغی در promptِ LLM نیست", t_a_amount_never_in_prompt),
++        ("(ب) محلی پیش‌فرض؛ ابری فقط با flag+use_cloud", t_b_local_default_cloud_only_with_flag),
++        ("(پ) scrub نام+عددِ ۶رقمی قبل از ابری", t_c_scrub_pii_before_cloud),
++        ("(ت) suggestion ست؛ review همان needs_review", t_d_suggestion_set_review_stays),
++        ("(ث) JSONِ خراب → txn دست‌نخورده", t_e_bad_json_leaves_txn_unchanged),
++    ])
++    sys.exit(1 if failed else 0)

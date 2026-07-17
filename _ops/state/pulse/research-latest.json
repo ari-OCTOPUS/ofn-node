@@ -1,76 +1,76 @@
 {
-  "ts": "2026-07-11T01:24:58",
+  "ts": "2026-07-17T09:12:31",
   "schema": "research-latest.v1",
   "n_topics": 3,
   "findings": [
     {
-      "topic": "vector memory databases",
-      "n": 3,
+      "topic": "C01",
+      "n": 4,
       "hits": [
         {
-          "title": "Infinite Probabilistic Databases",
-          "snippet": "Probabilistic databases (PDBs) model uncertainty in data in a quantitative way. In the established formal framework, probabilistic (relational) databases are finite probability spaces over relational database instances. This finiteness can clash with intuitive query behavior (Ceylan et al., KR 2016), and with application scenarios that are better modeled by continuous probability distributions (Dalvi et al., CACM 2009).\n  We formally introduced infinite PDBs in (Grohe and Lindner, PODS 2019) wit",
-          "url": "http://arxiv.org/abs/2011.14860v6",
+          "title": "C1",
+          "snippet": "C1, C01, C.I or C-1 may refer to:",
+          "url": "https://en.wikipedia.org/wiki/C1",
+          "source": "wikipedia"
+        },
+        {
+          "title": "Filling the gap in the IERS C01 polar motion series in 1858.9-1860.9",
+          "snippet": "The C01 Earth orientation parameters (EOP) series provided by the International Earth Rotation and Reference Systems Service (IERS) is the longest reliable record of the Earth's rotation. In particular, the polar motion (PM) series beginning from 1846 provides a basis for investigation of the long-term PM variations. However, the pole coordinate $Y_p$ in the IERS C01 PM series has a 2-year gap, which makes this series not completely evenly spaced. This paper presents the results of the first att",
+          "url": "http://arxiv.org/abs/2412.07868v3",
           "source": "arxiv"
         },
         {
-          "title": "Graph Neural Networks for Databases: A Survey",
-          "snippet": "Graph neural networks (GNNs) are powerful deep learning models for graph-structured data, demonstrating remarkable success across diverse domains. Recently, the database (DB) community has increasingly recognized the potentiality of GNNs, prompting a surge of researches focusing on improving database systems through GNN-based approaches. However, despite notable advances, There is a lack of a comprehensive review and understanding of how GNNs could improve DB systems. Therefore, this survey aims",
-          "url": "http://arxiv.org/abs/2502.12908v2",
-          "source": "arxiv"
-        },
-        {
-          "title": "Synthesis of Quantum Vector Databases Based on Grovers Algorithm",
-          "snippet": "This paper describes a method for using Grovers algorithm to create a quantum vector database, the database stores embeddings based on Controlled-S gates, which represent a binary numerical value. This value represents the embeddings value. The process of creating meaningful embeddings is handled by a classical computer and the search process is handled by the quantum computer. This search approach might be beneficial for a large enough database, or it could be seen as a very qubit-efficient (su",
-          "url": "http://arxiv.org/abs/2306.15295v2",
+          "title": "Chandra X-Ray Observation of the Globular Cluster GLIMPSE-C01",
+          "snippet": "We have observed the recently discovered rich star cluster GLIMPSE-C01 for 46 ks with the Chandra X-ray Observatory. Seventeen X-ray sources with luminosities greater than 0.6e31 ergs/s were discovered, one of which is likely a quiescent low-mass X-ray binary. The spatial distribution of these X-ray sources with respect to the NIR and IR images of the cluster, combined with the luminosity and spectral hardness distributions of the sources, provide strong evidence that GLIMPSE-C01 is a rich Galac",
+          "url": "http://arxiv.org/abs/0708.3365v1",
           "source": "arxiv"
         }
       ]
     },
     {
-      "topic": "multi-agent orchestration",
-      "n": 3,
+      "topic": "C03",
+      "n": 4,
       "hits": [
         {
-          "title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
-          "snippet": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of ",
-          "url": "http://arxiv.org/abs/2203.08975v2",
+          "title": "C3",
+          "snippet": "C3, C-3, C03, C.III or similar may refer to:",
+          "url": "https://en.wikipedia.org/wiki/C3",
+          "source": "wikipedia"
+        },
+        {
+          "title": "The Spatiotemporal Structure of Induced Magnetic Fields in Callisto's Plasma Environment due to their Propagation with MHD Modes",
+          "snippet": "We investigate how the spatiotemporal structure of induced magnetic fields outside of Callisto is affected by their propagation with the magnetohydrodynamic (MHD) modes. At moons that are surrounded by dense magnetized plasmas like the Galilean moons, low-frequency induced magnetic fields cannot propagate with the ordinary electromagnetic mode as is implicitly used by standard analytical expressions. Instead, the induced magnetic fields propagate with the MHD modes, which exhibit anisotropic pro",
+          "url": "http://arxiv.org/abs/2411.15938v1",
           "source": "arxiv"
         },
         {
-          "title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations",
-          "snippet": "This article proposes a methodology to model and simulate complex systems, based on IRM4MLS, a generic agent-based meta-model able to deal with multi-level systems. This methodology permits the engineering of dynamic multi-level agent-based models, to represent complex systems over several scales and domains of interest. Its goal is to simulate a phenomenon using dynamically the lightest representation to save computer resources without loss of information. This methodology is based on two mecha",
-          "url": "http://arxiv.org/abs/1311.5108v1",
-          "source": "arxiv"
-        },
-        {
-          "title": "Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi",
-          "snippet": "The card game Hanabi is considered a strong medium for the testing and development of multi-agent reinforcement learning (MARL) algorithms, due to its cooperative nature, partial observability, limited communication and remarkable complexity. Previous research efforts have explored the capabilities of MARL algorithms within Hanabi, focusing largely on advanced architecture design and algorithmic manipulations to achieve state-of-the-art performance for various number of cooperators. However, thi",
-          "url": "http://arxiv.org/abs/2412.06333v3",
+          "title": "Light curves of transneptunian objects from the K2 mission of the Kepler Space Telescope",
+          "snippet": "The K2 mission of the Kepler Space Telescope allowed the observations of light curves of small solar system bodies throughout the whole Solar system. In this paper we present the results of a collection of K2 transneptunian object observations, between Campaigns C03 (November 2014 -- February 2015) to C19 (August -- September, 2018), which includes 66 targets. Due to the faintness of our targets the detectability rate of a light curve period is $\\sim$56%, notably lower than in the case of other ",
+          "url": "http://arxiv.org/abs/2210.06571v1",
           "source": "arxiv"
         }
       ]
     },
     {
-      "topic": "local llm inference",
-      "n": 3,
+      "topic": "E01",
+      "n": 4,
       "hits": [
         {
-          "title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
-          "snippet": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transitio",
-          "url": "http://arxiv.org/abs/2606.05868v1",
+          "title": "E1",
+          "snippet": "E1, E01, E.I or E-1 may refer to:",
+          "url": "https://en.wikipedia.org/wiki/E1",
+          "source": "wikipedia"
+        },
+        {
+          "title": "Relativistic perturbations in $Λ$CDM: Eulerian & Lagrangian approaches",
+          "snippet": "We study the relativistic dynamics of a pressure-less and irrotational fluid of dark matter (CDM) with a cosmological constant ($Λ$), up to second order in cosmological perturbation theory. In our analysis we also account for vector and tensor perturbations and include primordial non-Gaussianity. We consider three gauges: the synchronous-comoving gauge, the Poisson gauge and the total matter gauge, where the first is the unique relativistic Lagrangian frame of reference, and the latters are conv",
+          "url": "http://arxiv.org/abs/1505.04782v4",
           "source": "arxiv"
         },
         {
-          "title": "Cascade: Token-Sharded Private LLM Inference",
-          "snippet": "As LLMs continue to increase in parameter size, the computational resources required to run them are available to fewer parties. Therefore, third-party inference services -- where LLMs are hosted by third parties with significant computational resources -- are becoming increasingly popular. However, third party inference raises critical concerns about user data privacy. To mitigate these risks, privacy researchers have developed provably secure schemes for third-party inference, such as Secure M",
-          "url": "http://arxiv.org/abs/2507.05228v1",
-          "source": "arxiv"
-        },
-        {
-          "title": "An Attack to Break Permutation-Based Private Third-Party Inference Schemes for LLMs",
-          "snippet": "Recent advances in Large Language Models (LLMs) have led to the widespread adoption of third-party inference services, raising critical privacy concerns. Existing methods of performing private third-party inference, such as Secure Multiparty Computation (SMPC), often rely on cryptographic methods. However, these methods are thousands of times slower than standard unencrypted inference, and fail to scale to large modern LLMs. Therefore, recent lines of work have explored the replacement of expens",
-          "url": "http://arxiv.org/abs/2505.18332v1",
+          "title": "Cosmic strings with twisted magnetic flux lines and wound-strings in extra dimensions",
+          "snippet": "We consider a generalization of the Nielsen-Olesen ansatz, in an abelian-Higgs model with externally coupled charge, which describes strings with twisted magnetic flux lines in the vortex core. The solution does not possess cylindrical symmetry, which leads to the existence of components of conserved momentum, both around the core-axis and along the length of the string. In addition, we consider a model of F-strings with rotating, geodesic windings in the compact space of the Klebanov-Strassler ",
+          "url": "http://arxiv.org/abs/1207.4891v6",
           "source": "arxiv"
         }
       ]

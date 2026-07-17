@@ -1,0 +1,102 @@
+# ===================================================================
+# MANIFEST — Crypto - etoro (Sensing/Tenant Leg)
+# جعبهٔ سیاه: تحقیق داده‌محور کریپتو + مدیریت پرتفوی eToro
+# ===================================================================
+manifest_version: "1.0"
+generated: 2026-07-11
+generated_by: "role-extraction-agent (ZCode)"
+
+identity:
+  code: "Crypto-eToro"
+  domain: "crypto portfolio management + data-driven research"
+  role_in_ecosystem: "SENSING/TENANT LEG — thin tenant on mother control-plane (langar)"
+  structure: "personal (likely stays personal — companies get NO 50% CGT discount)"
+  phase: "architecture-complete, data-stale, execution-paper-only"
+
+status_snapshot:
+  execution_state: "ZERO live trades. Architecture v1 complete. EdgeClassifier unwired → permanent NO_ACTION. ~110MB stale data (June 2026) archived."
+  primary_blocker: "exchange keys rotation (Bybit/OKX off-box) + Portfolio Registry empty + EdgeClassifier bug"
+  security_gate: "closed (Bybit + OKX + Anthropic CRITICAL)"
+  pending_human_verdicts: 0
+  last_updated_source_of_truth: "PROJECT.md (Active Context)"
+
+hard_rules_locked:
+  - "BUY is ALWAYS human — no exceptions, any amount (Standing Rule #2)"
+  - "auto-SELL only from pre-registered exit_rules — 3 conditions: Gate open + Anchor Ledger entry + instant Telegram notify"
+  - "optional SELL = human verdict"
+  - "exchange keys: OFF-BOX, zero LLM access, human co-sign (D-11)"
+  - "no LLM in command path (P11) — intent-router is rule-based"
+  - "cross-model check before presenting to human (D-09)"
+  - "read-only until Security Gate opens"
+hard_rules_mutability: "immutable without human verdict"
+
+blackbox_potential:
+  - id: "quantumalphabot_scout"
+    desc: "L3 pipeline: GemHunter→Forensics→Veto→LLM→Kelly + EdgeClassifier + EnergyFunnel"
+    runtime: "code in _code/ (Ai bots/QuantumAlphaBot/)"
+    readiness: "BUILT but BROKEN — EdgeClassifier never called → edge_present=[] → permanent NO_ACTION"
+    fix: "3 patches (wire EdgeClassifier + derive fear_type + data-adapter) per L3 doc"
+    note: "SHARED with Mining tenant"
+
+  - id: "sentinel_scraper"
+    desc: "data ingestion: CryptoQuant + LunarCrush + Coinalyze"
+    runtime: "code in _code/ (Ai bots/sentinel/)"
+    readiness: "BUILT, keys rotated out. ToS risk if scraping logged-in — migrate to free APIs"
+    stale_output: "archive/raw-data-2026-06/ (~110MB, marked stale)"
+
+  - id: "fleet_manager_l7"
+    desc: "REST :7700 + worker + watchdog + hashrate_oracle (bridges to L3 ENERGY edge)"
+    runtime: "code in _code/ (Ai bots/fleet/)"
+    readiness: "BUILT, 3 gaps: worker count mismatch, kill-switch unwired (D-06), OPi5+ SPOF"
+    note: "SHARED with Mining tenant"
+
+  - id: "crypto_adapter"
+    desc: "read-only tenant adapter to mother control-plane (langar)"
+    runtime: "contracts/adapter.yaml (this project)"
+    readiness: "DESIGNED per CRYPTO_ARCHITECTURE_v1 §4.3"
+
+  - id: "coordinator"
+    desc: "confluence agent: QA×0.45 + Sent×0.55, 6 gates, 30min cycle"
+    runtime: "code in _code/ (Ai bots/coordinator/)"
+    readiness: "BUILT — propose-only"
+
+control_surface:
+  read_state_files:
+    load_order: ["PROJECT.md", "INDEX.md", "Standing Rules.md", "Portfolio Registry.md"]
+    navigation: "INDEX.md"
+    live_status: "PROJECT.md#Active-Context"
+    decisions: "DecisionLog.md"
+    open_questions: "OpenQuestions.md"
+  adapter: "contracts/adapter.yaml"
+  mother_control_plane: "langar (ABSENT here — in 04-Architect System at F:\backup)"
+
+kill_switches:
+  - scope: "fleet+adapter"
+    trigger: "halted flag (DB) + STOP file (D-06)"
+    effect: "all cycles refuse; fail-closed"
+  - scope: "budget"
+    trigger: "spend > $0.50/day (Normal) or $2 (Growth)"
+    effect: "auto-halt + alert at 50/80%"
+
+budget_caps:
+  daily_normal_aud: 0.50
+  daily_growth_aud: 2.00
+  monthly_mother_cap_aud: 60
+  data_apis: "free tier only (CoinGecko 10k/mo, CMC 15k/mo) — all paid on-chain over AU$30 cap"
+
+dependencies:
+  self_contained: ["docs/", "data/", "archive/"]
+  external_relocated: ["QuantumAlphaBot + sentinel + fleet + coordinator → _code/"]
+  mother_dependency: "langar control-plane (ABSENT — Telegram/Brain/Safety/Ledger all in mother)"
+  connectors_needing_auth:
+    - "Bybit/OKX keys (D-11: OFF-BOX, zero LLM, human co-sign)"
+    - "CryptoQuant/LunarCrush/Coinalyze API keys (rotation)"
+    - "Anthropic API key (rotation)"
+
+ecosystem_connections:
+  accounting: "CGT events → personal (NOT Pty Ltd — companies lose 50% CGT discount)"
+  mining: "SHARED blackboxes: coin_hunter_bot + fleet_manager (L7↔L3 hashrate_oracle)"
+  shared_note: "Crypto and Mining are SIBLING tenants sharing the same scouting+fleet organs"
+
+anomalies:
+  - "docs/MISFILED-spacing_x_expectancy_protocol.md — a Popper-falsifiable self-suggestion experiment (Cold-Pressor Task). NOT crypto. Owner: move to 07-Knowledge or a science project?"

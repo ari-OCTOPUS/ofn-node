@@ -5,8 +5,10 @@
   crypto_status() -> {"leg","live","signal","note"}
 
 صداقت: منبعِ دادهٔ واقعی (خروجیِ ingest_raw در پوشهٔ Crypto - etoro) را می‌خواند —
-snapshotهای cryptoquant/lunarcrush و آخرین فایلِ analysis. اگر داده بود → live=True و
-سیگنالِ واقعی (buy/sell/hold از summaryِ analysis، دادهٔ بازار، بی‌PII). اگر نبود → live=False.
+snapshotهای cryptoquant/lunarcrush و آخرین فایلِ analysis. برنامه ۷ (صداقتِ پاها):
+live=True فقط وقتی داده *تازه* باشد (≤ CRYPTO_MAX_AGE_DAYS روز) — «داده جریان دارد»،
+نه «فایلی وجود دارد». سیگنال همچنان صادقانه گزارش می‌شود (buy/sell/hold از summaryِ
+analysis، دادهٔ بازار، بی‌PII) + کلیدِ افزودهٔ age_days (سنِ منبعِ سیگنال، یا null).
 
 خط قرمز: صفر منطقِ درآمد جعلی، صفر side-effectِ پول/ترید، صفر secret. فقط گزارشِ وضعیت.
 propose-only · $0 آفلاین · stdlib-only · منبعِ خام هرگز دست نمی‌خورد.
@@ -14,12 +16,45 @@ propose-only · $0 آفلاین · stdlib-only · منبعِ خام هرگز د�
 from __future__ import annotations
 
 import json
+import re
+import sys
+from datetime import datetime
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE))
+try:
+    from leg_freshness import age_days
+except ImportError:                                       # fail-closed: سنِ نامعلوم → live=False
+    def age_days(_p):  # type: ignore[misc]
+        return None
+
 VAULT = _HERE.parents[1]                                  # _ops/legs → _ops → vault root
 # منبعِ دادهٔ واقعی (همان مسیرِ ingest_raw.CRYPTO؛ دادهٔ بازار، بی‌PII)
 CRYPTO_DIR = VAULT / "03 - Projects" / "Crypto - etoro"
+# آستانهٔ تازگی: بازارِ کریپتو روزانه است — دادهٔ >۷ روز یعنی pipeline خوابیده، نه زنده.
+CRYPTO_MAX_AGE_DAYS = 7.0
+
+
+_NAME_TS = re.compile(r"(\d{4})-(\d{2})-(\d{2})-(\d{2})-(\d{2})-(\d{2})")
+
+
+def _data_age_days(p: Path | None) -> float | None:
+    """سنِ *داده* به روز — اول تایم‌استمپِ داخلِ نامِ فایل (زمانِ واقعیِ ingest/analysis؛
+    mtime بعد از copy/checkout/touch دروغ می‌گوید — دیده شد analysisِ 2026-06-15 با mtimeِ
+    دیروز)، وگرنه fallback به mtime (leg_freshness.age_days). fail-soft None."""
+    if p is None:
+        return None
+    m = _NAME_TS.search(p.name)
+    if m:
+        try:
+            ts = datetime(*(int(g) for g in m.groups()))
+            a = (datetime.now() - ts).total_seconds() / 86400.0
+            return a if a >= 0.0 else 0.0
+        except ValueError:
+            pass
+    return age_days(p)
 
 
 def _latest_analysis(cdir: Path) -> Path | None:
@@ -53,8 +88,9 @@ def _analysis_signal(o: dict) -> str:
 
 def crypto_status() -> dict:
     """snapshotِ فقط‌خواندنیِ وضعیتِ پای Crypto. هرگز crash نمی‌کند (fail-soft کامل).
-    live=True فقط اگر منبعِ دادهٔ واقعی موجود باشد. سیگنال = buy/sell/hold از آخرین analysis
-    (دادهٔ بازار، بی‌PII) یا صرفاً تعدادِ snapshotها. صفر منطقِ ترید/پول."""
+    برنامه ۷: live=True فقط اگر منبعِ سیگنال تازه باشد (fresh ≤ CRYPTO_MAX_AGE_DAYS).
+    سیگنال = buy/sell/hold از آخرین analysis (دادهٔ بازار، بی‌PII) یا تعدادِ snapshotها؛
+    age_days = سنِ همان منبعی که سیگنال از آن آمد (گرد به ۰٫۱ روز، یا null). صفر ترید/پول."""
     leg = "crypto"
     cdir = CRYPTO_DIR
     try:
@@ -62,30 +98,45 @@ def crypto_status() -> dict:
     except OSError:
         exists = False
     if not exists:
-        return {"leg": leg, "live": False, "signal": "no-data",
+        return {"leg": leg, "live": False, "signal": "no-data", "age_days": None,
                 "note": "منبعِ دادهٔ Crypto پیدا نشد — skeleton، منتظرِ afferent/ingest."}
 
     try:
-        snapshots = list(cdir.glob("cryptoquant_*.json")) + list(cdir.glob("lunarcrush_*.json"))
-        n_snap = len([p for p in snapshots if "analysis" not in p.name])
+        snapshots = [p for p in (list(cdir.glob("cryptoquant_*.json"))
+                                 + list(cdir.glob("lunarcrush_*.json")))
+                     if "analysis" not in p.name]
     except OSError:
-        n_snap = 0
+        snapshots = []
+    n_snap = len(snapshots)
 
     ap = _latest_analysis(cdir)
     if ap is not None:
         try:
             o = json.load(open(ap, encoding="utf-8"))
             signal = _analysis_signal(o)
-            note = (f"دادهٔ بازار زنده — {n_snap} snapshot؛ آخرین analysis: {ap.name} "
-                    f"(بی‌PII، فقط‌خواندنی، صفر ترید).")
-            return {"leg": leg, "live": True, "signal": signal, "note": note}
+            a = _data_age_days(ap)
+            live = a is not None and a <= CRYPTO_MAX_AGE_DAYS
+            note = (f"{n_snap} snapshot؛ آخرین analysis: {ap.name} "
+                    f"(بی‌PII، فقط‌خواندنی، صفر ترید). "
+                    + (f"دادهٔ تازه (≤{CRYPTO_MAX_AGE_DAYS:g} روز) — جریان دارد."
+                       if live else
+                       f"دادهٔ کهنه (>{CRYPTO_MAX_AGE_DAYS:g} روز) → live=False؛ "
+                       f"pipeline (ingest_raw) باید دوباره داده بیاورد."))
+            return {"leg": leg, "live": live, "signal": signal,
+                    "age_days": round(a, 1) if a is not None else None, "note": note}
         except Exception:                                 # noqa: BLE001 — analysis خراب/ناقص
             pass
 
     if n_snap > 0:
-        return {"leg": leg, "live": True, "signal": f"snapshots={n_snap}",
-                "note": "snapshotهای بازار موجود؛ فایلِ analysis خوانده نشد (فقط‌خواندنی)."}
-    return {"leg": leg, "live": False, "signal": "empty",
+        ages = [x for x in (_data_age_days(p) for p in snapshots) if x is not None]
+        a = min(ages) if ages else None                   # تازه‌ترین داده، نه کهنه‌ترین
+        live = a is not None and a <= CRYPTO_MAX_AGE_DAYS
+        note = ("snapshotهای بازار موجود؛ فایلِ analysis خوانده نشد (فقط‌خواندنی). "
+                + ("دادهٔ تازه — جریان دارد." if live else
+                   f"snapshotها کهنه‌اند (>{CRYPTO_MAX_AGE_DAYS:g} روز) → live=False."))
+        return {"leg": leg, "live": live, "signal": f"snapshots={n_snap}",
+                "age_days": round(a, 1) if a is not None else None, "note": note}
+    return {"leg": leg, "live": False, "signal": "empty", "age_days": None,
             "note": "پوشهٔ Crypto هست ولی خالی از snapshot — skeleton."}
 
 

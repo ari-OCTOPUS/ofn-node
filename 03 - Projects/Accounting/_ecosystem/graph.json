@@ -1,0 +1,28 @@
+{
+  "collapse-filter": true,
+  "search": "",
+  "showTags": false,
+  "showAttachments": false,
+  "hideUnresolved": false,
+  "showOrphans": false,
+  "collapse-color-groups": false,
+  "colorGroups": [
+    { "query": "path:Architect", "color": { "a": 1, "rgb": 9133302 } },
+    { "query": "path:Crypto", "color": { "a": 1, "rgb": 2278750 } },
+    { "query": "path:Mining", "color": { "a": 1, "rgb": 16347926 } },
+    { "query": "path:Accounting", "color": { "a": 1, "rgb": 3900150 } },
+    { "query": "path:Projects", "color": { "a": 1, "rgb": 15680580 } },
+    { "query": "path:Knowledge", "color": { "a": 1, "rgb": 15381256 } }
+  ],
+  "collapse-display": true,
+  "showArrow": false,
+  "textFadeMultiplier": -1,
+  "nodeSizeMultiplier": 1.1,
+  "lineSizeMultiplier": 0.7,
+  "collapse-forces": true,
+  "centerStrength": 0.3,
+  "repelStrength": 12,
+  "linkStrength": 0.8,
+  "linkDistance": 250,
+  "scale": 1
+}

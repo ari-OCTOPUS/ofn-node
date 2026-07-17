@@ -1,0 +1,157 @@
+diff --git a/_ops/debate/client.py b/_ops/debate/client.py
+index 3a61bbb..ad423f0 100644
+--- a/_ops/debate/client.py
++++ b/_ops/debate/client.py
+@@ -164,6 +164,7 @@ def _gateway_is_up():
+ _PROVIDER_REGISTRY = {
+     "glm": {
+         "env_key": "ZAI_API_KEY",
++        "env_key_alias": "GLM_API_KEY",   # 2026-07-15: مالک ممکن است GLM_API_KEY بگذارد (نامِ مستندِ budgets)
+         "base_url_env": "GLM_BASE_URL",
+         "base_url_default": "https://api.z.ai",
+         "allowed_hosts": ("api.z.ai", "bigmodel.cn"),
+@@ -172,6 +173,7 @@ _PROVIDER_REGISTRY = {
+     },
+     "sakana": {
+         "env_key": "SAKANA_API_KEY",
++        "env_key_alias": "FUGU_API_KEY",   # 2026-07-15: مالک FUGU_API_KEY گذاشته (Fugu = Sakana)
+         "base_url_default": "https://api.sakana.ai/v1",
+         "allowed_hosts": ("api.sakana.ai",),
+         "price_in": 5.0,     # $5/M [VERIFIED]
+@@ -250,9 +252,13 @@ class MultiProviderClient:
+                     f"leak-guard: base_url «{self.base_url}» host مجازِ {self.provider} نیست — refusing")
+             # کلید فقط از env (هرگز hardcode)
+             if transport is None:
+-                self.api_key = os.environ.get(reg["env_key"], "")
++                # 2026-07-15: نامِ اصلی، بعد aliasِ مستند (FUGU_API_KEY / GLM_API_KEY) — تا کلیدِ
++                # مالک هرچه نامش باشد به provider برسد. هرگز مقدار log/echo نمی‌شود.
++                self.api_key = (os.environ.get(reg["env_key"])
++                                or os.environ.get(reg.get("env_key_alias", ""), "") or "")
+                 if not self.api_key:
+-                    raise RefuseToSend(f"{reg['env_key']} تنظیم نیست — کلید فقط از env")
++                    _names = reg["env_key"] + (f"/{reg['env_key_alias']}" if reg.get("env_key_alias") else "")
++                    raise RefuseToSend(f"{_names} تنظیم نیست — کلید فقط از env")
+             else:
+                 self.api_key = ""
+         # قیمت از registry (برای telemetry). flat subscription → cost محاسبه ولی گزارش می‌شود
+diff --git a/_ops/cortex/model_router.py b/_ops/cortex/model_router.py
+index e5aaaa4..94f823b 100644
+--- a/_ops/cortex/model_router.py
++++ b/_ops/cortex/model_router.py
+@@ -140,12 +140,36 @@ def ask(task: str, prompt: str, system: str = "", max_tokens: int = 400,
+         want = _scored_tier(task)
+     want = want or TASK_TIERS.get(task, "local")
+     if want in ("secondary", "primary"):
+-        out = _ask_paid(want, prompt, system, max_tokens)
+-        if out:
+-            return {"ok": True, **out}
++        # 2026-07-15 key-aware: tierِ خواسته اول، بعد tierِ پولیِ دیگر — ولی فقط آن‌هایی که کلید
++        # دارند (وگرنه یک failِ الکی می‌سوزانیم و به محلیِ آشغال می‌افتیم). این کاری می‌کند که
++        # اشتراکِ Fuguِ مالک واقعاً استفاده شود حتی وقتی tierِ خواسته GLMِ بی‌کلید بود (باگِ اصلی).
++        kp = keys_present()
++        _has = {"secondary": bool(kp.get("glm")), "primary": bool(kp.get("fugu"))}
++        order = [want] + [t for t in ("primary", "secondary") if t != want]
++        tried = []
++        for _t in order:
++            if not _has.get(_t):
++                continue
++            out = _ask_paid(_t, prompt, system, max_tokens)
++            tried.append(_t)
++            if out:
++                return {"ok": True, **out}
+         gate_ok, gate_why = paid_gate()
+-        # صادق: چرا پولی نشد + ادامه با local
+-        fallback_reason = gate_why if not gate_ok else "paid-call-failed"
++        if not gate_ok:
++            fallback_reason = gate_why
++        elif not any(_has.values()):
++            fallback_reason = "no-paid-key"
++            try:
++                opslib.alert(["cortex: هیچ کلیدِ پولی (Fugu/GLM) در دسترس نیست — مغز روی محلیِ $0"])
++            except Exception:  # noqa: BLE001
++                pass
++        else:
++            fallback_reason = "paid-call-failed"
++            try:
++                opslib.alert([f"🔴 cortex: مغزِ پولی روی {tried or order} شکست خورد → "
++                              f"محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)"])
++            except Exception:  # noqa: BLE001
++                pass
+     else:
+         fallback_reason = None
+     out = local_llm.ask(prompt, system=system, max_tokens=max_tokens,
+diff --git a/_ops/tests/test_brain_fix.py b/_ops/tests/test_brain_fix.py
+new file mode 100644
+index 0000000..65e385f
+--- /dev/null
++++ b/_ops/tests/test_brain_fix.py
+@@ -0,0 +1,69 @@
++"""test_brain_fix.py — 2026-07-15: مغزِ پولیِ شکسته درست شد (offline).
++باگ: synthesize به GLMِ بی‌کلید می‌رفت → fail → محلیِ آشغال. فیکس: routerِ کلید-آگاه
++(اگر tier کلید ندارد، سراغِ tierِ پولیِ کلیددار برو) + aliasِ کلید (FUGU_API_KEY/GLM_API_KEY)."""
++import sys
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(_HERE.parent))
++sys.path.insert(0, str(_HERE.parent / "budget"))
++sys.path.insert(0, str(_HERE.parent / "cortex"))
++sys.path.insert(0, str(_HERE.parent / "debate"))
++
++import harness
++ENV = harness.setup("brain_fix")
++
++
++def t_a_key_aware_uses_fugu_when_glm_absent():
++    """synthesize → tierِ secondary(GLM) می‌خواهد ولی کلید ندارد → باید primary(Fugu) را امتحان کند."""
++    import model_router as mr
++    tried = []
++
++    def fake_ask_paid(tier, *a, **k):
++        tried.append(tier)
++        return ({"text": "x", "tier": tier, "model": "fugu", "cost_usd": 0.0}
++                if tier == "primary" else None)
++
++    orig_ap, orig_kp = mr._ask_paid, mr.keys_present
++    mr._ask_paid = fake_ask_paid
++    mr.keys_present = lambda: {"fugu": True, "glm": False, "deepseek": False}
++    try:
++        r = mr.ask("synthesize", "hi", max_tokens=10)
++        assert r.get("ok") and r.get("tier") == "primary", r
++        assert "secondary" not in tried, tried    # GLMِ بی‌کلید skip شد
++        assert "primary" in tried                  # Fugu امتحان شد
++    finally:
++        mr._ask_paid, mr.keys_present = orig_ap, orig_kp
++
++
++def t_b_no_paid_key_falls_to_local_loudly():
++    """هیچ کلیدِ پولی → بدونِ سوزاندنِ callِ الکی، مستقیم محلی + دلیلِ صادق."""
++    import model_router as mr
++    burned = []
++    orig_ap, orig_kp, orig_local, orig_gate = mr._ask_paid, mr.keys_present, mr.local_llm.ask, mr.paid_gate
++    mr._ask_paid = lambda *a, **k: burned.append(1) or None
++    mr.keys_present = lambda: {"fugu": False, "glm": False, "deepseek": False}
++    mr.paid_gate = lambda: (True, "open")          # گیت باز، ولی هیچ کلیدی نیست
++    mr.local_llm.ask = lambda *a, **k: {"text": "local", "model": "qwen", "cost_usd": 0.0}
++    try:
++        r = mr.ask("synthesize", "hi", max_tokens=10)
++        assert r.get("ok"), r
++        assert r.get("fallback_from", "").endswith("no-paid-key"), r
++        assert burned == []                        # هیچ callِ پولیِ الکی سوزانده نشد (کلید-آگاه)
++    finally:
++        mr._ask_paid, mr.keys_present, mr.local_llm.ask, mr.paid_gate = orig_ap, orig_kp, orig_local, orig_gate
++
++
++def t_c_client_has_key_aliases():
++    """client حالا FUGU_API_KEY / GLM_API_KEY را هم می‌خواند (نامِ مالک)."""
++    from client import _PROVIDER_REGISTRY
++    assert _PROVIDER_REGISTRY["sakana"]["env_key_alias"] == "FUGU_API_KEY"
++    assert _PROVIDER_REGISTRY["glm"]["env_key_alias"] == "GLM_API_KEY"
++
++
++if __name__ == "__main__":
++    for f in (t_a_key_aware_uses_fugu_when_glm_absent, t_b_no_paid_key_falls_to_local_loudly,
++              t_c_client_has_key_aliases):
++        f()
++        print("ok", f.__name__)
++    print("PASS test_brain_fix")

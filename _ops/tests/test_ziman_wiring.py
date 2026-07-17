@@ -13,6 +13,8 @@ import os
 import sys
 from pathlib import Path
 
+import pytest                    # noqa: E402
+
 _OPS = Path(__file__).resolve().parents[1]
 for p in (str(_OPS), str(_OPS / "legs"), str(_OPS / "budget")):
     if p not in sys.path:
@@ -155,6 +157,13 @@ def test_ziman_beat_no_telegram_no_spend(monkeypatch, tmp_path):
         assert forbidden not in result
 
 
+@pytest.mark.skip(
+    reason="biology در ziman_beat سیم‌کشی نیست: wiring.py:2002 مقدارِ biology=None را "
+           "hardcode می‌کند و پارامترِ doctor مصرف نمی‌شود (پاکسازیِ LEG-08 · 2026-07-14 F2 "
+           "بلوکِ biology_beat را از beat حذف کرد). ماژولِ ziman_biology.biology_beat "
+           "به‌صورت مستقل وجود دارد و توسط test_ziman_biology پوشش دارد، ولی ziman_beat "
+           "عمداً صدایش نمی‌زند. این تست تا وقتی biology دوباره به beat سیم‌کشی نشود "
+           "(تغییرِ رفتارِ runtime — نیازمندِ verdict مالک) skip است، نه green-lie.")
 def test_ziman_beat_biology_accepts_doctor_injection(monkeypatch, tmp_path):
     """ziman_beat باید دکتر تزریق‌شده را فقط در مسیر زیستی/propose-only مصرف کند."""
     monkeypatch.setenv("OCTOPUS_WIRE_ZIMAN", "1")

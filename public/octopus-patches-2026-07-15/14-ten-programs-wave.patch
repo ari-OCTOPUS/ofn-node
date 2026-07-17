@@ -1,0 +1,3020 @@
+commit babc7022949acc5361a2d35c8f380aefb2193cfa
+Author: ari-vault <paintingdesign76@gmail.com>
+Date:   Thu Jul 16 00:42:02 2026 +1000
+
+    feat(ten-programs): wave 3/6/7/8/9/10-prep + brain local-first
+    
+    برنامه ۳/۶/۷/۸/۹ + DUP-01 فقط-پچ + مغزِ 7B محلی-اول. سوئیتِ کامل: فقط ۳ قرمزِ محیطیِ شناخته‌شده.
+    
+    Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+
+diff --git a/_ops/baseline.py b/_ops/baseline.py
+index 5f93721..ca5cdca 100644
+--- a/_ops/baseline.py
++++ b/_ops/baseline.py
+@@ -17,10 +17,19 @@ from __future__ import annotations
+ import hashlib
+ import json
+ import os
++import sys
+ import time
+ from pathlib import Path
+ from typing import Any
+ 
++# opslib برای حلِ مسیرِ SCRIPTS (env-اول: SCRIPTS_DIR) و هشدارِ بلند —
++# fail-soft: بدونِ opslib هم baseline می‌ایستد (فقط alert از دست می‌رود).
++sys.path.insert(0, str(Path(__file__).resolve().parent / "budget"))
++try:
++    import opslib as _opslib
++except Exception:  # noqa: BLE001 — نبودِ opslib نباید baseline را بشکند
++    _opslib = None
++
+ # ─── fields کلیدی که در هر snapshot ذخیره و مقایسه می‌شوند ──────────────────────
+ SNAPSHOT_FIELDS = (
+     "halted", "frozen", "stop_organism",
+@@ -37,9 +46,17 @@ MONEY_SOURCE_FILES = (
+     "budget/money_gate.py",
+     "budget/capability_gate.py",
+     "budget/organ_gate.py",
+-    "budget/budget_gate.py",
+     "budget/fitness.py",
+ )
++# DUP-01 فیکس (2026-07-15): enforcerِ واقعیِ بودجه بیرونِ _ops است — در scriptsِ ریشهٔ vault.
++# ورودیِ قدیمیِ "budget/budget_gate.py" به مسیرِ ناموجودِ _ops اشاره می‌کرد و ساکت رد می‌شد،
++# پس enforcerِ واقعی از تشخیصِ دستکاری بیرون می‌ماند. مسیرش اول نسبت به ریشهٔ vault
++# (ops_dir.parent) و بعد از opslib.SCRIPTS (env-اول: SCRIPTS_DIR — worktree/تست‌سازگار) حل می‌شود.
++# ⚠️ اعمالِ این فیکس روی درختِ live، money_fingerprint را عوض می‌کند → یک‌بار re-baseline لازم است:
++#     cd /d F:\backup\_ops && python -c "import baseline; print(baseline.capture_baseline('dup01-fix', 'rebaseline'))"
++MONEY_SOURCE_ROOT_FILES = (
++    "04 - Architect System/scripts/budget_gate.py",
++)
+ 
+ 
+ def _read_json_safe(path: Path) -> dict | None:
+@@ -53,12 +70,47 @@ def _read_json_safe(path: Path) -> dict | None:
+ 
+ 
+ def _fingerprint_money_sources(ops_dir: Path) -> str:
+-    """SHA-256 fingerprint فایل‌های پول (فقط‌خواندنی)."""
++    """SHA-256 fingerprint فایل‌های پول (فقط‌خواندنی).
++
++    DUP-01 فیکس: فایلِ غایب دیگر ساکت رد نمی‌شود — sentinel «<MISSING:rel>» (همان الگوی
++    capability_gate._source_fingerprint) واردِ blob می‌شود تا ناپدیدشدنِ یک منبعِ پولی
++    fingerprint را تغییر دهد (تشخیصِ دستکاری) + هشدارِ بلندِ opslib.alert. هشدار فقط وقتی
++    ثبت می‌شود که ops_dir همان OPSِ واقعی باشد، نه fixtureهای tmp تست — تا تستِ ایزوله
++    درختِ واقعی/worktree را کثیف نکند."""
+     parts: list[str] = []
++    missing: list[str] = []
+     for rel in sorted(MONEY_SOURCE_FILES):
+         p = ops_dir / rel
+         if p.is_file():
+             parts.append(f"{rel}:{hashlib.sha256(p.read_bytes()).hexdigest()}")
++        else:
++            parts.append(f"<MISSING:{rel}>")
++            missing.append(rel)
++    root = ops_dir.parent
++    for rel in sorted(MONEY_SOURCE_ROOT_FILES):
++        candidates = [root / rel]
++        if _opslib is not None:
++            candidates.append(Path(_opslib.SCRIPTS) / Path(rel).name)
++        p = next((c for c in candidates if c.is_file()), None)
++        if p is not None:
++            parts.append(f"{rel}:{hashlib.sha256(p.read_bytes()).hexdigest()}")
++        else:
++            parts.append(f"<MISSING:{rel}>")
++            missing.append(rel)
++    if missing and _opslib is not None:
++        try:
++            same_ops = Path(ops_dir).resolve() in {
++                Path(_opslib.OPS).resolve(),
++                Path(__file__).resolve().parent,
++            }
++        except OSError:
++            same_ops = False
++        if same_ops:
++            try:
++                _opslib.alert([f"baseline: منبعِ پولیِ غایب از money_fingerprint: {rel}"
++                               for rel in sorted(missing)])
++            except Exception:  # noqa: BLE001 — هشدار اختیاری؛ baseline نباید بشکند
++                pass
+     blob = "|".join(parts)
+     return hashlib.sha256(blob.encode()).hexdigest()[:24]
+ 
+diff --git a/_ops/budget/approval_channel.py b/_ops/budget/approval_channel.py
+index 88b9878..7fb514f 100644
+--- a/_ops/budget/approval_channel.py
++++ b/_ops/budget/approval_channel.py
+@@ -410,6 +410,10 @@ class TelegramApprovalChannel(ApprovalChannel):
+             {"command": "school", "description": "🎓 مدرسه"},
+             {"command": "safety", "description": "🛡️ ایمنی"},
+             {"command": "alerts", "description": "🚨 هشدارها و خام"},
++            {"command": "organs", "description": "🦾 اندام‌ها (مدیریت)"},
++            {"command": "neworgan", "description": "🆕 ساختِ اندامِ نو"},
++            {"command": "wiring", "description": "🔌 نقشهٔ اتصال‌ها (راست‌گو)"},
++            {"command": "health", "description": "🫀 سلامتِ اختاپوس"},
+             {"command": "queue", "description": "📥 صف تأیید"},
+             {"command": "status", "description": "📊 وضعیت ارگانیسم"},
+             {"command": "lead", "description": "📝 ثبت لید جدید"},
+@@ -885,6 +889,9 @@ class TelegramApprovalChannel(ApprovalChannel):
+                 {"text": "🧠 حافظه و مغز", "callback_data": "menu:brain"},
+                 {"text": "🩺 دکتر و تکامل", "callback_data": "menu:doctor"},
+             ],
++            [
++                {"text": "🦾 اندام‌ها", "callback_data": "menu:organs"},
++            ],
+             [
+                 {"text": "💰 پول و متابولیسم", "callback_data": "menu:money"},
+                 {"text": "🎓 مدرسه", "callback_data": "menu:school"},
+@@ -943,9 +950,15 @@ class TelegramApprovalChannel(ApprovalChannel):
+         # T-7: kill-switch (می‌ماند). re-entry digest حذف شد.
+         if t == "/stop":
+             return self.kill_switch()
++        # مرزِ سختِ سراسری (پنیک): /panic HALT-ALL می‌نویسد، /resume آزاد می‌کند.
++        # هم‌الگوی /stop (owner-only از allowlistِ poll_once)، ولی سراسری نه فقط ارگانیسم.
++        if t == "/panic":
++            return self.panic_all()
++        if t == "/resume":
++            return self.resume_all()
+         # ── Cockpit v2: میان‌بُرهای تب + دستورهای جدید (هر ورودی همچنان DATA است) ──
+         if t in ("/overview", "/blueprint", "/brain", "/doctor", "/money",
+-                 "/school", "/safety", "/alerts"):
++                 "/school", "/safety", "/alerts", "/organs"):
+             return self._render_tab(t[1:])
+         if t == "/upgrades":
+             return self._upgrades_text()
+@@ -960,8 +973,166 @@ class TelegramApprovalChannel(ApprovalChannel):
+         if t == "/reveal" or t.startswith("/reveal "):
+             arg = t[len("/reveal"):].strip()
+             return self.reveal_experiment(arg) if arg else self.lab_status()
++        # ── کابینِ راست‌گو (P3 2026-07-15): read-only، وضعیت از تازگیِ فایل نه پیش‌فرضِ فلگ ──
++        if t == "/wiring":
++            return self._cmd_wiring()
++        if t == "/health":
++            return self._cmd_health()
++        # ── موج ۲: ساختِ اندامِ نو (data-driven، دو-مرحله‌ای، owner-only) ──
++        if t.startswith("/neworgan "):
++            return self._cmd_neworgan(t[len("/neworgan "):])
++        if t.startswith("/organ-approve "):
++            return self._cmd_organ_approve(t[len("/organ-approve "):])
+         return None
+ 
++    # ─── موج ۲: ساختِ اندامِ نو — فقط نوشتنِ رجیستریِ داده (هرگز کدِ تولید) ──────────────
++    def _organ_registry_path(self):
++        from pathlib import Path as _P
++        sd = _P(self._state_dir) if self._state_dir else (_P(__file__).resolve().parents[1] / "state")
++        return sd / "organ-registry.json"
++
++    def _read_organ_registry(self) -> list:
++        import json as _json
++        p = self._organ_registry_path()
++        try:
++            if p.exists():
++                d = _json.loads(p.read_text("utf-8"))
++                return d.get("organs", []) if isinstance(d, dict) else []
++        except (OSError, ValueError):
++            pass
++        return []
++
++    @staticmethod
++    def _organ_slug(name: str) -> str:
++        s = re.sub(r"[^a-z0-9]+", "-", str(name).strip().lower()).strip("-")
++        return s[:32]
++
++    def _cmd_neworgan(self, arg: str):
++        """قدمِ ۱: پیشنهادِ اندامِ نو (فقط pending؛ هیچ نوشتنِ رجیستری). نامِ نمایشیِ آزاد، slug مشتق."""
++        import json as _json
++        name = str(arg or "").strip()[:60]
++        if len(name) < 2:
++            return "نام کوتاه است. مثال: <code>/neworgan فروشگاه ووکامرس</code>"
++        slug = self._organ_slug(name)
++        if not slug:
++            return "نامِ نامعتبر (باید حرف/عددِ لاتین در slug بسازد؛ یک نامِ لاتین‌دار بده)."
++        if slug in {o.get("key") for o in self._read_organ_registry()} or \
++                slug in {k for k, *_ in self.ORGANS}:
++            return f"اندامِ «{html.escape(slug)}» از قبل هست."
++        try:
++            pdir = self._organ_registry_path().parent / "organ-proposals"
++            pdir.mkdir(parents=True, exist_ok=True)
++            (pdir / f"{slug}.json").write_text(_json.dumps(
++                {"key": slug, "label": name, "live": False, "kind": "custom",
++                 "note": "اسکلتِ owner-ساخت (propose-only، بی‌پول)",
++                 "proposed_at": _today_iso(), "status": "proposed"}, ensure_ascii=False), "utf-8")
++        except OSError as e:  # noqa: BLE001
++            return f"❌ ثبتِ پیشنهاد ناموفق: {type(e).__name__}"
++        return (f"🆕 <b>اندامِ نو پیشنهاد شد</b>\n"
++                f"نام: {html.escape(name)} · کلید: <code>{html.escape(slug)}</code>\n"
++                f"{self._DIV.strip()}\n"
++                f"اسکلتِ propose-only (read-only، بی‌پول، live=false). برای ساخت بنویس:\n"
++                f"<code>/organ-approve {html.escape(slug)}</code>")
++
++    def _cmd_organ_approve(self, arg: str):
++        """قدمِ ۲: تأییدِ owner → افزودنِ پیشنهاد به رجیستریِ دادهٔ state/organ-registry.json.
++        هیچ کدِ تولید نوشته نمی‌شود؛ فقط یک ورودیِ داده (append، بدونِ حذف)."""
++        import json as _json
++        import os as _os
++        slug = self._organ_slug(arg)
++        pp = self._organ_registry_path().parent / "organ-proposals" / f"{slug}.json"
++        if not pp.exists():
++            return f"پیشنهادی برای «{html.escape(slug)}» نیست. اول <code>/neworgan &lt;نام&gt;</code>."
++        try:
++            entry = _json.loads(pp.read_text("utf-8"))
++        except (OSError, ValueError):
++            return "❌ پیشنهادِ ناخوانا."
++        organs = self._read_organ_registry()
++        if any(o.get("key") == slug for o in organs):
++            return f"«{html.escape(slug)}» از قبل در رجیستری است."
++        entry["status"] = "active"
++        entry["approved_at"] = _today_iso()
++        organs.append(entry)
++        try:
++            rp = self._organ_registry_path()
++            tmp = rp.with_suffix(".json.tmp")
++            tmp.write_text(_json.dumps({"schema": "organ-registry.v1", "organs": organs},
++                                       ensure_ascii=False, indent=1), "utf-8")
++            _os.replace(tmp, rp)
++            pp.unlink()
++        except OSError as e:  # noqa: BLE001
++            return f"❌ نوشتنِ رجیستری ناموفق: {type(e).__name__}"
++        self._append_request("organ-create", slug)      # auditِ append-only
++        return (f"✅ <b>اندام ساخته شد</b>: {html.escape(entry.get('label', slug))} "
++                f"(<code>{html.escape(slug)}</code>)\n"
++                f"در تبِ 🦾 اندام‌ها به‌عنوان اسکلت (⚪ live=false) دیده می‌شود تا دادهٔ واقعی وصل شود.\n"
++                f"<i>هیچ کدِ تولید نوشته نشد — فقط یک ورودیِ رجیستریِ داده.</i>")
++
++    # ─── کابینِ راست‌گو: /wiring + /health (read-only، هرگز stale/بی‌نویسنده را سبز نشان نمی‌دهد) ──
++    def _cmd_wiring(self) -> str:
++        """نقشهٔ اتصال‌ها از truth-cards: هر جزء با آیکنِ صادق (🟢 تازه · 🟠 کهنه · ⚫ غایب/فلگ-خاموش).
++        قانون: 🟢 فقط برای فایلِ موجودِ تازه؛ هیچ پیش‌فرضِ کدی «زنده» جا نمی‌زند."""
++        rm = self._rm()
++        if rm is None:
++            return "🔌 <b>اتصال‌ها</b>\n(read-model در دسترس نیست)"
++        try:
++            cards = rm.read_truth_cards()
++        except Exception as e:  # noqa: BLE001 — fail-soft
++            return f"🔌 <b>اتصال‌ها</b>\n❌ خطا: {type(e).__name__}"
++        lines = ["🔌 <b>نقشهٔ اتصال‌ها</b> (راست‌گو)", self._DIV.strip()]
++        for c in cards:
++            flag = f" · <code>{c['flag']}</code>" if c.get("flag") else ""
++            fo = ""
++            if c.get("flag"):
++                fo = " (فلگ روشن)" if c.get("flag_on") else " (فلگ خاموش)"
++            lines.append(f"{c['icon']} <b>{html.escape(str(c['label']))}</b> — "
++                         f"{html.escape(str(c['status']))}{fo}{flag}")
++        n_green = sum(1 for c in cards if c["icon"] == "🟢")
++        lines.append(self._DIV.strip())
++        lines.append(f"🟢 تازه: {n_green} · 🟠 کهنه/⚫ غایب: {len(cards) - n_green}")
++        lines.append("<i>سبز فقط برای فایلِ موجودِ تازه — snapshotِ کهنه یا بی‌نویسنده هرگز سبز نیست.</i>")
++        return "\n".join(lines)
++
++    def _cmd_health(self) -> str:
++        """سلامتِ راست‌گو: قلبِ shadow (تازگیِ واقعی)، capability marker، گیتِ پول، halt."""
++        rm = self._rm()
++        cards = {}
++        if rm is not None:
++            try:
++                cards = {c["id"]: c for c in rm.read_truth_cards()}
++            except Exception:  # noqa: BLE001
++                cards = {}
++        heart = cards.get("heart_shadow", {})
++        heart_line = f"{heart.get('icon', '❔')} {heart.get('status', '?')}" if heart else "❔"
++        # capability marker + گیتِ پول از فایل (نه پیش‌فرض)
++        from pathlib import Path as _P
++        sd = _P(self._state_dir) if self._state_dir else (_P(__file__).resolve().parents[1] / "state")
++        cap = "🟢 معتبر" if (sd / "CAPABILITY-OK.flag").exists() else "🔴 غایب"
++        money = ("🔓 مسلح" if (sd / "LIVE-ENABLED.flag").exists()
++                 else "🔒 بسته (LIVE-ENABLED نیست — paper، عمدی)")
++        try:
++            halt = "🔴 HALT فعال" if (opslib.STOP_ORGANISM.exists() or opslib.halted()) else "🟢 در حال اجرا"
++        except Exception:  # noqa: BLE001
++            halt = "❔"
++        # صداقتِ GO-LIVE (2026-07-16): کدام گیت‌های ACTIVATION مسلح‌اند — از فایل، نه ادعا.
++        # هیچ سطحِ کابین این را نشان نمی‌داد؛ ۹ فلگِ مسلح از 07-10 نامرئی بودند.
++        try:
++            gates = sorted(p.name for p in opslib.OPS.glob("ACTIVATION-*.flag"))
++        except Exception:  # noqa: BLE001
++            gates = []
++        gate_names = "، ".join(g[len("ACTIVATION-"):-len(".flag")] for g in gates)
++        gates_line = (f"گیت‌های مسلح: {len(gates)}"
++                      + (f" — {html.escape(gate_names)}" if gates else " (هیچ ACTIVATION-فلگی نیست)"))
++        return (f"🫀 <b>سلامتِ اختاپوس</b> · {self._read_mode_color()}\n"
++                f"{self._DIV.strip()}\n"
++                f"قلب (shadow): {heart_line}\n"
++                f"Capability marker: {cap}\n"
++                f"گیتِ پول: {money}\n"
++                f"{gates_line}\n"
++                f"وضعیتِ توقف: {halt}\n"
++                f"{self._DIV.strip()}\n"
++                f"<i>سلامتِ کاملِ تست‌ها: run_all (۱۳۷) + validators جدا اجرا می‌شوند.</i>")
++
+     def _main_menu(self) -> dict:
+         """خانهٔ اصلی (جلسه ۴۶، رأی مالک «فقط آره یا نه»): خانهٔ سادهٔ تصمیم‌ها.
+         عمقِ کاملِ ۸-تب دست‌نخورده زیرِ «⚙️ بیشتر» (backward-compat کامل)."""
+@@ -1233,8 +1404,8 @@ class TelegramApprovalChannel(ApprovalChannel):
+         return str(d.get("sigma") or d.get("status") or "—")
+ 
+     # ─── T-6 · RFC/تکامل: doctor.submit_for_approval پشتِ flag ───────────────────
+-    # ⚑ برای معمار: doctor.submit_for_approval فعلاً در کد نیست (Phase 2). من یک seam
+-    # می‌سازم که آن را وقتی وجود داشت صدا بزند. تا آن‌جا، فقط کارتِ مرورِ RFC را
++    # ⚑ برای معمار: doctor.submit_for_approval حالا در کد هست و وایر شده (به‌روزرسانی
++    # 2026-07-14: ادعای «Phase 2/در کد نیست» کهنه بود). این کارتِ مرورِ RFC را
+     # نشان می‌دهد. merge نیازِ human-append دارد (همان مسیرِ T-2).
+     def rfc_card(self, rfc_id: str, summary: str) -> bool:
+         """کارتِ مرورِ RFC با دکمه‌های [merge پشتِ flag ✅][رد ❌].
+@@ -1283,6 +1454,26 @@ class TelegramApprovalChannel(ApprovalChannel):
+                 f"فایلِ <code>_ops\\STOP-ORGANISM</code> نوشته شد.\n"
+                 "<i>این فایل authoritative است. ارگانیسم در تیکِ بعدی متوقف می‌شود.</i>")
+ 
++    def panic_all(self) -> str:
++        """/panic → مرزِ سختِ سراسری HALT-ALL را می‌نویسد (opslib.raise_halt_all).
++        هم‌الگوی kill_switch ولی سراسری: هر حلقه/کانکتور/باتِ بیرونی تیکِ بعد بی‌استثنا
++        می‌ایستد (opslib.master_halted honor می‌کند). حلقهٔ خودِ بات را عمداً stop نمی‌کنیم
++        تا /resume همچنان قابلِ دریافت بماند. fail-soft: خطا = پیامِ خطا، بدونِ crash."""
++        try:
++            opslib.raise_halt_all("telegram /panic")
++        except Exception:  # noqa: BLE001 — fail-soft: نوشتن نشد، حلقه نمی‌میرد
++            return "❌ نوشتنِ HALT-ALL ناموفق."
++        return "🔴 HALT-ALL نوشته شد — همهٔ حلقه‌ها تیکِ بعد می‌ایستند"
++
++    def resume_all(self) -> str:
++        """/resume → مرزِ سختِ سراسری را آزاد می‌کند (opslib.clear_halt_all). قرینهٔ /panic.
++        fail-soft: خطا = پیامِ خطا، بدونِ crash."""
++        try:
++            opslib.clear_halt_all()
++        except Exception:  # noqa: BLE001 — fail-soft
++            return "❌ آزادسازیِ HALT-ALL ناموفق."
++        return "🟢 HALT-ALL آزاد شد"
++
+     def reentry_packet(self) -> str:
+         """Re-entry Packet: پس از gapِ آفلاین، اثرهای freeze/queue‌شده را نشان می‌دهد.
+         ⚑ برای معمار: فعلاً از self._pending (pending کارت‌ها) + chrono gated_effect می‌خواند.
+@@ -1314,7 +1505,7 @@ class TelegramApprovalChannel(ApprovalChannel):
+     # ═══════════════════════════════════════════════════════════════════════════
+ 
+     TAB_PAGES = ("overview", "cortex", "blueprint", "brain", "doctor", "money",
+-                 "school", "safety", "alerts")
++                 "school", "safety", "alerts", "organs")
+ 
+     # allowlistِ بستهٔ act (§۲.۴ — ضدquarantine). chamber_t عمداً غایب است:
+     # RED — فعال‌سازی فقط با verdict صریحِ مالک، هرگز از دکمهٔ تلگرام (P5).
+@@ -1322,7 +1513,10 @@ class TelegramApprovalChannel(ApprovalChannel):
+         "doctor", "neural", "unified", "lead", "lead_tick", "school",
+         "consolidation", "evolution", "box", "ideas", "spectral", "barbell",
+         "debate", "scheduler", "reconcile", "fitness", "epistemics",
+-        "selfheal", "bio"})
++        "selfheal", "bio",
++        # 🦾 کنسولِ اندام (2026-07-15): legهای worker/business توگل‌پذیر (propose-only، بی‌پول،
++        # هیچ‌کدام RISKY نیستند). فعال‌سازی همان مسیرِ flag/flaggo — اثر در بوتِ بعدی.
++        "ziman", "cartographer", "mining"})
+     RISKY_FLAGS = frozenset({"barbell", "debate", "reconcile", "fitness",
+                              "epistemics", "selfheal", "bio"})
+     # C9 (بازبینیِ خصمانه): allowlist = دقیقاً مجموعهٔ reachable (هر key دکمه‌ای دارد که
+@@ -1394,6 +1588,17 @@ class TelegramApprovalChannel(ApprovalChannel):
+                       ("log", "📜 لاگ"), ("requests", "📨 صفِ درخواست")],
+     }
+     PG_KEYS = {("alerts", "rules"), ("safety", "flags")}
++    # 🦾 کنسولِ اندام (2026-07-15): (key, label, env-flag یا None, kind). keyِ دارای env با
++    # همان مسیرِ flag/flaggo توگل می‌شود؛ بی‌flag = اسکلتِ همیشه‌روشنِ read-only.
++    ORGANS = (
++        ("lead",         "🎨 Lead-نقاشی",   "OCTOPUS_WIRE_LEAD",         "worker"),
++        ("ziman",        "🖼 Ziman",         "OCTOPUS_WIRE_ZIMAN",        "worker"),
++        ("cartographer", "🗺 Cartographer",  "OCTOPUS_WIRE_CARTOGRAPHER", "worker"),
++        ("mining",       "⛏ Mining",         "OCTOPUS_WIRE_MINING",       "business"),
++        ("crypto",       "📈 Crypto",         None,                        "business"),
++        ("accounting",   "🧾 Accounting",     None,                        "business"),
++        ("knowledge",    "📚 Knowledge",      None,                        "business"),
++    )
+     _DIV = "\n➖➖➖➖➖\n"
+ 
+     # ── زیرساخت: read-model ، redaction ، توکنِ act ─────────────────────────────
+@@ -1474,6 +1679,23 @@ class TelegramApprovalChannel(ApprovalChannel):
+         except Exception:  # noqa: BLE001 — گیتِ ناخوانا = بسته
+             return False, "قفل (گیت خوانا نیست — fail-closed)"
+ 
++    def _activation_gate_line(self, flag_name: str) -> str:
++        """وضعیتِ راست‌گوی یک گیتِ دوقفله از فایل، نه متنِ hardcode (صداقتِ GO-LIVE 2026-07-16):
++        باز → 🟢 مسلح؛ فلگ هست ولی سپرِ تاریخ بسته → 🟡؛ فلگ غایب → 🔴 با تاریخِ واقعی.
++        فقط رندر است — هیچ گیتی را باز نمی‌کند (opslib.live_gate_open همان مرجعِ اجرایی)."""
++        try:
++            flag = opslib.OPS / flag_name
++            ok, _why = opslib.live_gate_open(flag)
++            if ok:
++                return "🟢 مسلح (فلگ + سپرِ تاریخ باز)"
++            if flag.exists():
++                return (f"🟡 فلگ مسلح ولی سپرِ تاریخ بسته "
++                        f"(تا {opslib.LIVE_GATE_DATE.isoformat()}، بدونِ GO-LIVE)")
++            return (f"🔴 قفل تا {opslib.LIVE_GATE_DATE.isoformat()} "
++                    f"(فلگِ {flag_name} غایب)")
++        except Exception:  # noqa: BLE001 — گیتِ ناخوانا = بسته (fail-closed)
++            return "🔴 قفل (گیت خوانا نیست — fail-closed)"
++
+     def _dashboard(self):
+         """ماژولِ dashboard/server.py با importlib و نامِ یکتا (بدونِ تصادم با panel/server)."""
+         if self._dash_mod is not None:
+@@ -1623,9 +1845,19 @@ class TelegramApprovalChannel(ApprovalChannel):
+         target: مقدارِ مطلقِ ذخیره‌شده در mint (فعلاً فقط flaggo)."""
+         if verb in self.OOB_VERBS:
+             ok = self._append_request(verb, key)
+-            return ("📨 درخواست ثبت شد (out-of-band) — organism در ضربانِ بعدی مصرف می‌کند.\n"
+-                    "<i>صف: state/cockpit-requests.jsonl · هیچ اجرای inline (INV-7)</i>"
+-                    if ok else "❌ ثبتِ درخواست ناموفق")
++            if not ok:
++                return "❌ ثبتِ درخواست ناموفق"
++            # 2026-07-15 صداقت: دیگر دروغِ «اجرا می‌شود» نمی‌گوییم. فقط doctor/consolidate با
++            # OCTOPUS_TG_EXEC=1 روی beat اجرا می‌شوند؛ بقیه مصرف‌کننده ندارند.
++            import os as _os
++            runnable = verb in ("doctor", "consolidate")
++            exec_on = _os.environ.get("OCTOPUS_TG_EXEC") == "1"
++            if runnable and exec_on:
++                return "📨 ثبت شد — organism در ضربانِ بعدی اجرا می‌کند.\n<i>صف: cockpit-requests.jsonl</i>"
++            if runnable:
++                return ("📨 ثبت شد — ولی <b>اجرا خاموش است</b>. برای اجرای واقعی "
++                        "<code>OCTOPUS_TG_EXEC=1</code> بگذار و restart کن.")
++            return "📨 ثبت شد — ولی این verb مصرف‌کنندهٔ اجرا ندارد (فقط doctor/consolidate اجرا می‌شوند)."
+         if verb == "pf":
+             return self._act_pf_control(key)
+         if verb == "export":
+@@ -1690,13 +1922,7 @@ class TelegramApprovalChannel(ApprovalChannel):
+     def _act_flag_confirm(self, key: str):
+         """قدمِ ۱ از تغییرِ flag: کارتِ confirm با توکنِ تازه (flagهای ریسکی هشدار دارند)."""
+         env_name = f"OCTOPUS_WIRE_{key.upper()}"
+-        rm = self._rm()
+-        cur = False
+-        if rm is not None:
+-            try:
+-                cur = bool(rm.read_capabilities().get("flags", {}).get(env_name, False))
+-            except Exception:  # noqa: BLE001
+-                cur = False
++        cur = self._current_flag(env_name)   # 2026-07-15: منبعِ واحد (شاملِ flagهای اندام via env)
+         want = not cur                       # C4: تصمیمِ مطلق در زمانِ رندر
+         target_word = "روشن" if want else "خاموش"
+         risk = "⚠️ <b>ریسکی</b>" if key in self.RISKY_FLAGS else "🟢 امن"
+@@ -1746,12 +1972,17 @@ class TelegramApprovalChannel(ApprovalChannel):
+ 
+     def _current_flag(self, env_name: str) -> bool:
+         rm = self._rm()
+-        if rm is None:
+-            return False
+-        try:
+-            return bool(rm.read_capabilities().get("flags", {}).get(env_name, False))
+-        except Exception:  # noqa: BLE001
+-            return False
++        if rm is not None:
++            try:
++                fl = rm.read_capabilities().get("flags", {}) or {}
++                if env_name in fl:
++                    return bool(fl.get(env_name))
++            except Exception:  # noqa: BLE001
++                pass
++        # fallback: env زنده — flagهای اندام (ZIMAN/CARTOGRAPHER/MINING) در لیستِ ۱۹تاییِ
++        # read_capabilities نیستند؛ os.environ حقیقتِ زمانِ اجراست.
++        import os as _os
++        return _os.environ.get(env_name) == "1"
+ 
+     def _act_restart(self) -> str:
+         """ری‌استارتِ تمیز از مسیرِ موجودِ dashboard._do_restart (فایل authoritative است)."""
+@@ -1850,16 +2081,20 @@ class TelegramApprovalChannel(ApprovalChannel):
+                          for k, lbl in cards[i:i + 2]])
+         acts = {
+             "blueprint": [("📸 گرفتنِ baseline", "baseline", "capture")],
+-            "brain": [("🧠 تحکیمِ الان", "consolidate", "run"),
+-                      ("💡 بازسازیِ ایده-گراف", "ideas", "rebuild")],
++            # 2026-07-15 حذفِ دکمه‌های مرده: مصرف‌کنندهٔ beat فقط doctor/consolidate را اجرا می‌کند
++            # (_TG_EXEC_SAFE، wiring.py). دکمه‌های ideas/school/ingest صف می‌شدند و هرگز اجرا نمی‌شدند
++            # (toastِ دروغینِ «اجرا می‌شود») → حذف شدند تا UI الکی نباشد. اجرای واقعیِ ingest/school
++            # از مسیرِ beatِ خودشان (OCTOPUS_WIRE_INGEST/SCHOOL) می‌رود، نه از دکمهٔ تلگرام.
++            "brain": [("🧠 تحکیمِ الان", "consolidate", "run")],
+             "doctor": [("🩺 اجرای چرخهٔ دکتر", "doctor", "run")],
+-            "school": [("🎓 یادگیریِ الان", "school", "learn"),
+-                       ("📥 ingest کریپتو", "ingest", "crypto"),
+-                       ("📥 ingest حساب", "ingest", "acct")],
+             "safety": [("❄️ FREEZE", "freeze", "on"),
+                        ("🧹 جاروی اثرها", "sweep", "effects"),
+                        ("♻️ ری‌استارتِ تمیز", "restart", "organism")],
+             "alerts": [("📦 بازتولیدِ بسته", "export", "raw")],
++            # 🦾 کنسولِ اندام: توگل‌ها از مسیرِ flag/flaggo (توکن + تأییدِ دومرحله‌ای) + دکتر
++            "organs": [("🎨 Lead", "flag", "lead"), ("🖼 Ziman", "flag", "ziman"),
++                       ("🗺 Cartographer", "flag", "cartographer"), ("⛏ Mining", "flag", "mining"),
++                       ("🩺 اجرای چرخهٔ دکتر", "doctor", "run")],
+         }.get(page, [])
+         for i in range(0, len(acts), 2):
+             rows.append([self._act_btn(lbl, v, k) for lbl, v, k in acts[i:i + 2]])
+@@ -1870,8 +2105,59 @@ class TelegramApprovalChannel(ApprovalChannel):
+         return (f"{title} · {self._read_mode_color()}\n"
+                 f"📥 صفِ تأیید: {self._count_pending()}{self._DIV}")
+ 
++    def _organs_text(self) -> str:
++        """🦾 کنسولِ اندام (Wave 1، read-only): لیستِ صادقِ همهٔ legها با وضعیتِ flag + زنده.
++        قانونِ راست‌گویی: 🟢 فقط برای flagِ واقعاً روشن؛ leg بدونِ داده = ⚪ اسکلت، نه سبز."""
++        rm = self._rm()
++        bl = {}
++        if rm is not None:
++            try:
++                st = rm.read_state() or {}
++                bl = st.get("business_legs") or {}
++                if isinstance(bl.get("business_legs"), dict):   # شکلِ دولایه (فیکسِ P0)
++                    bl = bl["business_legs"]
++            except Exception:  # noqa: BLE001
++                bl = {}
++        lines = [self._hdr("🦾 <b>اندام‌ها</b>")]
++        on = 0
++        for key, label, env, _kind in self.ORGANS:
++            if env:
++                is_on = self._current_flag(env)
++                fstate = "🟢 روشن" if is_on else "⚪ خاموش"
++            else:
++                is_on = True
++                fstate = "◽ همیشه‌روشن"
++            cell = bl.get(key) if isinstance(bl, dict) else None
++            if isinstance(cell, dict):
++                note = str(cell.get("signal") or cell.get("note") or "")[:44]
++                live_txt = ("🟢 زنده" if cell.get("live") else "⚪ اسکلت") + \
++                           (f" — {html.escape(note)}" if note else "")
++            elif env and is_on:
++                live_txt = "روشن (منتظرِ داده)"
++            elif env:
++                live_txt = "خاموش"
++            else:
++                live_txt = "—"
++            if is_on:
++                on += 1
++            lines.append(f"{label}: {fstate} · {live_txt}")
++        # موج ۲: اندام‌های owner-ساختِ رجیستری (data-driven، اسکلت تا دادهٔ واقعی)
++        customs = self._read_organ_registry()
++        for o in customs:
++            lbl = o.get("label") or o.get("key")
++            live = bool(o.get("live"))
++            lines.append(f"🆕 {html.escape(str(lbl))}: ◽ رجیستری · "
++                         + ("🟢 زنده" if live else "⚪ اسکلت"))
++        lines.append(self._DIV.strip())
++        lines.append(f"🟢 فعالِ built-in: {on}/{len(self.ORGANS)} · 🆕 owner-ساخت: {len(customs)}")
++        lines.append("<i>فعال/غیرفعال: دکمه‌ها (تأییدِ دومرحله‌ای، بوتِ بعدی) · 🩺 دکتر.\n"
++                     "ساختِ اندامِ نو: <code>/neworgan &lt;نام&gt;</code> سپس <code>/organ-approve</code>.</i>")
++        return "\n".join(lines)
++
+     def _tab_text(self, page: str) -> str:
+         rm = self._rm()
++        if page == "organs":
++            return self._organs_text()
+         if page == "overview":
+             st = rm.read_state() if rm else {}
+             rep = rm.read_sigma() if rm else {}
+@@ -1898,6 +2184,19 @@ class TelegramApprovalChannel(ApprovalChannel):
+                 return (self._hdr("🧠 <b>مغزِ مرکزی</b>")
+                         + "🟡 کورتکس هنوز روشن نشده — <code>RUN-CORTEX.bat</code>\n"
+                         + "<i>پروسهٔ جدا روی 8772؛ ریتمش را از قلبِ سایه می‌گیرد.</i>")
++            # صداقتِ GO-LIVE (2026-07-16): stateِ کهنه (mtime>2h) هرگز «در حالِ فکر» رندر نمی‌شود —
++            # مغزی که از 07-10 مرده بود، تا امروز «الان دارد فکر می‌کند» نشان داده می‌شد.
++            if cx.get("stale"):
++                age_h = cx.get("age_h")
++                age_txt = ("؟" if age_h is None else
++                           (f"{age_h / 24.0:.1f}d" if age_h >= 24 else f"{age_h:.1f}h"))
++                th_old = html.escape(str(st.get("thought", "—"))[:160])
++                return (self._hdr("🧠 <b>مغزِ مرکزی</b>")
++                        + f"⚫ کورتکس خاموش/کهنه (سن: {age_txt}) — stateِ قدیمی «الان» نیست.\n"
++                        + f"💤 آخرین فکرِ ثبت‌شده (کهنه): <i>{th_old}</i>\n"
++                        + "راه‌اندازیِ دوباره: <code>RUN-CORTEX.bat</code>\n"
++                        + "<i>صداقتِ کابین: تا cortex-state.json تازه نشود، این تب مغز را "
++                          "«در حالِ فکر» نشان نمی‌دهد.</i>")
+             br = st.get("brains") or {}
+             keys = br.get("keys") or {}
+             th = html.escape(str(st.get("thought", "—"))[:220])
+@@ -1963,7 +2262,7 @@ class TelegramApprovalChannel(ApprovalChannel):
+                       f"suspect-zero: {tel.get('suspect_zero_total', '—')}\n"
+                     + f"📊 fitness: {'authoritative' if fit.get('authoritative') else '🟡 سایه (درست — تا ۲۸ روز)'}\n"
+                     + f"🔒 live-gate: {'🟢 ' + why if ok else '🔴 ' + why}\n"
+-                    + "🤖 گاورنرِ LLM: 🔴 قفل تا 2026-07-21\n"
++                    + f"🤖 گاورنرِ LLM: {self._activation_gate_line('ACTIVATION-GOVERNOR-LLM.flag')}\n"
+                     + "<i>تنها settleِ پول = کارتِ تأییدِ موجود؛ reconcile/epoch دکمه ندارند (§۲.۵).</i>\n"
+                     + "<i>ثبتِ کوت: <code>/claim ATTR-ID | ref | مبلغ</code> · "
+                       "تعارض: <code>/conflict ATTR-ID | دلیل</code></i>")
+@@ -2271,7 +2570,8 @@ class TelegramApprovalChannel(ApprovalChannel):
+                     + "<i>ریسکی — فعال‌سازی از تبِ ایمنی (act:flag) با capability-gate.</i>")
+         if (tab, key) == ("money", "governor"):
+             return ("🤖 <b>گاورنرِ LLM</b>" + self._DIV
+-                    + "🔴 قفل تا 2026-07-21 — تخصیصِ خودمتریک (allocate_llm) پشتِ گیتِ دوقفله.\n"
++                    + f"{self._activation_gate_line('ACTIVATION-GOVERNOR-LLM.flag')} — "
++                      "تخصیصِ خودمتریک (allocate_llm) پشتِ گیتِ دوقفله.\n"
+                     + "<i>هر فعال‌سازی فقط از کارتِ تأییدِ پول (token → settle) — هیچ triggerِ زودتر.</i>")
+         if (tab, key) == ("school", "awareness"):
+             s = rm.read_school() if rm else {}
+@@ -2333,7 +2633,8 @@ class TelegramApprovalChannel(ApprovalChannel):
+         if (tab, key) == ("safety", "llm"):
+             return ("🧭 <b>مسیرِ LLM</b>" + self._DIV
+                     + "host-allowlist + کلید فقط از env + قیمتِ قفل + no-fallback (I9/I10)\n"
+-                    + "مناظره: 🔴 پشتِ live-gate — topics فقط whitelist (topic-as-data).")
++                    + f"مناظره: {self._activation_gate_line('ACTIVATION-DEBATE.flag')} "
++                      "— topics فقط whitelist (topic-as-data).")
+         if (tab, key) == ("safety", "reentry"):
+             return self.reentry_packet()
+         if (tab, key) == ("alerts", "rules"):
+@@ -2354,10 +2655,18 @@ class TelegramApprovalChannel(ApprovalChannel):
+                     + (f"<pre>{html.escape(json.dumps(ch, ensure_ascii=False, indent=1)[:700])}</pre>"
+                        if ch else "🟡 chrono.db خوانا نیست (busy/نبود) — fail-soft"))
+         if (tab, key) == ("alerts", "channels"):
+-            c = (rm.read_channels() if rm else {}).get("channels") or {}
+-            lines = [f"• {html.escape(str(n))}: {'🟢' if i.get('live') else '🔴'} "
++            d = rm.read_channels() if rm else {}
++            c = d.get("channels") or {}
++            # 2026-07-15 راست‌گویی: این snapshot نویسندهٔ زنده ندارد — کهنه هرگز 🟢 نشان داده نمی‌شود.
++            stale = bool(d.get("_stale", True))
++            lines = [f"• {html.escape(str(n))}: "
++                     f"{'⚪' if stale else ('🟢' if i.get('live') else '🔴')} "
+                      f"{html.escape(str(i.get('mode', '')))}" for n, i in c.items()]
+-            return "📡 <b>کانال‌ها</b>" + self._DIV + ("\n".join(lines) or nod)
++            hdr = "📡 <b>کانال‌ها</b>"
++            if stale:
++                hdr += (f"  <i>⚠️ snapshotِ کهنه ({html.escape(str(d.get('_snapshot_ts', '?')))}) "
++                        f"— بی‌نویسنده، «زنده» نیست</i>")
++            return hdr + self._DIV + ("\n".join(lines) or nod)
+         if (tab, key) == ("alerts", "raw"):
+             st = rm.read_state() if rm else {}
+             raw = json.dumps(st, ensure_ascii=False, indent=1)[:1600]
+diff --git a/_ops/budget/cockpit_readmodel.py b/_ops/budget/cockpit_readmodel.py
+index 46a15d8..ceac9a9 100644
+--- a/_ops/budget/cockpit_readmodel.py
++++ b/_ops/budget/cockpit_readmodel.py
+@@ -135,13 +135,76 @@ class CockpitReadModel:
+         return _read_json(self.state / "phase-gate-state.json")
+ 
+     def read_channels(self) -> dict:
+-        return _read_json(self.state / "channel-status.json")
++        p = self.state / "channel-status.json"
++        d = _read_json(p)
++        # P1 راست‌گویی (2026-07-15): این snapshot نویسندهٔ زنده ندارد — متادیتای تازگی ضمیمه
++        # می‌شود تا هیچ خواننده‌ای آن را «زنده» رندر نکند. فقط snapshotِ دارای محتوا برچسب می‌خورد؛
++        # فایلِ غایب/خالی/خراب → {} دست‌نخورده (قراردادِ fail-soft، test_readmodel_failsoft).
++        if d:
++            try:
++                import os as _os, time as _t
++                _mt = _os.path.getmtime(p)
++                d["_snapshot_ts"] = _t.strftime("%Y-%m-%d %H:%M", _t.localtime(_mt))
++                d["_stale"] = (_t.time() - _mt) > 3600
++            except OSError:
++                d["_stale"] = True
++        return d
++
++    def read_truth_cards(self) -> list[dict]:
++        """کارت‌های راست‌گو (P1 2026-07-15): flag + writer + تازگیِ فایل، برای اجزای
++        flag-off/بی‌نویسنده. قانونِ کابین: 🟢 فقط برای فایلِ موجودِ تازه؛ غایب=⚫، کهنه=🟠."""
++        import os as _os
++        import time as _t
++
++        def _age_h(p):
++            try:
++                return (_t.time() - _os.path.getmtime(p)) / 3600.0
++            except OSError:
++                return None
++
++        cards = []
++        for cid, label, flag, rel, sla_h in (
++            ("structlog", "StructLog", "OCTOPUS_WIRE_STRUCTLOG", "octopus-log.jsonl", 24),
++            ("self_claims", "Self-claims", "CORTEX_SELF_MONITOR", "cortex/self-claims.jsonl", 24),
++            ("calibration", "Calibration", None, "cortex/calibration-latest.json", 24),
++            ("channel_status", "Channel-status", None, "channel-status.json", 1),
++            ("heart_shadow", "Heart (shadow)", "OCTOPUS_WIRE_HEART", "pulse/heart-shadow-latest.json", 1),
++        ):
++            age = _age_h(self.state / rel)
++            flag_on = (_os.environ.get(flag) == "1") if flag else None
++            if age is None:
++                icon = "⚫"
++                txt = "فایل نیست" + (" — فلگ خاموش" if flag and not flag_on else "")
++            elif age <= sla_h:
++                icon, txt = "🟢", f"تازه ({age:.1f}h)"
++            else:
++                icon, txt = "🟠", f"کهنه ({age / 24:.1f}d) — نویسندهٔ زنده ندارد؟"
++            cards.append({"id": cid, "label": label, "flag": flag, "flag_on": flag_on,
++                          "icon": icon, "status": txt, "age_h": age, "source": rel})
++        return cards
+ 
+     def read_lab(self) -> dict:
+         return _read_json(self.state / "lab_state.json")
+ 
+     def read_bundle(self) -> dict:
+-        return _read_json(self.state / "export" / "octopus-status-bundle.json")
++        """bundleِ export فقط وقتی برنده است که از فایل‌های زندهٔ منبع تازه‌تر باشد
++        (صداقتِ کابین پس از GO-LIVE، 2026-07-16): bundleِ کهنه هم‌زمان stale-as-green
++        و live-as-dead می‌ساخت. bundleِ کهنه‌تر از هر منبعِ زندهٔ موجود → {}
++        (مصرف‌کننده به fallbackِ live برمی‌گردد). fail-soft: خطای stat → رفتارِ قبلی."""
++        p = self.state / "export" / "octopus-status-bundle.json"
++        d = _read_json(p)
++        if not d:
++            return {}
++        try:
++            b_mt = p.stat().st_mtime
++            for live in ("ORGANISM-STATE.json", "replication-latest.json",
++                         "fitness-latest.json"):
++                lp = self.state / live
++                if lp.exists() and lp.stat().st_mtime > b_mt:
++                    return {}          # منبعِ زنده تازه‌تر است — bundle کنار می‌رود
++        except OSError:
++            pass
++        return d
+ 
+     def read_consolidation(self) -> dict:
+         return _read_json(self.ops / "neural" / "consolidation.json")
+@@ -158,9 +221,11 @@ class CockpitReadModel:
+         return _read_json(self.state / "cortex" / "upgrades-digest.json")
+ 
+     def read_cortex(self) -> dict:
+-        """جلسه ۴۶: مغزِ مرکزی (پروسهٔ جدا 8772) — state + آخرین فکرها. فقط‌خواندنی."""
+-        out = {"state": _read_json(self.state / "cortex" / "cortex-state.json"),
+-               "journal_tail": []}
++        """جلسه ۴۶: مغزِ مرکزی (پروسهٔ جدا 8772) — state + آخرین فکرها. فقط‌خواندنی.
++        صداقتِ GO-LIVE (2026-07-16): تازگی از mtimeِ فایل ضمیمه می‌شود (age_h/stale، >2h=کهنه)
++        تا مصرف‌کننده مغزِ مرده را «در حالِ فکر» رندر نکند — هم‌الگوی read_channels."""
++        sp = self.state / "cortex" / "cortex-state.json"
++        out = {"state": _read_json(sp), "journal_tail": []}
+         try:
+             jp = self.state / "cortex" / "journal.jsonl"
+             if jp.exists():
+@@ -169,6 +234,14 @@ class CockpitReadModel:
+                                        if x.strip()]
+         except (OSError, ValueError):
+             pass
++        if out["state"]:
++            try:
++                import os as _os, time as _t
++                age_h = (_t.time() - _os.path.getmtime(sp)) / 3600.0
++                out["age_h"] = round(age_h, 2)
++                out["stale"] = age_h > 2.0
++            except OSError:
++                out["stale"] = True    # ادعای تازگی بدونِ mtime ممنوع
+         return out
+ 
+     def read_heart(self) -> dict:
+diff --git a/_ops/cortex/goal_directed.py b/_ops/cortex/goal_directed.py
+index 6fc92da..af055cc 100644
+--- a/_ops/cortex/goal_directed.py
++++ b/_ops/cortex/goal_directed.py
+@@ -17,6 +17,7 @@ $0 · stdlib · fail-soft · propose-only (فقط بازچینش/حاشیه‌ن
+ from __future__ import annotations
+ 
+ import json
++import os
+ import re
+ import sys
+ from pathlib import Path
+@@ -29,6 +30,12 @@ import opslib  # noqa: E402
+ STATE = opslib.STATE_DIR
+ GOALS_PATH = opslib.OPS / "GOALS-OCTOPUS.md"
+ OUTCOMES = STATE / "cortex" / "outcomes.jsonl"
++# طرفِ «خود» برای واسنجیِ برخط — همان لِجِر و فلگِ self_model.emit_self_claims
++# (ORPH-SELF-CLAIMS): calibration_probe فقط می‌خواند؛ اینجا تولیدکنندهٔ دوم است.
++SELF_CLAIMS = STATE / "cortex" / "self-claims.jsonl"
++SELF_MONITOR_FLAG = "CORTEX_SELF_MONITOR"
++# متریک‌های برون‌دادیِ measure — کلیدِ مشترکِ baseline/بستار (یک منبعِ حقیقت).
++_METRIC_KEYS = ("confirmed_revenue", "revenue_cells", "total_discoveries")
+ 
+ # نشانه‌های «دایره‌ای» — بهبودِ خودِ ماشینِ سنجش، نه یک هدفِ واقعی.
+ _CIRCULAR = re.compile(
+@@ -116,7 +123,9 @@ def rerank(proposals: list[dict], *, max_circular: int = 2) -> dict:
+ 
+ def record_intent(top: list[dict]) -> None:
+     """نیتِ سنجش را ثبت کن (لوپ را ببند، غیرِدایره‌ای کن): هر پیشنهادِ صدر چه هدفی و چه
+-    متریکی را قرار است جابه‌جا کند + baseline. بعداً measure می‌گوید آیا شد."""
++    متریکی را قرار است جابه‌جا کند + baseline. بعداً measure می‌گوید آیا شد.
++    هم‌زمان (زیرِ فلگ) ادعای id-کلیددار صادر می‌شود تا با رکوردِ بستارِ measure
++    جفت شود — پیش از این، فضای نامِ ادعا و حقیقت disjoint بود (n=0 ابدی)."""
+     try:
+         base = _baseline_metrics()
+         OUTCOMES.parent.mkdir(parents=True, exist_ok=True)
+@@ -126,10 +135,43 @@ def record_intent(top: list[dict]) -> None:
+                     "ts": opslib.now_iso(), "id": p.get("id"),
+                     "title": p.get("title"), "serves_goal": p.get("serves_goal"),
+                     "impact": p.get("impact"), "baseline": base}, ensure_ascii=False) + "\n")
++        _emit_intent_claims(top[:3])
+     except OSError:
+         pass
+ 
+ 
++def _self_monitor_on() -> bool:
++    """فلگِ CORTEX_SELF_MONITOR روشن؟ (دقیقاً منطقِ self_model/calibration_probe)."""
++    v = str(os.environ.get(SELF_MONITOR_FLAG, "")).strip().lower()
++    return v not in ("", "0", "false", "no", "off")
++
++
++def _emit_intent_claims(top: list[dict]) -> None:
++    """برای هر نیتِ ثبت‌شده یک ادعای id-کلیددار به self-claims.jsonl الحاق کن —
++    الگوی self_model.emit_self_claims: زیرِ فلگ (خاموش = صفر نوشتن، byte-identical)،
++    fail-soft. key = همان idِ نیت؛ confidence = impact/3.0 (هم‌مقیاسِ probe)."""
++    if not _self_monitor_on():
++        return
++    try:
++        ts = opslib.now_iso()
++        for p in top:
++            pid = p.get("id")
++            if pid is None or not str(pid).strip():
++                continue                      # ادعای بی‌key گرید‌ناپذیر است → صادر نکن
++            try:
++                conf = max(0.0, min(1.0, float(p.get("impact") or 0.0) / 3.0))
++            except (ValueError, TypeError):
++                continue
++            opslib.append_jsonl(SELF_CLAIMS, {
++                "key": str(pid).strip(), "confidence": round(conf, 6), "ts": ts,
++                "source": "goal_directed", "schema": "self-claim.v1"})
++    except Exception as e:  # noqa: BLE001 — صدورِ ادعا هرگز record_intent را نمی‌کشد
++        try:
++            opslib.alert([f"goal_directed intent claims failed: {e}"])
++        except Exception:  # noqa: BLE001
++            pass
++
++
+ def _baseline_metrics() -> dict:
+     """متریک‌های برون‌دادیِ واقعی (نه خودمتریک): درآمد، کشف، σ."""
+     def _r(p):
+@@ -152,7 +194,9 @@ def _baseline_metrics() -> dict:
+ 
+ def measure() -> dict:
+     """آیا پیشنهادهای اخیر واقعاً متریکی را جابه‌جا کردند؟ (بستنِ لوپ — ضدِ دایره).
+-    اگر برون‌دادها ثابت مانده‌اند → سیگنالِ «کارِ خودبهبودی به هدف نمی‌رسد»."""
++    اگر برون‌دادها ثابت مانده‌اند → سیگنالِ «کارِ خودبهبودی به هدف نمی‌رسد».
++    بیتِ moved حالا persist هم می‌شود (رکوردِ بستار per-intent) — پیش از این محاسبه
++    می‌شد ولی هرگز نوشته نمی‌شد → calibration_probe ساختاراً کور بود (n=0)."""
+     now = _baseline_metrics()
+     try:
+         if not OUTCOMES.exists():
+@@ -160,12 +204,46 @@ def measure() -> dict:
+         rows = [json.loads(l) for l in OUTCOMES.read_text("utf-8").splitlines()[-20:] if l.strip()]
+     except (OSError, ValueError):
+         return {"tracked": 0, "moved": False, "now": now}
+-    if not rows:
++    # نیت (baseline دارد) از بستار (moved دارد) جدا — فایل حالا هر دو گونه را دارد.
++    intents = [r for r in rows if isinstance(r.get("baseline"), dict)]
++    if not intents:
+         return {"tracked": 0, "moved": False, "now": now}
+-    oldest = rows[0].get("baseline", {})
+-    moved = any(now.get(k, 0) > oldest.get(k, 0) for k in
+-                ("confirmed_revenue", "revenue_cells", "total_discoveries"))
+-    return {"tracked": len(rows), "moved": moved, "now": now, "since": oldest}
++    oldest = intents[0].get("baseline", {})
++    moved = any(now.get(k, 0) > oldest.get(k, 0) for k in _METRIC_KEYS)
++    _close_intents(intents, rows, now)
++    return {"tracked": len(intents), "moved": moved, "now": now, "since": oldest}
++
++
++def _close_intents(intents: list[dict], rows: list[dict], now: dict) -> None:
++    """بستارِ لوپِ واسنجی: برای هر نیتِ ارزیابی‌شده یک رکوردِ حقیقتِ دودویی
++    {ts, key, moved} به outcomes.jsonl الحاق کن — دقیقاً شِمایی که
++    calibration_probe._load_truth جفت می‌کند (key + فیلدِ دودوییِ moved).
++    فقط وقتی می‌نویسد که بیت نسبت به آخرین بستارِ همان key عوض شده باشد
++    (رشدِ کران‌دار؛ «تازه‌ترین حقیقت» در probe برنده است). fail-soft."""
++    try:
++        last: dict[str, bool] = {}
++        for r in rows:                        # آخرین بستارِ ثبت‌شده per key (به ترتیبِ فایل)
++            if "moved" in r and r.get("key"):
++                last[str(r["key"])] = bool(r["moved"])
++        ts = opslib.now_iso()
++        for r in intents:
++            rid = r.get("id")
++            if rid is None or not str(rid).strip():
++                continue                      # نیتِ بی‌id بستار‌پذیر نیست
++            rid = str(rid).strip()
++            base = r.get("baseline") or {}
++            moved_i = any(now.get(k, 0) > base.get(k, 0) for k in _METRIC_KEYS)
++            if last.get(rid) == moved_i:
++                continue                      # بیت عوض نشده → دوباره‌نویسی نکن
++            opslib.append_jsonl(OUTCOMES, {
++                "ts": ts, "key": rid, "moved": bool(moved_i),
++                "kind": "closure", "schema": "outcome-closure.v1"})
++            last[rid] = moved_i
++    except Exception as e:  # noqa: BLE001 — بستار هرگز measure را نمی‌کشد
++        try:
++            opslib.alert([f"goal_directed close_intents failed: {e}"])
++        except Exception:  # noqa: BLE001
++            pass
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/_ops/legs/accounting_leg.py b/_ops/legs/accounting_leg.py
+new file mode 100644
+index 0000000..0c201c1
+--- /dev/null
++++ b/_ops/legs/accounting_leg.py
+@@ -0,0 +1,80 @@
++#!/usr/bin/env python3
++"""accounting_leg.py — WP-F · LEG-01: پای Accounting (status صادق، بی‌PII).
++
++قرارداد مشترک: helperِ فقط‌خواندنیِ سطحِ ماژول:
++  accounting_status() -> {"leg","live","signal","note"}
++
++صداقت + خط‌قرمزِ PII: منبعِ دادهٔ واقعی (workbookهای xlsx در پوشهٔ Accounting) وجود دارد،
++ولی این‌ها PII دارند. مثلِ ingest_raw، این پا **هرگز** مقدار/ردیف/نام نمی‌خواند —
++فقط *وجود، تعداد و mtimeِ* workbookها (metadata، صفر مقدار). برنامه ۷ (صداقتِ پاها):
++live=True فقط وقتی تازه‌ترین workbook ≤ ACCT_MAX_AGE_DAYS روز لمس شده باشد —
++«داده جریان دارد»، نه «فایلی وجود دارد». سیگنال = تعدادِ workbook + کلیدِ افزودهٔ age_days.
++
++خط قرمز: صفر echoِ مقدار/نام، صفر منطقِ حساب‌داریِ جعلی، صفر side-effect، صفر secret.
++propose-only · $0 آفلاین · stdlib-only · منبعِ خام دست‌نخورده.
++"""
++from __future__ import annotations
++
++import json
++import sys
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++if str(_HERE) not in sys.path:
++    sys.path.insert(0, str(_HERE))
++try:
++    from leg_freshness import age_days, fresh
++except ImportError:                                       # fail-closed: سنِ نامعلوم → live=False
++    def age_days(_p):  # type: ignore[misc]
++        return None
++
++    def fresh(_p, _d):  # type: ignore[misc]
++        return False
++
++VAULT = _HERE.parents[1]                                  # _ops/legs → _ops → vault root
++# همان مسیرِ ingest_raw.ACCT (workbookهای مالی — PII؛ فقط شمارش/mtime، صفر خواندنِ مقدار)
++ACCT_DIR = VAULT / "03 - Projects" / "Accounting" / "data" / "حساب کتاب"
++# آستانهٔ تازگی: چرخهٔ دفترها ماهانه است — >~۳۵ روز دست‌نخورده یعنی داده جریان ندارد.
++ACCT_MAX_AGE_DAYS = 35.0
++
++
++def accounting_status() -> dict:
++    """snapshotِ فقط‌خواندنیِ وضعیتِ پای Accounting. هرگز crash نمی‌کند.
++    ⚠️ صفر مقدار/نام/عددِ مالی خوانده یا echo نمی‌شود — فقط تعداد + mtimeِ workbookها (metadata).
++    برنامه ۷: live=True فقط اگر تازه‌ترین workbook تازه باشد (fresh ≤ ACCT_MAX_AGE_DAYS)؛
++    age_days = سنِ تازه‌ترین workbook (گرد به ۰٫۱ روز، یا null). سیگنالِ بی‌PII."""
++    leg = "accounting"
++    adir = ACCT_DIR
++    try:
++        exists = adir.exists()
++    except OSError:
++        exists = False
++    if not exists:
++        return {"leg": leg, "live": False, "signal": "no-data", "age_days": None,
++                "note": "پوشهٔ Accounting پیدا نشد — skeleton، منتظرِ afferent/ingest."}
++    try:
++        wbs = list(adir.glob("*.xlsx"))
++    except OSError:
++        wbs = []
++    n_wb = len(wbs)
++    if n_wb > 0:
++        try:
++            newest = max(wbs, key=lambda p: p.stat().st_mtime)
++        except (OSError, ValueError):
++            newest = None
++        a = age_days(newest)
++        live = fresh(newest, ACCT_MAX_AGE_DAYS)
++        return {"leg": leg, "live": live, "signal": f"workbooks={n_wb}",
++                "age_days": round(a, 1) if a is not None else None,
++                "note": ("منبعِ مالی موجود — فقط تعداد/mtimeِ workbook دیده شد؛ "
++                         "صفر مقدار/نام/عدد خوانده شد (خط‌قرمزِ PII، فقط‌خواندنی). "
++                         + (f"دادهٔ تازه (≤{ACCT_MAX_AGE_DAYS:g} روز) — جریان دارد."
++                            if live else
++                            f"workbookها >{ACCT_MAX_AGE_DAYS:g} روز دست‌نخورده‌اند → "
++                            f"live=False (داده جریان ندارد)."))}
++    return {"leg": leg, "live": False, "signal": "empty", "age_days": None,
++            "note": "پوشهٔ Accounting هست ولی بدونِ workbook — skeleton."}
++
++
++if __name__ == "__main__":
++    print(json.dumps(accounting_status(), ensure_ascii=False, indent=2))
+diff --git a/_ops/legs/crypto_leg.py b/_ops/legs/crypto_leg.py
+new file mode 100644
+index 0000000..760f1ce
+--- /dev/null
++++ b/_ops/legs/crypto_leg.py
+@@ -0,0 +1,144 @@
++#!/usr/bin/env python3
++"""crypto_leg.py — WP-F · LEG-01: پای Crypto (status صادق، نه اتوماسیونِ جعلی).
++
++قرارداد مشترکِ ۴ پای جدید: این ماژول یک helperِ فقط‌خواندنی در سطحِ ماژول می‌دهد:
++  crypto_status() -> {"leg","live","signal","note"}
++
++صداقت: منبعِ دادهٔ واقعی (خروجیِ ingest_raw در پوشهٔ Crypto - etoro) را می‌خواند —
++snapshotهای cryptoquant/lunarcrush و آخرین فایلِ analysis. برنامه ۷ (صداقتِ پاها):
++live=True فقط وقتی داده *تازه* باشد (≤ CRYPTO_MAX_AGE_DAYS روز) — «داده جریان دارد»،
++نه «فایلی وجود دارد». سیگنال همچنان صادقانه گزارش می‌شود (buy/sell/hold از summaryِ
++analysis، دادهٔ بازار، بی‌PII) + کلیدِ افزودهٔ age_days (سنِ منبعِ سیگنال، یا null).
++
++خط قرمز: صفر منطقِ درآمد جعلی، صفر side-effectِ پول/ترید، صفر secret. فقط گزارشِ وضعیت.
++propose-only · $0 آفلاین · stdlib-only · منبعِ خام هرگز دست نمی‌خورد.
++"""
++from __future__ import annotations
++
++import json
++import re
++import sys
++from datetime import datetime
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++if str(_HERE) not in sys.path:
++    sys.path.insert(0, str(_HERE))
++try:
++    from leg_freshness import age_days
++except ImportError:                                       # fail-closed: سنِ نامعلوم → live=False
++    def age_days(_p):  # type: ignore[misc]
++        return None
++
++VAULT = _HERE.parents[1]                                  # _ops/legs → _ops → vault root
++# منبعِ دادهٔ واقعی (همان مسیرِ ingest_raw.CRYPTO؛ دادهٔ بازار، بی‌PII)
++CRYPTO_DIR = VAULT / "03 - Projects" / "Crypto - etoro"
++# آستانهٔ تازگی: بازارِ کریپتو روزانه است — دادهٔ >۷ روز یعنی pipeline خوابیده، نه زنده.
++CRYPTO_MAX_AGE_DAYS = 7.0
++
++
++_NAME_TS = re.compile(r"(\d{4})-(\d{2})-(\d{2})-(\d{2})-(\d{2})-(\d{2})")
++
++
++def _data_age_days(p: Path | None) -> float | None:
++    """سنِ *داده* به روز — اول تایم‌استمپِ داخلِ نامِ فایل (زمانِ واقعیِ ingest/analysis؛
++    mtime بعد از copy/checkout/touch دروغ می‌گوید — دیده شد analysisِ 2026-06-15 با mtimeِ
++    دیروز)، وگرنه fallback به mtime (leg_freshness.age_days). fail-soft None."""
++    if p is None:
++        return None
++    m = _NAME_TS.search(p.name)
++    if m:
++        try:
++            ts = datetime(*(int(g) for g in m.groups()))
++            a = (datetime.now() - ts).total_seconds() / 86400.0
++            return a if a >= 0.0 else 0.0
++        except ValueError:
++            pass
++    return age_days(p)
++
++
++def _latest_analysis(cdir: Path) -> Path | None:
++    """آخرین فایلِ cryptoquant_analysis_*.json (بر اساسِ نام که تایم‌استمپ‌دار است). fail-soft."""
++    try:
++        files = sorted(cdir.glob("cryptoquant_analysis_*.json"))
++    except OSError:
++        return None
++    return files[-1] if files else None
++
++
++def _analysis_signal(o: dict) -> str:
++    """سیگنالِ صادق از یک analysis JSON، robust به دو schema (دادهٔ بازار، بی‌PII):
++      * schemaِ signal-based:  summary.buy_signals/sell_signals/hold_signals → 'buy=.. sell=.. hold=..'
++      * schemaِ coverage-based: assets[] + completeness.pct + errors[] → 'assets=N pct=P errors=E'
++    اگر هیچ‌کدام نبود → صرفاً 'analysis-present' (باز هم صادق)."""
++    s = o.get("summary")
++    if isinstance(s, dict) and any(k in s for k in ("buy_signals", "sell_signals", "hold_signals")):
++        return (f"buy={s.get('buy_signals', '?')} "
++                f"sell={s.get('sell_signals', '?')} "
++                f"hold={s.get('hold_signals', '?')}")
++    assets = o.get("assets")
++    comp = o.get("completeness") or {}
++    if isinstance(assets, list) or comp:
++        n_assets = len(assets) if isinstance(assets, list) else "?"
++        pct = comp.get("pct", "?") if isinstance(comp, dict) else "?"
++        n_err = len(o.get("errors") or []) if isinstance(o.get("errors"), list) else 0
++        return f"assets={n_assets} completeness={pct}% errors={n_err}"
++    return "analysis-present"
++
++
++def crypto_status() -> dict:
++    """snapshotِ فقط‌خواندنیِ وضعیتِ پای Crypto. هرگز crash نمی‌کند (fail-soft کامل).
++    برنامه ۷: live=True فقط اگر منبعِ سیگنال تازه باشد (fresh ≤ CRYPTO_MAX_AGE_DAYS).
++    سیگنال = buy/sell/hold از آخرین analysis (دادهٔ بازار، بی‌PII) یا تعدادِ snapshotها؛
++    age_days = سنِ همان منبعی که سیگنال از آن آمد (گرد به ۰٫۱ روز، یا null). صفر ترید/پول."""
++    leg = "crypto"
++    cdir = CRYPTO_DIR
++    try:
++        exists = cdir.exists()
++    except OSError:
++        exists = False
++    if not exists:
++        return {"leg": leg, "live": False, "signal": "no-data", "age_days": None,
++                "note": "منبعِ دادهٔ Crypto پیدا نشد — skeleton، منتظرِ afferent/ingest."}
++
++    try:
++        snapshots = [p for p in (list(cdir.glob("cryptoquant_*.json"))
++                                 + list(cdir.glob("lunarcrush_*.json")))
++                     if "analysis" not in p.name]
++    except OSError:
++        snapshots = []
++    n_snap = len(snapshots)
++
++    ap = _latest_analysis(cdir)
++    if ap is not None:
++        try:
++            o = json.load(open(ap, encoding="utf-8"))
++            signal = _analysis_signal(o)
++            a = _data_age_days(ap)
++            live = a is not None and a <= CRYPTO_MAX_AGE_DAYS
++            note = (f"{n_snap} snapshot؛ آخرین analysis: {ap.name} "
++                    f"(بی‌PII، فقط‌خواندنی، صفر ترید). "
++                    + (f"دادهٔ تازه (≤{CRYPTO_MAX_AGE_DAYS:g} روز) — جریان دارد."
++                       if live else
++                       f"دادهٔ کهنه (>{CRYPTO_MAX_AGE_DAYS:g} روز) → live=False؛ "
++                       f"pipeline (ingest_raw) باید دوباره داده بیاورد."))
++            return {"leg": leg, "live": live, "signal": signal,
++                    "age_days": round(a, 1) if a is not None else None, "note": note}
++        except Exception:                                 # noqa: BLE001 — analysis خراب/ناقص
++            pass
++
++    if n_snap > 0:
++        ages = [x for x in (_data_age_days(p) for p in snapshots) if x is not None]
++        a = min(ages) if ages else None                   # تازه‌ترین داده، نه کهنه‌ترین
++        live = a is not None and a <= CRYPTO_MAX_AGE_DAYS
++        note = ("snapshotهای بازار موجود؛ فایلِ analysis خوانده نشد (فقط‌خواندنی). "
++                + ("دادهٔ تازه — جریان دارد." if live else
++                   f"snapshotها کهنه‌اند (>{CRYPTO_MAX_AGE_DAYS:g} روز) → live=False."))
++        return {"leg": leg, "live": live, "signal": f"snapshots={n_snap}",
++                "age_days": round(a, 1) if a is not None else None, "note": note}
++    return {"leg": leg, "live": False, "signal": "empty", "age_days": None,
++            "note": "پوشهٔ Crypto هست ولی خالی از snapshot — skeleton."}
++
++
++if __name__ == "__main__":
++    print(json.dumps(crypto_status(), ensure_ascii=False, indent=2))
+diff --git a/_ops/legs/knowledge_leg.py b/_ops/legs/knowledge_leg.py
+new file mode 100644
+index 0000000..e6a1d07
+--- /dev/null
++++ b/_ops/legs/knowledge_leg.py
+@@ -0,0 +1,64 @@
++#!/usr/bin/env python3
++"""knowledge_leg.py — WP-F · LEG-01: پای Knowledge (skeletonِ صادق، بدونِ منبعِ دادهٔ ماشینی).
++
++قرارداد مشترک: helperِ فقط‌خواندنیِ سطحِ ماژول:
++  knowledge_status() -> {"leg","live","signal","note"}
++
++صداقت: پوشهٔ 07 - Knowledge پر از نوتِ دانشِ انسانی است، ولی هیچ پایپ‌لاینِ afferent یا
++منبعِ دادهٔ ساختاریافته‌ای برای «پای Knowledge» به‌عنوان یک لِگِ بیزنسی سیم‌کشی نشده.
++پس live=False تا مالک business-spec بدهد (این پا چه سیگنالی باید تولید کند؟).
++برنامه ۷ (صداقتِ پاها): سنِ تازه‌ترین نوت (age_days، فقط stat) صادقانه گزارش می‌شود
++تا دیدنی باشد آخرین بار کی دانشی وارد شده.
++
++خط قرمز: هیچ سیگنالِ جعلی ساخته نمی‌شود. صفر side-effect، صفر secret. فقط گزارشِ صادقانه.
++propose-only · $0 آفلاین · stdlib-only.
++"""
++from __future__ import annotations
++
++import json
++import sys
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++if str(_HERE) not in sys.path:
++    sys.path.insert(0, str(_HERE))
++try:
++    from leg_freshness import age_days
++except ImportError:                                       # fail-soft: سنِ نامعلوم → null
++    def age_days(_p):  # type: ignore[misc]
++        return None
++
++VAULT = _HERE.parents[1]                                  # _ops/legs → _ops → vault root
++KNOWLEDGE_DIR = VAULT / "07 - Knowledge"
++
++
++def _newest_note(kdir: Path) -> Path | None:
++    """تازه‌ترین نوتِ markdown زیرِ پوشهٔ دانش (بر اساسِ mtime؛ فقط stat). fail-soft None."""
++    try:
++        notes = list(kdir.rglob("*.md"))
++        return max(notes, key=lambda p: p.stat().st_mtime) if notes else None
++    except (OSError, ValueError):
++        return None
++
++
++def knowledge_status() -> dict:
++    """snapshotِ فقط‌خواندنیِ وضعیتِ پای Knowledge. هرگز crash نمی‌کند.
++    منبعِ دادهٔ ماشینی/بیزنسی سیم‌کشی نشده → live=False (skeletonِ صادق)؛
++    age_days = سنِ تازه‌ترین نوتِ 07 - Knowledge (گرد به ۰٫۱ روز، یا null)."""
++    leg = "knowledge"
++    try:
++        has_notes = KNOWLEDGE_DIR.exists()
++    except OSError:
++        has_notes = False
++    a = age_days(_newest_note(KNOWLEDGE_DIR)) if has_notes else None
++    src = ("منبعِ دادهٔ واقعیِ بعدی: پایپ‌لاینِ afferent روی نوت‌های «07 - Knowledge» "
++           + (f"(تازه‌ترین نوت ≈ {a:.0f} روز پیش)." if a is not None else "(نوتی stat نشد)."))
++    note = (("skeleton — نوت‌های دانشِ انسانی هست ولی afferent/بیزنسی سیم‌کشی نشده. " if has_notes
++             else "skeleton — no data source wired yet. ")
++            + src + " نیازمندِ business-spec از مالک (این پا چه سیگنالی بدهد؟).")
++    return {"leg": leg, "live": False, "signal": "skeleton",
++            "age_days": round(a, 1) if a is not None else None, "note": note}
++
++
++if __name__ == "__main__":
++    print(json.dumps(knowledge_status(), ensure_ascii=False, indent=2))
+diff --git a/_ops/legs/leg_freshness.py b/_ops/legs/leg_freshness.py
+new file mode 100644
+index 0000000..7b1127f
+--- /dev/null
++++ b/_ops/legs/leg_freshness.py
+@@ -0,0 +1,41 @@
++#!/usr/bin/env python3
++"""leg_freshness.py — قراردادِ مشترکِ تازگیِ داده برای پاهای بیزنسی (برنامه ۷ — صداقتِ پاها).
++
++«live» یعنی «داده جریان دارد»، نه «فایلی وجود دارد». هر پا در status() خودش این دو
++helperِ فقط‌خواندنی را صدا می‌زند — ارزیابی در لحظهٔ فراخوانی (هرگز cacheِ سطحِ ماژول):
++
++  age_days(path)        -> float | None   سنِ mtime به روز؛ None اگر مسیر نبود/stat نشد (fail-soft)
++  fresh(path, max_days) -> bool           True فقط اگر سن معلوم و <= max_days (سنِ نامعلوم → False)
++
++خط قرمز: صفر side-effect، صفر خواندنِ محتوا (فقط stat — بی‌PII)، stdlib-only.
++"""
++from __future__ import annotations
++
++import time
++from pathlib import Path
++
++_DAY_S = 86400.0
++
++
++def age_days(path: Path | str | None) -> float | None:
++    """سنِ فایل/پوشه به روز، بر اساسِ mtime، محاسبه در لحظهٔ فراخوانی.
++
++    fail-soft: مسیرِ None/ناموجود/غیرقابل‌stat → None (هرگز exception).
++    mtimeِ آینده (ساعتِ کج) → 0.0 (سنِ منفی گزارش نمی‌شود)."""
++    if path is None:
++        return None
++    try:
++        mtime = Path(path).stat().st_mtime
++    except (OSError, ValueError):
++        return None
++    age = (time.time() - mtime) / _DAY_S
++    return age if age >= 0.0 else 0.0
++
++
++def fresh(path: Path | str | None, max_days: float) -> bool:
++    """True فقط وقتی سنِ داده معلوم و <= max_days باشد.
++
++    fail-closed برای صداقت: سنِ نامعلوم (فایلِ گمشده/خطای stat) → False، نه True —
++    «نمی‌دانم» هرگز «زنده» گزارش نمی‌شود."""
++    a = age_days(path)
++    return a is not None and a <= float(max_days)
+diff --git a/_ops/legs/mining_leg.py b/_ops/legs/mining_leg.py
+new file mode 100644
+index 0000000..5718fed
+--- /dev/null
++++ b/_ops/legs/mining_leg.py
+@@ -0,0 +1,63 @@
++#!/usr/bin/env python3
++"""mining_leg.py — WP-F · LEG-01: پای Mining (skeletonِ صادق، بدونِ منبعِ دادهٔ ماشینی).
++
++قرارداد مشترک: helperِ فقط‌خواندنیِ سطحِ ماژول:
++  mining_status() -> {"leg","live","signal","note"}
++
++صداقت: پروژهٔ Mining دادهٔ ماشینیِ واقعی دارد (تصمیم‌های coordinatorِ ربات‌ها در
++DECISIONS_PATH) ولی هیچ پایپ‌لاینِ afferent/scorerی به این پا سیم‌کشی نشده → live=False
++می‌ماند (scorerِ زنده جعل نمی‌شود). برنامه ۷ (صداقتِ پاها): سنِ همان منبعِ واقعی
++(age_days، فقط stat) صادقانه گزارش می‌شود تا راکد بودنِ داده دیدنی باشد.
++
++خط قرمز: صفر منطقِ درآمد/انرژیِ جعلی، صفر side-effect، صفر secret. فقط گزارشِ صادقانهٔ «هنوز خام».
++propose-only · $0 آفلاین · stdlib-only.
++"""
++from __future__ import annotations
++
++import json
++import sys
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++if str(_HERE) not in sys.path:
++    sys.path.insert(0, str(_HERE))
++try:
++    from leg_freshness import age_days
++except ImportError:                                       # fail-soft: سنِ نامعلوم → null
++    def age_days(_p):  # type: ignore[misc]
++        return None
++
++VAULT = _HERE.parents[1]                                  # _ops/legs → _ops → vault root
++# پوشهٔ پروژه (فقط اسنادِ انسانی؛ منبعِ دادهٔ ماشینی نیست)
++PROJECT_DIR = VAULT / "03 - Projects" / "Mining"
++# منبعِ دادهٔ ماشینیِ واقعیِ بعدی: تصمیم‌های coordinatorِ ربات‌های Ai (فقط stat، صفر خواندنِ محتوا)
++# مسیرِ واقعی (تأییدشده روی درختِ زنده): coordinator/data/decisions.jsonl
++DECISIONS_PATH = (VAULT / "03 - Projects" / "Mining" / "02 - Code" / "Ai bots"
++                  / "coordinator" / "data" / "decisions.jsonl")
++
++
++def mining_status() -> dict:
++    """snapshotِ فقط‌خواندنیِ وضعیتِ پای Mining. هرگز crash نمی‌کند.
++    scorer/afferent سیم‌کشی نشده → live=False (skeletonِ صادق)؛ ولی age_days سنِ
++    منبعِ دادهٔ واقعی (coordinator/data/decisions.jsonl) را صادقانه گزارش می‌کند."""
++    leg = "mining"
++    try:
++        has_docs = PROJECT_DIR.exists()
++    except OSError:
++        has_docs = False
++    a = age_days(DECISIONS_PATH)
++    if a is not None:
++        src = (f"منبعِ دادهٔ واقعیِ بعدی: «02 - Code/Ai bots/coordinator/data/decisions.jsonl» "
++               f"(سن ≈ {a:.0f} روز — راکد؛ تا جریانِ تازه، scorerِ زنده جعل نمی‌شود).")
++    else:
++        src = ("منبعِ دادهٔ واقعیِ بعدی: «02 - Code/Ai bots/coordinator/data/decisions.jsonl» — "
++               "فایل پیدا نشد.")
++    note = (("skeleton — اسنادِ پروژه هست ولی afferent/scorer سیم‌کشی نشده. " if has_docs else
++             "skeleton — no data source wired yet. ")
++            + src + " نیازمندِ business-spec از مالک (هش‌ریت/برق/سود).")
++    return {"leg": leg, "live": False, "signal": "skeleton",
++            "age_days": round(a, 1) if a is not None else None, "note": note}
++
++
++if __name__ == "__main__":
++    print(json.dumps(mining_status(), ensure_ascii=False, indent=2))
+diff --git a/_ops/legs/ziman_biology.py b/_ops/legs/ziman_biology.py
+new file mode 100644
+index 0000000..da24182
+--- /dev/null
++++ b/_ops/legs/ziman_biology.py
+@@ -0,0 +1,187 @@
++#!/usr/bin/env python3
++"""ziman_biology.py — اتصال زیستیِ پای Ziman به قلب، اعصاب و دکتر تکاملی.
++
++این ماژول یک adapter مشورتی است، نه effector:
++  Heart -> فقط rhythm/setpoint خوانده می‌شود؛ زیمان قلب را تغییر نمی‌دهد.
++  Nerves -> SignalHub یک NeuralSnapshot(advisory_only=True) می‌سازد.
++  Doctor -> فقط در anomaly یک RFC پیشنهاد می‌دهد؛ sandbox/human-append حاکم است.
++
++قوانین پذیرفته‌شده:
++  * STOP / protective mode مقدم است.
++  * sigma <= 1؛ sigma بالاتر anomaly بحرانی است.
++  * lambda_persist منفی؛ uptime/self-preservation هدف نیست.
++  * publish/send/spend/pay/deploy وجود ندارد.
++  * خروجی content-free و بدون PII/secret است.
++
++additive · stdlib-only · local · fail-closed
++"""
++from __future__ import annotations
++
++import json
++import math
++import sys
++from pathlib import Path
++from typing import Any
++
++_HERE = Path(__file__).resolve().parent
++_OPS = _HERE.parent
++for _p in (_OPS, _OPS / "budget", _OPS / "neural", _OPS / "doctor"):
++    if str(_p) not in sys.path:
++        sys.path.insert(0, str(_p))
++
++import opslib  # noqa: E402
++from signal_hub import SignalHub  # noqa: E402
++
++SCHEMA = "ziman-biology.v1"
++_HUB = SignalHub()
++
++
++def _read_json(path: Path) -> dict:
++    try:
++        value = json.loads(path.read_text("utf-8"))
++        return value if isinstance(value, dict) else {}
++    except (OSError, TypeError, ValueError):
++        return {}
++
++
++def heart_readmodel() -> dict:
++    """نمای فقط‌خواندنی قلب. هیچ write/setpoint در این مسیر وجود ندارد."""
++    shadow = _read_json(opslib.STATE_DIR / "pulse" / "heart-shadow-latest.json")
++    setpoint = _read_json(opslib.STATE_DIR / "pulse" / "heart-setpoint-latest.json")
++    try:
++        period = float(shadow.get("period_s"))
++        if not math.isfinite(period) or period <= 0:
++            period = None
++    except (TypeError, ValueError):
++        period = None
++    try:
++        sigma = shadow.get("sigma_now")
++        sigma = float(sigma) if sigma is not None else None
++        if sigma is not None and not math.isfinite(sigma):
++            sigma = None
++    except (TypeError, ValueError):
++        sigma = None
++    return {
++        "period_s": period,
++        "sigma_now": sigma,
++        "target_sigma": setpoint.get("target_sigma"),
++        "viable_band_lo": setpoint.get("viable_band_lo"),
++        "viable_band_hi": setpoint.get("viable_band_hi"),
++        "authority": "rhythm_only",
++        "ziman_can_write_heart": False,
++    }
++
++
++def health_assessment(ziman_status: dict | None, heart: dict | None = None) -> dict:
++    """تشخیص خالص و fail-closed؛ unknown را healthy فرض نمی‌کند."""
++    status = ziman_status if isinstance(ziman_status, dict) else {}
++    heart = heart if isinstance(heart, dict) else heart_readmodel()
++    anomalies: list[dict[str, Any]] = []
++
++    sigma = heart.get("sigma_now")
++    if sigma is not None and sigma > 1.0:
++        anomalies.append({"code": "SIGMA_CANCER_RISK", "severity": "critical"})
++
++    capacity = status.get("capacity_ceiling_per_week")
++    capacity_class = status.get("capacity_evidence_class", "UNVERIFIED")
++    if capacity in (None, 0) or capacity_class in ("UNVERIFIED", "CONFLICT", "UNKNOWN"):
++        anomalies.append({"code": "CAPACITY_UNVERIFIED", "severity": "high"})
++
++    if status.get("autonomy") != "propose-only":
++        anomalies.append({"code": "AUTONOMY_DRIFT", "severity": "critical"})
++    if status.get("execution_state") != "ZERO outward execution — drafts only":
++        anomalies.append({"code": "EXECUTION_BOUNDARY_DRIFT", "severity": "critical"})
++
++    critical = any(a["severity"] == "critical" for a in anomalies)
++    pain = min(1.0, sum(0.7 if a["severity"] == "critical" else 0.35 for a in anomalies))
++    return {
++        "healthy": not anomalies,
++        "critical": critical,
++        "pain_level": round(pain, 2),
++        "anomalies": anomalies,
++        "protective_mode": critical,
++    }
++
++
++def doctor_trace(assessment: dict) -> dict:
++    """نگاشت content-free به قرارداد Doctor.mine؛ هیچ دادهٔ مشتری عبور نمی‌کند."""
++    anomalies = assessment.get("anomalies") or []
++    sigma_risk = any(a.get("code") == "SIGMA_CANCER_RISK" for a in anomalies)
++    return {
++        "errors_24h": len(anomalies),
++        "effects_pending": 0,
++        "frozen": bool(assessment.get("protective_mode")),
++        "sigma_effective": 1.01 if sigma_risk else 0.0,
++        "ziman_codes": [a.get("code") for a in anomalies],
++        "scope": "ZIMAN",
++    }
++
++
++def collect_neural_snapshot(beat: int, status: dict, heart: dict,
++                            assessment: dict, doctor_result: dict | None = None) -> dict:
++    """زیمان را به SignalHub (نخاع) وصل می‌کند؛ snapshot فقط advisory است."""
++    snap = _HUB.collect(
++        beat=int(beat or 0),
++        rhythm={"period_s": heart.get("period_s"), "authority": "heart"},
++        sensory={
++            "leg_id": status.get("leg_id", "ziman-gallery"),
++            "organ": "ZIMAN",
++            "drafts_count": int(status.get("drafts_count") or 0),
++            "inventory_known": status.get("inventory_hint") is not None,
++        },
++        spectral={"sigma": heart.get("sigma_now")},
++        budget={"money_link": status.get("money_link")},
++        doctor=doctor_result or {"status": "not_due"},
++        pain_level=float(assessment.get("pain_level") or 0.0),
++    )
++    return snap.to_dict()
++
++
++def biology_beat(ziman_leg, beat: int = 0, doctor=None,
++                 doctor_every_n: int = 1440) -> dict | None:
++    """ضربان ترکیبی Ziman.
++
++    Doctor فقط وقتی anomaly هست و cadence سررسیده اجرا می‌شود. اگر doctor تزریق نشده
++    باشد، فقط trace تولید می‌شود (هیچ Doctor خودسرانه ساخته نمی‌شود).
++    """
++    if ziman_leg is None:
++        return None
++    if opslib.STOP_ORGANISM.exists() or opslib.halted():
++        return {"schema": SCHEMA, "halted": True, "reason": "STOP", "beat": beat}
++
++    status = ziman_leg.status_snapshot()
++    heart = heart_readmodel()
++    assessment = health_assessment(status, heart)
++    due = bool(assessment["anomalies"]) and (
++        doctor_every_n <= 0 or beat <= 0 or beat % doctor_every_n == 0
++    )
++    doctor_result = None
++    if due and doctor is not None:
++        try:
++            doctor_result = doctor.run_cycle(beat=int(beat or 0), trace=doctor_trace(assessment))
++        except Exception as exc:  # noqa: BLE001 — Doctor نباید limb را بکشد
++            doctor_result = {"status": "failed-soft", "error_type": type(exc).__name__}
++
++    neural = collect_neural_snapshot(beat, status, heart, assessment, doctor_result)
++    return {
++        "schema": SCHEMA,
++        "beat": int(beat or 0),
++        "organ": "ZIMAN",
++        "heart": heart,
++        "nerves": {
++            "connected": True,
++            "advisory_only": neural.get("advisory_only") is True,
++            "pain_level": neural.get("pain_level"),
++        },
++        "doctor": {
++            "due": due,
++            "connected": doctor is not None,
++            "result": doctor_result,
++            "auto_merge": False,
++            "human_append_required": True,
++        },
++        "assessment": assessment,
++        "propose_only": True,
++        "outward_execution": False,
++        "ziman_can_write_heart": False,
++    }
+diff --git a/_ops/legs/ziman_leg.py b/_ops/legs/ziman_leg.py
+index c82220a..2e0dfec 100644
+--- a/_ops/legs/ziman_leg.py
++++ b/_ops/legs/ziman_leg.py
+@@ -12,6 +12,9 @@
+   status_snapshot → inventory_report → draft_content → campaign_check
+   هر اثر بیرونی → human gate (Telegram / VERDICT_QUEUE)
+ 
++برنامهٔ ۸ (پلِ کاتالوگ): خانواده‌های واقعی از ziman-catalog.json (read-only، lazy،
++fail-soft) — نبود/خرابیِ کاتالوگ → دقیقاً رفتارِ قدیمِ C1–C4.
++
+ additive · $0 offline · stdlib-only · fail-closed
+ """
+ from __future__ import annotations
+@@ -41,6 +44,8 @@ except Exception:  # pragma: no cover — safety mirror
+         return int(ceiling) if owner_revalidated else min(int(ceiling), 6)
+ 
+ # مسیرهای ثابت vault (نسبی به ORG_ROOT) — فقط همین‌ها در allowlist
++ZIMAN_CATALOG_NOTE = "03 - Projects/Ziman Galerry/03-Offering/ziman-catalog.json"
++
+ ZIMAN_NOTES = (
+     "03 - Projects/Ziman Galerry/PROJECT.md",
+     "03 - Projects/Ziman Galerry/MANIFEST.yaml",
+@@ -53,9 +58,13 @@ ZIMAN_NOTES = (
+     "03 - Projects/Ziman Galerry/09-Agents/CONSTITUTION.md",
+     "03 - Projects/Ziman Galerry/10-Interfaces/BIOLOGY-CONTRACT.md",
+     "03 - Projects/Ziman Galerry/ziman-agent/ziman.yaml",
++    ZIMAN_CATALOG_NOTE,   # برنامهٔ ۸: پلِ کاتالوگ — read-only
+ )
+ 
+-# خانواده‌های محصول (C1–C4) — شناسهٔ پایدار، نه ادعا
++# خانواده‌های محصول — fallbackِ قدیمی (C1–C4)، فقط وقتی کاتالوگِ زمینی در دسترس نیست.
++# منبعِ حقیقت: ziman-catalog.json (۲۰۲۶-۰۷-۱۲، ساخته از ۴۱ عکس؛ خانواده‌های واقعی
++# F1_floral / F2_framed / F3_candy_basket / F4_mixed_hamper / OTHER). نبود/خرابیِ
++# کاتالوگ → دقیقاً رفتارِ قدیم با همین جدول (fail-soft، بدون کرش).
+ PRODUCT_FAMILIES = {
+     "C1": "Artificial floral arrangements",
+     "C2": "Gift baskets",
+@@ -63,6 +72,21 @@ PRODUCT_FAMILIES = {
+     "C4": "Chocolate hampers (local-only, perishable)",
+ }
+ 
++# پلِ سازگاری: کدهای قدیمیِ C1–C4 → خانواده‌های واقعیِ کاتالوگ (grounded در توضیحاتِ
++# هر دو تاکسونومی). فقط وقتی کاتالوگ لود شده اعمال می‌شود؛ فراخوانِ قدیمی نمی‌شکند.
++LEGACY_FAMILY_ALIAS = {
++    "C1": "F1_floral",         # آرایه‌های گلِ مصنوعی
++    "C2": "F3_candy_basket",   # سبدهای هدیه (شیرینی‌محور)
++    "C3": "F2_framed",         # قاب/شادوباکسِ گل
++    "C4": "F4_mixed_hamper",   # هَمپرِ شکلات/میکس (فاسدشدنی)
++}
++
++# heuristicِ الکل روی فیلد medium (کاتالوگ فیلد صریح alcohol ندارد؛ «wine» با \b
++# تا «twine» false-positive نشود؛ «champagne» عمداً حذف — در این دامنه اسمِ رنگ است).
++_ALCOHOL_RE = re.compile(
++    r"\b(alcohol|wine|liquor|liqueur|vodka|whisky|whiskey|beer|prosecco|brut)\b",
++    re.I)
++
+ HARD_GATED = frozenset({
+     "publish", "send", "dm", "spend", "pay", "refund",
+     "create_account", "change_public_price", "offer_discount",
+@@ -89,13 +113,18 @@ class ZimanLeg(Leg):
+ 
+     def __init__(self, packet: TaskPacket | None = None,
+                  organ_table: dict | None = None,
+-                 capacity_ceiling: int | None = None):
++                 capacity_ceiling: int | None = None,
++                 catalog_path: str | Path | None = None):
+         super().__init__(packet or default_packet(), organ_table=organ_table)
+         self._capacity_ceiling = capacity_ceiling  # None = از yaml/vault بخوان
+         # CF-06/CF-01: تا revalidation صریحِ مالک، سقفِ ظرفیت fail-closed می‌ماند (۶/هفته).
+         self._owner_revalidated = False
+         self._agent_root = self._resolve_agent_root()
+         self._biology_status: dict | None = None
++        # برنامهٔ ۸: پلِ کاتالوگ — تزریق‌پذیر برای تست؛ None = از opslib.ORG_ROOT در لحظهٔ فراخوان
++        self._catalog_path = catalog_path
++        self._catalog_cache: dict | None = None
++        self._catalog_mtime: float | None = None
+ 
+     # ─── مسیر agent ──────────────────────────────────────────────────────────
+     def _resolve_agent_root(self) -> Path | None:
+@@ -139,6 +168,112 @@ class ZimanLeg(Leg):
+         except (OSError, ValueError):
+             return None
+ 
++    # ─── پلِ کاتالوگ (برنامهٔ ۸) — read-only، lazy، fail-soft ────────────────
++    def _resolve_catalog_path(self) -> Path:
++        """مسیرِ کاتالوگ — تزریقی (تست) یا نسبی به opslib.ORG_ROOT در لحظهٔ فراخوان."""
++        if self._catalog_path is not None:
++            return Path(self._catalog_path)
++        try:
++            import opslib  # noqa: WPS433 — lazy تا env تست اثر کند
++            root = Path(opslib.ORG_ROOT)
++        except Exception:  # noqa: BLE001
++            root = Path(r"F:\backup")
++        return root / ZIMAN_CATALOG_NOTE
++
++    def _load_catalog(self) -> dict | None:
++        """کاتالوگِ زمینیِ زیمان (ziman-catalog.json). نبود/خرابی/خارجِ allowlist → None
++        (fail-soft: دقیقاً رفتارِ قدیمِ C1–C4، هرگز کرش). cacheِ per-instance با چکِ mtime."""
++        try:
++            if not self.packet.can_read(ZIMAN_CATALOG_NOTE):
++                return None                                    # خارجِ allowlist = رد (D2)
++            p = self._resolve_catalog_path()
++            if not p.exists():
++                return None
++            mtime = p.stat().st_mtime
++            if self._catalog_cache is not None and self._catalog_mtime == mtime:
++                return self._catalog_cache
++            # utf-8-sig: فایلِ واقعی BOM دارد (خروجی PowerShell)؛ بدونِ BOM هم سالم می‌خواند.
++            data = json.loads(p.read_text(encoding="utf-8-sig", errors="replace"))
++            prods = data.get("products") if isinstance(data, dict) else None
++            if not isinstance(prods, list) or not prods:
++                return None                                    # شکلِ نامعتبر = fail-soft
++            self._catalog_cache = data
++            self._catalog_mtime = mtime
++            return data
++        except (OSError, ValueError, TypeError):
++            return None
++
++    def _catalog_families(self) -> dict | None:
++        """جمع‌بندیِ per-family از کاتالوگ:
++        {family: {count, perishable_count, alcohol_suspect_count, edible:{...}}}
++        perishable = فیلدِ صریحِ bool کاتالوگ؛ alcohol_suspect = heuristic روی medium؛
++        edible = شمارشِ فیلدِ صریحِ edible. کاتالوگ نبود → None."""
++        cat = self._load_catalog()
++        if not cat:
++            return None
++        fams: dict[str, dict] = {}
++        for prod in cat.get("products", []):
++            if not isinstance(prod, dict):
++                continue
++            fam = str(prod.get("family") or "UNKNOWN")
++            rec = fams.setdefault(fam, {"count": 0, "perishable_count": 0,
++                                        "alcohol_suspect_count": 0, "edible": {}})
++            rec["count"] += 1
++            if prod.get("perishable") is True:
++                rec["perishable_count"] += 1
++            media = prod.get("medium") or []
++            if isinstance(media, list) and any(
++                    _ALCOHOL_RE.search(str(m)) for m in media):
++                rec["alcohol_suspect_count"] += 1
++            ed = str(prod.get("edible") or "unknown")
++            rec["edible"][ed] = rec["edible"].get(ed, 0) + 1
++        return fams or None
++
++    def product_families(self) -> dict:
++        """خانواده‌های فعال {id: name} — از کاتالوگِ واقعی (مرتب به تعدادِ محصول)؛
++        نبودِ کاتالوگ → دقیقاً جدولِ قدیمیِ C1–C4."""
++        fams = self._catalog_families()
++        if fams:
++            ordered = sorted(fams, key=lambda f: (-fams[f]["count"], f))
++            return {k: k for k in ordered}
++        return dict(PRODUCT_FAMILIES)
++
++    def _resolve_family(self, requested) -> str:
++        """نگاشتِ خانوادهٔ درخواستی به خانوادهٔ فعال؛ کدِ قدیمیِ C* از راهِ alias.
++        ناشناخته → پیش‌فرضِ قدیم (C3 یا aliasِ آن F2_framed)."""
++        fams = self.product_families()
++        if requested in fams:
++            return requested
++        alias = LEGACY_FAMILY_ALIAS.get(str(requested), "")
++        if alias in fams:
++            return alias
++        if "C3" in fams:
++            return "C3"
++        default_alias = LEGACY_FAMILY_ALIAS.get("C3", "")
++        if default_alias in fams:
++            return default_alias
++        return next(iter(fams))
++
++    def _catalog_summary(self) -> dict:
++        """بلوکِ additive «catalog» برای status/inventory — هرگز کلیدِ قدیمی را عوض نمی‌کند."""
++        fams = self._catalog_families()
++        if not fams:
++            return {"loaded": False, "source": None, "evidence_class": "UNKNOWN"}
++        return {
++            "loaded": True,
++            "source": ZIMAN_CATALOG_NOTE,
++            "product_count": sum(v["count"] for v in fams.values()),
++            "family_counts": {k: fams[k]["count"]
++                              for k in self.product_families()},
++            "perishable_products": sum(v["perishable_count"] for v in fams.values()),
++            "alcohol_suspect_products": sum(v["alcohol_suspect_count"]
++                                            for v in fams.values()),
++            "flags_note": ("perishable = فیلدِ صریحِ کاتالوگ؛ alcohol_suspect = "
++                           "heuristic روی medium؛ licensed: فیلدی در کاتالوگ ندارد "
++                           "(رجوع: data_gaps خودِ کاتالوگ)."),
++            "evidence_class": "GROUNDED",
++        }
++
+     # ─── D4 capacity ─────────────────────────────────────────────────────────
+     def campaign_check(self, requested_units: int,
+                        horizon_weeks: int = 1) -> dict:
+@@ -213,7 +348,8 @@ class ZimanLeg(Leg):
+                 ceiling, self._owner_revalidated),            # سقفِ محتاطانه‌ای که واقعاً اعمال می‌شود
+             "inventory_hint": inv,
+             "inventory_evidence_class": "UNVERIFIED" if inv is not None else "UNKNOWN",
+-            "product_families": list(PRODUCT_FAMILIES.keys()),
++            "product_families": list(self.product_families().keys()),
++            "catalog": self._catalog_summary(),   # additive — برنامهٔ ۸
+             "drafts_count": drafts_n,
+             "autonomy": "propose-only",
+             "hard_gated": sorted(HARD_GATED),
+@@ -245,18 +381,37 @@ class ZimanLeg(Leg):
+     # ─── inventory report (proposal) ─────────────────────────────────────────
+     def inventory_report(self, family_counts: dict | None = None) -> Proposal:
+         """گزارش موجودی — proposal، نه canonical write.
+-        family_counts: optional {C1: n, C2: n, ...} از مالک/اپراتور.
++        family_counts: optional {family: n} از مالک/اپراتور (کدِ قدیمیِ C* هم با alias
++        پذیرفته می‌شود وقتی کاتالوگ فعال است). با کاتالوگ: شمارشِ واقعیِ per-family +
++        پرچم‌های perishable/alcohol_suspect/edible (additive؛ کلیدهای قدیم دست‌نخورده).
+         """
+         counts = dict(family_counts or {})
+-        unknown = [k for k in counts if k not in PRODUCT_FAMILIES]
++        cat_fams = self._catalog_families()
++        fams_active = self.product_families()
++        resolved: dict = {}
++        unknown = []
++        for k, v in counts.items():
++            key = k if k in fams_active else (
++                LEGACY_FAMILY_ALIAS.get(str(k), "") if cat_fams else "")
++            if key in fams_active:
++                resolved[key] = v
++            else:
++                unknown.append(k)
++        families = {}
++        for k, name in fams_active.items():
++            entry: dict = {"name": name, "count": resolved.get(k)}
++            if cat_fams:                       # پرچم‌های زمینی — فقط additive
++                rec = cat_fams.get(k, {})
++                entry["catalog_count"] = rec.get("count", 0)
++                entry["perishable_count"] = rec.get("perishable_count", 0)
++                entry["alcohol_suspect_count"] = rec.get("alcohol_suspect_count", 0)
++                entry["edible"] = dict(rec.get("edible", {}))
++            families[k] = entry
+         payload = {
+             "draft_only": True,
+             "inventory_hint": self._load_inventory_hint(),
+             "capacity_ceiling": self._load_yaml_capacity(),
+-            "families": {
+-                k: {"name": v, "count": counts.get(k)}
+-                for k, v in PRODUCT_FAMILIES.items()
+-            },
++            "families": families,
+             "unknown_keys_rejected": unknown,
+             "canonical_write": False,
+             "capacity_public_claim_allowed": False,
+@@ -264,7 +419,11 @@ class ZimanLeg(Leg):
+             "price_authority": False,
+             "note": ("50 physical products reported by owner is NOT "
+                      "necessarily 50 SKUs and NOT weekly capacity."),
+-            "next_step": "Owner classifies into C1–C4 then SKU cards",
++            "next_step": (("Owner confirms catalog families ("
++                           + ", ".join(fams_active) + ") then SKU cards")
++                          if cat_fams else
++                          "Owner classifies into C1–C4 then SKU cards"),
++            "catalog": self._catalog_summary(),   # additive — برنامهٔ ۸
+         }
+         return self.emit_proposal("inventory_report", payload)
+ 
+@@ -284,8 +443,10 @@ class ZimanLeg(Leg):
+         if not gate["approved"] and campaign_units > 0:
+             return {"ok": False, "error": "D4_REJECT", "gate": gate}
+ 
+-        family = product_family if product_family in PRODUCT_FAMILIES else "C3"
+-        product_name = PRODUCT_FAMILIES[family]
++        fams_active = self.product_families()
++        cat_fams = self._catalog_families() or {}
++        family = self._resolve_family(product_family)
++        product_name = fams_active[family]
+ 
+         # قواعد برند سخت: هیچ عدد ظرفیت/قیمت/پرداخت/تحویل عمومی تا تأیید مالک.
+         # legacy ziman.yaml ممکن است 30/week داشته باشد، اما status آن CONFLICT است؛
+@@ -297,13 +458,22 @@ class ZimanLeg(Leg):
+             "ظرفیت، قیمت، روش پرداخت و زمان تحویل فقط بعد از تأیید مالک اعلام می‌شود.",
+             "این پیش‌نویس است — انتشار فقط با تأیید انسانی.",
+         ]
+-        if family == "C4":
+-            body_lines.append("⚠️ C4 فاسدشدنی: فقط تحویل/پیکاپ محلی — بدون ارسال دور.")
++        rec = cat_fams.get(family)
++        if family == "C4" or (rec and rec.get("perishable_count", 0) > 0):
++            # فاسدشدنی: قدیم فقط C4 هاردکد بود؛ با کاتالوگ از فیلدِ perishable مشتق می‌شود.
++            body_lines.append(
++                f"⚠️ {family} فاسدشدنی: فقط تحویل/پیکاپ محلی — بدون ارسال دور.")
++        if rec and rec.get("alcohol_suspect_count", 0) > 0:
++            body_lines.append(
++                "⚠️ برخی آیتم‌های این خانواده مشکوک به الکل (heuristic روی medium) — "
++                "محدودیت سنی/حمل؛ فقط با تأیید مالک.")
+ 
+         payload = {
+             "draft_only": True,
+             "kind": kind,
+             "product_family": family,
++            "requested_family": product_family,                       # additive
++            "family_source": "catalog" if cat_fams else "legacy_fallback",  # additive
+             "occasion": occasion,
+             "body": "\n".join(body_lines),
+             "brand_rules": [
+diff --git a/_ops/organism.py b/_ops/organism.py
+index c4ef34f..2c5c630 100644
+--- a/_ops/organism.py
++++ b/_ops/organism.py
+@@ -252,6 +252,8 @@ def main() -> int:
+     next_epoch_at = 0.0
+     last_daily = ""
+     last_heartbeat = 0.0
++    _ziman_last = None   # 2026-07-16 برنامه ۷: کشِ آخرین statusِ زیمان — کارت دیگر ۵۹/۶۰ تاریک نیست
++
+     while True:
+         _protective_skip = False   # آیا این تیک کارِ غیرضروری را skip کند؟ (protective-halt، enforceِ واقعی)
+         _heart_status = None       # HH-P5: پیش از try تعریف می‌شود تا بلوکِ _sleep_s (بیرونِ try) هرگز NameError نخورد
+@@ -436,6 +438,7 @@ def main() -> int:
+                         doctor=_doctor_inst)
+                 except Exception as _ze:  # noqa: BLE001 — limb نباید tick را بکشد
+                     opslib.alert([f"ziman_beat error (non-fatal): {type(_ze).__name__}: {_ze}"])
++            _ziman_last = _ziman_status or _ziman_last   # برنامه ۷: کش برای رایت‌های off-beat
+ 
+             # ── Cartographer limb: read-only map-staleness sentinel. پشتِ
+             # OCTOPUS_WIRE_CARTOGRAPHER (پیش‌فرض خاموش) → None تا فعال‌سازیِ مالک. inert.
+@@ -532,7 +535,7 @@ def main() -> int:
+                           **pulse, **prot_state,
+                           "protective_skip": _protective_skip, "wiring": _wire,
+                           **({"leg": _leg_status} if _leg_status else {}),
+-                          **({"ziman": _ziman_status} if _ziman_status else {}),
++                          **({"ziman": (_ziman_status or _ziman_last)} if (_ziman_status or _ziman_last) else {}),
+                           **({"cartographer": _cartographer_status} if _cartographer_status else {}),
+                           **({"business_legs": _biz_legs} if _biz_legs else {}),
+                           **({"lead_discovery": _lead_disc} if _lead_disc else {}),
+diff --git a/_ops/tests/run_all.py b/_ops/tests/run_all.py
+index 3962545..916e35e 100644
+--- a/_ops/tests/run_all.py
++++ b/_ops/tests/run_all.py
+@@ -85,6 +85,18 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
+          # 2026-07-16: نقشهٔ لید مراحل ۳-۵ (پلِ ایمیل، غنی‌سازیِ LLM، پیش‌فاکتورِ واقعی)
+          "test_email_lead_bridge.py", "test_lead_llm_enrich.py",
+          "test_lead_quote_chain.py",
++         # 2026-07-16: ثبتِ یتیم‌های تأییدشده (برنامه ۳) — هر سه سبزِ ایزوله در worktree.
++         # ثبت‌نشده‌های عمداً کنارگذاشته: test_mining_leg/test_mining_wiring (phantom —
++         # MiningLeg دومغزی و wiring.make_mining_leg در این درخت وجود ندارد)،
++         # test_drawdown_enforcer (phantom — budget_gate.DRAWDOWN_LOG/drawdown_status نیست)،
++         # test_effector_idempotency (phantom — EffectorGate.request_idempotent نیست)،
++         # test_durable_journal (قرمزِ واقعی: تست پوشهٔ state/journal را نمی‌سازد و
++         # record(path=…) برخلاف _default_path هرگز mkdir نمی‌کند → fail-soft همه را می‌بلعد).
++         "test_ui_truth.py", "test_organ_console.py", "test_organ_create.py",
++         # 2026-07-16: موجِ ده‌برنامه — کالیبراسیون (برنامه ۶) + صداقتِ کابین پس از GO-LIVE (برنامه ۹)
++         "test_calibration_loop.py", "test_cockpit_golive_honesty.py",
++         "test_legs_freshness.py",   # برنامه ۷: صداقتِ تازگیِ پاها
++         "test_ziman_catalog_bridge.py",   # برنامه ۸: پلِ کاتالوگِ زیمان
+          ]
+ # تست‌های خارج از _ops/tests/ (path tuyệtق)
+ EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
+diff --git a/_ops/tests/test_baseline.py b/_ops/tests/test_baseline.py
+index 295d9e2..67d72ad 100644
+--- a/_ops/tests/test_baseline.py
++++ b/_ops/tests/test_baseline.py
+@@ -43,12 +43,19 @@ def _make_fake_state(state_dir: Path) -> None:
+ 
+ 
+ def _make_fake_ops(ops_dir: Path) -> None:
+-    """فایل‌های پولی ساختگی برای fingerprint."""
++    """فایل‌های پولی ساختگی برای fingerprint — با چیدمانِ واقعی.
++
++    DUP-01: قبلاً این fixture یک budget/budget_gate.py جعلی می‌ساخت که سوراخِ
++    «مسیرِ ناموجود، ساکت رد می‌شود» را ماسک می‌کرد؛ حالا enforcerِ واقعی در همان
++    جایی شبیه‌سازی می‌شود که در live است: <root>/04 - Architect System/scripts/."""
+     budget_dir = ops_dir / "budget"
+     budget_dir.mkdir(parents=True, exist_ok=True)
+     for name in ("money_gate.py", "capability_gate.py",
+-                 "organ_gate.py", "budget_gate.py", "fitness.py"):
++                 "organ_gate.py", "fitness.py"):
+         (budget_dir / name).write_text(f"# {name}\n", "utf-8")
++    scripts = ops_dir.parent / "04 - Architect System" / "scripts"
++    scripts.mkdir(parents=True, exist_ok=True)
++    (scripts / "budget_gate.py").write_text("# budget_gate (real enforcer)\n", "utf-8")
+ 
+ 
+ # ── تست‌ها ──────────────────────────────────────────────────────────────────────
+@@ -183,6 +190,43 @@ def t_compare_missing_baseline():
+     assert result["verdict"] == "baseline-file-not-found"
+ 
+ 
++def t_root_enforcer_change_changes_fingerprint():
++    """DUP-01 (i): تغییرِ enforcerِ واقعی scripts/budget_gate.py باید money_fingerprint را عوض کند."""
++    with tempfile.TemporaryDirectory() as td:
++        sd = Path(td) / "state"
++        od = Path(td) / "ops"
++        _make_fake_state(sd)
++        _make_fake_ops(od)
++        path = baseline.capture_baseline("t", "pre", state_dir=sd, ops_dir=od)
++        gate = od.parent / "04 - Architect System" / "scripts" / "budget_gate.py"
++        gate.write_text("# TAMPERED!\n", "utf-8")
++        result = baseline.compare_baseline(path, state_dir=sd, ops_dir=od)
++        assert result["money_changed"] is True, result
++        assert result["verdict"] == "money-code-changed"
++
++
++def t_missing_money_file_changes_fingerprint_and_alerts():
++    """DUP-01 (ii): فایلِ پولیِ غایب = sentinel در blob (تغییرِ fingerprint) + opslib.alert — نه skipِ ساکت."""
++    import opslib
++    ops = Path(ENV["ops"])            # opsِ واقعیِ هارنس (tmp) → گیتِ alert باز است
++    _make_fake_ops(ops)               # enforcer را هم در <root>/04.../scripts می‌سازد
++    sd = ops / "state"
++    _make_fake_state(sd)
++    gate = ops.parent / "04 - Architect System" / "scripts" / "budget_gate.py"
++    old_scripts = opslib.SCRIPTS
++    opslib.SCRIPTS = gate.parent      # fallback هم به tmp اشاره کند، نه scripts واقعی
++    try:
++        path = baseline.capture_baseline("t", "pre", state_dir=sd, ops_dir=ops)
++        gate.unlink()                 # enforcer ناپدید شد
++        result = baseline.compare_baseline(path, state_dir=sd, ops_dir=ops)
++    finally:
++        opslib.SCRIPTS = old_scripts
++    assert result["money_changed"] is True, result
++    assert result["verdict"] == "money-code-changed"
++    txt = opslib.ALERTS_MD.read_text("utf-8") if opslib.ALERTS_MD.is_file() else ""
++    assert "budget_gate.py" in txt and "غایب" in txt, f"هشدارِ بلند ثبت نشد: {txt[:200]!r}"
++
++
+ if __name__ == "__main__":
+     failed = harness.run([
+         ("capture فایل می‌سازد", t_capture_creates_file),
+@@ -194,5 +238,9 @@ if __name__ == "__main__":
+         ("pre-register threshold رد", t_pre_register_fail_above_threshold),
+         ("get_all_baselines", t_get_all_baselines),
+         ("baseline ناموجود = fail", t_compare_missing_baseline),
++        ("DUP-01: تغییرِ enforcerِ ریشه fingerprint را عوض می‌کند",
++         t_root_enforcer_change_changes_fingerprint),
++        ("DUP-01: فایلِ غایب = fingerprint نو + هشدارِ بلند",
++         t_missing_money_file_changes_fingerprint_and_alerts),
+     ])
+     sys.exit(1 if failed else 0)
+diff --git a/_ops/tests/test_calibration_loop.py b/_ops/tests/test_calibration_loop.py
+new file mode 100644
+index 0000000..8673dde
+--- /dev/null
++++ b/_ops/tests/test_calibration_loop.py
+@@ -0,0 +1,142 @@
++"""test_calibration_loop.py — تعمیرِ لوپِ واسنجی (برنامه ۶، 2026-07-16).
++
++مسئله: واسنجیِ خود ساختاراً کور بود (n=0 ابدی) — record_intent رکوردِ بی‌بیت
++می‌نوشت، measure بیتِ moved را محاسبه می‌کرد ولی هرگز persist نمی‌کرد، و تنها
++key ادعا («self_model.coherence») با هیچ حقیقتی جفت نمی‌شد (فضای نامِ disjoint).
++
++اثبات می‌کند (بدونِ هیچ تغییری در calibration_probe — عمداً):
++  * measure() حالا رکوردِ بستار {ts, key, moved} به outcomes.jsonl الحاق می‌کند.
++  * record_intent زیرِ CORTEX_SELF_MONITOR ادعای id-کلیددار صادر می‌کند —
++    key ادعا == key حقیقت → جفت‌سازیِ probe کار می‌کند (n>0).
++  * فلگ خاموش (پیش‌فرض) → صفر نوشتنِ ادعا (byte-identical).
++  * بستار کران‌دار است: بیتِ بی‌تغییر دوباره نوشته نمی‌شود؛ بیتِ عوض‌شده
++    به‌روزرسانی می‌شود («تازه‌ترین حقیقت» در probe برنده است).
++
++صفر نوشتن روی مسیرهای زنده: harness.setup همهٔ stateها را به tmp می‌برد.
++اجرا: REAL_VAULT=<worktree> PYTHONIOENCODING=utf-8 python test_calibration_loop.py
++"""
++from __future__ import annotations
++
++import json
++import os
++import sys
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(_HERE.parent))
++sys.path.insert(0, str(_HERE.parent / "budget"))
++sys.path.insert(0, str(_HERE.parent / "cortex"))
++
++import harness
++ENV = harness.setup("calibration-loop")
++
++import goal_directed as gd       # noqa: E402
++import calibration_probe as cp   # noqa: E402
++import opslib                    # noqa: E402
++
++
++def _flag(on: bool) -> None:
++    if on:
++        os.environ["CORTEX_SELF_MONITOR"] = "1"
++    else:
++        os.environ.pop("CORTEX_SELF_MONITOR", None)
++
++
++def _seed_fitness(confirmed: int, cells: dict | None = None) -> None:
++    with opslib.LockedJson(opslib.STATE_DIR / "fitness-latest.json") as lj:
++        lj.write({"attribution": {"confirmed": confirmed,
++                                  "revenue_by_cell": cells or {}}})
++
++
++def _outcome_rows() -> list[dict]:
++    if not gd.OUTCOMES.exists():
++        return []
++    return [json.loads(ln) for ln in
++            gd.OUTCOMES.read_text("utf-8").splitlines() if ln.strip()]
++
++
++def _closures(key: str) -> list[dict]:
++    return [r for r in _outcome_rows() if r.get("key") == key and "moved" in r]
++
++
++def t_a_closure_persisted_flag_off_no_claims():
++    """measure بیتِ moved را persist می‌کند (بی‌قید)؛ فلگ خاموش → صفر ادعا."""
++    _flag(False)
++    _seed_fitness(0)
++    gd.record_intent([{"id": "flagoff-1", "title": "لیدِ نقاشی",
++                       "serves_goal": "درآمد", "impact": 3.0}])
++    m = gd.measure()
++    assert m["tracked"] >= 1 and m["moved"] is False, m
++    cl = _closures("flagoff-1")
++    assert cl, "رکوردِ بستار نوشته نشد"
++    assert isinstance(cl[-1]["moved"], bool) and cl[-1]["moved"] is False
++    # فلگ خاموش → لِجِرِ ادعا حتی ساخته نمی‌شود (byte-identical)
++    assert not gd.SELF_CLAIMS.exists(), "فلگ خاموش ولی ادعا نوشته شد"
++
++
++def t_b_flag_on_claim_key_matches_truth_key():
++    """زیرِ فلگ: ادعای id-کلیددار صادر می‌شود و با حقیقتِ بستار هم‌فضا است."""
++    _flag(True)
++    try:
++        gd.record_intent([{"id": "cal-1", "title": "لیدِ Ziman",
++                           "serves_goal": "درآمد", "impact": 3.0}])
++        assert gd.SELF_CLAIMS.exists(), "فلگ روشن ولی ادعایی نوشته نشد"
++        rows = [json.loads(ln) for ln in
++                gd.SELF_CLAIMS.read_text("utf-8").splitlines() if ln.strip()]
++        rec = [r for r in rows if r.get("key") == "cal-1"]
++        assert rec, f"ادعای cal-1 غایب: {rows}"
++        assert 0.0 <= float(rec[-1]["confidence"]) <= 1.0
++        gd.measure()                          # بستار برای cal-1 نوشته می‌شود
++        truth = cp._load_truth()
++        assert "cal-1" in truth, f"حقیقتِ cal-1 غایب: {sorted(truth)}"
++        assert truth["cal-1"]["y"] in (0, 1)
++    finally:
++        _flag(False)
++
++
++def t_c_probe_pairs_n_gt_0_and_truth_refreshes():
++    """کلِ لوپ: probe جفت پیدا می‌کند (n>0)؛ حرکتِ درآمد → y به 1 تازه می‌شود."""
++    _flag(True)
++    try:
++        _seed_fitness(0)
++        gd.record_intent([{"id": "cal-2", "title": "لیدِ نقاشی",
++                           "serves_goal": "درآمد", "impact": 3.0}])
++        gd.measure()                          # بستار: moved=False → y=0
++        res = cp.probe(persist=False)
++        assert res["n"] >= 1, f"probe هنوز کور است: {res}"
++        graded = {g["key"]: g["y"] for g in res["graded"]}
++        assert "cal-2" in graded and graded["cal-2"] == 0, graded
++        assert res["brier"] is not None
++        # درآمد حرکت کرد → بستارِ تازه، y=1 (تازه‌ترین حقیقت برنده)
++        _seed_fitness(3, {"lead": 500})
++        gd.measure()
++        res2 = cp.probe(persist=False)
++        g2 = {g["key"]: g["y"] for g in res2["graded"]}
++        assert g2.get("cal-2") == 1, g2
++    finally:
++        _flag(False)
++
++
++def t_d_closure_growth_is_bounded():
++    """بیتِ بی‌تغییر دوباره نوشته نمی‌شود — measureِ مکرر فایل را باد نمی‌کند."""
++    n0 = len([r for r in _outcome_rows() if "moved" in r])
++    gd.measure()
++    gd.measure()
++    n1 = len([r for r in _outcome_rows() if "moved" in r])
++    assert n1 == n0, f"بستارِ تکراری نوشته شد: {n0} → {n1}"
++
++
++def t_e_measure_contract_unchanged():
++    """قراردادِ measure برای مصرف‌کننده‌ها (improve.run) دست‌نخورده است."""
++    m = gd.measure()
++    for k in ("tracked", "moved", "now"):
++        assert k in m, m
++    assert isinstance(m["moved"], bool)
++
++
++if __name__ == "__main__":
++    checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
++    failed = harness.run(checks)
++    print(f"\n{'✅' if not failed else '❌'} test_calibration_loop: "
++          f"{len(checks) - failed}/{len(checks)}")
++    sys.exit(1 if failed else 0)
+diff --git a/_ops/tests/test_cockpit_golive_honesty.py b/_ops/tests/test_cockpit_golive_honesty.py
+new file mode 100644
+index 0000000..5c0c3d4
+--- /dev/null
++++ b/_ops/tests/test_cockpit_golive_honesty.py
+@@ -0,0 +1,204 @@
++"""test_cockpit_golive_honesty.py — برنامه ۹ (2026-07-16): صداقتِ کابین پس از GO-LIVE.
++چهار دروغِ سطحِ تصمیمِ مالک قفل می‌شوند:
++  (۱) bundleِ exportِ کهنه هرگز بر stateِ زندهٔ تازه‌تر برنده نمی‌شود (mtime-guard)؛
++  (۲) قفل‌های hardcodeِ «🔴 قفل تا 2026-07-21» → وضعیتِ زنده از فایلِ ACTIVATION + live_gate_open؛
++  (۳) کورتکسِ مرده (cortex-state.json کهنه‌تر از ۲h) هرگز «در حالِ فکر» رندر نمی‌شود؛
++  (۴) /health گیت‌های ACTIVATIONِ مسلح را از فایل می‌شمارد و نام می‌برد.
++"""
++import datetime as _dt
++import json
++import os
++import sys
++import tempfile
++import time
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(_HERE.parent))
++sys.path.insert(0, str(_HERE.parent / "budget"))
++
++import harness
++ENV = harness.setup("cockpit_golive_honesty")
++
++import opslib  # noqa: E402
++import cockpit_readmodel as crm  # noqa: E402
++from approval_channel import TelegramApprovalChannel  # noqa: E402
++
++OPS = Path(ENV["ops"])
++
++
++def _chan(state_dir):
++    return TelegramApprovalChannel(state_dir=str(state_dir))
++
++
++def _cleanup_flags():
++    for f in OPS.glob("ACTIVATION-*.flag"):
++        f.unlink()
++
++
++def _mk_state(td: Path, bundle_age_s=None, live_age_s=None):
++    """fixture: bundle (halted=True) + live (halted=False) با mtimeهای کنترل‌شده —
++    اختلافِ عمدی تا معلوم شود کدام منبع رندر شده."""
++    now = time.time()
++    if bundle_age_s is not None:
++        exp = td / "export"
++        exp.mkdir(parents=True, exist_ok=True)
++        bp = exp / "octopus-status-bundle.json"
++        bp.write_text(json.dumps({
++            "organism_state": {"halted": True, "ts": "2026-07-10T09:00:00"},
++            "genome_ledger": {"records": 5}}), "utf-8")
++        os.utime(bp, (now - bundle_age_s, now - bundle_age_s))
++    if live_age_s is not None:
++        lp = td / "ORGANISM-STATE.json"
++        lp.write_text(json.dumps({"halted": False,
++                                  "ts": "2026-07-16T09:00:00"}), "utf-8")
++        os.utime(lp, (now - live_age_s, now - live_age_s))
++
++
++# ── (۱) mtime-guardِ bundle ─────────────────────────────────────────────────────
++def t_stale_bundle_loses_to_fresh_live():
++    """bundleِ ۵روزه + liveِ ۱دقیقه‌ای → bundle کنار می‌رود، rules از live می‌خواند."""
++    with tempfile.TemporaryDirectory() as td:
++        st = Path(td)
++        _mk_state(st, bundle_age_s=5 * 24 * 3600, live_age_s=60)
++        rm = crm.CockpitReadModel(state_dir=st, ops_dir=st)
++        assert rm.read_bundle() == {}, "bundleِ کهنه‌تر از live نباید برگردد"
++        r2 = next(r for r in rm.rules() if r["id"] == "R2")
++        assert r2["status"] == "🟢", f"halted باید از liveِ تازه (False) بیاید: {r2}"
++
++
++def t_fresh_bundle_wins():
++    """bundleِ ۱دقیقه‌ای + liveِ ۵روزه → bundle همچنان منبعِ اول است."""
++    with tempfile.TemporaryDirectory() as td:
++        st = Path(td)
++        _mk_state(st, bundle_age_s=60, live_age_s=5 * 24 * 3600)
++        rm = crm.CockpitReadModel(state_dir=st, ops_dir=st)
++        assert (rm.read_bundle().get("genome_ledger") or {}).get("records") == 5
++        r2 = next(r for r in rm.rules() if r["id"] == "R2")
++        assert r2["status"] == "🔴", "bundleِ تازه‌تر منبع است (halted=True)"
++
++
++def t_bundle_without_live_sources_still_failsoft():
++    """هیچ فایلِ زنده‌ای نیست → bundle (حتی کهنه) همان fail-softِ قبلی می‌ماند."""
++    with tempfile.TemporaryDirectory() as td:
++        st = Path(td)
++        _mk_state(st, bundle_age_s=5 * 24 * 3600, live_age_s=None)
++        rm = crm.CockpitReadModel(state_dir=st, ops_dir=st)
++        assert rm.read_bundle() != {}, "بدونِ منبعِ زنده، bundle نباید دور ریخته شود"
++
++
++# ── (۲) قفل‌های ACTIVATION از فایل، نه hardcode ─────────────────────────────────
++def t_activation_absent_renders_locked():
++    _cleanup_flags()
++    with tempfile.TemporaryDirectory() as td:
++        ch = _chan(td)
++        money = ch._tab_text("money")
++        assert "گاورنرِ LLM: 🔴 قفل تا 2026-07-21" in money, money
++        assert "مسلح (فلگ + سپرِ تاریخ باز)" not in money
++        gov = ch._render_card("money", "governor")
++        assert "🔴 قفل تا 2026-07-21" in gov and "غایب" in gov, gov
++
++
++def t_activation_armed_renders_green():
++    """فلگ + GO-LIVE → گیت باز → 🟢 مسلح (در money-tab، کارتِ governor و کارتِ debate)."""
++    _cleanup_flags()
++    for f in ("ACTIVATION-GO-LIVE.flag", "ACTIVATION-GOVERNOR-LLM.flag",
++              "ACTIVATION-DEBATE.flag"):
++        (OPS / f).write_text("owner", "utf-8")
++    try:
++        with tempfile.TemporaryDirectory() as td:
++            ch = _chan(td)
++            money = ch._tab_text("money")
++            assert "گاورنرِ LLM: 🟢 مسلح (فلگ + سپرِ تاریخ باز)" in money, money
++            gov = ch._render_card("money", "governor")
++            assert "🟢 مسلح" in gov and "قفل تا 2026-07-21 —" not in gov, gov
++            llm = ch._render_card("safety", "llm")
++            assert "مناظره: 🟢 مسلح" in llm, llm
++    finally:
++        _cleanup_flags()
++
++
++def t_activation_armed_but_date_blocked_is_partial():
++    """فلگ هست ولی GO-LIVE نیست و سپرِ تاریخ بسته → 🟡 صادقانه (نه سبز، نه قفلِ کور)."""
++    _cleanup_flags()
++    (OPS / "ACTIVATION-GOVERNOR-LLM.flag").write_text("owner", "utf-8")
++    real_date = opslib.LIVE_GATE_DATE
++    opslib.LIVE_GATE_DATE = _dt.date(2099, 1, 1)   # سپرِ تاریخ قطعاً بسته
++    try:
++        with tempfile.TemporaryDirectory() as td:
++            gov = _chan(td)._render_card("money", "governor")
++            assert "🟡 فلگ مسلح ولی سپرِ تاریخ بسته" in gov, gov
++            assert "🟢" not in gov and "2099-01-01" in gov
++    finally:
++        opslib.LIVE_GATE_DATE = real_date
++        _cleanup_flags()
++
++
++# ── (۳) کورتکسِ کهنه هرگز «در حالِ فکر» نیست ────────────────────────────────────
++def _write_cortex(st: Path, age_s: float):
++    cx = st / "cortex"
++    cx.mkdir(parents=True, exist_ok=True)
++    p = cx / "cortex-state.json"
++    p.write_text(json.dumps({"schema": "cortex-state.v1", "coherence": 0.9,
++                             "thought": "فکرِ قدیمی", "brains": {}, "rhythm": {}}),
++                 "utf-8")
++    old = time.time() - age_s
++    os.utime(p, (old, old))
++
++
++def t_cortex_stale_renders_dead():
++    with tempfile.TemporaryDirectory() as td:
++        st = Path(td)
++        _write_cortex(st, age_s=6 * 24 * 3600)      # فریزشده از ۶ روز پیش
++        out = _chan(st)._tab_text("cortex")
++        assert "⚫ کورتکس خاموش/کهنه" in out and "سن:" in out, out
++        assert "d)" in out, f"سنِ چندروزه باید بر حسبِ روز باشد: {out}"
++        assert "coherence" not in out, "stateِ کهنه نباید «الان» رندر شود"
++        assert "کهنه" in out and "فکرِ قدیمی" in out   # محتوا با برچسبِ صادق، نه پنهان
++
++
++def t_cortex_fresh_renders_normal():
++    with tempfile.TemporaryDirectory() as td:
++        st = Path(td)
++        _write_cortex(st, age_s=60)                  # یک دقیقه پیش
++        out = _chan(st)._tab_text("cortex")
++        assert "⚫" not in out and "coherence" in out, out
++
++
++# ── (۴) /health: گیت‌های مسلح از فایل ───────────────────────────────────────────
++def t_health_lists_armed_gates():
++    _cleanup_flags()
++    (OPS / "ACTIVATION-GO-LIVE.flag").write_text("owner", "utf-8")
++    (OPS / "ACTIVATION-PULSE.flag").write_text("owner", "utf-8")
++    try:
++        with tempfile.TemporaryDirectory() as td:
++            out = _chan(td)._cmd_health()
++            assert "گیت‌های مسلح: 2" in out, out
++            assert "GO-LIVE" in out and "PULSE" in out, out
++    finally:
++        _cleanup_flags()
++
++
++def t_health_zero_gates_honest():
++    _cleanup_flags()
++    with tempfile.TemporaryDirectory() as td:
++        out = _chan(td)._cmd_health()
++        assert "گیت‌های مسلح: 0" in out, out
++
++
++if __name__ == "__main__":
++    failed = harness.run([
++        ("bundleِ کهنه ← liveِ تازه برنده", t_stale_bundle_loses_to_fresh_live),
++        ("bundleِ تازه برنده می‌ماند", t_fresh_bundle_wins),
++        ("bundle بدونِ منبعِ زنده fail-soft", t_bundle_without_live_sources_still_failsoft),
++        ("ACTIVATION غایب → قفل با تاریخِ واقعی", t_activation_absent_renders_locked),
++        ("ACTIVATION+GO-LIVE → 🟢 مسلح", t_activation_armed_renders_green),
++        ("فلگ بدونِ GO-LIVE → 🟡 صادق", t_activation_armed_but_date_blocked_is_partial),
++        ("کورتکسِ کهنه → ⚫ نه «در حالِ فکر»", t_cortex_stale_renders_dead),
++        ("کورتکسِ تازه → رندرِ عادی", t_cortex_fresh_renders_normal),
++        ("/health گیت‌های مسلح را می‌شمارد", t_health_lists_armed_gates),
++        ("/health صفرِ صادق", t_health_zero_gates_honest),
++    ])
++    print(f"\n{'✅ PASS' if not failed else '❌ FAIL'} test_cockpit_golive_honesty "
++          f"({10 - failed}/10)")
++    sys.exit(1 if failed else 0)
+diff --git a/_ops/tests/test_legs_freshness.py b/_ops/tests/test_legs_freshness.py
+new file mode 100644
+index 0000000..d45d7f4
+--- /dev/null
++++ b/_ops/tests/test_legs_freshness.py
+@@ -0,0 +1,287 @@
++#!/usr/bin/env python3
++"""test_legs_freshness.py — برنامه ۷ (صداقتِ پاها): «live» یعنی داده جریان دارد، نه فایل هست.
++
++اثبات می‌کند (fixtureهای tmp با mtimeِ کنترل‌شده از طریقِ os.utime):
++  * leg_freshness.age_days: مسیرِ None/گمشده → None؛ فایلِ ۱۰روزه → ≈۱۰؛ ارزیابیِ
++    لحظهٔ فراخوانی (تغییرِ mtime بینِ دو call بدونِ re-import دیده می‌شود).
++  * leg_freshness.fresh: تازه → True؛ کهنه → False؛ گمشده → False (fail-closed).
++  * crypto: analysisِ تازه → live=True + age_days≈0؛ همان فایل backdate به ۳۰ روز →
++    live=False ولی سیگنالِ buy/sell/hold همچنان صادقانه گزارش می‌شود.
++  * accounting: workbookِ تازه → live=True؛ backdate به ۶۰ روز → live=False + age_days≈۶۰.
++  * mining/knowledge: همیشه live=False (skeletonِ صادق) ولی age_daysِ منبعِ واقعی را
++    گزارش می‌کنند؛ noteِ mining منبعِ بعدی (coordinator decisions.jsonl) را نام می‌برد.
++  * قراردادِ status دست‌نخورده: کلیدهای هستهٔ {leg,live,signal,note} + age_days (فقط ADD).
++
++صفر نوشتن روی مسیرِ زنده: منابع به tmp مونکی‌پچ می‌شوند. اجرا: python -X utf8 test_legs_freshness.py
++"""
++from __future__ import annotations
++
++import os
++import pathlib
++import sys
++import tempfile
++import time
++
++_HERE = pathlib.Path(__file__).resolve().parent
++if str(_HERE) not in sys.path:
++    sys.path.insert(0, str(_HERE))
++import harness  # noqa: E402
++
++ENV = harness.setup("legs-freshness")
++
++_LEGS = _HERE.parent / "legs"
++if str(_LEGS) not in sys.path:
++    sys.path.insert(0, str(_LEGS))
++
++import leg_freshness   # noqa: E402
++import crypto_leg      # noqa: E402
++import accounting_leg  # noqa: E402
++import mining_leg      # noqa: E402
++import knowledge_leg   # noqa: E402
++
++_CORE_KEYS = {"leg", "live", "signal", "note"}
++_DAY_S = 86400.0
++
++
++def _tmp() -> pathlib.Path:
++    return pathlib.Path(tempfile.mkdtemp(prefix="legfresh-test-"))
++
++
++def _backdate(p: pathlib.Path, days: float) -> None:
++    """mtimeِ کنترل‌شده: فایل را days روز به عقب می‌برد (os.utime، بدونِ لمسِ محتوا)."""
++    ts = time.time() - days * _DAY_S
++    os.utime(p, (ts, ts))
++
++
++def _assert_contract(name: str, d: dict) -> None:
++    """قراردادِ هسته + age_days — کلیدها فقط ADD شده‌اند، هرگز rename."""
++    assert isinstance(d, dict), f"{name}: dict لازم است"
++    assert _CORE_KEYS <= set(d.keys()), f"{name}: کلیدهای هسته ناقص: {set(d.keys())}"
++    assert "age_days" in d, f"{name}: کلیدِ age_days لازم است"
++    assert d["age_days"] is None or isinstance(d["age_days"], (int, float)), \
++        f"{name}: age_days باید عدد یا None باشد"
++    assert d["leg"] == name and isinstance(d["live"], bool)
++    assert isinstance(d["signal"], str) and d["signal"]
++    assert isinstance(d["note"], str) and d["note"]
++
++
++# ── helper: age_days / fresh ────────────────────────────────────────────────────
++
++def test_age_days_none_and_missing() -> None:
++    """مسیرِ None یا ناموجود → None (fail-soft، هرگز exception)."""
++    assert leg_freshness.age_days(None) is None
++    assert leg_freshness.age_days(_tmp() / "ghost.json") is None
++
++
++def test_age_days_backdated_file() -> None:
++    """فایلِ ۱۰روزه → age ≈ ۱۰ (پنجرهٔ ۰٫۱ روز برای زمانِ اجرا)."""
++    p = _tmp() / "old.json"
++    p.write_text("{}", encoding="utf-8")
++    _backdate(p, 10)
++    a = leg_freshness.age_days(p)
++    assert a is not None and 9.9 <= a <= 10.1, a
++
++
++def test_age_days_is_call_time_not_cached() -> None:
++    """ارزیابیِ لحظهٔ فراخوانی: تغییرِ mtime بینِ دو call بدونِ re-import دیده می‌شود."""
++    p = _tmp() / "flow.json"
++    p.write_text("{}", encoding="utf-8")
++    _backdate(p, 20)
++    a1 = leg_freshness.age_days(p)
++    _backdate(p, 1)
++    a2 = leg_freshness.age_days(p)
++    assert a1 is not None and a2 is not None and a2 < a1, (a1, a2)
++    assert 0.9 <= a2 <= 1.1, a2
++
++
++def test_fresh_true_false_and_fail_closed() -> None:
++    """تازه → True؛ کهنه → False؛ گمشده → False (سنِ نامعلوم هرگز «زنده» نیست)."""
++    d = _tmp()
++    p = d / "f.json"
++    p.write_text("{}", encoding="utf-8")
++    assert leg_freshness.fresh(p, 7) is True              # تازه (age≈0)
++    _backdate(p, 8)
++    assert leg_freshness.fresh(p, 7) is False             # کهنه
++    assert leg_freshness.fresh(d / "ghost.json", 7) is False   # fail-closed
++
++
++# ── crypto: آستانهٔ ۷ روز ───────────────────────────────────────────────────────
++
++def _ts_name(days_old: float) -> str:
++    """تایم‌استمپِ نامِ فایل به سبکِ ingest_raw (YYYY-MM-DD-HH-MM-SS)، days_old روز پیش."""
++    import datetime as _dt
++    ts = _dt.datetime.now() - _dt.timedelta(days=days_old)
++    return ts.strftime("%Y-%m-%d-%H-%M-%S")
++
++
++def _crypto_fixture(days_old: float) -> pathlib.Path:
++    """دادهٔ crypto با سنِ کنترل‌شده: هم تایم‌استمپِ نام هم mtime هم‌سن (سازگار)."""
++    cdir = _tmp() / "crypto"
++    cdir.mkdir(parents=True)
++    nm = _ts_name(days_old)
++    (cdir / f"cryptoquant_{nm}.json").write_text("{}", encoding="utf-8")
++    ap = cdir / f"cryptoquant_analysis_{nm}.json"
++    ap.write_text('{"summary": {"buy_signals": 3, "sell_signals": 2, "hold_signals": 5}}',
++                  encoding="utf-8")
++    if days_old > 0:
++        for p in cdir.iterdir():
++            _backdate(p, days_old)
++    return cdir
++
++
++def test_crypto_fresh_analysis_is_live() -> None:
++    """analysisِ تازه (age≈0) → live=True + age_days موجود و ≈0."""
++    crypto_leg.CRYPTO_DIR = _crypto_fixture(0)
++    r = crypto_leg.crypto_status()
++    _assert_contract("crypto", r)
++    assert r["live"] is True, r
++    assert r["age_days"] is not None and r["age_days"] <= 0.1, r["age_days"]
++    assert "buy=3" in r["signal"], r["signal"]
++
++
++def test_crypto_stale_analysis_not_live_but_honest_signal() -> None:
++    """همان داده backdate به ۳۰ روز → live=False + age_days≈۳۰؛ سیگنال همچنان گزارش می‌شود."""
++    crypto_leg.CRYPTO_DIR = _crypto_fixture(30)
++    r = crypto_leg.crypto_status()
++    _assert_contract("crypto", r)
++    assert r["live"] is False, "دادهٔ ۳۰روزه نباید live باشد (آستانه ۷ روز)"
++    assert r["age_days"] is not None and 29.8 <= r["age_days"] <= 30.2, r["age_days"]
++    assert "buy=3" in r["signal"] and "sell=2" in r["signal"], r["signal"]
++
++
++def test_crypto_boundary_just_inside_threshold() -> None:
++    """دقیقاً داخلِ آستانه (۶ روز) → هنوز live=True."""
++    crypto_leg.CRYPTO_DIR = _crypto_fixture(6)
++    r = crypto_leg.crypto_status()
++    assert r["live"] is True, r
++    assert 5.8 <= r["age_days"] <= 6.2, r["age_days"]
++
++
++def test_crypto_name_timestamp_beats_touched_mtime() -> None:
++    """دروغِ mtime: analysisِ ۳۰روزه (به نام) که دیروز touch/copy شده → live=False.
++    (همان کیسِ درختِ زنده: cryptoquant_analysis_2026-06-15 با mtimeِ تازه.)"""
++    cdir = _tmp() / "crypto"
++    cdir.mkdir(parents=True)
++    ap = cdir / f"cryptoquant_analysis_{_ts_name(30)}.json"
++    ap.write_text('{"summary": {"buy_signals": 1, "sell_signals": 1, "hold_signals": 1}}',
++                  encoding="utf-8")                       # mtime = الان (touched)
++    crypto_leg.CRYPTO_DIR = cdir
++    r = crypto_leg.crypto_status()
++    _assert_contract("crypto", r)
++    assert r["live"] is False, "تایم‌استمپِ نام (سنِ واقعیِ داده) باید بر mtimeِ تازه غالب باشد"
++    assert r["age_days"] is not None and 29.8 <= r["age_days"] <= 30.2, r["age_days"]
++
++
++def test_crypto_missing_dir_age_null() -> None:
++    """بدونِ منبع → live=False و age_days=None (نه عددِ جعلی)."""
++    crypto_leg.CRYPTO_DIR = _tmp() / "no-crypto"
++    r = crypto_leg.crypto_status()
++    _assert_contract("crypto", r)
++    assert r["live"] is False and r["age_days"] is None, r
++
++
++# ── accounting: آستانهٔ ۳۵ روز ──────────────────────────────────────────────────
++
++def test_accounting_fresh_workbook_is_live() -> None:
++    """workbookِ تازه → live=True + سیگنالِ شمارشیِ بی‌PII دست‌نخورده."""
++    adir = _tmp() / "acct"
++    adir.mkdir(parents=True)
++    for nm in ("a.xlsx", "b.xlsx"):
++        (adir / nm).write_bytes(b"never-read")
++    accounting_leg.ACCT_DIR = adir
++    r = accounting_leg.accounting_status()
++    _assert_contract("accounting", r)
++    assert r["live"] is True and r["signal"] == "workbooks=2", r
++    assert r["age_days"] is not None and r["age_days"] <= 0.1, r["age_days"]
++
++
++def test_accounting_stale_workbooks_not_live() -> None:
++    """workbookها ۶۰ روز دست‌نخورده → live=False + age_days≈۶۰ (دروغِ نوامبر ۲۰۲۴ تمام)."""
++    adir = _tmp() / "acct"
++    adir.mkdir(parents=True)
++    p = adir / "old.xlsx"
++    p.write_bytes(b"never-read")
++    _backdate(p, 60)
++    accounting_leg.ACCT_DIR = adir
++    r = accounting_leg.accounting_status()
++    _assert_contract("accounting", r)
++    assert r["live"] is False, "workbookِ ۶۰روزه نباید live باشد (آستانه ۳۵ روز)"
++    assert 59.8 <= r["age_days"] <= 60.2, r["age_days"]
++    assert r["signal"] == "workbooks=1", r["signal"]
++
++
++def test_accounting_newest_workbook_wins() -> None:
++    """سن از *تازه‌ترین* workbook می‌آید: یکی کهنه + یکی تازه → live=True."""
++    adir = _tmp() / "acct"
++    adir.mkdir(parents=True)
++    old = adir / "old.xlsx"
++    old.write_bytes(b"never-read")
++    _backdate(old, 400)
++    (adir / "new.xlsx").write_bytes(b"never-read")        # تازه
++    accounting_leg.ACCT_DIR = adir
++    r = accounting_leg.accounting_status()
++    assert r["live"] is True and r["age_days"] <= 0.1, r
++
++
++# ── mining/knowledge: skeletonِ صادق + سنِ منبعِ واقعی ─────────────────────────
++
++def test_mining_honest_skeleton_reports_source_age() -> None:
++    """mining هرگز live نمی‌شود؛ سنِ coordinator/data/decisions.jsonl صادقانه گزارش می‌شود."""
++    dpath = _tmp() / "decisions.jsonl"
++    dpath.write_text('{"decision": "x"}\n', encoding="utf-8")
++    _backdate(dpath, 20)
++    mining_leg.DECISIONS_PATH = dpath
++    r = mining_leg.mining_status()
++    _assert_contract("mining", r)
++    assert r["live"] is False and r["signal"] == "skeleton", r
++    assert 19.8 <= r["age_days"] <= 20.2, r["age_days"]
++    assert "decisions.jsonl" in r["note"], r["note"]      # منبعِ واقعیِ بعدی نام برده می‌شود
++
++
++def test_mining_missing_source_age_null() -> None:
++    """منبعِ گمشده → age_days=None ولی note همچنان منبعِ واقعیِ بعدی را نام می‌برد."""
++    mining_leg.DECISIONS_PATH = _tmp() / "ghost.jsonl"
++    r = mining_leg.mining_status()
++    _assert_contract("mining", r)
++    assert r["live"] is False and r["age_days"] is None, r
++    assert "decisions.jsonl" in r["note"], r["note"]
++
++
++def test_knowledge_honest_skeleton_reports_newest_note_age() -> None:
++    """knowledge هرگز live نمی‌شود؛ سنِ تازه‌ترین نوت (نه کهنه‌ترین) گزارش می‌شود."""
++    kdir = _tmp() / "knowledge"
++    (kdir / "sub").mkdir(parents=True)
++    old = kdir / "old.md"
++    old.write_text("# کهنه\n", encoding="utf-8")
++    _backdate(old, 90)
++    new = kdir / "sub" / "new.md"
++    new.write_text("# تازه\n", encoding="utf-8")
++    _backdate(new, 5)
++    knowledge_leg.KNOWLEDGE_DIR = kdir
++    r = knowledge_leg.knowledge_status()
++    _assert_contract("knowledge", r)
++    assert r["live"] is False and r["signal"] == "skeleton", r
++    assert 4.8 <= r["age_days"] <= 5.2, r["age_days"]
++
++
++def test_knowledge_missing_dir_age_null() -> None:
++    knowledge_leg.KNOWLEDGE_DIR = _tmp() / "no-knowledge"
++    r = knowledge_leg.knowledge_status()
++    _assert_contract("knowledge", r)
++    assert r["live"] is False and r["age_days"] is None, r
++
++
++if __name__ == "__main__":
++    _tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
++    _failed = 0
++    for _t in _tests:
++        try:
++            _t()
++            print(f"  ✓ {_t.__name__}")
++        except AssertionError as _e:
++            _failed += 1
++            print(f"  ✗ {_t.__name__}: {_e}")
++    if _failed:
++        print(f"❌ test_legs_freshness: {_failed}/{len(_tests)} قرمز")
++        sys.exit(1)
++    print(f"✅ test_legs_freshness: {len(_tests)}/{len(_tests)} سبز")
+diff --git a/_ops/tests/test_new_legs.py b/_ops/tests/test_new_legs.py
+new file mode 100644
+index 0000000..9b49150
+--- /dev/null
++++ b/_ops/tests/test_new_legs.py
+@@ -0,0 +1,128 @@
++#!/usr/bin/env python3
++"""test_new_legs.py — WP-F · LEG-01: چهار پای status صادق (mining/crypto/accounting/knowledge).
++
++اثبات می‌کند:
++  * هر چهار ماژول import می‌شوند و helperِ <name>_status() قرارداد را می‌دهد:
++    کلیدهای هستهٔ {"leg","live","signal","note"} + کلیدِ افزودهٔ "age_days" (برنامه ۷ —
++    صداقتِ پاها؛ float گرد یا None) با نوعِ درست، leg == نامِ درست.
++  * هیچ helperی روی دادهٔ گمشده crash نمی‌کند (منبع را به tmp خالی مونکی‌پچ می‌کنیم).
++  * crypto/accounting وقتی منبعِ واقعی *تازه* هست → live=True با سیگنالِ واقعی؛ وقتی نیست → live=False.
++  * mining/knowledge همیشه live=False (skeletonِ صادق، بدونِ منبعِ ماشینی).
++  * accounting هرگز مقدار/عددِ مالی echo نمی‌کند (فقط شمارشِ workbook).
++
++صفر نوشتن روی مسیرِ زنده: منابع به tmp مونکی‌پچ می‌شوند. اجرا: python -X utf8 test_new_legs.py
++"""
++from __future__ import annotations
++
++import json
++import pathlib
++import sys
++import tempfile
++
++_HERE = pathlib.Path(__file__).resolve().parent
++_LEGS = _HERE.parent / "legs"
++if str(_LEGS) not in sys.path:
++    sys.path.insert(0, str(_LEGS))
++
++import crypto_leg      # noqa: E402
++import accounting_leg  # noqa: E402
++import mining_leg      # noqa: E402
++import knowledge_leg   # noqa: E402
++
++_CONTRACT_KEYS = {"leg", "live", "signal", "note"}
++_HELPERS = {
++    "mining": mining_leg.mining_status,
++    "crypto": crypto_leg.crypto_status,
++    "accounting": accounting_leg.accounting_status,
++    "knowledge": knowledge_leg.knowledge_status,
++}
++
++
++def _tmp() -> pathlib.Path:
++    return pathlib.Path(tempfile.mkdtemp(prefix="newlegs-test-"))
++
++
++def _assert_contract(name: str, d: dict) -> None:
++    assert isinstance(d, dict), f"{name}: dict لازم است"
++    # برنامه ۷ (صداقتِ پاها): قراردادِ هسته دست‌نخورده + کلیدِ افزودهٔ age_days —
++    # چکِ قبلی set(d) == هسته بود؛ افزودنِ age_days عمداً آن را superset کرد (فقط ADD).
++    assert _CONTRACT_KEYS <= set(d.keys()), f"{name}: کلیدها {set(d.keys())}"
++    assert "age_days" in d, f"{name}: کلیدِ age_days (قراردادِ تازگی) لازم است"
++    assert d["age_days"] is None or isinstance(d["age_days"], (int, float)), \
++        f"{name}: age_days باید عدد یا None باشد، شد {type(d['age_days']).__name__}"
++    assert d["leg"] == name, f"{name}: leg == {d['leg']}"
++    assert isinstance(d["live"], bool), f"{name}: live باید bool باشد"
++    assert isinstance(d["signal"], str) and d["signal"], f"{name}: signal رشتهٔ ناخالی"
++    assert isinstance(d["note"], str) and d["note"], f"{name}: note رشتهٔ ناخالی"
++
++
++def test_all_four_import_and_honor_contract() -> None:
++    """هر چهار helper قرارداد {leg,live,signal,note} را با نوعِ درست می‌دهند (روی دادهٔ واقعی)."""
++    for name, fn in _HELPERS.items():
++        _assert_contract(name, fn())
++
++
++def test_never_crashes_on_missing_data() -> None:
++    """منبع را به tmpِ خالی مونکی‌پچ کن — هیچ helper نباید crash کند؛ live باید False شود."""
++    d = _tmp()
++    crypto_leg.CRYPTO_DIR = d / "no-crypto"
++    accounting_leg.ACCT_DIR = d / "no-acct"
++    mining_leg.PROJECT_DIR = d / "no-mining"
++    knowledge_leg.KNOWLEDGE_DIR = d / "no-knowledge"
++    for name, fn in _HELPERS.items():
++        r = fn()
++        _assert_contract(name, r)
++        assert r["live"] is False, f"{name}: بدونِ منبع باید live=False باشد"
++
++
++def test_mining_and_knowledge_are_honest_skeletons() -> None:
++    """mining/knowledge حتی با پوشهٔ پروژه‌ی موجود، هرگز live=True جعلی نمی‌شوند."""
++    for name in ("mining", "knowledge"):
++        r = _HELPERS[name]()
++        _assert_contract(name, r)
++        assert r["live"] is False, f"{name} باید skeleton (live=False) باشد"
++        assert r["signal"] == "skeleton", f"{name}: signal == skeleton"
++
++
++def test_crypto_reports_real_signal_when_source_present() -> None:
++    """با یک analysis JSONِ *تازهٔ* ساختگی در tmp، crypto باید live=True و buy/sell/hold بدهد.
++    برنامه ۷ (صداقتِ پاها): fixtureِ قبلی نامِ ثابتِ 2026-01-01 داشت و live=True را
++    بی‌قیدِ تازگی assert می‌کرد (همان دروغِ قدیمی)؛ حالا تایم‌استمپِ نام = الان (دادهٔ واقعاً تازه)."""
++    import datetime as _dt
++    _now = _dt.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
++    d = _tmp()
++    cdir = d / "crypto"
++    cdir.mkdir(parents=True)
++    (cdir / f"cryptoquant_{_now}.json").write_text("{}", encoding="utf-8")
++    analysis = {"summary": {"total_coins": 10, "buy_signals": 3, "sell_signals": 2, "hold_signals": 5}}
++    (cdir / f"cryptoquant_analysis_{_now}.json").write_text(
++        json.dumps(analysis), encoding="utf-8")
++    crypto_leg.CRYPTO_DIR = cdir
++    r = crypto_leg.crypto_status()
++    _assert_contract("crypto", r)
++    assert r["live"] is True, "با داده باید live=True"
++    assert "buy=3" in r["signal"] and "sell=2" in r["signal"] and "hold=5" in r["signal"], r["signal"]
++
++
++def test_accounting_counts_workbooks_without_reading_values() -> None:
++    """accounting با workbookهای ساختگی: live=True، سیگنال فقط تعداد (صفر مقدار/عددِ داخلی)."""
++    d = _tmp()
++    adir = d / "acct"
++    adir.mkdir(parents=True)
++    for nm in ("a.xlsx", "b.xlsx", "c.xlsx"):
++        (adir / nm).write_bytes(b"not-a-real-xlsx-secret-1234")   # هرگز خوانده نمی‌شود
++    accounting_leg.ACCT_DIR = adir
++    r = accounting_leg.accounting_status()
++    _assert_contract("accounting", r)
++    assert r["live"] is True, "با workbook باید live=True"
++    assert r["signal"] == "workbooks=3", r["signal"]
++    # صداقتِ PII: محتوای فایل هرگز در خروجی ظاهر نمی‌شود
++    assert "1234" not in json.dumps(r, ensure_ascii=False), "نباید هیچ مقدار/محتوای فایل leak شود"
++
++
++if __name__ == "__main__":
++    _tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
++    for _t in _tests:
++        _t()
++        print(f"  ✓ {_t.__name__}")
++    print(f"✅ test_new_legs: {len(_tests)}/{len(_tests)} سبز")
+diff --git a/_ops/tests/test_ziman_catalog_bridge.py b/_ops/tests/test_ziman_catalog_bridge.py
+new file mode 100644
+index 0000000..368afa9
+--- /dev/null
++++ b/_ops/tests/test_ziman_catalog_bridge.py
+@@ -0,0 +1,279 @@
++#!/usr/bin/env python3
++"""test_ziman_catalog_bridge.py — برنامهٔ ۸: پلِ read-only کاتالوگِ زیمان.
++
++پوشش:
++  * نبود/خرابیِ کاتالوگ → دقیقاً رفتارِ قدیمِ C1–C4 (fail-soft، بدون کرش)
++  * کاتالوگِ واقعی (شکلِ ziman-catalog.json) → خانواده‌های F1..F4/OTHER +
++    شمارشِ per-family + پرچم‌های perishable/alcohol_suspect/edible
++  * resolution از opslib.ORG_ROOT (ایزوله‌پذیر با harness) + گاردِ allowlist (D2)
++  * aliasِ کدهای قدیمیِ C1–C4 و propose-only ماندنِ همه‌چیز
++
++pytest-style + قابلِ اجرای مستقیم (python test_ziman_catalog_bridge.py).
++$0 آفلاین · stdlib-only · هیچ دستی به vault زنده.
++"""
++from __future__ import annotations
++
++import json
++import os
++import sys
++import tempfile
++from pathlib import Path
++
++_TESTS = Path(__file__).resolve().parent
++_OPS = _TESTS.parent
++_VAULT = _OPS.parent
++# درختِ زیرِ تست = همین درخت (نظمِ worktree) — مگر صریحاً override شده باشد
++os.environ.setdefault("REAL_VAULT", str(_VAULT))
++
++import harness  # noqa: E402
++
++ENV = harness.setup("ziman-catalog")   # ORG_ROOT → مینی-vault موقت (قبل از import opslib)
++
++for _p in (str(_OPS), str(_OPS / "legs"), str(_OPS / "budget")):
++    if _p not in sys.path:
++        sys.path.insert(0, _p)
++
++from leg import TaskPacket  # noqa: E402
++from ziman_leg import (LEGACY_FAMILY_ALIAS, PRODUCT_FAMILIES,  # noqa: E402
++                       ZIMAN_CATALOG_NOTE, ZimanLeg)
++
++
++# ─── fixture: کپیِ شکلِ واقعیِ ziman-catalog.json (فیلدها عینِ فایلِ زمینی) ────
++def _fixture_catalog() -> dict:
++    return {
++        "products": [
++            {"product_id": "ZIM-F1-01", "family": "F1_floral",
++             "photo_files": ["IMG_A.jpg"], "one_line": "silk rose box",
++             "form": "cube box", "palette": "red", "edible": "none",
++             "perishable": False,
++             "medium": ["silk roses", "satin ribbon"],
++             "occasion_fit": ["birthday"], "personalisation": "none"},
++            {"product_id": "ZIM-F1-02", "family": "F1_floral",
++             "photo_files": ["IMG_B.jpg"], "one_line": "silk carnation basket",
++             "form": "basket", "palette": "purple", "edible": "none",
++             "perishable": False,
++             "medium": ["silk carnations", "wicker basket"],
++             "occasion_fit": ["get well"], "personalisation": "none"},
++            {"product_id": "ZIM-F4-01", "family": "F4_mixed_hamper",
++             "photo_files": ["IMG_C.jpg"], "one_line": "black-gold hamper",
++             "form": "hat-box", "palette": "black/gold", "edible": "chocolate",
++             "perishable": True,
++             "medium": ["Ferrero Rocher chocolates", "sparkling wine (alcohol)"],
++             "occasion_fit": ["celebration"], "personalisation": "none"},
++            {"product_id": "ZIM-F4-02", "family": "F4_mixed_hamper",
++             "photo_files": ["IMG_D.jpg"], "one_line": "blue kids hamper",
++             "form": "fabric box", "palette": "blue", "edible": "mixed",
++             "perishable": True,
++             # «jute twine bows» عمداً — نباید با \bwine\b به‌غلط الکل flag شود
++             "medium": ["plush teddy bear", "jute twine bows"],
++             "occasion_fit": ["new baby boy"], "personalisation": "none"},
++            {"product_id": "ZIM-F3-01", "family": "F3_candy_basket",
++             "photo_files": ["IMG_E.jpg"], "one_line": "marshmallow bouquet",
++             "form": "glitter box", "palette": "pink", "edible": "candy",
++             "perishable": False,
++             "medium": ["marshmallow sticks"], "occasion_fit": ["birthday"],
++             "personalisation": "none"},
++            {"product_id": "ZIM-F2-01", "family": "F2_framed",
++             "photo_files": ["IMG_F.jpg"], "one_line": "shadow-box frame",
++             "form": "shadow-box", "palette": "terracotta", "edible": "none",
++             "perishable": False,
++             "medium": ["silk ranunculus", "light-wood shadow-box frame"],
++             "occasion_fit": ["home decor"], "personalisation": "none"},
++            {"product_id": "ZIM-OTHER-01", "family": "OTHER",
++             "photo_files": ["IMG_G.jpg"], "one_line": "blank placeholder",
++             "form": "blank image", "palette": "white", "edible": "none",
++             "perishable": False, "medium": [], "occasion_fit": [],
++             "personalisation": "none"},
++        ],
++        "stats": {"photo_count": 8, "distinct_product_count": 7,
++                  "family_counts": [{"family": "F1_floral", "products": 2}]},
++        "taxonomy_assessment": "fixture",
++        "taxonomy_adjustments": [],
++        "data_gaps": [],
++    }
++
++
++def _write_catalog(root: Path, data: dict | str | None = None) -> Path:
++    p = root / ZIMAN_CATALOG_NOTE
++    p.parent.mkdir(parents=True, exist_ok=True)
++    if isinstance(data, str):
++        p.write_text(data, encoding="utf-8")
++    else:
++        p.write_text(json.dumps(data if data is not None else _fixture_catalog(),
++                                ensure_ascii=False, indent=1), encoding="utf-8")
++    return p
++
++
++def _leg(**kw) -> ZimanLeg:
++    return ZimanLeg(organ_table={"ZIMAN": {}}, capacity_ceiling=30, **kw)
++
++
++def _tmp() -> Path:
++    return Path(tempfile.mkdtemp(prefix="ziman-cat-"))
++
++
++# ─── نبود کاتالوگ → دقیقاً رفتارِ قدیم ─────────────────────────────────────────
++def test_missing_catalog_exact_legacy_behavior():
++    leg = _leg(catalog_path=_tmp() / "does-not-exist.json")
++    assert leg.product_families() == dict(PRODUCT_FAMILIES)
++    s = leg.status_snapshot()
++    assert s["product_families"] == list(PRODUCT_FAMILIES.keys())
++    assert s["catalog"]["loaded"] is False
++    assert s["catalog"]["evidence_class"] == "UNKNOWN"
++    p = leg.inventory_report({"C1": 10, "XX": 1})
++    fams = p.payload["families"]
++    assert set(fams) == set(PRODUCT_FAMILIES)
++    # در fallback هیچ کلیدِ نو داخلِ خانواده‌ها نیست — عینِ payload قدیم
++    assert set(fams["C1"].keys()) == {"name", "count"}
++    assert fams["C1"]["count"] == 10
++    assert p.payload["unknown_keys_rejected"] == ["XX"]
++    assert p.payload["next_step"] == "Owner classifies into C1–C4 then SKU cards"
++
++
++def test_corrupt_or_misshapen_catalog_fail_soft():
++    root = _tmp()
++    bad = _write_catalog(root, "{{{ this is not json")
++    leg = _leg(catalog_path=bad)
++    assert leg.product_families() == dict(PRODUCT_FAMILIES)   # بدون کرش
++    misshapen = _write_catalog(_tmp(), {"products": {}})       # شکلِ غلط
++    leg2 = _leg(catalog_path=misshapen)
++    assert leg2.product_families() == dict(PRODUCT_FAMILIES)
++    assert leg2.status_snapshot()["catalog"]["loaded"] is False
++    # حتی draft هم با کاتالوگِ خراب مسیرِ قدیم را می‌رود
++    d = leg.draft_content(product_family="C4")
++    assert d.payload["product_family"] == "C4"
++    assert d.payload["family_source"] == "legacy_fallback"
++
++
++# ─── کاتالوگِ واقعی → خانواده‌ها/شمارش/پرچم‌های زمینی ─────────────────────────
++def test_catalog_families_counts_and_flags():
++    leg = _leg(catalog_path=_write_catalog(_tmp()))
++    fams = leg.product_families()
++    assert list(fams) == ["F1_floral", "F4_mixed_hamper", "F2_framed",
++                          "F3_candy_basket", "OTHER"]        # مرتب به count، بعد نام
++    s = leg.status_snapshot()
++    assert s["product_families"] == list(fams)
++    cat = s["catalog"]
++    assert cat["loaded"] is True
++    assert cat["source"] == ZIMAN_CATALOG_NOTE
++    assert cat["product_count"] == 7
++    assert cat["family_counts"] == {"F1_floral": 2, "F4_mixed_hamper": 2,
++                                    "F2_framed": 1, "F3_candy_basket": 1,
++                                    "OTHER": 1}
++    assert cat["perishable_products"] == 2         # فیلدِ صریحِ perishable
++    assert cat["alcohol_suspect_products"] == 1    # فقط «sparkling wine (alcohol)» — نه twine
++    assert cat["evidence_class"] == "GROUNDED"
++
++
++def test_inventory_report_grounded_per_family():
++    leg = _leg(catalog_path=_write_catalog(_tmp()))
++    p = leg.inventory_report({"C1": 10, "XX": 1})
++    fams = p.payload["families"]
++    # aliasِ قدیمی: C1 → F1_floral (رد نمی‌شود)؛ XX همچنان رد
++    assert "C1" not in p.payload["unknown_keys_rejected"]
++    assert "XX" in p.payload["unknown_keys_rejected"]
++    assert fams["F1_floral"]["count"] == 10                   # عددِ مالک (کلیدِ قدیمی)
++    assert fams["F1_floral"]["catalog_count"] == 2            # شمارشِ زمینی (additive)
++    assert fams["F4_mixed_hamper"]["catalog_count"] == 2
++    assert fams["F4_mixed_hamper"]["perishable_count"] == 2
++    assert fams["F4_mixed_hamper"]["alcohol_suspect_count"] == 1
++    assert fams["F4_mixed_hamper"]["edible"] == {"chocolate": 1, "mixed": 1}
++    assert fams["F2_framed"]["perishable_count"] == 0
++    # کلیدهای قدیمیِ قرارداد دست‌نخورده (ADD, don't rename)
++    assert p.payload["canonical_write"] is False
++    assert p.payload["draft_only"] is True
++    assert p.payload["capacity_public_claim_allowed"] is False
++    assert "F1_floral" in p.payload["next_step"]
++    assert p.payload["catalog"]["loaded"] is True
++
++
++def test_org_root_resolution_and_removal():
++    """resolution پیش‌فرض از opslib.ORG_ROOT در لحظهٔ فراخوان — نه مسیرِ hardcode.
++    ORG_ROOT صریحاً pin می‌شود (در سشنِ مشترکِ pytest، opslib ممکن است قبل از
++    harness.setup این ماژول import شده باشد و ریشهٔ دیگری cache کرده باشد)."""
++    import opslib
++    root = Path(ENV["root"])
++    old_root = opslib.ORG_ROOT
++    opslib.ORG_ROOT = root
++    written = _write_catalog(root)
++    try:
++        leg = _leg()                              # بدون تزریق — باید از ORG_ROOT پیدا کند
++        assert leg.status_snapshot()["catalog"]["loaded"] is True
++        assert set(leg.product_families()) == {"F1_floral", "F4_mixed_hamper",
++                                               "F2_framed", "F3_candy_basket",
++                                               "OTHER"}
++        written.unlink()
++        leg2 = _leg()                             # حذف شد → رفتارِ قدیم، بدون کرش
++        assert leg2.product_families() == dict(PRODUCT_FAMILIES)
++    finally:
++        opslib.ORG_ROOT = old_root
++        if written.exists():
++            written.unlink()
++
++
++def test_draft_content_alias_and_derived_warnings():
++    leg = _leg(catalog_path=_write_catalog(_tmp()))
++    # C4 (کدِ قدیمی) → F4_mixed_hamper؛ هشدارِ فاسدشدنی از فیلدِ perishable مشتق می‌شود
++    d = leg.draft_content(product_family="C4", occasion="تولد")
++    assert d.payload["product_family"] == "F4_mixed_hamper"
++    assert d.payload["requested_family"] == "C4"
++    assert d.payload["family_source"] == "catalog"
++    assert "فاسدشدنی" in d.payload["body"] and "محلی" in d.payload["body"]
++    assert "الکل" in d.payload["body"]            # alcohol_suspect در F4
++    assert d.payload["publish"] is False and d.payload["draft_only"] is True
++    # خانوادهٔ غیرفاسدشدنی → بدون هشدار
++    d2 = leg.draft_content(product_family="F1_floral")
++    assert "فاسدشدنی" not in d2.payload["body"]
++    assert "الکل" not in d2.payload["body"]
++    # ناشناخته → پیش‌فرضِ قدیم (aliasِ C3 = F2_framed)
++    d3 = leg.draft_content(product_family="ZZ")
++    assert d3.payload["product_family"] == LEGACY_FAMILY_ALIAS["C3"]
++
++
++def test_utf8_bom_catalog_loads():
++    """فایلِ زمینیِ واقعی BOM دارد (خروجی PowerShell) — پل باید آن را بخواند، نه fallback."""
++    root = _tmp()
++    p = root / ZIMAN_CATALOG_NOTE
++    p.parent.mkdir(parents=True, exist_ok=True)
++    p.write_text(json.dumps(_fixture_catalog(), ensure_ascii=False),
++                 encoding="utf-8-sig")                        # با BOM، عینِ فایلِ واقعی
++    leg = _leg(catalog_path=p)
++    assert leg.status_snapshot()["catalog"]["loaded"] is True
++    assert leg.status_snapshot()["catalog"]["product_count"] == 7
++
++
++def test_allowlist_gate_blocks_catalog_read():
++    """اگر کاتالوگ در read_allowlistِ packet نباشد → حتی با فایلِ موجود لود نمی‌شود (D2)."""
++    pkt = TaskPacket(leg_id="ziman-gallery", organ="ZIMAN",
++                     read_allowlist=("03 - Projects/Ziman Galerry/PROJECT.md",),
++                     tools=("status_snapshot",), budget_aud=1.0)
++    leg = ZimanLeg(packet=pkt, organ_table={"ZIMAN": {}}, capacity_ceiling=30,
++                   catalog_path=_write_catalog(_tmp()))
++    assert leg.product_families() == dict(PRODUCT_FAMILIES)
++    assert leg.status_snapshot()["catalog"]["loaded"] is False
++
++
++def test_bridge_stays_propose_only():
++    leg = _leg(catalog_path=_write_catalog(_tmp()))
++    assert leg.tick()["ok"] is True
++    for forbidden in ("send", "publish", "pay"):
++        assert not hasattr(leg, forbidden)
++    s = leg.status_snapshot()
++    assert s["autonomy"] == "propose-only"
++    assert s["execution_state"] == "ZERO outward execution — drafts only"
++
++
++if __name__ == "__main__":
++    print("── test_ziman_catalog_bridge ──")
++    _failed = harness.run([
++        ("missing_catalog_exact_legacy_behavior", test_missing_catalog_exact_legacy_behavior),
++        ("corrupt_or_misshapen_catalog_fail_soft", test_corrupt_or_misshapen_catalog_fail_soft),
++        ("catalog_families_counts_and_flags", test_catalog_families_counts_and_flags),
++        ("inventory_report_grounded_per_family", test_inventory_report_grounded_per_family),
++        ("org_root_resolution_and_removal", test_org_root_resolution_and_removal),
++        ("utf8_bom_catalog_loads", test_utf8_bom_catalog_loads),
++        ("draft_content_alias_and_derived_warnings", test_draft_content_alias_and_derived_warnings),
++        ("allowlist_gate_blocks_catalog_read", test_allowlist_gate_blocks_catalog_read),
++        ("bridge_stays_propose_only", test_bridge_stays_propose_only),
++    ])
++    sys.exit(1 if _failed else 0)
+diff --git a/_ops/tests/test_ziman_leg.py b/_ops/tests/test_ziman_leg.py
+index e6299c6..b560e63 100644
+--- a/_ops/tests/test_ziman_leg.py
++++ b/_ops/tests/test_ziman_leg.py
+@@ -119,7 +119,11 @@ def test_inventory_report_no_canonical_write():
+     p = leg.inventory_report({"C1": 10, "C3": 15, "XX": 1})
+     assert p.payload["canonical_write"] is False
+     assert "XX" in p.payload["unknown_keys_rejected"]
+-    assert set(PRODUCT_FAMILIES) == set(p.payload["families"])
++    # برنامهٔ ۸: خانواده‌ها = خانواده‌های فعالِ پا (کاتالوگِ واقعی F1..F4/OTHER اگر
++    # در دسترس باشد، وگرنه fallbackِ قدیمیِ C1–C4). assertionِ قبلی C1–C4 را هاردکد می‌کرد.
++    assert set(leg.product_families()) == set(p.payload["families"])
++    if not p.payload["catalog"]["loaded"]:          # فقط در حالتِ fallback
++        assert set(PRODUCT_FAMILIES) == set(p.payload["families"])
+ 
+ 
+ def test_memory_candidate_rejects_secrets():

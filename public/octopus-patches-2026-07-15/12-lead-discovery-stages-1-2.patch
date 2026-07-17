@@ -1,0 +1,1843 @@
+diff --git a/_ops/cortex/model_router.py b/_ops/cortex/model_router.py
+index f75202c..94f823b 100644
+--- a/_ops/cortex/model_router.py
++++ b/_ops/cortex/model_router.py
+@@ -104,20 +104,72 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int) -> dict | No
+         return None
+ 
+ 
++def _scored_tier(task: str) -> str | None:
++    """مشاورِ route_scorer پشتِ پرچمِ CORTEX_ROUTE_SCORER (CORTEX-02).
++
++    فقط وقتی صدا زده می‌شود که پرچم روشن باشد و tier صریح داده نشده باشد. خالص و
++    $۰ (route_scorer فقط امتیاز می‌دهد، هیچ callِ LLM ندارد). هر خطا/خروجیِ نامعتبر
++    → None تا مسیرِ ایستای TASK_TIERS دقیقاً مثلِ امروز جاری شود (fail-soft)."""
++    try:
++        import route_scorer  # noqa: E402 — هم‌ماژول در cortex؛ در sys.path هست
++        out = route_scorer.score_route(task, None)
++        tier = out.get("tier") if isinstance(out, dict) else None
++        if tier in ("local", "secondary", "primary"):
++            return tier
++    except Exception as e:  # noqa: BLE001 — مشاور هرگز صداکننده را نکشد
++        try:
++            opslib.alert([f"cortex route_scorer consult failed (static fallback): "
++                          f"{type(e).__name__}: {e}"])
++        except Exception:  # noqa: BLE001
++            pass
++    return None
++
++
+ def ask(task: str, prompt: str, system: str = "", max_tokens: int = 400,
+         tier: str | None = None, opener=None) -> dict:
+     """درِ واحد. خروجی همیشه dict: {ok, tier?, text?, reason?}.
+-    ردهٔ پولی بسته/ناموفق → local؛ local خاموش → ok=False با دلیلِ صادق."""
++    ردهٔ پولی بسته/ناموفق → local؛ local خاموش → ok=False با دلیلِ صادق.
++
++    CORTEX-02: اگر پرچمِ CORTEX_ROUTE_SCORER روشن باشد و tier صریح نداده شده باشد،
++    route_scorer.score_route مشورت می‌شود (fail-soft)؛ خطا/خالی → نگاشتِ ایستای
++    TASK_TIERS. پرچمِ خاموش (پیش‌فرض) = رفتار byte-identical با امروز."""
+     if opslib.STOP_ORGANISM.exists() or opslib.halted():
+         return {"ok": False, "reason": "kill-switch"}
+-    want = tier or TASK_TIERS.get(task, "local")
++    want = tier
++    if not want and os.environ.get("CORTEX_ROUTE_SCORER"):
++        want = _scored_tier(task)
++    want = want or TASK_TIERS.get(task, "local")
+     if want in ("secondary", "primary"):
+-        out = _ask_paid(want, prompt, system, max_tokens)
+-        if out:
+-            return {"ok": True, **out}
++        # 2026-07-15 key-aware: tierِ خواسته اول، بعد tierِ پولیِ دیگر — ولی فقط آن‌هایی که کلید
++        # دارند (وگرنه یک failِ الکی می‌سوزانیم و به محلیِ آشغال می‌افتیم). این کاری می‌کند که
++        # اشتراکِ Fuguِ مالک واقعاً استفاده شود حتی وقتی tierِ خواسته GLMِ بی‌کلید بود (باگِ اصلی).
++        kp = keys_present()
++        _has = {"secondary": bool(kp.get("glm")), "primary": bool(kp.get("fugu"))}
++        order = [want] + [t for t in ("primary", "secondary") if t != want]
++        tried = []
++        for _t in order:
++            if not _has.get(_t):
++                continue
++            out = _ask_paid(_t, prompt, system, max_tokens)
++            tried.append(_t)
++            if out:
++                return {"ok": True, **out}
+         gate_ok, gate_why = paid_gate()
+-        # صادق: چرا پولی نشد + ادامه با local
+-        fallback_reason = gate_why if not gate_ok else "paid-call-failed"
++        if not gate_ok:
++            fallback_reason = gate_why
++        elif not any(_has.values()):
++            fallback_reason = "no-paid-key"
++            try:
++                opslib.alert(["cortex: هیچ کلیدِ پولی (Fugu/GLM) در دسترس نیست — مغز روی محلیِ $0"])
++            except Exception:  # noqa: BLE001
++                pass
++        else:
++            fallback_reason = "paid-call-failed"
++            try:
++                opslib.alert([f"🔴 cortex: مغزِ پولی روی {tried or order} شکست خورد → "
++                              f"محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)"])
++            except Exception:  # noqa: BLE001
++                pass
+     else:
+         fallback_reason = None
+     out = local_llm.ask(prompt, system=system, max_tokens=max_tokens,
+diff --git a/_ops/debate/client.py b/_ops/debate/client.py
+index 3a61bbb..ad423f0 100644
+--- a/_ops/debate/client.py
++++ b/_ops/debate/client.py
+@@ -164,6 +164,7 @@ def _gateway_is_up():
+ _PROVIDER_REGISTRY = {
+     "glm": {
+         "env_key": "ZAI_API_KEY",
++        "env_key_alias": "GLM_API_KEY",   # 2026-07-15: مالک ممکن است GLM_API_KEY بگذارد (نامِ مستندِ budgets)
+         "base_url_env": "GLM_BASE_URL",
+         "base_url_default": "https://api.z.ai",
+         "allowed_hosts": ("api.z.ai", "bigmodel.cn"),
+@@ -172,6 +173,7 @@ _PROVIDER_REGISTRY = {
+     },
+     "sakana": {
+         "env_key": "SAKANA_API_KEY",
++        "env_key_alias": "FUGU_API_KEY",   # 2026-07-15: مالک FUGU_API_KEY گذاشته (Fugu = Sakana)
+         "base_url_default": "https://api.sakana.ai/v1",
+         "allowed_hosts": ("api.sakana.ai",),
+         "price_in": 5.0,     # $5/M [VERIFIED]
+@@ -250,9 +252,13 @@ class MultiProviderClient:
+                     f"leak-guard: base_url «{self.base_url}» host مجازِ {self.provider} نیست — refusing")
+             # کلید فقط از env (هرگز hardcode)
+             if transport is None:
+-                self.api_key = os.environ.get(reg["env_key"], "")
++                # 2026-07-15: نامِ اصلی، بعد aliasِ مستند (FUGU_API_KEY / GLM_API_KEY) — تا کلیدِ
++                # مالک هرچه نامش باشد به provider برسد. هرگز مقدار log/echo نمی‌شود.
++                self.api_key = (os.environ.get(reg["env_key"])
++                                or os.environ.get(reg.get("env_key_alias", ""), "") or "")
+                 if not self.api_key:
+-                    raise RefuseToSend(f"{reg['env_key']} تنظیم نیست — کلید فقط از env")
++                    _names = reg["env_key"] + (f"/{reg['env_key_alias']}" if reg.get("env_key_alias") else "")
++                    raise RefuseToSend(f"{_names} تنظیم نیست — کلید فقط از env")
+             else:
+                 self.api_key = ""
+         # قیمت از registry (برای telemetry). flat subscription → cost محاسبه ولی گزارش می‌شود
+diff --git a/_ops/legs/lead_scorer.py b/_ops/legs/lead_scorer.py
+new file mode 100644
+index 0000000..f87a322
+--- /dev/null
++++ b/_ops/legs/lead_scorer.py
+@@ -0,0 +1,282 @@
++#!/usr/bin/env python3
++"""lead_scorer.py — موتورِ امتیازدهیِ لیدِ نقاشی (مرحلهٔ ۱ نقشهٔ لید، 2026-07-15).
++
++پورتِ وفادارِ `_launchpad/second-brain-live/painting-bot/lead_scorer.py` به داخلِ
++ارگانیسم: همان ریاضی (فیلترِ سخت → مسیریابیِ دسته → سیگنال‌های جمع‌پذیر → ارزش →
++جغرافیا → آستانه‌ها)، ولی stdlib-فقط — وابستگیِ pyyaml حذف و کلِ
++`painter_lead_scoring.yaml` عیناً به‌صورت DEFAULT_CONFIG این‌جا inline شد.
++⚠️ هر تغییرِ وزن این‌جا باید آگاهانه باشد؛ تستِ test_lead_scorer.py مقادیر را به
++مقادیرِ yamlِ اصلی پین کرده تا driftِ خاموش لو برود.
++
++تابعِ خالص: dict-ورودی → ScoredLead-خروجی. هیچ I/O، هیچ شبکه، هیچ effector —
++تصمیمِ نهایی (draft/save/skip) فقط یک «پیشنهاد» است؛ مصرف‌کننده (lead_discovery_beat)
++propose-only است و ارسال همیشه human-gated می‌ماند.
++"""
++from __future__ import annotations
++
++import math
++from dataclasses import dataclass, field
++
++# ─── کانفیگ — inlineِ عیناً painter_lead_scoring.yaml (فلسفه: فیلترِ سخت + مسیریابی
++# بر اساسِ «نوعِ خریدار»؛ strata اول = رابطهٔ تکرارشونده) ───────────────────────────
++DEFAULT_CONFIG: dict = {
++    "meta": {
++        "operator": "Sydney painter",
++        "base_lat": -33.8688,          # مرکزِ سرویس (CBD سیدنی)
++        "base_lng": 151.2093,
++        "max_service_radius_km": 40,
++    },
++    "actions": {
++        "draft_threshold": 70,          # ≥70 → draft (کاندیدِ propose)
++        "save_threshold": 45,           # 45–69 → save؛ <45 → skip
++    },
++    "category_priority": [
++        "strata_remedial",
++        "government_education",
++        "new_residential_multi",
++        "commercial_fitout",
++    ],
++    "hard_skip": {
++        "any_phrase": [
++            "demolition only", "tree removal", "subdivision of land",
++            "strata subdivision", "boundary adjustment",
++            "torrens title subdivision", "swimming pool", "signage only",
++        ],
++        "single_dwelling_phrases": [
++            "dwelling house", "single dwelling", "detached dwelling",
++            "secondary dwelling", "granny flat",
++        ],
++        "single_dwelling_value_floor": 250000,
++    },
++    "categories": {
++        "strata_remedial": {
++            "base": 55,
++            "label": "Strata remedial / common-property repaint",
++            "required_any": [
++                "common property", "owners corporation", "remedial",
++                "render and paint", "render & paint", "balustrade", "balcony",
++            ],
++            "context_any": [
++                "strata", "units", "apartments", "flat building",
++                "multi dwelling", "multi-dwelling", "common property",
++                "owners corporation",
++            ],
++        },
++        "government_education": {
++            "base": 35,
++            "label": "Government / education / social housing (route to tenders)",
++            "required_any": [
++                "school", "tafe", "hospital", "health facility",
++                "social housing", "community facility", "public building",
++            ],
++        },
++        "new_residential_multi": {
++            "base": 30,
++            "label": "New multi-residential build (future client + builder relationship)",
++            "required_any": [
++                "residential flat building", "multi dwelling housing",
++                "multi-dwelling housing", "apartment building", "townhouses",
++                "shop top housing", "boarding house",
++            ],
++        },
++        "commercial_fitout": {
++            "base": 40,
++            "label": "Commercial fitout / change of use (builder is the buyer)",
++            "required_any": [
++                "fitout", "fit out", "fit-out", "change of use",
++                "retail premises", "office", "tenancy", "shopfront",
++                "refurbishment",
++            ],
++        },
++    },
++    "signals": {
++        "paint_scope": {
++            "weight": 18,
++            "any_phrase": [
++                "paint", "repaint", "render", "coating", "external alteration",
++                "internal alteration", "facade", "fitout", "fit out", "fit-out",
++                "refurbishment",
++            ],
++        },
++        "recurring_buyer": {
++            "weight": 10,
++            "any_phrase": [
++                "common property", "owners corporation", "strata", "maintenance",
++            ],
++        },
++        "red_flags": {
++            "weight": -15,
++            "any_phrase": [
++                "business identification signage", "advertising",
++                "illuminated sign", "awning", "heritage",
++            ],
++        },
++    },
++    "value_tiers": [
++        {"min": 1000000, "bonus": 15},
++        {"min": 300000, "bonus": 10},
++        {"min": 100000, "bonus": 5},
++        {"min": 0, "bonus": 0},
++    ],
++    "geo": {
++        "in_radius_bonus": 8,
++        "out_of_radius_penalty": -20,
++    },
++}
++
++
++# ─── helpers ────────────────────────────────────────────────────────────────────
++def _haystack(lead: dict) -> str:
++    """متنِ lowercase که کلیدواژه‌ها در آن جستجو می‌شوند."""
++    parts = [str(lead.get("description", "")), str(lead.get("address", ""))]
++    return " ".join(parts).lower()
++
++
++def _matches(haystack: str, phrases) -> list[str]:
++    """عبارت‌هایی که به‌صورتِ substring در haystack هستند."""
++    return [p for p in (phrases or []) if p.lower() in haystack]
++
++
++def _haversine_km(lat1, lng1, lat2, lng2) -> float | None:
++    if None in (lat1, lng1, lat2, lng2):
++        return None
++    R = 6371.0
++    p1, p2 = math.radians(lat1), math.radians(lat2)
++    dphi = math.radians(lat2 - lat1)
++    dlmb = math.radians(lng2 - lng1)
++    a = math.sin(dphi / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dlmb / 2) ** 2
++    return 2 * R * math.asin(math.sqrt(a))
++
++
++# ─── نتیجه ──────────────────────────────────────────────────────────────────────
++@dataclass
++class ScoredLead:
++    category: str
++    category_label: str
++    score: int
++    action: str                                   # "draft" | "save" | "skip"
++    reasons: list[str] = field(default_factory=list)
++    lead: dict = field(default_factory=dict)
++
++    def card(self) -> str:
++        """کارتِ تلگرامی — برای نمایشِ کاندیدا به مالک (مرحلهٔ ۷)."""
++        L = self.lead
++        emoji = {"draft": "🟢", "save": "🟡", "skip": "⚪️"}.get(self.action, "🏢")
++        lines = [
++            f"{emoji} {L.get('source', 'lead')} | score: {self.score} | {self.category}",
++            f"📌 {str(L.get('description', '')).strip()}",
++            f"📍 {L.get('address', 'n/a')}",
++        ]
++        if L.get("url"):
++            lines.append(f"🔗 {L['url']}")
++        lines.append("🧠 " + "; ".join(self.reasons))
++        return "\n".join(lines)
++
++    def as_dict(self) -> dict:
++        return {"category": self.category, "category_label": self.category_label,
++                "score": self.score, "action": self.action, "reasons": self.reasons}
++
++
++# ─── امتیازدهنده ────────────────────────────────────────────────────────────────
++class LeadScorer:
++    """قطعی، $0، بدونِ I/O. کانفیگِ سفارشی فقط برای تست/تنظیم — پیش‌فرض همان yaml."""
++
++    def __init__(self, config: dict | None = None):
++        self.cfg = config or DEFAULT_CONFIG
++
++    # -- فیلترهای سخت: اصابت = skip بی‌قیدوشرط --------------------------------------
++    def _hard_skip(self, hay: str, lead: dict) -> str | None:
++        hs = self.cfg["hard_skip"]
++        hit = _matches(hay, hs.get("any_phrase"))
++        if hit:
++            return f"hard-skip ({hit[0]})"
++        sd = _matches(hay, hs.get("single_dwelling_phrases"))
++        if sd:
++            cost = lead.get("cost_of_development")
++            floor = hs.get("single_dwelling_value_floor", 0)
++            if cost is not None and cost < floor:
++                return f"single dwelling under ${floor:,} ({sd[0]})"
++        return None
++
++    # -- مسیریابیِ دسته (اولین اصابت برنده — strata عمداً اول) -----------------------
++    def _route(self, hay: str) -> tuple[str, dict]:
++        cats = self.cfg["categories"]
++        for name in self.cfg["category_priority"]:
++            c = cats[name]
++            if not _matches(hay, c.get("required_any")):
++                continue
++            ctx = c.get("context_any")
++            if ctx and not _matches(hay, ctx):
++                continue
++            return name, c
++        return "uncategorised", {"base": 0, "label": "No clear paint-relevant scope"}
++
++    # -- ارزش + جغرافیا -------------------------------------------------------------
++    def _value_bonus(self, lead: dict) -> tuple[int, str | None]:
++        cost = lead.get("cost_of_development")
++        if cost is None:
++            return 0, None
++        for tier in self.cfg["value_tiers"]:
++            if cost >= tier["min"]:
++                if tier["bonus"]:
++                    return tier["bonus"], f"value ${cost:,} (+{tier['bonus']})"
++                return 0, None
++        return 0, None
++
++    def _geo_adjust(self, lead: dict) -> tuple[int, str | None]:
++        m, g = self.cfg["meta"], self.cfg["geo"]
++        d = _haversine_km(lead.get("lat"), lead.get("lng"), m["base_lat"], m["base_lng"])
++        if d is None:
++            return 0, None
++        if d <= m["max_service_radius_km"]:
++            return g["in_radius_bonus"], f"{d:.0f}km away (+{g['in_radius_bonus']})"
++        return g["out_of_radius_penalty"], f"{d:.0f}km away ({g['out_of_radius_penalty']})"
++
++    # -- اصلی ------------------------------------------------------------------------
++    def score(self, lead: dict) -> ScoredLead:
++        hay = _haystack(lead)
++        reasons: list[str] = []
++
++        skip_reason = self._hard_skip(hay, lead)
++        if skip_reason:
++            return ScoredLead("filtered", "Hard filter", 0, "skip", [skip_reason], lead)
++
++        cat_name, cat = self._route(hay)
++        total = cat.get("base", 0)
++        reasons.append(f"{cat.get('label', cat_name)} (base {cat.get('base', 0)})")
++
++        for sig_name, sig in self.cfg["signals"].items():
++            hits = _matches(hay, sig.get("any_phrase"))
++            if hits:
++                total += sig["weight"]
++                sign = "+" if sig["weight"] >= 0 else ""
++                reasons.append(f"{sig_name}: {', '.join(hits[:3])} ({sign}{sig['weight']})")
++
++        vb, vr = self._value_bonus(lead)
++        total += vb
++        if vr:
++            reasons.append(vr)
++        elif lead.get("cost_of_development") is None:
++            reasons.append("value unknown (no bonus)")
++
++        gb, gr = self._geo_adjust(lead)
++        total += gb
++        if gr:
++            reasons.append(gr)
++
++        score = max(0, min(100, total))
++
++        a = self.cfg["actions"]
++        if score >= a["draft_threshold"]:
++            action = "draft"
++        elif score >= a["save_threshold"]:
++            action = "save"
++        else:
++            action = "skip"
++
++        return ScoredLead(cat_name, cat.get("label", cat_name), score, action, reasons, lead)
++
++
++def score_lead(lead: dict) -> ScoredLead:
++    """میان‌بُرِ ماژول‌سطح — امتیازدهیِ یک لید با کانفیگِ پیش‌فرض."""
++    return LeadScorer().score(lead)
+diff --git a/_ops/legs/lead_sense.py b/_ops/legs/lead_sense.py
+new file mode 100644
+index 0000000..a01d11d
+--- /dev/null
++++ b/_ops/legs/lead_sense.py
+@@ -0,0 +1,119 @@
++#!/usr/bin/env python3
++"""lead_sense.py — آداپترِ SENSE صندوقِ لید (مرحلهٔ ۲ نقشهٔ لید، 2026-07-15).
++
++منبعِ کاندیدای لید = فایل‌های JSON در `state/legs/lead-inbox/` — هر فایل یک dict
++(همان شکلِ lead_scorer: حداقل `description`؛ اختیاری address/cost_of_development/
++lat/lng/applicant/url/source/expected_aud/day). هر تولیدکننده‌ای (ایمیلِ مرحلهٔ ۳،
++هاروسترِ بیرونی، حتی دستِ مالک) می‌تواند فایل بیندازد — جداسازیِ کشف از تیک.
++
++قواعد (قانونِ اساسی):
++  - هرگز حذف نمی‌کنیم؛ فقط انتقال: پردازش‌شده → `processed/` + سایدکارِ نتیجه؛
++    JSONِ خراب → `rejected/` + سایدکارِ دلیل.
++  - idempotent: هَشِ محتواییِ (description+address) در `processed/_seen.json` —
++    کاندیدِ تکراری دوباره propose نمی‌شود (الگوی dedupِ message_id تلگرام).
++  - مسیرها در زمانِ فراخوانی از opslib خوانده می‌شوند (ایزولاسیونِ تستِ env-first).
++
++stdlib-فقط؛ صفر شبکه؛ صفر effector.
++"""
++from __future__ import annotations
++
++import hashlib
++import json
++import os
++import sys
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(_HERE.parent / "budget"))
++import opslib  # noqa: E402
++
++
++def _inbox() -> Path:
++    """مسیرِ صندوق — در call-time تا OPS_DIR تستی اثر کند."""
++    return opslib.STATE_DIR / "legs" / "lead-inbox"
++
++
++def _processed() -> Path:
++    return _inbox() / "processed"
++
++
++def _rejected() -> Path:
++    return _inbox() / "rejected"
++
++
++def _seen_index() -> Path:
++    return _processed() / "_seen.json"
++
++
++def content_hash(lead: dict) -> str:
++    """هویتِ محتواییِ کاندید — description+address (lowercase). پایهٔ dedup."""
++    key = (str(lead.get("description", "")).strip().lower() + "\0"
++           + str(lead.get("address", "")).strip().lower())
++    return hashlib.sha256(key.encode("utf-8")).hexdigest()[:24]
++
++
++def _load_seen() -> set[str]:
++    try:
++        return set(json.loads(_seen_index().read_text("utf-8")))
++    except (OSError, ValueError):
++        return set()
++
++
++def _save_seen(seen: set[str]) -> None:
++    try:
++        _processed().mkdir(parents=True, exist_ok=True)
++        tmp = _seen_index().with_suffix(".json.tmp")
++        tmp.write_text(json.dumps(sorted(seen), ensure_ascii=False, indent=0), "utf-8")
++        os.replace(tmp, _seen_index())
++    except (OSError, TypeError, ValueError):
++        pass   # fail-soft: نبودِ ایندکس فقط dedup را ضعیف می‌کند، نه beat را
++
++
++def seen_before(lead: dict) -> bool:
++    return content_hash(lead) in _load_seen()
++
++
++def read_inbox(limit: int | None = None) -> list[tuple[Path, dict]]:
++    """کاندیدهای معتبرِ صندوق، مرتب به نام (قطعی). JSONِ خراب → rejected/ + دلیل.
++    فقط فایل‌های سطحِ اولِ inbox (نه processed/rejected)."""
++    box = _inbox()
++    if not box.is_dir():
++        return []
++    out: list[tuple[Path, dict]] = []
++    for p in sorted(box.glob("*.json")):
++        try:
++            d = json.loads(p.read_text("utf-8"))
++            if not isinstance(d, dict) or not str(d.get("description", "")).strip():
++                raise ValueError("lead must be a dict with a non-empty description")
++            out.append((p, d))
++        except (OSError, ValueError) as e:
++            _move_with_sidecar(p, _rejected(), {"error": f"{type(e).__name__}: {e}"})
++        if limit is not None and len(out) >= limit:
++            break
++    return out
++
++
++def mark_processed(path: Path, lead: dict, result: dict) -> None:
++    """کاندید را به processed/ منتقل کن + سایدکارِ نتیجه + ثبتِ هش در dedup."""
++    seen = _load_seen()
++    seen.add(content_hash(lead))
++    _save_seen(seen)
++    _move_with_sidecar(path, _processed(), result)
++
++
++def _move_with_sidecar(path: Path, dest_dir: Path, result: dict) -> None:
++    """انتقالِ اتمیک (نه حذف) + سایدکارِ `<name>.result.json` (fail-soft)."""
++    try:
++        dest_dir.mkdir(parents=True, exist_ok=True)
++        dest = dest_dir / path.name
++        if dest.exists():                       # تصادمِ نام → suffix عددی، نه بازنویسی
++            i = 1
++            while (dest_dir / f"{path.stem}.{i}{path.suffix}").exists():
++                i += 1
++            dest = dest_dir / f"{path.stem}.{i}{path.suffix}"
++        os.replace(path, dest)
++        side = dest.with_name(dest.name + ".result.json")
++        side.write_text(json.dumps({**result, "processed_at": opslib.now_iso()},
++                                   ensure_ascii=False, indent=2), "utf-8")
++    except (OSError, TypeError, ValueError):
++        pass   # fail-soft: انتقالِ ناموفق فقط باعثِ retry در beatِ بعدی می‌شود
+diff --git a/_ops/organism.py b/_ops/organism.py
+index c526ad1..c4ef34f 100644
+--- a/_ops/organism.py
++++ b/_ops/organism.py
+@@ -256,7 +256,7 @@ def main() -> int:
+         _protective_skip = False   # آیا این تیک کارِ غیرضروری را skip کند؟ (protective-halt، enforceِ واقعی)
+         _heart_status = None       # HH-P5: پیش از try تعریف می‌شود تا بلوکِ _sleep_s (بیرونِ try) هرگز NameError نخورد
+         try:
+-            if opslib.STOP_ORGANISM.exists() or opslib.halted() == "STOP(architect)":
++            if opslib.STOP_ORGANISM.exists() or opslib.master_halted():
+                 opslib.heartbeat("organism=HALT (STOP) — خروج تمیز")
+                 _write_state({"exited": "STOP"})
+                 return 0
+@@ -382,6 +382,15 @@ def main() -> int:
+                                           beat=_cstat.get("beat", 0))
+                 except Exception as _ce:  # noqa: BLE001 — §۴: خطای خاموش ممنون (consolidation نباید tick را بکشد)
+                     opslib.alert([f"consolidation_beat error (non-fatal): {type(_ce).__name__}: {_ce}"])
++            # ── TG-EXEC (2026-07-15): مصرفِ verbهای صف‌شدهٔ تلگرام روی beat (پیش‌فرض خاموش). ──
++            if not _protective_skip:
++                try:
++                    _tgx = _w.cockpit_requests_beat(state_dir=str(opslib.STATE_DIR),
++                                                    doctor=_doctor_inst, channel=_chan)
++                    if _tgx.get("ran"):
++                        opslib.heartbeat(f"tg-exec ran: {_tgx['ran']}")
++                except Exception as _qe:  # noqa: BLE001 — §۴ non-fatal
++                    opslib.alert([f"cockpit_requests_beat error (non-fatal): {type(_qe).__name__}"])
+             # ── W (P-W2): آورانِ واقعی — observationهای انتزاعی (ازِ snapshot، صفر PII)
+             # → sensory_bus → school_bridge.learn_from → afferent_status. هر N beat، پشتِ flag.
+             _afferent_status = None
+@@ -439,6 +448,41 @@ def main() -> int:
+                 except Exception as _ce:  # noqa: BLE001 — limb نباید tick را بکشد
+                     opslib.alert([f"cartographer_beat error (non-fatal): {type(_ce).__name__}: {_ce}"])
+ 
++            # ── Business legs (blind-spot LEG-01): جمعِ status ِ ۴ پای نو (mining/crypto/
++            # accounting/knowledge) → ORGANISM-STATE.business_legs تا داشبورد تاریک نباشد.
++            # read-only/safe (بی‌فلگ، STOP-gated داخلِ خودش)؛ write=False → بی sidecarِ اضافه.
++            _biz_legs = None
++            if not _protective_skip:
++                try:
++                    _biz_legs = _w.business_legs_beat(
++                        beat=_cstat.get("beat", 0) if _cstat else 0, write=False)
++                except Exception as _ble:  # noqa: BLE001 — §۴: نباید tick را بکشد
++                    opslib.alert([f"business_legs_beat error (non-fatal): {type(_ble).__name__}: {_ble}"])
++            # ── Email inbound (blind-spot LEG-06): پشتِ OCTOPUS_WIRE_EMAIL (پیش‌فرض خاموش)
++            # → None (dry، بی polling). فقط با فلگِ مالک زنده می‌شود.
++            if not _protective_skip:
++                try:
++                    _w.email_beat(beat=_cstat.get("beat", 0) if _cstat else 0)
++                except Exception as _eme:  # noqa: BLE001 — §۴: نباید tick را بکشد
++                    opslib.alert([f"email_beat error (non-fatal): {type(_eme).__name__}: {_eme}"])
++            # ── Lead discovery (مرحلهٔ ۲ نقشهٔ لید 2026-07-15): SENSE→SCORE→propose پشتِ
++            # OCTOPUS_WIRE_LEAD_DISCOVERY (پیش‌فرض خاموش، خارج از PAPER_FULL_FLAGS) → None.
++            # propose-only مطلق؛ نیازمندِ _leg (OCTOPUS_WIRE_LEAD) — بدونِ آن no-op.
++            _lead_disc = None
++            if not _protective_skip:
++                try:
++                    _lead_disc = _w.lead_discovery_beat(
++                        _leg, beat=_cstat.get("beat", 0) if _cstat else 0)
++                except Exception as _lde:  # noqa: BLE001 — §۴: نباید tick را بکشد
++                    opslib.alert([f"lead_discovery_beat error (non-fatal): {type(_lde).__name__}: {_lde}"])
++            # ── F3 (2026-07-14): seed ِ scheduler برای RFCهای دکتر — پشتِ OCTOPUS_WIRE_SCHEDULER
++            # (پیش‌فرض خاموش) → no-op. producer (scheduler_seed_doctor_rfc) قبلاً سیم‌نشده بود.
++            if not _protective_skip:
++                try:
++                    _w.scheduler_seed_beat(doctor=_doctor_inst, pacemaker=_pacemaker,
++                                           beat=_cstat.get("beat", 0) if _cstat else 0)
++                except Exception as _sse:  # noqa: BLE001 — §۴: نباید tick را بکشد
++                    opslib.alert([f"scheduler_seed_beat error (non-fatal): {type(_sse).__name__}: {_sse}"])
+             # ── I (P-I): موتورِ ایده-گراف — هر N beat گرافِ vault را تحلیل کن.
+             # هاب‌ها/خوشه‌ها/پل‌ها/یال‌های پیشنهادی. propose-only مطلق (هیچ effector).
+             if not _protective_skip and _idea_graph is not None and _cstat is not None:
+@@ -490,6 +534,8 @@ def main() -> int:
+                           **({"leg": _leg_status} if _leg_status else {}),
+                           **({"ziman": _ziman_status} if _ziman_status else {}),
+                           **({"cartographer": _cartographer_status} if _cartographer_status else {}),
++                          **({"business_legs": _biz_legs} if _biz_legs else {}),
++                          **({"lead_discovery": _lead_disc} if _lead_disc else {}),
+                           **({"heart": _heart_status} if _heart_status else {}),
+                           **({"cardiac": _cardiac_mod.status_snapshot()}
+                              if _cardiac_mod is not None else {})})
+diff --git a/_ops/tests/run_all.py b/_ops/tests/run_all.py
+index 03c4572..794d334 100644
+--- a/_ops/tests/run_all.py
++++ b/_ops/tests/run_all.py
+@@ -60,10 +60,28 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
+          "test_code_autonomy.py",
+          "test_ziman_leg.py",
+          "test_ziman_phase2.py",
+-         "test_ziman_wiring.py",
+-         "test_ziman_biology.py",
++         # 2026-07-13: دو ورودیِ phantom حذف شدند — test_ziman_wiring.py و
++         # test_ziman_biology.py هرگز در تاریخِ گیت وجود نداشتند (pytest exit=4 →
++         # سوییت را دائم قرمز و markerِ capability را دائم revoke می‌کرد؛ ریشهٔ C-01/C-04).
++         # اگر قرار است نوشته شوند، رجوع: AGENT_QUESTIONS «2026-07-13». پوششِ ziman فعلی =
++         # test_ziman_leg + test_ziman_phase2.
+          "test_cartographer_leg.py",
+          "test_cartographer_wiring.py",
++         "test_master_halt.py",
++         "test_panic_command.py", "test_tg_restart.py", "test_backup_visibility.py",
++         "test_cortex_shadow_wiring.py", "test_route_scorer_wire.py",
++         "test_leg_chain_wire.py", "test_render_legs.py", "test_new_legs.py",
++         "test_school_bridge.py",   # 2026-07-14: orphan test بود (فایل موجود، ثبت‌نشده) — ثبت شد
++         "test_self_claims.py", "test_octopus_logger_wire.py", "test_improve_refractory.py",
++         "test_wiring_cleanup.py", "test_deadwrite_readers.py",
++         # 2026-07-15: تست‌های نوِ راست‌گویی/کابین + دو orphanِ ziman (سبز، ثبت‌نشده بودند)
++         "test_business_legs_shape.py", "test_correlation_id_generated.py",
++         "test_channel_status_stale_not_green.py", "test_cockpit_truthful.py",
++         "test_baseline_money_fingerprint.py", "test_tg_exec_consumer.py",
++         "test_ziman_wiring.py", "test_ziman_biology.py",
++         # 2026-07-15: فیکسِ مغزِ پولی (باگ ۱) + موتورِ کشفِ لید (نقشهٔ لید، مراحل ۱-۲)
++         "test_brain_fix.py",
++         "test_lead_scorer.py", "test_lead_discovery_beat.py",
+          ]
+ # تست‌های خارج از _ops/tests/ (path tuyệtق)
+ EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
+@@ -73,7 +91,7 @@ EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_
+ # سبزِ دروغین می‌دهد. run_all باید واقعاً pytest را اجرا کند.
+ PYTEST_TESTS = {
+     "test_ziman_leg.py", "test_ziman_phase2.py",
+-    "test_ziman_wiring.py", "test_ziman_biology.py",
++    # test_ziman_wiring/biology حذف شدند (phantom — فایل هرگز وجود نداشت)
+     "test_cartographer_leg.py", "test_cartographer_wiring.py",
+ }
+ 
+diff --git a/_ops/tests/test_brain_fix.py b/_ops/tests/test_brain_fix.py
+new file mode 100644
+index 0000000..65e385f
+--- /dev/null
++++ b/_ops/tests/test_brain_fix.py
+@@ -0,0 +1,69 @@
++"""test_brain_fix.py — 2026-07-15: مغزِ پولیِ شکسته درست شد (offline).
++باگ: synthesize به GLMِ بی‌کلید می‌رفت → fail → محلیِ آشغال. فیکس: routerِ کلید-آگاه
++(اگر tier کلید ندارد، سراغِ tierِ پولیِ کلیددار برو) + aliasِ کلید (FUGU_API_KEY/GLM_API_KEY)."""
++import sys
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(_HERE.parent))
++sys.path.insert(0, str(_HERE.parent / "budget"))
++sys.path.insert(0, str(_HERE.parent / "cortex"))
++sys.path.insert(0, str(_HERE.parent / "debate"))
++
++import harness
++ENV = harness.setup("brain_fix")
++
++
++def t_a_key_aware_uses_fugu_when_glm_absent():
++    """synthesize → tierِ secondary(GLM) می‌خواهد ولی کلید ندارد → باید primary(Fugu) را امتحان کند."""
++    import model_router as mr
++    tried = []
++
++    def fake_ask_paid(tier, *a, **k):
++        tried.append(tier)
++        return ({"text": "x", "tier": tier, "model": "fugu", "cost_usd": 0.0}
++                if tier == "primary" else None)
++
++    orig_ap, orig_kp = mr._ask_paid, mr.keys_present
++    mr._ask_paid = fake_ask_paid
++    mr.keys_present = lambda: {"fugu": True, "glm": False, "deepseek": False}
++    try:
++        r = mr.ask("synthesize", "hi", max_tokens=10)
++        assert r.get("ok") and r.get("tier") == "primary", r
++        assert "secondary" not in tried, tried    # GLMِ بی‌کلید skip شد
++        assert "primary" in tried                  # Fugu امتحان شد
++    finally:
++        mr._ask_paid, mr.keys_present = orig_ap, orig_kp
++
++
++def t_b_no_paid_key_falls_to_local_loudly():
++    """هیچ کلیدِ پولی → بدونِ سوزاندنِ callِ الکی، مستقیم محلی + دلیلِ صادق."""
++    import model_router as mr
++    burned = []
++    orig_ap, orig_kp, orig_local, orig_gate = mr._ask_paid, mr.keys_present, mr.local_llm.ask, mr.paid_gate
++    mr._ask_paid = lambda *a, **k: burned.append(1) or None
++    mr.keys_present = lambda: {"fugu": False, "glm": False, "deepseek": False}
++    mr.paid_gate = lambda: (True, "open")          # گیت باز، ولی هیچ کلیدی نیست
++    mr.local_llm.ask = lambda *a, **k: {"text": "local", "model": "qwen", "cost_usd": 0.0}
++    try:
++        r = mr.ask("synthesize", "hi", max_tokens=10)
++        assert r.get("ok"), r
++        assert r.get("fallback_from", "").endswith("no-paid-key"), r
++        assert burned == []                        # هیچ callِ پولیِ الکی سوزانده نشد (کلید-آگاه)
++    finally:
++        mr._ask_paid, mr.keys_present, mr.local_llm.ask, mr.paid_gate = orig_ap, orig_kp, orig_local, orig_gate
++
++
++def t_c_client_has_key_aliases():
++    """client حالا FUGU_API_KEY / GLM_API_KEY را هم می‌خواند (نامِ مالک)."""
++    from client import _PROVIDER_REGISTRY
++    assert _PROVIDER_REGISTRY["sakana"]["env_key_alias"] == "FUGU_API_KEY"
++    assert _PROVIDER_REGISTRY["glm"]["env_key_alias"] == "GLM_API_KEY"
++
++
++if __name__ == "__main__":
++    for f in (t_a_key_aware_uses_fugu_when_glm_absent, t_b_no_paid_key_falls_to_local_loudly,
++              t_c_client_has_key_aliases):
++        f()
++        print("ok", f.__name__)
++    print("PASS test_brain_fix")
+diff --git a/_ops/tests/test_lead_discovery_beat.py b/_ops/tests/test_lead_discovery_beat.py
+new file mode 100644
+index 0000000..2f8b275
+--- /dev/null
++++ b/_ops/tests/test_lead_discovery_beat.py
+@@ -0,0 +1,162 @@
++#!/usr/bin/env python3
++"""تستِ مرحلهٔ ۲ نقشهٔ لید (2026-07-15): lead_discovery_beat — اولین حلقهٔ خودکارِ لید.
++
++اثبات می‌کند:
++  (الف) flag خاموش → None و صندوق دست‌نخورده (بایت‌به‌بایتِ امروز).
++  (ب) flag روشن → SENSE (صندوقِ فایل) → SCORE → فقط draft به intake می‌رسد؛
++      save/skip فقط آرشیو؛ فایل‌ها به processed/ منتقل (نه حذف) + سایدکارِ نتیجه؛
++      سایدکارِ ORGANISM-STATE.lead_discovery نوشته می‌شود.
++  (ج) dedup: همان محتوا دوباره → duplicate، هیچ proposeِ دوم (idempotent).
++  (د) kill-switch (STOP) → None حتی با flag روشن.
++  (هـ) cadence: beat غیرِ مضربِ N → None.
++  (و) ساختاری: organism.py واقعاً beat را صدا می‌زند + flag خارج از PAPER_FULL_FLAGS.
++$0 آفلاین؛ state ایزوله (OPS_DIR موقتِ harness)؛ FakeLeg ضبط‌کنندهٔ intake.
++"""
++import json
++import os
++import sys
++from pathlib import Path
++
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++import harness  # noqa: E402
++ENV = harness.setup("lead-discovery")
++
++_OPS = harness.REAL_VAULT / "_ops"
++for _p in [str(_OPS), str(_OPS / "legs")]:
++    if _p not in sys.path:
++        sys.path.insert(0, _p)
++
++import opslib        # noqa: E402
++import wiring        # noqa: E402
++import lead_sense    # noqa: E402
++
++ORGANISM_SRC = (_OPS / "organism.py").read_text("utf-8")
++WIRING_SRC = (_OPS / "wiring.py").read_text("utf-8")
++
++STRATA = {"description": ("Remedial works to common property including rendering and "
++                          "repainting of external facade to residential flat building "
++                          "of 24 units."),
++          "address": "12 Wattle Crescent, Pyrmont NSW 2009",
++          "cost_of_development": 820000, "lat": -33.87, "lng": 151.195,
++          "applicant": "Pyrmont Owners Corp", "expected_aud": 8000}
++FITOUT = {"description": ("Change of use to a retail premises, including internal "
++                          "fitout and business identification signage."),
++          "address": "106 King Street Sydney NSW 2000",
++          "lat": -33.8675, "lng": 151.2070}
++NOISE = {"description": "Demolition only of existing dwelling house.",
++         "address": "5 Quiet St, Sydney NSW 2000", "cost_of_development": 60000}
++
++
++class FakeLeg:
++    """ضبط‌کنندهٔ intake — قراردادِ LeadLeg.intake بدونِ لجرِ واقعی."""
++    def __init__(self):
++        self.calls = []
++
++    def intake(self, lead_name, expected_aud, cell="lead.doer", description="", day=None):
++        self.calls.append({"name": lead_name, "exp": expected_aud,
++                           "cell": cell, "desc": description, "day": day})
++        return {"ok": True, "attribution_id": f"LEAD-TEST-{len(self.calls):03d}",
++                "cell": cell, "expected_aud": expected_aud}
++
++
++def _drop(name: str, lead: dict) -> Path:
++    box = opslib.STATE_DIR / "legs" / "lead-inbox"
++    box.mkdir(parents=True, exist_ok=True)
++    p = box / f"{name}.json"
++    p.write_text(json.dumps(lead, ensure_ascii=False), "utf-8")
++    return p
++
++
++def t_a_flag_off_is_noop():
++    """flag خاموش → None؛ فایلِ صندوق دست‌نخورده."""
++    os.environ.pop("OCTOPUS_WIRE_LEAD_DISCOVERY", None)
++    p = _drop("untouched", STRATA)
++    assert wiring.lead_discovery_beat(FakeLeg(), beat=0) is None
++    assert p.exists(), "flag خاموش نباید صندوق را لمس کند"
++    p.unlink()   # پاکسازیِ fixtureِ تستی (state موقت، نه vault)
++
++
++def t_b_sense_score_propose():
++    """flag روشن: ۳ کاندید → ۱ propose (strata) + ۱ save + ۱ skip؛ انتقال + سایدکار."""
++    os.environ["OCTOPUS_WIRE_LEAD_DISCOVERY"] = "1"
++    try:
++        _drop("a-strata", STRATA)
++        _drop("b-fitout", FITOUT)
++        _drop("c-noise", NOISE)
++        leg = FakeLeg()
++        r = wiring.lead_discovery_beat(leg, beat=0)
++        assert r is not None and r["propose_only"] is True, r
++        assert (r["sensed"], r["proposed"], r["saved"], r["skipped"]) == (3, 1, 1, 1), r
++        # فقط strata به intake رسید، با نام/توضیح/ارزشِ درست
++        assert len(leg.calls) == 1, leg.calls
++        assert leg.calls[0]["name"] == "Pyrmont Owners Corp"
++        assert leg.calls[0]["exp"] == 8000.0
++        # فایل‌ها منتقل شدند (نه حذف) + سایدکارِ نتیجه
++        box = opslib.STATE_DIR / "legs" / "lead-inbox"
++        assert not list(box.glob("*.json")), "صندوق باید خالی شده باشد"
++        allj = list((box / "processed").glob("*.json"))
++        sides = [p for p in allj if p.name.endswith(".result.json")]
++        moved = [p for p in allj if not p.name.endswith(".result.json")
++                 and p.name != "_seen.json"]
++        assert len(moved) == 3, moved
++        assert len(sides) == 3, sides
++        # سایدکارِ وضعیتِ ارگانیسم
++        sp = opslib.STATE_DIR / "ORGANISM-STATE.lead_discovery"
++        d = json.loads(sp.read_text("utf-8"))
++        assert d["proposed"] == 1 and "updated_at" in d, d
++    finally:
++        os.environ.pop("OCTOPUS_WIRE_LEAD_DISCOVERY", None)
++
++
++def t_c_dedup_idempotent():
++    """همان محتوایِ strata دوباره → duplicate؛ هیچ intakeِ دوم (پایپ‌لاین idempotent)."""
++    os.environ["OCTOPUS_WIRE_LEAD_DISCOVERY"] = "1"
++    try:
++        _drop("a-strata-again", STRATA)
++        leg = FakeLeg()
++        r = wiring.lead_discovery_beat(leg, beat=0)
++        assert r["duplicates"] == 1 and r["proposed"] == 0, r
++        assert leg.calls == [], leg.calls
++    finally:
++        os.environ.pop("OCTOPUS_WIRE_LEAD_DISCOVERY", None)
++
++
++def t_d_killswitch_wins():
++    """STOP مقدم بر flag — حتی روشن هم None."""
++    os.environ["OCTOPUS_WIRE_LEAD_DISCOVERY"] = "1"
++    try:
++        opslib.STOP_ORGANISM.write_text("test", "utf-8")
++        try:
++            assert wiring.lead_discovery_beat(FakeLeg(), beat=0) is None
++        finally:
++            opslib.STOP_ORGANISM.unlink()
++    finally:
++        os.environ.pop("OCTOPUS_WIRE_LEAD_DISCOVERY", None)
++
++
++def t_e_cadence_and_no_leg():
++    """beat غیرِ مضربِ N → None؛ lead_leg=None (بدونِ OCTOPUS_WIRE_LEAD) → None."""
++    os.environ["OCTOPUS_WIRE_LEAD_DISCOVERY"] = "1"
++    try:
++        assert wiring.lead_discovery_beat(FakeLeg(), beat=7) is None      # 7 % 30 != 0
++        assert wiring.lead_discovery_beat(None, beat=0) is None           # بدونِ پا
++    finally:
++        os.environ.pop("OCTOPUS_WIRE_LEAD_DISCOVERY", None)
++
++
++def t_f_structurally_wired_and_out_of_profile():
++    """organism.py این beat را صدا می‌زند؛ flag عمداً خارج از PAPER_FULL_FLAGS."""
++    assert "lead_discovery_beat(" in ORGANISM_SRC, "organism باید beat را صدا بزند"
++    assert '"lead_discovery"' in ORGANISM_SRC, "کلیدِ merge در ORGANISM-STATE"
++    assert "OCTOPUS_WIRE_LEAD_DISCOVERY" not in str(wiring.PAPER_FULL_FLAGS), \
++        "flag نباید در پروفایلِ paper-full باشد (تولیدکنندهٔ PROPOSAL واقعی)"
++    assert 'flag("OCTOPUS_WIRE_LEAD_DISCOVERY")' in WIRING_SRC
++
++
++if __name__ == "__main__":
++    for f in (t_a_flag_off_is_noop, t_b_sense_score_propose, t_c_dedup_idempotent,
++              t_d_killswitch_wins, t_e_cadence_and_no_leg,
++              t_f_structurally_wired_and_out_of_profile):
++        f()
++        print("ok", f.__name__)
++    print("PASS test_lead_discovery_beat")
+diff --git a/_ops/tests/test_lead_scorer.py b/_ops/tests/test_lead_scorer.py
+new file mode 100644
+index 0000000..5f051b1
+--- /dev/null
++++ b/_ops/tests/test_lead_scorer.py
+@@ -0,0 +1,115 @@
++#!/usr/bin/env python3
++"""تستِ مرحلهٔ ۱ نقشهٔ لید (2026-07-15): پورتِ موتورِ امتیازدهیِ لیدِ نقاشی.
++
++مقادیرِ انتظاری عمداً به painter_lead_scoring.yamlِ اصلی پین شده‌اند
++(_launchpad/second-brain-live/painting-bot) — driftِ خاموشِ کانفیگِ inline لو می‌رود:
++  strata dream lead → 55+18+10+10+8 = 101 → clamp 100 → draft
++  commercial fitout → 40+18−15+8 = 51 → save
++  demolition only   → hard filter → 0 → skip
++$0 آفلاین، stdlib-only، بدونِ I/O.
++"""
++import sys
++from pathlib import Path
++
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++import harness  # noqa: E402
++ENV = harness.setup("lead-scorer")
++
++_LEGS = harness.REAL_VAULT / "_ops" / "legs"
++if str(_LEGS) not in sys.path:
++    sys.path.insert(0, str(_LEGS))
++import lead_scorer  # noqa: E402
++
++STRATA_DREAM = {
++    "source": "planning_alerts",
++    "description": ("Remedial works to common property including rendering and "
++                    "repainting of external facade and balcony balustrade "
++                    "replacement to residential flat building of 24 units."),
++    "address": "12 Wattle Crescent, Pyrmont NSW 2009",
++    "cost_of_development": 820000,
++    "lat": -33.8700, "lng": 151.1950,
++}
++COMMERCIAL_FITOUT = {
++    "source": "planning_alerts",
++    "description": ("Change of use to a retail premises, including internal "
++                    "fitout, external facade works, lighting and business "
++                    "identification signage."),
++    "address": "106 King Street Sydney NSW 2000",
++    "cost_of_development": None,
++    "lat": -33.8675, "lng": 151.2070,
++}
++DEMOLITION_NOISE = {
++    "source": "planning_alerts",
++    "description": "Demolition only of existing dwelling house.",
++    "address": "5 Quiet St, Sydney NSW 2000",
++    "cost_of_development": 60000,
++    "lat": -33.87, "lng": 151.21,
++}
++
++
++def t_a_strata_dream_is_draft():
++    """لیدِ رویاییِ strata → دستهٔ strata_remedial، امتیازِ سقف‌خورده ۱۰۰، action=draft."""
++    sc = lead_scorer.score_lead(STRATA_DREAM)
++    assert sc.category == "strata_remedial", sc
++    assert sc.score == 100, sc                       # 55+18+10+10+8=101 → clamp 100
++    assert sc.action == "draft", sc
++    assert any("base 55" in r for r in sc.reasons), sc.reasons
++
++
++def t_b_commercial_fitout_is_save():
++    """fitout با پرچمِ قرمزِ signage → 40+18−15+8=51 → save (بینِ آستانه‌ها)."""
++    sc = lead_scorer.score_lead(COMMERCIAL_FITOUT)
++    assert sc.category == "commercial_fitout", sc
++    assert sc.score == 51, sc
++    assert sc.action == "save", sc
++    assert any("red_flags" in r for r in sc.reasons), sc.reasons
++    assert any("value unknown" in r for r in sc.reasons), sc.reasons
++
++
++def t_c_demolition_hard_skip():
++    """فیلترِ سخت: «demolition only» → امتیاز ۰، action=skip، دستهٔ filtered."""
++    sc = lead_scorer.score_lead(DEMOLITION_NOISE)
++    assert sc.category == "filtered" and sc.score == 0 and sc.action == "skip", sc
++    assert "hard-skip" in sc.reasons[0], sc.reasons
++
++
++def t_d_thresholds_pinned_to_yaml():
++    """پینِ ضدِ drift: آستانه‌ها/وزن‌های کلیدی باید عینِ yamlِ اصلی بمانند."""
++    c = lead_scorer.DEFAULT_CONFIG
++    assert c["actions"]["draft_threshold"] == 70
++    assert c["actions"]["save_threshold"] == 45
++    assert c["categories"]["strata_remedial"]["base"] == 55
++    assert c["signals"]["paint_scope"]["weight"] == 18
++    assert c["signals"]["red_flags"]["weight"] == -15
++    assert c["geo"] == {"in_radius_bonus": 8, "out_of_radius_penalty": -20}
++    assert c["hard_skip"]["single_dwelling_value_floor"] == 250000
++    assert c["category_priority"][0] == "strata_remedial"   # strata عمداً اول
++
++
++def t_e_out_of_radius_penalised():
++    """خارج از شعاعِ ۴۰km → جریمهٔ −۲۰ (نیوکاسل ~۱۱۵km)."""
++    far = dict(STRATA_DREAM, lat=-32.9283, lng=151.7817,
++               address="1 Hunter St, Newcastle NSW 2300")
++    sc = lead_scorer.score_lead(far)
++    assert sc.score == 73, sc                        # 55+18+10+10−20=73 (هنوز draft)
++    assert any("-20" in r for r in sc.reasons), sc.reasons
++
++
++def t_f_single_dwelling_value_floor():
++    """خانهٔ تک‌واحدیِ زیرِ کف ۲۵۰k با هزینهٔ معلوم → skip؛ هزینهٔ نامعلوم → skip نمی‌شود."""
++    cheap = {"description": "Alterations to existing dwelling house including repaint.",
++             "cost_of_development": 80000}
++    sc = lead_scorer.score_lead(cheap)
++    assert sc.action == "skip" and "single dwelling" in sc.reasons[0], sc
++    unknown = dict(cheap, cost_of_development=None)
++    sc2 = lead_scorer.score_lead(unknown)
++    assert sc2.category != "filtered", sc2           # کفِ ارزش فقط با هزینهٔ KNOWN
++
++
++if __name__ == "__main__":
++    for f in (t_a_strata_dream_is_draft, t_b_commercial_fitout_is_save,
++              t_c_demolition_hard_skip, t_d_thresholds_pinned_to_yaml,
++              t_e_out_of_radius_penalised, t_f_single_dwelling_value_floor):
++        f()
++        print("ok", f.__name__)
++    print("PASS test_lead_scorer")
+diff --git a/_ops/tests/test_route_scorer_wire.py b/_ops/tests/test_route_scorer_wire.py
+new file mode 100644
+index 0000000..e7b0bdd
+--- /dev/null
++++ b/_ops/tests/test_route_scorer_wire.py
+@@ -0,0 +1,191 @@
++#!/usr/bin/env python3
++"""test_route_scorer_wire.py — سیم‌کشیِ route_scorer به model_router (CORTEX-02).
++
++اثبات می‌کند:
++  * پرچمِ خاموش (پیش‌فرض): ask() ردهٔ خود را از نگاشتِ ایستای TASK_TIERS می‌گیرد
++    و route_scorer اصلاً مشورت نمی‌شود (byte-identical با امروز).
++  * پرچمِ روشن + بدونِ tierِ صریح: route_scorer.score_route مشورت می‌شود و ردهٔ
++    پیشنهادیِ آن به‌کار می‌رود (حتی اگر با TASK_TIERS فرق کند).
++  * خطای scorer → سقوطِ نرم به نگاشتِ ایستا (fail-soft).
++  * tierِ صریح، حتی با پرچمِ روشن، scorer را دور می‌زند.
++
++صفر callِ واقعیِ LLM: مسیرِ پولی (_ask_paid) و local_llm.ask مونکی‌پچ می‌شوند تا
++فقط ردهٔ resolve‌شده مشاهده شود. همهٔ پرچم‌های STOP/HALT به tmp می‌روند.
++اجرا: python -X utf8 test_route_scorer_wire.py
++"""
++from __future__ import annotations
++
++import os
++import pathlib
++import sys
++import tempfile
++
++_HERE = pathlib.Path(__file__).resolve().parent
++for _p in (_HERE.parent / "budget", _HERE.parent / "cortex", _HERE.parent):
++    if str(_p) not in sys.path:
++        sys.path.insert(0, str(_p))
++
++import opslib          # noqa: E402
++import model_router    # noqa: E402
++import route_scorer    # noqa: E402
++import local_llm       # noqa: E402
++
++
++def _tmp() -> pathlib.Path:
++    return pathlib.Path(tempfile.mkdtemp(prefix="route-wire-test-"))
++
++
++def _isolate(d: pathlib.Path) -> None:
++    """kill-switch را خنثی کن: هیچ STOP/HALT زنده لمس نشود."""
++    opslib.HALT_ALL = d / "HALT-ALL"
++    opslib.STOP_ARCHITECT = d / "STOP-ARCHITECT"
++    opslib.STOP_ORGANISM = d / "STOP-ORGANISM"
++    opslib.STOP_METABOLIC = d / "STOP-METABOLIC"
++    opslib.STOP_DEBATE = d / "STOP-DEBATE"
++
++
++class _Spy:
++    """جای‌گزینِ _ask_paid: ردهٔ درخواستی را ثبت می‌کند و یک dictِ موفق می‌دهد."""
++    def __init__(self) -> None:
++        self.calls: list[str] = []
++
++    def __call__(self, tier, prompt, system, max_tokens):
++        self.calls.append(tier)
++        return {"text": f"paid:{tier}", "tier": tier, "model": "spy"}
++
++
++_ORIG_KEYS = model_router.keys_present
++
++
++def _install(monkey_paid=True, local_ret=None):
++    """_ask_paid و local_llm.ask را مونکی‌پچ کن؛ نسخهٔ اصلی را برگردان تا restore شود.
++    2026-07-15: keys_present هم mock می‌شود (هر دو کلیدِ پولی «حاضر») تا تست هرمتیک
++    بماند — routerِ کلید-آگاهِ نو بدونِ کلید اصلاً _ask_paid را صدا نمی‌زند (درست)،
++    و این تست دربارهٔ مسیریابیِ scorer است نه حضورِ کلیدِ محیط."""
++    orig_paid = model_router._ask_paid
++    orig_local = local_llm.ask
++    spy = _Spy() if monkey_paid else orig_paid
++    if monkey_paid:
++        model_router._ask_paid = spy
++        model_router.keys_present = lambda: {"fugu": True, "glm": True, "deepseek": False}
++    local_llm.ask = lambda prompt, system="", max_tokens=400, opener=None: (
++        local_ret if local_ret is not None else {"text": "local", "tier": "local"})
++    return spy, orig_paid, orig_local
++
++
++def _restore(orig_paid, orig_local, orig_score):
++    model_router._ask_paid = orig_paid
++    model_router.keys_present = _ORIG_KEYS
++    local_llm.ask = orig_local
++    route_scorer.score_route = orig_score
++    os.environ.pop("CORTEX_ROUTE_SCORER", None)
++
++
++def test_flag_off_uses_static_map_and_never_consults_scorer() -> None:
++    d = _tmp(); _isolate(d)
++    os.environ.pop("CORTEX_ROUTE_SCORER", None)
++    orig_score = route_scorer.score_route
++    consulted = {"n": 0}
++
++    def _boom(task, ctx=None):
++        consulted["n"] += 1
++        raise AssertionError("scorer must NOT be consulted when flag is off")
++    route_scorer.score_route = _boom
++    spy, op, ol = _install()
++    try:
++        # research → TASK_TIERS = secondary (مسیرِ پولی → spy)
++        res = model_router.ask("research", "یک تحقیقِ کوتاه")
++        assert res["ok"] is True and res["tier"] == "secondary", res
++        assert spy.calls == ["secondary"], spy.calls
++        # classify → local (مسیرِ محلی؛ _ask_paid صدا نمی‌شود)
++        spy.calls.clear()
++        res2 = model_router.ask("classify", "یک متن")
++        assert res2["ok"] is True and res2.get("tier") == "local", res2
++        assert spy.calls == [], spy.calls
++        assert consulted["n"] == 0
++    finally:
++        _restore(op, ol, orig_score)
++
++
++def test_flag_on_consults_scorer_and_uses_its_tier() -> None:
++    d = _tmp(); _isolate(d)
++    os.environ["CORTEX_ROUTE_SCORER"] = "1"
++    orig_score = route_scorer.score_route
++    seen = {"task": None}
++
++    def _fake(task, ctx=None):
++        seen["task"] = task
++        return {"tier": "primary", "scores": {}, "reasons": ["stub"]}
++    route_scorer.score_route = _fake
++    spy, op, ol = _install()
++    try:
++        # classify معمولاً local است؛ ولی scorer می‌گوید primary → باید primary شود
++        res = model_router.ask("classify", "یک متن")
++        assert res["ok"] is True and res["tier"] == "primary", res
++        assert spy.calls == ["primary"], spy.calls
++        assert seen["task"] == "classify"
++    finally:
++        _restore(op, ol, orig_score)
++
++
++def test_scorer_error_falls_back_to_static() -> None:
++    d = _tmp(); _isolate(d)
++    opslib.ALERTS_MD = d / "alerts.md"        # alert() به tmp
++    os.environ["CORTEX_ROUTE_SCORER"] = "1"
++    orig_score = route_scorer.score_route
++
++    def _raise(task, ctx=None):
++        raise RuntimeError("scorer blew up")
++    route_scorer.score_route = _raise
++    spy, op, ol = _install()
++    try:
++        # scorer می‌ترکد → باید به TASK_TIERS["research"] = secondary برگردد
++        res = model_router.ask("research", "تحقیق")
++        assert res["ok"] is True and res["tier"] == "secondary", res
++        assert spy.calls == ["secondary"], spy.calls
++    finally:
++        _restore(op, ol, orig_score)
++
++
++def test_scorer_returns_invalid_tier_falls_back() -> None:
++    d = _tmp(); _isolate(d)
++    os.environ["CORTEX_ROUTE_SCORER"] = "1"
++    orig_score = route_scorer.score_route
++    route_scorer.score_route = lambda task, ctx=None: {"tier": "bogus"}
++    spy, op, ol = _install()
++    try:
++        # ردهٔ نامعتبر از scorer → نادیده، سقوط به TASK_TIERS["orchestrate"] = primary
++        res = model_router.ask("orchestrate", "کار")
++        assert res["ok"] is True and res["tier"] == "primary", res
++        assert spy.calls == ["primary"], spy.calls
++    finally:
++        _restore(op, ol, orig_score)
++
++
++def test_explicit_tier_bypasses_scorer_even_when_flag_on() -> None:
++    d = _tmp(); _isolate(d)
++    os.environ["CORTEX_ROUTE_SCORER"] = "1"
++    orig_score = route_scorer.score_route
++    consulted = {"n": 0}
++
++    def _boom(task, ctx=None):
++        consulted["n"] += 1
++        return {"tier": "local"}
++    route_scorer.score_route = _boom
++    spy, op, ol = _install()
++    try:
++        # tierِ صریح = primary؛ scorer نباید مشورت شود
++        res = model_router.ask("classify", "متن", tier="primary")
++        assert res["ok"] is True and res["tier"] == "primary", res
++        assert spy.calls == ["primary"], spy.calls
++        assert consulted["n"] == 0
++    finally:
++        _restore(op, ol, orig_score)
++
++
++if __name__ == "__main__":
++    _tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
++    for _t in _tests:
++        _t()
++        print(f"  ✓ {_t.__name__}")
++    print(f"✅ test_route_scorer_wire: {len(_tests)}/{len(_tests)} سبز")
+diff --git a/_ops/wiring.py b/_ops/wiring.py
+index d9d5d24..57509ef 100644
+--- a/_ops/wiring.py
++++ b/_ops/wiring.py
+@@ -196,21 +196,11 @@ def make_lead_leg():
+         return None
+ 
+ 
+-def make_ziman_leg():
+-    """ساختِ ZimanLeg. پشتِ OCTOPUS_WIRE_ZIMAN.
+-    organ=ZIMAN از budgets.yaml (floor AU$1) — money_link active وقتی organ موجود.
+-    propose-only + D4 capacity؛ هیچ publish/send/spend.
+-    """
+-    if not flag("OCTOPUS_WIRE_ZIMAN"):
+-        return None
+-    try:
+-        sys.path.insert(0, str(_HERE / "legs"))
+-        sys.path.insert(0, str(_HERE / "budget"))
+-        from ziman_leg import ZimanLeg, default_packet
+-        return ZimanLeg(default_packet(), organ_table=opslib.organ_table())
+-    except Exception as e:  # noqa: BLE001
+-        opslib.alert([f"wiring: ZimanLeg ساخت نشد: {e}"])
+-        return None
++# LEG-08 (2026-07-13): make_ziman_leg و ziman_beatِ «نسخهٔ اول» (dead duplicate) از
++# اینجا حذف شدند — نسخهٔ زندهٔ غنی‌تر پایین‌تر است (§ Z · Ziman limb): singleton via
++# _ZIMAN_STATE + status_snapshot/telegram_digest/biology + persist به ORGANISM-STATE.ziman،
++# با امضایِ ziman_beat(leg=None, beat, doctor=…) که organism.py صدا می‌زند. تعریفِ دومی
++# بایندِ نهایی بود → این جفتِ اول عملاً هرگز اجرا نمی‌شد (module-level shadowing).
+ 
+ 
+ def make_cartographer_leg():
+@@ -299,43 +289,9 @@ def publish_tick_signals(live_loop, *, beat=None, neural_result=None,
+ 
+ # ════════════════════════════════════════════════════════════════════════════════
+ # L · LeadLeg autonomous loop — HLC + ack + propose-only (P-L1)
++# (LEG-08: ziman_beatِ «نسخهٔ اول» که اینجا بود حذف شد — نسخهٔ زندهٔ § Z پایین‌تر است.)
+ # ════════════════════════════════════════════════════════════════════════════════
+ 
+-def ziman_beat(ziman_leg, beat: int = 0) -> dict | None:
+-    """یک ضربان محلی برای ZimanLeg؛ فقط status + proposalهای داخلی.
+-
+-    برخلاف ``leg_beat`` برای Lead، زیمان هنوز به HLC/Pacemaker متصل نیست: کار آن
+-    inventory/content intelligence است، نه intake مالی. این seam عمداً فقط
+-    ``ZimanLeg.tick()`` را فرا می‌خواند و نتیجه را برای ORGANISM-STATE برمی‌گرداند.
+-    STOP/HALT همیشه مقدم است؛ هیچ Telegram/publish/send/spend از این مسیر وجود ندارد.
+-    """
+-    if not flag("OCTOPUS_WIRE_ZIMAN"):
+-        return None
+-    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+-        return None
+-    if ziman_leg is None:
+-        return None
+-    try:
+-        result = ziman_leg.tick()
+-        status = result.get("status", {}) if isinstance(result, dict) else {}
+-        return {
+-            "leg_id": status.get("leg_id", "ziman-gallery"),
+-            "organ": status.get("organ", "ZIMAN"),
+-            "money_link": status.get("money_link", "incubating"),
+-            "capacity_ceiling_per_week": status.get("capacity_ceiling_per_week", 0),
+-            "inventory_hint": status.get("inventory_hint"),
+-            "drafts_count": status.get("drafts_count", 0),
+-            "proposals_delta": result.get("proposals_delta", 0),
+-            "proposals_total": result.get("proposals_total", 0),
+-            "propose_only": True,
+-            "outward_execution": False,
+-            "beat": beat,
+-        }
+-    except Exception as e:  # noqa: BLE001 — یک limb نباید ارگانیسم را بکشد
+-        opslib.alert([f"wiring: ziman_beat خطا: {type(e).__name__}: {e}"])
+-        return None
+-
+-
+ def _cartographer_map_signal():
+     """(map_updated_iso, drift_count) — read-only، fail-soft، content-free.
+     آخرین `06 - Architecture Maps/MASTER-ARCHITECTURE-*.md` و شمارِ فایل‌های .py در `_ops`
+@@ -441,17 +397,65 @@ def leg_beat(lead_leg, pacemaker=None, beat: int = 0) -> dict | None:
+             pass
+         # status فقط‌خواندنی (propose-only — هیچ effector)
+         st = lead_leg.status()
+-        return {"leg_id": leg_id, "hlc": list(hlc),
+-                "events_this_beat": handle.events_this_beat,
+-                "last_beat_seen": handle.last_beat_seen,
+-                "money_link": st.get("money_link"),
+-                "proposals_emitted": st.get("proposals_emitted", 0),
+-                "propose_only": True}
++        out = {"leg_id": leg_id, "hlc": list(hlc),
++               "events_this_beat": handle.events_this_beat,
++               "last_beat_seen": handle.last_beat_seen,
++               "money_link": st.get("money_link"),
++               "proposals_emitted": st.get("proposals_emitted", 0),
++               "propose_only": True}
++        # ── LEG-02/03/05 (money · DRY): زنجیرهٔ درآمدِ Lead پشتِ OCTOPUS_WIRE_LEAD_DRAFT
++        # (پیش‌فرض خاموش و عمداً خارج از PAPER_FULL_FLAGS → حتی در profileِ paper-full هم
++        # روشن نمی‌شود). با flag خاموش این بلوک عیناً no-op است (بایت‌به‌بایتِ رفتارِ فعلی).
++        # روشن = فقط artifact/draft می‌سازد؛ هیچ ارسال/تماس/ایمیل/پرداخت. fail-soft.
++        if flag("OCTOPUS_WIRE_LEAD_DRAFT"):
++            try:
++                out["lead_chain"] = _lead_draft_chain(lead_leg, beat=beat)
++            except Exception as _de:  # noqa: BLE001 — §۴: زنجیرهٔ درآمد نباید beat را بکشد
++                opslib.alert([f"wiring: lead_draft_chain خطا: {type(_de).__name__}: {_de}"])
++        return out
+     except Exception as e:  # noqa: BLE001 — §۴: leg نباید tick را بکشد
+         opslib.alert([f"wiring: leg_beat خطا: {type(e).__name__}: {e}"])
+         return None
+ 
+ 
++def _lead_draft_chain(lead_leg, beat: int = 0) -> dict:
++    """LEG-02/03/05 · زنجیرهٔ درآمدِ Lead به‌صورت DRY (propose-only مطلق).
++
++    پشتِ OCTOPUS_WIRE_LEAD_DRAFT از leg_beat صدا زده می‌شود. دو کارِ کاملاً «خشک»:
++      (۱) LeadLeg.draft_quote → یک draft proposalِ درون‌حافظه‌ای (اثبات دسترس‌پذیریِ مسیر؛
++          هیچ mintِ لیدِ واقعی، هیچ persist، هیچ send/تماس).
++      (۲) LEG-05: invoice.py را از همان زنجیره reachable کن — فقط برای draftهای *واقعیِ*
++          pending (منبعِ داده = state/legs/lead-drafts/)، حداکثر یکی در هر beat، صرفاً
++          create_invoice (artifact). هرگز mark_paid و هرگز reconcileِ واقعی (اثرِ پرداخت).
++    هیچ‌کدام پول/بیرون را لمس نمی‌کند؛ همه محلی + fail-soft."""
++    out = {"drafted": False, "invoice": None}
++    try:
++        sys.path.insert(0, str(_HERE / "legs"))
++        # (۱) draft proposal — probe carrier (نه لیدِ واقعی؛ attribution mint نمی‌شود)
++        prop = lead_leg.draft_quote(
++            f"LEAD-PROBE-{beat}",
++            scope="probe · propose-only draft (wiring reachability · DRY)",
++            price_range_aud=(0.0, 0.0),
++        )
++        out["drafted"] = True
++        out["proposal_id"] = getattr(prop, "proposal_id", None)
++    except Exception as _pe:  # noqa: BLE001 — draft نباید زنجیره را بکشد
++        opslib.alert([f"wiring: lead draft_quote خطا: {type(_pe).__name__}: {_pe}"])
++    # (۲) LEG-05: invoice artifact از draftِ واقعیِ pending (DRY — بدونِ mark_paid/reconcile)
++    try:
++        import lead_quote as _lq          # noqa: WPS433 — lazy
++        import invoice as _inv            # noqa: WPS433 — lazy
++        pend = _lq.pending()
++        if pend:
++            aid = str((pend[0] or {}).get("attribution_id") or "")
++            if aid:
++                r = _inv.create_invoice(aid)   # persist سندِ invoice؛ paid فقط اگر از قبل CONFIRMED (read-only fold)
++                out["invoice"] = r.get("inv_number") if isinstance(r, dict) and r.get("ok") else None
++    except Exception as _ie:  # noqa: BLE001 — invoice نباید زنجیره را بکشد
++        opslib.alert([f"wiring: lead invoice خطا: {type(_ie).__name__}: {_ie}"])
++    return out
++
++
+ # ─── W-2 · Doctor hook به Pacemaker ────────────────────────────────────────────
+ def doctor_beat(doctor, beat: int, trace: dict | None = None) -> dict | None:
+     """هر N beat دکتر را اجرا کن. kill-switch: اول STOP را چک کن.
+@@ -633,6 +637,33 @@ def scheduler_seed_doctor_rfc(doctor, pacemaker):
+         pass
+ 
+ 
++def scheduler_seed_beat(doctor=None, pacemaker=None, beat: int = 0) -> dict | None:
++    """F3 wiring (2026-07-14): نقطهٔ اتصالِ آمادهٔ scheduler_seed_doctor_rfc به حلقهٔ ضربان.
++
++    این تولیدکننده (scheduler_seed_doctor_rfc) پشتِ flag تعریف شده بود ولی هیچ‌جا صدا
++    نمی‌شد (unwired). این wrapper همان producer را با kill-switch + observability به یک
++    beat می‌بندد تا organism.py فقط یک خط صدا بزند (جداییِ concern: منطقِ wiring اینجا
++    می‌ماند، نه در organism.py).
++
++    پشتِ OCTOPUS_WIRE_SCHEDULER (پیش‌فرض خاموش). با flag خاموش عیناً no-op است
++    (بایت‌به‌بایتِ رفتارِ فعلی: نه schedule، نه ledger، نه هیچ اثر). kill-switch اول.
++    propose-only مطلق — فقط pacemaker.schedule() (صفِ anticipation، advisory)، هیچ effector.
++
++    خروجی: {seeded: bool, beat} یا None (flag خاموش/kill/precondition/خطا)."""
++    if not flag("OCTOPUS_WIRE_SCHEDULER"):
++        return None   # flag خاموش = no-op (no regression)
++    if opslib.STOP_ORGANISM.exists() or opslib.halted():
++        return None   # kill-switch
++    if doctor is None or pacemaker is None:
++        return None   # بدونِ doctor/pacemaker چیزی برای seed نیست
++    try:
++        scheduler_seed_doctor_rfc(doctor, pacemaker)
++        return {"seeded": True, "beat": beat, "propose_only": True}
++    except Exception as e:  # noqa: BLE001 — §۴: seed نباید tick را بکشد
++        opslib.alert([f"wiring: scheduler_seed_beat خطا: {type(e).__name__}: {e}"])
++        return None
++
++
+ # ════════════════════════════════════════════════════════════════════════════════
+ # A1 · reconcile_beat — Track-B money reconciliation (پشتِ flag، propose-only)
+ # ════════════════════════════════════════════════════════════════════════════════
+@@ -996,6 +1027,162 @@ def canonical_consolidation(neural_stack, school_bridge=None,
+         return None  # real error
+ 
+ 
++# ════════════════════════════════════════════════════════════════════════════════
++# TG-EXEC (2026-07-15): مصرف‌کنندهٔ صفِ cockpit-requests روی beat-thread.
++# «دکمه‌های تلگرام واقعاً اجرا شوند» — _run_act فقط در state/cockpit-requests.jsonl صف می‌کند
++# (INV-7: هرگز inline روی poll-thread)؛ این تابع آن‌ها را روی beat اجرا می‌کند. امن به‌صورتِ سازه:
++# (۱) فلگِ OCTOPUS_TG_EXEC پیش‌فرض خاموش → no-op؛ (۲) هر لحظه halt-gated؛ (۳) allowlist فقط
++# verbهای داخلیِ بی‌پول (doctor/consolidate)؛ (۴) at-most-once با cursorِ byte (persist پیش از exec)؛
++# (۵) sقفِ هر beat + first-activation ffwd + truncation-reset + lock (ضدِ split-brain). دو بار
++# adversarial-review شد (wf_26797077 + wf_4cb7bcf2). school/ingest عمداً بیرون‌اند.
++# ════════════════════════════════════════════════════════════════════════════════
++_TG_EXEC_SAFE = frozenset({"doctor", "consolidate"})
++_TG_EXEC_KNOWN = frozenset({"doctor", "consolidate", "school", "ideas", "ingest"})
++_TG_EXEC_MAX_PER_BEAT = 5
++
++
++def _tg_ack(channel, text):
++    if channel is None:
++        return
++    try:
++        channel.send_text(text)
++    except Exception:  # noqa: BLE001 — outbound شکست نباید beat را بکشد
++        pass
++
++
++def _tg_halt_reason():
++    if opslib.STOP_ORGANISM.exists():
++        return "STOP"
++    h = opslib.halted()
++    if h:
++        return h
++    try:
++        if opslib.frozen():
++            return "FREEZE"
++    except Exception:  # noqa: BLE001
++        pass
++    return None
++
++
++def _tg_exec_run_one(verb, key, doctor=None) -> str:
++    """اجرای یک verbِ امن از entrypointِ واقعی. OCTOPUS_TG_EXEC = رضایتِ صریحِ مالک،
++    پس cadence-wrapperهای paper دور زده می‌شوند — هر verb ایمنیِ داخلیِ خودش را نگه می‌دارد.
++    خروجی: 'ran' | 'not-wired'."""
++    import sys as _sys
++    if verb == "consolidate" and key == "run":
++        p = str(_HERE / "cortex")
++        if p not in _sys.path:
++            _sys.path.insert(0, p)
++        import consolidate as _c
++        _c.consolidate_once()   # SELF-gate روی CORTEX_CONSOLIDATE؛ خاموش → no-op ولی 'ran'. state-only.
++        return "ran"
++    if verb == "doctor" and key == "run":
++        # doctor:run == همان کاری که doctor_beat دوره‌ای می‌کند — قابلیتِ نو نیست. propose-only،
++        # cost_usd=0. اگر OCTOPUS_WIRE_APPLY_MERGE=1 و RFCِ از-قبل-تأییدشده معلق باشد، merge می‌شود
++        # (state-only). برای propose-only محض: OCTOPUS_WIRE_APPLY_MERGE=0.
++        d = doctor if doctor is not None else make_doctor(state_dir=str(opslib.STATE_DIR))
++        if d is None:
++            return "not-wired"
++        d.run_cycle(beat=1_000_000)
++        return "ran"
++    return "not-wired"
++
++
++def cockpit_requests_beat(state_dir=None, doctor=None, channel=None) -> dict:
++    import json as _json
++    import os as _os
++    import time as _time
++    from pathlib import Path as _P
++    if not flag("OCTOPUS_TG_EXEC"):
++        return {"skipped": "flag-off"}
++    if _tg_halt_reason():
++        return {"skipped": "halt"}
++    sd = _P(state_dir) if state_dir else (_HERE / "state")
++    logp = sd / "cockpit-requests.jsonl"
++    curp = sd / "cockpit-requests.cursor"
++    lockp = sd / "cockpit-requests.lock"
++    if not logp.exists():
++        return {"skipped": "no-queue"}
++    pid = _os.getpid()
++    try:  # single-consumer lock (ضدِ split-brain)
++        if lockp.exists():
++            prev = (lockp.read_text(encoding="utf-8").strip() or ":")
++            if prev.split(":")[0] not in ("", str(pid)) and (_time.time() - lockp.stat().st_mtime) < 120:
++                return {"skipped": "locked-by-other"}
++        lockp.write_text(f"{pid}:{opslib.now_iso()}", encoding="utf-8")
++    except OSError:
++        pass
++    size = logp.stat().st_size
++    if not curp.exists():   # first-activation → ffwd، بدونِ replayِ backlog
++        try:
++            curp.write_text(str(size), encoding="utf-8")
++        except OSError:
++            pass
++        return {"skipped": "first-activation-ffwd", "at": size}
++    try:
++        off = int(curp.read_text(encoding="utf-8").strip() or 0)
++    except (OSError, ValueError):
++        off = 0
++    if off > size:   # rotation/truncation → reset + alert
++        opslib.alert([f"tg-exec: cockpit-requests کوچک شد ({off}>{size}) — cursor صفر شد"])
++        off = 0
++    try:
++        with open(logp, "rb") as f:
++            f.seek(off)
++            chunk = f.read()
++    except OSError:
++        return {"skipped": "read-fail"}
++    nl = chunk.rfind(b"\n")
++    if nl < 0:
++        return {"skipped": "no-complete-line"}
++    raw_lines = chunk[:nl + 1].decode("utf-8", "replace").splitlines(keepends=True)
++    take = raw_lines[:_TG_EXEC_MAX_PER_BEAT]
++    consumed = len("".join(take).encode("utf-8"))
++    new_off = off + consumed
++    try:  # at-most-once: cursor پیش از exec؛ شکستِ persist → بدونِ اجرا
++        tmp = curp.with_suffix(".cursor.tmp")
++        tmp.write_text(str(new_off), encoding="utf-8")
++        _os.replace(tmp, curp)
++    except OSError as e:
++        opslib.alert([f"tg-exec: نوشتنِ cursor شکست ({type(e).__name__}) — beat رد شد"])
++        return {"skipped": "cursor-persist-failed"}
++    ran, failed, skipped = [], [], []
++    for line in take:
++        line = line.strip()
++        if not line:
++            continue
++        try:
++            req = _json.loads(line)
++        except ValueError:
++            continue
++        if req.get("status") != "requested":
++            continue
++        verb, key = req.get("verb"), req.get("key")
++        if verb not in _TG_EXEC_KNOWN:
++            continue
++        if _tg_halt_reason():
++            _tg_ack(channel, f"⛔ «{verb}:{key}» اجرا نشد — halt/انجماد. بعد از /resume دوباره بزن.")
++            skipped.append(f"{verb}:{key}:halt")
++            continue
++        if verb not in _TG_EXEC_SAFE:
++            _tg_ack(channel, f"⏸ «{verb}» در این نسخه اجرا نمی‌شود (فعّال: doctor، consolidate).")
++            skipped.append(f"{verb}:{key}:not-enabled")
++            continue
++        try:
++            res = _tg_exec_run_one(verb, key, doctor=doctor)
++            if res == "ran":
++                ran.append(f"{verb}:{key}")
++                _tg_ack(channel, f"✅ اجرا شد (تلگرام→بیت): {verb}:{key}")
++            else:
++                skipped.append(f"{verb}:{key}:not-wired")
++                _tg_ack(channel, f"⚠️ «{verb}» وصل نیست (فلگِ زیرسیستم خاموش).")
++        except Exception as e:  # noqa: BLE001 — یک verbِ بد نباید beat را بکشد
++            failed.append(f"{verb}:{key}:{type(e).__name__}")
++            opslib.alert([f"tg-exec {verb}:{key} failed: {type(e).__name__}: {e}"])
++            _tg_ack(channel, f"⚠️ اجرای {verb}:{key} خطا داد: {type(e).__name__}")
++    return {"ran": ran, "failed": failed, "skipped": skipped}
++
++
+ # ════════════════════════════════════════════════════════════════════════════════
+ # M · live-loop wiring — canonical_consolidation در حلقهٔ زنده (P-M2)
+ # ════════════════════════════════════════════════════════════════════════════════
+@@ -1152,6 +1339,10 @@ def afferent_beat(sensory_bus, school_bridge=None, snap=None, beat: int = 0) ->
+     verification-gate: فقط afferent=True یاد گرفته می‌شود (PII-رد/internal نادیده).
+ 
+     خروجی: {school_report, sensory_status, n_observations} یا None (advisory)."""
++    # LEG-09: پلِ ingest_raw (crypto/accounting) پشتِ OCTOPUS_WIRE_INGEST — مستقل از
++    # OCTOPUS_WIRE_SCHOOL. ingest_beat خودش STOP + flag + cadence را چک می‌کند و با flag
++    # خاموش بی‌درنگ None برمی‌گرداند (no-op) → این تماس رفتارِ afferent_beat را عوض نمی‌کند.
++    ingest_beat(beat=beat)
+     if not flag("OCTOPUS_WIRE_SCHOOL"):
+         return None   # flag خاموش = no-op (no regression)
+     if opslib.STOP_ORGANISM.exists() or opslib.halted():
+@@ -1171,7 +1362,7 @@ def afferent_beat(sensory_bus, school_bridge=None, snap=None, beat: int = 0) ->
+         # ۴) school_bridge یاد بگیرد ازِ afferent events (فقط afferent=True)
+         school_report = None
+         if school_bridge is not None and any(getattr(e, "afferent", False) for e in events):
+-            school_report = school_bridge.learn_from(events, persist=False)
++            school_report = school_bridge.learn_from(events, persist=True)   # 2026-07-15 باگ ۳: سیمِ یادگیری وصل شد — awareness حالا واقعاً می‌ماند (قبلاً persist=False = هرگز ذخیره)
+         return {"n_observations": len(observations),
+                 "school_report": school_report,
+                 "sensory_status": sensory_bus.status(),
+@@ -1181,6 +1372,43 @@ def afferent_beat(sensory_bus, school_bridge=None, snap=None, beat: int = 0) ->
+         return None
+ 
+ 
++_INGEST_STATE = {"last_epoch": 0}
++
++
++def ingest_beat(beat: int = 0) -> dict | None:
++    """LEG-09 · پلِ ورودیِ خامِ واقعی → مصرف‌کننده (sensory_bus/School).
++
++    پشتِ OCTOPUS_WIRE_INGEST (پیش‌فرض خاموش و خارج از PAPER_FULL_FLAGS). با flag خاموش
++    بی‌درنگ None (no-op؛ بایت‌به‌بایتِ رفتارِ فعلی — ingest_raw.run هیچ‌وقت صدا نمی‌شود).
++    روشن = هر N beat (پیش‌فرض روزانه) ``afferent/ingest_raw.run()`` را اجرا می‌کند تا
++    obsهای واقعیِ crypto/accounting (aggregate/structure-only، صفر PII) به SensoryBus +
++    SchoolBridge برسند. kill-switch اول؛ ضدِ aliasing با پنجرهٔ N-تایی؛ fail-soft مطلق.
++    propose-only: ingest_raw فقط نوتِ draft/summary می‌سازد — هیچ send/spend/outward."""
++    if not flag("OCTOPUS_WIRE_INGEST"):
++        return None   # flag خاموش = no-op (no regression)
++    if opslib.STOP_ORGANISM.exists() or opslib.halted():
++        return None   # kill-switch مقدم
++    every_n = int(os.environ.get("CHRONO_INGEST_EVERY_N_BEATS", "1440"))  # روزانه
++    if beat <= 0 or every_n <= 0:
++        return None
++    epoch = beat // every_n
++    if epoch < 1 or epoch <= _INGEST_STATE["last_epoch"]:
++        return None   # هنوز نوبتِ ingest نیست (پنجرهٔ ضدِ aliasing)
++    try:
++        _INGEST_STATE["last_epoch"] = epoch
++        sys.path.insert(0, str(_HERE / "afferent"))
++        import ingest_raw  # noqa: WPS433 — lazy (سنگین: فایل‌های بازار/حساب را می‌خواند)
++        report = ingest_raw.run()
++        return {"observations": report.get("observations", 0),
++                "crypto_notes": len(report.get("crypto_notes") or []),
++                "acct_notes": len(report.get("acct_notes") or []),
++                "pii_flags": len(report.get("pii_flags") or []),
++                "beat": beat}
++    except Exception as e:  # noqa: BLE001 — §۴: ingest نباید tick را بکشد
++        opslib.alert([f"wiring: ingest_beat خطا: {type(e).__name__}: {e}"])
++        return None
++
++
+ # ════════════════════════════════════════════════════════════════════════════════
+ # I · idea-graph — موتورِ اتصالِ ایده‌ها/پروژه‌ها (P-I، نو)
+ # ════════════════════════════════════════════════════════════════════════════════
+@@ -1244,6 +1472,10 @@ def heart_beat(beat: int = 0, snap: dict | None = None) -> dict | None:
+ 
+     HH-P6 داخلِ همین ضربان: هر CHRONO_HEART_SETPOINT_EVERY_N_BEATS (پیش‌فرض ۱۴۴۰ =
+     روزانه؛ واحدِ beat=۶۰s) دکترِ w-slow باندِ target-velocity را propose می‌کند."""
++    # HEART-01: پایداریِ heartstate (envelope) در سایه — مستقل از OCTOPUS_WIRE_HEART،
++    # پشتِ HEARTSTATE_SHADOW. heartstate_beat خودش STOP + فلگِ سایه را چک می‌کند و با فلگ
++    # خاموش None برمی‌گرداند (no-op) → این تماس رفتارِ heart_beat را عوض نمی‌کند.
++    heartstate_beat(beat=beat)
+     if not flag("OCTOPUS_WIRE_HEART"):
+         return None   # flag خاموش = no-op (no regression)
+     if opslib.STOP_ORGANISM.exists() or opslib.halted():
+@@ -1298,6 +1530,183 @@ def heart_beat(beat: int = 0, snap: dict | None = None) -> dict | None:
+         return None
+ 
+ 
++def heartstate_beat(beat: int = 0) -> dict | None:
++    """HEART-01 · envelope حیاتِ قلب را در سایه persist کن (heartstate-latest.json).
++
++    پشتِ HEARTSTATE_SHADOW (پیش‌فرض خاموش). heartstate.persist خودش هم فلگ را چک می‌کند
++    (double-safe): با فلگ خاموش envelope را می‌سازد ولی چیزی نمی‌نویسد. اینجا هم اگر
++    heartstate.enabled() خاموش باشد بی‌درنگ None برمی‌گردانیم (no-op؛ صفر I/O، بایت‌به‌بایت).
++    kill-switch مقدم. read/observe-only — هیچ کنترل/رفتار (ADR-001). fail-soft."""
++    if opslib.STOP_ORGANISM.exists() or opslib.halted():
++        return None   # kill-switch مقدم
++    try:
++        sys.path.insert(0, str(_HERE))
++        from heart import heartstate as _hs  # noqa: WPS433 — lazy
++        if not _hs.enabled():                # HEARTSTATE_SHADOW خاموش → no-op کامل
++            return None
++        env = _hs.persist()
++        return {"written": bool(env.get("written")),
++                "shadow_only": bool(env.get("shadow_only", True)),
++                "beat": beat}
++    except Exception as e:  # noqa: BLE001 — §۴: heartstate نباید tick را بکشد
++        opslib.alert([f"wiring: heartstate_beat خطا: {type(e).__name__}: {e}"])
++        return None
++
++
++def email_beat(beat: int = 0) -> dict | None:
++    """LEG-06 · پلِ ایمیلِ ورودی (لیدِ نقاشی از ایمیل) پشتِ OCTOPUS_WIRE_EMAIL.
++
++    پیش‌فرض خاموش و خارج از PAPER_FULL_FLAGS. با فلگ خاموش، email_inbound.poll_and_digest
++    خودش no-op برمی‌گرداند و اینجا هم پیش از هر کاری فلگ را چک می‌کنیم → صفر pollِ صندوق
++    (بایت‌به‌بایتِ امروز: «not wired»). روشن = هر N beat یک بار صندوق را می‌خواند/parse می‌کند
++    (propose-only: فقط تشخیصِ لیدِ کاندید؛ هیچ replyِ خودکار/send). kill-switch مقدم؛ fail-soft.
++    ⚠️ هیچ‌گاه پیش‌فرضِ pollِ صندوقِ واقعی را روشن نمی‌کند."""
++    if not flag("OCTOPUS_WIRE_EMAIL"):
++        return None   # flag خاموش = «not wired» (رفتارِ فعلی)
++    if opslib.STOP_ORGANISM.exists() or opslib.halted():
++        return None   # kill-switch مقدم
++    every_n = int(os.environ.get("CHRONO_EMAIL_EVERY_N_BEATS", "60"))  # ~۱h با tick=60s
++    if every_n > 0 and beat > 0 and beat % every_n != 0:
++        return None
++    try:
++        sys.path.insert(0, str(_HERE / "legs"))
++        import email_inbound  # noqa: WPS433 — lazy
++        d = email_inbound.poll_and_digest()
++        return {"n_unread": d.get("n_unread", 0),
++                "n_leads": len(d.get("leads") or []),
++                "note": d.get("note"),
++                "beat": beat}
++    except Exception as e:  # noqa: BLE001 — §۴: email نباید tick را بکشد
++        opslib.alert([f"wiring: email_beat خطا: {type(e).__name__}: {e}"])
++        return None
++
++
++def lead_discovery_beat(lead_leg, beat: int = 0) -> dict | None:
++    """مرحلهٔ ۲ نقشهٔ لید (2026-07-15) · SENSE→SCORE→propose پشتِ OCTOPUS_WIRE_LEAD_DISCOVERY.
++
++    پیش‌فرض خاموش و عمداً خارج از PAPER_FULL_FLAGS (تولیدکنندهٔ PROPOSALِ واقعی است؛
++    profile هرگز خودکار روشنش نمی‌کند). روشن = هر N beat صندوقِ state/legs/lead-inbox
++    را می‌خواند (lead_sense)، با موتورِ قطعیِ $0 امتیاز می‌دهد (lead_scorer)، و فقط برای
++    action=='draft' از leg.intake یک PROPOSAL می‌سازد (attribution.propose — پایین‌ترین
++    حالت؛ هرگز واردِ fitness نمی‌شود، صفر ارسال/خرج). save/skip فقط آرشیو می‌شوند.
++    dedup محتوایی + سقفِ LEAD_DISCOVERY_MAX_PER_BEAT ضدِ سیلِ لجر. kill-switch مقدم؛
++    fail-soft؛ سایدکارِ ORGANISM-STATE.lead_discovery (الگوی business_legs).
++    ⚠️ propose-only مطلق — این beat هیچ راهی به مشتری/بیرون ندارد."""
++    if not flag("OCTOPUS_WIRE_LEAD_DISCOVERY"):
++        return None   # flag خاموش = «not wired» (رفتارِ امروز، بایت‌به‌بایت)
++    if opslib.STOP_ORGANISM.exists() or opslib.halted():
++        return None   # kill-switch مقدم
++    if lead_leg is None:
++        return None   # نیازمندِ OCTOPUS_WIRE_LEAD (make_lead_leg) — بدونِ پا، propose نداریم
++    every_n = int(os.environ.get("CHRONO_LEAD_DISCOVERY_EVERY_N_BEATS", "30"))
++    if every_n > 0 and beat > 0 and beat % every_n != 0:
++        return None
++    try:
++        sys.path.insert(0, str(_HERE / "legs"))
++        import lead_sense    # noqa: WPS433 — lazy
++        import lead_scorer   # noqa: WPS433 — lazy
++        max_n = int(os.environ.get("LEAD_DISCOVERY_MAX_PER_BEAT", "5"))
++        cands = lead_sense.read_inbox(limit=max_n)
++        scorer = lead_scorer.LeadScorer()
++        proposed = saved = skipped = dups = 0
++        for path, lead in cands:
++            if lead_sense.seen_before(lead):
++                lead_sense.mark_processed(path, lead, {"duplicate": True})
++                dups += 1
++                continue
++            sc = scorer.score(lead)
++            res = sc.as_dict()
++            if sc.action == "draft":
++                name = str(lead.get("applicant") or lead.get("address")
++                           or str(lead.get("description", ""))[:60]).strip()
++                r = lead_leg.intake(name,
++                                    float(lead.get("expected_aud") or 0.0),
++                                    cell="lead.doer",
++                                    description=str(lead.get("description", ""))[:200],
++                                    day=lead.get("day"))
++                res["intake"] = r
++                if r.get("ok"):
++                    proposed += 1
++                else:
++                    skipped += 1   # intake fail-closed → صادقانه skip بشمار
++            elif sc.action == "save":
++                saved += 1
++            else:
++                skipped += 1
++            lead_sense.mark_processed(path, lead, res)
++        result = {"sensed": len(cands), "proposed": proposed, "saved": saved,
++                  "skipped": skipped, "duplicates": dups, "beat": beat,
++                  "propose_only": True}
++        try:
++            sp = opslib.STATE_DIR / "ORGANISM-STATE.lead_discovery"
++            sp.parent.mkdir(parents=True, exist_ok=True)
++            import json as _json  # noqa: WPS433
++            tmp = sp.with_suffix(".lead_discovery.tmp")
++            tmp.write_text(_json.dumps({**result, "updated_at": opslib.now_iso()},
++                                       ensure_ascii=False, indent=2), "utf-8")
++            os.replace(tmp, sp)
++        except (OSError, TypeError, ValueError):
++            pass   # fail-soft: سایدکار اختیاری است
++        return result
++    except Exception as e:  # noqa: BLE001 — §۴: discovery نباید tick را بکشد
++        opslib.alert([f"wiring: lead_discovery_beat خطا: {type(e).__name__}: {e}"])
++        return None
++
++
++# ─── قرارداد مشترکِ ۴ پای بیزنسیِ نو (mining/crypto/accounting/knowledge) ─────────
++# WP-F ماژول‌ها را می‌سازد؛ اینجا (WP-C) status()های read-only را جمع می‌کنیم؛ WP-D در
++# رندر می‌خواند. هر پا یک helperِ ماژول‌سطحِ فقط‌خواندنی دارد:
++#   <name>_leg.<name>_status() -> {"leg","live","signal","note"}.
++_BUSINESS_LEGS_SPEC = (
++    ("mining", "mining_leg", "mining_status"),
++    ("crypto", "crypto_leg", "crypto_status"),
++    ("accounting", "accounting_leg", "accounting_status"),
++    ("knowledge", "knowledge_leg", "knowledge_status"),
++)
++
++
++def business_legs_beat(beat: int = 0, write: bool = True) -> dict | None:
++    """۴ پای بیزنسیِ نو را جمع کن → ORGANISM-STATE key «business_legs».
++
++    status()ها read-only + بی‌خطرند (صفر spend/outward) پس این beat فلگ لازم ندارد؛ فقط
++    kill-switch مقدم است. هر helper در try مستقل: نبودِ ماژول/helper یا خطا →
++    {"live": False, "note": "…"} (fail-soft، هرگز beat را نمی‌کشد). خروجی برای merge در
++    ORGANISM-STATE توسطِ organism.py، و — چون organism.py تنها writerِ فایلِ اصلی است —
++    یک سایدکارِ ORGANISM-STATE.business_legs هم نوشته می‌شود تا مستقلاً قابل‌مشاهده باشد
++    (همان الگوی ORGANISM-STATE.ziman)."""
++    if opslib.STOP_ORGANISM.exists() or opslib.halted():
++        return None   # kill-switch مقدم
++    sys.path.insert(0, str(_HERE / "legs"))
++    legs: dict = {}
++    for name, mod_name, fn_name in _BUSINESS_LEGS_SPEC:
++        try:
++            mod = __import__(mod_name)
++            fn = getattr(mod, fn_name, None)
++            if fn is None:
++                raise AttributeError(f"{fn_name} missing")
++            st = fn()
++            if not isinstance(st, dict):
++                raise TypeError("status is not a dict")
++            st.setdefault("leg", name)
++            legs[name] = st
++        except Exception as e:  # noqa: BLE001 — نبودِ یک پا نباید بقیه/beat را بکشد
++            legs[name] = {"leg": name, "live": False, "signal": "unknown",
++                          "note": f"status unavailable ({type(e).__name__})"}
++    result = {"business_legs": legs, "beat": beat}
++    if write:
++        try:
++            sp = opslib.STATE_DIR / "ORGANISM-STATE.business_legs"
++            sp.parent.mkdir(parents=True, exist_ok=True)
++            import json as _json  # noqa: WPS433
++            tmp = sp.with_suffix(".business_legs.tmp")
++            tmp.write_text(_json.dumps({**result, "updated_at": opslib.now_iso()},
++                                       ensure_ascii=False, indent=2), "utf-8")
++            os.replace(tmp, sp)
++        except (OSError, TypeError, ValueError):
++            pass   # fail-soft: سایدکار اختیاری است
++    return result
++
++
+ # ════════════════════════════════════════════════════════════════════════════════
+ # جلسه ۴۶ — needs_nudge: نوتیفِ هوشمند «وقتی به داده/تأییدت نیاز است» (ADHD-first)
+ # ════════════════════════════════════════════════════════════════════════════════
+@@ -1483,15 +1892,12 @@ def ziman_beat(leg=None, beat: int = 0, doctor=None) -> dict | None:
+     try:
+         snap = _leg.status_snapshot()
+         digest = _leg.telegram_digest()
++        # LEG-08 cleanup (2026-07-14 · F2): بلوکِ biology_beat حذف شد — ماژولِ ziman_biology
++        # هرگز در repo یا تاریخِ گیت وجود نداشت (phantom adapter، testِ phantom آن قبلاً پاک شد).
++        # importِ fail-soft در *هر* ziman beat یک alertِ ModuleNotFoundError تولید می‌کرد
++        # (نویزِ لاگ) و biology همیشه None می‌ماند → accept_biology_status هرگز واقعاً صدا نمی‌شد.
++        # خروجی بایت‌به‌بایت حفظ شد (biology=None مثلِ قبل)؛ صفر callerِ واقعی، صفر تغییرِ رفتار.
+         biology = None
+-        try:
+-            sys.path.insert(0, str(_HERE / "legs"))
+-            from ziman_biology import biology_beat  # noqa: WPS433 — lazy adapter
+-            biology = biology_beat(_leg, beat=beat, doctor=doctor)
+-            if biology is not None and hasattr(_leg, "accept_biology_status"):
+-                _leg.accept_biology_status(biology)
+-        except Exception as _bioe:  # noqa: BLE001 — biology advisory must fail-soft
+-            opslib.alert([f"wiring: ziman biology خطا: {type(_bioe).__name__}: {_bioe}"])
+         result = {
+             "leg_id": snap.get("leg_id", "ziman-gallery"),
+             "organ": snap.get("organ", "ZIMAN"),

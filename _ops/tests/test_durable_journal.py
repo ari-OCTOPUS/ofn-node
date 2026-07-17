@@ -25,6 +25,10 @@ def check(name: str, cond: bool) -> None:
 
 
 JPATH = opslib.STATE_DIR / "journal" / "test-run-journal.jsonl"
+# record(path=…) عمداً برای مسیرِ صریح mkdir نمی‌کند (تا قراردادِ fail-soft روی مسیرِ
+# غیرقابل‌نوشتن — چکِ ۹ — معنادار بماند)؛ فقط _default_path مسیرِ پیش‌فرض را می‌سازد.
+# پس همان‌طور که _default_path دایرکتوریِ journal را می‌سازد، تست هم مسیرِ خودش را می‌سازد.
+JPATH.parent.mkdir(parents=True, exist_ok=True)
 
 # ۱) resume_point روی runِ ناموجود → None
 check("resume_point: unknown run -> None", J.resume_point("no-such-run", path=JPATH) is None)

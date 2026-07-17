@@ -91,6 +91,37 @@ def t_needs_fix_cycles_then_queue():
     assert calls["n"] == 6, calls                        # ۳ دور × ۲ نقش
 
 
+def t_invalid_topic_fail_soft():
+    """regression: governor_epoch قبلاً dict آزاد می‌فرستاد → KeyError: 'text' هر epoch."""
+    r = debate_loop.run_debate({"topic": "epoch-strategy-review", "snap": {}})
+    assert r["status"] == "invalid-topic", r
+    assert debate_loop.run_debate(None)["status"] == "invalid-topic"
+    assert debate_loop.run_debate({"id": "x", "text": "y"})["status"] == "invalid-topic"
+
+
+def t_governor_topic_whitelisted():
+    """seed-3 (topic هاردکد governor_epoch) باید در whitelist بماند و debate کامل بدهد."""
+    t = topics.get_topic("seed-3")
+    assert t and {"id", "source", "text"} <= t.keys(), t
+    r = debate_loop.run_debate(t, live=False)
+    assert r["status"] == "survived", r
+
+
+def t_queue_idempotent_per_topic():
+    """topicِ هنوز-در-صف دوباره append نمی‌شود (§۹) — وگرنه debateِ هر epoch صف را غرق می‌کرد."""
+    lg = opslib.genome_ledger()
+    props_before = sum(1 for e in lg.iter_events()
+                       if e.get("type") == "PROPOSAL" and e.get("actor") == "debate")
+    t = {"id": "seed-0", "source": "SEED_TOPICS", "text": topics.SEED_TOPICS[0]}
+    r = debate_loop.run_debate(t)   # seed-0 قبلاً در t_offline_full_debate صف شده
+    assert r["status"] == "survived" and r["queued"] is False, r
+    txt = debate_loop.QUEUE_MD.read_text("utf-8")
+    assert txt.count("— seed-0 ·") == 1, "append تکراری صف — idempotency شکست"
+    props_after = sum(1 for e in lg.iter_events()
+                      if e.get("type") == "PROPOSAL" and e.get("actor") == "debate")
+    assert props_after == props_before, "PROPOSAL تکراری برای topic هنوز-در-صف"
+
+
 if __name__ == "__main__":
     failed = harness.run([
         ("مناظرهٔ کامل آفلاین $0 → صف انسان", t_offline_full_debate),
@@ -99,5 +130,8 @@ if __name__ == "__main__":
         ("گیت deny → توقف امن، نه mock", t_gate_deny_no_mock),
         ("live قبل از 07-21 قفل (سپر فاز −۱)", t_live_blocked_before_gate_date),
         ("needs-fix ×۳ → QUEUE انسان (نه دور ۴)", t_needs_fix_cycles_then_queue),
+        ("topic بدقواره → invalid-topic (نه KeyError)", t_invalid_topic_fail_soft),
+        ("topic هاردکد governor در whitelist است", t_governor_topic_whitelisted),
+        ("صف/PROPOSAL per-topic idempotent (§۹)", t_queue_idempotent_per_topic),
     ])
     sys.exit(1 if failed else 0)

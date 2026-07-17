@@ -68,6 +68,10 @@ WEAR_BASE    = _envf("CHRONO_WEAR_BASE", 1.0)      # قیدِ متابولیک �
 # روی ledger ژنوم +۱ می‌بریم (heart-driven). پیش‌فرض ۱۴۴۰ (با beatِ ~۶۰s ≈ روزانه؛
 # verdict آری جلسه ۳۲) تا زنجیرهٔ گران‌بها متورم نشود؛ N=۱ = هر ضربان، N بزرگ‌تر = کندتر.
 AGE_PER_N_BEATS = int(_envf("CHRONO_AGE_PER_N_BEATS", 1440.0))
+# OCT-DB-05: نگه‌داریِ چرخشیِ جدول‌های per-beat. 0 = خاموش (پیش‌فرض، رفتارِ قبلی).
+# >0 = فقط N ضربانِ اخیر می‌ماند. خواننده‌ها امن: heartbeat فقط MAX(beat_seq) + پنجرهٔ
+# ۲۴h؛ experience_meter/checkpoint خوانندهٔ prod ندارند. اخطار: N باید >۲۴h (beat~۶۰s → N>1440).
+RETAIN_BEATS = int(_envf("CHRONO_RETAIN_BEATS", 0.0))
 
 GENESIS_HLC = (0, 0)
 
@@ -145,7 +149,7 @@ CREATE TABLE IF NOT EXISTS heartbeat (
   workspace_ref TEXT,
   ts            INTEGER NOT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_heartbeat_ts ON heartbeat(ts);
+DROP INDEX IF EXISTS idx_heartbeat_ts;  -- OCT-DB-03: dead index (readers use beat_seq PK / full-scan wall_ts), drop to skip ~1440 index writes/day
 
 CREATE TABLE IF NOT EXISTS leg_clock (
   leg_id          TEXT PRIMARY KEY,
@@ -216,6 +220,11 @@ CREATE TABLE IF NOT EXISTS metabolic_age (
   wear         REAL NOT NULL DEFAULT 0.0,
   updated_beat INTEGER NOT NULL
 );
+
+-- OCT-DB-06: baselineِ نسخهٔ اسکیمای chrono.db (فعلاً ۱). idempotent؛ هر ساختِ ChronoDB
+-- این را ست می‌کند. مهاجرت‌های بعدی این عدد را بالا می‌برند و کد با `PRAGMA user_version`
+-- می‌تواند تصمیم بگیرد.
+PRAGMA user_version = 1;
 """
 
 
@@ -260,7 +269,7 @@ class LegHandle:
         self.last_beat_seen: int = 0
         self.events_this_beat: int = 0
         self.state: str = "alive"
-        self.inbox: deque[dict] = deque()
+        self.inbox: deque[dict] = deque(maxlen=int(os.environ.get("CHRONO_INBOX_MAXLEN", "1024")))
 
     def event(self, payload_ref: str | None = None) -> tuple[int, int]:
         """کارِ تخصصیِ پا یک رویداد تولید کرد → HLC محلی +1 و ack حیات."""
@@ -649,6 +658,19 @@ class Pacemaker:
                     actor="pacemaker", beat=True)
             except Exception as e:  # noqa: BLE001 — فلشِ میرا نباید سدِ ضربان را بکشد
                 opslib.alert([f"chrono age-tick append failed (beat {self.beat}): {e}"])
+
+        # 8) OCT-DB-05: prune چرخشیِ جدول‌های per-beat (flag-gated، پیش‌فرض خاموش). فقط
+        # beatهای قدیمی‌تر از پنجرهٔ نگه‌داری؛ newest (=self.beat) هرگز حذف نمی‌شود چون
+        # self.beat > RETAIN_BEATS تضمین می‌کند cutoff < self.beat. metabolic_age/leg_clock
+        # و gated_effect عمداً دست‌نخورده‌اند. fail-soft: خطا سدِ ضربان را نمی‌کشد.
+        if RETAIN_BEATS > 0 and self.beat > RETAIN_BEATS:
+            cutoff = self.beat - RETAIN_BEATS
+            try:
+                self.db.ex("DELETE FROM heartbeat WHERE beat_seq < ?", (cutoff,))
+                self.db.ex("DELETE FROM experience_meter WHERE beat_seq < ?", (cutoff,))
+                self.db.ex("DELETE FROM checkpoint WHERE beat_id < ?", (cutoff,))
+            except Exception as e:  # noqa: BLE001 — prune نباید سدِ ضربان را بکشد
+                opslib.alert([f"chrono retention prune failed (beat {self.beat}): {e}"])
         return msg
 
     def status(self) -> dict:

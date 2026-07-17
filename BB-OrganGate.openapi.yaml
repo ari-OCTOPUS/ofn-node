@@ -1,0 +1,281 @@
+openapi: 3.0.3
+info:
+  title: BB-OrganGate — Budget Enforcement Gate
+  version: 2.0.0
+  description: |
+    Per-organ budget gate sitting ON TOP of budget_gate (not replacing it).
+    Two-phase contract: reserve → call → settle; failed call → release.
+    Fail-closed at every layer: STOP → FREEZE → unknown organ → unreadable state →
+    organ monthly cap → budget_gate.reserve (single enforcer I2).
+    All numbers from budgets.yaml (I6); no hardcoded limits.
+  contact:
+    name: Octopus System
+    url: https://github.com/octopus-system
+  x-invariant:
+    - I2: budget_gate single enforcer
+    - I3: fail-closed → FREEZE on divergence
+    - I6: no hardcoded numbers, read from budgets.yaml
+    - I1: append-only ledger (organ-gate-log.jsonl)
+
+servers: []
+
+paths:
+  /reserve:
+    post:
+      operationId: organGate.reserve
+      summary: Reserve budget for an organ before a call
+      description: |
+        Two-phase gate: reserve(organ, est_usd) before any call.
+        Deny at any layer = deny overall (fail-closed).
+        On budget_gate success, atomically update organ state.
+      parameters:
+        - name: organ
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Organ name from budgets.yaml projects/loop
+        - name: est_usd
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+          description: Estimated cost in USD
+        - name: task
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+          description: Human-readable task label
+      responses:
+        "200":
+          description: Reserve verdict
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ReserveAllow"
+                  - $ref: "#/components/schemas/ReserveDeny"
+        "423":
+          description: Frozen or halted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReserveDeny"
+      x-python-signature: |
+        def reserve(organ: str, est_usd: float, task: str = "") -> dict
+
+  /settle:
+    post:
+      operationId: organGate.settle
+      summary: Settle actual cost after call completes
+      description: |
+        est_usd → actual_usd in both layers (organ_state + budget_gate).
+        Any exception in lower layer → FREEZE (unknown accounting = stop spending, not blind continue).
+      parameters:
+        - name: organ
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: est_usd
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: actual_usd
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: task
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+      responses:
+        "200":
+          description: Settle result
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/SettleOk"
+                  - $ref: "#/components/schemas/SettleFail"
+      x-python-signature: |
+        def settle(organ: str, est_usd: float, actual_usd: float, task: str = "") -> dict
+
+  /release:
+    post:
+      operationId: organGate.release
+      summary: Release failed reservation (call failed)
+      description: |
+        Failed call → release reservation. Implemented as settle(organ, est_usd, 0.0).
+        No budget leak.
+      parameters:
+        - name: organ
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: est_usd
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: task
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+      responses:
+        "200":
+          description: Release result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SettleOk"
+      x-python-signature: |
+        def release(organ: str, est_usd: float, task: str = "") -> dict
+
+  /status:
+    get:
+      operationId: organGate.status
+      summary: Read-only status snapshot for CLI/dashboard/UI
+      description: |
+        Returns current organ spending state, FX rate, freeze/halt flags,
+        and budget_gate_state (read-only view).
+      responses:
+        "200":
+          description: Status snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganStatus"
+      x-python-signature: |
+        def status() -> dict
+
+components:
+  schemas:
+    ReserveAllow:
+      type: object
+      required: [allow, reserved]
+      properties:
+        allow:
+          type: boolean
+          enum: [true]
+        reserved:
+          type: number
+          format: double
+          description: USD amount reserved
+
+    ReserveDeny:
+      type: object
+      required: [allow, reason]
+      properties:
+        allow:
+          type: boolean
+          enum: [false]
+        reason:
+          type: string
+          enum:
+            - "halted:{reason}"
+            - "frozen-conflict (I3) — رفع دستی FREEZE.flag"
+            - "budgets-unreadable"
+            - "unknown-organ:{organ} (fail-closed؛ ارگان‌ها فقط از budgets.yaml)"
+            - "organ-monthly: AU${month_after_aud} > cap AU${cap_aud}"
+            - "budget_gate:{reason}"
+            - "organ-state-lock-busy (fail-closed)"
+            - "organ-state-unreadable:{e}"
+
+    SettleOk:
+      type: object
+      required: [ok, actual_usd]
+      properties:
+        ok:
+          type: boolean
+          enum: [true]
+        actual_usd:
+          type: number
+          format: double
+
+    SettleFail:
+      type: object
+      required: [ok, reason]
+      properties:
+        ok:
+          type: boolean
+          enum: [false]
+        reason:
+          type: string
+          example: "settle-failed:Exception(...)"
+
+    OrganStatus:
+      type: object
+      required: [ts, fx_aud_per_usd, fx_tag, frozen, halted, organs]
+      properties:
+        ts:
+          type: string
+          format: date-time
+        fx_aud_per_usd:
+          type: number
+        fx_tag:
+          type: string
+          example: "FACT(budgets.yaml)"
+        frozen:
+          type: boolean
+        halted:
+          type: string
+          nullable: true
+        organs:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              floor_aud:
+                type: number
+              cap_monthly_aud:
+                type: number
+              spent_month_aud:
+                type: number
+              spent_today_usd:
+                type: number
+              human_priority:
+                type: number
+                nullable: true
+              deadline:
+                type: string
+                nullable: true
+        budget_gate_state:
+          type: object
+          description: Read-only view of budget_gate state
+
+  securitySchemes:
+    OrganGateInternal:
+      type: apiKey
+      in: header
+      name: X-Internal-OrganGate
+      description: |
+        Internal module boundary; no external auth. Access controlled by
+        file-system permissions and import path isolation.
+
+security:
+  - OrganGateInternal: []
+
+x-octopus-metadata:
+  file_path: _ops/budget/organ_gate.py
+  invariant_tags: [I1, I2, I3, I6]
+  fail_closed: true
+  propose_only: false
+  side_effects: true
+  notes: |
+    organ_gate.py is the ONLY per-organ enforcer. It delegates to
+    budget_gate (the single global enforcer per I2). Any divergence
+    triggers FREEZE.flag (I3). Settle failures also trigger FREEZE.

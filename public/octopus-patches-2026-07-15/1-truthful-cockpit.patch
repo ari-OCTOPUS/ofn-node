@@ -1,0 +1,455 @@
+diff --git a/_ops/budget/approval_channel.py b/_ops/budget/approval_channel.py
+index f66364f..5ef8bab 100644
+--- a/_ops/budget/approval_channel.py
++++ b/_ops/budget/approval_channel.py
+@@ -966,8 +966,68 @@ class TelegramApprovalChannel(ApprovalChannel):
+         if t == "/reveal" or t.startswith("/reveal "):
+             arg = t[len("/reveal"):].strip()
+             return self.reveal_experiment(arg) if arg else self.lab_status()
++        # ── کابینِ راست‌گو (P3 2026-07-15): read-only، وضعیت از تازگیِ فایل نه پیش‌فرضِ فلگ ──
++        if t == "/wiring":
++            return self._cmd_wiring()
++        if t == "/health":
++            return self._cmd_health()
+         return None
+ 
++    # ─── کابینِ راست‌گو: /wiring + /health (read-only، هرگز stale/بی‌نویسنده را سبز نشان نمی‌دهد) ──
++    def _cmd_wiring(self) -> str:
++        """نقشهٔ اتصال‌ها از truth-cards: هر جزء با آیکنِ صادق (🟢 تازه · 🟠 کهنه · ⚫ غایب/فلگ-خاموش).
++        قانون: 🟢 فقط برای فایلِ موجودِ تازه؛ هیچ پیش‌فرضِ کدی «زنده» جا نمی‌زند."""
++        rm = self._rm()
++        if rm is None:
++            return "🔌 <b>اتصال‌ها</b>\n(read-model در دسترس نیست)"
++        try:
++            cards = rm.read_truth_cards()
++        except Exception as e:  # noqa: BLE001 — fail-soft
++            return f"🔌 <b>اتصال‌ها</b>\n❌ خطا: {type(e).__name__}"
++        lines = ["🔌 <b>نقشهٔ اتصال‌ها</b> (راست‌گو)", self._DIV.strip()]
++        for c in cards:
++            flag = f" · <code>{c['flag']}</code>" if c.get("flag") else ""
++            fo = ""
++            if c.get("flag"):
++                fo = " (فلگ روشن)" if c.get("flag_on") else " (فلگ خاموش)"
++            lines.append(f"{c['icon']} <b>{html.escape(str(c['label']))}</b> — "
++                         f"{html.escape(str(c['status']))}{fo}{flag}")
++        n_green = sum(1 for c in cards if c["icon"] == "🟢")
++        lines.append(self._DIV.strip())
++        lines.append(f"🟢 تازه: {n_green} · 🟠 کهنه/⚫ غایب: {len(cards) - n_green}")
++        lines.append("<i>سبز فقط برای فایلِ موجودِ تازه — snapshotِ کهنه یا بی‌نویسنده هرگز سبز نیست.</i>")
++        return "\n".join(lines)
++
++    def _cmd_health(self) -> str:
++        """سلامتِ راست‌گو: قلبِ shadow (تازگیِ واقعی)، capability marker، گیتِ پول، halt."""
++        rm = self._rm()
++        cards = {}
++        if rm is not None:
++            try:
++                cards = {c["id"]: c for c in rm.read_truth_cards()}
++            except Exception:  # noqa: BLE001
++                cards = {}
++        heart = cards.get("heart_shadow", {})
++        heart_line = f"{heart.get('icon', '❔')} {heart.get('status', '?')}" if heart else "❔"
++        # capability marker + گیتِ پول از فایل (نه پیش‌فرض)
++        from pathlib import Path as _P
++        sd = _P(self._state_dir) if self._state_dir else (_P(__file__).resolve().parents[1] / "state")
++        cap = "🟢 معتبر" if (sd / "CAPABILITY-OK.flag").exists() else "🔴 غایب"
++        money = ("🔓 مسلح" if (sd / "LIVE-ENABLED.flag").exists()
++                 else "🔒 بسته (LIVE-ENABLED نیست — paper، عمدی)")
++        try:
++            halt = "🔴 HALT فعال" if (opslib.STOP_ORGANISM.exists() or opslib.halted()) else "🟢 در حال اجرا"
++        except Exception:  # noqa: BLE001
++            halt = "❔"
++        return (f"🫀 <b>سلامتِ اختاپوس</b> · {self._read_mode_color()}\n"
++                f"{self._DIV.strip()}\n"
++                f"قلب (shadow): {heart_line}\n"
++                f"Capability marker: {cap}\n"
++                f"گیتِ پول: {money}\n"
++                f"وضعیتِ توقف: {halt}\n"
++                f"{self._DIV.strip()}\n"
++                f"<i>سلامتِ کاملِ تست‌ها: run_all (۱۳۷) + validators جدا اجرا می‌شوند.</i>")
++
+     def _main_menu(self) -> dict:
+         """خانهٔ اصلی (جلسه ۴۶، رأی مالک «فقط آره یا نه»): خانهٔ سادهٔ تصمیم‌ها.
+         عمقِ کاملِ ۸-تب دست‌نخورده زیرِ «⚙️ بیشتر» (backward-compat کامل)."""
+diff --git a/_ops/budget/cockpit_readmodel.py b/_ops/budget/cockpit_readmodel.py
+index 46a15d8..11d7444 100644
+--- a/_ops/budget/cockpit_readmodel.py
++++ b/_ops/budget/cockpit_readmodel.py
+@@ -135,7 +135,50 @@ class CockpitReadModel:
+         return _read_json(self.state / "phase-gate-state.json")
+ 
+     def read_channels(self) -> dict:
+-        return _read_json(self.state / "channel-status.json")
++        d = _read_json(self.state / "channel-status.json")
++        # P1 راست‌گویی (2026-07-15): این snapshot نویسندهٔ زنده ندارد — متادیتای تازگی همیشه
++        # ضمیمه می‌شود تا هیچ خواننده‌ای آن را «زنده» رندر نکند (کلیدهای additive، خواننده‌ها .get).
++        try:
++            import os as _os, time as _t
++            _mt = _os.path.getmtime(self.state / "channel-status.json")
++            d["_snapshot_ts"] = _t.strftime("%Y-%m-%d %H:%M", _t.localtime(_mt))
++            d["_stale"] = (_t.time() - _mt) > 3600
++        except OSError:
++            d["_stale"] = True
++        return d
++
++    def read_truth_cards(self) -> list[dict]:
++        """کارت‌های راست‌گو (P1 2026-07-15): flag + writer + تازگیِ فایل، برای اجزای
++        flag-off/بی‌نویسنده. قانونِ کابین: 🟢 فقط برای فایلِ موجودِ تازه؛ غایب=⚫، کهنه=🟠."""
++        import os as _os
++        import time as _t
++
++        def _age_h(p):
++            try:
++                return (_t.time() - _os.path.getmtime(p)) / 3600.0
++            except OSError:
++                return None
++
++        cards = []
++        for cid, label, flag, rel, sla_h in (
++            ("structlog", "StructLog", "OCTOPUS_WIRE_STRUCTLOG", "octopus-log.jsonl", 24),
++            ("self_claims", "Self-claims", "CORTEX_SELF_MONITOR", "cortex/self-claims.jsonl", 24),
++            ("calibration", "Calibration", None, "cortex/calibration-latest.json", 24),
++            ("channel_status", "Channel-status", None, "channel-status.json", 1),
++            ("heart_shadow", "Heart (shadow)", "OCTOPUS_WIRE_HEART", "pulse/heart-shadow-latest.json", 1),
++        ):
++            age = _age_h(self.state / rel)
++            flag_on = (_os.environ.get(flag) == "1") if flag else None
++            if age is None:
++                icon = "⚫"
++                txt = "فایل نیست" + (" — فلگ خاموش" if flag and not flag_on else "")
++            elif age <= sla_h:
++                icon, txt = "🟢", f"تازه ({age:.1f}h)"
++            else:
++                icon, txt = "🟠", f"کهنه ({age / 24:.1f}d) — نویسندهٔ زنده ندارد؟"
++            cards.append({"id": cid, "label": label, "flag": flag, "flag_on": flag_on,
++                          "icon": icon, "status": txt, "age_h": age, "source": rel})
++        return cards
+ 
+     def read_lab(self) -> dict:
+         return _read_json(self.state / "lab_state.json")
+diff --git a/_ops/dashboard/server.py b/_ops/dashboard/server.py
+index 0cfd826..655c571 100644
+--- a/_ops/dashboard/server.py
++++ b/_ops/dashboard/server.py
+@@ -711,19 +711,35 @@ def page_activity() -> bytes:
+ 
+ def page_channels() -> bytes:
+     ch = _read_json("channel-status.json")
++    # P1 راست‌گویی (2026-07-15): channel-status.json نویسندهٔ زنده ندارد (snapshot ِ فریز
++    # 2026-07-08). قانونِ کابین: دادهٔ کهنه/بی‌نویسنده هرگز «🟢 زنده» رندر نمی‌شود.
++    import time as _time
++    _stale, _snap_ts = True, "?"
++    try:
++        _mt = (STATE_DIR / "channel-status.json").stat().st_mtime
++        _snap_ts = _time.strftime("%Y-%m-%d %H:%M", _time.localtime(_mt))
++        _stale = (_time.time() - _mt) > 3600
++    except OSError:
++        pass
+     channels = ch.get("channels") or {}
+     ch_rows = ""
++    if _stale:
++        ch_rows += (f'<tr><td class="k">⚠️</td><td>snapshot ِ کهنه — آخرین نوشتن {_snap_ts}؛ '
++                    f'این فایل نویسندهٔ زنده ندارد؛ وضعیت‌های زیر «زنده» نیستند، عکسِ قدیمی‌اند.</td></tr>')
+     for name, info in channels.items():
+         live = info.get("live")
+         mode = info.get("mode", "—")
+-        b = "green" if live else "red"
+         extra = ""
+         req = info.get("required_env") or []
+         if req and not live:
+             extra = f'<br><span class="note">نیاز: {html.escape(", ".join(req))}</span>'
++        if _stale:
++            badge = f'⚪ {"زنده" if live else "خاموش"} <span class="note">(در snapshot ِ {_snap_ts})</span>'
++        else:
++            b = "green" if live else "red"
++            badge = f'<span class="badge b-{b}">{"🟢 زنده" if live else "🔴 خاموش"}</span>'
+         ch_rows += (f'<tr><td class="k">{html.escape(name)}</td><td>'
+-                    f'<span class="badge b-{b}">{"🟢 زنده" if live else "🔴 خاموش"}</span> '
+-                    f'· {html.escape(str(mode))}{extra}</td></tr>')
++                    f'{badge} · {html.escape(str(mode))}{extra}</td></tr>')
+ 
+     # ledger tail
+     tails = _ledger_tail(10)
+diff --git a/_ops/events.py b/_ops/events.py
+index 88d535e..cb7213d 100644
+--- a/_ops/events.py
++++ b/_ops/events.py
+@@ -68,6 +68,12 @@ def emit(event_name: str, agent_id: str, *, status: str = "ok",
+     # نمی‌شود — به task.failed (قرمز) می‌رود تا drift ِ تولیدکننده «موفق» جلوه نکند؛ نامِ اصلی
+     # در summary ثبت می‌شود (fail-loud). خواننده‌ها بی‌تغییر (فقط .get).
+     _known = event_name in EVENT_NAMES
++    # P1 (2026-07-15): correlation_id ِ خالی → mint ِ خودکار (oct-YYYYMMDD-hex6) تا همبستگیِ
++    # cross-store بالاخره نویسنده داشته باشد (خوانندهٔ consolidate.py:116 تا امروز کور بود).
++    # additive و backward-compatible: تولیدکننده‌ای که خودش بدهد دست‌نخورده می‌ماند؛ خواننده‌ها .get.
++    if not correlation_id:
++        import uuid as _uuid
++        correlation_id = f"oct-{_iso(ts)[:10].replace('-', '')}-{_uuid.uuid4().hex[:6]}"
+     _summary = str(summary or "")
+     if not _known:
+         _summary = f"[drift:unknown-event={str(event_name)[:32]}] " + _summary
+diff --git a/_ops/telegram_center/render.py b/_ops/telegram_center/render.py
+index bb8a454..20143b7 100644
+--- a/_ops/telegram_center/render.py
++++ b/_ops/telegram_center/render.py
+@@ -231,6 +231,13 @@ def _collect_legs(feeds: dict) -> dict:
+     # شکلِ مقدار آزاد (dict-به-نام یا list) — هر دو fail-soft. skeleton (live=False)
+     # note ِ صادقش را نشان می‌دهد نه پیش‌فرضِ خالی. غیاب = پیش‌فرضِ آرام (بدون crash).
+     bl = org.get("business_legs")
++    # فیکسِ P0 (2026-07-15): business_legs_beat خروجی را دولایه می‌نویسد —
++    # ORGANISM["business_legs"] == {"business_legs": {mining,...}, "beat": N} —
++    # ولی این‌جا شکلِ تخت فرض شده بود → هر ۴ پا ساکت default رندر می‌شدند.
++    # هر دو شکل پذیرفته می‌شود (backward-compatible): لایهٔ داخلی هست و بیرونی پا ندارد → سطحی‌سازی.
++    if (isinstance(bl, dict) and isinstance(bl.get("business_legs"), dict)
++            and "mining" not in bl):
++        bl = bl["business_legs"]
+     entries: dict = {}
+     if isinstance(bl, dict):
+         for k, v in bl.items():
+diff --git a/_ops/tests/test_business_legs_shape.py b/_ops/tests/test_business_legs_shape.py
+new file mode 100644
+index 0000000..578e1f0
+--- /dev/null
++++ b/_ops/tests/test_business_legs_shape.py
+@@ -0,0 +1,48 @@
++"""test_business_legs_shape.py — P1 (2026-07-15): render._collect_legs هر دو شکلِ
++business_legs را می‌پذیرد — تختِ قدیمی و دولایه‌ای که business_legs_beat واقعاً می‌نویسد
++(ORGANISM["business_legs"] == {"business_legs": {mining,...}, "beat": N}).
++پیش از فیکس، شکلِ دولایه باعث می‌شد هر ۴ پای بیزنس ساکت default رندر شوند."""
++import sys
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(_HERE.parent))
++sys.path.insert(0, str(_HERE.parent / "budget"))
++sys.path.insert(0, str(_HERE.parent / "telegram_center"))
++
++import harness
++ENV = harness.setup("business_legs_shape")
++
++import render  # noqa: E402
++
++_LEG = {"leg": "mining", "live": True, "signal": "sig-m", "note": "n-m"}
++
++
++def t_a_nested_shape_renders():
++    """شکلِ واقعیِ organism (دولایه + beat) → پای mining سبز با signal."""
++    feeds = {"organism": {"business_legs": {
++        "business_legs": {"mining": dict(_LEG)}, "beat": 7}}}
++    legs = render._collect_legs(feeds)
++    assert legs.get("mining", {}).get("status") == "🟢", legs.get("mining")
++    assert "sig-m" in legs["mining"]["detail"]
++
++
++def t_b_flat_shape_still_works():
++    """شکلِ تختِ قدیمی همچنان کار می‌کند (backward-compat)."""
++    feeds = {"organism": {"business_legs": {"mining": dict(_LEG)}}}
++    legs = render._collect_legs(feeds)
++    assert legs.get("mining", {}).get("status") == "🟢", legs.get("mining")
++
++
++def t_c_absent_is_calm_default():
++    """غیاب → پیش‌فرضِ آرام، بدون crash."""
++    legs = render._collect_legs({"organism": {}})
++    assert isinstance(legs, dict)
++
++
++if __name__ == "__main__":
++    for f in (t_a_nested_shape_renders, t_b_flat_shape_still_works,
++              t_c_absent_is_calm_default):
++        f()
++        print("ok", f.__name__)
++    print("PASS test_business_legs_shape")
+diff --git a/_ops/tests/test_channel_status_stale_not_green.py b/_ops/tests/test_channel_status_stale_not_green.py
+new file mode 100644
+index 0000000..d640c9e
+--- /dev/null
++++ b/_ops/tests/test_channel_status_stale_not_green.py
+@@ -0,0 +1,58 @@
++"""test_channel_status_stale_not_green.py — P1 (2026-07-15): قانونِ کابینِ راست‌گو —
++snapshot ِ بی‌نویسنده هرگز سبز رندر نمی‌شود. readmodel متادیتای stale می‌دهد و
++truth-cards برای فایلِ کهنه/غایب آیکنِ غیرسبز برمی‌گرداند."""
++import json
++import os
++import sys
++import tempfile
++import time
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(_HERE.parent))
++sys.path.insert(0, str(_HERE.parent / "budget"))
++
++import harness
++ENV = harness.setup("channel_status_stale")
++
++from cockpit_readmodel import CockpitReadModel  # noqa: E402
++
++
++def t_a_stale_snapshot_flagged():
++    with tempfile.TemporaryDirectory() as td:
++        st = Path(td)
++        p = st / "channel-status.json"
++        p.write_text(json.dumps({"channels": {"telegram": {"live": True}}}), "utf-8")
++        old = time.time() - 7 * 24 * 3600
++        os.utime(p, (old, old))
++        rm = CockpitReadModel(state_dir=str(st))
++        d = rm.read_channels()
++        assert d.get("_stale") is True, d
++        assert "_snapshot_ts" in d
++        cards = {c["id"]: c for c in rm.read_truth_cards()}
++        assert cards["channel_status"]["icon"] != "🟢", cards["channel_status"]
++
++
++def t_b_missing_files_never_green():
++    with tempfile.TemporaryDirectory() as td:
++        rm = CockpitReadModel(state_dir=td)
++        for c in rm.read_truth_cards():
++            assert c["icon"] != "🟢", c
++
++
++def t_c_fresh_file_is_green():
++    with tempfile.TemporaryDirectory() as td:
++        st = Path(td)
++        (st / "pulse").mkdir(parents=True)
++        (st / "pulse" / "heart-shadow-latest.json").write_text("{}", "utf-8")
++        rm = CockpitReadModel(state_dir=str(st))
++        cards = {c["id"]: c for c in rm.read_truth_cards()}
++        assert cards["heart_shadow"]["icon"] == "🟢", cards["heart_shadow"]
++
++
++if __name__ == "__main__":
++    for f in (t_a_stale_snapshot_flagged, t_b_missing_files_never_green,
++              t_c_fresh_file_is_green):
++        f()
++        print("ok", f.__name__)
++    print("PASS test_channel_status_stale_not_green")
+diff --git a/_ops/tests/test_cockpit_truthful.py b/_ops/tests/test_cockpit_truthful.py
+new file mode 100644
+index 0000000..2629457
+--- /dev/null
++++ b/_ops/tests/test_cockpit_truthful.py
+@@ -0,0 +1,63 @@
++"""test_cockpit_truthful.py — P3 (2026-07-15): فرمان‌های راست‌گوی کابین (/wiring, /health).
++قانونِ سخت: هیچ فایلِ غایب یا snapshotِ کهنه هرگز 🟢 رندر نمی‌شود؛ فایلِ تازه 🟢 می‌شود."""
++import os
++import sys
++import tempfile
++import time
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(_HERE.parent))
++sys.path.insert(0, str(_HERE.parent / "budget"))
++
++import harness
++ENV = harness.setup("cockpit_truthful")
++
++from approval_channel import TelegramApprovalChannel  # noqa: E402
++
++
++def _chan(state_dir):
++    return TelegramApprovalChannel(state_dir=str(state_dir))
++
++
++def t_a_wiring_missing_never_green():
++    with tempfile.TemporaryDirectory() as td:
++        ch = _chan(td)
++        out = ch._cmd_wiring()
++        assert "اتصال" in out
++        assert "🟢 تازه: 0" in out, out          # همه غایب → صفر سبز
++
++
++def t_b_wiring_fresh_heart_is_green():
++    with tempfile.TemporaryDirectory() as td:
++        st = Path(td)
++        (st / "pulse").mkdir(parents=True)
++        (st / "pulse" / "heart-shadow-latest.json").write_text("{}", "utf-8")
++        ch = _chan(st)
++        out = ch._cmd_wiring()
++        assert "🟢" in out and "Heart" in out, out
++
++
++def t_c_health_money_gate_closed_by_default():
++    with tempfile.TemporaryDirectory() as td:
++        ch = _chan(td)
++        out = ch._cmd_health()
++        assert "گیتِ پول" in out and "🔒" in out, out    # LIVE-ENABLED غایب → بسته
++        assert "Capability marker: 🔴" in out, out       # marker غایب → قرمز
++
++
++def t_d_health_capability_present_green():
++    with tempfile.TemporaryDirectory() as td:
++        st = Path(td)
++        (st / "CAPABILITY-OK.flag").write_text("{}", "utf-8")
++        ch = _chan(st)
++        out = ch._cmd_health()
++        assert "Capability marker: 🟢" in out, out
++
++
++if __name__ == "__main__":
++    for f in (t_a_wiring_missing_never_green, t_b_wiring_fresh_heart_is_green,
++              t_c_health_money_gate_closed_by_default, t_d_health_capability_present_green):
++        f()
++        print("ok", f.__name__)
++    print("PASS test_cockpit_truthful")
+diff --git a/_ops/tests/test_correlation_id_generated.py b/_ops/tests/test_correlation_id_generated.py
+new file mode 100644
+index 0000000..4555100
+--- /dev/null
++++ b/_ops/tests/test_correlation_id_generated.py
+@@ -0,0 +1,38 @@
++"""test_correlation_id_generated.py — P1 (2026-07-15): emit بدونِ correlation_id →
++mint ِ خودکارِ oct-YYYYMMDD-hex6 (خوانندهٔ consolidate.py:116 دیگر کور نیست)؛
++با correlation_id ِ صریح → دست‌نخورده؛ هر رویداد یکتا."""
++import re
++import sys
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(_HERE.parent))
++sys.path.insert(0, str(_HERE.parent / "budget"))
++
++import harness
++ENV = harness.setup("correlation_id")
++
++import events as ev  # noqa: E402
++
++
++def t_a_minted_when_empty():
++    e = ev.emit("task.completed", "x", summary="s")
++    assert re.fullmatch(r"oct-\d{8}-[0-9a-f]{6}", e["correlation_id"]), e["correlation_id"]
++
++
++def t_b_explicit_preserved():
++    e = ev.emit("task.completed", "x", correlation_id="my-corr-1")
++    assert e["correlation_id"] == "my-corr-1"
++
++
++def t_c_unique_per_event():
++    a = ev.emit("task.completed", "x")["correlation_id"]
++    b = ev.emit("task.completed", "x")["correlation_id"]
++    assert a != b
++
++
++if __name__ == "__main__":
++    for f in (t_a_minted_when_empty, t_b_explicit_preserved, t_c_unique_per_event):
++        f()
++        print("ok", f.__name__)
++    print("PASS test_correlation_id_generated")
+diff --git a/_ops/tests/test_phase1_envelope.py b/_ops/tests/test_phase1_envelope.py
+index b808b8f..e133cc2 100644
+--- a/_ops/tests/test_phase1_envelope.py
++++ b/_ops/tests/test_phase1_envelope.py
+@@ -55,7 +55,11 @@ def t_a_optional_fields_backcompat():
+               "schema_version", "correlation_id", "idempotency_key"):
+         assert k in e, f"فیلدِ گمشده: {k}"
+     assert e["schema_version"] == "event.v2"
+-    assert e["correlation_id"] == "" and e["idempotency_key"] == ""
++    # قراردادِ نو (P1 2026-07-15): correlation_id ِ خالی خودکار mint می‌شود (oct-YYYYMMDD-hex6)
++    # تا خوانندهٔ cross-store (consolidate) کور نماند؛ idempotency_key هنوز پیش‌فرضِ خالی است.
++    import re as _re
++    assert _re.fullmatch(r"oct-\d{8}-[0-9a-f]{6}", e["correlation_id"]), e["correlation_id"]
++    assert e["idempotency_key"] == ""
+     e2 = events.emit("task.started", "y", correlation_id="corr-1", idempotency_key="idem-1")
+     assert e2["correlation_id"] == "corr-1" and e2["idempotency_key"] == "idem-1"
+     # بدونِ enrich، هیچ control_plane چسبانده نمی‌شود (پیش‌فرضِ کم‌هزینه)

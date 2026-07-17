@@ -2,7 +2,7 @@
 
 > **این سند اول خوانده شود.** حالتِ کاملِ پروژه، آنچه ساخته/طراحی/مانده، قواعدِ سخت، و
 > «چطور ادامه بده». هیچ حافظهٔ نشستِ قبلی لازم نیست — همه‌چیز این‌جاست.
-> آخرین به‌روزرسانی: ۲۰۲۶-۰۷-۱۲.
+> آخرین به‌روزرسانی: ۲۰۲۶-۰۷-۱۷.
 
 ## ۰) ترتیبِ خواندن
 1. همین سند (حالت + قواعد + ادامه). 2. [ROADMAP-NEXT-10-STEPS](ROADMAP-NEXT-10-STEPS.md)
@@ -44,7 +44,7 @@
 - **ziman-agent/** (لایهٔ محتوا/محصول): `catalog_loader` (۳۵ محصول)، `content.py` (تولیدِ
   draftِ فارسی، مسیرِ hybrid Ollama→API→offline)، `budget.py` (سقفِ AU$15 fail-closed)،
   `product.py` (کارت/ATP/گاردِ D4/anti-misread)، `telegram_adapter`، و **گامِ ۱ (P0)**:
-  `steering.py` + `self_model.py` + `ziman-self.yaml`. **تست: 50/50.**
+  `steering.py` + `self_model.py` + `ziman-self.yaml`. **تست: 57/57** (شاملِ رگرسیونِ CF-01 در `tests/test_content.py`).
 - **اتصالِ اختاپوس**: `_ops/legs/ziman_leg.py` (پا)، دایجستِ غنی از پل پشتِ فلگ. **تستِ
   leg/wiring/biology: 43 سبز** (۱ شکستِ **پیش‌از-ما** `test_ziman_beat_biology_accepts_doctor_
   injection` — با git stash ثابت شد مالِ ما نیست).
@@ -97,7 +97,8 @@ cd _ops && python -m pytest tests/test_ziman_leg.py tests/test_ziman_wiring.py t
 صفِ canonical: [VERDICT_QUEUE.md](../VERDICT_QUEUE.md).
 
 ## ۷) کجاییم و بعدی چیست (نقشهٔ ۱۰-مرحله‌ای)
-- **گامِ ۰** (آشتیِ حقیقت): بازِ مالک + یک اصلاحِ کوچک (نشتِ «۳۰/هفته» در `content.py._offline_draft`).
+- **گامِ ۰** (آشتیِ حقیقت): verdictهای مالک باز + ✅ اصلاحِ نشتِ «۳۰/هفته» در `content.py` انجام شد
+  (۲۰۲۶-۰۷-۱۷ — هر ۴ نقطه + تستِ رگرسیون؛ گزارش: `11-Reports/Handoffs/CONTENT-CAPACITY-LEAK-FIX-2026-07-17.md`).
 - **گامِ ۱ (P0): ✅ ساخته شد** — `steering.py` + `self_model.py` + `ziman-self.yaml` (فقط‌خواندنی،
   هنوز به tick سیم‌کشی نشده → رفتارِ ضربان بایت‌به‌بایتِ قبل).
 - **گامِ ۲ (P1): ⬅️ بعدی** — `ziman_matrix.py`: پیش‌فیلترِ fail-closed + ۶ سیگنالِ ۰..۱ (وزن‌ها

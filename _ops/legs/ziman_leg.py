@@ -12,6 +12,9 @@
   status_snapshot → inventory_report → draft_content → campaign_check
   هر اثر بیرونی → human gate (Telegram / VERDICT_QUEUE)
 
+برنامهٔ ۸ (پلِ کاتالوگ): خانواده‌های واقعی از ziman-catalog.json (read-only، lazy،
+fail-soft) — نبود/خرابیِ کاتالوگ → دقیقاً رفتارِ قدیمِ C1–C4.
+
 additive · $0 offline · stdlib-only · fail-closed
 """
 from __future__ import annotations
@@ -41,6 +44,8 @@ except Exception:  # pragma: no cover — safety mirror
         return int(ceiling) if owner_revalidated else min(int(ceiling), 6)
 
 # مسیرهای ثابت vault (نسبی به ORG_ROOT) — فقط همین‌ها در allowlist
+ZIMAN_CATALOG_NOTE = "03 - Projects/Ziman Galerry/03-Offering/ziman-catalog.json"
+
 ZIMAN_NOTES = (
     "03 - Projects/Ziman Galerry/PROJECT.md",
     "03 - Projects/Ziman Galerry/MANIFEST.yaml",
@@ -53,15 +58,34 @@ ZIMAN_NOTES = (
     "03 - Projects/Ziman Galerry/09-Agents/CONSTITUTION.md",
     "03 - Projects/Ziman Galerry/10-Interfaces/BIOLOGY-CONTRACT.md",
     "03 - Projects/Ziman Galerry/ziman-agent/ziman.yaml",
+    ZIMAN_CATALOG_NOTE,   # برنامهٔ ۸: پلِ کاتالوگ — read-only
 )
 
-# خانواده‌های محصول (C1–C4) — شناسهٔ پایدار، نه ادعا
+# خانواده‌های محصول — fallbackِ قدیمی (C1–C4)، فقط وقتی کاتالوگِ زمینی در دسترس نیست.
+# منبعِ حقیقت: ziman-catalog.json (۲۰۲۶-۰۷-۱۲، ساخته از ۴۱ عکس؛ خانواده‌های واقعی
+# F1_floral / F2_framed / F3_candy_basket / F4_mixed_hamper / OTHER). نبود/خرابیِ
+# کاتالوگ → دقیقاً رفتارِ قدیم با همین جدول (fail-soft، بدون کرش).
 PRODUCT_FAMILIES = {
     "C1": "Artificial floral arrangements",
     "C2": "Gift baskets",
     "C3": "Framed floral shadow boxes",
     "C4": "Chocolate hampers (local-only, perishable)",
 }
+
+# پلِ سازگاری: کدهای قدیمیِ C1–C4 → خانواده‌های واقعیِ کاتالوگ (grounded در توضیحاتِ
+# هر دو تاکسونومی). فقط وقتی کاتالوگ لود شده اعمال می‌شود؛ فراخوانِ قدیمی نمی‌شکند.
+LEGACY_FAMILY_ALIAS = {
+    "C1": "F1_floral",         # آرایه‌های گلِ مصنوعی
+    "C2": "F3_candy_basket",   # سبدهای هدیه (شیرینی‌محور)
+    "C3": "F2_framed",         # قاب/شادوباکسِ گل
+    "C4": "F4_mixed_hamper",   # هَمپرِ شکلات/میکس (فاسدشدنی)
+}
+
+# heuristicِ الکل روی فیلد medium (کاتالوگ فیلد صریح alcohol ندارد؛ «wine» با \b
+# تا «twine» false-positive نشود؛ «champagne» عمداً حذف — در این دامنه اسمِ رنگ است).
+_ALCOHOL_RE = re.compile(
+    r"\b(alcohol|wine|liquor|liqueur|vodka|whisky|whiskey|beer|prosecco|brut)\b",
+    re.I)
 
 HARD_GATED = frozenset({
     "publish", "send", "dm", "spend", "pay", "refund",
@@ -89,13 +113,18 @@ class ZimanLeg(Leg):
 
     def __init__(self, packet: TaskPacket | None = None,
                  organ_table: dict | None = None,
-                 capacity_ceiling: int | None = None):
+                 capacity_ceiling: int | None = None,
+                 catalog_path: str | Path | None = None):
         super().__init__(packet or default_packet(), organ_table=organ_table)
         self._capacity_ceiling = capacity_ceiling  # None = از yaml/vault بخوان
         # CF-06/CF-01: تا revalidation صریحِ مالک، سقفِ ظرفیت fail-closed می‌ماند (۶/هفته).
         self._owner_revalidated = False
         self._agent_root = self._resolve_agent_root()
         self._biology_status: dict | None = None
+        # برنامهٔ ۸: پلِ کاتالوگ — تزریق‌پذیر برای تست؛ None = از opslib.ORG_ROOT در لحظهٔ فراخوان
+        self._catalog_path = catalog_path
+        self._catalog_cache: dict | None = None
+        self._catalog_mtime: float | None = None
 
     # ─── مسیر agent ──────────────────────────────────────────────────────────
     def _resolve_agent_root(self) -> Path | None:
@@ -138,6 +167,112 @@ class ZimanLeg(Leg):
             return int(m.group(1)) if m else None
         except (OSError, ValueError):
             return None
+
+    # ─── پلِ کاتالوگ (برنامهٔ ۸) — read-only، lazy، fail-soft ────────────────
+    def _resolve_catalog_path(self) -> Path:
+        """مسیرِ کاتالوگ — تزریقی (تست) یا نسبی به opslib.ORG_ROOT در لحظهٔ فراخوان."""
+        if self._catalog_path is not None:
+            return Path(self._catalog_path)
+        try:
+            import opslib  # noqa: WPS433 — lazy تا env تست اثر کند
+            root = Path(opslib.ORG_ROOT)
+        except Exception:  # noqa: BLE001
+            root = Path(r"F:\backup")
+        return root / ZIMAN_CATALOG_NOTE
+
+    def _load_catalog(self) -> dict | None:
+        """کاتالوگِ زمینیِ زیمان (ziman-catalog.json). نبود/خرابی/خارجِ allowlist → None
+        (fail-soft: دقیقاً رفتارِ قدیمِ C1–C4، هرگز کرش). cacheِ per-instance با چکِ mtime."""
+        try:
+            if not self.packet.can_read(ZIMAN_CATALOG_NOTE):
+                return None                                    # خارجِ allowlist = رد (D2)
+            p = self._resolve_catalog_path()
+            if not p.exists():
+                return None
+            mtime = p.stat().st_mtime
+            if self._catalog_cache is not None and self._catalog_mtime == mtime:
+                return self._catalog_cache
+            # utf-8-sig: فایلِ واقعی BOM دارد (خروجی PowerShell)؛ بدونِ BOM هم سالم می‌خواند.
+            data = json.loads(p.read_text(encoding="utf-8-sig", errors="replace"))
+            prods = data.get("products") if isinstance(data, dict) else None
+            if not isinstance(prods, list) or not prods:
+                return None                                    # شکلِ نامعتبر = fail-soft
+            self._catalog_cache = data
+            self._catalog_mtime = mtime
+            return data
+        except (OSError, ValueError, TypeError):
+            return None
+
+    def _catalog_families(self) -> dict | None:
+        """جمع‌بندیِ per-family از کاتالوگ:
+        {family: {count, perishable_count, alcohol_suspect_count, edible:{...}}}
+        perishable = فیلدِ صریحِ bool کاتالوگ؛ alcohol_suspect = heuristic روی medium؛
+        edible = شمارشِ فیلدِ صریحِ edible. کاتالوگ نبود → None."""
+        cat = self._load_catalog()
+        if not cat:
+            return None
+        fams: dict[str, dict] = {}
+        for prod in cat.get("products", []):
+            if not isinstance(prod, dict):
+                continue
+            fam = str(prod.get("family") or "UNKNOWN")
+            rec = fams.setdefault(fam, {"count": 0, "perishable_count": 0,
+                                        "alcohol_suspect_count": 0, "edible": {}})
+            rec["count"] += 1
+            if prod.get("perishable") is True:
+                rec["perishable_count"] += 1
+            media = prod.get("medium") or []
+            if isinstance(media, list) and any(
+                    _ALCOHOL_RE.search(str(m)) for m in media):
+                rec["alcohol_suspect_count"] += 1
+            ed = str(prod.get("edible") or "unknown")
+            rec["edible"][ed] = rec["edible"].get(ed, 0) + 1
+        return fams or None
+
+    def product_families(self) -> dict:
+        """خانواده‌های فعال {id: name} — از کاتالوگِ واقعی (مرتب به تعدادِ محصول)؛
+        نبودِ کاتالوگ → دقیقاً جدولِ قدیمیِ C1–C4."""
+        fams = self._catalog_families()
+        if fams:
+            ordered = sorted(fams, key=lambda f: (-fams[f]["count"], f))
+            return {k: k for k in ordered}
+        return dict(PRODUCT_FAMILIES)
+
+    def _resolve_family(self, requested) -> str:
+        """نگاشتِ خانوادهٔ درخواستی به خانوادهٔ فعال؛ کدِ قدیمیِ C* از راهِ alias.
+        ناشناخته → پیش‌فرضِ قدیم (C3 یا aliasِ آن F2_framed)."""
+        fams = self.product_families()
+        if requested in fams:
+            return requested
+        alias = LEGACY_FAMILY_ALIAS.get(str(requested), "")
+        if alias in fams:
+            return alias
+        if "C3" in fams:
+            return "C3"
+        default_alias = LEGACY_FAMILY_ALIAS.get("C3", "")
+        if default_alias in fams:
+            return default_alias
+        return next(iter(fams))
+
+    def _catalog_summary(self) -> dict:
+        """بلوکِ additive «catalog» برای status/inventory — هرگز کلیدِ قدیمی را عوض نمی‌کند."""
+        fams = self._catalog_families()
+        if not fams:
+            return {"loaded": False, "source": None, "evidence_class": "UNKNOWN"}
+        return {
+            "loaded": True,
+            "source": ZIMAN_CATALOG_NOTE,
+            "product_count": sum(v["count"] for v in fams.values()),
+            "family_counts": {k: fams[k]["count"]
+                              for k in self.product_families()},
+            "perishable_products": sum(v["perishable_count"] for v in fams.values()),
+            "alcohol_suspect_products": sum(v["alcohol_suspect_count"]
+                                            for v in fams.values()),
+            "flags_note": ("perishable = فیلدِ صریحِ کاتالوگ؛ alcohol_suspect = "
+                           "heuristic روی medium؛ licensed: فیلدی در کاتالوگ ندارد "
+                           "(رجوع: data_gaps خودِ کاتالوگ)."),
+            "evidence_class": "GROUNDED",
+        }
 
     # ─── D4 capacity ─────────────────────────────────────────────────────────
     def campaign_check(self, requested_units: int,
@@ -213,7 +348,8 @@ class ZimanLeg(Leg):
                 ceiling, self._owner_revalidated),            # سقفِ محتاطانه‌ای که واقعاً اعمال می‌شود
             "inventory_hint": inv,
             "inventory_evidence_class": "UNVERIFIED" if inv is not None else "UNKNOWN",
-            "product_families": list(PRODUCT_FAMILIES.keys()),
+            "product_families": list(self.product_families().keys()),
+            "catalog": self._catalog_summary(),   # additive — برنامهٔ ۸
             "drafts_count": drafts_n,
             "autonomy": "propose-only",
             "hard_gated": sorted(HARD_GATED),
@@ -245,18 +381,37 @@ class ZimanLeg(Leg):
     # ─── inventory report (proposal) ─────────────────────────────────────────
     def inventory_report(self, family_counts: dict | None = None) -> Proposal:
         """گزارش موجودی — proposal، نه canonical write.
-        family_counts: optional {C1: n, C2: n, ...} از مالک/اپراتور.
+        family_counts: optional {family: n} از مالک/اپراتور (کدِ قدیمیِ C* هم با alias
+        پذیرفته می‌شود وقتی کاتالوگ فعال است). با کاتالوگ: شمارشِ واقعیِ per-family +
+        پرچم‌های perishable/alcohol_suspect/edible (additive؛ کلیدهای قدیم دست‌نخورده).
         """
         counts = dict(family_counts or {})
-        unknown = [k for k in counts if k not in PRODUCT_FAMILIES]
+        cat_fams = self._catalog_families()
+        fams_active = self.product_families()
+        resolved: dict = {}
+        unknown = []
+        for k, v in counts.items():
+            key = k if k in fams_active else (
+                LEGACY_FAMILY_ALIAS.get(str(k), "") if cat_fams else "")
+            if key in fams_active:
+                resolved[key] = v
+            else:
+                unknown.append(k)
+        families = {}
+        for k, name in fams_active.items():
+            entry: dict = {"name": name, "count": resolved.get(k)}
+            if cat_fams:                       # پرچم‌های زمینی — فقط additive
+                rec = cat_fams.get(k, {})
+                entry["catalog_count"] = rec.get("count", 0)
+                entry["perishable_count"] = rec.get("perishable_count", 0)
+                entry["alcohol_suspect_count"] = rec.get("alcohol_suspect_count", 0)
+                entry["edible"] = dict(rec.get("edible", {}))
+            families[k] = entry
         payload = {
             "draft_only": True,
             "inventory_hint": self._load_inventory_hint(),
             "capacity_ceiling": self._load_yaml_capacity(),
-            "families": {
-                k: {"name": v, "count": counts.get(k)}
-                for k, v in PRODUCT_FAMILIES.items()
-            },
+            "families": families,
             "unknown_keys_rejected": unknown,
             "canonical_write": False,
             "capacity_public_claim_allowed": False,
@@ -264,7 +419,11 @@ class ZimanLeg(Leg):
             "price_authority": False,
             "note": ("50 physical products reported by owner is NOT "
                      "necessarily 50 SKUs and NOT weekly capacity."),
-            "next_step": "Owner classifies into C1–C4 then SKU cards",
+            "next_step": (("Owner confirms catalog families ("
+                           + ", ".join(fams_active) + ") then SKU cards")
+                          if cat_fams else
+                          "Owner classifies into C1–C4 then SKU cards"),
+            "catalog": self._catalog_summary(),   # additive — برنامهٔ ۸
         }
         return self.emit_proposal("inventory_report", payload)
 
@@ -284,8 +443,10 @@ class ZimanLeg(Leg):
         if not gate["approved"] and campaign_units > 0:
             return {"ok": False, "error": "D4_REJECT", "gate": gate}
 
-        family = product_family if product_family in PRODUCT_FAMILIES else "C3"
-        product_name = PRODUCT_FAMILIES[family]
+        fams_active = self.product_families()
+        cat_fams = self._catalog_families() or {}
+        family = self._resolve_family(product_family)
+        product_name = fams_active[family]
 
         # قواعد برند سخت: هیچ عدد ظرفیت/قیمت/پرداخت/تحویل عمومی تا تأیید مالک.
         # legacy ziman.yaml ممکن است 30/week داشته باشد، اما status آن CONFLICT است؛
@@ -297,13 +458,22 @@ class ZimanLeg(Leg):
             "ظرفیت، قیمت، روش پرداخت و زمان تحویل فقط بعد از تأیید مالک اعلام می‌شود.",
             "این پیش‌نویس است — انتشار فقط با تأیید انسانی.",
         ]
-        if family == "C4":
-            body_lines.append("⚠️ C4 فاسدشدنی: فقط تحویل/پیکاپ محلی — بدون ارسال دور.")
+        rec = cat_fams.get(family)
+        if family == "C4" or (rec and rec.get("perishable_count", 0) > 0):
+            # فاسدشدنی: قدیم فقط C4 هاردکد بود؛ با کاتالوگ از فیلدِ perishable مشتق می‌شود.
+            body_lines.append(
+                f"⚠️ {family} فاسدشدنی: فقط تحویل/پیکاپ محلی — بدون ارسال دور.")
+        if rec and rec.get("alcohol_suspect_count", 0) > 0:
+            body_lines.append(
+                "⚠️ برخی آیتم‌های این خانواده مشکوک به الکل (heuristic روی medium) — "
+                "محدودیت سنی/حمل؛ فقط با تأیید مالک.")
 
         payload = {
             "draft_only": True,
             "kind": kind,
             "product_family": family,
+            "requested_family": product_family,                       # additive
+            "family_source": "catalog" if cat_fams else "legacy_fallback",  # additive
             "occasion": occasion,
             "body": "\n".join(body_lines),
             "brand_rules": [

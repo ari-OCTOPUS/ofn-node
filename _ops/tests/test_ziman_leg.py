@@ -119,7 +119,11 @@ def test_inventory_report_no_canonical_write():
     p = leg.inventory_report({"C1": 10, "C3": 15, "XX": 1})
     assert p.payload["canonical_write"] is False
     assert "XX" in p.payload["unknown_keys_rejected"]
-    assert set(PRODUCT_FAMILIES) == set(p.payload["families"])
+    # برنامهٔ ۸: خانواده‌ها = خانواده‌های فعالِ پا (کاتالوگِ واقعی F1..F4/OTHER اگر
+    # در دسترس باشد، وگرنه fallbackِ قدیمیِ C1–C4). assertionِ قبلی C1–C4 را هاردکد می‌کرد.
+    assert set(leg.product_families()) == set(p.payload["families"])
+    if not p.payload["catalog"]["loaded"]:          # فقط در حالتِ fallback
+        assert set(PRODUCT_FAMILIES) == set(p.payload["families"])
 
 
 def test_memory_candidate_rejects_secrets():

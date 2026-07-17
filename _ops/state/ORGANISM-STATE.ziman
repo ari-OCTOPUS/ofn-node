@@ -7,48 +7,8 @@
   "drafts_count": 0,
   "propose_only": true,
   "outward_execution": false,
-  "beat": 4860,
+  "beat": 7140,
   "digest": "🖼 Ziman · active\nظرفیت ~6/هفته (محتاطانه؛ خام 30 تأییدنشده) · موجودی ≈20 [تأییدنشده] · drafts=0\npropose-only · D4 on · zero external exec",
-  "biology": {
-    "schema": "ziman-biology.v1",
-    "beat": 4860,
-    "organ": "ZIMAN",
-    "heart": {
-      "period_s": 900.0,
-      "sigma_now": null,
-      "target_sigma": 1.0,
-      "viable_band_lo": 0.05,
-      "viable_band_hi": 11.9116,
-      "authority": "rhythm_only",
-      "ziman_can_write_heart": false
-    },
-    "nerves": {
-      "connected": true,
-      "advisory_only": true,
-      "pain_level": 0.35
-    },
-    "doctor": {
-      "due": false,
-      "connected": true,
-      "result": null,
-      "auto_merge": false,
-      "human_append_required": true
-    },
-    "assessment": {
-      "healthy": false,
-      "critical": false,
-      "pain_level": 0.35,
-      "anomalies": [
-        {
-          "code": "CAPACITY_UNVERIFIED",
-          "severity": "high"
-        }
-      ],
-      "protective_mode": false
-    },
-    "propose_only": true,
-    "outward_execution": false,
-    "ziman_can_write_heart": false
-  },
-  "updated_at": "2026-07-14T04:43:27"
+  "biology": null,
+  "updated_at": "2026-07-17T12:24:54"
 }

@@ -55,7 +55,11 @@ def t_a_optional_fields_backcompat():
               "schema_version", "correlation_id", "idempotency_key"):
         assert k in e, f"فیلدِ گمشده: {k}"
     assert e["schema_version"] == "event.v2"
-    assert e["correlation_id"] == "" and e["idempotency_key"] == ""
+    # قراردادِ نو (P1 2026-07-15): correlation_id ِ خالی خودکار mint می‌شود (oct-YYYYMMDD-hex6)
+    # تا خوانندهٔ cross-store (consolidate) کور نماند؛ idempotency_key هنوز پیش‌فرضِ خالی است.
+    import re as _re
+    assert _re.fullmatch(r"oct-\d{8}-[0-9a-f]{6}", e["correlation_id"]), e["correlation_id"]
+    assert e["idempotency_key"] == ""
     e2 = events.emit("task.started", "y", correlation_id="corr-1", idempotency_key="idem-1")
     assert e2["correlation_id"] == "corr-1" and e2["idempotency_key"] == "idem-1"
     # بدونِ enrich، هیچ control_plane چسبانده نمی‌شود (پیش‌فرضِ کم‌هزینه)

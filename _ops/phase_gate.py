@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """phase_gate.py — دروازهٔ بین‌فازی (Decision Gate).
 
+ORPHAN 2026-07-16: zero live callers (audit R-13) — kept, not deleted; candidate for _Archive on owner verdict.
+
 قبل و بعد از هر فاز چک می‌کند. بدون عبور از این دروازه، فاز بعدی اجرا نمی‌شود.
 ترکیب baseline + held-out + review_bus.
 

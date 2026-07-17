@@ -1,5 +1,5 @@
 {
-  "ts": "2026-07-10T00:03:38",
+  "ts": "2026-07-17T12:24:54",
   "config": {
     "max_cells": 6,
     "spawn_depth": 1,
@@ -20,7 +20,7 @@
   "eligible_cells": [],
   "live_gate": {
     "open": false,
-    "why": "live locked until 2026-07-21 (phase -1 shield)"
+    "why": "activation flag missing: ACTIVATION-REPLICATION.flag (owner-only)"
   },
   "proposals_written": [],
   "would_propose": [],

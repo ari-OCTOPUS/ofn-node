@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """durable_journal.py — 2027 Standards backlog #2 (P-08 diff-ب):
 run-journal سبک برای resume-not-restart.
+
+ORPHAN 2026-07-16: zero live callers (audit R-13) — kept, not deleted; candidate for _Archive on owner verdict.
+(docstring زیر یک «اتصالِ نمونه» به doctor.py پیشنهاد می‌دهد ولی هرگز سیم‌کشی نشد — grep: doctor هیچ‌جا import نمی‌کند.)
 منبع: 00 - Inbox/build-proposals/08-agent-orchestration-durability-2026-07-05.md
       (۱۳ منبعِ واقعیِ ۲۰۲۶: Inngest/MS Durable Task/Diagrid/LangChain/Temporal/…)
 

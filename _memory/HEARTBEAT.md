@@ -44,3 +44,135 @@ updated: 2026-07-06
 - 2026-07-08T23:07:41 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
 - 2026-07-09T00:07:49 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
 - 2026-07-09T01:07:52 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-15T10:10:19 · organism=START port=8771
+- 2026-07-15T10:10:19 · human-append guard configured (per-boot secret)
+- 2026-07-15T10:10:20 · telegram poll thread started (T-8)
+- 2026-07-15T10:10:25 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-07-15T10:10:25 · chrono=START period=60s beat=5414
+- 2026-07-15T10:10:33 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-15T11:06:36 · organism=START port=8771
+- 2026-07-15T11:06:36 · human-append guard configured (per-boot secret)
+- 2026-07-15T11:06:37 · telegram poll thread started (T-8)
+- 2026-07-15T11:06:41 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-07-15T11:06:41 · chrono=START period=60s beat=5470
+- 2026-07-15T11:06:45 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-15T14:07:11 · organism=START port=8771
+- 2026-07-15T14:07:11 · human-append guard configured (per-boot secret)
+- 2026-07-15T14:07:14 · telegram poll thread started (T-8)
+- 2026-07-15T14:07:19 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-07-15T14:07:19 · chrono=START period=60s beat=5475
+- 2026-07-15T14:07:29 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-15T15:07:35 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-15T15:51:02 · organism=START port=8771
+- 2026-07-15T15:51:02 · human-append guard configured (per-boot secret)
+- 2026-07-15T15:51:02 · telegram poll thread started (T-8)
+- 2026-07-15T15:51:04 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-07-15T15:51:04 · chrono=START period=60s beat=5577
+- 2026-07-15T15:51:08 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-15T16:07:04 · organism=START port=8771
+- 2026-07-15T16:07:04 · human-append guard configured (per-boot secret)
+- 2026-07-15T16:07:04 · telegram poll thread started (T-8)
+- 2026-07-15T16:07:06 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-07-15T16:07:06 · chrono=START period=60s beat=5581
+- 2026-07-15T16:07:10 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-15T17:12:23 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-15T18:12:29 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-15T19:12:37 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-15T19:16:02 · organism=START port=8771
+- 2026-07-15T19:16:02 · human-append guard configured (per-boot secret)
+- 2026-07-15T19:16:02 · telegram poll thread started (T-8)
+- 2026-07-15T19:16:03 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-07-15T19:16:03 · chrono=START period=60s beat=5767
+- 2026-07-15T19:16:10 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-15T19:35:22 · organism=START port=8771
+- 2026-07-15T19:35:22 · human-append guard configured (per-boot secret)
+- 2026-07-15T19:35:23 · telegram poll thread started (T-8)
+- 2026-07-15T19:35:23 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-07-15T19:35:23 · chrono=START period=60s beat=5783
+- 2026-07-15T19:35:27 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-15T20:22:05 · organism=START port=8771
+- 2026-07-15T20:22:05 · human-append guard configured (per-boot secret)
+- 2026-07-15T20:22:05 · telegram poll thread started (T-8)
+- 2026-07-15T20:22:05 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-07-15T20:22:05 · chrono=START period=60s beat=5823
+- 2026-07-15T20:22:06 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-15T20:37:06 · organism=HALT (STOP) — خروج تمیز
+- 2026-07-15T20:37:17 · organism=START port=8771
+- 2026-07-15T20:37:17 · human-append guard configured (per-boot secret)
+- 2026-07-15T20:37:17 · telegram poll thread started (T-8)
+- 2026-07-15T20:37:18 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-07-15T20:37:18 · chrono=START period=60s beat=5826
+- 2026-07-15T20:37:19 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-15T20:47:34 · organism=START port=8771
+- 2026-07-15T20:47:34 · human-append guard configured (per-boot secret)
+- 2026-07-15T20:47:34 · telegram poll thread started (T-8)
+- 2026-07-15T20:47:34 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-07-15T20:47:34 · chrono=START period=60s beat=5830
+- 2026-07-15T20:47:35 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-15T21:00:44 · organism=START port=8771
+- 2026-07-15T21:00:44 · human-append guard configured (per-boot secret)
+- 2026-07-15T21:00:44 · telegram poll thread started (T-8)
+- 2026-07-15T21:00:45 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-07-15T21:00:45 · chrono=START period=60s beat=5831
+- 2026-07-15T21:00:45 · organism=HALT (STOP) — خروج تمیز
+- 2026-07-15T21:04:20 · organism=START port=8771
+- 2026-07-15T21:04:20 · human-append guard configured (per-boot secret)
+- 2026-07-15T21:04:20 · telegram poll thread started (T-8)
+- 2026-07-15T21:04:21 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-07-15T21:04:21 · chrono=START period=60s beat=5831
+- 2026-07-15T21:04:23 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-15T22:04:24 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-15T23:04:26 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-16T00:04:27 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-16T00:37:05 · cortex=START port=8772
+- 2026-07-16T01:04:44 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-16T02:05:09 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-16T03:05:32 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-16T04:11:07 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-16T05:11:09 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-16T06:11:12 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-16T07:11:14 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-16T08:11:20 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-16T09:11:23 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-16T10:11:27 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-16T11:11:51 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-16T12:12:01 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-16T13:12:52 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-16T14:12:57 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-16T14:42:58 · organism=HALT (STOP) — خروج تمیز
+- 2026-07-16T14:43:13 · organism=START port=8771
+- 2026-07-16T14:43:13 · human-append guard configured (per-boot secret)
+- 2026-07-16T14:43:13 · telegram poll thread started (T-8)
+- 2026-07-16T14:43:15 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-07-16T14:43:15 · chrono=START period=60s beat=6865
+- 2026-07-16T14:43:20 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-16T15:43:31 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-16T16:07:08 · organism=START port=8771
+- 2026-07-16T16:07:08 · human-append guard configured (per-boot secret)
+- 2026-07-16T16:07:10 · telegram poll thread started (T-8)
+- 2026-07-16T16:07:27 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-07-16T16:07:27 · chrono=START period=60s beat=6940
+- 2026-07-16T16:07:27 · organism=HALT (STOP) — خروج تمیز
+- 2026-07-17T09:02:49 · organism=START port=8771
+- 2026-07-17T09:02:49 · human-append guard configured (per-boot secret)
+- 2026-07-17T09:02:49 · telegram poll thread started (T-8)
+- 2026-07-17T09:02:52 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-07-17T09:02:52 · chrono=START period=60s beat=6940
+- 2026-07-17T09:03:01 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-17T09:07:04 · cortex=START port=8772
+- 2026-07-17T10:03:10 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-17T10:30:51 · live-cockpit=START port=8773
+- 2026-07-17T11:03:44 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-17T12:04:17 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-17T12:24:33 · organism=HALT (STOP) — خروج تمیز
+- 2026-07-17T12:24:51 · organism=START port=8771
+- 2026-07-17T12:24:51 · human-append guard configured (per-boot secret)
+- 2026-07-17T12:24:51 · telegram poll thread started (T-8)
+- 2026-07-17T12:24:52 · organism wiring: {'wire_doctor': True, 'wire_telegram': True, 'wire_unified': True, 'wire_lead': True, 'wire_neural': True, 'wire_school': True, 'wire_consolidation': True, 'wire_live_loop': True, 'wire_evolution': True, 'wire_box': True, 'wire_leg_tick': True, 'wire_ideas': True, 'wire_spectral': True, 'wire_rhythm': True, 'wire_circadian': True, 'wire_sprint': True, 'wire_barbell': False, 'wire_debate': True, 'wire_scheduler': True, 'wire_reconcile': False, 'wire_fitness': False, 'wire_epistemics': True, 'wire_bcm': True, 'wire_sparse': True, 'wire_chamber_t': False, 'profile': 'paper-full', 'doctor_every_n': 1440, 'consolidation_every_n': 720, 'afferent_every_n': 1440}
+- 2026-07-17T12:24:53 · chrono=START period=60s beat=7139
+- 2026-07-17T12:24:59 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-17T13:29:03 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-17T14:29:09 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-17T15:29:58 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-17T16:30:18 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم
+- 2026-07-17T17:30:27 · organism=ok · ماه AU$0.00 · مشکوک متر صفر=0 · سالم

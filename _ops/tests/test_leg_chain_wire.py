@@ -115,16 +115,20 @@ def t_leg_beat_flag_off_no_draft():
 
 
 def t_leg_beat_flag_on_calls_draft():
-    """هر دو فلگ روشن → draft_quoteِ monkeypatch‌شده دقیقاً یک‌بار صدا می‌شود (DRY)."""
+    """هر دو فلگ روشن → زنجیره fire می‌شود ولی probeِ ساختگی حذف شده (مرحلهٔ ۵ نقشهٔ لید
+    2026-07-15): بدونِ draftِ *واقعیِ* pending، هیچ draft_quoteای صدا نمی‌شود و
+    drafted=False — دیگر LEAD-PROBEِ دروغین ساخته نمی‌شود. draftِ واقعی حالا در
+    lead_discovery_beat با attribution_id واقعی است (test_lead_quote_chain)."""
     os.environ["OCTOPUS_WIRE_LEAD_TICK"] = "1"
     os.environ["OCTOPUS_WIRE_LEAD_DRAFT"] = "1"
     try:
         pm, leg = _pacemaker_and_leg()
         calls = _install_draft_recorder(leg)
         r = wiring.leg_beat(leg, pacemaker=pm, beat=1)
-        assert calls["n"] == 1, f"draft_quote باید ۱ بار صدا شود، شد {calls['n']}"
-        assert r.get("lead_chain", {}).get("drafted") is True, "lead_chain.drafted باید True باشد"
-        assert r.get("lead_chain", {}).get("proposal_id") == "P-FAKE"
+        assert calls["n"] == 0, f"probe حذف شده — draft_quote نباید صدا شود، شد {calls['n']}"
+        lc = r.get("lead_chain", {})
+        assert lc.get("drafted") is False, "بدونِ pendingِ واقعی، drafted باید False باشد"
+        assert "invoice" in lc, "قدمِ invoiceِ زنجیره باید حاضر بماند (LEG-05)"
     finally:
         _clear("OCTOPUS_WIRE_LEAD_TICK", "OCTOPUS_WIRE_LEAD_DRAFT")
 

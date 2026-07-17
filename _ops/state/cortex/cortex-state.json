@@ -1,89 +1,88 @@
 {
-  "ts": "2026-07-10T21:53:49",
-  "cycle": 10,
-  "coherence": 0.882,
-  "stale_members": [
-    "doctor_setpoint",
-    "reconcile"
-  ],
+  "ts": "2026-07-17T17:55:27",
+  "cycle": 131,
+  "coherence": 0.927,
+  "stale_members": [],
   "members": [
     {
       "id": "organism",
       "present": true,
-      "awareness": 0.988,
-      "age_s": 44,
+      "awareness": 0.835,
+      "age_s": 594,
       "sla_s": 1800,
       "note": "تازه"
     },
     {
       "id": "heart",
       "present": true,
-      "awareness": 0.994,
-      "age_s": 44,
+      "awareness": 0.917,
+      "age_s": 595,
       "sla_s": 3600,
       "note": "تازه"
     },
     {
       "id": "producers",
       "present": true,
-      "awareness": 0.994,
-      "age_s": 44,
+      "awareness": 0.917,
+      "age_s": 595,
       "sla_s": 3600,
       "note": "تازه"
     },
     {
       "id": "work_pump",
       "present": true,
-      "awareness": 0.997,
-      "age_s": 44,
+      "awareness": 0.959,
+      "age_s": 595,
       "sla_s": 7200,
       "note": "تازه"
     },
     {
       "id": "doctor_setpoint",
-      "present": false,
-      "awareness": 0.0,
-      "age_s": null,
-      "note": "state غایب"
+      "present": true,
+      "awareness": 0.954,
+      "age_s": 15987,
+      "sla_s": 172800,
+      "note": "تازه"
     },
     {
       "id": "governor",
       "present": true,
-      "awareness": 0.997,
-      "age_s": 44,
+      "awareness": 0.958,
+      "age_s": 599,
       "sla_s": 7200,
       "note": "تازه"
     },
     {
       "id": "sigma",
       "present": true,
-      "awareness": 0.996,
-      "age_s": 1545,
+      "awareness": 0.943,
+      "age_s": 19832,
       "sla_s": 172800,
       "note": "تازه"
     },
     {
       "id": "fitness",
       "present": true,
-      "awareness": 0.996,
-      "age_s": 1545,
+      "awareness": 0.943,
+      "age_s": 19832,
       "sla_s": 172800,
       "note": "تازه"
     },
     {
       "id": "school",
       "present": true,
-      "awareness": 0.734,
-      "age_s": 137889,
+      "awareness": 0.963,
+      "age_s": 19106,
       "sla_s": 259200,
       "note": "تازه"
     },
     {
       "id": "reconcile",
-      "present": false,
-      "awareness": 0.0,
-      "age_s": null,
-      "note": "state غایب"
+      "present": true,
+      "awareness": 0.966,
+      "age_s": 17761,
+      "sla_s": 259200,
+      "note": "تازه"
     }
   ],
   "alignment": {
@@ -91,27 +90,29 @@
     "reason": "هم‌راستا بود"
   },
   "rhythm": {
-    "period_s": 332.18,
-    "source": "×۲ قلبِ سایه (166.09s)"
+    "period_s": 600.0,
+    "source": "×۲ قلبِ سایه (900.0s)"
   },
   "brains": {
     "keys": {
-      "fugu": false,
+      "fugu": true,
       "glm": false,
       "deepseek": false
     },
-    "paid_gate": "live locked until 2026-07-21 (phase -1 shield)",
-    "local_model": "qwen2.5:1.5b"
+    "paid_gate": "open (owner research-early override — سپرِ تاریخ دور زده شد)",
+    "local_model": "qwen2.5:latest"
   },
-  "thought": "[local] ان مهم‌ترین کار مجموعه انسان‌ها از تحقیق در عمل و به دنبال آسیابی بشریت است.",
-  "self_improve": {
-    "maturity_pct": 75.8,
-    "n_proposals": 24,
-    "top": [
-      "self-analysis loop observe→critique→propose→validate→promote",
-      "improvement proposals shadow-eval before promote",
-      "change leveled: tune/reconfig/rewrite + contract"
+  "stress": {
+    "level": "🔴 ترس",
+    "organism_stress": 0.75,
+    "in_fear": [
+      "legs"
     ]
+  },
+  "innervation": {
+    "coverage_pct": 100.0,
+    "dead_spots": [],
+    "heart_period_s": 900.0
   },
   "schema": "cortex-state.v1"
 }

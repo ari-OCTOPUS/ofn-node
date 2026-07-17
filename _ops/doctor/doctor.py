@@ -307,6 +307,13 @@ class Doctor:
         if sigma > 1.0:
             candidates.append(("sigma-cancer-risk",
                                f"σ_effective={sigma} > ۱ (خطِ قرمزِ سرطان)", "critical", -100.0))
+        # ── governance متابولیسمِ پاها (2026-07-16): اگر گزارشِ cultivation تازه باشد
+        # و پایی گرسنه/منبعش راکد باشد → کاندیدِ گلوگاه با severity=medium (پایین‌تر از
+        # error/freeze — هرگز بحران را کنار نمی‌زند). فقط ورودیِ mine گسترده شد؛ خروجی
+        # همان RFCِ propose-only است، هیچ اتونومیِ نو. نبودِ فایل = رفتارِ قبلی بایت‌به‌بایت.
+        cult = self._cultivation_candidate()
+        if cult is not None:
+            candidates.append(cult)
         # اگر چیزی نبود → گلوگاهی نیست (نه «همه‌چیز خوب» — just nothing to fix)
         if not candidates:
             return None
@@ -317,6 +324,35 @@ class Doctor:
                                                  "score": score,
                                                  "lambda_persist_applied": LAMBDA_PERSIST},
                 "severity": sev}
+
+    def _cultivation_candidate(self) -> tuple | None:
+        """کاندیدِ گلوگاه از گزارشِ متابولیسمِ پاها (state/legs/cultivation-report.json —
+        نوشتهٔ wiring.legs_cultivation_beat). فقط اگر فایل *تازه* باشد (mtime ≤
+        DOCTOR_CULTIVATION_FRESH_S، پیش‌فرض ۲۴h) — گزارشِ کهنه یعنی خودِ cultivation
+        خوابیده؛ از روی دادهٔ مرده RFC نمی‌سازیم. fail-soft: نبود/خرابی → None
+        (رفتارِ قبلیِ mine بایت‌به‌بایت). خروجی: tuple هم‌شکلِ بقیهٔ کاندیدها."""
+        try:
+            p = self._state_dir / "legs" / "cultivation-report.json"
+            if not p.exists():
+                return None
+            fresh_s = float(os.environ.get("DOCTOR_CULTIVATION_FRESH_S", "86400"))
+            if (time.time() - p.stat().st_mtime) > fresh_s:
+                return None   # گزارشِ کهنه = سیگنالِ نامعتبر
+            data = _read_json_safe(p)
+            starved = [s for s in (data.get("starved_legs") or []) if isinstance(s, str)]
+            stale = [s for s in (data.get("stale_legs") or []) if isinstance(s, str)]
+            if not starved and not stale:
+                return None
+            parts = []
+            if starved:
+                parts.append("گرسنه (بی‌خوراک): " + "، ".join(starved))
+            if stale:
+                parts.append("منبعِ راکد: " + "، ".join(stale))
+            desc = "متابولیسمِ داده — " + " · ".join(parts)
+            return ("legs-starved", desc, "medium",
+                    -2.0 * float(len(starved) + len(stale)))
+        except Exception:  # noqa: BLE001 — governanceِ تغذیه هرگز mine را نمی‌کشد
+            return None
 
     def _gather_trace(self) -> dict:
         """جمعِ متریک از state/*.json + heartbeat. fail-soft: نبود = trace خالی.
@@ -454,8 +490,17 @@ class Doctor:
     def _critic_review(self, rfc: RFC, sandbox_result: dict) -> dict:
         """Critic: یک بازبینیِ adversarial. آیا این فیکس واقعاً مشکل را حل می‌کند؟
         آیا regression معرفی می‌کند؟ reward-integrity check.
-        دکترِ واقعی از LLM برای deep-red-team استفاده می‌کند؛ اینجا deterministic guardrails."""
+        دکترِ واقعی از LLM برای deep-red-team استفاده می‌کند؛ اینجا deterministic guardrails.
+
+        صداقتِ sandbox (رفعِ «2026-07-15 باگ ۲»): «accept» فقط وقتی یک suite واقعاً سبز اجرا
+        شده باشد. بدونِ suite یا با suiteِ شکست‌خورده، sandbox_validated=False. بدونِ suite
+        هیچ‌چیز اعتبارسنجی نشده → verdict «unvalidated»، نه «accept» (جلوی «vetted»ی دروغ)."""
         review = {"verdict": "neutral", "concerns": [], "reward_integrity_ok": True}
+        # ── sandbox_validated: فقط وقتی suite اجرا شد و exit==0 داد ──
+        tests = sandbox_result.get("tests")
+        ran_suite = isinstance(tests, dict) and "exit" in tests
+        sandbox_validated = bool(ran_suite and tests.get("exit", 1) == 0)
+        review["sandbox_validated"] = sandbox_validated
         # reward-integrity: fix نباید uptime را هدف بگذارد
         fix_lower = rfc.fix.lower()
         if any(w in fix_lower for w in ("uptime", "keep-beating", "keep-alive")):
@@ -463,18 +508,21 @@ class Doctor:
             review["concerns"].append(
                 f"fix uptime را هدف می‌گذارد — نقضِ reward-integrity (λ_persist={LAMBDA_PERSIST})")
             review["verdict"] = "reject"
-        # اگر تست‌ها شکست خوردند → concern
-        tests = sandbox_result.get("tests")
-        if tests and tests.get("exit", 0) != 0:
+        # اگر suite اجرا شد ولی شکست خورد → concern + reject
+        if ran_suite and tests.get("exit", 0) != 0:
             review["concerns"].append("sandbox tests failed — regression risk")
-            review["verdict"] = "reject" if review["verdict"] != "reject" else "reject"
+            review["verdict"] = "reject"
         # اگر fix خالی یا مبهم
         if len(rfc.fix.strip()) < 10:
             review["concerns"].append("fix слишком کوتاه/مبهم")
             review["verdict"] = "reject"
-        # اگر no concern و tests سبز → accept
-        if not review["concerns"]:
-            review["verdict"] = "accept"
+        # ── verdict نهاییِ صادقانه ──
+        # اگر concern هست → reject (همیشه برنده).
+        # اگر concern نیست:
+        #   · suite سبز اجرا شده → accept واقعی (sandbox_validated=True).
+        #   · suite اجرا نشده → unvalidated (نمی‌توان پذیرفت چیزی را که تست نشده).
+        if review["verdict"] != "reject":
+            review["verdict"] = "accept" if sandbox_validated else "unvalidated"
         rfc.critic_review = review
         return review
 
@@ -515,6 +563,53 @@ class Doctor:
         except OSError:
             pass
         return True
+
+    # ─── Wave 3 (2026-07-15) · تحلیلِ اندام‌ها → RFCِ بهبود (propose-only) ──────────
+    def analyze_organs(self) -> list:
+        """اندام‌های خاموش/اسکلت را می‌کاود؛ برای هرکدام یک RFCِ بهبود draft+submit می‌کند —
+        از همان پایپ‌لاینِ RFC (propose-only، lesson-only merge). dedup: اندامی که RFCِ باز
+        دارد دوباره پیشنهاد نمی‌شود (وگرنه هر cycle spam). هیچ تغییرِ کدِ تولید."""
+        import json as _json
+        dormant = []   # (key, label, reason)
+        # (۱) اندام‌های owner-ساختِ رجیستری (Wave 2) که هنوز زنده نیستند
+        try:
+            rp = self._state_dir / "organ-registry.json"
+            if rp.exists():
+                for o in (_json.loads(rp.read_text("utf-8")).get("organs") or []):
+                    if isinstance(o, dict) and not o.get("live"):
+                        dormant.append((o.get("key"), o.get("label") or o.get("key"),
+                                        "اندامِ owner-ساخت هنوز بی‌داده (اسکلت)"))
+        except (OSError, ValueError):
+            pass
+        # (۲) business_legsِ built-in که skeleton برمی‌گردانند
+        org = _read_json_safe(self._state_dir / "ORGANISM-STATE.json") or {}
+        bl = org.get("business_legs") or {}
+        if isinstance(bl, dict) and isinstance(bl.get("business_legs"), dict):
+            bl = bl["business_legs"]
+        if isinstance(bl, dict):
+            for k, v in bl.items():
+                if isinstance(v, dict) and not v.get("live"):
+                    dormant.append((k, k, "leg اسکلت — بی‌سیگنال"))
+        # dedup روی RFCهای باز
+        open_b = {r.bottleneck for r in self._rfcs.values()
+                  if r.status not in ("merged", "rejected", "human-merged", "human-rejected")}
+        drafted = []
+        for key, label, reason in dormant:
+            if not key:
+                continue
+            btag = f"organ:{key}"
+            if any(btag in b for b in open_b):
+                continue
+            rfc = self.propose_rfc(
+                {"bottleneck": f"{btag} — {reason}"},
+                fix=(f"اندامِ «{label}» {reason}. پیشنهادِ propose-only: یک منبعِ دادهٔ afferent "
+                     f"برایش وصل شود تا از اسکلت به زنده برسد؛ یا اگر لازم نیست، فلگش خاموش بماند. "
+                     f"هیچ تغییرِ کدِ تولید در این RFC نیست."),
+                expected_lift="اندامِ زنده به‌جای اسکلت (observability بهتر)",
+                rollback="خاموش‌کردنِ فلگ یا حذفِ ورودیِ رجیستری")
+            if self.submit_for_approval(rfc):
+                drafted.append(rfc.rfc_id)
+        return drafted
 
     # ─── D-6 · restart_from_known_good + run_cycle ───────────────────────────────
     def restart_from_known_good(self, leg, db=None) -> bool:
@@ -579,6 +674,13 @@ class Doctor:
         use_chamber: اگر True، RFC از Chamber تخاصمی می‌گذرد پیش از sandbox/submit."""
         # sweep RFCهای گیر کرده (expire stale, re-submit no-channel)
         self._sweep_stale_rfcs()
+        # Wave 3 (2026-07-15): اسکنِ اندام‌ها (پشتِ OCTOPUS_WIRE_ORGAN_DOCTOR، پیش‌فرض خاموش).
+        # با فلگِ خاموش byte-identicalِ رفتارِ قبلی؛ روشن → RFCِ بهبود برای اندامِ خاموش/اسکلت.
+        if os.environ.get("OCTOPUS_WIRE_ORGAN_DOCTOR") == "1":
+            try:
+                self.analyze_organs()
+            except Exception:  # noqa: BLE001 — اسکنِ اندام نباید cycle را بکشد
+                pass
         # Phase 5: مصرفِ verdictهای انسانی از کانال (اگر کانال pop_rfc_verdicts داشته باشد؛
         # hasattr-guard = ایمن حتی قبل از این‌که کانالِ تلگرام آن را عرضه کند).
         # human-append منبعِ حقیقت می‌ماند — اینجا فقط ثبتِ calibration + وضعیتِ registry.
@@ -880,6 +982,8 @@ def _suggest_fix(bottleneck: dict) -> str:
         "effects-stuck": "بازبینیِ اثرهای pending گیرکرده — settle یا refuse",
         "frozen-conflict": "رفعِ تعارضِ تلمتری که FREEZE کرده",
         "sigma-cancer-risk": "افزایشِ گاردِ replication (σ>1 = خطِ قرمز)",
+        "legs-starved": ("اتصالِ منبعِ خوراک به صندوقِ state/legs/<leg>-inbox پای گرسنه، "
+                         "یا تازه‌سازیِ منبعِ راکد (propose-only — تصمیم با مالک)"),
     }
     return fixes.get(key, "بازبینیِ گلوگاهِ شناسایی‌شده (propose-only)")
 

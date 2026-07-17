@@ -1,0 +1,31 @@
+{
+ "ts": "2026-07-17T17:45:29",
+ "schema": "heartstate.v1",
+ "epistemic": "access-only telemetry — read-only، regulator نه commander",
+ "shadow": {
+  "velocity": 2.1917,
+  "sigma": 0.0,
+  "period_s": 900.0,
+  "mode": "shadow",
+  "band": [
+   0.05,
+   4.5842
+  ],
+  "wire_open": true
+ },
+ "stress": {
+  "organism": 0.75,
+  "level": "🔴 ترس",
+  "in_fear": [
+   "legs"
+  ]
+ },
+ "innervation": {
+  "coverage_pct": 100.0,
+  "heart_period_s": 900.0,
+  "dead_count": 0,
+  "dead_spots": []
+ },
+ "shadow_only": false,
+ "written": false
+}

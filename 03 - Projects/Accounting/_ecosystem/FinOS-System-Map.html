@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinOS — نقشهٔ سیستم</title>
+<style>
+  :root{
+    --bg:#0e1220; --bg2:#141a2e; --card:#1a2138; --card2:#20294a; --line:#2c3760;
+    --ink:#eef2ff; --muted:#9aa6cc; --faint:#6b76a0;
+    --indigo:#8b5cf6; --blue:#3b82f6; --green:#22c55e; --amber:#f97316; --teal:#2dd4bf; --rose:#f43f5e; --yellow:#eab308;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1100px 650px at 82% -10%,#1b2444 0%,var(--bg) 55%) fixed;
+    color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,"Vazirmatn",sans-serif;
+    line-height:1.7;padding:20px 14px 56px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1000px;margin:0 auto}
+  .eyebrow{color:var(--amber);font-size:12.5px;letter-spacing:.5px;font-weight:700;margin:0 0 6px}
+  h1{font-size:24px;margin:0 0 6px}
+  .sub{color:var(--muted);font-size:14px;margin:0;max-width:66ch}
+  .strip{display:flex;flex-wrap:wrap;gap:9px;margin:16px 0 4px}
+  .stat{flex:1 1 150px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:10px 12px}
+  .stat .k{font-size:11px;color:var(--faint);margin:0 0 3px}
+  .stat .v{font-size:14px;font-weight:800;margin:0}
+  .v.bad{color:var(--rose)}.v.warn{color:var(--amber)}.v.ok{color:var(--green)}
+  section{margin-top:22px}
+  h2{font-size:17px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+  h2::before{content:"";width:9px;height:9px;border-radius:3px;background:var(--accent,var(--indigo))}
+  .h2note{color:var(--faint);font-size:11.5px;margin:2px 0 12px 17px}
+  .panel{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:18px;padding:12px;box-shadow:var(--shadow)}
+  .panel svg{width:100%;height:auto;max-width:470px;display:block;margin:0 auto}
+  /* layer cake */
+  .cake{display:flex;flex-direction:column;gap:7px}
+  .layer{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:12px;padding:11px 14px;background:var(--bg)}
+  .layer .lid{font-size:11px;font-weight:800;color:#0e1220;background:var(--accent);border-radius:6px;padding:2px 8px;direction:ltr}
+  .layer .lt{font-size:14px;font-weight:700}
+  .layer .ld{font-size:12px;color:var(--muted);margin-inline-start:auto;text-align:left}
+  /* vault tree */
+  .tree{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.95;direction:ltr;overflow-x:auto}
+  .tree .n{color:var(--faint)} .tree .f{color:#cdd6f7} .tree .new{color:var(--green);font-weight:700}
+  .tree .c{color:var(--faint);font-style:italic}
+  /* legend */
+  .lgnd{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;padding:8px 4px 4px;font-size:11.5px;color:var(--muted)}
+  .lgnd span{display:inline-flex;align-items:center;gap:6px}.sw{width:10px;height:10px;border-radius:3px;display:inline-block}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:12px}
+  .mini{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:14px;padding:13px;position:relative;overflow:hidden}
+  .mini::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent,var(--indigo))}
+  .mini h3{margin:0 0 5px;font-size:14px}
+  .mini p{margin:0;font-size:12px;color:var(--muted)}
+  .mini .pill{font-size:10px;padding:2px 7px;border-radius:999px;border:1px solid var(--line);background:var(--card2);direction:ltr;margin-top:7px;display:inline-block;color:#dfe5ff}
+  footer{margin-top:22px;text-align:center;color:var(--faint);font-size:11.5px;line-height:1.9}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Financial Operating System · SSOT v1 · فقط نمایش</p>
+  <h1>FinOS — نقشهٔ سیستم</h1>
+  <p class="sub">langar حاکمیت می‌کند · Accounting قلبِ مالی است که درآمدِ ۵ لِگ را برای ATO تجمیع می‌کند · همه‌چیز draft-only تا بازِ Security Gate.</p>
+
+  <div class="strip">
+    <div class="stat"><p class="k">Security Gate</p><p class="v bad">بسته (۴ CRITICAL)</p></div>
+    <div class="stat"><p class="k">حالتِ اجرا</p><p class="v warn">draft-only / read-only</p></div>
+    <div class="stat"><p class="k">tenant #۱</p><p class="v ok">Accounting</p></div>
+    <div class="stat"><p class="k">قواعدِ مالیاتی</p><p class="v warn">[Unverified] تا حسابدار</p></div>
+  </div>
+
+  <!-- MONEY FLOW -->
+  <section>
+    <h2 style="--accent:var(--blue)">جریانِ پول (قلبِ سیستم)</h2>
+    <p class="h2note">۵ لِگِ درآمد → Accounting → گزارش‌ها → ATO (فقط انسان). langar بر همه حاکم است.</p>
+    <div class="panel">
+      <svg viewBox="0 0 448 500" role="img" aria-label="نمودار جریان پول">
+        <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="#6b76a0"/></marker></defs>
+        <!-- governance band -->
+        <rect x="24" y="18" width="400" height="40" rx="12" fill="rgba(139,92,246,.16)" stroke="#8b5cf6" stroke-width="1.5"/>
+        <text x="224" y="37" text-anchor="middle" fill="#fff" font-size="13" font-weight="800">langar — Governance</text>
+        <text x="224" y="51" text-anchor="middle" fill="#c4b5fd" font-size="9.5">Gate · Human-Verdict · Anchor Ledger · Kill-switch · Budget</text>
+        <!-- 5 legs -->
+        <g font-size="10.5" font-weight="700" text-anchor="middle">
+          <g><rect x="10" y="92" width="80" height="46" rx="10" fill="rgba(34,197,94,.15)" stroke="#22c55e"/><text x="50" y="112" fill="#fff">Lead-نقاشی</text><text x="50" y="127" fill="#b6f0cd" font-size="8.5" font-weight="400">income+GST</text></g>
+          <g><rect x="98" y="92" width="80" height="46" rx="10" fill="rgba(249,115,22,.14)" stroke="#f97316"/><text x="138" y="112" fill="#fff">Mining</text><text x="138" y="127" fill="#ffd8b0" font-size="8.5" font-weight="400">at-receipt</text></g>
+          <g><rect x="186" y="92" width="80" height="46" rx="10" fill="rgba(45,212,191,.14)" stroke="#2dd4bf"/><text x="226" y="112" fill="#fff">Crypto</text><text x="226" y="127" fill="#a7f3e4" font-size="8.5" font-weight="400">CGT شخصی</text></g>
+          <g><rect x="274" y="92" width="80" height="46" rx="10" fill="rgba(244,63,94,.14)" stroke="#f43f5e"/><text x="314" y="112" fill="#fff">Project-F</text><text x="314" y="127" fill="#fecdd6" font-size="8.5" font-weight="400">۵۰٪ · privacy</text></g>
+          <g><rect x="362" y="92" width="76" height="46" rx="10" fill="rgba(234,179,8,.14)" stroke="#eab308"/><text x="400" y="112" fill="#fff">Ziman</text><text x="400" y="127" fill="#fde68a" font-size="8.5" font-weight="400">income+COGS</text></g>
+        </g>
+        <!-- arrows legs -> accounting -->
+        <g stroke="#6b76a0" stroke-width="1.4" fill="none" marker-end="url(#ar)" opacity=".8">
+          <path d="M50 138 C50 190 210 200 214 236"/>
+          <path d="M138 138 C138 195 205 205 214 236"/>
+          <path d="M226 138 L226 236"/>
+          <path d="M314 138 C314 195 240 205 236 236"/>
+          <path d="M400 138 C400 195 250 205 238 236"/>
+        </g>
+        <!-- accounting heart -->
+        <rect x="150" y="238" width="148" height="66" rx="14" fill="rgba(59,130,246,.2)" stroke="#3b82f6" stroke-width="2"/>
+        <text x="224" y="266" text-anchor="middle" fill="#fff" font-size="15" font-weight="800">Accounting</text>
+        <text x="224" y="284" text-anchor="middle" fill="#bcd4ff" font-size="10">قلبِ مالی · tenant #۱</text>
+        <text x="224" y="297" text-anchor="middle" fill="#8fb4ff" font-size="8.5">ledger · CoA · GST=total/11</text>
+        <!-- governance dashed to accounting -->
+        <path d="M224 58 L224 92" stroke="#8b5cf6" stroke-width="1.3" stroke-dasharray="4 4" opacity=".5"/>
+        <!-- outputs -->
+        <g stroke="#6b76a0" stroke-width="1.4" fill="none" marker-end="url(#ar)" opacity=".8">
+          <path d="M195 304 L150 350"/><path d="M253 304 L298 350"/>
+        </g>
+        <g font-size="10.5" font-weight="700" text-anchor="middle">
+          <rect x="70" y="352" width="120" height="44" rx="11" fill="var(--card2)" stroke="#2c3760"/><text x="130" y="371" fill="#fff">P&amp;L / Dashboard</text><text x="130" y="386" fill="#9aa6cc" font-size="8.5" font-weight="400">Bases + Dataview</text>
+        <rect x="258" y="352" width="120" height="44" rx="11" fill="var(--card2)" stroke="#2c3760"/><text x="318" y="371" fill="#fff">BAS / TPAR draft</text><text x="318" y="386" fill="#9aa6cc" font-size="8.5" font-weight="400">[Unverified]</text>
+        </g>
+        <!-- to ATO human only -->
+        <path d="M318 396 L318 440" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="5 5" fill="none" marker-end="url(#ar)"/>
+        <rect x="150" y="442" width="196" height="42" rx="11" fill="rgba(244,63,94,.12)" stroke="#f43f5e" stroke-width="1.5"/>
+        <text x="248" y="462" text-anchor="middle" fill="#fff" font-size="12" font-weight="800">ATO / ASIC</text>
+        <text x="248" y="476" text-anchor="middle" fill="#fecdd6" font-size="9">فقط انسان — ایجنت هرگز lodge نمی‌کند</text>
+      </svg>
+      <div class="lgnd">
+        <span><i class="sw" style="background:var(--indigo)"></i>Governance</span>
+        <span><i class="sw" style="background:var(--blue)"></i>Accounting (قلب)</span>
+        <span><i class="sw" style="background:var(--green)"></i>Lead</span>
+        <span><i class="sw" style="background:var(--amber)"></i>Mining</span>
+        <span><i class="sw" style="background:var(--teal)"></i>Crypto</span>
+        <span><i class="sw" style="background:var(--rose)"></i>Project-F / ATO</span>
+        <span><i class="sw" style="background:var(--yellow)"></i>Ziman</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- LAYER CAKE -->
+  <section>
+    <h2 style="--accent:var(--teal)">شش لایهٔ سیستم</h2>
+    <div class="cake">
+      <div class="layer" style="--accent:var(--indigo)"><span class="lid">L0</span><span class="lt">Governance</span><span class="ld">langar · charter · gate · verdict · ledger</span></div>
+      <div class="layer" style="--accent:var(--green)"><span class="lid">L1</span><span class="lt">Knowledge</span><span class="ld">Obsidian vault-OS · Bases · Templater</span></div>
+      <div class="layer" style="--accent:var(--blue)"><span class="lid">L2</span><span class="lt">Financial Core</span><span class="ld">event-sourced ledger + double-entry</span></div>
+      <div class="layer" style="--accent:var(--amber)"><span class="lid">L3</span><span class="lt">Agents / Organs</span><span class="ld">importer · OCR · compliance · dashboards</span></div>
+      <div class="layer" style="--accent:var(--teal)"><span class="lid">L4</span><span class="lt">Integration</span><span class="ld">MCP · Xero · ANZ · hybrid local↔cloud</span></div>
+      <div class="layer" style="--accent:var(--rose)"><span class="lid">L5</span><span class="lt">Observability</span><span class="ld">audit log · KPIs · compliance flags</span></div>
+    </div>
+  </section>
+
+  <!-- VAULT TREE -->
+  <section>
+    <h2 style="--accent:var(--green)">درختِ کانونیِ Vault</h2>
+    <p class="h2note">Hybrid Johnny Decimal + PARA. سبز = ناحیهٔ جدیدِ این بلوپرینت.</p>
+    <div class="tree">
+<span class="n">Vault/</span>
+├── <span class="f">00 - Inbox/</span>            <span class="c"># هر ورودی اول اینجا</span>
+├── <span class="f">01 - Dashboard/</span>        <span class="c"># HANDOFF + Bases dashboards</span>
+├── <span class="f">02 - Daily/</span>            <span class="c"># daily notes + reviews</span>
+├── <span class="f">03 - Projects/</span>         <span class="c"># Accounting·Lead·Mining·Crypto·Project-F·Ziman</span>
+├── <span class="f">04 - Architect System/</span> <span class="c"># langar · charter · rotation</span>
+├── <span class="new">05 - Finance/</span>          <span class="c"># 🆕 Ledger·CoA·BAS·Invoices·Receipts·Assets</span>
+├── <span class="f">06 - Architecture Maps/</span><span class="c"># ECOSYSTEM · Property Schema · این بلوپرینت</span>
+├── <span class="f">07 - Knowledge/</span>        <span class="c"># research · SOPs · policies</span>
+├── <span class="new">08 - Clients/</span>          <span class="c"># 🆕 CRM سبک نقاشی</span>
+├── <span class="f">09 - Archive/</span>          <span class="c"># _Archive · _Duplicates (بدون حذف)</span>
+└── <span class="f">_system/</span>              <span class="c"># _Templates · _memory · scripts</span>
+    </div>
+  </section>
+
+  <!-- KEY DECISIONS -->
+  <section>
+    <h2 style="--accent:var(--amber)">تصمیم‌های بنیادی (خلاصه)</h2>
+    <div class="grid">
+      <div class="mini" style="--accent:var(--blue)"><h3>Event Sourcing + Double-Entry</h3><p>حقیقتِ مالیِ append-only و بازتولیدپذیر؛ گزارش‌ها فقط projection‌اند.</p><span class="pill">c=0.82</span></div>
+      <div class="mini" style="--accent:var(--green)"><h3>Bases موتورِ داشبورد</h3><p>بومی و سریع روی vaultِ سنگین؛ Dataview مکمل.</p><span class="pill">c=0.80</span></div>
+      <div class="mini" style="--accent:var(--teal)"><h3>Hybrid Local↔Cloud</h3><p>PII و monitorها روی OrangePi؛ کارِ سنگین روی Cowork.</p><span class="pill">c=0.72</span></div>
+      <div class="mini" style="--accent:var(--rose)"><h3>یک شرکت یا چند؟</h3><p>بازترین سؤالِ ساختاری — مالِ حسابدار، نه ایجنت.</p><span class="pill">c=0.40 · OPEN</span></div>
+      <div class="mini" style="--accent:var(--indigo)"><h3>Draft-only / Human-Verdict</h3><p>هرگز lodge، هرگز پرداخت؛ timeout=DENY.</p><span class="pill">c=0.95</span></div>
+      <div class="mini" style="--accent:var(--amber)"><h3>Model Tiering</h3><p>Haiku→Sonnet→Opus؛ داخلِ بودجهٔ AU$30/ماه.</p><span class="pill">c=0.80</span></div>
+    </div>
+  </section>
+
+  <footer>
+    FinOS SSOT v1 · منبع: اسنادِ خودت + تحقیقِ ATO/الگوهای مهندسی · مالیات [Unverified] تا Registered Tax Agent · فقط نمایش، بدونِ اجرا.
+  </footer>
+</div>
+</body>
+</html>

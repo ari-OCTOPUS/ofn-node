@@ -105,7 +105,21 @@ class CockpitReadModel:
         return _read_json(self.state / "fitness-latest.json")
 
     def read_school(self) -> dict:
-        return _read_json(self.state / "school-awareness.json")
+        # راست‌گویی (2026-07-17): school-awareness.json نویسندهٔ کند دارد (SLA=72h) و فیلدِ
+        # ts ندارد — متادیتای تازگیِ mtime ضمیمه می‌شود (هم‌الگوی read_channels) تا هیچ
+        # خواننده‌ای عددِ کهنه را «فعلی» رندر نکند. مصرف‌کنندهٔ R17 فقط mean را می‌خواند.
+        p = self.state / "school-awareness.json"
+        d = _read_json(p)
+        if d:
+            try:
+                import os as _os, time as _t
+                _mt = _os.path.getmtime(p)
+                d["_snapshot_ts"] = _t.strftime("%Y-%m-%d %H:%M", _t.localtime(_mt))
+                d["_age_h"] = (_t.time() - _mt) / 3600.0
+                d["_stale"] = d["_age_h"] > 72
+            except OSError:
+                d["_stale"] = True
+        return d
 
     def read_latent(self) -> dict:
         return _read_json(self.state / "latent-vectors.json")
@@ -135,13 +149,76 @@ class CockpitReadModel:
         return _read_json(self.state / "phase-gate-state.json")
 
     def read_channels(self) -> dict:
-        return _read_json(self.state / "channel-status.json")
+        p = self.state / "channel-status.json"
+        d = _read_json(p)
+        # P1 راست‌گویی (2026-07-15): این snapshot نویسندهٔ زنده ندارد — متادیتای تازگی ضمیمه
+        # می‌شود تا هیچ خواننده‌ای آن را «زنده» رندر نکند. فقط snapshotِ دارای محتوا برچسب می‌خورد؛
+        # فایلِ غایب/خالی/خراب → {} دست‌نخورده (قراردادِ fail-soft، test_readmodel_failsoft).
+        if d:
+            try:
+                import os as _os, time as _t
+                _mt = _os.path.getmtime(p)
+                d["_snapshot_ts"] = _t.strftime("%Y-%m-%d %H:%M", _t.localtime(_mt))
+                d["_stale"] = (_t.time() - _mt) > 3600
+            except OSError:
+                d["_stale"] = True
+        return d
+
+    def read_truth_cards(self) -> list[dict]:
+        """کارت‌های راست‌گو (P1 2026-07-15): flag + writer + تازگیِ فایل، برای اجزای
+        flag-off/بی‌نویسنده. قانونِ کابین: 🟢 فقط برای فایلِ موجودِ تازه؛ غایب=⚫، کهنه=🟠."""
+        import os as _os
+        import time as _t
+
+        def _age_h(p):
+            try:
+                return (_t.time() - _os.path.getmtime(p)) / 3600.0
+            except OSError:
+                return None
+
+        cards = []
+        for cid, label, flag, rel, sla_h in (
+            ("structlog", "StructLog", "OCTOPUS_WIRE_STRUCTLOG", "octopus-log.jsonl", 24),
+            ("self_claims", "Self-claims", "CORTEX_SELF_MONITOR", "cortex/self-claims.jsonl", 24),
+            ("calibration", "Calibration", None, "cortex/calibration-latest.json", 24),
+            ("channel_status", "Channel-status", None, "channel-status.json", 1),
+            ("heart_shadow", "Heart (shadow)", "OCTOPUS_WIRE_HEART", "pulse/heart-shadow-latest.json", 1),
+        ):
+            age = _age_h(self.state / rel)
+            flag_on = (_os.environ.get(flag) == "1") if flag else None
+            if age is None:
+                icon = "⚫"
+                txt = "فایل نیست" + (" — فلگ خاموش" if flag and not flag_on else "")
+            elif age <= sla_h:
+                icon, txt = "🟢", f"تازه ({age:.1f}h)"
+            else:
+                icon, txt = "🟠", f"کهنه ({age / 24:.1f}d) — نویسندهٔ زنده ندارد؟"
+            cards.append({"id": cid, "label": label, "flag": flag, "flag_on": flag_on,
+                          "icon": icon, "status": txt, "age_h": age, "source": rel})
+        return cards
 
     def read_lab(self) -> dict:
         return _read_json(self.state / "lab_state.json")
 
     def read_bundle(self) -> dict:
-        return _read_json(self.state / "export" / "octopus-status-bundle.json")
+        """bundleِ export فقط وقتی برنده است که از فایل‌های زندهٔ منبع تازه‌تر باشد
+        (صداقتِ کابین پس از GO-LIVE، 2026-07-16): bundleِ کهنه هم‌زمان stale-as-green
+        و live-as-dead می‌ساخت. bundleِ کهنه‌تر از هر منبعِ زندهٔ موجود → {}
+        (مصرف‌کننده به fallbackِ live برمی‌گردد). fail-soft: خطای stat → رفتارِ قبلی."""
+        p = self.state / "export" / "octopus-status-bundle.json"
+        d = _read_json(p)
+        if not d:
+            return {}
+        try:
+            b_mt = p.stat().st_mtime
+            for live in ("ORGANISM-STATE.json", "replication-latest.json",
+                         "fitness-latest.json"):
+                lp = self.state / live
+                if lp.exists() and lp.stat().st_mtime > b_mt:
+                    return {}          # منبعِ زنده تازه‌تر است — bundle کنار می‌رود
+        except OSError:
+            pass
+        return d
 
     def read_consolidation(self) -> dict:
         return _read_json(self.ops / "neural" / "consolidation.json")
@@ -158,9 +235,11 @@ class CockpitReadModel:
         return _read_json(self.state / "cortex" / "upgrades-digest.json")
 
     def read_cortex(self) -> dict:
-        """جلسه ۴۶: مغزِ مرکزی (پروسهٔ جدا 8772) — state + آخرین فکرها. فقط‌خواندنی."""
-        out = {"state": _read_json(self.state / "cortex" / "cortex-state.json"),
-               "journal_tail": []}
+        """جلسه ۴۶: مغزِ مرکزی (پروسهٔ جدا 8772) — state + آخرین فکرها. فقط‌خواندنی.
+        صداقتِ GO-LIVE (2026-07-16): تازگی از mtimeِ فایل ضمیمه می‌شود (age_h/stale، >2h=کهنه)
+        تا مصرف‌کننده مغزِ مرده را «در حالِ فکر» رندر نکند — هم‌الگوی read_channels."""
+        sp = self.state / "cortex" / "cortex-state.json"
+        out = {"state": _read_json(sp), "journal_tail": []}
         try:
             jp = self.state / "cortex" / "journal.jsonl"
             if jp.exists():
@@ -169,6 +248,14 @@ class CockpitReadModel:
                                        if x.strip()]
         except (OSError, ValueError):
             pass
+        if out["state"]:
+            try:
+                import os as _os, time as _t
+                age_h = (_t.time() - _os.path.getmtime(sp)) / 3600.0
+                out["age_h"] = round(age_h, 2)
+                out["stale"] = age_h > 2.0
+            except OSError:
+                out["stale"] = True    # ادعای تازگی بدونِ mtime ممنوع
         return out
 
     def read_heart(self) -> dict:

@@ -164,6 +164,7 @@ def _gateway_is_up():
 _PROVIDER_REGISTRY = {
     "glm": {
         "env_key": "ZAI_API_KEY",
+        "env_key_alias": "GLM_API_KEY",   # 2026-07-15: مالک ممکن است GLM_API_KEY بگذارد (نامِ مستندِ budgets)
         "base_url_env": "GLM_BASE_URL",
         "base_url_default": "https://api.z.ai",
         "allowed_hosts": ("api.z.ai", "bigmodel.cn"),
@@ -172,6 +173,7 @@ _PROVIDER_REGISTRY = {
     },
     "sakana": {
         "env_key": "SAKANA_API_KEY",
+        "env_key_alias": "FUGU_API_KEY",   # 2026-07-15: مالک FUGU_API_KEY گذاشته (Fugu = Sakana)
         "base_url_default": "https://api.sakana.ai/v1",
         "allowed_hosts": ("api.sakana.ai",),
         "price_in": 5.0,     # $5/M [VERIFIED]
@@ -250,9 +252,13 @@ class MultiProviderClient:
                     f"leak-guard: base_url «{self.base_url}» host مجازِ {self.provider} نیست — refusing")
             # کلید فقط از env (هرگز hardcode)
             if transport is None:
-                self.api_key = os.environ.get(reg["env_key"], "")
+                # 2026-07-15: نامِ اصلی، بعد aliasِ مستند (FUGU_API_KEY / GLM_API_KEY) — تا کلیدِ
+                # مالک هرچه نامش باشد به provider برسد. هرگز مقدار log/echo نمی‌شود.
+                self.api_key = (os.environ.get(reg["env_key"])
+                                or os.environ.get(reg.get("env_key_alias", ""), "") or "")
                 if not self.api_key:
-                    raise RefuseToSend(f"{reg['env_key']} تنظیم نیست — کلید فقط از env")
+                    _names = reg["env_key"] + (f"/{reg['env_key_alias']}" if reg.get("env_key_alias") else "")
+                    raise RefuseToSend(f"{_names} تنظیم نیست — کلید فقط از env")
             else:
                 self.api_key = ""
         # قیمت از registry (برای telemetry). flat subscription → cost محاسبه ولی گزارش می‌شود

@@ -186,10 +186,54 @@ def parse_lead_from_email(msg: dict) -> dict | None:
     }
 
 
+# ─── bridge to lead-inbox (مرحلهٔ ۳ نقشهٔ لید، 2026-07-15) ────────────────────
+def bridge_leads_to_inbox(leads: list[dict]) -> int:
+    """لیدهای ایمیلی را به صندوقِ discovery برسان: state/legs/lead-inbox/email-<id>.json.
+
+    نگاشت به شکلِ کاندیدِ lead_scorer (description لازم است — از subject+snippet).
+    idempotent دو لایه: (۱) نامِ فایل = email_id — اگر در inbox یا processed/ باشد،
+    دوباره نوشته نمی‌شود؛ (۲) dedup محتواییِ lead_sense پایین‌دست. فقط نوشتنِ فایلِ
+    محلی — صفر ارسال، صفر شبکه. خروجی: تعدادِ فایل‌های نوشته‌شده."""
+    if not leads:
+        return 0
+    inbox = opslib.STATE_DIR / "legs" / "lead-inbox"
+    written = 0
+    for lead in leads:
+        try:
+            eid = str(lead.get("email_id") or "").strip()
+            subject = str(lead.get("subject") or "").strip()
+            snippet = str(lead.get("snippet") or "").strip()
+            desc = (f"{subject} — {snippet}" if subject and snippet
+                    else subject or snippet)
+            if not desc:
+                continue   # بدونِ description کاندیدِ معتبری نیست
+            if eid:
+                name = f"email-{eid}.json"
+            else:                       # بدونِ id → هشِ قطعیِ محتوا (نه hash() سالت‌دار)
+                import hashlib as _h    # noqa: WPS433
+                name = f"email-{_h.sha256(desc.encode('utf-8')).hexdigest()[:12]}.json"
+            target = inbox / name
+            if target.exists() or list((inbox / "processed").glob(f"{target.stem}*")):
+                continue   # این ایمیل قبلاً وارد/پردازش شده (idempotent)
+            cand = {"source": "email", "description": desc[:600],
+                    "applicant": str(lead.get("from") or "")[:120],
+                    "email_id": eid, "email_date": str(lead.get("date") or "")}
+            inbox.mkdir(parents=True, exist_ok=True)
+            tmp = target.with_suffix(".json.tmp")
+            tmp.write_text(json.dumps(cand, ensure_ascii=False, indent=2), "utf-8")
+            os.replace(tmp, target)
+            written += 1
+        except (OSError, TypeError, ValueError):
+            continue   # fail-soft: یک لیدِ خراب بقیه را نکشد
+    return written
+
+
 # ─── poll_and_digest ────────────────────────────────────────────────────────
 def poll_and_digest() -> dict:
     """یک بار چک → لیستِ ایمیل‌های جدید + خلاصه. propose-only.
-    خروجی: {n_unread, leads: [...], messages: [...]}"""
+    خروجی: {n_unread, leads: [...], messages: [...], n_bridged}
+    مرحلهٔ ۳ (2026-07-15): لیدهای پیدا‌شده به صندوقِ discovery پل می‌شوند تا
+    lead_discovery_beat امتیازشان بدهد — همچنان صفر ارسال."""
     if not check_flag():
         return {"n_unread": 0, "leads": [], "messages": [],
                 "note": "OCTOPUS_WIRE_EMAIL not set — no-op"}
@@ -201,12 +245,16 @@ def poll_and_digest() -> dict:
         if lead:
             leads.append(lead)
 
+    n_bridged = bridge_leads_to_inbox(leads)
+
     return {
         "ts": opslib.now_iso(),
         "n_unread": len(messages),
         "leads": leads,
+        "n_bridged": n_bridged,
         "messages": [{"subject": m.get("subject"), "from": m.get("from")} for m in messages],
-        "note": f"{len(leads)} potential leads from {len(messages)} unread emails",
+        "note": f"{len(leads)} potential leads from {len(messages)} unread emails"
+                f" · {n_bridged} bridged to lead-inbox",
     }
 
 

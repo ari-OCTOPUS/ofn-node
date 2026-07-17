@@ -91,7 +91,7 @@ def t_f_legs_nine_ordered_keys():
 
 # ─── کارتِ تصمیم: ok/no/later:<id> ────────────────────────────────────────────────
 def t_g_decision_keyboard_callback_format():
-    item = {"q": "تأیید کنم؟", "why": "منتظرِ رأیِ توست", "source": "approval", "id": "abc-123"}
+    item = {"q": "تأیید کنم؟", "why": "منتظرِ رأیِ توست", "source": "needs", "id": "abc-123"}
     text, kb = render.render_decision(item)
     assert isinstance(text, str) and "تأیید کنم؟" in text
     assert isinstance(kb, list) and len(kb) == 1 and len(kb[0]) == 3
@@ -101,8 +101,8 @@ def t_g_decision_keyboard_callback_format():
 
 
 def t_h_decision_id_stable_hash_without_id():
-    _, kb1 = render.render_decision({"q": "سوالِ دو", "source": "money"})
-    _, kb2 = render.render_decision({"q": "سوالِ دو", "source": "money"})
+    _, kb1 = render.render_decision({"q": "سوالِ دو", "source": "needs"})
+    _, kb2 = render.render_decision({"q": "سوالِ دو", "source": "needs"})
     cds = [b["callback_data"] for b in kb1[0]]
     ids = {cd.split(":", 1)[1] for cd in cds}
     assert len(ids) == 1 and cds[0].startswith("ok:") and cds[2].startswith("later:")
@@ -112,6 +112,17 @@ def t_h_decision_id_stable_hash_without_id():
     # ورودیِ خراب هم امن است
     t3, kb3 = render.render_decision(None)
     assert isinstance(t3, str) and len(kb3[0]) == 3
+
+
+def t_i_money_card_no_fake_approve():
+    # راست‌گوییِ دکمه (2026-07-17): کارتِ money/approval در center نباید ✅ِ settle-نما
+    # بدهد — تأییدِ واقعی فقط در کارتِ توکنِ approval_channel است (این‌جا فقط اطلاع + «دیدم»).
+    for src in ("money", "approval"):
+        _, kb = render.render_decision({"q": "پرداخت؟", "source": src})
+        cds = [b["callback_data"] for row in kb for b in row]
+        assert not any(c.startswith("ok:") for c in cds), (src, cds)
+        assert not any(c.startswith("no:") for c in cds), (src, cds)
+        assert any(c.startswith("later:") for c in cds), (src, cds)
 
 
 # ─── containment: scrub + هیچ echo ِ ممنوعی در هیچ خروجی ─────────────────────────

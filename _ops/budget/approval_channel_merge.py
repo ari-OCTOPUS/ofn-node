@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """
+ORPHAN 2026-07-16: zero live callers (audit R-13) — kept, not deleted; candidate for _Archive on owner verdict.
+
 approval_channel_merge.py — پلِ ادغامِ کانالِ تأییدِ _ops با مغزِ 4d_system.
 
 هدف: یک Unified Approval Channel بسازد که هر دو دنیا (_ops governance + 4d_system brain)

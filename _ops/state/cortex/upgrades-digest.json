@@ -1,9 +1,30 @@
 {
-  "ts": "2026-07-10T21:53:48",
+  "ts": "2026-07-17T17:45:26",
   "schema": "upgrades-digest.v1",
-  "maturity_pct": 75.8,
-  "n_proposals": 24,
+  "observability_ok": true,
+  "maturity_pct": 75.6,
+  "n_proposals": 34,
   "by_category": {
+    "business": [
+      {
+        "id": "up-173d84e33e",
+        "priority": "P1",
+        "title": "Lead-نقاشی: هنوز درآمدِ تأییدشده‌ای ثبت نشده",
+        "suggested_action": "یه لیدِ نقاشی ثبت کن (/lead) تا خطِ لوله راه بیفتد.",
+        "change_level": "reconfig",
+        "source": "business-brain",
+        "status": "proposed"
+      },
+      {
+        "id": "up-cd9914d7a0",
+        "priority": "P1",
+        "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (0/۲۸ روز، سایه)",
+        "suggested_action": "چند لیدِ واقعی بده تا اتریبیوشن معتبر شود.",
+        "change_level": "tune",
+        "source": "business-brain",
+        "status": "proposed"
+      }
+    ],
     "architecture": [
       {
         "id": "up-d6065f91ae",
@@ -13,6 +34,33 @@
         "change_level": "code",
         "source": "audit",
         "status_now": "Partial",
+        "status": "proposed"
+      },
+      {
+        "id": "up-edcbea1fda",
+        "priority": "P2",
+        "title": "سنتزِ مغز: ارگانیسم خود تحلیل و ارتقاء بدهد",
+        "suggested_action": "پیاده‌سازی لینک‌ها در محل‌های مناسب برای تحلیل خودکار",
+        "change_level": "reconfig",
+        "source": "synthesis",
+        "status": "proposed"
+      },
+      {
+        "id": "up-3d970db333",
+        "priority": "P2",
+        "title": "سنتزِ مغز: حافظه ماندگار همیشه بماند",
+        "suggested_action": "افزودن سیستم ذخیره‌سازی پشتیبانی با استفاده از فشرده‌سازی و چند نقطه‌ای",
+        "change_level": "reconfig",
+        "source": "synthesis",
+        "status": "proposed"
+      },
+      {
+        "id": "up-2b121d73cc",
+        "priority": "P2",
+        "title": "سنتزِ مغز: عنوان",
+        "suggested_action": "قدم اول",
+        "change_level": "reconfig",
+        "source": "synthesis",
         "status": "proposed"
       },
       {
@@ -34,6 +82,15 @@
         "source": "audit",
         "status_now": "Partial",
         "status": "proposed"
+      },
+      {
+        "id": "up-e471431bc0",
+        "priority": "P2",
+        "title": "اعضا: امروز 6 بار خودترمیمی شد — یه عضو ناپایدار است",
+        "suggested_action": "بررسیِ ریشه‌ایِ آن عضو (به مالک گزارش).",
+        "change_level": "reconfig",
+        "source": "part-loop",
+        "status": "proposed"
       }
     ],
     "implementation": [
@@ -48,37 +105,9 @@
         "status": "proposed"
       },
       {
-        "id": "up-81fe6de7c7",
+        "id": "up-17a5528df2",
         "priority": "P1",
-        "title": "prioritized implementation backlog",
-        "suggested_action": "همین دایجست backlog owner-facing است — به کابین/اتاقِ زنده وصلش کن.",
-        "change_level": "reconfig",
-        "source": "audit",
-        "status_now": "Partial",
-        "status": "proposed"
-      },
-      {
-        "id": "up-ba606d72c9",
-        "priority": "P1",
-        "title": "RFCِ دکتر: RFC-ef4667fb",
-        "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
-        "change_level": "reconfig",
-        "source": "doctor",
-        "status": "proposed"
-      },
-      {
-        "id": "up-4bfe513b01",
-        "priority": "P1",
-        "title": "RFCِ دکتر: RFC-efb62282",
-        "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
-        "change_level": "reconfig",
-        "source": "doctor",
-        "status": "proposed"
-      },
-      {
-        "id": "up-60bc988c31",
-        "priority": "P1",
-        "title": "RFCِ دکتر: RFC-f0080fc4",
+        "title": "RFCِ دکتر: RFC-f1939b51",
         "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
         "change_level": "reconfig",
         "source": "doctor",
@@ -112,6 +141,15 @@
         "status": "proposed"
       },
       {
+        "id": "up-29c1592c86",
+        "priority": "P1",
+        "title": "RFCِ دکتر: RFC-f62443e7",
+        "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
+        "change_level": "reconfig",
+        "source": "doctor",
+        "status": "proposed"
+      },
+      {
         "id": "up-630529a1c9",
         "priority": "P1",
         "title": "RFCِ دکتر: RFC-f64eafcd",
@@ -139,12 +177,31 @@
         "status": "proposed"
       },
       {
+        "id": "up-38a244bd2c",
+        "priority": "P1",
+        "title": "RFCِ دکتر: RFC-f8925509",
+        "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
+        "change_level": "reconfig",
+        "source": "doctor",
+        "status": "proposed"
+      },
+      {
         "id": "up-7500be803f",
         "priority": "P1",
         "title": "RFCِ دکتر: RFC-f9c89527",
         "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
         "change_level": "reconfig",
         "source": "doctor",
+        "status": "proposed"
+      },
+      {
+        "id": "up-81fe6de7c7",
+        "priority": "P1",
+        "title": "prioritized implementation backlog",
+        "suggested_action": "همین دایجست backlog owner-facing است — به کابین/اتاقِ زنده وصلش کن.",
+        "change_level": "reconfig",
+        "source": "audit",
+        "status_now": "Partial",
         "status": "proposed"
       }
     ],
@@ -190,6 +247,16 @@
         "status": "proposed"
       },
       {
+        "id": "up-863c603099",
+        "priority": "P2",
+        "title": "owner autonomy preference modulates behavior",
+        "suggested_action": "این بند را از «Missing» به Done ببر (بخشِ §1 autonomy).",
+        "change_level": "reconfig",
+        "source": "audit",
+        "status_now": "Missing",
+        "status": "proposed"
+      },
+      {
         "id": "up-1bf7588f78",
         "priority": "P2",
         "title": "named human owner per subsystem",
@@ -198,19 +265,41 @@
         "source": "audit",
         "status_now": "Partial",
         "status": "proposed"
+      },
+      {
+        "id": "up-1db7c7703c",
+        "priority": "P2",
+        "title": "decision ledger (verdicts aggregated)",
+        "suggested_action": "این بند را از «Partial» به Done ببر (بخشِ 2027§22 artifacts).",
+        "change_level": "reconfig",
+        "source": "audit",
+        "status_now": "Partial",
+        "status": "proposed"
       }
     ],
-    "observability": [
+    "theory": [
       {
-        "id": "up-ae4a7476a9",
+        "id": "up-ef5929f21b",
         "priority": "P2",
-        "title": "drift over time measured",
-        "suggested_action": "سریِ زمانیِ coherence/velocity را نگه‌دار و شیبِ منفی را به‌عنوان drift هشدار بده.",
-        "change_level": "code",
+        "title": "identity drift monitoring in self-modifying agents",
+        "suggested_action": "این بند را از «Missing» به Done ببر (بخشِ 2027§11 self-modify).",
+        "change_level": "reconfig",
         "source": "audit",
         "status_now": "Missing",
         "status": "proposed"
       },
+      {
+        "id": "up-40e5e44d0e",
+        "priority": "P2",
+        "title": "single-agent / null baseline",
+        "suggested_action": "مقایسهٔ خودکارِ neural-vs-null (box/null_dreamer) را per-epoch ثبت کن.",
+        "change_level": "reconfig",
+        "source": "audit",
+        "status_now": "Partial",
+        "status": "proposed"
+      }
+    ],
+    "observability": [
       {
         "id": "up-457093196f",
         "priority": "P2",
@@ -230,22 +319,61 @@
         "source": "audit",
         "status_now": "Partial",
         "status": "proposed"
-      }
-    ],
-    "theory": [
+      },
       {
-        "id": "up-40e5e44d0e",
+        "id": "up-ae4a7476a9",
         "priority": "P2",
-        "title": "single-agent / null baseline",
-        "suggested_action": "مقایسهٔ خودکارِ neural-vs-null (box/null_dreamer) را per-epoch ثبت کن.",
-        "change_level": "reconfig",
+        "title": "drift over time measured",
+        "suggested_action": "سریِ زمانیِ coherence/velocity را نگه‌دار و شیبِ منفی را به‌عنوان drift هشدار بده.",
+        "change_level": "code",
         "source": "audit",
-        "status_now": "Partial",
+        "status_now": "Missing",
+        "status": "proposed"
+      },
+      {
+        "id": "up-f172bc09a0",
+        "priority": "P3",
+        "title": "خودآگاهیِ سند: 1 ماژول بدونِ docstring",
+        "suggested_action": "به هر ماژول یک docstringِ یک‌خطی بده (تغییرِ سندی، بی‌خطر).",
+        "change_level": "tune",
+        "source": "self_model",
         "status": "proposed"
       }
     ]
   },
   "top": [
+    {
+      "id": "up-173d84e33e",
+      "source": "business-brain",
+      "category": "business",
+      "priority": "P1",
+      "_rank": 1.0,
+      "title": "Lead-نقاشی: هنوز درآمدِ تأییدشده‌ای ثبت نشده",
+      "rationale": "مغزِ دومِ کسب‌وکار این را یافت",
+      "evidence": "business-brain-latest.json",
+      "suggested_action": "یه لیدِ نقاشی ثبت کن (/lead) تا خطِ لوله راه بیفتد.",
+      "change_level": "reconfig",
+      "auto_applicable": false,
+      "status": "proposed",
+      "serves_goal": "Ziman و Lead-نقاشی: لیدِ واقعی و درآمدِ اثبات‌پذیر مقدم بر هر آزمایش.",
+      "impact": 3.0
+    },
+    {
+      "id": "up-cd9914d7a0",
+      "source": "business-brain",
+      "category": "business",
+      "priority": "P1",
+      "_rank": 1.0,
+      "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (0/۲۸ روز، سایه)",
+      "rationale": "مغزِ دومِ کسب‌وکار این را یافت",
+      "evidence": "business-brain-latest.json",
+      "suggested_action": "چند لیدِ واقعی بده تا اتریبیوشن معتبر شود.",
+      "change_level": "tune",
+      "auto_applicable": false,
+      "status": "proposed",
+      "serves_goal": "Ziman و Lead-نقاشی: لیدِ واقعی و درآمدِ اثبات‌پذیر مقدم بر هر آزمایش.",
+      "impact": 3.0
+    },
     {
       "id": "up-d6065f91ae",
       "source": "audit",
@@ -259,7 +387,9 @@
       "suggested_action": "دکتر را داده‌زنده کن: db را در make_doctor تزریق کن (organism.py) + apply_merge را در run_cycle بعد از verdictِ merged صدا بزن (پشتِ flag).",
       "change_level": "code",
       "auto_applicable": false,
-      "status": "proposed"
+      "status": "proposed",
+      "serves_goal": "—",
+      "impact": 2.6
     },
     {
       "id": "up-1363aae4df",
@@ -274,100 +404,97 @@
       "suggested_action": "measured_lift._default_eval را از stub به سنجشِ واقعیِ suite-delta در sandbox ارتقا بده.",
       "change_level": "code",
       "auto_applicable": false,
-      "status": "proposed"
+      "status": "proposed",
+      "serves_goal": "—",
+      "impact": 2.6
     },
     {
-      "id": "up-b229e6ba53",
-      "source": "audit",
-      "category": "governance",
-      "priority": "P1",
-      "_rank": 1.0,
-      "title": "change leveled: tune/reconfig/rewrite + contract",
-      "status_now": "Missing",
-      "rationale": "چک‌لیست §§10 self-modify — الان Missing",
-      "evidence": "none — سطح‌بندیِ صریحِ تغییر و change-contract هنوز نیست (کارِ improve.py)",
-      "suggested_action": "همین ماژول (improve.py) سطح‌بندیِ change_level را اضافه کرد — تأیید و در RFC schema رسمی کن.",
+      "id": "up-edcbea1fda",
+      "source": "synthesis",
+      "category": "architecture",
+      "priority": "P2",
+      "_rank": 1.8,
+      "title": "سنتزِ مغز: ارگانیسم خود تحلیل و ارتقاء بدهد",
+      "rationale": "بهبود عملکرد و کارایی",
+      "evidence": "synthesis-latest.json [local]",
+      "suggested_action": "پیاده‌سازی لینک‌ها در محل‌های مناسب برای تحلیل خودکار",
       "change_level": "reconfig",
       "auto_applicable": false,
-      "status": "proposed"
+      "status": "proposed",
+      "serves_goal": "ارگانیسم خودش را تحلیل، تحقیق و ارتقا بدهد — تا جای امن خودکار، بقیه پیشنهاد به من.",
+      "impact": 2.2
     },
     {
-      "id": "up-1f41a4499b",
-      "source": "audit",
-      "category": "governance",
-      "priority": "P1",
-      "_rank": 1.0,
-      "title": "memory poisoning / false-canon guard",
-      "status_now": "Partial",
-      "rationale": "چک‌لیست §§6 memory — الان Partial",
-      "evidence": "constitution §7: created_by:agent + sources≥2؛ ولی مانیتورِ خودکار نیست",
-      "suggested_action": "مانیتورِ خودکارِ created_by:agent بدونِ sources≥2 → هشدار (validate_frontmatter در لوپ).",
-      "change_level": "code",
-      "auto_applicable": false,
-      "status": "proposed"
-    },
-    {
-      "id": "up-93d8ef7b6b",
-      "source": "audit",
-      "category": "governance",
-      "priority": "P1",
-      "_rank": 1.0,
-      "title": "self-analysis loop has stop-condition",
-      "status_now": "Partial",
-      "rationale": "چک‌لیست §§9 self-analysis — الان Partial",
-      "evidence": "calibration.should_skip_bottleneck (3 rejects→skip) + attention_gate soft3/hard5",
-      "suggested_action": "این بند را از «Partial» به Done ببر (بخشِ §9 self-analysis).",
+      "id": "up-3d970db333",
+      "source": "synthesis",
+      "category": "architecture",
+      "priority": "P2",
+      "_rank": 1.8,
+      "title": "سنتزِ مغز: حافظه ماندگار همیشه بماند",
+      "rationale": "امنیت داده‌ها",
+      "evidence": "synthesis-latest.json [local]",
+      "suggested_action": "افزودن سیستم ذخیره‌سازی پشتیبانی با استفاده از فشرده‌سازی و چند نقطه‌ای",
       "change_level": "reconfig",
       "auto_applicable": false,
-      "status": "proposed"
+      "status": "proposed",
+      "serves_goal": "حافظهٔ ماندگار مثلِ شرکت‌های بزرگ: با خاموش/روشن هیچ‌چیز گم نشود.",
+      "impact": 2.2
     },
     {
-      "id": "up-6013ab05d7",
-      "source": "audit",
-      "category": "governance",
-      "priority": "P1",
-      "_rank": 1.0,
-      "title": "rollback path before apply",
-      "status_now": "Partial",
-      "rationale": "چک‌لیست §§10 self-modify — الان Partial",
-      "evidence": "RFC.rollback field + measured_lift drop<0.05 + git tags (pre-merge)",
-      "suggested_action": "قبل از هر apply_merge یک git tag/checkpoint خودکار بزن (twin of pre-merge tags).",
-      "change_level": "code",
-      "auto_applicable": false,
-      "status": "proposed"
-    },
-    {
-      "id": "up-81fe6de7c7",
-      "source": "audit",
-      "category": "implementation",
-      "priority": "P1",
-      "_rank": 1.0,
-      "title": "prioritized implementation backlog",
-      "status_now": "Partial",
-      "rationale": "چک‌لیست §§19 coding-ready — الان Partial",
-      "evidence": "این audit-matrix + AGENT_QUESTIONS + HANDOFF؛ ولی backlogِ زندهٔ owner-facing = کارِ improve.py",
-      "suggested_action": "همین دایجست backlog owner-facing است — به کابین/اتاقِ زنده وصلش کن.",
-      "change_level": "reconfig",
-      "auto_applicable": false,
-      "status": "proposed"
-    },
-    {
-      "id": "up-ba606d72c9",
+      "id": "up-17a5528df2",
       "source": "doctor",
       "category": "implementation",
       "priority": "P1",
       "_rank": 1.2,
-      "title": "RFCِ دکتر: RFC-ef4667fb",
+      "title": "RFCِ دکتر: RFC-f1939b51",
       "rationale": "دکترِ تکاملی یک گلوگاهِ سلامت mine کرد",
-      "evidence": "knowledge/internal/RFC-ef4667fb.md",
+      "evidence": "knowledge/internal/RFC-f1939b51.md",
       "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
       "change_level": "reconfig",
       "auto_applicable": false,
-      "status": "proposed"
+      "status": "proposed",
+      "serves_goal": "—",
+      "impact": 1.6
+    },
+    {
+      "id": "up-3952143790",
+      "source": "doctor",
+      "category": "implementation",
+      "priority": "P1",
+      "_rank": 1.2,
+      "title": "RFCِ دکتر: RFC-f2bc93b2",
+      "rationale": "دکترِ تکاملی یک گلوگاهِ سلامت mine کرد",
+      "evidence": "knowledge/internal/RFC-f2bc93b2.md",
+      "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
+      "change_level": "reconfig",
+      "auto_applicable": false,
+      "status": "proposed",
+      "serves_goal": "—",
+      "impact": 1.6
     }
   ],
   "auto_eligible": [],
-  "auto_enabled": false,
+  "auto_enabled": true,
+  "brain_note": "[local] اول باید \"Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است\" رفع شود، زیرا تأیید آمده‌ای برای این گاف وجود ندارد و این وضعیت می‌تواند منجر به کاهش اعتماد خودبهبودی شود.",
+  "goal_directed": {
+    "n_goal_serving": 6,
+    "n_circular_dropped": 1,
+    "goals_count": 6,
+    "outcome": {
+      "tracked": 14,
+      "moved": false,
+      "now": {
+        "confirmed_revenue": 0,
+        "revenue_cells": 0,
+        "total_discoveries": 6
+      },
+      "since": {
+        "confirmed_revenue": 0,
+        "revenue_cells": 0,
+        "total_discoveries": 6
+      }
+    }
+  },
   "learning": {
     "rejected_categories": {}
   }

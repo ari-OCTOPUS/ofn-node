@@ -16,6 +16,7 @@ $0 · stdlib-only · fail-soft · بی‌محتوا (فقط خلاصهٔ عمو�
 """
 from __future__ import annotations
 
+import contextvars
 import json
 import sys
 import time
@@ -50,6 +51,74 @@ def _iso(ts: float) -> str:
     return _dt.datetime.fromtimestamp(ts).isoformat(timespec="seconds")
 
 
+# ── R-12 (audit): correlation_id ِ run-scoped ───────────────────────────────────
+# مشکل: correlation_id قبلاً PER-EMIT مint می‌شد → یک runِ منطقی (یک tickِ ارگانیسم)
+# چند idِ متفاوت داشت و بازسازیِ input→output ِ یک ضربان ناممکن بود.
+# راهِ حل (additive، backward-compatible): یک ContextVar ِ per-thread. اگر داخلِ یک run
+# باشیم (begin_run/run_context) همهٔ emitهای بی‌correlation_idِ همان نخ، idِ مشترکِ run را
+# به ارث می‌برند؛ بیرونِ run، رفتارِ قبلی حفظ می‌شود (هر emit idِ یکتای per-emit).
+# نخ‌های هم‌زمان (telegram-poll/pacemaker/http) contextِ خالی دارند → آلوده نمی‌شوند.
+_RUN_CID: "contextvars.ContextVar[str]" = contextvars.ContextVar("octopus_run_cid", default="")
+
+
+def mint_correlation_id(ts: "float | None" = None) -> str:
+    """یک correlation_idِ تازه با فرمتِ oct-YYYYMMDD-hex6 بساز (همان قراردادِ تست)."""
+    import uuid as _uuid
+    t = ts if ts is not None else time.time()
+    return f"oct-{_iso(t)[:10].replace('-', '')}-{_uuid.uuid4().hex[:6]}"
+
+
+def current_run_id() -> str:
+    """correlation_idِ runِ جاری (اگر داخلِ begin_run/run_context باشیم)، وگرنه ''. fail-soft."""
+    try:
+        return _RUN_CID.get()
+    except LookupError:
+        return ""
+
+
+def begin_run(correlation_id: str = "") -> "contextvars.Token | None":
+    """شروعِ یک runِ همبسته: یک correlation_idِ مشترک را در contextِ این نخ ست کن.
+    correlation_id خالی → تازه mint می‌شود. خروجی: token برای end_run (fail-soft = None)."""
+    try:
+        return _RUN_CID.set(correlation_id or mint_correlation_id())
+    except Exception:  # noqa: BLE001 — همبستگی هرگز نباید تولیدکننده را بکشد
+        return None
+
+
+def end_run(token: "contextvars.Token | None") -> None:
+    """پایانِ run: مقدارِ قبلیِ correlation_id را بازگردان (token از begin_run). fail-soft."""
+    if token is None:
+        return
+    try:
+        _RUN_CID.reset(token)
+    except (ValueError, LookupError, TypeError):
+        pass
+
+
+class _RunContext:
+    """context managerِ run: یک correlation_idِ مشترک برای همهٔ emitهای این بلوک.
+    مثال:  with events.run_context() as cid: ...  # همهٔ رویدادهای این تیک cidِ یکسان دارند."""
+
+    __slots__ = ("_cid_in", "_token")
+
+    def __init__(self, correlation_id: str = ""):
+        self._cid_in = correlation_id
+        self._token = None
+
+    def __enter__(self) -> str:
+        self._token = begin_run(self._cid_in)
+        return current_run_id()
+
+    def __exit__(self, *_exc) -> bool:
+        end_run(self._token)
+        return False
+
+
+def run_context(correlation_id: str = "") -> "_RunContext":
+    """با این بلوک واردِ یک runِ همبسته شو؛ emitهای بی‌correlation_idِ این نخ آن id را می‌گیرند."""
+    return _RunContext(correlation_id)
+
+
 def emit(event_name: str, agent_id: str, *, status: str = "ok",
          summary: str = "", next_action: str = "", duration_ms: int = 0,
          trace_id: str = "", approval_state: str = "unknown",
@@ -68,6 +137,13 @@ def emit(event_name: str, agent_id: str, *, status: str = "ok",
     # نمی‌شود — به task.failed (قرمز) می‌رود تا drift ِ تولیدکننده «موفق» جلوه نکند؛ نامِ اصلی
     # در summary ثبت می‌شود (fail-loud). خواننده‌ها بی‌تغییر (فقط .get).
     _known = event_name in EVENT_NAMES
+    # P1 (2026-07-15): correlation_id ِ خالی → mint ِ خودکار (oct-YYYYMMDD-hex6) تا همبستگیِ
+    # cross-store بالاخره نویسنده داشته باشد (خوانندهٔ consolidate.py:116 تا امروز کور بود).
+    # additive و backward-compatible: تولیدکننده‌ای که خودش بدهد دست‌نخورده می‌ماند؛ خواننده‌ها .get.
+    if not correlation_id:
+        # R-12 (audit): اگر داخلِ یک run هستیم (organism tick)، idِ مشترکِ run را به ارث ببر
+        # تا همهٔ رویدادهای یک ضربان همبسته شوند؛ وگرنه idِ تازهٔ per-emit (رفتارِ قبلی حفظ).
+        correlation_id = current_run_id() or mint_correlation_id(ts)
     _summary = str(summary or "")
     if not _known:
         _summary = f"[drift:unknown-event={str(event_name)[:32]}] " + _summary
@@ -101,19 +177,31 @@ def emit(event_name: str, agent_id: str, *, status: str = "ok",
     return ev
 
 
+# OCT-PERF-3: mtime+size+path-keyed cache. Live writers only APPEND (size strictly
+# grows on emit) so size guarantees freshness even when Windows mtime is coarse;
+# path identity in the key prevents a reassigned LOG (tests) from aliasing.
+_ALL_CACHE: dict = {"key": None, "events": []}
+
+
 def _all() -> list[dict]:
     try:
-        if not LOG.exists():
-            return []
+        st = LOG.stat()
+    except OSError:
+        return []
+    key = (str(LOG), st.st_mtime, st.st_size)
+    if key == _ALL_CACHE["key"]:
+        return _ALL_CACHE["events"]
+    try:
         out = []
         for ln in LOG.read_text("utf-8").splitlines()[-MAX_KEEP:]:
             try:
                 out.append(json.loads(ln))
             except ValueError:
                 continue
-        return out
     except OSError:
         return []
+    _ALL_CACHE["key"], _ALL_CACHE["events"] = key, out
+    return out
 
 
 def recent(n: int = 12) -> list[dict]:

@@ -6,3 +6,340 @@
 {"ts": "2026-07-10T20:59:39", "cycle": 5, "coherence": 0.875, "aligned": false, "thought": "[local] ان مهم‌ترین کار مجموعه انسانی به دنبال استقرار و سلامت بدن است."}
 {"ts": "2026-07-10T21:05:11", "cycle": 6, "coherence": 0.871, "aligned": false}
 {"ts": "2026-07-10T21:53:49", "cycle": 10, "coherence": 0.882, "aligned": false, "thought": "[local] ان مهم‌ترین کار مجموعه انسان‌ها از تحقیق در عمل و به دنبال آسیابی بشریت است."}
+{"ts": "2026-07-16T00:37:05", "cycle": 1, "coherence": 0.894, "aligned": true, "diff": ["reorder:gap_report>health>web_research"]}
+{"ts": "2026-07-16T00:39:05", "cycle": 2, "coherence": 0.887, "aligned": false}
+{"ts": "2026-07-16T00:41:05", "cycle": 3, "coherence": 0.883, "aligned": false}
+{"ts": "2026-07-16T00:43:05", "cycle": 4, "coherence": 0.892, "aligned": false}
+{"ts": "2026-07-16T00:45:19", "cycle": 5, "coherence": 0.885, "aligned": false, "thought": "[local] البته، حالا مهم‌ترین کار مجموعهٔ شما مرور دانش و حل اختلافات است."}
+{"ts": "2026-07-16T00:47:20", "cycle": 6, "coherence": 0.892, "aligned": false}
+{"ts": "2026-07-16T00:49:21", "cycle": 7, "coherence": 0.888, "aligned": false}
+{"ts": "2026-07-16T00:51:22", "cycle": 8, "coherence": 0.895, "aligned": false}
+{"ts": "2026-07-16T00:53:22", "cycle": 9, "coherence": 0.889, "aligned": false}
+{"ts": "2026-07-16T00:55:45", "cycle": 10, "coherence": 0.884, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تطبیق اعضای مجموعه است."}
+{"ts": "2026-07-16T00:57:46", "cycle": 11, "coherence": 0.891, "aligned": false}
+{"ts": "2026-07-16T00:59:46", "cycle": 12, "coherence": 0.886, "aligned": false}
+{"ts": "2026-07-16T01:01:46", "cycle": 13, "coherence": 0.895, "aligned": false}
+{"ts": "2026-07-16T01:03:46", "cycle": 14, "coherence": 0.889, "aligned": false}
+{"ts": "2026-07-16T01:05:59", "cycle": 15, "coherence": 0.884, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و مجدّد سازگار شدن با هم اهمیت دارد."}
+{"ts": "2026-07-16T01:07:59", "cycle": 16, "coherence": 0.891, "aligned": false}
+{"ts": "2026-07-16T01:09:59", "cycle": 17, "coherence": 0.884, "aligned": false}
+{"ts": "2026-07-16T01:11:59", "cycle": 18, "coherence": 0.892, "aligned": false}
+{"ts": "2026-07-16T01:14:00", "cycle": 19, "coherence": 0.888, "aligned": false}
+{"ts": "2026-07-16T01:16:25", "cycle": 20, "coherence": 0.884, "aligned": false, "thought": "[local] اندیشیدن به رفع تنش‌ها و تعادل بین عضوا مجموعه ضروری است."}
+{"ts": "2026-07-16T01:18:25", "cycle": 21, "coherence": 0.889, "aligned": false}
+{"ts": "2026-07-16T01:20:25", "cycle": 22, "coherence": 0.884, "aligned": false}
+{"ts": "2026-07-16T01:22:25", "cycle": 23, "coherence": 0.892, "aligned": false}
+{"ts": "2026-07-16T01:24:25", "cycle": 24, "coherence": 0.889, "aligned": false}
+{"ts": "2026-07-16T01:26:38", "cycle": 25, "coherence": 0.882, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تطبیق عضویت با سیاست‌های مدرسه است."}
+{"ts": "2026-07-16T01:28:42", "cycle": 26, "coherence": 0.888, "aligned": false}
+{"ts": "2026-07-16T01:30:42", "cycle": 27, "coherence": 0.883, "aligned": false}
+{"ts": "2026-07-16T01:32:42", "cycle": 28, "coherence": 0.89, "aligned": false}
+{"ts": "2026-07-16T01:34:43", "cycle": 29, "coherence": 0.886, "aligned": false}
+{"ts": "2026-07-16T01:37:03", "cycle": 30, "coherence": 0.881, "aligned": false, "thought": "[local] اندیشیدن به راه‌حل‌هایی برای تطبیق دادن وضعیت فعلی با نیازها اعضا و محیط تحصیلی مهم‌ترین کار مجموعه است."}
+{"ts": "2026-07-16T01:39:03", "cycle": 31, "coherence": 0.889, "aligned": false}
+{"ts": "2026-07-16T01:41:03", "cycle": 32, "coherence": 0.884, "aligned": false}
+{"ts": "2026-07-16T01:43:03", "cycle": 33, "coherence": 0.89, "aligned": false}
+{"ts": "2026-07-16T01:45:03", "cycle": 34, "coherence": 0.886, "aligned": false}
+{"ts": "2026-07-16T01:47:13", "cycle": 35, "coherence": 0.893, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تعادل بین اعضای 10 نفره مورد نیاز است."}
+{"ts": "2026-07-16T01:49:14", "cycle": 36, "coherence": 0.886, "aligned": false}
+{"ts": "2026-07-16T01:51:14", "cycle": 37, "coherence": 0.881, "aligned": false}
+{"ts": "2026-07-16T01:53:14", "cycle": 38, "coherence": 0.891, "aligned": false}
+{"ts": "2026-07-16T01:55:14", "cycle": 39, "coherence": 0.884, "aligned": false}
+{"ts": "2026-07-16T01:57:37", "cycle": 40, "coherence": 0.879, "aligned": false, "thought": "[local] اندیشیدن به راه‌حل‌هایی برای تطبیق دادن موضوعات مدرسه با هم و حل نزاعات بین اعضا مهم‌ترین کار مجموعه است."}
+{"ts": "2026-07-16T01:59:42", "cycle": 41, "coherence": 0.886, "aligned": false}
+{"ts": "2026-07-16T02:01:46", "cycle": 42, "coherence": 0.881, "aligned": false}
+{"ts": "2026-07-16T02:03:50", "cycle": 43, "coherence": 0.888, "aligned": false}
+{"ts": "2026-07-16T02:05:27", "cycle": 44, "coherence": 0.884, "aligned": false}
+{"ts": "2026-07-16T02:07:16", "cycle": 45, "coherence": 0.879, "aligned": false, "thought": "[local] اندیشیدن به راه‌حل‌های نوآوری برای تعادل تحصیل و روابط بین اعضا مهم‌ترین کار مجموعه است."}
+{"ts": "2026-07-16T02:08:53", "cycle": 46, "coherence": 0.887, "aligned": false}
+{"ts": "2026-07-16T02:11:08", "cycle": 47, "coherence": 0.882, "aligned": false}
+{"ts": "2026-07-16T02:13:23", "cycle": 48, "coherence": 0.889, "aligned": false}
+{"ts": "2026-07-16T02:15:09", "cycle": 49, "coherence": 0.886, "aligned": false}
+{"ts": "2026-07-16T02:17:19", "cycle": 50, "coherence": 0.881, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تطبیق عضویت با برنامهٔ مدرسه‌ای است."}
+{"ts": "2026-07-16T02:19:45", "cycle": 51, "coherence": 0.884, "aligned": false}
+{"ts": "2026-07-16T02:22:11", "cycle": 52, "coherence": 0.879, "aligned": false}
+{"ts": "2026-07-16T02:24:37", "cycle": 53, "coherence": 0.887, "aligned": false}
+{"ts": "2026-07-16T02:26:31", "cycle": 54, "coherence": 0.88, "aligned": false}
+{"ts": "2026-07-16T02:28:33", "cycle": 55, "coherence": 0.89, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تلاش برای هماهنگی بین اعضا مهم‌ترین کار مجموعه است."}
+{"ts": "2026-07-16T02:31:11", "cycle": 56, "coherence": 0.883, "aligned": false}
+{"ts": "2026-07-16T02:33:49", "cycle": 57, "coherence": 0.887, "aligned": false}
+{"ts": "2026-07-16T02:35:51", "cycle": 58, "coherence": 0.883, "aligned": false}
+{"ts": "2026-07-16T02:37:53", "cycle": 59, "coherence": 0.878, "aligned": false}
+{"ts": "2026-07-16T02:40:13", "cycle": 60, "coherence": 0.887, "aligned": false, "thought": "[local] اندیشیدن به راه حل‌هایی برای تطبیق دادن عضوهای جدید و حفظ هماهنگی در مجموعه اصلی مهم‌ترین کار مجموعه است."}
+{"ts": "2026-07-16T02:42:20", "cycle": 61, "coherence": 0.88, "aligned": false}
+{"ts": "2026-07-16T02:44:26", "cycle": 62, "coherence": 0.885, "aligned": false}
+{"ts": "2026-07-16T02:46:36", "cycle": 63, "coherence": 0.88, "aligned": false}
+{"ts": "2026-07-16T02:48:46", "cycle": 64, "coherence": 0.887, "aligned": false}
+{"ts": "2026-07-16T02:51:10", "cycle": 65, "coherence": 0.882, "aligned": false, "thought": "[local] اندیشیدن برای رفع اختلافات و سازگارسازی اعضای تیم بیشترین مهمی دارد."}
+{"ts": "2026-07-16T02:53:24", "cycle": 66, "coherence": 0.876, "aligned": false}
+{"ts": "2026-07-16T02:55:39", "cycle": 67, "coherence": 0.885, "aligned": false}
+{"ts": "2026-07-16T02:57:57", "cycle": 68, "coherence": 0.878, "aligned": false}
+{"ts": "2026-07-16T03:00:16", "cycle": 69, "coherence": 0.885, "aligned": false}
+{"ts": "2026-07-16T03:02:58", "cycle": 70, "coherence": 0.878, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و سازگاری بین اعضای 10 نفره مورد نیاز است."}
+{"ts": "2026-07-16T03:05:20", "cycle": 71, "coherence": 0.885, "aligned": false}
+{"ts": "2026-07-16T03:07:47", "cycle": 72, "coherence": 0.88, "aligned": false}
+{"ts": "2026-07-16T03:10:14", "cycle": 73, "coherence": 0.884, "aligned": false}
+{"ts": "2026-07-16T03:12:45", "cycle": 74, "coherence": 0.878, "aligned": false}
+{"ts": "2026-07-16T03:15:27", "cycle": 75, "coherence": 0.885, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تقویت همکاری در مجموعه حاضر بسیار ضروری است."}
+{"ts": "2026-07-16T03:18:01", "cycle": 76, "coherence": 0.876, "aligned": false}
+{"ts": "2026-07-16T03:20:36", "cycle": 77, "coherence": 0.884, "aligned": false}
+{"ts": "2026-07-16T03:23:15", "cycle": 78, "coherence": 0.878, "aligned": false}
+{"ts": "2026-07-16T03:25:54", "cycle": 79, "coherence": 0.883, "aligned": false}
+{"ts": "2026-07-16T03:28:54", "cycle": 80, "coherence": 0.889, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تقویت همکاری اعضای گروه حیاتی است."}
+{"ts": "2026-07-16T03:31:40", "cycle": 81, "coherence": 0.881, "aligned": false}
+{"ts": "2026-07-16T03:34:27", "cycle": 82, "coherence": 0.888, "aligned": false}
+{"ts": "2026-07-16T03:37:17", "cycle": 83, "coherence": 0.88, "aligned": false}
+{"ts": "2026-07-16T03:40:08", "cycle": 84, "coherence": 0.884, "aligned": false}
+{"ts": "2026-07-16T03:43:12", "cycle": 85, "coherence": 0.878, "aligned": false, "thought": "[local] البته، حالا مهم‌ترین کار مجموعه ترکیب نوید با قدیمی‌ها و حل اختلافات بین اعضا است."}
+{"ts": "2026-07-16T03:46:07", "cycle": 86, "coherence": 0.883, "aligned": false}
+{"ts": "2026-07-16T03:49:05", "cycle": 87, "coherence": 0.87, "aligned": false}
+{"ts": "2026-07-16T03:52:04", "cycle": 88, "coherence": 0.853, "aligned": false}
+{"ts": "2026-07-16T03:55:02", "cycle": 89, "coherence": 0.836, "aligned": false}
+{"ts": "2026-07-16T03:58:19", "cycle": 90, "coherence": 0.872, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تطبیق اعضای مجموعه در فعالیت‌های خودرویی است."}
+{"ts": "2026-07-16T04:08:19", "cycle": 91, "coherence": 0.814, "aligned": false}
+{"ts": "2026-07-16T04:18:19", "cycle": 92, "coherence": 0.847, "aligned": false}
+{"ts": "2026-07-16T04:28:20", "cycle": 93, "coherence": 0.875, "aligned": false}
+{"ts": "2026-07-16T04:38:20", "cycle": 94, "coherence": 0.818, "aligned": false}
+{"ts": "2026-07-16T04:48:32", "cycle": 95, "coherence": 0.846, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و ارتقا مهارت‌ها بین اعضای 10 نفره مهم‌تر است."}
+{"ts": "2026-07-16T04:58:32", "cycle": 96, "coherence": 0.872, "aligned": false}
+{"ts": "2026-07-16T05:08:32", "cycle": 97, "coherence": 0.815, "aligned": false}
+{"ts": "2026-07-16T05:18:32", "cycle": 98, "coherence": 0.843, "aligned": false}
+{"ts": "2026-07-16T05:28:32", "cycle": 99, "coherence": 0.871, "aligned": false}
+{"ts": "2026-07-16T05:38:53", "cycle": 100, "coherence": 0.814, "aligned": false, "thought": "[local] اندیشیدن به راه‌حل‌هایی برای تقویت هماهنگی و حل نزاعات بین اعضا بسیار ضروری است."}
+{"ts": "2026-07-16T05:48:53", "cycle": 101, "coherence": 0.84, "aligned": false}
+{"ts": "2026-07-16T05:58:54", "cycle": 102, "coherence": 0.868, "aligned": false}
+{"ts": "2026-07-16T06:08:54", "cycle": 103, "coherence": 0.811, "aligned": false}
+{"ts": "2026-07-16T06:18:54", "cycle": 104, "coherence": 0.839, "aligned": false}
+{"ts": "2026-07-16T06:29:07", "cycle": 105, "coherence": 0.867, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تضمین هماهنگی بین اعضای 10 نفره، حالا بحث اصلی مجموعه است."}
+{"ts": "2026-07-16T06:39:08", "cycle": 106, "coherence": 0.808, "aligned": false}
+{"ts": "2026-07-16T06:49:08", "cycle": 107, "coherence": 0.836, "aligned": false}
+{"ts": "2026-07-16T06:59:08", "cycle": 108, "coherence": 0.864, "aligned": false}
+{"ts": "2026-07-16T07:09:08", "cycle": 109, "coherence": 0.807, "aligned": false}
+{"ts": "2026-07-16T07:19:35", "cycle": 110, "coherence": 0.835, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و سازگاری بین اعضای 10 نفری مجموعه حاضر ضروری است."}
+{"ts": "2026-07-16T07:29:35", "cycle": 111, "coherence": 0.86, "aligned": false}
+{"ts": "2026-07-16T07:39:35", "cycle": 112, "coherence": 0.804, "aligned": false}
+{"ts": "2026-07-16T07:49:35", "cycle": 113, "coherence": 0.831, "aligned": false}
+{"ts": "2026-07-16T07:59:35", "cycle": 114, "coherence": 0.859, "aligned": false}
+{"ts": "2026-07-16T08:09:50", "cycle": 115, "coherence": 0.802, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تطبیق اعضای مجموعه با هم مهم‌تر است."}
+{"ts": "2026-07-16T08:19:52", "cycle": 116, "coherence": 0.829, "aligned": false}
+{"ts": "2026-07-16T08:29:52", "cycle": 117, "coherence": 0.857, "aligned": false}
+{"ts": "2026-07-16T08:39:52", "cycle": 118, "coherence": 0.8, "aligned": false}
+{"ts": "2026-07-16T08:49:53", "cycle": 119, "coherence": 0.828, "aligned": false}
+{"ts": "2026-07-16T09:00:28", "cycle": 120, "coherence": 0.855, "aligned": false, "thought": "[local] اندیشیدن برای رفع اختلافات و سازگاری بین اعضای 10 نفره به طور متقابل است."}
+{"ts": "2026-07-16T09:10:28", "cycle": 121, "coherence": 0.795, "aligned": false}
+{"ts": "2026-07-16T09:20:28", "cycle": 122, "coherence": 0.823, "aligned": false}
+{"ts": "2026-07-16T09:30:28", "cycle": 123, "coherence": 0.851, "aligned": false}
+{"ts": "2026-07-16T09:40:28", "cycle": 124, "coherence": 0.794, "aligned": false}
+{"ts": "2026-07-16T09:50:43", "cycle": 125, "coherence": 0.822, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تقویت همکاری در میان اعضا باید پriولیته بالا داشته باشد."}
+{"ts": "2026-07-16T10:00:44", "cycle": 126, "coherence": 0.848, "aligned": false}
+{"ts": "2026-07-16T10:10:44", "cycle": 127, "coherence": 0.792, "aligned": false}
+{"ts": "2026-07-16T10:20:44", "cycle": 128, "coherence": 0.819, "aligned": false}
+{"ts": "2026-07-16T10:30:44", "cycle": 129, "coherence": 0.847, "aligned": false}
+{"ts": "2026-07-16T10:41:12", "cycle": 130, "coherence": 0.79, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تطبیق اعضای گروه در مدرسه است."}
+{"ts": "2026-07-16T10:51:12", "cycle": 131, "coherence": 0.816, "aligned": false}
+{"ts": "2026-07-16T11:01:12", "cycle": 132, "coherence": 0.844, "aligned": false}
+{"ts": "2026-07-16T11:11:13", "cycle": 133, "coherence": 0.787, "aligned": false}
+{"ts": "2026-07-16T11:21:13", "cycle": 134, "coherence": 0.816, "aligned": false}
+{"ts": "2026-07-16T11:31:26", "cycle": 135, "coherence": 0.844, "aligned": false, "thought": "[local] اندیشیدن برای رفع اختلافات و تطبیق اعضاء در مجموعه بیشترین سطح هماهنگی دارند."}
+{"ts": "2026-07-16T11:41:27", "cycle": 136, "coherence": 0.786, "aligned": false}
+{"ts": "2026-07-16T11:51:27", "cycle": 137, "coherence": 0.814, "aligned": false}
+{"ts": "2026-07-16T12:01:28", "cycle": 138, "coherence": 0.842, "aligned": false}
+{"ts": "2026-07-16T12:11:28", "cycle": 139, "coherence": 0.785, "aligned": false}
+{"ts": "2026-07-16T12:21:57", "cycle": 140, "coherence": 0.813, "aligned": false, "thought": "[local] اندیشیدن به راه‌حل‌های متفاوت برای تغییر وضعیت سازمانی و تعادل بخش‌های مختلف مجموعه ضروری است."}
+{"ts": "2026-07-16T12:31:57", "cycle": 141, "coherence": 0.84, "aligned": false}
+{"ts": "2026-07-16T12:41:58", "cycle": 142, "coherence": 0.784, "aligned": false}
+{"ts": "2026-07-16T12:51:58", "cycle": 143, "coherence": 0.814, "aligned": false}
+{"ts": "2026-07-16T13:01:58", "cycle": 144, "coherence": 0.841, "aligned": false}
+{"ts": "2026-07-16T13:12:13", "cycle": 145, "coherence": 0.785, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تقویت همکاری اعضای گروه حاضر بسیار ضروری است."}
+{"ts": "2026-07-16T13:22:13", "cycle": 146, "coherence": 0.811, "aligned": false}
+{"ts": "2026-07-16T13:32:13", "cycle": 147, "coherence": 0.839, "aligned": false}
+{"ts": "2026-07-16T13:42:14", "cycle": 148, "coherence": 0.782, "aligned": false}
+{"ts": "2026-07-16T13:52:14", "cycle": 149, "coherence": 0.81, "aligned": false}
+{"ts": "2026-07-16T14:02:45", "cycle": 150, "coherence": 0.838, "aligned": false, "thought": "[local] البته، حالا مهم‌ترین کار مجموعه ترکیب نویسندگان و بازیگران به یک سازنده‌ای قوی برای ادامهٔ فعالیت‌ها است."}
+{"ts": "2026-07-16T14:12:46", "cycle": 151, "coherence": 0.778, "aligned": false}
+{"ts": "2026-07-16T14:22:47", "cycle": 152, "coherence": 0.806, "aligned": false}
+{"ts": "2026-07-16T14:32:48", "cycle": 153, "coherence": 0.834, "aligned": false}
+{"ts": "2026-07-16T14:42:49", "cycle": 154, "coherence": 0.777, "aligned": false}
+{"ts": "2026-07-16T14:53:08", "cycle": 155, "coherence": 0.846, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تقویت همکاری اعضای گروه حیاتی است."}
+{"ts": "2026-07-16T15:03:09", "cycle": 156, "coherence": 0.873, "aligned": false}
+{"ts": "2026-07-16T15:13:10", "cycle": 157, "coherence": 0.816, "aligned": false}
+{"ts": "2026-07-16T15:23:10", "cycle": 158, "coherence": 0.844, "aligned": false}
+{"ts": "2026-07-16T15:33:10", "cycle": 159, "coherence": 0.871, "aligned": false}
+{"ts": "2026-07-16T15:43:52", "cycle": 160, "coherence": 0.815, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تقویت همکاری بین اعضای 10 نفره سرنوشت مجموعه را در حال حاضر به دست می‌آورد."}
+{"ts": "2026-07-16T15:53:53", "cycle": 161, "coherence": 0.839, "aligned": false}
+{"ts": "2026-07-16T16:03:56", "cycle": 162, "coherence": 0.782, "aligned": false}
+{"ts": "2026-07-16T16:13:58", "cycle": 163, "coherence": 0.785, "aligned": false}
+{"ts": "2026-07-16T16:24:01", "cycle": 164, "coherence": 0.728, "aligned": false}
+{"ts": "2026-07-16T16:34:02", "cycle": 165, "coherence": 0.671, "aligned": false, "thought": "[det] coherence=0.671 · stale=school,reconcile · اعضا=10"}
+{"ts": "2026-07-16T16:44:02", "cycle": 166, "coherence": 0.614, "aligned": false}
+{"ts": "2026-07-16T16:54:04", "cycle": 167, "coherence": 0.557, "aligned": false}
+{"ts": "2026-07-16T17:04:04", "cycle": 168, "coherence": 0.501, "aligned": false}
+{"ts": "2026-07-16T17:14:06", "cycle": 169, "coherence": 0.46, "aligned": false}
+{"ts": "2026-07-16T17:24:13", "cycle": 170, "coherence": 0.429, "aligned": false, "thought": "[det] coherence=0.429 · stale=organism,heart,producers,school,reconcile · اعضا=10"}
+{"ts": "2026-07-16T17:34:13", "cycle": 171, "coherence": 0.396, "aligned": false}
+{"ts": "2026-07-16T17:44:14", "cycle": 172, "coherence": 0.366, "aligned": false}
+{"ts": "2026-07-16T17:54:15", "cycle": 173, "coherence": 0.355, "aligned": false}
+{"ts": "2026-07-16T18:04:15", "cycle": 174, "coherence": 0.345, "aligned": false}
+{"ts": "2026-07-16T18:14:16", "cycle": 175, "coherence": 0.334, "aligned": false, "thought": "[det] coherence=0.334 · stale=organism,heart,producers,work_pump,governor,school,reconcile · اعضا=10"}
+{"ts": "2026-07-16T18:24:16", "cycle": 176, "coherence": 0.323, "aligned": false}
+{"ts": "2026-07-16T18:34:16", "cycle": 177, "coherence": 0.312, "aligned": false}
+{"ts": "2026-07-16T18:44:17", "cycle": 178, "coherence": 0.301, "aligned": false}
+{"ts": "2026-07-16T18:54:18", "cycle": 179, "coherence": 0.29, "aligned": false}
+{"ts": "2026-07-16T19:04:22", "cycle": 180, "coherence": 0.279, "aligned": false, "thought": "[det] coherence=0.279 · stale=organism,heart,producers,work_pump,governor,school,reconcile · اعضا=10"}
+{"ts": "2026-07-16T19:14:22", "cycle": 181, "coherence": 0.269, "aligned": false}
+{"ts": "2026-07-16T19:24:22", "cycle": 182, "coherence": 0.258, "aligned": false}
+{"ts": "2026-07-16T19:34:23", "cycle": 183, "coherence": 0.247, "aligned": false}
+{"ts": "2026-07-16T19:44:23", "cycle": 184, "coherence": 0.237, "aligned": false}
+{"ts": "2026-07-16T19:54:23", "cycle": 185, "coherence": 0.237, "aligned": false, "thought": "[det] coherence=0.237 · stale=organism,heart,producers,work_pump,governor,school,reconcile · اعضا=10"}
+{"ts": "2026-07-16T20:04:23", "cycle": 186, "coherence": 0.236, "aligned": false}
+{"ts": "2026-07-16T20:14:24", "cycle": 187, "coherence": 0.236, "aligned": false}
+{"ts": "2026-07-16T20:24:24", "cycle": 188, "coherence": 0.235, "aligned": false}
+{"ts": "2026-07-16T20:34:24", "cycle": 189, "coherence": 0.235, "aligned": false}
+{"ts": "2026-07-16T20:44:28", "cycle": 190, "coherence": 0.234, "aligned": false, "thought": "[det] coherence=0.234 · stale=organism,heart,producers,work_pump,governor,school,reconcile · اعضا=10"}
+{"ts": "2026-07-16T20:54:28", "cycle": 191, "coherence": 0.234, "aligned": false}
+{"ts": "2026-07-16T21:04:29", "cycle": 192, "coherence": 0.233, "aligned": false}
+{"ts": "2026-07-16T21:14:29", "cycle": 193, "coherence": 0.233, "aligned": false}
+{"ts": "2026-07-16T21:24:30", "cycle": 194, "coherence": 0.233, "aligned": false}
+{"ts": "2026-07-16T21:34:32", "cycle": 195, "coherence": 0.232, "aligned": false, "thought": "[det] coherence=0.232 · stale=organism,heart,producers,work_pump,governor,school,reconcile · اعضا=10"}
+{"ts": "2026-07-16T21:44:33", "cycle": 196, "coherence": 0.232, "aligned": false}
+{"ts": "2026-07-16T21:54:34", "cycle": 197, "coherence": 0.231, "aligned": false}
+{"ts": "2026-07-16T22:04:38", "cycle": 198, "coherence": 0.231, "aligned": false}
+{"ts": "2026-07-16T22:14:41", "cycle": 199, "coherence": 0.231, "aligned": false}
+{"ts": "2026-07-16T22:24:51", "cycle": 200, "coherence": 0.23, "aligned": false, "thought": "[det] coherence=0.23 · stale=organism,heart,producers,work_pump,governor,school,reconcile · اعضا=10"}
+{"ts": "2026-07-16T22:34:52", "cycle": 201, "coherence": 0.229, "aligned": false}
+{"ts": "2026-07-16T22:44:53", "cycle": 202, "coherence": 0.229, "aligned": false}
+{"ts": "2026-07-16T22:54:53", "cycle": 203, "coherence": 0.229, "aligned": false}
+{"ts": "2026-07-16T23:04:53", "cycle": 204, "coherence": 0.228, "aligned": false}
+{"ts": "2026-07-16T23:14:53", "cycle": 205, "coherence": 0.228, "aligned": false, "thought": "[det] coherence=0.228 · stale=organism,heart,producers,work_pump,governor,school,reconcile · اعضا=10"}
+{"ts": "2026-07-16T23:24:53", "cycle": 206, "coherence": 0.227, "aligned": false}
+{"ts": "2026-07-17T09:07:04", "cycle": 1, "coherence": 0.889, "aligned": false}
+{"ts": "2026-07-17T09:08:29", "cycle": 2, "coherence": 0.895, "aligned": false}
+{"ts": "2026-07-17T09:10:29", "cycle": 3, "coherence": 0.891, "aligned": false}
+{"ts": "2026-07-17T09:12:29", "cycle": 4, "coherence": 0.894, "aligned": false}
+{"ts": "2026-07-17T09:14:46", "cycle": 5, "coherence": 0.893, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و سازگار شدن با مدرسه است."}
+{"ts": "2026-07-17T09:16:47", "cycle": 6, "coherence": 0.887, "aligned": false}
+{"ts": "2026-07-17T09:18:47", "cycle": 7, "coherence": 0.893, "aligned": false}
+{"ts": "2026-07-17T09:20:48", "cycle": 8, "coherence": 0.888, "aligned": false}
+{"ts": "2026-07-17T09:22:48", "cycle": 9, "coherence": 0.897, "aligned": false}
+{"ts": "2026-07-17T09:25:16", "cycle": 10, "coherence": 0.893, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تطبیق اعضای مجموعه در فعالیت‌های مشترک است."}
+{"ts": "2026-07-17T09:27:16", "cycle": 11, "coherence": 0.886, "aligned": false}
+{"ts": "2026-07-17T09:29:16", "cycle": 12, "coherence": 0.893, "aligned": false}
+{"ts": "2026-07-17T09:31:16", "cycle": 13, "coherence": 0.888, "aligned": false}
+{"ts": "2026-07-17T09:33:16", "cycle": 14, "coherence": 0.896, "aligned": false}
+{"ts": "2026-07-17T09:35:31", "cycle": 15, "coherence": 0.889, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و ترمیم روابط در داخل گروه حاضر بیشترین اولویت است."}
+{"ts": "2026-07-17T09:37:31", "cycle": 16, "coherence": 0.898, "aligned": false}
+{"ts": "2026-07-17T09:39:31", "cycle": 17, "coherence": 0.893, "aligned": false}
+{"ts": "2026-07-17T09:41:32", "cycle": 18, "coherence": 0.887, "aligned": false}
+{"ts": "2026-07-17T09:43:32", "cycle": 19, "coherence": 0.944, "aligned": true, "diff": ["reorder:health>gap_report>web_research"]}
+{"ts": "2026-07-17T09:46:12", "cycle": 20, "coherence": 0.94, "aligned": false, "thought": "[local] اندکی مشکل را در تعبیر وضعیت مجموعه دیدم، اما فرض کنید \"stale=reconcile\" به معنای نیاز به اتحاد یا جمع‌آوری اعضاء است. پس الان مهم‌ترین کار مجموعه اعضا را جمع‌آوری کردن ی"}
+{"ts": "2026-07-17T09:48:12", "cycle": 21, "coherence": 0.947, "aligned": false}
+{"ts": "2026-07-17T09:50:12", "cycle": 22, "coherence": 0.941, "aligned": false}
+{"ts": "2026-07-17T09:52:12", "cycle": 23, "coherence": 0.937, "aligned": false}
+{"ts": "2026-07-17T09:54:12", "cycle": 24, "coherence": 0.942, "aligned": false}
+{"ts": "2026-07-17T09:56:28", "cycle": 25, "coherence": 0.937, "aligned": false, "thought": "[local] البته، هدف فعلی مجموعه ترخیص از نغمه‌های قاتم و تعادل داشتن روابط بین اعضا است."}
+{"ts": "2026-07-17T09:58:29", "cycle": 26, "coherence": 0.944, "aligned": false}
+{"ts": "2026-07-17T10:00:29", "cycle": 27, "coherence": 0.94, "aligned": false}
+{"ts": "2026-07-17T10:02:30", "cycle": 28, "coherence": 0.936, "aligned": false}
+{"ts": "2026-07-17T10:04:30", "cycle": 29, "coherence": 0.943, "aligned": false}
+{"ts": "2026-07-17T10:06:57", "cycle": 30, "coherence": 0.938, "aligned": false, "thought": "[local] اندیشیدن به راه‌حل‌های مصالحه‌ای برای تازه‌کردن اعضا با هم کار کرد."}
+{"ts": "2026-07-17T10:08:57", "cycle": 31, "coherence": 0.944, "aligned": false}
+{"ts": "2026-07-17T10:10:57", "cycle": 32, "coherence": 0.939, "aligned": false}
+{"ts": "2026-07-17T10:12:57", "cycle": 33, "coherence": 0.932, "aligned": false}
+{"ts": "2026-07-17T10:14:57", "cycle": 34, "coherence": 0.941, "aligned": false}
+{"ts": "2026-07-17T10:17:09", "cycle": 35, "coherence": 0.936, "aligned": false, "thought": "[local] اندیشیدن به رفع تنش‌ها و تعادل عضویت باید اولویت باشد."}
+{"ts": "2026-07-17T10:19:10", "cycle": 36, "coherence": 0.942, "aligned": false}
+{"ts": "2026-07-17T10:21:10", "cycle": 37, "coherence": 0.938, "aligned": false}
+{"ts": "2026-07-17T10:23:10", "cycle": 38, "coherence": 0.945, "aligned": false}
+{"ts": "2026-07-17T10:25:10", "cycle": 39, "coherence": 0.939, "aligned": false}
+{"ts": "2026-07-17T10:27:35", "cycle": 40, "coherence": 0.934, "aligned": false, "thought": "[local] البته، الان مهم‌ترین کار مجموعه این است که وضعیت stale را بازپاشاند."}
+{"ts": "2026-07-17T10:29:36", "cycle": 41, "coherence": 0.941, "aligned": false}
+{"ts": "2026-07-17T10:31:36", "cycle": 42, "coherence": 0.937, "aligned": false}
+{"ts": "2026-07-17T10:33:36", "cycle": 43, "coherence": 0.945, "aligned": false}
+{"ts": "2026-07-17T10:35:36", "cycle": 44, "coherence": 0.939, "aligned": false}
+{"ts": "2026-07-17T10:37:49", "cycle": 45, "coherence": 0.935, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تقویت همکاری اعضای 10 نفره باید اولویت باشد."}
+{"ts": "2026-07-17T10:39:49", "cycle": 46, "coherence": 0.943, "aligned": false}
+{"ts": "2026-07-17T10:41:49", "cycle": 47, "coherence": 0.936, "aligned": false}
+{"ts": "2026-07-17T10:43:49", "cycle": 48, "coherence": 0.942, "aligned": false}
+{"ts": "2026-07-17T10:45:50", "cycle": 49, "coherence": 0.939, "aligned": false}
+{"ts": "2026-07-17T10:48:19", "cycle": 50, "coherence": 0.932, "aligned": false, "thought": "[local] اندیشیدن به راه حل مناسب برای تطبیق دادن عضوها مهم است."}
+{"ts": "2026-07-17T10:50:19", "cycle": 51, "coherence": 0.941, "aligned": false}
+{"ts": "2026-07-17T10:52:20", "cycle": 52, "coherence": 0.934, "aligned": false}
+{"ts": "2026-07-17T10:54:20", "cycle": 53, "coherence": 0.942, "aligned": false}
+{"ts": "2026-07-17T10:56:21", "cycle": 54, "coherence": 0.938, "aligned": false}
+{"ts": "2026-07-17T10:58:37", "cycle": 55, "coherence": 0.931, "aligned": false, "thought": "[local] اندیشیدن به رفع تنش در میان اعضا باید پیشینه باشد."}
+{"ts": "2026-07-17T11:00:07", "cycle": 56, "coherence": 0.939, "aligned": false}
+{"ts": "2026-07-17T11:01:37", "cycle": 57, "coherence": 0.937, "aligned": false}
+{"ts": "2026-07-17T11:03:07", "cycle": 58, "coherence": 0.933, "aligned": false}
+{"ts": "2026-07-17T11:04:37", "cycle": 59, "coherence": 0.94, "aligned": false}
+{"ts": "2026-07-17T11:07:21", "cycle": 60, "coherence": 0.935, "aligned": false, "thought": "[local] اندیشیدن به رفع تنش در میان اعضای 10 نفره و حفظ هماهنگی بیشتر."}
+{"ts": "2026-07-17T11:09:34", "cycle": 61, "coherence": 0.942, "aligned": false}
+{"ts": "2026-07-17T11:11:12", "cycle": 62, "coherence": 0.938, "aligned": false}
+{"ts": "2026-07-17T11:12:53", "cycle": 63, "coherence": 0.933, "aligned": false}
+{"ts": "2026-07-17T11:14:32", "cycle": 64, "coherence": 0.942, "aligned": false}
+{"ts": "2026-07-17T11:16:59", "cycle": 65, "coherence": 0.934, "aligned": false, "thought": "[local] البته مهم‌ترین کار مجموعه، ترخیص اعضای آن است."}
+{"ts": "2026-07-17T11:19:22", "cycle": 66, "coherence": 0.943, "aligned": false}
+{"ts": "2026-07-17T11:21:07", "cycle": 67, "coherence": 0.938, "aligned": false}
+{"ts": "2026-07-17T11:22:52", "cycle": 68, "coherence": 0.932, "aligned": false}
+{"ts": "2026-07-17T11:24:38", "cycle": 69, "coherence": 0.938, "aligned": false}
+{"ts": "2026-07-17T11:28:28", "cycle": 70, "coherence": 0.935, "aligned": false, "thought": "[local] اندیشیدن به راه حل‌های مطرح کردن تنش‌ها بین اعضا و همکاری برای تطبیق دادن وضعیت مجموعه ضروری است."}
+{"ts": "2026-07-17T11:31:03", "cycle": 71, "coherence": 0.937, "aligned": false}
+{"ts": "2026-07-17T11:32:55", "cycle": 72, "coherence": 0.933, "aligned": false}
+{"ts": "2026-07-17T11:34:48", "cycle": 73, "coherence": 0.938, "aligned": false}
+{"ts": "2026-07-17T11:37:32", "cycle": 74, "coherence": 0.934, "aligned": false}
+{"ts": "2026-07-17T11:40:28", "cycle": 75, "coherence": 0.939, "aligned": false, "thought": "[local] اندیشیدن به رفع تنش در میان اعضا باید پρіولیτیز شود."}
+{"ts": "2026-07-17T11:42:29", "cycle": 76, "coherence": 0.934, "aligned": false}
+{"ts": "2026-07-17T11:44:30", "cycle": 77, "coherence": 0.941, "aligned": false}
+{"ts": "2026-07-17T11:46:34", "cycle": 78, "coherence": 0.935, "aligned": false}
+{"ts": "2026-07-17T11:48:38", "cycle": 79, "coherence": 0.93, "aligned": false}
+{"ts": "2026-07-17T11:52:56", "cycle": 80, "coherence": 0.939, "aligned": false, "thought": "[local] اندیشیدن به روش حل اختلافات بین اعضاء و حفظ هماهنگی می‌باشد."}
+{"ts": "2026-07-17T11:55:04", "cycle": 81, "coherence": 0.938, "aligned": false}
+{"ts": "2026-07-17T11:57:16", "cycle": 82, "coherence": 0.933, "aligned": false}
+{"ts": "2026-07-17T11:59:28", "cycle": 83, "coherence": 0.927, "aligned": false}
+{"ts": "2026-07-17T12:01:39", "cycle": 84, "coherence": 0.936, "aligned": false}
+{"ts": "2026-07-17T12:04:13", "cycle": 85, "coherence": 0.93, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تقویت تبادل دیدگاه در میان اعضا باید اولویت باشد."}
+{"ts": "2026-07-17T12:06:30", "cycle": 86, "coherence": 0.937, "aligned": false}
+{"ts": "2026-07-17T12:08:50", "cycle": 87, "coherence": 0.931, "aligned": false}
+{"ts": "2026-07-17T12:11:11", "cycle": 88, "coherence": 0.937, "aligned": false}
+{"ts": "2026-07-17T12:13:34", "cycle": 89, "coherence": 0.931, "aligned": false}
+{"ts": "2026-07-17T12:16:31", "cycle": 90, "coherence": 0.938, "aligned": false, "thought": "[local] اندیشیدن به رفع اختلافات و تطبیق اعضا باید پیش رفت."}
+{"ts": "2026-07-17T12:18:58", "cycle": 91, "coherence": 0.931, "aligned": false}
+{"ts": "2026-07-17T12:21:31", "cycle": 92, "coherence": 0.936, "aligned": false}
+{"ts": "2026-07-17T12:24:04", "cycle": 93, "coherence": 0.931, "aligned": false}
+{"ts": "2026-07-17T12:26:36", "cycle": 94, "coherence": 0.941, "aligned": false}
+{"ts": "2026-07-17T12:30:19", "cycle": 95, "coherence": 0.936, "aligned": false, "thought": "[local] اندیشیدن به رفع تنش در مابین اعضای 10 نفره و سازماندهی مجدد آنها مهم است."}
+{"ts": "2026-07-17T12:33:40", "cycle": 96, "coherence": 0.94, "aligned": false}
+{"ts": "2026-07-17T12:37:06", "cycle": 97, "coherence": 0.941, "aligned": false}
+{"ts": "2026-07-17T12:40:36", "cycle": 98, "coherence": 0.947, "aligned": false}
+{"ts": "2026-07-17T12:44:23", "cycle": 99, "coherence": 0.937, "aligned": false}
+{"ts": "2026-07-17T12:48:08", "cycle": 100, "coherence": 0.942, "aligned": false, "thought": "[local] اندیشیدن به راه حل‌های ماندگار برای اعضا و تقویت همکاری آنها حاضر است."}
+{"ts": "2026-07-17T12:51:48", "cycle": 101, "coherence": 0.927, "aligned": false}
+{"ts": "2026-07-17T12:55:26", "cycle": 102, "coherence": 0.906, "aligned": false}
+{"ts": "2026-07-17T12:59:05", "cycle": 103, "coherence": 0.941, "aligned": false}
+{"ts": "2026-07-17T13:09:12", "cycle": 104, "coherence": 0.934, "aligned": false}
+{"ts": "2026-07-17T13:19:37", "cycle": 105, "coherence": 0.967, "aligned": false, "thought": "[local] اندیشیدن به توسعهٔ محتوا و تعاملات بین اعضای تیم است."}
+{"ts": "2026-07-17T13:29:42", "cycle": 106, "coherence": 0.993, "aligned": false}
+{"ts": "2026-07-17T13:39:42", "cycle": 107, "coherence": 0.936, "aligned": false}
+{"ts": "2026-07-17T13:49:43", "cycle": 108, "coherence": 0.964, "aligned": false}
+{"ts": "2026-07-17T13:59:43", "cycle": 109, "coherence": 0.992, "aligned": false}
+{"ts": "2026-07-17T14:10:13", "cycle": 110, "coherence": 0.935, "aligned": false, "thought": "[local] البته، هدف حالا به حفظ تعداد اعضا و نگهداری سطح همکاری بالا است."}
+{"ts": "2026-07-17T14:20:13", "cycle": 111, "coherence": 0.96, "aligned": false}
+{"ts": "2026-07-17T14:30:17", "cycle": 112, "coherence": 0.988, "aligned": false}
+{"ts": "2026-07-17T14:43:15", "cycle": 113, "coherence": 0.923, "aligned": false}
+{"ts": "2026-07-17T14:54:46", "cycle": 114, "coherence": 0.939, "aligned": false}
+{"ts": "2026-07-17T15:06:48", "cycle": 115, "coherence": 0.958, "aligned": false, "thought": "[local] البته، مهم‌ترین کار مجموعه باقیمانده تعداد کمی زمان برای انجام فعالیت‌های ضروری را پیدا کردن و انجام دادن آنها است."}
+{"ts": "2026-07-17T15:17:53", "cycle": 116, "coherence": 0.978, "aligned": false}
+{"ts": "2026-07-17T15:28:36", "cycle": 117, "coherence": 0.915, "aligned": false}
+{"ts": "2026-07-17T15:39:06", "cycle": 118, "coherence": 0.94, "aligned": false}
+{"ts": "2026-07-17T15:50:01", "cycle": 119, "coherence": 0.965, "aligned": false}
+{"ts": "2026-07-17T16:03:55", "cycle": 120, "coherence": 0.988, "aligned": false, "thought": "[local] اندیشیدن به توسعهٔ محتوا و تعاملات بین اعضای تیم است."}
+{"ts": "2026-07-17T16:14:04", "cycle": 121, "coherence": 0.91, "aligned": false}
+{"ts": "2026-07-17T16:24:19", "cycle": 122, "coherence": 0.938, "aligned": false}
+{"ts": "2026-07-17T16:34:21", "cycle": 123, "coherence": 0.964, "aligned": false}
+{"ts": "2026-07-17T16:44:22", "cycle": 124, "coherence": 0.907, "aligned": false}
+{"ts": "2026-07-17T16:54:40", "cycle": 125, "coherence": 0.935, "aligned": false, "thought": "[local] البته، حالا مهم‌ترین کار مجموعه آن است که فعال و در حال پیشرفت باقی بماند."}
+{"ts": "2026-07-17T17:04:42", "cycle": 126, "coherence": 0.961, "aligned": false}
+{"ts": "2026-07-17T17:14:43", "cycle": 127, "coherence": 0.904, "aligned": false}
+{"ts": "2026-07-17T17:24:43", "cycle": 128, "coherence": 0.932, "aligned": false}
+{"ts": "2026-07-17T17:34:43", "cycle": 129, "coherence": 0.96, "aligned": false}
+{"ts": "2026-07-17T17:45:27", "cycle": 130, "coherence": 0.903, "aligned": false, "thought": "[local] اندیشیدن به توسعهٔ محتوای جدید و تعامل با اعضاء برای نگهداری حماس مجموعه."}
+{"ts": "2026-07-17T17:55:27", "cycle": 131, "coherence": 0.927, "aligned": false}

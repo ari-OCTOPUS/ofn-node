@@ -3,9 +3,10 @@
 
 اثبات می‌کند:
   * هر چهار ماژول import می‌شوند و helperِ <name>_status() قرارداد را می‌دهد:
-    کلیدهای دقیقِ {"leg","live","signal","note"} با نوعِ درست، leg == نامِ درست.
+    کلیدهای هستهٔ {"leg","live","signal","note"} + کلیدِ افزودهٔ "age_days" (برنامه ۷ —
+    صداقتِ پاها؛ float گرد یا None) با نوعِ درست، leg == نامِ درست.
   * هیچ helperی روی دادهٔ گمشده crash نمی‌کند (منبع را به tmp خالی مونکی‌پچ می‌کنیم).
-  * crypto/accounting وقتی منبعِ واقعی هست → live=True با سیگنالِ واقعی؛ وقتی نیست → live=False.
+  * crypto/accounting وقتی منبعِ واقعی *تازه* هست → live=True با سیگنالِ واقعی؛ وقتی نیست → live=False.
   * mining/knowledge همیشه live=False (skeletonِ صادق، بدونِ منبعِ ماشینی).
   * accounting هرگز مقدار/عددِ مالی echo نمی‌کند (فقط شمارشِ workbook).
 
@@ -43,7 +44,12 @@ def _tmp() -> pathlib.Path:
 
 def _assert_contract(name: str, d: dict) -> None:
     assert isinstance(d, dict), f"{name}: dict لازم است"
-    assert set(d.keys()) == _CONTRACT_KEYS, f"{name}: کلیدها {set(d.keys())}"
+    # برنامه ۷ (صداقتِ پاها): قراردادِ هسته دست‌نخورده + کلیدِ افزودهٔ age_days —
+    # چکِ قبلی set(d) == هسته بود؛ افزودنِ age_days عمداً آن را superset کرد (فقط ADD).
+    assert _CONTRACT_KEYS <= set(d.keys()), f"{name}: کلیدها {set(d.keys())}"
+    assert "age_days" in d, f"{name}: کلیدِ age_days (قراردادِ تازگی) لازم است"
+    assert d["age_days"] is None or isinstance(d["age_days"], (int, float)), \
+        f"{name}: age_days باید عدد یا None باشد، شد {type(d['age_days']).__name__}"
     assert d["leg"] == name, f"{name}: leg == {d['leg']}"
     assert isinstance(d["live"], bool), f"{name}: live باید bool باشد"
     assert isinstance(d["signal"], str) and d["signal"], f"{name}: signal رشتهٔ ناخالی"
@@ -79,13 +85,17 @@ def test_mining_and_knowledge_are_honest_skeletons() -> None:
 
 
 def test_crypto_reports_real_signal_when_source_present() -> None:
-    """با یک analysis JSONِ ساختگی در tmp، crypto باید live=True و سیگنالِ buy/sell/hold بدهد."""
+    """با یک analysis JSONِ *تازهٔ* ساختگی در tmp، crypto باید live=True و buy/sell/hold بدهد.
+    برنامه ۷ (صداقتِ پاها): fixtureِ قبلی نامِ ثابتِ 2026-01-01 داشت و live=True را
+    بی‌قیدِ تازگی assert می‌کرد (همان دروغِ قدیمی)؛ حالا تایم‌استمپِ نام = الان (دادهٔ واقعاً تازه)."""
+    import datetime as _dt
+    _now = _dt.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     d = _tmp()
     cdir = d / "crypto"
     cdir.mkdir(parents=True)
-    (cdir / "cryptoquant_2026-01-01-00-00-00.json").write_text("{}", encoding="utf-8")
+    (cdir / f"cryptoquant_{_now}.json").write_text("{}", encoding="utf-8")
     analysis = {"summary": {"total_coins": 10, "buy_signals": 3, "sell_signals": 2, "hold_signals": 5}}
-    (cdir / "cryptoquant_analysis_2026-01-01-00-00-00.json").write_text(
+    (cdir / f"cryptoquant_analysis_{_now}.json").write_text(
         json.dumps(analysis), encoding="utf-8")
     crypto_leg.CRYPTO_DIR = cdir
     r = crypto_leg.crypto_status()

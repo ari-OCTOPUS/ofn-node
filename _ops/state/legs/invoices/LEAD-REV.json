@@ -1,0 +1,41 @@
+{
+  "ts": "2026-07-17T17:45:29",
+  "schema": "invoice.v1",
+  "inv_number": "INV-FY26-313",
+  "attribution_id": "LEAD-REV",
+  "issue_date": "2026-07-17",
+  "due_date": "2026-07-31",
+  "line_items": [
+    {
+      "description": "Labor: interior wall (prep: standard, 2 coat(s))",
+      "qty": 200.0,
+      "unit": "m2",
+      "rate_aud": 24.0,
+      "subtotal_aud": 4800.0
+    },
+    {
+      "description": "Materials: paint + supplies (standard)",
+      "qty": 200.0,
+      "unit": "m2",
+      "rate_aud": 8.5,
+      "subtotal_aud": 1700.0
+    }
+  ],
+  "subtotal_excl_gst": 6500.0,
+  "gst": 650.0,
+  "gst_registered": true,
+  "total_incl_gst": 7150.0,
+  "deposit_max": 715.0,
+  "business": {
+    "abn": "",
+    "trading_name": "",
+    "address": "",
+    "payment_terms": "Due within 14 days",
+    "payment_methods": "Bank Transfer",
+    "bank_details": ""
+  },
+  "paid": false,
+  "paid_ts": null,
+  "paid_amount": 0.0,
+  "status": "ISSUED"
+}

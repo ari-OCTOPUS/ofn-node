@@ -1,0 +1,95 @@
+commit 2bc8f66c5a119882ebe8ea0ec9cdd3763d87dac5
+Author: ari-vault <paintingdesign76@gmail.com>
+Date:   Thu Jul 16 11:13:14 2026 +1000
+
+    feat(accountant): full multi-party financial NETWORK (all-with-all) + content-dedup + os-import fix
+    
+    owner 'همه با همه': the 6 parties (armin/abbas + associates behzad/maliheh/sume/rent) are ONE
+    connected financial network, not separate books. build_network() = live PocketSmith API (armin/
+    abbas/salary, authoritative) + associate CSVs, with CONTENT-hash dedup (method 3) fixing the
+    API-vs-file double-count (abbas back to correct +$359.78, not the $78k naive-merge inflation).
+    _map_source_owner maps csv:name→party. run(network=True) is the persistent entry. Also fixed a
+    NameError (missing os import). 576 unique txns, reconcile GREEN, per-party cents flows with
+    transfers/wages excluded from net. propose-only, owner confirms. test green.
+    
+    Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+
+diff --git a/_ops/legs/accountant.py b/_ops/legs/accountant.py
+index fb98568..20f82b8 100644
+--- a/_ops/legs/accountant.py
++++ b/_ops/legs/accountant.py
+@@ -12,6 +12,7 @@ $0 · stdlib · fail-soft.
+ from __future__ import annotations
+ 
+ import json
++import os
+ import sys
+ from pathlib import Path
+ 
+@@ -89,12 +90,62 @@ def report(txns: list[dict]) -> dict:
+     return per
+ 
+ 
+-def run(persist: bool = True) -> dict:
+-    """کلِ خط‌لوله را اجرا کن و خلاصه بده (فقط شمارش/تجمیع)."""
++def _content_hash(t: dict) -> str:
++    """کلیدِ dedupِ محتوایی (روش ۳) — بینِ API و فایل که idهاشان فرق دارد. date|cents|desc کوتاه."""
++    import hashlib
++    key = f"{t.get('date')}|{t.get('amount_cents')}|{str(t.get('desc', ''))[:20].lower()}"
++    return hashlib.sha1(key.encode("utf-8")).hexdigest()
++
++
++def _map_source_owner(txns: list[dict]) -> list[dict]:
++    """طرف را از منبعِ CSV (csv:behzad→behzad) پر کن — شبکهٔ چند-طرفه. فقط ownerِ unknown."""
++    for t in txns:
++        if t.get("owner", "unknown") != "unknown":
++            continue
++        src = str(t.get("source", ""))
++        if src.startswith("csv:"):
++            name = src[4:].strip().lower().split()[0]
++            if name and name != "armin":       # Armin.csv با API همپوشان است → API معتبرتر
++                t["owner"] = name
++    return txns
++
++
++def build_network(start: str = "2025-12-08", end: str | None = None) -> list[dict]:
++    """شبکهٔ کاملِ چند-طرفه: API زندهٔ PocketSmith (armin/abbas معتبر) + فایل‌ها (طرف‌حساب‌ها)،
++    با content-dedup (باگِ دو-بار-شماریِ API-vs-file بسته). fail-soft."""
++    api = []
++    try:
++        if os.environ.get("OCTOPUS_WIRE_POCKETSMITH") == "1":
++            import pocketsmith_api  # noqa: WPS433
++            end = end or opslib.today()
++            raw = pocketsmith_api.fetch_transactions(start, end)
++            api = pocketsmith_api.to_store_txns(raw.get("transactions", []) if isinstance(raw, dict) else raw)
++    except Exception as e:  # noqa: BLE001
++        opslib.alert([f"accountant: PocketSmith pull خطا: {type(e).__name__}"])
++    try:
++        files = txn_store.load_all()
++    except Exception:  # noqa: BLE001
++        files = []
++    # اگر API آمد، فایلِ pocketsmith (search قدیمی، زیرمجموعهٔ API) را کنار بگذار
++    if api:
++        files = [t for t in files if not str(t.get("source", "")).startswith("pocketsmith")]
++    txns = apply_category_map(api) + _map_source_owner(files)
++    seen, out = set(), []
++    for t in txns:
++        h = _content_hash(t)
++        if h in seen:
++            continue
++        seen.add(h)
++        out.append(t)
++    return out
++
++
++def run(persist: bool = True, network: bool = True) -> dict:
++    """کلِ خط‌لوله را اجرا کن و خلاصه بده (فقط شمارش/تجمیع). network=True → API+فایل شبکه."""
+     try:
+-        txns = txn_store.load_all()
++        txns = build_network() if network else txn_store.load_all()
+     except Exception as e:  # noqa: BLE001
+-        return {"ok": False, "error": f"load_all: {type(e).__name__}"}
++        return {"ok": False, "error": f"load: {type(e).__name__}"}
+     txns = apply_category_map(txns)          # PocketSmith دسته→owner اول (قطعی)
+     txns = attributor.attribute(txns)
+     rec = txn_store.reconcile_report(txns)

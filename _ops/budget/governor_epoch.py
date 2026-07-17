@@ -360,8 +360,12 @@ def run_epoch(base_min: float = BASE_MIN_DEFAULT) -> dict:
             try:
                 sys.path.insert(0, str(opslib.DEBATE_DIR))
                 from debate_loop import run_debate as _run_debate
+                import topics as _debate_topics  # noqa: E402
+                # قرارداد topic: فقط از whitelist ضدتزریق (id/source/text) — dict آزاد
+                # KeyError می‌داد. seed-3 = ارزش‌سنجی governor سایه (همان epoch-strategy).
+                # snap عمداً وارد topic نمی‌شود (topic داده است، نه کانال ورودی آزاد).
                 record["debate"] = _run_debate(
-                    {"topic": "epoch-strategy-review", "snap": snap}, live=False)
+                    _debate_topics.get_topic("seed-3"), live=False)
             except Exception as _de:  # noqa: BLE001 — §۴
                 opslib.alert([f"governor debate failed (non-fatal): {type(_de).__name__}: {_de}"])
     EPOCH_DIR.mkdir(parents=True, exist_ok=True)

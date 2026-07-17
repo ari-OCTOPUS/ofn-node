@@ -100,12 +100,27 @@ def _parse_proposals(text: str) -> list[dict]:
     return out
 
 
+def _input_sig(ctx: dict) -> str:
+    """امضای کوتاهِ ورودی‌های سنتز — برای گیتِ رویدادمحور (Fugu کورتیزولی)."""
+    import hashlib
+    blob = json.dumps(ctx, sort_keys=True, ensure_ascii=False, default=str)
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]
+
+
 def synthesize(ask=None) -> dict:
     """یک دورِ سنتز: context → مغز (fugu→glm→local) → پروپوزال‌ها. ask تزریق‌پذیر (تست)."""
     if ask is None:
         from model_router import ask as _router_ask
         ask = _router_ask
     ctx = gather_context()
+    sig = _input_sig(ctx)
+    # OCT-CORTISOL: پشتِ OCTOPUS_SYNTH_EVENT_DRIVEN، اگر ورودی‌ها از سنتزِ قبل تغییر
+    # نکرده و پروپوزال داریم → مغزِ پولی را صدا نزن (رد کردنِ کارِ پولی همیشه امن).
+    if os.environ.get("OCTOPUS_SYNTH_EVENT_DRIVEN") == "1":
+        prev = _read(SYNTH_PATH)
+        if prev.get("input_sig") == sig and prev.get("proposals"):
+            return {"ok": True, "skipped": "no-new-signal", "tier": "skip",
+                    "input_sig": sig}
     prompt = _build_prompt(ctx)
     res = ask("research", prompt, system="پاسخ فقط فارسی، فشرده، بدونِ مقدمه.",
               max_tokens=MAX_TOKENS, tier=None)
@@ -116,6 +131,7 @@ def synthesize(ask=None) -> dict:
     proposals = _parse_proposals(res.get("text", ""))
     digest = {
         "ts": opslib.now_iso(), "schema": "synthesis.v1",
+        "input_sig": sig,
         "tier": res.get("tier"), "model": res.get("model"),
         "cost_usd": res.get("cost_usd", 0.0),
         "fallback_from": res.get("fallback_from"),
@@ -131,6 +147,8 @@ def run_and_persist(ask=None) -> dict:
     """سنتز + نوشتنِ اتمیک + NOTE در ledger (شفافیتِ خرج/مسیرِ مغز)."""
     r = synthesize(ask=ask)
     if not r.get("ok"):
+        return r
+    if r.get("skipped"):
         return r
     digest = r["digest"]
     try:

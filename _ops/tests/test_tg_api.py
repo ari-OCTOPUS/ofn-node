@@ -283,6 +283,42 @@ def t_o_empty_text_is_noop():
     assert net.posts == []
 
 
+def t_z_edit_not_modified_is_success_no_alert():
+    """400ِ «message is not modified» = وضعِ مطلوب از قبل برقرار → edit موفق، بی‌هشدار
+    (قبلاً هر بوت یک ⚠️ کاذب در /alerts می‌نشاند). خطاهای دیگرِ HTTP همچنان False."""
+    import io
+    import json as _json
+    import urllib.error
+
+    def _herr(desc):
+        body = _json.dumps({"ok": False, "error_code": 400,
+                            "description": desc}).encode("utf-8")
+        return urllib.error.HTTPError("u", 400, "Bad Request", {}, io.BytesIO(body))
+
+    c, net = _client()
+    calls = {"n": 0}
+
+    def post_not_modified(url, body, timeout_s=10.0):
+        calls["n"] += 1
+        raise _herr("Bad Request: message is not modified")
+
+    c._post = post_not_modified
+    alerts: list = []
+    c._last_alert.clear()
+    from telegram_center import tg_api as _t
+    orig_alert = _t._alert_soft
+    _t._alert_soft = alerts.append
+    try:
+        assert c.edit(66, "same text") is True, "not-modified باید موفق شمرده شود"
+        assert alerts == [], "not-modified نباید هشدار بدهد"
+        c._post = lambda *a, **k: (_ for _ in ()).throw(_herr("Bad Request: chat not found"))
+        assert c.edit(66, "x") is False, "خطای واقعی همچنان False"
+        assert alerts and "chat not found" in alerts[0], "descriptionِ کوتاه در هشدار"
+    finally:
+        _t._alert_soft = orig_alert
+    assert calls["n"] == 1
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

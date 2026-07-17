@@ -1,0 +1,301 @@
+diff --git a/_ops/organism.py b/_ops/organism.py
+index b3f991e..0d16cbf 100644
+--- a/_ops/organism.py
++++ b/_ops/organism.py
+@@ -382,6 +382,15 @@ def main() -> int:
+                                           beat=_cstat.get("beat", 0))
+                 except Exception as _ce:  # noqa: BLE001 — §۴: خطای خاموش ممنون (consolidation نباید tick را بکشد)
+                     opslib.alert([f"consolidation_beat error (non-fatal): {type(_ce).__name__}: {_ce}"])
++            # ── TG-EXEC (2026-07-15): مصرفِ verbهای صف‌شدهٔ تلگرام روی beat (پیش‌فرض خاموش). ──
++            if not _protective_skip:
++                try:
++                    _tgx = _w.cockpit_requests_beat(state_dir=str(opslib.STATE_DIR),
++                                                    doctor=_doctor_inst, channel=_chan)
++                    if _tgx.get("ran"):
++                        opslib.heartbeat(f"tg-exec ran: {_tgx['ran']}")
++                except Exception as _qe:  # noqa: BLE001 — §۴ non-fatal
++                    opslib.alert([f"cockpit_requests_beat error (non-fatal): {type(_qe).__name__}"])
+             # ── W (P-W2): آورانِ واقعی — observationهای انتزاعی (ازِ snapshot، صفر PII)
+             # → sensory_bus → school_bridge.learn_from → afferent_status. هر N beat، پشتِ flag.
+             _afferent_status = None
+diff --git a/_ops/tests/test_tg_exec_consumer.py b/_ops/tests/test_tg_exec_consumer.py
+new file mode 100644
+index 0000000..8d72380
+--- /dev/null
++++ b/_ops/tests/test_tg_exec_consumer.py
+@@ -0,0 +1,108 @@
++"""test_tg_exec_consumer.py — TG-EXEC (2026-07-15): مصرف‌کنندهٔ صفِ cockpit-requests.
++پوشش: فلگ‌خاموش=no-op · first-activation ffwd (بدونِ replay) · halt-gate ·
++verbِ ناامن → ack ولی اجرا نه · at-most-once (cursor پیش از exec) · verbِ امن اجرا می‌شود."""
++import json
++import os
++import sys
++import tempfile
++from pathlib import Path
++
++_HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(_HERE.parent))
++sys.path.insert(0, str(_HERE.parent / "budget"))
++
++import harness
++ENV = harness.setup("tg_exec_consumer")
++
++import wiring as w  # noqa: E402
++
++
++def _seed(sd: Path, rows):
++    sd.mkdir(parents=True, exist_ok=True)
++    with open(sd / "cockpit-requests.jsonl", "w", encoding="utf-8") as f:
++        for r in rows:
++            f.write(json.dumps(r, ensure_ascii=False) + "\n")
++
++
++def t_a_flag_off_noop():
++    os.environ.pop("OCTOPUS_TG_EXEC", None)
++    with tempfile.TemporaryDirectory() as td:
++        r = w.cockpit_requests_beat(state_dir=td)
++        assert r.get("skipped") == "flag-off", r
++
++
++def t_b_first_activation_ffwd_no_replay():
++    """اولین beat بعدِ فعال‌سازی نباید backlogِ تاریخی را اجرا کند."""
++    os.environ["OCTOPUS_TG_EXEC"] = "1"
++    try:
++        with tempfile.TemporaryDirectory() as td:
++            sd = Path(td)
++            _seed(sd, [{"verb": "consolidate", "key": "run", "status": "requested"}])
++            r1 = w.cockpit_requests_beat(state_dir=str(sd))
++            assert r1.get("skipped") == "first-activation-ffwd", r1
++            assert (sd / "cockpit-requests.cursor").exists()
++    finally:
++        os.environ.pop("OCTOPUS_TG_EXEC", None)
++
++
++def t_c_halt_blocks():
++    os.environ["OCTOPUS_TG_EXEC"] = "1"
++    stop = w.opslib.STOP_ORGANISM
++    stop.write_text("halt", "utf-8")
++    try:
++        with tempfile.TemporaryDirectory() as td:
++            r = w.cockpit_requests_beat(state_dir=td)
++            assert r.get("skipped") == "halt", r
++    finally:
++        try:
++            stop.unlink()
++        except OSError:
++            pass
++        os.environ.pop("OCTOPUS_TG_EXEC", None)
++
++
++def t_d_safe_verb_runs_after_activation():
++    """بعد از ffwd، یک درخواستِ نوِ consolidate واقعاً مصرف می‌شود (consolidate_once no-op ولی 'ran')."""
++    os.environ["OCTOPUS_TG_EXEC"] = "1"
++    try:
++        with tempfile.TemporaryDirectory() as td:
++            sd = Path(td)
++            _seed(sd, [])                          # خالی → ffwd روی 0
++            w.cockpit_requests_beat(state_dir=str(sd))   # cursor=0
++            with open(sd / "cockpit-requests.jsonl", "a", encoding="utf-8") as f:
++                f.write(json.dumps({"verb": "consolidate", "key": "run", "status": "requested"}) + "\n")
++            r = w.cockpit_requests_beat(state_dir=str(sd))
++            assert "consolidate:run" in (r.get("ran") or []), r
++    finally:
++        os.environ.pop("OCTOPUS_TG_EXEC", None)
++
++
++def t_e_unsafe_verb_acked_not_run():
++    """school در _TG_EXEC_KNOWN هست ولی در SAFE نیست → ack، اجرا نه (بدونِ دکمهٔ مرده)."""
++    os.environ["OCTOPUS_TG_EXEC"] = "1"
++    acks = []
++
++    class _Ch:
++        def send_text(self, t, reply_markup=None):
++            acks.append(t)
++
++    try:
++        with tempfile.TemporaryDirectory() as td:
++            sd = Path(td)
++            _seed(sd, [])
++            w.cockpit_requests_beat(state_dir=str(sd))
++            with open(sd / "cockpit-requests.jsonl", "a", encoding="utf-8") as f:
++                f.write(json.dumps({"verb": "school", "key": "learn", "status": "requested"}) + "\n")
++            r = w.cockpit_requests_beat(state_dir=str(sd), channel=_Ch())
++            assert any("school" in a for a in acks), acks
++            assert "school:learn:not-enabled" in (r.get("skipped") or []), r
++    finally:
++        os.environ.pop("OCTOPUS_TG_EXEC", None)
++
++
++if __name__ == "__main__":
++    for f in (t_a_flag_off_noop, t_b_first_activation_ffwd_no_replay, t_c_halt_blocks,
++              t_d_safe_verb_runs_after_activation, t_e_unsafe_verb_acked_not_run):
++        f()
++        print("ok", f.__name__)
++    print("PASS test_tg_exec_consumer")
+diff --git a/_ops/wiring.py b/_ops/wiring.py
+index 216b1aa..c2dba6c 100644
+--- a/_ops/wiring.py
++++ b/_ops/wiring.py
+@@ -1027,6 +1027,162 @@ def canonical_consolidation(neural_stack, school_bridge=None,
+         return None  # real error
+ 
+ 
++# ════════════════════════════════════════════════════════════════════════════════
++# TG-EXEC (2026-07-15): مصرف‌کنندهٔ صفِ cockpit-requests روی beat-thread.
++# «دکمه‌های تلگرام واقعاً اجرا شوند» — _run_act فقط در state/cockpit-requests.jsonl صف می‌کند
++# (INV-7: هرگز inline روی poll-thread)؛ این تابع آن‌ها را روی beat اجرا می‌کند. امن به‌صورتِ سازه:
++# (۱) فلگِ OCTOPUS_TG_EXEC پیش‌فرض خاموش → no-op؛ (۲) هر لحظه halt-gated؛ (۳) allowlist فقط
++# verbهای داخلیِ بی‌پول (doctor/consolidate)؛ (۴) at-most-once با cursorِ byte (persist پیش از exec)؛
++# (۵) sقفِ هر beat + first-activation ffwd + truncation-reset + lock (ضدِ split-brain). دو بار
++# adversarial-review شد (wf_26797077 + wf_4cb7bcf2). school/ingest عمداً بیرون‌اند.
++# ════════════════════════════════════════════════════════════════════════════════
++_TG_EXEC_SAFE = frozenset({"doctor", "consolidate"})
++_TG_EXEC_KNOWN = frozenset({"doctor", "consolidate", "school", "ideas", "ingest"})
++_TG_EXEC_MAX_PER_BEAT = 5
++
++
++def _tg_ack(channel, text):
++    if channel is None:
++        return
++    try:
++        channel.send_text(text)
++    except Exception:  # noqa: BLE001 — outbound شکست نباید beat را بکشد
++        pass
++
++
++def _tg_halt_reason():
++    if opslib.STOP_ORGANISM.exists():
++        return "STOP"
++    h = opslib.halted()
++    if h:
++        return h
++    try:
++        if opslib.frozen():
++            return "FREEZE"
++    except Exception:  # noqa: BLE001
++        pass
++    return None
++
++
++def _tg_exec_run_one(verb, key, doctor=None) -> str:
++    """اجرای یک verbِ امن از entrypointِ واقعی. OCTOPUS_TG_EXEC = رضایتِ صریحِ مالک،
++    پس cadence-wrapperهای paper دور زده می‌شوند — هر verb ایمنیِ داخلیِ خودش را نگه می‌دارد.
++    خروجی: 'ran' | 'not-wired'."""
++    import sys as _sys
++    if verb == "consolidate" and key == "run":
++        p = str(_HERE / "cortex")
++        if p not in _sys.path:
++            _sys.path.insert(0, p)
++        import consolidate as _c
++        _c.consolidate_once()   # SELF-gate روی CORTEX_CONSOLIDATE؛ خاموش → no-op ولی 'ran'. state-only.
++        return "ran"
++    if verb == "doctor" and key == "run":
++        # doctor:run == همان کاری که doctor_beat دوره‌ای می‌کند — قابلیتِ نو نیست. propose-only،
++        # cost_usd=0. اگر OCTOPUS_WIRE_APPLY_MERGE=1 و RFCِ از-قبل-تأییدشده معلق باشد، merge می‌شود
++        # (state-only). برای propose-only محض: OCTOPUS_WIRE_APPLY_MERGE=0.
++        d = doctor if doctor is not None else make_doctor(state_dir=str(opslib.STATE_DIR))
++        if d is None:
++            return "not-wired"
++        d.run_cycle(beat=1_000_000)
++        return "ran"
++    return "not-wired"
++
++
++def cockpit_requests_beat(state_dir=None, doctor=None, channel=None) -> dict:
++    import json as _json
++    import os as _os
++    import time as _time
++    from pathlib import Path as _P
++    if not flag("OCTOPUS_TG_EXEC"):
++        return {"skipped": "flag-off"}
++    if _tg_halt_reason():
++        return {"skipped": "halt"}
++    sd = _P(state_dir) if state_dir else (_HERE / "state")
++    logp = sd / "cockpit-requests.jsonl"
++    curp = sd / "cockpit-requests.cursor"
++    lockp = sd / "cockpit-requests.lock"
++    if not logp.exists():
++        return {"skipped": "no-queue"}
++    pid = _os.getpid()
++    try:  # single-consumer lock (ضدِ split-brain)
++        if lockp.exists():
++            prev = (lockp.read_text(encoding="utf-8").strip() or ":")
++            if prev.split(":")[0] not in ("", str(pid)) and (_time.time() - lockp.stat().st_mtime) < 120:
++                return {"skipped": "locked-by-other"}
++        lockp.write_text(f"{pid}:{opslib.now_iso()}", encoding="utf-8")
++    except OSError:
++        pass
++    size = logp.stat().st_size
++    if not curp.exists():   # first-activation → ffwd، بدونِ replayِ backlog
++        try:
++            curp.write_text(str(size), encoding="utf-8")
++        except OSError:
++            pass
++        return {"skipped": "first-activation-ffwd", "at": size}
++    try:
++        off = int(curp.read_text(encoding="utf-8").strip() or 0)
++    except (OSError, ValueError):
++        off = 0
++    if off > size:   # rotation/truncation → reset + alert
++        opslib.alert([f"tg-exec: cockpit-requests کوچک شد ({off}>{size}) — cursor صفر شد"])
++        off = 0
++    try:
++        with open(logp, "rb") as f:
++            f.seek(off)
++            chunk = f.read()
++    except OSError:
++        return {"skipped": "read-fail"}
++    nl = chunk.rfind(b"\n")
++    if nl < 0:
++        return {"skipped": "no-complete-line"}
++    raw_lines = chunk[:nl + 1].decode("utf-8", "replace").splitlines(keepends=True)
++    take = raw_lines[:_TG_EXEC_MAX_PER_BEAT]
++    consumed = len("".join(take).encode("utf-8"))
++    new_off = off + consumed
++    try:  # at-most-once: cursor پیش از exec؛ شکستِ persist → بدونِ اجرا
++        tmp = curp.with_suffix(".cursor.tmp")
++        tmp.write_text(str(new_off), encoding="utf-8")
++        _os.replace(tmp, curp)
++    except OSError as e:
++        opslib.alert([f"tg-exec: نوشتنِ cursor شکست ({type(e).__name__}) — beat رد شد"])
++        return {"skipped": "cursor-persist-failed"}
++    ran, failed, skipped = [], [], []
++    for line in take:
++        line = line.strip()
++        if not line:
++            continue
++        try:
++            req = _json.loads(line)
++        except ValueError:
++            continue
++        if req.get("status") != "requested":
++            continue
++        verb, key = req.get("verb"), req.get("key")
++        if verb not in _TG_EXEC_KNOWN:
++            continue
++        if _tg_halt_reason():
++            _tg_ack(channel, f"⛔ «{verb}:{key}» اجرا نشد — halt/انجماد. بعد از /resume دوباره بزن.")
++            skipped.append(f"{verb}:{key}:halt")
++            continue
++        if verb not in _TG_EXEC_SAFE:
++            _tg_ack(channel, f"⏸ «{verb}» در این نسخه اجرا نمی‌شود (فعّال: doctor، consolidate).")
++            skipped.append(f"{verb}:{key}:not-enabled")
++            continue
++        try:
++            res = _tg_exec_run_one(verb, key, doctor=doctor)
++            if res == "ran":
++                ran.append(f"{verb}:{key}")
++                _tg_ack(channel, f"✅ اجرا شد (تلگرام→بیت): {verb}:{key}")
++            else:
++                skipped.append(f"{verb}:{key}:not-wired")
++                _tg_ack(channel, f"⚠️ «{verb}» وصل نیست (فلگِ زیرسیستم خاموش).")
++        except Exception as e:  # noqa: BLE001 — یک verbِ بد نباید beat را بکشد
++            failed.append(f"{verb}:{key}:{type(e).__name__}")
++            opslib.alert([f"tg-exec {verb}:{key} failed: {type(e).__name__}: {e}"])
++            _tg_ack(channel, f"⚠️ اجرای {verb}:{key} خطا داد: {type(e).__name__}")
++    return {"ran": ran, "failed": failed, "skipped": skipped}
++
++
+ # ════════════════════════════════════════════════════════════════════════════════
+ # M · live-loop wiring — canonical_consolidation در حلقهٔ زنده (P-M2)
+ # ════════════════════════════════════════════════════════════════════════════════

@@ -168,6 +168,42 @@ def build_portrait_text() -> str:
     return "\n".join(lines)
 
 
+def build_report_text() -> str:
+    """گزارشِ ارزیابی (read-only) از evaluation.render_markdown — بدون side-effect."""
+    try:
+        from brain import evaluation
+        md = evaluation.render_markdown()
+    except Exception as e:
+        logger.warning("report build failed: %s", type(e).__name__)
+        return f"{PROJECT_LABEL}\n\n📊 گزارش در دسترس نیست."
+    return md[:3500]  # سقفِ امنِ پیامِ تلگرام
+
+
+_HISTORY_EMOJI = {"applied": "✅", "rejected": "❌", "rejected_malicious": "🛑",
+                  "tested_fail": "🧪", "reverted": "↩️", "stale": "🕓",
+                  "pending_approval": "⏳"}
+
+
+def build_history_text(rows: list[dict] | None = None, limit: int = 10) -> str:
+    """تاریخچه‌ی تصمیم‌های کد (read-only) از self_code.list_all."""
+    if rows is None:
+        try:
+            from brain import self_code
+            rows = self_code.list_all(limit=limit)
+        except Exception:
+            return f"{PROJECT_LABEL}\n\n🗒 تاریخچه در دسترس نیست."
+    if not rows:
+        return f"{PROJECT_LABEL}\n\n🗒 هنوز هیچ تصمیمِ کدی ثبت نشده."
+    lines = [f"{PROJECT_LABEL}", "", f"🗒 *{len(rows)} تصمیمِ اخیرِ کد*:", ""]
+    for m in rows:
+        st = m.get("status", "?")
+        emo = _HISTORY_EMOJI.get(st, "•")
+        when = (m.get("decided_at") or m.get("created_at") or "")[:16].replace("T", " ")
+        tgt = (m.get("target", "?") or "?").split("/")[-1]
+        lines.append(f"{emo} `{tgt}` — {st} · {when}")
+    return "\n".join(lines)
+
+
 def _main_kb(s: dict) -> dict:
     pause_btn = ("▶️ ادامه", "resume") if s["paused"] else ("⏸ مکث", "pause")
     return _kb([
@@ -183,6 +219,8 @@ _HELP = (f"{PROJECT_LABEL}\n\nدستورها (یا فقط دکمه بزن):\n"
          "/status — کجاییم + تنها کارِ منتظرِ تو\n"
          "/goal — چرا این پروژه (بازـتمرکز)\n"
          "/pending — پیشنهادهای کد برای تأیید\n"
+         "/report — گزارشِ ارزیابی (فقط‌خواندنی)\n"
+         "/history — تاریخچه‌ی تصمیم‌های کد (فقط‌خواندنی)\n"
          "/pause · /resume — مکث/ادامه‌ی خودمختار\n")
 
 
@@ -207,6 +245,10 @@ def route_command(text: str) -> tuple[str, dict | None]:
     if cmd == "resume":
         _set_pause(False)
         return "▶️ ادامه دادیم. 🟢", _main_kb(_snapshot())
+    if cmd == "report":
+        return build_report_text(), _main_kb(_snapshot())
+    if cmd == "history":
+        return build_history_text(), _main_kb(_snapshot())
     if cmd == "help":
         return _HELP, None
     return _HELP, None
@@ -309,6 +351,20 @@ def poll_once(offset: int) -> int:
     return offset
 
 
+def _global_stop() -> bool:
+    """کلیدِ خاموشیِ سراسریِ اختاپوس (_ops/STOP-ORGANISM یا master_halted). walk-up تا _ops
+    بدونِ import کردنِ _ops. خطا/نبود = False."""
+    try:
+        from pathlib import Path as _P
+        for _anc in _P(__file__).resolve().parents:
+            _ops = _anc / "_ops"
+            if _ops.is_dir():
+                return (_ops / "STOP-ORGANISM").exists() or (_ops / "master_halted").exists()
+    except Exception:  # noqa: BLE001
+        pass
+    return False
+
+
 def run_bot() -> None:
     if not is_configured():
         print("تلگرام تنظیم نشده — TELEGRAM_BOT_TOKEN و TELEGRAM_CHAT_ID را در .env بگذار.")
@@ -321,15 +377,21 @@ def run_bot() -> None:
          text="🤖 بات روشنه.\n\n" + build_status_text(s),
          parse_mode="Markdown", reply_markup=_main_kb(s))
     offset = 0
+    _fail = 0
     while True:
         try:
+            if _global_stop():   # کلیدِ خاموشیِ سراسریِ اختاپوس — کارِ خودمختار نکن
+                time.sleep(5)
+                continue
             offset = poll_once(offset)
+            _fail = 0   # RESIL-5: poll تمیز → ریستِ بک‌آف
         except KeyboardInterrupt:
             print("\nبات خاموش شد.")
             break
         except Exception as e:
+            _fail += 1
             logger.error("poll loop error: %s", e)
-            time.sleep(5)
+            time.sleep(min(5 * (2 ** min(_fail, 4)), 60))   # RESIL-5: بک‌آفِ نمایی سقف ۶۰s
 
 
 if __name__ == "__main__":

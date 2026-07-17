@@ -207,15 +207,30 @@ def t_sandbox_isolation_production_untouched():
     assert rfc.status == "sandboxed"
 
 
-def t_sandbox_critic_accepts_clean_fix():
-    """Critic برای fix تمیز بدون regression → accept."""
+def t_sandbox_critic_unvalidated_without_suite():
+    """صداقت (2026-07-15 باگ ۲): بدونِ suite هیچ تستی اجرا نمی‌شود؛ fixِ تمیز → «unvalidated»،
+    نه دروغِ «accept». دکترِ propose-only کدی برای اعمال/تست ندارد، پس نباید وانمود کند که
+    sandbox آن را validate کرده — قبلاً RFCها با برچسبِ vetted به مالک می‌رسیدند در حالی که
+    هیچ چیز اعتبارسنجی نشده بود."""
     doc = _doctor()
     bn = {"bottleneck": "x", "severity": "high"}
     rfc = doc.propose_rfc(bn, fix="a reasonable guard to prevent the error",
                           expected_lift="fewer errors")
-    doc.run_sandbox(rfc, apply_fn=lambda sd, r: None)   # no suite → no test failure
-    assert rfc.critic_review["verdict"] == "accept"
+    doc.run_sandbox(rfc, apply_fn=lambda sd, r: None)   # no suite → tests=None → اعتبارسنجی‌نشده
+    assert rfc.critic_review["verdict"] == "unvalidated", rfc.critic_review
+    assert rfc.critic_review["sandbox_validated"] is False
     assert rfc.critic_review["reward_integrity_ok"] is True
+
+
+def t_sandbox_critic_accepts_when_suite_passes():
+    """«accept»ِ واقعی فقط وقتی یک suite سبز اجرا شده باشد (tests.exit==0) — تمایزِ صادق."""
+    doc = _doctor()
+    bn = {"bottleneck": "x", "severity": "high"}
+    rfc = doc.propose_rfc(bn, fix="a reasonable guard to prevent the error",
+                          expected_lift="fewer errors")
+    review = doc._critic_review(rfc, {"applied": True, "tests": {"exit": 0}})
+    assert review["verdict"] == "accept", review
+    assert review["sandbox_validated"] is True
 
 
 def t_sandbox_critic_rejects_uptime():
@@ -369,7 +384,8 @@ if __name__ == "__main__":
         ("[D-3] RFC با uptime → warning (reward-integrity)", t_rfc_reward_integrity_flags_uptime),
         # D-4 sandbox + Critic
         ("[D-4] sandbox ایزوله، production لمس‌نشده", t_sandbox_isolation_production_untouched),
-        ("[D-4] Critic: fix تمیز → accept", t_sandbox_critic_accepts_clean_fix),
+        ("[D-4] Critic: بدونِ suite → unvalidated (نه دروغِ accept)", t_sandbox_critic_unvalidated_without_suite),
+        ("[D-4] Critic: suiteِ سبز → accept واقعی", t_sandbox_critic_accepts_when_suite_passes),
         ("[D-4] Critic: uptime → reject", t_sandbox_critic_rejects_uptime),
         ("[D-4] Critic: تستِ شکست → concern", t_sandbox_critic_rejects_failed_tests),
         # D-5 submit_for_approval

@@ -94,7 +94,10 @@ DEFAULT_DISPLAY = {
 
 # منوی command — فقط چیزی که این مرکز واقعاً handle می‌کند (قرارداد: /now)
 COMMANDS: list[tuple[str, str]] = [
+    ("menu", "🎛 منوی فرماندهی — همه‌چیز از اینجا"),
     ("now", "📊 وضعیت — همین حالا"),
+    ("budget", "🐙 پیشنهادِ تخصیصِ ماهِ بعد (propose-only)"),
+    ("revenue", "💰 درآمدِ تأییدشده (aggregate)"),
 ]
 
 _VERDICTS = ("ok", "no", "later")
@@ -327,14 +330,14 @@ class Center:
                 topics[leg] = tid
                 dirty = True
 
-        # منوی commandها — یک‌بار (پرچم در config)
-        if not cfg.get("commands_set"):
+        # منوی commandها — ثبتِ مجدد وقتی فهرست عوض شود (پرچم = تعدادِ ثبت‌شده)
+        if cfg.get("commands_set") != len(COMMANDS):
             try:
                 ok = bool(self._client.set_commands(list(COMMANDS)))
             except Exception:  # noqa: BLE001
                 ok = False
             if ok:
-                cfg["commands_set"] = True
+                cfg["commands_set"] = len(COMMANDS)
                 dirty = True
 
         # پیامِ statusِ پین‌شده — فقط یک‌بار ساخته می‌شود؛ بعداً فقط edit (beat)
@@ -490,21 +493,213 @@ class Center:
         if not text:
             return None
         cmd = text.split()[0].split("@")[0].lower()
-        if cmd != "/now":
-            return None                              # فقط قرارداد: /now
-        txt = self._status_text() or "🐙 هنوز چیزی برای گفتن ندارم."
         chat_id = (msg.get("chat") or {}).get("id")  # پاسخ به همان‌جا که پرسید
+        handlers = {
+            "/now": lambda: self._status_text() or "🐙 هنوز چیزی برای گفتن ندارم.",
+            "/budget": self._budget_text,
+            "/revenue": self._revenue_text,
+            "/menu": lambda: self._page("menu"),
+            "/start": lambda: self._page("menu"),
+        }
+        fn = handlers.get(cmd)
+        if fn is None:
+            return None                    # قراردادها: /now /budget /revenue /menu /start
         try:
-            mid = self._client.send(_scrub(txt), chat_id=chat_id)
+            out = fn()
+            txt, kb = out if isinstance(out, tuple) else (str(out or ""), None)
+            mid = self._client.send(_scrub(txt), chat_id=chat_id, keyboard=kb)
         except Exception:  # noqa: BLE001
             mid = None
-        return {"kind": "now", "sent": mid is not None}
+        return {"kind": cmd.lstrip("/"), "sent": mid is not None}
+
+    def _budget_text(self) -> str:
+        """کارتِ پیشنهادِ تخصیصِ ماهِ بعد (propose-only). render → متن؛ اسنپ‌شاتِ
+        propose-only ثبت می‌کند (هرگز budgets.yaml). fail-soft → پیام آرام."""
+        r = self._rmod()
+        if r is None or not hasattr(r, "render_budget_proposal"):
+            return "🐙 پیشنهادِ بودجه در دسترس نیست."
+        try:
+            txt = str(r.render_budget_proposal() or "")
+        except Exception:  # noqa: BLE001
+            return "🐙 پیشنهادِ بودجه در دسترس نیست."
+        self._persist_proposal(txt)
+        return txt or "🐙 هنوز پیشنهادی نیست."
+
+    @staticmethod
+    def _persist_proposal(text: str) -> bool:
+        """اسنپ‌شاتِ propose-only از کارتِ بودجه (state/telegram/proposals/). هرگز
+        budgets.yaml/ledger — فقط رکوردِ تاریخ‌دار. fail-soft → False."""
+        try:
+            d = opslib.STATE_DIR / "telegram" / "proposals"
+            d.mkdir(parents=True, exist_ok=True)
+            opslib.append_jsonl(d / "budget-proposals.jsonl",
+                                {"ts": opslib.now_iso(), "kind": "budget_proposal",
+                                 "propose_only": True, "text": text})
+            return True
+        except Exception:  # noqa: BLE001
+            return False
+
+    def _revenue_text(self) -> str:
+        """کارتِ نمایشِ درآمد (aggregate، PII-safe). attribution.confirmed_revenue() را
+        می‌خواند و render می‌کند (فقط‌خواندنی). fail-soft → پیام آرام."""
+        r = self._rmod()
+        if r is None or not hasattr(r, "render_revenue"):
+            return "🐙 نمایِ درآمد در دسترس نیست."
+        try:
+            import attribution
+            rev = attribution.confirmed_revenue()
+        except Exception:  # noqa: BLE001
+            rev = {}
+        try:
+            return str(r.render_revenue(rev) or "") or "🐙 هنوز درآمدِ تأییدشده‌ای نیست."
+        except Exception:  # noqa: BLE001
+            return "🐙 نمایِ درآمد در دسترس نیست."
+
+    # ── مرکزِ فرماندهی: صفحه‌ها + اکشن‌ها (رأی مالک 2026-07-17) ────────────────────
+    @staticmethod
+    def _power_mod():
+        """importِ lazyِ power (fail-soft → None = دکمه‌های کنترل بی‌اثرِ امن)."""
+        try:
+            import power
+            return power
+        except Exception:  # noqa: BLE001
+            return None
+
+    def _page(self, name: str) -> tuple:
+        """(متن، کیبورد)ِ هر صفحهٔ منو — ناوبری با editِ همان پیام."""
+        r, pw = self._rmod(), self._power_mod()
+        back = [[{"text": "🔙 منو", "callback_data": "mn:menu"}]]
+        p_on = bool(pw and pw.power_on())
+        if r is None:
+            return "🐙 render در دسترس نیست.", None
+        try:
+            if name == "st":
+                return str(r.render_status(r.collect_feeds()) or ""), back
+            if name == "ap":
+                return self._approvals_text(), back
+            if name == "lg" and pw:
+                return r.render_organs(pw.paused_map(), _load_config())
+            if name == "bg":
+                kb = ([[{"text": "💰 اعمالِ سقف‌ها (دوکلیک)", "callback_data": "pw:ba"}]]
+                      if p_on else []) + back
+                return self._budget_text(), kb
+            if name == "rv":
+                return self._revenue_text(), back
+            if name == "sy":
+                s = {"stop": opslib.STOP_ORGANISM.exists(),
+                     "halt": opslib.HALT_ALL.exists(),
+                     "restart": RESTART_REQUESTED.exists()}
+                return r.render_power(p_on, s)
+            if name == "fl" and pw:
+                return r.render_flags({n: pw.flag_state(n) for n in pw.FLAG_MENU})
+        except Exception:  # noqa: BLE001
+            pass
+        return r.render_menu(p_on)
+
+    def _approvals_text(self) -> str:
+        """صفِ تأییدها: شمارش + آخرین verdictها (content-free — فقط id/فعل)."""
+        d = opslib.STATE_DIR / "telegram" / "approvals"
+        lines = ["✅ <b>تأییدها</b>"]
+        try:
+            files = sorted(d.glob("*.json"), key=lambda p: p.stat().st_mtime,
+                           reverse=True) if d.exists() else []
+            lines.append(f"{len(files)} تصمیمِ ثبت‌شده تا حالا.")
+            for p in files[:6]:
+                try:
+                    rec = json.loads(p.read_text("utf-8"))
+                    emo = {"ok": "✅", "no": "❌", "later": "⏳"}.get(rec.get("verdict"), "•")
+                    lines.append(f"{emo} <code>{rec.get('id', '?')}</code>")
+                except (OSError, ValueError):
+                    continue
+        except OSError:
+            lines.append("صف در دسترس نیست.")
+        lines.append("کارت‌های تازه خودکار به topicِ سیستم پوش می‌شوند.")
+        return "\n".join(lines)
+
+    def _edit_page(self, cbq: dict, page: str) -> None:
+        """editِ درجای همان پیام به صفحهٔ خواسته (ناوبریِ منو)."""
+        msg = cbq.get("message") or {}
+        mid = msg.get("message_id")
+        chat = (msg.get("chat") or {}).get("id")
+        if not isinstance(mid, int):
+            return
+        txt, kb = self._page(page)
+        try:
+            self._client.edit(mid, _scrub(str(txt or "")), keyboard=kb, chat_id=chat)
+        except Exception:  # noqa: BLE001
+            pass
+
+    def _handle_center_callback(self, cbq: dict, data: str) -> dict:
+        """verbهای مرکز: mn (ناوبری) · lg (مکث/ادامهٔ پا — ردهٔ A) ·
+        pw (مسلح‌کردنِ اکشنِ حساس) · pwc (تأییدِ دوکلیک — ردهٔ B)."""
+        pw = self._power_mod()
+        parts = data.split(":")
+        verb = parts[0]
+
+        if verb == "mn" and len(parts) == 2:
+            self._edit_page(cbq, parts[1])
+            self._answer(cbq)
+            return {"kind": "center", "page": parts[1]}
+
+        if verb == "lg" and len(parts) == 3 and pw:
+            key, act = _sanitize_id(parts[1]), parts[2]
+            ok, msg = (pw.pause_leg(key) if act == "p" else pw.resume_leg(key))
+            self._answer(cbq, msg[:180])
+            self._edit_page(cbq, "lg")
+            return {"kind": "center", "leg": key, "ok": ok}
+
+        if verb == "pw" and len(parts) == 2 and pw:
+            act = _sanitize_id(parts[1])
+            label = (f"🚩 toggleِ فلگ {act[3:]}" if act.startswith("fg-")
+                     else pw.POWER_ACTIONS.get(act, ("؟",))[0])
+            cfg = _load_config()
+            cfg["pw_arm"] = {"act": act, "ts": float(self._clock())}
+            _save_config(cfg)
+            r = self._rmod()
+            msg = cbq.get("message") or {}
+            mid = msg.get("message_id")
+            chat = (msg.get("chat") or {}).get("id")
+            if r is not None and isinstance(mid, int):
+                txt, kb = r.render_confirm(label, act)
+                try:
+                    self._client.edit(mid, _scrub(txt), keyboard=kb, chat_id=chat)
+                except Exception:  # noqa: BLE001
+                    pass
+            self._answer(cbq, "برای اجرا، تأییدِ دوم را بزن")
+            return {"kind": "center", "armed": act}
+
+        if verb == "pwc" and len(parts) == 2 and pw:
+            act = _sanitize_id(parts[1])
+            cfg = _load_config()
+            arm = cfg.get("pw_arm") if isinstance(cfg.get("pw_arm"), dict) else {}
+            fresh = (arm.get("act") == act and
+                     float(self._clock()) - float(arm.get("ts", 0) or 0) <= pw.ARM_FRESH_S)
+            cfg.pop("pw_arm", None)
+            _save_config(cfg)
+            if not fresh:
+                self._answer(cbq, "تأیید منقضی/نامعتبر — دوباره از منو")
+                self._edit_page(cbq, "sy")
+                return {"kind": "center", "expired": act}
+            if act.startswith("fg-"):
+                ok, msg = pw.toggle_flag(act[3:])
+            else:
+                fn = pw.POWER_ACTIONS.get(act, (None, None))[1]
+                ok, msg = fn() if fn else (False, "اکشنِ ناشناخته")
+            self._answer(cbq, msg[:180])
+            self._edit_page(cbq, "fl" if act.startswith("fg-") else "sy")
+            return {"kind": "center", "power": act, "ok": ok}
+
+        self._answer(cbq, "نادیده")
+        return {"kind": "center", "ignored": data[:24]}
 
     def _handle_callback(self, cbq: dict) -> dict:
-        """callback data = '<verb>:<id>' با verb ∈ ok/no/later (قراردادِ render_decision).
+        """callback data = '<verb>:<id>' با verb ∈ ok/no/later (قراردادِ render_decision)
+        یا verbهای مرکزِ فرماندهی (mn/lg/pw/pwc → _handle_center_callback).
         ثبت به الگوی approval-file + رویداد + answer_callback؛ ok = mintِ اختیاریِ
         توکنِ HumanAppendGuard (فقط با رازِ env)."""
         data = str(cbq.get("data") or "")
+        if data.split(":", 1)[0] in ("mn", "lg", "pw", "pwc"):
+            return self._handle_center_callback(cbq, data)
         parts = data.split(":", 1)
         if len(parts) != 2 or parts[0] not in _VERDICTS:
             self._answer(cbq, "نادیده")

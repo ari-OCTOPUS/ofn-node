@@ -98,6 +98,19 @@ def _next_inv_num(state_dir=None) -> str:
         return f"{prefix}001"
 
 
+def _gst_registered() -> bool:
+    """گیتِ GST از policy-profileِ حسابداری (auditِ 2026-07-16 #6): فقط `is True`.
+    نبودِ profile/ماژول → False (fail-closed: بدونِ تأیید، «TAX INVOICE»/GST ادعا نمی‌شود)."""
+    try:
+        import ledger_core  # noqa: WPS433 — هم‌پوشه
+        for e in ((ledger_core.load_profile() or {}).get("entities") or []):
+            if isinstance(e, dict) and e.get("gst_registered") is True:
+                return True
+    except Exception:  # noqa: BLE001
+        pass
+    return False
+
+
 # ─── create_invoice ─────────────────────────────────────────────────────────
 def create_invoice(attribution_id: str, fixed_amount: float | None = None,
                     state_dir=None) -> dict:
@@ -119,14 +132,19 @@ def create_invoice(attribution_id: str, fixed_amount: float | None = None,
     subtotal_lo = float(bd.get("subtotal_excl_gst", [0, 0])[0] if isinstance(bd.get("subtotal_excl_gst"), list) else 0)
     subtotal_hi = float(bd.get("subtotal_excl_gst", [0, 0])[-1] if isinstance(bd.get("subtotal_excl_gst"), list) else 0)
 
+    # گیتِ GST از policy-profile (auditِ 2026-07-16 #6): فقط اگر gst_registered صریحاً
+    # True باشد GST محاسبه/ادعا می‌شود؛ وگرنه صفر و سندِ ساده (fail-closed — سیستم
+    # خودش نتیجهٔ مالیاتی نمی‌سازد). profile واقعیِ مالک: Pty Ltd، registered=true.
+    gst_on = _gst_registered()
     if fixed_amount is not None:
-        subtotal_excl = round(float(fixed_amount) / 1.1, 2)  # reverse GST
+        subtotal_excl = round(float(fixed_amount) / 1.1, 2) if gst_on \
+            else round(float(fixed_amount), 2)               # بدونِ ثبتِ GST، reverse-GST بی‌معناست
     elif subtotal_lo > 0:
         subtotal_excl = round((subtotal_lo + subtotal_hi) / 2, 2)  # midpoint
     else:
         subtotal_excl = 0.0
 
-    gst = round(subtotal_excl * 0.10, 2)
+    gst = round(subtotal_excl * 0.10, 2) if gst_on else 0.0
     total_incl = round(subtotal_excl + gst, 2)
     deposit = round(total_incl * 0.10, 2)  # NSW HBA §8
 
@@ -168,6 +186,7 @@ def create_invoice(attribution_id: str, fixed_amount: float | None = None,
         "line_items": fixed_items,
         "subtotal_excl_gst": subtotal_excl,
         "gst": gst,
+        "gst_registered": gst_on,          # گیتِ profile — render عنوان/خطِ GST را از این می‌گیرد
         "total_incl_gst": total_incl,
         "deposit_max": deposit,
         "business": biz,
@@ -282,8 +301,12 @@ def render_invoice_html(rec: dict) -> str:
     issue = html.escape(str(rec.get("issue_date", "")))
     due = html.escape(str(rec.get("due_date", "")))
 
+    # عنوانِ «TAX INVOICE» فقط برای entityِ ثبتِ GST (auditِ 2026-07-16 #6 — سندِ مالیاتیِ
+    # قانونی بدونِ ثبت، ادعای دروغ است). رکوردهای قدیمی (بدونِ فیلد) از gst>0 استنتاج.
+    gst_reg = bool(rec.get("gst_registered", gst > 0))
+    title = "TAX INVOICE" if gst_reg else "INVOICE"
     lines = [
-        f"<b>TAX INVOICE</b> {inv} <code>{status}</code>",
+        f"<b>{title}</b> {inv} <code>{status}</code>",
         f"<b>{name}</b>",
         f"ABN: <code>{abn}</code>",
         f"Date: {issue} · Due: {due}",
@@ -299,11 +322,16 @@ def render_invoice_html(rec: dict) -> str:
         sub_item = float(item.get("subtotal_aud", 0))
         lines.append(f"  {desc}: {qty}×${rate:.2f} = <code>${sub_item:.2f}</code>")
 
+    lines.append("")
+    if gst_reg:
+        lines.extend([
+            f"Subtotal (excl GST): <code>${sub:.2f}</code>",
+            f"GST (10%): <code>${gst:.2f}</code>",
+            f"<b>TOTAL (incl GST): <code>${total:.2f}</code></b>",
+        ])
+    else:
+        lines.append(f"<b>TOTAL: <code>${total:.2f}</code></b>")
     lines.extend([
-        "",
-        f"Subtotal (excl GST): <code>${sub:.2f}</code>",
-        f"GST (10%): <code>${gst:.2f}</code>",
-        f"<b>TOTAL (incl GST): <code>${total:.2f}</code></b>",
         f"Max deposit: <code>${dep:.2f}</code> (10% · NSW §8)",
         "",
         f"Payment: {html.escape(biz.get('payment_methods', ''))}",

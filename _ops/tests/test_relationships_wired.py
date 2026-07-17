@@ -133,6 +133,8 @@ def t_debate_in_run_epoch():
     """run_epoch باید debate_loop را صدا بزند (پشتِ flag)."""
     assert "run_debate" in GOVERNOR_SRC, "run_epoch باید run_debate را صدا بزنند"
     assert "OCTOPUS_WIRE_DEBATE" in GOVERNOR_SRC
+    assert "get_topic(" in GOVERNOR_SRC, \
+        "topic فقط از whitelist (topics.get_topic) — dict آزاد = KeyError: 'text' هر epoch"
 
 
 # ════════════════════════════════════════════════════════════════════════════════

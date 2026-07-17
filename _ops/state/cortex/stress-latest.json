@@ -1,5 +1,5 @@
 {
-  "ts": "2026-07-14T13:59:02",
+  "ts": "2026-07-17T17:55:27",
   "schema": "stress.v1",
   "organism_stress": 0.75,
   "in_fear": [
@@ -35,7 +35,7 @@
       "name": "🚨 هشدارها",
       "stress": 0.5,
       "fear": false,
-      "detail": "786 خطِ هشدار"
+      "detail": "597 خطِ هشدار"
     }
   }
 }

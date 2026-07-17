@@ -98,6 +98,35 @@ TELEGRAM_API_BASE = "https://api.telegram.org"
 TELEGRAM_LONGPOLL_TIMEOUT_S = 30   # idle = $0: getUpdates تا این ثانیه رویِ سرور بلوکه می‌ماند
 
 
+# ── فاز ۲: accessorِ تنبلِ langar_bridge (لا‌مزاحم — اگر نبود، None = skip) ──
+# در handle_command به‌صورتِ «langar_bridge_dispatch is not None» خوانده می‌شود.
+# اولین استفاده real import می‌کند و کش می‌کند. شکستِ import (نبودِ langar یا
+# وابستگی‌هاش) → None → شاخهٔ delegation بی‌صدا skip می‌شود (fail-soft، مثلِ _ar/_jb).
+_langar_bridge_dispatch_cache: "callable | None" = None
+_langar_bridge_tried = False
+
+
+def langar_bridge_dispatch(text: str, chat_id=None, owner=None):
+    """accessor در سطحِ ماژول: langar_bridge.dispatch را lazy بارگذاری و صدا بزن.
+    شکستِ import/Dispatch → None (fail-soft). رباتِ واحد برای بقیه کار می‌کند."""
+    global _langar_bridge_dispatch_cache, _langar_bridge_tried
+    if not _langar_bridge_tried:
+        _langar_bridge_tried = True
+        try:
+            import sys as _s
+            legs = str(Path(__file__).resolve().parents[1] / "legs")   # _ops/legs
+            if legs not in _s.path:
+                _s.path.insert(0, legs)
+            import langar_bridge  # noqa: WPS433
+            _langar_bridge_dispatch_cache = langar_bridge.dispatch
+        except Exception:  # noqa: BLE001 — لا‌مزاحم
+            _langar_bridge_dispatch_cache = None
+    fn = _langar_bridge_dispatch_cache
+    if fn is None:
+        return None
+    return fn(text, chat_id=chat_id, owner=owner)
+
+
 def _env_str(name: str, default: str = "") -> str:
     v = os.environ.get(name, default)
     return v.strip() if isinstance(v, str) else default
@@ -108,6 +137,31 @@ def _env_int(name: str, default: int) -> int:
         return int(os.environ.get(name, default))
     except (TypeError, ValueError):
         return default
+
+
+def _allowed_chat_ids(owner: int | None) -> frozenset[int]:
+    """allowlist از chat-idها که ربات از آن‌ها فرمان می‌پذیرد (گروه‌پذیریِ کاکپیت، رأیِ
+    مالک 2026-07-17). منبعِ حقیقت = TELEGRAM_ALLOWED_CHAT_IDS (CSV در env: -100…،
+    اعدادِ منفیِ تلگرام برای گروه/سوپرگروپ/کانال). owner همیشه عضو است.
+
+    fail-closed: اگر متغیر نباشد/خالی باشد → فقط {owner} (رفتارِ قبلیِ byte-identical،
+    فقط چتِ ۱:۱). هر مقدارِ غیرعددی بی‌صدا skip می‌شود (هرگز guess).
+    مهم: این فقط «این پیام از کجا پذیرفته شد» را گسترش می‌دهد — مسیرِ ضدِ جعلِ
+    callback (_new_token) و مسیرِ settle (_do_approve→gate.settle) chat-id-agnostic
+    اند و دست‌نخورده می‌مانند (تأییدِ زیرسیستم)."""
+    ids: set[int] = set()
+    if owner is not None:
+        ids.add(int(owner))
+    raw = os.environ.get("TELEGRAM_ALLOWED_CHAT_IDS", "")
+    for tok in raw.replace(";", ",").split(","):
+        tok = tok.strip()
+        if not tok:
+            continue
+        try:
+            ids.add(int(tok))
+        except ValueError:
+            continue   # غیرعددی → نادیده (هرگز guess)
+    return frozenset(ids)
 
 
 def _mask_token(tok: str) -> str:
@@ -153,6 +207,9 @@ class TelegramApprovalChannel(ApprovalChannel):
         self._token = (token if token is not None else _env_str("TELEGRAM_BOT_TOKEN"))
         self._owner = int(owner_chat_id) if owner_chat_id is not None else (
             _env_int("TELEGRAM_OWNER_CHAT_ID", 0) or None)
+        # allowlistِ chat-idها (گروه‌پذیری، رأی مالک 2026-07-17). owner همیشه عضو است؛
+        # TELEGRAM_ALLOWED_CHAT_IDS اضافه می‌کند. نبود = فقط owner (byte-identical).
+        self._allowed = _allowed_chat_ids(self._owner)
         self._http_get = http_get or _url_json_get
         self._http_post = http_post or _url_json_post
         self._kill = kill_check                     # None = فقط پرچمِ داخلیِ .stop()
@@ -287,8 +344,9 @@ class TelegramApprovalChannel(ApprovalChannel):
             from_id = (msg.get("from") or cbq.get("from") or {}).get("id")
             cbq_id = cbq.get("id")  # callback_query ID برای answerCallbackQuery
 
-            # allowlist: فقط chat_idِ مالک پذیرفته می‌شود؛ بقیه ignore (قانونِ P3 §5).
-            if chat_id != self._owner:
+            # allowlist: chat_idهای مجاز (owner + گروه‌های TELEGRAM_ALLOWED_CHAT_IDS).
+            # گروه‌پذیریِ کاکپیت (رأی مالک 2026-07-17). نبود = فقط owner (byte-identical).
+            if chat_id not in self._allowed:
                 processed += 1              # پردازش‌شده ولی رد‌شده (offset جلو رفت)
                 continue
 
@@ -302,6 +360,9 @@ class TelegramApprovalChannel(ApprovalChannel):
                 })
 
             # ── T-8: پردازشِ واقعی — command یا callback ──
+            # پاسخ به همان chat_id (گروه یا چتِ ۱:۱) که فرمان از آن آمد — نه همیشه owner.
+            # کارت‌های تأیید (request_approval_card) همچنان به owner می‌رود (قانونِ T-2: تنها
+            # مسیرِ تأیید، owner-only intent)؛ ولی پاسخِ دستور به همان‌جا برمی‌گردد که پرسیده شد.
             try:
                 if is_callback:
                     # callback_query → dispatch + answer
@@ -311,19 +372,21 @@ class TelegramApprovalChannel(ApprovalChannel):
                         if cbq_id:
                             self._answer_callback_query(cbq_id, "✅")
                         self.send_text(reply.get("text", ""),
-                                       reply_markup=reply.get("reply_markup"))
+                                       reply_markup=reply.get("reply_markup"),
+                                       chat_id=chat_id)
                     else:
                         if cbq_id:
                             self._answer_callback_query(cbq_id, reply or "📝")
                 else:
                     # text message → handle_command + send reply
-                    reply = self.handle_command(str(text))
+                    reply = self.handle_command(str(text), chat_id=chat_id)
                     if reply is not None:
                         if isinstance(reply, dict):
                             self.send_text(reply.get("text", ""),
-                                           reply_markup=reply.get("reply_markup"))
+                                           reply_markup=reply.get("reply_markup"),
+                                           chat_id=chat_id)
                         else:
-                            self.send_text(reply)
+                            self.send_text(reply, chat_id=chat_id)
             except Exception as e:  # noqa: BLE001 — fail-soft: ارسال شکست → alert، حلقه ادامه
                 opslib.alert([f"telegram T-8 dispatch error: {type(e).__name__}: {e}"])
 
@@ -927,12 +990,16 @@ class TelegramApprovalChannel(ApprovalChannel):
         ],
     }
 
-    def send_text(self, text: str, reply_markup: dict | None = None) -> bool:
-        """پیامِ ساده (یا با کیبورد) به مالک. not wired → False. خطای شبکه fail-soft."""
+    def send_text(self, text: str, reply_markup: dict | None = None,
+                  chat_id: int | None = None) -> bool:
+        """پیامِ ساده (یا با کیبورد). مقصد = chat_id یا، اگر داده نشد، owner.
+        گروه‌پذیری (رأی مالک 2026-07-17): پاسخ به همان chat (گروه/چت) که فرمان از آن آمد.
+        not wired → False. خطای شبکه fail-soft."""
         if not self.wired:
             return False
+        target = int(chat_id) if chat_id is not None else self._owner
         text = self._redact(text)   # Cockpit v2 · INV-12: هر خروجی از پاسِ redaction می‌گذرد
-        body = {"chat_id": self._owner, "text": text, "parse_mode": "HTML"}
+        body = {"chat_id": target, "text": text, "parse_mode": "HTML"}
         if reply_markup:
             body["reply_markup"] = reply_markup
         try:
@@ -941,8 +1008,10 @@ class TelegramApprovalChannel(ApprovalChannel):
             return False
         return True
 
-    def handle_command(self, text: str) -> str | None:
+    def handle_command(self, text: str, chat_id: int | None = None) -> str | None:
         """routerِ دستوراتِ مالک. text = پیامِ ورودیِ مالک (بعد از allowlist).
+        chat_id = همان chat که فرمان از آن آمد (گروه یا چتِ ۱:۱)؛ برای delegation به
+        langar_bridge (فاز ۲). None = رفتارِ قبلی (owner) برای backward-compat.
         خروجی = متنِ پاسخ (یا None برای نادیده). هر دستور فقط یک UI را برمی‌گرداند.
         UX v2: /start منو + HTML غنی + حذفِ T-4/T-6/reentry از router.
         هیچ ورودیِ untrustedای اجرا نمی‌شود — فقط ورودیِ validated به propose می‌رود."""
@@ -1014,7 +1083,7 @@ class TelegramApprovalChannel(ApprovalChannel):
         if t == "/sync":
             return self._cmd_acct_sync()
         # متنِ آزاد فقط وقتی جلسه فعال است و منتظرِ متن → تجزیه به پیشنهاد (نه دستور، نه auto-apply)
-        # گیت روی is_active هم هست تا پرچمِ سرگردانِ یک جلسهٔ بسته پیامِ نامرتبط را ندزدد.
+        # گیت روی is_active هم هست تا پرچمِ سرگردانِ یک جلسهٔ بسته پیامِ نامرتبط را ندزدهد.
         if not t.startswith("/"):
             try:
                 import acct_review as _ar
@@ -1022,6 +1091,20 @@ class TelegramApprovalChannel(ApprovalChannel):
                     return self._cmd_review_freetext(t)
             except Exception:  # noqa: BLE001 — fail-soft: نبودِ ماژول = نادیده
                 pass
+        # ── فاز ۲: ادغامِ langarِ Project-F (رأی مالک 2026-07-17) ──
+        # دستورهای langar (/pf_*, /saba, /drafts, /dm_*, /fan_*, /vault_*, /guards, /kpi*,
+        # /octopus*, /brief, /think, /spine, /upgrade, /gates, /verdicts, /rules, /kill,
+        # /revive, /report_*, /clear_*, /set_karma) از همین رباتِ واحد پاسخ می‌گیرند.
+        # پلِ additive: langar لمس نمی‌شود؛ فقط .handle() صدا زده می‌شود (OpsecGuard خودکار).
+        # هر شکستِ import → نادیده (fail-soft، مثلِ _ar/_jb). ثبتی در ledger فقط برای
+        # کارهایِ واقعی (verdict/kpi) داخلِ langar_bridge انجام می‌شود.
+        if langar_bridge_dispatch is not None:
+            try:
+                reply = langar_bridge_dispatch(t, chat_id=chat_id, owner=self._owner)
+                if reply is not None:
+                    return reply
+            except Exception as e:  # noqa: BLE001 — fail-soft: langar نباید ربات را بکشد
+                opslib.alert([f"telegram langar_bridge error: {type(e).__name__}: {e}"])
         return None
 
     # ─── حسابدارِ گفتگومحور (acct_review) — propose-only، پول‌جابه‌جا‌نمی‌کند ───────────
@@ -1785,7 +1868,10 @@ class TelegramApprovalChannel(ApprovalChannel):
         d = _read_json_safe(state_dir / "replication-latest.json")
         if not d:
             return "pre-replication"
-        return str(d.get("sigma") or d.get("status") or "—")
+        sg = d.get("sigma")
+        if isinstance(sg, dict):  # replication-latest.json: sigma = {sigma_effective, zone, ...}
+            return f"{sg.get('sigma_effective', '—')} ({sg.get('zone', '—')})"
+        return str(sg or d.get("status") or "—")
 
     # ─── T-6 · RFC/تکامل: doctor.submit_for_approval پشتِ flag ───────────────────
     # ⚑ برای معمار: doctor.submit_for_approval حالا در کد هست و وایر شده (به‌روزرسانی
@@ -2855,6 +2941,12 @@ class TelegramApprovalChannel(ApprovalChannel):
         if page == "school":
             sch = rm.read_school() if rm else {}
             aw = sch.get("awareness") or {}
+            if sch.get("_stale"):  # عددِ کهنه هرگز «فعلی» رندر نمی‌شود (هم‌قراردادِ channels/cortex)
+                _age = sch.get("_age_h")
+                _ad = f"{int(_age // 24)}d" if isinstance(_age, (int, float)) else "?"
+                return (self._hdr("🎓 <b>مدرسه</b>")
+                        + f"⚪ کهنه ({_ad}) — نویسندهٔ زنده ندارد (SLA=72h · snapshot {sch.get('_snapshot_ts', '?')})\n"
+                        + f"<i>آخرین ثبت: میانگین {sch.get('mean', '—')} · {len(aw)} سلول — به‌عنوان «فعلی» قابل‌اتکا نیست.</i>")
             mean = sch.get("mean", (sum(aw.values()) / len(aw)) if aw else None)
             return (self._hdr("🎓 <b>مدرسه</b>")
                     + f"آگاهیِ میانگین: {mean if mean is not None else '—'} · سلول‌ها: {len(aw)}\n"
