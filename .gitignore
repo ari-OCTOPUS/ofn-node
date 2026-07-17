@@ -62,6 +62,8 @@ _ops/OCTOPUS-flags.cmd
 03 - Projects/Accounting/personal/review-idmap.json
 03 - Projects/Accounting/personal/fine-categories.json
 03 - Projects/Accounting/personal/REPORT-*.md
+03 - Projects/Accounting/personal/DISCOVERY-*.md
+03 - Projects/Accounting/personal/UX-SPEC-*.md
 
 # PII: حالتِ جلسهٔ مرورِ تلگرام (ترتیبِ تراکنش‌های واقعی) — هرگز commit نشود
 03 - Projects/Accounting/personal/review-session.json

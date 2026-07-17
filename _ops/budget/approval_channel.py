@@ -464,13 +464,13 @@ class TelegramApprovalChannel(ApprovalChannel):
         """منوی command تلگرام را پاک و دوباره ثبت می‌کند.
         حذفِ کشِ قدیمی (deleteMyCommands) برای رفعِ مشکلِ دستوراتِ رباتِ قبلی."""
         commands = [
-            {"command": "start", "description": "🐙 منوی اصلی (کابین ۸-تبی)"},
+            {"command": "start", "description": "🐙 منوی اصلی"},
             {"command": "overview", "description": "📊 نمای کلی"},
             {"command": "money", "description": "💰 پول و متابولیسم"},
-            {"command": "finance", "description": "💰 دارایی‌ها/حساب"},
-            {"command": "review", "description": "🧮 حسابداریِ دونه‌دونه"},
-            {"command": "books", "description": "📚 ثبتِ دفتر (تأییدِ ثبت‌ها)"},
-            {"command": "sync", "description": "🔄 همگام‌سازیِ حسابداری"},
+            {"command": "finance", "description": "📊 وضعِ من (خلاصهٔ پول)"},
+            {"command": "review", "description": "🧮 دسته‌بندی کن (یکی‌یکی)"},
+            {"command": "books", "description": "📋 ثبتِ نهایی"},
+            {"command": "sync", "description": "🔄 تازه‌ها رو بگیر"},
             {"command": "doctor", "description": "🩺 دکتر و تکامل"},
             {"command": "brain", "description": "🧠 حافظه و مغز"},
             {"command": "blueprint", "description": "🧭 بلوپرینت P0–P6"},
@@ -1162,7 +1162,9 @@ class TelegramApprovalChannel(ApprovalChannel):
         return self._review_card(q)
 
     def _review_card(self, q: dict):
-        """payloadِ acct_review → (text, inline_keyboard). فقط به مالک؛ صفر دکمهٔ پول."""
+        """payloadِ acct_review → (text, inline_keyboard) — نسخهٔ فارسیِ سادهٔ «بی‌اصطلاح»
+        (UX-SPEC §۳.۲، 2026-07-18). header به «🟢 ورودی/🔴 خروجی»، دکمه‌های روزمره.
+        فقط به مالک؛ صفر دکمهٔ پول. هویتِ txn_id در callback حفظ شده (ضدِ تپِ کارتِ کهنه)."""
         if not isinstance(q, dict):
             return "🧮 چیزی برای مرور نیست."
         kind = q.get("kind")
@@ -1171,36 +1173,49 @@ class TelegramApprovalChannel(ApprovalChannel):
         if kind == "error":
             return "🧮 " + str(q.get("message", "خطا."))
         # question | stale — کارتِ سوال
-        idx = int(q.get("idx", 0))
         g = q.get("guess") or {}
-        head = ("⚠️ سوالِ قبلی گذشته بود؛ این سوالِ فعلی است:\n"
-                if kind == "stale" else "")
-        lines = [head + f"🧾 <b>سوال {q.get('n','?')}/{q.get('total','?')}</b> "
-                 f"(تأییدشده تا حالا: {q.get('done',0)})",
-                 f"📅 {html.escape(str(q.get('date','')))} · "
-                 f"💵 <b>{html.escape(str(q.get('amount','?')))}</b> AUD ({q.get('sign','')})",
-                 f"📝 {html.escape(str(q.get('desc','')))}",
-                 f"🤖 حدسِ فعلی: {html.escape(str(g.get('owner_fa','?')))}/"
-                 f"{html.escape(str(g.get('ptype_fa','?')))} — مالِ کیه و چیه؟"]
+        head = ("⚠️ سوالِ قبلی گذشته بود؛ این یکی:\n" if kind == "stale" else "")
+        # sign → ورودی/خروجیِ فارسیِ روزمره (به‌جای «+/-»)
+        sign = str(q.get("sign", ""))
+        if sign.startswith("+") or sign.lower() in ("in", "credit", "ورودی"):
+            flow = "🟢 ورودی (پول اومد)"
+        elif sign.startswith("-") or sign.lower() in ("out", "debit", "خروجی"):
+            flow = "🔴 خروجی (پول رفت)"
+        else:
+            flow = sign or "—"
+        lines = [head + "🧮 <b>یکی‌دونه باهات چک می‌کنم</b> "
+                 f"({q.get('n','?')}/{q.get('total','?')})",
+                 f"📅 {html.escape(str(q.get('date','')))} · {flow}",
+                 f"💵 <b>{html.escape(str(q.get('amount','?')))}</b> دلار",
+                 f"📝 {html.escape(str(q.get('desc','')))}"]
+        # حدسِ موتور — فقط اگه چیزی داره
+        oc = g.get("owner"); pc = g.get("ptype")
+        ofa = g.get("owner_fa"); pfa = g.get("ptype_fa")
+        has_guess = bool(oc) and bool(pc) and oc != "unknown" and pc != "unknown"
+        if has_guess:
+            lines.append(f"🤖 حدسم: {html.escape(str(pfa))}ِ {html.escape(str(ofa))}ه — درسته؟")
+        else:
+            lines.append("🤖 این یکی رو نمی‌شناسم — مالِ کیه و چیه؟")
         # هویتِ پایدار: idِ همان تراکنش در callback (نه موقعیتِ idx) — ضدِ تپِ کارتِ گذشته
         tid = str(q.get("txn_id", ""))[:32]
-        oc = g.get("owner"); pc = g.get("ptype")
         code_o = {"armin": "a", "abbas": "b", "business": "z", "unknown": "u"}.get(oc)
         code_p = {"income": "i", "expense": "e", "wage": "w", "transfer": "t"}.get(pc)
         rows = []
-        if code_o and code_p and oc != "unknown" and pc != "unknown":
-            rows.append([{"text": f"✅ همین: {g.get('owner_fa')}/{g.get('ptype_fa')}",
+        # دکمهٔ ✅ فقط وقتی حدس هست
+        if has_guess and code_o and code_p:
+            rows.append([{"text": "✅ آره، درسته",
                           "callback_data": f"rev:a:{tid}:{code_o}:{code_p}"}])
+        # دکمه‌های روزمرهٔ ۴ گانهٔ اصلی: خرجِ آرمین/عباس، درآمد، عبور
         rows += [
-            [{"text": "آرمین·خرج", "callback_data": f"rev:a:{tid}:a:e"},
-             {"text": "عباس·خرج", "callback_data": f"rev:a:{tid}:b:e"}],
-            [{"text": "آرمین·درآمد", "callback_data": f"rev:a:{tid}:a:i"},
-             {"text": "عباس·درآمد", "callback_data": f"rev:a:{tid}:b:i"}],
-            [{"text": "حقوقِ آرمین", "callback_data": f"rev:a:{tid}:a:w"},
-             {"text": "عبور/pass", "callback_data": f"rev:a:{tid}:a:t"}],
-            [{"text": "✍️ متنِ آزاد", "callback_data": f"rev:f:{tid}"},
-             {"text": "⏭ رد", "callback_data": f"rev:s:{tid}"},
-             {"text": "⏹ توقف", "callback_data": "rev:x"}],
+            [{"text": "💸 خرجِ آرمین", "callback_data": f"rev:a:{tid}:a:e"},
+             {"text": "💸 خرجِ عباس", "callback_data": f"rev:a:{tid}:b:e"}],
+            [{"text": "💰 درآمدِ آرمین", "callback_data": f"rev:a:{tid}:a:i"},
+             {"text": "💰 درآمدِ عباس", "callback_data": f"rev:a:{tid}:b:i"}],
+            [{"text": "👷 حقوقِ آرمین", "callback_data": f"rev:a:{tid}:a:w"},
+             {"text": "🔄 فقط رد شد", "callback_data": f"rev:a:{tid}:a:t"}],
+            [{"text": "✍️ خودم می‌گم", "callback_data": f"rev:f:{tid}"},
+             {"text": "⏭ بعداً", "callback_data": f"rev:s:{tid}"},
+             {"text": "⏹ بس کن", "callback_data": "rev:x"}],
         ]
         return {"text": "\n".join(lines), "reply_markup": {"inline_keyboard": rows}}
 
@@ -1294,50 +1309,62 @@ class TelegramApprovalChannel(ApprovalChannel):
     def _cmd_books(self):
         jb = self._jb()
         if jb is None:
-            return "📚 دفتر در دسترس نیست."
+            return "📋 ثبتِ نهایی در دسترس نیست."
         try:
             rb = jb.rebuild()                       # idempotent — تصمیم‌های قبلی دست‌نخورده
             plist = jb.pending()
         except Exception as e:  # noqa: BLE001
-            return f"📚 خطا در ساختِ صف: {type(e).__name__}"
+            return f"📋 خطا در ساختِ صف: {type(e).__name__}"
         if not plist:
             st = jb.stats()
-            return ("📚 <b>دفتر</b>: صفِ ثبت خالی است ✅\n"
-                    f"ثبت‌شده {st.get('posted', 0)} · ردشده {st.get('rejected', 0)} — "
-                    "تراکنشِ تازه را اول در /review تأیید کن، بعد این‌جا ثبت می‌شود.")
-        head = (f"📚 <b>صفِ ثبتِ دفتر</b>: {len(plist)} پیشنهاد"
-                + (f" (+{rb.get('built', 0)} تازه)" if rb.get("built") else "") + "\n")
+            return (self._hdr("📋 <b>ثبتِ نهایی</b>") + "\n"
+                    "چیزی برای ثبتِ نهایی نیست ✅\n"
+                    f"تا حالا {st.get('posted', 0)} تا ثبت شده، {st.get('rejected', 0)} تا رد شده.\n"
+                    "<i>اول تازه‌ها رو در /review دسته‌بندی کن، بعد این‌جا ثبتِ نهایی می‌شن.</i>")
+        head = (f"📋 <b>ثبتِ نهایی</b>: {len(plist)} مورد در انتظار"
+                + (f" (+{rb.get('built', 0)} تازه)" if rb.get("built") else "") + "\n\n")
         card = self._books_card(plist[0])
         if isinstance(card, dict):
             card["text"] = head + card["text"]
         return card
 
     def _books_card(self, p: dict):
-        """کارتِ یک پیشنهادِ ثبت: پیش‌نمایشِ دوطرفه + دکمه‌های هویت‌دار (txn_id در callback).
-        هشدارهای صادق: عبور/تکراریِ احتمالی. tid بلندتر از ظرفیتِ callback → خطای صریح (#25)."""
+        """📋 «ثبتِ نهایی» — نسخهٔ فارسیِ سادهٔ بی‌اصطلاح (UX-SPEC §۳.۴، 2026-07-18).
+        حذفِ «ثبتِ دوطرفه»، Dr/Cr، journal_id، tax_code از کاربر. پشتِ پرده، همون double-entry
+        می‌شه ولی کاربر فقط «ثبت کن؟» رو می‌بینه. هشدارهای صادق: تکراریِ احتمالی."""
         if not isinstance(p, dict):
             return "📚 پیشنهادی نیست."
         tid = str(p.get("txn_id", ""))
         if len(tid) > 48:
             return "📚 idِ تراکنش برای دکمه بلند است — این مورد را دستی ثبت کن (گزارش به ایجنت)."
-        lines = [f"🧾 <b>ثبتِ پیشنهادی</b> — {html.escape(str(p.get('date', '')))} · "
-                 f"<b>{html.escape(str(p.get('amount', '?')))}</b> AUD",
+        # sign → ورودی/خروجی
+        amt = p.get("amount", "?")
+        try:
+            av = float(amt); flow = "🟢 ورودی" if av >= 0 else "🔴 خروجی"
+        except (TypeError, ValueError):
+            flow = ""
+        # owner/ptype → فارسیِ روزمره
+        owner_fa = {"armin": "آرمین", "abbas": "عباس", "business": "بیزنس"}.get(
+            str(p.get("owner", "")).lower(), str(p.get("owner", "؟")))
+        ptype_fa = {"income": "درآمد", "expense": "خرج", "wage": "حقوق",
+                    "transfer": "عبور"}.get(
+            str(p.get("ptype", "")).lower(), str(p.get("ptype", "؟")))
+        lines = [self._hdr("📋 <b>ثبتِ نهایی</b>"),
+                 f"📅 {html.escape(str(p.get('date', '')))}" + (f" · {flow}" if flow else ""),
+                 f"💵 <b>{html.escape(str(amt))}</b> دلار",
                  f"📝 {html.escape(str(p.get('desc', '')))}",
-                 f"🏷 {html.escape(str(p.get('owner', '')))}/{html.escape(str(p.get('ptype', '')))}",
-                 "<b>ثبتِ دوطرفه:</b>"]
-        for ln in (p.get("preview") or [])[:6]:
-            lines.append("  " + html.escape(str(ln)))
+                 f"🏷 {ptype_fa}ِ {owner_fa}"]
         if p.get("note"):
             lines.append("⚠️ " + html.escape(str(p.get("note"))[:160]))
         if p.get("possible_dup_of"):
-            lines.append(f"⚠️ شاید تکراریِ ثبتِ <code>{html.escape(str(p['possible_dup_of']))}</code> "
-                         "باشد (همان مبلغ/تاریخ) — اگر واقعاً جداست، ثبت کن؛ وگرنه رد.")
+            lines.append("⚠️ شاید قبلاً ثبت شده — اگه جداست، ثبت کن؛ وگرنه رد.")
+        # gst_pending: اطلاعِ صادقانه ولی به‌زبانِ ساده (نه «tax_code» / «RD-002»)
         if p.get("gst_pending"):
-            lines.append("<i>GST بعداً با حسابدار کدگذاری می‌شود (RD-002) — این ثبت بدونِ tax_code است.</i>")
+            lines.append("<i>مالیاتِ این مورد رو بعداً با حسابدار مشخص می‌کنیم.</i>")
         kb = {"inline_keyboard": [
-            [{"text": "✅ ثبت در دفتر", "callback_data": f"jrn:a:{tid}"},
+            [{"text": "✅ ثبت کن", "callback_data": f"jrn:a:{tid}"},
              {"text": "❌ رد", "callback_data": f"jrn:r:{tid}"}],
-            [{"text": "⏭ بعدی", "callback_data": f"jrn:n:{tid}"},
+            [{"text": "⏭ بعداً", "callback_data": f"jrn:n:{tid}"},
              {"text": "🏠 منو", "callback_data": "menu:main"}],
         ]}
         return {"text": "\n".join(lines), "reply_markup": kb}
@@ -1364,32 +1391,31 @@ class TelegramApprovalChannel(ApprovalChannel):
                                 card["text"] = msg + "\n\n" + card["text"]
                                 return card
                     return msg
-                tag = f"ثبت شد ✅ journal <code>{html.escape(str(r.get('journal_id', '')))}</code>\n"
+                tag = f"✅ ثبت شد.\n"
                 if r.get("duplicate"):
-                    tag = ("قبلاً در دفتر ثبت شده بود — صف ترمیم شد ✅ "
-                           f"<code>{html.escape(str(r.get('journal_id', '')))}</code>\n")
+                    tag = "✅ قبلاً ثبت شده بود.\n"
                 if r.get("warn"):
                     tag += "⚠️ " + html.escape(str(r["warn"])) + "\n"
                 nxt = jb.pending()
                 if nxt:
                     card = self._books_card(nxt[0])
                     if isinstance(card, dict):
-                        card["text"] = tag + card["text"]
+                        card["text"] = tag + "\n" + card["text"]
                         return card
                     return tag + str(card)
-                return tag + "صفِ ثبت خالی شد 🎉 — تراز در /finance."
+                return tag + "\n🎉 همه‌چیز ثبت شد! وضعیت رو در /finance ببین."
             if verb == "r" and tid:
                 rr = jb.reject(tid, reason="owner-reject")
                 if not rr.get("ok"):
-                    return "📚 رد ثبت نشد: " + "؛ ".join(str(e) for e in rr.get("errors", ["خطا"]))[:120]
+                    return "📋 رد نشد: " + "؛ ".join(str(e) for e in rr.get("errors", ["خطا"]))[:120]
                 nxt = jb.pending()
                 return (self._books_card(nxt[0]) if nxt
-                        else "رد شد ❌ — صفِ ثبت خالی است.")
+                        else "❌ رد شد. چیزی برای ثبت نیست.")
             if verb == "n" and tid:
                 # چرخشِ واقعی (audit #33): موردِ بعد از tid در ترتیب؛ آخرِ لیست → برگرد اول
                 plist = jb.pending()
                 if not plist:
-                    return "📚 صفِ ثبت خالی است."
+                    return "📋 چیزی برای ثبت نیست."
                 ids = [str(p.get("txn_id")) for p in plist]
                 i = ids.index(tid) if tid in ids else -1
                 nxt = plist[(i + 1) % len(plist)]
@@ -1399,77 +1425,126 @@ class TelegramApprovalChannel(ApprovalChannel):
         return "نادیده"
 
     def _cmd_acct_sync(self):
-        """رفرشِ امنِ شبکه: pull خام → شواهدِ immutable → attribute با **حفظِ تأییدهای مالک**
+        """🔄 «تازه‌ها اومدن» — نسخهٔ فارسیِ سادهٔ بی‌اصطلاح (UX-SPEC §۳.۳، 2026-07-18).
+        رفرشِ امنِ شبکه: pull خام → شواهدِ immutable → attribute با **حفظِ تأییدهای مالک**
         → بازسازیِ صفِ ثبت. read-only نسبت به بانک (GET) — تنها استثنا: write-backِ برچسبِ
-        دسته‌بندی به PocketSmith پشتِ فلگِ OCTOPUS_WIRE_PS_WRITEBACK (RD-004، فقط labels)."""
+        دسته‌بندی به PocketSmith پشتِ فلگِ OCTOPUS_WIRE_PS_WRITEBACK (RD-004، فقط labels).
+        جزئیاتِ فنی (شواهدِ خام، تأییدهای برگردانده‌شده، صفِ ثبت) از چت حذف شده — برای لاگ، نه کاربر."""
         import sys as _s
         legs = str(_HERE.parent / "legs")
         if legs not in _s.path:
             _s.path.insert(0, legs)
-        out = ["🔄 <b>همگام‌سازیِ حسابداری</b>"]
+        out = ["🔄 <b>تازه‌ها رو گرفتم</b>"]
+        new_count = 0      # برای نمایشِ «+N تازه»
+        sync_ok = False
+        max_date = ""
+        writeback_written = 0
+        writeback_kept = 0
+        writeback_403 = False
+        writeback_note = ""
+        total = 0
+        needs_review = 0
         # ۱) **یک** fetch (اسکن #48: دو pullِ جدا = دو snapshotِ ناهم‌زمان → شواهد≠store)
         rows = None
+        fetch_err = None
         try:
             import pocketsmith_api, raw_store  # noqa: WPS433
             if pocketsmith_api._flag_on() if hasattr(pocketsmith_api, "_flag_on") \
                     else os.environ.get("OCTOPUS_WIRE_POCKETSMITH") == "1":
                 raw = pocketsmith_api.fetch_transactions("2025-12-08", None)
                 if isinstance(raw, dict) and raw.get("ok") is False:
-                    out.append("⚠️ pull ناقص بود (صفحه‌ای شکست) — این دور از فایل/storeِ "
-                               "موجود ادامه می‌دهیم؛ دوباره /sync بزن")
+                    fetch_err = "partial"
                     rows = None
                 else:
                     rows = raw.get("transactions", []) if isinstance(raw, dict) else raw
                     ri = raw_store.ingest("pocketsmith", "anz-main", rows or [])
-                    out.append(f"• شواهدِ خام: +{ri.get('ingested', 0)} نو · "
-                               f"{ri.get('skipped_existing', 0)} تکراری (immutable)")
+                    new_count = ri.get("ingested", 0)
             else:
-                out.append("• شواهدِ خام: PocketSmith خاموش (فلگ)")
+                fetch_err = "flag_off"
         except Exception as e:  # noqa: BLE001
-            out.append(f"• شواهدِ خام: خطا {type(e).__name__}")
+            fetch_err = type(e).__name__
         # ۲) شبکه با حفظِ تأییدها — از **همان** fetch (بدونِ pullِ دوم)
         try:
             import accountant  # noqa: WPS433
             sn = accountant.sync_network(api_raw=rows)
             if sn.get("ok"):
+                sync_ok = True
                 c = sn.get("counts") or {}
-                out.append(f"• شبکه: {sn.get('unique', '?')} تراکنش · "
-                           f"تأییدهای برگردانده‌شده {sn.get('restored_confirmed', 0)}/"
-                           f"{sn.get('kept_from_before', 0)} · "
-                           f"صفِ مرور {c.get('needs_review', '?')}")
-                dropped = sn.get("kept_from_before", 0) - sn.get("restored_confirmed", 0)
-                if dropped > 0:
-                    # صادق (audit #28): این‌ها واقعاً از storeِ تازه بیرون‌اند (محتوا/منبع
-                    # عوض شده) — دوباره در /review می‌آیند؛ ادعای «چیزی حذف نشده» نمی‌کنیم.
-                    out.append(f"⚠️ {dropped} تأیید به شبکهٔ تازه منتقل نشد (محتوا/منبع عوض "
-                               "شده) — همان‌ها دوباره در /review می‌آیند.")
+                total = sn.get("unique", 0)
+                needs_review = c.get("needs_review", 0)
+                # آخرین تاریخ از store برای نمایشِ «تا YYYY-MM-DD»
+                try:
+                    import txn_store  # noqa: WPS433
+                    txns = txn_store.load_all()
+                    if txns:
+                        max_date = max((t.get("date", "") for t in txns
+                                        if isinstance(t, dict) and t.get("date")), default="")
+                except Exception:  # noqa: BLE001
+                    pass
                 psw = sn.get("ps_writeback") or {}
-                if psw.get("wired") or psw.get("written") or psw.get("kept"):
-                    # صادق (verify لنز ۴/۵): مالک باید written/kept و مخصوصاً 403ِ
-                    # کلیدِ فقط‌خواندنی را ببیند — نه فقط لاگِ محلی.
-                    mark = "✅" if psw.get("ok") else "⚠️"
-                    out.append(f"• write-back پاکت‌اسمیت: {mark} {psw.get('written', 0)} "
-                               f"نوشته · {psw.get('kept', 0)} در صف · "
-                               f"{html.escape(str(psw.get('note', '')))}")
+                writeback_written = psw.get("written", 0)
+                writeback_kept = psw.get("kept", 0)
+                writeback_note = str(psw.get("note", "") or "")
+                # تشخیصِ 403 (کلیدِ فقط‌خواندنی) از note
+                if "403" in writeback_note or "read-only" in writeback_note.lower() \
+                        or "full-access" in writeback_note.lower():
+                    writeback_403 = True
             else:
-                out.append(f"• شبکه: خطا {html.escape(str(sn.get('error', '?')))}")
+                fetch_err = html.escape(str(sn.get("error", "?")))
         except Exception as e:  # noqa: BLE001
-            out.append(f"• شبکه: خطا {type(e).__name__}")
-        # ۳) صفِ ثبتِ دفتر
+            fetch_err = type(e).__name__
+        # ۳) صفِ ثبتِ دفتر (داده جمع می‌شه ولی در چت نشون داده نمی‌شه — جزئیات فنی)
         jb = self._jb()
+        pending_books = 0
         if jb is not None:
             try:
                 rb = jb.rebuild()
-                out.append(f"• صفِ ثبت: +{rb.get('built', 0)} پیشنهادِ نو · "
-                           f"{rb.get('pending', 0)} منتظرِ تأیید → /books")
-            except Exception as e:  # noqa: BLE001
-                out.append(f"• صفِ ثبت: خطا {type(e).__name__}")
-        out.append("<i>هیچ ثبتِ خودکاری نشد — ثبت فقط با تأییدِ تو در /books.</i>")
-        # دکمه‌های ادامهٔ مسیر (اسکن #62: رشتهٔ خالی مالک را مجبور به تایپ می‌کرد)
-        return {"text": "\n".join(out), "reply_markup": {"inline_keyboard": [[
-            {"text": "🧮 مرور", "callback_data": "acct:review"},
-            {"text": "📚 ثبتِ دفتر", "callback_data": "acct:books"},
-            {"text": "💰 تراز", "callback_data": "menu:finance"}]]}}
+                pending_books = rb.get("pending", 0)
+            except Exception:  # noqa: BLE001
+                pass
+        # ── خلاصهٔ فارسیِ سادهٔ نهایی (UX-SPEC §۳.۳) ──
+        out = ["🔄 <b>تازه‌ها رو گرفتم</b>"]
+        if fetch_err == "flag_off":
+            out.append("⚪ PocketSmith خاموشه (فلگ روشن نیست).")
+            out.append("<i>فعال‌سازی: OCTOPUS_WIRE_POCKETSMITH=1</i>")
+        elif fetch_err == "partial":
+            out.append("⚠️ گرفتنِ تازه‌ها ناقص بود — دوباره /sync بزن.")
+        elif fetch_err:
+            out.append(f"⚠️ خطا در گرفتنِ تازه‌ها: <code>{fetch_err}</code>")
+        if sync_ok:
+            out.append(f"✅ تا {html.escape(max_date) if max_date else 'الان'}: "
+                       f"<b>{total}</b> تراکنش")
+            if new_count > 0:
+                out.append(f"➕ <b>{new_count}</b> تا تازه داشتی.")
+            else:
+                out.append("تازه‌ای نداشتی.")
+            # writeback: فقط اگه واقعاً چیزی نوشته یا 403 خورده
+            if writeback_written > 0:
+                out.append(f"💾 {writeback_written} دسته‌بندیِ تأییدشده‌ت رو تو پاکت‌اسمیت هم ذخیره کردم.")
+            elif writeback_403:
+                out.append("⚠️ نتونستم تو پاکت‌اسمیت ذخیره کنم — کلیدِ دسترسیِ کامل لازمه.")
+                out.append("<i>(دسته‌بندی‌ها این‌جا ذخیره شدن، فقط سینکِ دوطرفه نیازه.)</i>")
+            elif writeback_kept > 0:
+                out.append(f"⏳ {writeback_kept} مورد منتظرِ ذخیره‌سازی در پاکت‌اسمیت.")
+        # پیشنهادِ ادامه
+        if needs_review > 0 and sync_ok:
+            out.append("")
+            out.append(f"🧮 <b>{needs_review}</b> موردِ بدونِ دسته مانده.")
+            out.append("یکی‌یکی باهات چک می‌کنم؟")
+            out.append("<i>🟢 هیچ پولی جابه‌جا نمی‌شه — فقط دسته‌بندی.</i>")
+            return {"text": "\n".join(out),
+                    "reply_markup": {"inline_keyboard": [[
+                        {"text": "🧮 آره، شروع کن", "callback_data": "acct:review"},
+                        {"text": "📊 وضعِ من", "callback_data": "menu:finance"},
+                        {"text": "🏠 منو", "callback_data": "menu:main"}]]}}
+        # اگه صفِ مرور خالیه
+        if sync_ok:
+            out.append("")
+            out.append("همه‌چیز دسته‌بندی شده ✅")
+        return {"text": "\n".join(out),
+                "reply_markup": {"inline_keyboard": [[
+                    {"text": "📊 وضعِ من", "callback_data": "menu:finance"},
+                    {"text": "🏠 منو", "callback_data": "menu:main"}]]}}
 
     def _dispatch_acct(self, parts: list):
         """میان‌بُرهای دکمه‌ایِ حسابداری (اسکن #34/#35): acct:review/books/sync →
@@ -2684,12 +2759,79 @@ class TelegramApprovalChannel(ApprovalChannel):
         return asset, personal
 
     def _finance_text(self) -> str:
-        """💰 دارایی‌ها/حساب — نقشهٔ نظارتِ دارایی (asset_map) + دفترِ شخصی/مشترک (personal_ledger).
-        data-driven و فقط‌خواندنی؛ صفر settle/جابه‌جاییِ پول. خط‌قرمزِ سخت: فقط سیگنالِ امن +
-        ترازِ تجمیعی + رشتهٔ پیشنهادِ تسویه — هرگز تراکنشِ منفرد و هرگز شماره‌حساب. منبعِ خاموش/
-        غایب → «خاموش/خالی»ِ صادق (هرگز عددِ ساختگی)."""
+        """📊 «وضعِ من» — نسخهٔ فارسیِ سادهٔ بی‌اصطلاح برای آرمین/عباس (UX-SPEC §۳.۱، 2026-07-18).
+        جایگزینِ نسخهٔ expert که پر از Dr/Cr / خالصِ بانکی / ATO / سنتِ سازگار بود. داده‌ها از
+        همون accountant.network_summary_card میاد (PII-safe، فقط تجمیع). هیچ منطقی عوض نشده —
+        فقط رندر. برای نسخهٔ کاملِ expert: _finance_text_expert (یا /finance?expert=1 در آینده)."""
+        net = self._network_summary()
+        lines = [self._hdr("📊 <b>وضعِ من</b>")]
+        if not net or not net.get("live"):
+            note = str((net or {}).get("note", "")).strip()
+            tail = (" — " + html.escape(note[:90])) if note else " — فعلاً داده‌ای وصل نیست."
+            lines.append("⚪ چیزی برای نشان دادن نیست" + tail)
+            lines.append("<i>برای به‌روزرسانی: /sync</i>")
+            lines.append(self._DIV.strip())
+            lines.append("<i>🟢 فقط‌خواندنی — هیچ پولی جابه‌جا نمی‌شه.</i>")
+            return "\n".join(lines)
+        # نمایشِ اعداد با ~ (تقریبیِ دوستانه — RD-001 مبلغِ دقیق را پذیرفت ولی برای خلاصه،
+        # ~ نشانهٔ «این خلاصه‌ست نه گزارشِ نهاییِ مالیاتی» است). هیچ گردکردن؛ مقدارِ دقیق.
+        def _fa_amt(x) -> str:
+            try:
+                return f"~${abs(float(x)):,.0f}"
+            except (TypeError, ValueError):
+                return html.escape(str(x))
+        rev = net.get("client_revenue"); assoc = net.get("assoc_total")
+        wage = net.get("wage_total"); wage_days = net.get("wage_days")
+        armin = net.get("armin_net"); abbas = net.get("abbas_net")
+        as_of = html.escape(str(net.get("as_of", ""))[:10])
+        if as_of:
+            lines.append(f"<i>تا {as_of}</i>")
+        # بخشِ درآمد/خرج/حقوق (داده از network_summary_card)
+        if rev is not None:
+            lines.append(f"💰 اومد: {_fa_amt(rev)}  (درآمدِ مشتری‌ها)")
+        if assoc is not None:
+            lines.append(f"💸 رفت: {_fa_amt(assoc)}  (پیمانکارها)")
+        if wage is not None:
+            wd = f"  (~{wage_days} روز)" if isinstance(wage_days, (int, float)) else ""
+            lines.append(f"👷 حقوقِ آرمین: {_fa_amt(wage)}{wd}")
+        lines.append("─────────────────")
+        # مابه‌التفاوتِ آرمین/عباس (جایگزینِ «تسویهٔ مشترک»)
+        lines.append("💵 مابه‌التفاوتِ آرمین و عباس:")
+        if armin is not None:
+            try:
+                av = float(armin)
+                tag = "از جیبِ خودش رفته" if av < 0 else "بیشتر دریافت کرده"
+                lines.append(f"  آرمین: {_fa_amt(armin)}  ({tag})")
+            except (TypeError, ValueError):
+                lines.append(f"  آرمین: {html.escape(str(armin))}")
+        if abbas is not None:
+            try:
+                bv = float(abbas)
+                tag = "تو حسابِ بیزنس مانده" if bv >= 0 else "بدهکار"
+                lines.append(f"  عباس:  {_fa_amt(abbas)}  ({tag})")
+            except (TypeError, ValueError):
+                lines.append(f"  عباس:  {html.escape(str(abbas))}")
+        lines.append("")
+        # جایگزینِ «✅ سنتِ سازگار»: «عدد‌ها می‌خونن»
+        rec = "✅ عدد‌ها می‌خونن" if net.get("reconciled") else "⚠️ عدد‌ها نمی‌خونن (داده ناقص)"
+        lines.append(rec)
+        c = net.get("counts") or {}
+        confirmed = c.get("confirmed", 0); needs = c.get("needs_review", 0)
+        lines.append("")
+        lines.append(f"📋 {confirmed} موردِ تأییدشده · {needs} موردِ بدونِ دسته")
+        if needs > 0:
+            lines.append("   <i>برای دسته‌بندی: /review</i>")
+        lines.append(self._DIV.strip())
+        lines.append("<i>«این خلاصهٔ داخلیه؛ گزارشِ نهاییِ مالیاتی با حسابداره.»</i>")
+        lines.append("<i>🟢 فقط‌خواندنی — هیچ پولی جابه‌جا نمی‌شه.</i>")
+        return "\n".join(lines)
+
+    def _finance_text_expert(self) -> str:
+        """💰 دارایی‌ها/حساب (نسخهٔ expert / کامل) — نقشهٔ نظارتِ دارایی (asset_map) + دفترِ
+        شخصی/مشترک (personal_ledger). برای مالک/توسعه‌دهنده. آرمین/عباس _finance_text ساده
+        را می‌بینند. data-driven و فقط‌خواندنی؛ صفر settle/جابه‌جاییِ پول."""
         asset, personal = self._finance_data()
-        lines = [self._hdr("💰 <b>دارایی‌ها/حساب</b>")]
+        lines = [self._hdr("💰 <b>دارایی‌ها/حساب (expert)</b>")]
 
         # ── ۱) نقشهٔ نظارتِ دارایی (فقط سیگنالِ whitelist شده از asset_map) ──
         assets = (asset or {}).get("assets") or []

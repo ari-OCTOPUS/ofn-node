@@ -203,11 +203,17 @@ def _content_hash(t: dict) -> str:
     """کلیدِ dedupِ محتوایی (روش ۳) — بینِ API و فایل که idهاشان فرق دارد.
     date|cents|desc|account — account هم داخل است (اسکن #17: دو تراکنشِ واقعیِ هم‌روز/
     هم‌مبلغ/هم‌desc روی دو حسابِ متفاوت نباید یکی شوند). این hash هرگز persist نمی‌شود
-    (هر sync دو طرف را با همین فرمول می‌سازد) → تغییرش migration نمی‌خواهد."""
-    import hashlib
-    key = (f"{t.get('date')}|{t.get('amount_cents')}|"
-           f"{str(t.get('desc', ''))[:20].lower()}|{str(t.get('account', '')).lower()}")
-    return hashlib.sha1(key.encode("utf-8")).hexdigest()
+    (هر sync دو طرف را با همین فرمول می‌سازد) → تغییرش migration نمی‌خواهد.
+
+    رفعِ باگِ دو-هش (2026-07-18، فاز ۵.۲): قبلاً این تابع desc را به [:20] و lower()
+    می‌کرد و ۴۰ hex برمی‌گرداند، در حالی که txn_store._hash از full desc (case-sensitive)
+    و ۱۶ hex استفاده می‌کرد. این تفاوت باعث می‌شد دو تراکنشِ مجزا با desc متفاوت فقط
+    بعد از کاراکتر ۲۰، در build_network یکی شوند (suppress). حالا به txn_store._hash
+    delegate می‌کنیم تا یک فرمول، یک رفتار."""
+    import txn_store as _ts
+    desc = str(t.get("desc", "") or "").strip()[:120]   # همان truncateِ _mk
+    account = str(t.get("account", "") or "").strip()    # case-sensitive (مثل _hash)
+    return _ts._hash(t.get("date", ""), t.get("amount_cents", 0), desc, account)
 
 
 def _map_source_owner(txns: list[dict]) -> list[dict]:

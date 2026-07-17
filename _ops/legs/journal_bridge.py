@@ -42,10 +42,29 @@ import money        # noqa: E402
 import ledger_core  # noqa: E402
 
 ENTITY_ID = "armin-abn"
-_EXPENSE_BY_OWNER = {"rent": "5200", "sume": "5100", "maliheh": "5100", "behzad": "5100"}
+# نگاشتِ owner→حسابِ خرج. قبلاً (تا 2026-07-18) hardcoded بود با نام‌های واقعیِ طرف‌حساب
+# (PII در کد). حالا از categorize-config.json (gitignored) لود می‌شود؛ fallback به همین
+# مقادیرِ پیش‌فرض اگه config غایب باشد. تغییر در config → تغییر در نگاشت، بدونِ دستِ کد.
+_EXPENSE_BY_OWNER_DEFAULT = {"rent": "5200", "sume": "5100", "maliheh": "5100", "behzad": "5100"}
 # hintِ دارایی (tool→1500) عمداً حذف شد: سرمایه‌سازی تصمیمِ حسابدار است (audit #16)
 _CATEGORY_HINTS = (("material", "5000"), ("مصالح", "5000"), ("bunnings", "5000"))
 _ENTITY_SOURCES = ("pocketsmith",)          # فقط حساب‌های بانکیِ خودِ entity ثبت‌پذیرند
+
+
+def _config_path() -> Path:
+    return opslib.ORG_ROOT / "03 - Projects" / "Accounting" / "personal" / "categorize-config.json"
+
+
+def _expense_by_owner() -> dict:
+    """نگاشتِ owner→account از categorize-config.json (gitignored). fail-soft → default."""
+    try:
+        d = json.loads(_config_path().read_text("utf-8"))
+        m = d.get("expense_account_by_owner") if isinstance(d, dict) else None
+        if isinstance(m, dict) and m:
+            return {str(k): str(v) for k, v in m.items()}
+    except (OSError, ValueError, TypeError):
+        pass
+    return dict(_EXPENSE_BY_OWNER_DEFAULT)
 
 
 def _store_path() -> Path:
@@ -114,8 +133,9 @@ def _scrub(desc: object, limit: int = 60) -> str:
 
 def _expense_account(t: dict) -> str:
     o = str(t.get("owner", ""))
-    if o in _EXPENSE_BY_OWNER:
-        return _EXPENSE_BY_OWNER[o]
+    ebo = _expense_by_owner()                 # از config (gitignored) — نه از hardcoded
+    if o in ebo:
+        return ebo[o]
     blob = (str(t.get("category", "")) + " " + str(t.get("desc", ""))).lower()
     for kw, acc in _CATEGORY_HINTS:
         if kw in blob:

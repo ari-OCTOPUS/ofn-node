@@ -81,19 +81,21 @@ def t_a_finance_registered_and_read_only():
 
 
 def t_b_command_and_menu_route_to_finance():
-    """/finance و menu:finance هر دو یک dict با text+reply_markup می‌دهند (بدونِ crash)."""
+    """/finance و menu:finance هر دو یک dict با text+reply_markup می‌دهند (بدونِ crash).
+    از 2026-07-18: /finance نسخهٔ فارسیِ سادهٔ «وضعِ من» می‌دهد (UX-SPEC §۳.۱)."""
     ch = _chan()
     for out in (ch.handle_command("/finance"), ch.dispatch_callback("menu:finance")):
         assert isinstance(out, dict), out
         assert "text" in out and "reply_markup" in out
-        assert "دارایی" in out["text"]
+        assert "وضعِ من" in out["text"]            # header فارسیِ ساده (نه «دارایی‌ها/حساب»)
 
 
 def t_c_present_renders_asset_and_personal_aggregates():
-    """با دادهٔ حاضر: سیگنالِ asset_map + ترازِ تجمیعیِ دفتر + رشتهٔ تسویه رندر می‌شود."""
+    """با دادهٔ حاضر (نسخهٔ EXPERT): سیگنالِ asset_map + ترازِ تجمیعیِ دفتر + رشتهٔ تسویه.
+    از 2026-07-18 این بخش‌ها در _finance_text_expert هستند (نسخهٔ ساده فقط شبکه را نشان می‌دهد)."""
     ch = _chan()
     ch._finance_data = lambda: (ASSET_FIXTURE, PERSONAL_FIXTURE)  # seamِ تزریق
-    txt = ch._finance_text()
+    txt = ch._finance_text_expert()
     # asset_map: هر پا با category + signal
     assert "نقشهٔ دارایی" in txt
     assert "crypto" in txt and "digital-assets" in txt and "positions=3" in txt
@@ -107,19 +109,19 @@ def t_c_present_renders_asset_and_personal_aggregates():
 
 
 def t_d_present_never_leaks_raw_txn_or_account_number():
-    """هیچ تراکنشِ منفرد/شماره‌حساب/فیلدِ غیرِ whitelist (amount_aud/by_category/entries)."""
+    """هیچ تراکنشِ منفرد/شماره‌حساب/فیلدِ غیرِ whitelist (amount_aud/by_category/entries) — نسخهٔ EXPERT."""
     ch = _chan()
     ch._finance_data = lambda: (ASSET_FIXTURE, PERSONAL_FIXTURE)
-    txt = ch._finance_text()
+    txt = ch._finance_text_expert()
     for s in _LEAK_SENTINELS:
         assert s not in txt, f"leak: {s!r} در متنِ کارت دیده شد"
 
 
 def t_e_absent_renders_honest_off_and_no_fake_number():
-    """منبعِ غایب (None, None) → «خاموش/خالی»ِ صادق؛ صفر عددِ ساختگیِ پول."""
+    """منبعِ غایب (None, None) → «خاموش/خالی»ِ صادق؛ صفر عددِ ساختگیِ پول — نسخهٔ EXPERT."""
     ch = _chan()
     ch._finance_data = lambda: (None, None)
-    txt = ch._finance_text()
+    txt = ch._finance_text_expert()
     assert "خاموش/خالی" in txt or "خاموش" in txt
     assert "asset_map در دسترس نیست" in txt
     assert "خالی" in txt                       # دفترِ خالی
@@ -133,12 +135,12 @@ def t_e_absent_renders_honest_off_and_no_fake_number():
 
 
 def t_f_off_ledger_present_asset_partial():
-    """asset حاضر ولی دفتر خاموش (live=False با note) → asset رندر، دفتر «خالی»ِ صادق."""
+    """asset حاضر ولی دفتر خاموش (live=False با note) → asset رندر، دفتر «خالی»ِ صادق — نسخهٔ EXPERT."""
     ch = _chan()
     off_personal = {"leg": "personal-ledger", "live": False, "signal": "ledger نیست",
                     "note": "ledger.json نیست — از قالب کپی و دونه‌دونه پر کن."}
     ch._finance_data = lambda: (ASSET_FIXTURE, off_personal)
-    txt = ch._finance_text()
+    txt = ch._finance_text_expert()
     assert "crypto" in txt                      # asset رندر شد
     assert "خالی" in txt                        # دفترِ خاموش، صادق
     assert "ثروتِ خالص" not in txt              # بدونِ ترازِ ساختگی
@@ -147,13 +149,12 @@ def t_f_off_ledger_present_asset_partial():
 
 
 def t_g_real_path_never_crashes_and_ledger_off():
-    """مسیرِ واقعیِ _finance_data (بدونِ تزریق) در mini-vaultِ harness: بدونِ crash؛
-    ledgerِ واقعی غایب → دفتر خاموش؛ صفر شماره‌حساب/عددِ پولِ نشت‌کرده."""
+    """مسیرِ واقعیِ _render_tab(finance) (بدونِ تزریق) در mini-vault: بدونِ crash؛
+    از 2026-07-18 header «وضعِ من» (نه «دارایی»)؛ network_summary خاموش → «داده‌ای وصل نیست»."""
     r = _chan()._render_tab("finance")
     assert isinstance(r, dict) and "text" in r and "reply_markup" in r
     txt = r["text"]
-    assert "دارایی" in txt
-    assert "خالی" in txt                        # ledger.json در mini-vault نیست → خاموش
+    assert "وضعِ من" in txt                     # header فارسیِ ساده (نه «دارایی»)
     # هیچ شماره‌حساب‌مانند (رشتهٔ ۸+ رقمی) از مسیرِ واقعی نشت نکند
     assert not re.search(r"\d{8,}", txt), f"شماره‌حساب‌مانند: {txt!r}"
 
@@ -171,29 +172,41 @@ _NET_NAME_LEAKS = ("sume", "asadi", "maliheh", "behzad", "carmy",
 
 
 def t_h_network_section_renders_aggregate_no_names():
-    """بخشِ ۳: خالصِ تجمیعیِ آرمین/عباس + جمع‌های بی‌نام؛ هرگز نامِ مشتری/طرف‌حسابِ شخصِ ثالث."""
+    """بخشِ شبکه (نسخهٔ سادهٔ «وضعِ من»): مابه‌التفاوتِ آرمین/عباس + جمع‌های بی‌نام.
+    از 2026-07-18 (UX-SPEC §۳.۱): «خالصِ بانکی» → «مابه‌التفاوت»، «سنتِ سازگار» → «عدد‌ها می‌خونن»."""
     ch = _chan()
-    ch._finance_data = lambda: (None, None)          # بخش‌های ۱-۲ خاموش
+    ch._finance_data = lambda: (None, None)          # بخش‌های expert خاموش
     ch._network_summary = lambda: NET_FIXTURE
     txt = ch._finance_text()
-    assert "شبکهٔ حساب" in txt
-    assert "5394.28" in txt and "42074.00" in txt    # خالصِ عباس + جمعِ درآمدِ مشتری
+    assert "وضعِ من" in txt                            # header فارسیِ ساده
+    # اعدادِ تجمیعی همچنان نمایش داده می‌شوند (RD-001: مبلغِ دقیق مجاز؛ ~ با گردکردنِ نمایشی)
+    # با کامای هزارگان (فرمتِ :,.0f): ~$5,394 و ~$42,074
+    assert "5,394" in txt and "42,074" in txt
     assert "آرمین" in txt and "عباس" in txt
-    assert "خالصِ بانکی" in txt                        # برچسبِ صادق (نه فقط «خالص»)
-    assert "سنتِ سازگار" in txt                        # برچسبِ صادقِ reconcile (نه «tie-out»ِ گمراه)
-    assert "tie-out" not in txt                        # green-lie حذف شد
+    assert "مابه‌التفاوت" in txt                        # جایگزینِ «خالصِ بانکی»
+    assert "عدد‌ها می‌خونن" in txt                      # جایگزینِ «سنتِ سازگار»
+    # هیچ‌کدام از اصطلاحاتِ ممنوع (UX-SPEC §۲) نباید باشد
+    assert "خالصِ بانکی" not in txt
+    assert "سنتِ سازگار" not in txt
+    assert "Dr" not in txt and "Cr" not in txt
+    assert "ATO" not in txt
+    # هرگز نامِ مشتری/طرف‌حسابِ شخصِ ثالث
+    for name in _NET_NAME_LEAKS:
+        assert name not in txt, f"leak: {name!r}"
     low = txt.lower()
     for name in _NET_NAME_LEAKS:
         assert name not in low, f"نشتِ نامِ شخصِ ثالث: {name!r}"
 
 
 def t_i_network_off_is_honest():
-    """منبعِ خاموش → «خاموش/خالی»ِ صادق، صفر عددِ ساختگی در بخشِ ۳."""
+    """منبعِ خاموش → «داده‌ای وصل نیست»ِ صادق، صفر عددِ ساختگی (UX-SPEC §۳.۱).
+    از 2026-07-18: header «وضعِ من»، پیامِ صادقانه به‌جای «شبکهٔ حسابِ خاموش»."""
     ch = _chan()
     ch._finance_data = lambda: (None, None)
     ch._network_summary = lambda: {"live": False, "note": "txn-store خالی است."}
     txt = ch._finance_text()
-    assert "شبکهٔ حساب" in txt and "خاموش" in txt
+    assert "وضعِ من" in txt                      # header فارسیِ ساده
+    assert "داده" in txt or "چیزی" in txt        # پیامِ صادقانهٔ «داده‌ای وصل نیست»
 
 
 if __name__ == "__main__":

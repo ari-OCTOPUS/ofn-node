@@ -56,7 +56,10 @@ def t_a_books_shows_proposal_card():
     _seed()
     out = TelegramApprovalChannel().handle_command("/books")
     assert isinstance(out, dict) and "reply_markup" in out, out
-    assert "ثبتِ پیشنهادی" in out["text"] and "Dr" in out["text"], out
+    # از 2026-07-18 (UX-SPEC §۳.۴): header «ثبتِ نهایی»، بدونِ Dr/Cr/ثبتِ دوطرفه
+    assert "ثبتِ نهایی" in out["text"], out
+    assert "Dr" not in out["text"], "Dr نباید در نسخهٔ ساده دیده شود"
+    assert "ثبتِ دوطرفه" not in out["text"], "اصطلاحِ double-entry نباید دیده شود"
     assert "12345678" not in out["text"], "شماره‌حساب باید scrub شده باشد"
     cds = _cbs(out)
     assert any(c.startswith("jrn:a:") for c in cds), cds
@@ -70,7 +73,7 @@ def t_b_approve_posts_and_double_tap_safe():
     card = ch.handle_command("/books")
     ok_cb = next(c for c in _cbs(card) if c.startswith("jrn:a:"))
     r = ch.dispatch_callback(ok_cb)
-    assert isinstance(r, dict) and "ثبت شد ✅" in r["text"], r
+    assert isinstance(r, dict) and "ثبت شد" in r["text"], r
     tb = lc.trial_balance()
     assert tb["balanced"] and tb["total_debit_cents"] > 0, tb
     n1 = len(lc._read_ledger(None)["journals"])
@@ -92,18 +95,26 @@ def t_c_reject_then_empty_honest():
             break
         card = ch.dispatch_callback(rej)
     out = ch.handle_command("/books")
-    assert isinstance(out, str) and "خالی" in out, out
+    # از 2026-07-18: «چیزی برای ثبتِ نهایی نیست» (header فارسیِ ساده، UX-SPEC §۳.۴)
+    txt = out if isinstance(out, str) else (out.get("text", "") if isinstance(out, dict) else str(out))
+    assert "نیست" in txt or "خالی" in txt, txt
 
 
 def t_d_finance_shows_ledger_section():
+    """بخشِ دفتر/ATO فقط در نسخهٔ EXPERT (مالک) — نسخهٔ ساده برای آرمین/عباس این‌ها را نمی‌بیند.
+    از 2026-07-18: _finance_text ساده است؛ بخشِ دوطرفه در _finance_text_expert."""
     _seed()
     ch = TelegramApprovalChannel()
     card = ch.handle_command("/books")
     ch.dispatch_callback(next(c for c in _cbs(card) if c.startswith("jrn:a:")))
-    txt = ch._finance_text()
-    assert "دفترِ داخلی" in txt, txt                    # ریلِ خانوادگی (two-rails)
-    assert "ریلِ شرکت" in txt, txt                      # ریلِ ATO (خاموشِ صادق در هارنس)
-    assert "Dr" in txt and "Cr" in txt, txt
+    txt_expert = ch._finance_text_expert()
+    assert "دفترِ داخلی" in txt_expert, txt_expert       # ریلِ خانوادگی (two-rails)
+    assert "ریلِ شرکت" in txt_expert, txt_expert         # ریلِ ATO (خاموشِ صادق در هارنس)
+    assert "Dr" in txt_expert and "Cr" in txt_expert, txt_expert
+    # و نسخهٔ ساده این‌ها را پنهان می‌کند:
+    txt_simple = ch._finance_text()
+    assert "Dr" not in txt_simple, "نسخهٔ ساده نباید Dr را نشان دهد"
+    assert "دفترِ داخلی" not in txt_simple, "نسخهٔ ساده نباید دفترِ داخلی را نشان دهد"
 
 
 if __name__ == "__main__":

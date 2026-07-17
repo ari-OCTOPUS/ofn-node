@@ -46,14 +46,19 @@ def t_a_review_start_gives_question_card():
     _seed_store()
     out = _ch().handle_command("/review")
     assert isinstance(out, dict) and "reply_markup" in out, out
-    assert "سوال 1/2" in out["text"], out
+    assert "(1/2)" in out["text"], out                 # header فارسیِ ساده (UX-SPEC §۳.۲)
     assert "900.00" in out["text"], out                # بزرگ‌ترین اول ($900 > $300)
     assert "12345678" not in out["text"], out          # شماره‌حساب scrub شد
+    assert "خروجی" in out["text"], out                 # 🔴 خروجی (نه «sign + AUD»)
     cds = [b["callback_data"] for row in out["reply_markup"]["inline_keyboard"] for b in row]
     # صفر دکمهٔ پول/act/card
     for cd in cds:
         assert not cd.startswith(("app:", "act:", "card:")), cd
     assert any(c.startswith("rev:a:") for c in cds), cds
+    # دکمه‌های فارسیِ روزمره (UX-SPEC)
+    labels = " ".join(b["text"] for row in out["reply_markup"]["inline_keyboard"] for b in row)
+    assert "خرجِ آرمین" in labels, labels
+    assert "فقط رد شد" in labels, labels
 
 
 def _cbs(card):
@@ -67,7 +72,7 @@ def t_b_callback_answer_applies_and_advances():
     armin_exp = next(c for c in _cbs(card) if c.endswith(":a:e"))   # rev:a:big:a:e (هویت‌دار)
     r = ch.dispatch_callback(armin_exp)
     assert isinstance(r, dict) and "ثبت شد" in r["text"], r
-    assert "سوال 2/2" in r["text"], r                   # سوالِ بعدی
+    assert "(2/2)" in r["text"], r                      # سوالِ بعدی (header فارسیِ ساده)
     doc = json.loads(ar._store_path().read_text("utf-8"))
     big = next(t for t in doc["txns"] if t["id"] == "big")
     assert big["owner"] == "armin" and big["ptype"] == "expense" and big["review"] == "confirmed", big
