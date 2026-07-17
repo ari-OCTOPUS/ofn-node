@@ -863,7 +863,23 @@ def main() -> int:
         return 0
     print(f"live: اتاقِ کنترل روی http://127.0.0.1:{PORT}")
     opslib.heartbeat(f"live-cockpit=START port={PORT}")
-    srv.serve_forever()
+    # P9 (truth-map 2026-07-17): مرگِ کاکپیت باید دیده شود. تا امروز serve_forever که
+    # تمام می‌شد (بستنِ کنسول/خطا) بی‌صدا می‌مرد و هیچ سطحی «۸۷۷۳ پایین است» را نشان
+    # نمی‌داد. حالا هر خروج یک ردِ صادق در HEARTBEAT.md می‌گذارد.
+    try:
+        srv.serve_forever()
+    except KeyboardInterrupt:
+        opslib.heartbeat(f"live-cockpit=STOP port={PORT} (interrupt)")
+    except Exception as e:  # noqa: BLE001
+        opslib.heartbeat(f"live-cockpit=STOP port={PORT} (error: {type(e).__name__})")
+        raise
+    else:
+        opslib.heartbeat(f"live-cockpit=STOP port={PORT} (serve ended)")
+    finally:
+        try:
+            srv.server_close()
+        except Exception:  # noqa: BLE001
+            pass
     return 0
 
 

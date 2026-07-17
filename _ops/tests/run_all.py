@@ -90,7 +90,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_harvest_austender.py", "test_cadence_aliasing.py",
          "test_organism_honesty.py", "test_genome_safety.py",
          # 2026-07-17: تعمیرهای truth-map (P3 عصبِ درد، P5 بودجهٔ صادق، P6 آرتیفکتِ pacemaker، …)
-         "test_truthmap_fixes.py",
+         "test_truthmap_fixes.py", "test_p4_p9_fixes.py",
          # 2026-07-16: نقشهٔ لید مراحل ۳-۵ (پلِ ایمیل، غنی‌سازیِ LLM، پیش‌فاکتورِ واقعی)
          "test_email_lead_bridge.py", "test_lead_llm_enrich.py",
          "test_lead_quote_chain.py",

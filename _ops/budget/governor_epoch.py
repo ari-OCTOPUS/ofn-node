@@ -41,6 +41,20 @@ EPOCH_DIR = opslib.BUDGET_DIR / "epochs"
 BASE_MIN_DEFAULT = 60.0     # پایهٔ آرام؛ آلوستاتیک بین base/4 و base*2 حرکت می‌کند
 PRESSURE_GAIN = 0.75
 
+# P4 (truth-map 2026-07-17): گاورنر-LLM هر epoch اجرا می‌شود؛ یک شرطِ ثابتِ پیکربندی
+# (مثلِ قیمتِ قفل‌نشدهٔ DeepSeek → PriceNotLocked) نباید ساعتی همان ⚠️ را اسپم کند
+# (۹۵ تکرار در لاگ). هر پیامِ یکتا فقط یک‌بار در هر session (تا restart) هشدار می‌دهد.
+_GOV_LLM_ALERTED: set[str] = set()
+
+
+def _gov_llm_alert_once(key: str, msg: str) -> None:
+    """هشدارِ گاورنر-LLM با dedupِ session روی «کلید» — پیامِ تکراری لاگ را غرق نمی‌کند.
+    یک اجرای موفق کلیدها را re-arm می‌کند تا خفتگیِ بعدی دوباره یک‌بار هشدار دهد."""
+    if key in _GOV_LLM_ALERTED:
+        return
+    _GOV_LLM_ALERTED.add(key)
+    opslib.alert([msg])
+
 
 def _deadline_proximity(organs: dict) -> tuple[float, str]:
     """سیگموید تیز داخل ۱۴ روز پایانی (H5). خروجی 0..1 + نزدیک‌ترین ددلاین."""
@@ -249,10 +263,10 @@ def allocate_llm(snap: dict, alloc_dry: dict) -> dict | None:
         return None
     sys.path.insert(0, str(opslib.DEBATE_DIR))
     try:
-        from client import DeepSeekClient  # noqa: E402
+        from client import DeepSeekClient, PriceNotLocked  # noqa: E402
         import organ_gate                  # noqa: E402
     except Exception as e:
-        opslib.alert([f"governor llm mode import failed: {e}"])
+        _gov_llm_alert_once("gov-llm-import", f"governor llm mode import failed: {e}")
         return None
     prompt_file = opslib.PROMPTS / "metabolic-governor-v0.1.txt"
     system = prompt_file.read_text("utf-8")
@@ -274,10 +288,17 @@ def allocate_llm(snap: dict, alloc_dry: dict) -> dict | None:
             raise
         organ_gate.settle("ARCHITECT_SYS", est, out["cost_usd"], task="governor-epoch")
         from client import extract_json  # noqa: E402
+        _GOV_LLM_ALERTED.clear()   # اجرای موفق → همهٔ کلیدها re-arm (خفتگیِ بعدی دوباره هشدار می‌دهد)
         return {"llm_allocation": extract_json(out["text"]),
                 "model": out["model"], "cost_usd": out["cost_usd"]}
+    except PriceNotLocked as e:
+        # شرطِ پیکربندی، نه خطای اجرا: fail-closed (خرجِ پول با نرخِ نامعلوم ممنوع) درست
+        # است. یک‌بار هشدارِ «خفته» + برگشتِ امن به dry. مالک price_in/price_out را در
+        # budgets.yaml قفل کند (با verdict) یا ACTIVATION-GOVERNOR-LLM.flag را بردارد.
+        _gov_llm_alert_once("gov-llm-dormant", f"governor llm خفته (dry): {e}")
+        return None
     except Exception as e:  # noqa: BLE001
-        opslib.alert([f"governor llm epoch failed (fallback به dry): {e}"])
+        _gov_llm_alert_once("gov-llm-error", f"governor llm epoch failed (fallback به dry): {e}")
         return None
 
 
