@@ -64,6 +64,7 @@ def t_afferent_changes_awareness():
     bridge = _real_bridge()
     mean_before = bridge.mean_awareness()
     snap = _snapshot_with_activity()
+    wiring._EPOCH_STATE.clear()   # epoch-gate: هر تست پنجرهٔ تازه
     result = wiring.afferent_beat(sb, school_bridge=bridge, snap=snap, beat=1440)
     os.environ.pop("OCTOPUS_WIRE_SCHOOL")
     assert result is not None, "afferent_beat باید نتیجه بدهد (flag on + beat مضرب + داده)"
@@ -83,6 +84,7 @@ def t_afferent_status_published_to_bus():
     bridge = _real_bridge()
     snap = _snapshot_with_activity()
     # afferent_beat → status
+    wiring._EPOCH_STATE.clear()   # epoch-gate: هر تست پنجرهٔ تازه
     result = wiring.afferent_beat(sb, school_bridge=bridge, snap=snap, beat=1440)
     status = result.get("sensory_status")
     os.environ.pop("OCTOPUS_WIRE_SCHOOL")
@@ -99,6 +101,7 @@ def t_afferent_observation_count():
     """با snapshotِ فعال → چند observation ساخته می‌شود (organs + suspect + month)."""
     os.environ["OCTOPUS_WIRE_SCHOOL"] = "1"
     sb = _real_sensory_bus()
+    wiring._EPOCH_STATE.clear()   # epoch-gate: هر تست پنجرهٔ تازه
     result = wiring.afferent_beat(sb, school_bridge=_real_bridge(),
                                    snap=_snapshot_with_activity(), beat=1440)
     os.environ.pop("OCTOPUS_WIRE_SCHOOL")
@@ -149,6 +152,7 @@ def test_no_raw_data_in_events():
     """AfferentEvent فقط metadata دارد — هیچ رکوردِ خام."""
     os.environ["OCTOPUS_WIRE_SCHOOL"] = "1"
     sb = _real_sensory_bus()
+    wiring._EPOCH_STATE.clear()   # epoch-gate: هر تست پنجرهٔ تازه
     result = wiring.afferent_beat(sb, school_bridge=_real_bridge(),
                                    snap=_snapshot_with_activity(), beat=1440)
     os.environ.pop("OCTOPUS_WIRE_SCHOOL")
@@ -165,6 +169,7 @@ def t_flag_off_is_noop():
     """flag خاموش → afferent_beat None برمی‌گرداند (no-op)."""
     os.environ.pop("OCTOPUS_WIRE_SCHOOL", None)
     sb = _real_sensory_bus()
+    wiring._EPOCH_STATE.clear()   # epoch-gate: هر تست پنجرهٔ تازه
     result = wiring.afferent_beat(sb, school_bridge=_real_bridge(),
                                    snap=_snapshot_with_activity(), beat=1440)
     assert result is None, "flag خاموز باید no-op باشد"
@@ -174,6 +179,7 @@ def t_non_multiple_beat_is_noop():
     """beat غیرِ مضربِ N → no-op (حتی با flag روشن)."""
     os.environ["OCTOPUS_WIRE_SCHOOL"] = "1"
     sb = _real_sensory_bus()
+    wiring._EPOCH_STATE.clear()   # epoch-gate: هر تست پنجرهٔ تازه
     result = wiring.afferent_beat(sb, school_bridge=_real_bridge(),
                                    snap=_snapshot_with_activity(), beat=100)
     os.environ.pop("OCTOPUS_WIRE_SCHOOL")
@@ -184,6 +190,7 @@ def t_zero_beat_is_noop():
     """beat=0 → no-op."""
     os.environ["OCTOPUS_WIRE_SCHOOL"] = "1"
     sb = _real_sensory_bus()
+    wiring._EPOCH_STATE.clear()   # epoch-gate: هر تست پنجرهٔ تازه
     result = wiring.afferent_beat(sb, beat=0)
     os.environ.pop("OCTOPUS_WIRE_SCHOOL")
     assert result is None
@@ -197,6 +204,7 @@ def t_empty_snapshot_no_school():
     """snapshotِ خالی → ۰ observation → school_report=None (هیچ چیزِ ساختگی)."""
     os.environ["OCTOPUS_WIRE_SCHOOL"] = "1"
     sb = _real_sensory_bus()
+    wiring._EPOCH_STATE.clear()   # epoch-gate: هر تست پنجرهٔ تازه
     result = wiring.afferent_beat(sb, school_bridge=_real_bridge(),
                                    snap={}, beat=1440)
     os.environ.pop("OCTOPUS_WIRE_SCHOOL")
@@ -208,6 +216,7 @@ def t_empty_snapshot_no_school():
 def t_no_sensory_bus_noop():
     """بدونِ SensoryBus → afferent_beat None."""
     os.environ["OCTOPUS_WIRE_SCHOOL"] = "1"
+    wiring._EPOCH_STATE.clear()   # epoch-gate: هر تست پنجرهٔ تازه
     result = wiring.afferent_beat(None, snap=_snapshot_with_activity(), beat=1440)
     os.environ.pop("OCTOPUS_WIRE_SCHOOL")
     assert result is None
@@ -224,6 +233,7 @@ def t_killswitch_blocks_afferent():
     sb = _real_sensory_bus()
     opslib.STOP_ORGANISM.write_text("kill", "utf-8")
     try:
+        wiring._EPOCH_STATE.clear()   # epoch-gate: هر تست پنجرهٔ تازه
         result = wiring.afferent_beat(sb, snap=_snapshot_with_activity(), beat=1440)
     finally:
         try:

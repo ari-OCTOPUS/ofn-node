@@ -32,6 +32,31 @@ def flag(name: str) -> bool:
     return os.environ.get(name, "0") == "1"
 
 
+# ── anti-aliasing cadence gate (تری‌اسکن 2026-07-17) ───────────────────────────
+# باگِ ریشه‌ای: tickِ واقعی ~۹۰۰s ضربانِ ۶۰s را با گامِ ~۱۵ نمونه‌برداری می‌کند، پس
+# `beat % N == 0` روی مضرب‌ها می‌پرد و شلیک‌ها را از دست می‌دهد (droughtهای چندساعته
+# تا چندهفته‌ای). قالبِ درست (هم‌الگوی _ACCT_STATE/_HEART_STATE): هر epoch حداکثر یک
+# شلیک. این هلپر همان منطق را DRY می‌کند تا هر ۸ سایتِ باقی‌مانده یک‌دست شوند.
+_EPOCH_STATE: dict = {}   # name -> آخرین epochِ شلیک‌شده
+
+
+def _epoch_fire(name: str, beat: int, every_n) -> bool:
+    """آیا این beat باید همین الان شلیک کند؟ هر پنجرهٔ epoch (=beat//every_n) دقیقاً
+    یک‌بار True می‌دهد، مستقل از اینکه tick کدام beatِ داخلِ پنجره را نمونه بگیرد.
+    flag/kill پیش از این فراخوانی چک می‌شوند، پس خاموش = هرگز به اینجا نمی‌رسد."""
+    try:
+        every_n = int(every_n)
+    except (TypeError, ValueError):
+        every_n = 0
+    if every_n <= 0:
+        return True   # every_n<=0 = «هر beat» (هم‌معنیِ منطقِ کهنه: بدونِ cadence-gating)
+    epoch = beat // every_n
+    if epoch < 1 or epoch <= _EPOCH_STATE.get(name, 0):
+        return False
+    _EPOCH_STATE[name] = epoch
+    return True
+
+
 def leg_paused(key: str) -> bool:
     """مکثِ runtimeِ تک‌پا از مرکزِ تلگرام (رأی مالک 2026-07-17) — قالبِ اثبات‌شدهٔ
     projectf-paused.flag: فایلِ سبکِ state/leg-<key>-paused.flag که هر ضربان بازخوانی
@@ -751,7 +776,7 @@ def epistemics_beat(live_loop=None, beat: int = 0) -> dict | None:
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
         return None
     every_n = int(os.environ.get("CHRONO_EPISTEMICS_EVERY_N_BEATS", "720"))   # ۱۲ ساعت
-    if beat <= 0 or (every_n > 0 and beat % every_n != 0):
+    if not _epoch_fire("epistemics", beat, every_n):
         return None
     try:
         from epistemics.run_offloop import compute_all
@@ -1357,7 +1382,7 @@ def afferent_beat(sensory_bus, school_bridge=None, snap=None, beat: int = 0) -> 
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
         return None   # kill-switch
     every_n = int(os.environ.get("CHRONO_AFFERENT_EVERY_N_BEATS", "1440"))  # روزانه
-    if beat <= 0 or (every_n > 0 and beat % every_n != 0):
+    if not _epoch_fire("afferent", beat, every_n):
         return None   # هنوز نوبتِ afferent نیست
     if sensory_bus is None:
         return None   # بدونِ SensoryBus → هیچ آورانی
@@ -1447,7 +1472,7 @@ def idea_beat(idea_graph, vault_root=None, beat: int = 0,
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
         return None   # kill-switch
     every_n = int(os.environ.get("CHRONO_IDEAS_EVERY_N_BEATS", "1440"))
-    if beat <= 0 or (every_n > 0 and beat % every_n != 0):
+    if not _epoch_fire("ideas", beat, every_n):
         return None   # هنوز نوبتِ idea نیست
     if idea_graph is None:
         return None   # بدونِ graph engine → هیچ تحلیلی
@@ -1575,7 +1600,7 @@ def email_beat(beat: int = 0) -> dict | None:
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
         return None   # kill-switch مقدم
     every_n = int(os.environ.get("CHRONO_EMAIL_EVERY_N_BEATS", "60"))  # ~۱h با tick=60s
-    if every_n > 0 and beat > 0 and beat % every_n != 0:
+    if not _epoch_fire("email", beat, every_n):
         return None
     try:
         sys.path.insert(0, str(_HERE / "legs"))
@@ -1587,6 +1612,30 @@ def email_beat(beat: int = 0) -> dict | None:
                 "beat": beat}
     except Exception as e:  # noqa: BLE001 — §۴: email نباید tick را بکشد
         opslib.alert([f"wiring: email_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
+def harvest_beat(beat: int = 0) -> dict | None:
+    """ضربانِ هاروسترِ AusTender (تری‌اسکن 2026-07-17) — سرِ لولهٔ خشکِ lead-inbox (DAM-1).
+
+    تنها تولیدکنندهٔ صندوقِ لید که کلید نمی‌خواهد (AusTender OCDS عمومی/keyless). هر epoch
+    یک fetchِ عمومی → کاندیدهای مرتبطِ نقاشی را به state/legs/lead-inbox می‌نویسد تا
+    lead_discovery_beat امتیازشان بدهد. پشتِ OCTOPUS_WIRE_HARVEST (پیش‌فرض خاموش، عمداً
+    خارج از PAPER_FULL_FLAGS). kill-switch مقدم؛ هر N beat (CHRONO_HARVEST_EVERY_N_BEATS،
+    پیش‌فرض ۷۲۰=~۱۲h — محترمانه با API). صفر ارسال/خرج/راز؛ fail-soft."""
+    if not flag("OCTOPUS_WIRE_HARVEST"):
+        return None   # flag خاموش = «not wired» (رفتارِ امروز، بایت‌به‌بایت)
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None   # kill-switch مقدم
+    every_n = int(os.environ.get("CHRONO_HARVEST_EVERY_N_BEATS", "720"))
+    if not _epoch_fire("harvest", beat, every_n):
+        return None
+    try:
+        sys.path.insert(0, str(_HERE / "legs"))
+        import harvest_austender   # noqa: WPS433 — lazy تا env تست اثر کند
+        return harvest_austender.harvest()
+    except Exception as e:  # noqa: BLE001 — هاروستر نباید tick را بکشد
+        opslib.alert([f"harvest_beat error (non-fatal): {type(e).__name__}: {e}"])
         return None
 
 
@@ -1610,7 +1659,7 @@ def lead_discovery_beat(lead_leg, beat: int = 0) -> dict | None:
     if lead_leg is None:
         return None   # نیازمندِ OCTOPUS_WIRE_LEAD (make_lead_leg) — بدونِ پا، propose نداریم
     every_n = int(os.environ.get("CHRONO_LEAD_DISCOVERY_EVERY_N_BEATS", "30"))
-    if every_n > 0 and beat > 0 and beat % every_n != 0:
+    if not _epoch_fire("lead_discovery", beat, every_n):
         return None
     try:
         sys.path.insert(0, str(_HERE / "legs"))
@@ -1767,7 +1816,7 @@ def asset_map_beat(beat: int = 0) -> dict | None:
     if not flag("OCTOPUS_WIRE_ASSET_MAP"):
         return None   # flag خاموش = «not wired» (رفتارِ امروز، بایت‌به‌بایت)
     every_n = int(os.environ.get("CHRONO_ASSET_MAP_EVERY_N_BEATS", "240"))
-    if every_n > 0 and beat > 0 and beat % every_n != 0:
+    if not _epoch_fire("asset_map", beat, every_n):
         return None
     try:
         sys.path.insert(0, str(_HERE / "legs"))
@@ -1903,7 +1952,7 @@ def legs_cultivation_beat(beat: int = 0, sensory_bus=None,
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
         return None   # kill-switch مقدم
     every_n = int(os.environ.get("CHRONO_CULTIVATE_EVERY_N_BEATS", "60"))
-    if every_n > 0 and beat > 0 and beat % every_n != 0:
+    if not _epoch_fire("cultivate", beat, every_n):
         return None
     try:
         sys.path.insert(0, str(_HERE / "legs"))
@@ -2134,7 +2183,7 @@ def ziman_beat(leg=None, beat: int = 0, doctor=None) -> dict | None:
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
         return None
     every_n = int(os.environ.get("CHRONO_ZIMAN_EVERY_N_BEATS", str(_ZIMAN_BEAT_EVERY_N)))
-    if every_n > 0 and beat > 0 and beat % every_n != 0:
+    if not _epoch_fire("ziman", beat, every_n):
         return None
     _leg = leg
     if _leg is None:

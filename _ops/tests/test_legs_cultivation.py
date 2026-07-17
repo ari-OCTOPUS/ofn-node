@@ -67,7 +67,8 @@ def t_b_digests_two_legs():
         _drop("mining", "a-batch", MINING_A)
         _drop("mining", "b-fleet", MINING_B)
         _drop("crypto", "a-snap", CRYPTO_A)
-        r = wiring.legs_cultivation_beat(beat=0)
+        wiring._EPOCH_STATE.clear()   # epoch-gate: beat=60 = پنجرهٔ ۱ (شلیک)
+        r = wiring.legs_cultivation_beat(beat=60)
         assert r is not None and r["propose_only"] is True, r
         assert r["legs"]["mining"]["digested"] == 2, r["legs"]["mining"]
         assert r["legs"]["crypto"]["digested"] == 1, r["legs"]["crypto"]
@@ -102,7 +103,8 @@ def t_c_dedup_idempotent():
     os.environ["OCTOPUS_WIRE_LEG_CULTIVATE"] = "1"
     try:
         _drop("mining", "a-batch-again", MINING_A)
-        r = wiring.legs_cultivation_beat(beat=0)
+        wiring._EPOCH_STATE.clear()
+        r = wiring.legs_cultivation_beat(beat=60)
         m = r["legs"]["mining"]
         assert m["duplicates"] == 1 and m["digested"] == 0, m
     finally:
@@ -130,7 +132,8 @@ def t_d_school_link_absorbs_digest():
         _drop("knowledge", "a-note", {"kind": "knowledge-drop",
                                       "label": "hypnosis MOC updated"})
         bus, bridge = SensoryBus(), FakeBridge()
-        r = wiring.legs_cultivation_beat(beat=0, sensory_bus=bus, school_bridge=bridge)
+        wiring._EPOCH_STATE.clear()
+        r = wiring.legs_cultivation_beat(beat=60, sensory_bus=bus, school_bridge=bridge)
         assert r["legs"]["knowledge"]["digested"] == 1, r["legs"]["knowledge"]
         assert len(bridge.calls) == 1, bridge.calls
         call = bridge.calls[0]
@@ -160,8 +163,9 @@ def t_f_cadence():
     """beat غیرِ مضربِ N → None؛ مضربِ N → اجرا."""
     os.environ["OCTOPUS_WIRE_LEG_CULTIVATE"] = "1"
     try:
-        assert wiring.legs_cultivation_beat(beat=7) is None       # 7 % 60 != 0
-        assert wiring.legs_cultivation_beat(beat=120) is not None  # مضربِ ۶۰
+        wiring._EPOCH_STATE.clear()
+        assert wiring.legs_cultivation_beat(beat=7) is None       # epoch 0 (beat<60)
+        assert wiring.legs_cultivation_beat(beat=120) is not None  # پنجرهٔ epoch ۲
     finally:
         os.environ.pop("OCTOPUS_WIRE_LEG_CULTIVATE", None)
 
@@ -173,7 +177,8 @@ def t_g_doctor_sees_report():
     os.environ["OCTOPUS_WIRE_LEG_CULTIVATE"] = "1"
     try:
         # صندوق‌ها خالی؛ accounting/ziman هرگز خوراک نگرفته‌اند → starved در گزارش
-        r = wiring.legs_cultivation_beat(beat=0)
+        wiring._EPOCH_STATE.clear()
+        r = wiring.legs_cultivation_beat(beat=60)
         assert "accounting" in r["starved_legs"], r["starved_legs"]
         doc = Doctor(state_dir=str(opslib.STATE_DIR),
                      knowledge_dir=str(ENV["ops"] / "knowledge-internal-test"))

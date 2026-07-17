@@ -517,6 +517,15 @@ def main() -> int:
                     _w.email_beat(beat=_cstat.get("beat", 0) if _cstat else 0)
                 except Exception as _eme:  # noqa: BLE001 — §۴: نباید tick را بکشد
                     opslib.alert([f"email_beat error (non-fatal): {type(_eme).__name__}: {_eme}"])
+            # ── Harvest (تری‌اسکن 2026-07-17): سرِ لولهٔ lead-inbox — AusTender keyless.
+            # پشتِ OCTOPUS_WIRE_HARVEST (پیش‌فرض خاموش) → None. قبل از discovery تا صندوق
+            # پر باشد وقتی discovery می‌خواند. propose-only، keyless، $0، fail-soft.
+            _harvest = None
+            if not _protective_skip:
+                try:
+                    _harvest = _w.harvest_beat(beat=_cstat.get("beat", 0) if _cstat else 0)
+                except Exception as _hve:  # noqa: BLE001 — §۴: نباید tick را بکشد
+                    opslib.alert([f"harvest_beat error (non-fatal): {type(_hve).__name__}: {_hve}"])
             # ── Lead discovery (مرحلهٔ ۲ نقشهٔ لید 2026-07-15): SENSE→SCORE→propose پشتِ
             # OCTOPUS_WIRE_LEAD_DISCOVERY (پیش‌فرض خاموش، خارج از PAPER_FULL_FLAGS) → None.
             # propose-only مطلق؛ نیازمندِ _leg (OCTOPUS_WIRE_LEAD) — بدونِ آن no-op.
@@ -601,6 +610,7 @@ def main() -> int:
                           **({"asset_map": _asset_map} if _asset_map else {}),
                           **({"accounting": _acct_beat} if _acct_beat else {}),
                           **({"lead_discovery": _lead_disc} if _lead_disc else {}),
+                          **({"harvest": _harvest} if _harvest else {}),
                           **({"proposal_router": _proposal_router} if _proposal_router else {}),
                           **({"proposal_metrics": _proposal_metrics}
                              if _proposal_metrics is not None else {}),

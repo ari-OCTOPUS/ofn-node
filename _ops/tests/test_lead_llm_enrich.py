@@ -60,7 +60,8 @@ def t_a_flag_off_no_llm_call():
     os.environ.pop("OCTOPUS_WIRE_LEAD_LLM", None)
     try:
         _drop("s1", STRATA)
-        r = wiring.lead_discovery_beat(FakeLeg(), beat=0)
+        wiring._EPOCH_STATE.clear()   # epoch-gate: beat=30 = پنجرهٔ ۱
+        r = wiring.lead_discovery_beat(FakeLeg(), beat=30)
         assert r["proposed"] == 1, r
         assert burned == [], "با flag خاموش نباید ask صدا شود"
         assert "llm_note" not in _last_result(), _last_result()
@@ -78,7 +79,8 @@ def t_b_flag_on_enriches_without_changing_gate():
     try:
         lead = dict(STRATA, description=STRATA["description"] + " (llm-b)")
         _drop("s2", lead)
-        r = wiring.lead_discovery_beat(FakeLeg(), beat=0)
+        wiring._EPOCH_STATE.clear()   # epoch-gate: beat=30 = پنجرهٔ ۱
+        r = wiring.lead_discovery_beat(FakeLeg(), beat=30)
         assert r["proposed"] == 1, r
         res = _last_result()
         assert res.get("llm_note", "").startswith("لیدِ strata"), res
@@ -100,7 +102,8 @@ def t_c_llm_failure_fail_soft():
     try:
         lead = dict(STRATA, description=STRATA["description"] + " (llm-c)")
         _drop("s3", lead)
-        r = wiring.lead_discovery_beat(FakeLeg(), beat=0)
+        wiring._EPOCH_STATE.clear()   # epoch-gate: beat=30 = پنجرهٔ ۱
+        r = wiring.lead_discovery_beat(FakeLeg(), beat=30)
         assert r is not None and r["proposed"] == 1, r     # beat زنده ماند
         assert "llm_note" not in _last_result()
     finally:

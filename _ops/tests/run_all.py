@@ -87,6 +87,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # 2026-07-15: فیکسِ مغزِ پولی (باگ ۱) + موتورِ کشفِ لید (نقشهٔ لید، مراحل ۱-۲)
          "test_brain_fix.py",
          "test_lead_scorer.py", "test_lead_discovery_beat.py",
+         "test_harvest_austender.py", "test_cadence_aliasing.py",
          # 2026-07-16: نقشهٔ لید مراحل ۳-۵ (پلِ ایمیل، غنی‌سازیِ LLM، پیش‌فاکتورِ واقعی)
          "test_email_lead_bridge.py", "test_lead_llm_enrich.py",
          "test_lead_quote_chain.py",

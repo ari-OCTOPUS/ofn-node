@@ -121,11 +121,12 @@ def test_never_leaks_amount_or_pii() -> None:
 
 def test_flag_on_beat_builds_map_and_sidecar() -> None:
     """با فلگِ روشن، asset_map_beat نقشهٔ واقعی (پاهای worktree) می‌سازد + سایدکار می‌نویسد.
-    beat=0 تا گاردِ cadence رد نشود."""
+    epoch-gate: beat=240 = پنجرهٔ ۱ (شلیک)."""
     import os
     os.environ["OCTOPUS_WIRE_ASSET_MAP"] = "1"
     try:
-        r = wiring.asset_map_beat(beat=0)
+        wiring._EPOCH_STATE.clear()
+        r = wiring.asset_map_beat(beat=240)
         assert isinstance(r, dict), r
         assert "assets" in r and "proposals" in r and "as_of" in r
         # هیچ مبلغی حتی در نقشهٔ واقعی نباید باشد

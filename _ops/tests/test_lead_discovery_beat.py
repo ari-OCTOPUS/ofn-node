@@ -84,7 +84,8 @@ def t_b_sense_score_propose():
         _drop("b-fitout", FITOUT)
         _drop("c-noise", NOISE)
         leg = FakeLeg()
-        r = wiring.lead_discovery_beat(leg, beat=0)
+        wiring._EPOCH_STATE.clear()   # epoch-gate: هر پنجره یک شلیک؛ beat=30 = پنجرهٔ ۱
+        r = wiring.lead_discovery_beat(leg, beat=30)
         assert r is not None and r["propose_only"] is True, r
         assert (r["sensed"], r["proposed"], r["saved"], r["skipped"]) == (3, 1, 1, 1), r
         # فقط strata به intake رسید، با نام/توضیح/ارزشِ درست
@@ -114,7 +115,8 @@ def t_c_dedup_idempotent():
     try:
         _drop("a-strata-again", STRATA)
         leg = FakeLeg()
-        r = wiring.lead_discovery_beat(leg, beat=0)
+        wiring._EPOCH_STATE.clear()
+        r = wiring.lead_discovery_beat(leg, beat=30)
         assert r["duplicates"] == 1 and r["proposed"] == 0, r
         assert leg.calls == [], leg.calls
     finally:
@@ -138,7 +140,7 @@ def t_e_cadence_and_no_leg():
     """beat غیرِ مضربِ N → None؛ lead_leg=None (بدونِ OCTOPUS_WIRE_LEAD) → None."""
     os.environ["OCTOPUS_WIRE_LEAD_DISCOVERY"] = "1"
     try:
-        assert wiring.lead_discovery_beat(FakeLeg(), beat=7) is None      # 7 % 30 != 0
+        assert wiring.lead_discovery_beat(FakeLeg(), beat=7) is None      # epoch 0 (beat<30)
         assert wiring.lead_discovery_beat(None, beat=0) is None           # بدونِ پا
     finally:
         os.environ.pop("OCTOPUS_WIRE_LEAD_DISCOVERY", None)

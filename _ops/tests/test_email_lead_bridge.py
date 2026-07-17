@@ -70,7 +70,8 @@ def t_c_bridged_candidate_flows_through_discovery():
     os.environ["OCTOPUS_WIRE_LEAD_DISCOVERY"] = "1"
     try:
         leg = FakeLeg()
-        r = wiring.lead_discovery_beat(leg, beat=0)
+        wiring._EPOCH_STATE.clear()   # epoch-gate: beat=30 = پنجرهٔ ۱
+        r = wiring.lead_discovery_beat(leg, beat=30)
         assert r is not None and r["sensed"] == 1, r
         # امتیازش هرچه باشد، پردازش شده و آرشیو شده — نه گم
         box = opslib.STATE_DIR / "legs" / "lead-inbox"

@@ -74,7 +74,8 @@ def t_b_end_to_end_real_propose_and_draft():
     os.environ["OCTOPUS_WIRE_LEAD_DRAFT"] = "1"
     try:
         _drop("strata-e2e", STRATA)
-        r = wiring.lead_discovery_beat(_real_leg(), beat=0)
+        wiring._EPOCH_STATE.clear()   # epoch-gate: beat=30 = پنجرهٔ ۱
+        r = wiring.lead_discovery_beat(_real_leg(), beat=30)
         assert r is not None and r["proposed"] == 1, r
         # نتیجهٔ آرشیوی: intake ok با idِ واقعی + quote
         box = opslib.STATE_DIR / "legs" / "lead-inbox" / "processed"
@@ -104,7 +105,8 @@ def t_c_no_draft_without_flag():
         _drop("strata-nodraft", lead)
         drafts_before = set((opslib.STATE_DIR / "legs" / "lead-drafts").glob("*.json")) \
             if (opslib.STATE_DIR / "legs" / "lead-drafts").is_dir() else set()
-        r = wiring.lead_discovery_beat(_real_leg(), beat=0)
+        wiring._EPOCH_STATE.clear()   # epoch-gate: beat=30 = پنجرهٔ ۱
+        r = wiring.lead_discovery_beat(_real_leg(), beat=30)
         assert r["proposed"] == 1, r
         box = opslib.STATE_DIR / "legs" / "lead-inbox" / "processed"
         res = json.loads(sorted(box.glob("*.result.json"),
