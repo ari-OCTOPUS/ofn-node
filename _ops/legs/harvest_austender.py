@@ -86,10 +86,16 @@ def fetch(days: int = 4, get_json=None) -> list:
 
 
 def _to_candidate(release: dict) -> "dict | None":
-    """OCDS release → کاندیدِ صندوق، یا None (نامرتبط یا بی‌description)."""
+    """OCDS release → کاندیدِ صندوق، یا None (نامرتبط یا بی‌description).
+
+    type-safe: فیلدهای OCDS ممکن است اسکالرِ خلافِ spec باشند (مثلاً value=5000 به‌جای
+    {amount:5000})؛ `x or {}` فقطِ falsy را می‌گیرد نه wrong-type، پس صریح isinstance
+    چک می‌کنیم تا یک releaseِ بدشکل کلِ batch را نکشد (بازبینیِ خصمانه ۲۰۲۶-۰۷-۱۷)."""
     if not isinstance(release, dict):
         return None
-    tender = release.get("tender") or {}
+    tender = release.get("tender")
+    if not isinstance(tender, dict):
+        tender = {}
     title = str(tender.get("title") or "").strip()
     body = str(tender.get("description") or "").strip()
     desc = f"{title} — {body}" if title and body else (title or body)
@@ -98,12 +104,14 @@ def _to_candidate(release: dict) -> "dict | None":
     if not _is_relevant(f"{title} {body}"):
         return None
     cand: dict = {"source": "austender", "description": desc[:600]}
-    val = (tender.get("value") or {}).get("amount")
+    value = tender.get("value")
+    val = value.get("amount") if isinstance(value, dict) else None
     if isinstance(val, (int, float)) and val > 0:
         cand["cost_of_development"] = float(val)   # سطحِ ارزشِ lead_scorer
-    buyer = (release.get("buyer") or {}).get("name")
-    if buyer:
-        cand["applicant"] = str(buyer)[:120]
+    buyer = release.get("buyer")
+    buyer_name = buyer.get("name") if isinstance(buyer, dict) else None
+    if buyer_name:
+        cand["applicant"] = str(buyer_name)[:120]
     uri = release.get("uri") or tender.get("id")
     if uri:
         cand["url"] = str(uri)[:300]
@@ -148,7 +156,10 @@ def harvest(days: int = 4, get_json=None) -> dict:
     releases = fetch(days=days, get_json=get_json)
     relevant = written = 0
     for rel in releases:
-        cand = _to_candidate(rel)
+        try:
+            cand = _to_candidate(rel)
+        except Exception:  # noqa: BLE001 — یک releaseِ بدشکل نباید کلِ batch را بکشد
+            continue
         if cand is None:
             continue
         relevant += 1

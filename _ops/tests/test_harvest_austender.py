@@ -99,6 +99,25 @@ def t_irrelevant_filtered():
     assert not list(inbox.glob("austender-*.json"))
 
 
+def t_malformed_release_does_not_abort_batch():
+    """releaseِ بدشکل (اسکالر به‌جای dict در tender/value/buyer) نباید کلِ batch را بکشد —
+    باید skip شود و releaseهای سالمِ بعدی نوشته شوند (بازبینیِ خصمانه ۲۰۲۶-۰۷-۱۷)."""
+    os.environ[_FLAG] = "1"
+    inbox = _inbox()
+    releases = [
+        {"tender": {"title": "Exterior repaint job X", "value": 5000}},    # value اسکالر
+        {"tender": "just a string"},                                        # tender اسکالر
+        {"tender": {"title": "repaint job Y"}, "buyer": "Council Inc"},     # buyer اسکالر
+        _release("repaint job Z valid", "full repaint", amount=40000, uri="u/ok"),  # سالم
+    ]
+    r = H.harvest(get_json=_fake(releases))
+    assert isinstance(r, dict) and "written" in r, f"batch نباید crash کند: {r}"
+    names = [json.loads(f.read_text("utf-8"))["description"]
+             for f in inbox.glob("austender-*.json")]
+    assert any("job Z valid" in n for n in names), f"releaseِ سالم باید نوشته شود: {names}"
+    assert r["written"] >= 1, r
+
+
 def t_missing_description_skipped():
     os.environ[_FLAG] = "1"
     _inbox()
@@ -176,6 +195,7 @@ if __name__ == "__main__":
         ("[ب] مرتبط → JSONِ conformant", t_relevant_written_conformant),
         ("[ب] نامرتبط فیلتر می‌شود", t_irrelevant_filtered),
         ("[ب] بی‌description رد می‌شود", t_missing_description_skipped),
+        ("[ج] releaseِ بدشکل batch را نمی‌کشد", t_malformed_release_does_not_abort_batch),
         ("[ج] idempotent", t_idempotent_same_release_once),
         ("[ج] fetch fail-soft", t_fetch_failsoft),
         ("[ج] kill-switch → no-op", t_kill_switch_noop),

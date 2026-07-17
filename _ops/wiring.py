@@ -37,7 +37,9 @@ def flag(name: str) -> bool:
 # `beat % N == 0` روی مضرب‌ها می‌پرد و شلیک‌ها را از دست می‌دهد (droughtهای چندساعته
 # تا چندهفته‌ای). قالبِ درست (هم‌الگوی _ACCT_STATE/_HEART_STATE): هر epoch حداکثر یک
 # شلیک. این هلپر همان منطق را DRY می‌کند تا هر ۸ سایتِ باقی‌مانده یک‌دست شوند.
-_EPOCH_STATE: dict = {}   # name -> آخرین epochِ شلیک‌شده
+_EPOCH_STATE: dict = {}   # name -> آخرین epochِ شلیک‌شده. in-memory (مثلِ _HEART_STATE/
+                          # _ACCT_STATE): پس از restart پاک می‌شود، پس یک شلیکِ مجددِ
+                          # بی‌ضرر در همان پنجره ممکن است — propose-only، پذیرفته‌شده.
 
 
 def _epoch_fire(name: str, beat: int, every_n) -> bool:
