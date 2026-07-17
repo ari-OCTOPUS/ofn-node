@@ -42,7 +42,15 @@ def _default_pipe():
     except Exception:  # noqa: BLE001 — guards اختیاری؛ بدونشان finalize باز می‌ماند
         warmup = None
         locks = None
-    return AcquisitionPipeline(brain=brain, warmup=warmup, locks=locks)
+    # Layer 2: VaultBank جایگزینِ هوک‌های نمونه می‌شود؛ اگر خالی/خراب بود pipeline خودش
+    # fail-soft به brain/_SAFE_HOOKS برمی‌گردد. این فقط draft می‌سازد، هیچ اکشن بیرونی ندارد.
+    vault = None
+    try:
+        from store import VaultBank
+        vault = VaultBank()
+    except Exception:  # noqa: BLE001 — vault اختیاری؛ fallback امن باقی می‌ماند
+        vault = None
+    return AcquisitionPipeline(brain=brain, warmup=warmup, locks=locks, vault=vault)
 
 
 def handle_pf(cmd: str, arg: str = "", pipe=None) -> str:
@@ -73,6 +81,10 @@ def handle_pf(cmd: str, arg: str = "", pipe=None) -> str:
                         line += f"\n🔒 کانال‌های قفل‌شده: {', '.join(locked)} (/clear_warning <ch>)"
                     else:
                         line += "\n✅ locks: هیچ کانال قفل نیست"
+            if "vault" in d:
+                v = d["vault"]
+                total = int(v.get("total", 0) or 0)
+                line += f"\n📦 vault: {total} asset" + (" — منبع draft" if v.get("enabled") and total > 0 else " — fallback")
             return line
         if cmd == "/pf_plan":
             n = int(arg) if arg.isdigit() else 3

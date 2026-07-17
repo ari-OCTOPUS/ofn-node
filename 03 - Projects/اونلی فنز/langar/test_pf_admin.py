@@ -59,6 +59,16 @@ def test_unknown_returns_help(tmp_path):
     assert "/pf_status" in pf_admin.handle_pf("/pf_wat", "", pipe=_pipe(tmp_path))
 
 
+def test_status_exposes_vault_when_wired(tmp_path):
+    from store import VaultBank
+    vb = VaultBank(path=tmp_path / "v.json")
+    vb.add("tag", "hook", channel="reddit")
+    p = AcquisitionPipeline(store_path=tmp_path / "q.json", brain=None, vault=vb)
+    out = pf_admin.handle_pf("/pf_status", "", pipe=p)
+    assert "vault" in out.lower()
+    assert "1 asset" in out
+
+
 def test_fail_soft_never_crashes(tmp_path):
     class _Boom:
         def admin_digest(self):

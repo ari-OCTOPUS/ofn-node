@@ -272,6 +272,13 @@ class AcquisitionPipeline:
                            "met": self._warmup.threshold_met()}
         if self._locks is not None:
             d["locks"] = self._locks.snapshot()
+        if self._vault is not None:
+            try:
+                vs = self._vault.summary()
+                d["vault"] = {"enabled": True, "total": vs.get("total", 0),
+                              "channels": vs.get("channels", []), "tags": vs.get("tags", [])}
+            except Exception:  # noqa: BLE001 — فقط شفافیت status؛ pipeline نباید بشکند
+                d["vault"] = {"enabled": False, "total": 0, "error": "summary failed"}
         return d
 
     # ── KPI feedback → brain (یادگیری) ────────────────────────────────────────

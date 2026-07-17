@@ -24,7 +24,20 @@ HERE = Path(__file__).resolve().parent            # .../studio
 PROJECT_ROOT = HERE.parent
 DRAFTS_JSON = HERE / "drafts.json"
 CONFIG_JSON = HERE / "config.json"
-HALT_FILE = HERE / "HALT"                          # boundary halt (آری/لنگر می‌خوانند)
+HALT_FILE = HERE / "HALT"                          # boundary halt (اپراتور/لنگر می‌خوانند)
+
+
+def _global_stop() -> bool:
+    """کلیدِ خاموشیِ سراسریِ اختاپوس (_ops/STOP-ORGANISM یا master_halted). walk-up تا _ops
+    بدونِ import کردنِ _ops (احترام به containment). خطا/نبود = False."""
+    try:
+        for _anc in Path(__file__).resolve().parents:
+            _ops = _anc / "_ops"
+            if _ops.is_dir():
+                return (_ops / "STOP-ORGANISM").exists() or (_ops / "master_halted").exists()
+    except Exception:  # noqa: BLE001
+        pass
+    return False
 INBOX_JSON = HERE / "for_saba.json"                # آری → صبا
 CAPACITY_JSON = HERE / "capacity.json"             # ظرفیت هفتگی صبا
 BOUNDARY_LOG = HERE / "boundary_log.json"          # لاگ تغییر محدوده (append-only)
@@ -59,7 +72,7 @@ MAIN_MENU = {"inline_keyboard": [
     [{"text": "🌟 امروز چیکار کنم؟", "callback_data": "s:today"},
      {"text": "🗓 تقویم هفته", "callback_data": "s:cal"}],
     [{"text": "🫶 ظرفیت من این هفته", "callback_data": "s:cap"},
-     {"text": "📬 پیام‌های آری", "callback_data": "s:inbox"}],
+     {"text": "📬 پیام‌های اپراتور", "callback_data": "s:inbox"}],
     [{"text": "✋ محدودهٔ من", "callback_data": "s:scope"},
      {"text": "🔒 قول‌های ما", "callback_data": "s:rules"}],
     [{"text": "🧠 بریف هفته (heuristic)", "callback_data": "s:brief"},
@@ -75,6 +88,7 @@ ADVANCED_MENU = {"inline_keyboard": [
      {"text": "↩️ منوی اصلی", "callback_data": "s:menu"}],
 ]}
 BACK_KB = {"inline_keyboard": [[{"text": "↩️ منوی اصلی", "callback_data": "s:menu"}]]}
+HALT_KB = {"inline_keyboard": [[{"text": "▶️ برگشت از توقف", "callback_data": "s:resume"}]]}
 
 
 def _now() -> str: return datetime.now().isoformat(timespec="seconds")
@@ -83,6 +97,9 @@ def _load(path: Path, default):
     except Exception: return default
 def _e(t: str) -> str: return html.escape(t or "")
 def _mask(t): return (t[:4] + "…") if t and len(t) > 4 else ("∅" if not t else "…")
+def _num_ascii(t: str) -> str:
+    """تبدیل ارقام فارسی/عربی به ASCII برای ورودی ظرفیت؛ fail-soft."""
+    return (t or "").translate(str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789"))
 def _url_get(url, timeout):
     req = urllib.request.Request(url, headers={"User-Agent": "saba-studio/1.0"})
     with urllib.request.urlopen(req, timeout=timeout + 5) as r: return json.loads(r.read().decode())
@@ -117,10 +134,14 @@ class SabaStudio:
     @property
     def wired(self) -> bool: return bool(self.token) and self.saba != 0
     @property
-    def halted(self) -> bool: return HALT_FILE.exists()
+    def halted(self) -> bool: return HALT_FILE.exists() or _global_stop()
     def __repr__(self): return f"<SabaStudio wired={self.wired} token={_mask(self.token)} halted={self.halted}>"
     def stop(self): self._stop = True
-    def authorized(self, chat_id: int) -> bool: return self.saba != 0 and chat_id == self.saba
+    def authorized(self, chat_id: int) -> bool:
+        # Live: فقط chat-id ثبت‌شدهٔ Creator. Shadow-mode بدون env: stdin با chat=0 مجاز است.
+        if self.saba != 0:
+            return chat_id == self.saba
+        return (not self.wired) and chat_id == 0
 
     # ── ارسال ──
     def send(self, text: str, reply_markup: dict | None = None) -> None:
@@ -151,7 +172,7 @@ class SabaStudio:
         lines.append(f"📋 درفت‌های منتظر تأیید: <b>{pend}</b>")
         if theme: lines.append(f"🗓 تم این هفته: <b>{_e(theme)}</b>")
         if cap.get("hours"): lines.append(f"🫶 ظرفیت اعلامی: <b>{_e(str(cap['hours']))}</b> ساعت")
-        if unread: lines.append(f"📬 <b>{unread}</b> پیام خوانده‌نشده از آری")
+        if unread: lines.append(f"📬 <b>{unread}</b> پیام خوانده‌نشده از اپراتور")
         lines.append("\nیه دکمه رو بزن ↓")
         return "\n".join(lines)
 
@@ -187,12 +208,12 @@ class SabaStudio:
         if not pend:
             return ("📋 <b>درفت‌های من</b>\n━━━━━━━━━━\n"
                     "هنوز درفتی منتظر تأیید نیست. با «📤 ثبت ایده/درفت» شروع کن. ✨")
-        lines = ["📋 <b>درفت‌های من</b> (منتظر تأیید آری)", "━━━━━━━━━━"]
+        lines = ["📋 <b>درفت‌های من</b> (منتظر تأیید اپراتور)", "━━━━━━━━━━"]
         for d in pend[-12:]:
             tier = f" · {_e(d.get('ppv_tier'))}" if d.get("ppv_tier") else ""
             lines.append(f"⏳ <code>{_e(d.get('draft_id',''))}</code> — {_e(d.get('title',''))}{tier}")
         if len(pend) > 12: lines.append(f"<i>… و {len(pend)-12} تای دیگر</i>")
-        lines.append("\n<i>هر کدوم رو آری جدا تأیید می‌کنه (دوکلیده).</i>")
+        lines.append("\n<i>هر کدوم جدا توسط اپراتور تأیید می‌شود (دوکلیده).</i>")
         return "\n".join(lines)
 
     def today_page(self) -> str:
@@ -241,7 +262,7 @@ class SabaStudio:
                  f"📊 صفحهٔ اصلی ~{wall*100:.0f}% · PPV ~{(1-wall)*100:.0f}%"]
         for name, c in tiers.items():
             lines.append(f"   {_e(name)}: <b>${c.get('price','?')}</b> — {_e(c.get('desc',''))}")
-        lines.append("\n<i>اینا فقط پیشنهاده — قیمت نهایی رو آری قفل می‌کنه.</i>")
+        lines.append("\n<i>اینا فقط پیشنهاده — قیمت نهایی را اپراتور قفل می‌کند.</i>")
         return "\n".join(lines)
 
     def stats_page(self) -> str:
@@ -264,12 +285,12 @@ class SabaStudio:
     def inbox_page(self) -> str:
         msgs = _load(INBOX_JSON, [])
         if not msgs:
-            return "📬 <b>پیام‌های آری</b>\n━━━━━━━━━━\n<i>فعلاً پیامی نیست.</i>"
+            return "📬 <b>پیام‌های اپراتور</b>\n━━━━━━━━━━\n<i>فعلاً پیامی نیست.</i>"
         # علامت‌گذاری خوانده‌شده
         for m in msgs: m["read"] = True
         try: INBOX_JSON.write_text(json.dumps(msgs, ensure_ascii=False, indent=2), encoding="utf-8")
         except Exception: pass
-        lines = ["📬 <b>پیام‌های آری</b>", "━━━━━━━━━━"]
+        lines = ["📬 <b>پیام‌های اپراتور</b>", "━━━━━━━━━━"]
         for m in msgs[-8:]:
             lines.append(f"🗓 <i>{_e(m.get('date',''))}</i>\n{_e(m.get('text',''))}\n")
         return "\n".join(lines)
@@ -281,7 +302,7 @@ class SabaStudio:
             "🦶 فقط پا — بدون چهره، بدون بدن\n"
             "🚫 بدون هیچ محتوای explicit\n"
             "🔞 فقط ۱۸+، فقط با رضایتِ خودت\n\n"
-            "هر وقت خواستی محدوده رو <b>تنگ‌تر</b> کنی، همین‌جا بنویس؛ فوراً اعمال می‌شه و به آری هم می‌رسه.\n"
+            "هر وقت خواستی محدوده رو <b>تنگ‌تر</b> کنی، همین‌جا بنویس؛ فوراً اعمال می‌شه و به اپراتور هم می‌رسه.\n"
             "می‌خوای همه‌چی وایسه؟ 👉 <code>/halt</code>  (هر وقت: <code>/resume</code>)")
 
     def rules_page(self) -> str:
@@ -307,7 +328,7 @@ class SabaStudio:
                         f"پیش‌فرض: تمِ تقویم این هفته + ۱ ست تازه.")
         return (f"🧠 <b>بریف هفته</b> (brain {brain_status})\n━━━━━━━━━━\n"
                 "تمرکز: تمِ تقویمِ این هفته + ۱ ست تازه با بافر.\n"
-                "پیشنهادِ کپشن/قیمت رو آری از مغز می‌گیره و برات می‌فرسته.\n"
+                "پیشنهادِ کپشن/قیمت را اپراتور از مغز می‌گیرد و برایت می‌فرستد.\n"
                 "<i>بریفِ کاملِ AI بعد از وصل‌شدن مغز فعال می‌شه.</i>")
 
     # ── ثبت درفت (conversation) ──
@@ -329,10 +350,14 @@ class SabaStudio:
     def _handle_text(self, chat: int, text: str) -> tuple[str, dict]:
         conv = self._conv.get(chat)
         if conv and conv.get("flow") == "new" and conv.get("step") == "title":
-            conv["title"] = text.strip()[:80]; conv["step"] = "cert"
+            title = text.strip()[:80]
+            if not title:
+                return ("یه عنوان کوتاه لازم دارم 🌸 فقط متن، بدون عکس.", BACK_KB)
+            conv["title"] = title; conv["step"] = "cert"
             return ("عالی 🌟 حالا این‌ها رو تأیید کن (هر کدوم رو بزن تا ✅ شه):\n"
                     f"<b>{_e(conv['title'])}</b>", self._cert_kb(conv["cert"]))
         if conv and conv.get("flow") == "cap":
+            text = _num_ascii(text)
             digits = "".join(ch for ch in text if ch.isdigit() or ch in ".٫،")
             digits = digits.replace("٫", ".").replace("،", "")
             try: hours = float(digits or "0")
@@ -348,8 +373,8 @@ class SabaStudio:
         if conv and conv.get("flow") == "scope_tighten":
             self._conv.pop(chat, None)
             self._log_boundary(text.strip()[:200])
-            self._to_ari(f"صبا محدوده رو تنگ‌تر کرد: {text.strip()[:200]}")
-            return ("گرفتم ✋ فوراً اعمال شد و به آری هم رسید. مرزِ تو همیشه مقدمه. 🌿", BACK_KB)
+            self._to_ari(f"Creator محدوده را تنگ‌تر کرد: {text.strip()[:200]}")
+            return ("گرفتم ✋ فوراً اعمال شد و به اپراتور هم رسید. مرزِ تو همیشه مقدمه. 🌿", BACK_KB)
         # پیش‌فرض: راهنمای نرم
         return ("نفهمیدم دقیقاً 🌸 از منوی پایین یه دکمه بزن، یا برای شروعِ درفت «📤».",
                 MAIN_MENU)
@@ -366,14 +391,14 @@ class SabaStudio:
             res = self.studio.submit_draft(title=title, self_cert=cert)
             if res.get("ok"):
                 return (f"ثبت شد ✅ کدِ درفت: <code>{res['draft_id']}</code>\n"
-                        "رفت به صفِ تأییدِ آری (دوکلیده). ممنون 🌟", BACK_KB)
+                        "رفت به صفِ تأییدِ اپراتور (دوکلیده). ممنون 🌟", BACK_KB)
             return (f"ثبت نشد: {_e(str(res.get('error','')))}", BACK_KB)
         # fallback بدون موتور
         return ("ثبت شد ✅ (حالت آزمایشی — موتور وصل نیست).", BACK_KB)
 
     # ── handoff ──
     def _to_ari(self, note: str) -> None:
-        """اعلان به آری از طریق inbox معکوس (studio/to_ari.json) — لنگر می‌خواند."""
+        """اعلان به اپراتور از طریق inbox معکوس (studio/to_ari.json) — لنگر می‌خواند."""
         p = HERE / "to_ari.json"
         cur = _load(p, [])
         cur.append({"date": _now(), "text": note})
@@ -389,35 +414,55 @@ class SabaStudio:
     def halt(self) -> str:
         try: HALT_FILE.write_text(_now(), encoding="utf-8")
         except Exception: pass
-        self._to_ari("صبا ✋ توقف زد — همه‌چی pause.")
+        self._to_ari("Creator ✋ توقف زد — همه‌چی pause.")
         return ("✋ <b>باشه، همه‌چی وایساد.</b>\nهیچ فشاری نیست. هر وقت خواستی: <code>/resume</code> 🌿")
 
     def resume(self) -> str:
         try: HALT_FILE.unlink(missing_ok=True)
         except Exception: pass
-        self._to_ari("صبا برگشت ▶️")
+        self._to_ari("Creator برگشت")
         return "خوش برگشتی 🌸 از منوی پایین ادامه بده."
 
     # ── روتر ──
     def route(self, chat: int, text: str = "", data: str = "") -> tuple[str, dict] | None:
         if not self.authorized(chat):
             return None  # سکوت مطلق برای غریبه
-        # halt همیشه اول (جز resume)
-        if self.halted and (data not in ("s:menu",) and text not in ("/resume", "/start")):
-            if text == "/resume": return (self.resume(), MAIN_MENU)
-            return (self.home(), {"inline_keyboard": [[{"text": "▶️ برگشت", "callback_data": "s:menu"}]]})
+        # فرمان‌های boundary همیشه اولویت دارند.
+        if text == "/halt":
+            self._conv.pop(chat, None)
+            return (self.halt(), None)
+        if text == "/resume" or data == "s:resume":
+            self._conv.pop(chat, None)
+            return (self.resume(), MAIN_MENU)
+        # در حالت halt، هیچ صفحه/فلو عادی باز نمی‌شود؛ فقط home محدود + resume.
+        if self.halted:
+            self._conv.pop(chat, None)
+            return (self.home(), HALT_KB)
         if text in ("/start", "/menu") or data == "s:menu":
             self._conv.pop(chat, None)
-            if self.halted and text == "/start":
-                return (self.home(), None)
             return (self.home(), MAIN_MENU)
-        if text == "/halt": return (self.halt(), None)
-        if text == "/resume": return (self.resume(), MAIN_MENU)
         if text == "/help":
             return ("🎬 استودیوی صبا — از دکمه‌ها استفاده کن.\n"
-                    "/menu منو · /halt توقف · /resume برگشت", MAIN_MENU)
+                    "/menu منو · /new ثبت · /drafts درفت‌ها · /cap ظرفیت · /halt توقف · /resume برگشت", MAIN_MENU)
+        # aliasهای متنی برای shadow-mode/stdin و fallback بدون inline keyboard
+        text_alias = {
+            "/new": "s:new", "/drafts": "s:drafts", "/today": "s:today", "/cal": "s:cal",
+            "/more": "s:more", "/trend": "s:trend", "/ppv": "s:ppv", "/stats": "s:stats",
+            "/inbox": "s:inbox", "/rules": "s:rules", "/brief": "s:brief",
+            "/cap": "s:cap", "/scope": "s:scope", "/cancel": "s:menu",
+            # self-cert aliases برای shadow-mode/stdin
+            "/faceless": "cert:faceless", "/feet": "cert:feet_only",
+            "/no_explicit": "cert:no_explicit", "/noexplicit": "cert:no_explicit",
+            "/18": "cert:over_18", "/adult": "cert:over_18", "/done": "cert:done",
+        }
+        if text in text_alias and not data:
+            data = text_alias[text]
         # callbackها
         if data == "s:new": return self._start_new(chat)
+        if data in ("s:drafts", "s:today", "s:cal", "s:more", "s:trend", "s:ppv",
+                    "s:stats", "s:inbox", "s:rules", "s:brief"):
+            # رفتن به صفحهٔ دیگر یعنی لغو flow نیمه‌کاره؛ جلوی title ناخواسته را می‌گیرد.
+            self._conv.pop(chat, None)
         if data == "s:drafts": return (self.drafts_page(), BACK_KB)
         if data == "s:today": return (self.today_page(), BACK_KB)
         if data == "s:cal": return (self.cal_page(), BACK_KB)
@@ -435,6 +480,8 @@ class SabaStudio:
         if data.startswith("cert:"):
             key = data.split(":", 1)[1]; conv = self._conv.get(chat)
             if not conv: return (self.home(), MAIN_MENU)
+            if conv.get("flow") != "new" or conv.get("step") != "cert":
+                return ("اول یه عنوان کوتاه برای درفت بفرست؛ بعد self-cert را کامل کن.", BACK_KB)
             if key == "done": return self._finish_draft(chat)
             conv.setdefault("cert", {})[key] = not conv["cert"].get(key)
             return (f"<b>{_e(conv.get('title',''))}</b>", self._cert_kb(conv["cert"]))
@@ -452,6 +499,7 @@ class SabaStudio:
                 if r: print(r[0])
             return
         self.send(self.home(), MAIN_MENU)
+        _fail = 0
         while not self._stop:
             try:
                 url = (f"{TELEGRAM_API}/bot{self.token}/getUpdates?" +
@@ -471,9 +519,18 @@ class SabaStudio:
                         except Exception: pass
                         r = self.route(chat, data=cq.get("data", ""))
                         if r: self.send(r[0], r[1])
+                _fail = 0   # RESIL-5: poll تمیز → ریستِ بک‌آف
             except Exception:
-                __import__("time").sleep(5)
+                _fail += 1
+                __import__("time").sleep(min(5 * (2 ** min(_fail, 4)), 60))   # RESIL-5: بک‌آفِ نمایی سقف ۶۰s
 
 
 if __name__ == "__main__":  # pragma: no cover
-    SabaStudio().poll_forever()
+    import sys as _sys
+    _sys.path.insert(0, str(HERE.parent / "brain"))   # اونلی فنز/brain — مغز اختیاری
+    try:
+        from dual_brain_v3 import DualBrainV3  # type: ignore
+        _brain = DualBrainV3()
+    except Exception:  # noqa: BLE001 — نبودِ مغز = brief آفلاین (مثلِ امروز، بی‌کرش)
+        _brain = None
+    SabaStudio(brain=_brain).poll_forever()

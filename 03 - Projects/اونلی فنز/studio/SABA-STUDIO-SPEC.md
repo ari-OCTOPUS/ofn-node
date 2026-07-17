@@ -23,8 +23,8 @@ aliases: ["Saba Studio", "استودیوی صبا", "Studio"]
                     اعمال verdict = دستیِ آری، درون‌پلتفرم
 ```
 - **منبع حقیقت مشترک = `ContentStudio`** (drafts.json + config.json). کانِن دوم ساخته نشد.
-- **Saba→Ari:** درفت‌ها به `drafts.json` (pending) → لنگر با `/saba` و `/status` می‌بیند؛ اعلان‌های صبا (توقف/تنگ‌کردن محدوده/برگشت) به `to_ari.json`.
-- **Ari→Saba:** آری/لنگر به `for_saba.json` می‌نویسد (گزارش هفتگی، جواب) → صبا در «📬 پیام‌های آری» می‌بیند و mark-read می‌شود.
+- **Creator→Operator:** درفت‌ها به `drafts.json` (pending) → لنگر با `/saba` و `/status` می‌بیند؛ اعلان‌های Creator (توقف/تنگ‌کردن محدوده/برگشت) به `to_ari.json`.
+- **Operator→Creator:** اپراتور/لنگر به `for_saba.json` می‌نویسد (گزارش هفتگی، جواب) → Creator در «📬 پیام‌های اپراتور» می‌بیند و mark-read می‌شود.
 - **مرز مشترک:** `HALT` فایل — صبا با ✋ می‌سازد؛ هم بات خودش هم لنگر (`/saba`,`/status`) آن را می‌بینند.
 - **ظرفیت:** `capacity.json` (ساعت هفتگی صبا) → لنگر می‌خواند و در برنامه‌ریزی (delivery-rate G1) لحاظ می‌شود.
 
@@ -36,17 +36,18 @@ aliases: ["Saba Studio", "استودیوی صبا", "Studio"]
 - 🌟 **امروز چیکار کنم؟:** تمرکز تقویم + ایدهٔ سریع + یادآور مرز (فقط پا).
 - 🗓 تقویم · 🔎 ترند · 💡 پلن PPV · 📈 نتیجه‌ها (تجمیعی، صفر PII).
 - 🫶 **ظرفیت من:** اعلام ساعت هفتگی (عدد فارسی/انگلیسی) → capacity.json.
-- 📬 **پیام‌های آری** (inbox) · ✋ **محدودهٔ من** (بیانیهٔ مرز + تنگ‌کردنِ فوری + /halt).
+- 📬 **پیام‌های اپراتور** (inbox) · ✋ **محدودهٔ من** (بیانیهٔ مرز + تنگ‌کردنِ فوری + /halt).
+- Shadow-mode بدون تلگرام با aliasهای متنی کار می‌کند: `/new`, `/drafts`, `/today`, `/cal`, `/more`, `/trend`, `/ppv`, `/stats`, `/inbox`, `/rules`, `/brief`, `/cap`, `/scope`, `/cancel`, و self-cert: `/faceless`, `/feet`, `/no_explicit`, `/18`, `/done`.
 - 🔒 قول‌های ما · 🧠 بریف هفته (از مغز اگر وصل باشد).
 
 ## ۳. خطوط قرمز کدشده
-فقط chat-id صبا (غریبه=سکوت) · صفر متد رسانه‌ای (photo/video/document اصلاً وجود ندارد) · propose-only، دوکلیده (submit→آری) · self-cert اجباری (faceless·feet_only·no_explicit·over_18) وگرنه drop · **محدودهٔ صبا مقدمِ مطلق:** ✋ توقفِ پایدار + تنگ‌کردنِ لحظه‌ای که فوراً به آری می‌رسد · صفر مذاکرهٔ پرداخت · geo/opsec: هیچ اسم/شهر در متن.
+فقط chat-id Creator (غریبه=سکوت؛ shadow-mode stdin با chat=0 مجاز است) · صفر متد رسانه‌ای (photo/video/document اصلاً وجود ندارد) · propose-only، دوکلیده (submit→اپراتور) · self-cert اجباری (faceless·feet_only·no_explicit·over_18) وگرنه drop · **محدودهٔ Creator مقدمِ مطلق:** ✋ توقفِ پایدار + تنگ‌کردنِ لحظه‌ای که فوراً به اپراتور می‌رسد · صفر مذاکرهٔ پرداخت · geo/opsec: هیچ اسم/شهر در متن.
 
-## ۴. تست‌ها (test_saba_studio.py — ۱۰/۱۰ سبز، $0 آفلاین)
-سکوتِ غریبه · خانه/منو · halt پایدار + اعلانِ آری + resume · درفت فقط-pending · جریان کامل ثبت (cert→done) · بلاکِ cert ناقص · ظرفیت persist · تنگ‌کردن محدوده (لاگ+اعلان) · inbox mark-read · صفر متد رسانه. **پل لنگر↔استودیو هم با تست قرارداد جدا تأیید شد.**
+## ۴. تست‌ها (test_saba_studio.py — ۱۵/۱۵ هدف، $0 آفلاین)
+سکوتِ غریبه · خانه/منو · halt پایدار + اعلانِ اپراتور + resume · درفت فقط-pending · جریان کامل ثبت (cert→done) · بلاکِ cert ناقص · ظرفیت persist با ارقام فارسی/عربی · تنگ‌کردن محدوده (لاگ+اعلان) · inbox mark-read · صفر متد رسانه · shadow-mode chat=0 · aliasهای متنی · self-cert متنی · halt fail-closed تا resume. **پل لنگر↔استودیو هم با تست قرارداد جدا تأیید شد.**
 
 ## ۵. فعال‌سازی (گیت‌دار)
-Runbook: [[studio/README-SABA-RUNBOOK|README-SABA-RUNBOOK]]. ساخت bot در BotFather = اکشن بیرونی (دست صبا/آری). طبق منشور: هفتهٔ اول shadow-mode (stdin، بدون تلگرام)، بعد اتصال با `TELEGRAM_SABA_BOT_TOKEN`/`TELEGRAM_SABA_CHAT_ID`. **بات صبا و بات لنگر توکن و chat-id کاملاً جدا دارند** (blueprint §۷.۲).
+Runbook: [[studio/README-SABA-RUNBOOK|README-SABA-RUNBOOK]]. ساخت bot در BotFather = اکشن بیرونی (دست انسان). طبق منشور: هفتهٔ اول shadow-mode (stdin، بدون تلگرام)، بعد اتصال با `TELEGRAM_SABA_BOT_TOKEN`/`TELEGRAM_SABA_CHAT_ID`. **بات Creator و بات لنگر توکن و chat-id کاملاً جدا دارند** (blueprint §۷.۲).
 
 ## ۶. تفاوت با نسخهٔ قبلی (studio_telegram_v3.py)
 v3 موجود می‌ماند (سازگار با همان موتور). این نسخه: UX گرم‌تر و boundary-first، جریان ثبت درفت چندمرحله‌ای با toggle، ظرفیت هفتگی، inbox دوطرفهٔ آری، و **سیم‌کشیِ صریحِ handoff با لنگر**. برای استفادهٔ عملی این نسخه توصیه می‌شود؛ v3 به‌عنوان fallback.

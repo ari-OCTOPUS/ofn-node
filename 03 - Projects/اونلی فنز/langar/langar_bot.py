@@ -23,6 +23,19 @@ PROJECT_ROOT = HERE.parent                       # پوشهٔ Project-F
 PROPOSALS_DIR = HERE / "upgrade_proposals"
 LOG_FILE = HERE / "langar_log.jsonl"
 KILL_FILE = HERE / "KILL"
+
+
+def _global_stop() -> bool:
+    """کلیدِ خاموشیِ سراسریِ اختاپوس (_ops/STOP-ORGANISM یا master_halted). walk-up تا _ops
+    بدونِ import کردنِ _ops (احترام به containment). خطا/نبود = False."""
+    try:
+        for _anc in Path(__file__).resolve().parents:
+            _ops = _anc / "_ops"
+            if _ops.is_dir():
+                return (_ops / "STOP-ORGANISM").exists() or (_ops / "master_halted").exists()
+    except Exception:  # noqa: BLE001
+        pass
+    return False
 COST_FILE = HERE / "cost_meter.json"
 CONFIG_FILE = HERE / "langar_config.json"
 TELEGRAM_API = "https://api.telegram.org"
@@ -455,6 +468,8 @@ class LangarBot:
             return None  # سکوت مطلق برای غریبه
         cmd, _, arg = (text or "").strip().partition(" ")
         cmd = cmd.lower()
+        if _global_stop() and cmd != "/status":
+            return "🔴 STOP سراسریِ اختاپوس فعال است — لنگر فقط /status می‌دهد (برداشتنِ STOP کارِ مالک است)."
         if KILL_FILE.exists() and cmd not in ("/revive", "/status"):
             return "⚓ لنگر در حالت KILL است. فقط /status و /revive."
         if cmd in ("/start", "/help"):
@@ -852,12 +867,13 @@ class LangarBot:
         """تیک جمعه: خودارزیابی + proposal — فقط پیام، هیچ اکشن."""
         today = date.today()
         key = today.strftime("%G-W%V")
-        if today.weekday() == 4 and self._last_weekly != key and not KILL_FILE.exists():
-            self._last_weekly = key
+        if today.weekday() == 4 and self._last_weekly != key and not KILL_FILE.exists() \
+                and not _global_stop():
             path, items = self.upgrader.propose()
             self.send("⚓ تیک جمعه — خودارزیابی:\n" + self.handle(self.ari, "/status") +
                       "\n\nارتقاهای پیشنهادی:\n" + "\n".join(f"• {t}" for t in items) +
                       f"\n📄 {path.name}")
+            self._last_weekly = key   # RESIL-4: فقط بعد از انجامِ کار مارک کن (نه قبلش)
 
     def poll_forever(self) -> None:  # pragma: no cover
         if not (self.token and self.ari):
@@ -869,8 +885,12 @@ class LangarBot:
                     print(self.guard.clean(r))
             return
         self.send("⚓ لنگر بالا آمد. /status")
+        _fail = 0
         while not self._stop:
-            self.maybe_weekly()
+            try:
+                self.maybe_weekly()
+            except Exception as e:  # RESIL-3: تیکِ جمعه نباید کلِ حلقهٔ poll را بکشد
+                self._log("weekly_error", {"err": str(e)[:200]})
             try:
                 url = (f"{TELEGRAM_API}/bot{self.token}/getUpdates?" +
                        urllib.parse.urlencode({"timeout": 30, "offset": self._offset}))
@@ -882,9 +902,12 @@ class LangarBot:
                     reply = self.handle(chat, msg.get("text", ""))
                     if reply:
                         self.send(reply)
+                _fail = 0   # RESIL-5: poll تمیز → ریستِ بک‌آف
             except Exception as e:
-                self._log("poll_error", {"err": str(e)[:200]})
-                time.sleep(5)
+                _fail += 1
+                _err = str(e)[:200]
+                self._log("poll_error", {"err": _err, "conflict": "409" in _err})  # ۴۰۹=pollerِ دوم
+                time.sleep(min(5 * (2 ** min(_fail, 4)), 60))   # RESIL-5: بک‌آفِ نمایی سقف ۶۰s
 
 
 if __name__ == "__main__":  # pragma: no cover

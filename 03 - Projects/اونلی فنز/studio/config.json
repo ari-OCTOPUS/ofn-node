@@ -23,10 +23,10 @@
   "calendar": {
     "season": "summer",
     "slots": [
-      {"week": 1, "theme": "warm-up", "task": "۳ پست SFW Reddit"},
-      {"week": 2, "theme": "warm-up", "task": "کارما‌سازی + X bio"},
-      {"week": 3, "theme": "launch", "task": "OF Free page + اولین پست"},
-      {"week": 4, "theme": "launch", "task": "اولین PPV"}
+      {"week": 1, "theme": "warm-up", "task": "۱ ایده/ست SFW برای صف تأیید — بدون انتشار"},
+      {"week": 2, "theme": "warm-up", "task": "۲ عنوان/زاویهٔ SFW برای تست اپراتور — بدون لینک/انتشار"},
+      {"week": 3, "theme": "launch-prep", "task": "آماده‌سازی بریف اولین ست Free-page — publish فقط بعد از تأیید انسانی"},
+      {"week": 4, "theme": "ppv-prep", "task": "ایدهٔ اولین PPV پیشنهادی — قیمت/ارسال فقط با تأیید اپراتور"}
     ]
   }
 }

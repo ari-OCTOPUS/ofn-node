@@ -127,6 +127,57 @@ class T(unittest.TestCase):
             for bad in ("photo", "video", "document", "sticker"):
                 self.assertNotIn(bad, n.lower())
 
+    # ۱۱) shadow-mode بدون env باید روی stdin/chat=0 کار کند
+    def test_shadow_mode_authorizes_stdin_chat_zero(self):
+        b = S.SabaStudio(studio=None, token="", saba_chat_id=0)
+        txt, kb = b.route(0, text="/start")
+        self.assertIn("استودیوی محتوا", txt)
+        self.assertIn("inline_keyboard", kb)
+
+    # ۱۲) ارقام فارسی/عربی ظرفیت درست parse می‌شوند
+    def test_capacity_accepts_persian_digits(self):
+        self.bot.route(555, data="s:cap")
+        self.bot.route(555, text="۳٫۵")
+        cap = json.loads(S.CAPACITY_JSON.read_text(encoding="utf-8"))
+        self.assertEqual(cap["hours"], 3.5)
+
+    # ۱۳) aliasهای متنی برای shadow-mode بدون inline keyboard کار می‌کنند
+    def test_text_aliases_for_shadow_mode(self):
+        txt, _ = self.bot.route(555, text="/new")
+        self.assertIn("ثبت ایده", txt)
+        txt2, _ = self.bot.route(555, text="/drafts")
+        self.assertIn("درفت", txt2)
+
+    # ۱۴) self-cert هم در shadow-mode با دستور متنی قابل تست است
+    def test_text_cert_aliases_complete_submit(self):
+        class FakeStudio:
+            def submit_draft(self, title, self_cert=None, **k):
+                return {"ok": True, "draft_id": "DRAFT-0099"}
+        self.bot.studio = FakeStudio()
+        self.bot.route(555, text="/new")
+        self.bot.route(555, text="عنوان تست")
+        for cmd in ("/faceless", "/feet", "/no_explicit", "/18"):
+            self.bot.route(555, text=cmd)
+        txt, _ = self.bot.route(555, text="/done")
+        self.assertIn("DRAFT-0099", txt)
+
+    # ۱۵) رفتن به صفحهٔ دیگر flow نیمه‌کاره را لغو می‌کند
+    def test_navigation_cancels_partial_flow(self):
+        self.bot.route(555, text="/new")
+        self.bot.route(555, text="/drafts")
+        txt, _ = self.bot.route(555, text="این نباید عنوان شود")
+        self.assertIn("نفهمیدم", txt)
+
+    # ۱۶) در حالت HALT فقط مسیر resume باز است، نه منوی کامل
+    def test_halt_blocks_menu_until_resume(self):
+        self.bot.route(555, text="/halt")
+        txt, kb = self.bot.route(555, data="s:menu")
+        self.assertIn("توقف", txt)
+        self.assertEqual(kb["inline_keyboard"][0][0]["callback_data"], "s:resume")
+        txt2, kb2 = self.bot.route(555, data="s:resume")
+        self.assertIn("خوش برگشتی", txt2)
+        self.assertIn("inline_keyboard", kb2)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
