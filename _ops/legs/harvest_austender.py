@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 """harvest_austender.py — keyless AusTender OCDS harvester → lead-inbox.
 
-سرِ لولهٔ خشک (DAM-1 نقشهٔ تری‌اسکن): تنها تولیدکنندهٔ `state/legs/lead-inbox`
-که هیچ کلید/رازی نمی‌خواهد. AusTender OCDS API عمومی و keyless است — برخلافِ
-PlanningAlerts که کلید می‌خواهد. فقط GETِ عمومی + نوشتنِ فایلِ محلی.
+سرِ لولهٔ خشک (DAM-1 نقشهٔ تری‌اسکن): تولیدکنندهٔ keylessِ `state/legs/lead-inbox`.
+فقط GETِ عمومی + نوشتنِ فایلِ محلی.
+
+⚠️ اعتبارسنجیِ زنده (2026-07-17): AusTender منبعِ **ضعیفی** برای لیدِ نقاشی است —
+contractPublished (تنها stageِ در‌دسترس؛ atmPublished روی این endpoint ۴۰۰ می‌دهد)
+قراردادهای بسته‌شدهٔ فدرال است: در ۴۰۰ قرارداد/۲۸روز فقط ۱ موردِ نقاشی (آن‌هم تأمینِ
+رنگ). کد اکنون **صحیح** است (فرمتِ تاریخ + schemaِ contracts[] اصلاح شد) و برای هر
+منبعِ OCDSِ بهتر (مثل NSW eTendering) قابل‌استفاده است، ولی OCTOPUS_WIRE_HARVEST
+**پیش‌فرض خاموش** می‌ماند تا منبعِ واقعیِ لیدِ نقاشی وصل شود (Gmail inbound = توکنِ
+مالک؛ یا PlanningAlerts DAها = کلید). این هاروستر به‌تنهایی لولهٔ پول را پر نمی‌کند.
 
 پشتِ OCTOPUS_WIRE_HARVEST=1 (پیش‌فرض خاموش، عمداً بیرون از PAPER_FULL_FLAGS چون
 تولیدکنندهٔ ورودیِ واقعی است). kill-switch مقدم. صفر ارسال، صفر خرج، صفر راز.
@@ -34,8 +41,11 @@ import opslib  # noqa: E402
 # ─── flag ─────────────────────────────────────────────────────────────────────
 FLAG_NAME = "OCTOPUS_WIRE_HARVEST"
 
-# AusTender OCDS — findByDates/atmPublished بازهٔ [start,end]. عمومی، keyless.
-_ENDPOINT = "https://api.tenders.gov.au/ocds/findByDates/atmPublished/{start}/{end}"
+# AusTender OCDS — findByDates. بازهٔ زمانی باید فرمتِ کاملِ ISO با Z داشته باشد
+# (تاریخِ خالی → HTTP 400؛ اعتبارسنجیِ زندهٔ 2026-07-17). stageِ atmPublished روی این
+# endpoint ۴۰۰ می‌دهد؛ تنها contractPublished (قراردادهای بسته‌شده) ۲۰۰ می‌دهد — که
+# منبعِ ضعیفی برای لیدِ نقاشی است (نکِ docstringِ ماژول).
+_ENDPOINT = "https://api.tenders.gov.au/ocds/findByDates/contractPublished/{start}/{end}"
 _MAX_PER_RUN = 25          # کرانِ ضدِ سیلِ صندوق در هر اجرا
 _UA = "octopus-austender-harvester/0.1 (propose-only; local vault)"
 
@@ -75,7 +85,9 @@ def fetch(days: int = 4, get_json=None) -> list:
     fetch_fn = get_json or _get_json
     t = date.today()
     s = t - timedelta(days=max(1, int(days)))
-    url = _ENDPOINT.format(start=s.isoformat(), end=t.isoformat())
+    # فرمتِ کاملِ ISO با Z الزامی است (وگرنه ۴۰۰)
+    url = _ENDPOINT.format(start=f"{s.isoformat()}T00:00:00Z",
+                           end=f"{t.isoformat()}T23:59:59Z")
     try:
         d = fetch_fn(url)
     except Exception as e:  # noqa: BLE001 — شبکهٔ بد نباید ضربان را بکشد
@@ -94,25 +106,39 @@ def _to_candidate(release: dict) -> "dict | None":
     if not isinstance(release, dict):
         return None
     tender = release.get("tender")
-    if not isinstance(tender, dict):
-        tender = {}
-    title = str(tender.get("title") or "").strip()
-    body = str(tender.get("description") or "").strip()
+    tender = tender if isinstance(tender, dict) else {}
+    conts = release.get("contracts")
+    conts = [c for c in conts if isinstance(c, dict)] if isinstance(conts, list) else []
+    # متن از هر دو tender (فیدِ ATM) و contracts[] (فیدِ contractPublished — اعتبارسنجیِ
+    # زنده نشان داد توصیف اینجاست نه در tender).
+    titles = [str(tender.get("title") or "").strip()] + [str(c.get("title") or "").strip() for c in conts]
+    bodies = [str(tender.get("description") or "").strip()] + [str(c.get("description") or "").strip() for c in conts]
+    title = next((x for x in titles if x), "")
+    body = next((x for x in bodies if x), "")
     desc = f"{title} — {body}" if title and body else (title or body)
     if not desc:
         return None
-    if not _is_relevant(f"{title} {body}"):
+    if not _is_relevant(" ".join(titles + bodies)):
         return None
     cand: dict = {"source": "austender", "description": desc[:600]}
-    value = tender.get("value")
-    val = value.get("amount") if isinstance(value, dict) else None
-    if isinstance(val, (int, float)) and val > 0:
-        cand["cost_of_development"] = float(val)   # سطحِ ارزشِ lead_scorer
+    amounts = []
+    for src in [tender] + conts:
+        v = src.get("value")
+        a = v.get("amount") if isinstance(v, dict) else None
+        if isinstance(a, (int, float)) and a > 0:
+            amounts.append(float(a))
+    if amounts:
+        cand["cost_of_development"] = max(amounts)   # سطحِ ارزشِ lead_scorer
     buyer = release.get("buyer")
     buyer_name = buyer.get("name") if isinstance(buyer, dict) else None
+    if not buyer_name:   # contractPublished: خریدار در parties[roles=buyer]
+        for p in (release.get("parties") or []):
+            if isinstance(p, dict) and any(str(r).lower() == "buyer" for r in (p.get("roles") or [])):
+                buyer_name = p.get("name")
+                break
     if buyer_name:
         cand["applicant"] = str(buyer_name)[:120]
-    uri = release.get("uri") or tender.get("id")
+    uri = release.get("uri") or release.get("ocid") or tender.get("id")
     if uri:
         cand["url"] = str(uri)[:300]
     dt = release.get("date")
