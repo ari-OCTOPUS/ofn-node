@@ -738,6 +738,50 @@ class Doctor:
             self._note("DOCTOR_SWEEP", {"expired": expired, "resubmitted": resubmitted})
         return {"swept": len(expired), "details": expired, "resubmitted": resubmitted}
 
+    # ─── CHORD فاز C (2026-07-18، رأی مالک «برو فاز C») — سایهٔ مشورتیِ محض ───
+    def _chord_shadow(self, rfc) -> dict | None:
+        """ارزیابیِ سایهٔ chord برای یک RFC — فقط ثبت (ledger chord + NOTE دکتر).
+        هرگز رفتار/امتیاز/اقدام را تغییر نمی‌دهد؛ فقط با OCTOPUS_WIRE_CHORD_SHADOW=1
+        صدا زده می‌شود (callsite گیت شده). import تنبل: با فلگ خاموش حتی import نمی‌شود.
+        هر خطا → None (cycle هرگز نمی‌میرد). ورودی‌ها از دادهٔ موجودِ خودِ دکترند."""
+        try:
+            from chord.observation import from_test_result, from_manual
+            from chord.adapters.doctor_adapter import shadow_assess
+            obs, claims = [], []
+            sr = rfc.sandbox_result if isinstance(rfc.sandbox_result, dict) else None
+            if sr is not None:
+                _ok = bool(sr.get("ok", sr.get("passed", False)))
+                obs.append(from_test_result(f"doctor-sandbox:{rfc.rfc_id}", _ok,
+                                            detail=str(sr)[:200], mission_id=rfc.rfc_id))
+                claims.append({"test_health": 1.0 if _ok else 0.0,
+                               "evidence_quality": 0.8})
+            cr = rfc.critic_review if isinstance(rfc.critic_review, dict) else None
+            if cr is not None:
+                obs.append(from_manual(f"critic:{str(cr)[:180]}",
+                                       who="doctor-critic", mission_id=rfc.rfc_id))
+                claims.append({"uncertainty": 0.3 if cr.get("approve") else 0.6})
+            # ساختاری، نه حدسی: change_level → ریسک/برگشت‌پذیری (tune=knob whitelist+ledger)
+            _lvl = getattr(rfc, "change_level", "code")
+            _risk = {"tune": 0.2, "reconfig": 0.45, "rewrite": 0.7}.get(_lvl, 0.75)
+            _rev = {"tune": 0.9, "reconfig": 0.6, "rewrite": 0.4}.get(_lvl, 0.35)
+            if getattr(rfc, "rollback", ""):
+                _rev = min(1.0, _rev + 0.15)
+            obs.append(from_manual(
+                f"rfc change_level={_lvl} rollback={'yes' if rfc.rollback else 'no'}",
+                who="doctor-structural", mission_id=rfc.rfc_id))
+            claims.append({"operational_risk": _risk, "reversibility": _rev})
+            ctx = {"stop_organism": bool(opslib.STOP_ORGANISM.exists())}
+            rec = shadow_assess(rfc.rfc_id, obs, claims, context=ctx, log=True)
+            slim = {"verdict": rec.get("verdict"),
+                    "weighted_distance": rec.get("weighted_distance"),
+                    "confidence": rec.get("confidence"),
+                    "approval_required": rec.get("approval_required"),
+                    "assessment_id": rec.get("assessment_id")}
+            self._note("CHORD_SHADOW", {"rfc_id": rfc.rfc_id, **slim})
+            return slim
+        except Exception:  # noqa: BLE001 — سایهٔ chord هرگز cycle را نمی‌کشد
+            return None
+
     def run_cycle(self, beat: int | None = None, trace: dict | None = None,
                   use_calibration: bool = True, use_chamber: bool = True,
                   temperature: float | None = None) -> dict | None:
@@ -870,6 +914,12 @@ class Doctor:
         self.submit_for_approval(rfc)   # کارتِ P3 یا pending
         result = {"rfc_id": rfc.rfc_id, "status": rfc.status,
                   "bottleneck": bottleneck["bottleneck"], "beat": beat}
+        # CHORD فاز C: سایهٔ مشورتی کنارِ تصمیمِ خودِ دکتر — پشتِ فلگِ خاموش،
+        # فقط ثبت + کلیدِ اطلاعاتیِ خروجی؛ هیچ شاخه/امتیاز/اقدامی عوض نمی‌شود.
+        if os.environ.get("OCTOPUS_WIRE_CHORD_SHADOW") == "1":
+            _cs = self._chord_shadow(rfc)
+            if _cs is not None:
+                result["chord_shadow"] = _cs
         if evolution_report is not None:
             result["evolution"] = evolution_report
         if box_report is not None:
