@@ -555,6 +555,56 @@ def t_v_mission_callback_approve_updates_state_e2e():
     _redirect_octopus_paths()
 
 
+def t_w_mission_test_flag_off_is_request_only():
+    """بدونِ OCTOPUS_WIRE_MISSION_RUNNER: ms:test فقط request ثبت می‌کند، runner اجرا نمی‌شود."""
+    _redirect_octopus_paths()
+    os.environ.pop("OCTOPUS_WIRE_MISSION_RUNNER", None)
+    m = mission_mod.create_mission("تستا رو verify کن", source="telegram")
+    fc = FakeClient(owner_id=777)
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render_with_map())
+    u = {"update_id": 21,
+         "callback_query": {"id": "c2", "from": {"id": 777},
+                            "data": f"ms:test:{m['id']}",
+                            "message": {"message_id": 1, "chat": {"id": -1}}}}
+    res = c.handle_update(u)
+    assert res and res["kind"] == "mission" and res["wired"] is False
+    fresh = mission_mod.get(m["id"])
+    assert fresh["state"] == "planned", "flag-off → فقط planned/awaiting-runner"
+    assert fresh["tests"] == [], "هیچ تستِ واقعی نباید ثبت شده باشد"
+
+
+def t_x_mission_test_flag_on_invokes_runner():
+    """با OCTOPUS_WIRE_MISSION_RUNNER=1: ms:test runnerِ v0 را با hookِ تزریقی صدا می‌زند و شواهد ثبت می‌شود."""
+    _redirect_octopus_paths()
+    m = mission_mod.create_mission("تستا رو verify کن", source="telegram")
+    called = {}
+
+    def fake_run(mid, **kw):
+        called["mid"] = mid
+        mission_mod.record_test(mid, "test_tg_actions.py", True, detail="fake runner green")
+        return {"ok": True, "run_id": "run-fake", "results": [], "skipped": []}
+
+    orig = center.runner_mod
+    try:
+        center.runner_mod = types.SimpleNamespace(run_mission=fake_run)
+        os.environ["OCTOPUS_WIRE_MISSION_RUNNER"] = "1"
+        fc = FakeClient(owner_id=777)
+        c = center.Center(client=fc, clock=Clock(), render_mod=fake_render_with_map())
+        u = {"update_id": 22,
+             "callback_query": {"id": "c3", "from": {"id": 777},
+                                "data": f"ms:test:{m['id']}",
+                                "message": {"message_id": 1, "chat": {"id": -1}}}}
+        res = c.handle_update(u)
+        assert res and res["wired"] is True
+        assert called.get("mid") == m["id"], "runner باید با mid واقعی صدا زده شود"
+        fresh = mission_mod.get(m["id"])
+        assert fresh["tests"] and fresh["tests"][-1]["passed"] is True
+    finally:
+        center.runner_mod = orig
+        os.environ.pop("OCTOPUS_WIRE_MISSION_RUNNER", None)
+    _redirect_octopus_paths()
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

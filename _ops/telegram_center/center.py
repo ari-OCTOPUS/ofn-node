@@ -49,6 +49,10 @@ import intent as intent_mod        # noqa: E402 — طبقه‌بندِ نیتِ
 import metadata_scan as ms_mod     # noqa: E402 — نقشه‌برداریِ فقط‌خواندنیِ metadata
 import approval_store as aps_mod   # noqa: E402 — پلِ صفِ تأیید اختاپوس
 import mission as mission_mod       # noqa: E402 — Mission Genome: intent→mission→approval
+try:
+    import mission_runner as runner_mod   # noqa: E402 — Runner v0: اجرای ایزولهٔ allowlisted (پشتِ فلگ)
+except Exception:  # noqa: BLE001 — fail-soft: نبودِ runner نباید center را بشکند
+    runner_mod = None  # type: ignore
 
 # فایلِ توقفِ حلقه (هم‌خانوادهٔ STOP-ORGANISM/STOP-CORTEX؛ فقط مالک می‌سازد)
 STOP_TG_CENTER = opslib.OPS / "STOP-TG-CENTER"
@@ -981,16 +985,30 @@ class Center:
             return {"kind": "mission", "action": "open", "id": mid}
 
         if action == "test" and mid:
-            mission_mod.add_note(mid, "owner requested tests/fitness from Telegram; runner not executed by center")
-            mission_mod.set_state(mid, "planned", "test requested; awaiting runner")
+            # فلگ‌خاموش پیش‌فرض: بدونِ فلگ، دقیقاً رفتارِ قبلی (فقط request/note ثبت می‌شود،
+            # UI دروغ نمی‌گوید). با OCTOPUS_WIRE_MISSION_RUNNER=1 runnerِ v0 واقعاً در worktreeِ
+            # ایزوله تست‌های allowlisted را اجرا می‌کند (هرگز apply/patch؛ درختِ زنده لمس نمی‌شود).
+            wired = os.environ.get("OCTOPUS_WIRE_MISSION_RUNNER") == "1" and runner_mod is not None
+            if wired:
+                try:
+                    out = runner_mod.run_mission(mid)
+                    toast = ("🧪 اجرا سبز (شواهد ثبت شد)" if out.get("ok")
+                             else f"🧪 اجرا: {out.get('refused') or 'قرمز'} — شواهد ثبت شد")
+                except Exception:  # noqa: BLE001 — fail-soft: هر خطا → note، هرگز crash
+                    mission_mod.add_note(mid, "runner error; fell back to request-only")
+                    toast = "🧪 خطای runner؛ فقط درخواست ثبت شد"
+            else:
+                mission_mod.add_note(mid, "owner requested tests/fitness from Telegram; runner flag off (staged)")
+                mission_mod.set_state(mid, "planned", "test requested; awaiting runner")
+                toast = "درخواست تست ثبت شد؛ اجرا جداست"
             txt, kb = mission_mod.mission_card(mid)
             try:
                 if isinstance(m_id, int):
                     self._client.edit(m_id, _scrub(txt), keyboard=kb, chat_id=chat)
             except Exception:  # noqa: BLE001
                 pass
-            self._answer(cbq, "درخواست تست ثبت شد؛ اجرا جداست")
-            return {"kind": "mission", "action": "test_request", "id": mid}
+            self._answer(cbq, toast)
+            return {"kind": "mission", "action": "test_request", "id": mid, "wired": wired}
 
         if action == "review" and mid:
             mission_mod.add_note(mid, "owner requested doctor/epistemics review from Telegram; reviewer not executed by center")
