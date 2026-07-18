@@ -2195,6 +2195,10 @@ _DISCOVERY_STATE = {"last_epoch": -1}
 
 _ZIMAN_STATE: dict = {"leg": None, "state_path": None}
 _ZIMAN_BEAT_EVERY_N = 60   # یک بار در هر ۶۰ beat (~۱h با tick=60s)
+# برندینگِ خودکار: کادنسِ جدا و کندتر (پیش‌فرض ~روزی یک‌بار با tick=60s) تا نه هزینه/
+# لتنسیِ LLM روی هر بیت بیاید و نه کارتِ تلگرام مالک را پُر کند. پشتِ OCTOPUS_ZIMAN_BRANDING.
+_ZIMAN_BRANDING_EVERY_N = 1440   # 1440 beat ≈ ۲۴h
+_ZIMAN_OCCASIONS = ("هدیه", "سالگرد", "تولد", "نامزدی", "روز مادر", "یلدا", "قدردانی")
 
 
 def make_ziman_leg(organ_table: dict | None = None) -> "ZimanLeg | None":
@@ -2258,6 +2262,28 @@ def ziman_beat(leg=None, beat: int = 0, doctor=None) -> dict | None:
         # (نویزِ لاگ) و biology همیشه None می‌ماند → accept_biology_status هرگز واقعاً صدا نمی‌شد.
         # خروجی بایت‌به‌بایت حفظ شد (biology=None مثلِ قبل)؛ صفر callerِ واقعی، صفر تغییرِ رفتار.
         biology = None
+        # ── برندینگِ خودکار (پشتِ OCTOPUS_ZIMAN_BRANDING، پیش‌فرض خاموش) ──
+        # روزی یک‌بار یک draftِ برند از مغزِ مشترک (model_router محلی‌اول → Fugu) می‌سازد
+        # و به‌صورتِ proposalِ leg emit می‌کند؛ route_leg_proposals (در organism.py) آن را
+        # خودکار به کارتِ advisoryِ owner-visible تبدیل می‌کند. propose-only، fail-soft،
+        # هیچ publish/spend اینجا. خاموش/خطا → خروجی byte-identical با امروز.
+        branding = None
+        if flag("OCTOPUS_ZIMAN_BRANDING"):
+            b_every = int(os.environ.get("CHRONO_ZIMAN_BRANDING_EVERY_N_BEATS",
+                                         str(_ZIMAN_BRANDING_EVERY_N)))
+            if _epoch_fire("ziman_branding", beat, b_every):
+                try:
+                    fams = list(_leg.product_families().keys())
+                    fam = fams[(beat // max(1, b_every)) % len(fams)] if fams else "C3"
+                    occ = _ZIMAN_OCCASIONS[(beat // max(1, b_every)) % len(_ZIMAN_OCCASIONS)]
+                    prop = _leg.draft_content(kind="caption", product_family=fam,
+                                              occasion=occ, use_llm=True)
+                    pl = getattr(prop, "payload", {}) or {}
+                    branding = {"emitted": hasattr(prop, "payload"),
+                                "body_source": pl.get("body_source"),
+                                "family": pl.get("product_family"), "occasion": occ}
+                except Exception as _be:  # noqa: BLE001 — برندینگ نباید بیت را بکشد
+                    opslib.alert([f"ziman branding beat خطا: {type(_be).__name__}: {_be}"])
         result = {
             "leg_id": snap.get("leg_id", "ziman-gallery"),
             "organ": snap.get("organ", "ZIMAN"),
@@ -2270,6 +2296,7 @@ def ziman_beat(leg=None, beat: int = 0, doctor=None) -> dict | None:
             "beat": beat,
             "digest": digest,
             "biology": biology,
+            "branding": branding,   # additive: None وقتی خاموش/غیرِفایر
         }
         # ORGANISM-STATE.ziman — وضعیت پایدار برای organism و داشبورد
         sp = _ZIMAN_STATE.get("state_path")

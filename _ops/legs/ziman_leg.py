@@ -427,13 +427,61 @@ class ZimanLeg(Leg):
         }
         return self.emit_proposal("inventory_report", payload)
 
+    # ─── LLM brand body (مغزِ مشترک: model_router محلی‌اول → Fugu) ────────────
+    # قواعدِ سختِ برند در systemِ مدل تزریق می‌شود — همان قواعدِ content.py و نوت‌های
+    # برند: گل مصنوعی، کمیابیِ کیفی بدونِ عددِ ظرفیت، بدونِ قیمت/تحویل/پرداختِ مشخص،
+    # PayID/سیدنیِ کلی، دعوت به DM، فقط draft (هرگز publish).
+    _BRAND_SYSTEM = (
+        "تو کپی‌رایترِ برندِ هدایای دست‌سازِ لوکسِ «Ziman» در سیدنی هستی. فارسیِ گرم و مجلسی بنویس. "
+        "قواعدِ سخت که هرگز نقض نمی‌شوند: "
+        "(۱) گل‌ها مصنوعی و ماندگارند؛ هرگز مثلِ گلِ تازه/شاخهٔ بریده تبلیغ نکن — بازارِ هدیهٔ یادگاری/دکوری. "
+        "(۲) روایتِ کمیابی فقط بر پایهٔ «دست‌ساز و محدود»؛ هرگز عددِ مشخصِ ظرفیت (تعداد در هفته) نگو. "
+        "(۳) هرگز قیمت، وعدهٔ زمانِ تحویل، یا دستورِ پرداختِ مشخص نده — این‌ها فقط با تأییدِ مالک اعلام می‌شوند. "
+        "(۴) PayID و تحویلِ محلیِ سیدنی را فقط کلی ذکر کن. "
+        "(۵) دعوت به پیامِ مستقیم (DM) برای بستنِ فروش، نه تبلیغِ سرد. "
+        "یک کپشنِ کوتاهِ اینستاگرام + حداکثر ۵ هشتگ بده. چیزی جز خودِ کپشن ننویس."
+    )
+    # نشتِ عدد در متنِ عمومی: نه بلاک (draft است، مالک می‌بیند) بلکه پرچمِ هشدار در payload.
+    _PRICE_LEAK_RE = re.compile(
+        r"(?:\$|aud|aud\$|دلار|تومان|قیمت)\s*\d|\d+\s*(?:در\s*هفته|/\s*هفته|per\s*week)", re.I)
+
+    def _llm_brand_body(self, occasion: str, product_name: str, family: str,
+                        tier: str | None = None):
+        """بدنهٔ LLM از مغزِ مشترکِ ارگانیسم (model_router). قرارداد: هرگز publish/spend؛
+        فقط متن. هر خطا/خاموشی/جوابِ پوچ → (None, None) تا caller به قالبِ قطعیِ امروز
+        fail-soft کند (byte-identical). tier پیش‌فرض 'draft' = محلی‌اولِ $0؛ در صورتِ ردِ
+        کیفیتِ محلی و بازبودنِ گیتِ پولی، router به ردهٔ پولی (Fugu-اول، key-aware) می‌رود."""
+        import os as _os
+        import sys as _sys
+        try:
+            cortex_dir = str(_OPS / "cortex")
+            if cortex_dir not in _sys.path:
+                _sys.path.insert(0, cortex_dir)
+            import model_router  # lazy — مونکی‌پچ‌پذیرِ تست
+            tier = tier or _os.environ.get("ZIMAN_BRANDING_TIER", "draft")
+            user = (f"مناسبت: {occasion}\n"
+                    f"خانوادهٔ محصول: {family} — {product_name}\n"
+                    "یک کپشنِ کوتاهِ فروشِ اینستاگرام بنویس.")
+            out = model_router.ask(tier, user, system=self._BRAND_SYSTEM, max_tokens=320)
+            if not isinstance(out, dict) or not out.get("ok"):
+                return None, None
+            text = str(out.get("text") or "").strip()
+            if len(text) < 24:                      # جوابِ پوچ/خالی → fail-soft به قالب
+                return None, None
+            return text, f"llm:{out.get('tier', tier)}"
+        except Exception:  # noqa: BLE001 — مغز هرگز پا/تیک را نکشد
+            return None, None
+
     # ─── draft content (proposal) ────────────────────────────────────────────
     def draft_content(self, kind: str = "caption",
                       product_family: str = "C3",
                       occasion: str = "هدیه",
-                      campaign_units: int = 0) -> Proposal | dict:
+                      campaign_units: int = 0,
+                      use_llm: bool = False) -> Proposal | dict:
         """تولید draft محتوا. campaign_units>0 → D4 gate اول.
         kind: caption | dm | report
+        use_llm=True → بدنه از مغزِ مشترک (model_router محلی‌اول → Fugu)؛ خطا/خاموشی →
+        همان قالبِ قطعی (fail-soft). پیش‌فرض False → byte-identical با رفتارِ امروز.
         هرگز publish نمی‌کند — فقط proposal.
         """
         if kind in HARD_GATED or kind in ("publish", "send"):
@@ -458,15 +506,34 @@ class ZimanLeg(Leg):
             "ظرفیت، قیمت، روش پرداخت و زمان تحویل فقط بعد از تأیید مالک اعلام می‌شود.",
             "این پیش‌نویس است — انتشار فقط با تأیید انسانی.",
         ]
+        warnings = []
         rec = cat_fams.get(family)
         if family == "C4" or (rec and rec.get("perishable_count", 0) > 0):
             # فاسدشدنی: قدیم فقط C4 هاردکد بود؛ با کاتالوگ از فیلدِ perishable مشتق می‌شود.
-            body_lines.append(
+            warnings.append(
                 f"⚠️ {family} فاسدشدنی: فقط تحویل/پیکاپ محلی — بدون ارسال دور.")
         if rec and rec.get("alcohol_suspect_count", 0) > 0:
-            body_lines.append(
+            warnings.append(
                 "⚠️ برخی آیتم‌های این خانواده مشکوک به الکل (heuristic روی medium) — "
                 "محدودیت سنی/حمل؛ فقط با تأیید مالک.")
+
+        # بدنه: LLM اگر خواسته و در دسترس بود، وگرنه قالبِ قطعی. هشدارها در هر دو حالت
+        # ضمیمه می‌شوند (perishable/alcohol context هرگز حذف نمی‌شود).
+        body_source = "template"
+        brand_rule_warning = None
+        llm_text = None
+        if use_llm:
+            llm_text, src = self._llm_brand_body(occasion, product_name, family)
+            if llm_text:
+                body_source = src
+        if llm_text:
+            body = llm_text + (("\n" + "\n".join(warnings)) if warnings else "")
+            if self._PRICE_LEAK_RE.search(llm_text):
+                # draft است، بلاک نمی‌کنیم؛ فقط پرچمِ بازبینیِ مالک — قیمت عمومی همچنان V5.
+                brand_rule_warning = ("متنِ LLM شاید عددِ قیمت/ظرفیت دارد — "
+                                      "بازبینیِ مالک پیش از هر استفاده.")
+        else:
+            body = "\n".join(body_lines + warnings)
 
         payload = {
             "draft_only": True,
@@ -475,7 +542,8 @@ class ZimanLeg(Leg):
             "requested_family": product_family,                       # additive
             "family_source": "catalog" if cat_fams else "legacy_fallback",  # additive
             "occasion": occasion,
-            "body": "\n".join(body_lines),
+            "body": body,
+            "body_source": body_source,                               # additive: template | llm:<tier>
             "brand_rules": [
                 "artificial florals only",
                 "no fabricated testimonials",
@@ -485,6 +553,8 @@ class ZimanLeg(Leg):
             "campaign_gate": gate,
             "publish": False,
         }
+        if brand_rule_warning:
+            payload["brand_rule_warning"] = brand_rule_warning        # additive
         return self.emit_proposal("draft_content", payload)
 
     # ─── memory candidate (not canonical) ────────────────────────────────────
