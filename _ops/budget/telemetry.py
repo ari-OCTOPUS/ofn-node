@@ -39,6 +39,8 @@ ORGAN_MAP = {
     "metabolism": "ARCHITECT_SYS",
     "governor": "ARCHITECT_SYS",
     "evolution": "ARCHITECT_SYS",
+    "painting": "PAINTING",        # verdict 2026-07-18 integration-debug (proposed-diff §۵) — رفع UNMAPPED:painting
+    "accounting": "ACCOUNTING",    # verdict 2026-07-18 integration-debug (proposed-diff §۵) — رفع UNMAPPED:accounting
 }
 
 
