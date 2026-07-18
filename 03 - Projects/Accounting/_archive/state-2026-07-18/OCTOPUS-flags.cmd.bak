@@ -1,0 +1,126 @@
+@echo off
+rem OCTOPUS-flags.cmd - non-secret flag overrides, called by RUN-ORGANISM.bat before python.
+rem ASCII-only: cmd.exe parses this in the OEM codepage, so no non-ASCII chars here.
+rem Remove a line (or the whole file) and restart to turn a layer off.
+
+rem Session 46: hybrid heart SHADOW beat + beat-paced work pump (zero-cost lanes) + nudges.
+set OCTOPUS_WIRE_HEART=1
+set OCTOPUS_WIRE_HEART_WORK=1
+set OCTOPUS_WIRE_NEEDS_NUDGE=1
+rem HARVEST خاموش شد 2026-07-17: اعتبارسنجیِ زنده نشان داد AusTender منبعِ ضعیفِ
+rem لیدِ نقاشی است (۱ مورد در ۴۰۰ قرارداد/ماه؛ atmPublished=۴۰۰). کد صحیح است ولی
+rem تا وصلِ منبعِ واقعی (Gmail inbound / PlanningAlerts DA) خاموش می‌ماند.
+set OCTOPUS_WIRE_HARVEST=0
+set OCTOPUS_OBS_ALERT=1
+rem Session 46 P0 security fixes: enforce human-append anti-forgery (is_human downgraded to 0
+rem for tokenless appends; money settle path untouched) and wire apply_merge so owner merge
+rem verdicts have real effect. Both fail-safe and rollbackable.
+set OCTOPUS_WIRE_HUMAN_APPEND_GUARD=1
+set OCTOPUS_WIRE_APPLY_MERGE=1
+
+rem 2027 Standards Base backlog item #1, owner verdict 2026-07-12: close the last no-secret
+rem loophole. If boot-time configure() in organism.py ever fails (caught, non-fatal today),
+rem the module-level guard used to fall back to passthrough (allow). STRICT makes that one
+rem edge case fail-closed (deny) instead. Zero effect on the normal path: organism.py already
+rem configures a real per-boot secret, so this only guards the failure branch. Tested:
+rem test_human_append_guard.py checks 11/12/15 (15/15 green). Delete this line to revert.
+set HH_HUMAN_GUARD_STRICT=1
+
+rem GO-LIVE (owner informed decision 2026-07-10, tier 1+2): shadow to real (zero-cost) - heart
+rem allometry + production-wire condition + doctor RFC persistence. Core safety UNTOUCHED:
+rem budget cap AU30/month, kill-switch, sigma cap, human-append. The ACTIVATION-*.flag files
+rem open the paid/date gates; delete any flag to revert.
+set OCTOPUS_WIRE_BIO=1
+set OCTOPUS_WIRE_PULSE=1
+set OCTOPUS_WIRE_DOCTOR_PERSIST=1
+REM P10 truth-map 2026-07-17: OCTOPUS_WIRE_SELF_IMPROVE_AUTO retired (zero readers in any code); real gate = ACTIVATION-SELF-IMPROVE-AUTO.flag file
+
+rem Gate-0 needs real self-delta samples on a fixed clock; 15-min cadence means heart
+rem live-control legitimately opens in about 12h of data (not faked). Set 3600 for hourly.
+set HEART_SAMPLE_INTERVAL_S=900
+
+rem Metacognitive layer: free zero-cost web research (DuckDuckGo + Wikipedia + arXiv, no API
+rem key, read-only). Queries come only from generic school-gap topics, never private content.
+rem Delete this line to disable outbound web egress.
+set OCTOPUS_WIRE_WEB_RESEARCH=1
+
+rem Self-evolution unlock (owner 2026-07-11 "open the locks, let it evolve itself").
+rem Evolution is already on via the paper-full profile (sandbox mutations -> RFC proposals,
+rem owner-merge to become real). These add the remaining safe subsystems:
+rem   SCHEDULER  - propose-only dispatcher (zero-cost, only schedules, no effector).
+rem   EPISTEMICS - advisory read-only self-knowledge sensor (zero-cost, annotate only).
+rem   SELFHEAL   - auto-recover a failed leg, bounded by a circuit-breaker (max 3 / 5min).
+rem   DEBATE     - creative-vs-architect loop (PAID, capped AU10/month, respects kill-switch).
+rem NOT unlocked here: real measured_lift / L4 auto code-patching (self-modification core -
+rem needs explicit owner vote). Evolution stays propose-only; core safety unchanged.
+set OCTOPUS_WIRE_SCHEDULER=1
+set OCTOPUS_WIRE_EPISTEMICS=1
+set OCTOPUS_WIRE_SELFHEAL=1
+set OCTOPUS_WIRE_DEBATE=1
+
+rem Mining leg activation (owner verdict 2026-07-12). Read-only, propose-only, secrets=(),
+rem money_link=incubating, budget=0, spawn=0. Structurally contained (D-10/D-11/D-20).
+rem NOT added to PAPER_FULL_FLAGS - explicit opt-in only. Delete this line to deactivate.
+set OCTOPUS_WIRE_MINING=1
+
+rem TG-exec (2026-07-15, owner "do it"): Telegram cockpit buttons doctor:run / consolidate:run
+rem actually execute on the beat thread (halt-gated, at-most-once, no money, no 3rd-party
+rem outbound; doctor posts an owner-only RFC card). school/ingest stay disabled. Delete to revert.
+set OCTOPUS_TG_EXEC=1
+
+rem TG group power tier (2026-07-18, owner "روشن کن کنترلِ کامل"): unlocks Tier-B two-tap
+rem control in the group command centre — restart / flag-toggle / budget-apply (arm->confirm,
+rem 180s expiry, owner-from-id gated, money-settle still locked). Emergency brake + leg
+rem pause/resume are always-on regardless. Revert: set to 0 or delete this line, relaunch centre.
+set OCTOPUS_TG_POWER=1
+
+rem Autonomy re-tier (2026-07-16 19:30, owner verbatim: "human gate ONLY for important items,
+rem interactive Telegram; free the rest - decide and act, don't ask"). Non-important proposals
+rem get a logged SELF verdict (ledger AUTONOMY_SELF_VERDICT) instead of owner escalation.
+rem IMPORTANT class is hard-coded in cortex/autonomy_matrix.py and NEVER freed by this flag:
+rem money/spend, secrets, delete, outbound send/publish, code/merge, genome/ledger/schema,
+rem kill/halt/restart, spawn, sigma, human-append, PII/partner. Delete this line to revert.
+set OCTOPUS_AUTONOMY_FREE=1
+
+rem Program 1 (2026-07-16, owner approved the 10-program wave): lead engine stages 1-5 go live
+rem (SENSE file-inbox -> score -> ledger PROPOSAL -> priced draft quote). propose-only, ZERO
+rem outbound - no send capability exists in _ops at all. Plus heart telemetry + struct logs.
+rem Delete any line to revert that layer.
+set OCTOPUS_WIRE_LEAD_DISCOVERY=1
+set OCTOPUS_WIRE_LEAD_DRAFT=0
+set HEARTSTATE_SHADOW=1
+set OCTOPUS_WIRE_STRUCTLOG=1
+
+rem Brain economics (2026-07-16, owner "free local, paid only for big work"): the 7B model
+rem (qwen2.5:latest, 4.7GB) is already on disk and fits the 1660Ti - a big free quality jump
+rem over the 1.5b default. LOCAL_FIRST: mid-tier tasks (research/synthesize/draft) try the
+rem local 7B first behind a deterministic quality gate; paid GLM/Fugu only on failure or for
+rem heavy tiers (plan/deep/orchestrate). Delete either line to revert.
+set OLLAMA_MODEL=qwen2.5:latest
+set CORTEX_LOCAL_FIRST=1
+
+rem Hardware-tuned heartbeat (2026-07-16, owner asked): Legion 5 = 12 threads / 16GB RAM
+rem (5.8GB free measured) / GTX 1660Ti 6GB. The 7B model (4.7GB) saturates VRAM, cold-load
+rem ~60s, warm answer ~15s - so: 120s LLM timeout (no false-dead on cold load), 20s min gap
+rem between local calls (GPU+RAM breathing room beside Obsidian/Chrome), heart self-delta
+rem sampling stays 900s (already set above - right for 16GB), lead discovery capped 3/beat
+rem and every ~30 beats. Minimum-aliveness floor is TICK_SECONDS=300 in organism.py (code
+rem constant, untouched): even with a depleted beat-budget the organism wakes every 5min
+rem for kill-check+telemetry - the true "alive minimum" costs ~0% CPU idle.
+set OLLAMA_TIMEOUT_S=120
+set OLLAMA_MIN_INTERVAL_S=20
+set LEAD_DISCOVERY_MAX_PER_BEAT=3
+set CHRONO_LEAD_DISCOVERY_EVERY_N_BEATS=30
+set OCTOPUS_HTTP_AUTH=1
+set OCTOPUS_SYNTH_EVENT_DRIVEN=1
+set EVOLVE_REQUIRE_APPROVAL=1
+set TG_CENTER_BOT_TOKEN=<REDACTED-TELEGRAM-TOKEN>
+set TG_CENTER_CHAT_ID=-1004475788460
+rem 2026-07-17 phase-1 money-heart: PocketSmith read-only sync (developer key, GET-only, no money movement).
+set OCTOPUS_WIRE_POCKETSMITH=1
+
+rem Doctor self-knowledge loop (2026-07-18, owner "دکتر باهوش و فعال"): from boot, a
+rem read-only understanding of Octopus via local Ollama ($0), saved + iteratively improved.
+rem NOT fear-gated (learning != change); runs in a daemon thread (never blocks the tick).
+rem Paid brain only if OCTOPUS_DOCTOR_SELFKNOW_PAID=1 (cortisol, money-gated).
+set OCTOPUS_WIRE_DOCTOR_SELFKNOW=1
