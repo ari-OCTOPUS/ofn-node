@@ -92,6 +92,10 @@ class DeepSeekClient:
             "max_tokens": max_tokens,
             "temperature": temperature,
         }
+        # [VERIFIED 2026-07-18 live-probe 3/3] GLM-4.6 بدونِ این پارامتر توکن‌ها را در reasoning_content
+        # می‌سوزاند و content خالی برمی‌گردد (ریشهٔ flake در smoke). با disabled: content='PONG' قطعی.
+        if "glm" in str(self.model or "").lower() or "api.z.ai" in self.base_url or "bigmodel.cn" in self.base_url:
+            body["thinking"] = {"type": "disabled"}
         if self.transport is not None:
             raw = self.transport(body)
         else:
@@ -102,7 +106,9 @@ class DeepSeekClient:
                          "Content-Type": "application/json"})
             with urllib.request.urlopen(req, timeout=120) as resp:  # pragma: no cover
                 raw = json.loads(resp.read().decode("utf-8"))
-        text = (raw.get("choices") or [{}])[0].get("message", {}).get("content", "") or ""
+        _msg = (raw.get("choices") or [{}])[0].get("message", {})
+        # fallback به reasoning_content — مدل‌های reasoning گاهی content را خالی می‌گذارند (fail-soft، صادق)
+        text = _msg.get("content") or _msg.get("reasoning_content") or ""
         usage = raw.get("usage")
         if self.transport is None and not usage:
             raise TelemetryError("پاسخ بدون usage — متر کور؛ call را شکست‌خورده حساب کن")
@@ -282,6 +288,10 @@ class MultiProviderClient:
             "max_tokens": max_tokens,
             "temperature": temperature,
         }
+        # [VERIFIED 2026-07-18 live-probe 3/3] GLM-4.6 بدونِ این پارامتر توکن‌ها را در reasoning_content
+        # می‌سوزاند و content خالی برمی‌گردد (ریشهٔ flake در smoke). با disabled: content='PONG' قطعی.
+        if "glm" in str(self.model or "").lower() or "api.z.ai" in self.base_url or "bigmodel.cn" in self.base_url:
+            body["thinking"] = {"type": "disabled"}
         if self.transport is not None:
             raw = self.transport(body)
         elif self.use_gateway:
@@ -301,7 +311,9 @@ class MultiProviderClient:
                          "Content-Type": "application/json"})
             with urllib.request.urlopen(req, timeout=120) as resp:  # pragma: no cover
                 raw = json.loads(resp.read().decode("utf-8"))
-        text = (raw.get("choices") or [{}])[0].get("message", {}).get("content", "") or ""
+        _msg = (raw.get("choices") or [{}])[0].get("message", {})
+        # fallback به reasoning_content — مدل‌های reasoning گاهی content را خالی می‌گذارند (fail-soft، صادق)
+        text = _msg.get("content") or _msg.get("reasoning_content") or ""
         usage = raw.get("usage")
         if self.transport is None and not usage:
             raise TelemetryError("پاسخ بدون usage — متر کور؛ call را شکست‌خورده حساب کن")
