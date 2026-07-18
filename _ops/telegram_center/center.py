@@ -44,6 +44,11 @@ if str(_HERE) not in sys.path:
 if str(_HERE.parent / "budget") not in sys.path:
     sys.path.insert(0, str(_HERE.parent / "budget"))
 import opslib  # noqa: E402 — import خالص (فقط مسیرها/env)
+# ماژول‌های فاز C/D/E (همگی در همین پکیج، stdlib-only، import-time خالص):
+import intent as intent_mod        # noqa: E402 — طبقه‌بندِ نیتِ پیامِ آزاد
+import metadata_scan as ms_mod     # noqa: E402 — نقشه‌برداریِ فقط‌خواندنیِ metadata
+import approval_store as aps_mod   # noqa: E402 — پلِ صفِ تأیید اختاپوس
+import mission as mission_mod       # noqa: E402 — Mission Genome: intent→mission→approval
 
 # فایلِ توقفِ حلقه (هم‌خانوادهٔ STOP-ORGANISM/STOP-CORTEX؛ فقط مالک می‌سازد)
 STOP_TG_CENTER = opslib.OPS / "STOP-TG-CENTER"
@@ -98,6 +103,7 @@ COMMANDS: list[tuple[str, str]] = [
     ("now", "📊 وضعیت — همین حالا"),
     ("budget", "🐙 پیشنهادِ تخصیصِ ماهِ بعد (propose-only)"),
     ("revenue", "💰 درآمدِ تأییدشده (aggregate)"),
+    ("missions", "🧬 مأموریت‌ها — Mission Genome"),
 ]
 
 _VERDICTS = ("ok", "no", "later")
@@ -498,12 +504,17 @@ class Center:
             "/now": lambda: self._status_text() or "🐙 هنوز چیزی برای گفتن ندارم.",
             "/budget": self._budget_text,
             "/revenue": self._revenue_text,
+            "/missions": lambda: self._page("ms"),
             "/menu": lambda: self._page("menu"),
             "/start": lambda: self._page("menu"),
         }
         fn = handlers.get(cmd)
         if fn is None:
-            return None                    # قراردادها: /now /budget /revenue /menu /start
+            # پیامِ آزادِ مالک = پرسش/دستورِ نرم. اجرای مستقیمِ مخرب هرگز؛ فقط
+            # نگاشتِ intent → کارت/دکمهٔ عملگرا یا پاسخِ آرام (stdlib-only، بدون LLM).
+            if not text.startswith("/"):
+                return self._handle_ask(msg, text)
+            return None                    # قراردادها: command ناشناس نادیده
         try:
             out = fn()
             txt, kb = out if isinstance(out, tuple) else (str(out or ""), None)
@@ -511,6 +522,126 @@ class Center:
         except Exception:  # noqa: BLE001
             mid = None
         return {"kind": cmd.lstrip("/"), "sent": mid is not None}
+
+    def _handle_ask(self, msg: dict, text: str) -> dict:
+        """پرسش‌وپاسخِ زندهٔ مالک با اختاپوس، بدون LLM و بدون اجرای مبهم.
+
+        این لایه از intent.classify (ماژولِ جدا) برای تشخیصِ نیت استفاده می‌کند،
+        سپس intent را به کارت/دکمهٔ عملگرا نگاشت می‌کند. هرگز اجرای مستقیمِ مخرب؛
+        مکث/ادامه فقط دکمهٔ lg:*؛ scan فقط کارتِ map:start؛ تأییدها فقط کارتِ ap.
+
+        ارتقا از LLM پشتِ فلگِ OCTOPUS_TG_LLM_ASK=1 در آینده بدونِ لمسِ این لایه
+        ممکن است (intent.classify را می‌توان با wrapperِ LLM عوض کرد)."""
+        chat_id = (msg.get("chat") or {}).get("id")
+        try:
+            # Mission Genome: درخواست‌های کدنویسی/تست/یادگیری/جهش نباید به منوی ثابت
+            # سقوط کنند. اول به Mission قابل‌ردیابی تبدیل می‌شوند؛ اجرا/apply همچنان
+            # پشتِ action_graph/approval می‌ماند و اینجا فقط کارتِ کنترل ساخته می‌شود.
+            mt = mission_mod.infer_mission_type(text)
+            if mt != "general":
+                m = mission_mod.create_mission(text, source="telegram", mission_type=mt)
+                # bridge به صفِ تأیید unified: مأموریت‌های approval-required در mn:ap هم دیده شوند.
+                if m.get("approval") == "required":
+                    try:
+                        aps_mod.add_pending({"id": m.get("id"), "type": "mission",
+                                             "title": m.get("owner_intent", "mission"),
+                                             "risk": m.get("risk", "medium"),
+                                             "requires_confirmation": True,
+                                             "source": "telegram"})
+                    except Exception:  # noqa: BLE001
+                        pass
+                txt, kb = mission_mod.mission_card(m.get("id"))
+                mid = self._client.send(_scrub(txt), chat_id=chat_id, keyboard=kb)
+                return {"kind": "ask_mission", "mission_id": m.get("id"), "sent": mid is not None}
+
+            res = intent_mod.classify(text)
+            it = res["intent"]
+            leg = res.get("leg")
+            # نگاشتِ intent → kind (نام‌های قدیمی برای سازگاریِ عقب حفظ شدند)
+            kind_map = {"status": "ask_status", "revenue": "ask_revenue",
+                        "budget": "ask_budget", "help": "ask_menu",
+                        "pause_leg": "ask_pause", "resume_leg": "ask_resume",
+                        "scan_metadata": "ask_scan_metadata",
+                        "approvals": "ask_approvals", "unknown": "ask_unknown"}
+            kind = kind_map.get(it, "ask_unknown")
+            if it == "status":
+                out = self._page("st")
+            elif it == "revenue":
+                out = self._revenue_text()
+            elif it == "budget":
+                out = self._page("bg")
+            elif it == "help":
+                out = self._page("menu")
+            elif it == "pause_leg":
+                out = self._ask_pause_card(text) if leg else ("کدام پا را مکث کنم؟",
+                                                               self._leg_choice_keyboard("p"))
+            elif it == "resume_leg":
+                out = self._ask_resume_card(text) if leg else ("کدام پا را ادامه بدهم؟",
+                                                               self._leg_choice_keyboard("r"))
+            elif it == "scan_metadata":
+                out = self._page("map")        # کارتِ شروع scan (نه اجرای مستقیم)
+            elif it == "approvals":
+                out = self._page("ap")
+            else:
+                out = self._ask_unknown_card()
+            txt, kb = out if isinstance(out, tuple) else (str(out or ""), None)
+            mid = self._client.send(_scrub(txt), chat_id=chat_id, keyboard=kb)
+        except Exception:  # noqa: BLE001
+            mid, kind = None, "ask_error"
+        return {"kind": kind, "sent": mid is not None}
+
+    @staticmethod
+    def _leg_from_text(text: str) -> "str | None":
+        """حدسِ content-free از نامِ پا در متنِ مالک. فقط whitelist؛ ابهام → None."""
+        low = str(text or "").lower()
+        aliases = {
+            "lead": ("lead", "لید", "نقاش", "نقاشی"),
+            "ziman": ("ziman", "گالری", "gallery", "ziman"),
+            "mining": ("mining", "ماینینگ", "min"),
+            "crypto": ("crypto", "کریپتو", "etoro", "etoro"),
+            "accounting": ("accounting", "حساب", "اکانتینگ"),
+            "studio_pf": ("studio", "استودیو", "project-f", "project f"),
+            "knowledge": ("knowledge", "دانش"),
+            "cartographer": ("cartographer", "نقشه", "نقشه‌بردار", "نقشه بردار"),
+        }
+        hits = [k for k, vals in aliases.items() if any(v.lower() in low for v in vals)]
+        return hits[0] if len(hits) == 1 else None
+
+    def _ask_pause_card(self, text: str) -> tuple:
+        key = self._leg_from_text(text)
+        if key:
+            return (f"⏸ مکثِ <code>{key}</code>؟\nیک‌تاپ بزن؛ از ضربانِ بعد اثر می‌کند.",
+                    [[{"text": f"⏸ مکث {key}", "callback_data": f"lg:{key}:p"}],
+                     [{"text": "🔙 منو", "callback_data": "mn:menu"}]])
+        return ("کدام پا را مکث کنم؟", self._leg_choice_keyboard("p"))
+
+    def _ask_resume_card(self, text: str) -> tuple:
+        key = self._leg_from_text(text)
+        if key:
+            return (f"▶️ ادامهٔ <code>{key}</code>؟\nیک‌تاپ بزن؛ اگر مکث باشد برداشته می‌شود.",
+                    [[{"text": f"▶️ ادامه {key}", "callback_data": f"lg:{key}:r"}],
+                     [{"text": "🔙 منو", "callback_data": "mn:menu"}]])
+        return ("کدام پا را ادامه بدهم؟", self._leg_choice_keyboard("r"))
+
+    @staticmethod
+    def _leg_choice_keyboard(act: str) -> list:
+        rows, legs = [], ("lead", "ziman", "mining", "crypto", "accounting",
+                          "studio_pf", "knowledge", "cartographer")
+        for i in range(0, len(legs), 2):
+            rows.append([{"text": ("⏸ " if act == "p" else "▶️ ") + k,
+                          "callback_data": f"lg:{k}:{act}"} for k in legs[i:i + 2]])
+        rows.append([{"text": "🔙 منو", "callback_data": "mn:menu"}])
+        return rows
+
+    @staticmethod
+    def _ask_unknown_card() -> tuple:
+        text = "🐙 متوجه نشدم. منظورت یکی از این‌هاست؟"
+        kb = [[{"text": "📊 وضعیت", "callback_data": "mn:st"},
+               {"text": "🧭 تصمیم‌ها", "callback_data": "mn:ap"}],
+              [{"text": "🦵 مکث/ادامه پاها", "callback_data": "mn:lg"},
+               {"text": "💰 درآمد", "callback_data": "mn:rv"}],
+              [{"text": "🐙 منو", "callback_data": "mn:menu"}]]
+        return text, kb
 
     def _budget_text(self) -> str:
         """کارتِ پیشنهادِ تخصیصِ ماهِ بعد (propose-only). render → متن؛ اسنپ‌شاتِ
@@ -566,17 +697,42 @@ class Center:
             return None
 
     def _page(self, name: str) -> tuple:
-        """(متن، کیبورد)ِ هر صفحهٔ منو — ناوبری با editِ همان پیام."""
+        """(متن، کیبورد)ِ هر صفحهٔ منو — ناوبری با editِ همان پیام.
+
+        از این نقطه به بعد UI باید «زنده» باشد: هر render تا حد ممکن feeds تازه و
+        paused_map تازه می‌گیرد. خطا = fallback آرام، نه crash."""
         r, pw = self._rmod(), self._power_mod()
         back = [[{"text": "🔙 منو", "callback_data": "mn:menu"}]]
         p_on = bool(pw and pw.power_on())
         if r is None:
             return "🐙 render در دسترس نیست.", None
         try:
+            feeds = r.collect_feeds() if hasattr(r, "collect_feeds") else {}
+        except Exception:  # noqa: BLE001
+            feeds = {}
+        try:
             if name == "st":
-                return str(r.render_status(r.collect_feeds()) or ""), back
+                kb = [[{"text": "🔄 تازه‌سازی", "callback_data": "mn:st"}]]
+                try:
+                    n = int(((feeds.get("guidance") or {}).get("n") or 0)) if isinstance(feeds, dict) else 0
+                except (TypeError, ValueError):
+                    n = 0
+                if n:
+                    kb.append([{"text": f"🧭 {n} تصمیم‌ها", "callback_data": "mn:ap"}])
+                kb += back
+                return str(r.render_status(feeds) or ""), kb
+            if name == "qr":
+                return self._quarantine_text(feeds), [[{"text": "🔄 تازه‌سازی", "callback_data": "mn:qr"}]] + back
             if name == "ap":
-                return self._approvals_text(), back
+                return self._approvals_queue_page()
+            if name == "map":
+                try:
+                    scan_state = ms_mod.load_state()
+                except Exception:  # noqa: BLE001
+                    scan_state = {}
+                return r.render_map_page(scan_state)
+            if name == "ms":
+                return mission_mod.mission_card()
             if name == "lg" and pw:
                 return r.render_organs(pw.paused_map(), _load_config())
             if name == "bg":
@@ -594,27 +750,64 @@ class Center:
                 return r.render_flags({n: pw.flag_state(n) for n in pw.FLAG_MENU})
         except Exception:  # noqa: BLE001
             pass
-        return r.render_menu(p_on)
+        try:
+            paused = pw.paused_map() if pw else {}
+            return r.render_menu(p_on, feeds=feeds, paused=paused)
+        except TypeError:
+            return r.render_menu(p_on)
+        except Exception:  # noqa: BLE001
+            return "🐙 منو در دسترس نیست.", back
+
+    @staticmethod
+    def _quarantine_text(feeds: dict | None = None) -> str:
+        """کارتِ قرنطینهٔ content-free: فقط شمارش و مسیرِ رسیدگی؛ محتوا/هویت echo نمی‌شود."""
+        f = feeds if isinstance(feeds, dict) else {}
+        board = f.get("board") if isinstance(f.get("board"), dict) else {}
+        counts = board.get("counts") if isinstance(board.get("counts"), dict) else {}
+        try:
+            n = int(counts.get("quarantined") or 0)
+        except (TypeError, ValueError):
+            n = 0
+        if n <= 0:
+            return "☣️ <b>قرنطینه</b>\nفعلاً چیزی در قرنطینه گزارش نشده."
+        return (f"☣️ <b>قرنطینه</b>\n"
+                f"<code>{n}</code> مورد نیازمند رسیدگی است.\n"
+                "محتوا اینجا نشان داده نمی‌شود؛ فقط کنترل و شمارش.")
 
     def _approvals_text(self) -> str:
-        """صفِ تأییدها: شمارش + آخرین verdictها (content-free — فقط id/فعل)."""
-        d = opslib.STATE_DIR / "telegram" / "approvals"
-        lines = ["✅ <b>تأییدها</b>"]
+        """صفِ تأییدها (legacy): شمارش + آخرین verdictها (content-free — فقط id/فعل).
+
+        حفظ‌شده برای سازگاری با پاسخ‌های متنی قدیمی؛ کارتِ کامل با کیبورد از
+        _approvals_queue_page می‌آید."""
         try:
-            files = sorted(d.glob("*.json"), key=lambda p: p.stat().st_mtime,
-                           reverse=True) if d.exists() else []
-            lines.append(f"{len(files)} تصمیمِ ثبت‌شده تا حالا.")
-            for p in files[:6]:
-                try:
-                    rec = json.loads(p.read_text("utf-8"))
-                    emo = {"ok": "✅", "no": "❌", "later": "⏳"}.get(rec.get("verdict"), "•")
-                    lines.append(f"{emo} <code>{rec.get('id', '?')}</code>")
-                except (OSError, ValueError):
-                    continue
-        except OSError:
-            lines.append("صف در دسترس نیست.")
-        lines.append("کارت‌های تازه خودکار به topicِ سیستم پوش می‌شوند.")
+            sync = aps_mod.sync_to_octopus_state()
+        except Exception:  # noqa: BLE001
+            sync = {"count": 0, "recent": []}
+        lines = [f"✅ <b>تأییدها</b> · {sync.get('count', 0)} تصمیمِ ثبت‌شده تا حالا."]
+        for v in sync.get("recent", [])[:5]:
+            if isinstance(v, dict):
+                emo = {"ok": "✅", "no": "❌", "later": "⏳"}.get(str(v.get("verdict")), "•")
+                lines.append(f"{emo} <code>{v.get('id', '?')}</code>")
         return "\n".join(lines)
+
+    def _approvals_queue_page(self) -> tuple:
+        """صفحهٔ کاملِ صف تأیید با کیبوردِ عملگرا (فاز E).
+
+        هم pending queue اختاپوس و هم تاریخچهٔ verdict قدیمی را نشان می‌دهد.
+        هر job دکمه‌های ap:ok/no/detail دارد (اجرای واقعی در callback handler)."""
+        r = self._rmod()
+        if r is None or not hasattr(r, "render_approvals_queue"):
+            return self._approvals_text(), [[{"text": "🔙 منو", "callback_data": "mn:menu"}]]
+        try:
+            pending = aps_mod.load_pending()
+            counts = aps_mod.summary()
+            legacy = aps_mod.sync_to_octopus_state().get("recent", [])
+        except Exception:  # noqa: BLE001
+            pending, counts, legacy = [], {}, []
+        try:
+            return r.render_approvals_queue(pending, counts, legacy)
+        except Exception:  # noqa: BLE001
+            return self._approvals_text(), [[{"text": "🔙 منو", "callback_data": "mn:menu"}]]
 
     def _edit_page(self, cbq: dict, page: str) -> None:
         """editِ درجای همان پیام به صفحهٔ خواسته (ناوبریِ منو)."""
@@ -692,14 +885,233 @@ class Center:
         self._answer(cbq, "نادیده")
         return {"kind": "center", "ignored": data[:24]}
 
+    def _handle_map_callback(self, cbq: dict, data: str) -> dict:
+        """verbهای نقشه‌برداریِ metadata (فاز D — فقط‌خواندنی، propose-only).
+
+        - map:start → یک job در صف تأیید می‌سازد (risk=read) و در همین لحظه یک scan
+          محدود و sync روی ریشه اجرا می‌کند (fail-soft؛ خطر کم چون فقط metadata).
+          برای scanِ کامل (بدونِ سقف) کارت تأیید جداگانه می‌سازد.
+        - map:status → صفحهٔ map را refresh می‌کند (mn:map).
+        - map:report → آخرین گزارش را در یک پیامِ نوی نشان می‌دهد.
+
+        امنیت: فقط metadata؛ هیچ محتوای فایل خوانده نمی‌شود (gating در metadata_scan).
+        کارت تأیید بیشتر برای UX (هشدارِ طولِ احتمالی) است تا gating واقعی."""
+        parts = data.split(":")
+        if len(parts) < 2:
+            self._answer(cbq, "نادیده")
+            return {"kind": "map", "ignored": data[:24]}
+        action = parts[1]
+        msg = cbq.get("message") or {}
+        mid = msg.get("message_id")
+        chat = (msg.get("chat") or {}).get("id")
+
+        if action == "start":
+            # یک scan محدود و sync همین حالا (خطرِ کم: فقط metadata)
+            try:
+                result = ms_mod.scan_metadata(max_files=50_000, max_seconds=60)
+                paths = ms_mod.write_manifest(result)
+                summary = ms_mod.summarize_manifest(result)
+                # job در صف تأیید (برای بازبینیِ انسان)
+                try:
+                    aps_mod.add_pending({
+                        "type": "metadata_scan", "title": "نقشه‌برداری metadata",
+                        "risk": "read", "requires_confirmation": False,
+                        "dry_run_report": paths.get("report", "")[:500],
+                        "source": "telegram"})
+                except Exception:  # noqa: BLE001
+                    pass
+                toast = summary[:180]
+            except Exception as e:  # noqa: BLE001
+                toast = f"خطا: {type(e).__name__}"
+                summary = "🗺️ خطا در اسکن"
+            self._answer(cbq, toast)
+            # refresh صفحهٔ map با stateِ نو
+            self._edit_page(cbq, "map")
+            return {"kind": "map", "action": "start", "summary": summary[:200]}
+
+        if action == "report":
+            try:
+                st = ms_mod.load_state()
+                latest_report = None
+                rp_dir = ms_mod._REPORTS_DIR
+                if rp_dir.exists():
+                    files = sorted(rp_dir.glob("metadata_scan_*.md"),
+                                   key=lambda p: p.stat().st_mtime, reverse=True)
+                    latest_report = files[0] if files else None
+                if latest_report and latest_report.exists():
+                    txt = latest_report.read_text("utf-8")[:3500]
+                    self._client.send(_scrub(txt), chat_id=chat)
+                    self._answer(cbq, "گزارش ارسال شد")
+                else:
+                    self._answer(cbq, "هنوز گزارشی نیست — اول map:start را بزن")
+            except Exception:  # noqa: BLE001
+                self._answer(cbq, "گزارش در دسترس نیست")
+            return {"kind": "map", "action": "report"}
+
+        # action == "status" یا هر چیزِ دیگر → refresh
+        self._edit_page(cbq, "map")
+        self._answer(cbq, "تازه‌سازی شد")
+        return {"kind": "map", "action": action}
+
+    def _handle_mission_callback(self, cbq: dict, data: str) -> dict:
+        """verbهای Mission Genome (ms:*).
+
+        این handler فقط state مأموریت را عوض/ثبت می‌کند و هیچ patch/code.apply واقعی
+        انجام نمی‌دهد. apply واقعی همچنان مسیر جداگانهٔ code_autonomy + approval +
+        shadow-green + rollback دارد. دکمه‌های test/review فقط request/note ثبت می‌کنند
+        تا UI دروغ نگوید که تست یا دکتر واقعاً اجرا شده است."""
+        parts = data.split(":", 2)
+        if len(parts) < 2:
+            self._answer(cbq, "نادیده")
+            return {"kind": "mission", "ignored": data[:24]}
+        action = parts[1]
+        mid = _sanitize_id(parts[2]) if len(parts) > 2 else ""
+        msg = cbq.get("message") or {}
+        m_id = msg.get("message_id")
+        chat = (msg.get("chat") or {}).get("id")
+
+        if action == "open" and mid:
+            txt, kb = mission_mod.mission_card(mid)
+            try:
+                if isinstance(m_id, int):
+                    self._client.edit(m_id, _scrub(txt), keyboard=kb, chat_id=chat)
+            except Exception:  # noqa: BLE001
+                pass
+            self._answer(cbq, "Mission")
+            return {"kind": "mission", "action": "open", "id": mid}
+
+        if action == "test" and mid:
+            mission_mod.add_note(mid, "owner requested tests/fitness from Telegram; runner not executed by center")
+            mission_mod.set_state(mid, "planned", "test requested; awaiting runner")
+            txt, kb = mission_mod.mission_card(mid)
+            try:
+                if isinstance(m_id, int):
+                    self._client.edit(m_id, _scrub(txt), keyboard=kb, chat_id=chat)
+            except Exception:  # noqa: BLE001
+                pass
+            self._answer(cbq, "درخواست تست ثبت شد؛ اجرا جداست")
+            return {"kind": "mission", "action": "test_request", "id": mid}
+
+        if action == "review" and mid:
+            mission_mod.add_note(mid, "owner requested doctor/epistemics review from Telegram; reviewer not executed by center")
+            mission_mod.set_state(mid, "planned", "review requested; awaiting doctor/epistemics")
+            txt, kb = mission_mod.mission_card(mid)
+            try:
+                if isinstance(m_id, int):
+                    self._client.edit(m_id, _scrub(txt), keyboard=kb, chat_id=chat)
+            except Exception:  # noqa: BLE001
+                pass
+            self._answer(cbq, "درخواست review ثبت شد")
+            return {"kind": "mission", "action": "review_request", "id": mid}
+
+        if action in ("approve", "reject") and mid:
+            approved = action == "approve"
+            out = mission_mod.set_owner_verdict(mid, approved)
+            try:
+                if approved:
+                    aps_mod.approve(mid)
+                    aps_mod.record_legacy_verdict(mid, "ok")
+                else:
+                    aps_mod.reject(mid)
+                    aps_mod.record_legacy_verdict(mid, "no")
+            except Exception:  # noqa: BLE001
+                pass
+            txt, kb = mission_mod.mission_card(mid)
+            try:
+                if isinstance(m_id, int):
+                    self._client.edit(m_id, _scrub(txt), keyboard=kb, chat_id=chat)
+            except Exception:  # noqa: BLE001
+                pass
+            self._answer(cbq, "تأیید شد" if approved else "رد شد")
+            return {"kind": "mission", "action": action, "id": mid, "ok": bool(out)}
+
+        self._answer(cbq, "نادیده")
+        return {"kind": "mission", "ignored": data[:24]}
+
+    def _handle_approval_callback(self, cbq: dict, data: str) -> dict:
+        """verbهای صفِ تأیید (فاز E — bridge اختاپوس).
+
+        - ap:ok:<id>  → approval_store.approve(id) + record_legacy_verdict + refresh
+        - ap:no:<id>  → approval_store.reject(id)  + record_legacy_verdict + refresh
+        - ap:detail:<id> → کارتِ جزئیاتِ content-free (فقط title/type/risk؛ نه محتوا)
+
+        توجه: این فقط state را عوض می‌کند (pending → approved/rejected). اجرای واقعیِ
+        job (اگر risk=high) به handlerهای جداگانه یا power-gate واگذار می‌شود — این
+        لایه فقط صف است. risk=high → هشدار در toast."""
+        parts = data.split(":", 2)
+        if len(parts) < 3:
+            self._answer(cbq, "نادیده")
+            return {"kind": "approval", "ignored": data[:24]}
+        action, jid = parts[1], _sanitize_id(parts[2])
+        ok, msg, verdict = False, "", ""
+        try:
+            if action == "ok":
+                job_before = aps_mod.get(jid)
+                ok = aps_mod.approve(jid)
+                verdict = "ok"
+                msg = "✅ تأیید شد" if ok else "یافت نشد/قبلاً تصمیم گرفته شده"
+                if ok:
+                    aps_mod.record_legacy_verdict(jid, "ok")
+                    if (isinstance(job_before, dict) and job_before.get("type") == "mission") or mission_mod.get(jid):
+                        mission_mod.set_owner_verdict(jid, True)
+            elif action == "no":
+                job_before = aps_mod.get(jid)
+                ok = aps_mod.reject(jid)
+                verdict = "no"
+                msg = "❌ رد شد" if ok else "یافت نشد/قبلاً تصمیم گرفته شده"
+                if ok:
+                    aps_mod.record_legacy_verdict(jid, "no")
+                    if (isinstance(job_before, dict) and job_before.get("type") == "mission") or mission_mod.get(jid):
+                        mission_mod.set_owner_verdict(jid, False)
+            elif action == "detail":
+                job = aps_mod.get(jid)
+                if job:
+                    r = self._rmod()
+                    # HTML-escape محلی (center._esc نداشت؛ html.escape کافی + scrub)
+                    import html as _html
+                    esc = lambda s: _html.escape(str(s if s is not None else ""))
+                    risk = str(job.get("risk", "read"))
+                    detail_text = (f"📝 <b>جزئیاتِ job</b>\n"
+                                   f"<code>{_scrub(job.get('id', '?'))}</code>\n"
+                                   f"نوع: {_scrub(job.get('type', '?'))}\n"
+                                   f"ریسک: <code>{esc(risk)}</code>\n"
+                                   f"وضعیت: {_scrub(job.get('status', '?'))}\n"
+                                   f"عنوان: {_scrub(str(job.get('title', '?'))[:120])}")
+                    if r is not None and isinstance(cbq.get("message"), dict):
+                        m = cbq["message"]
+                        try:
+                            self._client.edit(m.get("message_id"), _scrub(detail_text),
+                                              chat_id=(m.get("chat") or {}).get("id"))
+                        except Exception:  # noqa: BLE001
+                            pass
+                    self._answer(cbq, "جزئیات (content-free)")
+                    return {"kind": "approval", "action": "detail", "id": jid}
+                else:
+                    msg = "job یافت نشد"
+        except Exception as e:  # noqa: BLE001
+            msg = f"خطا: {type(e).__name__}"
+
+        self._answer(cbq, msg[:180])
+        # refresh صفحهٔ approvals برای نشان‌دادنِ تغییر
+        self._edit_page(cbq, "ap")
+        return {"kind": "approval", "action": action, "id": jid, "ok": ok, "verdict": verdict}
+
     def _handle_callback(self, cbq: dict) -> dict:
         """callback data = '<verb>:<id>' با verb ∈ ok/no/later (قراردادِ render_decision)
-        یا verbهای مرکزِ فرماندهی (mn/lg/pw/pwc → _handle_center_callback).
+        یا verbهای مرکزِ فرماندهی (mn/lg/pw/pwc → _handle_center_callback) یا
+        verbهای فاز D/E (map → _handle_map_callback، ap → _handle_approval_callback).
         ثبت به الگوی approval-file + رویداد + answer_callback؛ ok = mintِ اختیاریِ
         توکنِ HumanAppendGuard (فقط با رازِ env)."""
         data = str(cbq.get("data") or "")
-        if data.split(":", 1)[0] in ("mn", "lg", "pw", "pwc"):
+        verb = data.split(":", 1)[0]
+        if verb in ("mn", "lg", "pw", "pwc"):
             return self._handle_center_callback(cbq, data)
+        if verb == "map":
+            return self._handle_map_callback(cbq, data)
+        if verb == "ap":
+            return self._handle_approval_callback(cbq, data)
+        if verb == "ms":
+            return self._handle_mission_callback(cbq, data)
         parts = data.split(":", 1)
         if len(parts) != 2 or parts[0] not in _VERDICTS:
             self._answer(cbq, "نادیده")

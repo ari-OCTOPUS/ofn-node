@@ -182,6 +182,50 @@ def t_l_visual_branding_icons_divider():
     assert d.startswith("📈")
 
 
+def t_m_menu_is_context_aware_and_action_first():
+    """منوی فرماندهی نباید ثابت/توضیحی باشد: خطر و نیازِ مالک بالاتر از دکمه‌های عادی می‌آیند."""
+    feeds = {"board": {"counts": {"queued": 5, "running": 1, "blocked": 2,
+                                    "awaiting_user": 3, "quarantined": 4}},
+             "guidance": {"n": 7}}
+    text, kb = render.render_menu(False, feeds=feeds, paused={"lead": True, "ziman": False})
+    flat = [b["callback_data"] for row in kb for b in row]
+    assert "اولویت الان" in text and "قرنطینه" in text
+    assert kb[0][0]["callback_data"] == "mn:qr"       # خطر بالاتر از همه
+    assert any(b["callback_data"] == "mn:ap" for row in kb for b in row)
+    assert any("پای متوقف" in b["text"] for row in kb for b in row)
+    for must in ("mn:st", "mn:lg", "mn:bg", "mn:rv", "mn:sy", "mn:map", "mn:ms"):
+        assert must in flat, f"منو باید {must} را داشته باشد"
+
+
+def t_n_map_page_has_action_buttons():
+    """صفحهٔ نقشه‌برداری دکمهٔ شروع scan و گزارش دارد (propose-only)."""
+    text, kb = render.render_map_page({"status": "idle", "files_seen": 0})
+    flat = [b["callback_data"] for row in kb for b in row]
+    assert "نقشه‌برداری" in text
+    assert "map:start" in flat
+    assert "map:report" in flat
+    assert "mn:menu" in flat
+    # با stateِ done هم کار می‌کند
+    text2, _ = render.render_map_page({"status": "done", "files_seen": 100,
+                                       "dirs_seen": 10, "bytes_total": 5_000_000,
+                                       "latest_manifest": "/path/manifest.json"})
+    assert "100" in text2 and "manifest" in text2
+
+
+def t_o_approvals_queue_shows_pending_with_buttons():
+    """صفِ تأیید: pending jobs با دکمه‌های ap:ok/no/detail."""
+    pending = [{"id": "job-1", "type": "metadata_scan", "risk": "read", "title": "نقشه"},
+               {"id": "job-2", "type": "budget_apply", "risk": "high", "title": "بودجه"}]
+    summary_counts = {"pending": 2, "approved": 1, "rejected": 0, "done": 0}
+    text, kb = render.render_approvals_queue(pending, summary_counts, [])
+    flat = [b["callback_data"] for row in kb for b in row]
+    assert "2" in text and "job-1" in text
+    assert "ap:ok:job-1" in flat and "ap:no:job-1" in flat and "ap:detail:job-1" in flat
+    # صفِ خالی هم امن است
+    text2, kb2 = render.render_approvals_queue([], {"pending": 0}, [])
+    assert "منتظر" in text2 or "نیست" in text2
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

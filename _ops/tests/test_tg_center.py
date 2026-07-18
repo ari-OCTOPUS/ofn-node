@@ -9,6 +9,7 @@ import json
 import os
 import shutil
 import sys
+import tempfile
 import types
 from pathlib import Path
 
@@ -23,6 +24,34 @@ sys.path.insert(0, str(_HERE.parent / "telegram_center"))
 
 import opslib   # noqa: E402
 import center   # noqa: E402
+import approval_store as aps   # noqa: E402 — فاز E
+import metadata_scan as ms     # noqa: E402 — فاز D
+import mission as mission_mod  # noqa: E402 — Mission Genome
+
+# sandbox برای مسیرهای خروجیِ اختاپوس (تا تست روی F:\backup\_octopus ننویسد)
+_E2E_SANDBOX = Path(tempfile.mkdtemp(prefix="octopus-center-e2e-"))
+
+
+def _redirect_octopus_paths():
+    """هدایتِ مسیرهای approval_store/metadata_scan/mission به sandboxِ تازه."""
+    shutil.rmtree(_E2E_SANDBOX / "_octopus", ignore_errors=True)
+    shutil.rmtree(_E2E_SANDBOX / "_ops" / "state" / "telegram" / "missions", ignore_errors=True)
+    shutil.rmtree(_E2E_SANDBOX / "_ops" / "state" / "telegram" / "approvals", ignore_errors=True)
+    aps._OCTOPUS_STATE = _E2E_SANDBOX / "_octopus" / "state"
+    aps._APPROVALS_JSON = aps._OCTOPUS_STATE / "approvals.json"
+    aps._AUDIT_PATH = _E2E_SANDBOX / "_octopus" / "logs" / "audit.log"
+    aps._LEGACY_DIR = _E2E_SANDBOX / "_ops" / "state" / "telegram" / "approvals"
+    aps._ROOT = _E2E_SANDBOX
+    mission_mod._STATE_DIR = _E2E_SANDBOX / "_ops" / "state" / "telegram" / "missions"
+    mission_mod._MISSIONS_JSON = mission_mod._STATE_DIR / "missions.json"
+    mission_mod._AUDIT_JSONL = mission_mod._STATE_DIR / "mission-audit.jsonl"
+    ms._OCTOPUS = _E2E_SANDBOX / "_octopus"
+    ms._MANIFEST_DIR = ms._OCTOPUS / "manifests"
+    ms._HISTORY_DIR = ms._MANIFEST_DIR / "history"
+    ms._REPORTS_DIR = ms._OCTOPUS / "reports" / "daily"
+    ms._STATE_PATH = ms._OCTOPUS / "state" / "metadata_scan.json"
+    ms._AUDIT_PATH = ms._OCTOPUS / "logs" / "audit.log"
+    ms._ROOT = _E2E_SANDBOX
 
 CFG_PATH = opslib.STATE_DIR / "telegram" / "center-config.json"
 APPROVALS = opslib.STATE_DIR / "telegram" / "approvals"
@@ -105,13 +134,50 @@ def fake_render(guidance_items=None):
                {"text": "⏳", "callback_data": f"later:{did}"}]]
         return (f"decision:{did}", kb)
 
+    def render_menu(power=False, feeds=None, paused=None):
+        return "MENU-LIVE", [[{"text": "📊", "callback_data": "mn:st"}],
+                             [{"text": "🧬", "callback_data": "mn:ms"}]]
+
+    def render_organs(paused, config=None):
+        return "ORGANS", [[{"text": "x", "callback_data": "mn:menu"}]]
+
+    def render_power(power, sentinels=None):
+        return "POWER", [[{"text": "x", "callback_data": "mn:menu"}]]
+
     def scrub(t):
         return t
 
     return types.SimpleNamespace(LEGS=legs, collect_feeds=collect_feeds,
                                  render_status=render_status,
                                  render_leg_digest=render_leg_digest,
-                                 render_decision=render_decision, scrub=scrub)
+                                 render_decision=render_decision,
+                                 render_menu=render_menu,
+                                 render_organs=render_organs,
+                                 render_power=render_power,
+                                 scrub=scrub)
+
+
+def fake_render_with_map(guidance_items=None):
+    """مثلِ fake_render ولی با render_map_page و render_approvals_queue (فاز D/E)."""
+    base = fake_render(guidance_items)
+
+    def render_map_page(scan_state=None):
+        return "MAP-PAGE", [[{"text": "🗺 شروع", "callback_data": "map:start"}],
+                            [{"text": "🔙", "callback_data": "mn:menu"}]]
+
+    def render_approvals_queue(pending=None, summary_counts=None, legacy_recent=None):
+        pend = pending or []
+        kb = []
+        for job in pend[:3]:
+            jid = job.get("id", "?")
+            kb.append([{"text": "✅", "callback_data": f"ap:ok:{jid}"},
+                       {"text": "❌", "callback_data": f"ap:no:{jid}"}])
+        kb.append([{"text": "🔙", "callback_data": "mn:menu"}])
+        return f"AP-QUEUE ({len(pend)} pending)", kb
+
+    base.render_map_page = render_map_page
+    base.render_approvals_queue = render_approvals_queue
+    return base
 
 
 class Clock:
@@ -320,6 +386,173 @@ def t_l_missing_client_module_is_safe_noop():
     assert c.ensure_setup() is False
     assert c.beat()["digests"] == 0
     assert c.run_once() == 0
+
+
+def t_m_free_text_status_routes_to_live_page_with_keyboard():
+    _reset()
+    fc = FakeClient(owner_id=777)
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render())
+    u = {"update_id": 10,
+         "message": {"from": {"id": 777}, "chat": {"id": 777}, "text": "وضعیت الان چطوره؟"}}
+    res = c.handle_update(u)
+    assert res and res["kind"] == "ask_status" and res["sent"] is True
+    sent = fc.named("send")[-1]
+    assert sent["text"] == "STATUS-LINE"
+    assert sent["keyboard"] and sent["keyboard"][0][0]["callback_data"] == "mn:st"
+
+
+def t_n_free_text_pause_builds_action_button_not_direct_execute():
+    _reset()
+    fc = FakeClient(owner_id=777)
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render())
+    u = {"update_id": 11,
+         "message": {"from": {"id": 777}, "chat": {"id": 777}, "text": "لید رو مکث کن"}}
+    res = c.handle_update(u)
+    assert res and res["kind"] == "ask_pause" and res["sent"] is True
+    sent = fc.named("send")[-1]
+    cds = [b["callback_data"] for row in sent["keyboard"] for b in row]
+    assert "lg:lead:p" in cds
+    # هنوز callback زده نشده؛ پس فقط پیشنهاد/دکمه بوده، نه اجرای مستقیم.
+    assert not (opslib.STATE_DIR / "leg-lead-paused.flag").exists()
+
+
+def t_o_free_text_scan_routes_to_map_page():
+    """فاز C/D: «نقشه بکش» → صفحهٔ نقشه‌برداری با دکمهٔ map:start (نه اجرای مستقیم)."""
+    _reset()
+    fc = FakeClient(owner_id=777)
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render_with_map())
+    u = {"update_id": 12,
+         "message": {"from": {"id": 777}, "chat": {"id": 777}, "text": "نقشه بکش"}}
+    res = c.handle_update(u)
+    assert res and res["kind"] == "ask_scan_metadata" and res["sent"] is True
+
+
+def t_p_menu_has_map_and_approvals_buttons():
+    """فاز B/E + Mission: منوی اصلی دکمه‌های mn:map/mn:ap/mn:ms را دارد."""
+    _reset()
+    fc = FakeClient(owner_id=777)
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render_with_map())
+    u = {"update_id": 13, "message": {"from": {"id": 777}, "chat": {"id": 777}, "text": "/menu"}}
+    c.handle_update(u)
+    sent = fc.named("send")[-1]
+    flat = [b["callback_data"] for row in sent["keyboard"] for b in row]
+    assert "mn:ms" in flat
+
+
+def t_q_nonowner_map_and_ap_silenced():
+    """فاز D/E/Mission: غیرمالک هیچ اثری روی map:* و ap:* و ms:* ندارد (allowlist)."""
+    _reset()
+    fc = FakeClient(owner_id=777)
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render_with_map())
+    # map:start از غیرمالک
+    u = {"update_id": 14, "callback_query": {"id": "c1", "from": {"id": 666},
+          "data": "map:start", "message": {"message_id": 1, "chat": {"id": -1}}}}
+    assert c.handle_update(u) is None
+    # ap:ok از غیرمالک
+    u2 = {"update_id": 15, "callback_query": {"id": "c2", "from": {"id": 666},
+          "data": "ap:ok:job-x", "message": {"message_id": 1, "chat": {"id": -1}}}}
+    assert c.handle_update(u2) is None
+    # ms:approve از غیرمالک
+    u3 = {"update_id": 16, "callback_query": {"id": "c3", "from": {"id": 666},
+          "data": "ms:approve:M-x", "message": {"message_id": 1, "chat": {"id": -1}}}}
+    assert c.handle_update(u3) is None
+    assert fc.calls == [], "غیرمالک = سکوتِ مطلق"
+
+
+def t_r_map_start_runs_scan_and_writes_manifest_e2e():
+    """فاز D (e2e): map:start از مالک → scan واقعی + manifest + state نوشته می‌شود.
+
+    sandbox را به مسیرِ خالی هدایت می‌کنیم تا روی F:\backup ننویسد؛ آنجا چند فایل
+    می‌سازیم تا scan چیزی برای شمردن داشته باشد."""
+    _redirect_octopus_paths()
+    # ساختِ چند فایلِ آزمایشی در sandbox
+    (_E2E_SANDBOX / "sample.txt").write_text("hello", "utf-8")
+    (_E2E_SANDBOX / "data").mkdir()
+    (_E2E_SANDBOX / "data" / "x.json").write_text("{}", "utf-8")
+    fc = FakeClient(owner_id=777)
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render_with_map())
+    u = {"update_id": 16, "callback_query": {"id": "c1", "from": {"id": 777},
+          "data": "map:start", "message": {"message_id": 1, "chat": {"id": -1}}}}
+    res = c.handle_update(u)
+    assert res and res["kind"] == "map" and res["action"] == "start"
+    # manifest ساخته شده
+    assert aps._APPROVALS_JSON.parent.exists()
+    st = ms.load_state()
+    assert st["status"] == "done" and st["files_seen"] >= 2
+    # یک job هم در صف تأیید ثبت شده (برای بازبینی)
+    assert len(aps.load_pending()) >= 1
+    # paths را به sandboxِ پیش‌فرض برای تست‌های بعدی برگردان
+    _redirect_octopus_paths()
+
+
+def t_s_ap_ok_approves_job_and_writes_legacy_verdict_e2e():
+    """فاز E (e2e): یک job اضافه، ap:ok از مالک → approve + legacy verdict."""
+    _redirect_octopus_paths()
+    jid = aps.add_pending({"type": "metadata_scan", "title": "test", "risk": "read"})
+    assert len(aps.load_pending()) == 1
+    fc = FakeClient(owner_id=777)
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render_with_map())
+    u = {"update_id": 17, "callback_query": {"id": "c1", "from": {"id": 777},
+          "data": f"ap:ok:{jid}", "message": {"message_id": 1, "chat": {"id": -1}}}}
+    res = c.handle_update(u)
+    assert res and res["kind"] == "approval" and res["action"] == "ok" and res["ok"] is True
+    # job از pending به approved رفته
+    assert len(aps.load_pending()) == 0
+    assert aps.summary()["approved"] == 1
+    # legacy verdict هم نوشته شده
+    assert (aps._LEGACY_DIR / f"{jid}.json").exists()
+
+
+def t_t_ap_detail_shows_content_free_card_e2e():
+    """فاز E (e2e): ap:detail:id → کارتِ جزئیات بدونِ نشتِ محتوا."""
+    _redirect_octopus_paths()
+    jid = aps.add_pending({"type": "scan", "title": "test title", "risk": "high"})
+    fc = FakeClient(owner_id=777)
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render_with_map())
+    u = {"update_id": 18, "callback_query": {"id": "c1", "from": {"id": 777},
+          "data": f"ap:detail:{jid}", "message": {"message_id": 1, "chat": {"id": -1}}}}
+    res = c.handle_update(u)
+    assert res and res["kind"] == "approval" and res["action"] == "detail"
+    # edit صدا زده شده با متنِ جزئیات
+    edits = fc.named("edit")
+    assert edits and "جزئیات" in edits[-1]["text"]
+
+
+def t_u_free_text_code_request_creates_mission_not_unknown():
+    """Mission Genome: درخواست کدنویسی از متن آزاد → Mission + کارت action/approval، نه منوی unknown."""
+    _redirect_octopus_paths()
+    fc = FakeClient(owner_id=777)
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render_with_map())
+    u = {"update_id": 19,
+         "message": {"from": {"id": 777}, "chat": {"id": 777},
+                     "text": "اختاپوس، منوی تلگرامو بهتر کن و callbackها رو درست کن"}}
+    res = c.handle_update(u)
+    assert res and res["kind"] == "ask_mission" and res["sent"] is True
+    mids = mission_mod.list_missions(limit=1)
+    assert mids and mids[0]["mission_type"] == "self_coding"
+    assert "code.apply" in mids[0]["actions"]
+    assert aps.get(mids[0]["id"]) is not None, "mission approval-required باید در unified approval queue هم بیاید"
+    sent = fc.named("send")[-1]
+    assert "Mission" in sent["text"] and sent["keyboard"]
+
+
+def t_v_mission_callback_approve_updates_state_e2e():
+    """ms:approve فقط verdict mission را ثبت می‌کند و هیچ code.apply واقعی انجام نمی‌دهد."""
+    _redirect_octopus_paths()
+    m = mission_mod.create_mission("تلگرامو بهتر کن", source="telegram")
+    aps.add_pending({"id": m["id"], "type": "mission", "title": "تلگرام", "risk": m["risk"]})
+    fc = FakeClient(owner_id=777)
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render_with_map())
+    u = {"update_id": 20,
+         "callback_query": {"id": "c1", "from": {"id": 777},
+                            "data": f"ms:approve:{m['id']}",
+                            "message": {"message_id": 1, "chat": {"id": -1}}}}
+    res = c.handle_update(u)
+    assert res and res["kind"] == "mission" and res["action"] == "approve" and res["ok"] is True
+    assert mission_mod.get(m["id"])["state"] == "approved"
+    assert aps.summary()["approved"] == 1, "approval queue هم باید sync شود"
+    assert fc.named("edit"), "کارت باید refresh/edit شود"
+    _redirect_octopus_paths()
 
 
 if __name__ == "__main__":

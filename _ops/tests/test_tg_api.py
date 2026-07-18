@@ -319,6 +319,40 @@ def t_z_edit_not_modified_is_success_no_alert():
     assert calls["n"] == 1
 
 
+def t_zz_diagnostics_no_token_leak():
+    """diagnostics() اطلاعاتِ سیم‌کشی را بدونِ نشتِ token/chat-id برمی‌گرداند (فاز G)."""
+    c, _ = _client()
+    d = c.diagnostics()
+    assert d["wired"] is True
+    assert d["token_present"] is True
+    assert d["token_mask"].endswith("…") or d["token_mask"] == "∅"
+    assert TOKEN not in str(d), "token نباید در diagnostics نشت کند"
+    assert d["owner_configured"] is True
+    assert d["center_configured"] is True
+    assert d["is_forum_center"] is True     # CENTER < -1000
+
+
+def t_za_token_source_tracked():
+    """token_source نشان می‌دهد توکن از کجا آمده (explicit/TG_CENTER/MAIN)."""
+    # mute alerts برای این تست تا fallback-alert واقعی نرود
+    from telegram_center import tg_api as _t
+    orig_alert = _t._alert_soft
+    _t._alert_soft = lambda *a, **k: None
+    try:
+        # explicit
+        c1, _ = _client()
+        assert c1._token_source == "explicit"
+        # محیطی: TG_CENTER_BOT_TOKEN اگر ست باشد (در این تست env پاک شده، پس fallback)
+        os.environ.pop("TG_CENTER_BOT_TOKEN", None)
+        os.environ["TELEGRAM_BOT_TOKEN"] = TOKEN
+        net = FakeNet()
+        c2 = TgClient(owner_chat_id=OWNER, post_fn=net.post, get_fn=net.get)
+        assert c2._token_source == "FALLBACK_TELEGRAM_BOT_TOKEN", c2._token_source
+        os.environ.pop("TELEGRAM_BOT_TOKEN", None)
+    finally:
+        _t._alert_soft = orig_alert
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

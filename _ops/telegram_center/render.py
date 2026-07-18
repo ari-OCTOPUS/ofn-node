@@ -495,16 +495,64 @@ def render_decision(item: dict | None) -> tuple:
 _BACK = {"text": "🔙 منو", "callback_data": "mn:menu"}
 
 
-def render_menu(power: bool = False) -> tuple:
-    """منوی اصلیِ فرماندهی — دکمه‌ای، در همان پیام ناوبری می‌شود (edit)."""
+def render_menu(power: bool = False, feeds: dict | None = None,
+                paused: dict | None = None) -> tuple:
+    """منوی اصلیِ فرماندهی — زنده و context-aware.
+
+    قانونِ مهندسی: دکمهٔ اول باید «مهم‌ترین کارِ الانِ مالک» باشد، نه یک منوی ثابت.
+    این تابع همچنان خالص است: فقط از feeds/paused تزریق‌شده می‌خواند و هیچ I/O ندارد.
+    همهٔ دکمه‌ها content-free اند: شمارش/فعل/کلید، نه محتوا یا هویت."""
+    f = feeds if isinstance(feeds, dict) else {}
+    board = f.get("board") if isinstance(f.get("board"), dict) else {}
+    counts = board.get("counts") if isinstance(board.get("counts"), dict) else {}
+    guidance = f.get("guidance") if isinstance(f.get("guidance"), dict) else {}
+    n_guid = _int(guidance.get("n"))
+    quar = _int(counts.get("quarantined"))
+    awaiting = _int(counts.get("awaiting_user"))
+    blocked = _int(counts.get("blocked"))
+    running = _int(counts.get("running"))
+    q = _int(counts.get("queued"))
+    pmap = paused if isinstance(paused, dict) else {}
+    n_paused = sum(1 for v in pmap.values() if bool(v))
+
+    mood = "نیاز فوری نیست"
+    if quar:
+        mood = f"{quar} قرنطینه نیازِ رسیدگی دارد"
+    elif n_guid:
+        mood = f"{n_guid} تصمیم منتظر توست"
+    elif awaiting:
+        mood = f"{awaiting} مورد منتظر پاسخ توست"
+    elif blocked:
+        mood = f"{blocked} مورد مسدود است"
+
     text = ("🐙 <b>مرکزِ فرماندهیِ اختاپوس</b>\n"
-            + ("⚡ ردهٔ قدرت: روشن" if power else "🔒 ردهٔ قدرت: خاموش (OCTOPUS_TG_POWER)"))
-    kb = [[{"text": "📊 وضعیت", "callback_data": "mn:st"},
-           {"text": "✅ تأییدها", "callback_data": "mn:ap"}],
-          [{"text": "🦵 پاها", "callback_data": "mn:lg"},
-           {"text": "🐙 بودجه", "callback_data": "mn:bg"}],
-          [{"text": "💰 درآمد", "callback_data": "mn:rv"},
-           {"text": "⚙️ سیستم", "callback_data": "mn:sy"}]]
+            f"🧭 اولویت الان: {_esc(mood)}\n"
+            f"🧵 صف <code>{q}</code> · ▶️ <code>{running}</code> · ⏸ <code>{blocked}</code> · "
+            f"🙋 <code>{awaiting}</code> · ☣️ <code>{quar}</code>\n"
+            + ("⚡ ردهٔ قدرت: روشن" if power else "🔒 ردهٔ قدرت: خاموش"))
+
+    kb: list = []
+    # اولویت‌ها: هر چه خطر/نیاز بیشتر، بالاتر.
+    if quar:
+        kb.append([{"text": f"☣️ {quar} قرنطینه — رسیدگی", "callback_data": "mn:qr"}])
+    if n_guid:
+        kb.append([{"text": f"🧭 {n_guid} تصمیم منتظر تو", "callback_data": "mn:ap"}])
+    if awaiting and not n_guid:
+        kb.append([{"text": f"🙋 {awaiting} منتظر پاسخ تو", "callback_data": "mn:ap"}])
+    if n_paused:
+        kb.append([{"text": f"▶️ {n_paused} پای متوقف — ادامه؟", "callback_data": "mn:lg"}])
+    if blocked and not (quar or n_guid):
+        kb.append([{"text": f"⏸ {blocked} مسدود — بررسی وضعیت", "callback_data": "mn:st"}])
+
+    # دکمه‌های همیشگی پایین‌تر می‌آیند؛ اما همچنان یک‌تاپ و عملگرا هستند.
+    kb.extend([[{"text": "📊 وضعیت/تازه‌سازی", "callback_data": "mn:st"},
+                {"text": "🦵 پاها", "callback_data": "mn:lg"}],
+               [{"text": "🐙 بودجه", "callback_data": "mn:bg"},
+                {"text": "💰 درآمد", "callback_data": "mn:rv"}],
+               [{"text": "🗺 نقشه‌برداری", "callback_data": "mn:map"},
+                {"text": "📮 صف تأیید", "callback_data": "mn:ap"}],
+               [{"text": "🧬 مأموریت‌ها", "callback_data": "mn:ms"},
+                {"text": "⚙️ سیستم", "callback_data": "mn:sy"}]])
     return scrub(text), kb
 
 
@@ -564,6 +612,97 @@ def render_confirm(action_label: str, act_key: str) -> tuple:
     kb = [[{"text": "✅ بله، اجرا کن", "callback_data": f"pwc:{act_key}"},
            {"text": "❌ انصراف", "callback_data": "mn:sy"}]]
     return scrub(text), kb
+
+
+# ─── صفحهٔ نقشه‌برداری metadata (فاز D — فقط‌خواندنی، propose-only) ───────────────
+def render_map_page(scan_state: dict | None = None) -> tuple:
+    """کارتِ نقشه‌برداری: وضعیت اسکن + دکمه‌های شروع/وضعیت/گزارش.
+
+    scan_state = خروجیِ metadata_scan.load_state()
+    ({status, files_seen, dirs_seen, bytes_total, latest_manifest, ...}).
+    خالص: فقط نمایش؛ اجرای واقعیِ scan در center/map:start با gیتِ owner انجام می‌شود.
+    هیچ‌چیز مخرب: scan فقط metadata می‌خواند، ولی کارت start قبل از اجرا تصدیق می‌شود."""
+    st = scan_state if isinstance(scan_state, dict) else {}
+    status = str(st.get("status") or "idle")
+    files = _int(st.get("files_seen"))
+    dirs = _int(st.get("dirs_seen"))
+    bytes_total = _int(st.get("bytes_total"))
+    latest = st.get("latest_manifest")
+    status_emoji = {"idle": "⚪", "running": "🔄", "done": "✅", "error": "❌"}.get(status, "⚪")
+    lines = [f"🗺️ <b>نقشه‌برداری metadata</b> · <i>propose-only</i>",
+             f"{status_emoji} وضعیت: <code>{_esc(status)}</code>"]
+    if files or dirs:
+        lines.append(f"📂 <code>{files:,}</code> فایل · <code>{dirs:,}</code> پوشه")
+        try:
+            lines.append(f"💾 <code>{float(bytes_total)/(1024*1024):.1f} MiB</code>")
+        except (TypeError, ValueError, ZeroDivisionError):
+            pass
+    if latest:
+        lines.append(f"📄 آخرین manifest: <code>{_esc(str(latest))}</code>")
+    else:
+        lines.append("📄 هنوز manifestی ساخته نشده.")
+    lines.append(DIVIDER)
+    lines.append("<i>فقط metadata (path/size/mtime)؛ محتوای فایل هرگز خوانده نمی‌شود.</i>")
+    # دکمه‌ها: شروع scan (خطر کم — فقط خواندن، ولی dry-run-نما)، وضعیت، گزارش، منو
+    kb = [[{"text": "🗺 شروع scan metadata", "callback_data": "map:start"}],
+          [{"text": "🔄 تازه‌سازی", "callback_data": "mn:map"},
+           {"text": "📄 آخرین گزارش", "callback_data": "map:report"}],
+          [{"text": "🔙 منو", "callback_data": "mn:menu"}]]
+    return scrub("\n".join(lines)), kb
+
+
+# ─── صفحهٔ صف تأیید واقعی (فاز E — bridge اختاپوس) ───────────────────────────────
+def render_approvals_queue(pending: list | None = None,
+                           summary_counts: dict | None = None,
+                           legacy_recent: list | None = None) -> tuple:
+    """کارتِ صفِ تأیید: pending jobs با دکمه‌های ap:ok/no/detail.
+
+    pending = approval_store.load_pending()
+    summary_counts = approval_store.summary()  ({pending,approved,rejected,done})
+    legacy_recent = approval_store.sync_to_octopus_state()["recent"]  (تاریخچه).
+
+    هر job با id/type/risk نشان داده می‌شود (content-free). risk=read → دکمهٔ تأیید
+    سبک؛ risk=high → هشدار + نیاز به power-gate جداگانه (اینجا فقط ack)."""
+    pend = pending if isinstance(pending, list) else []
+    sc = summary_counts if isinstance(summary_counts, dict) else {}
+    leg = legacy_recent if isinstance(legacy_recent, list) else []
+
+    n_pend = _int(sc.get("pending")) or len(pend)
+    lines = [f"📮 <b>صف تأیید</b> · <code>{n_pend}</code> منتظر",
+             f"✅ تأییدشده <code>{_int(sc.get('approved'))}</code> · "
+             f"❌ ردشده <code>{_int(sc.get('rejected'))}</code> · "
+             f"🎯 انجام‌شده <code>{_int(sc.get('done'))}</code>"]
+    if not pend:
+        lines.append("هیچ jobی منتظرِ تأیید نیست.")
+    else:
+        lines.append(DIVIDER)
+        for job in pend[:5]:        # حداکثر ۵ مورد (سقفِ تلگرام)
+            if not isinstance(job, dict):
+                continue
+            jid = str(job.get("id", "?"))[:48]
+            risk = str(job.get("risk", "read"))[:12]
+            title = _one(job.get("title"), 60)
+            risk_emoji = "🔴" if risk == "high" else ("🟡" if risk == "medium" else "🟢")
+            lines.append(f"{risk_emoji} <code>{_esc(jid)}</code> · {_esc(title)}")
+    if leg:
+        lines.append(DIVIDER)
+        lines.append("📜 آخرین verdictها:")
+        for v in leg[:3]:
+            if isinstance(v, dict):
+                emo = {"ok": "✅", "no": "❌", "later": "⏳"}.get(str(v.get("verdict")), "•")
+                lines.append(f"{emo} <code>{_esc(str(v.get('id', '?'))[:32])}</code>")
+    # کیبورد: per-job دکمه‌های ok/no/detail (اگر pending هست) + refresh + منو
+    kb: list = []
+    for job in pend[:5]:
+        if not isinstance(job, dict):
+            continue
+        jid = str(job.get("id", "?"))[:48]
+        kb.append([{"text": f"✅ تأیید {jid[:20]}", "callback_data": f"ap:ok:{jid}"},
+                   {"text": f"❌ رد {jid[:20]}", "callback_data": f"ap:no:{jid}"},
+                   {"text": "📝 جزئیات", "callback_data": f"ap:detail:{jid}"}])
+    kb.append([{"text": "🔄 تازه‌سازی", "callback_data": "mn:ap"}])
+    kb.append([{"text": "🔙 منو", "callback_data": "mn:menu"}])
+    return scrub("\n".join(lines)), kb
 
 
 # ─── نمایش: کارتِ درآمد (aggregate، PII-safe — نامِ شریک هرگز echo نمی‌شود) ────────

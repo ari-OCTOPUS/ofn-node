@@ -123,3 +123,6 @@ _ops/state/ORGANISM-STATE.ziman
 03 - Projects/*/langar/octopus.json
 03 - Projects/*/langar/KILL
 03 - Projects/*/langar/langar_log.jsonl
+
+# octopus runtime root (queue/logs/config incl. bot tokens) - never commit
+_octopus/

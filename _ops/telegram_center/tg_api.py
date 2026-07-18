@@ -157,8 +157,25 @@ class TgClient:
                  center_chat_id=None, post_fn=None, get_fn=None):
         # TG_CENTER_BOT_TOKEN = باتِ اختصاصیِ مرکزِ گروه (توصیه: باتِ دوم تا با pollerِ
         # approval_channel داخلِ organism روی یک توکن جنگِ 409 نشود)؛ fallback = باتِ اصلی.
-        self._token = token if token is not None else (
-            _env_str("TG_CENTER_BOT_TOKEN") or _env_str("TELEGRAM_BOT_TOKEN"))
+        tg_center_tok = _env_str("TG_CENTER_BOT_TOKEN")
+        main_tok = _env_str("TELEGRAM_BOT_TOKEN")
+        if token is not None:
+            self._token = token
+            self._token_source = "explicit"
+        elif tg_center_tok:
+            self._token = tg_center_tok
+            self._token_source = "TG_CENTER_BOT_TOKEN"
+        else:
+            # fallback خطرناک: اگر approval_channel هم با همین توکن poll کند → 409.
+            self._token = main_tok
+            self._token_source = "FALLBACK_TELEGRAM_BOT_TOKEN"
+            # یک بار در هر پروسه هشدار بده (نه throttle ۱/ساعت؛ چون این حالت پایدار است
+            # و اپراتور باید بداند مرکز روی باتِ اصلی سوار شده). فقط وقتی واقعاً وصل است.
+            if main_tok and (owner_chat_id is not None or center_chat_id is not None
+                             or _env_int("TELEGRAM_OWNER_CHAT_ID", 0)
+                             or _env_int("TG_CENTER_CHAT_ID", 0)):
+                _alert_soft("tg-center: TG_CENTER_BOT_TOKEN غایب — fallback به "
+                            "TELEGRAM_BOT_TOKEN؛ ریسکِ 409 Conflict با approval_channel.")
         self._owner = (_coerce_id(owner_chat_id) if owner_chat_id is not None
                        else (_env_int("TELEGRAM_OWNER_CHAT_ID", 0) or None))
         self._center = (_coerce_id(center_chat_id) if center_chat_id is not None
@@ -175,6 +192,21 @@ class TgClient:
     def __repr__(self) -> str:
         return (f"<TgClient wired={self.wired()} token={_mask_token(self._token)} "
                 f"owner={self._owner} center={self._center}>")
+
+    def diagnostics(self) -> dict:
+        """خلاصهٔ content-free از وضعیتِ سیم‌کشی برای گزارشِ دیباگ (فاز G).
+
+        هیچ token/URL/chat-id حساس برگردانده نمی‌شود — فقط presence/mask/source.
+        مصرف‌کننده: TG-LIVE-DEBUG-REPORT.md generator."""
+        return {
+            "wired": self.wired(),
+            "token_present": bool(self._token),
+            "token_mask": _mask_token(self._token),
+            "token_source": getattr(self, "_token_source", "unknown"),
+            "owner_configured": self._owner is not None,
+            "center_configured": self._center is not None,
+            "is_forum_center": isinstance(self._center, int) and self._center < -1000,
+        }
 
     # ── allowlist (قانونِ P3 §5: فقط مالک فرمان/کلیک می‌دهد) ──────────────────
     def is_owner(self, update) -> bool:
