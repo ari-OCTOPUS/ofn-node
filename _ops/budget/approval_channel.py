@@ -1814,12 +1814,18 @@ class TelegramApprovalChannel(ApprovalChannel):
     LAB_SEED_PATH = "lab_seed_data.json"
 
     def _load_lab_seed(self) -> dict:
-        """بارگذاریِ lab_seed_data.json. مسیر: ابتدا کنارِ این ماژول (state/)، سپس
-        CHRONOS-FABLE-OS/09_Research/. فقط‌خواندنی؛ هرگز نوشته نمی‌شود."""
+        """بارگذاریِ lab_seed_data.json. مسیر: ابتدا state_dirِ تزریقی (اگر ست شده)،
+        بعد کنارِ این ماژول (state/)، سپس CHRONOS-FABLE-OS/09_Research/.
+        فقط‌خواندنی؛ هرگز نوشته نمی‌شود. بدونِ کاندیدِ state_dir، تستِ worktree
+        seed را از درختِ ماژول می‌خواند نه از mini-vaultِ harness (نشتِ state زنده)."""
         from pathlib import Path
         here = Path(__file__).resolve().parents[1]   # _ops
         candidates = [
             here / "state" / self.LAB_SEED_PATH,
+        ]
+        if self._state_dir:
+            candidates.insert(0, Path(self._state_dir) / self.LAB_SEED_PATH)
+        candidates += [
             here.parent / "CHRONOS-FABLE-OS" / "09_Research" / self.LAB_SEED_PATH,
             here.parent / "CHRONOS-FABLE-OS" / "01_SourceMap" / "_primaries" / "from-vault" / self.LAB_SEED_PATH,
         ]

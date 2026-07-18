@@ -108,9 +108,12 @@ def setup(name: str) -> dict:
         "PF_STUDIO_DIR": str(pf_studio),
     }
     os.environ.update(env)
-    sys.path.insert(0, str(REAL_VAULT / "_ops" / "budget"))
-    sys.path.insert(0, str(REAL_VAULT / "_ops" / "debate"))
-    sys.path.insert(0, str(REAL_VAULT / "_ops"))
+    # کدِ زیرِ تست = همان tree که این harness داخلش است — نه REAL_VAULT. وگرنه تستِ
+    # worktree ماژول‌های _ops را از tree زنده import می‌کند (کدِ کامیت‌نشده ≠ کدِ تحتِ تست).
+    _ops_self = Path(__file__).resolve().parent.parent
+    sys.path.insert(0, str(_ops_self / "budget"))
+    sys.path.insert(0, str(_ops_self / "debate"))
+    sys.path.insert(0, str(_ops_self))
     return {"root": root, "ops": ops, "genome": genome, "brain": brain, "arch": arch, **env}
 
 
