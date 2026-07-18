@@ -16,7 +16,13 @@ created_by: agent
 
 | Prompt | Goal | Use when |
 |---|---|---|
-| `NEXT-AGENT-PROMPT-2026-07-18-integration-unification.md` | یکپارچه‌سازی خروجی agentهای موازی 2026-07-18؛ merge-safe، تست‌محور، بدون overwrite فلگ/secret | جلسهٔ بعدی برای merge کردن `integration-debug-2026-07-18`، بررسی master، و ادغام احتمالی Ziman/Fugu branch |
+| `NEXT-AGENT-PROMPT-2026-07-18-post-merge-activation.md` | فعال‌سازی کدِ یکپارچه‌شده روی ارگانیسمِ زنده + validation تلگرامی روی store واقعی | **جلسهٔ بعدی.** integration مرج شده به master (`7ad1ce4`)؛ حالا restart (owner-gated) + تست `/sync` `/review` `/finance` `/finance!` `/books` + knob-RFC دکتر |
+
+### Done prompts (archive reference)
+
+| Prompt | Outcome |
+|---|---|
+| ~~`NEXT-AGENT-PROMPT-2026-07-18-integration-unification.md`~~ | ✅ تکمیل 2026-07-18 — merge `7ad1ce4` روی master؛ Ziman branding cherry-pick شد (flag-off)؛ ۱۱ سوئیت/۹۴ تست سبز |
 
 ## Order
 
