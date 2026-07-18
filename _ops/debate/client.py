@@ -166,7 +166,9 @@ _PROVIDER_REGISTRY = {
         "env_key": "ZAI_API_KEY",
         "env_key_alias": "GLM_API_KEY",   # 2026-07-15: مالک ممکن است GLM_API_KEY بگذارد (نامِ مستندِ budgets)
         "base_url_env": "GLM_BASE_URL",
-        "base_url_default": "https://api.z.ai",
+        # [VERIFIED 2026-07-18 live-probe] z.ai روت‌های کوتاه (/chat/completions و /v1/) را 404 می‌کند؛
+        # pay-as-you-go (/api/paas/v4) روی این اکانت 429 (بدون شارژ) است؛ پلنِ اشتراکیِ Coding مسیرِ درست است (200 + choices).
+        "base_url_default": "https://api.z.ai/api/coding/paas/v4",
         "allowed_hosts": ("api.z.ai", "bigmodel.cn"),
         "price_in": 0.6,     # $0.6/M [VERIFIED docs.z.ai] — فقط برای telemetry؛ flat اگر subscription=max
         "price_out": 2.2,    # $2.2/M
