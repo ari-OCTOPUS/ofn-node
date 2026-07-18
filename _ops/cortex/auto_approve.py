@@ -174,8 +174,11 @@ def apply_knob(knob: str, bounds: tuple, direction: str = "toward-mid") -> dict:
     lo, hi = float(bounds[0]), float(bounds[1])
     mid = (lo + hi) / 2
     cur = _current(knob)
-    new = round(cur + (mid - cur) * 0.25, 2) if cur is not None else round(mid, 2)
+    new = cur + (mid - cur) * 0.25 if cur is not None else mid
     new = max(lo, min(hi, new))
+    # AUTO_KNOBS همه دامنهٔ صحیح‌اند (cadence/interval). مقدارِ صحیح بنویس تا مصرف‌کننده‌های
+    # int(os.environ[...]) (مثلِ wiring.py CHRONO_NUDGE_EVERY_N_BEATS) با «780.0» ValueError نگیرند.
+    new = int(round(new))
     try:
         cur_map = json.loads(KNOBS_PATH.read_text("utf-8")) if KNOBS_PATH.exists() else {}
     except (OSError, ValueError):

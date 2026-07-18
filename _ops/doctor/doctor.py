@@ -146,6 +146,8 @@ class RFC:
     ledger_ref: str = ""                               # پیوند به genome ledger
     rfc_hash: str = ""                                 # provenance
     created_ts: float = 0.0                            # time.time() hنگام ساخت — sweep/expire
+    change_level: str = "code"                         # tune|reconfig|rewrite|code — فقط 'tune'+knobِ whitelist اعمالِ واقعی می‌شود
+    knob: str = ""                                     # اگر change_level=='tune': نامِ knobِ AUTO_KNOBS که merge اعمالش می‌کند
 
     def __post_init__(self):
         if not self.rfc_hash:
@@ -160,7 +162,8 @@ class RFC:
         return {"rfc_id": self.rfc_id, "bottleneck": self.bottleneck, "fix": self.fix,
                 "expected_lift": self.expected_lift, "rollback": self.rollback,
                 "sandbox_result": self.sandbox_result, "critic_review": self.critic_review,
-                "status": self.status, "ledger_ref": self.ledger_ref, "rfc_hash": self.rfc_hash}
+                "status": self.status, "ledger_ref": self.ledger_ref, "rfc_hash": self.rfc_hash,
+                "change_level": self.change_level, "knob": self.knob}
 
     def to_markdown(self) -> str:
         """نمایشِ markdown برای knowledge/internal یا کارتِ P3."""
@@ -414,13 +417,14 @@ class Doctor:
 
     # ─── D-3 · propose_rfc — تولیدِ RFC (proposal-event) ─────────────────────────
     def propose_rfc(self, bottleneck: dict, fix: str, expected_lift: str,
-                    rollback: str = "") -> RFC:
+                    rollback: str = "", change_level: str = "code", knob: str = "") -> RFC:
         """از گلوگاه یک RFC می‌سازد. این یک proposal-event است، نه تغییرِ کد.
-        RFC به knowledge/internal نوشته می‌شود (propose-only)."""
+        RFC به knowledge/internal نوشته می‌شود (propose-only).
+        change_level='tune' + knobِ whitelist → تپِ merge مالک اثرِ واقعیِ محدود دارد (نه فقط درس)."""
         rfc = RFC(rfc_id=f"RFC-{uuid.uuid4().hex[:8]}",
                   bottleneck=bottleneck.get("bottleneck", str(bottleneck)),
                   fix=fix, expected_lift=expected_lift, rollback=rollback,
-                  status="draft")
+                  status="draft", change_level=change_level, knob=knob)
         # reward-integrity: اگر fix ناظر به uptime/keep-beating باشد، جریمه می‌خورد
         fix_lower = fix.lower()
         if any(w in fix_lower for w in ("uptime", "keep-beating", "keep-alive", "keep alive")):
@@ -548,21 +552,94 @@ class Doctor:
 
     def apply_merge(self, rfc: RFC) -> bool:
         """اعمالِ merge بعد از human-append. این فقط بعد از تأییدِ تلگرامی صدا زده
-        می‌شود. merge پشتِ flag. درسِ آموخته به knowledge/internal."""
+        می‌شود. merge پشتِ flag. درسِ آموخته به knowledge/internal.
+
+        اثرِ واقعیِ محدود (پشتِ OCTOPUS_WIRE_MERGE_APPLIES_KNOB، پیش‌فرض خاموش): اگر RFC از
+        نوعِ 'tune' با knobِ whitelistِ AUTO_KNOBS باشد، تپِ merge مالک واقعاً همان knob را
+        (محدود/برگشت‌پذیر، clamp‌شده) اعمال می‌کند — پایانِ apply_mergeِ نمادین. تپِ خودِ
+        مالک = تأیید، پس این مسیر به گاردِ capability/refractory/fearِ مسیرِ خودمختار نیاز
+        ندارد. مرزِ سخت: هر RFC که 'tune'+knobِ whitelist نباشد فقط درس می‌نویسد (هرگز
+        اعمالِ کد/پول/ژنوم)."""
         if rfc.status not in ("submitted", "submitted-no-channel"):
             return False
+        # ── اثرِ واقعیِ محدود: فقط knobِ tuneِ whitelist، فقط پشتِ flag ──
+        knob_applied = None
+        if (os.environ.get("OCTOPUS_WIRE_MERGE_APPLIES_KNOB") == "1"
+                and rfc.change_level == "tune" and rfc.knob
+                and not os.environ.get(rfc.knob)):   # احترام به مالک: اگر بین mint و merge مقدارش را set کرده، دست نزن
+            try:
+                import sys as _sys
+                _cortex = str(Path(__file__).resolve().parents[1] / "cortex")
+                if _cortex not in _sys.path:
+                    _sys.path.insert(0, _cortex)
+                import improve as _improve
+                import auto_approve as _aa
+                if rfc.knob in _improve.AUTO_KNOBS:
+                    _r = _aa.apply_knob(rfc.knob, _improve.AUTO_KNOBS[rfc.knob])
+                    if _r.get("ok"):
+                        knob_applied = {"knob": rfc.knob, "value": _r.get("value")}
+            except Exception as _ke:  # noqa: BLE001 — اعمالِ knob هرگز merge را نمی‌کشد
+                try:
+                    opslib.alert([f"doctor apply_merge knob failed: {type(_ke).__name__}"])
+                except Exception:  # noqa: BLE001
+                    pass
         rfc.status = "merged"
         rfc.ledger_ref = self._note("DOCTOR_MERGE", {"rfc_id": rfc.rfc_id,
-                                                       "behind_flag": True})
+                                                       "behind_flag": True,
+                                                       "knob_applied": knob_applied})
         # درسِ آموخته
         try:
             self._knowledge_dir.mkdir(parents=True, exist_ok=True)
+            _applied_line = (f"\n\n**اثرِ واقعی:** knob `{knob_applied['knob']}` = "
+                             f"`{knob_applied['value']}` اعمال شد (برگشت‌پذیر؛ "
+                             f"state/cortex/auto-knobs.json). کاملاً زنده پس از ری‌استارتِ بعدی.\n"
+                             if knob_applied else "")
             (self._knowledge_dir / f"{rfc.rfc_id}-lesson.md").write_text(
-                f"# درسِ آموخته — {rfc.rfc_id}\n\n{rfc.to_markdown()}\n",
+                f"# درسِ آموخته — {rfc.rfc_id}\n\n{rfc.to_markdown()}\n{_applied_line}",
                 encoding="utf-8")
         except OSError:
             pass
         return True
+
+    # ─── knob-RFC minting — پیشنهادِ خود-تغییرِ محدودِ قابلِ‌اعمال (propose-only تا merge) ──
+    def _mine_knob_rfcs(self) -> list:
+        """برای هر knobِ whitelistِ AUTO_KNOBS که مالک هیچ مقدارِ صریحی برایش نگذاشته
+        (env unset)، یک RFCِ نوعِ 'tune' می‌سازد که پیشنهاد می‌دهد آن را به میانهٔ کرانِ
+        امن ست کند. تپِ merge مالک واقعاً اعمالش می‌کند (apply_knob، محدود/برگشت‌پذیر).
+
+        احترام به مالک: knobی که مالک صریحاً set کرده (حتی خارج از باندِ auto، مثلِ
+        CORTEX_THINK_EVERY_N=1) هرگز پیشنهاد نمی‌شود — فقط unsetها. dedup روی knob (ضدِ spam)."""
+        import sys as _sys
+        _cortex = str(Path(__file__).resolve().parents[1] / "cortex")
+        if _cortex not in _sys.path:
+            _sys.path.insert(0, _cortex)
+        import improve as _improve
+        # skipِ یک knob اگر: (۱) RFCِ باز دارد (ضدِ spam)، یا (۲) مالک قبلاً ردش کرده
+        # (احترام به «نه» — درسِ later-is-not-a-verdict: تصمیمِ مالک را دوباره نپرس).
+        skip = set()
+        for r in self._rfcs.values():
+            if not r.knob:
+                continue
+            if r.status not in self._TERMINAL_RFC or r.status in ("rejected", "human-rejected"):
+                skip.add(r.knob)
+        drafted = []
+        for knob, bounds in _improve.AUTO_KNOBS.items():
+            if knob in skip or os.environ.get(knob):
+                continue   # مقدارِ صریحِ مالک/knobِ تصمیم‌گرفته را دست نزن؛ فقط unsetهای تازه
+            lo, hi = bounds
+            mid = round((lo + hi) / 2.0, 2)
+            rfc = self.propose_rfc(
+                {"bottleneck": f"knob:{knob} — بدونِ مقدارِ صریح (unset)"},
+                fix=(f"knobِ `{knob}` مقدارِ صریح ندارد. پیشنهاد: به میانهٔ کرانِ امن "
+                     f"({mid}، بازهٔ [{lo},{hi}]) ست شود تا آهنگِ کاری صریح و قابلِ‌کنترل شود. "
+                     f"اثرِ محدود و برگشت‌پذیر."),
+                expected_lift="خود-تنظیمیِ نرم در کرانِ امن (کنترلِ صریحِ آهنگِ کاری)",
+                rollback=f"ورودیِ {knob} را از state/cortex/auto-knobs.json حذف کن",
+                change_level="tune", knob=knob)
+            if self.submit_for_approval(rfc):
+                skip.add(knob)
+                drafted.append(rfc.rfc_id)
+        return drafted
 
     # ─── Wave 3 (2026-07-15) · تحلیلِ اندام‌ها → RFCِ بهبود (propose-only) ──────────
     def analyze_organs(self) -> list:
@@ -680,6 +757,14 @@ class Doctor:
             try:
                 self.analyze_organs()
             except Exception:  # noqa: BLE001 — اسکنِ اندام نباید cycle را بکشد
+                pass
+        # 2026-07-18: mintِ RFCهای نوعِ 'tune' برای knobهای whitelistِ unset (پشتِ
+        # OCTOPUS_WIRE_DOCTOR_KNOB_RFC، پیش‌فرض خاموش). این‌ها تنها RFCهایی‌اند که تپِ
+        # merge مالک واقعاً اعمالشان می‌کند — «ربات خودش را (محدود و با تأییدِ تو) عوض می‌کند».
+        if os.environ.get("OCTOPUS_WIRE_DOCTOR_KNOB_RFC") == "1":
+            try:
+                self._mine_knob_rfcs()
+            except Exception:  # noqa: BLE001 — mintِ knob-RFC نباید cycle را بکشد
                 pass
         # Phase 5: مصرفِ verdictهای انسانی از کانال (اگر کانال pop_rfc_verdicts داشته باشد؛
         # hasattr-guard = ایمن حتی قبل از این‌که کانالِ تلگرام آن را عرضه کند).
