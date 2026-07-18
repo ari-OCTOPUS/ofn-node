@@ -9,8 +9,12 @@ repo مسیرِ ثابت دارد و در هر دو درختِ worktree/live د�
 
 اجرا: python -X utf8 test_pii_read_guard.py    (بدونِ pytest، مثلِ بقیهٔ سوئیت)
 
-نکتهٔ همگام‌سازی: .claude/ در .gitignore است؛ اگر این تست روی درختِ live قرمز شد،
-یعنی integrator ویرایشِ hook را به live کپی نکرده — همان سیگنالِ fail-closedِ مطلوب.
+نکتهٔ همگام‌سازی: .claude/ در .gitignore است → hook untracked است و checkoutِ تازه
+(bare worktree / clone) اصلاً آن را ندارد. مثل fixtureهای harness (prompts/ledger)،
+زنجیرهٔ fallbackِ فقط‌خواندنی: درختِ خودِ تست (کدِ تحتِ تست) → REAL_VAULT (envِ اجرای
+worktree) → vaultِ زندهٔ این ماشین. روی درختِ live همیشه نسخهٔ tree-local برنده است؛
+پس سیگنالِ قبلی (قرمز روی live = integrator ویرایشِ hook را کپی نکرده — fail-closedِ
+مطلوب) سرِ جای خودش می‌ماند.
 """
 import importlib.util
 import io
@@ -18,9 +22,20 @@ import json
 import os
 import sys
 
+import harness
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
-GUARD_PATH = os.path.join(ROOT, ".claude", "hooks", "pii_read_guard.py")
+# hook untracked است (.claude/ در .gitignore) — اولین نسخهٔ موجود در زنجیره لود می‌شود؛
+# REAL_VAULT در اجرای bare خودش به همان درختِ بی‌hook اشاره می‌کند، پس vaultِ زنده
+# (defaultِ خودِ harness) پلهٔ آخر است.
+_GUARD_CANDIDATES = [
+    os.path.join(ROOT, ".claude", "hooks", "pii_read_guard.py"),
+    str(harness.REAL_VAULT / ".claude" / "hooks" / "pii_read_guard.py"),
+    os.path.join(r"F:\backup", ".claude", "hooks", "pii_read_guard.py"),
+]
+GUARD_PATH = next((p for p in _GUARD_CANDIDATES if os.path.exists(p)),
+                  _GUARD_CANDIDATES[0])
 
 _spec = importlib.util.spec_from_file_location("pii_read_guard", GUARD_PATH)
 G = importlib.util.module_from_spec(_spec)

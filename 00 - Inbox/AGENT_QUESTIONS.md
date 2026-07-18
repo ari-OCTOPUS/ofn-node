@@ -3,7 +3,7 @@ type: log
 status: active
 tags: [agents, escalation]
 created: 2026-07-03
-updated: 2026-07-11
+updated: 2026-07-18
 ---
 
 # سوالات ایجنت‌ها — کانال escalation
@@ -292,3 +292,9 @@ Ari شش سندِ طراحیِ Octopus/Chrono (تلگرام) داد: «همه ر
 - ‏[OPT-EXTRACT] / [OPT-CONFIG] / [OPT-BIND] ✅ ‏approve — بک‌لاگ تأییدشدهٔ بلوک بعدی (داخلی/$0/برگشت‌پذیر).
 
 **فقط این‌ها در ردهٔ مهم می‌مانند (رأی/اقدام خودت):** TASK-REFRESH (schtasks) · OPT-APP-FATE + VQ-ROOT-001 · B6-BUS · NBB-INSTALL · 4D-C-ARCHIVE · PAID-GATE/PII-GUARD/LANGAR-FAILCLOSED/EVAL-GATE/REFACTOR-B · احکام مالی/برنچ‌های قبلی.
+
+## 2026-07-18 10:31 — Claude (تست PII-guard روی checkout تازه)
+
+**زمینه:** `_ops/tests/test_pii_read_guard.py` روی هر checkoutِ تازهٔ master (bare worktree / clone) با FileNotFoundError قرمز می‌شد، چون `.gitignore` کلِ `.claude/` را ignore می‌کند و hookِ گاردِ PII (`.claude/hooks/pii_read_guard.py`) untracked است — فقط درختِ live و worktreeهای Claude (که `.claude/` را کپی دارند) پاس می‌شدند. **فیکسِ بدونِ دست‌زدن به ignore-rule اعمال شد:** تست حالا مثل fixtureهای harness (prompts/ledger) به نسخهٔ vaultِ زنده fallback می‌کند، فقط‌خواندنی؛ تست نه ضعیف شد نه skip.
+
+**سوال (verdict مالک — چون ignore-rule کنارِ configِ امنیتی است):** آیا خودِ hookِ گاردِ PII version-controlled شود؟ کدِ گارد secret نیست و track شدنش history/review می‌دهد. نکتهٔ فنی: negationِ ساده (`!.claude/hooks/`) زیرِ الگوی `.claude/` کار نمی‌کند (git داخل دایرکتوریِ excluded نمی‌رود)؛ اجرا یعنی تبدیل `.claude/` به `.claude/*` + سه خطِ نفی (`!.claude/hooks/` + `.claude/hooks/*` + `!.claude/hooks/pii_read_guard.py`). اگر آری: در جلسهٔ بعد اعمال می‌شود و fallbackِ تست به‌عنوان دفاعِ عمقی می‌ماند. اگر نه: وضعِ فعلی (fallback) کافی است و چیزی نمی‌شکند.
