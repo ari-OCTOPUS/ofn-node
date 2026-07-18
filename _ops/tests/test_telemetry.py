@@ -29,17 +29,20 @@ def t_genome_metric_and_or0():
 
 
 def t_brain_usage_unmapped_or0():
+    # «unmappedbiz» نامِ عمداً-نگاشت‌نشده است: painting/accounting از 2026-07-18
+    # (verdict budgets-proposed-diff §۵) به ORGAN_MAP اضافه شدند، پس دیگر UNMAPPED
+    # نیستند — این تست باید یک business واقعاً بیرونِ نگاشت بگیرد تا مسیرِ UNMAPPED را بسنجد.
     harness.add_usage(ENV["brain"], [
         (opslib.today(), "deepseek", "ziman", 1000, 500, 0.01),
-        (opslib.today(), "deepseek", "painting", 100, 50, 0.0),      # or-0 با توکن > 0
-        (opslib.today(), "deepseek", "painting", 100, 50, None),     # NULL هم همان تله
+        (opslib.today(), "deepseek", "unmappedbiz", 100, 50, 0.0),    # or-0 با توکن > 0
+        (opslib.today(), "deepseek", "unmappedbiz", 100, 50, None),   # NULL هم همان تله
     ])
     b = telemetry.read_brain()
     assert b["rows"] == 3
     assert b["cost_musd"] == opslib.micro(0.01)
     assert b["suspect_zero"] == 2, f"suspect={b['suspect_zero']}"
     assert b["by_organ"].get("ZIMAN") == opslib.micro(0.01)
-    assert any(k.startswith("UNMAPPED:painting") for k in b["unmapped"]), b["unmapped"]
+    assert any(k.startswith("UNMAPPED:unmappedbiz") for k in b["unmapped"]), b["unmapped"]
 
 
 def t_snapshot_units():
