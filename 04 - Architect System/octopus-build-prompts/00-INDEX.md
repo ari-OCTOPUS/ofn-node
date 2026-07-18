@@ -12,6 +12,12 @@ created_by: agent
 
 > **برای آری:** این یک سری پرامپتِ **جدا برای هر مرحله** است. هر فایل را جداگانه به ایجنتِ کدنویس بده، به همین ترتیب. هر مرحله پیش‌نیازِ مرحلهٔ بعد است. قانونِ ثابت: هیچ‌چیز بدونِ تاییدِ تلگرامیِ تو زنده/برگشت‌ناپذیر نمی‌شود؛ صفر fabrication؛ additive.
 
+## Current urgent prompt
+
+| Prompt | Goal | Use when |
+|---|---|---|
+| `NEXT-AGENT-PROMPT-2026-07-18-integration-unification.md` | یکپارچه‌سازی خروجی agentهای موازی 2026-07-18؛ merge-safe، تست‌محور، بدون overwrite فلگ/secret | جلسهٔ بعدی برای merge کردن `integration-debug-2026-07-18`، بررسی master، و ادغام احتمالی Ziman/Fugu branch |
+
 ## Order
 
 | # | Prompt | Goal | Gate to next |

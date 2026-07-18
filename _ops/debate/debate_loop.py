@@ -150,6 +150,10 @@ def _rounds(topic: dict, wrapped: str, topic_hash: str, rounds: int,
         muse_raw = _gated_call(muse_client, muse_sys,
                                f"topic: {wrapped}{constraint}\nخروجی فقط JSON.",
                                700, f"debate-muse-r{rnd}")
+        # verdict 2026-07-18 integration-debug: defensive .get() — وقتی Ollama fallback
+        # فرمتِ استاندارد برنمی‌گرداند، KeyError: 'text' کلِ debate را نمی‌کُشد.
+        if not isinstance(muse_raw, dict) or not muse_raw.get("text"):
+            raise ValueError(f"muse LLM پاسخِ متن نداد (r{rnd}): {type(muse_raw).__name__}")
         muse_out = extract_json(muse_raw["text"])
         if not MUSE_KEYS.issubset(muse_out):
             raise ValueError(f"muse JSON contract broken (r{rnd}): {sorted(muse_out)}")
@@ -158,11 +162,13 @@ def _rounds(topic: dict, wrapped: str, topic_hash: str, rounds: int,
                                + json.dumps(muse_out, ensure_ascii=False)
                                + "\nخروجی فقط JSON.",
                                500, f"debate-architect-r{rnd}")
+        if not isinstance(arch_raw, dict) or not arch_raw.get("text"):
+            raise ValueError(f"architect LLM پاسخِ متن نداد (r{rnd}): {type(arch_raw).__name__}")
         arch_out = extract_json(arch_raw["text"])
         if not ARCHITECT_KEYS.issubset(arch_out):
             raise ValueError(f"architect JSON contract broken (r{rnd}): {sorted(arch_out)}")
         round_rec = {"round": rnd, "muse": muse_out, "architect": arch_out,
-                     "cost_usd": muse_raw["cost_usd"] + arch_raw["cost_usd"],
+                     "cost_usd": muse_raw.get("cost_usd", 0.0) + arch_raw.get("cost_usd", 0.0),
                      "stub": muse_raw.get("stub", False)}
         history.append(round_rec)
         opslib.ledger_note("EXPERIENCE", {

@@ -375,6 +375,15 @@ class SabaStudio:
             self._log_boundary(text.strip()[:200])
             self._to_ari(f"Creator محدوده را تنگ‌تر کرد: {text.strip()[:200]}")
             return ("گرفتم ✋ فوراً اعمال شد و به اپراتور هم رسید. مرزِ تو همیشه مقدمه. 🌿", BACK_KB)
+        # 🧠 مغزِ تعاملیِ LLM (verdict 2026-07-18 integration-debug):
+        # متنِ آزادِ صبا → پاسخِ هوشمند با حافظه. fail-soft: None = fallback به منوی نرم.
+        if self.brain is not None and hasattr(self.brain, "respond_to_saba"):
+            try:
+                _resp = self.brain.respond_to_saba(text)
+                if _resp:
+                    return (_resp, BACK_KB)
+            except Exception:  # noqa: BLE001 — مغز نباید استودیو را بکُشد
+                pass
         # پیش‌فرض: راهنمای نرم
         return ("نفهمیدم دقیقاً 🌸 از منوی پایین یه دکمه بزن، یا برای شروعِ درفت «📤».",
                 MAIN_MENU)
@@ -527,10 +536,17 @@ class SabaStudio:
 
 if __name__ == "__main__":  # pragma: no cover
     import sys as _sys
-    _sys.path.insert(0, str(HERE.parent / "brain"))   # اونلی فنز/brain — مغز اختیاری
+    # 🧠 مغزِ تعاملیِ LLM-backed (verdict 2026-07-18 integration-debug):
+    # اول SabaBrain (حافظه + LLM + guard)؛ اگر نبود، fallback به DualBrainV3 قدیمی.
+    _brain = None
     try:
-        from dual_brain_v3 import DualBrainV3  # type: ignore
-        _brain = DualBrainV3()
-    except Exception:  # noqa: BLE001 — نبودِ مغز = brief آفلاین (مثلِ امروز، بی‌کرش)
-        _brain = None
+        from saba_brain import SabaBrain  # type: ignore
+        _brain = SabaBrain()
+    except Exception:  # noqa: BLE001 — نبودِ saba_brain = fallback به dual_brain_v3
+        try:
+            _sys.path.insert(0, str(HERE.parent / "brain"))   # اونلی فنز/brain
+            from dual_brain_v3 import DualBrainV3  # type: ignore
+            _brain = DualBrainV3()
+        except Exception:  # noqa: BLE001 — نبودِ هر مغز = brief آفلاین (بی‌کرش)
+            _brain = None
     SabaStudio(brain=_brain).poll_forever()

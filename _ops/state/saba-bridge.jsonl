@@ -1,0 +1,12 @@
+# saba-bridge.jsonl — پلِ ارتباطیِ Saba Studio ↔ Organism (verdict 2026-07-18 integration-debug)
+#
+# فرمت: یک JSON per line (JSONL append-only).
+#   {"ts": "...", "kind": "draft_submitted|halt|resume|boundary|first_message", "text": "..."}
+#
+# نویسنده (آینده): saba_brain.py در رویدادهای مهم (نه هر پیام).
+# خواننده (آینده): wiring.py::saba_bridge_beat() — هنوز ساخته نشده.
+#
+# فعلاً این فایل آماده است ولی consumer ندارد. وقتی owner خواست saba events
+# به organism loop برسد، یک beat در wiring.py با الگوی cockpit_requests_beat
+# (خط 1184) اضافه می‌شود. تا آن زمان، communication از طریق to_ari.json
+# (که لنگر می‌خواند) انجام می‌شود.

@@ -42,10 +42,12 @@ import money        # noqa: E402
 import ledger_core  # noqa: E402
 
 ENTITY_ID = "armin-abn"
-# نگاشتِ owner→حسابِ خرج. قبلاً (تا 2026-07-18) hardcoded بود با نام‌های واقعیِ طرف‌حساب
-# (PII در کد). حالا از categorize-config.json (gitignored) لود می‌شود؛ fallback به همین
-# مقادیرِ پیش‌فرض اگه config غایب باشد. تغییر در config → تغییر در نگاشت، بدونِ دستِ کد.
-_EXPENSE_BY_OWNER_DEFAULT = {"rent": "5200", "sume": "5100", "maliheh": "5100", "behzad": "5100"}
+# نگاشتِ owner→حسابِ خرج. تا 2026-07-18 hardcoded بود با نام‌های واقعیِ طرف‌حساب (PII در کد).
+# حالا منبعِ واحد = categorize-config.json#expense_account_by_owner (gitignored).
+# default عمداً EMPTY است (صفر PII در source). اگه config غایب/خالی باشد، _expense_account
+# به category/desc hint یا 6000 (متفرقه) برمی‌گردد — رفتارِ صادقانه. تغییر در config →
+# تغییر در نگاشت، بدونِ دستِ کد.
+_EXPENSE_BY_OWNER_DEFAULT: dict = {}   # صفر PII در source code (2026-07-18)
 # hintِ دارایی (tool→1500) عمداً حذف شد: سرمایه‌سازی تصمیمِ حسابدار است (audit #16)
 _CATEGORY_HINTS = (("material", "5000"), ("مصالح", "5000"), ("bunnings", "5000"))
 _ENTITY_SOURCES = ("pocketsmith",)          # فقط حساب‌های بانکیِ خودِ entity ثبت‌پذیرند
@@ -56,13 +58,22 @@ def _config_path() -> Path:
 
 
 def _expense_by_owner() -> dict:
-    """نگاشتِ owner→account از categorize-config.json (gitignored). fail-soft → default."""
+    """نگاشتِ owner→account از categorize-config.json (gitignored). اگه config غایب/خالی
+    باشد، empty برمی‌گرداند (صفر PII در source) و یک warning لاگ می‌کند — _expense_account
+    سپس به category/desc hint یا 6000 برمی‌گردد (متفرقه)."""
     try:
         d = json.loads(_config_path().read_text("utf-8"))
         m = d.get("expense_account_by_owner") if isinstance(d, dict) else None
         if isinstance(m, dict) and m:
             return {str(k): str(v) for k, v in m.items()}
     except (OSError, ValueError, TypeError):
+        pass
+    # config غایب یا خالی — warning (یک‌بار، نه هر tick — opslib.alert خودش dedup می‌کند)
+    try:
+        opslib.alert(["journal_bridge: categorize-config.json غایب یا expense_account_by_owner "
+                      "خالی است — owner→account نگاشت نمی‌شود (همه به category/desc یا 6000 می‌روند). "
+                      "f: personal/categorize-config.json#expense_account_by_owner را پر کن."])
+    except Exception:  # noqa: BLE001
         pass
     return dict(_EXPENSE_BY_OWNER_DEFAULT)
 

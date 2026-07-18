@@ -998,7 +998,7 @@ class TelegramApprovalChannel(ApprovalChannel):
             ],
             [
                 {"text": "💰 پول و متابولیسم", "callback_data": "menu:money"},
-                {"text": "💰 دارایی‌ها/حساب", "callback_data": "menu:finance"},
+                {"text": "📊 وضعِ من", "callback_data": "menu:finance"},
             ],
             [
                 {"text": "🎓 مدرسه", "callback_data": "menu:school"},
@@ -1079,6 +1079,13 @@ class TelegramApprovalChannel(ApprovalChannel):
         if t == "/resume":
             return self.resume_all()
         # ── Cockpit v2: میان‌بُرهای تب + دستورهای جدید (هر ورودی همچنان DATA است) ──
+        # /finance! → نسخهٔ expert (مالک/توسعه‌دهنده): Dr/Cr، ATO، دفترِ داخلی.
+        # /finance  → نسخهٔ سادهٔ «وضعِ من» برای آرمین/عباس (UX-SPEC §۳.۱، 2026-07-18).
+        if t == "/finance!":
+            return {"text": self._finance_text_expert(),
+                    "reply_markup": {"inline_keyboard": [[
+                        {"text": "📊 نسخهٔ ساده", "callback_data": "menu:finance"},
+                        {"text": "🏠 منو", "callback_data": "menu:main"}]]}}
         if t in ("/overview", "/blueprint", "/brain", "/doctor", "/money",
                  "/finance", "/school", "/safety", "/alerts", "/organs"):
             return self._render_tab(t[1:])
@@ -1548,7 +1555,8 @@ class TelegramApprovalChannel(ApprovalChannel):
 
     def _dispatch_acct(self, parts: list):
         """میان‌بُرهای دکمه‌ایِ حسابداری (اسکن #34/#35): acct:review/books/sync →
-        همان handlerهای دستوری (owner-only از قبل در poll_once، propose-only)."""
+        همان handlerهای دستوری (owner-only از قبل در poll_once، propose-only).
+        2026-07-18: acct:finance_expert → نسخهٔ expert (مالک/توسعه‌دهنده)."""
         verb = parts[1] if len(parts) > 1 else ""
         if verb == "review":
             return self._cmd_review_start()
@@ -1556,6 +1564,11 @@ class TelegramApprovalChannel(ApprovalChannel):
             return self._cmd_books()
         if verb == "sync":
             return self._cmd_acct_sync()
+        if verb == "finance_expert":
+            return {"text": self._finance_text_expert(),
+                    "reply_markup": {"inline_keyboard": [[
+                        {"text": "📊 نسخهٔ ساده", "callback_data": "menu:finance"},
+                        {"text": "🏠 منو", "callback_data": "menu:main"}]]}}
         return "نادیده"
 
     # ─── موج ۲: ساختِ اندامِ نو — فقط نوشتنِ رجیستریِ داده (هرگز کدِ تولید) ──────────────
@@ -2683,10 +2696,12 @@ class TelegramApprovalChannel(ApprovalChannel):
         if page == "finance":
             # اسکن #35: تبِ مالی می‌گفت «/review بزن» ولی دکمه نداشت — سه میان‌بُرِ مستقیم
             # (acct: → همان handlerهای دستوری؛ نه act: — این‌ها propose-only اند، نه اکشنِ پولی)
-            rows.append([{"text": "🧮 مرور", "callback_data": "acct:review"},
-                         {"text": "📚 ثبتِ دفتر", "callback_data": "acct:books"},
-                         {"text": "🔄 sync", "callback_data": "acct:sync"}])
-        rows.append([{"text": "🔄 منوی اصلی", "callback_data": "menu:main"}])
+            # 2026-07-18: دکمه‌های فارسیِ ساده (UX-SPEC) + راهِ رسیدن به نسخهٔ expert.
+            rows.append([{"text": "🧮 دسته‌بندی کن", "callback_data": "acct:review"},
+                         {"text": "📋 ثبتِ نهایی", "callback_data": "acct:books"},
+                         {"text": "🔄 تازه‌ها", "callback_data": "acct:sync"}])
+            rows.append([{"text": "🔬 نسخهٔ کامل (expert)", "callback_data": "acct:finance_expert"}])
+        rows.append([{"text": "🏠 منو", "callback_data": "menu:main"}])
         return {"inline_keyboard": rows}
 
     def _hdr(self, title: str) -> str:

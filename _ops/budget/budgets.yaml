@@ -10,6 +10,7 @@ global:
   #    تا آن، سقفِ مؤثر همان min(yaml, hardcode) می‌ماند. disaster line=۵۰۰ (ترمزِ recursive-loop) و
   #    spike_pct=۲۵ (kill-switch) و alert ۵۰/۸۰٪ همه دست‌نخورده. GLM=سابسکرایبِ فلت؛ Fugu=متریِ AU$100.
   currency: AUD
+  aud_per_usd: 1.5           # نرخ پین USD→AUD [FACT: budgets-proposed-diff.md §۱ · verdict 2026-07-18 integration-debug]؛ منبع تبدیل تلمتری/گیت
   epoch: daily               # re-plan استراتژیک: هفتگی، جمعه (هم‌راستا با حلقهٔ KPI)
   explore_pct: 0.10          # سهم MUSE / جهش — ارگان‌های جاافتاده حق برداشت ندارند
   spike_pct: 25              # آستانهٔ kill-switch: ٪ بودجهٔ epoch در <۱ ساعت — MAX_DRAWDOWN پک OCTOPUS ≡ همین کلید (verdict 2026-07-07)
@@ -25,11 +26,13 @@ projects:
   ARCHITECT_SYS:  {floor: 2,  human_priority: 1.0}
   GENOME_SYS:     {floor: 2,  human_priority: 1.0}
   ZIMAN:          {floor: 1,  human_priority: 0.5}
-  # جمع floorها = AU$8 + explore 10% = AU$3 → headroom رقابتی ≈ AU$19/ماه.
+  PAINTING:       {floor: 1,  human_priority: 1.0}   # بیزنس نقاشی (lead-naghshi) — [proposed-diff §۵ · verdict 2026-07-18]؛ قبلاً UNMAPPED بود → crash lead-naghshi
+  ACCOUNTING:     {floor: 1,  human_priority: 1.0}   # حسابداری — [proposed-diff §۵ · verdict 2026-07-18]؛ privacy: sensitive (ژنوم)
+  # جمع floorها = AU$10 (+ explore 10% = AU$3 + DEBATE_LOOP AU$5) → headroom رقابتی ≈ AU$12/ماه.
 
 loop:
   # مرجع رسمی سقف لوپ مناظره — opslib.organ_table از همین بخش می‌خواند (پیش‌فرض کد 5 = fallback)
-  DEBATE_LOOP: {cap_monthly: 10, floor: 0}   # verdict آری 2026-07-07 (پاسخ‌های STAGE-0: AU$10/ماه)
+  DEBATE_LOOP: {cap_monthly: 5, floor: 0.5}   # verdict 2026-07-18 integration-debug (proposed-diff §۲: از 10 به 5 کاهش برای headroom بعد از PAINTING/ACCOUNTING)
 
 allocation:
   # پول‌بر‌درصد — تخصیصِ barbell (verdict آری 2026-07-09). propose-only: تخصیصِ کوشش/API، نه پولِ بیزنس.
@@ -72,11 +75,16 @@ routing:
     provider: deepseek
     model: deepseek-v4-flash          # [VERIFIED 2026-07-07] in $0.14 (cache-hit $0.0028) / out $0.28 per 1M
     base_url: "https://api.deepseek.com"
+    price_in: 0.14                    # USD/1M cache-miss [FACT: api-docs.deepseek.com · verdict 2026-07-18] — قفل تا رفع ۶۸ خطای گاورنر
+    price_out: 0.28                   # USD/1M [FACT]
+    price_in_cache_hit: 0.0028        # فقط اطلاعی؛ est بدترین‌حالت هرگز cache-hit فرض نمی‌کند
   reason:
     provider: deepseek
     model: deepseek-v4-flash          # thinking پیش‌فرض؛ همان قیمت flash [VERIFIED]. جایگزین: deepseek-v4-pro — [VERIFIED 2026-07-07] $0.435 (hit $0.003625) / $0.87
     mode: thinking
     base_url: "https://api.deepseek.com"
+    price_in: 0.14                    # USD/1M [FACT · verdict 2026-07-18]
+    price_out: 0.28                   # USD/1M [FACT]
     # 🔀 verdict آری 2026-07-09: reason باید به GLM (زیر ↓) سوییچ کند — ولی فقط پس از multi-providerشدنِ
     #    client.py (تسکِ GLM)؛ تا آن، deepseek فعال می‌ماند تا leak-guard چیزی را RefuseToSend نکند.
   glm:                                # مغزِ فرعی (verdict آری 2026-07-10: fugu اصلی، glm فرعی)

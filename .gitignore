@@ -75,6 +75,20 @@ _ops/OCTOPUS-flags.cmd
 
 # PII: حافظهٔ قواعدِ حسابدار + دفترچهٔ تصمیم‌ها (merchant/برچسبِ واقعی) — هرگز commit نشود
 03 - Projects/Accounting/personal/acct-memory.json
+
+# ─── State runtime hygiene (2026-07-18): فایل‌های runtime که هر tick بازنویسی می‌شوند ───
+# SQLite WAL/SHM: binary، هر tick تغییر می‌کند، repo را متورم می‌کند — هرگز commit نشوند
+*.db-wal
+*.db-shm
+# ORGANISM-STATE.* sidecarها: beat‌ها هر چند دقیقه بازنویسی می‌کنند (accounting/lead/ziman)
+# فقط ORGANISM-STATE.json (که از قبل ignore شده) tracked بمونه؛ sidecarهای dot‌دار نه.
+_ops/state/ORGANISM-STATE.accounting
+_ops/state/ORGANISM-STATE.lead_discovery
+_ops/state/ORGANISM-STATE.ziman
+# ps-writeback state (RD-004): queue/log/marker — gitignore از قبل نبود
+03 - Projects/Accounting/personal/ps-writeback-*.jsonl
+03 - Projects/Accounting/personal/ps-writeback-*.json
+03 - Projects/Accounting/personal/ps-writeback-*.marker
 03 - Projects/Accounting/personal/acct-decisions.jsonl
 
 # PII: صف/لاگ/مارکر/قفلِ write-backِ PocketSmith (tid + انتسابِ شخصیِ تراکنش) — هرگز commit نشود (RD-004)

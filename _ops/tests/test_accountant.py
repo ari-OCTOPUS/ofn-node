@@ -208,12 +208,45 @@ def t_j_suggestion_pinned_across_sync():
             accountant._store_path = orig_sp
 
 
+def t_k_content_hash_unified_with_txn_store_hash():
+    """Regression guard (2026-07-18، فاز ۵.۲ — رفعِ باگِ دو-هش): _content_hash باید همون
+    خروجیِ txn_store._hash را بدهد (full desc، case-sensitive، 16 hex). قبلاً _content_hash
+    از desc[:20].lower() و 40 hex استفاده می‌کرد که باعث suppress می‌شد. اگه drift کنند،
+    این تست fail می‌شود."""
+    import txn_store
+    cases = [
+        {"date": "2026-07-10", "amount_cents": -11000,
+         "desc": "BUNNINGS WAREHOUSE MELBOURNE", "account": "anz-main"},
+        {"date": "2026-07-10", "amount_cents": -11000,
+         "desc": "BUNNINGS WAREHOUSE SYDNEY", "account": "anz-main"},   # desc فرق بعد از کاراکتر 20
+        {"date": "2026-01-15", "amount_cents": 25000,
+         "desc": "SALARY", "account": "anz-main"},
+        {"date": "2026-03-01", "amount_cents": -5000,
+         "desc": "مصالح نقاشی", "account": "cba-biz"},                  # فارسی
+    ]
+    for t in cases:
+        ch = accountant._content_hash(t)
+        # txn_store._hash همون فرمول را استفاده می‌کند (full desc، case-sensitive)
+        expected = txn_store._hash(t["date"], t["amount_cents"], t["desc"], t["account"])
+        # NOTE: _content_hash ابتدا desc را به strip+truncate(:120) می‌کند تا با _mk هماهنگ شود؛
+        # برای این cases کوتاه، هیچ تفاوتی نیست.
+        assert ch == expected, (
+            f"hash divergence! _content_hash={ch!r} vs txn_store._hash={expected!r} "
+            f"for txn={t}")
+    # حالتِ بحرانیِ باگِ قدیم: دو تراکنشِ مجزا با desc فرق‌دار بعد از کاراکتر ۲۰ باید
+    # hash متفاوت داشته باشند (قبلاً یکی می‌شدند → suppress).
+    a = accountant._content_hash(cases[0])
+    b = accountant._content_hash(cases[1])
+    assert a != b, (
+        f"REGRESSION: دو تراکنشِ مجزا hash یکسان دارند (باگِ دو-هش برگشت): {a!r}")
+
+
 if __name__ == "__main__":
     for f in (t_a_report_excludes_transfer, t_b_unknown_split_by_sign, t_c_apply_review_changes_report,
               t_d_network_summary_card_pii_safe, t_e_network_summary_absent_is_honest,
               t_f_network_k_anonymity_masks_singletons, t_g_network_fail_soft_bad_rows,
               t_h_pin_restore_by_content_hash, t_i_pin_fail_closed_on_corrupt_store,
-              t_j_suggestion_pinned_across_sync):
+              t_j_suggestion_pinned_across_sync, t_k_content_hash_unified_with_txn_store_hash):
         f()
         print("ok", f.__name__)
     print("PASS test_accountant")
