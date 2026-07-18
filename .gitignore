@@ -126,3 +126,6 @@ _ops/state/ORGANISM-STATE.ziman
 
 # octopus runtime root (queue/logs/config incl. bot tokens) - never commit
 _octopus/
+
+# chord shadow ledger (runtime, hash-chained) — 2026-07-18
+_ops/chord/state/
