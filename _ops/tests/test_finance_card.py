@@ -209,6 +209,44 @@ def t_i_network_off_is_honest():
     assert "داده" in txt or "چیزی" in txt        # پیامِ صادقانهٔ «داده‌ای وصل نیست»
 
 
+def t_j_simple_view_zero_jargon_enforced():
+    """Regression guard (2026-07-18، فاز ۵.۴): نسخهٔ سادهٔ _finance_text نباید هیچ‌کدام از
+    اصطلاحاتِ حسابداریِ ممنوع (UX-SPEC §۲) را داشته باشد — حتی وقتی network live و پر از
+    داده است. اگه کسی در آینده رشتهٔ expert را به ساده برگرداند، این تست fail می‌شود."""
+    ch = _chan()
+    ch._finance_data = lambda: (None, None)          # بخش‌های expert خاموش
+    ch._network_summary = lambda: NET_FIXTURE         # بخشِ شبکه live و پر
+    txt = ch._finance_text()
+    JARGON_FORBIDDEN = (
+        "Dr", "Cr", "double-entry", "ثبتِ دوطرفه",
+        "ATO", "دفترِ مالیاتی", "ریلِ شرکت",
+        "خالصِ بانکی", "ثروتِ خالص", "جریانِ نقدی",
+        "سنتِ سازگار", "ناسازگار",
+        "تسویهٔ مشترک", "دفترِ داخلی",
+        "trial balance", "ترازِ آزمایشی",
+        "tax_code", "GST",
+        "journal", "journal_id",
+    )
+    found = [j for j in JARGON_FORBIDDEN if j in txt]
+    assert not found, (
+        f"اصطلاحِ ممنوع در نسخهٔ سادهٔ _finance_text: {found!r}\nمتن:\n{txt}")
+    # و باید headerِ فارسیِ ساده داشته باشد
+    assert "وضعِ من" in txt, txt
+
+
+def t_k_expert_view_still_has_jargon_for_owner():
+    """Regression guard (2026-07-18، فاز ۵.۴): نسخهٔ expert (مالک/توسعه‌دهنده) هنوز باید
+    جزئیاتِ کامل را نشان دهد. اگه کسی اشتباهاً expert را هم ساده کرد، این تست fail."""
+    ch = _chan()
+    ch._finance_data = lambda: (None, None)
+    ch._network_summary = lambda: NET_FIXTURE
+    txt_expert = ch._finance_text_expert()
+    # expert باید حداقل یکی از اصطلاحاتِ فنی را داشته باشد (اگه داده live است)
+    # ولی چون _finance_data=(None,None)، بخش‌های asset/personal خاموش‌اند؛ فقط شبکه live است.
+    # پس حداقل headerِ expert را چک می‌کنیم.
+    assert "expert" in txt_expert.lower() or "دارایی" in txt_expert, txt_expert
+
+
 if __name__ == "__main__":
     for f in (t_a_finance_registered_and_read_only,
               t_b_command_and_menu_route_to_finance,
@@ -218,7 +256,9 @@ if __name__ == "__main__":
               t_f_off_ledger_present_asset_partial,
               t_g_real_path_never_crashes_and_ledger_off,
               t_h_network_section_renders_aggregate_no_names,
-              t_i_network_off_is_honest):
+              t_i_network_off_is_honest,
+              t_j_simple_view_zero_jargon_enforced,
+              t_k_expert_view_still_has_jargon_for_owner):
         f()
         print("ok", f.__name__)
     print("PASS test_finance_card")

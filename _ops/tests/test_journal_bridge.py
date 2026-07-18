@@ -162,11 +162,41 @@ def t_g_reject_final_and_scrub():
     assert "062" not in s and "1234" not in s, s
 
 
+def t_h_coa_validity_all_account_codes_exist():
+    """Regression guard (2026-07-18، فاز ۵.۱): همهٔ account codeهایی که map_txn تولید
+    می‌کند باید در COA موجود باشند. اگه کسی در آینده code را عوض کند یا COA را تغییر دهد
+    بدونِ هماهنگی، این تست fail می‌شود — نه ثبتِ silent به حسابِ ناموجود."""
+    # شاملِ هر دو حالت: profile با override (32 حساب) و بدونِ profile (DEFAULT_COA 12 حساب)
+    for profile in (None,
+                    {"chart_of_accounts": {"1200": "موجودی", "5400": "سوخت"}},
+                    PROFILE):
+        coa = lc.coa(profile)
+        coa_codes = set(coa.keys())
+        # تراکنش‌های نمونه که هر مسیرِ map_txn را پوشش می‌دهند
+        samples = [
+            _t("i1", 100000, "income", owner="abbas"),              # 1000, 4000
+            _t("e1", -11000, "expense", owner="armin"),             # 6000 (default) یا category hint
+            _t("e2", -11000, "expense", owner="rent"),              # 5200 (via config/default)
+            _t("w1", -25000, "wage"),                               # 5300
+            _t("tr1", 500000, "transfer"),                          # 1000, 2200
+            _t("e3", -5000, "expense", desc="BUNNINGS مصالح"),      # 5000 (category hint)
+        ]
+        for t in samples:
+            m = jb.map_txn(t)
+            if not m.get("eligible"):
+                continue    # skip‌های صادقانه (مثل wageِ ورودی) را نادیده بگیر
+            for line in m["entry"]["lines"]:
+                acc = line["account"]
+                assert acc in coa_codes, (
+                    f"account code {acc!r} از map_txn در COA نیست "
+                    f"(txn={t.get('id')}, profile_coa={sorted(coa_codes)})")
+
+
 if __name__ == "__main__":
     for f in (t_a_mapping_four_types, t_b_guards_and_honest_skips,
               t_c_rebuild_idempotent_and_refresh, t_d_apply_rederives_and_double_tap_safe,
               t_e_poisoned_queue_never_posts, t_f_corrupt_queue_fail_closed,
-              t_g_reject_final_and_scrub):
+              t_g_reject_final_and_scrub, t_h_coa_validity_all_account_codes_exist):
         f()
         print("ok", f.__name__)
     print("PASS test_journal_bridge")

@@ -117,9 +117,41 @@ def t_d_finance_shows_ledger_section():
     assert "دفترِ داخلی" not in txt_simple, "نسخهٔ ساده نباید دفترِ داخلی را نشان دهد"
 
 
+def t_e_acct_sync_dispatch_via_callback():
+    """Regression guard (2026-07-18، فاز ۵.۳): callback acct:sync باید از طریقِ
+    dispatch_callback به _cmd_acct_sync برسد (همانند /sync مستقیم). قبل از این، فقط
+    /sync دستی تست می‌شد، نه مسیرِ دکمه."""
+    _seed()
+    ch = TelegramApprovalChannel()
+    # مسیرِ callback (دکمهٔ «🔄 تازه‌ها» در finance tab)
+    out = ch.dispatch_callback("acct:sync")
+    # _cmd_acct_sync همیشه dict با text+reply_markup برمی‌گرداند
+    assert isinstance(out, dict) and "text" in out and "reply_markup" in out, out
+    # header فارسیِ ساده (UX-SPEC §۳.۳)
+    assert "تازه‌ها" in out["text"], out["text"]
+
+
+def t_f_finance_expert_command_and_callback():
+    """Regression guard (2026-07-18، فاز ۲.۲/۲.۳): /finance! و acct:finance_expert هر دو
+    به نسخهٔ expert می‌رسند، و دکمهٔ برگشت به ساده را دارند."""
+    _seed()
+    ch = TelegramApprovalChannel()
+    # مسیرِ دستور
+    out_cmd = ch.handle_command("/finance!")
+    assert isinstance(out_cmd, dict), out_cmd
+    assert "expert" in out_cmd["text"].lower() or "دارایی" in out_cmd["text"], out_cmd["text"]
+    # دکمهٔ برگشت به ساده
+    cds = _cbs(out_cmd) if isinstance(out_cmd, dict) and "reply_markup" in out_cmd else []
+    assert any("menu:finance" in c for c in cds), f"دکمهٔ برگشت به ساده نیست: {cds}"
+    # مسیرِ callback (دکمهٔ «🔬 نسخهٔ کامل» در finance tab)
+    out_cb = ch.dispatch_callback("acct:finance_expert")
+    assert isinstance(out_cb, dict) and "text" in out_cb, out_cb
+
+
 if __name__ == "__main__":
     for f in (t_a_books_shows_proposal_card, t_b_approve_posts_and_double_tap_safe,
-              t_c_reject_then_empty_honest, t_d_finance_shows_ledger_section):
+              t_c_reject_then_empty_honest, t_d_finance_shows_ledger_section,
+              t_e_acct_sync_dispatch_via_callback, t_f_finance_expert_command_and_callback):
         f()
         print("ok", f.__name__)
     print("PASS test_books_telegram")
