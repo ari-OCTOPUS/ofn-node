@@ -290,11 +290,39 @@ def aggregate(probe=None) -> dict:
     }
 
 
+# P2 (2026-07-20، مأموریت Stage-1 Security): هیچ endpointِ کاکپیت حق ندارد STOPِ مالک را
+# overwrite/revoke کند. markerِ byte-sensitiveِ خودِ کاکپیت تنها محتوای «قابلِ ادامه» است.
+_COCKPIT_STOP_MARK = "restart via live cockpit"
+
+
+def _owner_stop_blocks(stop_path, cockpit_mark: str = _COCKPIT_STOP_MARK):
+    """گاردِ P2: اگر `stop_path` یک STOPِ مالک باشد، dictِ ردّ برمی‌گرداند؛ وگرنه None.
+
+    STOPِ مالک = فایل هست و محتوایش (stripped) ≠ markerِ خودِ کاکپیت. فایلِ موجودِ
+    ناخوانا = fail-closed (فرضِ STOP مالک). غایب = None (ادامه مجاز)."""
+    try:
+        if not stop_path.exists():
+            return None
+    except Exception:  # noqa: BLE001 — وضعِ STOP نامشخص → fail-closed
+        return {"ok": False, "note": "وضعِ STOP نامشخص — عملیات رد شد (fail-closed)"}
+    try:
+        content = stop_path.read_text("utf-8").strip()
+    except Exception:  # noqa: BLE001 — ناخوانا → fail-closed
+        return {"ok": False, "note": "STOP ناخوانا — عملیات رد شد (fail-closed)"}
+    if content == cockpit_mark:
+        return None                      # markerِ خودِ کاکپیت → ادامه مجاز
+    return {"ok": False, "note": "STOPِ مالک محفوظ است — عملیات رد شد؛ اول STOP را دستی بردار"}
+
+
 def do_action(kind: str) -> dict:
     """اقدام‌های مالک (صفحهٔ محلی = کلیکِ مالک). همه برگشت‌پذیر و sanctioned.
     مسیرها از opslib.OPS (env) — در تست، mini-vault؛ در prod، _ops واقعی."""
     ops = opslib.OPS
     if kind == "restart-organism":
+        # P2: هرگز STOPِ مالک را overwrite نکن (markerِ خودِ کاکپیت مستثنا).
+        _blocked = _owner_stop_blocks(ops / "STOP-ORGANISM")
+        if _blocked is not None:
+            return _blocked
         # مکانیزمِ رسمیِ داشبورد: STOP + RESTART-REQUESTED؛ بعد relaunchِ ضدِ دوبل.
         (ops / "STOP-ORGANISM").write_text("restart via live cockpit", "utf-8")
         (ops / "RESTART-REQUESTED").write_text("live", "utf-8")
@@ -316,7 +344,8 @@ def do_action(kind: str) -> dict:
             return {"ok": True, "note": "مغز از قبل زنده است"}
         stop = ops / "STOP-CORTEX"
         if stop.exists():
-            stop.unlink()
+            # P2: هرگز STOP-CORTEX را حذف نکن — start رد می‌شود تا مالک خودش برداردش.
+            return {"ok": False, "note": "STOP-CORTEX فعال است — مغز روشن نشد؛ اول STOP را دستی بردار"}
         bat = ops / "RUN-CORTEX.bat"
         if not bat.exists():
             return {"ok": False, "note": "RUN-CORTEX.bat یافت نشد"}

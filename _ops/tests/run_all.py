@@ -48,6 +48,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_needs_nudge.py", "test_cortex.py", "test_live_cockpit.py",
          "test_telegram_poll_e2e.py", "test_self_improve.py",
          "test_p0_security_fixes.py", "test_httpauth.py", "test_go_live.py",
+         # 2026-07-20 Stage-1 Security: گاردِ P2 (کاکپیت هرگز STOPِ مالک را حذف/overwrite نکند)
+         "S1-04_test_cockpit_stop_guard.py",
+         # 2026-07-20: پل‌های flag-off الحاقِ دو پروژهٔ مالک (TradeQuote / WLOS)
+         "test_tradequote_bridge.py", "test_wlos_bridge.py",
          "test_web_research.py", "test_metacognitive.py", "test_discoveries.py",
          "test_events.py", "test_part_loops.py", "test_auto_approve.py",
          # 2026-07-16: ماتریسِ ردهٔ خودمختاری (رأی مالک: گیتِ انسانی فقط برای مهم‌ها) —
