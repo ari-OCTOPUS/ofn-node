@@ -59,6 +59,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_outcome_spine.py",
          # 2026-07-20: Decision Receipt (immutable، append-only، join به outcome_store؛ inert، v1 فقط ثبت)
          "test_decision_receipt.py",
+         # 2026-07-20 یکپارچگی: Memory Gate v1 (store+FTS5+FSM، self_knowledge=ADVISORY، join به receipt) + taxonomyِ واحد
+         "test_memory_gate.py",
          # 2026-07-20 integration: پوششِ orphan (تست‌های سبزِ روی‌دیسک که در run_all نبودند —
          # نقدِ سنتز: بدونِ ثبت، شکستِ extractionِ آینده نامرئی است). فقط سبزها؛ ۴ orphanِ قرمزِ
          # pre-existing (effector_idempotency/drawdown_enforcer/mining_leg/tg_approval_store) عمداً بیرون.
