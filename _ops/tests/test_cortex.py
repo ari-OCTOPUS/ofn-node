@@ -1,6 +1,7 @@
 """test_cortex.py — جلسه ۴۶: مغزِ مرکزی (registry + router سه‌مغزی + alignment کران‌دار
 + ژورنالِ ماندگار + تبِ کابین). آفلاین: ollama با opener تزریقی fake می‌شود.
 """
+import datetime as _dt
 import io
 import json
 import os
@@ -104,22 +105,32 @@ def t_b2_local_llm_rate_limit_atomic_concurrent():
 
 
 def t_c_router_paid_closed_falls_back_local():
-    """ردهٔ پولی امروز بسته (phase −1) → fallback به local با دلیلِ صادق."""
-    ok, why = model_router.paid_gate()
-    assert ok is False and "live locked" in why
-    local_llm._LAST_CALL["ts"] = 0.0              # ریستِ rate-limit تستِ قبلی
-    r = model_router.ask("orchestrate", "برنامه بده",
-                         opener=_fake_opener({"response": "جواب محلی"}))
-    assert r["ok"] is True and r["tier"] == "local", r
-    assert "fallback_from" in r and "primary" in r["fallback_from"]
-    # بدونِ local → ok=False با دلیل (نه کرش، نه سکوت)
-    local_llm._LAST_CALL["ts"] = 0.0
-    r2 = model_router.ask("classify", "x", opener=_fake_opener({}))
-    assert r2["ok"] is False and "local-llm-unavailable" in r2["reason"]
+    """ردهٔ پولی در phase −1 بسته → fallback به local با دلیلِ صادق.
+    rollover 2026-07-21: سپرِ تاریخ واقعاً باز شد؛ قراردادِ «پیش از تاریخ» را با پینِ
+    تاریخِ آینده می‌سنجیم (الگوی test_cockpit_golive_honesty)."""
+    _real_gate = opslib.LIVE_GATE_DATE
+    opslib.LIVE_GATE_DATE = _dt.date(2099, 1, 1)
+    try:
+        ok, why = model_router.paid_gate()
+        assert ok is False and "live locked" in why
+        local_llm._LAST_CALL["ts"] = 0.0          # ریستِ rate-limit تستِ قبلی
+        r = model_router.ask("orchestrate", "برنامه بده",
+                             opener=_fake_opener({"response": "جواب محلی"}))
+        assert r["ok"] is True and r["tier"] == "local", r
+        assert "fallback_from" in r and "primary" in r["fallback_from"]
+        # بدونِ local → ok=False با دلیل (نه کرش، نه سکوت)
+        local_llm._LAST_CALL["ts"] = 0.0
+        r2 = model_router.ask("classify", "x", opener=_fake_opener({}))
+        assert r2["ok"] is False and "local-llm-unavailable" in r2["reason"]
+    finally:
+        opslib.LIVE_GATE_DATE = _real_gate
 
 
 def t_c2_research_early_lever_bypasses_date():
-    """اهرمِ مالک: research-early + cortex-paid → گیت باز (سپرِ تاریخ دور)؛ بدونِ paid → بسته."""
+    """اهرمِ مالک: research-early + cortex-paid → گیت باز (سپرِ تاریخ دور)؛ بدونِ paid → بسته.
+    rollover 2026-07-21: بخشِ «بدونِ اهرم = بسته» فقط با تاریخِ پین‌شدهٔ آینده معنا دارد."""
+    _real_gate = opslib.LIVE_GATE_DATE
+    opslib.LIVE_GATE_DATE = _dt.date(2099, 1, 1)
     early = model_router.ACT_RESEARCH_EARLY
     paid = model_router.ACT_CORTEX_PAID
     early.parent.mkdir(parents=True, exist_ok=True)
@@ -135,9 +146,12 @@ def t_c2_research_early_lever_bypasses_date():
         for f in (early, paid):
             if f.exists():
                 f.unlink()
-    # بدونِ اهرم → سپرِ تاریخِ عادی حاکم (امروز بسته)
-    ok3, why3 = model_router.paid_gate()
-    assert ok3 is False and "live locked" in why3
+    try:
+        # بدونِ اهرم → سپرِ تاریخِ عادی حاکم (پیش از LIVE_GATE_DATE بسته)
+        ok3, why3 = model_router.paid_gate()
+        assert ok3 is False and "live locked" in why3
+    finally:
+        opslib.LIVE_GATE_DATE = _real_gate
 
 
 def t_d_router_kill_switch_and_key_presence_bool():

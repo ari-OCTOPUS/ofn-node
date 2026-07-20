@@ -3,6 +3,7 @@
 flag خاموش = no-regression اثبات‌شده؛ predicateِ ۸شرطی امروز ساختاراً بسته؛
 Doctor فقط setpoint (هرگز نرخ)؛ کوپل فقط cadence (هرگز پول).
 """
+import datetime as _dt
 import json
 import os
 import sys
@@ -128,19 +129,26 @@ def t_f_heart_beat_shadow_writes_sink_never_period():
 
 
 def t_g_production_wire_closed_today_and_unforgeable():
-    ok, reasons = shadow.production_wire_open()
-    assert ok is False
-    assert len(reasons) >= 4, reasons
-    assert any("live locked until" in r or "activation" in r for r in reasons)
-    # جعلِ تک‌شرط: ساختنِ ACTIVATION-PULSE.flag به‌تنهایی هیچ دری باز نمی‌کند
-    shadow.ACT_PULSE.parent.mkdir(parents=True, exist_ok=True)
-    shadow.ACT_PULSE.write_text("forged", "utf-8")
+    # rollover 2026-07-21: تقویم به LIVE_GATE_DATE رسید و سپرِ تاریخِ واقعی باز شد؛ این تست
+    # «قراردادِ پیش از تاریخ» را می‌سنجد → تاریخ را قطعی می‌بندیم (الگوی test_cockpit_golive_honesty).
+    _real_gate = opslib.LIVE_GATE_DATE
+    opslib.LIVE_GATE_DATE = _dt.date(2099, 1, 1)
     try:
-        ok2, reasons2 = shadow.production_wire_open()
-        assert ok2 is False
-        assert any("live locked until" in r for r in reasons2)   # سپرِ تاریخ حاکم
+        ok, reasons = shadow.production_wire_open()
+        assert ok is False
+        assert len(reasons) >= 4, reasons
+        assert any("live locked until" in r or "activation" in r for r in reasons)
+        # جعلِ تک‌شرط: ساختنِ ACTIVATION-PULSE.flag به‌تنهایی هیچ دری باز نمی‌کند
+        shadow.ACT_PULSE.parent.mkdir(parents=True, exist_ok=True)
+        shadow.ACT_PULSE.write_text("forged", "utf-8")
+        try:
+            ok2, reasons2 = shadow.production_wire_open()
+            assert ok2 is False
+            assert any("live locked until" in r for r in reasons2)   # سپرِ تاریخ حاکم
+        finally:
+            shadow.ACT_PULSE.unlink()
     finally:
-        shadow.ACT_PULSE.unlink()
+        opslib.LIVE_GATE_DATE = _real_gate
 
 
 def t_h_organism_seam_is_conditional_and_guarded():
@@ -193,14 +201,20 @@ def t_i_setpoint_hysteresis_and_monotonic_seq():
 
 
 def t_j_setpoint_epoch_writes_and_llm_gated():
-    _write_signals(v=2.0, cpi=0.2)
-    out = ds.run_epoch_setpoint(write=True)
-    assert out["written"] is True
-    sp = hi.read_setpoint()
-    assert sp is not None and sp.epoch_seq == out["epoch_seq"]
-    assert out["llm"] is None                     # live-gate (تاریخ) → قطعی، $0
-    ok, why = opslib.live_gate_open(ds.ACT_HEART_DOCTOR)
-    assert ok is False and "live locked" in why
+    # rollover 2026-07-21: سپرِ تاریخ را قطعی ببند تا قراردادِ «llm گیت‌خورده، $0» سنجیده شود.
+    _real_gate = opslib.LIVE_GATE_DATE
+    opslib.LIVE_GATE_DATE = _dt.date(2099, 1, 1)
+    try:
+        _write_signals(v=2.0, cpi=0.2)
+        out = ds.run_epoch_setpoint(write=True)
+        assert out["written"] is True
+        sp = hi.read_setpoint()
+        assert sp is not None and sp.epoch_seq == out["epoch_seq"]
+        assert out["llm"] is None                 # live-gate (تاریخ) → قطعی، $0
+        ok, why = opslib.live_gate_open(ds.ACT_HEART_DOCTOR)
+        assert ok is False and "live locked" in why
+    finally:
+        opslib.LIVE_GATE_DATE = _real_gate
 
 
 def t_k_structural_doctor_no_toplevel_money():
