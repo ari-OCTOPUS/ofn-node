@@ -54,6 +54,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "S1-05_test_ap_binding.py",
          # 2026-07-20: پل‌های flag-off الحاقِ دو پروژهٔ مالک (TradeQuote / WLOS)
          "test_tradequote_bridge.py", "test_wlos_bridge.py",
+         # 2026-07-20: spineِ durable outcome + Paper Lead MVO (پیرو Stage-1، دلتا-اسکن Q20)
+         "test_outcome_spine.py",
          "test_web_research.py", "test_metacognitive.py", "test_discoveries.py",
          "test_events.py", "test_part_loops.py", "test_auto_approve.py",
          # 2026-07-16: ماتریسِ ردهٔ خودمختاری (رأی مالک: گیتِ انسانی فقط برای مهم‌ها) —
