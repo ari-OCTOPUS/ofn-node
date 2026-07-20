@@ -850,3 +850,36 @@
 ## 2026-07-21T01:25:34 (metabolism)
 - ⚠️ journal_bridge: categorize-config.json غایب یا expense_account_by_owner خالی است — owner→account نگاشت نمی‌شود (همه به category/desc یا 6000 می‌روند). f: personal/categorize-config.json#expense_account_by_owner را پر کن.
 
+## 2026-07-21T06:40:19 (metabolism)
+- ⚠️ journal_bridge: categorize-config.json غایب یا expense_account_by_owner خالی است — owner→account نگاشت نمی‌شود (همه به category/desc یا 6000 می‌روند). f: personal/categorize-config.json#expense_account_by_owner را پر کن.
+
+## 2026-07-21T06:40:19 (metabolism)
+- ⚠️ journal_bridge: categorize-config.json غایب یا expense_account_by_owner خالی است — owner→account نگاشت نمی‌شود (همه به category/desc یا 6000 می‌روند). f: personal/categorize-config.json#expense_account_by_owner را پر کن.
+
+## 2026-07-21T06:40:19 (metabolism)
+- ⚠️ journal_bridge: categorize-config.json غایب یا expense_account_by_owner خالی است — owner→account نگاشت نمی‌شود (همه به category/desc یا 6000 می‌روند). f: personal/categorize-config.json#expense_account_by_owner را پر کن.
+
+## 2026-07-21T06:40:19 (metabolism)
+- ⚠️ journal_bridge: categorize-config.json غایب یا expense_account_by_owner خالی است — owner→account نگاشت نمی‌شود (همه به category/desc یا 6000 می‌روند). f: personal/categorize-config.json#expense_account_by_owner را پر کن.
+
+## 2026-07-21T06:40:19 (metabolism)
+- ⚠️ journal_bridge: categorize-config.json غایب یا expense_account_by_owner خالی است — owner→account نگاشت نمی‌شود (همه به category/desc یا 6000 می‌روند). f: personal/categorize-config.json#expense_account_by_owner را پر کن.
+
+## 2026-07-21T06:40:19 (metabolism)
+- ⚠️ journal_bridge: categorize-config.json غایب یا expense_account_by_owner خالی است — owner→account نگاشت نمی‌شود (همه به category/desc یا 6000 می‌روند). f: personal/categorize-config.json#expense_account_by_owner را پر کن.
+
+## 2026-07-21T06:40:19 (metabolism)
+- ⚠️ journal_bridge: categorize-config.json غایب یا expense_account_by_owner خالی است — owner→account نگاشت نمی‌شود (همه به category/desc یا 6000 می‌روند). f: personal/categorize-config.json#expense_account_by_owner را پر کن.
+
+## 2026-07-21T06:40:19 (metabolism)
+- ⚠️ journal_bridge: categorize-config.json غایب یا expense_account_by_owner خالی است — owner→account نگاشت نمی‌شود (همه به category/desc یا 6000 می‌روند). f: personal/categorize-config.json#expense_account_by_owner را پر کن.
+
+## 2026-07-21T06:40:19 (metabolism)
+- ⚠️ journal_bridge: categorize-config.json غایب یا expense_account_by_owner خالی است — owner→account نگاشت نمی‌شود (همه به category/desc یا 6000 می‌روند). f: personal/categorize-config.json#expense_account_by_owner را پر کن.
+
+## 2026-07-21T06:40:19 (metabolism)
+- ⚠️ journal_bridge: categorize-config.json غایب یا expense_account_by_owner خالی است — owner→account نگاشت نمی‌شود (همه به category/desc یا 6000 می‌روند). f: personal/categorize-config.json#expense_account_by_owner را پر کن.
+
+## 2026-07-21T06:40:19 (metabolism)
+- ⚠️ journal_bridge: categorize-config.json غایب یا expense_account_by_owner خالی است — owner→account نگاشت نمی‌شود (همه به category/desc یا 6000 می‌روند). f: personal/categorize-config.json#expense_account_by_owner را پر کن.
+
