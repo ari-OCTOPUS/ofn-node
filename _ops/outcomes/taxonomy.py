@@ -27,8 +27,12 @@ _EFFECT_DESC = {
 }
 
 # ── event type: رویدادهای زنجیرهٔ تصمیم→اثر→نتیجه (spine + outcome_store) ──────
+# 2026-07-21 (spine shadow expansion): پنج نامِ canonicalِ cross-domain — **additive**؛
+# نام‌های قدیمی دست‌نخورده معتبر می‌مانند (سازگاریِ replay/schema حفظ است).
 EVENT_TYPES = ("delivered", "deferred", "accepted-measurement", "rejected", "failed",
-               "decided", "reviewed", "verified", "settled")
+               "decided", "reviewed", "verified", "settled",
+               "mission-created", "decision-recorded", "proposal-issued",
+               "owner-verdict-recorded", "outcome-recorded")
 
 # ── privacy ──────────────────────────────────────────────────────────────────
 PRIVACY_CLASSES = ("public", "scrubbed", "owner_only")

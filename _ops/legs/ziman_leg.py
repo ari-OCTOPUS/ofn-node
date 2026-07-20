@@ -557,6 +557,28 @@ class ZimanLeg(Leg):
             payload["brand_rule_warning"] = brand_rule_warning        # additive
         return self.emit_proposal("draft_content", payload)
 
+    # ─── Event Spine shadow (LIMITED MULTI-DOMAIN، پشتِ OCTOPUS_WIRE_SPINE) ──
+    def emit_proposal(self, kind: str, payload: dict, hlc: tuple = (0, 0)) -> Proposal:
+        """همان قراردادِ D3 پایه (Leg.emit_proposal — تنها کانالِ خروجیِ propose-only)؛
+        + سایهٔ canonicalِ «proposal-issued» به Event Spine (domain=ziman).
+
+        قیود: flag خاموش → بایت‌به‌بایت رفتارِ قبلی (صفر I/O، هیچ spine.db)؛ خطای spine
+        هرگز proposal را نمی‌کشد (fail-soft)؛ payloadِ خامِ proposal هرگز به spine نمی‌رود —
+        فقط شناسه‌ها (proposal_id/leg_id/kind) از صافیِ ضدِ PIIِ آداپتور."""
+        p = super().emit_proposal(kind, payload, hlc)
+        try:
+            _sp = str(_OPS / "spine")
+            if _sp not in sys.path:
+                sys.path.insert(0, _sp)
+            import spine_adapters  # noqa: WPS433 — lazy، fail-soft
+            spine_adapters.proposal_issued(
+                proposal_id=p.proposal_id, leg_id=p.leg_id, kind=kind,
+                domain="ziman", producer="ziman_leg",
+                payload={"draft_only": True})
+        except Exception:  # noqa: BLE001 — spine نباید مسیرِ propose-only را بشکند
+            pass
+        return p
+
     # ─── memory candidate (not canonical) ────────────────────────────────────
     def memory_candidate(self, claim: str, evidence_pointer: str,
                          confidence: float = 0.5,

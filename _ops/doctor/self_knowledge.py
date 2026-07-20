@@ -344,6 +344,31 @@ def _persist_latest(rec: dict, *, append_history: bool) -> None:
             pass
 
 
+def _spine_outcome(rec: dict) -> None:
+    """سایهٔ canonicalِ «outcome-recorded» به Event Spine (domain=doctor) — LIMITED shadow.
+
+    هر نسخهٔ **نوی** فهم (شاخهٔ CHANGED) = یک outcomeِ داخلی؛ چرخهٔ cached رویداد نمی‌سازد
+    (dedup ساختاری). فقط شناسه/عدد (version/confidence/شمارِ کال) — هرگز متنِ فهم/focus/prompt.
+    پشتِ OCTOPUS_WIRE_SPINE (خاموش → صفر I/O)؛ fail-soft: هرگز حلقهٔ خودشناسی را نمی‌کشد."""
+    try:
+        _sp = str(_HERE.parent / "spine")
+        if _sp not in sys.path:
+            sys.path.insert(0, _sp)
+        import spine_adapters  # noqa: WPS433 — lazy، fail-soft
+        u = rec.get("understanding") if isinstance(rec.get("understanding"), dict) else {}
+        conf = u.get("confidence")
+        spine_adapters.outcome_recorded(
+            domain="doctor", producer="doctor_self_knowledge",
+            correlation_id="selfknow_" + str(rec.get("snapshot_hash") or "na"),
+            subject="v" + str(rec.get("version") or 0), trust="ADVISORY",
+            payload={"version": rec.get("version"),
+                     "confidence": conf if isinstance(conf, (int, float)) else 0,
+                     "llm_calls": rec.get("llm_calls"),
+                     "deep_dive_ran": bool(rec.get("deep_dive_ran"))})
+    except Exception:  # noqa: BLE001 — spine اختیاری است
+        pass
+
+
 def run(persist: bool = True) -> dict:
     """یک دورِ خودشناسیِ عمیقِ **بهینه** (2026-07-18، «سریع‌تر و بهینه‌تر»):
     ۱) CHANGE-GATE: اگر hashِ تصویرِ معنادار = دورِ قبل → صفر کالِ LLM؛ فهمِ قبلی حمل می‌شود،
@@ -403,6 +428,7 @@ def run(persist: bool = True) -> dict:
     }
     if persist:
         _persist_latest(rec, append_history=True)
+        _spine_outcome(rec)   # LIMITED shadow (flag-off → no-op؛ fail-soft)
     return rec
 
 
