@@ -22,7 +22,7 @@
     "pending_human_verdicts": 11,
     "last_updated_source_of_truth": "DecisionLog.md (decisions SoT per DL-2026-07-20-DECISION-SOT) + PROJECT.md (Active Context)",
     "last_governance_pass": "2026-07-20",
-    "governance_note_2026_07_20": "Forced Completion Sprint: G0 stays OPEN (temporary-A of 07-16 was prep-only, never closure); PF-V5 'Full Aggressive' is INVALID as launch authorization until A signs DL-2026-07-20-PF-V5 (REVOKE default); body-expansion FROZEN by default (DL-2026-07-20-BODY-FREEZE); honest test baseline recorded in DL-2026-07-20-TESTS; VERDICT_QUEUE is a ballot tray, not authorization."
+    "governance_note_2026_07_20": "Forced Completion Sprint + evening ratification: PF-V5 'Full Aggressive' = REVOKED (A signed APPROVED: REVOKE in DL-2026-07-20-PF-V5); body-expansion FROZEN (A signed); agreement text approved + A-signed, awaiting C's written confirmation; Branch A attested by A in chat (source-type field still blank on disk) => G0 stays OPEN; repo never had a remote per A (rotation not urgent; R10 before any future remote); Fansly locked = mirror+discovery-first; pricing stays CONFLICT (no explicit vote); VERDICT_QUEUE is a ballot tray, not authorization; honest tests: DL-2026-07-20-TESTS (209/209)."
   },
 
   "hard_rules_locked": [
@@ -195,16 +195,20 @@
   },
 
   "open_pending_verdicts": [
-    "GATE 0 (Branch A/B) — P0 blocker",
+    "GATE 0 full closure — source-of-residency field + C's written agreement confirmation + questionnaire item (Branch A attested by A 2026-07-20)",
     "adopt Compliant Playbook M3 (+ shoot split M3-a)",
     "rule: no balance >US$100 on any platform",
     "brain/cockpit LLM cap AUD 15/mo until first revenue",
-    "pricing ladder = EXT-04 (freeze VIP until G2)",
-    "brand = Anar Soles (Yalda Arch reserve)",
-    "Fansly = mirror with discovery-first",
+    "pricing ladder = EXT-04 (freeze VIP until G2) — still CONFLICT, no explicit vote 2026-07-20",
+    "brand = Anar Soles (Yalda Arch reserve) — OPEN by choice 2026-07-20",
     "X labeling mode (sensitive-media ON default)",
     "AU geo-block yes/no",
-    "activate Langar (BotFather + shadow week)",
-    "freeze 'body expansion'"
+    "activate Langar (BotFather + shadow week) — forbidden until GATE-STAMP=GO"
+  ],
+  "resolved_2026_07_20": [
+    "PF-V5 Full Aggressive => REVOKED (DL-2026-07-20-PF-V5)",
+    "body expansion => FROZEN (DL-2026-07-20-BODY-FREEZE; VQ-PF-003 closed)",
+    "Fansly => mirror + discovery-first (DL-2026-07-20-RATIFICATION)",
+    "repo remote question => NO (never pushed; R10 required before any future remote)"
   ]
 }

@@ -36,22 +36,24 @@ updated: 2026-07-20
 > از این تاریخ، **DecisionLog تنها SoT تصمیم‌هاست**؛ VERDICT_QUEUE فقط سینی رأی است، نه مجوز. شواهد: [[00 - Control/SCAN-LOCK-2026-07-20|SCAN-LOCK-2026-07-20]]. کد اشخاص: A=Operator، C=Creator.
 
 ### DL-2026-07-20-G0 — حقیقتِ GATE 0
-`status: PROPOSED-AWAITING-A-SIGN`
+`status: PARTIALLY-FILLED (2026-07-20 عصر) — G0 همچنان OPEN`
+
+> **به‌روزرسانی 2026-07-20 (رأی چت A):** ‏Branch = **A** به اتکای اظهار صریح A («مدرک اقامت C را شخصاً دیده‌ام»). این **اظهار** است نه سندِ روی دیسک؛ فیلد «نوع منبع» هنوز خالی است و باید توسط A تکمیل شود. G0 بسته **نمی‌شود** چون دو شرط دیگر باز است: تأیید مکتوب C روی توافق (فقط امضای A ثبت شده) + تعیین تکلیف سؤال آخر پرسشنامه. تا آن‌موقع: هیچ اکانت/KYC/پست.
 
 **EN (short form):** GATE 0 remains **OPEN**. The 2026-07-16 "temporary-A" recorded in VERDICT_QUEUE authorized **propose-only preparation only** — it never authorized platform accounts, KYC, posting, DM, or payment, and it is not a G0 closure. C's residency is **unverifiable on disk**; Branch A is an assertion, not a fact. G0 closes only when ALL of the following are written here and signed by A: (1) residency + Branch A/B, (2) signed (or dual-confirmed written) 2-person agreement (DL-2026-07-20-AGREEMENT), (3) C's final questionnaire item resolved or explicitly deferred with A's signature. While OPEN, **platform account creation and every outward action remain forbidden.**
 
 **FA:** GATE 0 **باز می‌ماند** تا A این فیلدها را پر و امضا کند. «temporary-A» (ثبت 07-16 در VERDICT_QUEUE) فقط اجازهٔ آماده‌سازی propose-only بود — نه BotFather برای publish تولیدی، نه شروع KYC هیچ پلتفرمی، نه هیچ پست/DM/پرداخت. اقامت C روی دیسک قابل‌اثبات نیست؛ Branch A فعلاً ادعاست، نه فکت. اگر Branch B (داخل ایران) درست از آب دربیاید، پیامدها existential است (تحریم/KYC/payout) — این سند آن را لاپوشانی نمی‌کند.
 
 فیلدهای بازِ فقط-انسان (A پر کند):
-- منبع تأیید اقامت C: `___________` (مثلاً: سند اقامت/ویزا که A شخصاً دیده — جزئیات سند اینجا نوشته نشود، فقط نوع منبع)
-- تاریخ تأیید توسط C: `___________`
-- Branch: `A / B / UNKNOWN` → `___________`
-- امضای A (تایپ نام‌کد + تاریخ): `___________`
+- منبع تأیید اقامت C: `___________` (نوع منبع — مثلاً «سند اقامت/ویزا که شخصاً دیدم»؛ جزئیات سند نوشته نشود) ⟵ **هنوز خالی**
+- تاریخ تأیید توسط C: `___________` ⟵ **هنوز خالی**
+- Branch: `A / B / UNKNOWN` → **A** (اظهار A در چت، 2026-07-20 — مدرک روی دیسک نیست)
+- امضای A (تایپ نام‌کد + تاریخ): **A — 2026-07-20 (تأیید چت: «موافقم با رأی‌های ثبت‌شده» + انتخاب صریح Branch A)**
 
 **تا امضا: ساخت هر اکانت پلتفرمی = ممنوع. این بند با هیچ سند دیگری (از جمله PF-V5) override نمی‌شود.**
 
 ### DL-2026-07-20-PF-V5 — reconcile مجوز لانچ (انتخاب اجباری A)
-`status: PROPOSED-AWAITING-A-SIGN`
+`status: ✅ APPROVED — REVOKE (2026-07-20)`
 
 PF-V5 («Full Aggressive launch با safety nets»، 2026-07-16) فقط در VERDICT_QUEUE ثبت شد و هرگز وارد DecisionLog نشد؛ هم‌زمان G0 باز است، توافق امضانشده، و ادعاهای تست بازتولیدنشدنی بودند. طبق قاعدهٔ «سینی رأی ≠ مجوز»، PF-V5 به‌عنوان مجوز لانچ **INVALID** است تا A یکی از دو گزینهٔ زیر را دقیقاً تایپ کند:
 
@@ -60,10 +62,13 @@ PF-V5 («Full Aggressive launch با safety nets»، 2026-07-16) فقط در VER
 **OPTION-RATIFY-CONDITIONAL:** PF-V5 فقط وقتی معتبر می‌شود که همهٔ P0های چک‌لیست [[00 - Control/ARCHITECTURE-COMPLETE-2026-07-20/09_NOGO_PAGE_SETUP|NOGO]] تیک بخورد؛ حتی در این حالت هیچ auto-send/auto-post وجود نخواهد داشت (AI درفت می‌زند؛ انسان می‌فرستد).
 
 پاسخ A (دقیقاً یکی را تایپ کن): `APPROVED: REVOKE` یا `APPROVED: RATIFY-CONDITIONAL`
-→ `___________`
+→ **`APPROVED: REVOKE`** — A، رأی صریح چت، 2026-07-20.
+(نکتهٔ ثبت: پیش از این رأی، روی دیسکِ ballot عبارت «RATIFY-CONDITIONAL» در ستون پیشنهاد تایپ شده بود؛ در پرسش مستقیم، A بدون ابهام **REVOKE** را انتخاب کرد — همین حاکم است. نتیجه: PF-V5 ‏«Full Aggressive» **باطل**؛ پروژه contained propose-only تا بسته‌شدن P0ها؛ پلن لانچ آینده از نو با DecisionLog نوشته می‌شود.)
 
 ### DL-2026-07-20-AGREEMENT — توافق‌نامهٔ عملیاتی دونفرهٔ A/C (متن کامل، آمادهٔ امضا)
-`status: DRAFTED — PROPOSED-AWAITING-A-AND-C-SIGN`
+`status: A-SIGNED (متن تأیید + امضای A ثبت 2026-07-20) — AWAITING-C-WRITTEN-CONFIRMATION`
+
+> **SIGNED کامل نمی‌شود تا C به‌صورت مکتوب (پیام ثبت‌شده) تأیید کند.** هیچ ایجنتی به‌جای C تأیید نمی‌کند. تا امضای C: ‏Day-Zero قفل.
 
 > این «منشور عملیاتی» است، نه نامهٔ وکیل؛ بازبینی مشاور حقوقی licensed در G3 توصیه می‌شود. امضا **قبل از Day-Zero** الزامی است (PF-V3 که امضا را به «بعد از اولین درآمد» موکول می‌کرد، شرط G0 را وارونه کرده بود و با این سند باطل می‌شود). فارسی متن حاکم است.
 
@@ -81,11 +86,11 @@ PF-V5 («Full Aggressive launch با safety nets»، 2026-07-16) فقط در VER
 ۱۲. **زمان امضا:** این توافق باید **قبل از Day-Zero** (اولین اقدام بیرونی) امضا یا به‌صورت مکتوب دوطرفه (دو پیام تأیید جداگانه از A و C در چت ثبت‌شده) تأیید شود.
 
 امضاها:
-- A (نام‌کد + تاریخ): `___________`
-- C (نام‌کد + تاریخ): `___________`
+- A (نام‌کد + تاریخ): **A — 2026-07-20 (تأیید متن + امضا از طریق رأی صریح چت)**
+- C (نام‌کد + تاریخ): `___________` ⟵ **مانده — تأیید مکتوب خودِ C لازم است**
 
 ### DL-2026-07-20-BODY-FREEZE — انجماد سراسری مسیر body
-`status: PROPOSED-AWAITING-A-SIGN (انجماد به‌عنوان پیش‌فرض محافظه‌کارانه روی دیسک اعمال شد)`
+`status: ✅ APPROVED (امضای A — 2026-07-20، تأیید چت)`
 
 VQ-PF-003 با پیش‌فرض این sprint = **FREEZE**. مبنا: رد صریح C در 2026-07-03 (پرسشنامه:54). بازگشایی فقط با رضایت مکتوب دوطرفهٔ آینده (بند ۴ توافق‌نامه). فایل‌های ویرایش‌شده در این sprint برای حذف/انجماد زبان «safe expansion به body»:
 1. `Knowledge_Base_Memory_Synthesis.md` (خطوط ~39 و ~85 — تنها جایی که body هنوز roadmap مثبت بود)
@@ -94,7 +99,7 @@ VQ-PF-003 با پیش‌فرض این sprint = **FREEZE**. مبنا: رد صری
 4. `research-results/P2-x-growth-engine.md` (پیشنهاد هشتگ/تارگت lingerie در کپی عمومی)
 5. `LAUNCH-RUNBOOK-2026-07-16.md` (بند freeze در بنر NO-GO)
 مارکر استاندارد: `<!-- FROZEN 2026-07-20 VQ-PF-003: C rejected body. Dual consent required to thaw. -->`
-امضای A: `___________`
+امضای A: **A — 2026-07-20 (تأیید چت)** → ‏VQ-PF-003 = CLOSED-FREEZE
 
 ### DL-2026-07-20-TESTS — عدد صادقانهٔ تست
 `status: RECORDED (فکت — نیاز به امضا ندارد)`
@@ -115,10 +120,27 @@ VQ-PF-003 با پیش‌فرض این sprint = **FREEZE**. مبنا: رد صری
 اقدام‌های فقط-مالک (باز): (a) پاسخ به «آیا repo هرگز remote داشته؟» — اگر بله: rotation + بررسی filter-repo؛ (b) تصمیم `git rm --cached` + انتقال دو فایل PII و ۸ عکس به `08 - Partner (PII)/` یا `_Archive` (طبق قانون «هرگز حذف نکن، فقط منتقل کن»)؛ (c) تاریخچهٔ git (lineage ‏b697467) شامل PII می‌ماند تا تصمیم مالک.
 
 ### DL-2026-07-20-DECISION-SOT — قاعدهٔ منبع حقیقت تصمیم
-`status: PROPOSED-AWAITING-A-SIGN`
+`status: ✅ APPROVED (امضای A — 2026-07-20، تأیید چت)`
 
 از 2026-07-20 به بعد: هر verdict که فقط در VERDICT_QUEUE (پروژه یا روت) ثبت شود **غیرالزام‌آور** است تا ظرف ۲۴ ساعت به DecisionLog منتقل شود؛ در تعارض دو سینی رأی، محافظه‌کارترین وضعیت (OPEN) برنده است تا DecisionLog حکم بدهد. Manifest ‏(`PROJECT-F-CONTROL-MANIFEST.json`) باید بعد از هر pass حاکمیتی با DecisionLog همگام شود؛ فیلد `last_governance_pass` اضافه شد.
-امضای A: `___________`
+امضای A: **A — 2026-07-20 (تأیید چت)**
+
+### DL-2026-07-20-RATIFICATION — ثبت رأی‌های ballot (عصر 2026-07-20)
+`status: RECORDED`
+
+A در چت اعلام کرد «موافقم با رأی‌های ثبت‌شده» و در پرسش‌های صریح این‌ها قفل شد:
+1. **PF-V5 → APPROVED: REVOKE** (بالا ثبت شد).
+2. **Branch A** به اتکای اظهار A («مدرک را شخصاً دیده‌ام») — نوع منبع/تاریخ C هنوز خالی؛ **G0 باز** (دو شرط دیگر: تأیید C روی توافق + سؤال آخر پرسشنامه).
+3. **توافق: متن تأیید + امضای A** — منتظر تأیید مکتوب C.
+4. **Body freeze: APPROVED** → ‏VQ-PF-003 بسته (FREEZE).
+5. **Fansly = mirror + discovery-first** — قفل شد (verdict قدیمی T7 تأیید نهایی گرفت).
+6. **نردبان قیمت: رأی صریح داده نشد** → تگ CONFLICT می‌ماند (EXT-04 پیشنهاد باقی است، قفل نشد).
+7. **برند: OPEN** (پیش‌نیاز page نیست).
+8. **Remote git: NO — هیچ‌وقت** → چرخش فوری شماره لازم نیست؛ قاعدهٔ جدید: **قبل از ساخت هر remote در آینده، اول R10 (انتقال PII) + بازبینی تاریخچه انجام شود.** فایل‌های PII ‏tracked ‏(دو سند + ۸ عکس `test/`) هنوز منتظر تصمیم انتقال (R10).
+9. **Q10/Q11: YES** → کامیت `ab8b8bd` تأیید + **مجوز merge برنچ sprint به master** (اجرا شد — hash در ادامهٔ همین ورودی).
+10. Day-Zero: تعیین نشد = NO-GO ادامه دارد.
+
+**اثر روی GATE-STAMP:** ‏PAGE_SETUP همچنان **NO-GO** — بازشدنش فقط با: تکمیل فیلد منبع اقامت در DL-G0 + تأیید مکتوب C روی توافق + سؤال آخر پرسشنامه + چک‌لیست OpSec (R11) + scrub کپی عمومی (R9).
 
 ---
 

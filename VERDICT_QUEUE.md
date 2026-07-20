@@ -50,9 +50,9 @@
 
 | ID | تصمیم | گزینه‌ها | وضعیت | اثر |
 |---|---|---|---|---|
-| VQ-PF-001 | GATE 0 | resolved/unresolved | open — ثبت فقط با «DL-2026-07-20-G0» امضاشده در DecisionLog پروژه (2026-07-20: temporary-A ‏07-16 مجوز نیست) | هیچ outward action تا حل G0 |
-| VQ-PF-002 | Branch | A/B/unknown | open (UNKNOWN) → «DL-2026-07-20-G0» | legal/ops path |
-| VQ-PF-003 | freeze body expansion | yes/no | open — پیش‌فرض FREEZE روی دیسک اعمال شد (2026-07-20)؛ ratify = «DL-2026-07-20-BODY-FREEZE» | hard-rule alignment |
+| VQ-PF-001 | GATE 0 | resolved/unresolved | open — رأی 07-20: ‏PF-V5 ‏REVOKED، ‏Branch A ‏attested؛ بستن G0 منوط به تکمیل منبع اقامت + تأیید مکتوب C + سؤال پرسشنامه («DL-2026-07-20-G0/RATIFICATION») | هیچ outward action تا حل G0 |
+| VQ-PF-002 | Branch | A/B/unknown | **A (اظهار A ‏2026-07-20 — مدرک روی دیسک نیست)** → «DL-2026-07-20-G0» | legal/ops path |
+| VQ-PF-003 | freeze body expansion | yes/no | ✅ **closed — FREEZE (امضای A ‏2026-07-20، «DL-2026-07-20-BODY-FREEZE»)** | hard-rule alignment |
 | VQ-PF-004 | activate Langar/studio shadow | yes/no/later | open | cockpit only، no outward action |
 
 ---

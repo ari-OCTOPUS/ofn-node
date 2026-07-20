@@ -41,13 +41,13 @@ delivery-rate پارتنر در trial sprint `[To measure]` · engagement روی
 
 **GATE 0: محل اقامت پارتنر ثبت و شاخه A/B انتخاب شود** — «محل اقامت پارتنر: ___ · تاریخ: ___ · پیامد: Branch A/B» ([[03 - Projects/اونلی فنز/architecture-blueprint-2026-07-04|بلوپرینت §۱]])
 
-بلاکرهای باز (2026-07-20 — [[03 - Projects/اونلی فنز/00 - Control/SCAN-LOCK-2026-07-20|SCAN-LOCK]]):
-- **PAGE_SETUP = NO-GO** ([[03 - Projects/اونلی فنز/00 - Control/GATE-STAMP-2026-07-20|GATE-STAMP]]) — تا بسته‌شدن همهٔ P0های [[03 - Projects/اونلی فنز/00 - Control/ARCHITECTURE-COMPLETE-2026-07-20/09_NOGO_PAGE_SETUP|NOGO]]
-- PF-V5 «Full Aggressive» = **INVALID** تا `APPROVED: REVOKE|RATIFY-CONDITIONAL` در DecisionLog
-- توافق دونفره درفت شده ولی **امضانشده** (DL-2026-07-20-AGREEMENT — قبل از Day-Zero)
-- PII در فایل‌های tracked (runbook/دو سند/۸ عکس `test/`) — تصمیم مالک برای انتقال + سؤال remote
-- Security Gate بسته · ریسک #۱ (consistency زیر friction) تست‌نشده · سؤال آخر پرسشنامه حل‌نشده
-- body-expansion: **FROZEN به‌صورت پیش‌فرض** (DL-2026-07-20-BODY-FREEZE — منتظر امضای A)
+بلاکرهای باز (به‌روز 2026-07-20 عصر، بعد از ballot — [[03 - Projects/اونلی فنز/00 - Control/SCAN-LOCK-2026-07-20|SCAN-LOCK]]):
+- **PAGE_SETUP = NO-GO** ([[03 - Projects/اونلی فنز/00 - Control/GATE-STAMP-2026-07-20|GATE-STAMP]]) — تا بسته‌شدن P0های باز [[03 - Projects/اونلی فنز/00 - Control/ARCHITECTURE-COMPLETE-2026-07-20/09_NOGO_PAGE_SETUP|NOGO]]
+- ✅ PF-V5 = **REVOKED** (‏`APPROVED: REVOKE` — ‏DL-2026-07-20-PF-V5) · ✅ body-freeze **امضا شد** · ✅ Fansly قفل شد · ✅ remote=NO
+- G0: ‏Branch A ‏**attested** (اظهار A) ولی باز — نوع منبع + تاریخ تأیید C خالی؛ سؤال آخر پرسشنامه حل‌نشده
+- توافق: **A-SIGNED** — تأیید مکتوب C مانده (قبل از Day-Zero)
+- PII در فایل‌های tracked (دو سند/۸ عکس `test/`) — انتقال R10 با رأی مالک؛ **الزامی قبل از هر remote آینده**
+- Security Gate بسته (R11) · «Sydney» در کپی عمومی (R9) · ریسک #۱ (consistency زیر friction) تست‌نشده
 
 ## Active Context
 
