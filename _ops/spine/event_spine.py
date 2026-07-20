@@ -13,6 +13,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import sqlite3
 import sys
 import threading
@@ -43,6 +44,34 @@ def _utc_now_iso() -> str:
 def _sha(obj) -> str:
     return hashlib.sha256(json.dumps(obj, sort_keys=True, ensure_ascii=False,
                                      separators=(",", ":")).encode("utf-8")).hexdigest()
+
+
+# ── بهداشتِ ساختاریِ payload (defense-in-depth، آینهٔ spine_adapters.sanitize_payload) ──
+# عمداً همتا/تکرارشده: spine_adapters این ماژول را import می‌کند، پس importِ برعکس =
+# circular. قواعد یکسان‌اند تا double-sanitize (آداپتور سپس این‌جا) قطعاً idempotent باشد.
+# فقط کلیدِ snake_case امن با مقدارِ bool/int/float یا strِ تک‌خطیِ ≤۸۰ عبور می‌کند؛
+# کلیدِ متن‌خام (body/text/desc/prompt/…/email/…) یا nested/متنِ بلند بی‌صدا حذف می‌شود.
+_SAN_KEY_OK_RE = re.compile(r"^[a-z0-9_]{1,32}$")
+_SAN_KEY_BLOCK_RE = re.compile(
+    r"(body|text|desc|prompt|content|message|caption|address|email|phone|"
+    r"name|applicant|raw|note|comment)", re.I)
+_SAN_MAX_STR = 80
+
+
+def _sanitize_payload(payload) -> dict:
+    out = {}
+    if not isinstance(payload, dict):
+        return out
+    for k, v in payload.items():
+        ks = str(k)
+        if not _SAN_KEY_OK_RE.match(ks) or _SAN_KEY_BLOCK_RE.search(ks):
+            continue
+        if isinstance(v, bool) or isinstance(v, (int, float)):
+            out[ks] = v
+        elif isinstance(v, str) and len(v) <= _SAN_MAX_STR and "\n" not in v and "\r" not in v:
+            out[ks] = v
+        # هر نوعِ دیگر (list/dict/None/متنِ بلند/چندخطی) → حذف
+    return out
 
 
 def _default_path() -> Path:
@@ -153,6 +182,14 @@ def dual_write(spine: "EventSpine", ev: dict) -> dict:
     if not flag_on():
         return {"published": False, "reason": "flag-off"}
     try:
+        # defense-in-depth: بهداشتِ ساختاریِ payload حتی برای callerِ مستقیم (غیرآداپتور) تا
+        # متنِ خام/PII (body/text/prompt/email/…) هرگز persist نشود. فقط payload لمس می‌شود؛
+        # فیلدهای هویت/idempotency (correlation_id/subject/mission_id/event_type/domain و کلیدِ
+        # idempotency که در publish از همان‌ها ساخته می‌شود) دست‌نخورده → identity ثابت.
+        # idempotent با صافیِ آداپتور (double-sanitize = همان نتیجه).
+        if isinstance(ev, dict) and "payload" in ev:
+            ev = dict(ev)
+            ev["payload"] = _sanitize_payload(ev.get("payload"))
         eid = spine.publish(ev)
         return {"published": eid is not None, "event_id": eid,
                 "reason": "ok" if eid else "duplicate"}
