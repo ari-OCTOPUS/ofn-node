@@ -97,6 +97,18 @@ def handle_new_mission(intent: str, *, target_leg: str = "lead",
         risk = "high"                                  # force requires_approval=True (the gate)
     env = mc.make_envelope(source="telegram_owner", target_leg=target_leg,
                            owner=owner, action="intake", risk=risk, intent=intent)
+    try:  # LIMITED shadow: canonical mission-created (پشتِ OCTOPUS_WIRE_SPINE، flag-off=no-op، fail-soft)
+        from pathlib import Path as _P
+        _sp = str(_P(__file__).resolve().parents[1] / "spine")
+        if _sp not in sys.path:
+            sys.path.insert(0, _sp)
+        import spine_adapters as _sa
+        _sa.mission_created(
+            mission_id=env["mission_id"], domain="mission",
+            correlation_id=env["trace_id"], source=env["source"],
+            target_leg=env["target_leg"], risk=env["risk"], producer="owner_menu")
+    except Exception:  # noqa: BLE001 — spine هرگز مسیرِ mission را نمی‌کشد
+        pass
     if important:
         env["status"] = "needs_approval"
         env["gate_reason"] = why                       # owner sees WHY a verdict is needed

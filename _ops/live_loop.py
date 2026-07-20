@@ -472,11 +472,14 @@ class LiveLoop:
     def proposal_metrics(self) -> dict:
         """Small near-action metric set for learning loops (G3)."""
         delivered = [r for r in self._proposal_outcomes if r.get("event") == "delivered"]
+        sent = [r for r in delivered if r.get("sent")]
         outcomes = [r for r in self._proposal_outcomes if r.get("event") == "outcome"]
         positive = {"approved", "sent", "paid", "accepted", "won"}
         approved = [r for r in outcomes if r.get("verdict") in positive]
         revenue = sum(float(r.get("value_aud") or 0.0) for r in outcomes)
         return {"proposals_delivered": len(delivered), "proposal_outcomes": len(outcomes),
+                "proposals_sent": len(sent),
+                "proposals_fake_delivered": len(delivered) - len(sent),
                 "proposal_positive": len(approved),
                 "proposal_accept_rate": (len(approved) / len(outcomes)) if outcomes else 0.0,
                 "proposal_value_aud": round(revenue, 2)}

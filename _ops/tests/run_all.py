@@ -82,6 +82,21 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # از توابعِ واقعیِ production: score→quote→کارتِ TG(sandbox)→receipt+outcome→رأیِ مالک→spine→
          # replay→metricsِ قطعی→digest. صفر شبکه/پول/send؛ IDها ثابت؛ حلقه واقعاً بسته.
          "test_paper_lead_mvo_e2e.py",
+         # 2026-07-21 Wave1-B: فنسِ LLM — inventoryِ ماشین‌چکِ کلِ call siteهای production +
+         # آداپتورِ مشترکِ fence_adapter (observe-only، flag-off parity، caller نو = fail)
+         "test_llm_call_inventory.py",
+         "test_fence_adapter_wiring.py",
+         # 2026-07-21 Wave1-C: پوششِ LIMITED MULTI-DOMAIN ستونِ رویداد (lead+doctor+ziman+proposal؛
+         # ۵ نامِ canonical در taxonomy؛ آداپتورهای spine_adapters؛ anti-PII ساختاری)
+         "test_spine_multidomain.py",
+         # 2026-07-21 Wave1-D: جداییِ liveness از کار/ارزشِ validated — metric_separation از
+         # storeِ durable قطعی بازسازی می‌شود؛ تپش≠مولد، claim≠revenue، fake≠real delivery
+         "test_metric_separation.py",
+         # 2026-07-21 Wave1-A: صداقتِ منوی v2 (صفر دستورِ مرده/تبلیغِ ناموجود) + رأیِ احرازشدهٔ
+         # مالک از update-handlerِ واقعی → OutcomeStoreِ پایدار (fail-closed بدونِ secret،
+         # single-use، replay-safe؛ هرگز delivered/settled/revenue)
+         "test_menu_v2_honesty.py",
+         "test_tg_verdict_durable.py",
          # 2026-07-20 D-G: قراردادِ STOP — HALT-ALL توسطِ watchdog.py + هر دو watchdogِ .ps1 honor می‌شود
          "test_stop_contract.py",
          # 2026-07-20 یکپارچگی: بستنِ حلقهٔ لید record-only (lead→receipt→outcome، memories_used از
@@ -174,7 +189,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # به /transactions/{id}، whitelist سخت، سقفِ flush، صفِ محلی، پشتِ OCTOPUS_WIRE_PS_WRITEBACK.
          "test_ps_writeback.py",
          # 2026-07-16: حسابدارِ مولتی‌ایجنت (سنت/انتساب/ارکستراتور)
-         "test_accountant.py", "test_txn_store.py", "test_attributor.py",
+         # (dedupe 2026-07-21 wave-1: test_txn_store/test_attributor فقط در ردیف‌های کامنت‌دارِ
+         # پایین ثبت‌اند — قبلاً این‌جا هم بودند و هرکدام دوبار اجرا می‌شد)
+         "test_accountant.py",
          # 2026-07-16: انبارِ تجمیعیِ تراکنش (txn_store) — xlsx+CSV → یک انبارِ cents-محور،
          # dedupِ content-hash، reconcile tie-out. txn-store.json واقعی gitignore.
          "test_txn_store.py",
