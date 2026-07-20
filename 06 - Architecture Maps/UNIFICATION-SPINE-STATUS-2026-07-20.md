@@ -24,30 +24,39 @@ updated: 2026-07-20
 | **Lead recorder** (تولیدکننده) | `_ops/outcomes/lead_outcome_recorder.py` | `OCTOPUS_WIRE_LEAD_OUTCOME` | ✅ `lead_discovery_beat` | ✅ receipt+outcome | **۳/۳ wired** |
 | **HALT-ALL** (D-G) | `_ops/watchdog.py` + دو `.ps1` | — | ✅ همهٔ supervisorها | ✅ توقفِ احیا | **wired** |
 | **E0–E4 effect matrix** | `taxonomy` + `decision_receipt` | — | ✅ receipt اعتبارسنجی | ✅ ردِ کلاسِ نامعتبر | **wired (validation)** |
-| **Memory Gate** | `_ops/memory/gate.py` + `memory_store.py` | `OCTOPUS_WIRE_MEMORY_GATE` | ❌ صفر producer | ✅ (وقتی صدا شود) | **library-only** |
-| **Event Spine** | `_ops/spine/event_spine.py` | `OCTOPUS_WIRE_SPINE` | ❌ صفر `dual_write` caller | ✅ (وقتی صدا شود) | **library-only** |
-| **Context fencing** | `_ops/cortex/context_fence.py` | `OCTOPUS_WIRE_CONTEXT_FENCE` | ❌ در مسیرِ cortex نیست | ✅ (وقتی صدا شود) | **library-only** |
+| **Memory Gate** | `_ops/memory/gate.py` + `memory_store.py` | `OCTOPUS_WIRE_MEMORY_GATE` | ✅ `_record_lead_decisions` (episodic) | ✅ نوشتِ حافظه | **۳/۳ wired** (LEG-08) |
+| **Event Spine** | `_ops/spine/event_spine.py` | `OCTOPUS_WIRE_SPINE` | ✅ `_record_lead_decisions` (dual-write) | ✅ رویدادِ SoT | **۳/۳ wired** (LEG-07) |
+| **Context fencing** | `_ops/cortex/context_fence.py` | `OCTOPUS_WIRE_CONTEXT_FENCE` | ✅ `model_router.ask` (screen) | ✅ alertِ injection | **۳/۳ wired** (آیتم۲) |
 
-**خلاصه:** ۶ تکه reachable/wired؛ ۳ تکه library-only (incubating). زنجیرهٔ کامل
-تصمیم→اثر→نتیجه **سرتاسر اثباتِ‌کارکرد** دارد (Lead recorder از drون `lead_discovery_beat`
-یک receiptِ E1 + outcomeِ delivered می‌سازد، `memories_used` را از Memory Gate پر می‌کند
-اگر db موجود باشد، verdict=PENDING بدونِ جعل). سه تکهٔ باقی «کتابخانه‌اند»: منطق + تست +
-flag دارند ولی هنوز از هیچ beatِ ارگانیسم صدا زده نمی‌شوند.
+> **به‌روزرسانی ۲۰۲۶-۰۷-۲۰ (شب، دستور «همرو انجام بده»):** هر سه تکهٔ library-only **reachable
+> شد** (پشتِ همان flagهای پیش‌فرض‌خاموش، additive، fail-soft، تستِ reachability). دیگر
+> **صفر dead-flag** در ستونِ فقرات. + قرمزِ حسابداریِ `journal_bridge` بسته شد (test-isolation،
+> چارت دست‌نخورده) → **کلِ suite ۲۲۲/۲۲۲ سبز** (اولین‌بار در این قوس؛ capability marker نوشته شد).
+> کامیت‌ها: `8373ec9`(حسابداری) `d859612`(spine) `0b338a2`(fence) `40c1ac4`(memory) روی master، germline backup.
 
-## چرا سه تکه عمداً هنوز سیم‌کشی نشده (نیازمندِ رأیِ مالک)
-هر کدام یک **انتخابِ طراحیِ محتوایی** است، نه کارِ مکانیکی — و هر کدام مسیرِ حساسِ متفاوتی را لمس می‌کند:
-- **Memory Gate** ← منبعِ حافظه چیست؟ (owner-factها از تلگرام؟ self-knowledge از دکتر؟ سنتزِ LLM؟)
-  این تعیین می‌کند «ارگانیسم چه چیزی به‌یاد می‌سپارد». `self_knowledge` سخت‌گیرانه ADVISORY می‌ماند.
-- **Event Spine** ← کدام نقاطِ انتشار dual-write کنند (outcome/decision/mission)؟ شadow-log، اما چند call-site.
-- **Context fencing** ← کجای مسیرِ داغِ LLMِ cortex اعمال شود؟ بالاترین ارزشِ امنیتی (ضدِ tekحریفِ prompt)
-  ولی مسیرِ مرکزیِ تماسِ مدل را لمس می‌کند.
+**خلاصه:** اکنون **۹ تکه wired/reachable؛ صفر library-only، صفر dead-flag**. زنجیرهٔ کامل
+تصمیم→اثر→نتیجه **سرتاسر اثباتِ‌کارکرد** دارد؛ سه تکهٔ حافظه/رویداد/فنس همه از beat صدا زده
+می‌شوند (episodic write · dual-write SoT · screen ورودیِ LLM). همه پشتِ flagِ پیش‌فرض‌خاموش.
+
+## سیم‌کشیِ سه تکه (چگونه reachable شد — همه additive/flag-off/fail-soft)
+- **Memory Gate** → `_record_lead_decisions` یک حافظهٔ **episodic** از متادیتای تصمیم می‌نویسد
+  (PII-free — فقط IDهای داخلی). منبعِ self-contained، نه owner-fact/LLM. `self_knowledge` ADVISORY ماند.
+- **Event Spine** → همان helper زنجیرهٔ **decided→delivered** را با correlationِ مشترک dual-write می‌کند.
+- **Context fencing** → `model_router.ask` ورودیِ LLM را **screen** می‌کند (observe-only؛ injection→alert؛
+  هرگز prompt را mutate/block نمی‌کند — گامِ بلاک owner-gated).
 
 ## کارهای owner-gated (به ترتیبِ ارزش)
-1. **سیم‌کشیِ ۳ تولیدکنندهٔ باقی** (Memory Gate / Event Spine dual-write / context fencing در cortex) — هرکدام flag-off، additive، با تستِ reachability مثلِ `test_lead_outcome_wiring`.
-2. **decomposeِ `wiring.py`** (۲۳۵۴ خط، ۶۶ def — بافتِ عصبیِ مرکزی): strangler façade **high-blast-radius**؛ نیازمندِ staging + پوششِ کاملِ beat، نه اجرای کورِ خودمختار.
-3. **Mutation Chamber** (سندباکسِ جهشِ کد، بدونِ شبکه/egress): قابلیتِ خودتغییردهیِ **جدید**؛ نیازمندِ scopeِ صریحِ مالک — نه زیرِ ماموریتِ «یکپارچه‌سازیِ تکه‌های موجود».
-4. **`journal_bridge` CoA** (تنها redِ باقیِ suite): نگاشتِ category→حساب (تست `5200` انتظار دارد، کد `6000`) — رأیِ حسابداریِ دامنهٔ پول.
-5. **فعال‌سازی:** حذفِ `_ops/STOP-ORGANISM` (ارگانیسم از ۱۹ژوئیه halt است) + ستِ flagها + restart.
+1. **decomposeِ `wiring.py`** (اکنون ~۲۴۲۰ خط پس از سیم‌کشی‌ها — بافتِ عصبیِ مرکزی): strangler façade
+   **high-blast-radius**؛ نیازمندِ baselineِ تمیز + پوششِ کاملِ beat + verify، نه اجرای کورِ خودمختار.
+2. **Mutation Chamber** (سندباکسِ جهشِ کد، بدونِ شبکه/egress): قابلیتِ خودتغییردهیِ **جدید**؛ نیازمندِ scopeِ صریحِ مالک.
+3. **[P0 مالی] گاردِ drawdown:** implِ فرضیِ روی برنچِ `claude/three-heart-rhythm-math-c69082`
+   **catastrophically stale** است (۳۲۷۱ فایل، ۳.۷M حذف) → **un-mergeable**. تنها مسیرِ امن =
+   **re-implementِ تازه روی master** (additive به `budget_gate.py`، shadow-default، flag `HH_DRAWDOWN_ENFORCE`،
+   spec از `test_drawdown_enforcer`) — ولی آستانهٔ spike یک **تصمیمِ سیاستِ مالیِ مالک** است. پیش‌نیازِ هر مسیرِ پول.
+4. **فعال‌سازی (رأیِ مستقل و آخر):** حذفِ `_ops/STOP-ORGANISM` (ارگانیسم از ۱۹ژوئیه halt) + ستِ flagها + restart.
+
+**بسته‌شده این دور (دستور «همرو انجام بده»):** قرمزِ حسابداری `5200/6000` (test-isolation، چارت دست‌نخورده،
+suite ۲۲۲/۲۲۲ سبز) · سیم‌کشیِ هر ۳ تکهٔ library-only.
 
 ## ناوردی‌های حفظ‌شدهٔ این جلسه
 - STOP-ORGANISM بایت‌به‌بایت دست‌نخورده (۳۳ بایت، ۱۹ژوئیه)؛ درختِ زنده `F:\backup` کاملاً untouched؛ ارگانیسم restart نشد.
