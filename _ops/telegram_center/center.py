@@ -230,6 +230,30 @@ class Center:
             return None
         return self._render
 
+    def _menu2(self):
+        """ماژولِ منوی v2 (lazy، fail-soft). None اگر در دسترس نباشد. سیم‌کشیِ رفتاری
+        فقط وقتی enabled() (پشتِ OCTOPUS_WIRE_MENU_V2) — flag خاموش → رفتارِ امروز بایت‌به‌بایت."""
+        try:
+            import menu_integration as _m2
+            return _m2
+        except Exception:  # noqa: BLE001
+            return None
+
+    def _handle_menu2_callback(self, cbq: dict, data: str, m2) -> dict:
+        """verbِ m: — منوی v2 (پشتِ OCTOPUS_WIRE_MENU_V2). dispatch → editِ درجای همان پیام؛
+        fail-soft. صفر settle/effector — فقط ناوبریِ منو (render)."""
+        msg = cbq.get("message") or {}
+        mid = msg.get("message_id")
+        chat = (msg.get("chat") or {}).get("id")
+        try:
+            txt, kb = m2.dispatch(data)
+            if isinstance(mid, int):
+                self._client.edit(mid, _scrub(str(txt or "")), keyboard=kb, chat_id=chat)
+        except Exception:  # noqa: BLE001
+            pass
+        self._answer(cbq)
+        return {"kind": "menu2", "data": data}
+
     def wired(self) -> bool:
         """لوله وصل است؟ هر خطا/نبودِ client = False (fail-closed برای اثرگذاری)."""
         try:
@@ -513,6 +537,11 @@ class Center:
             "/menu": lambda: self._page("menu"),
             "/start": lambda: self._page("menu"),
         }
+        # Menu v2 (پشتِ OCTOPUS_WIRE_MENU_V2): فقط با فلگِ روشن /panel اضافه می‌شود.
+        # flag خاموش → /panel در handlers نیست → مسیرِ «command ناشناس» امروز (return None). parity.
+        _m2 = self._menu2()
+        if _m2 is not None and _m2.enabled():
+            handlers["/panel"] = _m2.render_menu
         fn = handlers.get(cmd)
         if fn is None:
             # پیامِ آزادِ مالک = پرسش/دستورِ نرم. اجرای مستقیمِ مخرب هرگز؛ فقط
@@ -1194,6 +1223,11 @@ class Center:
             return self._handle_approval_callback(cbq, data)
         if verb == "ms":
             return self._handle_mission_callback(cbq, data)
+        if verb == "m":
+            _m2 = self._menu2()
+            if _m2 is not None and _m2.enabled():
+                return self._handle_menu2_callback(cbq, data, _m2)
+            # flag خاموش → سقوط به fallbackِ امروز (m در _VERDICTS نیست → «نادیده»). parity.
         parts = data.split(":", 1)
         if len(parts) != 2 or parts[0] not in _VERDICTS:
             self._answer(cbq, "نادیده")

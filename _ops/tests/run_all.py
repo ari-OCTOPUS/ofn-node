@@ -68,6 +68,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # 2026-07-20 آیتم۲: reachabilityِ context fence — model_router.ask ورودیِ LLM را غربال
          # می‌کند (پشتِ OCTOPUS_WIRE_CONTEXT_FENCE، observe-only، flag-off passthrough؛ dead-flag رفع)
          "test_context_fence_wiring.py",
+         # 2026-07-20 Sol-T1: reachabilityِ Menu v2 — center.handle_update اکنون /panel + verbِ m:
+         # را به menu_integration وصل می‌کند (پشتِ OCTOPUS_WIRE_MENU_V2، flag-off parity؛ orphan رفع)
+         "test_menu_v2_wiring.py",
          # 2026-07-20 D-G: قراردادِ STOP — HALT-ALL توسطِ watchdog.py + هر دو watchdogِ .ps1 honor می‌شود
          "test_stop_contract.py",
          # 2026-07-20 یکپارچگی: بستنِ حلقهٔ لید record-only (lead→receipt→outcome، memories_used از
