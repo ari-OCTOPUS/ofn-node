@@ -47,5 +47,26 @@
     {"claim_id": "F-MINING-FLAG-COSMETIC", "verdict": "CONFIRMED dead-flag", "file": "_ops/budget/approval_channel.py", "line": 2192, "quote": "OCTOPUS_WIRE_MINING in console toggle but no code gates on it", "flag": "OCTOPUS_WIRE_MINING", "caller": "NONE gates behavior", "side_effect": "toggling changes nothing (mining_status flagless, live=False)", "test": null, "runtime_status": "cosmetic"},
     {"claim_id": "F-NO-EXTERNAL-JUMP", "verdict": "CONFIRMED (good)", "file": "_ops/legs/leg.py", "line": 198, "quote": "send/publish/pay/trade methods deliberately do not exist", "flag": null, "caller": "Leg base class", "side_effect": "no leg can jump intake->send/pay/publish (structural)", "test": "test_leg.py", "runtime_status": "structural propose-only invariant holds"},
     {"claim_id": "F-HEARTSTATE-NESTED", "verdict": "CONFIRMED (not orphan)", "file": "_ops/wiring.py", "line": 1571, "quote": "heartstate_beat(beat=beat) — called inside heart_beat before OCTOPUS_WIRE_HEART gate", "flag": "HEARTSTATE_SHADOW", "caller": "heart_beat (organism.py:692)", "side_effect": "shadow persist behind HEARTSTATE_SHADOW", "test": "test_leg_chain_wire.py:189", "runtime_status": "nested-reachable; runtime down"}
-  ]
+  ],
+  "claim_adjudication_sol_2026_07_21": {
+    "note": "Sol claim-by-claim verdicts re-proven from HEAD after Steps 1-5. Vocabulary: CONFIRMED_CURRENT|FIXED_ALREADY|STALE|REFUTED|PARTIALLY_TRUE|OWNER_GATED|VERIFIED_BACKLOG|NOT_VERIFIABLE",
+    "verdicts": [
+      {"claim": "OCTOPUS_WIRE_RUNNER_APPLY dangerous", "verdict": "REFUTED", "evidence": "grep OCTOPUS_WIRE_RUNNER_APPLY = ZERO consumers/callers; mission_runner.py:11-12,55 ALLOWLIST=plan/test/diff/review, code.apply/patch ALWAYS skipped (structural)"},
+      {"claim": "pulse after STOP = live heartbeat leak", "verdict": "REFUTED/STALE", "evidence": "STOP checked early organism.py:338; work_pump double-gated (OCTOPUS_WIRE_HEART + OCTOPUS_WIRE_HEART_WORK, both default-off)"},
+      {"claim": "tests never ran", "verdict": "STALE", "evidence": "suite executed this session; re-run at Step 9 on final HEAD, honest counts"},
+      {"claim": "proposal_metrics not connected to goal_directed.measure", "verdict": "FIXED_ALREADY", "evidence": "cortex/goal_directed.py:196 reads ORGANISM-STATE.proposal_metrics; doctor/self_knowledge.py:125 ingests it"},
+      {"claim": "price_in/price_out missing (68 governor errors)", "verdict": "FIXED_ALREADY", "evidence": "budget/budgets.yaml:78-86 price_in=0.14 price_out=0.28 [FACT verdict 2026-07-18]"},
+      {"claim": "backup_health has no consumer", "verdict": "REFUTED", "evidence": "live/server.py:456 st['backup']=opslib.backup_health(); test_backup_visibility"},
+      {"claim": "ziman_biology phantom / never-existed comment", "verdict": "FIXED_ALREADY", "evidence": "Sol-T5 (commit 7499739) corrected the false comment; module exists (7512b), ORPHAN, wiring OWNER_GATED"},
+      {"claim": "Menu v2 dead-flag/orphan", "verdict": "FIXED_ALREADY", "evidence": "Sol-T1 (e79a2ea) /panel + m: wired to menu_integration; test_menu_v2_wiring 5/5"},
+      {"claim": "owner verdict not connected to durable outcome", "verdict": "FIXED_ALREADY", "evidence": "Sol-T2 (6f16786) verdict_recorder + live_loop; test_verdict_outcome 8/8; Step5 e2e 1/1"},
+      {"claim": "context_fence bypasses", "verdict": "CONFIRMED_CURRENT / PARTIALLY_ADDRESSED", "evidence": "Sol-T3 (7a33ffb) bypass-detection guard added; per-caller fenced-wrapping of .complete paths = OWNER_GATED backlog"},
+      {"claim": "Event Spine lead-only", "verdict": "PARTIALLY_ADDRESSED", "evidence": "Sol-T4 (0076b5e) added proposal domain (2 domains); accounting/ziman/doctor producers = backlog"},
+      {"claim": "KeyError:text (debate)", "verdict": "PARTIALLY_TRUE/FIXED_ALREADY", "evidence": "governor debate KeyError fixed prior session (topic contract); not re-traced deeply this mission"},
+      {"claim": "human_append_guard fail-open", "verdict": "CONFIRMED_CURRENT / OWNER_GATED", "evidence": "human_append_guard.py:14-18 needs HH_HUMAN_GUARD_STRICT=1; T7 security decision"},
+      {"claim": "ps_writeback no per-item verdict", "verdict": "CONFIRMED_CURRENT / OWNER_GATED", "evidence": "ps_writeback.py:56 PUT labels, triple-flag-off; policy = owner (T7)"},
+      {"claim": "financial drawdown guard absent", "verdict": "CONFIRMED_CURRENT / OWNER_GATED", "evidence": "budget_gate.py has no drawdown API; re-impl needs owner spike threshold; source branch un-mergeable"},
+      {"claim": "_emit_advisory no-op / _next_qt_num TOCTOU / CHRONO_RETAIN_BEATS=0 / HEART_W_SHADOW=0.0 / invoice PermissionError / TG HTTPError / duplicate flags / WIRE_LEAD-vs-LEAD_DISCOVERY / canonical-intake-G4 / registry L2-L6 / ziman catalog", "verdict": "VERIFIED_BACKLOG", "evidence": "out of value-loop scope; individual traces needed; NOT blocking the green e2e loop; no fix this mission per 'no new work until loop green' + high-blast/backlog rule"}
+    ]
+  }
 }
