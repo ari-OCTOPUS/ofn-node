@@ -121,6 +121,22 @@ def t_g_unknown_action_refused_no_write():
     assert not (OPS / "RESTART-REQUESTED").exists()
 
 
+def t_h_claim_is_atomic_create_only():
+    """_claim_cockpit_stop: create-only با O_EXCL. اثباتِ نتیجهٔ TOCTOU — اگر STOPِ مالک
+    (حتی چندخطی، بردارِ findstr) موجود باشد، هرگز overwrite نمی‌شود."""
+    _clear()
+    sp = OPS / "STOP-ORGANISM"
+    # غایب → markerِ کاکپیت را atomically می‌سازد
+    assert live._claim_cockpit_stop(sp) is True
+    assert sp.read_text("utf-8").strip() == _MARK
+    # markerِ خودِ کاکپیت موجود → refreshِ امن مجاز
+    assert live._claim_cockpit_stop(sp) is True
+    # STOPِ مالکِ چندخطی که markerِ کاکپیت را به‌عنوان یک خط دارد → رد (findstr می‌افتاد)
+    sp.write_text("restart via live cockpit\nowner hold — do not restart", "utf-8")
+    assert live._claim_cockpit_stop(sp) is False
+    assert sp.read_text("utf-8") == "restart via live cockpit\nowner hold — do not restart"
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

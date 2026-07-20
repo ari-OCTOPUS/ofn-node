@@ -897,8 +897,19 @@ class _Handler(BaseHTTPRequestHandler):
             import httpauth as _ha  # RC1: گاردِ CSRF/Origin پشتِ OCTOPUS_HTTP_AUTH
             if not _ha.guard_post(self):
                 return
-        except Exception:  # noqa: BLE001 — گارد اختیاری؛ فلگ‌خاموش/خطا = رفتارِ امروز
-            pass
+        except Exception:  # noqa: BLE001
+            # P1 (2026-07-20 Stage-1): گارد در دسترس نبود → secure-by-default fail-closed
+            # (503) مگر صریحاً خاموش (OCTOPUS_HTTP_AUTH=0/false/no/off).
+            import os as _os_fc
+            if str(_os_fc.environ.get("OCTOPUS_HTTP_AUTH", "1")).strip().lower() not in (
+                    "0", "false", "no", "off"):
+                try:
+                    self.send_response(503)
+                    self.end_headers()
+                    self.wfile.write(b'{"ok":false,"reason":"http guard unavailable (fail-closed)"}')
+                except Exception:  # noqa: BLE001
+                    pass
+                return
         path = self.path.split("?", 1)[0]
         if path not in ("/save",):
             self.send_response(404)

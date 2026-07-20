@@ -7,8 +7,10 @@
 می‌فرستد که جاوااسکریپتِ صفحه نمی‌تواند override کند — پس بررسیِ loopback بودنِ مبدأ،
 این بردار را می‌بندد بی‌آنکه صفحات نیاز به بازنویسی/توکن داشته باشند.
 
-انضباط: پشتِ فلگِ OCTOPUS_HTTP_AUTH. خاموش (پیش‌فرض) = رفتارِ امروز بایت‌به‌بایت.
-روشن = فقط مبدأِ loopback؛ شک/خطا = رد (fail-closed). bind روی loopback تغییر نمی‌کند.
+انضباط: پشتِ فلگِ OCTOPUS_HTTP_AUTH. **secure-by-default (2026-07-20 Stage-1):** unset یا
+هر مقدار جز خاموشِ صریح = روشن (فقط مبدأِ loopback؛ شک/خطا = رد، fail-closed). فقط
+`0/false/no/off` گارد را خاموش می‌کند (رفتارِ امروز، برای rollback/دیباگ). حذفِ تصادفیِ
+فلگ یا launcherِ دیگر دیگر auth را خاموش نمی‌کند. bind روی loopback تغییر نمی‌کند.
 stdlib-only · هیچ secret نمی‌سازد/echo نمی‌کند.
 """
 from __future__ import annotations
@@ -17,12 +19,14 @@ import os
 from urllib.parse import urlparse
 
 FLAG = "OCTOPUS_HTTP_AUTH"
+_OFF = ("0", "false", "no", "off")
 _LOOPBACK = {"127.0.0.1", "localhost", "::1"}
 
 
 def enabled() -> bool:
-    """آیا گاردِ HTTP روشن است؟ (پیش‌فرض خاموش = رفتارِ محافظه‌کارِ قبلی)."""
-    return str(os.environ.get(FLAG, "")).strip().lower() in ("1", "true", "yes", "on")
+    """آیا گاردِ HTTP روشن است؟ **secure-by-default:** unset → True. فقط خاموشِ صریح
+    (`0/false/no/off`) → False."""
+    return str(os.environ.get(FLAG, "1")).strip().lower() not in _OFF
 
 
 def _host_ok(url: str) -> bool:

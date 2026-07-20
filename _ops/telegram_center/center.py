@@ -809,15 +809,18 @@ class Center:
             legacy = aps_mod.sync_to_octopus_state().get("recent", [])
         except Exception:  # noqa: BLE001
             pending, counts, legacy = [], {}, []
-        # P3 (Stage-1): پشتِ OCTOPUS_WIRE_CB_TOKEN → mintِ توکنِ HMAC per-job (bind به
-        # owner_id + created_at). فلگ خاموش → mint=None → کارتِ tokenless بایت‌به‌بایتِ قبلی.
+        # P3 (Stage-1): پشتِ OCTOPUS_WIRE_CB_TOKEN → mintِ توکنِ HMAC per-job، bind به
+        # owner_id + action_hash(content_sha256 روی type/risk) + expires_epoch. فلگ خاموش
+        # → mint=None → کارتِ tokenless بایت‌به‌بایتِ قبلی.
         _mint = None
         try:
             if cbtok.flag_on():
                 _owner = getattr(self._client, "owner_chat_id", None)
-                _stamps = {str(j.get("id")): str(j.get("created_at", ""))
-                           for j in pending if isinstance(j, dict)}
-                _mint = lambda jid, act: cbtok.mint(jid, act, _owner, _stamps.get(str(jid), ""))
+                _by_id = {str(j.get("id")): j for j in pending if isinstance(j, dict)}
+                _mint = lambda jid, act: cbtok.mint(
+                    str(jid), act, _owner,
+                    self._ap_action_hash(act, str(jid), _by_id.get(str(jid), {})),
+                    str(_by_id.get(str(jid), {}).get("expires_epoch", "")))
         except Exception:  # noqa: BLE001 — mint اختیاری؛ خطا = کارتِ عادی
             _mint = None
         try:
@@ -1058,6 +1061,18 @@ class Center:
         self._answer(cbq, "نادیده")
         return {"kind": "mission", "ignored": data[:24]}
 
+    def _ap_action_hash(self, action: str, jid: str, job: dict) -> str:
+        """P3: hashِ محتوایی برای bindِ توکنِ callback — content_sha256(action, jid, {type,risk}).
+        anti-TOCTOU: اگر type/riskِ job عوض شود توکن باطل می‌شود. fail-soft → "" (آنگاه
+        verify بر jid/action/owner/expires تکیه می‌کند)."""
+        try:
+            import mission_contract as _mc
+            return _mc.content_sha256(action, str(jid),
+                                      {"type": (job or {}).get("type"),
+                                       "risk": (job or {}).get("risk")})
+        except Exception:  # noqa: BLE001
+            return ""
+
     def _handle_approval_callback(self, cbq: dict, data: str) -> dict:
         """verbهای صفِ تأیید (فاز E — bridge اختاپوس).
 
@@ -1082,10 +1097,28 @@ class Center:
             if action in ("ok", "no"):
                 _job = aps_mod.get(jid)
                 _owner = getattr(self._client, "owner_chat_id", None)
-                _stamp = str((_job or {}).get("created_at", ""))
-                if not cbtok.verify(token, jid, action, _owner, _stamp):
-                    self._answer(cbq, "توکنِ نامعتبر/منقضی — کارت را از منو دوباره باز کن")
+                _ah = self._ap_action_hash(action, jid, _job or {})
+                _exp = str((_job or {}).get("expires_epoch", ""))
+                # (1) صحتِ HMAC (شاملِ content + expires) — دستکاری/جعل/tokenless قدیمی = رد
+                if not cbtok.verify(token, jid, action, _owner, _ah, _exp):
+                    self._answer(cbq, "توکنِ نامعتبر — کارت را از منو دوباره باز کن")
                     return {"kind": "approval", "rejected": "bad-token", "id": jid}
+                # (2) enforcement جداگانهٔ انقضا (now <= expires) — 5.3
+                try:
+                    import time as _t
+                    if _exp and _t.time() > float(_exp):
+                        self._answer(cbq, "کارت منقضی شده — از منو دوباره باز کن")
+                        return {"kind": "approval", "rejected": "expired", "id": jid}
+                except (TypeError, ValueError):
+                    pass
+                # (3) destination binding — 5.4 (علاوه بر is_owner از from.id)
+                _chat = ((cbq.get("message") or {}).get("chat") or {}).get("id")
+                _allowed = {str(x) for x in (getattr(self._client, "owner_chat_id", None),
+                                             getattr(self._client, "center_chat_id", None))
+                            if x is not None}
+                if _allowed and _chat is not None and str(_chat) not in _allowed:
+                    self._answer(cbq, "مقصدِ نامعتبر")
+                    return {"kind": "approval", "rejected": "bad-destination", "id": jid}
         else:
             parts = data.split(":", 2)
             if len(parts) < 3:

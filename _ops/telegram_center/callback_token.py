@@ -1,21 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""callback_token.py — توکنِ HMACِ ضدِ جعل/replay برای callbackهای `ap:` (Stage-1 P3).
+"""callback_token.py — توکنِ HMACِ ضدِ جعل/replay/expiry برای callbackهای `ap:` (Stage-1 P3).
 
-قیدِ توکن: jid + action + owner_id + stamp (=`created_at`ِ همان job، پایدار و
-per-job). secret فقط از env `OCTOPUS_CB_SECRET` خوانده می‌شود — هرگز log/persist/echo
-نمی‌شود و این ماژول آن را نمی‌سازد (ساختِ مقدار = کارِ مالک).
+قیدِ توکن (contract 2026-07-20، هم‌راستا با ممیزی):
+    jid | action | owner_id | action_hash | expires
 
-انضباط:
-- پشتِ فلگِ `OCTOPUS_WIRE_CB_TOKEN` (پیش‌فرض خاموش) — خاموش = رفتارِ امروز بایت‌به‌بایت
-  (کارت `ap:ok:<id>` بدونِ توکن، هیچ verify).
-- روشن ولی secret غایب = fail-closed: mint = "" و verify = False → دکمه‌ها inert می‌مانند
-  تا مالک secret را ست کند (هرگز کارتِ «tokenless ولی معتبر» ساخته نمی‌شود).
+- action_hash = mission_contract.content_sha256(action, jid, {type,risk}) — bind به
+  محتوای دقیقِ job (anti-TOCTOU؛ اگر type/risk عوض شود توکن باطل می‌شود).
+- expires = مهرِ انقضا (epoch؛ ثانیه). داخلِ HMAC است (تمدید بدونِ باطل‌شدن ممکن نیست)
+  و handler جداگانه هم `now <= expires` را enforce می‌کند.
+- jid در این صف نقشِ approval_id و mission_id را با هم دارد (mission_mod.get(jid)).
+
+secret فقط از env `OCTOPUS_CB_SECRET` — هرگز log/persist/echo نمی‌شود و این ماژول آن را
+نمی‌سازد (ساختِ مقدار = کارِ مالک). انضباط:
+- پشتِ فلگِ `OCTOPUS_WIRE_CB_TOKEN` (پیش‌فرض خاموش) — خاموش = رفتارِ امروز بایت‌به‌بایت.
+- روشن ولی secret غایب = fail-closed: mint="" و verify=False → دکمه‌ها inert.
 - مقایسه ثابت‌زمان (hmac.compare_digest). stdlib-only.
 
-توجهِ مهمِ امنیتی (ثبت‌شده در گزارش): این توکن defense-in-depth است. مسیرِ `ap:` از
-قبل با `is_owner` بر پایهٔ `from.id` fail-closed گیت می‌شود (غیرمالک = سکوت) و single-use
-هم از قبل اتمیک است (approval_store._move رکورد را از pending pop می‌کند؛ replay → False).
+نکتهٔ امنیتی (ثبت‌شده): این توکن defense-in-depth است. مسیرِ `ap:` از قبل با `is_owner`
+بر پایهٔ from.id گیت می‌شود (fail-closed) و single-use هم اتمیک است (approval_store._move
+رکورد را از pending pop می‌کند؛ replay → False).
 """
 from __future__ import annotations
 
@@ -44,24 +48,27 @@ def ready() -> bool:
     return flag_on() and _secret() is not None
 
 
-def _canon(jid, action, owner_id, stamp) -> bytes:
-    return f"{jid}|{action}|{owner_id}|{stamp}".encode("utf-8")
+def _canon(jid, action, owner_id, action_hash, expires) -> bytes:
+    return f"{jid}|{action}|{owner_id}|{action_hash}|{expires}".encode("utf-8")
 
 
-def mint(jid, action, owner_id, stamp) -> str:
+def mint(jid, action, owner_id, action_hash, expires) -> str:
     """توکنِ hex یا "" اگر secret نباشد (fail-closed → کارتِ معتبرِ tokenless ساخته نشود)."""
     sec = _secret()
     if not sec:
         return ""
-    mac = hmac.new(sec, _canon(jid, action, owner_id, stamp), hashlib.sha256)
+    mac = hmac.new(sec, _canon(jid, action, owner_id, action_hash, expires), hashlib.sha256)
     return mac.hexdigest()[:_TOKEN_LEN]
 
 
-def verify(token, jid, action, owner_id, stamp) -> bool:
-    """مقایسه ثابت‌زمان. نبودِ token/secret یا هر عدم‌تطابق = False (fail-closed)."""
+def verify(token, jid, action, owner_id, action_hash, expires) -> bool:
+    """مقایسه ثابت‌زمان. نبودِ token/secret یا هر عدم‌تطابق = False (fail-closed).
+
+    توجه: این فقط صحتِ HMAC (شاملِ expires) را چک می‌کند؛ enforcementِ `now<=expires`
+    و single-use در handler است."""
     if not token or not isinstance(token, str):
         return False
-    expected = mint(jid, action, owner_id, stamp)
+    expected = mint(jid, action, owner_id, action_hash, expires)
     if not expected:            # secret غایب → هیچ توکنی معتبر نیست
         return False
     return hmac.compare_digest(token, expected)

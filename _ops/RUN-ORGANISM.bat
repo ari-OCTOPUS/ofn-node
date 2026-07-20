@@ -24,10 +24,12 @@ echo organism exited - waiting 10 seconds ... press Ctrl+C twice to stop
 timeout /t 10 /nobreak >nul
 if exist "F:\backup\_ops\STOP-ORGANISM" (
     if exist "F:\backup\_ops\RESTART-REQUESTED" (
-        rem P2 (2026-07-20 Stage-1): only clear a STOP whose content is the cockpit's
-        rem own byte-sensitive marker. An owner STOP (any other content) is preserved -
-        rem the launcher never revokes the owner's kill-switch.
-        findstr /x /c:"restart via live cockpit" "F:\backup\_ops\STOP-ORGANISM" >nul 2>&1
+        rem P2 (2026-07-20 Stage-1): only clear a STOP whose ENTIRE content (trimmed)
+        rem equals the cockpit's own byte-sensitive marker. Any other content = owner STOP
+        rem -> preserved (launcher never revokes the owner's kill-switch). findstr is
+        rem line-based (would match a marker line inside a multi-line owner STOP), so we
+        rem compare the whole file exactly, identical to live/server.py._claim_cockpit_stop.
+        python -X utf8 -c "import sys,pathlib; sys.exit(0 if pathlib.Path(r'F:\backup\_ops\STOP-ORGANISM').read_text('utf-8').strip()=='restart via live cockpit' else 1)"
         if errorlevel 1 goto stopped
         del "F:\backup\_ops\STOP-ORGANISM" >nul 2>&1
         del "F:\backup\_ops\RESTART-REQUESTED" >nul 2>&1

@@ -50,6 +50,9 @@ def _sanitize_id(raw: str) -> str:
     return clean or "unknown"
 
 
+_CB_TTL_SECONDS = 24 * 3600   # P3: عمرِ توکنِ callback (۲۴ ساعت)
+
+
 def _now_iso() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime())
 
@@ -128,6 +131,9 @@ def add_pending(job: dict) -> str:
         "status": "pending",
         "risk": str(job.get("risk") or "read"),
         "created_at": _now_iso(),
+        # P3 (2026-07-20 Stage-1): مهرِ انقضا برای توکنِ callback (پیش‌فرض ۲۴ ساعت).
+        # همیشه ثبت می‌شود (بی‌خطر وقتی فلگ توکن خاموش است — هیچ مصرف‌کننده‌ای ندارد).
+        "expires_epoch": int(time.time()) + _CB_TTL_SECONDS,
         "requires_confirmation": bool(job.get("requires_confirmation", True)),
         "dry_run_report": str(job.get("dry_run_report") or "")[:500] or None,
         "source": str(job.get("source") or "telegram"),
