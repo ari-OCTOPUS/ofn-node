@@ -63,6 +63,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_memory_gate.py",
          # 2026-07-20 یکپارچگی: Ops Event Spine v1 (envelope + trace_id اجباری + replay + reconcile)
          "test_event_spine.py",
+         # 2026-07-20 یکپارچگی: context fencing (DATA_NOT_INSTRUCTION + غربالِ injection، flag-off passthrough)
+         "test_context_fence.py",
          # 2026-07-20 integration: پوششِ orphan (تست‌های سبزِ روی‌دیسک که در run_all نبودند —
          # نقدِ سنتز: بدونِ ثبت، شکستِ extractionِ آینده نامرئی است). فقط سبزها؛ ۴ orphanِ قرمزِ
          # pre-existing (effector_idempotency/drawdown_enforcer/mining_leg/tg_approval_store) عمداً بیرون.
