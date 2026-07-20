@@ -101,6 +101,14 @@ def _flag(on: bool) -> None:
         os.environ.pop(pw.FLAG, None)
 
 
+def _approve(q: Path, tid: str, owner: str, ptype: str) -> dict:
+    """رأیِ per-item مالک را در همان فایلی ثبت کن که flush برای این صف می‌خواند.
+    (شبیه‌سازیِ کنشِ صریحِ مالک — گیتِ fail-closed بدونِ این رأی هیچ PUT نمی‌کند.)"""
+    r = pw.record_owner_verdict(tid, owner, ptype, queue_path=q)
+    assert r.get("recorded") is True, r
+    return r
+
+
 _orig_transport = pw._transport
 try:
     # ─── ۱) فلگ خاموش: no-opِ کامل ────────────────────────────────────────────
@@ -132,6 +140,7 @@ try:
     check("enqueue صف می‌کند (۱ خط)", r["queued"] is True and len(q.read_text("utf-8").splitlines()) == 1)
     r = pw.enqueue("222", "unknown", "unknown", queue_path=q)
     check("owner/ptype ناشناخته → صف نمی‌شود", r["queued"] is False)
+    _approve(q, "222", "armin", "expense")   # رأیِ per-item مالک — بدونِ آن هیچ PUT
     ft = FakeTransport([
         FakeResp({"id": 222, "labels": ["فروشگاه"]}),                       # GET
         FakeResp({"id": 222, "labels": ["فروشگاه", "oct-مالک-آرمین"]}),     # PUT
@@ -164,6 +173,7 @@ try:
     # ─── ۶) 403 → توقفِ صادق + صف دست‌نخورده ─────────────────────────────────
     q, a = _paths("403")
     pw.enqueue("444", "armin", "wage", queue_path=q)
+    _approve(q, "444", "armin", "wage")      # رأی موجود → جریان به مرزِ PUT می‌رسد، بعد 403
     ft = FakeTransport([FakeResp({"id": 444, "labels": []}),
                         _http_err(pw._ps.BASE + "/transactions/444", 403)])
     pw._transport = ft
@@ -183,6 +193,8 @@ try:
     q, a = _paths("cap")
     pw.enqueue("661", "armin", "expense", queue_path=q)
     pw.enqueue("662", "armin", "expense", queue_path=q)
+    _approve(q, "661", "armin", "expense")
+    _approve(q, "662", "armin", "expense")
     ft = FakeTransport([FakeResp({"labels": []}), FakeResp({"labels": ["oct-مالک-آرمین"]})])
     pw._transport = ft
     r = pw.flush(queue_path=q, audit_path=a, key=FAKE_KEY, max_writes=1)
@@ -193,6 +205,7 @@ try:
     q, a = _paths("dedup")
     pw.enqueue("777", "armin", "expense", queue_path=q)
     pw.enqueue("777", "armin", "income", queue_path=q)
+    _approve(q, "777", "armin", "income")    # رأی برای جوابِ برنده (درآمد)
     ft = FakeTransport([FakeResp({"labels": []}), FakeResp({"labels": ["x"]})])
     pw._transport = ft
     r = pw.flush(queue_path=q, audit_path=a, key=FAKE_KEY)
@@ -203,6 +216,7 @@ try:
     # ─── ۱۰) raceِ صف: enqueueِ حینِ flush گم نمی‌شود ────────────────────────
     q, a = _paths("race")
     pw.enqueue("881", "armin", "expense", queue_path=q)
+    _approve(q, "881", "armin", "expense")   # 882 حینِ flush صف می‌شود (بی‌رأی → می‌ماند)
 
     def _get_with_side_effect(req):
         pw.enqueue("882", "abbas", "income", queue_path=q)   # همزمان صف می‌شود
@@ -273,6 +287,7 @@ try:
         {"id": "aabbcc", "source": "xlsx-export", "review": "confirmed",
          "owner": "armin", "ptype": "expense"},
     ]}, ensure_ascii=False), "utf-8")
+    _approve(q2, "888001", "armin", "expense")   # رأیِ per-item برای ردیفِ backfill‌شده
     ft = FakeTransport([FakeResp({"labels": []}), FakeResp({"labels": ["ok"]})])
     pw._transport = ft
     r = pw.flush(queue_path=q2, audit_path=a2, store_path=store, key=FAKE_KEY)
@@ -289,6 +304,7 @@ try:
     q.parent.mkdir(parents=True, exist_ok=True)
     q.write_text("GARBAGE-NOT-JSON\n", "utf-8")
     pw.enqueue("991", "armin", "expense", queue_path=q)
+    _approve(q, "991", "armin", "expense")
     ft = FakeTransport([FakeResp({"labels": []}), FakeResp({"labels": ["ok"]})])
     pw._transport = ft
     r = pw.flush(queue_path=q, audit_path=a, key=FAKE_KEY)

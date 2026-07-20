@@ -10,6 +10,10 @@
   • بدنهٔ PUT فقط از فیلدهای _WRITABLE_FIELDS = {"labels"} — هرگز مبلغ/تاریخ/payee/
     category/split. فیلدِ خارج از whitelist → درخواست *ارسال نمی‌شود* (blocked).
   • پشتِ فلگِ جداگانهٔ OCTOPUS_WIRE_PS_WRITEBACK (پیش‌فرض خاموش → صفر شبکه، صفر فایل).
+  • گیتِ per-item مالک (fail-closed، ۲۰۲۶-۰۷-۲۱): قبل از هر PUT، رأیِ پایدارِ «approve»ِ مالک
+    برای دقیقاً همین (tid + فیلد=labels + هشِ محتوایِ برچسب‌های oct) لازم است. نبودِ رأی/عدمِ
+    تطبیقِ هش → skipِ صادق، هرگز PUT — حتی با هر سه فلگِ مسلح. رکوردِ رأی فقط با کنشِ صریحِ
+    مالک ساخته می‌شود (record_owner_verdict؛ هرگز از مسیرِ خودکار — auto-approve وجود ندارد).
   • سقفِ نوشتن در هر flush (پیش‌فرض ۴۰؛ PS_WRITEBACK_MAX_PER_FLUSH) — ضدِ خسارتِ انبوه.
   • idempotent: قبل از هر PUT یک GET؛ اگر برچسب‌ها از قبل درست‌اند → skip (صفر نوشتن).
   • هر نتیجه در لاگِ ممیزیِ append-onlyِ محلی ثبت می‌شود (gitignored؛ هرگز مبلغ).
@@ -62,6 +66,7 @@ _NS_PTYPE = "oct-نوع-"
 
 QUEUE_NAME = "ps-writeback-queue.jsonl"
 AUDIT_NAME = "ps-writeback-log.jsonl"
+VERDICT_NAME = "ps-writeback-verdicts.jsonl"      # رأیِ پایدارِ per-item مالک (owner-gated)
 MARK_NAME = "ps-writeback-backfilled.marker"      # auto-backfillِ یک‌باره در اولین flushِ سیمی
 
 
@@ -216,6 +221,108 @@ def _merge_labels(existing, targets: list[str]) -> tuple[list[str], bool]:
     return merged, merged != cur
 
 
+# ─── رأیِ پایدارِ per-item مالک (گیتِ fail-closed پیش از هر PUT) ───────────────────
+#
+# قرارداد (v1، owner-gated): پیش از هر نوشتنِ بیرونی برای یک تراکنش، باید رکوردِ رأیِ
+# پایداری وجود داشته باشد که *دقیقاً همان آیتم* را مجاز کند — گره‌خورده به:
+#     (tid, field="labels", content_sha256(هشِ برچسب‌های oct هدف)).
+# رکورد فقط با کنشِ صریحِ مالک ساخته می‌شود (record_owner_verdict — CLI مالک/هندلرِ
+# owner-gated). هیچ مسیرِ خودکاری (flush/enqueue/backfill) رأی نمی‌سازد → auto-approve
+# وجود ندارد. نبودِ رأی/عدمِ تطبیقِ هش/رأیِ غیرِ approve → fail-closed (هیچ PUT).
+# هشِ محتوا از mission_contract.content_sha256 بازاستفاده می‌شود (همان anti-TOCTOUِ کانونیِ
+# پروژه — «approval را به scopeِ دقیقاً تأییدشده گره می‌زند»).
+def _verdict_path(p: Path | None = None, *, queue_path: Path | None = None) -> Path:
+    """مسیرِ فایلِ رأی. صریح → همان؛ وگرنه کنارِ صف (per-queue، ایزوله)؛ وگرنه personal/."""
+    if p is not None:
+        return Path(p)
+    if queue_path is not None:
+        qp = Path(queue_path)
+        return qp.with_name(qp.stem + "-verdicts" + qp.suffix)
+    return _personal_dir() / VERDICT_NAME
+
+
+def _read_verdicts(p: Path) -> list[dict]:
+    """خطوطِ فایلِ رأی → رکوردها (خطِ خراب skip؛ fail-soft به خالی)."""
+    out: list[dict] = []
+    try:
+        if p.exists():
+            for ln in p.read_text("utf-8").splitlines():
+                ln = ln.strip()
+                if not ln:
+                    continue
+                try:
+                    obj = json.loads(ln)
+                    if isinstance(obj, dict):
+                        out.append(obj)
+                except json.JSONDecodeError:
+                    continue
+    except Exception:  # noqa: BLE001 — خواندنِ رأی نباید flush را بکشد
+        pass
+    return out
+
+
+def _verdict_content_hash(tid, field: str, targets: list[str]) -> str | None:
+    """هشِ محتوایی که رأی را به «همین tid + همین field + همین برچسب‌های oc‌tِ هدف» گره می‌زند.
+    mission_contract.content_sha256 را بازاستفاده می‌کند (stdlib، deterministic). خطا → None
+    (بدونِ هش هیچ رأیی تطبیق نمی‌شود → fail-closed)."""
+    try:
+        if str(_OPS) not in sys.path:
+            sys.path.insert(0, str(_OPS))
+        import mission_contract as _mc     # noqa: WPS433 — lazy؛ خطا → fail-closed
+        return _mc.content_sha256(
+            "ps_writeback.put_labels",
+            f"pocketsmith/transactions/{tid}",
+            {"field": str(field), "targets": sorted(str(t) for t in (targets or []))})
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _owner_verdict_ok(tid, field: str, targets: list[str], *, verdict_file: Path) -> bool:
+    """آیا رأیِ پایدارِ «approve»ِ مالک برای دقیقاً همین (tid, field, هشِ محتوا) هست؟
+    غیاب/عدمِ تطبیق/رأیِ غیرِ approve → False (fail-closed؛ هیچ PUT)."""
+    want = _verdict_content_hash(tid, field, targets)
+    if not want:
+        return False
+    for rec in _read_verdicts(verdict_file):
+        if (str(rec.get("tid")) == str(tid)
+                and str(rec.get("field")) == str(field)
+                and str(rec.get("content_sha256")) == want
+                and str(rec.get("verdict", "")).strip().lower() == "approve"):
+            return True
+    return False
+
+
+def record_owner_verdict(tid, owner: str | None, ptype: str | None, *,
+                         field: str = "labels", verdict: str = "approve",
+                         verdict_path: Path | None = None,
+                         queue_path: Path | None = None) -> dict:
+    """OWNER-INVOKED ONLY — یک رأیِ پایدارِ per-item ثبت کن که PUTِ برچسب‌ها به همین تراکنش را
+    مجاز می‌کند. **هرگز** از مسیرِ خودکارِ flush/enqueue/backfill صدا زده نمی‌شود؛ پرکردنِ این
+    store یک کنشِ صریحِ مالک است (CLI مالک/هندلرِ owner-gated تلگرام). auto-approve نیست:
+    رکورد فقط با کنشِ مالک ساخته می‌شود و به هشِ محتوا (tid+field+برچسب‌های oct) گره می‌خورد.
+    صفر شبکه، صفر پول — فقط یک خط append. خروجی فقط شمارش/هش — هرگز مبلغ/کلید."""
+    if not _valid_tid(tid):
+        return {"ok": False, "recorded": False, "note": "id غیرِ PocketSmith — رأی ثبت نشد."}
+    targets = _target_labels(owner, ptype)
+    if not targets:
+        return {"ok": False, "recorded": False, "note": "owner/ptype ناشناخته — چیزی برای تأیید نیست."}
+    chash = _verdict_content_hash(tid, field, targets)
+    if not chash:
+        return {"ok": False, "recorded": False, "note": "هشِ محتوا محاسبه نشد (fail-closed)."}
+    v = str(verdict or "").strip().lower() or "approve"
+    try:
+        p = _verdict_path(verdict_path, queue_path=queue_path)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        rec = {"ts": time.strftime("%Y-%m-%dT%H:%M:%S"), "tid": str(tid), "field": str(field),
+               "owner": owner, "ptype": ptype, "content_sha256": chash, "verdict": v}
+        with open(p, "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        return {"ok": True, "recorded": True, "content_sha256": chash, "verdict": v,
+                "note": "رأیِ per-item ثبت شد — PUT فقط برای همین آیتم/هش مجاز است."}
+    except Exception as e:  # noqa: BLE001 — ثبتِ رأی نباید صداکننده را بکشد
+        return {"ok": False, "recorded": False, "note": f"ثبتِ رأی ناموفق — {type(e).__name__}."}
+
+
 # ─── صف (enqueue در /review، flush در /sync) ─────────────────────────────────
 def enqueue(tid: str, owner: str | None, ptype: str | None, *,
             source: str | None = None, queue_path: Path | None = None) -> dict:
@@ -318,7 +425,7 @@ def _acquire_lock(qp: Path) -> Path | None:
 def flush(*, queue_path: Path | None = None, audit_path: Path | None = None,
           store_path: Path | None = None, key: str | None = None,
           timeout: int = _DEFAULT_TIMEOUT, max_writes: int | None = None,
-          deadline_s: float | None = None) -> dict:
+          deadline_s: float | None = None, verdict_path: Path | None = None) -> dict:
     """صفِ write-back را خالی کن: هر آیتم → GET (idempotency) → PUTِ برچسب‌ها.
 
     قراردادها (سخت‌شده با verify خصمانهٔ ۵-لنزی):
@@ -378,7 +485,8 @@ def flush(*, queue_path: Path | None = None, audit_path: Path | None = None,
             dl = _DEFAULT_DEADLINE_S
         t0 = time.monotonic()
         req_budget = _REQ_BUDGET_FACTOR * cap  # سقفِ GETها هم — نه فقط PUT (لنز ۴)
-        requests_made = written = skipped = dropped = 0
+        vp = _verdict_path(verdict_path, queue_path=queue_path)   # فایلِ رأیِ per-item
+        requests_made = written = skipped = dropped = awaiting = 0
         kept: list[dict] = []
         aborted_note = None
         for it in todo:
@@ -417,6 +525,15 @@ def flush(*, queue_path: Path | None = None, audit_path: Path | None = None,
                 skipped += 1
                 _audit({"tid": tid, "result": "already-correct-skipped"}, audit_path)
                 continue
+            # گیتِ fail-closed per-item: بدونِ رأیِ پایدارِ «approve»ِ مالک برای دقیقاً همین
+            # (tid, labels, هشِ محتوا) هیچ PUT — حتی با هر سه فلگ. غیابِ رأی = skipِ صادق و
+            # نگه‌داشتنِ آیتم در صف (منتظرِ تأییدِ مالک، نه خطا؛ aborted_note ست نمی‌شود).
+            if not _owner_verdict_ok(tid, "labels", targets, verdict_file=vp):
+                awaiting += 1
+                kept.append(it)
+                _audit({"tid": tid, "result": "no-owner-verdict-skipped", "field": "labels"},
+                       audit_path)
+                continue
             requests_made += 1
             pr = _request("PUT", f"/transactions/{tid}", {"labels": ",".join(merged)},
                           key=key, timeout=timeout)
@@ -433,9 +550,10 @@ def flush(*, queue_path: Path | None = None, audit_path: Path | None = None,
                     "note": "بازنویسیِ صف شکست — دورِ بعد دوباره‌کاریِ idempotent."}, audit_path)
         ok = aborted_note is None
         return {"ok": ok, "wired": True, "written": written, "skipped": skipped,
-                "dropped": dropped, "kept": len(kept),
+                "dropped": dropped, "kept": len(kept), "awaiting_verdict": awaiting,
                 "note": aborted_note or
-                        f"flush ok — {written} نوشته، {skipped} از قبل درست، {dropped} غایب."}
+                        (f"flush ok — {written} نوشته، {skipped} از قبل درست، {dropped} غایب"
+                         + (f"، {awaiting} منتظرِ رأیِ مالک" if awaiting else "") + ".")}
     finally:
         try:
             lock.unlink()
@@ -478,6 +596,8 @@ if __name__ == "__main__":
         "writable_fields": sorted(_WRITABLE_FIELDS),
         "max_per_flush": _max_writes(),
         "queue": str(_queue_path()),
+        "verdicts": str(_verdict_path()),
+        "per_item_owner_verdict": "required (fail-closed) — no PUT without owner approve record",
     }
     if "--backfill" in sys.argv:
         _status["backfill"] = backfill()
