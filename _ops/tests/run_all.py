@@ -59,6 +59,11 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_outcome_spine.py",
          # 2026-07-20: Decision Receipt (immutable، append-only، join به outcome_store؛ inert، v1 فقط ثبت)
          "test_decision_receipt.py",
+         # 2026-07-20 integration: پوششِ orphan (تست‌های سبزِ روی‌دیسک که در run_all نبودند —
+         # نقدِ سنتز: بدونِ ثبت، شکستِ extractionِ آینده نامرئی است). فقط سبزها؛ ۴ orphanِ قرمزِ
+         # pre-existing (effector_idempotency/drawdown_enforcer/mining_leg/tg_approval_store) عمداً بیرون.
+         "test_lead_leg_inbox.py", "test_tg_intent.py", "test_tg_metadata_scan.py",
+         "test_ziman_branding.py", "test_merge_applies_knob.py", "test_mining_wiring.py",
          "test_web_research.py", "test_metacognitive.py", "test_discoveries.py",
          "test_events.py", "test_part_loops.py", "test_auto_approve.py",
          # 2026-07-16: ماتریسِ ردهٔ خودمختاری (رأی مالک: گیتِ انسانی فقط برای مهم‌ها) —
