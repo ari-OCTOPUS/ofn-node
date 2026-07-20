@@ -75,6 +75,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # OCTOPUS_WIRE_VERDICT_OUTCOME): measurement-only، idempotent، restart-replay؛ قوسِ شکستهٔ
          # in-memory بسته شد. هرگز delivered/settled/revenue.
          "test_verdict_outcome.py",
+         # 2026-07-20 Sol-T3: گاردِ ضدِ bypassِ خاموشِ context fence — inventoryِ callerهای مستقیمِ
+         # local_llm.ask قفل شد (callerِ نو خارج از مجموعهٔ مستند = fail).
+         "test_llm_fence_coverage.py",
          # 2026-07-20 D-G: قراردادِ STOP — HALT-ALL توسطِ watchdog.py + هر دو watchdogِ .ps1 honor می‌شود
          "test_stop_contract.py",
          # 2026-07-20 یکپارچگی: بستنِ حلقهٔ لید record-only (lead→receipt→outcome، memories_used از
