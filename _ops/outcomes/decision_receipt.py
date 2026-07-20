@@ -33,8 +33,23 @@ from pathlib import Path
 SCHEMA_VERSION = 1
 _LOCK = threading.RLock()
 
-# effect_class توصیه‌شده (E0–E4، taxonomyِ دلتا-اسکن)؛ v1 فقط ثبت می‌کند (enforcement = لایهٔ policy).
-KNOWN_EFFECT_CLASSES = ("E0", "E1", "E2", "E3", "E4")
+# effect_class از taxonomyِ واحد (منبعِ یگانه — همان‌که Memory Gate/Outcome/Spine می‌خوانند).
+# fallbackِ خودکفا اگر taxonomy لود نشد (decision_receipt نباید به آن hard-وابسته باشد).
+try:
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import taxonomy as _tax
+    _EFFECT_CLASSES = _tax.EFFECT_CLASSES
+
+    def _tax_effect_ok(e):
+        return _tax.is_effect_class(e)
+except Exception:  # noqa: BLE001
+    _EFFECT_CLASSES = ("E0", "E1", "E2", "E3", "E4")
+
+    def _tax_effect_ok(e):
+        return e in _EFFECT_CLASSES
+
+KNOWN_EFFECT_CLASSES = _EFFECT_CLASSES
 LINK_TYPES = ("outcome", "test", "review", "verdict", "approval")
 
 # کلیدهایی که هرگز نباید در رسید باشند (CoT / متنِ خام / secret)
@@ -96,8 +111,9 @@ def _validate(rec: dict) -> dict:
         raise ReceiptValidationError(f"objective too long ({len(objective)}>{_CAP['objective']}) — no CoT dumps")
 
     effect_class = str(rec.get("effect_class") or "").strip()
-    if not effect_class or len(effect_class) > 8:
-        raise ReceiptValidationError("effect_class required (short code, e.g. E0..E4)")
+    if not _tax_effect_ok(effect_class):
+        raise ReceiptValidationError(
+            f"effect_class must be one of the unified taxonomy classes {tuple(_EFFECT_CLASSES)}")
 
     def _list_capped(key, item_cap):
         vals = rec.get(key) or []
