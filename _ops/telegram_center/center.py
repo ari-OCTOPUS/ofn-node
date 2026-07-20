@@ -473,6 +473,7 @@ class Center:
                 try:
                     res = r.render_decision(it2)
                     txt, kb = res if isinstance(res, tuple) else (str(res), None)
+                    kb = self._tok_kb(kb)        # P3 (D4): توکنِ ok/no/later وقتی فلگ روشن (وگرنه no-op)
                 except Exception:  # noqa: BLE001
                     continue
                 try:
@@ -585,6 +586,7 @@ class Center:
                     except Exception:  # noqa: BLE001
                         pass
                 txt, kb = mission_mod.mission_card(m.get("id"))
+                kb = self._tok_kb(kb)            # P3 (D4): توکنِ ms: وقتی فلگ روشن (وگرنه no-op)
                 mid = self._client.send(_scrub(txt), chat_id=chat_id, keyboard=kb)
                 return {"kind": "ask_mission", "mission_id": m.get("id"), "sent": mid is not None}
 
@@ -1020,6 +1022,7 @@ class Center:
 
         if action == "open" and mid:
             txt, kb = mission_mod.mission_card(mid)
+            kb = self._tok_kb(kb)                # P3 (D4): توکنِ ms: وقتی فلگ روشن (وگرنه no-op)
             try:
                 if isinstance(m_id, int):
                     self._client.edit(m_id, _scrub(txt), keyboard=kb, chat_id=chat)
@@ -1046,6 +1049,7 @@ class Center:
                 mission_mod.set_state(mid, "planned", "test requested; awaiting runner")
                 toast = "درخواست تست ثبت شد؛ اجرا جداست"
             txt, kb = mission_mod.mission_card(mid)
+            kb = self._tok_kb(kb)                # P3 (D4): توکنِ ms: وقتی فلگ روشن (وگرنه no-op)
             try:
                 if isinstance(m_id, int):
                     self._client.edit(m_id, _scrub(txt), keyboard=kb, chat_id=chat)
@@ -1058,6 +1062,7 @@ class Center:
             mission_mod.add_note(mid, "owner requested doctor/epistemics review from Telegram; reviewer not executed by center")
             mission_mod.set_state(mid, "planned", "review requested; awaiting doctor/epistemics")
             txt, kb = mission_mod.mission_card(mid)
+            kb = self._tok_kb(kb)                # P3 (D4): توکنِ ms: وقتی فلگ روشن (وگرنه no-op)
             try:
                 if isinstance(m_id, int):
                     self._client.edit(m_id, _scrub(txt), keyboard=kb, chat_id=chat)
@@ -1067,6 +1072,25 @@ class Center:
             return {"kind": "mission", "action": "review_request", "id": mid}
 
         if action in ("approve", "reject") and mid:
+            # P3 (D4): فلگ روشن → این verbِ رأی‌دهنده باید توکنِ HMACِ معتبر داشته باشد
+            # (ms:<action>:<mid>:<token>). tokenlessِ قدیمی/جعلی/منقضی = رد (fail-closed،
+            # دقیقاً مثلِ ap:). فلگ خاموش → این بلوک اجرا نمی‌شود و mid همان مقدارِ بالا می‌ماند.
+            if cbtok.flag_on():
+                seg = data.split(":")                        # ms : action : mid [: token]
+                mid = _sanitize_id(seg[2]) if len(seg) > 2 else ""   # midِ تمیز (token جدا)
+                token = seg[3] if len(seg) > 3 else None
+                _exp = self._cb_expires_for(mid)
+                if not mid or not self._cb_verify(token, mid, action, _exp):
+                    self._answer(cbq, "توکنِ نامعتبر — کارت را از منو دوباره باز کن")
+                    return {"kind": "mission", "rejected": "bad-token", "id": mid}
+                if _exp:                                     # enforceِ جداگانهٔ انقضا (مثلِ ap:)
+                    try:
+                        import time as _t
+                        if _t.time() > float(_exp):
+                            self._answer(cbq, "کارت منقضی شده — از منو دوباره باز کن")
+                            return {"kind": "mission", "rejected": "expired", "id": mid}
+                    except (TypeError, ValueError):
+                        pass
             approved = action == "approve"
             out = mission_mod.set_owner_verdict(mid, approved)
             try:
@@ -1084,6 +1108,7 @@ class Center:
                 self._durable_verdict_outcome("ok" if approved else "no", mid,
                                               {"type": "mission"})
             txt, kb = mission_mod.mission_card(mid)
+            kb = self._tok_kb(kb)                # P3 (D4): توکنِ ms: وقتی فلگ روشن (وگرنه no-op)
             try:
                 if isinstance(m_id, int):
                     self._client.edit(m_id, _scrub(txt), keyboard=kb, chat_id=chat)
@@ -1106,6 +1131,77 @@ class Center:
                                        "risk": (job or {}).get("risk")})
         except Exception:  # noqa: BLE001
             return ""
+
+    # ── P3 (D4): توکنِ HMACِ callback برای verbهای legacy (ok/no/later) و mission (ms:) ──
+    # همان طرحِ ap: (jid|action|owner|action_hash|expires) از callback_token — «طرحِ دوم»
+    # اختراع نمی‌شود. این verbها jobِ محتوایی مثلِ ap: ندارند → action_hash="". فقط mission
+    # می‌تواند expires داشته باشد (اگر missionِ ذخیره‌شده expires_epoch داشته باشد). فلگ خاموش
+    # → این مسیرها اصلاً لمس نمی‌شوند (بایت‌به‌بایتِ امروز). is_owner از handle_update اول است.
+    def _cb_expires_for(self, mid: str) -> str:
+        """expires_epochِ missionِ ذخیره‌شده (برای bind/enforceِ توکنِ ms:) یا "" (بی‌انقضا).
+        fail-soft → "" (هرگز نمی‌شکند)."""
+        try:
+            m = mission_mod.get(mid)
+            return str((m or {}).get("expires_epoch", "")) if isinstance(m, dict) else ""
+        except Exception:  # noqa: BLE001
+            return ""
+
+    def _cb_mint(self, jid: str, action: str, expires: str = "") -> str:
+        """mintِ توکنِ HMAC با همان cbtok.mint (action_hash=""). بی‌راز/خطا → "" (fail-closed:
+        کارتِ tokenlessِ inert، نه یک توکنِ جعلی‌پذیر)."""
+        try:
+            owner = getattr(self._client, "owner_chat_id", None)
+            return cbtok.mint(str(jid), action, owner, "", expires)
+        except Exception:  # noqa: BLE001
+            return ""
+
+    def _cb_verify(self, token, jid: str, action: str, expires: str = "") -> bool:
+        """verifyِ متقارن با _cb_mint. نبودِ token/secret یا هر عدم‌تطابق = False (fail-closed)."""
+        try:
+            owner = getattr(self._client, "owner_chat_id", None)
+            return cbtok.verify(token, str(jid), action, owner, "", expires)
+        except Exception:  # noqa: BLE001
+            return False
+
+    def _tok_btn(self, btn: dict) -> dict:
+        """یک دکمه را در صورتِ لزوم توکن‌دار کن (فقط verbهای گیت‌شده). idempotent:
+        اگر callback_data قبلاً توکن دارد یا verbِ گیت‌نشده است، دست‌نخورده برمی‌گردد."""
+        cd = btn.get("callback_data")
+        if not isinstance(cd, str):
+            return btn
+        seg = cd.split(":")
+        new_cd = None
+        if len(seg) == 2 and seg[0] in _VERDICTS:            # legacy ok/no/later:<did> (بی‌توکن)
+            tok = self._cb_mint(seg[1], seg[0], "")
+            if tok:
+                new_cd = f"{cd}:{tok}"
+        elif len(seg) == 3 and seg[0] == "ms" and seg[1] in ("approve", "reject"):  # ms:<v>:<mid>
+            exp = self._cb_expires_for(seg[2])
+            tok = self._cb_mint(seg[2], seg[1], exp)
+            if tok:
+                new_cd = f"{cd}:{tok}"
+        if new_cd is None:
+            return btn
+        nb = dict(btn)
+        nb["callback_data"] = new_cd
+        return nb
+
+    def _tok_kb(self, kb):
+        """کیبورد را وقتی OCTOPUS_WIRE_CB_TOKEN روشن است توکن‌دار کن تا کارتِ legacy/mission با
+        handlerِ token-gated کار کند («exactly like ap:»). فلگ خاموش → kb بایت‌به‌بایت بدونِ تغییر.
+        فقط verbهای گیت‌شده لمس می‌شوند؛ ap:/mn:/lg:/ms:open|test|review دست‌نخورده."""
+        try:
+            if not cbtok.flag_on() or not isinstance(kb, list):
+                return kb
+        except Exception:  # noqa: BLE001
+            return kb
+        out = []
+        for row in kb:
+            if not isinstance(row, list):
+                out.append(row)
+                continue
+            out.append([self._tok_btn(b) if isinstance(b, dict) else b for b in row])
+        return out
 
     def _handle_approval_callback(self, cbq: dict, data: str) -> dict:
         """verbهای صفِ تأیید (فاز E — bridge اختاپوس).
@@ -1241,7 +1337,20 @@ class Center:
         if len(parts) != 2 or parts[0] not in _VERDICTS:
             self._answer(cbq, "نادیده")
             return {"kind": "callback", "verdict": None}
-        verb, did = parts[0], _sanitize_id(parts[1])
+        verb = parts[0]
+        # P3 (D4): فلگ روشن → ok/no/later هم باید توکنِ HMACِ معتبر داشته باشند
+        # (<verb>:<did>:<token>). tokenlessِ قدیمی/جعلی = رد (fail-closed، مثلِ ap:). این
+        # کارت‌ها jobِ محتوایی/انقضا ندارند → action_hash/expires="". فلگ خاموش → مسیرِ قدیمی
+        # بایت‌به‌بایت (did = _sanitize_id(parts[1])). is_owner از handle_update از قبل اول است.
+        if cbtok.flag_on():
+            seg = data.split(":")
+            did = _sanitize_id(seg[1]) if len(seg) > 1 else ""
+            token = seg[2] if len(seg) > 2 else None
+            if not did or not self._cb_verify(token, did, verb, ""):
+                self._answer(cbq, "توکنِ نامعتبر — کارت را از منو دوباره باز کن")
+                return {"kind": "callback", "verdict": None, "rejected": "bad-token", "id": did}
+        else:
+            did = _sanitize_id(parts[1])
         rec = {"id": did, "verdict": verb, "ts": opslib.now_iso(), "source": "tg-center"}
         if verb == "ok":
             tok = _mint_ha_token(did)                # بی‌راز → None → ثبتِ بدونِ توکن
