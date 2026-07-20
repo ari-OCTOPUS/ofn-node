@@ -290,57 +290,18 @@ def aggregate(probe=None) -> dict:
     }
 
 
-# P2 (2026-07-20، مأموریت Stage-1 Security): هیچ endpointِ کاکپیت حق ندارد STOPِ مالک را
-# overwrite/revoke کند. markerِ byte-sensitiveِ خودِ کاکپیت تنها محتوای «قابلِ ادامه» است.
-_COCKPIT_STOP_MARK = "restart via live cockpit"
-
-
-def _claim_cockpit_stop(stop_path, cockpit_mark: str = _COCKPIT_STOP_MARK) -> bool:
-    """گاردِ P2 (atomic، race-safe): markerِ کاکپیت را create-only بنویس.
-
-    True = نوشته/ادامه مجاز؛ False = STOPِ مالک محفوظ ماند (رد). با `O_CREAT|O_EXCL`
-    هیچ TOCTOU windowی نمی‌ماند: اگر بین چک و نوشتن مالک STOP بسازد، create شکست
-    می‌خورد و محتوا دوباره بررسی می‌شود. تنها overwriteِ مجاز = وقتی محتوای موجود
-    دقیقاً markerِ خودِ کاکپیت باشد (restartِ دوباره). ناخوانا/خطا = fail-closed (False)."""
-    try:
-        fd = os.open(str(stop_path), os.O_WRONLY | os.O_CREAT | os.O_EXCL)
-    except FileExistsError:
-        # فایل از قبل بود یا در همین لحظه ساخته شد → محتوای واقعی را داوری کن
-        try:
-            content = stop_path.read_text("utf-8").strip()
-        except Exception:  # noqa: BLE001 — ناخوانا → fail-closed
-            return False
-        if content != cockpit_mark:
-            return False                 # STOPِ مالک → هرگز overwrite
-        try:                             # markerِ خودِ کاکپیت → refreshِ امن
-            stop_path.write_text(cockpit_mark, "utf-8")
-            return True
-        except Exception:  # noqa: BLE001
-            return False
-    except Exception:  # noqa: BLE001 — هر خطای دیگرِ open → fail-closed
-        return False
-    try:
-        os.write(fd, cockpit_mark.encode("utf-8"))
-        return True
-    except Exception:  # noqa: BLE001
-        return False
-    finally:
-        try:
-            os.close(fd)
-        except Exception:  # noqa: BLE001
-            pass
-
-
 def do_action(kind: str) -> dict:
     """اقدام‌های مالک (صفحهٔ محلی = کلیکِ مالک). همه برگشت‌پذیر و sanctioned.
     مسیرها از opslib.OPS (env) — در تست، mini-vault؛ در prod، _ops واقعی."""
     ops = opslib.OPS
     if kind == "restart-organism":
-        # P2 (atomic): markerِ کاکپیت را race-safe claim کن؛ STOPِ مالک هرگز overwrite نشود.
-        if not _claim_cockpit_stop(ops / "STOP-ORGANISM"):
+        # P2 (structural, 2026-07-20 Stage-1): کاکپیت دیگر STOP-ORGANISM را نمی‌نویسد/حذف
+        # نمی‌کند (نه compare-then-delete، نه overwrite → صفر TOCTOU روی STOPِ مالک).
+        # سیگنالِ restart = RESTART-REQUESTED که organism روی آن clean-exit می‌کند و launcher
+        # فقط همان را پاک می‌کند. اگر STOPِ مالک حاضر است، restart رد می‌شود.
+        if (ops / "STOP-ORGANISM").exists():
             return {"ok": False,
-                    "note": "STOPِ مالک محفوظ است — عملیات رد شد؛ اول STOP را دستی بردار"}
-        # RESTART-REQUESTED فقط پس از claimِ موفق (تا بردارِ .bat روی STOPِ مالک باز نشود).
+                    "note": "STOPِ مالک حاضر است — restart رد شد؛ اول STOP را دستی بردار"}
         (ops / "RESTART-REQUESTED").write_text("live", "utf-8")
 
         def _relauncher():

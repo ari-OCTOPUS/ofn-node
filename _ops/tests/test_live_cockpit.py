@@ -79,12 +79,15 @@ def t_c_actions_isolated_to_env_ops():
     """restart-organism فقط دو فایلِ flag در OPSِ تست می‌سازد (بدنِ واقعی امن)؛
     stop-cortex همان‌جا؛ اقدامِ ناشناخته رد."""
     ops = Path(ENV["ops"])
+    # STOP-CORTEX/STOP-ORGANISM از اجرای قبلی نمانده باشد (ایزولاسیونِ قطعی)
+    for _n in ("STOP-ORGANISM", "RESTART-REQUESTED"):
+        if (ops / _n).exists():
+            (ops / _n).unlink()
     r = live.do_action("restart-organism")
     assert r["ok"] is True
-    assert (ops / "STOP-ORGANISM").exists()
+    # P2 ساختاری (2026-07-20): restart فقط RESTART-REQUESTED می‌نویسد، هرگز STOP-ORGANISM.
+    assert not (ops / "STOP-ORGANISM").exists()
     assert (ops / "RESTART-REQUESTED").exists()
-    # (ایزولاسیون با OPS=tmp در همین دو asserт بالا اثبات است — به state واقعی وابسته نشو)
-    (ops / "STOP-ORGANISM").unlink()
     (ops / "RESTART-REQUESTED").unlink()
     r2 = live.do_action("stop-cortex")
     assert r2["ok"] is True and (ops / "STOP-CORTEX").exists()

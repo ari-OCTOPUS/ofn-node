@@ -14,6 +14,8 @@ $0 آفلاین؛ handlerها با aps/mission monkeypatchِ in-memory (state و
 """
 import os
 import sys
+import tempfile
+import threading
 import time
 import types
 from pathlib import Path
@@ -248,6 +250,33 @@ def t_m_flag_off_legacy_still_works():
         data = "ap:ok:job1"
         out = c._handle_approval_callback(_cbq(fc.owner_id, data), data)
         assert out.get("ok") is True and out.get("verdict") == "ok"
+
+
+def t_n_single_use_atomic_under_concurrency():
+    """approval_store.approve زیرِ قفلِ single-writer: ۱۶ مصرف‌کنندهٔ همزمان روی یک jid →
+    دقیقاً یکی True، بقیه False (read-modify-write اتمیک است، نه فقط هر write)."""
+    import approval_store as aps
+    with tempfile.TemporaryDirectory() as td:
+        prev = aps._APPROVALS_JSON
+        aps._APPROVALS_JSON = Path(td) / "approvals.json"     # redirect به temp (state واقعی امن)
+        try:
+            jid = aps.add_pending({"id": "jobRACE", "type": "task", "risk": "read"})
+            results, start = [], threading.Event()
+
+            def _worker():
+                start.wait()
+                results.append(aps.approve(jid))
+
+            ts = [threading.Thread(target=_worker) for _ in range(16)]
+            for t in ts:
+                t.start()
+            start.set()
+            for t in ts:
+                t.join()
+            assert sum(1 for r in results if r) == 1, f"دقیقاً یک approve باید True شود: {results}"
+            assert aps.summary().get("approved", 0) == 1
+        finally:
+            aps._APPROVALS_JSON = prev
 
 
 if __name__ == "__main__":

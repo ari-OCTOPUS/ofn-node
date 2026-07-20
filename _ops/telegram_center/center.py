@@ -1277,6 +1277,17 @@ class Center:
         if not self._wired() or self.stopped():
             return
         self.ensure_setup()
+        # P3 (Stage-1، review-3): اگر قیدِ توکن روشن ولی OCTOPUS_CB_SECRET تنظیم نشده →
+        # هشدارِ fail-soft (بدونِ echoِ مقدارِ secret). fail-closed از قبل برقرار است (توکن‌ها
+        # verify نمی‌شوند → دکمه‌ها inert)؛ این فقط دیده‌شدنیِ misconfig را تأمین می‌کند.
+        try:
+            if cbtok.flag_on() and not cbtok.ready():
+                import opslib as _ol
+                _ol.alert(["⚠️ OCTOPUS_WIRE_CB_TOKEN روشن ولی OCTOPUS_CB_SECRET تنظیم نشده — "
+                           "کارت‌های تأیید fail-closed/inert می‌مانند تا secret ست شود "
+                           "(مقدارِ secret هرگز log نمی‌شود)."])
+        except Exception:  # noqa: BLE001
+            pass
         last_beat = 0.0
         while not self.stopped():
             self.run_once()
