@@ -1,5 +1,5 @@
 ---
-type: analysis
+type: architecture
 status: active
 tags: [architecture, unification, spine, memory, events, decisions, outcomes, reachability]
 created: 2026-07-20

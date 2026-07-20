@@ -1,5 +1,5 @@
 ---
-type: analysis
+type: architecture
 status: active
 tags: [architecture, effects, taxonomy, safety, gate]
 created: 2026-07-20

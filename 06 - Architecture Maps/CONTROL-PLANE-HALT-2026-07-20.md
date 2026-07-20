@@ -1,5 +1,5 @@
 ---
-type: analysis
+type: architecture
 status: active
 tags: [architecture, stop, halt, safety, control-plane]
 created: 2026-07-20
