@@ -448,43 +448,19 @@ class LiveLoop:
                                             source="ari-button", value_aud=value)
 
     def _record_durable_verdict(self, meta: dict, verdict: str, value: float) -> None:
-        """T2 (ممیزیِ Sol): رأیِ مالک را پایدار (measurement) در outcomes.db ثبت کن — پشتِ
-        OCTOPUS_WIRE_VERDICT_OUTCOME. flag خاموش → no-op بایت‌به‌بایت. fail-soft؛ صفر settle/ledger/
-        effector. قوسِ شکسته را می‌بندد: رأی دیگر با restart گم نمی‌شود (in-memory → durable)."""
+        """T2 (ممیزیِ Sol): رأیِ مالک را پایدار (measurement) ثبت کن — پشتِ OCTOPUS_WIRE_VERDICT_OUTCOME.
+        منطقِ store/مسیر در verdict_recorder محصور است تا live_loop **لایهٔ wireِ خالص** بماند
+        (ساختاراً بدونِ importِ لایهٔ production — ناوردیِ t_no_production_import). flag خاموش → no-op.
+        fail-soft؛ صفر settle/ledger/effector. قوسِ شکسته: رأی دیگر با restart گم نمی‌شود."""
         try:
-            for _op in (str(_HERE / "outcomes"), str(_HERE / "spine")):
-                if _op not in sys.path:
-                    sys.path.insert(0, _op)
-            import verdict_recorder as _vr   # noqa: WPS433 — lazy
-            if not _vr.flag_on():
-                return
-            import outcome_store as _osx      # noqa: WPS433
-            import opslib as _ops             # noqa: WPS433
-            odir = _ops.STATE_DIR / "outcomes"
-            odir.mkdir(parents=True, exist_ok=True)
-            o = _osx.OutcomeStore(path=odir / "outcomes.db")
-            spine = None
-            try:   # Sol-T4: اگر OCTOPUS_WIRE_SPINE روشن است، spine را هم بده (domain=proposal)
-                import event_spine as _esx    # noqa: WPS433
-                if _esx.flag_on():
-                    sdir = _ops.STATE_DIR / "spine"
-                    sdir.mkdir(parents=True, exist_ok=True)
-                    spine = _esx.EventSpine(path=sdir / "spine.db")
-            except Exception:  # noqa: BLE001
-                spine = None
-            try:
-                _vr.record_owner_verdict(
-                    o, proposal_id=str(meta.get("proposal_id") or ""), verdict=verdict,
-                    correlation_id=meta.get("correlation_id"), mission_id=meta.get("mission_id"),
-                    leg_id=str(meta.get("leg_id") or "unknown"), value_aud_claimed=value,
-                    event_spine=spine)
-            finally:
-                o.close()
-                if spine is not None:
-                    try:
-                        spine.close()
-                    except Exception:  # noqa: BLE001
-                        pass
+            _op = str(_HERE / "outcomes")
+            if _op not in sys.path:
+                sys.path.insert(0, _op)
+            import verdict_recorder as _vr   # noqa: WPS433 — lazy (این ماژول مجاز به I/O است)
+            _vr.record_verdict_durably(
+                proposal_id=str(meta.get("proposal_id") or ""), verdict=verdict,
+                correlation_id=meta.get("correlation_id"), mission_id=meta.get("mission_id"),
+                leg_id=str(meta.get("leg_id") or "unknown"), value_aud_claimed=value)
         except Exception:  # noqa: BLE001 — §۴: ثبتِ رأی هرگز مسیرِ دکمه را نمی‌کشد
             pass
 

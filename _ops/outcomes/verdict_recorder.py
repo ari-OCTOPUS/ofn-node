@@ -87,3 +87,50 @@ def record_owner_verdict(outcome_store, *, proposal_id: str, verdict: str,
             spine_wrote = False
     return {"recorded": wrote, "event_type": et, "idempotency_key": idem,
             "value_aud_claimed": val, "spine": spine_wrote}
+
+
+def record_verdict_durably(*, proposal_id: str, verdict: str, correlation_id: str = None,
+                           mission_id: str = None, leg_id: str = None,
+                           value_aud_claimed: float = 0.0) -> dict:
+    """helperِ سیم‌کشی: storeهای پیش‌فرض (state/outcomes + state/spine) را باز کن، رأی را durable
+    ثبت کن، ببند. پشتِ OCTOPUS_WIRE_VERDICT_OUTCOME (flag خاموش → no-op). fail-soft.
+
+    وجودِ این تابع اجازه می‌دهد `live_loop` (لایهٔ wireِ خالص که ساختاراً از importِ opslib/store
+    منع است) رأی را durable کند **بدونِ** لمسِ مستقیمِ opslib — همهٔ I/O این‌جا (outcomes/) محصور
+    است. مسیرِ state از opslib.STATE_DIR (همان‌جا که lead-recorder می‌نویسد → outcomes.db مشترک)."""
+    if not flag_on():
+        return {"recorded": False, "reason": "flag-off"}
+    o = spine = None
+    try:
+        import sys as _sys
+        from pathlib import Path as _P
+        _here = _P(__file__).resolve().parent
+        for _p in (str(_here), str(_here.parent), str(_here.parent / "spine")):
+            if _p not in _sys.path:
+                _sys.path.insert(0, _p)
+        import opslib as _ops         # noqa: WPS433 — verdict_recorder مجاز است (نه live_loop)
+        import outcome_store as _osx   # noqa: WPS433
+        odir = _ops.STATE_DIR / "outcomes"
+        odir.mkdir(parents=True, exist_ok=True)
+        o = _osx.OutcomeStore(path=odir / "outcomes.db")
+        try:
+            import event_spine as _esx  # noqa: WPS433
+            if _esx.flag_on():
+                sdir = _ops.STATE_DIR / "spine"
+                sdir.mkdir(parents=True, exist_ok=True)
+                spine = _esx.EventSpine(path=sdir / "spine.db")
+        except Exception:  # noqa: BLE001
+            spine = None
+        return record_owner_verdict(
+            o, proposal_id=proposal_id, verdict=verdict, correlation_id=correlation_id,
+            mission_id=mission_id, leg_id=leg_id, value_aud_claimed=value_aud_claimed,
+            event_spine=spine)
+    except Exception as _e:  # noqa: BLE001 — durable ثبت نباید caller را بکشد
+        return {"recorded": False, "reason": f"durable-error: {type(_e).__name__}"}
+    finally:
+        for _s in (spine, o):
+            try:
+                if _s is not None:
+                    _s.close()
+            except Exception:  # noqa: BLE001
+                pass
