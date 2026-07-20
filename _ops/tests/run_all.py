@@ -101,6 +101,17 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # cortex-paid/work-llm/heart-doctor/self-improve-auto) → غیابشان هر گیتِ زنده را می‌بندد
          # حتی post-rollover؛ فعال‌سازی = عملِ صریحِ مالک نه پیش‌فرضِ commit‌شده
          "test_activation_untracked.py",
+         # 2026-07-21 D1: گاردِ fail-closed رأیِ per-item مالک قبل از هر PUT به PocketSmith —
+         # حتی با هر سه فلگِ مسلح، بدونِ رأیِ durableِ همان آیتم (bind به tid+field+content_sha256)
+         # صفر PUT؛ صفر auto-approve؛ HALT/whitelist/cap حفظ شد
+         "test_ps_writeback_verdict.py",
+         # 2026-07-21 D3: گاردِ drawdown فقط-شادو (HH_DRAWDOWN_ENFORCE خاموش) — روی breach فقط
+         # هشدارِ advisory؛ صفر اثرِ پول/block/halt؛ آستانه placeholderِ owner-tunable
+         "test_drawdown_shadow.py",
+         # 2026-07-21 D4: سخت‌سازیِ G — توکنِ CB به verbهای legacy(ok/no/later)+mission(ms:) گسترش یافت
+         "test_cb_token_legmiss.py",
+         # 2026-07-21 D4: بهداشتِ ساختاریِ payload داخلِ event_spine.dual_write (defense-in-depth)
+         "test_spine_sanitize.py",
          # 2026-07-20 D-G: قراردادِ STOP — HALT-ALL توسطِ watchdog.py + هر دو watchdogِ .ps1 honor می‌شود
          "test_stop_contract.py",
          # 2026-07-20 یکپارچگی: بستنِ حلقهٔ لید record-only (lead→receipt→outcome، memories_used از
