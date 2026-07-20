@@ -15112,3 +15112,9 @@ Research-Vault/
 
 <!-- Tier A · CONNECTIONS-MAP (_memory) · اعمال 2026-07-04 -->
 - [[02 - Life OS/Weekly Review|Weekly Review]]
+
+## 2026-07-20 — ورود TradeQuote Local (دستور مالک)
+
+- اپ کوتیشن/فاکتور آفلاین (Flutter/Drift، GST/ABN، PDF، بکاپ نسخه‌دار) از zip وارد شد → `tradequote_local/` (بدون `.git` داخلی). MVP کامل ولی هنوز کامپایل‌نشده — گام مالک: `docs/BUILD_AND_RELEASE.md` §1 تا APK روی S23 FE.
+- پل flag-off ساخته شد: `_ops/legs/tradequote_bridge.py` (پشت `OCTOPUS_WIRE_TRADEQUOTE`، پیش‌فرض خاموش) — هر draft کوتیشن → بستهٔ handoff داخلی (JSON سنت‌صحیح + متن تایپی) در `state/legs/tradequote-outbox/`؛ صفر ارسال. ۵/۵ تست سبز.
+- جزئیات در [[03 - Projects/Lead-نقاشی/PROJECT|PROJECT]] §Active Context.

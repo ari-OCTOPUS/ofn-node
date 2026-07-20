@@ -3,6 +3,9 @@ Coin Hunter Bot — Config
 ===========================
 API keys + notification config.
 """
+import os
+from pathlib import Path
+
 # ── Paper-trading mode ────────────────────────────────────────────────────────
 # PAPER_MODE = True is the ONLY mode this codebase supports.
 # Cycle output is logged to data/paper_ledger.jsonl — nothing is executed.
@@ -10,26 +13,37 @@ API keys + notification config.
 # required. Setting PAPER_MODE = False only disables the ledger; it does NOT
 # create an execution path (none exists in this codebase).
 PAPER_MODE = True
-import os
-from dotenv import load_dotenv
 
-load_dotenv(override=True)
+# --- C11: read secrets from .env instead of hardcode (no external dependency) ---
+_envfile = Path(__file__).with_name(".env")
+if _envfile.exists():
+    for _line in _envfile.read_text(encoding="utf-8").splitlines():
+        _line = _line.strip()
+        if _line and not _line.startswith("#") and "=" in _line:
+            _k, _v = _line.split("=", 1)
+            os.environ.setdefault(_k.strip(), _v.strip())
+
+def _env(name: str, required: bool = True) -> str:
+    v = os.environ.get(name, "")
+    if required and not v:
+        raise RuntimeError(f"missing secret in .env: {name}")   # fail-closed
+    return v
 
 # ── LLM (Claude evaluation) ──────────────────────────────────────────────────
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+ANTHROPIC_API_KEY = _env("ANTHROPIC_API_KEY", required=False)
 
 # ── Data sources (used by Coin Hunter scoring) ───────────────────────────────
-CRYPTOQUANT_API  = os.getenv("CRYPTOQUANT_API",  "ogmfC4gzi0F3yJPCUVNJ3VfPhmkCHNIBCn1unrboNOlVOdf9Xx")   # exchange-flow (BTC/ETH only)
-COINALYZE_API    = os.getenv("COINALYZE_API",    "bae6732b-a2da-4f6f-a7d3-1cfed8572d4f")   # OI + funding
-LUNARCRUSH_API   = os.getenv("LUNARCRUSH_API",   "nab3su4ybmnj8o7fma5b4kj55mpealuh9w1l5f0a")   # social/galaxy
+CRYPTOQUANT_API  = _env("CRYPTOQUANT_API")   # exchange-flow (BTC/ETH only)
+COINALYZE_API    = _env("COINALYZE_API")     # OI + funding
+LUNARCRUSH_API   = _env("LUNARCRUSH_API")    # social/galaxy
 
 # ── Holder concentration (GoPlus Security — free tier, no key required) ─────
-GOPLUS_API_KEY   = os.getenv("GOPLUS_API_KEY",   "")   # optional: increases rate limit
+GOPLUS_API_KEY   = _env("GOPLUS_API_KEY", required=False)   # optional: increases rate limit
 
 # ── Notifications ────────────────────────────────────────────────────────────
-TELEGRAM_TOKEN   = os.getenv("QUANTUM_BOT_TOKEN",  "<REDACTED-telegram-bot-token-see-secrets-export>")   # ربات اختصاصی QuantumAlphaBot
-TELEGRAM_CHAT_ID = os.getenv("QUANTUM_CHAT_ID",    "6150431610")   # می‌تونه همون SENTINEL_CHAT_ID باشه
-DISCORD_WEBHOOK  = os.getenv("DISCORD_WEBHOOK",    "")
+TELEGRAM_TOKEN   = _env("TELEGRAM_TOKEN", required=False)    # ربات اختصاصی QuantumAlphaBot
+TELEGRAM_CHAT_ID = _env("TELEGRAM_CHAT_ID", required=False)  # می‌تونه همون SENTINEL_CHAT_ID باشه
+DISCORD_WEBHOOK  = _env("DISCORD_WEBHOOK", required=False)
 
 # ── Scout Forensics (DexScreener — no key required for public endpoints) ─────
 DEXSCREENER_BASE_URL = "https://api.dexscreener.com/latest/dex"

@@ -48,6 +48,7 @@ import opslib  # noqa: E402 — import خالص (فقط مسیرها/env)
 import intent as intent_mod        # noqa: E402 — طبقه‌بندِ نیتِ پیامِ آزاد
 import metadata_scan as ms_mod     # noqa: E402 — نقشه‌برداریِ فقط‌خواندنیِ metadata
 import approval_store as aps_mod   # noqa: E402 — پلِ صفِ تأیید اختاپوس
+import callback_token as cbtok      # noqa: E402 — P3: توکنِ HMACِ callback (فلگ OCTOPUS_WIRE_CB_TOKEN)
 import mission as mission_mod       # noqa: E402 — Mission Genome: intent→mission→approval
 try:
     import mission_runner as runner_mod   # noqa: E402 — Runner v0: اجرای ایزولهٔ allowlisted (پشتِ فلگ)
@@ -808,8 +809,22 @@ class Center:
             legacy = aps_mod.sync_to_octopus_state().get("recent", [])
         except Exception:  # noqa: BLE001
             pending, counts, legacy = [], {}, []
+        # P3 (Stage-1): پشتِ OCTOPUS_WIRE_CB_TOKEN → mintِ توکنِ HMAC per-job، bind به
+        # owner_id + action_hash(content_sha256 روی type/risk) + expires_epoch. فلگ خاموش
+        # → mint=None → کارتِ tokenless بایت‌به‌بایتِ قبلی.
+        _mint = None
         try:
-            return r.render_approvals_queue(pending, counts, legacy)
+            if cbtok.flag_on():
+                _owner = getattr(self._client, "owner_chat_id", None)
+                _by_id = {str(j.get("id")): j for j in pending if isinstance(j, dict)}
+                _mint = lambda jid, act: cbtok.mint(
+                    str(jid), act, _owner,
+                    self._ap_action_hash(act, str(jid), _by_id.get(str(jid), {})),
+                    str(_by_id.get(str(jid), {}).get("expires_epoch", "")))
+        except Exception:  # noqa: BLE001 — mint اختیاری؛ خطا = کارتِ عادی
+            _mint = None
+        try:
+            return r.render_approvals_queue(pending, counts, legacy, mint=_mint)
         except Exception:  # noqa: BLE001
             return self._approvals_text(), [[{"text": "🔙 منو", "callback_data": "mn:menu"}]]
 
@@ -1046,6 +1061,18 @@ class Center:
         self._answer(cbq, "نادیده")
         return {"kind": "mission", "ignored": data[:24]}
 
+    def _ap_action_hash(self, action: str, jid: str, job: dict) -> str:
+        """P3: hashِ محتوایی برای bindِ توکنِ callback — content_sha256(action, jid, {type,risk}).
+        anti-TOCTOU: اگر type/riskِ job عوض شود توکن باطل می‌شود. fail-soft → "" (آنگاه
+        verify بر jid/action/owner/expires تکیه می‌کند)."""
+        try:
+            import mission_contract as _mc
+            return _mc.content_sha256(action, str(jid),
+                                      {"type": (job or {}).get("type"),
+                                       "risk": (job or {}).get("risk")})
+        except Exception:  # noqa: BLE001
+            return ""
+
     def _handle_approval_callback(self, cbq: dict, data: str) -> dict:
         """verbهای صفِ تأیید (فاز E — bridge اختاپوس).
 
@@ -1056,11 +1083,48 @@ class Center:
         توجه: این فقط state را عوض می‌کند (pending → approved/rejected). اجرای واقعیِ
         job (اگر risk=high) به handlerهای جداگانه یا power-gate واگذار می‌شود — این
         لایه فقط صف است. risk=high → هشدار در toast."""
-        parts = data.split(":", 2)
-        if len(parts) < 3:
-            self._answer(cbq, "نادیده")
-            return {"kind": "approval", "ignored": data[:24]}
-        action, jid = parts[1], _sanitize_id(parts[2])
+        # P3 (Stage-1): وقتی فلگ OCTOPUS_WIRE_CB_TOKEN روشن است، ok/no باید توکنِ HMACِ
+        # معتبر داشته باشند (ap:<action>:<jid>:<token>). callbackِ قدیمیِ tokenless یا
+        # توکنِ نامعتبر/دستکاری‌شده = رد (fail-closed). فلگ خاموش → مسیرِ قبلی بایت‌به‌بایت.
+        if cbtok.flag_on():
+            seg = data.split(":")
+            action = seg[1] if len(seg) > 1 else ""
+            jid = _sanitize_id(seg[2]) if len(seg) > 2 else ""
+            token = seg[3] if len(seg) > 3 else None
+            if not action or not jid:
+                self._answer(cbq, "نادیده")
+                return {"kind": "approval", "ignored": data[:24]}
+            if action in ("ok", "no"):
+                _job = aps_mod.get(jid)
+                _owner = getattr(self._client, "owner_chat_id", None)
+                _ah = self._ap_action_hash(action, jid, _job or {})
+                _exp = str((_job or {}).get("expires_epoch", ""))
+                # (1) صحتِ HMAC (شاملِ content + expires) — دستکاری/جعل/tokenless قدیمی = رد
+                if not cbtok.verify(token, jid, action, _owner, _ah, _exp):
+                    self._answer(cbq, "توکنِ نامعتبر — کارت را از منو دوباره باز کن")
+                    return {"kind": "approval", "rejected": "bad-token", "id": jid}
+                # (2) enforcement جداگانهٔ انقضا (now <= expires) — 5.3
+                try:
+                    import time as _t
+                    if _exp and _t.time() > float(_exp):
+                        self._answer(cbq, "کارت منقضی شده — از منو دوباره باز کن")
+                        return {"kind": "approval", "rejected": "expired", "id": jid}
+                except (TypeError, ValueError):
+                    pass
+                # (3) destination binding — 5.4 (علاوه بر is_owner از from.id)
+                _chat = ((cbq.get("message") or {}).get("chat") or {}).get("id")
+                _allowed = {str(x) for x in (getattr(self._client, "owner_chat_id", None),
+                                             getattr(self._client, "center_chat_id", None))
+                            if x is not None}
+                if _allowed and _chat is not None and str(_chat) not in _allowed:
+                    self._answer(cbq, "مقصدِ نامعتبر")
+                    return {"kind": "approval", "rejected": "bad-destination", "id": jid}
+        else:
+            parts = data.split(":", 2)
+            if len(parts) < 3:
+                self._answer(cbq, "نادیده")
+                return {"kind": "approval", "ignored": data[:24]}
+            action, jid = parts[1], _sanitize_id(parts[2])
         ok, msg, verdict = False, "", ""
         try:
             if action == "ok":
@@ -1213,6 +1277,17 @@ class Center:
         if not self._wired() or self.stopped():
             return
         self.ensure_setup()
+        # P3 (Stage-1، review-3): اگر قیدِ توکن روشن ولی OCTOPUS_CB_SECRET تنظیم نشده →
+        # هشدارِ fail-soft (بدونِ echoِ مقدارِ secret). fail-closed از قبل برقرار است (توکن‌ها
+        # verify نمی‌شوند → دکمه‌ها inert)؛ این فقط دیده‌شدنیِ misconfig را تأمین می‌کند.
+        try:
+            if cbtok.flag_on() and not cbtok.ready():
+                import opslib as _ol
+                _ol.alert(["⚠️ OCTOPUS_WIRE_CB_TOKEN روشن ولی OCTOPUS_CB_SECRET تنظیم نشده — "
+                           "کارت‌های تأیید fail-closed/inert می‌مانند تا secret ست شود "
+                           "(مقدارِ secret هرگز log نمی‌شود)."])
+        except Exception:  # noqa: BLE001
+            pass
         last_beat = 0.0
         while not self.stopped():
             self.run_once()

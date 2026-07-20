@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """test_httpauth.py — گاردِ CSRF/Origin مشترکِ سرورهای loopback (RC1، فلگ OCTOPUS_HTTP_AUTH).
 
-قرارداد (بایت‌به‌بایت با httpauth.py):
-- فلگ خاموش (پیش‌فرض) → guard_post همیشه True، حتی cross-origin؛ هیچ ۴۰۳ فرستاده نمی‌شود.
-- فلگ روشن + Originِ خارجی → ۴۰۳ (رد؛ بردارِ «صفحهٔ وبِ مخرب»).
-- فلگ روشن + Originِ loopback → True.
-- فلگ روشن + بدونِ Origin/Referer (curl/اسکریپتِ محلی) → True (مرورگر نیست).
-- فلگ روشن + Refererِ loopback (Origin غایب) → True؛ Refererِ خارجی → ۴۰۳.
+قرارداد (بایت‌به‌بایت با httpauth.py — secure-by-default از 2026-07-20 Stage-1):
+- enabled(): unset→True · ""→True · 1/on/yes→True · 0/false/no/off→False.
+- گارد روشن (پیش‌فرض یا صریح) + Originِ خارجی → ۴۰۳ (رد؛ بردارِ «صفحهٔ وبِ مخرب»).
+- گارد روشن + Originِ loopback → True.
+- گارد روشن + بدونِ Origin/Referer (curl/اسکریپتِ محلی) → True (مرورگر نیست).
+- گارد روشن + Refererِ loopback (Origin غایب) → True؛ Refererِ خارجی → ۴۰۳.
+- گاردِ خاموشِ صریح (0/false/no/off) → guard_post همیشه True، حتی cross-origin (rollback/دیباگ).
 $0 آفلاین، بدونِ شبکه/سرورِ واقعی — فقط یک handlerِ ساختگی که هدرها/۴۰۳ را ضبط می‌کند.
 """
 import sys
@@ -63,14 +64,35 @@ def _guard(headers, flag):
             os.environ[FLAG] = prev
 
 
-def t_a_flag_off_passes_even_cross_origin():
+def t_enabled_matrix_secure_by_default():
+    """enabled(): unset→True, ""→True, on-words→True; فقط 0/false/no/off→False."""
+    import os
+    prev = os.environ.get(FLAG)
+    try:
+        os.environ.pop(FLAG, None)
+        assert httpauth.enabled() is True, "unset باید secure-by-default = روشن باشد"
+        for on in ("", "1", "on", "yes", "true", "TRUE", "anything"):
+            os.environ[FLAG] = on
+            assert httpauth.enabled() is True, f"{on!r} باید روشن باشد"
+        for off in ("0", "false", "no", "off", "OFF", " off "):
+            os.environ[FLAG] = off
+            assert httpauth.enabled() is False, f"{off!r} باید خاموش باشد"
+    finally:
+        if prev is None:
+            os.environ.pop(FLAG, None)
+        else:
+            os.environ[FLAG] = prev
+
+
+def t_a_default_on_cross_origin_403():
+    """فلگ unset (پیش‌فرضِ امن) → cross-origin رد می‌شود (۴۰۳)."""
     allowed, h = _guard({"Origin": "https://evil.example.com"}, flag=None)
-    assert allowed is True
-    assert h.status is None, "فلگ خاموش نباید هیچ پاسخی بفرستد"
+    assert allowed is False and h.status == 403, "unset باید گارد را روشن کند"
 
 
-def t_b_flag_off_explicit_zero_passes():
-    for off in ("0", "false", "off", "no", ""):
+def t_b_explicit_off_passes_cross_origin():
+    """فقط خاموشِ صریح (0/false/no/off) گارد را می‌بندد → cross-origin عبور."""
+    for off in ("0", "false", "off", "no"):
         allowed, h = _guard({"Origin": "https://evil.example.com"}, flag=off)
         assert allowed is True and h.status is None, f"{off!r} باید خاموش تلقی شود"
 

@@ -87,3 +87,11 @@ def _acquire_singleton_lock(lock_port: int = 8774) -> bool:
 ```
 
 پورت‌های پیشنهادی: Saba = 8774، Langar = 8775.
+
+## ➕ الحاق 2026-07-20 — WLOS Coach Bot
+
+| # | نام | Bot ID | Token env | وضعیت | Entry file |
+|---|-----|--------|-----------|-------|------------|
+| 10 | **WLOS Coach Bot** (کوچ شخصی مالک) | (هنوز ساخته‌نشده) | `TELEGRAM_BOT_TOKEN` **در `.env` خودِ wlos** (فایل جدا، بیرون git) | ⚠️ DORMANT — تا اولین اجرای مالک (docker compose + migrate) | `03 - Projects/WLOS - Weight Loss OS/wlos/apps/telegram-bot/src/main.ts` |
+
+⚠️ **دام نام‌گذاری:** env var داخلی WLOS همنامِ `TELEGRAM_BOT_TOKEN` اختاپوس (#1) است ولی فایل .env اش جداست — موقع ساخت، **توکن جدید از BotFather** بگیر؛ استفادهٔ مجدد از توکن #1 = 409 فوری. ارسال WLOS فقط از outbox خودش با سقف ۲۰/روز است و به BUS اختاپوس وصل نیست.

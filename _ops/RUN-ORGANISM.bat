@@ -22,15 +22,18 @@ if exist "F:\backup\_ops\OCTOPUS-flags.cmd" call "F:\backup\_ops\OCTOPUS-flags.c
 python -X utf8 organism.py
 echo organism exited - waiting 10 seconds ... press Ctrl+C twice to stop
 timeout /t 10 /nobreak >nul
-if exist "F:\backup\_ops\STOP-ORGANISM" (
-    if exist "F:\backup\_ops\RESTART-REQUESTED" (
-        del "F:\backup\_ops\STOP-ORGANISM" >nul 2>&1
-        del "F:\backup\_ops\RESTART-REQUESTED" >nul 2>&1
-        echo RESTART-REQUESTED found - restarting organism with new env ...
-        goto loop
-    )
-    goto stopped
+rem P2 (structural, 2026-07-20 Stage-1): the launcher NEVER deletes STOP-ORGANISM. There is
+rem no compare-then-delete of it anywhere -> the owner kill-switch can never be revoked by any
+rem automated path (closes the compare/delete TOCTOU). Restart is signalled by RESTART-REQUESTED
+rem (organism clean-exits on it); the launcher clears ONLY that marker and restarts iff no owner
+rem STOP is present. If an owner STOP appears at any moment, it survives and we stop.
+if exist "F:\backup\_ops\RESTART-REQUESTED" (
+    del "F:\backup\_ops\RESTART-REQUESTED" >nul 2>&1
+    if exist "F:\backup\_ops\STOP-ORGANISM" goto stopped
+    echo RESTART-REQUESTED found - restarting organism with new env ...
+    goto loop
 )
+if exist "F:\backup\_ops\STOP-ORGANISM" goto stopped
 goto loop
 :already
 echo(

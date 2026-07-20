@@ -3,14 +3,12 @@
 ========================================
 اول به ربات @Robo2725_bot یه پیام بفرست، بعد این اسکریپت رو اجرا کن.
 """
-import sys, os, re, requests
+import sys, re, requests
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-from dotenv import load_dotenv
-load_dotenv(override=True)
-
-TOKEN = os.getenv("TELEGRAM_TOKEN", "")
+# C11: secrets come from .env via config.py (no python-dotenv dependency)
+from config import TELEGRAM_TOKEN as TOKEN
 if not TOKEN:
     print("[!] TELEGRAM_TOKEN در .env نیست")
     sys.exit(1)

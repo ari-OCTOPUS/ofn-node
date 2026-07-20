@@ -26,8 +26,23 @@ from __future__ import annotations
 import json
 import os
 import re
+import threading
 import time
 from pathlib import Path
+
+# P3 (2026-07-20 Stage-1، review-3): قفلِ single-writer روی کلِ read-modify-writeِ صف.
+# _move/add_pending با tmp+os.replace هر write را atomic می‌کنند ولی توالیِ load→pop→save را
+# نه؛ این قفل، مصرفِ concurrentِ درون‌پروسه‌ای را serialize می‌کند → single-use اتمیک.
+#
+# ⚠️ INVARIANT (مستند، نه فرضِ ضمنی): مصرفِ verdictِ `ap:` (approve/reject) فقط در **یک**
+# پروسه رخ می‌دهد — Telegram Center (`center._handle_approval_callback`). کاکپیت/داشبورد/
+# پنل هیچ‌کدام `approve/reject` صف را صدا نمی‌زنند. بنابراین `threading.RLock` (درون‌پروسه)
+# کلِ سطحِ واقعیِ concurrency را می‌پوشاند.
+#   نقضِ این invariant (افزودنِ نویسندهٔ approve/reject در پروسه‌ای دوم) این قفل را بی‌صدا
+#   می‌شکند → آن‌گاه باید به file-lock (opslib.LockedJson) یا SQLite conditional-update ارتقا
+#   یابد. تستِ نگهبان: هیچ ماژولِ غیرِ telegram_center نباید approval_store.approve/reject را
+#   import/صدا کند (رجوع: تستِ import در test_approval_queue_consistency).
+_STORE_LOCK = threading.RLock()
 
 _OPS = Path(__file__).resolve().parent.parent                # _ops
 _ROOT = _OPS.parent                                           # F:\backup
@@ -48,6 +63,9 @@ def _sanitize_id(raw: str) -> str:
     """id از کاربر/کهکشان می‌آید — هرگز خام واردِ نامِ فایل نمی‌شود."""
     clean = _ID_SAFE.sub("-", str(raw or ""))[:64].strip("-_.")
     return clean or "unknown"
+
+
+_CB_TTL_SECONDS = 24 * 3600   # P3: عمرِ توکنِ callback (۲۴ ساعت)
 
 
 def _now_iso() -> str:
@@ -128,37 +146,44 @@ def add_pending(job: dict) -> str:
         "status": "pending",
         "risk": str(job.get("risk") or "read"),
         "created_at": _now_iso(),
+        # P3 (2026-07-20 Stage-1): مهرِ انقضا برای توکنِ callback (پیش‌فرض ۲۴ ساعت).
+        # همیشه ثبت می‌شود (بی‌خطر وقتی فلگ توکن خاموش است — هیچ مصرف‌کننده‌ای ندارد).
+        "expires_epoch": int(time.time()) + _CB_TTL_SECONDS,
         "requires_confirmation": bool(job.get("requires_confirmation", True)),
         "dry_run_report": str(job.get("dry_run_report") or "")[:500] or None,
         "source": str(job.get("source") or "telegram"),
     }
-    state = _load_octopus_approvals()
-    # id تکراری → یکی نشو (جلوگیری از spam)
-    if any(item.get("id") == jid for item in state["pending"]):
-        return jid
-    state["pending"].append(rec)
-    if _save_octopus_approvals(state):
+    with _STORE_LOCK:
+        state = _load_octopus_approvals()
+        # id تکراری → یکی نشو (جلوگیری از spam)
+        if any(item.get("id") == jid for item in state["pending"]):
+            return jid
+        state["pending"].append(rec)
+        saved = _save_octopus_approvals(state)
+    if saved:
         _audit("approval.add_pending", f"id={jid} risk={rec['risk']}")
     return jid
 
 
 def _move(jid: str, from_list: str, to_list: str) -> bool:
-    """انتقالِ یک job از یک bucket به دیگری (atomic)."""
+    """انتقالِ یک job از یک bucket به دیگری. کلِ load→pop→save زیرِ یک قفلِ single-writer
+    است → single-use اتمیک (دو مصرف‌کنندهٔ همزمان: دقیقاً یکی True، دیگری False)."""
     jid = _sanitize_id(jid)
-    state = _load_octopus_approvals()
-    src = state.get(from_list, [])
-    dst = state.get(to_list, [])
-    moved = None
-    for i, item in enumerate(src):
-        if isinstance(item, dict) and item.get("id") == jid:
-            moved = src.pop(i)
-            break
-    if moved is None:
-        return False
-    moved["status"] = to_list
-    moved[f"{to_list}_at"] = _now_iso()
-    dst.append(moved)
-    ok = _save_octopus_approvals(state)
+    with _STORE_LOCK:
+        state = _load_octopus_approvals()
+        src = state.get(from_list, [])
+        dst = state.get(to_list, [])
+        moved = None
+        for i, item in enumerate(src):
+            if isinstance(item, dict) and item.get("id") == jid:
+                moved = src.pop(i)
+                break
+        if moved is None:
+            return False
+        moved["status"] = to_list
+        moved[f"{to_list}_at"] = _now_iso()
+        dst.append(moved)
+        ok = _save_octopus_approvals(state)
     if ok:
         _audit(f"approval.{to_list}", f"id={jid} from={from_list}")
     return ok

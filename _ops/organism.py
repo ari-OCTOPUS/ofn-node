@@ -330,9 +330,16 @@ def main() -> int:
         # نخ‌های هم‌زمان contextِ خالی دارند → آلوده نمی‌شوند. fail-soft (نبودِ events = None).
         _run_token = _events.begin_run() if _events is not None else None
         try:
-            if opslib.STOP_ORGANISM.exists() or opslib.master_halted():
-                opslib.heartbeat("organism=HALT (STOP) — خروج تمیز")
-                _write_state({"exited": "STOP"}, merge_prev=True)
+            # P2 (structural, 2026-07-20 Stage-1): سیگنالِ restartِ کاکپیت = RESTART-REQUESTED
+            # (نه overwriteِ STOP-ORGANISM). organism روی آن هم clean-exit می‌کند؛ launcher
+            # فقط همین marker را پاک و relaunch می‌کند و هرگز STOP-ORGANISMِ مالک را حذف
+            # نمی‌کند → دیگر هیچ مسیرِ خودکاری STOPِ مالک را ابطال نمی‌کند.
+            _restart_req = (opslib.OPS / "RESTART-REQUESTED").exists()
+            if opslib.STOP_ORGANISM.exists() or opslib.master_halted() or _restart_req:
+                _why = "RESTART" if (_restart_req and not opslib.STOP_ORGANISM.exists()
+                                     and not opslib.master_halted()) else "STOP"
+                opslib.heartbeat(f"organism=HALT ({_why}) — خروج تمیز")
+                _write_state({"exited": _why}, merge_prev=True)
                 return 0
             snap = telemetry.snapshot()
             conflicts = telemetry.reconcile(snap)

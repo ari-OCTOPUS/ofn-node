@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>WLOS</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: Vazirmatn, -apple-system, system-ui, sans-serif; margin: 0; padding: 16px;
+         background: var(--tg-theme-bg-color, #fff); color: var(--tg-theme-text-color, #111); }
+  .card { border: 1px solid var(--tg-theme-hint-color, #ddd); border-radius: 14px; padding: 14px; margin-bottom: 12px; }
+  h1 { font-size: 1.2rem; } h2 { font-size: 1rem; margin: 0 0 8px; }
+  .muted { opacity: .7; font-size: .85rem; }
+  .badge { display:inline-block; padding: 2px 10px; border-radius: 999px; background: var(--tg-theme-button-color,#2ea6ff); color:#fff; font-size:.8rem; }
+</style>
+</head>
+<body>
+  <h1>WLOS <span class="badge">scaffold</span></h1>
+  <div class="card"><h2>📅 امروز</h2><div id="today" class="muted">در حال اتصال…</div></div>
+  <div class="card"><h2>⚖️ روند وزن</h2><div class="muted">نمودار در Phase 5 — فعلاً /report در بات</div></div>
+  <div class="card"><h2>🔐 رضایت‌ها</h2><div class="muted">مدیریت کامل: /privacy در بات</div></div>
+  <div class="card"><h2>🧩 الگوها</h2><div class="muted">تایید/رد: /patterns در بات</div></div>
+<script>
+  const tg = window.Telegram?.WebApp;
+  tg?.ready();
+  (async () => {
+    const el = document.getElementById('today');
+    if (!tg?.initData) { el.textContent = 'خارج از تلگرام باز شده — حالت پیش‌نمایش.'; return; }
+    try {
+      const res = await fetch('/miniapp/verify', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ initData: tg.initData }),
+      });
+      const json = await res.json();
+      el.textContent = json.valid ? 'اتصال امن برقرار شد ✅ (داده‌ها در Phase 5)' : 'اعتبارسنجی ناموفق: ' + (json.reason || '');
+    } catch { el.textContent = 'API در دسترس نیست.'; }
+  })();
+</script>
+</body>
+</html>

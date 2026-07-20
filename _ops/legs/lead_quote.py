@@ -197,6 +197,12 @@ def create_quote(leg, attribution_id: str, intake: QuoteIntake,
         opslib.alert([f"lead_quote persist failed: {type(e).__name__}: {e}"])
         return {"ok": False, "error": "draft ذخیره نشد"}
 
+    try:  # پلِ TradeQuote — پشت OCTOPUS_WIRE_TRADEQUOTE (پیش‌فرض خاموش)، fail-soft
+        import tradequote_bridge
+        tradequote_bridge.maybe_export(rec, state_dir=state_dir)
+    except Exception:  # noqa: BLE001
+        pass
+
     return {
         "ok": True, "path": str(path), "qt_number": qt_num,
         "proposal_id": pdict.get("proposal_id"),

@@ -295,8 +295,13 @@ def do_action(kind: str) -> dict:
     مسیرها از opslib.OPS (env) — در تست، mini-vault؛ در prod، _ops واقعی."""
     ops = opslib.OPS
     if kind == "restart-organism":
-        # مکانیزمِ رسمیِ داشبورد: STOP + RESTART-REQUESTED؛ بعد relaunchِ ضدِ دوبل.
-        (ops / "STOP-ORGANISM").write_text("restart via live cockpit", "utf-8")
+        # P2 (structural, 2026-07-20 Stage-1): کاکپیت دیگر STOP-ORGANISM را نمی‌نویسد/حذف
+        # نمی‌کند (نه compare-then-delete، نه overwrite → صفر TOCTOU روی STOPِ مالک).
+        # سیگنالِ restart = RESTART-REQUESTED که organism روی آن clean-exit می‌کند و launcher
+        # فقط همان را پاک می‌کند. اگر STOPِ مالک حاضر است، restart رد می‌شود.
+        if (ops / "STOP-ORGANISM").exists():
+            return {"ok": False,
+                    "note": "STOPِ مالک حاضر است — restart رد شد؛ اول STOP را دستی بردار"}
         (ops / "RESTART-REQUESTED").write_text("live", "utf-8")
 
         def _relauncher():
@@ -316,7 +321,8 @@ def do_action(kind: str) -> dict:
             return {"ok": True, "note": "مغز از قبل زنده است"}
         stop = ops / "STOP-CORTEX"
         if stop.exists():
-            stop.unlink()
+            # P2: هرگز STOP-CORTEX را حذف نکن — start رد می‌شود تا مالک خودش برداردش.
+            return {"ok": False, "note": "STOP-CORTEX فعال است — مغز روشن نشد؛ اول STOP را دستی بردار"}
         bat = ops / "RUN-CORTEX.bat"
         if not bat.exists():
             return {"ok": False, "note": "RUN-CORTEX.bat یافت نشد"}
@@ -826,8 +832,17 @@ class _Handler(BaseHTTPRequestHandler):
             import httpauth as _ha  # RC1: گاردِ CSRF/Origin پشتِ OCTOPUS_HTTP_AUTH
             if not _ha.guard_post(self):
                 return
-        except Exception:  # noqa: BLE001 — گارد اختیاری؛ فلگ‌خاموش/خطا = رفتارِ امروز
-            pass
+        except Exception:  # noqa: BLE001
+            # P1 (2026-07-20 Stage-1): گارد در دسترس نبود. secure-by-default → مگر گارد
+            # صریحاً خاموش باشد (OCTOPUS_HTTP_AUTH=0/false/no/off) fail-closed با 503.
+            import os as _os_fc
+            if str(_os_fc.environ.get("OCTOPUS_HTTP_AUTH", "1")).strip().lower() not in (
+                    "0", "false", "no", "off"):
+                try:
+                    self._send(503, b'{"ok":false,"reason":"http guard unavailable (fail-closed)"}')
+                except Exception:  # noqa: BLE001 — نتوانستیم 503 بفرستیم؛ باز هم اجرا نکن
+                    pass
+                return
         try:
             n = int(self.headers.get("Content-Length", 0))
             body = json.loads(self.rfile.read(n).decode("utf-8")) if n else {}

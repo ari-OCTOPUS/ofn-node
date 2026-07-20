@@ -8,7 +8,7 @@ risk_level: low
 autonomy_level: read-only
 tags: [lead-gen, painting, sydney, business, painting-os]
 created: 2026-07-03
-updated: 2026-07-12
+updated: 2026-07-20
 ---
 
 # پروژه: Lead-نقاشی
@@ -66,6 +66,7 @@ updated: 2026-07-12
 
 ## Active Context
 
+- **2026-07-20:** به‌دستور مالک، اپ **TradeQuote Local** (Flutter/Drift — پیش‌فاکتور/فاکتور ATO-compliant با GST/ABN، PDF، اشتراک تلگرام/Gmail، بکاپ نسخه‌دار؛ MVP کامل ولی هنوز کامپایل‌نشده) وارد شد → `tradequote_local/` (بدون `.git` داخلی). نقش: ابزار کوتیشن/فاکتور دستِ مالک برای همین پا؛ الحاق به `lead_leg` فقط به‌صورت bridge پیشنهادیِ flag-off (بعد از پایان delta-scan نوشته می‌شود). گام حیاتی بعدی روی ماشین مالک: `tradequote_local/docs/BUILD_AND_RELEASE.md` §1 (create→pub get→build_runner→analyze→test→APK).
 - **2026-07-06 (جلسه ۱۷):** کد پروژه به `_code/` منتقل شد (B1 پلن NONMD-TRIAGE؛ propose→executed با verdict آری). لاگ کامل: `00 - Inbox/nonmd-move-log-2026-07-06.csv`.
 
 - تمرکز فعلی: rotation کلیدها → روشن کردن ربات → آزمایش #۱ (SEGMENT-DISCOVERY)
@@ -76,11 +77,13 @@ updated: 2026-07-12
 ## Progress
 
 - چه کار می‌کند: Painting-OS P1-P3 کامل (کوتیشن + فاکتور + ایمیل) · زیرساخت brushline · چارچوب آزمایش
-- چه مانده: وایر `/lead` تلگرام · Gmail OAuth E2E · فرم وب‌سایت · PDF کوتیشن · فاکتور خودکار · داشبورد · SEO
+- چه مانده: وایر `/lead` تلگرام · Gmail OAuth E2E · فرم وب‌سایت · PDF کوتیشن · فاکتور خودکار · داشبورد · SEO · **build اولین APK از `tradequote_local/` (R30) + پل lead_leg→TradeQuote (flag-off)**
 - مشکلات شناخته: ABN واقعی هنوز وارد نشده · Gmail token هنوز صادر نشده
 
 ## Next actions
 
+- [ ] (مالک) build اول TradeQuote روی PC: `tradequote_local/docs/BUILD_AND_RELEASE.md` §1 → APK روی S23 FE
+- [ ] (ایجنت، بعد از delta-scan) bridge پیشنهادی flag-off: draft کوتیشنِ `lead_quote.py` → قالب سازگار با TradeQuote (فقط فایل خروجی، صفر ارسال)
 - [ ] وایر `/lead` تلگرام → `parse_lead_intake()` + `render_quote_html()` (مرحله ۱ roadmap)
 - [ ] پر کردن ABN واقعی در `budgets.yaml` (مرحله ۲ roadmap)
 - [ ] Gmail OAuth token → تست E2E ایمیل لید (مرحله ۳ roadmap)

@@ -146,3 +146,14 @@ method: "شواهدمحور: ممیزیِ اتصالاتِ 07-18 (۲۴ اندا�
 | CH1 | `_ops/chord/` ✨نو | داورِ شواهدمحورِ تعمیر برای دکتر/خودترمیم‌ها (وترِ وزن‌دار + گیتِ عدم‌قطعیت + policy + ledger هش‌زنجیره؛ shadow-only، ۳۰/۳۰ تست سبز، LLM فقط از درِ `model_router` با JSON سخت‌گیر) | Doctor | 💤 off-loop، صفر وایرینگ | low | **KEEP + CONNECT در فاز C** (worktree، پشتِ `OCTOPUS_WIRE_CHORD_SHADOW` خاموش؛ کارتِ تلگرام = مأموریتِ جدا پشتِ `OCTOPUS_WIRE_CHORD`) |
 
 سند: `04 - Architect System/CHORD — معماری فیلترِ وتر (v0).md` · پرامپتِ فاز C: `octopus-build-prompts/CHORD-AGENT-PROMPT-2026-07-18.md`
+
+## 🔗 الحاق دو پروژهٔ مالک (نو، 2026-07-20 — دستور مالک)
+
+| ID | جزء | نقش | مالک | Health | ریسک | تصمیم |
+|---|---|---|---|---|---|---|
+| TQ1 | `03 - Projects/Lead-نقاشی/tradequote_local/` ✨نو | اپ آفلاین کوتیشن/فاکتور (Flutter/Drift، GST/ABN، PDF) — ابزار دستِ مالک برای پای لید نقاشی؛ MVP کامل، **هنوز کامپایل‌نشده** (build مالک: `docs/BUILD_AND_RELEASE.md` §1) | Lead-نقاشی | 💤 خارج از loop | low | **KEEP** (کد در vault؛ `.git` داخلی عمداً حذف شد) |
+| TQ2 | `_ops/legs/tradequote_bridge.py` ✨نو | پل propose-only: draft کوتیشن lead_quote → بستهٔ handoff (JSON سنت‌صحیح + TXT انسان‌خوان) در `state/legs/tradequote-outbox/`؛ E1 خالص، صفر شبکه | Lead-نقاشی | 💤 پشت `OCTOPUS_WIRE_TRADEQUOTE` (خاموش) | low | **KEEP + فعال‌سازی با رأی مالک** (۵/۵ تست سبز) |
+| WL1 | `03 - Projects/WLOS - Weight Loss OS/wlos/` ✨نو | کوچ کاهش وزن مالک (TS monorepo، v0.1.1، 135/135 تست) — «اندام شناخت مالک» برای مغز اصلی؛ **هنوز live نشده** (اولین اجرا: owner-only) | مالک/مغز | 💤 مستقل | med (PII سلامت — DB بیرون git) | **KEEP** (`.env.example` عمداً وارد نشد) |
+| WL2 | `_ops/cortex/wlos_bridge.py` ✨نو | سیگنال sanitized مالک برای مغز: خواندن whitelist-فقط از `state/wlos/owner-summary.json` (بدون هویت/بدون weight خام)؛ مصرف: `doctor/self_knowledge.snapshot()` فقط وقتی سیگنال هست | Doctor/Cortex | 💤 پشت `OCTOPUS_WIRE_WLOS` (خاموش) | low | **KEEP + فعال‌سازی با رأی مالک** (۵/۵ تست سبز؛ OCTOPUS هرگز در فایل سیگنال نمی‌نویسد) |
+
+شواهد: دلتا-اسکن 2026-07-20 (بستهٔ A/B/C در چت مالک) · تست‌ها: `_ops/tests/test_tradequote_bridge.py` + `test_wlos_bridge.py`.
