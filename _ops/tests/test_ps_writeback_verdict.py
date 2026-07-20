@@ -26,6 +26,7 @@ import json
 import os
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
@@ -240,6 +241,59 @@ try:
     # هیچ urllib/http/socketِ واقعی: تنها seamِ شبکه _transport است و در همهٔ تست‌ها fake بود
     check("ساختاری: تنها seamِ شبکه (_transport) در سراسرِ تست fake بود (صفر urlopen واقعی)",
           pw._transport is not _orig_transport)
+
+    # ─── ۷) D1-hardening: رأیِ منقضی (کهنه‌تر از VERDICT_TTL_SEC) → صفر PUT ────────
+    _put_attempts.clear()
+    q, a = _p("expired")
+    pw.enqueue("500020", "armin", "expense", queue_path=q)
+    pw.record_owner_verdict("500020", "armin", "expense", queue_path=q)
+    _vp = pw._verdict_path(queue_path=q)
+    _recs = pw._read_verdicts(_vp)
+    for _rc in _recs:                          # ts_epoch را به گذشتهٔ دور ببر → منقضی
+        _rc["ts_epoch"] = time.time() - pw.VERDICT_TTL_SEC - 1000
+    _vp.write_text("\n".join(json.dumps(x, ensure_ascii=False) for x in _recs) + "\n", "utf-8")
+    ft = FakeTransport([FakeResp({"id": 500020, "labels": ["فروشگاه"]})])   # فقط GET
+    pw._transport = ft
+    r = pw.flush(queue_path=q, audit_path=a, key=FAKE_KEY)
+    check("منقضی: رأیِ کهنه صفر PUT (choke-point) + awaiting=1 + صفر شبکه",
+          _put_attempts == [] and ft.puts() == [] and r["written"] == 0
+          and r.get("awaiting_verdict") == 1)
+
+    # ─── ۸) D1-hardening single-use: پس از PUTِ اول، replayِ همان محتوا → صفر PUT ─
+    _put_attempts.clear()
+    q, a = _p("singleuse")
+    pw.enqueue("500021", "armin", "expense", queue_path=q)
+    pw.record_owner_verdict("500021", "armin", "expense", queue_path=q)
+    ft = FakeTransport([FakeResp({"id": 500021, "labels": ["فروشگاه"]}),                     # GET1
+                        FakeResp({"id": 500021, "labels": ["فروشگاه", "oct-مالک-آرمین"]})])  # PUT1(fake)
+    pw._transport = ft
+    r1 = pw.flush(queue_path=q, audit_path=a, key=FAKE_KEY)
+    check("single-use: PUTِ اول انجام شد (written=1، یک PUT)",
+          len(_put_attempts) == 1 and r1["written"] == 1)
+    _put_attempts.clear()
+    pw.enqueue("500021", "armin", "expense", queue_path=q)   # replayِ همان tid/محتوا
+    ft2 = FakeTransport([FakeResp({"id": 500021, "labels": ["فروشگاه"]})])   # GET؛ oct نیست → changed=True
+    pw._transport = ft2
+    r2 = pw.flush(queue_path=q, audit_path=a, key=FAKE_KEY)
+    check("single-use: replayِ همان محتوا صفر PUT (رأی مصرف شده = consumed) + awaiting=1",
+          _put_attempts == [] and ft2.puts() == [] and r2["written"] == 0
+          and r2.get("awaiting_verdict") == 1)
+
+    # ─── ۹) رأیِ با هشِ نامتطبق (non-owner/forged/wrong-scope) → صفر PUT ──────────
+    _put_attempts.clear()
+    q, a = _p("wronghash")
+    pw.enqueue("500022", "armin", "expense", queue_path=q)
+    _vp = pw._verdict_path(queue_path=q)
+    _vp.parent.mkdir(parents=True, exist_ok=True)
+    _bad = {"ts": "x", "ts_epoch": time.time(), "tid": "500022", "field": "labels",
+            "owner": "armin", "ptype": "expense", "content_sha256": "0" * 64, "verdict": "approve"}
+    _vp.write_text(json.dumps(_bad, ensure_ascii=False) + "\n", "utf-8")
+    ft = FakeTransport([FakeResp({"id": 500022, "labels": ["فروشگاه"]})])
+    pw._transport = ft
+    r = pw.flush(queue_path=q, audit_path=a, key=FAKE_KEY)
+    check("هشِ نامتطبق: رأیِ approve با content_sha256 غلط صفر PUT (فقط بایندِ دقیقِ per-item مجاز)",
+          _put_attempts == [] and ft.puts() == [] and r["written"] == 0
+          and r.get("awaiting_verdict") == 1)
 
 finally:
     pw._request = _orig_request

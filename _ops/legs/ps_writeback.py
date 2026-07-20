@@ -67,6 +67,9 @@ _NS_PTYPE = "oct-نوع-"
 QUEUE_NAME = "ps-writeback-queue.jsonl"
 AUDIT_NAME = "ps-writeback-log.jsonl"
 VERDICT_NAME = "ps-writeback-verdicts.jsonl"      # رأیِ پایدارِ per-item مالک (owner-gated)
+# D1-hardening (2026-07-21): TTL رأی — رأیِ کهنه‌تر از این منقضی است (fail-closed). عددِ
+# owner-tunable/placeholder، نه سیاستِ نهاییِ مالی. رأی همچنین single-use است (پس از PUT مصرف می‌شود).
+VERDICT_TTL_SEC = 7 * 24 * 3600
 MARK_NAME = "ps-writeback-backfilled.marker"      # auto-backfillِ یک‌باره در اولین flushِ سیمی
 
 
@@ -277,19 +280,54 @@ def _verdict_content_hash(tid, field: str, targets: list[str]) -> str | None:
         return None
 
 
-def _owner_verdict_ok(tid, field: str, targets: list[str], *, verdict_file: Path) -> bool:
-    """آیا رأیِ پایدارِ «approve»ِ مالک برای دقیقاً همین (tid, field, هشِ محتوا) هست؟
-    غیاب/عدمِ تطبیق/رأیِ غیرِ approve → False (fail-closed؛ هیچ PUT)."""
+def _owner_verdict_ok(tid, field: str, targets: list[str], *, verdict_file: Path,
+                      now: float | None = None) -> bool:
+    """آیا رأیِ پایدارِ «approve»ِ مالکِ **معتبر** برای دقیقاً همین (tid, field, هشِ محتوا) هست؟
+    fail-closed در هر ابهام. سه قیدِ D1-hardening روی همان بایندِ per-item:
+      · **single-use:** اگر برای این هش رکوردِ `consumed` باشد → False (رأی قبلاً خرج شده).
+      · **expiry:** رأیِ approveِ کهنه‌تر از VERDICT_TTL_SEC نامعتبر است.
+      · **per-item owner-binding:** هش از tid+field+برچسب‌های ocِ owner/ptype مشتق است، پس رأیِ
+        یک owner/آیتمِ دیگر هشِ متفاوت دارد و اصلاً تطبیق نمی‌کند (ردِ ساختاریِ non-owner/wrong-item)."""
     want = _verdict_content_hash(tid, field, targets)
     if not want:
         return False
+    now = time.time() if now is None else now
+    seen_approve = False
     for rec in _read_verdicts(verdict_file):
-        if (str(rec.get("tid")) == str(tid)
-                and str(rec.get("field")) == str(field)
-                and str(rec.get("content_sha256")) == want
-                and str(rec.get("verdict", "")).strip().lower() == "approve"):
-            return True
-    return False
+        if str(rec.get("content_sha256")) != want:
+            continue
+        v = str(rec.get("verdict", "")).strip().lower()
+        if v == "consumed":
+            return False   # single-use: این هش قبلاً PUT شده → دیگر مجاز نیست
+        if (v == "approve"
+                and str(rec.get("tid")) == str(tid)
+                and str(rec.get("field")) == str(field)):
+            te = rec.get("ts_epoch")
+            fresh = True
+            if te is not None:
+                try:
+                    fresh = (now - float(te)) <= VERDICT_TTL_SEC
+                except Exception:  # noqa: BLE001 — ts_epochِ خراب = منقضی (fail-closed)
+                    fresh = False
+            if fresh:
+                seen_approve = True
+    return seen_approve
+
+
+def _consume_verdict(tid, field: str, targets: list[str], *, verdict_file: Path) -> None:
+    """پس از یک PUTِ موفق، رأیِ همین هش را single-use کن: یک رکوردِ `consumed` append می‌شود
+    تا PUTِ دومِ همان محتوا (replay) رد شود. fail-soft — نبودِ مصرف نباید flush را بکشد."""
+    want = _verdict_content_hash(tid, field, targets)
+    if not want:
+        return
+    try:
+        verdict_file.parent.mkdir(parents=True, exist_ok=True)
+        rec = {"ts": time.strftime("%Y-%m-%dT%H:%M:%S"), "ts_epoch": time.time(),
+               "tid": str(tid), "field": str(field), "content_sha256": want, "verdict": "consumed"}
+        with open(verdict_file, "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except Exception:  # noqa: BLE001
+        pass
 
 
 def record_owner_verdict(tid, owner: str | None, ptype: str | None, *,
@@ -313,7 +351,8 @@ def record_owner_verdict(tid, owner: str | None, ptype: str | None, *,
     try:
         p = _verdict_path(verdict_path, queue_path=queue_path)
         p.parent.mkdir(parents=True, exist_ok=True)
-        rec = {"ts": time.strftime("%Y-%m-%dT%H:%M:%S"), "tid": str(tid), "field": str(field),
+        rec = {"ts": time.strftime("%Y-%m-%dT%H:%M:%S"), "ts_epoch": time.time(),
+               "tid": str(tid), "field": str(field),
                "owner": owner, "ptype": ptype, "content_sha256": chash, "verdict": v}
         with open(p, "a", encoding="utf-8") as f:
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
@@ -539,6 +578,7 @@ def flush(*, queue_path: Path | None = None, audit_path: Path | None = None,
                           key=key, timeout=timeout)
             if pr["ok"]:
                 written += 1
+                _consume_verdict(tid, "labels", targets, verdict_file=vp)   # D1: single-use
                 _audit({"tid": tid, "result": "written", "labels": targets}, audit_path)
             else:
                 kept.append(it)
