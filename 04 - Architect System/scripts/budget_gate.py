@@ -19,6 +19,41 @@ AUD_DEFAULT = 1.5    # نرخِ USD→AUD پیش‌فرض (هم‌ارزِ opsli
 BUDGETS_YAML = pathlib.Path(os.environ.get("BUDGETS_YAML", str(STATE.parent / "budgets.yaml")))
 STALE_LOCK_S = 30    # قفلِ رهاشده بعد از این ثانیه‌ها steal می‌شود (ضدِ deadlock)
 
+# ─── D3: SHADOW, alert-only drawdown guard (additive؛ صفر اثرِ پولی) ───────────────
+# ماژولِ خواهر drawdown_guard.py. پشتِ HH_DRAWDOWN_ENFORCE (پیش‌فرض OFF → این مسیر
+# اصلاً اجرا نمی‌شود → رفتارِ خرج byte-identical). ON → فقط observe + advisory alert؛
+# هرگز block/halt/reserve/settle نمی‌کند. Enforcement (بلاک روی breach) کارِ owner-gatedِ
+# آینده است و این‌جا ساخته نشده. importِ fail-soft — هر خطا = گاردِ خاموش، نه crash.
+try:
+    import sys as _sys
+    _sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+    import drawdown_guard as _drawdown_guard   # sibling در همین scripts/
+except Exception:
+    _drawdown_guard = None
+
+DRAWDOWN_ADVISORY_LOG = pathlib.Path(os.environ.get(
+    "DRAWDOWN_ADVISORY_LOG", str(STATE.parent / "drawdown-advisory.jsonl")))
+
+
+def _drawdown_shadow_observe(agent, d, c):
+    """مشاهدهٔ shadow، money-neutral و fail-soft. مقدارِ برگشتی در هیچ تصمیمِ پولی
+    استفاده نمی‌شود و state را تغییر نمی‌دهد. flag OFF (پیش‌فرض) → خروجِ زودهنگام،
+    صفر I/O → byte-identical. هر خطا خاموش بلعیده می‌شود (گارد هرگز خرج را متأثر نمی‌کند)."""
+    if _drawdown_guard is None:
+        return
+    if not _drawdown_guard.enforce_enabled():
+        return   # HH_DRAWDOWN_ENFORCE خاموش (پیش‌فرض) → هیچ مشاهده‌ای، byte-identical
+    try:
+        window_spend_aud = float(d.get("spent_today_usd", 0.0)) * c["aud"]
+        _drawdown_guard.observe(
+            window_spend_aud, c["day_aud"], c,
+            agent=agent,
+            now_iso=datetime.datetime.now().isoformat(timespec="seconds"),
+            log_path=str(DRAWDOWN_ADVISORY_LOG),
+            enforce_flag_on=True)
+    except Exception:
+        pass   # fail-soft — گاردِ shadow هرگز مسیرِ پول را متأثر نمی‌کند
+
 
 def _caps():
     """v2/A1: سقف‌ها را از budgets.yaml (تک‌منبع حقیقت) می‌خواند. fail-closed:
@@ -28,6 +63,8 @@ def _caps():
     بی‌کش — هر بار تازه می‌خواند تا ویرایش مالک روی yaml بدون ری‌استارت اعمال شود."""
     day, month, disaster, aud, src = (
         CEIL_DAY_AUD_HARD, CEIL_MONTH_AUD_HARD, DISASTER_AUD_HARD, AUD_DEFAULT, "hardcode-floor")
+    spike = None   # D3 (shadow drawdown guard): raw owner-tunable threshold از budgets.yaml global.spike_pct؛
+                   # None → drawdown_guard از کفِ placeholder استفاده می‌کند. صرفاً observe؛ هیچ اثرِ پولی ندارد.
     try:
         import yaml
         g = (yaml.safe_load(BUDGETS_YAML.read_text("utf-8")) or {}).get("global", {})
@@ -36,10 +73,14 @@ def _caps():
             if g.get("cap_daily")    is not None: day      = min(day,      float(g["cap_daily"]))
             if g.get("cap_disaster") is not None: disaster = min(disaster, float(g["cap_disaster"]))
             if g.get("aud_per_usd")  is not None: aud      = float(g["aud_per_usd"])
+            if g.get("spike_pct")    is not None:                      # D3: raw، بدون floor (single-source read)
+                try: spike = float(g["spike_pct"])
+                except (TypeError, ValueError): spike = None
             src = "budgets.yaml ∧ hardcode-floor"
     except Exception:
         pass  # fail-closed → کفِ هاردکد
-    return {"day_aud": day, "month_aud": month, "disaster_aud": disaster, "aud": aud, "src": src}
+    return {"day_aud": day, "month_aud": month, "disaster_aud": disaster, "aud": aud,
+            "src": src, "spike_pct": spike}   # spike_pct صرفاً برای گاردِ shadow؛ در تصمیمِ پول استفاده نمی‌شود
 
 
 def _load():
@@ -103,6 +144,7 @@ def reserve(agent, est_usd):
         d["spent_today_usd"] += est_usd            # ← رزرو واقعاً persist می‌شود
         d["spent_month_aud"] += est_usd * c["aud"]
         _save(d)
+        _drawdown_shadow_observe(agent, d, c)      # D3 shadow — money-neutral، fail-soft، پس از persist
         return {"allow": True, "reserved": est_usd}
     finally:
         _unlock(fd)
