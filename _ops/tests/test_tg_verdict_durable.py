@@ -29,7 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("tg-verdict-durable")
-_OPS = harness.REAL_VAULT / "_ops"
+_OPS = harness.SELF_OPS        # کدِ زیرِ تست = درختِ خودِ تست (نه REAL_VAULT) — pin به worktree
 for _p in (str(_OPS), str(_OPS / "telegram_center"), str(_OPS / "outcomes"), str(_OPS / "budget")):
     if _p not in sys.path:
         sys.path.insert(0, _p)

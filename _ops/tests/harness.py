@@ -21,6 +21,11 @@ from pathlib import Path
 REAL_VAULT = Path(os.environ.get("REAL_VAULT", r"F:\backup"))
 REAL_GENOME = REAL_VAULT / "07 - Knowledge" / "genome-system"
 
+# کدِ زیرِ تست = همان درختی که این harness داخلش زندگی می‌کند (worktree)، نه REAL_VAULT.
+# تست‌ها باید ماژول‌های _ops را از این ریشه resolve کنند تا صرفِ‌نظر از REAL_VAULT همیشه
+# کدِ *خودشان* را بیازمایند (نه درختِ زنده). REAL_VAULT فقط برای *داده/فایلِ واقعی* است.
+SELF_OPS = Path(__file__).resolve().parent.parent   # <worktree>/_ops
+
 TEST_BUDGETS = """\
 global:
   cap_monthly: 30
