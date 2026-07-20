@@ -23,7 +23,8 @@ import harness  # noqa: E402
 ENV = harness.setup("lead-outcome-wiring")
 
 _OPS = harness.REAL_VAULT / "_ops"
-for _p in (str(_OPS), str(_OPS / "legs"), str(_OPS / "outcomes"), str(_OPS / "memory")):
+for _p in (str(_OPS), str(_OPS / "legs"), str(_OPS / "outcomes"),
+           str(_OPS / "memory"), str(_OPS / "spine")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
@@ -31,6 +32,7 @@ import opslib             # noqa: E402
 import wiring             # noqa: E402
 import outcome_store as osx        # noqa: E402
 import decision_receipt as drx     # noqa: E402
+import event_spine as esx          # noqa: E402
 
 WIRING_SRC = (_OPS / "wiring.py").read_text("utf-8")
 
@@ -213,6 +215,43 @@ def t_e_structural_reachable_and_no_send():
             for m in mods:
                 assert m.split(".")[0] not in {"requests", "socket", "urllib", "http",
                                                "telegram"}, f"helper نباید {m} import کند"
+
+
+def t_f_event_spine_dual_write():
+    """LEG-07: با OCTOPUS_WIRE_SPINE روشن، beat زنجیرهٔ decided→delivered را به SoTِ یگانه
+    dual-write می‌کند؛ خاموش → spine.db ساخته نمی‌شود (بایت‌به‌بایت no-op)."""
+    spine_db = opslib.STATE_DIR / "spine" / "spine.db"
+    # (الف) spine خاموش (LEAD_OUTCOME روشن) → beat کار می‌کند ولی spine.db ساخته نمی‌شود
+    os.environ["OCTOPUS_WIRE_LEAD_DISCOVERY"] = "1"
+    os.environ["OCTOPUS_WIRE_LEAD_OUTCOME"] = "1"
+    os.environ.pop(esx.FLAG, None)
+    try:
+        pre = spine_db.exists()
+        r, _c = _run_beat("spoff")
+        assert r["outcomes"]["recorded"] == 1 and "spine_events" not in r["outcomes"], r
+        assert spine_db.exists() == pre, "spine خاموش نباید spine.db بسازد"
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_LEAD_DISCOVERY", None)
+        os.environ.pop("OCTOPUS_WIRE_LEAD_OUTCOME", None)
+    # (ب) spine روشن → دو رویدادِ decided+delivered با correlationِ مشترک در SoT
+    os.environ["OCTOPUS_WIRE_LEAD_DISCOVERY"] = "1"
+    os.environ["OCTOPUS_WIRE_LEAD_OUTCOME"] = "1"
+    os.environ[esx.FLAG] = "1"
+    try:
+        r, corr = _run_beat("spon")
+        assert r["outcomes"]["spine_events"] == 2, r["outcomes"]
+        s = esx.EventSpine(path=spine_db)
+        try:
+            evs = s.events(correlation_id=corr)
+            types = {e["event_type"] for e in evs}
+            assert "decided" in types and "delivered" in types, evs
+            assert all(e["domain"] == "lead" for e in evs), evs
+        finally:
+            s.close()
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_LEAD_DISCOVERY", None)
+        os.environ.pop("OCTOPUS_WIRE_LEAD_OUTCOME", None)
+        os.environ.pop(esx.FLAG, None)
 
 
 if __name__ == "__main__":

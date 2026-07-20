@@ -1710,9 +1710,11 @@ def _record_lead_decisions(items, beat: int = 0) -> dict:
     out = {"recorded": 0, "errors": 0}
     if not items:
         return out
-    o = r = mem = None
+    o = r = mem = spine = None
+    _esx = None
     try:
-        for _p in (str(_HERE / "outcomes"), str(_HERE / "memory"), str(_HERE / "legs")):
+        for _p in (str(_HERE / "outcomes"), str(_HERE / "memory"),
+                   str(_HERE / "legs"), str(_HERE / "spine")):
             if _p not in sys.path:
                 sys.path.insert(0, _p)
         import outcome_store as _osx        # noqa: WPS433 — lazy
@@ -1730,6 +1732,16 @@ def _record_lead_decisions(items, beat: int = 0) -> dict:
                 mem = _msx.MemoryStore(path=mem_db)
             except Exception:  # noqa: BLE001 — بازیابیِ حافظه اختیاری است
                 mem = None
+        # LEG-07: Event Spine (اختیاری، پشتِ OCTOPUS_WIRE_SPINE) — dual-write زنجیرهٔ
+        # decided→delivered به SoTِ یگانه. flag خاموش → spine=None → صفر I/O (db خالی نمی‌سازد).
+        try:
+            import event_spine as _esx   # noqa: WPS433
+            if _esx.flag_on():
+                sdir = opslib.STATE_DIR / "spine"
+                sdir.mkdir(parents=True, exist_ok=True)
+                spine = _esx.EventSpine(path=sdir / "spine.db")
+        except Exception:  # noqa: BLE001 — spine اختیاری است
+            spine = None
         for lead, aid in items:
             try:
                 res = _lor.record_lead_decision(
@@ -1737,12 +1749,28 @@ def _record_lead_decisions(items, beat: int = 0) -> dict:
                     correlation_id=("lead_" + str(aid or ""))[:64])
                 if isinstance(res, dict) and not res.get("skipped"):
                     out["recorded"] += 1
+                    if spine is not None:   # dual-write زنجیره به SoTِ یگانه (shadow، fail-soft)
+                        try:
+                            for _et, _tr in (("decided", "DETERMINISTIC"),
+                                             ("delivered", "UNVERIFIED")):
+                                _esx.dual_write(spine, {
+                                    "event_type": _et, "domain": "lead",
+                                    "correlation_id": res["correlation_id"],
+                                    "mission_id": res["mission_id"],
+                                    "subject": res["proposal_id"],
+                                    "producer": "lead_outcome_recorder", "trust": _tr,
+                                    "payload": {"receipt_id": res["receipt_id"],
+                                                "outcome_ref": res["outcome_ref"],
+                                                "verdict": res["verdict"]}})
+                            out["spine_events"] = out.get("spine_events", 0) + 2
+                        except Exception:  # noqa: BLE001 — spine نباید ثبت را بشکند
+                            pass
             except Exception:  # noqa: BLE001 — یک لیدِ بد کلِ ثبت را نکشد
                 out["errors"] += 1
     except Exception as _re:  # noqa: BLE001 — §۴: ثبتِ spine هرگز beat را نمی‌کشد
         opslib.alert([f"wiring: lead outcome-record خطا: {type(_re).__name__}: {_re}"])
     finally:
-        for _s in (mem, r, o):   # بستنِ WAL (checkpoint TRUNCATE) — ضدِ نشتِ فایلِ ویندوز
+        for _s in (spine, mem, r, o):   # بستنِ WAL (checkpoint TRUNCATE) — ضدِ نشتِ فایلِ ویندوز
             try:
                 if _s is not None:
                     _s.close()
