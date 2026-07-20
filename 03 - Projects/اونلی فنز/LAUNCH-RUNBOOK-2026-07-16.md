@@ -1,14 +1,30 @@
 # 🚀 LAUNCH RUNBOOK — Project-F (موج ۲)
 
-> **هدف:** از کدِ آماده به لانچِ واقعی. این سند قدم‌به‌قدم راهنمای توست.
+> # ⛔ NO-GO — page setup forbidden
+> **تا وقتی همهٔ این‌ها بسته نشده، هیچ قدمی از این runbook اجرا نمی‌شود:**
+> DecisionLog ‏G0 **CLOSED** (امضای DL-2026-07-20-G0) · توافق دونفره **SIGNED** (DL-2026-07-20-AGREEMENT) · PF-V5 ‏**REVOKE|RATIFY-CONDITIONAL** ثبت‌شده · تست‌ها سبزِ مستند (DL-2026-07-20-TESTS) · body freeze ثبت‌شده (DL-2026-07-20-BODY-FREEZE).
+> مرجع حکم: [[00 - Control/GATE-STAMP-2026-07-20|GATE-STAMP]] — تا وقتی `PAGE_SETUP: GO` نشده، BotFather تولیدی/OF/Fansly/GAML/KYC/پست/DM همه ممنوع.
+> <!-- FROZEN 2026-07-20 VQ-PF-003: C rejected body. Dual consent required to thaw. — هیچ مسیر body در هیچ مرحلهٔ این runbook مجاز نیست -->
+
+> **هدف:** از کدِ آماده به لانچِ واقعی. این سند قدم‌به‌قدم راهنمای توست — **بعد از GO**.
 > **زمان تخمینی:** ۲-۳ ساعت کارِ متمرکز در یک روز.
-> **پیش‌نیاز:** موج ۰ و ۱ انجام شده (commit `ff8d0bf`)؛ safety nets فعال؛ ۱۰۰ تست سبز.
+> **پیش‌نیاز:** موج ۰ و ۱ انجام شده (commit `ff8d0bf`)؛ safety nets فعال؛ ~~۱۰۰ تست سبز~~ عدد صادق تست: [[00 - Control/ARCHITECTURE-COMPLETE-2026-07-20/08_TEST_REPORT|08_TEST_REPORT]].
+
+---
+
+## مرحله ۰ — چک‌لیست انسانیِ P0 (قبل از هر چیز)
+
+هر ردیف باید در [[00 - Control/ARCHITECTURE-COMPLETE-2026-07-20/09_NOGO_PAGE_SETUP|09_NOGO_PAGE_SETUP]] تیک و در DecisionLog امضا شده باشد — وگرنه همین‌جا توقف:
+- [ ] P0-1 اقامت/Branch در DL-2026-07-20-G0
+- [ ] P0-2 رأی PF-V5 (REVOKE|RATIFY-CONDITIONAL)
+- [ ] P0-3 توافق دونفره **SIGNED**
+- [ ] بقیهٔ P0-4 تا P0-12 طبق سند NOGO
 
 ---
 
 ## 📋 چک‌لیست پیش‌شروع (قبل از هر چیز)
 
-- [ ] پیام به صبا ارسال شد (`drafts-awaiting-gate/msg-to-saba-question8.md`)
+- [ ] پیام به C ارسال شد (`drafts-awaiting-gate/msg-to-saba-question8.md`)
 - [ ] یک ساعتِ بدون مزاحمت داری (این کار نیاز به تمرکز دارد)
 - [ ] دسترسی به ایمیلِ اختصاصی برای اکانت‌ها
 - [ ] VPN/پروکسیِ پایدار (تحقیق P3: Reddit به IP حساس است)
@@ -25,36 +41,38 @@
 3. **API Token** رو کپی کن (مثل `123456:ABC-DEF...`)
 4. **هشدار:** این token هرگز در git نباشه — فقط در `langar_config.json` (که در `.gitignore` است)
 
-### ۱.۲ گرفتن chat_id آری
+### ۱.۲ گرفتن chat_id A
 
 1. به bot جدیدت یک پیام بده (هر چیزی)
 2. این URL رو در مرورگر باز کن:
    ```
    https://api.telegram.org/bot<TOKEN>/getUpdates
    ```
-3. در JSON پاسخ، `"chat":{"id":NUMERIC_ID}` رو پیدا کن — این `chat_id` آریه
+3. در JSON پاسخ، `"chat":{"id":NUMERIC_ID}` رو پیدا کن — این `chat_id` مالِ A است
 
 ### ۱.۳ تنظیم langar_config.json
 
-فایل `langar/langar_config.json` رو باز کن (الان PII صبا داره — خوبه) و این فیلدها رو اضافه/اصلاح کن:
+فایل `langar/langar_config.json` رو باز کن (gitignored — مقادیر واقعی فقط آن‌جا زندگی می‌کنند، هرگز در این سند) و این فیلدها رو با **مقادیر واقعی خودت** پر کن — این‌جا فقط placeholder:
 
 ```json
 {
   "blocklist": [
-    "Armin Mohebiazal",
-    "0493577719",
-    "9 cycas place stanhope gardens NSW sydney",
-    "<نام واقعی صبا>",
-    "<هر شناسهٔ حساس دیگر>"
+    "⟦NAME-A-FULL⟧",
+    "⟦PHONE-A⟧",
+    "⟦ADDRESS-A⟧",
+    "⟦NAME-C⟧",
+    "⟦هر شناسهٔ حساس دیگر⟧"
   ],
-  "city_terms": ["Sydney", "سیدنی", "sydney", "Stanhope", "Blacktown"],
-  "name_map": {"صبا": "C", "آری": "A", "<نام واقعی>": "X"},
+  "city_terms": ["Sydney", "سیدنی", "sydney", "⟦SUBURB-1⟧", "⟦SUBURB-2⟧"],
+  "name_map": {"⟦NAME-C⟧": "C", "⟦NAME-A⟧": "A"},
   "project_code": "Project-F",
-  "owner_chat_id": <عدد chat_id آری>,
-  "bot_token": "<TOKEN از BotFather>",
-  "_note": "این فایل در .gitignore است — هرگز commit نشود. blocklist را کامل پر کن."
+  "owner_chat_id": "⟦chat_id عددی A⟧",
+  "bot_token": "⟦TOKEN از BotFather⟧",
+  "_note": "این فایل در .gitignore است — هرگز commit نشود. blocklist را با مقادیر واقعی کامل پر کن؛ خالی = egress بسته (fail-closed)."
 }
 ```
+
+> 🔒 **قاعدهٔ PII (DL-2026-07-20-PII-INCIDENT):** مقدار واقعی (نام/تلفن/آدرس) هرگز در هیچ سند tracked نوشته نمی‌شود — حتی به‌عنوان «مثال». نسخهٔ قبلی این بلوک مقدار واقعی داشت و در 2026-07-20 پاکسازی شد؛ تاریخچهٔ git هنوز آلوده است (اکشن مالک در ballot ‏Q8).
 
 **تست:** در ترمینال:
 ```bash
@@ -95,7 +113,7 @@ Start-ScheduledTask -TaskName 'ProjectF-Langar-Bot'
 ### ۲.۱ ایمیل اختصاصی
 
 - یک ایمیل جدید بساز (ProtonMail توصیه می‌شه — رایگان، رمزنگاری‌شده، بدون شماره)
-- نام: چیزی که به هویتِ واقعی وصل نیست (مثلاً `anar.soles@proton.me`)
+- نام: چیزی که به هویتِ واقعی وصل نیست (مثلاً `⟦brand-alias⟧@proton.me`)
 - این ایمیل را برای همهٔ اکانت‌ها استفاده کن
 
 ### ۲.۲ Reddit account (مهم‌ترین — warm-up)
@@ -216,7 +234,7 @@ Start-ScheduledTask -TaskName 'ProjectF-Langar-Bot'
 1. **ایست کامل.** هیچ پستی نفرست.
 2. در تلگرام: `/guards` → وضعیت رو ببین
 3. تحقیق کن: چرا؟ IP؟ الگوی پست؟ محتوا؟
-4. وقتی حل شد: `/clear_full_stop` (با verdict آوری)
+4. وقتی حل شد: `/clear_full_stop` (با verdict A)
 
 ### اگه سیگنال doxxing (کسی هویت رو پرسید)
 
@@ -237,8 +255,8 @@ Start-ScheduledTask -TaskName 'ProjectF-Langar-Bot'
 - X: <n> فالوور، <n> engagement
 - OF: <n> free-sub، <n> paid، <$x> درآمد
 - DM: <n> دریافت، <n> پاسخ، <$x> conversion
-- زمان آری: <h> ساعت
-- زمان صبا: <h> ساعت
+- زمان A: <h> ساعت
+- زمان C: <h> ساعت
 - warningها: <n>
 - next: <تم هفتهٔ بعد>
 ```
@@ -269,7 +287,7 @@ Start-ScheduledTask -TaskName 'ProjectF-Langar-Bot'
 - [ ] link-hub زنده
 - [ ] OF Free page verify شده (بدون محتوا)
 - [ ] langar_config.json کامل (blocklist + token + chat_id)
-- [ ] پیام به صبا ارسال شده
+- [ ] پیام به C ارسال شده
 
 بعد از این، وارد فاز warm-up (هفته ۱-۲) می‌شی.
 

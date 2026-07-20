@@ -17,13 +17,21 @@ content-free · صفر PII · stdlib-only · fail-closed (garded با همان b
 """
 from __future__ import annotations
 
+import hashlib
 import json
+import threading
 import time
 import uuid
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
 DEFAULT_STORE = _HERE / "dm_queue.json"
+
+# audit ‏HITL (اختیاری — fail-soft)
+try:
+    from audit import audit_append
+except ImportError:  # pragma: no cover
+    audit_append = None  # type: ignore
 
 # کانال‌هایی که DM رویشان می‌رود (پلتفرم‌های destination).
 DM_CHANNELS = ("of", "fansly", "feetfinder", "reddit", "x")
@@ -55,9 +63,10 @@ class DmPipeline:
 
     def __init__(self, store_path: str | Path | None = None):
         self._store = Path(store_path) if store_path else DEFAULT_STORE
+        self._lock = threading.RLock()   # 2026-07-20: هم‌زمانی امن
         self._items = self._load()
 
-    # ── persistence (fail-soft) ──────────────────────────────────────────
+    # ── persistence (atomic از 2026-07-20؛ قبلاً write_text خام بود) ─────
     def _load(self) -> list:
         try:
             if self._store.exists():
@@ -69,8 +78,13 @@ class DmPipeline:
 
     def _save(self) -> None:
         try:
-            self._store.write_text(
-                json.dumps(self._items, ensure_ascii=False, indent=2), encoding="utf-8")
+            with self._lock:
+                self._store.parent.mkdir(parents=True, exist_ok=True)
+                tmp = self._store.with_suffix(".tmp")
+                tmp.write_text(
+                    json.dumps(self._items, ensure_ascii=False, indent=2),
+                    encoding="utf-8")
+                tmp.replace(self._store)
         except OSError:
             pass
 
@@ -109,23 +123,32 @@ class DmPipeline:
         kd = kind.lower().strip() if kind else "general"
         if kd not in DM_KINDS:
             kd = "general"
-        flagged = not self._dm_clean(body, subject)
-        item = {
-            "id": "DM-" + uuid.uuid4().hex[:10],
-            "status": "pending_review",
-            "channel": ch,
-            "kind": kd,
-            "subject": (_FLAG if flagged else str(subject)[:120]),
-            "body": (_FLAG if flagged else str(body)[:1000]),
-            "context_note": str(context_note)[:200],   # یادداشتِ داخلی، هرگز ارسال نمی‌شود
-            "flagged": flagged,
-            "proposed_by": str(proposed_by)[:24],
-            "created": _now(),
-            "approved_by": None,
-            "sent_at": None,   # وقتی آری گفت «فرستادم» دستی ثبت می‌شود
-        }
-        self._items.append(item)
-        self._save()
+        # dedup (2026-07-20): md5 روی متنِ *خام* body+channel — draft تکراریِ pending دوباره صف نمی‌شود
+        key = hashlib.md5(
+            f"{str(body).strip().lower()}|{ch}".encode("utf-8")).hexdigest()
+        with self._lock:
+            for i in self._items:
+                if i.get("status") == "pending_review" and i.get("dedup") == key:
+                    return {"ok": True, "id": i["id"], "status": "pending_review",
+                            "flagged": bool(i.get("flagged")), "duplicate": True}
+            flagged = not self._dm_clean(body, subject)
+            item = {
+                "id": "DM-" + uuid.uuid4().hex[:10],
+                "status": "pending_review",
+                "channel": ch,
+                "kind": kd,
+                "subject": (_FLAG if flagged else str(subject)[:120]),
+                "body": (_FLAG if flagged else str(body)[:1000]),
+                "context_note": str(context_note)[:200],   # یادداشتِ داخلی، هرگز ارسال نمی‌شود
+                "flagged": flagged,
+                "proposed_by": str(proposed_by)[:24],
+                "created": _now(),
+                "approved_by": None,
+                "dedup": key,
+                "sent_at": None,   # وقتی آری گفت «فرستادم» دستی ثبت می‌شود
+            }
+            self._items.append(item)
+            self._save()
         return {"ok": True, "id": item["id"], "status": "pending_review",
                 "flagged": flagged}
 
@@ -163,6 +186,11 @@ class DmPipeline:
         it["approved_by"] = str(actor)[:24]
         it["approved_at"] = _now()
         self._save()
+        if audit_append:
+            audit_append("dm_approve", {"id": item_id, "actor": actor,
+                                        "status": "ready_for_manual_send",
+                                        "channel": it.get("channel", ""),
+                                        "kind": it.get("kind", "")})
         return {"ok": True, "id": item_id, "status": "ready_for_manual_send",
                 "payload": {"channel": it["channel"], "subject": it.get("subject", ""),
                             "body": it["body"]},

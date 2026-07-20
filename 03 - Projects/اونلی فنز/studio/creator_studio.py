@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""saba_studio.py — 🎬 استودیوی صبا (رابط تلگرامیِ خوشگل و کارآمد، جدا از لنگر).
+"""creator_studio.py — 🎬 استودیوی Creator/C (رابط تلگرامی، جدا از لنگر).
+[C1 opsec rename 2026-07-20: هیچ نامِ شخصی در filename/کلاس/env/User-Agent — DL-2026-07-20-PII-INCIDENT]
 
 سیم‌کشی با معماری کل (blueprint §۳ two-brain · BRAIN-SPEC §۱ · CLAUDE.md):
-  صبا (این بات) ──drafts.json──▶ ContentStudio (موتور) ──▶ آری/لنگر (/drafts)
-                 ◀──for_saba.json (inbox آری)──────────────┘
+  C (این بات) ──drafts.json──▶ ContentStudio (موتور) ──▶ A/لنگر (/drafts)
+                 ◀──for_creator.json (inbox A)─────────────┘
   • منبع حقیقتِ درفت‌ها/کانفیگ = ContentStudio (drafts.json + config.json) — کانِن دوم نمی‌سازیم.
-  • propose-only، دوکلیده: صبا ثبت → آری تأیید → انتشارِ درون‌پلتفرم. هیچ اکشن بیرونی این‌جا نیست.
+  • propose-only، دوکلیده: C ثبت → A تأیید → انتشارِ درون‌پلتفرم. هیچ اکشن بیرونی این‌جا نیست.
   • صفر رسانه/هویت/PII — فقط متادیتا/متن. رسانهٔ واقعی هرگز وارد بات نمی‌شود.
-  • محدودهٔ صبا مقدمِ مطلق: ✋ توقف پایدار (فایل HALT) که آری/لنگر هم می‌بینند.
-  • فقط chat-id صبا؛ غریبه = سکوت. stdlib-only، $0، ایزوله.
+  • محدودهٔ C مقدمِ مطلق: ✋ توقف پایدار (فایل HALT) که A/لنگر هم می‌بینند.
+  • فقط chat-id ‏C؛ غریبه = سکوت. stdlib-only، $0، ایزوله.
 """
 from __future__ import annotations
 import html
@@ -38,8 +39,8 @@ def _global_stop() -> bool:
     except Exception:  # noqa: BLE001
         pass
     return False
-INBOX_JSON = HERE / "for_saba.json"                # آری → صبا
-CAPACITY_JSON = HERE / "capacity.json"             # ظرفیت هفتگی صبا
+INBOX_JSON = HERE / "for_creator.json"             # A → C (نام قدیمی for_saba.json با fallback خوانده می‌شود)
+CAPACITY_JSON = HERE / "capacity.json"             # ظرفیت هفتگی C
 BOUNDARY_LOG = HERE / "boundary_log.json"          # لاگ تغییر محدوده (append-only)
 TELEGRAM_API = "https://api.telegram.org"
 
@@ -101,26 +102,34 @@ def _num_ascii(t: str) -> str:
     """تبدیل ارقام فارسی/عربی به ASCII برای ورودی ظرفیت؛ fail-soft."""
     return (t or "").translate(str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789"))
 def _url_get(url, timeout):
-    req = urllib.request.Request(url, headers={"User-Agent": "saba-studio/1.0"})
+    req = urllib.request.Request(url, headers={"User-Agent": "PF-Studio/1.0"})
     with urllib.request.urlopen(req, timeout=timeout + 5) as r: return json.loads(r.read().decode())
 def _url_post(url, body, timeout=10):
     d = json.dumps(body, ensure_ascii=False).encode()
     req = urllib.request.Request(url, data=d, headers={
-        "User-Agent": "saba-studio/1.0", "Content-Type": "application/json"})
+        "User-Agent": "PF-Studio/1.0", "Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=timeout) as r: return json.loads(r.read().decode())
 
 
-class SabaStudio:
-    """رابط تلگرامیِ صبا. HTML غنی، منوی سه‌سطحی، conversation-state سبک."""
+class CreatorStudio:
+    """رابط تلگرامیِ C. ‏HTML غنی، منوی سه‌سطحی، conversation-state سبک."""
 
-    name = "saba-studio"
+    name = "pf-studio"
 
-    def __init__(self, studio=None, token=None, saba_chat_id=None,
-                 http_get=None, http_post=None, brain=None, longpoll_timeout=30):
+    def __init__(self, studio=None, token=None, creator_chat_id=None,
+                 http_get=None, http_post=None, brain=None, longpoll_timeout=30,
+                 saba_chat_id=None):
+        # ‏saba_chat_id: فقط سازگاریِ عقب‌رو (C1 rename 2026-07-20)
+        if creator_chat_id is None and saba_chat_id is not None:
+            creator_chat_id = saba_chat_id
         self.studio = studio or (ContentStudio() if ContentStudio else None)
-        self.token = token or os.environ.get("TELEGRAM_SABA_BOT_TOKEN", "").strip()
-        cid = saba_chat_id if saba_chat_id is not None else os.environ.get("TELEGRAM_SABA_CHAT_ID", "0")
-        self.saba = int(cid) if str(cid).strip() else 0
+        self.token = token if token is not None else (
+            os.environ.get("TELEGRAM_STUDIO_BOT_TOKEN")
+            or os.environ.get("TELEGRAM_SABA_BOT_TOKEN", "")).strip()
+        cid = creator_chat_id if creator_chat_id is not None else (
+            os.environ.get("TELEGRAM_STUDIO_CHAT_ID")
+            or os.environ.get("TELEGRAM_SABA_CHAT_ID", "0"))
+        self.creator = int(cid) if str(cid).strip() else 0
         self._get = http_get or _url_get
         self._post = http_post or _url_post
         self.brain = brain
@@ -132,20 +141,23 @@ class SabaStudio:
 
     # ── وضعیت ──
     @property
-    def wired(self) -> bool: return bool(self.token) and self.saba != 0
+    def wired(self) -> bool: return bool(self.token) and self.creator != 0
     @property
     def halted(self) -> bool: return HALT_FILE.exists() or _global_stop()
-    def __repr__(self): return f"<SabaStudio wired={self.wired} token={_mask(self.token)} halted={self.halted}>"
+    def __repr__(self): return f"<CreatorStudio wired={self.wired} token={_mask(self.token)} halted={self.halted}>"
+    @property
+    def saba(self):  # سازگاری عقب‌رو — deprecated (C1 rename)
+        return self.creator
     def stop(self): self._stop = True
     def authorized(self, chat_id: int) -> bool:
         # Live: فقط chat-id ثبت‌شدهٔ Creator. Shadow-mode بدون env: stdin با chat=0 مجاز است.
-        if self.saba != 0:
-            return chat_id == self.saba
+        if self.creator != 0:
+            return chat_id == self.creator
         return (not self.wired) and chat_id == 0
 
     # ── ارسال ──
     def send(self, text: str, reply_markup: dict | None = None) -> None:
-        body = {"chat_id": self.saba, "text": text[:4000],
+        body = {"chat_id": self.creator, "text": text[:4000],
                 "parse_mode": "HTML", "disable_web_page_preview": True}
         if reply_markup: body["reply_markup"] = reply_markup
         if not self.wired:
@@ -161,7 +173,7 @@ class SabaStudio:
         pend = self._pending_count()
         cap = _load(CAPACITY_JSON, {})
         theme = self._this_week_theme()
-        unread = len([m for m in _load(INBOX_JSON, []) if not m.get("read")])
+        unread = len([m for m in self._load_inbox()[1] if not m.get("read")])
         greet = self._greeting()
         lines = [f"🎬 <b>استودیوی محتوا</b>", f"<i>{greet}</i>", "━━━━━━━━━━"]
         if affirm is not None:                       # یک خطِ گرم/تحسین‌گر (fail-soft)
@@ -282,13 +294,21 @@ class SabaStudio:
                 "چند ساعت این هفته می‌تونی برای شوت بذاری؟ عدد بفرست (مثلاً «۳»).\n"
                 "<i>این کمک می‌کنه برنامه واقع‌بینانه بمونه — قول‌مون همینه.</i>")
 
-    def inbox_page(self) -> str:
+    def _load_inbox(self) -> tuple[Path, list]:
+        """(مسیر, پیام‌ها) — اول فایل جدید، بعد fallback نام قدیمی (C1 rename 2026-07-20)."""
         msgs = _load(INBOX_JSON, [])
+        if msgs:
+            return INBOX_JSON, msgs
+        legacy = HERE / "for_saba.json"
+        return legacy, _load(legacy, [])
+
+    def inbox_page(self) -> str:
+        src, msgs = self._load_inbox()
         if not msgs:
             return "📬 <b>پیام‌های اپراتور</b>\n━━━━━━━━━━\n<i>فعلاً پیامی نیست.</i>"
-        # علامت‌گذاری خوانده‌شده
+        # علامت‌گذاری خوانده‌شده (write-back به همان فایلِ مبدأ)
         for m in msgs: m["read"] = True
-        try: INBOX_JSON.write_text(json.dumps(msgs, ensure_ascii=False, indent=2), encoding="utf-8")
+        try: src.write_text(json.dumps(msgs, ensure_ascii=False, indent=2), encoding="utf-8")
         except Exception: pass
         lines = ["📬 <b>پیام‌های اپراتور</b>", "━━━━━━━━━━"]
         for m in msgs[-8:]:
@@ -373,13 +393,17 @@ class SabaStudio:
         if conv and conv.get("flow") == "scope_tighten":
             self._conv.pop(chat, None)
             self._log_boundary(text.strip()[:200])
-            self._to_ari(f"Creator محدوده را تنگ‌تر کرد: {text.strip()[:200]}")
+            self._to_operator(f"Creator محدوده را تنگ‌تر کرد: {text.strip()[:200]}")
             return ("گرفتم ✋ فوراً اعمال شد و به اپراتور هم رسید. مرزِ تو همیشه مقدمه. 🌿", BACK_KB)
         # 🧠 مغزِ تعاملیِ LLM (verdict 2026-07-18 integration-debug):
-        # متنِ آزادِ صبا → پاسخِ هوشمند با حافظه. fail-soft: None = fallback به منوی نرم.
-        if self.brain is not None and hasattr(self.brain, "respond_to_saba"):
+        # متنِ آزادِ C → پاسخِ هوشمند با حافظه. fail-soft: None = fallback به منوی نرم.
+        _fn = None
+        if self.brain is not None:
+            _fn = (getattr(self.brain, "respond_to_creator", None)
+                   or getattr(self.brain, "respond_to_saba", None))
+        if _fn is not None:
             try:
-                _resp = self.brain.respond_to_saba(text)
+                _resp = _fn(text)
                 if _resp:
                     return (_resp, BACK_KB)
             except Exception:  # noqa: BLE001 — مغز نباید استودیو را بکُشد
@@ -406,9 +430,10 @@ class SabaStudio:
         return ("ثبت شد ✅ (حالت آزمایشی — موتور وصل نیست).", BACK_KB)
 
     # ── handoff ──
-    def _to_ari(self, note: str) -> None:
-        """اعلان به اپراتور از طریق inbox معکوس (studio/to_ari.json) — لنگر می‌خواند."""
-        p = HERE / "to_ari.json"
+    def _to_operator(self, note: str) -> None:
+        """اعلان به اپراتور از طریق inbox معکوس (studio/to_operator.json) — لنگر می‌خواند
+        (نام قدیمی to_ari.json را لنگر با fallback می‌خواند — C1 rename 2026-07-20)."""
+        p = HERE / "to_operator.json"
         cur = _load(p, [])
         cur.append({"date": _now(), "text": note})
         try: p.write_text(json.dumps(cur[-50:], ensure_ascii=False, indent=2), encoding="utf-8")
@@ -423,13 +448,13 @@ class SabaStudio:
     def halt(self) -> str:
         try: HALT_FILE.write_text(_now(), encoding="utf-8")
         except Exception: pass
-        self._to_ari("Creator ✋ توقف زد — همه‌چی pause.")
+        self._to_operator("Creator ✋ توقف زد — همه‌چی pause.")
         return ("✋ <b>باشه، همه‌چی وایساد.</b>\nهیچ فشاری نیست. هر وقت خواستی: <code>/resume</code> 🌿")
 
     def resume(self) -> str:
         try: HALT_FILE.unlink(missing_ok=True)
         except Exception: pass
-        self._to_ari("Creator برگشت")
+        self._to_operator("Creator برگشت")
         return "خوش برگشتی 🌸 از منوی پایین ادامه بده."
 
     # ── روتر ──
@@ -451,7 +476,7 @@ class SabaStudio:
             self._conv.pop(chat, None)
             return (self.home(), MAIN_MENU)
         if text == "/help":
-            return ("🎬 استودیوی صبا — از دکمه‌ها استفاده کن.\n"
+            return ("🎬 استودیوی محتوا — از دکمه‌ها استفاده کن.\n"
                     "/menu منو · /new ثبت · /drafts درفت‌ها · /cap ظرفیت · /halt توقف · /resume برگشت", MAIN_MENU)
         # aliasهای متنی برای shadow-mode/stdin و fallback بدون inline keyboard
         text_alias = {
@@ -501,10 +526,11 @@ class SabaStudio:
     # ── حلقهٔ long-poll ──
     def poll_forever(self) -> None:  # pragma: no cover
         if not self.wired:
-            print("shadow-mode: TELEGRAM_SABA_BOT_TOKEN/TELEGRAM_SABA_CHAT_ID ست نیست.\n"
+            print("shadow-mode: TELEGRAM_STUDIO_BOT_TOKEN/TELEGRAM_STUDIO_CHAT_ID ست نیست "
+                  "(نام‌های قدیمی TELEGRAM_SABA_* هم پذیرفته می‌شوند).\n"
                   f"{self.home()}\nدستور/متن بده (stdin):")
             for line in __import__("sys").stdin:
-                r = self.route(self.saba or 0, text=line.strip())
+                r = self.route(self.creator or 0, text=line.strip())
                 if r: print(r[0])
             return
         self.send(self.home(), MAIN_MENU)
@@ -534,19 +560,23 @@ class SabaStudio:
                 __import__("time").sleep(min(5 * (2 ** min(_fail, 4)), 60))   # RESIL-5: بک‌آفِ نمایی سقف ۶۰s
 
 
+# سازگاری عقب‌رو (C1 rename 2026-07-20): نام قدیمی کلاس هنوز کار می‌کند.
+SabaStudio = CreatorStudio
+
+
 if __name__ == "__main__":  # pragma: no cover
     import sys as _sys
     # 🧠 مغزِ تعاملیِ LLM-backed (verdict 2026-07-18 integration-debug):
-    # اول SabaBrain (حافظه + LLM + guard)؛ اگر نبود، fallback به DualBrainV3 قدیمی.
+    # اول CreatorBrain (حافظه + LLM + guard)؛ اگر نبود، fallback به DualBrainV3 قدیمی.
     _brain = None
     try:
-        from saba_brain import SabaBrain  # type: ignore
-        _brain = SabaBrain()
-    except Exception:  # noqa: BLE001 — نبودِ saba_brain = fallback به dual_brain_v3
+        from creator_brain import CreatorBrain  # type: ignore
+        _brain = CreatorBrain()
+    except Exception:  # noqa: BLE001 — نبودِ creator_brain = fallback به dual_brain_v3
         try:
             _sys.path.insert(0, str(HERE.parent / "brain"))   # اونلی فنز/brain
             from dual_brain_v3 import DualBrainV3  # type: ignore
             _brain = DualBrainV3()
         except Exception:  # noqa: BLE001 — نبودِ هر مغز = brief آفلاین (بی‌کرش)
             _brain = None
-    SabaStudio(brain=_brain).poll_forever()
+    CreatorStudio(brain=_brain).poll_forever()

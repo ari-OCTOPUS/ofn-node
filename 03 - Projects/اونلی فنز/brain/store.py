@@ -313,8 +313,14 @@ class KPIRollup:
 
     def record(self, revenue_usd: float = 0, ppv_unlocks: int = 0,
                posts: int = 0, delivery_rate: float = 0,
-               new_fans: int = 0, fan_summary: dict | None = None) -> dict:
-        """ثبتِ دادهٔ هفتگی (آری هر جمعه)."""
+               new_fans: int = 0, fan_summary: dict | None = None,
+               clicks: int = 0, follows: int = 0,
+               free_subs: int = 0, paid_conversions: int = 0) -> dict:
+        """ثبتِ دادهٔ هفتگی (آری هر جمعه).
+
+        2026-07-20 (backlog #4): فیلدهای funnel اضافه شد تا معیارهای kill/‏G1/G2
+        (کلیک→follow→free-sub→paid) بالاخره **قابل‌سنجش** شوند. ورود داده دستی است
+        (داشبورد پلتفرم → ‏/kpi_record یا ‏/kpi_import) — هیچ pull زندهٔ پلتفرمی."""
         s = self._state()
         now = _now()
         # bucket هفتگی: شنبه هر هفته
@@ -329,13 +335,19 @@ class KPIRollup:
         if cur is None:
             cur = {"week_start": week_start, "fans_total": 0, "new_fans": 0,
                    "revenue_usd": 0.0, "ppv_unlocks": 0, "posts": 0,
-                   "delivery_rate": 0.0, "segments": {}}
+                   "delivery_rate": 0.0, "segments": {},
+                   "clicks": 0, "follows": 0, "free_subs": 0,
+                   "paid_conversions": 0}
             weeks.append(cur)
         # جمع (نه replace) — آری ممکن است چند بار در هفته ثبت کند
         cur["revenue_usd"] = round(cur.get("revenue_usd", 0) + max(0, float(revenue_usd)), 2)
         cur["ppv_unlocks"] = cur.get("ppv_unlocks", 0) + max(0, int(ppv_unlocks))
         cur["posts"] = cur.get("posts", 0) + max(0, int(posts))
         cur["new_fans"] = cur.get("new_fans", 0) + max(0, int(new_fans))
+        cur["clicks"] = cur.get("clicks", 0) + max(0, int(clicks))
+        cur["follows"] = cur.get("follows", 0) + max(0, int(follows))
+        cur["free_subs"] = cur.get("free_subs", 0) + max(0, int(free_subs))
+        cur["paid_conversions"] = cur.get("paid_conversions", 0) + max(0, int(paid_conversions))
         if delivery_rate > 0:
             cur["delivery_rate"] = float(delivery_rate)
         if fan_summary:
@@ -343,11 +355,45 @@ class KPIRollup:
             cur["segments"] = fan_summary.get("segments", cur.get("segments", {}))
         # آخرین raw را نگه دار
         s["last_kpi"] = {"revenue_usd": revenue_usd, "ppv_unlocks": ppv_unlocks,
-                         "posts": posts, "ts": now}
+                         "posts": posts, "clicks": clicks, "ts": now}
         # فقط ۲۶ هفته نگه دار (۶ ماه)
         s["weeks"] = weeks[-26:]
         self._save(s)
         return {"ok": True, "week_start": week_start, "current": cur}
+
+    # فرمت CSV دستی (بدون شبکه — paste از داشبورد پلتفرم):
+    #   revenue_usd,ppv_unlocks,posts,delivery_rate,new_fans,clicks,follows,free_subs,paid_conversions
+    CSV_COLUMNS = ("revenue_usd", "ppv_unlocks", "posts", "delivery_rate",
+                   "new_fans", "clicks", "follows", "free_subs", "paid_conversions")
+
+    def import_csv(self, csv_text: str, fan_summary: dict | None = None) -> dict:
+        """importِ دستی KPI از متن CSV (2026-07-20، backlog #4). هر سطر یک record.
+
+        سطر header (اگر بود) skip می‌شود؛ سطرهای خراب شمرده و رد می‌شوند —
+        هیچ استثنایی به caller نمی‌رسد، هیچ شبکه‌ای صدا زده نمی‌شود."""
+        imported, skipped = 0, 0
+        for line in (csv_text or "").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.lower().replace(" ", "").startswith("revenue_usd"):
+                continue   # header
+            parts = [p.strip() for p in line.split(",")]
+            try:
+                vals = {}
+                for i, col in enumerate(self.CSV_COLUMNS):
+                    if i < len(parts) and parts[i] != "":
+                        vals[col] = float(parts[i]) if col in ("revenue_usd", "delivery_rate") \
+                            else int(float(parts[i]))
+                if not vals:
+                    skipped += 1
+                    continue
+                self.record(fan_summary=fan_summary, **vals)
+                imported += 1
+            except (ValueError, TypeError):
+                skipped += 1
+        return {"ok": imported > 0 or skipped == 0, "imported": imported,
+                "skipped": skipped}
 
     def current_week(self) -> dict:
         s = self._state()
@@ -366,6 +412,72 @@ class KPIRollup:
         total_rev = sum(w.get("revenue_usd", 0) for w in weeks)
         return {"total_weeks": len(weeks), "total_revenue_usd": round(total_rev, 2),
                 "current": weeks[-1]}
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# LinkState — کدهای tracking پست‌های دستی (2026-07-20، backlog #3)
+# ──────────────────────────────────────────────────────────────────────────
+class LinkState:
+    """نگاشتِ آیتمِ ready → کدِ کوتاه tracking برای پستِ دستی.
+
+    وقتی /pf_ready یک payload می‌دهد، یک کد (مثل ``L-a1b2c3``) می‌گیرد؛ آری آن
+    کد را در لینک/UTM دستی می‌گذارد و بعداً کلیک‌ها را با /kpi_import برمی‌گرداند.
+    این تنها راهِ measurable شدنِ G1 (کلیک→follow) بدونِ هیچ pull زنده است.
+
+    schema (link_state.json):
+      {"links": {"L-xxxxxx": {"code", "item_id", "channel", "assigned",
+                              "clicks", "last_import"}}, "updated_at": ts}
+    idempotent: یک item همیشه همان کد را می‌گیرد. صفر PII، صفر شبکه."""
+
+    def __init__(self, path: str | Path | None = None):
+        self._path = Path(path) if path else (DEFAULT_STORE_DIR / "link_state.json")
+
+    def _state(self) -> dict:
+        s = _load_json(self._path, {"links": {}, "updated_at": None})
+        s.setdefault("links", {})
+        return s
+
+    def _save(self, state: dict) -> None:
+        state["updated_at"] = _now()
+        _save_json(self._path, state)
+
+    @staticmethod
+    def _code_for(item_id: str) -> str:
+        return "L-" + hashlib.sha1((item_id or "").encode("utf-8")).hexdigest()[:6]
+
+    def assign(self, item_id: str, channel: str = "reddit") -> str:
+        """کد tracking برای یک آیتمِ ready — idempotent."""
+        code = self._code_for(item_id)
+        s = self._state()
+        if code not in s["links"]:
+            s["links"][code] = {"code": code, "item_id": str(item_id)[:24],
+                                "channel": str(channel)[:16], "assigned": _now(),
+                                "clicks": 0, "last_import": None}
+            self._save(s)
+        return code
+
+    def record_clicks(self, code: str, clicks: int) -> dict:
+        """ثبتِ کلیکِ import شده (دستی) روی یک کد."""
+        s = self._state()
+        link = s["links"].get(str(code).strip())
+        if not link:
+            return {"ok": False, "error": "unknown code"}
+        link["clicks"] = int(link.get("clicks", 0)) + max(0, int(clicks))
+        link["last_import"] = _now()
+        self._save(s)
+        return {"ok": True, "code": link["code"], "clicks": link["clicks"]}
+
+    def get(self, code: str) -> dict | None:
+        return self._state()["links"].get(str(code).strip())
+
+    def all(self) -> list[dict]:
+        return list(self._state()["links"].values())
+
+    def summary(self) -> dict:
+        links = self.all()
+        return {"total": len(links),
+                "total_clicks": sum(int(l.get("clicks", 0)) for l in links),
+                "channels": sorted({l.get("channel") for l in links})}
 
 
 # ──────────────────────────────────────────────────────────────────────────
@@ -457,6 +569,7 @@ class DataSpine:
         self.fans = FanDB(path=d / "fan_db.json")
         self.vault = VaultBank(path=d / "vault.json")
         self.kpi = KPIRollup(path=d / "kpi.json")
+        self.links = LinkState(path=d / "link_state.json")
         self.octopus = OctopusState(path=d / "octopus.json")
 
     def full_snapshot(self) -> dict:
@@ -465,5 +578,6 @@ class DataSpine:
             "fans": self.fans.summary(),
             "vault": self.vault.summary(),
             "kpi": self.kpi.summary(),
+            "links": self.links.summary(),
             "octopus": self.octopus.snapshot(),
         }

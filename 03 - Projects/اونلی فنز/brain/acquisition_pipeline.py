@@ -13,8 +13,10 @@ content-free (بدونِ هویت/رسانه/شهر/فارسی — گاردِ ru
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
+import threading
 import time
 import uuid
 from pathlib import Path
@@ -29,6 +31,12 @@ except ImportError:  # pragma: no cover — standalone use بدونِ guards
     check_all_guards = None  # type: ignore
     WarmupGuard = None       # type: ignore
     ChannelLocks = None      # type: ignore
+
+# audit ‏HITL (اختیاری — fail-soft)
+try:
+    from audit import audit_append
+except ImportError:  # pragma: no cover
+    audit_append = None  # type: ignore
 
 CHANNELS = ("reddit", "x", "of", "fansly")
 # گاردِ کپیِ عمومی — best-effort denylist (نه جامع؛ انسان هر آیتم را هم بازبینی می‌کند).
@@ -66,15 +74,17 @@ class AcquisitionPipeline:
     هر سه اختیاری‌اند (None = غیرفعال) ولی در production باید وصل باشند."""
 
     def __init__(self, store_path=None, brain=None, warmup=None, locks=None,
-                 vault=None):
+                 vault=None, links=None):
         self._store = Path(store_path) if store_path else DEFAULT_STORE
         self._brain = brain                      # AcquisitionBrain (injectable؛ None → هوکِ امن)
         self._warmup = warmup                     # WarmupGuard اختیاری
         self._locks = locks                       # ChannelLocks اختیاری
         self._vault = vault                       # VaultBank اختیاری (لایهٔ ۲)
+        self._links = links                       # LinkState اختیاری (2026-07-20 — کد tracking)
+        self._lock = threading.RLock()            # 2026-07-20: هم‌زمانی امن روی state
         self._items = self._load()
 
-    # ── persistence (fail-soft) ──────────────────────────────────────────────
+    # ── persistence (atomic از 2026-07-20؛ قبلاً write_text خام بود) ─────────
     def _load(self) -> list:
         try:
             if self._store.exists():
@@ -86,8 +96,13 @@ class AcquisitionPipeline:
 
     def _save(self) -> None:
         try:
-            self._store.write_text(
-                json.dumps(self._items, ensure_ascii=False, indent=2), encoding="utf-8")
+            with self._lock:
+                self._store.parent.mkdir(parents=True, exist_ok=True)
+                tmp = self._store.with_suffix(".tmp")
+                tmp.write_text(
+                    json.dumps(self._items, ensure_ascii=False, indent=2),
+                    encoding="utf-8")
+                tmp.replace(self._store)   # atomic — نصفه‌نوشته هرگز جای صف را نمی‌گیرد
         except OSError:
             pass
 
@@ -149,32 +164,52 @@ class AcquisitionPipeline:
             seeds.append({"channel": ch, "tag": tag, "hook": hook, "caption": hook})
         return seeds[:n]
 
+    # ── dedup (2026-07-20، backlog #6): md5(hook+channel) روی متنِ خام ────────
+    @staticmethod
+    def _dedup_key(hook: str, channel: str) -> str:
+        blob = f"{(hook or '').strip().lower()}|{(channel or '').strip().lower()}"
+        return hashlib.md5(blob.encode("utf-8")).hexdigest()
+
+    def _active_keys(self) -> set:
+        """کلیدهای dedup آیتم‌های زنده (rejected حساب نمی‌شود — بازتولیدش OK)."""
+        return {i.get("dedup") for i in self._items
+                if i.get("status") in ("drafted", "approved", "ready") and i.get("dedup")}
+
     def auto_plan(self, n: int = 3) -> list:
-        """n آیتمِ draft بساز و صف کن. draftهای ناقضِ برند flag می‌شوند (approve نمی‌شوند)."""
+        """n آیتمِ draft بساز و صف کن. draftهای ناقضِ برند flag می‌شوند (approve نمی‌شوند).
+        تکراری‌ها (همان hook+channel در صفِ زنده) skip می‌شوند — خروجی ممکن است < n باشد."""
         out = []
-        for s in self._seeds(max(1, int(n))):
-            cap = str(s.get("caption", ""))
-            hook = str(s.get("hook", ""))
-            tag = str(s.get("tag", ""))
-            # گارد روی هر سه فیلدِ خروجی (نه فقط caption)؛ flag اگر هرکدام ناپاک باشد
-            flagged = not self._all_clean(cap, hook, tag)
-            item = {
-                "id": "PF-" + uuid.uuid4().hex[:10],
-                "status": "drafted",
-                "channel": s.get("channel", "reddit") if s.get("channel") in CHANNELS else "reddit",
-                # وقتی flagged: هر سه فیلد پاک‌سازی می‌شوند (متنِ ناپاک هرگز persist نمی‌شود)
-                "tag": (_FLAG if flagged else tag[:40]),
-                "hook": (_FLAG if flagged else hook[:120]),
-                "caption": (_FLAG if flagged else cap[:280]),
-                "flagged": flagged,
-                "created": _now(),
-                "approved_by": None,
-                # لایهٔ ۲: اگه از vault آمده، id را نگه دار برای mark_used در finalize
-                "vault_id": s.get("vault_id"),
-            }
-            self._items.append(item)
-            out.append(item)
-        self._save()
+        with self._lock:
+            seen = self._active_keys()
+            for s in self._seeds(max(1, int(n))):
+                cap = str(s.get("caption", ""))
+                hook = str(s.get("hook", ""))
+                tag = str(s.get("tag", ""))
+                ch = s.get("channel", "reddit") if s.get("channel") in CHANNELS else "reddit"
+                key = self._dedup_key(hook, ch)
+                if key in seen:
+                    continue   # idempotent — دوباره صف نمی‌شود
+                seen.add(key)
+                # گارد روی هر سه فیلدِ خروجی (نه فقط caption)؛ flag اگر هرکدام ناپاک باشد
+                flagged = not self._all_clean(cap, hook, tag)
+                item = {
+                    "id": "PF-" + uuid.uuid4().hex[:10],
+                    "status": "drafted",
+                    "channel": ch,
+                    # وقتی flagged: هر سه فیلد پاک‌سازی می‌شوند (متنِ ناپاک هرگز persist نمی‌شود)
+                    "tag": (_FLAG if flagged else tag[:40]),
+                    "hook": (_FLAG if flagged else hook[:120]),
+                    "caption": (_FLAG if flagged else cap[:280]),
+                    "flagged": flagged,
+                    "created": _now(),
+                    "approved_by": None,
+                    "dedup": key,
+                    # لایهٔ ۲: اگه از vault آمده، id را نگه دار برای mark_used در finalize
+                    "vault_id": s.get("vault_id"),
+                }
+                self._items.append(item)
+                out.append(item)
+            self._save()
         return out
 
     # ── queries ──────────────────────────────────────────────────────────────
@@ -186,73 +221,130 @@ class AcquisitionPipeline:
 
     # ── owner one-tap (approve/reject) — propose-only، بدونِ اثرِ بیرونی ───────
     def approve(self, item_id: str, actor: str = "owner") -> dict:
-        it = self._find(item_id)
-        if it is None:
-            return {"ok": False, "error": "not found"}
-        if it.get("flagged"):
-            return {"ok": False, "error": "brand-flagged draft — بازنویسی لازم پیش از approve"}
-        if it.get("status") not in ("drafted", "approved"):
-            return {"ok": False, "error": f"cannot approve from {it.get('status')}"}
-        it["status"] = "approved"
-        it["approved_by"] = str(actor)[:24]
-        it["approved_at"] = _now()
-        self._save()
+        with self._lock:
+            it = self._find(item_id)
+            if it is None:
+                return {"ok": False, "error": "not found"}
+            if it.get("flagged"):
+                return {"ok": False, "error": "brand-flagged draft — بازنویسی لازم پیش از approve"}
+            if it.get("status") not in ("drafted", "approved"):
+                return {"ok": False, "error": f"cannot approve from {it.get('status')}"}
+            it["status"] = "approved"
+            it["approved_by"] = str(actor)[:24]
+            it["approved_at"] = _now()
+            self._save()
+        if audit_append:
+            audit_append("pf_approve", {"id": item_id, "actor": actor,
+                                        "status": "approved",
+                                        "channel": it.get("channel", "")})
         return {"ok": True, "id": item_id, "status": "approved"}
 
     def reject(self, item_id: str, reason: str = "") -> dict:
-        it = self._find(item_id)
-        if it is None:
-            return {"ok": False, "error": "not found"}
-        it["status"] = "rejected"
-        it["reject_reason"] = str(reason)[:120]
-        self._save()
+        with self._lock:
+            it = self._find(item_id)
+            if it is None:
+                return {"ok": False, "error": "not found"}
+            it["status"] = "rejected"
+            it["reject_reason"] = str(reason)[:120]
+            self._save()
+        if audit_append:
+            audit_append("pf_reject", {"id": item_id, "status": "rejected",
+                                       "reason": reason})
         return {"ok": True, "id": item_id, "status": "rejected"}
 
     # ── finalize: payloadِ آماده برای پستِ *دستیِ انسان* (هرگز auto-post) ──────
-    def finalize(self, item_id: str) -> dict:
-        it = self._find(item_id)
-        if it is None:
-            return {"ok": False, "error": "not found"}
+    def _finalize_gate(self, it: dict) -> tuple[bool, str]:
+        """گیت مشترک finalize/dryrun — (allowed, reason). هیچ state ای عوض نمی‌کند."""
         if it.get("status") != "approved":
-            return {"ok": False, "error": "must be approved first (fail-closed)"}
-        # belt-and-suspenders: گاردِ نهاییِ payloadِ خروجی (fail-closed) — هرگز متنِ ناپاک بیرون نده
+            return False, "must be approved first (fail-closed)"
         if not self._all_clean(it.get("caption", ""), it.get("hook", ""), it.get("tag", "")):
-            it["status"] = "rejected"
-            it["reject_reason"] = "containment/rule#6 at finalize (fail-closed)"
-            self._save()
-            return {"ok": False, "error": "payload failed containment guard at finalize (fail-closed)"}
-        # safety-net (2026-07-16): warm-up guard + channel-lock check قبل از ready.
-        # اگه فروشی است و کارما کم، یا کانال locked، یا full_stop → deny (fail-closed).
-        # توجه: آیتم reject نمی‌شود — فقط finalize می‌ایستد تا شرایط جور شود (آری بعداً دوباره).
+            return False, "containment/rule#6 (fail-closed)"
         if self._warmup is not None or self._locks is not None:
             ok, reason = check_all_guards(
                 it.get("channel", "reddit"),
                 hook=it.get("hook", ""), caption=it.get("caption", ""), tag=it.get("tag", ""),
                 warmup=self._warmup, locks=self._locks)
             if not ok:
-                self._save()   # state بدون تغییرِ آیتم
-                return {"ok": False, "error": f"finalize blocked by safety net — {reason}",
-                        "item_status": it.get("status"),
-                        "note": "آیتم approved ماند؛ وقتی شرایط جور شد دوباره /pf_ready بزن."}
-        live_labeled = os.environ.get("PF_LIVE_PUBLISH", "0") == "1"
-        it["status"] = "ready"
-        it["ready_at"] = _now()
-        # لایهٔ ۲: اگه از vault آمده، استفاده را ثبت کن (fair rotation)
-        vault_id = it.get("vault_id")
-        if vault_id and self._vault is not None:
-            try:
-                self._vault.mark_used(vault_id)
-            except Exception:  # noqa: BLE001 — fail-soft، finalize را نمی‌شکند
-                pass
-        self._save()
+                return False, f"safety net — {reason}"
+        return True, "ok"
+
+    def finalize(self, item_id: str) -> dict:
+        with self._lock:
+            it = self._find(item_id)
+            if it is None:
+                return {"ok": False, "error": "not found"}
+            if it.get("status") != "approved":
+                return {"ok": False, "error": "must be approved first (fail-closed)"}
+            # belt-and-suspenders: گاردِ نهاییِ payloadِ خروجی (fail-closed) — هرگز متنِ ناپاک بیرون نده
+            if not self._all_clean(it.get("caption", ""), it.get("hook", ""), it.get("tag", "")):
+                it["status"] = "rejected"
+                it["reject_reason"] = "containment/rule#6 at finalize (fail-closed)"
+                self._save()
+                return {"ok": False, "error": "payload failed containment guard at finalize (fail-closed)"}
+            # safety-net (2026-07-16): warm-up guard + channel-lock check قبل از ready.
+            # اگه فروشی است و کارما کم، یا کانال locked، یا full_stop → deny (fail-closed).
+            # توجه: آیتم reject نمی‌شود — فقط finalize می‌ایستد تا شرایط جور شود (آری بعداً دوباره).
+            if self._warmup is not None or self._locks is not None:
+                ok, reason = check_all_guards(
+                    it.get("channel", "reddit"),
+                    hook=it.get("hook", ""), caption=it.get("caption", ""), tag=it.get("tag", ""),
+                    warmup=self._warmup, locks=self._locks)
+                if not ok:
+                    self._save()   # state بدون تغییرِ آیتم
+                    return {"ok": False, "error": f"finalize blocked by safety net — {reason}",
+                            "item_status": it.get("status"),
+                            "note": "آیتم approved ماند؛ وقتی شرایط جور شد دوباره /pf_ready بزن."}
+            live_labeled = os.environ.get("PF_LIVE_PUBLISH", "0") == "1"
+            it["status"] = "ready"
+            it["ready_at"] = _now()
+            # 2026-07-20 (backlog #3): کد tracking برای پستِ دستی — join با /kpi_import
+            link_code = None
+            if self._links is not None:
+                try:
+                    link_code = self._links.assign(item_id, it.get("channel", "reddit"))
+                    it["link_code"] = link_code
+                except Exception:  # noqa: BLE001 — fail-soft
+                    link_code = None
+            # لایهٔ ۲: اگه از vault آمده، استفاده را ثبت کن (fair rotation)
+            vault_id = it.get("vault_id")
+            if vault_id and self._vault is not None:
+                try:
+                    self._vault.mark_used(vault_id)
+                except Exception:  # noqa: BLE001 — fail-soft، finalize را نمی‌شکند
+                    pass
+            self._save()
+        if audit_append:
+            audit_append("pf_ready", {"id": item_id, "status": "ready",
+                                      "channel": it.get("channel", ""),
+                                      "link_code": link_code or ""})
         return {
             "ok": True, "id": item_id, "status": "ready",
             "auto_posted": False,   # همیشه — این ماژول هرگز خودش پست نمی‌کند
             "mode": "ready-for-live-human-post" if live_labeled else "shadow-human-post",
-            "payload": {"channel": it["channel"], "hook": it["hook"], "caption": it["caption"]},
+            "payload": {"channel": it["channel"], "hook": it["hook"], "caption": it["caption"],
+                        "link_code": link_code},
             "note": ("payload برای پستِ دستیِ انسان. اتصالِ اکانتِ واقعی، انتشار و هر اتوماسیونِ "
                      "بیرونی = دستِ مالک، پس از GATE 0 + verdict (این ماژول افکتورِ زنده ندارد)."),
         }
+
+    # ── dryrun (2026-07-20): شبیه‌سازی finalize — صفر تغییر state، صفر شبکه ────
+    def dryrun(self, item_id: str) -> dict:
+        """گزارش می‌کند finalize چه می‌کرد، بدونِ هیچ mutation ای (حتی save/mark_used)."""
+        with self._lock:
+            it = self._find(item_id)
+            if it is None:
+                return {"ok": False, "error": "not found", "dryrun": True}
+            allowed, reason = self._finalize_gate(it)
+            return {
+                "ok": allowed, "dryrun": True, "id": item_id,
+                "would_status": "ready" if allowed else it.get("status"),
+                "reason": reason,
+                "payload_preview": ({"channel": it.get("channel"),
+                                     "hook": it.get("hook", "")[:60],
+                                     "caption": it.get("caption", "")[:80]}
+                                    if allowed else None),
+                "note": "dryrun — هیچ state ای تغییر نکرد؛ هیچ شبکه‌ای صدا نخورد.",
+            }
 
     # ── admin digest (content-free — برای UIِ ادمینِ اختاپوس) ─────────────────
     def admin_digest(self) -> dict:

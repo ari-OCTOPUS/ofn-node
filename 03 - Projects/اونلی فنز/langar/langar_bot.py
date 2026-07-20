@@ -234,14 +234,17 @@ class SelfModel:
         items = re.findall(r"^\d+\.\s\**([^\n]+)", m.group(1), flags=re.M)
         return [re.sub(r"\[\[|\]\]|\*", "", i).strip() for i in items]
 
-    # ── پل به استودیوی صبا (handoff دوطرفه، فقط‌خواندنی) ──
-    def saba_bridge(self) -> dict:
-        """می‌خواند از studio/: درفت‌های pending، اعلان‌های صبا، وضعیت halt.
-        صفر PII — فقط شمارش/متادیتا و متن اعلانِ خودِ صبا."""
+    # ── پل به استودیوی Creator (handoff دوطرفه، فقط‌خواندنی) ──
+    def studio_bridge(self) -> dict:
+        """می‌خواند از studio/: درفت‌های pending، اعلان‌های Creator، وضعیت halt.
+        صفر PII — فقط شمارش/متادیتا و متن اعلانِ خودِ Creator.
+        (C1 rename 2026-07-20: نام جدید to_operator.json؛ نام قدیمی to_ari.json fallback.)"""
         studio = self.root / "studio"
         drafts = _load_json(studio / "drafts.json", [])
         pend = [d for d in drafts if isinstance(d, dict) and d.get("status") == "pending"]
-        notes = _load_json(studio / "to_ari.json", [])
+        notes = _load_json(studio / "to_operator.json", None)
+        if not isinstance(notes, list):
+            notes = _load_json(studio / "to_ari.json", [])
         return {
             "pending_drafts": len(pend),
             "pending_titles": [str(d.get("title", ""))[:40] for d in pend[-5:]],
@@ -249,6 +252,9 @@ class SelfModel:
             "notes": [str(n.get("text", ""))[:120] for n in notes[-5:]] if isinstance(notes, list) else [],
             "capacity": _load_json(studio / "capacity.json", {}).get("hours"),
         }
+
+    # سازگاری عقب‌رو — نام قدیمی متد
+    saba_bridge = studio_bridge
 
     # ── خودم ──
     def self_state(self, cost: CostMeter) -> dict:
@@ -334,7 +340,7 @@ class LangarBot:
             ("/status", "وضعیت زندهٔ پروژه/خودم", "live", "", 10),
             ("/gates", "GATEها + وضعیت قفل", "live", "", 20),
             ("/verdicts", "صف verdictهای منتظر", "live", "", 30),
-            ("/saba", "پل read-only استودیوی صبا", "live", "", 40),
+            ("/studio", "پل read-only استودیوی Creator (alias: /saba)", "live", "", 40),
             ("/brief", "بریف (brain یا heuristic برچسب‌دار)", "live", "", 50),
             ("/think", "تحلیل موضوع (heuristic/LLM زیر سقف)", "live", "", 60),
             ("/upgrade", "پیشنهاد ارتقا (propose-only)", "live", "", 70),
@@ -363,14 +369,14 @@ class LangarBot:
         reg = self._advertise()
         if not reg:
             return ("⚓ لنگر — کاکپیت Project-F (propose-only)\n"
-                    "/status /gates /verdicts /saba /brief /think <موضوع>\n"
+                    "/status /gates /verdicts /studio /brief /think <موضوع>\n"
                     "/upgrade /rules /kill /revive\n"
-                    "اکتساب: /pf_status /pf_plan [n] /pf_queue /pf_ok <id> /pf_no <id> /pf_ready <id>\n"
+                    "اکتساب: /pf_status /pf_plan [n] /pf_queue /pf_ok <id> /pf_no <id> /pf_ready <id> /pf_dryrun <id>\n"
                     "DM HITL: /dm_status /dm_queue /dm_ok <id> /dm_no <id> /dm_sent <id> /dm_inbox <text>\n"
                     "Fan CRM: /fan_add <alias> /fan_list /fan_buy <alias> <usd> /fan_stats\n"
                     "Vault: /vault_add <tag> <hook> /vault_list /vault_metric <id> <up>\n"
                     "safety: /guards /report_warning <ch> /clear_warning <ch> /report_karma <n>\n"
-                    "KPI: /kpi /kpi_record <usd> <ppv> [posts] [rate]\n"
+                    "KPI: /kpi /kpi_record <usd> <ppv> [posts] [rate] /kpi_import <csv|L-code clicks>\n"
                     "Octopus: /octopus /octopus_tick")
         rows = reg.surface("langar")
         live = [r["id"] for r in rows if r["status"] == "live" and r["id"] != "/pf"]
@@ -391,6 +397,8 @@ class LangarBot:
         # زیردستورها به capability والد (<code> نگاشت می‌شوند
         if cmd.startswith("/pf_"):
             cap_id = "/pf"
+        elif cmd in ("/saba", "/drafts", "/studio"):
+            cap_id = "/studio"
         elif cmd.startswith("/dm_"):
             cap_id = "/dm"
         elif cmd.startswith("/fan_"):
@@ -401,7 +409,7 @@ class LangarBot:
             cap_id = "/octopus"
         elif cmd in ("/dm_inbox", "/inbox"):
             cap_id = "/dm_inbox"
-        elif cmd == "/kpi_record":
+        elif cmd in ("/kpi_record", "/kpi_import"):
             cap_id = "/kpi"
         else:
             cap_id = cmd
@@ -523,12 +531,12 @@ class LangarBot:
             return f"GATE 0: {lock}\n" + "\n".join(rows)
         if cmd == "/status":
             s = self.model.self_state(self.cost)
-            b = self.model.saba_bridge()
+            b = self.model.studio_bridge()
             lock = "قفل (GATE 0 باز)" if self.model.outward_locked() else "Branch A ثبت"
             saba = ("✋ توقف" if b["saba_halted"] else f"{b['pending_drafts']} درفت منتظر")
             return (f"⚓ وضعیت {_now()}\n"
                     f"پروژه: outward={lock} · سؤال باز={self.model.open_questions()}\n"
-                    f"صبا: {saba}" + (f" · {len(b['notes'])} پیام" if b['notes'] else "") + "\n"
+                    f"استودیو: {saba}" + (f" · {len(b['notes'])} پیام" if b['notes'] else "") + "\n"
                     f"آخرین تصمیم‌ها: " + " | ".join(self.model.last_decisions(2)) + "\n"
                     f"خودم: src={s['src_sha256']} ({s['src_lines']}L) · brain={'✓' if s['brain_loaded'] else '—'}"
                     f" · LLM={'✓' if s['llm_key'] else 'off'} · kill={'ON' if s['killed'] else 'off'}\n"
@@ -537,17 +545,17 @@ class LangarBot:
         if cmd == "/verdicts":
             items = self.model.pending_verdicts()
             return "منتظر verdict تو:\n" + "\n".join(f"{i+1}. {t}" for i, t in enumerate(items))
-        if cmd in ("/saba", "/drafts"):
-            b = self.model.saba_bridge()
-            head = "✋ صبا الان روی توقف است.\n" if b["saba_halted"] else ""
-            lines = [f"{head}🎬 استودیوی صبا:",
+        if cmd in ("/studio", "/saba", "/drafts"):
+            b = self.model.studio_bridge()
+            head = "✋ استودیو الان روی توقف است.\n" if b["saba_halted"] else ""
+            lines = [f"{head}🎬 استودیوی Creator:",
                      f"درفت‌های منتظر تأیید: {b['pending_drafts']}"]
             for t in b["pending_titles"]:
                 lines.append(f"  ⏳ {t}")
             if b.get("capacity") is not None:
-                lines.append(f"ظرفیت اعلامی صبا: {b['capacity']} ساعت")
+                lines.append(f"ظرفیت اعلامی Creator: {b['capacity']} ساعت")
             if b["notes"]:
-                lines.append("پیام‌های صبا:")
+                lines.append("پیام‌های Creator:")
                 lines += [f"  • {n}" for n in b["notes"]]
             lines.append("\n(تأیید هر درفت = دستی و درون‌پلتفرم؛ این‌جا فقط مشاهده.)")
             return "\n".join(lines)
@@ -563,6 +571,9 @@ class LangarBot:
             # /kpi_record <revenue_usd> <ppv_unlocks> [posts] [delivery_rate]
             # آری هر جمعه از داشبورد عدد می‌زند.
             return self._kpi_record(arg)
+        if cmd == "/kpi_import":
+            # 2026-07-20 (backlog #4): import دستی CSV — صفر شبکه، صفر API پلتفرم.
+            return self._kpi_import(arg)
         if cmd == "/report":
             # لایهٔ ۲: report از همون KPI واقعی — دیگر disabled نیست.
             return self._kpi_card()
@@ -740,6 +751,38 @@ class LangarBot:
         except Exception as e:  # noqa: BLE001
             return f"❌ kpi error: {type(e).__name__}"
 
+    def _kpi_import(self, arg: str) -> str:
+        """/kpi_import — دو حالت (هر دو دستی، صفر شبکه):
+        ۱) سطر(های) CSV هفتگی: revenue,ppv,posts,rate,new_fans,clicks,follows,free_subs,paid
+        ۲) کلیک یک کد tracking: «<code> <clicks>» مثل «L-a1b2c3 42»"""
+        try:
+            text = (arg or "").strip()
+            if not text:
+                return ("❌ /kpi_import <csv>\n"
+                        "فرمت CSV: revenue,ppv,posts,rate,new_fans,clicks,follows,free_subs,paid\n"
+                        "یا: /kpi_import L-xxxxxx <clicks> برای کلیکِ یک کد tracking")
+            sys.path.insert(0, str(PROJECT_ROOT / "brain"))
+            from store import KPIRollup, LinkState, FanDB
+            parts = text.split()
+            # حالت ۲: کد tracking + کلیک
+            if len(parts) == 2 and parts[0].upper().startswith("L-") and parts[1].isdigit():
+                r = LinkState().record_clicks(parts[0], int(parts[1]))
+                if not r.get("ok"):
+                    return f"❌ کد ناشناخته: {parts[0]}"
+                # کلیک‌ها به bucket هفتگی هم اضافه شوند تا G1 قابل‌سنجش شود
+                KPIRollup().record(clicks=int(parts[1]))
+                self._log("kpi_import_clicks", r)
+                return f"✅ {r['code']}: جمع کلیک {r['clicks']} (به KPI هفته هم اضافه شد)"
+            # حالت ۱: CSV
+            r = KPIRollup().import_csv(text, fan_summary=FanDB().summary())
+            self._log("kpi_import_csv", r)
+            if r["imported"] == 0:
+                return f"❌ هیچ سطری import نشد (خراب: {r['skipped']}) — فرمت را چک کن"
+            return f"✅ {r['imported']} سطر KPI import شد" + \
+                (f" · {r['skipped']} سطر خراب رد شد" if r["skipped"] else "")
+        except Exception as e:  # noqa: BLE001
+            return f"❌ kpi_import error: {type(e).__name__}"
+
     def _octopus_card(self) -> str:
         """وضعیتِ bridge به orchestrator. صادقانه: اگه _ops غایب است، isolated می‌گوید."""
         try:
@@ -767,15 +810,20 @@ class LangarBot:
             sys.path.insert(0, str(PROJECT_ROOT / "brain"))
             # تلاش برای import orchestrator (وابسته به _ops/neural و غیره)
             try:
-                from orchestrator import PFOrchestrator
-                orch = PFOrchestrator()
+                import orchestrator as _orch_mod
+                orch = _orch_mod.PFOrchestrator()
                 result = orch.tick()
                 sys.path.insert(0, str(PROJECT_ROOT / "brain"))
                 from store import OctopusState
                 OctopusState().record_tick(
                     beat=result.beat, protective=result.mode == "protective",
-                    pain=result.pain, brain_loaded=True, neural_available=True)
+                    pain=result.pain, brain_loaded=True,
+                    neural_available=getattr(_orch_mod, "NEURAL_AVAILABLE", True))
                 self._log("octopus_tick", {"beat": result.beat, "mode": result.mode})
+                if result.mode == "blocked_compliance":
+                    return ("⛔ tick بلاک شد — compliance fail-closed: manifest غایب/خراب یا "
+                            "قانونی از hard_rules تأیید نشد. هیچ advisory تولید نشد. "
+                            "(PROJECT-F-CONTROL-MANIFEST.json را چک کن)")
                 return (f"🪄 tick #{result.beat} اجرا شد · mode: {result.mode} · pain: {result.pain:.2f}\n"
                         f"snapshot: {len(result.snapshot)} کلید · messages: {len(result.messages)}")
             except ImportError:

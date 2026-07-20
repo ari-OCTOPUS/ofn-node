@@ -17,7 +17,8 @@ if str(_BRAIN) not in sys.path:
     sys.path.insert(0, str(_BRAIN))
 
 PF_HELP = ("دستورهای Project-F acquisition:\n"
-           "/pf_status · /pf_plan [n] · /pf_queue · /pf_ok <id> · /pf_no <id> · /pf_ready <id>")
+           "/pf_status · /pf_plan [n] · /pf_queue · /pf_ok <id> · /pf_no <id> · "
+           "/pf_ready <id> · /pf_dryrun <id>")
 
 
 def _default_pipe():
@@ -50,7 +51,15 @@ def _default_pipe():
         vault = VaultBank()
     except Exception:  # noqa: BLE001 — vault اختیاری؛ fallback امن باقی می‌ماند
         vault = None
-    return AcquisitionPipeline(brain=brain, warmup=warmup, locks=locks, vault=vault)
+    # 2026-07-20 (backlog #3): LinkState — کد tracking روی هر /pf_ready
+    links = None
+    try:
+        from store import LinkState
+        links = LinkState()
+    except Exception:  # noqa: BLE001 — اختیاری
+        links = None
+    return AcquisitionPipeline(brain=brain, warmup=warmup, locks=locks, vault=vault,
+                               links=links)
 
 
 def handle_pf(cmd: str, arg: str = "", pipe=None) -> str:
@@ -110,9 +119,23 @@ def handle_pf(cmd: str, arg: str = "", pipe=None) -> str:
             if not r.get("ok"):
                 return f"❌ {r.get('error')}"
             pl = r["payload"]
+            link_line = (f"\n🔗 کد tracking: <code>{pl['link_code']}</code> — در لینک/UTM دستی بگذار؛ "
+                         f"کلیک‌ها را با /kpi_import برگردان" if pl.get("link_code") else "")
             return (f"📤 آمادهٔ پستِ <b>دستی</b> ({r['mode']}):\n"
-                    f"[{pl['channel']}] {pl['caption']}\n"
+                    f"[{pl['channel']}] {pl['caption']}{link_line}\n"
                     f"⚠️ خودکار پست نمی‌شود — خودت دستی پست کن (اکانت/GATE 0 لازم).")
+        if cmd == "/pf_dryrun":
+            # 2026-07-20: شبیه‌سازی finalize — صفر تغییر state، صفر شبکه
+            if not arg:
+                return "❌ /pf_dryrun <id>"
+            r = p.dryrun(arg)
+            if not r.get("ok"):
+                return (f"🧪 dryrun {arg}: ❌ finalize رد می‌شد — {r.get('reason') or r.get('error')}\n"
+                        f"(هیچ state ای عوض نشد)")
+            pv = r.get("payload_preview") or {}
+            return (f"🧪 dryrun {arg}: ✅ finalize پاس می‌شد → status «{r['would_status']}»\n"
+                    f"[{pv.get('channel')}] {pv.get('caption', '')}\n"
+                    f"(هیچ state ای عوض نشد؛ برای واقعی: /pf_ready {arg})")
         return PF_HELP
     except Exception as e:  # noqa: BLE001 — fail-soft، هرگز کاکپیت را نمی‌شکند
         return f"pf error: {type(e).__name__}"

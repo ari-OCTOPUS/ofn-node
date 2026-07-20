@@ -53,16 +53,34 @@ def _load_config() -> dict:
 
 @dataclass
 class DraftSubmission:
-    """یک درفتِ ثبت‌شده. فقط متادیتا — صفر رسانه."""
+    """یک درفتِ ثبت‌شده. فقط متادیتا — صفر رسانه.
+
+    2026-07-20 (backlog #2 — join استودیو↔اکتساب): فیلدهای channel/hook/caption/
+    vault_id اضافه شد تا درفتِ تأییدشدهٔ C بتواند بدونِ گم‌شدنِ schema به
+    VaultBank (و از آن‌جا به AcquisitionPipeline) دست‌به‌دست شود. همه default
+    دارند → درفت‌های قدیمیِ روی دیسک بدون migration لود می‌شوند."""
     draft_id: str
     title: str
     self_cert: dict
     status: str = "pending"    # pending → approved → published
     ppv_tier: str | None = None
     price_hint: float = 0.0
+    channel: str = "reddit"    # مقصدِ پیشنهادی (reddit/x/of/fansly)
+    hook: str = ""             # هوکِ کوتاه (اگر خالی: title)
+    caption: str = ""          # کپشنِ پیشنهادی (اگر خالی: hook/title)
+    vault_id: str | None = None   # بعد از handoff به VaultBank پر می‌شود
 
     def to_dict(self) -> dict:
         return asdict(self)
+
+
+# ترتیبِ قانونیِ statusها — هر گذارِ دیگری غیرمجاز است (تستِ illegal-transition دارد)
+_DRAFT_TRANSITIONS = {
+    "pending": ("approved", "rejected"),
+    "approved": ("published",),
+    "published": (),
+    "rejected": (),
+}
 
 
 class ContentStudio:
@@ -126,7 +144,9 @@ class ContentStudio:
     # ─── 📤 ثبتِ درفت ────────────────────────────────────────────────────────────
     def submit_draft(self, title: str, self_cert: dict | None = None,
                      ppv_tier: str | None = None,
-                     price_hint: float = 0.0) -> dict:
+                     price_hint: float = 0.0,
+                     channel: str = "reddit", hook: str = "",
+                     caption: str = "") -> dict:
         if self._halted:
             return {"ok": False, "error": "halted"}
         cert = self_cert or {}
@@ -136,10 +156,65 @@ class ContentStudio:
         draft_id = f"DRAFT-{len(self._drafts) + 1:04d}"
         draft = DraftSubmission(draft_id=draft_id, title=title,
                                 self_cert=cert, ppv_tier=ppv_tier,
-                                price_hint=price_hint)
+                                price_hint=price_hint,
+                                channel=(channel or "reddit"),
+                                hook=hook or "", caption=caption or "")
         self._drafts.append(draft)
         self._save_drafts()   # FIX 6: persist
         return {"ok": True, "draft_id": draft_id, "status": "pending"}
+
+    # ─── گذارِ status + handoff به Vault (2026-07-20، backlog #2/#14) ───────────
+    def _find_draft(self, draft_id: str) -> DraftSubmission | None:
+        for d in self._drafts:
+            if d.draft_id == draft_id:
+                return d
+        return None
+
+    def set_status(self, draft_id: str, new_status: str,
+                   actor: str = "operator") -> dict:
+        """گذارِ statusِ درفت — فقط گذارهای قانونی (fail-closed).
+
+        pending → approved|rejected · approved → published · بقیه = خطا."""
+        d = self._find_draft(draft_id)
+        if d is None:
+            return {"ok": False, "error": "not found"}
+        allowed = _DRAFT_TRANSITIONS.get(d.status, ())
+        if new_status not in allowed:
+            return {"ok": False,
+                    "error": f"illegal transition {d.status} → {new_status} (fail-closed)"}
+        d.status = new_status
+        self._save_drafts()
+        return {"ok": True, "draft_id": draft_id, "status": new_status,
+                "actor": str(actor)[:24]}
+
+    def handoff_to_vault(self, draft_id: str, vault) -> dict:
+        """درفتِ approved + fully-certified → یک assetِ VaultBank (join استودیو↔اکتساب).
+
+        شرط‌ها (fail-closed): status=approved · هر ۴ selfcert ‏True · vault موجود.
+        بعد از موفقیت vault_id روی درفت ثبت می‌شود (idempotent — دوباره push نمی‌شود)."""
+        d = self._find_draft(draft_id)
+        if d is None:
+            return {"ok": False, "error": "not found"}
+        if d.status != "approved":
+            return {"ok": False, "error": f"must be approved (current: {d.status})"}
+        if any(not d.self_cert.get(c) for c in COMPLIANCE_CHECKS):
+            return {"ok": False, "error": "self-cert incomplete — handoff refused (fail-closed)"}
+        if d.vault_id:
+            return {"ok": True, "draft_id": draft_id, "vault_id": d.vault_id,
+                    "duplicate": True}
+        if vault is None:
+            return {"ok": False, "error": "no vault connected"}
+        try:
+            r = vault.add(tag=d.title[:40], hook=(d.hook or d.title)[:120],
+                          caption=(d.caption or d.hook or d.title)[:280],
+                          channel=d.channel, cert=dict(d.self_cert))
+        except Exception:  # noqa: BLE001 — fail-soft، درفت دست‌نخورده می‌ماند
+            return {"ok": False, "error": "vault add failed"}
+        if not r.get("ok"):
+            return {"ok": False, "error": "vault refused"}
+        d.vault_id = r["id"]
+        self._save_drafts()
+        return {"ok": True, "draft_id": draft_id, "vault_id": d.vault_id}
 
     def drafts_html(self) -> str:
         if not self._drafts:

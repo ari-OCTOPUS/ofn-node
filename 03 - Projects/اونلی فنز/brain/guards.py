@@ -60,6 +60,21 @@ def _load_json(path: Path, default):
     return default
 
 
+def _load_json_failclosed(path: Path, default, corrupt_default):
+    """loader سه‌حالته (2026-07-20): غایب = default تازه؛ **خراب/ناهم‌شکل = corrupt_default**.
+
+    قبلاً ChannelLocks از loader fail-soft استفاده می‌کرد و فایلِ خراب عملاً
+    «همه‌چیز باز» می‌شد (fail-open) — برخلافِ docstring خودش. حالا خرابی واقعاً
+    محتاطانه‌ترین حالت را برمی‌گرداند."""
+    if not path.exists():
+        return default
+    try:
+        d = json.loads(path.read_text(encoding="utf-8"))
+        return d if isinstance(d, type(default)) else corrupt_default
+    except (json.JSONDecodeError, OSError):
+        return corrupt_default
+
+
 def _save_json(path: Path, data) -> None:
     """atomic write — fail-soft (هرگز crash ندهد)."""
     try:
@@ -161,7 +176,8 @@ class ChannelLocks:
       - ۱ warning → کانال lock تا ``/clear_warning <channel>`` دستی.
       - ≥۲ warning → کانال lock + ``full_stop=True`` (کلِ قیف stop تا verdict آری).
 
-    fail-closed: فایل خراب → فرض می‌کنیم همه‌چیز locked است."""
+    fail-closed: فایل خراب → فرض می‌کنیم همه‌چیز locked است
+    (از 2026-07-20 واقعاً پیاده شده — قبلاً loader ‏fail-soft بود و خرابی = باز)."""
 
     MAX_WARNINGS_BEFORE_FULL_STOP = 2
 
@@ -170,8 +186,11 @@ class ChannelLocks:
 
     def _state(self) -> dict:
         default = {"channels": {}, "full_stop": False, "full_stop_reason": "", "updated_at": None}
-        s = _load_json(self._path, default)
-        # اگه فایل خراب بود و dict برگشت ولی کلیدها غایب بود، کامل کن.
+        corrupt = {"channels": {}, "full_stop": True,
+                   "full_stop_reason": "channel_locks.json corrupt — fail-closed تا بازسازی دستی",
+                   "updated_at": None}
+        s = _load_json_failclosed(self._path, default, corrupt)
+        # کلیدهای غایب را کامل کن.
         s.setdefault("channels", {})
         s.setdefault("full_stop", False)
         s.setdefault("full_stop_reason", "")

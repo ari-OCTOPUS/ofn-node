@@ -1,6 +1,6 @@
 ---
 type: handoff
-updated: 2026-07-18
+updated: 2026-07-20
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
@@ -8,6 +8,8 @@ updated: 2026-07-18
 > قاعده: این فایل ایندکسِ wikilink است، زیرِ ۲۰۰ خط — نه آرشیو. تاریخچهٔ کاملِ قبلی: `_Archive/Logs/HANDOFF-archive-2026-07-16.md` (۲۶۳KB، قرنطینه‌شده 2026-07-16).
 
 ## وضعِ لحظه‌ای
+
+- **2026-07-20 — Project-F: ‏Forced Completion Sprint تمام شد (برنچ `claude/project-f-governance-sprint-515cf3`، worktree ‏`parallel-agents-7bf4ec`) — حکم: PAGE_SETUP = NO-GO:** حاکمیت روی DecisionLog قفل شد (۷ ورودی DL-2026-07-20-*: ‏G0 باز/فیلدهای انسانی · PF-V5 ‏INVALID تا `APPROVED: REVOKE|RATIFY-CONDITIONAL` · متن کامل توافق دونفره آمادهٔ امضا · body-FREEZE منتشرشده در ۶ فایل · تست صادق · پروندهٔ PII · قاعدهٔ «VQ فقط سینی رأی است»)؛ هر دو VERDICT_QUEUE محافظه‌کارانه reconcile؛ کد: فیکس P0 بای‌پس compliance ‏orchestrator (fail-closed از manifest) + lazy ‏`_ops/neural` + فیکس fail-open ‏ChannelLocks + RLock/atomic/dedup/audit/dryrun/LinkState/kpi_import + join استودیو↔اکتساب + **C1 rename کامل استودیو (نام C از همهٔ شناسه‌ها خارج شد؛ aliasهای سازگاری برقرار)** + پاکسازی PII از HEAD ‏(runbook/selftest/فیکسچر)؛ **تست: 209/209 سبز** (ادعاهای 155/148/100 بازنشسته). کشف جدید: ۸ عکس git-tracked در `test/` (پروندهٔ PII). SYNTH-05 در درخت زنده بنر SUPERSEDED گرفت. STOP-ORGANISM دست‌نخورده. **قدمِ مالک (۱۰ دقیقه):** پر کردن [[../03 - Projects/اونلی فنز/00 - Control/OWNER-BALLOT-2026-07-20|OWNER-BALLOT]] (‏۱۲ سؤال؛ مهم‌ترین: REVOKE|RATIFY · فیلدهای G0 · تأیید/امضای توافق · جواب «remote داشته؟») + رأی merge برنچ (Q10/Q11). حکم/شواهد: [[../03 - Projects/اونلی فنز/00 - Control/GATE-STAMP-2026-07-20|GATE-STAMP]] · [[../03 - Projects/اونلی فنز/00 - Control/SCAN-LOCK-2026-07-20|SCAN-LOCK]] · [[../03 - Projects/اونلی فنز/00 - Control/ARCHITECTURE-COMPLETE-2026-07-20/09_NOGO_PAGE_SETUP|NOGO+P0s]] · [[../03 - Projects/اونلی فنز/PROJECT|PROJECT]].
 
 - **2026-07-18 (شب) — CHORD فاز C روی برنچ + دو سند کانن commit شد (رأی صریح مالک «برو فاز C» + «commit جدا»):** (۱) `a38f8ae` روی master: [[../04 - Architect System/OCTOPUS-OS — استراتژی یکپارچه (تلگرام‌محور)|OCTOPUS-OS استراتژی]] + [[../04 - Architect System/OCTOPUS-BOSS-CHARTER-v1|منشور رییس]] (قبلاً untracked؛ محتوا دست‌نخورده) — ۲ خطای کاذبِ find_broken_links بسته شد. (۲) **برنچ `claude/chord-phase-c` سرِ `0059014`** (worktree ایزوله؛ master جلو نرفت): هوکِ سایه در `doctor.run_cycle` پشتِ فلگِ خاموشِ `OCTOPUS_WIRE_CHORD_SHADOW` (+۵۰ خط additive، صفر حذف؛ فلگ خاموش = byte-identical) + `test_chord_shadow` ۵/۵ (parity خاموش/روشن، chord-خراب fail-soft، zero-write با فلگ خاموش) + ثبتِ `test_chord`+`test_chord_shadow` در `run_all.py` + PROJECT به‌روز (داخلِ برنچ). راستی‌آزمایی در worktree: test_chord ۳۰/۳۰ · doctor/merge_knob/box_wiring/calibration سبز · هر دو validator = دقیقاً بک‌لاگِ قبلی (۲۲۲ فرانت‌متر / ۷۱ لینک)، دلتای chord = صفر. **نکتهٔ merge:** درختِ زنده `advance_rfcs` (GLM-B، +۸۴ خط حوالی ۶۸۸) و +۱۳ خطِ run_all را کامیت‌نشده دارد — hunkهای من دورند (helper قبلِ run_cycle + هوکِ تهِ آن) ولی ترتیبِ commit/merge آن لِین با مالک. **قدمِ مالک:** merge برنچ · سایه فقط اگر خواستی: `OCTOPUS_WIRE_CHORD_SHADOW=1` در flags.cmd + ری‌استارت ♻️ · **فاز D قفل تا ≥۲ هفته دادهٔ سایه + رأی تازه.** شناسنامه: [[../03 - Projects/Chord/PROJECT|Chord]].
 

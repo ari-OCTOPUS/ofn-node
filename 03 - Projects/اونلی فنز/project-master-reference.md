@@ -129,7 +129,7 @@ updated: 2026-07-03
 
 ## ۸. دارایی‌های تولیدشده تا این لحظه
 
-1. `[FACT]` **Production plan کامل** (gear با قیمتِ AUD، grooming، posing taxonomy، props/themes، content levels، batching، ۳۰-day launch، file-naming، vault structure، watermark pipeline، backup 3-2-1، مسیرِ safe expansion به body). → فایلِ markdown جدا.
+1. `[FACT]` **Production plan کامل** (gear با قیمتِ AUD، grooming، posing taxonomy، props/themes، content levels، batching، ۳۰-day launch، file-naming، vault structure، watermark pipeline، backup 3-2-1، ~~مسیرِ safe expansion به body~~ <!-- FROZEN 2026-07-20 VQ-PF-003: C rejected body. Dual consent required to thaw. -->). → فایلِ markdown جدا.
 2. `[FACT]` **Diaspora funnel + positioning** (بخش ۷).
 3. `[FACT]` **۵ risk-assumption rank + طرحِ validation** (بخش ۵).
 4. `[FACT]` **Partner conversation guide** + **Partner questionnaire** (خود-مخاطب، fillable). → **پاسخ داده شد 2026-07-03:** [[03 - Projects/اونلی فنز/پرسشنامه پارتنر - پاسخ‌های صبا|پاسخ‌های صبا]] — مرز: فقط پا، بدون صورت/بدن، geo-block ایران؛ ۵۰/۵۰ تأیید؛ سؤال آخر نامفهوم ماند `[OPEN]`.

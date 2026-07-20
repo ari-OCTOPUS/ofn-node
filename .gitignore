@@ -105,8 +105,12 @@ _ops/state/ORGANISM-STATE.ziman
 03 - Projects/*/studio/drafts.json
 03 - Projects/*/studio/to_ari.json
 03 - Projects/*/studio/for_saba.json
+03 - Projects/*/studio/to_operator.json
+03 - Projects/*/studio/for_creator.json
 03 - Projects/*/studio/capacity.json
 03 - Projects/*/studio/boundary_log.json
+03 - Projects/*/studio/creator_memory.jsonl
+03 - Projects/*/studio/saba_memory.jsonl
 03 - Projects/*/studio/HALT
 03 - Projects/*/brain/acq_queue.json
 03 - Projects/*/brain/bandit_state.json
@@ -123,6 +127,9 @@ _ops/state/ORGANISM-STATE.ziman
 03 - Projects/*/langar/octopus.json
 03 - Projects/*/langar/KILL
 03 - Projects/*/langar/langar_log.jsonl
+03 - Projects/*/langar/approvals.jsonl
+03 - Projects/*/langar/link_state.json
+03 - Projects/*/brain/dm_queue.json
 
 # octopus runtime root (queue/logs/config incl. bot tokens) - never commit
 _octopus/

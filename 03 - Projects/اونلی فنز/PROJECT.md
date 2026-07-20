@@ -8,7 +8,7 @@ risk_level: high
 autonomy_level: read-only
 tags: [creator-business, faceless]
 created: 2026-07-03
-updated: 2026-07-12
+updated: 2026-07-20
 aliases: ["Project-F", "پروژه اونلی فنز", "Active Context"]
 ---
 
@@ -37,11 +37,27 @@ delivery-rate پارتنر در trial sprint `[To measure]` · engagement روی
 
 ## Open blockers
 
-**GATE 0: محل اقامت پارتنر ثبت و شاخه A/B انتخاب شود** — «محل اقامت پارتنر: ___ · تاریخ: ___ · پیامد: Branch A/B» ([[03 - Projects/اونلی فنز/architecture-blueprint-2026-07-04|بلوپرینت §۱]]) · ریسک #۱ (consistency زیر friction) هنوز تست‌نشده · مرز body در production plan با رضایت فعلی صبا در تضاد `[OPEN]` · سؤال آخر پرسشنامه نامفهوم ماند · Security Gate بسته
+> ⚠️ **خط زیر خالی = GATE 0 باز = هر اکشن بیرونی ممنوع.** «temporary-A» (07-16) فقط مجوز آماده‌سازی propose-only بود، نه بستن G0. ثبت رسمی فقط با امضای [[03 - Projects/اونلی فنز/DecisionLog#DL-2026-07-20-G0 — حقیقتِ GATE 0|DL-2026-07-20-G0]].
+
+**GATE 0: محل اقامت پارتنر ثبت و شاخه A/B انتخاب شود** — «محل اقامت پارتنر: ___ · تاریخ: ___ · پیامد: Branch A/B» ([[03 - Projects/اونلی فنز/architecture-blueprint-2026-07-04|بلوپرینت §۱]])
+
+بلاکرهای باز (2026-07-20 — [[03 - Projects/اونلی فنز/00 - Control/SCAN-LOCK-2026-07-20|SCAN-LOCK]]):
+- **PAGE_SETUP = NO-GO** ([[03 - Projects/اونلی فنز/00 - Control/GATE-STAMP-2026-07-20|GATE-STAMP]]) — تا بسته‌شدن همهٔ P0های [[03 - Projects/اونلی فنز/00 - Control/ARCHITECTURE-COMPLETE-2026-07-20/09_NOGO_PAGE_SETUP|NOGO]]
+- PF-V5 «Full Aggressive» = **INVALID** تا `APPROVED: REVOKE|RATIFY-CONDITIONAL` در DecisionLog
+- توافق دونفره درفت شده ولی **امضانشده** (DL-2026-07-20-AGREEMENT — قبل از Day-Zero)
+- PII در فایل‌های tracked (runbook/دو سند/۸ عکس `test/`) — تصمیم مالک برای انتقال + سؤال remote
+- Security Gate بسته · ریسک #۱ (consistency زیر friction) تست‌نشده · سؤال آخر پرسشنامه حل‌نشده
+- body-expansion: **FROZEN به‌صورت پیش‌فرض** (DL-2026-07-20-BODY-FREEZE — منتظر امضای A)
 
 ## Active Context
 
-- تمرکز فعلی: **مرحلهٔ ۵ ROADMAP (بانکِ کپی + سیم‌کشیِ مغز) نصفه‌کاره انجام شد** — VaultBank وصل شد و با ۲۲ asset واقعی seed شد؛ هنوز صفر اجرای بیرونی.
+- تمرکز فعلی: **حاکمیت + سخت‌سازی (Forced Completion Sprint ‏2026-07-20) تمام شد — PAGE_SETUP = NO-GO تا سه امضای A.** اجرای بیرونی همچنان صفر.
+- **2026-07-20 — Forced Completion Sprint (برنچ `claude/project-f-governance-sprint-515cf3`):**
+  - **حاکمیت:** ۷ ورودی DL-2026-07-20-* به [[03 - Projects/اونلی فنز/DecisionLog|DecisionLog]] (G0 باز/فیلدهای انسانی · PF-V5 ‏INVALID تا REVOKE|RATIFY · متن کامل توافق دونفره · body-FREEZE · تست صادق · پروندهٔ PII · قاعدهٔ SoT)؛ هر دو VERDICT_QUEUE محافظه‌کارانه reconcile؛ manifest ‏`last_governance_pass` گرفت؛ [[03 - Projects/اونلی فنز/00 - Control/OWNER-BALLOT-2026-07-20|برگهٔ رأی ۱۲سؤالی]] آماده.
+  - **کد:** فیکس P0 بای‌پس compliance (‏orchestrator حالا از manifest ‏fail-closed می‌خواند + tick ‏blocked_compliance) · importهای `_ops/neural` ‏lazy با fallback (استقلال کامل) · فیکس fail-open ‏ChannelLocks روی JSON خراب · RLock+atomic روی acq/dm · dedup ‏md5 · ‏approvals.jsonl · ‏/pf_dryrun · LinkState+کد tracking روی /pf_ready · فیلدهای funnel ‏KPI + ‏/kpi_import · join استودیو↔اکتساب (DraftSubmission+handoff_to_vault) · **C1 rename کامل استودیو** (creator_studio/creator_brain/PF-Studio UA/envهای STUDIO_* با fallback قدیمی) · پاکسازی PII از selftest/فیکسچر/runbook.
+  - **تست صادق: 209/209 سبز** (126+43+23+17؛ خط پایه 152) — [[03 - Projects/اونلی فنز/00 - Control/ARCHITECTURE-COMPLETE-2026-07-20/08_TEST_REPORT|08_TEST_REPORT]]؛ ادعاهای 155/148/100 بازنشسته.
+  - **اسناد:** [[03 - Projects/اونلی فنز/00 - Control/SCAN-LOCK-2026-07-20|SCAN-LOCK]] · [[03 - Projects/اونلی فنز/00 - Control/PF_OS_CANONICALITY|ADR pf_os (incubating)]] · بستهٔ ۱۰فایلی [[03 - Projects/اونلی فنز/00 - Control/ARCHITECTURE-COMPLETE-2026-07-20/01_RUNTIME_MAP|ARCHITECTURE-COMPLETE]] · [[03 - Projects/اونلی فنز/00 - Control/GATE-STAMP-2026-07-20|GATE-STAMP: NO-GO]] · بنر SUPERSEDED روی SYNTH-05 (درخت زنده).
+  - **کشف PII جدید:** ۸ عکس git-tracked در `test/` — کنار دو سند PII، منتظر رأی مالک (R10).
 - **2026-07-17 — مسیر الف / Launch infra (جلسهٔ راستی‌آزمایی + تکمیل):** کارِ ایجنتِ قبلی روی UI Creator + VaultBank wiring را راستی‌آزمایی شد، تست‌ها اجرا شدند (۱۵۵/۱۵۵ سبز)، و کارهای ناتمام تکمیل/commit شدند:
   - **commit `f72a83e`** — UI مخصوص Creator سخت‌شد (shadow-mode واقعاً کار می‌کند، alias‌های متنی برای تستِ بدونِ تلگرام، HALT fail-closed، navigation cancel-safe، ارقام فارسی، opsec copy)؛ `pf_admin._default_pipe()` حالا `VaultBank()` را inject می‌کند؛ `langar_bot._global_stop()` به STOP-ORGANISM اختاپوس احترام می‌گذارد + رفعِ RESIL-4. تست‌های سبا ۱۰→۱۶، pf_admin ۷→۸.
   - **commit `0a871e0`** — **VaultBank با ۲۲ asset برند seed شد** (از P4-persona-hooks؛ همه از گاردِ containment + warm-up رد شدند؛ ۱۲ reddit SFW + ۷ x + ۳ of soft-cta). `/pf_plan` حالا از محتوای واقعی/certified draft می‌زند نه `_SAFE_HOOKS`. flow کامل راستی‌آزمایی شد: `/pf_plan 5` → `/pf_queue` → `/pf_ok` → `/pf_ready`، همگی از vault با fair rotation. **.gitignore سخت‌شد**: runtime state (drafts.json/acq_queue.json/state files/log) با wildcard‌های encoding-proof ignored شدند؛ دو فایل runtime که قبلاً tracked بودند (drafts.json/langar_log.jsonl) از tracking خارج شدند. `vault.json` عمداً commit شد (seedِ برند، صفر PII).
@@ -54,13 +70,13 @@ delivery-rate پارتنر در trial sprint `[To measure]` · engagement روی
 - **2026-07-10 — M2/M3/M4 + PROMPT D + لنگر:** ماتریس تصمیم ‏[[03 - Projects/اونلی فنز/DECISION-MATRIX-M2-2026-07-10|M2]] · پلن ‏[[03 - Projects/اونلی فنز/COMPLIANT-PLAYBOOK-M3-2026-07-10|M3]] · بستن threadها ‏[[03 - Projects/اونلی فنز/THREAD-CLOSURE-D-2026-07-10|THREAD-CLOSURE-D]] (T1–T8) · ۵ درفت در `drafts-awaiting-gate/` · **کاکپیت تلگرامی «لنگر»** در `langar/` (propose-only، خودآگاه، مسئول ارتقا، ۸/۸ تست منطق سبز، فعال‌سازی گیت‌دار). ساعت صبا بسته (~۳h). ۱۱ verdict منتظر تصمیم آری (THREAD-CLOSURE §۹).
 - تغییرات اخیر: 2026-07-03 — ثبت [[03 - Projects/اونلی فنز/پرسشنامه پارتنر - پاسخ‌های صبا|پاسخ‌های صبا]]؛ مرز محتوا قفل شد: فقط پا، بدون صورت/بدن + geo-block ایران · 2026-07-04 — کیت مغز پروژه ساخته شد · 2026-07-05 — [[03 - Projects/اونلی فنز/STATE-REPORT-2026-07-05|STATE-REPORT]] + verification pass (۸/۹ تناقض تأیید، ۱ اصلاح) + اعمال patch بلوپرینت §۱۱ · **2026-07-06 — Round 1 تحقیق بیرونی integrate شد → [[03 - Projects/اونلی فنز/RESEARCH-INTEGRATION-round1|RESEARCH-INTEGRATION-round1]]**: مسیر فعلی تأیید مستقل؛ REJECT تلگرام/کریپتو (قاعدهٔ #۳)؛ ToS ‏OF ممنوعیت AI-chat را [FACT] کرد → الگوی «درفت در کنسول جدا + paste دستی» ابقا؛ ۳ سؤال باز جدید (#۱۴ شفافیت DM، #۱۵ ‏C2PA، #۱۶ ‏B2B)؛ KPI کاندید: unlock-rate، $/script-start، چرخهٔ Custom، $/ساعت DM
 - ۳ قدم بعدی: (۱) Track B/C — تحقیق desk درباره payment/banking و automation-fit، time-box یک هفته (۲) بازپرسیدن سؤال آخر پرسشنامه به زبان ساده‌تر (۳) طراحی Track A sprint با متریک صریح و گزارش‌دهی زودهنگام نتیجه مالی به صبا
-- تصمیم‌های باز: «مسیر safe expansion به body» در production plan — صبا فعلاً بدن را رد کرده؛ منجمد یا حذف؟
+- تصمیم‌های باز: ~~«مسیر safe expansion به body»~~ → **منجمد شد (پیش‌فرض) 2026-07-20** — DL-2026-07-20-BODY-FREEZE؛ فقط امضای A مانده. تصمیم‌های باز واقعی: REVOKE/RATIFY برای PF-V5 + فیلدهای G0 + امضای توافق ([[03 - Projects/اونلی فنز/00 - Control/OWNER-BALLOT-2026-07-20|OWNER-BALLOT]])
 
 ## Progress
 
-- چه کار می‌کند: master-reference کامل، production plan، funnel دیاسپورا، رجیستر ۵ ریسک، پرسشنامه پارتنر پاسخ‌داده‌شده · **موتورِ اکتساب (اسکلتِ propose-only): pipeline + affirm + سیم‌کشیِ لنگر، ۱۵۵/۱۵۵ تست سبز، بدونِ افکتورِ زنده** · brand pack + cartography + تحقیقِ رقبا + ROADMAP ۱۰-مرحله · **مرحلهٔ ۵ نصفه‌کاره:** VaultBank به pipeline وصل + با ۲۲ asset واقعی seed شد (commit `0a871e0`)؛ UI Creator سخت‌شد (commit `f72a83e`)
-- چه مانده: **باقیِ مرحلهٔ ۵ (بی‌نیاز به گیت):** LearningBridge را در `_default_pipe` پیش‌فرض کن (الان `with_bandit()` اختیاری است ولی فعال نیست) · DM HITL active testing · حلقهٔ KPI recording روی دادهٔ واقعی · زنده‌سازیِ اکتساب پشتِ GATE 0 (مراحلِ ۳/۶ روڈمپ) · Track A/B/C validation · زیرساختِ legal/banking
-- مشکلات شناخته: تعهد پارتنر مشروط به دیدنِ مسیر پول‌دهی است؛ تضاد مرز body با production plan · `learning.py` باگِ greedy هنوز به `acquisition` سیم‌نشده ([[03 - Projects/اونلی فنز/06 - Ops & Runtime/PROP-D2-wire-learning-to-acquisition|PROP-D2]]) · نوت‌های top-levelِ پروژه ۱۳۵ خطای frontmatterِ pre-existing دارند (واژگانِ type محلی — پاکسازیِ جدا)
+- چه کار می‌کند: دوکاکپیت propose-only کامل و سخت‌شده (لنگر + استودیوی Creator با نام‌های neutral) · ۹/۹ safety net واقعی با اثبات ([[03 - Projects/اونلی فنز/00 - Control/ARCHITECTURE-COMPLETE-2026-07-20/03_SAFETY_NETS|03_SAFETY_NETS]]) · compliance ‏tick از manifest ‏fail-closed · زنجیرهٔ کامل C→vault→pipeline→payload دستی با کد tracking · KPI+funnel قابل‌سنجش (‏/kpi_import) · audit ‏HITL ‏(approvals.jsonl) · **209/209 تست سبز با runner مستند** · حاکمیت روی DecisionLog قفل (NO-GO stamp)
+- چه مانده: **۳ امضای انسانی A** (G0 · REVOKE|RATIFY · توافق) + پر کردن [[03 - Projects/اونلی فنز/00 - Control/OWNER-BALLOT-2026-07-20|ballot]] · backlog ‏R-* ([[03 - Projects/اونلی فنز/00 - Control/ARCHITECTURE-COMPLETE-2026-07-20/07_BACKLOG_REMAINING|07_BACKLOG]]): scrub ‏Sydney از کپی عمومی (R9، پیش‌نیاز bio) · انتقال PII ‏tracked (R10، رأی مالک) · چک‌لیست OpSec ۲۴بندی (R11) · scrub مشترک (R3) · merge برنچ sprint با رأی Q10/Q11
+- مشکلات شناخته: تعهد پارتنر مشروط به دیدن مسیر پول‌دهی · تاریخچهٔ git حاوی PII است تا مالک دربارهٔ remote جواب دهد (ballot ‏Q8) · pf_os فقط در درخت زندهٔ untracked (ریسک تک‌نسخه — R5) · `_global_stop` روی exception ‏fail-open (R2) · نوت‌های top-level ‏۱۳۵ خطای frontmatter ‏pre-existing (پاکسازی جدا)
 
 ## Next actions
 
@@ -69,7 +85,7 @@ delivery-rate پارتنر در trial sprint `[To measure]` · engagement روی
 - [ ] **G0** — ثبت محل اقامت پارتنر + انتخاب Branch A/B (بلوپرینت §۱)
 - [ ] ارسال پیام آماده به صبا (بازپرسیدن سؤال آخر + انتظارات — بلوپرینت §۴.۲) و ثبت جواب
 - [ ] توافق مکتوب دونفره (بلوپرینت §۴.۱) — فقط بعد از Branch A
-- [ ] تصمیم: انجماد/حذف «expansion به body» + تعیین hours واقعی (30h vs 3–5h)
+- [x] انجماد «expansion به body» — پیش‌فرض اعمال شد 2026-07-20 (DL-2026-07-20-BODY-FREEZE؛ ratify با امضای A) · hours واقعی از 07-10 بسته: ~۳h/هفته
 - [ ] روز صفر زیرساخت (بلوپرینت §۵، ~۴–۵ ساعت) → شروع warm-up هفته ۱
 - [x] Track B + C (desk research) — انجام شد 2026-07-04: GO conditional / GO limited
 - [x] 2026-07-17: UI Creator hardening + VaultBank wiring + 22-asset seed (commits f72a83e/0a871e0) — ۱۵۵ تست سبز

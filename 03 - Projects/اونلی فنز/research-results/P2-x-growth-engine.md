@@ -54,7 +54,7 @@ up: "[[PROJECT]]"
 | X Communities | [FACT] هر Community قواعد خودش را روی X Rules اضافه می‌کند و مودها حذف/اخراج می‌کنند (help.x.com/en/using-x/communities-moderator-playbook). فقط به کامیونیتی‌هایی بپیوندید که صراحتاً NSFW را مجاز کرده‌اند؛ کاور Community هرگز نباید ادالت باشد [FACT] | متوسط (اخراج از کامیونیتی/ریپورت) |
 | Promo threads و engagement (RT) groups | رایج در اکوسیستم OF؛ [EST] X این خوشه‌ها را شناسایی و reach را سرکوب می‌کند؛ حداکثر به‌عنوان جرقه اولیه، محدود و همراه تعامل ارگانیک. منابع: social-rise.com (2025)، whisper.fans (2025) | متوسط تا بالا (shadowban) |
 | SFS (shoutout for shoutout) | با کریتورهای هم‌سایز/هم‌نیش (feet)؛ مذاکره دستی در DM با لحن انسانی | کم تا متوسط |
-| هشتگ‌ها | ۱–۳ هشتگ نیشِ سالم (#lingerie #altmodel #FootModel [EST])؛ هشتگ‌های spam‌زده مثل #porn و #OnlyFans عملاً shadowban شده‌اند — استفاده نکنید. حتی واژه «OnlyFans» در متن پست trigger فیلتر است؛ جایگزین: ایموجی + «link in bio». منبع: social-rise.com (2025-04-30) [EST] | استفاده غلط: متوسط |
+| هشتگ‌ها | ۱–۳ هشتگ نیشِ سالم (~~#lingerie #altmodel~~ <!-- FROZEN 2026-07-20 VQ-PF-003: C rejected body. Dual consent required to thaw — هشتگ/positioning بدن‌محور خارج از مرز feet-only است --> #FootModel [EST])؛ هشتگ‌های spam‌زده مثل #porn و #OnlyFans عملاً shadowban شده‌اند — استفاده نکنید. حتی واژه «OnlyFans» در متن پست trigger فیلتر است؛ جایگزین: ایموجی + «link in bio». منبع: social-rise.com (2025-04-30) [EST] | استفاده غلط: متوسط |
 | پنجره‌های زمانی | [EST] پیک تعامل ادالت: ~19:30–23:30 به وقت مخاطب؛ برای بازار US یعنی حدود 10:00–15:30 AEST روز بعد برای تیم استرالیایی؛ آخر هفته‌ها دیروقت. منبع: social-rise.com (2025) + تجربه صنعت | — |
 | Watermark و منع دانلود ویدیو | ضد سرقت محتوا و branding | صفر |
 

@@ -20,7 +20,9 @@
     "primary_blocker": "GATE 0 open (Creator country-of-residence unrecorded → Branch A/B undecided). Nothing outward runs until closed.",
     "security_gate": "closed (OpSec checklist not yet ticked)",
     "pending_human_verdicts": 11,
-    "last_updated_source_of_truth": "PROJECT.md (Active Context) + DecisionLog.md (latest entries)"
+    "last_updated_source_of_truth": "DecisionLog.md (decisions SoT per DL-2026-07-20-DECISION-SOT) + PROJECT.md (Active Context)",
+    "last_governance_pass": "2026-07-20",
+    "governance_note_2026_07_20": "Forced Completion Sprint: G0 stays OPEN (temporary-A of 07-16 was prep-only, never closure); PF-V5 'Full Aggressive' is INVALID as launch authorization until A signs DL-2026-07-20-PF-V5 (REVOKE default); body-expansion FROZEN by default (DL-2026-07-20-BODY-FREEZE); honest test baseline recorded in DL-2026-07-20-TESTS; VERDICT_QUEUE is a ballot tray, not authorization."
   },
 
   "hard_rules_locked": [
@@ -62,8 +64,8 @@
     {"id": "research", "desc": "web/desk research + integration into versioned RESEARCH-INTEGRATION docs", "output": "proposal docs"},
     {"id": "decision_matrix", "desc": "ban-risk-weighted tactic scoring (M2)", "output": "DECISION-MATRIX-*.md"},
     {"id": "playbook", "desc": "compliant-only 30/60/90 execution plan (M3)", "output": "COMPLIANT-PLAYBOOK-*.md"},
-    {"id": "content_studio", "desc": "Creator-facing Telegram UI: draft submission, calendar, trends, PPV plan, capacity, boundary-halt", "runtime": "studio/saba_studio.py"},
-    {"id": "cockpit", "desc": "Operator-facing Telegram cockpit: self-aware status, gates, verdict queue, Saba bridge, weekly self-upgrade proposals", "runtime": "langar/langar_bot.py"},
+    {"id": "content_studio", "desc": "Creator-facing Telegram UI: draft submission, calendar, trends, PPV plan, capacity, boundary-halt", "runtime": "studio/creator_studio.py (renamed 2026-07-20 from a C-name file; legacy env/file names still accepted)"},
+    {"id": "cockpit", "desc": "Operator-facing Telegram cockpit: self-aware status, gates, verdict queue, creator-studio bridge, weekly self-upgrade proposals", "runtime": "langar/langar_bot.py"},
     {"id": "brain_hitl", "desc": "control-plane + 7 sub-agents (Strategist/Pricer/Scheduler/Copywriter/Analyst/Compliance-Guard/Ethics-Guard), tiered HITL routing", "runtime": "brain/project_f_brain.py"},
     {"id": "learning", "desc": "exploration-aware learning: Thompson/UCB bandit + recency + eval harness, wired to real acquisition data", "runtime": "brain/learning.py + brain/acquisition.py"},
     {"id": "experimentation", "desc": "A/B test tracker with significance thresholds", "runtime": "brain/ab_tracker.py"}
@@ -86,15 +88,15 @@
       "runtime": "langar/langar_bot.py",
       "auth": "single Operator chat-id only; strangers get silence; OpsecGuard redacts every outbound message",
       "commands": {
-        "/status": "dual status (project + self + one-line Saba state)",
+        "/status": "dual status (project + self + one-line studio state)",
         "/gates": "G0-G4 with pass conditions",
         "/verdicts": "pending human-verdict queue",
-        "/saba": "Saba bridge: pending drafts + capacity + notes + halt state (read-only)",
-        "/drafts": "alias of /saba",
+        "/studio": "creator-studio bridge: pending drafts + capacity + notes + halt state (read-only; legacy alias /saba)",
+        "/drafts": "alias of /studio",
         "/brief": "weekly brief (brain-fed if available)",
         "/think <topic>": "propose-only analysis (LLM-gated by cost cap)",
         "/kpi": "latest dashboard row",
-        "/report": "Friday report template (Operator places output into studio/for_saba.json for Creator)",
+        "/report": "Friday report template (Operator places output into studio/for_creator.json for Creator)",
         "/upgrade": "generate up to 3 self-improvement proposals (propose-only, never self-applies)",
         "/rules": "locked rules",
         "/kill": "KILL-SWITCH: halt cockpit (writes langar/KILL)",
@@ -103,7 +105,7 @@
     },
 
     "studio_actions_creator": {
-      "runtime": "studio/saba_studio.py",
+      "runtime": "studio/creator_studio.py",
       "auth": "single Creator chat-id only; strangers get silence; zero media/PII ingested",
       "callbacks": ["s:new", "s:drafts", "s:today", "s:cal", "s:trend", "s:ppv", "s:stats", "s:cap", "s:inbox", "s:scope", "s:rules", "s:brief"],
       "commands": {"/halt": "BOUNDARY KILL-SWITCH: writes studio/HALT + notifies Operator", "/resume": "clear HALT"}
@@ -111,8 +113,8 @@
 
     "file_handoffs": {
       "creator_to_operator_queue": "studio/drafts.json (pending drafts; read by cockpit /saba)",
-      "creator_to_operator_notes": "studio/to_ari.json (halt/boundary/resume events)",
-      "operator_to_creator_inbox": "studio/for_saba.json (append {date,text}; Creator sees in 'inbox')",
+      "creator_to_operator_notes": "studio/to_operator.json (halt/boundary/resume events; legacy to_ari.json read as fallback)",
+      "operator_to_creator_inbox": "studio/for_creator.json (append {date,text}; Creator sees in 'inbox'; legacy for_saba.json read as fallback)",
       "creator_capacity": "studio/capacity.json (weekly hours -> feeds delivery planning)",
       "boundary_changes": "studio/boundary_log.json (append-only, tightening events)"
     },
@@ -144,14 +146,14 @@
     "language": "Python 3, stdlib-only for bots/brain ($0 offline)",
     "entrypoints": {
       "cockpit": "python3 langar/langar_bot.py",
-      "studio": "python3 studio/saba_studio.py",
+      "studio": "python3 studio/creator_studio.py",
       "orchestrator": "python3 orchestrator.py"
     },
     "env_vars": {
       "TELEGRAM_LANGAR_BOT_TOKEN": "cockpit bot token (separate from studio)",
       "TELEGRAM_ARI_CHAT_ID": "Operator chat-id",
-      "TELEGRAM_SABA_BOT_TOKEN": "studio bot token (separate from cockpit)",
-      "TELEGRAM_SABA_CHAT_ID": "Creator chat-id",
+      "TELEGRAM_STUDIO_BOT_TOKEN": "studio bot token (separate from cockpit; legacy fallback name: TELEGRAM_SABA_BOT_TOKEN)",
+      "TELEGRAM_STUDIO_CHAT_ID": "Creator chat-id (legacy fallback name: TELEGRAM_SABA_CHAT_ID)",
       "ANTHROPIC_API_KEY": "optional; enables cockpit LLM layer under cost cap",
       "LANGAR_MONTHLY_CAP_AUD": "optional; default 15"
     },
@@ -167,7 +169,7 @@
     "test_suites": {
       "brain/test_learning.py": "11 tests (bandit, exploration, recency, eval, persistence)",
       "langar/test_langar.py": "8 tests (opsec redaction, stranger-silence, kill-switch, cost fail-closed, outward-lock, no-media, upgrade-scope)",
-      "studio/test_saba_studio.py": "10 tests (submit flow, cert-gate, capacity, boundary-halt, inbox, no-media, stranger-silence)"
+      "studio/test_creator_studio.py": "submit flow, cert-gate, capacity, boundary-halt, inbox, no-media, stranger-silence (honest counts: DL-2026-07-20-TESTS)"
     },
     "last_run": "2026-07-10 — all green (29 unit tests) + brain HITL + full cross-system integration verified",
     "how_to_run": "cd <dir> && python3 -m unittest <test_module> -v"
@@ -182,7 +184,7 @@
     "drafts_awaiting_gate": "drafts-awaiting-gate/ (link-hub-copy, x-profile, tracking-link-design, ppv-ladder, kpi-dashboard-spec)",
     "brain": ["PROJECT-F-BRAIN-SPEC.md", "BRAIN-BENCHMARK-2026-07-10.md", "brain/project_f_brain.py", "brain/acquisition.py", "brain/learning.py", "brain/ab_tracker.py", "brain/dual_brain_v3.py", "orchestrator.py"],
     "cockpit": ["langar/LANGAR-SPEC.md", "langar/langar_bot.py", "langar/README-RUNBOOK.md"],
-    "studio": ["studio/SABA-STUDIO-SPEC.md", "studio/saba_studio.py", "studio/content_studio.py", "studio/README-SABA-RUNBOOK.md"],
+    "studio": ["studio/SABA-STUDIO-SPEC.md", "studio/creator_studio.py", "studio/content_studio.py", "studio/README-SABA-RUNBOOK.md"],
     "ops_consent": ["DecisionLog.md", "OpenQuestions.md"]
   },
 

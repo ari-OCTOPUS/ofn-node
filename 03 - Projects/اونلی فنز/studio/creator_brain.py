@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
-"""saba_brain.py — 🧠 لایهٔ هوشِ مکالمه‌ایِ استودیوی صبا (LLM-backed).
+"""creator_brain.py — 🧠 لایهٔ هوشِ مکالمه‌ایِ استودیوی Creator (LLM-backed).
+[C1 opsec rename 2026-07-20: صفر نامِ شخصی در filename/کلاس/env — DL-2026-07-20-PII-INCIDENT]
 
-هدف: تعاملی و هوشمند — بر اساسِ حرف‌های واقعیِ صبا، پاسخِ گرم می‌دهد و سوالِ درست
+هدف: تعاملی و هوشمند — بر اساسِ حرف‌های واقعیِ C، پاسخِ گرم می‌دهد و سوالِ درست
 می‌پرسد (ظرفیت، ایدهٔ محتوا، حال‌وهوا). با حافظهٔ تعاملی (JSONL) و guard layerِ PII.
 
 سیم‌کشی (blueprint §۳ · BRAIN-SPEC §۱):
-  saba_studio.py ──(text)──▶ SabaBrain.respond_to_saba(text)
+  creator_studio.py ──(text)──▶ CreatorBrain.respond_to_creator(text)
                                   │
                     ┌─────────────┼─────────────┐
                     ▼             ▼             ▼
               GuardLayer     MemoryStore     LLMClient
-           (redact PII)   (saba_memory.jsonl) (Ollama first,
+           (redact PII)   (creator_memory.jsonl) (Ollama first,
                                                  cloud fallback)
 
-قرارداد سازگاری با saba_studio.py:
+قرارداد سازگاری با creator_studio.py:
   - brain=None پذیرفته می‌شود (fail-soft).
-  - respond_to_saba(text) -> str | None   ←  اصلی
+  - respond_to_creator(text) -> str | None   ←  اصلی (alias قدیمی: respond_to_saba)
   - think_and_communicate(...) -> dict     ←  برای brief_page compat
 
 قواعد (PROJECT-F-CONTROL-MANIFEST):
@@ -41,16 +42,21 @@ from datetime import datetime
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-MEMORY_FILE = HERE / "saba_memory.jsonl"
+MEMORY_FILE = HERE / "creator_memory.jsonl"
 LANGAR_CONFIG = HERE.parent / "langar" / "langar_config.json"
 
 # Ollama local (پیش‌فرض، $0، localhost)
-OLLAMA_URL = os.environ.get("SABA_OLLAMA_URL", "http://127.0.0.1:11434")
-OLLAMA_MODEL = os.environ.get("SABA_OLLAMA_MODEL", os.environ.get("OLLAMA_MODEL", "qwen2.5:latest"))
-OLLAMA_TIMEOUT = int(os.environ.get("SABA_OLLAMA_TIMEOUT_S", "60"))
-MIN_INTERVAL_S = float(os.environ.get("SABA_MIN_INTERVAL_S", "3"))
+OLLAMA_URL = os.environ.get("STUDIO_OLLAMA_URL",
+                            os.environ.get("SABA_OLLAMA_URL", "http://127.0.0.1:11434"))
+OLLAMA_MODEL = os.environ.get("STUDIO_OLLAMA_MODEL",
+                              os.environ.get("SABA_OLLAMA_MODEL",
+                                             os.environ.get("OLLAMA_MODEL", "qwen2.5:latest")))
+OLLAMA_TIMEOUT = int(os.environ.get("STUDIO_OLLAMA_TIMEOUT_S",
+                                    os.environ.get("SABA_OLLAMA_TIMEOUT_S", "60")))
+MIN_INTERVAL_S = float(os.environ.get("STUDIO_MIN_INTERVAL_S",
+                                      os.environ.get("SABA_MIN_INTERVAL_S", "3")))
 
-# Sakana Fugu (fallback اختیاری، فقط با SABA_LLM_CLOUD=1 + FUGU_API_KEY)
+# Sakana Fugu (fallback اختیاری، فقط با STUDIO_LLM_CLOUD=1 [یا نام قدیمی SABA_LLM_CLOUD] + FUGU_API_KEY)
 FUGU_URL = "https://api.sakana.ai/v1/chat/completions"
 FUGU_MODEL = "fugu-ultra-20260615"
 FUGU_TIMEOUT = 45
@@ -73,7 +79,7 @@ _INTENT_KEYWORDS = {
     "greeting":  ["سلام", "hi", "hello", "صبح", "عصر", "شب"],
 }
 
-SYSTEM_PROMPT = """تو دستیارِ گرمِ استودیوی محتوای صباهستی. لحن‌ت صمیمی، حمایت‌گر و کوتاه است.
+SYSTEM_PROMPT = """تو دستیارِ گرمِ استودیوی محتوای یک خالق (Creator) هستی. لحن‌ت صمیمی، حمایت‌گر و کوتاه است.
 
 قواعد (هرگز نقض نکن):
 - فقط موضوعِ پا (feet-only) — هرگز چهره/بدن/explicit پیشنهاد نده.
@@ -140,7 +146,7 @@ class GuardLayer:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# MemoryStore — saba_memory.jsonl (append-only، O(1) write)
+# MemoryStore — creator_memory.jsonl (append-only، O(1) write)
 # ═══════════════════════════════════════════════════════════════════════════
 class MemoryStore:
     """حافظهٔ تعاملی. JSONL append-only (الگوی langar_log.jsonl)."""
@@ -176,13 +182,15 @@ class MemoryStore:
         try:
             raw = self._path.read_text(encoding="utf-8").strip()
             if not raw:
-                return {"total": 0, "saba": 0, "bot": 0}
+                return {"total": 0, "creator": 0, "bot": 0}
             lines = raw.splitlines()
-            saba = sum(1 for l in lines if '"role": "saba"' in l or '"role":"saba"' in l)
+            creator = sum(1 for l in lines
+                          if '"role": "creator"' in l or '"role":"creator"' in l
+                          or '"role": "saba"' in l or '"role":"saba"' in l)
             bot = sum(1 for l in lines if '"role": "bot"' in l or '"role":"bot"' in l)
-            return {"total": len(lines), "saba": saba, "bot": bot}
+            return {"total": len(lines), "creator": creator, "bot": bot}
         except Exception:
-            return {"total": 0, "saba": 0, "bot": 0}
+            return {"total": 0, "creator": 0, "bot": 0}
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -193,7 +201,8 @@ class LLMClient:
 
     def __init__(self):
         self._last_call_ts = 0.0
-        self._use_cloud = os.environ.get("SABA_LLM_CLOUD") == "1"
+        self._use_cloud = (os.environ.get("STUDIO_LLM_CLOUD")
+                           or os.environ.get("SABA_LLM_CLOUD")) == "1"
         self._fugu_key = os.environ.get("FUGU_API_KEY") or os.environ.get("SAKANA_API_KEY")
         self._fugu_available = bool(self._use_cloud and self._fugu_key)
 
@@ -209,7 +218,7 @@ class LLMClient:
 
         messages = [{"role": "system", "content": system}]
         for h in (history or [])[-12:]:
-            role = "user" if h.get("role") == "saba" else "assistant"
+            role = "user" if h.get("role") in ("creator", "saba") else "assistant"
             t = h.get("text", "").strip()
             if t:
                 messages.append({"role": role, "content": t[:400]})
@@ -298,10 +307,10 @@ def _now_iso() -> str:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# SabaBrain — لایهٔ هوشِ اصلی (compatible با brain= پارامترِ saba_studio.py)
+# CreatorBrain — لایهٔ هوشِ اصلی (compatible با brain= پارامترِ creator_studio.py)
 # ═══════════════════════════════════════════════════════════════════════════
-class SabaBrain:
-    """مغزِ تعاملیِ صبا. respond_to_saba(text) نقطهٔ ورودِ اصلی است."""
+class CreatorBrain:
+    """مغزِ تعاملیِ C. ‏respond_to_creator(text) نقطهٔ ورودِ اصلی است."""
 
     def __init__(self):
         self._guard = GuardLayer()
@@ -310,8 +319,8 @@ class SabaBrain:
         self._stats = {"calls": 0, "blocked": 0, "fallback": 0}
 
     # ─── نقاطِ ورود ──────────────────────────────────────────────────────
-    def respond_to_saba(self, text: str) -> str | None:
-        """متنِ آزادِ صبا → پاسخِ گرم و هوشمند، یا None (让 saba_studio fallback)."""
+    def respond_to_creator(self, text: str) -> str | None:
+        """متنِ آزادِ C → پاسخِ گرم و هوشمند، یا None (fallback به creator_studio)."""
         if not text or not text.strip():
             return None
         self._stats["calls"] += 1
@@ -319,7 +328,7 @@ class SabaBrain:
         # ۱. intent classification (هیوریستیک، $0)
         intent = _classify(text)
 
-        # halt/boundary را به saba_studio بسپار (دستِ مالک بر /halt، /scope)
+        # halt/boundary را به creator_studio بسپار (دستِ خالق بر /halt، /scope)
         if intent in ("halt", "boundary"):
             return None
 
@@ -327,7 +336,7 @@ class SabaBrain:
         clean = self._guard.redact_input(text.strip()[:800])
 
         # ۳. ذخیره در memory
-        self._memory.append(role="saba", text=clean, intent=intent)
+        self._memory.append(role="creator", text=clean, intent=intent)
 
         # ۴. ساختنِ context (آخرِ گفت‌و‌گو)
         history = self._memory.recent(n=12)
@@ -355,13 +364,13 @@ class SabaBrain:
 
     def think_and_communicate(self, draft_title: str = "weekly", **kwargs) -> dict:
         """compat shim برای brief_page (الگوی DualBrainV3).
-        خروجیِ کوتاه از آخرین memory + یک پرسشِ باز برای صبا."""
+        خروجیِ کوتاه از آخرین memory + یک پرسشِ باز برای خالق."""
         stats = self._memory.stats()
-        if stats["saba"] == 0:
+        if stats["creator"] == 0:
             return {
                 "messages": [{
-                    "kind": "brief_saba",
-                    "text": "هیچ گفت‌و‌گویی هنوز ثبت نشده. اولین سلامِ صبا آغازِ حافظه است.",
+                    "kind": "brief_creator",
+                    "text": "هیچ گفت‌و‌گویی هنوز ثبت نشده. اولین سلامِ خالق آغازِ حافظه است.",
                     "tone": "warm",
                 }],
                 "blocked": False,
@@ -370,8 +379,8 @@ class SabaBrain:
         last = recent[-1].get("text", "")[:100] if recent else ""
         return {
             "messages": [{
-                "kind": "brief_saba",
-                "text": (f"آخرین گفت‌و‌گو ({stats['saba']} پیام از صبا): "
+                "kind": "brief_creator",
+                "text": (f"آخرین گفت‌و‌گو ({stats['creator']} پیام از خالق): "
                          f"{last}… این هفته چه ستّی می‌خوای بسازی؟"),
                 "tone": "warm",
             }],
@@ -382,15 +391,15 @@ class SabaBrain:
     def _build_user_prompt(self, clean: str, intent: str,
                            history: list[dict]) -> str:
         """prompt با توجه به intent."""
-        base = f"پیامِ صبا: {clean}"
+        base = f"پیامِ خالق: {clean}"
         if intent == "capacity":
-            return base + "\n\n(صبا دربارهٔ ظرفیت/وقت صحبت می‌کند. عدد بپرس: چند ساعت این هفته داری؟)"
+            return base + "\n\n(خالق دربارهٔ ظرفیت/وقت صحبت می‌کند. عدد بپرس: چند ساعت این هفته داری؟)"
         if intent == "emotional":
-            return base + "\n\n(صبا خسته/بی‌حال است. همدلی کن، استراحت پیشنهاد بده، و ظرفیتش را بپرس. هرگز فشار نیاور.)"
+            return base + "\n\n(خالق خسته/بی‌حال است. همدلی کن، استراحت پیشنهاد بده، و ظرفیتش را بپرس. هرگز فشار نیاور.)"
         if intent == "content":
-            return base + "\n\n(صبا دربارهٔ محتوا/ایده صحبت می‌کند. یک ایدهٔ خلاقانهٔ feet-only بده و بعد پیشنهادِ ثبتِ درفت بده.)"
+            return base + "\n\n(خالق دربارهٔ محتوا/ایده صحبت می‌کند. یک ایدهٔ خلاقانهٔ feet-only بده و بعد پیشنهادِ ثبتِ درفت بده.)"
         if intent == "greeting":
-            return base + "\n\n(صبا سلام کرده. گرم خوش‌آمد بگو و حالش را بپرس.)"
+            return base + "\n\n(خالق سلام کرده. گرم خوش‌آمد بگو و حالش را بپرس.)"
         return base + "\n\n(پاسخِ کوتاه و گرم بده. اگر موضوع روشن نیست، یک سوالِ باز بپرس.)"
 
     def _heuristic_fallback(self, intent: str) -> str:
@@ -417,13 +426,28 @@ class SabaBrain:
 # self-test (آفلاین، $0)
 # ═══════════════════════════════════════════════════════════════════════════
 def _selftest() -> int:
-    """تستِ آفلاین: guard + memory + classify (بدون LLM)."""
+    """تستِ آفلاین: guard + memory + classify (بدون LLM).
+
+    2026-07-20: قبلاً این تست نام/شهرِ واقعی را hardcode داشت (نقض PII در سورس)؛
+    حالا با configِ موقتِ placeholder-only مکانیزم را می‌سنجد — صفر PII."""
+    import tempfile as _tf
     fails = 0
-    g = GuardLayer()
-    # redact باید PII را پاک کند
-    r = g.redact_input("Armin Mohebiazal از Sydney زنگ زد")
-    if "Armin" in r or "Sydney" in r:
-        print(f"FAIL redact: {r}"); fails += 1
+    _cfg = {"blocklist": ["PLACEHOLDER FULLNAME", "0000000000"],
+            "city_terms": ["Testville", "تست‌ویل"], "name_map": {}}
+    with _tf.NamedTemporaryFile(suffix=".json", delete=False, mode="w",
+                                encoding="utf-8") as _cf:
+        json.dump(_cfg, _cf, ensure_ascii=False)
+        _cfg_path = Path(_cf.name)
+    try:
+        g = GuardLayer(config_path=_cfg_path)
+        # redact باید termهای پیکربندی‌شده را پاک کند
+        r = g.redact_input("PLACEHOLDER FULLNAME از Testville زنگ زد")
+        if "PLACEHOLDER FULLNAME" in r or "Testville" in r:
+            print(f"FAIL redact: {r}"); fails += 1
+    finally:
+        try: _cfg_path.unlink()
+        except Exception: pass
+    g = GuardLayer(config_path=Path("NONEXISTENT-cfg.json"))
     # filter باید forbidden را بگیرد
     ok, _ = g.filter_output("come to sydney for paypal")
     if ok:
@@ -442,9 +466,9 @@ def _selftest() -> int:
         tmp = Path(tf.name)
     try:
         m = MemoryStore(path=tmp)
-        m.append("saba", "hello"); m.append("bot", "hi")
+        m.append("creator", "hello"); m.append("bot", "hi")
         rec = m.recent(5)
-        if len(rec) != 2 or rec[0]["role"] != "saba":
+        if len(rec) != 2 or rec[0]["role"] != "creator":
             print(f"FAIL memory: {rec}"); fails += 1
         st = m.stats()
         if st["total"] != 2:
@@ -452,8 +476,14 @@ def _selftest() -> int:
     finally:
         try: tmp.unlink()
         except Exception: pass
-    print(f"saba_brain self-test: {3 - fails}/3 pass" if fails else "saba_brain self-test: ALL PASS")
+    print(f"creator_brain self-test: {3 - fails}/3 pass" if fails
+          else "creator_brain self-test: ALL PASS")
     return fails
+
+
+# سازگاری عقب‌رو (C1 rename 2026-07-20): نام‌های قدیمی هنوز کار می‌کنند.
+CreatorBrain.respond_to_saba = CreatorBrain.respond_to_creator
+SabaBrain = CreatorBrain
 
 
 if __name__ == "__main__":
@@ -462,20 +492,22 @@ if __name__ == "__main__":
         sys.exit(_selftest())
     # shadow-mode conversation loop (بدون Telegram، stdin/stdout)
     print("=" * 60)
-    print("🎬 saba_brain — shadow-mode (تست آفلاین)")
+    print("🎬 creator_brain — shadow-mode (تست آفلاین)")
     print("    خروج بزن: Ctrl-C یا /quit")
-    print("    LLM source:", "cloud+local" if os.environ.get("SABA_LLM_CLOUD") == "1" else "local-only")
+    print("    LLM source:", "cloud+local"
+          if (os.environ.get("STUDIO_LLM_CLOUD") or os.environ.get("SABA_LLM_CLOUD")) == "1"
+          else "local-only")
     print("=" * 60)
-    brain = SabaBrain()
+    brain = CreatorBrain()
     print(brain._heuristic_fallback("greeting"))
     while True:
         try:
-            msg = input("\nصبا> ").strip()
+            msg = input("\nخالق> ").strip()
         except (EOFError, KeyboardInterrupt):
             print("\nخروج."); break
         if not msg or msg in ("/quit", "exit", "خروج"):
             break
         if msg == "/stats":
             print(json.dumps(brain.stats(), ensure_ascii=False, indent=2)); continue
-        resp = brain.respond_to_saba(msg)
+        resp = brain.respond_to_creator(msg)
         print(f"\n🤖 {resp or '(بدون پاسخ — LLM خاموش)'}")

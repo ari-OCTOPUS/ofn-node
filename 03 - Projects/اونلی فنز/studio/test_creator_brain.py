@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""test_saba_brain.py — تست‌های saba_brain (guard + memory + classify + integration).
+"""test_creator_brain.py — تست‌های creator_brain (guard + memory + classify + integration).
 
 $0، آفلاین (LLM واقعی فراخوانی نمی‌شود — فقط stub). ۱۲ تست.
 هدف: خطوط قرمزِ manifest (PII/geo/forbidden) و حافظه و classify.
@@ -13,7 +13,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 # import قبل از setUp تا مسیرها درست بشه
-import saba_brain as B
+import creator_brain as B
 
 
 class TestGuardLayer(unittest.TestCase):
@@ -26,7 +26,7 @@ class TestGuardLayer(unittest.TestCase):
         json.dump({
             "blocklist": ["Armin Test", "1234567890", "secret street"],
             "city_terms": ["Sydney", "سیدنی", "testville"],
-            "name_map": {"صبا": "C", "آری": "A"},
+            "name_map": {"فرضی‌نام": "C", "فرضی‌یار": "A"},
         }, self._tmp, ensure_ascii=False)
         self._tmp.close()
         self.guard = B.GuardLayer(config_path=Path(self._tmp.name))
@@ -51,9 +51,9 @@ class TestGuardLayer(unittest.TestCase):
 
     def test_redact_applies_name_map(self):
         """اسامی واقعی به role code تبدیل شوند."""
-        r = self.guard.redact_input("صبا و آری صحبت کردند")
-        self.assertNotIn("صبا", r)
-        self.assertNotIn("آری", r)
+        r = self.guard.redact_input("فرضی‌نام و فرضی‌یار صحبت کردند")
+        self.assertNotIn("فرضی‌نام", r)
+        self.assertNotIn("فرضی‌یار", r)
 
     def test_filter_blocks_forbidden_terms(self):
         """پاسخ‌های حاوی forbidden terms باید reject شوند."""
@@ -89,28 +89,28 @@ class TestMemoryStore(unittest.TestCase):
 
     def test_append_and_recent(self):
         """append باید ورودی‌ها را به ترتیب نگه دارد."""
-        self.mem.append("saba", "hello")
+        self.mem.append("creator", "hello")
         self.mem.append("bot", "hi back")
         rec = self.mem.recent(5)
         self.assertEqual(len(rec), 2)
-        self.assertEqual(rec[0]["role"], "saba")
+        self.assertEqual(rec[0]["role"], "creator")
         self.assertEqual(rec[1]["role"], "bot")
         self.assertIn("ts", rec[0])
 
     def test_recent_respects_limit(self):
         """recent(n) فقط n آخر را برمی‌گرداند."""
         for i in range(10):
-            self.mem.append("saba", f"msg {i}")
+            self.mem.append("creator", f"msg {i}")
         rec = self.mem.recent(3)
         self.assertEqual(len(rec), 3)
         self.assertIn("msg 9", rec[-1]["text"])
 
     def test_stats_counts_roles(self):
-        self.mem.append("saba", "a"); self.mem.append("saba", "b")
+        self.mem.append("creator", "a"); self.mem.append("creator", "b")
         self.mem.append("bot", "c")
         st = self.mem.stats()
         self.assertEqual(st["total"], 3)
-        self.assertEqual(st["saba"], 2)
+        self.assertEqual(st["creator"], 2)
         self.assertEqual(st["bot"], 1)
 
     def test_recent_empty_file(self):
@@ -144,15 +144,15 @@ class TestClassify(unittest.TestCase):
         self.assertEqual(B._classify("برنامهٔ فردا"), "random")
 
 
-class TestSabaBrainIntegration(unittest.TestCase):
-    """SabaBrain.respond_to_saba با LLM stub شده — فقط منطق، بدون network."""
+class TestCreatorBrainIntegration(unittest.TestCase):
+    """CreatorBrain.respond_to_creator با LLM stub شده — فقط منطق، بدون network."""
 
     def setUp(self):
         self._tmp_mem = tempfile.NamedTemporaryFile(
             suffix=".jsonl", delete=False, mode="w")
         self._tmp_mem.close()
         # brain با memory موقت
-        self.brain = B.SabaBrain()
+        self.brain = B.CreatorBrain()
         self.brain._memory = B.MemoryStore(path=Path(self._tmp_mem.name))
 
     def tearDown(self):
@@ -160,18 +160,18 @@ class TestSabaBrainIntegration(unittest.TestCase):
         except OSError: pass
 
     def test_halt_returns_none_delegates_to_studio(self):
-        """halt/boundary باید None برگرداند تا saba_studio با /halt برخورد کند."""
-        self.assertIsNone(self.brain.respond_to_saba("دیگه نه، وایسا"))
-        self.assertIsNone(self.brain.respond_to_saba("محدوده را تنگ‌تر کن"))
+        """halt/boundary باید None برگرداند تا creator_studio با /halt برخورد کند."""
+        self.assertIsNone(self.brain.respond_to_creator("دیگه نه، وایسا"))
+        self.assertIsNone(self.brain.respond_to_creator("محدوده را تنگ‌تر کن"))
 
     def test_empty_returns_none(self):
-        self.assertIsNone(self.brain.respond_to_saba(""))
-        self.assertIsNone(self.brain.respond_to_saba("   "))
+        self.assertIsNone(self.brain.respond_to_creator(""))
+        self.assertIsNone(self.brain.respond_to_creator("   "))
 
     def test_fallback_when_llm_offline(self):
         """اگه LLM خاموش باشد، heuristic fallback باید پاسخ بدهد (نه None)."""
         with patch.object(self.brain._llm, "chat", return_value=None):
-            resp = self.brain.respond_to_saba("امروز خیلی خسته‌ام")
+            resp = self.brain.respond_to_creator("امروز خیلی خسته‌ام")
         self.assertIsNotNone(resp)
         self.assertIn("استراحت", resp)  # fallback emotional باید استراحت بگه
 
@@ -179,7 +179,7 @@ class TestSabaBrainIntegration(unittest.TestCase):
         """اگه LLM پاسخِ forbidden بدهد، fallback تمیز برگردانده می‌شود."""
         with patch.object(self.brain._llm, "chat",
                           return_value={"text": "come to sydney for paypal", "source": "local"}):
-            resp = self.brain.respond_to_saba("سلام")
+            resp = self.brain.respond_to_creator("سلام")
         # باید fallback شده باشد، نه متنِ forbidden
         self.assertNotIn("sydney", resp.lower())
         self.assertNotIn("paypal", resp.lower())
@@ -188,10 +188,10 @@ class TestSabaBrainIntegration(unittest.TestCase):
         """هر exchange باید دو entry در memory بگذارد (saba + bot)."""
         with patch.object(self.brain._llm, "chat",
                           return_value={"text": "سوال تستی", "source": "local"}):
-            self.brain.respond_to_saba("یه ست می‌خوام")
+            self.brain.respond_to_creator("یه ست می‌خوام")
         rec = self.brain._memory.recent(5)
         self.assertEqual(len(rec), 2)
-        self.assertEqual(rec[0]["role"], "saba")
+        self.assertEqual(rec[0]["role"], "creator")
         self.assertEqual(rec[1]["role"], "bot")
 
     def test_think_and_communicate_compat(self):
@@ -200,6 +200,16 @@ class TestSabaBrainIntegration(unittest.TestCase):
         self.assertIsInstance(out, dict)
         self.assertIn("messages", out)
         self.assertIn("blocked", out)
+
+
+class TestLegacyAliases(unittest.TestCase):
+    """C1 rename 2026-07-20: نام‌های قدیمی باید هنوز کار کنند (سازگاری عقب‌رو)."""
+
+    def test_class_alias(self):
+        self.assertIs(B.SabaBrain, B.CreatorBrain)
+
+    def test_method_alias(self):
+        self.assertIs(B.CreatorBrain.respond_to_saba, B.CreatorBrain.respond_to_creator)
 
 
 if __name__ == "__main__":

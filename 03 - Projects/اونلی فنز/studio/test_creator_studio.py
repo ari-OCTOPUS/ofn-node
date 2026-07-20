@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""test_saba_studio.py — تست‌های $0 و آفلاین رابط صبا (خطوط قرمز + wiring)."""
+"""test_creator_studio.py — تست‌های $0 و آفلاین رابط C (خطوط قرمز + wiring)."""
 from __future__ import annotations
 import json
 import tempfile
 import unittest
 from pathlib import Path
 
-import saba_studio as S
+import creator_studio as S
 
 
 class T(unittest.TestCase):
@@ -16,12 +16,12 @@ class T(unittest.TestCase):
         self._orig = (S.HALT_FILE, S.INBOX_JSON, S.CAPACITY_JSON,
                       S.BOUNDARY_LOG, S.DRAFTS_JSON, S.CONFIG_JSON)
         S.HALT_FILE = tmp / "HALT"
-        S.INBOX_JSON = tmp / "for_saba.json"
+        S.INBOX_JSON = tmp / "for_creator.json"
         S.CAPACITY_JSON = tmp / "capacity.json"
         S.BOUNDARY_LOG = tmp / "boundary_log.json"
         S.DRAFTS_JSON = tmp / "drafts.json"
         S.CONFIG_JSON = tmp / "config.json"
-        S.HERE = tmp  # to_ari.json و … داخل tmp
+        S.HERE = tmp  # to_operator.json و … داخل tmp
         (tmp / "config.json").write_text(json.dumps({
             "calendar": {"season": "summer", "slots": [{"week": 1, "theme": "warm-up", "task": "x"}]},
             "trends": [{"tag": "faceless-feet", "note": "n", "optimal_time": "eve"}],
@@ -33,7 +33,7 @@ class T(unittest.TestCase):
             {"draft_id": "DRAFT-0002", "title": "t2", "status": "approved"},
         ], ensure_ascii=False), encoding="utf-8")
         # studio=None → مسیر fallback (بدون وابستگی به موتور واقعی)
-        self.bot = S.SabaStudio(studio=None, token="", saba_chat_id=555)
+        self.bot = S.CreatorStudio(studio=None, token="", creator_chat_id=555)
 
     def tearDown(self):
         (S.HALT_FILE, S.INBOX_JSON, S.CAPACITY_JSON,
@@ -56,8 +56,8 @@ class T(unittest.TestCase):
         txt, _ = self.bot.route(555, text="/halt")
         self.assertTrue(S.HALT_FILE.exists())
         self.assertIn("وایساد", txt)
-        to_ari = json.loads((S.HERE / "to_ari.json").read_text(encoding="utf-8"))
-        self.assertTrue(any("توقف" in m["text"] for m in to_ari))
+        to_op = json.loads((S.HERE / "to_operator.json").read_text(encoding="utf-8"))
+        self.assertTrue(any("توقف" in m["text"] for m in to_op))
         # در حالت halt، دکمه‌های عادی کار نمی‌کنند
         txt2, _ = self.bot.route(555, data="s:drafts")
         self.assertIn("توقف", txt2)
@@ -108,8 +108,8 @@ class T(unittest.TestCase):
         self.bot.route(555, data="s:scope")
         txt, _ = self.bot.route(555, text="دیگه کلیپ صدادار نه")
         self.assertTrue(S.BOUNDARY_LOG.exists())
-        to_ari = json.loads((S.HERE / "to_ari.json").read_text(encoding="utf-8"))
-        self.assertTrue(any("محدوده" in m["text"] for m in to_ari))
+        to_op = json.loads((S.HERE / "to_operator.json").read_text(encoding="utf-8"))
+        self.assertTrue(any("محدوده" in m["text"] for m in to_op))
 
     # ۹) inbox آری خوانده و mark-read می‌شود
     def test_inbox_reads_and_marks(self):
@@ -129,7 +129,7 @@ class T(unittest.TestCase):
 
     # ۱۱) shadow-mode بدون env باید روی stdin/chat=0 کار کند
     def test_shadow_mode_authorizes_stdin_chat_zero(self):
-        b = S.SabaStudio(studio=None, token="", saba_chat_id=0)
+        b = S.CreatorStudio(studio=None, token="", creator_chat_id=0)
         txt, kb = b.route(0, text="/start")
         self.assertIn("استودیوی محتوا", txt)
         self.assertIn("inline_keyboard", kb)

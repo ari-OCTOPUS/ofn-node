@@ -36,7 +36,7 @@ updated: 2026-07-03
 - تو (Sume): تمام توابع business، technical، marketing، automation، finance — نقش عملی CEO عملیاتی.
 - شریک خلاق: تولید محتوا، ~۳۰ ساعت/هفته.
 
-**محدوده‌ی محتوا:** شروع با feet content، برنامه‌ی توسعه به broader faceless body content.
+**محدوده‌ی محتوا:** فقط feet content. <!-- FROZEN 2026-07-20 VQ-PF-003: C rejected body. Dual consent required to thaw. --> ~~برنامه‌ی توسعه به broader faceless body content~~ — این مسیر با رد صریح C (2026-07-03) **منجمد** است؛ بازگشایی فقط با رضایت مکتوب دوطرفهٔ آینده.
 
 **جاه‌طلبی بلندمدت:** کسب‌وکار مقیاس‌پذیر و automation-heavy با احتمال exit — نه lifestyle income.
 **Roadmap اعلام‌شده:** Creator Brand → Creator Business System → Creator Tools → Potential Platform.
@@ -82,7 +82,7 @@ updated: 2026-07-03
 - اجرا/بررسی نتایج partner questionnaire
 - گسترش تحقیقات با ۱۱ پرامپت روی ابزارهای مشترک
 - ساخت لایه‌ی automation به‌عنوان مزیت رقابتی
-- توسعه‌ی دامنه‌ی محتوا از feet-only به broader faceless body content
+- <!-- FROZEN 2026-07-20 VQ-PF-003: C rejected body. Dual consent required to thaw. --> ~~توسعه‌ی دامنه‌ی محتوا از feet-only به broader faceless body content~~ (منجمد — DL-2026-07-20-BODY-FREEZE)
 - بررسی آینده‌ی مخاطب دیاسپورای فارسی‌زبان در حوزه‌های قانونی (X/Twitter اصلی، Telegram ثانویه — با اجتناب صریح از هدف‌گیری کاربران در حوزه‌های قضایی با ریسک حقوقی شدید)
 
 ---
