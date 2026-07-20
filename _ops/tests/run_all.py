@@ -71,6 +71,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # 2026-07-20 Sol-T1: reachabilityِ Menu v2 — center.handle_update اکنون /panel + verbِ m:
          # را به menu_integration وصل می‌کند (پشتِ OCTOPUS_WIRE_MENU_V2، flag-off parity؛ orphan رفع)
          "test_menu_v2_wiring.py",
+         # 2026-07-20 Sol-T2: رأیِ مالک → outcomeِ پایدار (verdict_recorder + live_loop، پشتِ
+         # OCTOPUS_WIRE_VERDICT_OUTCOME): measurement-only، idempotent، restart-replay؛ قوسِ شکستهٔ
+         # in-memory بسته شد. هرگز delivered/settled/revenue.
+         "test_verdict_outcome.py",
          # 2026-07-20 D-G: قراردادِ STOP — HALT-ALL توسطِ watchdog.py + هر دو watchdogِ .ps1 honor می‌شود
          "test_stop_contract.py",
          # 2026-07-20 یکپارچگی: بستنِ حلقهٔ لید record-only (lead→receipt→outcome، memories_used از

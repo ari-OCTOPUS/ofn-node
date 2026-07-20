@@ -368,7 +368,9 @@ class LiveLoop:
                 self._proposal_cb[tok] = {"proposal_id": str(d.get("proposal_id")),
                                           "amount": self._proposal_amount(d),
                                           "kind": str(d.get("kind", "unknown")),
-                                          "leg_id": str(d.get("leg_id", "unknown"))}
+                                          "leg_id": str(d.get("leg_id", "unknown")),
+                                          "correlation_id": d.get("correlation_id"),
+                                          "mission_id": d.get("mission_id")}
                 if len(self._proposal_cb) > _PROPOSAL_CB_MAX:
                     for _old in list(self._proposal_cb)[:-_PROPOSAL_CB_MAX]:
                         self._proposal_cb.pop(_old, None)
@@ -431,6 +433,7 @@ class LiveLoop:
             return None
         v = str(verb or "").strip().lower()
         if v == _PROPOSAL_DEFER:
+            self._record_durable_verdict(meta, "deferred", 0.0)   # T2: تعویق هم measurementِ پایدار
             return {"event": "deferred", "proposal_id": meta["proposal_id"],
                     "advisory_only": True}
         mapped = _PROPOSAL_VERBS.get(v)
@@ -440,8 +443,35 @@ class LiveLoop:
         # ارزش فقط روی «آره» و فقط مبلغِ انتظاریِ خودِ پیشنهاد — proposal_value_aud را می‌جنباند،
         # نه confirmed_revenue. هیچ پولی جابه‌جا نشده؛ فقط مالک گفته «این را ببر جلو».
         value = float(meta.get("amount") or 0.0) if mapped == "approved" else 0.0
+        self._record_durable_verdict(meta, mapped, value)         # T2: رأی → outcomes.db پایدار
         return self.record_proposal_outcome(meta["proposal_id"], mapped,
                                             source="ari-button", value_aud=value)
+
+    def _record_durable_verdict(self, meta: dict, verdict: str, value: float) -> None:
+        """T2 (ممیزیِ Sol): رأیِ مالک را پایدار (measurement) در outcomes.db ثبت کن — پشتِ
+        OCTOPUS_WIRE_VERDICT_OUTCOME. flag خاموش → no-op بایت‌به‌بایت. fail-soft؛ صفر settle/ledger/
+        effector. قوسِ شکسته را می‌بندد: رأی دیگر با restart گم نمی‌شود (in-memory → durable)."""
+        try:
+            _op = str(_HERE / "outcomes")
+            if _op not in sys.path:
+                sys.path.insert(0, _op)
+            import verdict_recorder as _vr   # noqa: WPS433 — lazy
+            if not _vr.flag_on():
+                return
+            import outcome_store as _osx      # noqa: WPS433
+            import opslib as _ops             # noqa: WPS433
+            odir = _ops.STATE_DIR / "outcomes"
+            odir.mkdir(parents=True, exist_ok=True)
+            o = _osx.OutcomeStore(path=odir / "outcomes.db")
+            try:
+                _vr.record_owner_verdict(
+                    o, proposal_id=str(meta.get("proposal_id") or ""), verdict=verdict,
+                    correlation_id=meta.get("correlation_id"), mission_id=meta.get("mission_id"),
+                    leg_id=str(meta.get("leg_id") or "unknown"), value_aud_claimed=value)
+            finally:
+                o.close()
+        except Exception:  # noqa: BLE001 — §۴: ثبتِ رأی هرگز مسیرِ دکمه را نمی‌کشد
+            pass
 
     def proposal_metrics(self) -> dict:
         """Small near-action metric set for learning loops (G3)."""
