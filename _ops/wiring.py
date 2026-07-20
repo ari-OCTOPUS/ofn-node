@@ -2366,11 +2366,12 @@ def ziman_beat(leg=None, beat: int = 0, doctor=None) -> dict | None:
     try:
         snap = _leg.status_snapshot()
         digest = _leg.telegram_digest()
-        # LEG-08 cleanup (2026-07-14 · F2): بلوکِ biology_beat حذف شد — ماژولِ ziman_biology
-        # هرگز در repo یا تاریخِ گیت وجود نداشت (phantom adapter، testِ phantom آن قبلاً پاک شد).
-        # importِ fail-soft در *هر* ziman beat یک alertِ ModuleNotFoundError تولید می‌کرد
-        # (نویزِ لاگ) و biology همیشه None می‌ماند → accept_biology_status هرگز واقعاً صدا نمی‌شد.
-        # خروجی بایت‌به‌بایت حفظ شد (biology=None مثلِ قبل)؛ صفر callerِ واقعی، صفر تغییرِ رفتار.
+        # Sol-T5 تصحیحِ صداقتی (2026-07-20): کامنتِ قبلی ادعا می‌کرد ziman_biology «هرگز در repo/گیت
+        # وجود نداشت» — این روی HEADِ فعلی **غلط** است: `_ops/legs/ziman_biology.py` موجود است
+        # (۷۵۱۲ بایت)، `observability/leg_monitor.py` importش می‌کند، `test_ziman_biology.py` هست، و
+        # `ziman_leg.accept_biology_status` تعریف شده. واقعیت: ماژول موجود ولی **ORPHAN** است —
+        # این beat عمداً `biology=None` نگه می‌دارد. سیم‌کشیِ واقعی owner-gated است (رأیِ Sol-T6:
+        # «فقط اگر رفتار/اقتدارش فهمیده شد») تا اقتدار/side-effectِ biology روشن نشده. رفتار دست‌نخورده.
         biology = None
         # ── برندینگِ خودکار (پشتِ OCTOPUS_ZIMAN_BRANDING، پیش‌فرض خاموش) ──
         # روزی یک‌بار یک draftِ برند از مغزِ مشترک (model_router محلی‌اول → Fugu) می‌سازد
