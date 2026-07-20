@@ -70,6 +70,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # 2026-07-20 یکپارچگی: بستنِ حلقهٔ لید record-only (lead→receipt→outcome، memories_used از
          # Memory Gate، verdict=PENDING، idempotent؛ صفر send/money — تولیدکنندهٔ واقعیِ زنجیرهٔ spine)
          "test_lead_outcome_recorder.py",
+         # 2026-07-20 یکپارچگی: reachabilityِ تولیدکننده — lead_discovery_beat اکنون recorder را
+         # واقعاً صدا می‌زند (پشتِ OCTOPUS_WIRE_LEAD_OUTCOME، خارج از profile). flag-off=byte-identical،
+         # flag-on=receipt(E1)+outcome پایدار، memories_used از drون beat، fail-soft (dead-flag رفع شد).
+         "test_lead_outcome_wiring.py",
          # 2026-07-20 integration: پوششِ orphan (تست‌های سبزِ روی‌دیسک که در run_all نبودند —
          # نقدِ سنتز: بدونِ ثبت، شکستِ extractionِ آینده نامرئی است). فقط سبزها؛ ۴ orphanِ قرمزِ
          # pre-existing (effector_idempotency/drawdown_enforcer/mining_leg/tg_approval_store) عمداً بیرون.

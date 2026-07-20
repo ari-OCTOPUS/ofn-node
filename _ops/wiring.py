@@ -1698,6 +1698,59 @@ def harvest_beat(beat: int = 0) -> dict | None:
         return None
 
 
+def _record_lead_decisions(items, beat: int = 0) -> dict:
+    """LEG-06 (spine) · تصمیم→اثر→نتیجهٔ لیدهای draft‌شدهٔ این beat را پایدار ثبت کن.
+
+    record-only پشتِ OCTOPUS_WIRE_LEAD_OUTCOME: برای هر لید یک Decision Receiptِ immutable
+    (effect_class=E1) + یک Outcome (delivered، sandbox) در state/outcomes می‌نویسد و لینک
+    می‌کند؛ اگر Memory Gate از قبل db داشته باشد، memories_used را پر می‌کند. verdict=PENDING.
+    هیچ ارسال/پول/EffectorGate/شبکه (خودِ recorder ساختاراً اثبات شده). این «قابلِ‌رسیدن»‌کردنِ
+    تولیدکنندهٔ spine است (تا امروز flag داشت ولی صفر caller = ۱/۳ سیم‌کشی). کاملاً fail-soft:
+    هرگز beat را نمی‌کشد. items = [(lead, attribution_id), …]. correlation = lead_<aid> (لینکِ پایدار)."""
+    out = {"recorded": 0, "errors": 0}
+    if not items:
+        return out
+    o = r = mem = None
+    try:
+        for _p in (str(_HERE / "outcomes"), str(_HERE / "memory"), str(_HERE / "legs")):
+            if _p not in sys.path:
+                sys.path.insert(0, _p)
+        import outcome_store as _osx        # noqa: WPS433 — lazy
+        import decision_receipt as _drx     # noqa: WPS433
+        import lead_outcome_recorder as _lor  # noqa: WPS433
+        odir = opslib.STATE_DIR / "outcomes"
+        odir.mkdir(parents=True, exist_ok=True)
+        o = _osx.OutcomeStore(path=odir / "outcomes.db")
+        r = _drx.DecisionReceiptStore(odir / "receipts.db")
+        # حافظه فقط اگر Memory Gate از قبل db ساخته باشد — این beat هرگز db خالی نمی‌سازد
+        mem_db = opslib.STATE_DIR / "memory" / "memory.db"
+        if mem_db.exists():
+            try:
+                import memory_store as _msx  # noqa: WPS433
+                mem = _msx.MemoryStore(path=mem_db)
+            except Exception:  # noqa: BLE001 — بازیابیِ حافظه اختیاری است
+                mem = None
+        for lead, aid in items:
+            try:
+                res = _lor.record_lead_decision(
+                    lead, o, r, memory_store=mem,
+                    correlation_id=("lead_" + str(aid or ""))[:64])
+                if isinstance(res, dict) and not res.get("skipped"):
+                    out["recorded"] += 1
+            except Exception:  # noqa: BLE001 — یک لیدِ بد کلِ ثبت را نکشد
+                out["errors"] += 1
+    except Exception as _re:  # noqa: BLE001 — §۴: ثبتِ spine هرگز beat را نمی‌کشد
+        opslib.alert([f"wiring: lead outcome-record خطا: {type(_re).__name__}: {_re}"])
+    finally:
+        for _s in (mem, r, o):   # بستنِ WAL (checkpoint TRUNCATE) — ضدِ نشتِ فایلِ ویندوز
+            try:
+                if _s is not None:
+                    _s.close()
+            except Exception:  # noqa: BLE001
+                pass
+    return out
+
+
 def lead_discovery_beat(lead_leg, beat: int = 0) -> dict | None:
     """مرحلهٔ ۲ نقشهٔ لید (2026-07-15) · SENSE→SCORE→propose پشتِ OCTOPUS_WIRE_LEAD_DISCOVERY.
 
@@ -1728,6 +1781,7 @@ def lead_discovery_beat(lead_leg, beat: int = 0) -> dict | None:
         cands = lead_sense.read_inbox(limit=max_n)
         scorer = lead_scorer.LeadScorer()
         proposed = saved = skipped = dups = 0
+        _to_record = []   # LEG-06: (lead, attribution_id)های draft‌شده برای ثبتِ spine پس از حلقه
         for path, lead in cands:
             if lead_sense.seen_before(lead):
                 lead_sense.mark_processed(path, lead, {"duplicate": True})
@@ -1779,6 +1833,10 @@ def lead_discovery_beat(lead_leg, beat: int = 0) -> dict | None:
                         except Exception as _qe:  # noqa: BLE001 — quote نباید beat را بکشد
                             opslib.alert([f"wiring: lead quote-draft خطا: "
                                           f"{type(_qe).__name__}: {_qe}"])
+                    # LEG-06 (spine): این لیدِ draft‌شده را برای ثبتِ تصمیم→اثر→نتیجه صف کن
+                    # (پشتِ OCTOPUS_WIRE_LEAD_OUTCOME؛ خاموش = صف خالی = هیچ). ثبت پس از حلقه.
+                    if flag("OCTOPUS_WIRE_LEAD_OUTCOME"):
+                        _to_record.append((lead, r.get("attribution_id")))
                 else:
                     skipped += 1   # intake fail-closed → صادقانه skip بشمار
             elif sc.action == "save":
@@ -1789,6 +1847,8 @@ def lead_discovery_beat(lead_leg, beat: int = 0) -> dict | None:
         result = {"sensed": len(cands), "proposed": proposed, "saved": saved,
                   "skipped": skipped, "duplicates": dups, "beat": beat,
                   "propose_only": True}
+        if _to_record:   # LEG-06: ثبتِ پایدارِ spine (record-only، fail-soft — هرگز beat را نمی‌کشد)
+            result["outcomes"] = _record_lead_decisions(_to_record, beat=beat)
         try:
             sp = opslib.STATE_DIR / "ORGANISM-STATE.lead_discovery"
             sp.parent.mkdir(parents=True, exist_ok=True)
