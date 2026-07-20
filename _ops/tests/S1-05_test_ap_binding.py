@@ -13,6 +13,7 @@
 $0 آفلاین؛ handlerها با aps/mission monkeypatchِ in-memory (state واقعی لمس نمی‌شود).
 """
 import os
+import re
 import sys
 import tempfile
 import threading
@@ -277,6 +278,28 @@ def t_n_single_use_atomic_under_concurrency():
             assert aps.summary().get("approved", 0) == 1
         finally:
             aps._APPROVALS_JSON = prev
+
+
+def t_o_single_consumer_process_invariant():
+    """INVARIANT مستند (review-3): `approval_store` فقط از telegram_center import می‌شود →
+    مصرفِ ap: تک‌پروسه است و `RLock`ِ درون‌پروسه کافی است. این تست منبعِ کلِ _ops را می‌گردد
+    و نگهبانِ دائمیِ invariant است؛ نقض (import در پروسهٔ دوم) → باید به file-lock/SQLite ارتقا
+    یابد. (مسیرِ پولِ app: storeِ جداگانهٔ خودش را دارد — approval_channel*، دست‌نخورده.)"""
+    ops = _HERE.parent  # _ops
+    offenders = []
+    for py in ops.rglob("*.py"):
+        parts = set(py.parts)
+        if {"telegram_center", "tests", "__pycache__"} & parts:
+            continue
+        try:
+            txt = py.read_text("utf-8", errors="replace")
+        except Exception:  # noqa: BLE001
+            continue
+        if re.search(r"^\s*(?:import\s+approval_store\b|from\s+approval_store\b|"
+                     r"from\s+telegram_center\.approval_store\b|import\s+telegram_center\.approval_store\b)",
+                     txt, re.M):
+            offenders.append(str(py.relative_to(ops)))
+    assert not offenders, f"approval_store نباید بیرونِ telegram_center import شود: {offenders}"
 
 
 if __name__ == "__main__":

@@ -107,14 +107,24 @@ def t_f_unknown_action_refused_no_write():
 
 # ── ناوردیِ ساختاریِ launcher: هیچ حذفِ خودکارِ STOP-ORGANISM ──────────────────
 def t_g_launcher_never_deletes_stop_organism():
-    """RUN-ORGANISM.bat باید صفر دستورِ `del ...STOP-ORGANISM` داشته باشد (اثباتِ ساختاریِ
-    رفعِ compare-then-delete race — invariant را با construction enforce می‌کند)."""
+    """RUN-ORGANISM.bat: (۱) صفر دستورِ `del ...STOP-ORGANISM` (invariant با construction)،
+    (۲) RESTART-REQUESTED قبل از relaunch پاک می‌شود (بدونِ boot-exit loop)، (۳) پیش از هر
+    relaunch، حضورِ STOPِ مالک به `goto stopped` می‌رود (STOP زنده می‌ماند)."""
     bat = _HERE.parent / "RUN-ORGANISM.bat"
     text = bat.read_text("utf-8", errors="replace")
+    # (۱) هیچ حذفِ خودکارِ STOP-ORGANISM
     assert not re.search(r"del\s+[^\n]*STOP-ORGANISM", text), \
         "launcher نباید هیچ‌گاه STOP-ORGANISM را حذف کند"
-    # سیگنالِ restart باید RESTART-REQUESTED-محور باشد
-    assert "RESTART-REQUESTED" in text
+    # (۲) سیگنالِ restart = RESTART-REQUESTED و قبل از `goto loop` پاک می‌شود
+    m_del = re.search(r"del\s+[^\n]*RESTART-REQUESTED", text)
+    assert m_del, "launcher باید markerِ خودش (RESTART-REQUESTED) را پاک کند"
+    i_loop = text.find("goto loop", m_del.end())
+    assert i_loop > m_del.end(), \
+        "RESTART-REQUESTED باید قبل از relaunch (goto loop) پاک شود تا boot-exit loop نسازد"
+    # (۳) در همان شاخهٔ restart، حضورِ STOP → goto stopped (پیش از goto loop)
+    branch = text[m_del.end():i_loop]
+    assert re.search(r'if exist\s+"[^"]*STOP-ORGANISM"\s+goto stopped', branch), \
+        "پیش از relaunch باید حضورِ STOPِ مالک بررسی و به stopped برود"
 
 
 if __name__ == "__main__":

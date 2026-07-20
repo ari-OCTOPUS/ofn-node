@@ -32,8 +32,16 @@ from pathlib import Path
 
 # P3 (2026-07-20 Stage-1، review-3): قفلِ single-writer روی کلِ read-modify-writeِ صف.
 # _move/add_pending با tmp+os.replace هر write را atomic می‌کنند ولی توالیِ load→pop→save را
-# نه؛ این قفل، مصرفِ concurrentِ درون‌پروسه‌ای را serialize می‌کند (callbackهای ap: فقط در
-# پروسهٔ Telegram Center مصرف می‌شوند → این قفل کلِ سطحِ واقعیِ concurrency را می‌پوشاند).
+# نه؛ این قفل، مصرفِ concurrentِ درون‌پروسه‌ای را serialize می‌کند → single-use اتمیک.
+#
+# ⚠️ INVARIANT (مستند، نه فرضِ ضمنی): مصرفِ verdictِ `ap:` (approve/reject) فقط در **یک**
+# پروسه رخ می‌دهد — Telegram Center (`center._handle_approval_callback`). کاکپیت/داشبورد/
+# پنل هیچ‌کدام `approve/reject` صف را صدا نمی‌زنند. بنابراین `threading.RLock` (درون‌پروسه)
+# کلِ سطحِ واقعیِ concurrency را می‌پوشاند.
+#   نقضِ این invariant (افزودنِ نویسندهٔ approve/reject در پروسه‌ای دوم) این قفل را بی‌صدا
+#   می‌شکند → آن‌گاه باید به file-lock (opslib.LockedJson) یا SQLite conditional-update ارتقا
+#   یابد. تستِ نگهبان: هیچ ماژولِ غیرِ telegram_center نباید approval_store.approve/reject را
+#   import/صدا کند (رجوع: تستِ import در test_approval_queue_consistency).
 _STORE_LOCK = threading.RLock()
 
 _OPS = Path(__file__).resolve().parent.parent                # _ops
