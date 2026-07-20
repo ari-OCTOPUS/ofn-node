@@ -129,12 +129,15 @@ def _leg_detail(key: str, blob: Any) -> str:
             parts: List[str] = []
             if blob.get("synced") is True:
                 parts.append("سینک ✅")
+            # صداقتِ سطح (Wave1-A، brief §6): این متن در پنلِ باتِ «مرکز» (tg-center) نشان
+            # داده می‌شود که /review و /books را handle نمی‌کند (آن دستورها فقط در چتِ باتِ
+            # ارگانیسم/approval_channel زنده‌اند). پس دستورِ dead تبلیغ نمی‌کنیم — فقط شمارش.
             pr = blob.get("pending_review")
             if isinstance(pr, int) and pr > 0:
-                parts.append(f"{pr} منتظرِ /review")
+                parts.append(f"{pr} در صفِ بازبینی (از باتِ ارگانیسم)")
             pb = blob.get("pending_books")
             if isinstance(pb, int) and pb > 0:
-                parts.append(f"{pb} منتظرِ /books")
+                parts.append(f"{pb} در صفِ ثبتِ دفتر (از باتِ ارگانیسم)")
             return " · ".join(parts)
     except Exception:
         pass
