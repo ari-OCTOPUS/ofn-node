@@ -68,5 +68,39 @@
       {"claim": "financial drawdown guard absent", "verdict": "CONFIRMED_CURRENT / OWNER_GATED", "evidence": "budget_gate.py has no drawdown API; re-impl needs owner spike threshold; source branch un-mergeable"},
       {"claim": "_emit_advisory no-op / _next_qt_num TOCTOU / CHRONO_RETAIN_BEATS=0 / HEART_W_SHADOW=0.0 / invoice PermissionError / TG HTTPError / duplicate flags / WIRE_LEAD-vs-LEAD_DISCOVERY / canonical-intake-G4 / registry L2-L6 / ziman catalog", "verdict": "VERIFIED_BACKLOG", "evidence": "out of value-loop scope; individual traces needed; NOT blocking the green e2e loop; no fix this mission per 'no new work until loop green' + high-blast/backlog rule"}
     ]
+  },
+  "wave_integration_2026_07_21": {
+    "meta": {
+      "base_sha": "70481b5fd8af73c5e5ece29fdcf99125fd367617",
+      "integration_base": "4e9ab3e (master after live Sol session reconcile)",
+      "integrated_sha": "0f60c4ef8cd4f3c7ecc742491315cd3cab3d18c0",
+      "commits": {"B": "7d7820b", "C": "ae2ba02", "D": "3c12184", "A": ["d639baf", "d491761"], "coordinator": ["0f60c4e", "f01139f"], "F": "c723a0e (from 83ad17f)"},
+      "adversarial_verification": "Worker G: 15/15 PASS at 0f60c4e, zero blocking fixes",
+      "doc": "06 - Architecture Maps/WAVE-INTEGRATION-2026-07-21.md"
+    },
+    "supersedes_findings": {
+      "F-MENU2": "FIXED (Sol-T1) + honesty hardening d639baf; center.py:540-544 /panel, :1235-1239 m:, gated by _is_owner :512-524",
+      "F-CMDS-PHANTOM": "FIXED d639baf — menu advertises no dead commands (test_menu_v2_honesty t_a..t_g)",
+      "F-FENCE-SCREEN-ONLY": "FIXED 7d7820b — 4 bypasses adapter-fenced: debate_loop.py:77-78, doctor_setpoint.py:168-169, governor_epoch.py:284-285, llm_adapter.py:48-50; machine-locked inventory test_llm_call_inventory",
+      "F-FENCE-STRUCT": "unchanged (build_context/fence_block library-only, honestly classified; phase-2 blocking = owner-gated)",
+      "F-SPINE-LEAD-ONLY": "FIXED ae2ba02+0f60c4e — 5 domains with real callers: lead(wiring.py:1762-1774), proposal(verdict_recorder), ziman(ziman_leg.emit_proposal), doctor(self_knowledge._spine_outcome), mission(owner_menu.handle_new_mission)",
+      "F-VERDICT-OUTCOME-BROKEN": "FIXED (Sol-T2 + d491761) — ap:/legacy/ms: verbs after is_owner gate write measurement-only durable outcomes; replay/dup suppressed (idempotency corr|proposal|event_type)",
+      "F-PAPERMVO-ORPHAN": "FIXED (Sol Step5 + c723a0e) — paper_mvo used by registered e2e 2/2 incl. failed-delivery path",
+      "F-ZIMAN-BIO-ORPHAN": "comment fixed (Sol-T5); module remains orphan by design (owner-gated wiring)"
+    },
+    "test_count_reconciliation_update": {
+      "TESTS_entries_len": 230,
+      "unique_files": 230,
+      "duplicates_removed": ["test_txn_store.py", "test_attributor.py"],
+      "new_registrations": ["test_llm_call_inventory.py", "test_fence_adapter_wiring.py", "test_spine_multidomain.py", "test_metric_separation.py", "test_menu_v2_honesty.py", "test_tg_verdict_durable.py"],
+      "date_rollover_hermetic_fix": "f01139f — 4 tests pin opslib.LIVE_GATE_DATE (pattern: test_cockpit_golive_honesty); heart_loop 13/13, cortex 10/10"
+    },
+    "owner_hot_items": [
+      "ps_writeback ARMED in deployed flags.cmd (triple gate satisfied); only organism halt prevents outward PocketSmith PUTs — per-item verdict policy needed before restart",
+      "paid_gate()=True from 2026-07-21: LIVE_GATE_DATE reached AND tracked ACTIVATION-RESEARCH-EARLY.flag + ACTIVATION-CORTEX-PAID.flag present in every checkout incl. live tree (committed in old 'Wave 0' 6a38af8); organ_gate metering still applies",
+      "registered organism watchdog is the 04-Architect twin (no HALT-ALL, also supervises cortex); all 4 scheduled tasks execute pre-D-G live-tree scripts; tg-center has no registered watchdog",
+      "G hardening (non-blocking): pin tests' _OPS to own tree; extend CB_TOKEN to legacy ok/no/later + ms: verbs; sanitize inside event_spine.dual_write",
+      "cosmetic: verdict_recorder returns spine=True even on spine duplicate"
+    ]
   }
 }
