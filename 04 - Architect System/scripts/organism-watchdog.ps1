@@ -22,6 +22,12 @@ foreach ($s in $stops) {
     if (Test-Path $s) { exit 0 }   # silent yield - a STOP is an owner decision, not an anomaly
 }
 
+# 1b) D-G HALT-ALL (2026-07-21): a GLOBAL panic marker is senior to persistence too. The _ops
+# watchdogs (cortex-watchdog / live-watchdog) already refuse to revive under HALT-ALL; this TWIN
+# supervises BOTH organism (8771) and cortex (8772) below, so it must match - a global halt must
+# never be silently out-lived. ADD-only: the STOP + STOP-ORGANISM yields above are untouched.
+if (Test-Path (Join-Path $VAULT "_ops\HALT-ALL")) { exit 0 }   # silent yield to global HALT-ALL
+
 # helper: TCP liveness probe (exclusive bind doubles as the liveness lock)
 function Test-PortAlive([int]$p) {
     try {

@@ -4,7 +4,9 @@
 
 قیودِ اثبات‌شده: watchdog.should_revive زیرِ HALT-ALL = yield (پیش‌تر بی‌اثر بود) ·
 stop_probe.should_yield/global_halt زیرِ HALT-ALL/architect-STOP/STOP-ORGANISM · fail-closed ·
-هر دو watchdog `.ps1` حالا HALT-ALL را چک می‌کنند (اثباتِ ساختاری با grep). $0 آفلاین.
+هر سه watchdogِ `_ops` `.ps1` (live/cortex/tg-center) + توئینِ ثبت‌شدهٔ organism-watchdog
+(04-Architect، سرپرستِ organism+cortex) حالا HALT-ALL را چک می‌کنند، بی از دست دادنِ هیچ STOPِ
+موجود (اثباتِ ساختاری با grep؛ ADD-only). $0 آفلاین.
 """
 import re
 import sys
@@ -80,12 +82,31 @@ def t_d_stop_probe_fail_closed(monkeypatch=None):
 
 
 def t_e_watchdog_ps1_honor_halt_all():
-    """هر دو watchdogِ `.ps1` حالا HALT-ALL را چک می‌کنند (اثباتِ ساختاریِ D-G)."""
-    for f in ("live-watchdog.ps1", "cortex-watchdog.ps1"):
+    """هر سه watchdogِ `.ops`ِ `.ps1` (live/cortex/tg-center) HALT-ALL را چک می‌کنند و
+    هیچ‌کدام off-switchِ scopedِ خود را از دست نداده‌اند (ADD-only، اثباتِ ساختاری)."""
+    scoped = {
+        "live-watchdog.ps1": "STOP-LIVE",
+        "cortex-watchdog.ps1": "STOP-CORTEX",
+        "tg-center-watchdog.ps1": "STOP-TG-CENTER",   # D5 (2026-07-21): tg-center زیرِ HALT-ALL آمد
+    }
+    for f, stop in scoped.items():
         text = (_HERE.parent / f).read_text("utf-8", errors="replace")
         assert re.search(r"Test-Path[^\n]*HALT-ALL", text), f"{f} باید HALT-ALL را Test-Path کند"
-        # و architect STOP (سطحِ والد)
+        # architect STOP (سطحِ والد) — نباید حذف شده باشد
         assert "Split-Path $ops -Parent" in text and "'STOP'" in text, f"{f} باید architect STOP را چک کند"
+        # off-switchِ scopedِ موجود نباید گم شده باشد (گاردِ رگرسیون: هیچ STOP از دست نرود)
+        assert stop in text, f"{f} نباید off-switchِ {stop} را از دست بدهد"
+
+
+def t_f_twin_organism_watchdog_honors_halt_all():
+    """توئینِ ثبت‌شده (`04 - Architect System/scripts/organism-watchdog.ps1`) که organism+cortex را
+    سرپرستی می‌کند، حالا HALT-ALL را هم honor می‌کند — بدونِ از دست دادنِ architect STOP یا
+    STOP-ORGANISM (ADD-only؛ D5 2026-07-21). idiomِ twin با `$VAULT` است نه `$ops`."""
+    twin = _HERE.parent.parent / "04 - Architect System" / "scripts" / "organism-watchdog.ps1"
+    text = twin.read_text("utf-8", errors="replace")
+    assert re.search(r"Test-Path[^\n]*HALT-ALL", text), "twin باید HALT-ALL را Test-Path کند"
+    assert "STOP-ORGANISM" in text, "twin نباید STOP-ORGANISM را از دست بدهد"
+    assert re.search(r'Join-Path \$VAULT "STOP"', text), "twin باید architect STOP (F:\\backup\\STOP) را نگه دارد"
 
 
 if __name__ == "__main__":

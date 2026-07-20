@@ -21,6 +21,12 @@ $logDir = Join-Path $ops 'state'
 if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir | Out-Null }
 $log = Join-Path $logDir 'tg-center-watchdog-log.txt'
 
+# 0) D-G (2026-07-21): global panic (HALT-ALL) or architect STOP overrides EVERY supervisor -> never
+#    revive under panic. (Previously this watchdog saw only STOP-TG-CENTER and ignored the global kill.)
+if ((Test-Path (Join-Path $ops 'HALT-ALL')) -or (Test-Path (Join-Path (Split-Path $ops -Parent) 'STOP'))) {
+    Add-Content -Path $log -Value "$(Get-Date -Format s) global HALT-ALL/architect-STOP present - not reviving centre"
+    exit 0
+}
 # 1) owner off-switch: STOP-TG-CENTER means "leave the centre down on purpose"
 if (Test-Path (Join-Path $ops 'STOP-TG-CENTER')) {
     Add-Content -Path $log -Value "$(Get-Date -Format s) STOP-TG-CENTER present - not reviving centre"
