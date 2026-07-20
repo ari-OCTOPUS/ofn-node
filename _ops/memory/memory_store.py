@@ -134,13 +134,17 @@ class MemoryStore:
         """FTS5 bm25 + رتبه‌بندیِ ترکیبی با salience/recency؛ fallback به LIKE اگر FTS نبود.
         فقط رکوردهای معتبر؛ اختیاری min_trust."""
         q = str(query or "").strip()
+        # FTS5 lenient: توکن‌های alnum (≥۳ کاراکتر) را OR کن — تا AND ضمنی/نویسه‌های خاص match را نکشند
+        import re as _re
+        terms = [t for t in _re.findall(r"[^\W_]{3,}", q, _re.UNICODE)][:12]
+        fts_q = " OR ".join(terms) if terms else ""
         with _LOCK:
             ids = []
-            if self._fts and q:
+            if self._fts and fts_q:
                 try:
                     frows = self._conn.execute(
                         "SELECT memory_id, bm25(memory_fts) AS score FROM memory_fts "
-                        "WHERE memory_fts MATCH ? ORDER BY score LIMIT ?", (q, max(k * 4, 20))).fetchall()
+                        "WHERE memory_fts MATCH ? ORDER BY score LIMIT ?", (fts_q, max(k * 4, 20))).fetchall()
                     ids = [(r[0], r[1]) for r in frows]
                 except sqlite3.OperationalError:
                     ids = []

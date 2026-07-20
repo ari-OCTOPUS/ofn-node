@@ -194,6 +194,13 @@ def _receipt_id(norm: dict) -> str:
                          "s": norm["selected_alternative"]})[:16]
 
 
+def _is_receipt_id(s) -> bool:
+    """id معتبرِ رسید: `dr_` + ۱۶ hex — تا caller بتواند idempotency را به هویتِ تصمیمِ خودش
+    (مثلاً correlation) پین کند، بدونِ آنکه created_atِ صادقانه (ساعتِ واقعی) عوض شود."""
+    return (isinstance(s, str) and s.startswith("dr_") and len(s) == 19
+            and all(c in "0123456789abcdef" for c in s[3:].lower()))
+
+
 class DecisionReceiptStore:
     """storeِ رسیدِ تصمیم: رسیدها immutable (INSERT-only)، لینک‌ها append-only."""
 
@@ -219,7 +226,10 @@ class DecisionReceiptStore:
         """اعتبارسنجی → رسیدِ immutable را INSERT کن (idempotent by receipt_id). خروجی receipt_id.
         اگر همان receipt_id قبلاً بود، دست‌نخورده می‌ماند (immutable). نقضِ قید → ReceiptValidationError."""
         norm = _validate(receipt)
-        rid = _receipt_id(norm)
+        # caller می‌تواند id را به هویتِ تصمیمِ خودش پین کند (replay-idempotent با created_atِ واقعی)؛
+        # وگرنه id = تابعِ محتوا. در هر دو حالت INSERT OR IGNORE → اولین نوشت برنده، immutable.
+        explicit = str(receipt.get("receipt_id") or "").strip()
+        rid = explicit if _is_receipt_id(explicit) else _receipt_id(norm)
         rjson = _canon(norm)
         rsha = hashlib.sha256(rjson.encode("utf-8")).hexdigest()
         with _LOCK:
