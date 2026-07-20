@@ -59,6 +59,18 @@ updated: 2026-07-21
 - **validatorها (dry-run):** فرانت‌متر = **۲۲۲ خطا، دقیقاً برابر بک‌لاگ شناخته‌شدهٔ قبلی — دلتای این موج صفر**؛ لینک شکسته = ۷۵ (بک‌لاگ ۷۱ + ‏۴ لینکِ جلسه‌های ۰۷-۲۰ به نوت‌هایی که فقط untracked در درخت زنده‌اند، مثل `2026-07-20_LEGS-DEEP-SCAN.md` — از این موج نیست؛ فیکسش = کامیتِ آن نوت‌ها توسط لاینِ خودش). فایل‌های نوی این موج: صفر خطا در هر دو validator.
 - برچسب صداقت: همهٔ ادعاهای این موج **SOURCE+TEST-VERIFIED**؛ هیچ‌چیز RUNTIME-OPERATIONAL ادعا نمی‌شود — درخت زنده همچنان روی `a2183c3` است و ارگانیسم halt.
 
+## موجِ D (بامداد ۲۰۲۶-۰۷-۲۱ — «کارهای امنِ باقی‌مانده + بستهٔ deploy») — DecisionLog
+
+مبنا: master `db3b174`. ۵ کارگرِ موازی (D1–D5) + D2 inline توسطِ Coordinator؛ ادغام سریالی؛ **صفر deploy زنده** (پشتِ «برو»ی مالک).
+
+- **DL-D-01 · D2 گسترش یافت (۸ فلگ نه ۲):** مالک untrackِ دو فلگِ paid را خواست؛ کشف شد **۸ اهرمِ `ACTIVATION-*.flag`** commit شده‌اند (کامیت «Wave 0» ‏6a38af8) شاملِ `GO-LIVE` (بایپسِ سراسریِ سپرِ تاریخ)، `WORK-LLM`، `HEART-DOCTOR`، `DEBATE`، `PULSE`، `SELF-IMPROVE-AUTO`. حذفِ اهرم فقط گیت را می‌بندد (اکیداً امن‌تر) و برگشت‌پذیر است و دقیقاً هدفِ «امن‌ترین پروفایل» است → هر ۸ untrack شد + `.gitignore` (`0d3384c`). تست `test_activation_untracked` 5/5. **مالک تأیید کرد** (پیامِ «هر ۸ درست است»). `.flag.off` دست‌نخورده.
+- **DL-D-02 · D1 ps_writeback fail-closed (`eb28bad`):** حتی با هر سه فلگِ مسلح، بدونِ رأیِ durableِ per-item (bind به tid+field+content_sha256) صفر PUT به PocketSmith. صفر auto-approve؛ HALT/whitelist/cap حفظ. 22/22 + 32/32. اثرِ بیرونی را **کم** می‌کند (byte-parity معاف).
+- **DL-D-03 · D3 drawdown شادو (`25497a1`):** گاردِ drawdown فقط-advisory پشتِ `HH_DRAWDOWN_ENFORCE` خاموش؛ صفر اثرِ پول. آستانه placeholder (spike_pct=25) — عددِ سیاست با مالک. enforcement اصلاً ساخته نشد. 9/9. تستِ phantomِ enforcer دست‌نخورده/ثبت‌نشده ماند.
+- **DL-D-04 · D4 سخت‌سازیِ G (`9abb13a`/`c273810`/`a0bd0a7`):** CB_TOKEN به verbهای legacy(ok/no/later)+mission(ms:) گسترش (flag-off = byte-identical) · sanitizeِ ساختاری داخلِ `event_spine.dual_write` (defense-in-depth، idempotent) · پینِ `_OPS` تستِ flag‌شده به درختِ خودش. 15/15 + 6/6.
+- **DL-D-05 · D5 توپولوژیِ watchdog (`a40c1e1`):** twinِ ثبت‌شده (که cortex را هم supervise می‌کند) حالا HALT-ALL را honor می‌کند؛ tg-center هم؛ اسکریپتِ registrationِ tg-center (dry-run). `.ps1`ها LF حفظ (نه CRLF). ADD-only (صفر STOP-check حذف). stop_contract 6/6. **applyِ زنده = گامِ deploy (owner-gated).**
+- **DL-D-06 · بستهٔ deploy STAGED (`7ff9321`):** سه اسکریپتِ dry-run-پیش‌فرض + مانیفست زیرِ `_ops/deploy/`. **هیچ‌کدام اجرا نشد.** deploy و activation دو رأیِ جدااند؛ STOP-ORGANISM ‏tracked نیست پس checkout هرگز لمسش نمی‌کند.
+- suite کاملِ نهایی: **۲۳۵/۲۳۵ سبز**؛ validatorها دلتای صفر (۲۲۲ فرانت‌متر/۷۵ لینک = بک‌لاگ).
+
 ## ناوردی‌های حفظ‌شده
 
 - ‏STOP-ORGANISM بایت‌به‌بایت (sha256 ‏`C8FE7176…5CD099`، ۳۳ بایت) — قبل، وسط و انتهای مأموریت هش شد.
