@@ -158,6 +158,17 @@ def llm_refine(setpoint: "hi.HeartParams", signals: dict) -> dict | None:
                            "signals": {k: signals.get(k) for k in
                                        ("velocity", "cpi", "delta_self")}},
                           ensure_ascii=False)
+        # CONTEXT-FENCE (observe-only، پشتِ OCTOPUS_WIRE_CONTEXT_FENCE): سیگنال/setpoint
+        # دادهٔ بازیابی‌شده است نه دستور؛ غربالِ injection پیش از provider — هرگز بلاک/
+        # تغییرِ prompt. فلگ خاموش یا هر خطا = مسیرِ قدیم بایت‌به‌بایت (fail-soft).
+        try:
+            _cx = str(_HERE.parent / "cortex")
+            if _cx not in sys.path:
+                sys.path.insert(0, _cx)
+            import fence_adapter  # noqa: WPS433 — lazy، مونکی‌پچ‌پذیرِ تست
+            fence_adapter.screen_llm_input("heart.doctor_setpoint", [("memory", user)])
+        except Exception:  # noqa: BLE001 — غربال هرگز دکتر را نمی‌کشد
+            pass
         cli = DeepSeekClient(role="econ")
         est = cli.est_worst_case(len(system) + len(user), max_tokens=400)
         r = organ_gate.reserve("ARCHITECT_SYS", est, task="heart-doctor")

@@ -274,6 +274,17 @@ def allocate_llm(snap: dict, alloc_dry: dict) -> dict | None:
             + "\n\nBUDGETS.YAML (data):\n"
             + json.dumps(opslib.load_budgets(), ensure_ascii=False, default=str)
             + "\n\nReturn ONLY a JSON allocation object keyed by organ.")
+    # CONTEXT-FENCE (observe-only، پشتِ OCTOPUS_WIRE_CONTEXT_FENCE): تلمتری/بودجه دادهٔ
+    # بازیابی‌شده است نه دستور؛ غربالِ injection پیش از provider — هرگز بلاک/تغییرِ prompt.
+    # فلگ خاموش یا هر خطا = مسیرِ قدیم بایت‌به‌بایت (fail-soft).
+    try:
+        _cx = str(Path(__file__).resolve().parent.parent / "cortex")
+        if _cx not in sys.path:
+            sys.path.insert(0, _cx)
+        import fence_adapter  # noqa: WPS433 — lazy، مونکی‌پچ‌پذیرِ تست
+        fence_adapter.screen_llm_input("governor.allocate_llm", [("memory", user)])
+    except Exception:  # noqa: BLE001 — غربال هرگز governor را نمی‌کشد
+        pass
     try:
         cl = DeepSeekClient(role="econ")
         est = cl.est_worst_case(len(system) + len(user), max_tokens=1200)

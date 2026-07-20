@@ -41,6 +41,15 @@ def _default_ask(prompt: str) -> str | None:
             return str(r["text"])
     except Exception:  # noqa: BLE001
         pass
+    # CONTEXT-FENCE (observe-only، پشتِ OCTOPUS_WIRE_CONTEXT_FENCE): این شاخهٔ fallback
+    # از فنسِ model_router رد نمی‌شود؛ همان غربال این‌جا اعمال می‌شود — هرگز بلاک/تغییرِ
+    # prompt. فلگ خاموش یا هر خطا = مسیرِ قدیم بایت‌به‌بایت (fail-soft).
+    try:
+        from cortex import fence_adapter  # noqa: WPS433 — lazy، مونکی‌پچ‌پذیرِ تست
+        fence_adapter.screen_llm_input("chord.llm_adapter.local_fallback",
+                                       [("external", prompt)])
+    except Exception:  # noqa: BLE001 — غربال هرگز آداپتر را نمی‌کشد
+        pass
     try:
         from cortex import local_llm
         r = local_llm.ask(prompt, system=SCHEMA_PROMPT, max_tokens=300)

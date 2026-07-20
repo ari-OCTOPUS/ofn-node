@@ -67,6 +67,17 @@ def _stub_transport(body: dict) -> dict:
 def _gated_call(client: DeepSeekClient, system: str, user: str,
                 max_tokens: int, task: str) -> dict:
     """reserve → call → settle/release. deny = RuntimeError (fail-closed، بدون mock)."""
+    # CONTEXT-FENCE (observe-only، پشتِ OCTOPUS_WIRE_CONTEXT_FENCE): topic از فایل/صفِ
+    # بیرونی می‌آید = دادهٔ نامعتمد؛ غربالِ injection پیش از callِ provider — هرگز بلاک/
+    # تغییرِ prompt. فلگ خاموش یا هر خطا = مسیرِ قدیم بایت‌به‌بایت (fail-soft).
+    try:
+        _cx = str(_HERE.parent / "cortex")
+        if _cx not in sys.path:
+            sys.path.insert(0, _cx)
+        import fence_adapter  # noqa: WPS433 — lazy، مونکی‌پچ‌پذیرِ تست
+        fence_adapter.screen_llm_input(f"debate.{task}", [("external", user)])
+    except Exception:  # noqa: BLE001 — غربال هرگز مناظره را نمی‌کشد
+        pass
     est = client.est_worst_case(len(system) + len(user), max_tokens)
     r = organ_gate.reserve(ORGAN, est, task=task)
     if not r.get("allow"):
