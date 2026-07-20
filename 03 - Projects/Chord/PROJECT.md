@@ -37,14 +37,17 @@ updated: 2026-07-18
 
 ## Active Context
 
-- 2026-07-18: زیرساختِ فازِ A+B ساخته شد (کدِ سایه + ۳۰ تستِ سبز + اسناد + قالب‌های تحقیق).
-  تحقیقاتِ مالک هنوز نرسیده — با رسیدنش اول `research_claims.yaml` پر می‌شود، نه کد.
-- قدمِ بعدیِ کد: فاز C (ثبتِ سایه کنارِ دکتر) طبق [[../../04 - Architect System/octopus-build-prompts/CHORD-AGENT-PROMPT-2026-07-18|پرامپتِ ایجنتِ بعدی]] — منتظرِ «برو»ی مالک.
+- 2026-07-18 (عصر): **فاز C ساخته شد (رأی صریح مالک «برو فاز C»)** روی برنچ `claude/chord-phase-c`:
+  هوکِ سایه در `doctor.run_cycle` پشتِ فلگِ خاموشِ `OCTOPUS_WIRE_CHORD_SHADOW` (+۵۰ خط additive،
+  صفر حذف) + `_ops/tests/test_chord_shadow.py` (۵/۵: parity خاموش/روشن، fail-soft، ledger) +
+  ثبتِ هر دو تست در `run_all.py`. **merge با مالک؛ فلگ همچنان خاموش.**
+- فاز D قفل: حداقل ۲ هفته دادهٔ سایه + رأی تازهٔ مالک (قرارداد).
+- تحقیقاتِ مالک هنوز نرسیده — با رسیدنش اول `research_claims.yaml` پر می‌شود، نه کد.
 
 ## Progress
 
 - [x] فاز A — کشف و نقشهٔ اتصال ([[../../04 - Architect System/ANALYSES/2026-07-18_CHORD-DISCOVERY|گزارش]])
 - [x] فاز B — اسکلتِ `_ops/chord/` + تست‌ها (۳۰/۳۰ سبز، سندباکس py3.10)
-- [ ] فاز C — ثبتِ سایه در چرخهٔ دکتر (worktree، flag-off) — رأی مالک
+- [x] فاز C — ثبتِ سایه در چرخهٔ دکتر (برنچ `claude/chord-phase-c`، flag-off) — منتظرِ merge مالک
 - [ ] فاز D — کالیبراسیون با outcome واقعی (≥۲ هفته دادهٔ جفتی)
 - [ ] ورودِ تحقیقاتِ مالک به `research_claims.yaml` + اولین probe
