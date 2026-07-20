@@ -28,9 +28,12 @@ sys.path.insert(0, str(_HERE / "budget"))
 import opslib        # noqa: E402
 
 # پرچم‌های STOP (kill-switch مطلق — هرکدام = yield). ترتیب بررسی مهم نیست چون همه yield.
+# D-G (2026-07-20): HALT-ALL افزوده شد — watchdog دیگر زیرِ پنیکِ سراسری احیا نمی‌کند
+# (پیش‌تر فقط architect-STOP و STOP-ORGANISM را می‌دید؛ HALT-ALL بی‌اثر بود).
 STOP_FLAGS = [
+    opslib.HALT_ALL,                     # 🔴 پنیکِ سراسری (HALT-ALL) — MUST yield
     _HERE.parent / "STOP",               # architect-level (سطحِ والد)
-    _HERE / "STOP-ORGANISM",             # organism-level
+    opslib.STOP_ORGANISM,                # organism-level
 ]
 ORGANISM_PORT = 8771
 STATE_FILE = opslib.STATE_DIR / "ORGANISM-STATE.json"

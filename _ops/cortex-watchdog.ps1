@@ -24,6 +24,12 @@ $log = Join-Path $logDir "watchdog-log.txt"
 $stopFile = Join-Path $ops "STOP-CORTEX"
 $staleFile = Join-Path $logDir "cortex-watchdog.json"
 
+# D-G (2026-07-20): global panic (HALT-ALL) or architect STOP overrides EVERY supervisor -> never
+# revive under panic. (Previously this watchdog saw only STOP-CORTEX and ignored the global kill.)
+if ((Test-Path (Join-Path $ops 'HALT-ALL')) -or (Test-Path (Join-Path (Split-Path $ops -Parent) 'STOP'))) {
+    Add-Content -Path $log -Value "$(Get-Date -Format s) cortex: global HALT-ALL/architect-STOP present (no revive)"
+    return
+}
 # STOP-CORTEX always wins — do nothing (clean kill honored).
 if (Test-Path $stopFile) {
     Add-Content -Path $log -Value "$(Get-Date -Format s) cortex: STOP-CORTEX honored (no revive)"
