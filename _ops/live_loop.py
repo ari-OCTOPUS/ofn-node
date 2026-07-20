@@ -365,12 +365,16 @@ class LiveLoop:
             kb = None
             if _os.environ.get("OCTOPUS_WIRE_PROPOSAL_BUTTONS") == "1" and d.get("proposal_id"):
                 tok = self._proposal_token(d.get("proposal_id"))
+                _pl = d.get("payload") if isinstance(d.get("payload"), dict) else {}
                 self._proposal_cb[tok] = {"proposal_id": str(d.get("proposal_id")),
                                           "amount": self._proposal_amount(d),
                                           "kind": str(d.get("kind", "unknown")),
                                           "leg_id": str(d.get("leg_id", "unknown")),
                                           "correlation_id": d.get("correlation_id"),
-                                          "mission_id": d.get("mission_id")}
+                                          "mission_id": d.get("mission_id"),
+                                          # Wave1-A: attribution/lead «اگر موجود» حفظ می‌شود
+                                          # تا رأیِ پایدار linkage کامل داشته باشد (هرگز اختراع نه).
+                                          "lead_id": _pl.get("attribution_id") or _pl.get("lead_id")}
                 if len(self._proposal_cb) > _PROPOSAL_CB_MAX:
                     for _old in list(self._proposal_cb)[:-_PROPOSAL_CB_MAX]:
                         self._proposal_cb.pop(_old, None)
@@ -460,7 +464,8 @@ class LiveLoop:
             _vr.record_verdict_durably(
                 proposal_id=str(meta.get("proposal_id") or ""), verdict=verdict,
                 correlation_id=meta.get("correlation_id"), mission_id=meta.get("mission_id"),
-                leg_id=str(meta.get("leg_id") or "unknown"), value_aud_claimed=value)
+                leg_id=str(meta.get("leg_id") or "unknown"), value_aud_claimed=value,
+                lead_id=meta.get("lead_id"))
         except Exception:  # noqa: BLE001 — §۴: ثبتِ رأی هرگز مسیرِ دکمه را نمی‌کشد
             pass
 

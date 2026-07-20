@@ -1078,6 +1078,11 @@ class Center:
                     aps_mod.record_legacy_verdict(mid, "no")
             except Exception:  # noqa: BLE001
                 pass
+            if out:
+                # Wave1-A: رأیِ مالک روی missionِ همین کارت هم measurementِ پایدار می‌شود
+                # (idempotent — اگر همان job از مسیرِ ap: هم رأی بخورد، رویدادِ تکراری نمی‌نشیند).
+                self._durable_verdict_outcome("ok" if approved else "no", mid,
+                                              {"type": "mission"})
             txt, kb = mission_mod.mission_card(mid)
             try:
                 if isinstance(m_id, int):
@@ -1163,6 +1168,9 @@ class Center:
                 msg = "✅ تأیید شد" if ok else "یافت نشد/قبلاً تصمیم گرفته شده"
                 if ok:
                     aps_mod.record_legacy_verdict(jid, "ok")
+                    # Wave1-A: فقط پس از transitionِ single-use ِ موفق (approve=True) —
+                    # replay/تکرار به این خط نمی‌رسد؛ durable هم خودش idempotent است.
+                    self._durable_verdict_outcome("ok", jid, job_before)
                     if (isinstance(job_before, dict) and job_before.get("type") == "mission") or mission_mod.get(jid):
                         mission_mod.set_owner_verdict(jid, True)
             elif action == "no":
@@ -1172,6 +1180,7 @@ class Center:
                 msg = "❌ رد شد" if ok else "یافت نشد/قبلاً تصمیم گرفته شده"
                 if ok:
                     aps_mod.record_legacy_verdict(jid, "no")
+                    self._durable_verdict_outcome("no", jid, job_before)   # Wave1-A: ردِ پایدار
                     if (isinstance(job_before, dict) and job_before.get("type") == "mission") or mission_mod.get(jid):
                         mission_mod.set_owner_verdict(jid, False)
             elif action == "detail":
@@ -1239,12 +1248,71 @@ class Center:
             if tok:
                 rec["ha_token"] = tok
         recorded = self._record_approval(rec)
+        # Wave1-A: همان رأیِ احرازشدهٔ مالک (کارتِ تصمیمِ ok/no/later) به‌شکلِ measurement
+        # در OutcomeStoreِ پایدار هم می‌نشیند — پشتِ فلگ، fail-soft، later=deferred.
+        self._durable_verdict_outcome(verb, did)
         _emit_event("task.completed",
                     summary=f"verdict {verb} ثبت شد",      # content-free (فقط کلید/فعل)
                     approval_state=_VERDICT_APPROVAL_STATE.get(verb, "unknown"),
                     trace_id=did, status="ok" if recorded else "warn")
         self._answer(cbq, _VERDICT_TOAST.get(verb, ""))
         return {"kind": "callback", "verdict": verb, "id": did, "recorded": recorded}
+
+    def _durable_verdict_outcome(self, verdict: str, proposal_id: str,
+                                 job: "dict | None" = None) -> "bool | None":
+        """Wave1-A (Part2): رأیِ احرازشدهٔ مالک از همین update-handler → OutcomeStoreِ
+        پایدار (measurement-only)، پشتِ OCTOPUS_WIRE_VERDICT_OUTCOME (پیش‌فرض خاموش؛
+        خاموش → None و **صفر** side-effect — parity بایت‌به‌بایت با امروز).
+
+        فقط بعد از گیتِ is_owner صدا زده می‌شود (غیرمالک هرگز به handlerها نمی‌رسد) و
+        فقط واژگانِ سنجش: ok/no/later → accepted-measurement/rejected/deferred — هرگز
+        approval/delivery/settle/revenue استنتاج نمی‌شود (نگاشت+ناوردی‌ها در
+        verdict_recorder ِ مشترک enforce؛ idempotent روی corr|proposal|event_type →
+        دو-تپ/replay رویدادِ نو نمی‌نویسد). شناسه‌های «موجود» (mission/leg/lead) حفظ
+        می‌شوند، هیچ‌کدام اختراع نمی‌شوند؛ صفِ تأیید مبلغ ندارد → value=0 (بدونِ CLAIM).
+        fail-soft: هر خطا → None؛ مسیرِ callback هرگز نمی‌میرد."""
+        try:
+            for _p in (str(_HERE.parent / "outcomes"), str(_HERE.parent / "spine")):
+                if _p not in sys.path:
+                    sys.path.insert(0, _p)
+            import verdict_recorder as _vr   # lazy — flag خاموش → همین‌جا خروجِ امن
+            if not _vr.flag_on():
+                return None
+            import outcome_store as _osx
+            odir = opslib.STATE_DIR / "outcomes"
+            odir.mkdir(parents=True, exist_ok=True)
+            o = _osx.OutcomeStore(path=odir / "outcomes.db")
+            spine = None
+            try:   # هم‌الگوی live_loop (Sol-T4): dual-write به spine فقط با flagِ خودش
+                import event_spine as _esx
+                if _esx.flag_on():
+                    sdir = opslib.STATE_DIR / "spine"
+                    sdir.mkdir(parents=True, exist_ok=True)
+                    spine = _esx.EventSpine(path=sdir / "spine.db")
+            except Exception:  # noqa: BLE001
+                spine = None
+            try:
+                j = job if isinstance(job, dict) else {}
+                res = _vr.record_owner_verdict(
+                    o, proposal_id=str(proposal_id), verdict=str(verdict),
+                    correlation_id=j.get("correlation_id"),
+                    mission_id=(j.get("mission_id")
+                                or (str(proposal_id) if j.get("type") == "mission" else None)),
+                    leg_id=j.get("leg_id") or j.get("leg") or "unknown",
+                    value_aud_claimed=0.0,
+                    event_spine=spine,
+                    lead_id=j.get("lead_id") or j.get("attribution_id"),
+                    source="tg-center")
+                return bool(res.get("recorded"))
+            finally:
+                o.close()
+                if spine is not None:
+                    try:
+                        spine.close()
+                    except Exception:  # noqa: BLE001
+                        pass
+        except Exception:  # noqa: BLE001 — ثبتِ رأی هرگز مسیرِ دکمه را نمی‌کشد
+            return None
 
     @staticmethod
     def _record_approval(rec: dict) -> bool:

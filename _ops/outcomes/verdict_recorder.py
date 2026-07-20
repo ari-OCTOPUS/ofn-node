@@ -44,11 +44,16 @@ def event_type_for(verdict: str) -> "str | None":
 def record_owner_verdict(outcome_store, *, proposal_id: str, verdict: str,
                          correlation_id: str = None, mission_id: str = None,
                          leg_id: str = None, value_aud_claimed: float = 0.0,
-                         event_spine=None) -> dict:
+                         event_spine=None, lead_id: str = None,
+                         source: str = "tg-proposal-button") -> dict:
     """رأیِ مالک را MEASUREMENTِ پایدار ثبت کن. خروجی: {recorded, event_type?, reason?}.
 
     idempotent: همان (proposal, event_type) دوباره → recorded=False (رویدادِ نو نوشته نشد).
     هرگز delivered/settled/revenue استنتاج نمی‌کند؛ value فقط CLAIMِ accepted.
+
+    Wave1-A (backward-compatible): `lead_id` (attribution/lead اگر «موجود» باشد — هرگز
+    اختراع نمی‌شود) و `source` (برچسبِ صادقانهٔ سطحِ ورودی؛ پیش‌فرض همان دکمهٔ کارتِ
+    پیشنهاد) — هر دو اختیاری، رفتارِ callerهای قبلی بایت‌به‌بایت حفظ.
 
     Sol-T4: اگر event_spine داده شود (و flagش روشن باشد)، همین رأی را با **domain="proposal"**
     به SoTِ یگانه هم dual-write می‌کند — spine را از lead-only به دو دامنه می‌برد (اثباتِ
@@ -67,9 +72,11 @@ def record_owner_verdict(outcome_store, *, proposal_id: str, verdict: str,
     val = float(value_aud_claimed or 0.0) if et == "accepted-measurement" else 0.0
     ev = {"correlation_id": corr, "mission_id": str(mission_id or ""),
           "proposal_id": pid, "leg_id": str(leg_id or "unknown"),
+          "lead_id": (str(lead_id) if lead_id else None),   # «موجود» → حفظ؛ غایب → None (بدونِ اختراع)
           "event_type": et, "value_aud_claimed": val, "idempotency_key": idem,
           "verdict": "measurement",   # هرگز 'settled'/'delivered' — رأی سنجش است نه تسویه
-          "payload": {"owner_verdict_raw": str(verdict)[:40], "source": "tg-proposal-button",
+          "payload": {"owner_verdict_raw": str(verdict)[:40],
+                      "source": str(source or "tg-proposal-button")[:40],
                       "measurement_only": True}}
     wrote = bool(outcome_store.record(ev))
     spine_wrote = False
@@ -91,7 +98,8 @@ def record_owner_verdict(outcome_store, *, proposal_id: str, verdict: str,
 
 def record_verdict_durably(*, proposal_id: str, verdict: str, correlation_id: str = None,
                            mission_id: str = None, leg_id: str = None,
-                           value_aud_claimed: float = 0.0) -> dict:
+                           value_aud_claimed: float = 0.0, lead_id: str = None,
+                           source: str = "tg-proposal-button") -> dict:
     """helperِ سیم‌کشی: storeهای پیش‌فرض (state/outcomes + state/spine) را باز کن، رأی را durable
     ثبت کن، ببند. پشتِ OCTOPUS_WIRE_VERDICT_OUTCOME (flag خاموش → no-op). fail-soft.
 
@@ -124,7 +132,7 @@ def record_verdict_durably(*, proposal_id: str, verdict: str, correlation_id: st
         return record_owner_verdict(
             o, proposal_id=proposal_id, verdict=verdict, correlation_id=correlation_id,
             mission_id=mission_id, leg_id=leg_id, value_aud_claimed=value_aud_claimed,
-            event_spine=spine)
+            event_spine=spine, lead_id=lead_id, source=source)
     except Exception as _e:  # noqa: BLE001 — durable ثبت نباید caller را بکشد
         return {"recorded": False, "reason": f"durable-error: {type(_e).__name__}"}
     finally:
