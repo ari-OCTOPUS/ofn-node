@@ -34,8 +34,17 @@ def t_a_mapping_four_types():
     m = jb.map_txn(_t("i1", 594000, "income", owner="abbas"))
     assert m["eligible"] and m["entry"]["lines"][0]["account"] == "1000", m
     assert m["entry"]["lines"][1]["account"] == "4000", m
-    m = jb.map_txn(_t("e1", -11000, "expense", owner="rent"))
-    assert m["entry"]["lines"][0]["account"] == "5200", m
+    # ایزولاسیونِ تست (رأی مالک 2026-07-20): نگاشتِ owner→account از categorize-config.json
+    # (gitignored، PII) می‌آید؛ کامیت `acec0bc` (۱۸ژوئیه) نگاشتِ هاردکد را برای حذفِ PII خالی
+    # کرد → این تست environment-dependent شد. اینجا configِ موقتِ rent→5200 تزریق می‌کنیم تا
+    # تست self-contained شود (چارتِ 5200=اجاره و سورسِ journal_bridge هر دو دست‌نخورده).
+    _orig_ebo = jb._expense_by_owner
+    jb._expense_by_owner = lambda: {"rent": "5200"}
+    try:
+        m = jb.map_txn(_t("e1", -11000, "expense", owner="rent"))
+        assert m["entry"]["lines"][0]["account"] == "5200", m
+    finally:
+        jb._expense_by_owner = _orig_ebo
     m = jb.map_txn(_t("w1", -25000, "wage"))
     assert m["entry"]["lines"][0]["account"] == "5300", m
     m_in = jb.map_txn(_t("tr1", 500000, "transfer"))
