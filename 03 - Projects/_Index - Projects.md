@@ -2,7 +2,7 @@
 type: moc
 status: active
 tags: [moc]
-updated: 2026-07-07
+updated: 2026-07-20
 ---
 
 # ایندکس پروژه‌ها
@@ -17,6 +17,7 @@ updated: 2026-07-07
 | اونلی فنز | [[03 - Projects/اونلی فنز/PROJECT\|PROJECT]] | درآمد آزمایشی — creator brand faceless (فاز validation)؛ زیر نظارت architect؛ در خروجی عمومی: «Project-F» |
 | architect | [[04 - Architect System/architect/PROJECT\|PROJECT]] | لایه مادر — منشور: [[04 - Architect System/architect/ARCHITECT_CHARTER\|CHARTER]] |
 | هیپنوتیزم و خودآگاهی | [[07 - Knowledge/هیپنوتیزم  و خودآگاهی/PROJECT\|PROJECT]] | دانش شخصی — epistemic_status الزامی |
+| WLOS — Weight Loss OS | [[03 - Projects/WLOS - Weight Loss OS/PROJECT\|PROJECT]] | اندام شناختِ مالک برای مغز اصلی — کوچ تلگرامی شخصی (v0.1.1، هنوز live نشده) |
 | Time-Architecture | [[07 - Knowledge/Time-Architecture/PROJECT\|PROJECT]] | معماری زمان — corpus دانش شخصی (kind: area) |
 
 ## نوت‌های کلیدی

@@ -3,7 +3,7 @@ type: reference
 status: active
 tags: [agents, registry, governance]
 created: 2026-07-03
-updated: 2026-07-06
+updated: 2026-07-20
 ---
 
 # AGENT_REGISTRY — رجیستری ایجنت‌های برنامه‌ریزی‌شده
@@ -22,6 +22,7 @@ updated: 2026-07-06
 | projectF-reporter | Project-F 🔒 | گزارش چک‌لیست/تسک | propose-only | PROJECT.md حوزه | گزارش با کد Project-F | هر اشاره به هویت/پلتفرم/محتوا؛ دست زدن به media |
 | knowledge-indexer | هیپنوتیزم | ایندکس و خلاصه | read-only | نوت‌های حوزه | ایندکس (پیشنهادی) | cite کردن fiction-canon بیرون حوزه؛ خروج داده شخصی از لپ‌تاپ (O-04) |
 | vault-cartographer | architect (نقشه‌برداری) — **limb/OLP-1**، parent=Architect/_ops · **boot-coupled 2026-07-12** (PAPER_FULL_FLAGS) · telegram via center key `cartographer` | نقشه/ممیزیِ معماری + گراندینگِ design↔reality از repoِ واقعی | read-only floor / propose-only ceiling | کل vault منهای `.agentignore`/`_Duplicates`/`_Archive`/secrets/هویتِ Project-F | فقط `06 - Architecture Maps/MASTER-*` + پیشنهاد در `00 - Inbox` (propose) | تغییرِ کد/charter/genome؛ verdict؛ اکشنِ خارجی؛ echo از secret یا هویتِ Project-F · شناسنامه: [[05 - Agents/Vault Cartographer]] · لیمب: [[05 - Agents/Vault-Cartographer-LIMB]] |
+| wlos-coach | WLOS (شخصی — [[03 - Projects/WLOS - Weight Loss OS/PROJECT\|PROJECT]]) | کوچ کاهش وزن مالک؛ اندام «شناخت مالک» برای مغز اصلی (دستور مالک 2026-07-20) | ایمنی داخلی خودش (outbox-only، سقف ۲۰/روز، quiet hours) + هر self-mod فقط با تأیید مالک | DB محلی خودش (پستگرس، بیرون git) | فقط تلگرام به مالک از مسیر outbox خودش | خروج PII سلامت به vault/چت/لاگ؛ auto-apply self-mod؛ توکن جدا از @Robo2725 (409-safe)؛ **هنوز live نشده — نیاز به اولین اجرای مالک** |
 | learning-engine | architect (spine عرضی L1–L9) | حلقه یادگیری contract-محور — spec: [[04 - Architect System/architect/04-Docs/2026-07-06 0222 LEARNING-ENGINE-DEPENDENCY-CONTRACT-v1.1-verdicts|v1.1]] · `trigger: loop` · risk posture: **maximum-within-charter** (verdict 2026-07-06) | **L0-shadow اکنون** → L3 (پشت Gate+git+budget) | manifest/ledger/HEARTBEAT/Active Contextها | `learning-engine/LEARNING-STATE.json` خودش + سطر HEARTBEAT + پیشنهاد propose-only | **هر call خارجی (Fugu/partner) تا ثبت کلید+budget = halt**؛ فایل خارج از manifest؛ charter/secret/پول |
 
 ## ناوگان اسکات تحقیق (Research Scout Fleet — فعال، استثنای گیت آری 2026-07-04)

@@ -1,0 +1,44 @@
+== ABN checksum (ABR modulus-89) ==
+PASS  ABR example 51 824 753 556: got True, expected True
+PASS  Telstra 33 051 775 556: got True, expected True
+PASS  ATO 51 824 753 556 with mutation: got False, expected False
+PASS  Too short: got False, expected False
+PASS  Letters stripped then invalid length: got False, expected False
+PASS  Valid with punctuation: got True, expected True
+PASS  Leading zero invalid: got False, expected False
+PASS  Empty: got False, expected False
+== half-up rounding primitive ==
+PASS  0.5 rounds up (5/10): got 1, expected 1
+PASS  0.4 rounds down (4/10): got 0, expected 0
+PASS  2.5 rounds up (25/10): got 3, expected 3
+PASS  exact (30/10): got 3, expected 3
+== line totals (qty milli x unit cents) ==
+PASS  1 x $2,500.00: got 250000, expected 250000
+PASS  2.5 h x $45.00: got 11250, expected 11250
+PASS  1.333 x $3.00: got 400, expected 400
+PASS  0.333 x $1.00: got 33, expected 33
+PASS  3 x $33.33: got 9999, expected 9999
+== GST exclusive mode (add 10%) ==
+PASS  $2,500.00 ex -> GST $250.00: got 25000, expected 25000
+PASS  $0.05 ex -> GST 1c (0.5 up): got 1, expected 1
+PASS  $3.33 ex -> GST 33c: got 33, expected 33
+PASS  $99.99 ex -> GST $10.00: got 1000, expected 1000
+PASS  $0.00 ex -> 0: got 0, expected 0
+== GST inclusive mode (1/11 of total) ==
+PASS  $1,100.00 inc -> GST $100.00: got 10000, expected 10000
+PASS  $82.50 inc -> GST $7.50: got 750, expected 750
+PASS  $9.99 inc -> GST 91c: got 91, expected 91
+PASS  $2,750.00 inc -> GST $250.00: got 25000, expected 25000
+PASS  $0.11 inc -> 1c: got 1, expected 1
+PASS  $0.05 inc -> 0c: got 0, expected 0
+== document scenarios ==
+PASS  quick quote ex: total: got 275000, expected 275000
+PASS  quick quote inc: gst: got 25000, expected 25000
+PASS  quick quote inc: ex subtotal: got 250000, expected 250000
+PASS  S23 checklist $1,100 inc GST: got 10000, expected 10000
+PASS  mixed: gst only on taxable: got 1000, expected 1000
+PASS  mixed: grand total: got 16000, expected 16000
+PASS  balance after partial: got 175000, expected 175000
+PASS  paid when zero: got 0, expected 0
+
+RESULT: ALL CASES PASSED

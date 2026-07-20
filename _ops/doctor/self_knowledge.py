@@ -98,6 +98,19 @@ def _pulse_lanes(n: int = 12) -> list:
     return out[-n:]
 
 
+def _owner_signal() -> dict:
+    """سیگنال WLOS برای شناختِ مالک — پشت OCTOPUS_WIRE_WLOS (پیش‌فرض خاموش)؛
+    فقط فیلدهای whitelist شدهٔ بدون PII از cortex/wlos_bridge. fail-soft → {}."""
+    try:
+        _cx = str(_HERE.parent / "cortex")
+        if _cx not in sys.path:
+            sys.path.insert(0, _cx)
+        import wlos_bridge
+        return wlos_bridge.read_owner_signal()
+    except Exception:  # noqa: BLE001
+        return {}
+
+
 # ── snapshot: عکسِ غنی، چنددامنه‌ای، PII-safe ($0، read-only) ─────────────────────
 def snapshot() -> dict:
     org = _read_json("ORGANISM-STATE.json", {})
@@ -111,7 +124,7 @@ def snapshot() -> dict:
     cardiac = org.get("cardiac", {}) if isinstance(org.get("cardiac"), dict) else {}
     prop = org.get("proposal_metrics", {}) if isinstance(org.get("proposal_metrics"), dict) else {}
     router = org.get("proposal_router", {}) if isinstance(org.get("proposal_router"), dict) else {}
-    return {
+    out = {
         "beat": (org.get("chrono") or {}).get("beat"),
         "started": org.get("started"),
         # آناتومیِ سیم‌کشی: چه روشن، چه خاموش
@@ -136,6 +149,10 @@ def snapshot() -> dict:
         "doctor_self": {"rfcs": _rfc_count(), "box_stepped": (_dir() / "box-latest.json").exists()},
         "telemetry_cost_musd": (tel.get("month") or {}).get("musd") if isinstance(tel.get("month"), dict) else None,
     }
+    sig = _owner_signal()
+    if sig:  # فقط وقتی OCTOPUS_WIRE_WLOS روشن و سیگنال معتبر باشد — وگرنه snapshot دست‌نخورده
+        out["owner_signal"] = sig
+    return out
 
 
 def _extract_json(text: str):
