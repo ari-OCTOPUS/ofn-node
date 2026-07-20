@@ -50,6 +50,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_p0_security_fixes.py", "test_httpauth.py", "test_go_live.py",
          # 2026-07-20 Stage-1 Security: گاردِ P2 (کاکپیت هرگز STOPِ مالک را حذف/overwrite نکند)
          "S1-04_test_cockpit_stop_guard.py",
+         # 2026-07-20 Stage-1 Security: توکنِ HMACِ callbackِ ap: (P3، پشتِ OCTOPUS_WIRE_CB_TOKEN)
+         "S1-05_test_ap_binding.py",
          # 2026-07-20: پل‌های flag-off الحاقِ دو پروژهٔ مالک (TradeQuote / WLOS)
          "test_tradequote_bridge.py", "test_wlos_bridge.py",
          "test_web_research.py", "test_metacognitive.py", "test_discoveries.py",

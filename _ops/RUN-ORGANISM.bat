@@ -24,6 +24,11 @@ echo organism exited - waiting 10 seconds ... press Ctrl+C twice to stop
 timeout /t 10 /nobreak >nul
 if exist "F:\backup\_ops\STOP-ORGANISM" (
     if exist "F:\backup\_ops\RESTART-REQUESTED" (
+        rem P2 (2026-07-20 Stage-1): only clear a STOP whose content is the cockpit's
+        rem own byte-sensitive marker. An owner STOP (any other content) is preserved -
+        rem the launcher never revokes the owner's kill-switch.
+        findstr /x /c:"restart via live cockpit" "F:\backup\_ops\STOP-ORGANISM" >nul 2>&1
+        if errorlevel 1 goto stopped
         del "F:\backup\_ops\STOP-ORGANISM" >nul 2>&1
         del "F:\backup\_ops\RESTART-REQUESTED" >nul 2>&1
         echo RESTART-REQUESTED found - restarting organism with new env ...

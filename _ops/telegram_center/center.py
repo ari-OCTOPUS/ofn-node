@@ -48,6 +48,7 @@ import opslib  # noqa: E402 — import خالص (فقط مسیرها/env)
 import intent as intent_mod        # noqa: E402 — طبقه‌بندِ نیتِ پیامِ آزاد
 import metadata_scan as ms_mod     # noqa: E402 — نقشه‌برداریِ فقط‌خواندنیِ metadata
 import approval_store as aps_mod   # noqa: E402 — پلِ صفِ تأیید اختاپوس
+import callback_token as cbtok      # noqa: E402 — P3: توکنِ HMACِ callback (فلگ OCTOPUS_WIRE_CB_TOKEN)
 import mission as mission_mod       # noqa: E402 — Mission Genome: intent→mission→approval
 try:
     import mission_runner as runner_mod   # noqa: E402 — Runner v0: اجرای ایزولهٔ allowlisted (پشتِ فلگ)
@@ -808,8 +809,19 @@ class Center:
             legacy = aps_mod.sync_to_octopus_state().get("recent", [])
         except Exception:  # noqa: BLE001
             pending, counts, legacy = [], {}, []
+        # P3 (Stage-1): پشتِ OCTOPUS_WIRE_CB_TOKEN → mintِ توکنِ HMAC per-job (bind به
+        # owner_id + created_at). فلگ خاموش → mint=None → کارتِ tokenless بایت‌به‌بایتِ قبلی.
+        _mint = None
         try:
-            return r.render_approvals_queue(pending, counts, legacy)
+            if cbtok.flag_on():
+                _owner = getattr(self._client, "owner_chat_id", None)
+                _stamps = {str(j.get("id")): str(j.get("created_at", ""))
+                           for j in pending if isinstance(j, dict)}
+                _mint = lambda jid, act: cbtok.mint(jid, act, _owner, _stamps.get(str(jid), ""))
+        except Exception:  # noqa: BLE001 — mint اختیاری؛ خطا = کارتِ عادی
+            _mint = None
+        try:
+            return r.render_approvals_queue(pending, counts, legacy, mint=_mint)
         except Exception:  # noqa: BLE001
             return self._approvals_text(), [[{"text": "🔙 منو", "callback_data": "mn:menu"}]]
 
@@ -1056,11 +1068,30 @@ class Center:
         توجه: این فقط state را عوض می‌کند (pending → approved/rejected). اجرای واقعیِ
         job (اگر risk=high) به handlerهای جداگانه یا power-gate واگذار می‌شود — این
         لایه فقط صف است. risk=high → هشدار در toast."""
-        parts = data.split(":", 2)
-        if len(parts) < 3:
-            self._answer(cbq, "نادیده")
-            return {"kind": "approval", "ignored": data[:24]}
-        action, jid = parts[1], _sanitize_id(parts[2])
+        # P3 (Stage-1): وقتی فلگ OCTOPUS_WIRE_CB_TOKEN روشن است، ok/no باید توکنِ HMACِ
+        # معتبر داشته باشند (ap:<action>:<jid>:<token>). callbackِ قدیمیِ tokenless یا
+        # توکنِ نامعتبر/دستکاری‌شده = رد (fail-closed). فلگ خاموش → مسیرِ قبلی بایت‌به‌بایت.
+        if cbtok.flag_on():
+            seg = data.split(":")
+            action = seg[1] if len(seg) > 1 else ""
+            jid = _sanitize_id(seg[2]) if len(seg) > 2 else ""
+            token = seg[3] if len(seg) > 3 else None
+            if not action or not jid:
+                self._answer(cbq, "نادیده")
+                return {"kind": "approval", "ignored": data[:24]}
+            if action in ("ok", "no"):
+                _job = aps_mod.get(jid)
+                _owner = getattr(self._client, "owner_chat_id", None)
+                _stamp = str((_job or {}).get("created_at", ""))
+                if not cbtok.verify(token, jid, action, _owner, _stamp):
+                    self._answer(cbq, "توکنِ نامعتبر/منقضی — کارت را از منو دوباره باز کن")
+                    return {"kind": "approval", "rejected": "bad-token", "id": jid}
+        else:
+            parts = data.split(":", 2)
+            if len(parts) < 3:
+                self._answer(cbq, "نادیده")
+                return {"kind": "approval", "ignored": data[:24]}
+            action, jid = parts[1], _sanitize_id(parts[2])
         ok, msg, verdict = False, "", ""
         try:
             if action == "ok":

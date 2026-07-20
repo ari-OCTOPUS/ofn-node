@@ -855,8 +855,18 @@ class _Handler(BaseHTTPRequestHandler):
             import httpauth as _ha  # RC1: گاردِ CSRF/Origin پشتِ OCTOPUS_HTTP_AUTH
             if not _ha.guard_post(self):
                 return
-        except Exception:  # noqa: BLE001 — گارد اختیاری؛ فلگ‌خاموش/خطا = رفتارِ امروز
-            pass
+        except Exception:  # noqa: BLE001
+            # P1 (2026-07-20 Stage-1): اگر گارد قابلِ import/اجرا نبود ولی مالک آن را روشن
+            # خواسته (OCTOPUS_HTTP_AUTH=on) → fail-closed با 503 (نه fail-open). فلگِ
+            # خاموش/نامشخص = رفتارِ امروز، بایت‌به‌بایت (هیچ رگرسیونی وقتی گارد خواسته نشده).
+            import os as _os_fc
+            if str(_os_fc.environ.get("OCTOPUS_HTTP_AUTH", "")).strip().lower() in (
+                    "1", "true", "yes", "on"):
+                try:
+                    self._send(503, b'{"ok":false,"reason":"http guard unavailable (fail-closed)"}')
+                except Exception:  # noqa: BLE001 — نتوانستیم 503 بفرستیم؛ باز هم اجرا نکن
+                    pass
+                return
         try:
             n = int(self.headers.get("Content-Length", 0))
             body = json.loads(self.rfile.read(n).decode("utf-8")) if n else {}

@@ -654,7 +654,8 @@ def render_map_page(scan_state: dict | None = None) -> tuple:
 # ─── صفحهٔ صف تأیید واقعی (فاز E — bridge اختاپوس) ───────────────────────────────
 def render_approvals_queue(pending: list | None = None,
                            summary_counts: dict | None = None,
-                           legacy_recent: list | None = None) -> tuple:
+                           legacy_recent: list | None = None,
+                           mint=None) -> tuple:
     """کارتِ صفِ تأیید: pending jobs با دکمه‌های ap:ok/no/detail.
 
     pending = approval_store.load_pending()
@@ -697,8 +698,16 @@ def render_approvals_queue(pending: list | None = None,
         if not isinstance(job, dict):
             continue
         jid = str(job.get("id", "?"))[:48]
-        kb.append([{"text": f"✅ تأیید {jid[:20]}", "callback_data": f"ap:ok:{jid}"},
-                   {"text": f"❌ رد {jid[:20]}", "callback_data": f"ap:no:{jid}"},
+        # P3 (2026-07-20 Stage-1): اگر mint داده شده (فلگ OCTOPUS_WIRE_CB_TOKEN روشن)،
+        # ok/no توکنِ HMAC می‌گیرند → ap:ok:<id>:<tok>. mint=None → بایت‌به‌بایتِ قبلی.
+        # detail خواندنی است و توکن نمی‌گیرد.
+        if callable(mint):
+            ok_cb = f"ap:ok:{jid}:{mint(jid, 'ok') or 'x'}"
+            no_cb = f"ap:no:{jid}:{mint(jid, 'no') or 'x'}"
+        else:
+            ok_cb, no_cb = f"ap:ok:{jid}", f"ap:no:{jid}"
+        kb.append([{"text": f"✅ تأیید {jid[:20]}", "callback_data": ok_cb},
+                   {"text": f"❌ رد {jid[:20]}", "callback_data": no_cb},
                    {"text": "📝 جزئیات", "callback_data": f"ap:detail:{jid}"}])
     kb.append([{"text": "🔄 تازه‌سازی", "callback_data": "mn:ap"}])
     kb.append([{"text": "🔙 منو", "callback_data": "mn:menu"}])
