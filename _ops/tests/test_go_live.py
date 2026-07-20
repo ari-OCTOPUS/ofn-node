@@ -4,6 +4,7 @@
 همچنان لازم است، و (۲) ایمنیِ هسته — kill-switch/σ-cap/human-append/سقفِ بودجه — مسیرهای
 جدا و دست‌نخورده‌اند (go-live آن‌ها را باز نمی‌کند).
 """
+import datetime as _dt
 import sys
 from pathlib import Path
 
@@ -22,12 +23,15 @@ def _act(name):
 
 
 def t_a_go_live_opens_date_shield_early():
-    """با GO-LIVE + پرچمِ per-activation → گیت باز (پیش از 2026-07-21)."""
+    """با GO-LIVE + پرچمِ per-activation → گیت باز (پیش از LIVE_GATE_DATE).
+    rollover 2026-07-21: تاریخ داخل تست پین می‌شود (الگوی test_cockpit_golive_honesty)."""
+    _real_gate = opslib.LIVE_GATE_DATE
+    opslib.LIVE_GATE_DATE = _dt.date(2099, 1, 1)
     go = opslib.GO_LIVE_FLAG
     act = _act("ACTIVATION-TEST.flag")
     go.parent.mkdir(parents=True, exist_ok=True)
     try:
-        # بدونِ GO-LIVE → سپرِ تاریخ حاکم (امروز < 2026-07-21)
+        # بدونِ GO-LIVE → سپرِ تاریخ حاکم (پیش از LIVE_GATE_DATE)
         act.write_text("x", "utf-8")
         ok, why = opslib.live_gate_open(act)
         assert ok is False and "live locked" in why
@@ -36,6 +40,7 @@ def t_a_go_live_opens_date_shield_early():
         ok2, why2 = opslib.live_gate_open(act)
         assert ok2 is True and "go-live" in why2
     finally:
+        opslib.LIVE_GATE_DATE = _real_gate
         for f in (go, act):
             if f.exists():
                 f.unlink()
@@ -79,7 +84,10 @@ def t_c_core_safety_is_separate_from_go_live():
 
 
 def t_d_go_live_flag_absent_is_legacy_shield():
-    """بدونِ GO-LIVE → دقیقاً رفتارِ قبلی (سپرِ تاریخ برای همه)."""
+    """بدونِ GO-LIVE → دقیقاً رفتارِ قبلی (سپرِ تاریخ برای همه).
+    rollover 2026-07-21: تاریخ داخل تست پین می‌شود."""
+    _real_gate = opslib.LIVE_GATE_DATE
+    opslib.LIVE_GATE_DATE = _dt.date(2099, 1, 1)
     go = opslib.GO_LIVE_FLAG
     if go.exists():
         go.unlink()
@@ -89,6 +97,7 @@ def t_d_go_live_flag_absent_is_legacy_shield():
         ok, why = opslib.live_gate_open(act)
         assert ok is False and "phase -1 shield" in why
     finally:
+        opslib.LIVE_GATE_DATE = _real_gate
         act.unlink()
 
 

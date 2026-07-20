@@ -83,13 +83,19 @@ def t_e_paid_search_live_locked_today():
 
 
 def t_f_paid_llm_learn_live_locked_today():
-    """ردهٔ paid (یادگیریِ LLM): همان گیتِ دوقفله؛ سندِ unlock در خروجی."""
-    r = wp._exec_paid_lane("llm_learn", {"kind": "llm_learn", "paid": True})
-    assert r.get("ok") is False and "live-locked" in r.get("skipped", ""), r
-    assert "ACTIVATION-WORK-LLM" in r.get("unlock", "")
-    # گیتِ دوقفله: بدونِ ACTIVATION-GO-LIVE، سپرِ تاریخ امروز بسته است
-    ok, why = opslib.live_gate_open(wp.ACT_WORK_LLM)
-    assert ok is False and "live locked" in why
+    """ردهٔ paid (یادگیریِ LLM): همان گیتِ دوقفله؛ سندِ unlock در خروجی.
+    rollover 2026-07-21: قراردادِ «پیش از تاریخ» با پینِ LIVE_GATE_DATE سنجیده می‌شود."""
+    _real_gate = opslib.LIVE_GATE_DATE
+    opslib.LIVE_GATE_DATE = dt.date(2099, 1, 1)
+    try:
+        r = wp._exec_paid_lane("llm_learn", {"kind": "llm_learn", "paid": True})
+        assert r.get("ok") is False and "live-locked" in r.get("skipped", ""), r
+        assert "ACTIVATION-WORK-LLM" in r.get("unlock", "")
+        # گیتِ دوقفله: بدونِ ACTIVATION-GO-LIVE، سپرِ تاریخ بسته است
+        ok, why = opslib.live_gate_open(wp.ACT_WORK_LLM)
+        assert ok is False and "live locked" in why
+    finally:
+        opslib.LIVE_GATE_DATE = _real_gate
 
 
 def t_g_wiring_flag_off_no_work_key():
