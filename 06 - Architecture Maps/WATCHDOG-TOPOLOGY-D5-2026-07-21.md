@@ -1,3 +1,11 @@
+---
+type: architecture
+status: active
+tags: [architecture, watchdog, halt-all, telegram, deployment]
+created: 2026-07-21
+updated: 2026-07-21
+---
+
 # Watchdog topology — HALT-ALL coverage + TG-centre registration design (D5, 2026-07-21)
 
 Design/audit artifact. SOURCE-ONLY change; nothing here registers or touches a live scheduled
