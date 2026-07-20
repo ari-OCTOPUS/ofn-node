@@ -196,14 +196,34 @@ def _baseline_metrics() -> dict:
     pm = _r(STATE / "ORGANISM-STATE.json").get("proposal_metrics") or {}
     if not isinstance(pm, dict):
         pm = {}
-    return {"confirmed_revenue": fit.get("confirmed", 0),
-            "revenue_cells": len(fit.get("revenue_by_cell", {}) or {}),
-            "total_discoveries": n_disc,
-            "proposals_delivered": int(pm.get("proposals_delivered") or 0),
-            "proposal_outcomes": int(pm.get("proposal_outcomes") or 0),
-            "proposal_positive": int(pm.get("proposal_positive") or 0),
-            "proposal_accept_rate": float(pm.get("proposal_accept_rate") or 0.0),
-            "proposal_value_aud": float(pm.get("proposal_value_aud") or 0.0)}
+    out = {"confirmed_revenue": fit.get("confirmed", 0),
+           "revenue_cells": len(fit.get("revenue_by_cell", {}) or {}),
+           "total_discoveries": n_disc,
+           "proposals_delivered": int(pm.get("proposals_delivered") or 0),
+           "proposal_outcomes": int(pm.get("proposal_outcomes") or 0),
+           "proposal_positive": int(pm.get("proposal_positive") or 0),
+           "proposal_accept_rate": float(pm.get("proposal_accept_rate") or 0.0),
+           "proposal_value_aud": float(pm.get("proposal_value_aud") or 0.0)}
+    # Worker D (fake delivery ≠ real delivery): اگر producer شمارِ ارسالِ واقعی را صادقانه
+    # گزارش دهد، عبورش بده — ولی هرگز از غیاب جعل نکن (کلیدِ نبوده = ننویس، نه صفرِ ساختگی).
+    if "proposals_sent" in pm:
+        out["proposals_sent"] = int(pm.get("proposals_sent") or 0)
+    return out
+
+
+def _movement_keys(now: dict, base: dict) -> tuple:
+    """کلیدهای مقایسهٔ moved — دو قاعدهٔ صداقت (Worker D):
+      (۱) کلیدِ غایب در baseline هرگز حرکت نمی‌سازد — baselineی که متریکی را نسنجیده
+          نمی‌تواند شاهدِ رشدِ آن باشد (missing data must not become success).
+      (۲) اگر هر دو طرف proposals_sent دارند، «ارسالِ واقعی» جایگزینِ proposals_delivered
+          می‌شود — کارتی که send نشده کار نیست (fake delivery != real delivery)."""
+    keys = []
+    for k in _METRIC_KEYS:
+        if k == "proposals_delivered" and "proposals_sent" in now and "proposals_sent" in base:
+            k = "proposals_sent"
+        if k in now and k in base:
+            keys.append(k)
+    return tuple(keys)
 
 
 def measure() -> dict:
@@ -223,7 +243,7 @@ def measure() -> dict:
     if not intents:
         return {"tracked": 0, "moved": False, "now": now}
     oldest = intents[0].get("baseline", {})
-    moved = any(now.get(k, 0) > oldest.get(k, 0) for k in _METRIC_KEYS)
+    moved = any(now.get(k, 0) > oldest.get(k, 0) for k in _movement_keys(now, oldest))
     _close_intents(intents, rows, now)
     return {"tracked": len(intents), "moved": moved, "now": now, "since": oldest}
 
@@ -246,7 +266,7 @@ def _close_intents(intents: list[dict], rows: list[dict], now: dict) -> None:
                 continue                      # نیتِ بی‌id بستار‌پذیر نیست
             rid = str(rid).strip()
             base = r.get("baseline") or {}
-            moved_i = any(now.get(k, 0) > base.get(k, 0) for k in _METRIC_KEYS)
+            moved_i = any(now.get(k, 0) > base.get(k, 0) for k in _movement_keys(now, base))
             if last.get(rid) == moved_i:
                 continue                      # بیت عوض نشده → دوباره‌نویسی نکن
             opslib.append_jsonl(OUTCOMES, {
