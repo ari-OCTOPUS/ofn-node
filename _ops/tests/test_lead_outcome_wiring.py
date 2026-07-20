@@ -254,6 +254,48 @@ def t_f_event_spine_dual_write():
         os.environ.pop(esx.FLAG, None)
 
 
+def t_g_memory_gate_writes_episodic():
+    """LEG-08: با OCTOPUS_WIRE_MEMORY_GATE روشن، beat یک حافظهٔ episodicِ PII-free از تصمیم
+    می‌نویسد (تولیدکنندهٔ واقعیِ گیت)؛ خاموش → صفر نوشت. متنِ خامِ لید هرگز در حافظه نیست."""
+    import memory_store as ms
+    import gate as mg
+    mem_db = opslib.STATE_DIR / "memory" / "memory.db"
+    # (الف) گیت خاموش → beat می‌نویسد ولی حافظه نه
+    os.environ["OCTOPUS_WIRE_LEAD_DISCOVERY"] = "1"
+    os.environ["OCTOPUS_WIRE_LEAD_OUTCOME"] = "1"
+    os.environ.pop(mg.FLAG, None)
+    try:
+        r, _c = _run_beat("mgoff")
+        assert r["outcomes"]["recorded"] == 1 and "memories_written" not in r["outcomes"], r["outcomes"]
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_LEAD_DISCOVERY", None)
+        os.environ.pop("OCTOPUS_WIRE_LEAD_OUTCOME", None)
+    # (ب) گیت روشن → دقیقاً یک حافظهٔ episodic، PII-free
+    os.environ["OCTOPUS_WIRE_LEAD_DISCOVERY"] = "1"
+    os.environ["OCTOPUS_WIRE_LEAD_OUTCOME"] = "1"
+    os.environ[mg.FLAG] = "1"
+    try:
+        r, corr = _run_beat("mgon")
+        assert r["outcomes"]["memories_written"] == 1, r["outcomes"]
+        m = ms.MemoryStore(path=mem_db)
+        try:
+            rec = m.get("episodic", corr)          # mkey = correlation_id
+            assert rec and rec["namespace"] == "episodic", rec
+            assert "lead-decision" in rec["content"], rec
+            # PII-safety: متنِ خامِ لید (آدرس/شرح) هرگز در حافظه نیست
+            assert "Wattle" not in rec["content"] and "Remedial" not in rec["content"], rec
+        finally:
+            m.close()
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_LEAD_DISCOVERY", None)
+        os.environ.pop("OCTOPUS_WIRE_LEAD_OUTCOME", None)
+        os.environ.pop(mg.FLAG, None)
+        try:
+            mem_db.unlink()
+        except OSError:
+            pass
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

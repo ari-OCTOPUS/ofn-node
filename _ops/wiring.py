@@ -1710,7 +1710,7 @@ def _record_lead_decisions(items, beat: int = 0) -> dict:
     out = {"recorded": 0, "errors": 0}
     if not items:
         return out
-    o = r = mem = spine = None
+    o = r = mem = spine = mgate = None
     _esx = None
     try:
         for _p in (str(_HERE / "outcomes"), str(_HERE / "memory"),
@@ -1724,14 +1724,24 @@ def _record_lead_decisions(items, beat: int = 0) -> dict:
         odir.mkdir(parents=True, exist_ok=True)
         o = _osx.OutcomeStore(path=odir / "outcomes.db")
         r = _drx.DecisionReceiptStore(odir / "receipts.db")
-        # حافظه فقط اگر Memory Gate از قبل db ساخته باشد — این beat هرگز db خالی نمی‌سازد
+        # حافظه: READ (memories_used) اگر db از قبل هست؛ WRITE (episodic) اگر Memory Gate
+        # روشن است (آن‌گاه db ساخته می‌شود — این beat تولیدکنندهٔ واقعیِ گیت است، رفعِ dead-flag).
         mem_db = opslib.STATE_DIR / "memory" / "memory.db"
-        if mem_db.exists():
+        _gate_on = False
+        try:
+            import gate as _mgx   # noqa: WPS433
+            _gate_on = _mgx.flag_on()
+        except Exception:  # noqa: BLE001
+            _mgx = None
+        if mem_db.exists() or _gate_on:
             try:
                 import memory_store as _msx  # noqa: WPS433
+                mem_db.parent.mkdir(parents=True, exist_ok=True)
                 mem = _msx.MemoryStore(path=mem_db)
-            except Exception:  # noqa: BLE001 — بازیابیِ حافظه اختیاری است
-                mem = None
+                if _gate_on and _mgx is not None:
+                    mgate = _mgx.MemoryGate(mem)
+            except Exception:  # noqa: BLE001 — حافظه اختیاری است
+                mem = mgate = None
         # LEG-07: Event Spine (اختیاری، پشتِ OCTOPUS_WIRE_SPINE) — dual-write زنجیرهٔ
         # decided→delivered به SoTِ یگانه. flag خاموش → spine=None → صفر I/O (db خالی نمی‌سازد).
         try:
@@ -1764,6 +1774,18 @@ def _record_lead_decisions(items, beat: int = 0) -> dict:
                                                 "verdict": res["verdict"]}})
                             out["spine_events"] = out.get("spine_events", 0) + 2
                         except Exception:  # noqa: BLE001 — spine نباید ثبت را بشکند
+                            pass
+                    if mgate is not None:   # LEG-08: حافظهٔ episodic از تصمیم — PII-free
+                        try:                # (فقط IDهای داخلی، هرگز متنِ خامِ لید)
+                            mgate.submit({
+                                "namespace": "episodic", "source": "lead_outcome_recorder",
+                                "mkey": res["correlation_id"], "salience": 0.4,
+                                "privacy": "scrubbed",
+                                "content": (f"lead-decision proposal={res['proposal_id']} "
+                                            f"corr={res['correlation_id']} verdict={res['verdict']} "
+                                            f"value_aud={res.get('value_aud_claimed')}")})
+                            out["memories_written"] = out.get("memories_written", 0) + 1
+                        except Exception:  # noqa: BLE001 — حافظه نباید ثبت را بشکند
                             pass
             except Exception:  # noqa: BLE001 — یک لیدِ بد کلِ ثبت را نکشد
                 out["errors"] += 1
