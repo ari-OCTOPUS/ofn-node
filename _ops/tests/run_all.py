@@ -65,6 +65,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_event_spine.py",
          # 2026-07-20 یکپارچگی: context fencing (DATA_NOT_INSTRUCTION + غربالِ injection، flag-off passthrough)
          "test_context_fence.py",
+         # 2026-07-20 آیتم۲: reachabilityِ context fence — model_router.ask ورودیِ LLM را غربال
+         # می‌کند (پشتِ OCTOPUS_WIRE_CONTEXT_FENCE، observe-only، flag-off passthrough؛ dead-flag رفع)
+         "test_context_fence_wiring.py",
          # 2026-07-20 D-G: قراردادِ STOP — HALT-ALL توسطِ watchdog.py + هر دو watchdogِ .ps1 honor می‌شود
          "test_stop_contract.py",
          # 2026-07-20 یکپارچگی: بستنِ حلقهٔ لید record-only (lead→receipt→outcome، memories_used از

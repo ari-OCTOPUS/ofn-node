@@ -179,6 +179,23 @@ def ask(task: str, prompt: str, system: str = "", max_tokens: int = 400,
     گیتِ عمومیِ _local_quality_ok. روی مسیرِ پولی/tierهای دیگر هیچ اثری ندارد."""
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
         return {"ok": False, "reason": "kill-switch"}
+    # CONTEXT-FENCE (پشتِ OCTOPUS_WIRE_CONTEXT_FENCE): promptِ ورودی ممکن است دادهٔ نامعتمد
+    # (لیدِ خام/وب/ایمیل) داشته باشد؛ برای الگوهای prompt-injection غربالش کن. flag خاموش →
+    # passthroughِ بایت‌به‌بایت. observe-only در v1: تشخیص → alert (side-effect واقعی)، هرگز
+    # prompt را تغییر/بلاک نمی‌کند (امنِ مسیرِ داغِ LLM). §۴ fail-soft — غربال tick را نمی‌کشد.
+    try:
+        import os as _os3
+        _cd = _os3.path.dirname(_os3.path.abspath(__file__))
+        if _cd not in sys.path:
+            sys.path.insert(0, _cd)
+        import context_fence as _fence   # noqa: WPS433 — همسایهٔ همین ماژول
+        if _fence.enabled():
+            _scr = _fence.screen(prompt)
+            if not _scr.get("clean", True):
+                opslib.alert([f"context_fence: ورودیِ مشکوک به prompt-injection در "
+                              f"task={str(task)[:32]!r} — کدها: {_scr.get('findings')}"])
+    except Exception:  # noqa: BLE001 — غربال هرگز مسیرِ LLM را نمی‌کشد
+        pass
     want = tier
     if not want and os.environ.get("CORTEX_ROUTE_SCORER"):
         want = _scored_tier(task)
