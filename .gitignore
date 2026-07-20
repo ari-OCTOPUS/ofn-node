@@ -136,3 +136,10 @@ _octopus/
 
 # chord shadow ledger (runtime, hash-chained) — 2026-07-18
 _ops/chord/state/
+
+# ACTIVATION levers — runtime owner switches, MUST NOT be committed (2026-07-21, D2).
+# Committing them (old "Wave 0 live" 6a38af8) meant a restart would silently open live/paid
+# gates (paid cortex, work-llm, heart-doctor, debate, self-improve-auto, pulse, go-live date
+# bypass). Activation is an explicit owner act via the runbook, never a tracked default.
+# The GOVERNOR-LLM.flag.off (disabled marker) is intentionally NOT matched by this pattern.
+_ops/ACTIVATION-*.flag

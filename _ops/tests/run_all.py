@@ -97,6 +97,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # single-use، replay-safe؛ هرگز delivered/settled/revenue)
          "test_menu_v2_honesty.py",
          "test_tg_verdict_durable.py",
+         # 2026-07-21 D2: اهرم‌های ACTIVATION-*.flag از گیت untrack شدند (۸ فایل، شاملِ go-live/
+         # cortex-paid/work-llm/heart-doctor/self-improve-auto) → غیابشان هر گیتِ زنده را می‌بندد
+         # حتی post-rollover؛ فعال‌سازی = عملِ صریحِ مالک نه پیش‌فرضِ commit‌شده
+         "test_activation_untracked.py",
          # 2026-07-20 D-G: قراردادِ STOP — HALT-ALL توسطِ watchdog.py + هر دو watchdogِ .ps1 honor می‌شود
          "test_stop_contract.py",
          # 2026-07-20 یکپارچگی: بستنِ حلقهٔ لید record-only (lead→receipt→outcome، memories_used از

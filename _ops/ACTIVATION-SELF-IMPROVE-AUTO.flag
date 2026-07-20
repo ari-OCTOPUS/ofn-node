@@ -1,1 +1,0 @@
-owner grant 2026-07-11: risk-graded auto-approval ON. System auto-applies ONLY low-risk $0 reversible whitelist knobs, only if its own test suite is green + observability live + 24h refractory. High-risk (code/money/spawn/genome/human-append) ALWAYS escalates to owner. Delete this file to revoke instantly.
