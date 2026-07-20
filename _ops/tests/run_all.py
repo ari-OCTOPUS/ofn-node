@@ -56,6 +56,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_tradequote_bridge.py", "test_wlos_bridge.py",
          # 2026-07-20: spineِ durable outcome + Paper Lead MVO (پیرو Stage-1، دلتا-اسکن Q20)
          "test_outcome_spine.py",
+         # 2026-07-20: Decision Receipt (immutable، append-only، join به outcome_store؛ inert، v1 فقط ثبت)
+         "test_decision_receipt.py",
          "test_web_research.py", "test_metacognitive.py", "test_discoveries.py",
          "test_events.py", "test_part_loops.py", "test_auto_approve.py",
          # 2026-07-16: ماتریسِ ردهٔ خودمختاری (رأی مالک: گیتِ انسانی فقط برای مهم‌ها) —
