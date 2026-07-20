@@ -23,12 +23,13 @@ import harness  # noqa: E402
 harness.setup("verdict-outcome")
 
 _OPS = harness.REAL_VAULT / "_ops"
-for _p in (str(_OPS), str(_OPS / "outcomes")):
+for _p in (str(_OPS), str(_OPS / "outcomes"), str(_OPS / "spine")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 import opslib                     # noqa: E402
 import outcome_store as osx       # noqa: E402
 import verdict_recorder as vr     # noqa: E402
+import event_spine as esx         # noqa: E402
 import live_loop as ll           # noqa: E402
 
 
@@ -125,6 +126,30 @@ def t_f_wiring_flag_on_durable():
             o.close()
     finally:
         os.environ.pop(vr.FLAG, None)
+
+
+def t_h_spine_second_domain_proposal():
+    """Sol-T4: با SPINE روشن، رأی به دامنهٔ دومِ spine (proposal) هم dual-write می‌شود — نه فقط lead."""
+    os.environ[vr.FLAG] = "1"
+    os.environ[esx.FLAG] = "1"
+    try:
+        loop = ll.LiveLoop()
+        loop._proposal_cb["tokS"] = {"proposal_id": "PSPINE", "amount": 300.0, "kind": "quote",
+                                     "leg_id": "lead", "correlation_id": "corr-s", "mission_id": "mS"}
+        loop.record_proposal_outcome_by_token("tokS", "ok")
+        sp = opslib.STATE_DIR / "spine" / "spine.db"
+        assert sp.exists(), "flag روشن باید spine.db بسازد"
+        s = esx.EventSpine(path=sp)
+        try:
+            evs = s.events(correlation_id="corr-s")
+            assert evs and evs[0]["domain"] == "proposal", evs   # دامنهٔ دوم (نه lead)
+            assert evs[0]["event_type"] == "accepted-measurement", evs
+            assert evs[0]["producer"] == "owner_verdict", evs[0]
+        finally:
+            s.close()
+    finally:
+        os.environ.pop(vr.FLAG, None)
+        os.environ.pop(esx.FLAG, None)
 
 
 def t_g_structural_no_effector():

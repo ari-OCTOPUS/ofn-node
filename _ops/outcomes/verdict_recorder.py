@@ -43,11 +43,16 @@ def event_type_for(verdict: str) -> "str | None":
 
 def record_owner_verdict(outcome_store, *, proposal_id: str, verdict: str,
                          correlation_id: str = None, mission_id: str = None,
-                         leg_id: str = None, value_aud_claimed: float = 0.0) -> dict:
+                         leg_id: str = None, value_aud_claimed: float = 0.0,
+                         event_spine=None) -> dict:
     """رأیِ مالک را MEASUREMENTِ پایدار ثبت کن. خروجی: {recorded, event_type?, reason?}.
 
     idempotent: همان (proposal, event_type) دوباره → recorded=False (رویدادِ نو نوشته نشد).
-    هرگز delivered/settled/revenue استنتاج نمی‌کند؛ value فقط CLAIMِ accepted."""
+    هرگز delivered/settled/revenue استنتاج نمی‌کند؛ value فقط CLAIMِ accepted.
+
+    Sol-T4: اگر event_spine داده شود (و flagش روشن باشد)، همین رأی را با **domain="proposal"**
+    به SoTِ یگانه هم dual-write می‌کند — spine را از lead-only به دو دامنه می‌برد (اثباتِ
+    گسترش؛ نه ادعای system-wide تا accounting/ziman/doctor هم producer داشته باشند)."""
     et = event_type_for(verdict)
     if et is None:
         return {"recorded": False, "reason": f"non-measurement verdict {verdict!r}"}
@@ -67,5 +72,18 @@ def record_owner_verdict(outcome_store, *, proposal_id: str, verdict: str,
           "payload": {"owner_verdict_raw": str(verdict)[:40], "source": "tg-proposal-button",
                       "measurement_only": True}}
     wrote = bool(outcome_store.record(ev))
+    spine_wrote = False
+    if event_spine is not None:   # Sol-T4: دامنهٔ دومِ spine (proposal) — fail-soft
+        try:
+            import event_spine as _esx   # noqa: WPS433
+            if _esx.flag_on():
+                _esx.dual_write(event_spine, {
+                    "event_type": et, "domain": "proposal",
+                    "correlation_id": corr, "mission_id": str(mission_id or ""),
+                    "subject": pid, "producer": "owner_verdict", "trust": "OWNER_CONFIRMED",
+                    "payload": {"leg_id": str(leg_id or "unknown"), "measurement_only": True}})
+                spine_wrote = True
+        except Exception:  # noqa: BLE001 — spine نباید ثبتِ رأی را بکشد
+            spine_wrote = False
     return {"recorded": wrote, "event_type": et, "idempotency_key": idem,
-            "value_aud_claimed": val}
+            "value_aud_claimed": val, "spine": spine_wrote}
