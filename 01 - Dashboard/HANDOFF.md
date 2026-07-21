@@ -1,6 +1,6 @@
 ---
 type: handoff
-updated: 2026-07-20
+updated: 2026-07-21
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
@@ -8,6 +8,8 @@ updated: 2026-07-20
 > قاعده: این فایل ایندکسِ wikilink است، زیرِ ۲۰۰ خط — نه آرشیو. تاریخچهٔ کاملِ قبلی: `_Archive/Logs/HANDOFF-archive-2026-07-16.md` (۲۶۳KB، قرنطینه‌شده 2026-07-16).
 
 ## وضعِ لحظه‌ای
+
+- ✅ **2026-07-21 (بعدازظهر، «DEPLOY: GO» مالک + انتخابِ «حفظ کن و deploy») — DEPLOY انجام شد: درختِ زنده روی کانونی `master=206f43b`، probe ‏۷/۷ PASS.** مسیر: سه نسل فیکسِ اسکریپتِ deploy (گیتِ dirty فقط-tracked چون STOP-ORGANISM خودش untrackedِ الزامی است و گیتِ قبلی هرگز پاس نمی‌شد؛ گوچای PS5.1 ‏`2>&1`+EAP=Stop که collision-list را می‌بلعید؛ preflight بلندِ untracked↔target + checksum self-lock) → برنچِ بکاپِ **محلی** `backup/pre-deploy-2026-07-21` (`28db463`؛ ۱۸+۵ دلتای tracked شاملِ **فیکسِ hermetic تستِ journal_bridge که در کانونی نیست** — عمداً push نشده تا اسکنِ secret) → تکِ تعارضِ untracked (نسخهٔ زندهٔ `test_orchestrator_compliance.py`) به snapshot **منتقل** شد → checkout. ‏snapshot کامل: `E:\deploy-snapshots\live-28db463` (دو bundle ‏verify-شده + کپیِ untrackedها + checksums + collisions). نتیجه: **۸ فلگِ ACTIVATION از دیسک غایب + `paid_gate()=CLOSED` (verify مستقل)** → آیتمِ داغِ «گیتِ پولی روی دیسک باز» بسته ✅؛ STOP بایت‌به‌بایت (`c8fe7176…`)؛ 8771 پایین؛ cortex/cockpit روی کدِ کانونی؛ ۴ scheduled-taskِ واچ‌داگ حینِ deploy موقتاً disable و بعد **re-enable** شد؛ صفر poller تلگرام. ماژول‌های stagedِ untracked (`heart/cognition_effect.py`+`heart/fuel_meter.py`+`telegram_center/llm_intent.py`+~۱۶ تست) روی دیسک حفظ شدند — یتیم/صفر-import؛ ادغامشان رأیِ جدا. حینِ کار جلسهٔ موازی master را به `55544da` (بستهٔ Trust-Engine) برد → فیکس‌ها rebase و master یکی شد. **⛔ ACTIVATION همچنان بلاک روی چرخشِ توکنِ BotFather (فقط مالک)** — runbook: `_ops/deploy/ACTIVATION-RUNBOOK-2026-07-21.ps1` + [[../_ops/deploy/DEPLOY-2026-07-21|DEPLOY-2026-07-21]]. ورودی‌های 🔴 قدیمیِ پایین دربارهٔ paid_gate/فلگ‌ها **superseded**.
 
 - 🔎 **2026-07-21 (بامداد، «تحلیل عمیق و دیباگِ کلِ wiring») — ممیزیِ read-onlyِ کلِ سیم‌کشی روی master=`4eb5543` (۵ ممیزِ موازی + راستی‌آزمایی).** سندِ کامل: [[../06 - Architecture Maps/MASTER-WIRING-DEBUG-2026-07-21|MASTER-WIRING-DEBUG]]. **یافته‌های داغ:** (۱) 🔴 **سپرِ تاریخ `LIVE_GATE_DATE` امروز رسید + ۸ فایلِ `ACTIVATION-*.flag` فیزیکی روی دیسکِ درختِ کاری/زنده حاضرند** (git rm --cached فایل را نگه می‌دارد؛ کلونِ تازه پاک) → هر دو نیمهٔ گیتِ پولی/زنده باز است؛ `paid_gate()` OPEN؛ overrideِ قلبِ زنده ۶/۸ گیت روی دیسک GREEN (فقط ۳ فلگِ env فاصله). (۲) 🔴 **green-lie:** از ۲۳۵ تست، ۲۳۴ واقعاً اجرا؛ `test_mining_wiring.py` صفر assertion (pytest-style بدون `__main__`، توابعِ ناموجود). (۳) فقط ۳ از ۷ پا خطِ ارزشِ dispatch‌شده (Lead/Ziman/Accounting)؛ Mining/Crypto فقط status. (۴) dead-flag `WIRE_FITNESS`/cosmetic `WIRE_MINING`/dead `WIRE_TELEGRAM`؛ orphan `SprintRunner`+`drawdown_guard`(P0-money، صفر importer)+ziman_biology+~۱۲ ماژول. (۵) chrono=تک‌نقطهٔ خرابیِ بی‌آلارم؛ 409/singleton فقط advisory؛ `ms:test` token-gated نیست. **سالم تأییدشد:** STOP در ۴۹ سایت honor، صفر مسیرِ حذفِ STOP؛ ps_writeback fail-closed؛ دکمه‌ها measurement-only. لیستِ کاملِ نقص‌ها (P0/P1/P2) در سند.
 
