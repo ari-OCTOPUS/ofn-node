@@ -337,6 +337,13 @@ class ChronoBus:
 
 
 # ─── EffectorGate — تک‌گلوگاهِ TINV-7 (HeartDesign invariant 5؛ kill supreme 7) ──
+# kindهای «per-effect» = اثرهای اثرگذار-بر-مشتری (ارسالِ خروجی). این‌ها هرگز با
+# release_gated_effects (bulk، یک human-append همهٔ pendingها را releasable می‌کند) آزاد
+# نمی‌شوند — فقط با release_one (یکی-یکی، صریح) از مسیرِ per-effect gate. بستنِ footgunِ
+# batch-release برای ارسالِ به مشتری (LEAD-SAFETY-C1، رأی مالک 2026-07-21).
+_PER_EFFECT_KINDS = frozenset({"lead_outbound", "customer_send"})
+
+
 class GateClosed(Exception):
     pass
 
@@ -379,11 +386,37 @@ class EffectorGate:
 
     def release_gated_effects(self, entry: dict) -> int:
         """پس از human-append (DOC-B §9 `on_human_judgment`): هر pendingِ موجود
-        مجازِ settle می‌شود؛ release_ref = hash همان append (ردِ audit)."""
+        مجازِ settle می‌شود؛ release_ref = hash همان append (ردِ audit).
+
+        **استثنا (LEAD-SAFETY-C1):** kindهای per-effect (`_PER_EFFECT_KINDS` = ارسالِ به
+        مشتری) از این bulk-release مستثنی‌اند — یک رأیِ انسانی نباید هر ارسالِ pendingِ مشتری
+        را یک‌جا مجاز کند. آن‌ها فقط با `release_one` (صریح، یکی-یکی) آزاد می‌شوند."""
         ref = entry.get("hash", "")
+        _pk = sorted(_PER_EFFECT_KINDS)
+        _ph = ",".join("?" for _ in _pk)
         cur = self.db.ex("UPDATE gated_effect SET status='releasable', release_ref=? "
-                         "WHERE status='pending'", (ref,))
+                         f"WHERE status='pending' AND kind NOT IN ({_ph})",
+                         (ref, *_pk))
         return cur.rowcount
+
+    def release_one(self, effect_id: str, entry: dict) -> bool:
+        """آزادسازیِ **دقیقاً یک** effect با id (نه batch) — مسیرِ اجباریِ kindهای per-effect
+        (ارسالِ به مشتری). release_ref = hash همان appendِ انسانیِ مختصِ همین effect (ردِ audit).
+        fail-closed: بدونِ ref، یا اگر effect دقیقاً یک ردیفِ pending نباشد → False (چیزی آزاد نمی‌شود).
+        این تنها راهِ releasable شدنِ یک kindِ per-effect است؛ authorizationِ صریح بالادست
+        (lead_effect_gate) تضمین می‌کند این متد فقط برای effectِ رأی‌خوردهٔ همان لید صدا شود."""
+        ref = str(entry.get("hash") or "").strip()
+        if not ref:
+            self._note("EFFECT_REFUSED", {"effect_id": effect_id,
+                                          "reason": "release_one without append ref"})
+            return False
+        cur = self.db.ex("UPDATE gated_effect SET status='releasable', release_ref=? "
+                         "WHERE effect_id=? AND status='pending'", (ref, effect_id))
+        ok = cur.rowcount == 1
+        self._note("EFFECT_RELEASE_ONE" if ok else "EFFECT_REFUSED",
+                   {"effect_id": effect_id, "release_ref": ref,
+                    "ok": ok, "reason": None if ok else "no single pending row"})
+        return ok
 
     def status_of(self, effect_id: str) -> str | None:
         """وضعیتِ authoritative یک effect را فقط‌خواندنی برمی‌گرداند.

@@ -105,6 +105,11 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # owner_menu→submit_candidate + launcherِ boundary (flag-off) + freezeِ inboxِ قدیمی +
          # فیکسِ کرشِ نهفتهٔ EffectorGate(db=None). همه flag-off = parity.
          "test_lead_wiring.py",
+         # 2026-07-21 LEAD-SAFETY-C1: گیتِ per-effect + کشتنِ footgunِ batch-release — kindهای
+         # lead_outbound هرگز با یک human-append آزاد نمی‌شوند (release_gated_effects مستثنی)؛
+         # فقط release_one صریح + authorization + consent-recheck (market_signal/synthetic هرگز)؛
+         # outbound worker همیشه NOT_ARMED (صفر ارسال). flag OCTOPUS_WIRE_LEAD_OUTBOUND خاموش.
+         "test_lead_effect_gate.py",
          # 2026-07-21 Trust-Engine D6: گاردِ stalenessِ releasable در لایهٔ bridge (chrono
          # دست‌نخورده) — پیش از settle، releasableِ کهنه refuse می‌شود (شکافی که sweep_stale_effects
          # پوشش نمی‌داد چون فقط pending را جارو می‌کند)
