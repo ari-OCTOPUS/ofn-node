@@ -123,7 +123,9 @@ def may_release(effect_id: str, candidate: dict, *, gate=None) -> dict:
         ctype = cf.classify(candidate if isinstance(candidate, dict) else {})
         if ctype == "market_signal":
             return {"allow": False, "reason": "market_signal_never_sends"}
-        channel = str(((candidate or {}).get("source") or {}).get("channel") or "")
+        # channel را دقیقاً مثلِ classify نرمال می‌کنیم (strip) + casefold — راستی‌آزماییِ متخاصمِ
+        # 2026-07-21 نشان داد مقایسهٔ خامِ ' synthetic_test' (فاصله/تب/newline) گارد را دور می‌زد.
+        channel = str(((candidate or {}).get("source") or {}).get("channel") or "").strip().casefold()
         if channel == "synthetic_test":
             return {"allow": False, "reason": "synthetic_never_sends"}
         if not cf.may_outreach(candidate if isinstance(candidate, dict) else {}):

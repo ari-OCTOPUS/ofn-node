@@ -190,6 +190,38 @@ def t_k_no_network_imports():
         assert not leaked, f"{mod.__name__}: سطحِ شبکهٔ ممنوع import شد: {leaked}"
 
 
+def t_l_batch_allowlist_blocks_noncanonical_customer_kinds():
+    """رگرسیونِ متخاصم (2026-07-21): batch-release حالا allowlist است — kindهای
+    غیر-canonicalِ ارسال (casing/whitespace/synonym) fail-safe فقط per-effect می‌روند."""
+    gate, db = _gate()
+    # kindهای پول (هر case) → همچنان batch-release
+    e_send = gate.request("send", "m1", beat=1)
+    e_pay = gate.request("PAY", "m2", beat=1)          # uppercase پول (test_telegram_channel)
+    # kindهای ارسال با هجیِ غیر-canonical → نباید batch شوند
+    e_up = gate.request("LEAD_OUTBOUND", "c1", beat=1)
+    e_sp = gate.request("lead_outbound ", "c2", beat=1)   # trailing space
+    e_syn = gate.request("sms_send", "c3", beat=1)         # synonym خارج از allowlist
+    gate.release_gated_effects({"hash": "h"})
+    assert gate.status_of(e_send) == "releasable"     # پول آزاد شد
+    assert gate.status_of(e_pay) == "releasable"      # PAY (lower(trim)→pay) آزاد شد
+    assert gate.status_of(e_up) == "pending", "LEAD_OUTBOUND نباید batch شود"
+    assert gate.status_of(e_sp) == "pending", "'lead_outbound ' نباید batch شود"
+    assert gate.status_of(e_syn) == "pending", "sms_send (سینونیمِ ناشناخته) نباید batch شود"
+
+
+def t_m_synthetic_guard_normalizes_whitespace():
+    """رگرسیونِ متخاصم: کانالِ ' synthetic_test' (فاصله/تب/newline/case) دیگر گارد را دور نمی‌زند."""
+    gate, db = _gate()
+    for ch in (" synthetic_test", "synthetic_test ", "\tsynthetic_test", "Synthetic_Test", "synthetic_test\n"):
+        eid = gate.request("lead_outbound", f"syn-{ch.strip()}", beat=1)
+        leg.authorize(eid, "syn", "tok")
+        cand = dict(_consented())
+        cand["source"] = {"channel": ch, "source_id": "owner"}
+        r = leg.may_release(eid, cand, gate=gate)
+        assert r["allow"] is False, (repr(ch), r)      # هرگز allow
+        assert "synthetic" in r["reason"] or "market_signal" in r["reason"], (repr(ch), r)
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

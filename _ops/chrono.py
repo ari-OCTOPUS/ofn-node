@@ -337,10 +337,14 @@ class ChronoBus:
 
 
 # ─── EffectorGate — تک‌گلوگاهِ TINV-7 (HeartDesign invariant 5؛ kill supreme 7) ──
-# kindهای «per-effect» = اثرهای اثرگذار-بر-مشتری (ارسالِ خروجی). این‌ها هرگز با
-# release_gated_effects (bulk، یک human-append همهٔ pendingها را releasable می‌کند) آزاد
-# نمی‌شوند — فقط با release_one (یکی-یکی، صریح) از مسیرِ per-effect gate. بستنِ footgunِ
-# batch-release برای ارسالِ به مشتری (LEAD-SAFETY-C1، رأی مالک 2026-07-21).
+# batch-release (release_gated_effects، یک human-append همهٔ pendingها را releasable می‌کند)
+# فقط برای kindهای پول/داخلیِ شناخته‌شده مجاز است — **allowlist، نه denylist** (LEAD-SAFETY-C1،
+# رأی مالک 2026-07-21؛ سخت‌شده پس از راستی‌آزماییِ متخاصم که نشان داد denylist با casing/whitespace/
+# سینونیم دور می‌خورد). هر kindِ خارج از این مجموعه (ارسالِ به مشتری، ناشناخته، هجیِ نو) → fail-safe
+# = فقط با release_one صریح. تطبیق case/whitespace-insensitive است (lower(trim(kind))).
+# money kindِ نو؟ این‌جا اضافه کن (وگرنه batch-release نمی‌شود — که سمتِ امنِ خطاست).
+_BATCH_RELEASE_KINDS = frozenset({"send", "publish", "sync", "pay"})
+# مستندِ kindهای اثرگذار-بر-مشتری که باید per-effect (release_one) بروند (زیرمجموعهٔ «خارج از allowlist»).
 _PER_EFFECT_KINDS = frozenset({"lead_outbound", "customer_send"})
 
 
@@ -388,15 +392,16 @@ class EffectorGate:
         """پس از human-append (DOC-B §9 `on_human_judgment`): هر pendingِ موجود
         مجازِ settle می‌شود؛ release_ref = hash همان append (ردِ audit).
 
-        **استثنا (LEAD-SAFETY-C1):** kindهای per-effect (`_PER_EFFECT_KINDS` = ارسالِ به
-        مشتری) از این bulk-release مستثنی‌اند — یک رأیِ انسانی نباید هر ارسالِ pendingِ مشتری
-        را یک‌جا مجاز کند. آن‌ها فقط با `release_one` (صریح، یکی-یکی) آزاد می‌شوند."""
+        **قاعدهٔ allowlist (LEAD-SAFETY-C1):** فقط kindهای پول/داخلیِ شناخته‌شده
+        (`_BATCH_RELEASE_KINDS`) با یک human-append batch-release می‌شوند. هر kindِ دیگر —
+        ارسالِ به مشتری، ناشناخته، یا هجیِ غیرمتعارف — fail-safe فقط با `release_one` (صریح،
+        یکی-یکی) آزاد می‌شود. تطبیق case/whitespace-insensitive: `lower(trim(kind))`."""
         ref = entry.get("hash", "")
-        _pk = sorted(_PER_EFFECT_KINDS)
-        _ph = ",".join("?" for _ in _pk)
+        _ak = sorted(_BATCH_RELEASE_KINDS)
+        _ph = ",".join("?" for _ in _ak)
         cur = self.db.ex("UPDATE gated_effect SET status='releasable', release_ref=? "
-                         f"WHERE status='pending' AND kind NOT IN ({_ph})",
-                         (ref, *_pk))
+                         f"WHERE status='pending' AND lower(trim(kind)) IN ({_ph})",
+                         (ref, *_ak))
         return cur.rowcount
 
     def release_one(self, effect_id: str, entry: dict) -> bool:
