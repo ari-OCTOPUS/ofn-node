@@ -38,7 +38,17 @@ updated: 2026-07-21
 
 ## ۳. چه چیزی هنوز مانده (کارِ ایجنتِ بعدی)
 
-🔴 **بحرانی‌ترین (safety، قبل از هر ارسالِ واقعی):** **`lead_effect_gate` / outbound worker ساخته‌نشده.** `chrono.release_gated_effects` (chrono.py:384) با یک رأیِ انسانی **همهٔ** pendingها را releasable می‌کند (batch، نه per-effect) — برای پولِ تلگرام امن، برای ارسالِ به مشتری **ناامن**. `effector_gate_bridge.settle_fresh` گاردِ staleness دارد ولی producer/worker واقعی ندارد. **قبل از هر «real send» باید per-effect release ساخته شود.** (این R1 در RUNTIME-TRUTH و C7 در گزارشِ Agent-A است.)
+✅ **LEAD-SAFETY-C1 ساخته شد (2026-07-21، رأی مالک) — کامیت `5723f90`:** footgunِ batch-release بسته شد.
+- `chrono._BATCH_RELEASE_KINDS` (allowlist): فقط kindهای پولِ شناخته‌شده (`send/publish/sync/pay`) با یک human-append batch-release می‌شوند؛ هر kindِ دیگر (ارسالِ به مشتری، ناشناخته، هجیِ نو) fail-safe فقط با `chrono.EffectorGate.release_one` (per-effect). تطبیق case/whitespace-insensitive.
+- `legs/lead_effect_gate.py`: `authorize` (allowlistِ per-effect، پیش‌فرض خالی) + `may_release` (fail-closed: STOP/halt، consent-recheck که market_signal/synthetic هرگز، authorization صریح، idempotent) + `release_and_settle` (release_one + settle_fresh، هرگز batch، هرگز send).
+- `legs/outbound_worker.py`: هر transport = **stubِ NOT_ARMED**، صفر importِ شبکه، flag `OCTOPUS_WIRE_LEAD_OUTBOUND` خاموش=بی‌اثر، حتی روشن = NOT_ARMED. راستی‌آزماییِ متخاصم تأیید کرد **نمی‌فرستد**.
+- تست `test_lead_effect_gate` 13/13؛ ۲ باگِ متخاصم (denylist→allowlist، synthetic-normalize) قبل از merge فیکس شد.
+
+🟡 **مانده برای مسلح‌سازیِ ارسال (owner-gated، فاز D):**
+- **transport واقعی:** الان همه NOT_ARMED؛ مالک باید صریحاً یک adapter مسلح کند (رأیِ جدا).
+- **جداسازیِ release از send برای staleness:** در `release_and_settle` فعلاً release و settle **اتمیک**اند (همان `now_ms`)، پس گاردِ stalenessِ `effector_gate_bridge` در این مسیر عملاً بی‌اثر است (چیزی کهنه نیست چون هم‌زمان‌اند) — این یک **ضعفِ صادقانه** است نه حفره. برای اینکه staleness واقعی شود، فاز D باید authorize/release را از send جدا کند (release در t0، send بعداً؛ آن‌وقت settle_fresh کهنه‌ها را رد می‌کند).
+- `consent_gate`/`consent_store` (suppression) · `funnel_store` · نیمهٔ first-response draft (design-only، بخش‌های قبل).
+- جذبِ producerهای قدیمی (`harvest_austender`/`email_inbound` → `submit_candidate`).
 
 🟡 **۴ ماژولِ غایب (طبق فورنسیکِ Agent-A/C):** `consent_gate`، `consent_store` (suppression table — طراحی‌شده، سیم‌نشده)، `lead_effect_gate` (بالا)، `funnel_store` (قیفِ بازار sent→…→paid — قراردادش در `06_FUNNEL_STATE_MACHINE` هست، store نه).
 
