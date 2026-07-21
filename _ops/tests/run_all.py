@@ -101,6 +101,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # canonicalِ ورودی (submit_candidate) + برشِ عمودیِ synthetic (صفر ارسالِ بیرونی؛
          # market_signal فایلِ draft نمی‌سازد؛ halt=receipt-only؛ flag OCTOPUS_WIRE_LEAD_CANDIDATES خاموش)
          "test_consent_firewall.py", "test_lead_candidate_inbox.py",
+         # 2026-07-21 Trust-Engine D6: گاردِ stalenessِ releasable در لایهٔ bridge (chrono
+         # دست‌نخورده) — پیش از settle، releasableِ کهنه refuse می‌شود (شکافی که sweep_stale_effects
+         # پوشش نمی‌داد چون فقط pending را جارو می‌کند)
+         "test_effector_gate_bridge.py",
          # 2026-07-21 Wave1-D: جداییِ liveness از کار/ارزشِ validated — metric_separation از
          # storeِ durable قطعی بازسازی می‌شود؛ تپش≠مولد، claim≠revenue، fake≠real delivery
          "test_metric_separation.py",
