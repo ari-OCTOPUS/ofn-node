@@ -134,6 +134,17 @@ def t_g_halt_returns_503_with_receipt():
             pass
 
 
+def t_j_nan_timestamp_rejected():
+    """رگرسیونِ متخاصم: ts غیرعددی-معتبرِ non-finite (nan/inf) نباید پنجرهٔ ±300s را دور بزند."""
+    _setup_env()
+    body = _body(external_id="DA-nan")
+    now = time.time()
+    for bad in ("nan", "NaN", "-nan", "inf", "-inf", "Infinity"):
+        code, resp = b.verify_and_dispatch(
+            _headers(body, ts=bad, nonce=f"n-{bad}"), body, now_ts=now)
+        assert code == 401 and resp["error"]["code"] == "TS_INVALID", (bad, code, resp)
+
+
 def t_h_negative_n8n_no_gate_imports():
     """اثباتِ ساختاری: مرز هیچ سطحِ گیت/تأیید/ارسال/مغز را import نمی‌کند (تستِ الزامی #10)."""
     src = Path(b.__file__).read_text("utf-8")

@@ -22,8 +22,11 @@ from __future__ import annotations
 CANDIDATE_TYPES = ("consented_inbound", "public_b2b", "market_signal")
 CONSENT_BASES = ("explicit", "inferred_business", "none", "unknown")
 
-# نگاشتِ کانالِ منبع → نوعِ کاندیدِ پیش‌فرض (fail-closed: ناشناخته → market_signal).
-_CHANNEL_DEFAULT_TYPE = {
+# سقفِ کانال = پرمجازترین نوعی که یک کانال می‌تواند بسازد. نوعِ اعلام‌شدهٔ producer هرگز
+# نمی‌تواند از این سقف بالاتر برود (بستنِ trust-boundary — راستی‌آزماییِ متخاصمِ 2026-07-21:
+# یک رکوردِ کانالِ nsw_da که خود را consented_inbound اعلام کند نباید outreach بگیرد).
+# fail-closed: کانالِ ناشناخته → market_signal (سخت‌گیرانه‌ترین).
+_CHANNEL_CEILING = {
     "telegram_manual": "consented_inbound",
     "website_form": "consented_inbound",
     "missed_call": "consented_inbound",
@@ -33,7 +36,12 @@ _CHANNEL_DEFAULT_TYPE = {
     "nsw_da": "market_signal",
     "domain_listing": "market_signal",
     "other": "market_signal",
+    # public_b2b فقط از مسیرِ escalationِ owner-gated می‌آید (نه اعلامِ خام producer): سیگنالِ
+    # market → کارتِ هفتگیِ مالک → این کانال. یک producerِ خام هرگز public_b2b نمی‌سازد.
+    "escalated_b2b": "public_b2b",
 }
+# رتبهٔ پرمجازی (بالاتر = پرمجازتر). declared فقط اگر ≤ سقفِ کانال باشد پذیرفته می‌شود.
+_TYPE_RANK = {"market_signal": 0, "public_b2b": 1, "consented_inbound": 2}
 
 _RETENTION_BY_TYPE = {
     "consented_inbound": "consented_customer",
@@ -43,16 +51,18 @@ _RETENTION_BY_TYPE = {
 
 
 def classify(candidate: dict) -> str:
-    """نوعِ کاندید را قطعی و fail-closed تعیین کن.
+    """نوعِ کاندید را قطعی و fail-closed تعیین کن — **کانال سقف است، نه declared**.
 
-    اولویت: نوعِ صریحِ معتبرِ اعلام‌شده > نگاشتِ کانال > `market_signal` (سخت‌گیرانه‌ترین).
-    هر ابهام → market_signal (کم‌ترین امتیاز؛ هرگز outreach)."""
+    قاعده: نوعِ اعلام‌شده فقط اگر ≤ سقفِ کانال باشد پذیرفته می‌شود؛ وگرنه به سقفِ کانال
+    clamp می‌شود. پس یک کانالِ سیگنال‌محور (nsw_da/domain_listing/facebook_group/ناشناخته)
+    هرگز با اعلامِ خودسرانهٔ producer به consented_inbound ارتقا نمی‌یابد. هر ابهام → market_signal."""
     try:
-        declared = str((candidate.get("candidate_type") or "")).strip()
-        if declared in CANDIDATE_TYPES:
-            return declared
         channel = str(((candidate.get("source") or {}).get("channel") or "")).strip()
-        return _CHANNEL_DEFAULT_TYPE.get(channel, "market_signal")
+        ceiling = _CHANNEL_CEILING.get(channel, "market_signal")   # ناشناخته = سیگنال (fail-closed)
+        declared = str((candidate.get("candidate_type") or "")).strip()
+        if declared in CANDIDATE_TYPES and _TYPE_RANK[declared] <= _TYPE_RANK[ceiling]:
+            return declared          # declared مجاز است چون از سقفِ کانال پرمجازتر نیست
+        return ceiling               # declared غایب/نامعتبر/پرمجازتر-از-سقف → سقفِ کانال
     except Exception:  # noqa: BLE001 — هر خطا → سخت‌گیرانه‌ترین
         return "market_signal"
 

@@ -20,6 +20,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import math
 import os
 import sys
 import time
@@ -159,10 +160,13 @@ def verify_and_dispatch(headers: dict, body: bytes, *, now_ts: float | None = No
     sig = str(h.get(_H_SIG.lower()) or "").strip()
     if not (ts and nonce and sig):
         return _err("AUTH_MISSING_HEADERS", 401, source)
-    # ۵) timestamp.
+    # ۵) timestamp. non-finite (nan/inf) رد می‌شود — وگرنه abs(now-nan)>300 == False و پنجرهٔ
+    # ±300s کاملاً bypass می‌شد (راستی‌آزماییِ متخاصمِ 2026-07-21).
     try:
         ts_val = float(ts)
     except (TypeError, ValueError):
+        return _err("TS_INVALID", 401, source)
+    if not math.isfinite(ts_val):
         return _err("TS_INVALID", 401, source)
     if abs(now - ts_val) > TS_WINDOW_S:
         return _err("TS_EXPIRED", 401, source, {"skew_s": round(now - ts_val, 1)})

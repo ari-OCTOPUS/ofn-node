@@ -53,13 +53,15 @@ def t_c_consented_inbound_explicit_allowed():
 
 def t_d_public_b2b_needs_inferred_business_and_evidence():
     """R3: public_b2b فقط با inferred_business + evidence مجاز؛ وگرنه بسته.
-    یک تماسِ b2b هرگز رضایتِ مسکونی تلقی نمی‌شود."""
-    assert cf.evaluate(_c(ctype="public_b2b", basis="inferred_business",
+    یک تماسِ b2b هرگز رضایتِ مسکونی تلقی نمی‌شود. public_b2b فقط از کانالِ escalation
+    می‌آید (نه اعلامِ خام producer روی کانالِ سیگنال)."""
+    assert cf.evaluate(_c(ctype="public_b2b", channel="escalated_b2b", basis="inferred_business",
                           evidence="office_contact_published"))["outreach_allowed"] is True
     # بدونِ evidence → بسته
-    assert cf.evaluate(_c(ctype="public_b2b", basis="inferred_business"))["outreach_allowed"] is False
+    assert cf.evaluate(_c(ctype="public_b2b", channel="escalated_b2b",
+                          basis="inferred_business"))["outreach_allowed"] is False
     # basis=explicit روی b2b (تلاش برای جا زدنِ رضایتِ مسکونی) → بسته
-    assert cf.evaluate(_c(ctype="public_b2b", basis="explicit",
+    assert cf.evaluate(_c(ctype="public_b2b", channel="escalated_b2b", basis="explicit",
                           evidence="x"))["outreach_allowed"] is False
 
 
@@ -81,6 +83,24 @@ def t_f_exception_input_fails_closed():
             assert False, f"firewall نباید استثنا بدهد: {type(e).__name__} روی {bad!r}"
         assert r["outreach_allowed"] is False, (bad, r)
         assert cf.may_outreach(bad) is False
+
+
+def t_h_signal_channel_cannot_be_upgraded_by_declared_type():
+    """رگرسیونِ راستی‌آزماییِ متخاصمِ 2026-07-21 (R4-critical): یک رکوردِ کانالِ سیگنال‌محور
+    که خود را consented_inbound + explicit اعلام می‌کند، هرگز نباید outreach بگیرد.
+    declared نمی‌تواند از سقفِ کانال بالاتر برود."""
+    for ch in ("nsw_da", "domain_listing", "facebook_group", "totally_unknown"):
+        c = _c(ctype="consented_inbound", channel=ch, basis="explicit", evidence="scraped")
+        assert cf.classify(c) == "market_signal", (ch, cf.classify(c))
+        r = cf.evaluate(c)
+        assert r["outreach_allowed"] is False, (ch, r)
+        assert r["retention_class"] == "signal_30d", (ch, r)   # نه consented_customer
+    # همچنین: کانالِ سیگنال که خود را public_b2b اعلام کند → clamp به market_signal
+    c2 = _c(ctype="public_b2b", channel="nsw_da", basis="inferred_business", evidence="x")
+    assert cf.classify(c2) == "market_signal"
+    assert cf.evaluate(c2)["outreach_allowed"] is False
+    # کانالِ consent-محور همچنان downgrade به market_signal را می‌پذیرد (≤ سقف)
+    assert cf.classify(_c(ctype="market_signal", channel="telegram_manual")) == "market_signal"
 
 
 def t_g_synthetic_test_channel_is_consented_but_gate_blocks_downstream():

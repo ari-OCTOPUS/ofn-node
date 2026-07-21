@@ -83,9 +83,15 @@ def _emit(event_type: str, correlation_id: str, payload: dict) -> None:
 
 def mark_released(effect_id: str, now_ms: int | None = None) -> None:
     """زمانِ release را برای این effect ثبت کن (caller پس از release_gated_effects صدا می‌زند).
-    مبنای سنجشِ تازگی است — بدونِ آن، settle_fresh محافظه‌کارانه refuse می‌کند."""
+    مبنای سنجشِ تازگی است — بدونِ آن، settle_fresh محافظه‌کارانه refuse می‌کند.
+
+    **first-write-wins** (راستی‌آزماییِ متخاصمِ 2026-07-21): اولین زمانِ release مرجعِ قطعی است؛
+    re-markِ بعدی نادیده گرفته می‌شود تا یک effectِ کهنه با re-stamp «تازه» نشود (bypassِ گارد)."""
     idx = _load_ts()
-    idx[str(effect_id)] = int(now_ms if now_ms is not None else _now_ms())
+    key = str(effect_id)
+    if key in idx:
+        return   # قبلاً ثبت شده — re-mark تازگیِ جعلی نمی‌سازد
+    idx[key] = int(now_ms if now_ms is not None else _now_ms())
     _save_ts(idx)
 
 
@@ -117,7 +123,19 @@ def settle_fresh(gate, effect_id: str, *, now_ms: int | None = None,
             pass
         return {"settled": False, "reason": "no_release_ts"}
 
-    age_h = (now - int(rel_ts)) / 3_600_000.0
+    # release_ts خراب/غیرعددی → refuse (fail-closed، هرگز throw — راستی‌آزماییِ متخاصم).
+    try:
+        rel_ms = int(rel_ts)
+    except (TypeError, ValueError):
+        _emit("communication.failed", effect_id, {"kind": "stale_refused", "reason": "bad_release_ts"})
+        return {"settled": False, "reason": "bad_release_ts"}
+
+    age_h = (now - rel_ms) / 3_600_000.0
+    if age_h < 0:
+        # ts آینده (clock-skew/garbage) → تازگی قابلِ اثبات نیست → refuse (نه پذیرشِ عمرِ منفی).
+        _emit("communication.failed", effect_id,
+              {"kind": "stale_refused", "reason": "future_release_ts", "age_hours": round(age_h, 3)})
+        return {"settled": False, "reason": "future_release_ts", "age_hours": round(age_h, 3)}
     if age_h > window_h:
         _emit("communication.failed", effect_id,
               {"kind": "stale_refused", "age_hours": round(age_h, 3),

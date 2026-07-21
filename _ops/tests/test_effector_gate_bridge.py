@@ -82,6 +82,45 @@ def t_d_non_releasable_refused():
     assert r["settled"] is False and r["reason"].startswith("not_releasable"), r
 
 
+def t_f_remark_cannot_refresh_stale():
+    """رگرسیونِ متخاصم: یک effectِ کهنه با re-markِ زمانِ تازه نباید settle شود (first-write-wins)."""
+    gate, db = _fresh_gate()
+    eid = _released_effect(gate)
+    t0 = 1_000_000_000_000
+    egb.mark_released(eid, now_ms=t0)                 # اولین ثبت = زمانِ واقعیِ release
+    egb.mark_released(eid, now_ms=t0 + 100 * _H_MS)   # تلاش برای «تازه‌سازی» → باید نادیده شود
+    r = egb.settle_fresh(gate, eid, now_ms=t0 + 100 * _H_MS, max_age_hours=24)
+    assert r["settled"] is False and r["reason"] == "stale_refused", r
+    assert gate.status_of(eid) == "releasable"        # هرگز settle نشد
+
+
+def t_g_corrupt_release_ts_refuses_never_raises():
+    """رگرسیونِ متخاصم: release_ts خراب/غیرعددی → refuse، هرگز throw (قراردادِ always-dict)."""
+    import json
+    gate, db = _fresh_gate()
+    eid = _released_effect(gate)
+    store = egb._release_store()
+    store.parent.mkdir(parents=True, exist_ok=True)
+    for bad in ("CORRUPT", {"nested": 1}, "12.5abc"):
+        store.write_text(json.dumps({str(eid): bad}), "utf-8")
+        try:
+            r = egb.settle_fresh(gate, eid, now_ms=1_000_000_000_000, max_age_hours=24)
+        except Exception as e:  # noqa: BLE001
+            assert False, f"settle_fresh نباید throw کند روی {bad!r}: {type(e).__name__}"
+        assert r["settled"] is False and r["reason"] == "bad_release_ts", (bad, r)
+        assert gate.status_of(eid) == "releasable"
+
+
+def t_h_future_release_ts_refused():
+    """رگرسیونِ متخاصم: ts آینده (عمرِ منفی) نباید «تازه» تلقی شود."""
+    gate, db = _fresh_gate()
+    eid = _released_effect(gate)
+    egb.mark_released(eid, now_ms=1_000_000_000_000 + 500 * _H_MS)   # آینده
+    r = egb.settle_fresh(gate, eid, now_ms=1_000_000_000_000, max_age_hours=24)
+    assert r["settled"] is False and r["reason"] == "future_release_ts", r
+    assert gate.status_of(eid) == "releasable"
+
+
 def t_e_chrono_untouched():
     """ساختاری: bridge هرگز schemaِ chrono را mutate نمی‌کند؛ فقط API عمومی‌اش را صدا می‌زند.
     (ذکرِ نامِ sweep_stale_effects در docstring مجاز است — چیزی که بلوک می‌کنیم فراخوانی/SQL است.)"""

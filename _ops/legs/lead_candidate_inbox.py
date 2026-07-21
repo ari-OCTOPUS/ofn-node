@@ -206,9 +206,21 @@ def submit_candidate(candidate: dict, source_id: str = "unknown") -> dict:
                        {"outcome": "quarantined", "reason": err})
         return {"ok": False, "status": "quarantined", "reason": err, "receipt_event_id": rid}
 
-    # ۳) idempotency: source_id:external_id — تکراری هیچ لیدِ دومی نمی‌سازد.
+    # ۳) idempotency: source_id:external_id — تکراری هیچ لیدِ دومی نمی‌سازد. بدونِ external_id
+    # (راستی‌آزماییِ متخاصمِ 2026-07-21) به کلیدِ محتوایی fallback می‌کنیم تا تکراریِ keyless هم
+    # لیدِ دوم نسازد.
     ext = str(((candidate.get("source") or {}).get("external_id") or "")).strip()
-    idem_key = f"{source_id}:{ext}" if ext else None
+    if ext:
+        idem_key = f"{source_id}:{ext}"
+    else:
+        import hashlib
+        _req = candidate.get("request") or {}
+        _ct = candidate.get("contact") or {}
+        _basis = "|".join(str(x) for x in (
+            source_id, (candidate.get("source") or {}).get("channel"),
+            _req.get("scope_text") or candidate.get("description"),
+            _ct.get("phone"), _ct.get("email")))
+        idem_key = "sha:" + hashlib.sha256(_basis.encode("utf-8")).hexdigest()[:20]
     idx = _load_idem()
     if idem_key and idem_key in idx:
         rid = _receipt("lead.duplicate.detected", idx[idem_key],

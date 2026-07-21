@@ -115,6 +115,45 @@ def t_e_idempotency_no_second_lead():
     assert len(list(box.glob(f"{r1['lead_id']}.json"))) == 1
 
 
+def t_i_signal_channel_declared_consented_stays_signal():
+    """رگرسیونِ متخاصم: کانالِ nsw_da که خود را consented_inbound اعلام کند نباید فایلِ
+    کاندیدِ top-levelِ outreach-پذیر بسازد — به signals/ می‌رود."""
+    os.environ[lci.FLAG] = "1"
+    laundered = {
+        "schema_version": "1.1",
+        "source": {"channel": "nsw_da", "source_id": "n8n_da", "external_id": "DA-launder",
+                   "received_at": "2026-07-21T06:00:00Z"},
+        "candidate_type": "consented_inbound",       # producer دروغ می‌گوید
+        "consent": {"basis": "explicit", "evidence": "scraped"},
+        "request": {"scope_text": "DA approved"},
+    }
+    before = set(_top_level_candidates())
+    r = lci.submit_candidate(laundered, source_id="n8n_da")
+    assert r["status"] == "signal_recorded", r        # نه accepted
+    assert r["outreach_allowed"] is False, r
+    assert set(_top_level_candidates()) == before      # هیچ فایلِ top-level نو
+
+
+def t_j_keyless_duplicate_no_second_lead():
+    """رگرسیونِ متخاصم: تکراریِ byte-identical بدونِ external_id نباید لیدِ دوم بسازد."""
+    os.environ[lci.FLAG] = "1"
+    keyless = {
+        "schema_version": "1.1",
+        "source": {"channel": "telegram_manual", "source_id": "owner"},   # بدونِ external_id
+        "candidate_type": "consented_inbound",
+        "consent": {"basis": "explicit", "evidence": "asked"},
+        "contact": {"phone": "0412000111"},
+        "request": {"scope_text": "کاندیدِ بی‌کلید یکتا برای dedup"},
+    }
+    r1 = lci.submit_candidate(dict(keyless), source_id="owner")
+    r2 = lci.submit_candidate(dict(keyless), source_id="owner")
+    assert r1["status"] == "accepted", r1
+    assert r2["status"] == "duplicate", r2
+    assert r2["lead_id"] == r1["lead_id"]
+    box = opslib.STATE_DIR / "legs" / "lead-inbox"
+    assert len(list(box.glob(f"{r1['lead_id']}.json"))) == 1
+
+
 def t_f_market_signal_makes_no_top_level_candidate():
     """اصلاحِ B2: market_signal فایلِ کاندیدِ top-level نمی‌سازد → وارد قوسِ draft نمی‌شود."""
     os.environ[lci.FLAG] = "1"
