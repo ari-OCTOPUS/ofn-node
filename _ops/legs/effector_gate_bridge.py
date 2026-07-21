@@ -9,7 +9,8 @@
 
 قاعدهٔ سخت (fail-closed):
   · settle فقط از مسیرِ این پل برای مسیرِ لید — پیش از settle، اگر عمرِ releasable از پنجره
-    گذشته → settle نکن، رویدادِ `communication.failed(stale_refused)` + alert.
+    گذشته → settle نکن، رویدادِ `effect.refused(stale_refused)` + alert. (نامِ event عمداً
+    gate-scoped است نه `communication.*` — این لایه transport ندارد؛ صداقتِ audit، دموِ 2026-07-21.)
   · اثباتِ تازگی الزامی است: اگر release_ts ثبت نشده باشد → refuse (نمی‌توان تازگی را اثبات کرد).
   · release فقط پس از رأیِ همان proposal (coarse-release در chrono همهٔ pendingها را با هر
     human-append releasable می‌کند؛ پس این پل هرگز پیش از رأیِ همان proposal، request نمی‌زند
@@ -115,7 +116,7 @@ def settle_fresh(gate, effect_id: str, *, now_ms: int | None = None,
     rel_ts = idx.get(str(effect_id))
     if rel_ts is None:
         # اثباتِ تازگی ممکن نیست → refuse (fail-closed).
-        _emit("communication.failed", effect_id,
+        _emit("effect.refused", effect_id,
               {"kind": "stale_refused", "reason": "no_release_ts"})
         try:
             opslib.alert([f"effector-bridge: settle refused (no release_ts) eid={effect_id}"])
@@ -127,17 +128,17 @@ def settle_fresh(gate, effect_id: str, *, now_ms: int | None = None,
     try:
         rel_ms = int(rel_ts)
     except (TypeError, ValueError):
-        _emit("communication.failed", effect_id, {"kind": "stale_refused", "reason": "bad_release_ts"})
+        _emit("effect.refused", effect_id, {"kind": "stale_refused", "reason": "bad_release_ts"})
         return {"settled": False, "reason": "bad_release_ts"}
 
     age_h = (now - rel_ms) / 3_600_000.0
     if age_h < 0:
         # ts آینده (clock-skew/garbage) → تازگی قابلِ اثبات نیست → refuse (نه پذیرشِ عمرِ منفی).
-        _emit("communication.failed", effect_id,
+        _emit("effect.refused", effect_id,
               {"kind": "stale_refused", "reason": "future_release_ts", "age_hours": round(age_h, 3)})
         return {"settled": False, "reason": "future_release_ts", "age_hours": round(age_h, 3)}
     if age_h > window_h:
-        _emit("communication.failed", effect_id,
+        _emit("effect.refused", effect_id,
               {"kind": "stale_refused", "age_hours": round(age_h, 3),
                "window_hours": window_h})
         try:

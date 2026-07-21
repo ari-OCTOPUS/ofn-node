@@ -56,12 +56,15 @@ def t_b_stale_refused_not_settled():
     assert r["settled"] is False and r["reason"] == "stale_refused", r
     assert r["age_hours"] > 24
     assert gate.status_of(eid) == "releasable"   # هرگز settle نشد
-    # رویدادِ communication.failed(stale_refused) نوشته شد
+    # رویدادِ effect.refused(stale_refused) نوشته شد (نامِ gate-scoped، نه communication.* —
+    # این لایه transport ندارد؛ صداقتِ audit)
     import json
     ev = Path(egb._events())
     recs = [json.loads(l) for l in open(ev, encoding="utf-8")]
-    assert any(x["event_type"] == "communication.failed" and
+    assert any(x["event_type"] == "effect.refused" and
                x["payload"].get("kind") == "stale_refused" for x in recs)
+    assert not any(x["event_type"].startswith("communication.") for x in recs), \
+        "gate-refusal نباید communication.* بزند (transport وجود ندارد)"
 
 
 def t_c_no_release_ts_fails_closed():

@@ -100,6 +100,17 @@ def is_authorized(effect_id: str) -> bool:
     return str(effect_id or "").strip() in _load_authz()
 
 
+def _authorized_effect_for_lead(lead_id: str) -> str | None:
+    """effect_idِ قبلاً authorize‌شده برای این lead_id، یا None. مبنای idempotencyِ per-lead."""
+    lid = str(lead_id or "").strip()
+    if not lid:
+        return None
+    for eid, rec in _load_authz().items():
+        if isinstance(rec, dict) and rec.get("lead_id") == lid:
+            return eid
+    return None
+
+
 def _authz_token(effect_id: str) -> str | None:
     rec = _load_authz().get(str(effect_id or "").strip())
     return rec.get("token") if isinstance(rec, dict) else None
@@ -145,6 +156,55 @@ def may_release(effect_id: str, candidate: dict, *, gate=None) -> dict:
         return {"allow": True, "reason": "ok", "status": st}
     except Exception as e:  # noqa: BLE001 — هر خطای غیرمنتظره → deny
         return {"allow": False, "reason": f"exception:{type(e).__name__}"}
+
+
+def on_lead_verdict(lead_id: str, candidate: dict, verdict: str, *, gate) -> dict:
+    """بریجِ effect-layer: رأیِ **approve**ِ owner روی یک لید → ساختِ یک effectِ `lead_outbound`
+    و authorizeِ per-effect آن. این **جدا از measurement** است (verdict_recorder اصلِ
+    «سنجش ≠ اثر» را نگه می‌دارد و structurally بدونِ effector است؛ این‌جا لایهٔ اثر است).
+
+    هرگز نمی‌فرستد (transport = outbound_worker که NOT_ARMED است). rejected/deferred → هیچ.
+    consent دوباره چک می‌شود: market_signal/synthetic هرگز effectِ authorize‌شده نمی‌گیرند.
+    fail-closed مطلق؛ همیشه dict. نقطهٔ اتصالِ live: دکمهٔ کارتِ لید این را (پشتِ فلگ) صدا می‌زند
+    — که همان نقطهٔ arm است (owner-gated).
+
+    خروجی: {authorized: bool, effect_id?: str, reason: str}
+    """
+    try:
+        v = str(verdict or "").strip().lower()
+        if v not in ("approve", "approved", "ok", "yes", "accept", "accepted"):
+            return {"authorized": False, "reason": f"non_approve_verdict:{v}"}
+        if gate is None or not str(lead_id or "").strip():
+            return {"authorized": False, "reason": "no_gate_or_lead"}
+        kill = _halt_reason()
+        if kill:
+            return {"authorized": False, "reason": f"halted:{kill}"}
+        # consent re-check (دفاع در عمق، R4): سیگنال/synthetic هرگز effectِ authorize‌شده نمی‌گیرند
+        ctype = cf.classify(candidate if isinstance(candidate, dict) else {})
+        if ctype == "market_signal":
+            return {"authorized": False, "reason": "market_signal_never_sends"}
+        channel = str(((candidate or {}).get("source") or {}).get("channel") or "").strip().casefold()
+        if channel == "synthetic_test":
+            return {"authorized": False, "reason": "synthetic_never_sends"}
+        # F2 (راستی‌آزماییِ متخاصم): outreach باید مجاز باشد — هم‌راستا با may_release تا لیدی که
+        # هرگز نمی‌تواند قانوناً بفرستد (مثلِ consent.basis=none) effectِ authorize‌شده و رویدادِ
+        # approved نگیرد (وضعیتِ گیج‌کننده + arm بی‌مورد).
+        if not cf.may_outreach(candidate if isinstance(candidate, dict) else {}):
+            return {"authorized": False, "reason": "outreach_not_allowed"}
+        lid = str(lead_id).strip()
+        # F1 (راستی‌آزماییِ متخاصم): idempotency keyed on lead_id — یک لید فقط **یک** effectِ
+        # outbound می‌گیرد. وگرنه double-tap/retry/webhookِ تکراری = N effectِ authorize‌شده =
+        # N ارسال به همان مشتری وقتی مسلح شود. درسِ «کلید روی تصمیم، نه پاسخ».
+        existing = _authorized_effect_for_lead(lid)
+        if existing is not None:
+            return {"authorized": True, "effect_id": existing, "reason": "already_authorized_for_lead"}
+        import uuid
+        eid = gate.request("lead_outbound", lid, beat=None)
+        token = "owner-verdict-" + uuid.uuid4().hex[:12]
+        res = authorize(eid, lid, token)
+        return {"authorized": bool(res.get("ok")), "effect_id": eid, "reason": res.get("reason")}
+    except Exception as e:  # noqa: BLE001 — هرگز مسیرِ verdict را نمی‌کشد
+        return {"authorized": False, "reason": f"exception:{type(e).__name__}"}
 
 
 def release_and_settle(effect_id: str, candidate: dict, *, gate, now_ms: int | None = None) -> dict:

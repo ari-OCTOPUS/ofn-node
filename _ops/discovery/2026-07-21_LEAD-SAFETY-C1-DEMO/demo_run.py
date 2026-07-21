@@ -105,14 +105,12 @@ def main():
     _step(4, "operator-visible audit receipts written",
           any(e["event_type"] == "lead.candidate.received" for e in ev),
           f"{len([e for e in ev if e['event_type']=='lead.candidate.received'])} received receipt(s)")
-    # effect-gate: authorize → may_release → attempt (synthetic باید DENY شود)
-    eid1 = gate.request("lead_outbound", r1.get("lead_id") or "syn", beat=1)
-    leg.authorize(eid1, r1.get("lead_id") or "syn", "owner-verdict-token-1")
-    mr1 = leg.may_release(eid1, syn, gate=gate)
-    out1 = ow.send_one(eid1, syn, gate=gate)
-    _step(5, "authorize→may_release: SYNTHETIC blocked at gate (defense in depth)",
-          mr1.get("allow") is False and "synthetic" in mr1.get("reason", ""),
-          f"may_release={mr1.get('reason')} · outbound={out1.get('status')}")
+    # مسیرِ verdict-driven: رأیِ approveِ owner → on_lead_verdict (نقطهٔ اتصالِ live).
+    # synthetic باید هیچ effectِ authorize‌شده نگیرد (دفاع در عمقِ لایهٔ verdict).
+    v1 = leg.on_lead_verdict(r1.get("lead_id") or "syn", syn, "approve", gate=gate)
+    _step(5, "owner verdict(approve) → on_lead_verdict: SYNTHETIC gets NO authorized effect",
+          v1.get("authorized") is False and "synthetic" in v1.get("reason", ""),
+          f"on_lead_verdict={v1.get('reason')}")
 
     # ── PROBE 2: fixtureِ تستِ consented (placeholder) — تا NOT_ARMED برسد ──
     print("\n── PROBE 2: consented TEST-FIXTURE (owner placeholder) → gate ALLOW → transport NOT_ARMED ──")
@@ -123,12 +121,12 @@ def main():
            "contact": {"preferred_channel": "sms", "phone": "TEST-FIXTURE-NOT-REAL"},
            "request": {"scope_text": "owner test fixture — placeholder contact, never a stranger"}}
     r2 = lci.submit_candidate(fix, source_id="owner")
-    eid2 = gate.request("lead_outbound", r2.get("lead_id") or "fix", beat=1)
-    leg.authorize(eid2, r2.get("lead_id") or "fix", "owner-verdict-token-2")
-    out2 = ow.send_one(eid2, fix, gate=gate)
-    _step(6, "outbound_worker returns NOT_ARMED (gate allowed a sendable lead; transport cannot send)",
-          out2.get("ok") is True and out2.get("sent") is False and out2.get("status") == "NOT_ARMED",
-          f"outbound={out2}")
+    v2 = leg.on_lead_verdict(r2.get("lead_id") or "fix", fix, "approve", gate=gate)
+    out2 = ow.send_one(v2.get("effect_id"), fix, gate=gate)
+    _step(6, "verdict(approve)→on_lead_verdict authorizes effect; outbound = NOT_ARMED (cannot send)",
+          v2.get("authorized") is True and out2.get("ok") is True
+          and out2.get("sent") is False and out2.get("status") == "NOT_ARMED",
+          f"authorized={v2.get('authorized')} · outbound={out2.get('status')}")
 
     # ── PROBE 3: market_signal — firewall باید outreach را رد کند ──
     print("\n── PROBE 3: market_signal (SECOND check) → refused for outreach ──")

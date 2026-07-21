@@ -222,6 +222,76 @@ def t_m_synthetic_guard_normalizes_whitespace():
         assert "synthetic" in r["reason"] or "market_signal" in r["reason"], (repr(ch), r)
 
 
+def t_n_on_lead_verdict_approve_authorizes():
+    """رأیِ approve روی لیدِ consented → effectِ lead_outbound ساخته و authorize می‌شود (نه send)."""
+    gate, db = _gate()
+    res = leg.on_lead_verdict("lead-approve", _consented(), "approve", gate=gate)
+    assert res["authorized"] is True and res.get("effect_id"), res
+    assert leg.is_authorized(res["effect_id"])
+    assert gate.status_of(res["effect_id"]) == "pending"   # authorize ≠ release/send
+    # مسیرِ کامل: حالا outbound → NOT_ARMED
+    import os
+    os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND"] = "1"
+    try:
+        out = ow.send_one(res["effect_id"], _consented(), gate=gate)
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
+    assert out["sent"] is False and out["status"] == "NOT_ARMED", out
+
+
+def t_o_on_lead_verdict_reject_and_signal_and_synthetic_no_effect():
+    """reject/deferred/market_signal/synthetic → هیچ effectِ authorize‌شده."""
+    gate, db = _gate()
+    assert leg.on_lead_verdict("l", _consented(), "reject", gate=gate)["authorized"] is False
+    assert leg.on_lead_verdict("l", _consented(), "later", gate=gate)["authorized"] is False
+    sig = {"source": {"channel": "nsw_da"}, "candidate_type": "market_signal", "consent": {"basis": "none"}}
+    r_sig = leg.on_lead_verdict("l", sig, "approve", gate=gate)
+    assert r_sig["authorized"] is False and r_sig["reason"] == "market_signal_never_sends"
+    syn = dict(_consented()); syn["source"] = {"channel": "synthetic_test"}
+    r_syn = leg.on_lead_verdict("l", syn, "approve", gate=gate)
+    assert r_syn["authorized"] is False and r_syn["reason"] == "synthetic_never_sends"
+
+
+def t_q_on_lead_verdict_idempotent_per_lead():
+    """رگرسیونِ متخاصم F1: دو بار approve برای یک lead_id = یک effect (نه دو → ضدِّ double-send)."""
+    gate, db = _gate()
+    r1 = leg.on_lead_verdict("lead-DUP", _consented(), "approve", gate=gate)
+    r2 = leg.on_lead_verdict("lead-DUP", _consented(), "approve", gate=gate)
+    assert r1["authorized"] and r2["authorized"]
+    assert r2["effect_id"] == r1["effect_id"], (r1, r2)     # همان effect، نه دومی
+    assert r2["reason"] == "already_authorized_for_lead"
+    # فقط یک effectِ lead_outbound برای این لید در gate هست
+    rows = gate.db.q("SELECT COUNT(*) FROM gated_effect WHERE payload_ref=?", ("lead-DUP",))
+    assert rows[0][0] == 1, rows
+
+
+def t_r_on_lead_verdict_requires_outreach_allowed():
+    """رگرسیونِ متخاصم F2: لیدِ consented با basis=none (نمی‌تواند قانوناً بفرستد) → authorize نمی‌شود."""
+    gate, db = _gate()
+    bad = dict(_consented()); bad["consent"] = {"basis": "none"}
+    r = leg.on_lead_verdict("lead-noconsent", bad, "approve", gate=gate)
+    assert r["authorized"] is False and r["reason"] == "outreach_not_allowed", r
+
+
+def t_p_on_lead_verdict_halt_and_faults_fail_closed():
+    gate, db = _gate()
+    stop = opslib.STOP_ORGANISM
+    stop.parent.mkdir(parents=True, exist_ok=True)
+    stop.write_text("stop", "utf-8")
+    try:
+        r = leg.on_lead_verdict("l", _consented(), "approve", gate=gate)
+        assert r["authorized"] is False and "halt" in r["reason"], r
+    finally:
+        try:
+            stop.unlink()
+        except OSError:
+            pass
+    # gate=None / ورودیِ خراب → deny، بدونِ crash
+    for bad_gate, bad_cand in ((None, _consented()), (gate, None), (gate, "str")):
+        r = leg.on_lead_verdict("l", bad_cand, "approve", gate=bad_gate)
+        assert r["authorized"] is False, (bad_gate, bad_cand, r)
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)
