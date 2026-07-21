@@ -7,7 +7,25 @@ created: 2026-07-21
 updated: 2026-07-21
 ---
 
-# WIRING HANDOFF — بخشِ نقاشی/لید مرتب و متصل شد (برای ایجنتِ بعدیِ موازی)
+# WIRING HANDOFF — لِینِ لیدِ نقاشی: **COMPLETE-UNARMED** (برای ایجنتِ بعدی/مالک)
+
+> **وضعیت (2026-07-21): COMPLETE-CONNECTED-UNARMED.** کلِ قوسِ لید ساخته، متصل، تست‌شده و
+> adversarial-verify شده است — و **مسلح نیست** (هیچ ارسالِ واقعی ممکن نیست؛ transport = NOT_ARMED).
+> راهنمای مالک: [[03 - Projects/Lead-نقاشی/Trust-Engine-v1.1/OWNER-RUNBOOK-LEAD|OWNER-RUNBOOK-LEAD]].
+> دموِ زنده: [[03 - Projects/Lead-نقاشی/Trust-Engine-v1.1/DEMO-RUN-2026-07-21|DEMO-RUN]] (۹/۹).
+> **Owner replay:** `powershell -File _ops/discovery/2026-07-21_LEAD-SAFETY-C1-DEMO/replay.ps1` →
+> انتظار **۹/۹ PASS**، فلگ‌های زنده خاموش، صفر ارسال.
+>
+> **تنها نقطهٔ arm (عمداً باز):** وصلِ دکمهٔ رأیِ کارتِ زندهٔ تلگرام به `lead_effect_gate.on_lead_verdict`
+> + مسلح‌کردنِ یک transportِ واقعی. هر دو رأیِ صریحِ مالک‌اند. `on_lead_verdict` ساخته/تست/verify شده.
+>
+> **رویدادهای gate-scopedِ نو (خارج از قراردادِ ratified، صادقانه):** `effect.settled` (گیت پاک کرد،
+> نه ارسال) · `effect.refused` (گیت رد کرد). `communication.*` فقط از transportِ واقعیِ ارسال‌کننده
+> می‌آید — که چون NOT_ARMED است، هرگز. (اگر قرارداد نهایی شد، این دو به EVENT_CONTRACT اضافه شوند.)
+
+---
+
+# WIRING HANDOFF — بخشِ نقاشی/لید مرتب و متصل شد (سابقه)
 
 > **مخاطب:** ایجنتِ بعدی که کارِ لولهٔ لیدِ نقاشی را ادامه می‌دهد. این سند stand-alone است —
 > بدونِ چتِ قبلی هم قابل‌عمل. **همه‌چیزِ این جلسه flag-off، propose-only، صفر ارسال، STOP دست‌نخورده.**
