@@ -89,6 +89,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # 2026-07-21 Wave1-C: پوششِ LIMITED MULTI-DOMAIN ستونِ رویداد (lead+doctor+ziman+proposal؛
          # ۵ نامِ canonical در taxonomy؛ آداپتورهای spine_adapters؛ anti-PII ساختاری)
          "test_spine_multidomain.py",
+         # 2026-07-21 Trust-Engine: فهمِ free-text مالک با مغزِ خودِ بات (model_router) → پیشنهادِ
+         # ساختاریافته؛ propose-only (هر شکست=ok=False fallback)، autonomy_matrix پیشنهاد را re-check
+         # می‌کند + متنِ خام در گیت (مدل هرگز گیت را پایین نمی‌آورد). flag OCTOPUS_TG_LLM_ASK خاموش.
+         "test_llm_intent.py",
          # 2026-07-21 Wave1-D: جداییِ liveness از کار/ارزشِ validated — metric_separation از
          # storeِ durable قطعی بازسازی می‌شود؛ تپش≠مولد، claim≠revenue، fake≠real delivery
          "test_metric_separation.py",
