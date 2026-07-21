@@ -121,6 +121,23 @@ def t_h_future_release_ts_refused():
     assert gate.status_of(eid) == "releasable"
 
 
+def t_i_settle_emits_effect_settled_not_communication_sent():
+    """رگرسیونِ صداقتِ audit (دموِ 2026-07-21): settleِ موفق باید effect.settled بزند نه
+    communication.sent — چون هیچ transportی هنوز نفرستاده (NOT_ARMED). لاگ نباید بگوید «sent»."""
+    import json
+    gate, db = _fresh_gate()
+    eid = _released_effect(gate)
+    now = 1_000_000_000_000
+    egb.mark_released(eid, now_ms=now)
+    r = egb.settle_fresh(gate, eid, now_ms=now + 1 * _H_MS, max_age_hours=24)
+    assert r["settled"] is True
+    ev = Path(egb._events())
+    recs = [json.loads(l) for l in open(ev, encoding="utf-8")]
+    types = [x["event_type"] for x in recs]
+    assert "effect.settled" in types, types
+    assert "communication.sent" not in types, "settle نباید communication.sent بزند (گمراه‌کننده)"
+
+
 def t_e_chrono_untouched():
     """ساختاری: bridge هرگز schemaِ chrono را mutate نمی‌کند؛ فقط API عمومی‌اش را صدا می‌زند.
     (ذکرِ نامِ sweep_stale_effects در docstring مجاز است — چیزی که بلوک می‌کنیم فراخوانی/SQL است.)"""

@@ -153,7 +153,11 @@ def settle_fresh(gate, effect_id: str, *, now_ms: int | None = None,
     except Exception as e:  # noqa: BLE001
         return {"settled": False, "reason": f"settle_error:{type(e).__name__}"}
     if ok:
-        _emit("communication.sent", effect_id, {"age_hours": round(age_h, 3)})
+        # صداقتِ audit (کشفِ دموِ 2026-07-21): settle = «گیت اثر را پاک کرد»، نه «پیام ارسال شد».
+        # ارسالِ واقعی کارِ transport (outbound_worker) است که فعلاً NOT_ARMED است. پس این‌جا
+        # effect.settled می‌زنیم؛ communication.sent فقط باید از transportِ واقعیِ ارسال‌کننده بیاید
+        # (که چون مسلح نیست، هرگز امیت نمی‌شود) — تا لاگ نگوید چیزی فرستاده شد که نفرستاده.
+        _emit("effect.settled", effect_id, {"age_hours": round(age_h, 3)})
         idx.pop(str(effect_id), None)   # مصرف‌شده
         _save_ts(idx)
     return {"settled": ok, "reason": "settled" if ok else "gate_refused",
