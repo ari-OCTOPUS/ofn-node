@@ -96,6 +96,13 @@ if ($DoIt) {
   Start-Process -FilePath (Join-Path $LiveRoot '_ops\telegram_center\RUN-TG-CENTER.bat') -WorkingDirectory (Join-Path $LiveRoot '_ops') -WindowStyle Hidden
 }
 
+# --- 3b. register the tg-center watchdog (MOVED here from deploy, 2026-07-21) ---
+# Registration belongs at ACTIVATION, not deploy: the watchdog auto-revives center.py (a
+# Telegram poller), which must stay down until this activation step. Only now (Telegram is
+# meant to be live + token rotated) is auto-revival correct.
+Step "register tg-center watchdog scheduled task (auto-revive center.py)"
+if ($DoIt) { & (Join-Path $LiveRoot '_ops\register-tg-center-watchdog.ps1') -Apply }
+
 # --- 4. post-activation probes ---
 Step "probe: 8771 up, cortex 8772 up, cockpit 8773 up, TG poller alive, paid_gate CLOSED"
 if ($DoIt) {

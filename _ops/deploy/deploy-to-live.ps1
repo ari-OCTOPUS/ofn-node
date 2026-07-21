@@ -124,17 +124,36 @@ try {
     if ($LASTEXITCODE -ne 0) { Abort "ff-only checkout failed - live branch diverged; owner triage required." }
   }
 
-  # --- 3. ensure the 8 activation levers are ABSENT (paid/live gates closed) ---
-  foreach ($f in $ACT_FLAGS) {
-    $p = Join-Path $LiveRoot ("_ops\" + $f)
-    Step "remove activation lever _ops\$f (if present) - closes its live gate"
-    if ($DoIt -and (Test-Path $p)) { Remove-Item $p -Force }
-  }
+  # --- 3. ensure ALL activation levers are PHYSICALLY ABSENT (paid/live gates closed) ---
+  # NOTE (2026-07-21 audit): git rm --cached (D2) untracked these but KEPT the working-tree
+  # copies; a fresh checkout from ec64568 no longer contains them, but the live tree at a2183c3
+  # tracks+carries them, so we delete recursively (catch-all, not just the 8 named) + verify.
+  Step "back up then RECURSIVELY delete every _ops\ACTIVATION-*.flag from the live tree"
   if ($DoIt) {
-    $still = $ACT_FLAGS | Where-Object { Test-Path (Join-Path $LiveRoot ("_ops\" + $_)) }
-    if ($still) { Abort ("activation levers still present after removal: " + ($still -join ', ')) }
+    $flags = @(Get-ChildItem -Path (Join-Path $LiveRoot '_ops') -Filter 'ACTIVATION-*.flag' -File -ErrorAction SilentlyContinue)
+    if ($flags.Count) {
+      $flagBackup = Join-Path $snapDir 'activation-flags-backup'
+      New-Item -ItemType Directory -Force -Path $flagBackup | Out-Null
+      $flags | ForEach-Object { Copy-Item $_.FullName -Destination $flagBackup -Force; Note ("  backed up + will delete: " + $_.Name) }
+      $flags | Remove-Item -Force
+    }
+    $remain = @(Get-ChildItem -Path (Join-Path $LiveRoot '_ops') -Filter 'ACTIVATION-*.flag' -File -ErrorAction SilentlyContinue)
+    if ($remain.Count) { Abort ("activation levers still present after removal: " + (($remain | ForEach-Object Name) -join ', ')) }
+    Note ("activation levers removed: " + $flags.Count + " (paid/live gates now closed by absence)")
   }
-  Note "activation levers absent -> paid_gate()==False on next start"
+
+  # --- 3b. VERIFY paid_gate() is CLOSED post-removal (independent check; auto-rollback if OPEN) ---
+  Step "verify model_router.paid_gate() == CLOSED"
+  if ($DoIt) {
+    $py = "import sys; sys.path[:0]=[r'" + (Join-Path $LiveRoot '_ops') + "', r'" + (Join-Path $LiveRoot '_ops\cortex') + "', r'" + (Join-Path $LiveRoot '_ops\budget') + "']; import model_router as m; ok,why=m.paid_gate(); print('OPEN' if ok else 'CLOSED')"
+    $gate = (& python -X utf8 -c $py 2>&1 | Select-Object -Last 1)
+    Note ("paid_gate = " + $gate)
+    if ("$gate" -notmatch 'CLOSED') {
+      Write-Host "FATAL: paid_gate is not CLOSED after flag removal - rolling back." -ForegroundColor Red
+      & (Join-Path $PSScriptRoot 'rollback-from-snapshot.ps1') -SnapshotDir $snapDir -Apply -IUnderstand
+      Abort "paid_gate OPEN post-deploy; rollback invoked."
+    }
+  }
 
   # --- 4. verify no launcher/watchdog deploys a STOP-ORGANISM deletion ---
   Step "grep deployed launchers/watchdogs for 'del ... STOP-ORGANISM'"
@@ -144,9 +163,15 @@ try {
   }
   Note "no deployed artifact deletes STOP-ORGANISM (ok)"
 
-  # --- 5. register tg-center watchdog (twin + cortex/live watchdogs auto-pick new content) ---
-  Step "register tg-center watchdog scheduled task (D5 script, -Apply)"
-  if ($DoIt) { & (Join-Path $LiveRoot '_ops\register-tg-center-watchdog.ps1') -Apply }
+  # --- 5. watchdog content is auto-updated by the checkout; DO NOT register tg-center here ---
+  # DEFERRED TO ACTIVATION (2026-07-21 fix): register-tg-center-watchdog.ps1 schedules a task
+  # that REVIVES center.py (a Telegram poller). Registering it during DEPLOY would try to start
+  # a poller every 5 min -- violating the deploy invariant "Telegram pollers remain DOWN" (and it
+  # would use the not-yet-rotated .env token). The twin/cortex/live watchdog SOURCE is already
+  # refreshed by the step-2 checkout (they read the updated .ps1 on their next fire); no
+  # registration is needed for those. tg-center watchdog registration belongs in the ACTIVATION
+  # runbook, after token rotation. Deploy leaves the TG surface fully down.
+  Note "tg-center watchdog registration DEFERRED to activation (would start a poller); skipped."
 
   # --- 6. controlled restart of cortex(8772) + cockpit(8773) ONLY ---
   Step "restart cortex 8772 (kill-by-port + relaunch RUN-CORTEX.bat detached)"
