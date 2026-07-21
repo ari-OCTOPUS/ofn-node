@@ -82,14 +82,20 @@ try {
   Note "live HEAD:  $liveHead"
   Note "target SHA: $TargetSha"
 
-  # live tree cleanliness - the live tree is known to carry uncommitted/untracked work (Worker E).
-  $dirty = git status --porcelain
-  if ($dirty) {
-    Note "LIVE TREE IS DIRTY - the following must be triaged/backed-up before checkout:"
-    $dirty | ForEach-Object { Note "  $_" }
+  # live tree cleanliness (2026-07-21 fix): only TRACKED modifications block the checkout --
+  # they are what a checkout can clobber. Untracked files are PRESERVED by checkout (see step 2),
+  # and STOP-ORGANISM itself is a REQUIRED untracked file, so gating on the full porcelain
+  # output could never pass while the kill-switch exists.
+  $dirtyTracked = @(git status --porcelain --untracked-files=no)
+  $dirtyAll     = @(git -c core.quotePath=false status --porcelain)
+  if ($dirtyTracked.Count) {
+    Note "LIVE TREE HAS TRACKED MODIFICATIONS - these would be clobbered by checkout:"
+    $dirtyTracked | ForEach-Object { Note "  $_" }
     if ($DoIt) {
-      Abort "Refusing to auto-checkout over a dirty live tree. Snapshot is taken below; commit/stash the live work to a branch first, then re-run. (This is the owner-supervised triage step.)"
+      Abort "Refusing to checkout over tracked modifications. Commit them to a backup branch first (git add -u on a backup/pre-deploy-* branch), then re-run. (This is the owner-supervised triage step.)"
     }
+  } elseif ($dirtyAll.Count) {
+    Note ("untracked-only dirt: " + $dirtyAll.Count + " entries (preserved on disk by checkout; copied to snapshot below)")
   }
 
   # --- 1. snapshot (always safe; runs even in dry-run so a rollback substrate exists) ---
@@ -101,14 +107,19 @@ try {
   if ($DoIt) { git bundle create (Join-Path $snapDir 'live.bundle') --all }
   Step "copy untracked runtime work (personal\, _ops\state\, uncommitted _ops code) -> $snapDir"
   if ($DoIt) {
-    git status --porcelain | ForEach-Object { ($_ -replace '^...','') } | Where-Object { $_ } | ForEach-Object {
-      $src = Join-Path $LiveRoot $_
-      if (Test-Path $src) {
-        $dst = Join-Path $snapDir ("worktree\" + $_)
-        New-Item -ItemType Directory -Force -Path (Split-Path $dst) | Out-Null
-        Copy-Item $src $dst -Force -ErrorAction SilentlyContinue
+    # quotePath=false keeps non-ASCII paths raw; strip any remaining surrounding quotes.
+    # -Recurse so untracked DIRECTORIES are copied with contents (was silently empty before).
+    # Skip _git_tmp_obj_quarantine* (repo-object junk from a past incident; the bundle already
+    # holds all repo data) and .fuse_hidden* lock artifacts.
+    git -c core.quotePath=false status --porcelain | ForEach-Object { ($_ -replace '^...','').Trim('"') } |
+      Where-Object { $_ -and $_ -notmatch '_git_tmp_obj_quarantine|\.fuse_hidden' } | ForEach-Object {
+        $src = Join-Path $LiveRoot $_
+        if (Test-Path $src) {
+          $dst = Join-Path $snapDir ("worktree\" + $_)
+          New-Item -ItemType Directory -Force -Path (Split-Path $dst) | Out-Null
+          Copy-Item $src $dst -Force -Recurse -ErrorAction SilentlyContinue
+        }
       }
-    }
   }
   Step "checksum snapshot"
   if ($DoIt) { Get-ChildItem -Recurse -File $snapDir | Get-FileHash -Algorithm SHA256 | Export-Csv (Join-Path $snapDir 'checksums.csv') -NoTypeInformation }
@@ -120,6 +131,9 @@ try {
   if ($DoIt) {
     # switch the live tree onto the canonical branch at TargetSha. --merge keeps untracked files.
     git checkout master 2>&1 | Out-Null
+    if ((git rev-parse --abbrev-ref HEAD).Trim() -ne 'master') {
+      Abort "checkout of master failed (is master checked out in another worktree?) - live tree unchanged."
+    }
     git merge --ff-only $TargetSha 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) { Abort "ff-only checkout failed - live branch diverged; owner triage required." }
   }
