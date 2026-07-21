@@ -122,20 +122,39 @@ try {
       }
   }
   Step "checksum snapshot"
-  if ($DoIt) { Get-ChildItem -Recurse -File $snapDir | Get-FileHash -Algorithm SHA256 | Export-Csv (Join-Path $snapDir 'checksums.csv') -NoTypeInformation }
+  # exclude checksums.csv itself: hashing the file the pipeline is writing self-locks (2026-07-21).
+  if ($DoIt) { Get-ChildItem -Recurse -File $snapDir | Where-Object { $_.Name -ne 'checksums.csv' } | Get-FileHash -Algorithm SHA256 | Export-Csv (Join-Path $snapDir 'checksums.csv') -NoTypeInformation }
 
   # --- 2. deploy code (checkout tracked tree; UNTRACKED live files are preserved by git) ---
   Step "git fetch germline"
   if ($DoIt) { git fetch germline --quiet }
   Step "checkout live working tree to $TargetSha (tracked files only; untracked live files preserved)"
   if ($DoIt) {
-    # switch the live tree onto the canonical branch at TargetSha. --merge keeps untracked files.
-    git checkout master 2>&1 | Out-Null
-    if ((git rev-parse --abbrev-ref HEAD).Trim() -ne 'master') {
-      Abort "checkout of master failed (is master checked out in another worktree?) - live tree unchanged."
+    # switch the live tree onto the canonical branch at TargetSha. checkout keeps untracked files
+    # UNLESS an untracked path is tracked in the target tree - pre-flight those loudly, because
+    # a raw checkout failure under EAP=Stop dies as an opaque NativeCommandError (2026-07-21).
+    $targetSet = @{}
+    git -c core.quotePath=false ls-tree -r --name-only $TargetSha | ForEach-Object { $targetSet[$_] = $true }
+    $collide = @(git -c core.quotePath=false ls-files --others --exclude-standard | Where-Object { $targetSet.ContainsKey($_) })
+    if ($collide.Count) {
+      $collide | ForEach-Object { Note ("  COLLIDES: " + $_) }
+      Abort ("untracked live files collide with the target tree (" + $collide.Count + " above); MOVE them aside (e.g. into the snapshot's collisions\ dir - never delete) and re-run.")
     }
-    git merge --ff-only $TargetSha 2>&1 | Out-Null
-    if ($LASTEXITCODE -ne 0) { Abort "ff-only checkout failed - live branch diverged; owner triage required." }
+    # PS5.1: never 2>&1-redirect native git under EAP=Stop (stderr becomes a terminating
+    # NativeCommandError). Relax, capture for the log, then verify by observed state.
+    $ErrorActionPreference = 'Continue'
+    $coOut = git checkout master 2>&1
+    $ErrorActionPreference = 'Stop'
+    $coOut | ForEach-Object { Note ("  git: " + $_) }
+    if ((git rev-parse --abbrev-ref HEAD).Trim() -ne 'master') {
+      Abort "checkout of master failed (see git output above; is master checked out in another worktree?) - live tree unchanged."
+    }
+    $ErrorActionPreference = 'Continue'
+    $mgOut = git merge --ff-only $TargetSha 2>&1
+    $mergeExit = $LASTEXITCODE
+    $ErrorActionPreference = 'Stop'
+    $mgOut | ForEach-Object { Note ("  git: " + $_) }
+    if ($mergeExit -ne 0) { Abort "ff-only merge to target failed - master diverged; owner triage required." }
   }
 
   # --- 3. ensure ALL activation levers are PHYSICALLY ABSENT (paid/live gates closed) ---
