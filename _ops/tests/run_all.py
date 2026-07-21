@@ -97,6 +97,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # ساختاریافته؛ propose-only (هر شکست=ok=False fallback)، autonomy_matrix پیشنهاد را re-check
          # می‌کند + متنِ خام در گیت (مدل هرگز گیت را پایین نمی‌آورد). flag OCTOPUS_TG_LLM_ASK خاموش.
          "test_llm_intent.py",
+         # 2026-07-21 Trust-Engine فاز C: دیوارِ رضایت (fail-closed structural) + آداپترِ
+         # canonicalِ ورودی (submit_candidate) + برشِ عمودیِ synthetic (صفر ارسالِ بیرونی؛
+         # market_signal فایلِ draft نمی‌سازد؛ halt=receipt-only؛ flag OCTOPUS_WIRE_LEAD_CANDIDATES خاموش)
+         "test_consent_firewall.py", "test_lead_candidate_inbox.py",
          # 2026-07-21 Wave1-D: جداییِ liveness از کار/ارزشِ validated — metric_separation از
          # storeِ durable قطعی بازسازی می‌شود؛ تپش≠مولد، claim≠revenue، fake≠real delivery
          "test_metric_separation.py",
