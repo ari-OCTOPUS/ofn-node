@@ -157,3 +157,19 @@ method: "شواهدمحور: ممیزیِ اتصالاتِ 07-18 (۲۴ اندا�
 | WL2 | `_ops/cortex/wlos_bridge.py` ✨نو | سیگنال sanitized مالک برای مغز: خواندن whitelist-فقط از `state/wlos/owner-summary.json` (بدون هویت/بدون weight خام)؛ مصرف: `doctor/self_knowledge.snapshot()` فقط وقتی سیگنال هست | Doctor/Cortex | 💤 پشت `OCTOPUS_WIRE_WLOS` (خاموش) | low | **KEEP + فعال‌سازی با رأی مالک** (۵/۵ تست سبز؛ OCTOPUS هرگز در فایل سیگنال نمی‌نویسد) |
 
 شواهد: دلتا-اسکن 2026-07-20 (بستهٔ A/B/C در چت مالک) · تست‌ها: `_ops/tests/test_tradequote_bridge.py` + `test_wlos_bridge.py`.
+
+## 🎯 TRUST ENGINE — لولهٔ ارزشِ لید (فاز C، نو 2026-07-21، رأی تامِ مالک)
+
+طراحیِ حاکم: `03 - Projects/Lead-نقاشی/Trust-Engine-v1.1/PHASE-B-CONTRACTS/` (متخاصم-verify). همه flag-off، propose-only، صفر ارسالِ بیرونی.
+
+| ID | جزء | نقش | فلگ (خاموش) | Health | تست |
+|---|---|---|---|---|---|
+| TE1 | `_ops/legs/consent_firewall.py` ✨ | دیوارِ رضایتِ fail-closed (market_signal هرگز outreach؛ هر استثنا→بسته) — تابعِ خالص | — (کتابخانه، همیشه fail-closed) | ✅ قوسِ داخلی | `test_consent_firewall.py` 7/7 |
+| TE2 | `_ops/legs/lead_candidate_inbox.py` ✨ | آداپترِ canonicalِ ورودی (submit_candidate): validate→firewall→dedup→receipt→routing؛ market_signal فایلِ draft نمی‌سازد | `OCTOPUS_WIRE_LEAD_CANDIDATES` | 💤 | `test_lead_candidate_inbox.py` 8/8 (synthetic E2E) |
+| TE3 | `_ops/legs/lead_boundary_http.py` ✨ | مرزِ امضاشدهٔ `POST /api/v1/lead-candidates` روی 127.0.0.1:8774 (HMAC/nonce/idempotency/quarantine) | `OCTOPUS_WIRE_LEAD_BOUNDARY` | 💤 listener بالا نمی‌آید | `test_lead_boundary_http.py` 9/9 (+smoke سوکت) |
+| TE4 | `_ops/legs/effector_gate_bridge.py` ✨ | گاردِ stalenessِ releasable (settle_fresh): releasableِ کهنه refuse؛ chrono دست‌نخورده | — (کتابخانه) | ✅ | `test_effector_gate_bridge.py` 5/5 |
+| TE5 | `_ops/telegram_center/llm_intent.py` ✨ | فهمِ free-text مالک→پیشنهادِ مأموریتِ گیت‌شده (propose-only)؛ wired در `center._handle_ask` | `OCTOPUS_TG_LLM_ASK` | 💤 wired-shadow | `test_llm_intent.py` 8/8 + `test_llm_intent_wiring.py` 4/4 |
+| TE6 | `_ops/heart/cognition_effect.py` ✨ | ثبتِ effectِ شناختیِ بیرونی-تأییدشده (کانالِ value قلب) | `OCTOPUS_WIRE_COGNITION_EFFECT` | 💤 | `test_heart_cognition.py` 7/7 |
+| TE7 | `_ops/heart/fuel_meter.py` ✨ | مترِ سوختِ واقعیِ API/Ollama (خونِ قلب) + consumer در `producers.velocity_meter` | `OCTOPUS_WIRE_HEART_FUEL` | 💤 | `test_heart_fuel.py` 7/7 |
+
+فعال‌سازیِ کاملِ لوله (owner-gated، پس از رأی روی قراردادها): `set OCTOPUS_WIRE_LEAD_CANDIDATES=1` + `OCTOPUS_WIRE_LEAD_BOUNDARY=1` + secretهای `OCTOPUS_INGEST_SECRET_<SRC>` (فقط .env مالک) + restart. فاز C پیاده شد؛ فاز D (workerِ outbound واقعی) = رأیِ جدا.
