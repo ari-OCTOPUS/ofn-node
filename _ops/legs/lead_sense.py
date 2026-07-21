@@ -81,6 +81,12 @@ def read_inbox(limit: int | None = None) -> list[tuple[Path, dict]]:
         return []
     out: list[tuple[Path, dict]] = []
     for p in sorted(box.glob("*.json")):
+        # گاردِ همگراییِ دو inbox (2026-07-21): فایل‌های inboxِ قدیمیِ FROZEN (`LD-*`، schemaِ
+        # raw_text بدونِ description) و فایل‌های داخلی (`_*`) را نه بخوان و نه reject-move کن —
+        # فقط رد شو. وگرنه چون هر دو inbox روی یک دایرکتوری‌اند، این‌جا آن‌ها را (به‌خاطرِ نبودِ
+        # description) به rejected/ منتقل می‌کرد و lead_leg_inbox.get_lead دیگر پیدایشان نمی‌کرد.
+        if p.name.startswith("LD-") or p.name.startswith("_"):
+            continue
         try:
             d = json.loads(p.read_text("utf-8"))
             if not isinstance(d, dict) or not str(d.get("description", "")).strip():

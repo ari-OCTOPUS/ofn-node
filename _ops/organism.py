@@ -264,6 +264,9 @@ def main() -> int:
                                 name="telegram-poll")
             _poll_t.start()
             opslib.heartbeat("telegram poll thread started (T-8)")
+        # Trust-Engine ingress (2026-07-21): مرزِ امضاشدهٔ HTTP فقط پشتِ OCTOPUS_WIRE_LEAD_BOUNDARY
+        # (پیش‌فرض خاموش، خارج از PAPER_FULL) → no-op. loopback-only، fail-soft.
+        _lb_t = _w.maybe_start_lead_boundary()
         # جلسه ۴۶: تزریقِ db به دکتر — بدونِ آن calibration/effects_pending داده‌مرده بود
         # (اولین پیشنهادِ خودِ حلقهٔ خودارتقایی به خودش). زنده‌کنندهٔ حلقهٔ یادگیری. fail-soft.
         _doctor_db = None

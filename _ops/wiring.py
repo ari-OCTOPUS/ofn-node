@@ -184,7 +184,11 @@ def make_telegram_channel(leg=None):
         _gate = _ledger = None
         try:
             import chrono as _chrono_mod
-            _gate = _chrono_mod.EffectorGate(db=None)
+            # فیکسِ کرشِ نهفته (2026-07-21): db=None می‌کرد settle/request روی self.db.ex
+            # با AttributeError کرش کند لحظه‌ای که producerِ واقعی اضافه شود. ChronoDBِ واقعی
+            # تزریق می‌کنیم (مثلِ مسیرِ organism.py و doctor_db) تا مسیرِ settleِ تلگرام سالم بماند.
+            _gate_db = _chrono_mod.ChronoDB(str(opslib.STATE_DIR / "chrono.db"))
+            _gate = _chrono_mod.EffectorGate(db=_gate_db)
         except Exception:  # noqa: BLE001 — chrono import شکست = بدون gate
             pass
         kw = {"gate": _gate, "ledger": None, "state_dir": str(opslib.STATE_DIR)}
@@ -198,6 +202,28 @@ def make_telegram_channel(leg=None):
             return TelegramApprovalChannel(**kw)
     except Exception as e:  # noqa: BLE001
         opslib.alert([f"wiring: Telegram ساخت نشد: {e}"])
+        return None
+
+
+def maybe_start_lead_boundary():
+    """Trust-Engine ingress: مرزِ امضاشدهٔ HTTP (POST /api/v1/lead-candidates روی 127.0.0.1)
+    را فقط اگر OCTOPUS_WIRE_LEAD_BOUNDARY=1 باشد در یک daemon-thread راه‌انداز.
+
+    flag خاموش (پیش‌فرض، خارج از PAPER_FULL) → None، هیچ threadی، هیچ portی (بایت‌به‌بایتِ
+    امروز). fail-soft: هر خطا None + alert، هرگز بوت را نمی‌کشد. loopback-only (serve خودش
+    روی 127.0.0.1 bind می‌کند و دوباره enabled() را چک می‌کند — double-safe)."""
+    if os.environ.get("OCTOPUS_WIRE_LEAD_BOUNDARY") != "1":
+        return None
+    try:
+        import threading
+        sys.path.insert(0, str(_HERE / "legs"))
+        import lead_boundary_http as _lbh   # noqa: WPS433 — lazy
+        t = threading.Thread(target=_lbh.serve, daemon=True, name="lead-boundary-http")
+        t.start()
+        opslib.heartbeat("lead-boundary HTTP started (Trust-Engine ingress, loopback)")
+        return t
+    except Exception as e:  # noqa: BLE001 — ingress هرگز بوت را نمی‌کشد
+        opslib.alert([f"lead-boundary start failed (non-fatal): {type(e).__name__}: {e}"])
         return None
 
 

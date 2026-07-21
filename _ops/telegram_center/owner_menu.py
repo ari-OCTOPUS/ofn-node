@@ -68,6 +68,32 @@ def _lazy(modname: str):
         return None
 
 
+def _register_lead_canonical(intent: str):
+    """مسیرِ canonicalِ نو (Trust-Engine، پشتِ OCTOPUS_WIRE_LEAD_CANDIDATES): متنِ آزادِ مالک را
+    به lead_candidate_inbox.submit_candidate بده — متنی که مالک خودش تایپ کرده = consented_inbound
+    با basis=explicit (خودش درخواست کرده). خاموش (پیش‌فرض) → None تا caller به مسیرِ frozenِ قدیمی
+    fallback کند. هرگز چیزی نمی‌فرستد (submit_candidate هم external_send را همیشه False می‌گذارد)."""
+    if os.environ.get("OCTOPUS_WIRE_LEAD_CANDIDATES") != "1":
+        return None
+    try:
+        import hashlib
+        _lci = _lazy("legs.lead_candidate_inbox")
+        if _lci is None or not hasattr(_lci, "submit_candidate"):
+            return None
+        text = str(intent or "").strip()
+        candidate = {
+            "schema_version": "1.1",
+            "source": {"channel": "telegram_manual", "source_id": "owner",
+                       "external_id": "tg-" + hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]},
+            "candidate_type": "consented_inbound",
+            "consent": {"basis": "explicit", "evidence": "owner_typed_in_telegram"},
+            "request": {"scope_text": text},
+        }
+        return _lci.submit_candidate(candidate, source_id="owner")
+    except Exception:  # noqa: BLE001 — همگرایی هرگز مسیرِ mission را نمی‌کشد
+        return None
+
+
 def _is_important(intent: str):
     """Classify a request via autonomy_matrix (the owner-gate source of truth).
     Fail-safe: any doubt / unavailable -> important (gate). Matches the doctor's doctrine:
@@ -114,21 +140,26 @@ def handle_new_mission(intent: str, *, target_leg: str = "lead",
         env["gate_reason"] = why                       # owner sees WHY a verdict is needed
         return env                                     # capability held behind owner Telegram ✅
     if target_leg == "lead":
-        leg = _lazy("legs.lead_leg_inbox")     # GLM-A's real module name
-        if leg is not None and hasattr(leg, "register_lead"):
-            try:
-                rec = leg.register_lead(intent) or {}
-                if rec.get("ok") and rec.get("lead_id"):
-                    env["output_refs"] = [f"lead://{rec['lead_id']}"]
-                    env["status"] = "running"           # lead actually registered (new or dup)
-                elif rec.get("reason") == "gate_off":
-                    env["status"] = "queued"            # backend present but flag OFF — graceful
-                else:
-                    env["status"] = "blocked"           # empty_text / write_error — surfaced
-            except Exception:
-                env["status"] = "blocked"
-            return env
-        env["status"] = "queued"               # branch not merged yet — graceful
+        # همگراییِ producer (2026-07-21): اول مسیرِ canonicalِ Trust-Engine (submit_candidate،
+        # پشتِ OCTOPUS_WIRE_LEAD_CANDIDATES). خاموش → fallback به inboxِ frozenِ قدیمی.
+        rec = _register_lead_canonical(intent) or {}
+        if not rec:
+            leg = _lazy("legs.lead_leg_inbox")     # frozen fallback
+            if leg is not None and hasattr(leg, "register_lead"):
+                try:
+                    rec = leg.register_lead(intent) or {}
+                except Exception:
+                    rec = {"status": "blocked"}
+        if rec.get("ok") and rec.get("lead_id"):
+            env["output_refs"] = [f"lead://{rec['lead_id']}"]
+            env["status"] = "running"               # lead actually registered (new/dup/signal)
+        elif rec.get("reason") in ("gate_off", "flag off") or rec.get("status") == "gate_off":
+            env["status"] = "queued"                # backend present but flag OFF — graceful
+        elif rec:
+            env["status"] = "blocked"               # empty_text / write_error — surfaced
+        else:
+            env["status"] = "queued"                # no backend reachable — graceful
+        return env
     return env
 
 

@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 """lead_leg_inbox.py - Lead record backend: inbox persistence for raw leads.
 
+*** FROZEN (2026-07-21) — superseded by legs/lead_candidate_inbox.py (Trust-Engine canonical). ***
+این ماژول جای‌گزین شده: آداپترِ canonicalِ ورودیِ لید حالا `lead_candidate_inbox.submit_candidate`
+است (validate→consent-firewall→dedup→receipt→routing، فایل‌های `<uuid>.json`ِ description-دار).
+این ماژول schemaِ قدیمیِ `LD-<uuid>.json` با `raw_text` (بدونِ description) می‌نویسد که
+`lead_sense.read_inbox` حالا عمداً skipش می‌کند (گاردِ همگرایی). فایل + تستش برای سازگاریِ عقب
+می‌مانند (هرگز حذف — قانونِ اساسی)، ولی **`OCTOPUS_WIRE_LEAD_INBOX` منسوخ است و نباید روشن شود**
+(در ACTIVATION runbook هم نیست). مسیرِ زندهٔ نو: producerها → submit_candidate.
+
 Additive module (INV-12 compliant). Provides register_lead, list_leads, get_lead.
 Stores per-lead JSON files in _ops/state/legs/lead-inbox/<id>.json.
 Dedup: identical normalized text within 24h returns existing lead (no duplicate).
 Atomic write via tmp+os.replace. Fail-soft (never raises to caller).
 
-Gate: OCTOPUS_WIRE_LEAD_INBOX must be "1" (default OFF).
+Gate: OCTOPUS_WIRE_LEAD_INBOX must be "1" (default OFF, DEPRECATED — do not enable).
 """
 from __future__ import annotations
 
