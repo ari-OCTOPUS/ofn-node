@@ -66,6 +66,8 @@ updated: 2026-07-20
 
 ## Active Context
 
+- **2026-07-21 (فاز B ساخته شد — رأی صریح مالک «کامل و یکپارچه»):** بستهٔ طراحیِ **Octopus Trust Engine** وارد فاز B شد. خروجی در `Trust-Engine-v1.1/PHASE-B-CONTRACTS/` (۱۰ سند، master=`c4061e1`، germline×2): ۳ قراردادِ JSON (Lead/Event/Proposal — firewallِ رضایت ساختاراً در اسکیما قفل، پروب‌شده: market_signal هرگز outreach نمی‌سازد) + ماشین‌های حالتِ رضایت/قیف + مدلِ تهدید + مرزِ امضاشدهٔ `/api/v1/lead-candidates` + طرحِ مهاجرتِ دو inbox. با فن‌اوتِ چندایجنته + **راستی‌آزماییِ متخاصمِ مستقل**؛ ۲ یافتهٔ blocking اصلاحِ inline شد (ادعای غلطِ sweep_stale_effects روی `releasable`؛ سوراخِ consent در handoff → گیت بر candidate_type). سندِ حاکم: `PHASE-B-CONTRACTS/00_VERIFICATION_AND_FIXES.md`. **همه propose-only — فاز C (پیاده‌سازی) تا رأیِ مالک روی این قراردادها آغاز نمی‌شود.**
+- **2026-07-21:** ماژولِ `_ops/telegram_center/llm_intent.py` (فهمِ free-text مالک → پیشنهادِ ساختاریافته) از stagedِ untracked به کانونی ادغام شد، **پشتِ فلگِ خاموشِ `OCTOPUS_TG_LLM_ASK`** (no-op مطلق)، propose-only، تست ۸/۸. دو ماژولِ heart (fuel_meter/cognition_effect) HOLD ماند (تستشان به patchِ غایبِ producers.py وابسته است).
 - **2026-07-20:** به‌دستور مالک، اپ **TradeQuote Local** (Flutter/Drift — پیش‌فاکتور/فاکتور ATO-compliant با GST/ABN، PDF، اشتراک تلگرام/Gmail، بکاپ نسخه‌دار؛ MVP کامل ولی هنوز کامپایل‌نشده) وارد شد → `tradequote_local/` (بدون `.git` داخلی). نقش: ابزار کوتیشن/فاکتور دستِ مالک برای همین پا؛ الحاق به `lead_leg` فقط به‌صورت bridge پیشنهادیِ flag-off (بعد از پایان delta-scan نوشته می‌شود). گام حیاتی بعدی روی ماشین مالک: `tradequote_local/docs/BUILD_AND_RELEASE.md` §1 (create→pub get→build_runner→analyze→test→APK).
 - **2026-07-06 (جلسه ۱۷):** کد پروژه به `_code/` منتقل شد (B1 پلن NONMD-TRIAGE؛ propose→executed با verdict آری). لاگ کامل: `00 - Inbox/nonmd-move-log-2026-07-06.csv`.
 
@@ -77,7 +79,7 @@ updated: 2026-07-20
 ## Progress
 
 - چه کار می‌کند: Painting-OS P1-P3 کامل (کوتیشن + فاکتور + ایمیل) · زیرساخت brushline · چارچوب آزمایش
-- چه مانده: وایر `/lead` تلگرام · Gmail OAuth E2E · فرم وب‌سایت · PDF کوتیشن · فاکتور خودکار · داشبورد · SEO · **build اولین APK از `tradequote_local/` (R30) + پل lead_leg→TradeQuote (flag-off)**
+- چه مانده: وایر `/lead` تلگرام · Gmail OAuth E2E · فرم وب‌سایت · PDF کوتیشن · فاکتور خودکار · داشبورد · SEO · **build اولین APK از `tradequote_local/` (R30) + پل lead_leg→TradeQuote (flag-off)** · **رأیِ مالک روی قراردادهای فاز B → سپس فاز C (لولهٔ P0: مرزِ امضاشده + firewallِ رضایت + funnel + worker outbound)**
 - مشکلات شناخته: ABN واقعی هنوز وارد نشده · Gmail token هنوز صادر نشده
 
 ## Next actions
