@@ -573,6 +573,20 @@ class Center:
             # سقوط کنند. اول به Mission قابل‌ردیابی تبدیل می‌شوند؛ اجرا/apply همچنان
             # پشتِ action_graph/approval می‌ماند و اینجا فقط کارتِ کنترل ساخته می‌شود.
             mt = mission_mod.infer_mission_type(text)
+            # Trust-Engine wiring (پشتِ OCTOPUS_TG_LLM_ASK، پیش‌فرض خاموش): اگر تشخیصِ
+            # rule-based «general» شد، مغزِ خودِ بات (llm_intent.understand) free-text را می‌فهمد
+            # و اگر needs_mission بود، به مأموریتِ گیت‌شده ارتقا می‌دهد — فقط پیشنهاد، اجرا همچنان
+            # پشتِ همان گیت (autonomy_matrix دوباره چک می‌کند؛ مدل هرگز گیت را پایین نمی‌آورد).
+            # flag خاموش → این بلوک هیچ اجرا نمی‌شود؛ مسیرِ امروز بایت‌به‌بایت.
+            if mt == "general":
+                try:
+                    import llm_intent as _li
+                    if _li.enabled():
+                        _u = _li.understand(text)
+                        if isinstance(_u, dict) and _u.get("ok") and _u.get("needs_mission"):
+                            mt = "self_coding" if _u.get("intent") == "code" else "verification"
+                except Exception:  # noqa: BLE001 — فهمِ LLM هرگز مسیرِ بات را نمی‌کشد
+                    pass
             if mt != "general":
                 m = mission_mod.create_mission(text, source="telegram", mission_type=mt)
                 # bridge به صفِ تأیید unified: مأموریت‌های approval-required در mn:ap هم دیده شوند.

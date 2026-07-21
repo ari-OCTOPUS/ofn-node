@@ -96,7 +96,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # 2026-07-21 Trust-Engine: فهمِ free-text مالک با مغزِ خودِ بات (model_router) → پیشنهادِ
          # ساختاریافته؛ propose-only (هر شکست=ok=False fallback)، autonomy_matrix پیشنهاد را re-check
          # می‌کند + متنِ خام در گیت (مدل هرگز گیت را پایین نمی‌آورد). flag OCTOPUS_TG_LLM_ASK خاموش.
-         "test_llm_intent.py",
+         "test_llm_intent.py", "test_llm_intent_wiring.py",
          # 2026-07-21 Trust-Engine فاز C: دیوارِ رضایت (fail-closed structural) + آداپترِ
          # canonicalِ ورودی (submit_candidate) + برشِ عمودیِ synthetic (صفر ارسالِ بیرونی؛
          # market_signal فایلِ draft نمی‌سازد؛ halt=receipt-only؛ flag OCTOPUS_WIRE_LEAD_CANDIDATES خاموش)
