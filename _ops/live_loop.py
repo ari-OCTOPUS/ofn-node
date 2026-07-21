@@ -135,6 +135,21 @@ class LiveLoop:
         verdict = VerdictResult(approved=approved, effect_id=effect_id,
                                 source="ari", project=project)
         self._verdicts.append(verdict)
+        # HH-artery (2026-07-21): تأییدِ owner = external-validationِ یک آرتیفکتِ مغز → کانالِ
+        # «value»ِ قلب (cognition_effect). این orphanِ recorder را می‌بندد تا producers.velocity_meter
+        # ارزشِ واقعی را بخواند. flag OCTOPUS_WIRE_COGNITION_EFFECT خاموش (پیش‌فرض) → record خودش
+        # no-op است (بایت‌به‌بایت). فقط validator=owner (بیرونی، هرگز خودسنجی). observability محض —
+        # استریمِ خودش را می‌نویسد، هرگز ledger/effector. fail-soft.
+        if approved:
+            try:
+                import os as _os, sys as _sys   # noqa: WPS433
+                _hp = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "heart")
+                if _hp not in _sys.path:
+                    _sys.path.insert(0, _hp)
+                import cognition_effect as _ce   # noqa: WPS433 — lazy
+                _ce.record(project, effect_id, validator="owner", weight_class="decision")
+            except Exception:  # noqa: BLE001 — observability هرگز مسیرِ verdict را نمی‌کشد
+                pass
         # برگشت به مغز: archive
         if self.brain is not None:
             outcome = "approved" if approved else "rejected"
@@ -444,6 +459,23 @@ class LiveLoop:
         if mapped is None:
             return None
         meta["decided"] = mapped
+        # HH-artery observability (2026-07-21، پشتِ OCTOPUS_WIRE_COGNITION_EFFECT، flag-off=no-op):
+        # تأییدِ owner روی یک پیشنهادِ مغز = external-validation → کانالِ «value»ِ قلب. استریمِ
+        # heart-observabilityِ خودش را می‌نویسد؛ **هرگز ledger/effect/pay/approve** — پس مرزِ
+        # measurement-onlyِ این تابع (که دربارهٔ money-effect است) دست‌نخورده می‌ماند. گاردِ `decided`
+        # بالا idempotency می‌دهد (double-tap این‌جا نمی‌رسد). validator=owner (تپِ owner-gated). fail-soft.
+        if mapped == "approved":
+            try:
+                import os as _os2, sys as _sys2   # noqa: WPS433
+                _hp2 = _os2.path.join(_os2.path.dirname(_os2.path.abspath(__file__)), "heart")
+                if _hp2 not in _sys2.path:
+                    _sys2.path.insert(0, _hp2)
+                import cognition_effect as _ce2   # noqa: WPS433 — lazy
+                _ce2.record(str(meta.get("leg_id") or "proposal"),
+                            str(meta.get("proposal_id") or ""),
+                            validator="owner", weight_class="decision")
+            except Exception:  # noqa: BLE001 — observability هرگز مسیرِ رأی را نمی‌کشد
+                pass
         # ارزش فقط روی «آره» و فقط مبلغِ انتظاریِ خودِ پیشنهاد — proposal_value_aud را می‌جنباند،
         # نه confirmed_revenue. هیچ پولی جابه‌جا نشده؛ فقط مالک گفته «این را ببر جلو».
         value = float(meta.get("amount") or 0.0) if mapped == "approved" else 0.0

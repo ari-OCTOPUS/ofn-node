@@ -165,8 +165,8 @@ def _scored_tier(task: str) -> str | None:
     return None
 
 
-def ask(task: str, prompt: str, system: str = "", max_tokens: int = 400,
-        tier: str | None = None, opener=None, quality=None) -> dict:
+def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
+              tier: str | None = None, opener=None, quality=None) -> dict:
     """درِ واحد. خروجی همیشه dict: {ok, tier?, text?, reason?}.
     ردهٔ پولی بسته/ناموفق → local؛ local خاموش → ok=False با دلیلِ صادق.
 
@@ -267,6 +267,33 @@ def ask(task: str, prompt: str, system: str = "", max_tokens: int = 400,
             "reason": "local-llm-unavailable"
                       + (f" · {want} بسته: {fallback_reason}" if fallback_reason else ""),
             "hint": "ollama serve + مدل qwen2.5:1.5b (HH-P10)"}
+
+
+def ask(task: str, prompt: str, system: str = "", max_tokens: int = 400,
+        tier: str | None = None, opener=None, quality=None) -> dict:
+    """درِ واحدِ LLM (wrapper). رفتار = `_ask_impl` بایت‌به‌بایت + یک side-effectِ observability:
+    هر call واقعیِ LLM را در استریمِ «سوختِ» قلب ثبت می‌کند (fuel_meter) تا producers.velocity_meter
+    دادهٔ واقعی بخواند — بستنِ orphanِ کانالِ خون (HH-fuel، 2026-07-21).
+
+    flag `OCTOPUS_WIRE_HEART_FUEL` خاموش (پیش‌فرض) → fuel_meter.record خودش no-op است، پس این
+    wrapper بایت‌به‌بایتِ امروز است. ثبت در try/except و هرگز محتوا/prompt ثبت نمی‌شود (فقط
+    tier/model/cost/latency) — مسیرِ داغِ LLM هرگز کشته نمی‌شود."""
+    import time as _t
+    _t0 = _t.time()
+    res = _ask_impl(task, prompt, system, max_tokens, tier=tier, opener=opener, quality=quality)
+    try:
+        if isinstance(res, dict) and res.get("ok") and res.get("reason") != "kill-switch":
+            _hp = str(_HERE.parent / "heart") if "_HERE" in globals() else \
+                os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "heart")
+            if _hp not in sys.path:
+                sys.path.insert(0, _hp)
+            import fuel_meter as _fm   # noqa: WPS433 — lazy؛ خودش flag/kill را چک می‌کند
+            _fm.record(str(res.get("tier") or "local"), str(res.get("model") or ""),
+                       cost_usd=float(res.get("cost_usd") or 0.0),
+                       ms=int((_t.time() - _t0) * 1000), ok=True)
+    except Exception:  # noqa: BLE001 — observability هرگز مسیرِ LLM را نمی‌کشد
+        pass
+    return res
 
 
 if __name__ == "__main__":

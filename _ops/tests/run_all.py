@@ -49,6 +49,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # fuel_meter (سوختِ واقعیِ API=خونِ قلب) + consumerهایشان در producers.velocity_meter؛
          # هر دو flag-off no-op (OCTOPUS_WIRE_COGNITION_EFFECT / OCTOPUS_WIRE_HEART_FUEL)
          "test_heart_cognition.py", "test_heart_fuel.py",
+         # 2026-07-21 HH-artery wiring: بستنِ orphanِ کانال‌های خون — fuel_meter.record در
+         # model_router.ask (هر call واقعیِ LLM) + cognition_effect.record در live_loop.apply_ari_verdict
+         # (تأییدِ owner=external-validation). هر دو flag-off no-op؛ producers دادهٔ واقعی می‌خواند.
+         "test_heart_fuel_wiring.py", "test_heart_cognition_wiring.py",
          "test_heart_control.py", "test_heart_loop.py", "test_heart_work.py",
          "test_needs_nudge.py", "test_cortex.py", "test_live_cockpit.py",
          "test_telegram_poll_e2e.py", "test_self_improve.py",
