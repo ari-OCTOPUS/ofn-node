@@ -45,6 +45,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_fisher.py", "test_telegram_rfc_router.py",
          "test_cockpit_v2.py",
          "test_heart_math.py", "test_heart_producers.py",
+         # 2026-07-21 HH-artery: جداسازیِ دو پول — cognition_effect (ارزشِ بیرونی-تأییدشده) +
+         # fuel_meter (سوختِ واقعیِ API=خونِ قلب) + consumerهایشان در producers.velocity_meter؛
+         # هر دو flag-off no-op (OCTOPUS_WIRE_COGNITION_EFFECT / OCTOPUS_WIRE_HEART_FUEL)
+         "test_heart_cognition.py", "test_heart_fuel.py",
          "test_heart_control.py", "test_heart_loop.py", "test_heart_work.py",
          "test_needs_nudge.py", "test_cortex.py", "test_live_cockpit.py",
          "test_telegram_poll_e2e.py", "test_self_improve.py",

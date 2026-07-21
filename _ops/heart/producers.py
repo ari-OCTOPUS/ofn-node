@@ -150,36 +150,134 @@ def _count_beats(since: dt.datetime) -> int | None:
         return None
 
 
+# ─── consumerهای استریمِ heart-artery (HH two-money split، 2026-07-19) ────────────
+# این دو، طرفِ مصرف‌کنندهٔ استریم‌هایی‌اند که ماژول‌های cognition_effect/fuel_meter می‌نویسند.
+# read-only محض (open، نه append_jsonl — گاردِ t_h «تنها یک append» حفظ می‌شود). منبعِ غایب
+# را از None (cognition) یا (None,0) (fuel) تشخیص می‌دهیم تا کانالِ نو دروغِ صفر نسازد.
+COGNITION_STREAM = PULSE_DIR / "cognition-effects.jsonl"
+FUEL_STREAM = PULSE_DIR / "fuel-stream.jsonl"
+
+
+def _iter_jsonl(path: Path):
+    """خواندنِ خطیِ فقط‌خواندنیِ یک استریمِ jsonl — خطِ خراب skip (fail-soft)."""
+    if not path.exists():
+        return
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            for line in fh:
+                try:
+                    yield json.loads(line)
+                except (json.JSONDecodeError, ValueError):
+                    continue
+    except OSError:
+        return
+
+
+def _count_cognition(since: dt.datetime) -> int | None:
+    """effectهای شناختیِ بیرونی-تأییدشده (نویسنده: cognition_effect.record) در پنجره.
+    استریمِ غایب → None (کانالِ value خاموش، نه صفرِ دروغ)."""
+    if not COGNITION_STREAM.exists():
+        return None
+    n = 0
+    for rec in _iter_jsonl(COGNITION_STREAM):
+        t = _parse_ts(rec.get("ts"))
+        if t and t >= since:
+            n += 1
+    return n
+
+
+def _count_fuel(since: dt.datetime) -> tuple[int | None, int]:
+    """(callهای واقعیِ LLM، مجموعِ micro-USD) در پنجره (نویسنده: fuel_meter.record).
+    استریمِ غایب → (None, 0)؛ استریمِ موجودِ خارج‌ازپنجره → (0, 0)."""
+    if not FUEL_STREAM.exists():
+        return None, 0
+    calls, musd = 0, 0
+    for rec in _iter_jsonl(FUEL_STREAM):
+        t = _parse_ts(rec.get("ts"))
+        if t and t >= since:
+            calls += 1
+            try:
+                musd += int(rec.get("cost_musd", 0) or 0)
+            except (TypeError, ValueError):
+                pass
+    return calls, musd
+
+
 def velocity_meter(window_hours: float = 24.0, now: dt.datetime | None = None) -> dict:
-    """throughput per hour از منابعِ خارجی. منبعِ غایب از شمارش حذف و علامت می‌خورد."""
+    """throughput per hour از منابعِ خارجی. منبعِ غایب از شمارش حذف و علامت می‌خورد.
+
+    HH two-money (2026-07-19): «خونِ قلب» = سوخت (مصرفِ واقعیِ API/Ollama) جدا از «پولِ حساب»
+    (confirmed = KPIِ پا، در leg_money) و جدا از «ارزش» (cognitionِ بیرونی-تأییدشده). فرمولِ
+    کلاسیکِ velocity_per_hr در حالتِ honest-off بایت‌به‌بایت حفظ می‌شود (backward-compat)."""
     now = now or dt.datetime.now()
     since = now - dt.timedelta(hours=window_hours)
     confirmed, conf_stamps = _count_confirmed(since)
     effects = _count_effects_settled(since)
     consolidation = _count_consolidation(since)
     beats = _count_beats(since)
+    cognition = _count_cognition(since)
+    fuel_calls, fuel_musd = _count_fuel(since)
     components = {"confirmed": confirmed, "effects": effects,
-                  "consolidation": consolidation, "beats": beats}
-    available = {k: v for k, v in components.items() if v is not None}
+                  "consolidation": consolidation, "beats": beats,
+                  "cognition": cognition}
     # HH-P8 رأی ۲ (مصوبِ مالک): پول سنگین‌تر — CONFIRMED پیش‌فرض ×۳ (velocity of
     # money). beats فقط سیگنالِ حیات است (۰.۱). sample_size خام می‌ماند تا وزن،
-    # authoritative را مصنوعی نسازد.
+    # authoritative را مصنوعی نسازد. cognition/fuel در totalِ کلاسیک نمی‌آیند —
+    # کانالِ جدا دارند (value/real) تا metronomeِ کلاسیک بایت‌به‌بایت بماند.
+    classic_keys = ("confirmed", "effects", "consolidation", "beats")
+    available = {k: components[k] for k in classic_keys if components[k] is not None}
     w_confirmed = float(os.environ.get("HEART_W_CONFIRMED", "3.0"))
     weights = {"confirmed": w_confirmed, "effects": 1.0,
                "consolidation": 1.0, "beats": 0.1}
-    total = sum(v * weights[k] for k, v in available.items())
+    classic_total = sum(v * weights[k] for k, v in available.items())
     sample_size = sum(v for k, v in available.items() if k != "beats")
-    v_per_hr = (total / window_hours) if available else None
+
+    # ── کانال‌های جدا (خونِ قلب = سوخت؛ ارزش = cognition؛ پولِ حساب = leg_money) ──
+    honest = os.environ.get("OCTOPUS_HEART_HONEST_PULSE") == "1"
+    beat_cap = float(os.environ.get("HEART_HONEST_BEAT_CAP", "3.0"))
+    beat_units = (beats * weights["beats"]) if beats is not None else 0.0
+    fuel_units = float(fuel_calls) if fuel_calls is not None else 0.0
+    if honest:
+        # ضربانِ صادق: سوخت + کفِ سقف‌دارِ beats؛ پول/effects/consolidation ضربان جعل نمی‌کنند.
+        honest_total = fuel_units + min(beat_units, beat_cap)
+        v_total = honest_total
+        v_available = (fuel_calls is not None) or (beats is not None)
+    else:
+        v_total = classic_total
+        v_available = bool(available)
+    v_per_hr = (v_total / window_hours) if v_available else None
+
+    fuel_velocity = (fuel_calls / window_hours) if fuel_calls is not None else None
+    value_velocity = (cognition / window_hours) if cognition is not None else None
+    metronome_share = (round(beat_units / classic_total, 4)
+                       if classic_total > 0 else None)
+    named = sorted(available.keys())
+    if cognition is not None:
+        named = sorted(named + ["cognition"])
+    if fuel_calls is not None:
+        named = sorted(named + ["fuel"])
     return {
         "velocity_per_hr": None if v_per_hr is None else round(v_per_hr, 4),
         "components": components,
         "confirmed_ts": conf_stamps[-20:],
         "window_hours": window_hours,
         "sample_size": sample_size,
-        "sources_available": sorted(available.keys()),
+        "sources_available": named,
         "authoritative": bool(available) and sample_size >= MIN_VELOCITY_SAMPLES,
         "provenance": "external: reconcile-job/effector-gate/consolidation/pacemaker",
         "ts": opslib.now_iso(),
+        # ── HH two-money channels (خونِ جدا) ──
+        "fuel_velocity_per_hr": None if fuel_velocity is None else round(fuel_velocity, 4),
+        "value_velocity_per_hr": None if value_velocity is None else round(value_velocity, 4),
+        # خونِ قلب = سوخت (نه پولِ حساب، نه beats): real == fuel همیشه.
+        "real_velocity_per_hr": None if fuel_velocity is None else round(fuel_velocity, 4),
+        "real_components": {"fuel_calls": fuel_calls, "fuel_musd": fuel_musd},
+        "leg_money_count": confirmed,      # پولِ حساب = KPIِ پا، جدا از خونِ قلب
+        "metronome_share": metronome_share,
+        "honest_pulse": {"enabled": honest, "beat_cap": beat_cap,
+                         "capped_beat_units": round(min(beat_units, beat_cap), 4)},
+        "channels": {"leg_money": confirmed, "fuel": fuel_calls,
+                     "value_cognition": cognition, "effects": effects, "beats": beats},
     }
 
 
