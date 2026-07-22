@@ -597,6 +597,22 @@ class EffectorGate:
             self._note("EFFECT_REFUSED", {"effect_id": effect_id,
                                           "reason": "release_one without append ref"})
             return False
+        # C4.1 (2026-07-23): E4/money هرگز id-only آزاد نمی‌شود — یک approvalِ فقط-id روی یک
+        # effectِ پول یک bypass است (batch بسته شد ولی این تک‌اثری باز بود). پول فقط از
+        # release_effect (binding دقیق). money-rowِ بدونِ binding (legacy) → NEEDS_OWNER_REVIEW؛
+        # money-rowِ bound → refuse و pending می‌ماند تا release_effectِ دقیق. release_one فقط
+        # برای kindهای صریحاً غیر-E4 (ارسالِ مشتری: lead_outbound/customer_send) مجاز است.
+        _r = self.db.q("SELECT lower(trim(kind)), content_hash FROM gated_effect "
+                       "WHERE effect_id=? AND status='pending'", (effect_id,))
+        if _r and _r[0][0] in _E4_MONEY_KINDS:
+            if not str(_r[0][1] or "").strip():
+                self.db.ex("UPDATE gated_effect SET status='NEEDS_OWNER_REVIEW' "
+                           "WHERE effect_id=? AND status='pending'", (effect_id,))
+                _reason = "E4 id-only on legacy-unbound money → NEEDS_OWNER_REVIEW"
+            else:
+                _reason = "E4 money forbids id-only release — requires exact release_effect"
+            self._note("EFFECT_REFUSED", {"effect_id": effect_id, "reason": _reason})
+            return False
         cur = self.db.ex("UPDATE gated_effect SET status='releasable', release_ref=? "
                          "WHERE effect_id=? AND status='pending'", (ref, effect_id))
         ok = cur.rowcount == 1
@@ -636,7 +652,13 @@ class EffectorGate:
             except (TypeError, ValueError):
                 self._note("EFFECT_REFUSED", {"effect_id": effect_id, "reason": "bad expires_at"})
                 return False
-        ref = str(a.get("release_ref") or a.get("ref") or aid).strip()
+        # C4.1: مرجعِ لجرِ انسانی اجباری است — approval_id به‌تنهایی authority نیست.
+        # این ref باید از appendِ human-appendِ اعتبارسنجی‌شده بیاید (on_human_judgment: entry.hash).
+        ref = str(a.get("release_ref") or a.get("ref") or "").strip()
+        if not ref:
+            self._note("EFFECT_REFUSED",
+                       {"effect_id": effect_id, "reason": "missing human ledger reference (release_ref)"})
+            return False
         ch, ak, tr = a.get("content_hash"), a.get("action_kind"), a.get("target_ref")
         # تک‌UPDATEِ اتمیک: id + status=pending + bindingِ کامل + anti-replay (approval_id تک‌مصرفه)
         cur = self.db.ex(

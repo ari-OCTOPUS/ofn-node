@@ -59,7 +59,14 @@ except chrono.IdempotencyConflict:
     check("same key + different content -> IdempotencyConflict", True)
 
 # 5) settle path works for a keyed (idempotent) effect (release -> settle)
-gate.release_one(a1, {"hash": "fake-ledger-hash-abc"})
+# C4.1: 'pay' is E4/money → it may NOT be released id-only via release_one; it requires
+# exact per-effect authorization (release_effect with content/action/target binding + a
+# human ledger reference). Build the exact approval from the effect's own binding.
+_b = db.q("SELECT content_hash, action_kind, target_ref FROM gated_effect WHERE effect_id=?",
+          (a1,))[0]
+gate.release_effect(a1, {"effect_id": a1, "approval_id": "idem-appr-1",
+                         "content_hash": _b[0], "action_kind": _b[1], "target_ref": _b[2],
+                         "release_ref": "fake-ledger-hash-abc"})
 ok = gate.settle(a1)
 check("settle() works on an idempotent effect", ok is True)
 check("status_of reflects settled", gate.status_of(a1) == "settled")
