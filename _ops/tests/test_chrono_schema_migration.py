@@ -44,7 +44,7 @@ def _tmp():
 def t_a_fresh_db_migrates_to_v1():
     p = _tmp()
     chrono.ChronoDB(p).close()
-    assert _uv(p) == 1
+    assert _uv(p) == chrono.CHRONO_SCHEMA_TARGET
 
 
 def t_b_legacy_unversioned_v1_preserved():
@@ -57,19 +57,21 @@ def t_b_legacy_unversioned_v1_preserved():
     c.commit()
     c.close()
     chrono.ChronoDB(p).close()
-    assert _uv(p) == 1
+    assert _uv(p) == chrono.CHRONO_SCHEMA_TARGET
     c = sqlite3.connect(p)
-    n = c.execute("SELECT COUNT(*) FROM gated_effect WHERE effect_id='L1'").fetchone()[0]
+    row = c.execute("SELECT status FROM gated_effect WHERE effect_id='L1'").fetchone()
     c.close()
-    assert n == 1, "legacy data must survive migration"
+    assert row is not None, "legacy data must survive migration"
+    # C2: a legacy pending row has no per-effect binding -> quarantined, never auto-authorizable
+    assert row[0] == 'NEEDS_OWNER_REVIEW', f"legacy unbound pending must be quarantined, got {row[0]}"
 
 
 def t_c_already_v1_is_noop():
     p = _tmp()
     chrono.ChronoDB(p).close()
-    assert _uv(p) == 1
+    assert _uv(p) == chrono.CHRONO_SCHEMA_TARGET
     chrono.ChronoDB(p).close()   # second open
-    assert _uv(p) == 1
+    assert _uv(p) == chrono.CHRONO_SCHEMA_TARGET
 
 
 def t_d_malformed_gated_effect_fail_closed():
@@ -105,13 +107,27 @@ def t_f_version_never_decreases():
     v1 = _uv(p)
     chrono.ChronoDB(p).close()
     v2 = _uv(p)
-    assert v1 == 1 and v2 >= v1
+    assert v1 == chrono.CHRONO_SCHEMA_TARGET and v2 >= v1
+
+
+def t_g_v2_binding_columns_exist():
+    """C2: the per-effect authorization-binding columns are present after migration."""
+    p = _tmp()
+    chrono.ChronoDB(p).close()
+    c = sqlite3.connect(p)
+    cols = {r[1] for r in c.execute("PRAGMA table_info(gated_effect)")}
+    c.close()
+    for col in ("content_hash", "action_kind", "target_ref", "idempotency_key",
+                "proposal_id", "mission_id", "approval_id", "approved_by",
+                "approved_at", "expires_at"):
+        assert col in cols, f"v2 binding column {col} missing after migration"
 
 
 if __name__ == "__main__":
     _checks = [t_a_fresh_db_migrates_to_v1, t_b_legacy_unversioned_v1_preserved,
                t_c_already_v1_is_noop, t_d_malformed_gated_effect_fail_closed,
-               t_e_higher_unknown_version_fail_closed, t_f_version_never_decreases]
+               t_e_higher_unknown_version_fail_closed, t_f_version_never_decreases,
+               t_g_v2_binding_columns_exist]
     failed = 0
     for fn in _checks:
         try:

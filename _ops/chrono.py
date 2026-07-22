@@ -227,7 +227,7 @@ CREATE TABLE IF NOT EXISTS metabolic_age (
 """
 
 
-CHRONO_SCHEMA_TARGET = 1   # C1: current schema version (C2 will bump to 2)
+CHRONO_SCHEMA_TARGET = 2   # C1: framework (v1). C2: v2 adds per-effect binding columns.
 # canonical v1 column set of gated_effect — used to disambiguate a user_version=0
 # database into {empty | legacy-unversioned-v1 | malformed}.
 _GATED_EFFECT_V1_COLS = frozenset({
@@ -307,8 +307,52 @@ class ChronoDB:
         return to
 
     def _migrate_step(self, frm: int, to: int) -> None:
-        # C1 has no forward step beyond the v1 baseline; C2 will add (1, 2).
+        if (frm, to) == (1, 2):
+            self._migrate_1_to_2()
+            return
+        # C1 baseline; C2 adds (1,2). Later slices add further steps.
         raise ChronoSchemaError(f"chrono: no migration path v{frm} -> v{to}")
+
+    def _migrate_1_to_2(self) -> None:
+        """C2: add per-effect authorization-binding columns + widen the status
+        CHECK. Uses individual execute() (NOT executescript, which would COMMIT
+        and break the enclosing BEGIN IMMEDIATE). Legacy pending rows carry no
+        binding, so they become NEEDS_OWNER_REVIEW (never auto-authorizable)."""
+        con = self._con
+        con.execute("""CREATE TABLE gated_effect_v2 (
+          effect_id    TEXT PRIMARY KEY,
+          kind         TEXT NOT NULL,
+          payload_ref  TEXT NOT NULL,
+          created_beat INTEGER,
+          created_ts   INTEGER NOT NULL,
+          release_ref  TEXT,
+          status       TEXT NOT NULL DEFAULT 'pending'
+                       CHECK (status IN ('pending','releasable','settled','refused',
+                                         'NEEDS_OWNER_REVIEW','LEGACY_UNBOUND')),
+          content_hash    TEXT,
+          action_kind     TEXT,
+          target_ref      TEXT,
+          idempotency_key TEXT,
+          proposal_id     TEXT,
+          mission_id      TEXT,
+          approval_id     TEXT,
+          approved_by     TEXT,
+          approved_at     INTEGER,
+          expires_at      INTEGER
+        )""")
+        con.execute(
+            "INSERT INTO gated_effect_v2 "
+            "(effect_id,kind,payload_ref,created_beat,created_ts,release_ref,status) "
+            "SELECT effect_id,kind,payload_ref,created_beat,created_ts,release_ref,status "
+            "FROM gated_effect")
+        con.execute("DROP TABLE gated_effect")
+        con.execute("ALTER TABLE gated_effect_v2 RENAME TO gated_effect")
+        # any row still 'pending' at migration time has no per-effect binding →
+        # it cannot be exactly-authorized later; quarantine for owner review.
+        con.execute("UPDATE gated_effect SET status='NEEDS_OWNER_REVIEW' "
+                    "WHERE status='pending' AND (content_hash IS NULL OR content_hash='')")
+        con.execute("CREATE INDEX IF NOT EXISTS ix_gated_effect_idem "
+                    "ON gated_effect(idempotency_key)")
 
     def ex(self, sql: str, args: tuple = ()) -> sqlite3.Cursor:
         with self._lock:
