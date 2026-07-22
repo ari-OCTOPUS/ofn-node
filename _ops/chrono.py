@@ -221,11 +221,23 @@ CREATE TABLE IF NOT EXISTS metabolic_age (
   updated_beat INTEGER NOT NULL
 );
 
--- OCT-DB-06: baselineِ نسخهٔ اسکیمای chrono.db (فعلاً ۱). idempotent؛ هر ساختِ ChronoDB
--- این را ست می‌کند. مهاجرت‌های بعدی این عدد را بالا می‌برند و کد با `PRAGMA user_version`
--- می‌تواند تصمیم بگیرد.
-PRAGMA user_version = 1;
+-- OCT-DB-06 / C1 (2026-07-22): نسخهٔ اسکیمای chrono.db توسطِ ChronoDB._migrate اداره
+-- می‌شود، نه با یک `PRAGMA user_version = N` داخلِ این DDL. گذاشتنِ PRAGMA اینجا هر
+-- ساختِ ChronoDB نسخه را reset می‌کرد و guardِ مهاجرت را می‌شکست (C-A، critical).
 """
+
+
+CHRONO_SCHEMA_TARGET = 1   # C1: current schema version (C2 will bump to 2)
+# canonical v1 column set of gated_effect — used to disambiguate a user_version=0
+# database into {empty | legacy-unversioned-v1 | malformed}.
+_GATED_EFFECT_V1_COLS = frozenset({
+    "effect_id", "kind", "payload_ref", "created_beat",
+    "created_ts", "release_ref", "status"})
+
+
+class ChronoSchemaError(RuntimeError):
+    """chrono.db schema is inconsistent — fail-closed. Never auto-downgrade,
+    never silently proceed on a malformed or unknown-version DB."""
 
 
 class ChronoDB:
@@ -235,8 +247,68 @@ class ChronoDB:
         self._lock = threading.RLock()
         self._con = sqlite3.connect(str(self.path), check_same_thread=False)
         self._con.execute("PRAGMA journal_mode=WAL")
-        self._con.executescript(_DDL)
+        self._con.executescript(_DDL)     # CREATE TABLE IF NOT EXISTS ... (idempotent)
         self._con.commit()
+        try:
+            self._migrate()                # explicit, transactional, fail-closed
+        except Exception:
+            self._con.close()              # never leave a locked connection on a bad schema
+            raise
+
+    # ── C1: schema migration framework ──────────────────────────────────────
+    def _gated_effect_cols(self) -> frozenset | None:
+        rows = self._con.execute("PRAGMA table_info(gated_effect)").fetchall()
+        return frozenset(r[1] for r in rows) if rows else None
+
+    def _migrate(self) -> None:
+        """Bring chrono.db to CHRONO_SCHEMA_TARGET. Fail-closed on downgrade or a
+        malformed DB; a user_version=0 DB is disambiguated (not assumed) into
+        empty / legacy-unversioned-v1 (both -> v1) or malformed (-> error)."""
+        con = self._con
+        ver = con.execute("PRAGMA user_version").fetchone()[0]
+        if ver > CHRONO_SCHEMA_TARGET:
+            raise ChronoSchemaError(
+                f"chrono.db user_version={ver} > target {CHRONO_SCHEMA_TARGET}: "
+                "refusing to auto-downgrade (fail-closed)")
+        if ver == 0:
+            cols = self._gated_effect_cols()
+            if cols is None:
+                # _DDL ran before this (CREATE IF NOT EXISTS); a missing table => malformed.
+                raise ChronoSchemaError("gated_effect missing after DDL — malformed chrono.db")
+            if cols != _GATED_EFFECT_V1_COLS:
+                raise ChronoSchemaError(
+                    f"gated_effect columns {sorted(cols)} != v1 schema "
+                    f"{sorted(_GATED_EFFECT_V1_COLS)} — malformed chrono.db")
+            # fresh OR legacy-unversioned v1 (both are valid v1); stamp the version.
+            ver = self._stamp_version(1)
+        while ver < CHRONO_SCHEMA_TARGET:      # forward steps (C2 adds 1->2)
+            ver = self._apply_step(ver, ver + 1)
+        final = con.execute("PRAGMA user_version").fetchone()[0]
+        if final != CHRONO_SCHEMA_TARGET:
+            raise ChronoSchemaError(f"migration incomplete: {final} != {CHRONO_SCHEMA_TARGET}")
+
+    def _stamp_version(self, v: int) -> int:
+        self._con.execute(f"PRAGMA user_version = {int(v)}")   # int we control; not parameterizable
+        self._con.commit()
+        return int(v)
+
+    def _apply_step(self, frm: int, to: int) -> int:
+        """Apply exactly one version step ATOMICALLY: on any error the whole step
+        rolls back and user_version is unchanged (no half-migrated schema)."""
+        con = self._con
+        con.execute("BEGIN IMMEDIATE")
+        try:
+            self._migrate_step(frm, to)
+            con.execute(f"PRAGMA user_version = {int(to)}")
+            con.commit()
+        except Exception:
+            con.rollback()
+            raise
+        return to
+
+    def _migrate_step(self, frm: int, to: int) -> None:
+        # C1 has no forward step beyond the v1 baseline; C2 will add (1, 2).
+        raise ChronoSchemaError(f"chrono: no migration path v{frm} -> v{to}")
 
     def ex(self, sql: str, args: tuple = ()) -> sqlite3.Cursor:
         with self._lock:
