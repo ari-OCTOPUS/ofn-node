@@ -3,7 +3,7 @@
   "thread": "A",
   "branch": "phase0-A-halt",
   "base": "9f9a6dd",
-  "updated_at": "2026-07-22T22:58:44Z",
+  "updated_at": "2026-07-22T23:19:39Z",
   "d1_status": "IN-PROGRESS — canonical halt oracle already single (opslib.master_halted); closing per-component gaps from GLOBAL-HALT-MATRIX",
   "closed_this_session": [
     {
@@ -12,6 +12,13 @@
       "fix": "explicit master_halted() gate at send_one entry, supreme over flag",
       "test": "test_d1_outbound_halt 5/5",
       "verdict": "FACT"
+    },
+    {
+      "component": "wiring.py all 28 beats",
+      "was": "D2 unverified (halt-enforcement across job loops)",
+      "fix": "systematic static coverage guard (28/28 have canonical halt gate) + functional _tg_halt_reason/master_halted under HALT-ALL/STOP-ARCHITECT",
+      "test": "test_d2_halt_coverage 8/8",
+      "verdict": "FACT — D2 already correct in code, now regression-proof"
     }
   ],
   "still_open_D1": [
@@ -38,5 +45,6 @@
     "red-team SEC/TEST/MIG/GOV",
     "Owner Packet"
   ],
-  "dependency_note": "D3 effector-execution-halt depends on C5/C6 (settle CAS) which the parallel thread owns; integrate after their merge. D1 loop/watchdog/launcher halt is largely independent."
+  "dependency_note": "D3 effector-execution-halt depends on C5/C6 (settle CAS) which the parallel thread owns; integrate after their merge. D1 loop/watchdog/launcher halt is largely independent.",
+  "d2_status": "VERIFIED — all 28 wiring beats halt-gated (no gap found; false-positive on cockpit_requests_beat was a helper-name miss, _tg_halt_reason honors canonical halt)"
 }
