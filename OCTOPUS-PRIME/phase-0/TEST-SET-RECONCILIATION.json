@@ -1,23 +1,21 @@
 {
- "disk_count": 252,
- "unique_registered_TESTS": 248,
- "extra_offtree": 2,
- "file_runs": 250,
- "quarantined_with_reason": {
-  "test_mining_leg.py": "phantom: MiningLeg + wiring.make_mining_leg absent (run_all:211-213)",
-  "test_drawdown_enforcer.py": "phantom: budget_gate.DRAWDOWN_LOG/drawdown_status absent (run_all:213)",
-  "test_effector_idempotency.py": "phantom: EffectorGate.request_idempotent absent — TO BE REVIVED after C (owner directive #7)",
-  "test_tg_approval_store.py": "pre-existing red orphan, deliberately excluded (run_all:159)"
- },
- "classification_of_disk": {
-  "EXECUTED_VALID": 248,
-  "QUARANTINED_WITH_REASON": 4
+ "disk": 252,
+ "registered_unique": 249,
+ "extra": 2,
+ "file_runs": 251,
+ "classification": {
+  "EXECUTED_VALID": 249,
+  "QUARANTINED_WITH_REASON": 3
  },
  "OMITTED_ERROR": {
   "count": 0,
   "paths": []
  },
- "terminology": "250/250 unique valid FILE-RUNS (not test-case count); each file contains multiple assertions/checks",
- "blocker_test_now_registered": true,
- "note": "252 disk = EXECUTED_VALID + QUARANTINED_WITH_REASON; OMITTED_ERROR must be 0 at final gate"
+ "quarantined_with_reason": {
+  "test_mining_leg.py": "phantom: MiningLeg absent",
+  "test_drawdown_enforcer.py": "phantom: DRAWDOWN_LOG absent",
+  "test_effector_idempotency.py": "phantom: request_idempotent absent — REVIVE after C"
+ },
+ "tg_approval_store": "ADJUDICATED -> EXECUTED_VALID (was orphan)",
+ "terminology": "251/251 unique valid FILE-RUNS"
 }

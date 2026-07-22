@@ -162,9 +162,15 @@ def t_n_content_not_stored_in_job():
                            "sensitive_content": "secret-xyz-bait"})
     pending = aps.load_pending()
     job = pending[0]
-    assert "sensitive_content" not in job
+    assert "sensitive_content" not in job          # content-free invariant HOLDS
+    # 2026-07-22 characterization migration: `expires_epoch` (callback-token TTL,
+    # added 2026-07-20 Stage-1, approval_store.py:151) is legitimate CONTENT-FREE
+    # metadata (an int timestamp), so it is added to the allowed key set. The
+    # privacy invariant (no user content) is unchanged — only the stale whitelist
+    # is brought up to the current contract.
     assert set(job.keys()) <= {"id", "type", "title", "status", "risk", "created_at",
-                               "requires_confirmation", "dry_run_report", "source"}
+                               "expires_epoch", "requires_confirmation",
+                               "dry_run_report", "source"}
 
 
 if __name__ == "__main__":
