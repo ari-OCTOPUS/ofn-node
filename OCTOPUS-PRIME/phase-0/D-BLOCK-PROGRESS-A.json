@@ -1,0 +1,42 @@
+{
+  "_schema": "d-block-progress.v1",
+  "thread": "A",
+  "branch": "phase0-A-halt",
+  "base": "9f9a6dd",
+  "updated_at": "2026-07-22T22:58:44Z",
+  "d1_status": "IN-PROGRESS — canonical halt oracle already single (opslib.master_halted); closing per-component gaps from GLOBAL-HALT-MATRIX",
+  "closed_this_session": [
+    {
+      "component": "outbound_worker.py",
+      "was": "RISK: 0 halt refs (safety = NOT_ARMED stub + downstream gate only)",
+      "fix": "explicit master_halted() gate at send_one entry, supreme over flag",
+      "test": "test_d1_outbound_halt 5/5",
+      "verdict": "FACT"
+    }
+  ],
+  "still_open_D1": [
+    "organism.py per-loop + before-external-effect placement",
+    "telegram_center external-send gating",
+    "ps_writeback halt-before-each-writeback (money)",
+    "live/server control-plane endpoints",
+    "dashboard _do_restart refusal under halt",
+    "cortex (locate path + audit)",
+    "mission_runner (locate + audit, armed)",
+    "organism-watchdog.ps1 STOP-set parity",
+    "RUN-*.bat boot-time halt check",
+    "model_router/provider no-call-under-halt",
+    "web_research/mining/consolidation/evolution halt-before-start"
+  ],
+  "remaining_D": [
+    "D2 python runtime loops",
+    "D3 providers/external effects",
+    "D4 watchdog/launcher",
+    "D5 virtual-time integration"
+  ],
+  "then": [
+    "PRE-0 reachability",
+    "red-team SEC/TEST/MIG/GOV",
+    "Owner Packet"
+  ],
+  "dependency_note": "D3 effector-execution-halt depends on C5/C6 (settle CAS) which the parallel thread owns; integrate after their merge. D1 loop/watchdog/launcher halt is largely independent."
+}

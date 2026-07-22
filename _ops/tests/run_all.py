@@ -186,6 +186,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_cartographer_leg.py",
          "test_cartographer_wiring.py",
          "test_master_halt.py",
+         # 2026-07-23 D1: outbound worker honors canonical hard-halt at entry (was RISK: 0 halt refs;
+         # safety relied on downstream gate + NOT_ARMED stub). master_halted() supreme over flag. script-native.
+         "test_d1_outbound_halt.py",
          "test_panic_command.py", "test_tg_restart.py", "test_backup_visibility.py",
          "test_cortex_shadow_wiring.py", "test_route_scorer_wire.py",
          "test_leg_chain_wire.py", "test_render_legs.py", "test_new_legs.py",
