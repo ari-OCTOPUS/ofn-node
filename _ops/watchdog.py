@@ -32,9 +32,13 @@ import opslib        # noqa: E402
 # (پیش‌تر فقط architect-STOP و STOP-ORGANISM را می‌دید؛ HALT-ALL بی‌اثر بود).
 STOP_FLAGS = [
     opslib.HALT_ALL,                     # 🔴 پنیکِ سراسری (HALT-ALL) — MUST yield
-    _HERE.parent / "STOP",               # architect-level (سطحِ والد)
+    opslib.STOP_ARCHITECT,               # architect-level — canonical «04 - Architect System/STOP»
     opslib.STOP_ORGANISM,                # organism-level
 ]
+# BLOCKER-3 (split-brain STOP): پیش‌تر اینجا `_HERE.parent / "STOP"` (= ریشهٔ
+# F:\backup\STOP) بود که با مسیرِ canonicalِ opslib/loopها (`04 - Architect System/
+# STOP`) واگرا بود؛ STOP معمار روی مسیرِ درست، watchdog را متوقف نمی‌کرد →
+# boot-and-exit churn. حالا همه به `opslib.STOP_ARCHITECT` نشانه می‌روند.
 ORGANISM_PORT = 8771
 STATE_FILE = opslib.STATE_DIR / "ORGANISM-STATE.json"
 

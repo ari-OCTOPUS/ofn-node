@@ -497,12 +497,31 @@ def on_human_judgment(judgment: dict, gate: EffectorGate | None = None,
                 is_human = False
                 opslib.alert([f"human-append guard: is_human downgraded ({reason}) "
                               f"— append بدونِ توکنِ معتبر (ضدِ جعلِ E16)"])
-        except Exception:  # noqa: BLE001 — fail-safe: خطای گارد → رفتارِ قبلی
-            pass
+        except Exception as _guard_err:  # noqa: BLE001 — fail-CLOSED (§3.8)
+            # BLOCKER-1: خطای گارد دیگر «رفتارِ قبلی (is_human=True)» نیست — چون
+            # گاردِ armed است، خطای غیرمنتظره نباید یک append را انسانی جا بزند.
+            # «گاردِ پیکربندی‌نشده/خاموش» جداگانه از طریقِ reasonِ
+            # guard-disabled-passthrough بالا مدیریت می‌شود (به except نمی‌رسد)،
+            # پس این مسیر فقط خطاهای واقعی است → عدمِ اعتماد (age_tick جلو نمی‌رود).
+            is_human = False
+            opslib.alert([f"human-append guard: is_human downgraded "
+                          f"(guard-exception: {_guard_err!r}) — fail-closed (ضدِ جعلِ E16)"])
     entry = lg.append(event_type, judgment,
                       actor="human" if is_human else "system", is_human=is_human)
     if gate is not None:
-        gate.release_gated_effects(entry)
+        # BLOCKER-2 (§3.7b): یک approval که یک effectِ مشخص را نام می‌برد باید فقط
+        # همان را آزاد کند (id-bound، fail-closed via release_one) — نه اینکه با یک
+        # human-append همهٔ pendingهای money-kind را batch-release کند.
+        # باقی‌ماندهٔ صریح: approvalِ بدونِ effect_id هنوز مسیرِ batch (allowlistِ پول)
+        # را می‌گیرد؛ بستنِ کاملِ آن نیازمندِ ستونِ proposal_id روی gated_effect است
+        # (TH-K-3) — تغییرِ schema که به تصمیمِ طراحیِ مالک واگذار شده.
+        _eid = ""
+        if isinstance(judgment, dict):
+            _eid = str(judgment.get("effect_id") or "").strip()
+        if _eid:
+            gate.release_one(_eid, entry)
+        else:
+            gate.release_gated_effects(entry)
     return entry
 
 
