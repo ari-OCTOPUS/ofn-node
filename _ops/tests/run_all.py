@@ -283,6 +283,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # 2026-07-22 C3: RESURRECTED از phantom (owner #7) — idempotency در request()
          # (UNIQUE(idempotency_key)؛ keyless=بدون dedup؛ same-key+different-content=Conflict). script-native.
          "test_effector_idempotency.py",
+         # 2026-07-23 C4: exact per-effect fail-closed money/E4 authorization — money NEVER
+         # batches (release_gated_effects excludes _E4_MONEY_KINDS)؛ release_effect single
+         # atomic bind (id+content_hash+action_kind+target_ref+single-use approval+expiry). script-native.
+         "test_c4_exact_authorization.py",
          # 2026-07-22 F-COVERAGE adjudication: test_tg_approval_store دیگر orphanِ رد نیست —
          # ماژول/API واقعی است و reachable در production (center.py:1223-1224 approve/reject روی
          # مسیرِ approval مالک). تنها شکست، stale characterization بود (whitelistِ t_n فاقدِ

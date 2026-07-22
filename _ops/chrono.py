@@ -477,7 +477,12 @@ class ChronoBus:
 # سینونیم دور می‌خورد). هر kindِ خارج از این مجموعه (ارسالِ به مشتری، ناشناخته، هجیِ نو) → fail-safe
 # = فقط با release_one صریح. تطبیق case/whitespace-insensitive است (lower(trim(kind))).
 # money kindِ نو؟ این‌جا اضافه کن (وگرنه batch-release نمی‌شود — که سمتِ امنِ خطاست).
-_BATCH_RELEASE_KINDS = frozenset({"send", "publish", "sync", "pay"})
+# C4 (2026-07-23): "pay" (money/E4) از این allowlist حذف شد — پول هرگز batch نمی‌شود؛
+# فقط از مسیرِ release_effect (per-effect: id + content_hash + action_kind + target_ref +
+# approval_id تک‌مصرفه + expiry). یک approvalِ عمومی (بدونِ effect_id) صفر پول آزاد می‌کند.
+_BATCH_RELEASE_KINDS = frozenset({"send", "publish", "sync"})
+# money/E4 kinds — هرگز batch؛ فقط release_effect. تطبیق lower(trim(kind)).
+_E4_MONEY_KINDS = frozenset({"pay"})
 # مستندِ kindهای اثرگذار-بر-مشتری که باید per-effect (release_one) بروند (زیرمجموعهٔ «خارج از allowlist»).
 _PER_EFFECT_KINDS = frozenset({"lead_outbound", "customer_send"})
 
@@ -558,8 +563,22 @@ class EffectorGate:
         **قاعدهٔ allowlist (LEAD-SAFETY-C1):** فقط kindهای پول/داخلیِ شناخته‌شده
         (`_BATCH_RELEASE_KINDS`) با یک human-append batch-release می‌شوند. هر kindِ دیگر —
         ارسالِ به مشتری، ناشناخته، یا هجیِ غیرمتعارف — fail-safe فقط با `release_one` (صریح،
-        یکی-یکی) آزاد می‌شود. تطبیق case/whitespace-insensitive: `lower(trim(kind))`."""
+        یکی-یکی) آزاد می‌شود. تطبیق case/whitespace-insensitive: `lower(trim(kind))`.
+
+        **C4:** money/E4 (`_E4_MONEY_KINDS`) هرگز از این مسیر آزاد نمی‌شود — یک approvalِ عمومی
+        صفر پول release می‌کند؛ پول فقط از `release_effect`. هر پولِ pendingِ skip‌شده audit می‌شود."""
         ref = entry.get("hash", "")
+        # C4: پولِ pendingی که این approvalِ عمومی عمداً release نمی‌کند را auditable کن (نه سکوت).
+        _mk = sorted(_E4_MONEY_KINDS)
+        if _mk:
+            _mph = ",".join("?" for _ in _mk)
+            _sk = self.db.q("SELECT COUNT(*) FROM gated_effect WHERE status='pending' "
+                            f"AND lower(trim(kind)) IN ({_mph})", tuple(_mk))
+            _n_money = _sk[0][0] if _sk else 0
+            if _n_money:
+                self._note("EFFECT_BATCH_MONEY_SKIPPED",
+                           {"skipped": _n_money,
+                            "reason": "money/E4 requires exact release_effect (C4) — generic approval releases zero"})
         _ak = sorted(_BATCH_RELEASE_KINDS)
         _ph = ",".join("?" for _ in _ak)
         cur = self.db.ex("UPDATE gated_effect SET status='releasable', release_ref=? "
@@ -585,6 +604,65 @@ class EffectorGate:
                    {"effect_id": effect_id, "release_ref": ref,
                     "ok": ok, "reason": None if ok else "no single pending row"})
         return ok
+
+    def release_effect(self, effect_id: str, approval: dict) -> bool:
+        """C4 — authorizationِ دقیق، per-effect، fail-closed: **تنها مسیرِ مجازِ پول/E4**.
+        یک approval دقیقاً همین effect را آزاد می‌کند، bind به content_hash + action_kind +
+        target_ref، با approval_idِ تک‌مصرفه (anti-replay) و expiry. هر mismatch/replay/expiry/
+        غیر-pending/kill-switch → False و صفر release. تمام چک‌های binding در WHEREِ یک UPDATEِ
+        اتمیک‌اند (بی‌TOCTOU برای مرحلهٔ release). settle بعداً فقط 'releasable'+release_ref را می‌برد."""
+        kill = self.force_closed()
+        if kill:
+            self.db.ex("UPDATE gated_effect SET status='refused' WHERE effect_id=? "
+                       "AND status IN ('pending','releasable')", (effect_id,))
+            self._note("EFFECT_REFUSED", {"effect_id": effect_id, "reason": kill})
+            return False
+        a = approval if isinstance(approval, dict) else {}
+        aid = str(a.get("approval_id") or "").strip()
+        if not aid:
+            self._note("EFFECT_REFUSED", {"effect_id": effect_id, "reason": "empty approval_id"})
+            return False
+        if str(a.get("effect_id") or "") != str(effect_id):
+            self._note("EFFECT_REFUSED",
+                       {"effect_id": effect_id, "reason": "approval effect_id mismatch"})
+            return False
+        now = _utc_ms()
+        exp = a.get("expires_at")
+        if exp is not None:
+            try:
+                if now > int(exp):
+                    self._note("EFFECT_REFUSED", {"effect_id": effect_id, "reason": "approval expired"})
+                    return False
+            except (TypeError, ValueError):
+                self._note("EFFECT_REFUSED", {"effect_id": effect_id, "reason": "bad expires_at"})
+                return False
+        ref = str(a.get("release_ref") or a.get("ref") or aid).strip()
+        ch, ak, tr = a.get("content_hash"), a.get("action_kind"), a.get("target_ref")
+        # تک‌UPDATEِ اتمیک: id + status=pending + bindingِ کامل + anti-replay (approval_id تک‌مصرفه)
+        cur = self.db.ex(
+            "UPDATE gated_effect SET status='releasable', release_ref=?, approval_id=?, "
+            "approved_by=?, approved_at=? "
+            "WHERE effect_id=? AND status='pending' AND content_hash=? AND action_kind=? "
+            "AND target_ref=? AND NOT EXISTS (SELECT 1 FROM gated_effect WHERE approval_id=?)",
+            (ref, aid, a.get("approved_by") or "human", now, effect_id, ch, ak, tr, aid))
+        if cur.rowcount == 1:
+            self._note("EFFECT_RELEASE_EXACT",
+                       {"effect_id": effect_id, "approval_id": aid, "release_ref": ref})
+            return True
+        # fail-closed: تشخیصِ دلیل فقط برای audit (خواندنِ read-only، صفر تغییرِ حالت)
+        row = self.db.q("SELECT status, content_hash, action_kind, target_ref FROM gated_effect "
+                        "WHERE effect_id=?", (effect_id,))
+        if not row:
+            reason = "no such effect"
+        elif row[0][0] != "pending":
+            reason = f"not pending (status={row[0][0]})"
+        elif (row[0][1], row[0][2], row[0][3]) != (ch, ak, tr):
+            reason = "binding mismatch (content_hash/action_kind/target_ref)"
+        else:
+            reason = "approval_id already used (replay) or race"
+        self._note("EFFECT_REFUSED",
+                   {"effect_id": effect_id, "approval_id": aid, "reason": reason})
+        return False
 
     def status_of(self, effect_id: str) -> str | None:
         """وضعیتِ authoritative یک effect را فقط‌خواندنی برمی‌گرداند.
@@ -682,12 +760,27 @@ def on_human_judgment(judgment: dict, gate: EffectorGate | None = None,
         # effect_id هنوز batch (allowlistِ پول) — بستنِ کامل = ستونِ proposal_id روی
         # gated_effect (TH-K-3)، در CHRONO-SCHEMA-MIGRATION آماده می‌شود.
         _eid = ""
+        _has_binding = False
         if isinstance(judgment, dict):
             _eid = str(judgment.get("effect_id") or "").strip()
-        if _eid:
-            gate.release_one(_eid, entry)
+            _has_binding = any(judgment.get(k) for k in
+                               ("content_hash", "action_kind", "target_ref", "approval_id"))
+        if _eid and _has_binding:
+            # C4: authorizationِ دقیقِ per-effect (مسیرِ پول/E4). approval به
+            # content_hash/action_kind/target_ref bind می‌شود با approval_idِ تک‌مصرفه.
+            gate.release_effect(_eid, {
+                "effect_id": _eid,
+                "approval_id": str(judgment.get("approval_id") or entry.get("hash") or "").strip(),
+                "content_hash": judgment.get("content_hash"),
+                "action_kind": judgment.get("action_kind"),
+                "target_ref": judgment.get("target_ref"),
+                "approved_by": judgment.get("approved_by") or "human",
+                "expires_at": judgment.get("expires_at"),
+                "release_ref": entry.get("hash")})
+        elif _eid:
+            gate.release_one(_eid, entry)         # id-bound، مسیرِ غیرپولِ ارسالِ مشتری
         else:
-            gate.release_gated_effects(entry)
+            gate.release_gated_effects(entry)     # batch — پول/E4 مستثنا (C4)
     elif gate is not None:
         # append غیرمجاز به gate رسید → صفر release، ردِ صریح.
         opslib.alert(["human-append guard: unauthorized append — 0 effects released "
