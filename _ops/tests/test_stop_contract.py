@@ -31,6 +31,11 @@ def t_a_watchdog_default_flags_include_halt_all():
     names = [p.name for p in watchdog.STOP_FLAGS]
     assert "HALT-ALL" in names, f"HALT-ALL باید در STOP_FLAGS باشد: {names}"
     assert "STOP-ORGANISM" in names
+    # L-06: architect-STOP باید CANONICAL باشد (opslib.STOP_ARCHITECT = «04 - Architect
+    # System/STOP»)، نه مسیرِ مردهٔ ریشهٔ repo که watchdog پیش‌تر drift داده بود.
+    assert opslib.STOP_ARCHITECT in watchdog.STOP_FLAGS, \
+        f"architect STOP باید opslib.STOP_ARCHITECT باشد: {watchdog.STOP_FLAGS}"
+    assert opslib.STOP_ARCHITECT.parent.name == "04 - Architect System"
 
 
 def t_b_should_revive_yields_under_halt():
@@ -49,9 +54,12 @@ def t_b_should_revive_yields_under_halt():
 def t_c_stop_probe_global_halt(monkeypatch=None):
     with tempfile.TemporaryDirectory() as td:
         d = Path(td)
-        oh, os_org, ost = opslib.HALT_ALL, opslib.STOP_ORGANISM, getattr(opslib, "STOP", None)
+        # L-06: مسیرِ CANONICALِ architect را capture/monkeypatch کن (نه opslib.STOP
+        # که وجود ندارد) و شاخهٔ آن را واقعاً exercise کن — همه sandboxed، هرگز live.
+        oh, os_org, oa = opslib.HALT_ALL, opslib.STOP_ORGANISM, opslib.STOP_ARCHITECT
         opslib.HALT_ALL = d / "HALT-ALL"
         opslib.STOP_ORGANISM = d / "STOP-ORGANISM"
+        opslib.STOP_ARCHITECT = d / "STOP-ARCHITECT"
         try:
             # پاک → proceed
             assert stop_probe.global_halt()[0] is False
@@ -61,12 +69,17 @@ def t_c_stop_probe_global_halt(monkeypatch=None):
             assert stop_probe.global_halt()[0] is True
             assert stop_probe.should_yield()[0] is True
             opslib.HALT_ALL.unlink()
+            # architect STOP → global halt (شاخهٔ canonical؛ master_halted آن را می‌بیند)
+            opslib.STOP_ARCHITECT.write_text("kill", "utf-8")
+            assert stop_probe.global_halt()[0] is True
+            assert stop_probe.should_yield()[0] is True
+            opslib.STOP_ARCHITECT.unlink()
             # STOP-ORGANISM → yield ولی global_halt نه (کیلِ scoped)
             opslib.STOP_ORGANISM.write_text("kill", "utf-8")
             assert stop_probe.global_halt()[0] is False
             assert stop_probe.should_yield()[0] is True
         finally:
-            opslib.HALT_ALL, opslib.STOP_ORGANISM = oh, os_org
+            opslib.HALT_ALL, opslib.STOP_ORGANISM, opslib.STOP_ARCHITECT = oh, os_org, oa
 
 
 def t_d_stop_probe_fail_closed(monkeypatch=None):

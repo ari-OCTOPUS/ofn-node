@@ -55,9 +55,39 @@ def _ttl(namespace: str):
 class MemoryGate:
     """gateِ نوشتن. store تزریق می‌شود (تست = temp)؛ proposalها به jsonl (owner-only candidates)."""
 
-    def __init__(self, store, proposal_path=None):
+    def __init__(self, store, proposal_path=None, grade_receipt_validator=None):
         self._store = store
         self._proposal_path = Path(proposal_path) if proposal_path else None
+        # L-08/E16: GRADED requires an INDEPENDENT grader receipt validated here.
+        # Until a canonical receipt store is wired this stays None and NO external
+        # grade promotes (a claimant-set `external_graded` flag is ignored).
+        self._grade_receipt_validator = grade_receipt_validator
+
+    def _verify_external_grade(self, candidate, source) -> bool:
+        """True only for an INDEPENDENT, self-consistent grade receipt — never for
+        a claimant-controlled flag. Fail-closed on any missing field/error."""
+        import hashlib
+        try:
+            rec = candidate.get("grade_receipt")
+            if not isinstance(rec, dict):
+                return False
+            if not all(rec.get(k) for k in
+                       ("grader_id", "grade", "evidence_hash", "procedure", "receipt_id")):
+                return False
+            claimant = str(candidate.get("source") or source or "")
+            grader = str(rec.get("grader_id") or "")
+            if not grader or grader == claimant:          # grader must be independent
+                return False
+            if rec.get("grade") != "GRADED":
+                return False
+            content = str(candidate.get("content") or "")
+            if rec.get("evidence_hash") != hashlib.sha256(content.encode("utf-8")).hexdigest():
+                return False                              # receipt must bind to THIS content
+            if self._grade_receipt_validator is None:
+                return False                             # no canonical validator → OPEN
+            return bool(self._grade_receipt_validator(rec))
+        except Exception:
+            return False                                 # fail-closed
 
     def submit(self, candidate: dict) -> dict:
         """یک candidate را از FSM بگذران. خروجی: {verb, memory_id?, trust?, reason}."""
@@ -118,11 +148,12 @@ class MemoryGate:
             # مدل/agent فقط پیشنهاد می‌دهد — هرگز commit
             return "ADVISORY", "propose"
         if committer == "advisory_until_graded":         # self_knowledge — هرگز authoritative
-            if candidate.get("external_graded") is True:
+            if self._verify_external_grade(candidate, source):
                 return "GRADED", "commit"
             return "ADVISORY", "commit"
         if committer == "external_grade":                # self_claim
-            return ("GRADED" if candidate.get("external_graded") else "ADVISORY"), "commit"
+            return ("GRADED" if self._verify_external_grade(candidate, source)
+                    else "ADVISORY"), "commit"
         if committer == "scrub_salience_bar":            # semantic
             sal = candidate.get("salience")
             try:

@@ -1,0 +1,29 @@
+{
+ "manifest_total": 249,
+ "selected": 1,
+ "counts": {
+  "PASS": 1
+ },
+ "barrier_evidence_from_suite": {
+  "child_processes_with_evidence": 1,
+  "barrier_install_failures": 0,
+  "suite_attempted_live_writes": 0,
+  "suite_external_network_attempts": 0,
+  "attempted_live_write_samples": []
+ },
+ "note": "suite_attempted_live_writes MUST be 0 (distinct from barrier self-test probes)",
+ "results": [
+  {
+   "path": "F:\\octopus-phase0-isolated\\_ops\\tests\\test_stop_contract.py",
+   "name": "test_stop_contract.py",
+   "runner": "python",
+   "stage": 2,
+   "registered": true,
+   "timeout": 300,
+   "result": "PASS",
+   "returncode": 0,
+   "duration_s": 0.2,
+   "output_tail": "  ✅ t_c_stop_probe_global_halt\n  ✅ t_d_stop_probe_fail_closed\n  ✅ t_e_watchdog_ps1_honor_halt_all\n  ✅ t_f_twin_organism_watchdog_honors_halt_all\n\nOK test_stop_contract: 6/6"
+  }
+ ]
+}

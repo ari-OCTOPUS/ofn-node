@@ -73,10 +73,12 @@ def t_b_self_knowledge_always_advisory():
         out = g.submit({"namespace": "self_knowledge", "source": "llm:think",
                         "content": "the organism believes X", "mkey": "understanding"})
         assert out["verb"] == "commit" and out["trust"] == "ADVISORY"
-        # حتی با ادعای external_graded دروغین بدونِ منبع؟ external_graded=True → GRADED (سنجش‌شده)
+        # L-08/E16 (fixed): a claimant-set external_graded flag must NOT promote
+        # trust — GRADED requires an INDEPENDENT grader receipt, so a bare
+        # external_graded=True from the claimant stays ADVISORY (no self-grading).
         out2 = g.submit({"namespace": "self_knowledge", "source": "llm:think",
                          "content": "graded belief", "external_graded": True})
-        assert out2["trust"] == "GRADED"
+        assert out2["trust"] == "ADVISORY"
         # هرگز OWNER_CONFIRMED از llm:
         assert st.get("self_knowledge", "understanding")["trust"] == "ADVISORY"
         st.close()
