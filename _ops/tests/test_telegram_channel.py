@@ -25,6 +25,12 @@ ENV = harness.setup("telegram-channel")
 import approval_channel as ac  # noqa: E402
 from approval_channel import Approval, TelegramApprovalChannel as TC  # noqa: E402
 
+# F-G8: neutralise the default POST transport so no test path (e.g.
+# answerCallbackQuery, which is NOT injected like http_get) reaches the real
+# api.telegram.org. Poll paths already inject a fake http_get; this covers the
+# _url_json_post fallback. Fire-and-forget results are ignored by callers.
+ac._url_json_post = lambda *a, **k: {"ok": True, "result": {}}
+
 
 def _fake_get_factory(responses_for_url: dict, calls: list):
     """سازندهٔ http_get فیک. responses_for_url: {method_substring: json_dict | callable}.

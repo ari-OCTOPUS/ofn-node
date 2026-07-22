@@ -29,7 +29,8 @@ ORGANISM_PORT = 8771
 STATE_FILE = opslib.STATE_DIR / "ORGANISM-STATE.json"
 GOVERNOR_ALERTS = opslib.OPS / "governor" / "governor-alerts.md"
 STOP_FLAGS = [
-    opslib.OPS.parent / "STOP",
+    opslib.HALT_ALL,               # 🔴 global panic (HALT-ALL) — parity با watchdog.py (D-G)
+    opslib.STOP_ARCHITECT,         # canonical architect STOP (L-06: بود opslib.OPS.parent/"STOP" = root drift)
     opslib.OPS / "STOP-ORGANISM",
     opslib.OPS / "STOP-METABOLIC",
 ]

@@ -84,7 +84,8 @@ def make_sandbox(run_id: str) -> tuple[Path, dict]:
         "def _dump():\n"
         f"    p = os.path.join(r'{ev}', f'{{os.getpid()}}.json')\n"
         "    try:\n"
-        "        open(p,'w',encoding='utf-8').write(json.dumps(_B.summary()))\n"
+        "        s = _B.summary(); s['test_file'] = os.environ.get('OCTOPUS_TEST_FILE','?')\n"
+        "        open(p,'w',encoding='utf-8').write(json.dumps(s))\n"
         "    except Exception: pass\n"
         "atexit.register(_dump)\n", encoding="utf-8")
     env = dict(os.environ)
@@ -97,6 +98,9 @@ def make_sandbox(run_id: str) -> tuple[Path, dict]:
     env["GENOME_DIR"] = str(root / "vault" / "genome")
     env["TEMP"] = env["TMP"] = str(root / "tmp")
     env["BARRIER_FORBIDDEN_ROOT"] = str(LIVE_VAULT)
+    # point the local LLM at a dead loopback port so no real Ollama inference
+    # runs during the suite (deterministic; the probe fails-soft).
+    env["OLLAMA_BASE_URL"] = "http://127.0.0.1:9"
     # scrub obvious secrets (barrier also does this inside the child)
     for k in list(env):
         if any(t in k.upper() for t in ("TOKEN", "SECRET", "API_KEY", "APIKEY",
@@ -124,9 +128,11 @@ def run_one(entry: dict, env: dict) -> dict:
     cmd = ([sys.executable, "-X", "utf8", "-m", "pytest", "-q", str(p)]
            if entry["runner"] == "pytest" else
            [sys.executable, "-X", "utf8", str(p)])
+    child_env = dict(env)
+    child_env["OCTOPUS_TEST_FILE"] = entry["name"]
     t0 = time.perf_counter()
     try:
-        r = subprocess.run(cmd, cwd=str(p.parent), env=env, timeout=entry["timeout"],
+        r = subprocess.run(cmd, cwd=str(p.parent), env=child_env, timeout=entry["timeout"],
                            capture_output=True, text=True, encoding="utf-8", errors="replace")
         dt = time.perf_counter() - t0
         tail = "\n".join((r.stdout or "").splitlines()[-6:])
@@ -151,10 +157,20 @@ def aggregate_barrier(root: Path) -> dict:
         except Exception:
             pass
     failed = list((root / "barrier-evidence").glob("*.BARRIER_FAILED"))
+    ext_net_by_file = {}
+    for f in (root / "barrier-evidence").glob("*.json"):
+        try:
+            s = json.loads(f.read_text(encoding="utf-8"))
+            if s.get("network_attempts", 0) > 0:
+                tf = s.get("test_file", "?")
+                ext_net_by_file.setdefault(tf, []).extend(s.get("network_attempts_samples", []))
+        except Exception:
+            pass
     return {"child_processes_with_evidence": files,
             "barrier_install_failures": len(failed),
             "suite_attempted_live_writes": total_writes,
             "suite_external_network_attempts": total_net,
+            "external_network_by_file": ext_net_by_file,
             "attempted_live_write_samples": samples[:20]}
 
 

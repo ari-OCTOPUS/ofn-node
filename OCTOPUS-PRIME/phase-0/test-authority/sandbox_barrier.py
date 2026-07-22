@@ -176,7 +176,11 @@ def install() -> None:
     # ---- network: block EXTERNAL; allow loopback (in-process test servers)
     #      except paid/model ports (LiteLLM 4000, Ollama 11434) ----
     _LOOPBACK = {"127.0.0.1", "::1", "localhost", "0.0.0.0"}
-    _PAID_PORTS = {4000, 11434}
+    # Only PAID gateways are denied on loopback. LiteLLM (4000) fronts paid
+    # providers → deny. Ollama (11434) is free+local → it is loopback, NOT
+    # external and NOT paid; allow it (runner points OLLAMA_BASE_URL at a dead
+    # port for determinism so no real local inference runs in the suite).
+    _PAID_PORTS = {4000}
 
     def _net_ok(address) -> bool:
         try:
