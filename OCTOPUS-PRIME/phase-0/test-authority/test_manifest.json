@@ -1976,6 +1976,14 @@
   "timeout": 300
  },
  {
+  "path": "F:\\octopus-phase0-isolated\\_ops\\tests\\test_blocker_fixes_2026_07_22.py",
+  "name": "test_blocker_fixes_2026_07_22.py",
+  "runner": "pytest",
+  "stage": 1,
+  "registered": true,
+  "timeout": 300
+ },
+ {
   "path": "F:\\octopus-phase0-isolated\\07 - Knowledge\\Time-Architecture\\test_fusion_sim.py",
   "name": "test_fusion_sim.py",
   "runner": "python",

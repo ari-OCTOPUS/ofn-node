@@ -274,6 +274,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # 2026-07-18 رأی مالک «سریع‌تر + هوشمندتر» (فاز ب+الف؛ ج پارک): boot-think،
          # گیتِ کیفیتِ محلی-اول (پایانِ گرسنگیِ Fugu)، ماشهٔ کورتیزولی (flag-off).
          "test_brain_cortisol.py",
+         # 2026-07-22 PRE-0/F: تست‌های هرمتیکِ سه BLOCKER (fail-closed guard، id-bound
+         # release، STOP canonical). pytest-native (monkeypatch)؛ در PYTEST_TESTS ثبت شد.
+         "test_blocker_fixes_2026_07_22.py",
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
@@ -289,6 +292,7 @@ PYTEST_TESTS = {
     # (fixtureِ monkeypatch/tmp_path) هستند؛ این‌جا ثبت شدند تا واقعاً اجرا شوند.
     "test_ziman_wiring.py", "test_ziman_biology.py",
     "test_cartographer_leg.py", "test_cartographer_wiring.py",
+    "test_blocker_fixes_2026_07_22.py",   # pytest-native (monkeypatch fixtures)
 }
 
 if __name__ == "__main__":
