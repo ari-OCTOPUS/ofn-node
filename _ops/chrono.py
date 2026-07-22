@@ -506,15 +506,18 @@ def on_human_judgment(judgment: dict, gate: EffectorGate | None = None,
             is_human = False
             opslib.alert([f"human-append guard: is_human downgraded "
                           f"(guard-exception: {_guard_err!r}) — fail-closed (ضدِ جعلِ E16)"])
+    # BLOCKER-1 (fail-closed در کلِ مسیر، نه فقط برچسبِ ledger):
+    # یک append که قضاوتِ انسانیِ authorized نیست (گارد armed رد/خطا داد) به‌عنوانِ
+    # مشاهدهٔ سیستمی ثبت می‌شود ولی **نباید هیچ effectی را release یا settle کند**.
+    # invariantِ اجباری:  authorized == False  ⇒  released == 0  ⇒  settled == 0
+    authorized = is_human
     entry = lg.append(event_type, judgment,
                       actor="human" if is_human else "system", is_human=is_human)
-    if gate is not None:
-        # BLOCKER-2 (§3.7b): یک approval که یک effectِ مشخص را نام می‌برد باید فقط
-        # همان را آزاد کند (id-bound، fail-closed via release_one) — نه اینکه با یک
-        # human-append همهٔ pendingهای money-kind را batch-release کند.
-        # باقی‌ماندهٔ صریح: approvalِ بدونِ effect_id هنوز مسیرِ batch (allowlistِ پول)
-        # را می‌گیرد؛ بستنِ کاملِ آن نیازمندِ ستونِ proposal_id روی gated_effect است
-        # (TH-K-3) — تغییرِ schema که به تصمیمِ طراحیِ مالک واگذار شده.
+    if gate is not None and authorized:
+        # BLOCKER-2 (§3.7b): approval که effectِ مشخص را نام می‌برد فقط همان را
+        # via release_one آزاد می‌کند (id-bound). باقی‌ماندهٔ صریح: approvalِ بدونِ
+        # effect_id هنوز batch (allowlistِ پول) — بستنِ کامل = ستونِ proposal_id روی
+        # gated_effect (TH-K-3)، در CHRONO-SCHEMA-MIGRATION آماده می‌شود.
         _eid = ""
         if isinstance(judgment, dict):
             _eid = str(judgment.get("effect_id") or "").strip()
@@ -522,6 +525,10 @@ def on_human_judgment(judgment: dict, gate: EffectorGate | None = None,
             gate.release_one(_eid, entry)
         else:
             gate.release_gated_effects(entry)
+    elif gate is not None:
+        # append غیرمجاز به gate رسید → صفر release، ردِ صریح.
+        opslib.alert(["human-append guard: unauthorized append — 0 effects released "
+                      "(fail-closed release gate, §3.8 invariant)"])
     return entry
 
 
