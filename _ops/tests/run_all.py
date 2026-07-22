@@ -280,6 +280,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # 2026-07-22 C1: چارچوبِ migrationِ اسکیمای chrono.db (حذفِ PRAGMAِ clobber‌کننده از
          # DDL + dispatcherِ transactionalِ fail-closed + تفکیکِ empty/legacy/malformed). script-native.
          "test_chrono_schema_migration.py",
+         # 2026-07-22 C3: RESURRECTED از phantom (owner #7) — idempotency در request()
+         # (UNIQUE(idempotency_key)؛ keyless=بدون dedup؛ same-key+different-content=Conflict). script-native.
+         "test_effector_idempotency.py",
          # 2026-07-22 F-COVERAGE adjudication: test_tg_approval_store دیگر orphanِ رد نیست —
          # ماژول/API واقعی است و reachable در production (center.py:1223-1224 approve/reject روی
          # مسیرِ approval مالک). تنها شکست، stale characterization بود (whitelistِ t_n فاقدِ

@@ -1992,6 +1992,14 @@
   "timeout": 300
  },
  {
+  "path": "F:\\octopus-phase0-isolated\\_ops\\tests\\test_effector_idempotency.py",
+  "name": "test_effector_idempotency.py",
+  "runner": "python",
+  "stage": 2,
+  "registered": true,
+  "timeout": 300
+ },
+ {
   "path": "F:\\octopus-phase0-isolated\\_ops\\tests\\test_tg_approval_store.py",
   "name": "test_tg_approval_store.py",
   "runner": "python",

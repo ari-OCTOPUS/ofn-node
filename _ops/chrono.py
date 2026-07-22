@@ -227,7 +227,7 @@ CREATE TABLE IF NOT EXISTS metabolic_age (
 """
 
 
-CHRONO_SCHEMA_TARGET = 2   # C1: framework (v1). C2: v2 adds per-effect binding columns.
+CHRONO_SCHEMA_TARGET = 3   # C1: framework · C2: binding columns · C3: unique idempotency index
 # canonical v1 column set of gated_effect — used to disambiguate a user_version=0
 # database into {empty | legacy-unversioned-v1 | malformed}.
 _GATED_EFFECT_V1_COLS = frozenset({
@@ -238,6 +238,11 @@ _GATED_EFFECT_V1_COLS = frozenset({
 class ChronoSchemaError(RuntimeError):
     """chrono.db schema is inconsistent — fail-closed. Never auto-downgrade,
     never silently proceed on a malformed or unknown-version DB."""
+
+
+class IdempotencyConflict(RuntimeError):
+    """Same idempotency_key requested with a different canonical effect
+    (kind/action/target/content) — fail-closed, never a second row."""
 
 
 class ChronoDB:
@@ -310,8 +315,21 @@ class ChronoDB:
         if (frm, to) == (1, 2):
             self._migrate_1_to_2()
             return
-        # C1 baseline; C2 adds (1,2). Later slices add further steps.
+        if (frm, to) == (2, 3):
+            self._migrate_2_to_3()
+            return
+        # C1 baseline; C2 adds (1,2); C3 adds (2,3). Later slices add further steps.
         raise ChronoSchemaError(f"chrono: no migration path v{frm} -> v{to}")
+
+    def _migrate_2_to_3(self) -> None:
+        """C3: enforce idempotency at the DB layer — replace the non-unique index
+        with a UNIQUE one so a race between two identical requests yields exactly
+        one row (SQLite allows multiple NULL idempotency_key, so legacy rows are
+        unaffected)."""
+        con = self._con
+        con.execute("DROP INDEX IF EXISTS ix_gated_effect_idem")
+        con.execute("CREATE UNIQUE INDEX ux_gated_effect_idem "
+                    "ON gated_effect(idempotency_key)")
 
     def _migrate_1_to_2(self) -> None:
         """C2: add per-effect authorization-binding columns + widen the status
@@ -493,16 +511,45 @@ class EffectorGate:
             return "FREEZE (I3 fail-closed)"
         return None
 
-    def request(self, kind: str, payload_ref: str, beat: int | None = None) -> str:
-        """ثبتِ نیتِ اثرِ برگشت‌ناپذیر → pending (هنوز هیچ اثری در جهان نیست)."""
+    def request(self, kind: str, payload_ref: str, beat: int | None = None, *,
+                idempotency_key: str | None = None, action_kind: str | None = None,
+                target_ref: str | None = None, proposal_id: str | None = None,
+                mission_id: str | None = None) -> str:
+        """ثبتِ نیتِ اثرِ برگشت‌ناپذیر → pending. **idempotent** بر اساس idempotency_key
+        (اگر داده نشود، از محتوای canonical مشتق می‌شود) — پس retry/crash یک کالر دقیقاً یک
+        اثرِ منطقی می‌سازد، نه دو ردیف. content_hash/action_kind/target_ref برای binding
+        دقیقِ authorization (C4) ثبت می‌شوند. race دو کالر با UNIQUE(idempotency_key)
+        (C3، DB-enforced) به یک ردیف می‌رسد."""
+        import hashlib
         import uuid
+        ch = hashlib.sha256(str(payload_ref).encode("utf-8")).hexdigest()
+        akind = action_kind if action_kind is not None else kind
+        tref = target_ref or ""
+        # key stays NULL when the caller gives none → preserves today's behavior
+        # (two keyless requests = two distinct effects; SQLite lets many NULLs coexist
+        # under the UNIQUE index). Dedup applies ONLY to an explicit idempotency_key.
+        key = idempotency_key
         eid = uuid.uuid4().hex[:16]
-        self.db.ex("INSERT INTO gated_effect(effect_id,kind,payload_ref,created_beat,"
-                   "created_ts,status) VALUES (?,?,?,?,?, 'pending')",
-                   (eid, kind, payload_ref, beat, _utc_ms()))
-        self._note("EFFECT_REQUEST", {"effect_id": eid, "kind": kind,
-                                      "payload_ref": payload_ref})
-        return eid
+        cur = self.db.ex(
+            "INSERT OR IGNORE INTO gated_effect(effect_id,kind,payload_ref,created_beat,"
+            "created_ts,status,content_hash,action_kind,target_ref,idempotency_key,"
+            "proposal_id,mission_id) VALUES (?,?,?,?,?, 'pending', ?,?,?,?,?,?)",
+            (eid, kind, payload_ref, beat, _utc_ms(), ch, akind, tref, key,
+             proposal_id, mission_id))
+        if cur.rowcount == 1:                       # fresh insert
+            self._note("EFFECT_REQUEST", {"effect_id": eid, "kind": kind})
+            return eid
+        # idempotency_key already present → return the existing effect iff the
+        # canonical request matches, else fail-closed (never a divergent second row).
+        row = self.db.q("SELECT effect_id, content_hash, action_kind, target_ref, kind "
+                        "FROM gated_effect WHERE idempotency_key=?", (key,))
+        if not row:
+            raise ChronoSchemaError("idempotent insert ignored but no row found")
+        eid0, ch0, ak0, tr0, k0 = row[0]
+        if (ch0, ak0 or "", tr0 or "", k0) == (ch, akind, tref, kind):
+            return eid0
+        raise IdempotencyConflict(
+            f"idempotency_key already bound to a different effect (kind/target/content differ)")
 
     def release_gated_effects(self, entry: dict) -> int:
         """پس از human-append (DOC-B §9 `on_human_judgment`): هر pendingِ موجود

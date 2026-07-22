@@ -1,11 +1,11 @@
 {
- "disk": 252,
- "registered_unique": 249,
+ "disk": 253,
+ "registered_unique": 251,
  "extra": 2,
- "file_runs": 251,
+ "file_runs": 253,
  "classification": {
-  "EXECUTED_VALID": 249,
-  "QUARANTINED_WITH_REASON": 3
+  "EXECUTED_VALID": 251,
+  "QUARANTINED_WITH_REASON": 2
  },
  "OMITTED_ERROR": {
   "count": 0,
@@ -13,9 +13,9 @@
  },
  "quarantined_with_reason": {
   "test_mining_leg.py": "phantom: MiningLeg absent",
-  "test_drawdown_enforcer.py": "phantom: DRAWDOWN_LOG absent",
-  "test_effector_idempotency.py": "phantom: request_idempotent absent — REVIVE after C"
+  "test_drawdown_enforcer.py": "phantom: DRAWDOWN_LOG absent"
  },
- "tg_approval_store": "ADJUDICATED -> EXECUTED_VALID (was orphan)",
- "terminology": "251/251 unique valid FILE-RUNS"
+ "revived": "test_effector_idempotency (C3) -> EXECUTED_VALID (was phantom); tg_approval_store adjudicated earlier",
+ "remaining_phantoms": 2,
+ "terminology": "253/253 unique valid FILE-RUNS (case/check counts are higher — each file holds multiple assertions)"
 }

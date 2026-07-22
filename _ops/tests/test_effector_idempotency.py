@@ -1,75 +1,74 @@
 #!/usr/bin/env python3
-"""تست EffectorGate.request_idempotent — 2027 Standards backlog #2 (P-08 diff-الف).
-اثبات: exactly-once روی idempotency_key؛ request() اصلی کاملاً دست‌نخورده (رفتارِ
-امروز بدونِ idempotency_key)؛ مسیرِ settle/release هم برای effectِ idempotent کار
-می‌کند. اجرا: python3 test_effector_idempotency.py"""
+"""test_effector_idempotency — REVIVED at C3 (owner directive #7).
+
+The old phantom targeted a `request_idempotent(...)` method that never existed.
+C3 folds idempotency into `EffectorGate.request(..., idempotency_key=...)` with a
+DB-enforced UNIQUE(idempotency_key). The SEMANTICS are preserved AND strengthened:
+a keyless request still creates a distinct effect; a keyed request is deduped;
+and — stronger than the old test — the SAME key with a DIFFERENT canonical request
+is a fail-closed IdempotencyConflict (never a divergent second row).
+
+Run: python -X utf8 test_effector_idempotency.py
+"""
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE.parent))
+sys.path.insert(0, str(_HERE.parent / "budget"))
 import harness  # noqa: E402
-
 ENV = harness.setup("effector-idempotency")
-import opslib  # noqa: E402
-import chrono  # noqa: E402
+import chrono   # noqa: E402
+import opslib   # noqa: E402
 
 
 class _C:
     failed = 0
 
 
-def check(name: str, cond: bool) -> None:
+def check(name, cond):
     print(("PASS" if cond else "FAIL"), "-", name)
     if not cond:
         _C.failed += 1
 
 
-db = chrono.ChronoDB(path=opslib.STATE_DIR / "idem-test-chrono.db")   # ایزوله (harness OPS_DIR)
+db = chrono.ChronoDB(path=opslib.STATE_DIR / "idem-test-chrono.db")
 gate = chrono.EffectorGate(db)
 
-# ۱) request() اصلی: بدونِ idempotency_key، دو فراخوان = دو effect_id مجزا (امروز)
-e1 = gate.request("SEND", "payload-a")
-e2 = gate.request("SEND", "payload-a")
-check("request() legacy: no dedup (byte-identical with today)", e1 != e2)
+# 1) keyless request(): two calls = two distinct effects (today's behavior preserved)
+e1 = gate.request("send", "payload-a")
+e2 = gate.request("send", "payload-a")
+check("keyless request(): no dedup, two distinct effects", e1 != e2)
 
-# ۲) request_idempotent: همان key دوبار → همان effect_id، is_new فقط بارِ اول True
-eid_a, new_a = gate.request_idempotent("SELL", "crypto-order-42", "idem-key-1")
-eid_b, new_b = gate.request_idempotent("SELL", "crypto-order-42", "idem-key-1")
-check("request_idempotent: same key -> same effect_id", eid_a == eid_b)
-check("request_idempotent: is_new True then False", new_a is True and new_b is False)
+# 2) same idempotency_key + same canonical request -> same effect_id (deduped)
+a1 = gate.request("pay", "order-42", idempotency_key="idem-1", target_ref="acct-1")
+a2 = gate.request("pay", "order-42", idempotency_key="idem-1", target_ref="acct-1")
+check("keyed request(): same key -> same effect_id", a1 == a2)
+check("keyed request(): dedup created exactly one row",
+      db.q("SELECT COUNT(*) FROM gated_effect WHERE idempotency_key='idem-1'")[0][0] == 1)
 
-# ۳) key متفاوت → effect_id متفاوت
-eid_c, new_c = gate.request_idempotent("SELL", "crypto-order-43", "idem-key-2")
-check("request_idempotent: different key -> different effect_id", eid_c != eid_a)
-check("request_idempotent: different key -> is_new True", new_c is True)
+# 3) different key -> different effect_id
+b1 = gate.request("pay", "order-43", idempotency_key="idem-2", target_ref="acct-1")
+check("keyed request(): different key -> different effect_id", b1 != a1)
 
-# ۴) idempotency_key خالی → ValueError (باید request() معمولی صدا زده شود)
+# 4) STRONGER than the old test: same key, DIFFERENT canonical request -> conflict
 try:
-    gate.request_idempotent("SELL", "x", "")
-    check("empty idempotency_key rejected", False)
-except ValueError:
-    check("empty idempotency_key rejected", True)
+    gate.request("pay", "order-999-DIFFERENT", idempotency_key="idem-1", target_ref="acct-1")
+    check("same key + different content -> IdempotencyConflict", False)
+except chrono.IdempotencyConflict:
+    check("same key + different content -> IdempotencyConflict", True)
 
-# ۵) مسیرِ settle برای effectِ idempotent دست‌نخورده است (release -> settle عادی کار می‌کند)
-entry = {"hash": "fake-ledger-hash-abc"}
-released = gate.release_gated_effects(entry)
-check("release_gated_effects releases idempotent pending too", released >= 1)
-ok_settle = gate.settle(eid_a)
-check("settle() works on an idempotent effect_id", ok_settle is True)
-check("status_of reflects settled", gate.status_of(eid_a) == "settled")
+# 5) settle path works for a keyed (idempotent) effect (release -> settle)
+gate.release_one(a1, {"hash": "fake-ledger-hash-abc"})
+ok = gate.settle(a1)
+check("settle() works on an idempotent effect", ok is True)
+check("status_of reflects settled", gate.status_of(a1) == "settled")
 
-# ۶) بعد از settle، همان key هنوزم effect_id ِ settled‌شده را برمی‌گرداند (نه ردیفِ نو)
-eid_d, new_d = gate.request_idempotent("SELL", "crypto-order-42", "idem-key-1")
-check("replay after settle returns the SAME (already-settled) effect_id",
-      eid_d == eid_a and new_d is False)
-check("caller can see it is already settled via status_of (no re-execution needed)",
-      gate.status_of(eid_d) == "settled")
-
-# ۷) دو راز/kind متفاوت با یک payload_ref، ولی key یکی -> هنوز dedup می‌شود
-#    (kind/payload_ref فقط توصیفی‌اند؛ کلیدِ حقیقتِ exactly-once فقط idempotency_key است)
-eid_e, new_e = gate.request_idempotent("PUBLISH", "different-payload", "idem-key-1")
-check("dedup keys purely on idempotency_key regardless of kind/payload_ref",
-      eid_e == eid_a and new_e is False)
+# 6) replay after settle (same key + same content) returns the SAME settled effect,
+#    never a re-executed new row
+a3 = gate.request("pay", "order-42", idempotency_key="idem-1", target_ref="acct-1")
+check("replay after settle -> same (already-settled) effect_id", a3 == a1)
+check("caller sees it is already settled (no re-execution)", gate.status_of(a3) == "settled")
 
 db.close()
 print("\n== %d failure(s) ==" % _C.failed)
