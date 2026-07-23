@@ -581,6 +581,20 @@ def wire_proposal_buttons(*, channel=None, live_loop=None) -> bool:
     if not callable(getattr(live_loop, "record_proposal_outcome_by_token", None)):
         return False
     channel._proposal_hook = live_loop.record_proposal_outcome_by_token
+    # GAP-3 (C2-C): بازسازیِ کارت‌های معوق از SoTِ durable (outcomes.db) — RESURRECTION
+    # فاز ۶ (PROJECTIONS). fail-soft؛ dedupeِ بینِ بوت‌ها durable است (idempotency در DB)؛
+    # DB غایب/فلگ خاموش → skip بی‌صدا. UI projection است، نه حقیقت.
+    try:
+        import sys as _sys
+        _op = str(Path(__file__).resolve().parent / "outcomes")
+        if _op not in _sys.path:
+            _sys.path.insert(0, _op)
+        import deferral_rebuild as _dr   # noqa: WPS433 — lazy
+        _res = _dr.rebuild_deferred_cards(live_loop, channel)
+        if _res.get("rebuilt"):
+            opslib.heartbeat(f"deferral rebuild: {_res}")
+    except Exception:  # noqa: BLE001 — بازسازی هرگز بوت را نمی‌کشد
+        pass
     return True
 
 
