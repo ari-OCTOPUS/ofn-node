@@ -653,12 +653,24 @@ class TelegramApprovalChannel(ApprovalChannel):
         hook = getattr(self, "_proposal_hook", None)
         if hook is None or len(parts) != 3:
             return "نادیده"
+        # F1 (red-team P2): schemeِ prop هم owner-gated است مثلِ /panic (GOV-P1). اگر کارت
+        # به گروهِ allowlist برود، عضوِ غیرمالک نباید رأیِ مالک را جعل کند. from_id=None
+        # (فراخوانِ داخلی/غیرتلگرام) عبور می‌کند؛ ownerِ نامشخص هم عبور (لایهٔ allowlist گارد است).
+        if from_id is not None and self._owner is not None and \
+                str(from_id).strip() != str(self._owner).strip():
+            return "رد: تنها مالک می‌تواند به کارتِ پیشنهاد رأی دهد"
         try:
+            # F3 (red-team P2): arity را یک‌بار بازرسی کن و hook را دقیقاً یک‌بار صدا بزن.
+            # retryِ TypeError یک foot-gun بود: TypeErrorِ داخلیِ hook (بعدِ اثرِ جزئی)
+            # باعثِ دو-صداکردن می‌شد. حالا از سیگنچر تصمیم می‌گیریم، بدونِ re-invoke.
+            import inspect as _insp
             try:
-                # C2-B: from_id برای bindِ ownerِ توکنِ stateless (pb1) — restart-safe
-                rec = hook(parts[2], parts[1], from_id)
-            except TypeError:
-                rec = hook(parts[2], parts[1])   # سازگاری با hookِ قدیمیِ ۲-آرگومانی
+                _np = sum(1 for p in _insp.signature(hook).parameters.values()
+                          if p.kind in (p.POSITIONAL_OR_KEYWORD, p.POSITIONAL_ONLY))
+            except (TypeError, ValueError):
+                _np = 3
+            # C2-B: from_id برای bindِ ownerِ توکنِ stateless (pb1) — restart-safe
+            rec = hook(parts[2], parts[1], from_id) if _np >= 3 else hook(parts[2], parts[1])
         except Exception:  # noqa: BLE001 — تپِ بد نباید threadِ poller را بکشد
             return "نادیده"
         if rec is None:

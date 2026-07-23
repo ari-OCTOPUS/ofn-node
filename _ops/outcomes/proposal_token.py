@@ -63,7 +63,8 @@ def pid12(proposal_id) -> str:
 
 
 def _canon(proposal_id, exp: int, owner_id) -> bytes:
-    return f"{VERSION}|{proposal_id}|{int(exp)}|{owner_id}".encode("utf-8")
+    # F4: ownerِ نرمال‌شده (strip) در هر دو سرِ mint/verify — whitespaceِ env مالک را قفل نکند
+    return f"{VERSION}|{proposal_id}|{int(exp)}|{str(owner_id).strip()}".encode("utf-8")
 
 
 def _sig(sec: bytes, proposal_id, exp: int, owner_id) -> str:

@@ -511,6 +511,9 @@ class LiveLoop:
         تپِ تصمیم برنده). «بعداً» تصمیم نیست → deferred، کارت زنده می‌ماند.
         C2-B (GAP-2): tokenِ pb1 که در RAM نیست (restart) از رجیستریِ durable بازسازی
         می‌شود — fail-closed روی جعلی/منقضی/غیرمالک. `from_id` تپ‌کننده برای bindِ owner."""
+        # F1 (red-team P2): owner-gating در لایهٔ channel اعمال می‌شود (_dispatch_proposal،
+        # جایی که ownerِ authoritative همان کانالِ گیرندهٔ تپ است — الگوی GOV-P1). مسیرِ
+        # rehydrate علاوه بر آن، owner را ذاتاً در HMACِ توکن هم می‌بندد (دفاعِ عمقیِ durable).
         meta = self._proposal_cb.get(str(token or ""))
         if meta is None:
             meta = self._rehydrate_stateless(token, from_id)   # GAP-2: مسیرِ بعد از restart

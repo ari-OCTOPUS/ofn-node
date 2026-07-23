@@ -10,9 +10,11 @@
   - SoT: outcomes.db — deferredهایی که هنوز accepted/rejected نشده‌اند و منقضی نیستند.
   - ≤۳ کارت: هر کدام کارتِ کامل با توکنِ تازه (stateless اگر secret باشد).
   - >۳: **یک** پیامِ دایجست — هر پیشنهاد یک ردیفِ دکمه (ok/no/later) — نه طوفانِ پیام.
-  - dedupe بینِ بوت‌ها durable است: مارکرِ idempotent در خودِ outcomes.db با کلیدِ
-    `deliv-rebuild|<pid>|<n_deferrals>` → دو بوتِ پشت‌سرهم = صفر پیامِ تکراری؛
-    تعویقِ جدید (n بالاتر) = یک بازسازیِ دیگر مجاز.
+  - dedupe بینِ بوت‌ها durable است: مارکرِ idempotentِ per-pid در outcomes.db با کلیدِ
+    `deliv-rebuild|<pid>` → هر کارتِ معوق حداکثر یک‌بار بازسازی می‌شود (ضدِطوفانِ spec تست ۳:
+    «دو بوتِ پشت‌سرهم = یک rebuild»). توکنِ stateless durable است، پس کارتِ یک‌بار
+    نشان‌داده‌شده تا زمانِ تصمیم قابلِ عمل می‌ماند. (پیش‌تر کلید به n_deferrals بود؛ چون
+    رویدادِ deferred idempotency-dedup می‌شود n هرگز از ۱ بالاتر نمی‌رفت → شاخهٔ مرده، رفع شد.)
   - فلگ جدید نمی‌سازیم: پشتِ PROPOSAL_BUTTONS (در caller/wiring) + VERDICT_OUTCOME
     (نویسنده/خوانندهٔ outcomes.db — منبعِ واقعیِ داده؛ ثبتِ تصمیم در DECISION-LOG C2).
   - fail-soft: هیچ خطایی بوت را نمی‌کشد؛ DB غایب → skip بی‌صدا.
@@ -146,7 +148,7 @@ def rebuild_deferred_cards(live_loop, channel, *, state_dir=None) -> dict:
                     "correlation_id": "rebuild_" + p["proposal_id"][:56],
                     "proposal_id": p["proposal_id"], "event_type": "delivered",
                     "verdict": None, "value_aud_claimed": 0.0,
-                    "idempotency_key": f"deliv-rebuild|{p['proposal_id']}|{p['n_deferrals']}",
+                    "idempotency_key": f"deliv-rebuild|{p['proposal_id']}",   # F2: per-pid, honest
                     "payload": {"rebuild": True, "n_deferrals": p["n_deferrals"]}}))
                 if marker_new:
                     fresh.append(p)

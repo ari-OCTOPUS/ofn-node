@@ -222,9 +222,62 @@ def t_defer_survives_restart_then_decide():
     assert len(_rows("accepted-measurement")) == 1
 
 
+# ── F1 (red-team P2): schemeِ prop در لایهٔ channel owner-gated است ─────────────
+def t_channel_owner_gates_prop_scheme():
+    _env_on()
+    from approval_channel import TelegramApprovalChannel
+
+    class _HTTP:
+        def get(self, url, timeout):
+            return {"ok": True, "result": []}
+
+        def post(self, url, body, timeout_s=10.0):
+            return {"ok": True}
+
+    h = _HTTP()
+    ch = TelegramApprovalChannel(token="1:x", owner_chat_id=1,
+                                 state_dir=str(opslib.STATE_DIR),
+                                 http_get=h.get, http_post=h.post)
+    seen = []
+
+    def _hook(tok, verb, from_id=None):
+        seen.append((verb, from_id))
+        return {"event": "outcome"}
+    ch._proposal_hook = _hook
+    # عضوِ گروهِ allowlist اما غیرمالک (from_id != owner) → رد در لایهٔ channel، قلاب صدا نمی‌خورد
+    r = ch.dispatch_callback("prop:ok:sometoken", from_id=999)
+    assert not seen and "مالک" in str(r), f"F1: غیرمالک نباید به قلاب برسد: {seen} / {r}"
+    # مالک → قلاب صدا می‌خورد
+    ch.dispatch_callback("prop:ok:sometoken", from_id=1)
+    assert seen and seen[-1][1] == 1, f"مالک باید عبور کند: {seen}"
+
+
+# ── F4: ownerِ env با whitespace → مالک پس از restart قفل نمی‌شود ───────────────
+def t_env_owner_whitespace_still_verifies():
+    _env_on(); _wipe_db()
+
+    class _NoOwnerChan(_FakeChannel):
+        def __init__(self):
+            super().__init__()
+            self._owner = None            # mint به env می‌افتد
+    os.environ["TELEGRAM_OWNER_CHAT_ID"] = "  777  "   # whitespace
+    chan = _NoOwnerChan()
+    loop1, _ = _mk_loop(chan)
+    loop1.route_leg_proposals(deliver=True)
+    tok = _sent_token(chan)
+    assert tok.startswith("pb1."), "با secret باید stateless بسازد حتی با ownerِ env"
+    loop2, _ = _mk_loop(_NoOwnerChan(), leg=_fake_leg())   # restart
+    rec = loop2.record_proposal_outcome_by_token(tok, "ok", from_id=777)
+    assert rec is not None and rec.get("verdict") == "approved", \
+        "F4: whitespaceِ ownerِ env نباید مالکِ واقعی را قفل کند"
+    os.environ["TELEGRAM_OWNER_CHAT_ID"] = str(_OWNER)
+
+
 if __name__ == "__main__":
     failed = harness.run([
         ("[۱/۶/۱۰] restart → تپ ثبت می‌شود؛ ≤۶۴B؛ رجیستری idempotent", t_restart_survives_and_records),
+        ("[F1] schemeِ prop در لایهٔ channel owner-gated", t_channel_owner_gates_prop_scheme),
+        ("[F4] ownerِ env با whitespace قفل نمی‌کند", t_env_owner_whitespace_still_verifies),
         ("[۲] sigِ جعلی reject", t_forged_sig_rejected),
         ("[۳] منقضی → سنتینلِ صادق", t_expired_honest_sentinel),
         ("[۴] replay → بدونِ ردیفِ دوم", t_replay_no_second_row),
