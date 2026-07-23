@@ -291,6 +291,11 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # money (E4 releasable ONLY via release_effect exact binding + human ledger ref);
          # legacy-unbound money → NEEDS_OWNER_REVIEW. script-native.
          "test_c41_e4_id_only.py",
+         # 2026-07-23 C5: CAS execution — migration v4 (execution columns + EXECUTING/
+         # FAILED_SAFE/RECONCILE_REQUIRED در CHECK؛ ایندکسِ UNIQUEِ C3 پس از rebuild بازساخته
+         # می‌شود)؛ claim/commit اتمیک با execution_id (دو executor یک برنده؛ stale/wrong xid
+         # هرگز finalize نمی‌کند)؛ halt-during → RECONCILE_REQUIRED؛ settle بی‌TOCTOU. script-native.
+         "test_c5_cas_execution.py",
          # 2026-07-22 F-COVERAGE adjudication: test_tg_approval_store دیگر orphanِ رد نیست —
          # ماژول/API واقعی است و reachable در production (center.py:1223-1224 approve/reject روی
          # مسیرِ approval مالک). تنها شکست، stale characterization بود (whitelistِ t_n فاقدِ

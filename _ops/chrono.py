@@ -227,7 +227,7 @@ CREATE TABLE IF NOT EXISTS metabolic_age (
 """
 
 
-CHRONO_SCHEMA_TARGET = 3   # C1: framework · C2: binding columns · C3: unique idempotency index
+CHRONO_SCHEMA_TARGET = 4   # C1: framework · C2: binding columns · C3: unique idempotency index · C5: execution CAS
 # canonical v1 column set of gated_effect — used to disambiguate a user_version=0
 # database into {empty | legacy-unversioned-v1 | malformed}.
 _GATED_EFFECT_V1_COLS = frozenset({
@@ -318,8 +318,60 @@ class ChronoDB:
         if (frm, to) == (2, 3):
             self._migrate_2_to_3()
             return
-        # C1 baseline; C2 adds (1,2); C3 adds (2,3). Later slices add further steps.
+        if (frm, to) == (3, 4):
+            self._migrate_3_to_4()
+            return
+        # C1 baseline; C2 adds (1,2); C3 adds (2,3); C5 adds (3,4). Later slices add further steps.
         raise ChronoSchemaError(f"chrono: no migration path v{frm} -> v{to}")
+
+    def _migrate_3_to_4(self) -> None:
+        """C5: execution-CAS columns + statusهای EXECUTING/FAILED_SAFE/EXPIRED/
+        RECONCILE_REQUIRED در CHECK. چون SQLite نمی‌تواند CHECK را ALTER کند، جدول
+        rebuild می‌شود (الگوی C2). additive: هیچ ردیفِ موجودی status عوض نمی‌کند.
+        هشدار: DROP TABLE ایندکسِ UNIQUEِ C3 را هم می‌بَرد — باید بازساخته شود
+        وگرنه idempotencyِ DB-enforced بی‌صدا از بین می‌رود."""
+        con = self._con
+        con.execute("""CREATE TABLE gated_effect_v4 (
+          effect_id    TEXT PRIMARY KEY,
+          kind         TEXT NOT NULL,
+          payload_ref  TEXT NOT NULL,
+          created_beat INTEGER,
+          created_ts   INTEGER NOT NULL,
+          release_ref  TEXT,
+          status       TEXT NOT NULL DEFAULT 'pending'
+                       CHECK (status IN ('pending','releasable','settled','refused',
+                                         'NEEDS_OWNER_REVIEW','LEGACY_UNBOUND',
+                                         'EXECUTING','EXPIRED','FAILED_SAFE',
+                                         'RECONCILE_REQUIRED')),
+          content_hash    TEXT,
+          action_kind     TEXT,
+          target_ref      TEXT,
+          idempotency_key TEXT,
+          proposal_id     TEXT,
+          mission_id      TEXT,
+          approval_id     TEXT,
+          approved_by     TEXT,
+          approved_at     INTEGER,
+          expires_at      INTEGER,
+          execution_id          TEXT,
+          execution_started_at  INTEGER,
+          execution_finished_at INTEGER,
+          execution_worker_ref  TEXT,
+          external_receipt_ref  TEXT,
+          failure_reason        TEXT
+        )""")
+        con.execute(
+            "INSERT INTO gated_effect_v4 "
+            "(effect_id,kind,payload_ref,created_beat,created_ts,release_ref,status,"
+            "content_hash,action_kind,target_ref,idempotency_key,proposal_id,mission_id,"
+            "approval_id,approved_by,approved_at,expires_at) "
+            "SELECT effect_id,kind,payload_ref,created_beat,created_ts,release_ref,status,"
+            "content_hash,action_kind,target_ref,idempotency_key,proposal_id,mission_id,"
+            "approval_id,approved_by,approved_at,expires_at FROM gated_effect")
+        con.execute("DROP TABLE gated_effect")
+        con.execute("ALTER TABLE gated_effect_v4 RENAME TO gated_effect")
+        con.execute("CREATE UNIQUE INDEX ux_gated_effect_idem "
+                    "ON gated_effect(idempotency_key)")
 
     def _migrate_2_to_3(self) -> None:
         """C3: enforce idempotency at the DB layer — replace the non-unique index
@@ -696,23 +748,122 @@ class EffectorGate:
         return row[0][0] if row else None
 
     def settle(self, effect_id: str) -> bool:
-        """تنها نقطهٔ عبورِ اثر به جهان. False = مجاز نیست (fail-closed)."""
+        """تنها نقطهٔ عبورِ اثر به جهان. False = مجاز نیست (fail-closed).
+        C5: دیگر SELECT→blind-UPDATE نیست — کلِ گارد (releasable + release_refِ ناخالی)
+        داخلِ WHEREِ یک UPDATEِ اتمیک است؛ دو settleِ همزمان فقط یک برنده دارد و
+        pending هرگز مستقیم settled نمی‌شود. مسیرِ receiptدارِ اجرا (executorها) از
+        begin_execution/complete_execution می‌گذرد؛ این wrapperِ سازگاریِ تک‌مرحله‌ای است."""
         kill = self.force_closed()
         if kill:
             self.db.ex("UPDATE gated_effect SET status='refused' WHERE effect_id=? "
                        "AND status IN ('pending','releasable')", (effect_id,))
             self._note("EFFECT_REFUSED", {"effect_id": effect_id, "reason": kill})
             return False
-        row = self.db.q("SELECT status, release_ref FROM gated_effect "
-                        "WHERE effect_id=?", (effect_id,))
-        if not row or row[0][0] != "releasable" or not row[0][1]:
-            self._note("EFFECT_REFUSED", {"effect_id": effect_id,
-                                          "reason": "no matching LANGAR append (TINV-7)"})
+        cur = self.db.ex(
+            "UPDATE gated_effect SET status='settled' "
+            "WHERE effect_id=? AND status='releasable' "
+            "AND release_ref IS NOT NULL AND release_ref != ''",
+            (effect_id,))
+        if cur.rowcount == 1:
+            row = self.db.q("SELECT release_ref FROM gated_effect WHERE effect_id=?",
+                            (effect_id,))
+            self._note("EFFECT_SETTLED", {"effect_id": effect_id,
+                                          "release_ref": row[0][0] if row else None})
+            return True
+        self._note("EFFECT_REFUSED", {"effect_id": effect_id,
+                                      "reason": "no matching LANGAR append (TINV-7)"})
+        return False
+
+    # ── C5: CAS execution — pending → releasable → EXECUTING → settled ──────────
+    def begin_execution(self, effect_id: str, worker_ref: str = "") -> str | None:
+        """C5 — claimِ اتمیکِ اجرا: releasable→EXECUTING با execution_idِ تازه.
+        برنده execution_id می‌گیرد؛ بازنده None (fail-closed). دو executor روی یک
+        effect: دقیقاً یک برنده (CAS در WHERE، بی‌TOCTOU). kill-switch ارشد است."""
+        kill = self.force_closed()
+        if kill:
+            self.db.ex("UPDATE gated_effect SET status='refused' WHERE effect_id=? "
+                       "AND status IN ('pending','releasable')", (effect_id,))
+            self._note("EFFECT_REFUSED", {"effect_id": effect_id, "reason": kill})
+            return None
+        import uuid
+        xid = uuid.uuid4().hex
+        cur = self.db.ex(
+            "UPDATE gated_effect SET status='EXECUTING', execution_id=?, "
+            "execution_started_at=?, execution_worker_ref=? "
+            "WHERE effect_id=? AND status='releasable' "
+            "AND release_ref IS NOT NULL AND release_ref != ''",
+            (xid, _utc_ms(), str(worker_ref or ""), effect_id))
+        if cur.rowcount == 1:
+            self._note("EFFECT_EXECUTION_CLAIMED",
+                       {"effect_id": effect_id, "execution_id": xid,
+                        "worker_ref": str(worker_ref or "")})
+            return xid
+        self._note("EFFECT_REFUSED",
+                   {"effect_id": effect_id,
+                    "reason": "claim failed (not releasable, no LANGAR ref, or lost race)"})
+        return None
+
+    def complete_execution(self, effect_id: str, execution_id: str,
+                           external_receipt_ref: str) -> bool:
+        """C5 — commitِ اتمیک: EXECUTING→settled فقط با همان execution_id (workerِ
+        stale/عوضی finalize نمی‌کند) و فقط با receiptِ بیرونیِ ناخالی. تکرارِ همان
+        completion (همان xid+receipt روی ردیفِ settled) idempotent → True بدونِ تغییر.
+        halt وسطِ اجرا: اثرِ بیرونی شاید رخ داده — refuseِ دروغین نمی‌زنیم؛
+        EXECUTING→RECONCILE_REQUIRED با ثبتِ receipt/دلیل (آشتیِ انسانی لازم)."""
+        xid = str(execution_id or "").strip()
+        receipt = str(external_receipt_ref or "").strip()
+        if not xid or not receipt:
+            self._note("EFFECT_REFUSED",
+                       {"effect_id": effect_id,
+                        "reason": "complete_execution requires execution_id + external receipt"})
             return False
-        self.db.ex("UPDATE gated_effect SET status='settled' WHERE effect_id=?",
-                   (effect_id,))
-        self._note("EFFECT_SETTLED", {"effect_id": effect_id, "release_ref": row[0][1]})
-        return True
+        kill = self.force_closed()
+        if kill:
+            cur = self.db.ex(
+                "UPDATE gated_effect SET status='RECONCILE_REQUIRED', failure_reason=?, "
+                "execution_finished_at=?, external_receipt_ref=? "
+                "WHERE effect_id=? AND status='EXECUTING' AND execution_id=?",
+                (f"halt during execution: {kill}", _utc_ms(), receipt, effect_id, xid))
+            self._note("EFFECT_RECONCILE_REQUIRED",
+                       {"effect_id": effect_id, "execution_id": xid,
+                        "reason": kill, "updated": cur.rowcount})
+            return False
+        cur = self.db.ex(
+            "UPDATE gated_effect SET status='settled', external_receipt_ref=?, "
+            "execution_finished_at=? "
+            "WHERE effect_id=? AND status='EXECUTING' AND execution_id=?",
+            (receipt, _utc_ms(), effect_id, xid))
+        if cur.rowcount == 1:
+            self._note("EFFECT_SETTLED",
+                       {"effect_id": effect_id, "execution_id": xid,
+                        "external_receipt_ref": receipt})
+            return True
+        row = self.db.q("SELECT status, execution_id, external_receipt_ref "
+                        "FROM gated_effect WHERE effect_id=?", (effect_id,))
+        if (row and row[0][0] == "settled" and row[0][1] == xid
+                and (row[0][2] or "") == receipt):
+            return True    # duplicate completion — idempotent، صفر تغییرِ حالت
+        self._note("EFFECT_REFUSED",
+                   {"effect_id": effect_id, "execution_id": xid,
+                    "reason": "complete mismatch (stale worker, wrong execution_id, or not EXECUTING)"})
+        return False
+
+    def fail_execution(self, effect_id: str, execution_id: str, reason: str = "") -> bool:
+        """C5 — شکستِ امن: اثرِ بیرونی رخ نداده → EXECUTING→FAILED_SAFE (terminal).
+        فقط با همان execution_id؛ workerِ stale نمی‌تواند ردیفِ دیگری را بکُشد."""
+        xid = str(execution_id or "").strip()
+        if not xid:
+            return False
+        cur = self.db.ex(
+            "UPDATE gated_effect SET status='FAILED_SAFE', failure_reason=?, "
+            "execution_finished_at=? "
+            "WHERE effect_id=? AND status='EXECUTING' AND execution_id=?",
+            (str(reason or "unspecified"), _utc_ms(), effect_id, xid))
+        ok = cur.rowcount == 1
+        self._note("EFFECT_FAILED_SAFE" if ok else "EFFECT_REFUSED",
+                   {"effect_id": effect_id, "execution_id": xid,
+                    "reason": str(reason or "unspecified") if ok else "fail mismatch"})
+        return ok
 
     def sweep_stale_effects(self, max_age_hours: int = 72) -> dict:
         """gated_effectهایی که بیش از max_age_hours pending هستند → auto-refuse.
