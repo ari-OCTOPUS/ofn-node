@@ -4,7 +4,7 @@
   "repository_root": "F:\\octopus-phase0-isolated",
   "branch": "blocker-fixes-2026-07-22",
   "baseline_commit": "05d2b5a",
-  "current_head": "1110b94",
+  "current_head": "895c452-or-later (owner packet delivered; see git log)",
   "current_phase": "PHASE_0",
   "completed_milestones": [
     "F_CORE",
@@ -27,8 +27,9 @@
     "PRE0_REAL_ENTRY_REACHABILITY_VERIFIED (27/27)",
     "RED_TEAM_COMPLETE (14 agents; 4 confirmed 1xP1+3xP2 all FIXED @1110b94; 3 refuted; 3 suspect recorded)"
   ],
-  "active_milestone": "OWNER_PACKET",
+  "active_milestone": "OWNER_PACKET_DELIVERED_AWAITING_OWNER_DECISION",
   "next_milestone": "OWNER_APPROVAL_THEN_DEPLOY (owner-gated; not started)",
+  "owner_packet": "OCTOPUS-PRIME/phase-0/OWNER-PACKET-2026-07-23.md",
   "prohibited_actions": [
     "merge_to_F_backup",
     "live_db",

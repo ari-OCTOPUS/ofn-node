@@ -1432,6 +1432,22 @@
   "timeout": 300
  },
  {
+  "path": "F:\\octopus-phase0-isolated\\_ops\\tests\\test_d1_outbound_halt.py",
+  "name": "test_d1_outbound_halt.py",
+  "runner": "python",
+  "stage": 2,
+  "registered": true,
+  "timeout": 300
+ },
+ {
+  "path": "F:\\octopus-phase0-isolated\\_ops\\tests\\test_d2_halt_coverage.py",
+  "name": "test_d2_halt_coverage.py",
+  "runner": "python",
+  "stage": 2,
+  "registered": true,
+  "timeout": 300
+ },
+ {
   "path": "F:\\octopus-phase0-isolated\\_ops\\tests\\test_panic_command.py",
   "name": "test_panic_command.py",
   "runner": "python",
@@ -1996,6 +2012,70 @@
   "name": "test_effector_idempotency.py",
   "runner": "python",
   "stage": 2,
+  "registered": true,
+  "timeout": 300
+ },
+ {
+  "path": "F:\\octopus-phase0-isolated\\_ops\\tests\\test_c4_exact_authorization.py",
+  "name": "test_c4_exact_authorization.py",
+  "runner": "python",
+  "stage": 1,
+  "registered": true,
+  "timeout": 300
+ },
+ {
+  "path": "F:\\octopus-phase0-isolated\\_ops\\tests\\test_c41_e4_id_only.py",
+  "name": "test_c41_e4_id_only.py",
+  "runner": "python",
+  "stage": 1,
+  "registered": true,
+  "timeout": 300
+ },
+ {
+  "path": "F:\\octopus-phase0-isolated\\_ops\\tests\\test_c5_cas_execution.py",
+  "name": "test_c5_cas_execution.py",
+  "runner": "python",
+  "stage": 1,
+  "registered": true,
+  "timeout": 300
+ },
+ {
+  "path": "F:\\octopus-phase0-isolated\\_ops\\tests\\test_c6_receipt_reconciliation.py",
+  "name": "test_c6_receipt_reconciliation.py",
+  "runner": "python",
+  "stage": 1,
+  "registered": true,
+  "timeout": 300
+ },
+ {
+  "path": "F:\\octopus-phase0-isolated\\_ops\\tests\\test_d3_provider_effect_halt.py",
+  "name": "test_d3_provider_effect_halt.py",
+  "runner": "python",
+  "stage": 2,
+  "registered": true,
+  "timeout": 300
+ },
+ {
+  "path": "F:\\octopus-phase0-isolated\\_ops\\tests\\test_d4_launcher_halt.py",
+  "name": "test_d4_launcher_halt.py",
+  "runner": "python",
+  "stage": 2,
+  "registered": true,
+  "timeout": 300
+ },
+ {
+  "path": "F:\\octopus-phase0-isolated\\_ops\\tests\\test_d5_halt_integration.py",
+  "name": "test_d5_halt_integration.py",
+  "runner": "python",
+  "stage": 2,
+  "registered": true,
+  "timeout": 300
+ },
+ {
+  "path": "F:\\octopus-phase0-isolated\\_ops\\tests\\test_pre0_real_entry.py",
+  "name": "test_pre0_real_entry.py",
+  "runner": "python",
+  "stage": 1,
   "registered": true,
   "timeout": 300
  },
