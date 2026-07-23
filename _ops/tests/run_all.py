@@ -86,6 +86,16 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # 2026-07-20 Sol-T3: گاردِ ضدِ bypassِ خاموشِ context fence — inventoryِ callerهای مستقیمِ
          # local_llm.ask قفل شد (callerِ نو خارج از مجموعهٔ مستند = fail).
          "test_llm_fence_coverage.py",
+         # 2026-07-23 C2 (Resurrection-Safe Memory): GAP-2 توکنِ statelessِ HMAC (restart دکمه
+         # را نمی‌کشد؛ forged/expired/replay/wrong-owner fail-closed)؛ GAP-3 بازسازیِ کارتِ معوق
+         # از outcomes.db در بوت (dedupeِ durable)؛ D-A اتصالِ durable_journal به دکتر + بازیابیِ
+         # resume-not-restart بوت (EXECUTINGِ رهاشده → RECONCILE_REQUIRED)؛ شناسنامهٔ تولد
+         # (system.booted + زنجیرهٔ boot_id)؛ باتریِ مرکبِ رستاخیز.
+         "test_stateless_cb_restart.py",
+         "test_deferral_rebuild_boot.py",
+         "test_journal_recovery.py",
+         "test_boot_certificate.py",
+         "test_restart_battery.py",
          # 2026-07-20 Sol Step 5: حلقهٔ ارزشِ Paper Lead سرتاسری (معیارِ اصلیِ پایان) — لیدِ synthetic
          # از توابعِ واقعیِ production: score→quote→کارتِ TG(sandbox)→receipt+outcome→رأیِ مالک→spine→
          # replay→metricsِ قطعی→digest. صفر شبکه/پول/send؛ IDها ثابت؛ حلقه واقعاً بسته.
