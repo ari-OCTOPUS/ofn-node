@@ -335,8 +335,22 @@ class Doctor:
         # اگر چیزی نبود → گلوگاهی نیست (نه «همه‌چیز خوب» — just nothing to fix)
         if not candidates:
             return None
-        # انتخابِ بالاترین severity (و به‌تساوی، پایین‌ترین score = بدتر)
-        candidates.sort(key=lambda c: ({"critical": 0, "high": 1}.get(c[2], 2), c[3]))
+        # 3a (2026-07-24): steeringِ مالک («doctor focus X») — فقط tie-breaker درونِ
+        # همان severity؛ هرگز بحران (critical/high) را کنار نمی‌زند. بدونِ policy/match
+        # رفتار بایت‌به‌بایتِ قبلی است.
+        _focus = ""
+        try:
+            _pol = _read_json_safe(self._state_dir / "doctor" / "owner-policy.json") or {}
+            _focus = str(_pol.get("focus") or "").strip().lower()
+        except Exception:  # noqa: BLE001
+            _focus = ""
+
+        def _focus_hit(c) -> bool:
+            return bool(_focus) and (_focus in str(c[0]).lower() or _focus in str(c[1]).lower())
+
+        # انتخابِ بالاترین severity (و به‌تساوی، اول focus ِ مالک، بعد پایین‌ترین score = بدتر)
+        candidates.sort(key=lambda c: ({"critical": 0, "high": 1}.get(c[2], 2),
+                                       0 if _focus_hit(c) else 1, c[3]))
         key, desc, sev, score = candidates[0]
         return {"bottleneck": desc, "evidence": {"key": key, "severity": sev,
                                                  "score": score,
@@ -724,6 +738,43 @@ class Doctor:
             return False
 
     # ─── RFC sweep — expire stale + re-submit no-channel ──────────────────────
+    def _consume_owner_revisions(self) -> int:
+        """3a (2026-07-24): ویرایش‌های free-textِ مالک (approval_channel →
+        state/doctor/owner-revisions.json) را در RFCهای غیر-terminal ادغام می‌کند.
+        صف atomic خوانده-و-پاک می‌شود (LockedJson)؛ registryِ rfcs تک-writer می‌ماند
+        (فقط خودِ Doctor). هر ادغام: append به fix + NOTE در ledger + journal +
+        اطلاعِ مالک از راهِ همان channel. propose-only: status/verdict دست نمی‌خورد."""
+        p = self._state_dir / "doctor" / "owner-revisions.json"
+        try:
+            if not p.exists():
+                return 0
+            with opslib.LockedJson(p) as lj:
+                data = lj.read() or {}
+                lj.write({})
+        except Exception:  # noqa: BLE001
+            return 0
+        n = 0
+        _terminal = ("merged", "rejected", "human-merged", "human-rejected", "expired")
+        for rfc_id, rec in (data or {}).items():
+            rfc = self._rfcs.get(rfc_id)
+            txt = str((rec or {}).get("text") or "").strip()
+            if rfc is None or not txt or rfc.status in _terminal:
+                continue
+            rfc.fix = rfc.fix + "\n\n**بازنگریِ مالک (" + opslib.today() + "):** " + txt[:800]
+            rfc.ledger_ref = self._note("DOCTOR_OWNER_REVISION",
+                                        {"rfc_id": rfc_id, "chars": len(txt)})
+            self._journal(rfc_id, "owner-revision", "ok")
+            n += 1
+            if self._channel is not None:
+                try:
+                    self._channel.send_text(
+                        f"🩺 بازنگریِ تو روی <code>{rfc_id}</code> ثبت و در متنِ RFC ادغام شد.")
+                except Exception:  # noqa: BLE001
+                    pass
+        if n:
+            self._persist_rfcs()
+        return n
+
     def _sweep_stale_rfcs(self, max_age_hours: int = 24) -> dict:
         """RFCهایی که بیش از max_age_hours در وضعیت non-terminal گیر کرده‌اند:
         - submitted-no-channel با channel وصل → re-submit
@@ -814,6 +865,11 @@ class Doctor:
         use_chamber: اگر True، RFC از Chamber تخاصمی می‌گذرد پیش از sandbox/submit."""
         # sweep RFCهای گیر کرده (expire stale, re-submit no-channel)
         self._sweep_stale_rfcs()
+        # 3a (2026-07-24): بازنگری‌های free-textِ مالک (تلگرام) → ادغام در RFCهای باز
+        try:
+            self._consume_owner_revisions()
+        except Exception:  # noqa: BLE001 — مصرفِ بازنگری هرگز cycle را نمی‌کشد
+            pass
         # Wave 3 (2026-07-15): اسکنِ اندام‌ها (پشتِ OCTOPUS_WIRE_ORGAN_DOCTOR، پیش‌فرض خاموش).
         # با فلگِ خاموش byte-identicalِ رفتارِ قبلی؛ روشن → RFCِ بهبود برای اندامِ خاموش/اسکلت.
         if os.environ.get("OCTOPUS_WIRE_ORGAN_DOCTOR") == "1":

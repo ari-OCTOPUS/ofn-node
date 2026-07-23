@@ -2517,3 +2517,146 @@ def discovery_nudge_beat(channel=None, beat: int = 0) -> dict | None:
     except Exception as e:  # noqa: BLE001 — نوتیف نباید tick را بکشد
         opslib.alert([f"wiring: discovery_nudge خطا: {type(e).__name__}: {e}"])
         return None
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# Task 3 (2026-07-24) · دیالوگِ owner↔organ — Doctor / Brains / Hearts
+# efferentِ سه organ روی همان کانالِ in-process (_chan)؛ هیچ transport/pollerِ نو.
+# کادنس زمان-محور است نه beat-محور — عمداً: INC فعلیِ frozen-beat (pacemaker مرده،
+# beat روی 9890 یخ‌زده) هر کادنسِ beat-epochی را هم یخ می‌زند؛ لایهٔ دیالوگ باید
+# دقیقاً در همین حالت هم به مالک خبر بدهد. throttle با hash + interval (ضدِ اسپم،
+# همان دکترینِ needs_nudge). همه fail-soft، $0، پشتِ flag (پیش‌فرض خاموش).
+# ════════════════════════════════════════════════════════════════════════════════
+
+def _organ_dialogue_mod():
+    if str(_HERE) not in sys.path:
+        sys.path.insert(0, str(_HERE))
+    import organ_dialogue as _od
+    return _od
+
+
+def _dialogue_gate(state_name: str, new_hash: str, min_interval_s: float,
+                   force: bool = False) -> bool:
+    """true = بفرست. state: state/<state_name>.json {last_hash,last_ts}.
+    ارسال وقتی: (hash عوض شده و interval گذشته) یا force (با کفِ ضدِ flap ِ 300s)."""
+    import json as _json
+    import time as _time
+    p = opslib.STATE_DIR / state_name
+    try:
+        st = _json.loads(p.read_text("utf-8")) if p.exists() else {}
+    except (OSError, ValueError):
+        st = {}
+    now = _time.time()
+    age = now - float(st.get("last_ts") or 0)
+    changed = st.get("last_hash") != new_hash
+    if force:
+        return age > 300
+    return changed and age > min_interval_s
+
+
+def _dialogue_mark(state_name: str, new_hash: str) -> None:
+    import json as _json
+    import time as _time
+    p = opslib.STATE_DIR / state_name
+    try:
+        with opslib.LockedJson(p) as lj:
+            lj.write({"last_hash": new_hash, "last_ts": _time.time(),
+                      "ts": opslib.now_iso()})
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def doctor_digest_beat(channel=None, beat: int = 0) -> dict | None:
+    """3a-efferent: دکتر «حرف می‌زند» — تشخیصِ self-knowledge + RFCهای باز به مالک.
+    پشتِ OCTOPUS_WIRE_DOCTOR_DIGEST (پیش‌فرض خاموش). kill-switch اول."""
+    if not flag("OCTOPUS_WIRE_DOCTOR_DIGEST"):
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    try:
+        _od = _organ_dialogue_mod()
+        d = _od.doctor_digest()
+        min_s = float(os.environ.get("CHRONO_DOCTOR_DIGEST_MIN_S", "21600"))
+        if not _dialogue_gate("doctor/digest-nudge.json", d["hash"], min_s):
+            return {"sent": False, "hash": d["hash"], "beat": beat}
+        sent = False
+        if channel is not None and getattr(channel, "wired", False):
+            kb = {"inline_keyboard": [[
+                {"text": "🩺 تبِ دکتر", "callback_data": "menu:doctor"}]]}
+            sent = bool(channel.send_text(d["text"], kb))
+            if sent:
+                _dialogue_mark("doctor/digest-nudge.json", d["hash"])
+        return {"sent": sent, "rfc_open": d.get("rfc_open"), "beat": beat}
+    except Exception as e:  # noqa: BLE001 — دیالوگ نباید tick را بکشد
+        opslib.alert([f"wiring: doctor_digest_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
+_BRAIN_DIGEST_STATE = {"last_stress": ""}
+
+
+def brain_digest_beat(channel=None, beat: int = 0) -> dict | None:
+    """3b-efferent: مغز «حرف می‌زند» — از state-fileهای cortex/debate (پلِ درستِ
+    out-of-process؛ cortex هرگز خودش bot/poller نمی‌سازد → صفر 409).
+    ارسال روی تغییرِ high-leverage (hash) یا فلیپِ تنش به 🔴 (فوری، ضدِ flap).
+    پشتِ OCTOPUS_WIRE_BRAIN_DIGEST (پیش‌فرض خاموش)."""
+    if not flag("OCTOPUS_WIRE_BRAIN_DIGEST"):
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    try:
+        _od = _organ_dialogue_mod()
+        d = _od.brain_digest()
+        prev = _BRAIN_DIGEST_STATE.get("last_stress", "")
+        cur = str(d.get("stress_level") or "")
+        _BRAIN_DIGEST_STATE["last_stress"] = cur
+        red_flip = ("🔴" in cur) and ("🔴" not in prev) and prev != ""
+        min_s = float(os.environ.get("CHRONO_BRAIN_DIGEST_MIN_S", "21600"))
+        if not _dialogue_gate("cortex/brain-digest-nudge.json", d["hash"], min_s,
+                              force=red_flip):
+            return {"sent": False, "hash": d["hash"], "beat": beat}
+        sent = False
+        if channel is not None and getattr(channel, "wired", False):
+            kb = {"inline_keyboard": [[
+                {"text": "🧠 تبِ مغز", "callback_data": "menu:brain"}]]}
+            head = "🚨 تنشِ مغز 🔴 شد!\n" if red_flip else ""
+            sent = bool(channel.send_text(head + d["text"], kb))
+            if sent:
+                _dialogue_mark("cortex/brain-digest-nudge.json", d["hash"])
+        return {"sent": sent, "red_flip": red_flip,
+                "debate_pending": d.get("debate_pending"), "beat": beat}
+    except Exception as e:  # noqa: BLE001 — دیالوگ نباید tick را بکشد
+        opslib.alert([f"wiring: brain_digest_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
+def heart_card_beat(channel=None, beat: int = 0) -> dict | None:
+    """3c-efferent: قلب «حرف می‌زند» — کارتِ cardiac (mode/period/velocity/σ/بودجه/
+    setpoint) + alertهای vital: frozen-beat (stall)، بودجهٔ ته‌کشیده، فلیپِ 🔴،
+    protective. پشتِ OCTOPUS_WIRE_HEART_CARD **و** wire_pulse (هر دو لازم).
+    alertها force-send با کفِ ضدِ flap؛ digestِ عادی interval-دار."""
+    if not (flag("OCTOPUS_WIRE_HEART_CARD") and flag("OCTOPUS_WIRE_PULSE")):
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    try:
+        _od = _organ_dialogue_mod()
+        d = _od.heart_digest(beat=beat)
+        force = bool(d.get("stall_new")) or bool(d.get("alerts")) and False
+        # stall تازه همیشه force؛ سایر alertها از راهِ تغییرِ hash خودشان می‌روند
+        min_s = float(os.environ.get("CHRONO_HEART_CARD_MIN_S", "21600"))
+        if not _dialogue_gate("pulse/heart-card-nudge.json", d["hash"], min_s,
+                              force=force):
+            return {"sent": False, "stalled": d.get("stalled"), "beat": beat}
+        sent = False
+        if channel is not None and getattr(channel, "wired", False):
+            kb = {"inline_keyboard": [[
+                {"text": "📊 وضعیت", "callback_data": "menu:overview"}]]}
+            sent = bool(channel.send_text(d["text"], kb))
+            if sent:
+                _dialogue_mark("pulse/heart-card-nudge.json", d["hash"])
+        return {"sent": sent, "stalled": d.get("stalled"),
+                "alerts": len(d.get("alerts") or []), "beat": beat}
+    except Exception as e:  # noqa: BLE001 — دیالوگ نباید tick را بکشد
+        opslib.alert([f"wiring: heart_card_beat خطا: {type(e).__name__}: {e}"])
+        return None

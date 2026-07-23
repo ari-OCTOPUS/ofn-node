@@ -151,8 +151,8 @@ class CockpitReadModel:
     def read_channels(self) -> dict:
         p = self.state / "channel-status.json"
         d = _read_json(p)
-        # P1 راست‌گویی (2026-07-15): این snapshot نویسندهٔ زنده ندارد — متادیتای تازگی ضمیمه
-        # می‌شود تا هیچ خواننده‌ای آن را «زنده» رندر نکند. فقط snapshotِ دارای محتوا برچسب می‌خورد؛
+        # P1 راست‌گویی (به‌روز 2026-07-24): entryِ telegram اکنون writerِ زنده دارد
+        # (approval_channel). متادیتای تازگی به‌عنوانِ دفاع می‌ماند — writerِ مرده = stale صادق؛
         # فایلِ غایب/خالی/خراب → {} دست‌نخورده (قراردادِ fail-soft، test_readmodel_failsoft).
         if d:
             try:

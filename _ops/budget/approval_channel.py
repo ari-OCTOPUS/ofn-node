@@ -232,6 +232,8 @@ class TelegramApprovalChannel(ApprovalChannel):
         self._pending: dict[str, dict] = {}          # T-2: کارت‌های تأییدِ منتظر (registry ضدِ جعل)
         self._pending_rfc: dict[str, dict] = {}      # W-3: کارت‌های RFCِ منتظرِ verdict (token + ضدِ replay)
         self._quarantine: list[dict] = []            # پیام‌های ورودی = DATA (نه دستور)
+        self._awaiting_rfc_edit: str | None = None   # 3a: انتظارِ متنِ ویرایشِ RFC (RAM؛ restart = لغوِ امن)
+        self._last_chstat = 0.0                      # Task 2: کادنسِ writerِ زندهٔ channel-status
         self._stop = False
 
     @property
@@ -284,6 +286,50 @@ class TelegramApprovalChannel(ApprovalChannel):
         q = urllib.parse.urlencode(params)
         return f"{TELEGRAM_API_BASE}/bot{self._token}/{method}?{q}"
 
+    # ─── Task 2 (2026-07-24) · writerِ زندهٔ channel-status ─────────────────────
+    def _write_channel_status(self) -> bool:
+        """حقیقتِ زندهٔ «تلگرام وصل است؟» را در state/channel-status.json می‌نویسد.
+        تاریخچه: فایل از 2026-07-08 orphan بود (صفر writerِ زنده) و خواننده‌ها
+        (dashboard/page_channels · cockpit_readmodel.read_channels · export_status)
+        عکسِ کهنهٔ «stub(no-creds)» می‌دیدند. حالا خودِ کانالِ زنده — تنها کسی که
+        واقعاً می‌داند — در بوتِ run_forever و سپس هر ~۱۵ دقیقه از poll_once آن را
+        refresh می‌کند. read-modify-write اتمیک؛ کانال‌های دیگرِ snapshot دست‌نخورده.
+        fail-soft (هرگز poll/boot را نمی‌کشد)؛ هیچ token/secret در خروجی."""
+        try:
+            from pathlib import Path as _P
+            if not self._state_dir:
+                return False
+            p = _P(self._state_dir) / "channel-status.json"
+            try:
+                cur = json.loads(p.read_text("utf-8")) if p.exists() else {}
+            except (OSError, ValueError):
+                cur = {}
+            if not isinstance(cur, dict):
+                cur = {}
+            channels = cur.get("channels") if isinstance(cur.get("channels"), dict) else {}
+            entry = {
+                "channel": "telegram",
+                "live": bool(self.wired),
+                "mode": "long-poll(T-8)" if self.wired else "stub(no-creds)",
+                "writer": "approval_channel(run_forever/poll_once)",
+                "allowlist": len(self._allowed) > 1,
+                "owner_set": self._owner is not None,
+            }
+            if not self.wired:
+                entry["required_env"] = ["TELEGRAM_BOT_TOKEN", "TELEGRAM_OWNER_CHAT_ID"]
+            channels["telegram"] = entry
+            cur["channels"] = channels
+            cur["ts"] = opslib.now_iso()
+            cur["writer_note"] = ("entryِ telegram توسطِ کانالِ زنده refresh می‌شود "
+                                  "(2026-07-24)؛ بقیهٔ کانال‌ها snapshot")
+            p.parent.mkdir(parents=True, exist_ok=True)
+            tmp = p.with_suffix(".json.tmp2")
+            tmp.write_text(json.dumps(cur, ensure_ascii=False, indent=2), "utf-8")
+            os.replace(tmp, p)
+            return True
+        except Exception:  # noqa: BLE001 — راست‌گوییِ کابین نباید حلقه را بکشد
+            return False
+
     def poll_once(self) -> int:
         """یک دورِ long-poll. خروجی = تعداد updateهای پردازش‌شده. وقتی not wired → 0 (no-opِ
         امن، بدونِ هیچ فراخوانیِ شبکه). خطای شبکه fail-soft: ۰ برمی‌گردد، حلقه کشته نمی‌شود.
@@ -321,6 +367,10 @@ class TelegramApprovalChannel(ApprovalChannel):
             os.replace(tmp, p)
         except OSError:
             pass
+        # Task 2 (2026-07-24): writerِ زندهٔ channel-status — هر ~۱۵ دقیقه، poll-محور، ارزان
+        if time.time() - self._last_chstat > 900:
+            self._last_chstat = time.time()
+            self._write_channel_status()
         processed = 0
         offset_dirty = False
         for upd in data.get("result") or []:
@@ -433,6 +483,7 @@ class TelegramApprovalChannel(ApprovalChannel):
             return
         self._diagnose_webhook()  # جلسه ۴۶: کشفِ webhookِ رقیب (علتِ ۴۰۹ ابدیِ دکمه‌ها)
         self._set_my_commands()   # پاک‌سازیِ منوی قدیمی + ثبتِ منوی تمیز اختاپوس
+        self._write_channel_status()   # Task 2: حقیقتِ live-wired از لحظهٔ بوتِ poll
         while not self._killed():
             self.poll_once()
 
@@ -487,6 +538,7 @@ class TelegramApprovalChannel(ApprovalChannel):
             {"command": "neworgan", "description": "🆕 ساختِ اندامِ نو"},
             {"command": "wiring", "description": "🔌 نقشهٔ اتصال‌ها (راست‌گو)"},
             {"command": "health", "description": "🫀 سلامتِ اختاپوس"},
+            {"command": "heart", "description": "💓 قلب — ریتم و تنظیم"},
             {"command": "queue", "description": "📥 صف تأیید"},
             {"command": "status", "description": "📊 وضعیت ارگانیسم"},
             {"command": "lead", "description": "📝 ثبت لید جدید"},
@@ -1146,6 +1198,19 @@ class TelegramApprovalChannel(ApprovalChannel):
             ok_rfc, why_rfc = False, "verify-error"
         if not ok_rfc or not _cteq(token, meta.get("token", "")):
             return f"رد: توکنِ RFC نامعتبر/منقضی ({why_rfc})"
+        if verb == "edit":
+            # 3a-afferent: [✍️ ویرایش] → حالتِ انتظارِ متنِ آزاد (الگوی acct_review).
+            # هیچ verdict ثبت نمی‌شود و token مصرف نمی‌شود (decision همچنان SUBMITTED —
+            # دکمه‌های merge/deny معتبر می‌مانند).
+            with self._lk:
+                self._awaiting_rfc_edit = rfc_id
+            try:
+                import acct_review as _ar_x
+                _ar_x.set_awaiting_free(False)
+            except Exception:  # noqa: BLE001
+                pass
+            return ("✍️ متنِ بازنگری/ویرایش را به‌صورتِ یک پیامِ متنی بفرست — برای "
+                    f"{rfc_id}")
         if verb in ("merge", "deny"):
             new_status = "merge-approved" if verb == "merge" else "denied"
             # C7.2: callback success is conditional on fsync.  A failed durable write
@@ -1293,14 +1358,16 @@ class TelegramApprovalChannel(ApprovalChannel):
     # Prefix matching covers argument-bearing commands without treating read-only pages as mutation.
     _OWNER_ONLY_COMMAND_PREFIXES = (
         "/lead ", "/claim ", "/conflict ", "/neworgan ", "/organ-approve ",
-        "/review", "/books", "/sync", "/start_exp", "/reveal "
+        "/review", "/books", "/sync", "/start_exp", "/reveal ",
+        # Task 3 (2026-07-24): دیالوگِ organ — همهٔ مسیرهای تغییردهنده owner-only
+        "/heart set ", "/doctor focus ", "/doctor edit ", "/brain guide "
     )
     _GROUP_READONLY_COMMANDS = frozenset({
         "/start", "/status", "/overview", "/blueprint", "/brain", "/doctor",
         "/money", "/finance", "/school", "/safety", "/alerts", "/organs",
         "/queue", "/reentry", "/wiring", "/health", "/upgrades", "/lead",
         "/brief", "/think", "/spine", "/gates", "/verdicts", "/rules",
-        "/guards", "/drafts"
+        "/guards", "/drafts", "/heart"
     })
 
     def handle_command(self, text: str, chat_id: int | None = None,
@@ -1342,6 +1409,7 @@ class TelegramApprovalChannel(ApprovalChannel):
                     _ar0.set_awaiting_free(False)
             except Exception:  # noqa: BLE001
                 pass
+            self._awaiting_rfc_edit = None   # 3a: تغییرِ زمینه = بستنِ حالتِ ویرایشِ RFC
         # UX v2: /start منوی اصلی
         if t == "/start":
             return self._main_menu()
@@ -1349,6 +1417,17 @@ class TelegramApprovalChannel(ApprovalChannel):
             return self._cmd_lead_prompt()
         if t.startswith("/lead "):
             return self._cmd_lead_parse(t[len("/lead "):])
+        # ── Task 3 (2026-07-24): دیالوگِ owner↔organ (Doctor/Brains/Hearts) ──
+        if t == "/heart":
+            return self._cmd_heart()
+        if t.startswith("/heart set "):
+            return self._cmd_heart_set(t[len("/heart set "):])
+        if t.startswith("/doctor focus "):
+            return self._cmd_doctor_focus(t[len("/doctor focus "):])
+        if t.startswith("/doctor edit "):
+            return self._cmd_doctor_edit(t[len("/doctor edit "):])
+        if t.startswith("/brain guide "):
+            return self._cmd_brain_guide(t[len("/brain guide "):])
         # T-4: lab — حذف از router (UX v2 §۱). متدها باقی‌اند برای backward-compat.
         # T-5: status (read-only)
         if t == "/status":
@@ -1407,6 +1486,9 @@ class TelegramApprovalChannel(ApprovalChannel):
         # متنِ آزاد فقط وقتی جلسه فعال است و منتظرِ متن → تجزیه به پیشنهاد (نه دستور، نه auto-apply)
         # گیت روی is_active هم هست تا پرچمِ سرگردانِ یک جلسهٔ بسته پیامِ نامرتبط را ندزدهد.
         if not t.startswith("/"):
+            # 3a: اگر مالک وسطِ ویرایشِ RFC است، این متن پاسخِ همان RFC است (قبل از حسابدار)
+            if self._awaiting_rfc_edit:
+                return self._consume_rfc_edit_text(t)
             try:
                 import acct_review as _ar
                 if _ar.is_active() and _ar.is_awaiting_free():
@@ -2003,6 +2085,133 @@ class TelegramApprovalChannel(ApprovalChannel):
                 f"{self._DIV.strip()}\n"
                 f"<i>سلامتِ کاملِ تست‌ها: run_all (۱۳۷) + validators جدا اجرا می‌شوند.</i>")
 
+    # ─── Task 3 (2026-07-24) · دیالوگِ owner↔organ (Doctor/Brains/Hearts) ─────────
+    def _organ_dialogue(self):
+        """ماژولِ مشترکِ رندر/persistِ دیالوگ (lazy، fail-soft → None)."""
+        try:
+            import sys as _sys
+            from pathlib import Path as _P
+            _ops = str(_P(__file__).resolve().parents[1])
+            if _ops not in _sys.path:
+                _sys.path.insert(0, _ops)
+            import organ_dialogue as _od
+            return _od
+        except Exception:  # noqa: BLE001
+            return None
+
+    def _dlg_state_dir(self):
+        from pathlib import Path as _P
+        return _P(self._state_dir) if self._state_dir else None
+
+    def _cmd_heart(self):
+        """/heart — کارتِ فقط‌خواندنیِ قلب (همان رندرِ heart_card_beat)."""
+        _od = self._organ_dialogue()
+        if _od is None:
+            return "🫀 ماژولِ دیالوگ در دسترس نیست."
+        try:
+            d = _od.heart_digest(state_dir=self._dlg_state_dir())
+            return {"text": d["text"], "reply_markup": {"inline_keyboard": [[
+                {"text": "📊 وضعیت", "callback_data": "menu:overview"},
+                {"text": "🏠 منو", "callback_data": "menu:main"}]]}}
+        except Exception as e:  # noqa: BLE001
+            return f"🫀 خطا در گزارشِ قلب: {type(e).__name__}"
+
+    def _cmd_heart_set(self, arg: str):
+        """/heart set <param> <value> — قدمِ ۱: preview + کارتِ confirmِ توکن‌دار.
+        نوشتنِ واقعی فقط بعد از تپِ مالک (act:heartset، INV-13 تک‌مصرف + owner-gate)
+        و فقط از راهِ HeartParams.validate() — ADR-001: هرگز period/rate."""
+        _od = self._organ_dialogue()
+        if _od is None:
+            return "🫀 ماژولِ دیالوگ در دسترس نیست."
+        parts = str(arg or "").split()
+        if len(parts) != 2:
+            return ("🫀 فرمت: <code>/heart set &lt;param&gt; &lt;value&gt;</code>\n"
+                    "پارامترها: sigma · lo · hi · cap · baro (فقط setpoint — هرگز period)")
+        try:
+            pv = _od.heart_set_preview(parts[0], parts[1], state_dir=self._dlg_state_dir())
+        except Exception as e:  # noqa: BLE001
+            return f"🫀 خطا در preview: {type(e).__name__}"
+        if not pv.get("ok"):
+            return "⛔ رد شد:\n" + "\n".join(
+                f"• {html.escape(str(x))}" for x in pv.get("errs") or [])
+        canon = pv["param"]
+        # C4 (الگوی flaggo): مقدارِ مطلق در mintِ توکن ذخیره می‌شود — کارتِ کهنه مقدارِ کهنه
+        tok = self._new_act_token("heartset", canon, target=pv["new"])
+        btn = {"text": f"✅ اعمالِ {canon} → {pv['new']}",
+               "callback_data": f"act:heartset:{canon}:{tok}"}
+        return {"text": (f"🫀 <b>تنظیمِ setpointِ قلب</b>\n"
+                         f"{canon}: <code>{html.escape(str(pv['old']))}</code> → "
+                         f"<code>{html.escape(str(pv['new']))}</code>\n"
+                         f"epoch فعلی {pv.get('epoch_now')} — با اعمال، epochِ نو "
+                         "atomic/audited/برگشت‌پذیر نوشته می‌شود.\nمطمئنی؟"),
+                "reply_markup": {"inline_keyboard": [[btn,
+                    {"text": "❌ انصراف", "callback_data": "menu:main"}]]}}
+
+    def _act_heartset(self, key: str, target=None) -> str:
+        """قدمِ ۲ (تپِ توکن‌دارِ مالک): اعمالِ setpoint از راهِ HeartParams.validate."""
+        _od = self._organ_dialogue()
+        if _od is None:
+            return "🫀 ماژولِ دیالوگ در دسترس نیست."
+        if target is None:
+            return "⛔ مقدارِ هدف گم شد — دوباره /heart set بزن."
+        try:
+            r = _od.heart_set_apply(key, target, state_dir=self._dlg_state_dir())
+        except Exception as e:  # noqa: BLE001
+            return f"🫀 اعمال شکست: {type(e).__name__}"
+        if not r.get("ok"):
+            return "⛔ رد شد:\n" + "\n".join(f"• {str(x)[:120]}" for x in r.get("errs") or [])
+        return (f"✅ setpoint نوشته شد: {r['param']} {r['old']}→{r['new']} "
+                f"(epoch {r['epoch_seq']}؛ audit: pulse/heart-setpoint-audit.jsonl)")
+
+    def _cmd_doctor_focus(self, arg: str):
+        _od = self._organ_dialogue()
+        if _od is None:
+            return "🩺 ماژولِ دیالوگ در دسترس نیست."
+        r = _od.save_owner_focus(arg, state_dir=self._dlg_state_dir())
+        if not r.get("ok"):
+            return f"⛔ ثبت نشد: {r.get('error')}"
+        return (f"🎯 steering ثبت شد: «{html.escape(str(r['focus']))}» — دکتر در cycleِ بعد "
+                "mine/self-knowledge را با این سوگیری اجرا می‌کند (فقط اولویت، نه فرمان).")
+
+    def _cmd_doctor_edit(self, arg: str):
+        """/doctor edit <RFC-id> <متن> — بازنگریِ one-shot (دکمهٔ ✍️ کارت هم هست)."""
+        _od = self._organ_dialogue()
+        if _od is None:
+            return "🩺 ماژولِ دیالوگ در دسترس نیست."
+        parts = str(arg or "").split(None, 1)
+        if len(parts) != 2:
+            return "🩺 فرمت: <code>/doctor edit RFC-xxxxxxxx متنِ بازنگری</code>"
+        r = _od.save_rfc_revision(parts[0], parts[1], state_dir=self._dlg_state_dir())
+        if not r.get("ok"):
+            return f"⛔ ثبت نشد: {r.get('error')}"
+        return (f"✍️ بازنگری برای <code>{html.escape(str(r['rfc_id']))}</code> صف شد — "
+                "دکتر در cycleِ بعد در متنِ RFC ادغام و اعلام می‌کند.")
+
+    def _cmd_brain_guide(self, arg: str):
+        _od = self._organ_dialogue()
+        if _od is None:
+            return "🧠 ماژولِ دیالوگ در دسترس نیست."
+        r = _od.brain_guide(arg, state_dir=self._dlg_state_dir())
+        if not r.get("ok"):
+            return (f"⛔ ثبت نشد: {html.escape(str(r.get('error')))}\n"
+                    "<i>bounded: focus:&lt;متن&gt; · think_every_n:N (۱..۱۰۰) · "
+                    "pause: think · resume: think</i>")
+        return ("🧭 راهنماییِ مغز ثبت شد: <code>"
+                + html.escape(json.dumps(r.get("directive"), ensure_ascii=False))
+                + "</code>\ncortex در ابتدای cycleِ بعدی (state-file خوان؛ بدونِ pollerِ نو) اعمالش می‌کند.")
+
+    def _consume_rfc_edit_text(self, text: str):
+        """متنِ آزادِ مالک بعد از [✍️ ویرایش] → صفِ بازنگریِ همان RFC."""
+        rfc_id, self._awaiting_rfc_edit = self._awaiting_rfc_edit, None
+        _od = self._organ_dialogue()
+        if _od is None or not rfc_id:
+            return "🩺 ماژولِ دیالوگ در دسترس نیست."
+        r = _od.save_rfc_revision(rfc_id, text, state_dir=self._dlg_state_dir())
+        if not r.get("ok"):
+            return f"⛔ ثبت نشد: {r.get('error')} — دوباره دکمهٔ ✍️ را بزن."
+        return (f"✍️ بازنگری برای <code>{html.escape(str(rfc_id))}</code> ثبت شد — "
+                "دکتر در cycleِ بعد ادغام می‌کند.")
+
     def _main_menu(self) -> dict:
         """خانهٔ اصلی (جلسه ۴۶، رأی مالک «فقط آره یا نه»): خانهٔ سادهٔ تصمیم‌ها.
         عمقِ کاملِ ۸-تب دست‌نخورده زیرِ «⚙️ بیشتر» (backward-compat کامل)."""
@@ -2324,6 +2533,8 @@ class TelegramApprovalChannel(ApprovalChannel):
         kb = {"inline_keyboard": [[
             {"text": "merge پشتِ flag ✅", "callback_data": f"rfc:merge:{rfc_id}:{token}"},
             {"text": "رد ❌", "callback_data": f"rfc:deny:{rfc_id}:{token}"},
+        ], [
+            {"text": "✍️ ویرایش/بازنگری", "callback_data": f"rfc:edit:{rfc_id}:{token}"},
         ]]}
         lease_id = f"rfc-{os.getpid()}-{threading.get_ident()}"
         if not _pcr._acquire_send_lease(self._state_dir, "rfc", rfc_id, lease_id):  # noqa: SLF001
@@ -2445,6 +2656,10 @@ class TelegramApprovalChannel(ApprovalChannel):
         "lab":         frozenset({"start1", "start2", "start3"}),
         "baseline":    frozenset({"capture"}),
         "pf":          frozenset({"pause", "resume"}),   # Project-F کنترلِ content-free
+        # Task 3c (2026-07-24): تنظیمِ setpointِ قلب — فقط ۵ فیلدِ HeartParams
+        # (ADR-001: هیچ period/rate — حذفِ ساختاری)؛ مقدار در target (الگوی flaggo، C4)
+        "heartset":    frozenset({"target_sigma", "viable_band_lo", "viable_band_hi",
+                                  "daily_beat_cap", "baroreflex_gain"}),
     }
     # هیچ verbِ پول‌خوری در allowlist نیست (act:reconcile:run / act:epoch:run عمداً
     # وجود ندارند — §۲.۵). این مجموعه دفاعی است: verbِ پولیِ آینده بدونِ گیتِ باز رد می‌شود.
@@ -2801,6 +3016,8 @@ class TelegramApprovalChannel(ApprovalChannel):
         # reveal از /reveal command می‌رود (نه act) — §۸ resurface.
         if verb == "baseline":
             return self._act_baseline()
+        if verb == "heartset":
+            return self._act_heartset(key, target)
         return "نادیده"
 
     def _act_export(self) -> str:

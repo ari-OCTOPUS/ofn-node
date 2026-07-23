@@ -114,16 +114,17 @@ def align_work_plan(sweep: dict) -> dict:
     return {"changed": True, "diff": changed}
 
 
-def think(sweep: dict, cycle: int) -> str:
+def think(sweep: dict, cycle: int, focus: str | None = None) -> str:
     """فکرِ کوتاهِ ژورنال‌شده — مغزِ محلی اگر بالا بود؛ وگرنه خلاصهٔ قطعی.
     فقط عددها و idها به مدل می‌رود — هیچ secret/PII."""
     summary = (f"coherence={sweep['coherence']} · "
                f"stale={','.join(sweep['stale_members']) or 'هیچ'} · "
                f"اعضا={sweep['n']}")
-    r = model_router.ask(
-        "think",
-        f"وضعیتِ مجموعه: {summary}. یک جملهٔ کوتاه: الان مهم‌ترین کارِ مجموعه چیست؟",
-        max_tokens=90)
+    q = f"وضعیتِ مجموعه: {summary}."
+    if focus:
+        q += f" تمرکزِ خواسته‌شدهٔ مالک: {str(focus)[:200]}."
+    q += " یک جملهٔ کوتاه: الان مهم‌ترین کارِ مجموعه چیست؟"
+    r = model_router.ask("think", q, max_tokens=90)
     if r.get("ok"):
         return f"[{r.get('tier')}] {r['text']}"
     return f"[det] {summary}"
@@ -391,6 +392,14 @@ def obs_alert_check(sweep: dict) -> None:
 
 
 def run_cycle(cycle: int) -> dict:
+    # 3b (2026-07-24): steeringِ boundedِ مالک — فقط خواندنِ state-file (این پروسه هرگز
+    # bot/poller نمی‌سازد؛ ضدِ 409). directiveهای بسته: focus / think_every_n / paused.
+    guid = {}
+    try:
+        import owner_guidance as _og
+        guid = _og.effective() or {}
+    except Exception:  # noqa: BLE001
+        guid = {}
     sweep = registry.sweep()
     alignment = align_work_plan(sweep)
     stress_summary = stress_tick(cycle)
@@ -400,7 +409,11 @@ def run_cycle(cycle: int) -> dict:
     calibration_summary = calibration_tick(cycle)
     consolidate_summary = consolidate_tick(cycle)
     softwta_summary = softwta_tick(cycle)
-    thought = think(sweep, cycle) if _should_think(cycle) else None
+    _ten = guid.get("think_every_n")
+    _think_now = (cycle % max(1, int(_ten)) == 0) if _ten else _should_think(cycle)
+    if guid.get("paused"):
+        _think_now = False   # pause: think — فکرِ LLM خاموش؛ خلاصهٔ قطعی می‌ماند ($0)
+    thought = think(sweep, cycle, focus=guid.get("focus")) if _think_now else None
     model_summary = (self_model_refresh(cycle)
                      if (IMPROVE_EVERY_N > 0 and cycle % IMPROVE_EVERY_N == 0) else None)
     parts_summary = (part_loops_run(cycle)
@@ -432,6 +445,7 @@ def run_cycle(cycle: int) -> dict:
         **({"calibration": calibration_summary} if calibration_summary else {}),
         **({"consolidate": consolidate_summary} if consolidate_summary else {}),
         **({"softwta": softwta_summary} if softwta_summary else {}),
+        **({"owner_guidance": guid} if guid else {}),
         "schema": "cortex-state.v1",
     }
     CORTEX_DIR.mkdir(parents=True, exist_ok=True)

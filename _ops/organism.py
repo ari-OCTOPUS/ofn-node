@@ -791,6 +791,11 @@ def main() -> int:
                     # جلسه ۴۶: علائمِ حیاتی (استرس+عصب‌کشی) مستقیم از ستونِ فقرات —
                     # تا حتی با خوابِ دیمنِ کورتکس، مانیتور کور نشود و نقطهٔ مرده لو برود.
                     _w.cortex_vitals_beat(beat=_cstat.get("beat", 0))
+                    # Task 3 (2026-07-24): دیالوگِ owner↔organ — سه organ روی همان _chan
+                    # (کادنسِ زمان-محور + hash-throttle؛ پشتِ flagهای خودشان؛ fail-soft).
+                    _w.doctor_digest_beat(_chan, beat=_cstat.get("beat", 0))
+                    _w.brain_digest_beat(_chan, beat=_cstat.get("beat", 0))
+                    _w.heart_card_beat(_chan, beat=_cstat.get("beat", 0))
                 except Exception as _nne:  # noqa: BLE001 — §۴: نوتیف نباید tick را بکشد
                     opslib.alert([f"needs_nudge error (non-fatal): {type(_nne).__name__}: {_nne}"])
             if now - last_heartbeat > 3600:

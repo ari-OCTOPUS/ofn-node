@@ -16,6 +16,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_attribution.py", "test_panel_lead.py",
          "test_chrono_heartbeat.py", "test_chrono_langar.py",
          "test_telegram_channel.py", "test_telegram_group_allowlist.py",
+         # Task 2+3 (2026-07-24): writerِ زندهٔ channel-status + دیالوگِ owner↔organ
+         "test_channel_status.py", "test_organ_dialogue.py",
          "test_leg.py", "test_doctor.py",
          "test_chord.py", "test_chord_shadow.py",
          "test_phase5.py", "test_spectral.py", "test_chamber.py",

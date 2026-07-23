@@ -95,3 +95,14 @@ def _acquire_singleton_lock(lock_port: int = 8774) -> bool:
 | 10 | **WLOS Coach Bot** (کوچ شخصی مالک) | (هنوز ساخته‌نشده) | `TELEGRAM_BOT_TOKEN` **در `.env` خودِ wlos** (فایل جدا، بیرون git) | ⚠️ DORMANT — تا اولین اجرای مالک (docker compose + migrate) | `03 - Projects/WLOS - Weight Loss OS/wlos/apps/telegram-bot/src/main.ts` |
 
 ⚠️ **دام نام‌گذاری:** env var داخلی WLOS همنامِ `TELEGRAM_BOT_TOKEN` اختاپوس (#1) است ولی فایل .env اش جداست — موقع ساخت، **توکن جدید از BotFather** بگیر؛ استفادهٔ مجدد از توکن #1 = 409 فوری. ارسال WLOS فقط از outbox خودش با سقف ۲۰/روز است و به BUS اختاپوس وصل نیست.
+
+
+## ⚰️ RETIRED (2026-07-24) — control-brain («مغزِ دوم»)
+- `_launchpad/second-brain-live/control-brain/app.py` **رسماً بازنشسته است — هرگز launch نکن.**
+- علت: token آن با ORGANISM BOT یکی است → pollerِ دوم روی همان `getUpdates` → `409 Conflict`
+  و بلعیده‌شدنِ دکمه‌های مالک (`approval_channel.py:310`). به‌علاوه ممیزیِ 2026-07-18: درختِ
+  stale با SEND واقعی + PII + کلیدِ DeepSeek با برچسبِ غلط (توصیهٔ قرنطینه).
+- برچسبِ canonical: brainِ زنده = `cortex` (127.0.0.1:8772)؛ شناختِ دوگانهٔ زنده = debate loop؛
+  «مغزِ دوم» = این سرویسِ frozen (core.db از 2026-07-06 بی‌تغییر).
+- مسیرِ درستِ brain↔owner: cortex فقط state-file می‌نویسد (`state/cortex/*` + `owner-guidance.jsonl`)
+  و beatِ in-organism (`wiring.brain_digest_beat`) آن را از راهِ همان `_chan` به مالک می‌رساند.
