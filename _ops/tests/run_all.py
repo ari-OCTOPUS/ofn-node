@@ -315,6 +315,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_d3_provider_effect_halt.py",
          "test_d4_launcher_halt.py",
          "test_d5_halt_integration.py",
+         # 2026-07-23 PRE-0: ده invariant قانون اساسی از نقاطِ ورودِ واقعی (MemoryGate،
+         # model_router زیرِ halt، on_human_judgment با گیتِ واقعی، code_autonomy.allowed_target،
+         # watchdog/launcher) + seamهای canonicalِ governance برای لاین‌های هنوز-غیرفعال. script-native.
+         "test_pre0_real_entry.py",
          # 2026-07-22 F-COVERAGE adjudication: test_tg_approval_store دیگر orphanِ رد نیست —
          # ماژول/API واقعی است و reachable در production (center.py:1223-1224 approve/reject روی
          # مسیرِ approval مالک). تنها شکست، stale characterization بود (whitelistِ t_n فاقدِ
