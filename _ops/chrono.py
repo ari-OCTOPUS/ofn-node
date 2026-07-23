@@ -747,6 +747,19 @@ class EffectorGate:
                         (effect_id,))
         return row[0][0] if row else None
 
+    def binding_of(self, effect_id: str) -> dict | None:
+        """C-caller-migration — bindingِ فقط‌خواندنیِ یک effect برای ساختِ approvalِ دقیق.
+        producerِ کارتِ تأیید (تلگرام) در لحظهٔ ساختِ کارت این snapshot را برمی‌دارد و
+        approve همان را ارائه می‌دهد؛ اگر ردیف بعد از کارت عوض شود → mismatch → refuse
+        (بستنِ کاملِ card-swap). خواندن، نه نوشتن؛ chrono مالکِ انحصاریِ SQL می‌ماند."""
+        row = self.db.q("SELECT content_hash, action_kind, target_ref, kind, status "
+                        "FROM gated_effect WHERE effect_id=?", (effect_id,))
+        if not row:
+            return None
+        ch, ak, tr, kind, st = row[0]
+        return {"content_hash": ch, "action_kind": ak, "target_ref": tr,
+                "kind": kind, "status": st}
+
     def settle(self, effect_id: str) -> bool:
         """تنها نقطهٔ عبورِ اثر به جهان. False = مجاز نیست (fail-closed).
         C5: دیگر SELECT→blind-UPDATE نیست — کلِ گارد (releasable + release_refِ ناخالی)

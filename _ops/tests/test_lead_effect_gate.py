@@ -191,19 +191,20 @@ def t_k_no_network_imports():
 
 
 def t_l_batch_allowlist_blocks_noncanonical_customer_kinds():
-    """رگرسیونِ متخاصم (2026-07-21): batch-release حالا allowlist است — kindهای
-    غیر-canonicalِ ارسال (casing/whitespace/synonym) fail-safe فقط per-effect می‌روند."""
+    """رگرسیونِ متخاصم (2026-07-21؛ migrate به قراردادِ C4، 2026-07-23): batch-release
+    allowlist است — kindهای غیر-canonicalِ ارسال فقط per-effect می‌روند، و **پول/E4
+    (هر case) دیگر هرگز batch نمی‌شود** (C4: پول فقط از release_effectِ دقیق)."""
     gate, db = _gate()
-    # kindهای پول (هر case) → همچنان batch-release
-    e_send = gate.request("send", "m1", beat=1)
-    e_pay = gate.request("PAY", "m2", beat=1)          # uppercase پول (test_telegram_channel)
+    e_send = gate.request("send", "m1", beat=1)        # داخلیِ allowlisted → batch
+    e_pay = gate.request("PAY", "m2", beat=1)          # uppercase پول — C4: هرگز batch
     # kindهای ارسال با هجیِ غیر-canonical → نباید batch شوند
     e_up = gate.request("LEAD_OUTBOUND", "c1", beat=1)
     e_sp = gate.request("lead_outbound ", "c2", beat=1)   # trailing space
     e_syn = gate.request("sms_send", "c3", beat=1)         # synonym خارج از allowlist
     gate.release_gated_effects({"hash": "h"})
-    assert gate.status_of(e_send) == "releasable"     # پول آزاد شد
-    assert gate.status_of(e_pay) == "releasable"      # PAY (lower(trim)→pay) آزاد شد
+    assert gate.status_of(e_send) == "releasable"     # غیرپولِ allowlisted آزاد شد
+    assert gate.status_of(e_pay) == "pending", \
+        "C4: پول (حتی PAY با case متفاوت) هرگز با approvalِ عمومی batch نمی‌شود"
     assert gate.status_of(e_up) == "pending", "LEAD_OUTBOUND نباید batch شود"
     assert gate.status_of(e_sp) == "pending", "'lead_outbound ' نباید batch شود"
     assert gate.status_of(e_syn) == "pending", "sms_send (سینونیمِ ناشناخته) نباید batch شود"
