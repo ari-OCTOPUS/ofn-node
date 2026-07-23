@@ -318,6 +318,25 @@ def main() -> int:
                 f"attention={_ci.get('attention_total', 0)}")
         except Exception as _re:  # noqa: BLE001 — بازیابی هرگز بوت را نمی‌کشد
             opslib.alert([f"boot recovery failed (non-fatal): {type(_re).__name__}"])
+            _rec = {}
+        # C2-E: شناسنامهٔ تولد (RESURRECTION فاز ۱۰) — `system.booted` → spine با زنجیرهٔ
+        # prev_boot_id. پشتِ OCTOPUS_WIRE_SPINE؛ fail-soft؛ هیچ secret خوانده نمی‌شود.
+        try:
+            import sys as _bs
+            _sp = str(Path(__file__).resolve().parent / "spine")
+            if _sp not in _bs.path:
+                _bs.path.insert(0, _sp)
+            import boot_certificate as _bc   # noqa: WPS433
+            _cert = _bc.emit_birth_certificate(extras={
+                "journal_incomplete": len((_rec.get("journal") or {}).get("incomplete", [])),
+                "chrono_reconciled": (_rec.get("chrono") or {}).get("reconciled_now", 0)})
+            if _cert.get("emitted"):
+                opslib.heartbeat(
+                    f"birth certificate: boot={str(_cert.get('boot_id'))[:12]} "
+                    f"prev={str(_cert.get('prev_boot_id'))[:12]} "
+                    f"slept={_cert.get('uptime_gap_s')}s")
+        except Exception as _bce:  # noqa: BLE001 — شناسنامه هرگز بوت را نمی‌کشد
+            opslib.alert([f"birth certificate failed (non-fatal): {type(_bce).__name__}"])
         if any(_wire.values()):
             opslib.heartbeat(f"organism wiring: {_wire}")
     except Exception as _e:  # noqa: BLE001 — wiring اختیاریِ additive

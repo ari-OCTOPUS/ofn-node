@@ -32,7 +32,8 @@ _EFFECT_DESC = {
 EVENT_TYPES = ("delivered", "deferred", "accepted-measurement", "rejected", "failed",
                "decided", "reviewed", "verified", "settled",
                "mission-created", "decision-recorded", "proposal-issued",
-               "owner-verdict-recorded", "outcome-recorded")
+               "owner-verdict-recorded", "outcome-recorded",
+               "system.booted")   # C2-E: شناسنامهٔ تولد (RESURRECTION §birth-certificate)
 
 # ── privacy ──────────────────────────────────────────────────────────────────
 PRIVACY_CLASSES = ("public", "scrubbed", "owner_only")
