@@ -153,12 +153,18 @@ def record_verdict_durably(*, proposal_id: str, verdict: str, correlation_id: st
                 if _lg.flag_on():
                     import memory_store as _msx  # noqa: WPS433
                     import gate as _gx           # noqa: WPS433
+                    import decision_receipt as _drx  # noqa: WPS433
                     mdir = _ops.STATE_DIR / "memory"
                     mdir.mkdir(parents=True, exist_ok=True)
+                    rdir = _ops.STATE_DIR / "receipts"
+                    rdir.mkdir(parents=True, exist_ok=True)
                     _mem = _msx.MemoryStore(path=mdir / "memory.db")
+                    # C7-S2 (audit #3): رسیدِ canonical روی مسیرِ زندهٔ رأی — هیچ خاطرهٔ بی‌رسید
+                    _rcp = _drx.DecisionReceiptStore(rdir / "receipts.db")
                     try:
-                        _lg.learn_from_outcome(
+                        _lr = _lg.learn_from_outcome(
                             memory_gate=_gx.MemoryGate(_mem), outcome_store=o,
+                            receipt_store=_rcp,
                             signal={"content": f"owner accepted proposal (leg={leg_id or 'unknown'})"[:200],
                                     "mkey": f"owner-accept-{proposal_id}", "namespace": "semantic",
                                     "correlation_id": correlation_id,
@@ -166,8 +172,16 @@ def record_verdict_durably(*, proposal_id: str, verdict: str, correlation_id: st
                                     "trust": "OWNER_CONFIRMED", "salience": 0.6,
                                     "source": "owner", "producer": "owner_verdict"},
                             evaluator=_lg.fast_ledger_eval)   # hot-path: سبک (~۱s)
+                        # telemetry صادق: learned + memory_id + receipt_idِ واقعی
+                        out["learned"] = _lr.get("learned")
+                        out["learn_memory_id"] = _lr.get("memory_id")
+                        out["learn_receipt_id"] = _lr.get("receipt_id")
                     finally:
                         _mem.close()
+                        try:
+                            _rcp.close()
+                        except Exception:  # noqa: BLE001
+                            pass
         except Exception:  # noqa: BLE001 — یادگیری هرگز مسیرِ رأی را نمی‌کشد
             pass
         return out

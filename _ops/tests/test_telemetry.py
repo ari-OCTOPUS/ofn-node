@@ -17,6 +17,22 @@ def _ledger():
     return opslib.genome_ledger()
 
 
+def t_zero_source_gap_no_death():
+    # رگرسیونِ 2026-07-23: منبعِ تلمتریِ تهی (core.dbِ یخ‌زده) نباید مرگِ متابولیسم بسازد.
+    # billed>کف ولی همهٔ منابع صفر → observability-gap (نرم)، نه divergence (مرگ).
+    Path(ENV["BUDGET_STATE"]).write_text(json.dumps(
+        {"date": opslib.today(), "month": opslib.month(),
+         "spent_today_usd": 0.02, "spent_month_aud": 0.06, "halted": False}), "utf-8")
+    s = telemetry.snapshot()
+    assert s["month"]["aud"] == 0.0, s["month"]          # همهٔ منابع هنوز تهی‌اند
+    probs = telemetry.reconcile(s)
+    assert any("observability-gap" in p for p in probs), probs
+    assert not any("divergence" in p for p in probs), probs
+    assert not opslib.STOP_METABOLIC.exists(), "شکافِ رصد نباید STOP-METABOLIC بسازد"
+    assert not opslib.frozen(), "شکافِ رصد نباید FREEZE بسازد"
+    Path(ENV["BUDGET_STATE"]).unlink()                   # پاک‌سازی برای تست‌های بعدی
+
+
 def t_genome_metric_and_or0():
     lg = _ledger()
     lg.append("METRIC", {"llm_cost_usd": 0.5, "model": "m", "task": "t"}, actor="router")
@@ -103,6 +119,7 @@ def t_germline_lag_vital():
 
 if __name__ == "__main__":
     failed = harness.run([
+        ("شکافِ رصد (منبعِ تهی) → soft، نه مرگ", t_zero_source_gap_no_death),
         ("ژنوم: METRIC + تله or0", t_genome_metric_and_or0),
         ("مغز: usage + UNMAPPED + NULL", t_brain_usage_unmapped_or0),
         ("واحدها: micro-USD و نرخ پین AUD", t_snapshot_units),

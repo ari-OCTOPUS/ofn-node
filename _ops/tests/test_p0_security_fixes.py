@@ -134,13 +134,19 @@ def t_h_apply_merge_effect_on_merged_verdict():
     import doctor as _docmod
     importlib.reload(_docmod)
 
-    class _Chan:
+    class _Chan:   # C7.2 claim/ack: مسیرِ apply واقعی (نه صرفاً برچسبِ legacy)
         def __init__(self):
-            self._v = [("rfc-abc", "merge-approved")]
+            self._v = [("rfc-abc", "merge-approved", 1)]
 
-        def pop_rfc_verdicts(self):
+        def claim_rfc_verdicts(self, worker_id, lease_s=300):
             v, self._v = self._v, []
             return v
+
+        def begin_rfc_apply(self, rfc_id, revision, operation_key):
+            return True
+
+        def ack_rfc_verdict(self, rfc_id, revision, *, applied, receipt_id=""):
+            return True
 
     d = _docmod.Doctor(state_dir=str(Path(ENV["ops"]) / "state"),
                        approval_channel=_Chan())

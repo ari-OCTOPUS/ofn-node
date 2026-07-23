@@ -335,8 +335,22 @@ class Doctor:
         # اگر چیزی نبود → گلوگاهی نیست (نه «همه‌چیز خوب» — just nothing to fix)
         if not candidates:
             return None
-        # انتخابِ بالاترین severity (و به‌تساوی، پایین‌ترین score = بدتر)
-        candidates.sort(key=lambda c: ({"critical": 0, "high": 1}.get(c[2], 2), c[3]))
+        # 3a (2026-07-24): steeringِ مالک («doctor focus X») — فقط tie-breaker درونِ
+        # همان severity؛ هرگز بحران (critical/high) را کنار نمی‌زند. بدونِ policy/match
+        # رفتار بایت‌به‌بایتِ قبلی است.
+        _focus = ""
+        try:
+            _pol = _read_json_safe(self._state_dir / "doctor" / "owner-policy.json") or {}
+            _focus = str(_pol.get("focus") or "").strip().lower()
+        except Exception:  # noqa: BLE001
+            _focus = ""
+
+        def _focus_hit(c) -> bool:
+            return bool(_focus) and (_focus in str(c[0]).lower() or _focus in str(c[1]).lower())
+
+        # انتخابِ بالاترین severity (و به‌تساوی، اول focus ِ مالک، بعد پایین‌ترین score = بدتر)
+        candidates.sort(key=lambda c: ({"critical": 0, "high": 1}.get(c[2], 2),
+                                       0 if _focus_hit(c) else 1, c[3]))
         key, desc, sev, score = candidates[0]
         return {"bottleneck": desc, "evidence": {"key": key, "severity": sev,
                                                  "score": score,
@@ -724,6 +738,43 @@ class Doctor:
             return False
 
     # ─── RFC sweep — expire stale + re-submit no-channel ──────────────────────
+    def _consume_owner_revisions(self) -> int:
+        """3a (2026-07-24): ویرایش‌های free-textِ مالک (approval_channel →
+        state/doctor/owner-revisions.json) را در RFCهای غیر-terminal ادغام می‌کند.
+        صف atomic خوانده-و-پاک می‌شود (LockedJson)؛ registryِ rfcs تک-writer می‌ماند
+        (فقط خودِ Doctor). هر ادغام: append به fix + NOTE در ledger + journal +
+        اطلاعِ مالک از راهِ همان channel. propose-only: status/verdict دست نمی‌خورد."""
+        p = self._state_dir / "doctor" / "owner-revisions.json"
+        try:
+            if not p.exists():
+                return 0
+            with opslib.LockedJson(p) as lj:
+                data = lj.read() or {}
+                lj.write({})
+        except Exception:  # noqa: BLE001
+            return 0
+        n = 0
+        _terminal = ("merged", "rejected", "human-merged", "human-rejected", "expired")
+        for rfc_id, rec in (data or {}).items():
+            rfc = self._rfcs.get(rfc_id)
+            txt = str((rec or {}).get("text") or "").strip()
+            if rfc is None or not txt or rfc.status in _terminal:
+                continue
+            rfc.fix = rfc.fix + "\n\n**بازنگریِ مالک (" + opslib.today() + "):** " + txt[:800]
+            rfc.ledger_ref = self._note("DOCTOR_OWNER_REVISION",
+                                        {"rfc_id": rfc_id, "chars": len(txt)})
+            self._journal(rfc_id, "owner-revision", "ok")
+            n += 1
+            if self._channel is not None:
+                try:
+                    self._channel.send_text(
+                        f"🩺 بازنگریِ تو روی <code>{rfc_id}</code> ثبت و در متنِ RFC ادغام شد.")
+                except Exception:  # noqa: BLE001
+                    pass
+        if n:
+            self._persist_rfcs()
+        return n
+
     def _sweep_stale_rfcs(self, max_age_hours: int = 24) -> dict:
         """RFCهایی که بیش از max_age_hours در وضعیت non-terminal گیر کرده‌اند:
         - submitted-no-channel با channel وصل → re-submit
@@ -814,6 +865,11 @@ class Doctor:
         use_chamber: اگر True، RFC از Chamber تخاصمی می‌گذرد پیش از sandbox/submit."""
         # sweep RFCهای گیر کرده (expire stale, re-submit no-channel)
         self._sweep_stale_rfcs()
+        # 3a (2026-07-24): بازنگری‌های free-textِ مالک (تلگرام) → ادغام در RFCهای باز
+        try:
+            self._consume_owner_revisions()
+        except Exception:  # noqa: BLE001 — مصرفِ بازنگری هرگز cycle را نمی‌کشد
+            pass
         # Wave 3 (2026-07-15): اسکنِ اندام‌ها (پشتِ OCTOPUS_WIRE_ORGAN_DOCTOR، پیش‌فرض خاموش).
         # با فلگِ خاموش byte-identicalِ رفتارِ قبلی؛ روشن → RFCِ بهبود برای اندامِ خاموش/اسکلت.
         if os.environ.get("OCTOPUS_WIRE_ORGAN_DOCTOR") == "1":
@@ -833,28 +889,47 @@ class Doctor:
         # hasattr-guard = ایمن حتی قبل از این‌که کانالِ تلگرام آن را عرضه کند).
         # human-append منبعِ حقیقت می‌ماند — اینجا فقط ثبتِ calibration + وضعیتِ registry.
         try:
-            if self._channel is not None and hasattr(self._channel, "pop_rfc_verdicts"):
-                for rfc_id, verdict in self._channel.pop_rfc_verdicts():
+            if self._channel is not None and hasattr(self._channel, "claim_rfc_verdicts"):
+                worker = f"doctor-{os.getpid()}"
+                for rfc_id, verdict, revision in self._channel.claim_rfc_verdicts(worker):
                     mapped = {"merge-approved": "merged", "denied": "rejected"}.get(verdict)
                     if mapped is None:
-                        continue   # verdict ناشناخته → skip (calibration فقط merged/rejected/ignored)
+                        continue
                     from calibration import record_verdict
                     record_verdict(self._db, rfc_id, mapped)
+                    applied = False
+                    receipt_id = ""
                     if rfc_id in self._rfcs:
-                        # جلسه ۴۶ (P0): verdictِ merged حالا اثرِ واقعی دارد — apply_merge
-                        # (فقط lesson + NOTE، هیچ جهشِ production؛ human-append قبلاً enforce شده).
-                        # apply_merge نیاز به status=submitted دارد، پس *پیش از* برچسب صدا زده
-                        # می‌شود. پشتِ flag (پیش‌فرض روشن؛ خاموش → فقط برچسبِ قبلی).
-                        _applied = False
                         if mapped == "merged" and \
                                 os.environ.get("OCTOPUS_WIRE_APPLY_MERGE", "1") == "1":
+                            op_key = f"rfc:{rfc_id}:rev:{revision}"
+                            # Persist RECONCILE_REQUIRED before apply. Crash after this line
+                            # never auto-retries the mutation; an operation receipt closes it.
+                            if not self._channel.begin_rfc_apply(rfc_id, revision, op_key):
+                                self._rfcs[rfc_id].status = "reconcile-required"
+                                continue
                             try:
-                                _applied = self.apply_merge(self._rfcs[rfc_id])
-                            except Exception as _ame:  # noqa: BLE001 — merge نباید cycle را بکشد
+                                applied = self.apply_merge(self._rfcs[rfc_id])
+                                if applied:
+                                    receipt_id = str(self._rfcs[rfc_id].ledger_ref or "")
+                            except Exception as _ame:
                                 opslib.alert([f"doctor apply_merge failed: {type(_ame).__name__}"])
-                        if not _applied:   # apply نشد/flag خاموش → همان برچسبِ قبلی
-                            self._rfcs[rfc_id].status = "human-" + mapped
-                self._persist_rfcs()   # جلسه ۴۶: تغییراتِ چرخهٔ‌عمر روی دیسک
+                        elif mapped == "rejected":
+                            self._rfcs[rfc_id].status = "human-rejected"
+                    # APPLIED only after an operation receipt. Deny is terminal REJECTED.
+                    acked = self._channel.ack_rfc_verdict(
+                        rfc_id, revision, applied=applied,
+                        receipt_id=receipt_id if applied else "")
+                    if not acked and rfc_id in self._rfcs:
+                        self._rfcs[rfc_id].status = "reconcile-required"
+                self._persist_rfcs()
+            elif self._channel is not None and hasattr(self._channel, "pop_rfc_verdicts"):
+                # Legacy channel: labels only; never auto-apply because it has no durable lease.
+                for rfc_id, verdict in self._channel.pop_rfc_verdicts():
+                    mapped = {"merge-approved": "merged", "denied": "rejected"}.get(verdict)
+                    if mapped and rfc_id in self._rfcs:
+                        self._rfcs[rfc_id].status = "human-" + mapped
+                self._persist_rfcs()
         except Exception as e:  # noqa: BLE001 — مصرفِ verdict هرگز cycle را نمی‌کشد
             try:
                 opslib.alert([f"doctor: rfc-verdict consumption failed: {str(e)[:120]}"])

@@ -47,24 +47,52 @@ def boot_recovery(*, state_dir=None, chrono_db_path=None, within_h: int = 48) ->
             sys.path.insert(0, _p)
 
     # ── ۱) journal: مرده‌های وسطِ قدم — advisory، بدونِ re-run ─────────────────
+    # C7.1 (B8): هر lane journalِ **خودش** را دارد. resume_point هر ردیف باید از journalِ
+    # همان lane خوانده شود — نه اینکه ردیفِ پژوهشی از run-journal resume بگیرد (باگِ بازبینی).
     jpath = None
     try:
         import durable_journal as dj   # noqa: WPS433
         if state_dir is not None:
             jpath = Path(state_dir) / "journal" / "run-journal.jsonl"
-        inc = dj.incomplete_runs(within_h=within_h, path=jpath) \
-            if jpath is not None else dj.incomplete_runs(within_h=within_h)
-        resume = {}
-        for row in inc:   # incomplete_runs → [{"run_id","step","since"}]
-            rid = row.get("run_id")
+        rjp = (Path(state_dir) / "journal" / "research-journal.jsonl") if state_dir is not None \
+            else (_HERE / "state" / "journal" / "research-journal.jsonl")
+        lanes = [("run", jpath), ("research", rjp if (rjp and rjp.exists()) else None)]
+        inc = []                       # هر ردیف lane و path خودش را حمل می‌کند
+        for lane, path in lanes:
+            if lane == "research" and path is None:
+                continue
             try:
-                resume[rid] = dj.resume_point(rid, path=jpath) \
-                    if jpath is not None else dj.resume_point(rid)
+                rows = dj.incomplete_runs(within_h=within_h, path=path) if path is not None \
+                    else dj.incomplete_runs(within_h=within_h)
+            except Exception:  # noqa: BLE001
+                rows = []
+            for r in rows:
+                r["_lane"] = lane
+                r["_path"] = str(path) if path is not None else None
+                inc.append(r)
+        resume = {}
+        for row in inc:   # incomplete_runs → [{"run_id","step","since","_lane","_path"}]
+            rid = row.get("run_id")
+            rp = Path(row["_path"]) if row.get("_path") else None
+            try:
+                resume[rid] = dj.resume_point(rid, path=rp)   # ← از journalِ **همان lane**
             except Exception:  # noqa: BLE001
                 resume[rid] = None
+        # نقشهٔ ساختاریافتهٔ resumeِ پژوهش (contract_id/experiment_index/budget) — از research-journal
+        research_plan = []
+        try:
+            for _p in (str(_HERE / "outcomes"),):
+                if _p not in sys.path:
+                    sys.path.insert(0, _p)
+            import research_loop as _rl   # noqa: WPS433
+            research_plan = _rl.plan_recovery(state_dir=state_dir, within_h=within_h)
+        except Exception:  # noqa: BLE001
+            research_plan = []
         out["journal"] = {"incomplete": [{"run_id": r.get("run_id"),
-                                          "died_at_step": r.get("step")} for r in inc],
-                          "resume_points": resume}
+                                          "died_at_step": r.get("step"),
+                                          "lane": r.get("_lane")} for r in inc],
+                          "resume_points": resume,
+                          "research_plan": research_plan}
         # خودِ این اسکن هم ثبت می‌شود (fail-soft)
         try:
             dj.record("boot-recovery", "journal-scan", "ok",

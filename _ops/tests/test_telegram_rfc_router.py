@@ -23,6 +23,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("telegram-rfc-router")
+os.environ["OCTOPUS_CB_SECRET"] = "unit-test-rfc-secret-not-real"
+os.environ["TELEGRAM_OWNER_CHAT_ID"] = "42"
 import approval_channel as ac  # noqa: E402
 from approval_channel import TelegramApprovalChannel as TC  # noqa: E402
 
@@ -51,10 +53,21 @@ def _fake_post_factory(sent: list):
     return _fake
 
 
+_SD_SEQ = {"n": 0}
+
+
+def _new_state_dir():
+    _SD_SEQ["n"] += 1
+    p = Path(ENV["ops"]) / "state" / f"rfc-router-{_SD_SEQ['n']}"
+    p.mkdir(parents=True, exist_ok=True)
+    return str(p)
+
+
 def _rfc_channel(sent=None):
     """channel آماده با http_post فیک + یک کارتِ RFCِ ثبت‌شده. خروجی: (ch, sent)."""
     sent = [] if sent is None else sent
-    ch = TC(token="FAKETOKEN123456", owner_chat_id=42, http_post=_fake_post_factory(sent))
+    ch = TC(token="FAKETOKEN123456", owner_chat_id=42, http_post=_fake_post_factory(sent),
+            state_dir=_new_state_dir())
     assert ch.rfc_card("RFC-001", "افزودنِ replication guard") is True
     return ch, sent
 
@@ -82,7 +95,8 @@ def t_rfc_card_post_failure_keeps_intent():
     """خطای POST → rfc_card False ولی intent در registry می‌ماند (retry — هم‌سان T-2)."""
     def boom(url, body, timeout_s=10.0):
         raise urllib.error.URLError("down")
-    ch = TC(token="FAKETOKEN123456", owner_chat_id=42, http_post=boom)
+    ch = TC(token="FAKETOKEN123456", owner_chat_id=42, http_post=boom,
+            state_dir=_new_state_dir())
     assert ch.rfc_card("RFC-X", "s") is False
     assert ch._pending_rfc["RFC-X"]["status"] == "pending"
 
@@ -136,11 +150,13 @@ def t_rfc_recard_never_clobbers_unconsumed_verdict():
     # resubmit (مثل sweep ِ doctor) پیش از مصرف — نباید رأی را pending کند
     assert ch.rfc_card("RFC-001", "نسخهٔ دوم کارت") is False
     assert ch._pending_rfc["RFC-001"]["status"] == "merge-approved", "رأی مالک clobber شد!"
-    # بعد از مصرف (pop) → کارتِ نو مجاز است
-    popped = ch.pop_rfc_verdicts()
-    assert ("RFC-001", "merge-approved") in popped
-    assert ch.rfc_card("RFC-001", "نسخهٔ سوم کارت") is True
-    assert ch._pending_rfc["RFC-001"]["status"] == "pending"
+    # After APPLIED acknowledgment, the same RFC identity remains terminal; a new revision
+    # must use a new RFC id rather than silently reopening the old decision.
+    claimed = ch.claim_rfc_verdicts("doctor-test")
+    hit = [x for x in claimed if x[0] == "RFC-001"][0]
+    assert ch.begin_rfc_apply("RFC-001", hit[2], f"rfc:RFC-001:rev:{hit[2]}")
+    assert ch.ack_rfc_verdict("RFC-001", hit[2], applied=True, receipt_id="ledger:test")
+    assert ch.rfc_card("RFC-001", "نسخهٔ سوم کارت") is False
 
 
 def t_rfc_legacy_3part_graceful():
@@ -165,22 +181,29 @@ def t_rfc_unknown_verb_ignored():
 def t_pop_rfc_verdicts_exactly_once_sorted():
     """دو RFC با verdict → pop اول هر دو (sorted by rfc_id)؛ pop دوم خالی؛ pending تحویل نمی‌شود."""
     sent = []
-    ch = TC(token="FAKETOKEN123456", owner_chat_id=42, http_post=_fake_post_factory(sent))
+    ch = TC(token="FAKETOKEN123456", owner_chat_id=42, http_post=_fake_post_factory(sent),
+            state_dir=_new_state_dir())
     for rid in ("RFC-B", "RFC-A", "RFC-C"):
         assert ch.rfc_card(rid, f"summary {rid}") is True
     tok_a = ch._pending_rfc["RFC-A"]["token"]
     tok_b = ch._pending_rfc["RFC-B"]["token"]
     ch.dispatch_callback(f"rfc:merge:RFC-B:{tok_b}")
     ch.dispatch_callback(f"rfc:deny:RFC-A:{tok_a}")
-    # RFC-C هنوز pending → نباید تحویل شود
-    got = ch.pop_rfc_verdicts()
-    assert got == [("RFC-A", "denied"), ("RFC-B", "merge-approved")], got
-    assert ch.pop_rfc_verdicts() == [], "pop دوم باید خالی باشد (exactly-once)"
-    # verdictِ دیرتر (RFC-C) بعداً تحویل می‌شود
+    # Durable lease returns both sorted; a second claim is empty until lease expiry.
+    got = ch.claim_rfc_verdicts("doctor-test")
+    assert [(r, v) for r, v, _ in got] == [("RFC-A", "denied"), ("RFC-B", "merge-approved")], got
+    assert ch.claim_rfc_verdicts("doctor-2") == []
+    # Acknowledge deny; merge needs operation receipt.
+    for rid, verdict, rev in got:
+        if verdict == "denied":
+            assert ch.ack_rfc_verdict(rid, rev, applied=False)
+        else:
+            assert ch.begin_rfc_apply(rid, rev, f"rfc:{rid}:rev:{rev}")
+            assert ch.ack_rfc_verdict(rid, rev, applied=True, receipt_id="ledger:test")
     tok_c = ch._pending_rfc["RFC-C"]["token"]
     ch.dispatch_callback(f"rfc:merge:RFC-C:{tok_c}")
-    assert ch.pop_rfc_verdicts() == [("RFC-C", "merge-approved")]
-    assert ch.pop_rfc_verdicts() == []
+    got_c = ch.claim_rfc_verdicts("doctor-test")
+    assert [(r, v) for r, v, _ in got_c] == [("RFC-C", "merge-approved")]
 
 
 # ═══ poll_once (T-8): مسیرِ مالک vs غریبه ═════════════════════════════════════
@@ -311,7 +334,8 @@ def t_money_app_flow_untouched():
     try:
         effect_id = gate.request("PAY", "ref://bill-w3")
         ch = TC(token="FAKETOKEN123456", owner_chat_id=42,
-                http_post=_fake_post_factory([]), gate=gate, ledger=lg)
+                http_post=_fake_post_factory([]), gate=gate, ledger=lg,
+                state_dir=str(ENV["ops"] / "state"))
         ch.request_approval_card(effect_id, 50.0, "قبضِ برق", "over-gate")
         token = ch._pending[effect_id]["token"]
         assert gate.settle(effect_id) is False, "نباید قبل از approve settle شود"

@@ -22,6 +22,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("telegram-channel")
+os.environ["OCTOPUS_CB_SECRET"] = "unit-test-telegram-secret-not-real"
+# NOTE: TELEGRAM_OWNER_CHAT_ID عمداً در سطحِ ماژول ست نمی‌شود — تست‌ها owner را صریح به
+# TC() می‌دهند. ست‌کردنِ سراسری، تست‌های no-owner (wired=False) را به‌خاطرِ fallbackِ env می‌شکست.
 import approval_channel as ac  # noqa: E402
 from approval_channel import Approval, TelegramApprovalChannel as TC  # noqa: E402
 
@@ -122,19 +125,21 @@ def t_offset_persisted_across_restart():
 
 
 def t_offset_not_persisted_without_state_dir():
-    """بدونِ state_dir (تست‌های T-1) → offset در حافظه می‌ماند، فایل نوشته نمی‌شود."""
+    """C7.2: state_dir=None دیگر «RAM-only» نیست — به دایرکتوریِ canonicalِ durable resolve
+    می‌شود (callback state هرگز RAM-only نیست). پس offset همیشه persist می‌شود و نمونهٔ تازه
+    آن را می‌خواند. (offset ابتدا پاک می‌شود تا از leakِ تست‌های قبلی جدا بماند.)"""
     import approval_channel as ac
+    ac._offset_state_path(str(ac.opslib.STATE_DIR)).unlink(missing_ok=True)
     payload = {"ok": True, "result": [
         {"update_id": 50, "message": {"chat": {"id": 42}, "text": "x", "from": {"id": 42}, "date": 1}}]}
     ch = TC(token="FAKETOKEN123456", owner_chat_id=42,
             http_get=_fake_get_factory({"getUpdates": payload}, []))
+    assert ch._offset == 0, "آغازِ تمیز (offset پاک شد)"
     ch.poll_once()
     assert ch._offset == 51
-    # چون state_dir نباشد، نباید فایلی در _ops/state واقعی ساخته شود
-    real = ac._offset_state_path()      # مسیرِ پیش‌فرضِ واقعی
-    # فقط بررسیِ غیرمستقیم: __init__ بدونِ state_dir هم offset=0 شروع کرد (تستِ آغاز)
-    ch0 = TC(token="FAKETOKEN123456", owner_chat_id=42)
-    assert ch0._offset == 0, "بدونِ state_dir، offset باید از 0 شروع کند"
+    # نمونهٔ تازه بدونِ state_dirِ صریح → همان دایرکتوریِ canonical → offset را durable می‌خواند
+    ch2 = TC(token="FAKETOKEN123456", owner_chat_id=42)
+    assert ch2._offset == 51, "offset باید durable-by-default از دایرکتوریِ canonical خوانده شود"
 
 
 def t_owner_allowed_and_quarantined():
@@ -153,6 +158,7 @@ def t_owner_allowed_and_quarantined():
 
 def test_non_owner_ignored():
     """allowlist: غیرمالک ignore می‌شود (ولی offset جلو می‌رود تا دوباره نیاید)."""
+    ac._offset_state_path(str(ac.opslib.STATE_DIR)).unlink(missing_ok=True)    # C7.2: offset durable-by-default → آغازِ تمیز
     http = _fake_get_factory({"getUpdates": {"ok": True, "result": [
         {"update_id": 9, "message": {"chat": {"id": 999}, "text": "intruder",
          "from": {"id": 999}, "date": 1}}]}}, [])

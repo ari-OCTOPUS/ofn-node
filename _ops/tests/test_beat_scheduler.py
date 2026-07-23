@@ -169,6 +169,23 @@ def t_act_is_dry_run_by_default():
 
 
 # ── ۸: watchdog — تشخیصِ stall/غیابِ ضربان ─────────────────────────────────────
+def t_production_safe_forbids_act_and_learn():
+    sch, _ = _sched("prod-safe")
+    sch.production_safe = True
+    for phase in ("ACT", "LEARN"):
+        try:
+            sch.register_organ(f"bad-{phase}", phase, lambda **k: None)
+            assert False, f"production-safe must reject {phase} registration"
+        except ValueError as e:
+            assert "transactional outbox" in str(e)
+    os.environ[bs.ACT_ARMED_FLAG] = "1"
+    try:
+        r = sch.tick()
+        assert r["act_armed"] is False, "ACT_ARMED must be ignored in production-safe mode"
+    finally:
+        os.environ.pop(bs.ACT_ARMED_FLAG, None)
+
+
 def t_heartbeat_stall_watchdog():
     sch, sp = _sched("t8", clock=lambda: 5000.0)
     sch.register_organ("s", "SENSE", lambda **k: None)
@@ -181,8 +198,94 @@ def t_heartbeat_stall_watchdog():
     assert h3["stall"] and "never beat" in h3["reason"], h3
 
 
+# ── ۹ (C7-S4 audit #6): persist failure → degraded, commit phases blocked, no beat advance ──
+def t_persist_failure_blocks_commit():
+    sch, sp = _sched("t9")
+    ran = {"sense": 0, "learn": 0, "act": 0}
+    sch.register_organ("s", "SENSE", lambda **k: ran.__setitem__("sense", ran["sense"] + 1))
+    sch.register_organ("l", "LEARN", lambda **k: ran.__setitem__("learn", ran["learn"] + 1))
+    sch.register_organ("a", "ACT", lambda **k: ran.__setitem__("act", ran["act"] + 1))
+    # persist را وادار به شکست کن
+    sch._persist = lambda *a, **k: False
+    r = sch.tick()
+    assert r["degraded"] is True, "شکستِ persist باید degraded شود"
+    assert ran["sense"] == 1, "فازِ امنِ SENSE باید اجرا شود"
+    assert ran["learn"] == 0 and ran["act"] == 0, "بدونِ هویتِ durable، LEARN/ACT اجرا نشوند (fail-closed)"
+    assert sch.beat_counter == 0, "beat_counter نباید بدونِ persist جلو برود (restart همین beat را دوباره)"
+
+
+# ── C7.1 (B14): lifecycle صریح RESERVED/COMMITTED + reconcile + no-double + exactly-once ──
+def t_crash_after_reserve_reconcile():
+    """crash بین reserve و commit → beat committed نیست؛ بوتِ بعدی reconcile می‌بیند، نه «کامل»."""
+    sch, sp = _sched("tE1")
+    acts = []
+    sch.register_organ("a", "ACT", lambda **k: acts.append(k["beat"]))
+    orig = sch._persist
+    # persist روی RESERVED موفق، روی COMMIT شکست (شبیه‌سازیِ مرگ پیش از commit)
+    sch._persist = lambda beat, halted, report, status="COMMITTED": (
+        False if status == "COMMITTED" else orig(beat, halted, report, status=status))
+    r = sch.tick()
+    assert r["committed"] is False and r["degraded"] is True and r["status"] == "DEGRADED", r
+    assert sch.committed_counter == 0, "beatِ commit-نشده نباید committed_counter را جلو ببرد"
+    # restart: scheduler نو با همان state → باید reconcile را ببیند (نه تلقیِ کامل)
+    sch2 = bs.BeatScheduler(state_path=sp, clock=lambda: 1000.0, spine=None, halted_fn=lambda: None)
+    assert sch2.recovery is not None and sch2.recovery["reconcile"] is True, sch2.recovery
+    assert sch2.recovery["reserved_beat"] == 1 and sch2.committed_counter == 0, sch2.recovery
+    # بازتلاش از همان beat (نه پرش به beat 2 با فرضِ «۱ کامل شد»)
+    sch2.register_organ("a", "ACT", lambda **k: acts.append(("retry", k["beat"])))
+    r2 = sch2.tick()
+    assert r2["beat"] == 1, f"بازتلاش باید beat 1 باشد، نه پرش به 2: {r2['beat']}"
+
+
+def t_final_commit_persist_failure_checked():
+    """شکستِ persistِ نهایی بلعیده نمی‌شود: degraded=True و counter دست‌نخورده."""
+    sch, _ = _sched("tE2")
+    sch.register_organ("s", "SENSE", lambda **k: None)
+    orig = sch._persist
+    sch._persist = lambda beat, halted, report, status="COMMITTED": (
+        False if status == "COMMITTED" else orig(beat, halted, report, status=status))
+    r = sch.tick()
+    assert r["committed"] is False and r["degraded"] is True, r
+    assert sch.committed_counter == 0, "شکستِ commit → counter جلو نمی‌رود"
+
+
+def t_committed_beat_not_rerun_after_restart():
+    """beatِ committed بعد از restart دوباره ACT/LEARN نمی‌شود (idempotency هویتِ committed)."""
+    sch, sp = _sched("tE3")
+    acts = []
+    sch.register_organ("a", "ACT", lambda **k: acts.append(k["beat"]))
+    os.environ[bs.ACT_ARMED_FLAG] = "1"      # ACT واقعی (نه dry) — اثباتِ عدمِ double-actuation
+    try:
+        r1 = sch.tick()
+        assert r1["committed"] is True and r1["beat"] == 1, r1
+        # restart
+        sch2 = bs.BeatScheduler(state_path=sp, clock=lambda: 1000.0, spine=None, halted_fn=lambda: None)
+        sch2.register_organ("a", "ACT", lambda **k: acts.append(k["beat"]))
+        r2 = sch2.tick()
+        assert r2["beat"] == 2 and r2["committed"] is True, r2
+        assert acts == [1, 2], f"beatِ committed نباید بعد از restart دوباره ACT شود: {acts}"
+    finally:
+        os.environ.pop(bs.ACT_ARMED_FLAG, None)
+
+
+def t_committed_advances_exactly_once():
+    sch, _ = _sched("tE4")
+    sch.register_organ("s", "SENSE", lambda **k: None)
+    seen = []
+    for _ in range(3):
+        sch.tick()
+        seen.append(sch.committed_counter)
+    assert seen == [1, 2, 3], f"committed_counter باید دقیقاً یک‌بار در هر beat جلو برود: {seen}"
+
+
 if __name__ == "__main__":
     failed = harness.run([
+        ("[E-1] crash after reserve → reconcile, no advance", t_crash_after_reserve_reconcile),
+        ("[E-2] final commit persist failure checked", t_final_commit_persist_failure_checked),
+        ("[E-3] committed beat not rerun after restart", t_committed_beat_not_rerun_after_restart),
+        ("[E-4] committed advances exactly once", t_committed_advances_exactly_once),
+        ("[۹] persist failure → block commit, no advance", t_persist_failure_blocks_commit),
+        ("[P] production-safe forbids ACT/LEARN", t_production_safe_forbids_act_and_learn),
         ("[۸] watchdog stall detection", t_heartbeat_stall_watchdog),
         ("[۱] ترتیبِ فازِ قطعی", t_deterministic_phase_order),
         ("[۲] every_n_beats", t_every_n_beats),

@@ -128,7 +128,11 @@ class MemoryGate:
                               "model": candidate.get("model"), "inputs_sha": candidate.get("inputs_sha")},
                "confidence": candidate.get("confidence"), "salience": candidate.get("salience"),
                "valid_from": _utc_now_iso(), "valid_to": _ttl(ns),
-               "supersedes": candidate.get("supersedes"), "created_at": _utc_now_iso()}
+               "supersedes": candidate.get("supersedes"),
+               # Two-phase admission: PENDING is durable but invisible to retrieval until
+               # every receipt/outcome/ledger artifact is committed.
+               "admission_state": str(candidate.get("admission_state") or "ADMITTED").upper(),
+               "created_at": _utc_now_iso()}
         try:
             mid = self._store.insert(rec)
         except ValueError as e:
@@ -136,6 +140,26 @@ class MemoryGate:
         if mid is None:
             return {"verb": "skip", "reason": "dedupe (active identical exists)"}
         return {"verb": "commit", "memory_id": mid, "trust": trust}
+
+    def promote(self, memory_id: str) -> bool:
+        """Promote a staged memory only after its surrounding transaction is durable."""
+        try:
+            return bool(self._store.set_admission_state(memory_id, "ADMITTED"))
+        except Exception:
+            return False
+
+    def retract(self, memory_id: str) -> bool:
+        """Hide a staged/admitted memory immediately; append-only audit remains in DB."""
+        try:
+            return bool(self._store.set_admission_state(memory_id, "RETRACTED"))
+        except Exception:
+            return False
+
+    def admission_state(self, memory_id: str):
+        try:
+            return self._store.admission_state(memory_id)
+        except Exception:
+            return None
 
     def _grade(self, ns, rule, source, candidate):
         """(trust, verb). verb ∈ commit|propose|reject. trust در reject حاملِ دلیل است."""

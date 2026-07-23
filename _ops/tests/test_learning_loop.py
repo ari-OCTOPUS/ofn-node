@@ -106,7 +106,7 @@ def t_learn_produces_durable_artifact():
     store, g, rc, oc, _ = _stores("t1")
     try:
         r = _learn(g, rc, oc, _eval_pass)
-        assert r["learned"] and r["memory_id"] and r["receipt_id"] == "recorded", f"{r}"
+        assert r["learned"] and r["memory_id"] and r["receipt_id"] and str(r["receipt_id"]).startswith("dr_"), f"{r}"
         assert store.get("semantic", "lesson-interior-1") is not None, "artifact باید در store باشد"
     finally:
         _close(store, rc, oc)
@@ -246,8 +246,46 @@ def t_forged_trust_rejected():
         _close(store, rc, oc)
 
 
+# ── ۱۰ (C7-S2): memory+receipt اتمیک — بدونِ رسید هیچ خاطرهٔ admitted ────────────
+def t_no_memory_without_receipt():
+    _env_on()
+    store, g, rc, oc, _ = _stores("t10")
+    try:
+        oc.record({"correlation_id": "corr-L1", "proposal_id": "P1", "leg_id": "lead",
+                   "event_type": "accepted-measurement", "value_aud_claimed": 0.0,
+                   "idempotency_key": _OREF})
+        base = dict(memory_gate=g, outcome_store=oc,
+                    signal={"content": _LESSON, "mkey": "lesson-interior-1", "correlation_id": "corr-L1",
+                            "outcome_ref": _OREF, "trust": "OWNER_CONFIRMED", "salience": 0.7,
+                            "source": "owner", "producer": "owner"}, evaluator=_eval_pass)
+        # (الف) بدونِ receipt_store → learned=False، خاطره admit نمی‌شود
+        r1 = lg.learn_from_outcome(receipt_store=None, **base)
+        assert not r1["learned"] and "receipt" in r1["reason"], f"{r1}"
+        assert store.get("semantic", "lesson-interior-1") is None, "بدونِ رسید نباید خاطره بماند"
+
+        # (ب) receipt_storeِ خطاده → learned=False، خاطره retract (بازیابی‌نشدنی)
+        class _BadRcpt:
+            def record(self, rec):
+                raise RuntimeError("disk full")
+        r2 = lg.learn_from_outcome(receipt_store=_BadRcpt(), **base)
+        assert not r2["learned"] and "retracted" in r2["reason"], f"{r2}"
+        now = ms._utc_now_iso()
+        rows = store._conn.execute(
+            "SELECT content, valid_to FROM memory WHERE mkey='lesson-interior-1'").fetchall()
+        admitted = [c for (c, vt) in rows if (vt is None or vt > now) and not c.startswith("[RETRACTED")]
+        assert not admitted, f"no uncited admission — خاطرهٔ بی‌رسید نباید admitted بماند: {admitted}"
+
+        # (ج) با receipt_store سالم → learned=True + receipt_idِ واقعی
+        r3 = lg.learn_from_outcome(memory_gate=g, outcome_store=oc, receipt_store=rc,
+                                   signal={**base["signal"], "mkey": "lesson-ok"}, evaluator=_eval_pass)
+        assert r3["learned"] and str(r3["receipt_id"]).startswith("dr_"), f"{r3}"
+    finally:
+        _close(store, rc, oc)
+
+
 if __name__ == "__main__":
     failed = harness.run([
+        ("[۱۰] memory+receipt اتمیک (no receipt→no admission)", t_no_memory_without_receipt),
         ("[۹] trustِ جعلی (outcome بایند نشده) رد", t_forged_trust_rejected),
         ("[۱] artifactِ durable (memory+receipt)", t_learn_produces_durable_artifact),
         ("[۲] تصمیمِ بعدی خاطره را استناد می‌کند", t_next_decision_cites_learned_memory),

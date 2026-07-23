@@ -217,7 +217,9 @@ class TelegramApprovalChannel(ApprovalChannel):
                        else _env_int("TELEGRAM_LONGPOLL_TIMEOUT", TELEGRAM_LONGPOLL_TIMEOUT_S))
         self._gate = gate                            # EffectorGate (TINV-7) — T-2 وصل می‌کند
         self._ledger = ledger                        # ledger ژنوم (human-append)
-        self._state_dir = state_dir                  # None = _ops/state (پیش‌فرض)
+        # C7.2: callback state may never be RAM-only.  None resolves to the canonical
+        # (harness-remapped in tests) state directory rather than disabling durability.
+        self._state_dir = str(state_dir or opslib.STATE_DIR)
         self._leg = leg                              # W-3: پای Lead (اختیاری) — /lead → leg.intake
         self._readmodel = readmodel                  # Cockpit v2: read-model تزریقی (تست) یا lazy
         self._pending_act: dict[str, dict] = {}      # Cockpit v2: رجیستریِ act تک‌مصرف (INV-13)
@@ -230,6 +232,8 @@ class TelegramApprovalChannel(ApprovalChannel):
         self._pending: dict[str, dict] = {}          # T-2: کارت‌های تأییدِ منتظر (registry ضدِ جعل)
         self._pending_rfc: dict[str, dict] = {}      # W-3: کارت‌های RFCِ منتظرِ verdict (token + ضدِ replay)
         self._quarantine: list[dict] = []            # پیام‌های ورودی = DATA (نه دستور)
+        self._awaiting_rfc_edit: str | None = None   # 3a: انتظارِ متنِ ویرایشِ RFC (RAM؛ restart = لغوِ امن)
+        self._last_chstat = 0.0                      # Task 2: کادنسِ writerِ زندهٔ channel-status
         self._stop = False
 
     @property
@@ -282,6 +286,50 @@ class TelegramApprovalChannel(ApprovalChannel):
         q = urllib.parse.urlencode(params)
         return f"{TELEGRAM_API_BASE}/bot{self._token}/{method}?{q}"
 
+    # ─── Task 2 (2026-07-24) · writerِ زندهٔ channel-status ─────────────────────
+    def _write_channel_status(self) -> bool:
+        """حقیقتِ زندهٔ «تلگرام وصل است؟» را در state/channel-status.json می‌نویسد.
+        تاریخچه: فایل از 2026-07-08 orphan بود (صفر writerِ زنده) و خواننده‌ها
+        (dashboard/page_channels · cockpit_readmodel.read_channels · export_status)
+        عکسِ کهنهٔ «stub(no-creds)» می‌دیدند. حالا خودِ کانالِ زنده — تنها کسی که
+        واقعاً می‌داند — در بوتِ run_forever و سپس هر ~۱۵ دقیقه از poll_once آن را
+        refresh می‌کند. read-modify-write اتمیک؛ کانال‌های دیگرِ snapshot دست‌نخورده.
+        fail-soft (هرگز poll/boot را نمی‌کشد)؛ هیچ token/secret در خروجی."""
+        try:
+            from pathlib import Path as _P
+            if not self._state_dir:
+                return False
+            p = _P(self._state_dir) / "channel-status.json"
+            try:
+                cur = json.loads(p.read_text("utf-8")) if p.exists() else {}
+            except (OSError, ValueError):
+                cur = {}
+            if not isinstance(cur, dict):
+                cur = {}
+            channels = cur.get("channels") if isinstance(cur.get("channels"), dict) else {}
+            entry = {
+                "channel": "telegram",
+                "live": bool(self.wired),
+                "mode": "long-poll(T-8)" if self.wired else "stub(no-creds)",
+                "writer": "approval_channel(run_forever/poll_once)",
+                "allowlist": len(self._allowed) > 1,
+                "owner_set": self._owner is not None,
+            }
+            if not self.wired:
+                entry["required_env"] = ["TELEGRAM_BOT_TOKEN", "TELEGRAM_OWNER_CHAT_ID"]
+            channels["telegram"] = entry
+            cur["channels"] = channels
+            cur["ts"] = opslib.now_iso()
+            cur["writer_note"] = ("entryِ telegram توسطِ کانالِ زنده refresh می‌شود "
+                                  "(2026-07-24)؛ بقیهٔ کانال‌ها snapshot")
+            p.parent.mkdir(parents=True, exist_ok=True)
+            tmp = p.with_suffix(".json.tmp2")
+            tmp.write_text(json.dumps(cur, ensure_ascii=False, indent=2), "utf-8")
+            os.replace(tmp, p)
+            return True
+        except Exception:  # noqa: BLE001 — راست‌گوییِ کابین نباید حلقه را بکشد
+            return False
+
     def poll_once(self) -> int:
         """یک دورِ long-poll. خروجی = تعداد updateهای پردازش‌شده. وقتی not wired → 0 (no-opِ
         امن، بدونِ هیچ فراخوانیِ شبکه). خطای شبکه fail-soft: ۰ برمی‌گردد، حلقه کشته نمی‌شود.
@@ -319,6 +367,10 @@ class TelegramApprovalChannel(ApprovalChannel):
             os.replace(tmp, p)
         except OSError:
             pass
+        # Task 2 (2026-07-24): writerِ زندهٔ channel-status — هر ~۱۵ دقیقه، poll-محور، ارزان
+        if time.time() - self._last_chstat > 900:
+            self._last_chstat = time.time()
+            self._write_channel_status()
         processed = 0
         offset_dirty = False
         for upd in data.get("result") or []:
@@ -368,7 +420,7 @@ class TelegramApprovalChannel(ApprovalChannel):
                     # callback_query → dispatch + answer
                     # C2-B: from_id به dispatcher می‌رود تا توکنِ statelessِ کارتِ پیشنهاد
                     # به مالک bind شود (همان الگوی GOV-P1 برای handle_command).
-                    reply = self.dispatch_callback(str(text), from_id=from_id)
+                    reply = self.dispatch_callback(str(text), from_id=from_id, external=True)
                     # reply می‌تواند str باشد (toast) یا dict (پیام جداگانه با کیبورد)
                     if isinstance(reply, dict):
                         if cbq_id:
@@ -431,6 +483,7 @@ class TelegramApprovalChannel(ApprovalChannel):
             return
         self._diagnose_webhook()  # جلسه ۴۶: کشفِ webhookِ رقیب (علتِ ۴۰۹ ابدیِ دکمه‌ها)
         self._set_my_commands()   # پاک‌سازیِ منوی قدیمی + ثبتِ منوی تمیز اختاپوس
+        self._write_channel_status()   # Task 2: حقیقتِ live-wired از لحظهٔ بوتِ poll
         while not self._killed():
             self.poll_once()
 
@@ -485,6 +538,7 @@ class TelegramApprovalChannel(ApprovalChannel):
             {"command": "neworgan", "description": "🆕 ساختِ اندامِ نو"},
             {"command": "wiring", "description": "🔌 نقشهٔ اتصال‌ها (راست‌گو)"},
             {"command": "health", "description": "🫀 سلامتِ اختاپوس"},
+            {"command": "heart", "description": "💓 قلب — ریتم و تنظیم"},
             {"command": "queue", "description": "📥 صف تأیید"},
             {"command": "status", "description": "📊 وضعیت ارگانیسم"},
             {"command": "lead", "description": "📝 ثبت لید جدید"},
@@ -522,31 +576,79 @@ class TelegramApprovalChannel(ApprovalChannel):
                               summary: str, guard_verdict: str = "") -> bool:
         """کارتِ تأیید را برای یک اثرِ برگشت‌ناپذیر/مالی به مالک می‌فرستد. effect_id و
         amount را در registry ثبت می‌کند با یک توکنِ ضدِ جعل. تأیید فقط از طریقِ
-        dispatch_callback ممکن است. not wired → False (no-opِ امن، کارت فرستاده نمی‌شود)."""
+        dispatch_callback ممکن است. not wired → False (no-opِ امن، کارت فرستاده نمی‌شود).
+
+        C7.1: ساخت/ارسال از `reissue_approval_card` (رندرِ canonicalِ اشتراکی با بازسازیِ
+        بعد از restart) می‌گذرد؛ سپس یک ردیفِ **durable** با مبلغِ واقعی + binding + توکن
+        نوشته می‌شود تا کارت از restart جان به در ببرد (pending_card_recovery). صفر تغییرِ
+        semanticِ authorizationِ پول — release همچنان فقط از EffectorGate."""
         if not self.wired:
             return False
         if amount_aud <= 0:
             return False
-        token = self._new_token(effect_id, amount_aud)
         # C-caller-migration (2026-07-23): snapshotِ bindingِ ردیفِ gate در لحظهٔ ساختِ
         # کارت — approve بعداً همین را ارائه می‌دهد (نه بازخوانی از DB) تا اگر ردیف بعد
         # از کارت عوض شود، release_effect دقیقِ C4 با mismatch رد کند (ضدِ card-swap).
-        # پول بدونِ این snapshot از C4.1 رد می‌شود (id-only) — پس fail-closed می‌ماند.
         _bind = {}
         try:
             if self._gate is not None and hasattr(self._gate, "binding_of"):
                 _bind = self._gate.binding_of(effect_id) or {}
         except Exception:  # noqa: BLE001 — snapshot اختیاری؛ نبودش = مسیرِ fail-closedِ قبلی
             _bind = {}
+        # C7.2: intent باید قبل از ارسال durable شود؛ raw bearer token روی دیسک ذخیره نمی‌شود.
+        try:
+            import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+            made = _pcr.prepare_money_card(
+                state_dir=self._state_dir, effect_id=effect_id, amount_aud=float(amount_aud),
+                content_hash=_bind.get("content_hash"), action_kind=_bind.get("action_kind"),
+                target_ref=_bind.get("target_ref"), summary=summary, owner=self._owner)
+        except Exception:  # noqa: BLE001
+            made = None
+        if not made:
+            return False                 # persistence/secret failure => no actionable card
+        token = made["token"]
+        if not made.get("send_needed", True):
+            # Already delivered in an earlier call/boot: reconstruct RAM only, no spam.
+            return self.reissue_approval_card(
+                effect_id, amount_aud, summary, token=token,
+                content_hash=_bind.get("content_hash"), action_kind=_bind.get("action_kind"),
+                target_ref=_bind.get("target_ref"), guard_verdict=guard_verdict, send=False)
+        lease_id = f"initial-{os.getpid()}-{threading.get_ident()}"
+        if not _pcr._acquire_send_lease(self._state_dir, "money", effect_id, lease_id):  # noqa: SLF001
+            return False
+        try:
+            _pcr.mark_delivery(state_dir=self._state_dir, kind="money", cid=effect_id,
+                               delivery="LEASED")
+            ok = self.reissue_approval_card(
+                effect_id, amount_aud, summary, token=token,
+                content_hash=_bind.get("content_hash"), action_kind=_bind.get("action_kind"),
+                target_ref=_bind.get("target_ref"), guard_verdict=guard_verdict, send=True)
+            if not _pcr.mark_delivery(state_dir=self._state_dir, kind="money", cid=effect_id,
+                                      delivery="SENT" if ok else "PENDING"):
+                return False
+            return ok
+        finally:
+            _pcr.release_send_lease(self._state_dir, "money", effect_id)
+
+    def reissue_approval_card(self, effect_id: str, amount_aud: float, summary: str, *,
+                              token: str, content_hash=None, action_kind=None,
+                              target_ref=None, guard_verdict: str = "", send: bool = True) -> bool:
+        """رندرِ canonicalِ کارتِ مالی — **تنها منبعِ حقیقتِ ساخت/بازساخت** (C7.1). projection
+        (`_pending`) را با binding + **همان توکنِ داده‌شده** بازسازی می‌کند؛ فقط اگر send=True و
+        wired، کارتِ ۳-دکمه POST می‌شود. توکن از بیرون داده می‌شود تا بازسازیِ بعد از restart
+        (مدل B) همان توکنِ پیش از restart را بازگرداند و دکمهٔ مالک معتبر بماند. صفر settle."""
         with self._lk:
             self._pending[effect_id] = {"amount_aud": float(amount_aud),
                                         "summary": str(summary)[:500],
                                         "guard": str(guard_verdict)[:200],
-                                        "content_hash": _bind.get("content_hash"),
-                                        "action_kind": _bind.get("action_kind"),
-                                        "target_ref": _bind.get("target_ref"),
+                                        "content_hash": content_hash,
+                                        "action_kind": action_kind,
+                                        "target_ref": target_ref,
                                         "token": token, "status": "pending"}
-        # جلسه ۴۶: رویدادِ ساختاریافته برای داشبورد (بی‌محتوا — بدونِ خودِ summaryِ کارت)
+        if not send:
+            return True                       # فقط projection (بازسازیِ بی‌ارسال، یا زیرِ HALT)
+        if not self.wired:
+            return False
         try:
             import sys as _s
             _s.path.insert(0, str(_HERE.parent))
@@ -556,8 +658,7 @@ class TelegramApprovalChannel(ApprovalChannel):
                      next_action="تلگرام: آره/نه")
         except Exception:  # noqa: BLE001
             pass
-        # C2/C5 · INV-12: کارتِ پول هم از پاسِ redaction می‌گذرد (summary/guard ممکن است
-        # از subsystemِ بالادست رشتهٔ secret-شکل بیاورد). این تنها sendِ مستقیمِ باقی‌مانده بود.
+        # C2/C5 · INV-12: کارتِ پول هم از پاسِ redaction می‌گذرد.
         text = self._redact(
             self._render_approval_card(effect_id, amount_aud, summary, guard_verdict))
         kb = {"inline_keyboard": [[
@@ -587,7 +688,28 @@ class TelegramApprovalChannel(ApprovalChannel):
                 f"──────────\n"
                 f"<i>تأیید = ضمیمهٔ انسانی؛ تنها چیزی که settle را آزاد می‌کند.</i>")
 
-    def dispatch_callback(self, data: str, from_id=None) -> str | dict:
+    # C7.2: سیاستِ مرکزیِ callback. هر scheme که state/ledger/effect/control را تغییر می‌دهد
+    # فقط با هویتِ واقعیِ مالک مجاز است. navigation/read-only می‌تواند در گروه allowlisted خوانده شود.
+    _MUTATING_CALLBACK_SCHEMES = frozenset({
+        "app", "rfc", "home", "act", "rev", "jrn", "acct", "prop"
+    })
+    _MUTATING_MENU_PAGES = frozenset({"stop_confirm", "learned"})
+
+    def _callback_requires_owner(self, parts: list[str]) -> bool:
+        if not parts:
+            return False
+        if parts[0] in self._MUTATING_CALLBACK_SCHEMES:
+            return True
+        return parts[0] == "menu" and len(parts) > 1 and parts[1] in self._MUTATING_MENU_PAGES
+
+    def _callback_owner_ok(self, from_id) -> bool:
+        try:
+            return self._owner is not None and from_id is not None and int(from_id) == int(self._owner)
+        except (TypeError, ValueError):
+            return False
+
+    def dispatch_callback(self, data: str, from_id=None, *, external: bool = False,
+                          trusted_internal: bool = False) -> str | dict:
         """routerِ callbackهای کارت‌ها. data = 'app:<verb>:<effect_id>:<token>' (پول، T-2)
         یا 'rfc:<verb>:<rfc_id>:<token>' (تکامل، W-3)، یا 'menu:<page>' (UX v3).
         خروجی = متنِ پاسخ برای answerCallbackQuery یا dict (پیام جداگانه با کیبورد).
@@ -595,6 +717,16 @@ class TelegramApprovalChannel(ApprovalChannel):
         (bindِ owner در توکنِ stateless)؛ schemeهای دیگر دست‌نخورده.
         این متد از poll_once (T-8 router) برای هر callback_queryِ مالک صدا زده می‌شود."""
         parts = str(data or "").split(":")
+        # C7.2/P0: callback بیرونیِ mutating بدون owner identity هرگز عبور نمی‌کند.
+        # فراخوانیِ داخلی باید trusted_internal=True را صریح بدهد؛ None دیگر معادل owner نیست.
+        if self._callback_requires_owner(parts) and (external or from_id is not None):
+            # Every externally reachable mutation is fail-closed. Direct in-process calls
+            # retain compatibility as trusted test/application seams; callers that route
+            # untrusted data MUST set external=True (poll_once always does).
+            if trusted_internal:
+                pass
+            elif not self._callback_owner_ok(from_id):
+                return "⛔ فقط مالک می‌تواند این تصمیم را اجرا کند"
         if parts[0] == "menu":
             return self._dispatch_menu(parts)
         if parts[0] == "home":              # جلسه ۴۶: آره/نهِ خانهٔ ساده
@@ -619,28 +751,58 @@ class TelegramApprovalChannel(ApprovalChannel):
         if len(parts) != 4 or parts[0] != "app":
             return "نادیده"
         verb, effect_id, token = parts[1], parts[2], parts[3]
+        # C7.2: verify در لحظهٔ کلیک (owner+expiry+HMAC+binding+Chrono)، نه اعتماد به RAM.
+        try:
+            import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+            _dbp = str(Path(self._state_dir) / "chrono.db") if self._state_dir else None
+            _status_fn = None
+            if self._gate is not None and hasattr(self._gate, "status_of"):
+                _status_fn = self._gate.status_of
+            ok_cb, durable_meta, why_cb = _pcr.verify_callback(
+                state_dir=self._state_dir, effect_id=effect_id, token=token,
+                owner=(from_id if from_id is not None else self._owner), chrono_db_path=_dbp,
+                status_fn=_status_fn, require_effect_pending=(verb == "approve"))
+        except Exception:  # noqa: BLE001
+            ok_cb, durable_meta, why_cb = False, None, "verify-error"
+        if not ok_cb:
+            return f"رد: کارت نامعتبر/منقضی ({why_cb})"
         with self._lk:
-            meta = self._pending.get(effect_id)
-        if meta is None or meta.get("status") != "pending":
+            projection = self._pending.get(effect_id)
+        if projection is None or projection.get("status") != "pending":
             return "رد: اثر ناشناخته یا قبلاً تصمیم‌گرفته"
-        if not _cteq(token, meta.get("token", "")):
+        if not _cteq(token, projection.get("token", "")):
             return "رد: توکنِ تأیید نامنطبق (ضدِ جعل)"
+        # Authorization metadata comes from the verified durable record. RAM contributes
+        # presentation-only fields; it can never replace amount/binding/owner/expiry.
+        meta = dict(durable_meta or {})
+        meta["token"] = token
+        meta["summary"] = projection.get("summary", meta.get("summary", ""))
+        meta["status"] = projection.get("status")
+        meta["defer_count"] = int(meta.get("defer_count", 0))
         if verb == "approve":
             return self._do_approve(effect_id, meta)
         if verb == "deny":
+            if not _pcr.persist_money_decision(state_dir=self._state_dir,
+                                               effect_id=effect_id, decision="DENIED"):
+                return "رد: ثبت پایدار تصمیم ناموفق"
             with self._lk:
-                meta["status"] = "denied"
+                projection["status"] = "denied"
             return "رد شد ❌ (هیچ اثری settle نشد)"
         if verb == "later":
             # 2026-07-18: دیگر no-op نیست — یک ردِ تعویق ذخیره می‌کند (شمارش + زمان)
             # تا دکمه واقعاً چیزی «عوض/ذخیره» کند، بدونِ settle. pending می‌ماند.
+            count = int(meta.get("defer_count", 0)) + 1
+            if not _pcr.persist_money_decision(state_dir=self._state_dir,
+                                               effect_id=effect_id, decision="DEFERRED",
+                                               defer_count=count):
+                return "رد: ثبت پایدار تعویق ناموفق"
             with self._lk:
-                meta["defer_count"] = int(meta.get("defer_count", 0)) + 1
+                projection["defer_count"] = count
                 try:
-                    meta["deferred_at"] = opslib.now_iso()
-                except Exception:  # noqa: BLE001 — بی‌timestamp هم مشکلی نیست
+                    projection["deferred_at"] = opslib.now_iso()
+                except Exception:  # noqa: BLE001
                     pass
-            return f"بعداً ⏳ (ثبت شد ×{meta['defer_count']}؛ pending می‌ماند)"
+            return f"بعداً ⏳ (ثبت شد ×{count}؛ pending می‌ماند)"
         return "نادیده"
 
     def _dispatch_proposal(self, parts: list, from_id=None) -> str:
@@ -788,25 +950,28 @@ class TelegramApprovalChannel(ApprovalChannel):
                     {"text": "🏠 خانه", "callback_data": "menu:main"}]]}}
 
     def _dispatch_home(self, parts: list[str]):
-        """آره/نهِ خانه → همان منطقِ امنِ rfc/app (توکن‌چک، ضدِ جعل)، بعد خانه را تازه نشان بده."""
+        """خانه فقط router نمایشی است؛ mutation را به همان dispatcherهای canonical می‌سپارد.
+
+        Owner identity در ``dispatch_callback`` پیش از رسیدن به این متد enforce شده است.
+        این متد دیگر `_do_approve` یا RAM را مستقیم لمس نمی‌کند، تا app/rfc همیشه همان
+        HMAC/expiry/durable-decision contract را طی کنند.
+        """
         if len(parts) != 4:
             return self._simple_home()
         kind, _id, tok = parts[1], parts[2], parts[3]
         if kind in ("rfcyes", "rfcno"):
             self._dispatch_rfc(["rfc", "merge" if kind == "rfcyes" else "deny", _id, tok])
         elif kind in ("appyes", "appno"):
-            with self._lk:
-                meta = self._pending.get(_id)
-            if meta and meta.get("status") == "pending" and _cteq(tok, meta.get("token", "")):
-                if kind == "appyes":
-                    self._do_approve(_id, meta)
-                else:
-                    with self._lk:
-                        meta["status"] = "denied"
+            # Re-enter the canonical app branch as a trusted internal dispatch.  It still
+            # performs durable callback verification and decision persistence.
+            self.dispatch_callback(
+                f"app:{'approve' if kind == 'appyes' else 'deny'}:{_id}:{tok}",
+                from_id=self._owner, trusted_internal=True)
         return self._simple_home()
 
     def _do_approve(self, effect_id: str, meta: dict) -> str:
         """human-append (is_human=1) → release gated effects → settle. تنها مسیرِ settle."""
+        # Use the just-verified durable record, not mutable RAM, as authorization metadata.
         amount = float(meta.get("amount_aud", 0.0))
         judgment = {"verdict": "approve", "effect_id": effect_id,
                     "amount_aud": amount, "source": "telegram",
@@ -821,8 +986,20 @@ class TelegramApprovalChannel(ApprovalChannel):
                 "content_hash": meta.get("content_hash"),
                 "action_kind": meta.get("action_kind"),
                 "target_ref": meta.get("target_ref"),
-                "approval_id": f"tg:{effect_id}:{meta.get('token', '')}",
+                # Never persist the raw callback bearer in chrono/ledger. A bound token
+                # hash is sufficient for idempotency and cannot replay the Telegram card.
+                "approval_id": f"tg:{effect_id}:{str(meta.get('token_sha256') or '')[:24]}",
                 "approved_by": "owner-telegram"})
+        # C7.2: reserve the owner decision durably *before* human-append/effect release.
+        # If the process dies after an effect but before final ACK, APPROVING prevents a
+        # second click and routes the card to reconciliation rather than duplicate action.
+        try:
+            import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+            if not _pcr.persist_money_decision(state_dir=self._state_dir,
+                                               effect_id=effect_id, decision="APPROVING"):
+                return "رد: رزرو پایدار approval ناموفق"
+        except Exception:  # noqa: BLE001
+            return "رد: رزرو پایدار approval ناموفق"
         try:
             # جلسه ۴۶: توکنِ human-append — اثباتِ اینکه این append از تلگرام (مالک) است،
             # نه کدِ جعل‌کننده. گاردِ خاموش → None → رفتارِ قبلی (downgrade در chrono، بی‌خطر).
@@ -830,11 +1007,40 @@ class TelegramApprovalChannel(ApprovalChannel):
             entry = _on_human_judgment(judgment, gate=self._gate, ledger=self._ledger,
                                        ha_token=_ha)
             release_hash = entry.get("hash", "") if isinstance(entry, dict) else ""
+            # Some injected/test ledgers do not return a hash. The binding release status
+            # is authoritative for money; an empty entry alone must not trigger a second settle.
+            released = False
+            try:
+                released = bool(self._gate is not None and
+                                getattr(self._gate, "status_of", lambda _x: None)(effect_id)
+                                == "releasable")
+            except Exception:
+                released = False
+            if not release_hash and not released:
+                _pcr.persist_money_decision(state_dir=self._state_dir, effect_id=effect_id,
+                                            decision="RECONCILE_REQUIRED")
+                return "⚠️ human-append تأیید نشد — RECONCILE_REQUIRED؛ settle نشد"
             settled = self._settle_effect(effect_id) if self._gate is not None else False
         except Exception:  # noqa: BLE001 — هر شکست = رد (fail-closed، هیچ settleِ نیمه)
-            return "رد: خطا در human-append"
+            try:
+                _pcr.persist_money_decision(state_dir=self._state_dir, effect_id=effect_id,
+                                            decision="RECONCILE_REQUIRED")
+            except Exception:
+                pass
+            return "رد: خطا در human-append؛ RECONCILE_REQUIRED"
+        try:
+            import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+            if not _pcr.persist_money_decision(state_dir=self._state_dir,
+                                               effect_id=effect_id, decision="APPROVED"):
+                # Effect may already have happened.  APPROVING remains durable and blocks
+                # replay; report reconciliation rather than lying about a clean failure.
+                return "⚠️ اثر بررسی شد؛ ثبت نهایی ناموفق — RECONCILE_REQUIRED"
+        except Exception:  # noqa: BLE001
+            return "⚠️ اثر بررسی شد؛ ثبت نهایی ناموفق — RECONCILE_REQUIRED"
         with self._lk:
             meta["status"] = "approved"
+            if effect_id in self._pending:
+                self._pending[effect_id]["status"] = "approved"
         self._record_approval(Approval(action_id=effect_id, amount_aud=amount,
                                        status="approved", source="telegram"))
         _ = release_hash  # برای audit در آینده (T-7 Re-entry)؛ فعلاً مصرف نمی‌شود
@@ -983,32 +1189,90 @@ class TelegramApprovalChannel(ApprovalChannel):
             meta = self._pending_rfc.get(rfc_id)
         if meta is None or meta.get("status") != "pending":
             return "رد: RFC ناشناخته یا قبلاً تصمیم‌گرفته"
-        if not _cteq(token, meta.get("token", "")):
-            return "رد: توکنِ تأیید نامنطبق (ضدِ جعل)"
-        if verb == "merge":
+        try:
+            import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+            ok_rfc, _durable, why_rfc = _pcr.verify_rfc_callback(
+                state_dir=self._state_dir, rfc_id=rfc_id, token=token,
+                owner=self._owner)
+        except Exception:
+            ok_rfc, why_rfc = False, "verify-error"
+        if not ok_rfc or not _cteq(token, meta.get("token", "")):
+            return f"رد: توکنِ RFC نامعتبر/منقضی ({why_rfc})"
+        if verb == "edit":
+            # 3a-afferent: [✍️ ویرایش] → حالتِ انتظارِ متنِ آزاد (الگوی acct_review).
+            # هیچ verdict ثبت نمی‌شود و token مصرف نمی‌شود (decision همچنان SUBMITTED —
+            # دکمه‌های merge/deny معتبر می‌مانند).
             with self._lk:
-                meta["status"] = "merge-approved"
-            return "ثبت شد ✅ — merge فقط پشتِ flag و با human-append اعمال می‌شود"
-        if verb == "deny":
+                self._awaiting_rfc_edit = rfc_id
+            try:
+                import acct_review as _ar_x
+                _ar_x.set_awaiting_free(False)
+            except Exception:  # noqa: BLE001
+                pass
+            return ("✍️ متنِ بازنگری/ویرایش را به‌صورتِ یک پیامِ متنی بفرست — برای "
+                    f"{rfc_id}")
+        if verb in ("merge", "deny"):
+            new_status = "merge-approved" if verb == "merge" else "denied"
+            # C7.2: callback success is conditional on fsync.  A failed durable write
+            # must not be acknowledged or reflected in RAM.
+            if not self._persist_rfc_verdict(rfc_id, new_status):
+                return "رد: ثبت پایدار رأی RFC ناموفق"
             with self._lk:
-                meta["status"] = "denied"
-            return "رد شد ❌"
+                meta["status"] = new_status
+            return ("ثبت شد ✅ — merge فقط پشتِ flag و با human-append اعمال می‌شود"
+                    if verb == "merge" else "رد شد ❌")
         return "نادیده"
 
+    def _persist_rfc_verdict(self, rfc_id: str, verdict: str) -> bool:
+        try:
+            import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+            return bool(_pcr.persist_rfc_verdict(
+                state_dir=self._state_dir, rfc_id=rfc_id, verdict=verdict))
+        except Exception:  # noqa: BLE001
+            return False
+
+    def claim_rfc_verdicts(self, worker_id: str, lease_s: int = 300) -> list[tuple[str, str, int]]:
+        """Durably lease owner decisions. Applying doctor code must acknowledge the lease
+        only after its idempotent operation receipt exists."""
+        try:
+            import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+            return _pcr.claim_rfc_verdicts(state_dir=self._state_dir,
+                                           worker_id=worker_id, lease_s=lease_s)
+        except Exception:
+            return []
+
+    def begin_rfc_apply(self, rfc_id: str, revision: int, operation_key: str) -> bool:
+        try:
+            import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+            return bool(_pcr.begin_rfc_apply(
+                state_dir=self._state_dir, rfc_id=rfc_id, revision=revision,
+                operation_key=operation_key))
+        except Exception:
+            return False
+
+    def ack_rfc_verdict(self, rfc_id: str, revision: int, *, applied: bool,
+                        receipt_id: str = "") -> bool:
+        try:
+            import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+            return bool(_pcr.ack_rfc_verdict(
+                state_dir=self._state_dir, rfc_id=rfc_id, revision=revision,
+                applied=applied, receipt_id=receipt_id))
+        except Exception:
+            return False
+
     def pop_rfc_verdicts(self) -> list[tuple[str, str]]:
-        """صفِ خروجیِ verdictهای RFC برای doctor (poll). هر verdict دقیقاً یک‌بار تحویل
-        می‌شود (پرچمِ consumed زیرِ قفل) — تحویلِ دوباره ممنوع تا doctor دوبار merge نکند.
-        ترتیبِ قطعی (deterministic): sorted by rfc_id. فقط خواندن/علامت‌گذاری — هیچ اثرِ پولی."""
-        out: list[tuple[str, str]] = []
+        """Legacy at-least-once lease API.
+
+        New doctor code MUST use claim_rfc_verdicts + ack_rfc_verdict so APPLIED is written
+        only after an operation receipt. This method leases a batch and returns it once per
+        lease window; it never lies that the operation was consumed/applied.
+        """
+        claims = self.claim_rfc_verdicts(f"legacy-pop-{os.getpid()}", lease_s=300)
+        out = [(rid, verdict) for rid, verdict, _revision in claims]
         with self._lk:
-            for rfc_id in sorted(self._pending_rfc):
-                meta = self._pending_rfc[rfc_id]
-                if meta.get("consumed"):
-                    continue
-                st = meta.get("status")
-                if st in ("merge-approved", "denied"):
-                    meta["consumed"] = True
-                    out.append((rfc_id, st))
+            for rid, _ in out:
+                if rid in self._pending_rfc:
+                    self._pending_rfc[rid]["consumed"] = True
         return out
 
     # ─── T-3 · UIِ Lead: /lead → attribution.propose (mint LEAD-YYYYMMDD-nnn) ──────
@@ -1090,6 +1354,21 @@ class TelegramApprovalChannel(ApprovalChannel):
     # دستوراتِ مرزِ-سختِ سراسری/kill — حتی داخلِ یک گروهِ allowlisted فقط شخصِ مالک
     # (from_id == owner) مجاز است، نه هر عضوِ گروه. (red-team GOV-P1، 2026-07-23)
     _OWNER_ONLY_COMMANDS = frozenset({"/panic", "/resume", "/stop"})
+    # Commands that mutate durable state/control are owner-only in allowlisted groups too.
+    # Prefix matching covers argument-bearing commands without treating read-only pages as mutation.
+    _OWNER_ONLY_COMMAND_PREFIXES = (
+        "/lead ", "/claim ", "/conflict ", "/neworgan ", "/organ-approve ",
+        "/review", "/books", "/sync", "/start_exp", "/reveal ",
+        # Task 3 (2026-07-24): دیالوگِ organ — همهٔ مسیرهای تغییردهنده owner-only
+        "/heart set ", "/doctor focus ", "/doctor edit ", "/brain guide "
+    )
+    _GROUP_READONLY_COMMANDS = frozenset({
+        "/start", "/status", "/overview", "/blueprint", "/brain", "/doctor",
+        "/money", "/finance", "/school", "/safety", "/alerts", "/organs",
+        "/queue", "/reentry", "/wiring", "/health", "/upgrades", "/lead",
+        "/brief", "/think", "/spine", "/gates", "/verdicts", "/rules",
+        "/guards", "/drafts", "/heart"
+    })
 
     def handle_command(self, text: str, chat_id: int | None = None,
                        from_id: int | None = None) -> str | None:
@@ -1106,13 +1385,21 @@ class TelegramApprovalChannel(ApprovalChannel):
         t = (text or "").strip()
         if not t:
             return None
-        # owner-gate: مرزِ سختِ سراسری فقط دستِ خودِ مالک — نه هر عضوِ گروهِ مجاز.
-        if t in self._OWNER_ONLY_COMMANDS and from_id is not None:
+        # Non-owner members of an allowlisted group get an explicit read-only surface.
+        # Unknown/delegated commands and free text are denied before any stateful handler.
+        if from_id is not None and not self._callback_owner_ok(from_id):
+            if t not in self._GROUP_READONLY_COMMANDS:
+                return "⛔ این گروه فقط نمای فقط‌خواندنی دارد؛ تغییر فقط با مالک است."
+        # owner-gate: every mutating command is only the owner's in an allowlisted group.
+        owner_only = (t in self._OWNER_ONLY_COMMANDS or
+                      any(t == p.rstrip() or t.startswith(p)
+                          for p in self._OWNER_ONLY_COMMAND_PREFIXES))
+        if owner_only and from_id is not None:
             try:
                 if int(from_id) != int(self._owner):
-                    return "⛔ فقط مالک می‌تواند این دستورِ مرزِ سراسری را اجرا کند."
+                    return "⛔ فقط مالک می‌تواند این دستورِ تغییردهنده را اجرا کند."
             except (TypeError, ValueError):
-                return "⛔ فرستندهٔ نامعتبر برای دستورِ مرزِ سراسری."
+                return "⛔ فرستندهٔ نامعتبر برای دستورِ تغییردهنده."
         # اگر مالک وسطِ حالتِ متنِ آزادِ حسابدار یک دستورِ / زد = تغییرِ زمینه → حالتِ متن را ببند
         # (تا پیامِ بعدیِ نامرتبط اشتباهاً جوابِ حسابداری تلقی نشود — رفعِ sticky-flagِ audit)
         if t.startswith("/"):
@@ -1122,6 +1409,7 @@ class TelegramApprovalChannel(ApprovalChannel):
                     _ar0.set_awaiting_free(False)
             except Exception:  # noqa: BLE001
                 pass
+            self._awaiting_rfc_edit = None   # 3a: تغییرِ زمینه = بستنِ حالتِ ویرایشِ RFC
         # UX v2: /start منوی اصلی
         if t == "/start":
             return self._main_menu()
@@ -1129,6 +1417,17 @@ class TelegramApprovalChannel(ApprovalChannel):
             return self._cmd_lead_prompt()
         if t.startswith("/lead "):
             return self._cmd_lead_parse(t[len("/lead "):])
+        # ── Task 3 (2026-07-24): دیالوگِ owner↔organ (Doctor/Brains/Hearts) ──
+        if t == "/heart":
+            return self._cmd_heart()
+        if t.startswith("/heart set "):
+            return self._cmd_heart_set(t[len("/heart set "):])
+        if t.startswith("/doctor focus "):
+            return self._cmd_doctor_focus(t[len("/doctor focus "):])
+        if t.startswith("/doctor edit "):
+            return self._cmd_doctor_edit(t[len("/doctor edit "):])
+        if t.startswith("/brain guide "):
+            return self._cmd_brain_guide(t[len("/brain guide "):])
         # T-4: lab — حذف از router (UX v2 §۱). متدها باقی‌اند برای backward-compat.
         # T-5: status (read-only)
         if t == "/status":
@@ -1187,6 +1486,9 @@ class TelegramApprovalChannel(ApprovalChannel):
         # متنِ آزاد فقط وقتی جلسه فعال است و منتظرِ متن → تجزیه به پیشنهاد (نه دستور، نه auto-apply)
         # گیت روی is_active هم هست تا پرچمِ سرگردانِ یک جلسهٔ بسته پیامِ نامرتبط را ندزدهد.
         if not t.startswith("/"):
+            # 3a: اگر مالک وسطِ ویرایشِ RFC است، این متن پاسخِ همان RFC است (قبل از حسابدار)
+            if self._awaiting_rfc_edit:
+                return self._consume_rfc_edit_text(t)
             try:
                 import acct_review as _ar
                 if _ar.is_active() and _ar.is_awaiting_free():
@@ -1783,6 +2085,133 @@ class TelegramApprovalChannel(ApprovalChannel):
                 f"{self._DIV.strip()}\n"
                 f"<i>سلامتِ کاملِ تست‌ها: run_all (۱۳۷) + validators جدا اجرا می‌شوند.</i>")
 
+    # ─── Task 3 (2026-07-24) · دیالوگِ owner↔organ (Doctor/Brains/Hearts) ─────────
+    def _organ_dialogue(self):
+        """ماژولِ مشترکِ رندر/persistِ دیالوگ (lazy، fail-soft → None)."""
+        try:
+            import sys as _sys
+            from pathlib import Path as _P
+            _ops = str(_P(__file__).resolve().parents[1])
+            if _ops not in _sys.path:
+                _sys.path.insert(0, _ops)
+            import organ_dialogue as _od
+            return _od
+        except Exception:  # noqa: BLE001
+            return None
+
+    def _dlg_state_dir(self):
+        from pathlib import Path as _P
+        return _P(self._state_dir) if self._state_dir else None
+
+    def _cmd_heart(self):
+        """/heart — کارتِ فقط‌خواندنیِ قلب (همان رندرِ heart_card_beat)."""
+        _od = self._organ_dialogue()
+        if _od is None:
+            return "🫀 ماژولِ دیالوگ در دسترس نیست."
+        try:
+            d = _od.heart_digest(state_dir=self._dlg_state_dir())
+            return {"text": d["text"], "reply_markup": {"inline_keyboard": [[
+                {"text": "📊 وضعیت", "callback_data": "menu:overview"},
+                {"text": "🏠 منو", "callback_data": "menu:main"}]]}}
+        except Exception as e:  # noqa: BLE001
+            return f"🫀 خطا در گزارشِ قلب: {type(e).__name__}"
+
+    def _cmd_heart_set(self, arg: str):
+        """/heart set <param> <value> — قدمِ ۱: preview + کارتِ confirmِ توکن‌دار.
+        نوشتنِ واقعی فقط بعد از تپِ مالک (act:heartset، INV-13 تک‌مصرف + owner-gate)
+        و فقط از راهِ HeartParams.validate() — ADR-001: هرگز period/rate."""
+        _od = self._organ_dialogue()
+        if _od is None:
+            return "🫀 ماژولِ دیالوگ در دسترس نیست."
+        parts = str(arg or "").split()
+        if len(parts) != 2:
+            return ("🫀 فرمت: <code>/heart set &lt;param&gt; &lt;value&gt;</code>\n"
+                    "پارامترها: sigma · lo · hi · cap · baro (فقط setpoint — هرگز period)")
+        try:
+            pv = _od.heart_set_preview(parts[0], parts[1], state_dir=self._dlg_state_dir())
+        except Exception as e:  # noqa: BLE001
+            return f"🫀 خطا در preview: {type(e).__name__}"
+        if not pv.get("ok"):
+            return "⛔ رد شد:\n" + "\n".join(
+                f"• {html.escape(str(x))}" for x in pv.get("errs") or [])
+        canon = pv["param"]
+        # C4 (الگوی flaggo): مقدارِ مطلق در mintِ توکن ذخیره می‌شود — کارتِ کهنه مقدارِ کهنه
+        tok = self._new_act_token("heartset", canon, target=pv["new"])
+        btn = {"text": f"✅ اعمالِ {canon} → {pv['new']}",
+               "callback_data": f"act:heartset:{canon}:{tok}"}
+        return {"text": (f"🫀 <b>تنظیمِ setpointِ قلب</b>\n"
+                         f"{canon}: <code>{html.escape(str(pv['old']))}</code> → "
+                         f"<code>{html.escape(str(pv['new']))}</code>\n"
+                         f"epoch فعلی {pv.get('epoch_now')} — با اعمال، epochِ نو "
+                         "atomic/audited/برگشت‌پذیر نوشته می‌شود.\nمطمئنی؟"),
+                "reply_markup": {"inline_keyboard": [[btn,
+                    {"text": "❌ انصراف", "callback_data": "menu:main"}]]}}
+
+    def _act_heartset(self, key: str, target=None) -> str:
+        """قدمِ ۲ (تپِ توکن‌دارِ مالک): اعمالِ setpoint از راهِ HeartParams.validate."""
+        _od = self._organ_dialogue()
+        if _od is None:
+            return "🫀 ماژولِ دیالوگ در دسترس نیست."
+        if target is None:
+            return "⛔ مقدارِ هدف گم شد — دوباره /heart set بزن."
+        try:
+            r = _od.heart_set_apply(key, target, state_dir=self._dlg_state_dir())
+        except Exception as e:  # noqa: BLE001
+            return f"🫀 اعمال شکست: {type(e).__name__}"
+        if not r.get("ok"):
+            return "⛔ رد شد:\n" + "\n".join(f"• {str(x)[:120]}" for x in r.get("errs") or [])
+        return (f"✅ setpoint نوشته شد: {r['param']} {r['old']}→{r['new']} "
+                f"(epoch {r['epoch_seq']}؛ audit: pulse/heart-setpoint-audit.jsonl)")
+
+    def _cmd_doctor_focus(self, arg: str):
+        _od = self._organ_dialogue()
+        if _od is None:
+            return "🩺 ماژولِ دیالوگ در دسترس نیست."
+        r = _od.save_owner_focus(arg, state_dir=self._dlg_state_dir())
+        if not r.get("ok"):
+            return f"⛔ ثبت نشد: {r.get('error')}"
+        return (f"🎯 steering ثبت شد: «{html.escape(str(r['focus']))}» — دکتر در cycleِ بعد "
+                "mine/self-knowledge را با این سوگیری اجرا می‌کند (فقط اولویت، نه فرمان).")
+
+    def _cmd_doctor_edit(self, arg: str):
+        """/doctor edit <RFC-id> <متن> — بازنگریِ one-shot (دکمهٔ ✍️ کارت هم هست)."""
+        _od = self._organ_dialogue()
+        if _od is None:
+            return "🩺 ماژولِ دیالوگ در دسترس نیست."
+        parts = str(arg or "").split(None, 1)
+        if len(parts) != 2:
+            return "🩺 فرمت: <code>/doctor edit RFC-xxxxxxxx متنِ بازنگری</code>"
+        r = _od.save_rfc_revision(parts[0], parts[1], state_dir=self._dlg_state_dir())
+        if not r.get("ok"):
+            return f"⛔ ثبت نشد: {r.get('error')}"
+        return (f"✍️ بازنگری برای <code>{html.escape(str(r['rfc_id']))}</code> صف شد — "
+                "دکتر در cycleِ بعد در متنِ RFC ادغام و اعلام می‌کند.")
+
+    def _cmd_brain_guide(self, arg: str):
+        _od = self._organ_dialogue()
+        if _od is None:
+            return "🧠 ماژولِ دیالوگ در دسترس نیست."
+        r = _od.brain_guide(arg, state_dir=self._dlg_state_dir())
+        if not r.get("ok"):
+            return (f"⛔ ثبت نشد: {html.escape(str(r.get('error')))}\n"
+                    "<i>bounded: focus:&lt;متن&gt; · think_every_n:N (۱..۱۰۰) · "
+                    "pause: think · resume: think</i>")
+        return ("🧭 راهنماییِ مغز ثبت شد: <code>"
+                + html.escape(json.dumps(r.get("directive"), ensure_ascii=False))
+                + "</code>\ncortex در ابتدای cycleِ بعدی (state-file خوان؛ بدونِ pollerِ نو) اعمالش می‌کند.")
+
+    def _consume_rfc_edit_text(self, text: str):
+        """متنِ آزادِ مالک بعد از [✍️ ویرایش] → صفِ بازنگریِ همان RFC."""
+        rfc_id, self._awaiting_rfc_edit = self._awaiting_rfc_edit, None
+        _od = self._organ_dialogue()
+        if _od is None or not rfc_id:
+            return "🩺 ماژولِ دیالوگ در دسترس نیست."
+        r = _od.save_rfc_revision(rfc_id, text, state_dir=self._dlg_state_dir())
+        if not r.get("ok"):
+            return f"⛔ ثبت نشد: {r.get('error')} — دوباره دکمهٔ ✍️ را بزن."
+        return (f"✍️ بازنگری برای <code>{html.escape(str(rfc_id))}</code> ثبت شد — "
+                "دکتر در cycleِ بعد ادغام می‌کند.")
+
     def _main_menu(self) -> dict:
         """خانهٔ اصلی (جلسه ۴۶، رأی مالک «فقط آره یا نه»): خانهٔ سادهٔ تصمیم‌ها.
         عمقِ کاملِ ۸-تب دست‌نخورده زیرِ «⚙️ بیشتر» (backward-compat کامل)."""
@@ -2074,17 +2503,29 @@ class TelegramApprovalChannel(ApprovalChannel):
         هیچ settle/gate اینجا نیست. not wired → False (no-opِ امن)."""
         if not self.wired:
             return False
-        token = self._new_token(rfc_id, 0.0)
+        # Refuse re-card before touching durable intent: an unconsumed owner verdict must
+        # never be overwritten by a fresh SUBMITTED nonce.
         with self._lk:
-            # ضدِ clobber (بازبینیِ خصمانه 2026-07-10): اگر برای همین rfc_id یک verdict
-            # تصمیم‌گرفته ولی هنوز مصرف‌نشده داریم، کارتِ دوباره (مثلاً از resubmit ِ
-            # sweep) نباید رأیِ ثبت‌شدهٔ مالک را بی‌صدا به pending برگرداند.
             existing = self._pending_rfc.get(rfc_id)
             if (existing and not existing.get("consumed")
                     and existing.get("status") in ("merge-approved", "denied")):
-                return False   # verdict معلق داریم — کارتِ نو صادر نکن تا مصرف شود
+                return False
+        # C7.2 RFC intent follows persist-before-send too. The durable store returns a
+        # derived HMAC callback token; raw bearer material is never persisted.
+        try:
+            import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+            made = _pcr.prepare_rfc_card(state_dir=self._state_dir, rfc_id=rfc_id,
+                                         summary=summary, owner=self._owner)
+        except Exception:
+            made = None
+        if not made:
+            return False
+        token = made["token"]
+        with self._lk:
             self._pending_rfc[rfc_id] = {"summary": str(summary)[:500],
                                          "token": token, "status": "pending"}
+        if not made.get("send_needed", True):
+            return True
         text = (f"🔧 <b>پیشنهادِ تکامل (RFC)</b>\n\n"
                 f"<b>خلاصه:</b> {html.escape(str(summary))}\n"
                 f"<b>RFC:</b> <code>{html.escape(str(rfc_id))}</code>\n\n"
@@ -2092,8 +2533,22 @@ class TelegramApprovalChannel(ApprovalChannel):
         kb = {"inline_keyboard": [[
             {"text": "merge پشتِ flag ✅", "callback_data": f"rfc:merge:{rfc_id}:{token}"},
             {"text": "رد ❌", "callback_data": f"rfc:deny:{rfc_id}:{token}"},
+        ], [
+            {"text": "✍️ ویرایش/بازنگری", "callback_data": f"rfc:edit:{rfc_id}:{token}"},
         ]]}
-        return self.send_text(text, reply_markup=kb)
+        lease_id = f"rfc-{os.getpid()}-{threading.get_ident()}"
+        if not _pcr._acquire_send_lease(self._state_dir, "rfc", rfc_id, lease_id):  # noqa: SLF001
+            return False
+        try:
+            _pcr.mark_delivery(state_dir=self._state_dir, kind="rfc", cid=rfc_id,
+                               delivery="LEASED")
+            ok = self.send_text(text, reply_markup=kb)
+            if not _pcr.mark_delivery(state_dir=self._state_dir, kind="rfc", cid=rfc_id,
+                                      delivery="SENT" if ok else "PENDING"):
+                return False
+            return ok
+        finally:
+            _pcr.release_send_lease(self._state_dir, "rfc", rfc_id)
 
     # ─── T-7 · kill-switch out-of-band + Re-entry Packet ─────────────────────────
     def kill_switch(self) -> str:
@@ -2201,6 +2656,10 @@ class TelegramApprovalChannel(ApprovalChannel):
         "lab":         frozenset({"start1", "start2", "start3"}),
         "baseline":    frozenset({"capture"}),
         "pf":          frozenset({"pause", "resume"}),   # Project-F کنترلِ content-free
+        # Task 3c (2026-07-24): تنظیمِ setpointِ قلب — فقط ۵ فیلدِ HeartParams
+        # (ADR-001: هیچ period/rate — حذفِ ساختاری)؛ مقدار در target (الگوی flaggo، C4)
+        "heartset":    frozenset({"target_sigma", "viable_band_lo", "viable_band_hi",
+                                  "daily_beat_cap", "baroreflex_gain"}),
     }
     # هیچ verbِ پول‌خوری در allowlist نیست (act:reconcile:run / act:epoch:run عمداً
     # وجود ندارند — §۲.۵). این مجموعه دفاعی است: verbِ پولیِ آینده بدونِ گیتِ باز رد می‌شود.
@@ -2557,6 +3016,8 @@ class TelegramApprovalChannel(ApprovalChannel):
         # reveal از /reveal command می‌رود (نه act) — §۸ resurface.
         if verb == "baseline":
             return self._act_baseline()
+        if verb == "heartset":
+            return self._act_heartset(key, target)
         return "نادیده"
 
     def _act_export(self) -> str:

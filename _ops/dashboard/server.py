@@ -711,8 +711,9 @@ def page_activity() -> bytes:
 
 def page_channels() -> bytes:
     ch = _read_json("channel-status.json")
-    # P1 راست‌گویی (2026-07-15): channel-status.json نویسندهٔ زنده ندارد (snapshot ِ فریز
-    # 2026-07-08). قانونِ کابین: دادهٔ کهنه/بی‌نویسنده هرگز «🟢 زنده» رندر نمی‌شود.
+    # P1 راست‌گویی (به‌روز 2026-07-24): entryِ telegram حالا writerِ زنده دارد
+    # (approval_channel._write_channel_status — بوتِ poll + هر ~۱۵ دقیقه). گاردِ staleness
+    # به‌عنوانِ دفاع می‌ماند: writerِ مرده → دوباره ⚪/کهنه رندر می‌شود، نه «🟢» دروغ.
     import time as _time
     _stale, _snap_ts = True, "?"
     try:

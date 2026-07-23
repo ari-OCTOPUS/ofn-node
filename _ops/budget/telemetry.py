@@ -131,23 +131,66 @@ def read_brain() -> dict:
     return out
 
 
+def read_organ_gate() -> dict:
+    """مصرفِ زندهٔ گیتِ متابولیسم از organ-state.json — منبعِ حقیقتِ همان استکی که
+    budget-state.json «billed» را می‌سازد (organ_gate → budget_gate، reserve/settle).
+    این همان مسیری است که cortex/model_router با آن متر می‌کند و `core.db` هرگز آن را
+    نمی‌بیند (نقشهٔ 2026-07-06: core.db فقط استکِ control-brain است). افزودنِ این منبع
+    شکافِ رصدی را می‌بندد که تا 2026-07-23 «month=0» و واگراییِ کاذبِ ۱۰۰٪ می‌ساخت.
+    fail-soft: نبودِ فایل / ماهِ کهنه / سطرِ خراب → 0 (نه حدس، نه مرگِ کاذب)."""
+    out = {"month_musd": 0, "today_musd": 0, "by_organ": {}, "source": None, "live": False}
+    path = opslib.ORGAN_STATE
+    if not path.exists():
+        return out
+    out["source"] = str(path)
+    try:
+        state = json.loads(path.read_text("utf-8"))
+    except (OSError, ValueError) as e:
+        opslib.alert([f"telemetry: organ-state unreadable: {e}"])
+        return out
+    out["live"] = True
+    same_month = state.get("month") == opslib.month()
+    today = opslib.today()
+    for name, o in (state.get("organs") or {}).items():
+        if not isinstance(o, dict):
+            continue
+        m = int(o.get("spent_month_musd", 0) or 0) if same_month else 0
+        t = int(o.get("spent_today_musd", 0) or 0) if o.get("date") == today else 0
+        out["month_musd"] += m
+        out["today_musd"] += t
+        if m:
+            out["by_organ"][name] = out["by_organ"].get(name, 0) + m
+    return out
+
+
 def snapshot(write: bool = True) -> dict:
     """عکس واحد micro-USD از کل ارگانیسم + ثبت روی دیسک برای UI/گاورنر."""
     fx, fx_tag = opslib.fx_aud_per_usd()
-    g, b = read_genome(), read_brain()
+    g, b, og = read_genome(), read_brain(), read_organ_gate()
     mon = opslib.month()
+    # جمعِ ماه/امروز از منابعِ زنده: ژنوم‌لجر + organ_gate (متابولیسم/cortex — همان استکی که
+    # billed را می‌سازد) + core.db (استکِ control-brain؛ فعلاً یخ‌زده → 0). organ_gate و core.db
+    # مسیرهای مجزااند (call هر کدام فقط در یکی متر می‌شود) پس جمعشان دوباره‌شماری نیست.
     month_musd = (sum(v for d, v in g["by_day"].items() if d.startswith(mon))
-                  + sum(v for d, v in b["by_day"].items() if d.startswith(mon)))
-    today_musd = g["by_day"].get(opslib.today(), 0) + b["by_day"].get(opslib.today(), 0)
+                  + sum(v for d, v in b["by_day"].items() if d.startswith(mon))
+                  + og["month_musd"])
+    today_musd = (g["by_day"].get(opslib.today(), 0)
+                  + b["by_day"].get(opslib.today(), 0)
+                  + og["today_musd"])
     per_organ = dict(b["by_organ"])
     per_organ["GENOME_SYS"] = per_organ.get("GENOME_SYS", 0) + g["cost_musd"]
+    for _name, _m in og["by_organ"].items():
+        per_organ[_name] = per_organ.get(_name, 0) + _m
     snap = {
         "ts": opslib.now_iso(),
         "unit": "micro-USD (int)",
         "fx_aud_per_usd": {"rate": fx, "tag": fx_tag},
-        "sources": {"genome_ledger": g["source"], "brain_core_db": b["source"]},
+        "sources": {"genome_ledger": g["source"], "brain_core_db": b["source"],
+                    "organ_gate": og["source"]},
         "genome": {k: g[k] for k in ("events", "cost_musd", "suspect_zero")},
         "brain": {k: b[k] for k in ("rows", "cost_musd", "suspect_zero")},
+        "organ_gate": {"month_musd": og["month_musd"], "today_musd": og["today_musd"],
+                       "live": og["live"]},
         "per_organ_alltime_musd": per_organ,
         "unmapped_musd": b["unmapped"],
         "month": {"key": mon, "musd": month_musd,
@@ -178,26 +221,45 @@ def reconcile(snap: dict) -> list[str]:
         try:
             billed = json.loads(opslib.BUDGET_STATE.read_text("utf-8"))
             billed_aud = float(billed.get("spent_month_aud", 0.0))
+            tel_aud = float(snap["month"]["aud"])
             if billed_aud > 0.05:  # زیر ۵ سنت مقایسه بی‌معناست
-                div = abs(billed_aud - snap["month"]["aud"]) / billed_aud
-                if div > DIVERGENCE_DEATH:
+                if tel_aud <= 0.0:
+                    # شکافِ رصد، نه واگرایی: منبعِ زندهٔ تلمتری صفر/تهی است (مثلِ core.dbِ
+                    # یخ‌زده) در حالی که billed>کف. صفرِ یک منبعِ تهی هرگز نباید «واگراییِ
+                    # ۱۰۰٪» و مرگِ متابولیسم بسازد (درسِ 2026-07-23). فقط هشدارِ نرم.
                     problems.append(
-                        f"billed↔telemetry divergence {div:.0%} > {DIVERGENCE_DEATH:.0%} "
-                        f"(billed AU${billed_aud:.2f} vs telemetry AU${snap['month']['aud']:.2f})")
+                        f"observability-gap: billed AU${billed_aud:.2f} ولی تلمتری AU$0.00 "
+                        f"— منبعِ زندهٔ مصرف به تلمتری wire نیست (soft، نه مرگ)")
+                else:
+                    div = abs(billed_aud - tel_aud) / billed_aud
+                    if div > DIVERGENCE_DEATH:
+                        problems.append(
+                            f"billed↔telemetry divergence {div:.0%} > {DIVERGENCE_DEATH:.0%} "
+                            f"(billed AU${billed_aud:.2f} vs telemetry AU${tel_aud:.2f})")
         except (OSError, ValueError) as e:
             problems.append(f"budget-state unreadable: {e}")
     if problems:
-        opslib.freeze("; ".join(problems))
-        if any("divergence" in p for p in problems):
-            # شرط مرگ متابولیسم (پک): توقف خودخواسته + سوال برای انسان
-            opslib.STOP_METABOLIC.write_text(opslib.now_iso() + "\n" + "\n".join(problems) + "\n",
-                                             "utf-8")
-        opslib.conflict_to_human(
-            "METABOLIC",
-            "تلمتری متابولیسم با حسابداری/سقف نمی‌خواند؛ grantها FREEZE شدند:\n"
-            + "\n".join(f"- {p}" for p in problems)
-            + "\nرفع: بررسی منابع تلمتری، سپس حذف دستی `_ops/budget/FREEZE.flag`"
-              " (و `_ops/STOP-METABOLIC` اگر ساخته شده).")
+        # شکافِ رصد = نرم (فقط پرسش به انسان، بدونِ FREEZE/مرگ)؛ بقیه = سخت.
+        soft = [p for p in problems if p.startswith("observability-gap")]
+        hard = [p for p in problems if not p.startswith("observability-gap")]
+        if hard:
+            opslib.freeze("; ".join(hard))
+            if any("divergence" in p for p in hard):
+                # شرط مرگ متابولیسم (پک): توقف خودخواسته + سوال برای انسان
+                opslib.STOP_METABOLIC.write_text(
+                    opslib.now_iso() + "\n" + "\n".join(hard) + "\n", "utf-8")
+            opslib.conflict_to_human(
+                "METABOLIC",
+                "تلمتری متابولیسم با حسابداری/سقف نمی‌خواند؛ grantها FREEZE شدند:\n"
+                + "\n".join(f"- {p}" for p in hard)
+                + "\nرفع: بررسی منابع تلمتری، سپس حذف دستی `_ops/budget/FREEZE.flag`"
+                  " (و `_ops/STOP-METABOLIC` اگر ساخته شده).")
+        if soft:
+            opslib.conflict_to_human(
+                "METABOLIC-OBS",
+                "شکافِ رصدِ متابولیسم (بدونِ FREEZE): billed هست ولی منبعِ زندهٔ تلمتری صفر است:\n"
+                + "\n".join(f"- {p}" for p in soft)
+                + "\nرفع: منبعِ زندهٔ مصرف (organ-state.json / organ_gate) را به تلمتری wire کن.")
     return problems
 
 

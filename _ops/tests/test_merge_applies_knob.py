@@ -30,13 +30,20 @@ import opslib                        # noqa: E402
 
 
 class _VerdictChan:
-    """کانالِ تزریقی: یک verdictِ merge-approved برای rfc مشخص یک‌بار برمی‌گرداند."""
+    """کانالِ تزریقی (C7.2 claim/ack): یک verdictِ merge-approved با revision یک‌بار می‌دهد؛
+    begin_rfc_apply/ack موفق تا مسیرِ apply (نه صرفاً برچسبِ legacy) طی شود."""
     def __init__(self, rfc_id):
-        self._v = [(rfc_id, "merge-approved")]
+        self._v = [(rfc_id, "merge-approved", 1)]
 
-    def pop_rfc_verdicts(self):
+    def claim_rfc_verdicts(self, worker_id, lease_s=300):
         v, self._v = self._v, []
         return v
+
+    def begin_rfc_apply(self, rfc_id, revision, operation_key):
+        return True
+
+    def ack_rfc_verdict(self, rfc_id, revision, *, applied, receipt_id=""):
+        return True
 
 
 class _CardChan:

@@ -57,24 +57,40 @@ def _config_path() -> Path:
     return opslib.ORG_ROOT / "03 - Projects" / "Accounting" / "personal" / "categorize-config.json"
 
 
+_EXPENSE_ALERTED = False  # module-level dedup: حداقل یک warning در عمرِ پروسه، نه هر tick
+
+
 def _expense_by_owner() -> dict:
     """نگاشتِ owner→account از categorize-config.json (gitignored). اگه config غایب/خالی
     باشد، empty برمی‌گرداند (صفر PII در source) و یک warning لاگ می‌کند — _expense_account
     سپس به category/desc hint یا 6000 برمی‌گردد (متفرقه)."""
+    global _EXPENSE_ALERTED
     try:
         d = json.loads(_config_path().read_text("utf-8"))
         m = d.get("expense_account_by_owner") if isinstance(d, dict) else None
         if isinstance(m, dict) and m:
+            # config برگشت — اگر قبلاً warning داده بودیم، recovery را گزارش کن (یک‌بار)
+            if _EXPENSE_ALERTED:
+                _EXPENSE_ALERTED = False
+                try:
+                    opslib.alert(["journal_bridge: categorize-config.json بازیابی شد — "
+                                  "owner→account نگاشت دوباره فعال است."])
+                except Exception:  # noqa: BLE001
+                    pass
             return {str(k): str(v) for k, v in m.items()}
     except (OSError, ValueError, TypeError):
         pass
-    # config غایب یا خالی — warning (یک‌بار، نه هر tick — opslib.alert خودش dedup می‌کند)
-    try:
-        opslib.alert(["journal_bridge: categorize-config.json غایب یا expense_account_by_owner "
-                      "خالی است — owner→account نگاشت نمی‌شود (همه به category/desc یا 6000 می‌روند). "
-                      "f: personal/categorize-config.json#expense_account_by_owner را پر کن."])
-    except Exception:  # noqa: BLE001
-        pass
+    # config غایب یا خالی — warning فقط یک‌بار در عمرِ پروسه (opslib.alert خودش dedup
+    # ندارد؛ این flag از تکرارِ هر-tick جلوگیری می‌کند تا governor-alerts غرق نشود).
+    if not _EXPENSE_ALERTED:
+        _EXPENSE_ALERTED = True
+        try:
+            opslib.alert(["journal_bridge: categorize-config.json غایب یا expense_account_by_owner "
+                          "خالی است — owner→account نگاشت نمی‌شود (همه به category/desc یا 6000 می‌روند). "
+                          "f: personal/categorize-config.json#expense_account_by_owner را پر کن. "
+                          "(هر tick تکرار نمی‌شود تا زمانی که config برگردد.)"])
+        except Exception:  # noqa: BLE001
+            pass
     return dict(_EXPENSE_BY_OWNER_DEFAULT)
 
 

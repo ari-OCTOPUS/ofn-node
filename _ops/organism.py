@@ -257,13 +257,10 @@ def main() -> int:
         _ziman_leg = _w.make_ziman_leg()
         _cartographer_leg = _w.make_cartographer_leg()   # default-off flag → None تا گام ۵
         _chan = _w.make_telegram_channel(leg=_leg)   # auto-on اگر توکن
-        # T-8: شروعِ long-poll thread برای دریافتِ پیام‌های تلگرام
-        if _chan is not None:
-            import threading as _tg
-            _poll_t = _tg.Thread(target=_chan.run_forever, daemon=True,
-                                name="telegram-poll")
-            _poll_t.start()
-            opslib.heartbeat("telegram poll thread started (T-8)")
+        # C7.2: ingress MUST remain closed until all durable callback/RFC projections
+        # have been rebuilt.  Starting long-poll here created a boot race where an old
+        # owner callback was consumed as "unknown" and its Telegram offset advanced.
+        # The poller is started only after pending-card recovery below.
         # Trust-Engine ingress (2026-07-21): مرزِ امضاشدهٔ HTTP فقط پشتِ OCTOPUS_WIRE_LEAD_BOUNDARY
         # (پیش‌فرض خاموش، خارج از PAPER_FULL) → no-op. loopback-only، fail-soft.
         _lb_t = _w.maybe_start_lead_boundary()
@@ -337,6 +334,36 @@ def main() -> int:
                     f"slept={_cert.get('uptime_gap_s')}s")
         except Exception as _bce:  # noqa: BLE001 — شناسنامه هرگز بوت را نمی‌کشد
             opslib.alert([f"birth certificate failed (non-fatal): {type(_bce).__name__}"])
+        # C7 Slice 1: بازسازیِ کارت‌های approvalِ معلق (money از gated_effect، RFC از rfcs.json) —
+        # projection-only، HALT-aware، fail-soft. صفر تغییرِ semanticِ authorizationِ پول.
+        try:
+            if _chan is not None:
+                import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+                _owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID")
+                _halted = bool(opslib.halted())
+                try:
+                    _bid = str((_cert or {}).get("boot_id") or os.getpid())
+                except Exception:  # noqa: BLE001
+                    _bid = str(os.getpid())
+                _mc = _pcr.rebuild_money_cards(
+                    channel=_chan, chrono_db_path=str(opslib.STATE_DIR / "chrono.db"),
+                    owner=_owner, state_dir=str(opslib.STATE_DIR), halted=_halted, boot_id=_bid)
+                _rc2 = _pcr.rebuild_rfc_cards(
+                    channel=_chan, rfcs_path=str(opslib.STATE_DIR / "doctor" / "rfcs.json"),
+                    state_dir=str(opslib.STATE_DIR))
+                if _mc.get("rebuilt") or _rc2.get("rebuilt"):
+                    opslib.heartbeat(f"pending-card recovery: money={_mc.get('rebuilt', 0)} "
+                                     f"rfc={_rc2.get('rebuilt', 0)} halted={_halted}")
+        except Exception as _pce:  # noqa: BLE001 — بازسازیِ کارت هرگز بوت را نمی‌کشد
+            opslib.alert([f"pending-card recovery failed (non-fatal): {type(_pce).__name__}"])
+        # C7.2: callback ingress opens only after recovery.  A recovery failure keeps
+        # mutating callbacks fail-closed because their durable verifier cannot find a card.
+        if _chan is not None:
+            import threading as _tg
+            _poll_t = _tg.Thread(target=_chan.run_forever, daemon=True,
+                                 name="telegram-poll")
+            _poll_t.start()
+            opslib.heartbeat("telegram poll thread started after callback recovery (C7.2)")
         if any(_wire.values()):
             opslib.heartbeat(f"organism wiring: {_wire}")
     except Exception as _e:  # noqa: BLE001 — wiring اختیاریِ additive
@@ -347,6 +374,7 @@ def main() -> int:
                 doctor=_doctor_inst, dispatcher=_w.make_scheduler())   # B5+B6: self-heal + scheduler
         except Exception as e:  # noqa: BLE001
             opslib.alert([f"chrono pacemaker start failed: {e}"])
+    _beat_sched = None   # C7 Slice 4: ضربانِ سایه (فقط اگر OCTOPUS_ONE_HEARTBEAT=1؛ پیش‌فرض خاموش)
     next_epoch_at = 0.0
     last_daily = ""
     last_heartbeat = 0.0
@@ -359,11 +387,35 @@ def main() -> int:
 
     while True:
         _protective_skip = False   # آیا این تیک کارِ غیرضروری را skip کند؟ (protective-halt، enforceِ واقعی)
+        # Always expose a fresh truthful block.  Flag-off is explicitly HARNESS rather
+        # than a missing/stale value carried from a previous boot.
+        try:
+            import brain_core as _bc_status  # noqa: WPS433
+            _bc_block = _bc_status.organism_state_block(
+                state_dir=opslib.STATE_DIR, sched=_beat_sched)
+        except Exception:  # noqa: BLE001
+            _bc_block = {"mode": "HARNESS", "flag_on": False, "degraded": False}
         _heart_status = None       # HH-P5: پیش از try تعریف می‌شود تا بلوکِ _sleep_s (بیرونِ try) هرگز NameError نخورد
         # R-12 (audit): یک correlation_id برای کلِ این tick mint کن تا همهٔ emitهای این ضربان
         # (heartbeat/leg/doctor/incident/…) همبسته شوند و runِ input→output بازسازی‌پذیر شود.
         # نخ‌های هم‌زمان contextِ خالی دارند → آلوده نمی‌شوند. fail-soft (نبودِ events = None).
         _run_token = _events.begin_run() if _events is not None else None
+        # C7 Slice 4: ضربانِ سایه — تنها یک scheduler، پشتِ OCTOPUS_ONE_HEARTBEAT=0 (پیش‌فرض خاموش
+        # → صفر اثر؛ loopهای قدیمی authoritative). adapterها read-only؛ صفر ACT؛ HALT-safe؛
+        # persistence fail-closed. fail-soft: هرگز ضربانِ اصلی را نمی‌کشد.
+        try:
+            import brain_core as _bc  # noqa: WPS433
+            if _bc.flag_on():
+                if _beat_sched is None:
+                    _beat_sched = _bc.build_shadow_scheduler(
+                        state_dir=opslib.STATE_DIR, halted_fn=opslib.halted)
+                if _beat_sched is not None:
+                    _beat_sched.tick()
+                    # C7.2: refresh status after the shadow tick.
+                    _bc_block = _bc.organism_state_block(state_dir=opslib.STATE_DIR,
+                                                         sched=_beat_sched)
+        except Exception:  # noqa: BLE001 — ضربانِ سایه هرگز ضربانِ اصلی را نمی‌کشد
+            pass
         try:
             # P2 (structural, 2026-07-20 Stage-1): سیگنالِ restartِ کاکپیت = RESTART-REQUESTED
             # (نه overwriteِ STOP-ORGANISM). organism روی آن هم clean-exit می‌کند؛ launcher
@@ -739,6 +791,11 @@ def main() -> int:
                     # جلسه ۴۶: علائمِ حیاتی (استرس+عصب‌کشی) مستقیم از ستونِ فقرات —
                     # تا حتی با خوابِ دیمنِ کورتکس، مانیتور کور نشود و نقطهٔ مرده لو برود.
                     _w.cortex_vitals_beat(beat=_cstat.get("beat", 0))
+                    # Task 3 (2026-07-24): دیالوگِ owner↔organ — سه organ روی همان _chan
+                    # (کادنسِ زمان-محور + hash-throttle؛ پشتِ flagهای خودشان؛ fail-soft).
+                    _w.doctor_digest_beat(_chan, beat=_cstat.get("beat", 0))
+                    _w.brain_digest_beat(_chan, beat=_cstat.get("beat", 0))
+                    _w.heart_card_beat(_chan, beat=_cstat.get("beat", 0))
                 except Exception as _nne:  # noqa: BLE001 — §۴: نوتیف نباید tick را بکشد
                     opslib.alert([f"needs_nudge error (non-fatal): {type(_nne).__name__}: {_nne}"])
             if now - last_heartbeat > 3600:
@@ -767,6 +824,7 @@ def main() -> int:
                              if _proposal_metrics is not None else {}),
                           **({"legs_cultivation": _legs_cult} if _legs_cult else {}),
                           **({"heart": _heart_status} if _heart_status else {}),
+                          "brain_core": _bc_block,
                           **({"cardiac": _cardiac_mod.status_snapshot()}
                              if _cardiac_mod is not None else {})})
         except KeyboardInterrupt:

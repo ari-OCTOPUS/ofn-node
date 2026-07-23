@@ -16,6 +16,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_attribution.py", "test_panel_lead.py",
          "test_chrono_heartbeat.py", "test_chrono_langar.py",
          "test_telegram_channel.py", "test_telegram_group_allowlist.py",
+         # Task 2+3 (2026-07-24): writerِ زندهٔ channel-status + دیالوگِ owner↔organ
+         "test_channel_status.py", "test_organ_dialogue.py",
          "test_leg.py", "test_doctor.py",
          "test_chord.py", "test_chord_shadow.py",
          "test_phase5.py", "test_spectral.py", "test_chamber.py",
@@ -109,12 +111,19 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # (beat_counter durable، beatِ بعدی نه دوباره)، HALT فقط فازهای امن، ACT dry-run
          # (صفر double-actuation)، system.beat→spine، watchdogِ stall. پشتِ OCTOPUS_ONE_HEARTBEAT=0.
          "test_beat_scheduler.py",
+         # C7 Slice 4: brain_core shadow composition root (real read-only adapters, zero ACT, parity, flag off)
+         "test_brain_core.py",
          # 2026-07-23 C6 (Research & Governed Self-Improvement): research_contract (immutable،
          # falsifiable، tools fail-closed به constitutional-allowed) + research_loop (governance-gated،
          # budget سخت، falsify→terminate بدونِ بازنویسیِ بی‌نهایت، held-out verify، نتیجه فقط از
          # learning_gate وارد memory، quarantine، self-model calibration، durable research-journal،
          # صفر auto-apply/merge). owner-gated، proposal-only.
          "test_research_loop.py",
+         # 2026-07-23 C7 Slice 1 (pending-card resurrection): money cards از gated_effect (SoT) +
+         # RFC cards از rfcs.json بعد از restart بازسازی می‌شوند — projection-only، توکنِ stateless
+         # HMAC (binding کامل)، dedupِ durable، exactly-once RFC verdict، HALT metadata-only-no-action،
+         # terminal/EXECUTING/RECONCILE هرگز re-present نمی‌شوند. صفر تغییرِ money-authorization.
+         "test_pending_card_recovery.py",
          # 2026-07-20 Sol Step 5: حلقهٔ ارزشِ Paper Lead سرتاسری (معیارِ اصلیِ پایان) — لیدِ synthetic
          # از توابعِ واقعیِ production: score→quote→کارتِ TG(sandbox)→receipt+outcome→رأیِ مالک→spine→
          # replay→metricsِ قطعی→digest. صفر شبکه/پول/send؛ IDها ثابت؛ حلقه واقعاً بسته.

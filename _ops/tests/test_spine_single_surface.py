@@ -133,8 +133,21 @@ def t_validate_rejects_bad():
     assert not ok2 and "invalid:event_type" in m2
 
 
+# ── ۶ (C7-S5): C4 soak readiness — flag default OFF, dual_write not retired ──────
+def t_c4_soak_status():
+    import spine_soak as _sk
+    os.environ.pop(_sk.VIA_ADAPTER_FLAG, None)
+    st = _sk.soak_status()
+    assert st["via_adapter_flag"] == "off" and st["default"] == "off", st
+    assert "not retired" in st["direct_dual_write"], "dual_write نباید بازنشسته اعلام شود"
+    os.environ[_sk.VIA_ADAPTER_FLAG] = "1"
+    assert _sk.soak_status()["via_adapter_flag"] == "on"
+    os.environ.pop(_sk.VIA_ADAPTER_FLAG, None)
+
+
 if __name__ == "__main__":
     failed = harness.run([
+        ("[۶] C4 soak status (flag off default, dual_write live)", t_c4_soak_status),
         ("[۱] قراردادِ envelope کامل", t_full_envelope_contract),
         ("[۲] provenance هرگز null", t_provenance_never_null),
         ("[۳] PARITY: dual_write == emit_event", t_parity_direct_vs_adapter),

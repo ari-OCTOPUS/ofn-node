@@ -149,6 +149,13 @@ def snapshot() -> dict:
         "doctor_self": {"rfcs": _rfc_count(), "box_stepped": (_dir() / "box-latest.json").exists()},
         "telemetry_cost_musd": (tel.get("month") or {}).get("musd") if isinstance(tel.get("month"), dict) else None,
     }
+    # 3a (2026-07-24): steeringِ مالک (doctor focus) — hint متنی، PII-free، فقط سوگیری
+    try:
+        _pol = _read_json("doctor/owner-policy.json", {})
+        if _pol.get("focus"):
+            out["owner_focus"] = str(_pol["focus"])[:200]
+    except Exception:  # noqa: BLE001
+        pass
     sig = _owner_signal()
     if sig:  # فقط وقتی OCTOPUS_WIRE_WLOS روشن و سیگنال معتبر باشد — وگرنه snapshot دست‌نخورده
         out["owner_signal"] = sig
