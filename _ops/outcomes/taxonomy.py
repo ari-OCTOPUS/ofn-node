@@ -33,7 +33,8 @@ EVENT_TYPES = ("delivered", "deferred", "accepted-measurement", "rejected", "fai
                "decided", "reviewed", "verified", "settled",
                "mission-created", "decision-recorded", "proposal-issued",
                "owner-verdict-recorded", "outcome-recorded",
-               "system.booted")   # C2-E: شناسنامهٔ تولد (RESURRECTION §birth-certificate)
+               "system.booted",   # C2-E: شناسنامهٔ تولد (RESURRECTION §birth-certificate)
+               "system.beat")     # C5: ضربانِ واحد (one-heartbeat scheduler)
 
 # ── privacy ──────────────────────────────────────────────────────────────────
 PRIVACY_CLASSES = ("public", "scrubbed", "owner_only")

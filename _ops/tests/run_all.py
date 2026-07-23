@@ -104,6 +104,11 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # گیتِ held-out (ضدخودفریبی: internal-pass+held-out-fail → مسدود)، dedupِ یادگیری،
          # rollback/supersede، و بستنِ حلقه (تصمیمِ بعدی memory_id را استناد می‌کند) + restart.
          "test_learning_loop.py",
+         # 2026-07-23 C5 (One Heartbeat shadow): BeatScheduler — یک زمان‌بند، ۸ فازِ قطعی
+         # (SENSE→…→HEAL)، budget+circuit-breaker، organ failure isolation، restart continuity
+         # (beat_counter durable، beatِ بعدی نه دوباره)، HALT فقط فازهای امن، ACT dry-run
+         # (صفر double-actuation)، system.beat→spine، watchdogِ stall. پشتِ OCTOPUS_ONE_HEARTBEAT=0.
+         "test_beat_scheduler.py",
          # 2026-07-20 Sol Step 5: حلقهٔ ارزشِ Paper Lead سرتاسری (معیارِ اصلیِ پایان) — لیدِ synthetic
          # از توابعِ واقعیِ production: score→quote→کارتِ TG(sandbox)→receipt+outcome→رأیِ مالک→spine→
          # replay→metricsِ قطعی→digest. صفر شبکه/پول/send؛ IDها ثابت؛ حلقه واقعاً بسته.
