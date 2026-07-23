@@ -41,20 +41,35 @@ def check(name, cond):
 # ── 1) static: boot-time global-halt guard in every launcher ────────────────────
 _LAUNCHERS = ["RUN-ORGANISM.bat", "RUN-CORTEX.bat", "RUN-LIVE.bat",
               "run-live-headless.bat", "RUN-CODE-AUTONOMY.bat", "RESTART-ORGANISM.bat"]
+def _abort_guard(lines, needle):
+    """اولین خطِ `if exist "...<needle>..." goto|exit ...` را برگردان (idx, action).
+    فقط شرطی که واقعاً boot را قطع می‌کند (goto/exit) قبول است — نه یک خطِ log که
+    fall-through می‌کند (red-team TEST-P2: تستِ قبلی فقط موقعیت را چک می‌کرد)."""
+    for i, ln in enumerate(lines):
+        low = ln.strip().lower()
+        if needle.lower() in low and low.startswith("if exist"):
+            # عملِ بعد از شرط باید goto یا exit باشد (قطعِ boot)، نه echo/set/rem
+            tail = low.split('"')[-1] if '"' in low else low
+            if "goto" in tail or "exit" in tail:
+                return i, "abort"
+            return i, "fallthrough"
+    return None, None
+
+
 for bat in _LAUNCHERS:
     src = (_OPS / bat).read_text("utf-8", errors="replace")
     lines = src.splitlines()
     launch_idx = next((i for i, ln in enumerate(lines)
                        if ("python -X utf8" in ln) or ln.strip().lower().startswith("start ")), None)
-    halt_idx = next((i for i, ln in enumerate(lines)
-                     if "HALT-ALL" in ln and ln.strip().lower().startswith("if exist")), None)
-    stop_idx = next((i for i, ln in enumerate(lines)
-                     if "04 - Architect System" in ln and "STOP" in ln
-                     and ln.strip().lower().startswith("if exist")), None)
-    check(f"{bat}: HALT-ALL guard exists before first launch",
-          halt_idx is not None and launch_idx is not None and halt_idx < launch_idx)
-    check(f"{bat}: architect-STOP guard exists before first launch",
-          stop_idx is not None and launch_idx is not None and stop_idx < launch_idx)
+    halt_idx, halt_act = _abort_guard(lines, "HALT-ALL")
+    stop_idx, stop_act = _abort_guard(lines, "04 - Architect System")
+    # موقعیت (قبل از launch) AND عملِ قطع‌کننده (goto/exit) — هر دو لازم است.
+    check(f"{bat}: HALT-ALL guard aborts boot before first launch",
+          halt_idx is not None and launch_idx is not None
+          and halt_idx < launch_idx and halt_act == "abort")
+    check(f"{bat}: architect-STOP guard aborts boot before first launch",
+          stop_idx is not None and launch_idx is not None
+          and stop_idx < launch_idx and stop_act == "abort")
 
 # P2 pin: the organism launcher never deletes the owner kill-switch
 src_org = (_OPS / "RUN-ORGANISM.bat").read_text("utf-8", errors="replace")

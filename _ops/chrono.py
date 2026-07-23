@@ -879,6 +879,23 @@ class EffectorGate:
         xid = str(execution_id or "").strip()
         if not xid:
             return False
+        # D3 (red-team MIG-P2، 2026-07-23): زیرِ halt سراسری، fail_execution یک ردیفِ
+        # in-flight را به FAILED_SAFEِ ترمینال («اثرِ بیرونی رخ نداد») نمی‌بندد — چون
+        # ممکن است رخ داده باشد. هم‌ارزِ complete_execution → RECONCILE_REQUIRED (آشتیِ
+        # انسانی)، نه یک ترمینالِ دروغینِ «پول حرکت نکرد» توسطِ workerِ stale زیرِ STOP.
+        kill = self.force_closed()
+        if kill:
+            cur = self.db.ex(
+                "UPDATE gated_effect SET status='RECONCILE_REQUIRED', failure_reason=?, "
+                "execution_finished_at=? "
+                "WHERE effect_id=? AND status='EXECUTING' AND execution_id=?",
+                (f"halt during fail_execution ({kill}); "
+                 f"claimed-fail reason: {str(reason or 'unspecified')}",
+                 _utc_ms(), effect_id, xid))
+            self._note("EFFECT_RECONCILE_REQUIRED",
+                       {"effect_id": effect_id, "execution_id": xid,
+                        "reason": kill, "updated": cur.rowcount})
+            return False
         cur = self.db.ex(
             "UPDATE gated_effect SET status='FAILED_SAFE', failure_reason=?, "
             "execution_finished_at=? "

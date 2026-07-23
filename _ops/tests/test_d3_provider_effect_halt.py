@@ -93,6 +93,10 @@ gate = chrono.EffectorGate(db)
 e_fly = gate.request("pay", "order-fly", target_ref="acct-fly")
 assert gate.release_effect(e_fly, _appr(db, e_fly, "A-FLY")) is True
 x_fly = gate.begin_execution(e_fly, worker_ref="W")
+# a second in-flight effect for the fail_execution-under-halt check
+e_fly2 = gate.request("pay", "order-fly2", target_ref="acct-fly2")
+assert gate.release_effect(e_fly2, _appr(db, e_fly2, "A-FLY2")) is True
+x_fly2 = gate.begin_execution(e_fly2, worker_ref="W2")
 
 # candidates for refusal under halt
 e_pend = gate.request("pay", "order-p", target_ref="acct-p")
@@ -118,6 +122,11 @@ with _halt(opslib.HALT_ALL):
     check("complete_execution of in-flight under HALT-ALL → RECONCILE_REQUIRED",
           gate.complete_execution(e_fly, x_fly, "RCPT-FLY") is False
           and gate.status_of(e_fly) == "RECONCILE_REQUIRED")
+    # red-team MIG-P2: fail_execution زیرِ halt نباید یک in-flight را به FAILED_SAFEِ
+    # ترمینال («پول حرکت نکرد») ببندد — باید مثلِ complete به RECONCILE_REQUIRED برود.
+    check("fail_execution of in-flight under HALT-ALL → RECONCILE_REQUIRED (not FAILED_SAFE)",
+          gate.fail_execution(e_fly2, x_fly2, "worker says failed") is False
+          and gate.status_of(e_fly2) == "RECONCILE_REQUIRED")
     check("reconcile_effect under HALT-ALL → False (no reconciliation under halt)",
           gate.reconcile_effect(e_fly, "settled", "EV", "owner") is False
           and gate.status_of(e_fly) == "RECONCILE_REQUIRED")

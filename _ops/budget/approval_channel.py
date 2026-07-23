@@ -379,7 +379,9 @@ class TelegramApprovalChannel(ApprovalChannel):
                             self._answer_callback_query(cbq_id, reply or "📝")
                 else:
                     # text message → handle_command + send reply
-                    reply = self.handle_command(str(text), chat_id=chat_id)
+                    # from_id thread-through: مرزِ سختِ سراسری فقط owner (red-team GOV-P1)
+                    reply = self.handle_command(str(text), chat_id=chat_id,
+                                                from_id=from_id)
                     if reply is not None:
                         if isinstance(reply, dict):
                             self.send_text(reply.get("text", ""),
@@ -1064,16 +1066,32 @@ class TelegramApprovalChannel(ApprovalChannel):
             return False
         return True
 
-    def handle_command(self, text: str, chat_id: int | None = None) -> str | None:
+    # دستوراتِ مرزِ-سختِ سراسری/kill — حتی داخلِ یک گروهِ allowlisted فقط شخصِ مالک
+    # (from_id == owner) مجاز است، نه هر عضوِ گروه. (red-team GOV-P1، 2026-07-23)
+    _OWNER_ONLY_COMMANDS = frozenset({"/panic", "/resume", "/stop"})
+
+    def handle_command(self, text: str, chat_id: int | None = None,
+                       from_id: int | None = None) -> str | None:
         """routerِ دستوراتِ مالک. text = پیامِ ورودیِ مالک (بعد از allowlist).
         chat_id = همان chat که فرمان از آن آمد (گروه یا چتِ ۱:۱)؛ برای delegation به
         langar_bridge (فاز ۲). None = رفتارِ قبلی (owner) برای backward-compat.
+        from_id = فرستندهٔ واقعیِ پیام. دستوراتِ مرزِ-سختِ سراسری/kill
+        (_OWNER_ONLY_COMMANDS) حتی در یک گروهِ allowlisted فقط با from_id==owner
+        اجرا می‌شوند — عضویتِ chat در allowlist برای پاک‌کردنِ HALT-ALL کافی نیست.
+        from_id=None → backward-compat (فراخوانیِ برنامه‌ایِ owner-trusted؛ گارد رد نمی‌کند).
         خروجی = متنِ پاسخ (یا None برای نادیده). هر دستور فقط یک UI را برمی‌گرداند.
         UX v2: /start منو + HTML غنی + حذفِ T-4/T-6/reentry از router.
         هیچ ورودیِ untrustedای اجرا نمی‌شود — فقط ورودیِ validated به propose می‌رود."""
         t = (text or "").strip()
         if not t:
             return None
+        # owner-gate: مرزِ سختِ سراسری فقط دستِ خودِ مالک — نه هر عضوِ گروهِ مجاز.
+        if t in self._OWNER_ONLY_COMMANDS and from_id is not None:
+            try:
+                if int(from_id) != int(self._owner):
+                    return "⛔ فقط مالک می‌تواند این دستورِ مرزِ سراسری را اجرا کند."
+            except (TypeError, ValueError):
+                return "⛔ فرستندهٔ نامعتبر برای دستورِ مرزِ سراسری."
         # اگر مالک وسطِ حالتِ متنِ آزادِ حسابدار یک دستورِ / زد = تغییرِ زمینه → حالتِ متن را ببند
         # (تا پیامِ بعدیِ نامرتبط اشتباهاً جوابِ حسابداری تلقی نشود — رفعِ sticky-flagِ audit)
         if t.startswith("/"):
