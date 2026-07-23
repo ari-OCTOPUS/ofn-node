@@ -55,8 +55,13 @@ by read-only agent + manual verification. Classification per C2 rule A.
 
 ## F. Restart battery — DONE
 - Composite E2E (`test_restart_battery.py`): deliver 2 → verdict #1 → defer #2 → RESTART → only #2 rebuilt → decided via rebuilt token → replay blocked → HALT file persists & cert reports armed → birth chain continuous → abandoned EXECUTING reconciled → corrupted RAM cache with intact SoT harmless. All 9 mission-F scenarios mapped. PASS.
-- Full sandbox suite (manifest now 268 files incl. 5 new): RESULT → *(filled below)*
-- Read-only red team: RESULT → *(filled below)*
+- **Full sandbox suite: 268/268 PASS** in isolated repo (263 baseline + 5 C2 suites), 0 attempted live-writes, 0 external-network, 0 barrier-install-failures, 280 child-evidence. (Re-verified after red-team fixes.)
+- **Read-only red team (14-angle adversarial): no P0/P1.** All safety-claim attacks refuted with evidence (forgery, replay, expiry, wrong-owner stateless path, registry poisoning, secret hygiene, cert .env exposure, message-storm). 4×P2 found and **all fixed** @ `28826bb`:
+  - **F1** owner binding was enforced only on the rehydrate path, not the warm-RAM path → moved enforcement to the **channel layer** (`_dispatch_proposal` owner-gates the `prop:` scheme, GOV-P1 pattern) — a non-owner in an allowlisted group can no longer forge an owner verdict.
+  - **F2** dead `n_deferrals` dedupe branch → per-pid marker + honest comment.
+  - **F3** TypeError-retry double-invoked the hook → arity inspection, call once.
+  - **F4** env-owner whitespace could lock the real owner out → normalize (strip) in token canon.
+  - +2 tests (channel owner-gate, env-whitespace). Refuted-only, note-level: F5 (48-bit pid12 collision — availability only, ~2^24 bound, impractical).
 
 ## G. Safety
 - All changes additive + fail-soft; zero schema migration (only additive taxonomy vocab). Rollback = revert the 4 slice commits (`adccf9d`, `636d97f`, `25db21e`, `9fbd95b`) individually or together; no data migration to undo. DB/WAL backups from deploy window remain valid (`chrono.db.pre-v4`, full snapshot).
