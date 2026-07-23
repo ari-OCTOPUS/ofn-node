@@ -1,58 +1,42 @@
-# NEXT MISSION — CHAMBER FIX (surgical, independent)
+# ~~NEXT MISSION — CHAMBER FIX~~ → **RETRACTED: no defect exists**
 
-> Queued 2026-07-24, immediately after the C6 first-ignition merge (`d56597c`).
-> Scope: **only** the two pre-existing failures in `_ops/tests/test_chamber_temperature.py`.
-> These are unrelated to the C6 memory-recall optimization — that is proven below.
+> Queued 2026-07-24 after the C6 merge. **Retracted the same day**, before any work was done,
+> once the live branch was actually measured. Kept (not deleted) as the correction record.
 
-## The defect
+## What this brief originally claimed
 
-Full suite (`python _ops/tests/run_all.py`) is **2232 pass / 3 fail**. All three come from a
-single file, `_ops/tests/test_chamber_temperature.py`:
+That `_ops/tests/test_chamber_temperature.py` had two genuine failing assertions
+(`[V] مصرفِ verdict از کانال`, `[V] نگاشت و به‌روزرسانیِ registry`) constituting a real
+defect on trunk, worth an independent surgical mission.
 
-| # | failing assertion |
+## Why that was wrong
+
+I measured only the `master` / `claude/c6-…` lineage. When the **live** branch
+`claude/c7-continuity` was finally run, the result was:
+
+| branch | suite |
 |---|---|
-| 1 | `❌ [V] مصرفِ verdict از کانال` — verdict consumption from the channel |
-| 2 | `❌ [V] نگاشت و به‌روزرسانیِ registry` — registry mapping + update |
-| 3 | `❌ شکست: test_chamber_temperature.py (capability revoked)` — the runner's file-level roll-up of #1–#2 (`run_all.py:405`), not a separate defect |
+| `master` / c6 lineage | 2232 pass / **3 fail** (the two `[V]` assertions + file roll-up) |
+| **`claude/c7-continuity` (live)** | **2302 pass / 0 fail — fully green** |
 
-Everything else in that file is green — the `[R]` rounds_for, `[C]` temperature behaviour,
-and `[S]` zero-auto-merge / flag-gating sections all pass. The failure is isolated to the
-`[V]` (verdict) section.
+The failures were **already fixed on the live branch** by commit
+`3441603 feat(c7.2): central owner-gate + durable card/RFC state machines, debugged to green`.
+`master` is simply **13 commits behind c7** and therefore still carries the stale red.
 
-## Proof it is PRE-EXISTING (not caused by C6)
+## The actual (different) situation
 
-Measured both ways on the same machine, same run command:
+There is **no chamber defect to fix**. What exists is **branch divergence**: trunk is behind
+the live branch. The two lineages differ materially — most importantly `_ops/memory/memory_store.py`
+is `SCHEMA_VERSION = 1` on master vs `SCHEMA_VERSION = 2` (with the `admission_state`
+PENDING/ADMITTED/RETRACTED owner-gate) on c7.
 
-| tree state | pass | fail | failing set |
-|---|---|---|---|
-| clean baseline (patch reverted via `git checkout -- _ops/memory/memory_store.py`) | 2232 | 3 | the same 3 |
-| C6 batched-hydration applied | 2232 | 3 | **identical** |
+## Real follow-up (owner decision, not a bug hunt)
 
-Identical fail set ⇒ the C6 change introduced **zero regressions**, and these two assertions
-were already red before it. They are therefore a genuine, separate defect on trunk.
+Reconcile the lineages — bring `claude/c7-continuity` into `master` so trunk stops carrying
+stale failures and stale schema. That is a merge/review decision for the owner, not a repair
+mission. Until then, treat **c7 as the source of truth for what actually runs**.
 
-## Where to look
+## Lesson recorded
 
-- Test: `_ops/tests/test_chamber_temperature.py` — the `[V]` section.
-- Likely subjects: `_ops/outcomes/verdict_recorder.py`, `_ops/outcomes/proposal_registry.py`,
-  and whatever channel object the chamber consumes verdicts from.
-- Note the adjacent green assertions `[V] fail-soft: کانالِ خراب` and
-  `[V] hasattr-guard: کانالِ بدونِ متد` — the fail-soft/guard paths work, so the defect is
-  most likely in the **happy path** contract (shape of the consumed verdict, or the
-  registry update call) rather than in error handling.
-
-## Acceptance criteria
-
-1. `python _ops/tests/test_chamber_temperature.py` → all green.
-2. `python _ops/tests/run_all.py` → **2235 pass / 0 fail** (2232 + the 2 repaired assertions,
-   and the file-level roll-up clears).
-3. No change to propose-only / owner-gated invariants: `merge_or_deploy` stays constitutionally
-   forbidden, the chamber stays behind `OCTOPUS_WIRE_CHAMBER_T`, zero auto-merge strings absent.
-4. No live-tree writes; fix on a branch, owner votes the merge.
-
-## Guardrails
-
-- Diagnose before editing — confirm whether the defect is in the test's expectation or in the
-  production contract. Do not "fix" by loosening the assertion.
-- The Mutation Chamber is an owner-gated capability; do not widen its permissions to make a
-  test pass.
+Never characterise a test failure from a branch the system does not run. Measure the **live**
+branch first; a red on trunk may just mean trunk is behind.

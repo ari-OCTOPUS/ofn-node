@@ -1,0 +1,63 @@
+{
+  "schema": "c6-evolution-v2-result",
+  "mechanism": {
+    "baseline_executes": 21,
+    "patched_executes": 2,
+    "roundtrip_reduction_x": 10.5
+  },
+  "latency_paired": [
+    {
+      "seed": 1000,
+      "n": 1000,
+      "base_median_ms": 0.614,
+      "opt_median_ms": 0.3488,
+      "improvement_median": 0.4319,
+      "improvement_mean": 0.4237,
+      "speedup": 1.76,
+      "samples_each": 1200
+    },
+    {
+      "seed": 3000,
+      "n": 3000,
+      "base_median_ms": 0.801,
+      "opt_median_ms": 0.5153,
+      "improvement_median": 0.3567,
+      "improvement_mean": 0.3561,
+      "speedup": 1.555,
+      "samples_each": 1200
+    },
+    {
+      "seed": 4242,
+      "n": 5000,
+      "base_median_ms": 1.0636,
+      "opt_median_ms": 0.7346,
+      "improvement_median": 0.3093,
+      "improvement_mean": 0.3146,
+      "speedup": 1.448,
+      "samples_each": 1200
+    }
+  ],
+  "conservative_improvement_frac": 0.3093,
+  "correctness": {
+    "schema": "c6-evolution-v2-correctness",
+    "patch_lines": {
+      "added": 16,
+      "removed": 4
+    },
+    "corpus": {
+      "n": 4000,
+      "admitted": 2828,
+      "pending": 588,
+      "retracted": 584,
+      "schema_version": 2
+    },
+    "non_vacuity_blocked_candidates": 212,
+    "checks": 1800,
+    "mismatches": 0,
+    "leaked_baseline": 0,
+    "leaked_patched": 0,
+    "byte_identical": true,
+    "owner_gate_held": true
+  },
+  "note": "measured against the LIVE c7 memory_store (schema v2, admission_state gate)"
+}
