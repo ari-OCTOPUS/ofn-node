@@ -319,6 +319,62 @@ class LiveLoop:
         import hashlib
         return hashlib.sha256(str(proposal_id or "").encode("utf-8")).hexdigest()[:16]
 
+    def _mint_proposal_token(self, proposal_id) -> "str | None":
+        """GAP-2 (C2-B): توکنِ stateless HMAC-bound — restart دیگر دکمه را نمی‌کشد.
+        None = آماده نیست (بدونِ OCTOPUS_CB_SECRET/owner) → caller به توکنِ RAMیِ قدیمی
+        برمی‌گردد (fail-soft، spec قاعدهٔ ۴) + یک‌بار لاگِ degraded. lazy import: ماژول
+        stdlib-only و بدونِ I/O است (ناوردیِ لایهٔ wireِ خالص حفظ)."""
+        try:
+            _op = str(_HERE / "outcomes")
+            if _op not in sys.path:
+                sys.path.insert(0, _op)
+            import proposal_token as _pt   # noqa: WPS433 — pure stdlib، صفر I/O
+            import os as _os3
+            owner = getattr(self.channel, "_owner", None) or \
+                _os3.environ.get("TELEGRAM_OWNER_CHAT_ID") or None
+            tok = _pt.mint(proposal_id, owner)
+            if tok is None and not getattr(self, "_cb_degraded_logged", False):
+                self._cb_degraded_logged = True
+                self._emit_advisory("CB_TOKEN_DEGRADED", {
+                    "reason": "no-secret-or-owner", "mode": "RAM tokens",
+                    "fix": "set OCTOPUS_CB_SECRET (owner) — stateless survives restart"})
+            return tok
+        except Exception:  # noqa: BLE001 — mint هرگز تحویلِ کارت را نمی‌کشد
+            return None
+
+    def _record_durable_delivery(self, meta: dict) -> None:
+        """GAP-2: تحویلِ کارت → رجیستریِ durable (outcomes.db، event=delivered، idempotent)
+        تا توکنِ stateless بعد از restart بتواند metaی کامل را بازسازی کند. fail-soft؛
+        پشتِ OCTOPUS_WIRE_VERDICT_OUTCOME (داخلِ ماژول؛ فلگ جدید نداریم)."""
+        try:
+            _op = str(_HERE / "outcomes")
+            if _op not in sys.path:
+                sys.path.insert(0, _op)
+            import proposal_registry as _pr   # noqa: WPS433 — lazy (I/O محصور در outcomes/)
+            _pr.record_delivery_durably(meta)
+        except Exception:  # noqa: BLE001
+            pass
+
+    def _rehydrate_stateless(self, token, from_id) -> "dict | None":
+        """GAP-2: توکنِ pb1 که در RAM نیست (restart) → بازسازیِ meta از رجیستریِ durable.
+        fail-closed: جعلی/منقضی/غیرمالک/ناشناخته/تصمیم‌شده → None یا سنتینلِ expired."""
+        tok = str(token or "")
+        if not tok.startswith("pb1."):
+            return None
+        try:
+            _op = str(_HERE / "outcomes")
+            if _op not in sys.path:
+                sys.path.insert(0, _op)
+            import proposal_registry as _pr   # noqa: WPS433 — lazy
+            meta, reason = _pr.resolve_stateless(tok, from_id)
+            if meta is not None:
+                return meta
+            if reason == "expired":
+                return {"_expired": True}
+            return None
+        except Exception:  # noqa: BLE001
+            return None
+
     @staticmethod
     def _proposal_keyboard(token: str) -> dict:
         """کیبوردِ کارتِ پیشنهاد: prop:<verb>:<token> با verb ∈ ok/no/later. schemeِ 'prop'
@@ -379,20 +435,25 @@ class LiveLoop:
             import os as _os
             kb = None
             if _os.environ.get("OCTOPUS_WIRE_PROPOSAL_BUTTONS") == "1" and d.get("proposal_id"):
-                tok = self._proposal_token(d.get("proposal_id"))
                 _pl = d.get("payload") if isinstance(d.get("payload"), dict) else {}
-                self._proposal_cb[tok] = {"proposal_id": str(d.get("proposal_id")),
-                                          "amount": self._proposal_amount(d),
-                                          "kind": str(d.get("kind", "unknown")),
-                                          "leg_id": str(d.get("leg_id", "unknown")),
-                                          "correlation_id": d.get("correlation_id"),
-                                          "mission_id": d.get("mission_id"),
-                                          # Wave1-A: attribution/lead «اگر موجود» حفظ می‌شود
-                                          # تا رأیِ پایدار linkage کامل داشته باشد (هرگز اختراع نه).
-                                          "lead_id": _pl.get("attribution_id") or _pl.get("lead_id")}
+                meta = {"proposal_id": str(d.get("proposal_id")),
+                        "amount": self._proposal_amount(d),
+                        "kind": str(d.get("kind", "unknown")),
+                        "leg_id": str(d.get("leg_id", "unknown")),
+                        "correlation_id": d.get("correlation_id"),
+                        "mission_id": d.get("mission_id"),
+                        # Wave1-A: attribution/lead «اگر موجود» حفظ می‌شود
+                        # تا رأیِ پایدار linkage کامل داشته باشد (هرگز اختراع نه).
+                        "lead_id": _pl.get("attribution_id") or _pl.get("lead_id")}
+                # GAP-2 (C2-B): توکنِ stateless (HMAC، restart-safe)؛ بدونِ secret → همان
+                # توکنِ RAMیِ قدیمی (fail-soft، byte-identical با رفتارِ پیشین).
+                tok = self._mint_proposal_token(d.get("proposal_id")) or \
+                    self._proposal_token(d.get("proposal_id"))
+                self._proposal_cb[tok] = meta       # RAM حالا فقط cacheٔ مسیرِ سریع است
                 if len(self._proposal_cb) > _PROPOSAL_CB_MAX:
                     for _old in list(self._proposal_cb)[:-_PROPOSAL_CB_MAX]:
                         self._proposal_cb.pop(_old, None)
+                self._record_durable_delivery(meta)  # GAP-2: SoTِ بازسازیِ بعد از restart
                 kb = self._proposal_keyboard(tok)
             sent = False
             if deliver and self.channel is not None and hasattr(self.channel, "send_text"):
@@ -441,14 +502,24 @@ class LiveLoop:
         self._emit_advisory("PROPOSAL_OUTCOME", rec)
         return rec
 
-    def record_proposal_outcome_by_token(self, token: str, verb: str) -> dict | None:
+    def record_proposal_outcome_by_token(self, token: str, verb: str,
+                                         from_id=None) -> dict | None:
         """G3 arc: تپِ دکمهٔ کارت → outcome. از threadِ pollerِ تلگرام صدا زده می‌شود.
         قوسی که تا امروز روی master بریده بود: کارت متنِ بی‌دکمه می‌رفت و رأیِ مالک هیچ‌جا
         نمی‌نشست. مرزها (عمدی): هیچ approve/settle/pay/ledger — فقط record_proposal_outcome
         (measurement-only). tokenِ ناشناخته → None. یک outcome به‌ازای هر پیشنهاد (اولین
-        تپِ تصمیم برنده). «بعداً» تصمیم نیست → deferred، کارت زنده می‌ماند."""
+        تپِ تصمیم برنده). «بعداً» تصمیم نیست → deferred، کارت زنده می‌ماند.
+        C2-B (GAP-2): tokenِ pb1 که در RAM نیست (restart) از رجیستریِ durable بازسازی
+        می‌شود — fail-closed روی جعلی/منقضی/غیرمالک. `from_id` تپ‌کننده برای bindِ owner."""
         meta = self._proposal_cb.get(str(token or ""))
-        if meta is None or meta.get("decided"):
+        if meta is None:
+            meta = self._rehydrate_stateless(token, from_id)   # GAP-2: مسیرِ بعد از restart
+            if meta is None:
+                return None
+            if meta.get("_expired"):
+                return {"event": "expired", "advisory_only": True}
+            self._proposal_cb[str(token)] = meta   # cache برای تپ‌های بعدیِ همین کارت
+        if meta.get("decided"):
             return None
         v = str(verb or "").strip().lower()
         if v == _PROPOSAL_DEFER:

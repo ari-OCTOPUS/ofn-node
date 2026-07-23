@@ -366,7 +366,9 @@ class TelegramApprovalChannel(ApprovalChannel):
             try:
                 if is_callback:
                     # callback_query → dispatch + answer
-                    reply = self.dispatch_callback(str(text))
+                    # C2-B: from_id به dispatcher می‌رود تا توکنِ statelessِ کارتِ پیشنهاد
+                    # به مالک bind شود (همان الگوی GOV-P1 برای handle_command).
+                    reply = self.dispatch_callback(str(text), from_id=from_id)
                     # reply می‌تواند str باشد (toast) یا dict (پیام جداگانه با کیبورد)
                     if isinstance(reply, dict):
                         if cbq_id:
@@ -585,11 +587,12 @@ class TelegramApprovalChannel(ApprovalChannel):
                 f"──────────\n"
                 f"<i>تأیید = ضمیمهٔ انسانی؛ تنها چیزی که settle را آزاد می‌کند.</i>")
 
-    def dispatch_callback(self, data: str) -> str | dict:
+    def dispatch_callback(self, data: str, from_id=None) -> str | dict:
         """routerِ callbackهای کارت‌ها. data = 'app:<verb>:<effect_id>:<token>' (پول، T-2)
         یا 'rfc:<verb>:<rfc_id>:<token>' (تکامل، W-3)، یا 'menu:<page>' (UX v3).
         خروجی = متنِ پاسخ برای answerCallbackQuery یا dict (پیام جداگانه با کیبورد).
-        هر callback نامعتبر/جعلی → 'رد'.
+        هر callback نامعتبر/جعلی → 'رد'. `from_id` (C2-B) فقط به مسیرِ prop می‌رود
+        (bindِ owner در توکنِ stateless)؛ schemeهای دیگر دست‌نخورده.
         این متد از poll_once (T-8 router) برای هر callback_queryِ مالک صدا زده می‌شود."""
         parts = str(data or "").split(":")
         if parts[0] == "menu":
@@ -612,7 +615,7 @@ class TelegramApprovalChannel(ApprovalChannel):
         if parts[0] == "acct":                # میان‌بُرهای دکمه‌ایِ حسابداری (review/books/sync)
             return self._dispatch_acct(parts)
         if parts[0] == "prop":                # G3 arc: رأیِ کارتِ پیشنهاد (measurement-only، جدا از پول)
-            return self._dispatch_proposal(parts)
+            return self._dispatch_proposal(parts, from_id=from_id)
         if len(parts) != 4 or parts[0] != "app":
             return "نادیده"
         verb, effect_id, token = parts[1], parts[2], parts[3]
@@ -640,7 +643,7 @@ class TelegramApprovalChannel(ApprovalChannel):
             return f"بعداً ⏳ (ثبت شد ×{meta['defer_count']}؛ pending می‌ماند)"
         return "نادیده"
 
-    def _dispatch_proposal(self, parts: list) -> str:
+    def _dispatch_proposal(self, parts: list, from_id=None) -> str:
         """G3 arc (ported to master 2026-07-18): 'prop:<verb>:<token>' — رأیِ مالک به کارتِ
         پیشنهاد را می‌سنجد. schemeِ 'prop' جدا از 'app' (پول): این مسیر هرگز
         settle/ledger/spend نمی‌زند — فقط یک ردیفِ اندازه‌گیریِ in-memory. بدترین حالتِ یک
@@ -651,11 +654,17 @@ class TelegramApprovalChannel(ApprovalChannel):
         if hook is None or len(parts) != 3:
             return "نادیده"
         try:
-            rec = hook(parts[2], parts[1])
+            try:
+                # C2-B: from_id برای bindِ ownerِ توکنِ stateless (pb1) — restart-safe
+                rec = hook(parts[2], parts[1], from_id)
+            except TypeError:
+                rec = hook(parts[2], parts[1])   # سازگاری با hookِ قدیمیِ ۲-آرگومانی
         except Exception:  # noqa: BLE001 — تپِ بد نباید threadِ poller را بکشد
             return "نادیده"
         if rec is None:
             return "قبلاً ثبت شده یا کارتِ کهنه ⏳"
+        if rec.get("event") == "expired":
+            return "کارت منقضی شده ⏳ (اگر هنوز معتبر است، پیشنهاد دوباره صادر می‌شود)"
         if rec.get("event") == "deferred":
             return "بعداً ⏳ (کارت زنده می‌ماند — هر وقت خواستی تصمیم بگیر)"
         return {"ok": "ثبت شد ✅ (فقط اندازه‌گیری — هیچ اثری settle نشد)",
