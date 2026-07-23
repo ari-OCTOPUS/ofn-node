@@ -296,6 +296,11 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # می‌شود)؛ claim/commit اتمیک با execution_id (دو executor یک برنده؛ stale/wrong xid
          # هرگز finalize نمی‌کند)؛ halt-during → RECONCILE_REQUIRED؛ settle بی‌TOCTOU. script-native.
          "test_c5_cas_execution.py",
+         # 2026-07-23 C6: receipt/reconciliation lane — sweep جداگانهٔ releasableِ کهنه
+         # (refuseِ امنِ پیش-claim) و EXECUTINGِ کهنه (→ RECONCILE_REQUIRED، هرگز refuseِ
+         # دروغین)؛ reconcile_effect انسانی با evidence+operator (receipt هرگز بازنویسی
+         # نمی‌شود)؛ redrive_approval بدونِ appendِ دوباره (crash window a، idempotent). script-native.
+         "test_c6_receipt_reconciliation.py",
          # 2026-07-22 F-COVERAGE adjudication: test_tg_approval_store دیگر orphanِ رد نیست —
          # ماژول/API واقعی است و reachable در production (center.py:1223-1224 approve/reject روی
          # مسیرِ approval مالک). تنها شکست، stale characterization بود (whitelistِ t_n فاقدِ

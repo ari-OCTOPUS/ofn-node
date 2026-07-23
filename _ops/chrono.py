@@ -868,7 +868,9 @@ class EffectorGate:
     def sweep_stale_effects(self, max_age_hours: int = 72) -> dict:
         """gated_effectهایی که بیش از max_age_hours pending هستند → auto-refuse.
         max_age_hours=0 → sweep خاموش (rollback knob).
-        هر epoch از governor_epoch.run_epoch() صدا زده می‌شود."""
+        هر epoch از governor_epoch.run_epoch() صدا زده می‌شود.
+        عمداً فقط pending (قراردادِ test_gate_sweep): releasable در لایهٔ bridge
+        freshness-guard دارد و لاینِ C6 جاروی صریحِ خودش را دارد."""
         if max_age_hours <= 0:
             return {"refused": 0, "ids": []}
         cutoff_ms = _utc_ms() - (max_age_hours * 3600_000)
@@ -883,8 +885,167 @@ class EffectorGate:
             self._note("EFFECT_SWEEP", {"refused_count": len(refused), "ids": refused})
         return {"refused": len(refused), "ids": refused}
 
+    # ── C6: receipt/reconciliation lane ────────────────────────────────────────
+    def sweep_stale_releasables(self, max_age_hours: int = 72) -> dict:
+        """C6 (crash window b) — intentِ گیرافتاده: releasableای که هرگز claim نشد.
+        چون در C5 اجرا فقط با claim شروع می‌شود، releasableِ کهنه یعنی هیچ اثرِ
+        بیرونی‌ای رخ نداده → refuseِ امن (fail-closed). عمر از approved_at (لحظهٔ
+        releasable شدن) و درنبودش created_ts. max_age_hours=0 → خاموش. جدا از
+        sweep_stale_effects تا قراردادِ موجودِ آن (فقط pending) نشکند."""
+        if max_age_hours <= 0:
+            return {"refused": 0, "ids": []}
+        cutoff_ms = _utc_ms() - (max_age_hours * 3600_000)
+        rows = self.db.q(
+            "SELECT effect_id FROM gated_effect WHERE status='releasable' "
+            "AND COALESCE(approved_at, created_ts) < ?", (cutoff_ms,))
+        ids = [r[0] for r in rows]
+        for eid in ids:
+            self.db.ex("UPDATE gated_effect SET status='refused', "
+                       "failure_reason=COALESCE(failure_reason, "
+                       "'stale releasable — authorized but never claimed (C6 sweep)') "
+                       "WHERE effect_id=? AND status='releasable'", (eid,))
+        if ids:
+            self._note("EFFECT_STALE_RELEASABLE_SWEEP",
+                       {"refused_count": len(ids), "ids": ids})
+        return {"refused": len(ids), "ids": ids}
+
+    def sweep_stale_executions(self, max_exec_hours: float = 6) -> dict:
+        """C6 — workerِ گم‌شده وسطِ اجرا: EXECUTINGِ کهنه → RECONCILE_REQUIRED.
+        هرگز refuse نمی‌شود چون اثرِ بیرونی شاید واقعاً رخ داده باشد (crash window c
+        صادقانه: بدونِ receipt، exactly-once ادعا نمی‌کنیم — فقط آشتیِ انسانی).
+        max_exec_hours=0 → خاموش."""
+        if max_exec_hours <= 0:
+            return {"reconcile_required": 0, "ids": []}
+        cutoff_ms = _utc_ms() - int(max_exec_hours * 3600_000)
+        rows = self.db.q(
+            "SELECT effect_id FROM gated_effect WHERE status='EXECUTING' "
+            "AND execution_started_at IS NOT NULL AND execution_started_at < ?",
+            (cutoff_ms,))
+        ids = [r[0] for r in rows]
+        for eid in ids:
+            self.db.ex(
+                "UPDATE gated_effect SET status='RECONCILE_REQUIRED', "
+                "failure_reason=COALESCE(failure_reason, "
+                "'stale execution — worker lost mid-flight (C6 sweep)') "
+                "WHERE effect_id=? AND status='EXECUTING'", (eid,))
+        if ids:
+            self._note("EFFECT_STALE_EXECUTION_SWEEP",
+                       {"reconcile_count": len(ids), "ids": ids})
+        return {"reconcile_required": len(ids), "ids": ids}
+
+    def reconcile_effect(self, effect_id: str, resolution: str, evidence_ref: str,
+                         operator: str = "") -> bool:
+        """C6 — حلِ انسانیِ یک ردیفِ RECONCILE_REQUIRED پس از تحقیقِ بیرونی.
+        resolution='settled' (اثباتِ وقوعِ بیرونی؛ evidence_ref = مرجعِ receipt) یا
+        resolution='failed_safe' (اثباتِ عدمِ وقوع). evidence و operator اجباری‌اند.
+        CAS اتمیک فقط از RECONCILE_REQUIRED؛ receiptِ ثبت‌شدهٔ قبلی هرگز بازنویسی
+        نمی‌شود؛ زیرِ halt هیچ reconciliationای مجاز نیست (D-block)."""
+        res = str(resolution or "").strip().lower()
+        ev = str(evidence_ref or "").strip()
+        op = str(operator or "").strip()
+        if res not in ("settled", "failed_safe") or not ev or not op:
+            self._note("EFFECT_REFUSED",
+                       {"effect_id": effect_id,
+                        "reason": "reconcile needs resolution in {settled,failed_safe} + evidence + operator"})
+            return False
+        kill = self.force_closed()
+        if kill:
+            self._note("EFFECT_REFUSED",
+                       {"effect_id": effect_id,
+                        "reason": f"no reconciliation under halt: {kill}"})
+            return False
+        target = "settled" if res == "settled" else "FAILED_SAFE"
+        receipt_fill = ev if res == "settled" else None
+        cur = self.db.ex(
+            "UPDATE gated_effect SET status=?, "
+            "external_receipt_ref=COALESCE(NULLIF(external_receipt_ref,''), ?), "
+            "failure_reason=COALESCE(failure_reason,'') || ' | reconciled('||?||') by '||?||': '||?, "
+            "execution_finished_at=COALESCE(execution_finished_at, ?) "
+            "WHERE effect_id=? AND status='RECONCILE_REQUIRED'",
+            (target, receipt_fill, res, op, ev, _utc_ms(), effect_id))
+        ok = cur.rowcount == 1
+        self._note("EFFECT_RECONCILED" if ok else "EFFECT_REFUSED",
+                   {"effect_id": effect_id, "resolution": res, "operator": op,
+                    "evidence_ref": ev,
+                    "reason": None if ok else "not RECONCILE_REQUIRED"})
+        return ok
+
+    def reconciliation_report(self, max_exec_hours: float = 6,
+                              max_age_hours: int = 72) -> dict:
+        """C6 — نمای فقط‌خواندنیِ لاینِ آشتی: چه چیزی توجهِ انسانی/جارو می‌خواهد.
+        هیچ اثرِ جانبی — گزارش برای cockpit/governor/owner packet."""
+        now = _utc_ms()
+        exec_cutoff = now - int(max_exec_hours * 3600_000) if max_exec_hours > 0 else None
+        rel_cutoff = now - (max_age_hours * 3600_000) if max_age_hours > 0 else None
+        need = [r[0] for r in self.db.q(
+            "SELECT effect_id FROM gated_effect WHERE status='RECONCILE_REQUIRED'")]
+        stale_exec = [] if exec_cutoff is None else [r[0] for r in self.db.q(
+            "SELECT effect_id FROM gated_effect WHERE status='EXECUTING' "
+            "AND execution_started_at IS NOT NULL AND execution_started_at < ?",
+            (exec_cutoff,))]
+        stale_rel = [] if rel_cutoff is None else [r[0] for r in self.db.q(
+            "SELECT effect_id FROM gated_effect WHERE status='releasable' "
+            "AND COALESCE(approved_at, created_ts) < ?", (rel_cutoff,))]
+        return {"reconcile_required": need, "stale_executing": stale_exec,
+                "stale_releasable": stale_rel,
+                "attention_total": len(need) + len(stale_exec) + len(stale_rel)}
+
 
 # ─── LANGAR — فلشِ میرا (P-Chrono-4؛ ledger ژنوم v0.4.5 گسترش‌یافته) ─────────────
+def _route_authorized_judgment(gate: "EffectorGate", judgment, entry: dict) -> None:
+    """مسیریابیِ یک قضاوتِ انسانیِ authorized به releaseِ درست — C6 این را از
+    on_human_judgment استخراج کرد تا redrive_approval هم عینِ همان معناشناسی را
+    بدونِ appendِ دوباره به ledger استفاده کند (semantics C4/C4.1 بایت‌به‌بایت):
+    BLOCKER-2 (§3.7b): approval که effectِ مشخص را نام می‌برد فقط همان را آزاد
+    می‌کند؛ approvalِ بدونِ effect_id هنوز batch (allowlistِ پول، E4 مستثنا)."""
+    _eid = ""
+    _has_binding = False
+    if isinstance(judgment, dict):
+        _eid = str(judgment.get("effect_id") or "").strip()
+        _has_binding = any(judgment.get(k) for k in
+                           ("content_hash", "action_kind", "target_ref", "approval_id"))
+    if _eid and _has_binding:
+        # C4: authorizationِ دقیقِ per-effect (مسیرِ پول/E4). approval به
+        # content_hash/action_kind/target_ref bind می‌شود با approval_idِ تک‌مصرفه.
+        gate.release_effect(_eid, {
+            "effect_id": _eid,
+            "approval_id": str(judgment.get("approval_id") or entry.get("hash") or "").strip(),
+            "content_hash": judgment.get("content_hash"),
+            "action_kind": judgment.get("action_kind"),
+            "target_ref": judgment.get("target_ref"),
+            "approved_by": judgment.get("approved_by") or "human",
+            "expires_at": judgment.get("expires_at"),
+            "release_ref": entry.get("hash")})
+    elif _eid:
+        gate.release_one(_eid, entry)         # id-bound، مسیرِ غیرپولِ ارسالِ مشتری
+    else:
+        gate.release_gated_effects(entry)     # batch — پول/E4 مستثنا (C4)
+
+
+def redrive_approval(judgment: dict, entry_ref: str,
+                     gate: "EffectorGate") -> bool:
+    """C6 (crash window a) — بازراندنِ APPROVALی که در ledger ثبت شد ولی crash مانعِ
+    releaseاش شد. **هیچ appendِ تازه‌ای به ledger نمی‌زند** (age_tickِ میرا جلو نمی‌رود).
+    فقط قضاوت‌های تک‌اثری (effect_idدار) بازرانده می‌شوند — batchِ عمومی عمداً نه
+    (fail-closed؛ batchِ گم‌شده مسیرِ ارزان‌تر و امن‌ترش تکرارِ رأیِ انسانی است).
+    idempotent: anti-replayِ approval_id و گاردهای status باعث می‌شوند بازراندنِ
+    تکراری/دیرهنگام صفر اثرِ اضافه بگذارد. ورودی باید از یک entryِ APPROVALِ humanِ
+    اعتبارسنجی‌شده در ledger بیاید (مسئولیتِ لاینِ reconciliation)؛
+    entry_ref = hash همان append. خروجی: آیا همین بازراندن effect را releasable کرد."""
+    ref = str(entry_ref or "").strip()
+    if gate is None or not ref or not isinstance(judgment, dict):
+        return False
+    if gate.force_closed():
+        return False                          # D-block: زیرِ halt هیچ redriveای
+    eid = str(judgment.get("effect_id") or "").strip()
+    if not eid:
+        return False                          # batch redrive ممنوع — فقط تک‌اثری
+    before = gate.status_of(eid)
+    _route_authorized_judgment(gate, judgment, {"hash": ref})
+    after = gate.status_of(eid)
+    return before == "pending" and after == "releasable"
+
+
 def on_human_judgment(judgment: dict, gate: EffectorGate | None = None,
                       event_type: str = "APPROVAL", ledger=None,
                       ha_token: str | None = None) -> dict:
@@ -928,32 +1089,7 @@ def on_human_judgment(judgment: dict, gate: EffectorGate | None = None,
     entry = lg.append(event_type, judgment,
                       actor="human" if is_human else "system", is_human=is_human)
     if gate is not None and authorized:
-        # BLOCKER-2 (§3.7b): approval که effectِ مشخص را نام می‌برد فقط همان را
-        # via release_one آزاد می‌کند (id-bound). باقی‌ماندهٔ صریح: approvalِ بدونِ
-        # effect_id هنوز batch (allowlistِ پول) — بستنِ کامل = ستونِ proposal_id روی
-        # gated_effect (TH-K-3)، در CHRONO-SCHEMA-MIGRATION آماده می‌شود.
-        _eid = ""
-        _has_binding = False
-        if isinstance(judgment, dict):
-            _eid = str(judgment.get("effect_id") or "").strip()
-            _has_binding = any(judgment.get(k) for k in
-                               ("content_hash", "action_kind", "target_ref", "approval_id"))
-        if _eid and _has_binding:
-            # C4: authorizationِ دقیقِ per-effect (مسیرِ پول/E4). approval به
-            # content_hash/action_kind/target_ref bind می‌شود با approval_idِ تک‌مصرفه.
-            gate.release_effect(_eid, {
-                "effect_id": _eid,
-                "approval_id": str(judgment.get("approval_id") or entry.get("hash") or "").strip(),
-                "content_hash": judgment.get("content_hash"),
-                "action_kind": judgment.get("action_kind"),
-                "target_ref": judgment.get("target_ref"),
-                "approved_by": judgment.get("approved_by") or "human",
-                "expires_at": judgment.get("expires_at"),
-                "release_ref": entry.get("hash")})
-        elif _eid:
-            gate.release_one(_eid, entry)         # id-bound، مسیرِ غیرپولِ ارسالِ مشتری
-        else:
-            gate.release_gated_effects(entry)     # batch — پول/E4 مستثنا (C4)
+        _route_authorized_judgment(gate, judgment, entry)
     elif gate is not None:
         # append غیرمجاز به gate رسید → صفر release، ردِ صریح.
         opslib.alert(["human-append guard: unauthorized append — 0 effects released "
