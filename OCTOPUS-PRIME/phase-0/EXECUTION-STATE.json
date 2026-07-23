@@ -1,0 +1,85 @@
+{
+  "_schema": "execution-state.v1",
+  "mission_id": "phase-0-token-lean-real-surgery-2026-07-23",
+  "repository_root": "F:\\octopus-phase0-isolated",
+  "branch": "blocker-fixes-2026-07-22",
+  "baseline_commit": "05d2b5a",
+  "current_head": "1110b94",
+  "current_phase": "PHASE_0",
+  "completed_milestones": [
+    "F_CORE",
+    "F_TEST_SET_RECONCILIATION",
+    "PRE0_UNIT",
+    "C_AUDIT",
+    "C1_VERIFIED",
+    "C2_VERIFIED",
+    "C3_VERIFIED",
+    "C4_VERIFIED",
+    "C4.1_E4_ID_ONLY_CLOSED",
+    "C5_CAS_EXECUTION_VERIFIED",
+    "C6_RECEIPT_RECONCILIATION_VERIFIED",
+    "C7_MONEY_CALLER_MIGRATION_VERIFIED",
+    "FULL_C_GATE_PASSED (263/263 sandbox suite, 0 live writes/network/barrier-failures)",
+    "D1_D2_MERGED (8f417f3)",
+    "D3_PROVIDER_EFFECT_HALT_VERIFIED",
+    "D4_LAUNCHER_HALT_VERIFIED",
+    "D5_VIRTUAL_TIME_HALT_INTEGRATION_VERIFIED",
+    "PRE0_REAL_ENTRY_REACHABILITY_VERIFIED (27/27)",
+    "RED_TEAM_COMPLETE (14 agents; 4 confirmed 1xP1+3xP2 all FIXED @1110b94; 3 refuted; 3 suspect recorded)"
+  ],
+  "active_milestone": "OWNER_PACKET",
+  "next_milestone": "OWNER_APPROVAL_THEN_DEPLOY (owner-gated; not started)",
+  "prohibited_actions": [
+    "merge_to_F_backup",
+    "live_db",
+    "live_flags",
+    "restart",
+    "halt_clear",
+    "telegram_send",
+    "pocketsmith",
+    "provider_calls",
+    "scheduled_tasks",
+    "dormant_activation"
+  ],
+  "last_verified_test_report": {
+    "full_sandbox_suite": "263/263 PASS via test-authority/run_sandbox_suite.py --full; barrier: 0 attempted live-writes, 0 external-network attempts, 0 barrier-install-failures, 270 children-with-evidence. Report: OCTOPUS-PRIME/phase-0/test-authority/FULL-SANDBOX-TEST-REPORT.json",
+    "C5": "test_c5_cas_execution 33/33; C6: test_c6_receipt_reconciliation 32/32; C7: telegram_channel + telegram_rfc_router + lead_effect_gate pass unmodified via exact C4 routing; D3/D4/D5: test_d3_provider_effect_halt + test_d4_launcher_halt + test_d5_halt_integration; PRE-0: test_pre0_real_entry 27/27",
+    "run": "2026-07-23"
+  },
+  "last_verified_commit": "fdfb58e",
+  "blockers": [
+    {
+      "id": "SCOPE-1",
+      "kind": "multi-stage-money-surgery",
+      "status": "RESOLVED 2026-07-23 — C4→C7 done as separate committed+regressed slices (7dfe991 C5, c28a810 C6, bd908f3 C7); each with full effector/chrono regression."
+    },
+    {
+      "id": "GATE-2",
+      "kind": "safe-full-suite-launcher-OPEN",
+      "status": "RESOLVED 2026-07-23 — the manifest-driven run_sandbox_suite.py + sandbox_barrier ran the full 263-file suite with 0 attempted live-writes and 0 external-network attempts (barrier proves it). Full C-gate PASSED."
+    }
+  ],
+  "remaining_open": [
+    "Red team SEC/TEST/MIG/GOV (in progress; resolve P0s, record P1/P2 in Owner Packet)",
+    "Owner Packet assembly",
+    "STOP at live deployment boundary (owner approval required for merge/DB/flags/restart)"
+  ],
+  "owner_boundary": "stop at owner packet; no live deploy",
+  "updated_at": "2026-07-23T-phase0-candidate-complete",
+  "c4_scope": {
+    "goal": "release_effect(effect_id, approval) exact per-effect fail-closed authorization",
+    "checks": [
+      "effect_id match",
+      "content_hash match",
+      "action_kind match",
+      "target_ref match",
+      "approval_id single-use anti-replay",
+      "expires_at not past",
+      "row.status==pending"
+    ],
+    "batch_release": "release_gated_effects must FAIL-CLOSE money/E4 (chrono.py:554); money only via release_effect",
+    "discovered_dependency": "approval/on_human_judgment path currently carries only {hash}; C4 requires the approval side to CARRY binding fields (content_hash/action_kind/target_ref/approval_id/expires_at) — spans chrono.py + approval producer, not chrono.py alone",
+    "callers_to_migrate": "release_gated_effects / release_one / settle / on_human_judgment callers"
+  },
+  "handoff_doc": "OCTOPUS-PRIME/phase-0/SESSION-HANDOFF-2026-07-23.md"
+}
