@@ -100,6 +100,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # قراردادِ envelope ۱۰-فیلده + provenanceِ never-null، و PARITYِ dual_write==emit_event
          # (۲ callerِ مستقیم پشتِ OCTOPUS_SPINE_VIA_ADAPTER قرنطینه، پیش‌فرض 0).
          "test_spine_single_surface.py",
+         # 2026-07-23 C3 (Durable Learning Loop): learning_gate — قدمِ outcome→خاطرهٔ graded با
+         # گیتِ held-out (ضدخودفریبی: internal-pass+held-out-fail → مسدود)، dedupِ یادگیری،
+         # rollback/supersede، و بستنِ حلقه (تصمیمِ بعدی memory_id را استناد می‌کند) + restart.
+         "test_learning_loop.py",
          # 2026-07-20 Sol Step 5: حلقهٔ ارزشِ Paper Lead سرتاسری (معیارِ اصلیِ پایان) — لیدِ synthetic
          # از توابعِ واقعیِ production: score→quote→کارتِ TG(sandbox)→receipt+outcome→رأیِ مالک→spine→
          # replay→metricsِ قطعی→digest. صفر شبکه/پول/send؛ IDها ثابت؛ حلقه واقعاً بسته.
