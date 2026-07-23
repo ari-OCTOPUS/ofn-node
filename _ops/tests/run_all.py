@@ -307,6 +307,14 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # دروغین)؛ reconcile_effect انسانی با evidence+operator (receipt هرگز بازنویسی
          # نمی‌شود)؛ redrive_approval بدونِ appendِ دوباره (crash window a، idempotent). script-native.
          "test_c6_receipt_reconciliation.py",
+         # 2026-07-23 D3/D4/D5: (D3) صفر provider-call/authorization/settle زیرِ HALT-ALL —
+         # شکافِ release_one/release_gated_effects بی‌گاردِ kill هم بسته شد؛ (D4) گاردِ
+         # boot-halt در هر ۶ launcher + parity واچ‌داگ PS1/py + ماتریسِ should_revive؛
+         # (D5) سناریوی ترکیبیِ halt با زمانِ مجازی: صفر اثر زیرِ halt، بدونِ duplicate،
+         # recovery تمیز + reconcile. script-native.
+         "test_d3_provider_effect_halt.py",
+         "test_d4_launcher_halt.py",
+         "test_d5_halt_integration.py",
          # 2026-07-22 F-COVERAGE adjudication: test_tg_approval_store دیگر orphanِ رد نیست —
          # ماژول/API واقعی است و reachable در production (center.py:1223-1224 approve/reject روی
          # مسیرِ approval مالک). تنها شکست، stale characterization بود (whitelistِ t_n فاقدِ

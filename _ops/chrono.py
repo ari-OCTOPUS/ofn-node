@@ -618,7 +618,13 @@ class EffectorGate:
         یکی-یکی) آزاد می‌شود. تطبیق case/whitespace-insensitive: `lower(trim(kind))`.
 
         **C4:** money/E4 (`_E4_MONEY_KINDS`) هرگز از این مسیر آزاد نمی‌شود — یک approvalِ عمومی
-        صفر پول release می‌کند؛ پول فقط از `release_effect`. هر پولِ pendingِ skip‌شده audit می‌شود."""
+        صفر پول release می‌کند؛ پول فقط از `release_effect`. هر پولِ pendingِ skip‌شده audit می‌شود.
+        **D3:** زیرِ halt سراسری هیچ authorizationای — صفر release (دفاعِ عمقی؛ کالرِ بالادست
+        هم halt-gated است ولی گیت خودش هم باید رد کند)."""
+        kill = self.force_closed()
+        if kill:
+            self._note("EFFECT_REFUSED", {"reason": f"batch release under halt: {kill}"})
+            return 0
         ref = entry.get("hash", "")
         # C4: پولِ pendingی که این approvalِ عمومی عمداً release نمی‌کند را auditable کن (نه سکوت).
         _mk = sorted(_E4_MONEY_KINDS)
@@ -643,7 +649,13 @@ class EffectorGate:
         (ارسالِ به مشتری). release_ref = hash همان appendِ انسانیِ مختصِ همین effect (ردِ audit).
         fail-closed: بدونِ ref، یا اگر effect دقیقاً یک ردیفِ pending نباشد → False (چیزی آزاد نمی‌شود).
         این تنها راهِ releasable شدنِ یک kindِ per-effect است؛ authorizationِ صریح بالادست
-        (lead_effect_gate) تضمین می‌کند این متد فقط برای effectِ رأی‌خوردهٔ همان لید صدا شود."""
+        (lead_effect_gate) تضمین می‌کند این متد فقط برای effectِ رأی‌خوردهٔ همان لید صدا شود.
+        **D3:** زیرِ halt سراسری هیچ authorizationای (دفاعِ عمقی، هم‌ارزِ release_effect)."""
+        kill = self.force_closed()
+        if kill:
+            self._note("EFFECT_REFUSED", {"effect_id": effect_id,
+                                          "reason": f"release_one under halt: {kill}"})
+            return False
         ref = str(entry.get("hash") or "").strip()
         if not ref:
             self._note("EFFECT_REFUSED", {"effect_id": effect_id,
