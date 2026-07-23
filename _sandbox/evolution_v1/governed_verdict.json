@@ -1,0 +1,17 @@
+{
+  "verdict": "accepted",
+  "reason": "verified + held-out + U=0.010300000000000017",
+  "contract_id": "rc_19b8baf45b437f94",
+  "receipt_id": "dr_438828d0cd349706",
+  "memory_id": "mem_3bc32aa7084d57ea",
+  "utility": 0.010300000000000017,
+  "calibration": {
+    "capability": "memory-recall-batched-hydration",
+    "predicted": 0.11,
+    "measured": 0.2347,
+    "calibration_error": 0.125,
+    "overconfident": false,
+    "uncertainty": 0.12469999999999999
+  },
+  "apply_guard_permitted": false
+}

@@ -1,0 +1,60 @@
+--- a/_ops/memory/memory_store.py
++++ b/_ops/memory/memory_store.py
+@@ -136,10 +136,9 @@
+         return None
+ 
+     def search(self, query: str, namespace: str = None, k: int = 5, min_trust: str = None) -> list:
+-        """FTS5 bm25 + رتبه‌بندیِ ترکیبی با salience/recency؛ fallback به LIKE اگر FTS نبود.
+-        فقط رکوردهای معتبر؛ اختیاری min_trust."""
++        """Batched-hydration recall (C6 evolution_v1): one IN(...) query instead of the
++        per-candidate N+1 loop. Ranking/tie-break byte-identical to the prior version."""
+         q = str(query or "").strip()
+-        # FTS5 lenient: توکن‌های alnum (≥۳ کاراکتر) را OR کن — تا AND ضمنی/نویسه‌های خاص match را نکشند
+         import re as _re
+         terms = [t for t in _re.findall(r"[^\W_]{3,}", q, _re.UNICODE)][:12]
+         fts_q = " OR ".join(terms) if terms else ""
+@@ -153,26 +152,37 @@
+                     ids = [(r[0], r[1]) for r in frows]
+                 except sqlite3.OperationalError:
+                     ids = []
+-            if not ids:   # fallback: LIKE
++            if not ids:
+                 like = f"%{q}%"
+                 lrows = self._conn.execute(
+                     "SELECT memory_id, 0.0 FROM memory WHERE content LIKE ? OR mkey LIKE ? LIMIT ?",
+                     (like, like, max(k * 4, 20))).fetchall()
+                 ids = [(r[0], 0.0) for r in lrows]
++            now = _utc_now_iso()
++            score_by_id = {}
++            for mid, score in ids:
++                if mid not in score_by_id:
++                    score_by_id[mid] = score
++            row_by_id = {}
++            if score_by_id:
++                mids = list(score_by_id.keys())
++                ph = ",".join("?" * len(mids))
++                for r in self._conn.execute(
++                        "SELECT " + ",".join(_COLS) + " FROM memory WHERE memory_id IN (" + ph + ") "
++                        "AND (valid_to IS NULL OR valid_to>?)", (*mids, now)).fetchall():
++                    d = dict(zip(_COLS, r))
++                    row_by_id[d["memory_id"]] = d
+             out = []
+             for mid, score in ids:
+-                r = self._conn.execute("SELECT " + ",".join(_COLS) + " FROM memory WHERE memory_id=? "
+-                                       "AND (valid_to IS NULL OR valid_to>?)",
+-                                       (mid, _utc_now_iso())).fetchone()
+-                if not r:
++                d = row_by_id.get(mid)
++                if not d:
+                     continue
+-                d = dict(zip(_COLS, r))
+                 if namespace and d["namespace"] != namespace:
+                     continue
+                 if min_trust and not tax.trust_at_least(d["trust"], min_trust):
+                     continue
+-                # رتبهٔ ترکیبی: bm25 (کمتر=بهتر) با boostِ salience (مثبت)
+                 sal = d.get("salience") or 0.0
++                d = dict(d)
+                 d["_rank"] = float(score) - float(sal)
+                 out.append(d)
+         out.sort(key=lambda x: x["_rank"])
