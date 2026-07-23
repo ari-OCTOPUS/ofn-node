@@ -226,8 +226,23 @@ def t_calibration_overconfidence():
         store.close(); rc.close(); oc.close()
 
 
+# ── ۱۰ (C7-S3): verified but not admitted → NOT accepted ────────────────────────
+def t_verified_not_admitted():
+    _env_on()
+    led = rl.ResearchLedger(_STATE / "research" / "ledger-t10.jsonl")
+    # memory_gate/outcome_store غایب → verified ولی admit نمی‌شود → NOT accepted
+    out = rl.run_experiment(
+        contract=_contract(), experiment_fn=lambda c: {"m": 1},
+        verifier_fn=lambda c, r: {"supported": True, "benchmark_gain": 0.3, "hard_constraints_ok": True},
+        held_out_eval=_eval_pass, budget=rl.Budget(_contract()["budget"]), ledger=led,
+        receipt_store=None, memory_gate=None, outcome_store=None, state_dir=_STATE, uncertainty=0.1)
+    assert out["verdict"] == "verified-not-admitted", f"بدونِ artifactِ کامل نباید accepted شود: {out}"
+    assert any(e["verdict"] == "verified-not-admitted" for e in led.entries())
+
+
 if __name__ == "__main__":
     failed = harness.run([
+        ("[۱۰] verified-not-admitted (no full artifact → not accepted)", t_verified_not_admitted),
         ("[۹] calibration overconfidence → quarantine", t_calibration_overconfidence),
         ("[۱] contract validation (falsif+tools fail-closed)", t_contract_validation),
         ("[۲] accepted → memory via learning_gate", t_accepted_enters_memory_via_gate),

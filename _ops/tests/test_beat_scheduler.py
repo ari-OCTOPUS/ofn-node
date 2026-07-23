@@ -181,8 +181,25 @@ def t_heartbeat_stall_watchdog():
     assert h3["stall"] and "never beat" in h3["reason"], h3
 
 
+# ── ۹ (C7-S4 audit #6): persist failure → degraded, commit phases blocked, no beat advance ──
+def t_persist_failure_blocks_commit():
+    sch, sp = _sched("t9")
+    ran = {"sense": 0, "learn": 0, "act": 0}
+    sch.register_organ("s", "SENSE", lambda **k: ran.__setitem__("sense", ran["sense"] + 1))
+    sch.register_organ("l", "LEARN", lambda **k: ran.__setitem__("learn", ran["learn"] + 1))
+    sch.register_organ("a", "ACT", lambda **k: ran.__setitem__("act", ran["act"] + 1))
+    # persist را وادار به شکست کن
+    sch._persist = lambda *a, **k: False
+    r = sch.tick()
+    assert r["degraded"] is True, "شکستِ persist باید degraded شود"
+    assert ran["sense"] == 1, "فازِ امنِ SENSE باید اجرا شود"
+    assert ran["learn"] == 0 and ran["act"] == 0, "بدونِ هویتِ durable، LEARN/ACT اجرا نشوند (fail-closed)"
+    assert sch.beat_counter == 0, "beat_counter نباید بدونِ persist جلو برود (restart همین beat را دوباره)"
+
+
 if __name__ == "__main__":
     failed = harness.run([
+        ("[۹] persist failure → block commit, no advance", t_persist_failure_blocks_commit),
         ("[۸] watchdog stall detection", t_heartbeat_stall_watchdog),
         ("[۱] ترتیبِ فازِ قطعی", t_deterministic_phase_order),
         ("[۲] every_n_beats", t_every_n_beats),

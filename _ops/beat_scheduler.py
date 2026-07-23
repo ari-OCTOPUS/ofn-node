@@ -107,17 +107,22 @@ class BeatScheduler:
         except Exception:  # noqa: BLE001 — بوتِ تازه
             self.beat_counter = 0
 
-    def _persist(self, beat: int, halted, report):
+    def _persist(self, beat: int, halted, report) -> bool:
+        """هویتِ beat را atomically durable کن. C7-S4 (audit #6): خروجی bool — شکست دیگر
+        بی‌صدا بلعیده نمی‌شود؛ caller با شکست، ACT/LEARN را block می‌کند."""
         try:
             self._state_path.parent.mkdir(parents=True, exist_ok=True)
             tmp = self._state_path.with_suffix(".tmp")
-            tmp.write_text(json.dumps({
-                "beat_counter": beat, "last_beat_at": self._clock(),
-                "halted": bool(halted), "boot_id": self.boot_id,
-                "organs": len(self._organs)}, ensure_ascii=False), "utf-8")
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump({"beat_counter": beat, "last_beat_at": self._clock(),
+                           "halted": bool(halted), "boot_id": self.boot_id,
+                           "organs": len(self._organs)}, f, ensure_ascii=False)
+                f.flush()
+                os.fsync(f.fileno())
             os.replace(tmp, self._state_path)   # atomic
-        except Exception:  # noqa: BLE001 — persist نباید beat را بکشد
-            pass
+            return True
+        except Exception:  # noqa: BLE001
+            return False
 
     # ── registration ────────────────────────────────────────────────────────
     def register_organ(self, name, phase, handler, **kw) -> Organ:
@@ -150,11 +155,21 @@ class BeatScheduler:
         """یک beatِ کامل. خروجی: گزارشِ ترتیب/بودجه/خطا/halt. هرگز raise نمی‌کند."""
         beat = self.beat_counter + 1
         halt_reason = self._halted()
-        act_armed = _act_armed()
+        # C7-S4 (audit #6): هویتِ beat را **پیش از** اجرای فازها durable کن (reserve).
+        # اگر persist نشد → degraded: فازهای commit-دار (DECIDE/PROPOSE/ACT/LEARN) اجرا نمی‌شوند
+        # و beat_counter جلو نمی‌رود (restart همین beat را دوباره — بدونِ double-effect چون
+        # ACT/LEARN اجرا نشده). «no durable beat identity → no ACT → no LEARN commit».
+        reserved = self._persist(beat, halt_reason, {"phase": "reserve"})
+        degraded = not reserved
+        _COMMIT_PHASES = ("DECIDE", "PROPOSE", "ACT", "LEARN")
+        act_armed = _act_armed() and not degraded
         order, results = [], {}
         for phase in PHASES:
             # زیرِ HALT فقط فازهای امن اجرا می‌شوند (ACT/effect هرگز — fail-closed)
             if halt_reason and phase not in _SAFE_UNDER_HALT:
+                continue
+            # بدونِ هویتِ durable، فازهای commit-دار اجرا نمی‌شوند (fail-closed)
+            if degraded and phase in _COMMIT_PHASES:
                 continue
             for org in [o for o in self._organs if o.phase == phase]:
                 if beat % org.every_n_beats != 0:
@@ -167,10 +182,12 @@ class BeatScheduler:
                 results[org.name] = self._run_organ(org, beat, halt_reason, dry)
         # system.beat → spine (فاز RECORD‌گونه: خودِ ضربان ثبت می‌شود)
         self._emit_beat(beat, halt_reason, order)
-        self.beat_counter = beat
-        self._persist(beat, halt_reason, results)
+        # فقط با هویتِ durable، beat_counter monotonic جلو می‌رود (وگرنه همین beat دوباره)
+        if reserved:
+            self.beat_counter = beat
+            self._persist(beat, halt_reason, results)   # persistِ نهاییِ نتایج
         return {"beat": beat, "halted": halt_reason, "act_armed": act_armed,
-                "phase_order": order, "results": results}
+                "degraded": degraded, "phase_order": order, "results": results}
 
     def _run_organ(self, org: Organ, beat, halt_reason, dry_run) -> dict:
         """اجرای یک handler با budget + failure isolation + circuit breaker."""

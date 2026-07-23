@@ -53,11 +53,19 @@ class ResearchLedger:
         self.path.parent.mkdir(parents=True, exist_ok=True)
 
     def append(self, rec: dict) -> None:
+        self.append_strict(rec)
+
+    def append_strict(self, rec: dict) -> bool:
+        """C7-S3 (audit #4): appendِ acceptance-critical خطا را نمی‌بلعد — با fsync، و bool
+        برمی‌گرداند تا accept بتواند به شکستِ ledger واکنش دهد."""
         try:
             with open(self.path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(rec, ensure_ascii=False, sort_keys=True) + "\n")
+                f.flush()
+                os.fsync(f.fileno())
+            return True
         except Exception:  # noqa: BLE001
-            pass
+            return False
 
     def entries(self) -> list:
         if not self.path.exists():
@@ -196,8 +204,11 @@ def run_experiment(*, contract: dict, experiment_fn, verifier_fn, held_out_eval=
             _journal(state_dir, run_id, "accept", "ok", verdict="quarantined")
             return {"verdict": "quarantined", "reason": e["reason"], "receipt_id": rid, "ledger_entry": e}
 
-        # (6) نتیجه وارد memory می‌شود — **فقط** از learning_gate (verifier+outcome، C3)
+        # (6) admission: نتیجه فقط از learning_gate (verifier+outcome، C3) وارد memory می‌شود.
+        # audit #4: **accepted ⟺ همهٔ artifactهای durable موجودند** (receipt+outcome+memory+ledger).
+        # اگر memory/store/receipt admit نشد → verified-not-admitted، هرگز accepted.
         mid = None
+        admit_reason = "no memory_gate/outcome_store provided"
         if memory_gate is not None and outcome_store is not None:
             try:
                 import learning_gate as _lg  # noqa: WPS433
@@ -215,12 +226,28 @@ def run_experiment(*, contract: dict, experiment_fn, verifier_fn, held_out_eval=
                             "source": "owner", "producer": "research_loop"},
                     evaluator=(held_out_eval and (lambda **k: held_out_eval(**k))))
                 mid = lr.get("memory_id")
-            except Exception:  # noqa: BLE001
+                admit_reason = lr.get("reason", "")
+            except Exception as _ae:  # noqa: BLE001
                 mid = None
+                admit_reason = f"admission-error:{type(_ae).__name__}"
+        if not (mid and rid):
+            # verified ولی artifactِ کامل نساخت → NOT accepted (verified-not-admitted)
+            e = {"contract_id": contract.get("contract_id"), "hypothesis": contract.get("hypothesis"),
+                 "verdict": "verified-not-admitted",
+                 "reason": f"verified+held-out but not admitted: memory={mid} receipt={rid} ({admit_reason})",
+                 "receipt_id": rid, "memory_id": mid, "utility": U}
+            ledger.append_strict(e)
+            _journal(state_dir, run_id, "accept", "ok", verdict="verified-not-admitted")
+            return {"verdict": "verified-not-admitted", "reason": e["reason"], "receipt_id": rid,
+                    "memory_id": mid, "utility": U, "ledger_entry": e}
         e = {"contract_id": contract.get("contract_id"), "hypothesis": contract.get("hypothesis"),
-             "verdict": "accepted", "reason": f"verified + held-out + U={U}",
+             "verdict": "accepted", "reason": f"verified + held-out + U={U} + full durable artifact",
              "receipt_id": rid, "memory_id": mid, "utility": U}
-        ledger.append(e)
+        # audit #4: appendِ ledger برای accept **حیاتی** است — اگر ننشیند accepted نیست
+        if not ledger.append_strict(e):
+            _journal(state_dir, run_id, "accept", "error", reason="ledger-append-failed")
+            return {"verdict": "quarantined", "reason": "ledger append failed — not accepted",
+                    "receipt_id": rid, "memory_id": mid}
         _journal(state_dir, run_id, "accept", "ok", verdict="accepted", memory_id=mid)
         # NOTE: صفر auto-apply. patch/code فقط پیشنهاد است؛ merge_or_deploy در governance ممنوع.
         return {"verdict": "accepted", "reason": e["reason"], "receipt_id": rid,

@@ -54,6 +54,15 @@ def boot_recovery(*, state_dir=None, chrono_db_path=None, within_h: int = 48) ->
             jpath = Path(state_dir) / "journal" / "run-journal.jsonl"
         inc = dj.incomplete_runs(within_h=within_h, path=jpath) \
             if jpath is not None else dj.incomplete_runs(within_h=within_h)
+        # C7-S3 (audit #5): journalِ پژوهش (research-journal.jsonl) هم اسکن شود، وگرنه
+        # checkpointهای C6 هنگام بیداری خوانده نمی‌شوند («research restart-safe» ناقص بود).
+        try:
+            rjp = (Path(state_dir) / "journal" / "research-journal.jsonl") if state_dir is not None \
+                else (_HERE / "state" / "journal" / "research-journal.jsonl")
+            if rjp.exists():
+                inc = list(inc) + list(dj.incomplete_runs(within_h=within_h, path=rjp))
+        except Exception:  # noqa: BLE001
+            pass
         resume = {}
         for row in inc:   # incomplete_runs → [{"run_id","step","since"}]
             rid = row.get("run_id")
