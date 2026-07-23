@@ -49,6 +49,12 @@ def send_one(effect_id: str, candidate: dict, draft: str = "", *, gate, now_ms: 
 
     خروجی: {ok, sent, status, gate_reason?, reason?}
     """
+    # D1 (2026-07-23): halt-authorityِ سراسری supreme است — قبل از flag و قبل از هر gate/
+    # transport رد کن، نه با تکیه بر settle-gateِ downstream یا stubِ NOT_ARMED. master_halted()
+    # = HALT-ALL ← architect STOP (تک‌oracleِ opslib). fail-closed؛ صفر ارسال زیرِ halt.
+    _halt = opslib.master_halted()
+    if _halt:
+        return {"ok": False, "sent": False, "status": "halted", "reason": _halt}
     if not enabled():
         return {"ok": False, "sent": False, "status": "flag_off", "reason": "OCTOPUS_WIRE_LEAD_OUTBOUND off"}
     try:
