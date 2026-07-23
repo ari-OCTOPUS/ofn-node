@@ -159,11 +159,23 @@ class MemoryStore:
                     "SELECT memory_id, 0.0 FROM memory WHERE content LIKE ? OR mkey LIKE ? LIMIT ?",
                     (like, like, max(k * 4, 20))).fetchall()
                 ids = [(r[0], 0.0) for r in lrows]
+            # batched hydration (C6 evolution_v1): ONE IN(...) query for all candidates
+            # instead of a per-candidate round-trip (N+1). ranking/tie-break unchanged —
+            # candidate order is preserved and the validity/namespace/min_trust filters
+            # below are byte-identical. (for very large k on SQLite<3.32 the IN() list
+            # would exceed 999 params; k*4 candidates stays well under 32766 here.)
+            now = _utc_now_iso()
+            row_by_id = {}
+            if ids:
+                mids = [mid for mid, _ in ids]
+                ph = ",".join("?" * len(mids))
+                for hr in self._conn.execute(
+                        "SELECT " + ",".join(_COLS) + " FROM memory WHERE memory_id IN (" + ph + ") "
+                        "AND (valid_to IS NULL OR valid_to>?)", (*mids, now)).fetchall():
+                    row_by_id[hr[0]] = hr
             out = []
             for mid, score in ids:
-                r = self._conn.execute("SELECT " + ",".join(_COLS) + " FROM memory WHERE memory_id=? "
-                                       "AND (valid_to IS NULL OR valid_to>?)",
-                                       (mid, _utc_now_iso())).fetchone()
+                r = row_by_id.get(mid)
                 if not r:
                     continue
                 d = dict(zip(_COLS, r))
