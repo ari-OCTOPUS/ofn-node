@@ -337,6 +337,24 @@ def main() -> int:
                     f"slept={_cert.get('uptime_gap_s')}s")
         except Exception as _bce:  # noqa: BLE001 — شناسنامه هرگز بوت را نمی‌کشد
             opslib.alert([f"birth certificate failed (non-fatal): {type(_bce).__name__}"])
+        # C7 Slice 1: بازسازیِ کارت‌های approvalِ معلق (money از gated_effect، RFC از rfcs.json) —
+        # projection-only، HALT-aware، fail-soft. صفر تغییرِ semanticِ authorizationِ پول.
+        try:
+            if _chan is not None:
+                import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+                _owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID")
+                _halted = bool(opslib.halted())
+                _mc = _pcr.rebuild_money_cards(
+                    channel=_chan, chrono_db_path=str(opslib.STATE_DIR / "chrono.db"),
+                    owner=_owner, state_dir=str(opslib.STATE_DIR), halted=_halted)
+                _rc2 = _pcr.rebuild_rfc_cards(
+                    channel=_chan, rfcs_path=str(opslib.STATE_DIR / "doctor" / "rfcs.json"),
+                    state_dir=str(opslib.STATE_DIR))
+                if _mc.get("rebuilt") or _rc2.get("rebuilt"):
+                    opslib.heartbeat(f"pending-card recovery: money={_mc.get('rebuilt', 0)} "
+                                     f"rfc={_rc2.get('rebuilt', 0)} halted={_halted}")
+        except Exception as _pce:  # noqa: BLE001 — بازسازیِ کارت هرگز بوت را نمی‌کشد
+            opslib.alert([f"pending-card recovery failed (non-fatal): {type(_pce).__name__}"])
         if any(_wire.values()):
             opslib.heartbeat(f"organism wiring: {_wire}")
     except Exception as _e:  # noqa: BLE001 — wiring اختیاریِ additive

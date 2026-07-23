@@ -115,6 +115,11 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # learning_gate وارد memory، quarantine، self-model calibration، durable research-journal،
          # صفر auto-apply/merge). owner-gated، proposal-only.
          "test_research_loop.py",
+         # 2026-07-23 C7 Slice 1 (pending-card resurrection): money cards از gated_effect (SoT) +
+         # RFC cards از rfcs.json بعد از restart بازسازی می‌شوند — projection-only، توکنِ stateless
+         # HMAC (binding کامل)، dedupِ durable، exactly-once RFC verdict، HALT metadata-only-no-action،
+         # terminal/EXECUTING/RECONCILE هرگز re-present نمی‌شوند. صفر تغییرِ money-authorization.
+         "test_pending_card_recovery.py",
          # 2026-07-20 Sol Step 5: حلقهٔ ارزشِ Paper Lead سرتاسری (معیارِ اصلیِ پایان) — لیدِ synthetic
          # از توابعِ واقعیِ production: score→quote→کارتِ TG(sandbox)→receipt+outcome→رأیِ مالک→spine→
          # replay→metricsِ قطعی→digest. صفر شبکه/پول/send؛ IDها ثابت؛ حلقه واقعاً بسته.
