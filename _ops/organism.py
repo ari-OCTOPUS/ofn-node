@@ -344,9 +344,13 @@ def main() -> int:
                 import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
                 _owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID")
                 _halted = bool(opslib.halted())
+                try:
+                    _bid = str((_cert or {}).get("boot_id") or os.getpid())
+                except Exception:  # noqa: BLE001
+                    _bid = str(os.getpid())
                 _mc = _pcr.rebuild_money_cards(
                     channel=_chan, chrono_db_path=str(opslib.STATE_DIR / "chrono.db"),
-                    owner=_owner, state_dir=str(opslib.STATE_DIR), halted=_halted)
+                    owner=_owner, state_dir=str(opslib.STATE_DIR), halted=_halted, boot_id=_bid)
                 _rc2 = _pcr.rebuild_rfc_cards(
                     channel=_chan, rfcs_path=str(opslib.STATE_DIR / "doctor" / "rfcs.json"),
                     state_dir=str(opslib.STATE_DIR))
@@ -378,6 +382,7 @@ def main() -> int:
 
     while True:
         _protective_skip = False   # آیا این تیک کارِ غیرضروری را skip کند؟ (protective-halt، enforceِ واقعی)
+        _bc_block = None           # C7.1 (B13): وضعیتِ BrainCore/parity برای ORGANISM-STATE (اگر شادو تیک بزند)
         _heart_status = None       # HH-P5: پیش از try تعریف می‌شود تا بلوکِ _sleep_s (بیرونِ try) هرگز NameError نخورد
         # R-12 (audit): یک correlation_id برای کلِ این tick mint کن تا همهٔ emitهای این ضربان
         # (heartbeat/leg/doctor/incident/…) همبسته شوند و runِ input→output بازسازی‌پذیر شود.
@@ -394,6 +399,9 @@ def main() -> int:
                         state_dir=opslib.STATE_DIR, halted_fn=opslib.halted)
                 if _beat_sched is not None:
                     _beat_sched.tick()
+                    # C7.1 (B13): وضعیتِ صادقِ BrainCore/parity → ORGANISM-STATE
+                    _bc_block = _bc.organism_state_block(state_dir=opslib.STATE_DIR,
+                                                         sched=_beat_sched)
         except Exception:  # noqa: BLE001 — ضربانِ سایه هرگز ضربانِ اصلی را نمی‌کشد
             pass
         try:
@@ -799,6 +807,7 @@ def main() -> int:
                              if _proposal_metrics is not None else {}),
                           **({"legs_cultivation": _legs_cult} if _legs_cult else {}),
                           **({"heart": _heart_status} if _heart_status else {}),
+                          **({"brain_core": _bc_block} if _bc_block else {}),
                           **({"cardiac": _cardiac_mod.status_snapshot()}
                              if _cardiac_mod is not None else {})})
         except KeyboardInterrupt:

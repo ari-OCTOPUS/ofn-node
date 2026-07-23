@@ -93,28 +93,52 @@ class BeatScheduler:
         self._spine = spine                              # EventSpine یا None
         self._halted_fn = halted_fn                      # () -> reason|None
         self._state_path = Path(state_path) if state_path else (_HERE / "state" / "pulse" / "beat-state.json")
-        self.beat_counter = 0
+        self.committed_counter = 0     # C7.1 (B14): monotonic — فقط با COMMIT جلو می‌رود
+        self.beat_counter = 0          # alias عمومیِ committed (سازگاریِ عقب‌رو + watchdog)
         self.boot_id = None
+        self.recovery = None           # اگر بوت یک beatِ RESERVED-اما-COMMIT-نشده ببیند → reconcile
         self._load()
 
     # ── durability ──────────────────────────────────────────────────────────
     def _load(self):
+        self.committed_counter = 0
+        self.recovery = None
         try:
             if self._state_path.exists():
                 d = json.loads(self._state_path.read_text("utf-8"))
-                self.beat_counter = int(d.get("beat_counter", 0))
+                # committed_counter منبعِ حقیقت است؛ beat_counterِ قدیمی = fallback (مهاجرت)
+                self.committed_counter = int(d.get("committed_counter",
+                                                    d.get("beat_counter", 0)))
                 self.boot_id = d.get("boot_id")
+                cur = d.get("current") or {}
+                # B14: beatِ RESERVED/DEGRADEDِ بزرگ‌تر از committed = «شروع شد، commit نشد» →
+                # reconcile، **نه** تلقیِ خاموشِ «کامل». هویتِ committed هرگز از این جلو نمی‌رود.
+                if (cur.get("status") in ("RESERVED", "RUNNING", "DEGRADED")
+                        and int(cur.get("beat", 0)) > self.committed_counter):
+                    self.recovery = {"reconcile": True, "reserved_beat": int(cur.get("beat", 0)),
+                                     "status": cur.get("status"),
+                                     "note": "beat reserved but never committed — reconcile, "
+                                             "not treated as complete; no re-run of ACT/LEARN "
+                                             "for it until a fresh committed identity exists"}
         except Exception:  # noqa: BLE001 — بوتِ تازه
-            self.beat_counter = 0
+            self.committed_counter = 0
+        self.beat_counter = self.committed_counter
 
-    def _persist(self, beat: int, halted, report) -> bool:
-        """هویتِ beat را atomically durable کن. C7-S4 (audit #6): خروجی bool — شکست دیگر
-        بی‌صدا بلعیده نمی‌شود؛ caller با شکست، ACT/LEARN را block می‌کند."""
+    def _persist(self, beat: int, halted, report, status: str = "COMMITTED") -> bool:
+        """هویتِ beat را atomically durable کن با lifecycleِ صریح (B14).
+        status ∈ RESERVED | RUNNING | COMMITTED | DEGRADED. committed_counter فقط وقتی که
+        status='COMMITTED' برابرِ beat می‌شود؛ در بقیهٔ حالات committed دست‌نخورده می‌ماند
+        (پس بوتِ بعدی می‌تواند beatِ ناتمام را reconcile کند). خروجی bool — شکست بلعیده نمی‌شود؛
+        caller شکستِ reserve را با block کردنِ ACT/LEARN و شکستِ commit را با degraded پاسخ می‌دهد."""
+        committed = beat if status == "COMMITTED" else self.committed_counter
         try:
             self._state_path.parent.mkdir(parents=True, exist_ok=True)
             tmp = self._state_path.with_suffix(".tmp")
             with open(tmp, "w", encoding="utf-8") as f:
-                json.dump({"beat_counter": beat, "last_beat_at": self._clock(),
+                json.dump({"committed_counter": committed,
+                           "beat_counter": committed,          # سازگاریِ عقب‌رو (watchdog)
+                           "current": {"beat": beat, "status": status, "at": self._clock()},
+                           "last_beat_at": self._clock(),
                            "halted": bool(halted), "boot_id": self.boot_id,
                            "organs": len(self._organs)}, f, ensure_ascii=False)
                 f.flush()
@@ -123,6 +147,10 @@ class BeatScheduler:
             return True
         except Exception:  # noqa: BLE001
             return False
+
+    def recovery_state(self) -> "dict | None":
+        """اگر بوت یک beatِ RESERVED-اما-COMMIT-نشده دید، وضعیتِ reconcile را برمی‌گرداند (وگرنه None)."""
+        return self.recovery
 
     # ── registration ────────────────────────────────────────────────────────
     def register_organ(self, name, phase, handler, **kw) -> Organ:
@@ -153,13 +181,12 @@ class BeatScheduler:
     # ── the beat ─────────────────────────────────────────────────────────────
     def tick(self) -> dict:
         """یک beatِ کامل. خروجی: گزارشِ ترتیب/بودجه/خطا/halt. هرگز raise نمی‌کند."""
-        beat = self.beat_counter + 1
+        beat = self.committed_counter + 1
         halt_reason = self._halted()
-        # C7-S4 (audit #6): هویتِ beat را **پیش از** اجرای فازها durable کن (reserve).
-        # اگر persist نشد → degraded: فازهای commit-دار (DECIDE/PROPOSE/ACT/LEARN) اجرا نمی‌شوند
-        # و beat_counter جلو نمی‌رود (restart همین beat را دوباره — بدونِ double-effect چون
-        # ACT/LEARN اجرا نشده). «no durable beat identity → no ACT → no LEARN commit».
-        reserved = self._persist(beat, halt_reason, {"phase": "reserve"})
+        # C7.1 (B14): هویتِ beat را **پیش از** فازها با status=RESERVED durable کن (committed
+        # جلو نمی‌رود). اگر persist نشد → degraded: فازهای commit-دار (DECIDE/PROPOSE/ACT/LEARN)
+        # اجرا نمی‌شوند و committed_counter جلو نمی‌رود. «no durable identity → no ACT → no LEARN».
+        reserved = self._persist(beat, halt_reason, {"phase": "reserve"}, status="RESERVED")
         degraded = not reserved
         _COMMIT_PHASES = ("DECIDE", "PROPOSE", "ACT", "LEARN")
         act_armed = _act_armed() and not degraded
@@ -182,12 +209,20 @@ class BeatScheduler:
                 results[org.name] = self._run_organ(org, beat, halt_reason, dry)
         # system.beat → spine (فاز RECORD‌گونه: خودِ ضربان ثبت می‌شود)
         self._emit_beat(beat, halt_reason, order)
-        # فقط با هویتِ durable، beat_counter monotonic جلو می‌رود (وگرنه همین beat دوباره)
+        # B14: commitِ نهایی **چک می‌شود** — اگر persist نشد، beat committed نیست → degraded،
+        # committed_counter جلو نمی‌رود (بوتِ بعدی reconcile/بازتلاش، نه تلقیِ خاموشِ «کامل»).
+        committed = False
         if reserved:
-            self.beat_counter = beat
-            self._persist(beat, halt_reason, results)   # persistِ نهاییِ نتایج
+            if self._persist(beat, halt_reason, results, status="COMMITTED"):
+                self.committed_counter = beat
+                self.beat_counter = beat
+                committed = True
+            else:
+                degraded = True
+        status = "COMMITTED" if committed else ("DEGRADED" if degraded else "RESERVED")
         return {"beat": beat, "halted": halt_reason, "act_armed": act_armed,
-                "degraded": degraded, "phase_order": order, "results": results}
+                "degraded": degraded, "committed": committed, "status": status,
+                "phase_order": order, "results": results}
 
     def _run_organ(self, org: Organ, beat, halt_reason, dry_run) -> dict:
         """اجرای یک handler با budget + failure isolation + circuit breaker."""

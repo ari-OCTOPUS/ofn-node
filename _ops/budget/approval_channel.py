@@ -522,7 +522,12 @@ class TelegramApprovalChannel(ApprovalChannel):
                               summary: str, guard_verdict: str = "") -> bool:
         """کارتِ تأیید را برای یک اثرِ برگشت‌ناپذیر/مالی به مالک می‌فرستد. effect_id و
         amount را در registry ثبت می‌کند با یک توکنِ ضدِ جعل. تأیید فقط از طریقِ
-        dispatch_callback ممکن است. not wired → False (no-opِ امن، کارت فرستاده نمی‌شود)."""
+        dispatch_callback ممکن است. not wired → False (no-opِ امن، کارت فرستاده نمی‌شود).
+
+        C7.1: ساخت/ارسال از `reissue_approval_card` (رندرِ canonicalِ اشتراکی با بازسازیِ
+        بعد از restart) می‌گذرد؛ سپس یک ردیفِ **durable** با مبلغِ واقعی + binding + توکن
+        نوشته می‌شود تا کارت از restart جان به در ببرد (pending_card_recovery). صفر تغییرِ
+        semanticِ authorizationِ پول — release همچنان فقط از EffectorGate."""
         if not self.wired:
             return False
         if amount_aud <= 0:
@@ -531,22 +536,47 @@ class TelegramApprovalChannel(ApprovalChannel):
         # C-caller-migration (2026-07-23): snapshotِ bindingِ ردیفِ gate در لحظهٔ ساختِ
         # کارت — approve بعداً همین را ارائه می‌دهد (نه بازخوانی از DB) تا اگر ردیف بعد
         # از کارت عوض شود، release_effect دقیقِ C4 با mismatch رد کند (ضدِ card-swap).
-        # پول بدونِ این snapshot از C4.1 رد می‌شود (id-only) — پس fail-closed می‌ماند.
         _bind = {}
         try:
             if self._gate is not None and hasattr(self._gate, "binding_of"):
                 _bind = self._gate.binding_of(effect_id) or {}
         except Exception:  # noqa: BLE001 — snapshot اختیاری؛ نبودش = مسیرِ fail-closedِ قبلی
             _bind = {}
+        ok = self.reissue_approval_card(
+            effect_id, amount_aud, summary, token=token,
+            content_hash=_bind.get("content_hash"), action_kind=_bind.get("action_kind"),
+            target_ref=_bind.get("target_ref"), guard_verdict=guard_verdict, send=True)
+        if ok:
+            try:
+                import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+                _pcr.record_money_card(
+                    state_dir=self._state_dir, effect_id=effect_id, amount_aud=float(amount_aud),
+                    content_hash=_bind.get("content_hash"), action_kind=_bind.get("action_kind"),
+                    target_ref=_bind.get("target_ref"), summary=summary, owner=self._owner,
+                    token=token, delivery="SENT")
+            except Exception:  # noqa: BLE001 — ثبتِ durable هرگز ارسالِ کارت را نمی‌شکند
+                pass
+        return ok
+
+    def reissue_approval_card(self, effect_id: str, amount_aud: float, summary: str, *,
+                              token: str, content_hash=None, action_kind=None,
+                              target_ref=None, guard_verdict: str = "", send: bool = True) -> bool:
+        """رندرِ canonicalِ کارتِ مالی — **تنها منبعِ حقیقتِ ساخت/بازساخت** (C7.1). projection
+        (`_pending`) را با binding + **همان توکنِ داده‌شده** بازسازی می‌کند؛ فقط اگر send=True و
+        wired، کارتِ ۳-دکمه POST می‌شود. توکن از بیرون داده می‌شود تا بازسازیِ بعد از restart
+        (مدل B) همان توکنِ پیش از restart را بازگرداند و دکمهٔ مالک معتبر بماند. صفر settle."""
         with self._lk:
             self._pending[effect_id] = {"amount_aud": float(amount_aud),
                                         "summary": str(summary)[:500],
                                         "guard": str(guard_verdict)[:200],
-                                        "content_hash": _bind.get("content_hash"),
-                                        "action_kind": _bind.get("action_kind"),
-                                        "target_ref": _bind.get("target_ref"),
+                                        "content_hash": content_hash,
+                                        "action_kind": action_kind,
+                                        "target_ref": target_ref,
                                         "token": token, "status": "pending"}
-        # جلسه ۴۶: رویدادِ ساختاریافته برای داشبورد (بی‌محتوا — بدونِ خودِ summaryِ کارت)
+        if not send:
+            return True                       # فقط projection (بازسازیِ بی‌ارسال، یا زیرِ HALT)
+        if not self.wired:
+            return False
         try:
             import sys as _s
             _s.path.insert(0, str(_HERE.parent))
@@ -556,8 +586,7 @@ class TelegramApprovalChannel(ApprovalChannel):
                      next_action="تلگرام: آره/نه")
         except Exception:  # noqa: BLE001
             pass
-        # C2/C5 · INV-12: کارتِ پول هم از پاسِ redaction می‌گذرد (summary/guard ممکن است
-        # از subsystemِ بالادست رشتهٔ secret-شکل بیاورد). این تنها sendِ مستقیمِ باقی‌مانده بود.
+        # C2/C5 · INV-12: کارتِ پول هم از پاسِ redaction می‌گذرد.
         text = self._redact(
             self._render_approval_card(effect_id, amount_aud, summary, guard_verdict))
         kb = {"inline_keyboard": [[
@@ -985,20 +1014,29 @@ class TelegramApprovalChannel(ApprovalChannel):
             return "رد: RFC ناشناخته یا قبلاً تصمیم‌گرفته"
         if not _cteq(token, meta.get("token", "")):
             return "رد: توکنِ تأیید نامنطبق (ضدِ جعل)"
-        if verb == "merge":
+        if verb in ("merge", "deny"):
+            new_status = "merge-approved" if verb == "merge" else "denied"
+            # C7.1 (B7): رأی را **پیش از** تغییرِ RAM و ackِ callback، durable کن — کلیک قبل از
+            # مصرفِ doctor بعد از restart گم نمی‌شود (exactly-once). fail-soft، صفر اثرِ پولی.
+            self._persist_rfc_verdict(rfc_id, new_status)
             with self._lk:
-                meta["status"] = "merge-approved"
-            return "ثبت شد ✅ — merge فقط پشتِ flag و با human-append اعمال می‌شود"
-        if verb == "deny":
-            with self._lk:
-                meta["status"] = "denied"
-            return "رد شد ❌"
+                meta["status"] = new_status
+            return ("ثبت شد ✅ — merge فقط پشتِ flag و با human-append اعمال می‌شود"
+                    if verb == "merge" else "رد شد ❌")
         return "نادیده"
+
+    def _persist_rfc_verdict(self, rfc_id: str, verdict: str) -> None:
+        try:
+            import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+            _pcr.persist_rfc_verdict(state_dir=self._state_dir, rfc_id=rfc_id, verdict=verdict)
+        except Exception:  # noqa: BLE001
+            pass
 
     def pop_rfc_verdicts(self) -> list[tuple[str, str]]:
         """صفِ خروجیِ verdictهای RFC برای doctor (poll). هر verdict دقیقاً یک‌بار تحویل
-        می‌شود (پرچمِ consumed زیرِ قفل) — تحویلِ دوباره ممنوع تا doctor دوبار merge نکند.
-        ترتیبِ قطعی (deterministic): sorted by rfc_id. فقط خواندن/علامت‌گذاری — هیچ اثرِ پولی."""
+        می‌شود — C7.1 (B7): علاوه بر پرچمِ RAM، حالتِ **consumedِ durable** هم نوشته می‌شود تا
+        اگر doctor مصرف کند و پیش از پیشرفت crash شود، بعد از restart دوبار مصرف/merge نشود.
+        ترتیبِ قطعی: sorted by rfc_id. فقط خواندن/علامت‌گذاری — هیچ اثرِ پولی."""
         out: list[tuple[str, str]] = []
         with self._lk:
             for rfc_id in sorted(self._pending_rfc):
@@ -1009,6 +1047,12 @@ class TelegramApprovalChannel(ApprovalChannel):
                 if st in ("merge-approved", "denied"):
                     meta["consumed"] = True
                     out.append((rfc_id, st))
+        for rfc_id, _st in out:
+            try:
+                import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+                _pcr.mark_rfc_consumed(state_dir=self._state_dir, rfc_id=rfc_id)
+            except Exception:  # noqa: BLE001
+                pass
         return out
 
     # ─── T-3 · UIِ Lead: /lead → attribution.propose (mint LEAD-YYYYMMDD-nnn) ──────
@@ -2093,7 +2137,15 @@ class TelegramApprovalChannel(ApprovalChannel):
             {"text": "merge پشتِ flag ✅", "callback_data": f"rfc:merge:{rfc_id}:{token}"},
             {"text": "رد ❌", "callback_data": f"rfc:deny:{rfc_id}:{token}"},
         ]]}
-        return self.send_text(text, reply_markup=kb)
+        ok = self.send_text(text, reply_markup=kb)
+        # C7.1: ردیفِ durableِ کارتِ RFC (submitted-undecided) تا از restart جان به در ببرد
+        try:
+            import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+            _pcr.record_rfc_card(state_dir=self._state_dir, rfc_id=rfc_id,
+                                 summary=summary, token=token, delivery="SENT")
+        except Exception:  # noqa: BLE001
+            pass
+        return ok
 
     # ─── T-7 · kill-switch out-of-band + Re-entry Packet ─────────────────────────
     def kill_switch(self) -> str:

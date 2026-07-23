@@ -31,6 +31,7 @@ for _p in (str(_HERE), str(_HERE.parent), str(_HERE.parent / "budget"),
 
 FLAG = "OCTOPUS_WIRE_MEMORY_GATE"   # پژوهش نتیجه را از همان دروازهٔ memory می‌گذراند
 MAX_REWRITES = 3                    # سقفِ بازنویسیِ conjecture (ضدِ حلقهٔ بی‌نهایت)
+_TERMINAL_VERDICTS = ("accepted", "rejected", "quarantined", "verified-not-admitted")
 
 
 def _governance():
@@ -79,6 +80,15 @@ class ResearchLedger:
                     pass
         return out
 
+    def find_completed(self, experiment_key: str) -> "dict | None":
+        """C7.1 (B10/idempotency): آخرین ردیفِ terminalِ همین experiment_key (contract|rewrite).
+        وجودش یعنی این آزمایش قبلاً کامل شده → دوباره اجرا نشود، artifactِ تکراری ساخته نشود."""
+        for rec in reversed(self.entries()):
+            if rec.get("experiment_key") == experiment_key and \
+                    rec.get("verdict") in _TERMINAL_VERDICTS:
+                return rec
+        return None
+
 
 class Budget:
     """budgetِ سختِ cost/time/token/experiments — مأموریت step 11."""
@@ -123,14 +133,27 @@ def run_experiment(*, contract: dict, experiment_fn, verifier_fn, held_out_eval=
     """یک آزمایشِ حاکمیت‌شده. خروجی: {verdict, reason, receipt_id?, memory_id?, ledger_entry}.
     verdict ∈ accepted|rejected|quarantined|terminated. هرگز raise نمی‌کند؛ هرگز apply/merge."""
     run_id = f"research-{contract.get('contract_id', 'rc')}"
+    exp_key = f"{contract.get('contract_id')}|{int(rewrite_count)}"
     try:
         # (0) governance: فقط اکشن‌های مجاز؛ test_in_sandbox پیش‌شرطِ اجراست
         if not _permit("test_in_sandbox"):
             return {"verdict": "terminated", "reason": "governance denied test_in_sandbox"}
+        # C7.1 (B10/idempotency، Mission C «no duplicate artifacts»): اگر این آزمایش
+        # (contract|rewrite) قبلاً به ردیفِ terminal رسیده، **دوباره اجرا نکن** — بیداری/بوتِ
+        # دوبار نباید experiment_fn را دوباره بزند یا ledger/رسید/خاطرهٔ تکراری بسازد. resume نه restart.
+        prior = ledger.find_completed(exp_key)
+        if prior is not None:
+            _journal(state_dir, run_id, "resume", "ok", experiment_index=int(rewrite_count),
+                     verdict=prior.get("verdict"), resumed=True)
+            return {"verdict": prior.get("verdict"),
+                    "reason": f"resumed (already completed): {prior.get('reason')}",
+                    "receipt_id": prior.get("receipt_id"), "memory_id": prior.get("memory_id"),
+                    "ledger_entry": prior, "resumed": True}
         # bad-conjecture terminate: بازنویسیِ بی‌نهایت ممنوع
         if rewrite_count >= MAX_REWRITES:
             _journal(state_dir, run_id, "conjecture", "error", reason="max-rewrites")
-            e = {"contract_id": contract.get("contract_id"), "hypothesis": contract.get("hypothesis"),
+            e = {"contract_id": contract.get("contract_id"), "experiment_key": exp_key,
+                 "hypothesis": contract.get("hypothesis"),
                  "verdict": "rejected", "reason": "bad conjecture — max rewrites reached (terminated)"}
             ledger.append(e)
             return {"verdict": "rejected", "reason": e["reason"], "ledger_entry": e}
@@ -141,7 +164,11 @@ def run_experiment(*, contract: dict, experiment_fn, verifier_fn, held_out_eval=
             return {"verdict": "terminated", "reason": f"budget-exceeded:{why}"}
 
         # (1) اجرای آزمایش در sandbox (تزریق‌پذیر؛ صفر اثرِ بیرونی — مسئولیتِ caller/sandbox)
-        _journal(state_dir, run_id, "experiment", "start")
+        # C7.1 (Mission B): checkpointِ ساختاریافته — contract_id/experiment_index/budget/rewrite
+        # تا plan_recovery نقطهٔ resume را از research-journal بازسازی کند.
+        _journal(state_dir, run_id, "experiment", "start", contract_id=contract.get("contract_id"),
+                 experiment_index=int(rewrite_count), rewrite_count=int(rewrite_count),
+                 budget_spent=dict(budget.spent))
         budget.charge(cost_aud=cost_aud, tokens=tokens, experiment=True)
         result = experiment_fn(contract)
         why = budget.exceeded()
@@ -182,7 +209,8 @@ def run_experiment(*, contract: dict, experiment_fn, verifier_fn, held_out_eval=
         # (4) falsification: hypothesis رد شد → terminate (نه بازنویسیِ بی‌نهایت)
         if not supported:
             _journal(state_dir, run_id, "verify", "ok", supported=False)
-            e = {"contract_id": contract.get("contract_id"), "hypothesis": contract.get("hypothesis"),
+            e = {"contract_id": contract.get("contract_id"), "experiment_key": exp_key,
+                 "hypothesis": contract.get("hypothesis"),
                  "verdict": "rejected", "reason": "hypothesis falsified by verifier",
                  "receipt_id": rid, "evidence": str(v.get("evidence", ""))[:200]}
             ledger.append(e)
@@ -197,7 +225,8 @@ def run_experiment(*, contract: dict, experiment_fn, verifier_fn, held_out_eval=
                         hard_constraints_ok=bool(held_ok and v.get("hard_constraints_ok", True)))
         # regression/uncertaintyِ بالا یا held-out قرمز → quarantine (نه commit)
         if not held_ok or U <= 0 or uncertainty >= 0.5:
-            e = {"contract_id": contract.get("contract_id"), "hypothesis": contract.get("hypothesis"),
+            e = {"contract_id": contract.get("contract_id"), "experiment_key": exp_key,
+                 "hypothesis": contract.get("hypothesis"),
                  "verdict": "quarantined", "reason": f"U={U} held_ok={held_ok} uncertainty={uncertainty}",
                  "receipt_id": rid}
             ledger.append(e)
@@ -232,7 +261,8 @@ def run_experiment(*, contract: dict, experiment_fn, verifier_fn, held_out_eval=
                 admit_reason = f"admission-error:{type(_ae).__name__}"
         if not (mid and rid):
             # verified ولی artifactِ کامل نساخت → NOT accepted (verified-not-admitted)
-            e = {"contract_id": contract.get("contract_id"), "hypothesis": contract.get("hypothesis"),
+            e = {"contract_id": contract.get("contract_id"), "experiment_key": exp_key,
+                 "hypothesis": contract.get("hypothesis"),
                  "verdict": "verified-not-admitted",
                  "reason": f"verified+held-out but not admitted: memory={mid} receipt={rid} ({admit_reason})",
                  "receipt_id": rid, "memory_id": mid, "utility": U}
@@ -240,15 +270,34 @@ def run_experiment(*, contract: dict, experiment_fn, verifier_fn, held_out_eval=
             _journal(state_dir, run_id, "accept", "ok", verdict="verified-not-admitted")
             return {"verdict": "verified-not-admitted", "reason": e["reason"], "receipt_id": rid,
                     "memory_id": mid, "utility": U, "ledger_entry": e}
-        e = {"contract_id": contract.get("contract_id"), "hypothesis": contract.get("hypothesis"),
+        e = {"contract_id": contract.get("contract_id"), "experiment_key": exp_key,
+             "hypothesis": contract.get("hypothesis"),
              "verdict": "accepted", "reason": f"verified + held-out + U={U} + full durable artifact",
              "receipt_id": rid, "memory_id": mid, "utility": U}
-        # audit #4: appendِ ledger برای accept **حیاتی** است — اگر ننشیند accepted نیست
+        # C7.1 (B9): appendِ نهاییِ ledger بخشی از **اتمیکیتهٔ acceptance** است. اگر ننشیند،
+        # خاطرهٔ admitted نباید accepted-و-باقی بماند → compensating retraction
+        # (learning_gate.rollback_learning: supersede→invalidate, append-only)، سپس quarantined.
+        # هیچ خاطرهٔ accepted بدونِ ردیفِ durableِ ledger باقی نمی‌ماند.
         if not ledger.append_strict(e):
-            _journal(state_dir, run_id, "accept", "error", reason="ledger-append-failed")
-            return {"verdict": "quarantined", "reason": "ledger append failed — not accepted",
-                    "receipt_id": rid, "memory_id": mid}
-        _journal(state_dir, run_id, "accept", "ok", verdict="accepted", memory_id=mid)
+            retracted = False
+            try:
+                import learning_gate as _lg2  # noqa: WPS433
+                rr = _lg2.rollback_learning(
+                    memory_gate=memory_gate, memory_id=mid,
+                    content=f"research finding: {contract.get('hypothesis')}"[:200],
+                    mkey=f"research-{contract.get('contract_id')}", namespace="semantic",
+                    reason="research-ledger-append-failed")
+                retracted = bool(rr.get("rolled_back"))
+            except Exception:  # noqa: BLE001
+                retracted = False
+            _journal(state_dir, run_id, "accept", "error",
+                     reason="ledger-append-failed", memory_retracted=retracted)
+            return {"verdict": "quarantined",
+                    "reason": "ledger append failed — memory retracted, not accepted",
+                    "receipt_id": rid, "memory_id": mid, "memory_retracted": retracted}
+        _journal(state_dir, run_id, "accept", "ok", verdict="accepted", memory_id=mid,
+                 contract_id=contract.get("contract_id"), experiment_index=int(rewrite_count),
+                 budget_spent=dict(budget.spent))
         # NOTE: صفر auto-apply. patch/code فقط پیشنهاد است؛ merge_or_deploy در governance ممنوع.
         return {"verdict": "accepted", "reason": e["reason"], "receipt_id": rid,
                 "memory_id": mid, "utility": U, "ledger_entry": e}
@@ -287,3 +336,48 @@ def record_calibration(*, capability: str, predicted: float, measured: float,
 def propose_only_apply_guard(action: str = "merge_or_deploy") -> dict:
     """گاردِ صریح: خودِ حلقه هرگز apply/merge/deploy نمی‌کند. تأییدِ constitutional."""
     return {"permitted": _permit(action), "note": "self-improvement loop never auto-applies; owner-gated"}
+
+
+def plan_recovery(*, state_dir=None, within_h: float = 720.0) -> list:
+    """C7.1 (Mission B / B8): نقشهٔ بازیابیِ **advisory** برای runهای پژوهشیِ ناتمام — از
+    **research-journal** (نه run-journal). برای هر run: contract_id، last_completed_step،
+    experiment_index، rewrite_count، budget_spent، mode=DETECTED. این تابع فقط **تشخیص** می‌دهد
+    و نقطهٔ resume را از journalِ درست می‌خواند؛ اجرای واقعیِ resume idempotent است (run_experiment
+    با ledger.find_completed آزمایشِ کامل را دوباره اجرا نمی‌کند). هرگز آزمایش را کورکورانه rerun نمی‌کند."""
+    try:
+        import durable_journal as _dj  # noqa: WPS433
+    except Exception:  # noqa: BLE001
+        return []
+    rjp = (Path(state_dir) / "journal" / "research-journal.jsonl") if state_dir is not None else None
+    if rjp is not None and not rjp.exists():
+        return []
+    try:
+        inc = _dj.incomplete_runs(within_h=within_h, path=rjp) if rjp is not None \
+            else _dj.incomplete_runs(within_h=within_h)
+        rows = _dj._read_all(rjp) if rjp is not None else _dj._read_all()  # noqa: SLF001
+    except Exception:  # noqa: BLE001
+        return []
+    latest_meta: dict = {}
+    last_ok_step: dict = {}
+    for r in rows:
+        rid = r.get("run_id")
+        m = r.get("meta") or {}
+        if m:
+            latest_meta.setdefault(rid, {}).update({k: v for k, v in m.items() if v is not None})
+        if r.get("status") == "ok":
+            last_ok_step[rid] = r.get("step")
+    plans = []
+    for row in inc:
+        rid = row.get("run_id")
+        m = latest_meta.get(rid, {})
+        cid = m.get("contract_id") or (
+            rid[len("research-"):] if str(rid).startswith("research-") else rid)
+        plans.append({"run_id": rid, "contract_id": cid,
+                      "died_at_step": row.get("step"),
+                      "last_completed_step": last_ok_step.get(rid),
+                      "experiment_index": m.get("experiment_index"),
+                      "rewrite_count": m.get("rewrite_count"),
+                      "budget_spent": m.get("budget_spent"),
+                      "mode": "DETECTED",
+                      "note": "advisory; resume is idempotent via run_experiment ledger guard"})
+    return plans
