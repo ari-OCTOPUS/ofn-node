@@ -107,11 +107,16 @@ class MemoryStore:
             if self._fts:
                 self._conn.execute("INSERT INTO memory_fts(content, mkey, memory_id) VALUES(?,?,?)",
                                    (content, mkey or "", mid))
-            # supersede: کهنه را invalidate کن (valid_to=now) — نه حذفِ فیزیکی
+            # supersede: کهنه را invalidate کن (valid_to=now) — نه حذفِ فیزیکی.
+            # BUGFIX (C3 red-team P1): پیش‌تر فقط valid_to IS NULL را می‌بست، پس خاطراتِ
+            # TTL‌دار (semantic 90d/episodic 30d) با supersede **invalidate نمی‌شدند** و
+            # rollback بی‌اثر بود. حالا valid_toِ آینده را هم به now کوتاه می‌کنیم.
             sup = rec.get("supersedes")
             if sup:
-                self._conn.execute("UPDATE memory SET valid_to=? WHERE memory_id=? AND valid_to IS NULL",
-                                   (_utc_now_iso(), str(sup)))
+                now = _utc_now_iso()
+                self._conn.execute(
+                    "UPDATE memory SET valid_to=? WHERE memory_id=? "
+                    "AND (valid_to IS NULL OR valid_to>?)", (now, str(sup), now))
             self._conn.commit()
             return mid
 

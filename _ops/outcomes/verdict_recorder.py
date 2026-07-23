@@ -139,10 +139,38 @@ def record_verdict_durably(*, proposal_id: str, verdict: str, correlation_id: st
                 spine = _esx.EventSpine(path=sdir / "spine.db")
         except Exception:  # noqa: BLE001
             spine = None
-        return record_owner_verdict(
+        out = record_owner_verdict(
             o, proposal_id=proposal_id, verdict=verdict, correlation_id=correlation_id,
             mission_id=mission_id, leg_id=leg_id, value_aud_claimed=value_aud_claimed,
             event_spine=spine, lead_id=lead_id, source=source)
+        # C3 (red-team P1 fix — گیت روی مسیرِ زنده): رأیِ **accepted**ِ مالک =
+        # قوی‌ترین سیگنالِ یادگیری. learn_from_outcome این‌جا صدا زده می‌شود (نادر، per-tap)،
+        # outcome-bound (به outcomeِ همین‌الان‌نوشته‌شده) + held-out-gated. پشتِ MEMORY_GATE؛
+        # fail-soft؛ صفر اثرِ بیرونی. dedup per-proposal → صفر flood.
+        try:
+            if out.get("recorded") and out.get("event_type") == "accepted-measurement":
+                import learning_gate as _lg  # noqa: WPS433
+                if _lg.flag_on():
+                    import memory_store as _msx  # noqa: WPS433
+                    import gate as _gx           # noqa: WPS433
+                    mdir = _ops.STATE_DIR / "memory"
+                    mdir.mkdir(parents=True, exist_ok=True)
+                    _mem = _msx.MemoryStore(path=mdir / "memory.db")
+                    try:
+                        _lg.learn_from_outcome(
+                            memory_gate=_gx.MemoryGate(_mem), outcome_store=o,
+                            signal={"content": f"owner accepted proposal (leg={leg_id or 'unknown'})"[:200],
+                                    "mkey": f"owner-accept-{proposal_id}", "namespace": "semantic",
+                                    "correlation_id": correlation_id,
+                                    "outcome_ref": out.get("idempotency_key"),
+                                    "trust": "OWNER_CONFIRMED", "salience": 0.6,
+                                    "source": "owner", "producer": "owner_verdict"},
+                            evaluator=_lg.fast_ledger_eval)   # hot-path: سبک (~۱s)
+                    finally:
+                        _mem.close()
+        except Exception:  # noqa: BLE001 — یادگیری هرگز مسیرِ رأی را نمی‌کشد
+            pass
+        return out
     except Exception as _e:  # noqa: BLE001 — durable ثبت نباید caller را بکشد
         return {"recorded": False, "reason": f"durable-error: {type(_e).__name__}"}
     finally:

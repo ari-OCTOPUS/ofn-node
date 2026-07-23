@@ -1,22 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""learning_gate.py — C3: قدمِ «Learning → Memory Update» با گیتِ regressionِ held-out.
+"""learning_gate.py — C3: قدمِ «Learning → Memory Update»، outcome-bound و held-out-gated.
 
 قوسِ شکسته (کشفِ C3): زنجیرهٔ decision→receipt→outcome ساخته بود، ولی **هیچ‌جا از یک outcome
 یک خاطرهٔ graded ساخته نمی‌شد** — پس تصمیمِ بعدی چیزی برای «استناد» نداشت و D8 صفر می‌ماند.
-این ماژول آن قدم را می‌بندد، با ضدخودفریبی:
+این ماژول آن قدم را می‌بندد.
 
-  outcome/verdictِ **تأییدشده** → کاندیدِ خاطرهٔ semantic → **گیتِ held-out** (ضدِ hacking) →
-  اگر متریکِ داخلی «قبول» ولی held-out «رد» → REJECT (یادگیریِ مضر مسدود) →
-  اگر held-out قبول → commit از Memory Gate (dedup/version/trust) + رسیدِ یادگیری (artifact durable).
+**دو گاردِ ضدخودفریبی (صادقانه دربارهٔ حدودشان):**
+  ۱) **outcome-binding (گاردِ محتوایی):** trustِ ادعایی (OWNER_CONFIRMED/…) فقط وقتی پذیرفته
+     می‌شود که `outcome_ref` به یک outcomeِ **واقعیِ durable** در outcomes.db با event_typeِ
+     سازگار اشاره کند (verify_outcome). بدونِ آن، trust فقط یک رشتهٔ جعل‌پذیر بود (red-team P1).
+     → «یاد نمی‌گیریم مگر یک outcomeِ ثبت‌شده پشتش باشد» = گاردِ اصلیِ preference≠outcome.
+  ۲) **held-out (گاردِ ایمنیِ سیستمی، نه اوراکلِ محتوا):** پیش از commit، اگر سیستم در پنجرهٔ
+     regressionِ ایمنی باشد (canaryهای ثابت قرمز / زنجیرهٔ ledger شکسته / anti-hacking)، یادگیری
+     مسدود می‌شود. **این گیت صحتِ *محتوایِ* درس را نمی‌سنجد** (نوشتنِ خاطره روی آن تست‌ها اثر
+     ندارد)؛ circuit-breaker است: «وقتی سیستم ناسالم است یاد نگیر». سنجشِ صحتِ پیش‌بینیِ هر
+     خاطره روی held-set برچسب‌دار = کارِ آینده (dataset لازم دارد).
 
 قیودِ سخت:
-  - یادگیری فقط وقتی «معتبر» است که **artifact durable** بسازد (memory_id + رسید). ادعای
-    «یاد گرفتم» بدونِ این دو = دروغ (مأموریت step 7).
-  - outcomeِ واقعی از preference جدا می‌ماند: فقط سیگنالِ trustِ بالا (OWNER_CONFIRMED/GRADED
-    با evidence) یاد گرفته می‌شود؛ preferenceِ خام رد.
-  - dedupِ یادگیری: کلیدِ mkey قطعی → همان درسِ دوباره = خاطرهٔ نو نمی‌سازد (Memory Gate).
-  - rollback: خاطرهٔ مضر با یک retraction که supersede می‌کند invalidate می‌شود (append-only، نه delete).
+  - یادگیری فقط با **artifact durable** (memory_id + رسید) معتبر است (step 7).
+  - preference≠outcome: فقط trustِ بالا **که با outcomeِ verify‌شده پشتیبانی شده** یاد گرفته می‌شود.
+  - dedup (Memory Gate) · rollback با supersede که TTL را هم کوتاه می‌کند (red-team P1 fix).
   - صفر شبکه/پول/effector. fail-soft.
 """
 from __future__ import annotations
@@ -46,6 +50,21 @@ def _sha(obj) -> str:
                                      separators=(",", ":")).encode("utf-8")).hexdigest()
 
 
+def fast_ledger_eval(*, internal_metric_pass: bool = True, **kw) -> dict:
+    """گیتِ سبکِ hot-path (مسیرِ زندهٔ رأیِ مالک): فقط زنجیرهٔ hash لجر را verify می‌کند
+    (~۱ ثانیه)، نه سوئیتِ ۵-تستیِ subprocess (~۳۰s که pollerِ تلگرام را بلاک می‌کند).
+    سوئیتِ کاملِ canary جای دیگر periodically اجرا می‌شود. content-relevant به ایمنی:
+    اگر لجر شکسته باشد یاد نمی‌گیریم."""
+    try:
+        import held_out_evaluator as _he  # noqa: WPS433
+        ch = _he.verify_ledger_chain()
+        valid = ch.get("valid")
+        return {"overall_verdict": "pass" if valid in (True, None) else "fail",
+                "anti_hacking_flag": bool(internal_metric_pass and valid is False)}
+    except Exception:  # noqa: BLE001 — fail-closed
+        return {"overall_verdict": "fail", "anti_hacking_flag": False}
+
+
 def _run_eval(evaluator, eval_ctx, internal_metric_pass) -> dict:
     """گیتِ held-out. evaluator تزریق‌پذیر است (تولید: held_out_evaluator.evaluate_held_out؛
     تست: stub سریع). خروجیِ نرمال: {verdict, anti_hacking_flag, raw}."""
@@ -63,15 +82,37 @@ def _run_eval(evaluator, eval_ctx, internal_metric_pass) -> dict:
                 "raw": {"error": type(e).__name__}}
 
 
-def learn_from_outcome(*, memory_gate, signal: dict, receipt_store=None,
+def _verify_outcome(outcome_store, outcome_ref: str, trust: str) -> "tuple[bool, str]":
+    """گاردِ محتوایی (red-team P1 fix): outcome_refِ ادعایی باید یک ردیفِ **واقعیِ** outcomes.db
+    باشد و event_typeاش با trust سازگار. OWNER_CONFIRMED → فقط accepted-measurement. بدونِ این،
+    trust یک رشتهٔ جعل‌پذیر است. fail-closed."""
+    if outcome_store is None:
+        return (False, "no-outcome-store")   # نمی‌توان verify کرد → یاد نگیر (fail-closed)
+    ref = str(outcome_ref or "").strip()
+    if not ref:
+        return (False, "no-outcome-ref")
+    try:
+        row = outcome_store._conn.execute(   # noqa: SLF001 — read-only verify
+            "SELECT event_type FROM outcomes WHERE idempotency_key=?", (ref,)).fetchone()
+    except Exception:  # noqa: BLE001
+        return (False, "outcome-query-error")
+    if not row:
+        return (False, "outcome-ref not found (forged trust)")
+    et = str(row[0] or "")
+    ok = (et == "accepted-measurement") if trust == "OWNER_CONFIRMED" else (et in (
+        "accepted-measurement", "delivered", "outcome-recorded", "decided"))
+    return (ok, f"outcome event_type={et}")
+
+
+def learn_from_outcome(*, memory_gate, signal: dict, receipt_store=None, outcome_store=None,
                        evaluator=None, eval_ctx=None, internal_metric_pass: bool = True,
                        min_salience: float = 0.5) -> dict:
-    """یک outcome/verdictِ تأییدشده → خاطرهٔ graded، فقط اگر گیتِ held-out سبز باشد.
+    """یک outcomeِ verify‌شده → خاطرهٔ graded، پشتِ دو گارد (outcome-binding + held-out).
 
-    signal (اجباری): content, mkey, correlation_id, outcome_ref, trust (یکی از _LEARNABLE_TRUST),
-      salience(اختیاری≥min_salience)، provenance(source/producer)، namespace(پیش‌فرض semantic).
-    خروجی: {learned: bool, memory_id?, receipt_id?, eval_verdict, anti_hacking_flag, reason}.
-    هرگز raise نمی‌کند."""
+    signal (اجباری): content, mkey, correlation_id, **outcome_ref** (باید در outcomes.db باشد),
+      trust (یکی از _LEARNABLE_TRUST)، salience، provenance، namespace(پیش‌فرض semantic).
+    outcome_store: برای بایندِ trust به outcomeِ واقعی (اگر None → fail-closed، یاد نمی‌گیرد).
+    خروجی: {learned, memory_id?, receipt_id?, eval_verdict, anti_hacking_flag, reason}. هرگز raise."""
     try:
         if not flag_on():
             return {"learned": False, "reason": "flag-off"}
@@ -80,8 +121,11 @@ def learn_from_outcome(*, memory_gate, signal: dict, receipt_store=None,
             return {"learned": False, "reason": "empty learning content"}
         trust = str(signal.get("trust") or "")
         if trust not in _LEARNABLE_TRUST:
-            # preference/ادعای low-trust → یاد گرفته نمی‌شود (outcome≠preference)
             return {"learned": False, "reason": f"non-outcome trust {trust!r} (preference, not learned)"}
+        # ── گاردِ ۱: outcome-binding (trust باید با یک outcomeِ واقعی پشتیبانی شود) ──
+        ok, why = _verify_outcome(outcome_store, signal.get("outcome_ref"), trust)
+        if not ok:
+            return {"learned": False, "reason": f"unverified outcome — {why} (trust not bound to reality)"}
 
         # ── گیتِ held-out (ضدِخودفریبی) ─────────────────────────────────────────
         ev = _run_eval(evaluator, eval_ctx, internal_metric_pass)

@@ -82,12 +82,20 @@ def _eval_anti_hack(*, internal_metric_pass=True, **kw):
 _LESSON = "painting leads scoring high in category interior tend to be accepted by owner"
 
 
-def _learn(g, rc, evaluator, mkey="lesson-interior-1", trust="OWNER_CONFIRMED",
-           internal=True, salience=0.7):
+_OREF = "corr-L1|P1|accepted-measurement"
+
+
+def _learn(g, rc, oc, evaluator, mkey="lesson-interior-1", trust="OWNER_CONFIRMED",
+           internal=True, salience=0.7, oref=_OREF, record_outcome=True):
+    # outcome-binding: یک outcomeِ واقعی ثبت کن تا trust به آن bind شود (red-team P1)
+    if record_outcome:
+        oc.record({"correlation_id": "corr-L1", "proposal_id": "P1", "leg_id": "lead",
+                   "event_type": "accepted-measurement", "value_aud_claimed": 0.0,
+                   "idempotency_key": _OREF})
     return lg.learn_from_outcome(
-        memory_gate=g, receipt_store=rc,
+        memory_gate=g, receipt_store=rc, outcome_store=oc,
         signal={"content": _LESSON, "mkey": mkey, "correlation_id": "corr-L1",
-                "outcome_ref": "corr-L1|P1|accepted-measurement", "trust": trust,
+                "outcome_ref": oref, "trust": trust,
                 "salience": salience, "source": "owner", "producer": "owner"},
         evaluator=evaluator, internal_metric_pass=internal)
 
@@ -97,7 +105,7 @@ def t_learn_produces_durable_artifact():
     _env_on()
     store, g, rc, oc, _ = _stores("t1")
     try:
-        r = _learn(g, rc, _eval_pass)
+        r = _learn(g, rc, oc, _eval_pass)
         assert r["learned"] and r["memory_id"] and r["receipt_id"] == "recorded", f"{r}"
         assert store.get("semantic", "lesson-interior-1") is not None, "artifact باید در store باشد"
     finally:
@@ -109,7 +117,7 @@ def t_next_decision_cites_learned_memory():
     _env_on()
     store, g, rc, oc, _ = _stores("t2")
     try:
-        r = _learn(g, rc, _eval_pass)
+        r = _learn(g, rc, oc, _eval_pass)
         learned_mid = r["memory_id"]
         lead = {"id": "L-next", "description": "interior painting high score leads accepted"}
         dec = lor.record_lead_decision(lead, oc, rc, memory_store=store,
@@ -127,7 +135,7 @@ def t_harmful_learning_blocked():
     _env_on()
     store, g, rc, oc, _ = _stores("t3")
     try:
-        r = _learn(g, rc, _eval_fail)
+        r = _learn(g, rc, oc, _eval_fail)
         assert not r["learned"] and "harmful" in r["reason"], f"{r}"
         assert store.get("semantic", "lesson-interior-1") is None, "خاطرهٔ مضر نباید نوشته شود"
     finally:
@@ -139,7 +147,7 @@ def t_anti_hacking_blocked():
     _env_on()
     store, g, rc, oc, _ = _stores("t4")
     try:
-        r = _learn(g, rc, _eval_anti_hack, internal=True)
+        r = _learn(g, rc, oc, _eval_anti_hack, internal=True)
         assert not r["learned"] and r["anti_hacking_flag"], f"{r}"
         assert store.get("semantic", "lesson-interior-1") is None
     finally:
@@ -151,8 +159,8 @@ def t_duplicate_learning_is_zero():
     _env_on()
     store, g, rc, oc, _ = _stores("t5")
     try:
-        r1 = _learn(g, rc, _eval_pass)
-        r2 = _learn(g, rc, _eval_pass)   # همان درس دوباره
+        r1 = _learn(g, rc, oc, _eval_pass)
+        r2 = _learn(g, rc, oc, _eval_pass)   # همان درس دوباره
         assert r1["learned"] and not r2["learned"] and r2.get("dedup"), f"{r1} / {r2}"
         n = store._conn.execute(
             "SELECT COUNT(*) FROM memory WHERE mkey='lesson-interior-1'").fetchone()[0]
@@ -166,7 +174,7 @@ def t_preference_not_learned():
     _env_on()
     store, g, rc, oc, _ = _stores("t6")
     try:
-        r = _learn(g, rc, _eval_pass, trust="ADVISORY")   # ادعای low-trust
+        r = _learn(g, rc, oc, _eval_pass, trust="ADVISORY")   # ادعای low-trust
         assert not r["learned"] and "preference" in r["reason"], f"{r}"
     finally:
         _close(store, rc, oc)
@@ -177,13 +185,24 @@ def t_rollback_supersedes():
     _env_on()
     store, g, rc, oc, _ = _stores("t7")
     try:
-        r = _learn(g, rc, _eval_pass)
+        r = _learn(g, rc, oc, _eval_pass)
         mid = r["memory_id"]
+        # پیش‌شرط: خاطره پیش از rollback واقعاً بازیابی می‌شود
+        assert any(h.get("memory_id") == mid for h in
+                   store.search("interior painting accepted", namespace="semantic", k=5))
         rb = lg.rollback_learning(memory_gate=g, memory_id=mid, content=_LESSON,
                                   mkey="lesson-interior-1", reason="regression")
         assert rb["rolled_back"], rb
-        row = store._conn.execute("SELECT valid_to FROM memory WHERE memory_id=?", (mid,)).fetchone()
-        assert row and row[0] is not None, "خاطرهٔ rollback‌شده باید invalidate شود، نه حذف"
+        # red-team P1 fix: خاطرهٔ rollback‌شده دیگر **بازیابی/citable نیست** (نه فقط valid_to≠null)
+        import memory_store as _ms2  # noqa: WPS433
+        now = _ms2._utc_now_iso()
+        active = store._conn.execute(
+            "SELECT 1 FROM memory WHERE memory_id=? AND (valid_to IS NULL OR valid_to>?)",
+            (mid, now)).fetchone()
+        assert active is None, "خاطرهٔ rollback‌شده باید invalidate شود (valid_to→now)"
+        assert not any(h.get("memory_id") == mid for h in
+                       store.search("interior painting accepted", namespace="semantic", k=5)), \
+            "خاطرهٔ rollback‌شده نباید در search بیاید (citable نباشد)"
     finally:
         _close(store, rc, oc)
 
@@ -193,7 +212,7 @@ def t_restart_learned_memory_persists():
     _env_on()
     store, g, rc, oc, memdb = _stores("t8")
     try:
-        r = _learn(g, rc, _eval_pass)
+        r = _learn(g, rc, oc, _eval_pass)
         mid = r["memory_id"]
     finally:
         _close(store, rc, oc)
@@ -207,8 +226,29 @@ def t_restart_learned_memory_persists():
         _close(store2)
 
 
+# ── ۹: trustِ جعلی (outcome_ref در outcomes.db نیست) → رد ───────────────────────
+def t_forged_trust_rejected():
+    _env_on()
+    store, g, rc, oc, _ = _stores("t9")
+    try:
+        # trust=OWNER_CONFIRMED ولی هیچ outcomeِ واقعی ثبت نشده (outcome_ref جعلی)
+        r = _learn(g, rc, oc, _eval_pass, oref="corr-FORGED|X|accepted-measurement",
+                   record_outcome=False)
+        assert not r["learned"] and "unverified outcome" in r["reason"], f"{r}"
+        assert store.get("semantic", "lesson-interior-1") is None, "trustِ جعلی نباید یاد گرفته شود"
+        # و بدونِ outcome_store هم fail-closed
+        r2 = lg.learn_from_outcome(memory_gate=g, receipt_store=rc, outcome_store=None,
+                                   signal={"content": _LESSON, "mkey": "x", "trust": "OWNER_CONFIRMED",
+                                           "outcome_ref": _OREF, "salience": 0.7},
+                                   evaluator=_eval_pass)
+        assert not r2["learned"] and "no-outcome-store" in r2["reason"], f"{r2}"
+    finally:
+        _close(store, rc, oc)
+
+
 if __name__ == "__main__":
     failed = harness.run([
+        ("[۹] trustِ جعلی (outcome بایند نشده) رد", t_forged_trust_rejected),
         ("[۱] artifactِ durable (memory+receipt)", t_learn_produces_durable_artifact),
         ("[۲] تصمیمِ بعدی خاطره را استناد می‌کند", t_next_decision_cites_learned_memory),
         ("[۳] held-out FAIL → یادگیریِ مضر مسدود", t_harmful_learning_blocked),
