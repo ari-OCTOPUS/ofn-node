@@ -379,7 +379,9 @@ class TelegramApprovalChannel(ApprovalChannel):
                             self._answer_callback_query(cbq_id, reply or "📝")
                 else:
                     # text message → handle_command + send reply
-                    reply = self.handle_command(str(text), chat_id=chat_id)
+                    # from_id thread-through: مرزِ سختِ سراسری فقط owner (red-team GOV-P1)
+                    reply = self.handle_command(str(text), chat_id=chat_id,
+                                                from_id=from_id)
                     if reply is not None:
                         if isinstance(reply, dict):
                             self.send_text(reply.get("text", ""),
@@ -524,10 +526,23 @@ class TelegramApprovalChannel(ApprovalChannel):
         if amount_aud <= 0:
             return False
         token = self._new_token(effect_id, amount_aud)
+        # C-caller-migration (2026-07-23): snapshotِ bindingِ ردیفِ gate در لحظهٔ ساختِ
+        # کارت — approve بعداً همین را ارائه می‌دهد (نه بازخوانی از DB) تا اگر ردیف بعد
+        # از کارت عوض شود، release_effect دقیقِ C4 با mismatch رد کند (ضدِ card-swap).
+        # پول بدونِ این snapshot از C4.1 رد می‌شود (id-only) — پس fail-closed می‌ماند.
+        _bind = {}
+        try:
+            if self._gate is not None and hasattr(self._gate, "binding_of"):
+                _bind = self._gate.binding_of(effect_id) or {}
+        except Exception:  # noqa: BLE001 — snapshot اختیاری؛ نبودش = مسیرِ fail-closedِ قبلی
+            _bind = {}
         with self._lk:
             self._pending[effect_id] = {"amount_aud": float(amount_aud),
                                         "summary": str(summary)[:500],
                                         "guard": str(guard_verdict)[:200],
+                                        "content_hash": _bind.get("content_hash"),
+                                        "action_kind": _bind.get("action_kind"),
+                                        "target_ref": _bind.get("target_ref"),
                                         "token": token, "status": "pending"}
         # جلسه ۴۶: رویدادِ ساختاریافته برای داشبورد (بی‌محتوا — بدونِ خودِ summaryِ کارت)
         try:
@@ -775,6 +790,18 @@ class TelegramApprovalChannel(ApprovalChannel):
         judgment = {"verdict": "approve", "effect_id": effect_id,
                     "amount_aud": amount, "source": "telegram",
                     "summary": meta.get("summary", "")}
+        # C-caller-migration (2026-07-23): اگر کارت با snapshotِ binding ساخته شده،
+        # approve همان bindingِ ارائه‌شده به مالک را حمل می‌کند → routing به
+        # release_effectِ دقیقِ C4 می‌رود (تنها مسیرِ مجازِ پول/E4)، با approval_idِ
+        # تک‌مصرفهٔ مشتق از توکنِ ضدِ جعلِ همین کارت (anti-replay در DB).
+        # کارتِ بدونِ snapshot → مسیرِ id-only قبلی (release_one؛ پول را C4.1 رد می‌کند).
+        if meta.get("content_hash"):
+            judgment.update({
+                "content_hash": meta.get("content_hash"),
+                "action_kind": meta.get("action_kind"),
+                "target_ref": meta.get("target_ref"),
+                "approval_id": f"tg:{effect_id}:{meta.get('token', '')}",
+                "approved_by": "owner-telegram"})
         try:
             # جلسه ۴۶: توکنِ human-append — اثباتِ اینکه این append از تلگرام (مالک) است،
             # نه کدِ جعل‌کننده. گاردِ خاموش → None → رفتارِ قبلی (downgrade در chrono، بی‌خطر).
@@ -1039,16 +1066,32 @@ class TelegramApprovalChannel(ApprovalChannel):
             return False
         return True
 
-    def handle_command(self, text: str, chat_id: int | None = None) -> str | None:
+    # دستوراتِ مرزِ-سختِ سراسری/kill — حتی داخلِ یک گروهِ allowlisted فقط شخصِ مالک
+    # (from_id == owner) مجاز است، نه هر عضوِ گروه. (red-team GOV-P1، 2026-07-23)
+    _OWNER_ONLY_COMMANDS = frozenset({"/panic", "/resume", "/stop"})
+
+    def handle_command(self, text: str, chat_id: int | None = None,
+                       from_id: int | None = None) -> str | None:
         """routerِ دستوراتِ مالک. text = پیامِ ورودیِ مالک (بعد از allowlist).
         chat_id = همان chat که فرمان از آن آمد (گروه یا چتِ ۱:۱)؛ برای delegation به
         langar_bridge (فاز ۲). None = رفتارِ قبلی (owner) برای backward-compat.
+        from_id = فرستندهٔ واقعیِ پیام. دستوراتِ مرزِ-سختِ سراسری/kill
+        (_OWNER_ONLY_COMMANDS) حتی در یک گروهِ allowlisted فقط با from_id==owner
+        اجرا می‌شوند — عضویتِ chat در allowlist برای پاک‌کردنِ HALT-ALL کافی نیست.
+        from_id=None → backward-compat (فراخوانیِ برنامه‌ایِ owner-trusted؛ گارد رد نمی‌کند).
         خروجی = متنِ پاسخ (یا None برای نادیده). هر دستور فقط یک UI را برمی‌گرداند.
         UX v2: /start منو + HTML غنی + حذفِ T-4/T-6/reentry از router.
         هیچ ورودیِ untrustedای اجرا نمی‌شود — فقط ورودیِ validated به propose می‌رود."""
         t = (text or "").strip()
         if not t:
             return None
+        # owner-gate: مرزِ سختِ سراسری فقط دستِ خودِ مالک — نه هر عضوِ گروهِ مجاز.
+        if t in self._OWNER_ONLY_COMMANDS and from_id is not None:
+            try:
+                if int(from_id) != int(self._owner):
+                    return "⛔ فقط مالک می‌تواند این دستورِ مرزِ سراسری را اجرا کند."
+            except (TypeError, ValueError):
+                return "⛔ فرستندهٔ نامعتبر برای دستورِ مرزِ سراسری."
         # اگر مالک وسطِ حالتِ متنِ آزادِ حسابدار یک دستورِ / زد = تغییرِ زمینه → حالتِ متن را ببند
         # (تا پیامِ بعدیِ نامرتبط اشتباهاً جوابِ حسابداری تلقی نشود — رفعِ sticky-flagِ audit)
         if t.startswith("/"):

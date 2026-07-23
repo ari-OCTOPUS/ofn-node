@@ -186,6 +186,12 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_cartographer_leg.py",
          "test_cartographer_wiring.py",
          "test_master_halt.py",
+         # 2026-07-23 D1: outbound worker honors canonical hard-halt at entry (was RISK: 0 halt refs;
+         # safety relied on downstream gate + NOT_ARMED stub). master_halted() supreme over flag. script-native.
+         "test_d1_outbound_halt.py",
+         # 2026-07-23 D2: every wiring beat honors canonical hard-halt (static coverage guard,
+         # 28/28) + _tg_halt_reason/master_halted functional under HALT-ALL/architect-STOP. script-native.
+         "test_d2_halt_coverage.py",
          "test_panic_command.py", "test_tg_restart.py", "test_backup_visibility.py",
          "test_cortex_shadow_wiring.py", "test_route_scorer_wire.py",
          "test_leg_chain_wire.py", "test_render_legs.py", "test_new_legs.py",
@@ -274,6 +280,50 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # 2026-07-18 رأی مالک «سریع‌تر + هوشمندتر» (فاز ب+الف؛ ج پارک): boot-think،
          # گیتِ کیفیتِ محلی-اول (پایانِ گرسنگیِ Fugu)، ماشهٔ کورتیزولی (flag-off).
          "test_brain_cortisol.py",
+         # 2026-07-22 PRE-0/F: تست‌های هرمتیکِ سه BLOCKER (fail-closed guard، id-bound
+         # release، STOP canonical). pytest-native (monkeypatch)؛ در PYTEST_TESTS ثبت شد.
+         "test_blocker_fixes_2026_07_22.py",
+         # 2026-07-22 C1: چارچوبِ migrationِ اسکیمای chrono.db (حذفِ PRAGMAِ clobber‌کننده از
+         # DDL + dispatcherِ transactionalِ fail-closed + تفکیکِ empty/legacy/malformed). script-native.
+         "test_chrono_schema_migration.py",
+         # 2026-07-22 C3: RESURRECTED از phantom (owner #7) — idempotency در request()
+         # (UNIQUE(idempotency_key)؛ keyless=بدون dedup؛ same-key+different-content=Conflict). script-native.
+         "test_effector_idempotency.py",
+         # 2026-07-23 C4: exact per-effect fail-closed money/E4 authorization — money NEVER
+         # batches (release_gated_effects excludes _E4_MONEY_KINDS)؛ release_effect single
+         # atomic bind (id+content_hash+action_kind+target_ref+single-use approval+expiry). script-native.
+         "test_c4_exact_authorization.py",
+         # 2026-07-23 C4.1: close the E4 id-only single-effect bypass — release_one REFUSES
+         # money (E4 releasable ONLY via release_effect exact binding + human ledger ref);
+         # legacy-unbound money → NEEDS_OWNER_REVIEW. script-native.
+         "test_c41_e4_id_only.py",
+         # 2026-07-23 C5: CAS execution — migration v4 (execution columns + EXECUTING/
+         # FAILED_SAFE/RECONCILE_REQUIRED در CHECK؛ ایندکسِ UNIQUEِ C3 پس از rebuild بازساخته
+         # می‌شود)؛ claim/commit اتمیک با execution_id (دو executor یک برنده؛ stale/wrong xid
+         # هرگز finalize نمی‌کند)؛ halt-during → RECONCILE_REQUIRED؛ settle بی‌TOCTOU. script-native.
+         "test_c5_cas_execution.py",
+         # 2026-07-23 C6: receipt/reconciliation lane — sweep جداگانهٔ releasableِ کهنه
+         # (refuseِ امنِ پیش-claim) و EXECUTINGِ کهنه (→ RECONCILE_REQUIRED، هرگز refuseِ
+         # دروغین)؛ reconcile_effect انسانی با evidence+operator (receipt هرگز بازنویسی
+         # نمی‌شود)؛ redrive_approval بدونِ appendِ دوباره (crash window a، idempotent). script-native.
+         "test_c6_receipt_reconciliation.py",
+         # 2026-07-23 D3/D4/D5: (D3) صفر provider-call/authorization/settle زیرِ HALT-ALL —
+         # شکافِ release_one/release_gated_effects بی‌گاردِ kill هم بسته شد؛ (D4) گاردِ
+         # boot-halt در هر ۶ launcher + parity واچ‌داگ PS1/py + ماتریسِ should_revive؛
+         # (D5) سناریوی ترکیبیِ halt با زمانِ مجازی: صفر اثر زیرِ halt، بدونِ duplicate،
+         # recovery تمیز + reconcile. script-native.
+         "test_d3_provider_effect_halt.py",
+         "test_d4_launcher_halt.py",
+         "test_d5_halt_integration.py",
+         # 2026-07-23 PRE-0: ده invariant قانون اساسی از نقاطِ ورودِ واقعی (MemoryGate،
+         # model_router زیرِ halt، on_human_judgment با گیتِ واقعی، code_autonomy.allowed_target،
+         # watchdog/launcher) + seamهای canonicalِ governance برای لاین‌های هنوز-غیرفعال. script-native.
+         "test_pre0_real_entry.py",
+         # 2026-07-22 F-COVERAGE adjudication: test_tg_approval_store دیگر orphanِ رد نیست —
+         # ماژول/API واقعی است و reachable در production (center.py:1223-1224 approve/reject روی
+         # مسیرِ approval مالک). تنها شکست، stale characterization بود (whitelistِ t_n فاقدِ
+         # expires_epoch)؛ contract migrate شد. invariantِ content-free دست‌نخورده. script-native.
+         "test_tg_approval_store.py",
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
@@ -289,6 +339,7 @@ PYTEST_TESTS = {
     # (fixtureِ monkeypatch/tmp_path) هستند؛ این‌جا ثبت شدند تا واقعاً اجرا شوند.
     "test_ziman_wiring.py", "test_ziman_biology.py",
     "test_cartographer_leg.py", "test_cartographer_wiring.py",
+    "test_blocker_fixes_2026_07_22.py",   # pytest-native (monkeypatch fixtures)
 }
 
 if __name__ == "__main__":

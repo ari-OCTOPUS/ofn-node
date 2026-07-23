@@ -97,6 +97,41 @@ def test_nonowner_panic_does_not_write() -> None:
     assert opslib.master_halted() is None
 
 
+def test_group_member_cannot_clear_halt_all() -> None:
+    """red-team GOV-P1: در یک گروهِ allowlisted، عضوی که مالک نیست (from_id != owner)
+    نباید بتواند با /resume مرزِ سختِ سراسری را پاک کند — عضویتِ chat کافی نیست."""
+    d = _tmp()
+    _isolate_opslib(d)
+    ch = _channel(owner=123, state_dir=d / "state")
+    opslib.raise_halt_all("test setup")
+    assert opslib.master_halted() == "HALT-ALL"
+    # عضوِ گروه (from_id=999) — گروه در allowlist است ولی فرستنده مالک نیست
+    reply = ch.handle_command("/resume", chat_id=555, from_id=999)
+    assert opslib.HALT_ALL.exists(), "غیرِمالک نباید HALT-ALL را پاک کند"
+    assert opslib.master_halted() == "HALT-ALL"
+    assert reply is not None and "مالک" in reply
+    # همان دستور، همان گروه، ولی از خودِ مالک → پاک می‌شود
+    reply2 = ch.handle_command("/resume", chat_id=555, from_id=123)
+    assert not opslib.HALT_ALL.exists()
+    assert opslib.master_halted() is None
+    assert "🟢" in reply2
+
+
+def test_group_member_cannot_panic_or_stop() -> None:
+    """/panic و /stop هم owner-only اند حتی داخلِ گروهِ allowlisted."""
+    d = _tmp()
+    _isolate_opslib(d)
+    (d / "state").mkdir(parents=True, exist_ok=True)
+    ch = _channel(owner=123, state_dir=d / "state")
+    assert "مالک" in ch.handle_command("/panic", chat_id=555, from_id=999)
+    assert not opslib.HALT_ALL.exists()
+    assert "مالک" in ch.handle_command("/stop", chat_id=555, from_id=999)
+    assert not (d / "STOP-ORGANISM").exists()
+    # backward-compat: from_id=None (فراخوانیِ برنامه‌ایِ owner-trusted) گارد را رد نمی‌کند
+    ch.handle_command("/panic")
+    assert opslib.HALT_ALL.exists()
+
+
 def test_stop_still_writes_organism() -> None:
     """/stop تضعیف نشده: kill_switch همچنان STOP-ORGANISM می‌نویسد (state_dir → _ops)."""
     d = _tmp()

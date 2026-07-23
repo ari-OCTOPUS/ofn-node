@@ -1,4 +1,7 @@
 @echo off
+rem D4 (2026-07-23): boot-time global-halt guard (HALT-ALL / architect STOP) - never restart under it.
+if exist "F:\backup\_ops\HALT-ALL" goto globalhalt
+if exist "F:\backup\04 - Architect System\STOP" goto globalhalt
 echo.
 echo   Restarting the organism so Telegram turns on.
 echo.
@@ -14,4 +17,8 @@ echo   Done. A NEW black window should now be open and staying open.
 echo   That new window IS the organism - leave it open.
 echo   You can close THIS window now.
 echo.
+pause
+goto :eof
+:globalhalt
+echo GLOBAL HALT active (HALT-ALL or architect STOP) - refusing to restart the organism.
 pause

@@ -1,0 +1,58 @@
+{
+ "passed": 13,
+ "total": 13,
+ "checks": [
+  {
+   "name": "migration -> version=2 + content_hash column exists",
+   "pass": true
+  },
+  {
+   "name": "legacy unbound pending -> NEEDS_OWNER_REVIEW (never releasable)",
+   "pass": true
+  },
+  {
+   "name": "migration idempotent (up twice, not recreated again)",
+   "pass": true
+  },
+  {
+   "name": "1 two pending / one approval -> exactly one releasable",
+   "pass": true
+  },
+  {
+   "name": "3 mismatched content_hash -> 0",
+   "pass": true
+  },
+  {
+   "name": "4 mismatched target -> 0",
+   "pass": true
+  },
+  {
+   "name": "5 mismatched action -> 0",
+   "pass": true
+  },
+  {
+   "name": "2 approval without effect_id binding -> 0",
+   "pass": true
+  },
+  {
+   "name": "7 expired approval -> 0",
+   "pass": true
+  },
+  {
+   "name": "8 replayed approval -> 0 (single-use)",
+   "pass": true
+  },
+  {
+   "name": "9 duplicate idempotency_key -> one effect",
+   "pass": true
+  },
+  {
+   "name": "money batch release disabled -> 0",
+   "pass": true
+  },
+  {
+   "name": "15 rollback copy retains v1 shape (no v2 columns, version 0)",
+   "pass": true
+  }
+ ]
+}

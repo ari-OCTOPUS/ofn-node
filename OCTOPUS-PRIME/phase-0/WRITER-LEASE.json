@@ -1,0 +1,22 @@
+﻿{
+    "_schema":  "writer-lease.v1",
+    "session_id":  "24bd5d85-9058-4c7d-a2e4-2cdae0bd52ff",
+    "agent_identity":  "claude-fable-5 (single-commander session, owner-mandated continuation)",
+    "repo":  "F:\\octopus-phase0-isolated",
+    "branch":  "blocker-fixes-2026-07-22",
+    "starting_head":  "7dfe991",
+    "acquired_at":  "2026-07-22T23:56:52Z",
+    "expires_at":  "2026-07-23T01:43:37Z",
+    "heartbeat":  "2026-07-23T00:44:45Z",
+    "allowed_scope":  "OCTOPUS-PRIME/phase-0 + _ops effector/chrono surgery in ISOLATED repo only",
+    "owner_mission_id":  "phase-0-token-lean-real-surgery-2026-07-23",
+    "not_authority_for":  "live action (merge/DB/flags/restart/halt-clear/send/provider/activation) - FORBIDDEN",
+    "stale_after_min":  90,
+    "single_writer":  true,
+    "status":  "RELEASED",
+    "active_milestone":  "OWNER_PACKET_DELIVERED",
+    "work_this_session":  "C5 CAS execution: migration v4 + begin/complete/fail_execution + atomic settle; test_c5_cas_execution 33/33 + full effector/chrono regression green; EXECUTION-STATE + handoff updated",
+    "reacquired_at":  "2026-07-23T00:13:37Z",
+    "released_at":  "2026-07-23T01:13:07Z",
+    "released_reason":  "PHASE-0 CANDIDATE COMPLETE at 895c452: C1-C7 + D1-D5 + PRE-0 + full C-gate (263/263) + red team (4 confirmed all fixed) + Owner Packet. Stopped at owner deploy boundary."
+}

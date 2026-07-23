@@ -13,6 +13,11 @@ set PYTHONUTF8=1
 set PYTHONIOENCODING=utf-8
 cd /d F:\backup\_ops
 :loop
+rem D4 (2026-07-23): boot-time GLOBAL halt guard - the supreme owner boundary (HALT-ALL
+rem panic or architect STOP) refuses boot AND loop-restart here, so there is never a
+rem boot-and-exit churn under a global halt. Scoped STOP-ORGANISM handling stays below.
+if exist "F:\backup\_ops\HALT-ALL" goto globalhalt
+if exist "F:\backup\04 - Architect System\STOP" goto globalhalt
 rem Guard: if the organism is already alive on 8771, this launcher is a duplicate. Don't
 rem spawn a second loop that just bounces off the port (that was the 2026-07-10 restart-loop).
 powershell -NoProfile -Command "if (Get-NetTCPConnection -LocalPort 8771 -State Listen -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"
@@ -45,3 +50,7 @@ goto :eof
 :stopped
 echo STOP-ORGANISM flag found - launcher ends here.
 echo To run again: delete F:\backup\_ops\STOP-ORGANISM then double-click this .bat.
+goto :eof
+:globalhalt
+echo GLOBAL HALT active (HALT-ALL or architect STOP) - refusing to boot the organism.
+echo Clear the halt flag (owner decision) and run this .bat again.

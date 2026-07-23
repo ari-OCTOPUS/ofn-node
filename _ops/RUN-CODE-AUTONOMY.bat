@@ -10,6 +10,9 @@ set PYTHONUTF8=1
 set PYTHONIOENCODING=utf-8
 cd /d F:\backup\_ops
 :loop
+rem D4 (2026-07-23): boot-time global-halt guard (HALT-ALL / architect STOP) - supreme over scoped stop.
+if exist "F:\backup\_ops\HALT-ALL" goto globalhalt
+if exist "F:\backup\04 - Architect System\STOP" goto globalhalt
 if exist "F:\backup\_ops\STOP-CODE-AUTONOMY" goto stopped
 python -X utf8 cortex\code_autonomy.py run
 echo code-autonomy exited - waiting 10 seconds ... press Ctrl+C twice to stop
@@ -18,3 +21,6 @@ goto loop
 :stopped
 echo STOP-CODE-AUTONOMY flag found - driver ends here.
 echo To run again: delete F:\backup\_ops\STOP-CODE-AUTONOMY then run this .bat.
+goto :eof
+:globalhalt
+echo GLOBAL HALT active (HALT-ALL or architect STOP) - refusing to run code-autonomy.

@@ -27,6 +27,11 @@ env_status = env_loader.load_env()
 
 import opslib  # noqa: E402
 from client import MultiProviderClient, RefuseToSend, TelemetryError, GATEWAY_URL  # noqa: E402
+import client as _client  # noqa: E402
+# F-G8: constructing MultiProviderClient without a transport calls _gateway_is_up()
+# which pings localhost:4000 (LiteLLM). Force the offline path so no gateway ping
+# leaves the process (barrier blocks it anyway; this makes attempts == 0).
+_client._gateway_is_up = lambda: False
 
 # budgets.yaml واقعی (نه harness mock) — تست‌های routing/structural آن را می‌خوانند
 REAL_BUDGETS_PATH = _OPS / "budget" / "budgets.yaml"

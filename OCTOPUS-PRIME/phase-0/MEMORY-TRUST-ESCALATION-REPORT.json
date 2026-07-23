@@ -1,0 +1,36 @@
+{
+ "invariant": "claimant-controlled field cannot promote trust; GRADED requires an independent, content-bound, validated receipt",
+ "checks": [
+  {
+   "name": "1 claimant external_graded flag + no receipt => not promoted",
+   "pass": true
+  },
+  {
+   "name": "2 forged/partial receipt => not promoted",
+   "pass": true
+  },
+  {
+   "name": "3 self-grader == claimant => not promoted",
+   "pass": true
+  },
+  {
+   "name": "4 mismatched content hash => not promoted",
+   "pass": true
+  },
+  {
+   "name": "5 valid INDEPENDENT receipt => promoted (GRADED)",
+   "pass": true
+  },
+  {
+   "name": "6 exception in grader validation => not promoted (fail-closed)",
+   "pass": true
+  },
+  {
+   "name": "7 no canonical validator => promotion stays OPEN (ADVISORY)",
+   "pass": true
+  }
+ ],
+ "passed": 7,
+ "total": 7,
+ "fix": "_ops/memory/gate.py _verify_external_grade; green-lie test_memory_gate::t_b corrected to ADVISORY"
+}
