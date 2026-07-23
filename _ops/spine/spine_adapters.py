@@ -114,6 +114,60 @@ def emit_canonical(*, event: str, domain: str, correlation_id: str, subject=None
         return {"published": False, "reason": f"failsoft:{type(e).__name__}"}
 
 
+# ── C4: سطحِ تولیدِ واحدِ عام (single producer surface) ─────────────────────────
+# قرارداد envelope (step 10): هر رویدادِ spine باید این‌ها را داشته باشد. publish خودش
+# event_id/occurred_at/recorded_at/schema_version را می‌سازد و correlation_id/event_type/
+# domain را اجباری می‌کند؛ این‌جا provenance (producer/trust) را هم به قرارداد اضافه می‌کنیم.
+REQUIRED_ENVELOPE = ("event_id", "idempotency_key", "event_type", "domain",
+                     "occurred_at", "recorded_at", "producer", "correlation_id",
+                     "trust", "schema_version")
+
+
+def validate_row(row: dict) -> "tuple[bool, list]":
+    """قراردادِ envelope را روی یک ردیفِ spine (dict از events) بسنج. (ok, missing/invalid)."""
+    missing = [k for k in REQUIRED_ENVELOPE
+               if row.get(k) is None or (isinstance(row.get(k), str) and not row.get(k).strip())]
+    bad = []
+    if not event_spine.tax.is_event_type(str(row.get("event_type") or "")):
+        bad.append("event_type")
+    if not event_spine.tax.is_trust(row.get("trust")):
+        bad.append("trust")
+    return (not missing and not bad, missing + [f"invalid:{b}" for b in bad])
+
+
+def emit_event(*, event_type: str, domain: str, correlation_id: str, subject=None,
+               mission_id=None, producer: str = "unknown", trust: str = "ADVISORY",
+               payload=None, idempotency_key=None, spine=None) -> dict:
+    """**سطحِ تولیدِ واحدِ spine** (C4). هر producer — چه دامنه‌ایِ typed و چه verdict/lead —
+    از همین در می‌گذرد؛ نه dual_write خام. مثلِ emit_canonical است ولی به CANONICAL_EVENTS
+    محدود نیست (هر event_typeِ معتبرِ taxonomy). producer اجباری (provenance هرگز null).
+    هرگز raise نمی‌کند؛ flag خاموش → صفر I/O؛ idempotent."""
+    try:
+        if not flag_on():
+            return {"published": False, "reason": "flag-off"}
+        if not str(producer or "").strip():
+            producer = "unknown"
+        own = spine is None
+        if own:
+            p = _default_db_path()
+            spine = event_spine.EventSpine(path=p) if p is not None else event_spine.EventSpine()
+        try:
+            ev = {"event_type": str(event_type or ""), "domain": str(domain or ""),
+                  "correlation_id": str(correlation_id or ""),
+                  "mission_id": (str(mission_id)[:64] if mission_id else None),
+                  "subject": (str(subject)[:64] if subject else None),
+                  "producer": str(producer)[:48], "trust": trust,
+                  "payload": sanitize_payload(payload)}
+            if idempotency_key:
+                ev["idempotency_key"] = str(idempotency_key)[:200]
+            return event_spine.dual_write(spine, ev)
+        finally:
+            if own and spine is not None:
+                spine.close()
+    except Exception as e:  # noqa: BLE001 — سطحِ تولید هرگز مسیرِ اصلی را نمی‌کشد
+        return {"published": False, "reason": f"failsoft:{type(e).__name__}"}
+
+
 # ── آداپتورهای نامدار (قراردادِ هر دامنه یک‌جا) ─────────────────────────────────
 def proposal_issued(*, proposal_id: str, domain: str, leg_id: str = "unknown",
                     kind: str = "", correlation_id=None, mission_id=None,

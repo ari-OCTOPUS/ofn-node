@@ -84,11 +84,21 @@ def record_owner_verdict(outcome_store, *, proposal_id: str, verdict: str,
         try:
             import event_spine as _esx   # noqa: WPS433
             if _esx.flag_on():
-                _esx.dual_write(event_spine, {
-                    "event_type": et, "domain": "proposal",
-                    "correlation_id": corr, "mission_id": str(mission_id or ""),
-                    "subject": pid, "producer": "owner_verdict", "trust": "OWNER_CONFIRMED",
-                    "payload": {"leg_id": str(leg_id or "unknown"), "measurement_only": True}})
+                _pl = {"leg_id": str(leg_id or "unknown"), "measurement_only": True}
+                # C4: سطحِ تولیدِ واحدِ spine پشتِ compat flag (پیش‌فرض 0 = dual_write خام،
+                # رفتار دست‌نخورده؛ parity اثبات‌شده). 1 = همه از spine_adapters.emit_event.
+                if os.environ.get("OCTOPUS_SPINE_VIA_ADAPTER") == "1":
+                    import spine_adapters as _sa   # noqa: WPS433
+                    _sa.emit_event(spine=event_spine, event_type=et, domain="proposal",
+                                   correlation_id=corr, mission_id=str(mission_id or ""),
+                                   subject=pid, producer="owner_verdict",
+                                   trust="OWNER_CONFIRMED", payload=_pl)
+                else:
+                    _esx.dual_write(event_spine, {
+                        "event_type": et, "domain": "proposal",
+                        "correlation_id": corr, "mission_id": str(mission_id or ""),
+                        "subject": pid, "producer": "owner_verdict", "trust": "OWNER_CONFIRMED",
+                        "payload": _pl})
                 spine_wrote = True
         except Exception:  # noqa: BLE001 — spine نباید ثبتِ رأی را بکشد
             spine_wrote = False

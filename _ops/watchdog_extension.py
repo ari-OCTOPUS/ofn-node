@@ -205,24 +205,25 @@ class WatchdogMonitor:
                 "details": alert,
                 "ts": now,
             }
+            # C4 (OVERLAP-0 fix): events.jsonl (سینکِ داشبوردِ canonical) را **همیشه** بنویس
+            # تا هشدار وقتی unified_bus روشن شود ناپدید نشود. unified_bus (substrateِ متابولیک)
+            # علاوه بر آن نوشته می‌شود اگر حاضر باشد — دو مقصد، نه either/or.
+            try:
+                import events
+                events.emit("watchdog.alert", "watchdog", status="alert",
+                            summary=f"{key}: {alert.get('details', alert)}",
+                            next_action="check organism health")
+                published.append({"published": True, "sink": "events.jsonl", "payload": payload})
+            except Exception:  # noqa: BLE001
+                published.append({"published": False, "sink": "events.jsonl", "payload": payload})
             if self._bus is not None:
                 try:
                     bus_payload = {"subtype": "WATCHDOG_ALERT", **payload}
                     entry = self._bus.publish("NOTE", bus_payload, actor="watchdog", is_human=False)
-                    published.append({"published": True, "entry": entry, "payload": bus_payload})
+                    published.append({"published": True, "sink": "unified_bus", "entry": entry})
                 except Exception as exc:  # noqa: BLE001
                     logger.error("publish failed for %s: %s", key, exc)
-                    published.append({"published": False, "error": str(exc), "payload": payload})
-            else:
-                # fallback: events.jsonl
-                published.append({"published": False, "fallback": "no-bus", "payload": payload})
-                try:
-                    import events
-                    events.emit("watchdog.alert", "watchdog", status="alert",
-                                summary=f"{key}: {alert.get('details', alert)}",
-                                next_action="check organism health")
-                except Exception:  # noqa: BLE001
-                    pass
+                    published.append({"published": False, "sink": "unified_bus", "error": str(exc)})
         return published
 
     def tick(self) -> dict:

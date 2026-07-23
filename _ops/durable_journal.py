@@ -34,6 +34,8 @@ import time
 from pathlib import Path
 from typing import Optional
 
+# C4 note: این ماژول دیگر یتیم نیست — از 2026-07-23 (C2-D) دو producer/consumer زنده دارد:
+# doctor.doctor._journal (propose/sandbox/submit) و journal_recovery.boot_recovery.
 _STATUSES = ("start", "ok", "error")
 
 

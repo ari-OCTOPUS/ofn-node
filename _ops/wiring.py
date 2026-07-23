@@ -1801,17 +1801,31 @@ def _record_lead_decisions(items, beat: int = 0) -> dict:
                     out["recorded"] += 1
                     if spine is not None:   # dual-write زنجیره به SoTِ یگانه (shadow، fail-soft)
                         try:
+                            _via_adapter = os.environ.get("OCTOPUS_SPINE_VIA_ADAPTER") == "1"
+                            _sa2 = None
+                            if _via_adapter:
+                                import spine_adapters as _sa2   # noqa: WPS433
                             for _et, _tr in (("decided", "DETERMINISTIC"),
                                              ("delivered", "UNVERIFIED")):
-                                _esx.dual_write(spine, {
-                                    "event_type": _et, "domain": "lead",
-                                    "correlation_id": res["correlation_id"],
-                                    "mission_id": res["mission_id"],
-                                    "subject": res["proposal_id"],
-                                    "producer": "lead_outcome_recorder", "trust": _tr,
-                                    "payload": {"receipt_id": res["receipt_id"],
-                                                "outcome_ref": res["outcome_ref"],
-                                                "verdict": res["verdict"]}})
+                                _pl2 = {"receipt_id": res["receipt_id"],
+                                        "outcome_ref": res["outcome_ref"],
+                                        "verdict": res["verdict"]}
+                                # C4: سطحِ تولیدِ واحد پشتِ compat flag (پیش‌فرض 0، parity-proven)
+                                if _via_adapter and _sa2 is not None:
+                                    _sa2.emit_event(spine=spine, event_type=_et, domain="lead",
+                                                    correlation_id=res["correlation_id"],
+                                                    mission_id=res["mission_id"],
+                                                    subject=res["proposal_id"],
+                                                    producer="lead_outcome_recorder",
+                                                    trust=_tr, payload=_pl2)
+                                else:
+                                    _esx.dual_write(spine, {
+                                        "event_type": _et, "domain": "lead",
+                                        "correlation_id": res["correlation_id"],
+                                        "mission_id": res["mission_id"],
+                                        "subject": res["proposal_id"],
+                                        "producer": "lead_outcome_recorder", "trust": _tr,
+                                        "payload": _pl2})
                             out["spine_events"] = out.get("spine_events", 0) + 2
                         except Exception:  # noqa: BLE001 — spine نباید ثبت را بشکند
                             pass

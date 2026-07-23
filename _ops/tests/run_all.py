@@ -96,6 +96,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_journal_recovery.py",
          "test_boot_certificate.py",
          "test_restart_battery.py",
+         # 2026-07-23 C4 (One Event Spine): سطحِ تولیدِ واحدِ spine (spine_adapters.emit_event)،
+         # قراردادِ envelope ۱۰-فیلده + provenanceِ never-null، و PARITYِ dual_write==emit_event
+         # (۲ callerِ مستقیم پشتِ OCTOPUS_SPINE_VIA_ADAPTER قرنطینه، پیش‌فرض 0).
+         "test_spine_single_surface.py",
          # 2026-07-20 Sol Step 5: حلقهٔ ارزشِ Paper Lead سرتاسری (معیارِ اصلیِ پایان) — لیدِ synthetic
          # از توابعِ واقعیِ production: score→quote→کارتِ TG(sandbox)→receipt+outcome→رأیِ مالک→spine→
          # replay→metricsِ قطعی→digest. صفر شبکه/پول/send؛ IDها ثابت؛ حلقه واقعاً بسته.

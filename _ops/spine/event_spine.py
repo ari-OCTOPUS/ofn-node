@@ -116,7 +116,8 @@ class EventSpine:
         trust = ev.get("trust")
         trust = trust if tax.is_trust(trust) else "UNKNOWN"
         row = (eid, idem, et, domain, str(ev.get("occurred_at") or _utc_now_iso()), _utc_now_iso(),
-               ev.get("producer"), _inti(ev.get("producer_sequence")), corr, ev.get("mission_id"),
+               (ev.get("producer") or "unknown"),   # C4: provenance هرگز null (قراردادِ envelope)
+               _inti(ev.get("producer_sequence")), corr, ev.get("mission_id"),
                ev.get("subject"), trust, SCHEMA_VERSION,
                json.dumps(ev.get("payload") or {}, ensure_ascii=False, sort_keys=True))
         with _LOCK:
