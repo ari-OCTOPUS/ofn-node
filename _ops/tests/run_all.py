@@ -109,6 +109,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # (beat_counter durable، beatِ بعدی نه دوباره)، HALT فقط فازهای امن، ACT dry-run
          # (صفر double-actuation)، system.beat→spine، watchdogِ stall. پشتِ OCTOPUS_ONE_HEARTBEAT=0.
          "test_beat_scheduler.py",
+         # C7 Slice 4: brain_core shadow composition root (real read-only adapters, zero ACT, parity, flag off)
+         "test_brain_core.py",
          # 2026-07-23 C6 (Research & Governed Self-Improvement): research_contract (immutable،
          # falsifiable، tools fail-closed به constitutional-allowed) + research_loop (governance-gated،
          # budget سخت، falsify→terminate بدونِ بازنویسیِ بی‌نهایت، held-out verify، نتیجه فقط از

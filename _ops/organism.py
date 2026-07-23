@@ -365,6 +365,7 @@ def main() -> int:
                 doctor=_doctor_inst, dispatcher=_w.make_scheduler())   # B5+B6: self-heal + scheduler
         except Exception as e:  # noqa: BLE001
             opslib.alert([f"chrono pacemaker start failed: {e}"])
+    _beat_sched = None   # C7 Slice 4: ضربانِ سایه (فقط اگر OCTOPUS_ONE_HEARTBEAT=1؛ پیش‌فرض خاموش)
     next_epoch_at = 0.0
     last_daily = ""
     last_heartbeat = 0.0
@@ -382,6 +383,19 @@ def main() -> int:
         # (heartbeat/leg/doctor/incident/…) همبسته شوند و runِ input→output بازسازی‌پذیر شود.
         # نخ‌های هم‌زمان contextِ خالی دارند → آلوده نمی‌شوند. fail-soft (نبودِ events = None).
         _run_token = _events.begin_run() if _events is not None else None
+        # C7 Slice 4: ضربانِ سایه — تنها یک scheduler، پشتِ OCTOPUS_ONE_HEARTBEAT=0 (پیش‌فرض خاموش
+        # → صفر اثر؛ loopهای قدیمی authoritative). adapterها read-only؛ صفر ACT؛ HALT-safe؛
+        # persistence fail-closed. fail-soft: هرگز ضربانِ اصلی را نمی‌کشد.
+        try:
+            import brain_core as _bc  # noqa: WPS433
+            if _bc.flag_on():
+                if _beat_sched is None:
+                    _beat_sched = _bc.build_shadow_scheduler(
+                        state_dir=opslib.STATE_DIR, halted_fn=opslib.halted)
+                if _beat_sched is not None:
+                    _beat_sched.tick()
+        except Exception:  # noqa: BLE001 — ضربانِ سایه هرگز ضربانِ اصلی را نمی‌کشد
+            pass
         try:
             # P2 (structural, 2026-07-20 Stage-1): سیگنالِ restartِ کاکپیت = RESTART-REQUESTED
             # (نه overwriteِ STOP-ORGANISM). organism روی آن هم clean-exit می‌کند؛ launcher

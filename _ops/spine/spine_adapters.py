@@ -21,6 +21,7 @@ owner_verdict_recorded این‌جا لایهٔ نامِ canonical با کلید
 """
 from __future__ import annotations
 
+import os
 import re
 import sys
 from pathlib import Path
@@ -133,6 +134,21 @@ def validate_row(row: dict) -> "tuple[bool, list]":
     if not event_spine.tax.is_trust(row.get("trust")):
         bad.append("trust")
     return (not missing and not bad, missing + [f"invalid:{b}" for b in bad])
+
+
+VIA_ADAPTER_FLAG = "OCTOPUS_SPINE_VIA_ADAPTER"
+
+
+def soak_status() -> dict:
+    """C7 Slice 5: تلمتریِ soakِ مسیرِ واحد. **flag پیش‌فرض OFF؛ dual_write بازنشسته نشده.**
+    برای soakِ owner-observed: وضعیتِ flag + یادداشتِ صادق دربارهٔ اینکه هر دو مسیر زنده‌اند."""
+    on = str(os.environ.get(VIA_ADAPTER_FLAG, "")).strip().lower() in ("1", "true", "yes", "on")
+    return {"via_adapter_flag": "on" if on else "off",
+            "default": "off",
+            "direct_dual_write": "LIVE (not retired)",
+            "single_surface": "READY (emit_event) — parity byte-identical proven",
+            "vocab": "spine = cross-domain event INDEX/projection (not a competing SoT); "
+                     "outcomes.db/ledger = substrate; events.py/review_bus = independent projections"}
 
 
 def emit_event(*, event_type: str, domain: str, correlation_id: str, subject=None,
