@@ -54,7 +54,7 @@ def t_composition_real_adapters_no_act():
     assert sch is not None
     phases = bc.registered_organ_phases(sch)
     assert set(phases) == {"SENSE", "RECORD", "THINK", "HEAL"}, phases
-    assert "ACT" not in phases, "صفر ACT در سایه"
+    assert "ACT" not in phases and "LEARN" not in phases, "صفر ACT/LEARN در سایه"
     names = {o.name for o in sch._organs}
     assert names == {"health", "spine-observe", "cortex-advisory", "doctor-advisory"}, names
     assert getattr(sch, "parity", None) is not None, "ParityTracker باید سیم‌کشی شود (B11)"
@@ -75,9 +75,9 @@ def t_parity_compare_called_in_tick():
     r = sch.tick()
     after = sch.parity.counters["compared"]
     assert r["beat"] == 1 and not r["degraded"]
-    # SENSE(health) + RECORD(spine-observe) هر دو comparable → compare در tick اجرا شد
-    assert after - before >= 2, f"compare باید در مسیرِ tick صدا شود (B11): {before}->{after}"
-    assert not any(o.phase == "ACT" for o in sch._organs), "صفر ACT"
+    # Only the typed health contract is parity. RECORD is explicitly coverage telemetry.
+    assert after - before == 1, f"typed comparator must run exactly once: {before}->{after}"
+    assert not any(o.phase in ("ACT", "LEARN") for o in sch._organs), "صفر ACT/LEARN"
 
 
 # ── ۵: طبقه‌بندیِ parity — missing از mismatch جدا ─────────────────────────────────
@@ -95,12 +95,22 @@ def t_parity_classification():
     assert all(set(m.keys()) <= {"organ", "class"} for m in pt.mismatches), pt.mismatches
 
 
+def t_missing_authoritative_source_blocks_green():
+    _on()
+    pt = bc.ParityTracker(state_dir=_fresh_sd("missing-old"), clock=lambda: 0.0)
+    t = 0.0
+    for _ in range(100):
+        pt.compare("health-contract-v1", None, True, now=t); t += 900.0
+    assert pt.counters["missing_old"] == 100
+    assert pt.status(now=t - 900.0) == "SHADOW-LIVE"
+
+
 # ── ۶ (B12): زیرِ ۲۴ساعت هرگز green — حتی با انبوهِ matched ───────────────────────
 def t_under_24h_never_green():
     _on()
     pt = bc.ParityTracker(state_dir=_fresh_sd("u24"), clock=lambda: 0.0)
     for _ in range(150):                       # ۱۵۰ matched ولی همه در لحظهٔ صفر → elapsed=0
-        pt.compare("health", 1, 1, now=0.0)
+        pt.compare("health-contract-v1", 1, 1, now=0.0)
     assert pt.counters["matched"] == 150
     assert pt.status(now=0.0) == "SHADOW-LIVE", "شمارشِ نمونه بدونِ زمان نباید green کند (B12)"
     # حتی ۱۲ ساعت هم کافی نیست
@@ -114,7 +124,7 @@ def t_24h_continuous_green():
     # ۱۰۰ نمونه با فاصلهٔ ۹۰۰s (< gapِ مجاز) → span ≈ 89100s > 86400
     t = 0.0
     for _ in range(100):
-        pt.compare("health", 1, 1, now=t)
+        pt.compare("health-contract-v1", 1, 1, now=t)
         t += 900.0
     last = t - 900.0
     assert pt.continuous_elapsed_s(now=last) >= 24 * _H
@@ -122,13 +132,27 @@ def t_24h_continuous_green():
 
 
 # ── ۸ (B12): critical mismatch → هرگز green ──────────────────────────────────────
+def t_fingerprint_change_resets_soak():
+    _on()
+    sd = _fresh_sd("fingerprint")
+    pt = bc.ParityTracker(state_dir=sd, clock=lambda: 0.0)
+    pt.compare("health-contract-v1", 1, 1, now=0.0)
+    p = bc._parity_path(sd)
+    import json
+    d = json.loads(p.read_text("utf-8"))
+    d["soak_fingerprint"] = "old-code-or-schema"
+    p.write_text(json.dumps(d), "utf-8")
+    fresh = bc.ParityTracker(state_dir=sd, clock=lambda: 1.0)
+    assert fresh.counters["compared"] == 0 and fresh.started_at is None
+
+
 def t_critical_mismatch_blocks_green():
     _on()
     pt = bc.ParityTracker(state_dir=_fresh_sd("crit"), clock=lambda: 0.0)
     t = 0.0
     for _ in range(100):
-        pt.compare("health", 1, 1, now=t); t += 900.0
-    pt.compare("health", 1, 2, critical=True, now=t)   # یک critical mismatch
+        pt.compare("health-contract-v1", 1, 1, now=t); t += 900.0
+    pt.compare("health-contract-v1", 1, 2, critical=True, now=t)   # یک critical mismatch
     assert pt.counters["critical_mismatched"] == 1
     assert pt.status(now=t) == "SHADOW-LIVE", "critical mismatch باید green را ببندد"
 
@@ -139,10 +163,10 @@ def t_restart_gap_breaks_continuity():
     pt = bc.ParityTracker(state_dir=_fresh_sd("gap"), clock=lambda: 0.0)
     t = 0.0
     for _ in range(100):
-        pt.compare("health", 1, 1, now=t); t += 900.0
+        pt.compare("health-contract-v1", 1, 1, now=t); t += 900.0
     # درست پیش از green بودیم؛ حالا یک gapِ بزرگ (> 1h) → پیوستگی می‌شکند
     big = t + 2 * _H
-    pt.compare("health", 1, 1, now=big)
+    pt.compare("health-contract-v1", 1, 1, now=big)
     assert len(pt.restart_gaps) == 1, "gapِ بزرگ باید ثبت شود"
     assert pt.continuous_elapsed_s(now=big) < 24 * _H, "started_at باید ری‌ست شود"
     assert pt.status(now=big) == "SHADOW-LIVE", "gapِ خارج از سیاست → not green"
@@ -180,8 +204,10 @@ if __name__ == "__main__":
         ("[۳] فلگ خاموش → None", t_flag_off_no_scheduler),
         ("[۴/B11] compare در مسیرِ tick", t_parity_compare_called_in_tick),
         ("[۵] طبقه‌بندی parity (missing≠mismatch)", t_parity_classification),
+        ("[۵b] missing authoritative source blocks green", t_missing_authoritative_source_blocks_green),
         ("[۶/B12] زیرِ ۲۴h هرگز green (حتی انبوه match)", t_under_24h_never_green),
         ("[۷/B12] ۲۴h پیوسته + نمونه → green", t_24h_continuous_green),
+        ("[F] code/schema/config fingerprint change resets soak", t_fingerprint_change_resets_soak),
         ("[۸/B12] critical mismatch → not green", t_critical_mismatch_blocks_green),
         ("[۹/B12] gap پیوستگی را می‌شکند → not green", t_restart_gap_breaks_continuity),
         ("[۱۰/B13] وضعیت BrainCore در state block", t_state_block_exposed),

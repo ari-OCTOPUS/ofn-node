@@ -169,6 +169,23 @@ def t_act_is_dry_run_by_default():
 
 
 # ── ۸: watchdog — تشخیصِ stall/غیابِ ضربان ─────────────────────────────────────
+def t_production_safe_forbids_act_and_learn():
+    sch, _ = _sched("prod-safe")
+    sch.production_safe = True
+    for phase in ("ACT", "LEARN"):
+        try:
+            sch.register_organ(f"bad-{phase}", phase, lambda **k: None)
+            assert False, f"production-safe must reject {phase} registration"
+        except ValueError as e:
+            assert "transactional outbox" in str(e)
+    os.environ[bs.ACT_ARMED_FLAG] = "1"
+    try:
+        r = sch.tick()
+        assert r["act_armed"] is False, "ACT_ARMED must be ignored in production-safe mode"
+    finally:
+        os.environ.pop(bs.ACT_ARMED_FLAG, None)
+
+
 def t_heartbeat_stall_watchdog():
     sch, sp = _sched("t8", clock=lambda: 5000.0)
     sch.register_organ("s", "SENSE", lambda **k: None)
@@ -268,6 +285,7 @@ if __name__ == "__main__":
         ("[E-3] committed beat not rerun after restart", t_committed_beat_not_rerun_after_restart),
         ("[E-4] committed advances exactly once", t_committed_advances_exactly_once),
         ("[۹] persist failure → block commit, no advance", t_persist_failure_blocks_commit),
+        ("[P] production-safe forbids ACT/LEARN", t_production_safe_forbids_act_and_learn),
         ("[۸] watchdog stall detection", t_heartbeat_stall_watchdog),
         ("[۱] ترتیبِ فازِ قطعی", t_deterministic_phase_order),
         ("[۲] every_n_beats", t_every_n_beats),

@@ -88,7 +88,46 @@ def t_f_unknown_command_returns_none():
     assert c.handle_command("/this-does-not-exist-xyz") is None, "FAIL: unknown should be None"
 
 
-def t_g_langar_bridge_dispatch_fail_soft_when_absent():
+def t_g_nonowner_group_mutations_are_centrally_denied():
+    """Every externally reachable mutating scheme is owner-gated before delegation."""
+    os.environ["TELEGRAM_ALLOWED_CHAT_IDS"] = "-100555"
+    try:
+        c = TC(token="FAKE", owner_chat_id=6150431610,
+               http_get=lambda *a, **k: {}, http_post=lambda *a, **k: {"ok": True})
+        schemes = [
+            "app:deny:fx:t", "rfc:deny:RFC:t", "home:appno:fx:t",
+            "act:freeze:on:t", "rev:x", "jrn:r:txn", "acct:sync", "prop:ok:t",
+            "menu:stop_confirm", "menu:learned",
+        ]
+        before = (dict(c._pending), dict(c._pending_rfc), dict(c._pending_act))
+        for data in schemes:
+            reply = c.dispatch_callback(data, from_id=999, external=True)
+            assert isinstance(reply, str) and "مالک" in reply, (data, reply)
+        after = (dict(c._pending), dict(c._pending_rfc), dict(c._pending_act))
+        assert before == after, "denied callbacks must cause zero state mutation"
+        assert c._MUTATING_CALLBACK_SCHEMES >= {"app", "rfc", "home", "act", "rev", "jrn", "acct", "prop"}
+    finally:
+        os.environ.pop("TELEGRAM_ALLOWED_CHAT_IDS", None)
+
+
+def t_h_external_none_identity_is_denied():
+    c = TC(token="FAKE", owner_chat_id=6150431610,
+           http_get=lambda *a, **k: {}, http_post=lambda *a, **k: {"ok": True})
+    assert "مالک" in c.dispatch_callback("act:freeze:on:t", from_id=None, external=True)
+
+
+def t_i_nonowner_group_mutating_commands_are_denied():
+    c = TC(token="FAKE", owner_chat_id=6150431610,
+           http_get=lambda *a, **k: {}, http_post=lambda *a, **k: {"ok": True})
+    for cmd in ("/panic", "/resume", "/stop", "/lead demo | 1 | lead.doer",
+                "/claim A | R | 1", "/conflict A | x", "/neworgan demo",
+                "/organ-approve demo", "/review", "/books", "/sync",
+                "free text that could reach a stateful bridge", "/pf_pause"):
+        reply = c.handle_command(cmd, chat_id=-100555, from_id=999)
+        assert isinstance(reply, str) and "مالک" in reply, (cmd, reply)
+
+
+def t_j_langar_bridge_dispatch_fail_soft_when_absent():
     """اگر langar در دسترس نباشد، langar_bridge_dispatch → None (fail-soft، ربات زنده)."""
     # import تنبل: فراخوانی بدونِ langar نصب → None
     r = ac.langar_bridge_dispatch("/pf_status", chat_id=-1001234567890, owner=6150431610)
@@ -105,7 +144,10 @@ def main():
         t_d_send_text_targets_provided_chat_id,
         t_e_handle_command_accepts_chat_id_kw,
         t_f_unknown_command_returns_none,
-        t_g_langar_bridge_dispatch_fail_soft_when_absent,
+        t_g_nonowner_group_mutations_are_centrally_denied,
+        t_h_external_none_identity_is_denied,
+        t_i_nonowner_group_mutating_commands_are_denied,
+        t_j_langar_bridge_dispatch_fail_soft_when_absent,
     ]
     n_ok = 0
     for t in tests:

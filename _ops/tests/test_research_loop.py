@@ -358,6 +358,57 @@ def t_completed_experiment_not_rerun():
         store.close(); rc.close(); oc.close()
 
 
+def t_crash_after_experiment_resumes_without_rerun():
+    """Simulate verifier crash after EXPERIMENT_DONE; restart reuses fsynced artifact."""
+    _env_on()
+    led = rl.ResearchLedger(_STATE / "research" / "ledger-crash-resume.jsonl")
+    calls = {"experiment": 0, "verify": 0}
+
+    def exp(_c):
+        calls["experiment"] += 1
+        return {"measurement": 42}
+
+    def crash_verify(_c, _r):
+        calls["verify"] += 1
+        raise SystemExit("simulated process death after experiment")
+
+    try:
+        rl.run_experiment(contract=_contract(), experiment_fn=exp, verifier_fn=crash_verify,
+                          budget=rl.Budget(_contract()["budget"]), ledger=led,
+                          state_dir=_STATE)
+        assert False, "SystemExit must simulate abrupt process death"
+    except SystemExit:
+        pass
+    assert calls["experiment"] == 1
+    art = rl._load_experiment_artifact(_STATE,
+        f"{_contract()['contract_id']}|0|" +
+        __import__('hashlib').sha256(str(led.path).encode()).hexdigest()[:12])
+    assert art and art["state"] == "EXPERIMENT_DONE"
+
+    out = rl.run_experiment(
+        contract=_contract(), experiment_fn=exp,
+        verifier_fn=lambda c, r: {"supported": False, "evidence": "resume-check"},
+        budget=rl.Budget(_contract()["budget"]), ledger=led, state_dir=_STATE)
+    assert out["verdict"] == "rejected", out
+    assert calls["experiment"] == 1, "restart must not rerun experiment_fn"
+
+
+def t_pending_memory_is_invisible_until_promoted():
+    _env_on()
+    store, _rp, _od = _stores("pending-visibility")
+    g = gate_mod.MemoryGate(store)
+    try:
+        r = g.submit({"namespace": "semantic", "mkey": "staged", "content": "staged lesson",
+                      "salience": 0.8, "source": "owner", "admission_state": "PENDING"})
+        mid = r.get("memory_id")
+        assert mid and g.admission_state(mid) == "PENDING"
+        assert store.get("semantic", "staged") is None, "PENDING must be invisible"
+        assert g.promote(mid)
+        assert store.get("semantic", "staged") is not None
+    finally:
+        store.close()
+
+
 def t_plan_recovery_from_research_journal():
     _env_on()
     rjp = _STATE / "journal" / "research-journal.jsonl"
@@ -408,6 +459,8 @@ if __name__ == "__main__":
         ("[C-2] outcome failure → not accepted", t_outcome_failure_not_accepted),
         ("[C-3] final ledger failure → memory retracted (B9)", t_final_ledger_failure_retracts_memory),
         ("[B-1] completed experiment not rerun (idempotent)", t_completed_experiment_not_rerun),
+        ("[B-1a] crash after experiment resumes without rerun", t_crash_after_experiment_resumes_without_rerun),
+        ("[C-4] pending memory invisible until promoted", t_pending_memory_is_invisible_until_promoted),
         ("[B-2] plan_recovery from research-journal", t_plan_recovery_from_research_journal),
         ("[B-3] resume_point from research-journal (B8)", t_resume_point_from_research_journal_not_run_journal),
     ])

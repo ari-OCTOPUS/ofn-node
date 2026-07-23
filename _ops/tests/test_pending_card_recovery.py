@@ -43,11 +43,13 @@ def _env():
 
 
 def _reset_store():
-    for p in (pcr._store_path(_STATE), pcr._rfc_verdict_path(_STATE)):
-        try:
-            p.unlink()
-        except OSError:
-            pass
+    for p in (pcr._store_path(_STATE), pcr._rfc_verdict_path(_STATE),
+              pcr._rfc_db_path(_STATE)):
+        for q in (p, Path(str(p) + "-wal"), Path(str(p) + "-shm")):
+            try:
+                q.unlink()
+            except OSError:
+                pass
     import shutil
     try:
         shutil.rmtree(_STATE / "pulse" / "card-lease")
@@ -205,9 +207,10 @@ def t_model_b_pre_restart_token_still_valid():
     pcr.rebuild_money_cards(channel=boot1, owner=_OWNER, state_dir=_STATE,
                             status_fn=_status_pending, boot_id="b1")
     assert boot1._pending["fx-6"]["token"] == pre_token, "مدل B: همان توکن باید بازگردد"
-    # توکنِ جعلی رد می‌شود (در حالِ pending — پیش از هر تصمیم)
-    assert "نامنطبق" in boot1.dispatch_callback("app:approve:fx-6:WRONGTOKEN")
-    # دکمهٔ پیش از restart (همان توکن) هنوز پذیرفته می‌شود (status=pending، token منطبق)
+    # توکنِ جعلی رد می‌شود (C7.2: verify_callback → bad-token، نه پذیرش)
+    forged = boot1.dispatch_callback("app:approve:fx-6:WRONGTOKEN")
+    assert "bad-token" in forged or "نامعتبر" in forged, f"توکنِ جعلی باید رد شود: {forged}"
+    # دکمهٔ پیش از restart (همان توکن) هنوز کار می‌کند؛ deny اثرِ مالی ندارد → chrono لازم نیست
     reply = boot1.dispatch_callback(f"app:deny:fx-6:{pre_token}")
     assert "رد شد" in reply, f"توکنِ پیش از restart باید معتبر بماند: {reply}"
 
@@ -283,26 +286,31 @@ def t_rfc_verdict_survives_crash_before_consume():
     boot0.rfc_card("RFC-1", "x")
     tok = boot0._pending_rfc["RFC-1"]["token"]
     # مالک کلیک می‌کند (merge) → رأی durable می‌شود
-    boot0.dispatch_callback(f"rfc:merge:RFC-1:{tok}")
+    boot0.dispatch_callback(f"rfc:merge:RFC-1:{tok}", from_id=_OWNER, external=True)
     assert pcr.load_rfc_verdicts(_STATE)["RFC-1"]["verdict"] == "merge-approved"
-    # crash قبل از مصرف. restart: رأیِ مصرف‌نشده باید reinject شود تا doctor یک‌بار بگیرد
+    # crash before doctor: durable DECIDED is claimable after restart.
     boot1 = _Chan()
     r = pcr.rebuild_rfc_cards(channel=boot1, rfcs_path=rf, state_dir=_STATE)
     assert r["reinjected_verdicts"] == 1, r
-    popped = boot1.pop_rfc_verdicts()
-    assert popped == [("RFC-1", "merge-approved")], f"رأی باید دقیقاً یک‌بار تحویل شود: {popped}"
-    # doctor مصرف کرد → durable consumed. restart دوباره → دیگر تحویل نمی‌شود
+    claimed = boot1.claim_rfc_verdicts("doctor-test")
+    assert len(claimed) == 1 and claimed[0][:2] == ("RFC-1", "merge-approved")
+    rid, _verdict, revision = claimed[0]
+    # Apply boundary is durable before action. APPLIED then requires a receipt.
+    assert boot1.begin_rfc_apply(rid, revision, f"rfc:{rid}:rev:{revision}")
+    assert not boot1.ack_rfc_verdict(rid, revision, applied=True, receipt_id="")
+    assert boot1.ack_rfc_verdict(rid, revision, applied=True, receipt_id="ledger:abc")
     boot2 = _Chan()
-    r2 = pcr.rebuild_rfc_cards(channel=boot2, rfcs_path=rf, state_dir=_STATE)
-    assert r2["reinjected_verdicts"] == 0, f"رأیِ مصرف‌شده نباید دوباره reinject شود: {r2}"
-    assert boot2.pop_rfc_verdicts() == [], "مصرفِ durable → صفر تحویلِ دوباره (exactly-once)"
+    assert boot2.claim_rfc_verdicts("doctor-2") == [], "APPLIED must never be leased twice"
 
 
 # ── ۱۲: doctor consume → crash → durable consumed → no duplicate ─────────────────
 def t_rfc_consume_then_crash_no_duplicate():
     _env(); _reset_store()
     pcr.persist_rfc_verdict(state_dir=_STATE, rfc_id="RFC-2", verdict="denied")
-    pcr.mark_rfc_consumed(state_dir=_STATE, rfc_id="RFC-2")
+    claim = pcr.claim_rfc_verdicts(state_dir=_STATE, worker_id="doctor-test")
+    hit = [x for x in claim if x[0] == "RFC-2"][0]
+    assert pcr.ack_rfc_verdict(state_dir=_STATE, rfc_id="RFC-2", revision=hit[2],
+                               applied=False)
     v = pcr.load_rfc_verdicts(_STATE)["RFC-2"]
     assert v["verdict"] == "denied" and v["consumed"] is True
     rf = _STATE / "rfcs-c.json"

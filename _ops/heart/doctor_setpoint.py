@@ -140,9 +140,13 @@ def run_epoch_setpoint(write: bool = True) -> dict:
     return out
 
 
+_DOCTOR_LLM_ALERTED = False  # module-level dedup: یک warning در عمرِ پروسه، نه هر epoch
+
+
 def llm_refine(setpoint: "hi.HeartParams", signals: dict) -> dict | None:
     """مسیرِ چند-ایجنتیِ پولی (الگوی allocate_llm): دوقفله — تاریخ + فایلِ مالک.
     بسته/شکست = None (برگشتِ امن به سیاستِ قطعی). امروز ساختاراً بسته است."""
+    global _DOCTOR_LLM_ALERTED
     ok, why = opslib.live_gate_open(ACT_HEART_DOCTOR)
     if not ok:
         return None
@@ -183,7 +187,12 @@ def llm_refine(setpoint: "hi.HeartParams", signals: dict) -> dict | None:
         from client import extract_json  # noqa: E402
         return {"suggestion": extract_json(out["text"]), "cost_usd": out["cost_usd"]}
     except Exception as e:  # noqa: BLE001 — fail-safe به سیاستِ قطعی
-        opslib.alert([f"heart doctor llm failed (fallback قطعی): {e}"])
+        # dedup: یک‌بار در عمرِ پروسه (opslib.alert خودش dedup ندارد) تا
+        # governor-alerts هر epoch غرق نشود. fail-safe تغییری نمی‌کند.
+        if not _DOCTOR_LLM_ALERTED:
+            _DOCTOR_LLM_ALERTED = True
+            opslib.alert([f"heart doctor llm failed (fallback قطعی): {e} "
+                          f"(هر epoch تکرار نمی‌شود تا زمانی که gate/کلید درست شود.)"])
         return None
 
 

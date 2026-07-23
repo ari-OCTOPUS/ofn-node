@@ -257,13 +257,10 @@ def main() -> int:
         _ziman_leg = _w.make_ziman_leg()
         _cartographer_leg = _w.make_cartographer_leg()   # default-off flag → None تا گام ۵
         _chan = _w.make_telegram_channel(leg=_leg)   # auto-on اگر توکن
-        # T-8: شروعِ long-poll thread برای دریافتِ پیام‌های تلگرام
-        if _chan is not None:
-            import threading as _tg
-            _poll_t = _tg.Thread(target=_chan.run_forever, daemon=True,
-                                name="telegram-poll")
-            _poll_t.start()
-            opslib.heartbeat("telegram poll thread started (T-8)")
+        # C7.2: ingress MUST remain closed until all durable callback/RFC projections
+        # have been rebuilt.  Starting long-poll here created a boot race where an old
+        # owner callback was consumed as "unknown" and its Telegram offset advanced.
+        # The poller is started only after pending-card recovery below.
         # Trust-Engine ingress (2026-07-21): مرزِ امضاشدهٔ HTTP فقط پشتِ OCTOPUS_WIRE_LEAD_BOUNDARY
         # (پیش‌فرض خاموش، خارج از PAPER_FULL) → no-op. loopback-only، fail-soft.
         _lb_t = _w.maybe_start_lead_boundary()
@@ -359,6 +356,14 @@ def main() -> int:
                                      f"rfc={_rc2.get('rebuilt', 0)} halted={_halted}")
         except Exception as _pce:  # noqa: BLE001 — بازسازیِ کارت هرگز بوت را نمی‌کشد
             opslib.alert([f"pending-card recovery failed (non-fatal): {type(_pce).__name__}"])
+        # C7.2: callback ingress opens only after recovery.  A recovery failure keeps
+        # mutating callbacks fail-closed because their durable verifier cannot find a card.
+        if _chan is not None:
+            import threading as _tg
+            _poll_t = _tg.Thread(target=_chan.run_forever, daemon=True,
+                                 name="telegram-poll")
+            _poll_t.start()
+            opslib.heartbeat("telegram poll thread started after callback recovery (C7.2)")
         if any(_wire.values()):
             opslib.heartbeat(f"organism wiring: {_wire}")
     except Exception as _e:  # noqa: BLE001 — wiring اختیاریِ additive
@@ -382,7 +387,14 @@ def main() -> int:
 
     while True:
         _protective_skip = False   # آیا این تیک کارِ غیرضروری را skip کند؟ (protective-halt، enforceِ واقعی)
-        _bc_block = None           # C7.1 (B13): وضعیتِ BrainCore/parity برای ORGANISM-STATE (اگر شادو تیک بزند)
+        # Always expose a fresh truthful block.  Flag-off is explicitly HARNESS rather
+        # than a missing/stale value carried from a previous boot.
+        try:
+            import brain_core as _bc_status  # noqa: WPS433
+            _bc_block = _bc_status.organism_state_block(
+                state_dir=opslib.STATE_DIR, sched=_beat_sched)
+        except Exception:  # noqa: BLE001
+            _bc_block = {"mode": "HARNESS", "flag_on": False, "degraded": False}
         _heart_status = None       # HH-P5: پیش از try تعریف می‌شود تا بلوکِ _sleep_s (بیرونِ try) هرگز NameError نخورد
         # R-12 (audit): یک correlation_id برای کلِ این tick mint کن تا همهٔ emitهای این ضربان
         # (heartbeat/leg/doctor/incident/…) همبسته شوند و runِ input→output بازسازی‌پذیر شود.
@@ -399,7 +411,7 @@ def main() -> int:
                         state_dir=opslib.STATE_DIR, halted_fn=opslib.halted)
                 if _beat_sched is not None:
                     _beat_sched.tick()
-                    # C7.1 (B13): وضعیتِ صادقِ BrainCore/parity → ORGANISM-STATE
+                    # C7.2: refresh status after the shadow tick.
                     _bc_block = _bc.organism_state_block(state_dir=opslib.STATE_DIR,
                                                          sched=_beat_sched)
         except Exception:  # noqa: BLE001 — ضربانِ سایه هرگز ضربانِ اصلی را نمی‌کشد
@@ -807,7 +819,7 @@ def main() -> int:
                              if _proposal_metrics is not None else {}),
                           **({"legs_cultivation": _legs_cult} if _legs_cult else {}),
                           **({"heart": _heart_status} if _heart_status else {}),
-                          **({"brain_core": _bc_block} if _bc_block else {}),
+                          "brain_core": _bc_block,
                           **({"cardiac": _cardiac_mod.status_snapshot()}
                              if _cardiac_mod is not None else {})})
         except KeyboardInterrupt:

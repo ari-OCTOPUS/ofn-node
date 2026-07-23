@@ -19,6 +19,10 @@ import approval_channel as ac  # noqa: E402
 import cockpit_readmodel as crm  # noqa: E402
 import opslib  # noqa: E402
 
+# C7.2: کارتِ پولِ actionable به رازِ callback نیاز دارد (توکنِ nonce-دار). بدونِ آن
+# request_approval_card عمداً fail-closed است. تستِ callback باید راز را بدهد.
+os.environ.setdefault("OCTOPUS_CB_SECRET", "unit-test-cockpit-secret-not-real")
+
 OPS = Path(ENV["ops"])
 STATE = OPS / "state"
 SRC_CHANNEL = (Path(os.environ.get("REAL_VAULT", r"F:\backup")) / "_ops" / "budget"
@@ -105,6 +109,15 @@ def test_callback_backcompat():
     assert isinstance(r, dict) and stop_file.exists(), "kill_switch شکست"
     stop_file.unlink()
     ch._stop = False   # حلقه برای بقیهٔ تست زنده بماند
+    # C7.2 test-integrity: storeِ durableِ RFC/money مشترک است؛ این تست را isolate کن تا
+    # equality (نه membership) معتبر بماند — آلودگی از تست‌های دیگر پاک شود.
+    import pending_card_recovery as _pcr
+    for _p in (_pcr._rfc_db_path(STATE), _pcr._rfc_verdict_path(STATE), _pcr._store_path(STATE)):
+        for _q in (_p, Path(str(_p) + "-wal"), Path(str(_p) + "-shm")):
+            try:
+                _q.unlink()
+            except OSError:
+                pass
     # app: کارتِ پول → deny (بدونِ settle — مسیرِ ۴بخشیِ قدیمی)
     assert ch.request_approval_card("eff-1", 5.0, "تستِ کارت")
     tok = ch._pending["eff-1"]["token"]
@@ -115,6 +128,7 @@ def test_callback_backcompat():
     rtok = ch._pending_rfc["rfc-1"]["token"]
     r = ch.dispatch_callback(f"rfc:merge:rfc-1:{rtok}")
     assert "ثبت شد" in r
+    # storeِ ایزوله‌شده (بالای تست) → equality معتبر است (test-integrity: نه membership)
     assert ch.pop_rfc_verdicts() == [("rfc-1", "merge-approved")]
 
 
@@ -425,9 +439,10 @@ def test_simple_home_all_good_when_empty():
 def test_simple_home_yes_no_decisions_and_wiring():
     """یک RFCِ منتظر → خانه یک سوالِ ساده با دکمهٔ آره/نه نشان می‌دهد؛ «آره» ثبتش می‌کند."""
     ch, _ = make_channel()
-    tok = ch._new_act_token("rfc", "r1") if hasattr(ch, "_new_act_token") else "tk"
-    with ch._lk:
-        ch._pending_rfc["r1"] = {"summary": "کمتر شدنِ خطا", "token": tok, "status": "pending"}
+    # C7.2: کارتِ RFC از مسیرِ رسمی ساخته می‌شود (رکوردِ durable + توکنِ nonce-دار) تا
+    # verify_rfc_callback در dispatch عبور کند — تزریقِ مستقیمِ _pending_rfc دیگر معتبر نیست.
+    assert ch.rfc_card("r1", "کمتر شدنِ خطا")
+    tok = ch._pending_rfc["r1"]["token"]
     home = ch._main_menu()
     assert "می‌پرسم" in home["text"] and "بهتر کنم" in home["text"]
     btns = [b for row in home["reply_markup"]["inline_keyboard"] for b in row]
@@ -444,13 +459,13 @@ def test_simple_home_yes_no_decisions_and_wiring():
 def test_simple_home_no_rejects():
     """«نه» رویِ RFC → denied، و توکنِ جعلی رد می‌شود (ضدِ جعل حفظ)."""
     ch, _ = make_channel()
-    with ch._lk:
-        ch._pending_rfc["r2"] = {"summary": "x", "token": "goodtok", "status": "pending"}
+    assert ch.rfc_card("r2", "x")
+    goodtok = ch._pending_rfc["r2"]["token"]
     # توکنِ جعلی → تغییری نمی‌کند
     ch.dispatch_callback("home:rfcno:r2:BADTOK")
     assert ch._pending_rfc["r2"]["status"] == "pending"
     # توکنِ درست → denied
-    ch.dispatch_callback("home:rfcno:r2:goodtok")
+    ch.dispatch_callback(f"home:rfcno:r2:{goodtok}")
     assert ch._pending_rfc["r2"]["status"] == "denied"
 
 

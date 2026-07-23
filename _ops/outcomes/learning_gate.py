@@ -119,7 +119,7 @@ def _verify_outcome(outcome_store, outcome_ref: str, trust: str) -> "tuple[bool,
 
 def learn_from_outcome(*, memory_gate, signal: dict, receipt_store=None, outcome_store=None,
                        evaluator=None, eval_ctx=None, internal_metric_pass: bool = True,
-                       min_salience: float = 0.5) -> dict:
+                       min_salience: float = 0.5, pending_admission: bool = False) -> dict:
     """یک outcomeِ verify‌شده → خاطرهٔ graded، پشتِ دو گارد (outcome-binding + held-out).
 
     signal (اجباری): content, mkey, correlation_id, **outcome_ref** (باید در outcomes.db باشد),
@@ -167,7 +167,8 @@ def learn_from_outcome(*, memory_gate, signal: dict, receipt_store=None, outcome
                      "privacy": signal.get("privacy", "scrubbed"),
                      "source": signal.get("source", "learning_gate"),
                      "producer": signal.get("producer", "learning_gate"),
-                     "supersedes": signal.get("supersedes")}
+                     "supersedes": signal.get("supersedes"),
+                     "admission_state": "PENDING" if pending_admission else "ADMITTED"}
         if signal.get("grade_receipt"):
             candidate["grade_receipt"] = signal["grade_receipt"]
         res = memory_gate.submit(candidate)
@@ -200,16 +201,45 @@ def learn_from_outcome(*, memory_gate, signal: dict, receipt_store=None, outcome
         except Exception:  # noqa: BLE001
             rid = None
         if not rid:
-            # رسید نساخت → خاطرهٔ بی‌رسید نمی‌گذاریم: compensating retraction
-            _retract(memory_gate, ns, signal.get("mkey"), content, mid, "receipt-failed")
+            # رسید نساخت → خاطرهٔ بی‌رسید نمی‌گذاریم. Pending admission can be
+            # retracted directly (it was never visible); legacy stores use supersede.
+            direct = False
+            try:
+                direct = bool(memory_gate.retract(mid))
+            except Exception:
+                direct = False
+            if not direct:
+                _retract(memory_gate, ns, signal.get("mkey"), content, mid, "receipt-failed")
             return {"learned": False, "memory_id": None, "receipt_id": None,
                     "eval_verdict": ev["verdict"],
                     "reason": "receipt write failed — memory retracted (no uncited admission)"}
-        return {"learned": True, "memory_id": mid, "receipt_id": rid,
+        return {"learned": not pending_admission, "staged": bool(pending_admission),
+                "memory_id": mid, "receipt_id": rid,
                 "eval_verdict": ev["verdict"], "anti_hacking_flag": False,
-                "reason": "learned (durable artifact: memory + receipt)"}
+                "reason": ("staged (PENDING; invisible until final durable ledger)"
+                           if pending_admission else
+                           "learned (durable artifact: memory + receipt)")}
     except Exception as e:  # noqa: BLE001 — یادگیری هرگز مسیرِ اصلی را نمی‌کشد
         return {"learned": False, "reason": f"failsoft:{type(e).__name__}"}
+
+
+def finalize_pending_learning(*, memory_gate, memory_id: str, admit: bool) -> dict:
+    """Finish a two-phase memory admission idempotently.
+
+    PENDING memories are excluded by MemoryStore.get/search. Only a successful final
+    research ledger commit may call admit=True. Any failure calls admit=False.
+    """
+    try:
+        cur = memory_gate.admission_state(memory_id)
+        if admit and cur == "ADMITTED":
+            return {"ok": True, "state": cur, "idempotent": True}
+        if not admit and cur == "RETRACTED":
+            return {"ok": True, "state": cur, "idempotent": True}
+        ok = memory_gate.promote(memory_id) if admit else memory_gate.retract(memory_id)
+        return {"ok": bool(ok), "state": "ADMITTED" if admit and ok else
+                ("RETRACTED" if ok else cur), "idempotent": False}
+    except Exception as e:
+        return {"ok": False, "state": None, "reason": f"failsoft:{type(e).__name__}"}
 
 
 def rollback_learning(*, memory_gate, memory_id: str, content: str,

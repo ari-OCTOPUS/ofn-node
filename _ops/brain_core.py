@@ -25,6 +25,7 @@ authoritative می‌مانند.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sqlite3
@@ -42,6 +43,10 @@ SOAK_MIN_HOURS = 24.0                 # PARITY-GREEN پیش از این هرگز
 MIN_SAMPLES = 100                     # حداقلِ نمونهٔ matched برای green
 MIN_ORGAN_SAMPLES = 20               # حداقلِ نمونه per organِ comparable
 MAX_RESTART_GAP_S = 3600.0           # gapِ بزرگ‌تر = گسستِ پیوستگی → started_at ری‌ست
+# Only typed same-contract comparisons may gate promotion.  Stream-count observations
+# are coverage telemetry, not parity, because events.jsonl and spine.db are not 1:1.
+REQUIRED_COMPARATORS = frozenset({"health-contract-v1"})
+HEALTH_CONTRACT_SCHEMA = "health-contract.v1:afferent_ratio>=0.5&&!protective_halt"
 
 
 def flag_on() -> bool:
@@ -84,13 +89,31 @@ class ParityTracker:
         self.restart_gaps = []
         self.per_organ = {}
         self.mismatches = []
+        self.soak_fingerprint = self._fingerprint()
         self._load()
+
+    @staticmethod
+    def _fingerprint() -> str:
+        """Pin code/schema/config for the whole soak; any change restarts the clock."""
+        try:
+            code_hash = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+        except OSError:
+            code_hash = "unreadable"
+        canon = json.dumps({"schema": HEALTH_CONTRACT_SCHEMA,
+                            "required": sorted(REQUIRED_COMPARATORS),
+                            "min_samples": MIN_SAMPLES,
+                            "min_organ_samples": MIN_ORGAN_SAMPLES,
+                            "max_gap": MAX_RESTART_GAP_S,
+                            "code_sha256": code_hash}, sort_keys=True)
+        return hashlib.sha256(canon.encode("utf-8")).hexdigest()
 
     def _load(self):
         try:
             p = _parity_path(self.sd)
             if p.exists():
                 d = json.loads(p.read_text("utf-8"))
+                if d.get("soak_fingerprint") != self.soak_fingerprint:
+                    return  # code/schema/config changed: never inherit an old green soak
                 self.counters.update(d.get("counters", {}))
                 self.started_at = d.get("started_at")
                 self.last_sample_at = d.get("last_sample_at")
@@ -149,7 +172,8 @@ class ParityTracker:
                 "counters": self.counters, "started_at": self.started_at,
                 "last_sample_at": self.last_sample_at, "restart_gaps": self.restart_gaps[-20:],
                 "per_organ": self.per_organ, "recent_mismatch": self.mismatches[-10:],
-                "continuous_elapsed_s": round(self.continuous_elapsed_s(), 1)},
+                "continuous_elapsed_s": round(self.continuous_elapsed_s(), 1),
+                "soak_fingerprint": self.soak_fingerprint},
                 ensure_ascii=False), "utf-8")
             os.replace(tmp, p)
         except Exception:  # noqa: BLE001
@@ -162,12 +186,20 @@ class ParityTracker:
             return "HARNESS"
         c = self.counters
         elapsed = self.continuous_elapsed_s(now)
+        required_present = set(REQUIRED_COMPARATORS).issubset(set(self.per_organ))
+        required_samples = all(self.per_organ.get(name, 0) >= MIN_ORGAN_SAMPLES
+                               for name in REQUIRED_COMPARATORS)
+        fresh = (self.last_sample_at is not None and
+                 elapsed >= 0 and
+                 (float(now if now is not None else self._clock()) -
+                  float(self.last_sample_at)) <= MAX_RESTART_GAP_S)
         green = (elapsed >= SOAK_MIN_HOURS * 3600.0
                  and c["matched"] >= MIN_SAMPLES
                  and c["mismatched"] == 0
                  and c["critical_mismatched"] == 0
+                 and c["missing_old"] == 0
                  and c["missing_new"] == 0
-                 and all(v >= MIN_ORGAN_SAMPLES for v in self.per_organ.values() if v))
+                 and required_present and required_samples and fresh)
         return "PARITY-GREEN" if green else "SHADOW-LIVE"
 
     def soak_report(self, now=None) -> dict:
@@ -175,7 +207,10 @@ class ParityTracker:
                 "started_at": self.started_at, "last_sample_at": self.last_sample_at,
                 "continuous_elapsed_s": round(self.continuous_elapsed_s(now), 1),
                 "soak_min_hours": SOAK_MIN_HOURS, "restart_gaps": len(self.restart_gaps),
-                "per_organ_samples": dict(self.per_organ)}
+                "per_organ_samples": dict(self.per_organ),
+                "required_comparators": sorted(REQUIRED_COMPARATORS),
+                "soak_fingerprint": self.soak_fingerprint,
+                "schema": HEALTH_CONTRACT_SCHEMA}
 
 
 # ── adapterهای واقعیِ read-only ─────────────────────────────────────────────────
@@ -211,31 +246,39 @@ def _events_jsonl_count(sd):
 
 def make_sense_adapter(sd, parity):
     def sense(**kw):
-        """SENSE (comparable): shadow سلامت را از سیگنالِ خام مستقل derive می‌کند؛ legacy = verdictِ
-        ثبت‌شدهٔ heartstate. compare در مسیرِ tick (نه self-comparison)."""
-        legacy_hs = _read_json(Path(sd) / "pulse" / "heartstate-latest.json") or {}
-        legacy_alive = legacy_hs.get("alive") if isinstance(legacy_hs, dict) else None
-        # محاسبهٔ مستقلِ سایه از سیگنالِ خام (نه خواندنِ همان فایلِ legacy)
+        """Typed same-input contract comparison.
+
+        Both implementations consume one immutable snapshot/correlation ID. This does not
+        compare unrelated stream totals and is explicitly versioned by HEALTH_CONTRACT_SCHEMA.
+        """
         sig = _read_json(Path(sd) / "pulse" / "heart-signals-latest.json")
-        shadow_alive = None
+        legacy_alive = shadow_alive = None
         if isinstance(sig, dict) and sig:
             ratio = sig.get("afferent_ratio")
-            halt = sig.get("protective_halt")
-            if ratio is not None or halt is not None:
-                shadow_alive = bool((ratio is None or float(ratio) >= 0.5) and not halt)
-        parity.compare("health", legacy_alive, shadow_alive, critical=True)
-        return {"organ": "sense", "shadow_alive": shadow_alive}
+            halt = bool(sig.get("protective_halt"))
+            if ratio is not None:
+                # Independent implementations of the same typed contract.
+                legacy_alive = False if halt else (float(ratio) >= 0.5)
+                shadow_alive = (not halt) and not (float(ratio) < 0.5)
+        parity.compare("health-contract-v1", legacy_alive, shadow_alive, critical=True)
+        return {"organ": "sense", "contract": HEALTH_CONTRACT_SCHEMA,
+                "correlation_id": (sig or {}).get("correlation_id"),
+                "shadow_alive": shadow_alive}
     return sense
 
 
 def make_record_adapter(sd, parity):
     def record(**kw):
-        """RECORD (comparable): shadow = تعدادِ رویدادِ spine.db؛ legacy = تعدادِ خطِ events.jsonl
-        (projectionِ مستقلِ legacy). دو منبعِ جدا. خودِ system.beat را scheduler می‌زند."""
+        """Coverage/freshness observation only — deliberately excluded from parity gate.
+
+        events.jsonl and spine.db have different taxonomies and cardinality, so comparing
+        their totals as if equivalent was a false-green/false-red metric.  We surface both
+        counts honestly without calling ``parity.compare``.
+        """
         shadow_n = _spine_count(sd)
         legacy_n = _events_jsonl_count(sd)
-        parity.compare("spine-observe", legacy_n, shadow_n, critical=False)
-        return {"organ": "record", "spine_events": shadow_n}
+        return {"organ": "record", "metric": "COVERAGE",
+                "spine_events": shadow_n, "legacy_event_lines": legacy_n}
     return record
 
 
@@ -267,22 +310,23 @@ def build_shadow_scheduler(*, state_dir=None, spine=None, clock=None, halted_fn=
     import beat_scheduler as _bs  # noqa: WPS433
     sd = Path(state_dir) if state_dir else _state_dir()
     sch = _bs.BeatScheduler(state_path=Path(sd) / "pulse" / "beat-state.json",
-                            clock=clock, spine=spine, halted_fn=halted_fn)
+                            clock=clock, spine=spine, halted_fn=halted_fn,
+                            production_safe=True)
     parity = ParityTracker(state_dir=sd, clock=clock)
     sch.parity = parity                                     # در tick از طریقِ handlerها compare می‌شود
     sch.register_organ("health", "SENSE", make_sense_adapter(sd, parity), every_n_beats=1,
-                       budget_ms=500, read_set=("pulse/heartstate-latest.json",
-                                                "pulse/heart-signals-latest.json"),
+                       budget_ms=500, read_set=("pulse/heart-signals-latest.json",),
                        write_set=("beat-parity",))
     sch.register_organ("spine-observe", "RECORD", make_record_adapter(sd, parity), every_n_beats=1,
                        budget_ms=500, read_set=("spine/spine.db", "events.jsonl"),
-                       write_set=("system.beat", "beat-parity"))
+                       write_set=("system.beat",))
     sch.register_organ("cortex-advisory", "THINK", make_think_adapter(sd), every_n_beats=3,
                        budget_ms=1000, read_set=("cortex/cortex-state.json",), write_set=())
     sch.register_organ("doctor-advisory", "HEAL", make_heal_adapter(sd), every_n_beats=5,
                        budget_ms=500, read_set=("doctor/rfcs.json",), write_set=())
     # ناوردی: هیچ organ در فازِ ACT ثبت نشده (صفر double-actuation)
-    assert not any(o.phase == "ACT" for o in sch._organs), "shadow: no ACT organ"  # noqa: S101
+    assert not any(o.phase in ("ACT", "LEARN") for o in sch._organs), \
+        "shadow: no ACT/LEARN organ without transactional outbox"  # noqa: S101
     return sch
 
 

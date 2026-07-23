@@ -35,8 +35,11 @@ for _p in (str(_HERE), str(_HERE / "budget"), str(_HERE / "spine")):
         sys.path.insert(0, _p)
 
 FLAG = "OCTOPUS_ONE_HEARTBEAT"
-ACT_ARMED_FLAG = "OCTOPUS_ONE_HEARTBEAT_ACT_ARMED"   # ACT واقعی فقط با این (پیش‌فرض OFF)
+ACT_ARMED_FLAG = "OCTOPUS_ONE_HEARTBEAT_ACT_ARMED"   # retained only for compatibility/status
 PHASES = ("SENSE", "RECORD", "THINK", "DECIDE", "PROPOSE", "ACT", "LEARN", "HEAL")
+# C7.2: generic scheduler has no transactional outbox yet. Production composition must
+# never register phases whose retry could duplicate an effect or durable learning write.
+FORBIDDEN_PRODUCTION_PHASES = frozenset({"ACT", "LEARN"})
 _PHASE_IX = {p: i for i, p in enumerate(PHASES)}
 _SAFE_UNDER_HALT = ("SENSE", "RECORD", "HEAL")       # فقط این فازها زیرِ HALT اجرا می‌شوند
 _CB_FAIL_THRESHOLD = 3        # این تعداد fail/overrunِ پیاپی → quarantine
@@ -87,11 +90,13 @@ class Organ:
 class BeatScheduler:
     """یک ضربان. tick() یک beatِ کامل را اجرا می‌کند. beat_counter durable است."""
 
-    def __init__(self, *, state_path=None, clock=None, spine=None, halted_fn=None):
+    def __init__(self, *, state_path=None, clock=None, spine=None, halted_fn=None,
+                 production_safe=False):
         self._organs: list[Organ] = []
         self._clock = clock or (lambda: time.time())     # تزریق‌پذیر (virtual-time tests)
         self._spine = spine                              # EventSpine یا None
         self._halted_fn = halted_fn                      # () -> reason|None
+        self.production_safe = bool(production_safe)
         self._state_path = Path(state_path) if state_path else (_HERE / "state" / "pulse" / "beat-state.json")
         self.committed_counter = 0     # C7.1 (B14): monotonic — فقط با COMMIT جلو می‌رود
         self.beat_counter = 0          # alias عمومیِ committed (سازگاریِ عقب‌رو + watchdog)
@@ -157,6 +162,9 @@ class BeatScheduler:
         """یک organ را ثبت کن. loopِ مستقلِ جدید ممنوع — همه از این‌جا (قاعدهٔ بقا)."""
         if any(o.name == name for o in self._organs):
             raise ValueError(f"organ {name!r} already registered")
+        if self.production_safe and phase in FORBIDDEN_PRODUCTION_PHASES:
+            raise ValueError(
+                f"production-safe scheduler forbids {phase}; transactional outbox required")
         org = Organ(name, phase, handler, **kw)
         self._organs.append(org)
         # ترتیبِ قطعی: بر اساسِ فاز، سپس ترتیبِ ثبت
@@ -189,14 +197,25 @@ class BeatScheduler:
         reserved = self._persist(beat, halt_reason, {"phase": "reserve"}, status="RESERVED")
         degraded = not reserved
         _COMMIT_PHASES = ("DECIDE", "PROPOSE", "ACT", "LEARN")
-        act_armed = _act_armed() and not degraded
+        # C7.2: an incomplete prior beat may already have crossed ACT/LEARN before
+        # its final commit failed.  Retrying those phases would duplicate effects.
+        # Recovery beats are therefore safe-phase/advisory only until reconciliation.
+        recovery_block = bool(self.recovery and self.recovery.get("reconcile"))
+        # ACT_ARMED is deliberately ignored in production-safe mode until an operation-level
+        # outbox/idempotency receipt exists. Shadow composition is structurally ACT/LEARN-free.
+        act_armed = (not self.production_safe and _act_armed()
+                     and not degraded and not recovery_block)
         order, results = [], {}
         for phase in PHASES:
             # زیرِ HALT فقط فازهای امن اجرا می‌شوند (ACT/effect هرگز — fail-closed)
             if halt_reason and phase not in _SAFE_UNDER_HALT:
                 continue
-            # بدونِ هویتِ durable، فازهای commit-دار اجرا نمی‌شوند (fail-closed)
+            # بدونِ هویتِ durable، فازهای commit-دار اجرا نمی‌شوند (fail-closed).
+            # On an incomplete-beat recovery, ACT/LEARN never rerun: their prior
+            # external/durable outcome is unknown and must be reconciled first.
             if degraded and phase in _COMMIT_PHASES:
+                continue
+            if recovery_block and phase in ("ACT", "LEARN"):
                 continue
             for org in [o for o in self._organs if o.phase == phase]:
                 if beat % org.every_n_beats != 0:
@@ -219,8 +238,16 @@ class BeatScheduler:
                 committed = True
             else:
                 degraded = True
+                self.recovery = {"reconcile": True, "reserved_beat": beat,
+                                 "status": "DEGRADED",
+                                 "note": "final commit failed; ACT/LEARN retry blocked"}
+        if committed:
+            # A safe recovery beat closes the scheduler-level ambiguity. Operation-level
+            # effect reconciliation remains the authority for any earlier ACT receipt.
+            self.recovery = None
         status = "COMMITTED" if committed else ("DEGRADED" if degraded else "RESERVED")
         return {"beat": beat, "halted": halt_reason, "act_armed": act_armed,
+                "recovery_block": recovery_block,
                 "degraded": degraded, "committed": committed, "status": status,
                 "phase_order": order, "results": results}
 

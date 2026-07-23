@@ -23,13 +23,13 @@
      موفقیتِ ارسال؛ ارسالِ شکست‌خورده retryable؛ زیرِ HALT صفر ارسال/mark؛ بوتِ همزمان با
      lease اتمیک (O_EXCL) دوبار نمی‌فرستد.
 
-**SoTِ کارت** = یک storeِ durable (`state/pulse/pending-cards.json`) که در **لحظهٔ ساختِ کارت**
-توسطِ `TelegramApprovalChannel.request_approval_card`/`rfc_card` نوشته می‌شود و مبلغِ **واقعی** +
-binding + توکنِ **واقعیِ callback** + generation را نگه می‌دارد. بازسازی از این store می‌خواند و
-با chrono (SoTِ authorizationِ پول) **cross-check** می‌کند (فقط pending/releasable re-present).
+**SoTِ کارت** = storeِ durable (`state/pulse/pending-cards.json`) که پیش از ارسال نوشته
+می‌شود و مبلغ واقعی + binding + owner + nonce + expiry + token hash را نگه می‌دارد.
+**Bearer خام هرگز persist نمی‌شود.** callback پس از restart از HMAC(secret, nonce, binding,
+owner, expiry) بازتولید و در هر کلیک با Chrono cross-check می‌شود.
 
-**مدلِ توکن = B (stateless-valid + durable single-use):** توکنِ callback در لحظهٔ ساخت durable
-می‌شود و در بازسازی **همان** بازگردانده می‌شود → دکمهٔ پیش از restartِ مالک همچنان کار می‌کند.
+**مدلِ توکن = stateless-derived + durable single-use:** دکمهٔ پیش از restart تا expiry معتبر
+می‌ماند، اما authorization با approval_id هش‌شده و ماشین حالت پایدار تک‌مصرف است.
 ضدِ replay در لایهٔ پول است: `chrono.release_effect` یک `approval_id` تک‌مصرفه می‌خواهد
 (UPDATE با `NOT EXISTS(... WHERE approval_id=?)`) → همان توکن دوبار settle نمی‌کند. (مدلِ A —
 generation-bound — را انتخاب نکردیم؛ پس هرگز ادعا نمی‌کنیم «restart توکن را باطل می‌کند».)
@@ -45,6 +45,7 @@ import hashlib
 import hmac
 import json
 import os
+import secrets
 import sqlite3
 import sys
 import time
@@ -77,8 +78,8 @@ def _flag_on() -> bool:
 
 
 # ── tamper-evident integrity tag (ضدِ card-swap/wrong-owner/amount-tamperِ storeِ durable) ──
-# این تگ **توکنِ callback نیست** (آن `_new_token`ِ کانال است، persist/restore می‌شود). این تگ
-# فقط صحتِ ردیفِ durable را می‌بندد به (effect|binding|amount|owner|exp): اگر مهاجم store را
+# این تگ **توکنِ callback نیست**. Bearer از nonce+binding مشتق می‌شود و خام persist نمی‌شود.
+# این تگ فقط صحتِ ردیفِ durable را می‌بندد به (effect|binding|amount|owner|exp): اگر مهاجم store را
 # دستکاری کند (مبلغ/owner/target عوض شود) تگ نمی‌خواند → fail-closed، کارت بازسازی نمی‌شود.
 def mint_money_token(*, effect_id, content_hash, action_kind, target_ref, amount, owner, exp):
     """(نامِ سازگاریِ عقب‌رو) تگِ صحتِ ردیفِ کارتِ مالی. HMACِ بایندِ کامل. secret نبود → None."""
@@ -149,59 +150,204 @@ def _key(kind, cid) -> str:
     return f"{kind}:{cid}"
 
 
+def _callback_token(*, effect_id, nonce, content_hash, action_kind, target_ref,
+                    amount, owner, exp) -> "str | None":
+    """Bearer روی دیسک ذخیره نمی‌شود؛ از nonce+binding+secret مشتق می‌شود."""
+    sec = _secret()
+    if sec is None or not nonce or owner in (None, ""):
+        return None
+    canon = (f"app3|{effect_id}|{nonce}|{content_hash or ''}|{action_kind or ''}|"
+             f"{target_ref or ''}|{float(amount):.6f}|{owner}|{int(exp)}")
+    return hmac.new(sec, canon.encode("utf-8"), hashlib.sha256).hexdigest()[:24]
+
+
+def _mutate_store(state_dir, mutator) -> bool:
+    """load-modify-replace زیرِ lease سراسری؛ دو writer کارت‌های متفاوت را گم نمی‌کنند.
+
+    A process crash can strand the lock file. Reclaim is allowed only after a bounded
+    stale interval; a fresh lock is never broken.
+    """
+    lock = Path(state_dir) / "pulse" / "pending-cards.lock"
+    fd = None
+    try:
+        lock.parent.mkdir(parents=True, exist_ok=True)
+        deadline = time.time() + 3.0
+        while True:
+            try:
+                fd = os.open(str(lock), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                os.write(fd, json.dumps({"pid": os.getpid(), "at": _now()}).encode("utf-8"))
+                break
+            except FileExistsError:
+                try:
+                    if time.time() - lock.stat().st_mtime > 30.0:
+                        lock.unlink(missing_ok=True)
+                        continue
+                except OSError:
+                    pass
+                if time.time() >= deadline:
+                    return False
+                time.sleep(0.02)
+        store = _load_store(state_dir)
+        mutator(store)
+        return _save_store(state_dir, store)
+    except Exception:  # noqa: BLE001
+        return False
+    finally:
+        if fd is not None:
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+        try:
+            lock.unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
+def prepare_money_card(*, state_dir, effect_id, amount_aud, content_hash, action_kind,
+                       target_ref, summary, owner, expires_at=None) -> "dict | None":
+    """PERSIST-BEFORE-SEND: intent را PENDING می‌نویسد و توکن HMAC مشتق‌شده برمی‌گرداند."""
+    if state_dir is None or not effect_id or float(amount_aud) <= 0:
+        return None
+    existing = _load_store(state_dir).get(_key("money", str(effect_id))) or {}
+    if existing:
+        same = (str(existing.get("owner")) == str(owner)
+                and abs(float(existing.get("amount_aud") or 0) - float(amount_aud)) < 1e-9
+                and str(existing.get("content_hash") or "") == str(content_hash or "")
+                and str(existing.get("action_kind") or "") == str(action_kind or "")
+                and str(existing.get("target_ref") or "") == str(target_ref or "")
+                and existing.get("decision") in ("PENDING", "DEFERRED")
+                and int(existing.get("expires_at") or 0) > _now())
+        if not same:
+            return None  # same effect_id with changed binding is a card-swap attempt
+        token = _callback_token(effect_id=effect_id, nonce=existing.get("nonce"),
+                                content_hash=content_hash, action_kind=action_kind,
+                                target_ref=target_ref, amount=amount_aud, owner=owner,
+                                exp=int(existing["expires_at"]))
+        if token and hmac.compare_digest(hashlib.sha256(token.encode()).hexdigest(),
+                                         str(existing.get("token_sha256") or "")):
+            return {"token": token, "record": existing,
+                    "send_needed": existing.get("delivery") != "SENT", "reused": True}
+        return None
+    exp = int(expires_at) if expires_at else (_now() + TTL_S)
+    nonce = secrets.token_hex(16)
+    token = _callback_token(effect_id=effect_id, nonce=nonce, content_hash=content_hash,
+                            action_kind=action_kind, target_ref=target_ref, amount=amount_aud,
+                            owner=owner, exp=exp)
+    if not token:
+        return None
+    tag = mint_money_token(effect_id=effect_id, content_hash=content_hash or "",
+                           action_kind=action_kind or "", target_ref=target_ref or "",
+                           amount=float(amount_aud), owner=owner, exp=exp)
+    rec = {"kind": "money", "effect_id": str(effect_id), "owner": owner,
+           "amount_aud": float(amount_aud), "content_hash": content_hash,
+           "action_kind": action_kind, "target_ref": target_ref,
+           "summary": str(summary or "")[:500], "nonce": nonce,
+           "token_sha256": hashlib.sha256(token.encode()).hexdigest(),
+           "integrity": tag, "expires_at": exp, "delivery": "PENDING",
+           "decision": "PENDING", "defer_count": 0,
+           "created_ts": _now(), "updated_ts": _now()}
+    ok = _mutate_store(state_dir, lambda s: s.__setitem__(_key("money", str(effect_id)), rec))
+    return {"token": token, "record": rec, "send_needed": True, "reused": False} if ok else None
+
+
 def record_money_card(*, state_dir, effect_id, amount_aud, content_hash, action_kind,
-                      target_ref, summary, owner, token, expires_at=None,
+                      target_ref, summary, owner, token=None, expires_at=None,
                       delivery="SENT") -> bool:
     """در لحظهٔ ساختِ کارتِ مالی صدا زده می‌شود (توسطِ کانال). ردیفِ durable با مبلغِ **واقعی**
     + binding + توکنِ **واقعیِ callback** + integrity-tag را می‌نویسد. fail-soft."""
-    if state_dir is None or not effect_id:
+    # compatibility wrapper: raw token عمداً نادیده گرفته می‌شود.
+    made = prepare_money_card(state_dir=state_dir, effect_id=effect_id, amount_aud=amount_aud,
+                              content_hash=content_hash, action_kind=action_kind,
+                              target_ref=target_ref, summary=summary, owner=owner,
+                              expires_at=expires_at)
+    if not made:
         return False
-    try:
-        exp = int(expires_at) if expires_at else (_now() + TTL_S)
-        store = _load_store(state_dir)
-        k = _key("money", str(effect_id))
-        prev = store.get(k) or {}
-        tag = mint_money_token(effect_id=effect_id, content_hash=content_hash or "",
-                               action_kind=action_kind or "", target_ref=target_ref or "",
-                               amount=float(amount_aud), owner=owner, exp=exp)
-        store[k] = {"kind": "money", "effect_id": str(effect_id), "owner": owner,
-                    "amount_aud": float(amount_aud), "content_hash": content_hash,
-                    "action_kind": action_kind, "target_ref": target_ref,
-                    "summary": str(summary or "")[:500], "token": str(token or ""),
-                    "integrity": tag, "expires_at": exp,
-                    "delivery": str(delivery), "generation": int(prev.get("generation", 0)) + 1,
-                    "created_ts": prev.get("created_ts", _now()), "updated_ts": _now()}
-        return _save_store(state_dir, store)
-    except Exception:  # noqa: BLE001
-        return False
+    return mark_delivery(state_dir=state_dir, kind="money", cid=effect_id,
+                         delivery=delivery)
 
 
-def record_rfc_card(*, state_dir, rfc_id, summary, token, delivery="SENT") -> bool:
-    """در لحظهٔ ساختِ کارتِ RFC صدا زده می‌شود. ردیفِ durable (submitted-undecided). fail-soft."""
+def _rfc_callback_token(*, rfc_id, nonce, owner, exp) -> "str | None":
+    sec = _secret()
+    if sec is None or not nonce or owner in (None, ""):
+        return None
+    canon = f"rfc3|{rfc_id}|{nonce}|{owner}|{int(exp)}"
+    return hmac.new(sec, canon.encode("utf-8"), hashlib.sha256).hexdigest()[:24]
+
+
+def prepare_rfc_card(*, state_dir, rfc_id, summary, owner, expires_at=None) -> "dict | None":
+    """Persist RFC intent before send. Only nonce+hash are durable, never bearer token."""
     if state_dir is None or not rfc_id:
+        return None
+    existing = _load_store(state_dir).get(_key("rfc", str(rfc_id))) or {}
+    if existing:
+        if (existing.get("decision") != "SUBMITTED" or
+                str(existing.get("owner")) != str(owner) or
+                int(existing.get("expires_at") or 0) <= _now()):
+            return None
+        token = _rfc_callback_token(rfc_id=rfc_id, nonce=existing.get("nonce"),
+                                    owner=owner, exp=int(existing["expires_at"]))
+        if token and hmac.compare_digest(hashlib.sha256(token.encode()).hexdigest(),
+                                         str(existing.get("token_sha256") or "")):
+            return {"token": token, "record": existing,
+                    "send_needed": existing.get("delivery") != "SENT", "reused": True}
+        return None
+    exp = int(expires_at) if expires_at else (_now() + TTL_S)
+    nonce = secrets.token_hex(16)
+    token = _rfc_callback_token(rfc_id=rfc_id, nonce=nonce, owner=owner, exp=exp)
+    if not token:
+        return None
+    rec = {"kind": "rfc", "rfc_id": str(rfc_id), "summary": str(summary or "")[:500],
+           "owner": owner, "nonce": nonce, "expires_at": exp,
+           "token_sha256": hashlib.sha256(token.encode()).hexdigest(),
+           "delivery": "PENDING", "decision": "SUBMITTED",
+           "created_ts": _now(), "updated_ts": _now()}
+    ok = _mutate_store(state_dir, lambda s: s.__setitem__(_key("rfc", str(rfc_id)), rec))
+    return {"token": token, "record": rec, "send_needed": True, "reused": False} if ok else None
+
+
+def record_rfc_card(*, state_dir, rfc_id, summary, token=None, delivery="SENT",
+                    owner=None) -> bool:
+    """Compatibility wrapper. The supplied raw token is deliberately ignored."""
+    made = prepare_rfc_card(state_dir=state_dir, rfc_id=rfc_id, summary=summary,
+                            owner=owner or os.environ.get("TELEGRAM_OWNER_CHAT_ID"))
+    if not made:
         return False
-    try:
-        store = _load_store(state_dir)
-        k = _key("rfc", str(rfc_id))
-        prev = store.get(k) or {}
-        store[k] = {"kind": "rfc", "rfc_id": str(rfc_id), "summary": str(summary or "")[:500],
-                    "token": str(token or ""), "delivery": str(delivery),
-                    "created_ts": prev.get("created_ts", _now()), "updated_ts": _now()}
-        return _save_store(state_dir, store)
-    except Exception:  # noqa: BLE001
-        return False
+    return mark_delivery(state_dir=state_dir, kind="rfc", cid=rfc_id, delivery=delivery)
+
+
+def verify_rfc_callback(*, state_dir, rfc_id, token, owner, now=None):
+    rec = _load_store(state_dir).get(_key("rfc", str(rfc_id)))
+    if not isinstance(rec, dict):
+        return False, None, "unknown-card"
+    if str(owner) != str(rec.get("owner")):
+        return False, None, "wrong-owner"
+    exp = int(rec.get("expires_at") or 0)
+    if (now if now is not None else _now()) >= exp:
+        return False, None, "expired"
+    if rec.get("decision") != "SUBMITTED":
+        return False, None, "already-decided"
+    expect = _rfc_callback_token(rfc_id=rfc_id, nonce=rec.get("nonce"),
+                                 owner=rec.get("owner"), exp=exp)
+    if not expect or not hmac.compare_digest(str(token), expect):
+        return False, None, "bad-token"
+    if not hmac.compare_digest(hashlib.sha256(expect.encode()).hexdigest(),
+                               str(rec.get("token_sha256") or "")):
+        return False, None, "token-hash-mismatch"
+    return True, rec, "ok"
 
 
 def mark_delivery(*, state_dir, kind, cid, delivery) -> bool:
     """گذارِ ماشینِ حالتِ دلیوری (PENDING/LEASED/SENT). atomic. fail-soft."""
     try:
-        store = _load_store(state_dir)
-        k = _key(kind, str(cid))
-        if k not in store:
-            return False
-        store[k]["delivery"] = str(delivery)
-        store[k]["updated_ts"] = _now()
-        return _save_store(state_dir, store)
+        changed = {"ok": False}
+        def _do(store):
+            k = _key(kind, str(cid))
+            if k in store:
+                store[k]["delivery"] = str(delivery)
+                store[k]["updated_ts"] = _now()
+                changed["ok"] = True
+        return _mutate_store(state_dir, _do) and changed["ok"]
     except Exception:  # noqa: BLE001
         return False
 
@@ -220,7 +366,7 @@ def _acquire_send_lease(state_dir, kind, cid, boot_id, now=None) -> bool:
     try:
         p.parent.mkdir(parents=True, exist_ok=True)
     except OSError:
-        return True   # نبودِ دایرکتوری‌سازی → بگذار ارسال شود (fail-open برای دلیوری، نه پول)
+        return False  # fail-closed: بدون lease اتمیک ارسال نکن
     try:
         fd = os.open(str(p), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
         with os.fdopen(fd, "w", encoding="utf-8") as f:
@@ -237,7 +383,7 @@ def _acquire_send_lease(state_dir, kind, cid, boot_id, now=None) -> bool:
             pass
         return False
     except OSError:
-        return True   # خطای FSِ نامنتظر → دلیوری را نبند (پول از lease نمی‌گذرد)
+        return False  # fail-closed: خطای FS نباید ارسالِ دوگانه بسازد
 
 
 def release_send_lease(state_dir, kind, cid) -> None:
@@ -303,9 +449,18 @@ def rebuild_money_cards(*, channel, chrono_db_path=None, owner, state_dir=None, 
             if not ok_tag:
                 out["skipped_unknown_amount"] += 1   # tamper/عدمِ‌صحت = همان مسیرِ fail-closed
                 continue
-            token = rec.get("token") or ""
+            if str(rec.get("decision") or "PENDING") not in ("PENDING", "DEFERRED"):
+                continue
+            token = _callback_token(
+                effect_id=eid, nonce=rec.get("nonce"), content_hash=rec.get("content_hash"),
+                action_kind=rec.get("action_kind"), target_ref=rec.get("target_ref"),
+                amount=float(amount), owner=rec.get("owner"), exp=exp)
+            if not token or not hmac.compare_digest(
+                    hashlib.sha256(token.encode()).hexdigest(), str(rec.get("token_sha256") or "")):
+                out["skipped_unknown_amount"] += 1
+                continue
             delivery = str(rec.get("delivery") or "PENDING")
-            # (1) projection **همیشه** بازسازی می‌شود (توکنِ callbackِ اصلی بازگردانده می‌شود — مدل B)
+            # projection در هر بوت از nonce+binding بازسازی می‌شود؛ raw token روی دیسک نیست.
             _reissue(channel, eid, float(amount), rec.get("summary") or "",
                      rec.get("content_hash"), rec.get("action_kind"), rec.get("target_ref"),
                      token, send=False)
@@ -333,6 +488,57 @@ def rebuild_money_cards(*, channel, chrono_db_path=None, owner, state_dir=None, 
     except Exception as e:  # noqa: BLE001 — بازسازی هرگز بوت را نمی‌کشد
         out["skipped"] = f"error:{type(e).__name__}"
         return out
+
+
+def verify_callback(*, state_dir, effect_id, token, owner, chrono_db_path=None,
+                    status_fn=None, now=None,
+                    require_effect_pending: bool = True) -> "tuple[bool, dict | None, str]":
+    """گیتِ کلیک: owner+expiry+HMAC+binding را در همان لحظه verify می‌کند.
+    `require_effect_pending` (پیش‌فرض True): چکِ chrono status=pending. **فقط برای approve**
+    (فعلِ settle) لازم است — چون تنها approve پول را آزاد می‌کند. deny/later اثرِ مالی ندارند و
+    نباید به pending‌بودنِ chrono مقید شوند (backcompat + امکانِ رد کردنِ کارتِ اثرِ غیر-pending).
+    توجه: مسیرِ مالی دست‌نخورده است — approve بعداً از EffectorGate.release_effect می‌گذرد که
+    خودش binding+status='pending' را اتمیک دوباره چک می‌کند."""
+    rec = _load_store(state_dir).get(_key("money", str(effect_id)))
+    if not isinstance(rec, dict):
+        return False, None, "unknown-card"
+    if str(owner) != str(rec.get("owner")):
+        return False, None, "wrong-owner"
+    n = now if now is not None else _now()
+    exp = int(rec.get("expires_at") or 0)
+    if n >= exp:
+        return False, None, "expired"
+    if str(rec.get("decision") or "PENDING") not in ("PENDING", "DEFERRED"):
+        return False, None, "already-decided"
+    expect = _callback_token(effect_id=effect_id, nonce=rec.get("nonce"),
+                             content_hash=rec.get("content_hash"),
+                             action_kind=rec.get("action_kind"), target_ref=rec.get("target_ref"),
+                             amount=rec.get("amount_aud"), owner=rec.get("owner"), exp=exp)
+    if not expect or not hmac.compare_digest(str(token), expect):
+        return False, None, "bad-token"
+    if require_effect_pending:
+        stat = status_fn or (lambda eid: _chrono_status(chrono_db_path, eid))
+        if stat(effect_id) not in _MONEY_SAFE_STATES:
+            return False, None, "effect-not-pending"
+    return True, rec, "ok"
+
+
+def persist_money_decision(*, state_dir, effect_id, decision, defer_count=None) -> bool:
+    allowed = {"PENDING", "DEFERRED", "DENIED", "APPROVING", "APPROVED", "EXPIRED",
+               "RECONCILE_REQUIRED"}
+    if decision not in allowed:
+        return False
+    changed = {"ok": False}
+    def _do(store):
+        rec = store.get(_key("money", str(effect_id)))
+        if isinstance(rec, dict):
+            rec["decision"] = decision
+            if defer_count is not None:
+                rec["defer_count"] = int(defer_count)
+                rec["deferred_at"] = _now()
+            rec["updated_ts"] = _now()
+            changed["ok"] = True
+    return _mutate_store(state_dir, _do) and changed["ok"]
 
 
 def _reissue(channel, effect_id, amount, summary, content_hash, action_kind, target_ref,
@@ -370,56 +576,189 @@ def _rfc_verdict_path(state_dir):
     return Path(state_dir) / "doctor" / "rfc-verdicts.jsonl"
 
 
+def _rfc_db_path(state_dir):
+    return Path(state_dir) / "doctor" / "rfc-verdicts.db"
+
+
+def _rfc_con(state_dir):
+    p = _rfc_db_path(state_dir)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    con = sqlite3.connect(str(p), timeout=5.0)
+    con.execute("PRAGMA journal_mode=WAL")
+    con.execute("PRAGMA synchronous=FULL")
+    con.execute("CREATE TABLE IF NOT EXISTS rfc_decision("
+                "rfc_id TEXT PRIMARY KEY, verdict TEXT NOT NULL, revision INTEGER NOT NULL,"
+                "state TEXT NOT NULL, lease_owner TEXT, lease_until INTEGER,"
+                "receipt_id TEXT, operation_key TEXT, updated_ts INTEGER NOT NULL)")
+    rfc_cols = {r[1] for r in con.execute("PRAGMA table_info(rfc_decision)")}
+    if "operation_key" not in rfc_cols:
+        con.execute("ALTER TABLE rfc_decision ADD COLUMN operation_key TEXT")
+    # One-time compatibility migration from the C7.1 JSONL ledger. A consumed merge has
+    # unknown apply outcome, so it becomes RECONCILE_REQUIRED rather than falsely APPLIED.
+    if con.execute("SELECT COUNT(*) FROM rfc_decision").fetchone()[0] == 0:
+        legacy = _rfc_verdict_path(state_dir)
+        folded = {}
+        if legacy.exists():
+            for ln in legacy.read_text("utf-8").splitlines():
+                try:
+                    r = json.loads(ln); rid = str(r.get("rfc_id") or "")
+                except Exception:
+                    continue
+                if not rid:
+                    continue
+                cur = folded.setdefault(rid, {"verdict": "", "consumed": False})
+                if r.get("verdict"):
+                    cur["verdict"] = str(r["verdict"])
+                cur["consumed"] = cur["consumed"] or bool(r.get("consumed"))
+        for rid, r in folded.items():
+            if not r["verdict"]:
+                continue
+            state = ("REJECTED" if r["consumed"] and r["verdict"] == "denied" else
+                     ("RECONCILE_REQUIRED" if r["consumed"] else "DECIDED"))
+            con.execute("INSERT OR IGNORE INTO rfc_decision("
+                        "rfc_id,verdict,revision,state,lease_owner,lease_until,receipt_id,"
+                        "operation_key,updated_ts) VALUES(?,?,?,?,?,?,?,?,?)",
+                        (rid, r["verdict"], 1, state, None, None, "", None, _now()))
+    con.commit()
+    return con
+
+
 def persist_rfc_verdict(*, state_dir, rfc_id, verdict) -> bool:
-    """رأیِ RFC را durable کن **پیش از** ackِ callback (B7). append-only + fsync."""
+    """SUBMITTED→DECIDED, durably and idempotently, before Telegram ACK."""
     try:
-        p = _rfc_verdict_path(state_dir)
-        p.parent.mkdir(parents=True, exist_ok=True)
-        with open(p, "a", encoding="utf-8") as f:
-            f.write(json.dumps({"rfc_id": str(rfc_id), "verdict": str(verdict),
-                                "consumed": False, "ts": _now()}, ensure_ascii=False) + "\n")
-            f.flush()
-            os.fsync(f.fileno())
+        con = _rfc_con(state_dir)
+        try:
+            con.execute("BEGIN IMMEDIATE")
+            row = con.execute("SELECT verdict,revision,state FROM rfc_decision WHERE rfc_id=?",
+                              (str(rfc_id),)).fetchone()
+            if row and row[2] in ("DECIDED", "LEASED", "APPLIED", "REJECTED",
+                                  "RECONCILE_REQUIRED"):
+                # Same owner verdict is an idempotent replay; a conflicting second verdict
+                # is rejected rather than silently creating a new decision revision.
+                con.rollback(); return row[0] == str(verdict)
+            rev = int(row[1]) + 1 if row else 1
+            con.execute("INSERT INTO rfc_decision(rfc_id,verdict,revision,state,updated_ts) "
+                        "VALUES(?,?,?,?,?) ON CONFLICT(rfc_id) DO UPDATE SET "
+                        "verdict=excluded.verdict,revision=excluded.revision,state='DECIDED',"
+                        "lease_owner=NULL,lease_until=NULL,updated_ts=excluded.updated_ts",
+                        (str(rfc_id), str(verdict), rev, "DECIDED", _now()))
+            con.commit()
+        finally:
+            con.close()
+        # Card projection is terminal as soon as the owner decision is durable.
+        _mutate_store(state_dir, lambda s: s.get(_key("rfc", str(rfc_id)), {}).update(
+            {"decision": "DECIDED", "updated_ts": _now()}))
         return True
-    except Exception:  # noqa: BLE001
+    except Exception:
+        return False
+
+
+def claim_rfc_verdicts(*, state_dir, worker_id, lease_s=300) -> list:
+    """DECIDED→LEASED with a durable lease. Returns (rfc_id, verdict, revision)."""
+    out = []
+    try:
+        con = _rfc_con(state_dir)
+        try:
+            con.execute("BEGIN IMMEDIATE")
+            now = _now()
+            rows = con.execute(
+                "SELECT rfc_id,verdict,revision FROM rfc_decision WHERE state='DECIDED' "
+                "OR (state='LEASED' AND COALESCE(lease_until,0)<?) ORDER BY rfc_id", (now,)).fetchall()
+            for rid, verdict, rev in rows:
+                cur = con.execute(
+                    "UPDATE rfc_decision SET state='LEASED',lease_owner=?,lease_until=?,updated_ts=? "
+                    "WHERE rfc_id=? AND revision=? AND (state='DECIDED' OR lease_until<?)",
+                    (str(worker_id), now + int(lease_s), now, rid, rev, now))
+                if cur.rowcount == 1:
+                    out.append((rid, verdict, int(rev)))
+            con.commit()
+        finally:
+            con.close()
+    except Exception:
+        return []
+    return out
+
+
+def begin_rfc_apply(*, state_dir, rfc_id, revision, operation_key) -> bool:
+    """Persist the ambiguity boundary before external/stateful apply.
+
+    LEASED→RECONCILE_REQUIRED means a crash can never auto-retry the operation. A later
+    APPLIED transition requires a real receipt bound to this operation key.
+    """
+    if not operation_key:
+        return False
+    try:
+        con = _rfc_con(state_dir)
+        try:
+            con.execute("BEGIN IMMEDIATE")
+            cur = con.execute(
+                "UPDATE rfc_decision SET state='RECONCILE_REQUIRED',operation_key=?,updated_ts=? "
+                "WHERE rfc_id=? AND revision=? AND state='LEASED' AND verdict='merge-approved'",
+                (str(operation_key), _now(), str(rfc_id), int(revision)))
+            con.commit()
+            return cur.rowcount == 1
+        finally:
+            con.close()
+    except Exception:
+        return False
+
+
+def ack_rfc_verdict(*, state_dir, rfc_id, revision, applied, receipt_id="") -> bool:
+    """LEASED→APPLIED/REJECTED only after the idempotent doctor operation receipt."""
+    try:
+        con = _rfc_con(state_dir)
+        try:
+            con.execute("BEGIN IMMEDIATE")
+            row = con.execute("SELECT verdict,state,operation_key FROM rfc_decision "
+                              "WHERE rfc_id=? AND revision=?",
+                              (str(rfc_id), int(revision))).fetchone()
+            if not row:
+                con.rollback(); return False
+            terminal = "APPLIED" if applied else ("REJECTED" if row[0] == "denied" else
+                                                   "RECONCILE_REQUIRED")
+            if terminal == "APPLIED" and (not receipt_id or not row[2]):
+                con.rollback(); return False
+            allowed_state = "RECONCILE_REQUIRED" if terminal == "APPLIED" else "LEASED"
+            cur = con.execute(
+                "UPDATE rfc_decision SET state=?,receipt_id=?,lease_owner=NULL,lease_until=NULL,"
+                "updated_ts=? WHERE rfc_id=? AND revision=? AND state=?",
+                (terminal, str(receipt_id or ""), _now(), str(rfc_id), int(revision),
+                 allowed_state))
+            con.commit()
+            return cur.rowcount == 1
+        finally:
+            con.close()
+    except Exception:
         return False
 
 
 def mark_rfc_consumed(*, state_dir, rfc_id) -> bool:
-    """doctor پس از مصرفِ verdict این را می‌زند (durable consumed → بعد از restart دوبار مصرف نمی‌شود)."""
-    try:
-        p = _rfc_verdict_path(state_dir)
-        p.parent.mkdir(parents=True, exist_ok=True)
-        with open(p, "a", encoding="utf-8") as f:
-            f.write(json.dumps({"rfc_id": str(rfc_id), "verdict": "", "consumed": True,
-                                "ts": _now()}, ensure_ascii=False) + "\n")
-            f.flush()
-            os.fsync(f.fileno())
-        return True
-    except Exception:  # noqa: BLE001
+    """Legacy compatibility: claim then terminally acknowledge a deny-only/read consumption."""
+    claims = claim_rfc_verdicts(state_dir=state_dir, worker_id="legacy-pop", lease_s=60)
+    hit = [x for x in claims if x[0] == str(rfc_id)]
+    if not hit:
         return False
+    rid, verdict, rev = hit[0]
+    return ack_rfc_verdict(state_dir=state_dir, rfc_id=rid, revision=rev,
+                           applied=False, receipt_id="")
 
 
 def load_rfc_verdicts(state_dir) -> dict:
-    """آخرین حالتِ هر rfc_id: {rfc_id: {"verdict": str, "consumed": bool}}. آخرین خط برنده."""
-    out: dict = {}
+    """Projection of the durable RFC state machine for recovery/UI."""
+    out = {}
     if state_dir is None:
         return out
-    p = _rfc_verdict_path(state_dir)
-    if p.exists():
-        for ln in p.read_text("utf-8").splitlines():
-            try:
-                r = json.loads(ln)
-            except ValueError:
-                continue
-            rid = r.get("rfc_id")
-            if rid is None:
-                continue
-            cur = out.setdefault(rid, {"verdict": "", "consumed": False})
-            if r.get("verdict"):
-                cur["verdict"] = r.get("verdict")
-            if r.get("consumed"):
-                cur["consumed"] = True
+    try:
+        con = _rfc_con(state_dir)
+        try:
+            for rid, verdict, rev, state in con.execute(
+                    "SELECT rfc_id,verdict,revision,state FROM rfc_decision"):
+                out[rid] = {"verdict": verdict, "revision": int(rev), "state": state,
+                            "consumed": state in ("APPLIED", "REJECTED")}
+        finally:
+            con.close()
+    except Exception:
+        pass
     return out
 
 
@@ -437,7 +776,7 @@ def rebuild_rfc_cards(*, channel, rfcs_path, state_dir=None, now=None) -> dict:
         verdicts = load_rfc_verdicts(state_dir)
         # (الف) رأی‌های durableِ مصرف‌نشده را به کانال تزریق کن تا doctor تحویل بگیرد (exactly-once)
         for rid, v in verdicts.items():
-            if v.get("consumed") or not v.get("verdict"):
+            if v.get("state") != "DECIDED" or not v.get("verdict"):
                 continue
             try:
                 with getattr(channel, "_lk", _NullLock()):
@@ -470,8 +809,19 @@ def rebuild_rfc_cards(*, channel, rfcs_path, state_dir=None, now=None) -> dict:
             summary = str(r.get("bottleneck") or r.get("fix") or r.get("summary") or "RFC")[:200]
             try:
                 if hasattr(channel, "rfc_card"):
-                    channel.rfc_card(rid, summary)
-                    out["rebuilt"] += 1
+                    # Existing durable intent must be re-derived, not overwritten with a
+                    # fresh nonce before an old Telegram button can be verified.
+                    rec = _load_store(state_dir).get(_key("rfc", rid)) or {}
+                    token = _rfc_callback_token(rfc_id=rid, nonce=rec.get("nonce"),
+                                                owner=rec.get("owner"),
+                                                exp=int(rec.get("expires_at") or 0))
+                    if token and rec.get("decision") == "SUBMITTED":
+                        with getattr(channel, "_lk", _NullLock()):
+                            channel._pending_rfc[rid] = {"summary": summary, "token": token,
+                                                         "status": "pending"}
+                        out["rebuilt"] += 1
+                    elif channel.rfc_card(rid, summary):
+                        out["rebuilt"] += 1
             except Exception:  # noqa: BLE001
                 pass
         return out

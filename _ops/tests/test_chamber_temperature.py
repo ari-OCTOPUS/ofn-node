@@ -29,6 +29,9 @@ import time  # noqa: E402
 from types import SimpleNamespace  # noqa: E402
 from unittest.mock import MagicMock  # noqa: E402
 
+# C7.2: کارتِ پولِ actionable به رازِ callback نیاز دارد (fail-closed بدونِ آن).
+os.environ.setdefault("OCTOPUS_CB_SECRET", "unit-test-chamber-secret-not-real")
+
 from temperature import TemperatureController  # noqa: E402
 from chamber import run_chamber, MAX_ROUNDS  # noqa: E402
 
@@ -258,20 +261,23 @@ def _mk_doctor(channel=None, db=None):
 
 
 def t_doctor_consumes_rfc_verdicts():
-    """کانال با pop_rfc_verdicts → run_cycle بدونِ crash مصرف می‌کند و record_verdict می‌زند."""
+    """C7.2: کانال با claim_rfc_verdicts → run_cycle مصرف می‌کند، record_verdict + ack می‌زند."""
     channel = MagicMock()
-    channel.pop_rfc_verdicts.return_value = [("rfc-x", "merge-approved")]
+    channel.claim_rfc_verdicts.return_value = [("rfc-x", "merge-approved", 1)]
+    channel.ack_rfc_verdict.return_value = True
     db = MagicMock()
     doc = _mk_doctor(channel=channel, db=db)
     res = doc.run_cycle(beat=1, trace={}, use_calibration=False, use_chamber=False)
     assert res is None                       # trace خالی → گلوگاهی نیست
-    assert channel.pop_rfc_verdicts.called
+    assert channel.claim_rfc_verdicts.called
     assert db.ex.called                      # record_verdict نوشت (INSERT duration_marker)
 
 
 def t_doctor_verdict_updates_registry_status():
-    """merge-approved→human-merged، denied→human-rejected، ناشناخته→skip."""
-    channel = MagicMock()
+    """merge-approved→human-merged، denied→human-rejected، ناشناخته→skip (مسیرِ legacy pop).
+    C7.2: نگاشتِ برچسبِ رجیستری در مسیرِ legacy pop_rfc_verdicts است؛ کانالِ spec-محدود
+    مسیرِ claim را کنار می‌گذارد (hasattr(claim)=False) تا همین رفتار آزموده شود."""
+    channel = MagicMock(spec=["pop_rfc_verdicts"])
     channel.pop_rfc_verdicts.return_value = [
         ("rfc-x", "merge-approved"), ("rfc-y", "denied"), ("rfc-z", "weird")]
     doc = _mk_doctor(channel=channel, db=MagicMock())

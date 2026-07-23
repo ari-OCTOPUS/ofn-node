@@ -833,28 +833,47 @@ class Doctor:
         # hasattr-guard = ایمن حتی قبل از این‌که کانالِ تلگرام آن را عرضه کند).
         # human-append منبعِ حقیقت می‌ماند — اینجا فقط ثبتِ calibration + وضعیتِ registry.
         try:
-            if self._channel is not None and hasattr(self._channel, "pop_rfc_verdicts"):
-                for rfc_id, verdict in self._channel.pop_rfc_verdicts():
+            if self._channel is not None and hasattr(self._channel, "claim_rfc_verdicts"):
+                worker = f"doctor-{os.getpid()}"
+                for rfc_id, verdict, revision in self._channel.claim_rfc_verdicts(worker):
                     mapped = {"merge-approved": "merged", "denied": "rejected"}.get(verdict)
                     if mapped is None:
-                        continue   # verdict ناشناخته → skip (calibration فقط merged/rejected/ignored)
+                        continue
                     from calibration import record_verdict
                     record_verdict(self._db, rfc_id, mapped)
+                    applied = False
+                    receipt_id = ""
                     if rfc_id in self._rfcs:
-                        # جلسه ۴۶ (P0): verdictِ merged حالا اثرِ واقعی دارد — apply_merge
-                        # (فقط lesson + NOTE، هیچ جهشِ production؛ human-append قبلاً enforce شده).
-                        # apply_merge نیاز به status=submitted دارد، پس *پیش از* برچسب صدا زده
-                        # می‌شود. پشتِ flag (پیش‌فرض روشن؛ خاموش → فقط برچسبِ قبلی).
-                        _applied = False
                         if mapped == "merged" and \
                                 os.environ.get("OCTOPUS_WIRE_APPLY_MERGE", "1") == "1":
+                            op_key = f"rfc:{rfc_id}:rev:{revision}"
+                            # Persist RECONCILE_REQUIRED before apply. Crash after this line
+                            # never auto-retries the mutation; an operation receipt closes it.
+                            if not self._channel.begin_rfc_apply(rfc_id, revision, op_key):
+                                self._rfcs[rfc_id].status = "reconcile-required"
+                                continue
                             try:
-                                _applied = self.apply_merge(self._rfcs[rfc_id])
-                            except Exception as _ame:  # noqa: BLE001 — merge نباید cycle را بکشد
+                                applied = self.apply_merge(self._rfcs[rfc_id])
+                                if applied:
+                                    receipt_id = str(self._rfcs[rfc_id].ledger_ref or "")
+                            except Exception as _ame:
                                 opslib.alert([f"doctor apply_merge failed: {type(_ame).__name__}"])
-                        if not _applied:   # apply نشد/flag خاموش → همان برچسبِ قبلی
-                            self._rfcs[rfc_id].status = "human-" + mapped
-                self._persist_rfcs()   # جلسه ۴۶: تغییراتِ چرخهٔ‌عمر روی دیسک
+                        elif mapped == "rejected":
+                            self._rfcs[rfc_id].status = "human-rejected"
+                    # APPLIED only after an operation receipt. Deny is terminal REJECTED.
+                    acked = self._channel.ack_rfc_verdict(
+                        rfc_id, revision, applied=applied,
+                        receipt_id=receipt_id if applied else "")
+                    if not acked and rfc_id in self._rfcs:
+                        self._rfcs[rfc_id].status = "reconcile-required"
+                self._persist_rfcs()
+            elif self._channel is not None and hasattr(self._channel, "pop_rfc_verdicts"):
+                # Legacy channel: labels only; never auto-apply because it has no durable lease.
+                for rfc_id, verdict in self._channel.pop_rfc_verdicts():
+                    mapped = {"merge-approved": "merged", "denied": "rejected"}.get(verdict)
+                    if mapped and rfc_id in self._rfcs:
+                        self._rfcs[rfc_id].status = "human-" + mapped
+                self._persist_rfcs()
         except Exception as e:  # noqa: BLE001 — مصرفِ verdict هرگز cycle را نمی‌کشد
             try:
                 opslib.alert([f"doctor: rfc-verdict consumption failed: {str(e)[:120]}"])

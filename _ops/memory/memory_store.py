@@ -15,7 +15,6 @@ import json
 import os
 import sqlite3
 import threading
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -25,11 +24,12 @@ if str(_HERE.parent / "outcomes") not in sys.path:
     sys.path.insert(0, str(_HERE.parent / "outcomes"))
 import taxonomy as tax  # noqa: E402
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 _LOCK = threading.RLock()
+_ADMISSION_STATES = frozenset({"PENDING", "ADMITTED", "RETRACTED"})
 _COLS = ("memory_id", "namespace", "mkey", "content", "content_sha256", "trust",
          "provenance_json", "confidence", "salience", "valid_from", "valid_to",
-         "supersedes", "privacy", "schema_version", "created_at")
+         "supersedes", "privacy", "admission_state", "schema_version", "created_at")
 
 
 def _utc_now_iso() -> str:
@@ -61,7 +61,14 @@ class MemoryStore:
                 "content TEXT NOT NULL, content_sha256 TEXT NOT NULL, trust TEXT NOT NULL,"
                 "provenance_json TEXT, confidence REAL, salience REAL,"
                 "valid_from TEXT NOT NULL, valid_to TEXT, supersedes TEXT,"
-                "privacy TEXT NOT NULL, schema_version INTEGER NOT NULL, created_at TEXT NOT NULL)")
+                "privacy TEXT NOT NULL, admission_state TEXT NOT NULL DEFAULT 'ADMITTED',"
+                "schema_version INTEGER NOT NULL, created_at TEXT NOT NULL)")
+            # Additive v1→v2 migration. Existing memories were visible before this column,
+            # therefore they are explicitly ADMITTED. New research/learning can stage PENDING.
+            cols = {r[1] for r in self._conn.execute("PRAGMA table_info(memory)").fetchall()}
+            if "admission_state" not in cols:
+                self._conn.execute(
+                    "ALTER TABLE memory ADD COLUMN admission_state TEXT NOT NULL DEFAULT 'ADMITTED'")
             try:
                 self._conn.execute(
                     "CREATE VIRTUAL TABLE IF NOT EXISTS memory_fts USING fts5("
@@ -88,7 +95,8 @@ class MemoryStore:
         with _LOCK:
             dup = self._conn.execute(
                 "SELECT memory_id FROM memory WHERE namespace=? AND content_sha256=? "
-                "AND (mkey IS ? OR mkey=?) AND (valid_to IS NULL OR valid_to>?)",
+                "AND (mkey IS ? OR mkey=?) AND admission_state IN ('PENDING','ADMITTED') "
+                "AND (valid_to IS NULL OR valid_to>?)",
                 (ns, csha, mkey, mkey, _utc_now_iso())).fetchone()
             if dup:
                 return None   # dedupe: already an active identical memory
@@ -100,6 +108,9 @@ class MemoryStore:
                    (str(rec["valid_to"]) if rec.get("valid_to") else None),
                    (str(rec["supersedes"]) if rec.get("supersedes") else None),
                    (str(rec.get("privacy")) if tax.is_privacy(rec.get("privacy")) else "scrubbed"),
+                   (str(rec.get("admission_state") or "ADMITTED")
+                    if str(rec.get("admission_state") or "ADMITTED") in _ADMISSION_STATES
+                    else "PENDING"),
                    SCHEMA_VERSION, str(rec.get("created_at") or _utc_now_iso()))
             self._conn.execute(
                 "INSERT OR IGNORE INTO memory(" + ",".join(_COLS) + ") VALUES(" +
@@ -115,7 +126,7 @@ class MemoryStore:
             if sup:
                 now = _utc_now_iso()
                 self._conn.execute(
-                    "UPDATE memory SET valid_to=? WHERE memory_id=? "
+                    "UPDATE memory SET valid_to=?, admission_state='RETRACTED' WHERE memory_id=? "
                     "AND (valid_to IS NULL OR valid_to>?)", (now, str(sup), now))
             self._conn.commit()
             return mid
@@ -126,6 +137,7 @@ class MemoryStore:
         with _LOCK:
             rows = self._conn.execute(
                 "SELECT " + ",".join(_COLS) + " FROM memory WHERE namespace=? AND mkey=? "
+                "AND admission_state='ADMITTED' "
                 "AND (valid_to IS NULL OR valid_to>?) ORDER BY created_at DESC, memory_id DESC",
                 (namespace, str(mkey), _utc_now_iso())).fetchall()
         for r in rows:
@@ -162,6 +174,7 @@ class MemoryStore:
             out = []
             for mid, score in ids:
                 r = self._conn.execute("SELECT " + ",".join(_COLS) + " FROM memory WHERE memory_id=? "
+                                       "AND admission_state='ADMITTED' "
                                        "AND (valid_to IS NULL OR valid_to>?)",
                                        (mid, _utc_now_iso())).fetchone()
                 if not r:
@@ -178,6 +191,41 @@ class MemoryStore:
         out.sort(key=lambda x: x["_rank"])
         return out[:k]
 
+    def set_admission_state(self, memory_id: str, state: str) -> bool:
+        """CAS-like admission transition. PENDING is invisible to get/search.
+
+        Allowed transitions are deliberately narrow: PENDING→ADMITTED/RETRACTED and
+        ADMITTED→RETRACTED. A retracted memory can never be resurrected in place.
+        """
+        state = str(state or "").upper()
+        if state not in _ADMISSION_STATES or state == "PENDING":
+            return False
+        with _LOCK:
+            row = self._conn.execute(
+                "SELECT admission_state FROM memory WHERE memory_id=?", (str(memory_id),)).fetchone()
+            if not row or row[0] == "RETRACTED":
+                return False
+            if row[0] not in ("PENDING", "ADMITTED"):
+                return False
+            if state == "RETRACTED":
+                cur = self._conn.execute(
+                    "UPDATE memory SET admission_state='RETRACTED', valid_to=? "
+                    "WHERE memory_id=? AND admission_state=?",
+                    (_utc_now_iso(), str(memory_id), row[0]))
+            else:
+                cur = self._conn.execute(
+                    "UPDATE memory SET admission_state='ADMITTED' "
+                    "WHERE memory_id=? AND admission_state=?",
+                    (str(memory_id), row[0]))
+            self._conn.commit()
+            return cur.rowcount == 1
+
+    def admission_state(self, memory_id: str) -> "str | None":
+        with _LOCK:
+            row = self._conn.execute(
+                "SELECT admission_state FROM memory WHERE memory_id=?", (str(memory_id),)).fetchone()
+        return str(row[0]) if row else None
+
     def as_memories_used(self, recs: list) -> list:
         """نگاشت به شکلِ دقیقِ decision_receipt.memories_used (hash/ref فقط، بدونِ متنِ خام)."""
         now = _utc_now_iso()
@@ -186,13 +234,19 @@ class MemoryStore:
 
     def metrics(self) -> dict:
         with _LOCK:
-            rows = self._conn.execute("SELECT namespace, trust, valid_to FROM memory").fetchall()
-        m = {"total": len(rows), "active": 0, "by_trust": {}, "by_namespace": {},
-             "fts": self._fts, "schema_version": SCHEMA_VERSION}
+            rows = self._conn.execute(
+                "SELECT namespace, trust, valid_to, admission_state FROM memory").fetchall()
+        m = {"total": len(rows), "active": 0, "pending": 0, "retracted": 0,
+             "by_trust": {}, "by_namespace": {}, "fts": self._fts,
+             "schema_version": SCHEMA_VERSION}
         now = _utc_now_iso()
-        for ns, tr, vt in rows:
-            if vt is None or vt > now:
+        for ns, tr, vt, adm in rows:
+            if adm == "ADMITTED" and (vt is None or vt > now):
                 m["active"] += 1
+            elif adm == "PENDING":
+                m["pending"] += 1
+            elif adm == "RETRACTED":
+                m["retracted"] += 1
             m["by_trust"][tr] = m["by_trust"].get(tr, 0) + 1
             m["by_namespace"][ns] = m["by_namespace"].get(ns, 0) + 1
         return m
