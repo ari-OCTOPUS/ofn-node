@@ -54,6 +54,7 @@ def record(run_id: str, step: str, status: str, *,
             "ts": time.time(), "meta": meta}
     try:
         p = path or _default_path()
+        p.parent.mkdir(parents=True, exist_ok=True)   # C2-D: pathِ صریح هم دایرکتوری می‌سازد
         with open(p, "a", encoding="utf-8") as f:
             f.write(json.dumps(line, ensure_ascii=False) + "\n")
     except Exception:  # noqa: BLE001 — journal هرگز مسیرِ اصلی را نمی‌شکند

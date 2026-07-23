@@ -305,6 +305,19 @@ def main() -> int:
                 _w.wire_proposal_buttons(channel=_chan, live_loop=_live_loop)
         except Exception as _pe:  # noqa: BLE001 — هوک نباید بوت را بکشد
             opslib.alert([f"wire_proposal_buttons failed (non-fatal): {type(_pe).__name__}"])
+        # C2-D: بازیابیِ resume-not-restart در بوت (RESURRECTION فاز ۴+۷): journal اسکن
+        # (advisory — هرگز re-runِ کور) + EXECUTINGِ رهاشده → RECONCILE_REQUIRED. fail-soft.
+        try:
+            import journal_recovery as _jr   # noqa: WPS433
+            _rec = _jr.boot_recovery()
+            _ji = _rec.get("journal", {})
+            _ci = _rec.get("chrono", {})
+            opslib.heartbeat(
+                f"boot recovery: journal incomplete={len(_ji.get('incomplete', []))} "
+                f"chrono reconciled={_ci.get('reconciled_now', 0)} "
+                f"attention={_ci.get('attention_total', 0)}")
+        except Exception as _re:  # noqa: BLE001 — بازیابی هرگز بوت را نمی‌کشد
+            opslib.alert([f"boot recovery failed (non-fatal): {type(_re).__name__}"])
         if any(_wire.values()):
             opslib.heartbeat(f"organism wiring: {_wire}")
     except Exception as _e:  # noqa: BLE001 — wiring اختیاریِ additive

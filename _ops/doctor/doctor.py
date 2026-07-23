@@ -270,6 +270,21 @@ class Doctor:
     def _lg(self):
         return self._ledger or opslib.genome_ledger()
 
+    def _journal(self, rfc_id: str, step: str, status: str, **meta) -> None:
+        """C2-D (تصمیم D-A): قدم‌های ۳-گانهٔ دکتر (propose→sandbox→submit) → durable_journal.
+        resume-not-restart: بعد از restart، journal می‌گوید کدام run وسطِ کدام قدم مرد
+        (start بدونِ ok) — بازیابی advisory است، هرگز re-runِ کور. fail-soft کامل."""
+        try:
+            import sys as _s
+            _r = str(Path(__file__).resolve().parent.parent)
+            if _r not in _s.path:
+                _s.path.insert(0, _r)
+            import durable_journal as _dj   # noqa: WPS433 — lazy، صفر وابستگیِ سخت
+            _dj.record(f"rfc-{rfc_id}", step, status,
+                       path=self._state_dir / "journal" / "run-journal.jsonl", **meta)
+        except Exception:  # noqa: BLE001 — journal هرگز مسیرِ دکتر را نمی‌کشد
+            pass
+
     def _note(self, subtype: str, payload: dict) -> str:
         """ثبتِ رویداد در ledger. خروجی = ledger_ref (hash)."""
         try:
@@ -441,6 +456,7 @@ class Doctor:
                 rfc.to_markdown(), encoding="utf-8")
         except OSError:
             pass   # fail-soft: RFC در registry است حتی اگر فایل نرفت
+        self._journal(rfc.rfc_id, "propose", "ok")   # C2-D: قدمِ ۱ ثبتِ durable
         return rfc
 
     # ─── D-4 · run_sandbox + Critic ──────────────────────────────────────────────
@@ -453,6 +469,7 @@ class Doctor:
         sandbox_dir = Path(tempfile.mkdtemp(prefix=f"doctor-sandbox-{rfc.rfc_id}-"))
         result = {"sandbox_dir": str(sandbox_dir), "applied": False, "tests": None,
                   "critic": None}
+        self._journal(rfc.rfc_id, "sandbox", "start")   # C2-D: مرگِ وسطِ قدم دیده می‌شود
         try:
             # اعمالِ fix در sandbox (apply_fn مسئول است؛ پیش‌فرض = no-op چون فقط تستِ ایزولاسیون)
             if apply_fn is not None:
@@ -486,6 +503,7 @@ class Doctor:
             rfc.ledger_ref = self._note("DOCTOR_SANDBOX", {"rfc_id": rfc.rfc_id,
                                                             "result": {k: v for k, v in result.items()
                                                                        if k != "sandbox_dir"}})
+            self._journal(rfc.rfc_id, "sandbox", "ok", status_after=rfc.status)   # C2-D
         finally:
             # پاکسازیِ sandbox (تضمینِ ایزولاسیون)
             shutil.rmtree(sandbox_dir, ignore_errors=True)
@@ -546,6 +564,7 @@ class Doctor:
             rfc.status = "submitted"
             rfc.ledger_ref = self._note("DOCTOR_SUBMIT", {"rfc_id": rfc.rfc_id,
                                                             "rfc_hash": rfc.rfc_hash})
+            self._journal(rfc.rfc_id, "submit", "ok")   # C2-D: قدمِ ۳
         else:
             rfc.status = "submit-failed"
         return ok
