@@ -65,6 +65,19 @@ def fast_ledger_eval(*, internal_metric_pass: bool = True, **kw) -> dict:
         return {"overall_verdict": "fail", "anti_hacking_flag": False}
 
 
+def _retract(memory_gate, ns, mkey, content, memory_id, reason) -> None:
+    """compensating retraction: خاطرهٔ admittedِ بی‌رسید را supersede/invalidate کن (append-only)."""
+    try:
+        if memory_id:
+            memory_gate.submit({"namespace": ns, "mkey": mkey,
+                                "content": f"[RETRACTED:{str(reason)[:24]}] {content}"[:400],
+                                "salience": 0.9, "confidence": 0.9, "privacy": "scrubbed",
+                                "source": "learning_gate", "producer": "retract",
+                                "supersedes": memory_id})
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def _run_eval(evaluator, eval_ctx, internal_metric_pass) -> dict:
     """گیتِ held-out. evaluator تزریق‌پذیر است (تولید: held_out_evaluator.evaluate_held_out؛
     تست: stub سریع). خروجیِ نرمال: {verdict, anti_hacking_flag, raw}."""
@@ -136,6 +149,11 @@ def learn_from_outcome(*, memory_gate, signal: dict, receipt_store=None, outcome
             return {"learned": False, "reason": "held-out gate failed — harmful/unsafe learning blocked",
                     "eval_verdict": ev["verdict"], "anti_hacking_flag": False}
 
+        # ── C7-S2 (audit #3): بدونِ receipt_store اصلاً خاطره نمی‌سازیم (no admission without receipt)
+        if receipt_store is None:
+            return {"learned": False, "memory_id": None, "receipt_id": None,
+                    "eval_verdict": ev["verdict"],
+                    "reason": "receipt_store required — no admitted memory without a receipt"}
         # ── commit خاطره از Memory Gate (dedup/version/trust یک‌جا) ──────────────
         ns = str(signal.get("namespace") or "semantic")
         sal = signal.get("salience")
@@ -163,29 +181,33 @@ def learn_from_outcome(*, memory_gate, signal: dict, receipt_store=None, outcome
             return {"learned": False, "reason": f"gate {res.get('verb')}: {res.get('reason')}",
                     "eval_verdict": ev["verdict"]}
 
-        # ── artifactِ durable: رسیدِ یادگیری (evidenceِ گیت + مرجعِ خاطره) ────────
+        # ── C7-S2 (audit finding #3): memory + receipt **اتمیک** — هیچ خاطرهٔ admittedِ بی‌رسید.
+        # ناوردی: learned=True ⟺ هم memory_id هم receipt_idِ واقعی. اگر رسید ننشیند → خاطره
+        # retract (supersede→invalidate) و learned=False (no uncited admission).
         rid = None
-        if receipt_store is not None and mid:
-            try:
-                receipt_store.record({
-                    "receipt_id": "dr_" + _sha({"learn": mid, "c": signal.get("correlation_id")})[:16],
-                    "trace_id": str(signal.get("correlation_id") or ""),
-                    "mission_id": str(signal.get("mission_id") or "learning"),
-                    "objective": "commit learned memory (held-out gated)"[:290],
-                    "alternatives": ["commit", "reject"],
-                    "selected_alternative": "commit",
-                    "reason_codes": [f"TRUST_{trust}", f"EVAL_{ev['verdict'].upper()}"],
-                    "assumptions": ["held-out gate green", "outcome-not-preference"],
-                    "memories_used": [],
-                    "predicted_outcome": {"memory_id": str(mid)[:120],
-                                          "salience": max(sal, min_salience)},
-                    "effect_class": "E0"})   # یادگیریِ داخلی، صفر اثرِ بیرونی
-                rid = "recorded"
-            except Exception:  # noqa: BLE001
-                rid = None
+        try:
+            rid = receipt_store.record({
+                "receipt_id": "dr_" + _sha({"learn": mid, "c": signal.get("correlation_id")})[:16],
+                "trace_id": str(signal.get("correlation_id") or ""),
+                "mission_id": str(signal.get("mission_id") or "learning"),
+                "objective": "commit learned memory (held-out gated)"[:290],
+                "alternatives": ["commit", "reject"], "selected_alternative": "commit",
+                "reason_codes": [f"TRUST_{trust}", f"EVAL_{ev['verdict'].upper()}"],
+                "assumptions": ["held-out gate green", "outcome-not-preference"],
+                "memories_used": [],
+                "predicted_outcome": {"memory_id": str(mid)[:120], "salience": max(sal, min_salience)},
+                "effect_class": "E0"})   # یادگیریِ داخلی، صفر اثرِ بیرونی
+        except Exception:  # noqa: BLE001
+            rid = None
+        if not rid:
+            # رسید نساخت → خاطرهٔ بی‌رسید نمی‌گذاریم: compensating retraction
+            _retract(memory_gate, ns, signal.get("mkey"), content, mid, "receipt-failed")
+            return {"learned": False, "memory_id": None, "receipt_id": None,
+                    "eval_verdict": ev["verdict"],
+                    "reason": "receipt write failed — memory retracted (no uncited admission)"}
         return {"learned": True, "memory_id": mid, "receipt_id": rid,
                 "eval_verdict": ev["verdict"], "anti_hacking_flag": False,
-                "reason": "learned (durable artifact)"}
+                "reason": "learned (durable artifact: memory + receipt)"}
     except Exception as e:  # noqa: BLE001 — یادگیری هرگز مسیرِ اصلی را نمی‌کشد
         return {"learned": False, "reason": f"failsoft:{type(e).__name__}"}
 
