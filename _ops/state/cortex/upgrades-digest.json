@@ -1,5 +1,5 @@
 {
-  "ts": "2026-07-17T17:45:26",
+  "ts": "2026-07-25T08:35:46",
   "schema": "upgrades-digest.v1",
   "observability_ok": true,
   "maturity_pct": 75.6,
@@ -16,9 +16,9 @@
         "status": "proposed"
       },
       {
-        "id": "up-cd9914d7a0",
+        "id": "up-dc7d61ac97",
         "priority": "P1",
-        "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (0/۲۸ روز، سایه)",
+        "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (7/۲۸ روز، سایه)",
         "suggested_action": "چند لیدِ واقعی بده تا اتریبیوشن معتبر شود.",
         "change_level": "tune",
         "source": "business-brain",
@@ -37,28 +37,28 @@
         "status": "proposed"
       },
       {
-        "id": "up-edcbea1fda",
+        "id": "up-8603fa19da",
         "priority": "P2",
-        "title": "سنتزِ مغز: ارگانیسم خود تحلیل و ارتقاء بدهد",
-        "suggested_action": "پیاده‌سازی لینک‌ها در محل‌های مناسب برای تحلیل خودکار",
+        "title": "سنتزِ مغز: کالبدشکافیِ سایه‌ایِ محرکِ ترس",
+        "suggested_action": "تهیهٔ بازپخش فقط‌خواندنی از رخدادهای اخیر؛ fugu برای علت‌یابی، glm برای نقد فرضیه‌ها و ollama برای آزمون محلی و کم‌هزینه",
         "change_level": "reconfig",
         "source": "synthesis",
         "status": "proposed"
       },
       {
-        "id": "up-3d970db333",
+        "id": "up-b9937dd26c",
         "priority": "P2",
-        "title": "سنتزِ مغز: حافظه ماندگار همیشه بماند",
-        "suggested_action": "افزودن سیستم ذخیره‌سازی پشتیبانی با استفاده از فشرده‌سازی و چند نقطه‌ای",
+        "title": "سنتزِ مغز: قرنطینهٔ حافظهٔ بحران",
+        "suggested_action": "تعریف برچسب «بحران/ت",
         "change_level": "reconfig",
         "source": "synthesis",
         "status": "proposed"
       },
       {
-        "id": "up-2b121d73cc",
+        "id": "up-579332f70c",
         "priority": "P2",
-        "title": "سنتزِ مغز: عنوان",
-        "suggested_action": "قدم اول",
+        "title": "سنتزِ مغز: مدارِ توقفِ اضطراری برای «doctor»",
+        "suggested_action": "تعریف سیاست پیشنهادی: انجماد reconfig/rewrite و فراخوانی پولی، ثبت checkpoint و الزام تأیید مالک تا خروج پایدار از قرمز",
         "change_level": "reconfig",
         "source": "synthesis",
         "status": "proposed"
@@ -84,10 +84,10 @@
         "status": "proposed"
       },
       {
-        "id": "up-e471431bc0",
+        "id": "up-d2223604af",
         "priority": "P2",
-        "title": "اعضا: امروز 6 بار خودترمیمی شد — یه عضو ناپایدار است",
-        "suggested_action": "بررسیِ ریشه‌ایِ آن عضو (به مالک گزارش).",
+        "title": "دکتر: 6 پیشنهادِ بهبود منتظرِ رأیِ توست",
+        "suggested_action": "در خانه با آره/نه تصمیم بگیر.",
         "change_level": "reconfig",
         "source": "part-loop",
         "status": "proposed"
@@ -359,12 +359,12 @@
       "impact": 3.0
     },
     {
-      "id": "up-cd9914d7a0",
+      "id": "up-dc7d61ac97",
       "source": "business-brain",
       "category": "business",
       "priority": "P1",
       "_rank": 1.0,
-      "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (0/۲۸ روز، سایه)",
+      "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (7/۲۸ روز، سایه)",
       "rationale": "مغزِ دومِ کسب‌وکار این را یافت",
       "evidence": "business-brain-latest.json",
       "suggested_action": "چند لیدِ واقعی بده تا اتریبیوشن معتبر شود.",
@@ -409,31 +409,31 @@
       "impact": 2.6
     },
     {
-      "id": "up-edcbea1fda",
+      "id": "up-8603fa19da",
       "source": "synthesis",
       "category": "architecture",
       "priority": "P2",
       "_rank": 1.8,
-      "title": "سنتزِ مغز: ارگانیسم خود تحلیل و ارتقاء بدهد",
-      "rationale": "بهبود عملکرد و کارایی",
-      "evidence": "synthesis-latest.json [local]",
-      "suggested_action": "پیاده‌سازی لینک‌ها در محل‌های مناسب برای تحلیل خودکار",
+      "title": "سنتزِ مغز: کالبدشکافیِ سایه‌ایِ محرکِ ترس",
+      "rationale": "حلقهٔ observe→critique→propose→validate و shadow-eval را فعال می‌کند، بدون دست‌کاری سامانهٔ زنده",
+      "evidence": "synthesis-latest.json [primary]",
+      "suggested_action": "تهیهٔ بازپخش فقط‌خواندنی از رخدادهای اخیر؛ fugu برای علت‌یابی، glm برای نقد فرضیه‌ها و ollama برای آزمون محلی و کم‌هزینه",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
-      "serves_goal": "ارگانیسم خودش را تحلیل، تحقیق و ارتقا بدهد — تا جای امن خودکار، بقیه پیشنهاد به من.",
+      "serves_goal": "هر مغز (fugu اصلی، glm فرعی، ollama محلی) موازی روی ردهٔ کارِ خودش پیش برود.",
       "impact": 2.2
     },
     {
-      "id": "up-3d970db333",
+      "id": "up-b9937dd26c",
       "source": "synthesis",
       "category": "architecture",
       "priority": "P2",
       "_rank": 1.8,
-      "title": "سنتزِ مغز: حافظه ماندگار همیشه بماند",
-      "rationale": "امنیت داده‌ها",
-      "evidence": "synthesis-latest.json [local]",
-      "suggested_action": "افزودن سیستم ذخیره‌سازی پشتیبانی با استفاده از فشرده‌سازی و چند نقطه‌ای",
+      "title": "سنتزِ مغز: قرنطینهٔ حافظهٔ بحران",
+      "rationale": "از memory poisoning و تبدیل برداشت‌های ناشی از ترس یا یافته‌های کم‌ربط وب به «حقیقت ماندگار» جلوگیری می‌کند",
+      "evidence": "synthesis-latest.json [primary]",
+      "suggested_action": "تعریف برچسب «بحران/ت",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
@@ -475,23 +475,35 @@
   ],
   "auto_eligible": [],
   "auto_enabled": true,
-  "brain_note": "[local] اول باید \"Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است\" رفع شود، زیرا تأیید آمده‌ای برای این گاف وجود ندارد و این وضعیت می‌تواند منجر به کاهش اعتماد خودبهبودی شود.",
+  "brain_note": "[local] ابتدا \"Lead-نقاشی: هنوز درآمدِ تأییدشده‌ی ثبت نشده؛\" باید حل شود، زیرا بدون تأیید آمده‌ای وجود دادهٔ قابل اعتماد برای تصمیم‌گیری در مورد \"Lead-نقاشی: دادهٔ درآمد",
   "goal_directed": {
     "n_goal_serving": 6,
     "n_circular_dropped": 1,
     "goals_count": 6,
     "outcome": {
-      "tracked": 14,
-      "moved": false,
+      "tracked": 13,
+      "moved": true,
       "now": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 6
+        "total_discoveries": 10,
+        "proposals_delivered": 0,
+        "proposal_outcomes": 0,
+        "proposal_positive": 0,
+        "proposal_accept_rate": 0.0,
+        "proposal_value_aud": 0.0,
+        "proposals_sent": 0
       },
       "since": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 6
+        "total_discoveries": 8,
+        "proposals_delivered": 0,
+        "proposal_outcomes": 0,
+        "proposal_positive": 0,
+        "proposal_accept_rate": 0.0,
+        "proposal_value_aud": 0.0,
+        "proposals_sent": 0
       }
     }
   },

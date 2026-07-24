@@ -1,9 +1,9 @@
 {
-  "ts": "2026-07-17T17:55:27",
+  "ts": "2026-07-25T08:35:49",
   "schema": "stress.v1",
-  "organism_stress": 0.75,
+  "organism_stress": 1.0,
   "in_fear": [
-    "legs"
+    "doctor"
   ],
   "level": "🔴 ترس",
   "subsystems": {
@@ -21,21 +21,21 @@
     },
     "legs": {
       "name": "🦿 اعضا",
-      "stress": 0.75,
-      "fear": true,
-      "detail": "6 خودترمیم/روز"
+      "stress": 0.0,
+      "fear": false,
+      "detail": "0 خودترمیم/روز"
     },
     "doctor": {
       "name": "🩺 دکتر",
-      "stress": 0.0,
-      "fear": false,
-      "detail": "0 پیشنهادِ معطل"
+      "stress": 1.0,
+      "fear": true,
+      "detail": "6 پیشنهادِ معطل"
     },
     "alerts": {
       "name": "🚨 هشدارها",
       "stress": 0.5,
       "fear": false,
-      "detail": "597 خطِ هشدار"
+      "detail": "1959 خطِ هشدار"
     }
   }
 }

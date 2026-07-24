@@ -1,7 +1,7 @@
 {
-  "ts": "2026-07-17T17:45:17",
+  "ts": "2026-07-25T08:35:38",
   "schema": "part-loops.v1",
-  "beat": 130,
+  "beat": 160,
   "parts": [
     {
       "id": "heart",
@@ -13,45 +13,45 @@
       "id": "cortex",
       "name": "🧠 مغز",
       "status": "🟢",
-      "detail": "هم‌آهنگی 96٪"
+      "detail": "هم‌آهنگی 94٪"
     },
     {
       "id": "doctor",
       "name": "🩺 دکتر",
-      "status": "🟢",
-      "detail": "0 منتظر"
+      "status": "🟡",
+      "detail": "6 منتظر"
     },
     {
       "id": "money",
       "name": "💰 پول",
       "status": "🟢",
-      "detail": "0.0$/۳۰"
+      "detail": "0.031942$/۳۰"
     },
     {
       "id": "learning",
       "name": "📚 یادگیری",
       "status": "🟢",
-      "detail": "5 کشفِ ۴۸h"
+      "detail": "4 کشفِ ۴۸h"
     },
     {
       "id": "legs",
       "name": "🦿 اعضا",
-      "status": "🟡",
-      "detail": "6 خودترمیم/روز"
+      "status": "🟢",
+      "detail": "0 خودترمیم/روز"
     },
     {
       "id": "self",
       "name": "🪞 خودمدلی",
       "status": "🟢",
-      "detail": "99.5٪ سند"
+      "detail": "99.6٪ سند"
     }
   ],
   "n_proposals": 2,
   "proposals": [
     {
-      "part": "اعضا",
-      "title": "امروز 6 بار خودترمیمی شد — یه عضو ناپایدار است",
-      "action": "بررسیِ ریشه‌ایِ آن عضو (به مالک گزارش).",
+      "part": "دکتر",
+      "title": "6 پیشنهادِ بهبود منتظرِ رأیِ توست",
+      "action": "در خانه با آره/نه تصمیم بگیر.",
       "change_level": "reconfig",
       "auto_ok": false
     },

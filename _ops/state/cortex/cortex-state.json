@@ -1,88 +1,108 @@
 {
-  "ts": "2026-07-17T17:55:27",
-  "cycle": 131,
-  "coherence": 0.927,
+  "ts": "2026-07-25T08:35:46",
+  "cycle": 160,
+  "coherence": 0.882,
   "stale_members": [],
   "members": [
     {
       "id": "organism",
       "present": true,
-      "awareness": 0.835,
-      "age_s": 594,
+      "awareness": 0.757,
+      "age_s": 873,
       "sla_s": 1800,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "ORGANISM-STATE.json"
     },
     {
       "id": "heart",
       "present": true,
-      "awareness": 0.917,
-      "age_s": 595,
+      "awareness": 0.879,
+      "age_s": 873,
       "sla_s": 3600,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "pulse/heart-shadow-latest.json"
     },
     {
       "id": "producers",
       "present": true,
-      "awareness": 0.917,
-      "age_s": 595,
+      "awareness": 0.879,
+      "age_s": 873,
       "sla_s": 3600,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "pulse/heart-signals-latest.json"
     },
     {
       "id": "work_pump",
       "present": true,
-      "awareness": 0.959,
-      "age_s": 595,
+      "awareness": 0.939,
+      "age_s": 873,
       "sla_s": 7200,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "pulse/work-state.json"
     },
     {
       "id": "doctor_setpoint",
       "present": true,
-      "awareness": 0.954,
-      "age_s": 15987,
+      "awareness": 0.957,
+      "age_s": 14934,
       "sla_s": 172800,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "pulse/heart-setpoint-latest.json"
     },
     {
       "id": "governor",
       "present": true,
-      "awareness": 0.958,
-      "age_s": 599,
+      "awareness": 0.939,
+      "age_s": 874,
       "sla_s": 7200,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "telemetry-latest.json"
     },
     {
       "id": "sigma",
       "present": true,
-      "awareness": 0.943,
-      "age_s": 19832,
+      "awareness": 0.912,
+      "age_s": 30415,
       "sla_s": 172800,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "replication-latest.json"
     },
     {
       "id": "fitness",
       "present": true,
-      "awareness": 0.943,
-      "age_s": 19832,
+      "awareness": 0.912,
+      "age_s": 30415,
       "sla_s": 172800,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "fitness-latest.json"
     },
     {
       "id": "school",
       "present": true,
-      "awareness": 0.963,
-      "age_s": 19106,
+      "awareness": 0.971,
+      "age_s": 14936,
       "sla_s": 259200,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "school-awareness.json"
     },
     {
       "id": "reconcile",
       "present": true,
-      "awareness": 0.966,
-      "age_s": 17761,
+      "awareness": 0.7,
+      "age_s": 155543,
       "sla_s": 259200,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "reconcile-latest.json"
     }
   ],
   "alignment": {
@@ -96,17 +116,45 @@
   "brains": {
     "keys": {
       "fugu": true,
-      "glm": false,
+      "glm": true,
       "deepseek": false
     },
     "paid_gate": "open (owner research-early override — سپرِ تاریخ دور زده شد)",
     "local_model": "qwen2.5:latest"
   },
+  "thought": "[local] انجام فعالیت‌های جدید و به‌روزرسانی محتوای مجموعه را می‌توان به عنوان مهم‌ترین کار حاضر مجموعه در نظر گرفت.",
+  "self_improve": {
+    "maturity_pct": 75.6,
+    "n_proposals": 34,
+    "top": [
+      "Lead-نقاشی: هنوز درآمدِ تأییدشده‌ای ثبت نشده",
+      "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (7/۲۸ روز، سایه)",
+      "self-analysis loop observe→critique→propose→validate→promote"
+    ]
+  },
+  "self_model": {
+    "ok": true,
+    "n_modules": 275,
+    "total_lines": 67724,
+    "self_awareness_pct": 99.6,
+    "self_claims_written": 0
+  },
+  "part_loops": {
+    "n_parts": 7,
+    "n_proposals": 2,
+    "attention": [
+      "🩺 دکتر"
+    ]
+  },
+  "business_brain": {
+    "n_projects": 2,
+    "n_proposals": 2
+  },
   "stress": {
     "level": "🔴 ترس",
-    "organism_stress": 0.75,
+    "organism_stress": 1.0,
     "in_fear": [
-      "legs"
+      "doctor"
     ]
   },
   "innervation": {

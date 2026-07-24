@@ -2,13 +2,15 @@
 """event_bridge.py — پلِ push از رویدادهای ارگانیسم به تلگرام (فاز A).
 
 تلگرام pull-based است (center.py:1486 poll + center.py:394 beat که فقط status/digest
-ویرایش می‌کند). این ماژول، درِ push اضافه می‌کند: سه منبعِ بحرانی را در هر beat
+ویرایش می‌کند). این ماژول، درِ push اضافه می‌کند: پنج منبعِ بحرانی را در هر beat
 می‌خواند و پیام‌های انسانی به مالک می‌فرستد.
 
-سه منبع:
+پنج منبع:
   1) governor-alerts.md (Tier 0: alert→push) — opslib.alert() همه‌چیز اینجا می‌نویسد.
   2) events.jsonl فیلتر incident.opened/incident.contained/task.failed.
   3) ORGANISM-STATE.json protective_mode — edge-triggered (تغییر وضعیت).
+  4) c6/state-machine.jsonl دفتر گذار تولد نسلی (C6).
+  5) trajectory-alerts.jsonl هشدارهای Synapse شامل burst و egress-attempt.
 
 گیت: OCTOPUS_WIRE_EVENT_BRIDGE (پیش‌فرض خاموش = no-op).
 امنیت: dedup با cursor (byte offset، restart-safe)؛ rate-limit سخت (نهایتاً ۱۰/ساعت)؛
@@ -37,6 +39,8 @@ EVENTS = opslib.STATE_DIR / "events.jsonl"
 STATE = opslib.STATE_DIR / "ORGANISM-STATE.json"
 # source 4 (هماهنگ با c6_state_machine.py:56 از Opus مافوق): دفترِ گذارِ تولدِ نسلی.
 C6_JOURNAL = opslib.STATE_DIR / "c6" / "state-machine.jsonl"
+# source 5: trajectory alerts (اندامِ Synapse)
+TRAJECTORY_ALERTS = opslib.OPS / "synapse" / "out" / "trajectory-alerts.jsonl"
 CURSOR = opslib.STATE_DIR / "telegram" / "event-bridge-cursor.json"
 MAX_PUSH_PER_HOUR = 10
 
@@ -234,6 +238,23 @@ def beat(center=None) -> dict:
             if to_st in ("ADMITTED", "TRANSPLANTED", "QUARANTINED", "DENIED", "REJECTED"):
                 rid = str(t.get("repro_id", "?"))[:24]
                 _push(_human_c6(to_st, rid, t.get("from")))
+
+    # ۵) trajectory-alerts.jsonl — novel/burst/egress marker (منبع پنجم)
+    if TRAJECTORY_ALERTS.exists():
+        tlines, tpos = _read_past(TRAJECTORY_ALERTS, cur.get("traj_pos", 0))
+        cur["traj_pos"] = tpos
+        for ln in tlines:
+            ln = ln.strip()
+            if not ln:
+                continue
+            try:
+                t_alert = json.loads(ln)
+            except ValueError:
+                continue
+            tk = t_alert.get("kind", "alert")
+            tsum = str(t_alert.get("summary", ""))[:280]
+            icon = {"burst": "💥", "novel-chain": "✨", "egress-attempt": "🚪"}.get(tk, "⚠️")
+            _push(f"{icon} Trajectory {tk}: {tsum}")
 
     _save_cursor(cur)
     return out

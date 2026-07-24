@@ -127,9 +127,19 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int) -> dict | No
         r = organ_gate.reserve("ARCHITECT_SYS", est, task=f"cortex-{tier}")
         if not r.get("allow"):
             return None
+        # ── گاردِ فوگو (روزِ اول): شمارندهٔ attempt-counted + STOP-FUGU ──────────
+        # قبل از هر egressِ پولی +۱ می‌شود (پس شکست/حلقه هم سهمیه را می‌سوزاند)؛
+        # STOP-FUGU یا سقفِ روزانه → deny → برگشت به مغزِ محلی (fail-closed).
+        import fugu_quota  # noqa: E402 — همسایهٔ همین ماژول در cortex/
+        _q = fugu_quota.reserve(tier, "ARCHITECT_SYS")
+        if not _q.get("allow"):
+            organ_gate.release("ARCHITECT_SYS", est, task=f"cortex-{tier}")
+            return None
         try:
             out = cli.complete(system, prompt, max_tokens=max_tokens)
+            fugu_quota.ok(tier)
         except Exception:
+            fugu_quota.fail(tier)
             organ_gate.release("ARCHITECT_SYS", est, task=f"cortex-{tier}")
             raise
         # subscription: هزینهٔ نقدی ~۰ ولی استفاده متر می‌شود (سهمیهٔ نصفِ اشتراک)

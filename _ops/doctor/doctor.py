@@ -471,6 +471,17 @@ class Doctor:
         except OSError:
             pass   # fail-soft: RFC در registry است حتی اگر فایل نرفت
         self._journal(rfc.rfc_id, "propose", "ok")   # C2-D: قدمِ ۱ ثبتِ durable
+        try:
+            import os as _rs_os, sys as _rs_sys
+            from pathlib import Path as _RSPath
+            if _rs_os.environ.get("OCTOPUS_WIRE_RULES") == "1":
+                _rsd = str(_RSPath(__file__).resolve().parent)
+                if _rsd not in _rs_sys.path:
+                    _rs_sys.path.insert(0, _rsd)
+                import rules_store as _rs
+                _rs.record_occurrence(error_class=str((bottleneck or {}).get("bottleneck", bottleneck))[:120], source_trace=rfc.rfc_id)
+        except Exception:
+            pass
         return rfc
 
     # ─── D-4 · run_sandbox + Critic ──────────────────────────────────────────────
@@ -567,6 +578,17 @@ class Doctor:
         """RFC را برای merge به اپراتور بسته می‌کند. اگر P3 channel وصل باشد،
         کارتِ [merge پشتِ flag]/[reject] می‌فرستد. بدونِ channel → False (pending ابدی).
         فقط human-append (P3، is_human=1) merge را settle می‌کند."""
+        try:
+            import os as _af_os, sys as _af_sys
+            from pathlib import Path as _AFPath
+            if _af_os.environ.get("OCTOPUS_WIRE_FATIGUE") == "1":
+                _afd = str(_AFPath(__file__).resolve().parents[1] / "budget")
+                if _afd not in _af_sys.path:
+                    _af_sys.path.insert(0, _afd)
+                import approval_fatigue as _af
+                _af.observe(risk="high" if getattr(rfc, "change_level", "") == "code" else "medium")
+        except Exception:
+            pass
         if self._channel is None:
             rfc.status = "submitted-no-channel"   # pending ابدی تا channel
             return False

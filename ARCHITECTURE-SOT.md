@@ -94,3 +94,15 @@
 3. **هر دایرکتوریِ dormant** باید `DEPRECATED.md` داشته باشد که به canonical اشاره کند.
 4. **هیچ کدِ تکراری نساز** — اول این فایل را بررسی کن که آیا canonical موجود است.
 5. **معماری به‌صورتِ incremental تکامل می‌یابد** — این فایل snapshotِ امروز است.
+
+## 🧬 ثبتِ ۲۰۲۶-۰۷-۲۴ — اندامِ synapse (additive، پیش‌فرضِ خاموش)
+
+| concern | canonical | وضعیت |
+|---------|-----------|-------|
+| SENSE (SOG روی تله‌متریِ خودِ ارگانیسم) | `_ops/synapse/sense.py` | SHADOW — فلگ `SYNAPSE_ENABLED` خاموش؛ خروجی فقط `_ops/synapse/out/`؛ importِ read-only از `4d_system/core/metrics.py` |
+| مانیتورِ trajectory (P3) | `_ops/synapse/trajectory_monitor.py` | SHADOW — فلگ `TRAJECTORY_MONITOR_ENABLED` خاموش؛ wiring به event_bridge = tapِ مالک |
+| سیاستِ egress (P1) | `_ops/synapse/egress_policy.py` | policy-as-data — enforce/wiring = tapِ مالک؛ deny-by-default |
+| تست‌های synapse | `_ops/tests/test_synapse_sense.py` | [UNKNOWN تا اولین اجرای pytest] |
+
+قاعده: هیچ‌کدام از این‌ها در runtimeِ فعلی اثر ندارند (فلگ‌ها خاموش). هر wiring آینده
+در همین فایل ثبت و با verdictِ مالک انجام می‌شود.

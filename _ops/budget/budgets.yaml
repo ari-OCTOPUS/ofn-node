@@ -104,7 +104,7 @@ routing:
     model: fugu                        # نرخ = top-model فعال pool؛ fee انباشته نمی‌شود [FACT: sakana.ai/fugu]
     base_url: "https://api.sakana.ai/v1"   # verdict آری 2026-07-09 — باید /v1 داشته باشد وگرنه ۴۰۴ (مستند Sakana). کلید فقط env: FUGU_API_KEY
     cap_monthly: 100                   # AUD — بودجهٔ متریِ Fugu، verdict آری 2026-07-09 (پس از اطمینانِ پایداری → ۵۰۰)
-    subscription: pro                  # verdict آری 2026-07-10: پلنِ Pro خریده شده — مغزِ اصلیِ مجموعه
+    subscription: max                  # verdict آری 2026-07-10: پلنِ MAX خریده شد (2026-07-24، $200، 20× Standard) — مغزِ اصلی؛ subscription=max → est=0 → گاردِ fugu_quota سهمیه را می‌راند
     system_share: 0.5                  # نصفِ سهمیهٔ اشتراک سهمِ سیستم
   premium:
     provider: sakana

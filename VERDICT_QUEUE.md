@@ -85,3 +85,14 @@
 | VQ-4D-001 | اجرای ۳۰روزه 4D | yes/no/later | open | autonomous run |
 | VQ-MAP-001 | اجرای scanner روی همین workspace | yes/no | open | fresh inventory |
 
+---
+
+## Synapse / AGI Capabilities
+
+| ID | تصمیم | گزینه‌ها | وضعیت | اثر |
+|---|---|---|---|---|
+| VQ-SYN-001 | روشن‌کردن SENSE و Trajectory Monitor | yes (propose-only) / no | open | تولید proposal بدون اثر روی runtime |
+| VQ-EGR-001 | فعال‌سازی egress_policy به صورت audit-only | yes / no | open | لاگ ترافیک cloud بدون مسدودسازی |
+| VQ-TRAJ-001 | اتصال منبع ۵ (Trajectory) به Event Bridge | yes (flag on) / no | open | دریافت هشدارهای burst و novel-chains |
+| VQ-AGI-001 | نقشه‌راه Gapها و ادعای معماری | accept framework / reject / revise | open | چارچوب ابطال‌پذیر برای بستن C1..C8 |
+

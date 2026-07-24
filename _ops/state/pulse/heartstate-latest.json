@@ -1,23 +1,23 @@
 {
- "ts": "2026-07-17T17:45:29",
+ "ts": "2026-07-25T08:35:48",
  "schema": "heartstate.v1",
  "epistemic": "access-only telemetry — read-only، regulator نه commander",
  "shadow": {
-  "velocity": 2.1917,
+  "velocity": 6.0042,
   "sigma": 0.0,
   "period_s": 900.0,
   "mode": "shadow",
   "band": [
-   0.05,
-   4.5842
+   0.5134,
+   5.0476
   ],
   "wire_open": true
  },
  "stress": {
-  "organism": 0.75,
+  "organism": 1.0,
   "level": "🔴 ترس",
   "in_fear": [
-   "legs"
+   "doctor"
   ]
  },
  "innervation": {

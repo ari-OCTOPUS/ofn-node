@@ -10,3 +10,23 @@
 # به organism loop برسد، یک beat در wiring.py با الگوی cockpit_requests_beat
 # (خط 1184) اضافه می‌شود. تا آن زمان، communication از طریق to_ari.json
 # (که لنگر می‌خواند) انجام می‌شود.
+{"ts": "2026-07-24T15:18:38", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-24T15:18:39", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:18:39", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:18:39", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:18:39", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:19:02", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-24T15:19:03", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:19:03", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:19:03", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:19:03", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:35:31", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-24T15:35:32", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:35:32", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:35:32", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:35:32", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:40:24", "kind": "draft_submitted", "text": "draft submitted", "source": "pf_os", "count": 0}
+{"ts": "2026-07-24T15:40:25", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:40:25", "kind": "brain_tick_done", "text": "tick 2 completed", "source": "pf_os", "count": 2, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:40:26", "kind": "brain_tick_done", "text": "tick 3 completed", "source": "pf_os", "count": 3, "intent": "", "status": "fallback"}
+{"ts": "2026-07-24T15:40:26", "kind": "brain_tick_done", "text": "tick 1 completed", "source": "pf_os", "count": 1, "intent": "", "status": "fallback"}

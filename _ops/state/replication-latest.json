@@ -1,5 +1,5 @@
 {
-  "ts": "2026-07-17T12:24:54",
+  "ts": "2026-07-25T00:08:22",
   "config": {
     "max_cells": 6,
     "spawn_depth": 1,
@@ -19,8 +19,8 @@
   "fitness_authoritative": false,
   "eligible_cells": [],
   "live_gate": {
-    "open": false,
-    "why": "activation flag missing: ACTIVATION-REPLICATION.flag (owner-only)"
+    "open": true,
+    "why": "open"
   },
   "proposals_written": [],
   "would_propose": [],
