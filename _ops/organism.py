@@ -115,6 +115,13 @@ except Exception:  # noqa: BLE001 — additive، نباید بوت را بکشد
     _cardiac_mod = None
     _cardiac_budget, _cardiac_baro = None, None
 
+# HH-P11: داورِ نبض — سه قلب (cardiac/control_law/rhythm) → یک periodِ advisory.
+# additive، پشتِ OCTOPUS_WIRE_PULSE_ARBITER، read-only/سایه. flag off → shadow (رفتارِ فعلی).
+try:
+    from heart import pulse_arbiter as _arbiter_mod   # noqa: E402
+except Exception:  # noqa: BLE001 — additive، نباید بوت را بکشد
+    _arbiter_mod = None
+
 
 class _ExclusiveHTTPServer(ThreadingHTTPServer):
     """سرور وضعیت = خودِ قفل تک‌نمونه. تلهٔ شناختهٔ ویندوز (جلسه ۱۹): http.server
@@ -420,6 +427,7 @@ def main() -> int:
         except Exception:  # noqa: BLE001
             _bc_block = {"mode": "HARNESS", "flag_on": False, "degraded": False}
         _heart_status = None       # HH-P5: پیش از try تعریف می‌شود تا بلوکِ _sleep_s (بیرونِ try) هرگز NameError نخورد
+        _arb_status = None         # HH-P11: داورِ نبض — پیش از try (بلوکِ _sleep_s بیرونِ try می‌خواندش)
         # R-12 (audit): یک correlation_id برای کلِ این tick mint کن تا همهٔ emitهای این ضربان
         # (heartbeat/leg/doctor/incident/…) همبسته شوند و runِ input→output بازسازی‌پذیر شود.
         # نخ‌های هم‌زمان contextِ خالی دارند → آلوده نمی‌شوند. fail-soft (نبودِ events = None).
@@ -492,6 +500,26 @@ def main() -> int:
                     _circadian_state = _w.circadian_readiness(_circadian)
                 except Exception:  # noqa: BLE001
                     _circadian_state = None
+            # HH-P11: داورِ نبض — سه قلب (cardiac + control_law + rhythm) → یک periodِ advisory.
+            # shadow مگر wire_open (ساختاراً بسته تا رأیِ مالک). persist بدونِ flag نمی‌نویسد،
+            # همیشه snapshot می‌دهد. fail-soft: داور هرگز tick را نمی‌کشد.
+            if _arbiter_mod is not None:
+                try:
+                    _card_snap = (_cardiac_mod.status_snapshot()
+                                  if _cardiac_mod is not None else None)
+                    _arb_status = _arbiter_mod.persist(
+                        cardiac_snapshot=_card_snap, rhythm_state=_rhythm_state,
+                        beat=(_cstat or {}).get("beat", 0))
+                    pulse["arbiter"] = {
+                        "effective_period_s": _arb_status.get("effective_period_s"),
+                        "driver": _arb_status.get("driver"),
+                        "color": _arb_status.get("color"),
+                        "n_present": _arb_status.get("n_present"),
+                        "n_braking": _arb_status.get("n_braking"),
+                        "wire_open": _arb_status.get("wire_open"),
+                    }
+                except Exception:  # noqa: BLE001 — §۴: داور نباید tick را بکشد
+                    _arb_status = None
             if _neural_stack is not None:
                 try:
                     _beat_n = (_cstat.get("beat", 0) if _cstat else 0)
@@ -919,6 +947,13 @@ def main() -> int:
                 _hp = float(_heart_status.get("period_shadow_s") or TICK_SECONDS)
                 _sleep_s = max(_floor, min(900.0, _hp))
             except Exception:  # noqa: BLE001 — §۴: قلب نباید sleep را بشکند
+                pass
+        # HH-P11: seamِ زندهٔ داورِ نبض — periodِ *واحد* از سه قلب فقط اگر wire_open باز باشد
+        # (ساختاراً بسته تا رأیِ مالک: OCTOPUS_WIRE_PULSE_ARBITER + …). بسته → _sleep_s دست‌نخورده.
+        if _arb_status is not None and _arb_status.get("wire_open"):
+            try:
+                _sleep_s = float(_arb_status.get("effective_period_s") or _sleep_s)
+            except (TypeError, ValueError):
                 pass
         time.sleep(_sleep_s)
 

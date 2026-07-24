@@ -67,6 +67,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # (تأییدِ owner=external-validation). هر دو flag-off no-op؛ producers دادهٔ واقعی می‌خواند.
          "test_heart_fuel_wiring.py", "test_heart_cognition_wiring.py",
          "test_heart_control.py", "test_heart_loop.py", "test_heart_work.py",
+         # B-section three-heart-rhythm-math (2026-07-25): داورِ نبض + circuit-breakerِ drawdown
+         # (shadow-only) + کارتِ اندیکاتور. همه advisory/flag-off (پشتِ OCTOPUS_WIRE_PULSE_ARBITER /
+         # HH_DRAWDOWN_ENFORCE؛ enforced_live همیشه False).
+         "test_pulse_arbiter.py", "test_drawdown_guard.py", "test_indicator_scorecard.py",
          "test_needs_nudge.py", "test_cortex.py", "test_live_cockpit.py",
          "test_telegram_poll_e2e.py", "test_self_improve.py",
          "test_p0_security_fixes.py", "test_httpauth.py", "test_go_live.py",
