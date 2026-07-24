@@ -15,6 +15,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_budget_gate_v2.py", "test_money_gate.py", "test_capability_gate.py",
          "test_attribution.py", "test_panel_lead.py",
          "test_chrono_heartbeat.py", "test_pacemaker_pause_not_die.py", "test_chrono_langar.py",
+         # M3 (2026-07-24): reproduction=C6 lifecycle recorder + agent-gateway red-team
+         "test_c6_state_machine.py", "test_agent_gateway_redteam.py",
+         # P5 (2026-07-24): fresh-arm-token + two-key gate for dangerous capabilities
+         "test_arm_gate.py",
          "test_telegram_channel.py", "test_telegram_group_allowlist.py",
          # Task 2+3 (2026-07-24): writerِ زندهٔ channel-status + دیالوگِ owner↔organ
          "test_channel_status.py", "test_organ_dialogue.py",
@@ -23,8 +27,15 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_phase5.py", "test_spectral.py", "test_chamber.py",
          "test_calibration.py", "test_box.py", "test_evolution.py",
          "test_box_b134.py", "test_sensory.py", "test_rhythm.py",
-         "test_cockpit.py", "test_project_f.py", "test_studio_telegram.py",
-         "test_live_loop.py", "test_proposal_buttons.py", "test_dual_brain.py", "test_acquisition.py",
+         "test_cockpit.py", "test_project_f.py",
+         # 2026-07-24: test_studio_telegram.py و test_dual_brain.py از TESTS خارج شدند — این دو
+         # تستِ organism به ماژول‌های v1 (studio_telegram.py / dual_brain.py) اشاره داشتند که در
+         # reorgِ Project-F (57f5138 «archive v1 code» + f63ce32، pytest 366/0) به 09-Archive
+         # منتقل و از درختِ زنده حذف شدند؛ فقط _v3 ماند (StudioTelegramV3/DualBrainV3، APIِ متفاوت:
+         # _scan_forbidden/_check_compliance دیگر وجود ندارد). پوششِ نسخهٔ فعال = تستِ داخلیِ
+         # subproject (brain/test_dual_brain_v3.py) طبق §11. پوششِ PF در سوئیت: test_project_f/
+         # test_deep_pf/test_pf_full.
+         "test_live_loop.py", "test_proposal_buttons.py", "test_acquisition.py",
              "test_neural.py", "test_deep_pf.py", "test_pf_full.py", "test_frontier.py",
              "test_organism_protective.py", "test_canonical_consolidation.py",
              "test_sprint_beat.py", "test_approval_queue_consistency.py",
@@ -56,6 +67,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # (تأییدِ owner=external-validation). هر دو flag-off no-op؛ producers دادهٔ واقعی می‌خواند.
          "test_heart_fuel_wiring.py", "test_heart_cognition_wiring.py",
          "test_heart_control.py", "test_heart_loop.py", "test_heart_work.py",
+         # B-section three-heart-rhythm-math (2026-07-25): داورِ نبض + circuit-breakerِ drawdown
+         # (shadow-only) + کارتِ اندیکاتور. همه advisory/flag-off (پشتِ OCTOPUS_WIRE_PULSE_ARBITER /
+         # HH_DRAWDOWN_ENFORCE؛ enforced_live همیشه False).
+         "test_pulse_arbiter.py", "test_drawdown_guard.py", "test_indicator_scorecard.py",
          "test_needs_nudge.py", "test_cortex.py", "test_live_cockpit.py",
          "test_telegram_poll_e2e.py", "test_self_improve.py",
          "test_p0_security_fixes.py", "test_httpauth.py", "test_go_live.py",
@@ -152,6 +167,13 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # فقط release_one صریح + authorization + consent-recheck (market_signal/synthetic هرگز)؛
          # outbound worker همیشه NOT_ARMED (صفر ارسال). flag OCTOPUS_WIRE_LEAD_OUTBOUND خاموش.
          "test_lead_effect_gate.py",
+         # 2026-07-24 Phase-D (Wave-2 WS-5): consent gate/store + funnel + speed-to-lead +
+         # release/settle separation + verdict→effect hook. همه flag-off.
+         # (عمداً نیامد: D7 owner-transport — گاردِ no-networkِ تازه‌ترِ master؛ producer-migration —
+         #  با گاردِ «harvest = یک env، صفر راز»‌ِ تازه‌ترِ master تضاد داشت.)
+         "test_consent_gate.py", "test_funnel_store.py", "test_speed_to_lead.py",
+         "test_release_send_separation.py",
+         "test_lead_verdict_wiring.py",
          # 2026-07-21 Trust-Engine D6: گاردِ stalenessِ releasable در لایهٔ bridge (chrono
          # دست‌نخورده) — پیش از settle، releasableِ کهنه refuse می‌شود (شکافی که sweep_stale_effects
          # پوشش نمی‌داد چون فقط pending را جارو می‌کند)
@@ -209,6 +231,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_registry_scan.py", "test_phase1_envelope.py",
          "test_route_scorer.py", "test_calibration_probe.py", "test_consolidate.py",
          "test_execution_board.py", "test_depth_guard.py", "test_guidance_box.py",
+         # WS-9 (Painting-OS): اکچوایتورِ approval — رفعِ «تأییدشده ولی بی‌اکشن» (visibility، flag-off)
+         "test_approval_actuator.py",
          "test_tg_api.py", "test_tg_actions.py", "test_tg_render.py", "test_tg_center.py",
          "test_tg_power.py",   # 2026-07-17: مرکزِ فرماندهی (مکثِ تک‌پا + ردهٔ قدرتِ دوکلیک)
          "test_tg_mission.py", # 2026-07-18: Mission Genome + Action Graph برای self-coding کنترل‌شده

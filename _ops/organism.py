@@ -32,6 +32,7 @@ import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from contextlib import contextmanager
 
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE / "budget"))
@@ -54,10 +55,21 @@ except Exception as _ee:  # noqa: BLE001 — additive؛ نبودش نباید م
     _events = None
     print(f"organism: events لود نشد ({_ee}) — بدون correlation_idِ run-scoped ادامه می‌دهیم")
 
+try:   # stage-3 گام ۱ (2026-07-24): probeٔ اندازه‌گیریِ مدتِ فازها — additive
+    import tick_timing as _tt  # noqa: E402
+except Exception:  # noqa: BLE001 — probe نباید متابولیسم را بکشد
+    _tt = None
+
 PORT = 8771
 TICK_SECONDS = 300           # تیک سبک ۵ دقیقه‌ای؛ epoch واقعی آلوستاتیک است
 STATE_FILE = opslib.STATE_DIR / "ORGANISM-STATE.json"
 START_TS = opslib.now_iso()
+
+
+@contextmanager
+def _noop_ctx():
+    """context manager خالی برای وقتی tick_timing غایب یا flag خاموش است."""
+    yield
 
 # A3 (تری‌اسکن 2026-07-17): حسگرِ نسخهٔ کد. در بوت، (mtime,size) ماژول‌های بارشده را
 # در یک سایدکارِ جدا می‌نویسیم تا کاکپیت بتواند «کدِ در حالِ اجرا کهنه‌تر از دیسک است»
@@ -103,6 +115,13 @@ except Exception:  # noqa: BLE001 — additive، نباید بوت را بکشد
     _cardiac_mod = None
     _cardiac_budget, _cardiac_baro = None, None
 
+# HH-P11: داورِ نبض — سه قلب (cardiac/control_law/rhythm) → یک periodِ advisory.
+# additive، پشتِ OCTOPUS_WIRE_PULSE_ARBITER، read-only/سایه. flag off → shadow (رفتارِ فعلی).
+try:
+    from heart import pulse_arbiter as _arbiter_mod   # noqa: E402
+except Exception:  # noqa: BLE001 — additive، نباید بوت را بکشد
+    _arbiter_mod = None
+
 
 class _ExclusiveHTTPServer(ThreadingHTTPServer):
     """سرور وضعیت = خودِ قفل تک‌نمونه. تلهٔ شناختهٔ ویندوز (جلسه ۱۹): http.server
@@ -124,6 +143,18 @@ class _StatusHandler(BaseHTTPRequestHandler):
     }
 
     def do_GET(self):  # noqa: N802
+        if self.path == "/api/tick-timing":
+            # stage-3 گام ۱: خلاصهٔ اندازه‌گیریِ مدتِ فازها (probe، additive، $0)
+            try:
+                import tick_timing as _ttx
+                body = json.dumps(_ttx.recent_summary(), ensure_ascii=False).encode("utf-8")
+            except Exception:  # noqa: BLE001
+                body = b'{"enabled": false, "reason": "probe unavailable"}'
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(body)
+            return
         if self.path in self.ROUTES:
             p = self.ROUTES[self.path]
             body = p.read_bytes() if p.exists() else b"{}"
@@ -396,6 +427,7 @@ def main() -> int:
         except Exception:  # noqa: BLE001
             _bc_block = {"mode": "HARNESS", "flag_on": False, "degraded": False}
         _heart_status = None       # HH-P5: پیش از try تعریف می‌شود تا بلوکِ _sleep_s (بیرونِ try) هرگز NameError نخورد
+        _arb_status = None         # HH-P11: داورِ نبض — پیش از try (بلوکِ _sleep_s بیرونِ try می‌خواندش)
         # R-12 (audit): یک correlation_id برای کلِ این tick mint کن تا همهٔ emitهای این ضربان
         # (heartbeat/leg/doctor/incident/…) همبسته شوند و runِ input→output بازسازی‌پذیر شود.
         # نخ‌های هم‌زمان contextِ خالی دارند → آلوده نمی‌شوند. fail-soft (نبودِ events = None).
@@ -468,6 +500,26 @@ def main() -> int:
                     _circadian_state = _w.circadian_readiness(_circadian)
                 except Exception:  # noqa: BLE001
                     _circadian_state = None
+            # HH-P11: داورِ نبض — سه قلب (cardiac + control_law + rhythm) → یک periodِ advisory.
+            # shadow مگر wire_open (ساختاراً بسته تا رأیِ مالک). persist بدونِ flag نمی‌نویسد،
+            # همیشه snapshot می‌دهد. fail-soft: داور هرگز tick را نمی‌کشد.
+            if _arbiter_mod is not None:
+                try:
+                    _card_snap = (_cardiac_mod.status_snapshot()
+                                  if _cardiac_mod is not None else None)
+                    _arb_status = _arbiter_mod.persist(
+                        cardiac_snapshot=_card_snap, rhythm_state=_rhythm_state,
+                        beat=(_cstat or {}).get("beat", 0))
+                    pulse["arbiter"] = {
+                        "effective_period_s": _arb_status.get("effective_period_s"),
+                        "driver": _arb_status.get("driver"),
+                        "color": _arb_status.get("color"),
+                        "n_present": _arb_status.get("n_present"),
+                        "n_braking": _arb_status.get("n_braking"),
+                        "wire_open": _arb_status.get("wire_open"),
+                    }
+                except Exception:  # noqa: BLE001 — §۴: داور نباید tick را بکشد
+                    _arb_status = None
             if _neural_stack is not None:
                 try:
                     _beat_n = (_cstat.get("beat", 0) if _cstat else 0)
@@ -555,6 +607,12 @@ def main() -> int:
                     _w.reconcile_beat(day=opslib.today())
                 except Exception:  # noqa: BLE001 — §۴
                     opslib.alert(["reconcile_beat error (non-fatal)"])
+                # گاف #۱ دبل‌چک: اکچوایتورِ تصمیم‌های تأییدشده، پشتِ OCTOPUS_WIRE_ACTUATOR
+                # (پیش‌فرض خاموش). $0، بدونِ اکشنِ خودکار/بیرونی — فقط visibility.
+                try:
+                    _w.actuator_beat()
+                except Exception:  # noqa: BLE001 — §۴
+                    opslib.alert(["actuator_beat error (non-fatal)"])
                 # Blueprint P6 (2026-07-10): متریک فیشر — advisory فقط، پشتِ flag
                 # (عمداً خارج از profile؛ وزن‌های واقعی فقط از budgets.yaml — I4/I6).
                 if _w.flag("OCTOPUS_WIRE_FISHER"):
@@ -564,11 +622,26 @@ def main() -> int:
                         daily["fisher_condition"] = _fr.get("fisher_condition_number")
                     except Exception as _fe:  # noqa: BLE001 — advisory نباید tick را بکشد
                         opslib.alert([f"fisher advisory error (non-fatal): {type(_fe).__name__}: {_fe}"])
+                # ── C6 (stage-4): تولید مثل = خودبهبودیِ کد. روزی یک‌بار: یک فرضیه از صف
+                # → آزمایشِ sandbox → RFC card به مالک (propose-only). پشتِ دو گیتِ
+                # OCTOPUS_WIRE_C6_RESEARCH + ACTIVATION-C6-RESEARCH.flag. هرگز auto-apply.
+                if _w.flag("OCTOPUS_WIRE_C6_RESEARCH"):
+                    try:
+                        import c6_trigger as _c6
+                        _c6.seed_default_hypothesis()   # صفِ خالی → یک نمونهٔ بی‌خطر
+                        _c6.c6_research_beat(
+                            state_dir=str(opslib.STATE_DIR),
+                            channel=_chan, beat=_cstat.get("beat", 0) if _cstat else 0)
+                    except Exception as _c6e:  # noqa: BLE001 — §۴: c6 نباید tick را بکشد
+                        opslib.alert([f"c6_research_beat error (non-fatal): {type(_c6e).__name__}: {_c6e}"])
             # ── W-2: Doctor beat (غیرضروری → زیرِ همان گیت؛ STOP/protective مقدم)
             _doctor_result = None
             if not _protective_skip and _doctor_inst is not None and _cstat is not None:
                 try:
-                    _doctor_result = _w.doctor_beat(_doctor_inst, _cstat.get("beat", 0))
+                    _db_t0 = _tt.timing("doctor_beat", beat=_cstat.get("beat", 0)) \
+                        if _tt is not None else _noop_ctx()
+                    with _db_t0:
+                        _doctor_result = _w.doctor_beat(_doctor_inst, _cstat.get("beat", 0))
                 except Exception:  # noqa: BLE001 — §۴: خطای خاموش ممنوع (Doctor نباید tick را بکشد)
                     opslib.alert(["doctor_beat error (non-fatal)"])
             # ── Doctor self-knowledge (2026-07-18): «باهوش و فعال» — یادگیریِ فقط‌خواندنیِ
@@ -635,8 +708,11 @@ def main() -> int:
             _leg_status = None
             if not _protective_skip and _leg is not None and _pacemaker is not None:
                 try:
-                    _leg_status = _w.leg_beat(_leg, pacemaker=_pacemaker,
-                                              beat=_cstat.get("beat", 0) if _cstat else 0)
+                    _lb_t0 = _tt.timing("leg_beat", beat=_cstat.get("beat", 0) if _cstat else 0) \
+                        if _tt is not None else _noop_ctx()
+                    with _lb_t0:
+                        _leg_status = _w.leg_beat(_leg, pacemaker=_pacemaker,
+                                                  beat=_cstat.get("beat", 0) if _cstat else 0)
                 except Exception as _le:  # noqa: BLE001 — §۴: leg نباید tick را بکشد
                     opslib.alert([f"leg_beat error (non-fatal): {type(_le).__name__}: {_le}"])
             # ── Ziman limb: local proposal-only beat. جدا از Lead/HLC است تا
@@ -644,10 +720,13 @@ def main() -> int:
             _ziman_status = None
             if not _protective_skip and _ziman_leg is not None:
                 try:
-                    _ziman_status = _w.ziman_beat(
-                        _ziman_leg,
-                        beat=_cstat.get("beat", 0) if _cstat else 0,
-                        doctor=_doctor_inst)
+                    _zb_t0 = _tt.timing("ziman_beat", beat=_cstat.get("beat", 0) if _cstat else 0) \
+                        if _tt is not None else _noop_ctx()
+                    with _zb_t0:
+                        _ziman_status = _w.ziman_beat(
+                            _ziman_leg,
+                            beat=_cstat.get("beat", 0) if _cstat else 0,
+                            doctor=_doctor_inst)
                 except Exception as _ze:  # noqa: BLE001 — limb نباید tick را بکشد
                     opslib.alert([f"ziman_beat error (non-fatal): {type(_ze).__name__}: {_ze}"])
             _ziman_last = _ziman_status or _ziman_last   # برنامه ۷: کش برای رایت‌های off-beat
@@ -868,6 +947,13 @@ def main() -> int:
                 _hp = float(_heart_status.get("period_shadow_s") or TICK_SECONDS)
                 _sleep_s = max(_floor, min(900.0, _hp))
             except Exception:  # noqa: BLE001 — §۴: قلب نباید sleep را بشکند
+                pass
+        # HH-P11: seamِ زندهٔ داورِ نبض — periodِ *واحد* از سه قلب فقط اگر wire_open باز باشد
+        # (ساختاراً بسته تا رأیِ مالک: OCTOPUS_WIRE_PULSE_ARBITER + …). بسته → _sleep_s دست‌نخورده.
+        if _arb_status is not None and _arb_status.get("wire_open"):
+            try:
+                _sleep_s = float(_arb_status.get("effective_period_s") or _sleep_s)
+            except (TypeError, ValueError):
                 pass
         time.sleep(_sleep_s)
 

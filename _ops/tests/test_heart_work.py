@@ -134,6 +134,28 @@ def t_i_structural_no_toplevel_money_and_bounded():
     assert src.count("picked = tpl") == 1      # حداکثر یک task per پنجره (ضدِ طوفان)
 
 
+def t_i2_beat_path_does_not_leak_syspath():
+    """نشتِ 2026-07-24: مسیرهای per-beat با sys.path.insert بی‌گارد هر ضربان یک ورودیِ
+    تکراری اضافه می‌کردند (۵۰ ضربان = ۵۲ تکراری) و در پروسهٔ چندروزه هر import را کند
+    می‌کرد. حالا idempotent: ۵۰ ضربان = صفر رشد."""
+    import sys as _s
+    before = len(_s.path)
+    for i in range(50):
+        wiring.heartstate_beat(beat=i)          # فلگ خاموش → no-op، فقط مسیرِ import
+        wp._emit_event("task.probe", "test/probe", summary="p")
+    # سنجه = رشدِ صفر در مسیرِ ضربان (تکراری‌های موجود از setupِ خودِ harness/تست‌اند)
+    assert len(_s.path) == before, f"sys.path رشد کرد: {before} → {len(_s.path)}"
+    # ساختاری: هر insertِ درون-تابعیِ باقی‌مانده باید بلافاصله پشتِ گاردِ «not in ...path» باشد
+    for mod in (wp, wiring):
+        lines = Path(mod.__file__).read_text("utf-8").splitlines()
+        assert "def _syspath" in "\n".join(lines)
+        for i, ln in enumerate(lines):
+            if ln.startswith((" ", "\t")) and "path.insert(0," in ln:
+                prev = lines[i - 1] if i else ""
+                assert "not in" in prev and "path" in prev, \
+                    f"{mod.__name__}:{i + 1} insertِ بی‌گارد: {ln.strip()}"
+
+
 def t_j_watchdog_runner_exists_and_owner_gated():
     """runnerِ boot: ps1 موجود، به watchdog.py وکالت می‌دهد، ثبتِ تسک = دستورِ مالک."""
     ps1 = Path(__file__).resolve().parents[1] / "organism-watchdog.ps1"

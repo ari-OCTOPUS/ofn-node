@@ -152,6 +152,9 @@ def t_g_heartstate_flag_gated_write():
         assert out["written"] is True and heartstate.LATEST.exists()
         rd = heartstate.read_latest()
         assert rd.get("schema") == "heartstate.v1" and "shadow" in rd
+        # نسخهٔ روی دیسک هم باید صادق باشد: تا 07-24 فایل همیشه written=false حمل می‌کرد
+        # (serialize پیش از ست‌شدنِ فلگ) — یعنی خواننده‌ی فایل هرگز نمی‌فهمید نوشته شده.
+        assert rd.get("written") is True, rd
     finally:
         os.environ.pop("HEARTSTATE_SHADOW", None)
 

@@ -1,0 +1,23 @@
+{
+  "replay_ops_equal": true,
+  "checks": 2604,
+  "mismatches": 0,
+  "admission_leaks": 0,
+  "metrics_equal": true,
+  "metrics": {
+    "total": 1259,
+    "active": 926,
+    "pending": 135,
+    "retracted": 198,
+    "by_trust": {
+      "GRADED": 1259
+    },
+    "by_namespace": {
+      "self_knowledge": 381,
+      "semantic": 431,
+      "episodic": 447
+    },
+    "fts": true,
+    "schema_version": 2
+  }
+}

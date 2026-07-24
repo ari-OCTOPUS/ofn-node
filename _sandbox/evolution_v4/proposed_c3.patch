@@ -1,0 +1,160 @@
+--- a/_ops/outcomes/research_loop.py
++++ b/_ops/outcomes/research_loop.py
+@@ -198,7 +198,8 @@
+ def run_experiment(*, contract: dict, experiment_fn, verifier_fn, held_out_eval=None,
+                    budget: "Budget", ledger: "ResearchLedger", receipt_store=None,
+                    memory_gate=None, outcome_store=None, state_dir=None,
+-                   cost_aud=0.0, tokens=0, uncertainty=0.0, rewrite_count=0) -> dict:
++                   cost_aud=0.0, tokens=0, uncertainty=0.0, rewrite_count=0,
++                   preregistration=None) -> dict:
+     """یک آزمایشِ حاکمیت‌شده. خروجی: {verdict, reason, receipt_id?, memory_id?, ledger_entry}.
+     verdict ∈ accepted|rejected|quarantined|terminated. هرگز raise نمی‌کند؛ هرگز apply/merge."""
+     run_id = f"research-{contract.get('contract_id', 'rc')}"
+@@ -332,6 +333,34 @@
+                  "receipt_id": rid, "evidence": str(v.get("evidence", ""))[:200]}
+             ledger.append(e)
+             return {"verdict": "rejected", "reason": e["reason"], "receipt_id": rid, "ledger_entry": e}
++
++        # C6 cycle-3: in-loop pre-registration gate (opt-in, tightening-only). The LOOP
++        # re-derives verification from the append-only journal — it never trusts a caller
++        # dict. Unverified prediction -> quarantine; verified -> its calibration uncertainty
++        # can only RAISE the caller's uncertainty (max), never lower it.
++        if preregistration is not None:
++            _pv = verify_preregistration(
++                state_dir=state_dir, contract=contract,
++                capability=(preregistration or {}).get("capability"),
++                predicted=(preregistration or {}).get("predicted"),
++                experiment_index=int(rewrite_count))
++            _cal = record_calibration(
++                capability=str((preregistration or {}).get("capability")),
++                predicted=(preregistration or {}).get("predicted"),
++                measured=float(v.get("benchmark_gain", 0.0)),
++                preregistration=_pv)
++            uncertainty = max(float(uncertainty), float(_cal.get("uncertainty", 1.0)))
++            if not _pv.get("preregistered"):
++                e = {"contract_id": contract.get("contract_id"), "experiment_key": exp_key,
++                     "hypothesis": contract.get("hypothesis"), "verdict": "quarantined",
++                     "reason": f"prediction not pre-registered: {_pv.get('reason')}",
++                     "receipt_id": rid}
++                ledger.append(e)
++                _journal(state_dir, run_id, "accept", "ok", verdict="quarantined",
++                         reason="preregistration-failed")
++                return {"verdict": "quarantined", "reason": e["reason"],
++                        "receipt_id": rid, "ledger_entry": e,
++                        "preregistration": _pv}
+ 
+         # (5) acceptance = utility با hard-constraints (benchmark gain جبرانِ نقضِ قید نمی‌کند)
+         gov = _governance()
+@@ -440,12 +469,102 @@
+         return {"verdict": "terminated", "reason": f"failsoft:{type(ex).__name__}"}
+ 
+ 
++def _prediction_sha(contract_id, capability, predicted) -> str:
++    canon = json.dumps({"contract_id": str(contract_id), "capability": str(capability),
++                        "predicted": round(float(predicted), 6)},
++                       sort_keys=True, separators=(",", ":"))
++    return hashlib.sha256(canon.encode("utf-8")).hexdigest()
++
++
++def preregister_prediction(*, state_dir, contract, capability, predicted,
++                           experiment_index=0) -> dict:
++    """C6 cycle-3: journal the prediction hash BEFORE the experiment runs. The append-only
++    journal's line order (written by the journal itself) is the only precedence evidence —
++    no caller-supplied clock strings. Bound to experiment_index so each experiment gets
++    exactly one prediction (anti-spray). Returns the receipt for the caller's records."""
++    sha = _prediction_sha(contract.get("contract_id"), capability, predicted)
++    run_id = f"research-{contract.get('contract_id', 'rc')}"
++    _journal(state_dir, run_id, "preregister", "ok",
++             capability=str(capability)[:64], prediction_sha=sha,
++             experiment_index=int(experiment_index))
++    return {"run_id": run_id, "capability": str(capability)[:64],
++            "predicted": round(float(predicted), 6), "prediction_sha": sha,
++            "experiment_index": int(experiment_index)}
++
++
++def verify_preregistration(*, state_dir, contract, capability, predicted,
++                           experiment_index=0) -> dict:
++    """Re-derive (never trust): recompute the sha from the CLAIMED prediction and demand,
++    among the preregister rows OF THIS experiment_index, EXACTLY ONE distinct sha — which
++    must equal the claimed one and PRECEDE the first experiment/start row of the same index
++    (journal line order). Missing row = peeking; sha mismatch = tampering; multiple distinct
++    shas for one index = spray — all -> not preregistered. Legit recalibration registers a
++    new prediction under a HIGHER experiment_index (cycle-2 style) and stays valid.
++    Fail-closed on any error."""
++    try:
++        sha = _prediction_sha(contract.get("contract_id"), capability, predicted)
++        run_id = f"research-{contract.get('contract_id', 'rc')}"
++        ei = int(experiment_index)
++        p = Path(state_dir) / "journal" / "research-journal.jsonl"
++        if not p.exists():
++            return {"preregistered": False, "reason": "no research-journal"}
++        shas_this_index = []
++        pre_i = exp_i = None
++        for i, ln in enumerate(p.read_text("utf-8").splitlines()):
++            try:
++                row = json.loads(ln)
++            except ValueError:
++                continue
++            if row.get("run_id") != run_id:
++                continue
++            meta = row.get("meta") or {}
++            if row.get("step") == "preregister" and int(meta.get("experiment_index", 0)) == ei:
++                s = meta.get("prediction_sha")
++                if s not in [x[1] for x in shas_this_index]:
++                    shas_this_index.append((i, s))
++                if pre_i is None and s == sha:
++                    pre_i = i
++            if exp_i is None and row.get("step") == "experiment"                     and row.get("status") == "start"                     and int(meta.get("experiment_index", 0)) == ei:
++                exp_i = i
++        if len(shas_this_index) > 1:
++            return {"preregistered": False,
++                    "reason": f"spray: {len(shas_this_index)} distinct preregistered "
++                              f"predictions for experiment_index={ei}",
++                    "distinct_preregistrations": len(shas_this_index)}
++        ok = pre_i is not None and (exp_i is None or pre_i < exp_i)
++        reason = ("ok" if ok else
++                  ("no matching preregister row (peeking or tampered prediction)"
++                   if pre_i is None else "preregister row AFTER experiment start"))
++        return {"preregistered": bool(ok), "reason": reason,
++                "preregister_line": pre_i, "experiment_start_line": exp_i}
++    except Exception as ex:  # noqa: BLE001 — fail-closed
++        return {"preregistered": False, "reason": f"verify-error:{type(ex).__name__}"}
++
++
+ def record_calibration(*, capability: str, predicted: float, measured: float,
+-                       ledger_path=None) -> dict:
++                       ledger_path=None, preregistration=None) -> dict:
+     """self-model calibration (C6 step 8): predicted vs measured capability. خطای calibration
+     و overconfidence را می‌سنجد و به‌عنوان uncertaintyِ تصمیمِ بعدی برمی‌گرداند — ادعای توانایی
+     که با اندازه‌گیری نمی‌خواند = overconfident → uncertaintyِ بالا → quarantine.
+     خروجی: {calibration_error, overconfident, uncertainty}. append-only durable."""
++    # C6 cycle-3: an unverified pre-registration is worse than a bad prediction — it is
++    # an unauditable one. Force maximal uncertainty (-> quarantine downstream).
++    if preregistration is not None and not (isinstance(preregistration, dict)
++                                            and preregistration.get("preregistered")):
++        rec = {"capability": str(capability)[:64], "predicted": None, "measured": None,
++               "calibration_error": 1.0, "overconfident": True, "preregistered": False,
++               "reason": (preregistration or {}).get("reason", "not preregistered")
++               if isinstance(preregistration, dict) else "not preregistered"}
++        if ledger_path is not None:
++            try:
++                p = Path(ledger_path)
++                p.parent.mkdir(parents=True, exist_ok=True)
++                with open(p, "a", encoding="utf-8") as f:
++                    f.write(json.dumps(rec, ensure_ascii=False, sort_keys=True) + "\n")
++            except Exception:  # noqa: BLE001
++                pass
++        rec["uncertainty"] = 1.0
++        return rec
+     try:
+         pred = max(0.0, min(1.0, float(predicted)))
+         meas = max(0.0, min(1.0, float(measured)))
+@@ -455,6 +574,8 @@
+     overconfident = pred - meas > 0.15   # ادعا خیلی بالاتر از اندازه‌گیری
+     rec = {"capability": str(capability)[:64], "predicted": pred, "measured": meas,
+            "calibration_error": round(err, 3), "overconfident": overconfident}
++    if preregistration is not None:
++        rec["preregistered"] = True
+     if ledger_path is not None:
+         try:
+             p = Path(ledger_path)

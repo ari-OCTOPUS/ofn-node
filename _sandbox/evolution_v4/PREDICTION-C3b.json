@@ -1,0 +1,6 @@
+{
+  "schema": "c6-cycle3-prediction-b",
+  "note": "Registered (file-first) BEFORE implementing/running the spray scenario. mtime is the timestamp.",
+  "new_scenario": "S (spray): attacker preregisters 5 different predictions for the same capability+experiment_index, then claims whichever matched the measurement",
+  "predicted": "current patched verify (any-matching-row) is VULNERABLE to spray -> would accept; after binding preregistration to experiment_index and requiring exactly ONE distinct sha per index, spray -> quarantined. Predicted post-fix detection: 3/3 (P, T, S), honest path still invariant, and legit recalibration (new prediction for a HIGHER experiment_index, cycle-2 style) still accepted."
+}

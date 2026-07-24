@@ -16,6 +16,7 @@ function Log([string]$msg) {
 # 1) yield to kill-switches (checked FIRST - kill is senior to persistence)
 $stops = @(
     (Join-Path $VAULT "STOP"),
+    (Join-Path $VAULT "04 - Architect System\STOP"),
     (Join-Path $VAULT "_ops\STOP-ORGANISM")
 )
 foreach ($s in $stops) {

@@ -103,6 +103,32 @@ def t_h_signal_shape_is_adr():
     assert hi.HeartParams().viable_band == (0.5, 6.0)   # property ADR-form
 
 
+def t_f2_budget_pressure_uses_owner_cap():
+    """فشارِ بودجه با capِ setpointِ مالک سنجیده می‌شود نه فقط envِ سراسری.
+    همان spent با capِ کوچک‌تر = فشارِ بیشتر؛ و رسیدن به cap = استراحتِ عمیق."""
+    inp = sh._mk_inputs(1, 3.0, cpi=0.0)
+    inp["budget_spent"] = 200
+    inp.pop("budget_remaining")
+    wide = hi.HeartParams(viable_band_lo=SP.viable_band_lo,
+                          viable_band_hi=SP.viable_band_hi, daily_beat_cap=1000)
+    tight = hi.HeartParams(viable_band_lo=SP.viable_band_lo,
+                           viable_band_hi=SP.viable_band_hi, daily_beat_cap=240)
+    _, t_wide = cl.heart_step(dict(inp), wide)
+    _, t_tight = cl.heart_step(dict(inp), tight)
+    assert t_wide["gates"]["budget_pressure"] == 1.0
+    assert t_tight["gates"]["budget_pressure"] > 1.0, t_tight["gates"]
+    # capِ مصرف‌شده → همان استراحتِ عمیقِ مسیرِ remaining==0
+    at_cap = dict(inp)
+    at_cap["budget_spent"] = 240
+    sig, tel = cl.heart_step(at_cap, tight)
+    assert sig.period_s >= cl.MAX_S * 0.6, sig.period_s
+    # سازگاریِ عقب‌رو: بدونِ budget_spent مسیرِ قدیمِ budget_remaining دست‌نخورده است
+    old = sh._mk_inputs(1, 3.0, cpi=0.0, budget_remaining=0)
+    assert old.get("budget_spent") is None
+    sig_old, _ = cl.heart_step(old, SP)
+    assert sig_old.period_s >= cl.MAX_S * 0.6
+
+
 def t_i_report_honesty_uncollapsible():
     """گزارش، وضعیتِ e_shadow را صریح حمل می‌کند + hashِ tamper-evidence دارد."""
     assert "e_shadow_note" in REPORT

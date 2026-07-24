@@ -43,6 +43,12 @@ TASK_TIERS = {
     "think": "local", "triage": "local",
     "research": "secondary", "synthesize": "secondary", "draft": "secondary",
     "orchestrate": "primary", "deep": "primary", "plan": "primary",
+    # M2 fugu-everywhere (2026-07-24): explicit tiers for organ work-types that were
+    # bespoke or defaulted silently to local. ADDITIVE — existing callers unchanged;
+    # unmapped tasks still fall back to "local" via TASK_TIERS.get(task, "local").
+    "governor": "primary", "debate_architect": "primary",
+    "debate_muse": "secondary", "tg_intent": "local",
+    "chord.extract": "local", "heart_setpoint": "local",
 }
 _TIER_ROLE = {"secondary": "glm", "primary": "orchestr"}   # roleهای واقعیِ budgets.yaml
 
@@ -210,6 +216,7 @@ def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
     if not want and os.environ.get("CORTEX_ROUTE_SCORER"):
         want = _scored_tier(task)
     want = want or TASK_TIERS.get(task, "local")
+    if __import__("os").environ.get("OCTOPUS_WIRE_ROUTE_SHADOW") == "1": __import__("now_moves.route_scorer_shadow_log", fromlist=["log_decision"]).log_decision(task, want)  # M7 (now_moves): flag-gated shadow log — default OFF; rollback = delete this line
     _lo_rejected = None      # جوابِ محلیِ رد-کیفیت — اگر پولی هم شکست، بهتر از هیچ
     if want in ("secondary", "primary"):
         # 2026-07-16 محلی-اول (اقتصادِ مغز، رأی مالک «محلی رایگان، پولی فقط برای کارِ بزرگ»):

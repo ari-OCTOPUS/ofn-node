@@ -554,8 +554,45 @@ class LiveLoop:
         # نه confirmed_revenue. هیچ پولی جابه‌جا نشده؛ فقط مالک گفته «این را ببر جلو».
         value = float(meta.get("amount") or 0.0) if mapped == "approved" else 0.0
         self._record_durable_verdict(meta, mapped, value)         # T2: رأی → outcomes.db پایدار
+        # D1 (فاز D، پشتِ OCTOPUS_WIRE_LEAD_VERDICT_EFFECT، flag-off=no-op): رأیِ approve روی کارتِ لید →
+        # lead_effect_gate (effectِ authorize‌شده؛ transport هنوز NOT_ARMED). پس از measurement.
+        if mapped == "approved":
+            self._fire_lead_effect_hook(meta)
         return self.record_proposal_outcome(meta["proposal_id"], mapped,
                                             source="ari-button", value_aud=value)
+
+    def _fire_lead_effect_hook(self, meta: dict) -> None:
+        """D1 (فاز D): رأیِ approve روی یک کارتِ lead → lead_effect_gate (لایهٔ اثر).
+        پشتِ OCTOPUS_WIRE_LEAD_VERDICT_EFFECT (پیش‌فرض خاموش = no-op مطلق، رفتارِ امروز).
+        لایهٔ wireِ خالص: منطقِ I/O + consent + on_lead_verdict در lead_effect_gate.bridge_from_inbox
+        محصور است. gate از کانال گرفته می‌شود؛ نبودِ آن → bridge fail-closed. هرگز settle/send/ledger.
+        مرزهای ایمنی (ساختاری در on_lead_verdict): consent re-check · idempotency · STOP مقدم.
+        fail-soft مطلق: هر خطا فقط advisory، مسیرِ دکمه را نمی‌کشد."""
+        try:
+            import os as _osd1   # noqa: WPS433
+            if _osd1.environ.get("OCTOPUS_WIRE_LEAD_VERDICT_EFFECT") != "1":
+                return   # flag خاموش = دقیقاً رفتارِ امروز (هیچ effectی ساخته نمی‌شود)
+            lead_id = str(meta.get("lead_id") or "").strip()
+            if not lead_id:
+                return   # کارتِ non-lead (RFC/پول/...) → اثرِ lead ندارد
+            gate = None
+            chan = getattr(self, "channel", None)
+            if chan is not None:
+                gate = getattr(chan, "gate", None)
+            _legs = str(_HERE / "legs")
+            if _legs not in sys.path:
+                sys.path.insert(0, _legs)
+            import lead_effect_gate as _legd1   # noqa: WPS433 — lazy
+            res = _legd1.bridge_from_inbox(lead_id, gate=gate)
+            self._emit_advisory("LEAD_EFFECT_HOOK", {"lead_id": lead_id, "result": res,
+                                                     "advisory_only": True, "armed": False})
+        except Exception as _ed1:  # noqa: BLE001 — لایهٔ اثر هرگز مسیرِ دکمه را نمی‌کشد
+            try:
+                self._emit_advisory("LEAD_EFFECT_HOOK_ERROR",
+                                    {"error": f"{type(_ed1).__name__}: {_ed1}",
+                                     "advisory_only": True})
+            except Exception:  # noqa: BLE001
+                pass
 
     def _record_durable_verdict(self, meta: dict, verdict: str, value: float) -> None:
         """T2 (ممیزیِ Sol): رأیِ مالک را پایدار (measurement) ثبت کن — پشتِ OCTOPUS_WIRE_VERDICT_OUTCOME.

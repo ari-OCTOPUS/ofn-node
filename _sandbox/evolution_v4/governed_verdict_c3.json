@@ -1,0 +1,17 @@
+{
+  "verdict": "accepted",
+  "reason": "verified + held-out + U=0.85 + full durable artifact",
+  "contract_id": "rc_25baccee3d2178fc",
+  "receipt_id": "dr_4160c9d95102cbcc",
+  "memory_id": "mem_4e2eec61e7f9e918",
+  "utility": 0.85,
+  "calibration": {
+    "capability": "research-loop-preregistration-gate",
+    "predicted": 1.0,
+    "measured": 1.0,
+    "calibration_error": 0.0,
+    "overconfident": false,
+    "uncertainty": 0.0
+  },
+  "apply_guard_permitted": false
+}

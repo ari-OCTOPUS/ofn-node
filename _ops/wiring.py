@@ -32,6 +32,17 @@ def flag(name: str) -> bool:
     return os.environ.get(name, "0") == "1"
 
 
+def _syspath(p) -> None:
+    """افزودنِ idempotent به sys.path. توابعِ این ماژول per-beat صدا زده می‌شوند و
+    `sys.path.insert` بی‌گارد هر ضربان یک ورودیِ تکراری اضافه می‌کرد (اندازه‌گیری
+    2026-07-24: ۵۰ ضربان = ۵۲ ورودیِ تکراری؛ پروسهٔ چندروزه = هزاران). لیستِ باد‌کرده
+    هر importِ ناموفق را کند می‌کند. الگوی گاردشده قبلاً در همین فایل بود — این فقط
+    یکدستش می‌کند."""
+    s = str(p)
+    if s not in sys.path:
+        sys.path.insert(0, s)
+
+
 # ── anti-aliasing cadence gate (تری‌اسکن 2026-07-17) ───────────────────────────
 # باگِ ریشه‌ای: tickِ واقعی ~۹۰۰s ضربانِ ۶۰s را با گامِ ~۱۵ نمونه‌برداری می‌کند، پس
 # `beat % N == 0` روی مضرب‌ها می‌پرد و شلیک‌ها را از دست می‌دهد (droughtهای چندساعته
@@ -163,7 +174,7 @@ def make_doctor(state_dir=None, db=None, channel=None):
     if not flag("OCTOPUS_WIRE_DOCTOR"):
         return None
     try:
-        sys.path.insert(0, str(_HERE / "doctor"))
+        _syspath(str(_HERE / "doctor"))
         from doctor import Doctor
         return Doctor(state_dir=state_dir, db=db, approval_channel=channel)
     except Exception as e:  # noqa: BLE001 — Doctor اختیاریِ additive
@@ -178,7 +189,7 @@ def make_telegram_channel(leg=None):
     if not os.environ.get("TELEGRAM_BOT_TOKEN"):
         return None
     try:
-        sys.path.insert(0, str(_HERE / "budget"))
+        _syspath(str(_HERE / "budget"))
         from approval_channel import TelegramApprovalChannel
         # T-8: gate/ledger injection — T-2 settle فقط با این دو فعال است.
         _gate = _ledger = None
@@ -216,7 +227,7 @@ def maybe_start_lead_boundary():
         return None
     try:
         import threading
-        sys.path.insert(0, str(_HERE / "legs"))
+        _syspath(str(_HERE / "legs"))
         import lead_boundary_http as _lbh   # noqa: WPS433 — lazy
         t = threading.Thread(target=_lbh.serve, daemon=True, name="lead-boundary-http")
         t.start()
@@ -232,7 +243,7 @@ def make_unified_bus(ledger=None, db=None):
     if not flag("OCTOPUS_WIRE_UNIFIED"):
         return None
     try:
-        sys.path.insert(0, str(_HERE))
+        _syspath(str(_HERE))
         from unified_bus import UnifiedBus
         return UnifiedBus(ledger=ledger, db=db)
     except Exception as e:  # noqa: BLE001
@@ -245,8 +256,8 @@ def make_lead_leg():
     if not flag("OCTOPUS_WIRE_LEAD"):
         return None
     try:
-        sys.path.insert(0, str(_HERE / "legs"))
-        sys.path.insert(0, str(_HERE / "budget"))
+        _syspath(str(_HERE / "legs"))
+        _syspath(str(_HERE / "budget"))
         from leg import TaskPacket
         from lead_leg import LeadLeg
         packet = TaskPacket(
@@ -278,8 +289,8 @@ def make_cartographer_leg():
     if not flag("OCTOPUS_WIRE_CARTOGRAPHER"):
         return None
     try:
-        sys.path.insert(0, str(_HERE / "legs"))
-        sys.path.insert(0, str(_HERE / "budget"))
+        _syspath(str(_HERE / "legs"))
+        _syspath(str(_HERE / "budget"))
         from cartographer_leg import CartographerLeg, default_packet
         return CartographerLeg(default_packet(), organ_table=opslib.organ_table())
     except Exception as e:  # noqa: BLE001
@@ -302,7 +313,7 @@ def make_live_loop(bus=None, leg=None, doctor=None, channel=None, brain=None,
     عقب‌رو: اگر bus=None و UnifiedBus هم نباشد → LiveLoop._InMemoryBus درست می‌کند.
     صفر effectorِ خودکار — publish/subscribe فقط. settle فقط از approval_channel/EffectorGate."""
     try:
-        sys.path.insert(0, str(_HERE))
+        _syspath(str(_HERE))
         from live_loop import LiveLoop
         kw = dict(bus=bus, brain=brain, studio=studio, cockpit=None,
                   approval_channel=channel, doctor=doctor,
@@ -501,7 +512,7 @@ def _lead_draft_chain(lead_leg, beat: int = 0) -> dict:
     out = {"drafted": False, "invoice": None}
     # LEG-05: invoice artifact از draftِ واقعیِ pending (DRY — بدونِ mark_paid/reconcile)
     try:
-        sys.path.insert(0, str(_HERE / "legs"))
+        _syspath(str(_HERE / "legs"))
         import lead_quote as _lq          # noqa: WPS433 — lazy
         import invoice as _inv            # noqa: WPS433 — lazy
         pend = _lq.pending()
@@ -559,8 +570,7 @@ def doctor_selfknowledge_beat(beat: int = 0) -> dict | None:
         return None
     try:
         _dp = os.path.join(os.path.dirname(os.path.abspath(__file__)), "doctor")
-        if _dp not in sys.path:
-            sys.path.insert(0, _dp)
+        _syspath(_dp)
         import self_knowledge  # noqa: E402
         started = self_knowledge.run_async()   # non-blocking daemon thread
         return {"self_knowledge": "spawned" if started else "busy"}
@@ -612,6 +622,7 @@ def wire_summary() -> dict:
         "wire_evolution": flag("OCTOPUS_WIRE_EVOLUTION"), # P-N1: Doctor evolution
         "wire_box": flag("OCTOPUS_WIRE_BOX"),             # P-N2: Box-of-Agents
         "wire_leg_tick": flag("OCTOPUS_WIRE_LEAD_TICK"),  # P-L1: LeadLeg HLC loop
+        "wire_actuator": flag("OCTOPUS_WIRE_ACTUATOR"),   # گاف #۱: اکچوایتورِ approval (visibility)
         "wire_ideas": flag("OCTOPUS_WIRE_IDEAS"),        # P-I: idea-graph engine
         "wire_spectral": flag("OCTOPUS_WIRE_SPECTRAL"),  # P-spectral: spectral bottleneck
         "wire_rhythm": flag("OCTOPUS_WIRE_NEURAL"),      # rhythm (shares neural flag)
@@ -642,6 +653,9 @@ def wire_summary() -> dict:
         "wire_email": flag("OCTOPUS_WIRE_EMAIL"),
         "wire_ingest": flag("OCTOPUS_WIRE_INGEST"),
         "wire_harvest": flag("OCTOPUS_WIRE_HARVEST"),
+        # D1 (فاز D): وصلِ رأیِ کارتِ لید به لایهٔ اثر (lead_effect_gate.on_lead_verdict).
+        # پیش‌فرض خاموش = no-op مطلق؛ transport همچنان NOT_ARMED. رأیِ owner-gated برای روشن‌کردن.
+        "wire_lead_verdict_effect": flag("OCTOPUS_WIRE_LEAD_VERDICT_EFFECT"),
         "profile": resolve_profile(),                    # P-W3: boot profile
         "doctor_every_n": int(os.environ.get("CHRONO_DOCTOR_EVERY_N_BEATS", "1440")),
         "consolidation_every_n": int(os.environ.get("CHRONO_CONSOLIDATION_EVERY_N_BEATS", "720")),
@@ -657,7 +671,7 @@ def make_rhythm():
     """ساختِ Rhythm (mode_color GREEN/AMBER/RED). پشتِ OCTOPUS_WIRE_NEURAL.
     اگر خاموش → None. advisory فقط."""
     try:
-        sys.path.insert(0, str(_HERE / "chrono_rhythm"))
+        _syspath(str(_HERE / "chrono_rhythm"))
         from rhythm import Rhythm
         return Rhythm()
     except Exception as e:  # noqa: BLE001
@@ -687,7 +701,7 @@ def rhythm_beat(rhythm, readiness: float = 0.6, stress: float = 0.2,
 def make_circadian():
     """ساختِ CircadianMap (آگاهیِ ساعتِ روز). پشتِ OCTOPUS_WIRE_NEURAL."""
     try:
-        sys.path.insert(0, str(_HERE / "neural"))
+        _syspath(str(_HERE / "neural"))
         from circadian import CircadianMap
         return CircadianMap()
     except Exception as e:  # noqa: BLE001
@@ -715,7 +729,7 @@ def circadian_readiness(circadian, hour: int | None = None) -> dict | None:
 def make_sprint_runner():
     """ساختِ SprintRunner. پشتِ OCTOPUS_WIRE_NEURAL."""
     try:
-        sys.path.insert(0, str(_HERE / "neural"))
+        _syspath(str(_HERE / "neural"))
         from sprint import SprintRunner
         return SprintRunner()
     except Exception as e:  # noqa: BLE001
@@ -825,6 +839,28 @@ def reconcile_beat(reconcile_dir=None, day: str = "") -> dict | None:
 
 
 # ════════════════════════════════════════════════════════════════════════════════
+# A1b · actuator_beat — اکچوایتورِ تصمیم‌های تأییدشده (رفعِ گاف #۱، پشتِ flag)
+# ════════════════════════════════════════════════════════════════════════════════
+
+def actuator_beat() -> dict | None:
+    """اکچوایتورِ تصمیم‌های تأییدشده را بچرخان. پشتِ OCTOPUS_WIRE_ACTUATOR (پیش‌فرض
+    خاموش، خارج از paper-full — approvalها شاملِ پول‌اند). kill-switch اول. $0،
+    بدونِ spend، بدونِ اکشنِ بیرونی/خودکار (فقط visibility + seamِ handler)."""
+    if not flag("OCTOPUS_WIRE_ACTUATOR"):
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    try:
+        if str(_HERE / "cortex") not in sys.path:
+            sys.path.insert(0, str(_HERE / "cortex"))
+        import approval_actuator
+        return approval_actuator.run()
+    except Exception as e:  # noqa: BLE001 — §۴
+        opslib.alert([f"wiring: actuator_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
+# ════════════════════════════════════════════════════════════════════════════════
 # A2 · append_outbox + EXPERIENCE — fitness feed (پشتِ flag)
 # ════════════════════════════════════════════════════════════════════════════════
 
@@ -906,7 +942,7 @@ def make_neural_stack():
     if not flag("OCTOPUS_WIRE_NEURAL"):
         return None
     try:
-        sys.path.insert(0, str(_HERE / "neural"))
+        _syspath(str(_HERE / "neural"))
         from neural_driver import NeuralDriver
         from hebbian import HebbianAssociator
         from consolidation import ConsolidationCycle
@@ -1325,7 +1361,7 @@ def make_school_bridge(state_path=None):
     فقط اگر consolidation نیازش داشته باشد ساخته می‌شود. همیشه یک instance برمی‌گرداند
     اگر import موفق باشد، وگرنه None (fail-soft). $0 آفلاین، stdlib-only."""
     try:
-        sys.path.insert(0, str(_HERE / "afferent"))
+        _syspath(str(_HERE / "afferent"))
         from school_bridge import SchoolBridge
         kw = {}
         if state_path is not None:
@@ -1422,7 +1458,7 @@ def make_sensory_bus():
     """ساختِ SensoryBus (مسیرِ آورانِ واحد). پشتِ OCTOPUS_WIRE_SCHOOL.
     $0 آفلاین، stdlib-only. اگر import موفق نباشد → None (fail-soft)."""
     try:
-        sys.path.insert(0, str(_HERE / "afferent"))
+        _syspath(str(_HERE / "afferent"))
         from sensory_bus import SensoryBus
         return SensoryBus()
     except Exception as e:  # noqa: BLE001 — SensoryBus اختیاریِ additive
@@ -1529,7 +1565,7 @@ def ingest_beat(beat: int = 0) -> dict | None:
         return None   # هنوز نوبتِ ingest نیست (پنجرهٔ ضدِ aliasing)
     try:
         _INGEST_STATE["last_epoch"] = epoch
-        sys.path.insert(0, str(_HERE / "afferent"))
+        _syspath(str(_HERE / "afferent"))
         import ingest_raw  # noqa: WPS433 — lazy (سنگین: فایل‌های بازار/حساب را می‌خواند)
         report = ingest_raw.run()
         return {"observations": report.get("observations", 0),
@@ -1620,7 +1656,7 @@ def heart_beat(beat: int = 0, snap: dict | None = None) -> dict | None:
     if epoch < 1 or epoch <= _HEART_STATE["last_epoch"]:
         return None   # هنوز نوبتِ قلب نیست (پنجرهٔ ضدِ aliasing)
     try:
-        sys.path.insert(0, str(_HERE))
+        _syspath(str(_HERE))
         from heart import shadow as _shadow
         _HEART_STATE["last_epoch"] = epoch
         rec = _shadow.shadow_step(beat=beat, snap=snap)
@@ -1642,6 +1678,25 @@ def heart_beat(beat: int = 0, snap: dict | None = None) -> dict | None:
             _need_seed = False
         sp_epoch = beat // sp_n if sp_n > 0 else 0
         _cadence_due = sp_n > 0 and sp_epoch >= 1 and sp_epoch > _HEART_STATE["last_setpoint_epoch"]
+        if _cadence_due and _HEART_STATE["last_setpoint_epoch"] == 0 and not _need_seed:
+            # درسِ ledger ‏2026-07-24: last_setpoint_epoch در حافظه است، پس هر restartِ
+            # واچ‌داگ cadenceِ «روزانه» را دوباره می‌چکاند و دکتر یک epoch اضافه می‌نویسد —
+            # hysteresis ±۲۰٪ِ w-slow عملاً تند می‌شد (باند در یک روز چند epoch جابه‌جا شد).
+            # بازیابیِ stateless: اگر setpointِ روی دیسک داخلِ همین پنجرهٔ epoch نوشته شده،
+            # آن epoch قبلاً served است → فقط علامت بزن، ننویس. fail-open به رفتارِ قبلی.
+            try:
+                import datetime as _dt2
+                import json as _json2
+                _spd = _json2.loads(_ds.hi.SETPOINT_PATH.read_text("utf-8"))
+                _spt = _dt2.datetime.fromisoformat(str(_spd.get("ts")))
+                if _spt.tzinfo is not None:
+                    _spt = _spt.astimezone().replace(tzinfo=None)
+                _beat_s = float(os.environ.get("CHRONO_PERIOD_S", "60.0"))
+                if (_dt2.datetime.now() - _spt).total_seconds() < sp_n * _beat_s:
+                    _HEART_STATE["last_setpoint_epoch"] = sp_epoch
+                    _cadence_due = False
+            except Exception:  # noqa: BLE001 — بازیابی هرگز cadence مشروع را نمی‌کشد
+                pass
         if _need_seed or _cadence_due:
             if _cadence_due:
                 _HEART_STATE["last_setpoint_epoch"] = sp_epoch
@@ -1673,7 +1728,7 @@ def heartstate_beat(beat: int = 0) -> dict | None:
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
         return None   # kill-switch مقدم
     try:
-        sys.path.insert(0, str(_HERE))
+        _syspath(str(_HERE))
         from heart import heartstate as _hs  # noqa: WPS433 — lazy
         if not _hs.enabled():                # HEARTSTATE_SHADOW خاموش → no-op کامل
             return None
@@ -1702,7 +1757,7 @@ def email_beat(beat: int = 0) -> dict | None:
     if not _epoch_fire("email", beat, every_n):
         return None
     try:
-        sys.path.insert(0, str(_HERE / "legs"))
+        _syspath(str(_HERE / "legs"))
         import email_inbound  # noqa: WPS433 — lazy
         d = email_inbound.poll_and_digest()
         return {"n_unread": d.get("n_unread", 0),
@@ -1730,7 +1785,7 @@ def harvest_beat(beat: int = 0) -> dict | None:
     if not _epoch_fire("harvest", beat, every_n):
         return None
     try:
-        sys.path.insert(0, str(_HERE / "legs"))
+        _syspath(str(_HERE / "legs"))
         import harvest_austender   # noqa: WPS433 — lazy تا env تست اثر کند
         return harvest_austender.harvest()
     except Exception as e:  # noqa: BLE001 — هاروستر نباید tick را بکشد
@@ -1755,8 +1810,7 @@ def _record_lead_decisions(items, beat: int = 0) -> dict:
     try:
         for _p in (str(_HERE / "outcomes"), str(_HERE / "memory"),
                    str(_HERE / "legs"), str(_HERE / "spine")):
-            if _p not in sys.path:
-                sys.path.insert(0, _p)
+            _syspath(_p)
         import outcome_store as _osx        # noqa: WPS433 — lazy
         import decision_receipt as _drx     # noqa: WPS433
         import lead_outcome_recorder as _lor  # noqa: WPS433
@@ -1878,7 +1932,7 @@ def lead_discovery_beat(lead_leg, beat: int = 0) -> dict | None:
     if not _epoch_fire("lead_discovery", beat, every_n):
         return None
     try:
-        sys.path.insert(0, str(_HERE / "legs"))
+        _syspath(str(_HERE / "legs"))
         import lead_sense    # noqa: WPS433 — lazy
         import lead_scorer   # noqa: WPS433 — lazy
         max_n = int(os.environ.get("LEAD_DISCOVERY_MAX_PER_BEAT", "5"))
@@ -1898,7 +1952,7 @@ def lead_discovery_beat(lead_leg, beat: int = 0) -> dict | None:
             # می‌ماند: llm فقط res["llm_note"] می‌افزاید، هرگز score/action را عوض نمی‌کند.
             if flag("OCTOPUS_WIRE_LEAD_LLM"):
                 try:
-                    sys.path.insert(0, str(_HERE / "cortex"))
+                    _syspath(str(_HERE / "cortex"))
                     import model_router  # noqa: WPS433 — lazy
                     _llm = model_router.ask(
                         "classify",
@@ -1992,7 +2046,7 @@ def business_legs_beat(beat: int = 0, write: bool = True) -> dict | None:
     (همان الگوی ORGANISM-STATE.ziman)."""
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
         return None   # kill-switch مقدم
-    sys.path.insert(0, str(_HERE / "legs"))
+    _syspath(str(_HERE / "legs"))
     legs: dict = {}
     for name, mod_name, fn_name in _BUSINESS_LEGS_SPEC:
         try:
@@ -2042,7 +2096,7 @@ def asset_map_beat(beat: int = 0) -> dict | None:
     if not _epoch_fire("asset_map", beat, every_n):
         return None
     try:
-        sys.path.insert(0, str(_HERE / "legs"))
+        _syspath(str(_HERE / "legs"))
         import asset_map   # noqa: WPS433 — lazy تا env تست اثر کند
         result = asset_map.asset_map_status()
         # ── سایدکارِ اتمیک (الگوی business_legs/legs_cultivation)
@@ -2099,7 +2153,7 @@ def acct_beat(beat: int = 0) -> dict | None:
         return None
     _ACCT_STATE["last_epoch"] = epoch
     try:
-        sys.path.insert(0, str(_HERE / "legs"))
+        _syspath(str(_HERE / "legs"))
         import acct_memory   # noqa: WPS433 — lazy تا env تست اثر کند
         import journal_bridge  # noqa: WPS433
         result: dict = {"synced": False}
@@ -2178,7 +2232,7 @@ def legs_cultivation_beat(beat: int = 0, sensory_bus=None,
     if not _epoch_fire("cultivate", beat, every_n):
         return None
     try:
-        sys.path.insert(0, str(_HERE / "legs"))
+        _syspath(str(_HERE / "legs"))
         import leg_cultivate   # noqa: WPS433 — lazy
         max_n = int(os.environ.get("LEG_CULTIVATE_MAX_PER_BEAT", "10"))
         report = leg_cultivate.cultivate_all(limit_per_leg=max_n, write_report=True)
@@ -2192,7 +2246,7 @@ def legs_cultivation_beat(beat: int = 0, sensory_bus=None,
         school_report = None
         if sensory_bus is not None:
             try:
-                sys.path.insert(0, str(_HERE / "afferent"))
+                _syspath(str(_HERE / "afferent"))
                 from sensory_bus import Observation   # noqa: WPS433 — lazy
                 events = []
                 for name, d in legs.items():
@@ -2255,7 +2309,7 @@ def needs_nudge_beat(channel=None, beat: int = 0) -> dict | None:
     _NUDGE_STATE["last_epoch"] = epoch
     try:
         import json
-        sys.path.insert(0, str(_HERE / "budget"))
+        _syspath(str(_HERE / "budget"))
         import needs_digest
         pending = None
         if channel is not None and hasattr(channel, "_count_pending"):
@@ -2299,7 +2353,7 @@ def cortex_vitals_beat(beat: int = 0) -> dict | None:
         return None
     out = {}
     try:
-        sys.path.insert(0, str(_HERE / "cortex"))
+        _syspath(str(_HERE / "cortex"))
         import stress
         out["stress"] = stress.persist().get("level")
     except Exception:  # noqa: BLE001
@@ -2331,7 +2385,7 @@ def heartbeat_summary_beat(channel=None, beat: int = 0) -> dict | None:
         return None
     _HEARTBEAT_STATE["last_epoch"] = epoch
     try:
-        sys.path.insert(0, str(_HERE))
+        _syspath(str(_HERE))
         import events
         s = events.summary_window(5)
         pending = None
@@ -2375,8 +2429,8 @@ def make_ziman_leg(organ_table: dict | None = None) -> "ZimanLeg | None":
     if _ZIMAN_STATE["leg"] is not None:
         return _ZIMAN_STATE["leg"]
     try:
-        sys.path.insert(0, str(_HERE / "legs"))
-        sys.path.insert(0, str(_HERE / "budget"))
+        _syspath(str(_HERE / "legs"))
+        _syspath(str(_HERE / "budget"))
         from ziman_leg import ZimanLeg   # noqa: WPS433 — lazy import (not at module level)
         table = organ_table
         if table is None:
@@ -2501,7 +2555,7 @@ def discovery_nudge_beat(channel=None, beat: int = 0) -> dict | None:
         return None
     _DISCOVERY_STATE["last_epoch"] = epoch
     try:
-        sys.path.insert(0, str(_HERE / "cortex"))
+        _syspath(str(_HERE / "cortex"))
         import discoveries
         n = discoveries.unseen_count()
         if n <= 0:
@@ -2530,7 +2584,7 @@ def discovery_nudge_beat(channel=None, beat: int = 0) -> dict | None:
 
 def _organ_dialogue_mod():
     if str(_HERE) not in sys.path:
-        sys.path.insert(0, str(_HERE))
+        _syspath(str(_HERE))
     import organ_dialogue as _od
     return _od
 

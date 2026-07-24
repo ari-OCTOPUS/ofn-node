@@ -116,11 +116,13 @@ def persist() -> dict:
     if not enabled():
         return env                                   # سایه‌ی خاموش: هیچ نوشتنی
     try:
+        # written پیش از serialize ست می‌شود تا نسخهٔ روی دیسک هم صادق باشد —
+        # قبلاً فایل همیشه «written: false» حمل می‌کرد (dump قبل از فلگ).
+        env["written"] = True
         LATEST.parent.mkdir(parents=True, exist_ok=True)
         LATEST.write_text(json.dumps(env, ensure_ascii=False, indent=1), "utf-8")
-        env["written"] = True
     except OSError:
-        pass                                         # fail-soft
+        env["written"] = False                       # fail-soft
     return env
 
 

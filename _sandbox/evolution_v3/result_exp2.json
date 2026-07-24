@@ -1,0 +1,47 @@
+{
+  "schema": "c6-evolution-v3-exp2",
+  "cells": [
+    {
+      "n": 2000,
+      "get_base_ms": 0.1663,
+      "get_idx_ms": 0.0228,
+      "get_speedup": 7.3,
+      "ins_base_ms": 0.3138,
+      "ins_idx_ms": 0.1771,
+      "ins_speedup": 1.8
+    },
+    {
+      "n": 10000,
+      "get_base_ms": 3.1096,
+      "get_idx_ms": 0.0452,
+      "get_speedup": 68.8,
+      "ins_base_ms": 3.473,
+      "ins_idx_ms": 0.2617,
+      "ins_speedup": 13.3
+    }
+  ],
+  "conservative_gain_unseen": 0.4356,
+  "correctness_unseen": {
+    "replay_ops_equal": true,
+    "checks": 2604,
+    "mismatches": 0,
+    "admission_leaks": 0,
+    "metrics_equal": true,
+    "metrics": {
+      "total": 2096,
+      "active": 1537,
+      "pending": 227,
+      "retracted": 332,
+      "by_trust": {
+        "GRADED": 2096
+      },
+      "by_namespace": {
+        "semantic": 718,
+        "episodic": 665,
+        "self_knowledge": 713
+      },
+      "fts": true,
+      "schema_version": 2
+    }
+  }
+}

@@ -184,6 +184,42 @@ def t_h2_setpoint_seeds_from_first_observation():
     assert sp.viable_band_hi < 0.5                      # نه پیش‌فرضِ 0.5..6 (کالیبره)
 
 
+def t_h3_setpoint_cadence_survives_restart():
+    """w-slow واقعاً کند بماند: last_setpoint_epoch در حافظه است، پس هر restartِ واچ‌داگ
+    قبلاً یک epochِ اضافه می‌نوشت و hysteresis ±۲۰٪ در یک روز چندبار اعمال می‌شد
+    (شاهد: ledger ‏07-23/24). بازیابیِ stateless: setpointِ تازهٔ روی دیسک = این پنجره served."""
+    os.environ["OCTOPUS_WIRE_HEART"] = "1"
+    os.environ["CHRONO_HEART_SETPOINT_EVERY_N_BEATS"] = "1440"
+    try:
+        _write_signals(v=2.0, cpi=0.1)
+        hi.write_setpoint(hi.HeartParams(epoch_seq=5))
+        wiring._HEART_STATE["last_epoch"] = 0
+        wiring._HEART_STATE["last_setpoint_epoch"] = 0
+        out1 = wiring.heart_beat(beat=1450)               # اولین ضربانِ بعد از restart
+        seq1 = hi.read_setpoint().epoch_seq
+        assert out1 is not None
+        assert seq1 == 5, f"setpointِ تازه نباید دوباره نوشته شود (seq={seq1})"
+        assert "setpoint_epoch_seq" not in out1, out1
+        # همان پنجره، restartِ دوم → باز هم بدونِ نوشتن (idempotent)
+        wiring._HEART_STATE["last_epoch"] = 0
+        wiring._HEART_STATE["last_setpoint_epoch"] = 0
+        wiring.heart_beat(beat=1460)
+        assert hi.read_setpoint().epoch_seq == 5
+        # setpointِ کهنه (بیرونِ پنجره) → cadence مشروع دوباره می‌نویسد
+        p = hi.SETPOINT_PATH
+        d = json.loads(p.read_text("utf-8"))
+        d["ts"] = (_dt.datetime.now() - _dt.timedelta(days=3)).isoformat(timespec="seconds")
+        p.write_text(json.dumps(d, ensure_ascii=False), "utf-8")
+        wiring._HEART_STATE["last_epoch"] = 0
+        wiring._HEART_STATE["last_setpoint_epoch"] = 0
+        out2 = wiring.heart_beat(beat=1470)
+        assert out2.get("setpoint_epoch_seq") == 6, out2
+        assert hi.read_setpoint().epoch_seq == 6
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_HEART", None)
+        os.environ.pop("CHRONO_HEART_SETPOINT_EVERY_N_BEATS", None)
+
+
 # ── P6: دکترِ w-slow ─────────────────────────────────────────────────────────────
 def t_i_setpoint_hysteresis_and_monotonic_seq():
     prev = hi.HeartParams(viable_band_lo=0.5, viable_band_hi=6.0, epoch_seq=7)

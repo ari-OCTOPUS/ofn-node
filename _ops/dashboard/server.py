@@ -477,6 +477,20 @@ def page_organism() -> bytes:
             cap = bud.get("daily_cap", 0)
             cards += _metric("بودجهٔ ضربان", f"{rem}/{cap}", "bad" if bud.get("depleted") else "")
 
+    # کارتِ داورِ نبض (HH-P11): سه قلب موازی → یک periodِ advisory (سایه مگر wire_open)
+    arb = st.get("arbiter") or {}
+    if arb.get("effective_period_s") is not None:
+        eff = arb.get("effective_period_s")
+        eff_str = f"{eff:.0f}ث" if isinstance(eff, (int, float)) else "—"
+        arb_cls = {"GREEN": "good", "AMBER": "warn", "RED": "bad"}.get(arb.get("color"), "")
+        drv = str(arb.get("driver", "—"))
+        live = "زنده" if arb.get("wire_open") else "سایه"
+        cards += _metric("نبضِ واحد (۳ قلب)", f"{eff_str} · {drv} · {live}", arb_cls)
+        npr, nbr = arb.get("n_present"), arb.get("n_braking")
+        if npr is not None:
+            cards += _metric("قلب‌های حاضر/ترمز", f"{npr}/{nbr if nbr is not None else '—'}",
+                             "warn" if (nbr or 0) else "")
+
     # جدولِ کامل
     rows = [
         ("شروع", str(st.get("started", "—"))[:19].replace("T", " ")),

@@ -47,6 +47,7 @@ ROUTER_FENCED = {
     "legs/ziman_leg.py",             # بدنهٔ برندِ زیمان
     "chord/adapters/llm_adapter.py",  # مسیرِ اصلی (fallbackش ADAPTER_FENCED است)
     "eval/run_adversarial.py",       # evalِ آفلاین — mr.ask آلیاس‌شده در sandbox
+    "legs/speed_to_lead.py",         # Phase-D (Wave-2): _llm_draft → model_router.ask("draft",…)
 }
 ADAPTER_FENCED = {
     "debate/debate_loop.py",         # _gated_call → DeepSeekClient.complete
@@ -58,6 +59,10 @@ CHOKE_PRIMITIVES = {
     "cortex/model_router.py",        # چوکِ fenced — local_llm.ask/cli.complete داخلِ فنس
     "cortex/local_llm.py",           # primitive (def ask — caller نیست)
     "debate/client.py",              # primitive provider (def complete — caller نیست)
+    # M7 (now_moves 2026-07-24): سایدکارِ observabilityِ روتر — LLM صدا نمی‌زند (فقط tierِ
+    # انتخاب‌شده را log می‌کند). تطبیقِ اسکنر یک false-positiveِ رشته‌ای است: عبارتِ
+    # "model_router.ask" فقط در docstringِ ROLLBACK می‌آید و `\s*` روی newline به "(" وصل می‌شود.
+    "now_moves/route_scorer_shadow_log.py",
 }
 # مسیرِ تولیدیِ شناخته‌شدهٔ بیرونِ فنس: هیچ. (اگر روزی لازم شد، با file:line + دلیل این‌جا
 # مستند شود — پنهان‌کاری ممنوع.)

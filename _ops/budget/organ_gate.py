@@ -60,6 +60,7 @@ def _refund_global(organ: str, est_usd: float) -> None:
 def reserve(organ: str, est_usd: float, task: str = "") -> dict:
     """گیت دومرحله‌ای. خروجی: {allow: bool, reason?: str, reserved?: float}."""
     stop = opslib.halted()
+    if __import__("os").environ.get("OCTOPUS_WIRE_KILL_SEAM") == "1" and not stop and __import__("now_moves.kill_seam_closer", fromlist=["seam_denies"]).seam_denies(): stop = "STOP(organism)"  # M5 (now_moves): flag-gated kill-seam — default OFF; rollback = delete this line
     if stop:
         v = {"allow": False, "reason": f"halted:{stop}"}
         _log("reserve", organ, est_usd, v, task); return v
