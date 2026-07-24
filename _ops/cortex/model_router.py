@@ -43,6 +43,12 @@ TASK_TIERS = {
     "think": "local", "triage": "local",
     "research": "secondary", "synthesize": "secondary", "draft": "secondary",
     "orchestrate": "primary", "deep": "primary", "plan": "primary",
+    # M2 fugu-everywhere (2026-07-24): explicit tiers for organ work-types that were
+    # bespoke or defaulted silently to local. ADDITIVE — existing callers unchanged;
+    # unmapped tasks still fall back to "local" via TASK_TIERS.get(task, "local").
+    "governor": "primary", "debate_architect": "primary",
+    "debate_muse": "secondary", "tg_intent": "local",
+    "chord.extract": "local", "heart_setpoint": "local",
 }
 _TIER_ROLE = {"secondary": "glm", "primary": "orchestr"}   # roleهای واقعیِ budgets.yaml
 
