@@ -1358,11 +1358,44 @@ class Pacemaker:
                 "effects_pending": self.db.q(
                     "SELECT COUNT(*) FROM gated_effect WHERE status='pending'")[0][0]}
 
+    def _tick_decision(self) -> str:
+        """تصمیمِ هر تیکِ run_forever (تست‌پذیر، بدونِ sleep):
+          · 'stop'  = kill supreme — STOP-ORGANISM یا master_halted() (HALT-ALL / STOP معمار).
+                      تسلیمِ بی‌قیدوشرط؛ خروجِ دائم (رفتارِ قبلی، دست‌نخورده).
+          · 'pause' = STOP-METABOLIC — محافظتِ خودکارِ متابولیک (می‌تواند کاذب باشد).
+                      توقفِ **برگشت‌پذیر**، نه مرگِ نخ.
+          · 'beat'  = ضربانِ عادی.
+        ترتیب = شدت: kill supreme همیشه بر STOP-METABOLIC مقدم است."""
+        if opslib.STOP_ORGANISM.exists() or opslib.master_halted():
+            return "stop"
+        if opslib.STOP_METABOLIC.exists():
+            return "pause"
+        return "beat"
+
     def run_forever(self) -> None:
-        """حلقهٔ پس‌زمینه برای organism.py — تسلیمِ بی‌قیدوشرط به STOP (kill supreme)."""
+        """حلقهٔ پس‌زمینه برای organism.py.
+          · kill supreme (STOP-ORGANISM / HALT-ALL / STOP معمار) → تسلیمِ بی‌قیدوشرط (return).
+          · STOP-METABOLIC → **pause-not-die**: نبض را نگه می‌دارد ولی نخ زنده می‌ماند و با
+            رفعِ شرط، ضربان خودکار از سر گرفته می‌شود.
+        رفعِ frozen-beat ۲۰۲۶-۰۷-۲۳: قبلاً `opslib.halted()` (که STOP-METABOLIC را هم برمی‌گرداند)
+        باعثِ return دائم می‌شد و در یک STOP-METABOLICِ کاذب نبض روی همان beat یخ می‌زد."""
+        paused = False
         while True:
-            if opslib.STOP_ORGANISM.exists() or opslib.halted():
+            decision = self._tick_decision()
+            if decision == "stop":
+                if paused:  # از pause مستقیم به kill — لاگِ صادق
+                    opslib.heartbeat(f"chrono=STOP-after-pause beat={self.beat}")
                 return
+            if decision == "pause":
+                if not paused:
+                    paused = True
+                    opslib.heartbeat(f"chrono=PAUSED (STOP-METABOLIC) beat={self.beat} "
+                                     f"— pause-not-die")
+                time.sleep(self.period_s)
+                continue
+            if paused:
+                paused = False
+                opslib.heartbeat(f"chrono=RESUMED (STOP-METABOLIC cleared) beat={self.beat}")
             try:
                 self.beat_once()
             except Exception as e:  # noqa: BLE001 — خطای خاموش ممنوع (منشور §۴)
