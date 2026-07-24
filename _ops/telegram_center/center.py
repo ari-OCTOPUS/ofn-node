@@ -490,7 +490,29 @@ class Center:
 
         if dirty:
             _save_config(cfg)
+        # فاز A (event bridge، هماهنگ با c6_state_machine از Opus مافوق): push رویدادهای
+        # بحرانی به مالک. پشتِ OCTOPUS_WIRE_EVENT_BRIDGE؛ fail-soft (§۴).
+        try:
+            import event_bridge as _eb
+            _eb.beat(self)
+        except Exception:  # noqa: BLE001 — bridge هرگز beat را نمی‌کشد
+            pass
         return out
+
+    def push_alert(self, text: str) -> bool:
+        """push یک پیامِ alert به topic=system. منبعِ ارسالِ event_bridge و push-per-event.
+        fail-soft، scrubشده (parity با _scrub:120). false = ارسال نشد/خطا."""
+        if not self._wired() or not text:
+            return False
+        try:
+            cfg = _load_config()
+            chat_id = cfg.get("chat_id")
+            topics = cfg.get("topics") if isinstance(cfg.get("topics"), dict) else {}
+            m = self._client.send(_scrub(text), topic_id=topics.get("system"),
+                                  chat_id=chat_id)
+            return m is not None
+        except Exception:  # noqa: BLE001
+            return False
 
     # ── handle_update: فقط مالک — /now و callbackهای ok/no/later ─────────────────
     def _is_owner(self, u: dict) -> bool:
