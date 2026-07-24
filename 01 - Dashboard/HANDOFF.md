@@ -1,6 +1,6 @@
 ---
 type: handoff
-updated: 2026-07-21
+updated: 2026-07-25
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
@@ -8,6 +8,8 @@ updated: 2026-07-21
 > قاعده: این فایل ایندکسِ wikilink است، زیرِ ۲۰۰ خط — نه آرشیو. تاریخچهٔ کاملِ قبلی: `_Archive/Logs/HANDOFF-archive-2026-07-16.md` (۲۶۳KB، قرنطینه‌شده 2026-07-16).
 
 ## وضعِ لحظه‌ای
+
+- 🧪 **2026-07-25 (پاکسازیِ سوئیت) — دو ورودیِ مردهٔ `run_all` حذف شد؛ سوییت روی worktreeِ ایزوله ‏۲۷۶/۲۷۶ سبز (exit 0).** `test_studio_telegram.py` و `test_dual_brain.py` به ماژول‌های v1 (`studio_telegram.py`/`dual_brain.py`) اشاره داشتند که در reorgِ Project-F (`57f5138`+`f63ce32`) به `09-Archive` منتقل و از درخت حذف شدند (فقط `_v3` مانده، APIِ متفاوت: `_scan_forbidden`/`_check_compliance` نیست → `ModuleNotFoundError`، پیش‌موجود). هر دو با کامنتِ مستند از فهرستِ `TESTS` حذف شدند (روشِ phantom-exclusionِ همان فایل)؛ **صفر لمسِ فایل‌های زیرپروژهٔ [[../03 - Projects/اونلی فنز/PROJECT|اونلی فنز]]** — نسخهٔ فعال با تستِ داخلیِ subproject (`brain/test_dual_brain_v3.py`، §۱۱) + `test_project_f`/`test_deep_pf`/`test_pf_full` پوشش دارد. کامیت `476a938` روی برنچِ `claude/laughing-galileo-2635ac`؛ دو فایلِ تستِ یتیم روی دیسک نگه داشته شد (§۱). **merge به master = رأیِ مالک (gated: code).**
 
 - 🫀 **2026-07-24 (شبانه، «TEST+IMPROVE+دیالوگِ ارگانیسم») — دیالوگِ دوطرفهٔ owner↔organ ساخته و LIVE شد؛ run_all کامل ۲۷۴/۲۷۴ سبز؛ commit `7ddb0d6` روی `claude/c7-continuity` (merge با مالک).** (۱) **Telegram راست‌گو:** `channel-status.json` بعد از ۱۶ روز orphan بودن writer زنده گرفت (`approval_channel._write_channel_status`؛ بوتِ poll + هر ~۱۵min) — داشبورد/کابین دیگر «not-wired» دروغ نمی‌بینند؛ FREEZE هم از restart ۲۲:۵۱ (`e2a317c`) حل بود. (۲) **سه organ حرف می‌زنند:** `doctor_digest_beat` (تشخیص + RFCهای باز) · `brain_digest_beat` (cortex/debate از state-file — صفر pollerِ دوم/409) · `heart_card_beat` (ریتم/بودجه/σ + alertهای vital: stall/depletion/🔴/protective) پشتِ `OCTOPUS_WIRE_{DOCTOR_DIGEST,BRAIN_DIGEST,HEART_CARD}` (روشن شد). (۳) **مالک زنده تنظیم می‌کند:** دکمهٔ ✍️ روی کارتِ RFC + `/doctor focus|edit` · `/brain guide` (bounded: focus/think_every_n/pause) · `/heart set` (فقط setpoint از `HeartParams.validate` — ADR-001؛ audit در `pulse/heart-setpoint-audit.jsonl`). (۴) **تشخیصِ قطعیِ frozen-beat:** `chrono.Pacemaker.run_forever` روی `halted()` (STOP-METABOLIC کاذبِ دیروز) برای همیشه return کرده بود — beat از ۱۳:۳۵ روی 9890 یخ زد و دو بوت هم در پنجرهٔ حضورِ مارکر بالا آمدند؛ بعد از restart 00:40 دوباره می‌تپد (9892+). فیکسِ دائمی (pause-not-die برای STOP-METABOLIC) **پیشنهاد** شد و owner-gated ماند. تست‌های نو: `test_organ_dialogue` (۱۷) + `test_channel_status` (۵) داخل run_all. کلیدِ غایب: `DEEPSEEK_API_KEY` (heart-doctor/governor LLM روی fallback). تست‌های untracked ِ `test_doctor_advance*` به `Doctor.advance_rfcs` نیاز دارند که در این شاخه نیست (شاخهٔ merge-نشده) — رأی مالک.
 
