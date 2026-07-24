@@ -201,11 +201,27 @@ APPROVALS_DIR = opslib.STATE_DIR / "telegram" / "approvals"
 
 
 def active() -> bool:
-    """سطح A زنده است؟ فلگِ مالک هست و کیل‌سوئیچ نیست."""
+    """سطح A زنده است؟ فلگِ مالک هست، کیل‌سوئیچ نیست، و — اگر OCTOPUS_REQUIRE_ARM روشن
+    باشد (P5) — arm-tokenِ تازهٔ دو-کلید هم حاضر است. flagِ خاموش = byte-identical با قبل.
+    این فقط سخت‌تر می‌کند؛ هرگز چیزی را که ACTIVATION تنها باز می‌کرد بازتر نمی‌کند."""
     try:
-        return ACTIVATION.exists() and not KILL.exists()
+        if not (ACTIVATION.exists() and not KILL.exists()):
+            return False
+        return _arm_ok()
     except OSError:
         return False
+
+
+def _arm_ok() -> bool:
+    """P5 fresh-arm-token gate. Enforced (OCTOPUS_REQUIRE_ARM) -> require arm_gate tokens;
+    otherwise pass-through. arm_gate unavailable while enforcing -> fail-closed (deny)."""
+    try:
+        import arm_gate as _ag  # _ops on sys.path (opslib already imported above)
+        return _ag.guard("code_autonomy")[0]
+    except Exception:  # noqa: BLE001
+        import os as _os
+        return _os.environ.get("OCTOPUS_REQUIRE_ARM", "").strip().lower() \
+            not in ("1", "true", "yes", "on")
 
 
 def _owner_approved(approval_id: str) -> bool:

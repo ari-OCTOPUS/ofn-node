@@ -17,6 +17,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_chrono_heartbeat.py", "test_pacemaker_pause_not_die.py", "test_chrono_langar.py",
          # M3 (2026-07-24): reproduction=C6 lifecycle recorder + agent-gateway red-team
          "test_c6_state_machine.py", "test_agent_gateway_redteam.py",
+         # P5 (2026-07-24): fresh-arm-token + two-key gate for dangerous capabilities
+         "test_arm_gate.py",
          "test_telegram_channel.py", "test_telegram_group_allowlist.py",
          # Task 2+3 (2026-07-24): writerِ زندهٔ channel-status + دیالوگِ owner↔organ
          "test_channel_status.py", "test_organ_dialogue.py",
