@@ -156,6 +156,13 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # فقط release_one صریح + authorization + consent-recheck (market_signal/synthetic هرگز)؛
          # outbound worker همیشه NOT_ARMED (صفر ارسال). flag OCTOPUS_WIRE_LEAD_OUTBOUND خاموش.
          "test_lead_effect_gate.py",
+         # 2026-07-24 Phase-D (Wave-2 WS-5): consent gate/store + funnel + speed-to-lead +
+         # release/settle separation + verdict→effect hook. همه flag-off.
+         # (عمداً نیامد: D7 owner-transport — گاردِ no-networkِ تازه‌ترِ master؛ producer-migration —
+         #  با گاردِ «harvest = یک env، صفر راز»‌ِ تازه‌ترِ master تضاد داشت.)
+         "test_consent_gate.py", "test_funnel_store.py", "test_speed_to_lead.py",
+         "test_release_send_separation.py",
+         "test_lead_verdict_wiring.py",
          # 2026-07-21 Trust-Engine D6: گاردِ stalenessِ releasable در لایهٔ bridge (chrono
          # دست‌نخورده) — پیش از settle، releasableِ کهنه refuse می‌شود (شکافی که sweep_stale_effects
          # پوشش نمی‌داد چون فقط pending را جارو می‌کند)

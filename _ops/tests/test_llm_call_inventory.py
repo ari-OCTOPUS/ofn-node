@@ -47,6 +47,7 @@ ROUTER_FENCED = {
     "legs/ziman_leg.py",             # بدنهٔ برندِ زیمان
     "chord/adapters/llm_adapter.py",  # مسیرِ اصلی (fallbackش ADAPTER_FENCED است)
     "eval/run_adversarial.py",       # evalِ آفلاین — mr.ask آلیاس‌شده در sandbox
+    "legs/speed_to_lead.py",         # Phase-D (Wave-2): _llm_draft → model_router.ask("draft",…)
 }
 ADAPTER_FENCED = {
     "debate/debate_loop.py",         # _gated_call → DeepSeekClient.complete

@@ -652,6 +652,9 @@ def wire_summary() -> dict:
         "wire_email": flag("OCTOPUS_WIRE_EMAIL"),
         "wire_ingest": flag("OCTOPUS_WIRE_INGEST"),
         "wire_harvest": flag("OCTOPUS_WIRE_HARVEST"),
+        # D1 (فاز D): وصلِ رأیِ کارتِ لید به لایهٔ اثر (lead_effect_gate.on_lead_verdict).
+        # پیش‌فرض خاموش = no-op مطلق؛ transport همچنان NOT_ARMED. رأیِ owner-gated برای روشن‌کردن.
+        "wire_lead_verdict_effect": flag("OCTOPUS_WIRE_LEAD_VERDICT_EFFECT"),
         "profile": resolve_profile(),                    # P-W3: boot profile
         "doctor_every_n": int(os.environ.get("CHRONO_DOCTOR_EVERY_N_BEATS", "1440")),
         "consolidation_every_n": int(os.environ.get("CHRONO_CONSOLIDATION_EVERY_N_BEATS", "720")),

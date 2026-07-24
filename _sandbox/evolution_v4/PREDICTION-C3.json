@@ -1,0 +1,9 @@
+{
+  "schema": "c6-cycle3-prediction",
+  "note": "No self-claimed clock string — file mtime IS the registration timestamp (discipline from cycle-2 lens finding). Written physically BEFORE experiment_c3.py exists or runs.",
+  "capability": "research-loop-preregistration-gate",
+  "predicted_detection_rate_after_patch": 1.0,
+  "predicted_honest_path_invariant": true,
+  "predicted_baseline_detection_rate": 0.0,
+  "rationale": "The patched loop anchors prediction hashes to append-only journal line order before experiment/start. Peeked (no preregister row) and tampered (hash mismatch) predictions cannot produce a matching row that precedes experiment/start, so both must be quarantined: predicted 2/2 detection. The honest path adds only a verified preregistration dict, leaving U and verdict unchanged. Baseline (live loop) has no mechanism at all: predicted 0/2."
+}

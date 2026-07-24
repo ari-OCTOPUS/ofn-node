@@ -588,6 +588,18 @@ def main() -> int:
                         daily["fisher_condition"] = _fr.get("fisher_condition_number")
                     except Exception as _fe:  # noqa: BLE001 — advisory نباید tick را بکشد
                         opslib.alert([f"fisher advisory error (non-fatal): {type(_fe).__name__}: {_fe}"])
+                # ── C6 (stage-4): تولید مثل = خودبهبودیِ کد. روزی یک‌بار: یک فرضیه از صف
+                # → آزمایشِ sandbox → RFC card به مالک (propose-only). پشتِ دو گیتِ
+                # OCTOPUS_WIRE_C6_RESEARCH + ACTIVATION-C6-RESEARCH.flag. هرگز auto-apply.
+                if _w.flag("OCTOPUS_WIRE_C6_RESEARCH"):
+                    try:
+                        import c6_trigger as _c6
+                        _c6.seed_default_hypothesis()   # صفِ خالی → یک نمونهٔ بی‌خطر
+                        _c6.c6_research_beat(
+                            state_dir=str(opslib.STATE_DIR),
+                            channel=_chan, beat=_cstat.get("beat", 0) if _cstat else 0)
+                    except Exception as _c6e:  # noqa: BLE001 — §۴: c6 نباید tick را بکشد
+                        opslib.alert([f"c6_research_beat error (non-fatal): {type(_c6e).__name__}: {_c6e}"])
             # ── W-2: Doctor beat (غیرضروری → زیرِ همان گیت؛ STOP/protective مقدم)
             _doctor_result = None
             if not _protective_skip and _doctor_inst is not None and _cstat is not None:

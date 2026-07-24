@@ -1,0 +1,8 @@
+{
+  "schema": "c6-evolution-v3-prediction",
+  "registered_at": "2026-07-24T07:20:00Z",
+  "registered_before_results": true,
+  "capability": "memory-secondary-indexes",
+  "predicted_conservative_gain": 0.5,
+  "rationale": "Phase-1 profile showed get() SCAN+sort growing 0.077->6.7ms (1k->20k) and insert-dedupe SCAN 0.23->7.5ms. Indexes should make both ~O(log n); at 20k I expect >=10x on get(), but the CONSERVATIVE floor is the smallest cell — insert() at n=1000, where the scan is only ~0.2ms and index maintenance partly offsets the win. Predicting conservative min improvement fraction = 0.5 (i.e. worst cell halves)."
+}

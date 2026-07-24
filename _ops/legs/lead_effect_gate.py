@@ -207,6 +207,43 @@ def on_lead_verdict(lead_id: str, candidate: dict, verdict: str, *, gate) -> dic
         return {"authorized": False, "reason": f"exception:{type(e).__name__}"}
 
 
+def bridge_from_inbox(lead_id: str, *, gate) -> dict:
+    """D1 (فاز D، 2026-07-21): bridge سبک برای لایهٔ wire (live_loop). فایلِ inboxِ یک lead_id
+    را می‌خواند، کاندیدِ سازگار با consent-firewall را بازسازی می‌کند، و on_lead_verdict(approve)
+    را صدا می‌زند. هم‌الگو با verdict_recorder برای live_loop: کل منطقِ I/O + consent در همین
+    ماژول محصور می‌ماند تا live_loop **لایهٔ wireِ خالص** بماند (بدونِ importِ لایهٔ production).
+
+    همهٔ گاردهای on_lead_verdict (consent re-check، idempotency، STOP، fail-closed) اعمال می‌شوند.
+    هرگز settle/send/ledger نمی‌زند؛ فقط یک effectِ lead_outbound می‌سازد و authorize می‌کند
+    (transportش در outbound_worker هنوز NOT_ARMED است — این D1 است، نه D7).
+
+    خروجی: {authorized: bool, effect_id?, reason: str} — همیشه dict، هرگز استثنا.
+      · lead_id خالی/فایل غایب → {authorized: False, reason: "no_inbox_file"}
+      · gate غایب → on_lead_verdict fail-closed {authorized: False, reason: "no_gate_or_lead"}
+    """
+    try:
+        lid = str(lead_id or "").strip()
+        if not lid:
+            return {"authorized": False, "reason": "no_inbox_file"}
+        path = opslib.STATE_DIR / "legs" / "lead-inbox" / f"{lid}.json"
+        if not path.exists():
+            return {"authorized": False, "reason": "no_inbox_file"}
+        with path.open("r", encoding="utf-8") as fh:
+            data = json.load(fh)
+        if not isinstance(data, dict):
+            return {"authorized": False, "reason": "no_inbox_file"}
+        cb = data.get("candidate") or {}
+        candidate = {
+            "source": {"channel": data.get("source")},
+            "candidate_type": cb.get("candidate_type"),
+            "consent": cb.get("consent") or {},
+            "request": cb.get("request") or {},
+        }
+        return on_lead_verdict(lid, candidate, "approve", gate=gate)
+    except Exception as e:  # noqa: BLE001 — bridge هرگز caller را نمی‌کشد
+        return {"authorized": False, "reason": f"exception:{type(e).__name__}"}
+
+
 def release_and_settle(effect_id: str, candidate: dict, *, gate, now_ms: int | None = None) -> dict:
     """اگر may_release اجازه داد: **یک** effect را release_one کن، release_ts ثبت کن، و با
     گاردِ stalenessِ effector_gate_bridge settle کن. هرگز batch، هرگز send. همیشه dict.
@@ -235,6 +272,63 @@ def release_and_settle(effect_id: str, candidate: dict, *, gate, now_ms: int | N
                 "reason": res.get("reason", "")}
     except Exception as e:  # noqa: BLE001
         return {"released": True, "settled": False, "reason": f"settle_error:{type(e).__name__}"}
+
+
+# ── D6 (فاز D): جداسازیِ release از send برای staleness واقعی ──────────────────
+# WIRING-HANDOFF §۳ «ضعفِ صادقانه»: release_and_settle فعلی اتمیک است (همان now_ms)، پس
+# گاردِ stalenessِ effector_gate_bridge عملاً بی‌اثر است. این دو تابع، release را در t0 و
+# settle را در t1 (ممکن است دیرتر) انجام می‌دهند تا staleness واقعی کار کند: اگر t1-t0>window
+# → settle_fresh refuse می‌کند (effect کهنه نمی‌تواند settle شود).
+# این مسیر هنوز NOT_ARMED است (transport در D7 وصل می‌شود). ولی ستاپِ ایمن برای staleness.
+
+
+def release_only(effect_id: str, candidate: dict, *, gate, now_ms: int | None = None) -> dict:
+    """D6: فقط release (در t0) — بدونِ settle. نقطهٔ اولِ جداسازی.
+    may_release را چک می‌کند، اگر اجازه داد release_one + mark_released (در t0).
+    خروجی: {released: bool, reason: str, released_at_ms?: int}
+    هرگز settle/send. caller بعداً settle_after_release را (در t1) صدا می‌زند."""
+    verdict = may_release(effect_id, candidate, gate=gate)
+    if not verdict.get("allow"):
+        return {"released": False, "reason": verdict.get("reason", "deny")}
+    eid = str(effect_id).strip()
+    token = _authz_token(eid) or "owner-verdict-release"
+    try:
+        import effector_gate_bridge as egb   # noqa: WPS433 — lazy
+        released = bool(gate.release_one(eid, {"hash": token}))
+        if not released:
+            return {"released": False, "reason": "release_one_failed"}
+        t0 = int(now_ms if now_ms is not None else _now_ms())
+        egb.mark_released(eid, now_ms=t0)
+        _emit("effect.released", eid, {"settled": False, "phase": "release_only",
+                                       "released_at_ms": t0})
+        return {"released": True, "reason": "ok", "released_at_ms": t0}
+    except Exception as e:  # noqa: BLE001
+        return {"released": False, "reason": f"release_error:{type(e).__name__}"}
+
+
+def settle_after_release(effect_id: str, *, gate, now_ms: int | None = None,
+                         max_age_hours: float | None = None) -> dict:
+    """D6: فقط settle (در t1) — با گاردِ stalenessِ واقعی. نقطهٔ دومِ جداسازی.
+    اگر now_ms (t1) − release_ts (t0) > window → stale_refused.
+    خروجی: {settled: bool, reason: str, age_hours?: float}
+    هرگز send. این مسیر برای وقتی است که send از release جدا شده (transport آینده)."""
+    eid = str(effect_id).strip()
+    try:
+        import effector_gate_bridge as egb   # noqa: WPS433 — lazy
+        res = egb.settle_fresh(gate, eid, now_ms=now_ms, max_age_hours=max_age_hours)
+        _emit("effect.settled", eid, {"settled": res.get("settled"),
+                                       "reason": res.get("reason", ""),
+                                       "age_hours": res.get("age_hours")})
+        return {"settled": bool(res.get("settled")), "reason": res.get("reason", ""),
+                "age_hours": res.get("age_hours")}
+    except Exception as e:  # noqa: BLE001
+        return {"settled": False, "reason": f"settle_error:{type(e).__name__}"}
+
+
+def _now_ms() -> int:
+    """UTC millis (هم‌الگو با chrono._utc_ms)."""
+    import time as _t   # noqa: WPS433
+    return int(_t.time() * 1000)
 
 
 if __name__ == "__main__":
