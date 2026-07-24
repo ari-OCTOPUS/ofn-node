@@ -13,6 +13,9 @@ updated: 2026-07-10
 > کیت مغز پروژه ([[_memory/LIVING-BRAIN-BLUEPRINT|بلوپرینت]]) — 2026-07-04. خارج از این پوشه فقط کد «Project-F».
 > 🏠 **داشبورد زندهٔ Obsidian:** [[HOME]] (Dataview + kill-switch + معماری). این INDEX نقشهٔ curated است؛ HOME نمای زنده.
 
+## 🤝 HANDOFF ایجنت بعدی
+- [[00 - Control/HANDOFF-NEXT-AGENT-2026-07-24-REORG|HANDOFF پس از بازآرایی ۲۰۲۴-۰۷-۲۴]] — 🆕 **اول این را بخوان** اگر جلسهٔ جدیدی شروع می‌کنی. وضعیت کامل پروژه + ساختار جدید + قدم بعدی.
+
 ## 🎛 کنترلِ ایجنتِ مادر (اول این را بخوان — cross-domain)
 - **`PROJECT-F-CONTROL-MANIFEST.json`** — 🆕 **07-10:** قراردادِ ماشین‌خوانِ کنترل (صفر-PII، کدِ A/C): identity، status، gates، قواعد قفل‌شده، capabilities، سطحِ کنترل (دستورها/فایل‌ها/handoffها)، kill-switchها، entrypointها، صفِ verdict. **single-source برای ایجنتِ مدیریتِ همهٔ پروژه‌ها.**
 - [[AGENT-CONTROL-INTERFACE]] — روایتِ همان: چه ساخته شده، ایجنتِ مادر چه می‌تواند/نمی‌تواند (رصد+صف+قطع؛ اجرا هرگز)، پروتکلِ تشدید.
