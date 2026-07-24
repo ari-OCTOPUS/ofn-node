@@ -25,6 +25,8 @@ This folder is for control-plane docs only. No content/media/PII here.
 - `HANDOFF-NEXT-AGENT.md` — full step-by-step plan for the next agent
 - `OBSIDIAN-STRUCTURE-v1.md` — superseded by MIGRATION-MAP-2026-07-12
 - `ROADMAP-10-STAGES-2026-07-12.md` — دستورالعملِ ۱۰-مرحله‌ایِ بعدی (owner/agent split + gates + done-criteria), گراند‌شده روی [[03 - Projects/اونلی فنز/02 - Research/COMPETITOR-MARKET-LANDSCAPE-2026-07-12|تحقیقِ رقبا]]
+- `DEEP-SCAN-2026-07-17-FOR-NEXT-AGENT.md` — خلاصهٔ فشردهٔ کل پروژه (کد + سند + state + git)
+- `2026-07-22 DEEP-SCAN × اختاپوس — تئوری و قوانین اتصال.md` — 🆕 **استعارهٔ ارگانیسم + قوانینِ اتصالِ Project-F به اختاپوس + reality check اجرا.** شامل: فرهنگنامهٔ استعاره، پلِ `langar_bridge.py`، ۴ کانالِ اتصال، ۱۸ قانونِ متصل‌ماندن، چک‌لیستِ START ارگانیسم. **اگر فردا روی متصل‌ماندن/آپدیت به اختاپوس کار می‌کنی، این را اول بخوان.**
 
 ## Suggested future move (manual/verdict)
 

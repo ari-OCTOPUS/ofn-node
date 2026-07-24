@@ -5,16 +5,16 @@ status: active
 tags: [creator-business, faceless, moc, project-f]
 aliases: ["MOC", "نقشه پروژه", "Project-F Index"]
 created: 2026-07-04
-updated: 2026-07-10
+updated: 2026-07-24
 ---
 
 # INDEX — MOC پروژه اونلی فنز (Project-F)
 
 > کیت مغز پروژه ([[_memory/LIVING-BRAIN-BLUEPRINT|بلوپرینت]]) — 2026-07-04. خارج از این پوشه فقط کد «Project-F».
 > 🏠 **داشبورد زندهٔ Obsidian:** [[HOME]] (Dataview + kill-switch + معماری). این INDEX نقشهٔ curated است؛ HOME نمای زنده.
+> 📐 **بازآرایی ۲۰۲۶-۰۷-۲۴:** اسناد پراکندهٔ ریشه به پوشه‌های شماره‌دار (۰۱–۰۹) منتقل شدند؛ آینه‌های کهنهٔ  و  حذف؛ کدِ منسوخ / (v1) به  رفت. فایل‌های code-coupled (PROJECT/OpenQuestions/DecisionLog/THREAD-CLOSURE/CLAUDE/ACQUISITION/STATE-REPORT/MANIFEST/orchestrator) **در ریشه ماندند** چون کد پایتون با مسیر نسبی آن‌ها را می‌خواند. مسیرها در  مانیفست به‌روز شدند. جزئیات: [[00 - Control/REORG-LOG-2026-07-24|REORG-LOG]]. از آنجا که Obsidian بر اساس *نام فایل* لینک‌ها را حل می‌کند، wikilinkها بدون تغییر کار می‌کنند.
 
-## 🤝 HANDOFF ایجنت بعدی
-- [[00 - Control/HANDOFF-NEXT-AGENT-2026-07-24-REORG|HANDOFF پس از بازآرایی ۲۰۲۴-۰۷-۲۴]] — 🆕 **اول این را بخوان** اگر جلسهٔ جدیدی شروع می‌کنی. وضعیت کامل پروژه + ساختار جدید + قدم بعدی.
+> 🆕 **۲۰۲۴-۰۷-۲۴:** ساختار Obsidian بازآرایی شد + pf_os کامل شد (۲۵ فایل، ۱۱۹ تست). اول [[00 - Control/HANDOFF-NEXT-AGENT-2026-07-24-REORG|HANDOFF ایجنت بعدی]] را بخوان. ردِّ تغییرات: [[00 - Control/REORG-LOG-2026-07-24|REORG-LOG]].
 
 ## 🎛 کنترلِ ایجنتِ مادر (اول این را بخوان — cross-domain)
 - **`PROJECT-F-CONTROL-MANIFEST.json`** — 🆕 **07-10:** قراردادِ ماشین‌خوانِ کنترل (صفر-PII، کدِ A/C): identity، status، gates، قواعد قفل‌شده، capabilities، سطحِ کنترل (دستورها/فایل‌ها/handoffها)، kill-switchها، entrypointها، صفِ verdict. **single-source برای ایجنتِ مدیریتِ همهٔ پروژه‌ها.**
