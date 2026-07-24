@@ -14,7 +14,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_epoch.py", "test_debate.py", "test_fitness_sigma.py",
          "test_budget_gate_v2.py", "test_money_gate.py", "test_capability_gate.py",
          "test_attribution.py", "test_panel_lead.py",
-         "test_chrono_heartbeat.py", "test_chrono_langar.py",
+         "test_chrono_heartbeat.py", "test_pacemaker_pause_not_die.py", "test_chrono_langar.py",
          # M3 (2026-07-24): reproduction=C6 lifecycle recorder + agent-gateway red-team
          "test_c6_state_machine.py", "test_agent_gateway_redteam.py",
          "test_telegram_channel.py", "test_telegram_group_allowlist.py",

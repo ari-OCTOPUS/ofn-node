@@ -20,6 +20,8 @@ aliases: ["Project-F", "پروژه اونلی فنز", "Active Context"]
 
 **نقش در اکوسیستم:** درآمد آزمایشی؛ زیر نظارت architect (رئیس کل). کد ارجاع در خروجی‌های cross-domain: **«Project-F»**.
 
+> 🆕 **HANDOFF پس از بازآرایی (۲۰۲۴-۰۷-۲۴):** ساختار مرتب شد + pf_os کامل شد. اول [[00 - Control/HANDOFF-NEXT-AGENT-2026-07-24-REORG|این سند]] را بخوان.
+
 ## 🎛 رابطِ کنترلِ ایجنتِ مادر (Architect) — cross-domain
 - قراردادِ ماشین‌خوان: `PROJECT-F-CONTROL-MANIFEST.json` (صفر-PII، کدِ A/C) · روایت: [[03 - Projects/اونلی فنز/AGENT-CONTROL-INTERFACE|AGENT-CONTROL-INTERFACE]].
 - مدلِ کنترلِ مادر: **رصد + صف‌بندیِ verdict + قطعِ اضطراری** — اجرای هیچ اکشنِ بیرونی، بدونِ دورزدنِ GATE 0/Hard-Gated، بدونِ تغییرِ قاعدهٔ قفل‌شده. مجریِ نهاییِ کارِ پرمخاطره = انسان (A).

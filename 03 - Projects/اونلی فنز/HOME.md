@@ -7,7 +7,7 @@ owner: آری
 risk_level: high
 autonomy_level: read-only
 public_alias: Project-F
-updated: 2026-07-12
+updated: 2026-07-24
 aliases: ["Project-F Home"]
 tags: [dashboard, project-f, contained]
 ---

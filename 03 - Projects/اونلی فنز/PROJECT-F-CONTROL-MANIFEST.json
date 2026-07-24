@@ -5,7 +5,6 @@
   "generated_by": "agent (Claude Fable 5)",
   "purpose": "Machine-readable control contract for a MASTER orchestrator agent that manages all projects. Read this first to discover, observe, and safely command Project-F. PII-free by design: uses role codes only; safe to surface cross-domain.",
   "pii_policy": "This file contains ZERO identity/content/PII. Partners are role codes only: A=Operator (ops/tech/marketing/finance), C=Creator (content). Never expand codes cross-domain. Outside this folder, refer to the project only as 'Project-F'.",
-
   "identity": {
     "code": "Project-F",
     "domain": "creator-economy / faceless feet-only (non-explicit) content business",
@@ -14,7 +13,6 @@
     "location_context": "Australia-based operation (country-level only; never city-level in any public output)",
     "ecosystem_role": "revenue-experiment node under the Architect (master orchestrator); cross-domain reference code = 'Project-F'"
   },
-
   "status_snapshot": {
     "execution_state": "ZERO execution — planning/research/build only. No real accounts, no posts, no shoots, no revenue.",
     "primary_blocker": "GATE 0 open (Creator country-of-residence unrecorded → Branch A/B undecided). Nothing outward runs until closed.",
@@ -24,7 +22,6 @@
     "last_governance_pass": "2026-07-20",
     "governance_note_2026_07_20": "Forced Completion Sprint + evening ratification: PF-V5 'Full Aggressive' = REVOKED (A signed APPROVED: REVOKE in DL-2026-07-20-PF-V5); body-expansion FROZEN (A signed); agreement text approved + A-signed, awaiting C's written confirmation; Branch A attested by A in chat (source-type field still blank on disk) => G0 stays OPEN; repo never had a remote per A (rotation not urgent; R10 before any future remote); Fansly locked = mirror+discovery-first; pricing stays CONFLICT (no explicit vote); VERDICT_QUEUE is a ballot tray, not authorization; honest tests: DL-2026-07-20-TESTS (209/209)."
   },
-
   "hard_rules_locked": [
     "1: feet-only — no face, no body, no explicit",
     "2: full geo-block of Iran on every layer; no targeting users inside Iran; no geo-spoofing",
@@ -36,15 +33,33 @@
     "8: 18+ with recorded consent; Creator's boundary (no body) is supreme over all plans"
   ],
   "hard_rules_mutability": "immutable without explicit human verdict. A master agent MUST NOT change, relax, or override any locked rule.",
-
   "gates": {
-    "G0": {"condition": "Branch A confirmed + signed 2-person agreement + Creator final-question re-ask", "status": "OPEN — blocker", "eval": "this week"},
-    "G1": {"condition": ">=200 cumulative clicks AND >=10% click->follow AND Creator delivery-rate >=80%", "status": "not started", "eval": "week 6"},
-    "G2": {"condition": ">=30 free-subs AND >=5% free->paid AND first AUD 100 gross", "status": "not started", "eval": "week 12"},
-    "G3": {"condition": ">=AUD 2k/mo x3 months AND churn <30% -> ABN + licensed advisor", "status": "not started", "eval": "month 6-9"},
-    "G4": {"condition": "12 months profitable + internal tool + proven distribution channel", "status": "not started", "eval": "year 2-3"}
+    "G0": {
+      "condition": "Branch A confirmed + signed 2-person agreement + Creator final-question re-ask",
+      "status": "OPEN — blocker",
+      "eval": "this week"
+    },
+    "G1": {
+      "condition": ">=200 cumulative clicks AND >=10% click->follow AND Creator delivery-rate >=80%",
+      "status": "not started",
+      "eval": "week 6"
+    },
+    "G2": {
+      "condition": ">=30 free-subs AND >=5% free->paid AND first AUD 100 gross",
+      "status": "not started",
+      "eval": "week 12"
+    },
+    "G3": {
+      "condition": ">=AUD 2k/mo x3 months AND churn <30% -> ABN + licensed advisor",
+      "status": "not started",
+      "eval": "month 6-9"
+    },
+    "G4": {
+      "condition": "12 months profitable + internal tool + proven distribution channel",
+      "status": "not started",
+      "eval": "year 2-3"
+    }
   },
-
   "autonomy_model": {
     "default": "autonomous up-to-ToS for reversible, in-folder work (research, file build, drafts, KPI loops, proposals)",
     "hard_gated_requires_human_verdict": [
@@ -59,23 +74,57 @@
     "hard_gated_also_blocked_until": "GATE 0 resolved (Branch A) AND Security Gate opened",
     "master_agent_boundary": "The master may OBSERVE, TASK the propose-only layers, route verdicts to the human, and trigger kill-switches. The master MUST NOT execute any hard-gated/outward action, cannot self-approve hard-gated items on the human's behalf, and cannot bypass GATE 0."
   },
-
   "capabilities": [
-    {"id": "research", "desc": "web/desk research + integration into versioned RESEARCH-INTEGRATION docs", "output": "proposal docs"},
-    {"id": "decision_matrix", "desc": "ban-risk-weighted tactic scoring (M2)", "output": "DECISION-MATRIX-*.md"},
-    {"id": "playbook", "desc": "compliant-only 30/60/90 execution plan (M3)", "output": "COMPLIANT-PLAYBOOK-*.md"},
-    {"id": "content_studio", "desc": "Creator-facing Telegram UI: draft submission, calendar, trends, PPV plan, capacity, boundary-halt", "runtime": "studio/creator_studio.py (renamed 2026-07-20 from a C-name file; legacy env/file names still accepted)"},
-    {"id": "cockpit", "desc": "Operator-facing Telegram cockpit: self-aware status, gates, verdict queue, creator-studio bridge, weekly self-upgrade proposals", "runtime": "langar/langar_bot.py"},
-    {"id": "brain_hitl", "desc": "control-plane + 7 sub-agents (Strategist/Pricer/Scheduler/Copywriter/Analyst/Compliance-Guard/Ethics-Guard), tiered HITL routing", "runtime": "brain/project_f_brain.py"},
-    {"id": "learning", "desc": "exploration-aware learning: Thompson/UCB bandit + recency + eval harness, wired to real acquisition data", "runtime": "brain/learning.py + brain/acquisition.py"},
-    {"id": "experimentation", "desc": "A/B test tracker with significance thresholds", "runtime": "brain/ab_tracker.py"}
+    {
+      "id": "research",
+      "desc": "web/desk research + integration into versioned RESEARCH-INTEGRATION docs",
+      "output": "proposal docs"
+    },
+    {
+      "id": "decision_matrix",
+      "desc": "ban-risk-weighted tactic scoring (M2)",
+      "output": "DECISION-MATRIX-*.md"
+    },
+    {
+      "id": "playbook",
+      "desc": "compliant-only 30/60/90 execution plan (M3)",
+      "output": "COMPLIANT-PLAYBOOK-*.md"
+    },
+    {
+      "id": "content_studio",
+      "desc": "Creator-facing Telegram UI: draft submission, calendar, trends, PPV plan, capacity, boundary-halt",
+      "runtime": "studio/creator_studio.py (renamed 2026-07-20 from a C-name file; legacy env/file names still accepted)"
+    },
+    {
+      "id": "cockpit",
+      "desc": "Operator-facing Telegram cockpit: self-aware status, gates, verdict queue, creator-studio bridge, weekly self-upgrade proposals",
+      "runtime": "langar/langar_bot.py"
+    },
+    {
+      "id": "brain_hitl",
+      "desc": "control-plane + 7 sub-agents (Strategist/Pricer/Scheduler/Copywriter/Analyst/Compliance-Guard/Ethics-Guard), tiered HITL routing",
+      "runtime": "brain/project_f_brain.py"
+    },
+    {
+      "id": "learning",
+      "desc": "exploration-aware learning: Thompson/UCB bandit + recency + eval harness, wired to real acquisition data",
+      "runtime": "brain/learning.py + brain/acquisition.py"
+    },
+    {
+      "id": "experimentation",
+      "desc": "A/B test tracker with significance thresholds",
+      "runtime": "brain/ab_tracker.py"
+    }
   ],
-
   "control_surface": {
     "description": "How the master observes and commands Project-F. All actuators are propose-only or read-only or kill-switch. No actuator performs an outward platform action.",
-
     "read_state_files": {
-      "load_order": ["_memory/onlyfans-project-memory-2026-07-05.md", "STATE-REPORT-2026-07-05.md", "CLAUDE.md", "PROJECT.md"],
+      "load_order": [
+        "_memory/onlyfans-project-memory-2026-07-05.md",
+        "STATE-REPORT-2026-07-05.md",
+        "CLAUDE.md",
+        "PROJECT.md"
+      ],
       "navigation": "INDEX.md",
       "live_status": "PROJECT.md#Active-Context",
       "decisions": "DecisionLog.md",
@@ -83,7 +132,6 @@
       "pending_verdicts": "THREAD-CLOSURE-D-2026-07-10.md#§9",
       "governing_charter": "CLAUDE.md"
     },
-
     "cockpit_commands_operator": {
       "runtime": "langar/langar_bot.py",
       "auth": "single Operator chat-id only; strangers get silence; OpsecGuard redacts every outbound message",
@@ -103,14 +151,28 @@
         "/revive": "clear KILL"
       }
     },
-
     "studio_actions_creator": {
       "runtime": "studio/creator_studio.py",
       "auth": "single Creator chat-id only; strangers get silence; zero media/PII ingested",
-      "callbacks": ["s:new", "s:drafts", "s:today", "s:cal", "s:trend", "s:ppv", "s:stats", "s:cap", "s:inbox", "s:scope", "s:rules", "s:brief"],
-      "commands": {"/halt": "BOUNDARY KILL-SWITCH: writes studio/HALT + notifies Operator", "/resume": "clear HALT"}
+      "callbacks": [
+        "s:new",
+        "s:drafts",
+        "s:today",
+        "s:cal",
+        "s:trend",
+        "s:ppv",
+        "s:stats",
+        "s:cap",
+        "s:inbox",
+        "s:scope",
+        "s:rules",
+        "s:brief"
+      ],
+      "commands": {
+        "/halt": "BOUNDARY KILL-SWITCH: writes studio/HALT + notifies Operator",
+        "/resume": "clear HALT"
+      }
     },
-
     "file_handoffs": {
       "creator_to_operator_queue": "studio/drafts.json (pending drafts; read by cockpit /saba)",
       "creator_to_operator_notes": "studio/to_operator.json (halt/boundary/resume events; legacy to_ari.json read as fallback)",
@@ -118,30 +180,81 @@
       "creator_capacity": "studio/capacity.json (weekly hours -> feeds delivery planning)",
       "boundary_changes": "studio/boundary_log.json (append-only, tightening events)"
     },
-
     "programmatic_api": {
-      "ProjectFBrain": {"module": "brain/project_f_brain.py", "key_methods": ["process_draft(draft_title, checks)", "compliance_guard(p, checks)", "ethics_guard(p, checks)", "archive(kind, outcome)", "spend(tokens)"]},
-      "AcquisitionBrain": {"module": "brain/acquisition.py", "key_methods": ["analyze()", "plan_week()", "feedback_loop(tag, platform, upvotes, comments, unlocks, day)", "suggest_next_action()"]},
-      "LearningBridge": {"module": "brain/learning.py", "key_methods": ["recommend(candidate_tags)", "ThompsonBandit.observe/select/rank/explain", "regret_eval_avg(true_means, ...)"]},
-      "ABTestTracker": {"module": "brain/ab_tracker.py", "key_methods": ["create_test", "record_result", "analyze", "auto_winner"]},
-      "ContentStudio": {"module": "studio/content_studio.py", "key_methods": ["submit_draft(title, self_cert)", "drafts_html()", "halt()"]}
+      "ProjectFBrain": {
+        "module": "brain/project_f_brain.py",
+        "key_methods": [
+          "process_draft(draft_title, checks)",
+          "compliance_guard(p, checks)",
+          "ethics_guard(p, checks)",
+          "archive(kind, outcome)",
+          "spend(tokens)"
+        ]
+      },
+      "AcquisitionBrain": {
+        "module": "brain/acquisition.py",
+        "key_methods": [
+          "analyze()",
+          "plan_week()",
+          "feedback_loop(tag, platform, upvotes, comments, unlocks, day)",
+          "suggest_next_action()"
+        ]
+      },
+      "LearningBridge": {
+        "module": "brain/learning.py",
+        "key_methods": [
+          "recommend(candidate_tags)",
+          "ThompsonBandit.observe/select/rank/explain",
+          "regret_eval_avg(true_means, ...)"
+        ]
+      },
+      "ABTestTracker": {
+        "module": "brain/ab_tracker.py",
+        "key_methods": [
+          "create_test",
+          "record_result",
+          "analyze",
+          "auto_winner"
+        ]
+      },
+      "ContentStudio": {
+        "module": "studio/content_studio.py",
+        "key_methods": [
+          "submit_draft(title, self_cert)",
+          "drafts_html()",
+          "halt()"
+        ]
+      }
     }
   },
-
   "kill_switches": [
-    {"scope": "cockpit", "trigger": "/kill OR touch langar/KILL", "effect": "cockpit refuses all commands except /status,/revive"},
-    {"scope": "studio/creator-boundary", "trigger": "/halt OR touch studio/HALT", "effect": "studio halts; Operator notified; boundary is supreme"},
-    {"scope": "brain-budget", "trigger": "spend > 2% cap (brain) or > AUD 15/mo (cockpit LLM)", "effect": "fail-closed, LLM calls blocked"},
-    {"scope": "platform-warning", "trigger": "any platform warning (per charter)", "effect": "stop the related automation immediately + log to DecisionLog"}
+    {
+      "scope": "cockpit",
+      "trigger": "/kill OR touch langar/KILL",
+      "effect": "cockpit refuses all commands except /status,/revive"
+    },
+    {
+      "scope": "studio/creator-boundary",
+      "trigger": "/halt OR touch studio/HALT",
+      "effect": "studio halts; Operator notified; boundary is supreme"
+    },
+    {
+      "scope": "brain-budget",
+      "trigger": "spend > 2% cap (brain) or > AUD 15/mo (cockpit LLM)",
+      "effect": "fail-closed, LLM calls blocked"
+    },
+    {
+      "scope": "platform-warning",
+      "trigger": "any platform warning (per charter)",
+      "effect": "stop the related automation immediately + log to DecisionLog"
+    }
   ],
-
   "budget_caps": {
     "tooling_api_monthly_aud": 100,
     "cockpit_llm_monthly_aud_until_first_revenue": 15,
     "brain_token_cap_pct_of_E_total": 2,
     "injection_monthly_aud": 200
   },
-
   "runtime": {
     "language": "Python 3, stdlib-only for bots/brain ($0 offline)",
     "entrypoints": {
@@ -159,12 +272,15 @@
     },
     "activation_gate": "Creating Telegram bots (BotFather) is an outward action = human only; per charter, any new automation runs 1 week in shadow-mode before live.",
     "dependencies": {
-      "self_contained": ["brain/*.py (except orchestrator)", "studio/*.py", "langar/*.py"],
+      "self_contained": [
+        "brain/*.py (except orchestrator)",
+        "studio/*.py",
+        "langar/*.py"
+      ],
       "external_cross_folder": "orchestrator.py imports _ops/neural (vault-level); runs only with the full vault mounted, not standalone",
       "connectors_needing_auth": "Notion/monday (Fable5 tracking) — until authorized, local markdown is source of truth"
     }
   },
-
   "verification": {
     "test_suites": {
       "brain/test_learning.py": "11 tests (bandit, exploration, recency, eval, persistence)",
@@ -174,26 +290,78 @@
     "last_run": "2026-07-10 — all green (29 unit tests) + brain HITL + full cross-system integration verified",
     "how_to_run": "cd <dir> && python3 -m unittest <test_module> -v"
   },
-
   "files_registry": {
-    "navigation": ["INDEX.md", "PROJECT.md", "STATE-REPORT-2026-07-05.md", "_memory/onlyfans-project-memory-2026-07-05.md", "CLAUDE.md"],
+    "navigation": [
+      "INDEX.md",
+      "PROJECT.md",
+      "STATE-REPORT-2026-07-05.md",
+      "_memory/onlyfans-project-memory-2026-07-05.md",
+      "CLAUDE.md"
+    ],
     "acquisition_canonical": "ACQUISITION-ENGINE-2026-07-05.md",
-    "strategy": ["MASTER-BUILD-2026-07-04.md", "Feet-Content-Business-Master-Playbook.md", "architecture-blueprint-2026-07-04.md", "MONETIZATION-EXPANSION-2026-07-04.md"],
-    "research_rounds": ["RESEARCH-INTEGRATION-round1.md", "RESEARCH-INTEGRATION-round2-2026-07-10.md", "research-results/", "external-research-2026-07-05/"],
-    "decisions_2026_07_10": ["DECISION-MATRIX-M2-2026-07-10.md", "COMPLIANT-PLAYBOOK-M3-2026-07-10.md", "DECISIONLOG-ENTRIES-M4-2026-07-10.md", "THREAD-CLOSURE-D-2026-07-10.md"],
+    "strategy": [
+      "01 - Strategy/MASTER-BUILD-2026-07-04.md",
+      "01 - Strategy/Feet-Content-Business-Master-Playbook.md",
+      "01 - Strategy/architecture-blueprint-2026-07-04.md",
+      "01 - Strategy/MONETIZATION-EXPANSION-2026-07-04.md"
+    ],
+    "research_rounds": [
+      "02 - Research/RESEARCH-INTEGRATION-round1.md",
+      "02 - Research/RESEARCH-INTEGRATION-round2-2026-07-10.md",
+      "research-results/",
+      "external-research-2026-07-05/"
+    ],
+    "decisions_2026_07_10": [
+      "02 - Research/DECISION-MATRIX-M2-2026-07-10.md",
+      "02 - Research/COMPLIANT-PLAYBOOK-M3-2026-07-10.md",
+      "02 - Research/DECISIONLOG-ENTRIES-M4-2026-07-10.md",
+      "THREAD-CLOSURE-D-2026-07-10.md"
+    ],
     "drafts_awaiting_gate": "drafts-awaiting-gate/ (link-hub-copy, x-profile, tracking-link-design, ppv-ladder, kpi-dashboard-spec)",
-    "brain": ["PROJECT-F-BRAIN-SPEC.md", "BRAIN-BENCHMARK-2026-07-10.md", "brain/project_f_brain.py", "brain/acquisition.py", "brain/learning.py", "brain/ab_tracker.py", "brain/dual_brain_v3.py", "orchestrator.py"],
-    "cockpit": ["langar/LANGAR-SPEC.md", "langar/langar_bot.py", "langar/README-RUNBOOK.md"],
-    "studio": ["studio/SABA-STUDIO-SPEC.md", "studio/creator_studio.py", "studio/content_studio.py", "studio/README-SABA-RUNBOOK.md"],
-    "ops_consent": ["DecisionLog.md", "OpenQuestions.md"]
+    "brain": [
+      "06 - Ops & Runtime/PROJECT-F-BRAIN-SPEC.md",
+      "BRAIN-BENCHMARK-2026-07-10.md",
+      "brain/project_f_brain.py",
+      "brain/acquisition.py",
+      "brain/learning.py",
+      "brain/ab_tracker.py",
+      "brain/dual_brain_v3.py",
+      "orchestrator.py"
+    ],
+    "cockpit": [
+      "langar/LANGAR-SPEC.md",
+      "langar/langar_bot.py",
+      "langar/README-RUNBOOK.md"
+    ],
+    "studio": [
+      "studio/SABA-STUDIO-SPEC.md",
+      "studio/creator_studio.py",
+      "studio/content_studio.py",
+      "studio/README-SABA-RUNBOOK.md"
+    ],
+    "ops_consent": [
+      "DecisionLog.md",
+      "OpenQuestions.md"
+    ]
   },
-
   "escalation_protocol": {
     "sub_project_flags_up": "Any conflict with a locked rule -> do NOT execute, flag with source tag '⚑ برای معمار' (for the Architect) + propose safe alternative.",
-    "master_must_escalate_to_human": ["GATE 0 decision (Branch A/B)", "any hard-gated action", "any locked-rule change request", "any platform warning", "any pricing/offer decision"],
-    "master_may_do_autonomously": ["read all state", "request status from cockpit/studio", "task propose-only research/drafts/analysis", "trigger kill-switches", "run test suites", "read learning explain() for transparency"]
+    "master_must_escalate_to_human": [
+      "GATE 0 decision (Branch A/B)",
+      "any hard-gated action",
+      "any locked-rule change request",
+      "any platform warning",
+      "any pricing/offer decision"
+    ],
+    "master_may_do_autonomously": [
+      "read all state",
+      "request status from cockpit/studio",
+      "task propose-only research/drafts/analysis",
+      "trigger kill-switches",
+      "run test suites",
+      "read learning explain() for transparency"
+    ]
   },
-
   "open_pending_verdicts": [
     "GATE 0 full closure — source-of-residency field + C's written agreement confirmation + questionnaire item (Branch A attested by A 2026-07-20)",
     "adopt Compliant Playbook M3 (+ shoot split M3-a)",
@@ -210,5 +378,8 @@
     "body expansion => FROZEN (DL-2026-07-20-BODY-FREEZE; VQ-PF-003 closed)",
     "Fansly => mirror + discovery-first (DL-2026-07-20-RATIFICATION)",
     "repo remote question => NO (never pushed; R10 required before any future remote)"
-  ]
+  ],
+  "status_snapshots": {
+    "reorg_2026_07_24": "files_registry paths updated to reflect numbered-folder reorg (01-09). code-coupled root files unchanged. see 00 - Control/REORG-LOG-2026-07-24.md"
+  }
 }

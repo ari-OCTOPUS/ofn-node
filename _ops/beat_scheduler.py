@@ -36,6 +36,8 @@ for _p in (str(_HERE), str(_HERE / "budget"), str(_HERE / "spine")):
 
 FLAG = "OCTOPUS_ONE_HEARTBEAT"
 ACT_ARMED_FLAG = "OCTOPUS_ONE_HEARTBEAT_ACT_ARMED"   # retained only for compatibility/status
+# stage-3.2 (2026-07-24): organs مستقلِ یک فاز می‌توانند موازی اجرا شوند (conflict-detected).
+_PARALLEL_FLAG = "OCTOPUS_BEAT_PARALLEL"   # پیش‌فرض خاموش = serial (رفتارِ امروز)
 PHASES = ("SENSE", "RECORD", "THINK", "DECIDE", "PROPOSE", "ACT", "LEARN", "HEAL")
 # C7.2: generic scheduler has no transactional outbox yet. Production composition must
 # never register phases whose retry could duplicate an effect or durable learning write.
@@ -217,15 +219,25 @@ class BeatScheduler:
                 continue
             if recovery_block and phase in ("ACT", "LEARN"):
                 continue
-            for org in [o for o in self._organs if o.phase == phase]:
-                if beat % org.every_n_beats != 0:
-                    continue
-                if org.quarantined_until >= beat:
-                    results[org.name] = {"skipped": "quarantined", "until": org.quarantined_until}
-                    continue
+            # organs این فاز که باید این beat اجرا شوند (cadence + quarantine)
+            due = [o for o in self._organs if o.phase == phase
+                   if beat % o.every_n_beats == 0 and o.quarantined_until < beat]
+            for org in due:
                 order.append(org.name)
-                dry = (phase == "ACT") and not act_armed   # ACT پیش‌فرض dry-run
-                results[org.name] = self._run_organ(org, beat, halt_reason, dry)
+            # PARALLEL (stage-3.2، پشتِ flag): organs مستقلِ یک فاز موازی اجرا می‌شوند
+            # اگر write-set ناهمپوشان داشته باشند؛ وگرنه serial (امروز). flag خاموش = امروز.
+            if (str(os.environ.get(_PARALLEL_FLAG, "")).strip().lower()
+                    in ("1", "true", "yes", "on") and len(due) > 1
+                    and self._independent(due)):
+                results.update(self._run_phase_parallel(due, beat, halt_reason, act_armed, phase))
+            else:
+                for org in due:
+                    dry = (phase == "ACT") and not act_armed
+                    results[org.name] = self._run_organ(org, beat, halt_reason, dry)
+            # organs قرنطینه‌شده را هم ثبت کن (نه فقط skip خاموش)
+            for org in [o for o in self._organs if o.phase == phase
+                        if beat % o.every_n_beats == 0 and o.quarantined_until >= beat]:
+                results[org.name] = {"skipped": "quarantined", "until": org.quarantined_until}
         # system.beat → spine (فاز RECORD‌گونه: خودِ ضربان ثبت می‌شود)
         self._emit_beat(beat, halt_reason, order)
         # B14: commitِ نهایی **چک می‌شود** — اگر persist نشد، beat committed نیست → degraded،
@@ -280,6 +292,41 @@ class BeatScheduler:
                 org.fail_streak = 0
             return {"ok": False, "error": type(e).__name__,
                     "quarantined": org.quarantined_until >= beat + 1}
+
+    # ── stage-3.2: parallel execution inside a phase (conflict-detected) ──────
+    @staticmethod
+    def _independent(organs: list) -> bool:
+        """آیا organsِ یک فاز مستقل‌اند؟ یعنی هیچ write-set مشترکی ندارند.
+        اگر هر write-set با write-setِ دیگری اشتراک دارد → serial لازم (safe).
+        organs بدونِ write_set همیشه مستقل فرض می‌شوند (read-only)."""
+        for i, a in enumerate(organs):
+            wa = set(a.write_set or ())
+            for b in organs[i + 1:]:
+                wb = set(b.write_set or ())
+                if wa and wb and (wa & wb):
+                    return False   # همپوشانیِ write → رقابت → serial
+        return True
+
+    def _run_phase_parallel(self, organs: list, beat, halt_reason, act_armed, phase) -> dict:
+        """اجرای موازیِ organs مستقلِ یک فاز با ThreadPoolExecutor.
+        thread-safety: هر organ فقط به selfِ خودش می‌نویسد (runs/fails/quarantined_until)،
+        ticks خود سریال‌اند (organism loop یکی‌یکی tick می‌زند) پس هم‌پوشانیِ بین-beat نیست.
+        실패ِ یک organ بقیه را نمی‌کشد (failure isolation حفظ می‌شود)."""
+        import concurrent.futures
+        results = {}
+        dry_default = (phase == "ACT") and not act_armed
+        # محدودِ modest: بیشینهٔ workers = تعدادِ organs (معمولاً کم) ولی کف ۲.
+        max_w = max(2, len(organs))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_w) as ex:
+            future_map = {ex.submit(self._run_organ, org, beat, halt_reason, dry_default): org
+                          for org in organs}
+            for fut in concurrent.futures.as_completed(future_map):
+                org = future_map[fut]
+                try:
+                    results[org.name] = fut.result()
+                except Exception as e:  # noqa: BLE001 — defense-in-depth: نباید اتفاق بیفتد
+                    results[org.name] = {"ok": False, "error": f"parallel:{type(e).__name__}"}
+        return results
 
     @staticmethod
     def heartbeat_health(state_path=None, *, stall_after_s: float = 900.0, now=None) -> dict:
