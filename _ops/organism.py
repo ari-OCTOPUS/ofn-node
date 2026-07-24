@@ -579,6 +579,12 @@ def main() -> int:
                     _w.reconcile_beat(day=opslib.today())
                 except Exception:  # noqa: BLE001 — §۴
                     opslib.alert(["reconcile_beat error (non-fatal)"])
+                # گاف #۱ دبل‌چک: اکچوایتورِ تصمیم‌های تأییدشده، پشتِ OCTOPUS_WIRE_ACTUATOR
+                # (پیش‌فرض خاموش). $0، بدونِ اکشنِ خودکار/بیرونی — فقط visibility.
+                try:
+                    _w.actuator_beat()
+                except Exception:  # noqa: BLE001 — §۴
+                    opslib.alert(["actuator_beat error (non-fatal)"])
                 # Blueprint P6 (2026-07-10): متریک فیشر — advisory فقط، پشتِ flag
                 # (عمداً خارج از profile؛ وزن‌های واقعی فقط از budgets.yaml — I4/I6).
                 if _w.flag("OCTOPUS_WIRE_FISHER"):

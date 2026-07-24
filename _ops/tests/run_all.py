@@ -220,6 +220,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_registry_scan.py", "test_phase1_envelope.py",
          "test_route_scorer.py", "test_calibration_probe.py", "test_consolidate.py",
          "test_execution_board.py", "test_depth_guard.py", "test_guidance_box.py",
+         # WS-9 (Painting-OS): اکچوایتورِ approval — رفعِ «تأییدشده ولی بی‌اکشن» (visibility، flag-off)
+         "test_approval_actuator.py",
          "test_tg_api.py", "test_tg_actions.py", "test_tg_render.py", "test_tg_center.py",
          "test_tg_power.py",   # 2026-07-17: مرکزِ فرماندهی (مکثِ تک‌پا + ردهٔ قدرتِ دوکلیک)
          "test_tg_mission.py", # 2026-07-18: Mission Genome + Action Graph برای self-coding کنترل‌شده

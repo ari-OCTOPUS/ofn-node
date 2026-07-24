@@ -622,6 +622,7 @@ def wire_summary() -> dict:
         "wire_evolution": flag("OCTOPUS_WIRE_EVOLUTION"), # P-N1: Doctor evolution
         "wire_box": flag("OCTOPUS_WIRE_BOX"),             # P-N2: Box-of-Agents
         "wire_leg_tick": flag("OCTOPUS_WIRE_LEAD_TICK"),  # P-L1: LeadLeg HLC loop
+        "wire_actuator": flag("OCTOPUS_WIRE_ACTUATOR"),   # گاف #۱: اکچوایتورِ approval (visibility)
         "wire_ideas": flag("OCTOPUS_WIRE_IDEAS"),        # P-I: idea-graph engine
         "wire_spectral": flag("OCTOPUS_WIRE_SPECTRAL"),  # P-spectral: spectral bottleneck
         "wire_rhythm": flag("OCTOPUS_WIRE_NEURAL"),      # rhythm (shares neural flag)
@@ -834,6 +835,28 @@ def reconcile_beat(reconcile_dir=None, day: str = "") -> dict | None:
         return report
     except Exception as e:  # noqa: BLE001 — §۴
         opslib.alert([f"wiring: reconcile_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# A1b · actuator_beat — اکچوایتورِ تصمیم‌های تأییدشده (رفعِ گاف #۱، پشتِ flag)
+# ════════════════════════════════════════════════════════════════════════════════
+
+def actuator_beat() -> dict | None:
+    """اکچوایتورِ تصمیم‌های تأییدشده را بچرخان. پشتِ OCTOPUS_WIRE_ACTUATOR (پیش‌فرض
+    خاموش، خارج از paper-full — approvalها شاملِ پول‌اند). kill-switch اول. $0،
+    بدونِ spend، بدونِ اکشنِ بیرونی/خودکار (فقط visibility + seamِ handler)."""
+    if not flag("OCTOPUS_WIRE_ACTUATOR"):
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    try:
+        if str(_HERE / "cortex") not in sys.path:
+            sys.path.insert(0, str(_HERE / "cortex"))
+        import approval_actuator
+        return approval_actuator.run()
+    except Exception as e:  # noqa: BLE001 — §۴
+        opslib.alert([f"wiring: actuator_beat خطا: {type(e).__name__}: {e}"])
         return None
 
 
