@@ -206,6 +206,7 @@ def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
     if not want and os.environ.get("CORTEX_ROUTE_SCORER"):
         want = _scored_tier(task)
     want = want or TASK_TIERS.get(task, "local")
+    if __import__("os").environ.get("OCTOPUS_WIRE_ROUTE_SHADOW") == "1": __import__("now_moves.route_scorer_shadow_log", fromlist=["log_decision"]).log_decision(task, want)  # M7 (now_moves): flag-gated shadow log — default OFF; rollback = delete this line
     _lo_rejected = None      # جوابِ محلیِ رد-کیفیت — اگر پولی هم شکست، بهتر از هیچ
     if want in ("secondary", "primary"):
         # 2026-07-16 محلی-اول (اقتصادِ مغز، رأی مالک «محلی رایگان، پولی فقط برای کارِ بزرگ»):

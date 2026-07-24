@@ -104,14 +104,17 @@ def gather_inputs(beat: int = 0) -> dict:
     except (OSError, ValueError):
         sigma = None
     budget_remaining = None
+    budget_spent = None
     try:
         p = opslib.STATE_DIR / "cardiac-budget.json"
         if p.exists():
             d = json.loads(p.read_text("utf-8"))
             if d.get("date") == opslib.today():
-                budget_remaining = max(0, DAILY_BEAT_CAP - int(d.get("spent", 0)))
+                budget_spent = int(d.get("spent", 0))
+                budget_remaining = max(0, DAILY_BEAT_CAP - budget_spent)
     except (OSError, ValueError):
         budget_remaining = None
+        budget_spent = None
     prev = {}
     try:
         p = opslib.STATE_DIR / "pulse" / "heart-shadow-latest.json"
@@ -124,6 +127,7 @@ def gather_inputs(beat: int = 0) -> dict:
     return {"beat": beat, "velocity": signals.get("velocity"),
             "cpi": signals.get("cpi"), "delta": signals.get("delta_self"),
             "sigma": sigma, "budget_remaining": budget_remaining,
+            "budget_spent": budget_spent,
             "lock": sog_math.read_lock(), "prev": prev}
 
 
@@ -218,11 +222,17 @@ def heart_step(inputs: dict, setpoint: "hi.HeartParams | None" = None
     period_raw *= cpi_guard
     gates["cpi_guard"] = round(cpi_guard, 3)
 
-    # ۶) فشارِ بودجهٔ ضربان — monotone و ≥1
+    # ۶) فشارِ بودجهٔ ضربان — monotone و ≥1. cap از setpointِ مالک (daily_beat_cap جزوِ
+    # HeartParams است — «/heart set cap» باید همین‌جا اثرِ واقعی کند، نه فقط در نمایشِ digest؛
+    # درسِ ممیزیِ 07-24: knobِ مالک به enforcement سیم نبود). spent غایب → مسیرِ قدیم بایت‌به‌بایت.
+    cap = int(sp.daily_beat_cap or DAILY_BEAT_CAP)
     rem = inputs.get("budget_remaining")
+    spent = inputs.get("budget_spent")
+    if spent is not None:
+        rem = max(0, cap - int(spent))
     bp = 1.0
     if rem is not None:
-        frac = _clamp(rem / max(DAILY_BEAT_CAP, 1), 0.0, 1.0)
+        frac = _clamp(rem / max(cap, 1), 0.0, 1.0)
         bp = 1.0 if frac >= 0.5 else 1.0 + (0.5 - frac) * 2.0   # تا ۲× در ته‌کشیدن
         if rem == 0:
             period_raw = max(period_raw, MAX_S * 0.6)

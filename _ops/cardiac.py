@@ -100,16 +100,42 @@ def bio_rhythm(mass: float | None = None) -> dict:
 # ════════════════════════════════════════════════════════════════════════════════
 # قانونِ ۲ — BeatBudget: بودجهٔ ضربان (~۱۰⁹، مجبور به انتخاب)
 # ════════════════════════════════════════════════════════════════════════════════
+def _setpoint_cap(state_dir: Path | None = None) -> int | None:
+    """capِ روزانه از setpointِ قلب (knobِ مالک: «/heart set cap» → HeartParams.daily_beat_cap).
+    ممیزیِ 07-24: digest این cap را نمایش می‌داد ولی enforcement (همین BeatBudget) فقط env را
+    می‌خواند — knob سبزِ دروغ بود. کران (0,2000] = ABS_BEAT_CAP_MAX ِ interface؛ خارجِ کران/غایب
+    → None (fallback به daily_cap). fail-soft، هر tick یک readِ کوچک.
+    state_dir تزریقی است تا از همان درختی خوانده شود که budget در آن می‌نویسد (ایزولاسیون)."""
+    try:
+        p = (state_dir or opslib.STATE_DIR) / "pulse" / "heart-setpoint-latest.json"
+        if not p.exists():
+            return None
+        c = int(json.loads(p.read_text("utf-8")).get("daily_beat_cap") or 0)
+        return c if 0 < c <= 2000 else None
+    except (OSError, ValueError, TypeError):
+        return None
+
+
 class BeatBudget:
     """بودجهٔ ضربانِ روزانه. وقتی تمام شد، pacemaker فقط ضربانِ پایه می‌زند
     (نه کارِ ارزشمند). این، سیستم را مجبور به انتخاب می‌کند — پادزهرِ ماشینِ معمار‌ساز.
     thread-safe، disk-backed (state/cardiac-budget.json)."""
 
-    def __init__(self, daily_cap: int = BIO_DAILY_BEAT_CAP,
+    def __init__(self, daily_cap: int | None = None,
                  path: Path | None = None):
-        self.daily_cap = int(daily_cap)
+        # daily_cap صریح (تست/فراخوان) همیشه برنده است؛ فقط پیش‌فرض اجازه می‌دهد
+        # setpointِ مالک آن را override کند — تا knobِ «/heart set cap» واقعاً اثر کند
+        # بی‌آنکه سقفِ صریحِ یک فراخوان بی‌صدا عوض شود.
+        self._cap_explicit = daily_cap is not None
+        self.daily_cap = int(daily_cap if daily_cap is not None else BIO_DAILY_BEAT_CAP)
         self.path = path or (opslib.STATE_DIR / "cardiac-budget.json")
         self._lk = threading.Lock()
+
+    def _cap(self) -> int:
+        """سقفِ مؤثر: صریح → همان؛ وگرنه setpointِ قلب (کنارِ همین state) یا پیش‌فرضِ env."""
+        if self._cap_explicit:
+            return self.daily_cap
+        return _setpoint_cap(self.path.parent) or self.daily_cap
 
     def _load(self) -> dict:
         try:
@@ -147,8 +173,9 @@ class BeatBudget:
                 d["resting"] = int(d.get("resting", 0)) + 1
             self._save(d)
             # .get: فایلِ دست‌کاری‌شدهٔ بدونِ spent در مسیرِ resting دیگر KeyError نمی‌دهد.
-            remaining = max(0, self.daily_cap - int(d.get("spent", 0)))
-            depleted = int(d.get("spent", 0)) >= self.daily_cap
+            cap = self._cap()
+            remaining = max(0, cap - int(d.get("spent", 0)))
+            depleted = int(d.get("spent", 0)) >= cap
             return {"remaining": remaining, "depleted": depleted,
                     "mode": "resting-only" if depleted else "active"}
 
@@ -161,11 +188,12 @@ class BeatBudget:
         # depletedِ کهنه (دیروز) را می‌دید — periodِ کش‌آمده + خرجِ resting به‌جای active.
         if d.get("date") != self._today():
             d = {"date": self._today(), "spent": 0, "resting": 0}
+        cap = self._cap()
         return {"enabled": True, "date": d.get("date"),
                 "spent": d.get("spent", 0), "resting": d.get("resting", 0),
-                "daily_cap": self.daily_cap,
-                "remaining": max(0, self.daily_cap - d.get("spent", 0)),
-                "depleted": d.get("spent", 0) >= self.daily_cap}
+                "daily_cap": cap,
+                "remaining": max(0, cap - d.get("spent", 0)),
+                "depleted": d.get("spent", 0) >= cap}
 
 
 # ════════════════════════════════════════════════════════════════════════════════

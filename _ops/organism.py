@@ -32,6 +32,7 @@ import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from contextlib import contextmanager
 
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE / "budget"))
@@ -54,10 +55,21 @@ except Exception as _ee:  # noqa: BLE001 — additive؛ نبودش نباید م
     _events = None
     print(f"organism: events لود نشد ({_ee}) — بدون correlation_idِ run-scoped ادامه می‌دهیم")
 
+try:   # stage-3 گام ۱ (2026-07-24): probeٔ اندازه‌گیریِ مدتِ فازها — additive
+    import tick_timing as _tt  # noqa: E402
+except Exception:  # noqa: BLE001 — probe نباید متابولیسم را بکشد
+    _tt = None
+
 PORT = 8771
 TICK_SECONDS = 300           # تیک سبک ۵ دقیقه‌ای؛ epoch واقعی آلوستاتیک است
 STATE_FILE = opslib.STATE_DIR / "ORGANISM-STATE.json"
 START_TS = opslib.now_iso()
+
+
+@contextmanager
+def _noop_ctx():
+    """context manager خالی برای وقتی tick_timing غایب یا flag خاموش است."""
+    yield
 
 # A3 (تری‌اسکن 2026-07-17): حسگرِ نسخهٔ کد. در بوت، (mtime,size) ماژول‌های بارشده را
 # در یک سایدکارِ جدا می‌نویسیم تا کاکپیت بتواند «کدِ در حالِ اجرا کهنه‌تر از دیسک است»
@@ -124,6 +136,18 @@ class _StatusHandler(BaseHTTPRequestHandler):
     }
 
     def do_GET(self):  # noqa: N802
+        if self.path == "/api/tick-timing":
+            # stage-3 گام ۱: خلاصهٔ اندازه‌گیریِ مدتِ فازها (probe، additive، $0)
+            try:
+                import tick_timing as _ttx
+                body = json.dumps(_ttx.recent_summary(), ensure_ascii=False).encode("utf-8")
+            except Exception:  # noqa: BLE001
+                body = b'{"enabled": false, "reason": "probe unavailable"}'
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(body)
+            return
         if self.path in self.ROUTES:
             p = self.ROUTES[self.path]
             body = p.read_bytes() if p.exists() else b"{}"
@@ -568,7 +592,10 @@ def main() -> int:
             _doctor_result = None
             if not _protective_skip and _doctor_inst is not None and _cstat is not None:
                 try:
-                    _doctor_result = _w.doctor_beat(_doctor_inst, _cstat.get("beat", 0))
+                    _db_t0 = _tt.timing("doctor_beat", beat=_cstat.get("beat", 0)) \
+                        if _tt is not None else _noop_ctx()
+                    with _db_t0:
+                        _doctor_result = _w.doctor_beat(_doctor_inst, _cstat.get("beat", 0))
                 except Exception:  # noqa: BLE001 — §۴: خطای خاموش ممنوع (Doctor نباید tick را بکشد)
                     opslib.alert(["doctor_beat error (non-fatal)"])
             # ── Doctor self-knowledge (2026-07-18): «باهوش و فعال» — یادگیریِ فقط‌خواندنیِ
@@ -635,8 +662,11 @@ def main() -> int:
             _leg_status = None
             if not _protective_skip and _leg is not None and _pacemaker is not None:
                 try:
-                    _leg_status = _w.leg_beat(_leg, pacemaker=_pacemaker,
-                                              beat=_cstat.get("beat", 0) if _cstat else 0)
+                    _lb_t0 = _tt.timing("leg_beat", beat=_cstat.get("beat", 0) if _cstat else 0) \
+                        if _tt is not None else _noop_ctx()
+                    with _lb_t0:
+                        _leg_status = _w.leg_beat(_leg, pacemaker=_pacemaker,
+                                                  beat=_cstat.get("beat", 0) if _cstat else 0)
                 except Exception as _le:  # noqa: BLE001 — §۴: leg نباید tick را بکشد
                     opslib.alert([f"leg_beat error (non-fatal): {type(_le).__name__}: {_le}"])
             # ── Ziman limb: local proposal-only beat. جدا از Lead/HLC است تا
@@ -644,10 +674,13 @@ def main() -> int:
             _ziman_status = None
             if not _protective_skip and _ziman_leg is not None:
                 try:
-                    _ziman_status = _w.ziman_beat(
-                        _ziman_leg,
-                        beat=_cstat.get("beat", 0) if _cstat else 0,
-                        doctor=_doctor_inst)
+                    _zb_t0 = _tt.timing("ziman_beat", beat=_cstat.get("beat", 0) if _cstat else 0) \
+                        if _tt is not None else _noop_ctx()
+                    with _zb_t0:
+                        _ziman_status = _w.ziman_beat(
+                            _ziman_leg,
+                            beat=_cstat.get("beat", 0) if _cstat else 0,
+                            doctor=_doctor_inst)
                 except Exception as _ze:  # noqa: BLE001 — limb نباید tick را بکشد
                     opslib.alert([f"ziman_beat error (non-fatal): {type(_ze).__name__}: {_ze}"])
             _ziman_last = _ziman_status or _ziman_last   # برنامه ۷: کش برای رایت‌های off-beat

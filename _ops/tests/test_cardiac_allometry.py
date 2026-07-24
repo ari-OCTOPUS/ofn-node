@@ -18,9 +18,14 @@ _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE.parent))           # _ops/
 sys.path.insert(0, str(_HERE.parent / "budget"))
 
-import cardiac
 import harness
 ENV = harness.setup("cardiac-allometry")   # ایزولاسیون — alert/state به vault موقت، نه واقعی
+
+# ترتیب حیاتی است: opslib مسیرها را در *لحظهٔ import* از env می‌بندد. تا 2026-07-24 این
+# فایل `import cardiac` را پیش از setup داشت، پس opslib.STATE_DIR به درختِ زندهٔ F:\backup
+# می‌خورد و ادعای ایزولاسیونِ همین خط دروغ بود (سبزِ کاذب: هیچ تستی خطا نمی‌داد چون
+# BeatBudget همیشه path صریح می‌گرفت). setup اول ⇒ کل ماژول واقعاً در vault موقت.
+import cardiac  # noqa: E402
 
 
 def _setbio(on: bool):
@@ -283,6 +288,56 @@ def test_cardiac_does_not_import_chrono_internals():
     assert not found, f"cardiac نباید به chrono internals دست بزند: {found}"
 
 
+def _write_setpoint(state_dir: Path, cap):
+    (state_dir / "pulse").mkdir(parents=True, exist_ok=True)
+    (state_dir / "pulse" / "heart-setpoint-latest.json").write_text(json.dumps(
+        {"schema": "HeartParams.v1", "target_sigma": 1.0, "viable_band_lo": 0.5,
+         "viable_band_hi": 6.0, "epoch_seq": 3, "daily_beat_cap": cap}), "utf-8")
+
+
+def test_budget_cap_follows_owner_setpoint():
+    """knobِ مالک («/heart set cap» → daily_beat_cap) باید enforcement را واقعاً عوض کند،
+    نه فقط نمایشِ digest را. capِ صریحِ سازنده همیشه برنده است (ایزولاسیونِ فراخوان)."""
+    _setbio(True)
+    with tempfile.TemporaryDirectory() as td:
+        sd = Path(td)
+        bud = sd / "cardiac-budget.json"
+        _write_setpoint(sd, 2)
+        try:
+            b = cardiac.BeatBudget(path=bud)          # بدونِ capِ صریح → setpoint حاکم
+            assert b.spend("active")["remaining"] == 1
+            r = b.spend("active")
+            assert r["depleted"] is True and r["mode"] == "resting-only", r
+            assert b.status()["daily_cap"] == 2
+            # capِ صریح: setpoint نباید آن را بی‌صدا عوض کند
+            b2 = cardiac.BeatBudget(daily_cap=50, path=sd / "b2.json")
+            assert b2.status()["daily_cap"] == 50
+            # setpointِ خارج از کرانِ ABS (۲۰۰۰) نادیده گرفته می‌شود → پیش‌فرض
+            _write_setpoint(sd, 999999)
+            assert cardiac.BeatBudget(path=sd / "b3.json").status()["daily_cap"] \
+                == cardiac.BIO_DAILY_BEAT_CAP
+            _write_setpoint(sd, "خراب")
+            assert cardiac.BeatBudget(path=sd / "b4.json").status()["daily_cap"] \
+                == cardiac.BIO_DAILY_BEAT_CAP
+        finally:
+            _setbio(False)
+
+
+def test_budget_reads_setpoint_next_to_its_own_state():
+    """setpoint از کنارِ همان state خوانده می‌شود که budget در آن می‌نویسد —
+    وگرنه تستِ ایزوله سقفِ درختِ زنده را می‌خواند (نشتِ 2026-07-24)."""
+    _setbio(True)
+    with tempfile.TemporaryDirectory() as td:
+        sd = Path(td)
+        try:
+            assert cardiac._setpoint_cap(sd) is None      # هنوز setpointی نیست
+            _write_setpoint(sd, 7)
+            assert cardiac._setpoint_cap(sd) == 7
+            assert cardiac.BeatBudget(path=sd / "bud.json").status()["daily_cap"] == 7
+        finally:
+            _setbio(False)
+
+
 if __name__ == "__main__":
     failed = harness.run([
         ("bio_rhythm خاموش = base", test_bio_rhythm_flag_off_is_base),
@@ -294,6 +349,8 @@ if __name__ == "__main__":
         ("budget reset روزانه", test_budget_resets_on_new_day),
         ("budget resting رایگان", test_budget_resting_free),
         ("budget thread-safety", test_budget_thread_safety),
+        ("budget cap = setpointِ مالک (صریح برنده)", test_budget_cap_follows_owner_setpoint),
+        ("budget setpoint را کنارِ state خودش می‌خواند", test_budget_reads_setpoint_next_to_its_own_state),
         ("baroreflex خاموش = noop", test_baroreflex_flag_off_noop),
         ("baroreflex شتاب", test_baroreflex_acceleration),
         ("baroreflex فشار → کُندی", test_baroreflex_pressure_slowdown),

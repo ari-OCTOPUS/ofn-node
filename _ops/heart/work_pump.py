@@ -62,10 +62,18 @@ def _read_json(p: Path) -> dict:
         return {}
 
 
+def _syspath(p) -> None:
+    """افزودنِ idempotent به sys.path — این توابع per-beat صدا زده می‌شوند و insertِ
+    بی‌گارد هر پنجره یک ورودیِ تکراری می‌ساخت (نشتِ اندازه‌گیری‌شدهٔ 2026-07-24)."""
+    s = str(p)
+    if s not in sys.path:
+        sys.path.insert(0, s)
+
+
 def _emit_event(name: str, agent: str, **kw) -> None:
     """emitِ رویدادِ ساختاریافته برای داشبورد — fail-soft، هرگز پمپ را نمی‌کشد."""
     try:
-        sys.path.insert(0, str(_HERE.parent))
+        _syspath(_HERE.parent)
         import events
         events.emit(name, agent, **kw)
     except Exception:  # noqa: BLE001
@@ -135,7 +143,7 @@ def _exec_paid_lane(kind: str, tpl: dict) -> dict:
     if kind == "llm_learn":
         # جلسه ۴۶ (لایهٔ فراشناختی): یادگیریِ LLM = سنتزِ مغز (fugu→glm→local، متر داخلِ روتر)
         try:
-            sys.path.insert(0, str(_HERE.parent / "cortex"))
+            _syspath(_HERE.parent / "cortex")
             import synthesis as _syn
             return _syn.run_and_persist()
         except Exception as e:  # noqa: BLE001 — سنتز نباید pump را بکشد
@@ -155,7 +163,7 @@ def _exec_web_research() -> dict:
     # گپِ مدرسه خالی → web_research خودش از موضوع‌های کنجکاویِ پیش‌فرض استفاده می‌کند
     # (رأی مالک: یادگیری همیشه زنده باشد، نه فقط وقتی گپ هست).
     try:
-        sys.path.insert(0, str(_HERE.parent / "cortex"))
+        _syspath(_HERE.parent / "cortex")
         import web_research as _wr
         _seed = int(dt.datetime.now().timestamp() // 43200)   # چرخشِ موضوعِ پیش‌فرض هر ~۱۲h
         return _wr.run_and_persist(topics, beat=_seed)

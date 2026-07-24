@@ -11,6 +11,7 @@ w-slow یعنی: تغییرِ کند، کران‌دار، hysteresis سخت —
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -152,7 +153,8 @@ def llm_refine(setpoint: "hi.HeartParams", signals: dict) -> dict | None:
         return None
     # (پشتِ گیت — فقط وقتی مالک باز کند اجرا می‌شود؛ $0 تا آن روز)
     try:
-        sys.path.insert(0, str(opslib.DEBATE_DIR))
+        if str(opslib.DEBATE_DIR) not in sys.path:   # WS-2: idempotent — نشتِ sys.path per-epoch
+            sys.path.insert(0, str(opslib.DEBATE_DIR))
         from client import DeepSeekClient  # noqa: E402
         import organ_gate                  # noqa: E402
         system = ("You are the w-slow modulator of a hybrid heart. Given signals, "
@@ -165,6 +167,8 @@ def llm_refine(setpoint: "hi.HeartParams", signals: dict) -> dict | None:
         # CONTEXT-FENCE (observe-only، پشتِ OCTOPUS_WIRE_CONTEXT_FENCE): سیگنال/setpoint
         # دادهٔ بازیابی‌شده است نه دستور؛ غربالِ injection پیش از provider — هرگز بلاک/
         # تغییرِ prompt. فلگ خاموش یا هر خطا = مسیرِ قدیم بایت‌به‌بایت (fail-soft).
+        # توجه: model_router خودش همین غربال را داخلِ _ask_impl می‌زند، پس مسیرِ router
+        # زیر آن پوشش است؛ مسیرِ bespokeِ قدیم این بلوکِ صریح را نگه می‌دارد.
         try:
             _cx = str(_HERE.parent / "cortex")
             if _cx not in sys.path:
@@ -173,6 +177,27 @@ def llm_refine(setpoint: "hi.HeartParams", signals: dict) -> dict | None:
             fence_adapter.screen_llm_input("heart.doctor_setpoint", [("memory", user)])
         except Exception:  # noqa: BLE001 — غربال هرگز دکتر را نمی‌کشد
             pass
+        # fugu-everywhere (2026-07-24): مسیرِ درِ واحدِ مغز پشتِ OCTOPUS_HEART_DOCTOR_USE_ROUTER.
+        # وقتی ۱ → از model_router.ask (tier=secondary، کارِ متوسط)؛ خودش organ_gate +
+        # context-fence + local-first + fallback دارد. وقتی ۰ (پیش‌فرض) → مسیرِ bespokeِ زیر.
+        if str(os.environ.get("OCTOPUS_HEART_DOCTOR_USE_ROUTER", "")).strip().lower() in ("1", "true", "yes"):
+            try:
+                _cx2 = str(_HERE.parent / "cortex")
+                if _cx2 not in sys.path:
+                    sys.path.insert(0, _cx2)
+                from model_router import ask as _router_ask  # noqa: WPS433 — lazy
+                r = _router_ask("synthesize", user, system=system, max_tokens=400, tier="secondary")
+                if not r.get("ok"):
+                    return None
+                from client import extract_json  # noqa: E402 — فقط parse helper
+                return {"suggestion": extract_json(r.get("text", "")),
+                        "cost_usd": float(r.get("cost_usd", 0.0))}
+            except Exception as e:  # noqa: BLE001 — fail-safe به سیاستِ قطعی
+                if not _DOCTOR_LLM_ALERTED:
+                    _DOCTOR_LLM_ALERTED = True
+                    opslib.alert([f"heart doctor router path failed (fallback به policy): "
+                                  f"{type(e).__name__}: {e}"])
+                return None
         cli = DeepSeekClient(role="econ")
         est = cli.est_worst_case(len(system) + len(user), max_tokens=400)
         r = organ_gate.reserve("ARCHITECT_SYS", est, task="heart-doctor")

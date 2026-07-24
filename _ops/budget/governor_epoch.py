@@ -285,6 +285,29 @@ def allocate_llm(snap: dict, alloc_dry: dict) -> dict | None:
         fence_adapter.screen_llm_input("governor.allocate_llm", [("memory", user)])
     except Exception:  # noqa: BLE001 — غربال هرگز governor را نمی‌کشد
         pass
+    # fugu-everywhere (2026-07-24): مسیرِ درِ واحدِ مغز پشتِ OCTOPUS_GOVERNOR_USE_ROUTER.
+    # وقتی ۱ → از cortex.model_router.ask می‌آید (که خودش organ_gate reserve/settle +
+    # context-fence + local-first + fallback را کپسوله می‌کند). وقتی ۰ (پیش‌فرض) →
+    # مسیرِ bespokeِ زیر بایت‌به‌بایتِ امروز. رفتارِ خارجی یکسان (gate بسته → None).
+    if str(os.environ.get("OCTOPUS_GOVERNOR_USE_ROUTER", "")).strip().lower() in ("1", "true", "yes"):
+        try:
+            _cx = str(Path(__file__).resolve().parent.parent / "cortex")
+            if _cx not in sys.path:
+                sys.path.insert(0, _cx)
+            from model_router import ask as _router_ask  # noqa: WPS433 — lazy
+            r = _router_ask("orchestrate", user, system=system, max_tokens=1200, tier="primary")
+            if not r.get("ok"):
+                return None
+            from client import extract_json  # noqa: E402 — فقط parse helper
+            _GOV_LLM_ALERTED.clear()
+            return {"llm_allocation": extract_json(r.get("text", "")),
+                    "model": r.get("model"), "cost_usd": float(r.get("cost_usd", 0.0))}
+        except PriceNotLocked as e:
+            _gov_llm_alert_once("gov-llm-dormant", f"governor llm خفته (dry): {e}")
+            return None
+        except Exception as e:  # noqa: BLE001
+            _gov_llm_alert_once("gov-llm-error", f"governor router path failed (fallback به dry): {e}")
+            return None
     try:
         cl = DeepSeekClient(role="econ")
         est = cl.est_worst_case(len(system) + len(user), max_tokens=1200)
