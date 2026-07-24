@@ -27,8 +27,15 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_phase5.py", "test_spectral.py", "test_chamber.py",
          "test_calibration.py", "test_box.py", "test_evolution.py",
          "test_box_b134.py", "test_sensory.py", "test_rhythm.py",
-         "test_cockpit.py", "test_project_f.py", "test_studio_telegram.py",
-         "test_live_loop.py", "test_proposal_buttons.py", "test_dual_brain.py", "test_acquisition.py",
+         "test_cockpit.py", "test_project_f.py",
+         # 2026-07-24: test_studio_telegram.py و test_dual_brain.py از TESTS خارج شدند — این دو
+         # تستِ organism به ماژول‌های v1 (studio_telegram.py / dual_brain.py) اشاره داشتند که در
+         # reorgِ Project-F (57f5138 «archive v1 code» + f63ce32، pytest 366/0) به 09-Archive
+         # منتقل و از درختِ زنده حذف شدند؛ فقط _v3 ماند (StudioTelegramV3/DualBrainV3، APIِ متفاوت:
+         # _scan_forbidden/_check_compliance دیگر وجود ندارد). پوششِ نسخهٔ فعال = تستِ داخلیِ
+         # subproject (brain/test_dual_brain_v3.py) طبق §11. پوششِ PF در سوئیت: test_project_f/
+         # test_deep_pf/test_pf_full.
+         "test_live_loop.py", "test_proposal_buttons.py", "test_acquisition.py",
              "test_neural.py", "test_deep_pf.py", "test_pf_full.py", "test_frontier.py",
              "test_organism_protective.py", "test_canonical_consolidation.py",
              "test_sprint_beat.py", "test_approval_queue_consistency.py",
