@@ -74,7 +74,7 @@ def _state_checksums(state_dir: Path, ledger_path: "Path | None") -> dict:
         "spine": _count_and_last(state_dir / "spine" / "spine.db", "events", "event_id"),
         "outcomes": _count_and_last(state_dir / "outcomes" / "outcomes.db",
                                     "outcomes", "event_id"),
-        "memory": _count_and_last(state_dir / "memory" / "memory.db", "memories", "id"),
+        "memory": _count_and_last(state_dir / "memory" / "memory.db", "memory", "memory_id"),
         "chrono": None, "ledger": None,
     }
     ch = state_dir / "chrono.db"
