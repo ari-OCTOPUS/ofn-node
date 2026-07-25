@@ -244,13 +244,73 @@ def s7_alert_honesty():
           "متنِ نو می‌گوید انتخابِ tierِ بعدی دستِ caller است")
 
 
+# ═══ ۸) شمارندهٔ شکستِ per-tierِ Fugu (صداقتِ گزارش، بدونِ تغییرِ رفتار) ═════════
+def s8_fugu_per_tier():
+    import tempfile
+    import fugu_quota as fq
+    _saved = {k: os.environ.get(k) for k in ("FUGU_QUOTA_BASE", "FUGU_FAIL_CEILING",
+                                             "OCTOPUS_FUGU_KILL")}
+    try:
+        tmp = Path(tempfile.mkdtemp(prefix="fq-livefix-"))
+        (tmp / "state").mkdir(parents=True, exist_ok=True)
+        os.environ["FUGU_QUOTA_BASE"] = str(tmp)
+        os.environ["FUGU_FAIL_CEILING"] = "99"      # قطعیت: در این بخش STOP نوشته نشود
+        os.environ.pop("OCTOPUS_FUGU_KILL", None)
+        for _ in range(2):
+            r = fq.reserve("primary")
+            if not r.get("allow"):
+                check(False, f"reserve باید allow بدهد ({r.get('reason')})")
+                return
+            fq.fail("primary")
+        s = fq.status()
+        check(s.get("consecutive_failures") == 2,
+              f"سراسری بعد از ۲ شکستِ primary = ۲ ({s.get('consecutive_failures')})")
+        check((s.get("consecutive_failures_by_tier") or {}).get("primary") == 2,
+              f"per-tier[primary] = ۲ ({(s.get('consecutive_failures_by_tier') or {})})")
+        # الگوی زندهٔ باگ: موفقیتِ tierِ دیگر شمارندهٔ سراسری را صفر می‌کند
+        fq.reserve("secondary")
+        fq.ok("secondary")
+        s2 = fq.status()
+        bt = s2.get("consecutive_failures_by_tier") or {}
+        check(s2.get("consecutive_failures") == 0,
+              "موفقیتِ secondary شمارندهٔ سراسری را صفر کرد — رفتارِ تاریخی دست‌نخورده")
+        check(bt.get("primary") == 2,
+              f"ولی per-tier[primary] همچنان ۲ است → tierِ مرده دیگر نامرئی نیست ({bt})")
+        check(bt.get("secondary") == 0, f"per-tier[secondary] صفر شد ({bt})")
+        # حکمِ سقف عمداً روی شمارندهٔ سراسری مانده (بدونِ تغییرِ رفتار)
+        tmp2 = Path(tempfile.mkdtemp(prefix="fq-ceil-"))
+        (tmp2 / "state").mkdir(parents=True, exist_ok=True)
+        os.environ["FUGU_QUOTA_BASE"] = str(tmp2)
+        os.environ["FUGU_FAIL_CEILING"] = "2"
+        for _ in range(2):
+            fq.reserve("primary")
+            fq.fail("primary")
+        check((tmp2 / "STOP-FUGU").exists(),
+              "سقف همچنان از شمارندهٔ سراسری شلیک می‌کند (STOP-FUGU نوشته شد)")
+        check(not (Path(os.sep) / "STOP-FUGU").exists(),
+              "sandbox ایزوله بود — هیچ STOP-FUGU خارج از temp نوشته نشد")
+        # سازگاریِ عقب: فایلِ قدیمیِ بدونِ کلیدِ نو
+        old = fq.Core.roll({"day": fq._today(), "used_total": 5,
+                            "consecutive_failures": 1, "used": {}, "denied": {}},
+                           fq._today())
+        check(old.get("consecutive_failures_by_tier") == {},
+              "فایلِ قدیمیِ بی‌کلید → roll آن را می‌سازد (بدونِ KeyError)")
+    finally:
+        for k, v in _saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+
+
 for name, fn in (("۱ گاردِ گرافِ دژنرهٔ spectral", s1_spectral),
                  ("۲ persistِ created_ts", s2_created_ts),
                  ("۳ تحمّلِ صادقِ phi", s3_phi),
                  ("۴ legs_diag در snapshot", s4_legs_diag),
                  ("۵ Gate-0 با Δ منفی", s5_wire_gate),
                  ("۶ فلگ‌های پولی در wire_summary", s6_wire_summary),
-                 ("۷ صداقتِ متنِ آلارم", s7_alert_honesty)):
+                 ("۷ صداقتِ متنِ آلارم", s7_alert_honesty),
+                 ("۸ شمارندهٔ per-tierِ Fugu", s8_fugu_per_tier)):
     print(f"\n── {name} " + "─" * max(0, 50 - len(name)))
     try:
         fn()

@@ -90,8 +90,13 @@ def _today() -> str:
 class Core:
     @staticmethod
     def blank(day: str) -> dict:
+        # consecutive_failures = شمارندهٔ **سراسری** (رفتارِ تاریخی، دست‌نخورده).
+        # by_tier = صداقتِ ۲۰۲۶-۰۷-۲۵: شاهدِ زنده نشان داد شمارندهٔ سراسری واقعیت را
+        # پنهان می‌کند — Fugu سه‌از‌سه تایم‌اوت شد (۱۴:۱۵/۱۴:۳۵/۱۴:۵۵، هر سه ~۴۵s) ولی
+        # consecutive_failures صفر بود، چون هر موفقیتِ GLM آن را ریست می‌کرد. پس یک tierِ
+        # مرده نامرئی می‌ماند. این کلید فقط **گزارش** می‌دهد؛ هیچ تصمیمی روی آن سوار نیست.
         return {"day": day, "used_total": 0, "consecutive_failures": 0,
-                "used": {}, "denied": {}}
+                "consecutive_failures_by_tier": {}, "used": {}, "denied": {}}
 
     @staticmethod
     def roll(state: dict, day: str) -> dict:
@@ -100,6 +105,7 @@ class Core:
             return Core.blank(day)
         state.setdefault("used_total", 0)
         state.setdefault("consecutive_failures", 0)
+        state.setdefault("consecutive_failures_by_tier", {})   # سازگارِ عقب: فایلِ قدیمی
         state.setdefault("used", {})
         state.setdefault("denied", {})
         return state
@@ -208,19 +214,31 @@ def reserve(tier: str, organ: str = "ARCHITECT_SYS") -> dict:
 
 
 def ok(tier: str = "") -> None:
-    """موفقیتِ تماس → ریستِ شمارندهٔ شکستِ پیاپی."""
+    """موفقیتِ تماس → ریستِ شمارندهٔ شکستِ پیاپی (سراسری = رفتارِ قبلی، و همان tier)."""
     def _fn(st):
         st["consecutive_failures"] = 0
+        if tier:
+            st.setdefault("consecutive_failures_by_tier", {})[str(tier)] = 0
         return None
     _mutate(_fn)
 
 
 def fail(tier: str = "") -> None:
-    """شکستِ تماس → +۱ شکستِ پیاپی؛ در سقف → auto STOP-FUGU."""
+    """شکستِ تماس → +۱ شکستِ پیاپی؛ در سقف → auto STOP-FUGU.
+
+    ⚠️ حکمِ سقف عمداً روی شمارندهٔ **سراسری** ماند (بدونِ تغییرِ رفتار). دلیل: STOP-FUGU
+    سراسری است، پس شلیکش از شکستِ یک tier، مغزِ *سالمِ* tierِ دیگر را هم می‌کشد — و
+    شاهدِ زندهٔ ۲۰۲۶-۰۷-۲۵ همین بود (primary مرده، secondary سالم و پاسخ‌گو). پیامدش این
+    است که در الگوی «primary می‌افتد → secondary جواب می‌دهد» سقف هرگز شلیک نمی‌کند؛
+    این یک تصمیمِ طراحی است که رأیِ مالک لازم دارد (VQ-FUGU-002)، نه چیزی که ایجنت
+    یک‌طرفه عوض کند. شمارندهٔ per-tier فقط آن را **دیدنی** می‌کند."""
     ceiling = _fail_ceiling()
 
     def _fn(st):
         st["consecutive_failures"] = st.get("consecutive_failures", 0) + 1
+        if tier:
+            _bt = st.setdefault("consecutive_failures_by_tier", {})
+            _bt[str(tier)] = _bt.get(str(tier), 0) + 1
         return st["consecutive_failures"]
     n = _mutate(_fn)
     if isinstance(n, int) and n >= ceiling:
@@ -240,6 +258,7 @@ def status() -> dict:
         "used_total": st.get("used_total", 0),
         "remaining": max(0, _cap() - st.get("used_total", 0)),
         "consecutive_failures": st.get("consecutive_failures", 0),
+        "consecutive_failures_by_tier": dict(st.get("consecutive_failures_by_tier") or {}),
         "fail_ceiling": _fail_ceiling(),
         "killed": killed(),
         "used": st.get("used", {}),
