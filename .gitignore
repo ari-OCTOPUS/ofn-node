@@ -38,6 +38,10 @@ _ops/state/LIVE-ENABLED.flag
 _ops/state/reconcile-latest.json
 # dashboard-generated NON-secret flag overrides (runtime, local) — never a secret store
 _ops/OCTOPUS-flags.cmd
+# 2026-07-25: any backup/copy of the flags file also carries secrets.
+#   Two sessions each made a .bak of it in one day, both un-ignored.
+_ops/OCTOPUS-flags.cmd.*
+_ops/OCTOPUS-flags.cmd.bak*
 
 # PII: langar opsec policy holds real names/phone/address — never commit
 03 - Projects/اونلی فنز/langar/langar_config.json

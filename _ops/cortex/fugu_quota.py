@@ -217,14 +217,56 @@ def ok(tier: str = "") -> None:
     """موفقیتِ تماس → ریستِ شمارندهٔ شکستِ پیاپی (سراسری = رفتارِ قبلی، و همان tier)."""
     def _fn(st):
         st["consecutive_failures"] = 0
+        st["consecutive_timeouts"] = 0     # موفقیت رشتهٔ timeout را هم می‌شکند
         if tier:
             st.setdefault("consecutive_failures_by_tier", {})[str(tier)] = 0
         return None
     _mutate(_fn)
 
 
-def fail(tier: str = "") -> None:
+# ── timeoutِ محلی ≠ شکستِ فروشنده (یافتهٔ ۲۵ جولای، ۱۵/۱۵ شکست) ────────────────
+# شاهد: در `state/paid-calls.jsonl` تنها نوعِ خطای کلِ لاگ `TimeoutError` بود — صفر ۴۰۱،
+# صفر ۵xx، صفر connection-refused. هر ۱۵ شکست دقیقاً روی سقفِ سوکتِ **خودمان** مرد
+# (۶ روی ۴۵s، ۹ روی ۲۰s). یعنی این شمارنده «ناسالم‌بودنِ فروشنده» را نمی‌سنجید؛
+# کوتاه‌بودنِ ساعتِ خودمان را می‌سنجید — و بر همان مبنا مغزِ ۲۰۰ دلاری را خاموش می‌کرد.
+# همان کلاسِ خطای `phi=300` و `σ=1`: معیاری که چیزی جز خودش را نمی‌سنجد.
+#
+# رفتار: طبقه‌بندی **همیشه** ثبت می‌شود (دیدنی‌شدن، بی‌تغییرِ رفتار)، ولی معافیت از
+# kill-switch پشتِ فلگ و پیش‌فرض خاموش است — چون خاموش‌کردنِ یک گاردِ ایمنیِ پول
+# رأیِ مالک است، نه تصمیمِ ایجنت.
+TIMEOUT_EXEMPT_FLAG = "OCTOPUS_FUGU_TIMEOUT_NOT_PROVIDER_FAIL"
+_TIMEOUT_MARKERS = ("timeout", "timed out", "timeouterror")
+
+
+def _timeout_exempt() -> bool:
+    return str(os.environ.get(TIMEOUT_EXEMPT_FLAG, "")).strip().lower() in ("1", "true", "yes", "on")
+
+
+def is_local_timeout(error: object) -> bool:
+    """آیا این خطا سقفِ سوکتِ خودمان است، نه پاسخِ فروشنده؟ محافظه‌کار: مبهم → False."""
+    if error is None:
+        return False
+    if isinstance(error, TimeoutError):        # socket.timeout هم از 3.10 همین است
+        return True
+    try:
+        name = type(error).__name__.lower()
+        if "timeout" in name:
+            return True
+        blob = str(error).lower()
+    except Exception:  # noqa: BLE001
+        return False
+    # URLError/OSErrorِ پوشاننده: فقط اگر صریحاً timeout بگوید. کدِ HTTP = پاسخِ فروشنده.
+    if any(ch.isdigit() for ch in blob[:6]) and "http" in blob:
+        return False
+    return any(m in blob for m in _TIMEOUT_MARKERS)
+
+
+def fail(tier: str = "", error: object = None) -> None:
     """شکستِ تماس → +۱ شکستِ پیاپی؛ در سقف → auto STOP-FUGU.
+
+    `error` (اختیاری) استثنای واقعی است. با `TIMEOUT_EXEMPT_FLAG` روشن، timeoutِ محلی
+    شمارندهٔ شکستِ فروشنده را بالا نمی‌برد و سقف را شلیک نمی‌کند — فقط در
+    `consecutive_timeouts` ثبت می‌شود. بدونِ فلگ (یا بدونِ `error`) رفتار بایت‌به‌بایتِ قبلی.
 
     ⚠️ حکمِ سقف عمداً روی شمارندهٔ **سراسری** ماند (بدونِ تغییرِ رفتار). دلیل: STOP-FUGU
     سراسری است، پس شلیکش از شکستِ یک tier، مغزِ *سالمِ* tierِ دیگر را هم می‌کشد — و
@@ -233,8 +275,21 @@ def fail(tier: str = "") -> None:
     این یک تصمیمِ طراحی است که رأیِ مالک لازم دارد (VQ-FUGU-002)، نه چیزی که ایجنت
     یک‌طرفه عوض کند. شمارندهٔ per-tier فقط آن را **دیدنی** می‌کند."""
     ceiling = _fail_ceiling()
+    _to = is_local_timeout(error)
+    _exempt = _to and _timeout_exempt()
 
     def _fn(st):
+        # طبقه‌بندی همیشه ثبت می‌شود — حتی با فلگِ خاموش — تا مالک عدد را ببیند.
+        if _to:
+            st["consecutive_timeouts"] = st.get("consecutive_timeouts", 0) + 1
+            st["timeouts_total"] = st.get("timeouts_total", 0) + 1
+        else:
+            st["consecutive_timeouts"] = 0
+        if error is not None:
+            st["last_error_class"] = type(error).__name__
+            st["last_error_was_local_timeout"] = bool(_to)
+        if _exempt:
+            return None                        # نه شمارشِ شکستِ فروشنده، نه شلیکِ سقف
         st["consecutive_failures"] = st.get("consecutive_failures", 0) + 1
         if tier:
             _bt = st.setdefault("consecutive_failures_by_tier", {})

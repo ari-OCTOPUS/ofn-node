@@ -30,6 +30,7 @@ sys.path.insert(0, str(_HERE.parent / "budget"))
 sys.path.insert(0, str(_HERE))
 import opslib  # noqa: E402
 import local_llm  # noqa: E402
+import circuit_breaker as _cb  # noqa: E402  # per-provider breaker (2026-07-25): Fugu timeoutlarını fail-fast کند
 
 ACT_CORTEX_PAID = opslib.OPS / "ACTIVATION-CORTEX-PAID.flag"
 # اهرمِ مالک (رأی 2026-07-10 «اینترنت هرچه زودتر»): اگر مالک این فایل را بسازد،
@@ -137,6 +138,20 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int) -> dict | No
     role = _TIER_ROLE.get(tier)
     if not role:
         return None
+    # ── circuit breaker (per-provider، auto half-open recovery) ────────────────
+    # 2026-07-25: fugu_quota global بود (موفقیتِ GLM consecutive_failures را ریست
+    # می‌کرد) و recovery دستی بود (فایلِ STOP-FUGU). در زنده، fugu ۳ ساعتِ پشتِ هم
+    # timeout شد چون هیچ fail-fast per-providerای وجود نداشت. این breaker:
+    #   · target = role ("orchestr"/"glm") → per-provider نه global
+    #   · بعد از N شکست (پیش‌فرض ۵) OPEN → فراخوانیِ بعدی بی‌شبکه None برمی‌گرداند
+    #   · بعد از cooldown (۶۰s) خودکار HALF_OPEN → یک probe → موفقیت → CLOSED
+    # با fugu_quota complementary است (breaker=per-provider/خودکار، quota=daily-cap/دستی).
+    _ccb = _cb.check(role)
+    if not _ccb.get("allow"):
+        _paid_log(tier=tier, role=role, ok=False,
+                  error=f"circuit_{_ccb.get('state')}",
+                  ms=0, note=_ccb.get("reason", ""))
+        return None
     try:
         sys.path.insert(0, str(opslib.DEBATE_DIR))
         from client import MultiProviderClient  # noqa: E402
@@ -160,8 +175,10 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int) -> dict | No
         try:
             out = cli.complete(system, prompt, max_tokens=max_tokens)
             fugu_quota.ok(tier)
+            _cb.record_success(role)   # provider سالم است → breaker را reset/بهبود بده
         except Exception as _ce:
-            fugu_quota.fail(tier)
+            fugu_quota.fail(tier, error=_ce)
+            _cb.record_failure(role, f"{type(_ce).__name__}: {_ce}")   # provider ناسالم
             _paid_log(tier=tier, role=role,
                       provider=getattr(cli, "provider", ""),
                       model=getattr(cli, "model", ""),

@@ -386,6 +386,12 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # 2026-07-25: مسیرهای router گاورنر/قلب/خودشناسی تاریک می‌مانند؛ چهار فلگ در
          # OCTOPUS-flags.cmd صریحاً صفر ثبت شد و با تست hermetic قفل شد.
          "test_paid_router_dark_config.py",
+         # 2026-07-25: بخشِ resilience.circuit_breaker در budgets.yaml اضافه شد (additive)
+         # تا breakerِ per-provider زودتر fail-fast کند و سهمیهٔ ناپایداریِ fugu نسوزد.
+         "test_budgets_resilience_config.py",
+         # 2026-07-25 (build-spec §4): انضباطِ سکوتِ event_bridge — ضدِتکرارِ امضای
+         # محتوا (۵۰ هم‌امضا → ۱ push)، سقفِ روزانهٔ ۶، حفظِ سقفِ ساعتیِ ۱۰.
+         "test_telegram_silence.py",
          # 2026-07-25 T1 (megaprompt): int() روی برچسبِ شدت — ۳۴۸ کرشِ doctor_digest_beat
          # بسته شد؛ severity رشته‌ای/عددی/None/ناشناخته همه متنِ غیرخالی می‌دهند.
          "test_organ_dialogue_digest.py",
@@ -410,6 +416,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # shadow با Δِ *منفی* هم باز می‌شد (فقط authoritative را می‌خواند)؛ (۶) سه فلگِ
          # مغزِ پولی در wire_summary نبودند → مسلح‌بودن از state دیده نمی‌شد.
          "test_live_debug_fixes_2026_07_25.py",
+         "test_thesis_queue.py",
+         "test_governor_lapsed_deadline.py",
+         "test_paid_timeout_chain.py",
          # 2026-07-23 D3/D4/D5: (D3) صفر provider-call/authorization/settle زیرِ HALT-ALL —
          # شکافِ release_one/release_gated_effects بی‌گاردِ kill هم بسته شد؛ (D4) گاردِ
          # boot-halt در هر ۶ launcher + parity واچ‌داگ PS1/py + ماتریسِ should_revive؛

@@ -104,7 +104,9 @@ class DeepSeekClient:
                 data=json.dumps(body).encode("utf-8"),
                 headers={"Authorization": f"Bearer {self.api_key}",
                          "Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=_http_timeout()) as resp:  # pragma: no cover
+            with urllib.request.urlopen(
+                    req, timeout=_http_timeout(
+                        getattr(self, "role", None), max_tokens)) as resp:  # pragma: no cover
                 raw = json.loads(resp.read().decode("utf-8"))
         _msg = (raw.get("choices") or [{}])[0].get("message", {})
         # fallback به reasoning_content — مدل‌های reasoning گاهی content را خالی می‌گذارند (fail-soft، صادق)
@@ -138,16 +140,63 @@ class DeepSeekClient:
 GATEWAY_URL = "http://localhost:4000"
 
 
-def _http_timeout() -> float:
-    """سقفِ سختِ هر عملیاتِ سوکت روی مسیرِ پولی. env: PAID_HTTP_TIMEOUT_S (پیش‌فرض ۴۵s).
-    ۱۲۰s قبلی روی نخِ متابولیک می‌نشست و همان‌قدر kill-check را کور می‌کرد.
-    تماسِ سالمِ واقعی ~۲–۲۰s است (organ-gate-log 2026-07-25T04:28:52→04:29:09 = ۱۷s)."""
+# ── سقفِ مشتق‌شده از اندازهٔ درخواست (یافتهٔ ۲۵ جولای، عدد-به-عدد) ──────────────
+# شاهدِ زنده در `state/paid-calls.jsonl`: **هر ۱۵ شکست** از ۳۰ فراخوان دقیقاً روی سقفِ
+# سوکتِ خودمان مرد (۶ تا روی ۴۵s، ۹ تا روی ۲۰s). صفر خطای فروشنده، صفر ۴۰۱.
+# نرخِ مشاهده‌شدهٔ Fugu از سه موفقیت (out=18→4.3s، 479→12.7s، 488→16.1s):
+#     ms ≈ 3811 + 25.2 × out_tokens        (~۴۰ tok/s + ~۳.۸s سرِ ثابت)
+# و `governor_epoch.py` با `max_tokens=1200` می‌زد ⇒ ≥۳۴ ثانیه لازم داشت. با سقفِ
+# سراسریِ ۲۰ ثانیه آن فراخوان **ریاضیاتاً غیرممکن** بود، نه بعید — و هر شکست به‌عنوان
+# «شکستِ فروشنده» شمرده می‌شد تا FUGU_FAIL_CEILING مغزِ پولی را خاموش کند.
+#
+# ریشهٔ معماری: یک عددِ سراسری نمی‌تواند هم GLMِ ۹ ثانیه‌ای و هم مسیرِ orchestrationِ
+# چند-ایجنتی را سرویس کند. پس سقف **مشتق** می‌شود: از max_tokensِ همان درخواست، با
+# حاشیهٔ ایمنی، کف‌دار به سقفِ صریح، و **کران‌دار به کسری از PAID_ASK_BUDGET_S** تا
+# فراخوانِ اول کلِ بودجهٔ ask را نخورد و fallbackِ tierِ دوم بی‌وقت نماند.
+_TOK_PER_S = 25.0          # محافظه‌کارانه‌تر از ۴۰ tok/sِ مشاهده‌شده (حاشیه برای افتِ نرخ)
+_OVERHEAD_S = 5.0          # سرِ ثابتِ مشاهده‌شده ۳.۸s، رُند به بالا
+_SAFETY = 1.5              # ضریبِ حاشیه
+_ASK_BUDGET_SHARE = 0.6    # حداکثر ۶۰٪ بودجهٔ ask برای یک سوکت → ۴۰٪ برای fallback
+
+
+def _env_float(name: str, default: float) -> float:
     import os as _o
     try:
-        v = float(_o.environ.get("PAID_HTTP_TIMEOUT_S", "45"))
-        return v if 1.0 <= v <= 300.0 else 45.0
+        return float(_o.environ.get(name, "") or default)
     except (TypeError, ValueError):
-        return 45.0
+        return default
+
+
+def _http_timeout(role: "str | None" = None, max_tokens: "int | None" = None) -> float:
+    """سقفِ سختِ عملیاتِ سوکت روی مسیرِ پولی.
+
+    ترتیبِ اولویت:
+      ۱) `PAID_HTTP_TIMEOUT_S_<ROLE>` (مثلاً `PAID_HTTP_TIMEOUT_S_ORCHESTR`) — صریح، per-role
+      ۲) `PAID_HTTP_TIMEOUT_S` — سقفِ سراسری (پیش‌فرض ۴۵s)
+      ۳) کفِ مشتق‌شده از max_tokens: (OVERHEAD + tokens/RATE) × SAFETY
+    نتیجه = max(صریح، مشتق‌شده) و بعد کران‌دار به `ASK_BUDGET × 0.6` و بازهٔ [1, 300].
+    با `max_tokens=None` رفتار **بایت‌به‌بایت** مثلِ قبل است (سازگاریِ عقب‌رو)."""
+    base = _env_float("PAID_HTTP_TIMEOUT_S", 45.0)
+    if not (1.0 <= base <= 300.0):
+        base = 45.0
+    if role:
+        per = _env_float(f"PAID_HTTP_TIMEOUT_S_{str(role).strip().upper()}", 0.0)
+        if 1.0 <= per <= 300.0:
+            base = per
+    if max_tokens:
+        try:
+            need = (_OVERHEAD_S + float(max_tokens) / _TOK_PER_S) * _SAFETY
+        except (TypeError, ValueError, ZeroDivisionError):
+            need = 0.0
+        if need > base:
+            base = need
+        # کرانِ بالا: هرگز از سهمِ مجازِ بودجهٔ askِ بیرونی رد نشو
+        ask = _env_float("PAID_ASK_BUDGET_S", 90.0)
+        if ask > 0:
+            cap = ask * _ASK_BUDGET_SHARE
+            if base > cap:
+                base = cap
+    return min(300.0, max(1.0, base))
 GATEWAY_ENV_PATH = Path(__file__).resolve().parent.parent.parent / "survival-gateway" / ".env"
 
 # نگاشتِ role (در budgets.yaml) → نامِ مدلِ مجازیِ gateway
@@ -319,7 +368,9 @@ class MultiProviderClient:
                 data=json.dumps(body).encode("utf-8"),
                 headers={"Authorization": f"Bearer {self.api_key}",
                          "Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=_http_timeout()) as resp:  # pragma: no cover
+            with urllib.request.urlopen(
+                    req, timeout=_http_timeout(
+                        getattr(self, "role", None), max_tokens)) as resp:  # pragma: no cover
                 raw = json.loads(resp.read().decode("utf-8"))
         else:
             req = urllib.request.Request(
@@ -327,7 +378,9 @@ class MultiProviderClient:
                 data=json.dumps(body).encode("utf-8"),
                 headers={"Authorization": f"Bearer {self.api_key}",
                          "Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=_http_timeout()) as resp:  # pragma: no cover
+            with urllib.request.urlopen(
+                    req, timeout=_http_timeout(
+                        getattr(self, "role", None), max_tokens)) as resp:  # pragma: no cover
                 raw = json.loads(resp.read().decode("utf-8"))
         _msg = (raw.get("choices") or [{}])[0].get("message", {})
         # fallback به reasoning_content — مدل‌های reasoning گاهی content را خالی می‌گذارند (fail-soft، صادق)

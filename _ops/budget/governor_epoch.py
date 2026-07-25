@@ -76,6 +76,30 @@ def _lapsed_honest() -> bool:
     return str(os.environ.get(LAPSED_FLAG, "")).strip().lower() in ("1", "true", "yes", "on")
 
 
+# ── اندازهٔ درخواستِ گاورنر از مغزِ پولی (یافتهٔ ۲۵ جولای) ──────────────────────
+# این فراخوان `task="orchestrate"` است ⇒ TASK_TIERS → primary ⇒ role="orchestr" —
+# دقیقاً roleِ **هر ۱۵ شکستِ** `state/paid-calls.jsonl`، با تناوبِ ۲۰ دقیقه‌ای که همان
+# ضربانِ epochِ همین ماژول است. با `max_tokens=1200` و نرخِ مشاهده‌شدهٔ Fugu
+# (ms ≈ 3811 + 25.2×out) این فراخوان ≥۳۴ ثانیه لازم داشت، پس زیرِ سقفِ سوکتِ ۲۰
+# ثانیه‌ای **ریاضیاتاً غیرممکن** بود — و ۶ فراخوان زیرِ سقفِ ۴۵ ثانیه هم شکستند، یعنی
+# ۱۲۰۰ حتی با سقفِ بلندتر هم حاشیهٔ کافی ندارد.
+# پیش‌فرضِ ۶۰۰: پیش‌بینیِ ~۱۹ ثانیه، و سقفِ مشتق‌شدهٔ client._http_timeout برایش ۴۵
+# ثانیه می‌دهد ⇒ حاشیهٔ ~۲.۴×، مقاوم حتی اگر نرخ دو برابر بدتر از اندازه‌گیری باشد.
+# خروجیِ این فراخوان یک JSONِ تخصیص است؛ به ۱۲۰۰ توکن نیازی ندارد. اگر بریده شد،
+# `extract_json` می‌شکند و گاورنر به مسیرِ dryِ قطعی برمی‌گردد — همان چیزی که امروز
+# عملاً اجرا می‌شود (تخصیص `SPEC(shadow — صفر enforce)`)، پس هزینهٔ خطا کم است.
+GOV_MAX_TOKENS_ENV = "OCTOPUS_GOVERNOR_MAX_TOKENS"
+GOV_MAX_TOKENS_DEFAULT = 600
+
+
+def _gov_max_tokens() -> int:
+    try:
+        v = int(str(os.environ.get(GOV_MAX_TOKENS_ENV, "") or GOV_MAX_TOKENS_DEFAULT))
+    except (TypeError, ValueError):
+        return GOV_MAX_TOKENS_DEFAULT
+    return v if 64 <= v <= 4096 else GOV_MAX_TOKENS_DEFAULT
+
+
 def _deadline_proximity(organs: dict) -> tuple[float, str]:
     """سیگموید تیز داخل ۱۴ روز پایانی (H5). خروجی 0..1 + نزدیک‌ترین ددلاین.
 
@@ -350,7 +374,8 @@ def allocate_llm(snap: dict, alloc_dry: dict) -> dict | None:
             if _cx not in sys.path:
                 sys.path.insert(0, _cx)
             from model_router import ask as _router_ask  # noqa: WPS433 — lazy
-            r = _router_ask("orchestrate", user, system=system, max_tokens=1200, tier="primary")
+            r = _router_ask("orchestrate", user, system=system,
+                            max_tokens=_gov_max_tokens(), tier="primary")
             if not r.get("ok"):
                 return None
             from client import extract_json  # noqa: E402 — فقط parse helper
