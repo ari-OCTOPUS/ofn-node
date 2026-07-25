@@ -374,6 +374,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # 2026-07-25 W6: قفلِ مرزِ propose-only حلقهٔ C6 — گیتِ دوگانه (env + فایلِ مالک)،
          # ممنوعیتِ merge_or_deploy، صفر ابتداییِ خطرناک، گاردِ رجیستریِ دکتر.
          "test_c6_trigger_propose_only.py",
+         # 2026-07-25 C1: بنچِ C6 دیگر خودش را تأیید نمی‌کند — NULL رد می‌شود،
+         # baselineِ اعلامی بی‌اثر است، ادعای مکانیزمی مقدم بر ساعتِ دیواری.
+         "test_c6_bench_honesty.py",
          # 2026-07-23 D3/D4/D5: (D3) صفر provider-call/authorization/settle زیرِ HALT-ALL —
          # شکافِ release_one/release_gated_effects بی‌گاردِ kill هم بسته شد؛ (D4) گاردِ
          # boot-halt در هر ۶ launcher + parity واچ‌داگ PS1/py + ماتریسِ should_revive؛
