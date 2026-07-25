@@ -52,7 +52,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
              "test_phase3_trackb.py", "test_phase5_epistemics_wiring.py",
              "test_dashboard.py", "test_cardiac_allometry.py",
          "test_baseline.py", "test_held_out_evaluator.py", "test_phase_gate.py",
-         "test_rfc_sweep.py", "test_consolidation_distinguish.py", "test_gate_sweep.py",
+         "test_rfc_sweep.py", "test_rfc_submit_blocked.py",
+         "test_consolidation_distinguish.py", "test_gate_sweep.py",
          "test_latent_space.py", "test_encoders.py", "test_consolidation_latent.py",
          "test_bcm_forgetting.py", "test_sparse_filter.py", "test_chamber_temperature.py",
          "test_fisher.py", "test_telegram_rfc_router.py",
@@ -214,6 +215,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # واقعاً صدا می‌زند (پشتِ OCTOPUS_WIRE_LEAD_OUTCOME، خارج از profile). flag-off=byte-identical،
          # flag-on=receipt(E1)+outcome پایدار، memories_used از drون beat، fail-soft (dead-flag رفع شد).
          "test_lead_outcome_wiring.py",
+         "test_lead_learning_wire.py",   # W1 (2026-07-25): قوسِ یادگیری از تصمیمِ لید
          # 2026-07-20 integration: پوششِ orphan (تست‌های سبزِ روی‌دیسک که در run_all نبودند —
          # نقدِ سنتز: بدونِ ثبت، شکستِ extractionِ آینده نامرئی است). فقط سبزها؛ ۴ orphanِ قرمزِ
          # pre-existing (effector_idempotency/drawdown_enforcer/mining_leg/tg_approval_store) عمداً بیرون.
@@ -369,6 +371,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # دروغین)؛ reconcile_effect انسانی با evidence+operator (receipt هرگز بازنویسی
          # نمی‌شود)؛ redrive_approval بدونِ appendِ دوباره (crash window a، idempotent). script-native.
          "test_c6_receipt_reconciliation.py",
+         # 2026-07-25 W6: قفلِ مرزِ propose-only حلقهٔ C6 — گیتِ دوگانه (env + فایلِ مالک)،
+         # ممنوعیتِ merge_or_deploy، صفر ابتداییِ خطرناک، گاردِ رجیستریِ دکتر.
+         "test_c6_trigger_propose_only.py",
          # 2026-07-23 D3/D4/D5: (D3) صفر provider-call/authorization/settle زیرِ HALT-ALL —
          # شکافِ release_one/release_gated_effects بی‌گاردِ kill هم بسته شد؛ (D4) گاردِ
          # boot-halt در هر ۶ launcher + parity واچ‌داگ PS1/py + ماتریسِ should_revive؛

@@ -131,7 +131,7 @@ def _input_sig(ctx: dict) -> str:
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]
 
 
-def synthesize(ask=None, extra: dict | None = None) -> dict:
+def synthesize(ask=None, extra: dict | None = None, tier: str | None = None) -> dict:
     """یک دورِ سنتز: context → مغز (fugu→glm→local) → پروپوزال‌ها. ask تزریق‌پذیر (تست).
 
     extra (OCT-CORTISOL 2026-07-18): زمینهٔ رویدادِ ماشه — مثلاً {"alarm": "ورود به
@@ -171,7 +171,7 @@ def synthesize(ask=None, extra: dict | None = None) -> dict:
     # سنتزِ تایمریِ بی‌alarm مثلِ قبل tier=None (محلی-اولِ ارزان، بعد پولی).
     res = ask("research", prompt, system="پاسخ فقط فارسی، فشرده، بدونِ مقدمه.",
               max_tokens=MAX_TOKENS,
-              tier=("primary" if ctx.get("alarm") else None), **kw)
+              tier=(tier or ("primary" if ctx.get("alarm") else None)), **kw)
     if not res.get("ok"):
         return {"ok": False, "reason": res.get("reason", "brain-unavailable"),
                 "ctx_sizes": {k: len(v) if isinstance(v, list) else 1
@@ -192,9 +192,9 @@ def synthesize(ask=None, extra: dict | None = None) -> dict:
     return {"ok": True, "digest": digest}
 
 
-def run_and_persist(ask=None, extra: dict | None = None) -> dict:
+def run_and_persist(ask=None, extra: dict | None = None, tier: str | None = None) -> dict:
     """سنتز + نوشتنِ اتمیک + NOTE در ledger (شفافیتِ خرج/مسیرِ مغز)."""
-    r = synthesize(ask=ask, extra=extra)
+    r = synthesize(ask=ask, extra=extra, tier=tier)
     if not r.get("ok"):
         return r
     if r.get("skipped"):

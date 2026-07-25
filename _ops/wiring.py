@@ -1846,6 +1846,20 @@ def _record_lead_decisions(items, beat: int = 0) -> dict:
                 spine = _esx.EventSpine(path=sdir / "spine.db")
         except Exception:  # noqa: BLE001 — spine اختیاری است
             spine = None
+        # W1 · قوسِ یادگیری: همان نوشتنِ حافظه، ولی از learning_gate (بایندِ outcome +
+        # رسیدِ اجباری + گیتِ held-out) نه submitِ خام. پشتِ OCTOPUS_WIRE_LEARN_FROM_LEAD
+        # (پیش‌فرض خاموش = رفتارِ امروز بایت‌به‌بایت). ارزیابیِ held-out **یک‌بار برای کلِ
+        # batch** — fast_ledger_eval یک subprocessِ verify است و per-lead یعنی چند subprocess
+        # در یک beat. هر خطا → fail-closed (یاد نمی‌گیریم). صفر شبکه/تلگرام/پول.
+        _learn_on = bool(flag("OCTOPUS_WIRE_LEARN_FROM_LEAD") and mgate is not None)
+        _lg = None
+        _held = {"overall_verdict": "fail", "anti_hacking_flag": False}
+        if _learn_on:
+            try:
+                import learning_gate as _lg   # noqa: WPS433 — lazy
+                _held = _lg.fast_ledger_eval()
+            except Exception:  # noqa: BLE001 — یادگیری هرگز ثبتِ لید را نمی‌کشد
+                _lg, _learn_on = None, False
         for lead, aid in items:
             try:
                 res = _lor.record_lead_decision(
@@ -1883,16 +1897,48 @@ def _record_lead_decisions(items, beat: int = 0) -> dict:
                             out["spine_events"] = out.get("spine_events", 0) + 2
                         except Exception:  # noqa: BLE001 — spine نباید ثبت را بشکند
                             pass
-                    if mgate is not None:   # LEG-08: حافظهٔ episodic از تصمیم — PII-free
-                        try:                # (فقط IDهای داخلی، هرگز متنِ خامِ لید)
-                            mgate.submit({
-                                "namespace": "episodic", "source": "lead_outcome_recorder",
-                                "mkey": res["correlation_id"], "salience": 0.4,
-                                "privacy": "scrubbed",
-                                "content": (f"lead-decision proposal={res['proposal_id']} "
-                                            f"corr={res['correlation_id']} verdict={res['verdict']} "
-                                            f"value_aud={res.get('value_aud_claimed')}")})
-                            out["memories_written"] = out.get("memories_written", 0) + 1
+                    if mgate is not None:   # LEG-08: حافظهٔ تصمیم — PII-free
+                        try:                # (فقط IDها و دستهٔ قطعی، هرگز متنِ خامِ لید)
+                            if _learn_on and _lg is not None:
+                                # namespace=semantic چون **تنها خوانندهٔ حافظه** در درختِ زنده
+                                # lead_outcome_recorder است و فقط semantic را search می‌کند
+                                # (lead_outcome_recorder.py:66) — نوشتنِ episodic یعنی خاطره‌ای
+                                # که هرگز استناد نمی‌شود. outcome_ref همان ردیفِ deliveredی است
+                                # که همین‌الان نوشته شد → trust به واقعیت bind می‌شود.
+                                _lr = _lg.learn_from_outcome(
+                                    memory_gate=mgate, receipt_store=r, outcome_store=o,
+                                    evaluator=(lambda **_k: _held),
+                                    signal={"namespace": "semantic",
+                                            "mkey": res["correlation_id"],
+                                            "content": (
+                                                f"lead-decision category={res.get('category')} "
+                                                f"score={res.get('score')} "
+                                                f"action={res.get('action')} "
+                                                f"value_aud={res.get('value_aud_claimed')} "
+                                                f"proposal={res['proposal_id']}"),
+                                            "correlation_id": res["correlation_id"],
+                                            "mission_id": res["mission_id"],
+                                            "outcome_ref": res["outcome_ref"],
+                                            "trust": "DETERMINISTIC", "salience": 0.5,
+                                            "privacy": "scrubbed", "source": "deterministic",
+                                            "producer": "lead_outcome_recorder"})
+                                if _lr.get("learned"):
+                                    out["memories_written"] = out.get("memories_written", 0) + 1
+                                    out["learn_receipts"] = out.get("learn_receipts", 0) + 1
+                                else:
+                                    # صادقانه: چرا یاد نگرفت (dedup / held-out قرمز / رسید نخورد)
+                                    out["learn_blocked"] = out.get("learn_blocked", 0) + 1
+                                    out["learn_reason"] = str(_lr.get("reason"))[:100]
+                            else:
+                                mgate.submit({
+                                    "namespace": "episodic", "source": "lead_outcome_recorder",
+                                    "mkey": res["correlation_id"], "salience": 0.4,
+                                    "privacy": "scrubbed",
+                                    "content": (f"lead-decision proposal={res['proposal_id']} "
+                                                f"corr={res['correlation_id']} "
+                                                f"verdict={res['verdict']} "
+                                                f"value_aud={res.get('value_aud_claimed')}")})
+                                out["memories_written"] = out.get("memories_written", 0) + 1
                         except Exception:  # noqa: BLE001 — حافظه نباید ثبت را بشکند
                             pass
             except Exception:  # noqa: BLE001 — یک لیدِ بد کلِ ثبت را نکشد

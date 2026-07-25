@@ -258,6 +258,40 @@ def generate_proposals(signals: dict) -> list[dict]:
     return out
 
 
+def improvement_rate(limit: int = 200) -> dict:
+    """نرخِ واقعیِ خودبهبودی — چه کسری از نیت‌های ثبت‌شده واقعاً یک متریکِ برون‌دادی
+    را جابه‌جا کردند. منبع: رکوردهای بستارِ state/cortex/outcomes.jsonl
+    (schema outcome-closure.v1 — نوشتهٔ goal_directed._close_intents).
+
+    چرا این و نه maturity_pct (W2): چک‌لیستِ self_audit تابعِ محضِ «وجودِ فایل +
+    grepِ سورس» است و ۱۷ بند از ۴۳ ساختاراً هرگز Done نمی‌شوند → آن عدد در سقفِ
+    خودش قفل است. این یکی از داده‌ای می‌آید که واقعاً حرکت می‌کند.
+
+    صداقت: نبودِ داده → rate_pct=None (نه صفرِ ساختگی). $0، فقط‌خواندنی، fail-soft.
+    """
+    p = STATE / "cortex" / "outcomes.jsonl"
+    closed = moved = 0
+    try:
+        if not p.exists():
+            return {"closed": 0, "moved": 0, "rate_pct": None}
+        for line in p.read_text("utf-8").splitlines()[-limit:]:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                r = json.loads(line)
+            except (json.JSONDecodeError, ValueError):
+                continue
+            if r.get("kind") != "closure":
+                continue
+            closed += 1
+            moved += 1 if r.get("moved") else 0
+    except OSError:
+        return {"closed": 0, "moved": 0, "rate_pct": None}
+    return {"closed": closed, "moved": moved,
+            "rate_pct": round(100.0 * moved / closed, 1) if closed else None}
+
+
 def observability_ok() -> tuple[bool, str]:
     """گاردِ GAAT (SPEC §۲۱-۱): «مشاهده مُرد = خود-تغییری می‌ایستد.»
     معیار: ORGANISM-STATE موجود و تازه (≤OBS_MAX_AGE_MIN). فایلِ غایب (pre-birth/تست)
@@ -397,10 +431,16 @@ def run(write: bool = True, use_local_brain: bool = True) -> dict:
                 "suggested_action": "اول بدن/observability را زنده کن؛ خود-تغییری تا آن موقع L1.",
                 "change_level": "reconfig", "source": "guard",
                 "status_now": "Degraded", "status": "proposed"}] + top[:7]
+    rate = improvement_rate()
     digest = {
         "ts": opslib.now_iso(), "schema": "upgrades-digest.v1",
         "observability_ok": obs_ok,
+        # W2: عددِ چک‌لیست ایستا است (سقفِ ثابت) — با نامِ صادق و پرچمِ صریح.
+        # maturity_pct فقط برای سازگاریِ مصرف‌کننده‌های موجود نگه داشته می‌شود.
+        "checklist_pct": signals["matrix"].get("maturity_pct"),
+        "checklist_static": True,
         "maturity_pct": signals["matrix"].get("maturity_pct"),
+        "improvement_rate": rate,
         "n_proposals": len(proposals),
         "by_category": by_cat,
         "top": top,
@@ -416,7 +456,12 @@ def run(write: bool = True, use_local_brain: bool = True) -> dict:
             with opslib.LockedJson(DIGEST_PATH) as lj:
                 lj.write(digest)
             opslib.ledger_note("SELF_IMPROVE_DIGEST", {
-                "n": len(proposals), "maturity_pct": digest["maturity_pct"],
+                # W2 (2026-07-25): maturity_pct از لِجِر حذف شد — ۴۸ رکوردِ پشتِ‌هم
+                # دقیقاً ۷۵.۶ بود، چون تابعِ ایستایِ «وجودِ فایل + grepِ سورس» است و
+                # در سقفِ خودش قفل. به‌جایش نرخِ بستارِ واقعی ثبت می‌شود که حرکت دارد.
+                "n": len(proposals),
+                "improve_rate_pct": rate.get("rate_pct"),
+                "closed": rate.get("closed"), "moved": rate.get("moved"),
                 "top": [t["title"] for t in top[:3]]}, actor="self-improve")
         except Exception as e:  # noqa: BLE001
             opslib.alert([f"improve digest write failed: {e}"])

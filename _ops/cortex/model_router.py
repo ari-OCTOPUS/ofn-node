@@ -37,6 +37,20 @@ ACT_CORTEX_PAID = opslib.OPS / "ACTIVATION-CORTEX-PAID.flag"
 # خودِ مالک، نه ایجنت. کلید همچنان لازم است؛ organ_gate/بودجه همچنان حاکم.
 ACT_RESEARCH_EARLY = opslib.OPS / "ACTIVATION-RESEARCH-EARLY.flag"
 
+# ── ردِ append-only هر تماسِ پولی (B4) ────────────────────────────────────────
+# تنها فایلی که به سؤالِ «آیا مغزِ پولی واقعاً کار کرد؟» جواب می‌دهد.
+# عمداً پشتِ فلگ نیست: فلگ restart می‌خواهد و می‌تواند بی‌صدا خاموش بماند، و آن‌وقت
+# «فایلِ خالی» با «کار نکرد» یکی می‌شود. $۰، بدونِ شبکه، fail-soft، هرگز prompt/کلید.
+# subscription=max ⇒ cost_usd ساختاراً 0.0 است — شاهدِ مصرف این‌جا tokens/attempt است، نه دلار.
+PAID_LOG = opslib.STATE_DIR / "paid-calls.jsonl"
+
+
+def _paid_log(**rec) -> None:
+    try:
+        opslib.append_jsonl(PAID_LOG, {"ts": opslib.now_iso(), **rec})
+    except Exception:  # noqa: BLE001 — لاگ هرگز مسیرِ مغز را نمی‌کشد
+        pass
+
 # نگاشتِ نوعِ کار → ردهٔ پیش‌فرض (قابلِ override با tier=)
 TASK_TIERS = {
     "daily": "local", "classify": "local", "summarize": "local",
@@ -141,17 +155,38 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int) -> dict | No
         if not _q.get("allow"):
             organ_gate.release("ARCHITECT_SYS", est, task=f"cortex-{tier}")
             return None
+        import time as _pt
+        _t0 = _pt.time()
         try:
             out = cli.complete(system, prompt, max_tokens=max_tokens)
             fugu_quota.ok(tier)
-        except Exception:
+        except Exception as _ce:
             fugu_quota.fail(tier)
+            _paid_log(tier=tier, role=role,
+                      provider=getattr(cli, "provider", ""),
+                      model=getattr(cli, "model", ""),
+                      via_gateway=bool(getattr(cli, "use_gateway", False)),
+                      subscription=getattr(cli, "subscription", None) or "metered",
+                      ok=False, error=type(_ce).__name__,
+                      ms=int((_pt.time() - _t0) * 1000),
+                      quota_used=_q.get("used"))
             organ_gate.release("ARCHITECT_SYS", est, task=f"cortex-{tier}")
             raise
         # subscription: هزینهٔ نقدی ~۰ ولی استفاده متر می‌شود (سهمیهٔ نصفِ اشتراک)
         organ_gate.settle("ARCHITECT_SYS", est,
                           float(out.get("cost_usd", 0.0) or 0.0),
                           task=f"cortex-{tier}")
+        _paid_log(tier=tier, role=role,
+                  provider=getattr(cli, "provider", ""),
+                  model=out.get("model"),
+                  via_gateway=bool(out.get("via_gateway")),
+                  subscription=out.get("subscription"),
+                  ok=True,
+                  tokens_in=out.get("tokens_in"), tokens_out=out.get("tokens_out"),
+                  cost_usd=float(out.get("cost_usd", 0.0) or 0.0),
+                  chars_out=len(out.get("text") or ""),
+                  ms=int((_pt.time() - _t0) * 1000),
+                  quota_used=_q.get("used"))
         return {"text": out.get("text", ""), "tier": tier,
                 "model": out.get("model"), "cost_usd": out.get("cost_usd", 0.0)}
     except Exception as e:  # noqa: BLE001 — پولی شکست → fallback
@@ -244,9 +279,21 @@ def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
         _has = {"secondary": bool(kp.get("glm")), "primary": bool(kp.get("fugu"))}
         order = [want] + [t for t in ("primary", "secondary") if t != want]
         tried = []
+        # بودجهٔ ساعتِ دیواریِ کلِ تلاشِ پولی در یک ask (env PAID_ASK_BUDGET_S، پیش‌فرض ۹۰s).
+        # بدونِ این، دو ردهٔ پولیِ سریالی هرکدام تا timeoutِ سوکت وقت می‌گیرند و نخِ
+        # متابولیک همان‌قدر STOP-ORGANISM را نمی‌بیند (چکِ kill سرِ حلقه است).
+        import time as _tb
+        try:
+            _budget_s = float(os.environ.get("PAID_ASK_BUDGET_S", "90"))
+        except (TypeError, ValueError):
+            _budget_s = 90.0
+        _deadline = _tb.time() + max(5.0, _budget_s)
         for _t in order:
             if not _has.get(_t):
                 continue
+            if _tb.time() >= _deadline:
+                tried.append(f"{_t}:skipped-deadline")
+                break
             out = _ask_paid(_t, prompt, system, max_tokens)
             tried.append(_t)
             if out:

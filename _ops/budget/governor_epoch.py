@@ -419,8 +419,17 @@ def run_epoch(base_min: float = BASE_MIN_DEFAULT) -> dict:
                 # قرارداد topic: فقط از whitelist ضدتزریق (id/source/text) — dict آزاد
                 # KeyError می‌داد. seed-3 = ارزش‌سنجی governor سایه (همان epoch-strategy).
                 # snap عمداً وارد topic نمی‌شود (topic داده است، نه کانال ورودی آزاد).
-                record["debate"] = _run_debate(
-                    _debate_topics.get_topic("seed-3"), live=False)
+                # DEFECT-W4: هاردکدِ seed-3 یعنی حلقه هر epoch همان یک موضوع را تکرار
+                # می‌کرد (۶۳ رویدادِ EXPERIENCE، همه seed-3). پشتِ همان فلگِ مغزِ محلی،
+                # whitelist می‌چرخد؛ شمارنده = تعدادِ epochهای قبلی (بدونِ state جدید).
+                _topic = _debate_topics.get_topic("seed-3")
+                if os.environ.get("OCTOPUS_WIRE_DEBATE_LOCAL") == "1":
+                    try:
+                        _seq = len(list(EPOCH_DIR.glob("epoch-*.json")))
+                        _topic = _debate_topics.next_topic(_seq) or _topic
+                    except Exception:  # noqa: BLE001 — چرخش هرگز epoch را نمی‌کشد
+                        pass
+                record["debate"] = _run_debate(_topic, live=False)
             except Exception as _de:  # noqa: BLE001 — §۴
                 opslib.alert([f"governor debate failed (non-fatal): {type(_de).__name__}: {_de}"])
     EPOCH_DIR.mkdir(parents=True, exist_ok=True)

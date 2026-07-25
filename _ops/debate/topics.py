@@ -78,6 +78,18 @@ def get_topic(topic_id: str) -> dict | None:
     return None
 
 
+def next_topic(seq: int) -> dict | None:
+    """موضوعِ بعدی از whitelist به‌صورتِ چرخشی (seq = شمارندهٔ epoch).
+
+    DEFECT-W4: صداکنندهٔ تولیدی «seed-3» را هاردکد کرده بود، پس هر ۶۳ دورِ ledger
+    یک موضوع بودند. خودِ whitelist مرزِ ضدتزریق است، پس چرخش داخلِ آن امن است.
+    """
+    all_t = list_topics()
+    if not all_t:
+        return None
+    return all_t[int(seq) % len(all_t)]
+
+
 if __name__ == "__main__":
     import json
     print(json.dumps(list_topics(), ensure_ascii=False, indent=2))

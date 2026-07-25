@@ -602,7 +602,38 @@ class Doctor:
                                                             "rfc_hash": rfc.rfc_hash})
             self._journal(rfc.rfc_id, "submit", "ok")   # C2-D: قدمِ ۳
         else:
-            rfc.status = "submit-failed"
+            # W7 (2026-07-25): کارت ساخته/فرستاده نشد — و «چرا» هیچ‌جا ثبت نمی‌شد.
+            # نتیجه: ۷۰ draft بی‌صدا مردند و صفر verdict وارد سیستم شد. حالا دلیل در
+            # ledger/journal می‌نشیند و یک‌بار alert می‌شود. اگر بلاک ساختاری است (رازِ
+            # callback یا owner ست نشده)، RFC را «منتظرِ کانال» نگه می‌داریم تا با رفعِ
+            # پیش‌شرط، همان _sweep_stale_rfcs دوباره submit کند — نه مرگِ خاموشِ
+            # submit-failed که فقط expire می‌شود.
+            ready, reason = False, "unknown"
+            try:
+                import outcomes.pending_card_recovery as _pcr_probe  # noqa: WPS433
+                ready, reason = _pcr_probe.card_delivery_ready(
+                    getattr(self._channel, "_owner", None))
+            except Exception:  # noqa: BLE001 — پروب هرگز مسیرِ دکتر را نمی‌کشد
+                pass
+            rfc.status = ("submitted-no-channel"
+                          if (not ready and reason in ("no-secret", "no-owner"))
+                          else "submit-failed")
+            self._note("DOCTOR_SUBMIT_BLOCKED", {"rfc_id": rfc.rfc_id,
+                                                 "reason": reason,
+                                                 "status": rfc.status})
+            self._journal(rfc.rfc_id, "submit", "blocked", reason=reason)
+            _seen = getattr(self, "_submit_blocked_alerted", None)
+            if _seen is None:
+                _seen = set()
+                self._submit_blocked_alerted = _seen
+            if reason not in _seen:
+                _seen.add(reason)
+                try:
+                    opslib.alert([f"دکتر: کارتِ تأییدِ RFC ساخته نشد ({reason}) — "
+                                  f"حلقهٔ رأیِ مالک بسته است؛ هیچ verdict وارد نمی‌شود."])
+                except Exception:  # noqa: BLE001 — alert هم نباید مسیر را بکشد
+                    pass
+        self._persist_rfcs()   # W7: وضعیتِ پس از submit همان لحظه روی دیسک (flag-gated داخل خودش)
         return ok
 
     def apply_merge(self, rfc: RFC) -> bool:

@@ -13,6 +13,7 @@ import json
 import os
 import sys
 import time
+import types
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -183,6 +184,68 @@ def t_cortex_journal_keys():
     assert '"aligned"' in src, "کلیدِ سازگاری نباید حذف شود"
 
 
+def _load_cortex():
+    """cortex.py را مستقیم از فایل load کن (نه پکیجِ هم‌نامِ _ops/cortex/) — همان
+    الگویِ test_cortex_shadow_wiring. harness.setup از قبل OPS_DIR را به sandbox
+    برده، پس STATE_DIR/STOP_ORGANISM هم sandbox‌اند: صفر دست‌زدن به stateِ زنده."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "cortex_w3", str(_OPS / "cortex" / "cortex.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+_W3_PLAN = {"schema": "work-plan.v1", "templates": [
+    {"kind": "health", "every_s": 21600, "paid": False},
+    {"kind": "gap_report", "every_s": 43200, "paid": False},
+    {"kind": "search", "every_s": 86400, "paid": True}]}
+
+
+def t_w3_aligned_is_not_changed():
+    """W3: «هم‌راستا بود» یعنی aligned=True — نه Falseِ changed. و مسیرهای blocked
+    که همان changed=False دارند باید aligned=False بمانند (پس `not changed` غلط است)."""
+    cx = _load_cortex()
+    pulse = _SANDBOX / "pulse"
+    pulse.mkdir(parents=True, exist_ok=True)
+    plan_p = pulse / "work-plan.json"
+    plan_p.write_text(json.dumps(_W3_PLAN, ensure_ascii=False), "utf-8")
+    sweep = {"coherence": 0.94, "stale_members": [], "members": [], "n": 3}
+
+    a = cx.align_work_plan(sweep)              # نقشه از قبل هم‌راستا
+    assert a["changed"] is False and a["reason"] == "هم‌راستا بود", a
+    assert a["aligned"] is True, f"«هم‌راستا بود» ولی aligned={a.get('aligned')}"
+
+    plan_p.unlink()                            # plan غایب = هم‌راستا نیست
+    b = cx.align_work_plan(sweep)
+    assert b["changed"] is False and b["aligned"] is False, b
+
+
+def t_w3_journal_aligned_matches_reason():
+    """رکوردِ ژورنال دیگر خودش را نقض نمی‌کند: aligned=True کنارِ «هم‌راستا بود»."""
+    cx = _load_cortex()
+    d = _SANDBOX / "cortex-w3"
+    d.mkdir(parents=True, exist_ok=True)
+    cx.CORTEX_DIR = d
+    cx.STATE_PATH = d / "cortex-state.json"
+    cx.JOURNAL_PATH = d / "journal.jsonl"
+    cx.registry = types.SimpleNamespace(
+        sweep=lambda: {"coherence": 0.94, "stale_members": [], "members": [], "n": 3})
+    cx.model_router = types.SimpleNamespace(
+        keys_present=lambda: [], paid_gate=lambda: (False, "no-key"))
+    cx.align_work_plan = lambda sweep: {"changed": False, "aligned": True,
+                                        "reason": "هم‌راستا بود"}
+    cx.heart_rhythm_period = lambda: (120.0, "test")
+    cx.stress_tick = lambda cycle: None
+    cx.innervation_tick = lambda cycle: None
+    cx.think = lambda *a, **k: None
+    cx.run_cycle(1)
+    rec = json.loads(cx.JOURNAL_PATH.read_text("utf-8").splitlines()[-1])
+    assert rec["align_reason"] == "هم‌راستا بود", rec
+    assert rec["align_changed"] is False, rec
+    assert rec["aligned"] is True, f"تناقضِ W3 برگشت: {rec}"
+
+
 def t_wire_summary_complete():
     """بلاکِ wiring حالا لایه‌های قبلاً-کم‌شماری‌شده را گزارش می‌کند."""
     os.environ["OCTOPUS_WIRE_HEART"] = "1"
@@ -291,6 +354,8 @@ if __name__ == "__main__":
         ("[P6] بدونِ قلب → رفتارِ قبلی", t_spine_fallback_without_heart),
         ("[P8] registry خود-توصیف", t_registry_self_describing),
         ("[P7] کلیدهای journal", t_cortex_journal_keys),
+        ("[W3] aligned ≠ changed", t_w3_aligned_is_not_changed),
+        ("[W3] ژورنال خودش را نقض نمی‌کند", t_w3_journal_aligned_matches_reason),
         ("[P11] بلاکِ wiring کامل", t_wire_summary_complete),
         ("[box] ردِ ماندگار", t_box_trace_write_exists),
         ("[rev] واحدِ budget_pct درست شد", t_budget_pct_unit_fixed),

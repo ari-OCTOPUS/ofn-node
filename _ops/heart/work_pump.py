@@ -145,7 +145,14 @@ def _exec_paid_lane(kind: str, tpl: dict) -> dict:
         try:
             _syspath(_HERE.parent / "cortex")
             import synthesis as _syn
-            return _syn.run_and_persist()
+            # 2026-07-25: این لِین در DEFAULT_PLAN صریحاً paid:True است و پشتِ
+            # ACTIVATION-WORK-LLM.flag (فقط مالک) قفل شده. tier ندادن یعنی
+            # TASK_TIERS["research"]=="secondary" و بعد شاخهٔ محلی-اولِ روتر جوابِ
+            # qwen را می‌پذیرد (۶ از ۸ اجرای ثبت‌شده) — لِینِ «پولی» عملاً رایگان بود.
+            # tierِ صریح = صداقت: یا مغزِ پولی، یا fallback_fromِ ثبت‌شده.
+            import os as _os   # noqa: WPS433 — lazy، فقط برای خواندنِ tier
+            return _syn.run_and_persist(
+                tier=(_os.environ.get("WORK_LLM_TIER") or "primary"))
         except Exception as e:  # noqa: BLE001 — سنتز نباید pump را بکشد
             return {"ok": False, "error": f"{type(e).__name__}: {str(e)[:100]}"}
     if kind == "search":

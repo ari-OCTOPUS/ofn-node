@@ -73,13 +73,22 @@ def heart_rhythm_period() -> tuple[float, str]:
 def align_work_plan(sweep: dict) -> dict:
     """اختیارِ مصوب: مرتب‌سازیِ کران‌دارِ کارِ $0. کران‌ها (تست‌شده):
     فقط templateهای paid=False · فقط ترتیب + every_s در [۰.۵×..۲×]ِ پیش‌فرض ·
-    هرگز add/remove/kind-change · نبودِ plan → هیچ. خروجی: گزارشِ diff."""
+    هرگز add/remove/kind-change · نبودِ plan → هیچ. خروجی: گزارشِ diff.
+
+    W3 (2026-07-25): دو واقعیتِ *جدا* برمی‌گرداند —
+      changed = «این چرخه نقشه را عوض کردم؟»
+      aligned = «نقشه *الان* هم‌راستاست؟»
+    اینها یکی نیستند و `aligned = not changed` هم غلط است: STOP / plan-غایب /
+    write-failed هم changed=False‌اند ولی هیچ‌کدام هم‌راستا نیستند. پس هر return
+    خودش صریح اعلام می‌کند."""
     if opslib.STOP_ORGANISM.exists():
-        return {"changed": False, "reason": "بدن STOP است — مغز فقط تماشا می‌کند"}
+        return {"changed": False, "aligned": False,
+                "reason": "بدن STOP است — مغز فقط تماشا می‌کند"}
     plan_path = opslib.STATE_DIR / "pulse" / "work-plan.json"
     plan = _read_json(plan_path)
     if plan.get("schema") != "work-plan.v1" or not plan.get("templates"):
-        return {"changed": False, "reason": "plan غایب — pump هنوز seed نکرده"}
+        return {"changed": False, "aligned": False,
+                "reason": "plan غایب — pump هنوز seed نکرده"}
     defaults = {"health": 21600, "gap_report": 43200}
     free = [t for t in plan["templates"] if not t.get("paid")]
     paid = [t for t in plan["templates"] if t.get("paid")]
@@ -102,7 +111,7 @@ def align_work_plan(sweep: dict) -> dict:
         changed.append("reorder:" + ">".join(t["kind"] for t in free_sorted))
     new_templates = free_sorted + paid          # paid دست‌نخورده، تهِ صف
     if not changed:
-        return {"changed": False, "reason": "هم‌راستا بود"}
+        return {"changed": False, "aligned": True, "reason": "هم‌راستا بود"}
     plan["templates"] = new_templates
     plan["aligned_by"] = "cortex"
     plan["aligned_ts"] = opslib.now_iso()
@@ -110,8 +119,8 @@ def align_work_plan(sweep: dict) -> dict:
         with opslib.LockedJson(plan_path) as lj:
             lj.write(plan)
     except Exception as e:  # noqa: BLE001
-        return {"changed": False, "reason": f"write-failed: {e}"}
-    return {"changed": True, "diff": changed}
+        return {"changed": False, "aligned": False, "reason": f"write-failed: {e}"}
+    return {"changed": True, "aligned": True, "diff": changed}
 
 
 def think(sweep: dict, cycle: int, focus: str | None = None) -> str:
@@ -136,7 +145,9 @@ def self_improve(cycle: int) -> dict | None:
     try:
         import improve
         d = improve.run(write=True)
-        return {"maturity_pct": d.get("maturity_pct"),
+        return {"maturity_pct": d.get("maturity_pct"),      # ایستا — پوششِ چک‌لیست
+                "checklist_static": d.get("checklist_static"),
+                "improvement_rate": d.get("improvement_rate"),
                 "n_proposals": d.get("n_proposals"),
                 "top": [t.get("title") for t in (d.get("top") or [])[:3]]}
     except Exception as e:  # noqa: BLE001 — خودارتقا نباید مغز را بکشد
@@ -457,10 +468,17 @@ def run_cycle(cycle: int) -> dict:
     # P7 (truth-map 2026-07-17): «aligned» نامِ گمراه‌کننده بود — مقدارِ changed را حمل
     # می‌کرد (false = حالتِ سالمِ «هم‌راستا بود»، ولی blocked/خطا هم همین را می‌نوشت).
     # هر دو واقعیت journal می‌شود؛ کلیدِ قدیمی برای سازگاریِ مصرف‌کننده‌ها می‌ماند.
+    # W3 (2026-07-25): P7 فقط دو کلیدِ نو *اضافه* کرد و خودِ aligned را همچنان از
+    # changed می‌خواند → ژورنال هر چرخه خودش را نقض می‌کرد («aligned»: false کنارِ
+    # align_reason=«هم‌راستا بود»). حالا aligned واقعیتِ خودش را از align_work_plan
+    # می‌گیرد: «نقشه الان هم‌راستاست؟» — نه «این چرخه عوض شد؟».
+    # jschema رکوردهای پس از فیکس را از رکوردهای قدیمیِ همان فایل (معناشناسیِ کهنه)
+    # جدا می‌کند؛ ژورنال append-only است و تاریخ بازنویسی نمی‌شود.
     rec = {"ts": state["ts"], "cycle": cycle,
+           "jschema": "cortex-journal.v2",
            "coherence": sweep["coherence"],
-           "aligned": alignment.get("changed", False),
-           "align_changed": alignment.get("changed", False),
+           "aligned": bool(alignment.get("aligned", False)),
+           "align_changed": bool(alignment.get("changed", False)),
            "align_reason": str(alignment.get("reason", ""))[:120],
            **({"diff": alignment.get("diff")} if alignment.get("changed") else {}),
            **({"thought": thought} if thought else {})}

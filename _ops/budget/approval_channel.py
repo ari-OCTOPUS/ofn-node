@@ -1115,8 +1115,12 @@ class TelegramApprovalChannel(ApprovalChannel):
             f"{t.get('priority')} · {html.escape(str(t.get('title','')))} "
             f"<code>[{t.get('change_level')}]</code>\n  ↳ {html.escape(str(t.get('suggested_action',''))[:90])}"
             for t in (u.get("top") or [])[:5])
-        return ("🧬 <b>خودارتقا — بلوغِ سیستم "
-                f"{u.get('maturity_pct','—')}%</b>" + self._DIV
+        _ir = u.get("improvement_rate") or {}
+        return ("🧬 <b>خودارتقا — نرخِ بهبود "
+                f"{_ir.get('rate_pct', '—')}%</b> "
+                f"<i>({_ir.get('moved', 0)}/{_ir.get('closed', 0)} نیت متریک را جابه‌جا کرد)</i>\n"
+                f"پوششِ چک‌لیست: {u.get('checklist_pct', u.get('maturity_pct', '—'))}% "
+                "<i>(ایستا — سقفِ ثابت، سنجهٔ پیشرفت نیست)</i>" + self._DIV
                 + f"{u.get('n_proposals','—')} پیشنهاد · auto: "
                 + ("🟢 روشن" if u.get("auto_enabled") else "⚪ خاموش (propose-only)") + "\n"
                 + f"دسته‌ها: {cats}\n\n{tops}\n"

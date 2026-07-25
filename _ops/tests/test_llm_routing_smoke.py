@@ -43,8 +43,11 @@ def _real_budgets():
     return yaml.safe_load(REAL_BUDGETS_PATH.read_text(encoding="utf-8"))
 
 
-def _has_key(name):
-    return bool(os.environ.get(name))
+def _has_key(*names):
+    """هر یک از نام‌ها کافی است — دقیقاً همان aliasهایی که خودِ client قبول می‌کند
+    (client.py GLM_API_KEY / FUGU_API_KEY). قبلاً فقط نامِ اصلی چک می‌شد و
+    Fugu LIVE smoke بی‌صدا return می‌کرد ولی harness ✅ چاپ می‌کرد — greenِ دروغ."""
+    return any(bool(os.environ.get(n)) for n in names)
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -146,8 +149,12 @@ def test_fugu_stub_offline():
     r = c.complete("sys", "usr", max_tokens=10)
     assert r["provider"] == "sakana"
     assert r["tokens_out"] == 8
-    # fugu metered → cost > 0 (20*5 + 8*30 per 1M)
-    assert r["cost_usd"] > 0
+    # 2026-07-25: نقشِ orchestr روی پلنِ فلتِ MAX رفت (budgets.yaml، خریدِ ۲۴ جولای)
+    # → متر نقدی ساختاراً صفر است و انتظارِ قدیمیِ cost>0 کهنه شد؛ شاهدِ مصرف در پلنِ
+    # فلت، توکن است نه دلار. (اگر روزی به metered برگشت، این تست باید برعکس شود.)
+    assert r["subscription"] == "max", r
+    assert r["cost_usd"] == 0.0, r
+    assert r["tokens_in"] + r["tokens_out"] > 0, r
 
 
 def t_leak_guard_rejects_bad_host():
@@ -206,13 +213,17 @@ def test_glm_live_smoke():
         c = MultiProviderClient(role="glm", budgets=b)
     except RefuseToSend:
         return  # gateway down + no direct key → skip
-    if not c.use_gateway and not _has_key("ZAI_API_KEY"):
+    if not c.use_gateway and not _has_key("ZAI_API_KEY", "GLM_API_KEY"):
         return  # offline skip
     r = c.complete("You are a test echo.", "Reply with exactly: PONG", max_tokens=20)
     assert "text" in r, f"GLM باید text برگرداند: {r}"
     assert len(r["text"]) > 0, "GLM جوابِ خالی داد"
     assert r["tokens_in"] + r["tokens_out"] > 0, "GLM باید usage برگرداند"
     assert r["cost_usd"] < 100.0, f"cost باید زیرِ cap باشد: {r['cost_usd']}"
+    assert r["stub"] is False, "مسیرِ زنده نباید stub باشد"
+    print(f"  [LIVE glm] provider={r.get('provider')} model={r.get('model')} "
+          f"gw={r.get('via_gateway')} tok={r['tokens_in']}/{r['tokens_out']} "
+          f"sub={r.get('subscription')}")
 
 
 def test_fugu_live_smoke():
@@ -223,12 +234,16 @@ def test_fugu_live_smoke():
         c = MultiProviderClient(role="orchestr", budgets=b)
     except RefuseToSend:
         return
-    if not c.use_gateway and not _has_key("SAKANA_API_KEY"):
+    if not c.use_gateway and not _has_key("SAKANA_API_KEY", "FUGU_API_KEY"):
         return  # offline skip
     r = c.complete("You are a test echo.", "Reply with exactly: PONG", max_tokens=20)
     assert "text" in r, f"Fugu باید text برگرداند: {r}"
     assert len(r["text"]) > 0
     assert r["tokens_in"] + r["tokens_out"] > 0
+    assert r["stub"] is False, "مسیرِ زنده نباید stub باشد"
+    print(f"  [LIVE fugu] provider={r.get('provider')} model={r.get('model')} "
+          f"gw={r.get('via_gateway')} tok={r['tokens_in']}/{r['tokens_out']} "
+          f"sub={r.get('subscription')}")
 
 
 def t_env_status_report():

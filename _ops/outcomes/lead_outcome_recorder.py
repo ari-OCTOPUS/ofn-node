@@ -100,4 +100,9 @@ def record_lead_decision(lead: dict, outcome_store, receipt_store, memory_store=
     return {"receipt_id": rid, "outcome_ref": oref, "correlation_id": corr,
             "mission_id": mission_id, "proposal_id": proposal_id, "lead_id": lead_id,
             "delivered": True, "verdict": "PENDING", "value_aud_claimed": value_claim,
-            "memories_used": len(memories_used)}
+            "memories_used": len(memories_used),
+            # W1: امضای قطعیِ تصمیم (PII-free) تا خاطرهٔ یادگرفته **قابلِ بازیابی** باشد —
+            # search روی متنِ خاطره کار می‌کند و شناسهٔ تنها هرگز با توصیفِ لیدِ بعدی
+            # match نمی‌شود. category/score/action خروجیِ قطعیِ scorer است، نه متنِ خامِ لید.
+            "category": str(scored.category), "score": scored.score,
+            "action": str(scored.action)}

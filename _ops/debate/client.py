@@ -104,7 +104,7 @@ class DeepSeekClient:
                 data=json.dumps(body).encode("utf-8"),
                 headers={"Authorization": f"Bearer {self.api_key}",
                          "Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=120) as resp:  # pragma: no cover
+            with urllib.request.urlopen(req, timeout=_http_timeout()) as resp:  # pragma: no cover
                 raw = json.loads(resp.read().decode("utf-8"))
         _msg = (raw.get("choices") or [{}])[0].get("message", {})
         # fallback به reasoning_content — مدل‌های reasoning گاهی content را خالی می‌گذارند (fail-soft، صادق)
@@ -119,8 +119,14 @@ class DeepSeekClient:
             raise TelemetryError("usage صفر/ناقص — صفر بی‌صدا ممنوع (تلهٔ or 0)")
         cost = (tin / 1e6) * float(self.price_in or 0.0) \
             + (tout / 1e6) * float(self.price_out or 0.0)
-        return {"text": text, "model": self.model, "tokens_in": tin, "tokens_out": tout,
-                "cost_usd": cost, "stub": self.transport is not None}
+        # DEFECT-W4: transportِ تزریقی می‌تواند ردهٔ واقعیِ خود را اعلام کند (octopus_tier)
+        # تا ledger بینِ stubِ آفلاین و مغزِ محلیِ واقعی فرق بگذارد. نبودِ این کلید =
+        # رفتارِ امروز بایت‌به‌بایت (هر transport = stub؛ بدونِ transport = زنده).
+        _tier = raw.get("octopus_tier")
+        return {"text": text, "model": raw.get("octopus_model") or self.model,
+                "tokens_in": tin, "tokens_out": tout, "cost_usd": cost,
+                "tier": _tier or ("stub" if self.transport is not None else "paid"),
+                "stub": self.transport is not None and (_tier or "stub") == "stub"}
 
 
 # ─── MultiProviderClient (GLM/Fugu/DeepSeek) — تسکِ routing اصلی ──────────────
@@ -130,6 +136,18 @@ class DeepSeekClient:
 # (glm-coder, deepseek-bulk, orchestr, fugu) با cost-cap + audit + fallback.
 # کد از طریقِ gateway می‌زند، نه مستقیم. کلید = LITELLM_MASTER_KEY از gateway/.env.
 GATEWAY_URL = "http://localhost:4000"
+
+
+def _http_timeout() -> float:
+    """سقفِ سختِ هر عملیاتِ سوکت روی مسیرِ پولی. env: PAID_HTTP_TIMEOUT_S (پیش‌فرض ۴۵s).
+    ۱۲۰s قبلی روی نخِ متابولیک می‌نشست و همان‌قدر kill-check را کور می‌کرد.
+    تماسِ سالمِ واقعی ~۲–۲۰s است (organ-gate-log 2026-07-25T04:28:52→04:29:09 = ۱۷s)."""
+    import os as _o
+    try:
+        v = float(_o.environ.get("PAID_HTTP_TIMEOUT_S", "45"))
+        return v if 1.0 <= v <= 300.0 else 45.0
+    except (TypeError, ValueError):
+        return 45.0
 GATEWAY_ENV_PATH = Path(__file__).resolve().parent.parent.parent / "survival-gateway" / ".env"
 
 # نگاشتِ role (در budgets.yaml) → نامِ مدلِ مجازیِ gateway
@@ -301,7 +319,7 @@ class MultiProviderClient:
                 data=json.dumps(body).encode("utf-8"),
                 headers={"Authorization": f"Bearer {self.api_key}",
                          "Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=120) as resp:  # pragma: no cover
+            with urllib.request.urlopen(req, timeout=_http_timeout()) as resp:  # pragma: no cover
                 raw = json.loads(resp.read().decode("utf-8"))
         else:
             req = urllib.request.Request(
@@ -309,7 +327,7 @@ class MultiProviderClient:
                 data=json.dumps(body).encode("utf-8"),
                 headers={"Authorization": f"Bearer {self.api_key}",
                          "Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=120) as resp:  # pragma: no cover
+            with urllib.request.urlopen(req, timeout=_http_timeout()) as resp:  # pragma: no cover
                 raw = json.loads(resp.read().decode("utf-8"))
         _msg = (raw.get("choices") or [{}])[0].get("message", {})
         # fallback به reasoning_content — مدل‌های reasoning گاهی content را خالی می‌گذارند (fail-soft، صادق)

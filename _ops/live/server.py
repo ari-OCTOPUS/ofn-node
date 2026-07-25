@@ -246,7 +246,9 @@ def aggregate(probe=None) -> dict:
             "brains": cortex_st.get("brains"),
         },
         "upgrades": {
-            "maturity_pct": upgrades.get("maturity_pct"),
+            "maturity_pct": upgrades.get("maturity_pct"),   # ایستا — پوششِ چک‌لیست
+            "checklist_pct": upgrades.get("checklist_pct"),
+            "improve_rate": (upgrades.get("improvement_rate") or {}),
             "n": upgrades.get("n_proposals"),
             "categories": {k: len(v) for k, v in (upgrades.get("by_category") or {}).items()},
             "top": [{"title": t.get("title"), "priority": t.get("priority"),
@@ -671,7 +673,7 @@ button{background:linear-gradient(180deg,#155a66,#0d3a44);color:#dffaff;border:1
  <span class="chip">💗 <b id="cPeriod">—</b><span style="font-size:11px"> ضربان</span></span>
  <span class="chip">🧠 هم‌آهنگی <b id="cCoh">—</b></span>
  <span class="chip" id="cNeedsChip" style="cursor:pointer" onclick="showNeeds()">📌 <b id="cNeeds">—</b> نیاز</span>
- <span class="chip" style="cursor:pointer" onclick="showUpgrades()">🧬 بلوغ <b id="cMat">—</b></span>
+ <span class="chip" style="cursor:pointer" onclick="showUpgrades()">🧬 نرخِ بهبود <b id="cMat">—</b></span>
  <span class="chip" style="cursor:pointer" onclick="showResearch()">🌐 تحقیق <b id="cRes">—</b></span>
  <span class="chip" style="cursor:pointer" onclick="showMind()">🪞 خود <b id="cSelf">—</b></span>
 </div>
@@ -736,7 +738,7 @@ function showUpgrades(){const p=document.getElementById('panel');const u=LIVE?.u
  if(u.n==null){p.innerHTML='<b>🧬 خودارتقا</b><br>حلقه هنوز نچرخیده (هر ۱۰ چرخهٔ مغز).';p.style.display='block';return}
  const cats=Object.entries(u.categories||{}).map(([k,v])=>esc(k)+':'+v).join(' · ');
  const tops=(u.top||[]).map(t=>'• <b>'+esc(t.priority)+'</b> '+esc(t.title)+' <span style=color:#6f93a3>['+esc(t.level)+']</span><br><span style=color:#9fd8ea;font-size:12px>↳ '+esc(t.action)+'</span>').join('<br>');
- p.innerHTML='<b>🧬 خودارتقا — بلوغ '+esc(u.maturity_pct)+'%</b><br>'+esc(u.n)+' پیشنهاد · auto '+(u.auto_enabled?'🟢':'⚪ خاموش')+'<br><span style=color:#6f93a3>'+cats+'</span><br><br>'+tops+(u.brain_note?'<br><br>💭 '+esc(u.brain_note):'')+'<br><br><span style=color:#6f93a3>propose-only · هر تغییرِ جدی از تو می‌پرسد</span>';
+ p.innerHTML='<b>🧬 خودارتقا — نرخِ بهبود '+esc(u.improve_rate?.rate_pct ?? '—')+'%</b> <span style=color:#6f93a3>('+esc(u.improve_rate?.moved ?? 0)+'/'+esc(u.improve_rate?.closed ?? 0)+' نیت متریک را جابه‌جا کرد) · پوششِ چک‌لیست '+esc(u.checklist_pct ?? u.maturity_pct)+'% ایستا</span><br>'+esc(u.n)+' پیشنهاد · auto '+(u.auto_enabled?'🟢':'⚪ خاموش')+'<br><span style=color:#6f93a3>'+cats+'</span><br><br>'+tops+(u.brain_note?'<br><br>💭 '+esc(u.brain_note):'')+'<br><br><span style=color:#6f93a3>propose-only · هر تغییرِ جدی از تو می‌پرسد</span>';
  p.style.display='block'}
 function showResearch(){const p=document.getElementById('panel');const r=LIVE?.research||{};
  if(!r.present){p.innerHTML='<b>🌐 تحقیقِ وب</b><br>هنوز نچرخیده — پمپِ کار هر ~۱۲h روی گپِ مدرسه سرچِ رایگان ($0) می‌زند.';p.style.display='block';return}
@@ -771,7 +773,7 @@ async function tick(){try{
  const coh=c.coherence; document.getElementById('cCoh').textContent=coh!=null?Math.round(coh*100)+'%':'—';
  document.getElementById('cohRing').style.strokeDashoffset=coh!=null?String(465*(1-coh)):'465';
  document.getElementById('cNeeds').textContent=(d.needs||{}).n??'—';
- document.getElementById('cMat').textContent=(d.upgrades?.maturity_pct!=null)?(d.upgrades.maturity_pct+'%'):'—';
+ document.getElementById('cMat').textContent=(d.upgrades?.improve_rate?.rate_pct!=null)?(d.upgrades.improve_rate.rate_pct+'%'):'—';
  document.getElementById('cRes').textContent=(d.research?.n_topics!=null)?d.research.n_topics:'—';
  document.getElementById('cSelf').textContent=(d.self_model?.n_modules!=null)?d.self_model.n_modules:'—';
  const th=c.thought||''; document.getElementById('thought').textContent=th?('💭 '+th.slice(0,160)):'';
