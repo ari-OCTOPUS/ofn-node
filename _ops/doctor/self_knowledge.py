@@ -119,6 +119,19 @@ def snapshot() -> dict:
     innerv = _read_json("cortex/innervation-latest.json", {})
     cortex = _read_json("cortex/cortex-state.json", {})
     legs = org.get("business_legs", {}) if isinstance(org.get("business_legs"), dict) else {}
+    # ── C3 (2026-07-25، پشتِ OCTOPUS_SELFKNOW_LEGS_UNWRAP، پیش‌فرض خاموش) ──────
+    # ORGANISM-STATE.business_legs **دو-لایه** است: {"business_legs": {mining, crypto,
+    # accounting, knowledge}, "beat": N}. این تابع فقط لایهٔ بیرونی را می‌خواند، پس
+    # snapshot()['legs'] یک شبه-لِگ به نامِ «business_legs» با live=None به‌علاوهٔ یک
+    # عددِ سرگردانِ beat می‌داد — یعنی **ساختاراً مستقل از واقعیت**: هیچ تغییری در
+    # وضعیتِ لِگ‌های واقعی نمی‌توانست این فیلد را عوض کند. اثباتِ زندهٔ همان روز: با
+    # unwrap چهار لِگِ واقعی با live/signalِ خودشان دیده می‌شوند (همه live=False).
+    # نتیجه: خودشناسیِ v1..v10 روی این فیلد کور بوده. doctor.py:771-773 از قبل همین
+    # unwrap را دارد — این‌جا فقط «یک حقیقت، دو خواننده» برقرار می‌شود.
+    # فلگ‌دار است چون ورودیِ مغزِ پولی را عوض می‌کند (رفتارِ نو، نه صرفاً bugfix).
+    if (os.environ.get("OCTOPUS_SELFKNOW_LEGS_UNWRAP") == "1"
+            and isinstance(legs.get("business_legs"), dict)):
+        legs = legs["business_legs"]
     wiring = org.get("wiring", {}) if isinstance(org.get("wiring"), dict) else {}
     month = org.get("month", {}) if isinstance(org.get("month"), dict) else {}
     cardiac = org.get("cardiac", {}) if isinstance(org.get("cardiac"), dict) else {}

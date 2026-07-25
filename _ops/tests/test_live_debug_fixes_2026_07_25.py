@@ -27,6 +27,7 @@
 
 همه $0 و آفلاین. صفر نوشتن در درختِ زنده (harness sandbox).
 """
+import json
 import os
 import sys
 from pathlib import Path
@@ -303,6 +304,78 @@ def s8_fugu_per_tier():
                 os.environ[k] = v
 
 
+# ═══ ۹) C3: خودشناسی اندام‌های خودش را می‌شمارد (پیش‌بینیِ پیش‌ثبت‌شده) ══════════
+# پیش‌بینی *قبل* از اجرا (ابطال‌پذیر): با فلگِ خاموش، snobshot()['legs'] فقط کلیدِ
+# 'business_legs' را دارد و **با تغییرِ واقعیتِ لِگ‌ها عوض نمی‌شود**؛ با فلگ روشن، همان
+# چهار لِگِ واقعی با live/signalِ خودشان ظاهر می‌شوند. اگر خاموش هم لِگ‌ها را ببیند،
+# ادعای «کوریِ ساختاری» ابطال شده است.
+def s9_selfknow_legs():
+    import importlib
+    import opslib as _ol
+    sk = importlib.import_module("self_knowledge")
+    _saved_flag = os.environ.get("OCTOPUS_SELFKNOW_LEGS_UNWRAP")
+    _saved_state = _ol.STATE_DIR
+    try:
+        sb = Path(ENV["ops"]) / "state-c3probe"
+        sb.mkdir(parents=True, exist_ok=True)
+        _ol.STATE_DIR = sb
+
+        def _write(mining_live, crypto_live):
+            (sb / "ORGANISM-STATE.json").write_text(json.dumps({
+                "chrono": {"beat": 7},
+                "business_legs": {"business_legs": {
+                    "mining": {"leg": "mining", "live": mining_live, "signal": "s1"},
+                    "crypto": {"leg": "crypto", "live": crypto_live, "signal": "s2"},
+                }, "beat": 7},
+                "wiring": {}, "month": {}, "cardiac": {},
+            }, ensure_ascii=False), "utf-8")
+
+        os.environ.pop("OCTOPUS_SELFKNOW_LEGS_UNWRAP", None)
+        _write(False, False)
+        off_a = sk.snapshot().get("legs")
+        _write(True, True)                      # واقعیت را برگردان
+        off_b = sk.snapshot().get("legs")
+        check(list(off_a or {}) == ["business_legs"],
+              f"فلگ خاموش: legs یک شبه-لِگ است ({list(off_a or {})}) — عددِ beat هم "
+              "به‌خاطرِ گاردِ isinstance(v, dict) خطِ ۱۵۵ می‌افتد")
+        check((off_a or {}).get("business_legs", {}).get("live") is False,
+              "فلگ خاموش: liveِ آن شبه-لِگ همیشه False است (bool(None)) — منبعِ گزارشِ "
+              "غلطِ «۱ لِگِ تجاری در وضعیتِ مرگ» در خودشناسیِ v10")
+        check(off_a == off_b,
+              "فلگ خاموش: خروجی با برگشتنِ واقعیتِ لِگ‌ها **عوض نمی‌شود** — کوریِ ساختاری")
+
+        os.environ["OCTOPUS_SELFKNOW_LEGS_UNWRAP"] = "1"
+        on_b = sk.snapshot().get("legs") or {}
+        check(sorted(on_b) == ["crypto", "mining"],
+              f"فلگ روشن: لِگ‌های واقعی دیده می‌شوند ({sorted(on_b)})")
+        check(len(on_b) == 2 and len(off_b or {}) == 1,
+              f"شمارشِ اندام درست شد: خاموش={len(off_b or {})} ← روشن={len(on_b)} "
+              "(همان «۱» در برابرِ واقعیت)")
+        check(on_b.get("mining", {}).get("live") is True
+              and on_b.get("crypto", {}).get("live") is True,
+              "فلگ روشن: liveِ هر لِگ از واقعیت می‌آید")
+        _write(False, True)
+        on_c = sk.snapshot().get("legs") or {}
+        check(on_c.get("mining", {}).get("live") is False
+              and on_c.get("crypto", {}).get("live") is True,
+              "فلگ روشن: خروجی با واقعیت **تغییر می‌کند** (شرطِ لازمِ سنجهٔ C3)")
+        # سازگاری: اگر روزی business_legs تک‌لایه شد، unwrap دست نمی‌زند
+        (sb / "ORGANISM-STATE.json").write_text(json.dumps({
+            "chrono": {"beat": 7},
+            "business_legs": {"mining": {"leg": "mining", "live": True}},
+            "wiring": {}, "month": {}, "cardiac": {},
+        }, ensure_ascii=False), "utf-8")
+        flat = sk.snapshot().get("legs") or {}
+        check(sorted(flat) == ["mining"],
+              f"شکلِ تک‌لایه دست‌نخورده می‌ماند (بدونِ unwrapِ کور) ({sorted(flat)})")
+    finally:
+        _ol.STATE_DIR = _saved_state
+        if _saved_flag is None:
+            os.environ.pop("OCTOPUS_SELFKNOW_LEGS_UNWRAP", None)
+        else:
+            os.environ["OCTOPUS_SELFKNOW_LEGS_UNWRAP"] = _saved_flag
+
+
 for name, fn in (("۱ گاردِ گرافِ دژنرهٔ spectral", s1_spectral),
                  ("۲ persistِ created_ts", s2_created_ts),
                  ("۳ تحمّلِ صادقِ phi", s3_phi),
@@ -310,7 +383,8 @@ for name, fn in (("۱ گاردِ گرافِ دژنرهٔ spectral", s1_spectral)
                  ("۵ Gate-0 با Δ منفی", s5_wire_gate),
                  ("۶ فلگ‌های پولی در wire_summary", s6_wire_summary),
                  ("۷ صداقتِ متنِ آلارم", s7_alert_honesty),
-                 ("۸ شمارندهٔ per-tierِ Fugu", s8_fugu_per_tier)):
+                 ("۸ شمارندهٔ per-tierِ Fugu", s8_fugu_per_tier),
+                 ("۹ C3: شمردنِ اندام‌های خود", s9_selfknow_legs)):
     print(f"\n── {name} " + "─" * max(0, 50 - len(name)))
     try:
         fn()
