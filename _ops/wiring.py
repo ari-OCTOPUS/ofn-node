@@ -659,6 +659,13 @@ def wire_summary() -> dict:
         "paid_governor_router": flag("OCTOPUS_GOVERNOR_USE_ROUTER"),
         "paid_heart_doctor_router": flag("OCTOPUS_HEART_DOCTOR_USE_ROUTER"),
         "paid_doctor_selfknow": flag("OCTOPUS_DOCTOR_SELFKNOW_PAID"),
+        # arm_gate تزئینی است تا وقتی OCTOPUS_REQUIRE_ARM ست نشود (arm_gate.py:51 —
+        # بدونِ آن `require` یک pass-through است). قابلیتِ مسلح‌شدهٔ ۲۰۲۶-۰۷-۲۵
+        # (cortex_paid) در arm_gate.DANGEROUS فهرست است ولی سایتِ فراخوانش چک نمی‌کند،
+        # پس «قفلِ دومِ مسیرِ پولی» عملاً باز است. این کلید فقط آن را **دیدنی** می‌کند؛
+        # اعمالِ واقعی‌اش رأیِ مالک است (VQ-ARM-001) چون روشن‌کردنش بدونِ tokenِ arm
+        # می‌تواند همان مغزهای پولی را که مالک امروز مسلح کرد ببندد.
+        "arm_gate_enforcing": flag("OCTOPUS_REQUIRE_ARM"),
         "wire_actuator": flag("OCTOPUS_WIRE_ACTUATOR"),   # گاف #۱: اکچوایتورِ approval (visibility)
         "wire_ideas": flag("OCTOPUS_WIRE_IDEAS"),        # P-I: idea-graph engine
         "wire_spectral": flag("OCTOPUS_WIRE_SPECTRAL"),  # P-spectral: spectral bottleneck

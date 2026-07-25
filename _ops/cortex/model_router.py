@@ -247,8 +247,18 @@ def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
         if _fence.enabled():
             _scr = _fence.screen(prompt)
             if not _scr.get("clean", True):
-                opslib.alert([f"context_fence: ورودیِ مشکوک به prompt-injection در "
-                              f"task={str(task)[:32]!r} — کدها: {_scr.get('findings')}"])
+                # throttled (2026-07-25): این تنها اقدامِ screen است و روی **مسیرِ داغِ
+                # LLM** می‌نشیند. با سه مسیرِ مسلح، یک payloadِ regex-تریگر در هر epoch
+                # سیلِ آلارم می‌سازد و آلارم به تلگرامِ مالک می‌رود → اعلانِ واقعیِ halt
+                # زیر نویز می‌رود. کلید per-task تا یک taskِ نو هرگز خفه نشود؛ متنِ نو
+                # (findingsِ متفاوت) هم فوراً عبور می‌کند. fail-open در هر خطای I/O.
+                _msg = (f"context_fence: ورودیِ مشکوک به prompt-injection در "
+                        f"task={str(task)[:32]!r} — کدها: {_scr.get('findings')}")
+                _thr = getattr(opslib, "alert_throttled", None)
+                if callable(_thr):
+                    _thr([_msg], key=f"context_fence:{str(task)[:32]}", window_s=1800.0)
+                else:                      # opslibِ قدیمی → رفتارِ قبلی
+                    opslib.alert([_msg])
     except Exception:  # noqa: BLE001 — غربال هرگز مسیرِ LLM را نمی‌کشد
         pass
     want = tier

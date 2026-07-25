@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""test_live_debug_fixes_2026_07_25.py — شش فیکسی که از دیباگِ **زندهٔ** ارگانیسم درآمد.
+"""test_live_debug_fixes_2026_07_25.py — فیکس‌هایی که از دیباگِ **زندهٔ** ارگانیسم درآمد.
+(۱۰ بخش، ~۴۵ چک. بخش‌های ۸–۱۰ بعد از بازسنجیِ نردبانِ AGI اضافه شدند.)
 
 هر ادعا با شاهدِ زندهٔ ۲۰۲۶-۰۷-۲۵ (پس از ریستارتِ ۱۴:۱۴:۲۵) پشتیبانی می‌شود:
 
@@ -12,10 +13,11 @@
    بعد از هر restart «نوزاد» می‌شدند و sweepِ سن‌محور هیچ‌وقت expire نمی‌کرد.
 
 ۳) PhiAccrual: با ۲ ack یک فاصله داریم → var=0 → std به کفِ 0.1×mean می‌افتد → یک سکونِ
-   ~۲×mean کافی بود تا phi=300 (سقفِ p_later=1e-300) و لِگ «مرده» اعلام شود. گواه: ۶۶
-   ری‌استارتِ self-heal، ۱۰۰٪ روی lead-naghshi، همه با phi=300.0. علتِ واقعی: نبضِ
-   pacemaker ~۶۰s ولی حلقهٔ بیرونیِ organism ~۹.۵ دقیقه → یک ack در هر ~۹.۵ دقیقه که
-   هر ۶۰s با تاریخچهٔ ۲-نمونه‌ای قضاوت می‌شد.
+   ~۲×mean کافی بود تا phi=300 (که *دقیقاً* سقفِ p_later=1e-300 است، نه عددی واقعی) و لِگ
+   «مرده» اعلام شود. گواه: ۶۶ ری‌استارتِ self-heal، ۱۰۰٪ روی lead-naghshi، همه با phi=300.0.
+   پنجرهٔ ۲-نمونه‌ای در هر بوت از نو ساخته می‌شود، پس هر بوت تکرار می‌شود و بعد خودش
+   می‌خوابد (۱۵:۰۵:۴۹ همان لِگ بی‌هیچ فیکسی alive شد). ← نسخهٔ اولِ این توضیح «حلقهٔ
+   بیرونی ۹.۵ دقیقه» می‌گفت که **غلط بود**؛ اندازه‌گیریِ تمیز ۶۰.۹s/beat داد.
 
 ۴) legs_diag: چرا یک لِگ failed است هرگز در state دیده نمی‌شد — فقط برچسبِ حالت.
 
@@ -23,7 +25,21 @@
    Δ *منفی* هم True است → «خودشناسیِ منفی» درِ ورودِ قلب به تولید را باز می‌کرد.
 
 ۶) wire_summary سه فلگِ مغزِ پولی را نداشت → «مسلح بودنِ مسیرِ پولی» فقط از فایلِ
-   رازدارِ flags.cmd قابلِ فهم بود، نه از state/کاکپیت.
+   رازدارِ flags.cmd قابلِ فهم بود، نه از state/کاکپیت. (+ arm_gate_enforcing: قفلِ دومِ
+   مسیرِ پولی تا ست‌نشدنِ OCTOPUS_REQUIRE_ARM تزئینی است — VQ-ARM-001.)
+
+۷) متنِ آلارمِ router «fallback local» می‌گفت در حالی که caller اول tierهای پولیِ بعدی
+   را امتحان می‌کند (در شاهدِ زنده primary افتاد و secondaryِ پولی جواب داد).
+
+۸) شمارندهٔ شکستِ Fugu سراسری بود، پس بریکرِ auto-STOP-FUGU در الگوی «primary می‌افتد →
+   secondary جواب می‌دهد» هرگز شلیک نمی‌کرد (۳ تایم‌اوتِ پیاپی، consecutive_failures=0).
+
+۹) خودشناسی فقط لایهٔ بیرونیِ business_legs را می‌خواند، پس یک شبه-لِگ با live=False
+   می‌دید که **ساختاراً مستقل از واقعیت** بود — منبعِ گزارشِ غلطِ «۱ لِگِ تجاری در وضعیتِ
+   مرگ» در v10، در حالی که ۴ لِگ وجود دارد.
+
+۱۰) opslib.alert() هیچ throttle نداشت و تنها اقدامِ context_fence همان alert است که به
+   تلگرامِ مالک می‌رود → روشن‌کردنِ R5 می‌توانست اعلانِ واقعیِ halt را زیر سیلِ آلارم ببرد.
 
 همه $0 و آفلاین. صفر نوشتن در درختِ زنده (harness sandbox).
 """
@@ -376,6 +392,65 @@ def s9_selfknow_legs():
             os.environ["OCTOPUS_SELFKNOW_LEGS_UNWRAP"] = _saved_flag
 
 
+# ═══ ۱۰) throttleِ آلارمِ fence — پیش‌شرطِ ایمنِ روشن‌کردنِ R5 ═══════════════════
+def s10_alert_throttle():
+    import opslib as _ol
+    _saved_state, _saved_alerts = _ol.STATE_DIR, _ol.ALERTS_MD
+    try:
+        sb = Path(ENV["ops"]) / "state-throttle"
+        sb.mkdir(parents=True, exist_ok=True)
+        _ol.STATE_DIR = sb
+        _ol.ALERTS_MD = sb / "alerts.md"
+
+        def _n():
+            try:
+                return _ol.ALERTS_MD.read_text("utf-8").count("- ⚠️")
+            except OSError:
+                return 0
+
+        check(_ol.alert_throttled(["X"], key="k1") is True, "اولین آلارم نوشته می‌شود")
+        check(_n() == 1, f"یک خط ({_n()})")
+        check(_ol.alert_throttled(["X"], key="k1") is False,
+              "تکرارِ عینِ همان پیام در پنجره سرکوب می‌شود")
+        check(_n() == 1, f"هنوز یک خط ({_n()})")
+        check(_ol.alert_throttled(["Y — متنِ نو"], key="k1") is True,
+              "متنِ **نو** فوراً عبور می‌کند (throttle فقط روی تکرارِ عین است)")
+        check(_ol.alert_throttled(["X"], key="k2") is True,
+              "کلیدِ دیگر مستقل است (یک task نو خفه نمی‌شود)")
+        # بستنِ پنجره **قطعی** (بدونِ sleep و بدونِ وابستگی به ساعتِ دیواری):
+        # سه سرکوب، بعد ts ذخیره‌شده را به گذشته می‌بریم تا پنجره منقضی شود.
+        _ol.alert_throttled(["Z"], key="k3")
+        _ol.alert_throttled(["Z"], key="k3")
+        _ol.alert_throttled(["Z"], key="k3")
+        _tp = _ol.STATE_DIR / "alert-throttle.json"
+        _st = json.loads(_tp.read_text("utf-8"))
+        check(int(_st["k3"]["suppressed"]) == 2,
+              f"شمارندهٔ سرکوب پیش از انقضا = ۲ ({_st['k3']['suppressed']})")
+        _st["k3"]["ts"] = 0.0                      # پنجره منقضی شد
+        _tp.write_text(json.dumps(_st, ensure_ascii=False), "utf-8")
+        check(_ol.alert_throttled(["Z"], key="k3") is True,
+              "پس از انقضای پنجره، همان پیام دوباره نوشته می‌شود")
+        blob = _ol.ALERTS_MD.read_text("utf-8")
+        check("تکرارِ سرکوب‌شده" in blob and "k3" in blob,
+              "بعد از بسته‌شدنِ پنجره، شمارِ سرکوب‌شده‌ها صریح گزارش می‌شود")
+        # fail-open: مسیرِ state غیرقابل‌نوشتن → آلارم از دست نمی‌رود
+        _ol.STATE_DIR = sb / "nonexistent" / "deep" / "\0bad"
+        before = _n()
+        try:
+            _ol.alert_throttled(["W"], key="k4")
+        except Exception as e:  # noqa: BLE001
+            check(False, f"fail-open نقض شد — استثنا پرت شد: {type(e).__name__}")
+        check(_n() > before, "fail-open: با stateِ خراب هم آلارم نوشته شد")
+        # ساختاری: سایتِ fence از throttle استفاده می‌کند نه alertِ خام
+        src = (OPS / "cortex" / "model_router.py").read_text("utf-8")
+        code = "\n".join(l for l in src.splitlines() if not l.strip().startswith("#"))
+        i = code.find("context_fence: ورودیِ مشکوک")
+        check(i > 0 and "alert_throttled" in code[max(0, i - 900):i + 600],
+              "سایتِ آلارمِ fence throttled است (پیش‌شرطِ VQ-ALERT-001 برای R5)")
+    finally:
+        _ol.STATE_DIR, _ol.ALERTS_MD = _saved_state, _saved_alerts
+
+
 for name, fn in (("۱ گاردِ گرافِ دژنرهٔ spectral", s1_spectral),
                  ("۲ persistِ created_ts", s2_created_ts),
                  ("۳ تحمّلِ صادقِ phi", s3_phi),
@@ -384,7 +459,8 @@ for name, fn in (("۱ گاردِ گرافِ دژنرهٔ spectral", s1_spectral)
                  ("۶ فلگ‌های پولی در wire_summary", s6_wire_summary),
                  ("۷ صداقتِ متنِ آلارم", s7_alert_honesty),
                  ("۸ شمارندهٔ per-tierِ Fugu", s8_fugu_per_tier),
-                 ("۹ C3: شمردنِ اندام‌های خود", s9_selfknow_legs)):
+                 ("۹ C3: شمردنِ اندام‌های خود", s9_selfknow_legs),
+                 ("۱۰ throttleِ آلارمِ fence", s10_alert_throttle)):
     print(f"\n── {name} " + "─" * max(0, 50 - len(name)))
     try:
         fn()

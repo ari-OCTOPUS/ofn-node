@@ -44,7 +44,7 @@ C5 (اثرِ واقعی = صفر)، C4 (apply = صفر)، C2 (corpus dormant)، 
 | L5 | **روترِ parallel برای C1** (Ollama∥GLM∥Fugu با race+merge) | benchmarkِ latency/quality | tap |
 | L6 | **اولین لیدِ واقعی** (Ziman یا Lead-نقاشی، propose→verdict→اثبات) | ۱ لیدِ CONFIRMED در ledger | verdict |
 | L7 | **P2 digital-twin برای C6** → سپس اولین transplantِ twin-tested | twinِ ایزوله + held-out سبز | verdict |
-| L8 | **AgentGateway v2 (نوشتنِ همتا)** — فقط پس از L2+L3 + امضای threat-model | red-teamِ «تأییدِ جعلیِ مالک» | verdict |
+| L8 | **AgentGateway v2 (نوشتنِ همتا)** — ~~فقط پس از L2+L3~~ → **اصلاحِ ۲۰۲۶-۰۷-۲۵ (بندِ ۷): فقط پس از R5-prevent MET + دستِ‌کم یک refusalِ لاگ‌شده** + L3 + امضای threat-model | red-teamِ «تأییدِ جعلیِ مالک» **و** یک refusalِ واقعیِ ثبت‌شده در لاگ | verdict |
 
 ترتیبِ مهار (از CONTAINMENT-PLAN، بدونِ تغییر): **P5 ✅ → P7 ✅ → P1/P3 (L2–L3) → P2 (L7)** —
 همیشه مهار جلوتر از توانمندی.

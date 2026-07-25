@@ -344,6 +344,60 @@ def alert(items: list[str]) -> None:
         f.write(f"## {now_iso()} (metabolism)\n" + "\n".join(f"- ⚠️ {i}" for i in items) + "\n\n")
 
 
+def alert_throttled(items: list[str], key: str, window_s: float = 3600.0) -> bool:
+    """alert با پنجرهٔ dedupe — **فقط برای سایت‌هایی که روی مسیرِ داغ می‌نشینند.**
+
+    چرا لازم شد (۲۰۲۶-۰۷-۲۵): `alert()` یک appendِ خالص بدونِ هیچ throttle است (برخلافِ
+    `conflict_to_human` که سقفِ روزانه per-tag دارد) و آلارم به تلگرامِ مالک می‌رود. تنها
+    اقدامِ context_fence روی screenِ مثبت همین alert است؛ با سه مسیرِ LLMِ مسلح، یک
+    payloadِ regex-تریگر در هر epoch سیلِ آلارم می‌سازد و **اعلانِ واقعیِ halt را زیر نویز
+    می‌برد** — یعنی یک گامِ مهاری، خودش رگرسیونِ مهار-همجوار می‌شود.
+
+    قاعده‌ها (به ترتیبِ اهمیت):
+      · **متنِ نو همیشه فوراً عبور می‌کند.** throttle فقط رویِ تکرارِ *عینِ همان* پیام است.
+      · fail-open: هر خطای I/O → alert نوشته می‌شود. آلارمِ گم‌شده بدتر از آلارمِ تکراری است.
+      · وقتی پنجره بسته می‌شود، شمارِ سرکوب‌شده‌ها در همان خط گزارش می‌شود (صفر پنهان‌کاری).
+    خروجی: True اگر نوشته شد، False اگر در پنجره سرکوب شد."""
+    import hashlib as _hashlib   # noqa: WPS433 — الگویِ importِ محلیِ همین ماژول
+    sig = _hashlib.sha256(("\n".join(items)).encode("utf-8")).hexdigest()[:16]
+    p = STATE_DIR / "alert-throttle.json"
+    try:
+        st = json.loads(p.read_text("utf-8")) if p.exists() else {}
+        if not isinstance(st, dict):
+            st = {}
+    except Exception:  # noqa: BLE001 — fail-open
+        st = {}
+    rec = st.get(key) if isinstance(st.get(key), dict) else {}
+    now = time.time()
+    try:
+        last = float(rec.get("ts", 0) or 0)
+    except (TypeError, ValueError):
+        last = 0.0
+    same = (rec.get("sig") == sig)
+    suppressed = int(rec.get("suppressed", 0) or 0)
+    if same and (now - last) < max(1.0, float(window_s)):
+        rec.update({"sig": sig, "ts": last, "suppressed": suppressed + 1})
+        st[key] = rec
+        try:
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(json.dumps(st, ensure_ascii=False), "utf-8")
+        except Exception:  # noqa: BLE001 — نتوانستیم بشماریم؛ آلارم را از دست نمی‌دهیم
+            alert(items)
+            return True
+        return False
+    out = list(items)
+    if suppressed:
+        out.append(f"(+{suppressed} تکرارِ سرکوب‌شده در پنجرهٔ {int(window_s)}s — کلید {key})")
+    alert(out)
+    st[key] = {"sig": sig, "ts": now, "suppressed": 0}
+    try:
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(json.dumps(st, ensure_ascii=False), "utf-8")
+    except Exception:  # noqa: BLE001 — آلارم نوشته شد؛ شمارنده مهم‌تر نیست
+        pass
+    return True
+
+
 def heartbeat(line: str) -> None:
     """فقط سطر خودت را append کن — هرگز بازنویسی (الگوی governor_shadow.beat)."""
     HEARTBEAT_MD.parent.mkdir(parents=True, exist_ok=True)
