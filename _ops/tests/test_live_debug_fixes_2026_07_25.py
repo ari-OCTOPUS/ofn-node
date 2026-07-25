@@ -451,6 +451,50 @@ def s10_alert_throttle():
         _ol.STATE_DIR, _ol.ALERTS_MD = _saved_state, _saved_alerts
 
 
+# ═══ ۱۱) هویتِ فاکتور از profileِ gitignored (نه از فایلِ tracked) ═══════════════
+def s11_invoice_identity():
+    sys.path.insert(0, str(OPS / "legs"))
+    import invoice as inv
+    import ledger_core as lc
+    _op, _ob = lc.load_profile, None
+    try:
+        import opslib as _ol
+        _ob = _ol.load_budgets
+        # budgets.yamlِ tracked خالی است (وضعیتِ واقعیِ امروز)
+        _ol.load_budgets = lambda: {"business": {"abn": "", "trading_name": "",
+                                                 "address": "", "bank_details": "",
+                                                 "payment_terms": "T", "payment_methods": "M"}}
+        # profileِ gitignored پر است
+        lc.load_profile = lambda *a, **k: {
+            "entities": [{"entity_id": "e1", "legal_name": "LEGAL X",
+                          "abn": "11 222 333 444", "gst_registered": True}],
+            "business_address": "Addr Y", "bank_details": "BSB/ACC Z"}
+        c = inv._business_config()
+        check(c.get("abn") == "11 222 333 444",
+              f"ABN از profileِ gitignored می‌آید ({c.get('abn')})")
+        check(c.get("trading_name") == "LEGAL X",
+              "نامِ حقوقی از profile می‌آید (وقتی trading_name نباشد)")
+        check(c.get("address") == "Addr Y" and c.get("bank_details") == "BSB/ACC Z",
+              "آدرس و شمارهٔ حساب از profile خوانده می‌شوند → لازم نیست در فایلِ tracked بروند")
+        check(c.get("payment_terms") == "T",
+              "کلیدهای غیرحساس از budgets.yaml حفظ می‌شوند (سقوطِ سازگار)")
+        # profileِ خراب → سقوط به budgets.yaml، بدونِ استثنا
+        lc.load_profile = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom"))
+        c2 = inv._business_config()
+        check(c2.get("payment_terms") == "T" and c2.get("abn") == "",
+              "profileِ خراب → fail-soft به budgets.yaml (رفتارِ قبلی)")
+        # ساختاری: هویت دیگر *فقط* از budgets.yaml نمی‌آید
+        src = (OPS / "legs" / "invoice.py").read_text("utf-8")
+        code = "\n".join(l for l in src.splitlines() if not l.strip().startswith("#"))
+        check("_profile_business" in code and "load_profile" in code,
+              "invoice.py هویت را از منبعِ gitignored می‌خواند (تک‌منبع با گیتِ GST)")
+    finally:
+        lc.load_profile = _op
+        if _ob is not None:
+            import opslib as _ol2
+            _ol2.load_budgets = _ob
+
+
 for name, fn in (("۱ گاردِ گرافِ دژنرهٔ spectral", s1_spectral),
                  ("۲ persistِ created_ts", s2_created_ts),
                  ("۳ تحمّلِ صادقِ phi", s3_phi),
@@ -460,7 +504,8 @@ for name, fn in (("۱ گاردِ گرافِ دژنرهٔ spectral", s1_spectral)
                  ("۷ صداقتِ متنِ آلارم", s7_alert_honesty),
                  ("۸ شمارندهٔ per-tierِ Fugu", s8_fugu_per_tier),
                  ("۹ C3: شمردنِ اندام‌های خود", s9_selfknow_legs),
-                 ("۱۰ throttleِ آلارمِ fence", s10_alert_throttle)):
+                 ("۱۰ throttleِ آلارمِ fence", s10_alert_throttle),
+                 ("۱۱ هویتِ فاکتور از profile", s11_invoice_identity)):
     print(f"\n── {name} " + "─" * max(0, 50 - len(name)))
     try:
         fn()
