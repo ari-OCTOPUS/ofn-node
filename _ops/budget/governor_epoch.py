@@ -56,18 +56,66 @@ def _gov_llm_alert_once(key: str, msg: str) -> None:
     opslib.alert([msg])
 
 
+# ── ددلاینِ گذشته: فوریتِ ابدیِ جعلی (یافتهٔ ممیزی 2026-07-25، عدد-به-عدد تأیید‌شده) ──
+# سیگمویدِ بالا برای «۱۴ روزِ پایانی» طراحی شده، ولی برای days<0 هیچ انقضایی ندارد:
+#   days=-5  → 0.997527      days=-35 → 1.000000      days=-365 → 1.000000
+# یعنی یک ددلاینِ فراموش‌شده فشار را **تا ابد** روی سقف قفل می‌کند. اثرِ زندهٔ سنجیده‌شده
+# (2026-07-25، تنها ارگانِ دارای ددلاین = PROJECT_F @ 2026-07-20):
+#   · pressure = max(velocity, deadline, anomaly) = 0.9975 مستقل از خرجِ واقعی
+#   · epoch از ۶۰ دقیقه به ۱۵.۱۱ (کفِ base/4) → گاورنر دائماً ۴× تندتر
+#   · تِرمِ urgencyِ fitness: PROJECT_F سهمِ ۱۰۰٪، PAINTING = 3.9e-216 (عملاً صفر)
+# ددلاینی که گذشته «فوریت» نیست؛ **پیکربندیِ کهنه** است و فقط مالک می‌تواند حلش کند
+# (تمدید / حذف / اعلامِ پایانِ پروژه). پس رفتارِ صادق: صفر فوریت + یک هشدارِ throttled
+# که نامِ ارگان و تاریخ را می‌گوید — نه فریادِ خاموشِ ابدی، نه پوسیدگیِ بی‌صدا.
+# رفتار پشتِ فلگ و پیش‌فرض خاموش است چون معناشناسیِ بودجه رأیِ مالک است: روشن‌کردنش
+# هم epoch را ۴× کند می‌کند و هم سهمِ فوریت را به ارگان‌های واقعی برمی‌گرداند.
+LAPSED_FLAG = "OCTOPUS_GOV_LAPSED_DEADLINE_HONEST"
+
+
+def _lapsed_honest() -> bool:
+    return str(os.environ.get(LAPSED_FLAG, "")).strip().lower() in ("1", "true", "yes", "on")
+
+
 def _deadline_proximity(organs: dict) -> tuple[float, str]:
-    """سیگموید تیز داخل ۱۴ روز پایانی (H5). خروجی 0..1 + نزدیک‌ترین ددلاین."""
+    """سیگموید تیز داخل ۱۴ روز پایانی (H5). خروجی 0..1 + نزدیک‌ترین ددلاین.
+
+    با LAPSED_FLAG روشن: ددلاینِ گذشته (days<0) فوریت تولید نمی‌کند و به‌جایش
+    یک‌بار هشدار می‌دهد. با فلگ خاموش: رفتارِ قبلی، بایت‌به‌بایت."""
     best, best_name = 0.0, ""
+    lapsed: list[str] = []
+    honest = _lapsed_honest()
     for name, cfg in organs.items():
         d = cfg.get("deadline")
         if not d:
             continue
-        days = (dt.date.fromisoformat(str(d)) - dt.date.today()).days
+        try:
+            days = (dt.date.fromisoformat(str(d)) - dt.date.today()).days
+        except (ValueError, TypeError):
+            continue                                   # ددلاینِ بدشکل ≠ فوریت
+        if days < 0:
+            lapsed.append(f"{name}@{d} ({days}d)")
+            if honest:
+                continue                               # پیکربندیِ کهنه، نه اضطرار
         x = 1.0 / (1.0 + math.exp((days - 7) / 2.0))   # ~۰ دور، تیز از ~۱۴ روز، ~۱ در ددلاین
         if x > best:
             best, best_name = x, f"{name}@{d} ({days}d)"
+    if lapsed:
+        _alert_lapsed(lapsed, honest)
     return best, best_name
+
+
+def _alert_lapsed(lapsed: list[str], honest: bool) -> None:
+    """هشدارِ throttled — چه فلگ روشن باشد چه خاموش، مالک باید بداند ددلاین گذشته."""
+    try:
+        state = "فوریت صفر شد (فلگِ صادق روشن)" if honest else \
+                "⚠️ فشار همچنان روی سقف قفل است (فلگِ صادق خاموش)"
+        opslib.alert_throttled(
+            [f"ددلاینِ گذشته در budgets.yaml: {', '.join(sorted(lapsed))} — {state}. "
+             f"تصمیمِ مالک لازم است: تمدید، حذفِ کلیدِ deadline، یا اعلامِ پایانِ پروژه."],
+            key=f"lapsed_deadline:{','.join(sorted(lapsed))}:{honest}",
+            window_s=86400.0)
+    except Exception:  # noqa: BLE001 — هشدار هرگز گاورنر را نمی‌کشد
+        pass
 
 
 def pressure_state(snap: dict) -> dict:
@@ -101,10 +149,17 @@ def _fitness_dry(snap: dict, organs: dict, weights: dict) -> dict[str, float]:
     total = max(1, sum(v for k, v in per_organ.items() if not k.startswith("UNMAPPED")))
     _, deadline_ref = _deadline_proximity(organs)
     out = {}
+    _honest = _lapsed_honest()
     for name, cfg in organs.items():
         d = cfg.get("deadline")
-        days = (dt.date.fromisoformat(str(d)) - dt.date.today()).days if d else 999
-        urgency = 1.0 / (1.0 + math.exp((days - 7) / 2.0))
+        try:
+            days = (dt.date.fromisoformat(str(d)) - dt.date.today()).days if d else 999
+        except (ValueError, TypeError):
+            days = 999
+        # همان قاعدهٔ _deadline_proximity: ددلاینِ گذشته فوریت نیست. بدونِ این خط،
+        # ارگانِ ددلاین‌گذشته ۱۰۰٪ تِرمِ urgency را تا ابد قبضه می‌کند (سنجش 2026-07-25:
+        # PROJECT_F=0.9975 در برابرِ PAINTING=3.9e-216).
+        urgency = 0.0 if (_honest and days < 0) else 1.0 / (1.0 + math.exp((days - 7) / 2.0))
         value = 0.5                                  # پروکسی خنثی تا اتصال APPROVALها (fitness.py)
         efficiency = 0.5                             # خنثی — baseline شخصی هنوز شکل نگرفته
         human = float(cfg.get("human_priority", 1.0)) / 3.0
