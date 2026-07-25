@@ -141,3 +141,76 @@ class LeadLeg(Leg):
         ⚑ برای معمار: در runtime واقعی، این فقط-readable wrapper است؛ write=True فقط
         در paper-test مجاز است. در production، reconcile یک jobِ جدا است، نه فراخوانیِ پا."""
         return self._rec_mod().run(reconcile_dir=reconcile_dir, write=write)
+
+
+# ─── آگاهیِ ارگانیسم از این پا (۲۰۲۶-۰۷-۲۵، رأیِ مالک: «آگاهی اختاپوس به این پا») ──
+def lead_status() -> dict:
+    """snapshotِ فقط‌خواندنیِ پای درآمدیِ نقاشی — برای `business_legs` در ORGANISM-STATE.
+
+    چرا ساخته شد: تا امروز `business_legs` چهار پا داشت (mining/crypto/accounting/
+    knowledge) که **هر چهار** skeleton یا کهنه‌اند، و **تنها پای زندهٔ درآمدی — همین پا —
+    در آن فهرست نبود.** یعنی خودآگاهیِ ارگانیسم پاهای مرده را می‌شمرد و کسب‌وکارِ واقعی
+    را نمی‌دید. این تابع آن نقطهٔ کور را می‌بندد.
+
+    قاعدهٔ صداقت: هر عدد از دیسک می‌آید و هیچ‌چیز حدس زده نمی‌شود. درآمدِ تأییدشده
+    عمداً `None` است، نه صفر — چون حساب‌کتاب با رأیِ مالک (۲۰۲۶-۰۷-۲۵) **پارک** است و
+    «۰» یک ادعای غلط می‌بود.
+
+    live=True فقط با دو شرطِ ساختاری: (۱) هویتِ قابلِ‌فاکتور موجود باشد (ABN با فرمتِ
+    معتبر + GST) و (۲) صندوقِ لید وجود داشته باشد تا لیدی بتواند وارد شود. هیچ‌کدام
+    ادعای «درآمد دارد» نیست — ادعای «می‌تواند قانوناً فاکتور بدهد و لید بپذیرد» است.
+    $0 · صفر spend · صفر outward · fail-soft کامل."""
+    leg = "lead"
+    out: dict = {"leg": leg, "live": False, "money_link": "active",
+                 "confirmed_revenue_aud": None,
+                 "note": "حساب‌کتاب با رأیِ مالک پارک است — درآمد None است نه صفر."}
+    # (۱) هویتِ فاکتور — از همان منبعی که invoice.py می‌خواند (profileِ gitignored)
+    ident = {"abn_valid": False, "gst_registered": False}
+    try:
+        import re as _re
+        import invoice as _inv                       # noqa: WPS433 — هم‌پوشه
+        _cfg = _inv._business_config() or {}
+        ident["abn_valid"] = bool(_re.fullmatch(r"\d{2} \d{3} \d{3} \d{3}",
+                                                str(_cfg.get("abn", "")).strip()))
+        ident["gst_registered"] = bool(_inv._gst_registered())
+        ident["has_bank_details"] = bool(str(_cfg.get("bank_details", "")).strip())
+    except Exception:  # noqa: BLE001 — نبودِ هویت هرگز beat را نمی‌کشد
+        pass
+    out["identity"] = ident
+    # (۲) صندوقِ لید — بی آن، هیچ لیدی وارد نمی‌شود (علتِ اثبات‌شدهٔ sensed=0)
+    box_info = {"exists": False, "pending": 0, "processed": 0, "rejected": 0, "frozen_LD": 0}
+    try:
+        import opslib as _ol                          # noqa: WPS433
+        box = _ol.STATE_DIR / "legs" / "lead-inbox"
+        box_info["exists"] = box.is_dir()
+        if box_info["exists"]:
+            box_info["pending"] = sum(1 for p in box.glob("*.json")
+                                      if not p.name.startswith(("_", "LD-")))
+            box_info["frozen_LD"] = sum(1 for _ in box.glob("LD-*.json"))
+            for sub, key in (("processed", "processed"), ("rejected", "rejected")):
+                d = box / sub
+                box_info[key] = sum(1 for _ in d.glob("*.json")) if d.is_dir() else 0
+    except Exception:  # noqa: BLE001
+        pass
+    out["inbox"] = box_info
+    # (۳) مصنوعاتِ پول روی دیسک — کوت و فاکتورِ ساخته‌شده (شمارش، بدونِ خواندنِ محتوا)
+    arts = {"quotes": 0, "invoices": 0}
+    try:
+        import opslib as _ol2                         # noqa: WPS433
+        for sub, key in (("lead-drafts", "quotes"), ("invoices", "invoices")):
+            d = _ol2.STATE_DIR / "legs" / sub
+            arts[key] = sum(1 for _ in d.glob("*.json")) if d.is_dir() else 0
+    except Exception:  # noqa: BLE001
+        pass
+    out["artifacts"] = arts
+    out["live"] = bool(ident["abn_valid"] and ident["gst_registered"]
+                       and box_info["exists"])
+    bits = [("هویتِ فاکتور ✅" if out["live"] else "هویت/صندوق ناقص"),
+            f"صندوق: {box_info['pending']} در انتظار",
+            f"کوت/فاکتور روی دیسک: {arts['quotes']}/{arts['invoices']}"]
+    if box_info["frozen_LD"]:
+        bits.append(f"⚠️ {box_info['frozen_LD']} لیدِ گیرافتاده در inboxِ FROZEN (LD-*)")
+    if not ident.get("has_bank_details"):
+        bits.append("⚠️ bank_details خالی → فاکتور قابلِ پرداخت نیست")
+    out["signal"] = " · ".join(bits)
+    return out

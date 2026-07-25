@@ -73,6 +73,26 @@ def seen_before(lead: dict) -> bool:
     return content_hash(lead) in _load_seen()
 
 
+def _flag_frozen_inbox_lead(p) -> None:
+    """یک لیدِ گیرافتاده در inboxِ FROZEN را **دیدنی** کن (throttle‌شده، یک‌بار per فایل).
+
+    نه reject می‌کند نه move — فقط سکوت را می‌شکند. throttle لازم است چون این تابع در هر
+    beat صدا زده می‌شود و آلارم به تلگرامِ مالک می‌رود؛ کلید per-filename است تا لیدِ
+    **نو** هرگز خفه نشود. fail-soft کامل: هر خطا → سکوتِ قبلی، هرگز beat را نمی‌کشد."""
+    try:
+        import opslib as _ol   # noqa: WPS433 — lazy، صفر وابستگیِ سخت
+        _thr = getattr(_ol, "alert_throttled", None)
+        _msg = (f"لیدِ گیرافتاده در inboxِ FROZEN: {p.name} — "
+                "lead_sense آن را نمی‌خواند (schemaِ قدیمیِ LD-*). "
+                "برای ورود به لولهٔ امتیازدهی، به‌شکلِ canonical دوباره ثبتش کن.")
+        if callable(_thr):
+            _thr([_msg], key=f"frozen-inbox:{p.name}", window_s=86400.0)
+        else:
+            _ol.alert([_msg])
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def read_inbox(limit: int | None = None) -> list[tuple[Path, dict]]:
     """کاندیدهای معتبرِ صندوق، مرتب به نام (قطعی). JSONِ خراب → rejected/ + دلیل.
     فقط فایل‌های سطحِ اولِ inbox (نه processed/rejected)."""
@@ -85,7 +105,16 @@ def read_inbox(limit: int | None = None) -> list[tuple[Path, dict]]:
         # raw_text بدونِ description) و فایل‌های داخلی (`_*`) را نه بخوان و نه reject-move کن —
         # فقط رد شو. وگرنه چون هر دو inbox روی یک دایرکتوری‌اند، این‌جا آن‌ها را (به‌خاطرِ نبودِ
         # description) به rejected/ منتقل می‌کرد و lead_leg_inbox.get_lead دیگر پیدایشان نمی‌کرد.
-        if p.name.startswith("LD-") or p.name.startswith("_"):
+        if p.name.startswith("_"):
+            continue        # قالب/فایلِ داخلی — عمداً و بی‌صدا نادیده
+        if p.name.startswith("LD-"):
+            # 2026-07-25: این‌جا قبلاً یک `continue`ِ خالص بود و نتیجه‌اش این: لیدی که مالک
+            # در تلگرام تایپ می‌کرد به inboxِ FROZEN می‌رفت (`LD-*.json` با schemaِ raw_text)
+            # و این خواننده **بی‌صدا** ردش می‌کرد — نه خطا، نه امتیاز، نه کارت. برای
+            # کسب‌وکاری که اولویتش «گرفتنِ لید» است، گم‌شدنِ بی‌صدای لید بدترین باگ است.
+            # گاردِ اصلی حفظ می‌شود (هرگز به rejected/ منتقل نمی‌شود، چون
+            # lead_leg_inbox.get_lead باید همان‌جا پیدایش کند) ولی سکوت شکسته می‌شود.
+            _flag_frozen_inbox_lead(p)
             continue
         try:
             d = json.loads(p.read_text("utf-8"))

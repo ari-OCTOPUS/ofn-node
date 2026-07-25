@@ -154,11 +154,23 @@ def t_single_ziman_defs():
 # ════════════════════════════════════════════════════════════════════════════════
 
 def t_business_legs_beat_collects_four():
+    """قرارداد ۲۰۲۶-۰۷-۲۵: **۵** پا، و «lead» اجباری است.
+
+    قبلاً دقیقاً ۴ پا pin شده بود (mining/crypto/accounting/knowledge) — و هر چهار
+    skeleton یا کهنه‌اند. پای درآمدیِ زنده در آگاهیِ ارگانیسم **نبود**، پس خودآگاهی
+    پاهای مرده را می‌شمرد و کسب‌وکارِ واقعی را نمی‌دید. حالا حضورِ lead بخشی از قرارداد
+    است تا کسی دوباره بی‌صدا حذفش نکند."""
     r = wiring.business_legs_beat(beat=1, write=False)
     assert r is not None and "business_legs" in r
     legs = r["business_legs"]
-    assert set(legs.keys()) == {"mining", "crypto", "accounting", "knowledge"}, \
-        f"باید هر ۴ پا باشد، شد {sorted(legs.keys())}"
+    assert set(legs.keys()) == {"lead", "mining", "crypto", "accounting", "knowledge"}, \
+        f"باید هر ۵ پا باشد (lead اجباری)، شد {sorted(legs.keys())}"
+    _ld = legs["lead"]
+    assert _ld.get("money_link") == "active", "lead باید money_link=active بدهد"
+    assert "confirmed_revenue_aud" in _ld, \
+        "lead باید فیلدِ درآمد را صریح بدهد (None وقتی حساب‌کتاب پارک است، نه صفرِ دروغ)"
+    assert isinstance(_ld.get("identity"), dict) and isinstance(_ld.get("inbox"), dict), \
+        "lead باید هویتِ فاکتور و وضعیتِ صندوق را گزارش کند"
     for name, st in legs.items():
         assert isinstance(st, dict), f"{name} status باید dict باشد"
         assert st.get("leg") == name, f"{name}: کلیدِ leg باید {name} باشد"
@@ -195,7 +207,7 @@ CHECKS = [
     ("LEG-02/03: leg_beat فلگ خاموش → بدون draft", t_leg_beat_flag_off_no_draft),
     ("LEG-02/03: leg_beat فلگ روشن → draft_quote صدا می‌شود", t_leg_beat_flag_on_calls_draft),
     ("LEG-08: فقط یک make_ziman_leg/ziman_beat (نسخهٔ زنده)", t_single_ziman_defs),
-    ("قرارداد: business_legs_beat ۴ پا را جمع می‌کند", t_business_legs_beat_collects_four),
+    ("قرارداد: business_legs_beat ۵ پا + lead اجباری", t_business_legs_beat_collects_four),
     ("business_legs_beat سایدکار می‌نویسد", t_business_legs_beat_writes_sidecar),
     ("no-op: ingest/email/heartstate با فلگِ خاموش None", t_new_beats_noop_when_flag_off),
 ]

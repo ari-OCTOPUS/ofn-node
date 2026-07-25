@@ -2118,6 +2118,11 @@ def lead_discovery_beat(lead_leg, beat: int = 0) -> dict | None:
 # رندر می‌خواند. هر پا یک helperِ ماژول‌سطحِ فقط‌خواندنی دارد:
 #   <name>_leg.<name>_status() -> {"leg","live","signal","note"}.
 _BUSINESS_LEGS_SPEC = (
+    # 2026-07-25 (رأیِ مالک «آگاهیِ اختاپوس به این پا»): پای درآمدیِ نقاشی **اول** می‌آید.
+    # تا امروز این فهرست چهار پا داشت که هر چهار skeleton/کهنه‌اند و تنها پای زندهٔ
+    # درآمدی در آن نبود — یعنی خودآگاهیِ ارگانیسم پاهای مرده را می‌شمرد و کسب‌وکارِ
+    # واقعی را نمی‌دید. lead_status فقط‌خواندنی و fail-soft است (الگوی همان چهار).
+    ("lead", "lead_leg", "lead_status"),
     ("mining", "mining_leg", "mining_status"),
     ("crypto", "crypto_leg", "crypto_status"),
     ("accounting", "accounting_leg", "accounting_status"),
