@@ -212,10 +212,30 @@ class SelfModel:
 
     # ── پروژه ──
     def outward_locked(self) -> bool:
-        """قفل تا وقتی «پیامد: Branch A» در PROJECT.md ثبت نشده."""
+        """قفل تا وقتی «پیامد: Branch A» در PROJECT.md ثبت نشده.
+
+        fail-open رفع شد — تنها یافتهٔ CONFIRMED راستی‌آزماییِ متخاصمِ ۲۰۲۶-۰۷-۲۵.
+        الگوی قبلی `پیامد:\\s*Branch\\s*A\\b` روی **قالبِ پرنشدهٔ** «پیامد: Branch A/B»
+        هم match می‌کرد، چون `\\b` مرزِ بینِ `A` و `/` را می‌گیرد. نتیجه: تابع
+        False (=آزاد) برمی‌گرداند در حالی که همان خطِ PROJECT.md جای‌نگهدارِ `___`
+        دارد و سندش می‌گوید گیت باز است. یعنی `/gates` روی باتِ زنده گیتِ **باز** را
+        «بسته» گزارش می‌کرد — دروغ در کنترل‌سرفیس، روی گیتی که کلِ اکشن‌های
+        Hard-Gated به آن بسته‌اند.
+
+        حالا پیش‌فرض **قفل** است و بازشدن دو شرطِ هم‌زمان می‌خواهد:
+          ۱) `Branch A` که پشتش `/` نیاید (لُکاهدِ منفی) = انتخابِ واقعی، نه قالب
+          ۲) همان خط `___` نداشته باشد — خطِ پرنشده = گیتِ باز (قاعدهٔ خودِ سند)
+        سخت‌ترکردنِ یک گیت هرگز جهتِ خطرناک نیست: این تغییر فقط می‌تواند بیشتر
+        قفل کند، نه کمتر.
+        """
         txt = _read_text(self.root / "PROJECT.md")
-        recorded = re.search(r"پیامد:\s*Branch\s*A\b", txt)
-        return not bool(recorded)
+        for line in txt.splitlines():
+            if not re.search(r"پیامد:\s*Branch\s*A\b(?!\s*/)", line):
+                continue
+            if "___" in line:          # قالب هنوز پر نشده → گیت باز
+                continue
+            return False               # ثبتِ واقعیِ Branch A → قفل باز
+        return True                    # fail-closed
 
     def open_questions(self) -> int:
         txt = _read_text(self.root / "OpenQuestions.md")
