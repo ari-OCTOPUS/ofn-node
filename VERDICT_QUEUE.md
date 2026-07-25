@@ -96,3 +96,17 @@
 | VQ-TRAJ-001 | اتصال منبع ۵ (Trajectory) به Event Bridge | yes (flag on) / no | open | دریافت هشدارهای burst و novel-chains |
 | VQ-AGI-001 | نقشه‌راه Gapها و ادعای معماری | accept framework / reject / revise | open | چارچوب ابطال‌پذیر برای بستن C1..C8 |
 
+---
+
+## Doctor / مغزهای پولی — ثبتِ ۲۰۲۶-۰۷-۲۵
+
+| ID | تصمیم | گزینه‌ها | وضعیت | اثر |
+|---|---|---|---|---|
+| VQ-PAID-001 | روشن‌کردنِ سه فلگِ router (governor · heart-doctor · selfknow-paid) | yes / no | **yes — رأیِ مالک ۲۰۲۶-۰۷-۲۵؛ config مسلح شد، منتظرِ restart** | مسیرِ مغزِ پولی در بوتِ بعدی باز می‌شود، زیر سقفِ AU$30 ماهانه / AU$2 burst |
+| VQ-GUARD-001 | `test_paid_router_dark_config` صفربودنِ همان فلگ‌ها را pin کرده و با VQ-PAID-001 در تضاد است | A: قرمزِ عمدی را بپذیر · B: گارد را به «مطابقِ رأیِ ثبت‌شده» تبدیل کن (چکِ رفتاری/CRLF دست‌نخورده بماند) · C: فلگ‌ها را برگردان | open — پیشنهاد **B** | تا بسته نشود سوییت ۲۹۶/۲۹۷ است و هر گزارشِ «همه سبز» دروغ می‌شود |
+| VQ-T8-001 | dedupeِ RFC و `_reconcile_input_validity` غیرمشروط‌اند | A: پشتِ فلگِ پیش‌فرض‌خاموش · B: استثنای مکتوب در SoT (ثبت شد) | open — پیشنهاد **B برای dedupe، A برای reconcile** | قاعدهٔ additive + flag-gated + default-off |
+| VQ-T3-001 | ثبتِ علتِ شکستِ لِگ غیرمشروط است | A: استثنای observability · B: پشتِ فلگ | open — پیشنهاد **A** | فقط writeِ تشخیصی؛ هیچ شاخهٔ تصمیمی نمی‌خواند |
+| VQ-T2-001 | روشن‌کردنِ `OCTOPUS_HONEST_OUTCOMES` | yes / no | open | تا خاموش است، شمارشِ closure قاعدهٔ قدیم را اجرا می‌کند |
+| VQ-RESTART-001 | restart ارگانیسم برای اعتبارسنجیِ زندهٔ T1/T3/T4/T8 و فلگ‌های نو | مالک اجرا کند / صبر | open — ایجنت restart نمی‌زند | تنها راهِ تبدیلِ «سبزِ تست» به «سبزِ زنده» |
+| VQ-REPO-001 | `_worktree-rescue-2026-07-24` (۴۹۵MB) و dumpهای legacy/gallery-3d/ziman_os در checkpoint نیامدند | A: به `_Archive` منتقل شود · B: commit شود · C: untracked بماند | open — پیشنهاد **A** | حجمِ ریپو؛ قاعدهٔ «حذف نکن، منتقل کن» |
+

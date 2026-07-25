@@ -298,3 +298,24 @@ Ari شش سندِ طراحیِ Octopus/Chrono (تلگرام) داد: «همه ر
 **زمینه:** `_ops/tests/test_pii_read_guard.py` روی هر checkoutِ تازهٔ master (bare worktree / clone) با FileNotFoundError قرمز می‌شد، چون `.gitignore` کلِ `.claude/` را ignore می‌کند و hookِ گاردِ PII (`.claude/hooks/pii_read_guard.py`) untracked است — فقط درختِ live و worktreeهای Claude (که `.claude/` را کپی دارند) پاس می‌شدند. **فیکسِ بدونِ دست‌زدن به ignore-rule اعمال شد:** تست حالا مثل fixtureهای harness (prompts/ledger) به نسخهٔ vaultِ زنده fallback می‌کند، فقط‌خواندنی؛ تست نه ضعیف شد نه skip.
 
 **سوال (verdict مالک — چون ignore-rule کنارِ configِ امنیتی است):** آیا خودِ hookِ گاردِ PII version-controlled شود؟ کدِ گارد secret نیست و track شدنش history/review می‌دهد. نکتهٔ فنی: negationِ ساده (`!.claude/hooks/`) زیرِ الگوی `.claude/` کار نمی‌کند (git داخل دایرکتوریِ excluded نمی‌رود)؛ اجرا یعنی تبدیل `.claude/` به `.claude/*` + سه خطِ نفی (`!.claude/hooks/` + `.claude/hooks/*` + `!.claude/hooks/pii_read_guard.py`). اگر آری: در جلسهٔ بعد اعمال می‌شود و fallbackِ تست به‌عنوان دفاعِ عمقی می‌ماند. اگر نه: وضعِ فعلی (fallback) کافی است و چیزی نمی‌شکند.
+
+## 2026-07-25 — Claude Opus 5 (فلیپِ فلگ‌های router ↔ گاردِ dark-config)
+
+**زمینه:** رأیِ تو در همین جلسه: «روشن کن + مانیتور». سه فلگ بایت‌سطح به ۱ رفتند
+(جزئیات و baseline در `ARCHITECTURE-SOT.md` بندِ ۲۰۲۶-۰۷-۲۵-ج). ولی
+`_ops/tests/test_paid_router_dark_config.py:66` صریحاً pin کرده که «آخرین assignment
+هر سه فلگ باید صفر باشد» — پس رأیِ تو و آن گارد در تضادِ مستقیم‌اند و سوییت الان
+۲۹۶/۲۹۷ است. گاردِ رفتاری (fail-closed، CRLF، عدمِ تماسِ پولی با فلگِ خاموش) سالم است؛
+فقط pinِ *وضعیتِ دیپلوی* شکسته.
+
+**سوال (چرا خودم تصمیم نگرفتم):** بازنویسیِ یک گاردِ ایمنی برای سبزکردنِ سوییت همان
+الگوی green-lie است که قاعدهٔ خودت ممنوع کرده — حتی وقتی نتیجه درست باشد. سه راه:
+A) قرمزِ عمدی بماند · B) گارد به «مطابقِ رأیِ ثبت‌شده» تبدیل شود (پیشنهاد من) ·
+C) فلگ‌ها برگردند. ثبت در `VERDICT_QUEUE.md` به‌عنوان **VQ-GUARD-001**. برگشت = سه بایت
+در افست‌های `13833, 13874, 13912` از `'1'` به `'0'` (بکاپِ پیش‌از‌فلیپ بیرونِ ریپو).
+
+**سوال دوم (VQ-T8-001):** `_reconcile_input_validity` غیرمشروط در هر `run_cycle` اجرا
+می‌شود و statusِ RFCهای باز را به `stale-input` می‌برد — رفتارِ نو است نه bugfix، پس طبق
+قاعدهٔ additive+flag-gated+default-off باید پشتِ فلگ برود. خودم فلگ‌گیتش نکردم چون تستِ
+موجود (`test_doctor_rfc_stale_dedup`) روشن‌بودنِ پیش‌فرض را فرض می‌کند و تغییرش کارِ
+سشنِ دیگری بود که همان لحظه روی همان فایل‌ها می‌نوشت.

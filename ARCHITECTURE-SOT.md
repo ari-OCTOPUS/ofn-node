@@ -106,3 +106,51 @@
 
 قاعده: هیچ‌کدام از این‌ها در runtimeِ فعلی اثر ندارند (فلگ‌ها خاموش). هر wiring آینده
 در همین فایل ثبت و با verdictِ مالک انجام می‌شود.
+
+## 🩺 ثبتِ ۲۰۲۶-۰۷-۲۵ — دکتر، dedupe، و مغزهای پولی
+
+### الف) باگِ بسته‌شده: شرطِ dedupe در `Doctor.run_cycle` معکوس بود
+`rfc.rfc_id not in _before_ids` یعنی هر RFCِ **تازه** کوتاه می‌شد، پس `chamber` /
+`run_sandbox` / `_run_box_cycle` / `_evolve_rfc` / `_chord_shadow` و مهم‌تر از همه
+**`submit_for_approval`** برایش اجرا نمی‌شد — عملاً هیچ کارتِ تأییدی به مالک نمی‌رسید.
+علتِ مشترکِ ۴ فایلِ قرمزِ سوییت (evolution_wiring, box_wiring, chord_shadow, calibration).
+
+**مرزِ کانونی (قاعدهٔ نو):** روی dedupe-hit فقط مسیرِ «تصمیمِ نو» می‌خوابد —
+`chamber`, `run_sandbox`, `_evolve_rfc`, `_chord_shadow`, `submit_for_approval`.
+ناظرهای **per-cycle** (امروز فقط `Box`) تیک می‌زنند. دلیل: شاهدِ خودِ T8 «۸ RFC با متنِ
+یکسان» است، یعنی در تولید تکرارِ گلوگاه قاعده است و early-returnِ کامل حلقهٔ box را یخ
+می‌زد. `chord` استثناست چون `shadow_assess(log=True)` می‌نویسد و تکرارش همان نویزی است
+که dedupe جلویش را می‌گیرد. **هر ناظرِ per-cycleِ آینده باید در همین بند ثبت شود.**
+
+### ب) استثناهای اعلام‌شده از قاعدهٔ additive + flag-gated + default-off
+| مورد | چرا استثنا | دامنهٔ انفجار | وضعیت |
+|---|---|---|---|
+| T1 `severity` غیرعددی | bugfixِ مستقیم (`int('متوسط')` → ValueError) | صفر رفتارِ نو | پذیرفته |
+| T3 ثبتِ علتِ شکستِ لِگ | فقط observability؛ هیچ شاخهٔ تصمیمی آن را نمی‌خواند | write به `state/legs/*` + یک ردیفِ selfheal | رأیِ باز: **VQ-T3-001** |
+| T8 dedupeِ RFC | رفعِ نقص، نه قابلیتِ نو: صف ۸ کارتِ یکسان می‌ساخت | RFCِ نو mint نمی‌شود؛ هیچ حذفی نیست | رأیِ باز: **VQ-T8-001** |
+| T8 `_reconcile_input_validity` | برچسبِ `stale-input`؛ هرگز delete نمی‌کند، fail-soft | statusِ RFCهای باز + صفِ نمایشِ مالک | رأیِ باز: **VQ-T8-001** |
+
+### ج) مغزهای پولی — وضعیتِ *config*، نه رفتارِ زنده
+با رأیِ مالکِ ۲۰۲۶-۰۷-۲۵ سه فلگ در `_ops/OCTOPUS-flags.cmd` به ۱ رفتند:
+`OCTOPUS_GOVERNOR_USE_ROUTER`, `OCTOPUS_HEART_DOCTOR_USE_ROUTER`,
+`OCTOPUS_DOCTOR_SELFKNOW_PAID`. فایل gitignored است، پس این تغییر در تاریخچهٔ git نیست
+و تنها ردش همین بند است. فلیپ بایت‌سطح بود: ۳ بایت، طولِ ۱۳۹۵۳ و CRLF=416 دست‌نخورده،
+loneLF=0، و `OCTOPUS_WIRE_C6_PRODUCER` همچنان ۰.
+**اثر فقط با restart** — تا آن لحظه پروسهٔ زنده با مقادیرِ قدیم کار می‌کند.
+هر سه reader تنها env را می‌خوانند (بدون arm-token/capability)، پس سقف‌های پایین‌دستی
+تنها ترمزند: `cap_monthly=30 AUD`، burstِ روزانه `2 AUD`، Fugu `cap_monthly=100`.
+baselineِ پیش از فلیپ برای پایش: `paid-calls.jsonl`=۲ خط، `fugu-quota` used_total=۲،
+`self-knowledge.jsonl`=۹ خط.
+
+### د) چه چیزی هنوز دروغ می‌گوید
+1. **«سوییت سبز» دیگر ۲۹۷/۲۹۷ نیست.** بعد از فلیپ، `test_paid_router_dark_config`
+   سه چکِ «آخرین assignment باید صفر باشد» را قرمز می‌دهد → **۲۹۶/۲۹۷**. آن گارد
+   وضعیتِ *دیپلوی* را pin کرده، نه رفتار را. تا VQ-GUARD-001 بسته نشود، هر گزارشِ
+   «همه سبز» دروغ است.
+2. **T1/T3/T4/T8 فقط در تست اثبات شده‌اند، نه در بدنِ زنده** — restart انجام نشده.
+   پس «۳۴۸ خطای digest بسته شد» و «RFCهای کهنه stale شدند» ادعای کد است، نه مشاهده.
+3. **علتِ ریشه‌ایِ لِگِ lead-نقاشی ناشناخته است** — فقط می‌دانیم chrono آن را
+   `phi-timeout:no-ack` می‌بیند؛ *چرا* ack نمی‌دهد هنوز معلوم نیست.
+4. **T2 (`OCTOPUS_HONEST_OUTCOMES`) خاموش است** — تولید هنوز قاعدهٔ قدیمِ شمارشِ
+   closure را اجرا می‌کند؛ کد آماده است، درمان فعال نیست.
+5. **T6 فقط تحلیلِ مقدماتی است** — SIM آفلاین و hash-check انجام نشده.
