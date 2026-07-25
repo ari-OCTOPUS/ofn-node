@@ -52,6 +52,48 @@ def _h(*parts) -> str:
     return hashlib.sha256("|".join(str(p) for p in parts).encode("utf-8")).hexdigest()[:16]
 
 
+# T1 (2026-07-25): severity از self_knowledge به‌صورت برچسبِ رشته‌ای می‌رسد
+# ("high"/"متوسط") و int() مستقیم ۳۴۸ کرشِ doctor_digest_beat ساخته بود.
+# نگاشتِ برچسب→عدد دو‌زبانه؛ برچسبِ ناشناخته کرش نمی‌کند و خودِ رشته نمایش داده می‌شود.
+_SEV_LABELS = {
+    "critical": 5, "بحرانی": 5,
+    "high": 4, "بالا": 4,
+    "medium": 3, "متوسط": 3,
+    "low": 2, "کم": 2, "پایین": 2,
+    "info": 1, "اطلاع": 1,
+}
+
+
+def _sev_num(v) -> int:
+    """شدت را به عدد تبدیل می‌کند؛ هرگز raise نمی‌کند."""
+    if v is None:
+        return 0
+    if isinstance(v, bool):
+        return int(v)
+    if isinstance(v, (int, float)):
+        try:
+            return int(v)
+        except (TypeError, ValueError, OverflowError):
+            return 0
+    s = str(v).strip()
+    if not s:
+        return 0
+    try:
+        return int(s)
+    except ValueError:
+        pass
+    return _SEV_LABELS.get(s.lower(), _SEV_LABELS.get(s, 0))
+
+
+def _sev_text(v) -> str:
+    """نمایشِ شدت: عددِ نگاشت‌شده، یا خودِ برچسبِ ناشناخته (صداقت به‌جای صفرِ ساختگی)."""
+    n = _sev_num(v)
+    if n:
+        return str(n)
+    s = str(v if v is not None else "").strip()
+    return s if s else "0"
+
+
 def _tail_jsonl(p: Path, max_bytes: int = 4096) -> dict:
     """آخرین رکوردِ سالمِ یک jsonl (فقط دُم — فایلِ بزرگ کامل خوانده نمی‌شود)."""
     try:
@@ -92,8 +134,7 @@ def doctor_digest(state_dir=None) -> dict:
         lines.append(f"🎯 تمرکز: {_esc(focus)}")
     for p in pathology[:3]:
         if isinstance(p, dict):
-            sev = int(p.get("severity") or 0)
-            lines.append(f"• (شدت {sev}) {_esc(p.get('symptom'))} — {_esc(p.get('root_cause'), 90)}")
+            lines.append(f"• (شدت {_sev_text(p.get('severity'))}) {_esc(p.get('symptom'))} — {_esc(p.get('root_cause'), 90)}")
     owner_focus = load_owner_focus(state_dir)
     if owner_focus:
         lines.append(f"🧭 steeringِ تو: {_esc(owner_focus, 90)}")

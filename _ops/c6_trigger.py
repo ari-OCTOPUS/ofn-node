@@ -21,7 +21,9 @@ fail-soft: هر خطا → alert + ادامه (هرگز daily tick را نمی�
 """
 from __future__ import annotations
 
+import calendar
 import gc
+import hashlib
 import json
 import math
 import os
@@ -58,6 +60,7 @@ SIGN_ALPHA = 0.01     # سقفِ pِ آزمونِ علامتِ دقیق (یک‌
 IQR_FACTOR = 1.5      # اثر ≥ ۱.۵×IQRِ همان اختلاف‌های جفتی (ثابتِ حصارِ Tukey)
 NOISE_FACTOR = 3.0    # و ≥ ۳× کفِ نویزِ **اندازه‌گیری‌شده** از کنترلِ A/A
 MAX_ATTEMPTS = 3      # تلاشِ دوبارهٔ فرضیهٔ «نامعلوم» (نه ابطال‌شده)
+C6_RUNNING_STALE_H = float(os.environ.get("OCTOPUS_C6_RUNNING_STALE_H", "48"))
 
 # معیارهای ابطال — دیگر تزئینی نیستند: دقیقاً همین‌ها در _accept_bench اجرا می‌شوند.
 _FALSIFICATION = [
@@ -79,15 +82,41 @@ def flag_on() -> bool:
     return True
 
 
+def _queue_row_id(row: dict) -> str:
+    try:
+        hid = str(row.get("id") or "").strip()
+        if hid:
+            return hid
+        probe = str(row.get("probe") or "")
+        subject = str(row.get("subject") or row.get("hypothesis") or "")
+        return "c6-" + hashlib.sha256(f"{probe}|{subject}".encode("utf-8")).hexdigest()[:12]
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def _iso_epoch_utc(ts: str) -> float:
+    """ISO timestamp را به UTC epoch تبدیل می‌کند (ledger/queue UTC هستند، ساعت محلی سیدنی نیست)."""
+    try:
+        import datetime as _dt
+        t = _dt.datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+        if t.tzinfo is not None:
+            t = t.astimezone(_dt.timezone.utc).replace(tzinfo=None)
+        return float(calendar.timegm(t.timetuple()))
+    except Exception:  # noqa: BLE001
+        return 0.0
+
+
 def _pop_next_hypothesis() -> "dict | None":
-    """اولین فرضیهٔ status=PENDING را برمی‌دارد و آن را می‌بندد (idempotent-safe)."""
+    """اولین فرضیهٔ status=PENDING را می‌گیرد و idempotent-safe می‌کند؛ RUNNINGهای stale را
+    بدون verdict به ABANDONED می‌برد و برای ردیف‌های قدیمیِ بی‌id، id محتوامحور backfill می‌کند."""
     if not QUEUE.exists():
         return None
     try:
         lines = QUEUE.read_text("utf-8").splitlines()
     except Exception:  # noqa: BLE001
         return None
-    out, found = [], None
+    now = time.time()
+    out, found, stale_changed = [], None, False
     for ln in lines:
         ln = ln.strip()
         if not ln:
@@ -97,12 +126,20 @@ def _pop_next_hypothesis() -> "dict | None":
         except ValueError:
             out.append(ln)   # preserve malformed line
             continue
+        if d.get("status") == "RUNNING":
+            age_h = (now - _iso_epoch_utc(d.get("taken_at") or d.get("claimed_at"))) / 3600.0
+            if age_h >= C6_RUNNING_STALE_H:
+                d["status"] = "ABANDONED"
+                d["abandoned_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+                d["abandoned_reason"] = "stale-running"
+                stale_changed = True
         if found is None and d.get("status") == "PENDING":
+            d["id"] = _queue_row_id(d)
             d["status"] = "RUNNING"
             d["taken_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-            found = d
+            found = dict(d)
         out.append(json.dumps(d, ensure_ascii=False))
-    if found is not None:
+    if found is not None or stale_changed:
         try:
             QUEUE.parent.mkdir(parents=True, exist_ok=True)
             QUEUE.write_text("\n".join(out) + "\n", encoding="utf-8")
@@ -149,6 +186,12 @@ def c6_research_beat(*, state_dir: str, channel=None, beat: int = 0) -> dict:
         opslib.alert([f"c6_research_beat import failed: {type(e).__name__}: {e}"])
         return {"ran": False, "reason": f"import-failed:{type(e).__name__}"}
 
+    try:
+        import c6_producer as _cp
+        _cp.produce(QUEUE)
+    except Exception as _pe:  # noqa: BLE001 — producer نباید beat را بکشد
+        opslib.alert([f"c6 producer failed (fail-soft): {type(_pe).__name__}: {_pe}"])
+
     h = _pop_next_hypothesis()
     if h is None:
         return {"ran": False, "reason": "no-pending-hypothesis"}
@@ -158,6 +201,7 @@ def c6_research_beat(*, state_dir: str, channel=None, beat: int = 0) -> dict:
         contract = _rc.make_contract(spec)
     except Exception as e:  # noqa: BLE001 — فرضیهٔ بد نباید daily tick را بکشد
         opslib.alert([f"c6 contract invalid (hypothesis closed): {type(e).__name__}: {e}"])
+        _mark_hypothesis(str(h.get("id") or ""), "contract-invalid", False)
         return {"ran": False, "reason": f"contract-invalid:{type(e).__name__}"}
 
     # experiment_fn + verifier_fn: از hypothesis.kind مشتق می‌شوند.
@@ -183,6 +227,7 @@ def c6_research_beat(*, state_dir: str, channel=None, beat: int = 0) -> dict:
             cost_aud=0.0, tokens=0)
     except Exception as e:  # noqa: BLE001
         opslib.alert([f"c6 run_experiment failed: {type(e).__name__}: {e}"])
+        _mark_hypothesis(str(h.get("id") or ""), "run-failed", False)
         return {"ran": False, "reason": f"run-failed:{type(e).__name__}"}
 
     verdict = result.get("verdict", "?")
@@ -235,11 +280,72 @@ def c6_research_beat(*, state_dir: str, channel=None, beat: int = 0) -> dict:
 
 
 def _derive_fns(h: dict, contract: dict):
-    """experiment_fn + verifier_fn + boxِ اندازه‌گیری. v1: فقط 'micro_benchmark'.
-    box (dictِ زنده) رکوردِ بنچ و نتیجهٔ معیارِ پذیرش را به caller برمی‌گرداند تا کارتِ
-    مالک عدد داشته باشد و تصمیمِ requeue بدونِ parseِ رشتهٔ evidence گرفته شود."""
+    """experiment_fn + verifier_fn + boxِ اندازه‌گیری. C1 را حفظ می‌کند و C2 را می‌افزاید.
+    kind='mechanism_count' یک probe شمارشیِ read-only است: نقص بازتولید شد/نشد را می‌سنجد؛
+    آن را «بهبودِ انجام‌شده» نمی‌داند و count<0 را unsupported+inconclusive می‌کند."""
     kind = str(h.get("kind", "micro_benchmark"))
     box: dict = {}
+
+    if kind == "mechanism_count":
+        probe = str(h.get("probe") or "")
+        floor = int(h.get("floor", 0) or 0)
+
+        def _measure() -> dict:
+            try:
+                import c6_probes as _cp
+                fn = (_cp.PROBES.get(probe) or {}).get("measure")
+                if not callable(fn):
+                    return {"count": -1, "unit": "count", "detail": "unknown-probe"}
+                rec = fn()
+                if not isinstance(rec, dict):
+                    return {"count": -1, "unit": "count", "detail": "bad-probe-result"}
+                return rec
+            except Exception as e:  # noqa: BLE001
+                return {"count": -1, "unit": "count",
+                        "detail": f"probe-error:{type(e).__name__}"}
+
+        def experiment_fn(c, *, _h=h):
+            rec = _measure()
+            count = int(rec.get("count", -1)) if isinstance(rec, dict) else -1
+            gain = 0.0
+            if count > floor:
+                gain = max(0.0, min(1.0, (count - floor) / max(count, 1)))
+            out = {"schema": "c6-mechanism-count.v1", "probe": probe,
+                   "count": count, "unit": rec.get("unit", "count"),
+                   "floor": floor, "detail": rec.get("detail", ""),
+                   "gain": gain, "same_output": True}
+            box["bench"] = out
+            return out
+
+        def verifier_fn(c, result):
+            count = int((result or {}).get("count", -1)) if isinstance(result, dict) else -1
+            gain = float((result or {}).get("gain", 0.0)) if isinstance(result, dict) else 0.0
+            if count < 0:
+                acc = {"supported": False, "benchmark_gain": 0.0,
+                       "inconclusive": True, "reasons": ["E-MEASURE: probe failed"],
+                       "criteria": {"measured_count": count, "floor": floor,
+                                    "relative_gain": 0.0}}
+            elif count > floor:
+                acc = {"supported": True, "benchmark_gain": gain,
+                       "inconclusive": False, "reasons": [],
+                       "criteria": {"measured_count": count, "floor": floor,
+                                    "relative_gain": round(gain, 4)}}
+            else:
+                acc = {"supported": False, "benchmark_gain": 0.0,
+                       "inconclusive": False,
+                       "reasons": ["F-MEASURE: defect not reproduced"],
+                       "criteria": {"measured_count": count, "floor": floor,
+                                    "relative_gain": 0.0}}
+            box["accept"] = acc
+            ev = {"supported": acc["supported"], "gain": round(acc["benchmark_gain"], 4),
+                  "inconclusive": acc["inconclusive"], "why": acc["reasons"],
+                  "m": acc["criteria"]}
+            return {"supported": bool(acc["supported"]),
+                    "evidence": json.dumps(ev, ensure_ascii=False)[:500],
+                    "benchmark_gain": float(acc["benchmark_gain"]),
+                    "risk": 0.1}
+
+        return experiment_fn, verifier_fn, box
 
     def experiment_fn(c, *, _h=h):
         try:
@@ -521,7 +627,13 @@ def _summarize(h: dict, result: dict, box: dict = None) -> str:
             except (TypeError, ValueError):
                 return d
 
-        if cr:
+        if cr and str(h.get("kind", "micro_benchmark")) == "mechanism_count":
+            mc = _n("measured_count", -1.0)
+            lines.append(
+                f"سنجهٔ شمارشیِ read-only: measured={int(mc)} · floor={int(_n('floor'))} · "
+                f"gain={_n('relative_gain'):.2f}")
+            lines.append("این سنجه فقط بازتولیدِ نقص را اندازه می‌گیرد.")
+        elif cr:
             lines.append(
                 "اندازه‌گیریِ جفت‌شده (همان ورودی، gc خاموش): "
                 f"baselineِ اندازه‌گیری‌شده {_n('baseline_median_ms'):.3f}ms · "
@@ -562,7 +674,7 @@ def _mark_hypothesis(hid: str, verdict: str, delivered: bool, requeue: bool = Fa
             except ValueError:
                 out.append(ln)
                 continue
-            if d.get("id") == hid or d.get("status") == "RUNNING":
+            if hid and d.get("id") == hid:
                 _att = int(d.get("attempt", 1) or 1)
                 _now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
                 if requeue and _att < MAX_ATTEMPTS:
@@ -582,8 +694,15 @@ def _mark_hypothesis(hid: str, verdict: str, delivered: bool, requeue: bool = Fa
 
 
 def seed_default_hypothesis() -> bool:
-    """اگر صف خالی است، یک فرضیهٔ نمونهٔ بی‌خطر اضافه کن (با اولین بوت)."""
+    """اگر صف خالی است، یک فرضیهٔ نمونهٔ بی‌خطر اضافه کن (با اولین بوت).
+    وقتی producer روشن است، seed صریحاً خاموش می‌شود تا فرضیهٔ صنعتی تولید نشود."""
     try:
+        try:
+            import c6_producer as _cp
+            if _cp.flag_on():
+                return False
+        except Exception:
+            pass
         QUEUE.parent.mkdir(parents=True, exist_ok=True)
         if QUEUE.exists() and QUEUE.read_text("utf-8").strip():
             return False

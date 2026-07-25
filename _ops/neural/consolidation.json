@@ -6034,5 +6034,41 @@
     "bcm_saturation": null,
     "sparse_ratio": null,
     "sparse_filtered": null
+  },
+  {
+    "cycle": 512,
+    "insights": [
+      "آگاهیِ میانگین: 0.53"
+    ],
+    "verified_sources": [
+      "school_awareness"
+    ],
+    "discarded_sources": [],
+    "timestamp": 1784936366.1038702,
+    "latent_vector": null,
+    "similar_keys": null,
+    "bcm_pruned": null,
+    "bcm_theta": null,
+    "bcm_saturation": null,
+    "sparse_ratio": null,
+    "sparse_filtered": null
+  },
+  {
+    "cycle": 513,
+    "insights": [
+      "آگاهیِ میانگین: 0.54"
+    ],
+    "verified_sources": [
+      "school_awareness"
+    ],
+    "discarded_sources": [],
+    "timestamp": 1784941255.8638587,
+    "latent_vector": null,
+    "similar_keys": null,
+    "bcm_pruned": null,
+    "bcm_theta": null,
+    "bcm_saturation": null,
+    "sparse_ratio": null,
+    "sparse_filtered": null
   }
 ]

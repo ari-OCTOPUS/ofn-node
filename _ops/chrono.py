@@ -1144,6 +1144,45 @@ def last_age_tick(ledger=None) -> int:
     return lg.last_age_tick()
 
 
+# ─── T3 (2026-07-25): ثبتِ علتِ شکستِ لِگ — self-heal تا امروز کور بود ──────────
+def _record_leg_failure(pm, leg, phi: float, now_ms: int) -> None:
+    """علتِ شکستِ لِگ را پایدار ثبت کن: state/legs/<leg>-last-failure.json (atomic).
+
+    گواه: selfheal-events.jsonl = ۶۶ ری‌استارت، ۱۰۰٪ lead-naghshi، و **هیچ‌جا علت
+    ثبت نمی‌شد** (فقط {leg,ts}). حقیقتِ در دسترس در این نقطه: شکست از جنسِ استثنا
+    نیست — phi-accrual timeout است (لِگ ack نداده). پس علتِ صادق = phi، سکون از
+    آخرین ack، last_beat_seen، beat — نه stack. هرگز سدِ ضربان را نمی‌کشد."""
+    try:
+        acc = pm.bus.phi.get(leg.id)
+        last_ack_ms = (float(acc.arrivals[-1])
+                       if acc is not None and len(acc.arrivals) else None)
+        ctx = {
+            "leg": getattr(leg, "id", "?"),
+            "ts": time.time(),
+            "iso": opslib.now_iso(),
+            "beat": pm.beat,
+            "reason": "phi-timeout:no-ack",
+            "phi": round(float(phi), 3),
+            "phi_suspect": PHI_SUSPECT,
+            "phi_dead": PHI_DEAD,
+            "last_ack_ms": last_ack_ms,
+            "silence_ms": (int(now_ms - last_ack_ms) if last_ack_ms else None),
+            "last_beat_seen": getattr(leg, "last_beat_seen", None),
+            "events_this_beat": getattr(leg, "events_this_beat", None),
+            "ack_samples": (len(acc.arrivals) if acc is not None else 0),
+            "note": ("لِگ در پنجرهٔ phi پاسخ نداد؛ restart علت را برطرف نمی‌کند — "
+                     "اگر silence_ms کوچک است ولی phi بالا، تاریخچهٔ ack مسموم است."),
+        }
+        d = opslib.STATE_DIR / "legs"
+        d.mkdir(parents=True, exist_ok=True)
+        p = d / f"{ctx['leg']}-last-failure.json"
+        tmp = p.with_suffix(".tmp")
+        tmp.write_text(json.dumps(ctx, ensure_ascii=False, indent=2), "utf-8")
+        os.replace(tmp, p)
+    except Exception:  # noqa: BLE001 — ثبتِ علت اختیاری است
+        pass
+
+
 # ─── Pacemaker — حلقهٔ ضربان (DOC-B §9؛ scheduler=F19 همین‌جاست) ────────────────
 class Pacemaker:
     """مغزِ مرکزی + Chrono Bus. `beat_once()` یک ضربانِ کامل و تست‌پذیر است
@@ -1211,6 +1250,13 @@ class Pacemaker:
             was = leg.state
             leg.state = new_state
             (present if new_state == "alive" else absent).append(leg.id)
+            if new_state == "failed" and was != "failed":
+                # T3 (2026-07-25): علتِ شکست همیشه پایدار ثبت شود — مستقل از فلگِ
+                # selfheal و حضورِ doctor. fail-soft؛ رفتارِ restart دست‌نخورده.
+                try:
+                    _record_leg_failure(self, leg, phi, t0)
+                except Exception:  # noqa: BLE001
+                    pass
             if new_state == "failed" and was != "failed" and self.doctor is not None:
                 # B5: self-heal پشتِ flag + circuit-breaker (ضدِ restart-storm)
                 import os as _os
@@ -1231,7 +1277,10 @@ class Pacemaker:
                                 with open(opslib.STATE_DIR / "selfheal-events.jsonl",
                                           "a", encoding="utf-8") as _hf:
                                     _hf.write(json.dumps({"leg": getattr(leg, "id", "?"),
-                                                          "ts": _t2.time()}) + "\n")
+                                                          "ts": _t2.time(),
+                                                          "beat": self.beat,
+                                                          "reason": "phi-timeout:no-ack",
+                                                          "phi": round(float(phi), 3)}) + "\n")
                             except OSError:
                                 pass
                             # جلسه ۴۶: رویدادِ ساختاریافته برای داشبورد (blocked→completed)
@@ -1242,7 +1291,10 @@ class Pacemaker:
                                 import events as _ev
                                 _lg = getattr(leg, "id", "?")
                                 _ev.emit("task.blocked", f"leg/{_lg}",
-                                         summary=f"عضو «{_lg}» از کار افتاد", status="failed")
+                                         summary=(f"عضو «{_lg}» از کار افتاد "
+                                                  f"(phi={phi:.1f} — پاسخ‌گو نبود)"),
+                                         status="failed",
+                                         next_action=f"علت: state/legs/{_lg}-last-failure.json")
                                 _ev.emit("task.completed", "self-heal",
                                          summary=f"عضو «{_lg}» را خودم دوباره راه انداختم")
                             except Exception:  # noqa: BLE001

@@ -1960,3 +1960,105 @@
 ## 2026-07-25T08:35:49 (metabolism)
 - ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'متوسط'
 
+## 2026-07-25T09:39:24 (metabolism)
+- ⚠️ governor llm epoch failed (fallback به dry): DEEPSEEK_API_KEY تنظیم نیست (fallback به کلید دیگر ممنوع)
+
+## 2026-07-25T09:39:37 (metabolism)
+- ⚠️ cortex obs: 3 stale > 2: organism,heart,producers
+
+## 2026-07-25T09:39:39 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'متوسط'
+
+## 2026-07-25T09:43:27 (metabolism)
+- ⚠️ self-heal circuit-breaker: 3 restarts in 300s — throttled (lead-naghshi)
+
+## 2026-07-25T09:48:41 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'متوسط'
+
+## 2026-07-25T09:57:42 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'متوسط'
+
+## 2026-07-25T10:06:43 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'متوسط'
+
+## 2026-07-25T10:15:46 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'متوسط'
+
+## 2026-07-25T10:24:50 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'متوسط'
+
+## 2026-07-25T10:33:52 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'متوسط'
+
+## 2026-07-25T10:42:55 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'متوسط'
+
+## 2026-07-25T10:51:57 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'متوسط'
+
+## 2026-07-25T11:00:17 (metabolism)
+- ⚠️ governor llm epoch failed (fallback به dry): DEEPSEEK_API_KEY تنظیم نیست (fallback به کلید دیگر ممنوع)
+
+## 2026-07-25T11:00:55 (metabolism)
+- ⚠️ دکتر: کارتِ تأییدِ RFC ساخته نشد (no-secret) — حلقهٔ رأیِ مالک بسته است؛ هیچ verdict وارد نمی‌شود.
+
+## 2026-07-25T11:01:13 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'high'
+
+## 2026-07-25T11:04:20 (metabolism)
+- ⚠️ self-heal circuit-breaker: 3 restarts in 300s — throttled (lead-naghshi)
+
+## 2026-07-25T11:10:14 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'high'
+
+## 2026-07-25T11:20:38 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'high'
+
+## 2026-07-25T11:29:39 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'high'
+
+## 2026-07-25T11:39:23 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'high'
+
+## 2026-07-25T11:48:24 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'high'
+
+## 2026-07-25T11:58:42 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'high'
+
+## 2026-07-25T12:07:44 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'high'
+
+## 2026-07-25T12:17:47 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'high'
+
+## 2026-07-25T12:26:48 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'high'
+
+## 2026-07-25T12:36:44 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'high'
+
+## 2026-07-25T12:45:47 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'high'
+
+## 2026-07-25T12:55:18 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'high'
+
+## 2026-07-25T13:04:22 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'high'
+
+## 2026-07-25T13:14:41 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'high'
+
+## 2026-07-25T13:23:44 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'high'
+
+## 2026-07-25T13:34:32 (metabolism)
+- ⚠️ journal_bridge: categorize-config.json غایب یا expense_account_by_owner خالی است — owner→account نگاشت نمی‌شود (همه به category/desc یا 6000 می‌روند). f: personal/categorize-config.json#expense_account_by_owner را پر کن. (هر tick تکرار نمی‌شود تا زمانی که config برگردد.)
+
+## 2026-07-25T13:34:50 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'high'
+
+## 2026-07-25T13:43:52 (metabolism)
+- ⚠️ wiring: doctor_digest_beat خطا: ValueError: invalid literal for int() with base 10: 'high'
+

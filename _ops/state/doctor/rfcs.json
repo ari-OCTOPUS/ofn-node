@@ -1,5 +1,5 @@
 {
-  "ts": "2026-07-25T04:26:21",
+  "ts": "2026-07-25T11:00:55",
   "schema": "doctor-rfcs.v1",
   "rfcs": [
     {
@@ -151,6 +151,54 @@
       "status": "drafted",
       "ledger_ref": "e641c7556bdc3311166c70f4c586eb595832fd51f8b2cc91e42c5dbca68a8f5a",
       "rfc_hash": "f2a0cb17a418d8738e08e0be",
+      "change_level": "code",
+      "knob": ""
+    },
+    {
+      "rfc_id": "RFC-0ea87247",
+      "bottleneck": "σ≈1 (σ=1.00 = نزدیکِ گذارِ فاز/SOC)؛ شکافِ طیفیِ کوچک (gap=0.000 = شکننده)",
+      "fix": "بازبینیِ گلوگاهِ شناسایی‌شده (propose-only)",
+      "expected_lift": "رفعِ critical: σ≈1 (σ=1.00 = نزدیکِ گذارِ فاز/SOC)؛ شکافِ طیفیِ کوچک (gap=0.000 = شکننده)",
+      "rollback": "revert flag",
+      "sandbox_result": null,
+      "critic_review": null,
+      "status": "drafted",
+      "ledger_ref": "7ec5027f6e8799ccd9c8b096c986420094ce5377c970723e8e603141fc45f617",
+      "rfc_hash": "936dce5871063ac8b0c1cc9a",
+      "change_level": "code",
+      "knob": ""
+    },
+    {
+      "rfc_id": "RFC-617573e1",
+      "bottleneck": "σ≈1 (σ=1.00 = نزدیکِ گذارِ فاز/SOC)؛ شکافِ طیفیِ کوچک (gap=0.000 = شکننده)",
+      "fix": "بازبینیِ گلوگاهِ شناسایی‌شده (propose-only)",
+      "expected_lift": "رفعِ critical: σ≈1 (σ=1.00 = نزدیکِ گذارِ فاز/SOC)؛ شکافِ طیفیِ کوچک (gap=0.000 = شکننده)",
+      "rollback": "revert flag",
+      "sandbox_result": {
+        "chamber": {
+          "confidence": 0.8,
+          "rounds": 3,
+          "temperature": null
+        },
+        "sandbox_dir": "C:\\Users\\Armin\\AppData\\Local\\Temp\\doctor-sandbox-RFC-617573e1-bsgprpbh",
+        "applied": false,
+        "tests": null,
+        "critic": {
+          "verdict": "unvalidated",
+          "concerns": [],
+          "reward_integrity_ok": true,
+          "sandbox_validated": false
+        }
+      },
+      "critic_review": {
+        "verdict": "unvalidated",
+        "concerns": [],
+        "reward_integrity_ok": true,
+        "sandbox_validated": false
+      },
+      "status": "submitted-no-channel",
+      "ledger_ref": "b7fa46b0549cd443808434e259ab70e51868d009ed39d6fb78214a93f215d109",
+      "rfc_hash": "ab7db343ecca8dba76e1fbff",
       "change_level": "code",
       "knob": ""
     }

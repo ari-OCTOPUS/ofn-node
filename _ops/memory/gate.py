@@ -36,6 +36,20 @@ _SECRET_RX = re.compile(
     r"(sk-[A-Za-z0-9]{12,}|AKIA[0-9A-Z]{12,}|-----BEGIN|xox[baprs]-|"
     r"\bpassword\b\s*[:=]|\bseed\b\s*[:=]|\bapi[_-]?key\b\s*[:=]|0x[a-fA-F0-9]{40})", re.I)
 
+_OWNER_PRODUCERS = {"owner", "verdict_recorder", "approval_channel", "tg_center", "telegram_center"}
+
+
+def _owner_source_ok(candidate: dict, source: str) -> bool:
+    """فقط producerهای واقعاً مالک‌محور می‌توانند source=owner را جلو ببرند. سازگاری: اگر
+    producer ناشناخته/غایب بود، رفتار قدیمی حفظ می‌شود؛ ولی producer خودکار با source=owner
+    دیگر owner-only namespace را commit نمی‌کند."""
+    producer = str(candidate.get("producer") or "").strip().lower()
+    if source != "owner":
+        return True
+    if not producer:
+        return True
+    return producer in _OWNER_PRODUCERS
+
 
 def flag_on() -> bool:
     return str(os.environ.get(FLAG, "")).strip().lower() in ("1", "true", "yes", "on")
@@ -111,6 +125,8 @@ class MemoryGate:
             return {"verb": "reject", "reason": "secret/PII pattern — refs/hash only"}
         if privacy == "owner_only" and source != "owner":
             return {"verb": "reject", "reason": "owner_only content from non-owner source"}
+        if source == "owner" and not _owner_source_ok(candidate, source):
+            return {"verb": "reject", "reason": "owner claim from non-owner producer"}
 
         # (3) grade per COMMIT_RULES (dedupe happens at store.insert)
         rule = tax.COMMIT_RULES.get(ns, {})
@@ -165,7 +181,7 @@ class MemoryGate:
         """(trust, verb). verb ∈ commit|propose|reject. trust در reject حاملِ دلیل است."""
         committer = rule.get("committer")
         if committer in ("owner_only", "owner_or_deterministic"):
-            if source == "owner":
+            if source == "owner" and _owner_source_ok(candidate, source):
                 return "OWNER_CONFIRMED", "commit"
             if committer == "owner_or_deterministic" and source == "deterministic":
                 return "DETERMINISTIC", "commit"

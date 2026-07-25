@@ -1,17 +1,17 @@
 {
-  "ts": "2026-07-25T08:35:48",
+  "ts": "2026-07-25T13:43:51",
   "velocity": {
-    "velocity_per_hr": 6.0042,
+    "velocity_per_hr": 5.8292,
     "components": {
       "confirmed": 0,
       "effects": 0,
-      "consolidation": 3,
-      "beats": 1411,
+      "consolidation": 4,
+      "beats": 1359,
       "cognition": null
     },
     "confirmed_ts": [],
     "window_hours": 24.0,
-    "sample_size": 3,
+    "sample_size": 4,
     "sources_available": [
       "beats",
       "confirmed",
@@ -20,7 +20,7 @@
     ],
     "authoritative": false,
     "provenance": "external: reconcile-job/effector-gate/consolidation/pacemaker",
-    "ts": "2026-07-25T08:35:49",
+    "ts": "2026-07-25T13:43:52",
     "fuel_velocity_per_hr": null,
     "value_velocity_per_hr": null,
     "real_velocity_per_hr": null,
@@ -29,7 +29,7 @@
       "fuel_musd": 0
     },
     "leg_money_count": 0,
-    "metronome_share": 0.9792,
+    "metronome_share": 0.9714,
     "honest_pulse": {
       "enabled": false,
       "beat_cap": 3.0,
@@ -40,7 +40,7 @@
       "fuel": null,
       "value_cognition": null,
       "effects": 0,
-      "beats": 1411
+      "beats": 1359
     }
   },
   "cpi": {
@@ -52,19 +52,19 @@
     "sample_size": 2,
     "authoritative": false,
     "window_hours": 72.0,
-    "ts": "2026-07-25T08:35:49"
+    "ts": "2026-07-25T13:43:52"
   },
   "delta_self": {
-    "stream_rows": 520,
-    "sample_size": 520,
+    "stream_rows": 534,
+    "sample_size": 534,
     "min_samples": 48,
-    "ts": "2026-07-25T08:35:49",
+    "ts": "2026-07-25T13:43:52",
     "delta_self_live": 0.0,
-    "delta_self_raw": -0.028125,
-    "S_blind": 0.022412353623583653,
-    "S_informed": 0.023709166843673135,
-    "ceiling_live": 2.779934,
-    "holdout_n": 260,
+    "delta_self_raw": -0.026755,
+    "S_blind": 0.021989199058248567,
+    "S_informed": 0.023197880372756115,
+    "ceiling_live": 2.848602,
+    "holdout_n": 267,
     "authoritative": true,
     "estimator": "proxy-OLS (نه P_closed کانونی — قفلِ P0 جدا می‌ماند)",
     "provenance": "append-only velocity-stream (fixed-clock) + کوواریت‌های برون‌زاد",

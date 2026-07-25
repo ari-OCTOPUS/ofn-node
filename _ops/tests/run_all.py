@@ -377,6 +377,30 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # 2026-07-25 C1: بنچِ C6 دیگر خودش را تأیید نمی‌کند — NULL رد می‌شود،
          # baselineِ اعلامی بی‌اثر است، ادعای مکانیزمی مقدم بر ساعتِ دیواری.
          "test_c6_bench_honesty.py",
+         # 2026-07-25 C2: تولیدکنندهٔ صادقِ فرضیهٔ C6 + صفِ id-safe؛ صف خالی شرافتمندانه
+         # می‌ماند و mechanism_count فقط نقص را بازتولید می‌کند، نه بهبودِ اعمال‌شده.
+         "test_c6_hypothesis_producer.py",
+         # 2026-07-25 C3: جعل اعتماد مالک مسدود شد؛ claim بی‌گواهی به GRADED cap می‌شود
+         # و مسیر واقعی رأی مالک از verdict_recorder همچنان OWNER_CONFIRMED است.
+         "test_c3_owner_trust_forgery.py",
+         # 2026-07-25: مسیرهای router گاورنر/قلب/خودشناسی تاریک می‌مانند؛ چهار فلگ در
+         # OCTOPUS-flags.cmd صریحاً صفر ثبت شد و با تست hermetic قفل شد.
+         "test_paid_router_dark_config.py",
+         # 2026-07-25 T1 (megaprompt): int() روی برچسبِ شدت — ۳۴۸ کرشِ doctor_digest_beat
+         # بسته شد؛ severity رشته‌ای/عددی/None/ناشناخته همه متنِ غیرخالی می‌دهند.
+         "test_organ_dialogue_digest.py",
+         # 2026-07-25 T3 (megaprompt): self-heal کور → باعلت؛ phi-timeout در chrono و
+         # استثنا در leg_beat هر دو علتِ پایدار در state/legs/ ثبت می‌کنند.
+         "test_leg_failure_reason.py",
+         # 2026-07-25 T4 (megaprompt): گاردِ متروَنوم (self_referential + authoritative=false)
+         # و انتشارِ Δ منفی پشتِ OCTOPUS_HEART_HONEST_PULSE؛ gate0 با Δ≤0 بسته.
+         "test_heart_honest_pulse.py",
+         # 2026-07-25 T8 (megaprompt): صفِ RFC با واقعیتِ زنده تطبیق می‌خورد — dedupe روی
+         # متنِ گلوگاه، stale-input برای شرطِ مرده (σ/FREEZE)، submit idempotent.
+         "test_doctor_rfc_stale_dedup.py",
+         # 2026-07-25 T2 (megaprompt): سنجهٔ خودبهبودی — dedupe نیت بر id، مخرجِ نیتِ متمایز،
+         # درون‌زاد رأی نمی‌دهد. پشتِ OCTOPUS_HONEST_OUTCOMES (خاموش = بایت‌به‌بایت).
+         "test_honest_outcomes.py",
          # 2026-07-23 D3/D4/D5: (D3) صفر provider-call/authorization/settle زیرِ HALT-ALL —
          # شکافِ release_one/release_gated_effects بی‌گاردِ kill هم بسته شد؛ (D4) گاردِ
          # boot-halt در هر ۶ launcher + parity واچ‌داگ PS1/py + ماتریسِ should_revive؛

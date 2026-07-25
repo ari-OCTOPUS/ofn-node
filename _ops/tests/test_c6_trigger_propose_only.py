@@ -62,7 +62,7 @@ _BANNED = (r"(?<![\w.])subprocess\b", r"os\.system\s*\(", r"(?i)(?<![\w.])popen\
            r"urlopen\s*\(", r"requests\.", r"(?<![\w.])socket\b",
            r"(?<![\w.])eval\s*\(", r"(?<![\w.])exec\s*\(", r"rmtree",
            r"apply_merge", r"(?<![\w.])git\s")
-for rel in ("c6_trigger.py", "c6_state_machine.py",
+for rel in ("c6_trigger.py", "c6_probes.py", "c6_producer.py", "c6_state_machine.py",
             "outcomes/research_loop.py", "outcomes/research_contract.py"):
     src = (_OPS / rel).read_text("utf-8")
     for bad in _BANNED:

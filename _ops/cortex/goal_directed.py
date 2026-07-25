@@ -41,6 +41,17 @@ SELF_MONITOR_FLAG = "CORTEX_SELF_MONITOR"
 _METRIC_KEYS = ("confirmed_revenue", "revenue_cells", "total_discoveries",
                 "proposals_delivered", "proposal_outcomes", "proposal_value_aud")
 
+# T2 لایهٔ ۳ (2026-07-25، مگاپرامپت): درون‌زاد در برابرِ برون‌زاد.
+# total_discoveries شمارندهٔ خودِ ارگانیسم است (با تحقیقِ ارگانیسم دربارهٔ خودش بالا
+# می‌رود) — «بهبود» با تولیدِ یک کشفِ دیگر دربارهٔ خود ارضا می‌شد = خودارجاعیِ حلقه.
+# گواه: baselineهای اولیه فقط یک کلیدِ متحرک داشتند — total_discoveries.
+# پشتِ OCTOPUS_HONEST_OUTCOMES: درون‌زاد لاگ می‌شود ولی رأی نمی‌دهد. خاموش = بایت‌به‌بایت.
+_ENDOGENOUS_KEYS = frozenset({"total_discoveries"})
+
+
+def _honest_outcomes() -> bool:
+    return os.environ.get("OCTOPUS_HONEST_OUTCOMES") == "1"
+
 # نشانه‌های «دایره‌ای» — بهبودِ خودِ ماشینِ سنجش، نه یک هدفِ واقعی.
 _CIRCULAR = re.compile(
     r"(بلوغ|maturity|probe|ماتریس|audit|ممیزی|هم‌آهنگی|coherence|خودآگاهیِ سند|"
@@ -226,6 +237,29 @@ def _movement_keys(now: dict, base: dict) -> tuple:
     return tuple(keys)
 
 
+def _vote_keys(now: dict, base: dict) -> tuple:
+    """کلیدهای رأی‌دهندهٔ moved — T2 لایهٔ ۳: با فلگِ صداقت فقط برون‌زاد رأی می‌دهد
+    (درون‌زاد لاگ می‌شود ولی رأی نه)؛ فلگ خاموش = همهٔ کلیدها (بایت‌به‌بایتِ قدیم)."""
+    keys = _movement_keys(now, base)
+    if _honest_outcomes():
+        return tuple(k for k in keys if k not in _ENDOGENOUS_KEYS)
+    return keys
+
+
+def _dedupe_intents(intents: list[dict]) -> list[dict]:
+    """T2 لایهٔ ۱ (نویسنده): یک id چند بار با baselineهای متفاوت در پنجرهٔ ۲۰تایی
+    می‌افتد (هر اجرا یک نیتِ نو append می‌شود) و _close_intents روی همه حلقه می‌زد →
+    بیت در همان فراخوان flip می‌شد و دو بستارِ متناقض با یک ts ساخته می‌شد.
+    قدیمی‌ترین baseline (اولین دیده‌شده به ترتیبِ فایل) baselineِ واقعی است."""
+    seen: dict[str, dict] = {}
+    for r in intents:
+        rid = str(r.get("id") or "").strip()
+        if not rid or rid in seen:
+            continue
+        seen[rid] = r
+    return list(seen.values())
+
+
 def measure() -> dict:
     """آیا پیشنهادهای اخیر واقعاً متریکی را جابه‌جا کردند؟ (بستنِ لوپ — ضدِ دایره).
     اگر برون‌دادها ثابت مانده‌اند → سیگنالِ «کارِ خودبهبودی به هدف نمی‌رسد».
@@ -243,7 +277,7 @@ def measure() -> dict:
     if not intents:
         return {"tracked": 0, "moved": False, "now": now}
     oldest = intents[0].get("baseline", {})
-    moved = any(now.get(k, 0) > oldest.get(k, 0) for k in _movement_keys(now, oldest))
+    moved = any(now.get(k, 0) > oldest.get(k, 0) for k in _vote_keys(now, oldest))
     _close_intents(intents, rows, now)
     return {"tracked": len(intents), "moved": moved, "now": now, "since": oldest}
 
@@ -255,6 +289,8 @@ def _close_intents(intents: list[dict], rows: list[dict], now: dict) -> None:
     فقط وقتی می‌نویسد که بیت نسبت به آخرین بستارِ همان key عوض شده باشد
     (رشدِ کران‌دار؛ «تازه‌ترین حقیقت» در probe برنده است). fail-soft."""
     try:
+        if _honest_outcomes():                # T2 لایهٔ ۱: تکرارِ متناقض ساختاراً ناممکن
+            intents = _dedupe_intents(intents)
         last: dict[str, bool] = {}
         for r in rows:                        # آخرین بستارِ ثبت‌شده per key (به ترتیبِ فایل)
             if "moved" in r and r.get("key"):
@@ -266,12 +302,18 @@ def _close_intents(intents: list[dict], rows: list[dict], now: dict) -> None:
                 continue                      # نیتِ بی‌id بستار‌پذیر نیست
             rid = str(rid).strip()
             base = r.get("baseline") or {}
-            moved_i = any(now.get(k, 0) > base.get(k, 0) for k in _movement_keys(now, base))
+            moved_i = any(now.get(k, 0) > base.get(k, 0) for k in _vote_keys(now, base))
             if last.get(rid) == moved_i:
                 continue                      # بیت عوض نشده → دوباره‌نویسی نکن
-            opslib.append_jsonl(OUTCOMES, {
-                "ts": ts, "key": rid, "moved": bool(moved_i),
-                "kind": "closure", "schema": "outcome-closure.v1"})
+            rec = {"ts": ts, "key": rid, "moved": bool(moved_i),
+                   "kind": "closure", "schema": "outcome-closure.v1"}
+            if _honest_outcomes():            # T2 لایهٔ ۳: درون‌زاد لاگ می‌شود ولی رأی نه
+                endo = {k: {"base": base.get(k, 0), "now": now.get(k, 0)}
+                        for k in _movement_keys(now, base) if k in _ENDOGENOUS_KEYS}
+                if endo:
+                    rec["endogenous_delta"] = endo
+                    rec["honest"] = True
+            opslib.append_jsonl(OUTCOMES, rec)
             last[rid] = moved_i
     except Exception as e:  # noqa: BLE001 — بستار هرگز measure را نمی‌کشد
         try:

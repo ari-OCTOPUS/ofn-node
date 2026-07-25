@@ -271,6 +271,14 @@ def improvement_rate(limit: int = 200) -> dict:
     """
     p = STATE / "cortex" / "outcomes.jsonl"
     closed = moved = 0
+    # T2 لایهٔ ۲ (2026-07-25، مگاپرامپت): مخرج = «تعدادِ نیتِ متمایزِ دارای نتیجهٔ
+    # نهایی»، نه تعدادِ رکوردِ closure. گواه: ۸۳ بستار روی فقط ۴ کلیدِ متمایز با
+    # ۲۰ جفتِ (ts,key) متناقض — «۴۵٪» یعنی «کارت جابه‌جا شد» نه نرخِ بهبود.
+    # پشتِ OCTOPUS_HONEST_OUTCOMES (خاموش = شمارشِ خامِ قدیم، بایت‌به‌بایت).
+    # نتیجهٔ موردِانتظار: rate_pct می‌افتد (احتمالاً صفر/None) — این موفقیت است،
+    # نه رگرسیون؛ عددِ پایینِ راست از عددِ بالای دروغ بهتر است.
+    honest = os.environ.get("OCTOPUS_HONEST_OUTCOMES") == "1"
+    per_key: dict[str, bool] = {}
     try:
         if not p.exists():
             return {"closed": 0, "moved": 0, "rate_pct": None}
@@ -284,10 +292,18 @@ def improvement_rate(limit: int = 200) -> dict:
                 continue
             if r.get("kind") != "closure":
                 continue
-            closed += 1
-            moved += 1 if r.get("moved") else 0
+            if honest:
+                k = str(r.get("key") or "").strip()
+                if k:
+                    per_key[k] = bool(r.get("moved"))   # آخرین رأی per key برنده است
+            else:
+                closed += 1
+                moved += 1 if r.get("moved") else 0
     except OSError:
         return {"closed": 0, "moved": 0, "rate_pct": None}
+    if honest:
+        closed = len(per_key)
+        moved = sum(1 for v in per_key.values() if v)
     return {"closed": closed, "moved": moved,
             "rate_pct": round(100.0 * moved / closed, 1) if closed else None}
 

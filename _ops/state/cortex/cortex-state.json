@@ -1,14 +1,14 @@
 {
-  "ts": "2026-07-25T08:35:46",
-  "cycle": 160,
-  "coherence": 0.882,
+  "ts": "2026-07-25T13:43:27",
+  "cycle": 17,
+  "coherence": 0.92,
   "stale_members": [],
   "members": [
     {
       "id": "organism",
       "present": true,
-      "awareness": 0.757,
-      "age_s": 873,
+      "awareness": 0.86,
+      "age_s": 504,
       "sla_s": 1800,
       "note": "تازه",
       "source": "file-freshness",
@@ -17,8 +17,8 @@
     {
       "id": "heart",
       "present": true,
-      "awareness": 0.879,
-      "age_s": 873,
+      "awareness": 0.93,
+      "age_s": 506,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -27,8 +27,8 @@
     {
       "id": "producers",
       "present": true,
-      "awareness": 0.879,
-      "age_s": 873,
+      "awareness": 0.93,
+      "age_s": 506,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -37,8 +37,8 @@
     {
       "id": "work_pump",
       "present": true,
-      "awareness": 0.939,
-      "age_s": 873,
+      "awareness": 0.919,
+      "age_s": 1170,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -47,8 +47,8 @@
     {
       "id": "doctor_setpoint",
       "present": true,
-      "awareness": 0.957,
-      "age_s": 14934,
+      "awareness": 0.903,
+      "age_s": 33411,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -57,8 +57,8 @@
     {
       "id": "governor",
       "present": true,
-      "awareness": 0.939,
-      "age_s": 874,
+      "awareness": 0.956,
+      "age_s": 630,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -67,8 +67,8 @@
     {
       "id": "sigma",
       "present": true,
-      "awareness": 0.912,
-      "age_s": 30415,
+      "awareness": 0.972,
+      "age_s": 9740,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -77,8 +77,8 @@
     {
       "id": "fitness",
       "present": true,
-      "awareness": 0.912,
-      "age_s": 30415,
+      "awareness": 0.972,
+      "age_s": 9740,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -87,8 +87,8 @@
     {
       "id": "school",
       "present": true,
-      "awareness": 0.971,
-      "age_s": 14936,
+      "awareness": 1.0,
+      "age_s": 16,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -97,8 +97,8 @@
     {
       "id": "reconcile",
       "present": true,
-      "awareness": 0.7,
-      "age_s": 155543,
+      "awareness": 0.664,
+      "age_s": 174020,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -107,6 +107,7 @@
   ],
   "alignment": {
     "changed": false,
+    "aligned": true,
     "reason": "هم‌راستا بود"
   },
   "rhythm": {
@@ -122,38 +123,12 @@
     "paid_gate": "open (owner research-early override — سپرِ تاریخ دور زده شد)",
     "local_model": "qwen2.5:latest"
   },
-  "thought": "[local] انجام فعالیت‌های جدید و به‌روزرسانی محتوای مجموعه را می‌توان به عنوان مهم‌ترین کار حاضر مجموعه در نظر گرفت.",
-  "self_improve": {
-    "maturity_pct": 75.6,
-    "n_proposals": 34,
-    "top": [
-      "Lead-نقاشی: هنوز درآمدِ تأییدشده‌ای ثبت نشده",
-      "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (7/۲۸ روز، سایه)",
-      "self-analysis loop observe→critique→propose→validate→promote"
-    ]
-  },
-  "self_model": {
-    "ok": true,
-    "n_modules": 275,
-    "total_lines": 67724,
-    "self_awareness_pct": 99.6,
-    "self_claims_written": 0
-  },
-  "part_loops": {
-    "n_parts": 7,
-    "n_proposals": 2,
-    "attention": [
-      "🩺 دکتر"
-    ]
-  },
-  "business_brain": {
-    "n_projects": 2,
-    "n_proposals": 2
-  },
+  "thought": "[local] اندیشیدن به توسعهٔ محتوا و تعاملات بین اعضای تیم است.",
   "stress": {
     "level": "🔴 ترس",
     "organism_stress": 1.0,
     "in_fear": [
+      "legs",
       "doctor"
     ]
   },

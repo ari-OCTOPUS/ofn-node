@@ -443,6 +443,33 @@ def cartographer_beat(cartographer_leg, beat: int = 0) -> dict | None:
         return None
 
 
+# T3 (2026-07-25): مکملِ phi-timeout ِ chrono — وقتی خودِ لِگ استثنا می‌دهد،
+# نوع+پیام+آخرین فریم را در state/legs/<leg>-last-error.json پایدار ثبت کن.
+# تا امروز استثنا فقط alert می‌شد و علتِ واقعیِ خاموشیِ لِگ هرگز روی دیسک نمی‌ماند.
+def _record_leg_error(leg_id: str, exc: BaseException) -> None:
+    """ثبتِ آخرین خطای واقعیِ لِگ — فقط نوشتنی، atomic، هرگز beat را نمی‌کشد."""
+    try:
+        import json as _json
+        import traceback as _tb
+        frames = (_tb.extract_tb(exc.__traceback__)
+                  if getattr(exc, "__traceback__", None) is not None else [])
+        last = frames[-1] if frames else None
+        ctx = {"leg": str(leg_id or "?"), "ts": opslib.now_iso(),
+               "reason": "exception",
+               "error_type": type(exc).__name__,
+               "error": str(exc)[:300],
+               "frame": (f"{last.filename}:{last.lineno} in {last.name}"
+                         if last else None)}
+        d = opslib.STATE_DIR / "legs"
+        d.mkdir(parents=True, exist_ok=True)
+        p = d / f"{ctx['leg']}-last-error.json"
+        tmp = p.with_suffix(".tmp")
+        tmp.write_text(_json.dumps(ctx, ensure_ascii=False, indent=2), "utf-8")
+        os.replace(tmp, p)
+    except Exception:  # noqa: BLE001 — ثبتِ خطا هرگز beat را نمی‌کشد
+        pass
+
+
 def leg_beat(lead_leg, pacemaker=None, beat: int = 0) -> dict | None:
     """هر tick: LeadLeg را در حلقهٔ ضربان بران — HLC محلی بزند + ack + کارِ propose-only.
     پشتِ OCTOPUS_WIRE_LEAD_TICK (پیش‌فرض خاموز = no-op). kill-switch: اول STOP.
@@ -496,6 +523,10 @@ def leg_beat(lead_leg, pacemaker=None, beat: int = 0) -> dict | None:
         return out
     except Exception as e:  # noqa: BLE001 — §۴: leg نباید tick را بکشد
         opslib.alert([f"wiring: leg_beat خطا: {type(e).__name__}: {e}"])
+        try:   # T3: علتِ واقعی پایدار ثبت شود (نه فقط alertِ زودگذر)
+            _record_leg_error(getattr(getattr(lead_leg, "packet", None), "leg_id", "?"), e)
+        except Exception:  # noqa: BLE001
+            pass
         return None
 
 

@@ -1,17 +1,17 @@
 {
-  "ts": "2026-07-25T08:35:49",
-  "beat": 11765,
+  "ts": "2026-07-25T13:43:52",
+  "beat": 12013,
   "signal": {
     "schema": "HeartSignal.v1",
-    "beat_seq": 11765,
+    "beat_seq": 12013,
     "period_s": 900.0,
     "sigma_now": 0.0,
-    "baro_factor": 1.6449
+    "baro_factor": 1.6011
   },
   "period_s": 900.0,
   "telemetry": {
     "schema": "HeartTelemetry.v1",
-    "velocity_per_hr": 6.0042,
+    "velocity_per_hr": 5.8292,
     "cpi_0_1": 0.0,
     "delta_self_live": 0.0,
     "band_lo": 0.5134,
@@ -19,7 +19,7 @@
     "gates": {
       "g_learn": 0.0,
       "band_effective_mid": 2.7805,
-      "err": 0.711,
+      "err": 0.6724,
       "cpi_guard": 1.0,
       "budget_pressure": 2.0,
       "e_shadow": "locked",
@@ -42,8 +42,10 @@
   "gate0_live_producer": true,
   "sampled_this_step": true,
   "production_wire": {
-    "open": true,
-    "reasons": []
+    "open": false,
+    "reasons": [
+      "hash قانونِ کنترل با SIM-REPORT نمی‌خواند (کد عوض شده — sim دوباره)"
+    ]
   },
   "mode": "shadow"
 }

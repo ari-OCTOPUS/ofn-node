@@ -363,14 +363,17 @@ def run_experiment(*, contract: dict, experiment_fn, verifier_fn, held_out_eval=
                 outcome_store.record({"correlation_id": str(contract.get("contract_id")),
                                       "proposal_id": str(contract.get("contract_id")), "leg_id": "research",
                                       "event_type": "accepted-measurement", "value_aud_claimed": 0.0,
-                                      "idempotency_key": oref})
+                                      "idempotency_key": oref,
+                                      "payload": {"self_run": True, "measurement_only": True,
+                                                  "verifier": "research_loop",
+                                                  "held_out": bool(held_ok)}})
                 lr = _lg.learn_from_outcome(
                     memory_gate=memory_gate, receipt_store=receipt_store, outcome_store=outcome_store,
                     signal={"content": f"research finding: {contract.get('hypothesis')}"[:200],
                             "mkey": f"research-{contract.get('contract_id')}", "namespace": "semantic",
                             "correlation_id": str(contract.get("contract_id")), "outcome_ref": oref,
-                            "trust": "OWNER_CONFIRMED", "salience": 0.6,
-                            "source": "owner", "producer": "research_loop"},
+                            "trust": "GRADED", "salience": 0.6,
+                            "source": "research_loop", "producer": "research_loop"},
                     evaluator=(held_out_eval and (lambda **k: held_out_eval(**k))),
                     pending_admission=True)
                 mid = lr.get("memory_id")

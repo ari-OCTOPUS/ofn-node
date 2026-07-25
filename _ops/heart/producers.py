@@ -251,6 +251,12 @@ def velocity_meter(window_hours: float = 24.0, now: dt.datetime | None = None) -
     value_velocity = (cognition / window_hours) if cognition is not None else None
     metronome_share = (round(beat_units / classic_total, 4)
                        if classic_total > 0 else None)
+    # T4 (2026-07-25): گاردِ صداقت — وقتی >۰.۹ از «سرعت» ضربانِ خودِ قلب است
+    # (گواه: ۵۲۷/۵۲۷ سطرِ استریم confirmed=0,effects=0 و metronome_share=0.9644)،
+    # عدد دیگر «کار انجام‌شده» نیست. پشتِ همان فلگِ honest: پرچمِ self_referential
+    # + authoritative=false. فلگ خاموش = بایت‌به‌بایتِ رفتارِ قبلی.
+    self_referential = bool(honest and metronome_share is not None
+                            and metronome_share > 0.9)
     named = sorted(available.keys())
     if cognition is not None:
         named = sorted(named + ["cognition"])
@@ -263,7 +269,9 @@ def velocity_meter(window_hours: float = 24.0, now: dt.datetime | None = None) -
         "window_hours": window_hours,
         "sample_size": sample_size,
         "sources_available": named,
-        "authoritative": bool(available) and sample_size >= MIN_VELOCITY_SAMPLES,
+        "authoritative": (bool(available) and sample_size >= MIN_VELOCITY_SAMPLES
+                          and not self_referential),
+        "self_referential": self_referential,
         "provenance": "external: reconcile-job/effector-gate/consolidation/pacemaker",
         "ts": opslib.now_iso(),
         # ── HH two-money channels (خونِ جدا) ──
@@ -470,7 +478,13 @@ def delta_self_estimator(min_samples: int = MIN_DELTA_SAMPLES,
     S = _mse(wi, X_inf[tr:], y[tr:])
     eps = 1e-12
     raw = 0.5 * math.log(max(S_b, eps) / max(S, eps))
-    delta_live = max(0.0, raw)
+    # T4 (2026-07-25): clampِ صفر حذف شد — پشتِ همان فلگِ honest. Δ منفی یعنی «مدلِ
+    # آگاه از کورِ محض بدتر پیش‌بینی می‌کند» (گواه: S_informed=0.02342 > S_blind=0.02225،
+    # raw=-0.02573 که تا امروز 0.0 منتشر می‌شد در حالی که authoritative=true بود).
+    # این یک واقعیتِ قابلِ‌اقدام است؛ مصرف‌کننده (gate) خودش تفسیر می‌کند، نه سیگنال.
+    # فلگ خاموش = clampِ قبلی (بایت‌به‌بایت).
+    honest_delta = os.environ.get("OCTOPUS_HEART_HONEST_PULSE") == "1"
+    delta_live = raw if honest_delta else max(0.0, raw)
     # سقفِ زنده = کرانِ اطلاعِ کلِ سری: Δ نمی‌تواند از ½log(Var(v)/S) بگذرد (S_b≤Var(v)).
     # اصولی‌تر از fit-gapِ in-sample؛ drift-flag جفتِ ناسازگار/دست‌خورده را می‌گیرد.
     yh = y[tr:]
@@ -501,7 +515,15 @@ def compute_all(write: bool = True) -> dict:
         "delta_self": delta_self_estimator(),
         "schema": "heart-signals.v1",
     }
-    out["gate0_live_producer"] = bool(out["delta_self"].get("authoritative"))
+    # T4 (2026-07-25): مصرف‌کنندهٔ Δ درست می‌شود، نه سیگنال — در مودِ honest، gate0 فقط
+    # وقتی «زنده» است که مدلِ آگاه واقعاً بهتر از کور باشد (Δ>0). Δ≤0 با authoritative=true
+    # یعنی «خودشناسی منفی» — پاسِ صادقِ گیت = بسته. فلگ خاموش = معیارِ قبلی (بایت‌به‌بایت).
+    _ds = out["delta_self"]
+    _gate0 = bool(_ds.get("authoritative"))
+    if os.environ.get("OCTOPUS_HEART_HONEST_PULSE") == "1" and _gate0:
+        _dl = _ds.get("delta_self_live")
+        _gate0 = bool(isinstance(_dl, (int, float)) and _dl > 0)
+    out["gate0_live_producer"] = _gate0
     if write:
         try:
             PULSE_DIR.mkdir(parents=True, exist_ok=True)

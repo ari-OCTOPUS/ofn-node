@@ -1,9 +1,16 @@
 {
-  "ts": "2026-07-25T08:35:46",
+  "ts": "2026-07-25T12:32:02",
   "schema": "upgrades-digest.v1",
   "observability_ok": true,
+  "checklist_pct": 75.6,
+  "checklist_static": true,
   "maturity_pct": 75.6,
-  "n_proposals": 34,
+  "improvement_rate": {
+    "closed": 74,
+    "moved": 35,
+    "rate_pct": 47.3
+  },
+  "n_proposals": 36,
   "by_category": {
     "business": [
       {
@@ -16,9 +23,9 @@
         "status": "proposed"
       },
       {
-        "id": "up-dc7d61ac97",
+        "id": "up-67d11c38be",
         "priority": "P1",
-        "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (7/۲۸ روز، سایه)",
+        "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (8/۲۸ روز، سایه)",
         "suggested_action": "چند لیدِ واقعی بده تا اتریبیوشن معتبر شود.",
         "change_level": "tune",
         "source": "business-brain",
@@ -37,28 +44,28 @@
         "status": "proposed"
       },
       {
-        "id": "up-8603fa19da",
+        "id": "up-a8501ff5ee",
         "priority": "P2",
-        "title": "سنتزِ مغز: کالبدشکافیِ سایه‌ایِ محرکِ ترس",
-        "suggested_action": "تهیهٔ بازپخش فقط‌خواندنی از رخدادهای اخیر؛ fugu برای علت‌یابی، glm برای نقد فرضیه‌ها و ollama برای آزمون محلی و کم‌هزینه",
+        "title": "سنتزِ مغز: مهار ایمنِ «legs»",
+        "suggested_action": "تعریف گیت اضطراری: در استرس ≥۰٫۹ فقط مشاهده و پیشنهاد؛ بدون اعمال یا ارتقا",
         "change_level": "reconfig",
         "source": "synthesis",
         "status": "proposed"
       },
       {
-        "id": "up-b9937dd26c",
+        "id": "up-e39fdced58",
         "priority": "P2",
-        "title": "سنتزِ مغز: قرنطینهٔ حافظهٔ بحران",
-        "suggested_action": "تعریف برچسب «بحران/ت",
+        "title": "سنتزِ مغز: کالبدشکافی موازیِ ترس",
+        "suggested_action": "ثبت اسنپ‌شات فقط‌خواندنی از رویدادهای «legs» و سپردن هم‌زمانِ تحلیل علت، نقد فرضیه و جست‌وجوی سابقه به سه مغز",
         "change_level": "reconfig",
         "source": "synthesis",
         "status": "proposed"
       },
       {
-        "id": "up-579332f70c",
+        "id": "up-8c4f6ae2da",
         "priority": "P2",
-        "title": "سنتزِ مغز: مدارِ توقفِ اضطراری برای «doctor»",
-        "suggested_action": "تعریف سیاست پیشنهادی: انجماد reconfig/rewrite و فراخوانی پولی، ثبت checkpoint و الزام تأیید مالک تا خروج پایدار از قرمز",
+        "title": "سنتزِ مغز: بازیابی سایه‌ای با بازگشت تضمینی",
+        "suggested_action": "تدوین یک کاندید tune کم‌خطر و سنجش سایه‌ای آن با معیارهای کاهش استرس، سلامت لید/درآمد و مسیر بازگشت ازپیش‌تعریف‌شده",
         "change_level": "reconfig",
         "source": "synthesis",
         "status": "proposed"
@@ -84,11 +91,29 @@
         "status": "proposed"
       },
       {
-        "id": "up-d2223604af",
+        "id": "up-c6fca20745",
         "priority": "P2",
-        "title": "دکتر: 6 پیشنهادِ بهبود منتظرِ رأیِ توست",
+        "title": "دکتر: 7 پیشنهادِ بهبود منتظرِ رأیِ توست",
         "suggested_action": "در خانه با آره/نه تصمیم بگیر.",
         "change_level": "reconfig",
+        "source": "part-loop",
+        "status": "proposed"
+      },
+      {
+        "id": "up-e471431bc0",
+        "priority": "P2",
+        "title": "اعضا: امروز 6 بار خودترمیمی شد — یه عضو ناپایدار است",
+        "suggested_action": "بررسیِ ریشه‌ایِ آن عضو (به مالک گزارش).",
+        "change_level": "reconfig",
+        "source": "part-loop",
+        "status": "proposed"
+      },
+      {
+        "id": "up-c447f8da48",
+        "priority": "P3",
+        "title": "قلب: قلب در سایه می‌تپد (هنوز واقعی نمی‌راند)",
+        "suggested_action": "بعد از Gate-0 خودش زنده می‌شود؛ کاری لازم نیست.",
+        "change_level": "tune",
         "source": "part-loop",
         "status": "proposed"
       }
@@ -359,12 +384,12 @@
       "impact": 3.0
     },
     {
-      "id": "up-dc7d61ac97",
+      "id": "up-67d11c38be",
       "source": "business-brain",
       "category": "business",
       "priority": "P1",
       "_rank": 1.0,
-      "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (7/۲۸ روز، سایه)",
+      "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (8/۲۸ روز، سایه)",
       "rationale": "مغزِ دومِ کسب‌وکار این را یافت",
       "evidence": "business-brain-latest.json",
       "suggested_action": "چند لیدِ واقعی بده تا اتریبیوشن معتبر شود.",
@@ -409,15 +434,31 @@
       "impact": 2.6
     },
     {
-      "id": "up-8603fa19da",
+      "id": "up-a8501ff5ee",
       "source": "synthesis",
       "category": "architecture",
       "priority": "P2",
       "_rank": 1.8,
-      "title": "سنتزِ مغز: کالبدشکافیِ سایه‌ایِ محرکِ ترس",
-      "rationale": "حلقهٔ observe→critique→propose→validate و shadow-eval را فعال می‌کند، بدون دست‌کاری سامانهٔ زنده",
+      "title": "سنتزِ مغز: مهار ایمنِ «legs»",
+      "rationale": "زنگ قرمز نیازمند شرط توقف است تا تغییرات خودکار به Ziman، Lead-نقاشی و درآمد آسیب نزند",
       "evidence": "synthesis-latest.json [primary]",
-      "suggested_action": "تهیهٔ بازپخش فقط‌خواندنی از رخدادهای اخیر؛ fugu برای علت‌یابی، glm برای نقد فرضیه‌ها و ollama برای آزمون محلی و کم‌هزینه",
+      "suggested_action": "تعریف گیت اضطراری: در استرس ≥۰٫۹ فقط مشاهده و پیشنهاد؛ بدون اعمال یا ارتقا",
+      "change_level": "reconfig",
+      "auto_applicable": false,
+      "status": "proposed",
+      "serves_goal": "ارگانیسم خودش را تحلیل، تحقیق و ارتقا بدهد — تا جای امن خودکار، بقیه پیشنهاد به من.",
+      "impact": 2.2
+    },
+    {
+      "id": "up-e39fdced58",
+      "source": "synthesis",
+      "category": "architecture",
+      "priority": "P2",
+      "_rank": 1.8,
+      "title": "سنتزِ مغز: کالبدشکافی موازیِ ترس",
+      "rationale": "تکمیل حلقهٔ observe→critique→propose با تفکیک نقش fugu/glm/ollama و جلوگیری از تشخیص تزئینی",
+      "evidence": "synthesis-latest.json [primary]",
+      "suggested_action": "ثبت اسنپ‌شات فقط‌خواندنی از رویدادهای «legs» و سپردن هم‌زمانِ تحلیل علت، نقد فرضیه و جست‌وجوی سابقه به سه مغز",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
@@ -425,15 +466,15 @@
       "impact": 2.2
     },
     {
-      "id": "up-b9937dd26c",
+      "id": "up-8c4f6ae2da",
       "source": "synthesis",
       "category": "architecture",
       "priority": "P2",
       "_rank": 1.8,
-      "title": "سنتزِ مغز: قرنطینهٔ حافظهٔ بحران",
-      "rationale": "از memory poisoning و تبدیل برداشت‌های ناشی از ترس یا یافته‌های کم‌ربط وب به «حقیقت ماندگار» جلوگیری می‌کند",
+      "title": "سنتزِ مغز: بازیابی سایه‌ای با بازگشت تضمینی",
+      "rationale": "رفع گپ‌های shadow-eval، قرارداد سطح تغییر و rollback پیش از اعمال، بدون تبدیل سیگنال مشکوک به حافظهٔ رسمی",
       "evidence": "synthesis-latest.json [primary]",
-      "suggested_action": "تعریف برچسب «بحران/ت",
+      "suggested_action": "تدوین یک کاندید tune کم‌خطر و سنجش سایه‌ای آن با معیارهای کاهش استرس، سلامت لید/درآمد و مسیر بازگشت ازپیش‌تعریف‌شده",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
@@ -455,38 +496,22 @@
       "status": "proposed",
       "serves_goal": "—",
       "impact": 1.6
-    },
-    {
-      "id": "up-3952143790",
-      "source": "doctor",
-      "category": "implementation",
-      "priority": "P1",
-      "_rank": 1.2,
-      "title": "RFCِ دکتر: RFC-f2bc93b2",
-      "rationale": "دکترِ تکاملی یک گلوگاهِ سلامت mine کرد",
-      "evidence": "knowledge/internal/RFC-f2bc93b2.md",
-      "suggested_action": "کارتِ RFC را در تلگرام تأیید/رد کن (human-append).",
-      "change_level": "reconfig",
-      "auto_applicable": false,
-      "status": "proposed",
-      "serves_goal": "—",
-      "impact": 1.6
     }
   ],
   "auto_eligible": [],
   "auto_enabled": true,
-  "brain_note": "[local] ابتدا \"Lead-نقاشی: هنوز درآمدِ تأییدشده‌ی ثبت نشده؛\" باید حل شود، زیرا بدون تأیید آمده‌ای وجود دادهٔ قابل اعتماد برای تصمیم‌گیری در مورد \"Lead-نقاشی: دادهٔ درآمد",
+  "brain_note": "[local] در این گاف‌ها، \"Lead-نقاشی\" دادهٔ درآمد هنوز در حال ساخت است که نیازمند تأیید شده‌است. بنابراین، اولویت باید به تأیید این داده‌ها گذاشته شود زیرا بدون آن، امک",
   "goal_directed": {
-    "n_goal_serving": 6,
+    "n_goal_serving": 7,
     "n_circular_dropped": 1,
     "goals_count": 6,
     "outcome": {
-      "tracked": 13,
+      "tracked": 11,
       "moved": true,
       "now": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 10,
+        "total_discoveries": 11,
         "proposals_delivered": 0,
         "proposal_outcomes": 0,
         "proposal_positive": 0,
@@ -497,7 +522,7 @@
       "since": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 8,
+        "total_discoveries": 9,
         "proposals_delivered": 0,
         "proposal_outcomes": 0,
         "proposal_positive": 0,
