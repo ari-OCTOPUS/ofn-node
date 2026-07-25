@@ -68,6 +68,20 @@ WEAR_BASE    = _envf("CHRONO_WEAR_BASE", 1.0)      # قیدِ متابولیک �
 # روی ledger ژنوم +۱ می‌بریم (heart-driven). پیش‌فرض ۱۴۴۰ (با beatِ ~۶۰s ≈ روزانه؛
 # verdict آری جلسه ۳۲) تا زنجیرهٔ گران‌بها متورم نشود؛ N=۱ = هر ضربان، N بزرگ‌تر = کندتر.
 AGE_PER_N_BEATS = int(_envf("CHRONO_AGE_PER_N_BEATS", 1440.0))
+# ── تحمّلِ صادقِ phi (2026-07-25، پشتِ OCTOPUS_CHRONO_PHI_HONEST، پیش‌فرض خاموش) ──
+# گواهِ زنده: ۶۶ ری‌استارتِ self-heal، ۱۰۰٪ روی lead-naghshi، همه با phi=300.0 که
+# دقیقاً سقفِ p_later=1e-300 است. علت ریاضی: با ۲ ack فقط یک فاصله داریم → var=0 →
+# std به کفِ 0.1×mean می‌افتد → یک سکونِ ~۲×mean کافی است تا z>10 و لِگ «مرده» شود.
+# و کادنسِ سنجش (CHRONO_PERIOD_S=60) از کادنسِ واقعیِ ackِ لِگ جدا است — با ترمزِ
+# متابولیک (arbiter effective_period_s=900) لِگ هر ۹۰۰s ack می‌دهد ولی هر ۶۰s قضاوت
+# می‌شود. نتیجه: مرگِ جعلی، بعد thrashِ self-heal، بعد legs-stress → ترسِ ارگانیسم.
+MIN_PHI_GAPS       = int(_envf("CHRONO_PHI_MIN_GAPS", 4.0))
+PHI_STD_FLOOR_FRAC = _envf("CHRONO_PHI_STD_FLOOR_FRAC", 0.5)
+
+
+def _phi_honest() -> bool:
+    """فلگِ تحمّلِ صادقِ phi. خاموش = رفتارِ بایت‌به‌بایتِ قبلی (هیچ رگرسیون)."""
+    return os.environ.get("OCTOPUS_CHRONO_PHI_HONEST") == "1"
 # OCT-DB-05: نگه‌داریِ چرخشیِ جدول‌های per-beat. 0 = خاموش (پیش‌فرض، رفتارِ قبلی).
 # >0 = فقط N ضربانِ اخیر می‌ماند. خواننده‌ها امن: heartbeat فقط MAX(beat_seq) + پنجرهٔ
 # ۲۴h؛ experience_meter/checkpoint خوانندهٔ prod ندارند. اخطار: N باید >۲۴h (beat~۶۰s → N>1440).
@@ -130,11 +144,19 @@ class PhiAccrual:
         gaps = [b - a for a, b in zip(xs, xs[1:])]
         mean = sum(gaps) / len(gaps)
         var = sum((g - mean) ** 2 for g in gaps) / len(gaps)
-        std = max(math.sqrt(var), 0.1 * mean, 1.0)
+        # کفِ std: خاموش = 0.1×mean (رفتارِ قدیم، تحمّلِ jitter فقط ۱۰٪ → یک فاصلهٔ
+        # ازقلم‌افتاده = اعلامِ مرگ). روشن = 0.5×mean → مرگ حدوداً ۱۰×mean سکون می‌خواهد.
+        std = max(math.sqrt(var), (PHI_STD_FLOOR_FRAC if _phi_honest() else 0.1) * mean, 1.0)
         t = now_ms - xs[-1]
         p_later = 0.5 * math.erfc((t - mean) / (std * math.sqrt(2.0)))
         p_later = max(p_later, 1e-300)  # کف: phi محدود، نه inf
-        return -math.log10(p_later)
+        raw = -math.log10(p_later)
+        if _phi_honest() and len(gaps) < MIN_PHI_GAPS:
+            # با کمتر از N فاصله، «انحرافِ معیار» یک عددِ ساختگی است (با یک فاصله var=0).
+            # سقفِ صادق: لِگ می‌تواند «مشکوک» شود ولی هرگز فقط بر پایهٔ ۱–۳ نمونه «مرده»
+            # اعلام نشود — همان چیزی که نوتِ خودِ T3 پیش‌بینی کرد: «تاریخچهٔ ack مسموم».
+            return min(raw, PHI_DEAD - 0.01)
+        return raw
 
 
 # ─── ChronoDB — جدول‌های DataSchemas.sql (SQLite/WAL؛ تک-writer در سدِ ضربان) ────
@@ -1403,8 +1425,31 @@ class Pacemaker:
             age = last_age_tick(self._ledger)
         except Exception:  # noqa: BLE001
             age = None
+        # ── legs_diag (2026-07-25): چرا یک لِگ failed است هرگز در state دیده نمی‌شد —
+        # فقط برچسبِ حالت. بدونِ phi و شمارِ ack، «مرگِ واقعیِ لِگ» از «آرتیفکتِ سنجش»
+        # ساختاراً قابلِ تفکیک نبود؛ تشخیصِ امروز فقط با خواندنِ فایلِ شکستِ T3 ممکن شد و
+        # آن فایل تنها *لحظهٔ گذار* را ثبت می‌کند. این بلوک فقط‌خواندنی و fail-soft است.
+        _now = self._clock()
+        legs_diag = {}
+        for _l in self.bus.legs.values():
+            try:
+                _acc = self.bus.phi.get(_l.id)
+                _arr = list(_acc.arrivals) if _acc is not None else []
+                _gaps = [b - a for a, b in zip(_arr, _arr[1:])]
+                legs_diag[_l.id] = {
+                    "state": _l.state,
+                    "phi": round(float(_acc.phi(_now)), 2) if _acc is not None else None,
+                    "phi_dead": PHI_DEAD,
+                    "ack_samples": len(_arr),
+                    "silence_ms": (int(_now - _arr[-1]) if _arr else None),
+                    "mean_gap_ms": (int(sum(_gaps) / len(_gaps)) if _gaps else None),
+                    "honest_tolerance": _phi_honest(),
+                }
+            except Exception:  # noqa: BLE001 — تشخیص هرگز snapshot را نمی‌کشد
+                continue
         return {"beat": self.beat, "hlc": list(self.hlc),
                 "legs": {l.id: l.state for l in self.bus.legs.values()},
+                "legs_diag": legs_diag,
                 "metabolic_age": wear.get("_organism", 0.0),
                 "age_tick": age,
                 "effects_pending": self.db.q(

@@ -653,6 +653,12 @@ def wire_summary() -> dict:
         "wire_evolution": flag("OCTOPUS_WIRE_EVOLUTION"), # P-N1: Doctor evolution
         "wire_box": flag("OCTOPUS_WIRE_BOX"),             # P-N2: Box-of-Agents
         "wire_leg_tick": flag("OCTOPUS_WIRE_LEAD_TICK"),  # P-L1: LeadLeg HLC loop
+        # مغزهای پولی (2026-07-25): این سه فلگ در هیچ‌کدام از ۴۵ کلیدِ این خلاصه نبودند،
+        # پس «مسلح بودنِ مسیرِ پولی» از state/کاکپیت دیده نمی‌شد — تنها راهِ فهمیدنش
+        # خواندنِ فایلِ رازدارِ flags.cmd بود. اینها نامِ فلگ‌اند و مقدارِ بولی، نه secret.
+        "paid_governor_router": flag("OCTOPUS_GOVERNOR_USE_ROUTER"),
+        "paid_heart_doctor_router": flag("OCTOPUS_HEART_DOCTOR_USE_ROUTER"),
+        "paid_doctor_selfknow": flag("OCTOPUS_DOCTOR_SELFKNOW_PAID"),
         "wire_actuator": flag("OCTOPUS_WIRE_ACTUATOR"),   # گاف #۱: اکچوایتورِ approval (visibility)
         "wire_ideas": flag("OCTOPUS_WIRE_IDEAS"),        # P-I: idea-graph engine
         "wire_spectral": flag("OCTOPUS_WIRE_SPECTRAL"),  # P-spectral: spectral bottleneck

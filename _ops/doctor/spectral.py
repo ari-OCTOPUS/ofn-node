@@ -110,6 +110,16 @@ def spectral_mine(trace: dict) -> "dict | None":
     if not trace:
         return None
     edges, n = build_event_graph(trace)
+    # ── گاردِ گرافِ دژنره (2026-07-25، شاهدِ زندهٔ ارگانیسم) ─────────────────────
+    # یال در build_event_graph **فقط از «خطا»** ساخته می‌شود. پس ارگانیسمِ بی‌خطا
+    # گرافِ بی‌یال می‌دهد → L(G)=۰ → همهٔ λها صفر → gap=0.000 و σ=1.00 →
+    # near_critical ∧ fragile هر دو True → این سنسور **سلامتِ کامل را «critical»**
+    # اعلام می‌کرد. گواه: ۸ RFCِ بایت‌به‌بایت یکسان با متنِ «σ≈1 (σ=1.00)؛ gap=0.000»
+    # در صفِ زنده، در حالی که phi_tِ خودِ Box روی همان ارگانیسم در همان دقیقه
+    # sigma=0.0 و spectral_gap=0.7321 داد (box-latest.json 2026-07-25T14:15:50).
+    # بدونِ ساختارِ خطا هیچ ادعای طیفی معنا ندارد → سکوتِ صادق، نه هشدارِ ساختگی.
+    if n < 2 or not edges:
+        return None
     eigvals, L = laplacian_spectrum(edges, n)
     gap = spectral_gap(eigvals)
     sigma = estimate_sigma(eigvals)

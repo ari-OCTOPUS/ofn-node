@@ -163,7 +163,13 @@ class RFC:
                 "expected_lift": self.expected_lift, "rollback": self.rollback,
                 "sandbox_result": self.sandbox_result, "critic_review": self.critic_review,
                 "status": self.status, "ledger_ref": self.ledger_ref, "rfc_hash": self.rfc_hash,
-                "change_level": self.change_level, "knob": self.knob}
+                "change_level": self.change_level, "knob": self.knob,
+                # 2026-07-25 (شاهدِ زنده): created_ts persist نمی‌شد و __post_init__ در هر
+                # لود آن را time.time() می‌کرد → همهٔ RFCها بعد از هر restart «نوزاد»
+                # می‌شدند، پس sweepِ سن‌محور (age_h) هیچ‌وقت expire نمی‌کرد؛ ۸ RFCِ روزهای
+                # قبل هنوز «باز» بودند و با dedupe آن گلوگاه را ابدی ساکت می‌کردند.
+                # لودِ RFC فیلترِ __dataclass_fields__ دارد → افزودنش سازگارِ عقب/جلو است.
+                "created_ts": self.created_ts}
 
     def to_markdown(self) -> str:
         """نمایشِ markdown برای knowledge/internal یا کارتِ P3."""

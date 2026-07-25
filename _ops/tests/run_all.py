@@ -401,6 +401,15 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # 2026-07-25 T2 (megaprompt): سنجهٔ خودبهبودی — dedupe نیت بر id، مخرجِ نیتِ متمایز،
          # درون‌زاد رأی نمی‌دهد. پشتِ OCTOPUS_HONEST_OUTCOMES (خاموش = بایت‌به‌بایت).
          "test_honest_outcomes.py",
+         # 2026-07-25 (دیباگِ زندهٔ پس از ریستارتِ ۱۴:۱۴:۲۵ — شش فیکس با شاهدِ زنده):
+         # (۱) spectral روی گرافِ بی‌یالِ ارگانیسمِ *سالم* «σ≈1/critical» می‌داد → آسیابِ
+         # ۸ RFCِ یکسان؛ (۲) created_ts persist نمی‌شد → sweep هرگز expire نمی‌کرد؛
+         # (۳) phi با ۲ ack یک سکونِ ۲×mean را «مرگ» می‌خواند (۶۶ ری‌استارت، phi=300 =
+         # سقفِ p_later) — تحمّلِ صادق پشتِ OCTOPUS_CHRONO_PHI_HONEST؛ (۴) legs_diag تا
+         # امروز وجود نداشت پس مرگِ واقعی از آرتیفکتِ سنجش جدا نمی‌شد؛ (۵) Gate-0 در
+         # shadow با Δِ *منفی* هم باز می‌شد (فقط authoritative را می‌خواند)؛ (۶) سه فلگِ
+         # مغزِ پولی در wire_summary نبودند → مسلح‌بودن از state دیده نمی‌شد.
+         "test_live_debug_fixes_2026_07_25.py",
          # 2026-07-23 D3/D4/D5: (D3) صفر provider-call/authorization/settle زیرِ HALT-ALL —
          # شکافِ release_one/release_gated_effects بی‌گاردِ kill هم بسته شد؛ (D4) گاردِ
          # boot-halt در هر ۶ launcher + parity واچ‌داگ PS1/py + ماتریسِ should_revive؛

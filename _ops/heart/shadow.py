@@ -98,10 +98,29 @@ def production_wire_open() -> tuple[bool, list[str]]:
         reasons.append("w_shadow>0 ولی E_shadow قفل نیست")
     if not lock.get("full_run"):
         reasons.append("lock رسمی نیست (full_run=false)")
-    # ۳) Gate-0: producerِ زندهٔ Δ_self با authoritative=true
+    # ۳) Gate-0: producerِ زندهٔ Δ_self — authoritative **و** Δ>0
+    # صداقت (2026-07-25، شاهدِ زنده): شرطِ قبلی فقط `authoritative` را می‌خواند، و آن
+    # با Δ *منفی* هم True است. یعنی «خودشناسیِ منفی» (مدلِ آگاه بدتر از کورِ محض) این
+    # گیت را باز می‌کرد — دقیقاً همان دروغی که T4 در سمتِ producer بست ولی به این
+    # مصرف‌کننده نرسیده بود (signals: delta_self_live=-0.027143, authoritative=true,
+    # gate0_live_producer=false). این گیت درِ ورودِ قلب به تولید است، پس fail-closed:
+    # هم عددِ صادقِ gate0_live_producer (اگر باشد) و هم Δ>0 لازم است.
     signals = producers.read_signals()
-    if not (signals.get("delta_self") or {}).get("authoritative"):
+    _ds = signals.get("delta_self") or {}
+    _gate0 = signals.get("gate0_live_producer")
+    if _gate0 is None:                       # فایلِ سیگنالِ قدیمی → به قاعدهٔ قبلی برگرد
+        _gate0 = bool(_ds.get("authoritative"))
+    _dlive = _ds.get("delta_self_live")
+    # ترتیبِ دلیل‌ها = ترتیبِ صداقت: هر شرط دلیلِ *خودش* را بدهد. اگر اول `_gate0` را
+    # می‌سنجیدیم، Δِ منفی دلیلِ گمراه‌کنندهٔ «authoritative نیست» می‌گرفت — در حالی که
+    # دقیقاً authoritative *است* و مشکل منفی‌بودنِ Δ است.
+    if not _ds.get("authoritative"):
         reasons.append("Gate-0: producerِ زندهٔ Δ_self هنوز authoritative نیست")
+    elif not (isinstance(_dlive, (int, float)) and _dlive > 0):
+        reasons.append(f"Gate-0: Δ_selfِ زنده مثبت نیست (delta_self_live={_dlive}) — "
+                       "خودشناسیِ منفی این گیت را باز نمی‌کند")
+    elif not _gate0:
+        reasons.append("Gate-0: gate0_live_producer در سیگنال false است")
     # ۴) hash-match: control_law فعلی == ثبت‌شده در sim-report
     cur = hashlib.sha256(Path(cl.__file__).read_bytes()).hexdigest()
     if rep.get("code_sha256") != cur:

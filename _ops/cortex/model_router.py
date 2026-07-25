@@ -190,8 +190,12 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int) -> dict | No
         return {"text": out.get("text", ""), "tier": tier,
                 "model": out.get("model"), "cost_usd": out.get("cost_usd", 0.0)}
     except Exception as e:  # noqa: BLE001 — پولی شکست → fallback
-        opslib.alert([f"cortex router {tier} failed (fallback local): "
-                      f"{type(e).__name__}: {e}"])
+        # صداقتِ متن (2026-07-25): این تابع نمی‌داند بعدش چه می‌شود — caller اول
+        # tierهای پولیِ بعدی را امتحان می‌کند و فقط اگر همه شکست خوردند به محلی می‌افتد.
+        # متنِ قبلی «fallback local» بود و مالک را گمراه می‌کرد: در شاهدِ زنده primary
+        # (fugu) تایم‌اوت شد، آلارم گفت «محلی»، ولی درجا secondary (glm) پولی جواب داد.
+        opslib.alert([f"cortex router {tier} failed (این tier کنار رفت؛ انتخابِ "
+                      f"tierِ بعدی یا محلی دستِ caller است): {type(e).__name__}: {e}"])
         return None
 
 
