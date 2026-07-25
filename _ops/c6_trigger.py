@@ -687,9 +687,26 @@ def _mark_hypothesis(hid: str, verdict: str, delivered: bool, requeue: bool = Fa
                     d["verdict"] = (f"{verdict}:inconclusive-exhausted" if requeue else verdict)
                     d["card_delivered"] = bool(delivered)
                     d["done_at"] = _now
+                    _thesis_writeback(d)
             out.append(json.dumps(d, ensure_ascii=False))
         QUEUE.write_text("\n".join(out) + "\n", encoding="utf-8")
     except Exception:  # noqa: BLE001
+        pass
+
+
+def _thesis_writeback(row: dict) -> None:
+    """مسیرِ رویا (رأیِ مالک 2026-07-25): حکمِ همین ضربانِ خودکار → دفترِ تز.
+
+    فقط ردیف‌هایی که probeشان در `thesis_queue.PROBE_TO_ROW` است اثر دارند؛ بقیه no-op.
+    وضعیت را فقط در انتقال‌های منطقاً اجباری عوض می‌کند — وگرنه صرفاً شاهد ثبت می‌شود
+    (که برای شرطِ مرگِ ۹۰ روزهٔ تخصیصِ ۲۵٪ کافی است). flag-gated، fail-soft."""
+    try:
+        _out = str(Path(__file__).resolve().parent / "outcomes")
+        if _out not in sys.path:
+            sys.path.insert(0, _out)
+        import thesis_queue as _tq  # noqa: WPS433
+        _tq.record_from_c6(row)
+    except Exception:  # noqa: BLE001 — دفترِ تز هرگز صف را نمی‌شکند
         pass
 
 

@@ -44,6 +44,31 @@ allocation:
     hysteresis_max_delta: 0.05    # تغییرِ درصدِ هر organ در هر epoch حداکثر ۵٪ (ضدِ نوسان)
   core_members: [ZIMAN, ARCHITECT_SYS, GENOME_SYS]
   satellite_members: [PROJECT_F, MINING]
+
+  # ─── مسیرِ رویا — تخصیصِ اعلام‌شدهٔ پژوهشِ بنیادی (رأیِ مالک 2026-07-25) ───
+  # مالک: «۲۵ درصدِ کلِ بودجهٔ اختاپوس برای همین بخش است… عینِ رویایی غیرممکن ولی
+  # بی‌خطر برای امتحان کردن، حتی اگر شانس کم باشد.»
+  #
+  # ⚠️ این بلوک declaration است نه enforcement. مثلِ بقیهٔ این فایل config-only:
+  #    خواندنش هیچ اتوماسیونی روشن نمی‌کند. رزروِ واقعیِ ۲۵٪ توسط گاورنر = رأیِ جدا.
+  #    نسبتش با explore_pct بالا: explore_pct سهمِ **عمومیِ** جهش است؛ این سهمِ
+  #    **هدف‌دارِ** یک برنامهٔ پژوهشیِ مشخص. دو knobِ رقیب نیستند — این زیرمجموعهٔ
+  #    هدف‌دارِ آن است و مجموعشان از share زیر بیشتر نمی‌شود.
+  research:
+    share: 0.25                   # ۲۵٪ از تخصیصِ کوشش/API — یعنی AU$7.50 از cap_monthly=30
+    is_cap_not_floor: true        # 🔴 سقف است نه کف: با فشارِ مالی، مسیرِ رویا هرگز
+                                  #    ranway را نمی‌خورد. اگر CORE پول لازم داشت، این کم می‌شود.
+    beat_share: 0.25              # ۲۵٪ از BeatBudget روزانه (daily_cap=288 → ۷۲ ضربان)
+    program: romajan              # هدف: F:\romajan — ریاضیاتِ تکثیر، Ramanujan ↔ ژنتیکِ جمعیت
+    ledger: "F:/romajan/propagation-lab/data/claims_ledger.json"   # SoT ادعاها (۲۷ executed)
+    thesis_ledger: "_ops/state/thesis/thesis-ledger.json"          # SoT وضعیتِ تزها
+    mutation_store: git           # «ذخیرهٔ جهش‌ها» — F:\romajan از 2026-07-25 گیت دارد (496a2cd)
+    kill_condition: >
+      اگر ۹۰ روزِ متوالی هیچ ردیفی در thesis_ledger تغییرِ وضعیت نداد (نه اثبات،
+      نه ابطال)، این تخصیص متوقف می‌شود. پژوهشی که هیچ ردیفی را حرکت نمی‌دهد
+      پژوهش نیست؛ هزینه است. ابطال هم حرکت است — پیشرفت لازم نیست، سنجش لازم است.
+    no_phenomenal_claims: true    # ادعای «آگاهی/تجربه» ساختاراً ممنوع می‌ماند (گاردهای
+                                  # موجود). ادعاها فقط دربارهٔ **ساختار و توانایی**اند.
   partners_default:
     # انتسابِ سهمِ پیش‌فرض (attribution partners[]) — verdict آری 2026-07-09
     PROJECT_F: [{who: Ari, pct: 50}, {who: Saba, pct: 50}]
@@ -115,3 +140,16 @@ routing:
     model: "qwen2.5:1.5b"              # روی Legion 5 (i5 + GTX 1660Ti)؛ ارتقایِ بعدی: 7B-quantized
     base_url: "http://127.0.0.1:11434"
     cost: 0                            # بدونِ متر — بیرونِ مسیرِ پول؛ rate-limit در cortex/local_llm
+
+# ─── resilience: circuit breaker per-provider (config-only، خوانده‌شده توسط circuit_breaker._cfg) ───
+# 2026-07-25: افزودنیِ additive — تا اینجا نبود و breaker با defaultها کار می‌کرد.
+# هدف: وقتی یک provider (مثل fugu/sakana) ناپایدار است، تماس‌ها زود fail-fast شوند
+# تا سهمیه و دیوارِ متابولیک نسوزد. breaker per-target (role) است، نه global.
+# ⚠️ این config-only است: خواندنش هیچ اتوماسیونی روشن نمی‌کند. breaker از قبل
+#    در model_router._ask_paid فعال است؛ این فقط اعدادش را کوک می‌کند.
+resilience:
+  circuit_breaker:
+    failure_threshold: 3              # بعد از ۳ شکستِ پیاپی → OPEN (default ۵؛ کاهش به ۳ برای پاسخِ سریع‌تر به ناپایداریِ fugu)
+    cooldown_seconds: 60              # OPEN → بعد از ۶۰s HALF_OPEN (یک probe مجاز)
+    half_open_max: 3                  # سقفِ probe در HALF_OPEN
+    success_to_close: 2               # در HALF_OPEN، ۲ موفقیتِ پیاپی → CLOSED

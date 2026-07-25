@@ -78,7 +78,41 @@ def shadow_step(beat: int = 0, snap: dict | None = None) -> dict:
             lj.write(record)
     except Exception as e:  # noqa: BLE001 — سایه نباید tick را بکشد
         opslib.alert([f"heart shadow sink write failed: {e}"])
+    _append_thesis_measurement(beat, signals, tel)
     return record
+
+
+# ── مسیرِ رویا: دوامِ Δ_self (رأیِ مالک 2026-07-25، پشتِ OCTOPUS_THESIS_MEASURE) ──
+# یافتهٔ زندهٔ 2026-07-25: Δ_self هر ضربان حساب می‌شد و روی `heart-shadow-latest.json`
+# **بازنویسی** می‌شد؛ هیچ فایلی جریانش نمی‌داد (`heart-params-shadow.jsonl` فقط ۶ کلیدِ
+# باروگیرنده دارد). یعنی مهم‌ترین عددِ ردیفِ `delta-self` دفترِ تز تاریخ نداشت، و
+# «آیا Δ با nِ بیشتر مثبت می‌شود؟» ساختاراً غیرقابل‌آزمون بود — نه سخت، غیرممکن.
+# این تابع کوچک‌ترین جبران است: یک استریمِ جدا، شمای قلب دست‌نخورده، fail-soft،
+# default-off. هیچ تصمیمی از این فایل گرفته نمی‌شود — فقط شاهد جمع می‌کند.
+THESIS_MEASURE_FLAG = "OCTOPUS_THESIS_MEASURE"
+THESIS_STREAM = opslib.STATE_DIR / "thesis" / "measurements.jsonl"
+
+
+def _append_thesis_measurement(beat: int, signals: dict, tel: dict) -> bool:
+    if os.environ.get(THESIS_MEASURE_FLAG) != "1":
+        return False
+    try:
+        ds = (signals.get("delta_self") or {}) if isinstance(signals, dict) else {}
+        row = {"ts": opslib.now_iso(), "beat": int(beat), "row_id": "delta-self",
+               "delta_self_live": ds.get("delta_self_live"),
+               "authoritative": ds.get("authoritative"),
+               "n": ds.get("n") or ds.get("samples"),
+               "s_informed": ds.get("S_informed"), "s_blind": ds.get("S_blind"),
+               "self_referential": ds.get("self_referential"),
+               "metronome_share": ds.get("metronome_share"),
+               "gate0_live_producer": signals.get("gate0_live_producer")}
+        if row["delta_self_live"] is None and isinstance(tel, dict):
+            row["delta_self_live"] = tel.get("delta_self_live")
+        THESIS_STREAM.parent.mkdir(parents=True, exist_ok=True)
+        opslib.append_jsonl(THESIS_STREAM, row)
+        return True
+    except Exception:  # noqa: BLE001 — شاهدِ تز هرگز ضربان را نمی‌کشد
+        return False
 
 
 def production_wire_open() -> tuple[bool, list[str]]:
