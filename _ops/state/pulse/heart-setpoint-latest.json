@@ -1,11 +1,11 @@
 {
-  "ts": "2026-07-25T04:26:23",
+  "ts": "2026-07-27T08:49:33",
   "schema": "HeartParams.v1",
   "target_sigma": 1.0,
   "viable_band_lo": 0.5134,
   "viable_band_hi": 5.0476,
-  "epoch_seq": 25,
+  "epoch_seq": 28,
   "target_mass_scale": 1.0,
-  "daily_beat_cap": 288,
+  "daily_beat_cap": 2000,
   "baroreflex_gain": 0.0
 }

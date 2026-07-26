@@ -576,6 +576,22 @@ def main() -> int:
                 epoch_info = {"last_epoch": rec["ts"],
                               "pressure": rec["pressure"],
                               "next_epoch_minutes": rec["next_epoch_minutes"]}
+            # ── جلسهٔ فکرِ عمیق (۲۰۲۶-۰۷-۲۷، دستورِ مالک «نهایتِ استفاده از Fugu»)
+            # اشتراکِ Fugu فلت است ولی تنها مشتری‌اش تخصیصِ ساعتیِ governor بود
+            # (۱۲٬۲۴۲ توکن → ~۵۰ کاراکتر). این اندام چند بارِ محدود در روز یک سؤالِ
+            # *سنگین* با contextِ عددیِ واقعی می‌پرسد و جواب را کارت می‌کند.
+            # هم‌جوارِ epoch است چون هر دو «کارِ غیرضروری»اند: protective-halt هر دو
+            # را می‌خواباند. flag خاموش (پیش‌فرض) → `run` بدونِ هیچ I/O برمی‌گردد.
+            if not _protective_skip:
+                try:
+                    import deep_think as _dt   # noqa: WPS433 — lazy، خودش flag را چک می‌کند
+                    _dtr = _dt.run(channel=_chan)
+                    if _dtr.get("ran"):
+                        epoch_info["deep_think"] = {
+                            "topic": _dtr.get("topic"), "delivered": _dtr.get("delivered"),
+                            "chars": _dtr.get("chars")}
+                except Exception as _de:  # noqa: BLE001 — §۴: خطای خاموش ممنوع، ولی tick نمی‌میرد
+                    opslib.alert([f"deep_think error (non-fatal): {type(_de).__name__}: {_de}"])
             # Phase 1: epoch-based sweep of stale gated_effects
             try:
                 if chrono is not None:
