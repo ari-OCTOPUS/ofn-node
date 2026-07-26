@@ -23,8 +23,17 @@ import opslib  # noqa: E402
 import c6_probes  # noqa: E402
 
 FLAG = "OCTOPUS_WIRE_C6_PRODUCER"
-MAX_PENDING_ROWS = 10
-MAX_QUEUE_ROWS = 50
+
+
+def _cap(name: str, default: int) -> int:
+    try:
+        return int(str(os.environ.get(name, default)).strip() or default)
+    except (TypeError, ValueError):
+        return default
+
+
+MAX_PENDING_ROWS = _cap("C6_QUEUE_MAX_PENDING", 10)
+MAX_QUEUE_ROWS = _cap("C6_QUEUE_MAX_ROWS", 50)
 
 
 def flag_on() -> bool:
@@ -67,19 +76,38 @@ def _already_present(rows: list[dict], hid: str, probe: str, subject: str) -> bo
 
 
 def _mk_row(probe: str, measured: dict) -> dict:
+    """ردیفِ کامل برای research_contract + mechanism_count (C2 schema)."""
+    import time as _time
     spec = c6_probes.PROBES[probe]
-    hid = _existing_id([], probe, spec["subject"])
+    hid = _existing_id([], probe, str(spec.get("subject", "")))
+    count = int(measured.get("count", -1)) if isinstance(measured, dict) else -1
+    fals = spec.get("falsification") or [f"measured count <= floor ({spec.get('floor', 0)})"]
+    if not isinstance(fals, list):
+        fals = [str(fals)]
+    kind = "romajan_claim" if str(probe).startswith("romajan_") else "mechanism_count"
     return {
         "id": hid,
-        "kind": "mechanism_count",
-        "probe": probe,
-        "subject": spec["subject"],
-        "question": spec["question"],
-        "floor": spec["floor"],
-        "measured": measured,
         "status": "PENDING",
+        "kind": kind,
+        "probe": probe,
+        "subject": str(spec.get("subject", ""))[:200],
+        "question": str(spec.get("question", ""))[:500],
+        "hypothesis": str(spec.get("hypothesis") or spec.get("question") or "")[:500],
+        "stop_condition": "one offline re-count on the same code path (no wall-clock claim)",
+        "verifier": "compare_frozen_baselines",
+        "expected_artifact": str(spec.get("expected_artifact") or f"measured count for {probe}")[:200],
+        "falsification_criteria": [str(x) for x in fals][:8],
+        "tools": ["test_in_sandbox", "compare_frozen_baselines"],
+        "unit": str(spec.get("unit", "ops"))[:60],
+        "floor": int(spec.get("floor", 0) or 0),
+        "baseline_count": count,
+        "baseline_detail": str((measured or {}).get("detail", ""))[:300],
+        "measured": measured if isinstance(measured, dict) else {"count": -1},
+        "fix_hint": str(spec.get("fix_hint", ""))[:300],
         "source": "c6_producer",
+        "producer_version": "c6-producer.v2",
         "honesty": "measured-only; no fabricated hypotheses",
+        "created_at": _time.strftime("%Y-%m-%dT%H:%M:%SZ", _time.gmtime()),
     }
 
 
@@ -97,11 +125,18 @@ def produce(queue: Path) -> dict:
             return {"produced": False, "reason": "queue-cap"}
 
         new_rows = list(rows)
+        # «نقصی نیست» و «نمی‌توانم ببینم» دو چیزِ کاملاً متفاوت‌اند و تا امروز هر دو
+        # یک پیام می‌دادند. ۲۰۲۶-۰۷-۲۶: از ۶ پروب، ۵ تا count=-1 می‌دادند (دو تا
+        # واقعاً خراب بودند) و خروجی همچنان «no-defect» بود — یعنی گزارشِ سلامت از
+        # یک لایهٔ حسِ تقریباً کور. حالا کوری شمرده و برگردانده می‌شود.
+        blind, seen = [], []
         for probe, spec in c6_probes.PROBES.items():
             measured = spec["measure"]()
             count = int(measured.get("count", -1)) if isinstance(measured, dict) else -1
             if count < 0:
+                blind.append(probe)
                 continue
+            seen.append(probe)
             if count <= int(spec["floor"]):
                 continue
             hid = _existing_id(new_rows, probe, spec["subject"])
@@ -111,8 +146,12 @@ def produce(queue: Path) -> dict:
             queue.parent.mkdir(parents=True, exist_ok=True)
             with open(queue, "a", encoding="utf-8") as f:
                 f.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
-            return {"produced": True, "id": row["id"], "probe": probe}
-        return {"produced": False, "reason": "no-defect"}
+            return {"produced": True, "id": row["id"], "probe": probe,
+                    "measured": len(seen), "blind": len(blind)}
+        return {"produced": False,
+                "reason": "no-defect" if seen else "all-probes-blind",
+                "measured": len(seen), "blind": len(blind),
+                "blind_probes": sorted(blind)[:12]}
     except Exception as e:  # noqa: BLE001
         try:
             opslib.alert([f"c6_producer failed (no-op): {type(e).__name__}: {e}"])

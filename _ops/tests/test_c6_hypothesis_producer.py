@@ -62,7 +62,13 @@ probes.PROBES.clear()
 probes.PROBES["p_ok"] = {"measure": _fake_measure(1), "subject": "s1", "question": "q1", "floor": 3}
 _reset_queue()
 r = cp.produce(c6.QUEUE)
-check(r == {"produced": False, "reason": "no-defect"}, "count<=floor نباید ردیف بسازد")
+# 2026-07-26: خروجی عمداً دو کلیدِ تازه گرفت — `measured` و `blind`. تا آن روز
+# «نقصی نیست» و «هیچ پروبی نمی‌توانست بسنجد» یک پیامِ یکسان می‌دادند، و همان
+# باعث شد لایهٔ حسِ تقریباً کور، سلامت گزارش شود. pin روی شکلِ دقیق باز شد ولی
+# سخت‌گیری نه: هر سه فیلدِ معنادار جداگانه assert می‌شوند.
+check(r.get("produced") is False and r.get("reason") == "no-defect"
+      and r.get("measured") == 1 and r.get("blind") == 0,
+      f"count<=floor نباید ردیف بسازد و باید صادقانه گزارش شود: {r}")
 check(not c6.QUEUE.exists() or not c6.QUEUE.read_text("utf-8").strip(),
       "no-defect نباید ردیفی بسازد")
 
