@@ -172,6 +172,22 @@ def snapshot() -> dict:
     sig = _owner_signal()
     if sig:  # فقط وقتی OCTOPUS_WIRE_WLOS روشن و سیگنال معتبر باشد — وگرنه snapshot دست‌نخورده
         out["owner_signal"] = sig
+    # ۲۰۲۶-۰۷-۲۶ (رأیِ مالک: «دستش بیاید چطور با من رفتار کند») — دکترینِ گفت‌وگو
+    # به‌عنوان **ورودیِ** هر چرخهٔ خودشناسی، نه خروجیِ آن.
+    # چرا این‌جا و نه در understanding: `synthesize` هر دور از نو ساخته می‌شود، پس
+    # هر درسِ رفتاری که آن‌جا نوشته شود دورِ بعد پاک می‌شود. دکترین ماندگار و
+    # نسخه‌دار است (`tg/operator_doctrine`) و از این‌جا تزریق می‌شود تا مغز هر بار
+    # که دربارهٔ خودش فکر می‌کند، با دانستنِ نحوهٔ حرف‌زدن با مالک فکر کند.
+    # پشتِ فلگ چون promptِ مغزِ پولی را عوض می‌کند (رفتارِ نو، نه bugfix).
+    if os.environ.get("OCTOPUS_SELFKNOW_DOCTRINE") == "1":
+        try:
+            _tg = str(_HERE.parent / "tg")
+            if _tg not in sys.path:
+                sys.path.insert(0, _tg)
+            import operator_doctrine
+            out["owner_doctrine"] = operator_doctrine.for_snapshot()
+        except Exception:  # noqa: BLE001 — دکترین هرگز snapshot را نمی‌کشد
+            pass
     return out
 
 

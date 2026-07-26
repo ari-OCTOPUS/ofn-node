@@ -665,6 +665,8 @@ class Center:
             "/eq": lambda: self._live_cmd(text),
             "/box": lambda: self._live_cmd(text),
             "/code": lambda: self._live_cmd(text),
+            "/doctrine": lambda: self._live_cmd(text),
+            "/رفتار": lambda: self._live_cmd(text),
             "/کد": lambda: self._live_cmd(text),
         }
         # Menu v2 (پشتِ OCTOPUS_WIRE_MENU_V2): فقط با فلگِ روشن /panel اضافه می‌شود.

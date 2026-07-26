@@ -60,6 +60,7 @@ def handles(text: str) -> bool:
         "box", "blackbox", "جعبه", "جعبه‌سیاه", "جعبه سیاه",
         "code", "کد", "collab",
         "live", "زنده", "pulse-id",
+        "doctrine", "رفتار", "howto", "چطور",
     )
     first = t.split(None, 1)[0]
     return first in heads or any(t.startswith(h + " ") or t == h for h in heads)
@@ -90,6 +91,8 @@ def _dispatch(text: str) -> str:
         head = "code"
     elif head in ("زنده", "live"):
         head = "live"
+    elif head in ("رفتار", "doctrine", "howto", "چطور"):
+        head = "doctrine"
 
     if head == "id":
         import identity_equations as ie  # noqa: WPS433
@@ -111,6 +114,16 @@ def _dispatch(text: str) -> str:
         import collab_coding as cc  # noqa: WPS433
         # re-prefix so collab parser sees /code ...
         return cc.handle_command("/code " + arg if arg else "/code status")
+
+    if head == "doctrine":
+        # «فکر می‌کنی چطور باید با من حرف بزنی؟» — همان دکترینی که به خودشناسی
+        # تزریق می‌شود، عیناً. اگر این کارت با رفتارِ واقعیِ بات نخواند، یکی از
+        # آن دو دروغ می‌گوید و مالک باید بتواند ببیندش.
+        try:
+            import operator_doctrine as _od  # noqa: WPS433
+            return _od.card()
+        except Exception as e:  # noqa: BLE001
+            return f"دکترین در دسترس نیست: {type(e).__name__}"
 
     if head == "live":
         if quiet_on():
