@@ -27,6 +27,8 @@ for _p in (str(_HERE), str(_OPS), str(_OPS / "cortex")):
         sys.path.insert(0, _p)
 
 FLAG = "OCTOPUS_TG_LLM_ASK"
+# ارتقا به لایهٔ پولی وقتی مغزِ محلی در پنجرهٔ انصافش است (فقط مسیرِ تعاملیِ مالک).
+ESCALATE_FLAG = "OCTOPUS_TG_ASK_ESCALATE"
 _INTENTS = ("status", "revenue", "budget", "leg_action", "code", "research", "mission", "unknown")
 _LEGS = ("lead", "ziman", "mining", "crypto", "accounting", "studio_pf", "knowledge", "cartographer")
 _RISK = ("low", "medium", "high")
@@ -90,6 +92,26 @@ def understand(text: str, *, ask_fn=None) -> dict:
         res = ask_fn("tg_intent", text, system=_SYSTEM, max_tokens=200)
     except Exception as e:  # noqa: BLE001 — never crash the bot on an LLM hiccup
         return {"ok": False, "reason": f"llm-error:{e.__class__.__name__}"}
+    # ۲۰۲۶-۰۷-۲۶ — ارتقا وقتی مغزِ محلی در پنجرهٔ انصافش است.
+    # اندازه‌گیری‌شده: OLLAMA_MIN_INTERVAL_S زنده ۲۰ ثانیه است، پس پیامِ دومِ مالک
+    # در آن پنجره `local-llm-unavailable` می‌گیرد و به منوی ثابت سقوط می‌کند.
+    # ولی **یک انسانِ منتظر با یک beatِ پس‌زمینه هم‌کلاس نیست**: گاردِ انصافِ GPU
+    # برای این ساخته شده که دو لِینِ خودکار روی یک کارت نجنگند، نه برای اینکه
+    # مالک پشتِ صف بماند. لایهٔ پولی همین حالا سنجیده شد: fugu در ۲.۳ ثانیه جواب
+    # داد و در حاشیه رایگان است (پلنِ فلت، cost_usd=0). یعنی داریم عذرخواهی
+    # می‌کنیم درحالی‌که یک مغزِ آزادِ سریع‌تر بی‌کار نشسته.
+    # فقط این مسیر ارتقا می‌گیرد — beatهای پس‌زمینه دست‌نخورده‌اند. پیش‌فرض خاموش.
+    if (not isinstance(res, dict) or not res.get("ok")) and os.environ.get(
+            ESCALATE_FLAG) == "1":
+        try:
+            res2 = ask_fn("tg_intent", text, system=_SYSTEM, max_tokens=200,
+                          tier="primary")
+            if isinstance(res2, dict) and res2.get("ok"):
+                res2["escalated_from"] = (res.get("reason")
+                                          if isinstance(res, dict) else "no-answer")
+                res = res2
+        except Exception:  # noqa: BLE001 — ارتقا هرگز مسیر را نمی‌کشد
+            pass
     if not isinstance(res, dict) or not res.get("ok"):
         return {"ok": False, "reason": "llm-no-answer",
                 "detail": res.get("reason") if isinstance(res, dict) else None}
@@ -112,10 +134,15 @@ def understand(text: str, *, ask_fn=None) -> dict:
     if important:
         risk, needs_mission = "high", True
 
-    return {"ok": True, "intent": intent, "target_leg": leg, "action": action,
-            "summary": summary, "risk": risk, "needs_mission": needs_mission,
-            "important": important, "gate_reason": why if important else "",
-            "tier": res.get("tier")}
+    out = {"ok": True, "intent": intent, "target_leg": leg, "action": action,
+           "summary": summary, "risk": risk, "needs_mission": needs_mission,
+           "important": important, "gate_reason": why if important else "",
+           "tier": res.get("tier")}
+    # ارتقا باید در خروجی دیده شود، وگرنه هیچ‌کس نمی‌داند چند بار به لایهٔ پولی
+    # افتاده‌ایم — و «ارتقا کار می‌کند» یک ادعای غیرقابلِ‌سنجش می‌شود.
+    if res.get("escalated_from"):
+        out["escalated_from"] = res["escalated_from"]
+    return out
 
 
 if __name__ == "__main__":
