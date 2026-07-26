@@ -875,6 +875,16 @@ def main() -> int:
                     _w.doctor_digest_beat(_chan, beat=_cstat.get("beat", 0))
                     _w.brain_digest_beat(_chan, beat=_cstat.get("beat", 0))
                     _w.heart_card_beat(_chan, beat=_cstat.get("beat", 0))
+                    # ۲۰۲۶-۰۷-۲۶ — چیزی که تا دایجستِ ۶ساعته نباید صبر کند:
+                    # ترسِ 🔴، فرضیهٔ تازهٔ C6، و کارتِ بدهکار. فهرست عمداً کوتاه
+                    # است: «همه‌چیز فوری» یعنی هیچ‌چیز فوری نیست. پشتِ فلگِ خودش،
+                    # با throttleِ همین ماژول، fail-soft.
+                    try:
+                        import instant_alert_bridge as _iab
+                        _iab.check(_chan)
+                    except Exception as _iae:  # noqa: BLE001 — پل نباید tick را بکشد
+                        opslib.alert([f"instant_alert_bridge (non-fatal): "
+                                      f"{type(_iae).__name__}: {_iae}"])
                 except Exception as _nne:  # noqa: BLE001 — §۴: نوتیف نباید tick را بکشد
                     opslib.alert([f"needs_nudge error (non-fatal): {type(_nne).__name__}: {_nne}"])
             if now - last_heartbeat > 3600:

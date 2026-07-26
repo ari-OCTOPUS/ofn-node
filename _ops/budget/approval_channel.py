@@ -22,6 +22,11 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent
 if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
+# ۲۰۲۶-۰۷-۲۶: خودِ `_ops` هم لازم شد (tg_send_log آن‌جاست). بدونِ این خط، قلابِ
+# سنجشِ ارسال داخل try/except بی‌صدا رد می‌شد و «اندازه‌گیری روشن است» یک ادعای
+# غیرقابلِ‌ابطال می‌ماند — همان بیماری‌ای که این ماژول‌ها برای شکارش ساخته شدند.
+if str(_HERE.parent) not in sys.path:
+    sys.path.insert(0, str(_HERE.parent))
 import opslib  # noqa: E402 — بعد از bootstrapِ مسیر؛ برای alertهای fail-soft لازم است
 
 # فقط این وضعیت‌ها = «کلیکِ انسانیِ واقعی» در صف کنترل‌برین/core.db (هم‌راستا با I7 outbox status='sent')
@@ -134,6 +139,9 @@ ROUTE_FLAG = "OCTOPUS_TG_ROUTE_TOPICS"
 _STREAM_TOPIC = {
     "heart": "system", "doctor": "system", "needs": "system", "summary": "system",
     "brain": "knowledge", "discovery": "knowledge", "map": "cartographer",
+    # ۲۰۲۶-۰۷-۲۶ — مقصدِ هشدارهای فوری (instant_alert_bridge):
+    # ترس در 🫀قلب (وضعیتِ حیاتی)، فرضیه در 🧠مغز (یادگیری)، لید در بازوی خودش.
+    "cortisol": "system", "alert": "system", "c6": "knowledge", "lead": "lead",
 }
 def _center_cfg_path() -> Path:
     """مسیرِ configِ مرکز — از opslib.STATE_DIR، نه ثابتِ hardcode. دلیلش عملی است:
@@ -1416,11 +1424,20 @@ class TelegramApprovalChannel(ApprovalChannel):
             body["message_thread_id"] = thread
         if reply_markup:
             body["reply_markup"] = reply_markup
+        ok = True
         try:
             self._http_post(self._build_url("sendMessage", {}), body)
         except Exception:  # noqa: BLE001
-            return False
-        return True
+            ok = False
+        # سنجشِ حجم و تکرار، قبل از هر تصمیمِ ضدِاسپم (رأیِ مالک ۲۰۲۶-۰۷-۲۶).
+        # فقط hashِ متن ثبت می‌شود، نه خودِ متن. خطای لاگ هرگز ارسال را عوض نمی‌کند.
+        try:
+            import tg_send_log as _tsl  # noqa: WPS433
+            _tsl.record(chat_id=target, topic_id=thread, text=text,
+                        stream=stream, ok=ok)
+        except Exception:  # noqa: BLE001
+            pass
+        return ok
 
     # دستوراتِ مرزِ-سختِ سراسری/kill — حتی داخلِ یک گروهِ allowlisted فقط شخصِ مالک
     # (from_id == owner) مجاز است، نه هر عضوِ گروه. (red-team GOV-P1، 2026-07-23)
