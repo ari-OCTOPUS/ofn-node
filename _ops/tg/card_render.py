@@ -43,6 +43,7 @@ MAX_TEXT_CHARS = 700        # تلگرام ۴۰۹۶ می‌پذیرد؛ توجه
 MAX_HEADLINE = 64
 MAX_EVIDENCE_LINES = 3
 MAX_EVIDENCE_LINE = 110
+MAX_INFO_ROWS = 6           # گزارشِ بلند = گزارشِ خوانده‌نشده
 
 # ژارگونی که بی‌ترجمه در متنِ انسانی ممنوع است. کلید = واژه، مقدار = چه چیزی باید
 # کنارش باشد تا مجاز شود (یعنی متن باید *بگوید* چه اتفاقی می‌افتد، نه اسمِ مکانیزم).
@@ -211,6 +212,55 @@ def render_batch(*, headline: str, items: "list[dict]", if_ignored: str,
         if r:
             kb.append(r)
     return {"text": text, "reply_markup": {"inline_keyboard": kb} if kb else None,
+            "plain_len": len(re.sub(r"<[^>]+>", "", text))}
+
+
+def render_info(*, headline: str, lead: str, rows: "list[str] | None" = None,
+                next_step: str = "", allow_jargon: bool = False) -> dict:
+    """کارتِ اطلاعاتیِ خلوت: بی‌تصمیم، بی‌دکمه — ولی زیرِ همان قیدهای شناختی.
+
+    چرا جدا از `render_decision_card`: آن‌جا `if_ignored` **اجباری** است چون تصمیم
+    است و ADHD بی‌عملی را انتخاب نمی‌بیند. یک گزارشِ read-only تصمیم نیست، و اجبارِ
+    «اگر کاری نکنی» به آن، پیامدِ ساختگی می‌سازد — و کارتِ دروغ از کارتِ شلوغ بدتر است.
+    پس آن قید این‌جا برداشته می‌شود و به‌جایش `lead` اجباری می‌شود.
+
+    قیدهایی که این‌جا هم می‌مانند (هرکدام در `test_card_render_profile` assert می‌شود):
+      · سقفِ سختِ طول — دیوارِ متن حافظهٔ کاری را می‌خورد. (`MAX_TEXT_CHARS`)
+      · `lead` اجباری: مهم‌ترین حقیقت در خطِ اول، نه تهِ گزارش. (`lead_required`)
+      · شناسهٔ ماشینی و ژارگونِ بی‌ترجمه ممنوع (همان `_check`).
+      · سقفِ ردیف `MAX_INFO_ROWS`.
+
+    محتوا **ساده نمی‌شود**: عدد و حقیقتِ فنی کامل می‌ماند. چیزی که حذف می‌شود
+    تکرار و نویز است، نه اطلاعات.
+    """
+    if not headline or not headline.strip():
+        raise CardDesignError("کارتِ بی‌سرخط: خطِ اول باید بگوید این چیست.")
+    if len(headline) > MAX_HEADLINE:
+        raise CardDesignError(f"سرخط {len(headline)} کاراکتر (سقف {MAX_HEADLINE}).")
+    if not lead or not lead.strip():
+        raise CardDesignError(
+            "کارتِ بی‌سرنخ: مهم‌ترین حقیقت باید خطِ اول باشد. گزارشی که نتیجه‌اش "
+            "ته متن است، خوانده نمی‌شود. این قید عمدی است.")
+
+    rws = [r.strip() for r in (rows or []) if r and r.strip()]
+    if len(rws) > MAX_INFO_ROWS:
+        raise CardDesignError(
+            f"{len(rws)} ردیف (سقف {MAX_INFO_ROWS}) — چگالی خوب است، دیوارِ متن نه.")
+    for r in rws:
+        if len(r) > MAX_EVIDENCE_LINE:
+            raise CardDesignError(f"ردیفِ {len(r)} کاراکتری (سقف {MAX_EVIDENCE_LINE}).")
+
+    esc = html.escape
+    parts = [f"<b>{esc(headline.strip())}</b>", "", f"▸ {esc(lead.strip())}"]
+    if rws:
+        parts.append("")
+        parts.extend(f"· {esc(r)}" for r in rws)
+    if next_step.strip():
+        parts += ["", f"<i>{esc(next_step.strip())}</i>"]
+
+    text = "\n".join(parts)
+    _check(text, allow_jargon=allow_jargon)
+    return {"text": text, "reply_markup": None,
             "plain_len": len(re.sub(r"<[^>]+>", "", text))}
 
 

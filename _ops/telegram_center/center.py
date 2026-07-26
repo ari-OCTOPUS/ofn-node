@@ -54,6 +54,10 @@ try:
     import mission_runner as runner_mod   # noqa: E402 — Runner v0: اجرای ایزولهٔ allowlisted (پشتِ فلگ)
 except Exception:  # noqa: BLE001 — fail-soft: نبودِ runner نباید center را بشکند
     runner_mod = None  # type: ignore
+try:
+    import live_commands as live_cmd_mod  # noqa: E402 — /id /box /code /live (2026-07-25)
+except Exception:  # noqa: BLE001
+    live_cmd_mod = None  # type: ignore
 
 # فایلِ توقفِ حلقه (هم‌خانوادهٔ STOP-ORGANISM/STOP-CORTEX؛ فقط مالک می‌سازد)
 STOP_TG_CENTER = opslib.OPS / "STOP-TG-CENTER"
@@ -80,6 +84,13 @@ def _restart_pending() -> bool:
 DEFAULT_DIGEST_S = 86400          # cadence پیش‌فرضِ دایجستِ هر پا: ۲۴ ساعت
 SEEN_CAP = 200                    # سقفِ حافظهٔ dedupeِ تصمیم‌ها در config
 POLL_TIMEOUT_S = 25               # long-poll ($0-idle، هم‌راستا با approval_channel)
+# 2026-07-25 (build-spec §4): دایجستِ ادغام‌شده — یک پیام در topic=system به‌جایِ
+# ۹ پیامِ جدا به ۹ تاپیک. پشتِ فلگ (پیش‌فرض خاموش) تا رفتارِ فعلی حفظ شود.
+# وقتی روشن است، به‌جایِ حلقهٔ per-leg، همهٔ پاهایِ due در یک پیام جمع می‌شوند.
+MERGED_DIGEST_FLAG = "OCTOPUS_TG_MERGED_DIGEST"
+# 2026-07-26: جواب در همان تاپیکی بیفتد که مالک پرسیده (گروهِ مرکز فوروم است).
+# پیش‌فرض خاموش = رفتارِ امروز؛ روشن = پاسخ به `message_thread_id`ِ همان پیام.
+TOPIC_REPLY_FLAG = "OCTOPUS_TG_TOPIC_REPLY"
 
 # containment (parity با registry_scan.scrub / events._scrub_str) — لایهٔ دوم؛
 # لایهٔ اول render.scrub است. هیچ رشتهٔ ممنوع هرگز echo نمی‌شود.
@@ -109,6 +120,11 @@ COMMANDS: list[tuple[str, str]] = [
     ("budget", "🐙 پیشنهادِ تخصیصِ ماهِ بعد (propose-only)"),
     ("revenue", "💰 درآمدِ تأییدشده (aggregate)"),
     ("missions", "🧬 مأموریت‌ها — Mission Genome"),
+    # 2026-07-25 live path — identity / blackbox / collab / summary
+    ("live", "🐙 خلاصهٔ زنده‌بودن (flags + هویت + جعبه‌سیاه)"),
+    ("id", "🧬 مگا-معادلاتِ هویت (read-only)"),
+    ("box", "📦 نقشهٔ جعبه‌سیاه‌ها"),
+    ("code", "🧩 هم‌کدنویسی propose-only با مالک"),
 ]
 
 _VERDICTS = ("ok", "no", "later")
@@ -319,6 +335,15 @@ class Center:
         except Exception:  # noqa: BLE001
             return ""
 
+    def _live_cmd(self, text: str) -> str:
+        """مسیرِ زنده‌سازی 2026-07-25: /id /box /code /live — fail-soft، read/propose-only."""
+        try:
+            if live_cmd_mod is None:
+                return "live_commands در دسترس نیست."
+            return str(live_cmd_mod.dispatch(text) or "")
+        except Exception as e:  # noqa: BLE001
+            return f"live_cmd fail-soft: {type(e).__name__}"
+
     # ── ensure_setup: idempotent — config حافظه است ─────────────────────────────
     def ensure_setup(self) -> bool:
         """تاپیک‌های ناقص را می‌سازد، منو را یک‌بار ست می‌کند، status را یک‌بار
@@ -430,32 +455,75 @@ class Center:
             last = cfg["last_digest"] = {}
         if r is not None:
             legs_map = feeds.get("legs") if isinstance(feeds.get("legs"), dict) else {}
-            for leg in self._legs():
-                try:
-                    lr = float(last.get(leg, 0.0) or 0.0)
-                except (TypeError, ValueError):
-                    lr = 0.0
-                # lr==0 یعنی «هرگز پست نشده» → فوراً due (مستقل از epochِ clockِ تزریقی)
-                if lr > 0.0 and now - lr < self._cadence_for(cfg, leg):
-                    continue
-                leg_data = legs_map.get(leg) or feeds.get(leg) or {}
-                try:
-                    txt = str(r.render_leg_digest(leg, leg_data) or "")
-                except Exception:  # noqa: BLE001
-                    continue
-                if not txt:
-                    last[leg] = now                  # چیزی برای گفتن نیست — سررسید جلو
+            _merged = str(os.environ.get(MERGED_DIGEST_FLAG, "0")).strip() in ("1", "true", "yes", "on")
+            if _merged:
+                # 2026-07-25 (build-spec §4): یک پیامِ ادغام‌شده در topic=system.
+                # همهٔ پاهایِ due را جمع می‌کنیم؛ اگر حداقل یک پا متنی داشت، یک پیام
+                # در topic=system می‌فرستیم و سررسیدِ همهٔ پاهایِ due را جلو می‌بریم.
+                # این جایگزینِ ۹ پیامِ جدا می‌شود — رباتِ آرام‌تر.
+                due_legs = []
+                merged_lines = []
+                for leg in self._legs():
+                    try:
+                        lr = float(last.get(leg, 0.0) or 0.0)
+                    except (TypeError, ValueError):
+                        lr = 0.0
+                    if lr > 0.0 and now - lr < self._cadence_for(cfg, leg):
+                        continue
+                    due_legs.append(leg)
+                    leg_data = legs_map.get(leg) or feeds.get(leg) or {}
+                    try:
+                        txt = str(r.render_leg_digest(leg, leg_data) or "")
+                    except Exception:  # noqa: BLE001
+                        txt = ""
+                    if txt:
+                        merged_lines.append(txt)
+                if due_legs and merged_lines:
+                    body = "\n\n".join(merged_lines)
+                    try:
+                        m = self._client.send(_scrub(body),
+                                              topic_id=topics.get("system"),
+                                              chat_id=chat_id)
+                    except Exception:  # noqa: BLE001
+                        m = None
+                    if m is not None:
+                        for leg in due_legs:
+                            last[leg] = now
+                        out["digests"] += 1
+                        dirty = True
+                elif due_legs:
+                    # پاهای due بودند ولی متنی نبودند — سررسید را جلو ببر (نویز نزن).
+                    for leg in due_legs:
+                        last[leg] = now
                     dirty = True
-                    continue
-                try:
-                    m = self._client.send(_scrub(txt), topic_id=topics.get(leg),
-                                          chat_id=chat_id)
-                except Exception:  # noqa: BLE001
-                    m = None
-                if m is not None:
-                    last[leg] = now
-                    out["digests"] += 1
-                    dirty = True
+            else:
+                # رفتارِ فعلی (پیش‌فرض): یک پیامِ جدا به هر پا، در تاپیکِ خودش.
+                for leg in self._legs():
+                    try:
+                        lr = float(last.get(leg, 0.0) or 0.0)
+                    except (TypeError, ValueError):
+                        lr = 0.0
+                    # lr==0 یعنی «هرگز پست نشده» → فوراً due (مستقل از epochِ clockِ تزریقی)
+                    if lr > 0.0 and now - lr < self._cadence_for(cfg, leg):
+                        continue
+                    leg_data = legs_map.get(leg) or feeds.get(leg) or {}
+                    try:
+                        txt = str(r.render_leg_digest(leg, leg_data) or "")
+                    except Exception:  # noqa: BLE001
+                        continue
+                    if not txt:
+                        last[leg] = now                  # چیزی برای گفتن نیست — سررسید جلو
+                        dirty = True
+                        continue
+                    try:
+                        m = self._client.send(_scrub(txt), topic_id=topics.get(leg),
+                                              chat_id=chat_id)
+                    except Exception:  # noqa: BLE001
+                        m = None
+                    if m is not None:
+                        last[leg] = now
+                        out["digests"] += 1
+                        dirty = True
 
         # ۳) تصمیم‌های نوی جعبهٔ راهنمایی — dedupe با seen-ids در config
         if r is not None:
@@ -497,6 +565,14 @@ class Center:
             _eb.beat(self)
         except Exception:  # noqa: BLE001 — bridge هرگز beat را نمی‌کشد
             pass
+        # 2026-07-25: money-pulse — فازِ جدید. درآمدِ پاها رو می‌خونه (propose-only،
+        # هرگز MONEY_ATTRIBUTION جعلی). پشتِ OCTOPUS_WIRE_MONEY_PULSE؛ fail-soft.
+        try:
+            sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "heart"))
+            import money_pulse as _mp
+            _mp.beat(self)
+        except Exception:  # noqa: BLE001 — pulse هرگز beat را نمی‌کشد
+            pass
         return out
 
     def push_alert(self, text: str) -> bool:
@@ -515,6 +591,30 @@ class Center:
             return False
 
     # ── handle_update: فقط مالک — /now و callbackهای ok/no/later ─────────────────
+    @staticmethod
+    def _reply_thread(msg: dict):
+        """تاپیکی که باید در آن جواب داد — یا None.
+
+        باگِ ۲۰۲۶-۰۷-۲۶: گروهِ مرکز فوروم است. جوابِ بی‌`message_thread_id` در
+        تاپیکِ **General** می‌افتد، نه آن‌جا که مالک پرسیده. یعنی بات جواب می‌داد و
+        مالک هرگز نمی‌دید — «فرستادم» درست بود و «رسید» غلط، بدونِ هیچ خطایی.
+
+        فقط وقتی thread می‌فرستیم که تلگرام خودش گفته باشد این پیام در یک تاپیک
+        است (`is_topic_message`). در Generalِ فوروم و در چتِ خصوصی این پرچم نیست →
+        None → رفتارِ امروز بایت‌به‌بایت. ارسالِ thread_idِ نامعتبر خطای ۴۰۰ می‌دهد،
+        پس این باریک‌بینی عمدی است.
+        """
+        if os.environ.get(TOPIC_REPLY_FLAG, "").strip().lower() not in (
+                "1", "true", "yes", "on"):
+            return None
+        try:
+            if not msg.get("is_topic_message"):
+                return None
+            tid = msg.get("message_thread_id")
+            return int(tid) if isinstance(tid, int) else None
+        except (TypeError, ValueError, AttributeError):
+            return None
+
     def _is_owner(self, u: dict) -> bool:
         """allowlist. اول helperِ قراردادیِ client.is_owner؛ هر خطا/ابهام = False
         (fail-closed: غیرمالک هرگز فرمان نمی‌دهد — قانونِ P3 §5)."""
@@ -559,6 +659,13 @@ class Center:
             "/missions": lambda: self._page("ms"),
             "/menu": lambda: self._page("menu"),
             "/start": lambda: self._page("menu"),
+            # 2026-07-25 live path — full text after command is passed through
+            "/live": lambda: self._live_cmd(text),
+            "/id": lambda: self._live_cmd(text),
+            "/eq": lambda: self._live_cmd(text),
+            "/box": lambda: self._live_cmd(text),
+            "/code": lambda: self._live_cmd(text),
+            "/کد": lambda: self._live_cmd(text),
         }
         # Menu v2 (پشتِ OCTOPUS_WIRE_MENU_V2): فقط با فلگِ روشن /panel اضافه می‌شود.
         # flag خاموش → /panel در handlers نیست → مسیرِ «command ناشناس» امروز (return None). parity.
@@ -575,7 +682,8 @@ class Center:
         try:
             out = fn()
             txt, kb = out if isinstance(out, tuple) else (str(out or ""), None)
-            mid = self._client.send(_scrub(txt), chat_id=chat_id, keyboard=kb)
+            mid = self._client.send(_scrub(txt), chat_id=chat_id, keyboard=kb,
+                                    topic_id=self._reply_thread(msg))
         except Exception:  # noqa: BLE001
             mid = None
         return {"kind": cmd.lstrip("/"), "sent": mid is not None}
@@ -623,7 +731,8 @@ class Center:
                         pass
                 txt, kb = mission_mod.mission_card(m.get("id"))
                 kb = self._tok_kb(kb)            # P3 (D4): توکنِ ms: وقتی فلگ روشن (وگرنه no-op)
-                mid = self._client.send(_scrub(txt), chat_id=chat_id, keyboard=kb)
+                mid = self._client.send(_scrub(txt), chat_id=chat_id, keyboard=kb,
+                                        topic_id=self._reply_thread(msg))
                 return {"kind": "ask_mission", "mission_id": m.get("id"), "sent": mid is not None}
 
             res = intent_mod.classify(text)
@@ -634,9 +743,14 @@ class Center:
                         "budget": "ask_budget", "help": "ask_menu",
                         "pause_leg": "ask_pause", "resume_leg": "ask_resume",
                         "scan_metadata": "ask_scan_metadata",
-                        "approvals": "ask_approvals", "unknown": "ask_unknown"}
+                        "approvals": "ask_approvals",
+                        "identity": "ask_identity", "blackbox": "ask_blackbox",
+                        "collab_code": "ask_collab", "live_summary": "ask_live",
+                        "unknown": "ask_unknown"}
             kind = kind_map.get(it, "ask_unknown")
-            if it == "status":
+            if it in ("identity", "blackbox", "collab_code", "live_summary"):
+                out = self._live_cmd(text)
+            elif it == "status":
                 out = self._page("st")
             elif it == "revenue":
                 out = self._revenue_text()
@@ -657,7 +771,8 @@ class Center:
             else:
                 out = self._ask_unknown_card()
             txt, kb = out if isinstance(out, tuple) else (str(out or ""), None)
-            mid = self._client.send(_scrub(txt), chat_id=chat_id, keyboard=kb)
+            mid = self._client.send(_scrub(txt), chat_id=chat_id, keyboard=kb,
+                                    topic_id=self._reply_thread(msg))
         except Exception:  # noqa: BLE001
             mid, kind = None, "ask_error"
         return {"kind": kind, "sent": mid is not None}
