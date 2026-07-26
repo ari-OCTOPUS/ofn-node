@@ -979,6 +979,90 @@ def epistemics_beat(live_loop=None, beat: int = 0) -> dict | None:
         return None
 
 
+def _hebbian_signals(inputs: dict) -> list:
+    """واژگانِ سیگنالِ Hebbian.
+
+    ۲۰۲۶-۰۷-۲۶ — چرا این تابع ساخته شد. نسخهٔ قبلی دقیقاً **دو** سیگنالِ ممکن
+    داشت (`green_mode` وقتی rhythm سبز است، `stable` وقتی sigma<0.8). یعنی
+    associator ساختاراً نمی‌توانست بیش از **یک جفت** یاد بگیرد.
+    اندازه‌گیریِ زنده: `hebbian.json` بعد از **۲۲۳۵ هم‌رخدادی** هنوز یک ردیف
+    داشت — `green_mode`+`stable` با strength=1.0. مشکل «یاد نگرفته» نبود؛
+    چیزی برای یادگرفتن به آن نداده بودیم. یک قاعدهٔ هبی با واژگانِ دوکلمه‌ای
+    یک شمارنده است با حرفِ یونانی.
+
+    این‌جا واژگان از حالتی می‌آید که ارگانیسم **از قبل دارد** — هیچ سنسورِ نو،
+    هیچ هزینه، هیچ شبکه. سیگنال‌ها عمداً دودویی و پراکنده‌اند تا هم‌رخدادی
+    معنا داشته باشد؛ چیزی که همیشه روشن است اطلاعاتی حمل نمی‌کند.
+
+    ⚠️ این یادگیری را **ممکن** می‌کند، نه **مفید**. تا وقتی هیچ تصمیمی خروجیِ
+    Hebbian را نخواند (تستِ نویزِ ۲۰۲۶-۰۷-۲۶: خروجیِ protective_override با
+    ورودیِ یادگیریِ کاملاً نویزی بایت‌به‌بایت یکسان بود)، این فقط جدولِ
+    غنی‌تری است. مصرف‌کننده قدمِ بعدی و رأیِ مالک است.
+
+    پیش‌فرض خاموش (`OCTOPUS_HEBBIAN_RICH`) → واژگانِ دوکلمه‌ایِ قبلی، بایت‌به‌بایت.
+    """
+    # گاردِ نوع روی legacy هم لازم شد: نسخهٔ اصلی `inputs.get("spectral", {}).get(...)`
+    # می‌زد و اگر آن کلید یک رشته بود AttributeError می‌داد — باگِ از-پیش-موجود که
+    # تستِ متخاصمِ ۲۰۲۶-۰۷-۲۶ لوش داد. خروجی برای ورودیِ سالم بایت‌به‌بایت همان است.
+    rhythm = inputs.get("rhythm") if isinstance(inputs.get("rhythm"), dict) else {}
+    spectral = inputs.get("spectral") if isinstance(inputs.get("spectral"), dict) else {}
+    legacy = []
+    if rhythm.get("mode_color") == "GREEN":
+        legacy.append("green_mode")
+    try:
+        if float(spectral.get("sigma", 0) or 0) < 0.8:
+            legacy.append("stable")
+    except (TypeError, ValueError):
+        pass
+    if not flag("OCTOPUS_HEBBIAN_RICH"):
+        return legacy
+
+    # ── درسِ تستِ متخاصمِ همان روز ──────────────────────────────────────────
+    # نسخهٔ اولِ همین تابع باندهای low/mid/high می‌ساخت. تست گرفتش: آن یک
+    # **پارتیشن** است — همیشه دقیقاً یکی آتش می‌کند، پس با هر سیگنالِ دیگری
+    # هم‌رخداد می‌شود و strength را بدونِ اطلاعات بالا می‌برد. یعنی همان
+    # بیماریِ `green_mode`+`stable` با واژه‌های بیشتر.
+    # اصلِ درست: **فقط انحراف سیگنال است، نه حالتِ عادی.** ارگانیسمِ سالمِ
+    # بی‌حادثه باید صفر سیگنال بدهد → `decay()` → use-it-or-lose-it. آن‌وقت
+    # هم‌رخدادی واقعاً یعنی «این چیزهای غیرعادی با هم آمدند».
+    # به همین دلیل سیگنال‌های legacy (که هر دو حالتِ عادی‌اند) در حالتِ rich
+    # حمل نمی‌شوند.
+    def _d(x):
+        return x if isinstance(x, dict) else {}
+
+    def _f(d, k, default=None):
+        try:
+            v = _d(d).get(k, default)
+            return float(v) if v is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    rhythm, spectral = _d(rhythm), _d(spectral)
+    budget, sensory = _d(inputs.get("budget")), _d(inputs.get("sensory"))
+    sig = []
+
+    mc = str(rhythm.get("mode_color") or "").upper()
+    if mc in ("AMBER", "YELLOW", "RED"):      # سبز = عادی، خبر نیست
+        sig.append(f"rhythm_{mc.lower()}")
+    s = _f(spectral, "sigma")
+    if s is not None and s >= 1.2:
+        sig.append("sigma_high")
+    bp = _f(budget, "pct")
+    if bp is None:
+        bp = _f(budget, "used_pct")
+    if bp is not None and bp > 0.8:
+        sig.append("budget_tight")
+    if budget.get("depleted"):
+        sig.append("budget_depleted")
+    ar = _f(sensory, "afferent_ratio")
+    if ar is not None and ar <= 0.1:
+        sig.append("afferent_starved")
+    er = _f(sensory, "error_rate")
+    if er is not None and er > 0.2:
+        sig.append("errors_high")
+    return sig
+
+
 def make_neural_stack():
     """ساختِ NeuralDriver + Hebbian + Consolidation.
     پشتِ OCTOPUS_WIRE_NEURAL. اگر خاموش → None.
@@ -1017,11 +1101,7 @@ def neural_beat(neural_stack, beat: int, snap_inputs: dict | None = None) -> dic
             spectral=inputs.get("spectral"),
             budget=inputs.get("budget"))
         # hebbian observe
-        signals = []
-        if inputs.get("rhythm", {}).get("mode_color") == "GREEN":
-            signals.append("green_mode")
-        if inputs.get("spectral", {}).get("sigma", 0) < 0.8:
-            signals.append("stable")
+        signals = _hebbian_signals(inputs)
         if signals:
             neural_stack["hebbian"].observe(signals)
         else:
