@@ -283,6 +283,21 @@ class TgClient:
         if keyboard:
             body["reply_markup"] = {"inline_keyboard": _scrub_keyboard(keyboard)}
         data = self._call_post("sendMessage", body)
+        # سنجشِ حجم/تکرار — همان لاگی که approval_channel می‌نویسد. بدونِ این خط،
+        # کلِ ارسال‌های باتِ مرکز (پاسخِ دستورها، دایجستِ تاپیک‌ها، کارتِ تصمیم)
+        # از شمارش بیرون می‌ماند و «تکرار صفر است» یک ادعای نیم‌بند می‌شود.
+        # فقط hashِ متن ثبت می‌شود، نه متن. خطای لاگ هرگز ارسال را عوض نمی‌کند.
+        try:
+            import sys as _sys
+            from pathlib import Path as _P
+            _ops = str(_P(__file__).resolve().parent.parent)
+            if _ops not in _sys.path:
+                _sys.path.insert(0, _ops)
+            import tg_send_log as _tsl  # noqa: WPS433
+            _tsl.record(chat_id=cid, topic_id=body.get("message_thread_id"),
+                        text=body_text, stream="center", ok=data is not None)
+        except Exception:  # noqa: BLE001
+            pass
         if data is None:
             return None
         mid = _coerce_id((data.get("result") or {}).get("message_id"))
