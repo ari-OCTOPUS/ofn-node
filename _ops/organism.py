@@ -645,9 +645,24 @@ def main() -> int:
                     try:
                         _hw_every = int(os.environ.get("CHRONO_HEART_WIRES_EVERY_N_BEATS", "60"))
                         _hw_beat = int(_cstat.get("beat", 0) or 0)
-                        if _hw_every > 0 and _hw_beat > 0 and _hw_beat % _hw_every == 0:
+                        # ۲۰۲۶-۰۷-۲۶، پیش‌بینیِ ردشده: نسخهٔ اول `_hw_beat % _hw_every == 0`
+                        # بود و **هرگز شلیک نکرد**. beat حدودِ یک‌بار در دقیقه بالا می‌رود
+                        # ولی tick با کادنسِ خودش نمونه می‌گیرد، پس عددی که tick می‌بیند
+                        # از مضربِ دقیق می‌پرد. تساویِ باقیمانده روی شمارنده‌ای که
+                        # نمونه‌برداری‌اش دستِ تو نیست، شرطی است که می‌تواند بی‌صدا
+                        # هیچ‌وقت درست نشود — همان بیماریِ امروز، در قالبِ کادنس.
+                        # نشانگرِ «آخرین اجرا» + مقایسهٔ `>=` هرگز نمی‌پرد.
+                        _hw_mark = opslib.STATE_DIR / "heart-wires-last.json"
+                        try:
+                            _hw_last = int(json.loads(_hw_mark.read_text("utf-8")).get("beat", 0))
+                        except Exception:  # noqa: BLE001
+                            _hw_last = 0
+                        if _hw_every > 0 and _hw_beat > 0 and (_hw_beat - _hw_last) >= _hw_every:
                             import heart_wires as _hw
                             _hw.beat()
+                            _hw_mark.parent.mkdir(parents=True, exist_ok=True)
+                            _hw_mark.write_text(json.dumps(
+                                {"beat": _hw_beat, "ts": opslib.now_iso()}), encoding="utf-8")
                     except Exception as _hwe:  # noqa: BLE001 — پژوهش نباید tick را بکشد
                         opslib.alert([f"heart_wires beat (non-fatal): "
                                       f"{type(_hwe).__name__}: {_hwe}"])
