@@ -114,6 +114,22 @@ _langar_bridge_tried = False
 #
 # منبعِ حقیقتِ idها = همان center-config.json که خودِ مرکز می‌نویسد. کپی نمی‌کنیم،
 # چون دو نسخه از یک حقیقت دقیقاً همان بیماریِ b763adb است.
+# سقفِ سختِ تلگرام برای callback_data. کارتِ RFC این را می‌سازد:
+#     rfc:<verb>:<rfc_id>:<token>   →  len("rfc:merge:") + id + 1 + len(token)
+# طولانی‌ترین verb «merge» است و توکن ۲۴ کاراکترِ hex.
+CALLBACK_DATA_MAX = 64
+_RFC_CB_OVERHEAD = len("rfc:merge:") + 1 + 24
+
+
+def callback_fits(rfc_id: str, overhead: int = _RFC_CB_OVERHEAD) -> bool:
+    """آیا کارتِ این شناسه در سقفِ تلگرام جا می‌شود؟ (bytes، نه characters —
+    شناسهٔ غیرASCII در UTF-8 بزرگ‌تر از طولِ رشته‌اش است.)"""
+    try:
+        return len(str(rfc_id).encode("utf-8")) + int(overhead) <= CALLBACK_DATA_MAX
+    except (TypeError, ValueError, UnicodeError):
+        return False
+
+
 ROUTE_FLAG = "OCTOPUS_TG_ROUTE_TOPICS"
 _STREAM_TOPIC = {
     "heart": "system", "doctor": "system", "needs": "system", "summary": "system",
@@ -2557,6 +2573,18 @@ class TelegramApprovalChannel(ApprovalChannel):
         اعمالِ merge پشتِ flag و با human-append در مسیرِ doctor است (pop_rfc_verdicts).
         هیچ settle/gate اینجا نیست. not wired → False (no-opِ امن)."""
         if not self.wired:
+            return False
+        # سقفِ ۶۴ بایتِ callback_data (۲۰۲۶-۰۷-۲۶). کارت `rfc:<verb>:<rfc_id>:<token>`
+        # می‌سازد؛ رد شدن از سقف یعنی تلگرام **کلِ** sendMessage را ۴۰۰ می‌کند،
+        # `send_text` استثنا را می‌بلعد و False می‌دهد، و کارت بی‌هیچ ردی در هیچ لاگ
+        # گم می‌شود — کارتِ C6 دقیقاً یک شبانه‌روز همین‌طور ناپدید بود (۷۵ بایت).
+        # این چک عمداً **قبل از** mintِ توکن است: شناسهٔ غیرممکن نباید رکوردِ
+        # ماندگار و nonce بسوزاند. شکستِ بی‌صدا → شکستِ دیده‌شدنی.
+        if not callback_fits(rfc_id):
+            opslib.alert([
+                f"rfc_card: rfc_id طولش {len(str(rfc_id))} است و callback_data را از "
+                f"سقفِ {CALLBACK_DATA_MAX} بایت رد می‌کند — تلگرام کلِ پیام را رد "
+                f"می‌کند و کارت بی‌صدا گم می‌شود. کارت فرستاده نشد؛ شناسه را کوتاه کن."])
             return False
         # Refuse re-card before touching durable intent: an unconsumed owner verdict must
         # never be overwritten by a fresh SUBMITTED nonce.

@@ -156,6 +156,25 @@ def t_no_stream_still_goes_to_owner():
         _flag(False)
 
 
+def t_rfc_card_refuses_an_oversized_callback_loudly():
+    """۲۰۲۶-۰۷-۲۶: `rfc_id` بلند → `callback_data` > ۶۴ بایت → تلگرام کلِ پیام را
+    ۴۰۰ می‌کند → `send_text` استثنا را می‌بلعد → کارت بی‌هیچ ردی گم می‌شود.
+    گارد باید **قبل از ارسال** بایستد و alert بدهد، نه اینکه بی‌صدا False بدهد."""
+    p = Post()
+    ch = _chan(p)
+    alerts = []
+    orig = ac.opslib.alert
+    ac.opslib.alert = lambda msgs: alerts.append(list(msgs))
+    try:
+        ok = ch.rfc_card(rfc_id="c6-" + ("x" * 60), summary="خلاصه")
+        assert ok is False, "کارتِ خیلی بلند نباید ارسال شود"
+        assert not p.bodies, "هیچ درخواستی نباید به تلگرام برود"
+        assert alerts, "شکست باید دیده شود، نه بی‌صدا"
+        assert "64" in " ".join(alerts[0]), alerts
+    finally:
+        ac.opslib.alert = orig
+
+
 def t_every_stream_key_maps_to_a_real_topic_key():
     """گاردِ ضدِ typo: هر جریان باید به کلیدی اشاره کند که مرکز واقعاً می‌سازد."""
     import sys as _s

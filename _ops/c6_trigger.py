@@ -192,9 +192,14 @@ def c6_research_beat(*, state_dir: str, channel=None, beat: int = 0) -> dict:
     except Exception as _pe:  # noqa: BLE001 — producer نباید beat را بکشد
         opslib.alert([f"c6 producer failed (fail-soft): {type(_pe).__name__}: {_pe}"])
 
+    # کارتِ بدهکار قبل از هر چیز: این باید **بالاتر** از early-returnِ زیر باشد،
+    # چون دقیقاً همان early-return بود که کارتِ ۲۵ جولای را برای همیشه دفن کرد.
+    _redeliv = redeliver_undelivered_cards(channel)
+
     h = _pop_next_hypothesis()
     if h is None:
-        return {"ran": False, "reason": "no-pending-hypothesis"}
+        return {"ran": False, "reason": "no-pending-hypothesis",
+                "redelivered": _redeliv.get("sent", 0)}
 
     spec = _build_contract(h)
     try:
@@ -264,7 +269,9 @@ def c6_research_beat(*, state_dir: str, channel=None, beat: int = 0) -> dict:
     if _chan is not None and hasattr(_chan, "rfc_card"):
         try:
             cid = contract.get("contract_id", f"c6-{beat}")[:60]
-            delivered = _chan.rfc_card(rfc_id=f"c6-{cid}",
+            # `f"c6-{cid}"` با cid تا ۶۰ کاراکتر، callback را به ۹۸ بایت می‌بُرد
+            # (سقف ۶۴) → تلگرام ۴۰۰ می‌داد و کارت بی‌صدا گم می‌شد. 2026-07-26.
+            delivered = _chan.rfc_card(rfc_id=_short_rfc_id("c6", cid),
                                        summary=summary[:800])
         except Exception as e:  # noqa: BLE001 — کارت نباید beat را بکشد
             opslib.alert([f"c6 rfc_card delivery failed: {type(e).__name__}: {e}"])
@@ -286,7 +293,8 @@ def _derive_fns(h: dict, contract: dict):
     kind = str(h.get("kind", "micro_benchmark"))
     box: dict = {}
 
-    if kind == "mechanism_count":
+    # romajan_claim is mechanism_count with an explicit lab provenance label
+    if kind in ("mechanism_count", "romajan_claim"):
         probe = str(h.get("probe") or "")
         floor = int(h.get("floor", 0) or 0)
 
@@ -655,6 +663,132 @@ def _summarize(h: dict, result: dict, box: dict = None) -> str:
     return "\n".join(lines)
 
 
+REDELIVER_FLAG = "OCTOPUS_C6_REDELIVER"
+REDELIVER_CAP = 3          # سقفِ هر tick — صفِ عقب‌افتاده نباید به storm تبدیل شود
+
+# سقفِ callback_data در تلگرام ۶۴ بایت است. کارتِ RFC می‌سازد:
+#     rfc:<verb>:<rfc_id>:<token>   →  10 + len(rfc_id) + 1 + 24
+# پس rfc_id عملاً ≤ ۲۹ بایت. با `contract_id[:60]`ِ قبلی این ۹۸ بایت می‌شد و
+# تلگرام کلِ پیام را ۴۰۰ می‌کرد — `send_text` استثنا را می‌بلعید و False می‌داد،
+# بی‌هیچ ردی در هیچ لاگ. یعنی مسیرِ کارتِ C6 ساختاراً قادر به تحویل نبود.
+RFC_ID_MAX = 29
+
+
+def _short_rfc_id(prefix: str, raw: str) -> str:
+    """شناسهٔ کوتاه و پایدار که در سقفِ ۶۴ بایتِ callback جا شود.
+
+    پایدار (hash، نه شمارنده) تا بازفرستِ همان ردیف همان id را بدهد و گاردِ
+    ضدِ کارتِ تکراریِ `rfc_card` واقعاً کار کند."""
+    p = str(prefix or "c6")[:8]
+    h = hashlib.sha1(str(raw or "").encode("utf-8")).hexdigest()[:12]
+    return f"{p}-{h}"[:RFC_ID_MAX]
+
+
+def _redeliver_summary(row: dict) -> str:
+    """خلاصهٔ کارتِ بازفرست — فقط از چیزی که ردیف واقعاً نگه داشته.
+
+    `_summarize` به خروجیِ خامِ بنچ نیاز دارد و آن در صف ذخیره نمی‌شود، پس
+    بازسازیِ کلمه‌به‌کلمهٔ کارتِ اصلی ممکن نیست. به‌جای ساختنِ متنی که *انگار*
+    تازه است، تاریخِ واقعی را می‌گوید — وگرنه مالک یک نتیجهٔ کهنه را نو می‌خوانَد."""
+    done = str(row.get("done_at") or row.get("taken_at") or "")[:10]
+    verdict = str(row.get("verdict") or "?")
+    q = str(row.get("question") or row.get("hypothesis") or "").strip()
+    return (f"نتیجهٔ آزمایشی که در {done} تمام شد و کارتش آن روز به دستت نرسید.\n"
+            f"پرسش: {q[:420]}\n"
+            f"حکم: {verdict}")
+
+
+def _mark_card_delivered(hid: str) -> bool:
+    """فقط همین یک فیلد را true کن. الگوی read-modify-write مثل `_mark_hypothesis`
+    (صف append-only نیست — خودِ همین ماژول بازنویسی‌اش می‌کند)."""
+    if not QUEUE.exists() or not hid:
+        return False
+    try:
+        out, hit = [], False
+        for ln in QUEUE.read_text("utf-8").splitlines():
+            ln = ln.strip()
+            if not ln:
+                continue
+            try:
+                d = json.loads(ln)
+            except ValueError:
+                out.append(ln)
+                continue
+            if d.get("id") == hid:
+                d["card_delivered"] = True
+                d["card_delivered_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+                hit = True
+            out.append(json.dumps(d, ensure_ascii=False))
+        if hit:
+            QUEUE.write_text("\n".join(out) + "\n", encoding="utf-8")
+        return hit
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def pending_cards() -> list:
+    """ردیف‌هایی که آزمایششان تمام شده ولی کارتشان هرگز نرسید. read-only."""
+    if not QUEUE.exists():
+        return []
+    rows = []
+    try:
+        for ln in QUEUE.read_text("utf-8").splitlines():
+            if not ln.strip():
+                continue
+            try:
+                d = json.loads(ln)
+            except ValueError:
+                continue
+            if str(d.get("status") or "") == "DONE" and not d.get("card_delivered"):
+                rows.append(d)
+    except Exception:  # noqa: BLE001
+        return []
+    return rows
+
+
+def redeliver_undelivered_cards(channel=None, limit: int = REDELIVER_CAP) -> dict:
+    """کارتی که محاسبه شد ولی هرگز نرسید را دوباره بفرست.
+
+    چرا لازم شد (۲۰۲۶-۰۷-۲۶): مسیرِ تحویل از قبل وجود داشت و در `c6_research_beat`
+    صدا زده می‌شد — ولی **فقط وقتی یک فرضیهٔ PENDING باشد**. صف که خالی شد، beat
+    روی `no-pending-hypothesis` زودتر برمی‌گردد و ردیفِ `card_delivered:false`
+    برای همیشه آن‌جا می‌مانَد. یعنی اختاپوس یک آزمایشِ واقعی کرد، حکم داد، و
+    نتیجه‌اش را هرگز به مالک نگفت — و هیچ‌جا خطایی هم ثبت نشد.
+    (شکستِ اصلیِ ۲۵ جولای نبودِ `OCTOPUS_CB_SECRET` بود؛ حالا هست، پس بازفرست
+    واقعاً جواب می‌دهد — نه اینکه دوباره بی‌صدا False بگیرد.)
+
+    پیش‌فرض خاموش. هر خطا → گزارشِ شمرده، هرگز استثنا به بیرون."""
+    if str(os.environ.get(REDELIVER_FLAG, "") or "").strip().lower() not in (
+            "1", "true", "yes", "on"):
+        return {"ran": False, "reason": "flag-off"}
+    rows = pending_cards()
+    if not rows:
+        return {"ran": True, "pending": 0, "sent": 0}
+    _chan = channel
+    if _chan is None:
+        try:
+            import wiring as _wiring
+            _chan = _wiring.make_telegram_channel()
+        except Exception:  # noqa: BLE001
+            _chan = None
+    if _chan is None or not hasattr(_chan, "rfc_card"):
+        return {"ran": False, "pending": len(rows), "sent": 0, "reason": "no-channel"}
+    sent = failed = 0
+    for row in rows[:max(0, int(limit))]:
+        hid = str(row.get("id") or "")
+        try:
+            ok = bool(_chan.rfc_card(rfc_id=_short_rfc_id("c6re", hid),
+                                     summary=_redeliver_summary(row)[:800]))
+        except Exception as e:  # noqa: BLE001 — تحویل نباید beat را بکشد
+            opslib.alert([f"c6 redeliver failed: {type(e).__name__}: {e}"])
+            ok = False
+        if ok and _mark_card_delivered(hid):
+            sent += 1
+        else:
+            failed += 1
+    return {"ran": True, "pending": len(rows), "sent": sent, "failed": failed}
+
+
 def _mark_hypothesis(hid: str, verdict: str, delivered: bool, requeue: bool = False) -> None:
     """صف را با نتیجهٔ نهایی به‌روز کن. requeue=True یعنی نتیجه **نامعلوم** بود (خطای بنچ
     یا آلودگیِ outlier)، نه ابطال‌شده → ردیف با attemptِ +۱ دوباره PENDING می‌شود، تا
@@ -688,6 +822,7 @@ def _mark_hypothesis(hid: str, verdict: str, delivered: bool, requeue: bool = Fa
                     d["card_delivered"] = bool(delivered)
                     d["done_at"] = _now
                     _thesis_writeback(d)
+                    _romajan_seen_writeback(d)
             out.append(json.dumps(d, ensure_ascii=False))
         QUEUE.write_text("\n".join(out) + "\n", encoding="utf-8")
     except Exception:  # noqa: BLE001
@@ -707,6 +842,37 @@ def _thesis_writeback(row: dict) -> None:
         import thesis_queue as _tq  # noqa: WPS433
         _tq.record_from_c6(row)
     except Exception:  # noqa: BLE001 — دفترِ تز هرگز صف را نمی‌شکند
+        pass
+
+
+def _romajan_seen_writeback(row: dict) -> None:
+    """پس از DONE شدنِ فرضیهٔ romajan_*: id را به seen-set بنویس تا دوباره پیشنهاد نشود.
+
+    هر verdict ترمینال (accepted/rejected/…) کافی است — re-propose ممنوع است.
+    این FACT شدنِ claim نیست؛ فقط «دیگر از این id فرضیه نساز». fail-soft."""
+    try:
+        probe = str(row.get("probe") or "")
+        if not probe.startswith("romajan_"):
+            return
+        import c6_probes as _cp  # noqa: WPS433
+        ids = []
+        # prefer explicit claim ids carried on the row
+        for k in ("claim_ids", "romajan_ids", "new_ids"):
+            v = row.get(k)
+            if isinstance(v, list):
+                ids.extend(str(x) for x in v if str(x).strip())
+        # fallback: parse from baseline_detail / measured.detail "new=..."
+        if not ids:
+            detail = str(row.get("baseline_detail") or "")
+            m = row.get("measured") if isinstance(row.get("measured"), dict) else {}
+            detail = detail or str(m.get("detail") or "")
+            # if producer stored a single subject-hash id, still mark probe|subject
+            sid = str(row.get("id") or "").strip()
+            if sid:
+                ids.append(sid)
+        if ids:
+            _cp.mark_romajan_seen(ids)
+    except Exception:  # noqa: BLE001
         pass
 
 
