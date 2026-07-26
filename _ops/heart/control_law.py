@@ -95,8 +95,22 @@ def gather_inputs(beat: int = 0) -> dict:
                     stale = (dt.datetime.now() - t) > dt.timedelta(hours=SIGMA_STALE_H)
                 except ValueError:
                     stale = True
+            # ⚠️ ۲۰۲۶-۰۷-۲۶ — نامِ این کمیت گمراه‌کننده است و باید ثبت شود.
+            # `sigma_effective` در `replication.sigma_state()` تعریف می‌شود به‌عنوان
+            # **spawnهای تأییدشده ÷ سلول‌های فعال** — یک نرخِ جمعیتی. ولی گاردِ
+            # زیر (`sigma-stale` و ترمزِ target) آن را به‌عنوان «شکنندگیِ ساختاری»
+            # مصرف می‌کند، که کمیتِ دیگری است و در `doctor/spectral.py::
+            # estimate_sigma` از طیفِ لاپلاسینِ گرافِ رویداد حساب می‌شود.
+            # چون هیچ spawnی هرگز تأیید نشده، این مقدار ۰/۱=۰.۰ است و ساختاراً
+            # صفر می‌ماند: ۱۰۴۹ نمونه در `heart-params-shadow.jsonl` طیِ ۱۶ روز،
+            # همه دقیقاً صفر. یعنی ترمزِ شکنندگیِ قلب هرگز نمی‌تواند شلیک کند.
+            # `identity_equations` تنها خواننده‌ای بود که راست گفت — دنبالِ σِ
+            # دیگری گشت و `missing: ['sigma']` نوشت.
+            # کلیدها و مقادیر دست‌نخورده‌اند (صفر تغییرِ رفتار)؛ فقط منشأ صریح شد.
             sig = rep.get("sigma") or {}
             sigma = {"sigma": sig.get("sigma_effective"),
+                     "sigma_quantity": "approved_spawns_per_active_cell",
+                     "sigma_source": "replication-latest.json",
                      "zone": sig.get("zone"), "stale": stale, "ts": ts,
                      "spawn_approved": sig.get("spawn_approved"),
                      "parents": sig.get("parents"),

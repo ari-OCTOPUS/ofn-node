@@ -535,7 +535,22 @@ def main() -> int:
                     _neural_r = _w.neural_beat(_neural_stack, _beat_n, {
                         "rhythm": _rhythm_state or pulse.get("chrono", {}),
                         "budget": {"pct": opslib.usd(snap["month"].get("musd", 0)) / max(opslib.load_budgets().get("global", {}).get("cap_monthly", 30), 1)},
-                        "spectral": {"sigma": _last_sigma},
+                        # ⚠️ ۲۰۲۶-۰۷-۲۶ — این «spectral» نیست. `_last_sigma` از
+                        # `replication-latest.json` می‌آید (organism.py:586) و کمیتش
+                        # **spawnهای تأییدشده ÷ سلول‌های فعال** است، نه شکنندگیِ
+                        # ساختاری. σِ طیفیِ واقعی جای دیگری تولید می‌شود
+                        # (`doctor/spectral.py::estimate_sigma` از طیفِ لاپلاسینِ
+                        # گرافِ رویداد) و `identity_equations` آن را می‌جوید و
+                        # صادقانه `missing: ['sigma']` گزارش می‌کند.
+                        # چون هیچ spawnی تأیید نشده، این عدد ۰/۱=۰.۰ است و
+                        # **ساختاراً** صفر می‌ماند — ۱۰۴۹ نمونه طیِ ۱۶ روز، همه صفر.
+                        # نام دست‌نخورده می‌ماند تا رفتار بایت‌به‌بایت حفظ شود؛
+                        # `sigma_is_replication_ratio` اضافه شد تا هیچ خوانندهٔ
+                        # بعدی دوباره آن را شکنندگی نخواند. وصل‌کردنِ منبعِ درست
+                        # تغییرِ رفتارِ ایمنی است و رأیِ مالک می‌خواهد.
+                        "spectral": {"sigma": _last_sigma,
+                                     "sigma_is_replication_ratio": True,
+                                     "sigma_source": "replication-latest.json"},
                         "sensory": {"afferent_ratio": _last_afferent_ratio,
                                     "error_rate": _err_rate},
                     })

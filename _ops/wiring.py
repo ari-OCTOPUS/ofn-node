@@ -1044,9 +1044,19 @@ def _hebbian_signals(inputs: dict) -> list:
     mc = str(rhythm.get("mode_color") or "").upper()
     if mc in ("AMBER", "YELLOW", "RED"):      # سبز = عادی، خبر نیست
         sig.append(f"rhythm_{mc.lower()}")
-    s = _f(spectral, "sigma")
-    if s is not None and s >= 1.2:
-        sig.append("sigma_high")
+    # ⚠️ `spectral.sigma` عمداً **استفاده نمی‌شود**. ۲۰۲۶-۰۷-۲۶ ردیابی شد که آن
+    # مقدار از `replication-latest.json` می‌آید (organism.py:586) و کمیتش
+    # spawnهای تأییدشده ÷ سلول‌های فعال است، نه شکنندگی. چون هیچ spawnی تأیید
+    # نشده، ساختاراً صفر است: ۱۰۴۹ نمونه طیِ ۱۶ روز، همه صفر. سیگنالی که
+    # روی چنین مقداری سوار شود یا هرگز آتش نمی‌کند، یا — مثلِ `stable`ِ قدیمی
+    # که روی `sigma<0.8` بود — همیشه آتش می‌کند و ۲۲۳۵ بار یک ثابت را می‌شمارد.
+    # هر دو حالت یادگیری را روی چیزی آموزش می‌دهند که اطلاعات ندارد.
+    # وقتی قلب به σِ طیفیِ واقعی وصل شد (رأیِ مالک، شادو-اول)، این سیگنال
+    # برمی‌گردد — با آستانه‌ای که از دادهٔ واقعی کالیبره شده، نه از حدس.
+    if spectral.get("sigma_is_replication_ratio") is False:
+        s = _f(spectral, "sigma")
+        if s is not None and s >= 1.2:
+            sig.append("sigma_high")
     bp = _f(budget, "pct")
     if bp is None:
         bp = _f(budget, "used_pct")
