@@ -1112,7 +1112,22 @@ def neural_beat(neural_stack, beat: int, snap_inputs: dict | None = None) -> dic
             budget=inputs.get("budget"))
         # hebbian observe
         signals = _hebbian_signals(inputs)
-        if signals:
+        # ۲۰۲۷-۰۷-۲۷، مشاهدهٔ زنده بعد از ری‌استارت: جدول سه دقیقه **کاملاً ثابت**
+        # ماند — نه رشد، نه decay. علت: `observe()` روی جفت‌ها حلقه می‌زند، پس با
+        # **یک** سیگنالِ تنها صفر جفت ثبت می‌کند؛ و چون `signals` خالی نیست، شاخهٔ
+        # else هرگز به decay نمی‌رسد. نتیجه: یک انحرافِ تنها نه یاد می‌گیرد نه
+        # فراموش می‌کند، و هر جفتِ کهنه برای همیشه روی strength کامل زنده می‌ماند.
+        # همین است که `green_mode`+`stable` روی 1.0 مانده با اینکه ۱۶ روز است
+        # دیگر دیده نشده.
+        # با واژگانِ همیشه‌روشنِ قدیمی این هرگز دیده نمی‌شد چون دو سیگنال همیشه
+        # با هم می‌آمدند؛ واژگانِ انحراف-محور رونمایی‌اش کرد.
+        # درستش الگوی متعارفِ هبی است: **decay پیوسته، تقویت رویدادمحور.**
+        # فقط در حالتِ rich تغییر می‌کند؛ مسیرِ قدیمی بایت‌به‌بایت دست‌نخورده.
+        if flag("OCTOPUS_HEBBIAN_RICH"):
+            neural_stack["hebbian"].decay()       # هر تیک، چه سیگنالی باشد چه نه
+            if len(set(signals or [])) >= 2:      # جفت فقط با ≥۲ انحرافِ هم‌زمان
+                neural_stack["hebbian"].observe(signals)
+        elif signals:
             neural_stack["hebbian"].observe(signals)
         else:
             neural_stack["hebbian"].decay()   # use-it-or-lose-it: بی‌سیگنال = تضعیفِ تدریجی + prune

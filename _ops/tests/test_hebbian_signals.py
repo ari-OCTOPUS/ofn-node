@@ -149,6 +149,61 @@ def t_a_state_that_never_changes_produces_no_new_pairs():
         _rich(False)
 
 
+# ─── حملهٔ ۵: نه یاد بگیرد نه فراموش کند (مشاهدهٔ زندهٔ ۲۰۲۶-۰۷-۲۷) ─────────
+def t_a_lone_deviation_must_still_decay_old_pairs():
+    """بعد از ری‌استارت جدول سه دقیقه کاملاً ثابت ماند. علت: `observe()` روی
+    جفت‌ها حلقه می‌زند پس یک سیگنالِ تنها صفر جفت ثبت می‌کند، و چون `signals`
+    خالی نیست شاخهٔ else هرگز به decay نمی‌رسد. نتیجه: جفتِ کهنه برای همیشه
+    روی strength کامل زنده می‌ماند — `green_mode`+`stable` روی 1.0 با آخرین
+    مشاهدهٔ ۱۶ روز پیش.
+    این تست منطقِ فراخوان را مستقیم بازسازی می‌کند، چون آن منطق داخلِ
+    neural_beat است و اینجا قابلِ فراخوانی نیست."""
+    import os as _os
+
+    class FakeHebb:
+        def __init__(self):
+            self.observed, self.decayed = [], 0
+
+        def observe(self, sig):
+            self.observed.append(list(sig))
+
+        def decay(self):
+            self.decayed += 1
+
+    def call(signals, rich):
+        h = FakeHebb()
+        if rich:
+            h.decay()
+            if len(set(signals or [])) >= 2:
+                h.observe(signals)
+        elif signals:
+            h.observe(signals)
+        else:
+            h.decay()
+        return h
+
+    # حالتِ واقعیِ ۲۰۲۶-۰۷-۲۷: یک انحرافِ تنها
+    old = call(["budget_depleted"], rich=False)
+    assert old.decayed == 0 and old.observed == [["budget_depleted"]],         "بازسازیِ رفتارِ قدیمی درست نیست"
+    new = call(["budget_depleted"], rich=True)
+    assert new.decayed == 1, "با یک انحرافِ تنها هم باید decay بدود"
+    assert new.observed == [], "یک سیگنال جفت نیست — نباید observe شود"
+
+    # دو انحرافِ هم‌زمان: هم decay هم تقویت
+    two = call(["errors_high", "rhythm_amber"], rich=True)
+    assert two.decayed == 1 and two.observed == [["errors_high", "rhythm_amber"]]
+
+    # سکوتِ کامل: فقط decay
+    quiet = call([], rich=True)
+    assert quiet.decayed == 1 and quiet.observed == []
+
+
+def t_duplicate_signals_do_not_fake_a_pair():
+    """اگر روزی واژگان سیگنالِ تکراری بدهد، `set()` باید جلوی جفتِ جعلی را
+    بگیرد — وگرنه یک انحراف با خودش جفت می‌شود."""
+    assert len(set(["budget_tight", "budget_tight"])) == 1
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)
