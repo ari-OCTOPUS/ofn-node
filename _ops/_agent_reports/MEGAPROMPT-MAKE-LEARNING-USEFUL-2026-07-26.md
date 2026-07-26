@@ -17,6 +17,27 @@ You are continuing work on a Persian-language agent-first Obsidian vault at
 F:\backup which also runs a live "organism" (_ops/). One job, one deliverable.
 
 ════════════════════════════════════════════════════════════════════
+§-1 — PREAMBLE: yesterday's load-bearing error. Learn from it first.
+════════════════════════════════════════════════════════════════════
+Yesterday an agent (WS-2) "confirmed" by grep that `OCTOPUS_WIRE_NEURAL` is
+absent from OCTOPUS-flags.cmd and concluded: the brain is off. **That was
+wrong.** In this codebase absence means ON (§2). Two other readers, including
+the owner's own audit, inherited the same conclusion.
+
+The lesson is not "grep carefully". It is: **when your tool disagrees with the
+system's mechanism, the tool still returns a clean pass and the answer is still
+wrong.** grep for a flag's presence is the wrong instrument for the question
+"is this on".
+
+So for EVERY flag you reason about, use three sources:
+  1. parse flags.cmd yourself — `re.findall(r'^\s*set\s+(\w+)=(.*)$', raw, re.M)`
+  2. check whether the key is in `wiring.PAPER_FULL_FLAGS` (absence there means
+     the profile will NOT raise it, so absence in flags.cmd really is off)
+  3. mtime-check the artifact the feature writes, against
+     `state/ORGANISM-STATE.code.booted`
+If the three disagree, STOP and write it into 00 - Inbox/AGENT_QUESTIONS.md.
+
+════════════════════════════════════════════════════════════════════
 §0 — HARD RULES. Violating one invalidates your work.
 ════════════════════════════════════════════════════════════════════
  1. NEVER DELETE. Only move. Retired -> _Archive.
@@ -157,6 +178,36 @@ If the rate is too low, the correct deliverable may be a REPLAY: feed the
 historical series through `_hebbian_signals()` offline and build the table from
 data that already exists. That is legitimate and much faster. It is also the
 only way to get a baseline without waiting.
+
+**THE REPLAY TRAP.** `_hebbian_signals()` now emits a deviation-only vocabulary,
+but every historical series on disk was recorded while the OLD two-word
+vocabulary was running. Replaying old raw sensors through the new function
+produces signals that were **never actually emitted** — it reconstructs a
+counterfactual past, not a measured one. The underlying sensor readings are real;
+the signals derived from them are not history.
+If you do it, label the output **synthetic-by-replay, not measured**, everywhere
+it appears, and list it in §4 of your report (could-not-determine). A
+counterfactual baseline is useful for sizing and useless as evidence that the
+learned decision was better — do not let it cross that line.
+
+**AND THE OBVIOUS ALTERNATIVE IS EMPTY.** "Just count data written after commit
+e7f7d42" yields exactly zero rows: `OCTOPUS_HEBBIAN_RICH` is absent from
+flags.cmd **and** absent from `wiring.PAPER_FULL_FLAGS` (VERIFIED 2026-07-26),
+so unlike the neural flags its absence really does mean off, and the rich
+vocabulary has never run. There is no post-commit data and there will be none
+until someone arms that flag and the organism restarts.
+So your honest options are exactly three, and you must state which you chose:
+  (a) ask the owner to arm OCTOPUS_HEBBIAN_RICH, restart, and wait — real data,
+      slow, and the horizon is what §5 asks you to estimate
+  (b) replay, clearly labelled synthetic-by-replay — fast, sizing only
+  (c) both, kept strictly separate and never pooled into one number
+
+**ONE MORE LIVE DATUM YOU SHOULD KNOW.** As of 19:30 on 2026-07-26,
+`neural/hebbian.json` is being REWRITTEN every tick while `co_occurrences` stays
+frozen at 2235. That is `decay()` running: even the OLD two-word vocabulary is
+emitting nothing right now, because the organism is currently neither
+rhythm GREEN nor sigma<0.8. A fresh mtime is not evidence of learning. Check the
+counter, not the timestamp — the same mistake in a smaller costume.
 
 ════════════════════════════════════════════════════════════════════
 §6 — GOTCHAS THAT COST REAL TIME. Read or repeat them.
