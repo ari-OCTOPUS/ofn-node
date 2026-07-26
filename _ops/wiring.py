@@ -2677,18 +2677,26 @@ def discovery_nudge_beat(channel=None, beat: int = 0) -> dict | None:
     try:
         _syspath(str(_HERE / "cortex"))
         import discoveries
-        n = discoveries.unseen_count()
+        # ۲۰۲۶-۰۷-۲۶ پشتِ فلگ: «چند تا از آخرین باری که خبر دادم» به‌جای «چند تا از
+        # آخرین باری که مالک کلیک کرد». نشانگرِ SEEN فقط با کلیک جلو می‌رود، پس
+        # بدونِ کلیک همان انبار هر بار دوباره اعلام می‌شد. flag خاموش = رفتارِ امروز.
+        _delta = str(os.environ.get("OCTOPUS_DISCOVERY_NUDGE_DELTA", "")).strip().lower() \
+            in ("1", "true", "yes", "on")
+        n = discoveries.unseen_since_nudge() if _delta else discoveries.unseen_count()
         if n <= 0:
-            return {"n": 0, "sent": False}
+            return {"n": 0, "sent": False, "delta_mode": _delta}
         sent = False
         if channel is not None and getattr(channel, "wired", False):
             preview = "\n".join(discoveries.lines(3))
             kb = {"inline_keyboard": [[
                 {"text": "📚 ببین چی یاد گرفتم", "callback_data": "menu:learned"}]]}
-            sent = bool(_send_stream(channel, 
+            sent = bool(_send_stream(channel,
                 f"🔍 <b>{n} چیزِ جدید یاد گرفتم!</b>\n──────────\n{preview}", kb,
                     stream="discovery"))
-        return {"n": n, "sent": sent}
+        # علامت فقط روی ارسالِ موفق — نوتیفِ نرسیده نباید دفن شود.
+        if sent and _delta:
+            discoveries.mark_nudged()
+        return {"n": n, "sent": sent, "delta_mode": _delta}
     except Exception as e:  # noqa: BLE001 — نوتیف نباید tick را بکشد
         opslib.alert([f"wiring: discovery_nudge خطا: {type(e).__name__}: {e}"])
         return None

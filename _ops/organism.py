@@ -634,6 +634,23 @@ def main() -> int:
                             channel=_chan, beat=_cstat.get("beat", 0) if _cstat else 0)
                     except Exception as _c6e:  # noqa: BLE001 — §۴: c6 نباید tick را بکشد
                         opslib.alert([f"c6_research_beat error (non-fatal): {type(_c6e).__name__}: {_c6e}"])
+                # ۲۰۲۶-۰۷-۲۶ — ضربانِ اندام‌های پژوهش. `heart_wires.beat()` نوشته شده
+                # بود «از organism یا cron هر N beat صدا زده شود» ولی **هیچ‌جا صدا زده
+                # نمی‌شد**: صفر فراخوان در کلِ مخزن جز تست. یعنی تز/انسجام/هویت/
+                # seed-killer فقط وقتی /live یا /id صدایشان می‌زد اجرا می‌شدند و
+                # فلگ‌های روشنشان ضربانِ دوره‌ای نداشتند — و ردیفِ `seed-` هرگز کشته
+                # نشد. هر wire خودش گیتِ فلگِ خودش را دارد؛ اینجا فقط کادنس اضافه
+                # می‌شود چون coherence روی state گران است. پیش‌فرض خاموش.
+                if _w.flag("OCTOPUS_WIRE_HEART_WIRES") and _cstat is not None:
+                    try:
+                        _hw_every = int(os.environ.get("CHRONO_HEART_WIRES_EVERY_N_BEATS", "60"))
+                        _hw_beat = int(_cstat.get("beat", 0) or 0)
+                        if _hw_every > 0 and _hw_beat > 0 and _hw_beat % _hw_every == 0:
+                            import heart_wires as _hw
+                            _hw.beat()
+                    except Exception as _hwe:  # noqa: BLE001 — پژوهش نباید tick را بکشد
+                        opslib.alert([f"heart_wires beat (non-fatal): "
+                                      f"{type(_hwe).__name__}: {_hwe}"])
             # ── W-2: Doctor beat (غیرضروری → زیرِ همان گیت؛ STOP/protective مقدم)
             _doctor_result = None
             if not _protective_skip and _doctor_inst is not None and _cstat is not None:

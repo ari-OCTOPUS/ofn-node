@@ -116,6 +116,113 @@ def t_f_discovery_nudge_respects_killswitch():
         os.environ.pop("OCTOPUS_WIRE_NEEDS_NUDGE", None)
 
 
+def _iso_discovery_files():
+    """snapshot/restore سه فایلِ کشف — تستِ من نباید حالتِ تستِ دیگر را بشوید.
+
+    اولین نسخهٔ این تست‌ها فایل‌ها را پاک می‌کرد و چون الفبایی جلوتر بود،
+    `t_a_record_recent_unseen_seen` را می‌شکست. تستِ وابسته به ترتیب همان
+    بیماریِ «نتیجه‌ای که به چیزی نگفته وابسته است» در لباسِ کندتر است."""
+    import discoveries as d
+    saved = {}
+    for f in (d.LOG, d.SEEN, d.NUDGED):
+        saved[f] = f.read_bytes() if f.exists() else None
+        if f.exists():
+            f.unlink()
+    return saved
+
+
+def _restore_discovery_files(saved, epoch=None):
+    """فایل‌ها **و** حالتِ ماژول را برگردان.
+
+    نسخهٔ دوم هم ناقص بود: فایل‌ها را برمی‌گرداند ولی
+    `wiring._DISCOVERY_STATE["last_epoch"]` را نه — و همان باعث شد
+    `t_e_discovery_nudge_only_on_new_and_gated` با beatِ یکسان زودتر برگردد و
+    None بدهد. حالتِ ماژول هم حالتِ مشترک است."""
+    if epoch is not None:
+        try:
+            import wiring as _w
+            _w._DISCOVERY_STATE["last_epoch"] = epoch
+        except Exception:  # noqa: BLE001
+            pass
+    for f, blob in saved.items():
+        if blob is None:
+            if f.exists():
+                f.unlink()
+        else:
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_bytes(blob)
+
+
+# ─── «به تو گفتم» ≠ «تو نگاه کردی» (2026-07-26) ─────────────────────────────
+def t_nudge_marker_is_separate_from_the_seen_marker():
+    """`mark_seen` تنها از کلیکِ دکمه صدا زده می‌شود (تنها فراخوانش در
+    approval_channel است). پس بدونِ کلیک، `unseen_count` بی‌نهایت رشد می‌کند و
+    همان انبار دوباره اعلام می‌شود. اندازه‌گیریِ زنده ۲۰۲۶-۰۷-۲۶: نشانگر از
+    ۲۰۲۶-۰۷-۱۹ تکان نخورده بود و شمارنده روی ۱۰ بود."""
+    import discoveries as d
+    saved = _iso_discovery_files()
+    try:
+        d.record("learn", "الف")
+        d.record("learn", "ب")
+        assert d.unseen_count() == 2 and d.unseen_since_nudge() == 2
+        d.mark_nudged()
+        assert d.unseen_since_nudge() == 0, "بعد از خبر دادن باید صفر شود"
+        assert d.unseen_count() == 2, "کلیکِ مالک نیامده — SEEN نباید تکان بخورد"
+        d.record("learn", "ج")
+        assert d.unseen_since_nudge() == 1, "فقط کشفِ تازه باید شمرده شود"
+        assert d.unseen_count() == 3
+        d.mark_seen()
+        assert d.unseen_count() == 0, "کلیک باید SEEN را جلو ببرد"
+    finally:
+        _restore_discovery_files(saved)
+
+
+def t_delta_flag_off_keeps_todays_behaviour():
+    import discoveries as d
+    import wiring
+    saved = _iso_discovery_files()
+    _epoch0 = wiring._DISCOVERY_STATE["last_epoch"]
+    d.record("learn", "الف")
+    os.environ["OCTOPUS_WIRE_NEEDS_NUDGE"] = "1"
+    os.environ.pop("OCTOPUS_DISCOVERY_NUDGE_DELTA", None)
+    try:
+        wiring._DISCOVERY_STATE["last_epoch"] = 0
+        r = wiring.discovery_nudge_beat(None, beat=480)
+        assert r and r["delta_mode"] is False and r["n"] == 1, r
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_NEEDS_NUDGE", None)
+        _restore_discovery_files(saved, epoch=_epoch0)
+
+
+def t_a_failed_nudge_does_not_bury_the_backlog():
+    """علامتِ «خبر دادم» فقط بعد از ارسالِ موفق — وگرنه یک نوتیفِ نرسیده برای
+    همیشه دفن می‌شود، همان الگویی که کارتِ C6 را یک شبانه‌روز پنهان کرد."""
+    import discoveries as d
+    import wiring
+
+    class Dead:
+        wired = True
+
+        def send_text(self, text, reply_markup=None, chat_id=None, stream=None):
+            return False
+
+    saved = _iso_discovery_files()
+    _epoch0 = wiring._DISCOVERY_STATE["last_epoch"]
+    d.record("learn", "الف")
+    os.environ["OCTOPUS_WIRE_NEEDS_NUDGE"] = "1"
+    os.environ["OCTOPUS_DISCOVERY_NUDGE_DELTA"] = "1"
+    try:
+        wiring._DISCOVERY_STATE["last_epoch"] = 0
+        r = wiring.discovery_nudge_beat(Dead(), beat=480)
+        assert r and r["sent"] is False, r
+        assert not d.NUDGED.exists(), "ارسالِ ناموفق نباید نشانگر را جلو ببرد"
+        assert d.unseen_since_nudge() == 1, "بک‌لاگ باید سرِ جایش بماند"
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_NEEDS_NUDGE", None)
+        os.environ.pop("OCTOPUS_DISCOVERY_NUDGE_DELTA", None)
+        _restore_discovery_files(saved, epoch=_epoch0)
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

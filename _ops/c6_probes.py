@@ -523,21 +523,30 @@ def _probe_cmd_lone_lf() -> dict:
 
 
 def _probe_discovery_seen_lag() -> dict:
-    """چند روز است که کشف‌ها نوشته می‌شوند ولی نشانگرِ «دیده‌شد» تکان نخورده؟
+    """چند روز است کشف‌ها نوشته می‌شوند ولی خط لولهٔ اعلام تکان نخورده؟
 
-    ۲۰۲۶-۰۷-۲۶ اندازه‌گیری شد: discoveries.jsonl همان روز نوشته شده بود و
-    discoveries-seen.json از ۲۰۲۶-۰۷-۱۹ — هفت روز فاصله.
+    ۲۰۲۶-۰۷-۲۶، نسخهٔ اول: نشانگرِ `discoveries-seen.json` را می‌سنجید و ۶ روز
+    تأخیر دید. ریشه‌یابی نشان داد آن نشانگر **فقط با کلیکِ مالک** جلو می‌رود
+    (تنها فراخوانِ `mark_seen` در `approval_channel` است) — یعنی پروب داشت
+    «مالک کلیک نکرده» را به‌عنوانِ نقصِ سیستم گزارش می‌کرد. توجهِ مالک نقصی
+    نیست که ارگانیسم بتواند تعمیرش کند.
+
+    حالا `discoveries-nudged.json` را ترجیح می‌دهد: «آیا اعلام کردم؟» — که
+    واقعاً سلامتِ لوله است. نبودِ آن نشانگر → برگشت به رفتارِ قبلی، چون تا
+    فلگِ delta روشن نشود ساخته نمی‌شود.
     """
     try:
         a = opslib.STATE_DIR / "discoveries.jsonl"
-        b = opslib.STATE_DIR / "discoveries-seen.json"
         if not a.exists():
             return {"count": -1, "unit": "day", "detail": "discoveries.jsonl غایب"}
+        nudged = opslib.STATE_DIR / "discoveries-nudged.json"
+        seen = opslib.STATE_DIR / "discoveries-seen.json"
+        b, which = (nudged, "nudge") if nudged.exists() else (seen, "seen(legacy)")
         if not b.exists():
-            return {"count": -1, "unit": "day", "detail": "نشانگرِ seen هرگز ساخته نشده"}
+            return {"count": -1, "unit": "day", "detail": "هیچ نشانگری ساخته نشده"}
         lag_days = (a.stat().st_mtime - b.stat().st_mtime) / 86400.0
         return {"count": max(0, int(lag_days)), "unit": "day",
-                "detail": f"discoveries newer than seen-marker by {lag_days:.2f}d"}
+                "detail": f"discoveries newer than {which}-marker by {lag_days:.2f}d"}
     except Exception as e:  # noqa: BLE001
         return {"count": -1, "unit": "day", "detail": f"probe-failed:{type(e).__name__}"}
 
