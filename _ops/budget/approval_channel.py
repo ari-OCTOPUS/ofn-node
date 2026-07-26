@@ -459,7 +459,16 @@ class TelegramApprovalChannel(ApprovalChannel):
                 text = cbq.get("data") or ""
             else:
                 text = msg.get("text") or ""
-            from_id = (msg.get("from") or cbq.get("from") or {}).get("id")
+            # 🐛 ۲۰۲۶-۰۷-۲۶ — گزارشِ مالک: «کلیک می‌کنم تأیید، می‌گوید فقط مالک».
+            # برای یک callback، `msg` همان `cbq["message"]` است — یعنی **کارتی که خودِ
+            # بات فرستاده** — پس `msg["from"]` همیشه پر است و شناسهٔ *بات* را می‌دهد.
+            # فرمِ قبلی هرگز به `cbq["from"]` (که خودِ کلیک‌کننده است) نمی‌رسید، پس هر
+            # کلیک به بات نسبت داده می‌شد و `_callback_owner_ok` آن را رد می‌کرد.
+            # نتیجهٔ ساختاری: گیتِ fail-closed برای callbackها **همیشه** بسته بود — و
+            # همین توضیح می‌دهد چرا جدولِ rfc_decision در کلِ تاریخِ سیستم صفر ردیف
+            # دارد. کنشگرِ یک callback همیشه `cbq["from"]` است، هرگز فرستندهٔ پیام.
+            from_id = ((cbq.get("from") if is_callback else None)
+                       or msg.get("from") or {}).get("id")
             cbq_id = cbq.get("id")  # callback_query ID برای answerCallbackQuery
 
             # allowlist: chat_idهای مجاز (owner + گروه‌های TELEGRAM_ALLOWED_CHAT_IDS).

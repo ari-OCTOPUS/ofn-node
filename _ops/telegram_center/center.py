@@ -708,6 +708,7 @@ class Center:
             # و اگر needs_mission بود، به مأموریتِ گیت‌شده ارتقا می‌دهد — فقط پیشنهاد، اجرا همچنان
             # پشتِ همان گیت (autonomy_matrix دوباره چک می‌کند؛ مدل هرگز گیت را پایین نمی‌آورد).
             # flag خاموش → این بلوک هیچ اجرا نمی‌شود؛ مسیرِ امروز بایت‌به‌بایت.
+            _brain_busy = ""
             if mt == "general":
                 try:
                     import llm_intent as _li
@@ -715,6 +716,14 @@ class Center:
                         _u = _li.understand(text)
                         if isinstance(_u, dict) and _u.get("ok") and _u.get("needs_mission"):
                             mt = "self_coding" if _u.get("intent") == "code" else "verification"
+                        elif isinstance(_u, dict) and not _u.get("ok"):
+                            # ۲۰۲۶-۰۷-۲۶: مغزِ محلی بینِ دو call فاصلهٔ اجباری دارد
+                            # (OLLAMA_MIN_INTERVAL_S، زندهْ ۲۰ثانیه — گاردِ انصافِ GPU).
+                            # پیامِ دومِ مالک در آن پنجره بی‌صدا به «متوجه نشدم» سقوط
+                            # می‌کرد: بات «احمقم» می‌گفت درحالی‌که حقیقت «مشغولم» بود.
+                            # اینجا فقط *علت* نگه داشته می‌شود تا کارت راست بگوید؛
+                            # هیچ گاردی دور زده نمی‌شود.
+                            _brain_busy = str(_u.get("reason") or "")
                 except Exception:  # noqa: BLE001 — فهمِ LLM هرگز مسیرِ بات را نمی‌کشد
                     pass
             if mt != "general":
@@ -769,7 +778,7 @@ class Center:
             elif it == "approvals":
                 out = self._page("ap")
             else:
-                out = self._ask_unknown_card()
+                out = self._ask_unknown_card(_brain_busy)
             txt, kb = out if isinstance(out, tuple) else (str(out or ""), None)
             mid = self._client.send(_scrub(txt), chat_id=chat_id, keyboard=kb,
                                     topic_id=self._reply_thread(msg))
@@ -821,8 +830,18 @@ class Center:
         return rows
 
     @staticmethod
-    def _ask_unknown_card() -> tuple:
-        text = "🐙 متوجه نشدم. منظورت یکی از این‌هاست؟"
+    def _ask_unknown_card(brain_busy: str = "") -> tuple:
+        """کارتِ «نفهمیدم» — ولی وقتی *نفهمیدن* واقعاً *نرسیدن به مغز* بوده،
+        همان را بگو. «متوجه نشدم» در آن حالت دروغِ کوچکی است که مالک را به این
+        نتیجه می‌رساند که بات کودن است، درحالی‌که فقط پنجرهٔ ۲۰ثانیه‌ایِ مغزِ
+        محلی هنوز باز نشده. (۲۰۲۶-۰۷-۲۶)"""
+        if brain_busy in ("llm-no-answer", "llm-error", "router-unavailable"):
+            text = ("🧠 <b>مغزم چند ثانیه دیگر آزاد می‌شود</b>\n"
+                    "▸ حرفت را نفهمیدم چون نرسید به مغز، نه چون بی‌معنی بود\n"
+                    "▸ نکنی: همین‌طور می‌ماند — دوباره بفرست، همان جمله کافی است\n"
+                    "<i>یا از این‌ها یکی را بزن:</i>")
+        else:
+            text = "🐙 متوجه نشدم. منظورت یکی از این‌هاست؟"
         kb = [[{"text": "📊 وضعیت", "callback_data": "mn:st"},
                {"text": "🧭 تصمیم‌ها", "callback_data": "mn:ap"}],
               [{"text": "🦵 مکث/ادامه پاها", "callback_data": "mn:lg"},
