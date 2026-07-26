@@ -1254,6 +1254,30 @@ _TG_EXEC_KNOWN = frozenset({"doctor", "consolidate", "school", "ideas", "ingest"
 _TG_EXEC_MAX_PER_BEAT = 5
 
 
+def _supports_stream(fn) -> bool:
+    """آیا این پیاده‌سازیِ send_text آرگومانِ `stream` را می‌فهمد؟
+
+    چرا لازم است: `stream` (۲۰۲۶-۰۷-۲۶) فقط در TelegramApprovalChannel هست، ولی
+    این توابع هر channel-مانندی را می‌پذیرند. بدونِ این چک، یک پیاده‌سازیِ قدیمی
+    TypeError می‌داد و try/exceptِ خودِ beat آن را می‌بلعید — یعنی نوتیف بی‌صدا
+    گم می‌شد و تست هم سبز می‌ماند. بررسیِ صریحِ امضا به‌جای بلعیدنِ استثنا."""
+    try:
+        import inspect
+        params = inspect.signature(fn).parameters
+        return "stream" in params or any(
+            p.kind is inspect.Parameter.VAR_KEYWORD for p in params.values())
+    except (TypeError, ValueError):
+        return False
+
+
+def _send_stream(channel, text, kb=None, stream=None):
+    """ارسال به تاپیکِ جریان اگر ممکن باشد، وگرنه دقیقاً مثلِ قبل به DM.
+    استثنا را نمی‌بلعد — try/exceptِ خودِ beat مسئولِ آن است."""
+    if stream and _supports_stream(getattr(channel, "send_text", None)):
+        return channel.send_text(text, kb, stream=stream)
+    return channel.send_text(text, kb)
+
+
 def _tg_ack(channel, text):
     if channel is None:
         return
@@ -2428,8 +2452,9 @@ def needs_nudge_beat(channel=None, beat: int = 0) -> dict | None:
             body = "\n".join(f"• {it}" for it in d["items"])
             kb = {"inline_keyboard": [[
                 {"text": "📌 الان — کارای من", "callback_data": "menu:now"}]]}
-            sent = bool(channel.send_text(
-                f"🔔 <b>نیازت دارم</b> ({d['n']})\n──────────\n{body}", kb))
+            sent = bool(_send_stream(channel, 
+                f"🔔 <b>نیازت دارم</b> ({d['n']})\n──────────\n{body}", kb,
+                    stream="needs"))
             if sent:
                 with opslib.LockedJson(st_path) as lj:
                     lj.write({"last_hash": d["hash"], "last_ts": now,
@@ -2660,8 +2685,9 @@ def discovery_nudge_beat(channel=None, beat: int = 0) -> dict | None:
             preview = "\n".join(discoveries.lines(3))
             kb = {"inline_keyboard": [[
                 {"text": "📚 ببین چی یاد گرفتم", "callback_data": "menu:learned"}]]}
-            sent = bool(channel.send_text(
-                f"🔍 <b>{n} چیزِ جدید یاد گرفتم!</b>\n──────────\n{preview}", kb))
+            sent = bool(_send_stream(channel, 
+                f"🔍 <b>{n} چیزِ جدید یاد گرفتم!</b>\n──────────\n{preview}", kb,
+                    stream="discovery"))
         return {"n": n, "sent": sent}
     except Exception as e:  # noqa: BLE001 — نوتیف نباید tick را بکشد
         opslib.alert([f"wiring: discovery_nudge خطا: {type(e).__name__}: {e}"])
@@ -2732,7 +2758,8 @@ def doctor_digest_beat(channel=None, beat: int = 0) -> dict | None:
         if channel is not None and getattr(channel, "wired", False):
             kb = {"inline_keyboard": [[
                 {"text": "🩺 تبِ دکتر", "callback_data": "menu:doctor"}]]}
-            sent = bool(channel.send_text(d["text"], kb))
+            sent = bool(_send_stream(channel, d["text"], kb,
+                stream="doctor"))
             if sent:
                 _dialogue_mark("doctor/digest-nudge.json", d["hash"])
         return {"sent": sent, "rfc_open": d.get("rfc_open"), "beat": beat}
@@ -2769,7 +2796,8 @@ def brain_digest_beat(channel=None, beat: int = 0) -> dict | None:
             kb = {"inline_keyboard": [[
                 {"text": "🧠 تبِ مغز", "callback_data": "menu:brain"}]]}
             head = "🚨 تنشِ مغز 🔴 شد!\n" if red_flip else ""
-            sent = bool(channel.send_text(head + d["text"], kb))
+            sent = bool(_send_stream(channel, head + d["text"], kb,
+                stream="brain"))
             if sent:
                 _dialogue_mark("cortex/brain-digest-nudge.json", d["hash"])
         return {"sent": sent, "red_flip": red_flip,
@@ -2801,7 +2829,8 @@ def heart_card_beat(channel=None, beat: int = 0) -> dict | None:
         if channel is not None and getattr(channel, "wired", False):
             kb = {"inline_keyboard": [[
                 {"text": "📊 وضعیت", "callback_data": "menu:overview"}]]}
-            sent = bool(channel.send_text(d["text"], kb))
+            sent = bool(_send_stream(channel, d["text"], kb,
+                stream="heart"))
             if sent:
                 _dialogue_mark("pulse/heart-card-nudge.json", d["hash"])
         return {"sent": sent, "stalled": d.get("stalled"),

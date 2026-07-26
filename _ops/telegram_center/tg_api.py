@@ -331,6 +331,24 @@ class TgClient:
             return None
         return _coerce_id((data.get("result") or {}).get("message_thread_id"))
 
+    def edit_topic(self, topic_id, name: str, chat_id=None) -> bool:
+        """editForumTopic — نامِ یک تاپیکِ موجود را عوض می‌کند (رأیِ مالک، ۲۰۲۶-۰۷-۲۶).
+
+        `create_topic` فقط تاپیکِ نبوده را می‌سازد، پس بدونِ این متد تغییرِ
+        `display_names` در config هرگز روی تاپیک‌های ساخته‌شده دیده نمی‌شد —
+        یعنی config یک‌چیز می‌گفت و سایدبارِ تلگرام چیزِ دیگر: باز هم دو حقیقت.
+        not wired / نامِ خالی / id نامعتبر → False، صفر شبکه."""
+        if not self.wired():
+            return False
+        cid = self._resolve_chat(chat_id)
+        tid = _coerce_id(topic_id)
+        nm = _scrub(name)[:128].strip()
+        if cid is None or tid is None or not nm:
+            return False
+        data = self._call_post("editForumTopic",
+                               {"chat_id": cid, "message_thread_id": tid, "name": nm})
+        return bool(data)
+
     def set_commands(self, commands) -> bool:
         """setMyCommands از list[tuple[str, str]] = (command, description).
         فرمِ خراب/لیستِ خالی → False، صفر شبکه."""

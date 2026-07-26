@@ -106,6 +106,48 @@ _langar_bridge_dispatch_cache: "callable | None" = None
 _langar_bridge_tried = False
 
 
+# ── مسیریابیِ جریانِ محیطی به تاپیک (رأی مالک ۲۰۲۶-۰۷-۲۶) ────────────────────
+# مسئله‌ای که این حل می‌کند: ۶ تابعِ beat هر تیک به **DMِ مالک** می‌نویسند (قلب،
+# دکتر، مغز، نیازها) چون این ماژول اصلاً `message_thread_id` نداشت. نتیجه: DM پر و
+# ۹ تاپیکِ گروه خالی — یعنی جریانِ محیطی در کانالِ کمیاب‌ترین منبع (توجهِ مالک) و
+# کانالِ مرتب بی‌استفاده. اینجا فقط *مقصد* عوض می‌شود؛ محتوا و کادنس دست‌نخورده.
+#
+# منبعِ حقیقتِ idها = همان center-config.json که خودِ مرکز می‌نویسد. کپی نمی‌کنیم،
+# چون دو نسخه از یک حقیقت دقیقاً همان بیماریِ b763adb است.
+ROUTE_FLAG = "OCTOPUS_TG_ROUTE_TOPICS"
+_STREAM_TOPIC = {
+    "heart": "system", "doctor": "system", "needs": "system", "summary": "system",
+    "brain": "knowledge", "discovery": "knowledge", "map": "cartographer",
+}
+def _center_cfg_path() -> Path:
+    """مسیرِ configِ مرکز — از opslib.STATE_DIR، نه ثابتِ hardcode. دلیلش عملی است:
+    مسیرِ ثابت در تست به درختِ **زنده** می‌خورد و شواهد را آلوده می‌کند."""
+    return Path(opslib.STATE_DIR) / "telegram" / "center-config.json"
+
+
+def _stream_route(stream: str) -> tuple:
+    """(chat_id, topic_id) برای یک جریان — یا (None, None).
+
+    (None, None) یعنی «همان DMِ همیشگی». هر شکستی — فلگ خاموش، فایلِ نبود، JSONِ
+    خراب، تاپیکِ ساخته‌نشده — به DM برمی‌گردد و **هرگز به سکوت**. گم‌شدنِ پیام
+    بدتر از پیامِ در جای اشتباه است."""
+    if str(os.environ.get(ROUTE_FLAG, "") or "").strip().lower() not in (
+            "1", "true", "yes", "on"):
+        return (None, None)
+    key = _STREAM_TOPIC.get(str(stream or ""))
+    if not key:
+        return (None, None)
+    try:
+        cfg = json.loads(_center_cfg_path().read_text("utf-8"))
+        chat = cfg.get("chat_id")
+        tid = (cfg.get("topics") or {}).get(key)
+        if isinstance(chat, int) and isinstance(tid, int):
+            return (chat, tid)
+    except (OSError, ValueError, TypeError, AttributeError):
+        pass
+    return (None, None)
+
+
 def langar_bridge_dispatch(text: str, chat_id=None, owner=None):
     """accessor در سطحِ ماژول: langar_bridge.dispatch را lazy بارگذاری و صدا بزن.
     شکستِ import/Dispatch → None (fail-soft). رباتِ واحد برای بقیه کار می‌کند."""
@@ -1338,15 +1380,24 @@ class TelegramApprovalChannel(ApprovalChannel):
     }
 
     def send_text(self, text: str, reply_markup: dict | None = None,
-                  chat_id: int | None = None) -> bool:
+                  chat_id: int | None = None, stream: str | None = None) -> bool:
         """پیامِ ساده (یا با کیبورد). مقصد = chat_id یا، اگر داده نشد، owner.
         گروه‌پذیری (رأی مالک 2026-07-17): پاسخ به همان chat (گروه/چت) که فرمان از آن آمد.
+        `stream` (رأی مالک 2026-07-26): جریانِ محیطی به تاپیکِ خودش می‌رود نه DM —
+        ولی فقط وقتی chat_id صریح داده نشده باشد (پاسخِ مستقیم همیشه برنده است).
         not wired → False. خطای شبکه fail-soft."""
         if not self.wired:
             return False
         target = int(chat_id) if chat_id is not None else self._owner
+        thread = None
+        if chat_id is None and stream:
+            r_chat, r_topic = _stream_route(stream)
+            if r_chat is not None and r_topic is not None:
+                target, thread = r_chat, r_topic
         text = self._redact(text)   # Cockpit v2 · INV-12: هر خروجی از پاسِ redaction می‌گذرد
         body = {"chat_id": target, "text": text, "parse_mode": "HTML"}
+        if thread is not None:
+            body["message_thread_id"] = thread
         if reply_markup:
             body["reply_markup"] = reply_markup
         try:
