@@ -56,10 +56,17 @@ MAX_TURN_CHARS = 700     # هر نوبت در حافظه تا این حد
 MAX_TOKENS = 1100
 MIN_CHARS = 40
 
-# نشانه‌های تصحیح — وقتی مالک می‌گوید «اشتباه می‌کنی». عمداً محافظه‌کار: تشخیصِ
-# اشتباه به‌عنوانِ تصحیح فقط یک خطِ اضافه در دفتر است، نه تغییرِ رفتار.
-_CORRECTION_HINTS = ("نه ", "نه،", "اشتباه", "غلط", "درست نیست", "این‌طور نیست",
-                     "اینطور نیست", "برعکس", "در واقع", "واقعیت این", "نخیر")
+# نشانه‌های تصحیح — وقتی مالک می‌گوید «اشتباه می‌کنی».
+#
+# ⚠️ ۲۰۲۶-۰۷-۲۷: نسخهٔ اول زیررشتهٔ خامِ `"نه "` را می‌گرفت، پس **هر** کلمه‌ای که به
+# «نه» ختم شود آن را می‌زد: «روزانه»، «خانه»، «چگونه»، «ماهانه». یعنی یک سؤالِ
+# کاملاً عادی مثل «برنامهٔ روزانه چیست؟» به‌عنوانِ تصحیحِ **ماندگارِ** مالک ثبت
+# می‌شد و برای همیشه واردِ contextِ خودشناسی می‌ماند — مسمومیتِ حافظه با نویز.
+# حالا الگوی مرزدار: «نه» فقط وقتی نفی است که کلمهٔ مستقل باشد (اولِ جمله یا با
+# فاصله/نقطه‌گذاری از دو طرف)، نه پایانهٔ یک کلمهٔ دیگر.
+_CORRECTION_RX = __import__("re").compile(
+    r"(?:^|[\s،.!؟])(?:نه|نخیر|برعکس)(?:[\s،.!؟]|$)"
+    r"|اشتباه|غلط|درست نیست|این[‌ ]?طور نیست|واقعیت این")
 
 
 def enabled() -> bool:
@@ -114,8 +121,9 @@ def corrections(n: int = 12) -> list:
 
 
 def looks_like_correction(text: str) -> bool:
-    low = " " + str(text or "").strip().lower() + " "
-    return any(h in low for h in _CORRECTION_HINTS)
+    """آیا این جمله یک **تصحیح** است؟ محافظه‌کار عمدی: مثبتِ کاذب یعنی نویز برای
+    همیشه در فهمِ اختاپوس از خودش می‌ماند، پس مرزِ کلمه لازم است نه زیررشته."""
+    return bool(_CORRECTION_RX.search(str(text or "").strip().lower()))
 
 
 def record_correction(text: str, about: str = "") -> bool:
@@ -241,11 +249,13 @@ def ask(question: str, *, ask_fn=None, now: "float | None" = None) -> dict:
 
 
 def card(text: str, model: str = "", corrected: bool = False) -> tuple:
-    body = "🪞 " + str(text or "").strip()
+    # escape اجباری — `text` خروجیِ مدل است و مقصد `parse_mode=HTML` (ممیزیِ ۰۷-۲۷).
+    import html as _h
+    body = "🪞 " + _h.escape(str(text or "").strip())
     if corrected:
         body += "\n\n<i>✍️ تصحیحت ثبت شد — از این به بعد در فهمم از خودم هست.</i>"
     if model:
-        body += f"\n<i>— {str(model)[:24]}</i>"
+        body += f"\n<i>— {_h.escape(str(model))[:24]}</i>"
     kb = [[{"text": "🪞 چه می‌دانم", "callback_data": "mr:know"},
            {"text": "✍️ تصحیح‌ها", "callback_data": "mr:corr"}]]
     return body[:3800], kb
@@ -256,15 +266,19 @@ def know_card() -> str:
     c = self_context().get("فهمِ_من_از_خودم") or {}
     u = c.get("درک") if isinstance(c.get("درک"), dict) else {}
     tr = c.get("مسیر") if isinstance(c.get("مسیر"), dict) else {}
+    import html as _h
+
+    def _e(v, d="—"):
+        return _h.escape(str(v)) if v else d
     path = u.get("pathology") if isinstance(u.get("pathology"), list) else []
-    lines = [f"🪞 <b>فهمِ من از خودم</b> — نسخهٔ {c.get('نسخه')}",
-             f"▸ آناتومی: {u.get('anatomy') or '—'}",
-             f"▸ فیزیولوژی: {u.get('physiology') or '—'}",
-             f"▸ تمرکزِ فعلی: {c.get('تمرکز') or '—'}"]
+    lines = [f"🪞 <b>فهمِ من از خودم</b> — نسخهٔ {_e(c.get('نسخه'), '?')}",
+             f"▸ آناتومی: {_e(u.get('anatomy'))}",
+             f"▸ فیزیولوژی: {_e(u.get('physiology'))}",
+             f"▸ تمرکزِ فعلی: {_e(c.get('تمرکز'))}"]
     if path:
         p0 = path[0] if isinstance(path[0], dict) else {}
-        lines.append(f"▸ نشانه: {p0.get('symptom') or '—'} · ریشه: "
-                     f"{p0.get('root_cause') or 'نامعلوم'}")
+        lines.append(f"▸ نشانه: {_e(p0.get('symptom'))} · ریشه: "
+                     f"{_e(p0.get('root_cause'), 'نامعلوم')}")
     lines.append(f"▸ همگرا می‌شوم؟ {'آری' if tr.get('converging') else 'هنوز نه'}"
                  f" · {c.get('چرخهٔ_پایدار') or 0} چرخهٔ پایدار")
     n = len(corrections())
@@ -279,7 +293,9 @@ def corrections_card() -> str:
         return ("✍️ <b>هنوز تصحیحی ثبت نشده</b>\n"
                 "▸ هر وقت چیزی دربارهٔ خودم غلط گفتم، همان‌جا بنویس «نه، …»\n"
                 "▸ نکنی: همان اشتباه در فهمم از خودم می‌ماند")
-    return "✍️ <b>تصحیح‌های تو</b>\n" + "\n".join(f"▸ {t[:160]}" for t in c)
+    import html as _h
+    return "✍️ <b>تصحیح‌های تو</b>\n" + "\n".join(
+        f"▸ {_h.escape(t)[:160]}" for t in c)
 
 
 if __name__ == "__main__":   # pragma: no cover

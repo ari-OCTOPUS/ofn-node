@@ -226,9 +226,13 @@ def _ledger(rec: dict) -> None:
 def card(text: str, model: str = "") -> tuple:
     """کارتِ جواب — طبقِ دکترین: می‌گوید این فقط حرف است، نه اقدام، و **کدام مغز**
     جواب داده. مالک باید بداند جوابِ Fugu را می‌خواند یا جوابِ GLM را."""
-    body = ("🐙 " + str(text or "").strip())[:3400]
+    # escape اجباری: `text` خروجیِ مدل است و با `parse_mode=HTML` می‌رود. یک `<`
+    # کلِ پیام را ۴۰۰ می‌کند و `send_text` استثنا را می‌بلعد → جوابِ مالک بی‌صدا
+    # گم می‌شود (ممیزیِ ۲۰۲۶-۰۷-۲۷؛ همان الگویی که کارتِ C6 را یک شبانه‌روز خورد).
+    import html as _h
+    body = ("🐙 " + _h.escape(str(text or "").strip()))[:3400]
     if model:
-        body += f"\n\n<i>— {str(model)[:24]}</i>"
+        body += f"\n\n<i>— {_h.escape(str(model))[:24]}</i>"
     kb = [[{"text": "🐙 منو", "callback_data": "mn:menu"},
            {"text": "📊 وضعیت", "callback_data": "mn:st"}]]
     return body, kb

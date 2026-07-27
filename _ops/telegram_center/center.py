@@ -684,6 +684,12 @@ class Center:
             "/box": lambda: self._live_cmd(text),
             "/code": lambda: self._live_cmd(text),
             "/doctrine": lambda: self._live_cmd(text),
+            # ۲۰۲۶-۰۷-۲۷ — مذاکره **هیچ راهِ شروعی نداشت**: `make_offer` تنها از
+            # شاخهٔ شرط‌گذاری صدا زده می‌شد، پس مالک هرگز پیشنهادِ اولی نمی‌گرفت و
+            # کلِ حلقه نامرئی بود. شروع عمداً **دستِ مالک** است نه یک beat: تا وقتی
+            # نسنجیده‌ایم شرط‌های او واقعاً پیشنهادها را بهتر می‌کند یا نه، ارگانیسم
+            # نباید خودش شروع به چانه‌زدن کند.
+            "/deal": lambda: self._deal_cmd(),
             "/رفتار": lambda: self._live_cmd(text),
             "/کد": lambda: self._live_cmd(text),
         }
@@ -707,6 +713,34 @@ class Center:
         except Exception:  # noqa: BLE001
             mid = None
         return {"kind": cmd.lstrip("/"), "sent": mid is not None}
+
+    def _deal_cmd(self):
+        """`/deal` — یک پیشنهادِ شرط‌دار از اهدافِ خودِ اختاپوس.
+
+        اگر پیشنهادی از قبل باز است، همان را دوباره نشان می‌دهد به‌جای ساختنِ
+        دومی: `MAX_OPEN` در negotiate هست چون «بیش از دو پیشنهادِ باز = فشار روی
+        مالک، نه مذاکره»."""
+        try:
+            import negotiate as _ng
+            if not _ng.enabled():
+                return ("🤝 مذاکره خاموش است.\n"
+                        "▸ نکنی: چیزی عوض نمی‌شود — فلگش را روشن کن و مرکز را ری‌استارت.")
+            openi = _ng.open_offers()
+            if openi:
+                return _ng.card(openi[0])
+            r = _ng.make_offer()
+            if r.get("ok"):
+                return _ng.card(r["offer"])
+            why = {"too-many-open": "دو پیشنهادِ باز داری — اول به آن‌ها جواب بده",
+                   "not-a-paid-brain": "مغزِ گران الان در دسترس نیست",
+                   "bad-format": "مغز جوابِ خارج از قرارداد داد — چیزی ثبت نشد",
+                   "no-answer": "مغز جواب نداد"}.get(
+                       str(r.get("reason") or "").split(":")[0])
+            if str(r.get("reason") or "").startswith(("too-soon", "daily-cap")):
+                why = "سهمیهٔ گفتگوی امروز پر است — چند دقیقهٔ دیگر"
+            return f"🤝 الان پیشنهادی ندارم — {why or r.get('reason')}"
+        except Exception:  # noqa: BLE001
+            return "🤝 مذاکره در دسترس نیست."
 
     def _handle_ask(self, msg: dict, text: str) -> dict:
         """پرسش‌وپاسخِ زندهٔ مالک با اختاپوس، بدون LLM و بدون اجرای مبهم.

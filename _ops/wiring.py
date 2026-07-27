@@ -1162,9 +1162,22 @@ def neural_beat(neural_stack, beat: int, snap_inputs: dict | None = None) -> dic
         # بقیه غایب یعنی y=0 (زوال) — دقیقاً قراردادِ BCM.
         # این فقط **می‌نویسد**؛ هیچ تصمیمی هنوز وزن‌ها را نمی‌خوانَد.
         if flag("OCTOPUS_WIRE_BCM_FEED"):
+            # ⚠️ نمونهٔ **جدا** با فایلِ جدا — نه `neural_stack["bcm"]`.
+            # ممیزیِ متخاصمِ همان روز این را گرفت: `BCM.step` هر وزنی را که در
+            # `known_keys` نباشد حذف می‌کند. `_apply_bcm` کلیدهای latent-space را
+            # می‌دهد (هر ۷۲۰ بیت) و این تغذیه ۸ نامِ سیگنال را (هر تیک) — دو واژگانِ
+            # کاملاً جدا روی یک نمونه و یک فایل، یعنی هر فراخوان کلِ کلیدهای دیگری
+            # را پاک می‌کرد و از بیرون همچنان «wired» به نظر می‌رسید.
+            # ضمناً `make_neural_stack` اصلاً کلیدِ `bcm` نمی‌سازد (فقط مسیرِ
+            # consolidation آن را cache می‌کند)، پس نسخهٔ قبلی تا اولین epoch
+            # یک no-opِ بی‌صدا بود. این‌جا هر دو مشکل با هم بسته می‌شود.
             try:
                 _fired = sorted(set(signals or []))
-                _bcm = neural_stack.get("bcm") if isinstance(neural_stack, dict) else None
+                _bcm = neural_stack.get("bcm_signals") if isinstance(neural_stack, dict) else None
+                if _bcm is None and isinstance(neural_stack, dict):
+                    from neural.bcm import BCMStabilizer as _BCM
+                    _bcm = _BCM(persist_path=opslib.STATE_DIR / "bcm-signal-weights.json")
+                    neural_stack["bcm_signals"] = _bcm
                 if _bcm is not None and hasattr(_bcm, "step"):
                     _bcm.step({k: 1.0 for k in _fired}, known_keys=list(BCM_VOCAB))
             except Exception as _be:  # noqa: BLE001 — تغذیه هرگز تیک را نمی‌کشد

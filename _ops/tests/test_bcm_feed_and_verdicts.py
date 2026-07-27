@@ -71,11 +71,16 @@ def t_bcm_never_invents_keys_so_the_vocabulary_is_the_only_source():
     assert b.keys() == [], b.keys()
 
 
-def t_the_feed_is_flag_gated_and_off_by_default():
-    """رفتارِ نو = افزودنی + flag-gated + پیش‌فرض خاموش."""
+def t_the_feed_is_flag_gated_and_fail_soft():
+    """رفتارِ نو = افزودنی + flag-gated + fail-soft.
+
+    نامِ قبلیِ این تست `..._off_by_default` بود و دیگر راست نیست: فلگ همان روز با
+    رأیِ مالک مسلح شد. تستی که اسمش چیزی را ادعا کند که دیگر درست نیست، خودش یک
+    ادعای غلط است. پنجرهٔ متن هم بزرگ شد چون فیکسِ برخوردِ واژگان بلوک را بلندتر
+    کرد — پنجرهٔ کوچکِ قبلی `known_keys` را از قاب بیرون انداخته بود."""
     src = Path(wiring.__file__).read_text("utf-8")
-    i = src.index("OCTOPUS_WIRE_BCM_FEED")
-    block = src[max(0, i - 700):i + 500]
+    i = src.index('flag("OCTOPUS_WIRE_BCM_FEED")')
+    block = src[max(0, i - 900):i + 1800]
     assert 'flag("OCTOPUS_WIRE_BCM_FEED")' in block, "تغذیه پشتِ فلگ نیست"
     assert "known_keys=list(BCM_VOCAB)" in block, "واژگان به BCM داده نمی‌شود"
     assert "except Exception" in block, "تغذیه می‌تواند تیک را بکشد"
@@ -133,6 +138,49 @@ def t_the_sample_is_bounded_so_the_prompt_does_not_explode():
     v = sk.snapshot().get("owner_verdicts_open") or {}
     assert v["n"] == 40, v["n"]
     assert len(v["نمونه"]) <= 6, f"{len(v['نمونه'])} نمونه — prompt منفجر می‌شود"
+
+
+
+# ═══ ممیزیِ متخاصمِ ۲۰۲۶-۰۷-۲۷ — برخوردِ دو واژگان ═══════════════════════════
+def t_the_signal_feed_never_shares_an_instance_with_the_latent_index():
+    """باگی که همان روز مسلح شده بود: `BCM.step` هر وزنی را که در `known_keys`
+    نباشد **حذف می‌کند**. `_apply_bcm` کلیدهای latent-space را می‌دهد و تغذیهٔ
+    سیگنال ۸ نامِ انحراف را — دو واژگانِ کاملاً جدا. روی یک نمونه و یک فایل، هر
+    فراخوان کلِ کلیدهای دیگری را پاک می‌کرد و از بیرون «wired» به‌نظر می‌رسید."""
+    src = Path(wiring.__file__).read_text("utf-8")
+    i = src.index("OCTOPUS_WIRE_BCM_FEED")
+    block = src[i:i + 1600]
+    assert 'neural_stack.get("bcm_signals")' in block,         "تغذیه هنوز نمونهٔ مشترکِ latent را برمی‌دارد"
+    assert '"bcm"' not in block.split("_bcm.step")[0].split("bcm_signals")[-1],         "هنوز به کلیدِ مشترک اشاره می‌کند"
+    assert "bcm-signal-weights.json" in block, "فایلِ جدا تعریف نشده"
+
+
+def t_two_vocabularies_on_separate_instances_do_not_erase_each_other():
+    """اثباتِ رفتاری، نه متنی."""
+    import tempfile
+    from bcm import BCMStabilizer
+    d = Path(tempfile.mkdtemp())
+    sig = BCMStabilizer(persist_path=d / "sig.json")
+    lat = BCMStabilizer(persist_path=d / "lat.json")
+    vocab = list(wiring.BCM_VOCAB)
+    sig.step({"errors_high": 1.0}, known_keys=vocab)
+    lat.step({"cycle-1": 1.0}, known_keys=["cycle-1", "cycle-2"])
+    sig.step({"errors_high": 1.0}, known_keys=vocab)
+    lat.step({"cycle-1": 1.0}, known_keys=["cycle-1", "cycle-2"])
+    assert len(sig.keys()) == len(vocab), f"واژگانِ سیگنال پاک شد: {sig.keys()}"
+    assert len(lat.keys()) == 2, f"ایندکسِ latent پاک شد: {lat.keys()}"
+
+
+def t_a_shared_instance_would_actually_thrash():
+    """گاردِ اثبات: نشان می‌دهد باگ واقعی بود، نه فرضی — اگر روزی کسی دوباره
+    یکی‌شان کند، این تست دلیلش را یادآوری می‌کند."""
+    import tempfile
+    from bcm import BCMStabilizer
+    shared = BCMStabilizer(persist_path=Path(tempfile.mkdtemp()) / "shared.json")
+    shared.step({"errors_high": 1.0}, known_keys=list(wiring.BCM_VOCAB))
+    assert len(shared.keys()) == len(wiring.BCM_VOCAB)
+    shared.step({"cycle-1": 1.0}, known_keys=["cycle-1"])
+    assert shared.keys() == ["cycle-1"], "برخورد بازتولید نشد — فرضِ تست کهنه است"
 
 
 if __name__ == "__main__":
