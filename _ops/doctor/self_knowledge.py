@@ -145,6 +145,50 @@ def snapshot() -> dict:
     if (os.environ.get("OCTOPUS_SELFKNOW_LEGS_UNWRAP") == "1"
             and isinstance(legs.get("business_legs"), dict)):
         legs = legs["business_legs"]
+    # ── نیمهٔ گمشدهٔ آناتومی (۲۰۲۶-۰۷-۲۷) ───────────────────────────────────
+    # اندازه‌گیری: خودآگاهی ۵ پا می‌دید، رجیستریِ واقعی ۱۰ تا. پنج بازو **نامرئی**
+    # بودند — `ziman` (بازوی زندهٔ واقعی با money_link=active!)، ونچر، لایهٔ system،
+    # نقشه‌بردار، و اتاقِ آینه. علت: این تابع فقط `business_legs` را می‌خواند، ولی
+    # آن چهار پای اسکلتی است؛ بقیهٔ بازوها کلیدِ **جدا**ی خودشان را در
+    # ORGANISM-STATE دارند (`ziman`, `leg`, `cartographer`) و هیچ‌کس جمعشان نمی‌کرد.
+    # نتیجه: ارگانیسم دربارهٔ نیمی از بدنِ خودش هیچ نمی‌دانست، و «آناتومی» در هر
+    # پرامپتِ مغزِ گران نصفِ حقیقت بود. content-free: فقط live/money_link/note.
+    for _key, _name in (("ziman", "ziman"), ("leg", "lead"),
+                        ("cartographer", "cartographer")):
+        _blk = org.get(_key)
+        if not isinstance(_blk, dict) or not _blk:
+            continue
+        _id = str(_blk.get("leg_id") or _name)
+        if _name in legs:
+            continue          # از business_legs آمده — دوباره‌شماری ممنوع
+        legs[_name] = {
+            "live": _blk.get("money_link") == "active",
+            "money_link": _blk.get("money_link"),
+            "note": f"{_id} · propose_only={_blk.get('propose_only')}"[:90],
+        }
+    # لایهٔ درونیِ سلامت (`part_loops`) هم بخشی از بدن است — بدونِ آن ارگانیسم
+    # فقط بازوهای بیرونی‌اش را می‌شمارد و خودش را جا می‌اندازد.
+    try:
+        _pl = _read_json("cortex/part-loops-latest.json", {}) or {}
+        _parts = _pl.get("parts") if isinstance(_pl.get("parts"), list) else []
+        if _parts and "system" not in legs:
+            _bad = sum(1 for p in _parts if isinstance(p, dict)
+                       and str(p.get("status")) in ("🔴", "🟡"))
+            legs["system"] = {"live": True, "money_link": None,
+                              "note": f"{len(_parts)} بخشِ درونی · {_bad} نیازِ توجه"}
+    except Exception:  # noqa: BLE001
+        pass
+    # ونچر — **content-free**: فقط وجود و گیت‌بودنش، هرگز نام/محتوا/هویت.
+    # بدونِ این، ارگانیسم یک پروژهٔ کاملِ خودش را در آناتومی نمی‌شمارد.
+    try:
+        _vp = opslib.ORG_ROOT / "03 - Projects"
+        if "studio_pf" not in legs and _vp.exists():
+            legs["studio_pf"] = {"live": False, "money_link": None,
+                                 "note": "ونچر — propose-only، پشتِ گیتِ مالک"}
+    except Exception:  # noqa: BLE001
+        pass
+    # `mirror` عمداً اینجا نیست: اتاقِ گفتگو است، نه اندام — وضعیتی ندارد که
+    # در آناتومی شمرده شود (همان تصمیمی که در render.render_leg_digest گرفته شد).
     wiring = org.get("wiring", {}) if isinstance(org.get("wiring"), dict) else {}
     month = org.get("month", {}) if isinstance(org.get("month"), dict) else {}
     cardiac = org.get("cardiac", {}) if isinstance(org.get("cardiac"), dict) else {}

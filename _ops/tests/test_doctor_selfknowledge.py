@@ -324,6 +324,84 @@ def t_the_snapshot_separates_spend_from_revenue():
     # و تصحیح باید بتواند از پشتِ کشِ no-change بیرون بیاید
     assert "revenue" in sk._hash_digest(s),         "revenue در hash نیست — باورِ تصحیح‌شده تا تغییرِ بعدی یخ می‌ماند"
 
+
+def t_the_self_model_sees_its_whole_body():
+    """پرسشِ مالک ۲۰۲۶-۰۷-۲۷: «خودآگاهی‌مان با کلِ اختاپوس می‌خوانَد؟»
+
+    اندازه‌گیریِ زنده گفت نه: خودآگاهی ۵ پا می‌دید و رجیستریِ رندر ۱۰ تا. پنج بازو
+    نامرئی بودند — از جمله `ziman` که بازوی **زندهٔ** واقعی است (`money_link=active`).
+    علت: snapshot فقط `business_legs` را می‌خواند، ولی `ziman`/`leg`/`cartographer`
+    کلیدِ جدای خودشان را در ORGANISM-STATE دارند و هیچ‌کس جمعشان نمی‌کرد. یعنی
+    «آناتومی» در هر پرامپتِ مغزِ گران نصفِ حقیقت بود.
+
+    این تست خودبسنده است: بلوک‌ها را در سندباکس می‌کارد و می‌سنجد هر کدام سطحی
+    می‌شوند — نه با درختِ زنده مقایسه می‌کند (نسخهٔ اولش همین اشتباه را کرد)."""
+    _sandbox_paths()
+    _seed_state()
+    org = json.loads((_SB / "ORGANISM-STATE.json").read_text("utf-8"))
+    org["ziman"] = {"leg_id": "ziman-gallery", "money_link": "active",
+                    "propose_only": True}
+    org["leg"] = {"leg_id": "lead-naghshi", "money_link": "active",
+                  "propose_only": True}
+    org["cartographer"] = {"leg_id": "vault-cartographer",
+                           "money_link": "incubating", "propose_only": True}
+    (_SB / "ORGANISM-STATE.json").write_text(json.dumps(org), "utf-8")
+    (_SB / "cortex").mkdir(parents=True, exist_ok=True)
+    (_SB / "cortex" / "part-loops-latest.json").write_text(
+        json.dumps({"parts": [{"status": "🟢"}, {"status": "🔴"}]}), "utf-8")
+
+    prev = os.environ.get("OCTOPUS_SELFKNOW_LEGS_UNWRAP")
+    os.environ["OCTOPUS_SELFKNOW_LEGS_UNWRAP"] = "1"
+    try:
+        legs = sk.snapshot().get("legs") or {}
+    finally:
+        if prev is None:
+            os.environ.pop("OCTOPUS_SELFKNOW_LEGS_UNWRAP", None)
+        else:
+            os.environ["OCTOPUS_SELFKNOW_LEGS_UNWRAP"] = prev
+
+    for name in ("ziman", "lead", "cartographer", "system"):
+        assert name in legs, f"خودآگاهی «{name}» را نمی‌بیند: {sorted(legs)}"
+    assert legs["ziman"]["live"] is True, "بازوی زنده خاموش گزارش شد"
+    assert legs["cartographer"]["live"] is False
+    assert "بخشِ درونی" in str(legs["system"].get("note")), legs["system"]
+
+
+def t_a_live_arm_is_reported_live():
+    """زیمان با money_link=active باید live دیده شود، نه خاموش."""
+    import os as _os
+    _prev = _os.environ.get("OCTOPUS_SELFKNOW_LEGS_UNWRAP")
+    _os.environ["OCTOPUS_SELFKNOW_LEGS_UNWRAP"] = "1"
+    try:
+        legs = sk.snapshot().get("legs") or {}
+    finally:
+        if _prev is None:
+            _os.environ.pop("OCTOPUS_SELFKNOW_LEGS_UNWRAP", None)
+        else:
+            _os.environ["OCTOPUS_SELFKNOW_LEGS_UNWRAP"] = _prev
+    z = legs.get("ziman")
+    if z is not None:      # فقط وقتی بلوکِ زیمان در state هست
+        assert z.get("live") is (z.get("money_link") == "active"), z
+
+
+def t_the_venture_entry_is_content_free():
+    """ونچر باید در آناتومی شمرده شود ولی هرگز نام/هویت/محتوا لو ندهد."""
+    import os as _os, re as _re
+    _prev = _os.environ.get("OCTOPUS_SELFKNOW_LEGS_UNWRAP")
+    _os.environ["OCTOPUS_SELFKNOW_LEGS_UNWRAP"] = "1"
+    try:
+        legs = sk.snapshot().get("legs") or {}
+    finally:
+        if _prev is None:
+            _os.environ.pop("OCTOPUS_SELFKNOW_LEGS_UNWRAP", None)
+        else:
+            _os.environ["OCTOPUS_SELFKNOW_LEGS_UNWRAP"] = _prev
+    v = legs.get("studio_pf")
+    if v is not None:
+        blob = json.dumps(v, ensure_ascii=False)
+        for banned in ("فنز", "OnlyFans", "onlyfans", "feet", "creator"):
+            assert banned not in blob, f"نشتِ هویتِ ونچر: {banned}"
+
 if __name__ == "__main__":
     failed = harness.run([
         ("snapshotِ غنی", t_snapshot_richer),
@@ -348,5 +426,8 @@ if __name__ == "__main__":
         ("خرج هرگز درآمد خوانده نشود", t_money_musd_is_never_read_as_revenue),
         ("درآمدِ واقعی درآمد گزارش شود", t_real_revenue_is_reported_as_revenue),
         ("snapshot خرج و درآمد را جدا کند", t_the_snapshot_separates_spend_from_revenue),
+        ("خودآگاهی کلِ بدنش را ببیند", t_the_self_model_sees_its_whole_body),
+        ("بازوی زنده live گزارش شود", t_a_live_arm_is_reported_live),
+        ("مدخلِ ونچر content-free بماند", t_the_venture_entry_is_content_free),
     ])
     sys.exit(1 if failed else 0)
