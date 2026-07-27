@@ -37,6 +37,104 @@ STATE = opslib.STATE_DIR
 DIGEST_PATH = STATE / "cortex" / "upgrades-digest.json"
 VERDICTS_PATH = STATE / "cortex" / "improve-verdicts.jsonl"
 AUTO_STATE_PATH = STATE / "cortex" / "improve-auto-state.json"
+
+# ── سنتزِ عمیق (۲۰۲۶-۰۷-۲۷، «مغزِ اصلی را دوسطحی کن») ──────────────────────────
+# اندازه‌گیریِ همان روز: فکرِ این حلقه ask("think") بود → مدلِ محلیِ رایگان با سقفِ
+# ۹۰ توکن، در حالی که Fugu (پلنِ فلت) در کلِ ارگانیسم یک مشتری داشت. لایهٔ محیطی
+# همان محلیِ تند می‌ماند (بایت‌به‌بایت)؛ این لایه، جدا و flag-gated، چند بار در روز
+# صفِ کاملِ گاف‌ها را به مغزِ گران می‌دهد و جوابِ واقعی (نه یک‌جمله‌ای) می‌گیرد.
+# حلقه هر ~۷ دقیقه می‌دود پس سقفِ روزانه **داخلِ** همین ماژول است، نه دستِ کادنس.
+FLAG_DEEP = "CORTEX_IMPROVE_DEEP"
+DEEP_SLOTS_PATH = STATE / "cortex" / "improve-deep-slots.json"
+DEEP_LEDGER_PATH = STATE / "cortex" / "deep-synth.jsonl"
+DEEP_DAILY_DEFAULT = 2
+DEEP_MAX_TOKENS = 1200
+DEEP_MIN_CHARS = 200          # کوتاه‌تر از این = جوابِ بی‌ارزش؛ ثبت می‌شود ولی digest نمی‌رود
+
+
+def _deep_daily_cap() -> int:
+    try:
+        n = int(str(os.environ.get("CORTEX_IMPROVE_DEEP_DAILY", "")).strip())
+    except (TypeError, ValueError):
+        return DEEP_DAILY_DEFAULT
+    return n if 0 < n <= 8 else DEEP_DAILY_DEFAULT
+
+
+def _deep_slot_take() -> bool:
+    """یک اسلاتِ امروز را بسوزان — **قبل از** فراخوانِ گران (درسِ deep_think:
+    مغزِ خراب نباید هر چرخه یک تماسِ ۳۰ ثانیه‌ای بسوزاند). False = سقف پر است."""
+    today = opslib.today()
+    d = {"date": "", "used": 0}
+    try:
+        if DEEP_SLOTS_PATH.exists():
+            loaded = json.loads(DEEP_SLOTS_PATH.read_text("utf-8"))
+            if isinstance(loaded, dict):
+                d = loaded
+    except (OSError, ValueError):
+        pass
+    if d.get("date") != today:
+        d = {"date": today, "used": 0}
+    if int(d.get("used", 0)) >= _deep_daily_cap():
+        return False
+    d["used"] = int(d.get("used", 0)) + 1
+    try:
+        DEEP_SLOTS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        tmp = DEEP_SLOTS_PATH.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(d, ensure_ascii=False), "utf-8")
+        os.replace(tmp, DEEP_SLOTS_PATH)
+    except OSError:
+        pass   # fail-soft: بدونِ persist، حداقل همین پروسه راست می‌گوید
+    return True
+
+
+def _deep_synth(top: list, rate, maturity) -> "dict | None":
+    """جوابِ عمیقِ مغزِ گران روی صفِ واقعیِ گاف‌ها. None = نبود/نخواست/نتوانست.
+    tier=primary **پین** است: بدونِ پین، CORTEX_LOCAL_FIRST ردهٔ میانی را بی‌صدا
+    به مدلِ رایگان می‌بَرد و این لایه نمایش می‌شد در حالِ گزارشِ موفقیت."""
+    if os.environ.get(FLAG_DEEP, "0") != "1" or not top:
+        return None
+    if not _deep_slot_take():
+        return None
+    items = [{k: t.get(k) for k in ("id", "priority", "title", "suggested_action",
+                                    "change_level", "source")} for t in top[:8]]
+    prompt = (
+        "صفِ اولویت‌دارِ گاف‌های یک سیستمِ خودبهبودگر، با نرخِ بهبودِ سنجیده:\n"
+        + json.dumps({"گاف‌ها": items, "improvement_rate": rate,
+                      "maturity_pct": maturity}, ensure_ascii=False, indent=1)
+        + "\n\nیکی را انتخاب کن که اول باید حل شود. چرا آن و نه بقیه — با ارجاع به "
+          "همین داده‌ها. قدمِ اولِ مشخصش چیست؟ و چه مشاهده‌ای ثابت می‌کند انتخابت "
+          "غلط بوده؟ اگر صف آن‌قدر بی‌کیفیت است که هیچ‌کدام نمی‌ارزد، همین را صریح بگو.")
+    system = ("تو لایهٔ عمیقِ حلقهٔ خودارتقاییِ یک ارگانیسمِ نرم‌افزاری هستی. فارسی، "
+              "کوتاه، بدونِ تعارف. فقط از داده‌های داده‌شده استدلال کن؛ حدسِ بیرونی ممنوع. "
+              "«نمی‌دانم» و «هیچ‌کدام نمی‌ارزد» جواب‌های معتبرند.")
+    rec = {"ts": opslib.now_iso(), "schema": "deep-synth.v1", "n_top": len(items)}
+    try:
+        import model_router
+        r = model_router.ask("plan", prompt, system=system,
+                             max_tokens=DEEP_MAX_TOKENS, tier="primary")
+    except Exception as e:  # noqa: BLE001 — لایهٔ عمیق هرگز حلقه را نمی‌کشد
+        rec.update(ok=False, reason=f"ask-exception:{type(e).__name__}")
+        _deep_ledger(rec)
+        return None
+    text = str(r.get("text") or "").strip()
+    rec.update(ok=bool(r.get("ok")), model=r.get("model"), tier=r.get("tier"),
+               chars=len(text))
+    if not r.get("ok") or len(text) < DEEP_MIN_CHARS:
+        rec["reason"] = "empty-or-short"
+        _deep_ledger(rec)
+        return None
+    rec["text"] = text[:4000]
+    _deep_ledger(rec)
+    return {"ts": rec["ts"], "model": rec.get("model"), "text": text[:2000]}
+
+
+def _deep_ledger(rec: dict) -> None:
+    try:
+        DEEP_LEDGER_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(DEEP_LEDGER_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except OSError:
+        pass
 RFC_DIR = opslib.GENOME_DIR / "knowledge" / "internal"
 ACT_AUTO = opslib.OPS / "ACTIVATION-SELF-IMPROVE-AUTO.flag"
 
@@ -448,6 +546,12 @@ def run(write: bool = True, use_local_brain: bool = True) -> dict:
                 "change_level": "reconfig", "source": "guard",
                 "status_now": "Degraded", "status": "proposed"}] + top[:7]
     rate = improvement_rate()
+    # لایهٔ عمیق: flag-gated، سقفِ روزانه داخلی، fail-soft — لایهٔ محلیِ بالا دست‌نخورده.
+    deep = None
+    try:
+        deep = _deep_synth(top, rate, signals["matrix"].get("maturity_pct"))
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"improve deep-synth error (non-fatal): {type(e).__name__}: {e}"])
     digest = {
         "ts": opslib.now_iso(), "schema": "upgrades-digest.v1",
         "observability_ok": obs_ok,
@@ -463,6 +567,7 @@ def run(write: bool = True, use_local_brain: bool = True) -> dict:
         "auto_eligible": auto,
         "auto_enabled": ACT_AUTO.exists(),
         **({"brain_note": thought} if thought else {}),
+        **({"deep_thought": deep} if deep else {}),
         **({"goal_directed": goal_report} if goal_report else {}),
         "learning": {"rejected_categories": _load_verdict_penalty()},
     }

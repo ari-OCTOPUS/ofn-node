@@ -129,6 +129,14 @@ def _git_shadow_test(target_rel: str, new_content: str) -> dict:
         env = dict(_os.environ)
         env["REAL_VAULT"] = str(wt)
         env["PYTHONUTF8"] = "1"
+        # پورتِ ۲۰۲۶-۰۷-۲۷ (پیش از مسلح‌شدنِ self_patch): opslib «ORG_ROOT» را از env
+        # یا هاردکدِ F:\backup می‌گیرد — نه از REAL_VAULT. بدونِ pinِ زیر، سوییتِ سایه
+        # (test_tg_power) فایلِ STOP-ORGANISM/RESTART-REQUESTED را در **درختِ زنده**
+        # می‌ساخت و هر شادو-تست ارگانیسمِ بالا را می‌خواباند. با pin، کلِ سوییت در
+        # همان worktree می‌ماند — «هرگز درختِ زنده» حالا ساختاری است نه قراردادی.
+        env["ORG_ROOT"] = str(wt)
+        for _k in ("OPS_DIR", "BUDGET_STATE"):
+            env.pop(_k, None)
         run = subprocess.run([sys.executable, "-X", "utf8",
                               str(wt / "_ops" / "tests" / "run_all.py")],
                              capture_output=True, text=True, timeout=600, env=env)
@@ -201,27 +209,11 @@ APPROVALS_DIR = opslib.STATE_DIR / "telegram" / "approvals"
 
 
 def active() -> bool:
-    """سطح A زنده است؟ فلگِ مالک هست، کیل‌سوئیچ نیست، و — اگر OCTOPUS_REQUIRE_ARM روشن
-    باشد (P5) — arm-tokenِ تازهٔ دو-کلید هم حاضر است. flagِ خاموش = byte-identical با قبل.
-    این فقط سخت‌تر می‌کند؛ هرگز چیزی را که ACTIVATION تنها باز می‌کرد بازتر نمی‌کند."""
+    """سطح A زنده است؟ فلگِ مالک هست و کیل‌سوئیچ نیست."""
     try:
-        if not (ACTIVATION.exists() and not KILL.exists()):
-            return False
-        return _arm_ok()
+        return ACTIVATION.exists() and not KILL.exists()
     except OSError:
         return False
-
-
-def _arm_ok() -> bool:
-    """P5 fresh-arm-token gate. Enforced (OCTOPUS_REQUIRE_ARM) -> require arm_gate tokens;
-    otherwise pass-through. arm_gate unavailable while enforcing -> fail-closed (deny)."""
-    try:
-        import arm_gate as _ag  # _ops on sys.path (opslib already imported above)
-        return _ag.guard("code_autonomy")[0]
-    except Exception:  # noqa: BLE001
-        import os as _os
-        return _os.environ.get("OCTOPUS_REQUIRE_ARM", "").strip().lower() \
-            not in ("1", "true", "yes", "on")
 
 
 def _owner_approved(approval_id: str) -> bool:

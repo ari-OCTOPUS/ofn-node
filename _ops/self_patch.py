@@ -186,6 +186,207 @@ def card_text(rec: dict) -> str:
     )
 
 
+# ═══ حلقهٔ خودگردان (۲۰۲۶-۰۷-۲۷، «هردو کامل انجام بشه») ═══════════════════════
+# تا امروز propose() یتیم بود: هیچ‌کس صدایش نمی‌زد و code_autonomy اصلاً روی این
+# شاخه نبود. حالا حلقه کامل است و **تولیدکنندهٔ نقص، خودِ مغزِ گران است**:
+#   ۱) review_and_queue: روزی یک فایل از allowlist را به Fugu می‌دهد («یک نقصِ
+#      مشخص پیدا کن یا بگو تمیز است») → صفِ نقص. هیچ نقصِ دست‌ساز کاشته نمی‌شود.
+#   ۲) drive: یک ردیفِ باز از صف → propose() → پچ + سوییتِ سبزِ ایزوله → کارت.
+#   ۳) beat_async: هر دو را در یک threadِ جدا می‌دواند — تیکِ ارگانیسم هرگز پشتِ
+#      تماسِ ۳۰ ثانیه‌ای یا سوییتِ چند دقیقه‌ای نمی‌ایستد.
+# صف append-only است؛ ردیف **قبل از** تماسِ گران قفل می‌شود (درسِ deep_think).
+
+QUEUE_PATH = opslib.STATE_DIR / "self-patch" / "defect-queue.jsonl"
+REVIEW_STATE = opslib.STATE_DIR / "self-patch" / "review-state.json"
+REVIEW_MAX_TOKENS = 700
+MAX_FILE_KB_REVIEW = 48        # فایلِ بزرگ‌تر مرور نمی‌شود (context/هزینه)
+_BEAT_LOCK = __import__("threading").Lock()
+
+
+def _queue_rows() -> list:
+    try:
+        if QUEUE_PATH.exists():
+            return [json.loads(x) for x in
+                    QUEUE_PATH.read_text("utf-8").splitlines() if x.strip()]
+    except (OSError, ValueError):
+        pass
+    return []
+
+
+def _queue_append(row: dict) -> None:
+    QUEUE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(QUEUE_PATH, "a", encoding="utf-8") as f:
+        f.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+
+def _defect_id(target: str, defect: str) -> str:
+    return "sp-" + hashlib.sha1(f"{target}|{defect}".encode("utf-8")).hexdigest()[:12]
+
+
+def review_targets() -> list:
+    """فایل‌های قابلِ مرور: فقط allowlistِ code_autonomy، مرتب و قطعی."""
+    try:
+        import code_autonomy as ca
+    except Exception:  # noqa: BLE001
+        return []
+    root = _HERE.parent   # ریشهٔ repo (F:\backup)
+    out = []
+    for sub in ("_ops/telegram_center", "_ops/cortex"):
+        d = root / sub.replace("_ops/", "_ops" + os.sep)
+        for p in sorted(d.glob("*.py")):
+            rel = f"{sub}/{p.name}"
+            # کفِ ۵۱۲ بایت: اسموکِ زندهٔ ۰۷-۲۷ اولین اسلاتِ روز را سرِ __init__.py ِ
+            # خالی سوزاند — فایلِ بی‌گوشت ارزشِ یک مرورِ گرانِ روزانه را ندارد.
+            if (ca.allowed_target(rel)
+                    and 512 <= p.stat().st_size <= MAX_FILE_KB_REVIEW * 1024):
+                out.append(rel)
+    return out
+
+
+_REVIEW_SYSTEM = (
+    "تو بازبینِ کدِ خودِ این ارگانیسم هستی و جوابت مستقیم واردِ صفِ پچ می‌شود، پس "
+    "فقط نقصی را گزارش کن که حاضری پشتش بایستی.\n"
+    "خروجی دقیقاً یکی از این دو است:\n"
+    "CLEAN\n"
+    "یا یک خطِ JSON:\n"
+    '{"defect": "<شرحِ دقیقِ نقص با ارجاع به خطِ/تابعِ مشخص>", "hint": "<جهتِ فیکس>"}\n'
+    "قواعد: فقط باگِ واقعی (منطق/خطای نهفته/قراردادِ شکسته) — نه سلیقه، نه بازآرایی، "
+    "نه performance ِ حدسی. اگر مطمئن نیستی: CLEAN. هیچ متنِ دیگری ننویس."
+)
+
+
+def review_and_queue(*, ask_fn=None, targets=None) -> dict:
+    """روزی یک فایل: مرور با مغزِ گران → صفِ نقص. idempotent per-day."""
+    if not enabled():
+        return {"ok": False, "reason": "flag-off"}
+    today = time.strftime("%Y-%m-%d")
+    st = {}
+    try:
+        if REVIEW_STATE.exists():
+            st = json.loads(REVIEW_STATE.read_text("utf-8")) or {}
+    except (OSError, ValueError):
+        st = {}
+    if st.get("date") == today:
+        return {"ok": False, "reason": "already-reviewed-today",
+                "target": st.get("target")}
+    files = targets if targets is not None else review_targets()
+    if not files:
+        return {"ok": False, "reason": "no-targets"}
+    idx = int(st.get("idx", -1)) + 1
+    target = files[idx % len(files)]
+    # روز را **قبل از** تماس بسوزان — مغزِ خراب نباید هر تیک مرورِ گران بسوزاند.
+    try:
+        REVIEW_STATE.parent.mkdir(parents=True, exist_ok=True)
+        REVIEW_STATE.write_text(json.dumps(
+            {"date": today, "idx": idx % len(files), "target": target},
+            ensure_ascii=False), "utf-8")
+    except OSError:
+        pass
+    try:
+        src = (_HERE.parent / target).read_text("utf-8")
+    except Exception as e:  # noqa: BLE001
+        return {"ok": False, "reason": f"unreadable:{type(e).__name__}", "target": target}
+    ans = (_review_ask(target, src, ask_fn=ask_fn) or "").strip()
+    if not ans or ans.upper().startswith("CLEAN"):
+        return {"ok": True, "target": target, "clean": True}
+    try:
+        d = json.loads(_strip_fences(ans).splitlines()[0])
+        defect, hint = str(d["defect"])[:400], str(d.get("hint") or "")[:300]
+    except Exception:  # noqa: BLE001 — جوابِ خارج از قرارداد = دور انداختن، نه حدس
+        return {"ok": False, "reason": "bad-review-format", "target": target}
+    did = _defect_id(target, defect)
+    if any(r.get("id") == did for r in _queue_rows()):
+        return {"ok": True, "target": target, "duplicate": True}
+    _queue_append({"id": did, "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                   "target": target, "defect": defect, "hint": hint, "status": "open"})
+    return {"ok": True, "target": target, "queued": did}
+
+
+def _review_ask(target: str, src: str, ask_fn=None) -> str:
+    """مرور با tier=primary ِ پین‌شده (کارِ سنگین؛ محلی رویش طوطی‌وار جواب می‌دهد).
+    ask_fn تزریق‌پذیر با امضای model_router.ask — مسیرِ تست هم از **همین** قراردادِ
+    مرور رد می‌شود، نه از قراردادِ پچ‌نویسی."""
+    try:
+        if ask_fn is None:
+            import model_router
+            ask_fn = model_router.ask
+        r = ask_fn("deep", f"FILE: {target}\n--- BEGIN FILE ---\n{src}\n--- END FILE ---",
+                   system=_REVIEW_SYSTEM, max_tokens=REVIEW_MAX_TOKENS,
+                   tier="primary")
+        return str(r.get("text") or "") if isinstance(r, dict) and r.get("ok") else ""
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def drive(*, channel=None, ask_fn=None, shadow_fn=None) -> dict:
+    """قدیمی‌ترین ردیفِ باز از صف → propose() → کارت. ردیف قبل از تماس قفل می‌شود."""
+    if not enabled():
+        return {"ok": False, "reason": "flag-off"}
+    # صف append-only است — وضعِ مؤثرِ هر id آخرین ردیفش است. خواندنِ خام، ردیفِ
+    # done/taken را دوباره «باز» می‌شمرد و همان نقص هر روز دوباره پچ می‌خورد.
+    open_rows = [r for r in _queue_effective().values() if r.get("status") == "open"]
+    if not open_rows:
+        return {"ok": False, "reason": "queue-empty"}
+    row = min(open_rows, key=lambda r: str(r.get("ts", "")))
+    _queue_append({**row, "status": "taken",
+                   "taken_ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
+    res = propose(target_rel=row["target"], defect=row["defect"],
+                  fix_hint=row.get("hint", ""), ask_fn=ask_fn, shadow_fn=shadow_fn)
+    _queue_append({**row, "status": "done" if res.get("ok") else "failed",
+                   "result_reason": res.get("reason"), "green": res.get("green"),
+                   "done_ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
+    if res.get("ok") and channel is not None and hasattr(channel, "send_text"):
+        try:
+            channel.send_text(card_text(res), stream="c6")
+        except Exception:  # noqa: BLE001 — کارت هرگز حلقه را نمی‌کشد
+            pass
+    return res
+
+
+def _queue_effective() -> dict:
+    """آخرین وضعِ هر id (صف append-only است — آخرین ردیف برنده)."""
+    eff = {}
+    for r in _queue_rows():
+        eff[r.get("id")] = r
+    return eff
+
+
+def beat_async(channel=None) -> dict:
+    """صدازدنی از تیکِ ارگانیسم: اگر کاری هست، در threadِ جدا انجام بده.
+    غیرمسدودکننده؛ همیشه فوری برمی‌گردد. یکی بیشتر هم‌زمان نمی‌دود."""
+    if not enabled():
+        return {"spawned": False, "reason": "flag-off"}
+    has_open = any(r.get("status") == "open" for r in _queue_effective().values())
+    today = time.strftime("%Y-%m-%d")
+    reviewed = False
+    try:
+        reviewed = (json.loads(REVIEW_STATE.read_text("utf-8")) or {}).get("date") == today
+    except (OSError, ValueError):
+        reviewed = False
+    if reviewed and not has_open:
+        return {"spawned": False, "reason": "nothing-to-do"}
+    if not _BEAT_LOCK.acquire(blocking=False):
+        return {"spawned": False, "reason": "busy"}
+
+    def _work():
+        try:
+            if not reviewed:
+                review_and_queue()
+            if any(r.get("status") == "open" for r in _queue_effective().values()):
+                drive(channel=channel)
+        except Exception as e:  # noqa: BLE001 — thread هرگز استثنای بی‌صدا ندهد
+            try:
+                opslib.alert([f"self_patch beat error: {type(e).__name__}: {e}"])
+            except Exception:  # noqa: BLE001
+                pass
+        finally:
+            _BEAT_LOCK.release()
+
+    t = __import__("threading").Thread(target=_work, name="self-patch-beat", daemon=True)
+    t.start()
+    return {"spawned": True, "review_pending": not reviewed, "queue_open": has_open}
+
+
 if __name__ == "__main__":  # pragma: no cover — پیش‌نمایشِ بی‌ارسال
     print(f"flag {FLAG} = {'on' if enabled() else 'off'} · "
           f"today {_today_count()}/{DAILY_CAP}")
@@ -194,3 +395,5 @@ if __name__ == "__main__":  # pragma: no cover — پیش‌نمایشِ بی‌
         for p in sorted(d.glob("*.json")):
             r = json.loads(p.read_text("utf-8"))
             print(f"  {r.get('id')}  {r.get('target'):40s} green={r.get('green')}")
+    print(f"queue: {sum(1 for r in _queue_effective().values() if r.get('status') == 'open')} باز "
+          f"از {len(_queue_effective())}")

@@ -592,6 +592,18 @@ def main() -> int:
                             "chars": _dtr.get("chars")}
                 except Exception as _de:  # noqa: BLE001 — §۴: خطای خاموش ممنوع، ولی tick نمی‌میرد
                     opslib.alert([f"deep_think error (non-fatal): {type(_de).__name__}: {_de}"])
+                # ── حلقهٔ خودپچ‌زنی (۲۰۲۶-۰۷-۲۷، رأیِ مالک «هردو کامل انجام بشه»):
+                # مرورِ کدِ خود → صفِ نقص → پچ + سوییتِ ایزوله → کارت. beat_async
+                # همه‌چیز را در threadِ جدا می‌بَرد و فوری برمی‌گردد — تیک هرگز پشتِ
+                # تماسِ مغز یا سوییتِ چند دقیقه‌ای نمی‌ایستد. flag خاموش = no-op.
+                try:
+                    import self_patch as _sp   # noqa: WPS433 — lazy، خودش flag را چک می‌کند
+                    _spr = _sp.beat_async(channel=_chan)
+                    if _spr.get("spawned"):
+                        epoch_info["self_patch"] = {k: _spr.get(k) for k in
+                                                    ("review_pending", "queue_open")}
+                except Exception as _spe:  # noqa: BLE001
+                    opslib.alert([f"self_patch error (non-fatal): {type(_spe).__name__}: {_spe}"])
             # Phase 1: epoch-based sweep of stale gated_effects
             try:
                 if chrono is not None:
