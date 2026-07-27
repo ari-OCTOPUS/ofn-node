@@ -112,6 +112,19 @@ def _owner_signal() -> dict:
 
 
 # ── snapshot: عکسِ غنی، چنددامنه‌ای، PII-safe ($0، read-only) ─────────────────────
+def _revenue_confirmed() -> float:
+    """درآمدِ **محقق‌شده** — تنها منبعِ راست. صفر یعنی صفر، نه «نامعلوم».
+
+    منبع همان چیزی است که `goal_directed._baseline_metrics` می‌خواند:
+    `fitness-latest.json → attribution.confirmed`. عمداً import نمی‌کنیم چون آن
+    تابع خودش فقط همین فایل را می‌خواند؛ یک خط مستقیم، بدونِ وابستگیِ تازه."""
+    try:
+        att = (_read_json("fitness-latest.json", {}) or {}).get("attribution") or {}
+        return float(att.get("confirmed") or 0.0)
+    except (TypeError, ValueError, AttributeError):
+        return 0.0
+
+
 def snapshot() -> dict:
     org = _read_json("ORGANISM-STATE.json", {})
     tel = _read_json("telemetry-latest.json", {})
@@ -144,9 +157,21 @@ def snapshot() -> dict:
         "wire_on": sorted(k for k, v in wiring.items() if str(k).startswith("wire_") and v),
         "wire_off": sorted(k for k, v in wiring.items() if str(k).startswith("wire_") and not v),
         # چرخهٔ پول (قلبِ ماموریت)
+        #
+        # ⚠ ۲۰۲۶-۰۷-۲۷ — `money.musd` **خرج** است، نه درآمد. `telemetry.py:174`
+        # آن را از جمعِ هزینه‌ها می‌سازد (ledgerِ ژنوم + organ_gate + core.db) و
+        # `organism.py:492` همان را بر سقفِ بودجه تقسیم می‌کند. نامش گمراه‌کننده
+        # است و کلید برای سازگاریِ عقب‌رو نگه داشته می‌شود (خواننده‌های موجود:
+        # `_hash_digest` و تستِ pin‌شدهٔ test_doctor_selfknowledge)، ولی هیچ‌کس
+        # نباید دوباره آن را درآمد بخواند.
         "money": {"musd": month.get("musd"),
+                  "_note": "musd = خرجِ خودم (micro-USD)، نه درآمد",
                   "proposal_metrics": prop,
                   "router": {k: router.get(k) for k in ("seen", "delivered", "sent")} if router else {}},
+        # درآمدِ **واقعی** — همان منبعی که goal_directed می‌خواند: فقط CONFIRMED.
+        # تا امروز این کلید وجود نداشت، پس تنها عددِ پولی که خودشناسی می‌دید خرجِ
+        # خودش بود و هر ۲۷ نسخه «درآمد>۰» نتیجه می‌گرفت در حالی که درآمد صفر بود.
+        "revenue": _revenue_confirmed(),
         "stress": {"level": stress.get("level"), "in_fear": stress.get("in_fear"),
                    "organism_stress": stress.get("organism_stress")},
         "innervation": {"coverage_pct": innerv.get("coverage_pct"),
@@ -236,7 +261,15 @@ def _heuristic(snap: dict, prev: dict) -> dict:
         path.append({"symptom": "نقطهٔ مردهٔ عصب‌کشی", "root_cause": "کالیبراسیونِ SLA یا نوشندهٔ غایب", "severity": "low"})
     focus = path[0]["symptom"] if path else "همه‌چیز آرام"
     return {"anatomy": f"{len(legs)} لِگ، {len(snap.get('wire_on') or [])} سیمِ روشن",
-            "physiology": ("درآمد صفر، propose-only" if not snap.get("money", {}).get("musd") else "درآمد>۰"),
+            # ۲۰۲۶-۰۷-۲۷: این خط به `money.musd` نگاه می‌کرد که **خرج** است، پس هر
+            # ۲۷ نسخه «درآمد>۰» می‌گفت در حالی که درآمدِ محقق‌شده صفر بود. برای
+            # ارگانیسمی که مأموریتش پول است، این بدترین باورِ ممکن بود — و در
+            # promptِ مغزِ گران هم می‌رفت. حالا از منبعِ درآمدِ واقعی می‌خواند.
+            "physiology": (f"درآمدِ محقق‌شده {snap.get('revenue')} · خرجِ خودم "
+                           f"{snap.get('money', {}).get('musd')} micro-USD"
+                           if snap.get("revenue")
+                           else f"درآمد صفر، propose-only · خرجِ خودم "
+                                f"{snap.get('money', {}).get('musd')} micro-USD"),
             "pathology": path[:5], "trajectory": "نامعلوم (بی‌LLM)",
             "prescription": [{"action": "یک لِگ را به لیدِ واقعی وصل کن", "why": "ترس را می‌شکند", "priority": "high"}],
             "open_questions": ["چرا خطاهای پرتکرار رخ می‌دهند؟"],
@@ -335,6 +368,10 @@ def _hash_digest(snap: dict) -> dict:
     return {"legs": legs, "wire_on": snap.get("wire_on"), "wire_off": snap.get("wire_off"),
             "fear": st.get("in_fear"), "level": st.get("level"),
             "musd": (snap.get("money") or {}).get("musd"),
+            # بدونِ این، تصحیحِ باورِ درآمد تا **تغییرِ طبیعیِ بعدیِ hash** پشتِ
+            # مسیرِ `cached:no-change` می‌ماند — و آن مسیر همین حالا ۱۱ چرخه یخ‌زده
+            # است. یعنی فیکس روی دیسک بود ولی باور عوض نمی‌شد (۲۰۲۶-۰۷-۲۷).
+            "revenue": snap.get("revenue"),
             "prop": (snap.get("money") or {}).get("proposal_metrics"),
             "dead_spots": (snap.get("innervation") or {}).get("dead_spots"),
             "error_types": sorted((snap.get("recent_errors") or {}).keys()),

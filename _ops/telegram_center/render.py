@@ -46,6 +46,9 @@ LEGS = {
     "system":     "سیستم",
     "knowledge":  "دانش",
     "cartographer": "نقشه‌بردار",
+    # ۲۰۲۶-۰۷-۲۷ — اتاقِ آینه: تنها جایی که هر پیام مستقیم به لایهٔ خودشناسی می‌رود
+    # (بدونِ نگاشتِ فرمان). پا نیست — دایجستِ دوره‌ای ندارد؛ فقط گفتگو.
+    "mirror": "آینه",
 }
 
 # برندینگِ بصریِ هر پا (رأی مالک: media-first، آیکنِ ثابت per پا) — جدا از LEGS تا
@@ -54,6 +57,7 @@ LEG_ICONS = {
     "lead": "🎨", "ziman": "🖼", "mining": "⛏", "crypto": "📈",
     "accounting": "🧾", "studio_pf": "🎬", "system": "⚙️", "knowledge": "🧠",
     "cartographer": "🗺",
+    "mirror": "🪞",
     "hq": "🐙",
 }
 DIVIDER = "─────── ✦ ───────"
@@ -390,6 +394,11 @@ def render_leg_digest(leg_key: str, leg: dict | None, config: dict | None = None
 
     شکلِ leg آزاد است (fail-soft): status/detail|summary/next|next_action خوانده
     می‌شوند؛ هر چه نبود، خطش حذف می‌شود. نامِ نمایشی از configِ مالک (پیش‌فرض LEGS)."""
+    # اتاقِ آینه پا نیست — وضعیتی ندارد که دایجست شود. بدونِ این، حلقهٔ دایجست
+    # روزی یک «🪞 آینه ⚪ سیگنالِ زنده‌ای نیست» می‌فرستد؛ یعنی اتاقِ گفتگو با نویزِ
+    # خودکار پر می‌شود. حلقه با متنِ خالی فقط سررسید را جلو می‌برد (بی‌ضرر).
+    if str(leg_key or "") == "mirror":
+        return ""
     d = leg if isinstance(leg, dict) else {}
     name = display_name(leg_key, config)
     icon = LEG_ICONS.get(str(leg_key or ""), "")

@@ -64,6 +64,8 @@ ROUTER_FENCED = {
     # گفتگوی آزادِ مالک در تلگرام (۲۰۲۶-۰۷-۲۷) — tier پولیِ پین‌شده، فقط متن،
     # هیچ مسیری به اجرا. همین گارد بلافاصله بعد از نوشتنش گرفتش.
     "telegram_center/ask_brain.py",
+    # اتاقِ آینه — گفتگو با لایهٔ خودشناسی. همان مرزها؛ سهمیه‌اش هم مشترک با بالایی.
+    "telegram_center/mirror_room.py",
 }
 ADAPTER_FENCED = {
     "debate/debate_loop.py",         # _gated_call → DeepSeekClient.complete

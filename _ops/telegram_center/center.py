@@ -718,6 +718,34 @@ class Center:
         ارتقا از LLM پشتِ فلگِ OCTOPUS_TG_LLM_ASK=1 در آینده بدونِ لمسِ این لایه
         ممکن است (intent.classify را می‌توان با wrapperِ LLM عوض کرد)."""
         chat_id = (msg.get("chat") or {}).get("id")
+        # ── اتاقِ آینه (۲۰۲۶-۰۷-۲۷): در این تاپیک **هیچ** نگاشتِ فرمانی انجام
+        # نمی‌شود. هر جمله مستقیم به لایهٔ خودشناسی می‌رود، با تاریخچهٔ گفتگو و
+        # تصحیح‌های ثبت‌شدهٔ مالک. جای دیگری از بات عوض نمی‌شود؛ flag خاموش یا
+        # هر شکست → مسیرِ عادیِ پایین، بایت‌به‌بایت.
+        if self._topic_key(msg) == "mirror":
+            try:
+                import mirror_room as _mr
+                if _mr.enabled():
+                    _m = _mr.ask(text)
+                    if _m.get("ok"):
+                        _txt, _kb = _mr.card(_m["text"], _m.get("model") or "",
+                                             bool(_m.get("recorded_correction")))
+                        _mid = self._client.send(_scrub(_txt), chat_id=chat_id,
+                                                 keyboard=_kb,
+                                                 topic_id=self._reply_thread(msg))
+                        return {"kind": "mirror", "sent": _mid is not None}
+                    # شکست را **صادقانه** بگو — در این اتاق «متوجه نشدم» بی‌معنی است
+                    _why = {"daily-cap": "سهمیهٔ امروزِ فکرِ عمیقم تمام شد",
+                            "not-a-paid-brain": "مغزِ گرانم الان در دسترس نیست",
+                            "no-answer": "مغزم جواب نداد",
+                            }.get(str(_m.get("reason") or "").split(":")[0], "")
+                    if _why:
+                        _mid = self._client.send(
+                            _scrub(f"🪞 {_why} — چند دقیقهٔ دیگر دوباره بپرس."),
+                            chat_id=chat_id, topic_id=self._reply_thread(msg))
+                        return {"kind": "mirror_busy", "sent": _mid is not None}
+            except Exception:  # noqa: BLE001 — آینه هرگز مسیرِ بات را نمی‌کشد
+                pass
         try:
             # Mission Genome: درخواست‌های کدنویسی/تست/یادگیری/جهش نباید به منوی ثابت
             # سقوط کنند. اول به Mission قابل‌ردیابی تبدیل می‌شوند؛ اجرا/apply همچنان
@@ -1092,6 +1120,26 @@ class Center:
             self._edit_page(cbq, parts[1])
             self._answer(cbq)
             return {"kind": "center", "page": parts[1]}
+
+        # اتاقِ آینه (۲۰۲۶-۰۷-۲۷): دو دکمهٔ فقط‌خواندنی و $۰ — «چه می‌دانم» و
+        # «تصحیح‌ها». هیچ‌کدام مغز صدا نمی‌زند و هیچ state ای عوض نمی‌کند؛ فقط
+        # همان چیزی را نشان می‌دهد که در contextِ گفتگو هم می‌رود.
+        if verb == "mr" and len(parts) == 2:
+            try:
+                import mirror_room as _mr
+                body = (_mr.know_card() if parts[1] == "know"
+                        else _mr.corrections_card())
+            except Exception:  # noqa: BLE001
+                body = "🪞 آینه در دسترس نیست."
+            msg = cbq.get("message") or {}
+            try:
+                self._client.send(_scrub(body),
+                                  chat_id=(msg.get("chat") or {}).get("id"),
+                                  topic_id=self._reply_thread(msg))
+            except Exception:  # noqa: BLE001
+                pass
+            self._answer(cbq)
+            return {"kind": "mirror", "view": parts[1]}
 
         if verb == "lg" and len(parts) == 3 and pw:
             key, act = _sanitize_id(parts[1]), parts[2]

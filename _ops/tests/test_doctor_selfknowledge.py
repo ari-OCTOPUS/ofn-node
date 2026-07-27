@@ -293,6 +293,37 @@ def t_run_async_guard():
         sk._running = False
 
 
+
+# ═══ ۲۰۲۶-۰۷-۲۷ — قفلِ باورِ پول ═══════════════════════════════════════════
+# اسکنِ خودآگاهی این را گرفت و راستی‌آزمایی شد: `physiology` به `money.musd` نگاه
+# می‌کرد که **خرجِ خودِ ارگانیسم** است (telemetry.py:174 از جمعِ هزینه‌ها می‌سازدش).
+# نتیجه: هر ۲۷ نسخه «درآمد>۰» در حالی که attribution.confirmed صفر بود — و همین
+# جملهٔ غلط در promptِ مغزِ گران می‌رفت. برای ارگانیسمی که مأموریتش پول است، این
+# بدترین باورِ ممکن بود. این سه تست اجازه نمی‌دهند برگردد.
+
+
+def t_money_musd_is_never_read_as_revenue():
+    snap = {"money": {"musd": 21295}, "revenue": 0.0, "legs": {}, "wire_on": []}
+    u = sk._heuristic(snap, {})
+    assert "درآمد صفر" in u["physiology"], u["physiology"]
+    assert "درآمد>۰" not in u["physiology"], "خرج دوباره درآمد خوانده شد"
+
+
+def t_real_revenue_is_reported_as_revenue():
+    snap = {"money": {"musd": 21295}, "revenue": 12.5, "legs": {}, "wire_on": []}
+    u = sk._heuristic(snap, {})
+    assert "12.5" in u["physiology"], u["physiology"]
+    assert "صفر" not in u["physiology"], u["physiology"]
+
+
+def t_the_snapshot_separates_spend_from_revenue():
+    s = sk.snapshot()
+    assert "revenue" in s, "کلیدِ درآمد در snapshot نیست"
+    assert isinstance(s["revenue"], float)
+    assert "_note" in s["money"], "کلیدِ گمراه‌کنندهٔ money بدونِ هشدار ماند"
+    # و تصحیح باید بتواند از پشتِ کشِ no-change بیرون بیاید
+    assert "revenue" in sk._hash_digest(s),         "revenue در hash نیست — باورِ تصحیح‌شده تا تغییرِ بعدی یخ می‌ماند"
+
 if __name__ == "__main__":
     failed = harness.run([
         ("snapshotِ غنی", t_snapshot_richer),
@@ -312,5 +343,10 @@ if __name__ == "__main__":
         ("beat خاموش=no-op", t_beat_flag_off_noop),
         ("beat در ترس شلیک", t_beat_fires_under_fear),
         ("run_async گارد", t_run_async_guard),
+        # ۲۰۲۶-۰۷-۲۷ — قفلِ باورِ پول. این فایل لیستِ صریح دارد نه جمع‌آوریِ
+        # خودکار، پس تستِ ثبت‌نشده بی‌صدا نمی‌دود و سوییت سبز گزارش می‌شود.
+        ("خرج هرگز درآمد خوانده نشود", t_money_musd_is_never_read_as_revenue),
+        ("درآمدِ واقعی درآمد گزارش شود", t_real_revenue_is_reported_as_revenue),
+        ("snapshot خرج و درآمد را جدا کند", t_the_snapshot_separates_spend_from_revenue),
     ])
     sys.exit(1 if failed else 0)
