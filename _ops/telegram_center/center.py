@@ -1630,7 +1630,13 @@ class Center:
         توکنِ HumanAppendGuard (فقط با رازِ env)."""
         data = str(cbq.get("data") or "")
         verb = data.split(":", 1)[0]
-        if verb in ("mn", "lg", "pw", "pwc"):
+        # ۲۰۲۶-۰۷-۲۷ — `ng` و `mr` این‌جا جا افتاده بودند، پس هر پنج دکمهٔ ساخته‌شدهٔ
+        # همان روز (سه دکمهٔ مذاکره + دو دکمهٔ آینه) به handlerشان **نمی‌رسیدند** و
+        # در شاخهٔ ok/no/later «نادیده» می‌شدند. تستِ آن روز فقط شکلِ صفحه‌کلید را
+        # می‌سنجید نه مسیرِ dispatch را — همان «سبز به‌خاطرِ نبودِ خطا».
+        # گاردِ `t_every_emitted_callback_verb_is_routed` حالا هر فعلی را که کد
+        # تولید می‌کند با همین جدول تطبیق می‌دهد.
+        if verb in ("mn", "lg", "pw", "pwc", "ng", "mr"):
             return self._handle_center_callback(cbq, data)
         if verb == "map":
             return self._handle_map_callback(cbq, data)
