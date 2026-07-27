@@ -203,14 +203,41 @@ MAX_FILE_KB_REVIEW = 48        # فایلِ بزرگ‌تر مرور نمی‌ش
 _BEAT_LOCK = __import__("threading").Lock()
 
 
+# یک ردیفِ `taken` که بیش از این بماند، یعنی پروسه وسطِ کار مرده — دوباره باز می‌شود.
+# سقف = تماسِ مغز (~۳۰s) + دو اجرای سوییتِ سایه (۶۰۰s هرکدام) + سرریز.
+TAKEN_STALE_S = 1800.0
+
+
 def _queue_rows() -> list:
+    """صف را **خط‌به‌خط** بخوان. یک خطِ خراب نباید کلِ صف را نامرئی کند.
+
+    ممیزیِ متخاصمِ ۲۰۲۶-۰۷-۲۷: نسخهٔ قبلی همهٔ خط‌ها را در یک try می‌خواند و
+    `json.JSONDecodeError` زیرمجموعهٔ `ValueError` است — پس **یک** خطِ نصفه (که
+    append ِ غیراتمیک در قطعِ برق دقیقاً می‌سازد) کلِ صف را `[]` می‌کرد، بی‌صدا و
+    برای همیشه: `drive` می‌گفت queue-empty و `beat_async` می‌گفت nothing-to-do."""
+    rows, bad = [], 0
     try:
-        if QUEUE_PATH.exists():
-            return [json.loads(x) for x in
-                    QUEUE_PATH.read_text("utf-8").splitlines() if x.strip()]
-    except (OSError, ValueError):
-        pass
-    return []
+        if not QUEUE_PATH.exists():
+            return []
+        for line in QUEUE_PATH.read_text("utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                r = json.loads(line)
+            except ValueError:
+                bad += 1
+                continue
+            if isinstance(r, dict):
+                rows.append(r)
+    except OSError:
+        return []
+    if bad:
+        try:
+            opslib.alert([f"self_patch: {bad} خطِ خراب در defect-queue.jsonl "
+                          f"رد شد ({len(rows)} ردیفِ سالم خوانده شد)"])
+        except Exception:  # noqa: BLE001
+            pass
+    return rows
 
 
 def _queue_append(row: dict) -> None:
@@ -275,19 +302,33 @@ def review_and_queue(*, ask_fn=None, targets=None) -> dict:
     idx = int(st.get("idx", -1)) + 1
     target = files[idx % len(files)]
     # روز را **قبل از** تماس بسوزان — مغزِ خراب نباید هر تیک مرورِ گران بسوزاند.
+    # fail-CLOSED: اگر سوزاندن روی دیسک ننشیند، تماسِ گران هم نباید انجام شود؛
+    # وگرنه دیسکِ پر/فقط‌خواندنی یعنی یک مرورِ پولی در **هر تیک** (ممیزیِ ۰۷-۲۷).
     try:
         REVIEW_STATE.parent.mkdir(parents=True, exist_ok=True)
         REVIEW_STATE.write_text(json.dumps(
             {"date": today, "idx": idx % len(files), "target": target},
             ensure_ascii=False), "utf-8")
-    except OSError:
-        pass
+    except OSError as e:
+        opslib.alert([f"self_patch: ثبتِ روزِ مرور شکست ({type(e).__name__}) — "
+                      "مرورِ گران انجام نشد (fail-closed)"])
+        return {"ok": False, "reason": "slot-persist-failed", "target": target}
     try:
         src = (_HERE.parent / target).read_text("utf-8")
     except Exception as e:  # noqa: BLE001
         return {"ok": False, "reason": f"unreadable:{type(e).__name__}", "target": target}
     ans = (_review_ask(target, src, ask_fn=ask_fn) or "").strip()
-    if not ans or ans.upper().startswith("CLEAN"):
+    # سکوت ≠ «تمیز است». `_review_ask` روی هر استثنا/جوابِ not-ok رشتهٔ خالی می‌دهد؛
+    # نسخهٔ قبلی همان را CLEAN می‌شمرد، یعنی یک مغزِ مرده هر روز یک فایل را «بازبینی‌شده
+    # و سالم» اعلام می‌کرد و روزِ مرور را هم می‌سوزاند (ممیزیِ متخاصمِ ۰۷-۲۷).
+    if not ans:
+        # روز عمداً سوخته می‌ماند: پس‌دادنش یعنی مغزِ خراب هر تیک یک مرورِ گران
+        # می‌سوزاند (گاردِ t_loop_review_burns_the_day_before_the_expensive_call).
+        # ضررِ اصلی ثبتِ CLEANِ دروغ بود، نه سوختنِ اسلات — چرخشِ idx فردا فایلِ
+        # بعدی را می‌گیرد و آلارم به مالک می‌گوید چه چیزی مرور **نشد**.
+        opslib.alert([f"self_patch: مرورِ {target} جوابی نگرفت — «تمیز» ثبت نشد"])
+        return {"ok": False, "reason": "brain-silent", "target": target}
+    if ans.upper().startswith("CLEAN"):
         return {"ok": True, "target": target, "clean": True}
     try:
         d = json.loads(_strip_fences(ans).splitlines()[0])
@@ -332,9 +373,35 @@ def drive(*, channel=None, ask_fn=None, shadow_fn=None) -> dict:
                    "taken_ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
     res = propose(target_rel=row["target"], defect=row["defect"],
                   fix_hint=row.get("hint", ""), ask_fn=ask_fn, shadow_fn=shadow_fn)
-    _queue_append({**row, "status": "done" if res.get("ok") else "failed",
+    # شکستِ **گذرا** نباید نقص را برای همیشه بسوزاند. ممیزیِ ۰۷-۲۷: هر non-ok
+    # ردیف را نهایی می‌کرد، از جمله «سقفِ روزانه پر شد» و «مغز جواب نداد» — که هیچ‌کدام
+    # حرفی دربارهٔ خودِ نقص نمی‌زنند. فقط قضاوتِ واقعی (سوییت قرمز شد، یا مدل گفت
+    # تغییری لازم نیست) نهایی است. `attempts` جلوی حلقهٔ بی‌پایان را می‌گیرد.
+    _TRANSIENT = {"daily-cap", "brain-no-answer", "unreadable", "shadow-error",
+                  "worktree-add-failed", "code_autonomy-unavailable"}
+    reason = str(res.get("reason") or "")
+    transient = any(reason.startswith(t) for t in _TRANSIENT)
+    attempts = int(row.get("attempts", 0)) + 1
+    if res.get("ok"):
+        status = "done"
+    elif transient and attempts < 3:
+        status = "open"          # دوباره برداشته می‌شود، بدونِ مرورِ گرانِ تازه
+    else:
+        status = "failed"
+    _queue_append({**row, "status": status, "attempts": attempts,
                    "result_reason": res.get("reason"), "green": res.get("green"),
+                   "new_fails": res.get("new_fails"),
                    "done_ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
+    if status == "failed" and not res.get("ok"):
+        # شکستِ نهایی باید **دیده** شود؛ وگرنه یافتهٔ یک مرورِ پولی بی‌صدا گم می‌شود.
+        try:
+            opslib.alert([f"self_patch: نقص {row.get('id')} روی "
+                          f"{row.get('target')} بسته شد بدونِ پچ — "
+                          f"{reason or 'unknown'}"
+                          + (f" · شکستِ تازه: {', '.join(res.get('new_fails') or [])}"
+                             if res.get("new_fails") else "")])
+        except Exception:  # noqa: BLE001
+            pass
     if res.get("ok") and channel is not None and hasattr(channel, "send_text"):
         try:
             channel.send_text(card_text(res), stream="c6")
@@ -344,10 +411,26 @@ def drive(*, channel=None, ask_fn=None, shadow_fn=None) -> dict:
 
 
 def _queue_effective() -> dict:
-    """آخرین وضعِ هر id (صف append-only است — آخرین ردیف برنده)."""
+    """آخرین وضعِ هر id (صف append-only است — آخرین ردیف برنده).
+
+    یک ردیفِ `taken` ِ کهنه دوباره `open` دیده می‌شود. بدونِ این، thread ِ daemon که
+    وسطِ کار با ری‌استارتِ ارگانیسم می‌میرد (بینِ appendِ «taken» و appendِ نتیجه)
+    آن نقص را برای همیشه دفن می‌کرد: هیچ‌کس `taken` را نمی‌خواند، و
+    `review_and_queue` هم به‌خاطرِ dedupِ id هرگز دوباره صفش نمی‌کرد."""
     eff = {}
     for r in _queue_rows():
         eff[r.get("id")] = r
+    now = time.time()
+    for rid, r in eff.items():
+        if r.get("status") != "taken":
+            continue
+        try:
+            t = time.mktime(time.strptime(str(r.get("taken_ts") or ""),
+                                          "%Y-%m-%dT%H:%M:%SZ")) - time.timezone
+        except (TypeError, ValueError):
+            t = 0.0
+        if not t or (now - t) > TAKEN_STALE_S:
+            eff[rid] = {**r, "status": "open", "reopened_from": "taken-stale"}
     return eff
 
 

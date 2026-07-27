@@ -462,6 +462,132 @@ def t_loop_review_targets_all_pass_the_borrowed_allowlist():
         assert f.endswith(".py"), f
 
 
+# ═══ یافته‌های ممیزیِ متخاصمِ ۲۰۲۶-۰۷-۲۷ (۱۸ تأییدشده) — قفلِ رگرسیون ═══════════
+# هر تست زیر یک باگِ **واقعیِ همان روز** را می‌بندد، نه یک سناریوی فرضی.
+
+
+def t_audit_a_corrupt_line_does_not_blank_the_whole_queue():
+    """یافتهٔ major: `json.JSONDecodeError` زیرمجموعهٔ `ValueError` است و کلِ خواندن
+    در یک try بود — یک خطِ نصفه (که appendِ غیراتمیک در قطعِ برق می‌سازد) صف را
+    برای همیشه `[]` می‌کرد، بی‌صدا."""
+    _on()
+    _reset_loop_state()
+    try:
+        good = {"id": "sp-ok", "ts": "2026-01-01T00:00:00Z", "target": ALLOWED,
+                "defect": "d", "hint": "", "status": "open"}
+        sp._queue_append(good)
+        with open(sp.QUEUE_PATH, "a", encoding="utf-8") as f:
+            f.write('{"id": "sp-broken", "sta\n')          # خطِ بریده
+        sp._queue_append({**good, "id": "sp-ok2"})
+        rows = sp._queue_rows()
+        ids = {r.get("id") for r in rows}
+        assert ids == {"sp-ok", "sp-ok2"}, f"خطِ خراب صف را نابود کرد: {ids}"
+        assert any(r.get("status") == "open" for r in sp._queue_effective().values())
+    finally:
+        _off()
+        _reset_loop_state()
+
+
+def t_audit_a_stale_taken_row_is_reopened_not_buried():
+    """یافتهٔ major: threadِ daemon وسطِ کار با ری‌استارت می‌میرد؛ هیچ‌کس `taken` را
+    نمی‌خواند و dedupِ id هم مانعِ صف‌شدنِ دوباره است ⇒ نقص برای همیشه دفن."""
+    _on()
+    _reset_loop_state()
+    try:
+        row = {"id": "sp-stale", "ts": "2026-01-01T00:00:00Z", "target": ALLOWED,
+               "defect": "d", "hint": "", "status": "open"}
+        sp._queue_append(row)
+        sp._queue_append({**row, "status": "taken", "taken_ts": "2020-01-01T00:00:00Z"})
+        eff = sp._queue_effective()
+        assert eff["sp-stale"]["status"] == "open", f"ردیفِ کهنه باز نشد: {eff}"
+        assert eff["sp-stale"].get("reopened_from") == "taken-stale"
+        # ولی یک `taken` ِ تازه نباید باز شود (وگرنه دو worker یک ردیف را می‌گیرند)
+        import time as _t
+        fresh = _t.strftime("%Y-%m-%dT%H:%M:%SZ", _t.gmtime())
+        sp._queue_append({**row, "status": "taken", "taken_ts": fresh})
+        assert sp._queue_effective()["sp-stale"]["status"] == "taken", "ردیفِ تازه باز شد"
+    finally:
+        _off()
+        _reset_loop_state()
+
+
+def t_audit_a_transient_failure_does_not_burn_the_defect_forever():
+    """یافتهٔ major: هر non-ok ردیف را نهایی می‌کرد — از جمله «سقفِ روزانه» و «مغز
+    جواب نداد»، که هیچ‌کدام حرفی دربارهٔ خودِ نقص نمی‌زنند."""
+    _on()
+    _reset_loop_state()
+    try:
+        row = {"id": "sp-tr", "ts": "2026-01-01T00:00:00Z", "target": ALLOWED,
+               "defect": "d", "hint": "", "status": "open"}
+        sp._queue_append(row)
+        # مغز سکوت می‌کند → گذرا → باید دوباره باز شود
+        sp.drive(channel=None, ask_fn=_mk_ask(""), shadow_fn=lambda t, c: {"green": True})
+        eff = sp._queue_effective()["sp-tr"]
+        assert eff["status"] == "open", f"شکستِ گذرا نهایی شد: {eff}"
+        assert eff["attempts"] == 1
+        # ولی قضاوتِ واقعی (سوییت قرمز) باید نهایی باشد
+        sp.drive(channel=None, ask_fn=_mk_ask("cand"),
+                 shadow_fn=lambda t, c: {"green": False, "reason": "suite-red"})
+        assert sp._queue_effective()["sp-tr"]["status"] == "failed"
+    finally:
+        _off()
+        _reset_loop_state()
+
+
+def t_audit_transient_retries_are_bounded():
+    """بی‌کران بودنِ retry یعنی یک نقصِ نفرین‌شده تا ابد تماسِ پولی می‌سوزاند."""
+    _on()
+    _reset_loop_state()
+    try:
+        sp._queue_append({"id": "sp-loop", "ts": "2026-01-01T00:00:00Z", "target": ALLOWED,
+                          "defect": "d", "hint": "", "status": "open"})
+        for _ in range(5):
+            sp.drive(channel=None, ask_fn=_mk_ask(""),
+                     shadow_fn=lambda t, c: {"green": True})
+        eff = sp._queue_effective()["sp-loop"]
+        assert eff["status"] == "failed", f"retry بی‌کران ماند: {eff}"
+        assert eff["attempts"] <= 3, eff
+    finally:
+        _off()
+        _reset_loop_state()
+
+
+def t_audit_brain_silence_is_never_recorded_as_clean():
+    """یافتهٔ major: مغزِ مرده هر روز یک فایل را «بازبینی‌شده و سالم» اعلام می‌کرد."""
+    _on()
+    _reset_loop_state()
+    try:
+        r = sp.review_and_queue(ask_fn=_mk_ask("", boom=True), targets=[ALLOWED])
+        assert r.get("reason") == "brain-silent", r
+        assert not r.get("clean"), "سکوتِ مغز «تمیز» ثبت شد"
+        # ولی روز باید سوخته بماند وگرنه هر تیک یک مرورِ گران
+        assert sp.REVIEW_STATE.exists(), "روز پس داده شد — مغزِ خراب هر تیک می‌سوزاند"
+    finally:
+        _off()
+        _reset_loop_state()
+
+
+def t_audit_a_failed_defect_reaches_the_owner():
+    """شکستِ نهایی باید دیده شود؛ وگرنه یافتهٔ یک مرورِ پولی بی‌صدا گم می‌شود."""
+    import opslib
+    _on()
+    _reset_loop_state()
+    sent, real = [], opslib.alert
+    opslib.alert = lambda msgs, **k: sent.extend(msgs)
+    try:
+        sp._queue_append({"id": "sp-al", "ts": "2026-01-01T00:00:00Z", "target": ALLOWED,
+                          "defect": "نقصِ واقعی", "hint": "", "status": "open"})
+        sp.drive(channel=None, ask_fn=_mk_ask("cand"),
+                 shadow_fn=lambda t, c: {"green": False, "reason": "suite-red",
+                                         "new_fails": ["test_x"]})
+        blob = " ".join(sent)
+        assert "sp-al" in blob and ALLOWED in blob, f"شکست به مالک نرسید: {blob[:150]}"
+    finally:
+        opslib.alert = real
+        _off()
+        _reset_loop_state()
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

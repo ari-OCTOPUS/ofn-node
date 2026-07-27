@@ -107,9 +107,58 @@ def shadow_test(target_rel: str, new_content: str, *, run_fn=None) -> dict:
     return _git_shadow_test(target_rel, new_content)
 
 
+def _shadow_env(wt: Path) -> dict:
+    """محیطِ فرزندِ سوییتِ سایه — ایزولاسیونِ **ساختاری**، نه قراردادی.
+
+    دو نشتِ تأییدشدهٔ ۲۰۲۶-۰۷-۲۷ که این تابع می‌بندد:
+      · مسیر: `opslib` ریشه را از `ORG_ROOT` (یا هاردکدِ F:\\backup) می‌گیرد نه از
+        `REAL_VAULT`. بدونِ pin، `test_tg_power` فایلِ زندهٔ STOP-ORGANISM را
+        می‌ساخت و هر شادو-تست ارگانیسمِ بالا را می‌خواباند.
+      · پول: محیطِ ارگانیسم کلیدهای پروایدر را دارد (بوت `.env` را بار می‌کند).
+        `dict(os.environ)` همه را به فرزند می‌داد، پس یک سوییتِ سایه می‌توانست
+        تماسِ پولیِ واقعی بزند و سهمیه بسوزاند. تست باید **نتواند** خرج کند.
+    allowlist نیست چون سوییت به PATH/SystemRoot/TEMP نیاز دارد؛ deny صریح است."""
+    import os as _os
+    import re as _re
+    env = dict(_os.environ)
+    env["REAL_VAULT"] = str(wt)
+    env["ORG_ROOT"] = str(wt)
+    env["PYTHONUTF8"] = "1"
+    for _k in ("OPS_DIR", "BUDGET_STATE"):
+        env.pop(_k, None)
+    # هر چیزی که بوی اعتبارنامه بدهد از فرزند حذف می‌شود (نام‌ها هرگز log نمی‌شوند).
+    _secretish = _re.compile(r"(API_KEY|_TOKEN$|^TELEGRAM|^TG_|SECRET|PASSWORD|_KEY$)", _re.I)
+    for _k in [k for k in env if _secretish.search(k)]:
+        env.pop(_k, None)
+    env["OCTOPUS_SHADOW_SUITE"] = "1"        # سوییت می‌تواند بداند در سایه است
+    return env
+
+
+def _run_suite(wt: Path, env: dict, timeout: int = 600) -> dict:
+    r = subprocess.run([sys.executable, "-X", "utf8",
+                        str(wt / "_ops" / "tests" / "run_all.py")],
+                       capture_output=True, text=True, timeout=timeout, env=env)
+    out = r.stdout or ""
+    fails = set(_re.findall(r"(test_[a-z0-9_]+)\.py", out.split("شکست:")[-1])) \
+        if "شکست:" in out else set()
+    return {"code": r.returncode, "fails": fails,
+            "tail": "\n".join(out.splitlines()[-3:])}
+
+
+import re as _re  # noqa: E402 — کنارِ مصرف‌کننده‌اش
+
+
 def _git_shadow_test(target_rel: str, new_content: str) -> dict:
-    """مسیرِ واقعی: git worktree از HEAD → نوشتنِ patch در نسخهٔ ایزوله → سوییتِ کامل → پاک‌سازی.
-    fail-soft: هر خطای git/اجرا → ok:False. درختِ زنده هرگز لمس نمی‌شود."""
+    """مسیرِ واقعی: git worktree از HEAD → سوییت **دوبار** → مقایسه با مبنا → پاک‌سازی.
+
+    چرا مبنا (ممیزیِ متخاصمِ ۲۰۲۶-۰۷-۲۷، بحرانیِ تأییدشده): «سبز» به‌معنای خروجیِ
+    صفرِ مطلق، در این ریپو **ساختاراً دست‌نیافتنی** است. worktree از HEAD ساخته
+    می‌شود و `_ops/OCTOPUS-flags.cmd` عمداً gitignored است، پس
+    `test_paid_router_dark_config` که وجودش را assert می‌کند در هر worktree قرمز
+    است — مستقل از پچ. نتیجه: هیچ پچی هرگز سبز نمی‌شد، ولی `drive()` هر شکست را
+    نهایی می‌شمرد؛ یعنی حلقه هر بار یک تماسِ پولی می‌سوزاند و یک نقص را برای همیشه
+    از صف حذف می‌کرد. حالا معیار «هیچ شکستِ **تازه** نسبت به همان HEAD بدونِ پچ»
+    است — یعنی دقیقاً همان چیزی که ادعا می‌شد: «پچ چیزی را نشکست»."""
     repo = _OPS.parent                                   # ریشهٔ worktree/repo
     tmp = Path(tempfile.mkdtemp(prefix="shadow-wt-"))
     wt = tmp / "wt"
@@ -122,29 +171,20 @@ def _git_shadow_test(target_rel: str, new_content: str) -> dict:
         if not tgt.exists():
             return {"ok": False, "reason": "target-missing-in-tree", "target": target_rel}
         old = tgt.read_text("utf-8")
+        env = _shadow_env(wt)
+        base = _run_suite(wt, env)                       # ← مبنا: همان HEAD، بدونِ پچ
         tgt.write_text(new_content, "utf-8")
         diff = subprocess.run(["git", "-C", str(wt), "diff", "--stat"],
                               capture_output=True, text=True, timeout=30)
-        import os as _os
-        env = dict(_os.environ)
-        env["REAL_VAULT"] = str(wt)
-        env["PYTHONUTF8"] = "1"
-        # پورتِ ۲۰۲۶-۰۷-۲۷ (پیش از مسلح‌شدنِ self_patch): opslib «ORG_ROOT» را از env
-        # یا هاردکدِ F:\backup می‌گیرد — نه از REAL_VAULT. بدونِ pinِ زیر، سوییتِ سایه
-        # (test_tg_power) فایلِ STOP-ORGANISM/RESTART-REQUESTED را در **درختِ زنده**
-        # می‌ساخت و هر شادو-تست ارگانیسمِ بالا را می‌خواباند. با pin، کلِ سوییت در
-        # همان worktree می‌ماند — «هرگز درختِ زنده» حالا ساختاری است نه قراردادی.
-        env["ORG_ROOT"] = str(wt)
-        for _k in ("OPS_DIR", "BUDGET_STATE"):
-            env.pop(_k, None)
-        run = subprocess.run([sys.executable, "-X", "utf8",
-                              str(wt / "_ops" / "tests" / "run_all.py")],
-                             capture_output=True, text=True, timeout=600, env=env)
-        green = run.returncode == 0
-        tail = "\n".join((run.stdout or "").splitlines()[-3:])
+        cand = _run_suite(wt, env)                       # ← با پچ
+        new_fails = sorted(cand["fails"] - base["fails"])
+        fixed = sorted(base["fails"] - cand["fails"])
+        # سبز = هیچ شکستِ تازه. اگر مبنا خودش پاک بود، این دقیقاً «returncode==0» است.
+        green = not new_fails and (cand["code"] == 0 or bool(base["fails"]))
         return {"ok": True, "green": green, "target": target_rel,
-                "diff": (diff.stdout or "").strip()[:400], "suite_tail": tail,
-                "changed_bytes": len(new_content) - len(old)}
+                "diff": (diff.stdout or "").strip()[:400], "suite_tail": cand["tail"],
+                "baseline_fails": sorted(base["fails"]), "new_fails": new_fails,
+                "fixed_fails": fixed, "changed_bytes": len(new_content) - len(old)}
     except Exception as e:  # noqa: BLE001
         return {"ok": False, "reason": f"shadow-error:{type(e).__name__}", "target": target_rel}
     finally:

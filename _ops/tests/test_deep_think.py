@@ -37,6 +37,9 @@ def _reset_slots():
         dt.SLOT_STATE.unlink()
     except OSError:
         pass
+    # پشتیبانِ درون-پروسه‌ایِ ۰۷-۲۷ هم باید پاک شود، وگرنه اولین تست بازه را در
+    # حافظه می‌سوزاند و بقیه «slot-done» می‌گیرند — همان تلهٔ ایزولاسیونِ ناقص.
+    dt._MEMO["date"], dt._MEMO["done"] = "", set()
 
 
 class Chan:

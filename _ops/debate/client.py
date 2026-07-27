@@ -108,7 +108,14 @@ class DeepSeekClient:
                     req, timeout=_http_timeout(
                         getattr(self, "role", None), max_tokens)) as resp:  # pragma: no cover
                 raw = json.loads(resp.read().decode("utf-8"))
-        _msg = (raw.get("choices") or [{}])[0].get("message", {})
+        _choice = (raw.get("choices") or [{}])[0]
+        # 2026-07-27: `finish_reason` هرگز سطح‌بالا نمی‌آمد، پس یک پاسخِ **بریده** از
+        # صدا درنمی‌آمد — فقط بعداً `extract_json` می‌شکست و آلارم «no JSON object»
+        # می‌داد. مسیرِ LLM ِ گاورنر ۲۴+ ساعت روی همین کوری مرده ماند و هر epoch یک
+        # فراخوانِ ~۳۰ ثانیه‌ای Fugu را دور ریخت. حالا صاحبِ فراخوان می‌تواند «length»
+        # را ببیند و سقف را بالا ببرد به‌جای اینکه دنبالِ باگِ parser بگردد.
+        _finish = _choice.get("finish_reason")
+        _msg = _choice.get("message", {})
         # fallback به reasoning_content — مدل‌های reasoning گاهی content را خالی می‌گذارند (fail-soft، صادق)
         text = _msg.get("content") or _msg.get("reasoning_content") or ""
         usage = raw.get("usage")
@@ -127,6 +134,7 @@ class DeepSeekClient:
         _tier = raw.get("octopus_tier")
         return {"text": text, "model": raw.get("octopus_model") or self.model,
                 "tokens_in": tin, "tokens_out": tout, "cost_usd": cost,
+                "finish_reason": _finish,
                 "tier": _tier or ("stub" if self.transport is not None else "paid"),
                 "stub": self.transport is not None and (_tier or "stub") == "stub"}
 
@@ -382,7 +390,14 @@ class MultiProviderClient:
                     req, timeout=_http_timeout(
                         getattr(self, "role", None), max_tokens)) as resp:  # pragma: no cover
                 raw = json.loads(resp.read().decode("utf-8"))
-        _msg = (raw.get("choices") or [{}])[0].get("message", {})
+        _choice = (raw.get("choices") or [{}])[0]
+        # 2026-07-27: `finish_reason` هرگز سطح‌بالا نمی‌آمد، پس یک پاسخِ **بریده** از
+        # صدا درنمی‌آمد — فقط بعداً `extract_json` می‌شکست و آلارم «no JSON object»
+        # می‌داد. مسیرِ LLM ِ گاورنر ۲۴+ ساعت روی همین کوری مرده ماند و هر epoch یک
+        # فراخوانِ ~۳۰ ثانیه‌ای Fugu را دور ریخت. حالا صاحبِ فراخوان می‌تواند «length»
+        # را ببیند و سقف را بالا ببرد به‌جای اینکه دنبالِ باگِ parser بگردد.
+        _finish = _choice.get("finish_reason")
+        _msg = _choice.get("message", {})
         # fallback به reasoning_content — مدل‌های reasoning گاهی content را خالی می‌گذارند (fail-soft، صادق)
         text = _msg.get("content") or _msg.get("reasoning_content") or ""
         usage = raw.get("usage")
@@ -400,6 +415,7 @@ class MultiProviderClient:
             cost = (tin / 1e6) * self.price_in + (tout / 1e6) * self.price_out
         return {"text": text, "model": self.model, "provider": self.provider,
                 "tokens_in": tin, "tokens_out": tout, "cost_usd": cost,
+                "finish_reason": _finish,
                 "subscription": self.subscription or "metered",
                 "via_gateway": self.use_gateway,
                 "stub": self.transport is not None}

@@ -97,30 +97,47 @@ def _load_slots() -> dict:
     return {"date": "", "done": []}
 
 
-def _save_slots(d: dict) -> None:
+# پشتیبانِ درون-پروسه‌ای: اگر نوشتن روی دیسک شکست بخورد، بازه در همین پروسه سوخته
+# می‌ماند. بدونِ این، دیسکِ پر/فقط‌خواندنی یعنی یک تماسِ گران در **هر تیک** تا نیمه‌شب
+# (ممیزیِ متخاصمِ ۲۰۲۶-۰۷-۲۷: «ضمانتِ سوختنِ بازه پیش از تماس» fail-open بود).
+_MEMO: dict = {"date": "", "done": set()}
+
+
+def _save_slots(d: dict) -> bool:
     try:
         SLOT_STATE.parent.mkdir(parents=True, exist_ok=True)
         tmp = SLOT_STATE.with_suffix(".json.tmp")
         tmp.write_text(json.dumps(d, ensure_ascii=False), "utf-8")
         os.replace(tmp, SLOT_STATE)
+        return True
     except OSError:
-        pass   # fail-soft: بدونِ persist هم یک‌بار-در-پروسه کار می‌کند
+        return False
 
 
 def slot_done(slot: int, today: "str | None" = None) -> bool:
     today = today or opslib.today()
+    if _MEMO["date"] == today and slot in _MEMO["done"]:
+        return True          # دیسک شاید ننوشته باشد؛ این پروسه یادش هست
     d = _load_slots()
     return d.get("date") == today and slot in (d.get("done") or [])
 
 
 def mark_slot(slot: int, today: "str | None" = None) -> None:
     today = today or opslib.today()
+    if _MEMO["date"] != today:
+        _MEMO["date"], _MEMO["done"] = today, set()
+    _MEMO["done"].add(slot)          # همیشه، حتی اگر دیسک شکست بخورد
     d = _load_slots()
     if d.get("date") != today:
         d = {"date": today, "done": []}
     if slot not in d["done"]:
         d["done"].append(slot)
-    _save_slots(d)
+    if not _save_slots(d):
+        try:
+            opslib.alert([f"deep_think: ثبتِ بازهٔ {slot} روی دیسک نشد — "
+                          "پشتیبانِ درون-پروسه فعال (بعد از ری‌استارت ممکن است تکرار شود)"])
+        except Exception:  # noqa: BLE001
+            pass
 
 
 # ─── ساختِ context (فقط تجمیع — هرگز محتوا، هرگز PII) ────────────────────────

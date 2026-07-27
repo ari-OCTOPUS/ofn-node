@@ -31,6 +31,11 @@ _OPS = Path(__file__).resolve().parent.parent          # _ops همین tree — 
 RX_ROUTER_CALL = re.compile(r"\bmodel_router\.ask\s*\(")
 RX_ROUTER_IMP = re.compile(r"from\s+model_router\s+import\s+ask")
 RX_ROUTER_ALIAS = re.compile(r"import\s+model_router\s+as\s+(\w+)")
+# ۲۰۲۶-۰۷-۲۷ — نقطهٔ کورِ اسکنر: بستنِ تابع به یک نام (`ask_fn = model_router.ask`) و
+# بعد صداکردنِ آن نام، هیچ‌کدام از الگوهای بالا را نمی‌زد. `self_patch.py` دقیقاً همین
+# شکل را دارد و ماه‌ها یک فراخوانِ **پولی** بود که این گارد نمی‌دیدش. تزریق‌پذیریِ
+# `ask_fn` برای تست لازم است، پس الگو اضافه می‌شود نه اینکه کد بدترش شود.
+RX_ROUTER_BIND = re.compile(r"=\s*model_router\.ask\b")
 RX_LOCAL = re.compile(r"\blocal_llm\.ask\s*\(")
 RX_COMPLETE = re.compile(r"\.complete\s*\(")
 RX_CLIENT_REF = re.compile(r"DeepSeekClient|MultiProviderClient")
@@ -48,6 +53,14 @@ ROUTER_FENCED = {
     "chord/adapters/llm_adapter.py",  # مسیرِ اصلی (fallbackش ADAPTER_FENCED است)
     "eval/run_adversarial.py",       # evalِ آفلاین — mr.ask آلیاس‌شده در sandbox
     "legs/speed_to_lead.py",         # Phase-D (Wave-2): _llm_draft → model_router.ask("draft",…)
+    # ۲۰۲۶-۰۷-۲۷ — سه مصرف‌کنندهٔ تازهٔ مغزِ گران. هر سه از همان درِ واحد
+    # (`model_router.ask`) با `tier="primary"` ِ پین‌شده می‌روند، پس fenced‌اند.
+    # این تست همان روز قرمز شد چون `deep_think` اضافه شد و اینجا ثبت نشد — و همان
+    # قرمزی سوییتِ سایهٔ self_patch را هم می‌بست (هیچ پچی نمی‌توانست سبز شود).
+    "deep_think.py",                 # جلسه‌های فکرِ عمیق (۴/روز، کارتِ propose-only)
+    "self_patch.py",                 # مرورِ کدِ خود → صفِ نقص → پچ (اعمال با کلیکِ مالک)
+    # همان الگویِ bind، از قبل موجود بود و این گارد نمی‌دیدش (tg_intent → ردهٔ local).
+    "telegram_center/llm_intent.py",
 }
 ADAPTER_FENCED = {
     "debate/debate_loop.py",         # _gated_call → DeepSeekClient.complete
@@ -86,7 +99,8 @@ def _iter_prod_sources():
 
 def _vectors(src: str) -> set:
     v = set()
-    if RX_ROUTER_CALL.search(src) or RX_ROUTER_IMP.search(src):
+    if (RX_ROUTER_CALL.search(src) or RX_ROUTER_IMP.search(src)
+            or RX_ROUTER_BIND.search(src)):
         v.add("router")
     for alias in RX_ROUTER_ALIAS.findall(src):
         if re.search(rf"\b{re.escape(alias)}\.ask\s*\(", src):

@@ -17,6 +17,12 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_chrono_heartbeat.py", "test_pacemaker_pause_not_die.py", "test_chrono_langar.py",
          # M3 (2026-07-24): reproduction=C6 lifecycle recorder + agent-gateway red-team
          "test_c6_state_machine.py", "test_agent_gateway_redteam.py",
+         # C2 (2026-07-25): تولیدکنندهٔ فرضیهٔ C6 + رفعِ over-markingِ _mark_hypothesis
+         "test_c6_hypothesis_producer.py",
+         # 2026-07-25 LIVE path: identity equations + collab/live telegram commands
+         "test_identity_equations.py", "test_collab_and_live_commands.py",
+         # 2026-07-25 LIVE path B: blackbox scanner + romajan bridge + heart wires
+         "test_blackbox_and_bridge.py",
          # P5 (2026-07-24): fresh-arm-token + two-key gate for dangerous capabilities
          "test_arm_gate.py",
          "test_telegram_channel.py", "test_telegram_group_allowlist.py",
@@ -240,6 +246,14 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_tg_mission.py", # 2026-07-18: Mission Genome + Action Graph برای self-coding کنترل‌شده
          "test_tg_mission_runner.py", # 2026-07-18: Runner v0 — اجرای ایزولهٔ allowlisted + evidence
          "test_code_autonomy.py",
+         # ۲۰۲۶-۰۷-۲۷ — گاردهای مصرف‌کننده‌های تازهٔ مغزِ گران. ممیزیِ متخاصمِ همان روز
+         # نشان داد هیچ‌کدام این‌جا ثبت نشده بودند: ۵۲ تستِ تازه نوشته شده بود که در
+         # سوییتِ رسمی (و در سوییتِ سایهٔ خودِ self_patch) اصلاً نمی‌دوید.
+         "test_deep_think.py",        # جلسه‌های فکرِ عمیق + مرزِ PII لولهٔ لید
+         "test_self_patch.py",        # حلقهٔ مرور→صف→پچ + قفلِ ۶ یافتهٔ ممیزی
+         "test_improve_deep.py",      # لایهٔ عمیقِ improve + سقفِ سختِ روزانه
+         "test_governor_contract.py",  # قراردادِ تخصیص + دیده‌شدنِ بریدگی
+         "test_hebbian_signals.py",   # واژگانِ سیگنالِ Hebbian (ضدِ سیگنالِ همیشه‌روشن)
          "test_ziman_leg.py",
          "test_ziman_phase2.py",
          # 2026-07-13: دو ورودیِ phantom حذف شدند — test_ziman_wiring.py و
@@ -392,6 +406,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # 2026-07-25 (build-spec §4): انضباطِ سکوتِ event_bridge — ضدِتکرارِ امضای
          # محتوا (۵۰ هم‌امضا → ۱ push)، سقفِ روزانهٔ ۶، حفظِ سقفِ ساعتیِ ۱۰.
          "test_telegram_silence.py",
+         # 2026-07-25: money-pulse — فازِ جدید به ضربانِ قلب. درآمدِ پاها رو می‌خونه،
+         # هرگز MONEY_ATTRIBUTION جعلی نمی‌نویسه (wall anti-reward-hacking).
+         "test_money_pulse.py",
          # 2026-07-25 T1 (megaprompt): int() روی برچسبِ شدت — ۳۴۸ کرشِ doctor_digest_beat
          # بسته شد؛ severity رشته‌ای/عددی/None/ناشناخته همه متنِ غیرخالی می‌دهند.
          "test_organ_dialogue_digest.py",

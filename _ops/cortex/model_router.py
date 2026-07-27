@@ -204,8 +204,12 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int) -> dict | No
                   chars_out=len(out.get("text") or ""),
                   ms=int((_pt.time() - _t0) * 1000),
                   quota_used=_q.get("used"))
+        # finish_reason را عبور بده (۲۰۲۶-۰۷-۲۷): بدونِ آن یک پاسخِ **بریده** از
+        # درِ واحدِ مغز به‌عنوانِ موفقیت بیرون می‌آید و صاحبِ فراخوان فقط بعداً
+        # می‌فهمد که parse شکست — همان کوری که مسیرِ گاورنر را ۲۴+ ساعت مرده نگه داشت.
         return {"text": out.get("text", ""), "tier": tier,
-                "model": out.get("model"), "cost_usd": out.get("cost_usd", 0.0)}
+                "model": out.get("model"), "cost_usd": out.get("cost_usd", 0.0),
+                "finish_reason": out.get("finish_reason")}
     except Exception as e:  # noqa: BLE001 — پولی شکست → fallback
         # صداقتِ متن (2026-07-25): این تابع نمی‌داند بعدش چه می‌شود — caller اول
         # tierهای پولیِ بعدی را امتحان می‌کند و فقط اگر همه شکست خوردند به محلی می‌افتد.

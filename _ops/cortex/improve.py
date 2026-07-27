@@ -60,10 +60,15 @@ def _deep_daily_cap() -> int:
     return n if 0 < n <= 8 else DEEP_DAILY_DEFAULT
 
 
+_DEEP_MEMO: dict = {"date": "", "used": 0}
+
+
 def _deep_slot_take() -> bool:
     """یک اسلاتِ امروز را بسوزان — **قبل از** فراخوانِ گران (درسِ deep_think:
     مغزِ خراب نباید هر چرخه یک تماسِ ۳۰ ثانیه‌ای بسوزاند). False = سقف پر است."""
     today = opslib.today()
+    if _DEEP_MEMO.get("date") == today and int(_DEEP_MEMO.get("used", 0)) >= _deep_daily_cap():
+        return False          # دیسک شاید ننوشته باشد؛ این پروسه یادش هست
     d = {"date": "", "used": 0}
     try:
         if DEEP_SLOTS_PATH.exists():
@@ -83,7 +88,12 @@ def _deep_slot_take() -> bool:
         tmp.write_text(json.dumps(d, ensure_ascii=False), "utf-8")
         os.replace(tmp, DEEP_SLOTS_PATH)
     except OSError:
-        pass   # fail-soft: بدونِ persist، حداقل همین پروسه راست می‌گوید
+        # پشتیبانِ درون-پروسه‌ای (ممیزیِ ۰۷-۲۷): حلقه هر ~۷ دقیقه می‌دود، پس
+        # fail-openِ قبلی روی دیسکِ ناسالم یعنی ~۲۰۰ تماسِ گران در روز.
+        _DEEP_MEMO["date"] = today
+        _DEEP_MEMO["used"] = int(_DEEP_MEMO.get("used", 0)) + 1
+        if _DEEP_MEMO["used"] > _deep_daily_cap():
+            return False
     return True
 
 

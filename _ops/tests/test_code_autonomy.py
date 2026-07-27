@@ -302,6 +302,117 @@ def t_m_real_sigma_fuse_fires():
                 sys.modules[k] = v
 
 
+# ═══ ممیزیِ متخاصمِ ۲۰۲۶-۰۷-۲۷ — دو بحرانیِ تأییدشده ═════════════════════════
+ALLOWED_TARGET = "_ops/telegram_center/live_commands.py"
+
+def t_n_shadow_env_cannot_spend_money():
+    """بحرانی: `dict(os.environ)` کلیدهای پروایدر را به فرزند می‌داد، پس یک سوییتِ
+    سایه می‌توانست تماسِ پولیِ واقعی بزند و سهمیه بسوزاند. تست باید **نتواند** خرج
+    کند — این ایزولاسیون ساختاری است، نه قراردادی."""
+    import os as _os
+    from pathlib import Path as _P
+    saved = dict(_os.environ)
+    for k, v in {"FUGU_API_KEY": "x", "SAKANA_API_KEY": "x", "GLM_API_KEY": "x",
+                 "ZAI_API_KEY": "x", "TELEGRAM_BOT_TOKEN": "x",
+                 "TG_CENTER_BOT_TOKEN": "x", "LITELLM_MASTER_KEY": "x",
+                 "SOME_SECRET": "x", "DB_PASSWORD": "x"}.items():
+        _os.environ[k] = v
+    try:
+        env = CA._shadow_env(_P("/tmp/wt"))
+        leaked = [k for k in env if any(
+            s in k.upper() for s in ("API_KEY", "TOKEN", "SECRET", "PASSWORD"))]
+        check("هیچ اعتبارنامه‌ای به سوییتِ سایه نشت نمی‌کند", not leaked)
+        check("مسیرها به worktree پین‌اند",
+              env.get("ORG_ROOT") == str(_P("/tmp/wt"))
+              and env.get("REAL_VAULT") == str(_P("/tmp/wt")))
+        check("OPS_DIR/BUDGET_STATE پاک شده‌اند",
+              "OPS_DIR" not in env and "BUDGET_STATE" not in env)
+        check("سوییت می‌داند در سایه است", env.get("OCTOPUS_SHADOW_SUITE") == "1")
+        check("PATH حفظ شده (سوییت باید بدود)", bool(env.get("PATH") or env.get("Path")))
+    finally:
+        _os.environ.clear()
+        _os.environ.update(saved)
+
+
+def t_o_green_is_measured_against_a_baseline_not_absolute():
+    """بحرانی: worktree از HEAD ساخته می‌شود و `_ops/OCTOPUS-flags.cmd` عمداً
+    gitignored است، پس `test_paid_router_dark_config` در هر worktree قرمز است —
+    مستقل از پچ. «سبزِ مطلق» ساختاراً دست‌نیافتنی بود، پس هیچ پچی هرگز کارت نمی‌شد
+    و هر تلاش یک نقص را می‌سوزاند. معیارِ درست: هیچ شکستِ **تازه**."""
+    calls = {"n": 0}
+
+    def fake_suite(wt, env, timeout=600):
+        calls["n"] += 1
+        # مبنا: دو قرمزِ محیطی. کاندید: همان دو، بدونِ قرمزِ تازه.
+        return {"code": 1, "fails": {"test_paid_router_dark_config",
+                                     "test_llm_call_inventory"}, "tail": "t"}
+
+    real_suite, real_env = CA._run_suite, CA._shadow_env
+    CA._run_suite = fake_suite
+    CA._shadow_env = lambda wt: {}
+    try:
+        import subprocess as _sp
+        from pathlib import Path as _P
+        real_run = _sp.run
+
+        def fake_run(cmd, **kw):
+            class R:
+                returncode = 0
+                stdout = " 1 file changed"
+                stderr = ""
+            if "worktree" in cmd and "add" in cmd:
+                wt = _P(cmd[cmd.index("add") + 2])
+                (wt / "_ops" / "telegram_center").mkdir(parents=True, exist_ok=True)
+                (wt / "_ops" / "telegram_center" / "live_commands.py").write_text("old", "utf-8")
+            return R()
+
+        _sp.run = fake_run
+        try:
+            r = CA._git_shadow_test(ALLOWED_TARGET, "new content")
+        finally:
+            _sp.run = real_run
+        check("مبنا و کاندید هر دو دویدند", calls["n"] == 2)
+        check("قرمزِ محیطی سبز را نمی‌کشد", r.get("green") is True)
+        check("قرمزهای مبنا گزارش می‌شوند", len(r.get("baseline_fails") or []) == 2)
+        check("هیچ شکستِ تازه‌ای نیست", r.get("new_fails") == [])
+    finally:
+        CA._run_suite, CA._shadow_env = real_suite, real_env
+
+
+def t_p_a_patch_that_breaks_a_test_is_still_red():
+    """گاردِ معکوس: مبنا نباید به بهانه‌ای برای قبولِ پچِ خراب تبدیل شود."""
+    seq = [{"code": 1, "fails": {"test_env_red"}, "tail": "base"},
+           {"code": 1, "fails": {"test_env_red", "test_broken_by_patch"}, "tail": "cand"}]
+    real_suite, real_env = CA._run_suite, CA._shadow_env
+    CA._run_suite = lambda wt, env, timeout=600: seq.pop(0)
+    CA._shadow_env = lambda wt: {}
+    try:
+        import subprocess as _sp
+        from pathlib import Path as _P
+        real_run = _sp.run
+
+        def fake_run(cmd, **kw):
+            class R:
+                returncode = 0
+                stdout = ""
+                stderr = ""
+            if "worktree" in cmd and "add" in cmd:
+                wt = _P(cmd[cmd.index("add") + 2])
+                (wt / "_ops" / "telegram_center").mkdir(parents=True, exist_ok=True)
+                (wt / "_ops" / "telegram_center" / "live_commands.py").write_text("old", "utf-8")
+            return R()
+
+        _sp.run = fake_run
+        try:
+            r = CA._git_shadow_test(ALLOWED_TARGET, "new")
+        finally:
+            _sp.run = real_run
+        check("شکستِ تازه سبز نمی‌شود", r.get("green") is False)
+        check("شکستِ تازه نام‌برده می‌شود", r.get("new_fails") == ["test_broken_by_patch"])
+    finally:
+        CA._run_suite, CA._shadow_env = real_suite, real_env
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items())
               if n.startswith("t_") and callable(f)]
