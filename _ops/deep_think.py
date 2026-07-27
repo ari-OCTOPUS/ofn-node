@@ -300,6 +300,21 @@ def run(*, channel=None, now: "_dt.datetime | None" = None, force: bool = False)
 
     ok = bool(r.get("ok"))
     text = str(r.get("text") or "").strip()
+    # پینِ tier فقط **درخواست** را می‌بندد، نه جواب را: اگر Fugu بیفتد (بریکر باز،
+    # کلید غایب، تایم‌اوت) روتر بی‌صدا به مدلِ محلیِ رایگان می‌افتد و `fallback_from`
+    # می‌گذارد — که هیچ‌کس نمی‌خواندش. آن‌وقت این اندام یک جلسهٔ «عمیق» را با مغزِ
+    # ۱.۵B پر می‌کرد و کارتش را با اطمینان تحویل می‌داد (ممیزیِ متخاصمِ ۲۰۲۶-۰۷-۲۷).
+    if ok and (r.get("fallback_from")
+               or (r.get("tier") and r.get("tier") != "primary")):
+        rec = {"ts": opslib.now_iso(), "schema": SCHEMA, "slot": slot, "topic": topic,
+               "ok": False, "reason": "not-the-expensive-brain",
+               "tier": r.get("tier"), "fallback_from": r.get("fallback_from"),
+               "chars": len(text)}
+        _append_ledger(rec)
+        opslib.alert([f"deep_think: جلسهٔ «{topic}» به مغزِ گران نرسید "
+                      f"({r.get('fallback_from') or r.get('tier')}) — کارتی ساخته نشد"])
+        return {"ran": True, "delivered": False, "reason": "not-the-expensive-brain",
+                "slot": slot, "topic": topic, "tier": r.get("tier")}
     rec = {"ts": opslib.now_iso(), "schema": SCHEMA, "slot": slot, "topic": topic,
            "ok": ok, "model": r.get("model"), "chars": len(text),
            "cost_usd": float(r.get("cost_usd") or 0.0)}

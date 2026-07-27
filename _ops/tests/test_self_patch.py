@@ -567,6 +567,46 @@ def t_audit_brain_silence_is_never_recorded_as_clean():
         _reset_loop_state()
 
 
+def t_audit_a_silent_downgrade_never_writes_a_patch():
+    """همان یافته در سمتِ پچ‌نویسی: یک پچِ پایتونی که مدلِ محلیِ ۱.۵B نوشته باشد
+    نباید حتی وارد شادو-تست شود."""
+    _on()
+    _reset_loop_state()
+    try:
+        for extra in ({"fallback_from": "primary: paid-call-failed"},
+                      {"tier": "local"}, {"tier": "secondary"}):
+            shadow_called = {"n": 0}
+
+            def ask(task, prompt, system="", max_tokens=4000, tier=None, **kw):
+                return {"ok": True, "text": "patched content",
+                        "tier": "primary", **extra}
+
+            def shadow(t, c):
+                shadow_called["n"] += 1
+                return {"green": True}
+
+            r = sp.propose(target_rel=ALLOWED, defect="d", ask_fn=ask, shadow_fn=shadow)
+            assert not r.get("ok"), (extra, r)
+            assert r.get("reason") == "brain-no-answer", (extra, r)
+            assert shadow_called["n"] == 0, f"شادو-تستِ گران روی جوابِ رایگان دوید: {extra}"
+    finally:
+        _off()
+        _reset_loop_state()
+
+
+def t_audit_the_input_cap_cannot_exceed_the_output_budget():
+    """قرارداد «کلِ فایلِ اصلاح‌شده را برگردان» یعنی سقفِ ورودی نمی‌تواند از سقفِ
+    خروجی بزرگ‌تر باشد. ۶۰KB پذیرفته می‌شد در حالی که ۴۰۰۰ توکن ~۱۲KB بیرون می‌دهد،
+    پس هر فایلِ بزرگ‌تر ساختاراً نیمه‌کاره برمی‌گشت و سوییت را قرمز می‌کرد."""
+    assert sp.MAX_FILE_BYTES <= sp.PATCH_MAX_TOKENS * 4, \
+        f"سقفِ ورودی ({sp.MAX_FILE_BYTES}) از بودجهٔ خروجی بزرگ‌تر است"
+    # و هر هدفی که برای مرور انتخاب می‌شود باید واقعاً پچ‌پذیر باشد
+    root = Path(sp.__file__).resolve().parent.parent
+    for rel in sp.review_targets():
+        n = (root / rel).stat().st_size
+        assert n <= sp.MAX_FILE_BYTES, f"{rel} ({n}B) مرور می‌شود ولی پچش جا نمی‌شود"
+
+
 def t_audit_a_failed_defect_reaches_the_owner():
     """شکستِ نهایی باید دیده شود؛ وگرنه یافتهٔ یک مرورِ پولی بی‌صدا گم می‌شود."""
     import opslib

@@ -46,7 +46,13 @@ for _p in (_HERE, _HERE / "budget", _HERE / "cortex"):
 import opslib  # noqa: E402
 
 FLAG = "OCTOPUS_WIRE_SELF_PATCH"
-MAX_FILE_BYTES = 60_000       # فایلِ بزرگ‌تر از این در promptِ مغز جا نمی‌شود
+PATCH_MAX_TOKENS = 4000       # سقفِ خروجیِ نوشتنِ پچ
+# قرارداد «کلِ فایلِ اصلاح‌شده را برگردان» یعنی سقفِ **ورودی** نمی‌تواند از سقفِ
+# **خروجی** بزرگ‌تر باشد. ممیزیِ متخاصمِ ۲۰۲۶-۰۷-۲۷: ۶۰٬۰۰۰ بایت پذیرفته می‌شد در
+# حالی که ۴۰۰۰ توکن حدودِ ۱۲–۱۴KB کد بیرون می‌دهد، پس هر فایلِ بزرگ‌تر ساختاراً
+# نیمه‌کاره برمی‌گشت و سوییت را قرمز می‌کرد بی‌آنکه کسی بفهمد چرا.
+# ~۳ بایت بر توکن، محافظه‌کار.
+MAX_FILE_BYTES = PATCH_MAX_TOKENS * 3
 DAILY_CAP = 3                 # سقفِ پیشنهادِ روزانه — توجهِ مالک کمیاب است
 
 
@@ -87,8 +93,16 @@ def _ask(prompt: str, ask_fn=None) -> str:
     try:
         # tier=primary عمداً: نوشتنِ کد کارِ سنگین است و لایهٔ محلی روی آن
         # جوابِ طوطی‌وار می‌دهد. مغزِ پولی همان روز سنجیده شد: ۲.۳ ثانیه، پلنِ فلت.
-        r = ask_fn("plan", prompt, system=_SYSTEM, max_tokens=4000, tier="primary")
+        r = ask_fn("plan", prompt, system=_SYSTEM, max_tokens=PATCH_MAX_TOKENS,
+                   tier="primary")
     except Exception:  # noqa: BLE001
+        return ""
+    # همان گاردِ deep_think: پین فقط درخواست را می‌بندد. یک پچِ پایتونی که مدلِ
+    # محلیِ ۱.۵B نوشته باشد نباید حتی وارد شادو-تست شود.
+    if isinstance(r, dict) and (r.get("fallback_from") or
+                                (r.get("tier") and r.get("tier") != "primary")):
+        opslib.alert([f"self_patch: نوشتنِ پچ به مغزِ گران نرسید "
+                      f"({r.get('fallback_from') or r.get('tier')}) — رها شد"])
         return ""
     if not isinstance(r, dict) or not r.get("ok"):
         return ""
@@ -199,7 +213,6 @@ def card_text(rec: dict) -> str:
 QUEUE_PATH = opslib.STATE_DIR / "self-patch" / "defect-queue.jsonl"
 REVIEW_STATE = opslib.STATE_DIR / "self-patch" / "review-state.json"
 REVIEW_MAX_TOKENS = 700
-MAX_FILE_KB_REVIEW = 48        # فایلِ بزرگ‌تر مرور نمی‌شود (context/هزینه)
 _BEAT_LOCK = __import__("threading").Lock()
 
 
@@ -264,8 +277,11 @@ def review_targets() -> list:
             rel = f"{sub}/{p.name}"
             # کفِ ۵۱۲ بایت: اسموکِ زندهٔ ۰۷-۲۷ اولین اسلاتِ روز را سرِ __init__.py ِ
             # خالی سوزاند — فایلِ بی‌گوشت ارزشِ یک مرورِ گرانِ روزانه را ندارد.
+            # سقف = همان MAX_FILE_BYTES ِ پچ‌نویسی: مرورِ فایلی که پچش ساختاراً جا
+            # نمی‌شود، یک تماسِ پولیِ تضمین‌شده-بی‌ثمر است (ممیزیِ ۰۷-۲۷؛ سقفِ مرور
+            # ۴۸KB بود در حالی که پچ ~۱۲KB بیرون می‌دهد).
             if (ca.allowed_target(rel)
-                    and 512 <= p.stat().st_size <= MAX_FILE_KB_REVIEW * 1024):
+                    and 512 <= p.stat().st_size <= MAX_FILE_BYTES):
                 out.append(rel)
     return out
 

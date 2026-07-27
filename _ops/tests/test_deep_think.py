@@ -53,8 +53,12 @@ class Chan:
         return self.ok
 
 
-def _fake_router(text="x" * 400, ok=True, boom=False):
-    """model_router جعلی — تزریق از راهِ sys.modules چون deep_think آن را lazy وارد می‌کند."""
+def _fake_router(text="x" * 400, ok=True, boom=False, got_tier="primary",
+                 fallback_from=None):
+    """model_router جعلی — تزریق از راهِ sys.modules چون deep_think آن را lazy وارد می‌کند.
+
+    `got_tier`/`fallback_from` شکلِ **واقعیِ** روتر را بازمی‌سازند: وقتی ردهٔ پولی
+    می‌افتد، روتر جواب می‌دهد ولی با tierِ محلی و کلیدِ `fallback_from`."""
     import types
     m = types.ModuleType("model_router")
     calls = []
@@ -64,7 +68,11 @@ def _fake_router(text="x" * 400, ok=True, boom=False):
                       "max_tokens": max_tokens, "tier": tier})
         if boom:
             raise RuntimeError("مغز در دسترس نیست")
-        return {"ok": ok, "text": text, "model": "fugu", "cost_usd": 0.0}
+        out = {"ok": ok, "text": text, "model": "fugu", "cost_usd": 0.0,
+               "tier": got_tier}
+        if fallback_from:
+            out["fallback_from"] = fallback_from
+        return out
 
     m.ask = ask
     m._calls = calls
@@ -250,6 +258,25 @@ def t_the_brain_is_asked_on_the_expensive_tier_with_room_to_answer():
     assert call["tier"] == "primary", f"tier={call['tier']!r} — به مغزِ گران نمی‌رود"
     assert call["max_tokens"] >= 800, f"max_tokens={call['max_tokens']} برای جوابِ واقعی کم است"
     assert call["system"], "بدونِ system prompt، جوابِ کلی و بی‌ارزش می‌آید"
+    _on(False)
+
+
+def t_a_silent_downgrade_to_the_free_brain_produces_no_card():
+    """ممیزیِ متخاصمِ ۲۰۲۶-۰۷-۲۷: `tier="primary"` فقط **درخواست** را پین می‌کند. اگر
+    Fugu بیفتد (بریکر باز/کلید غایب/تایم‌اوت)، روتر بی‌صدا به مدلِ محلیِ ۱.۵B می‌افتد
+    و فقط `fallback_from` می‌گذارد — که کسی نمی‌خواندش. آن‌وقت این اندام یک جلسهٔ
+    «عمیق» را با مغزِ رایگان پر می‌کرد و کارتش را با اطمینان تحویل می‌داد."""
+    for kw in ({"got_tier": "local", "fallback_from": "primary: paid-call-failed"},
+               {"got_tier": "local"},
+               {"got_tier": "secondary"}):
+        _on(True)
+        _reset_slots()
+        _fake_router(text="y" * 900, **kw)
+        c = Chan()
+        r = dt.run(channel=c)
+        assert not r.get("delivered"), (kw, r)
+        assert not c.cards, f"کارت با مغزِ غیرِ گران ساخته شد: {kw}"
+        assert r.get("reason") == "not-the-expensive-brain", (kw, r)
     _on(False)
 
 
