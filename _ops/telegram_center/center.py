@@ -590,6 +590,24 @@ class Center:
         except Exception:  # noqa: BLE001
             return False
 
+    def _topic_key(self, msg: dict) -> str:
+        """نامِ پا برای تاپیکی که پیام در آن آمده — یا "" (General/خصوصی/ناشناخته).
+
+        وارونهٔ نگاشتِ `topics` در center-config. کاربردش این است که سؤالِ آزادِ
+        مالک در تاپیکِ 🦑lead، contextِ لید بگیرد نه contextِ عمومی — یعنی جای
+        پرسیدن هم بخشی از سؤال باشد. fail-soft: هر ابهام → "" (contextِ عمومی)."""
+        try:
+            tid = msg.get("message_thread_id")
+            if not isinstance(tid, int) or not msg.get("is_topic_message"):
+                return ""
+            topics = (_load_config() or {}).get("topics") or {}
+            for name, num in topics.items():
+                if num == tid:
+                    return str(name)
+        except Exception:  # noqa: BLE001
+            pass
+        return ""
+
     # ── handle_update: فقط مالک — /now و callbackهای ok/no/later ─────────────────
     @staticmethod
     def _reply_thread(msg: dict):
@@ -780,7 +798,26 @@ class Center:
             elif it == "approvals":
                 out = self._page("ap")
             else:
-                out = self._ask_unknown_card(_brain_busy)
+                # ۲۰۲۶-۰۷-۲۷ — قبل از «متوجه نشدم»، یک‌بار واقعاً بپرس.
+                # تا امروز هر جملهٔ آزادی که به فرمان نگاشت نمی‌شد به کارتِ ثابت
+                # می‌افتاد؛ `llm_intent` فقط **دسته‌بندی** می‌کرد و هرگز جواب نمی‌داد.
+                # `ask_brain` فقط جواب می‌دهد و هیچ گیتی را لمس نمی‌کند — هر اقدامی
+                # همچنان از mission/action_graph/approval می‌رود. flag خاموش یا هر
+                # شکست → دقیقاً کارتِ امروز، بایت‌به‌بایت.
+                out = None
+                try:
+                    import ask_brain as _ab
+                    if _ab.enabled():
+                        _a = _ab.ask(text, topic_key=self._topic_key(msg))
+                        if _a.get("ok"):
+                            out = _ab.card(_a["text"], _a.get("model") or "")
+                        elif _a.get("reason") in ("not-a-paid-brain", "no-answer",
+                                                  "ask-exception"):
+                            _brain_busy = "llm-no-answer"
+                except Exception:  # noqa: BLE001 — گفتگو هرگز مسیرِ بات را نمی‌کشد
+                    out = None
+                if out is None:
+                    out = self._ask_unknown_card(_brain_busy)
             txt, kb = out if isinstance(out, tuple) else (str(out or ""), None)
             mid = self._client.send(_scrub(txt), chat_id=chat_id, keyboard=kb,
                                     topic_id=self._reply_thread(msg))

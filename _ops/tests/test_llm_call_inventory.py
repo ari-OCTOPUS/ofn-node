@@ -61,6 +61,9 @@ ROUTER_FENCED = {
     "self_patch.py",                 # مرورِ کدِ خود → صفِ نقص → پچ (اعمال با کلیکِ مالک)
     # همان الگویِ bind، از قبل موجود بود و این گارد نمی‌دیدش (tg_intent → ردهٔ local).
     "telegram_center/llm_intent.py",
+    # گفتگوی آزادِ مالک در تلگرام (۲۰۲۶-۰۷-۲۷) — tier پولیِ پین‌شده، فقط متن،
+    # هیچ مسیری به اجرا. همین گارد بلافاصله بعد از نوشتنش گرفتش.
+    "telegram_center/ask_brain.py",
 }
 ADAPTER_FENCED = {
     "debate/debate_loop.py",         # _gated_call → DeepSeekClient.complete

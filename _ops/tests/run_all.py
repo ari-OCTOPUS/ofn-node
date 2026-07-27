@@ -250,6 +250,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # نشان داد هیچ‌کدام این‌جا ثبت نشده بودند: ۵۲ تستِ تازه نوشته شده بود که در
          # سوییتِ رسمی (و در سوییتِ سایهٔ خودِ self_patch) اصلاً نمی‌دوید.
          "test_deep_think.py",        # جلسه‌های فکرِ عمیق + مرزِ PII لولهٔ لید
+         "test_ask_brain.py",         # گفتگوی آزادِ تلگرام + سهمیه + مرزِ «فقط حرف»
          "test_self_patch.py",        # حلقهٔ مرور→صف→پچ + قفلِ ۶ یافتهٔ ممیزی
          "test_improve_deep.py",      # لایهٔ عمیقِ improve + سقفِ سختِ روزانه
          "test_governor_contract.py",  # قراردادِ تخصیص + دیده‌شدنِ بریدگی
