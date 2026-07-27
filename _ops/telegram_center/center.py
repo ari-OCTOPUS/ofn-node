@@ -718,6 +718,29 @@ class Center:
         ارتقا از LLM پشتِ فلگِ OCTOPUS_TG_LLM_ASK=1 در آینده بدونِ لمسِ این لایه
         ممکن است (intent.classify را می‌توان با wrapperِ LLM عوض کرد)."""
         chat_id = (msg.get("chat") or {}).get("id")
+        # متنِ شرط، بعد از دکمهٔ «✍️ شرط بگذار». اولویتش بالاتر از هر مسیرِ دیگری
+        # است چون مالک دارد جوابِ یک سؤالِ مشخص را می‌دهد، نه فرمانِ تازه.
+        _await = getattr(self, "_awaiting_counter", None)
+        if _await:
+            self._awaiting_counter = None
+            try:
+                import negotiate as _ng
+                r = _ng.respond(_await, "counter", counter=text)
+                if r.get("ok"):
+                    rev = _ng.make_offer(revise_of=_await)
+                    if rev.get("ok"):
+                        _t, _k = _ng.card(rev["offer"])
+                        mid = self._client.send(_scrub(_t), chat_id=chat_id,
+                                                keyboard=_k,
+                                                topic_id=self._reply_thread(msg))
+                        return {"kind": "negotiate_revised", "sent": mid is not None}
+                    self._client.send(
+                        _scrub("✍️ شرطت ثبت شد. پیشنهادِ بازنگری‌شده الان نشد — "
+                               f"({_scrub(str(rev.get('reason'))[:40])}) بعداً می‌آید."),
+                        chat_id=chat_id, topic_id=self._reply_thread(msg))
+                    return {"kind": "negotiate_counter", "revised": False}
+            except Exception:  # noqa: BLE001
+                pass
         # ── اتاقِ آینه (۲۰۲۶-۰۷-۲۷): در این تاپیک **هیچ** نگاشتِ فرمانی انجام
         # نمی‌شود. هر جمله مستقیم به لایهٔ خودشناسی می‌رود، با تاریخچهٔ گفتگو و
         # تصحیح‌های ثبت‌شدهٔ مالک. جای دیگری از بات عوض نمی‌شود؛ flag خاموش یا
@@ -1124,6 +1147,36 @@ class Center:
         # اتاقِ آینه (۲۰۲۶-۰۷-۲۷): دو دکمهٔ فقط‌خواندنی و $۰ — «چه می‌دانم» و
         # «تصحیح‌ها». هیچ‌کدام مغز صدا نمی‌زند و هیچ state ای عوض نمی‌کند؛ فقط
         # همان چیزی را نشان می‌دهد که در contextِ گفتگو هم می‌رود.
+        # مذاکره (۲۰۲۶-۰۷-۲۷): سه جواب به‌جای دو — قبول / نه / **شرط بگذار**.
+        # «قبول» هیچ چیز را اجرا نمی‌کند؛ فقط ثبت می‌شود. اجرا همچنان از همان
+        # گیت‌هایی می‌رود که این مسیر اصلاً لمسشان نمی‌کند.
+        if verb == "ng" and len(parts) == 3:
+            act, oid = parts[1], parts[2]
+            msg = cbq.get("message") or {}
+            chat_id = (msg.get("chat") or {}).get("id")
+            try:
+                import negotiate as _ng
+                if act == "c":
+                    # شرط‌گذاری: منتظرِ متنِ بعدیِ مالک می‌مانیم (RAM؛ ری‌استارت =
+                    # لغوِ امن، مثلِ _awaiting_rfc_edit).
+                    self._awaiting_counter = oid
+                    self._client.send(
+                        _scrub("✍️ شرطت را بنویس — پیشنهادِ بعدی‌ام آن را رعایت می‌کند."),
+                        chat_id=chat_id, topic_id=self._reply_thread(msg))
+                    self._answer(cbq, "منتظرِ شرطتم")
+                    return {"kind": "negotiate", "awaiting": oid}
+                r = _ng.respond(oid, "accept" if act == "a" else "reject")
+                self._answer(cbq, "ثبت شد" if r.get("ok") else str(r.get("reason"))[:60])
+                if r.get("ok"):
+                    self._client.send(
+                        _scrub("✅ پذیرفتم — ثبت شد. اجرا هنوز نشده؛ از مسیرِ تأیید می‌آید."
+                               if act == "a" else "❌ باشد، کنارش گذاشتم."),
+                        chat_id=chat_id, topic_id=self._reply_thread(msg))
+                return {"kind": "negotiate", "verdict": act, "ok": r.get("ok")}
+            except Exception:  # noqa: BLE001
+                self._answer(cbq)
+                return {"kind": "negotiate", "ok": False}
+
         if verb == "mr" and len(parts) == 2:
             try:
                 import mirror_room as _mr

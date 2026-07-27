@@ -1138,6 +1138,34 @@ def neural_beat(neural_stack, beat: int, snap_inputs: dict | None = None) -> dic
                 sources["acquisition"] = inputs["acquisition"]
             if sources:
                 neural_stack["consolidation"].run(sources)
+        # ── سایهٔ اثرِ عصبی (۲۰۲۶-۰۷-۲۷) ──────────────────────────────────────
+        # `neural_driver` تا امروز `advisory_only: True` بود و هیچ تصمیمی رویش سوار
+        # نبود — یعنی کلِ زیرسیستمِ عصبی یک حسگرِ فقط‌خواندنی بود. رأیِ مالک این است
+        # که یادگیری باید یک تصمیمِ واقعی را عوض کند، ولی **بی‌واسطه خطرناک است**:
+        # سیگنالی که هرگز آزموده نشده نباید مستقیم روی مسیرِ زنده بنشیند.
+        # پس اول سایه: همان تصمیمی که *می‌گرفت* ثبت می‌شود، بدونِ اینکه چیزی عوض شود.
+        # وقتی چند روز داده جمع شد و دیدیم کِی درست می‌گفت، فلگِ دومِ جدا آن را زنده
+        # می‌کند. این خط هیچ رفتاری را تغییر نمی‌دهد — فقط می‌نویسد.
+        if flag("OCTOPUS_NEURAL_EFFECT_SHADOW"):
+            try:
+                _bi = (result or {}).get("brain_inputs") or {}
+                _pain = (result or {}).get("pain") or {}
+                opslib.append_jsonl(
+                    opslib.STATE_DIR / "neural" / "effect-shadow.jsonl",
+                    {"ts": opslib.now_iso(), "beat": beat,
+                     "schema": "neural-effect-shadow.v1",
+                     # آنچه *می‌کرد* اگر زنده بود:
+                     "would_throttle_brain": _bi.get("throttle_brain"),
+                     "would_schedule": _bi.get("schedule_hint"),
+                     "confidence_adjustment": _bi.get("confidence_adjustment"),
+                     "pain": _pain.get("level"),
+                     "protective": _pain.get("protective"),
+                     # زمینه، تا بعداً بشود سنجید درست می‌گفت یا نه:
+                     "signals": sorted(set(signals or [])),
+                     "budget_pct": _bi.get("budget_pct"),
+                     "applied": False})
+            except Exception:  # noqa: BLE001 — سایه هرگز تیک را نمی‌کشد
+                pass
         return result
     except Exception as e:  # noqa: BLE001
         opslib.alert([f"wiring: neural_beat خطا: {e}"])

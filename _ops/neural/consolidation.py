@@ -123,7 +123,25 @@ class ConsolidationCycle:
         result = ConsolidatedInsight(
             cycle=self._cycle_count, insights=insights,
             verified_sources=verified_names, discarded_sources=discarded_names)
-        self._history.append(asdict(result))
+        # فشرده‌سازیِ تکرار (۲۰۲۶-۰۷-۲۷). قبلاً هر چرخه append می‌شد حتی وقتی
+        # insight عیناً همان قبلی بود: ۵۳۵ ردیف در فایل، و در ۴۰ چرخهٔ اخیر فقط
+        # ۱۶ چیزِ متمایز — «آگاهیِ میانگین: 0.61» ده بار پشتِ سرِ هم. سیگنالِ واقعی
+        # زیرِ نویزِ خودش دفن می‌شد و فایل بی‌کران رشد می‌کرد.
+        # اطلاعات از دست نمی‌رود: `repeats` و `last_cycle` می‌گویند همان یافته چند
+        # چرخه پایدار مانده — که خودش دادهٔ باارزشی است، نه صرفاً حذفِ تکرار.
+        rec = asdict(result)
+        prev = self._history[-1] if self._history else None
+        same = (isinstance(prev, dict)
+                and prev.get("insights") == rec["insights"]
+                and prev.get("verified_sources") == rec["verified_sources"]
+                and prev.get("discarded_sources") == rec["discarded_sources"])
+        if same:
+            prev["repeats"] = int(prev.get("repeats", 1)) + 1
+            prev["last_cycle"] = self._cycle_count
+        else:
+            rec["repeats"] = 1
+            rec["last_cycle"] = self._cycle_count
+            self._history.append(rec)
         self._save()
         return result
 

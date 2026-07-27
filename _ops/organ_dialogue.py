@@ -135,9 +135,27 @@ def doctor_digest(state_dir=None) -> dict:
     for p in pathology[:3]:
         if isinstance(p, dict):
             lines.append(f"• (شدت {_sev_text(p.get('severity'))}) {_esc(p.get('symptom'))} — {_esc(p.get('root_cause'), 90)}")
+    # نسخه، نه فقط تشخیص (۲۰۲۶-۰۷-۲۷). `deep_dive.smallest_fix` دقیق‌ترین جمله‌ای
+    # است که کلِ لایهٔ خودآگاهی تولید می‌کند — روی ۱۸ چرخه محاسبه شده و **هیچ
+    # ماژولی نمی‌خواندش**. تا امروز مالک تشخیص را می‌دید و نسخه را نه.
+    dd = sk.get("deep_dive") if isinstance(sk.get("deep_dive"), dict) else {}
+    fix = dd.get("smallest_fix")
+    if fix:
+        lines.append(f"🔧 کوچک‌ترین فیکس: {_esc(fix, 140)}")
+        # `blocked_by` در دادهٔ زنده گاهی رشته است و گاهی لیست — `[0]` روی رشته
+        # یک حرفِ فارسی رندر می‌کرد. هر دو شکل پذیرفته می‌شود.
+        blk = dd.get("blocked_by")
+        blk = blk[0] if isinstance(blk, list) and blk else blk
+        if isinstance(blk, str) and blk.strip():
+            lines.append(f"⛔ سدِ راه: {_esc(blk, 100)}")
     owner_focus = load_owner_focus(state_dir)
     if owner_focus:
         lines.append(f"🧭 steeringِ تو: {_esc(owner_focus, 90)}")
+    # تصحیحِ تازهٔ مالک باید در همان دایجست دیده شود، وگرنه حرفش را می‌زند و
+    # هیچ نشانه‌ای نمی‌بیند که شنیده شده.
+    corr = sk.get("owner_corrections") or []
+    if corr:
+        lines.append(f"✍️ تصحیحِ تو ({len(corr)}): {_esc(corr[-1], 100)}")
     if open_rfcs:
         lines.append(f"📋 RFCهای باز ({len(open_rfcs)}):")
         for r in open_rfcs[:4]:

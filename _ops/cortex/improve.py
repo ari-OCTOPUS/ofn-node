@@ -97,6 +97,26 @@ def _deep_slot_take() -> bool:
     return True
 
 
+def _previous_synth(n: int = 3) -> list:
+    """آنچه در جلسه‌های عمیقِ اخیر گفته‌ام. فقط جلسه‌های موفق؛ خطِ خراب رد می‌شود."""
+    out = []
+    try:
+        if not DEEP_LEDGER_PATH.exists():
+            return []
+        for line in DEEP_LEDGER_PATH.read_text("utf-8").splitlines()[-20:]:
+            if not line.strip():
+                continue
+            try:
+                r = json.loads(line)
+            except ValueError:
+                continue
+            if isinstance(r, dict) and r.get("ok") and r.get("text"):
+                out.append({"وقت": str(r.get("ts"))[:16], "گفتی": str(r["text"])[:300]})
+    except OSError:
+        return []
+    return out[-n:]
+
+
 def _deep_synth(top: list, rate, maturity) -> "dict | None":
     """جوابِ عمیقِ مغزِ گران روی صفِ واقعیِ گاف‌ها. None = نبود/نخواست/نتوانست.
     tier=primary **پین** است: بدونِ پین، CORTEX_LOCAL_FIRST ردهٔ میانی را بی‌صدا
@@ -107,10 +127,18 @@ def _deep_synth(top: list, rate, maturity) -> "dict | None":
         return None
     items = [{k: t.get(k) for k in ("id", "priority", "title", "suggested_action",
                                     "change_level", "source")} for t in top[:8]]
+    # ۲۰۲۶-۰۷-۲۷ — بدونِ این، هر جلسهٔ گران از صفر شروع می‌کرد: `deep-synth` سه بار
+    # در یک روز دوید و هر سه بار همان آیتم را با همان استدلال انتخاب کرد. جلسه‌ای
+    # که جلسهٔ قبل را نخوانَد، خرج است نه سرمایه.
+    body = {"گاف‌ها": items, "improvement_rate": rate, "maturity_pct": maturity}
+    prev = _previous_synth()
+    if prev:
+        body["قبلاً_گفتی"] = prev
+        body["توجه"] = ("حرفِ تکراری نزن. اگر همان انتخاب هنوز درست است، بگو چرا "
+                        "هنوز انجام نشده و قدمِ متفاوتی پیشنهاد بده.")
     prompt = (
         "صفِ اولویت‌دارِ گاف‌های یک سیستمِ خودبهبودگر، با نرخِ بهبودِ سنجیده:\n"
-        + json.dumps({"گاف‌ها": items, "improvement_rate": rate,
-                      "maturity_pct": maturity}, ensure_ascii=False, indent=1)
+        + json.dumps(body, ensure_ascii=False, indent=1)
         + "\n\nیکی را انتخاب کن که اول باید حل شود. چرا آن و نه بقیه — با ارجاع به "
           "همین داده‌ها. قدمِ اولِ مشخصش چیست؟ و چه مشاهده‌ای ثابت می‌کند انتخابت "
           "غلط بوده؟ اگر صف آن‌قدر بی‌کیفیت است که هیچ‌کدام نمی‌ارزد، همین را صریح بگو.")
