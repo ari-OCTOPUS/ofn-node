@@ -260,6 +260,28 @@ def snapshot() -> dict:
                 out["owner_corrections"] = _rows[-5:]
     except OSError:
         pass
+    # ── صفِ رأیِ مالک (۲۰۲۶-۰۷-۲۷) ─────────────────────────────────────────
+    # تا امروز ارگانیسم **نمی‌دانست منتظرِ چیست**. `VERDICT_QUEUE.md` در ریشهٔ
+    # vault صفِ تصمیم‌های مالک است و ۵۸ ردیف دارد؛ خودآگاهی هرگز بازش نمی‌کرد.
+    # نتیجه: چیزی را که پشتِ رأیِ باز قفل است دوباره و دوباره پیشنهاد می‌داد، و
+    # هرگز نمی‌توانست بگوید «این کار منتظرِ توست». حالا فقط شناسه و عنوانِ
+    # ردیف‌های `open` می‌آید — بدونِ محتوا، بدونِ PII (خودِ فایل هم secret ندارد).
+    try:
+        _vq = opslib.ORG_ROOT / "VERDICT_QUEUE.md"
+        if _vq.exists():
+            _open = []
+            for _line in _vq.read_text("utf-8", errors="replace").splitlines():
+                if not _line.startswith("|"):
+                    continue
+                _cells = [c.strip() for c in _line.strip("|").split("|")]
+                if len(_cells) < 4 or not _cells[0].startswith("VQ-"):
+                    continue
+                if _cells[3].lower().startswith("open"):
+                    _open.append({"id": _cells[0], "تصمیم": _cells[1][:110]})
+            if _open:
+                out["owner_verdicts_open"] = {"n": len(_open), "نمونه": _open[:6]}
+    except OSError:
+        pass
     sig = _owner_signal()
     if sig:  # فقط وقتی OCTOPUS_WIRE_WLOS روشن و سیگنال معتبر باشد — وگرنه snapshot دست‌نخورده
         out["owner_signal"] = sig

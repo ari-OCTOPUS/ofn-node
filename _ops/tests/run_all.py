@@ -254,6 +254,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_mirror_room.py",       # اتاقِ آینه: حافظهٔ گفتگو + لایهٔ تصحیحِ مالک
          "test_selfaware_wiring.py",  # قفلِ پنج سیمِ خودآگاهی (اسکنِ ۰۷-۲۷)
          "test_negotiate.py",         # مذاکره: جوابِ سوم + «قبول ≠ اجرا»
+         "test_bcm_feed_and_verdicts.py",  # تغذیهٔ BCM + صفِ رأیِ مالک در خودآگاهی
          "test_self_patch.py",        # حلقهٔ مرور→صف→پچ + قفلِ ۶ یافتهٔ ممیزی
          "test_improve_deep.py",      # لایهٔ عمیقِ improve + سقفِ سختِ روزانه
          "test_governor_contract.py",  # قراردادِ تخصیص + دیده‌شدنِ بریدگی

@@ -1018,6 +1018,8 @@ def _hebbian_signals(inputs: dict) -> list:
         return legacy
 
     # ── درسِ تستِ متخاصمِ همان روز ──────────────────────────────────────────
+    # (واژگانِ کاملِ ممکن در `BCM_VOCAB` پایینِ همین ماژول است — BCM باید همهٔ
+    #  کلیدهای ممکن را بشناسد تا سیگنالی که *آتش نکرد* هم زوال بگیرد.)
     # نسخهٔ اولِ همین تابع باندهای low/mid/high می‌ساخت. تست گرفتش: آن یک
     # **پارتیشن** است — همیشه دقیقاً یکی آتش می‌کند، پس با هر سیگنالِ دیگری
     # هم‌رخداد می‌شود و strength را بدونِ اطلاعات بالا می‌برد. یعنی همان
@@ -1071,6 +1073,19 @@ def _hebbian_signals(inputs: dict) -> list:
     if er is not None and er > 0.2:
         sig.append("errors_high")
     return sig
+
+
+# واژگانِ کاملِ سیگنال‌های انحرافی — منبعِ `known_keys` برای BCM.
+# چرا لازم است: `BCM.step` فقط کلیدهایی را دنبال می‌کند که به آن داده شود، پس
+# اگر فقط آتش‌کرده‌های همین تیک را بدهیم، سیگنالی که **آتش نکرد** اصلاً وجود
+# نخواهد داشت و هرگز زوال نمی‌گیرد — یعنی نیمهٔ «فراموشی»ِ BCM مرده می‌ماند.
+# هر سیگنالِ تازه در `_hebbian_signals` باید این‌جا هم اضافه شود؛ یک تست این را
+# ماشین‌چک می‌کند تا واژگان و منبع از هم جدا نیفتند.
+BCM_VOCAB = (
+    "rhythm_amber", "rhythm_yellow", "rhythm_red",
+    "sigma_high", "budget_tight", "budget_depleted",
+    "afferent_starved", "errors_high",
+)
 
 
 def make_neural_stack():
@@ -1138,6 +1153,23 @@ def neural_beat(neural_stack, beat: int, snap_inputs: dict | None = None) -> dic
                 sources["acquisition"] = inputs["acquisition"]
             if sources:
                 neural_stack["consolidation"].run(sources)
+        # ── تغذیهٔ BCM (۲۰۲۶-۰۷-۲۷) ───────────────────────────────────────────
+        # `bcm-weights.json` بعد از ۶۵ قدم `keys: {}` داشت. علت در امضای خودِ
+        # `BCM.step(activations, known_keys)` است: **هرگز خودش کلید نمی‌سازد**، فقط
+        # `known_keys` را دنبال می‌کند — و هیچ‌کس هرگز کلیدی نداده بود. پس کلِ
+        # ریاضیِ ضدِ اشباع روی مجموعهٔ تهی کار می‌کرد و `wire_bcm: true` دروغ بود.
+        # واژگانِ درست همان سیگنال‌های انحرافیِ زنده است: آتش‌کرده‌ها y=1 (تقویت)،
+        # بقیه غایب یعنی y=0 (زوال) — دقیقاً قراردادِ BCM.
+        # این فقط **می‌نویسد**؛ هیچ تصمیمی هنوز وزن‌ها را نمی‌خوانَد.
+        if flag("OCTOPUS_WIRE_BCM_FEED"):
+            try:
+                _fired = sorted(set(signals or []))
+                _bcm = neural_stack.get("bcm") if isinstance(neural_stack, dict) else None
+                if _bcm is not None and hasattr(_bcm, "step"):
+                    _bcm.step({k: 1.0 for k in _fired}, known_keys=list(BCM_VOCAB))
+            except Exception as _be:  # noqa: BLE001 — تغذیه هرگز تیک را نمی‌کشد
+                opslib.alert([f"wiring: bcm feed خطا (non-fatal): "
+                              f"{type(_be).__name__}: {_be}"])
         # ── سایهٔ اثرِ عصبی (۲۰۲۶-۰۷-۲۷) ──────────────────────────────────────
         # `neural_driver` تا امروز `advisory_only: True` بود و هیچ تصمیمی رویش سوار
         # نبود — یعنی کلِ زیرسیستمِ عصبی یک حسگرِ فقط‌خواندنی بود. رأیِ مالک این است
