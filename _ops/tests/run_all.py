@@ -257,6 +257,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_bcm_feed_and_verdicts.py",  # تغذیهٔ BCM + صفِ رأیِ مالک در خودآگاهی
          "test_vault_wires.py",  # دانشِ ابسیدین → رفتار
          "test_html_and_correction_safety.py",  # escape ِ متنِ مدل + مرزِ کلمهٔ تصحیح
+         "test_owner_answers_2026_07_27.py",  # سه رأیِ مالک: کوت/سکوت/منقضی‌ها
          "test_callback_routing.py",  # هیچ دکمه‌ای بی‌مسیر نماند
          "test_self_patch.py",        # حلقهٔ مرور→صف→پچ + قفلِ ۶ یافتهٔ ممیزی
          "test_improve_deep.py",      # لایهٔ عمیقِ improve + سقفِ سختِ روزانه

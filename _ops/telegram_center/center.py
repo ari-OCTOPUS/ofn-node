@@ -690,6 +690,14 @@ class Center:
             # نسنجیده‌ایم شرط‌های او واقعاً پیشنهادها را بهتر می‌کند یا نه، ارگانیسم
             # نباید خودش شروع به چانه‌زدن کند.
             "/deal": lambda: self._deal_cmd(),
+            # ۲۰۲۶-۰۷-۲۷ (رأیِ مالک «کامل تا مرزِ ارسال») — موتورِ قیمت‌گذاری
+            # کامل نوشته شده بود و **صفر مصرف‌کننده** داشت. این تنها راهِ
+            # کوت‌گرفتن در تلگرام است؛ ارسال همچنان یک تپِ جداست.
+            "/lead": lambda: self._quote_cmd(text),
+            # «اول فقط منقضی‌ها را نشانم بده» (رأیِ مالک ۲۰۲۶-۰۷-۲۷): از ۴۸ رأیِ
+            # باز، آن‌هایی که واقعیت **از قبل جوابشان را داده** — با شاهدِ فیزیکی.
+            # فایل هرگز بازنویسی نمی‌شود؛ بستن دستِ مالک است (قانونِ اساسی §۷).
+            "/verdicts": lambda: self._verdicts_cmd(),
             "/رفتار": lambda: self._live_cmd(text),
             "/کد": lambda: self._live_cmd(text),
         }
@@ -713,6 +721,22 @@ class Center:
         except Exception:  # noqa: BLE001
             mid = None
         return {"kind": cmd.lstrip("/"), "sent": mid is not None}
+
+    def _verdicts_cmd(self):
+        """رأی‌هایی که دیگر سؤال نیستند — فقط‌خواندنی، $۰، بدونِ تماسِ مغز."""
+        try:
+            import verdict_probe as _vp
+            return _vp.card()
+        except Exception:  # noqa: BLE001
+            return "🗳 صفِ رأی در دسترس نیست."
+
+    def _quote_cmd(self, text: str):
+        """`/lead …` → کارتِ قیمتِ واقعی. هرگز ارسال نمی‌کند."""
+        try:
+            import quote_cmd as _q
+            return _q.quote(text, leg=getattr(self, "_leg", None))
+        except Exception:  # noqa: BLE001
+            return "🎨 کارتِ قیمت در دسترس نیست."
 
     def _deal_cmd(self):
         """`/deal` — یک پیشنهادِ شرط‌دار از اهدافِ خودِ اختاپوس.
@@ -1211,6 +1235,30 @@ class Center:
                 self._answer(cbq)
                 return {"kind": "negotiate", "ok": False}
 
+        # کوت (۲۰۲۶-۰۷-۲۷): «بفرست» **ارسال نمی‌کند** — رأیِ مالک را ثبت می‌کند و
+        # کار را به همان مسیرِ تأییدِ موجود می‌سپارد. مرزِ «تا مرزِ ارسال» یعنی
+        # همین: دکمه هست، ولی اجرا از این‌جا شروع نمی‌شود.
+        if verb == "qt" and len(parts) == 3:
+            act, qt = parts[1], _sanitize_id(parts[2])
+            msg = cbq.get("message") or {}
+            chat_id = (msg.get("chat") or {}).get("id")
+            if act == "s":
+                self._record_approval({"id": f"quote-{qt}", "verdict": "ok",
+                                       "ts": opslib.now_iso(), "source": "tg-quote"})
+                body = ("📤 تأییدت ثبت شد.\n"
+                        "▸ ارسالِ واقعی از مسیرِ تأیید می‌رود — هنوز چیزی نرفته.\n"
+                        "▸ نکنی: کوت همان‌جا پیش‌نویس می‌ماند.")
+            else:
+                body = ("✏️ برای بازنگری، `/lead` را با اعدادِ تازه دوباره بفرست — "
+                        "نسخهٔ جدید با همان شمارهٔ کوت ثبت می‌شود.")
+            try:
+                self._client.send(_scrub(body), chat_id=chat_id,
+                                  topic_id=self._reply_thread(msg))
+            except Exception:  # noqa: BLE001
+                pass
+            self._answer(cbq, "ثبت شد")
+            return {"kind": "quote", "act": act, "qt": qt}
+
         if verb == "mr" and len(parts) == 2:
             try:
                 import mirror_room as _mr
@@ -1670,7 +1718,7 @@ class Center:
         # می‌سنجید نه مسیرِ dispatch را — همان «سبز به‌خاطرِ نبودِ خطا».
         # گاردِ `t_every_emitted_callback_verb_is_routed` حالا هر فعلی را که کد
         # تولید می‌کند با همین جدول تطبیق می‌دهد.
-        if verb in ("mn", "lg", "pw", "pwc", "ng", "mr"):
+        if verb in ("mn", "lg", "pw", "pwc", "ng", "mr", "qt"):
             return self._handle_center_callback(cbq, data)
         if verb == "map":
             return self._handle_map_callback(cbq, data)

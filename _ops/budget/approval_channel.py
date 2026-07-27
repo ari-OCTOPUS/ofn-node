@@ -136,6 +136,33 @@ def callback_fits(rfc_id: str, overhead: int = _RFC_CB_OVERHEAD) -> bool:
 
 
 ROUTE_FLAG = "OCTOPUS_TG_ROUTE_TOPICS"
+# ── ساعتِ سکوتِ مالک (رأی ۲۰۲۶-۰۷-۲۷: «۰ تا ۷») ─────────────────────────────
+# اندازه‌گیریِ همان روز: ۷ پیامِ خودکار بینِ ۲۲ شب تا ۸ صبح رفته بود. این بازه
+# فقط جریانِ **محیطی** را ساکت می‌کند؛ پاسخِ مستقیم و هشدارِ حیاتی هرگز.
+# ساعتِ محلیِ همین ماشین (مالک و ارگانیسم یک‌جا هستند) — env قابلِ تنظیم.
+_NEVER_QUIET = frozenset({"cortisol", "alert", "heart"})
+
+
+def _quiet_hours() -> tuple:
+    def _h(name, default):
+        try:
+            v = int(str(os.environ.get(name, "")).strip())
+            return v if 0 <= v <= 23 else default
+        except (TypeError, ValueError):
+            return default
+    return _h("OCTOPUS_QUIET_FROM", 0), _h("OCTOPUS_QUIET_TO", 7)
+
+
+def _quiet_now(now=None) -> bool:
+    """آیا الان در بازهٔ سکوت است؟ بازهٔ گذرنده از نیمه‌شب هم پشتیبانی می‌شود."""
+    import datetime as _dt
+    h = (now or _dt.datetime.now()).hour
+    a, b = _quiet_hours()
+    if a == b:
+        return False
+    return (a <= h < b) if a < b else (h >= a or h < b)
+
+
 _STREAM_TOPIC = {
     "heart": "system", "doctor": "system", "needs": "system", "summary": "system",
     "brain": "knowledge", "discovery": "knowledge", "map": "cartographer",
@@ -1424,6 +1451,13 @@ class TelegramApprovalChannel(ApprovalChannel):
         target = int(chat_id) if chat_id is not None else self._owner
         thread = None
         if chat_id is None and stream:
+            # ── ساعتِ سکوت (رأیِ مالک ۲۰۲۶-۰۷-۲۷: «۰ تا ۷») ──────────────────
+            # اندازه‌گیری: ۷ پیامِ خودکار بینِ ۲۲ تا ۸ رفته بود. فقط **جریانِ
+            # محیطی** ساکت می‌شود — پاسخِ مستقیمِ مالک (chat_id صریح) و هشدارِ
+            # فوری هرگز. چیزی صف نمی‌شود: جریانِ محیطی دوره‌ای است و نسخهٔ بعدی
+            # خودش می‌آید؛ نگه‌داشتنش فقط رگبارِ صبحگاهی می‌سازد.
+            if _quiet_now() and str(stream) not in _NEVER_QUIET:
+                return False
             r_chat, r_topic = _stream_route(stream)
             if r_chat is not None and r_topic is not None:
                 target, thread = r_chat, r_topic
