@@ -147,3 +147,9 @@ _ops/chord/state/
 # bypass). Activation is an explicit owner act via the runbook, never a tracked default.
 # The GOVERNOR-LLM.flag.off (disabled marker) is intentionally NOT matched by this pattern.
 _ops/ACTIVATION-*.flag
+_ops/tests/_flaky/
+
+OWNER-PROFILE.json
+OWNER-PROFILE.md
+
+OWNER-PROFILE*
