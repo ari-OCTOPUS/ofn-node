@@ -250,8 +250,38 @@ _ASK = {
 }
 
 
+def _previously_said(topic: str, n: int = 3) -> list:
+    """آنچه در جلسه‌های اخیرِ **همین موضوع** گفته‌ام.
+
+    ۲۰۲۶-۰۷-۲۷ — بدونِ این، هر جلسهٔ گران از صفر شروع می‌کرد و همان نتیجه را
+    دوباره کشف می‌کرد: دو کارتِ متوالی هر دو همان جفتِ هبی را با اعدادِ متفاوت
+    پیشنهاد دادند. جلسه‌ای که جلسهٔ قبل را نخوانَد، خرج است نه سرمایه."""
+    out = []
+    try:
+        if not LEDGER.exists():
+            return []
+        for line in LEDGER.read_text("utf-8").splitlines()[-30:]:
+            if not line.strip():
+                continue
+            try:
+                r = json.loads(line)
+            except ValueError:
+                continue
+            if isinstance(r, dict) and r.get("ok") and r.get("topic") == topic and r.get("text"):
+                out.append({"وقت": str(r.get("ts"))[:16],
+                            "گفتی": str(r["text"])[:300]})
+    except OSError:
+        return []
+    return out[-n:]
+
+
 def build_prompt(topic: str) -> str:
     ctx = _self_context() if topic == TOPIC_SELF else _business_context()
+    prev = _previously_said(topic)
+    if prev:
+        ctx = {**ctx, "قبلاً_در_همین_موضوع_گفتی": prev,
+               "توجه": ("حرفِ تکراری نزن. اگر همان نتیجه هنوز درست است، بگو چرا "
+                        "هنوز انجام نشده و قدمِ متفاوتی پیشنهاد بده.")}
     body = json.dumps(ctx, ensure_ascii=False, indent=1)
     return _ASK[topic].format(ctx=body)
 

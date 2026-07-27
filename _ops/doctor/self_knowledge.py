@@ -194,6 +194,28 @@ def snapshot() -> dict:
             out["owner_focus"] = str(_pol["focus"])[:200]
     except Exception:  # noqa: BLE001
         pass
+    # تصحیح‌های مالک از اتاقِ آینه (۲۰۲۶-۰۷-۲۷). اتاق ادعا می‌کرد حرفِ مالک «واردِ
+    # هر چرخهٔ خودشناسیِ بعدی می‌شود» — ولی این تابع آن فایل را هرگز باز نمی‌کرد،
+    # پس ادعا فقط برای contextِ خودِ اتاق درست بود نه برای تشخیصِ روزانه. اینجا
+    # همان حلقه بسته می‌شود: حرفی که مالک زده در snapshot می‌نشیند، و چون کلِ
+    # snapshot سریال و به مغز داده می‌شود، صفر تغییرِ دیگری لازم نیست.
+    try:
+        _cp = opslib.STATE_DIR / "doctor" / "owner-corrections.jsonl"
+        if _cp.exists():
+            _rows = []
+            for _line in _cp.read_text("utf-8").splitlines()[-8:]:
+                if not _line.strip():
+                    continue
+                try:
+                    _r = json.loads(_line)
+                except ValueError:
+                    continue          # خطِ خراب کلِ تصحیح‌ها را کور نکند
+                if isinstance(_r, dict) and _r.get("text"):
+                    _rows.append(str(_r["text"])[:300])
+            if _rows:
+                out["owner_corrections"] = _rows[-5:]
+    except OSError:
+        pass
     sig = _owner_signal()
     if sig:  # فقط وقتی OCTOPUS_WIRE_WLOS روشن و سیگنال معتبر باشد — وگرنه snapshot دست‌نخورده
         out["owner_signal"] = sig
@@ -372,6 +394,9 @@ def _hash_digest(snap: dict) -> dict:
             # مسیرِ `cached:no-change` می‌ماند — و آن مسیر همین حالا ۱۱ چرخه یخ‌زده
             # است. یعنی فیکس روی دیسک بود ولی باور عوض نمی‌شد (۲۰۲۶-۰۷-۲۷).
             "revenue": snap.get("revenue"),
+            # تصحیحِ تازهٔ مالک باید **همان چرخه** تشخیص را تکان بدهد، نه اینکه
+            # پشتِ `cached:no-change` منتظرِ یک تغییرِ بی‌ربط بماند.
+            "corrections": len(snap.get("owner_corrections") or []),
             "prop": (snap.get("money") or {}).get("proposal_metrics"),
             "dead_spots": (snap.get("innervation") or {}).get("dead_spots"),
             "error_types": sorted((snap.get("recent_errors") or {}).keys()),
