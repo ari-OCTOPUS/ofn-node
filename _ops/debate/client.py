@@ -40,12 +40,44 @@ class TelemetryError(RuntimeError):
 
 
 def extract_json(text: str) -> dict[str, Any]:
-    """JSON را از پاسخ مدل بیرون می‌کشد (حصار ```json / نثر اطراف را تحمل می‌کند)."""
+    """JSON را از پاسخ مدل بیرون می‌کشد.
+
+    - حصارِ ```json ... ``` یا ``` ... ``` را حذف می‌کند (Markdown).
+    - JSON نامعتبر یا بریده (truncated by max_tokens) → خطای واضح با علت.
+    - وقتی آکولادِ پایانی غایب باشد، پیامِ «truncated» می‌دهد نه «no JSON object»
+      تا صاحبِ فراخوان بداند علت سقفِ توکن است نه نبودِ JSON.
+    """
     s = text.strip()
+    # ── strip markdown code fences ──────────────────────────────────────
+    # الگو: ```json ... ```  یا  ``` ... ``` — فقط اولین و آخرین حصار را حذف می‌کند
+    if s.startswith("```"):
+        first_nl = s.find("\n")
+        if first_nl != -1:
+            # حصارِ شروع: ```json یا ``` (3+ کاراکتر)
+            fence_open = first_nl + 1
+            # حصارِ پایانی: خطی که فقط ``` دارد
+            fence_close = s.rfind("```")
+            if fence_close > fence_open:
+                s = s[fence_open:fence_close].strip()
+            else:
+                # حصارِ پایانی غایب — JSON درون حصار شروع شده ولی تمام نشده (truncated)
+                s = s[fence_open:]
+    # ── find JSON braces ───────────────────────────────────────────────
     i, j = s.find("{"), s.rfind("}")
-    if i == -1 or j == -1:
+    if i == -1:
         raise ValueError(f"no JSON object in model reply: {s[:120]!r}")
-    return json.loads(s[i:j + 1])
+    if j == -1:
+        # بریدگیِ توکن — JSON شروع شده ولی تمام نشده
+        raise ValueError(
+            f"JSON response truncated (missing closing brace): "
+            f"{s[:120]!r}  — likely finish_reason=length; raise max_tokens")
+    candidate = s[i:j + 1]
+    try:
+        return json.loads(candidate)
+    except json.JSONDecodeError as exc:
+        raise ValueError(
+            f"invalid JSON in model reply (offset {exc.pos}): {exc.msg!r}  "
+            f"snippet: {candidate[max(0, exc.pos - 20):exc.pos + 40]!r}") from exc
 
 
 class DeepSeekClient:
@@ -166,6 +198,37 @@ _OVERHEAD_S = 5.0          # سرِ ثابتِ مشاهده‌شده ۳.۸s، ر
 _SAFETY = 1.5              # ضریبِ حاشیه
 _ASK_BUDGET_SHARE = 0.6    # حداکثر ۶۰٪ بودجهٔ ask برای یک سوکت → ۴۰٪ برای fallback
 
+# ۲۰۲۶-۰۷-۲۷ — بودجهٔ ask هم نمی‌تواند یک عددِ سراسری باشد، به همان دلیلی که سقفِ
+# سوکت نمی‌توانست. اندازه‌گیریِ زندهٔ همان روز نشان داد گاورنر با max_tokens=600
+# **بریده** می‌شود و فقط با ۲۰۰۰ خروجیِ parseشدنی می‌دهد؛ ولی مشتقِ همین ماژول برای
+# ۲۰۰۰ توکن ۱۲۷.۵s می‌خواهد و کرانِ ۶۰٪ از بودجهٔ سراسریِ ۹۰s فقط ۵۴s می‌داد. یعنی
+# فراخوان دوباره ریاضیاتاً محکوم بود — همان باگی که یک بار بسته شده بود، از سمتِ
+# دیگر برگشت.
+#
+# چرا سراسری را بالا نمی‌بریم: بودجهٔ ask فقط سقفِ صبر نیست؛ کرانِ زمانی است که نخِ
+# متابولیک تا دیدنِ STOP-ORGANISM تحمل می‌کند. بالابردنش برای همه، پاسخ‌گوییِ
+# کلیدِ کشتن را برای هر مسیرِ پولی کند می‌کند. پس فقط نقشی که واقعاً سقفِ بزرگ
+# لازم دارد بودجهٔ بزرگ می‌گیرد.
+_ASK_BUDGET_DEFAULT = 90.0
+_ASK_BUDGET_BY_ROLE = {
+    # حلقهٔ epochِ گاورنر هر ۲۰ دقیقه در نخِ خودش است؛ ۲۱۵s سقفِ ask یعنی
+    # ۱۲۹s سقفِ سوکت — کمی بالای ۱۲۷.۵sِ لازم برای ۲۰۰۰ توکن.
+    "ORCHESTR": 215.0,
+}
+
+
+def _ask_budget(role: "str | None") -> float:
+    """بودجهٔ askِ این نقش: envِ per-role → envِ سراسری → جدولِ نقش → پیش‌فرض."""
+    import os as _o
+    r = str(role or "").strip().upper()
+    if r:
+        per = _env_float(f"PAID_ASK_BUDGET_S_{r}", 0.0)
+        if per > 0:
+            return per
+    if str(_o.environ.get("PAID_ASK_BUDGET_S", "")).strip():
+        return _env_float("PAID_ASK_BUDGET_S", _ASK_BUDGET_DEFAULT)
+    return _ASK_BUDGET_BY_ROLE.get(r, _ASK_BUDGET_DEFAULT)
+
 
 def _env_float(name: str, default: float) -> float:
     import os as _o
@@ -173,6 +236,40 @@ def _env_float(name: str, default: float) -> float:
         return float(_o.environ.get(name, "") or default)
     except (TypeError, ValueError):
         return default
+
+
+_TRUNC_SEEN = set()
+
+
+def _timeout_truncated(role, max_tokens, need_s: float, cap_s: float) -> None:
+    """آلارمِ «سقفِ سوکت زیرِ نیازِ محاسبه‌شده» — یک بار per (نقش، سقف)، fail-soft.
+
+    عمداً بی‌صدا **نیست** ولی پرحرف هم نیست: هر ترکیب یک بار در عمرِ پروسه."""
+    key = (str(role or ""), int(max_tokens or 0))
+    if key in _TRUNC_SEEN:
+        return
+    _TRUNC_SEEN.add(key)
+    try:
+        # ⚠️ مسیر از `opslib.STATE_DIR` می‌آید نه از `__file__`.
+        # نسخهٔ اولِ همین تابع (چند ساعت پیش، همین جلسه) مسیر را از `__file__`
+        # می‌ساخت — یعنی **مستقل از env**. نتیجه: هر اجرای سوییت روی درختِ
+        # **زنده** می‌نوشت و ۹۸ ردیفِ آزمایشی در state واقعی نشست. دقیقاً همان
+        # دامِ «مسیر بی‌صدا به درختِ زنده می‌خورد» که در این مخزن ثبت شده است.
+        p = opslib.STATE_DIR / "paid-timeout-alerts.jsonl"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        import json as _j
+        import time as _t
+        with open(p, "a", encoding="utf-8") as f:
+            f.write(_j.dumps({
+                "ts": _t.strftime("%Y-%m-%dT%H:%M:%S"),
+                "role": str(role or ""), "max_tokens": int(max_tokens or 0),
+                "need_s": round(float(need_s), 1), "cap_s": round(float(cap_s), 1),
+                "why": "سقفِ سوکت زیرِ نیازِ مشتق‌شده — این فراخوان احتمالاً بریده می‌شود",
+                "fix": f"PAID_ASK_BUDGET_S_{str(role or '').upper()} را "
+                       f"≥{need_s / _ASK_BUDGET_SHARE:.0f} کن یا max_tokens را کم کن",
+            }, ensure_ascii=False) + "\n")
+    except (OSError, ValueError, TypeError):
+        pass
 
 
 def _http_timeout(role: "str | None" = None, max_tokens: "int | None" = None) -> float:
@@ -199,10 +296,15 @@ def _http_timeout(role: "str | None" = None, max_tokens: "int | None" = None) ->
         if need > base:
             base = need
         # کرانِ بالا: هرگز از سهمِ مجازِ بودجهٔ askِ بیرونی رد نشو
-        ask = _env_float("PAID_ASK_BUDGET_S", 90.0)
+        ask = _ask_budget(role)
         if ask > 0:
             cap = ask * _ASK_BUDGET_SHARE
             if base > cap:
+                # ⚠️ این‌جا داریم تماسی می‌زنیم که خودمان محاسبه کرده‌ایم تمام
+                # نمی‌شود. یک بار همین اتفاق افتاد و ۸۷ آلارمِ «no JSON object»
+                # داد بدونِ اینکه یک بار بگوید علت ساعتِ خودمان است. سکوت اجازه
+                # نیست — بریدن ثبت می‌شود تا دفعهٔ بعد در همان دقیقهٔ اول پیدا شود.
+                _timeout_truncated(role, max_tokens, base, cap)
                 base = cap
     return min(300.0, max(1.0, base))
 GATEWAY_ENV_PATH = Path(__file__).resolve().parent.parent.parent / "survival-gateway" / ".env"
