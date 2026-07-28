@@ -40,6 +40,10 @@ COST_FILE = HERE / "cost_meter.json"
 CONFIG_FILE = HERE / "langar_config.json"
 TELEGRAM_API = "https://api.telegram.org"
 
+# ── مکالمهٔ حالت‌دار (A1، ۲۰۲۶-۰۷-۲۸): تاریخچهٔ کوتاه برای /think ──
+# در حافظهٔ فرایند (نه دیسک)؛ ری‌استارت = پاک. محدود به N پیام برای کنترل هزینه.
+CONV_MAX = 12            # آخرین N نقش (user/assistant) نگه داشته می‌شود
+
 # مغز اختیاری (brain/ داخل پوشه) — نبودش fail-open به heuristics نیست؛ فقط لایهٔ ۰ ساده‌تر می‌شود
 sys.path.insert(0, str(PROJECT_ROOT / "brain"))
 try:
@@ -350,6 +354,7 @@ class LangarBot:
         self._stop = False
         self._last_weekly: str | None = None
         self.registry = CapabilityRegistry() if CapabilityRegistry else None
+        self._conv: list[dict] = []          # A1: تاریخچهٔ کوتاهِ /think (user/assistant)
 
     # ── capability advertisement (dynamic — هر فراخوانی تازه محاسبه می‌شود) ──
     def _advertise(self):
@@ -360,9 +365,13 @@ class LangarBot:
             ("/status", "وضعیت زندهٔ پروژه/خودم", "live", "", 10),
             ("/gates", "GATEها + وضعیت قفل", "live", "", 20),
             ("/verdicts", "صف verdictهای منتظر", "live", "", 30),
+            ("/agreement", "توافق‌نامهٔ دونفره (متن کامل)", "live", "", 31),
+            ("/agreement_for_creator", "متنِ قابل‌کپی برای ارسالِ دستی به C", "live", "", 32),
+            ("/agreement_signed", "ثبتِ امضای C (بعد از تأییدِ مکتوبِ خودِ C)", "live", "", 33),
             ("/studio", "پل read-only استودیوی Creator (alias: /saba)", "live", "", 40),
             ("/brief", "بریف (brain یا heuristic برچسب‌دار)", "live", "", 50),
             ("/think", "تحلیل موضوع (heuristic/LLM زیر سقف)", "live", "", 60),
+            ("/reset", "پاک‌کردنِ تاریخچهٔ مکالمهٔ /think", "live", "", 61),
             ("/upgrade", "پیشنهاد ارتقا (propose-only)", "live", "", 70),
             ("/rules", "قواعد قفل‌شده", "live", "", 80),
             ("/pf", "اکتساب /pf_* (propose-only)", "live", "", 90),
@@ -374,6 +383,7 @@ class LangarBot:
             ("/report_karma", "ثبتِ کارمای Reddit → warm-up guard", "live", "", 97),
             ("/kpi", "داشبورد KPI واقعی (از rollup)", "live", "", 98),
             ("/octopus", "bridge به orchestrator (heartbeat/tick)", "live", "", 99),
+            ("/code", "task کدنویسی → صفِ مغز (propose-only، اجرا در organism)", "live", "", 102),
             ("/dm_inbox", "incoming DM → FAQ auto-draft (HITL)", "live", "", 100),
             ("/spine", "وضعیت ستون‌فقرات اجرا (bus/telemetry/actuator، read-only)", "live", "", 101),
             ("/kill", "توقف اضطراری", "live", "", 200),
@@ -389,7 +399,7 @@ class LangarBot:
         reg = self._advertise()
         if not reg:
             return ("⚓ لنگر — کاکپیت Project-F (propose-only)\n"
-                    "/status /gates /verdicts /studio /brief /think <موضوع>\n"
+                    "/status /gates /verdicts /studio /brief /think <موضوع> /reset\n"
                     "/upgrade /rules /kill /revive\n"
                     "اکتساب: /pf_status /pf_plan [n] /pf_queue /pf_ok <id> /pf_no <id> /pf_ready <id> /pf_dryrun <id>\n"
                     "DM HITL: /dm_status /dm_queue /dm_ok <id> /dm_no <id> /dm_sent <id> /dm_inbox <text>\n"
@@ -397,6 +407,7 @@ class LangarBot:
                     "Vault: /vault_add <tag> <hook> /vault_list /vault_metric <id> <up>\n"
                     "safety: /guards /report_warning <ch> /clear_warning <ch> /report_karma <n>\n"
                     "KPI: /kpi /kpi_record <usd> <ppv> [posts] [rate] /kpi_import <csv|L-code clicks>\n"
+                    "توافق: /agreement /agreement_for_creator /agreement_signed [date]\n"
                     "Octopus: /octopus /octopus_tick")
         rows = reg.surface("langar")
         live = [r["id"] for r in rows if r["status"] == "live" and r["id"] != "/pf"]
@@ -427,6 +438,8 @@ class LangarBot:
             cap_id = "/vault"
         elif cmd.startswith("/octopus"):
             cap_id = "/octopus"
+        elif cmd.startswith("/code"):
+            cap_id = "/code"
         elif cmd in ("/dm_inbox", "/inbox"):
             cap_id = "/dm_inbox"
         elif cmd in ("/kpi_record", "/kpi_import"):
@@ -565,6 +578,13 @@ class LangarBot:
         if cmd == "/verdicts":
             items = self.model.pending_verdicts()
             return "منتظر verdict تو:\n" + "\n".join(f"{i+1}. {t}" for i, t in enumerate(items))
+        # ── توافق‌نامه (2026-07-25): کارت‌های امضای C ──
+        if cmd == "/agreement":
+            return self._agreement_full()
+        if cmd == "/agreement_for_creator":
+            return self._agreement_for_creator()
+        if cmd == "/agreement_signed":
+            return self._agreement_signed(arg)
         if cmd in ("/studio", "/saba", "/drafts"):
             b = self.model.studio_bridge()
             head = "✋ استودیو الان روی توقف است.\n" if b["saba_halted"] else ""
@@ -583,6 +603,10 @@ class LangarBot:
             return self._brief()
         if cmd == "/think":
             return self._think(arg or "وضعیت کلی")
+        if cmd == "/reset":
+            n = len(self._conv)
+            self._conv = []
+            return f"🧹 تاریخچهٔ مکالمه پاک شد ({n//2} تبادل). /think تازه."
         if cmd == "/kpi":
             # لایهٔ ۲ (2026-07-16): KPI واقعی از KPIRollup — دیگر disabled نیست.
             # اگه داده نیست، صفر صادقانه نشان می‌دهد (نه fabricated template).
@@ -686,6 +710,8 @@ class LangarBot:
             return self._octopus_card()
         if cmd == "/octopus_tick":
             return self._octopus_tick()
+        if cmd in ("/code", "/code_queue", "/code_status"):
+            return self._code_card(cmd, arg)
         if cmd == "/kill":
             KILL_FILE.write_text(_now(), encoding="utf-8")
             self._log("kill", {})
@@ -857,7 +883,65 @@ class LangarBot:
         except Exception as e:  # noqa: BLE001
             return f"❌ octopus error: {type(e).__name__}"
 
-    def _dm_inbox(self, text: str) -> str:
+    def _code_card(self, cmd: str, arg: str) -> str:
+        """/code <task> → صفِ مغزِ کدنویس (propose-only). اجرا در organism، نه اینجا.
+
+        لنگر فقط task را در pending-tasks/ می‌نویسد. مغزِ واقعی (code_brain) در پروسهٔ
+        organism اجرا می‌شود، patch می‌سازد، shadow-test می‌زند و در صورتِ سبز، کارتِ
+        تأیید می‌فرستد. لنگر هرگز agent را اجرا نمی‌کند — صرفاً ورودی می‌دهد."""
+        # مسیرِ _ops/state را پیدا کن (walk-up مثل _global_stop)
+        ops_state = None
+        for _anc in Path(__file__).resolve().parents:
+            _ops = _anc / "_ops"
+            if _ops.is_dir():
+                ops_state = _ops / "state"
+                break
+        if ops_state is None:
+            return "❌ پوشهٔ _ops پیدا نشد."
+        tasks_dir = ops_state / "cortex" / "pending-tasks"
+        if cmd == "/code":
+            if not arg.strip():
+                return ("❌ /code <task>\nمثال: /code در _ops/telegram_center/parser.py تابع "
+                        "parse را در برابرِ JSON خراب مقاوم کن\n"
+                        "محدودهٔ خودکار: فقط _ops/cortex و _ops/telegram_center.")
+            try:
+                tasks_dir.mkdir(parents=True, exist_ok=True)
+                import hashlib
+                tid = "task-" + hashlib.sha256(arg.encode("utf-8")).hexdigest()[:10]
+                rec = {"id": tid, "task": arg[:2000], "source": "langar",
+                       "ts": _now(), "status": "pending"}
+                (tasks_dir / f"{tid}.json").write_text(
+                    json.dumps(rec, ensure_ascii=False), encoding="utf-8")
+                self._log("code_task_enqueued", {"id": tid})
+                return (f"📥 task در صفِ مغز رفت: {tid}\n"
+                        f"«{arg[:80]}{'…' if len(arg) > 80 else ''}»\n"
+                        "🧠 مغز (در organism) آن را می‌گیرد → shadow-test → اگر سبز، کارتِ "
+                        "تأیید می‌آید. /code_queue برای دیدنِ صف.")
+            except Exception as e:  # noqa: BLE001
+                return f"❌ code error: {type(e).__name__}"
+        # /code_queue یا /code_status: خواندنِ صف
+        try:
+            import glob
+            files = sorted(tasks_dir.glob("*.json")) if tasks_dir.exists() else []
+            pending = []
+            for f in files:
+                try:
+                    d = json.loads(f.read_text(encoding="utf-8"))
+                    if d.get("status") == "pending":
+                        pending.append(d)
+                except Exception:  # noqa: BLE001
+                    continue
+            if not pending:
+                return "📭 صفِ مغز خالی است. /code <task> برای افزودن."
+            lines = [f"📋 صفِ مغز: {len(pending)} task منتظر"]
+            for d in pending[:10]:
+                t = str(d.get("task", ""))[:60]
+                lines.append(f"  • {d.get('id')}: {t}{'…' if len(str(d.get('task',''))) > 60 else ''}")
+            return "\n".join(lines)
+        except Exception as e:  # noqa: BLE001
+            return f"❌ code error: {type(e).__name__}"
+
+
         """incoming DM از مشتری → FAQ auto-draft (HITL — هیچ auto-send)."""
         try:
             sys.path.insert(0, str(PROJECT_ROOT / "brain"))
@@ -894,16 +978,42 @@ class LangarBot:
                        "صف verdictها را با /verdicts ببین؛ جمعه SOP داشبورد.")
 
     def _think(self, topic: str) -> str:
+        """مکالمهٔ حالت‌دار (A1). topic + تاریخچه → LLM/agent → ذخیره در تاریخچه.
+
+        دو مسیر: (الف) agent read-only اگه موضوع به فایل/کد اشاره کند و anthropic نصب
+        باشد (A2)؛ (ب) raw LLM تک‌شات با تاریخچه. هر دو زیرِ CostMeter و OpsecGuard.
+        در نبودِ کلید/بودجه → fallback heuristic."""
+        if not topic.strip():
+            return "🧠 /think <موضوع> — چه چیزی را تحلیل کنم؟"
+        # بله/خیر/تشکرِ کوتاه در مکالمه نباید agent سنگین بزند → مسیرِ سبک
+        looks_codey = bool(re.search(r"\.(py|md|json|js|ts)\b|فایل|کد|تابع|class|تست|import|/|بخش", topic))
         if os.environ.get("ANTHROPIC_API_KEY") and self.cost.can_spend(0.05):
-            resp = self._llm(topic)
+            resp = None
+            if looks_codey:
+                resp = self._think_agent(topic)        # A2: agent با ابزارهای خواندن
+            if not resp:
+                resp = self._llm_conv(topic)           # A1: raw LLM حالت‌دار
             if resp:
+                self._conv.append({"role": "user", "content": topic[:600]})
+                self._conv.append({"role": "assistant", "content": resp[:600]})
+                self._conv = self._conv[-CONV_MAX:]
                 return "🧠 " + resp
         return (f"🧠 (heuristic) دربارهٔ «{topic}»: مقابل قواعد قفل‌شده و ماتریس M2 بسنجش؛ "
                 "اگر outward است → صف verdict؛ اگر داخلی است → کم‌هزینه‌ترین آزمایش ۲هفته‌ای را طراحی کن "
                 "و در Experiment Log ثبت کن. جزئیات بیشتر بعد از فعال‌شدن لایهٔ LLM (V3).")
 
     def _llm(self, topic: str) -> str | None:
+        return self._call_llm(topic, [])
+
+    def _llm_conv(self, topic: str) -> str | None:
+        """A1: raw LLM حالت‌دار — تاریخچهٔ self._conv را همراه topic می‌فرستد."""
+        return self._call_llm(topic, self._conv)
+
+    def _call_llm(self, topic: str, history: list[dict]) -> str | None:
+        """هستهٔ LLM call با تاریخچهٔ دلخواه. هم‌خوان با CostMeter و fail-soft."""
         try:
+            msgs = [{"role": m["role"], "content": m["content"]} for m in history] \
+                + [{"role": "user", "content": topic[:2000]}]
             body = {
                 "model": os.environ.get("LANGAR_MODEL", "claude-haiku-4-5"),
                 "max_tokens": 400,
@@ -912,7 +1022,7 @@ class LangarBot:
                            "names, cities, or identity details; partners are codes A and C. "
                            "Hard rules: feet-only, no ToS violation, in-platform payment, "
                            "geo-block Iran, 18+, human-in-the-loop."),
-                "messages": [{"role": "user", "content": topic[:2000]}],
+                "messages": msgs,
             }
             req = urllib.request.Request(
                 "https://api.anthropic.com/v1/messages",
@@ -929,6 +1039,199 @@ class LangarBot:
         except Exception as e:
             self._log("llm_error", {"err": str(e)[:200]})
             return None
+
+    # ── A2 (۲۰۲۶-۰۷-۲۸): agent read-only با ابزارهای خواندن ─────────────────────
+    # هدف: آری از تلگرام دربارهٔ فایل/کد بپرسد، agent آن را بخواند و جواب دهد.
+    # صفر ابزار نوشتن/اجرا — فقط خواندن. stdlib-only (همان urllib + tool-use API)؛
+    # هیچ وابستگیِ بیرونی — سازگار با invariantِ پروژه. قرارداد: هرگز مسیرِ بیرونِ
+    # PF_ROOT/PROJECT_ROOT را نخواند؛ صفر PII در پاسخ. نبودِ کلید → None (fallback).
+    def _think_agent(self, query: str) -> str | None:
+        """agent read-only: تا N دور tool-use با read_file/list_dir/grep. صفر نوشتن."""
+        # محدودیتِ هزینه: agent ممکن است چند دور برود → سقفِ بالاتر ولی همچنان گیت‌شده
+        if not (os.environ.get("ANTHROPIC_API_KEY") and self.cost.can_spend(0.10)):
+            return None
+        root = PROJECT_ROOT
+        sandbox_roots = [root, root.parent / "_ops"]   # فقط این دو زیرشاخه قابل‌خواندن
+
+        def _in_sandbox(p: str) -> bool:
+            try:
+                rp = (root / p).resolve() if not Path(p).is_absolute() else Path(p).resolve()
+                return any(str(rp).startswith(str(sr.resolve())) for sr in sandbox_roots)
+            except Exception:  # noqa: BLE001
+                return False
+
+        def _tool_read_file(path: str) -> str:
+            if not _in_sandbox(path):
+                return "ERROR: خارج از sandbox خواندنی نیست."
+            return _read_text(root / path, 8000) or "(empty/missing)"
+
+        def _tool_list_dir(path: str) -> str:
+            base = root / path if path else root
+            if not _in_sandbox(str(base)):
+                return "ERROR: خارج از sandbox."
+            try:
+                return "\n".join(sorted(p.name + ("/" if p.is_dir() else "")
+                                        for p in base.iterdir())[:80]) or "(empty)"
+            except Exception as e:  # noqa: BLE001
+                return f"ERROR: {type(e).__name__}"
+
+        def _tool_grep(pattern: str, path: str) -> str:
+            base = root / path if path else root
+            if not _in_sandbox(str(base)):
+                return "ERROR: خارج از sandbox."
+            try:
+                rx = re.compile(pattern)
+            except re.error:
+                return "ERROR: regex نامعتبر"
+            hits = []
+            for f in base.rglob("*.py"):
+                if "/.git/" in str(f) or "/__pycache__/" in str(f):
+                    continue
+                try:
+                    for i, line in enumerate(f.read_text(encoding="utf-8", errors="ignore").splitlines(), 1):
+                        if rx.search(line):
+                            hits.append(f"{f.relative_to(root)}:{i}: {line.strip()[:100]}")
+                            if len(hits) >= 20:
+                                return "\n".join(hits)
+                except Exception:  # noqa: BLE001
+                    continue
+            return "\n".join(hits) if hits else "(no matches)"
+
+        tools = [
+            {"name": "read_file", "description": "محتوای یک فایل را درون sandbox بخوان (read-only).",
+             "input_schema": {"type": "object", "properties": {"path": {"type": "string"}},
+                              "required": ["path"]}},
+            {"name": "list_dir", "description": "فهرستِ محتویاتِ یک مسیر (read-only).",
+             "input_schema": {"type": "object", "properties": {"path": {"type": "string"}},
+                              "required": ["path"]}},
+            {"name": "grep", "description": "جستجوی regex در فایل‌های .py زیرِ مسیر (read-only).",
+             "input_schema": {"type": "object",
+                              "properties": {"pattern": {"type": "string"}, "path": {"type": "string"}},
+                              "required": ["pattern"]}},
+        ]
+        _TOOL_FN = {"read_file": _tool_read_file, "list_dir": _tool_list_dir, "grep": _tool_grep}
+
+        sys_prompt = ("You are a read-only code advisor for the Octopus organism (اختاپوس). "
+                      "Answer in Persian. Use tools to READ files/dirs/grep — you may NEVER write, "
+                      "edit, or run anything. Only paths inside the project sandbox are readable. "
+                      "Never output real names, cities, tokens, or PII; refer to people as A/C. "
+                      "Be concise and honest; if you can't read something, say so.")
+        msgs = list(self._conv) + [{"role": "user", "content": query[:2000]}]
+        try:
+            for _ in range(6):                       # سقفِ شش دور tool-use
+                resp = self._api_call("messages",
+                    {"model": os.environ.get("LANGAR_MODEL", "claude-haiku-4-5"),
+                     "max_tokens": 800, "system": sys_prompt, "messages": msgs, "tools": tools})
+                usage = resp.get("usage", {})
+                aud = (usage.get("input_tokens", 0) * 1 + usage.get("output_tokens", 0) * 5) / 1e6 * 1.55
+                self.cost.add(max(aud, 0.001))
+                if resp.get("stop_reason") != "tool_use":
+                    return "".join(b.get("text", "") for b in resp.get("content", [])
+                                   if b.get("type") == "text")[:1500]
+                # اجرای tool‌ها و افزودنِ نتیجه به مکالمه
+                msgs.append({"role": "assistant", "content": resp.get("content", [])})
+                tool_results = []
+                for b in resp.get("content", []):
+                    if b.get("type") == "tool_use":
+                        fn = _TOOL_FN.get(b.get("name"), lambda **_: "no-such-tool")
+                        res = fn(**(b.get("input") or {}))
+                        tool_results.append({"type": "tool_result",
+                                             "tool_use_id": b.get("id"), "content": str(res)[:6000]})
+                msgs.append({"role": "user", "content": tool_results})
+            return "(agent: به سقفِ دور رسیدم — پاسخ نهایی نگرفتم)"
+        except Exception as e:  # noqa: BLE001
+            self._log("agent_error", {"err": str(e)[:200]})
+            return None
+
+    def _api_call(self, path: str, body: dict, timeout: int = 40) -> dict:
+        """POST به api.anthropic.com با هدرِ صحیح (stdlib urllib). fail-soft."""
+        req = urllib.request.Request(
+            f"https://api.anthropic.com/v1/{path}",
+            data=json.dumps(body).encode(),
+            headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"],
+                     "anthropic-version": "2023-06-01",
+                     "content-type": "application/json"})
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return json.loads(r.read().decode())
+
+    # ── توافق‌نامه (2026-07-25): کارت‌های /agreement برای امضای C ──
+    # قانونِ خودِ پروژه: AI drafts، A sends manually، no auto-send. این کارت‌ها
+    # متنِ آماده را به A می‌دهند تا خودش paste کند — ربات هرگز به C پیام نمی‌فرستد.
+    def _agreement_full(self) -> str:
+        """/agreement — متنِ کاملِ ۱۲ بند برای خواندنِ خودِ A."""
+        txt = _read_text(PROJECT_ROOT / "DecisionLog.md")
+        m = re.search(r"(### DL-2026-07-20-AGREEMENT.*?)(?=^### |\Z)", txt, flags=re.S | re.M)
+        if not m:
+            return "❌ DL-2026-07-20-AGREEMENT در DecisionLog پیدا نشد."
+        body = m.group(1).strip()
+        # خلاصهٔ وضعیت
+        return ("📄 **توافق‌نامهٔ دونفرهٔ A/C (۱۲ بند، کامل):**\n\n"
+                + body +
+                "\n\n──\nبرای ارسال به C: `/agreement_for_creator` (نسخهٔ کوتاه + قابل‌کپی)\n"
+                "وقتی C تأیید کرد: `/agreement_signed` (ثبت امضا)")
+
+    def _agreement_for_creator(self) -> str:
+        """/agreement_for_creator — نسخهٔ کوتاه و قابل‌کپی برای ارسالِ دستی به C.
+
+        این متن را A کپی می‌کند و خودش (تلگرام/واتس‌اپ/حضوری) به C می‌فرستد.
+        ربات هرگز خودش ارسال نمی‌کند — قانونِ «no auto-send»."""
+        return (
+            "📤 **این متن را کپی کن و خودت به [C] بفرست** (قانون: ارسال دستی، نه خودکار):\n"
+            "══════════════════════════════════\n"
+            "سلام، این توافق‌نامهٔ عملیاتیِ دونفره‌مونه قبل از شروع. لطفاً بخون.\n\n"
+            "۱. درآمد ۵۰/۵۰ (بعد از کارمزد پلتفرم + هزینهٔ ابزار سقف A$۱۰۰/ماه)\n"
+            "۲. برند و اکانت‌ها مالکیت مشترک ۵۰/۵۰؛ فروش/انتقال با رضایت هر دو\n"
+            "۳. فقط پا — بدون صورت/بدن/explicit + geo-block کامل ایران\n"
+            "۴. مسیر body FREEZE (تو ۲۰۲۶-۰۷-۰۳ رد کردی) — بازگشایی فقط با رضایت مکتوب هر دو\n"
+            "۵. وتوی هر پست، بدون توضیح، حقِ هر دو نفر\n"
+            "۶. گزارشِ مالی هفتگی شفاف به تو (هر جمعه، حتی صفر)\n"
+            "۷. پشیمانی همون لحظه: بگی بس → فوراً توقف، حذف، هیچ مذاکره‌ای در همان لحظه\n"
+            "۸. DM: هوش مصنوعی پیش‌نویس می‌زنه، آری دستی می‌فرسته (هیچ auto-send، disclosed)\n"
+            "۹. نفر سوم فقط با رضایت هر دو\n"
+            "۱۰. هویت پلتفرم و KYC = خودت؛ آری هرگز به‌جای تو احراز هویت نمی‌کنه\n"
+            "۱۱. اختلاف: اول توقف همهٔ اکشن‌ها، بعد گفت‌وگو\n"
+            "۱۲. امضا قبل از شروع لازمه\n\n"
+            "اگه موافقی، یه پیام بده: «با تمام بندها موافقم» + تاریخ.\n"
+            "══════════════════════════════════\n"
+            "(بعد از تأییدِ C، دستور `/agreement_signed` را بزن تا ثبت بشه)"
+        )
+
+    def _agreement_signed(self, arg: str) -> str:
+        """/agreement_signed [تاریخ] — ثبتِ امضای C بعد از تأییدِ مکتوبِ خودِ C.
+
+        این فقط پس از آنکه C واقعاً در یه پیام تأیید کرد، زده می‌شود.
+        ثبت، ردیفِ DL-AGREEMENT را به‌روزرسانی می‌کند. هرگز به‌جای C امضا نمی‌کند."""
+        import datetime as _dt
+        date_str = (arg or "").strip() or _dt.date.today().isoformat()
+        try:
+            dl = PROJECT_ROOT / "DecisionLog.md"
+            txt = _read_text(dl)
+            old = "C (نام‌کد + تاریخ): `___________` ⟵ **مانده — تأیید مکتوب خودِ C لازم است**"
+            if old not in txt:
+                # شاید قبلاً ثبت شده
+                if "AWAITING-C-WRITTEN-CONFIRMATION" not in txt and "SIGNED (full" in txt:
+                    return "✅ امضای C قبلاً ثبت شده."
+                return "❌ ردیفِ امضای C پیدا نشد — DecisionLog را دستی چک کن."
+            new = (f"C (نام‌کد + تاریخ): **C — {date_str} (تأیید مکتوبِ خودِ C، "
+                   f"ثبت توسط A از طریقِ /agreement_signed)**")
+            new_txt = txt.replace(old, new)
+            # status را هم به‌روزرسانی کن
+            new_txt = new_txt.replace(
+                "AWAITING-C-WRITTEN-CONFIRMATION",
+                "SIGNED (full — A + C)")
+            # atomic write (try a few times — AV lock pattern)
+            for _ in range(3):
+                try:
+                    dl.write_text(new_txt, encoding="utf-8")
+                    break
+                except OSError:
+                    time.sleep(0.3)
+            self._log("agreement_c_signed", {"date": date_str})
+            return (f"✅ امضای C ثبت شد (تاریخ: {date_str}).\n"
+                    f"DL-AGREEMENT status: A-SIGNED → **SIGNED (full)**.\n"
+                    f"این یک امضای سه‌گانهٔ GATE 0 است. بعد: بررسیِ GATE-STAMP.")
+        except Exception as e:  # noqa: BLE001
+            return f"❌ agreement_signed error: {type(e).__name__}: {str(e)[:120]}"
 
     # ── حلقه ──
     def maybe_weekly(self) -> None:

@@ -395,6 +395,71 @@ def main() -> int:
                                  name="telegram-poll")
             _poll_t.start()
             opslib.heartbeat("telegram poll thread started after callback recovery (C7.2)")
+        # ── حلقهٔ ۷ (۲۰۲۶-۰۷-۲۸، رأیِ صریحِ مالک «بله، وصل کن»): درایورِ اعمالِ پچ.
+        #
+        # تا امروز `code_autonomy.run_forever` **هیچ صداکننده‌ای نداشت** — و کامنتِ خودِ
+        # آن ماژول این وضع را «امنیتِ تصادفی» می‌نامید: فایلِ ACTIVATION از قبل باز است،
+        # پس تنها چیزی که جلوی اعمال را گرفته بود نبودِ سیم بود، نه بودنِ قفل.
+        #
+        # حالا سیم هست و قفل هم — چهار تا، پشتِ سرِ هم و مستقل:
+        #   ۱ فلگِ OCTOPUS_WIRE_CODE_APPLY — نبودش یعنی کلِ این بلوک no-op.
+        #   ۲ code_autonomy.active() — ACTIVATION باشد و STOP-CODE-AUTONOMY نباشد.
+        #   ۳ گیت‌های خودِ apply_approved — قلب/تأیید/deny/سایه/refractory/کهنگیِ تأیید.
+        #   ۴ خالی‌بودنِ صفِ ورودی: بدونِ OCTOPUS_WIRE_PATCH_CARD هیچ پچی به مالک
+        #     پیشنهاد نمی‌شود، پس هیچ تأییدی نیست که مصرف شود — درایور بی‌کار می‌چرخد.
+        #     (۲۰۲۶-۰۷-۲۸ مالک عمداً آن فلگ را مسلح نکرد؛ این قفلِ چهارم عمدی است.)
+        #
+        # threadِ daemon است: نه tick را بلاک می‌کند نه جلوی خاموشی را می‌گیرد.
+        # خاموشیِ آنی بدونِ ری‌استارت: ساختنِ فایلِ STOP-CODE-AUTONOMY — حلقه هر ۵
+        # ثانیه چکش می‌کند. شکستِ این بلوک هرگز بوت را نمی‌کشد.
+        try:
+            import os as _ca_os
+            if str(_ca_os.environ.get("OCTOPUS_WIRE_CODE_APPLY", "")).strip().lower() \
+                    in ("1", "true", "yes", "on"):
+                sys.path.insert(0, str(_HERE / "cortex"))
+                import code_autonomy as _ca   # noqa: WPS433 — lazy، عمداً بعد از فلگ
+                if _ca.active():
+                    threading.Thread(target=_ca.run_forever, daemon=True,
+                                     name="code-apply").start()
+                    opslib.heartbeat("code-apply driver started (حلقهٔ ۷؛ "
+                                     "kill = STOP-CODE-AUTONOMY)")
+                else:
+                    opslib.heartbeat("code-apply مسلح ولی active()=False — درایور استارت نشد")
+        except Exception as _cae:  # noqa: BLE001 — درایورِ اختیاری هرگز بوت را نمی‌کشد
+            opslib.alert([f"code-apply wiring failed (non-fatal): "
+                          f"{type(_cae).__name__}: {_cae}"])
+        # ── حلقهٔ ۸ (۲۰۲۶-۰۷-۲۸، رأیِ مالک «همه‌ش»): مغزِ تولیدِ patch (code_brain) ──
+        #
+        # این درایور ورودیِ code_autonomy را تغذیه می‌کند: taskهای pending (از /code در
+        # لنگر) را می‌خواند، با مغزِ LLM یک patch کاندید می‌سازد، و آن را به همان
+        # pipelineِ موجودِ code_autonomy.tick → shadow-test → propose_to_owner می‌سپارد.
+        # هیچ‌کدام از گیت‌های code_autonomy دست‌نخورده‌اند؛ این فقط منبعِ ورودی است.
+        #
+        # همان الگوی چهار-گیتِ code-apply:
+        #   ۱ فلگِ OCTOPUS_WIRE_CODE_BRAIN — نبودش یعنی کلِ این بلوک no-op.
+        #   ۲ code_brain.enabled() — OCTOPUS_CODE_BRAIN باید صریح مسلح شده باشد.
+        #   ۳ نبودِ کلید/بودجه → draft_patch None برمی‌گرداند → tick_once فقط شمارش.
+        #   ۴ خالی‌بودنِ صفِ pending-tasks → tick_once کار نمی‌کند. صف از /code پر می‌شود.
+        #
+        # kill همان STOP-CODE-AUTONISM است (اشتراکی با code-apply) + فلگِ OCTOPUS_CODE_BRAIN.
+        # threadِ daemon است: نه tick را بلاک می‌کند نه خاموشی را. شکست هرگز بوت را نمی‌کشد.
+        try:
+            import os as _cb_os
+            if str(_cb_os.environ.get("OCTOPUS_WIRE_CODE_BRAIN", "")).strip().lower() \
+                    in ("1", "true", "yes", "on"):
+                sys.path.insert(0, str(_HERE / "cortex"))
+                import code_brain as _cb   # noqa: WPS433 — lazy، عمداً بعد از فلگ
+                if _cb.enabled():
+                    threading.Thread(target=_cb.run_forever, daemon=True,
+                                     name="code-brain").start()
+                    opslib.heartbeat("code-brain driver started (حلقهٔ ۸؛ "
+                                     "kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)")
+                else:
+                    opslib.heartbeat("code-brain مسلح ولی enabled()=False — "
+                                     "OCTOPUS_CODE_BRAIN را هم set کن")
+        except Exception as _cbe:  # noqa: BLE001 — درایورِ اختیاری هرگز بوت را نمی‌کشد
+            opslib.alert([f"code-brain wiring failed (non-fatal): "
+                          f"{type(_cbe).__name__}: {_cbe}"])
         if any(_wire.values()):
             opslib.heartbeat(f"organism wiring: {_wire}")
     except Exception as _e:  # noqa: BLE001 — wiring اختیاریِ additive
@@ -604,6 +669,21 @@ def main() -> int:
                                                     ("review_pending", "queue_open")}
                 except Exception as _spe:  # noqa: BLE001
                     opslib.alert([f"self_patch error (non-fatal): {type(_spe).__name__}: {_spe}"])
+                # ── ابتکار (۲۰۲۶-۰۷-۲۷، رأیِ مالک «آره، و حتی از من سؤال بپرسد»)
+                # تا امروز رابطه یک‌طرفه بود. این‌جا اختاپوس می‌تواند خودش شروع کند —
+                # خبر بدهد یا **سؤال بپرسد**. سکوت پیش‌فرض است: سقفِ ۲/روز، فاصلهٔ
+                # ۴ ساعت، ساکت در ساعتِ سکوت، و خودش هم می‌تواند بگوید «ارزشش را
+                # ندارد». flag خاموش → no-op.
+                try:
+                    import initiative as _iv   # noqa: WPS433 — lazy، خودش flag را چک می‌کند
+                    _ivr = _iv.speak()
+                    if _ivr.get("ok") and _chan is not None:
+                        _t, _k = _iv.card(_ivr)
+                        _chan.send_text(_t, reply_markup={"inline_keyboard": _k},
+                                        stream="summary")
+                        epoch_info["initiative"] = {"kind": _ivr.get("kind")}
+                except Exception as _ive:  # noqa: BLE001
+                    opslib.alert([f"initiative error (non-fatal): {type(_ive).__name__}: {_ive}"])
             # Phase 1: epoch-based sweep of stale gated_effects
             try:
                 if chrono is not None:
@@ -727,6 +807,14 @@ def main() -> int:
                 _w.doctor_selfknowledge_beat(beat=_cstat.get("beat", 0) if _cstat else 0)
             except Exception as _ske:  # noqa: BLE001 — خودشناسی نباید tick را بکشد
                 opslib.alert([f"doctor_selfknowledge_beat error (non-fatal): {type(_ske).__name__}"])
+            # ── Synapse SENSE (2026-07-28, C8): حسِ خود-ارجاعیِ ریاضیِ ارگانیسم —
+            # ضربانِ خود را روی تله‌متریِ خود می‌سنجد و سریِ زمانیِ صداقت می‌نویسد.
+            # عمداً بیرونِ _protective_skip (مشاهده ≠ تغییر)، $0، propose-only، fail-closed.
+            # flag خاموش (پیش‌فرض) → no-op.
+            try:
+                _w.synapse_beat(beat=_cstat.get("beat", 0) if _cstat else 0)
+            except Exception as _se:  # noqa: BLE001 — Sense نباید tick را بکشد
+                opslib.alert([f"synapse_beat error (non-fatal): {type(_se).__name__}"])
             # ── M (P-M2): canonical consolidation در حلقهٔ زنده (هر N beat، پشتِ flag)
             # یک مسیرِ حافظهٔ واحد — منبعِ School را می‌گنجاند. advisory فقط، صفر spend.
             if not _protective_skip and _neural_stack is not None and _cstat is not None:
@@ -846,6 +934,17 @@ def main() -> int:
                         beat=_cstat.get("beat", 0) if _cstat else 0, write=False)
                 except Exception as _ble:  # noqa: BLE001 — §۴: نباید tick را بکشد
                     opslib.alert([f"business_legs_beat error (non-fatal): {type(_ble).__name__}: {_ble}"])
+            # ── زیر-OSِ Mining: ضربانِ فقط‌خواندنیِ ناوگان/کوین/برق → ORGANISM-STATE.mining_os
+            # پشتِ OCTOPUS_WIRE_MINING_OS (پیش‌فرض خاموش، خارج از PAPER_FULL_FLAGS) → None.
+            # ۲۰۲۶-۰۷-۲۸: این هوک قبلاً ادعا شده بود («ACTIVATION.md: organism.py:712») ولی
+            # در درخت نبود — بسته یتیم بود. propose-only؛ صفر spend/outward/SSH.
+            _mining_os = None
+            if not _protective_skip:
+                try:
+                    _mining_os = _w.mining_os_beat(
+                        beat=_cstat.get("beat", 0) if _cstat else 0)
+                except Exception as _moe:  # noqa: BLE001 — §۴: نباید tick را بکشد
+                    opslib.alert([f"mining_os_beat error (non-fatal): {type(_moe).__name__}: {_moe}"])
             # ── Asset oversight (ASSET-OVERSIGHT): نقشهٔ داراییِ کل → ORGANISM-STATE.asset_map
             # پشتِ OCTOPUS_WIRE_ASSET_MAP (پیش‌فرض خاموش، خارج از PAPER_FULL_FLAGS) → None.
             # فقط‌خواندنی/fail-soft؛ هرگز مبلغ echo نمی‌کند؛ propose-only مطلق.
@@ -979,6 +1078,7 @@ def main() -> int:
                           **({"ziman": (_ziman_status or _ziman_last)} if (_ziman_status or _ziman_last) else {}),
                           **({"cartographer": _cartographer_status} if _cartographer_status else {}),
                           **({"business_legs": _biz_legs} if _biz_legs else {}),
+                          **({"mining_os": _mining_os} if _mining_os else {}),
                           **({"asset_map": _asset_map} if _asset_map else {}),
                           **({"accounting": _acct_beat} if _acct_beat else {}),
                           **({"lead_discovery": _lead_disc} if _lead_disc else {}),
