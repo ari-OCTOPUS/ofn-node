@@ -1119,12 +1119,17 @@ def neural_beat(neural_stack, beat: int, snap_inputs: dict | None = None) -> dic
     try:
         driver = neural_stack["driver"]
         inputs = snap_inputs or {}
+        # FIX #310 (2026-07-28): نمونهٔ bcm_signals را به evaluate پاس بده تا برای
+        # اولین‌بار وزن‌های آموخته‌شده در brain_inputs fold بشن. اگر نباشد → None
+        # و learned_pressure=0 (backward compat). اعمال پشت flag جداگانه.
+        _bcm_for_eval = neural_stack.get("bcm_signals") if isinstance(neural_stack, dict) else None
         result = driver.evaluate(
             beat=beat,
             rhythm=inputs.get("rhythm"),
             sensory=inputs.get("sensory"),
             spectral=inputs.get("spectral"),
-            budget=inputs.get("budget"))
+            budget=inputs.get("budget"),
+            bcm=_bcm_for_eval)
         # hebbian observe
         signals = _hebbian_signals(inputs)
         # ۲۰۲۷-۰۷-۲۷، مشاهدهٔ زنده بعد از ری‌استارت: جدول سه دقیقه **کاملاً ثابت**
@@ -1205,6 +1210,11 @@ def neural_beat(neural_stack, beat: int, snap_inputs: dict | None = None) -> dic
                      "confidence_adjustment": _bi.get("confidence_adjustment"),
                      "pain": _pain.get("level"),
                      "protective": _pain.get("protective"),
+                     # FIX #310 (2026-07-28): برای اولین‌بار، ثبتِ آنچه یادگیری می‌گفت.
+                     # این فیلدها تنها زمانی غیرصفرند که bcm تغذیه شده باشد و وزن یاد گرفته باشد.
+                     "learned_pressure": _bi.get("learned_pressure", 0.0),
+                     "learned_top_signal": _bi.get("learned_top_signal", ""),
+                     "learned_n_keys": _bi.get("learned_n_keys", 0),
                      # زمینه، تا بعداً بشود سنجید درست می‌گفت یا نه:
                      "signals": sorted(set(signals or [])),
                      "budget_pct": _bi.get("budget_pct"),
@@ -1224,31 +1234,49 @@ def neural_beat(neural_stack, beat: int, snap_inputs: dict | None = None) -> dic
 def protective_override(neural_result: dict | None) -> dict:
     """بررسیِ protective signals. اگر خطر → override غیرقابل‌سرکوب.
     خروجی: {override: bool, action: str, reason: str}.
-    این تابع Structural است — orchestrator نمی‌تواند نادیده بگیرد."""
+    این تابع Structural است — orchestrator نمی‌تواند نادیده بگیرد.
+
+    FIX #310 (2026-07-28): مسیرِ APPLY. یادگیریِ BCM (learned_pressure) فقط وقتی
+    در pain_combine وارد می‌شه که flag جداگانه OCTOPUS_NEURAL_LEARNED_APPLY روشن
+    باشه. این flag در OCTOPUS-flags.cmd نیست → default-off. رأیِ مالک بعد از دیدنِ
+    ۲۴-۴۸h shadow (OCTOPUS_NEURAL_EFFECT_SHADOW) آن را روشن می‌کند. تا آن زمان،
+    این تابع byte-identical با نسخهٔ قبلی است.
+    """
     if neural_result is None:
         return {"override": False, "action": "none", "reason": "no neural data"}
     pain = neural_result.get("pain", {}).get("level", 0)
     reflexes = neural_result.get("reflexes", [])
     triggered = [r for r in reflexes if r.get("triggered")]
 
+    # FIX #310: اگر flag APPLY روشن است، learned_pressure را به pain اضافه کن.
+    # این تنها مسیری است که یک وزنِ آموخته‌شده روی یک تصمیمِ واقعی اثر می‌گذارد.
+    _learned_note = ""
+    if flag("OCTOPUS_NEURAL_LEARNED_APPLY"):
+        _bi = neural_result.get("brain_inputs") or {}
+        _lp = float(_bi.get("learned_pressure", 0.0) or 0.0)
+        if _lp > 0:
+            # combine: pain خام + فشارِ یادگرفته‌شده (محدود به 1.0)
+            pain = min(1.0, pain + _lp * 0.5)   # ضریبِ 0.5 = محافظه‌کارانه
+            _learned_note = f" [+learned={_lp:.2f}:{_bi.get('learned_top_signal','')}]"
+
     # pain > 0.7 → protective redirect (غیرقابل‌سرکوب)
     if pain > 0.7:
         return {"override": True, "action": "protective_halt",
-                "reason": f"pain={pain:.2f}>0.7 — non-essential paused",
+                "reason": f"pain={pain:.2f}>0.7{_learned_note} — non-essential paused",
                 "suppressible": False}   # ← کلید: غیرقابل‌سرکوب
 
     # reflex triggered → throttle
     critical = [r for r in triggered if r.get("severity") == "critical"]
     if critical:
         return {"override": True, "action": "throttle",
-                "reason": f"critical reflex: {critical[0].get('name')}",
+                "reason": f"critical reflex: {critical[0].get('name')}{_learned_note}",
                 "suppressible": False}
 
     # high reflex → warning (قابل‌سرکوب ولی logged)
     high = [r for r in triggered if r.get("severity") == "high"]
     if high:
         return {"override": False, "action": "warn",
-                "reason": f"high reflex: {high[0].get('name')}",
+                "reason": f"high reflex: {high[0].get('name')}{_learned_note}",
                 "suppressible": True}
 
     return {"override": False, "action": "none", "reason": "all clear"}
