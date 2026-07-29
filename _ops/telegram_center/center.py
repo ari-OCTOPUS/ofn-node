@@ -2347,9 +2347,28 @@ class Center:
         while not self.stopped():
             self.run_once()
             now = float(self._clock())
+            self._pulse(now)
             if now - last_beat >= float(beat_every_s):
                 self.beat()
                 last_beat = now
+
+    # ── نبضِ زنده‌بودن (۲۰۲۶-۰۷-۲۹، رأیِ مالک) ──────────────────────────────
+    # چرا: مرکز تا امروز **هیچ سیگنالِ زنده‌بودنی** نمی‌نوشت. عصرِ همین روز بین
+    # ۲۰:۲۸ و ۲۰:۴۲ مرد و هیچ سطحی نفهمید — نه واچ‌داگ (شرطش «هر دو مرده» بود)
+    # نه کابین. تنها ردِ حیاتش لاگِ ارسال بود که فقط وقتی چیزی می‌فرستد پر
+    # می‌شود، پس سکوتِ سالم از مرگ جدا نبود.
+    # قرارداد: هر تکرارِ حلقه، نوشتنِ اتمیک، fail-soft، **صفر شناسه/راز**.
+    def _pulse(self, now: float) -> None:
+        try:
+            p = opslib.STATE_DIR / "pulse" / "tg-center.json"
+            p.parent.mkdir(parents=True, exist_ok=True)
+            tmp = p.with_suffix(".json.tmp")
+            tmp.write_text(json.dumps(
+                {"ts": opslib.now_iso(), "pid": os.getpid(), "mono": round(now, 1)},
+                ensure_ascii=False), "utf-8")
+            os.replace(tmp, p)
+        except OSError:      # دیسکِ پر/قفل نباید مرکز را بکشد
+            pass
 
 
 

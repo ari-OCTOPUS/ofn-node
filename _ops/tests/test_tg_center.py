@@ -7,6 +7,7 @@ approval + توکنِ HumanAppendGuard (فقط با راز) + answer؛ فایل�
 """
 import json
 import os
+import pathlib
 import shutil
 import sys
 import tempfile
@@ -603,6 +604,26 @@ def t_x_mission_test_flag_on_invokes_runner():
         center.runner_mod = orig
         os.environ.pop("OCTOPUS_WIRE_MISSION_RUNNER", None)
     _redirect_octopus_paths()
+
+
+def t_center_pulses_every_loop_iteration():
+    """نبضِ زنده‌بودنِ مرکز (۲۰۲۶-۰۷-۲۹، رأیِ مالک).
+
+    چرا این گارد لازم است: مرکز تا آن روز هیچ سیگنالِ زنده‌بودنی نمی‌نوشت و
+    عصرِ همان روز دو نمونهٔ هم‌زمانش روی یک توکن (pid 23892 + 10096) فقط
+    به‌خاطرِ همین پالس دیده شد. اگر کسی فراخوانِ _pulse را از حلقه بردارد،
+    آن کوری برمی‌گردد و هیچ تستِ رفتاری‌ای نمی‌گیردش — پس محلِ فراخوان در
+    **متنِ منبع** سنجیده می‌شود، نه شکلِ ماژول."""
+    src = (pathlib.Path(__file__).resolve().parents[1]
+           / 'telegram_center' / 'center.py').read_text(encoding='utf-8', errors='replace')
+    body = src[src.index('def run_forever'):src.index('def _pulse')]
+    assert 'self._pulse(' in body, 'run_forever دیگر پالس نمی‌زند — مرگِ مرکز نامرئی می‌شود'
+    assert 'def _pulse' in src
+    # پالس هرگز شناسه/راز ننویسد: فقط ts/pid/mono
+    pulse = src[src.index('def _pulse'):]
+    pulse = pulse[:pulse.index('os.replace')]
+    for bad in ('CHAT_ID', 'TOKEN', 'chat_id', 'token'):
+        assert bad not in pulse, f'پالس نباید {bad} بنویسد'
 
 
 if __name__ == "__main__":
