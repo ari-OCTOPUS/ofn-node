@@ -173,3 +173,37 @@ method: "شواهدمحور: ممیزیِ اتصالاتِ 07-18 (۲۴ اندا�
 | TE7 | `_ops/heart/fuel_meter.py` ✨ | مترِ سوختِ واقعیِ API/Ollama (خونِ قلب) + consumer در `producers.velocity_meter` | `OCTOPUS_WIRE_HEART_FUEL` | 💤 | `test_heart_fuel.py` 7/7 |
 
 فعال‌سازیِ کاملِ لوله (owner-gated، پس از رأی روی قراردادها): `set OCTOPUS_WIRE_LEAD_CANDIDATES=1` + `OCTOPUS_WIRE_LEAD_BOUNDARY=1` + secretهای `OCTOPUS_INGEST_SECRET_<SRC>` (فقط .env مالک) + restart. فاز C پیاده شد؛ فاز D (workerِ outbound واقعی) = رأیِ جدا.
+
+## 🧠 SELF-ACCURACY — معیارِ دقتِ خودمدل C3 (نو ۲۰۲۶-۰۷-۲۸)
+
+اولین سنجهٔ ملموسِ «چقدر از خودم نمی‌دانم». بازسنجیِ ۲۰۲۶-۰۷-۲۵ گفت C3 «NOT_MEASURED» است؛ این شکاف را می‌بندد. پیش‌نیازِ خود-اصلاحیِ ایمن (C4): تا امروز ارگانیسم می‌توانست با اطمینانِ کامل غلط بگوید (۰۷-۲۵: ۱ لِگ به‌جای ۴؛ ۰۷-۲۷: خرج به‌جای درآمد).
+
+| ID | جزء | نقش | فلگ (خاموش) | Health | تست |
+|---|---|---|---|---|---|
+| SA1 | `_ops/doctor/self_accuracy.py` ✨ | سنجشِ ادعای `snapshot()` در برابرِ منابعِ حقیقتِ مستقل (legs/revenue/wire_on) → `{accuracy, drifts[]}`؛ سریِ زمانیِ صداقت | `OCTOPUS_SELFKNOW_ACCURACY` | 💤 shadow | `test_self_accuracy.py` ۱۳/۱۳ سبز |
+| SA2 | wiring در `doctor/self_knowledge.run()` ✨ | تزریقِ `self_accuracy` به هر دو شاخه (cached/changed)؛ flag-off = byte-identical | همان فلگ | 💤 | اثباتِ زنده: flag-on → فیلد ظاهر؛ flag-off → ناپدید |
+
+خروجی: append-only به `_ops/state/doctor/self-accuracy.jsonl` (سریِ زمانیِ صداقتِ C3 — شکافِ «حاضر ولی نه سنجش‌پذیر» از ۰۷-۲۵). خطِ قرمز: فقط‌خواندنی نسبت به state/ژنوم/ledger؛ $0؛ fail-soft. فعال‌سازی: `set OCTOPUS_SELFKNOW_ACCURACY=1` در flags.cmd + restart ♻️.
+
+## 👁 SYNAPSE SENSE — بیداریِ حسِ خود-ارجاعی C8 (نو ۲۰۲۶-۰۷-۲۸)
+
+سه ماژولِ synapse از ۲۰۲۶-۰۷-۲۴ کاملاً ساخته بودند ولی **ادغامِ رانتایمِ صفر** داشتند: هیچ beat/وایرینگ/فلگی آن‌ها را صدا نمی‌زد و `out/` هیچ‌وقت فایل نگرفت. این اولین وصل‌کردن به رانتایم است.
+
+| ID | جزء | نقش | فلگ (خاموش) | Health | تست |
+|---|---|---|---|---|---|
+| SN1 | `wiring.synapse_beat()` + `organism.py` tick ✨ | وصل‌کردنِ SENSE به ضربان: هر N beat یک چرخهٔ `sense_once`؛ flag-gated، STOP-aware، non-blocking | `OCTOPUS_SYNAPSE_ENABLED` | 💤 shadow | `test_synapse_beat.py` ۷/۷ سبز |
+| SN2 | `_ops/synapse/sense.py::_append_trail` ✨ | سریِ زمانیِ صداقتِ C8: هر چرخه ردیفی با `{ts, cpm, self_referential, gate0, delta, kind}` به `state/synapse-trail.jsonl` | همان فلگ | 💤 | `test_synapse_sense.py` ۳ چکِ trailِ نو سبز |
+
+خروجی: proposal در `_ops/synapse/out/` + ردیفِ صداقت در `state/synapse-trail.jsonl`. این دقیقاً شکافِ «sinkها per-cycle نه self_referential می‌نوشتند نه gate0 را نه علامتِ Δ» (از ۰۷-۲۵) را می‌بندد. `sense.flag_on()` هر دو نامِ `OCTOPUS_SYNAPSE_ENABLED` (canonical) و `SYNAPSE_ENABLED` (backward-compat) را می‌پذیرد. $0 (صرفاً ریاضی)، propose-only، fail-closed. فعال‌سازی: `set OCTOPUS_SYNAPSE_ENABLED=1` در flags.cmd + restart ♻️. نقطهٔ بعدی: مرحلهٔ ۳ (C4/خود-اصلاحیِ twin-tested) — ولی پیش‌نیازش R5-prevent (مهارِ واقعی).
+
+## 🩺 OCTOPUS-DOCTOR — دکترِ اختاپوس: چشم/ذهن/انگشت/بازو/صدا (نو ۲۰۲۶-۰۷-۲۹)
+
+دو بستهٔ نشست‌های ابری نصب شد و برای اولین بار **روی خودِ لپ‌تاپ** سنجیده شد (۲۲۱ سبز، نه ابری). دکتر = پکیجِ stdlib-only با والتِ Obsidian به‌عنوانِ حافظه؛ حلقهٔ آینده: پیامِ مالک در تلگرام → کارتِ نیت → worktree → سوئیت → کارتِ دیف → رأی → merge. نامِ importیِ `doctor` ملکِ `_ops/doctor` می‌ماند — پل عمداً subprocess/JSONL است، صفر import.
+
+| ID | جزء | نقش | فلگ (خاموش) | Health | تست |
+|---|---|---|---|---|---|
+| DR1 | `OCTOPUS-DOCTOR/doctor/` ✨ | چشم (`scanner` فقط‌خواندنی) · ذهن (`mind` = ناخودآگاهِ جمعی، رنگ می‌دهد تصمیم نمی‌گیرد) · انگشت (`propose` با ۸ گیتِ در-کد) · مغز (`fugu` با دو سقفِ روزانه: ۶۰ فراخوان + $۲) · صدا (`channel` حالتِ outbox) | مغز: `SAKANA_API_KEY` (ست نشده = fail-closed) | 💤 | `test_doctor.py` ۱۴۸/۱۴۸ سبز |
+| DR2 | `_ops/os_v1/` ✨ | کتابخانهٔ OS: `honest_metric`/`outcome_ledger`/`efe`/`policy_sampler` (قید حذف می‌کند نه جریمه)/`silence`/`leg_failure`/`mission_runner` (worktree + گیتِ سوئیت + merge فقط با رأی؛ `env_root_key` سوئیت را به درختِ زیرِ آزمون pin می‌کند) | — (library، بدونِ side-effect) | 💤 | `test_os_v1.py` ۷۳/۷۳ سبز |
+| DR3 | `_ops/telegram_center/doctor_link.py` ✨ | پلِ outboxِ دکتر → clientِ مرکز (بدونِ اتصالِ دومِ تلگرام) + جداسازیِ رأیِ سه‌تکهٔ `ok\|no:gate:mission` قبل از fallbackِ approval → `cli.py votes`؛ cursorِ بایتی + dedupِ mission:gate + سقفِ ۲۰/روز | `OCTOPUS_WIRE_DOCTOR_TG` | 💤 shadow | `test_doctor_link.py` ۱۸/۱۸ سبز؛ ثبت در `run_all.py` |
+
+خطِ قرمزِ دکتر (در کد، با تست): در `_ops` نمی‌نویسد · پچ اعمال نمی‌کند · merge سه‌قفله (رأیِ ✅ دیف + `--apply` + `OCTOPUS_DOCTOR_MAY_MERGE=1` که **تنظیم نشده**). فعال‌سازیِ پل: `set OCTOPUS_WIRE_DOCTOR_TG=1` در flags.cmd + ری‌استارتِ TG-center ♻️. پلهٔ بعد (رأیِ مالک): کلیدِ Sakana برای پله‌های ۱–۲ (ask/diagnose/propose)، و `day --live` فقط زیرِ چشمِ مالک.

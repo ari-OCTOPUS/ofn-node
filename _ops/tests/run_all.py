@@ -93,6 +93,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_decision_receipt.py",
          # 2026-07-20 یکپارچگی: Memory Gate v1 (store+FTS5+FSM، self_knowledge=ADVISORY، join به receipt) + taxonomyِ واحد
          "test_memory_gate.py",
+         # 2026-07-28 Octopus-v2030 contracts: exact proposal↔approval binding, scoped context,
+         # SQLite canonical memory zones, owner-only verified-shared promotion.
+         "test_control_contracts_v2.py",
          # 2026-07-20 یکپارچگی: Ops Event Spine v1 (envelope + trace_id اجباری + replay + reconcile)
          "test_event_spine.py",
          # 2026-07-20 یکپارچگی: context fencing (DATA_NOT_INSTRUCTION + غربالِ injection، flag-off passthrough)
@@ -246,6 +249,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_tg_mission.py", # 2026-07-18: Mission Genome + Action Graph برای self-coding کنترل‌شده
          "test_tg_mission_runner.py", # 2026-07-18: Runner v0 — اجرای ایزولهٔ allowlisted + evidence
          "test_code_autonomy.py",
+         # 2026-07-29 — پلِ outboxِ دکترِ اختاپوس (OCTOPUS-DOCTOR) به مرکزِ تلگرام؛
+         # flag-off no-op (OCTOPUS_WIRE_DOCTOR_TG). هرمتیک: ORG_ROOT موقت.
+         "test_doctor_link.py",
          # ۲۰۲۶-۰۷-۲۷ — گاردهای مصرف‌کننده‌های تازهٔ مغزِ گران. ممیزیِ متخاصمِ همان روز
          # نشان داد هیچ‌کدام این‌جا ثبت نشده بودند: ۵۲ تستِ تازه نوشته شده بود که در
          # سوییتِ رسمی (و در سوییتِ سایهٔ خودِ self_patch) اصلاً نمی‌دوید.
@@ -258,6 +264,23 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_vault_wires.py",  # دانشِ ابسیدین → رفتار
          "test_html_and_correction_safety.py",  # escape ِ متنِ مدل + مرزِ کلمهٔ تصحیح
          "test_owner_answers_2026_07_27.py",  # سه رأیِ مالک: کوت/سکوت/منقضی‌ها
+         "test_initiative_and_autonomy.py",  # ابتکار + مرزِ اختیار
+         "test_budget_judge.py",  # W1 — قاضیِ بودجه (رزروِ مالک تخطی‌ناپذیر)
+         "test_decision_gate.py",  # W2 — گیتِ ۵۱/۴۹ (HARD-STOP با مدرکِ کامل هم بسته)
+         "test_trajectory_log.py",  # W3 — دفترِ مسیر (redact ِ fail-closed)
+         "test_teacher_loop.py",  # W4 — حلقهٔ معلم (جفتِ بی‌نمره، بی‌نمره می‌ماند)
+         "test_stuck_money.py",  # ۱۳۴ — پرداختِ نیمه‌کاره دیده شود، ولی دست‌نخورده
+         "test_money_fsm.py",  # ۱۳۶ — تصمیمِ پولی هرگز بی‌تصمیم نمی‌شود (سایه)
+         "test_capability_registry.py",  # فهرستِ خودکشف — سطح از بدن عقب نماند
+         "test_owner_auth_log.py",  # مجوزِ مالک می‌ماند ولی هرگز خودش اجرا نمی‌شود
+         "test_clock_guard.py",  # ۱۳۵ — ساعتِ عقب‌پریده انقضا را زنده نکند
+         "test_command_discoverability.py",  # دستوری که دیده نمی‌شود، نیست
+         "test_improve_learning_loop.py",  # رأیِ مالک باید به یادگیرنده برسد
+         "test_orphan_scan.py",  # ارگانیسم بداند کدام اندامش وصل نیست
+         "test_funnel_cmd.py",  # D3b — مالک واقعیتِ بازار را می‌گوید
+         "test_two_bot_bridge.py",  # پلِ عام — دستورِ تبلیغ‌شده از گروه کار کند
+         "test_self_coding_chain.py",  # زنجیرهٔ هفت‌حلقه‌ایِ کدنویسیِ واقعی
+         "test_output_critic.py",  # ارگانیسم خروجیِ خودش را نمره بدهد
          "test_callback_routing.py",  # هیچ دکمه‌ای بی‌مسیر نماند
          "test_self_patch.py",        # حلقهٔ مرور→صف→پچ + قفلِ ۶ یافتهٔ ممیزی
          "test_improve_deep.py",      # لایهٔ عمیقِ improve + سقفِ سختِ روزانه
@@ -297,6 +320,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_organism_honesty.py", "test_genome_safety.py",
          # 2026-07-17: تعمیرهای truth-map (P3 عصبِ درد، P5 بودجهٔ صادق، P6 آرتیفکتِ pacemaker، …)
          "test_truthmap_fixes.py", "test_p4_p9_fixes.py", "test_doctor_selfknowledge.py",
+         # 2026-07-28: معیارِ دقتِ خودمدل (C3) — خودگزارشِ snapshot در برابرِ منابعِ حقیقتِ مستقل.
+         "test_self_accuracy.py",
          # 2026-07-16: نقشهٔ لید مراحل ۳-۵ (پلِ ایمیل، غنی‌سازیِ LLM، پیش‌فاکتورِ واقعی)
          "test_email_lead_bridge.py", "test_lead_llm_enrich.py",
          "test_lead_quote_chain.py",
@@ -402,7 +427,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_c6_bench_honesty.py",
          # 2026-07-25 C2: تولیدکنندهٔ صادقِ فرضیهٔ C6 + صفِ id-safe؛ صف خالی شرافتمندانه
          # می‌ماند و mechanism_count فقط نقص را بازتولید می‌کند، نه بهبودِ اعمال‌شده.
-         "test_c6_hypothesis_producer.py",
+         # ۲۰۲۶-۰۷-۲۸ — ورودیِ تکراری حذف شد: همین فایل در خطِ ۲۱ ثبت شده بود، پس
+         # هر اجرای سوئیت دوبار می‌دویدش. توضیحِ بالا نگه داشته شد چون دلیلِ ثبت را
+         # بهتر از ورودیِ اول شرح می‌دهد؛ فقط نامِ تکراری رفت.
          # 2026-07-25 C3: جعل اعتماد مالک مسدود شد؛ claim بی‌گواهی به GRADED cap می‌شود
          # و مسیر واقعی رأی مالک از verdict_recorder همچنان OWNER_CONFIRMED است.
          "test_c3_owner_trust_forgery.py",
@@ -465,6 +492,94 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # مسیرِ approval مالک). تنها شکست، stale characterization بود (whitelistِ t_n فاقدِ
          # expires_epoch)؛ contract migrate شد. invariantِ content-free دست‌نخورده. script-native.
          "test_tg_approval_store.py",
+    # ۲۰۲۶-۰۷-۲۸ — ابزارهای خودنگری: گیتِ ماشین‌خوان، رانشِ فلگ،
+    # ردِ ارسال، ممیزیِ مسیرِ ارسال، اسکنِ نقاطِ کور، لایهٔ بینش.
+    "test_gate_report.py", "test_flag_drift.py", "test_tg_trace.py",
+    "test_tg_send_audit.py", "test_self_scan.py", "test_self_insight.py",
+    "test_tg_topic_reply_parity.py",
+    # ۲۰۲۶-۰۷-۲۸ — ۱۵ تستی که روی دیسک بودند و در **هیچ** لیستی نبودند.
+    # کشف: run_all ‏۳۵۱ تستِ یکتا می‌شناخت ولی ۳۶۶ فایل روی دیسک بود. از ۱۸ اختلاف،
+    # ۲ تا استثنای مستند بود (drawdown_enforcer/mining_leg، در کامنت‌های همین فایل) و
+    # ۱۶ تا هیچ ردی نداشتند — نه در لیست، نه در کامنت. یعنی افتادگی، نه تصمیم.
+    # پس «۳۴۲/۳۴۲ سبز» عددش درست بود و دامنه‌اش ناقص: تست نوشته شده بود، به رانر
+    # وصل نشده بود. نمونهٔ گویا: test_tg_topic_reply_quiet دربارهٔ تاپیک‌روتینگ، نوشتهٔ
+    # ۰۷-۲۶، و همان روزی که همان مسیر باگ داشت اجرا نمی‌شد.
+    # هر ۱۵ تا قبل از ثبت جدا اجرا شدند: ۱۵/۱۵ سبز → ثبتشان صفر ریسک.
+    "test_c6_card_redelivery.py", "test_c6_probe_coverage.py",
+    "test_cortex_circuit_breaker.py", "test_cortex_symmetric_revive.py",
+    "test_ledger_integrity_probe.py", "test_module_self_manifest.py",
+    "test_operator_doctrine.py", "test_route_scorer_shadow_log.py",
+    "test_staleness_stamp.py", "test_synapse_sense.py", "test_synapse_beat.py",
+    "test_tg_callback_actor.py", "test_tg_instant_and_sendlog.py",
+    "test_tg_stream_routing.py", "test_tg_topic_reply_quiet.py",
+    "test_unified_bus_guard.py",
+    # ۲۰۲۶-۰۷-۲۸ — حلقهٔ ۷ (رأیِ صریحِ مالک «بله، وصل کن»). درایورِ اعمالِ پچ تا
+    # امروز هیچ صداکننده‌ای نداشت؛ حالا دارد، پس قفل‌هایش باید سنجیده شوند نه ادعا.
+    "test_code_apply_wiring.py",
+    # ۲۰۲۶-۰۷-۲۸ — از رونوشتِ واقعیِ گروه: «دربارهٔ A08 تحقیق کردم — A8» ×۷.
+    # شناسهٔ داخلی و اسلاگ مستقیماً به موتورِ جستجو می‌رفتند؛ نتیجه غیرصفر بود پس
+    # هیچ گاردی صدایش را درنیاورد. این تست هر دو مرز را قفل می‌کند.
+    "test_research_query_sanity.py",
+    # ۲۰۲۶-۰۷-۲۸ — بردار ساخته می‌شد، در ایندکس شلیک می‌کرد، و در تاریخچه
+    # `None` ثبت می‌شد. باگِ **ترتیب**: run() قبل از غنی‌سازی save می‌کرد.
+    "test_latent_persist.py",
+    # ۲۰۲۶-۰۷-۲۸ — دو فایلِ تستِ نوشته‌شده که در هیچ لیستی نبودند. همان الگوی
+    # همیشگی: تست ساخته شد، به رانر وصل نشد، و «سوئیتِ سبز» بی‌آنکه بداند
+    # پوششش را از دست داد. هر دو جدا اجرا و سبز شدند پیش از ثبت.
+    "test_neural_loop_close.py", "test_redact_failclosed.py",
+    "test_extract_json_robust.py",
+    # ۲۰۲۶-۰۷-۲۸ — چهار جوابِ مالک دربارهٔ سطحِ تلگرام، تبدیل‌شده به ناوردی:
+    # گروه=پاها · چتِ خصوصی=خودآگاهی · بقیه نگه‌داشته (ثبت‌شده، نه دورانداخته)
+    # · ایمنی هرگز ساکت نمی‌شود · یک چیز، یک دکمه.
+    "test_surface_policy.py",
+    # ۲۰۲۶-۰۷-۲۸ — ریشهٔ «کارتِ ۶ساعته چهار بار در یک ساعت»: ۱۸ کادنس حالتِ
+    # پنجره‌شان را در حافظه نگه می‌داشتند، پس هر بوت همه را بی‌قید شلیک می‌کرد.
+    # آخرین چکِ این فایل جلوی برگشتنِ الگو را می‌گیرد، نه فقط شش نمونه را.
+    "test_epoch_guard.py",
+    # ⚠️ شانزدهمی عمداً نیامد: test_kill_seam_closer.py هم STOP-ORGANISM را نام
+    # می‌برد و هم harness.setup ندارد — یعنی روی درختِ زنده می‌نویسد، دقیقاً تلهٔ
+    # test_tg_power. تا ایزوله نشده اضافه‌اش نکن؛ اول harness بگیرد، بعد ثبت.
+    # ۲۰۲۶-۰۷-۲۸ — بستهٔ `mining_os` (۳۲ تستِ سبزِ درون-بسته) از `88aaa29` تا امروز
+    # **صفر صداکننده** داشت: هوکش هرگز کامیت نشد و ACTIVATION.md خطِ اشتباهی را
+    # به‌عنوان محلِ اتصال اعلام می‌کرد. تست‌های خودِ بسته این را نمی‌دیدند چون همه
+    # درون-بسته‌اند. این فایل call site را می‌سنجد نه شکلِ بسته را. script-native.
+    "test_mining_os_wiring.py",
+    # ۲۰۲۶-۰۷-۲۸ — اتاقِ چت (رأیِ مالک: «تو گروه یه جا رو بزار چت کنم … تعاملارو
+    # چت‌گونه میخوام»). سه بند از چهار بندش دربارهٔ چیزی است که نباید بشود:
+    # فلگ‌خاموش=بی‌اثر، مبهم=می‌پرسد، و هیچ فرمانِ خیالی تبلیغ نمی‌شود — همان
+    # ۸ فرمانی که امروز صبح تبلیغ می‌شد و در هیچ باتی وجود نداشت.
+    "test_chat_room.py",
+    # ۲۰۲۶-۰۷-۲۸ — گاردِ برابریِ پاها (رأیِ مالک: «گروه و پاها همه‌رو اتصالات رو
+    # کدنویسی کن»). چهار رجیستریِ مستقل وجود داشت که هیچ‌کدام دیگری را نمی‌دید،
+    # و اختلافشان بی‌صدا بود: سه اندامِ ثبت‌شده هیچ راهی برای رسیدن نداشتند و
+    # هیچ تستی قرمز نمی‌شد چون هر رجیستری **به‌تنهایی** سالم بود.
+    "test_leg_parity.py",
+    # ۲۰۲۶-۰۷-۲۸ — صدای پاها در گروه. ریشهٔ ۷ تاپیکِ خالی نبودِ نگاشت نبود؛
+    # ارگانیسم فقط ۵ جریان تولید می‌کرد و هیچ‌کدام پا نبود. بیشترِ این تست
+    # دربارهٔ **نفرستادن** است: خاموش، بی‌تغییر، لرزان، بی‌داده، بی‌اتاق.
+    "test_leg_rooms.py",
+    # ۲۰۲۶-۰۷-۲۸ — پل کلیدِ `keyboard` می‌خواند و روتر `reply_markup` می‌داد، پس
+    # ۲۹ ردیف دکمه (queue ۱۰ · doctor ۶ · money ۵ · organs ۴ · school ۳ ·
+    # heart ۱) بی‌صدا دور ریخته می‌شد. متن می‌رسید، دکمه‌ها نه، صفر خطا — و کلِ
+    # مسیرِ رأیِ مالک از گروه روی همان دکمه‌هاست.
+    "test_bridge_buttons.py",
+    # ۲۰۲۶-۰۷-۲۸ ۱۹:۵۷ — یک پروبِ بدایزوله `power.stop_organism()` را روی درختِ
+    # زنده صدا زد و ارگانیسم و مرکز ۳۰ دقیقه خوابیدند. گارد در خودِ `power.py`
+    # نشست نه در تست، چون مهاجم پروبِ دست‌نویس بود نه تست. جهتِ failش عمداً
+    # به‌سمتِ **اجازه** است: بستنِ ترمزِ اضطراریِ واقعی بدتر از نشانگرِ سرگردان.
+    "test_power_isolation_guard.py",
+    # ۲۰۲۶-۰۷-۲۸ — بستنِ حلقه‌های ذهن، بعد از ممیزیِ متخاصمِ ۱۱-ایجنتی که هر پنج
+    # زیرسیستم را PARTIAL داد و هر ۶ نمرهٔ CREDIBLE را تنزل داد. الگوی واحدش:
+    # «مکانیزم درست پیاده شده و دقیقاً در خطی که باید رفتار را عوض کند خاموش است».
+    # هر پنج فایل جدا نوشته شد (مالکیتِ انحصاریِ فایل، بدونِ worktree چون مخزن
+    # ~۴۴۰ فایلِ کامیت‌نشده دارد و worktree کدِ دیروز را می‌داد)، و هرکدام را یک
+    # ایجنتِ دومِ مستقل با بازسازیِ کدِ قبل-از-فیکس راستی‌آزمایی کرد.
+    # همه پشتِ فلگِ تازه و پیش‌فرض خاموش: فلگ‌خاموش = رفتارِ امروز، بایت‌به‌بایت.
+    "test_selfknow_unknown_bridge.py",              # تصحیحِ مالک به شاخهٔ heuristic
+    "test_selfknow_calibration.py",                 # اولین Brierِ واقعیِ سیستم
+    "test_pain_calibration.py",                     # آستانهٔ درد از توزیعِ واقعی
+    "test_consolidation_compress_and_recall.py",    # تثبیت: کپی → فشرده‌سازی
+    "test_debate_owner_verdict.py",                 # رأیِ مالک ماندگار و بی‌تکرار
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
@@ -481,6 +596,16 @@ PYTEST_TESTS = {
     "test_ziman_wiring.py", "test_ziman_biology.py",
     "test_cartographer_leg.py", "test_cartographer_wiring.py",
     "test_blocker_fixes_2026_07_22.py",   # pytest-native (monkeypatch fixtures)
+    # ۲۰۲۶-۰۷-۲۸ — همان green-lie، دوازده روز بعد. `test_synapse_sense.py`
+    # pytest-style است (صفر تابعِ `t_`، صفر رانرِ `__main__`)، پس direct-run
+    # صفر assert می‌دود و `exit 0` می‌دهد. زیرِ pytest **۲۰ تست، همه سبز** —
+    # یعنی بیست تستِ سالم در سوئیت شمرده می‌شدند و هرگز اجرا نمی‌شدند.
+    #
+    # روشِ پیدا شدنش مهم‌تر از خودش است: چکِ **ساختاری** (وجودِ `__main__`) این
+    # را نگرفت و ۵۰ کاذب داد. تنها چیزی که گرفت، اجرای **تجربیِ** هر ۳۶۶ فایلِ
+    # غیرpytest و نگه‌داشتنِ آن‌هایی بود که `exit 0` با **صفر خروجی** می‌دهند.
+    # اگر روزی دوباره شک کردی، همان را اجرا کن نه grep.
+    "test_synapse_sense.py",
 }
 
 if __name__ == "__main__":
@@ -495,6 +620,30 @@ if __name__ == "__main__":
         r = subprocess.run(cmd, cwd=str(p.parent), timeout=300)
         if r.returncode != 0:
             failed.append(label)
+            # ۲۰۲۶-۰۷-۲۸ — تشخیصِ لرزش. الگوی ثبت‌شده: ~۴۰٪ اجراها **یک** تستِ
+            # متفاوت قرمز می‌شود که تنها اجرا شود سبز است. چهار فرضیه (ارگانیسمِ
+            # زنده، پروسهٔ معلق، قفلِ ۳ثانیه‌ای، بار) هیچ‌کدام اثبات نشد — چون
+            # تنها چیزی که از هر اجرا می‌ماند **نامِ تست** است، نه شواهدش.
+            #
+            # پس به‌جای فرضیهٔ پنجم: همان تست بلافاصله دوباره و **با خروجیِ
+            # کامل** اجرا می‌شود. اگر بارِ دوم سبز شد، لرزش تأیید می‌شود و
+            # خروجیِ قرمز روی دیسک می‌ماند تا دفعهٔ بعد حدس نزنیم.
+            try:
+                _d = HERE / "_flaky"
+                _d.mkdir(exist_ok=True)
+                _r2 = subprocess.run(cmd, cwd=str(p.parent), timeout=300,
+                                     capture_output=True, text=True,
+                                     encoding="utf-8", errors="replace")
+                _tag = "سبز-بارِ-دوم" if _r2.returncode == 0 else "قرمزِ-پایدار"
+                (_d / f"{label}.txt").write_text(
+                    f"# {label} · {_tag}\n"
+                    f"# exit(1)={r.returncode} exit(2)={_r2.returncode}\n\n"
+                    f"--- stdout ---\n{_r2.stdout}\n"
+                    f"--- stderr ---\n{_r2.stderr}",
+                    encoding="utf-8")
+                print(f"   ↻ اجرای دوم: {_tag} → tests/_flaky/{label}.txt")
+            except Exception as _e:  # noqa: BLE001 — تشخیص هرگز سوییت را نمی‌کشد
+                print(f"   ↻ ثبتِ لرزش نشد: {type(_e).__name__}")
     print("\n" + "=" * 66)
 
     # A3: markerِ capability فقط با اجرای سبزِ کاملِ سوئیت نوشته می‌شود (با fingerprintِ کدِ پول)؛

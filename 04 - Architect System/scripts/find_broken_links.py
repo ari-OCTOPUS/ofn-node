@@ -9,7 +9,9 @@ from pathlib import Path
 
 sys.stdout.reconfigure(encoding="utf-8")
 ROOT = Path(__file__).resolve().parents[2]
-EXCLUDE = ("_Archive", "_Duplicates", ".git", "_code", ".obsidian", ".claude")
+EXCLUDE = ("_Archive", "_Duplicates", ".git", "_code", ".obsidian", ".claude",
+           # ۲۰۲۶-۰۷-۲۹: والتِ دکترِ اختاپوس بستهٔ سندِ داخلی است (§۱۱ — قراردادِ خودش)
+           "OCTOPUS-DOCTOR")
 # placeholder های عمدی که لینک نیستند + نقل‌قول‌های تاریخی داخل لاگ چت
 IGNORE_TARGETS = {"...", "…", "wikilink", "Atlas/Home MOC"}
 

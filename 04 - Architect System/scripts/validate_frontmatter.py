@@ -10,7 +10,9 @@ from pathlib import Path
 sys.stdout.reconfigure(encoding="utf-8")
 ROOT = Path(__file__).resolve().parents[2]
 EXCLUDE = ("_Archive", "_Duplicates", ".git", "_code", ".obsidian", ".claude", "_Templates",
-           ".pytest_cache", "node_modules")
+           ".pytest_cache", "node_modules",
+           # ۲۰۲۶-۰۷-۲۹: والتِ دکترِ اختاپوس بستهٔ سندِ داخلی است (§۱۱ — قراردادِ خودش)
+           "OCTOPUS-DOCTOR")
 
 # دامنه: فقط «لایه دست‌چین» vault. بسته‌های سند داخلی پروژه‌ها (brushline، کاریابی،
 # زیرپوشه‌های عمیق Mining/فیوژن، ساختار داخلی architect) قرارداد خودشان را دارند و چک نمی‌شوند.

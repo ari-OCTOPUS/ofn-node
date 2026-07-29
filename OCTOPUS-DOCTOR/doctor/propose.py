@@ -1,0 +1,247 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""propose.py — دستِ دکتر: از تشخیصِ نثری به **پچِ اجراشدنی**.
+
+این حلقهٔ گمشده بود. تا دیروز دکتر می‌دید (`scanner`)، می‌فهمید (`vault` + `fugu`)،
+و می‌توانست ایزوله اجرا کند (`mission_runner`) — ولی بینِ «فهمید» و «اجرا کرد»
+هیچ چیزی نبود جز نثر. نثر را نمی‌شود apply کرد.
+
+`propose` مغز را وادار می‌کند به‌جای پاراگراف، **JSONِ ساختاریافته** بدهد، و بعد آن
+JSON را از هفت گیتِ ایمنی رد می‌کند — گیت‌هایی که **در کد** اجرا می‌شوند، نه در پرامپت.
+پرامپت را می‌شود دور زد؛ `if` را نه.
+
+    تشخیص ⟶ propose ⟶ [۷ گیت] ⟶ callable ⟶ MissionRunner(worktree) ⟶ کارت ⟶ رأی ⟶ merge
+
+هیچ‌جای این ماژول چیزی روی دیسک نمی‌نویسد. خروجی‌اش یک **تابع** است که
+`MissionRunner` آن را داخلِ worktreeِ ایزوله صدا می‌زند — و بس.
+
+stdlib-only.
+"""
+from __future__ import annotations
+
+import json
+import re
+from dataclasses import dataclass, field
+from pathlib import Path, PurePosixPath
+
+__all__ = ["Patch", "PatchSet", "PROPOSE_SYSTEM", "parse_patchset",
+           "GateError", "DENY", "MAX_FILES"]
+
+# ---------------------------------------------------------------- خطِ قرمز
+# چیزهایی که هیچ پچی حق لمسشان را ندارد. این فهرست از منشورِ خودِ مخزن می‌آید و
+# **در کد** اجرا می‌شود، نه در متنِ پرامپت — چون مدل متن را می‌تواند نادیده بگیرد.
+DENY = (
+    ".env", "flags.cmd", "octopus-flags",
+    "_ops/state/",            # حالتِ زنده — دادهٔ ارگانیسم، نه کدش
+    "genome", "ledger", "budget", "kill", "stop-organism",
+    ".git/", "_worktrees/", "_archive/", "_duplicates/",
+    "project-f", "پروژه-اف",
+)
+MAX_FILES = 6                 # پچی که به بیش از این دست بزند، ماموریت نیست — بازنویسی است
+MAX_BYTES = 40_000            # سقفِ اندازهٔ کلِ تغییر
+
+# ساختنِ فایلِ نو (مثلاً «یک پا اضافه کن») مجاز است — ولی فقط در این پوشه‌ها.
+# بیرونِ این‌ها، «فایلِ نو» یعنی کاشتنِ کدِ اجراییِ ناشناس در جایی که کسی نگاهش نمی‌کند.
+CREATE_ALLOW = ("_ops/legs/", "_ops/organs/", "_ops/tools/", "_ops/os_v1/",
+                "OCTOPUS-DOCTOR/")
+
+PROPOSE_SYSTEM = """تو «دکترِ اختاپوس» هستی و باید یک تغییرِ کدِ **کوچک و قابلِ‌بازگشت** پیشنهاد بدهی.
+
+خروجیِ تو **فقط** یک آبجکتِ JSON است. هیچ متنی قبل یا بعدش ننویس. بدونِ ```.
+
+شِما:
+{
+  "mission_id": "kebab-case-کوتاه",
+  "title": "یک جمله، فارسی",
+  "rationale": "چرا این تغییر — با ارجاع به شاهدِ واقعی، نه حدس",
+  "risk": "low" | "medium" | "high",
+  "rollback": "اگر بد شد چطور برگردانده می‌شود",
+  "patches": [
+    {
+      "file": "مسیرِ نسبی با اسلشِ رو به جلو، از ریشهٔ مخزن",
+      "anchor": "متنِ **دقیقاً** موجود در فایل که باید جایگزین شود",
+      "replacement": "متنِ جایگزین",
+      "why": "این یک تکه چه چیزی را عوض می‌کند",
+      "create": false
+    }
+  ]
+}
+
+برای **ساختنِ فایلِ نو** (مثلاً افزودنِ یک «پا»/لِگ): `"create": true` بگذار،
+`"anchor"` را خالی بگذار، و کلِ محتوای فایل را در `"replacement"` بنویس.
+ساختِ فایل فقط در این مسیرها مجاز است: `_ops/legs/` · `_ops/organs/` · `_ops/tools/`.
+فایلی که از قبل وجود دارد را با `create` بازنویسی نکن — آن پچِ عادی است با لنگر.
+
+قواعدی که رعایتشان اجباری است:
+1. `anchor` باید در فایل **دقیقاً یک بار** بیاید. اگر مطمئن نیستی، تکهٔ بزرگ‌تری
+   بردار تا یکتا شود. لنگرِ مبهم ⇒ کلِ ماموریت رد می‌شود.
+2. فاصله، تورفتگی و پایانِ‌خط را عیناً حفظ کن. یک فاصلهٔ اضافه یعنی رد.
+3. حداکثر شش فایل. کمتر بهتر.
+4. هرگز به این‌ها دست نزن: فایل‌های راز/توکن، `_ops/state/`، دفترِ ژنوم، بودجه،
+   کلیدِ توقف، `.git`. اگر تشخیصت این‌ها را لازم دارد، به‌جای پچ در `rationale`
+   بنویس چرا و هیچ پچی نده.
+5. **افزایشی باش.** ترجیحِ اول: افزودنِ کد پشتِ flag با شکستِ نرم. بازنویسیِ رفتارِ
+   موجود فقط وقتی که راهِ دیگری نباشد.
+6. اگر شاهدِ کافی نداری، `patches` را خالی بگذار و در `rationale` بنویس
+   `[UNKNOWN]` و اینکه چه شاهدی لازم داری. **پیشنهادِ حدسی از پیشنهاد ندادن بدتر است.**
+"""
+
+
+class GateError(ValueError):
+    """پچ از یکی از گیت‌ها رد نشد. پیام دقیقاً می‌گوید کدام."""
+
+
+@dataclass(frozen=True)
+class Patch:
+    file: str
+    anchor: str
+    replacement: str
+    why: str = ""
+    create: bool = False          # فایلِ نو: `anchor` خالی، `replacement` = کلِ محتوا
+
+    @property
+    def delta_bytes(self) -> int:
+        if self.create:
+            return len(self.replacement.encode())
+        return abs(len(self.replacement.encode()) - len(self.anchor.encode()))
+
+
+@dataclass
+class PatchSet:
+    mission_id: str
+    title: str
+    rationale: str
+    patches: list[Patch] = field(default_factory=list)
+    risk: str = "medium"
+    rollback: str = ""
+    notes: list[str] = field(default_factory=list)
+
+    @property
+    def empty(self) -> bool:
+        return not self.patches
+
+    # ------------------------------------------------------------- گیت‌ها
+    def gate(self) -> None:
+        """هفت گیت. هرکدام رد شد، استثنا — نه هشدارِ بی‌صدا."""
+        if not re.fullmatch(r"[a-z0-9][a-z0-9-]{1,48}", self.mission_id or ""):
+            raise GateError(f"گیت ۱ — mission_id نامعتبر: {self.mission_id!r}")
+        if self.empty:
+            raise GateError("گیت ۲ — هیچ پچی نیست (این خطا نیست؛ یعنی مغز شاهد نداشت)")
+        if len({p.file for p in self.patches}) > MAX_FILES:
+            raise GateError(f"گیت ۳ — بیش از {MAX_FILES} فایل: "
+                            f"{len({p.file for p in self.patches})}")
+        total = sum(p.delta_bytes for p in self.patches)
+        if total > MAX_BYTES:
+            raise GateError(f"گیت ۴ — تغییر خیلی بزرگ است: {total} بایت")
+        for p in self.patches:
+            f = (p.file or "").replace("\\", "/").strip()
+            if not f:
+                raise GateError("گیت ۵ — مسیرِ خالی")
+            pp = PurePosixPath(f)
+            if pp.is_absolute() or ".." in pp.parts or f.startswith("/") or ":" in f:
+                raise GateError(f"گیت ۵ — مسیرِ خطرناک: {f!r}")
+            low = f.lower()
+            for d in DENY:
+                if d in low:
+                    raise GateError(f"گیت ۶ — خطِ قرمز «{d}» در {f!r}")
+            if p.create:
+                if p.anchor:
+                    raise GateError(f"گیت ۷ — فایلِ نو نباید لنگر داشته باشد: {f!r}")
+                if not p.replacement.strip():
+                    raise GateError(f"گیت ۷ — فایلِ نو خالی است: {f!r}")
+                if not any(low.startswith(a.lower()) or a.lower() in low
+                           for a in CREATE_ALLOW):
+                    raise GateError(
+                        f"گیت ۸ — ساختِ فایلِ نو فقط در {CREATE_ALLOW} مجاز است، نه {f!r}")
+                continue
+            if not p.anchor:
+                raise GateError(f"گیت ۷ — لنگرِ خالی در {f!r} (اگر فایلِ نو است، create=true)")
+            if p.anchor == p.replacement:
+                raise GateError(f"گیت ۷ — پچِ بی‌اثر در {f!r}")
+
+    # ---------------------------------------------------- ساختِ callable
+    def as_apply(self):
+        """تابعی که `MissionRunner` داخلِ worktree صدا می‌زند.
+
+        هر شکستی استثنا می‌دهد ⇒ `MissionRunner` ماموریت را قرمز می‌کند و
+        worktree را پاک می‌کند. **صفر بایت** روی درختِ زنده.
+        """
+        self.gate()
+
+        def apply_patch(root: Path) -> None:
+            root = Path(root).resolve()
+            for p in self.patches:
+                target = (root / p.file.replace("\\", "/")).resolve()
+                if not str(target).startswith(str(root)):
+                    raise GateError(f"فرار از ریشه: {p.file!r}")
+                if p.create:
+                    if target.exists():
+                        raise GateError(f"فایل از قبل هست — «ساختن» بازنویسی نیست: {p.file}")
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_text(p.replacement, encoding="utf-8", newline="")
+                    continue
+                if not target.exists():
+                    raise GateError(f"فایل وجود ندارد: {p.file}")
+                txt = target.read_text("utf-8")
+                n = txt.count(p.anchor)
+                if n == 0:
+                    raise GateError(f"لنگر پیدا نشد در {p.file} — "
+                                    "شاید فاصله/تورفتگی فرق دارد")
+                if n > 1:
+                    raise GateError(f"لنگر {n} بار در {p.file} تکرار شده — مبهم است")
+                target.write_text(txt.replace(p.anchor, p.replacement, 1),
+                                  encoding="utf-8", newline="")
+        return apply_patch
+
+    # -------------------------------------------------------------- کارت
+    def card(self) -> str:
+        """کارتِ ۱ — گیتِ نیت. قبل از هر اجرایی به مالک نشان داده می‌شود."""
+        head = (f"🩺 پیشنهادِ ماموریت — `{self.mission_id}`\n"
+                f"**{self.title}**\nریسک: {self.risk}\n\n{self.rationale}\n")
+        if self.empty:
+            return head + "\n_هیچ پچی پیشنهاد نشد — شاهد کافی نبود._"
+        body = "\n".join(f"· `{p.file}` — {p.why or '—'}" for p in self.patches[:MAX_FILES])
+        return head + f"\nتغییرات ({len(self.patches)} تکه):\n{body}\n\nبازگشت: {self.rollback or '—'}"
+
+
+# ------------------------------------------------------------------- parse
+_FENCE = re.compile(r"```(?:json)?\s*(.+?)```", re.S)
+
+
+def parse_patchset(text: str) -> PatchSet:
+    """JSONِ مغز ⟶ PatchSet. مدل ممکن است داخلِ ``` بگذارد؛ می‌بریم و می‌خوانیم."""
+    if not text or not text.strip():
+        raise GateError("پاسخِ خالی از مغز")
+    raw = text.strip()
+    m = _FENCE.search(raw)
+    if m:
+        raw = m.group(1).strip()
+    else:
+        i, j = raw.find("{"), raw.rfind("}")
+        if i >= 0 and j > i:
+            raw = raw[i:j + 1]
+    try:
+        d = json.loads(raw)
+    except ValueError as e:
+        raise GateError(f"JSON معتبر نیست: {e}") from e
+    if not isinstance(d, dict):
+        raise GateError("پاسخ آبجکت نیست")
+    ps = PatchSet(
+        mission_id=str(d.get("mission_id", "")).strip(),
+        title=str(d.get("title", "")).strip(),
+        rationale=str(d.get("rationale", "")).strip(),
+        risk=str(d.get("risk", "medium")).strip() or "medium",
+        rollback=str(d.get("rollback", "")).strip(),
+    )
+    for it in (d.get("patches") or []):
+        if not isinstance(it, dict):
+            raise GateError("عضوِ patches آبجکت نیست")
+        ps.patches.append(Patch(
+            file=str(it.get("file", "")),
+            anchor=str(it.get("anchor", "")),
+            replacement=str(it.get("replacement", "")),
+            why=str(it.get("why", "")),
+        ))
+    if "[UNKNOWN]" in ps.rationale:
+        ps.notes.append("مغز صریحاً گفت شاهد کافی ندارد")
+    return ps

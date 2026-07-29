@@ -33,6 +33,7 @@
 | VQ-LEAD-001 | کانال آزمایش #۱ | Google/GBP · Facebook · flyers · builders · strata · tenders | open | شروع lead experiment |
 | VQ-LEAD-002 | segment اول | residential / strata / builder / commercial / insurance | open | copy و compliance |
 | VQ-LEAD-003 | استفاده عمومی از portfolio photos | yes/no/some | open | social proof |
+| VQ-SCORER-001 | دستهٔ مسکونیِ مستقیم در lead_scorer | A: دستهٔ پنجمِ flag-gated · B: دو لِین · C: فقط آستانه | ✅ **closed — A (2026-07-25)**: `residential_repaint_direct` base=50، پشتِ `OCTOPUS_LEAD_DIRECT_RESIDENTIAL=1`، additive، ۵ تستِ نو. بدونِ فلگ رفتار بایت‌به‌بایت identical. | لیدِ $715–$15k دیگر skip نمی‌خورد |
 
 ---
 
@@ -103,12 +104,17 @@
 | ID | تصمیم | گزینه‌ها | وضعیت | اثر |
 |---|---|---|---|---|
 | VQ-PAID-001 | روشن‌کردنِ سه فلگِ router (governor · heart-doctor · selfknow-paid) | yes / no | **yes — رأیِ مالک ۲۰۲۶-۰۷-۲۵؛ config مسلح شد، منتظرِ restart** | مسیرِ مغزِ پولی در بوتِ بعدی باز می‌شود، زیر سقفِ AU$30 ماهانه / AU$2 burst |
-| VQ-GUARD-001 | `test_paid_router_dark_config` صفربودنِ همان فلگ‌ها را pin کرده و با VQ-PAID-001 در تضاد است | A: قرمزِ عمدی را بپذیر · B: گارد را به «مطابقِ رأیِ ثبت‌شده» تبدیل کن (چکِ رفتاری/CRLF دست‌نخورده بماند) · C: فلگ‌ها را برگردان | open — پیشنهاد **B** | تا بسته نشود سوییت ۲۹۶/۲۹۷ است و هر گزارشِ «همه سبز» دروغ می‌شود |
+| VQ-GUARD-001 | `test_paid_router_dark_config` صفربودنِ همان فلگ‌ها را pin کرده بود و با VQ-PAID-001 تضاد داشت | A: قرمزِ عمدی · B: گارد → «مطابقِ رأیِ ثبت‌شده» · C: فلگ‌ها را برگردان | **B اجرا شد ۲۰۲۶-۰۷-۲۷** — مرجعِ گارد از عددِ هاردکد به `_ops/PAID-FLAGS-DECLARATION.json` رفت | دلیلِ اجرا بدونِ انتظار: تستِ همیشه‌قرمز خودش نقص است (عادت‌دادن به نادیده‌گرفتنِ قرمز). گاردِ نو **سخت‌گیرتر** است: driftِ دوطرفه + الزامِ شاهد برای هر فلگِ روشن. هر دو با جهشِ عمدی سنجیده شد. **مالک می‌تواند با یک کلمه برگرداند** |
 | VQ-T8-001 | dedupeِ RFC و `_reconcile_input_validity` غیرمشروط‌اند | A: پشتِ فلگِ پیش‌فرض‌خاموش · B: استثنای مکتوب در SoT (ثبت شد) | open — پیشنهاد **B برای dedupe، A برای reconcile** | قاعدهٔ additive + flag-gated + default-off |
 | VQ-T3-001 | ثبتِ علتِ شکستِ لِگ غیرمشروط است | A: استثنای observability · B: پشتِ فلگ | open — پیشنهاد **A** | فقط writeِ تشخیصی؛ هیچ شاخهٔ تصمیمی نمی‌خواند |
 | VQ-T2-001 | روشن‌کردنِ `OCTOPUS_HONEST_OUTCOMES` | yes / no | open | تا خاموش است، شمارشِ closure قاعدهٔ قدیم را اجرا می‌کند |
 | VQ-RESTART-001 | restart ارگانیسم برای اعتبارسنجیِ زندهٔ T1/T3/T4/T8 و فلگ‌های نو | مالک اجرا کند / صبر | open — ایجنت restart نمی‌زند | تنها راهِ تبدیلِ «سبزِ تست» به «سبزِ زنده» |
 | VQ-REPO-001 | `_worktree-rescue-2026-07-24` (۴۹۵MB) و dumpهای legacy/gallery-3d/ziman_os در checkpoint نیامدند | A: به `_Archive` منتقل شود · B: commit شود · C: untracked بماند | open — پیشنهاد **A** | حجمِ ریپو؛ قاعدهٔ «حذف نکن، منتقل کن» |
+| VQ-COMMIT-002 | کارِ موج‌های W1→W5 + سه نقطهٔ کورِ CRIT (۲۰۲۶-۰۷-۲۷) uncommitted مانده | مالک `OWNER_AUTH: COMMIT <paths>` بدهد / صبر | open — ایجنت commit نمی‌زند (§۴ قراردادِ GENOME LOCK) | تا آن لحظه کلِ کار فقط روی worktree است؛ جزئیات: [[_ops/SESSION-2026-07-27-W1-W5\|SESSION]] |
+| VQ-ARM-002 | چهار فلگِ تازه (`WIRE_BUDGET_JUDGE` · `WIRE_DECISION_GATE` · `WIRE_TRAJECTORY_LOG` · `WIRE_TEACHER_LOOP` · `AUTONOMY_GRANT` · `ENFORCE_MONEY_FSM`) همه خاموش‌اند | مالک per-flag `OWNER_AUTH: ARM FLAG <name>` بدهد | open | خاموش = رفتارِ امروز بایت‌به‌بایت. **`ENFORCE_MONEY_FSM` عمداً آخرین باشد** — فهرستِ گذارها از خواندنِ کد آمده نه از ترافیکِ زنده؛ اول چند روز بشمارد |
+| VQ-ARM-003 | سه فلگِ تازهٔ ۲۰۲۶-۰۷-۲۷ (بخشِ دوم/سوم): `OCTOPUS_WIRE_IMPROVE_LEARN` · `OCTOPUS_WIRE_FUNNEL_CMD` · `OCTOPUS_WIRE_TRAJECTORY_LOG` | مالک per-flag `OWNER_AUTH: ARM FLAG <name>` بدهد | open — پیشنهاد: **IMPROVE_LEARN اول** | تا خاموش‌اند، رأیِ مالک چیزی یاد نمی‌دهد و نتیجهٔ بازار جایی ثبت نمی‌شود. هر سه propose-only، صفر پول، صفر ارسال |
+| VQ-TWOBOT-001 | سیستم **دو بات** دارد (ارگانیسم + مرکزِ گروه) با دو پروسه و دو توکن. کارت‌ها از یکی می‌روند و بعضی handlerها در دیگری‌اند | A: هر کارت با روترِ همان بات (وضعِ فعلی، گاردِ `test_callback_routing`) · B: یکی‌کردنِ دو بات · C: یک روترِ مشترک | open — پیشنهاد **A** تا وقتی B رأی بگیرد | `iv:q` دقیقاً از همین‌جا مرده بود. B ریسکِ 409 Conflict دارد (درسِ ۰۷-۲۶) |
+| VQ-FSM-001 | جدولِ گذارِ حالتِ پول (`MONEY_TRANSITIONS`) کامل است یا گذارِ مشروعی جا افتاده؟ | A: چند روز سایه، بعد تصمیم با عدد · B: همین حالا اجباری · C: رد | open — پیشنهاد **A** | اجبارِ زودرس = شکستنِ یک پرداختِ واقعی. شواهد در `_ops/state/money-fsm-violations.jsonl` |
 
 ---
 
@@ -146,3 +152,25 @@
 | VQ-RECON-001 | پنجرهٔ ۷ روزه + قاعدهٔ `cohort-partial` روی قراردادِ progress-claim (۹۳ هزار دلاری، پرداخت در ۲۶ ژوئن و ۲۳ جولای) قطعاً شکست می‌خورد | open — **زیرِ PARK** | راهِ بدونِ کد: هر ردیف = یک پرداخت، تاریخ = تاریخِ واریز. ولی تا لغوِ PARK اجرا نمی‌شود |
 | VQ-INV-001 | شمارهٔ فاکتور دستی است و مبهم شده (`00270` و `002701` هر دو موجود؛ ترتیبِ تاریخ یکنوا نیست) | open | ریسکِ مغایرت‌گیری و ظاهرِ حسابداری. پیشنهاد: شمارنده از سیستم |
 | VQ-INS-001 | تاریخِ انقضای **بیمهٔ جدید** | open — تنها ورودیِ لازم | تا پر نشود، ناظرِ انقضا همان نقطهٔ کورِ قبلی را دارد |
+
+---
+
+## 🐙 LIVE path 2026-07-25 — آنچه فقط مالک باید انجام دهد
+
+| ID | تصمیم | گزینه‌ها | وضعیت | اثر |
+|---|---|---|---|---|
+| VQ-LIVE-001 | ری‌استارت ارگانیسم با فلگ‌های جدید | restart / defer | open | ۶ فلگِ جدید در flags.cmd روشن شده ولی تا restart بی‌اثرند |
+| VQ-LIVE-002 | OCTOPUS_CB_SECRET | set in .env / defer | open — فقط مالک | بدونش دکمه‌های تلگرام inert؛ ایجنت حق ندارد بسازد |
+| VQ-LIVE-003 | دود تست: `/live /id /box /code` در تلگرام | test / defer | open | اولین smoke test رابط زنده |
+| VQ-LIVE-004 | ROMAJAN_PROBES=1 | on/off | open — وقتی F:\romajan تأیید شود | سیمِ romajan→C6 روشن شود |
+
+---
+
+## 🩺 دکترِ اختاپوس 2026-07-29 — نردبانِ اعتماد (هر پله رأیِ جدا)
+
+| ID | تصمیم | گزینه‌ها | وضعیت | اثر |
+|---|---|---|---|---|
+| VQ-DR-001 | `OCTOPUS_WIRE_DOCTOR_TG=1` + ری‌استارتِ TG-center | on / defer | open | کارت‌های دکتر (نیت/دیف) واردِ گروهِ تلگرام می‌شوند و رأیِ دکمه‌ای به دکتر می‌رسد. خاموش = دکتر لال ولی سالم |
+| VQ-DR-002 | `SAKANA_API_KEY` با setx (فقط مالک؛ ایجنت نمی‌سازد) | set / defer | open | پله‌های ۱–۲ (ask/diagnose/propose) روشن می‌شوند؛ سقفِ روزانه: ۶۰ فراخوان + $۲ در کد |
+| VQ-DR-003 | اولین `day --live` زیرِ چشمِ مالک (بدونِ `--apply`) | run / defer | open — بعد از VQ-DR-001 | اولین اجرای MissionRunner روی worktree با pinِ ORG_ROOT؛ `run_all` تستِ STOP-ساز دارد — به همین دلیل فقط با نظارت |
+| VQ-DR-004 | `OCTOPUS_DOCTOR_MAY_MERGE=1` | on / never-yet | open — **پیشنهاد: فعلاً نه** | قفلِ سومِ merge؛ تا این ست نشود دکتر حتی با دو ✅ هم merge نمی‌کند |

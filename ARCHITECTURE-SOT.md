@@ -107,7 +107,23 @@
 قاعده: هیچ‌کدام از این‌ها در runtimeِ فعلی اثر ندارند (فلگ‌ها خاموش). هر wiring آینده
 در همین فایل ثبت و با verdictِ مالک انجام می‌شود.
 
-## 🩺 ثبتِ ۲۰۲۶-۰۷-۲۵ — دکتر، dedupe، و مغزهای پولی
+## 🧬 ثبتِ ۲۰۲۶-۰۷-۲۵ — دکتر، dedupe، و مغزهای پولی
+
+### ۰) VQ-SCORER-001 — دستهٔ مسکونیِ مستقیم (closed 2026-07-25)
+| concern | canonical | وضعیت |
+|---------|-----------|-------|
+| لیدِ مسکونیِ مستقیم ($715–$15k) | `_ops/legs/lead_scorer.py` → `residential_repaint_direct` | FLAG-GATED: `OCTOPUS_LEAD_DIRECT_RESIDENTIAL=1`؛ ۵ تستِ نو. base=50+18+8=76 → draft. |
+
+### ۰b) LIVE path 2026-07-25 — هویت / جعبه / هم‌کدنویسی / romajan
+| concern | canonical | flag |
+|---------|-----------|------|
+| مگا-معادلات هویت (L,E,G,K,O) | `_ops/identity_equations.py` | `OCTOPUS_WIRE_IDENTITY_EQ` |
+| نقشهٔ جعبه‌سیاه‌ها | `_ops/blackbox_map.py` | `OCTOPUS_WIRE_BLACKBOX_MAP` |
+| هم‌کدنویسی propose-only | `_ops/collab_coding.py` | `OCTOPUS_WIRE_COLLAB_CODING` |
+| دستورهای تلگرام `/live /id /box /code` | `_ops/telegram_center/live_commands.py` + `center.py` + `intent.py` | always routed; organs flag-gated |
+| پروب‌های romajan→C6 | `_ops/c6_probes.py` (`romajan_new_claims`, `romajan_engine_idle`) | `OCTOPUS_WIRE_ROMAJAN_PROBES` (default 0) |
+| C6 producer schema v2 | `_ops/c6_producer.py` | `OCTOPUS_WIRE_C6_PRODUCER=1` |
+| طراحی romajan wiring | `_program-deliverables/romajan-c6-wiring-2026-07-25/DESIGN.md` | design |
 
 ### الف) باگِ بسته‌شده: شرطِ dedupe در `Doctor.run_cycle` معکوس بود
 `rfc.rfc_id not in _before_ids` یعنی هر RFCِ **تازه** کوتاه می‌شد، پس `chamber` /
@@ -211,3 +227,43 @@ attempt-counted) · تایم‌اوتِ ۴۵s = knobِ `PAID_HTTP_TIMEOUT_S` ک�
 **قاعدهٔ نو:** هیچ فیکسی روی پروسهٔ در حالِ اجرا اثر ندارد. امروز اثبات شد:
 `organ_dialogue.py` در ۱۲:۱۵ فیکس بود ولی `ValueError` تا ۱۴:۱۲:۴۷ ادامه داشت چون
 ماژولِ کهنه در `sys.modules` مانده بود. **«فیکس شد» ≠ «زنده شد»؛ فقط ریستارت تحویل می‌دهد.**
+
+## 🧬 ثبتِ ۲۰۲۶-۰۷-۲۸ — معیارِ دقتِ خودمدل (C3) + بیداریِ SENSE (C8)، additive، پیش‌فرضِ خاموش
+
+دو قدمِ نخست به‌سوی «خود-اصلاحیِ صادق» (نردبانِ AGI: C3/C8 → C4). هر دو شکافِ
+«حاضر ولی نه سنجش‌پذیر» از بازسنجیِ ۲۰۲۶-۰۷-۲۵ را می‌بندند.
+
+| concern | canonical | وضعیت |
+|---------|-----------|-------|
+| معیارِ دقتِ خودمدل (C3) | `_ops/doctor/self_accuracy.py` | SHADOW — فلگ `OCTOPUS_SELFKNOW_ACCURACY` خاموش؛ wiring در `self_knowledge.run()`؛ خروجی append-only به `_ops/state/doctor/self-accuracy.jsonl` (سریِ زمانیِ صداقتِ C3) |
+| بیداریِ SENSE (C8) — wiring | `wiring.synapse_beat()` ← `organism.py` tick | SHADOW — فلگ `OCTOPUS_SYNAPSE_ENABLED` خاموش؛ سه ماژولِ synapse حالا برای اولین‌بار از رانتایم صدا زده می‌شوند (تا امروز: صفر ادغام) |
+| سریِ زمانیِ صداقتِ C8 | `_ops/synapse/sense.py::_append_trail` | هر چرخه ردیفی با `{ts, cpm, self_referential, gate0, delta, kind}` به `_ops/state/synapse-trail.jsonl` (شکافِ «sinkها self_referential نمی‌نوشتند» از ۰۷-۲۵) |
+| تست‌های C3 | `_ops/tests/test_self_accuracy.py` | ۱۳ چک سبز؛ ثبت در `run_all.py` |
+| تست‌های C8 (وصل‌کردن + trail) | `_ops/tests/test_synapse_beat.py` + `test_synapse_sense.py` (۳ چکِ trailِ نو) | ۷ + ۲۰ چک سبز؛ ثبت در `run_all.py` |
+
+**چرا این دو با هم:** خودمدلِ صادق (C3) پیش‌نیازِ جراحیِ ایمن است، و حسِ Δ خودِ
+ریاضیِ ارگانیسم (C8) خوراکِ همان پچ است. تا امروز ارگانیسم می‌توانست با اطمینانِ کامل
+غلط بگوید (دروغِ ۰۷-۲۵: ۱ لِگ به‌جای ۴) و حسِ خود-ارجاعی نداشت — یعنی آمادهٔ جراحیِ کور بود.
+
+**قاعدهٔ دوگانهٔ فلگ (compat):** `sense.flag_on()` هر دو نامِ `OCTOPUS_SYNAPSE_ENABLED`
+(canonical، با prefixِ کلی) و `SYNAPSE_ENABLED` (backward-compat با README/SOT قدیمی)
+را می‌پذیرد. اثر فقط با restart. هر wiring آینده (وصل‌کردنِ trajectory_monitor به
+event_bridge = L3 نردبان) با verdictِ مالک انجام می‌شود.
+
+## 🧬 ثبتِ ۲۰۲۶-۰۷-۲۹ — دکترِ اختاپوس (OCTOPUS-DOCTOR + os_v1 + doctor_link)، additive، پیش‌فرضِ خاموش
+
+نصبِ دو بستهٔ نشست‌های ابری روی درخت (۲۲۱ تستِ سبز **روی همین لپ‌تاپ**) + پلِ
+تلگرامِ آن‌ها به مرکزِ زنده. حلقهٔ هدف: چت/پتِ مالک در تلگرام → کارتِ نیت → worktree
+→ سوئیت → کارتِ دیف → رأی → merge — با سه قفلِ سری روی merge.
+
+| concern | canonical | وضعیت |
+|---------|-----------|-------|
+| چشم/ذهن/انگشت/مغز/صدای دکتر | `OCTOPUS-DOCTOR/doctor/` (والتِ Obsidian = حافظه‌اش) | نصب‌شده؛ `cli.py round` فقط‌خواندنی روی `_ops` (اولین اسکنِ زنده: beat 17352، ۶ یافتهٔ خودکار)؛ مغز بی‌کلید fail-closed؛ `test_doctor.py` ۱۴۸/۱۴۸ |
+| کتابخانهٔ OS (سنجهٔ صادق/EFE/سکوت/mission_runner) | `_ops/os_v1/` | library-only، بدونِ فلگ؛ `mission_runner` حالا `env_root_key` دارد — سوئیتِ worktree با pinِ `ORG_ROOT` به خودِ worktree اجرا می‌شود (الگوی `code_autonomy.py:146`؛ بدونِ آن، گیتِ `day --live` همیشه درختِ زنده را می‌سنجید)؛ `test_os_v1.py` ۷۳/۷۳ |
+| پلِ کارت/رأیِ دکتر ↔ تلگرام | `_ops/telegram_center/doctor_link.py` + دو هوکِ افزایشی در `center.py` (دنبالهٔ `beat` + پیش‌گیریِ `_handle_callback`) | SHADOW — فلگ `OCTOPUS_WIRE_DOCTOR_TG` خاموش؛ outbox با clientِ خودِ مرکز می‌رود (اتصالِ دومِ تلگرام باز نمی‌شود)؛ رأیِ سه‌تکهٔ `ok|no:gate:mission` قبل از fallbackِ approval جدا می‌شود؛ صفر import از پکیجِ دکتر (نامِ `doctor` ملکِ `_ops/doctor` می‌ماند)؛ `test_doctor_link.py` ۱۸/۱۸ + ثبت در `run_all.py` |
+
+**سه قفلِ merge دکتر (سری):** رأیِ ✅ روی کارتِ دیف → `--apply` (نه dry-run) →
+`OCTOPUS_DOCTOR_MAY_MERGE=1` (تنظیم **نشده** و بدونِ رأیِ مالک تنظیم نمی‌شود).
+`day --live` تا رأیِ مالک روشن نمی‌شود — `run_all` تست‌هایی دارد که فایلِ زندهٔ
+STOP می‌سازند؛ pinِ `ORG_ROOT` این را به worktree محدود می‌کند ولی اولین اجرای
+زنده باید زیرِ چشمِ مالک باشد. اثرِ فلگ فقط با ری‌استارتِ TG-center.

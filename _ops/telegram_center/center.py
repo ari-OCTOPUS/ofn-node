@@ -125,7 +125,31 @@ COMMANDS: list[tuple[str, str]] = [
     ("id", "🧬 مگا-معادلاتِ هویت (read-only)"),
     ("box", "📦 نقشهٔ جعبه‌سیاه‌ها"),
     ("code", "🧩 هم‌کدنویسی propose-only با مالک"),
+    # ۲۰۲۶-۰۷-۲۷ — این فهرست ۹ تا بود در حالی که handlerها ۲۰ تا بودند. یعنی
+    # نصفِ دستورها **کار می‌کردند ولی در منوی تلگرام دیده نمی‌شدند**: مالک باید
+    # از قبل می‌دانست وجود دارند تا بتواند تایپشان کند. همان کژیِ کارت‌های
+    # نامرئی، یک لایه بالاتر — و `test_command_discoverability` حالا قفلش می‌کند.
+    ("x", "🗂 هر چیزی که می‌توانم نشانت بدهم"),
+    ("stuck", "💰 پرداخت‌های نیمه‌کاره"),
+    ("verdicts", "🗳 رأی‌هایی که دیگر سؤال نیستند"),
+    ("lead", "🎨 قیمتِ یک کارِ نقاشی (تا مرزِ ارسال)"),
+    ("deal", "🤝 پیشنهادِ خودم را بشنو"),
+    ("doctrine", "📖 دکترینِ اپراتور"),
+    ("eq", "🧬 معادلاتِ هویت"),
+    ("funnel", "📈 قیفِ لید — چه می‌دانیم و چه نه"),
+    ("won", "🎉 این لید را بردیم"),
+    ("lost", "❌ این لید از دست رفت"),
+    ("paid", "💰 پولِ این لید رسید (گزارش، نه تراکنش)"),
+    ("sent", "📤 برای این لید پیام رفت"),
+    ("replied", "💬 مشتری جواب داد"),
+    ("meeting", "📅 قرارِ بازدید گذاشته شد"),
+    ("quote", "🧾 قیمت برایش فرستاده شد"),
 ]
+
+# دستورهایی که مرکز خودش پشتِ فلگ ثبت می‌کند — پل از آن‌ها رد می‌شود تا
+# پاریتهٔ فلگ نشکند. هر مدخل باید دلیلِ فلگ‌دار بودنش را داشته باشد.
+_CENTRE_GATED = {"/panel": "OCTOPUS_WIRE_MENU_V2 — منوی v2",
+                 "/mining": "OCTOPUS_WIRE_MINING_UI — منوی ⛏ زیر-OSِ Mining"}
 
 _VERDICTS = ("ok", "no", "later")
 _VERDICT_TOAST = {"ok": "تأیید شد ✅", "no": "رد شد ❌", "later": "بعداً ⏳"}
@@ -254,6 +278,41 @@ class Center:
             return _m2
         except Exception:  # noqa: BLE001
             return None
+
+    def _mining_ui(self):
+        """UIِ زیر-OSِ Mining (lazy، fail-soft). None = «وصل نیست» → رفتارِ امروز بایت‌به‌بایت.
+
+        ۲۰۲۶-۰۷-۲۸ — بازسازیِ هوکِ گم‌شده. `mining_os/ACTIVATION.md` ادعا می‌کرد این UI
+        «با ۳ هوکِ additive به center.py وصل شد»، ولی در درخت صفر ارجاع بود و خودِ فلگ
+        هم وجود نداشت. بسته بیرونِ `_ops` است (پوشهٔ پروژه = مالکِ canonical)، پس مسیر
+        اینجا افزوده می‌شود — از `__file__`، پس worktree-safe."""
+        if os.environ.get("OCTOPUS_WIRE_MINING_UI") != "1":
+            return None
+        try:
+            _mdir = str(_HERE.parent.parent / "03 - Projects" / "Mining")
+            if _mdir not in sys.path:
+                sys.path.insert(0, _mdir)
+            from mining_os.ui import tg_mining as _mo
+            return _mo
+        except Exception:  # noqa: BLE001 — نبودِ پوشهٔ پروژه نباید مرکز را بکشد
+            return None
+
+    def _handle_mining_callback(self, cbq: dict, data: str, mo) -> dict:
+        """verbِ mo: — منوی زیر-OSِ Mining (پشتِ OCTOPUS_WIRE_MINING_UI). editِ درجای همان
+        پیام؛ fail-soft. صفر settle/effector/پول — ناوبری + ثبتِ verdict در لاگِ mining-owned
+        (سینک به VERDICT_QUEUE.md خودش پشتِ فلگِ جداگانهٔ OCTOPUS_WIRE_MINING_VERDICT_SYNC)."""
+        msg = cbq.get("message") or {}
+        mid = msg.get("message_id")
+        chat = (msg.get("chat") or {}).get("id")
+        toast = ""
+        try:
+            txt, kb, toast = mo.handle_callback(data)
+            if isinstance(mid, int):
+                self._client.edit(mid, _scrub(str(txt or "")), keyboard=kb, chat_id=chat)
+        except Exception:  # noqa: BLE001
+            pass
+        self._answer(cbq, toast)
+        return {"kind": "mining", "data": data}
 
     def _handle_menu2_callback(self, cbq: dict, data: str, m2) -> dict:
         """verbِ m: — منوی v2 (پشتِ OCTOPUS_WIRE_MENU_V2). dispatch → editِ درجای همان پیام؛
@@ -573,6 +632,14 @@ class Center:
             _mp.beat(self)
         except Exception:  # noqa: BLE001 — pulse هرگز beat را نمی‌کشد
             pass
+        # 2026-07-29: doctor-link — کارت‌های صف‌شدهٔ دکترِ اختاپوس (OCTOPUS-DOCTOR،
+        # حالتِ outbox) با clientِ همین مرکز فرستاده می‌شوند؛ اتصالِ دومی به تلگرام
+        # باز نمی‌شود. پشتِ OCTOPUS_WIRE_DOCTOR_TG؛ fail-soft.
+        try:
+            import doctor_link as _dl
+            _dl.beat(self)
+        except Exception:  # noqa: BLE001 — link هرگز beat را نمی‌کشد
+            pass
         return out
 
     def push_alert(self, text: str) -> bool:
@@ -670,6 +737,37 @@ class Center:
             return None
         cmd = text.split()[0].split("@")[0].lower()
         chat_id = (msg.get("chat") or {}).get("id")  # پاسخ به همان‌جا که پرسید
+
+        # ۲۰۲۶-۰۷-۲۷ — عبارت‌های مجوزِ قرارداد (`OWNER_AUTH: …`) تا امروز در
+        # **هیچ خطی از کد** شناخته نمی‌شدند. یعنی اگر مالک نیمه‌شب مجوزی می‌داد و
+        # هیچ ایجنتی بیدار نبود، آن جمله تبخیر می‌شد: تصمیمِ مالک فرّارترین دادهٔ
+        # کلِ سیستم بود. حالا ثبت می‌شود.
+        #
+        # ⚠️ **ثبت، نه اجرا.** فلیپِ فلگ و کامیت و ریستارت عملِ استقرارند نه پیام؛
+        # ماشه‌کردنشان با متنِ چت یعنی ساختنِ یک مجریِ خودکار که ورودی‌اش
+        # جعل‌شدنی و فورواردشدنی است.
+        if "OWNER_AUTH" in text.upper():
+            try:
+                import owner_auth_log as _oa
+                rec = _oa.record(text, chat_ok=True, source="tg")
+                if rec is not None:
+                    # ⚠️ نسخهٔ اولِ همین شاخه (چند ساعت پیش، همین جلسه) جواب را
+                    # **می‌ساخت و دور می‌ریخت** — هیچ `send`ی نداشت. یعنی مالک
+                    # مجوز می‌داد و بات ساکت بود؛ دقیقاً همان «انجام شد ولی اثری
+                    # ندارد» که کلِ این جلسه دربارهٔ آن بود، این بار در کدِ خودم.
+                    _ack = _oa.ack(rec)
+                    _mid = None
+                    try:
+                        _mid = self._client.send(
+                            _scrub(_ack), chat_id=chat_id,
+                            topic_id=self._reply_thread(msg))
+                    except Exception:  # noqa: BLE001
+                        pass
+                    return {"kind": "owner-auth", "text": _ack,
+                            "sent": _mid is not None,
+                            "chat_id": chat_id, "auth_kind": rec.get("kind")}
+            except Exception:  # noqa: BLE001 — ثبت نشدن نباید پیام را بخورد
+                pass
         handlers = {
             "/now": lambda: self._status_text() or "🐙 هنوز چیزی برای گفتن ندارم.",
             "/budget": self._budget_text,
@@ -698,19 +796,79 @@ class Center:
             # باز، آن‌هایی که واقعیت **از قبل جوابشان را داده** — با شاهدِ فیزیکی.
             # فایل هرگز بازنویسی نمی‌شود؛ بستن دستِ مالک است (قانونِ اساسی §۷).
             "/verdicts": lambda: self._verdicts_cmd(),
+            # نقطهٔ کورِ ۱۳۴: کارتِ پولی که در نیمهٔ راه یخ زده. فقط نشان می‌دهد —
+            # بستنِ کارتِ پولی هرگز خودکار نیست.
+            "/stuck": lambda: self._stuck_cmd(),
+            # فهرستِ خودکشف: هر ماژولی که کارتِ بی‌آرگومان دارد این‌جا می‌آید،
+            # بدونِ اینکه کسی لازم باشد این فایل را دست بزند. شکاف را ساختاری
+            # می‌بندد نه موردی.
+            "/x": lambda: self._capabilities_cmd(),
+            "/توان": lambda: self._capabilities_cmd(),
+            # D3b (۲۰۲۶-۰۷-۲۷) — مالک واقعیتِ بازار را می‌گوید. `funnel_store`
+            # کامل نوشته شده بود و سربرگش خودش می‌گفت «صفر caller تا wiring
+            # بعداً»؛ آن wiring هرگز ساخته نشد، پس ارگانیسمی که مأموریتش پول
+            # است هیچ‌وقت نمی‌فهمید کدام لید برنده شد. صفر پول، صفر ارسال.
+            "/won": lambda: self._funnel_cmd(text),
+            "/lost": lambda: self._funnel_cmd(text),
+            "/paid": lambda: self._funnel_cmd(text),
+            "/sent": lambda: self._funnel_cmd(text),
+            "/replied": lambda: self._funnel_cmd(text),
+            "/meeting": lambda: self._funnel_cmd(text),
+            "/quote": lambda: self._funnel_cmd(text),
+            "/funnel": lambda: self._funnel_cmd(""),
             "/رفتار": lambda: self._live_cmd(text),
             "/کد": lambda: self._live_cmd(text),
+            # ۲۰۲۶-۰۷-۲۸ — خودنگری. منطق عمداً در `introspect_cmd.py`
+            # است نه این‌جا: این فایل ۱۳۰ کیلوبایت و پرترافیک است، و
+            # کوچک‌ترین دیف کم‌ریسک‌ترین دیف است. هر چهار فقط‌خواندنی‌اند.
+            "/flags": lambda: _introspect("flags"),
+            "/trace": lambda: _introspect("trace", text),
+            "/scan": lambda: _introspect("scan"),
+            "/insight": lambda: _introspect("insight"),
         }
         # Menu v2 (پشتِ OCTOPUS_WIRE_MENU_V2): فقط با فلگِ روشن /panel اضافه می‌شود.
         # flag خاموش → /panel در handlers نیست → مسیرِ «command ناشناس» امروز (return None). parity.
         _m2 = self._menu2()
         if _m2 is not None and _m2.enabled():
             handlers["/panel"] = _m2.render_menu
+        # زیر-OSِ Mining (پشتِ OCTOPUS_WIRE_MINING_UI): فقط با فلگِ روشن /mining اضافه
+        # می‌شود. flag خاموش → در handlers نیست، و چون در _CENTRE_GATED هست پل هم آن را
+        # به باتِ ارگانیسم نمی‌برد → مسیرِ «command ناشناس» امروز. parity.
+        _mo = self._mining_ui()
+        if _mo is not None:
+            handlers["/mining"] = _mo.render_menu
         fn = handlers.get(cmd)
+        # ۲۰۲۶-۰۷-۲۷ — **پلِ دو-باتی.** یافتهٔ دبل‌چکِ همان روز: ۳۲ دستوری که
+        # کارت‌ها صریحاً به مالک پیشنهاد می‌دهند («/heart set …»، «/doctor focus …»،
+        # «/brain guide …»، «۲۵۲ تراکنش منتظرِ توست — /review») فقط در روترِ باتِ
+        # ارگانیسم‌اند. و آن بات `TELEGRAM_ALLOWED_CHAT_IDS` ندارد، پس پیامِ گروه را
+        # **رد می‌کند** و offset را جلو می‌برد.
+        #
+        # نتیجهٔ زیسته: مالک ساعت‌ها در گروه حرف زد و «متوجه نشدم» گرفت — و در آن ۳۲
+        # تا `/panic` و `/stop` هم بودند، یعنی کلیدهای اضطراری از جایی که او
+        # می‌خواند در دسترس نبودند.
+        #
+        # پل، نه ادغام: `handle_command` **در همین پروسه** صدا زده می‌شود (نه
+        # pollerِ دوم، پس ریسکِ 409 صفر). و `from_id` واقعی پاس داده می‌شود تا
+        # گیت‌های owner-only خودِ آن تابع **واقعاً شلیک کنند** — پیش‌فرضِ None
+        # آن‌ها را رد می‌کرد، پس این مسیر از فراخوانِ برنامه‌ای هم سخت‌گیرتر است.
+        # استثنا: دستورهایی که **خودِ مرکز** پشتِ فلگ گیت کرده. «ناشناس بودن»شان
+        # وقتی فلگ خاموش است یک قرارداد است نه یک اتفاق — و گاردِ parity همان
+        # روز گرفتش. پل نباید تصمیمِ فلگ را دور بزند.
+        # سقف‌دار و مستند؛ اگر این مجموعه رشد کند، پل دیگر عام نیست.
+        if fn is None and cmd.startswith("/") and cmd not in _CENTRE_GATED:
+            _bridged = self._bridge_to_organism(text, chat_id, msg)
+            if _bridged is not None:
+                return _bridged
         if fn is None:
             # پیامِ آزادِ مالک = پرسش/دستورِ نرم. اجرای مستقیمِ مخرب هرگز؛ فقط
             # نگاشتِ intent → کارت/دکمهٔ عملگرا یا پاسخِ آرام (stdlib-only، بدون LLM).
             if not text.startswith("/"):
+                # اتاقِ چت اول: اگر جملهٔ فارسی صریحاً یک کارمند را نشان داد،
+                # همان جواب می‌دهد. خاموش یا بی‌تطابق → مسیرِ امروز، بی‌تغییر.
+                _room = self._chat_room(msg, text)
+                if _room is not None:
+                    return _room
                 return self._handle_ask(msg, text)
             return None                    # قراردادها: command ناشناس نادیده
         try:
@@ -718,8 +876,24 @@ class Center:
             txt, kb = out if isinstance(out, tuple) else (str(out or ""), None)
             mid = self._client.send(_scrub(txt), chat_id=chat_id, keyboard=kb,
                                     topic_id=self._reply_thread(msg))
-        except Exception:  # noqa: BLE001
+        except Exception as _e:  # noqa: BLE001
+            # ۲۰۲۶-۰۷-۲۷ — این `except` بی‌صدا بود: نه پیامی به مالک، نه آلارم،
+            # نه ردی در لاگ. و چون آفستِ update به‌هرحال جلو می‌رفت، هرگز retry
+            # هم نمی‌شد. یعنی مالک `/budget` می‌زد، هیچ جوابی نمی‌گرفت، و
+            # **سکوت را «چیزی نبود» می‌خواند** در حالی که کد ترکیده بود.
             mid = None
+            try:
+                opslib.alert([f"tg-center: دستورِ {cmd} شکست — "
+                              f"{type(_e).__name__}"])
+            except Exception:  # noqa: BLE001
+                pass
+            try:
+                self._client.send(
+                    f"⚠️ <code>{cmd}</code> خطا داد ({type(_e).__name__}).\n"
+                    "▸ سکوت یعنی خطا، نه «چیزی نبود».",
+                    chat_id=chat_id, topic_id=self._reply_thread(msg))
+            except Exception:  # noqa: BLE001
+                pass
         return {"kind": cmd.lstrip("/"), "sent": mid is not None}
 
     def _verdicts_cmd(self):
@@ -729,6 +903,70 @@ class Center:
             return _vp.card()
         except Exception:  # noqa: BLE001
             return "🗳 صفِ رأی در دسترس نیست."
+
+    def _stuck_cmd(self):
+        """پرداخت‌های نیمه‌کاره — فقط‌خواندنی، $۰، هیچ گذارِ پولی."""
+        try:
+            import stuck_money as _sm
+            return _sm.card()
+        except Exception:  # noqa: BLE001
+            return "💰 آشکارسازِ پرداختِ نیمه‌کاره در دسترس نیست."
+
+    def _capabilities_cmd(self):
+        """`/x` → فهرستِ هر چیزی که ارگانیسم می‌تواند نشان دهد، با دکمه."""
+        try:
+            import capability_registry as _cr
+            return _cr.card(), _cr.keyboard(0)
+        except Exception:  # noqa: BLE001
+            return "🗂 فهرستِ توانایی‌ها در دسترس نیست."
+
+    def _bridge_to_organism(self, text: str, chat_id, msg: dict):
+        """دستورِ ناشناخته در مرکز → روترِ باتِ ارگانیسم، در همین پروسه.
+
+        هیچ گاردی دور زده نمی‌شود: `handle_command` خودش owner-only را می‌سنجد و
+        `from_id` واقعی را می‌گیرد. ناشناخته برای هر دو → None → مسیرِ امروز."""
+        try:
+            import sys as _s
+            from pathlib import Path as _P
+            _b = str(_P(__file__).resolve().parent.parent / "budget")
+            if _b not in _s.path:
+                _s.path.insert(0, _b)
+            import approval_channel as _ac
+            ch = _ac.TelegramApprovalChannel()
+            out = ch.handle_command(text, chat_id=chat_id,
+                                    from_id=(msg.get("from") or {}).get("id"))
+        except Exception:  # noqa: BLE001 — پل هرگز مسیرِ مرکز را نمی‌شکند
+            return None
+        if not out:
+            return None
+        body, kb = (out if isinstance(out, tuple) else (out, None))
+        if isinstance(body, dict):
+            # ⚠️ ۲۰۲۶-۰۷-۲۸ — این خط فقط `keyboard` را می‌خواند، ولی روترِ
+            # ارگانیسم `reply_markup` برمی‌گرداند (approval_channel: `/queue`
+            # ۱۰ ردیف، `/doctor` ۶، `/money` ۵، `/organs` ۴، `/school` ۳،
+            # `/heart` ۱ — اندازه‌گیری‌شده). یعنی **۲۹ ردیف دکمه** بی‌صدا دور
+            # ریخته می‌شد: متن می‌رسید، دکمه‌ها نه، و هیچ خطایی هم نبود چون
+            # `None` یک مقدارِ معتبر برای keyboard است.
+            #
+            # هر دو نام پذیرفته می‌شود چون دو تولیدکننده با دو قرارداد وجود
+            # دارد و یکی‌کردنشان تغییرِ بزرگ‌تری است؛ این‌جا فقط مصرف‌کننده
+            # سخاوتمند می‌شود. `test_tg_bridge_keyboard` هر دو را قفل می‌کند.
+            body, kb = (body.get("text", ""),
+                        body.get("reply_markup") or body.get("keyboard"))
+        try:
+            mid = self._client.send(_scrub(str(body)), chat_id=chat_id, keyboard=kb,
+                                    topic_id=self._reply_thread(msg))
+        except Exception:  # noqa: BLE001
+            mid = None
+        return {"kind": "bridged", "cmd": text.split()[0], "sent": mid is not None}
+
+    def _funnel_cmd(self, text: str):
+        """`/won lead-123` → ثبتِ نتیجهٔ بازار. هرگز پول، هرگز ارسال."""
+        try:
+            import funnel_cmd as _fc
+            return _fc.handle(text)
+        except Exception:  # noqa: BLE001
+            return "📈 قیفِ لید در دسترس نیست."
 
     def _quote_cmd(self, text: str):
         """`/lead …` → کارتِ قیمتِ واقعی. هرگز ارسال نمی‌کند."""
@@ -765,6 +1003,111 @@ class Center:
             return f"🤝 الان پیشنهادی ندارم — {why or r.get('reason')}"
         except Exception:  # noqa: BLE001
             return "🤝 مذاکره در دسترس نیست."
+
+    def _chat_room(self, msg: dict, text: str) -> "dict | None":
+        """اتاقِ چت — فارسیِ ساده → کارمندِ درست. `None` یعنی دست نزدم.
+
+        رأیِ مالک ۲۰۲۶-۰۷-۲۸: «یک جا در گروه بگذار از طریقش همه پاها را کنترل
+        کنم … تعامل‌ها را چت‌گونه می‌خواهم» — و اندازه‌گیریِ همان روز نشان داد
+        ۶۱ فرمان تبلیغ می‌شد که ۸ تایشان در هیچ باتی وجود نداشت. مشکل نبودِ
+        کارمند نبود، نبودِ در بود.
+
+        سه تصمیمِ عمدی:
+
+        · **بازپخش، نه پیاده‌سازیِ دوم.** فرمانِ کارمند به‌عنوان یک پیامِ تازه
+          به همین تابع برمی‌گردد. اگر به‌جایش handler را مستقیم صدا می‌زدم،
+          کلوژرِ `text` هنوز متنِ فارسیِ مالک را می‌بست و `_funnel_cmd(text)`
+          آرگومان را از جملهٔ فارسی می‌خواند — یک باگِ بی‌صدا. بازگشت بی‌پایان
+          ممکن نیست: متنِ ساخته‌شده با `/` شروع می‌شود و این شاخه فقط برای
+          متنِ غیر-`/` است. `_depth` گاردِ دومِ صریح است.
+        · **مبهم = می‌پرسد.** مسیریابیِ غلطِ بی‌صدا بدترین حالت است؛ جوابِ
+          کارمندِ اشتباه شبیهِ جوابِ درست به نظر می‌رسد.
+        · **بدونِ تطابق = هیچ.** به `_handle_ask` امروزی می‌افتد، دست‌نخورده.
+        """
+        try:
+            import chat_room as _cr
+        except Exception:  # noqa: BLE001
+            return None
+        if not _cr.enabled():
+            return None
+        # اتاق بخشی از سؤال است (رأیِ مالک: «گروه بشه پایگاهِ پروژه‌ها و پاها»).
+        # `_topic_key` از ۰۷-۲۶ همین را می‌دانست و فقط اتاقِ آینه و مغزِ پولی
+        # مصرفش می‌کردند؛ برای پاها هرگز وصل نشده بود.
+        #
+        # ⚠️ جدا و دفاعی، عمداً: نسخهٔ اولِ همین چند خط `_topic_key` را داخلِ
+        # همان `try`ی گذاشته بود که خطایش `return None` می‌داد — یعنی یک نقصِ
+        # کوچک در **تشخیصِ اتاق** کلِ اتاقِ چت را بی‌صدا خاموش می‌کرد. تست‌های
+        # سیم‌کشی همان لحظه گرفتندش. نشناختنِ اتاق باید یعنی «اتاق ندارم»، نه
+        # «اصلاً حرف نزن».
+        room = ""
+        try:
+            room = self._topic_key(msg) or ""
+        except Exception:  # noqa: BLE001
+            room = ""
+        try:
+            hit = _cr.classify(text, room=room)
+        except TypeError:
+            hit = _cr.classify(text)          # نسخهٔ قدیمیِ ماژول → رفتارِ قبلی
+        except Exception:  # noqa: BLE001
+            return None                       # اتاقِ چت هرگز مرکز را نمی‌شکند
+        chat_id = (msg.get("chat") or {}).get("id")
+        if hit.get("tied"):
+            try:
+                mid = self._client.send(_scrub(_cr.ask_which(hit["tied"])),
+                                        chat_id=chat_id,
+                                        topic_id=self._reply_thread(msg))
+            except Exception:  # noqa: BLE001
+                mid = None
+            return {"kind": "chat-room-ask", "sent": mid is not None,
+                    "tied": hit["tied"]}
+        cmd = hit.get("command")
+        if not cmd:
+            return None
+        if int(msg.get("_chat_room_depth") or 0) >= 1:
+            return None
+        out = self._handle_message({**msg, "text": cmd, "_chat_room_depth": 1})
+        if out is None and hit.get("match"):
+            # فرمانِ اختصاصی خاموش است — ولی کارتِ عمومیِ همان اندام زنده است.
+            #
+            # ۲۰۲۶-۰۷-۲۸، بعد از آزمونِ زندهٔ مالک: «چطوره؟» در بازوی معدن درست
+            # مسیریابی شد و کارتِ «خاموش است» گرفت. مالک گفت «دکمه نداشت» —
+            # و حق داشت: آن کارت یک **بن‌بست** بود. می‌گفت خاموشم و راهی نشان
+            # نمی‌داد، یعنی همان تجربه‌ای که کلِ هفته ازش شکایت داشت، فقط
+            # مؤدبانه‌تر.
+            #
+            # این fallback عام است نه وصلهٔ ماینینگ: هر پایی که فرمانِ
+            # اختصاصی‌اش گیت باشد، جوابِ واقعیِ `/organs <slug>` را می‌گیرد.
+            # اگر آن هم نبود، تازه کارتِ خاموشی می‌آید.
+            # ⚠️ فقط برای **پاها**. اگر فرمانِ یک مغز (doctor/heart/money/…)
+            # گیت شود، `/organs doctor` جوابِ «اندامی به این نام نیست» می‌دهد —
+            # که از بن‌بست هم گیج‌کننده‌تر است، چون یک جوابِ *غلط* است نه یک
+            # سکوت. `LEGS` دقیقاً همان هفت اندامِ رجیستری است.
+            _alt = f"/organs {hit['match']}"
+            if _alt != cmd and hit["match"] in getattr(_cr, "LEGS", {}):
+                out = self._handle_message(
+                    {**msg, "text": _alt, "_chat_room_depth": 1})
+                if out is not None:
+                    return {**out, "routed_from": "chat-room-fallback",
+                            "gated": cmd, "served": _alt}
+        if out is None:
+            # کارمند هست ولی الان جواب نداد — فرمان پشتِ فلگ گیت شده
+            # (`_CENTRE_GATED`) یا روتر نشناختش. **سکوت ممنوع**: کلِ شکایتِ مالک
+            # از تلگرام همین بود، «گمراه‌کننده و بی‌کاره». اینجا با یک لیستِ
+            # هاردکدِ فرمان‌های گیت‌شده نمی‌جنگم — هر مسیرِ ساکتی، هر وقت،
+            # همین جواب را می‌گیرد. نمونهٔ زنده: `/mining` پشتِ
+            # `OCTOPUS_WIRE_MINING_UI`؛ «ماینینگ چطوره» بی این شاخه هیچ می‌شد.
+            try:
+                mid = self._client.send(
+                    _scrub(f"🔇 <b>{hit.get('display','')}</b> الان جواب نمی‌دهد.\n"
+                           f"▸ <code>{cmd}</code> پشتِ یک فلگِ خاموش است.\n"
+                           "<i>سکوت را «چیزی نبود» نخوان — این‌جا خاموشی است، "
+                           "نه نبودِ کارمند.</i>"),
+                    chat_id=chat_id, topic_id=self._reply_thread(msg))
+            except Exception:  # noqa: BLE001
+                mid = None
+            return {"kind": "chat-room-dark", "sent": mid is not None,
+                    "command": cmd}
+        return {**out, "routed_from": "chat-room", "hits": hit.get("hits", [])}
 
     def _handle_ask(self, msg: dict, text: str) -> dict:
         """پرسش‌وپاسخِ زندهٔ مالک با اختاپوس، بدون LLM و بدون اجرای مبهم.
@@ -1173,6 +1516,10 @@ class Center:
         except Exception:  # noqa: BLE001 — mint اختیاری؛ خطا = کارتِ عادی
             _mint = None
         try:
+            return r.render_approvals_queue(pending, counts, legacy, mint=_mint,
+                                            offset=int(getattr(self, "_ap_offset", 0)))
+        except TypeError:
+            # rendererِ قدیمی offset ندارد — سازگاریِ عقب‌رو، بدونِ صفحه‌بندی.
             return r.render_approvals_queue(pending, counts, legacy, mint=_mint)
         except Exception:  # noqa: BLE001
             return self._approvals_text(), [[{"text": "🔙 منو", "callback_data": "mn:menu"}]]
@@ -1258,6 +1605,65 @@ class Center:
                 pass
             self._answer(cbq, "ثبت شد")
             return {"kind": "quote", "act": act, "qt": qt}
+
+        # «کمتر حرف بزن» — سقفِ روزانهٔ ابتکار را نصف می‌کند. مالک باید بتواند
+        # صدای اختاپوس را با یک تپ کم کند، وگرنه اولین سرریز کلِ کانال را می‌بندد.
+        if verb == "iv" and len(parts) == 2 and parts[1] == "q":
+            msg = cbq.get("message") or {}
+            try:
+                import initiative as _iv
+                r = _iv.quieter()
+                body = (f"🔇 باشد — از این به بعد حداکثر {r['cap']} بار در روز.\n"
+                        "▸ نکنی: همین‌قدر می‌ماند. باز هم بزنی، کمتر می‌شود.")
+            except Exception:  # noqa: BLE001
+                body = "🔇 نشد."
+            try:
+                self._client.send(_scrub(body),
+                                  chat_id=(msg.get("chat") or {}).get("id"),
+                                  topic_id=self._reply_thread(msg))
+            except Exception:  # noqa: BLE001
+                pass
+            self._answer(cbq, "کمتر حرف می‌زنم")
+            return {"kind": "initiative", "act": "quieter"}
+
+        # `x:c:<key>` یک کارت را باز می‌کند، `x:p:<n>` صفحهٔ فهرست را عوض.
+        # هر دو فقط‌خواندنی‌اند و هیچ چیزی را اجرا نمی‌کنند.
+        if verb == "x" and len(parts) >= 3:
+            msg = cbq.get("message") or {}
+            try:
+                import capability_registry as _cr
+                if parts[1] == "c":
+                    body, kb = _cr.render(parts[2]), None
+                else:
+                    body, kb = _cr.card(), _cr.keyboard(int(parts[2] or 0))
+            except Exception:  # noqa: BLE001
+                body, kb = "🗂 فهرست در دسترس نیست.", None
+            try:
+                self._client.send(_scrub(body),
+                                  chat_id=(msg.get("chat") or {}).get("id"),
+                                  topic_id=self._reply_thread(msg), keyboard=kb)
+            except Exception:  # noqa: BLE001
+                pass
+            self._answer(cbq)
+            return {"kind": "capability", "act": parts[1]}
+
+        # «🔍 مدرک کم است» — dg:e:<trace_id>. فقط توضیح می‌دهد؛ هیچ تصمیمی را
+        # نه اجرا می‌کند نه عوض. رأی همچنان از ok/no/later می‌آید.
+        if verb == "dg" and len(parts) >= 2 and parts[1] == "e":
+            try:
+                import decision_gate as _dg
+                body = _dg.explain(parts[2] if len(parts) > 2 else "")
+            except Exception:  # noqa: BLE001
+                body = "🔍 گیتِ تصمیم در دسترس نیست."
+            msg = cbq.get("message") or {}
+            try:
+                self._client.send(_scrub(body),
+                                  chat_id=(msg.get("chat") or {}).get("id"),
+                                  topic_id=self._reply_thread(msg))
+            except Exception:  # noqa: BLE001
+                pass
+            self._answer(cbq)
+            return {"kind": "decision-gate", "view": "evidence"}
 
         if verb == "mr" and len(parts) == 2:
             try:
@@ -1605,6 +2011,20 @@ class Center:
         توجه: این فقط state را عوض می‌کند (pending → approved/rejected). اجرای واقعیِ
         job (اگر risk=high) به handlerهای جداگانه یا power-gate واگذار می‌شود — این
         لایه فقط صف است. risk=high → هشدار در toast."""
+        # `ap:page:<n>` — ناوبریِ خالص. هیچ state ای عوض نمی‌کند و هیچ رأیی ثبت
+        # نمی‌کند، پس توکنِ HMAC لازم ندارد (توکن به job بایند می‌شود، نه به صفحه).
+        # بدونِ این، دکمهٔ «بعدی» ساخته می‌شد ولی به هیچ‌جا نمی‌رسید — همان مدِ
+        # خرابیِ پنج دکمهٔ مردهٔ امروز صبح.
+        _seg = data.split(":")
+        if len(_seg) >= 3 and _seg[1] == "page":
+            try:
+                self._ap_offset = max(0, int(_seg[2]))
+            except (TypeError, ValueError):
+                self._ap_offset = 0
+            self._answer(cbq)
+            self._edit_page(cbq, "ap")
+            return {"kind": "approval", "act": "page", "offset": self._ap_offset}
+
         # P3 (Stage-1): وقتی فلگ OCTOPUS_WIRE_CB_TOKEN روشن است، ok/no باید توکنِ HMACِ
         # معتبر داشته باشند (ap:<action>:<jid>:<token>). callbackِ قدیمیِ tokenless یا
         # توکنِ نامعتبر/دستکاری‌شده = رد (fail-closed). فلگ خاموش → مسیرِ قبلی بایت‌به‌بایت.
@@ -1625,14 +2045,26 @@ class Center:
                 if not cbtok.verify(token, jid, action, _owner, _ah, _exp):
                     self._answer(cbq, "توکنِ نامعتبر — کارت را از منو دوباره باز کن")
                     return {"kind": "approval", "rejected": "bad-token", "id": jid}
-                # (2) enforcement جداگانهٔ انقضا (now <= expires) — 5.3
-                try:
-                    import time as _t
-                    if _exp and _t.time() > float(_exp):
-                        self._answer(cbq, "کارت منقضی شده — از منو دوباره باز کن")
+                # (2) enforcement جداگانهٔ انقضا — 5.3
+                # ۲۰۲۶-۰۷-۲۷ (نقطهٔ کورِ ۱۳۵): این چک `time.time()` خام می‌خواند،
+                # که **قابلِ تنظیم** است. پرشِ ساعت به عقب (تصحیحِ NTP، دستِ کاربر،
+                # باتریِ ساعتِ سخت‌افزاری) هر کارتِ سوخته را دوباره معتبر می‌کرد —
+                # یعنی یک تأییدِ پولیِ منقضی می‌توانست زنده شود.
+                # `clock_guard` روی ابهام fail-closed می‌دهد: ساعتِ بی‌اعتماد =
+                # منقضی، چون اگر ندانیم ساعت چند است نمی‌توانیم بگوییم وقت هست.
+                if _exp:
+                    try:
+                        import clock_guard as _cg
+                        _gone, _why = _cg.is_expired(_exp)
+                    except Exception:  # noqa: BLE001 — نبودِ گارد = رفتارِ قبلی
+                        import time as _t
+                        try:
+                            _gone, _why = (_t.time() > float(_exp)), "مهلت گذشته"
+                        except (TypeError, ValueError):
+                            _gone, _why = False, ""
+                    if _gone:
+                        self._answer(cbq, f"کارت منقضی شده ({_why[:40]}) — از منو دوباره باز کن")
                         return {"kind": "approval", "rejected": "expired", "id": jid}
-                except (TypeError, ValueError):
-                    pass
                 # (3) destination binding — 5.4 (علاوه بر is_owner از from.id)
                 _chat = ((cbq.get("message") or {}).get("chat") or {}).get("id")
                 _allowed = {str(x) for x in (getattr(self._client, "owner_chat_id", None),
@@ -1712,13 +2144,22 @@ class Center:
         توکنِ HumanAppendGuard (فقط با رازِ env)."""
         data = str(cbq.get("data") or "")
         verb = data.split(":", 1)[0]
+        # 2026-07-29: کارتِ دکترِ اختاپوس callbackِ سه‌تکه دارد (ok|no:gate:mission)؛
+        # اگر قبل از fallbackِ ok/no:<id> جدا نشود، به‌عنوانِ approvalِ بی‌ربط ثبت
+        # می‌شود و دکتر هرگز رأی را نمی‌بیند. پشتِ OCTOPUS_WIRE_DOCTOR_TG؛ fail-soft.
+        try:
+            import doctor_link as _dl
+            if _dl.handle_callback(self, cbq):
+                return {"kind": "callback", "doctor": True}
+        except Exception:  # noqa: BLE001 — link هرگز dispatch را نمی‌کشد
+            pass
         # ۲۰۲۶-۰۷-۲۷ — `ng` و `mr` این‌جا جا افتاده بودند، پس هر پنج دکمهٔ ساخته‌شدهٔ
         # همان روز (سه دکمهٔ مذاکره + دو دکمهٔ آینه) به handlerشان **نمی‌رسیدند** و
         # در شاخهٔ ok/no/later «نادیده» می‌شدند. تستِ آن روز فقط شکلِ صفحه‌کلید را
         # می‌سنجید نه مسیرِ dispatch را — همان «سبز به‌خاطرِ نبودِ خطا».
         # گاردِ `t_every_emitted_callback_verb_is_routed` حالا هر فعلی را که کد
         # تولید می‌کند با همین جدول تطبیق می‌دهد.
-        if verb in ("mn", "lg", "pw", "pwc", "ng", "mr", "qt"):
+        if verb in ("mn", "lg", "pw", "pwc", "ng", "mr", "qt", "iv", "dg", "x"):
             return self._handle_center_callback(cbq, data)
         if verb == "map":
             return self._handle_map_callback(cbq, data)
@@ -1726,6 +2167,11 @@ class Center:
             return self._handle_approval_callback(cbq, data)
         if verb == "ms":
             return self._handle_mission_callback(cbq, data)
+        if verb == "mo":
+            _mo = self._mining_ui()
+            if _mo is not None:
+                return self._handle_mining_callback(cbq, data, _mo)
+            # flag خاموش → سقوط به fallbackِ امروز (mo در _VERDICTS نیست → «نادیده»). parity.
         if verb == "m":
             _m2 = self._menu2()
             if _m2 is not None and _m2.enabled():
@@ -1924,3 +2370,17 @@ if __name__ == "__main__":
     print("tg-center: زنده — kill تمیز: فایلِ _ops/STOP-TG-CENTER را بساز")
     c.run_forever()
     print("tg-center: ایستاد (STOP)")
+
+
+def _introspect(which: str, text: str = "") -> str:
+    """پلِ تنبل به `introspect_cmd`. importِ داخلِ تابع عمدی است: اگر آن ماژول
+    نبود یا شکست، فقط این چهار فرمان یک جملهٔ فارسی می‌دهند و بقیهٔ مرکز
+    دست‌نخورده می‌ماند (هیچ‌وقت importِ سطحِ فایل برای یک قابلیتِ جانبی)."""
+    try:
+        import introspect_cmd as _ic
+        return {"flags": _ic.flags_text,
+                "trace": lambda: _ic.trace_text(text),
+                "scan": _ic.scan_text,
+                "insight": _ic.insight_text}[which]()
+    except Exception as exc:  # noqa: BLE001
+        return f"🚩 خودنگری در دسترس نیست: {type(exc).__name__}: {exc}"
