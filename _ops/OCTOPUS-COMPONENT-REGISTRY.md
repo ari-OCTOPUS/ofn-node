@@ -202,7 +202,7 @@ method: "شواهدمحور: ممیزیِ اتصالاتِ 07-18 (۲۴ اندا�
 
 | ID | جزء | نقش | فلگ (خاموش) | Health | تست |
 |---|---|---|---|---|---|
-| DR1 | `OCTOPUS-DOCTOR/doctor/` ✨ | چشم (`scanner` فقط‌خواندنی) · ذهن (`mind` = ناخودآگاهِ جمعی، رنگ می‌دهد تصمیم نمی‌گیرد) · انگشت (`propose` با ۸ گیتِ در-کد) · مغز (`fugu` با دو سقفِ روزانه: ۶۰ فراخوان + $۲) · صدا (`channel` حالتِ outbox) | مغز: `SAKANA_API_KEY` (ست نشده = fail-closed) | 💤 | `test_doctor.py` ۱۴۸/۱۴۸ سبز |
+| DR1 | `OCTOPUS-DOCTOR/doctor/` ✨ | چشم (`scanner` فقط‌خواندنی) · ذهن (`mind` = ناخودآگاهِ جمعی، رنگ می‌دهد تصمیم نمی‌گیرد) · انگشت (`propose` با ۸ گیتِ در-کد + R-09) · مغز (`fugu` با دو سقفِ روزانه: ۶۰ فراخوان + $۲) · صدا (`channel` حالتِ outbox) | مغز: `SAKANA_API_KEY` **یا** `FUGU_API_KEY` (نامِ مالک؛ از `.env` via `_ops/run_doctor_day.py`) | 🟢 **LIVE** — اولین ask واقعی `fugu·418tok·exit 0` (۰۷-۲۹) | `test_doctor.py` ۱۵۷/۱۵۷ سبز |
 | DR2 | `_ops/os_v1/` ✨ | کتابخانهٔ OS: `honest_metric`/`outcome_ledger`/`efe`/`policy_sampler` (قید حذف می‌کند نه جریمه)/`silence`/`leg_failure`/`mission_runner` (worktree + گیتِ سوئیت + merge فقط با رأی؛ `env_root_key` سوئیت را به درختِ زیرِ آزمون pin می‌کند) | — (library، بدونِ side-effect) | 💤 | `test_os_v1.py` ۷۳/۷۳ سبز |
 | DR3 | `_ops/telegram_center/doctor_link.py` ✨ | پلِ outboxِ دکتر → clientِ مرکز (بدونِ اتصالِ دومِ تلگرام) + جداسازیِ رأیِ سه‌تکهٔ `ok\|no:gate:mission` قبل از fallbackِ approval → `cli.py votes`؛ cursorِ بایتی + dedupِ mission:gate + سقفِ ۲۰/روز | `OCTOPUS_WIRE_DOCTOR_TG` = **1** (رأیِ مالک ۰۷-۲۹، VQ-DR-001) | 🟢 **LIVE** — کارتِ تست `message_id=323` تحویل شد | `test_doctor_link.py` ۱۸/۱۸ سبز؛ ثبت در `run_all.py`؛ تسکِ روزانه `OCTOPUS-doctor-day` ۰۷:۰۰ |
 

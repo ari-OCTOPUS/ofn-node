@@ -26,6 +26,9 @@ from pathlib import Path
 
 BASE = os.environ.get("SAKANA_BASE_URL", "https://api.sakana.ai/v1")
 KEY_ENV = "SAKANA_API_KEY"
+# نامی که مالک برای همین کلید گذاشته (Fugu = Sakana — _ops/debate/client.py:361).
+# .env ارگانیسم هر دو نام را دارد؛ دکتر خودش .env را نمی‌خواند، env را از لانچر می‌گیرد.
+KEY_ENV_ALIAS = "FUGU_API_KEY"
 DAILY_CAP = int(os.environ.get("FUGU_DAILY_CALL_CAP", "60"))
 DAILY_USD_CAP = float(os.environ.get("FUGU_DAILY_USD_CAP", "2.00"))
 CONTEXT_WINDOW = 1_000_000          # تأییدشده: console.sakana.ai/get-started (۲۹ جولای ۲۰۲۶)
@@ -168,7 +171,8 @@ class Fugu:
     # ------------------------------------------------------------------ auth
     @property
     def key(self) -> str | None:
-        k = os.environ.get(KEY_ENV, "").strip()
+        k = (os.environ.get(KEY_ENV, "").strip()
+             or os.environ.get(KEY_ENV_ALIAS, "").strip())
         return k or None
 
     @property
@@ -216,7 +220,8 @@ class Fugu:
 
         if not self.ready:
             return Reply(None, model, effort, ok=False,
-                         reason=f"{KEY_ENV} تنظیم نیست — fail-closed، هیچ حدسی زده نمی‌شود")
+                         reason=f"{KEY_ENV}/{KEY_ENV_ALIAS} تنظیم نیست — "
+                                "fail-closed، هیچ حدسی زده نمی‌شود")
         if self.quota.remaining <= 0:
             return Reply(None, model, effort, ok=False,
                          reason=f"سهمیهٔ روزانه ({self.quota.cap} فراخوان) تمام شد")
