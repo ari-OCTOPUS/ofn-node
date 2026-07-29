@@ -62,6 +62,13 @@ TRACKED_PREFIXES = ("OCTOPUS_", "PAID_", "FUGU_", "TELEGRAM_")
 
 _SECRET_TOKENS = ("SECRET", "TOKEN", "KEY", "PASS", "PWD", "CRED", "AUTH")
 
+# ۲۰۲۶-۰۷-۲۹ — شناسه‌های چت/کاربر شبه‌راز اند و باید مثلِ راز رفتار شوند.
+# چرا اضافه شد: با سیم‌کشیِ snapshot به boot، `TELEGRAM_OWNER_CHAT_ID` مقدارِ
+# واقعی‌اش را رمزنگاری‌نشده در `flags-loaded-*.json` می‌نوشت — هیچ‌کدام از
+# توکن‌های بالا نامش را نمی‌گرفتند. الگوها عمداً **دقیق**اند نه «ID» خالی،
+# وگرنه `OCTOPUS_WIRE_IDENTITY_EQ` هم بی‌دلیل redact می‌شد.
+_ID_TOKENS = ("CHAT_ID", "CHAT_IDS", "OWNER_ID", "OWNER_CHAT", "ALLOWED_IDS")
+
 # `set "X=Y"`  |  `set X=Y`  — هرجای خط (مثلاً بعد از `if not defined X`).
 _RE_QUOTED = re.compile(r'(?:^|\s|@)set\s+"([A-Za-z_][A-Za-z0-9_]*)=([^"]*)"')
 _RE_BARE = re.compile(r'(?:^|\s|@)set\s+([A-Za-z_][A-Za-z0-9_]*)=([^\r\n]*)')
@@ -74,7 +81,7 @@ def is_secret_name(name: str) -> bool:
     تعریفِ متفاوت از «راز» در سیستم وجود نداشته باشد.
     """
     up = str(name or "").upper()
-    return any(tok in up for tok in _SECRET_TOKENS)
+    return any(tok in up for tok in _SECRET_TOKENS + _ID_TOKENS)
 
 
 def _safe(name: str, value):

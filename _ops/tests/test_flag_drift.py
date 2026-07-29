@@ -74,6 +74,27 @@ class SecretTests(unittest.TestCase):
                      "OCTOPUS_WIRE_COHERENCE"):
             self.assertFalse(fd.is_secret_name(name), name)
 
+    def test_chat_ids_are_treated_as_secrets(self):
+        """۲۰۲۶-۰۷-۲۹: snapshotِ boot مقدارِ TELEGRAM_OWNER_CHAT_ID را خام
+        می‌نوشت — هیچ توکنِ رازی نامش را نمی‌گرفت."""
+        for name in ("TELEGRAM_OWNER_CHAT_ID", "TG_CENTER_CHAT_ID",
+                     "TELEGRAM_ALLOWED_CHAT_IDS", "OCTOPUS_OWNER_ID"):
+            self.assertTrue(fd.is_secret_name(name), name)
+        # ولی نه هر چیزی که «ID» دارد — وگرنه فلگ‌های بی‌ضرر هم redact می‌شوند
+        for name in ("OCTOPUS_WIRE_IDENTITY_EQ", "OCTOPUS_WIRE_IDEAS"):
+            self.assertFalse(fd.is_secret_name(name), name)
+
+    def test_snapshot_boot_never_writes_a_chat_id(self):
+        """گاردِ end-to-end: مقدارِ شناسهٔ چت نباید در فایلِ روی دیسک باشد."""
+        tmp = Path(tempfile.mkdtemp())
+        f = tmp / "OCTOPUS-flags.cmd"
+        _write_flags(f, [("OCTOPUS_A", "1")])
+        fd.snapshot_boot("organism", f, tmp, env={
+            "OCTOPUS_A": "1", "TELEGRAM_OWNER_CHAT_ID": "6150431610"})
+        blob = (tmp / "flags-loaded-organism.json").read_text(encoding="utf-8")
+        self.assertNotIn("6150431610", blob)
+        self.assertIn(fd.REDACTED, blob)
+
     def test_secret_values_never_appear_in_snapshot_or_probe(self):
         tmp = Path(tempfile.mkdtemp())
         f, s = tmp / "f.cmd", tmp / "snap.json"

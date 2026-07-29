@@ -18,6 +18,9 @@ node_modules/
 # کافی بود. الگو به‌جای نامِ تک‌فایل، تا سندِ بعدیِ هم‌جنس هم گرفته شود:
 *-tokens.md
 TELEGRAM-SYSTEM-MAP/E-state-config-tokens.md
+# 2026-07-29: عکسِ envِ per-boot ِ flag_drift — حالت runtime، و ممکن است
+# مقدارِ شناسهٔ چت داشته باشد (redact اضافه شد ولی این لایهٔ دومِ دفاع است).
+_ops/state/flags-loaded-*.json
 **/_code/
 .obsidian/workspace*
 *.db
