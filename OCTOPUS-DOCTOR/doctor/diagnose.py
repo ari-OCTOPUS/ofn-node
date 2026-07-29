@@ -13,11 +13,18 @@
 """
 from __future__ import annotations
 
+import os
+
 from dataclasses import dataclass
 from pathlib import Path
 
 from fugu import Fugu, Reply
 from vault import Note, Vault
+
+# ۲۹ جولای، از اولین request واقعی: با effort=max، توکن‌های «فکر» هم از سقفِ
+# completion می‌خورند؛ ۶۰۰۰ توکن یعنی JSONِ پچ وسطِ راه بریده می‌شود
+# (رسید: tokens_out=6000 دقیقاً). سقفِ propose باید جای فکر + کلِ فایل را بدهد.
+PROPOSE_MAX_TOKENS = int(os.environ.get("FUGU_PROPOSE_MAX_TOKENS", "16000"))
 
 SYSTEM = """تو «دکترِ اختاپوس» هستی — متخصصِ یک ارگانیسمِ نرم‌افزاریِ مشخص، نه یک دستیارِ عمومی.
 
@@ -137,7 +144,7 @@ class Doctor:
         user = (f"# هدف\n{goal}\n\n# حافظهٔ من دربارهٔ این اختاپوس\n{ctx}\n\n"
                 "# کار\nیک تغییرِ کوچک، افزایشی و قابلِ‌بازگشت پیشنهاد بده. فقط JSON.")
         rep = self.brain.ask(SYSTEM + "\n\n" + PROPOSE_SYSTEM, user,
-                             tier=tier, max_tokens=6000)
+                             tier=tier, max_tokens=PROPOSE_MAX_TOKENS)
         if not rep.usable:
             return None, [rep.reason], [n.rel for n in notes]
         try:

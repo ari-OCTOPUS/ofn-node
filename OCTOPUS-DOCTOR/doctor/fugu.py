@@ -162,10 +162,15 @@ class Quota:
 
 
 class Fugu:
-    def __init__(self, state_dir: Path | str, timeout: float = 180.0):
+    def __init__(self, state_dir: Path | str, timeout: float | None = None):
         self.state = Path(state_dir)
         self.quota = Quota(self.state)
-        self.timeout = timeout
+        self.timeout = float(timeout if timeout is not None
+                             else os.environ.get("FUGU_HTTP_TIMEOUT_S", "180"))
+        # tier=deep با effort=max چند دقیقه فکر می‌کند؛ سوکتِ ۱۸۰s وسطِ فکر می‌بُرد
+        # (۲۹ جولای: TimeoutError در اولین day --live — همان درسِ «زنجیرهٔ مرگِ
+        # مغزِ پولی» ارگانیسم: بودجهٔ توکن بدونِ بودجهٔ زمان بی‌معناست).
+        self.deep_timeout = float(os.environ.get("FUGU_DEEP_TIMEOUT_S", "600"))
         self._shape_f = self.state / "fugu-api-shape.json"
 
     # ------------------------------------------------------------------ auth
@@ -242,8 +247,9 @@ class Fugu:
                 f"{BASE}/chat/completions", data=body, method="POST",
                 headers={"Authorization": f"Bearer {self.key}",
                          "Content-Type": "application/json"})
+            to_s = max(self.timeout, self.deep_timeout) if tier == "deep" else self.timeout
             try:
-                with urllib.request.urlopen(req, timeout=self.timeout) as r:
+                with urllib.request.urlopen(req, timeout=to_s) as r:
                     data = json.loads(r.read().decode("utf-8"))
             except urllib.error.HTTPError as e:
                 last = f"HTTP {e.code}: {e.reason}"

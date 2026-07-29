@@ -262,19 +262,44 @@ def parse_patchset(text: str) -> PatchSet:
     if not text or not text.strip():
         raise GateError("پاسخِ خالی از مغز")
     raw = text.strip()
-    m = _FENCE.search(raw)
-    if m:
-        raw = m.group(1).strip()
-    else:
-        i, j = raw.find("{"), raw.rfind("}")
-        if i >= 0 and j > i:
-            raw = raw[i:j + 1]
-    try:
-        d = json.loads(raw)
-    except ValueError as e:
-        raise GateError(f"JSON معتبر نیست: {e}") from e
-    if not isinstance(d, dict):
-        raise GateError("پاسخ آبجکت نیست")
+    # ۲۹ جولای، از اولین request واقعی: مدل گاهی JSON را لای متن/فنسِ ناقص می‌پیچد و
+    # «اولین { تا آخرین }» بازهٔ نامعتبر می‌گیرد. همان درسِ extract_json ارگانیسم
+    # (392addf «extract_json robust»): چند کاندید بساز — هر فنس + هر بازهٔ آکولادِ
+    # متوازن (با احترام به رشته‌ها) — و اولین دیکتِ معتبرِ مأموریت‌نما را بردار.
+    candidates = [m.group(1).strip() for m in _FENCE.finditer(raw)]
+    for i in [k for k, ch in enumerate(raw) if ch == "{"][:20]:
+        depth, in_str, esc = 0, False, False
+        for j in range(i, len(raw)):
+            ch = raw[j]
+            if in_str:
+                if esc:
+                    esc = False
+                elif ch == "\\":
+                    esc = True
+                elif ch == '"':
+                    in_str = False
+                continue
+            if ch == '"':
+                in_str = True
+            elif ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    candidates.append(raw[i:j + 1])
+                    break
+    d, last_err = None, "پاسخ هیچ بلوکِ JSON نداشت"
+    for cand in sorted(set(candidates), key=len, reverse=True):
+        try:
+            obj = json.loads(cand)
+        except ValueError as e:
+            last_err = str(e)
+            continue
+        if isinstance(obj, dict) and ("patches" in obj or "mission_id" in obj):
+            d = obj
+            break
+    if d is None:
+        raise GateError(f"JSON معتبر نیست: {last_err}")
     ps = PatchSet(
         mission_id=str(d.get("mission_id", "")).strip(),
         title=str(d.get("title", "")).strip(),

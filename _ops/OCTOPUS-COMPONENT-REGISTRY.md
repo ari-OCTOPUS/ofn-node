@@ -207,3 +207,12 @@ method: "شواهدمحور: ممیزیِ اتصالاتِ 07-18 (۲۴ اندا�
 | DR3 | `_ops/telegram_center/doctor_link.py` ✨ | پلِ outboxِ دکتر → clientِ مرکز (بدونِ اتصالِ دومِ تلگرام) + جداسازیِ رأیِ سه‌تکهٔ `ok\|no:gate:mission` قبل از fallbackِ approval → `cli.py votes`؛ cursorِ بایتی + dedupِ mission:gate + سقفِ ۲۰/روز | `OCTOPUS_WIRE_DOCTOR_TG` = **1** (رأیِ مالک ۰۷-۲۹، VQ-DR-001) | 🟢 **LIVE** — کارتِ تست `message_id=323` تحویل شد | `test_doctor_link.py` ۱۸/۱۸ سبز؛ ثبت در `run_all.py`؛ تسکِ روزانه `OCTOPUS-doctor-day` ۰۷:۰۰ |
 
 خطِ قرمزِ دکتر (در کد، با تست): در `_ops` نمی‌نویسد · پچ اعمال نمی‌کند · merge سه‌قفله (رأیِ ✅ دیف + `--apply` + `OCTOPUS_DOCTOR_MAY_MERGE=1` که **تنظیم نشده**). فعال‌سازیِ پل: `set OCTOPUS_WIRE_DOCTOR_TG=1` در flags.cmd + ری‌استارتِ TG-center ♻️. پلهٔ بعد (رأیِ مالک): کلیدِ Sakana برای پله‌های ۱–۲ (ask/diagnose/propose)، و `day --live` فقط زیرِ چشمِ مالک.
+
+## 🌐 SPLIT + شهود — درون/بیرون و اندامِ حسیِ نو (نو ۲۰۲۶-۰۷-۲۹)
+
+رأیِ مالک: هسته بینِ دو بات تقسیم شود — باتِ ۱ «درون» (خودترمیمی/سلامت) و باتِ ۲ «بیرون» (رابطِ شخصی). طرح: `06 - Architecture Maps/TG-SPLIT-INNER-OUTER-2026-07-29.md`.
+
+| ID | جزء | نقش | فلگ (خاموش) | Health | تست |
+|---|---|---|---|---|---|
+| SP1 | `_ops/telegram_center/surface-routing.json` ✨ | نگاشتِ جریان→بات/تاپیک — **مالِ مالک، قابلِ ویرایشِ دستی**؛ current=واقعیتِ امروز، target=طرحِ درون/بیرون | `OCTOPUS_TG_SPLIT_V1` (مصرف‌کننده هنوز ساخته نشده) | 💤 config-only | — |
+| INT1 | `_ops/os_v1/schumann_rx.py` + `OCTOPUS-DOCTOR/40-اندام‌ها/ORG-08-شهود.md` ✨ | اندامِ شهود (شومان): معادلات از امروز در context ِ مغز؛ فیدِ حسگر تا سخت‌افزار **[UNKNOWN] — هیچ دادهٔ ساختگی**؛ پروتکلِ ۳۰ روزِ منفعلِ MAG-09 بعد از ساخت | — (تا حسگر) | 🟡 ریاضی+کد سبز، حسگر غایب | `test_os_v1.py` (schumann_rx داخلِ سوئیت) |
