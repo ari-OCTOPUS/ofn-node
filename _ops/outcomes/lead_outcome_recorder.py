@@ -15,6 +15,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -33,6 +34,32 @@ def flag_on() -> bool:
 def _sha(obj) -> str:
     return hashlib.sha256(json.dumps(obj, sort_keys=True, ensure_ascii=False,
                                      separators=(",", ":")).encode("utf-8")).hexdigest()
+
+
+_MEM_TOKEN_RE = re.compile(r"(\w+)=(\S+)")
+_ACTION_LADDER = ("skip", "save", "draft")
+
+
+def _memory_prior(recs: list, category: str) -> dict:
+    """priorِ قطعی از خاطره‌های بازیابی‌شده — فقط توکن‌های قابل‌پارسِ خودِ سیستم
+    (`category=… verdict=…`)، هرگز تفسیرِ آزادِ متن. حداکثر یک پلهٔ تغییر.
+    خروجی: {"demote","promote","evidence"} — evidence = memory_idها برای رسید."""
+    demote, promote, evidence = False, False, []
+    for r in recs or []:
+        try:
+            toks = dict(_MEM_TOKEN_RE.findall(str(r.get("content") or "")))
+            if toks.get("category") != str(category):
+                continue
+            verdict = str(toks.get("verdict") or "").lower()
+            if verdict == "rejected":
+                demote = True
+                evidence.append(str(r.get("memory_id")))
+            elif verdict in ("won", "accepted") and str(r.get("trust")) == "OWNER_CONFIRMED":
+                promote = True
+                evidence.append(str(r.get("memory_id")))
+        except Exception:  # noqa: BLE001 — یک خاطرهٔ بدشکل prior را نمی‌کشد
+            continue
+    return {"demote": demote, "promote": promote, "evidence": evidence[:6]}
 
 
 def record_lead_decision(lead: dict, outcome_store, receipt_store, memory_store=None,
@@ -59,29 +86,52 @@ def record_lead_decision(lead: dict, outcome_store, receipt_store, memory_store=
     value_claim = float(total[1]) if isinstance(total, (list, tuple)) and len(total) == 2 else 0.0
     proposal_id = "P-" + _sha({"c": corr, "l": lead_id})[:12]
 
-    # (2) بازیابیِ حافظهٔ مرتبط (اختیاری) → memories_used (تولیدکنندهٔ واقعیِ receipt)
-    memories_used = []
+    # (2) بازیابیِ حافظه **قبل از نهایی‌شدنِ تصمیم** — W2 (2026-07-29). تا امروز
+    # search بعد از تثبیتِ action اجرا می‌شد؛ رسیدها memories_used داشتند ولی هیچ
+    # خاطره‌ای هرگز تصمیم را عوض نمی‌کرد — حافظه «استناد» می‌شد، «مصرف» نمی‌شد
+    # (اندازه‌گیریِ ۰۷-۲۹: ۱ استناد از ۳۲ رسید، صفر اثر). جست‌وجوی دوم روی امضای
+    # قطعیِ دسته لازم است چون توصیفِ خامِ لید به‌ندرت با متنِ
+    # «lead-decision category=…» در FTS مطابقت می‌کند.
+    memories_used, recs = [], []
     if memory_store is not None:
         try:
-            recs = memory_store.search(str(lead.get("description", "")), namespace="semantic", k=3)
+            recs = list(memory_store.search(str(lead.get("description", "")),
+                                            namespace="semantic", k=3))
+            seen_ids = {str(r.get("memory_id")) for r in recs}
+            for r in memory_store.search(f"lead-decision category={scored.category}",
+                                         namespace="semantic", k=3):
+                if str(r.get("memory_id")) not in seen_ids:
+                    recs.append(r)
             memories_used = memory_store.as_memories_used(recs)
         except Exception:  # noqa: BLE001 — بازیابی fail-soft
-            memories_used = []
+            memories_used, recs = [], []
+    prior = _memory_prior(recs, scored.category)
+    action = str(scored.action)
+    if prior["demote"] and action == "draft":
+        action = "save"     # سابقهٔ ردشده در همین دسته → یک پله محافظه‌کارتر
+    elif prior["promote"] and action == "save":
+        action = "draft"    # بردِ تأییدشدهٔ مالک در همین دسته → یک پله جسورتر
+    # hard-skip ِ scorer هرگز با حافظه لغو نمی‌شود (skip → skip).
 
     # (3) Decision Receipt (immutable) — تصمیمِ «کوت این لید» با reason_codes، نه CoT
     # receipt_id به هویتِ تصمیم (corr+mission+action) پین می‌شود → replay = همان رسید (idempotent)،
     # بی‌آنکه created_atِ صادقانه (ساعتِ واقعی) دستکاری شود.
-    pinned_id = "dr_" + _sha({"corr": corr, "mis": mission_id, "act": str(scored.action)})[:16]
+    pinned_id = "dr_" + _sha({"corr": corr, "mis": mission_id, "act": action})[:16]
+    reason_codes = [f"SCORE_{scored.score}", f"CAT_{str(scored.category).upper()[:24]}"]
+    if action != str(scored.action):
+        # ردِ ممیزی: تصمیم از حافظه اثر گرفت — کدام جهت و با استناد به چند خاطره.
+        kind = "MEM_DEMOTE" if prior["demote"] else "MEM_PROMOTE"
+        reason_codes.append(f"{kind}_{len(prior['evidence'])}")
     receipt = {
         "receipt_id": pinned_id,
         "trace_id": corr, "mission_id": mission_id, "correlation_id": corr,
         "objective": "quote painting lead (record-only, no send)"[:290],
         "alternatives": ["draft", "skip"],
-        "selected_alternative": ("draft" if scored.action == "draft" else scored.action)[:190],
-        "reason_codes": [f"SCORE_{scored.score}", f"CAT_{str(scored.category).upper()[:24]}"],
+        "selected_alternative": action[:190],
+        "reason_codes": reason_codes,
         "assumptions": ["size/scope from description"],
         "memories_used": memories_used,
-        "predicted_outcome": {"value_aud_claimed": value_claim, "action": scored.action},
+        "predicted_outcome": {"value_aud_claimed": value_claim, "action": action},
         "effect_class": "E1",   # ثبتِ داخلیِ پایدار (no send)
     }
     rid = receipt_store.record(receipt)
@@ -103,6 +153,10 @@ def record_lead_decision(lead: dict, outcome_store, receipt_store, memory_store=
             "memories_used": len(memories_used),
             # W1: امضای قطعیِ تصمیم (PII-free) تا خاطرهٔ یادگرفته **قابلِ بازیابی** باشد —
             # search روی متنِ خاطره کار می‌کند و شناسهٔ تنها هرگز با توصیفِ لیدِ بعدی
-            # match نمی‌شود. category/score/action خروجیِ قطعیِ scorer است، نه متنِ خامِ لید.
+            # match نمی‌شود. category/score خروجیِ قطعیِ scorer است، نه متنِ خامِ لید.
             "category": str(scored.category), "score": scored.score,
-            "action": str(scored.action)}
+            # action = تصمیمِ نهایی (پس از priorِ حافظه)؛ action_pure = خروجیِ خالصِ
+            # scorer — تفاوتِ این دو یعنی حافظه واقعاً مصرف شد (W2).
+            "action": action, "action_pure": str(scored.action),
+            "memory_prior": {k: prior[k] for k in ("demote", "promote")} if
+            action != str(scored.action) else None}

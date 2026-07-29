@@ -116,6 +116,66 @@ def t_d_idempotent_replay():
         r.close()
 
 
+def t_f_memory_prior_changes_action():
+    """W2 (2026-07-29): همان لید، یک‌بار بی‌حافظه و یک‌بار با سابقهٔ ردشدهٔ همان
+    دسته — اگر action عوض نشود، حافظه تزئینی است (تستِ کمینهٔ پیشنهادیِ خودِ
+    سیستم در WS-ALL-cognitive-core §۵۱: استناد ≠ مصرف)."""
+    with _On(), _tmp() as td:
+        o, r = _stores(td)
+        base = lor.record_lead_decision(_LEAD, o, r, correlation_id="base")
+        assert base["action"] == base["action_pure"] == "draft", \
+            f"فیکسچرِ strata باید بدونِ حافظه draft بدهد (got {base['action_pure']})"
+        assert base["memory_prior"] is None
+        o.close()
+        r.close()
+    with _On(), _tmp() as td:
+        os.environ[mg.FLAG] = "1"
+        try:
+            mem = ms.MemoryStore(path=Path(td) / "m.db")
+            mg.MemoryGate(mem).submit({
+                "namespace": "semantic", "salience": 0.9, "mkey": "prior-1",
+                "content": (f"lead-decision category={base['category']} score=80 "
+                            f"action=draft verdict=rejected value_aud=0")})
+            o, r = _stores(td)
+            out = lor.record_lead_decision(_LEAD, o, r, memory_store=mem)
+            assert out["action_pure"] == "draft" and out["action"] == "save", \
+                f"سابقهٔ rejected باید draft→save کند (got {out['action']})"
+            rec = r.resolve(out["receipt_id"])
+            assert any(c.startswith("MEM_DEMOTE") for c in rec["reason_codes"]), \
+                "اثرِ حافظه باید در reason_codes ممیزی‌پذیر باشد"
+            assert rec["selected_alternative"] == "save"
+            mem.close()
+            o.close()
+            r.close()
+        finally:
+            os.environ.pop(mg.FLAG, None)
+
+
+def t_g_memory_prior_never_overrides_hard_skip():
+    """priorِ حافظه فقط یک پله و هرگز روی skip — hard-filterهای scorer مقدس‌اند."""
+    junk = {"id": "LD-skip-1", "source": "test",
+            "description": "car respray automotive paint job"}
+    with _On(), _tmp() as td:
+        os.environ[mg.FLAG] = "1"
+        try:
+            mem = ms.MemoryStore(path=Path(td) / "m.db")
+            o, r = _stores(td)
+            base = lor.record_lead_decision(junk, o, r, memory_store=mem)
+            if base["action_pure"] == "skip":       # فیکسچر واقعاً hard-skip خورد
+                mg.MemoryGate(mem).submit({
+                    "namespace": "semantic", "salience": 0.9, "mkey": "prior-2",
+                    "content": (f"lead-decision category={base['category']} "
+                                f"action=draft verdict=won value_aud=100")})
+                out = lor.record_lead_decision(junk, o, r, memory_store=mem,
+                                               correlation_id="c2")
+                assert out["action"] == "skip", "حافظه نباید skip را لغو کند"
+            mem.close()
+            o.close()
+            r.close()
+        finally:
+            os.environ.pop(mg.FLAG, None)
+
+
 def t_e_no_send_no_money_structural():
     import ast
     forbidden = {"requests", "socket", "urllib", "http", "telegram", "tg_api",

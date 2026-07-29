@@ -64,9 +64,24 @@ for p in ROOT.rglob("*"):
         basenames.add(norm(p.name))
 
 pat = re.compile(r"\[\[([^\]\|#\^]+?)(?:[#\^][^\]\|]*)?(?:\|[^\]]*)?\]\]")
+
+# 2026-07-29: نحوِ wikilink داخلِ بک‌تیک **لینک نیست** — ابسیدین آن را کد رندر
+# می‌کند. تا امروز این validator روی متنِ خام می‌دوید، پس هر سندی که نحو را نقل
+# می‌کرد (یا JSONای که [[ داشت، مثل {"inline_keyboard":[[{...}]]}) قرمزِ کاذب
+# می‌گرفت. اول بلوکِ fenced، بعد code spanِ درون‌خطی حذف می‌شود.
+_FENCED = re.compile(r"^(```|~~~).*?^\1", re.S | re.M)
+_INLINE = re.compile(r"`[^`\n]*`")
+
+
+def strip_code(text: str) -> str:
+    """متن بدونِ بلوکِ fenced و code spanِ درون‌خطی — همان چیزی که ابسیدین
+    به‌عنوان لینک می‌بیند. ترتیب مهم است: اول fenced، بعد inline."""
+    return _INLINE.sub("", _FENCED.sub("", text))
+
+
 broken = []
 for p in md_files:
-    text = p.read_text(encoding="utf-8", errors="replace")
+    text = strip_code(p.read_text(encoding="utf-8", errors="replace"))
     for m in pat.finditer(text):
         target = m.group(1).strip().rstrip("\\")  # \| جدول‌ها
         if not target or target in IGNORE_TARGETS:

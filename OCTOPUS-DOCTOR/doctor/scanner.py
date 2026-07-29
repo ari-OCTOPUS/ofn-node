@@ -96,10 +96,22 @@ def scan(ops: str | Path, run_suite: bool = False) -> dict:
     M["delta_self_raw"] = _m("delta_self_raw", raw, "🔴" if (raw or 0) < 0 else "🟢",
                              f"S_blind={ds.get('S_blind')} S_informed={ds.get('S_informed')}")
     if raw is not None and raw < 0:
+        # اتهامِ clamp فقط وقتی معتبر است که عددِ منتشرشده با خام فرق کند؛
+        # اسکنِ 07-29 با raw==live هم همین قالب را چاپ می‌کرد و فیکسِ 07-25
+        # (publish_signed) را کتمان می‌کرد — یافتهٔ درست، تشخیصِ غلط.
+        live = ds.get("delta_self_live")
+        try:
+            clamped = live is not None and float(live) != float(raw)
+        except (TypeError, ValueError):
+            clamped = False
+        body = (f"`delta_self_raw={raw}` ولی `delta_self_live={live}` منتشر "
+                f"می‌شود — clamp، خلافِ [[R-02]]." if clamped else
+                f"`delta_self_raw={raw}` و همان عدد صادقانه منتشر می‌شود "
+                f"(R-02 ✅)؛ مسئله خودِ منفی‌بودن است — مدلِ خودی از پیش‌بینِ "
+                f"کور بدتر پیش‌بینی می‌کند.")
         out["findings"].append({
             "id": "F-AUTO-DELTASELF", "title": "خودشناسیِ منفی", "status": "🔴",
-            "body": f"`delta_self_raw={raw}` ولی `delta_self_live="
-                    f"{ds.get('delta_self_live')}` منتشر می‌شود — clamp، خلافِ [[R-02]]."})
+            "body": body})
 
     st = _j(S / "cortex" / "stress-latest.json")
     M["organism_stress"] = _m("organism_stress", st.get("organism_stress"),
