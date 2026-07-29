@@ -318,6 +318,21 @@ def t_flag_off_render_tokenless():
                 assert cd.count(":") == 2, f"فلگ خاموش نباید توکن بچسباند: {cd}"
 
 
+def t_a9_2_worst_case_callback_fits_64_bytes():
+    """A9-2: بدترین حالتِ callback_data — jidِ ۴۸-کاراکتری (سقفِ render.py) + token —
+    باید ≤۶۴B بماند. تست‌های roundtripِ بالا idِ کوتاه دارند و این سقف را لمس نمی‌کنند؛
+    با _TOKEN_LEN=20 این ۷۵B می‌شد و تلگرام کلِ کارت را رد می‌کرد."""
+    _flag_on()
+    try:
+        jid = "j" * 48                       # سقفِ jid در render (jid[:48])
+        tok = cbtok.mint(jid, "ok", _OWNER, "", "")
+        assert tok, "با راز باید توکن ساخته شود"
+        worst = f"ap:ok:{jid}:{tok}"          # ap:ok:(۶)+jid(۴۸)+:(۱)+token
+        assert len(worst.encode("utf-8")) <= 64, f"callback_data {len(worst)}B > 64B"
+    finally:
+        _clear()
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)
