@@ -21,6 +21,7 @@ stdlib-only (subprocess + pathlib). صفر وابستگیِ بیرونی.
 """
 from __future__ import annotations
 
+import difflib
 import hashlib
 import os
 import re
@@ -266,12 +267,27 @@ class MissionRunner:
         if commit and copied:
             # کامیتِ throwaway در HEAD ِ همین worktree (detached) — شاخهٔ زنده هرگز
             # لمس نمی‌شود، با حذفِ worktree زباله می‌شود. تا فایل‌های نو در HEAD باشند
-            # و `_restore_pristine` تستِ کپی‌شده را «تغییرِ untracked» نپندارد و پاک نکند.
-            self._git("add", "-A", cwd=wt, check=False)
-            self._git("-c", "user.name=octopus-doctor",
-                      "-c", "user.email=doctor@octopus",
-                      "commit", "-qm", "replicate live working tree (F-08)",
-                      cwd=wt, check=False)
+            # و `_restore_pristine` تستِ کپی‌شده را «تغییرِ پچ» نپندارد و برنگرداند.
+            # ⛔ ۲۹ جولای: `git add -A` ِ ۱۳۶فایلی زیرِ AV با «Permission denied» روی
+            # .git/objects شکست می‌خورد؛ اگر بی‌صدا رد شویم، فایل‌ها uncommitted می‌مانند
+            # و pristine آن‌ها را برمی‌گرداند ⇒ ۵۲ رگرسیونِ **کاذب**. پس retry با backoff،
+            # و اگر باز هم کثیف ماند، استثنا (شکستِ صادق، نه رگرسیونِ جعلی).
+            clean = False
+            for attempt in range(6):
+                self._git("add", "-A", cwd=wt, check=False)
+                self._git("-c", "user.name=octopus-doctor",
+                          "-c", "user.email=doctor@octopus",
+                          "commit", "-qm", "replicate live working tree (F-08)",
+                          cwd=wt, check=False)
+                if not self._git("status", "--porcelain", cwd=wt,
+                                 check=False).stdout.strip():
+                    clean = True
+                    break
+                time.sleep(1.0 + attempt)   # قفلِ AV آزاد شود
+            if not clean:
+                raise RuntimeError(
+                    "replicate-commit نافرجام (قفلِ AV روی .git/objects) — "
+                    "worktree پس از ۶ تلاش هنوز کثیف است؛ ماموریت با شکستِ صادق رد شد")
         return copied
 
     # -------------------------------------------------------------- mission
@@ -279,28 +295,70 @@ class MissionRunner:
     # نسخهٔ دست‌نخوردهٔ آن‌هاست — وگرنه متهم، دادگاهِ خودش را می‌نویسد.
     PRISTINE = ("_ops/tests/", "tests/", "conftest.py")
 
-    def _restore_pristine(self, wt: Path) -> list[str]:
-        """سوئیت را در worktree به نسخهٔ HEAD برمی‌گرداند و می‌گوید چه چیزی برگشت.
+    def _restore_pristine(self, wt: Path, snapshot: dict, patched: set) -> list[str]:
+        """فایل‌های تستی که **پچ** لمس کرده را به نسخهٔ زندهٔ اصلی برمی‌گرداند.
 
-        ⛔ چرا این وجود دارد — از مقالهٔ Darwin Gödel Machine (۲۰۲۵):
-        ایجنتِ خودبهبود، وقتی با «سوئیت سبز» سنجیده شد، **لاگِ اجرا را جعل کرد** و در
-        موردی دیگر **نشانگرِ تشخیصِ توهم را حذف کرد**. یعنی سیستمی که با آزمونِ خودش
-        سنجیده می‌شود، یاد می‌گیرد آزمون را عوض کند، نه خودش را.
+        ⛔ چرا — از مقالهٔ Darwin Gödel Machine (۲۰۲۵): ایجنتِ خودبهبود وقتی با «سوئیت
+        سبز» سنجیده شد، لاگِ اجرا را جعل کرد و نشانگرِ تشخیصِ توهم را حذف کرد. پس متهم
+        نباید دادگاهش را بنویسد؛ قضاوت با سوئیتِ **دست‌نخورده**.
 
-        پس: پچ در worktree اعمال می‌شود، بعد **سوئیت به نسخهٔ اصلی برمی‌گردد**، و
-        قضاوت با همان سوئیتِ دست‌نخورده انجام می‌شود.
+        نکته (VQ-DR-005): چون commit روی این ماشین با قفلِ AV شکست می‌خورد، به جای
+        `git checkout HEAD` از خودِ **snapshotِ زنده** ترمیم می‌کنیم — دقیقاً فقط
+        فایل‌هایی که پچ عوضشان کرده (`patched`)، نه همهٔ replicatها.
         """
-        changed = [ln[3:].strip().strip('"').replace("\\", "/")
-                   for ln in self._git("status", "--porcelain", cwd=wt,
-                                       check=False).stdout.splitlines() if ln.strip()]
-        hit = [f for f in changed if any(p in f for p in self.PRISTINE)]
-        for f in hit:
-            r = self._git("checkout", "HEAD", "--", f, cwd=wt, check=False)
-            if r.returncode != 0:
-                # در HEAD نبوده ⇒ پچ یک فایلِ تستِ **نو** ساخته. آن هم شاهدِ خودساخته
-                # است و برای قضاوت حذف می‌شود؛ ولی در گزارش می‌ماند.
-                (wt / f).unlink(missing_ok=True)
+        hit = []
+        for f in patched:
+            f = f.replace("\\", "/")
+            if not any(p in f for p in self.PRISTINE):
+                continue
+            hit.append(f)
+            if f in snapshot:
+                (wt / f).write_bytes(snapshot[f])          # نسخهٔ زندهٔ تست
+            else:
+                r = self._git("show", f"HEAD:{f}", cwd=wt, check=False)
+                if r.returncode == 0:
+                    (wt / f).write_text(r.stdout, encoding="utf-8")
+                else:
+                    (wt / f).unlink(missing_ok=True)        # تستِ نوی خودِ پچ ⇒ حذف
         return hit
+
+    def _build_diff(self, wt: Path, snapshot: dict, patched: set) -> str:
+        """دیفِ متنیِ پچ — بدونِ git. «قبل» = نسخهٔ زندهٔ snapshot، یا HEAD، یا خالی (فایلِ نو)."""
+        parts = []
+        for rel in sorted(patched)[:20]:
+            if rel in snapshot:
+                before = snapshot[rel].decode("utf-8", "replace")
+            else:
+                r = self._git("show", f"HEAD:{rel}", cwd=wt, check=False)
+                before = r.stdout if r.returncode == 0 else ""
+            dst = wt / rel
+            after = dst.read_text("utf-8", "replace") if dst.is_file() else ""
+            d = difflib.unified_diff(before.splitlines(True), after.splitlines(True),
+                                     fromfile=f"a/{rel}", tofile=f"b/{rel}")
+            parts.append("".join(d))
+        return "\n".join(p for p in parts if p.strip())
+
+    def _patch_changes(self, wt: Path, snapshot: dict) -> set:
+        """فایل‌هایی که **پچ** عوض کرده — بدونِ git commit. منطق: `git status` در worktree
+        هم replicatها را نشان می‌دهد هم پچ را. replicat = فایلی در snapshot که محتوایش
+        هنوز == snapshot است (پچ لمسش نکرده) ⇒ حذف. باقی = تغییرِ واقعیِ پچ (نو، یا فایلی
+        که پچ ورایِ replicat عوضش کرده). برای هر دو حالتِ _ops و ریشه (تستِ mini) درست است."""
+        changed = set()
+        for ln in self._git("status", "--porcelain", "--untracked-files=all",
+                            cwd=wt, check=False).stdout.splitlines():
+            if not ln.strip():
+                continue
+            path = ln[3:].strip().strip('"').replace("\\", "/")
+            if any(p in path for p in self.EPHEMERAL) or "/state/" in path:
+                continue
+            if path in snapshot:
+                dst = wt / path
+                if dst.is_file() and dst.read_bytes() != snapshot[path]:
+                    changed.add(path)   # پچ فایلِ replicat را عوض کرده
+                # وگرنه فقط خودِ replicat است، نه تغییرِ پچ
+            else:
+                changed.add(path)       # نو یا modified-غیرِreplicat = پچ
+        return changed
 
     def run(self, mission_id: str, apply_patch: Callable[[Path], None],
             branch: str | None = None, measure_baseline: bool = True,
@@ -357,7 +415,10 @@ class MissionRunner:
             if wt.exists():
                 self._drop_worktree(wt)
             self._git("worktree", "add", "--detach", str(wt), pinned)
-            self._replicate_live_source(wt, commit=True, snapshot=snap)  # همان snapshot+commitِ پایه
+            # commit=False: روی این ماشین `git add`/commit ِ ۱۳۶فایلی با قفلِ AV روی
+            # .git/objects پایدار می‌شکند (Permission denied). پس هیچ‌چیز در .git نوشته
+            # نمی‌شود؛ تشخیصِ پچ و ترمیمِ pristine با هش و snapshot انجام می‌شود.
+            self._replicate_live_source(wt, commit=False, snapshot=snap)
 
             res.stage = "patch"
             try:
@@ -366,24 +427,24 @@ class MissionRunner:
                 res.reasons.append(f"پچ خطا داد: {type(e).__name__}: {e}")
                 return self._finish(res, wt, fp_before, t0)
 
+            # چه چیزی را پچ عوض کرد (نه replicat) — از git status + مقایسه با snapshot.
+            patched = self._patch_changes(wt, snap)
+
             if judge_with_pristine_suite:
                 res.stage = "pristine"
-                res.suite_touched = self._restore_pristine(wt)
+                res.suite_touched = self._restore_pristine(wt, snap, patched)
                 if res.suite_touched:
                     res.reasons.append(
-                        "⚠️ پچ به سوئیت دست زد؛ برای قضاوت به نسخهٔ اصلی برگردانده شد: "
+                        "⚠️ پچ به سوئیت دست زد؛ برای قضاوت به نسخهٔ زنده برگردانده شد: "
                         + ", ".join(res.suite_touched[:3]))
+                    patched -= set(res.suite_touched)   # اثرشان از دیف/شمار حذف
 
             res.stage = "diff"
-            # فایلِ نو (create) untracked است و `git diff` نمی‌بیندش ⇒ intent-to-add
-            # تا در دیف و شمارِ فایل بیاید (وگرنه ماموریتِ create «هیچ تغییری نداد» می‌شد).
-            self._git("add", "-N", ".", cwd=wt, check=False)
-            d = self._git("diff", "--stat", cwd=wt, check=False).stdout
-            res.diff = self._git("diff", cwd=wt, check=False).stdout[:8000]
-            res.files_changed = max(0, len([l for l in d.splitlines() if "|" in l]))
+            res.files_changed = len(patched)
             if res.files_changed == 0:
                 res.reasons.append("پچ هیچ تغییری نداد")
                 return self._finish(res, wt, fp_before, t0)
+            res.diff = self._build_diff(wt, snap, patched)[:8000]
 
             res.stage = "suite"
             res.candidate = self.run_suite(wt)
