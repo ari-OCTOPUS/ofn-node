@@ -79,9 +79,15 @@ def t_similar_keys_populated():
     r2 = wiring.canonical_consolidation(
         stack, acquisition_data={"rev": 20.0}, latent_space=ls)
     assert r2 is not None
-    # similar_keys ممکن None باشد یا list — نباید crash کند
-    if r2.similar_keys is not None:
-        assert isinstance(r2.similar_keys, list)
+    # ۲۰۲۶-۰۷-۳۰ — این assert قبلاً «ممکن None باشد یا list» بود، یعنی چه بازیابی
+    # کار می‌کرد چه نمی‌کرد سبز می‌شد. باگِ واقعی همان‌جا زنده ماند: `nearest(cycle_key)`
+    # قبل از embedِ همان کلید صدا زده می‌شد و برای کلیدِ غایب [] می‌داد ⇒ similar_keys
+    # همیشه خالی. حالا **محتوا** سنجیده می‌شود، نه صرفاً نوع.
+    assert isinstance(r2.similar_keys, list), r2.similar_keys
+    assert r2.similar_keys, "بازیابی باید سیکلِ قبلی را پیدا کند (نه لیستِ خالی)"
+    assert any("cycle-1" in k for k in r2.similar_keys),         f"cycle-1 باید در similar_keys باشد: {r2.similar_keys}"
+    # خودارجاعی ممنوع: کلیدهای خودِ همین سیکل نباید برگردند
+    assert not any(k == "cycle-2" or k.startswith("cycle-2:") for k in r2.similar_keys),         f"similar_keys نباید کلیدِ خودِ سیکل را داشته باشد: {r2.similar_keys}"
 
 
 def t_school_awareness_encoded():

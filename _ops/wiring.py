@@ -1340,9 +1340,20 @@ def _enrich_with_latent(result, sources, school_bridge, latent_space) -> None:
     if encoded_keys:
         integrated = latent_space.integrate(encoded_keys)
         result.latent_vector = integrated.tolist()
-        # retrieval: nearest از cycles قبلی
-        nn = latent_space.nearest(cycle_key, top_k=5)
-        result.similar_keys = [k for k, _ in nn if k != cycle_key]
+        # retrieval: نزدیک‌ترین سیکل‌های *گذشته* به بردارِ همین سیکل.
+        # ۲۰۲۶-۰۷-۳۰ — پیش‌تر `nearest(cycle_key)` بود: کلیدِ خودِ سیکل را lookup
+        # می‌کرد، ولی `nearest` برای کلیدِ غایب [] می‌دهد (latent_space.py:98-99) و
+        # این خط **قبل از** embedِ همان کلید (پایین) اجرا می‌شود ⇒ روی هر سیکلِ تازه
+        # similar_keys همیشه خالی بود. غیرخالی‌بودنش فقط artifactِ باگِ پین‌شدنِ
+        # شمارنده بود (کلیدِ تکراری از عمرِ قبلیِ پروسه)، نه بازیابیِ واقعی.
+        # `similar(integrated)` مستقیم با بردار کار می‌کند ⇒ بی‌وابستگی به ترتیب.
+        # کلیدهای خودِ همین سیکل فیلتر می‌شوند (با تک-منبع، `cycle-N:src` بایت‌به‌بایت
+        # همان integrated است و بدونِ فیلتر خودارجاعی می‌شد)؛ top_k جبران می‌شود.
+        _own = len(encoded_keys) + 1
+        nn = latent_space.similar(integrated, top_k=5 + _own)
+        result.similar_keys = [k for k, _ in nn
+                               if k != cycle_key
+                               and not k.startswith(cycle_key + ":")][:5]
         # خود cycle را هم embed کن
         latent_space.embed(cycle_key, integrated, layer="consolidation", source="cycle")
         latent_space.store()
