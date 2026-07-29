@@ -8,7 +8,7 @@ risk_level: critical
 autonomy_level: read-only
 tags: [ai, automation, telegram, meta-system]
 created: 2026-07-03
-updated: 2026-07-26
+updated: 2026-07-29
 ---
 
 # پروژه: architect
@@ -28,6 +28,7 @@ updated: 2026-07-26
 
 ## Active Context
 
+- تغییرات اخیر: 2026-07-29 (agent، Fable 5 — «اسکنِ کاملِ گروهِ تلگرام») — **حقیقتِ پایهٔ سطحِ تلگرام با ۹ مأمورِ read-only ساخته شد + ۷+۱ مگاپرامپتِ اسکنِ بیرونی به مالک تحویل شد؛ نتایج جلسهٔ بعد برمی‌گردد.** چکیده + جدولِ ورودِ نتایج: [[../../OCTOPUS-DOCTOR/50-اسکن‌ها/TG-GROUP-SCAN-PACKAGE-2026-07-29|TG-SCAN-PACKAGE]]. داغ‌ترین‌ها: فقط ۴ از ۱۰ پا OS زندهٔ واقعی دارند (lead/accounting/system/studio_pf)؛ تنها حلقهٔ push دوطرفهٔ زنده = دکتر؛ پاسخ‌دهیِ واکنشیِ ۴۸hِ گروه ~۱۰۰٪ template (آخرین LLM گفتگویی ۰۷-۲۷، سهمیهٔ ۲۰/روزِ مغزِ گران تقریباً بی‌مصرف)؛ فلگ‌های غایب عمداً staged هستند (`_ops/ARMING-ORDER-2026-07-29.md`)؛ PLAUSIBLE مهم: `tg_api._scrub_keyboard` کیبوردِ dict ِ پلِ دو-باتی را بی‌صدا `[]` می‌کند → دکمه‌های bridged احتمالاً در production حذف (تستِ سبزش clientِ فیک دارد)؛ 🔴 P0: فایلِ `TELEGRAM-SYSTEM-MAP/E-state-config-tokens.md` مقادیرِ واقعیِ توکن روی دیسک دارد — tracked بودنش UNKNOWN (فقط `git ls-files` حجت)؛ یک خاموشیِ واقعی در ۷۲h (۰۷-۲۹ ‏۰۴:۴۴→۰۶:۵۳، واچ‌داگ revive کرد)؛ سکوتِ گروه از ۰۷-۲۸ سیاستِ surface-v2 است نه خرابی.
 - تغییرات اخیر: 2026-07-27 (agent، Opus 5 — «نهایتِ استفاده از مغزِ گران» → «یک هوش مصنوعیِ واقعی با پتانسیلِ AGI») — **۱۳ کامیت روی `claude/octopus-event-bridge-aligned` (آخری `6252efa`).** سندِ لایه‌بندی: [[../../_ops/ARCHITECTURE-LAYERS-2026-07-27|ARCHITECTURE-LAYERS]].
   **(۱) 🔴 بدترین باورِ سیستم دربارهٔ خودش غلط بود.** `self_knowledge._heuristic` فیزیولوژی را از `snap["money"]["musd"]` می‌خواند، ولی آن عدد در `telemetry.py:174` از **جمعِ هزینه‌ها** ساخته می‌شود (ledgerِ ژنوم + organ_gate + core.db) و `organism.py:492` همان را بر سقفِ بودجه تقسیم می‌کند. یعنی «درآمد>۰» در حالی که ۲۱۲۹۵ میکرودلار **قبضِ توکنِ خودش** بود و `fitness-latest.json → attribution.confirmed` صفر. برای ارگانیسمی که مأموریتش پول است، تنها باوری که واقعاً مهم بود وارونه بود — در هر ۲۷ نسخه و در promptِ مغزِ گران در هر سنتز. فیکس: کلیدِ `revenue` از منبعِ راست + فیزیولوژیِ دو-عددیِ صادق + افزودنِ revenue به `_hash_digest` (وگرنه پشتِ `cached:no-change` یخ می‌ماند؛ ۱۱ چرخه یخ‌زده بود).
   **(۲) قلب ۱۹ ساعت از ۲۴ می‌خوابید.** `CARDIAC_DAILY_BEAT_CAP` از فلگ‌ها غایب بود → پیش‌فرضِ ۲۸۸ → بودجه ~۰۴:۵۰ تمام و داور `MAX_S=900` می‌گذاشت. از راهِ knobِ خودِ قلب (`organ_dialogue.heart_set_apply`) ۲۸۸→۲۰۰۰، **بدونِ ری‌استارت** چون `_setpoint_cap()` هر تیک خوانده می‌شود. گذار اندازه‌گیری شد: ۰۸:۵۶ هنوز در خوابِ ۹۰۰s، ۰۸:۵۷ بیدار، از آن پس ~۴۳ ثانیه.
