@@ -172,6 +172,46 @@ class MissionRunner:
                     pass
         return best
 
+    # ---------------------------------------------------- replicate live tree
+    # ۲۹ جولای، از اولین `day --live` (یافتهٔ F-08): `git worktree add HEAD` فقط
+    # فایل‌های **کامیت‌شده** را می‌آورد. این مخزن ده‌ها فایلِ تستِ untracked روی دیسکِ
+    # زنده دارد (سوئیتِ زنده اجراشان می‌کند ولی هرگز کامیت نشده‌اند). پس worktree کدِ
+    # **متفاوتی** از زنده تست می‌کند و run_all با «can't open file» ده‌ها قرمز می‌دهد —
+    # نه به‌خاطرِ پچ، بلکه چون تست‌ها غایب‌اند. اصلاح: source ِ زندهٔ کاری در worktree
+    # کپی می‌شود تا وفادار باشد. **فقط .py زیرِ _ops** — state/راز هرگز (untracked با
+    # --exclude-standard که gitignore را رعایت می‌کند + فیلترِ .py برای modified).
+    def _replicate_live_source(self, wt: Path, commit: bool) -> int:
+        others = self._git("ls-files", "--others", "--exclude-standard",
+                           check=False).stdout.splitlines()
+        mod = self._git("diff", "--name-only", check=False).stdout.splitlines()
+        want = set()
+        for rel in others + mod:
+            rel = rel.strip().strip('"').replace("\\", "/")
+            if not rel.startswith("_ops/") or not rel.endswith(".py"):
+                continue
+            if "/state/" in rel or "/_worktrees/" in rel or "__pycache__" in rel:
+                continue
+            want.add(rel)
+        copied = 0
+        for rel in want:
+            src = self.repo / rel
+            if not src.is_file():
+                continue
+            dst = wt / rel
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, dst)
+            copied += 1
+        if commit and copied:
+            # کامیتِ throwaway در HEAD ِ همین worktree (detached) — شاخهٔ زنده هرگز
+            # لمس نمی‌شود، با حذفِ worktree زباله می‌شود. تا فایل‌های نو در HEAD باشند
+            # و `_restore_pristine` تستِ کپی‌شده را «تغییرِ untracked» نپندارد و پاک نکند.
+            self._git("add", "-A", cwd=wt, check=False)
+            self._git("-c", "user.name=octopus-doctor",
+                      "-c", "user.email=doctor@octopus",
+                      "commit", "-qm", "replicate live working tree (F-08)",
+                      cwd=wt, check=False)
+        return copied
+
     # -------------------------------------------------------------- mission
     # مسیرهایی که **شاهد** را می‌سازند. پچ حق دارد پیشنهادشان بدهد، ولی حکم با
     # نسخهٔ دست‌نخوردهٔ آن‌هاست — وگرنه متهم، دادگاهِ خودش را می‌نویسد.
@@ -227,6 +267,7 @@ class MissionRunner:
                         self._drop_worktree(base_wt)
                         h = branch or self._git("rev-parse", "HEAD").stdout.strip()
                         self._git("worktree", "add", "--detach", str(base_wt), h)
+                        self._replicate_live_source(base_wt, commit=False)  # F-08
                         res.baseline = self.run_suite(base_wt)
                     finally:
                         self._drop_worktree(base_wt)
@@ -242,6 +283,7 @@ class MissionRunner:
                 self._drop_worktree(wt)
             head = branch or self._git("rev-parse", "HEAD").stdout.strip()
             self._git("worktree", "add", "--detach", str(wt), head)
+            self._replicate_live_source(wt, commit=True)   # F-08: وفادار به کدِ زنده
 
             res.stage = "patch"
             try:
@@ -259,6 +301,9 @@ class MissionRunner:
                         + ", ".join(res.suite_touched[:3]))
 
             res.stage = "diff"
+            # فایلِ نو (create) untracked است و `git diff` نمی‌بیندش ⇒ intent-to-add
+            # تا در دیف و شمارِ فایل بیاید (وگرنه ماموریتِ create «هیچ تغییری نداد» می‌شد).
+            self._git("add", "-N", ".", cwd=wt, check=False)
             d = self._git("diff", "--stat", cwd=wt, check=False).stdout
             res.diff = self._git("diff", cwd=wt, check=False).stdout[:8000]
             res.files_changed = max(0, len([l for l in d.splitlines() if "|" in l]))

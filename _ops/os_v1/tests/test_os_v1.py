@@ -457,6 +457,82 @@ def t_mission_runner() -> None:
                              cwd=repo, capture_output=True, text=True).stdout.strip() == "")
 
 
+# ═══════════ فازِ ۴ — F-08: worktree باید کدِ زندهٔ کاری را ببیند نه فقط HEAD
+def t_replicate_live_source() -> None:
+    print("\nفازِ ۴ — F-08: تستِ untracked ِ زنده باید در worktree هم اجرا شود")
+    with tempfile.TemporaryDirectory() as td:
+        repo = Path(td) / "repo"
+        (repo / "_ops" / "tests").mkdir(parents=True)
+        env = {**os.environ, "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@t",
+               "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@t"}
+
+        def git(*a):
+            subprocess.run(["git", *a], cwd=repo, check=True,
+                           capture_output=True, env=env)
+
+        git("init", "-q", "-b", "main")
+        (repo / ".gitignore").write_text("__pycache__/\n*.pyc\n_ops/state/\n",
+                                         encoding="utf-8")
+        # سوئیتِ کامیت‌شده: هر دو فایلِ تست را می‌دود؛ عددِ تست = تعدادِ فایل‌های سبز
+        (repo / "_ops" / "tests" / "run_all.py").write_text(
+            "import subprocess, sys\n"
+            "from pathlib import Path\n"
+            "here = Path(__file__).resolve().parent\n"
+            "tests = sorted(here.glob('test_*.py'))\n"
+            "ok = 0\n"
+            "for t in tests:\n"
+            "    r = subprocess.run([sys.executable, str(t)], capture_output=True)\n"
+            "    ok += (r.returncode == 0)\n"
+            "print(f'{ok} tests')\n"
+            "sys.exit(0 if ok == len(tests) else 1)\n", encoding="utf-8")
+        (repo / "_ops" / "tests" / "test_committed.py").write_text(
+            "import sys; sys.exit(0)\n", encoding="utf-8")
+        git("add", "-A"); git("commit", "-qm", "init")
+
+        # ← این تستِ زنده روی دیسک هست ولی هرگز کامیت نشده (دقیقاً حالتِ F-08)
+        (repo / "_ops" / "tests" / "test_untracked.py").write_text(
+            "import sys; sys.exit(0)\n", encoding="utf-8")
+
+        suite = [sys.executable, "-X", "utf8", "_ops/tests/run_all.py"]
+        runner = MissionRunner(repo, suite, worktrees_dir=Path(td) / "wt",
+                               timeout_s=60, env_root_key="ORG_ROOT")
+
+        # بدونِ replicate، سوئیتِ worktree فقط ۱ فایل می‌بیند (test_untracked غایب)
+        base_wt = Path(td) / "wt-bare"
+        git("worktree", "add", "--detach", str(base_wt), "HEAD")
+        bare = runner.run_suite(base_wt)
+        check("بدونِ replicate: worktree فقط تستِ کامیت‌شده را دارد",
+              bare.green and bare.count == 1, f"count={bare.count}")
+        subprocess.run(["git", "worktree", "remove", "--force", str(base_wt)],
+                       cwd=repo, capture_output=True, env=env)
+
+        # با replicate: هر دو تست باید دیده شوند
+        rep_wt = Path(td) / "wt-rep"
+        git("worktree", "add", "--detach", str(rep_wt), "HEAD")
+        n = runner._replicate_live_source(rep_wt, commit=False)
+        rep = runner.run_suite(rep_wt)
+        check("با replicate: تستِ untracked ِ زنده هم در worktree اجرا شد",
+              rep.green and rep.count == 2 and n >= 1,
+              f"copied={n} count={rep.count}")
+        subprocess.run(["git", "worktree", "remove", "--force", str(rep_wt)],
+                       cwd=repo, capture_output=True, env=env)
+
+        # ماموریتِ create: فایلِ نو باید دیده شود (files_changed>0) و سوئیت سبز بماند
+        def add_tool(wt: Path) -> None:
+            (wt / "_ops" / "tools").mkdir(parents=True, exist_ok=True)
+            (wt / "_ops" / "tools" / "pulse.py").write_text(
+                "print('ok')\n", encoding="utf-8")
+
+        r = runner.run("rep-create", add_tool)
+        check("ماموریتِ create روی درختِ ناقص: پایه و کاندید هر دو ۲ تست، سبز",
+              r.ok and r.stage == "awaiting-owner"
+              and (r.baseline.count or 0) == 2 and (r.candidate.count or 0) == 2,
+              f"stage={r.stage} base={r.baseline and r.baseline.count} "
+              f"cand={r.candidate and r.candidate.count}")
+        check("فایلِ نو در دیف دیده شد (create-aware)", r.files_changed >= 1,
+              f"files_changed={r.files_changed}")
+
+
 # ═══════════ فازِ ۴ — pinِ ریشهٔ سوئیت (env_root_key، الگوی code_autonomy)
 def t_env_root_pin() -> None:
     print("\nفازِ ۴ — pinِ ریشه: سوئیت باید درختِ زیرِ آزمون را ببیند، نه درختِ زنده")
@@ -595,7 +671,8 @@ if __name__ == "__main__":
     print("OCTOPUS OS v1 — سوئیتِ تست")
     print("=" * 66)
     for fn in (t_honest_metric, t_outcome_ledger, t_efe,
-               t_silence, t_leg_failure, t_mission_runner, t_env_root_pin,
+               t_silence, t_leg_failure, t_mission_runner,
+               t_replicate_live_source, t_env_root_pin,
                t_value_metric, t_policy_sampler):
         fn()
     print("\n" + "=" * 66)
