@@ -576,6 +576,16 @@ def main() -> int:
         env_loader.load_env()
     except Exception:  # noqa: BLE001
         pass
+    # عکسِ envِ همین پروسه سرِ boot (رأیِ مالک ۲۰۲۶-۰۷-۲۹). append نه insert،
+    # تا هیچ ماژولی سایه نیفتد. fail-soft مطلق و بدونِ اثرِ رفتاری.
+    try:
+        _ops_dir = str(_HERE.parent)
+        if _ops_dir not in sys.path:
+            sys.path.append(_ops_dir)
+        import flag_drift
+        flag_drift.snapshot_boot("cortex")
+    except Exception:  # noqa: BLE001
+        pass
     try:
         srv = _Srv(("127.0.0.1", PORT), _Handler)
         threading.Thread(target=srv.serve_forever, daemon=True).start()

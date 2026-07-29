@@ -232,6 +232,14 @@ def main() -> int:
         env_loader.load_env()
     except Exception:  # noqa: BLE001 — additive؛ نبودِ .env نباید بوت را بکشد
         pass
+    # عکسِ envِ همین پروسه سرِ boot (رأیِ مالک ۲۰۲۶-۰۷-۲۹). بدونِ این، ادعای
+    # «فلگ را روشن کردم» هیچ مشاهده‌ای ندارد که ابطالش کند. بعد از env_loader
+    # می‌آید تا env کامل دیده شود؛ fail-soft مطلق و بدونِ هیچ اثرِ رفتاری.
+    try:
+        import flag_drift
+        flag_drift.snapshot_boot("organism")
+    except Exception:  # noqa: BLE001
+        pass
     port = int(os.environ.get("ORGANISM_PORT", PORT))
     try:
         _serve(port)   # bind انحصاری = قفل تک‌نمونه + endpoint وضعیت، هم‌زمان

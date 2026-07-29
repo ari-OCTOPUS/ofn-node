@@ -873,6 +873,15 @@ def main() -> int:
         env_loader.load_env()
     except Exception:  # noqa: BLE001
         pass
+    # عکسِ envِ همین پروسه سرِ boot (رأیِ مالک ۲۰۲۶-۰۷-۲۹). append نه insert،
+    # تا هیچ ماژولی سایه نیفتد. fail-soft مطلق و بدونِ اثرِ رفتاری.
+    try:
+        if str(_OPS) not in sys.path:
+            sys.path.append(str(_OPS))
+        import flag_drift
+        flag_drift.snapshot_boot("live")
+    except Exception:  # noqa: BLE001
+        pass
     try:
         srv = _Srv(("127.0.0.1", PORT), _Handler)
     except OSError:
