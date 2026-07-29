@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -277,6 +278,33 @@ class PerProcessTests(unittest.TestCase):
     def test_proc_slug_cannot_escape_state_dir(self):
         p = fd.snapshot_path_for("../../evil", self.tmp)
         self.assertEqual(p.parent.resolve(), self.tmp.resolve())
+
+    def test_card_is_rtl_safe(self):
+        """۲۰۲۶-۰۷-۲۹ — از مشاهدهٔ کارتِ واقعی در گروه: نسخهٔ اول
+        «center · بوت 0.1h پیش: 0» می‌ساخت و تلگرام آن را
+        «center · 0.1h بوت پیش: 0» نشان می‌داد. عددِ لاتینِ برهنه داخلِ جملهٔ
+        فارسی با bidi جابه‌جا می‌شود — هیچ تستی این را نمی‌گرفت چون
+        رشته «درست» بود، فقط رندرش غلط بود."""
+        _write_flags(self.f, [("OCTOPUS_A", "0")])
+        fd.snapshot_boot("organism", self.f, self.tmp, env={"OCTOPUS_A": "0"})
+        _write_flags(self.f, [("OCTOPUS_A", "1")])       # یک رانشِ واقعی
+        for card in (fd.render_all(fd.probe_all(self.f, self.tmp)),
+                     fd.render_all(fd.probe_all(self.f, self.tmp / "nope"))):
+            self.assertIsInstance(card, str)
+        card = fd.render_all(fd.probe_all(self.f, self.tmp))
+        self.assertNotRegex(card, r"[0-9]",
+                            "رقمِ لاتین در کارتِ فارسی = جابه‌جاییِ bidi")
+        self.assertIn("⁦organism⁩", card,
+                      "نامِ لاتین باید ایزولهٔ جهت داشته باشد")
+        self.assertTrue(card.startswith("‏"),
+                        "کارت باید با RLM شروع شود تا جهتِ پاراگراف قطعی باشد")
+
+    def test_fa_num_and_age_helpers(self):
+        self.assertEqual(fd.fa_num(4), "۴")
+        self.assertEqual(fd.fa_num("0.1"), "۰٫۱")
+        self.assertIn("دقیقه", fd._age_fa(time.time() - 300))
+        self.assertIn("ساعت", fd._age_fa(time.time() - 7200))
+        self.assertEqual(fd._age_fa("خراب"), "")      # fail-soft
 
     def test_secret_values_never_leak_through_per_process_layer(self):
         _write_flags(self.f, [("FUGU_API_KEY", "sk-live-DO-NOT-LEAK")])

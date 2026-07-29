@@ -345,30 +345,58 @@ def probe_all(flags_path=None, state_dir=None) -> dict:
     }
 
 
+# ── bidi (۲۰۲۶-۰۷-۲۹، از مشاهدهٔ کارتِ واقعی در گروه) ────────────────────────
+# نسخهٔ اول این خط را می‌ساخت: «center · بوت 0.1h پیش: 0» و تلگرام آن را
+# «center · 0.1h بوت پیش: 0» نشان می‌داد — عددِ لاتینِ برهنه داخلِ جملهٔ فارسی
+# با الگوریتمِ bidi جابه‌جا می‌شود. دو درمان با هم: رقمِ فارسی (خنثی نیست،
+# ذاتاً RTL است) و ایزولهٔ صریح دورِ نامِ لاتینِ پروسه.
+_RLM, _LRI, _PDI = "‏", "⁦", "⁩"
+_FA_DIGITS = str.maketrans("0123456789.", "۰۱۲۳۴۵۶۷۸۹٫")
+
+
+def fa_num(x) -> str:
+    """عدد → رقمِ فارسی. جداکنندهٔ اعشار هم فارسی می‌شود."""
+    return str(x).translate(_FA_DIGITS)
+
+
+def ltr(s: str) -> str:
+    """نامِ لاتین را ایزوله کن تا متنِ فارسیِ اطرافش را نکشد."""
+    return f"{_LRI}{s}{_PDI}"
+
+
+def _age_fa(boot_ts) -> str:
+    """سنِ بوت به فارسی — دقیقه تا یک ساعت، بعد ساعت. «0.1h» برای مالک
+    خواندنی نبود و در RTL هم جابه‌جا می‌شد."""
+    try:
+        sec = max(0.0, time.time() - float(boot_ts))
+    except (TypeError, ValueError):
+        return ""
+    if sec < 3600:
+        return f" · بوت {fa_num(int(sec // 60))} دقیقه پیش"
+    return f" · بوت {fa_num(round(sec / 3600.0, 1))} ساعت پیش"
+
+
 def render_all(result: dict) -> str:
     """کارتِ per-process. عددِ اول = چند پروسه کدِ کهنه دارند."""
     if result.get("status") != "ok" or not result.get("procs"):
         return render(result)          # error / no_snapshot / مسیرِ legacy
     procs = result["procs"]
     stale = [p for p in procs if int(p.get("count") or 0)]
-    head = (f"✅ رانشِ فلگ: ۰ در هر {len(procs)} پروسهٔ ثبت‌شده."
+    head = (_RLM + (f"✅ رانشِ فلگ: ۰ در هر {fa_num(len(procs))} پروسهٔ ثبت‌شده."
             if not stale else
-            f"🚩 {len(stale)} از {len(procs)} پروسه کدِ کهنه دارند "
-            f"(مجموعِ رانش: {result.get('count')}).")
+            f"🚩 {fa_num(len(stale))} از {fa_num(len(procs))} پروسه کدِ کهنه "
+            f"دارند (مجموعِ رانش: {fa_num(result.get('count'))})."))
     rows = []
     for p in procs:
         n = int(p.get("count") or 0)
-        when = ""
-        if p.get("boot_ts"):
-            try:
-                hrs = max(0.0, (time.time() - float(p["boot_ts"])) / 3600.0)
-                when = f" · بوت {hrs:.1f}h پیش"
-            except (TypeError, ValueError):
-                when = ""
+        when = _age_fa(p["boot_ts"]) if p.get("boot_ts") else ""
         mark = "✅" if n == 0 else "🚩"
-        names = ", ".join(d["name"] for d in (p.get("drifted") or [])[:4])
-        tail = f" → {names}" if names else ""
-        rows.append(f"  {mark} {p.get('proc')}{when}: {n}{tail}")
+        names = "، ".join(ltr(d["name"]) for d in (p.get("drifted") or [])[:4])
+        tail = f" ← {names}" if names else ""
+        # ترتیب عمدی: نام، بعد عددِ رانش، بعد سنِ بوت. عدد چسبیده به «رانش»
+        # می‌ماند نه به «پیش» — در نسخهٔ قبل «پیش: 0» خوانده می‌شد.
+        rows.append(f"{_RLM}  {mark} {ltr(p.get('proc'))} — "
+                    f"رانش {fa_num(n)}{when}{tail}")
     hy = result.get("hygiene") or {}
     warn = ""
     if hy.get("lone_lf"):
