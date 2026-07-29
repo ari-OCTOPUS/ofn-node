@@ -4,7 +4,7 @@
     "_Duplicates/",
     "_worktrees/",
     ".claude/",
-    "/^_ops/[^/]+//",
+    "/^_ops/_agent_reports//",
     "/(^|/)_code(/)/",
     "/(^|/)__pycache__(/)/",
     "/(^|/)\\.pytest_cache(/)/",
