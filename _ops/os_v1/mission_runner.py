@@ -421,10 +421,18 @@ class MissionRunner:
             self._replicate_live_source(wt, commit=False, snapshot=snap)
 
             res.stage = "patch"
+            # پنجرهٔ **تنگ**: اثرِ انگشتِ زنده دقیقاً قبل و بعدِ apply_patch. پچ فقط اینجا
+            # می‌تواند درختِ زنده را لمس کند (باید فقط در wt بنویسد). فاصله ~۱ ثانیه، پس
+            # نوشتنِ حالتِ ارگانیسم/کامیتِ موازی فرصتِ تغییر ندارند.
+            fp_pre_patch = self.live_fingerprint()
             try:
                 apply_patch(wt)
             except Exception as e:                          # noqa: BLE001
                 res.reasons.append(f"پچ خطا داد: {type(e).__name__}: {e}")
+                return self._finish(res, wt, fp_before, t0)
+            res.live_tree_untouched = (self.live_fingerprint() == fp_pre_patch)
+            if not res.live_tree_untouched:
+                res.reasons.insert(0, "⛔ درختِ زنده تغییر کرد — این هرگز نباید رخ دهد")
                 return self._finish(res, wt, fp_before, t0)
 
             # چه چیزی را پچ عوض کرد (نه replicat) — از git status + مقایسه با snapshot.
@@ -489,10 +497,10 @@ class MissionRunner:
         except Exception:                                   # noqa: BLE001
             res.reasons.append("پاک‌سازیِ worktree ناموفق (بررسی دستی)")
         res.seconds = time.time() - t0
-        res.live_tree_untouched = (self.live_fingerprint() == fp_before)
-        if not res.live_tree_untouched:
-            res.ok = False
-            res.reasons.insert(0, "⛔ درختِ زنده تغییر کرد — این هرگز نباید رخ دهد")
+        # live_tree_untouched دیگر اینجا (پایانِ ماموریت) سنجیده نمی‌شود — آن پنجرهٔ
+        # ۱۵دقیقه‌ای شاملِ دو اجرای سوئیت است که ارگانیسمِ زنده در طولش حالت می‌نویسد و
+        # جلسهٔ موازی کامیت می‌کند ⇒ «تغییرِ کاذب». معنایِ درست «پچ درخت را لمس کرد؟» است
+        # که فقط در پنجرهٔ تنگِ دورِ apply_patch سنجیده می‌شود (VQ-DR-005، در run()).
         return res
 
     # ---------------------------------------------------------------- merge
