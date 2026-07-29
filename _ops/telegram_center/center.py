@@ -2352,34 +2352,6 @@ class Center:
                 last_beat = now
 
 
-if __name__ == "__main__":
-    # مسیرِ رسمیِ لودِ .env (مثل model_router/approval_channel): بدونِ این،
-    # TELEGRAM_* در os.environ نیست و رانر «not wired»ِ کاذب می‌دهد. fail-soft.
-    try:
-        import env_loader
-        env_loader.load_env()
-    except Exception:  # noqa: BLE001
-        pass
-    # عکسِ envِ همین پروسه سرِ boot (رأیِ مالک ۲۰۲۶-۰۷-۲۹) — `_ops` روی sys.path
-    # نیست، پس append (نه insert) تا هیچ ماژولی سایه نیفتد. fail-soft مطلق.
-    try:
-        _ops_dir = str(_HERE.parent)
-        if _ops_dir not in sys.path:
-            sys.path.append(_ops_dir)
-        import flag_drift
-        flag_drift.snapshot_boot("center")
-    except Exception:  # noqa: BLE001
-        pass
-    c = Center()
-    if not c.wired():
-        print("tg-center: not wired (TELEGRAM_BOT_TOKEN/چت پیکربندی نشده) — خروجِ امنِ no-op")
-        sys.exit(0)
-    if c.stopped():
-        print("tg-center: STOP-TG-CENTER هست — اجرا نمی‌شوم")
-        sys.exit(0)
-    print("tg-center: زنده — kill تمیز: فایلِ _ops/STOP-TG-CENTER را بساز")
-    c.run_forever()
-    print("tg-center: ایستاد (STOP)")
 
 
 def _introspect(which: str, text: str = "") -> str:
@@ -2394,3 +2366,31 @@ def _introspect(which: str, text: str = "") -> str:
                 "insight": _ic.insight_text}[which]()
     except Exception as exc:  # noqa: BLE001
         return f"🚩 خودنگری در دسترس نیست: {type(exc).__name__}: {exc}"
+if __name__ == "__main__":
+    # مسیرِ رسمیِ لودِ .env (مثل model_router/approval_channel): بدونِ این،
+    # TELEGRAM_* در os.environ نیست و رانر «not wired»ِ کاذب می‌دهد. fail-soft.
+    try:
+        import env_loader
+        env_loader.load_env()
+    except Exception:  # noqa: BLE001
+        pass
+    c = Center()
+    if not c.wired():
+        print("tg-center: not wired (TELEGRAM_BOT_TOKEN/چت پیکربندی نشده) — خروجِ امنِ no-op")
+        sys.exit(0)
+    if c.stopped():
+        print("tg-center: STOP-TG-CENTER هست — اجرا نمی‌شوم")
+        sys.exit(0)
+    # عکسِ envِ همین پروسه سرِ boot (رأیِ مالک ۲۰۲۶-۰۷-۲۹) — `_ops` روی sys.path
+    # نیست، پس append (نه insert) تا هیچ ماژولی سایه نیفتد. fail-soft مطلق.
+    try:
+        _ops_dir = str(_HERE.parent)
+        if _ops_dir not in sys.path:
+            sys.path.append(_ops_dir)
+        import flag_drift
+        flag_drift.snapshot_boot("center")
+    except Exception:  # noqa: BLE001
+        pass
+    print("tg-center: زنده — kill تمیز: فایلِ _ops/STOP-TG-CENTER را بساز")
+    c.run_forever()
+    print("tg-center: ایستاد (STOP)")

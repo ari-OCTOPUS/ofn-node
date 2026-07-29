@@ -576,6 +576,14 @@ def main() -> int:
         env_loader.load_env()
     except Exception:  # noqa: BLE001
         pass
+    try:
+        srv = _Srv(("127.0.0.1", PORT), _Handler)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+    except OSError:
+        print(f"cortex: نمونهٔ دیگری روی {PORT} زنده است — خروجِ تمیز.")
+        return 0
+    print(f"cortex: زنده روی http://127.0.0.1:{PORT} — kill تمیز: فایل _ops/STOP-CORTEX")
+    opslib.heartbeat(f"cortex=START port={PORT}")
     # عکسِ envِ همین پروسه سرِ boot (رأیِ مالک ۲۰۲۶-۰۷-۲۹). append نه insert،
     # تا هیچ ماژولی سایه نیفتد. fail-soft مطلق و بدونِ اثرِ رفتاری.
     try:
@@ -586,14 +594,6 @@ def main() -> int:
         flag_drift.snapshot_boot("cortex")
     except Exception:  # noqa: BLE001
         pass
-    try:
-        srv = _Srv(("127.0.0.1", PORT), _Handler)
-        threading.Thread(target=srv.serve_forever, daemon=True).start()
-    except OSError:
-        print(f"cortex: نمونهٔ دیگری روی {PORT} زنده است — خروجِ تمیز.")
-        return 0
-    print(f"cortex: زنده روی http://127.0.0.1:{PORT} — kill تمیز: فایل _ops/STOP-CORTEX")
-    opslib.heartbeat(f"cortex=START port={PORT}")
     cycle = 0
     while True:
         if STOP_CORTEX.exists() or opslib.master_halted():

@@ -873,6 +873,13 @@ def main() -> int:
         env_loader.load_env()
     except Exception:  # noqa: BLE001
         pass
+    try:
+        srv = _Srv(("127.0.0.1", PORT), _Handler)
+    except OSError:
+        print(f"live: نمونهٔ دیگری روی {PORT} زنده است — خروجِ تمیز.")
+        return 0
+    print(f"live: اتاقِ کنترل روی http://127.0.0.1:{PORT}")
+    opslib.heartbeat(f"live-cockpit=START port={PORT}")
     # عکسِ envِ همین پروسه سرِ boot (رأیِ مالک ۲۰۲۶-۰۷-۲۹). append نه insert،
     # تا هیچ ماژولی سایه نیفتد. fail-soft مطلق و بدونِ اثرِ رفتاری.
     try:
@@ -882,13 +889,6 @@ def main() -> int:
         flag_drift.snapshot_boot("live")
     except Exception:  # noqa: BLE001
         pass
-    try:
-        srv = _Srv(("127.0.0.1", PORT), _Handler)
-    except OSError:
-        print(f"live: نمونهٔ دیگری روی {PORT} زنده است — خروجِ تمیز.")
-        return 0
-    print(f"live: اتاقِ کنترل روی http://127.0.0.1:{PORT}")
-    opslib.heartbeat(f"live-cockpit=START port={PORT}")
     # P9 (truth-map 2026-07-17): مرگِ کاکپیت باید دیده شود. تا امروز serve_forever که
     # تمام می‌شد (بستنِ کنسول/خطا) بی‌صدا می‌مرد و هیچ سطحی «۸۷۷۳ پایین است» را نشان
     # نمی‌داد. حالا هر خروج یک ردِ صادق در HEARTBEAT.md می‌گذارد.

@@ -21,6 +21,11 @@ TELEGRAM-SYSTEM-MAP/E-state-config-tokens.md
 # 2026-07-29: عکسِ envِ per-boot ِ flag_drift — حالت runtime، و ممکن است
 # مقدارِ شناسهٔ چت داشته باشد (redact اضافه شد ولی این لایهٔ دومِ دفاع است).
 _ops/state/flags-loaded-*.json
+# 2026-07-29: مقصدِ git worktreeها. صفر فایلِ tracked دارد و هرگز نباید داشته
+# باشد. دلیلِ عینی: فیچرِ `_replicate_live_source` (کامیتِ eabd26c) فایل‌های
+# .py ِ زندهٔ untracked/modified را داخلِ worktree کپی می‌کند — یک بار ۱۳۷
+# ورودی آن‌جا نشست و یک `git add -A` کلِ سورسِ ارگانیسم را دوباره stage می‌کرد.
+_worktrees/
 **/_code/
 .obsidian/workspace*
 *.db

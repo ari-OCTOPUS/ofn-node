@@ -247,6 +247,21 @@ class PerProcessTests(unittest.TestCase):
         self.assertEqual(kinds.get("OCTOPUS_GONE"), "removed")
         self.assertEqual(kinds.get("OCTOPUS_OTHER"), "added")
 
+    def test_legacy_snapshot_without_file_flags_keeps_old_behaviour(self):
+        """شکافِ پوششی که راستی‌آزمایی گرفت: شاخهٔ سازگاریِ عقب‌رو فقط با
+        خواندنِ کد ادعا شده بود، نه با اجرا."""
+        _write_flags(self.f, [("OCTOPUS_A", "1")])
+        fd.snapshot_boot("organism", self.f, self.tmp,
+                         env={"OCTOPUS_A": "1", "OCTOPUS_ENVONLY": "1"})
+        sp = self.tmp / "flags-loaded-organism.json"
+        d = json.loads(sp.read_text(encoding="utf-8"))
+        del d["file_flags"]                       # snapshotِ نسخهٔ قدیم
+        sp.write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
+        res = fd.probe_all(self.f, self.tmp)
+        kinds = {x["name"]: x["kind"] for x in res["drifted"]}
+        self.assertEqual(kinds.get("OCTOPUS_ENVONLY"), "removed",
+                         "بدونِ file_flags باید رفتارِ سابق (شمردنِ env-only) بماند")
+
     def test_probe_all_without_snapshots_never_reports_green(self):
         _write_flags(self.f, [("OCTOPUS_A", "1")])
         res = fd.probe_all(self.f, self.tmp)
@@ -299,6 +314,46 @@ class BootCallSiteTests(unittest.TestCase):
                 missing.append(rel)
         self.assertEqual(missing, [],
                          "این نقاطِ بوت دیگر snapshot نمی‌گیرند → پروبِ رانش کور می‌شود")
+
+    # (ب) ۲۰۲۶-۰۷-۲۹ — راستی‌آزماییِ متخاصم گرفت: snapshot قبل از گاردِ
+    # تک‌نمونه/wired صدا زده می‌شد، پس پروسه‌ای که بلافاصله خارج می‌شود هم
+    # boot_ts تازه می‌زد و snapshotِ پروسهٔ واقعی را بازنویسی می‌کرد. سناریوی
+    # عینی: RUN-TG-CENTER.bat حلقهٔ ۱۰ثانیه‌ای است؛ بدونِ توکن هر ۱۰ ثانیه یک
+    # «تازه بوت شدم» نوشته می‌شد در حالی که هیچ centerی زنده نبود.
+    GUARDS = {
+        "organism.py": "organism=START",
+        "cortex/cortex.py": "cortex=START",
+        "live/server.py": "live-cockpit=START",
+        "telegram_center/center.py": "STOP-TG-CENTER هست",
+    }
+
+    def test_snapshot_is_taken_only_after_the_liveness_guard(self):
+        root = Path(__file__).resolve().parents[1]
+        late = []
+        for rel, guard in self.GUARDS.items():
+            src = (root / rel).read_text(encoding="utf-8", errors="replace")
+            g, s = src.find(guard), src.find("snapshot_boot")
+            self.assertGreaterEqual(g, 0, f"لنگرِ گارد در {rel} نیست")
+            self.assertGreaterEqual(s, 0, f"snapshot_boot در {rel} نیست")
+            if s < g:
+                late.append(rel)
+        self.assertEqual(late, [], "snapshot قبل از گاردِ زنده‌بودن گرفته می‌شود "
+                                   "→ پروسهٔ در حالِ خروج هم boot_ts تازه می‌زند")
+
+    def test_center_main_block_is_last_so_late_defs_bind(self):
+        """(الف) در center.py بلوکِ __main__ وسطِ فایل بود و run_forever تا STOP
+        بلاک می‌کند، پس `def _introspect` که بعدش می‌آمد هرگز تعریف نمی‌شد و
+        /flags در پروسهٔ زنده NameError می‌داد — در حالی که تست‌ها (که import
+        می‌کنند) سبز بودند. الگوی «تستِ سبز روی مسیرِ مرده»."""
+        src = (Path(__file__).resolve().parents[1] / "telegram_center"
+               / "center.py").read_text(encoding="utf-8", errors="replace")
+        i_main = src.find('if __name__ == "__main__":')
+        self.assertGreaterEqual(i_main, 0)
+        after = src[i_main:]
+        stray = [ln for ln in after.splitlines()
+                 if ln.startswith("def ") or ln.startswith("class ")]
+        self.assertEqual(stray, [], "این تعریف‌ها بعد از بلوکِ __main__ آمده‌اند "
+                                    "و در پروسهٔ زنده هرگز bind نمی‌شوند")
 
     def test_flags_card_uses_the_per_process_view(self):
         """اگر کارتِ /flags به probeِ تک‌فایلی برگردد، مالک دوباره یک پروسه را
