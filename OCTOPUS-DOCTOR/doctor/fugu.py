@@ -37,6 +37,10 @@ MODELS = {
     "fast":   ("fugu",              "high"),   # پرسشِ روزمرهٔ دکتر
     "deep":   ("fugu-ultra-v1.1",   "max"),    # تشخیصِ کامل — تنها مدلی که max دارد
     "cyber":  ("fugu-cyber",        "xhigh"),  # ممیزیِ امنیتی
+    # ۲۹ جولای، رأیِ مالک: با max، توکن‌های فکر فرمتِ JSON را می‌خورد/می‌شکند
+    # (۴ تلاش: ۳ فرمتِ خراب). پچ‌سازی effort=high — فرمان‌پذیرتر و سریع‌تر.
+    "propose": ("fugu-ultra-v1.1",
+                os.environ.get("FUGU_PROPOSE_EFFORT", "high")),
 }
 
 # دلار به‌ازای هر ۱M توکن — از console.sakana.ai/pricing (۲۹ جولای ۲۰۲۶).
@@ -247,7 +251,8 @@ class Fugu:
                 f"{BASE}/chat/completions", data=body, method="POST",
                 headers={"Authorization": f"Bearer {self.key}",
                          "Content-Type": "application/json"})
-            to_s = max(self.timeout, self.deep_timeout) if tier == "deep" else self.timeout
+            to_s = (max(self.timeout, self.deep_timeout)
+                    if tier in ("deep", "propose") else self.timeout)
             try:
                 with urllib.request.urlopen(req, timeout=to_s) as r:
                     data = json.loads(r.read().decode("utf-8"))

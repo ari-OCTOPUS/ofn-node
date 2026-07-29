@@ -132,7 +132,7 @@ class Doctor:
                          [] if rep.usable else [rep.reason])
 
     # ---------------------------------------------------------------- propose
-    def propose(self, goal: str, tier: str = "deep", k: int = 10):
+    def propose(self, goal: str, tier: str = "propose", k: int = 10):
         """نثر ⟶ پچِ ساختاریافته. **اعمال نمی‌کند** — فقط پیشنهاد و گیت.
 
         خروجی یک `PatchSet`ِ گیت‌خورده است. اجرا کارِ `MissionRunner` است و

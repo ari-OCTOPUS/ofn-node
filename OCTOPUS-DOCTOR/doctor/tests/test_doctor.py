@@ -46,9 +46,14 @@ with tempfile.TemporaryDirectory() as td:
     q = Quota(Path(td), cap=3)
     took = sum(q.take() for _ in range(10))
     check("سقفِ سهمیه enforce می‌شود", took == 3 and q.remaining == 0, f"took={took}")
-    check("سه لایهٔ مدل تعریف شده", set(MODELS) == {"fast","deep","cyber"})
+    # ۲۹ جولای (رأیِ مالک): tier ِ چهارمِ propose — پچ‌سازی با effort=high چون max
+    # با توکن‌های فکر فرمتِ JSON را می‌شکست (۴ تلاش، ۳ فرمتِ خراب، رسیددار)
+    check("چهار لایهٔ مدل تعریف شده", set(MODELS) == {"fast","deep","cyber","propose"})
     check("تشخیصِ عمیق از fugu-ultra-v1.1 با max استفاده می‌کند",
           MODELS["deep"] == ("fugu-ultra-v1.1","max"))
+    check("پچ‌سازی ultra با effortِ فرمان‌پذیر (high/xhigh)، نه max",
+          MODELS["propose"][0] == "fugu-ultra-v1.1"
+          and MODELS["propose"][1] in ("high", "xhigh"))
     check("`max` فقط روی مدلی که واقعاً پشتیبانی می‌کند استفاده شده",
           all(e in ("high","xhigh") for m,e in MODELS.values() if m != "fugu-ultra-v1.1"))
     # --- هزینه: «صفر» هرگز پیش‌فرض نیست ---

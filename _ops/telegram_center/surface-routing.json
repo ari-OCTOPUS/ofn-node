@@ -1,23 +1,25 @@
 {
   "_readme": [
     "نقشهٔ مسیریابیِ پیام‌ها — مالِ مالک؛ با دست ویرایش کن، ایجنت فقط با رأیِ تو دست می‌زند.",
-    "bot: 'inner' = @Robo2725_bot (درونِ ارگانیسم: خودترمیمی/سلامت/لاگِ حیاتی)",
-    "bot: 'outer' = @intergrade2725_Bot (رابطِ شخصیِ تو: چت/شهود/کارت‌های رأی)",
-    "topic: نامِ تاپیک در گروهِ Organism یا null (= General).",
+    "رأیِ مالک ۰۷-۲۹: هسته در دو چتِ خصوصی (DM)؛ گروهِ Organism تماماً مالِ پاها.",
+    "bot: 'inner' = @Robo2725_bot (درونِ ارگانیسم: سلامت/هشدار/رسیدِ ترمیم) — DM",
+    "bot: 'outer' = @intergrade2725_Bot (رابطِ شخصی: چت/شهود/کارتِ رأی) — DM",
+    "surface: 'dm' = چتِ خصوصیِ مالک با همان بات · 'group' = گروهِ Organism (فقط پاها)",
     "این فایل هنوز مصرف‌کنندهٔ زنده ندارد — پشتِ فلگِ OCTOPUS_TG_SPLIT_V1 (خاموش) سیم‌کشی می‌شود؛",
-    "تا آن رأی، مقادیرِ 'current' واقعیتِ امروزند و 'target' پیشنهادِ طرحِ درون/بیرون."
+    "تا آن رأی، 'current' واقعیتِ امروز است و 'target' مقصدِ مصوب."
   ],
-  "schema": "surface-routing.v1",
+  "schema": "surface-routing.v2",
   "updated": "2026-07-29",
   "streams": {
-    "chat":              {"current": "outer", "target": "outer", "topic": null,       "شرح": "گفتگوی آزادِ مالک با اختاپوس (فهم/فرمانِ فارسی)"},
-    "doctor-intent":     {"current": "outer", "target": "outer", "topic": "doctor",   "شرح": "کارتِ نیتِ خودبازنویسی — رأیِ مالک لازم است، پس سمتِ رابطِ مالک می‌ماند"},
-    "doctor-diff":       {"current": "outer", "target": "outer", "topic": "doctor",   "شرح": "کارتِ دیف بعد از سوئیتِ سبز — رأیِ دوم"},
-    "doctor-daily":      {"current": "outer", "target": "inner", "topic": "health",   "شرح": "گزارشِ روزانهٔ ۷ صبحِ دکتر (سلامت = درون)"},
-    "critical-alerts":   {"current": "outer", "target": "inner", "topic": "system",   "شرح": "event_bridge: هشدارهای بحرانی/protective-halt"},
-    "organ-digest":      {"current": "outer", "target": "inner", "topic": "system",   "شرح": "دایجستِ ادواریِ ارگان‌ها"},
-    "money-pulse":       {"current": "outer", "target": "inner", "topic": "money",    "شرح": "نبضِ درآمدِ پاها (propose-only)"},
-    "approvals-organism":{"current": "inner", "target": "inner", "topic": null,       "شرح": "کارت‌های approval خودِ ارگانیسم — pollerِ بات ۱ از قبل اینجاست"},
-    "intuition":         {"current": "none",  "target": "outer", "topic": "شهود",     "شرح": "ارگانِ شهود (شومان) — تا سخت‌افزار نرسد چیزی نمی‌فرستد؛ [UNKNOWN] صادقانه"}
+    "chat":              {"current": {"bot": "outer", "surface": "group"}, "target": {"bot": "outer", "surface": "dm"},                     "شرح": "گفتگوی آزادِ مالک با اختاپوس"},
+    "doctor-intent":     {"current": {"bot": "outer", "surface": "group"}, "target": {"bot": "outer", "surface": "dm"},                     "شرح": "کارتِ نیتِ خودبازنویسی — رأیِ مالک"},
+    "doctor-diff":       {"current": {"bot": "outer", "surface": "group"}, "target": {"bot": "outer", "surface": "dm"},                     "شرح": "کارتِ دیف بعد از سوئیتِ سبز — رأیِ دوم"},
+    "intuition":         {"current": {"bot": "none",  "surface": "none"},  "target": {"bot": "outer", "surface": "dm"},                     "شرح": "ارگانِ شهود (شومان) — تا سخت‌افزار [UNKNOWN]، چیزی نمی‌فرستد"},
+    "doctor-daily":      {"current": {"bot": "outer", "surface": "group"}, "target": {"bot": "inner", "surface": "dm"},                     "شرح": "گزارشِ روزانهٔ ۷ صبح (سلامت = درون)"},
+    "critical-alerts":   {"current": {"bot": "outer", "surface": "group"}, "target": {"bot": "inner", "surface": "dm"},                     "شرح": "هشدارهای بحرانی/protective-halt"},
+    "organ-digest":      {"current": {"bot": "outer", "surface": "group"}, "target": {"bot": "inner", "surface": "dm"},                     "شرح": "دایجستِ ادواریِ ارگان‌ها"},
+    "money-pulse":       {"current": {"bot": "outer", "surface": "group"}, "target": {"bot": "inner", "surface": "dm"},                     "شرح": "نبضِ درآمد (propose-only)"},
+    "approvals-organism":{"current": {"bot": "inner", "surface": "group"}, "target": {"bot": "inner", "surface": "dm"},                     "شرح": "کارت‌های approval خودِ ارگانیسم"},
+    "legs-all":          {"current": {"bot": "outer", "surface": "group"}, "target": {"bot": "outer", "surface": "group", "topic": "per-leg"}, "شرح": "همهٔ جریان‌های پاها — تاپیکِ هر پا؛ مالکِ این بخش: جلسهٔ موازیِ بستهٔ اسکنِ گروه"}
   }
 }
