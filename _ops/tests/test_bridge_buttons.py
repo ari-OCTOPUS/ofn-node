@@ -164,6 +164,25 @@ def t_g_the_real_router_still_uses_reply_markup():
         f"مسیرِ دکمه‌ایِ گروه تقریباً تهی شده: {rows}")
 
 
+def t_h_real_scrub_keyboard_unwraps_dict_markup():
+    """گاردِ A9-1: _scrub_keyboardِ **واقعی** (نه clientِ فیکِ این فایل) باید markupِ
+    dict-شکلِ پل را باز کند. clientِ فیک scrub را اجرا نمی‌کند، پس این تست مکملِ آن
+    است — بازبینیِ متخاصمِ ۰۷-۳۰ نشان داد باگِ A9-1 از دیدِ فیک پنهان می‌ماند."""
+    tc = str(_HERE.parent / "telegram_center")
+    if tc not in sys.path:
+        sys.path.insert(0, tc)
+    import tg_api
+    # markupِ کاملِ dict — همان چیزی که روتر می‌دهد و پل verbatim پاس می‌کند
+    out = tg_api._scrub_keyboard(
+        {"inline_keyboard": [[{"text": "a", "callback_data": "x"}]]})
+    assert len(out) == 1 and out[0][0]["callback_data"] == "x", out
+    # سازگاریِ عقب‌رو: فرمِ rows-list همچنان درست (باید byte-identical بماند)
+    rows = [[{"text": "b", "callback_data": "y"}]]
+    assert tg_api._scrub_keyboard(rows)[0][0]["callback_data"] == "y"
+    # fail-soft: فرمِ خراب همچنان []
+    assert tg_api._scrub_keyboard("garbage") == []
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

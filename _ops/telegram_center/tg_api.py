@@ -83,10 +83,17 @@ def _scrub(text: str) -> str:
 
 def _scrub_keyboard(keyboard) -> list:
     """کیبوردِ inline را کپی + متنِ دکمه‌ها را scrub می‌کند (callback_data = legهای
-    کلیدیِ بی‌محتوا، دست‌نخورده). فرمِ خراب → [] (fail-soft)."""
+    کلیدیِ بی‌محتوا، دست‌نخورده). فرمِ خراب → [] (fail-soft).
+
+    هر دو شکل پذیرفته می‌شود: rowsِ خام (list[list[dict]]) و markupِ کاملِ
+    {"inline_keyboard": rows}. پلِ دو-باتی (center._bridge_to_organism) دومی را
+    مستقیم می‌دهد؛ بدونِ این باز کردن، dict به dict(char) می‌رسید، ValueError
+    می‌داد و کلِ کیبورد بی‌صدا [] می‌شد (دکمه‌های رأیِ /queue،/doctor،/money حذف)."""
+    if isinstance(keyboard, dict):
+        keyboard = keyboard.get("inline_keyboard")
     try:
         return [[{**dict(b), "text": _scrub(str(dict(b).get("text", "")))}
-                 for b in row] for row in keyboard]
+                 for b in row] for row in (keyboard or [])]
     except Exception:  # noqa: BLE001
         return []
 
