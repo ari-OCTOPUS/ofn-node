@@ -310,11 +310,24 @@ def parse_patchset(text: str) -> PatchSet:
     for it in (d.get("patches") or []):
         if not isinstance(it, dict):
             raise GateError("عضوِ patches آبجکت نیست")
+        f = str(it.get("file", ""))
+        anchor = str(it.get("anchor", ""))
+        repl = str(it.get("replacement", ""))
+        # ۲۹ جولای: پارسر فیلدِ create را نمی‌خواند و همیشه False می‌ساخت — دو request
+        # واقعی بی‌دلیل پشتِ گیتِ ۷ سوخت. حالا خوانده می‌شود؛ و نرمال‌سازیِ بی‌ابهام:
+        # لنگرِ خالی + مسیرِ داخلِ CREATE_ALLOW + محتوای غیرخالی = فایلِ نو.
+        # گیت‌های ۵/۶/۸ و چکِ «فایل از قبل هست — بازنویسی نیست» همچنان حاکم‌اند.
+        create = bool(it.get("create", False))
+        if not create and not anchor.strip() and repl.strip():
+            low = f.replace("\\", "/").strip().lower()
+            if any(low.startswith(a.lower()) for a in CREATE_ALLOW):
+                create = True
         ps.patches.append(Patch(
-            file=str(it.get("file", "")),
-            anchor=str(it.get("anchor", "")),
-            replacement=str(it.get("replacement", "")),
+            file=f,
+            anchor=anchor,
+            replacement=repl,
             why=str(it.get("why", "")),
+            create=create,
         ))
     if "[UNKNOWN]" in ps.rationale:
         ps.notes.append("مغز صریحاً گفت شاهد کافی ندارد")
