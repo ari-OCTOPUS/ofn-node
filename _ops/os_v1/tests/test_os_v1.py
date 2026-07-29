@@ -457,6 +457,50 @@ def t_mission_runner() -> None:
                              cwd=repo, capture_output=True, text=True).stdout.strip() == "")
 
 
+# ═══════════ فازِ ۴ — VQ-DR-005: گیتِ رگرسیون (پایهٔ قرمزِ پیش‌موجود ماموریت را نمی‌کشد)
+def t_regression_gate() -> None:
+    print("\nفازِ ۴ — VQ-DR-005: گیت روی رگرسیون، نه سبزِ مطلق")
+    from mission_runner import SuiteResult, MissionResult
+
+    def R(exit_code, failed=()):
+        return SuiteResult(exit_code, None, 0.1, "", tuple(failed))
+
+    def M(base, cand, ok=True, live=True):
+        return MissionResult("m", ok=ok, stage="awaiting-owner",
+                             baseline=base, candidate=cand, live_tree_untouched=live)
+
+    # پایه ۳ قرمزِ پیش‌موجود، کاندید همان ۳ ⇒ بدونِ رگرسیون ⇒ may_merge
+    m = M(R(1, ["a.py", "b.py", "c.py"]), R(1, ["a.py", "b.py", "c.py"]))
+    check("پایهٔ قرمزِ پیش‌موجود + همان قرمزها ⇒ بدونِ رگرسیون، merge مجاز",
+          not m.regressed and m.may_merge, f"new={m.new_failures}")
+
+    # کاندید یک قرمزِ نو اضافه کرد ⇒ رگرسیون ⇒ merge ممنوع
+    m = M(R(1, ["a.py"]), R(1, ["a.py", "NEW.py"]))
+    check("قرمزِ نو (پچ چیزی شکاند) ⇒ رگرسیون، merge ممنوع",
+          m.regressed and not m.may_merge and m.new_failures == ("NEW.py",))
+
+    # پچ یک قرمزِ پیش‌موجود را **درست** کرد (زیرمجموعه) ⇒ بدونِ رگرسیون
+    m = M(R(1, ["a.py", "b.py"]), R(1, ["a.py"]))
+    check("پچ قرمزِ پیش‌موجود را کم کرد ⇒ بدونِ رگرسیون، merge مجاز",
+          not m.regressed and m.may_merge)
+
+    # قرمزِ محیطی (رازِ worktree) در هر دو طرف ⇒ حذف می‌شود
+    m = M(R(1, ["flags_test.py"]), R(1, ["flags_test.py"]))
+    check("قرمزِ محیطیِ هم‌در-دو-طرف ⇒ خنثی، merge مجاز", m.may_merge)
+
+    # پایهٔ سبز ولی کاندیدِ قرمز بدونِ نامِ فایل (سوئیتِ mini) ⇒ رگرسیون از روی exit
+    m = M(R(0), R(1))
+    check("پایهٔ سبز → کاندیدِ قرمزِ بی‌نام ⇒ رگرسیون (از exit-code)", m.regressed)
+
+    # هر دو سبز ⇒ بدونِ رگرسیون
+    m = M(R(0), R(0))
+    check("هر دو سبز ⇒ بدونِ رگرسیون", not m.regressed and m.may_merge)
+
+    # کرشِ harness کاندید ⇒ merge ممنوع حتی اگر رگرسیونِ نام‌دار نباشد
+    m = M(R(1, ["a.py"]), R(125, ["a.py"]))
+    check("کرشِ harness کاندید ⇒ merge ممنوع", not m.may_merge)
+
+
 # ═══════════ فازِ ۴ — F-08: worktree باید کدِ زندهٔ کاری را ببیند نه فقط HEAD
 def t_replicate_live_source() -> None:
     print("\nفازِ ۴ — F-08: تستِ untracked ِ زنده باید در worktree هم اجرا شود")
@@ -672,7 +716,7 @@ if __name__ == "__main__":
     print("=" * 66)
     for fn in (t_honest_metric, t_outcome_ledger, t_efe,
                t_silence, t_leg_failure, t_mission_runner,
-               t_replicate_live_source, t_env_root_pin,
+               t_regression_gate, t_replicate_live_source, t_env_root_pin,
                t_value_metric, t_policy_sampler):
         fn()
     print("\n" + "=" * 66)

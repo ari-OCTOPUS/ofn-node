@@ -42,6 +42,7 @@ class SuiteResult:
     count: int | None
     seconds: float
     tail: str
+    failed: tuple[str, ...] = ()   # فایل‌های تستِ قرمز (از خطِ خلاصهٔ run_all)
 
     @property
     def green(self) -> bool:
@@ -63,26 +64,55 @@ class MissionResult:
     suite_touched: list[str] = field(default_factory=list)   # پچ به شاهد دست زد؟
 
     @property
+    def new_failures(self) -> tuple[str, ...]:
+        """تست‌هایی که کاندید **به‌نام** قرمز کرد ولی در پایه قرمز نبودند — یعنی خودِ پچ
+        شکاندشان. قرمزهای **پیش‌موجود** (پایه هم قرمزشان بود) و قرمزهای **محیطیِ**
+        worktree (رازِ gitignore‌شده که کپی نمی‌شود) در هر دو طرف‌اند و خودبه‌خود حذف می‌شوند."""
+        if self.baseline is None or self.candidate is None:
+            return ()
+        return tuple(sorted(set(self.candidate.failed) - set(self.baseline.failed)))
+
+    @property
+    def regressed(self) -> bool:
+        """پچ سوئیت را بدتر کرد؟ دو حالت: (۱) فایلِ تستِ نوی نام‌دار قرمز شد، یا
+        (۲) پایه سبز بود ولی کاندید نه — حتی اگر قالبِ سوئیت نامِ فایل ندهد (تستِ mini)."""
+        if self.baseline is None or self.candidate is None:
+            return True
+        if self.new_failures:
+            return True
+        return self.baseline.green and not self.candidate.green
+
+    @property
     def may_merge(self) -> bool:
-        """سبزِ کافی برای *پیشنهادِ* merge — نه خودِ merge. آن رأی می‌خواهد."""
+        """معیارِ *پیشنهادِ* merge = **بدونِ رگرسیون** — نه سبزِ مطلق. چرا: سوئیتِ زنده
+        ممکن است قرمزِ پیش‌موجود داشته باشد (کارِ در-جریانِ دیگری) یا قرمزِ محیطی
+        (تستی که رازِ زنده می‌خواند و worktree آن را ندارد). گیت باید بسنجد «پچ چیزی
+        شکاند؟»، نه «همه‌چیز سبز است؟» — وگرنه یا قفلِ ابدی می‌شود یا وادار به دروغ.
+        خودِ merge همچنان رأیِ صریحِ مالک می‌خواهد؛ این فقط *پیشنهاد* را باز می‌کند."""
         return (self.ok and self.live_tree_untouched
-                and self.candidate is not None and self.candidate.green
-                and self.baseline is not None
-                and (self.candidate.count or 0) >= (self.baseline.count or 0))
+                and self.candidate is not None and self.baseline is not None
+                and not self.regressed
+                and self.candidate.exit_code not in (124, 125))   # تایم‌اوت/کرشِ harness نه
 
     def card(self) -> str:
         """متنِ کارتِ تلگرام (کارتِ ۲ — گیتِ دیف)."""
         if not self.ok:
             return (f"❌ ماموریت {self.mission_id} — {self.stage}\n"
                     + "\n".join(f"· {r}" for r in self.reasons[:4]))
-        b = self.baseline.count if self.baseline else "?"
-        c = self.candidate.count if self.candidate else "?"
+        b = len(self.baseline.failed) if self.baseline else "?"
+        c = len(self.candidate.failed) if self.candidate else "?"
         mark = "✅" if self.may_merge else "⚠️"
         warn = (f"\n⚠️ پچ به سوئیت دست زد ({len(self.suite_touched)} فایل) — "
                 "حکم با سوئیتِ **دست‌نخورده** گرفته شد" if self.suite_touched else "")
+        if not self.regressed:
+            reg = "بدونِ رگرسیون"
+        elif self.new_failures:
+            reg = f"❌ {len(self.new_failures)} قرمزِ نو: " + ", ".join(self.new_failures[:3])
+        else:
+            reg = "❌ سوئیت قرمز شد (پایه سبز بود)"
         return (f"{mark} ماموریت {self.mission_id}\n"
-                f"سوئیت: {c}/{c} (پایه {b}) · دیف {self.files_changed} فایل · "
-                f"{self.seconds:.0f}s\n"
+                f"{reg} · قرمزِ پیش‌موجود: پایه {b} / کاندید {c} · "
+                f"دیف {self.files_changed} فایل · {self.seconds:.0f}s\n"
                 f"درختِ زنده دست‌نخورده: {'بله' if self.live_tree_untouched else '❌ خیر'}"
                 + warn)
 
@@ -157,7 +187,20 @@ class MissionRunner:
             return SuiteResult(124, None, time.time() - t0, "TIMEOUT")
         except Exception as e:                              # noqa: BLE001
             return SuiteResult(125, None, time.time() - t0, f"{type(e).__name__}: {e}")
-        return SuiteResult(code, self._parse_count(out), time.time() - t0, out[-1500:])
+        return SuiteResult(code, self._parse_count(out), time.time() - t0,
+                           out[-1500:], self._parse_failed(out))
+
+    # خطِ خلاصهٔ run_all روی شکست: «❌ شکست: a.py, b.py  (capability revoked)».
+    _FAIL_RE = re.compile(r"شکست:\s*(.+?)\s*\(capability", re.DOTALL)
+
+    @classmethod
+    def _parse_failed(cls, text: str) -> tuple[str, ...]:
+        """مجموعهٔ فایل‌های تستِ قرمز. خالی = یا سبز یا قالبِ ناشناخته (که green جدا می‌سنجد)."""
+        m = cls._FAIL_RE.search(text)
+        if not m:
+            return ()
+        return tuple(sorted(
+            x.strip() for x in m.group(1).replace("\n", " ").split(",") if x.strip()))
 
     @staticmethod
     def _parse_count(text: str) -> int | None:
@@ -271,11 +314,20 @@ class MissionRunner:
                         res.baseline = self.run_suite(base_wt)
                     finally:
                         self._drop_worktree(base_wt)
-                if not res.baseline.green:
+                # ۲۹ جولای (VQ-DR-005): پایهٔ قرمز دیگر ماموریت را رد نمی‌کند. سوئیتِ
+                # زنده ممکن است قرمزِ پیش‌موجود (کارِ در-جریانِ دیگری) یا قرمزِ محیطی
+                # (تستی که رازِ gitignore‌شده می‌خواند و worktree ندارد) داشته باشد.
+                # گیت روی **رگرسیون** است نه سبزِ مطلق (may_merge). تنها شکستِ پایه که
+                # ماموریت را می‌کشد، خرابیِ harness است (تایم‌اوت/کرش)، نه قرمزِ تست.
+                if res.baseline.exit_code in (124, 125):
                     res.reasons.append(
-                        f"پایه خودش قرمز است (exit={res.baseline.exit_code}) — "
-                        "قبل از هر ماموریت باید سبز باشد")
+                        f"پایه اصلاً اجرا نشد (harness exit={res.baseline.exit_code}) — "
+                        f"{res.baseline.tail[:120]}")
                     return self._finish(res, wt, fp_before, t0)
+                if res.baseline.failed:
+                    res.reasons.append(
+                        f"پایه {len(res.baseline.failed)} قرمزِ پیش‌موجود دارد "
+                        "(مستقل از پچ) — گیت روی رگرسیون است، نه سبزِ مطلق")
 
             res.stage = "worktree"
             self.worktrees.mkdir(parents=True, exist_ok=True)
@@ -313,16 +365,30 @@ class MissionRunner:
 
             res.stage = "suite"
             res.candidate = self.run_suite(wt)
-            if not res.candidate.green:
+            if res.candidate.exit_code in (124, 125):
                 res.reasons.append(
-                    f"سوئیت قرمز شد (exit={res.candidate.exit_code}) — merge ممنوع")
+                    f"سوئیتِ کاندید اجرا نشد (harness exit={res.candidate.exit_code})")
                 return self._finish(res, wt, fp_before, t0)
 
-            bc = (res.baseline.count if res.baseline else None) or 0
-            cc = res.candidate.count or 0
-            if res.baseline and cc < bc:
-                res.reasons.append(f"شمارِ تست افت کرد: {cc} < پایهٔ {bc}")
+            # گیتِ اصلی: **رگرسیون**. قرمزِ نو = تستی که پچ شکاند (نه پیش‌موجود، نه محیطی).
+            if res.regressed:
+                if res.new_failures:
+                    res.reasons.append(
+                        f"پچ {len(res.new_failures)} تستِ نو شکاند: "
+                        + ", ".join(res.new_failures[:4]))
+                else:
+                    res.reasons.append(
+                        f"سوئیت قرمز شد (پایه سبز بود، کاندید "
+                        f"exit={res.candidate.exit_code}) — merge ممنوع")
                 return self._finish(res, wt, fp_before, t0)
+
+            # افتِ پوشش فقط وقتی هر دو سبزند معنا دارد (وقتی قرمز، عددِ count نامعتبر است).
+            if res.baseline.green and res.candidate.green:
+                bc = res.baseline.count or 0
+                cc = res.candidate.count or 0
+                if cc < bc:
+                    res.reasons.append(f"شمارِ تست افت کرد: {cc} < پایهٔ {bc}")
+                    return self._finish(res, wt, fp_before, t0)
 
             res.ok = True
             res.stage = "awaiting-owner"
