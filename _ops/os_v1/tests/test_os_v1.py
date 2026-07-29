@@ -576,6 +576,36 @@ def t_replicate_live_source() -> None:
         check("فایلِ نو در دیف دیده شد (create-aware)", r.files_changed >= 1,
               f"files_changed={r.files_changed}")
 
+        # ── VQ-DR-005: snapshotِ واحد ⇒ حتی اگر دیسکِ زنده **بینِ** پایه و کاندید عوض
+        #    شود، رگرسیونِ کاذب ساخته نمی‌شود (چون هر دو از همان snapshot می‌خوانند).
+        snap = runner._snapshot_live_source()
+        check("snapshot فایلِ untracked ِ زنده را گرفت", "_ops/tests/test_untracked.py" in snap)
+        # حالا تستِ زنده را **عوض کن** تا اگر runner از دیسک بخواند فرق کند
+        (repo / "_ops" / "tests" / "test_untracked.py").write_text(
+            "import sys; sys.exit(1)\n", encoding="utf-8")   # حالا قرمز روی دیسک
+        wt_snap = Path(td) / "wt-snaptest"
+        git("worktree", "add", "--detach", str(wt_snap), "HEAD")
+        runner._replicate_live_source(wt_snap, commit=False, snapshot=snap)
+        snap_res = runner.run_suite(wt_snap)
+        check("با snapshotِ قدیمی سبز می‌ماند گرچه دیسکِ زنده قرمز شده — پایه و کاندید هم‌مرجع",
+              snap_res.green and snap_res.count == 2, f"count={snap_res.count}")
+        subprocess.run(["git", "worktree", "remove", "--force", str(wt_snap)],
+                       cwd=repo, capture_output=True, env=env)
+        (repo / "_ops" / "tests" / "test_untracked.py").write_text(
+            "import sys; sys.exit(0)\n", encoding="utf-8")   # ترمیمِ fixture
+
+        # ── VQ-DR-005: fingerprint نباید با نوشتنِ _ops/state (حالتِ ارگانیسم) تغییر کند
+        (repo / "_ops" / "state").mkdir(parents=True, exist_ok=True)
+        (repo / "_ops" / "state" / "live.json").write_text("{}", encoding="utf-8")
+        git("add", "-A"); git("commit", "-qm", "add state file")
+        fp1 = runner.live_fingerprint()
+        (repo / "_ops" / "state" / "live.json").write_text('{"tick": 999}', encoding="utf-8")
+        fp2 = runner.live_fingerprint()
+        check("نوشتنِ _ops/state اثرِ انگشت را عوض نمی‌کند (حالت ≠ منبع)", fp1 == fp2)
+        (repo / "_ops" / "app_src.py").write_text("X=1\n", encoding="utf-8")
+        fp3 = runner.live_fingerprint()
+        check("ولی تغییرِ فایلِ سورس اثرِ انگشت را عوض می‌کند", fp3 != fp1)
+
 
 # ═══════════ فازِ ۴ — pinِ ریشهٔ سوئیت (env_root_key، الگوی code_autonomy)
 def t_env_root_pin() -> None:

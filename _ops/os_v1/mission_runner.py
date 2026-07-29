@@ -152,23 +152,32 @@ class MissionRunner:
     # بعد از دو روز کسی جدی‌اش نمی‌گیرد — همان بیماریِ §۰ به شکلِ آژیرِ دروغ.
     EPHEMERAL = ("__pycache__/", ".pyc", ".pyo", ".pytest_cache/",
                  ".coverage", "_worktrees/")
+    # ۲۹ جولای (VQ-DR-005): این مسیرها را ارگانیسمِ زنده **هر تیک** می‌نویسد — دادهٔ
+    # حالت، نه منبع. شمردنشان در اثرِ انگشت یعنی هر اجرای چنددقیقه‌ای «درختِ زنده تغییر
+    # کرد» می‌دهد حتی وقتی پچ هیچ فایلِ سورسی را لمس نکرده. fingerprint فقط **منبع** را می‌سنجد.
+    VOLATILE = ("_ops/state/", "_ops/state\\", "/state/",
+                "governor-alerts.md", "ledger.jsonl", "-latest.json",
+                "budget-state.json", "organ-state.json", "fugu-quota.json")
 
     def live_fingerprint(self) -> str:
-        """اثرِ انگشتِ **محتوای منبعِ** درختِ زنده.
+        """اثرِ انگشتِ **محتوای منبعِ** درختِ زنده — نه دادهٔ حالتِ متغیرِ ارگانیسم.
 
         دو جزء:
-          · تغییرِ فایل‌های tracked (`--untracked-files=no`) — هر پچی اینجا ظاهر می‌شود
-          · فایل‌های untrackedِ **غیرِ مصنوعِ ساخت** — تا پچی که فایلِ نو بسازد هم دیده شود
+          · تغییرِ فایل‌های tracked ِ **سورس** (`_ops/state` و لاگ‌های زنده حذف می‌شوند)
+          · فایل‌های untrackedِ **غیرِ مصنوعِ ساخت و غیرِ حالت** — تا فایلِ نوی پچ دیده شود
         """
+        def keep(ln: str) -> bool:
+            return (not any(p in ln for p in self.EPHEMERAL)
+                    and not any(p in ln for p in self.VOLATILE))
         head = self._git("rev-parse", "HEAD", check=False).stdout.strip()
-        tracked = self._git("status", "--porcelain", "--untracked-files=no",
-                            check=False).stdout
+        tracked = [ln for ln in self._git("status", "--porcelain",
+                   "--untracked-files=no", check=False).stdout.splitlines() if keep(ln)]
         untracked = [
             ln for ln in self._git("status", "--porcelain", "--untracked-files=all",
                                    check=False).stdout.splitlines()
-            if ln.startswith("??") and not any(p in ln for p in self.EPHEMERAL)
+            if ln.startswith("??") and keep(ln)
         ]
-        blob = head + "\n" + tracked + "\n" + "\n".join(sorted(untracked))
+        blob = head + "\n" + "\n".join(sorted(tracked)) + "\n" + "\n".join(sorted(untracked))
         return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
     # ---------------------------------------------------------------- suite
@@ -223,26 +232,36 @@ class MissionRunner:
     # نه به‌خاطرِ پچ، بلکه چون تست‌ها غایب‌اند. اصلاح: source ِ زندهٔ کاری در worktree
     # کپی می‌شود تا وفادار باشد. **فقط .py زیرِ _ops** — state/راز هرگز (untracked با
     # --exclude-standard که gitignore را رعایت می‌کند + فیلترِ .py برای modified).
-    def _replicate_live_source(self, wt: Path, commit: bool) -> int:
+    def _snapshot_live_source(self) -> dict:
+        """محتوای فایل‌های .py ِ untracked/modified ِ زندهٔ کاری را **یک‌بار** می‌گیرد
+        (relpath → bytes). این snapshot به **هر دو** worktree (پایه و کاندید) داده
+        می‌شود تا فقط با پچ فرق کنند. ⛔ VQ-DR-005: بدونِ این، پایه و کاندید با فاصلهٔ
+        چند دقیقه از دیسکِ زنده می‌خواندند و اگر چیزی (ارگانیسم/جلسهٔ موازی) در آن فاصله
+        عوض می‌شد، رگرسیونِ **کاذب** می‌ساخت. فقط .py زیرِ _ops؛ state/راز هرگز."""
         others = self._git("ls-files", "--others", "--exclude-standard",
                            check=False).stdout.splitlines()
         mod = self._git("diff", "--name-only", check=False).stdout.splitlines()
-        want = set()
+        snap = {}
         for rel in others + mod:
             rel = rel.strip().strip('"').replace("\\", "/")
             if not rel.startswith("_ops/") or not rel.endswith(".py"):
                 continue
             if "/state/" in rel or "/_worktrees/" in rel or "__pycache__" in rel:
                 continue
-            want.add(rel)
-        copied = 0
-        for rel in want:
             src = self.repo / rel
-            if not src.is_file():
-                continue
+            if src.is_file():
+                snap[rel] = src.read_bytes()
+        return snap
+
+    def _replicate_live_source(self, wt: Path, commit: bool,
+                               snapshot: dict | None = None) -> int:
+        """snapshot را در worktree می‌نشاند (یا اگر داده نشد، تازه می‌گیرد — برای APIِ مستقل)."""
+        snap = self._snapshot_live_source() if snapshot is None else snapshot
+        copied = 0
+        for rel, data in snap.items():
             dst = wt / rel
             dst.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, dst)
+            dst.write_bytes(data)
             copied += 1
         if commit and copied:
             # کامیتِ throwaway در HEAD ِ همین worktree (detached) — شاخهٔ زنده هرگز
@@ -292,6 +311,11 @@ class MissionRunner:
         res = MissionResult(mission_id=mission_id, ok=False, stage="init")
         fp_before = self.live_fingerprint()
         wt = self.worktrees / f"mission-{mission_id}"
+        # snapshotِ **واحد** از کدِ زندهٔ کاری + commitِ **پین‌شده** — پایه و کاندید هر دو
+        # همین را می‌گیرند تا فقط با پچ فرق کنند (VQ-DR-005: جلوگیری از رگرسیونِ کاذب وقتی
+        # دیسک یا HEAD بینِ دو اجرا عوض می‌شود، مثلاً کامیتِ جلسهٔ موازی).
+        snap = self._snapshot_live_source()
+        pinned = branch or self._git("rev-parse", "HEAD", check=False).stdout.strip()
 
         try:
             if measure_baseline:
@@ -308,9 +332,8 @@ class MissionRunner:
                     try:
                         self.worktrees.mkdir(parents=True, exist_ok=True)
                         self._drop_worktree(base_wt)
-                        h = branch or self._git("rev-parse", "HEAD").stdout.strip()
-                        self._git("worktree", "add", "--detach", str(base_wt), h)
-                        self._replicate_live_source(base_wt, commit=False)  # F-08
+                        self._git("worktree", "add", "--detach", str(base_wt), pinned)
+                        self._replicate_live_source(base_wt, commit=False, snapshot=snap)
                         res.baseline = self.run_suite(base_wt)
                     finally:
                         self._drop_worktree(base_wt)
@@ -333,9 +356,8 @@ class MissionRunner:
             self.worktrees.mkdir(parents=True, exist_ok=True)
             if wt.exists():
                 self._drop_worktree(wt)
-            head = branch or self._git("rev-parse", "HEAD").stdout.strip()
-            self._git("worktree", "add", "--detach", str(wt), head)
-            self._replicate_live_source(wt, commit=True)   # F-08: وفادار به کدِ زنده
+            self._git("worktree", "add", "--detach", str(wt), pinned)
+            self._replicate_live_source(wt, commit=True, snapshot=snap)  # همان snapshot+commitِ پایه
 
             res.stage = "patch"
             try:
