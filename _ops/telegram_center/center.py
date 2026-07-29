@@ -2385,6 +2385,48 @@ def _introspect(which: str, text: str = "") -> str:
                 "insight": _ic.insight_text}[which]()
     except Exception as exc:  # noqa: BLE001
         return f"🚩 خودنگری در دسترس نیست: {type(exc).__name__}: {exc}"
+
+# ── قفلِ تک‌نمونه (۲۰۲۶-۰۷-۲۹، رأیِ مالک) ────────────────────────────────────
+# چرا سوکت و نه فایلِ قفل: سیستم‌عامل موقعِ مرگِ پروسه خودش آزادش می‌کند، پس
+# «قفلِ یتیمِ بعد از کرش» وجود ندارد — همان الگویی که organism/cortex/live از
+# bindِ پورتشان مجانی می‌گیرند. مرکز HTTP لازم ندارد؛ این سوکت فقط mutex است.
+#
+# تلهٔ ویندوز (از کامنتِ organism._ExclusiveHTTPServer، جلسهٔ ۱۹): SO_REUSEADDR
+# اجازهٔ double-bindِ ساکت می‌دهد. پس هرگز ست نمی‌شود و به‌جایش
+# SO_EXCLUSIVEADDRUSE پیش از bind ست می‌شود.
+CENTER_LOCK_PORT = int(os.environ.get("TG_CENTER_LOCK_PORT", "8776"))
+_SINGLETON_SOCK = None      # ارجاعِ ماژول-سطح = قفل نگه‌داشته می‌شود (GC نبندَدش)
+
+
+def acquire_singleton(port: int | None = None):
+    """قفل را بگیر. برمی‌گرداند (sock, reason):
+
+      (sock, None)          قفل گرفته شد — ارجاع را نگه دار وگرنه آزاد می‌شود
+      (None, "in-use")      نمونهٔ دیگری زنده است → صدازننده باید تمیز خارج شود
+      (None, "error: ...")  خطای غیرمنتظره → **قفل نگرفتیم ولی متوقف هم نمی‌کنیم**
+
+    آن شاخهٔ سوم عمدی است: نبودِ قفل همان وضعِ پیش از امروز است (رگرسیون نیست)،
+    ولی مرکزی که به‌خاطرِ یک ایرادِ سوکت اصلاً بالا نیاید رگرسیونِ واقعی است.
+    """
+    global _SINGLETON_SOCK
+    import socket
+    p = int(CENTER_LOCK_PORT if port is None else port)
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        s.bind(("127.0.0.1", p))
+        s.listen(1)
+    except OSError as exc:
+        s.close()
+        if getattr(exc, "errno", None) in (48, 98, 10048) or "use" in str(exc).lower():
+            return None, "in-use"
+        return None, f"error: {type(exc).__name__}: {exc}"
+    if port is None:
+        _SINGLETON_SOCK = s      # فقط قفلِ واقعی سراسری می‌شود، نه قفلِ تست
+    return s, None
+
+
 if __name__ == "__main__":
     # مسیرِ رسمیِ لودِ .env (مثل model_router/approval_channel): بدونِ این،
     # TELEGRAM_* در os.environ نیست و رانر «not wired»ِ کاذب می‌دهد. fail-soft.
@@ -2393,6 +2435,34 @@ if __name__ == "__main__":
         env_loader.load_env()
     except Exception:  # noqa: BLE001
         pass
+    # قفلِ تک‌نمونه پیش از هر کارِ دیگر: دو مرکز روی یک توکن = 409 و بلعیدنِ
+    # دکمه‌های همدیگر. شبِ ۰۷-۲۹ واقعاً رخ داد. اول قفل، بعد هر تصمیمِ دیگر.
+    _lock, _why = acquire_singleton()
+    if _why == "in-use":
+        # حالتِ بیمار: پورت در دستِ *چیزِ دیگری* است و هیچ مرکزی نبض نمی‌زند.
+        # بدونِ این چک، مرکز تا ابد رد می‌شود، واچ‌داگ بی‌وقفه دوباره راه
+        # می‌اندازد، و کلِ ماجرا بی‌صداست — همان مرگِ نامرئی که امروز بستیم.
+        try:
+            import json as _j, time as _t
+            _p = opslib.STATE_DIR / "pulse" / "tg-center.json"
+            _age = (_t.time() - _p.stat().st_mtime) if _p.exists() else 1e9
+            if _age > 180:
+                opslib.alert([f"🚩 tg-center: پورتِ قفل {CENTER_LOCK_PORT} گرفته "
+                              f"است ولی هیچ مرکزی {int(_age)}s نبض نزده — احتمالاً "
+                              "برنامهٔ دیگری آن پورت را دارد. TG_CENTER_LOCK_PORT را "
+                              "عوض کن وگرنه مرکز هرگز بالا نمی‌آید."])
+        except Exception:  # noqa: BLE001
+            pass
+        print("tg-center: نمونهٔ دیگری روی قفلِ "
+              f"127.0.0.1:{CENTER_LOCK_PORT} زنده است — خروجِ تمیز.")
+        sys.exit(0)
+    if _why:
+        try:
+            opslib.alert([f"⚠️ tg-center: قفلِ تک‌نمونه گرفته نشد ({_why}) — "
+                          "بدونِ قفل ادامه می‌دهم (وضعِ پیش از ۰۷-۲۹). "
+                          "اگر تکرار شد، دو مرکز ممکن است هم‌زمان بدوند."])
+        except Exception:  # noqa: BLE001
+            pass
     c = Center()
     if not c.wired():
         print("tg-center: not wired (TELEGRAM_BOT_TOKEN/چت پیکربندی نشده) — خروجِ امنِ no-op")

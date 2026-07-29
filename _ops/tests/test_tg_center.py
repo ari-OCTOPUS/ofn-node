@@ -626,6 +626,39 @@ def t_center_pulses_every_loop_iteration():
         assert bad not in pulse, f'پالس نباید {bad} بنویسد'
 
 
+def t_center_has_a_real_singleton_lock():
+    """قفلِ تک‌نمونه (۲۰۲۶-۰۷-۲۹، رأیِ مالک).
+
+    شبِ همان روز دو مرکز هم‌زمان روی یک توکن زنده بودند (pid 23892 یتیم +
+    10096) — چون بر خلافِ organism/cortex/live که bindِ پورت mutex مجانی
+    می‌دهد، مرکز poller است و هیچ قفلی نداشت. این تست هم رفتار را می‌سنجد هم
+    محلِ فراخوان را، چون هیچ‌کدام تنها کافی نیست."""
+    P = 8901
+    s1, w1 = center.acquire_singleton(P)
+    assert s1 is not None and w1 is None, f'قفلِ اول باید بگیرد: {w1}'
+    try:
+        s2, w2 = center.acquire_singleton(P)
+        assert s2 is None and w2 == 'in-use', f'نمونهٔ دوم باید رد شود: {w2}'
+    finally:
+        s1.close()
+    s3, w3 = center.acquire_singleton(P)
+    assert s3 is not None, f'بعد از آزادشدن باید دوباره قفل شود: {w3}'
+    s3.close()
+    # قفلِ تستی هرگز نباید ارجاعِ سراسری را بگیرد (وگرنه پروسهٔ واقعی گیر می‌کند)
+    assert center._SINGLETON_SOCK is None
+
+    src = (pathlib.Path(__file__).resolve().parents[1]
+           / 'telegram_center' / 'center.py').read_text(encoding='utf-8', errors='replace')
+    main = src[src.index('if __name__ == "__main__":'):]
+    assert 'acquire_singleton()' in main, 'قفل در مسیرِ بوت صدا زده نمی‌شود'
+    assert main.index('acquire_singleton()') < main.index('c.run_forever()'),         'قفل باید پیش از حلقه گرفته شود'
+    # تلهٔ ویندوز: SO_REUSEADDR اجازهٔ double-bindِ ساکت می‌دهد و قفل را بی‌اثر می‌کند
+    fn = src[src.index('def acquire_singleton'):]
+    fn = fn[:fn.index('return s, None')]
+    assert 'SO_REUSEADDR' not in fn, 'SO_REUSEADDR قفل را روی ویندوز بی‌اثر می‌کند'
+    assert 'SO_EXCLUSIVEADDRUSE' in fn
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)
