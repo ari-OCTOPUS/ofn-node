@@ -610,6 +610,23 @@ except GateError as e:
     r = str(e)
 check("فایلِ نو نباید لنگر داشته باشد", "لنگر داشته" in r, r[:60])
 
+# ⛔ گیتِ ۹ — حریم. از حالتِ شکستِ **مشاهده‌شدهٔ** Darwin Gödel Machine (۲۰۲۵):
+# ایجنت لاگِ تست را جعل کرد، و در موردی دیگر گاردِ تشخیصِ توهم را حذف کرد.
+# هیچ‌کدام در فهرستِ DENY نبودند ⇒ این یک سوراخِ واقعی در طراحیِ من بود.
+for holy in ("_ops/tests/run_all.py", "doctor/propose.py", "os_v1/policy_sampler.py",
+             "OCTOPUS-DOCTOR/10-قوانین/R-01-قانونِ-خودارجاعی.md"):
+    ps_h = PatchSet("m-ok", "t", "r", [Patch(holy, "الف", "ب")])
+    try:
+        ps_h.gate(); r = "پذیرفت!"
+    except GateError as e:
+        r = str(e)
+    check(f"⛔ گیت ۹ — حریم: {holy.split('/')[-1][:22]}", "گیت ۹" in r, r[:44])
+    check("   ...ولی با اجازهٔ صریحِ مالک ممکن است (تکامل ممنوع نیست)",
+          ps_h.gate(allow_sanctum=True) is None and ps_h.touches_sanctum)
+ps_ok = PatchSet("m-ok", "t", "r", [Patch("_ops/legs/a.py", "x", "y")])
+check("پچِ عادی حریم را لمس نمی‌کند و گیت ۹ سرِ راهش نیست",
+      not ps_ok.touches_sanctum and ps_ok.gate() is None)
+
 with tempfile.TemporaryDirectory() as td:
     root = Path(td)
     ok_ps.as_apply()(root)

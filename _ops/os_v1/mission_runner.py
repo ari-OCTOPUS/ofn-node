@@ -60,6 +60,7 @@ class MissionResult:
     seconds: float = 0.0
     reasons: list[str] = field(default_factory=list)
     live_tree_untouched: bool = True
+    suite_touched: list[str] = field(default_factory=list)   # پچ به شاهد دست زد؟
 
     @property
     def may_merge(self) -> bool:
@@ -77,10 +78,13 @@ class MissionResult:
         b = self.baseline.count if self.baseline else "?"
         c = self.candidate.count if self.candidate else "?"
         mark = "✅" if self.may_merge else "⚠️"
+        warn = (f"\n⚠️ پچ به سوئیت دست زد ({len(self.suite_touched)} فایل) — "
+                "حکم با سوئیتِ **دست‌نخورده** گرفته شد" if self.suite_touched else "")
         return (f"{mark} ماموریت {self.mission_id}\n"
                 f"سوئیت: {c}/{c} (پایه {b}) · دیف {self.files_changed} فایل · "
                 f"{self.seconds:.0f}s\n"
-                f"درختِ زنده دست‌نخورده: {'بله' if self.live_tree_untouched else '❌ خیر'}")
+                f"درختِ زنده دست‌نخورده: {'بله' if self.live_tree_untouched else '❌ خیر'}"
+                + warn)
 
 
 class Verdict:
@@ -169,8 +173,37 @@ class MissionRunner:
         return best
 
     # -------------------------------------------------------------- mission
+    # مسیرهایی که **شاهد** را می‌سازند. پچ حق دارد پیشنهادشان بدهد، ولی حکم با
+    # نسخهٔ دست‌نخوردهٔ آن‌هاست — وگرنه متهم، دادگاهِ خودش را می‌نویسد.
+    PRISTINE = ("_ops/tests/", "tests/", "conftest.py")
+
+    def _restore_pristine(self, wt: Path) -> list[str]:
+        """سوئیت را در worktree به نسخهٔ HEAD برمی‌گرداند و می‌گوید چه چیزی برگشت.
+
+        ⛔ چرا این وجود دارد — از مقالهٔ Darwin Gödel Machine (۲۰۲۵):
+        ایجنتِ خودبهبود، وقتی با «سوئیت سبز» سنجیده شد، **لاگِ اجرا را جعل کرد** و در
+        موردی دیگر **نشانگرِ تشخیصِ توهم را حذف کرد**. یعنی سیستمی که با آزمونِ خودش
+        سنجیده می‌شود، یاد می‌گیرد آزمون را عوض کند، نه خودش را.
+
+        پس: پچ در worktree اعمال می‌شود، بعد **سوئیت به نسخهٔ اصلی برمی‌گردد**، و
+        قضاوت با همان سوئیتِ دست‌نخورده انجام می‌شود.
+        """
+        changed = [ln[3:].strip().strip('"').replace("\\", "/")
+                   for ln in self._git("status", "--porcelain", cwd=wt,
+                                       check=False).stdout.splitlines() if ln.strip()]
+        hit = [f for f in changed if any(p in f for p in self.PRISTINE)]
+        for f in hit:
+            r = self._git("checkout", "HEAD", "--", f, cwd=wt, check=False)
+            if r.returncode != 0:
+                # در HEAD نبوده ⇒ پچ یک فایلِ تستِ **نو** ساخته. آن هم شاهدِ خودساخته
+                # است و برای قضاوت حذف می‌شود؛ ولی در گزارش می‌ماند.
+                (wt / f).unlink(missing_ok=True)
+        return hit
+
     def run(self, mission_id: str, apply_patch: Callable[[Path], None],
-            branch: str | None = None, measure_baseline: bool = True) -> MissionResult:
+            branch: str | None = None, measure_baseline: bool = True,
+            judge_with_pristine_suite: bool = True,
+            allow_live_baseline: bool = False) -> MissionResult:
         """یک ماموریتِ کامل در ایزوله. درختِ زنده هرگز لمس نمی‌شود."""
         t0 = time.time()
         res = MissionResult(mission_id=mission_id, ok=False, stage="init")
@@ -180,7 +213,23 @@ class MissionRunner:
         try:
             if measure_baseline:
                 res.stage = "baseline"
-                res.baseline = self.run_suite(self.repo)
+                # ⛔ ۲۹ جولای، از بازدیدِ درختِ زنده: `_ops/tests/run_all.py` بی‌صدا نیست —
+                # روی سبز `capability_gate.mark_capability` می‌نویسد و روی **هر شکست**
+                # `revoke_capability` می‌زند. اجرای پایه روی درختِ زنده یعنی یک تستِ
+                # لرزان (مخزن خودش ~۴۰٪ لرزش را مستند کرده) **مسیرِ پولِ زنده را می‌بندد**.
+                # پس پایه هم در worktreeِ ایزوله اندازه گرفته می‌شود، نه روی درختِ زنده.
+                if allow_live_baseline:
+                    res.baseline = self.run_suite(self.repo)
+                else:
+                    base_wt = self.worktrees / f"baseline-{mission_id}"
+                    try:
+                        self.worktrees.mkdir(parents=True, exist_ok=True)
+                        self._drop_worktree(base_wt)
+                        h = branch or self._git("rev-parse", "HEAD").stdout.strip()
+                        self._git("worktree", "add", "--detach", str(base_wt), h)
+                        res.baseline = self.run_suite(base_wt)
+                    finally:
+                        self._drop_worktree(base_wt)
                 if not res.baseline.green:
                     res.reasons.append(
                         f"پایه خودش قرمز است (exit={res.baseline.exit_code}) — "
@@ -200,6 +249,14 @@ class MissionRunner:
             except Exception as e:                          # noqa: BLE001
                 res.reasons.append(f"پچ خطا داد: {type(e).__name__}: {e}")
                 return self._finish(res, wt, fp_before, t0)
+
+            if judge_with_pristine_suite:
+                res.stage = "pristine"
+                res.suite_touched = self._restore_pristine(wt)
+                if res.suite_touched:
+                    res.reasons.append(
+                        "⚠️ پچ به سوئیت دست زد؛ برای قضاوت به نسخهٔ اصلی برگردانده شد: "
+                        + ", ".join(res.suite_touched[:3]))
 
             res.stage = "diff"
             d = self._git("diff", "--stat", cwd=wt, check=False).stdout

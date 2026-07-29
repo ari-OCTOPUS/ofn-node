@@ -89,7 +89,17 @@ class Quota:
 
     def __init__(self, state_dir: Path, cap: int = DAILY_CAP,
                  usd_cap: float = DAILY_USD_CAP):
-        self.p = Path(state_dir) / "fugu-quota.json"
+        d = Path(state_dir)
+        # ⛔ ۲۹ جولای، از بازدیدِ درختِ زنده: خودِ اختاپوس یک `_ops/state/fugu-quota.json`
+        # دارد با شِمای **متفاوت** (`used{tier:organ}` · `consecutive_failures` · `denied`).
+        # اگر دکتر آنجا بنویسد، شمارندهٔ شکستِ روترِ پولیِ ارگانیسم را بی‌سروصدا پاک می‌کند.
+        # پس ساختاراً ممنوع، نه با یادداشت در مستندات.
+        low = str(d.resolve()).replace("\\", "/").lower()
+        if "/_ops/state" in low or low.endswith("/_ops"):
+            raise ValueError(
+                "⛔ سهمیهٔ دکتر هرگز در `_ops/state` نوشته نمی‌شود — "
+                "شِمای fugu-quota.jsonِ خودِ ارگانیسم فرق دارد و پاک می‌شود")
+        self.p = d / "fugu-quota.json"
         self.cap = cap
         self.usd_cap = float(usd_cap)
 

@@ -12,7 +12,7 @@ updated: 2026-07-29
 
 مغز: `fugu.py` · چشم: `scanner.py` · انگشت‌ها: `propose.py` · صدا: `channel.py`
 حلقه: `daemon.py` · ذهن: `mind.py` (ناخودآگاهِ جمعی) · **مسیریاب: `router.py`**
-۶۴ نوت · **۱۴۸/۱۴۸ تست سبز** · stdlib خالص (بدونِ حتی openai SDK)
+۶۷ نوت · **۱۵۷/۱۵۷ تست سبز** · stdlib خالص (بدونِ حتی openai SDK)
 
 ```
 python doctor/cli.py triage                  # آفلاین، بی‌خطر، همیشه کار می‌کند

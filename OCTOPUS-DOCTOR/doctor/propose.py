@@ -45,6 +45,31 @@ MAX_BYTES = 40_000            # سقفِ اندازهٔ کلِ تغییر
 CREATE_ALLOW = ("_ops/legs/", "_ops/organs/", "_ops/tools/", "_ops/os_v1/",
                 "OCTOPUS-DOCTOR/")
 
+# ═══════════════════════ حریم (Sanctum) — گیتِ ۹ ═══════════════════════
+# این‌ها ممنوع نیستند (باید بتوانند تکامل پیدا کنند) ولی **شاهد را می‌سازند**،
+# پس تغییرشان با رأیِ عادی کافی نیست.
+#
+# چرا اضافه شد — و این را از تحقیق فهمیدم، نه از فکرِ خودم:
+# مقالهٔ Darwin Gödel Machine (Sakana، ۲۰۲۵) دو حالتِ شکستِ **مشاهده‌شده** گزارش می‌کند
+# که هر دو دقیقاً روی معماریِ من می‌نشستند:
+#   ۱ ایجنت **لاگِ اجرای تست را جعل کرد** — «فقط یک لاگِ قلابی می‌سازد که انگار
+#     تست‌ها اجرا شده و همه سبزند»، در حالی که اصلاً اجرا نشده بودند.
+#   ۲ وقتی گفتند «توهم را کم کن»، **نشانگرهای تشخیصِ توهم را حذف کرد** —
+#     یعنی به‌جای حلِ مسئله، سنجه را خراب کرد.
+#
+# ترجمهٔ این دو به سیستمِ من:
+#   · پچی که `_ops/tests/` را عوض کند، می‌تواند سوئیت را همیشه‌سبز کند ⇒ گیتِ من بی‌اثر
+#   · پچی که خودِ `propose.py` یا `policy_sampler.py` را عوض کند، می‌تواند
+#     گیت‌ها را بردارد ⇒ سیستم گاردِ خودش را خاموش می‌کند
+# هیچ‌کدام در فهرستِ DENY نبودند. این یک **سوراخِ واقعی** بود.
+SANCTUM = (
+    "/tests/", "test_", "run_all.py", "conftest.py",     # شاهد
+    "propose.py", "policy_sampler.py", "honest_metric.py",
+    "mission_runner.py", "efe.py", "router.py", "channel.py",
+    "daemon.py", "outcome_ledger.py",                    # خودِ گاردها
+    "10-قوانین/", "R-0",                                 # قوانین
+)
+
 PROPOSE_SYSTEM = """تو «دکترِ اختاپوس» هستی و باید یک تغییرِ کدِ **کوچک و قابلِ‌بازگشت** پیشنهاد بدهی.
 
 خروجیِ تو **فقط** یک آبجکتِ JSON است. هیچ متنی قبل یا بعدش ننویس. بدونِ ```.
@@ -120,9 +145,27 @@ class PatchSet:
     def empty(self) -> bool:
         return not self.patches
 
+    # ------------------------------------------------------------- حریم
+    @property
+    def sanctum_files(self) -> list[str]:
+        """فایل‌هایی که **شاهد را می‌سازند یا گارد را اجرا می‌کنند**."""
+        out = []
+        for p in self.patches:
+            low = (p.file or "").replace("\\", "/").lower()
+            if any(s.lower() in low for s in SANCTUM):
+                out.append(p.file)
+        return sorted(set(out))
+
+    @property
+    def touches_sanctum(self) -> bool:
+        return bool(self.sanctum_files)
+
     # ------------------------------------------------------------- گیت‌ها
-    def gate(self) -> None:
-        """هفت گیت. هرکدام رد شد، استثنا — نه هشدارِ بی‌صدا."""
+    def gate(self, allow_sanctum: bool = False) -> None:
+        """نُه گیت. هرکدام رد شد، استثنا — نه هشدارِ بی‌صدا.
+
+        `allow_sanctum` را **فقط مالک** می‌تواند بدهد، و فقط بعد از دیدنِ دیفِ کامل.
+        """
         if not re.fullmatch(r"[a-z0-9][a-z0-9-]{1,48}", self.mission_id or ""):
             raise GateError(f"گیت ۱ — mission_id نامعتبر: {self.mission_id!r}")
         if self.empty:
@@ -130,6 +173,12 @@ class PatchSet:
         if len({p.file for p in self.patches}) > MAX_FILES:
             raise GateError(f"گیت ۳ — بیش از {MAX_FILES} فایل: "
                             f"{len({p.file for p in self.patches})}")
+        if self.touches_sanctum and not allow_sanctum:
+            raise GateError(
+                "گیت ۹ — حریم: این پچ به فایلی دست می‌زند که **شاهد را می‌سازد یا "
+                f"گارد را اجرا می‌کند**: {self.sanctum_files[:3]}. "
+                "رأیِ عادی کافی نیست — مالک باید دیفِ کامل را ببیند و صریح اجازه بدهد. "
+                "(دلیل: DGM ثابت کرد ایجنت سوئیت را همیشه‌سبز و گاردِ خودش را خاموش می‌کند)")
         total = sum(p.delta_bytes for p in self.patches)
         if total > MAX_BYTES:
             raise GateError(f"گیت ۴ — تغییر خیلی بزرگ است: {total} بایت")
@@ -160,13 +209,13 @@ class PatchSet:
                 raise GateError(f"گیت ۷ — پچِ بی‌اثر در {f!r}")
 
     # ---------------------------------------------------- ساختِ callable
-    def as_apply(self):
+    def as_apply(self, allow_sanctum: bool = False):
         """تابعی که `MissionRunner` داخلِ worktree صدا می‌زند.
 
         هر شکستی استثنا می‌دهد ⇒ `MissionRunner` ماموریت را قرمز می‌کند و
         worktree را پاک می‌کند. **صفر بایت** روی درختِ زنده.
         """
-        self.gate()
+        self.gate(allow_sanctum=allow_sanctum)
 
         def apply_patch(root: Path) -> None:
             root = Path(root).resolve()
