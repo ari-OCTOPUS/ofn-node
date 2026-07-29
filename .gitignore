@@ -13,6 +13,11 @@ node_modules/
 # سخت‌سازی init 2026-07-06 (گپ‌های build-proposals/04):
 *.env.*
 *secret*
+# سخت‌سازی 2026-07-29 (پروبِ زنده PRB-01): سندی که خودش هشدارِ «هرگز commit نشود» دارد
+# چون مقادیرِ واقعیِ توکن/کلید را نقل کرده. نه tracked بود نه ignored — یک `git add -A`
+# کافی بود. الگو به‌جای نامِ تک‌فایل، تا سندِ بعدیِ هم‌جنس هم گرفته شود:
+*-tokens.md
+TELEGRAM-SYSTEM-MAP/E-state-config-tokens.md
 **/_code/
 .obsidian/workspace*
 *.db
