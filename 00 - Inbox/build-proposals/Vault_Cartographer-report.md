@@ -1,3 +1,10 @@
+---
+type: report
+status: inbox
+tags: [octopus, build-proposal]
+created: 2026-07-13
+updated: 2026-07-29
+---
 # گزارش Vault Cartographer — نقشه‌برداری کامل اکتوپوس
 
 **تاریخ تولید:** ۲۰۲۶-۰۷-۱۳  

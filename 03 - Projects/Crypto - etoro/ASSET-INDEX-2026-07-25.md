@@ -1,5 +1,5 @@
 ---
-type: index
+type: moc
 project: "[[03 - Projects/Crypto - etoro/PROJECT]]"
 status: paused
 tags: [crypto, data, inventory]

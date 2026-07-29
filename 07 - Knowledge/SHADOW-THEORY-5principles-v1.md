@@ -1,5 +1,5 @@
 ---
-type: theory
+type: research
 status: active
 created_by: agent
 created: 2026-07-09
@@ -7,7 +7,7 @@ updated: 2026-07-09
 version: v1.2
 tags: [theory, identification, channel, emergence, self-reference, octopus, doctor-research]
 source: "چتِ ۲۰۲۶-۰۷-۰۹ — دو فایلِ منبعِ آری (روایتِ ۶‌نتیجه‌ای + نقدِ تجمیعی) + سخت‌سازیِ ریاضی/هندسیِ این جلسه. متنِ کاملِ هر دو فایل در همان چت است (بیرونِ vault)."
-epistemics: "[EST]=برآورد · [THM]=قضیهٔ تثبیت‌شده · [HYP]=فرضیهٔ پژوهشیِ falsifiable · [CHOICE]=انتخابِ طراحی · [OPEN]=سؤالِ باز"
+epistemic_status: "[EST]=برآورد · [THM]=قضیهٔ تثبیت‌شده · [HYP]=فرضیهٔ پژوهشیِ falsifiable · [CHOICE]=انتخابِ طراحی · [OPEN]=سؤالِ باز"
 ---
 
 # SHADOW-THEORY — نظریهٔ سخت‌شده (۵ اصل) v1.2

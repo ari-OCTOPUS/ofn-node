@@ -18,20 +18,26 @@ EXCLUDE = ("_Archive", "_Duplicates", ".git", "_code", ".obsidian", ".claude", "
 # زیرپوشه‌های عمیق Mining/فیوژن، ساختار داخلی architect) قرارداد خودشان را دارند و چک نمی‌شوند.
 SYSTEM_FOLDERS = {"00 - Inbox", "01 - Dashboard", "02 - Life OS", "05 - Agents",
                   "06 - Architecture Maps", "09 - People", "10 - Telegram processing"}
+# ۲۰۲۶-۰۷-۲۹: سندهای عملیاتیِ استاندارد (§۱۱) قراردادِ خودشان را دارند — نوتِ vault نیستند
+OPS_BASENAMES = {"README.md", "REGISTRY.md", "RUNBOOK.md", "VERDICT_QUEUE.md"}
+PROJECT_AREAS = ("03 - Projects", "04 - Architect System", "07 - Knowledge")
 
 def in_scope(p):
     rel = p.relative_to(ROOT)
     parts = rel.parts
     if p.name == "CLAUDE.md":          # فایل config است، نه نوت
         return False
-    if len(parts) == 1:                 # ریشه vault
-        return True
+    if p.name in OPS_BASENAMES:         # سندِ عملیاتی (§۱۱)
+        return False
+    if len(parts) == 1:                 # ریشه = لایهٔ سندِ عملیاتی/staging، نه نوت (۲۰۲۶-۰۷-۲۹)
+        return False
     if parts[0] in SYSTEM_FOLDERS:      # پوشه‌های سیستمی: کامل
         return True
-    if p.name == "PROJECT.md":          # همه شناسنامه‌ها
-        return True
+    if p.name == "PROJECT.md":          # شناسنامه‌های سطحِ پروژه؛ زیرپکیج‌های عمیق‌تر
+        return parts[0] in PROJECT_AREAS and len(parts) <= 3  # (مثل attach-proposal) قراردادِ خودشان
     if parts[0] in ("03 - Projects", "07 - Knowledge") and len(parts) <= 3:
-        return True                     # نوت‌های سطح بالای هر پروژه/دانش
+        # نوت‌های سطح‌بالا؛ زیرپوشه‌های «_» بستهٔ داخلی‌اند (_audit، _OCTOPUS-PMO)
+        return not (len(parts) == 3 and parts[1].startswith("_"))
     return False
 
 TYPES = {"project", "knowledge", "log", "telegram-log", "person", "agent",
@@ -67,7 +73,9 @@ errors = []
 count = 0
 for p in ROOT.rglob("*.md"):
     # فیلتر روی مسیر نسبی — مسیر مطلق ROOT ممکن است خودش ".claude" داشته باشد (worktree) و همه‌چیز را خالی exclude کند
-    if any(x in p.relative_to(ROOT).parts for x in EXCLUDE) or not in_scope(p):
+    # پوشه‌های نقطه‌دار (worktreeهای جامانده مثل .wt-*، .zcode) هرگز نوت نیستند
+    parts = p.relative_to(ROOT).parts
+    if any(x in parts for x in EXCLUDE) or any(x.startswith(".") for x in parts) or not in_scope(p):
         continue
     rel = p.relative_to(ROOT).as_posix()
     count += 1

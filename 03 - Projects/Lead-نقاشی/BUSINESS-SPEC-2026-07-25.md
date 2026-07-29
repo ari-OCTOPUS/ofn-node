@@ -1,5 +1,5 @@
 ---
-type: spec
+type: design
 project: "[[03 - Projects/Lead-نقاشی/PROJECT]]"
 status: active
 tags: [painting, business, pricing, lead]

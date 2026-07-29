@@ -1,10 +1,11 @@
 ---
 type: proposal
-status: propose-only
-priority: P0
+status: draft
+# priority: P0
 created: 2026-07-09
+updated: 2026-07-29
 created_by: agent
-domain: architect / _ops
+# domain: architect / _ops
 tags: [proposal, gap-report, E16, integrity, restore, human-append]
 sources:
   - "[[06 - Architecture Maps/MASTER-ARCHITECTURE-2026-07-09]]"

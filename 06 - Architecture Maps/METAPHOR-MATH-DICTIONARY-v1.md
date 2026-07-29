@@ -1,3 +1,10 @@
+---
+type: reference
+status: active
+tags: [octopus, math, metaphor]
+created: 2026-07-24
+updated: 2026-07-29
+---
 # 📐 دیکشنریِ استعاره → ریاضی (v1)
 > ۲۰۲۶-۰۷-۲۴ · هر استعاره = کمیت + فرمول + منبعِ داده + آستانه. برچسب [hypothesis] = فرمولِ پیشنهادیِ من؛ [FACT] = کدِ موجود.
 

@@ -1,10 +1,12 @@
 ---
-type: audit
+type: report
 kind: deep-doublecheck
-status: complete
+status: done
 created: 2026-07-08
-auditor: Agent-Auditor (GLM)
-scope: read-only, propose-only, secret-metadata-only
+updated: 2026-07-29
+tags: [octopus, audit]
+created_by: Agent-Auditor (GLM)
+# scope: read-only, propose-only, secret-metadata-only
 extends: "[[07 - Knowledge/_audit/MASTER_REPORT]]"
 ---
 

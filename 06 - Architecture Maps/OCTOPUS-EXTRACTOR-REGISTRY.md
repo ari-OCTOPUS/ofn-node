@@ -1,10 +1,11 @@
 ---
-title: OCTOPUS Extractor Registry
+type: reference
+# title: OCTOPUS Extractor Registry
 status: active
 created: 2026-07-12
 updated: 2026-07-12
 tags: [octopus, registry, extractors, wave-5, nervous-system]
-backlinks:
+related:
   - "[[OCTOPUS-CHANNEL-REGISTRY]]"
   - "[[WAVE-5-HARDENING-PLAN]]"
 ---

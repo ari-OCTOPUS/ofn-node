@@ -4,8 +4,8 @@ status: done
 tags: [selfimprove, review]
 created: 2026-07-05
 updated: 2026-07-05
-task: experience-review
-run: "2026-07-05 ~21:35 AEST (اولین اجرای زنده) + بازاجرای ۲ catch-up ~۲۳:۵۴ AEST (دلتا در §۸)"
+# task: experience-review
+# run: "2026-07-05 ~21:35 AEST (اولین اجرای زنده) + بازاجرای ۲ catch-up ~۲۳:۵۴ AEST (دلتا در §۸)"
 ---
 
 # Experience Review — دیجست هفتگی verdict (2026-07-05)

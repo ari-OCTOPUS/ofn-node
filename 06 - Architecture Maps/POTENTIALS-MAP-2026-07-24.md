@@ -1,3 +1,10 @@
+---
+type: architecture
+status: active
+tags: [octopus, synthesis, potentials]
+created: 2026-07-24
+updated: 2026-07-29
+---
 # 🗺️ POTENTIALS-MAP — نقشه‌ی پتانسیل‌های ترکیب 4D × BlackBox × _ops
 > تاریخ: ۲۰۲۶-۰۷-۲۴ (جلسه‌ی kimi) · فاز صفرِ مگاپرامپتِ سنتز · همه‌چیز propose-only
 > برچسب‌ها: [FACT] امروز روی دیسک دیده شد · [FACT-0717] در کاوشِ ۰۷-۱۷ verify شده · [FACT-0724] از گزارشِ HANDOFF/P5 · [inferred] استنتاج

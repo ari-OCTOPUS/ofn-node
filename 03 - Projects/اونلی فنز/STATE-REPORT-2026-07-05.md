@@ -2,7 +2,7 @@
 created: 2026-07-05
 updated: 2026-07-05
 status: active
-type: state-report
+type: report
 tags: [project-f, state-report, synthesis]
 aliases: ["State Report", "گزارش وضعیت"]
 ---

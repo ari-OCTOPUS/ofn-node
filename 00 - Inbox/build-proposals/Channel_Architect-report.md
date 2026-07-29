@@ -1,3 +1,10 @@
+---
+type: report
+status: inbox
+tags: [octopus, build-proposal]
+created: 2026-07-12
+updated: 2026-07-29
+---
 # گزارشِ Channel_Architect — نقشهٔ کانال‌ها و سیم‌کشیِ OCTOPUS
 
 > **نقش:** Channel_Architect | **تاریخ:** 2026-07-12 | **ریشه:** `F:/backup`  

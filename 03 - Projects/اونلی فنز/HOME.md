@@ -2,11 +2,12 @@
 type: dashboard
 kind: project-home
 project: "[[03 - Projects/اونلی فنز/PROJECT]]"
-status: active-contained
+status: active
+# status پیشین: active-contained — نرمال‌سازی 2026-07-29
 owner: آری
 risk_level: high
 autonomy_level: read-only
-public_alias: Project-F
+# public_alias: Project-F
 updated: 2026-07-24
 aliases: ["Project-F Home"]
 tags: [dashboard, project-f, contained]

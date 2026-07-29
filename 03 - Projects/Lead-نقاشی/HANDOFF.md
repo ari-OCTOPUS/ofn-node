@@ -1,3 +1,7 @@
+---
+type: handoff
+updated: 2026-07-29
+---
 # HANDOFF — Lead-نقاشی / Painting-OS
 
 > **تاریخ:** 2026-07-12

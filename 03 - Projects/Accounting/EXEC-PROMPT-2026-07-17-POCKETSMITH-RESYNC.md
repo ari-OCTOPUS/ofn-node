@@ -1,13 +1,14 @@
 ---
-type: execution-prompt
+type: prompt
 project: "[[03 - Projects/Accounting/PROJECT]]"
-status: ready-to-run
+status: ready
 created: 2026-07-17
+updated: 2026-07-29
 created_by: deep-scan agent (ZCode)
 tags: [accounting, pocketsmith, execution-prompt, resync, self-run]
 aliases: ["پرامپت اجرایی سینک دوباره PocketSmith", "Resync Execution Prompt"]
-purpose: "پرامپت اجراییِ گام‌به‌گام برای اجرای بعدی: به‌روزرسانی PocketSmith + فعال‌سازی امنِ pipeline. خودِ ایجنت این را اجرا می‌کند."
-audience: "the next ZCode session (self)"
+# purpose: "پرامپت اجراییِ گام‌به‌گام برای اجرای بعدی: به‌روزرسانی PocketSmith + فعال‌سازی امنِ pipeline. خودِ ایجنت این را اجرا می‌کند."
+# audience: "the next ZCode session (self)"
 ---
 
 # ▶️ پرامپت اجرایی — به‌روزرسانی PocketSmith + فعال‌سازی امنِ Accounting

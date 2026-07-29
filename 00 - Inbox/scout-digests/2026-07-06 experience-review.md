@@ -3,6 +3,7 @@ type: report
 status: done
 tags: [selfimprove, review]
 created: 2026-07-06
+updated: 2026-07-29
 ---
 
 # Experience Review — 2026-07-06

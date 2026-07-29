@@ -1,9 +1,9 @@
 ---
 type: proposal
 project: "[[07 - Knowledge/Time-Architecture/PROJECT]]"
-status: draft-for-verdict
+status: draft
 created_by: agent
-relates_to: "[[07 - Knowledge/Time-Architecture/MAP]] (da/dt=−L(G)a) · [[04 - Architect System/DOCTOR-BOX-OF-AGENTS-SPEC]] (agent_state, φ) · [[_ops/ORGANISM-SPEC]]"
+related: "[[07 - Knowledge/Time-Architecture/MAP]] (da/dt=−L(G)a) · [[04 - Architect System/DOCTOR-BOX-OF-AGENTS-SPEC]] (agent_state, φ) · [[_ops/ORGANISM-SPEC]]"
 tags: [octopus, school-memory, curriculum, awareness, geometric, spec, propose-only]
 created: 2026-07-08
 updated: 2026-07-08

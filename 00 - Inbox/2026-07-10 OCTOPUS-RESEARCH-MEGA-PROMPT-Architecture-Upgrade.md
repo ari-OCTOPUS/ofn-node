@@ -1,3 +1,10 @@
+---
+type: prompt
+status: inbox
+tags: [octopus, research, memory, self-improvement]
+created: 2026-07-10
+updated: 2026-07-29
+---
 # 🧬 OCTOPUS — Research-Synthesis Mega-Prompt: Memory Persistence + Self-Improvement Architecture Upgrade
 
 > **Purpose:** This document contains (1) state-of-the-art research on multi-agent memory persistence and self-improvement from major companies (2023-2026), (2) deep gap analysis of the Octopus project's current architecture, and (3) a concrete, phased plan for upgrading Octopus's memory, learning, and self-improvement systems. Claude 5 should read this entirely and execute autonomously within safety constraints.

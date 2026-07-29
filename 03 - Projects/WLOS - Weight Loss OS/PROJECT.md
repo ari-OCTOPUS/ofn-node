@@ -51,4 +51,4 @@ updated: 2026-07-20
 ## نوت‌های مرتبط
 
 - `wlos/HANDOFF.md` (نقشهٔ کامل repo + گوچاها) · `wlos/docs/` (۱۷ سند)
-- [[04 - Architect System/ANALYSES/2026-07-20_LEGS-DEEP-SCAN|LEGS-DEEP-SCAN]] (زمینهٔ تصمیم الحاق)
+- LEGS-DEEP-SCAN — سندِ `04 - Architect System/ANALYSES/2026-07-20_LEGS-DEEP-SCAN` دیگر روی دیسک نیست (2026-07-29) (زمینهٔ تصمیم الحاق)
