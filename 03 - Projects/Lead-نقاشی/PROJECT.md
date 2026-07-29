@@ -8,7 +8,7 @@ risk_level: low
 autonomy_level: read-only
 tags: [lead-gen, painting, sydney, business, painting-os]
 created: 2026-07-03
-updated: 2026-07-20
+updated: 2026-07-29
 ---
 
 # پروژه: Lead-نقاشی
@@ -66,6 +66,7 @@ updated: 2026-07-20
 
 ## Active Context
 
+- **2026-07-29 (اسکنِ سطحِ تلگرام):** طبق حقیقتِ پایهٔ [[../../OCTOPUS-DOCTOR/50-اسکن‌ها/TG-GROUP-SCAN-PACKAGE-2026-07-29|TG-SCAN-PACKAGE]]، lead **پرکنترل‌ترین پای بیزنسی از گروه** است: `/lead` (کوت تا مرزِ ارسال، `OCTOPUS_TG_QUOTE=1`)، هشت فعلِ قیف `/won /lost /paid /sent /replied /meeting /quote /funnel` (`OCTOPUS_WIRE_FUNNEL_CMD=1`)، به‌علاوهٔ `/lead` باتِ ارگانیسم — و مرزِ «گزارش ≠ عمل» سرِ جایش است: دکمهٔ `qt:s` فقط رأی ثبت می‌کند، ارسال نمی‌کند. دایجستِ تاپیکش از `business_brain.summary` تغذیه می‌شود و در ORGANISM-STATE ‏`live=true` است. یعنی از میانِ ۱۰ پا، این یکی به «مغزِ فرمان‌پذیر از تلگرام» نزدیک‌ترین است.
 - **2026-07-21 (شب، «کاملش کن») — لِینِ لید = COMPLETE-UNARMED.** قوسِ لید کامل/متصل/تست‌شده (گیت ۱۸/۱۸ + دمو ۹/۹) و adversarial-verify؛ **مسلح نیست** (transport NOT_ARMED). Phase A: rename رویدادهای گمراه‌کننده (`communication.failed→effect.refused`، `communication.sent→effect.settled` — comms فقط برای transportِ واقعی). Phase B: `on_lead_verdict` (رأیِ approve→authorizeِ per-effect، جدا از سنجش)؛ راستی‌آزمایی ۲ باگ گرفت و فیکس شد (idempotency per-lead، چکِ may_outreach). راهنمای مالک: [[03 - Projects/Lead-نقاشی/Trust-Engine-v1.1/OWNER-RUNBOOK-LEAD|OWNER-RUNBOOK]]. arming = رأیِ آیندهٔ صریح. parkـشده: consent_store/funnel_store/first-response/producer-absorb + release/send split (فاز D).
 - **2026-07-21 (شب، fork=دموِ dry-run) — قوسِ لید در sandboxِ worktree اجرا شد: ۹/۹ PASS، صفر ارسال.** یک لیدِ synthetic از `submit_candidate→firewall→فایل→scorer→receipt` عبور کرد و در **دو سدِّ مستقل** ایستاد: گیتِ per-effect (`synthetic_never_sends`) + transportِ `NOT_ARMED`. market_signal رد شد. دمو یک مسئلهٔ صداقتِ audit کشف و فیکس کرد (`settle_fresh` قبلاً `communication.sent` می‌زد بی‌آنکه چیزی برود → حالا `effect.settled`). گزارش: [[03 - Projects/Lead-نقاشی/Trust-Engine-v1.1/DEMO-RUN-2026-07-21|DEMO-RUN]] + `replay.ps1` (۵ فرمان). فلگ‌های زنده همچنان خاموش، STOP سالم.
 - **2026-07-21 (شب، «LEAD-SAFETY-C1») — footgunِ batch-release بسته شد + گیتِ per-effect (کامیت `5723f90`).** `chrono.release_gated_effects` دیگر همهٔ pendingها را با یک رأی آزاد نمی‌کند (allowlistِ پول؛ ارسالِ مشتری فقط `release_one` per-effect) · `lead_effect_gate` (authorize+may_release fail-closed+release_and_settle) · `outbound_worker` = stubِ NOT_ARMED (نمی‌فرستد). راستی‌آزماییِ متخاصم ۲ باگ گرفت و فیکس شد؛ تست 13/13، مسیرِ پول سبز. مانده: مسلح‌سازیِ transport (فاز D، owner-gated).

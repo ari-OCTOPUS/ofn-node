@@ -8,7 +8,7 @@ risk_level: low
 autonomy_level: read-only
 tags: [marketing, branding, sydney]
 created: 2026-07-03
-updated: 2026-07-12
+updated: 2026-07-29
 ---
 
 # پروژه: Ziman Gift (Ziman Galerry)
@@ -50,6 +50,7 @@ units/week نسبت به سقف · سفارش per کانال `[To measure]` · �
 
 ## Active Context
 
+- **2026-07-29 (اسکنِ سطحِ تلگرام):** طبق [[../../OCTOPUS-DOCTOR/50-اسکن‌ها/TG-GROUP-SCAN-PACKAGE-2026-07-29|TG-SCAN-PACKAGE]]، پای ziman در ORGANISM-STATE **زنده** است (`money_link=active`، beat ‏17460) و دایجستِ تاپیکش از `wiring.ziman_beat` می‌آید. دو شکافِ مشخص: (۱) اتاقِ پاها (`OCTOPUS_WIRE_LEG_ROOMS=1`) فقط از سلول‌های `business_legs` تغذیه می‌شود، پس اتاقِ ziman از آن مسیر **ساختاراً ساکت** می‌ماند؛ (۲) `OCTOPUS_ZIMAN_BRANDING` در هیچ لانچری ست نشده → خاموش. کنترلِ فعلی از گروه فقط pause/resume و دایجست است؛ فرمانِ اختصاصی ندارد.
 - **2026-07-06 (جلسه ۱۷):** کد پروژه به `_code/` منتقل شد (B1 پلن NONMD-TRIAGE؛ propose→executed با verdict آری). لاگ کامل: `00 - Inbox/nonmd-move-log-2026-07-06.csv`.
 - **2026-07-06 — Ziman Live:** کپی قابل‌اجرای control-brain + ziman-agent در `_launchpad/ziman-live/` با setup wizard ‏(HTML، ‏localhost:8877) و `START-HERE.bat` — منتظر اولین اجرای آری با توکن تلگرام نو. v2 = کاستوم‌سازی UI داشبورد.
 
