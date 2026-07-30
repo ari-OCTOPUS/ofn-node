@@ -200,6 +200,60 @@ def t_an_empty_recall_series_is_still_sampled_once():
     assert isinstance(row["recall_ok"], bool), row
 
 
+def t_a_failed_journal_write_never_burns_the_slot_and_never_says_ok():
+    """P0 (بازبینِ موازی ۲۰۲۶-۰۷-۳۰) — حالتِ الف: دفتر ننوشت ولی اسلات سوخت.
+
+    نسخهٔ اول حتی با `record()` ِ شکست‌خورده `_mark_done` می‌کرد و `ok=True`
+    می‌داد ⇒ چرخهٔ **بی‌شاهد** موفق گزارش می‌شد و اسلات هم می‌سوخت."""
+    _fresh()
+    _write_fitness(claimed=0)
+    orig = tc.opslib.append_jsonl
+
+    def _boom(path, rec):
+        if str(path).endswith("journal.jsonl"):
+            raise OSError("disk-broken")
+        return orig(path, rec)
+
+    tc.opslib.append_jsonl = _boom
+    try:
+        r = tc.beat(now=_ts("2026-07-30", 9))
+    finally:
+        tc.opslib.append_jsonl = orig
+    assert r["ok"] is False and r["reason"] == "journal-write-failed", r
+    assert tc.due(_ts("2026-07-30", 9))["due"] is True, "اسلات نباید سوخته باشد"
+
+
+def t_a_failed_state_write_is_reported_not_swallowed():
+    """حالتِ ب: دفتر نوشت ولی state ذخیره نشد ⇒ باید صریح گزارش شود."""
+    _fresh()
+    _write_fitness(claimed=0)
+    orig = tc._save
+    tc._save = lambda d: False
+    try:
+        r = tc.beat(now=_ts("2026-07-30", 9))
+    finally:
+        tc._save = orig
+    assert r["ok"] is False and r["reason"] == "cycle-state-write-failed", r
+    assert len(tc._rows()) == 1, "دفتر باید نوشته شده باشد"
+
+
+def t_a_crash_between_journal_and_mark_done_does_not_duplicate():
+    """idempotency روی `cycle_id` — تیکِ بعد نباید ردیفِ دوم بسازد."""
+    _fresh()
+    _write_fitness(claimed=0)
+    orig = tc._save
+    tc._save = lambda d: False
+    try:
+        tc.beat(now=_ts("2026-07-30", 9))          # کرشِ شبیه‌سازی‌شده
+    finally:
+        tc._save = orig
+    n1 = len(tc._rows())
+    r2 = tc.beat(now=_ts("2026-07-30", 10))        # تیکِ بعد، همان اسلات
+    assert len(tc._rows()) == n1, f"ردیفِ تکراری ساخته شد: {len(tc._rows())} != {n1}"
+    assert r2["ok"] is True, r2                     # این‌بار state نشست
+    assert tc.due(_ts("2026-07-30", 10))["due"] is False
+
+
 def t_two_slots_per_day_are_two_cycles():
     _fresh()
     _write_fitness(claimed=0)

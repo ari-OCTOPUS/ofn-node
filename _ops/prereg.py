@@ -40,6 +40,29 @@ _FORBIDDEN = ("external-send", "spend", "merge", "deploy", "restart",
 _REQUIRED = ("goal", "goal_key", "method", "metric_path", "metric_key",
              "baseline", "target", "deadline_cycles", "direction")
 
+# میدان‌هایی که «همان هدف» را تعریف می‌کنند. اگر هرکدام با پیش‌ثبتِ موجودِ همان
+# چرخه فرق کند، این دیگر همان چرخه نیست و idempotency دروغ است.
+_IDENTITY = ("goal_key", "method_index", "metric_path", "metric_key",
+             "baseline", "target")
+
+
+def _from_proposal(p: dict, key: str):
+    """مقدارِ میدانِ هویتی از پیشنهاد — با همان پیش‌فرض‌هایی که `register` می‌نویسد."""
+    if key == "method_index":
+        return p.get("method_index", 0)
+    return p.get(key)
+
+
+def _norm(v):
+    """مقایسهٔ مقاومِ نوع: `0` و `0.0` یک عددند؛ dict ِ target ترتیب‌ناپذیر است."""
+    if isinstance(v, bool):
+        return ("bool", v)
+    if isinstance(v, (int, float)):
+        return ("num", float(v))
+    if isinstance(v, dict):
+        return ("dict", tuple(sorted((str(k), _norm(x)) for k, x in v.items())))
+    return ("str", str(v))
+
 
 def rows() -> list:
     """همهٔ ردیف‌های پیش‌ثبت (fail-soft؛ ردیفِ خراب رد می‌شود)."""
@@ -88,6 +111,21 @@ def register(proposal: dict, *, cycle: str, now: "float | None" = None) -> dict:
         return {"ok": False, "reason": "bad-target"}
     existing = for_cycle(str(cycle))
     if existing is not None:
+        # ⚠️ idempotent فقط وقتی که **همان** هدف باشد. نسخهٔ اول هر پیشنهادی را
+        # با `ok=True` می‌پذیرفت و ردیفِ قدیمی را برمی‌گرداند — سناریوی خطر:
+        #   ۱) هدفِ A برای این چرخه پیش‌ثبت می‌شود
+        #   ۲) اجرا قبل از `_mark_done` شکست می‌خورد ⇒ اسلات هنوز due است
+        #   ۳) تیکِ بعد (مثلاً بعد از رسیدنِ حکمِ FAIL) مولد هدفِ B می‌دهد
+        #   ۴) register(B) با ok=True ردیفِ A را برمی‌گرداند
+        #   ۵) چرخه B را **اجرا** می‌کند ولی ارزیاب بعداً A را می‌سنجد
+        # یعنی هدفِ اجراشده با هدفِ منجمدشده فرق می‌کرد — و کلِ ادعای
+        # «target قبل از اجرا قفل شد» بی‌معنا می‌شد. حالا هویت تطبیق می‌شود.
+        drift = [k for k in _IDENTITY
+                 if _norm(existing.get(k)) != _norm(_from_proposal(proposal, k))]
+        if drift:
+            return {"ok": False, "reason": "cycle-prereg-mismatch",
+                    "drift": drift, "prereg_id": existing.get("prereg_id"),
+                    "frozen": {k: existing.get(k) for k in drift}}
         return {"ok": True, "idempotent": True, "prereg_id": existing.get("prereg_id"),
                 "row": existing}
     prereg_id = f"{cycle}:{proposal.get('goal_key')}"

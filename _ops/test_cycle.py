@@ -110,14 +110,18 @@ def _load() -> dict:
     return {"done": []}
 
 
-def _save(d: dict) -> None:
+def _save(d: dict) -> bool:
+    """`True` فقط اگر واقعاً روی دیسک نشست. نسخهٔ اول `OSError` را می‌بلعید و
+    `None` می‌داد، پس صداکننده نمی‌توانست «سوخت» را از «نسوخت» تفکیک کند —
+    و همان چرخه هر تیک دوباره اجرا می‌شد."""
     try:
         STATE.parent.mkdir(parents=True, exist_ok=True)
         tmp = STATE.with_suffix(".json.tmp")
         tmp.write_text(json.dumps(d, ensure_ascii=False), "utf-8")
         os.replace(tmp, STATE)
+        return True
     except OSError:
-        pass
+        return False
 
 
 def due(now: "float | None" = None) -> dict:
@@ -128,13 +132,13 @@ def due(now: "float | None" = None) -> dict:
             "slot": slot_of(now), "slots_per_day": _slots()}
 
 
-def _mark_done(cid: str) -> None:
+def _mark_done(cid: str) -> bool:
     d = _load()
     done = list(d.get("done") or [])
     if cid not in done:
         done.append(cid)
     d["done"] = done[-64:]          # فقط تاریخِ نزدیک لازم است
-    _save(d)
+    return _save(d)
 
 
 # ─── دفتر ───────────────────────────────────────────────────────────────────
@@ -194,9 +198,16 @@ def record(*, goal: str, method: str, why: str = "", cycle: "str | None" = None,
     `goal_source` عمداً ثبت می‌شود: رأیِ مالک این بود که هدف را خودش بگذارد، پس
     اگر روزی هدف از بیرون تزریق شود، کارتِ نمره باید بتواند تفکیک کند."""
     goal_key = _method_key(goal)          # همان نرمال‌سازی، برای هدف
+    # idempotency روی `cycle_id`: اگر بینِ نوشتنِ دفتر و `_mark_done` کرش شود،
+    # تیکِ بعد نباید ردیفِ دومی برای همان چرخه بسازد (وگرنه `scorecard.cycles`
+    # تورّم می‌گیرد و `detect_switch` تکرارِ ساختگی می‌بیند).
+    cid = cycle or cycle_id(now)
+    for r in _rows():
+        if r.get("cycle_id") == cid:
+            return {"ok": True, "idempotent": True, **r}
     sw = detect_switch(goal_key, method)
     rec = {"ts": opslib.now_iso(), "schema": SCHEMA,
-           "cycle_id": cycle or cycle_id(now), "slot": slot_of(now),
+           "cycle_id": cid, "slot": slot_of(now),
            "goal": str(goal or "")[:400], "goal_key": goal_key,
            "goal_source": str(goal_source or "")[:40],
            "method": str(method or "")[:400], "why": str(why or "")[:300],
@@ -274,7 +285,17 @@ def run(*, goal: str, method: str, why: str = "", goal_source: str = "self",
                           "tool_requests_total": _tro.get("total"),
                           "tool_requests_precise": _tro.get("precise")})
     out["journal"] = rec
-    _mark_done(d["cycle_id"])
+    # ── تعهدِ چرخه: fail-closed در هر دو پله ──────────────────────────────────
+    # نسخهٔ اول حتی وقتی `record()` با `write-failed` برمی‌گشت هم `_mark_done`
+    # می‌کرد و `ok=True` می‌داد. دو حالتِ بد از همان‌جا می‌آمد:
+    #   الف) دفتر ننوشت ولی اسلات سوخت ⇒ چرخهٔ **بی‌شاهد** موفق گزارش می‌شد.
+    #   ب)  دفتر نوشت ولی state ذخیره نشد ⇒ همان چرخه هر تیک دوباره اجرا می‌شد.
+    # حالا ترتیب صریح است: دفتر تأیید ⇒ state تأیید ⇒ تازه ok=True. و `record`
+    # روی `cycle_id` idempotent است، پس کرشِ بینِ این دو ردیفِ تکراری نمی‌سازد.
+    if not rec.get("ok"):
+        return {"ok": False, "reason": "journal-write-failed", **out}
+    if not _mark_done(d["cycle_id"]):
+        return {"ok": False, "reason": "cycle-state-write-failed", **out}
     return {"ok": True, **out}
 
 
@@ -336,8 +357,12 @@ def beat(*, channel=None, now: "float | None" = None) -> dict:  # noqa: ARG001
                 "goal_key": g.get("goal_key"),
                 "candidate": g.get("candidate_key"),
                 "method_note": g.get("method_note"),
-                "switch": (r.get("journal") or {}).get("kind"),
-                "run_reason": r.get("reason")})
+                "switch": (r.get("journal") or {}).get("kind")})
+    # شکستِ اجرا باید در همان کلیدی گزارش شود که بقیهٔ شکست‌ها (`reason`)،
+    # وگرنه صداکننده باید بداند کدام شکست کدام کلید را پر می‌کند — و همان
+    # ناهماهنگی است که «سکوت» تولید می‌کند.
+    if not out["ok"] and r.get("reason"):
+        out["reason"] = r["reason"]
     return out
 
 

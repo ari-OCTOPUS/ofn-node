@@ -86,6 +86,45 @@ def t_register_writes_once_per_cycle():
     assert row["allowed_scope"], row
 
 
+def t_a_different_goal_in_the_same_cycle_is_refused_not_silently_accepted():
+    """P0 (بازبینِ موازی ۲۰۲۶-۰۷-۳۰) — idempotency نباید هویت را نادیده بگیرد.
+
+    سناریو: هدفِ A پیش‌ثبت می‌شود · اجرا قبل از `_mark_done` می‌شکند · تیکِ بعد
+    مولد (مثلاً بعد از حکمِ FAIL) هدفِ B می‌دهد · `register(B)` ردیفِ A را با
+    `ok=True` برمی‌گرداند · چرخه B را اجرا می‌کند ولی ارزیاب A را می‌سنجد.
+    یعنی هدفِ **اجراشده** با هدفِ **منجمدشده** فرق می‌کرد."""
+    _fresh()
+    a = prereg.register(_proposal(goal_key="k-A", method_index=0), cycle="2026-07-30#0")
+    assert a["ok"] is True
+    b = prereg.register(_proposal(goal_key="k-B", method_index=1), cycle="2026-07-30#0")
+    assert b["ok"] is False, b
+    assert b["reason"] == "cycle-prereg-mismatch", b
+    assert set(b["drift"]) >= {"goal_key", "method_index"}, b
+    assert len(prereg.rows()) == 1, "پیش‌ثبتِ دوم نباید نوشته شود"
+
+
+def t_the_same_goal_replayed_is_still_idempotent():
+    """گاردِ ضدِ over-blocking: تکرارِ **همان** هدف باید بی‌سروصدا بگذرد."""
+    _fresh()
+    prereg.register(_proposal(goal_key="k-same"), cycle="2026-07-30#0")
+    again = prereg.register(_proposal(goal_key="k-same"), cycle="2026-07-30#0")
+    assert again["ok"] is True and again.get("idempotent") is True, again
+    assert len(prereg.rows()) == 1
+
+
+def t_identity_comparison_survives_int_float_and_key_order():
+    """`0` و `0.0` یک عددند؛ `target` ترتیبِ کلید ندارد — وگرنه mismatch ِ کاذب."""
+    _fresh()
+    prereg.register(_proposal(baseline=0, target={"op": ">", "value": 0}),
+                    cycle="2026-07-30#0")
+    same = prereg.register(_proposal(baseline=0.0, target={"value": 0.0, "op": ">"}),
+                           cycle="2026-07-30#0")
+    assert same["ok"] is True and same.get("idempotent") is True, same
+    # ولی تغییرِ واقعیِ baseline باید گرفته شود
+    diff = prereg.register(_proposal(baseline=5), cycle="2026-07-30#0")
+    assert diff["ok"] is False and "baseline" in diff["drift"], diff
+
+
 def t_register_write_failure_is_fail_closed():
     _fresh()
     orig = prereg.opslib.append_jsonl
