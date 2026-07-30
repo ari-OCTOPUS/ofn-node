@@ -50,6 +50,24 @@
     }
   },
   "owner_model": "two-bots-three-surfaces",
+  "policies": {
+    "hold_policy": {
+      "status": "TG-HOLD-POLICY-LIVE",
+      "verdict_card": "VQ-TG-HOLD-001",
+      "ratified_at": "2026-07-30",
+      "live_since": "2026-07-30T19:18",
+      "proofs": "هفت اثباتِ §۸ با fake transport سبز (test_tg_hold_policy ۹/۹) + ۸ جهشِ قرمز؛ هر دو پروسه (organism 24760 · center 29760) با کدِ تازه بوت شدند — heartbeat ۱۹:۱۸:۳۱",
+      "backlog": "~۱۷۰ موردِ قدیمی HOLD ماند و هرگز replay نمی‌شود (ضمانتِ ساختاری: hold_policy آرشیو را نمی‌خواند + گاردِ تست)",
+      "note": "runtime receipt ِ اولین بحرانی/دایجستِ واقعی با اولین رخدادِ طبیعی می‌آید؛ فبریکیشنِ رخداد ممنوع بود"
+    },
+    "owner_console": {
+      "status": "WIRED_NOT_LIVE",
+      "wired_at": "2026-07-30T19:30",
+      "tests": "۱۹/۱۹ (۱۱۶ assert) + ۴/۴ گاردِ نو؛ ۷ جهشِ تحویل قرمز + ۲ جهشِ سبزِ کشف‌شده بسته و قرمز شدند",
+      "offline_12q": "12/12 در شرایطِ لانچر — پاسخ‌ها از probe/snapshot ِ واقعی، همه send_attempted=false",
+      "live_requires": ["۱۲ سؤالِ گیت ۵ در تلگرامِ واقعیِ مالک", "receipt ِ تحویل"]
+    }
+  },
   "surfaces": {
     "owner_outer_dm": {
       "bot": "outer",
