@@ -797,10 +797,26 @@ class Center:
                 lines.append(f"🔇 نگه‌داشته‌شده: {_fa_num(held)} مورد (با دکمهٔ زیر ببین)")
         except Exception:  # noqa: BLE001
             pass
-        return "\n".join(lines[:8])
+        # صفِ ساختِ خود + یادآوریِ راهِ اصلی. یک خطِ متن، صفر دکمهٔ اضافه —
+        # نقشِ «مامور»: یاد بده، نه اینکه تصمیمِ تازه اضافه کن.
+        try:
+            import build_cmd as _bc
+            _s = _bc.loop_status()
+            if _s.get("tasks") or _s.get("patches"):
+                lines.append(f"🛠 صفِ ساخت: {_fa_num(_s['tasks'])} · "
+                             f"پچِ منتظرِ رأی: {_fa_num(_s['patches'])}")
+            else:
+                lines.append("🛠 بنویس «بساز: …» تا خودش را بسازد")
+        except Exception:  # noqa: BLE001
+            pass
+        return "\n".join(lines[:9])
 
     def _home_keyboard(self) -> list:
-        """سه دکمه — نه بیشتر. مالک ADHD دارد؛ هر دکمهٔ اضافه یک تصمیمِ اضافه است."""
+        """سه دکمه — نه بیشتر. قاعدهٔ خودِ مالک است و گاردش
+        (`t_the_home_keyboard_never_exceeds_three_decision_points`) دکمهٔ
+        چهارمِ «ساختِ خود» را گرفت. گارد بازنویسی **نشد**: درِ ساخت به سطحِ
+        دوم رفت (زیرِ «وضعیتِ کامل») و راهِ اصلی‌اش متنِ آزادِ «بساز: …» است
+        که در پالس هم یادآوری می‌شود. یک تصمیمِ کمتر در سطحِ اول."""
         return [[{"text": "🐙 وضعیتِ کامل", "callback_data": "hm:st"}],
                 [{"text": "🦵 پاها", "callback_data": "hm:legs"},
                  {"text": "🔇 ناگفته‌ها", "callback_data": "hm:held"}]]
@@ -819,6 +835,13 @@ class Center:
             pass
         if verb == "st":
             body = self._status_text() or "هنوز چیزی برای گفتن ندارم."
+            # درِ «ساختِ خود» در سطحِ **دوم** — سطحِ اول سه دکمه می‌ماند.
+            try:
+                self._client.send(_scrub(body), chat_id=chat, keyboard=[
+                    [{"text": "🛠 ساختِ خود", "callback_data": "hm:build"}]])
+                return {"kind": "home", "verb": verb}
+            except Exception:  # noqa: BLE001
+                pass
         elif verb == "legs":
             rows = []
             try:
@@ -844,6 +867,33 @@ class Center:
                 body = _hp.held_view(_spol.held_since(500))
             except Exception:  # noqa: BLE001
                 body = "🔇 فهرستِ ناگفته‌ها در دسترس نیست."
+        elif verb == "build":
+            # زیرمنوی «ساختِ خود» — وضعیتِ صادقِ هر پلهٔ حلقه + صف + پچ‌ها.
+            try:
+                import build_cmd as _bc
+                body = (_bc.status_text() + "\n\n" + _bc.queue_text()
+                        + "\n\n" + _bc.patches_text())
+                kb = [[{"text": "📥 صف", "callback_data": "hm:bq"},
+                       {"text": "🧩 پچ‌ها", "callback_data": "hm:bp"}]]
+                try:
+                    self._client.send(_scrub(body), chat_id=chat, keyboard=kb)
+                except Exception:  # noqa: BLE001
+                    pass
+                return {"kind": "home", "verb": verb}
+            except Exception:  # noqa: BLE001
+                body = "🛠 حلقهٔ ساخت در دسترس نیست."
+        elif verb == "bq":
+            try:
+                import build_cmd as _bc
+                body = _bc.queue_text()
+            except Exception:  # noqa: BLE001
+                body = "📥 صف در دسترس نیست."
+        elif verb == "bp":
+            try:
+                import build_cmd as _bc
+                body = _bc.patches_text()
+            except Exception:  # noqa: BLE001
+                body = "🧩 فهرستِ پچ در دسترس نیست."
         else:
             body = "این دکمه را نمی‌شناسم — خانه را دوباره باز کن."
         try:
@@ -1184,6 +1234,32 @@ class Center:
                         pass
                 return {"kind": "input-policy", "mode": _d.get("mode"),
                         "reason": _d.get("reason")}
+            # ── «بساز: …» → صفِ ساختِ خود (رأیِ مالک ۰۷-۳۰) ──────────────────
+            # قبل از مامور، چون مامور متنِ آزاد را clarify می‌کند و این یک
+            # نیتِ صریح است. فقط Outer DM (تصمیمِ core_conversation)؛ از گروه
+            # ساختاراً نمی‌رسد. هیچ اجرایی این‌جا نیست — فقط صف.
+            try:
+                _mgb = u.get("message")
+                _txb = str((_mgb or {}).get("text") or "").strip()
+                if _txb and _d.get("mode") == "core_conversation":
+                    import build_cmd as _bc
+                    if _bc.is_build_request(_txb):
+                        _res = _bc.enqueue(_bc.strip_prefix(_txb))
+                        _bt = (f"📥 کارِ ساخت ثبت شد: <code>{_res['id']}</code>\n"
+                               f"{_res['note']}") if _res.get("ok") else \
+                            f"ثبت نشد — {_res.get('note')}"
+                        try:
+                            self._client.send(
+                                _scrub(_bt),
+                                chat_id=(_mgb.get("chat") or {}).get("id"),
+                                keyboard=[[{"text": "🛠 وضعیتِ حلقه",
+                                            "callback_data": "hm:build"}]])
+                        except Exception:  # noqa: BLE001
+                            pass
+                        return {"kind": "build-task", "ok": _res.get("ok"),
+                                "task": _res.get("id")}
+            except Exception:  # noqa: BLE001 — صفِ شکسته = مسیرِ قبلی، نه سکوت
+                pass
             # ── مامور (owner_console) — فقط با تصمیمِ مجازِ core_conversation ──
             # وصل طبقِ HANDOFF-TO-TELEGRAM-SENIOR بعد از سبزیِ ۱۹+۴ سنجه و ۹
             # جهشِ قرمز. adapter مالکیت/سطح را دوباره حدس نمی‌زند — همان تصمیمِ

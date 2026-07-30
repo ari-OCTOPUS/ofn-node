@@ -397,8 +397,23 @@ def propose_to_owner(patch: dict) -> dict:
         text, kb = render.render_decision(item)
         text = "🧠🫀 <b>خودمختاریِ کد — زیرِ قانونِ قلب</b>\n" + text
         c = tg_api.TgClient()
-        posted = c.send(text, keyboard=kb, chat_id=cfg.get("chat_id"),
-                        topic_id=(cfg.get("topics") or {}).get("system"))
+        # ── مقصد از قراردادِ مسیریابی، نه هاردکدِ گروه (۲۰۲۶-۰۷-۳۰) ──────────
+        # تا امروز این کارت به `topics["system"]` ِ **گروه** می‌رفت. با
+        # قراردادِ مصوبِ legs-only آن نقض است: پچِ کد هسته‌ای است، نه پا — و
+        # بدتر، مالک باید در همان لحظه رأی بدهد. `code-card` در
+        # surface-routing.json تعریف شد؛ فلگ خاموش = همان system ِ قبلی
+        # بایت‌به‌بایت، فلگ روشن = DM ِ لنگر. دکمه‌ها روی همان باتِ outer
+        # می‌مانند چون handler ِ approval آن‌جاست (درسِ کارتِ مرده).
+        _chat, _topic = cfg.get("chat_id"), (cfg.get("topics") or {}).get("system")
+        try:
+            import surface_router as _sr
+            _cl, _cid, _tid = _sr.resolve(
+                "code-card", clients={"outer": c, "inner": None}, cfg=cfg)
+            if _cl is not None:
+                c, _chat, _topic = _cl, _cid, _tid
+        except Exception:  # noqa: BLE001 — روتر هرگز کارت را نمی‌کشد
+            pass
+        posted = c.send(text, keyboard=kb, chat_id=_chat, topic_id=_topic)
     except Exception:  # noqa: BLE001
         posted = None
     return {"ok": True, "id": did, "posted": posted}

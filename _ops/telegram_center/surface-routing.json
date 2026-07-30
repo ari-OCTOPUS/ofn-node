@@ -30,6 +30,8 @@
     "center-pulse":      {"current": {"bot": "none",  "surface": "none"},                     "target": {"bot": "outer", "surface": "dm"},   "شرح": "پالسِ ساعتیِ لنگر (رأیِ مالک ۰۷-۳۰: «پالسِ ساعتی») — تا فلگ مسلح نشود هیچ‌جا نمی‌رود"},
 
     "center-urgent":     {"current": {"bot": "none",  "surface": "none"},                     "target": {"bot": "inner", "surface": "dm"},   "شرح": "VQ-TG-HOLD-001: بحرانی/گذارِ قرمز/recovery receipt — فوری به DM ِ اختاپوس؛ از outboxِ ارگانیسم، تحویل با کلاینتِ inner ِ مرکز"},
-    "center-health-digest": {"current": {"bot": "none", "surface": "none"},                   "target": {"bot": "inner", "surface": "dm"},   "شرح": "VQ-TG-HOLD-001: دایجستِ ساعتیِ doctor/heart/needs ِ نو/تغییرکرده — حداکثر یک پیام در ساعت"}
+    "center-health-digest": {"current": {"bot": "none", "surface": "none"},                   "target": {"bot": "inner", "surface": "dm"},   "شرح": "VQ-TG-HOLD-001: دایجستِ ساعتیِ doctor/heart/needs ِ نو/تغییرکرده — حداکثر یک پیام در ساعت"},
+
+    "code-card":         {"current": {"bot": "outer", "surface": "group", "topic": "system"}, "target": {"bot": "outer", "surface": "dm"},   "شرح": "کارتِ پچِ خودمختاریِ کد (code_autonomy.propose_to_owner) — هسته‌ای است نه پا؛ دکمه‌هایش را روترِ outer دارد پس همان بات می‌ماند"}
   }
 }

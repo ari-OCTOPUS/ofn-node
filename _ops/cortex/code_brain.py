@@ -230,17 +230,34 @@ def draft_patch(task: str, *, max_turns: int = 5) -> Optional[dict]:
         return None
     if not task or not task.strip():
         return None
-    if not _has_key():
-        _log({"event": "skipped", "reason": "no-api-key"})
-        return None
-    if not _can_spend():
-        _log({"event": "skipped", "reason": "cost-cap"})
-        return None
-
-    try:
-        patch = _draft_via_api(task, max_turns)
-    except Exception as e:  # noqa: BLE001
-        _log({"event": "draft-error", "err": str(e)[:200]})
+    # ── انتخابِ tier (رأیِ مالک ۲۰۲۶-۰۷-۳۰: «با اولاما ۲۴ ساعت خودشو بسازه») ──
+    # تا امروز نردبان این بود: L1-SDK → L1-API(پولی) → L0(هیچ). یعنی بدونِ
+    # کلیدِ پولی، task برای همیشه pending می‌مانْد و حلقهٔ ۲۴ساعته ساختاراً
+    # ناممکن بود. حالا یک پلهٔ **محلیِ $0** بینِ API و L0 هست: اولاما.
+    #
+    # ترتیب عمدی است — پولی اول، محلی بعد: اگر کلید و بودجه هست، مغزِ قوی‌تر
+    # کدِ بهتری می‌نویسد؛ محلی جایگزینِ آن نیست، جایگزینِ **سکوت** است.
+    # هیچ گیتی عوض نمی‌شود: خروجیِ هر دو tier از همان shadow-test → کارتِ مالک
+    # → رأی → اعمال می‌گذرد.
+    patch = None
+    tier = None
+    if _has_key() and _can_spend():
+        tier = "api"
+        try:
+            patch = _draft_via_api(task, max_turns)
+        except Exception as e:  # noqa: BLE001
+            _log({"event": "draft-error", "tier": "api", "err": str(e)[:200]})
+            patch = None
+    if patch is None:
+        tier = "local"
+        try:
+            patch = _draft_via_local(task)
+        except Exception as e:  # noqa: BLE001
+            _log({"event": "draft-error", "tier": "local", "err": str(e)[:200]})
+            patch = None
+    if patch is None:
+        _log({"event": "skipped", "reason": "no-tier-produced",
+              "had_key": _has_key(), "could_spend": _can_spend()})
         return None
     if not patch:
         return None
@@ -257,6 +274,154 @@ def draft_patch(task: str, *, max_turns: int = 5) -> Optional[dict]:
            "intent": str(patch.get("intent") or task[:100])[:200]}
     _log({"event": "drafted", "target": tgt, "intent": out["intent"][:80]})
     return out
+
+
+def _draft_via_local(task: str) -> Optional[dict]:
+    """پلهٔ محلی — اولاما، $0، بدونِ tool-use.
+
+    چرا شکلش با API فرق دارد: مدلِ محلیِ کوچک حلقهٔ tool-use را قابلِ‌اعتماد
+    نمی‌بندد. پس **خودمان** فایل را می‌خوانیم و از مدل فقط یک چیز می‌خواهیم:
+    محتوای کاملِ فایلِ اصلاح‌شده. یعنی مدل انتخاب نمی‌کند «کدام فایل» — آن را
+    خودِ task تعیین می‌کند و `allowed_target` می‌سنجد. متن هرگز مسیر را
+    انتخاب نمی‌کند (همان قاعدهٔ «متن مجوز نیست»).
+
+    قالبِ لازمِ task: مسیرِ نسبی داخلِ متن باشد (مثلِ `_ops/cortex/x.py`).
+    نبودِ مسیرِ مجاز ⇒ None، بدونِ هیچ تماسی.
+    """
+    m = re.search(r"(_ops/[A-Za-z0-9_./-]+\.py)", str(task or "").replace("\\", "/"))
+    if not m:
+        _log({"event": "skipped", "tier": "local", "reason": "no-target-in-task"})
+        return None
+    target = m.group(1)
+    if not code_autonomy.allowed_target(target):
+        _log({"event": "rejected", "tier": "local",
+              "reason": "target-not-allowed", "target": target[:120]})
+        return None
+    root = Path(os.environ.get("ORG_ROOT", str(_OPS.parent)))
+    src_p = root / target
+    try:
+        current = src_p.read_text("utf-8")
+    except OSError:
+        _log({"event": "skipped", "tier": "local", "reason": "target-unreadable"})
+        return None
+    if len(current) > 40_000:
+        # مدلِ کوچک فایلِ بزرگ را بازنویسی نمی‌کند بدونِ اینکه چیزی را بیندازد.
+        _log({"event": "skipped", "tier": "local", "reason": "target-too-large",
+              "bytes": len(current)})
+        return None
+    try:
+        sys.path.insert(0, str(_HERE))
+        import local_llm
+        if not local_llm.available():
+            _log({"event": "skipped", "tier": "local", "reason": "ollama-down"})
+            return None
+        # مدلِ **بزرگ‌ترِ** محلی برای کد. `qwen2.5:1.5b` (پیش‌فرضِ چتِ روزمره)
+        # در پروبِ واقعی فایل را بازنویسی نکرد و `def add` را انداخت — گاردِ
+        # AST جلویش را گرفت. بازنویسیِ کاملِ فایل کارِ سنگین‌تری است، پس این
+        # tier مدلِ خودش را دارد. knob: OCTOPUS_CODE_BRAIN_LOCAL_MODEL.
+        _prev_model = local_llm.MODEL
+        local_llm.MODEL = os.environ.get(
+            "OCTOPUS_CODE_BRAIN_LOCAL_MODEL", "qwen2.5:latest")
+        # ⚠️ system prompt ِ **مخصوصِ محلی**. با system ِ tool-use ِ API، مدلِ
+        # کوچک پاسخ را در قالبِ JSON ِ {target,content,intent} می‌دهد — سنجیده
+        # شد. این‌جا شکلِ خروجی صریح و ساده خواسته می‌شود.
+        r = local_llm.ask(
+            "فایلِ زیر را طبقِ خواستهٔ کاربر اصلاح کن.\n\n"
+            f"### خواسته\n{str(task)[:1200]}\n\n"
+            f"### فایلِ فعلی ({target})\n```python\n{current}\n```\n\n"
+            "کلِ محتوای فایلِ اصلاح‌شده را در یک بلوکِ ```python برگردان. "
+            "همهٔ تابع‌ها و کلاس‌های موجود را **نگه دار** و فقط تغییرِ خواسته‌شده "
+            "را اعمال کن. هیچ توضیحی ننویس. اگر نمی‌توانی: NO_PATCH",
+            system=("You rewrite one Python file in full. Output exactly one "
+                    "```python fenced block containing the COMPLETE modified "
+                    "file. Preserve every existing definition. No prose."),
+            max_tokens=4096, force=True)
+        local_llm.MODEL = _prev_model      # مدلِ چتِ روزمره را برنگردان‌نکرده نگذار
+    except Exception as e:  # noqa: BLE001
+        try:
+            local_llm.MODEL = _prev_model
+        except Exception:  # noqa: BLE001
+            pass
+        _log({"event": "draft-error", "tier": "local", "err": str(e)[:200]})
+        return None
+    text = str((r or {}).get("text") or "")
+    if not text or "NO_PATCH" in text:
+        _log({"event": "skipped", "tier": "local", "reason": "model-declined",
+              "chars": len(text)})
+        return None
+    content = _extract_code(text)
+    if not content:
+        _log({"event": "rejected", "tier": "local", "reason": "no-code-in-reply",
+              "chars": len(text)})
+        return None
+    # ⚠️⚠️ گاردِ ناوردیِ **نحوی** — مهم‌ترین گاردِ این tier.
+    # نسخهٔ اول فقط نسبتِ بایت را می‌سنجید (خروجی ≥۶۰٪ ورودی). یک پروبِ واقعی
+    # نشان داد آن گارد کافی نیست: مدل `def add` را **انداخت** و در عوض متنِ
+    # بیشتری تولید کرد، پس از گاردِ بایتی رد می‌شد. حالا هر `def`/`class` ِ
+    # سطحِ ماژول که در ورودی بود باید در خروجی هم باشد — و خروجی باید
+    # نحواً سالم باشد. «اصلاح» که چیزی را حذف کند، حذف است نه اصلاح.
+    keep = _defs_kept(current, content)
+    if keep is None:
+        _log({"event": "rejected", "tier": "local", "reason": "output-not-parseable"})
+        return None
+    if keep:
+        _log({"event": "rejected", "tier": "local", "reason": "dropped-definitions",
+              "lost": keep[:8]})
+        return None
+    return {"target": target, "content": content,
+            "intent": f"local-ollama: {str(task)[:80]}"}
+
+
+def _extract_code(text: str) -> str:
+    """کدِ پایتون را از پاسخِ مدلِ محلی بیرون بکش — سه شکلِ سنجیده‌شده.
+
+    ۱) بلوکِ ```python (شکلِ خواسته‌شده)
+    ۲) پاکتِ JSON ِ {target,content,intent} — مدلِ کوچک با دیدنِ نمونه‌های
+       tool-use این را تولید می‌کند؛ یک پاسخِ **معتبر** است، نه خطا.
+    ۳) بلوکِ بی‌برچسبِ ``` ...
+    هیچ‌کدام ⇒ رشتهٔ خالی (صداکننده رد می‌کند). متنِ لختِ بی‌فنس عمداً
+    پذیرفته **نمی‌شود**: نثرِ مدل به‌عنوانِ محتوای فایل، فاجعه است.
+    """
+    t = str(text or "")
+    m = re.search(r"```python\s*\n(.*?)```", t, re.S)
+    if m and m.group(1).strip():
+        return m.group(1).strip("\n")
+    m = re.search(r"```json\s*\n(.*?)```", t, re.S)
+    if m:
+        try:
+            d = json.loads(m.group(1))
+            c = str((d or {}).get("content") or "")
+            if c.strip():
+                return c
+        except ValueError:
+            pass
+    m = re.search(r"```\s*\n(.*?)```", t, re.S)
+    if m and m.group(1).strip():
+        body = m.group(1).strip("\n")
+        if "def " in body or "class " in body or "import " in body:
+            return body
+    return ""
+
+
+def _defs_kept(before: str, after: str):
+    """نام‌های سطحِ ماژولِ گم‌شده. `None` = خروجی نحواً خراب است.
+
+    خروجیِ `[]` یعنی همه‌چیز حفظ شده. عمداً فقط سطحِ ماژول: متدِ داخلِ کلاس
+    را خودِ کلاس نگه می‌دارد و سنجشِ عمیق‌تر false-positive می‌سازد."""
+    import ast as _ast
+    try:
+        tb = _ast.parse(before)
+    except SyntaxError:
+        return []                       # ورودیِ خراب — چیزی برای حفاظت نیست
+    try:
+        ta = _ast.parse(after)
+    except SyntaxError:
+        return None
+    def names(tree):
+        return {n.name for n in tree.body
+                if isinstance(n, (_ast.FunctionDef, _ast.AsyncFunctionDef,
+                                  _ast.ClassDef))}
+    return sorted(names(tb) - names(ta))
 
 
 def _draft_via_api(task: str, max_turns: int) -> Optional[dict]:
