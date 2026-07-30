@@ -265,6 +265,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_html_and_correction_safety.py",  # escape ِ متنِ مدل + مرزِ کلمهٔ تصحیح
          "test_owner_answers_2026_07_27.py",  # سه رأیِ مالک: کوت/سکوت/منقضی‌ها
          "test_initiative_and_autonomy.py",  # ابتکار + مرزِ اختیار
+         "test_tool_request.py",  # «چه ابزاری ندارم» — ثبت هرگز گیت ندارد، فقط تحویل
+         "test_recall_trend.py",  # «به یاد می‌آورد؟» — سری، نه عکسِ لحظه‌ای
          "test_budget_judge.py",  # W1 — قاضیِ بودجه (رزروِ مالک تخطی‌ناپذیر)
          "test_decision_gate.py",  # W2 — گیتِ ۵۱/۴۹ (HARD-STOP با مدرکِ کامل هم بسته)
          "test_trajectory_log.py",  # W3 — دفترِ مسیر (redact ِ fail-closed)
@@ -608,6 +610,39 @@ PYTEST_TESTS = {
     "test_synapse_sense.py",
 }
 
+# ۲۰۲۶-۰۷-۳۰ — «قرمزِ کاذبِ ۱۲۰». پاسِ اولِ سوییت بدونِ capture اجرا می‌شد، پس هر
+# ~۳۶۶ فرزند کنسولِ مشترکِ والد را ارث می‌بردند. زیرِ بار، فرزندی که سالم است و
+# `exit 0` می‌دهد در **flushِ پایانیِ مفسر** شکست می‌خورد و ۱۲۰ برمی‌گرداند؛ رانر
+# ۱۲۰ را عیناً مثلِ AssertionError می‌شمرد. شواهدِ روی دیسک در `_flaky`:
+#     ۳۳ × exit(1)=120 exit(2)=0   ← ۳۳ تستِ سالم که در یک اجرا قرمز شمرده شدند
+#      ۶ × exit(1)=1   exit(2)=1   ← قرمزِ واقعی و پایدار
+#      ۲ × exit(1)=1   exit(2)=0   ← لرزشِ واقعی (حکمِ تست بود، نه محیط)
+# و هر `failed` غیرخالی `revoke_capability()` را صدا می‌زند.
+#
+# ⚠️ ۱۲۰ **مبهم** است، نه بی‌ضرر. تصحیحِ ۲۰۲۶-۰۷-۳۰ (بازبینیِ متخاصم، اثباتِ
+# تجربی): وقتی `Py_FinalizeEx()` شکست می‌خورد، مفسر exitcode را با ۱۲۰
+# **بازنویسی** می‌کند — یعنی حکمِ واقعی را دور می‌ریزد، نه اینکه جای حکمِ غایب
+# بنشیند. پروبِ چهارحالته زیرِ sinkِ شکسته: exit(0)→120 · exit(1)→120 ·
+# raise AssertionError→120 · exit(3)→120. پس «۱۲۰ دیدم ⇒ تست سالم بود» غلط است؛
+# یک AssertionErrorِ واقعی هم همین کد را می‌دهد.
+# نتیجهٔ عملی: از این کد **نمی‌توان** به سالم‌بودنِ تست رسید. تشخیصِ درست باید
+# stdout/stderr ِ پاسِ اول را برای شاهدِ شکست (Traceback/AssertionError/FAILED)
+# بسنجد — که hunkِ capture ِ همین کامیت آن را در دسترس گذاشت.
+INFRA_EXIT_CODES = frozenset({120})   # کدِ مفسر — **مبهم**؛ به‌تنهایی حکم نیست
+
+
+def is_infra_false_red(first_rc: int, retry_rc: int) -> bool:
+    """**فقط برچسب‌گذاریِ تشخیصی — هیچ تصمیمِ scoring به این تابع بند نیست.**
+
+
+    True یعنی «شاید artifactِ کنسول باشد»، نه «تست سالم است». پاک‌کردنِ برچسب از
+    `failed` بر پایهٔ این تابع در ۲۰۲۶-۰۷-۳۰ **عمداً غیرفعال شد**: با retryِ سبز،
+    بچه‌ای که AssertionError داده بود و flushش شکسته بود به‌غلط PASS/MARK می‌گرفت
+    ⇒ fail-OPEN روی گیتِ capability/پول. رانر fail-closed می‌مانَد.
+    """
+    return retry_rc == 0 and first_rc in INFRA_EXIT_CODES
+
+
 if __name__ == "__main__":
     failed = []
     for t in TESTS + EXTRA_TESTS:
@@ -617,9 +652,20 @@ if __name__ == "__main__":
         cmd = ([sys.executable, "-X", "utf8", "-m", "pytest", "-q", str(p)]
                if label in PYTEST_TESTS else
                [sys.executable, "-X", "utf8", str(p)])
-        r = subprocess.run(cmd, cwd=str(p.parent), timeout=300)
+        # capture در **پاسِ اول** هم لازم است: هر فرزند به لولهٔ اختصاصیِ خودش
+        # flush می‌کند، نه به کنسولِ مشترکِ والد — ریشهٔ ۱۲۰ همین اشتراک بود.
+        # والد خروجی را روی همان جریانِ اصلی بازپخش می‌کند تا لاگ کم‌ نشود.
+        r = subprocess.run(cmd, cwd=str(p.parent), timeout=300,
+                           capture_output=True, text=True,
+                           encoding="utf-8", errors="replace")
+        if r.stdout:
+            sys.stdout.write(r.stdout)
+        if r.stderr:
+            sys.stderr.write(r.stderr)   # unittest پیشرفتش را روی stderr می‌نویسد
+        sys.stdout.flush()
+        sys.stderr.flush()
         if r.returncode != 0:
-            failed.append(label)
+            failed.append(label)   # پیش‌فرضِ fail-closed؛ فقط artifactِ محیط پاکش می‌کند
             # ۲۰۲۶-۰۷-۲۸ — تشخیصِ لرزش. الگوی ثبت‌شده: ~۴۰٪ اجراها **یک** تستِ
             # متفاوت قرمز می‌شود که تنها اجرا شود سبز است. چهار فرضیه (ارگانیسمِ
             # زنده، پروسهٔ معلق، قفلِ ۳ثانیه‌ای، بار) هیچ‌کدام اثبات نشد — چون
@@ -635,6 +681,18 @@ if __name__ == "__main__":
                                      capture_output=True, text=True,
                                      encoding="utf-8", errors="replace")
                 _tag = "سبز-بارِ-دوم" if _r2.returncode == 0 else "قرمزِ-پایدار"
+                if is_infra_false_red(r.returncode, _r2.returncode):
+                    # ۲۰۲۶-۰۷-۳۰ — پاک‌کردنِ برچسب **عمداً غیرفعال شد** (بازبینیِ متخاصم).
+                    # فرضِ «۱۲۰ هرگز حکمِ تست نیست» غلط است: اگر Py_FinalizeEx شکست
+                    # بخورد، مفسر exitcode را با ۱۲۰ **بازنویسی** می‌کند — پس exit(1)
+                    # و حتی AssertionError هم ۱۲۰ می‌شوند. اثباتِ end-to-end: بچه‌ای
+                    # که AssertionError می‌دهد و flushش می‌شکند، با retryِ سبز به‌غلط
+                    # MARK می‌گرفت ⇒ **fail-OPEN روی گیتِ پول** (بدتر از باگی که
+                    # می‌خواست ببندد). تا تصمیمِ مالک: فقط مشاهده ثبت می‌شود و برچسب
+                    # در failed می‌ماند (fail-closed). رفعِ درست = سنجشِ stdout/stderr
+                    # ِ پاسِ اول برای شاهدِ شکست، که حالا capture می‌شود.
+                    _tag += (f" · مشکوک به artifactِ کنسول (exit {r.returncode}) — "
+                             "برچسب نگه داشته شد (fail-closed)")
                 (_d / f"{label}.txt").write_text(
                     f"# {label} · {_tag}\n"
                     f"# exit(1)={r.returncode} exit(2)={_r2.returncode}\n\n"

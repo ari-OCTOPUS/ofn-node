@@ -166,3 +166,14 @@ OWNER-PROFILE.json
 OWNER-PROFILE.md
 
 OWNER-PROFILE*
+
+# ─── scratch/runtime ایجنت (۲۰۲۶-۰۷-۳۰) ───
+# `git check-ignore .zcode/plans/x.md` شکست می‌خورد ⇒ نه tracked بود نه ignored.
+# با ~۴۹۲ فایلِ untracked-not-ignored، یک `git add -A` این پلن‌های جلسه را
+# کنارِ سورسِ نیمه‌کاره stage می‌کرد. planِ جلسه محصول نیست، scratch است.
+# هشدار: سه فایلِ .zcode/plans/plan-sess_*.md از قبل tracked هستند و این خط روی
+# آن‌ها بی‌اثر است (gitignore محافظت نیست) — untrack کردنشان تصمیم/عملِ مالک است.
+.zcode/
+# فایلِ موقتِ الگوی write-and-rename (مثلاً state/cortex/self-model.json.tmp).
+# صفر فایلِ tracked با این پسوند وجود دارد، پس این قاعده no-op نیست.
+*.tmp
