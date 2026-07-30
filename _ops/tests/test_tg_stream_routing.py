@@ -71,14 +71,22 @@ def t_route_is_off_by_default():
 
 
 def t_route_resolves_from_the_centre_config():
+    """⚠️ بازنویسیِ مستند (VQ-TG-HOLD-001 §۵، ۰۷-۳۰ شب) — نه برای سبزکردن.
+
+    نسخهٔ قبلی رأیِ ۰۷-۲۶ را pin کرده بود: «قلب → تاپیکِ system». رأیِ تازهٔ
+    مالک صریح وارونه‌اش کرد: «هیچ doctor/heart/needs یا پیامِ هسته‌ای به
+    General یا topic ِ پا fallback نکند.» جدولِ fallback حالا فقط پاها را
+    دارد؛ جریانِ هسته‌ای (None, None) می‌گیرد = DM ِ مالک، نه گروه، نه سکوت.
+    وارونه‌کردنِ دوباره رأیِ سومِ ثبت‌شده می‌خواهد."""
     _write_cfg(); _flag(True)
     try:
-        assert ac._stream_route("heart") == (CHAT, 28), "قلب → تاپیکِ system"
-        assert ac._stream_route("doctor") == (CHAT, 28)
-        assert ac._stream_route("needs") == (CHAT, 28)
-        assert ac._stream_route("brain") == (CHAT, 29), "مغز → تاپیکِ knowledge"
-        assert ac._stream_route("discovery") == (CHAT, 29)
-        assert ac._stream_route("map") == (CHAT, 65), "چشم → تاپیکِ cartographer"
+        for core in ("heart", "doctor", "needs", "brain", "discovery",
+                     "cortisol", "alert", "c6", "summary"):
+            assert ac._stream_route(core) == (None, None), \
+                f"{core} هنوز به تاپیکِ گروه fallback می‌کند"
+        # پاها ماندند — حذفِ بیش از حد هم شکست است:
+        assert ac._stream_route("map") == (CHAT, 65), "چشم → cartographer"
+        assert ac._stream_route("lead") == (CHAT, 22), "لید → تاپیکِ خودش"
     finally:
         _flag(False)
 
@@ -121,13 +129,23 @@ def t_send_text_flag_off_is_byte_identical():
 
 
 def t_send_text_routes_to_the_topic():
+    """⚠️ بازنویسیِ مستند (VQ-TG-HOLD-001 §۵) — جریانِ پا همچنان به تاپیکش
+    می‌رود (این نیمهٔ گارد زنده ماند)، ولی جریانِ هسته‌ای دیگر **هرگز** از
+    این مسیر به گروه نمی‌رسد — heart حالا از ماشینِ حالت می‌گذرد و اگر به
+    ارسالِ مستقیم برسد مقصدش DM ِ مالک است، نه تاپیکِ system."""
     _write_cfg(); _flag(True)
     try:
         p = Post()
-        _chan(p).send_text("ضربان", None, stream="heart")
+        _chan(p).send_text("لیدِ تازه", None, stream="lead")
         b = p.bodies[-1]
-        assert b["chat_id"] == CHAT, f"به گروه نرفت: {b['chat_id']}"
-        assert b["message_thread_id"] == 28, f"به تاپیکِ قلب نرفت: {b}"
+        assert b["chat_id"] == CHAT, f"پا به گروه نرفت: {b['chat_id']}"
+        assert b["message_thread_id"] == 22, f"به تاپیکِ لید نرفت: {b}"
+        # و هسته‌ای: هرچه بشود، chat ِ گروه نمی‌شود.
+        p2 = Post()
+        _chan(p2).send_text("ضربان", None, stream="heart")
+        if p2.bodies:                       # ممکن است HOLD/digest شده باشد — ارسال‌نشدن هم قبول
+            assert p2.bodies[-1]["chat_id"] != CHAT, \
+                f"هسته‌ای به گروه رفت: {p2.bodies[-1]}"
     finally:
         _flag(False)
 

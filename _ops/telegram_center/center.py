@@ -737,6 +737,8 @@ class Center:
                     self._route_send("center-health-digest", _dg, cfg=cfg)
         except Exception:  # noqa: BLE001 — تحویلِ hold-policy هرگز beat را نمی‌کشد
             pass
+        # ── موتورِ کارهای پاها (رأیِ ۰۷-۳۰ شب): یک کار در هر ضربان ──────────────
+        self._drive_leg_engine()
         # ── پالسِ ساعتیِ لنگر (رأیِ مالک ۲۰۲۶-۰۷-۳۰: «پالسِ ساعتی») ────────────
         # یک ضربانِ کوتاه در ساعت به DM ِ مالک — حسِ «زنده است» بدونِ رگبار.
         # هیچ فلگِ تازه‌ای ندارد: مقصدش از `center-pulse` می‌آید که current اش
@@ -849,6 +851,163 @@ class Center:
         except Exception:  # noqa: BLE001
             pass
         return {"kind": "home", "verb": verb}
+
+    # ── مدلِ Task ِ پاها: کارت، دکمه‌ها، موتور ─────────────────────────────
+    def _refresh_leg_card(self, leg: str) -> None:
+        """کارتِ زندهٔ پا — یک پیام در تاپیکِ خودش که فقط **ویرایش** می‌شود.
+        ساخت فقط بارِ اول؛ ویرایش فقط وقتی متن عوض شده (ضدِ سیل). pin ِ
+        fail-soft. هر شکست بی‌صدا — کارت هرگز مسیرِ اصلی را نمی‌کشد."""
+        try:
+            import hashlib
+            import leg_tasks as _lt
+            import power as _pw
+            cfg = _load_config()
+            topics = cfg.get("topics") if isinstance(cfg.get("topics"), dict) else {}
+            tid = topics.get(leg)
+            chat = cfg.get("chat_id")
+            if not isinstance(tid, int) or chat is None:
+                return
+            paused = False
+            try:
+                paused = bool(_pw.leg_paused(leg))
+            except Exception:  # noqa: BLE001
+                pass
+            body = _lt.card_text(leg, paused=paused)
+            h = hashlib.sha256(body.encode("utf-8", "replace")).hexdigest()[:16]
+            hashes = cfg.setdefault("leg_card_hash", {})
+            ids = cfg.setdefault("leg_card_ids", {})
+            if hashes.get(leg) == h and isinstance(ids.get(leg), int):
+                return                              # بی‌تغییر — ویرایشِ بیهوده نزن
+            kb = _lt.card_keyboard(leg)
+            mid = ids.get(leg)
+            ok = False
+            if isinstance(mid, int):
+                try:
+                    ok = bool(self._client.edit(mid, _scrub(body), keyboard=kb,
+                                                chat_id=chat))
+                except Exception:  # noqa: BLE001
+                    ok = False
+            if not ok:
+                try:
+                    mid = self._client.send(_scrub(body), chat_id=chat,
+                                            topic_id=tid, keyboard=kb,
+                                            stream=f"leg-card-{leg}")
+                except TypeError:
+                    mid = self._client.send(_scrub(body), chat_id=chat,
+                                            topic_id=tid, keyboard=kb)
+                if isinstance(mid, int):
+                    ids[leg] = mid
+                    try:
+                        self._client.pin_message(mid, chat_id=chat)
+                    except Exception:  # noqa: BLE001
+                        pass
+            if isinstance(ids.get(leg), int):
+                hashes[leg] = h
+                _save_config(cfg)
+        except Exception:  # noqa: BLE001
+            pass
+
+    def _handle_tasks_callback(self, cbq: dict, data: str) -> dict:
+        """tk:<op>:<leg>[:<id>] — چهار دکمهٔ کارت + شروع/لغوِ کار. همه
+        برگشت‌پذیر و بدونِ اثرِ بیرونی؛ توقف/ادامه از power ِ ممیزی‌شده."""
+        parts = str(data or "").split(":")
+        op = parts[1] if len(parts) > 1 else ""
+        leg = parts[2] if len(parts) > 2 else ""
+        tid = parts[3] if len(parts) > 3 else ""
+        msg = cbq.get("message") or {}
+        chat = (msg.get("chat") or {}).get("id")
+        thread = msg.get("message_thread_id")
+        try:
+            self._client.answer_callback(cbq.get("id"), "")
+        except Exception:  # noqa: BLE001
+            pass
+        import leg_tasks as _lt
+        body = ""
+        if op == "c":
+            try:
+                import power as _pw
+                ok, why = _pw.resume_leg(leg)
+                body = "▶️ ادامه — پا برگشت." if ok else f"ادامه نشد: {why}"
+            except Exception:  # noqa: BLE001
+                body = "ادامه نشد — power در دسترس نیست."
+        elif op == "p":
+            try:
+                import power as _pw
+                ok, why = _pw.pause_leg(leg)
+                body = "⏸ متوقف شد — با «ادامه» برمی‌گردد." if ok else \
+                    f"توقف نشد: {why}"
+            except Exception:  # noqa: BLE001
+                body = "توقف نشد — power در دسترس نیست."
+        elif op == "q":
+            rows = _lt.queue(leg)
+            body = ("📋 <b>صفِ " + leg + "</b>\n" + "\n".join(
+                f"· {t['id']} [{t['state']}] {t['text'][:60]}"
+                for t in rows[:10])) if rows else "📋 صف خالی است."
+        elif op == "r":
+            done = _lt.recent_done(leg, 5)
+            body = "\n\n".join(_lt.receipt_text(t) for t in done) \
+                if done else "هنوز نتیجه‌ای ثبت نشده."
+        elif op == "s" and tid:
+            t = _lt.set_state(leg, tid, _lt.WORKING)
+            body = (f"▶️ {tid} شروع شد — نتیجه با رسید می‌آید.") if t else \
+                f"{tid} پیدا نشد."
+        elif op == "x" and tid:
+            t = _lt.cancel(leg, tid)
+            body = f"❌ {tid} لغو شد." if t else f"{tid} پیدا نشد."
+        else:
+            body = "این دکمه را نمی‌شناسم."
+        try:
+            self._client.send(_scrub(body), chat_id=chat, topic_id=thread)
+        except Exception:  # noqa: BLE001
+            pass
+        self._refresh_leg_card(leg)
+        return {"kind": "leg-task", "op": op, "leg": leg}
+
+    def _drive_leg_engine(self) -> None:
+        """در هر ضربان حداکثر **یک** کارِ WORKING از کلِ پاها به مغزِ
+        read-only داده می‌شود (محلی-اول، صفر اثرِ بیرونی). جوابِ «داده کم
+        است» ⇒ BLOCKED با کارتِ سؤال؛ وگرنه DONE با رسید و شاهد."""
+        try:
+            import leg_tasks as _lt
+            cfg = _load_config()
+            topics = cfg.get("topics") if isinstance(cfg.get("topics"), dict) else {}
+            chat = cfg.get("chat_id")
+            for leg in self._legs():
+                t = _lt.claim_next(leg)
+                if not t:
+                    continue
+                try:
+                    import ask_brain as _ab
+                    a = _ab.ask(t["text"], topic_key=leg)
+                    answer = str(a.get("text") or "") if a.get("ok") else ""
+                except Exception:  # noqa: BLE001
+                    answer = ""
+                state, q = _lt.judge_engine_answer(answer)
+                if state == _lt.DONE:
+                    done = _lt.set_state(leg, t["id"], _lt.DONE,
+                                         result=answer[:200] or "انجام شد",
+                                         evidence=answer)
+                    if done:
+                        try:
+                            self._client.send(_scrub(_lt.receipt_text(done)),
+                                              chat_id=chat,
+                                              topic_id=topics.get(leg))
+                        except Exception:  # noqa: BLE001
+                            pass
+                else:
+                    blk = _lt.set_state(leg, t["id"], _lt.BLOCKED, question=q)
+                    if blk:
+                        try:
+                            self._client.send(
+                                _scrub(_lt.blocked_text(blk)), chat_id=chat,
+                                topic_id=topics.get(leg),
+                                keyboard=_lt.blocked_keyboard(leg, blk))
+                        except Exception:  # noqa: BLE001
+                            pass
+                self._refresh_leg_card(leg)
+                break                              # یک کار در هر ضربان — beat سبک بماند
+        except Exception:  # noqa: BLE001 — موتور هرگز beat را نمی‌کشد
+            pass
 
     def _send_console_reply(self, reply: dict, src: dict) -> dict:
         """پاسخِ مامور را به همان چتی که پیام از آن آمد بفرست (همیشه DM ِ مالک —
@@ -1050,6 +1209,36 @@ class Center:
                     if _rep and _rep.get("kind") != "clarify":
                         return self._send_console_reply(_rep, {"message": _mg})
             except Exception:  # noqa: BLE001 — مامورِ شکسته = مسیرِ قبلی، نه سکوت
+                pass
+            # ── مدلِ Task ِ گروهِ پاها (رأیِ مالک ۰۷-۳۰ شب) ─────────────────
+            # «هر پیامِ تو = یک کار برای همان پا.» سؤال همان لحظه از مسیرِ
+            # موجودِ چت جواب می‌گیرد؛ غیرسؤال → TASK ِ صف‌شده + کارتِ
+            # [شروع][لغو]. اجرا فقط بعدِ تپِ «شروع»، در beat، با مغزِ
+            # read-only — هیچ اثرِ بیرونی از گروه ممکن نیست.
+            try:
+                if _d.get("mode") == "leg_scoped" and _d.get("leg"):
+                    _mg2 = u.get("message")
+                    _tx = str((_mg2 or {}).get("text") or "").strip()
+                    if _tx and not _tx.startswith("/"):
+                        import leg_tasks as _lt
+                        if not _lt.is_question(_tx):
+                            _task = _lt.add(_d["leg"], _tx)
+                            if _task:
+                                _ch2 = (_mg2.get("chat") or {}).get("id")
+                                _th2 = _mg2.get("message_thread_id")
+                                try:
+                                    self._client.send(
+                                        _scrub(_lt.intake_text(_task)),
+                                        chat_id=_ch2, topic_id=_th2,
+                                        keyboard=_lt.intake_keyboard(
+                                            _d["leg"], _task))
+                                except Exception:  # noqa: BLE001
+                                    pass
+                                self._refresh_leg_card(_d["leg"])
+                                return {"kind": "leg-task",
+                                        "task": _task["id"],
+                                        "leg": _d["leg"]}
+            except Exception:  # noqa: BLE001 — صفِ شکسته = مسیرِ قبلی، نه سکوت
                 pass
         except Exception:  # noqa: BLE001 — گیتِ شکسته = رفتارِ قبلی، نه سکوت
             pass
@@ -2480,6 +2669,9 @@ class Center:
         # بالادست (handle_update → _is_owner) از قبل گیت کرده.
         if verb == "hm":
             return self._handle_home_callback(cbq, data)
+        if verb == "tk":
+            # دکمه‌های کارتِ پا (رأیِ ۰۷-۳۰ شب). مالکیت را بالادست گیت کرده.
+            return self._handle_tasks_callback(cbq, data)
         if verb == "oc":
             # مامور (owner_console) — مسیرِ اصلی در handle_update است (با تصمیمِ
             # سطحِ کامل)؛ این شاخه هم اعلامِ مسیر برای گاردِ parity است و هم
