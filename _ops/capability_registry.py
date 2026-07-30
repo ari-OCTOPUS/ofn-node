@@ -127,7 +127,10 @@ def _zero_arg_card(path: Path) -> "dict | None":
 # ⚠️ **ثبت مجوز نیست.** حضورِ manifest یعنی «این قابلیت وجود دارد و مالک
 # می‌تواند ببیندش» — نه اینکه اجرایش مجاز است. اجازه فقط از گیت‌های خودِ
 # قابلیت می‌آید (`risk_class` + `owner_gate` در همان manifest صریح ثبت‌اند).
-MANIFEST_NAME = "capability.manifest.json"
+# ⚠️ نام **دقیقاً** همانِ قراردادِ `_ops/telegram_contract/validate_contract.py:19`
+# است. نسخهٔ اولِ من `capability.manifest.json` (نقطه) بود و validator ِ آن بسته
+# صفر manifest می‌دید — دو نیمهٔ درست که به‌خاطرِ یک کاراکتر هم را نمی‌دیدند.
+MANIFEST_NAME = "capability-manifest.json"
 MANIFEST_SCHEMA = "octopus.capability-manifest.v1"
 # پوشه‌هایی که برای manifest عمیق‌تر جست‌وجو می‌شوند (بدونِ محدودیتِ SCAN_DIRS).
 MANIFEST_ROOTS = ("", "world_discovery", "action_bridge", "integrations",
