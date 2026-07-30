@@ -36,6 +36,8 @@ _SECRET_RX = re.compile(
     r"(sk-[A-Za-z0-9]{12,}|AKIA[0-9A-Z]{12,}|-----BEGIN|xox[baprs]-|"
     r"\bpassword\b\s*[:=]|\bseed\b\s*[:=]|\bapi[_-]?key\b\s*[:=]|0x[a-fA-F0-9]{40})", re.I)
 
+_ALLOWED_SCOPES = frozenset({"scratchpad", "session", "project", "verified_shared", "personal_core"})
+_ALLOWED_CLASSIFICATIONS = frozenset({"public", "internal", "confidential", "restricted"})
 _OWNER_PRODUCERS = {"owner", "verdict_recorder", "approval_channel", "tg_center", "telegram_center"}
 
 
@@ -119,14 +121,31 @@ class MemoryGate:
         if not content.strip():
             return {"verb": "reject", "reason": "empty content"}
         privacy = candidate.get("privacy") if tax.is_privacy(candidate.get("privacy")) else "scrubbed"
+        scope = str(candidate.get("scope") or "project")
+        classification = str(candidate.get("classification") or "internal")
+        tenant_id = str(candidate.get("tenant_id") or "personal").strip()
+        project_id = str(candidate.get("project_id") or "octopus-core").strip()
+        agent_id = str(candidate.get("agent_id") or candidate.get("producer") or "unknown").strip()
+        task_id = str(candidate.get("task_id") or "").strip()
+        if scope not in _ALLOWED_SCOPES:
+            return {"verb": "reject", "reason": f"unknown scope {scope!r}"}
+        if classification not in _ALLOWED_CLASSIFICATIONS:
+            return {"verb": "reject", "reason": f"unknown classification {classification!r}"}
+        if not tenant_id or not project_id or not agent_id:
+            return {"verb": "reject", "reason": "tenant_id/project_id/agent_id required"}
 
-        # (2) scrub / guard
+        # (2) scrub / guard — before any proposal is persisted, so rejected secrets cannot
+        # leak through content_preview in the proposal queue.
         if _SECRET_RX.search(content):
             return {"verb": "reject", "reason": "secret/PII pattern — refs/hash only"}
         if privacy == "owner_only" and source != "owner":
             return {"verb": "reject", "reason": "owner_only content from non-owner source"}
         if source == "owner" and not _owner_source_ok(candidate, source):
             return {"verb": "reject", "reason": "owner claim from non-owner producer"}
+        if scope in ("verified_shared", "personal_core") and source != "owner":
+            self._propose(candidate, ns, source, "ADVISORY")
+            return {"verb": "propose", "reason": f"{scope} promotion requires owner authorization",
+                    "trust": "ADVISORY"}
 
         # (3) grade per COMMIT_RULES (dedupe happens at store.insert)
         rule = tax.COMMIT_RULES.get(ns, {})
@@ -145,6 +164,10 @@ class MemoryGate:
                "confidence": candidate.get("confidence"), "salience": candidate.get("salience"),
                "valid_from": _utc_now_iso(), "valid_to": _ttl(ns),
                "supersedes": candidate.get("supersedes"),
+               "tenant_id": tenant_id, "project_id": project_id, "scope": scope,
+               "agent_id": agent_id, "task_id": task_id,
+               "classification": classification,
+               "policy_version": str(candidate.get("policy_version") or "memory-policy.v1"),
                # Two-phase admission: PENDING is durable but invisible to retrieval until
                # every receipt/outcome/ledger artifact is committed.
                "admission_state": str(candidate.get("admission_state") or "ADMITTED").upper(),
