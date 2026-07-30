@@ -144,6 +144,39 @@ def claim_next(leg: str, *, now: float | None = None) -> "dict | None":
     return None
 
 
+def start_next(leg: str, *, now: float | None = None) -> "dict | None":
+    """قدیمی‌ترین QUEUED → WORKING («قدم بعدی» ِ مالک — همان اختیارِ دکمهٔ
+    «شروع»، فقط بدونِ نامِ کار). QUEUED نبود → None."""
+    d = _load(leg)
+    for t in d.get("tasks", []):
+        if t.get("state") == QUEUED:
+            return set_state(leg, t["id"], WORKING, now=now)
+    return None
+
+
+def resolve_blocked(leg: str, task_id: str, answer: str, *,
+                    now: float | None = None) -> "dict | None":
+    """رفعِ مانع: جوابِ مالک به کارتِ 🚧 → همان کار برمی‌گردد به WORKING.
+
+    بدونِ این، اطلاعاتِ تکمیلیِ مالک خودش یک TASK ِ نو می‌شد و کارِ
+    BLOCKED برای همیشه گیر می‌مانْد. فقط روی BLOCKED اثر دارد (fail-closed:
+    ریپلای به کارِ تمام‌شده چیزی را زنده نمی‌کند)."""
+    a = str(answer or "").strip()
+    if not a:
+        return None
+    now = float(now if now is not None else time.time())
+    d = _load(leg)
+    t = _find(d, task_id)
+    if t is None or t.get("state") != BLOCKED:
+        return None
+    t["text"] = (str(t.get("text") or "") +
+                 f"\n➕ اطلاعات مالک: {a[:300]}")[:600]
+    t["state"] = WORKING
+    t["question"] = None
+    t["updated"] = now
+    return dict(t) if _save(leg, d) else None
+
+
 def queue(leg: str) -> list:
     d = _load(leg)
     return [dict(t) for t in d.get("tasks", []) if t.get("state") != DONE]
@@ -246,6 +279,54 @@ def blocked_keyboard(leg: str, t: dict) -> list:
     return [[{"text": "با اطلاعات فعلی ادامه بده",
               "callback_data": f"tk:s:{leg}:{t['id']}"[:64]}],
             [{"text": "لغو", "callback_data": f"tk:x:{leg}:{t['id']}"[:64]}]]
+
+
+def blockers_text(leg: str) -> str:
+    """فهرستِ موانعِ باز — پاسخِ «مانع چیست». مانعی نبود → همین را صادقانه بگو."""
+    rows = [t for t in _load(leg).get("tasks", [])
+            if t.get("state") == BLOCKED]
+    if not rows:
+        return "🚧 مانعی ثبت نشده."
+    lines = ["🚧 <b>موانع باز</b>"]
+    for t in rows[:8]:
+        q = (t.get("question") or "توضیحِ بیشتر لازم است")[:120]
+        lines.append(f"· {t['id']}: {q}")
+    lines.append("\nبرای رفع، به کارتِ 🚧 همان کار ریپلای کن و اطلاعات را بنویس.")
+    return "\n".join(lines)
+
+
+def daily_report_text(leg: str, *, now: float | None = None) -> str:
+    """گزارشِ روزانهٔ یک پا از حقیقتِ Taskها (پنجرهٔ ۲۴ ساعت).
+
+    قراردادِ سکوت: هیچ کاری در پنجره لمس نشده ⇒ "" — دایجست پیامِ خالی
+    نمی‌سازد. خرج/ارسال ادعای اندازه‌گیری نیست؛ ساختارِ موتورِ read-only است."""
+    now = float(now if now is not None else time.time())
+    tasks = _load(leg).get("tasks", [])
+    day0 = now - 86400
+    touched = [t for t in tasks if float(t.get("updated", 0) or 0) >= day0]
+    if not touched:
+        return ""
+    created = [t for t in touched if float(t.get("created", 0) or 0) >= day0]
+    done = [t for t in touched if t.get("state") == DONE
+            and t.get("result") != "لغو شد"]
+    cancelled = [t for t in touched if t.get("state") == DONE
+                 and t.get("result") == "لغو شد"]
+    blocked = [t for t in tasks if t.get("state") == BLOCKED]
+    queued = [t for t in tasks if t.get("state") == QUEUED]
+    lines = [f"🦵 <b>خلاصه روزانه {leg}</b>", "",
+             f"ثبت‌شده: {_fa(len(created))}",
+             f"تکمیل: {_fa(len(done))}",
+             f"لغوشده: {_fa(len(cancelled))}",
+             f"مسدود: {_fa(len(blocked))}",
+             f"در صف: {_fa(len(queued))}"]
+    if blocked:
+        q = (blocked[0].get("question") or "—")[:100]
+        lines.append(f"بزرگ‌ترین مانع: {q}")
+    if done:
+        best = (done[-1].get("result") or "—")[:100]
+        lines.append(f"آخرین نتیجه: {best}")
+    lines += ["خرج: صفر", "ارسال بیرونی: انجام نشد"]
+    return "\n".join(lines)
 
 
 # ── حکمِ نتیجهٔ موتور ──────────────────────────────────────────────────────

@@ -8,7 +8,7 @@ risk_level: critical
 autonomy_level: read-only
 tags: [ai, automation, telegram, meta-system]
 created: 2026-07-03
-updated: 2026-07-29
+updated: 2026-07-31
 ---
 
 # پروژه: architect
@@ -28,6 +28,7 @@ updated: 2026-07-29
 
 ## Active Context
 
+- تغییرات اخیر: 2026-07-31 (agent، Fable 5 — **اتاق کنترل عملیاتی پاها، فاز ۱ کامل**؛ برنچ `claude/telegram-operational-control-de7666` سرِ `e3a8e56` روی خطِ `fix/tg-p2-2026-07-30`). ۹ فرمانِ طبیعی (`telegram_center/leg_commands.py` — تطابقِ کاملِ مجموعهٔ بسته) + رفعِ مانع با ریپلای به کارتِ 🚧 (`leg_tasks.resolve_blocked`) + گزارشِ روزانهٔ per-leg از حقیقتِ Taskها با قراردادِ سکوت (`daily_report_text` در دایجستِ beat). سه تستِ tg (leg_tasks/legs_only/leg_commands) واردِ run_all شدند — دو تای اول از ۰۷-۳۰ در هیچ رانری نبودند. نگاشتِ ۲۰ بندِ طرح → LIVE/NEW/BACKLOG: `_ops/telegram_contract/CONTROL-ROOM-MAP-2026-07-31.md`. merge + restart مرکز = رأیِ مالک.
 - تغییرات اخیر: 2026-07-30 (agent، ZCode — **TG-P2 دو-باتیِ تلگرام روی «دنیای A» پیاده شد**). کامیتِ `70cba70` روی `fix/tg-p2-2026-07-30`. پنج آیتمِ هسته (آیتم ۶/رسانه موکول): (۱) `surface_router.py` نو — `(client,chat,topic)` از `surface-routing.json`، flag-off بایت‌به‌بایت؛ (۲) کلاینتِ دومِ فقط-ارسال روی `TELEGRAM_BOT_TOKEN` در `center._inner_client`، هرگز `poll_updates` (قاعدهٔ ۲ِ TG-SPLIT)؛ (۳) `message_thread_id` در `tg_api.send` فقط روی سوپرگروهِ forum (`cid < -1000`) — DM دیگر ۴۰۰ نمی‌دهد؛ (۴) `setMyCommands` per-bot (`COMMANDS` + `COMMANDS_INNER`)؛ (۵) backoffِ ۴۲۹ همیشه-روشن در `tg_api` (retry_after با سقفِ ۳۰s + یک retry، fail-soft دست‌نخورده). **تست‌ها:** `test_tg_surface_router` ۱۲/۱۲ (نو) · `test_tg_api` ۲۴/۲۴ (+۶) · `test_tg_center` ۳۰/۳۰ (+۴)؛ صفر رگرسیون روی `test_tg_stream_routing`/`approval_store` (دنیای B دست‌نخورده). هر گارد با جهشِ قرمزکنندهٔ واقعاً اجراشده اثبات شد. گزارشِ کامل: [[../octopus-build-prompts/TG-P2-EXECUTION-REPORT-2026-07-30|گزارشِ اجرایِ TG-P2]]. **propose-only:** `OCTOPUS_TG_SPLIT_V1` خاموش می‌ماند؛ فعال‌سازی = رأیِ مالک + کارتِ `VQ-SPLIT-001`. 🔴 **هانکِ غریبهٔ `tool_request`/`tr` در `center.py` کشف و با `git update-index --cacheinfo` از کامیت جداسازی شد** (کارِ ناتمامِ جلسهٔ موازی، بدونِ تست؛ دست‌نخورده در working tree ماند).
 - تغییرات اخیر: 2026-07-29 (agent، Fable 5 — پایانِ جلسه: **۲۷ ماژولِ مسیرِ زنده نجات یافت + قفلِ تک‌نمونهٔ مرکز + راستی‌آزماییِ ۵ بهبودِ برتر**).
   **(۱) بزرگ‌ترین یافته:** ۲۷ ماژولِ `.py` که کدِ **کامیت‌شده** صدایشان می‌زد در گیت نبودند (`1e73137`…`6985ce5`، ۲۸ فایل/۶۴۳۴ خط). چک‌اوتِ تازه بی‌صدا اتاقِ چت، هشت فعلِ قیف، سه فرمانِ خودنگری، هویت، ابتکار، دروازهٔ تصمیم و نبضِ پول را از دست می‌داد. زنجیره‌ای بود: چهار پاس تا صفر.
