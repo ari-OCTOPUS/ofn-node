@@ -9,7 +9,15 @@
     "verdict_card": "VQ-TG-CONTRACT-001",
     "rejected_alternative": "B — هر دو DM مکالمهٔ کامل",
     "scope_of_ratification": "مدلِ دسترسی canonical شد. این تصویب **مجوزِ اتصال، ارسال، آرم‌کردنِ فلگ یا ری‌استارت نیست**؛ آن‌ها رأیِ جداگانه می‌خواهند.",
-    "runtime_status": "NOT_LIVE — صفر صداکنندهٔ runtime؛ input_surface_policy هنوز به center.py وصل نشده"
+    "runtime_status": "RATIFIED+WIRED, NOT_LIVE — input_surface_policy در center.handle_update وصل شد و خروجی fail-closed است؛ ولی ACCEPTANCE-RUNBOOK کامل اجرا نشده و مرکز ری‌استارت نشده، پس پروسهٔ زنده هنوز کدِ قبلی را دارد.",
+    "wired_at": "2026-07-30",
+    "ratified": true,
+    "wired": true,
+    "live": false,
+    "live_requires": [
+      "ACCEPTANCE-RUNBOOK کامل",
+      "ری‌استارتِ tg-center با تپِ مالک"
+    ]
   },
   "owner_model": "two-bots-three-surfaces",
   "surfaces": {

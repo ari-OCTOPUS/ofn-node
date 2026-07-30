@@ -13,9 +13,16 @@
 می‌شود. تغییرِ عمدیِ مدل باید **اول** این گارد را عوض کند و در VERDICT_QUEUE
 ثبت شود؛ همان maintenance lane، نه یک ویرایشِ بی‌صدا.
 
-⚠️ این فایل **تصویب** را می‌سنجد، نه **زنده بودن** را. مدل مصوب است و کد طبقش
-نوشته شده، ولی `input_surface_policy` هنوز به `center.py` وصل نیست
-(VQ-TG-GAP-INPUT-001). دو چیزِ متفاوت — و این تست هر دو را صریح ثبت می‌کند.
+⚠️ **سه حقیقتِ متمایز** که این فایل جدا نگهشان می‌دارد — چون نسخهٔ اولش دوتا را
+یکی گرفت و دو بندِ خودش به تناقض خوردند:
+
+    ratified   مالک رأی داد                      ✅ ۲۰۲۶-۰۷-۳۰
+    wired      کد به `center.handle_update` وصل شد ✅ ۲۰۲۶-۰۷-۳۰
+    live       runbook اجرا و مرکز ری‌استارت شد    ❌ هنوز نه
+
+«وصل» هرگز به‌تنهایی «زنده» نیست: پروسهٔ در حالِ اجرا تا ری‌استارت کدِ قبلی را
+دارد. هر سه **فیلدِ ماشین‌خوان** در قرارداد اند، نه جمله در نثر — تطبیقِ نثر
+همان چیزی بود که تناقض ساخت.
 """
 import json
 import sys
@@ -71,7 +78,10 @@ def t_ratification_is_explicitly_not_permission_to_go_live():
     scope = str(r["scope_of_ratification"])
     for word in ("اتصال", "ارسال", "فلگ", "ری‌استارت"):
         assert word in scope, f"دامنهٔ تصویب دربارهٔ «{word}» ساکت است"
-    assert "NOT_LIVE" in str(r["runtime_status"]), r
+    # فیلدِ ماشین‌خوان، نه تطبیقِ نثر — نثر ترجمه و بازنویسی می‌شود، فیلد نه.
+    assert r["ratified"] is True, r
+    assert r["live"] is False, "تا اجرای runbook و ری‌استارت، live نیست"
+    assert r.get("live_requires"), "پیش‌شرط‌های live باید صریح فهرست شوند"
 
 
 def t_the_three_surfaces_are_exactly_the_ratified_ones():
@@ -110,13 +120,13 @@ def t_the_policy_is_ratified_but_still_not_wired():
     """«فیکس شد ≠ زنده شد» — این بند تا لحظهٔ اتصال قرمز نمی‌شود، ولی وقتی
     وصل شد **باید** به‌روز شود؛ وگرنه سند از واقعیت عقب می‌مانَد."""
     center = (_OPS / "telegram_center" / "center.py").read_text("utf-8")
-    wired = "input_surface_policy" in center
+    wired_in_code = "input_surface_policy" in center
     r = _contract()["owner_ratification"]
-    if wired:
-        assert "NOT_LIVE" not in str(r["runtime_status"]), \
-            "به center وصل شده ولی قرارداد هنوز NOT_LIVE می‌گوید — سند را به‌روز کن"
-    else:
-        assert "NOT_LIVE" in str(r["runtime_status"]), r
+    assert bool(r["wired"]) is wired_in_code, (
+        f"سند wired={r['wired']} می‌گوید ولی کد {wired_in_code} — یکی عقب مانده")
+    # و «وصل» هرگز به‌تنهایی «زنده» نیست: ری‌استارت و runbook لازم‌اند.
+    if r["live"] is True:
+        assert not r.get("live_requires"), "live=True ولی پیش‌شرط باقی است"
 
 
 if __name__ == "__main__":

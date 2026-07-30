@@ -789,6 +789,45 @@ class Center:
             return None
         if not self._is_owner(u):
             return None                              # سکوتِ کامل برای غیرمالک
+        # ── سیاستِ ورودی (VQ-TG-GAP-INPUT-001، رأیِ مالک ۲۰۲۶-۰۷-۳۰ گزینهٔ A) ──
+        # تا امروز فقط **خروجی** سیاست داشت، پس گروه فرمانِ هسته‌ای می‌گرفت حتی
+        # وقتی هیچ خروجیِ هسته‌ای به آن نمی‌رفت. این‌جا ورودی هم گیت می‌شود:
+        # General/تاپیکِ ناشناخته و فرمانِ هسته‌ای در گروه → deny + هدایت به DM.
+        # فلگ ندارد چون قرارداد canonical است؛ ولی fail-**open** است در یک نکته:
+        # نبودِ ماژول یا هر استثنا ⇒ رفتارِ قبلی. دلیل: این گیت یک لایهٔ
+        # **باریک‌کننده** است، و اگر خودش بشکند نباید کلِ مرکز را کر کند.
+        #
+        # WARN: مالکیت این‌جا دوباره استنتاج نمی‌شود — خطِ بالا با
+        # `self._is_owner(u)` از قبل گیت کرده. اگر `owner_chat_id` در
+        # دسترس نباشد (کلاینتِ ناپیکربندی/تستی) گیت **رد** می‌شود، نه
+        # اینکه همه‌چیز deny شود: نسخهٔ اول همین را نداشت و ۱۵ تستِ مرکز
+        # را قرمز کرد، چون سیاست مالک را نمی‌شناخت و همهٔ پیام‌ها را
+        # می‌بلعید. «نمی‌دانم مالک کیست» نباید به «همه ممنوع» ترجمه شود
+        # وقتی لایهٔ بالادست از قبل جواب داده است.
+        try:
+            import input_surface_policy as _isp
+            _own = getattr(self._client, "owner_chat_id", None)
+            if _own is None:
+                raise RuntimeError("owner-unresolvable")
+            _cfg = _load_config()
+            _d = _isp.classify(
+                u, bot_role="outer", owner_id=_own,
+                group_id=_cfg.get("chat_id"),
+                topics=_cfg.get("topics") if isinstance(_cfg.get("topics"), dict) else {})
+            if not _d.get("allow"):
+                _t = _isp.redirect_text(_d)
+                if _t:
+                    _m = (u.get("message")
+                          or (u.get("callback_query") or {}).get("message") or {})
+                    try:
+                        self._client.send(_t, chat_id=(_m.get("chat") or {}).get("id"),
+                                          topic_id=_m.get("message_thread_id"))
+                    except Exception:  # noqa: BLE001 — هدایت هرگز مرکز را نمی‌کشد
+                        pass
+                return {"kind": "input-policy", "mode": _d.get("mode"),
+                        "reason": _d.get("reason")}
+        except Exception:  # noqa: BLE001 — گیتِ شکسته = رفتارِ قبلی، نه سکوت
+            pass
         cbq = u.get("callback_query")
         if isinstance(cbq, dict):
             return self._handle_callback(cbq)
