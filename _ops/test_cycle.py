@@ -247,6 +247,69 @@ def run(*, goal: str, method: str, why: str = "", goal_source: str = "self",
     return {"ok": True, **out}
 
 
+# ─── صداکنندهٔ سطحِ beat ────────────────────────────────────────────────────
+def beat(*, channel=None, now: "float | None" = None) -> dict:  # noqa: ARG001
+    """کلِ چرخه از یک نقطه: ارزیابیِ معوق → هدف → پیش‌ثبت → اجرا.
+
+    این همان صداکننده‌ای است که نبودش تنها بلاکرِ ساختاریِ آزمون بود
+    (SELF-GOAL-CHARTER §۷). سوار بر beat ِ موجودِ organism — poller ِ نو ممنوع.
+
+    ترتیب و قواعدِ سخت:
+      ۱) ارزیابیِ معوقِ چرخه‌های قبلی **قبل** از هدفِ نو — تا مولدِ هدف حکمِ
+         تازهٔ FAIL را ببیند و چرخشِ روش مکانیکی بماند.
+      ۲) هدفِ بی‌ترازو → چرخه اجرا نمی‌شود (اسلات هم نمی‌سوزد؛ tick ِ بعد دوباره).
+      ۳) پیش‌ثبتِ ناموفق → **fail-closed**: هیچ اجرایی. target ِ ثبت‌نشده یعنی
+         بعداً قابلِ جابه‌جایی است — همان چیزی که PRE-0 ممنوع کرده.
+      ۴) `channel` فقط برای آینده نگه داشته شده؛ v1 کارت نمی‌فرستد (کارتِ
+         on-demand از `card()` در capability_registry هست — نویزِ گروه ممنوع).
+    """
+    if not enabled():
+        return {"ok": False, "reason": "flag-off"}
+    out: dict = {}
+    # ۱) ارزیابیِ معوق — ارزان و idempotent؛ هر tick امن است.
+    try:
+        import cycle_evaluator as _ce
+        ev = _ce.evaluate_pending(now=now)
+        if ev.get("evaluated"):
+            out["evaluated"] = ev["evaluated"]
+            out["verdicts"] = [{k: v.get(k) for k in ("verdict", "goal_key", "cycle_id")}
+                               for v in (ev.get("verdicts") or [])]
+    except Exception as e:  # noqa: BLE001 — ارزیابی هرگز beat را نمی‌کشد
+        out["eval_error"] = type(e).__name__
+    d = due(now)
+    out.update({"cycle_id": d["cycle_id"], "slot": d["slot"]})
+    if not d["due"]:
+        return {"ok": False, "reason": "not-due", **out}
+    # ۲) هدف — از مولد؛ بی‌ترازو = بی‌چرخه.
+    try:
+        import goal_generator as _gg
+        g = _gg.propose(now=now)
+    except Exception as e:  # noqa: BLE001
+        return {"ok": False, "reason": f"generator-error:{type(e).__name__}", **out}
+    if not g.get("ok"):
+        return {"ok": False, "reason": "no-valid-goal",
+                "skipped": g.get("skipped"), **out}
+    # ۳) پیش‌ثبت — fail-closed. بدونِ ردیفِ prereg روی دیسک، اجرا ممنوع.
+    try:
+        import prereg as _pr
+        p = _pr.register(g, cycle=d["cycle_id"], now=now)
+    except Exception as e:  # noqa: BLE001
+        return {"ok": False, "reason": f"prereg-error:{type(e).__name__}", **out}
+    if not p.get("ok"):
+        return {"ok": False, "reason": "prereg-failed",
+                "detail": p.get("reason"), **out}
+    # ۴) اجرا — همان run ِ موجود (بازیابی → اسکنِ ابزار → دفتر + mark_done).
+    r = run(goal=g["goal"], method=g["method"], why=g.get("why", ""),
+            goal_source=str(g.get("goal_source") or "self"), now=now)
+    out.update({"ok": bool(r.get("ok")), "prereg_id": p.get("prereg_id"),
+                "goal_key": g.get("goal_key"),
+                "candidate": g.get("candidate_key"),
+                "method_note": g.get("method_note"),
+                "switch": (r.get("journal") or {}).get("kind"),
+                "run_reason": r.get("reason")})
+    return out
+
+
 # ─── کارتِ نمره ─────────────────────────────────────────────────────────────
 def scorecard() -> dict:
     """شمارشِ خامِ سنجه‌های آزمون. هیچ صفتی — فقط عدد.

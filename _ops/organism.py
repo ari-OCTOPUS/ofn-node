@@ -758,6 +758,26 @@ def main() -> int:
                 except Exception as _rte:  # noqa: BLE001 — §۴
                     opslib.alert([f"recall_trend error (non-fatal): "
                                   f"{type(_rte).__name__}: {_rte}"])
+                # ── حلقهٔ آزمونِ خودهدف‌گذاری (۲۰۲۶-۰۷-۳۰، منشور §۷) — این خط
+                # همان صداکننده‌ای است که نبودش تنها بلاکرِ ساختاریِ آزمونِ
+                # ۱۴ چرخه بود: ماژول و کادنس و دفتر همه بودند و صفر caller.
+                # سوار بر همین beat (poller ِ نو ممنوع)؛ کادنسِ ۲ اسلات/روز را
+                # `due()` خودش گیت می‌کند و دوبار-شلیک در یک اسلات ساختاراً
+                # بی‌اثر است. ترتیبِ داخلی: ارزیابیِ معوقِ مستقل → هدفِ معتبر
+                # (سنجهٔ موجود روی دیسک) → پیش‌ثبتِ fail-closed → اجرا.
+                # flag خاموش (پیش‌فرض) → بازگشتِ فوری، صفر I/O.
+                try:
+                    import test_cycle as _tcy   # noqa: WPS433 — lazy، خودش flag را چک می‌کند
+                    _tcr = _tcy.beat(channel=_chan)
+                    if _tcr.get("ok"):
+                        epoch_info["test_cycle"] = {
+                            k: _tcr.get(k) for k in ("cycle_id", "candidate",
+                                                     "switch", "prereg_id")}
+                    if _tcr.get("evaluated"):
+                        epoch_info["cycle_verdicts"] = _tcr.get("verdicts")
+                except Exception as _tcye:  # noqa: BLE001 — §۴: نباید tick را بکشد
+                    opslib.alert([f"test_cycle error (non-fatal): "
+                                  f"{type(_tcye).__name__}: {_tcye}"])
             # Phase 1: epoch-based sweep of stale gated_effects
             try:
                 if chrono is not None:

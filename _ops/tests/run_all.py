@@ -268,6 +268,14 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_tool_request.py",  # «چه ابزاری ندارم» — ثبت هرگز گیت ندارد، فقط تحویل
          "test_recall_trend.py",  # «به یاد می‌آورد؟» — سری، نه عکسِ لحظه‌ای
          "test_paid_truncation.py",  # پاسخِ بریدهٔ مغزِ پولی = شکست، نه ok=True
+         # ۲۰۲۶-۰۷-۳۰ — هارنسِ خودهدف‌گذاری. هر چهار plain-assert اند (تابعِ `t_` +
+         # رانرِ `__main__` + `harness.run`)، پس عمداً **در TESTS** اند نه
+         # PYTEST_TESTS — درسِ green-lie ِ `test_synapse_sense`: فایلِ pytest-style
+         # که direct-run شود صفر assert می‌دود و exit 0 می‌دهد.
+         "test_goal_generator.py",   # هدفِ بی‌ترازو ساخته نمی‌شود + چرخشِ روش فقط بعد از FAIL
+         "test_prereg_evaluator.py",  # پیش‌ثبتِ fail-closed + ارزیابی که target را جابه‌جا نمی‌کند
+         "test_test_cycle_beat.py",  # صداکنندهٔ چرخه: زنجیرهٔ کامل، ضدِ دوبار-شلیک
+         "test_target_guard.py",  # مقصدِ پچ: resolve قبل از قضاوت (کورپوسِ فرارِ ۰۷-۳۰)
          "test_budget_judge.py",  # W1 — قاضیِ بودجه (رزروِ مالک تخطی‌ناپذیر)
          "test_decision_gate.py",  # W2 — گیتِ ۵۱/۴۹ (HARD-STOP با مدرکِ کامل هم بسته)
          "test_trajectory_log.py",  # W3 — دفترِ مسیر (redact ِ fail-closed)
