@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "octopus/world-discovery-action.translation.v1",
+  "title": "Translation Receipt",
+  "description": "رسیدِ ترجمهٔ مرز. سه ناوردیِ سخت در schema کدنویسی شده‌اند: external_effects خالی، cost صفر، و وضعیتِ غیرقابلِ‌اقدام بدونِ action_id.",
+  "type": "object",
+  "required": ["schema","translation_id","created_at","source_artifact","source_status","action_class","decision","action_id","reason","evidence_count","independent_source_count","falsifier_present","external_effects","estimated_cost","owner_gate_required"],
+  "additionalProperties": true,
+  "properties": {
+    "schema": {"const": "world-discovery-action.translation.v1"},
+    "translation_id": {"type": "string", "minLength": 1},
+    "created_at": {"type": "string"},
+    "source_artifact": {
+      "type": "object",
+      "properties": {
+        "schema": {"type": ["string","null"]},
+        "result_schema": {"type": ["string","null"]},
+        "artifact_id": {"type": ["string","null"]},
+        "content_hash": {"type": ["string","null"]}
+      }
+    },
+    "source_status": {
+      "type": ["string","null"],
+      "enum": ["DISCOVERY_VALIDATED","NO_VALID_DISCOVERY","CONTESTED","FALSIFIED","INSUFFICIENT_EVIDENCE","BLOCKED_BY_OWNER","IMPLEMENTED_NOT_INTEGRATED",null],
+      "description": "بدونِ تحریف حمل می‌شود. NO_VALID_DISCOVERY یک نتیجهٔ معتبر است، نه شکست."
+    },
+    "experiment_level_declared": {"type": ["string","null"], "description": "آنچه منبع ادعا کرد — کفِ کلاس، نه سقفش"},
+    "experiment_level_inferred": {"type": ["string","null"], "description": "آنچه از رفتارِ واقعی استنتاج شد"},
+    "action_class": {"type": ["string","null"], "enum": ["A0","A1","A2","A3","A4","A5","A6",null]},
+    "decision": {"enum": ["NO_ACTION","DRY_RUN","OWNER_GATE","BLOCK","REJECT"]},
+    "action_id": {"type": ["string","null"], "description": "برای وضعیتِ غیرقابلِ‌اقدام همیشه null"},
+    "reason": {"type": "string", "minLength": 1},
+    "evidence_count": {"type": "integer", "minimum": 0},
+    "independent_source_count": {"type": "integer", "minimum": 0, "description": "شمارشِ مستقلِ دامنه — عددِ خودگزارشیِ artifact باور نمی‌شود"},
+    "falsifier_present": {"type": "boolean"},
+    "external_effects": {"type": "array", "maxItems": 0},
+    "estimated_cost": {"type": "number", "minimum": 0, "maximum": 0},
+    "owner_gate_required": {"type": "boolean"},
+    "warnings": {"type": "array"},
+    "errors": {"type": "array"}
+  }
+}
