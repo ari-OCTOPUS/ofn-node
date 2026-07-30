@@ -121,6 +121,23 @@ def t_12_declared_E0_with_a_send_verb_is_A4():
     assert lvl["class"] == "A4", lvl
 
 
+def t_12b_declared_E0_with_the_external_flag_alone_is_A4():
+    """جهشِ سبزِ ۲۰۲۶-۰۷-۳۰ این را رو کرد.
+
+    برداشتنِ کلِ شاخهٔ `external_effect is True` هیچ تستی را قرمز نکرد، چون
+    fixture ِ E3 پایه‌اش از قبل A4 بود. تمایزِ واقعی این‌جاست: پایهٔ بی‌خطر و
+    **فقط** فلگِ ساختاری، بدونِ هیچ فعلِ ارسالی در متن."""
+    for lv, base in (("E0", "A0"), ("E1", "A1")):
+        clean = policy.infer_level(
+            {"level": lv, "target": "workspace/x", "estimated_cost": 0}, lv)
+        assert clean["class"] == base, (lv, clean)      # بدونِ فلگ، پایین می‌ماند
+        flagged = policy.infer_level(
+            {"level": lv, "target": "workspace/x", "estimated_cost": 0,
+             "external_effect": True}, lv)
+        assert flagged["class"] == "A4", (lv, flagged)
+        assert any("external_effect=true" in r for r in flagged["reasons"]), flagged
+
+
 def t_13_declared_E1_with_cost_is_A5():
     lvl = policy.infer_level(
         {"level": "E1", "target": "workspace/x", "estimated_cost": 0.5}, "E1")
