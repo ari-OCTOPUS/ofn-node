@@ -109,6 +109,12 @@ def build(*, now: float | None = None) -> dict:
     coverage = (innervation["data"] or {}).get("coverage_pct")
 
     blockers = []
+    # VQ-STATE-WRITE-001: رسیدِ شکستِ نوشتنِ state (opslib._write_failure_receipt)
+    # باید مصرف‌کنندهٔ تصمیمی داشته باشد وگرنه ثبتِ زینتی است. رسیدِ ≤۲۴h = blocker.
+    wf = [w for w in _jsonl(STATE / "write-failures.jsonl")
+          if isinstance(w.get("epoch"), (int, float)) and now - w["epoch"] < 86400]
+    if wf:
+        blockers.append(f"state-write-failures-{len(wf)}")
     if self_model["authority"] != "AUTHORITATIVE":
         blockers.append("self-model-not-fresh")
     if not heart["production_open"]:
