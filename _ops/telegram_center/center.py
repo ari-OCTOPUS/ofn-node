@@ -713,6 +713,30 @@ class Center:
             _dl.beat(self)
         except Exception:  # noqa: BLE001 — link هرگز beat را نمی‌کشد
             pass
+        # ── VQ-TG-HOLD-001: outboxِ فوری + دایجستِ سلامتِ ساعتی ────────────────
+        # ارگانیسم (پروسهٔ دیگر) پیام‌های بحرانی/گذار/recovery را در outbox
+        # می‌گذارد و آیتم‌های نو را در بافرِ digest؛ این‌جا — تنها جایی که
+        # کلاینتِ inner ِ send-only داریم — تحویل می‌دهیم. الگوی doctor_link:
+        # هیچ poller یا اتصالِ تازه‌ای باز نمی‌شود. هر شکست فقط همان بخش را
+        # می‌اندازد؛ نشانگرِ flush فقط بعد از ارسالِ موفق جلو می‌رود.
+        try:
+            import hold_policy as _hp
+            _urg = _hp.urgent_pending(now=now, cap=5)
+            _sent_upto = None
+            for _u in _urg:
+                _m = self._route_send("center-urgent",
+                                      str(_u.get("text") or ""), cfg=cfg)
+                if _m is None:
+                    break                       # ارسال نشد → نشانگر جلو نمی‌رود
+                _sent_upto = float(_u.get("ts") or 0)
+            if _sent_upto:
+                _hp.mark_urgent_flushed(_sent_upto)
+            if _hp.digest_due(now=now):
+                _dg = _hp.flush_digest(now=now)
+                if _dg:
+                    self._route_send("center-health-digest", _dg, cfg=cfg)
+        except Exception:  # noqa: BLE001 — تحویلِ hold-policy هرگز beat را نمی‌کشد
+            pass
         # ── پالسِ ساعتیِ لنگر (رأیِ مالک ۲۰۲۶-۰۷-۳۰: «پالسِ ساعتی») ────────────
         # یک ضربانِ کوتاه در ساعت به DM ِ مالک — حسِ «زنده است» بدونِ رگبار.
         # هیچ فلگِ تازه‌ای ندارد: مقصدش از `center-pulse` می‌آید که current اش
@@ -809,15 +833,13 @@ class Center:
             body = ("🦵 <b>پاها</b>\n" + "\n".join(rows)) if rows else \
                 "🦵 هنوز گزارشی از پاها ندارم — تاپیک‌هایشان در گروه است."
         elif verb == "held":
+            # رأی §۶ VQ-TG-HOLD-001: فقط خلاصه/دسته‌بندی · حداکثر ۱۰ · متن echo
+            # نمی‌شود (نسخهٔ اول text[:80] را نشان می‌داد — همان نقضی که رأی
+            # بست) · خواندن = HELD_VIEWED، نه sent، و هیچ ارسال/اجرایی نمی‌سازد.
             try:
+                import hold_policy as _hp
                 import surface_policy as _spol
-                items = _spol.held_since(5)
-                if items:
-                    rows = [f"· <i>{str(i.get('stream') or '?')}</i> — "
-                            f"{str(i.get('text') or '')[:80]}" for i in items]
-                    body = "🔇 <b>آخرین ناگفته‌ها</b>\n" + "\n".join(rows)
-                else:
-                    body = "🔇 چیزی نگه نداشته‌ام."
+                body = _hp.held_view(_spol.held_since(500))
             except Exception:  # noqa: BLE001
                 body = "🔇 فهرستِ ناگفته‌ها در دسترس نیست."
         else:

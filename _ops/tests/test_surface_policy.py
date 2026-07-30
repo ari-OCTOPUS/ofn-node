@@ -111,45 +111,57 @@ def t_safety_is_never_held():
         _on(False)
 
 
-def t_needs_owner_still_carries_its_reason_label():
-    """`needs_owner` از ۰۷-۳۰ فقط برچسب را عوض می‌کند — مقصد در هر دو DM است.
-    برچسب مهم است: «تصمیمِ مالک» و «محیطی» نباید در لاگ یکی به نظر برسند."""
+def t_needs_owner_bypasses_the_classifier_entirely():
+    """«نیازمندِ تصمیمِ من: فوری» (رأی §۲) — کارت/تصمیم هرگز وارد ماشینِ حالت
+    نمی‌شود که مبادا dedupe یا digest عقبش بیندازد."""
     _on()
     try:
         assert sp.route("doctor", needs_owner=True) == (sp.DM, "needs-owner")
-        assert sp.route("doctor") == (sp.DM, "ambient")
     finally:
         _on(False)
 
 
-# ─── ۴: تحویل، نه سکوت (رأیِ مالک ۲۰۲۶-۰۷-۳۰) ─────────────────────────────
-def t_ambient_streams_are_delivered_to_the_dm_not_held():
-    """⚠️ این بند تا ۰۷-۳۰ **وارونه** بود و عمداً بازنویسی شد — نه برای سبزکردن،
-    بلکه چون خودِ مالک رأی را عوض کرد: «ناگفته‌ها به DM اختاپوس بیایند.»
+# ─── ۴: ماشینِ حالتِ VQ-TG-HOLD-001 (رأیِ سومِ سطح، ۲۰۲۶-۰۷-۳۰ شب) ─────────
+def t_ambient_streams_route_to_the_classifier_not_straight_to_dm():
+    """تاریخچهٔ سه‌رأیه — این بند دو بار عمداً بازنویسی شده و هر بار با سند:
+      ۰۷-۲۸: «فقط وقتی لازم است» → fallback=HOLD (~۱۷۰ ناگفته جمع شد)
+      ۰۷-۳۰ عصر: «ناگفته‌ها به DM» → fallback=DM (همه‌چیز یک‌جا)
+      ۰۷-۳۰ شب: VQ-TG-HOLD-001 → طبقه‌بند: بحرانی فوری · نو digest · تکراری HOLD
+    چرخشِ بعدی هم باید رأیِ ثبت‌شده داشته باشد، نه ویرایشِ بی‌صدا.
 
-    تاریخچه: رأیِ ۰۷-۲۸ («فقط وقتی واقعاً به من نیاز داری») fallback را HOLD
-    کرد و از همان لحظه ~۱۷۰ پیامِ doctor/heart/needs بی‌صدا در
-    held-stream.jsonl ماند — ثبت‌شده ولی نادیده. مالک وقتی شمارش را در پالسِ
-    ساعتیِ لنگر دید، تحویل را انتخاب کرد. اگر روزی این بند دوباره وارونه شود،
-    باید یک رأیِ سومِ ثبت‌شده پشتش باشد، نه یک ویرایشِ بی‌صدا."""
+    route فقط (HOLD, \"classify\") می‌دهد چون متن ندارد؛ طبقه‌بندیِ واقعی در
+    hold() است — سنجه‌های رفتاری‌اش در test_tg_hold_policy."""
     _on()
     try:
         for s in ("heart", "doctor", "needs", "summary", "center", "چیزِ‌ناشناخته"):
-            dest, key = sp.route(s)
-            assert dest == sp.DM, (s, dest, "محیطی باید تحویل شود، نه HOLD")
-            assert key == "ambient", (s, key)
-        # و هیچ مسیری در route دیگر HOLD تولید نمی‌کند — سازوکارِ hold فقط
-        # آرشیو/فراخوانِ صریح است.
-        for s in ("", None, "x" * 80):
-            assert sp.route(s)[0] != sp.HOLD, s
+            assert sp.route(s) == (sp.HOLD, "classify"), (s, sp.route(s))
     finally:
         _on(False)
 
 
+def t_hold_dispatches_by_classification_and_never_loses_a_record():
+    """سه سرنوشت، سه ردِ قابلِ‌سنجش: فوری→outbox · نو→بافرِ digest · تکراری→آرشیو.
+    هیچ‌کدام گم نمی‌شود — «سکوت ≠ فراموشی» حالا سه دفتر دارد."""
+    import importlib
+    import hold_policy as hp
+    importlib.reload(hp)                       # state ِ ایزولهٔ همین تست
+    before_archive = len(sp.held_since(500))
+    # ۱) بحرانیِ نو → outboxِ فوری، نه آرشیو
+    assert sp.hold("doctor", "🔴 CRITICAL: قلب ایستاد") is True
+    assert len(hp.urgent_pending(cap=10)) >= 1, "بحرانی به outbox نرفت"
+    # ۲) عادیِ نو → بافرِ digest، نه آرشیو
+    assert sp.hold("needs", "صفِ نیازها: ۵ مورد باز") is True
+    assert len(sp.held_since(500)) == before_archive, "digest نباید آرشیو شود"
+    # ۳) همان وضعیت با عددِ تازه (درسِ «شمارنده در کلیدِ dedup») → تکراری → آرشیو
+    assert sp.hold("needs", "صفِ نیازها: ۷ مورد باز") is True
+    assert len(sp.held_since(500)) == before_archive + 1, "تکراری باید آرشیو شود"
+
+
 def t_what_was_not_sent_is_still_recorded():
-    """سکوت نباید فراموشی باشد — وگرنه بعداً نمی‌شود سنجید که درست بوده."""
+    """سکوت نباید فراموشی باشد. زیرِ VQ-TG-HOLD-001 «رکورد» سه دفتر دارد و
+    این بند دفترِ آرشیو را می‌سنجد — مقصدِ تکراری‌ها و سقوطِ خطا."""
     before = len(sp.held_since(500))
-    assert sp.hold("doctor", "متنِ آزمایشی") is True
+    assert sp._archive("doctor", "متنِ آزمایشی") is True
     rows = sp.held_since(500)
     assert len(rows) == before + 1
     assert rows[-1]["stream"] == "doctor" and "آزمایشی" in rows[-1]["text"]
@@ -162,13 +174,26 @@ def t_the_hold_log_stays_inside_the_isolated_tree():
 
 
 def t_a_broken_hold_never_raises():
-    """ثبت‌نشدن نباید ارسال را بکشد."""
-    real = sp._held_path
+    """ثبت‌نشدن نباید ارسال را بکشد — حتی وقتی طبقه‌بند هم استثنا بدهد،
+    سقوط به آرشیوِ خراب فقط False است، نه raise."""
+    import hold_policy as hp
+    real_path = sp._held_path
+    real_submit = hp.submit
     sp._held_path = lambda: Path("/\x00نامعتبر/x.jsonl")
+    hp.submit = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom"))
     try:
         assert sp.hold("x", "y") is False
     finally:
-        sp._held_path = real
+        sp._held_path = real_path
+        hp.submit = real_submit
+
+
+def t_hold_policy_state_also_stays_inside_the_isolated_tree():
+    """ماشینِ حالت هم نباید درختِ زنده را بنویسد — همان گاردِ نشتی، دفترِ ۲ و ۳."""
+    import hold_policy as hp
+    live = str(harness.REAL_VAULT / "_ops" / "state").lower()
+    for p in (hp._state_path(), hp._buffer_path(), hp._urgent_path()):
+        assert not str(p).lower().startswith(live), p
 
 
 # ─── ۵: یک چیز، یک دکمه ───────────────────────────────────────────────────

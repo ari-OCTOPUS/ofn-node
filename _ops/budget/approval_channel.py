@@ -164,11 +164,16 @@ def _quiet_now(now=None) -> bool:
 
 
 _STREAM_TOPIC = {
-    "heart": "system", "doctor": "system", "needs": "system", "summary": "system",
-    "brain": "knowledge", "discovery": "knowledge", "map": "cartographer",
+    # ۲۰۲۶-۰۷-۳۰ · VQ-TG-HOLD-001 §۵: «هیچ doctor/heart/needs یا پیامِ هسته‌ای
+    # به General یا topic ِ پا fallback نکند.» این جدول مسیرِ **قدیمی** است که
+    # فقط وقتی surface_policy در یک پروسه پیدا نشود تصمیم می‌گیرد — و تا امروز
+    # heart/doctor/needs/brain/… را به تاپیک‌های گروه می‌برد. مدخل‌های هسته‌ای
+    # حذف شدند: نبودِ مدخل ⇒ (None, None) ⇒ DM ِ مالک (نه گروه، نه سکوت).
+    # فقط پاها ماندند. حذفِ مدخل ≠ حذفِ پیام — مقصد DM می‌شود.
+    "map": "cartographer",
     # ۲۰۲۶-۰۷-۲۶ — مقصدِ هشدارهای فوری (instant_alert_bridge):
     # ترس در 🫀قلب (وضعیتِ حیاتی)، فرضیه در 🧠مغز (یادگیری)، لید در بازوی خودش.
-    "cortisol": "system", "alert": "system", "c6": "knowledge", "lead": "lead",
+    "lead": "lead",
 }
 def _center_cfg_path() -> Path:
     """مسیرِ configِ مرکز — از opslib.STATE_DIR، نه ثابتِ hardcode. دلیلش عملی است:

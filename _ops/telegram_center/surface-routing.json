@@ -27,6 +27,9 @@
     "center-digest":     {"current": {"bot": "outer", "surface": "group", "topic": "system"}, "target": {"bot": "outer", "surface": "dm"},   "شرح": "دایجستِ ادغامیِ پاها (MERGED_DIGEST) — خلاصهٔ هسته‌ای است نه پیامِ پا، پس DM"},
     "center-decision":   {"current": {"bot": "outer", "surface": "group", "topic": "system"}, "target": {"bot": "outer", "surface": "dm"},   "شرح": "کارتِ تصمیم/راهنمایی — دکمه‌هایش را خودِ مرکز (outer) رسیدگی می‌کند، پس همان بات می‌ماند"},
     "center-alert":      {"current": {"bot": "outer", "surface": "group", "topic": "system"}, "target": {"bot": "inner", "surface": "dm"},   "شرح": "هشدارِ push_alert — طبقِ قرارداد critical-alerts مالِ رباتِ اختاپوس (inner) است؛ بی‌دکمه، پس امنِ inner"},
-    "center-pulse":      {"current": {"bot": "none",  "surface": "none"},                     "target": {"bot": "outer", "surface": "dm"},   "شرح": "پالسِ ساعتیِ لنگر (رأیِ مالک ۰۷-۳۰: «پالسِ ساعتی») — تا فلگ مسلح نشود هیچ‌جا نمی‌رود"}
+    "center-pulse":      {"current": {"bot": "none",  "surface": "none"},                     "target": {"bot": "outer", "surface": "dm"},   "شرح": "پالسِ ساعتیِ لنگر (رأیِ مالک ۰۷-۳۰: «پالسِ ساعتی») — تا فلگ مسلح نشود هیچ‌جا نمی‌رود"},
+
+    "center-urgent":     {"current": {"bot": "none",  "surface": "none"},                     "target": {"bot": "inner", "surface": "dm"},   "شرح": "VQ-TG-HOLD-001: بحرانی/گذارِ قرمز/recovery receipt — فوری به DM ِ اختاپوس؛ از outboxِ ارگانیسم، تحویل با کلاینتِ inner ِ مرکز"},
+    "center-health-digest": {"current": {"bot": "none", "surface": "none"},                   "target": {"bot": "inner", "surface": "dm"},   "شرح": "VQ-TG-HOLD-001: دایجستِ ساعتیِ doctor/heart/needs ِ نو/تغییرکرده — حداکثر یک پیام در ساعت"}
   }
 }
