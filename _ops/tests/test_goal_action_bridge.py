@@ -154,6 +154,33 @@ def t_a3_candidates_stop_at_the_planner_and_never_execute():
         _flag(False)
 
 
+def t_a_non_allow_plan_never_even_reaches_the_executor():
+    """⚠️ بعد از **جهشِ سبز** نوشته شد: برداشتنِ گیتِ `decision != ALLOW` هیچ
+    تستی را قرمز نکرد، چون خودِ executor هم A3 را BLOCK می‌کند (EXECUTABLE =
+    {A0,A1}). یعنی بندِ بالا نمی‌توانست «گیتِ پل» را از «گیتِ executor» جدا
+    کند — دو محافظ، یک سنجه.
+
+    این بند مستقیم می‌سنجد که executor **اصلاً صدا زده نشود**: با جاسوسی روی
+    خودِ تابع. دفاعِ لایه‌ای خوب است، ولی هر لایه باید سنجهٔ خودش را داشته
+    باشد وگرنه بی‌صدا می‌پوسد."""
+    _fresh()
+    _flag(True)
+    sys.path.insert(0, str(_OPS / "action_bridge"))
+    import executor as _ex
+    calls = []
+    real = _ex.execute
+    _ex.execute = lambda *a, **k: (calls.append(1), real(*a, **k))[1]
+    try:
+        cyc = "2026-07-30#5"
+        _register(cyc, "money")
+        r = gab.run_for_cycle(cyc, now=NOW)
+        assert r["ok"] is False, r
+        assert not calls, ("executor برای نقشهٔ non-ALLOW صدا زده شد", r)
+    finally:
+        _ex.execute = real
+        _flag(False)
+
+
 def t_text_is_never_authorization_the_map_is():
     """متنِ روش هرچه باشد، action_type از جدولِ بازبینی‌شده می‌آید — پیشنهادی
     با متنِ «ارسال کن و خرج کن» ولی سنجهٔ recall همچنان A0 ِ مشاهده است."""
@@ -253,10 +280,42 @@ def t_the_journal_row_now_carries_the_exact_prereg_id():
 
 
 def t_the_seam_in_run_is_flag_off_silent():
-    """سیم در test_cycle.run: فلگ خاموش ⇒ کلیدِ action اصلاً ظاهر نمی‌شود."""
-    src = (_OPS / "test_cycle.py").read_text("utf-8")
-    assert "goal_action_bridge" in src, "سیم قطع است"
-    assert "_gab.enabled()" in src, "سیم بدونِ گیتِ فلگ است"
+    """⚠️ بازنویسی بعد از **جهشِ سبز**: نسخهٔ اول فقط `"_gab.enabled()" in src`
+    را می‌سنجید — و آن رشته **دو بار** در فایل هست (یکی برای پل، یکی برای
+    consolidation). پس برداشتنِ گیتِ یکی، تست را قرمز نمی‌کرد: گاردِ رشته‌ای
+    با حضورِ نمونهٔ دیگر سبز می‌ماند. حالا سنجهٔ **رفتاری** است.
+
+    فلگ خاموش ⇒ `run()` هرگز کلیدِ `action` نمی‌سازد و پل صدا نمی‌خورد."""
+    import test_cycle as tc
+    _flag(False)
+    # ⚠️ پایه باید **زیرِ** سطحِ هدف بنشیند: بدونِ فلگِ خودِ چرخه، `run()` در
+    # خطِ اول برمی‌گردد و هرگز به درز نمی‌رسد — آن‌وقت «action ساخته نشد»
+    # تصادفی درست است و جهش سبز می‌ماند (همین اتفاق افتاد).
+    os.environ["OCTOPUS_WIRE_TEST_CYCLE"] = "1"
+    calls = []
+    real = gab.run_for_cycle
+    gab.run_for_cycle = lambda *a, **k: (calls.append(1), {"ok": False})[1]
+    try:
+        out = tc.run(goal="هدفِ آزمونِ سیم", method="روش",
+                     prereg_id="p:x", now=NOW, force=True)
+        assert out.get("journal"), ("run به درز نرسید — پایه بی‌معناست", out)
+        assert "action" not in out, ("فلگ خاموش ولی action ساخته شد", out)
+        assert not calls, "فلگ خاموش ولی پل صدا زده شد"
+    finally:
+        gab.run_for_cycle = real
+        os.environ.pop("OCTOPUS_WIRE_TEST_CYCLE", None)
+
+
+def t_the_seam_is_actually_present_in_the_source():
+    """جدا از رفتار: سیم باید **وجود** داشته باشد — وگرنه تستِ بالا با یک
+    فایلِ بی‌سیم هم سبز است (سبز به‌خاطرِ غیاب)."""
+    import ast
+    tree = ast.parse((_OPS / "test_cycle.py").read_text("utf-8"))
+    called = {getattr(n.func, "attr", None) for n in ast.walk(tree)
+              if isinstance(n, ast.Call)
+              and getattr(getattr(n.func, "value", None), "id", None) == "_gab"}
+    assert "run_for_cycle" in called, "پل از test_cycle صدا نمی‌خورد"
+    assert "consolidate_new_verdicts" in called, "consolidation وصل نیست"
 
 
 if __name__ == "__main__":
