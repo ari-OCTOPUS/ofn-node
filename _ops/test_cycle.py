@@ -361,6 +361,29 @@ def beat(*, channel=None, now: "float | None" = None) -> dict:  # noqa: ARG001
                 out["memory_consolidated"] = _cm["consolidated"]
     except Exception:  # noqa: BLE001 — حافظه هرگز beat را نمی‌کشد
         pass
+    # ۱.۶) کارتِ A3 → صفِ تأییدِ مالک → حکم → دفترِ mission (فلگِ جدا، غایب=خاموش).
+    # قبلاً کارتِ OWNER_GATE دور ریخته می‌شد و mission برای همیشه needs_approval
+    # می‌مانْد — «برنامه → اقدامِ مجاز» درست در پلهٔ مجاز قطع بود (ممیزی ۰۷-۳۱).
+    try:
+        import mission_approval_bridge as _mab
+        if _mab.enabled():
+            _ma = _mab.beat(now=now)
+            if _ma.get("staged") or _ma.get("settled"):
+                out["mission_approvals"] = {"staged": _ma.get("staged", 0),
+                                            "settled": _ma.get("settled", 0)}
+    except Exception:  # noqa: BLE001 — پلِ تأیید هرگز beat را نمی‌کشد
+        pass
+    # ۱.۷) منتقدِ رسید — ناوردی‌های اجراکننده را از دیسک قضاوت کن (فلگِ جدا).
+    # رسیدِ بی‌منتقد همان «دفاعِ لایه‌ای بی‌سنجه» است که بی‌صدا می‌پوسد.
+    try:
+        import receipt_critic as _rcx
+        if _rcx.enabled():
+            _rv = _rcx.evaluate_new(now=now)
+            if _rv.get("evaluated"):
+                out["receipt_verdicts"] = {"evaluated": _rv["evaluated"],
+                                           "fails": _rv.get("fails", 0)}
+    except Exception:  # noqa: BLE001 — منتقد هرگز beat را نمی‌کشد
+        pass
     d = due(now)
     out.update({"cycle_id": d["cycle_id"], "slot": d["slot"]})
     if not d["due"]:

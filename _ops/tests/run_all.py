@@ -604,6 +604,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     # ۲۰۲۶-۰۷-۳۱ — VQ-STATE-WRITE-001: شکستِ نوشتنِ خودمدل باصدا شد (آلارم +
     # نشانگرِ روی دیسک + گاردِ GAAT روی کهنگیِ self-model). plain-assert.
     "test_state_write_loudness.py",
+    # ۲۰۲۶-۰۷-۳۱ — بستنِ دو پارگیِ حلقهٔ عملیاتی: کارتِ A3 → صفِ تأییدِ مالک →
+    # حکم → دفترِ mission (mission_approval_bridge، فلگ‌خاموش) + منتقدِ رسید
+    # (receipt_critic، فلگ‌خاموش). plain-assert.
+    "test_mission_approval_and_receipt_critic.py",
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
