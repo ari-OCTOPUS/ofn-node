@@ -85,11 +85,33 @@ def t_loop_status_reports_every_rung_separately():
 
 
 def t_a_dark_patch_card_is_stated_not_hidden():
-    """PATCH_CARD خاموش ⇒ متن باید صریح بگوید کارت به مالک نمی‌رسد.
-    سکوت این‌جا یعنی مالک منتظرِ کارتی می‌مانَد که هرگز نمی‌آید."""
-    os.environ.pop("OCTOPUS_WIRE_PATCH_CARD", None)
-    txt = bc.status_text()
-    assert "PATCH_CARD" in txt and "خاموش" in txt, txt
+    """PATCH_CARD خاموش ⇒ متن صریح بگوید کدام مسیر بسته است.
+
+    ⚠️ نسخهٔ اولِ این بند (و خودِ متن) می‌گفت «کارتِ پچ به تو نمی‌رسد» و
+    برای مسیرِ «بساز» **غلط** بود: `code_brain.tick_once` کارت را بی‌قید
+    می‌فرستد؛ PATCH_CARD فقط حلقهٔ **خودتشخیصی** را گیت می‌کند. دو مسیر،
+    دو گیت — قاتی‌کردنشان یعنی مالک منتظرِ کارتِ اشتباه می‌مانَد."""
+    saved = os.environ.pop("OCTOPUS_WIRE_PATCH_CARD", None)
+    try:
+        txt = bc.status_text()
+        assert "PATCH_CARD" in txt and "خاموش" in txt, txt
+        assert "خودتشخیصی" in txt, "نمی‌گوید کدام مسیر بسته است"
+        assert "«بساز» جداست" in txt, "مسیرِ بساز را از PATCH_CARD جدا نمی‌کند"
+    finally:
+        if saved is not None:
+            os.environ["OCTOPUS_WIRE_PATCH_CARD"] = saved
+
+
+def t_a_dark_code_brain_is_stated_too():
+    """گیتِ واقعیِ مسیرِ «بساز» مغزِ کد است، نه PATCH_CARD — و باید گفته شود."""
+    saved = os.environ.pop("OCTOPUS_CODE_BRAIN", None)
+    try:
+        txt = bc.status_text()
+        assert "مغزِ کد خاموش است" in txt, txt
+        assert "OCTOPUS_WIRE_CODE_BRAIN" in txt, "نمی‌گوید چه چیزی لازم است"
+    finally:
+        if saved is not None:
+            os.environ["OCTOPUS_CODE_BRAIN"] = saved
 
 
 def t_the_status_never_claims_a_producer_that_does_not_exist():
