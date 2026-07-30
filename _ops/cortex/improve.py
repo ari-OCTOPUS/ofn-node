@@ -542,6 +542,15 @@ def run(write: bool = True, use_local_brain: bool = True) -> dict:
         goal_report = {"n_goal_serving": gr["n_goal_serving"],
                        "n_circular_dropped": gr["n_circular_dropped"],
                        "goals_count": gr["goals_count"],
+                       # ۲۰۲۶-۰۷-۳۰ — سهمیه **و دلیلش** باید در دفتر بنشیند،
+                       # وگرنه «چرا این پیشنهاد افتاد؟» فقط از حافظهٔ آدم‌ها
+                       # قابلِ جواب است. مخصوصاً حالا که سهمیه پنجرهٔ تاریخ‌دار
+                       # دارد (VQ-SELFGOAL-006: ۶ تا ۰۸-۰۶، بعد خودبه‌خود ۲) —
+                       # بدونِ این دو کلید، «آن روز سهمیه چند بود؟» بعداً
+                       # اثبات‌ناپذیر است. `rerank` از قبل هر دو را برمی‌گرداند؛
+                       # این‌جا فقط دور ریخته می‌شد — میدانِ یتیم.
+                       "max_circular": gr.get("max_circular"),
+                       "max_circular_reason": gr.get("max_circular_reason"),
                        "outcome": goal_directed.measure()}
     except Exception as e:  # noqa: BLE001 — بازچینی نباید حلقه را بکشد
         opslib.alert([f"goal_directed error (non-fatal): {type(e).__name__}: {e}"])

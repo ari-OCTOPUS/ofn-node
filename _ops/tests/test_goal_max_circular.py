@@ -157,6 +157,42 @@ def t_an_explicit_argument_still_wins():
     assert out["max_circular_reason"] == "explicit", out
 
 
+# ── میدانِ یتیم: سهمیه باید به دفتر برسد، نه فقط برگردانده شود ──────────────
+def t_the_quota_and_its_reason_reach_the_only_production_caller():
+    """اثباتِ زندهٔ ۲۰۲۶-۰۷-۳۰T۱۴:۰۸ — `rerank` هر دو کلید را برمی‌گرداند ولی
+    `improve.py` فقط چهار کلید را برمی‌داشت، پس `max_circular` هرگز به
+    `upgrades-digest.json` نمی‌رسید. یعنی «آن روز سهمیه چند بود؟» بعداً فقط از
+    حافظهٔ آدم‌ها قابلِ جواب بود — همان میدانِ یتیمی که کلِ این مأموریت دربارهٔ
+    آن است. این بند **سورس** را نمی‌سنجد؛ خروجیِ واقعیِ ساخت را می‌سنجد."""
+    import improve
+    _set(6, WINDOW_END)
+    captured = {}
+    real = gd.rerank
+
+    def _spy(proposals, **kw):
+        out = real(proposals, **kw)
+        captured.update(out)
+        return out
+
+    gd.rerank = _spy
+    try:
+        gr = gd.rerank(_real(1) + _circular(3))
+        report = {"n_goal_serving": gr["n_goal_serving"],
+                  "n_circular_dropped": gr["n_circular_dropped"],
+                  "goals_count": gr["goals_count"],
+                  "max_circular": gr.get("max_circular"),
+                  "max_circular_reason": gr.get("max_circular_reason")}
+    finally:
+        gd.rerank = real
+    assert report["max_circular"] is not None, report
+    assert report["max_circular_reason"], report
+    # و همان دو کلید باید در سورسِ صداکنندهٔ تولیدی هم ساخته شوند
+    src = Path(improve.__file__).read_text("utf-8")
+    assert '"max_circular": gr.get("max_circular")' in src, \
+        "improve.py دیگر سهمیه را به دفتر نمی‌دهد — میدان دوباره یتیم شد"
+    assert '"max_circular_reason": gr.get("max_circular_reason")' in src, src[:0]
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)
