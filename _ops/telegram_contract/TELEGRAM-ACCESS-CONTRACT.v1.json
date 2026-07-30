@@ -1,6 +1,16 @@
 {
   "schema": "octopus.telegram-access.v1",
-  "status": "DESIGNED_NOT_INTEGRATED",
+  "status": "OWNER_RATIFIED_NOT_INTEGRATED",
+  "owner_ratification": {
+    "decision": "A",
+    "model": "Outer DM = گفت‌وگوی کامل · Inner DM = سلامت/approval · Group = فقط پاها",
+    "ratified_at": "2026-07-30",
+    "ratified_by": "owner",
+    "verdict_card": "VQ-TG-CONTRACT-001",
+    "rejected_alternative": "B — هر دو DM مکالمهٔ کامل",
+    "scope_of_ratification": "مدلِ دسترسی canonical شد. این تصویب **مجوزِ اتصال، ارسال، آرم‌کردنِ فلگ یا ری‌استارت نیست**؛ آن‌ها رأیِ جداگانه می‌خواهند.",
+    "runtime_status": "NOT_LIVE — صفر صداکنندهٔ runtime؛ input_surface_policy هنوز به center.py وصل نشده"
+  },
   "owner_model": "two-bots-three-surfaces",
   "surfaces": {
     "owner_outer_dm": {
