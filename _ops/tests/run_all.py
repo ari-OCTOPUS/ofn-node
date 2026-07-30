@@ -601,6 +601,31 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     # قرمزِ کاذبِ دائم. run_all هیچ glob/discovery ندارد ⇒ ثبت‌نشده = هرگز اجرا نشده.
     "test_hebbian_eventclock.py",                   # ساعتِ رخدادِ hebbian + سقفِ learned
     "test_watchdog_stall.py",                       # استالِ حلقه + احیای باصدا
+    # ۲۰۲۶-۰۷-۳۱ — مأموریتِ یکپارچه‌سازی: یتیم‌های سبزِ راستی‌آزمایی‌شده ثبت شدند.
+    # (test_tg_callback_emitter_parity عمداً ثبت نشد: به verb ِ `tr` ِ نسخهٔ
+    # کامیت‌نشدهٔ center.py ِ درختِ زنده وابسته است — CONFLICT MAP ِ deliverables.)
+    "test_goal_action_bridge.py",                   # پلِ اقدام: prereg→mission→A0→receipt
+    "test_lockedjson_write.py",                     # VQ-STATE-WRITE-001: retry/رسید/blocker
+    "test_mission_card_seam.py",                    # VQ-MISSION-CARD-001: mission→کارتِ ap:
+    "test_memory_read_seam.py",                     # §۱۰.۴: retrieval ِ مشورتیِ ساخت‌یافته
+    "test_manifest_truth.py",                       # MANIFEST_INVALID دیده می‌شود، listed نمی‌شود
+    "test_tg_surface_router.py",                    # مسیریابیِ سطحِ خروجی (قراردادِ سه‌سطحی)
+    "test_tg_route_seam.py",                        # درزِ resolve→ارسالِ زنده
+    "test_tg_build_surface.py",                     # سطحِ «بساز» از Outer DM
+    "test_tg_input_surface_policy.py",              # سیاستِ ورودی: گروه فرمانِ هسته‌ای نمی‌گیرد
+    "test_tg_hold_policy.py",                       # HOLD: بحرانی فوری / نو digest / تکراری
+    "test_tg_group_is_legs_only.py",                # گروه legs-only
+    "test_tg_canonical_access_model.py",            # قراردادِ TELEGRAM-ACCESS v1
+    "test_tg_client_contract.py",                   # قراردادِ کلاینتِ tg
+    "test_tg_leg_tasks.py",                         # مدلِ Task ِ پاها
+    # world_discovery — pytest-style (عضوِ PYTEST_TESTS پایین؛ ۸۵ سنجه):
+    "test_world_discovery_action_boundary.py",
+    "test_world_discovery_competitors.py",
+    "test_world_discovery_contracts.py",
+    "test_world_discovery_contradictions.py",
+    "test_world_discovery_e2e.py",
+    "test_world_discovery_novelty.py",
+    "test_world_discovery_sources.py",
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
@@ -627,6 +652,16 @@ PYTEST_TESTS = {
     # غیرpytest و نگه‌داشتنِ آن‌هایی بود که `exit 0` با **صفر خروجی** می‌دهند.
     # اگر روزی دوباره شک کردی، همان را اجرا کن نه grep.
     "test_synapse_sense.py",
+    # ۲۰۲۶-۰۷-۳۱ — هفت سوییتِ world_discovery از روزِ تولد (۰۷-۳۰) ثبت‌نشده بودند:
+    # «تست دارد» ولی هرگز در سوییت نمی‌دوید. همه pytest-style اند (۸۵ سنجه، سبزِ
+    # راستی‌آزمایی‌شده در همین مأموریت).
+    "test_world_discovery_action_boundary.py",
+    "test_world_discovery_competitors.py",
+    "test_world_discovery_contracts.py",
+    "test_world_discovery_contradictions.py",
+    "test_world_discovery_e2e.py",
+    "test_world_discovery_novelty.py",
+    "test_world_discovery_sources.py",
 }
 
 # ۲۰۲۶-۰۷-۳۰ — «قرمزِ کاذبِ ۱۲۰». پاسِ اولِ سوییت بدونِ capture اجرا می‌شد، پس هر

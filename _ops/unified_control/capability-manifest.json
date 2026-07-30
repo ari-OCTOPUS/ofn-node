@@ -9,7 +9,7 @@
   "risk_class": "read",
   "owner_gate": "فقط‌خواندنی؛ هیچ اقدامی از این پکیج بیرون نمی‌رود",
   "surface": "owner_outer_dm",
-  "runtime_status_probe": "IMPLEMENTED_NOT_INTEGRATED — صفر صداکنندهٔ runtime؛ تست‌ها اجرا و سبز (۲۷ چک، ۹ جهشِ قرمزکننده)",
+  "runtime_status_probe": "LOADED — دو صداکنندهٔ واقعیِ runtime: goal_action_bridge.py:138 (پشتِ OCTOPUS_WIRE_ACTION_BRIDGE، مسلح ۰۷-۳۰) و owner_console/status.py:14 (بی‌فلگ در مسیرِ داغِ تلگرام)؛ به‌روزشده ۲۰۲۶-۰۷-۳۱ — ادعای قبلیِ «صفر صداکننده» کهنه بود",
   "tests": [
     "_ops/unified_control/tests/test_authority_policies.py",
     "_ops/unified_control/tests/test_pipeline.py",

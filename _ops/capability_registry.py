@@ -139,22 +139,50 @@ _MANIFEST_DEPTH = 3
 
 
 def _read_manifest(path) -> "dict | None":
-    """manifest را بخوان و اعتبارش را بسنج. هر ابهام ⇒ `None` (نه ردیفِ ناقص)."""
+    """manifest را بخوان و اعتبارش را بسنج. نامعتبر ⇒ `None` + ثبتِ دلیل.
+
+    ۲۰۲۶-۰۷-۳۱ (مأموریتِ یکپارچه‌سازی): نسخهٔ قبلی نامعتبر را **بی‌صدا** حذف
+    می‌کرد — یعنی MANIFEST_INVALID از چشمِ مالک پنهان می‌ماند و «نیست» با
+    «خراب اعلام شده» یکی می‌شد (همان دو سکوتِ متفاوتی که قاعدهٔ
+    record-always می‌گوید نباید یکی شوند). حالا دلیل در `_manifest_invalid`
+    ثبت و در `card()`/`manifest_report()` دیده می‌شود؛ ردیفِ نامعتبر همچنان
+    هرگز واردِ فهرستِ معتبرها نمی‌شود."""
     import json
+    p = Path(path)
     try:
-        d = json.loads(Path(path).read_text("utf-8"))
-    except (OSError, ValueError):
+        d = json.loads(p.read_text("utf-8"))
+    except (OSError, ValueError) as e:
+        _manifest_invalid.append({"path": str(p), "reason": f"unreadable:{type(e).__name__}"})
         return None
     if not isinstance(d, dict) or d.get("schema") != MANIFEST_SCHEMA:
+        _manifest_invalid.append({"path": str(p), "reason": "bad-schema"})
         return None
-    for k in ("capability_id", "title", "version", "risk_class", "surface"):
-        if not str(d.get(k) or "").strip():
-            return None
+    missing = [k for k in ("capability_id", "title", "version", "risk_class", "surface")
+               if not str(d.get(k) or "").strip()]
+    if missing:
+        _manifest_invalid.append({"path": str(p), "reason": "missing:" + ",".join(missing)})
+        return None
     if d.get("registration_is_authorization") is True:
         # manifest ای که خودش را مجوز اعلام کند، همان چیزی است که این طراحی
         # علیه آن است. رد می‌شود — نه اینکه فیلدش نادیده گرفته شود.
+        _manifest_invalid.append({"path": str(p), "reason": "claims-authorization"})
         return None
     return d
+
+
+_manifest_invalid: list = []
+
+
+def manifest_report(refresh: bool = False) -> dict:
+    """گزارشِ صادقانهٔ manifestها: معتبرها + نامعتبرها با دلیل.
+
+    قاعدهٔ SGC-14 §۱۲: «manifest invalid = MANIFEST_INVALID» — یک وضعیتِ
+    قابلِ‌دیدن، نه یک غیبتِ بی‌صدا."""
+    valid = discover_manifests(refresh)
+    return {"schema": "capability-manifest-report.v1",
+            "valid": len(valid),
+            "invalid": list(_manifest_invalid),
+            "invalid_count": len(_manifest_invalid)}
 
 
 def discover_manifests(refresh: bool = False) -> list:
@@ -162,7 +190,12 @@ def discover_manifests(refresh: bool = False) -> list:
     global _manifest_cache
     if _manifest_cache is not None and not refresh:
         return _manifest_cache
+    _manifest_invalid.clear()
     out, seen = [], set()
+    # MANIFEST_ROOTS هم‌پوشانی دارند («» با glob ِ */ همان فایلِ doctor/… را هم
+    # می‌بیند). معتبرها با `seen` ِ cid یکتا می‌شدند ولی نامعتبرها دوبار ثبت
+    # می‌شدند — تستِ همین مأموریت گرفتش. dedup روی مسیرِ resolve-شده.
+    checked: set = set()
     for sub in MANIFEST_ROOTS:
         root = _HERE / sub if sub else _HERE
         if not root.is_dir():
@@ -175,6 +208,10 @@ def discover_manifests(refresh: bool = False) -> list:
         for f in hits:
             if not f.is_file() or set(f.parts) & _SKIP_PARTS:
                 continue
+            rp = str(f.resolve())
+            if rp in checked:
+                continue
+            checked.add(rp)
             d = _read_manifest(f)
             if d is None:
                 continue
@@ -331,6 +368,11 @@ def card() -> str:
     if c["dark"]:
         lines.append(f"▸ {c['live']} تای‌شان الان محتوای واقعی دارند؛ "
                      f"{c['dark']} تا پشتِ فلگِ خاموش‌اند و فقط می‌گویند «خاموشم».")
+    # MANIFEST_INVALID باید به چشمِ مالک برسد — UI هرگز نامعتبر را «نیست» نشان نمی‌دهد.
+    mr = manifest_report()
+    if mr["invalid_count"]:
+        lines.append(f"▸ ⚠️ {mr['invalid_count']} manifest نامعتبر — "
+                     "با <code>manifest_report()</code> دلیلش را ببین.")
     lines.append("")
     for r in rows:
         mark = "" if r["flag_on"] else " <i>(خاموش)</i>"
