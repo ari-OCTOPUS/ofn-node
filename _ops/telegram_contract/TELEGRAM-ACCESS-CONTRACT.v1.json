@@ -1,0 +1,141 @@
+{
+  "schema": "octopus.telegram-access.v1",
+  "status": "DESIGNED_NOT_INTEGRATED",
+  "owner_model": "two-bots-three-surfaces",
+  "surfaces": {
+    "owner_outer_dm": {
+      "bot": "outer",
+      "token_env": "TG_CENTER_BOT_TOKEN",
+      "poller": "telegram_center.center",
+      "role": "primary-owner-interface",
+      "accepts": [
+        "free_chat",
+        "questions",
+        "missions",
+        "self_goal_status",
+        "world_discovery",
+        "action_drafts",
+        "reports",
+        "owner_votes"
+      ],
+      "must_not_execute_without_gate": [
+        "external_send",
+        "spend",
+        "deploy",
+        "merge",
+        "restart_organism",
+        "arm_flag",
+        "secret_access"
+      ]
+    },
+    "owner_inner_dm": {
+      "bot": "inner",
+      "token_env": "TELEGRAM_BOT_TOKEN",
+      "poller": "budget.approval_channel",
+      "role": "organism-status-and-approval",
+      "accepts": [
+        "health",
+        "critical_alert",
+        "organ_digest",
+        "money_pulse_propose_only",
+        "approval_card",
+        "execution_receipt"
+      ],
+      "free_chat_behavior": "redirect-to-outer-dm"
+    },
+    "legs_forum_group": {
+      "bot": "outer",
+      "token_env": "TG_CENTER_BOT_TOKEN",
+      "poller": "telegram_center.center",
+      "role": "legs-only",
+      "allowed_topics": [
+        "lead",
+        "ziman",
+        "mining",
+        "crypto",
+        "accounting",
+        "studio_pf",
+        "knowledge",
+        "cartographer"
+      ],
+      "allowed_behavior": [
+        "read_leg_status",
+        "create_leg_scoped_mission",
+        "request_leg_pause_resume_card",
+        "record_owner_provided_leg_outcome"
+      ],
+      "forbidden_behavior": [
+        "core_chat",
+        "system_power",
+        "global_approval",
+        "world_discovery_chat",
+        "doctor_chat",
+        "budget_control",
+        "flag_control",
+        "cross_leg_action",
+        "unknown-topic-fallback-to-core"
+      ],
+      "general_topic": "deny-and-redirect",
+      "unknown_topic": "deny-and-redirect"
+    }
+  },
+  "stream_targets": {
+    "chat": "owner_outer_dm",
+    "doctor-intent": "owner_outer_dm",
+    "doctor-diff": "owner_outer_dm",
+    "world-discovery": "owner_outer_dm",
+    "self-goal": "owner_outer_dm",
+    "action-draft": "owner_outer_dm",
+    "doctor-daily": "owner_inner_dm",
+    "critical-alerts": "owner_inner_dm",
+    "organ-digest": "owner_inner_dm",
+    "money-pulse": "owner_inner_dm",
+    "approvals-organism": "owner_inner_dm",
+    "lead": "legs_forum_group:lead",
+    "ziman": "legs_forum_group:ziman",
+    "mining": "legs_forum_group:mining",
+    "crypto": "legs_forum_group:crypto",
+    "accounting": "legs_forum_group:accounting",
+    "studio_pf": "legs_forum_group:studio_pf",
+    "knowledge": "legs_forum_group:knowledge",
+    "cartographer": "legs_forum_group:cartographer"
+  },
+  "capability_manifest_required": {
+    "fields": [
+      "capability_id",
+      "schema",
+      "title",
+      "owner_phrases",
+      "read_handler",
+      "action_contract",
+      "risk_class",
+      "owner_gate",
+      "surface",
+      "runtime_status_probe",
+      "tests"
+    ],
+    "default_surface": "owner_outer_dm",
+    "default_unknown_action": "BLOCK",
+    "registration_is_authorization": false
+  },
+  "invariants": [
+    "one_poller_per_token",
+    "no_new_poller_for_routing",
+    "group_is_legs_only",
+    "outer_dm_is_primary_conversation",
+    "inner_dm_is_status_and_approval",
+    "unknown_group_input_cannot_reach_core",
+    "every_emitted_callback_is_handled_by_emitting_bot",
+    "capability_registration_does_not_grant_execution",
+    "memory_is_not_authorization",
+    "send_receipt_required_for_sent_claim",
+    "runtime_evidence_required_for_live_claim"
+  ],
+  "safe_defaults": {
+    "unknown_stream": "HOLD_AND_ALERT",
+    "unknown_group_command": "DENY_AND_REDIRECT",
+    "unknown_dm_intent": "CLARIFY_OR_READ_ONLY_ANSWER",
+    "missing_callback_handler": "BLOCK_CARD_EMISSION",
+    "missing_capability_probe": "IMPLEMENTED_NOT_LIVE"
+  }
+}
