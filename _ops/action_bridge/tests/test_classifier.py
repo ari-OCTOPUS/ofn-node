@@ -164,6 +164,21 @@ def t_31_source_component_gets_no_privilege():
     assert a["classification"] == b["classification"] == "A4"
 
 
+def t_a_declared_external_effect_lifts_even_a_harmless_base():
+    """جهشِ ناموفقِ ۲۰۲۶-۰۷-۳۰ این را رو کرد.
+
+    برداشتنِ کلِ شاخهٔ `external_effect is True` هیچ تستی را قرمز نکرد، چون
+    همهٔ موردهای A4 من نوعِ عملشان **از قبل** A4 بود. یعنی این خط اصلاً سنجیده
+    نمی‌شد. تمایزِ واقعی این‌جاست: پایهٔ بی‌خطر + فلگِ بیرونی."""
+    for at in ("read_local_file", "observe_metric", "write_sandbox_artifact",
+               "render_report"):
+        c = classifier.classify(_req(action_type=at, external_effect=True))
+        assert c["classification"] == "A4", (at, c)
+        assert any("external_effect=true" in r for r in c["reasons"]), c
+    # و بدونِ فلگ، همان‌ها پایین می‌مانند — وگرنه گارد بیش‌بست است
+    assert _cls(action_type="read_local_file", external_effect=False) == "A0"
+
+
 def t_undeclared_external_effect_is_treated_as_external():
     """نه True نه False = اعلام‌نشده ⇒ محافظه‌کار، نه خوش‌بین."""
     for v in (None, "false", 0, "no"):
