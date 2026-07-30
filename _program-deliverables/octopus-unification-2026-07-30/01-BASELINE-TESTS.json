@@ -1,0 +1,606 @@
+{
+ "schema": "octopus.baseline-tests.v1",
+ "date": "2026-07-30",
+ "branch": "fix/tg-p2-2026-07-30",
+ "head": "8d76618",
+ "suites": [
+  {
+   "suite": "action_bridge/test_classifier",
+   "file": "test_classifier.py",
+   "cwd": "F:\\backup\\_ops\\action_bridge\\tests",
+   "exit": 0,
+   "pass": 24,
+   "total": 24,
+   "seconds": 0.1,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_unreadable_cost_escalates_to_money",
+    "✅ test_classifier: 24/24"
+   ]
+  },
+  {
+   "suite": "action_bridge/test_scope_guard",
+   "file": "test_scope_guard.py",
+   "cwd": "F:\\backup\\_ops\\action_bridge\\tests",
+   "exit": 0,
+   "pass": 12,
+   "total": 12,
+   "seconds": 0.1,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_sibling_prefix_is_not_containment",
+    "✅ test_scope_guard: 12/12"
+   ]
+  },
+  {
+   "suite": "action_bridge/test_flow",
+   "file": "test_flow.py",
+   "cwd": "F:\\backup\\_ops\\action_bridge\\tests",
+   "exit": 0,
+   "pass": 25,
+   "total": 25,
+   "seconds": 0.2,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_no_signing_key_means_no_approvals_at_all",
+    "✅ test_flow: 25/25"
+   ]
+  },
+  {
+   "suite": "action_bridge/test_claimed_fixture",
+   "file": "test_claimed_fixture.py",
+   "cwd": "F:\\backup\\_ops\\action_bridge\\tests",
+   "exit": 0,
+   "pass": 5,
+   "total": 5,
+   "seconds": 0.1,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_the_real_metric_file_is_never_touched",
+    "✅ test_claimed_fixture: 5/5"
+   ]
+  },
+  {
+   "suite": "unified_control/test_snapshot_compass",
+   "file": "test_snapshot_compass.py",
+   "cwd": "F:\\backup\\_ops\\unified_control\\tests",
+   "exit": 0,
+   "pass": 3,
+   "total": 3,
+   "seconds": 0.3,
+   "suspicious_no_count": false,
+   "tail": [
+    "OK 3"
+   ],
+   "count_source": "OK-N format"
+  },
+  {
+   "suite": "unified_control/test_snapshot_staleness",
+   "file": "test_snapshot_staleness.py",
+   "cwd": "F:\\backup\\_ops\\unified_control\\tests",
+   "exit": 0,
+   "pass": 10,
+   "total": 10,
+   "seconds": 0.2,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_unparseable_json_is_missing_never_authoritative",
+    "OK 10/10"
+   ]
+  },
+  {
+   "suite": "unified_control/test_authority_policies",
+   "file": "test_authority_policies.py",
+   "cwd": "F:\\backup\\_ops\\unified_control\\tests",
+   "exit": 0,
+   "pass": 4,
+   "total": 4,
+   "seconds": 0.1,
+   "suspicious_no_count": false,
+   "tail": [
+    "OK 4"
+   ],
+   "count_source": "OK-N format"
+  },
+  {
+   "suite": "unified_control/test_pipeline",
+   "file": "test_pipeline.py",
+   "cwd": "F:\\backup\\_ops\\unified_control\\tests",
+   "exit": 0,
+   "pass": 3,
+   "total": 3,
+   "seconds": 0.1,
+   "suspicious_no_count": false,
+   "tail": [
+    "OK 3"
+   ],
+   "count_source": "OK-N format"
+  },
+  {
+   "suite": "unified_control/test_runtime_seam",
+   "file": "test_runtime_seam.py",
+   "cwd": "F:\\backup\\_ops\\unified_control\\tests",
+   "exit": 0,
+   "pass": 2,
+   "total": 2,
+   "seconds": 0.1,
+   "suspicious_no_count": false,
+   "tail": [
+    "OK 2"
+   ],
+   "count_source": "OK-N format"
+  },
+  {
+   "suite": "unified_control/test_translator_graph",
+   "file": "test_translator_graph.py",
+   "cwd": "F:\\backup\\_ops\\unified_control\\tests",
+   "exit": 0,
+   "pass": 5,
+   "total": 5,
+   "seconds": 0.1,
+   "suspicious_no_count": false,
+   "tail": [
+    "OK 5"
+   ],
+   "count_source": "OK-N format"
+  },
+  {
+   "suite": "wda/test_boundary",
+   "file": "test_boundary.py",
+   "cwd": "F:\\backup\\_ops\\integrations\\world_discovery_action\\tests",
+   "exit": 0,
+   "pass": 43,
+   "total": 43,
+   "seconds": 0.2,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_42_the_report_preserves_no_valid_discovery",
+    "✅ test_boundary: 43/43"
+   ]
+  },
+  {
+   "suite": "owner_console/test_catalog",
+   "file": "test_catalog.py",
+   "cwd": "F:\\backup\\_ops\\owner_console\\tests",
+   "exit": 0,
+   "pass": 5,
+   "total": 5,
+   "seconds": 0.2,
+   "suspicious_no_count": false,
+   "tail": [
+    "OK 5"
+   ],
+   "count_source": "OK-N format"
+  },
+  {
+   "suite": "owner_console/test_conversation",
+   "file": "test_conversation.py",
+   "cwd": "F:\\backup\\_ops\\owner_console\\tests",
+   "exit": 0,
+   "pass": 6,
+   "total": 6,
+   "seconds": 12.1,
+   "suspicious_no_count": false,
+   "tail": [
+    "OK 6"
+   ],
+   "count_source": "OK-N format"
+  },
+  {
+   "suite": "owner_console/test_acceptance_questions",
+   "file": "test_acceptance_questions.py",
+   "cwd": "F:\\backup\\_ops\\owner_console\\tests",
+   "exit": 0,
+   "pass": 4,
+   "total": 4,
+   "seconds": 29.1,
+   "suspicious_no_count": false,
+   "tail": [
+    "OK 4"
+   ],
+   "count_source": "OK-N format"
+  },
+  {
+   "suite": "owner_console/test_telegram_adapter",
+   "file": "test_telegram_adapter.py",
+   "cwd": "F:\\backup\\_ops\\owner_console\\tests",
+   "exit": 0,
+   "pass": 4,
+   "total": 4,
+   "seconds": 2.5,
+   "suspicious_no_count": false,
+   "tail": [
+    "OK 4"
+   ],
+   "count_source": "OK-N format"
+  },
+  {
+   "suite": "owner_console/test_mutation_gaps",
+   "file": "test_mutation_gaps.py",
+   "cwd": "F:\\backup\\_ops\\owner_console\\tests",
+   "exit": 0,
+   "pass": 4,
+   "total": 4,
+   "seconds": 1.5,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_the_callback_gate_and_the_message_gate_are_the_same_strictness",
+    "✅ test_mutation_gaps: 4/4"
+   ]
+  },
+  {
+   "suite": "sgc/test_test_cycle_beat",
+   "file": "test_test_cycle_beat.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 14,
+   "total": 14,
+   "seconds": 0.5,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_two_slots_per_day_are_two_cycles",
+    "✅ test_test_cycle_beat: 14/14"
+   ]
+  },
+  {
+   "suite": "sgc/test_goal_generator",
+   "file": "test_goal_generator.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 10,
+   "total": 10,
+   "seconds": 0.2,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_validate_fails_closed_on_bad_target",
+    "✅ test_goal_generator: 10/10"
+   ]
+  },
+  {
+   "suite": "sgc/test_prereg_evaluator",
+   "file": "test_prereg_evaluator.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 16,
+   "total": 16,
+   "seconds": 0.3,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_verdict_carries_evidence_reference",
+    "✅ test_prereg_evaluator: 16/16"
+   ]
+  },
+  {
+   "suite": "sgc/test_target_guard",
+   "file": "test_target_guard.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 14,
+   "total": 14,
+   "seconds": 0.2,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_traversal_out_of_the_allow_root_is_rejected",
+    "✅ test_target_guard: 14/14"
+   ]
+  },
+  {
+   "suite": "sgc/test_goal_max_circular",
+   "file": "test_goal_max_circular.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 14,
+   "total": 14,
+   "seconds": 0.3,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_without_the_env_the_quota_is_two",
+    "✅ test_goal_max_circular: 14/14"
+   ]
+  },
+  {
+   "suite": "sgc/test_goal_directed",
+   "file": "test_goal_directed.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 6,
+   "total": 6,
+   "seconds": 0.3,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_f_measure_sees_proposal_router_metrics",
+    "✅ test_goal_directed: 6/6"
+   ]
+  },
+  {
+   "suite": "mission/test_tg_mission",
+   "file": "test_tg_mission.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 13,
+   "total": 13,
+   "seconds": 0.4,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_m_apply_after_green_tests_becomes_code_apply_request",
+    "✅ test_tg_mission: 13/13"
+   ]
+  },
+  {
+   "suite": "mission/test_tg_mission_runner",
+   "file": "test_tg_mission_runner.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 12,
+   "total": 12,
+   "seconds": 0.8,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_l_runnable_missions_filters_by_state_and_allowlist",
+    "✅ test_tg_mission_runner: 12/12"
+   ]
+  },
+  {
+   "suite": "memory/test_memory_gate",
+   "file": "test_memory_gate.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 10,
+   "total": 10,
+   "seconds": 0.3,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_j_taxonomy_single_source",
+    "OK test_memory_gate: 10/10"
+   ]
+  },
+  {
+   "suite": "memory/test_honest_outcomes",
+   "file": "test_honest_outcomes.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": null,
+   "total": null,
+   "seconds": 0.2,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ داده نبود → rate_pct=None (قاعدهٔ صداقت حفظ شد)",
+    "PASS — test_honest_outcomes"
+   ],
+   "count_source": "PASS/checkmark format (شمارش چاپ نمی‌کند، assert واقعی دارد — tail شاهد)"
+  },
+  {
+   "suite": "memory/test_outcome_spine",
+   "file": "test_outcome_spine.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 10,
+   "total": 10,
+   "seconds": 0.3,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_j_utc_aware_and_schema_versioned",
+    "OK test_outcome_spine: 10/10"
+   ]
+  },
+  {
+   "suite": "memory/test_acct_memory",
+   "file": "test_acct_memory.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": null,
+   "total": null,
+   "seconds": 0.2,
+   "suspicious_no_count": false,
+   "tail": [
+    "ok t_e_evaluate_and_drift",
+    "PASS test_acct_memory"
+   ],
+   "count_source": "PASS/checkmark format (شمارش چاپ نمی‌کند، assert واقعی دارد — tail شاهد)"
+  },
+  {
+   "suite": "spine/test_event_spine",
+   "file": "test_event_spine.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 9,
+   "total": 9,
+   "seconds": 0.3,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_i_zero_external_side_effect_structural",
+    "OK test_event_spine: 9/9"
+   ]
+  },
+  {
+   "suite": "spine/test_spine_sanitize",
+   "file": "test_spine_sanitize.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 6,
+   "total": 6,
+   "seconds": 0.2,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_structural_zero_network",
+    "OK spine_sanitize: 6/6"
+   ]
+  },
+  {
+   "suite": "spine/test_spine_single_surface",
+   "file": "test_spine_single_surface.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": null,
+   "total": null,
+   "seconds": 0.2,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ [۴] flag خاموش + idempotent",
+    "  ✅ [۵] validate_row رویدادِ بد را رد می‌کند"
+   ],
+   "count_source": "PASS/checkmark format (شمارش چاپ نمی‌کند، assert واقعی دارد — tail شاهد)"
+  },
+  {
+   "suite": "spine/test_spine_multidomain",
+   "file": "test_spine_multidomain.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 9,
+   "total": 9,
+   "seconds": 1.5,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_i_zero_external_effect_structural",
+    "OK test_spine_multidomain: 9/9"
+   ]
+  },
+  {
+   "suite": "tg/test_tg_center",
+   "file": "test_tg_center.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 30,
+   "total": 30,
+   "seconds": 0.8,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_x_mission_test_flag_on_invokes_runner",
+    "✅ test_tg_center: 30/30"
+   ]
+  },
+  {
+   "suite": "tg/test_tg_api",
+   "file": "test_tg_api.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 24,
+   "total": 24,
+   "seconds": 0.2,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_zz_diagnostics_no_token_leak",
+    "✅ test_tg_api: 24/24"
+   ]
+  },
+  {
+   "suite": "tg/test_tg_surface_router",
+   "file": "test_tg_surface_router.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 12,
+   "total": 12,
+   "seconds": 0.1,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_unknown_stream_falls_back_to_outer_not_silence",
+    "✅ test_tg_surface_router: 12/12"
+   ]
+  },
+  {
+   "suite": "tg/test_tg_route_seam",
+   "file": "test_tg_route_seam.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 12,
+   "total": 12,
+   "seconds": 0.3,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_the_home_keyboard_never_exceeds_three_decision_points",
+    "✅ test_tg_route_seam: 12/12"
+   ]
+  },
+  {
+   "suite": "tg/test_tg_hold_policy",
+   "file": "test_tg_hold_policy.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 9,
+   "total": 9,
+   "seconds": 0.4,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_the_held_view_summarises_without_echoing_text",
+    "✅ test_tg_hold_policy: 9/9"
+   ]
+  },
+  {
+   "suite": "tg/test_surface_policy",
+   "file": "test_surface_policy.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 24,
+   "total": 24,
+   "seconds": 1.4,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_what_was_not_sent_is_still_recorded",
+    "✅ test_surface_policy: 24/24"
+   ]
+  },
+  {
+   "suite": "tg/test_tg_leg_tasks",
+   "file": "test_tg_leg_tasks.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 16,
+   "total": 16,
+   "seconds": 0.3,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_the_receipt_never_fabricates_confidence_and_tells_the_truth_about_cost",
+    "✅ test_tg_leg_tasks: 16/16"
+   ]
+  },
+  {
+   "suite": "tg/test_tg_input_surface_policy",
+   "file": "test_tg_input_surface_policy.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 20,
+   "total": 20,
+   "seconds": 0.1,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_the_same_leg_named_in_its_own_topic_is_fine",
+    "✅ test_tg_input_surface_policy: 20/20"
+   ]
+  },
+  {
+   "suite": "tg/test_tg_canonical_access_model",
+   "file": "test_tg_canonical_access_model.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 8,
+   "total": 8,
+   "seconds": 2.4,
+   "suspicious_no_count": false,
+   "tail": [
+    "✅ test_tg_canonical_access_model: 8/8",
+    "<unknown>:3: SyntaxWarning: invalid escape sequence '\\ '"
+   ]
+  },
+  {
+   "suite": "tg/test_callback_routing",
+   "file": "test_callback_routing.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 6,
+   "total": 6,
+   "seconds": 0.3,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_the_two_verbs_that_were_dead_are_now_routed",
+    "✅ test_callback_routing: 6/6"
+   ]
+  }
+ ],
+ "blocked": [
+  {
+   "suite": "run_all.py (full)",
+   "status": "BLOCKED",
+   "reason": "run_all بدونِ pin ِ ORG_ROOT فایل‌های زندهٔ STOP-ORGANISM/RESTART-REQUESTED می‌سازد (سابقهٔ ثبت‌شده). اجرای full فقط در worktree ِ ایزوله با ORG_ROOT=<worktree> مجاز است — فازِ E2E."
+  }
+ ]
+}
