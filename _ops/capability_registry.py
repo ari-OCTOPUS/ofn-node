@@ -113,6 +113,110 @@ def _zero_arg_card(path: Path) -> "dict | None":
     return {"title": title, "flag": flag}
 
 
+# ── کشفِ manifest ِ نسخه‌دار (۲۰۲۶-۰۷-۳۰) ───────────────────────────────────
+# چرا لازم شد: `SCAN_DIRS` فهرستِ **ثابتِ** پوشه است و کشف به داشتنِ `card()`
+# بی‌آرگومان گره خورده. یعنی هر namespace نو — `world_discovery`،
+# `action_bridge`، `integrations/**` — ساختاراً نامرئی می‌ماند تا کسی یادش
+# بیفتد نامش را این‌بالا اضافه کند. همان الگوی «قابلیت هست، کسی نمی‌بیندش».
+#
+# راهِ نو: هر پکیج یک `capability.manifest.json` کنارِ خودش می‌گذارد و رجیستری
+# آن را **فقط می‌خواند** — هیچ import ای. سه سود: (۱) namespace نو خودش را
+# معرفی می‌کند، (۲) قابلیتِ بدونِ `card()` هم دیده می‌شود، (۳) خواندنِ metadata
+# هیچ کدی را اجرا نمی‌کند، پس یک پکیجِ خراب رجیستری را نمی‌کشد.
+#
+# ⚠️ **ثبت مجوز نیست.** حضورِ manifest یعنی «این قابلیت وجود دارد و مالک
+# می‌تواند ببیندش» — نه اینکه اجرایش مجاز است. اجازه فقط از گیت‌های خودِ
+# قابلیت می‌آید (`risk_class` + `owner_gate` در همان manifest صریح ثبت‌اند).
+MANIFEST_NAME = "capability.manifest.json"
+MANIFEST_SCHEMA = "octopus.capability-manifest.v1"
+# پوشه‌هایی که برای manifest عمیق‌تر جست‌وجو می‌شوند (بدونِ محدودیتِ SCAN_DIRS).
+MANIFEST_ROOTS = ("", "world_discovery", "action_bridge", "integrations",
+                  "telegram_center", "doctor", "cortex", "legs")
+_MANIFEST_DEPTH = 3
+
+
+def _read_manifest(path) -> "dict | None":
+    """manifest را بخوان و اعتبارش را بسنج. هر ابهام ⇒ `None` (نه ردیفِ ناقص)."""
+    import json
+    try:
+        d = json.loads(Path(path).read_text("utf-8"))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(d, dict) or d.get("schema") != MANIFEST_SCHEMA:
+        return None
+    for k in ("capability_id", "title", "version", "risk_class", "surface"):
+        if not str(d.get(k) or "").strip():
+            return None
+    if d.get("registration_is_authorization") is True:
+        # manifest ای که خودش را مجوز اعلام کند، همان چیزی است که این طراحی
+        # علیه آن است. رد می‌شود — نه اینکه فیلدش نادیده گرفته شود.
+        return None
+    return d
+
+
+def discover_manifests(refresh: bool = False) -> list:
+    """قابلیت‌های اعلام‌شده با manifest. **صفر import.**"""
+    global _manifest_cache
+    if _manifest_cache is not None and not refresh:
+        return _manifest_cache
+    out, seen = [], set()
+    for sub in MANIFEST_ROOTS:
+        root = _HERE / sub if sub else _HERE
+        if not root.is_dir():
+            continue
+        try:
+            hits = [root / MANIFEST_NAME] + list(root.glob(f"*/{MANIFEST_NAME}")) \
+                + list(root.glob(f"*/*/{MANIFEST_NAME}"))
+        except OSError:
+            continue
+        for f in hits:
+            if not f.is_file() or set(f.parts) & _SKIP_PARTS:
+                continue
+            d = _read_manifest(f)
+            if d is None:
+                continue
+            cid = str(d["capability_id"]).strip()
+            if cid in seen:
+                continue
+            seen.add(cid)
+            flag = str(d.get("flag") or "").strip()
+            out.append({
+                "key": cid, "module": None,
+                "path": str(f.relative_to(_HERE)).replace("\\", "/"),
+                "title": str(d["title"]),
+                "version": str(d["version"]),
+                "risk_class": str(d["risk_class"]),
+                "surface": str(d["surface"]),
+                "owner_gate": d.get("owner_gate"),
+                "source": "manifest",
+                "flag": flag or None,
+                "flag_on": (True if not flag else
+                            str(os.environ.get(flag, "")).strip().lower()
+                            in ("1", "true", "yes", "on")),
+                # صریح، تا هیچ خواننده‌ای اشتباه نکند
+                "registration_is_authorization": False,
+            })
+    out.sort(key=lambda r: r["title"])
+    _manifest_cache = out
+    return out
+
+
+_manifest_cache = None
+
+
+def catalog(refresh: bool = False) -> list:
+    """فهرستِ واحد: کارت‌های اسکن‌شده + قابلیت‌های manifest-دار.
+
+    کلیدِ تکراری از سمتِ manifest برنده است (اعلامِ صریحِ خودِ پکیج بر حدسِ
+    اسکنر مقدم است)، و هر ردیف `source` دارد تا معلوم باشد از کجا آمده."""
+    scanned = {r["key"]: dict(r, source="scan") for r in discover(refresh)}
+    for m in discover_manifests(refresh):
+        scanned[m["key"]] = m
+    rows = list(scanned.values())
+    rows.sort(key=lambda r: r["title"])
+    return rows
+
+
 def discover(refresh: bool = False) -> list:
     """فهرستِ توانایی‌هایی که کارت دارند. مرتب بر اساسِ عنوان.
 

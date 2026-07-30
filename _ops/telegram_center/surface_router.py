@@ -114,15 +114,27 @@ def _chat_for(block: dict, client, cfg: dict):
     """chat_idِ مقصد: group = center (سوپرگروه)، dm = owner (چتِ خصوصی).
 
     هر دو از خودِ کلاینت خوانده می‌شوند (نه از env خام) تا containment حفظ شود و
-    هیچ chat_id در این ماژول لاگ/ذخیره نشود. ابهام → center (امن‌ترین: گروه)."""
+    هیچ chat_id در این ماژول لاگ/ذخیره نشود.
+
+    ⚠️ **تغییرِ ۲۰۲۶-۰۷-۳۰ — ابهام دیگر به گروه نمی‌افتد.** قاعدهٔ قبلی
+    «ابهام → center (امن‌ترین: گروه)» بود، و آن روز درست بود چون گروه پایگاهِ
+    عمومیِ سیستم به‌حساب می‌آمد. با قراردادِ دسترسیِ نو
+    (`_ops/telegram_contract/TELEGRAM-ACCESS-CONTRACT.v1.json`) گروه
+    **legs-only** است؛ پس ریختنِ جریانِ مبهم در آن دقیقاً نقضِ قرارداد است —
+    و بدتر: چیزی که مبهم است احتمالاً هسته‌ای است، نه پا.
+
+    قاعدهٔ نو: `dm` صریح → DM · `group` صریح → گروه · **هر چیز دیگری → DM**.
+    اگر DM هم در دسترس نباشد، `None` برمی‌گردد و `resolve` آن را HOLD می‌کند —
+    نه اینکه به گروه بریزد. «پیامِ گم‌شده بدتر از پیامِ در جای اشتباه است»
+    همچنان برقرار است، ولی جوابش DM است نه گروه."""
     surface = str(block.get("surface") or "").strip().lower()
-    if surface == "dm":
-        owner = getattr(client, "owner_chat_id", None)
-        return owner
-    cid = cfg.get("chat_id") if isinstance(cfg, dict) else None
-    if cid is not None:
-        return cid
-    return getattr(client, "center_chat_id", None)
+    if surface == "group":
+        cid = cfg.get("chat_id") if isinstance(cfg, dict) else None
+        if cid is not None:
+            return cid
+        return getattr(client, "center_chat_id", None)
+    # `dm` و هر مقدارِ ناشناخته/خالی — هر دو به DM
+    return getattr(client, "owner_chat_id", None)
 
 
 def resolve(stream, *, clients: dict, cfg: dict) -> tuple:
@@ -144,7 +156,24 @@ def resolve(stream, *, clients: dict, cfg: dict) -> tuple:
     inner = clients.get("inner")
     streams = _load_streams()
     entry = streams.get(str(stream or "").strip()) if isinstance(streams, dict) else None
-    block = _select_block(entry if isinstance(entry, dict) else {})
+
+    # ── جریانِ ناشناخته: DM ِ مالک، نه گروه، نه سکوت (۲۰۲۶-۰۷-۳۰) ───────────
+    # قبلاً جریانی که در فایل نبود بلوکِ خالی می‌گرفت و `_chat_for` از آن
+    # chat_id ِ **گروه** درمی‌آورد — یعنی هر نامِ تازه‌ای که کسی به
+    # `send_text(stream=...)` می‌داد مستقیم در گروه می‌نشست. با قراردادِ
+    # legs-only این نقض است، و چون نامِ تازه معمولاً از یک قابلیتِ هسته‌ای
+    # می‌آید (نه از یک پا)، بدترین جای ممکن هم هست.
+    #
+    # ولی HOLD ِ کامل هم جواب نیست: قاعدهٔ قدیمِ «پیامِ گم‌شده بدتر از پیامِ در
+    # جایِ اشتباه است» درست بود و تستش (`t_unknown_stream_falls_back_to_outer_not_silence`)
+    # آن را قفل کرده. **هر دو با هم برآورده می‌شوند**: کلاینتِ outer می‌ماند
+    # (پس سکوت نیست) ولی مقصد DM ِ مالک است (پس گروه نیست). این تضادِ ظاهری
+    # فقط وقتی تضاد بود که «outer» را با «گروه» یکی می‌گرفتیم.
+    if not isinstance(entry, dict):
+        _alert_unknown(stream)
+        return (outer, getattr(outer, "owner_chat_id", None), None)
+
+    block = _select_block(entry)
 
     bot = str(block.get("bot") or "").strip().lower()
     # انتخابِ کلاینت: inner فقط وقتی واقعاً هست و وصل است؛ وگرنه سقوط به outer.
@@ -160,6 +189,17 @@ def resolve(stream, *, clients: dict, cfg: dict) -> tuple:
     chat_id = _chat_for(block, client, cfg)
     topic_id = _topic_id_for(str(stream or ""), block, cfg or {})
     return (client, chat_id, topic_id)
+
+
+def _alert_unknown(stream) -> None:
+    """جریانِ ناشناخته را **صدادار** نگه دار — HOLD ِ بی‌صدا همان سکوتی است که
+    قاعدهٔ قبلی از آن می‌ترسید. fail-soft: نبودِ opslib چیزی را نمی‌شکند."""
+    try:
+        import opslib
+        opslib.alert([f"surface_router: جریانِ ناشناخته «{str(stream)[:60]}» "
+                      "held شد (به گروه نرفت). یک مدخل در surface-routing.json لازم است."])
+    except Exception:  # noqa: BLE001
+        pass
 
 
 def _wired(client) -> bool:
