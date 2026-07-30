@@ -192,11 +192,16 @@ def detect_switch(goal_key: str, method: str) -> dict:
 
 def record(*, goal: str, method: str, why: str = "", cycle: "str | None" = None,
            goal_source: str = "self", outcome: "dict | None" = None,
-           now: "float | None" = None) -> dict:
+           prereg_id: str = "", now: "float | None" = None) -> dict:
     """یک چرخه را در دفتر بنشان (شاملِ حکمِ چرخش/تکرار).
 
     `goal_source` عمداً ثبت می‌شود: رأیِ مالک این بود که هدف را خودش بگذارد، پس
-    اگر روزی هدف از بیرون تزریق شود، کارتِ نمره باید بتواند تفکیک کند."""
+    اگر روزی هدف از بیرون تزریق شود، کارتِ نمره باید بتواند تفکیک کند.
+
+    `prereg_id` (۰۷-۳۰، ممیزیِ یکپارچه‌سازی): ردیفِ دفتر تا امروز شناسهٔ
+    پیش‌ثبتش را حمل نمی‌کرد و اتصال فقط از تصادفِ cycle_id بازسازی می‌شد —
+    دقیقاً همان «حدسِ آخرین ردیف» که قرارداد ممنوع کرده. beat آن را دارد و
+    حالا پاسش می‌دهد؛ خالی = رفتارِ قدیم، بایت‌به‌بایت."""
     goal_key = _method_key(goal)          # همان نرمال‌سازی، برای هدف
     # idempotency روی `cycle_id`: اگر بینِ نوشتنِ دفتر و `_mark_done` کرش شود،
     # تیکِ بعد نباید ردیفِ دومی برای همان چرخه بسازد (وگرنه `scorecard.cycles`
@@ -212,6 +217,8 @@ def record(*, goal: str, method: str, why: str = "", cycle: "str | None" = None,
            "goal_source": str(goal_source or "")[:40],
            "method": str(method or "")[:400], "why": str(why or "")[:300],
            "outcome": outcome or {}, **sw}
+    if prereg_id:
+        rec["prereg_id"] = str(prereg_id)[:80]
     try:
         opslib.append_jsonl(JOURNAL, rec)
     except (OSError, ValueError):
@@ -221,7 +228,8 @@ def record(*, goal: str, method: str, why: str = "", cycle: "str | None" = None,
 
 # ─── اجرای یک چرخه ──────────────────────────────────────────────────────────
 def run(*, goal: str, method: str, why: str = "", goal_source: str = "self",
-        now: "float | None" = None, force: bool = False) -> dict:
+        prereg_id: str = "", now: "float | None" = None,
+        force: bool = False) -> dict:
     """یک چرخهٔ آزمون: سنجه‌ها را نمونه بگیر، نیازِ ابزار را اسکن کن، دفتر بنویس.
 
     ترتیب عمدی است: اول **بازیابی** (چه چیزی از گذشته مربوط است)، بعد اسکنِ
@@ -274,16 +282,32 @@ def run(*, goal: str, method: str, why: str = "", goal_source: str = "self",
     except Exception as e:  # noqa: BLE001
         out["tool_request"] = {"ok": False, "reason": f"{type(e).__name__}"}
 
+    # ۲.۵) پلِ اقدام (SGC-14: «فازِ بعد» — حالا وصل، flag-off = هیچ) ─────────
+    # exact prereg ِ همین چرخه → prepare_records → A0 → receipt. متن هرگز
+    # مجوز نیست: ترجمه rule-based ِ unified_control است و planner ِ خودِ
+    # bridge حکم می‌دهد. فلگِ غایب = این بلوک دقیقاً هیچ (رفتارِ امروز).
+    try:
+        import goal_action_bridge as _gab
+        if _gab.enabled():
+            out["action"] = _gab.run_for_cycle(d["cycle_id"], now=now)
+    except Exception as e:  # noqa: BLE001 — پل هرگز چرخه را نمی‌کشد
+        out["action"] = {"ok": False, "reason": f"bridge:{type(e).__name__}"}
+
     # ۳) دفتر — سنجهٔ «مسیر را وسطِ کار اصلاح می‌کند؟»
     _tro = out.get("tool_request") or {}
     _rco = out.get("recall") or {}
+    _act = out.get("action") or {}
     rec = record(goal=goal, method=method, why=why, goal_source=goal_source,
-                 cycle=d["cycle_id"], now=now,
+                 cycle=d["cycle_id"], prereg_id=prereg_id, now=now,
                  outcome={"recall_ok": bool(_rco.get("ok")),
                           "recall_events": _rco.get("events"),
                           "tool_request_ok": bool(_tro.get("ok")),
                           "tool_requests_total": _tro.get("total"),
-                          "tool_requests_precise": _tro.get("precise")})
+                          "tool_requests_precise": _tro.get("precise"),
+                          **({"action_receipt": _act.get("receipt_status"),
+                              "action_mission": _act.get("mission_id"),
+                              "action_trace": _act.get("trace_id")}
+                             if _act else {})})
     out["journal"] = rec
     # ── تعهدِ چرخه: fail-closed در هر دو پله ──────────────────────────────────
     # نسخهٔ اول حتی وقتی `record()` با `write-failed` برمی‌گشت هم `_mark_done`
@@ -328,6 +352,15 @@ def beat(*, channel=None, now: "float | None" = None) -> dict:  # noqa: ARG001
                                for v in (ev.get("verdicts") or [])]
     except Exception as e:  # noqa: BLE001 — ارزیابی هرگز beat را نمی‌کشد
         out["eval_error"] = type(e).__name__
+    # ۱.۵) حافظه از حکمِ مستقل (outcome-bound؛ گیتِ خودش فلگ دارد؛ idempotent).
+    try:
+        import goal_action_bridge as _gab
+        if _gab.enabled():
+            _cm = _gab.consolidate_new_verdicts(now=now)
+            if _cm.get("consolidated"):
+                out["memory_consolidated"] = _cm["consolidated"]
+    except Exception:  # noqa: BLE001 — حافظه هرگز beat را نمی‌کشد
+        pass
     d = due(now)
     out.update({"cycle_id": d["cycle_id"], "slot": d["slot"]})
     if not d["due"]:
@@ -350,9 +383,11 @@ def beat(*, channel=None, now: "float | None" = None) -> dict:  # noqa: ARG001
     if not p.get("ok"):
         return {"ok": False, "reason": "prereg-failed",
                 "detail": p.get("reason"), **out}
-    # ۴) اجرا — همان run ِ موجود (بازیابی → اسکنِ ابزار → دفتر + mark_done).
+    # ۴) اجرا — همان run ِ موجود (بازیابی → اسکنِ ابزار → پلِ اقدام → دفتر).
+    # prereg_id ِ exact پاس می‌شود — دفتر دیگر به تصادفِ cycle_id تکیه نمی‌کند.
     r = run(goal=g["goal"], method=g["method"], why=g.get("why", ""),
-            goal_source=str(g.get("goal_source") or "self"), now=now)
+            goal_source=str(g.get("goal_source") or "self"),
+            prereg_id=str(p.get("prereg_id") or ""), now=now)
     out.update({"ok": bool(r.get("ok")), "prereg_id": p.get("prereg_id"),
                 "goal_key": g.get("goal_key"),
                 "candidate": g.get("candidate_key"),
