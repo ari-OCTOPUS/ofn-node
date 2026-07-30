@@ -9,7 +9,7 @@
   "risk_class": "read",
   "owner_gate": "A2..A5 نیازمند رأیِ تازه؛ A6 هرگز",
   "surface": "owner_outer_dm",
-  "runtime_status_probe": "IMPLEMENTED_NOT_INTEGRATED — صفر صداکنندهٔ runtime",
+  "runtime_status_probe": "INTEGRATED_FLAG_GATED — صداکنندهٔ runtime: goal_action_bridge.run_for_cycle (از test_cycle.beat)، پشتِ OCTOPUS_WIRE_ACTION_BRIDGE؛ دفترِ idempotency/nonce از ۰۷-۳۱ persisted",
   "tests": [
     "_ops/action_bridge/tests/test_classifier.py",
     "_ops/action_bridge/tests/test_scope_guard.py",

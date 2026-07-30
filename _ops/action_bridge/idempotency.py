@@ -43,7 +43,11 @@ def check(req: dict, ledger) -> dict:
         return {"state": "DUPLICATE", "key": k, "previous": ledger[k],
                 "reason": "same-id-same-payload"}
     for existing_key, rec in ledger.items():
-        if str(existing_key).split(":", 1)[0] == aid:
+        # ⚠️ rsplit نه split: خودِ action_id دونقطه دارد (stable_id ⇒ `act:<sha>`)
+        # و hash همیشه تکهٔ ثابتِ انتهایی است. با split(":",1) این شاخه برای
+        # هر action_id ِ تولیدی مرده بود — DUPLICATE کار می‌کرد ولی CONFLICT
+        # (payload ِ نو با idِ قدیمی) هرگز شلیک نمی‌کرد. تستِ durability رو کرد.
+        if str(existing_key).rsplit(":", 1)[0] == aid:
             return {"state": "CONFLICT", "key": k, "previous": rec,
                     "reason": "same-id-different-payload"}
     return {"state": "NEW", "key": k, "previous": None, "reason": "unseen"}

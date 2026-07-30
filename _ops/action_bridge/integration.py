@@ -14,29 +14,37 @@
 `action_bridge` هرگز داخلِ هیچ مولدی را import نمی‌کند، و هیچ مولدی داخلِ
 executor را.
 
-$0 · stdlib · صفر side effect · صفر caller.
+$0 · stdlib · صفر side effect. (تاریخچه: تا ۰۷-۳۰ «صفر caller» بود؛ حالا
+صداکنندهٔ flag-gated دارد — بخشِ ACTUAL_CALLER.)
 """
 from __future__ import annotations
 
-STATUS = "IMPLEMENTED_NOT_INTEGRATED"
+# ۰۷-۳۰: صداکننده ساخته و مسلح شد (goal_action_bridge از test_cycle.beat).
+# ۰۷-۳۱: دفترِ idempotency و nonceها persisted شدند (restart دیگر حفاظتِ replay
+# را صفر نمی‌کند). این فایل از «پیشنهاد» به «سندِ واقعیتِ اتصال» ارتقا یافت —
+# چون STATUS ِ دروغ همان چیزی است که self-model را گمراه می‌کرد.
+STATUS = "INTEGRATED_FLAG_GATED"
 
-# ── جایی که یک روز صداکننده می‌نشیند (پیشنهاد، اعمال‌نشده) ──────────────────
-PROPOSED_CALLER = {
-    "where": "_ops/test_cycle.py::run — بعد از ثبتِ روش، قبل از دفتر",
+# ── صداکنندهٔ واقعی (از ۰۷-۳۰؛ پیش‌بینیِ PROPOSED_CALLER ِ قدیمی محقق شد) ────
+ACTUAL_CALLER = {
+    "where": "_ops/goal_action_bridge.py::run_for_cycle — از test_cycle.beat",
     "shape": (
-        "req = translate(method, prereg_row)      # لایهٔ ترجمه، بیرون از این پکیج\n"
-        "pl  = planner.plan(req, sandbox_root=SANDBOX, prereg_lookup=prereg.for_id)\n"
-        "rc  = executor.execute(req, pl, sandbox_root=SANDBOX, ...)\n"
-        "out['action'] = {k: rc['receipt'][k] for k in ('status','classification')}"
+        "prep = unified_control.pipeline.prepare_records(  # exact prereg row\n"
+        "    ..., ledger=_load_ledger(), used_nonces=_load_nonces())\n"
+        "rc   = executor.execute(req, plan, sandbox_root=_OPS, ...)\n"
+        "دفترِ mission: state/test_cycle/missions.jsonl (+cycle_id/prereg_id)"
     ),
-    "flag": "OCTOPUS_WIRE_ACTION_BRIDGE (وجود ندارد — عمداً ساخته نشد)",
-    "why_not_yet": (
-        "۱) governance هنوز A2 را نبسته (VQ-SELFGOAL-002، چهار پیش‌شرطِ مکانیکی)\n"
-        "۲) لایهٔ ترجمهٔ «متنِ روش → action_type» نوشته نشده و **نباید** با مدل\n"
-        "   ساخته شود: نگاشتی که مدل انتخابش کند یعنی متن دوباره مجوز شده\n"
-        "۳) sandbox ِ تولیدی و مسیرِ رسید تعیین نشده‌اند"
+    "flag": "OCTOPUS_WIRE_ACTION_BRIDGE — خارج از PAPER_FULL_FLAGS و flags.cmd؛"
+            " غیاب = خاموش؛ مسلح‌سازی = رأیِ ثبت‌شدهٔ مالک (VQ-ACTION-BRIDGE-ARM-001)",
+    "durability": "action-ledger.jsonl = دفترِ idempotency ِ persisted؛"
+                  " used-nonces.json = ضدreplay ِ A3؛ replay ِ همان چرخه = NOOP",
+    "still_closed": (
+        "A2 همچنان BLOCK (VQ-SELFGOAL-002) · A4/A5 ساختاراً بی‌مسیر · A6 هرگز"
     ),
 }
+
+# سازگاری: خواننده‌های قدیمیِ summary() کلیدِ proposed_caller می‌بینند.
+PROPOSED_CALLER = ACTUAL_CALLER
 
 # ── نگاشتِ کلاسِ کشف (GLM) به کلاسِ عمل — قراردادِ آینده ─────────────────────
 # دو سمت هرگز هم را import نمی‌کنند؛ یک لایهٔ ترجمهٔ سومی این جدول را می‌خواند.
@@ -68,8 +76,7 @@ NON_CAPABILITIES = (
     "هیچ خرج — cost در هر مسیر صفر است و تست‌شده",
     "هیچ نوشتن بیرون از sandbox — scope_guard با resolve می‌بندد",
     "هیچ اجرای A2..A6 — executor مسیرشان را ندارد",
-    "هیچ تغییرِ state زنده",
-    "هیچ صداکنندهٔ runtime",
+    "هیچ تغییرِ state زنده جز رسید/دفترِ خودش زیرِ state/test_cycle",
 )
 
 

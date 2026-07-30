@@ -9,7 +9,7 @@
   "risk_class": "read",
   "owner_gate": "فقط‌خواندنی؛ هیچ اقدامی از این پکیج بیرون نمی‌رود",
   "surface": "owner_outer_dm",
-  "runtime_status_probe": "IMPLEMENTED_NOT_INTEGRATED — صفر صداکنندهٔ runtime؛ تست‌ها اجرا و سبز (۲۷ چک، ۹ جهشِ قرمزکننده)",
+  "runtime_status_probe": "INTEGRATED_FLAG_GATED — pipeline.prepare_records از goal_action_bridge (runtime seam) صدا می‌خورد؛ prepare() فقط نمای operator/آفلاین است (روی checkout ِ بدونِ state، تستِ pipeline محیطی قرمز می‌شود)",
   "tests": [
     "_ops/unified_control/tests/test_authority_policies.py",
     "_ops/unified_control/tests/test_pipeline.py",
