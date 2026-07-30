@@ -183,8 +183,8 @@
 
 | ID | تصمیم | گزینه‌ها | وضعیت | اثر |
 |---|---|---|---|---|
-| VQ-SPLIT-001 | نگاشتِ `target` در `_ops/telegram_center/surface-routing.json` + فعال‌سازیِ `OCTOPUS_TG_SPLIT_V1` (گام‌های ۱–۳ طرح) | edit+arm / defer | open — فایل مالِ توست، ستونِ target را هر طور خواستی عوض کن | جریان‌های سلامت/هشدار/دایجست/پول به باتِ درون (@Robo2725) می‌روند؛ چت/کارتِ رأی/شهود سمتِ باتِ بیرون می‌مانند |
-| VQ-SPLIT-002 | نامِ envِ توکنِ باتِ ۱ برای client ِ «فقط-ارسال» مرکز (گام ۲) | name / defer | open — فقط نامِ متغیر، نه مقدار | بدونش هیچ جریانی واقعاً به باتِ درون منتقل نمی‌شود |
+| VQ-SPLIT-001 | فعال‌سازیِ `OCTOPUS_TG_SPLIT_V1` (گامِ پایانی طرح) | arm / defer | open — **سیم‌کشی انجام شد** (`70cba70`، `surface_router.py` + clientِ inner + DM-safe + per-bot commands + ۴۲۹-backoff، جهش‌های قرمزکنندهٔ همه‌سبز). فقط arm ماند: `OWNER_AUTH: ARM FLAG OCTOPUS_TG_SPLIT_V1` | جریان‌های سلامت/هشدار/دایجست/پول به باتِ درون (@Robo2725) می‌روند؛ چت/کارتِ رأی/شهود سمتِ باتِ بیرون می‌مانند. ⚠️ ستونِ `target` در `surface-routing.json` را پیش از arm بازبینی کن |
+| VQ-SPLIT-002 | نامِ envِ توکنِ باتِ ۱ برای client ِ «فقط-ارسال» مرکز (گام ۲) | name / defer | **closed** — نام مشخص شد: `TELEGRAM_BOT_TOKEN` (همان توکنِ approval، فقط برایِ send). کلاینتِ inner در `center._inner_client` رویش سوار است | — |
 
 ---
 

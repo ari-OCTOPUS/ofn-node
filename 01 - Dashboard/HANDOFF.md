@@ -1,6 +1,6 @@
 ---
 type: handoff
-updated: 2026-07-29
+updated: 2026-07-30
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
@@ -8,6 +8,9 @@ updated: 2026-07-29
 > قاعده: این فایل ایندکسِ wikilink است، زیرِ ۲۰۰ خط — نه آرشیو. تاریخچهٔ کاملِ قبلی: `_Archive/Logs/HANDOFF-archive-2026-07-16.md` (۲۶۳KB، قرنطینه‌شده 2026-07-16). سرریزِ 2026-07-29 (ورودی‌های ≤ 07-24): `_Archive/Logs/HANDOFF-archive-2026-07-29.md`.
 
 ## وضعِ لحظه‌ای
+
+- 🐙✅ **2026-07-30 — TG-P2 (دو-باتیِ تلگرام) روی «دنیای A» (center) پیاده شد؛ همهٔ پنج آیتمِ هسته + جهشِ قرمزکنندهٔ هر گارد اثبات‌شده.** کامیتِ `70cba70` روی برنچِ `fix/tg-p2-2026-07-30`. مشخّصات: [[../04 - Architect System/octopus-build-prompts/TG-FIX-PACK-2026-07-29|TG-FIX-PACK بستهٔ P2]] · طرحِ مصوب: [[../06 - Architecture Maps/TG-SPLIT-INNER-OUTER-2026-07-29|TG-SPLIT]]. کار: (۱) `surface_router.py` نو — `(client,chat,topic)` از `surface-routing.json`؛ flag-off = ارسالِ تک-کلاینتِ امروز بایت‌به‌بایت، flag-on = انتقالِ جریان‌ها به inner/dm، هرگز سکوت نمی‌کند. (۲) کلاینتِ دومِ فقط-ارسال (inner) روی `TELEGRAM_BOT_TOKEN` در `center.py` — هرگز `getUpdates` (قاعدهٔ ۲ِ TG-SPLIT). (۳) `message_thread_id` در `tg_api.send` فقط روی سوپرگروهِ forum (`cid < -1000`) ست می‌شود؛ فرستادنش به DM = ۴۰۰ — حالا گارد. (۴) `setMyCommands` per-bot: `COMMANDS` (outer) + `COMMANDS_INNER` (inner). (۵) backoffِ ۴۲۹ همیشه-روشن در `tg_api` (`_call_post` + `poll_updates`) — `retry_after` با سقفِ ۳۰s + یک retry، fail-soft دست‌نخورده. **تست‌ها:** `test_tg_surface_router` (۱۲/۱۲ نو) · `test_tg_api` (۲۴/۲۴: +۶) · `test_tg_center` (۳۰/۳۰: +۴) · صفر رگرسیون روی `test_tg_stream_routing`/`approval_store` (دنیای B دست‌نخورده). **propose-only:** `OCTOPUS_TG_SPLIT_V1` خاموش می‌ماند — فعال‌سازی = رأیِ تو + کارتِ VERDICT_QUEUE. آیتم ۶ (رسانه) به جلسهٔ بعد موکول شد.
+  🔴 **هانکِ غریبه کشف و از کامیت جداسازی شد:** `center.py` یک بلوکِ `tool_request`/`tr` از یک جلسهٔ موازی داشت (۴۸ خط، untracked، کارِ ناتمامِ دیگر). فقط هانکِ خودم با `git update-index --cacheinfo` stage شد؛ هانکِ غریبه دست‌نخورده در working tree ماند. EOL محترم: `center.py` CRLF، `tg_api.py` LF.
 
 - 🧬 **2026-07-29 (پایان) — ۲۷ ماژولِ مسیرِ زنده در گیت نبودند؛ چهار پاس تا بستنِ زنجیره.** کامیت‌ها: `1e73137` · `0dbc689` · `ff1a905` · `6985ce5` (۲۸ فایل، ۶۴۳۴ خط). کدِ **کامیت‌شده** صدایشان می‌زد ولی خودشان untracked بودند — پس هر چک‌اوت یا worktreeِ تازه بی‌صدا از دستشان می‌داد: اتاقِ چت، هشت فعلِ قیف، سه فرمانِ خودنگری (`/trace` `/scan` `/insight`)، هویت، ابتکار، دروازهٔ تصمیم، نبضِ پول، حلقهٔ معلم. همه با `except` بلعیده‌شده، **صفر خطا**. این ریشهٔ همان «تلهٔ چک‌اوتِ عقب‌مانده» است که امروز دو گزارشِ غلط ساخت.
   **وابستگی زنجیره‌ای بود:** ۴ → ۳ → ۱۵ → ۵ → پاسِ چهارم صفر. هر نجات لایهٔ بعدی را آشکار کرد. سه شکلِ ارجاع باید با هم سنجیده شود: `import X` · `X.` · `"X"` (برای `__import__` و کشفِ نحوی).
