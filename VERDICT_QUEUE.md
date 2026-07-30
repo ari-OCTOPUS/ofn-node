@@ -245,9 +245,9 @@
 | ID | تصمیم | گزینه‌ها | وضعیت | اثر |
 |---|---|---|---|---|
 | VQ-TG-CONTRACT-001 | قراردادِ سه‌سطحیِ دسترسی canonical شود؟ | A: Outer DM=گفت‌وگوی کامل · Inner DM=سلامت/approval · Group=فقط پاها **·** B: هر دو DM مکالمهٔ کامل | ✅ **closed — A (۲۰۲۶-۰۷-۳۰)** | تصویب **ماشین‌خوان** ثبت شد: `TELEGRAM-ACCESS-CONTRACT.v1.json → status=OWNER_RATIFIED_NOT_INTEGRATED` + بلوکِ `owner_ratification`. گاردِ قفل‌کننده: `test_tg_canonical_access_model.py` (۷/۷، ۳ جهشِ قرمزکننده) — حرکت به سمتِ B حالا **قرمز** می‌کند، نه بی‌صدا. ⚠️ تصویبِ مدل ≠ مجوزِ اتصال/ارسال/فلگ/ری‌استارت؛ runtime همچنان `NOT_LIVE` و بستهٔ همین کارت صریح می‌گویدش |
-| VQ-TG-GAP-INPUT-001 | وصل‌کردنِ `input_surface_policy` به `center.py` | وصل کن / صبر تا کامیتِ جلسهٔ موازی | **open — بازدارنده** | ماژول ساخته و ۱۵/۱۵ سبز، ولی `center.py` هانکِ کامیت‌نشده دارد. تا آن‌جا **گروه هنوز فرمانِ هسته‌ای می‌گیرد** |
-| VQ-TG-GAP-EMITTER-001 | گاردِ parity ِ callback (فرستندهٔ کارت = صاحبِ handler) | گارد بساز / صبر | **open** | تاریخچه دو کارتِ مرده دارد (`iv`, `tr`). گاردِ ساختاری نیاز به خواندنِ `center.py` **و** `approval_channel.py` دارد — هر دو dirty |
-| VQ-TG-ALERT-FALLBACK-001 | اگر بات inner بمیرد، هشدارِ ایمنی کجا برود؟ | A: fallback به Outer DM · B: فقط held + آلارمِ محلی | **open — پیشنهاد A، و هرگز گروه** | امروز مسیرِ مبهم به DM می‌رود (نه گروه)، پس رفتارِ فعلی به A نزدیک است ولی صریح تصویب نشده |
+| VQ-TG-GAP-INPUT-001 | وصل‌کردنِ `input_surface_policy` به `center.py` | وصل کن / صبر | ✅ **closed — وصل شد (۲۰۲۶-۰۷-۳۰)** | هانکِ ۳۹خطی با `git apply --cached` **جدا از** ۴۹ خطِ بیگانه stage شد. پروبِ زنده با کلاینتِ واقعی: General و `/budget` در گروه ⇒ `input-policy`+هدایت؛ DM و تاپیکِ پا عبور. 🔴 نسخهٔ اول مالکیت را دوباره استنتاج می‌کرد و **همهٔ** پیام‌ها را بلعید (۳۰→۱۵) — فیکس شد. `wired=true, live=false` |
+| VQ-TG-GAP-EMITTER-001 | گاردِ parity ِ callback | گارد بساز / صبر | ✅ **closed — ساخته شد (۲۰۲۶-۰۷-۳۰)** | `test_tg_callback_emitter_parity` (۷/۷، AST نه grep): هر verbِ emitted باید در روترِ همان مسیر باشد و verbِ ماژولِ مشترک در **هر دو**. + یک poller به‌ازای هر توکن. خواندنِ فایلِ dirty لازم بود ولی **ویرایشش** نه. 🔴 گارد دو بار بی‌دندان بود و جهش گرفتش (heuristic ِ `ast.Set` · بندِ رشته‌ایِ poller) |
+| VQ-TG-ALERT-FALLBACK-001 | اگر بات inner بمیرد، هشدارِ ایمنی کجا برود؟ | A: fallback به Outer DM · B: فقط held + آلارمِ محلی | ✅ **closed de-facto — A (۲۰۲۶-۰۷-۳۰)** | `surface_router` وقتی inner در دسترس نیست به outer سقوط می‌کند، و `_chat_for` هر سطحِ مبهم را به **DM** می‌برد نه گروه. `test_tg_group_is_legs_only` هر دو را قفل کرده. اگر مالک B را بخواهد، همان تست اولین قرمز است |
 
 ### بسته‌شده در همین جلسه
 
@@ -257,3 +257,16 @@
 | namespace نو ساختاراً نامرئی | `capability_registry.discover_manifests()` + `catalog()` — صفر import؛ سه manifest واقعی |
 | «ثبت = مجوز» | هر ردیف `registration_is_authorization: false`؛ manifest ِ خود-مجوزده **رد** می‌شود |
 | دو نیمه هم را نمی‌دیدند | نامِ manifest با قراردادِ همان بسته هم‌راست شد (`capability-manifest.json`) |
+
+### ⚠️ تنها بازدارندهٔ باقی‌مانده — ۲۰۲۶-۰۷-۳۰ (پایان)
+
+| مورد | وضع |
+|---|---|
+| `_ops/telegram_center/center.py` | ۴۹ خطِ کامیت‌نشدهٔ جلسهٔ موازیِ صبح (بلوکِ `tr`/`tool_request`) |
+| `_ops/budget/approval_channel.py` | ۲۱۳ خطِ کامیت‌نشدهٔ همان جلسه |
+| `_ops/cortex/code_autonomy.py` · `test_code_autonomy.py` · `self_patch.py` | dirty، دست‌نخورده |
+
+هیچ‌کدام لمس **نشد**؛ هانکِ من از `center.py` با `git apply --cached` جدا stage
+شد. تا کامیت‌شدنِ این پنج فایل، `git checkout` سختِ ریپو کارِ آن جلسه را از بین
+می‌برد. **این تنها چیزی است که بینِ امروز و `TELEGRAM_ACCESS_LIVE` مانده**، در
+کنارِ اجرای `ACCEPTANCE-RUNBOOK` و ری‌استارتِ tg-center با تپِ مالک.
