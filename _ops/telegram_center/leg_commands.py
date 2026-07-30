@@ -75,3 +75,20 @@ def strip_enqueue_prefix(text: str) -> "str | None":
     if not m:
         return None
     return _PUNCT.sub("", m.group(1).strip()).strip()
+
+
+# «هدف روزانه ۵» / «هدف امروز: 5» — تنظیمِ KPI ِ همان پا (بند ۱۳، فاز ۲).
+_KPI_FA = str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789")
+_KPI_SET = re.compile(r"^هدف\s+(?:روزانه|امروز)[:؛]?\s*([0-9۰-۹]{1,3})$")
+
+
+def parse_kpi_set(text: str) -> "int | None":
+    """متن → هدفِ روزانهٔ ۱..۱۰۰، یا None. فقط تطابقِ کامل — مثل بقیهٔ فرمان‌ها."""
+    m = _KPI_SET.match(_norm(text))
+    if not m:
+        return None
+    try:
+        n = int(m.group(1).translate(_KPI_FA))
+    except ValueError:
+        return None
+    return n if 1 <= n <= 100 else None

@@ -281,6 +281,121 @@ def t_o_the_beat_digest_stays_silent_with_no_activity():
     assert not [s for s in fc.sends() if "خلاصه روزانه" in s], fc.sends()
 
 
+# ── فاز ۲ (۰۷-۳۱): رسانه → Task · بازخوردِ مالک · KPI ──────────────────────
+def _cb(data, thread=11):
+    return {"update_id": 2, "callback_query": {
+        "id": "c1", "from": {"id": OWNER}, "data": data,
+        "message": {"chat": {"id": GROUP, "type": "supergroup"},
+                    "message_thread_id": thread, "is_topic_message": True}}}
+
+
+def t_p_a_photo_or_document_in_the_topic_becomes_a_task():
+    _reset()
+    c, fc = _center()
+    m = _leg_msg("")
+    del m["message"]["text"]
+    m["message"]["photo"] = [{"file_id": "abc"}]
+    m["message"]["caption"] = "این پروژه را بررسی کن"
+    res = c.handle_update(m)
+    assert res and res.get("kind") == "leg-task" and res.get("media"), res
+    q = lt.queue("lead")
+    assert q and q[0]["text"].startswith("[عکس]") and "بررسی کن" in q[0]["text"], q
+    # سند با نامِ فایل
+    m2 = _leg_msg("")
+    del m2["message"]["text"]
+    m2["message"]["document"] = {"file_name": "tender.pdf"}
+    res2 = c.handle_update(m2)
+    assert res2 and res2.get("media"), res2
+    assert any("[فایل: tender.pdf]" in t["text"] for t in lt.queue("lead"))
+
+
+def t_q_feedback_good_and_bad_with_reason_stick_to_the_task():
+    _reset()
+    t = lt.add("lead", "بررسی", now=NOW - 100)
+    lt.set_state("lead", t["id"], lt.DONE, result="اوکی", now=NOW - 50)
+    c, fc = _center()
+    r1 = c.handle_update(_cb(f"tk:g:lead:{t['id']}"))
+    assert r1 and r1.get("op") == "g", r1
+    got = lt.recent_done("lead")[0]
+    assert got.get("feedback", {}).get("v") == "good", got
+    # «بد بود» → منوی دلیل؛ دلیل → ثبت
+    r2 = c.handle_update(_cb(f"tk:b:lead:{t['id']}"))
+    assert r2 and r2.get("op") == "b", r2
+    kbs = [p["keyboard"] for k, p in fc.calls if k == "send" and p["keyboard"]]
+    flat = [b["callback_data"] for kb in kbs for row in kb for b in row]
+    assert any(x.startswith("tk:br:lead:") for x in flat), flat
+    r3 = c.handle_update(_cb(f"tk:br:lead:{t['id']}:w"))
+    assert r3 and r3.get("op") == "br", r3
+    got2 = lt.recent_done("lead")[0]
+    assert got2.get("feedback", {}).get("v") == "bad", got2
+    assert got2["feedback"].get("reason") == "w", got2
+    # و در گزارشِ روزانه دیده می‌شود
+    rep = lt.daily_report_text("lead", now=NOW)
+    assert "بازخورد تو:" in rep, rep
+
+
+def t_r_kpi_target_is_set_by_command_and_shown_on_the_card():
+    _reset()
+    c, fc = _center()
+    # بدونِ هدف: خطِ KPI نباید ساخته شود (عددسازی ممنوع)
+    body0 = c._exec_leg_command("status", "lead")[0]
+    assert "KPI امروز" not in body0, body0
+    res = c.handle_update(_leg_msg("هدف روزانه ۵"))
+    assert res and res.get("cmd") == "kpi-set" and res.get("kpi") == 5, res
+    cfg = json.loads(CFG_PATH.read_text("utf-8"))
+    assert cfg.get("kpi_daily", {}).get("lead") == 5, cfg
+    body = c._exec_leg_command("status", "lead")[0]
+    assert "KPI امروز: ۰/۵" in body, body
+    assert lt.queue("lead") == [], "«هدف روزانه» نباید Task شود"
+
+
+def t_s_kpi_parser_is_full_match_and_clamped():
+    assert lc.parse_kpi_set("هدف روزانه ۵") == 5
+    assert lc.parse_kpi_set("هدف امروز: 12") == 12
+    for bad in ("هدف روزانه ۵ تا", "هدف روزانه", "هدف روزانه 0",
+                "هدف روزانه 101", "هدف بلندمدت 5"):
+        assert lc.parse_kpi_set(bad) is None, bad
+
+
+def t_t_the_engine_receipt_carries_the_feedback_buttons():
+    _reset()
+    t = lt.add("lead", "بررسی لید", now=NOW - 100)
+    lt.set_state("lead", t["id"], lt.WORKING, now=NOW - 50)
+    c, fc = _center()
+    fake_ab = types.SimpleNamespace(
+        ask=lambda text, topic_key=None: {"ok": True,
+                                          "text": "لید مناسب است؛ منبع رسمی"})
+    sys.modules["ask_brain"] = fake_ab
+    try:
+        c._drive_leg_engine()
+    finally:
+        sys.modules.pop("ask_brain", None)
+    got = lt.recent_done("lead")
+    assert got and got[0]["id"] == t["id"], got
+    receipt_sends = [p for k, p in fc.calls
+                     if k == "send" and "تمام شد" in str(p.get("text"))]
+    assert receipt_sends, fc.calls
+    kb = receipt_sends[-1].get("keyboard") or []
+    flat = [b["callback_data"] for row in kb for b in row]
+    assert any(x.startswith("tk:g:") for x in flat) and \
+        any(x.startswith("tk:b:") for x in flat), flat
+
+
+def t_u_every_feedback_button_has_a_dispatch_branch():
+    """ضدِ دکمهٔ مرده برای کیبوردهای نو (رسید + دلیلِ بد)."""
+    src = (_OPS / "telegram_center" / "center.py").read_text("utf-8")
+    handler = src.split("def _handle_tasks_callback")[1][:6000]
+    ops = set()
+    for kb in (lt.receipt_keyboard("lead", {"id": "TASK-1"}),
+               lt.bad_feedback_keyboard("lead", {"id": "TASK-1"})):
+        for row in kb:
+            for b in row:
+                assert len(b["callback_data"].encode()) <= 64, b
+                ops.add(b["callback_data"].split(":")[1])
+    for op in ops:
+        assert f'op == "{op}"' in handler, f"tk:{op} ساخته می‌شود ولی شاخه ندارد"
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)
