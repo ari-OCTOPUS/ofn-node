@@ -516,6 +516,17 @@ def t_applying_a_patch_never_flips_the_targets_line_endings():
         r.write_bytes(b"x = 1\r\n")
         CA._write_keeping_newlines(r, "x = 1\r\ny = 2\r\n", r.read_bytes())
         assert b"\r\r\n" not in r.read_bytes()
+        # (د) newline ِ انتهایی — اولین پچِ واقعیِ اولاما انداختش و گاردِ
+        #     نحوی نمی‌بیندش چون تابع نیست.
+        e = Path(d) / "eof.py"
+        e.write_bytes(b"x = 1\n")
+        CA._write_keeping_newlines(e, "x = 1\ny = 2", e.read_bytes())
+        assert e.read_bytes().endswith(b"\n"), "newline ِ انتهایی افتاد"
+        # و اگر فایل از اول بی‌newline بود، اضافه نمی‌کنیم
+        f = Path(d) / "noeof.py"
+        f.write_bytes(b"x = 1")
+        CA._write_keeping_newlines(f, "x = 1\ny = 2", f.read_bytes())
+        assert not f.read_bytes().endswith(b"\n"), "newline ِ ناخواسته اضافه شد"
     # و مسیرِ اعمال باید همین را صدا بزند، نه write_text
     import ast
     src = (_HERE.parent / "cortex" / "code_autonomy.py").read_text("utf-8")

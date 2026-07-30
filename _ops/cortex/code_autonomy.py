@@ -365,10 +365,17 @@ def _write_keeping_newlines(tgt, text: str, before_b: bytes) -> None:
     لِه می‌شود. اثباتش روی هدفِ همین پچ: `_ops/cortex/registry.py` دقیقاً
     LF است (crlf=0, loneLF=77).
 
-    قاعده: اگر فایل خالص CRLF بود CRLF بنویس، وگرنه LF. هیچ ترجمهٔ ضمنی."""
+    قاعده: اگر فایل خالص CRLF بود CRLF بنویس، وگرنه LF. هیچ ترجمهٔ ضمنی.
+
+    ⚠️ و newline ِ انتهایی: اولین پچِ واقعیِ اولاما آن را **انداخت**. گاردِ
+    نحویِ `_defs_kept` نمی‌بیندش (تابع نیست) ولی هر پچ یک `\\ No newline at
+    end of file` به دیف اضافه می‌کند و ابزارها را می‌رنجانَد. اگر فایل با
+    newline تمام می‌شد، خروجی هم باید."""
     crlf = before_b.count(b"\r\n")
     lone = before_b.count(b"\n") - crlf
     body = str(text).replace("\r\n", "\n")
+    if before_b.endswith(b"\n") and body and not body.endswith("\n"):
+        body += "\n"
     if crlf and not lone:
         body = body.replace("\n", "\r\n")
     tgt.write_bytes(body.encode("utf-8"))
