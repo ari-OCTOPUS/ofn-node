@@ -44,7 +44,10 @@ def _mission_envelope(spec: dict, request: dict) -> dict:
         status="needs_approval" if spec["risk"] != "low" else "queued")
 
 
-def _prepare_snapshot(snap: dict, *, now: float | None = None) -> dict:
+def _prepare_snapshot(snap: dict, *, now: float | None = None,
+                      ledger: dict | None = None, used_nonces: set | None = None,
+                      approval: dict | None = None,
+                      sandbox_root: "Path | str | None" = None) -> dict:
     comp = compass_mod.build(snap)
     trans = method_translator.translate(comp)
     if not trans.get("ok"):
@@ -59,8 +62,15 @@ def _prepare_snapshot(snap: dict, *, now: float | None = None) -> dict:
     def lookup(pid):
         return prereg if str(prereg.get("prereg_id")) == str(pid) else None
 
-    plan = planner.plan(req, sandbox_root=OPS, prereg_lookup=lookup,
-                        ledger={}, approval=None, used_nonces=set(),
+    # ledger/used_nonces: پیش‌فرضِ قدیمی (در-حافظه) فقط برای سازگاری می‌ماند؛
+    # صداکنندهٔ runtime باید نسخهٔ persisted را بدهد وگرنه restart حفاظتِ
+    # replay/idempotency را صفر می‌کند (شکافِ ثبت‌شدهٔ INTEGRATION-MANIFEST §۴).
+    plan = planner.plan(req,
+                        sandbox_root=sandbox_root if sandbox_root else OPS,
+                        prereg_lookup=lookup,
+                        ledger=ledger if ledger is not None else {},
+                        approval=approval,
+                        used_nonces=used_nonces if used_nonces is not None else set(),
                         now=float(now or snap.get("created_epoch") or 0.0))
     graph = link_graph.build(snap, comp, mission=mission)
     return {"ok": True, "status": "PREPARED_NOT_EXECUTED",
@@ -76,10 +86,15 @@ def prepare(*, now: float | None = None) -> dict:
 def prepare_records(*, directions: list[str], prereg: dict, heart: dict,
                     cortex: dict | None = None, self_model_authority: str = "MISSING",
                     innervation: dict | None = None, owner_guidance: dict | None = None,
-                    now: float | None = None) -> dict:
+                    now: float | None = None,
+                    ledger: dict | None = None, used_nonces: set | None = None,
+                    approval: dict | None = None,
+                    sandbox_root: "Path | str | None" = None) -> dict:
     """Runtime-safe seam: caller passes the exact frozen record; no latest-row guessing.
 
     This does not write. `heart` must already carry explicit authority and production_open.
+    `ledger`/`used_nonces` should be the caller's *persisted* copies so replay
+    protection survives restart; omitted = legacy in-memory behaviour.
     """
     snap = {
         "schema": "unified-control.snapshot.v1",
@@ -97,7 +112,9 @@ def prepare_records(*, directions: list[str], prereg: dict, heart: dict,
                            "count": 1 if owner_guidance else 0},
         "blockers": [], "fully_integrated": False,
     }
-    return _prepare_snapshot(snap, now=now)
+    return _prepare_snapshot(snap, now=now, ledger=ledger,
+                             used_nonces=used_nonces, approval=approval,
+                             sandbox_root=sandbox_root)
 
 
 def dry_run(*, now: float | None = None, now_iso: str = "") -> dict:

@@ -61,6 +61,54 @@ def _missions_path() -> Path:
     return _state_dir() / "missions.jsonl"
 
 
+def _ledger_path() -> Path:
+    return _state_dir() / "action-ledger.jsonl"
+
+
+def _nonces_path() -> Path:
+    return _state_dir() / "used-nonces.json"
+
+
+# ── durability: دفترِ idempotency و nonceها restart را باید زنده بمانند ─────
+def _load_ledger() -> dict:
+    """رسیدهای نشسته → {idempotency_key: receipt}. بدونِ این، هر restart
+    حفاظتِ replay/idempotency را صفر می‌کرد (planner با دفترِ خالی همه‌چیز را
+    NEW می‌دید). خطِ خراب skip می‌شود — دفترِ نیمه‌خوانا بهتر از هیچ است."""
+    led: dict = {}
+    try:
+        for line in _ledger_path().read_text("utf-8").splitlines():
+            try:
+                rec = json.loads(line)
+            except ValueError:
+                continue
+            k = str((rec or {}).get("idempotency_key") or "") if isinstance(rec, dict) else ""
+            if k:
+                led[k] = rec
+    except OSError:
+        pass
+    return led
+
+
+def _load_nonces() -> set:
+    try:
+        vals = json.loads(_nonces_path().read_text("utf-8"))
+        return {str(v) for v in vals} if isinstance(vals, list) else set()
+    except (OSError, ValueError):
+        return set()
+
+
+def _save_nonces(nonces: set) -> bool:
+    try:
+        p = _nonces_path()
+        p.parent.mkdir(parents=True, exist_ok=True)
+        tmp = p.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(sorted(str(n) for n in nonces)), "utf-8")
+        os.replace(tmp, p)
+        return True
+    except OSError:
+        return False
+
+
 # ── حکمِ اعتبارِ state برای مجوزدهی (freshness §۹.۳) ────────────────────────
 def _authorities(now: float) -> dict:
     """authority ِ self-model و heart با همان معناشناسیِ سنجیده‌شدهٔ
@@ -114,6 +162,24 @@ def _append_mission(env: dict) -> bool:
         return False
 
 
+# ── حافظه در نقطهٔ تصمیم (فقط narrowing، پشتِ فلگِ خودِ router) ─────────────
+def _memory_decision(row: dict, *, now: float) -> dict:
+    """retrieval router — شواهد + veto ِ مالک از حافظه. fail-soft: خطا/غیابِ
+    router = ادامهٔ زنجیره («حافظه مجوز نیست» ⇒ غیابش هم منع نیست)؛ veto فقط
+    می‌تواند ببندد، هرگز باز نمی‌کند."""
+    try:
+        if str(_OPS / "memory") not in sys.path:
+            sys.path.insert(0, str(_OPS / "memory"))
+        import retrieval_router as rr
+        if not rr.flag_on():
+            return {"memories_used": [], "veto": False, "mode": "off"}
+        return rr.route(goal_key=str(row.get("goal_key") or ""),
+                        method_index=row.get("method_index"), now=now)
+    except Exception as e:  # noqa: BLE001
+        return {"memories_used": [], "veto": False,
+                "mode": f"router-error:{type(e).__name__}"}
+
+
 # ── زنجیرهٔ یک چرخه ─────────────────────────────────────────────────────────
 def run_for_cycle(cycle_id: str, *, now: "float | None" = None) -> dict:
     """exact prereg → prepare_records → plan(ALLOW?) → execute(A0) → receipt →
@@ -134,12 +200,18 @@ def run_for_cycle(cycle_id: str, *, now: "float | None" = None) -> dict:
     out["prereg_id"] = row.get("prereg_id")
 
     # ۲) آماده‌سازی از سیمِ موجود — ترجمه/envelope/نقشه، همه از اجزای تست‌شده.
+    #    دفترِ idempotency و nonceها از دیسک — تا restart حفاظت را صفر نکند.
     try:
         from unified_control import pipeline
         auth = _authorities(now)
+        nonces = _load_nonces()
+        n_nonces0 = len(nonces)
         prep = pipeline.prepare_records(
             directions=_directions(), prereg=row, heart=auth["heart"],
-            self_model_authority=auth["self_model_authority"], now=now)
+            self_model_authority=auth["self_model_authority"], now=now,
+            ledger=_load_ledger(), used_nonces=nonces)
+        if len(nonces) != n_nonces0:
+            _save_nonces(nonces)
     except Exception as e:  # noqa: BLE001
         return {**out, "ok": False, "reason": f"prepare:{type(e).__name__}"}
     if not prep.get("ok"):
@@ -149,12 +221,38 @@ def run_for_cycle(cycle_id: str, *, now: "float | None" = None) -> dict:
     env = prep["mission"]
     req = prep["request"]
     plan = prep["plan"]
+    # زنجیرهٔ trace بدونِ حدس: cycle/prereg روی خودِ envelope می‌نشیند
+    # (فیلدِ اضافه برای mission_contract.validate قانونی است؛ content_sha256
+    # فقط روی payload بسته شده و دست نمی‌خورد).
+    env["cycle_id"] = str(cycle_id)
+    env["prereg_id"] = str(row.get("prereg_id") or "")
     out["mission_id"] = env.get("mission_id")
     out["trace_id"] = env.get("trace_id")
     out["classification"] = plan.get("classification")
 
+    # ۲.۵) حافظه در نقطهٔ تصمیم — فقط narrowing (veto/شواهد)، هرگز مجوز.
+    #      فلگِ جدا و پیش‌فرض خاموش؛ خطای router زنجیره را نمی‌خواباند.
+    mem = _memory_decision(row, now=now)
+    if mem.get("memories_used"):
+        out["memories_used"] = mem["memories_used"]
+        env["input_refs"] = list(env.get("input_refs") or []) + [
+            f"memory:{m.get('memory_id')}" for m in mem["memories_used"]]
+    if mem.get("veto"):
+        env_final = dict(env)
+        if env_final.get("status") == "queued":
+            _transition(env_final, "blocked")
+        _append_mission(env_final)
+        return {**out, "ok": False, "status": "MEMORY_VETO",
+                "reason": f"memory-veto:{mem.get('veto_ref')}"}
+
     # ۳) فقط ALLOW اجرا می‌شود — هر تصمیمِ دیگرِ planner همان‌طور گزارش می‌شود.
     if plan.get("decision") != "ALLOW":
+        # replay ِ idempotent (همان چرخه بعد از crash/restart): عمل قبلاً انجام
+        # و رسیدش نشسته — تکرارِ side effect ممنوع، و ثبتِ mission ِ failed ِ
+        # دوم هم دروغ است. گزارشِ صادق: NOOP، نه شکست.
+        if str(plan.get("reason") or "").startswith("duplicate-noop"):
+            return {**out, "ok": True, "status": "NOOP",
+                    "reason": "duplicate-replay", "receipt_status": "NOOP"}
         env_final = dict(env)
         _transition(env_final, "failed") if env_final.get("status") == "queued" \
             else None
