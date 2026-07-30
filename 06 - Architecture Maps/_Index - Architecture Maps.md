@@ -2,7 +2,7 @@
 type: moc
 status: active
 tags: [architecture, diagrams]
-updated: 2026-07-16
+updated: 2026-07-31
 ---
 
 # ایندکس Architecture Maps
@@ -16,6 +16,7 @@ updated: 2026-07-16
 
 ## نوت‌های این بخش
 
+- [[06 - Architecture Maps/OCTOPUS-VS-FRONTIER-AGENT-ARCHITECTURES-2026-07-31|OCTOPUS-VS-FRONTIER 2026-07-31]] — مقایسهٔ فقط‌خواندنیِ اختاپوس با معماری‌های عامل‌محور پیشرو؛ حکم: قابلیت زیاد، اتصال کم؛ ۵ اهرم P0/P1
 - [[06 - Architecture Maps/ECOSYSTEM|ECOSYSTEM]] — نقشه کل اکوسیستم (از Inbox منتقل شد)
 - [[06 - Architecture Maps/Property Schema|Property Schema]] — زبان داده vault (تک‌منبع حقیقت فرانت‌متر)
 - [[06 - Architecture Maps/SYSTEM_MAP|SYSTEM_MAP]] — نقشهٔ اجزا و مالکیت

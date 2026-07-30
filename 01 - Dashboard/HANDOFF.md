@@ -1,6 +1,6 @@
 ---
 type: handoff
-updated: 2026-07-25
+updated: 2026-07-31
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
@@ -8,6 +8,8 @@ updated: 2026-07-25
 > قاعده: این فایل ایندکسِ wikilink است، زیرِ ۲۰۰ خط — نه آرشیو. تاریخچهٔ کاملِ قبلی: `_Archive/Logs/HANDOFF-archive-2026-07-16.md` (۲۶۳KB، قرنطینه‌شده 2026-07-16).
 
 ## وضعِ لحظه‌ای
+
+- 🔎 **2026-07-31 (بررسیِ فقط‌خواندنیِ معماری، worktree ‏`unruffled-kalam`) — مقایسهٔ اختاپوس با معماری‌های عامل‌محورِ پیشرو تمام شد؛ صفر تغییر در کد/state/فلگ/پروسه.** حکم: قابلیت زیاد، **اتصال کم** — سه بستهٔ تازه (Action Bridge/Unified Control/World Discovery) همه `IMPLEMENTED_NOT_INTEGRATED`؛ self-model کهنه (‏~۱۶۶۲min عقب‌تر از innervation)؛ قلب shadow. ۵ اهرم: Durable Mission Kernel واحد · رفعِ freshnessِ خودمدل/state · اتصالِ exact-prereg→Action Bridge · memory retrieval در نقطهٔ تصمیم · mission-level native-runtime eval. سندِ کامل + جدولِ مقایسه + «چه نسازیم»: [[../06 - Architecture Maps/OCTOPUS-VS-FRONTIER-AGENT-ARCHITECTURES-2026-07-31|OCTOPUS-VS-FRONTIER-2026-07-31]]. اجرا/merge = رأیِ مالک.
 
 - 🧪 **2026-07-25 (پاکسازیِ سوئیت) — دو ورودیِ مردهٔ `run_all` حذف شد؛ سوییت روی worktreeِ ایزوله ‏۲۷۶/۲۷۶ سبز (exit 0).** `test_studio_telegram.py` و `test_dual_brain.py` به ماژول‌های v1 (`studio_telegram.py`/`dual_brain.py`) اشاره داشتند که در reorgِ Project-F (`57f5138`+`f63ce32`) به `09-Archive` منتقل و از درخت حذف شدند (فقط `_v3` مانده، APIِ متفاوت: `_scan_forbidden`/`_check_compliance` نیست → `ModuleNotFoundError`، پیش‌موجود). هر دو با کامنتِ مستند از فهرستِ `TESTS` حذف شدند (روشِ phantom-exclusionِ همان فایل)؛ **صفر لمسِ فایل‌های زیرپروژهٔ [[../03 - Projects/اونلی فنز/PROJECT|اونلی فنز]]** — نسخهٔ فعال با تستِ داخلیِ subproject (`brain/test_dual_brain_v3.py`، §۱۱) + `test_project_f`/`test_deep_pf`/`test_pf_full` پوشش دارد. کامیت `476a938` روی برنچِ `claude/laughing-galileo-2635ac`؛ دو فایلِ تستِ یتیم روی دیسک نگه داشته شد (§۱). **merge به master = رأیِ مالک (gated: code).**
 
