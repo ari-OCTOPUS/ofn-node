@@ -170,6 +170,24 @@ def t_f_illegal_transition_is_refused_not_forced():
         "گذارِ غیرقانونی نوشته شد"
 
 
+def t_f2_append_transition_itself_refuses_illegal_moves():
+    """سنجهٔ مستقیمِ خودِ لایه (درسِ «دفاعِ لایه‌ای بی‌سنجه»): جهشِ برداشتنِ
+    can_transition پشتِ چکِ statusِ sweep پنهان می‌شد — این تست خودِ تابع را
+    می‌پاید، نه نتیجهٔ نهایی را."""
+    env = _mk_env()
+    env["status"] = "done"                       # terminal
+    before = (ST / "missions.jsonl").read_text("utf-8") \
+        if (ST / "missions.jsonl").exists() else ""
+    ok = mab._append_transition(env, "running")
+    assert ok is False, "گذارِ done→running پذیرفته شد"
+    after = (ST / "missions.jsonl").read_text("utf-8") \
+        if (ST / "missions.jsonl").exists() else ""
+    assert after == before, "ردیفِ غیرقانونی نوشته شد"
+    # و گذارِ قانونی همچنان کار می‌کند (فیکس نباید مسیرِ سالم را ببندد)
+    env2 = _mk_env()
+    assert mab._append_transition(env2, "running") is True
+
+
 # ── پارگیِ ۲: منتقدِ رسید ───────────────────────────────────────────────────
 def _receipt(status="EXECUTED", **kw) -> dict:
     base = {"action_id": kw.pop("action_id", f"act-r-{time.time_ns()}"),
