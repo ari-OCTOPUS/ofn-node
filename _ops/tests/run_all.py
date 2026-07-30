@@ -601,10 +601,17 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     # قرمزِ کاذبِ دائم. run_all هیچ glob/discovery ندارد ⇒ ثبت‌نشده = هرگز اجرا نشده.
     "test_hebbian_eventclock.py",                   # ساعتِ رخدادِ hebbian + سقفِ learned
     "test_watchdog_stall.py",                       # استالِ حلقه + احیای باصدا
+    # ۲۰۲۶-۰۷-۳۱ — VQ-STATE-WRITE-001: شکستِ نوشتنِ خودمدل باصدا شد (آلارم +
+    # نشانگرِ روی دیسک + گاردِ GAAT روی کهنگیِ self-model). plain-assert.
+    "test_state_write_loudness.py",
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
-               HERE.parents[1] / "07 - Knowledge" / "school-memory" / "test_curriculum.py"]
+               HERE.parents[1] / "07 - Knowledge" / "school-memory" / "test_curriculum.py",
+               # ۲۰۲۶-۰۷-۳۱ — تست‌های unified_control تا امروز در هیچ سوییتِ رسمی
+               # نبودند (ثبت‌نشده = هرگز اجرا نشده). هر دو plain-assert با رانرِ __main__.
+               HERE.parent / "unified_control" / "tests" / "test_snapshot_staleness.py",
+               HERE.parent / "unified_control" / "tests" / "test_snapshot_linkage.py"]
 
 # این فایل‌ها pytest-style هستند (fixtureهای monkeypatch/tmp_path) و اجرای مستقیمشان
 # سبزِ دروغین می‌دهد. run_all باید واقعاً pytest را اجرا کند.

@@ -179,6 +179,10 @@ ACT_AUTO = opslib.OPS / "ACTIVATION-SELF-IMPROVE-AUTO.flag"
 # SPEC-OCTOPUS-2027 §۸/§۱۴ — دو گاردِ سختِ خود-تغییری:
 OBS_MAX_AGE_MIN = float(os.environ.get("IMPROVE_OBS_MAX_AGE_MIN", "60"))
 REFRACTORY_H = float(os.environ.get("IMPROVE_REFRACTORY_H", "24"))
+# VQ-STATE-WRITE-001: پیشنهادها مستقیم از self-model ساخته می‌شوند (gather_signals)،
+# پس نقشهٔ خودِ کهنه = خود-تغییری روی واقعیتِ کهنه. آستانه هم‌راستا با قرمزِ
+# innervation (۳۶۰ دقیقه)؛ کادنسِ عادیِ refresh ~۱۰۰ دقیقه است پس false-block نمی‌دهد.
+SELF_MODEL_MAX_AGE_MIN = float(os.environ.get("IMPROVE_SELF_MODEL_MAX_AGE_MIN", "360"))
 
 # whitelistِ knobهای $0 برگشت‌پذیر که (فقط با پرچم) خودکار قابلِ‌تنظیم‌اند.
 # هرکدام: (env_var، کف، سقف) — هرگز کد/پول/ژنوم/پرچمِ wire.
@@ -456,6 +460,17 @@ def observability_ok() -> tuple[bool, str]:
         age_min = (_dt.datetime.now().timestamp() - p.stat().st_mtime) / 60.0
         if age_min > OBS_MAX_AGE_MIN:
             return False, f"ORGANISM-STATE کهنه ({age_min:.0f}min > {OBS_MAX_AGE_MIN:.0f})"
+        # VQ-STATE-WRITE-001: خودمدلِ کهنه یا نشانگرِ شکستِ نوشتن = مشاهدهٔ خود
+        # مرده — L2 (auto-apply) نباید روی نقشهٔ کهنه تصمیم بگیرد.
+        sm = STATE / "cortex" / "self-model.json"
+        marker = STATE / "cortex" / "self-model.write-failure.json"
+        if marker.exists():
+            return False, "self-model write-failure marker حاضر (آخرین نوشتن شکست)"
+        if sm.exists():
+            sm_age = (_dt.datetime.now().timestamp() - sm.stat().st_mtime) / 60.0
+            if sm_age > SELF_MODEL_MAX_AGE_MIN:
+                return False, (f"self-model کهنه ({sm_age:.0f}min > "
+                               f"{SELF_MODEL_MAX_AGE_MIN:.0f})")
         return True, "fresh"
     except OSError as e:
         return False, f"probe-error: {type(e).__name__}"

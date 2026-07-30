@@ -160,7 +160,11 @@ def self_model_refresh(cycle: int) -> dict | None:
     «کدِ خودش رو بخونه و درک کنه». $0، read-only، fail-soft."""
     try:
         import self_model
-        return self_model.run_and_persist()
+        r = self_model.run_and_persist()
+        # VQ-STATE-WRITE-001: ok=False قبلاً بی‌خوانده در cortex-state دفن می‌شد.
+        if isinstance(r, dict) and not r.get("ok", False):
+            opslib.alert([f"cortex self_model persist FAILED: {r.get('error')}"])
+        return r
     except Exception as e:  # noqa: BLE001
         opslib.alert([f"cortex self_model error: {type(e).__name__}: {e}"])
         return None
