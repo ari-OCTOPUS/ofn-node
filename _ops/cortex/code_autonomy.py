@@ -364,6 +364,7 @@ def _git_apply_canary(target_rel: str, new_content: str) -> dict:
     if not tgt.exists():
         return {"applied": False, "reason": "target-missing"}
     before = tgt.read_text("utf-8")
+    committed = False        # ⚠️ باید **بیرونِ** try باشد — مسیرِ استثنا لازمش دارد
     try:
         tgt.write_text(new_content, "utf-8")
         add = subprocess.run(["git", "-C", str(repo), "add", target_rel],
@@ -375,7 +376,8 @@ def _git_apply_canary(target_rel: str, new_content: str) -> dict:
         env = dict(_os.environ); env["REAL_VAULT"] = str(repo); env["PYTHONUTF8"] = "1"
         run = subprocess.run([sys.executable, "-X", "utf8",
                               str(repo / "_ops" / "tests" / "run_all.py")],
-                             capture_output=True, text=True, timeout=600, env=env)
+                             capture_output=True, text=True,
+                             timeout=_suite_timeout_s(), env=env)
         green = run.returncode == 0
         if not green:                                   # auto-rollback
             if committed:
@@ -388,11 +390,22 @@ def _git_apply_canary(target_rel: str, new_content: str) -> dict:
         return {"applied": committed, "green": green, "target": target_rel,
                 "rolled_back": (not green), "branch_only": True}
     except Exception as e:  # noqa: BLE001
+        # ⚠️ ۲۰۲۶-۰۷-۳۰: نسخهٔ قبلی این‌جا فقط **محتوای فایل** را برمی‌گرداند.
+        # ولی پرتکرارترین استثنای این مسیر `TimeoutExpired` ِ خودِ سوییت است —
+        # که **بعد** از commit رخ می‌دهد. نتیجه: کامیت در تاریخچه می‌ماند، دیسک
+        # به نسخهٔ قبل برمی‌گردد، و گزارش می‌گوید «اعمال نشد، برگردانده شد».
+        # سه‌گانهٔ ناسازگار، روی درختی که جلسهٔ موازی هم رویش کار می‌کند.
+        # حالا مسیرِ استثنا **همان** rollback ِ مسیرِ قرمز را می‌زند.
         try:
-            tgt.write_text(before, "utf-8")             # بازگرداندنِ محتوا روی هر خطا
+            if committed:
+                subprocess.run(["git", "-C", str(repo), "revert", "--no-edit", "HEAD"],
+                               capture_output=True, text=True, timeout=60)
+            else:
+                tgt.write_text(before, "utf-8")
         except Exception:  # noqa: BLE001
             pass
-        return {"applied": False, "reason": f"apply-error:{type(e).__name__}", "rolled_back": True}
+        return {"applied": False, "reason": f"apply-error:{type(e).__name__}",
+                "rolled_back": True, "was_committed": committed}
 
 
 def propose_to_owner(patch: dict) -> dict:

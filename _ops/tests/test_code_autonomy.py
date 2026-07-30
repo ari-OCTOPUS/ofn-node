@@ -81,14 +81,49 @@ def t_b_edge_of_chaos_band():
 
 # ── قانونِ قلب §۳ — deny/allowlist ────────────────────────────────────────────────
 def t_c_allowlist_and_denylist():
-    assert CA.allowed_target("_ops/telegram_center/render.py")
+    # ۲۰۲۶-۰۷-۳۰ · رأیِ مالک VQ-SELFGOAL-005 — `telegram_center` از
+    # `_ALLOW_ROOTS` برداشته شد (دامنهٔ مصوبِ L3 = `_ops/cortex/**` +
+    # `_ops/state/**`). خطِ قبلی مجاز بودنش را assert می‌کرد؛ حالا
+    # **ممنوع بودنش** assert می‌شود تا برگشتنِ دامنه قرمز کند.
     assert CA.allowed_target("_ops/cortex/stress.py")
+    assert CA.allowed_target("_ops/state/pulse/work-plan.json")
+    assert not CA.allowed_target("_ops/telegram_center/render.py")
+    # و مسیرِ فرارِ `..` که تا امروز از گاردِ زیررشته‌ای رد می‌شد
+    # (اثباتِ تجربی روی همین تابع، HEAD=1ddc058؛ هر سه True بودند):
+    for escape in ("_ops/cortex/../../PRE-0/governance.py",
+                   "_ops/cortex/../tests/run_all.py",
+                   "_ops/telegram_center/power.py",
+                   "_OPS/CORTEX/../../PRE-0/GOVERNANCE.py"):
+        assert not CA.allowed_target(escape), f"فرار بسته نشد: {escape}"
     # deny-list سخت — هرگز
     for bad in ("_ops/budget/money_gate.py", "_ops/cortex/auto_approve.py",
                 "_ops/cortex/goal_directed.py", ".git/config", "_ops/germline.py",
                 "OCTOPUS.env", "_ops/registry_scan.py", ".claude/settings.json",
-                "_ops/cortex/code_autonomy.py".replace("code_autonomy", "capability_gate")):
+                "_ops/budget/capability_gate.py",
+                # ── ۲۰۲۶-۰۷-۲۸ · خودویرایشی ────────────────────────────────
+                # ⚠️ خطِ قبلی این‌جا `"_ops/cortex/code_autonomy.py".replace(
+                # "code_autonomy", "capability_gate")` بود: نویسنده مسیرِ
+                # خودویرایشی را تایپ کرده، دیده assert قرمز می‌شود، و به‌جای
+                # فیکسِ deny-list رشته را به فایلِ دیگری تبدیل کرده. مورد روی
+                # صفحه بوده و جهش داده شده.
+                #
+                # این چهار مسیر همان چیزی‌اند که واقعاً باز بود:
+                #   code_autonomy → فایلِ خودِ deny-list و هر هفت گیت
+                #   code_brain    → پچ‌نویس
+                #   power         → کلیدِ توقف. ایجنت می‌توانست ترمزش را بنویسد
+                #   tg_api        → لایهٔ شبکه
+                "_ops/cortex/code_autonomy.py",
+                "_ops/cortex/code_brain.py",
+                "_ops/telegram_center/power.py",
+                "_ops/telegram_center/tg_api.py"):
         assert not CA.allowed_target(bad), f"deny نشد: {bad}"
+    # و منعِ تازه نباید همسایه‌های بی‌گناه را ببندد.
+    # ۲۰۲۶-۰۷-۳۰ · دو نمونهٔ `telegram_center` از این فهرست بیرون رفتند —
+    # نه چون گارد بیش‌بست شد، چون رأیِ مالک (VQ-SELFGOAL-005) کلِ آن ریشه
+    # را از allowlist برداشت. نمونه‌های جایگزین از `cortex`/`state` اند.
+    for ok in ("_ops/cortex/stress.py", "_ops/cortex/synthesis.py",
+               "_ops/state/pulse/heart-signals-latest.json"):
+        assert CA.allowed_target(ok), f"بیش‌بست: {ok}"
     # خارج از allowlist
     assert not CA.allowed_target("_ops/live/server.py")
     assert not CA.allowed_target("") and not CA.allowed_target(None)
@@ -411,6 +446,111 @@ def t_p_a_patch_that_breaks_a_test_is_still_red():
         check("شکستِ تازه نام‌برده می‌شود", r.get("new_fails") == ["test_broken_by_patch"])
     finally:
         CA._run_suite, CA._shadow_env = real_suite, real_env
+
+
+# ─── سقفِ کهنگیِ تأیید (۲۰۲۶-۰۷-۲۷) ─────────────────────────────────────────
+def t_a_stale_approval_never_applies():
+    """تأییدِ کهنه رضایتِ کهنه است.
+
+    تا امروز `consume_approvals` هیچ چکِ زمانی نداشت. بی‌خطر بود چون هر دو صف
+    خالی‌اند و درایور اجرا نمی‌شود — ولی این امنیتِ **تصادفی** بود: کافی بود
+    کارتِ پچ دکمه بگیرد تا تأییدها جمع شوند، و بعد یک اجرای درایور همه را
+    یک‌جا شلیک کند، روی کدی که دیگر وجود ندارد.
+
+    مالک به «همین پچ، همین حالا» آره گفته، نه به «هر وقت شد»."""
+    import json as _j, time as _t
+    d = CA.APPROVALS_DIR
+    d.mkdir(parents=True, exist_ok=True)
+    cases = {
+        "fresh": ({"verdict": "ok", "epoch": _t.time()}, True),
+        "old": ({"verdict": "ok", "epoch": _t.time() - 72 * 3600}, False),
+        "edge": ({"verdict": "ok", "epoch": _t.time() - CA.APPROVAL_MAX_AGE_S - 60}, False),
+        "no": ({"verdict": "no", "epoch": _t.time()}, False),
+        "bad_ts": ({"verdict": "ok", "epoch": "دیروز"}, False),
+    }
+    try:
+        for name, (body, want) in cases.items():
+            (d / f"{name}.json").write_text(_j.dumps(body), "utf-8")
+            got = CA._owner_approved(name)
+            assert got is want, f"{name}: {got} (انتظار {want})"
+    finally:
+        for name in cases:
+            try:
+                (d / f"{name}.json").unlink()
+            except OSError:
+                pass
+
+
+def t_the_age_cap_is_a_real_bound():
+    assert 3600 <= CA.APPROVAL_MAX_AGE_S <= 7 * 24 * 3600, CA.APPROVAL_MAX_AGE_S
+
+
+def t_the_canary_suite_shares_the_measured_timeout_not_a_hardcoded_600():
+    """⚠️ سقفِ ۶۰۰ ثانیه یک بار اولین پچِ واقعیِ «بساز» را کشت. آن مورد در
+    `_run_suite` فیکس شد ولی `_git_apply_canary` **سقفِ خودش** را داشت.
+
+    عددِ سنجیده‌شدهٔ همان شب: سوییتِ کامل ۱۰۷۸ ثانیه. با ۶۰۰، تأییدِ مالک پچ را
+    می‌نوشت، تایم‌اوت می‌خورد، برمی‌گرداند و **کلِ خودمختاری را freeze** می‌کرد —
+    با دلیلی که واقعی نیست. یک سقف، یک knob، برای هر دو مسیر."""
+    import ast
+    src = (_HERE.parent / "cortex" / "code_autonomy.py").read_text("utf-8")
+    tree = ast.parse(src)
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.FunctionDef)
+                and node.name == "_git_apply_canary"):
+            continue
+        for call in ast.walk(node):
+            if not (isinstance(call, ast.Call)
+                    and getattr(call.func, "attr", "") == "run"):
+                continue
+            kw = {k.arg: k.value for k in call.keywords}
+            t = kw.get("timeout")
+            # فقط فراخوانِ سوییت مهم است — عملیاتِ git سقفِ کوتاهِ خودشان را دارند
+            args = ast.dump(call)
+            if "run_all.py" not in args:
+                continue
+            assert not isinstance(t, ast.Constant), \
+                f"سقفِ هاردکدِ {getattr(t, 'value', '?')} برگشت — باید _suite_timeout_s() باشد"
+            assert getattr(getattr(t, "func", None), "id", "") == "_suite_timeout_s", \
+                ast.dump(t)
+            assert CA._suite_timeout_s() >= 1078, \
+                f"سقف ({CA._suite_timeout_s()}s) از زمانِ سنجیده‌شدهٔ سوییت کمتر است"
+            return
+        raise AssertionError("فراخوانِ run_all در canary پیدا نشد")
+    raise AssertionError("_git_apply_canary پیدا نشد")
+
+
+def t_a_timeout_after_the_commit_reverts_the_commit_not_just_the_file():
+    """پرتکرارترین استثنای این مسیر `TimeoutExpired` ِ سوییت است — که **بعد** از
+    commit رخ می‌دهد. نسخهٔ قبلی فقط محتوای فایل را برمی‌گرداند، پس کامیت در
+    تاریخچه می‌ماند در حالی که گزارش می‌گوید «اعمال نشد». روی درختِ مشترک این
+    یعنی یک کامیتِ یتیم که هیچ‌کس دنبالش نمی‌گردد."""
+    import ast
+    src = (_HERE.parent / "cortex" / "code_autonomy.py").read_text("utf-8")
+    tree = ast.parse(src)
+    fn = next(n for n in ast.walk(tree)
+              if isinstance(n, ast.FunctionDef) and n.name == "_git_apply_canary")
+    # `committed` باید بیرونِ try مقدار بگیرد وگرنه مسیرِ استثنا NameError می‌دهد
+    body_pre_try = [s for s in fn.body if not isinstance(s, ast.Try)]
+    assert any(isinstance(s, ast.Assign)
+               and any(getattr(t, "id", "") == "committed" for t in s.targets)
+               for s in body_pre_try), "committed بیرونِ try مقداردهی نشده"
+    handler = next(h for s in fn.body if isinstance(s, ast.Try) for h in s.handlers)
+    # ⚠️ نسخهٔ اولِ این دو بند رشته‌ای بود (`"committed" in ast.dump(...)`) و جهشِ
+    # `if committed:` → `if False:` **زنده ماند** — چون خودِ خطِ return هم
+    # `"was_committed": committed` دارد و رشته را ارضا می‌کرد. سنجه باید به
+    # **شرطِ واقعی** بسته شود، نه به حضورِ یک اسم در متن.
+    branch = None
+    for node in ast.walk(ast.Module(body=handler.body, type_ignores=[])):
+        if isinstance(node, ast.If) and getattr(node.test, "id", "") == "committed":
+            branch = node
+            break
+    assert branch is not None, \
+        "مسیرِ استثنا روی `committed` شاخه نمی‌زند ⇒ نمی‌داند کامیت خورده یا نه"
+    taken = ast.dump(ast.Module(body=branch.body, type_ignores=[]))
+    assert "'revert'" in taken, "شاخهٔ committed کامیت را برنمی‌گردانَد"
+    other = ast.dump(ast.Module(body=branch.orelse, type_ignores=[]))
+    assert "write_text" in other, "شاخهٔ بدونِ کامیت فایل را برنمی‌گردانَد"
 
 
 if __name__ == "__main__":
