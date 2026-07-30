@@ -485,6 +485,47 @@ def t_the_age_cap_is_a_real_bound():
     assert 3600 <= CA.APPROVAL_MAX_AGE_S <= 7 * 24 * 3600, CA.APPROVAL_MAX_AGE_S
 
 
+def t_applying_a_patch_never_flips_the_targets_line_endings():
+    """⚠️ مسیرِ اعمال `write_text` می‌زد. روی ویندوز `newline=None` است، پس هر
+    `\\n` به `\\r\\n` ترجمه می‌شود — و مغزِ کد پچ را همیشه با LF می‌سازد. نتیجه:
+    هر پچ روی یک فایلِ LF کلِ فایل را CRLF می‌کرد ⇒ دیفِ سه‌خطی به دیفِ **کلِ
+    فایل**، مرور غیرممکن، و روی درختِ مشترک لِه‌شدنِ هانکِ بیگانه.
+
+    هدفِ اولین پچِ واقعی (`_ops/cortex/registry.py`) دقیقاً LF است، پس این
+    فرضی نبود. سنجهٔ رفتاری روی فایلِ موقت — نحوی این را نمی‌شود دید."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        # (الف) هدفِ LF با پچِ LF ⇒ LF می‌مانَد
+        p = Path(d) / "lf.py"
+        p.write_bytes(b"def a():\n    return 1\n")
+        CA._write_keeping_newlines(p, "def a():\n    return 1\n\ndef b():\n    return 2\n",
+                                   p.read_bytes())
+        b = p.read_bytes()
+        assert b.count(b"\r\n") == 0, f"فایلِ LF به CRLF برگشت: {b!r}"
+        assert b.count(b"\n") == 5
+        # (ب) هدفِ CRLF با پچِ LF ⇒ CRLF می‌مانَد
+        q = Path(d) / "crlf.py"
+        q.write_bytes(b"def a():\r\n    return 1\r\n")
+        CA._write_keeping_newlines(q, "def a():\n    return 1\n\ndef b():\n    return 2\n",
+                                   q.read_bytes())
+        c = q.read_bytes()
+        assert c.count(b"\r\n") == 5 and c.count(b"\n") - c.count(b"\r\n") == 0, \
+            f"فایلِ CRLF یکدست نماند: {c!r}"
+        # (ج) پچی که خودش CRLF دارد نباید \\r\\r\\n بسازد
+        r = Path(d) / "mix.py"
+        r.write_bytes(b"x = 1\r\n")
+        CA._write_keeping_newlines(r, "x = 1\r\ny = 2\r\n", r.read_bytes())
+        assert b"\r\r\n" not in r.read_bytes()
+    # و مسیرِ اعمال باید همین را صدا بزند، نه write_text
+    import ast
+    src = (_HERE.parent / "cortex" / "code_autonomy.py").read_text("utf-8")
+    fn = next(n for n in ast.walk(ast.parse(src))
+              if isinstance(n, ast.FunctionDef) and n.name == "_git_apply_canary")
+    dump = ast.dump(fn)
+    assert "_write_keeping_newlines" in dump, "مسیرِ اعمال از گاردِ خطِ پایان رد می‌شود"
+    assert "write_text" not in dump, "هنوز write_text ِ ترجمه‌کننده در مسیر هست"
+
+
 def t_the_canary_suite_shares_the_measured_timeout_not_a_hardcoded_600():
     """⚠️ سقفِ ۶۰۰ ثانیه یک بار اولین پچِ واقعیِ «بساز» را کشت. آن مورد در
     `_run_suite` فیکس شد ولی `_git_apply_canary` **سقفِ خودش** را داشت.
@@ -550,7 +591,9 @@ def t_a_timeout_after_the_commit_reverts_the_commit_not_just_the_file():
     taken = ast.dump(ast.Module(body=branch.body, type_ignores=[]))
     assert "'revert'" in taken, "شاخهٔ committed کامیت را برنمی‌گردانَد"
     other = ast.dump(ast.Module(body=branch.orelse, type_ignores=[]))
-    assert "write_text" in other, "شاخهٔ بدونِ کامیت فایل را برنمی‌گردانَد"
+    # `write_bytes` نه `write_text`: بازگردانی باید بایت‌به‌بایت باشد وگرنه
+    # خودِ rollback خطِ پایانِ فایل را عوض می‌کند (t_applying_a_patch_...).
+    assert "write_bytes" in other, "شاخهٔ بدونِ کامیت فایل را برنمی‌گردانَد"
 
 
 if __name__ == "__main__":

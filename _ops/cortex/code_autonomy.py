@@ -354,6 +354,26 @@ def apply_approved(patch: dict, approval_id: str, *, apply_fn=None, clock=None) 
     return {"ok": True, **res, "record": rec}
 
 
+def _write_keeping_newlines(tgt, text: str, before_b: bytes) -> None:
+    """محتوای تازه را با **خطِ پایانِ خودِ فایل** بنویس.
+
+    ⚠️ ۲۰۲۶-۰۷-۳۱: مسیرِ اعمال `tgt.write_text(...)` می‌زد. روی ویندوز آن
+    `newline=None` است، یعنی هر `\\n` به `os.linesep` (`\\r\\n`) ترجمه می‌شود.
+    مغزِ کد پچ را همیشه با LF تولید می‌کند، پس هر پچ روی یک فایلِ LF کلِ فایل
+    را به CRLF برمی‌گرداند: دیفِ سه‌خطی به دیفِ **کلِ فایل** تبدیل می‌شود،
+    مروری غیرممکن می‌شود، و روی درختِ مشترک هر هانکِ بیگانه در همان فایل
+    لِه می‌شود. اثباتش روی هدفِ همین پچ: `_ops/cortex/registry.py` دقیقاً
+    LF است (crlf=0, loneLF=77).
+
+    قاعده: اگر فایل خالص CRLF بود CRLF بنویس، وگرنه LF. هیچ ترجمهٔ ضمنی."""
+    crlf = before_b.count(b"\r\n")
+    lone = before_b.count(b"\n") - crlf
+    body = str(text).replace("\r\n", "\n")
+    if crlf and not lone:
+        body = body.replace("\n", "\r\n")
+    tgt.write_bytes(body.encode("utf-8"))
+
+
 def _git_apply_canary(target_rel: str, new_content: str) -> dict:
     """مسیرِ واقعی: نوشتنِ patch در شاخهٔ کاری → commit → canary (سوییتِ کامل) →
     سبز: می‌ماند · قرمز: auto-rollback (git restore + reset) + freeze. masterِ زنده لمس نمی‌شود
@@ -363,10 +383,10 @@ def _git_apply_canary(target_rel: str, new_content: str) -> dict:
     tgt = repo.joinpath(*target_rel.split("/"))
     if not tgt.exists():
         return {"applied": False, "reason": "target-missing"}
-    before = tgt.read_text("utf-8")
+    before_b = tgt.read_bytes()          # بازگردانیِ بایت‌به‌بایت، نه «تقریباً»
     committed = False        # ⚠️ باید **بیرونِ** try باشد — مسیرِ استثنا لازمش دارد
     try:
-        tgt.write_text(new_content, "utf-8")
+        _write_keeping_newlines(tgt, new_content, before_b)
         add = subprocess.run(["git", "-C", str(repo), "add", target_rel],
                              capture_output=True, text=True, timeout=60)
         cm = subprocess.run(["git", "-C", str(repo), "commit", "-m",
@@ -384,7 +404,7 @@ def _git_apply_canary(target_rel: str, new_content: str) -> dict:
                 subprocess.run(["git", "-C", str(repo), "revert", "--no-edit", "HEAD"],
                                capture_output=True, text=True, timeout=60)
             else:
-                tgt.write_text(before, "utf-8")
+                tgt.write_bytes(before_b)
                 subprocess.run(["git", "-C", str(repo), "restore", "--staged", "--worktree",
                                 target_rel], capture_output=True, text=True, timeout=30)
         return {"applied": committed, "green": green, "target": target_rel,
@@ -401,7 +421,7 @@ def _git_apply_canary(target_rel: str, new_content: str) -> dict:
                 subprocess.run(["git", "-C", str(repo), "revert", "--no-edit", "HEAD"],
                                capture_output=True, text=True, timeout=60)
             else:
-                tgt.write_text(before, "utf-8")
+                tgt.write_bytes(before_b)
         except Exception:  # noqa: BLE001
             pass
         return {"applied": False, "reason": f"apply-error:{type(e).__name__}",
