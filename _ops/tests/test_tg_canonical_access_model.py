@@ -129,6 +129,45 @@ def t_the_policy_is_ratified_but_still_not_wired():
         assert not r.get("live_requires"), "live=True ولی پیش‌شرط باقی است"
 
 
+def t_live_output_tracks_whether_the_router_actually_has_a_caller():
+    """`live_output` نباید ادعایی باشد — به وجودِ صداکنندهٔ واقعی گره خورده.
+
+    گیت ۱ِ runbook دربارهٔ مقصدِ خروجی است و پیاده‌سازی‌اش در
+    `surface_router.resolve` نشسته. ولی آن تابع امروز **صفر صداکننده** دارد:
+    تستِ واحدش سبز است و در مسیرِ زندهٔ ارسال هیچ نقشی ندارد. پس «ماتریسِ
+    خروجی درست است» و «خروجی زنده درست است» دو حکمِ جدا هستند.
+
+    سنجش **نحوی** است نه رشته‌ای — کامنتی که نامِ `resolve` را برده handler
+    نیست (درسِ «grep کامنت را می‌شمارد»)."""
+    import ast
+
+    callers = []
+    for f in sorted(_OPS.rglob("*.py")):
+        if any(p in f.parts for p in ("tests", "__pycache__", "_Archive",
+                                      "_agent_reports")):
+            continue
+        try:
+            tree = ast.parse(f.read_text("utf-8"))
+        except (OSError, SyntaxError, UnicodeDecodeError):
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            fn = node.func
+            if (isinstance(fn, ast.Attribute) and fn.attr == "resolve"
+                    and getattr(fn.value, "id", None) in ("_sr", "sr",
+                                                          "surface_router")):
+                callers.append(f.name)
+    r = _contract()["owner_ratification"]
+    has_caller = bool(callers)
+    assert bool(r["live_output"]) is has_caller, (
+        f"سند live_output={r['live_output']} می‌گوید ولی صداکنندهٔ resolve "
+        f"{callers or 'وجود ندارد'} — یکی از دو طرف عقب مانده")
+    # و تا وقتی خروجی زنده نیست، حکمِ کلی هم نمی‌تواند live باشد.
+    if not has_caller:
+        assert r["live"] is False, "خروجی صداکننده ندارد ولی live=True"
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

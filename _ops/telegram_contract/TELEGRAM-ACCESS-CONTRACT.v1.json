@@ -9,15 +9,47 @@
     "verdict_card": "VQ-TG-CONTRACT-001",
     "rejected_alternative": "B — هر دو DM مکالمهٔ کامل",
     "scope_of_ratification": "مدلِ دسترسی canonical شد. این تصویب **مجوزِ اتصال، ارسال، آرم‌کردنِ فلگ یا ری‌استارت نیست**؛ آن‌ها رأیِ جداگانه می‌خواهند.",
-    "runtime_status": "RATIFIED+WIRED, NOT_LIVE — input_surface_policy در center.handle_update وصل شد و خروجی fail-closed است؛ ولی ACCEPTANCE-RUNBOOK کامل اجرا نشده و مرکز ری‌استارت نشده، پس پروسهٔ زنده هنوز کدِ قبلی را دارد.",
+    "runtime_status": "ورودی LIVE · خروجی نه. مرکز ۲۰۲۶-۰۷-۳۰ ۱۷:۵۰:۴۶ با تپِ مالک ری‌استارت شد و PIDِ تازه (۲۴۵۱۶) کدِ حاویِ input_surface_policy را دارد؛ پس سمتِ **ورودیِ** قرارداد (گروه = فقط پاها) در پروسهٔ زنده اعمال می‌شود. سمتِ **خروجی** هنوز نقض است: در ۱۷:۵۲:۰۲ همان مرکزِ تازه با stream=center به گروه فرستاد با topic=None، یعنی General.",
     "wired_at": "2026-07-30",
     "ratified": true,
     "wired": true,
     "live": false,
+    "live_input": true,
+    "live_output": false,
     "live_requires": [
-      "ACCEPTANCE-RUNBOOK کامل",
-      "ری‌استارتِ tg-center با تپِ مالک"
-    ]
+      "وصل‌کردنِ surface_router.resolve به مسیرِ زندهٔ ارسال — امروز صفر صداکننده دارد (سنجشِ AST)، پس کلِ ماتریسِ مقصدِ گیت ۱ در ران‌تایم بی‌اثر است",
+      "آشتیِ واژگانِ stream: نامِ جریان‌هایی که کد واقعاً می‌فرستد (center · brain · needs · discovery · doctor · heart · cortisol) نه در surface-routing.json هست نه در stream_targets؛ وصل‌کردنِ روتر پیش از این آشتی، هر ارسالِ هسته‌ای را به مسیرِ «جریانِ ناشناخته» می‌اندازد",
+      "رأیِ مالک برای OCTOPUS_TG_SPLIT_V1 — بلوکِ target فقط پشتِ این فلگ خوانده می‌شود",
+      "ویرایشِ surface-routing.json — فایلِ مالک است؛ ایجنت فقط با رأیِ صریح دست می‌زند",
+      "گیت ۵ و ۹ — آزمایشِ مکالمهٔ ۱۲-پیامی و تستِ زندهٔ محدود، هر دو کارِ مالک‌اند"
+    ],
+    "runbook_execution": {
+      "executed_at": "2026-07-30",
+      "runbook": "_ops/telegram_contract/ACCEPTANCE-RUNBOOK.md",
+      "restart": {
+        "method": "مسیرِ نرمِ RUNBOOK-TG-CENTER-RESTART §۱ — فقط PIDِ پایتونِ مرکز",
+        "killed_pid": 22180,
+        "killed_pid_born": "2026-07-29T21:49:11",
+        "new_pid": 24516,
+        "new_pid_born": "2026-07-30T17:50:46",
+        "p1_process_alive": "PASS — دقیقاً یک پروسه",
+        "p2_active_probe": "کارِ مالک (‏/now در تاپیک) — اجرا نشد",
+        "p3_passive_probe": "رکوردِ تازه ۱۷:۵۲:۰۲ · stream=center · chat=گروه · topic=None · ok=true ⇒ ارسالِ هسته‌ای در General، نقضِ legs-only",
+        "pycache_validated": "mtimeِ ثبت‌شده در .pyc با سورس یکی بود ⇒ کدِ امروز بارگذاری شد، نه بایت‌کدِ کهنه"
+      },
+      "gates": {
+        "0_ownership_safety": "PASS با یک تضادِ ثبت‌شده — OCTOPUS_WIRE_CODE_APPLY با رأیِ صریحِ مالک ۲۰۲۶-۰۷-۲۸ مسلح است و درایورش در بوتِ فعلی بالا آمده؛ متنِ گیت ۰ («code apply خاموش بماند») از آن رأی بی‌خبر نوشته شده. حل‌کردنش رأیِ مالک است نه ایجنت. PATCH_CARD غایب و بیرونِ PAPER_FULL_FLAGS ⇒ واقعاً خاموش.",
+        "1_outgoing_matrix": "FAIL در ران‌تایم — surface_router.resolve صفر صداکننده دارد؛ ~۹۰ پیامِ هسته‌ای در لاگ به گروه رفته",
+        "2_input_matrix": "PASS و LIVE — پروب در همان شرایطِ لانچر ۶/۶؛ یک باگِ واقعیِ بین-پایی پیدا و بسته شد",
+        "3_callback_ownership": "PASS برای دامنهٔ من — ولی فعلِ `oc` از فضای نامِ درجریانِ `_ops/owner_console/` (جلسهٔ موازی) handler ندارد ⇒ کارتِ مرده",
+        "4_capability_catalog": "PARTIAL — ۵ manifest + ۲۵ اسکنِ کد؛ doctor/telegram-diagnostics/legs پوشش ندارند و ۵ فیلد از ۸ فیلدِ لازم غایب است",
+        "5_conversation_test": "کارِ مالک — اجرا نشد",
+        "6_group_legs_test": "موردِ بین-پاییِ گیت ۶ آفلاین اثبات شد (۳ جهش قرمز)؛ آزمایشِ زنده کارِ مالک",
+        "7_anti_conflict_409": "PASS — یک poller، صفر ۴۰۹ در لاگِ واچ‌داگ، واچ‌داگِ ۵-دقیقه‌ای Ready",
+        "8_receipt_observability": "PARTIAL — ts/chat/topic/stream/ok/sha/chars هست؛ bot_role و surface و سه‌حالتیِ attempted/held/blocked نیست",
+        "10_done": "NO — TELEGRAM_ACCESS_LIVE اعلام نمی‌شود"
+      }
+    }
   },
   "owner_model": "two-bots-three-surfaces",
   "surfaces": {
