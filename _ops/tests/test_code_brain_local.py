@@ -183,6 +183,85 @@ def t_the_ladder_prefers_paid_then_local_then_nothing():
     assert "no-tier-produced" in src, "شکستِ هر دو پله ثبت نمی‌شود"
 
 
+def t_the_shadow_outcome_is_always_logged_never_silent():
+    """⚠️ از یک شکستِ واقعی آمد: اولین پچِ مسیرِ «بساز» سرِ سقفِ ۶۰۰ ثانیهٔ
+    سوییت مُرد و **هیچ‌جا ثبت نشد** — `out["reason"]` به `run_forever`
+    برمی‌گشت و دور ریخته می‌شد، و `_log_shadow` پشتِ فلگِ خاموش بود. مالک
+    پرسید «چرا طول کشید؟» و جوابی روی دیسک نبود.
+
+    هر سه سرنوشتِ سایه باید ردِ خودش را بگذارد: مکانیزم‌شکست · قرمز · سبز."""
+    import json as _j
+    task = {"id": "task-probe", "task": "کاری در _ops/cortex/x.py"}
+
+    def _run(shadow):
+        Path(cb.TASKS_DIR).mkdir(parents=True, exist_ok=True)
+        (Path(cb.TASKS_DIR) / "task-probe.json").write_text(
+            _j.dumps({**task, "status": "pending"}, ensure_ascii=False), "utf-8")
+        return cb.tick_once(
+            draft_fn=lambda t: {"target": "_ops/cortex/x.py",
+                                "content": "x = 1\n", "intent": "t"},
+            tick_fn=lambda p: {"shadow": shadow},
+            propose_fn=lambda p: {"ok": True, "id": "code-probe"})
+
+    seen = []
+    real_log = cb._log
+    cb._log = lambda rec: seen.append(rec)
+    try:
+        # ۱) مکانیزم شکست (همان موردِ واقعی: timeout)
+        seen.clear()
+        _run({"ok": False, "reason": "shadow-error:TimeoutExpired"})
+        outs = [x for x in seen if x.get("event") == "shadow-outcome"]
+        assert outs, "شکستِ مکانیزم ثبت نشد"
+        assert "Timeout" in str(outs[-1].get("reason")), outs[-1]
+        assert outs[-1].get("kept_for_retry") is True, outs[-1]
+
+        # ۲) سوییت قرمز
+        seen.clear()
+        _run({"ok": True, "green": False, "new_fails": ["test_x"],
+              "base_seconds": 12.3, "cand_seconds": 13.1})
+        outs = [x for x in seen if x.get("event") == "shadow-outcome"]
+        assert outs and outs[-1].get("green") is False, outs
+        assert outs[-1].get("base_seconds") == 12.3, "مدتِ سوییت ثبت نشد"
+
+        # ۳) سبز
+        seen.clear()
+        r = _run({"ok": True, "green": True, "base_seconds": 9.0,
+                  "cand_seconds": 9.5, "changed_bytes": 40})
+        outs = [x for x in seen if x.get("event") == "shadow-outcome"]
+        assert outs and outs[-1].get("green") is True, outs
+        assert r.get("proposed") == 1, r
+    finally:
+        cb._log = real_log
+
+
+def t_the_suite_timeout_is_a_knob_with_a_bigger_default():
+    """سقفِ ۶۰۰ ثانیه اثباتاً کم بود؛ حالا knob است و پیش‌فرضش بزرگ‌تر."""
+    import code_autonomy as ca
+    os.environ.pop("OCTOPUS_CODE_SHADOW_SUITE_TIMEOUT_S", None)
+    assert ca._suite_timeout_s() >= 1200, ca._suite_timeout_s()
+    os.environ["OCTOPUS_CODE_SHADOW_SUITE_TIMEOUT_S"] = "900"
+    try:
+        assert ca._suite_timeout_s() == 900
+        os.environ["OCTOPUS_CODE_SHADOW_SUITE_TIMEOUT_S"] = "غلط"
+        assert ca._suite_timeout_s() == 1800, "ورودیِ بد باید به پیش‌فرض بیفتد"
+        os.environ["OCTOPUS_CODE_SHADOW_SUITE_TIMEOUT_S"] = "5"
+        assert ca._suite_timeout_s() == 60, "کفِ ۶۰ ثانیه اعمال نشد"
+    finally:
+        os.environ.pop("OCTOPUS_CODE_SHADOW_SUITE_TIMEOUT_S", None)
+
+
+def t_the_suite_runner_records_how_long_it_took():
+    """بالابردنِ سقف بی‌اندازه‌گیری حدس است — مدت باید ثبت شود."""
+    import code_autonomy as ca
+    src = Path(ca.__file__).read_text("utf-8")
+    i = src.index("def _run_suite")
+    assert '"seconds"' in src[i:i + 900], "_run_suite مدت را برنمی‌گرداند"
+    j = src.index("def _git_shadow_test")
+    seg = src[j:j + 3500]
+    assert "base_seconds" in seg and "cand_seconds" in seg, \
+        "مدتِ دو دورِ سوییت به بالادست نمی‌رسد"
+
+
 def t_the_local_drafter_itself_never_applies_anything():
     """⚠️ نسخهٔ اولِ این بند بیش از حد پهن بود و قرمز شد — و **کد درست بود**:
     `code_brain` یک مسیرِ auto-apply دارد که `apply_approved` را صدا می‌زند،

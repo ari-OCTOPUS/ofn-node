@@ -575,8 +575,29 @@ def tick_once(*, draft_fn=None, tick_fn=None, propose_fn=None) -> dict:
         else:
             out["reason"] = "shadow-failed: " + str(shadow.get("reason") or "")
             # در حالتِ shadow-failed (نه red) task را نگه می‌داریم برای تلاشِ دوباره
+        # ⚠️ ۲۰۲۶-۰۷-۳۰: تا امروز این علت **هیچ‌جا ثبت نمی‌شد**. `out` به
+        # `run_forever` برمی‌گشت و آن‌جا دور ریخته می‌شد، و `_log_shadow` هم
+        # پشتِ فلگِ خاموشِ `CODE_AUTONOMY_SHADOW` بود. نتیجه: اولین پچِ واقعیِ
+        # مسیرِ «بساز» سرِ سقفِ ۶۰۰ ثانیه مُرد و مالک شب پرسید «چرا این‌قدر
+        # طول کشید؟» و **جوابی روی دیسک نبود**. سکوت در پرمصرف‌ترین قدمِ
+        # حلقه، بدترین جای سکوت است. بدونِ فلگ ثبت می‌شود.
+        _log({"event": "shadow-outcome", "task": task.get("id"),
+              "target": patch.get("target"), "ok": shadow.get("ok"),
+              "green": shadow.get("green"), "reason": out["reason"][:160],
+              "base_seconds": shadow.get("base_seconds"),
+              "cand_seconds": shadow.get("cand_seconds"),
+              "new_fails": (shadow.get("new_fails") or [])[:6],
+              "baseline_fails": (shadow.get("baseline_fails") or [])[:6],
+              "suite_tail": str(shadow.get("suite_tail") or "")[:200],
+              "kept_for_retry": bool(shadow.get("ok") is not True)})
         return out
     out["green"] = 1
+    _log({"event": "shadow-outcome", "task": task.get("id"),
+          "target": patch.get("target"), "ok": True, "green": True,
+          "base_seconds": shadow.get("base_seconds"),
+          "cand_seconds": shadow.get("cand_seconds"),
+          "changed_bytes": shadow.get("changed_bytes"),
+          "baseline_fails": (shadow.get("baseline_fails") or [])[:6]})
     # patch سبز است. ابتدا برای HITL پیشنهاد بده (همیشه — کارت به مالک می‌رود).
     _propose = propose_fn or code_autonomy.propose_to_owner
     prop = _propose({**patch, "shadow_green": True})

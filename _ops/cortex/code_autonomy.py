@@ -134,14 +134,41 @@ def _shadow_env(wt: Path) -> dict:
     return env
 
 
-def _run_suite(wt: Path, env: dict, timeout: int = 600) -> dict:
+def _suite_timeout_s() -> int:
+    """سقفِ هر دورِ سوییت در سایه.
+
+    ⚠️ ۲۰۲۶-۰۷-۳۰: سقفِ هاردکدِ ۶۰۰ ثانیه **کافی نبود** و اولین پچِ واقعیِ
+    مسیرِ «بساز» را کشت. تایم‌لاینِ سنجیده: سوییتِ مبنا ۲۲:۰۵:۲۴ شروع شد و
+    دقیقاً سرِ ۲۲:۱۵:۲۴ با `TimeoutExpired` مُرد — یعنی حتی **مبنا** تمام
+    نشد، چه رسد به دورِ دوم. سوییتِ کامل در یک worktree ِ تازه (با
+    `__pycache__` ِ سرد) از ۶۰۰ ثانیه رد می‌شود.
+
+    این یک threadِ daemon ِ پس‌زمینه است و `run_forever` بعدِ هر tick می‌خوابد،
+    پس tick ِ طولانی فقط تلاشِ بعدی را عقب می‌اندازد — هیچ‌چیز را بلاک نمی‌کند.
+    کیل‌سوییچ (`STOP-CODE-AUTONOMY`) هم هر ۵ ثانیه چک می‌شود.
+    """
+    import os
+    try:
+        return max(60, int(os.environ.get(
+            "OCTOPUS_CODE_SHADOW_SUITE_TIMEOUT_S", "1800")))
+    except (TypeError, ValueError):
+        return 1800
+
+
+def _run_suite(wt: Path, env: dict, timeout: "int | None" = None) -> dict:
+    import time as _t
+    t0 = _t.time()
     r = subprocess.run([sys.executable, "-X", "utf8",
                         str(wt / "_ops" / "tests" / "run_all.py")],
-                       capture_output=True, text=True, timeout=timeout, env=env)
+                       capture_output=True, text=True,
+                       timeout=(timeout if timeout is not None
+                                else _suite_timeout_s()), env=env)
     out = r.stdout or ""
     fails = set(_re.findall(r"(test_[a-z0-9_]+)\.py", out.split("شکست:")[-1])) \
         if "شکست:" in out else set()
+    # مدتِ واقعی ثبت می‌شود: سقف را بی‌اندازه‌گیری بالا بردن حدس است، نه فیکس.
     return {"code": r.returncode, "fails": fails,
+            "seconds": round(_t.time() - t0, 1),
             "tail": "\n".join(out.splitlines()[-3:])}
 
 
@@ -184,7 +211,9 @@ def _git_shadow_test(target_rel: str, new_content: str) -> dict:
         return {"ok": True, "green": green, "target": target_rel,
                 "diff": (diff.stdout or "").strip()[:400], "suite_tail": cand["tail"],
                 "baseline_fails": sorted(base["fails"]), "new_fails": new_fails,
-                "fixed_fails": fixed, "changed_bytes": len(new_content) - len(old)}
+                "fixed_fails": fixed, "changed_bytes": len(new_content) - len(old),
+                "base_seconds": base.get("seconds"),
+                "cand_seconds": cand.get("seconds")}
     except Exception as e:  # noqa: BLE001
         return {"ok": False, "reason": f"shadow-error:{type(e).__name__}", "target": target_rel}
     finally:
