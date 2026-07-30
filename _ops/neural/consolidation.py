@@ -5,11 +5,47 @@
 هر N beat همهٔ منابعِ یادگیری را synthesize می‌کند.
 """
 from __future__ import annotations
+import hashlib
 import json
 import os
 import time
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
+
+
+def _now() -> float:
+    """تنها منبعِ زمانِ این ماژول.
+
+    چرا یک تابعِ جدا و نه `time.time` مستقیم: `field(default_factory=time.time)`
+    ارجاع را **در زمانِ تعریفِ کلاس** می‌بندد، پس patch کردنِ `time.time` بعداً روی
+    آن اثر ندارد و مسیرِ فرعی همچنان ساعتِ واقعی می‌خوانَد — ساعتِ نیمه‌تزریقی،
+    یعنی تستی که روزها سبز و شب‌ها قرمز است. با این تابع هر دو مسیر یکی می‌شوند.
+    """
+    return time.time()
+
+
+def _flag(name: str) -> bool:
+    """env-flag با پیش‌فرض خاموش — همان قرارداد `wiring.flag`/`cardiac.flag`."""
+    return os.environ.get(name, "0") == "1"
+
+
+def _compress_on() -> bool:
+    return _flag("OCTOPUS_CONSOLIDATION_COMPRESS")
+
+
+def _floor_seconds() -> float:
+    """کفِ زمانیِ فشرده‌سازی. کمتر از این فاصله = «همان یافته»؛ بیشتر = رویدادِ نو.
+
+    چرا کف لازم است: بدونِ آن، یافته‌ای که بعد از ۱۹ روز دوباره ظاهر می‌شود در
+    ردیفِ روزِ اول تا می‌شود و **ساختارِ زمانی نابود می‌شود** — همان‌قدر بی‌معنا که
+    ۵۳۸ ردیفِ تکراری. با کفِ ۶ ساعته، بازگشتِ یک یافته در روزِ بعد ردیفِ خودش را
+    می‌گیرد. اندازه‌گیریِ replay روی تاریخچهٔ واقعی (۵۳۸ ردیف، ۱۹.۳ روز):
+        کف=۱h → ۶۷ ردیف · کف=۶h → ۳۷ ردیف · کف=۲۴h → ۲۵ · کف=∞ → ۲۴ (بی‌زمان)
+    """
+    try:
+        return float(os.environ.get("OCTOPUS_CONSOLIDATION_FLOOR_SEC", "21600"))
+    except ValueError:
+        return 21600.0
 
 
 def _default_data_path() -> Path:
@@ -38,7 +74,7 @@ class ConsolidatedInsight:
     insights: list[str]
     verified_sources: list[str]
     discarded_sources: list[str]
-    timestamp: float = field(default_factory=time.time)
+    timestamp: float = field(default_factory=lambda: _now())
     # Phase 2: latent representation (backward compatible — None when no latent space)
     latent_vector: list[float] | None = None
     similar_keys: list[str] | None = None
@@ -76,7 +112,32 @@ class ConsolidationCycle:
     def __init__(self, data_path: str | Path | None = None):
         self._path = Path(data_path) if data_path else _DATA_PATH
         self._history: list[dict] = self._load()
-        self._cycle_count = len(self._history)
+        # ۲۰۲۶-۰۷-۳۰ — شمارنده از **بیشترین سیکلِ ثبت‌شده** seed می‌شود، نه از شمارِ
+        # ردیف‌ها (`len(self._history)`). چون دورِ هم‌محتوا داخلِ ردیفِ قبلی **تا**
+        # می‌شود، شمارِ ردیف‌ها رشد نمی‌کند، پس هر ری‌استارتِ پروسه دقیقاً همان شماره
+        # را از نو می‌ساخت. اثرِ روی فایلِ زنده: ردیفِ (cycle=537, last_cycle=538,
+        # repeats=13) یعنی سیزده شلیکِ جدا که همه خودشان را «۵۳۸» مُهر کردند.
+        # و چون کلیدِ بازیابی `cycle_key = f"cycle-{result.cycle}"` است
+        # (`wiring._enrich_with_latent`)، `latent_space.embed` همان کلید را بازنویسی
+        # می‌کرد: ایندکسِ بازیابی هرگز از تعدادِ ordinalهای **متمایز** بالاتر نمی‌رفت
+        # (۱۰ بردار). این هم‌برخوردِ کلید بود، نه هرس — کمینهٔ وزنِ BCM ۱.۷۹۹ مقابلِ
+        # کفِ ۰.۰۵ و ۱۰ کلید مقابلِ سقفِ ۵۱۲، یعنی هرگز چیزی prune نشده بود.
+        try:
+            recorded = max(
+                (int(r.get("last_cycle") or r.get("cycle") or 0)
+                 for r in self._history if isinstance(r, dict)), default=0)
+        except (TypeError, ValueError):
+            recorded = 0
+        # کفِ `len(self._history)` تزئینی نیست. ردیفی که `last_cycle`/`cycle` ندارد یا
+        # None است **هیچ خطایی نمی‌دهد** — `int(None or None or 0)` می‌شود صفر — پس
+        # `except` نمی‌گیردش و شمارنده از ۱ از نو شروع می‌شد: دقیقاً همان بازاستفادهٔ
+        # ordinal که این فیکس قرار بود ببندد، در لباسی دیگر. اندازه‌گیری‌شده روی ۵ ردیفِ
+        # بی‌کلید: seed=۰ در برابرِ ۵ ِ امروز. با این max نه از امروز عقب‌تر می‌رویم و نه
+        # یکنواییِ شماره را از دست می‌دهیم.
+        self._cycle_count = max(recorded, len(self._history))
+        # sig → ایندکسِ آخرین ردیفِ هم‌محتوا. lazy: فقط وقتی فشرده‌سازی روشن است
+        # ساخته می‌شود، پس مسیرِ flag-off حتی یک sha256 هم نمی‌دهد.
+        self._sig_index: dict[str, int] | None = None
 
     def _load(self) -> list[dict]:
         try:
@@ -92,6 +153,60 @@ class ConsolidationCycle:
             tmp.replace(self._path)
         except OSError:
             pass
+
+    # ─── فشرده‌سازی: امضای محتوایی + کفِ زمانی ─────────────────────────────────
+
+    @staticmethod
+    def _signature(rec: dict) -> str:
+        """امضای **فقط محتوایی** یک رکورد.
+
+        هیچ شمارندهٔ یکنوا (`cycle`، `last_cycle`، `repeats`) و هیچ timestampی
+        داخلِ کلید نمی‌رود. درسِ ۲۰۲۶-۰۷-۲۸ (سه بار در یک روز): وقتی شمارنده در
+        کلیدِ dedup باشد، «تغییرِ محتوا» و «گذشتِ زمان» یک چیز خوانده می‌شوند و
+        گاردِ درست روی مکانیزمِ غلط دقیقاً صفر اثر دارد.
+        """
+        payload = json.dumps([rec.get("insights"),
+                              rec.get("verified_sources"),
+                              rec.get("discarded_sources")],
+                             ensure_ascii=False, sort_keys=True)
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
+
+    def _build_sig_index(self) -> dict[str, int]:
+        idx: dict[str, int] = {}
+        for i, row in enumerate(self._history):
+            if isinstance(row, dict):
+                idx[self._signature(row)] = i     # آخرینِ هر امضا برنده است
+        return idx
+
+    @staticmethod
+    def _row_last_ts(row: dict) -> float:
+        for k in ("last_ts", "timestamp"):
+            v = row.get(k)
+            if isinstance(v, (int, float)):
+                return float(v)
+        return 0.0
+
+    def _foldable(self, rec: dict) -> dict | None:
+        """ردیفی که `rec` باید داخلش تا شود — یا None اگر باید ردیفِ نو بسازد.
+
+        سه شرط: (۱) امضای محتوایی یکی، (۲) فاصلهٔ زمانی زیرِ کف، (۳) ردیفِ مقصد
+        بردارِ latent نداشته باشد. شرطِ سوم عمدی است: از ۵۳۸ ردیف فقط ۲ تا بردار
+        دارند (رویدادِ واقعیِ بازیابی). تا کردنِ یک ردیفِ غنی داخلِ ردیفِ فقیر —
+        یا برعکس — تنها دادهٔ کمیابِ این فایل را از بین می‌برد.
+        """
+        if self._sig_index is None:
+            self._sig_index = self._build_sig_index()
+        pos = self._sig_index.get(self._signature(rec))
+        if pos is None or pos >= len(self._history):
+            return None
+        target = self._history[pos]
+        if not isinstance(target, dict) or target.get("latent_vector") is not None:
+            return None
+        now = rec.get("timestamp")
+        now = float(now) if isinstance(now, (int, float)) else _now()
+        if (now - self._row_last_ts(target)) >= _floor_seconds():
+            return None                      # فراتر از کف = رویدادِ نو، نه تکرار
+        return target
 
     def run(self, sources: dict[str, dict]) -> ConsolidatedInsight:
         """یک دورِ consolidation. sources = {name: data}.
@@ -130,20 +245,98 @@ class ConsolidationCycle:
         # اطلاعات از دست نمی‌رود: `repeats` و `last_cycle` می‌گویند همان یافته چند
         # چرخه پایدار مانده — که خودش دادهٔ باارزشی است، نه صرفاً حذفِ تکرار.
         rec = asdict(result)
-        prev = self._history[-1] if self._history else None
-        same = (isinstance(prev, dict)
-                and prev.get("insights") == rec["insights"]
-                and prev.get("verified_sources") == rec["verified_sources"]
-                and prev.get("discarded_sources") == rec["discarded_sources"])
-        if same:
-            prev["repeats"] = int(prev.get("repeats", 1)) + 1
-            prev["last_cycle"] = self._cycle_count
+        # ۲۰۲۶-۰۷-۲۸ — چرا فشرده‌سازیِ **غیرِ متوالی** لازم شد. نسخهٔ ۰۷-۲۷ فقط با
+        # `self._history[-1]` مقایسه می‌کرد، پس تکرارِ متوالی را می‌گرفت و تکرارِ
+        # متناوب را نه. اندازه‌گیریِ فایلِ زنده همان روز: **۵۳۸ ردیف، ۲۴ امضای
+        # یکتا** (۴.۵٪) — و ۱۸۱ ردیف عیناً «آگاهیِ میانگین: 0.02». چون مقدارِ
+        # آگاهی بین چند سطح نوسان می‌کند (0.02 → 0.04 → 0.02 → …) هیچ‌کدام از آن
+        # ۱۸۱ تا متوالی نبودند، پس گاردِ متوالی روی همه‌شان صفر اثر داشت.
+        # حالا کلید = امضای محتوایی (بدونِ شمارنده) + کفِ زمانی.
+        if _compress_on():
+            target = self._foldable(rec)
+        else:
+            prev = self._history[-1] if self._history else None
+            same = (isinstance(prev, dict)
+                    and prev.get("insights") == rec["insights"]
+                    and prev.get("verified_sources") == rec["verified_sources"]
+                    and prev.get("discarded_sources") == rec["discarded_sources"]
+                    # ۲۰۲۶-۰۷-۳۰ — همان شرطِ سومِ `_foldable` (خط ۱۸۱)، که تا امروز
+                    # فقط در مسیرِ compress بود. مسیرِ زنده (compress خاموش) بدونش
+                    # ردیفِ دارای بردار را مقصدِ fold می‌کرد و `sync_latent` بردارش
+                    # را بازنویسی می‌کرد: از ۵۳۹ ردیف فقط ۳ بردار دارند، پس این
+                    # کم‌یاب‌ترین دادهٔ فایل را لِه می‌کرد (سیکلِ ۵۴۰ داخلِ ۵۳۹).
+                    and prev.get("latent_vector") is None)
+            target = prev if same else None
+        if target is not None:
+            target["repeats"] = int(target.get("repeats", 1)) + 1
+            target["last_cycle"] = self._cycle_count
+            if _compress_on():
+                # کف روی **آخرین** مشاهده می‌سنجد نه اولین، وگرنه یک ردیف بعد از
+                # ۶ ساعت برای همیشه بسته می‌شد و تکرار دوباره ردیف می‌ساخت.
+                ts = rec.get("timestamp")
+                target["last_ts"] = float(ts) if isinstance(ts, (int, float)) else _now()
         else:
             rec["repeats"] = 1
             rec["last_cycle"] = self._cycle_count
+            if _compress_on():
+                ts = rec.get("timestamp")
+                rec["last_ts"] = float(ts) if isinstance(ts, (int, float)) else _now()
+                if self._sig_index is None:
+                    self._sig_index = self._build_sig_index()
+                self._sig_index[self._signature(rec)] = len(self._history)
             self._history.append(rec)
         self._save()
         return result
+
+    def sync_latent(self, result) -> bool:
+        """فیلدهای latent ِ `result` را به رکوردِ ماندگارِ همان سیکل برگردان.
+
+        ۲۰۲۶-۰۷-۲۸ — چرا این وجود دارد. `run()` رکورد را با `asdict(result)`
+        اسنپ‌شات می‌گیرد و **همان‌جا** `_save()` می‌کند. صداکنندهٔ canonical بعد از
+        برگشتن `_enrich_with_latent(result, …)` را صدا می‌زند که شیء را in-place
+        غنی می‌کند — ولی آن اسنپ‌شات از قبل روی دیسک رفته. نتیجه: بردار **ساخته
+        می‌شد، در ایندکسِ بازیابی می‌نشست، و واقعاً شلیک می‌کرد**، در حالی که
+        تاریخچه برای همان سیکل `None` ثبت می‌کرد.
+
+        اندازه‌گیریِ همان روز: از ۵۳۶ ردیفِ تثبیت، **صفر** تا بردار داشتند — ولی
+        `bcm-weights.json` برای `cycle-536` وزنِ w=2.5865 θ=0.3439 داشت که یعنی
+        غنی‌سازی اجرا شده بود. یک باگِ **ترتیب**، نه سیم‌کشی.
+
+        اثرش دقیقاً همان چیزی است که «نمی‌تواند به یاد بیاورد» را می‌ساخت: بردار
+        بدونِ ثبت یعنی حافظه‌ای که هر بار از صفر شروع می‌کند.
+
+        رکوردِ فشرده‌شده (repeat) هم پوشش دارد: آن‌جا `cycle` قدیمی می‌ماند و
+        `last_cycle` به‌روز می‌شود، پس هر دو تطبیق داده می‌شوند.
+        بازگشت: True اگر چیزی واقعاً عوض شد.
+        """
+        if not self._history:
+            return False
+        rc = getattr(result, "cycle", None)
+        if rc is None:
+            return False
+        # با فشرده‌سازی، رکوردِ این سیکل دیگر لزوماً `[-1]` نیست: ممکن است داخل
+        # ردیفی **قدیمی‌تر** تا شده باشد و فقط `last_cycle`ش به‌روز شده باشد.
+        # پس عقب‌گرد جست‌وجو می‌شود. با flag خاموش دامنه دقیقاً یک ردیف است، یعنی
+        # همان `self._history[-1]`ِ نسخهٔ قبلی — رفتار بایت‌به‌بایت یکسان.
+        scan = len(self._history) if _compress_on() else 1
+        last = None
+        for row in reversed(self._history[-scan:]):
+            if not isinstance(row, dict):
+                continue
+            if int(row.get("cycle", -1)) == int(rc) or int(row.get("last_cycle", -1)) == int(rc):
+                last = row
+                break
+        if last is None:
+            return False                      # رکوردِ سیکلِ دیگر — هرگز دست نزن
+        changed = False
+        for field_name in ("latent_vector", "similar_keys"):
+            val = getattr(result, field_name, None)
+            if val is not None and last.get(field_name) != val:
+                last[field_name] = val
+                changed = True
+        if changed:
+            self._save()
+        return changed
 
     @property
     def cycle_count(self) -> int:
@@ -152,3 +345,79 @@ class ConsolidationCycle:
     @property
     def history(self) -> list[dict]:
         return list(self._history)
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# متریکِ «آیا این سیستم در طولِ زمان بهتر *به یاد می‌آورد*؟»
+# ════════════════════════════════════════════════════════════════════════════════
+
+_CYCLE_RE_PREFIX = "cycle-"
+
+
+def _key_cycle(key: str) -> int | None:
+    """شمارهٔ سیکل از کلیدِ latent مثلِ `cycle-539:school_awareness`."""
+    s = str(key or "")
+    if not s.startswith(_CYCLE_RE_PREFIX):
+        return None
+    head = s[len(_CYCLE_RE_PREFIX):].split(":", 1)[0]
+    try:
+        return int(head)
+    except ValueError:
+        return None
+
+
+def recall_reach(history: list[dict]) -> dict:
+    """**بردِ بازیابی** — تنها متریکی که در این زیرسیستم می‌تواند «بهتر شدن» را ثابت کند.
+
+    تعریف: برای هر ردیفی که واقعاً چیزی بازیابی کرده (`similar_keys` دارد)، فاصلهٔ
+    |cycle(کلیدِ بازیابی‌شده) − cycle(خودِ ردیف)| را بگیر. `reach_median` میانهٔ همهٔ
+    این فاصله‌هاست.
+
+    چرا این یکی و نه بقیه:
+      · `proposal_accept_rate` رفتارِ **مالک** را می‌سنجد نه سیستم را — ۵۶۱ اسنپ‌شات
+        در ۱۷ روز روی 0.0 ثابت، چون هیچ‌کس رأی نداده؛ سیستم می‌تواند عالی شود و این
+        عدد صفر بماند.
+      · نسبتِ یکتا/کل (فشرده‌سازی) کیفیتِ **نوشتن** را می‌سنجد نه یادآوری را.
+      · تعدادِ ردیف‌ها یا گام‌های BCM با گذشتِ زمان خودبه‌خود بالا می‌رود — سنجهٔ
+        عمر است نه یادگیری.
+    این یکی با «بیشتر نوشتن» بالا نمی‌رود. فقط وقتی بالا می‌رود که بازیابی چیزی از
+    **گذشتهٔ دور** بیاورد. سقفِ بی‌معنا هم ندارد: reach بزرگ = حافظهٔ بلندمدتِ زنده.
+
+    خطِ پایهٔ امروز (۲۰۲۶-۰۷-۲۸، فایلِ زنده، ۵۳۸ ردیف / ۵۳۹ سیکل / ۱۹.۳ روز):
+        events=2  keys=8  reach_median=1.0  reach_max=2  self_ratio=0.375
+        coverage=0.0037
+    یعنی: در تمامِ عمرِ سیستم دو بار بازیابی شلیک کرده، و هر هشت کلیدی که آورد از
+    سیکل‌های ۵۳۷–۵۳۹ بودند — بردِ حداکثر ۲ سیکل (~۲۰ دقیقه)، و ۳ تا از ۸ کلید
+    خودِ همان سیکل. این «به یاد آوردن» نیست؛ بازتابِ همین لحظه است.
+
+    خروجی: dict — عمداً همه‌چیز شمارشی است، هیچ صفتی.
+    """
+    rows = [r for r in (history or []) if isinstance(r, dict) and r.get("similar_keys")]
+    deltas: list[int] = []
+    selfhits = 0
+    for r in rows:
+        own = r.get("cycle")
+        if not isinstance(own, int):
+            continue
+        for k in r.get("similar_keys") or []:
+            kc = _key_cycle(k)
+            if kc is None:
+                continue
+            d = abs(kc - own)
+            deltas.append(d)
+            if d == 0:
+                selfhits += 1
+    total_rows = len([r for r in (history or []) if isinstance(r, dict)])
+    deltas.sort()
+    n = len(deltas)
+    if n == 0:
+        median = 0.0
+    elif n % 2:
+        median = float(deltas[n // 2])
+    else:
+        median = (deltas[n // 2 - 1] + deltas[n // 2]) / 2.0
+    return {"events": len(rows), "keys": n,
+            "reach_median": median,
+            "reach_max": (deltas[-1] if deltas else 0),
+            "self_ratio": (selfhits / n) if n else 0.0,
+            "coverage": (len(rows) / total_rows) if total_rows else 0.0}

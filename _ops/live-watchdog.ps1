@@ -41,3 +41,10 @@ if (Get-NetTCPConnection -LocalPort 8773 -State Listen -ErrorAction SilentlyCont
 # 3) down -> revive headless (no browser spam)
 Add-Content -Path $log -Value "$(Get-Date -Format s) 8773 down - launching run-live-headless.bat"
 Start-Process -FilePath (Join-Path $ops 'run-live-headless.bat') -WindowStyle Hidden
+# C-watchdog (2026-07-30): tell the owner. Until now a die/revive/die cycle on the
+# cockpit lived only in live-watchdog-log.txt. AFTER the launch + fail-soft on purpose.
+# "incident" is LOAD-BEARING (measured 2026-07-30): event_bridge.py pushes ONLY
+# alert lines matching _CRITICAL_KW - without it the alert is file-only and the
+# owner never sees it. And no varying numbers: opslib.alert dedups on the text
+# hash, so a changing number defeats the 6h window + escalation marks.
+try { & python -X utf8 (Join-Path $ops "watchdog.py") --alert "WATCHDOG REVIVE incident (live cockpit :8773) - port dead - relaunched run-live-headless.bat" 2>$null | Out-Null } catch {}

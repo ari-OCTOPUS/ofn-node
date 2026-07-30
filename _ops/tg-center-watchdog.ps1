@@ -87,6 +87,12 @@ if ($loop) {
 }
 Add-Content -Path $log -Value "$(Get-Date -Format s) centre down (silent ${silent}s) - launching RUN-TG-CENTER.bat"
 Start-Process -FilePath (Join-Path $ops 'telegram_center\RUN-TG-CENTER.bat') -WindowStyle Hidden
+# C-watchdog (2026-07-30): announce the resurrection. AFTER the launch + fail-soft.
+# "incident" is LOAD-BEARING (measured 2026-07-30): event_bridge.py pushes ONLY
+# alert lines matching _CRITICAL_KW - without it the alert is file-only and the
+# owner never sees it. And no varying numbers: opslib.alert dedups on the text
+# hash, so a changing number defeats the 6h window + escalation marks.
+try { & python -X utf8 (Join-Path $ops "watchdog.py") --alert "WATCHDOG REVIVE incident (tg-center) - centre was silent - relaunched RUN-TG-CENTER.bat" 2>$null | Out-Null } catch {}
 
 # 5) prove exactly one loop survived — two loops on one bot token is the failure this
 #    whole function exists to avoid, and silence about it is how it went unnoticed before.
@@ -97,4 +103,5 @@ $afterCtr = @(Get-CimInstance Win32_Process -Filter "Name='python.exe'" -ErrorAc
               Where-Object { $_.CommandLine -match 'center\.py' })
 if ($afterLoop.Count -ne 1 -or $afterCtr.Count -gt 1) {
     Add-Content -Path $log -Value "$(Get-Date -Format s) WARNING: $($afterLoop.Count) loop(s) + $($afterCtr.Count) centre(s) after relaunch - expected 1+1 (409 risk)"
+    try { & python -X utf8 (Join-Path $ops "watchdog.py") --alert "WATCHDOG REVIVE incident (tg-center) LEFT A 409 RISK - loop/centre count after relaunch was not 1+1 - see state/tg-center-watchdog-log.txt" 2>$null | Out-Null } catch {}
 }

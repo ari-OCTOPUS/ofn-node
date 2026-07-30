@@ -267,6 +267,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_initiative_and_autonomy.py",  # ابتکار + مرزِ اختیار
          "test_tool_request.py",  # «چه ابزاری ندارم» — ثبت هرگز گیت ندارد، فقط تحویل
          "test_recall_trend.py",  # «به یاد می‌آورد؟» — سری، نه عکسِ لحظه‌ای
+         "test_paid_truncation.py",  # پاسخِ بریدهٔ مغزِ پولی = شکست، نه ok=True
          "test_budget_judge.py",  # W1 — قاضیِ بودجه (رزروِ مالک تخطی‌ناپذیر)
          "test_decision_gate.py",  # W2 — گیتِ ۵۱/۴۹ (HARD-STOP با مدرکِ کامل هم بسته)
          "test_trajectory_log.py",  # W3 — دفترِ مسیر (redact ِ fail-closed)
@@ -582,6 +583,11 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_pain_calibration.py",                     # آستانهٔ درد از توزیعِ واقعی
     "test_consolidation_compress_and_recall.py",    # تثبیت: کپی → فشرده‌سازی
     "test_debate_owner_verdict.py",                 # رأیِ مالک ماندگار و بی‌تکرار
+    # ۲۰۲۶-۰۷-۳۰ — هر دو plain-asserts اند (تابع‌های `t_*` + `harness.run`)، پس در
+    # TESTS می‌آیند نه PYTEST_TESTS: زیرِ pytest صفر تست collect می‌شود ⇒ exit 5 ⇒
+    # قرمزِ کاذبِ دائم. run_all هیچ glob/discovery ندارد ⇒ ثبت‌نشده = هرگز اجرا نشده.
+    "test_hebbian_eventclock.py",                   # ساعتِ رخدادِ hebbian + سقفِ learned
+    "test_watchdog_stall.py",                       # استالِ حلقه + احیای باصدا
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",

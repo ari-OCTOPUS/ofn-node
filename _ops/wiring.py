@@ -66,7 +66,51 @@ def _epoch_fire(name: str, beat: int, every_n) -> bool:
     epoch = beat // every_n
     if epoch < 1 or epoch <= _EPOCH_STATE.get(name, 0):
         return False
+    # ۲۰۲۶-۰۷-۲۸ — `_EPOCH_STATE` **در حافظه** است، پس هر ری‌استارت صفرش می‌کند و
+    # اولین تیکِ بعد از هر بوت این شرط را رد می‌کند: همهٔ کادنس‌ها با هم شلیک
+    # می‌کنند، صرف‌نظر از اینکه پنجره‌شان رسیده باشد.
+    # نشانهٔ اندازه‌گیری‌شده: کارتی با تناوبِ **۶ ساعت** چهار بار در یک ساعت آمد،
+    # چون آن ساعت چهار ری‌استارت داشت. تناوب درست بود؛ بوت آن را دور می‌زد.
+    # حافظهٔ دیسکی این را می‌بندد. فلگ خاموش → `already_fired` همیشه False →
+    # رفتارِ بایت‌به‌بایتِ قبلی.
+    try:
+        import epoch_guard as _eg   # noqa: WPS433 — lazy، خودش flag را چک می‌کند
+        if _eg.already_fired(name, epoch):
+            _EPOCH_STATE[name] = epoch      # حافظه را هم‌گام کن تا دوباره نپرسد
+            return False
+        _eg.mark_fired(name, epoch)
+    except Exception:  # noqa: BLE001 — گاردِ اختیاری هرگز کادنس را نمی‌کشد
+        pass
     _EPOCH_STATE[name] = epoch
+    return True
+
+
+def _epoch_window(name: str, epoch: int, mem: dict, *, min_epoch: int = 1,
+                  key: str = "last_epoch") -> bool:
+    """همان گاردِ `_epoch_fire`، برای حالت‌های **دست‌سازِ** قدیمی.
+
+    ۲۰۲۶-۰۷-۲۸ — شش کادنس چکِ پنجره را خودشان نوشته بودند و از `_epoch_fire` رد
+    نمی‌شدند: `_INGEST_STATE` · `_HEART_STATE` · `_ACCT_STATE` · `_NUDGE_STATE` ·
+    `_HEARTBEAT_STATE` · `_DISCOVERY_STATE`. همه در حافظه، پس هر ری‌استارت
+    صفرشان می‌کرد و **هر شش با هم** بی‌قید شلیک می‌کردند.
+
+    اندازه‌گیری: با فلگ خاموش ۵ ری‌استارت = ۵ شلیک؛ با فلگ روشن = ۱ شلیک.
+
+    این تابع همان دو گارد را کنارِ هم می‌گذارد تا یک قاعده بماند، نه شش کپی:
+    حافظه (سریع، درون‌پروسه) + دیسک (بقا از ری‌استارت). خروجی True یعنی
+    «شلیک کن» و خودش هر دو را علامت می‌زند.
+    """
+    if epoch < min_epoch or epoch <= mem.get(key, min_epoch - 1):
+        return False
+    try:
+        import epoch_guard as _eg   # noqa: WPS433 — lazy، خودش flag را چک می‌کند
+        if _eg.already_fired(name, epoch):
+            mem[key] = epoch
+            return False
+        _eg.mark_fired(name, epoch)
+    except Exception:  # noqa: BLE001 — گاردِ اختیاری هرگز کادنس را نمی‌کشد
+        pass
+    mem[key] = epoch
     return True
 
 
@@ -610,6 +654,38 @@ def doctor_selfknowledge_beat(beat: int = 0) -> dict | None:
         return None
 
 
+def synapse_beat(beat: int = 0) -> dict | None:
+    """اندامِ SENSE (C8، ۲۰۲۶-۰۷-۲۸) — حسِ خود-ارجاعیِ ریاضیِ ارگانیسم روی
+    تله‌متریِ خودش. سه ماژولِ synapse کاملاً ساخته بودند ولی **ادغامِ رانتایمِ صفر**
+    داشتند (هیچ beat/وایرینگ/فلگی آن را صدا نمی‌زد)؛ این اولین وصل‌کردن است.
+
+    پشتِ OCTOPUS_SYNAPSE_ENABLED (پیش‌فرض خاموش → no-op کامل). هر
+    CHRONO_SYNAPSE_EVERY_N_BEATS (پیش‌فرض ۶۰ ≈ یک ساعت با تیکِ ۶۰s). $0 (صرفاً ریاضی،
+    صفر LLM)، propose-only (خروجی فقط proposal + سریِ زمانیِ صداقت)، fail-closed.
+    ترس قفلش نمی‌کند: این مشاهدهٔ فقط‌خواندنی است، نه تغییر.
+
+    چرا مهم: پچِ ایمن (C4) باید از حسِ Δ خود تغذیه کند. تا امروز ارگانیسم حسِ
+    خود-ارجاعی نداشت — یعنی حتی نمی‌دانست آیا ضربانِ خودش ساختار دارد یا نه."""
+    if not flag("OCTOPUS_SYNAPSE_ENABLED"):
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    every_n = int(os.environ.get("CHRONO_SYNAPSE_EVERY_N_BEATS", "60"))
+    if not _epoch_fire("synapse_sense", beat, every_n):
+        return None
+    try:
+        _sp = os.path.join(os.path.dirname(os.path.abspath(__file__)), "synapse")
+        _syspath(_sp)
+        import sense  # noqa: E402 — lazy
+        r = sense.sense_once()
+        if r.get("ran"):
+            return {"synapse": r.get("kind", "observation"), "cpm": r.get("cpm")}
+        return None   # daily-cap / no-events / degraded → بی‌صدا
+    except Exception as e:  # noqa: BLE001 — Sense نباید ضربان را بکشد
+        opslib.alert([f"synapse_beat error (non-fatal): {type(e).__name__}: {e}"])
+        return None
+
+
 def wire_proposal_buttons(*, channel=None, live_loop=None) -> bool:
     """G3 arc (ported to master 2026-07-18): هوکِ رأیِ کارتِ پیشنهاد را به کانالِ تلگرام
     وصل کن. پشتِ OCTOPUS_WIRE_PROPOSAL_BUTTONS (پیش‌فرض خاموش). با فلگ خاموش → False و
@@ -1088,6 +1164,189 @@ BCM_VOCAB = (
 )
 
 
+# ── قراردادِ payloadِ تولید (آینهٔ organism.py، بلوکِ `_w.neural_beat(...)`) ──────
+# چرا لازم است: `_hebbian_signals` هشت نام **می‌تواند** بسازد، ولی فقط آن‌هایی
+# واقعاً آتش می‌کنند که تولیدکنندهٔ زنده ورودی‌شان را بدهد. اندازه‌گیریِ ۲۰۲۶-۰۷-۳۰
+# روی ۵۱۱۴ ردیفِ `state/neural/effect-shadow.jsonl` (اسنپ‌شاتِ ۱۰:۴۲؛ فایل زنده
+# است و رشد می‌کند): تا امروز فقط دو نام دیده
+# شده‌اند — `errors_high` (۳۹۱۴ بار) و `rhythm_amber` (۱۲۲ بار). یعنی کلِ واژگان
+# دقیقاً **یک** جفتِ ممکن دارد.
+# این جدول آن مرز را ماشین‌خوان می‌کند: مقدارِ `FREE` یعنی تولیدکننده یک متغیرِ
+# واقعی می‌دهد؛ مقدارِ ثابت یعنی organism همان literal را هاردکد می‌کند و هیچ
+# وضعیتِ واقعی‌ای نمی‌تواند عوضش کند. تستِ driftِ دوطرفه این را با متنِ
+# organism.py مقابله می‌کند (`_ops/tests/test_hebbian_eventclock.py`).
+FREE = "*"
+NEURAL_PAYLOAD_CONTRACT = {
+    "rhythm":   {"mode_color": FREE},
+    "budget":   {"pct": FREE},
+    "spectral": {"sigma": FREE,
+                 "sigma_is_replication_ratio": True,   # ← literalِ هاردکد
+                 "sigma_source": FREE},
+    "sensory":  {"afferent_ratio": FREE, "error_rate": FREE},
+}
+
+# سیگنال‌هایی که با قراردادِ بالا **ساختاراً** نمی‌توانند آتش کنند — نه «کم آتش
+# می‌کنند»، بلکه هیچ وضعیتِ واقعیِ ارگانیسم روشنشان نمی‌کند.
+# اعلامِ صریح جای حذف: کلیدشان در `BCM_VOCAB` می‌ماند چون نیمهٔ «فراموشی»ِ BCM
+# دقیقاً به کلیدهایی که y=0 می‌مانند نیاز دارد (bcm.py::step) — حذفشان وزنِ زنده
+# را drop می‌کرد. ولی از امروز واژگان دیگر ادعا نمی‌کند همه‌شان زنده‌اند.
+SIGNAL_DORMANT = {
+    "sigma_high":
+        "شرطش `spectral.sigma_is_replication_ratio is False` است، ولی organism "
+        "همان کلید را literalِ True می‌دهد و brain_worker اصلاً نمی‌دهدش "
+        "(None is False → False). σِ طیفیِ واقعی در doctor/spectral.py::"
+        "estimate_sigma تولید می‌شود؛ وصل‌کردنش تغییرِ رفتارِ ایمنی است و "
+        "`_hebbian_signals` آن را صریحاً به رأیِ مالک سپرده است.",
+    "budget_depleted":
+        "`budget.get(\"depleted\")` را می‌خواند ولی payloadِ زنده فقط `pct` دارد "
+        "→ همیشه None. تنها تولیدکنندهٔ واقعیِ این مفهوم `cardiac.py::status()` "
+        "است که در scopeِ محلِ payload نیست؛ دادنِ `False`ِ ساختگی fabrication "
+        "می‌شد، و افزودنِ I/Oِ per-tick به داغ‌ترین حلقهٔ ارگانیسمِ زنده برای "
+        "سیگنالی که با سقفِ ۲۰۰۰ ضربان تقریباً هرگز آتش نمی‌کند صرف ندارد.",
+}
+
+# ── سیگنال‌هایِ «عملاً خاموش» — گزارش، نه گارد (ورودی‌شان زنده است) ─────────────
+#   · budget_tight     — شرط `pct > 0.8`؛ مقدارِ زندهٔ اندازه‌گیری‌شده ۰.۰۰۰۷۲.
+#   · afferent_starved — شرط `afferent_ratio <= 0.1`؛ مقدارِ زنده ۱.۰ — همان
+#     مقدارِ اولیه در organism.py که فقط `afferent_beat` عوضش می‌کند، و آن هم
+#     `afferent_every_n=1440` است. یعنی آشکارسازِ گرسنگی‌ای که خودش گرسنه است.
+
+# ── ساعتِ رویدادیِ Hebbian (۲۰۲۶-۰۷-۳۰) ────────────────────────────────────────
+# پنجرهٔ eligibility، به واحدِ **تیکِ سیگنال‌دار** (نه ثانیه، نه تیکِ خام).
+HEBBIAN_WINDOW = 20
+
+
+def _hebbian_eventclock_beat(neural_stack, signals) -> dict:
+    """کلاکِ زوال را با کلاکِ یادگیری یکی کن + پنجرهٔ eligibility.
+
+    نقصِ اندازه‌گیری‌شدهٔ ۲۰۲۶-۰۷-۳۰ (۵۱۱۴ ردیفِ effect-shadow.jsonl، جدول `[]`
+    با mtime~۰ یعنی هر تیک بازنویسیِ یک فایلِ خالی):
+      · `decay()` **هر تیک** صدا زده می‌شد (~۴۳s) ولی هم‌رخدادی در انفجارهای
+        ۵-۱۰ تیکی می‌آمد و فاصلهٔ بینِ انفجارها ~۱۰۰۰ تیک (~۱۲.۶ ساعت). با
+        `DECAY_RATE=0.95` هر جفت بعد از ~۹۰ تیک (~۶۵ دقیقه) زیرِ
+        `PRUNE_THRESHOLD` می‌رفت و حذف می‌شد → جدول ساختاراً ~۹۳٪ وقت خالی بود.
+        اختلافِ دو کلاک ~۱۰۰۰× بود؛ این باگ نبود، **واحد** بود.
+      · گیتِ `>=2` روی **هم‌زمانیِ دقیقِ یک تیک** بود، پس دو انحراف که چند دقیقه
+        فاصله داشتند هرگز جفت نمی‌شدند (۱۰ تیکِ زنده دقیقاً همین بودند:
+        `rhythm_amber` تنها، بدونِ `errors_high`).
+
+    فیکس، سه تکه:
+      (a) زوال فقط روی تیکِ سیگنال‌دار — «چرخهٔ خالی زوال ندارد»، آینهٔ همان
+          قراردادِ `neural/bcm.py::step` (FIX #214: وقتی نمی‌دانیم، پاک نکن).
+      (b) یک زوال به‌ازای هر **گردشِ کاملِ پنجره** (HEBBIAN_WINDOW تیکِ
+          سیگنال‌دار) → یک واحد برای هر دو کلاک.
+      (c) `observe()` روی **اجتماعِ پنجره** — ولی دقیقاً **یک‌بار به‌ازای هر
+          پنجره** (پنجرهٔ tumbling، اعتبار در لحظهٔ بستنِ پنجره).
+
+    ⚠️ تصحیحِ ۲۰۲۶-۰۷-۳۰ (بازبینیِ متخاصم) — نسخهٔ اولِ همین تابع پنجره را
+    rolling گرفته بود و **هر تیک** روی اجتماعِ آن `observe()` می‌زد. اندازه‌گیریِ
+    مستقیم: یک تیکِ amberِ تنها روی ۶۰ تیکِ سیگنال‌دار ⇒ ۲۰ فراخوانیِ
+    `observe()` · `co_occurrences=20` · `strength=0.9025`. یعنی شمارنده‌ای به
+    نامِ «هم‌رخدادی» یک هم‌رخدادی را بیست بار می‌شمرد و `strong_associations()`
+    قدرتی گزارش می‌کرد که هرگز رخ نداده بود. حالا هر پنجره **یک** اعتبار
+    می‌گیرد، پس عدد همان چیزی است که نامش می‌گوید.
+
+    حسابِ عمرِ یک جفت — **محاسبه از کادنسِ اندازه‌گیری‌شده، نه مشاهده**:
+      ورودی‌های اندازه‌گیری‌شده (۵۱۱۴ ردیفِ `state/neural/effect-shadow.jsonl`،
+      ۲۰۲۶-۰۷-۲۷ ۱۶:۰۴ → ۰۷-۳۰ ۱۰:۴۲): میانهٔ فاصلهٔ تیک ۴۳.۰s · نسبتِ تیکِ
+      سیگنال‌دار ۳۹۲۴/۵۱۱۴ = ۷۶.۷٪ ⇒ یک پنجره ≈ ۲۶ تیک ≈ **۱۸.۷ دقیقه**.
+      پس «۱۳ پنجره» ≈ **۴.۰ ساعت** — نه «مقیاسِ روز» (ادعای غلطِ نسخهٔ اول).
+      با LEARN_RATE=0.1 و DECAY_RATE=0.95 و PRUNE_THRESHOLD=0.01:
+        · یک پنجرهٔ اعتبارگرفته و بعد سکوت: 0.1×0.95=0.095 →
+          0.095×0.95^k < 0.01 ⇒ k=۴۴ پنجره ≈ **۱۳.۷ ساعت**.
+        · دو پنجرهٔ پشت‌سرهم (انفجارِ روی مرزِ پنجره): 0.185 ⇒ ۵۷ پنجره ≈ ۱۷.۷h.
+      فاصلهٔ اندازه‌گیری‌شدهٔ بینِ انفجارهای amber (۱۲۲ ردیف): ۱.۵ · ۲.۲ · ۲.۸ ·
+      ۳.۲ · ۱۰.۱ · ۱۲.۰ · ۱۲.۴ · ۱۴.۵ ساعت. یعنی یک اعتبارِ تک‌پنجره‌ای هفت
+      فاصله از هشت را پوشش می‌دهد و **پیش از ۱۴.۵ ساعت prune می‌شود**؛ دو
+      اعتبار همه را. این ادعای «حافظه دارد» نیست — ادعای «۱۳.۷ ساعت دوام،
+      محاسبه‌شده» است، و هر عددِ واقعی فقط بعد از مسلح‌شدنِ فلگ دیده می‌شود.
+
+    گیتِ `>=2` عمداً دست‌نخورده می‌ماند: `observe()` با یک سیگنال ساختاراً صفر
+    جفت ثبت می‌کند، پس پایین‌آوردنش به `>=1` صفر اثر و صرفاً I/Oِ بیشتر است.
+    """
+    heb = neural_stack["hebbian"]
+    fired = tuple(sorted(set(signals or [])))
+    if not fired:
+        # چرخهٔ خالی: نه یادگیری، نه زوال، نه یک بایت I/O.
+        return {"fired": 0, "window": 0, "union": 0,
+                "observed": False, "decayed": False}
+    acc = neural_stack.get("_hebbian_window_acc")
+    if not isinstance(acc, set):
+        acc = set()
+        neural_stack["_hebbian_window_acc"] = acc
+    acc.update(fired)
+    n = int(neural_stack.get("_hebbian_event_n") or 0) + 1
+    neural_stack["_hebbian_event_n"] = n
+    union = sorted(acc)
+    filled = n % HEBBIAN_WINDOW or HEBBIAN_WINDOW
+    observed = decayed = False
+    if filled == HEBBIAN_WINDOW:
+        # پنجره بست: **یک** اعتبار و **یک** زوال — نه بیشتر، نه کمتر.
+        if len(union) >= 2:
+            heb.observe(union)
+            observed = True
+        heb.decay()
+        decayed = True
+        acc.clear()
+    return {"fired": len(fired), "window": filled, "union": len(union),
+            "observed": observed, "decayed": decayed}
+
+
+# ── مینِ learned_pressure (۲۰۲۶-۰۷-۳۰) ─────────────────────────────────────────
+# منبعِ BCM برای `evaluate` **نامدار** می‌شود تا repointِ تصادفی دیده شود.
+NEURAL_EVAL_BCM_SOURCE = "bcm_signals"
+LEARNED_PRESSURE_CEILING = 0.25
+# ⚠️ نامِ **تازه** برای مقدارِ سقف‌خورده. `learned_pressure` هرگز بازنویسی
+# نمی‌شود: همان فیلدی است که در `state/neural/effect-shadow.jsonl` می‌نشیند و
+# مالک روی سریِ آن رأی می‌دهد که OCTOPUS_NEURAL_LEARNED_APPLY را مسلح کند یا نه.
+# اندازه‌گیریِ ۲۰۲۶-۰۷-۳۰: از ۳۷۲۶ ردیفِ دارای این فیلد، **۸۵۳ ردیف (۲۲.۹٪)** از
+# ۰.۲۵ بالاترند (بیشینه ۰.۷۳۹). اگر سقف را زیرِ همین نام می‌نوشتیم، معنیِ یک
+# فیلد در میانهٔ سری عوض می‌شد — یعنی سری برای تصمیم بی‌اعتبار می‌شد و بدتر:
+# بی‌صدا. سقف یک فیلدِ **کنارِ** آن است، نه جانشینش.
+LEARNED_PRESSURE_CAPPED_KEY = "learned_pressure_capped"
+
+
+def _derive_learned_pressure_cap(result) -> None:
+    """سقفِ سختِ learned_pressure — امنیتِ تصادفیِ امروز را ساختاری می‌کند.
+
+    امروز `neural_beat` منبعِ BCM را `NEURAL_EVAL_BCM_SOURCE` می‌دهد
+    (`bcm_signals`، واژگانِ ۸ سیگنال، theta≈۰) و learned_pressureِ
+    اندازه‌گیری‌شده روی ۵۱۱۴ تیک در بازهٔ ۰.۰۰–۰.۷۳۹ بود. ولی
+    `neural_stack["bcm"]` — همان stack، ایندکسِ latent — وزنِ **اشباع** دارد:
+    `state/bcm-weights.json` امروز w تا ۳.۹۹۵ از سقفِ ۴.۰.
+    اگر کسی روزی منبع را به آن repoint کند:
+        learned_pressure = (۳.۹۹۵+۳.۹۹۵+۳.۸۷۵)/۱۲ ≈ ۰.۹۹
+        → `protective_override` با APPLY: pain += ۰.۹۹×۰.۵ = +۰.۴۹۶
+        → با آستانهٔ کالیبرهٔ ۰.۳۵ **هر تیک** `protective_halt` — توقفِ
+          بی‌قیدوشرطِ کلِ کارِ غیرضروری.
+    این سقف آن را می‌بندد: بیشینهٔ افزودنی به درد ۰.۲۵×۰.۵ = ۰.۱۲۵ و بیشینهٔ
+    دردِ اندازه‌گیری‌شده روی ۵۱۱۴ تیک ۰.۱۵۲ بود → ۰.۲۷۷ < ۰.۳۵. یعنی
+    یادگیری می‌تواند تکان بدهد، ولی هرگز تنها-عاملِ halt نشود.
+
+    ⚠️ تصحیحِ ۲۰۲۶-۰۷-۳۰ (بازبینیِ متخاصم): نسخهٔ اول خودِ
+    `brain_inputs["learned_pressure"]` را بازنویسی می‌کرد — یعنی همان فیلدی که
+    مالک در shadow log می‌خواند. این تابع **هیچ فیلدِ موجودی را عوض نمی‌کند**؛
+    فقط `learned_pressure_capped` را اضافه می‌کند و ترمز از همان می‌خواند
+    (`protective_override`). سریِ مالک خام، پیوسته و بی‌دست‌کاری می‌ماند.
+
+    ⚠️ عمداً سرِ **منبع** می‌نشیند و نه داخلِ `protective_override`: آن تابع
+    مقدارِ خام را pin شده دارد (`test_neural_loop_close.py::
+    t_apply_flag_on_combines_learned`, learned=0.9 → halt) و بازنویسیِ گاردِ
+    دیگران برای سبزکردن ممنوع است — پس ترمز وقتی کلیدِ سقف **نباشد** (نتیجهٔ
+    دست‌ساز یا کهنه) به همان خام برمی‌گردد، و وقتی باشد (هر دو تولیدکنندهٔ زنده،
+    organism.py و brain_worker.py، از همین `neural_beat` می‌گذرند) سقف می‌بیند.
+    """
+    try:
+        bi = (result or {}).get("brain_inputs")
+        if not isinstance(bi, dict):
+            return
+        raw = float(bi.get("learned_pressure", 0.0) or 0.0)
+        bi[LEARNED_PRESSURE_CAPPED_KEY] = round(
+            min(raw, LEARNED_PRESSURE_CEILING), 3)
+    except (TypeError, ValueError, AttributeError):   # noqa: BLE001 — سقف تیک را نمی‌کشد
+        return
+
+
 def make_neural_stack():
     """ساختِ NeuralDriver + Hebbian + Consolidation.
     پشتِ OCTOPUS_WIRE_NEURAL. اگر خاموش → None.
@@ -1122,7 +1381,10 @@ def neural_beat(neural_stack, beat: int, snap_inputs: dict | None = None) -> dic
         # FIX #310 (2026-07-28): نمونهٔ bcm_signals را به evaluate پاس بده تا برای
         # اولین‌بار وزن‌های آموخته‌شده در brain_inputs fold بشن. اگر نباشد → None
         # و learned_pressure=0 (backward compat). اعمال پشت flag جداگانه.
-        _bcm_for_eval = neural_stack.get("bcm_signals") if isinstance(neural_stack, dict) else None
+        # منبعِ نامدار (نه literalِ پراکنده) — `_derive_learned_pressure_cap` توضیح
+        # می‌دهد چرا repointِ این یک خط به `"bcm"` یعنی halt بی‌قیدوشرط.
+        _bcm_for_eval = (neural_stack.get(NEURAL_EVAL_BCM_SOURCE)
+                         if isinstance(neural_stack, dict) else None)
         result = driver.evaluate(
             beat=beat,
             rhythm=inputs.get("rhythm"),
@@ -1130,6 +1392,8 @@ def neural_beat(neural_stack, beat: int, snap_inputs: dict | None = None) -> dic
             spectral=inputs.get("spectral"),
             budget=inputs.get("budget"),
             bcm=_bcm_for_eval)
+        # سقفِ learned_pressure را **کنارِ** مقدارِ خام بگذار (خام دست‌نخورده).
+        _derive_learned_pressure_cap(result)
         # hebbian observe
         signals = _hebbian_signals(inputs)
         # ۲۰۲۷-۰۷-۲۷، مشاهدهٔ زنده بعد از ری‌استارت: جدول سه دقیقه **کاملاً ثابت**
@@ -1144,9 +1408,15 @@ def neural_beat(neural_stack, beat: int, snap_inputs: dict | None = None) -> dic
         # درستش الگوی متعارفِ هبی است: **decay پیوسته، تقویت رویدادمحور.**
         # فقط در حالتِ rich تغییر می‌کند؛ مسیرِ قدیمی بایت‌به‌بایت دست‌نخورده.
         if flag("OCTOPUS_HEBBIAN_RICH"):
-            neural_stack["hebbian"].decay()       # هر تیک، چه سیگنالی باشد چه نه
-            if len(set(signals or [])) >= 2:      # جفت فقط با ≥۲ انحرافِ هم‌زمان
-                neural_stack["hebbian"].observe(signals)
+            # ۲۰۲۶-۰۷-۳۰ — ساعتِ رویدادی پشتِ فلگِ جدا و پیش‌فرض خاموش.
+            # با فلگ خاموش، دو خطِ else بایت‌به‌بایت همان مسیرِ ۲۰۲۶-۰۷-۲۷ است
+            # (که اندازه‌گیری نشان داد جدول را ~۹۳٪ وقت خالی نگه می‌دارد).
+            if flag("OCTOPUS_HEBBIAN_EVENTCLOCK"):
+                _hebbian_eventclock_beat(neural_stack, signals)
+            else:
+                neural_stack["hebbian"].decay()   # هر تیک، چه سیگنالی باشد چه نه
+                if len(set(signals or [])) >= 2:  # جفت فقط با ≥۲ انحرافِ هم‌زمان
+                    neural_stack["hebbian"].observe(signals)
         elif signals:
             neural_stack["hebbian"].observe(signals)
         else:
@@ -1157,7 +1427,30 @@ def neural_beat(neural_stack, beat: int, snap_inputs: dict | None = None) -> dic
             if inputs.get("acquisition"):
                 sources["acquisition"] = inputs["acquisition"]
             if sources:
-                neural_stack["consolidation"].run(sources)
+                _cons_res = neural_stack["consolidation"].run(sources)
+                # ۲۰۲۶-۰۷-۲۸ — **دو نویسنده روی یک تاریخچه**، و پرتکرارش فقیر بود.
+                # این مسیر هر ۱۰ ضربان (~۱۰ دقیقه) رکورد می‌نوشت و مسیرِ canonical
+                # هر ۷۲۰ ضربان (~۱۲ ساعت) رکوردِ **غنی**. نتیجه: از ۵۳۷ ردیف، صفر
+                # تا بردار داشتند — نه چون بردار ساخته نمی‌شد، بلکه چون ۹۸٪ ردیف‌ها
+                # از نویسنده‌ای می‌آمدند که `latent_space` اصلاً در دستش نبود
+                # (`make_neural_stack` آن را نمی‌سازد).
+                # همین نویسنده عاملِ «۵۳۷ ردیف با ~۲۱ جملهٔ یکتا» هم هست.
+                # اینجا همان ابزار به او داده می‌شود: latent_space یک‌بار ساخته و
+                # در stack کش می‌شود (نه هر ۱۰ ضربان از نو). پیش‌فرض خاموش.
+                if flag("OCTOPUS_WIRE_LATENT_PERSIST") and _cons_res is not None:
+                    try:
+                        _ls = neural_stack.get("latent_space")
+                        if _ls is None:
+                            from neural.latent_space import SharedLatentSpace as _SLS
+                            _ls = _SLS()
+                            neural_stack["latent_space"] = _ls
+                        _enrich_with_latent(_cons_res, sources, None, _ls)
+                        _c = neural_stack["consolidation"]
+                        if hasattr(_c, "sync_latent"):
+                            _c.sync_latent(_cons_res)
+                    except Exception as _nle:  # noqa: BLE001 — latent هرگز tick را نمی‌کشد
+                        opslib.alert([f"neural_beat latent خطا: "
+                                      f"{type(_nle).__name__}: {_nle}"])
         # ── تغذیهٔ BCM (۲۰۲۶-۰۷-۲۷) ───────────────────────────────────────────
         # `bcm-weights.json` بعد از ۶۵ قدم `keys: {}` داشت. علت در امضای خودِ
         # `BCM.step(activations, known_keys)` است: **هرگز خودش کلید نمی‌سازد**، فقط
@@ -1212,7 +1505,16 @@ def neural_beat(neural_stack, beat: int, snap_inputs: dict | None = None) -> dic
                      "protective": _pain.get("protective"),
                      # FIX #310 (2026-07-28): برای اولین‌بار، ثبتِ آنچه یادگیری می‌گفت.
                      # این فیلدها تنها زمانی غیرصفرند که bcm تغذیه شده باشد و وزن یاد گرفته باشد.
+                     # ⚠️ این فیلد **خام** است و خام می‌ماند — سریِ ۳۷۲۶ ردیفیِ
+                     # همین نام همان چیزی است که رأیِ مالک روی آن گرفته می‌شود
+                     # (۸۵۳ ردیفش از سقفِ ۰.۲۵ بالاتر است؛ دست‌کاری‌اش یعنی عوض‌شدنِ
+                     # معنیِ یک فیلد در میانهٔ سری). `_derive_learned_pressure_cap`.
                      "learned_pressure": _bi.get("learned_pressure", 0.0),
+                     # فیلدِ **تازه** (۲۰۲۶-۰۷-۳۰): همان مقدار با سقفِ ایمنی —
+                     # چیزی که ترمز واقعاً می‌بیند. اضافه‌شدنِ نامِ نو سری را
+                     # نمی‌شکند؛ ردیفِ قدیمی صرفاً این کلید را ندارد.
+                     LEARNED_PRESSURE_CAPPED_KEY:
+                         _bi.get(LEARNED_PRESSURE_CAPPED_KEY, 0.0),
                      "learned_top_signal": _bi.get("learned_top_signal", ""),
                      "learned_n_keys": _bi.get("learned_n_keys", 0),
                      # زمینه، تا بعداً بشود سنجید درست می‌گفت یا نه:
@@ -1231,6 +1533,57 @@ def neural_beat(neural_stack, beat: int, snap_inputs: dict | None = None) -> dic
 # S · protective-override — غیرقابل‌سرکوب توسط orchestrator
 # ════════════════════════════════════════════════════════════════════════════════
 
+# ⚠️ ۲۰۲۶-۰۷-۲۸ — نقصِ اندازه‌گیری‌شده: `severity` در مسیرِ تولید **وجود ندارد**.
+# `NeuralDriver.evaluate` (neural/neural_driver.py:126-127) رفلکس‌ها را این‌طور
+# تصویر می‌کند: `{"name":…, "triggered":…, "action":…}` — و `severity` را می‌اندازد.
+# ولی دو شاخهٔ زیر دقیقاً روی `r.get("severity")` تصمیم می‌گیرند. یعنی روی مسیرِ
+# زنده، هر دو شاخهٔ critical و high **مرده**اند: پروبِ مستقیم با
+# sigma=2.0/budget=0.95/afferent=0.0/RED هر ۵ رفلکس را triggered کرد و هیچ‌کدام
+# کلیدِ severity نداشت. تنها شاخهٔ زندهٔ این تابع `pain > threshold` است.
+# این نقشه آینهٔ `neural/reflex.py` است (همان فایل تنها تولیدکنندهٔ این نام‌هاست)؛
+# تستِ drift آن را pin می‌کند تا اگر reflex.py عوض شد، اینجا بی‌صدا کهنه نشود:
+#   `_ops/tests/test_pain_calibration.py::t_severity_map_matches_reflex_module`
+_REFLEX_SEVERITY = {
+    "sigma-throttle": "critical",
+    "pain-protect": "critical",
+    "budget-slow": "high",
+    "disconnect-alarm": "high",
+    "red-pause": "high",
+    "all-clear": "low",
+}
+
+
+def _reflex_severity(r: dict) -> str:
+    """severityِ یک رفلکس — با بازیابیِ نامِ‌محورِ فلگ‌دار.
+
+    فلگ خاموش (پیش‌فرض) → دقیقاً همان `r.get("severity")`ِ قبلی؛ رکوردِ بدونِ
+    severity رشتهٔ خالی می‌دهد و هیچ شاخه‌ای را باز نمی‌کند (بایت‌به‌بایتِ امروز).
+    فلگ OCTOPUS_REFLEX_SEVERITY_RECOVER روشن → severity از نامِ رفلکس بازسازی
+    می‌شود و شاخه‌های critical/high برای اولین‌بار روی مسیرِ زنده قابلِ‌رسیدن
+    می‌شوند. این جهت **فقط محافظت را اضافه می‌کند** (هیچ شاخه‌ای بسته نمی‌شود)."""
+    s = r.get("severity")
+    if s:
+        return str(s)
+    if flag("OCTOPUS_REFLEX_SEVERITY_RECOVER"):
+        return _REFLEX_SEVERITY.get(str(r.get("name") or ""), "")
+    return ""
+
+
+def _pain_threshold() -> tuple[float, str]:
+    """آستانهٔ دردِ فعال + متنِ آن برای reason. پیش‌فرض = ۰.۷۰ی تاریخی.
+
+    فلگ OCTOPUS_PAIN_THRESHOLD_CALIBRATED → آستانهٔ داده‌محورِ
+    `neural.nociceptor.PROTECTIVE_THRESHOLD_CALIBRATED` (مستندِ توزیع در همان فایل).
+    fail-safe: اگر import شکست، به رفتارِ امروز برمی‌گردیم نه به آستانهٔ حدسی."""
+    if flag("OCTOPUS_PAIN_THRESHOLD_CALIBRATED"):
+        try:
+            from neural.nociceptor import PROTECTIVE_THRESHOLD_CALIBRATED as _cal
+            return float(_cal), f"{float(_cal):.2f}"
+        except Exception:  # noqa: BLE001 — ترمز هرگز به‌خاطرِ import نمی‌میرد
+            pass
+    return 0.7, "0.7"
+
+
 def protective_override(neural_result: dict | None) -> dict:
     """بررسیِ protective signals. اگر خطر → override غیرقابل‌سرکوب.
     خروجی: {override: bool, action: str, reason: str}.
@@ -1241,6 +1594,14 @@ def protective_override(neural_result: dict | None) -> dict:
     باشه. این flag در OCTOPUS-flags.cmd نیست → default-off. رأیِ مالک بعد از دیدنِ
     ۲۴-۴۸h shadow (OCTOPUS_NEURAL_EFFECT_SHADOW) آن را روشن می‌کند. تا آن زمان،
     این تابع byte-identical با نسخهٔ قبلی است.
+
+    ۲۰۲۶-۰۷-۲۸ (WS-C، کالیبراسیونِ ترمز): دو فلگِ تازه، هر دو پیش‌فرض خاموش و هر
+    دو فقط «محافظت‌افزا» (مجموعهٔ شلیک ابرمجموعهٔ امروز است، هرگز زیرمجموعه):
+      · OCTOPUS_PAIN_THRESHOLD_CALIBRATED — آستانهٔ ۰.۷۰ → ۰.۳۵ی داده‌محور.
+        روی ۲۲۱۴ تیکِ ثبت‌شده، درد هرگز از ۰.۱۵۰ بالاتر نرفت (۲۶σ فاصله تا ۰.۳۵)
+        پس این فلگ روی رژیمِ سالمِ ضبط‌شده **صفر** halt تولید می‌کند.
+      · OCTOPUS_REFLEX_SEVERITY_RECOVER — بازگرداندنِ `severity`ی که تصویرِ
+        تولید می‌اندازد؛ بدونِ آن، شاخه‌های critical/high روی مسیرِ زنده مرده‌اند.
     """
     if neural_result is None:
         return {"override": False, "action": "none", "reason": "no neural data"}
@@ -1253,27 +1614,35 @@ def protective_override(neural_result: dict | None) -> dict:
     _learned_note = ""
     if flag("OCTOPUS_NEURAL_LEARNED_APPLY"):
         _bi = neural_result.get("brain_inputs") or {}
-        _lp = float(_bi.get("learned_pressure", 0.0) or 0.0)
+        # ۲۰۲۶-۰۷-۳۰ — ترمز مقدارِ **سقف‌خورده** را می‌خواند، نه فیلدِ خامِ مالک.
+        # مسیرِ زنده همیشه کلیدِ سقف را دارد (`neural_beat` می‌گذاردش). نتیجهٔ
+        # دست‌ساز/کهنه که آن کلید را ندارد → همان خام، بایت‌به‌بایتِ رفتارِ قبلی
+        # (پینِ `test_neural_loop_close.py::t_apply_flag_on_combines_learned`).
+        _lp = float(_bi.get(LEARNED_PRESSURE_CAPPED_KEY,
+                            _bi.get("learned_pressure", 0.0)) or 0.0)
         if _lp > 0:
             # combine: pain خام + فشارِ یادگرفته‌شده (محدود به 1.0)
             pain = min(1.0, pain + _lp * 0.5)   # ضریبِ 0.5 = محافظه‌کارانه
             _learned_note = f" [+learned={_lp:.2f}:{_bi.get('learned_top_signal','')}]"
 
-    # pain > 0.7 → protective redirect (غیرقابل‌سرکوب)
-    if pain > 0.7:
+    # pain > آستانه → protective redirect (غیرقابل‌سرکوب)
+    # آستانهٔ پیش‌فرض همان ۰.۷۰ است؛ کالیبرهٔ داده‌محور پشتِ فلگ (توزیع در
+    # neural/nociceptor.py مستند شده: ۲۲۱۴ تیک، بیشینه ۰.۱۵۰، صفر شلیک).
+    _thr, _thr_txt = _pain_threshold()
+    if pain > _thr:
         return {"override": True, "action": "protective_halt",
-                "reason": f"pain={pain:.2f}>0.7{_learned_note} — non-essential paused",
+                "reason": f"pain={pain:.2f}>{_thr_txt}{_learned_note} — non-essential paused",
                 "suppressible": False}   # ← کلید: غیرقابل‌سرکوب
 
     # reflex triggered → throttle
-    critical = [r for r in triggered if r.get("severity") == "critical"]
+    critical = [r for r in triggered if _reflex_severity(r) == "critical"]
     if critical:
         return {"override": True, "action": "throttle",
                 "reason": f"critical reflex: {critical[0].get('name')}{_learned_note}",
                 "suppressible": False}
 
     # high reflex → warning (قابل‌سرکوب ولی logged)
-    high = [r for r in triggered if r.get("severity") == "high"]
+    high = [r for r in triggered if _reflex_severity(r) == "high"]
     if high:
         return {"override": False, "action": "warn",
                 "reason": f"high reflex: {high[0].get('name')}{_learned_note}",
@@ -1443,6 +1812,13 @@ def canonical_consolidation(neural_stack, school_bridge=None,
         if latent_space is not None and result is not None:
             try:
                 _enrich_with_latent(result, sources, school_bridge, latent_space)
+                # ۲۰۲۶-۰۷-۲۸ — بازگرداندنِ غنی‌سازی به دیسک. `run()` رکورد را
+                # **قبل از** این خط ذخیره کرده، پس mutation ِ بالا فقط روی شیء
+                # می‌نشست: ۵۳۶ ردیفِ تثبیت همه `latent_vector: null` داشتند در
+                # حالی که ایندکسِ بازیابی برای همان سیکل وزنِ شلیک‌کرده داشت.
+                # پیش‌فرض خاموش؛ خاموش = رفتارِ قبلی بایت‌به‌بایت.
+                if flag("OCTOPUS_WIRE_LATENT_PERSIST") and hasattr(consolidation, "sync_latent"):
+                    consolidation.sync_latent(result)
             except Exception as _le:  # noqa: BLE001 — latent نباید consolidation را بکشد
                 opslib.alert([f"consolidation latent خطا: {type(_le).__name__}: {_le}"])
         # Phase 3: BCM forgetting (advisory-only، fail-soft — فقط ایندکس retrieval)
@@ -1846,8 +2222,8 @@ def ingest_beat(beat: int = 0) -> dict | None:
     if beat <= 0 or every_n <= 0:
         return None
     epoch = beat // every_n
-    if epoch < 1 or epoch <= _INGEST_STATE["last_epoch"]:
-        return None   # هنوز نوبتِ ingest نیست (پنجرهٔ ضدِ aliasing)
+    if not _epoch_window("ingest", epoch, _INGEST_STATE):
+        return None   # هنوز نوبتِ ingest نیست (پنجرهٔ ضدِ aliasing، بقا از ری‌استارت)
     try:
         _INGEST_STATE["last_epoch"] = epoch
         _syspath(str(_HERE / "afferent"))
@@ -1938,8 +2314,8 @@ def heart_beat(beat: int = 0, snap: dict | None = None) -> dict | None:
     if beat <= 0 or every_n <= 0:
         return None
     epoch = beat // every_n
-    if epoch < 1 or epoch <= _HEART_STATE["last_epoch"]:
-        return None   # هنوز نوبتِ قلب نیست (پنجرهٔ ضدِ aliasing)
+    if not _epoch_window("heart", epoch, _HEART_STATE):
+        return None   # هنوز نوبتِ قلب نیست (پنجرهٔ ضدِ aliasing، بقا از ری‌استارت)
     try:
         _syspath(str(_HERE))
         from heart import shadow as _shadow
@@ -2413,6 +2789,55 @@ def business_legs_beat(beat: int = 0, write: bool = True) -> dict | None:
     return result
 
 
+# ── زیر-OSِ Mining ────────────────────────────────────────────────────────────
+# ۲۰۲۶-۰۷-۲۸ — **بازسازیِ سیم‌کشیِ گم‌شده.** بستهٔ `mining_os/` در `88aaa29` کامیت شد
+# (۲۴ فایل، ۳۲ تستِ سبز) ولی هوکِ صداکننده‌اش هرگز کامیت نشد. `mining_os/ACTIVATION.md`
+# می‌گفت «وصل‌شده به organism.py:712» — آن خط بلوکِ **فیشر** است، و grep روی کلِ `_ops`
+# صفر ارجاع به mining_os می‌داد. یعنی یک بستهٔ کامل با تست‌های سبز که هیچ‌وقت اجرا
+# نمی‌شد: «سبز به‌خاطرِ نبودِ صداکننده». فلگ هم وجود نداشت، پس «روشن‌کردنِ فلگ» ممکن نبود.
+_MINING_OS_DIR = _HERE.parent / "03 - Projects" / "Mining"   # از __file__، پس worktree-safe
+
+
+def mining_os_beat(beat: int = 0, write: bool = True) -> dict | None:
+    """ضربانِ زیر-OSِ Mining → ORGANISM-STATE key «mining_os» + سایدکارِ اتمیک.
+
+    پشتِ OCTOPUS_WIRE_MINING_OS — پیش‌فرض خاموش و **عمداً خارج از PAPER_FULL_FLAGS**
+    (فعال‌سازی فقط با رأیِ صریحِ مالک، هم‌الگویِ asset_map). با فلگِ خاموش → None،
+    یعنی رفتارِ امروز بایت‌به‌بایت. kill-switch مقدم. cadence با
+    CHRONO_MINING_OS_EVERY_N_BEATS (پیش‌فرض ۰ = هر beat، مطابقِ قراردادِ ACTIVATION.md).
+
+    `mining_os.loop.tick` خودش fail-soft است و هرگز استثنا پرت نمی‌کند، ولی **import**ش
+    می‌تواند شکست بخورد (پوشهٔ پروژه جابه‌جا/غایب) — پس اینجا هم try. propose-only مطلق:
+    فقط‌خواندنی، صفر spend/outward/SSH (D-20)، wallet همیشه False (D-11)."""
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None   # kill-switch مقدم
+    if not flag("OCTOPUS_WIRE_MINING_OS"):
+        return None   # flag خاموش = «not wired» (رفتارِ امروز، بایت‌به‌بایت)
+    if not _epoch_fire("mining_os", beat,
+                       os.environ.get("CHRONO_MINING_OS_EVERY_N_BEATS", "0")):
+        return None
+    try:
+        _syspath(str(_MINING_OS_DIR))
+        from mining_os.loop import tick as _mining_tick  # noqa: WPS433 — lazy
+        snap = _mining_tick(beat)
+    except Exception as e:  # noqa: BLE001 — زیر-OS نباید tickِ ارگانیسم را بکشد
+        opslib.alert([f"wiring: mining_os_beat خطا: {type(e).__name__}: {e}"])
+        return None
+    result = {"mining_os": snap, "beat": beat}
+    if write:
+        try:
+            sp = opslib.STATE_DIR / "ORGANISM-STATE.mining_os"
+            sp.parent.mkdir(parents=True, exist_ok=True)
+            import json as _json  # noqa: WPS433
+            tmp = sp.with_suffix(".mining_os.tmp")
+            tmp.write_text(_json.dumps({**result, "updated_at": opslib.now_iso()},
+                                       ensure_ascii=False, indent=2), "utf-8")
+            os.replace(tmp, sp)
+        except (OSError, TypeError, ValueError):
+            pass   # fail-soft: سایدکار اختیاری است
+    return result
+
+
 def asset_map_beat(beat: int = 0) -> dict | None:
     """نظارتِ دارایی (ASSET-OVERSIGHT): نقشهٔ داراییِ کل را جمع کن → ORGANISM-STATE key
     «asset_map» + سایدکارِ اتمیکِ ORGANISM-STATE.asset_map.
@@ -2485,7 +2910,7 @@ def acct_beat(beat: int = 0) -> dict | None:
     # شلیک‌ها را از دست می‌دهد؛ الگوی مستندِ درست: هر epoch حداکثر یک شلیک)
     every_n = max(1, int(os.environ.get("CHRONO_ACCT_EVERY_N_BEATS", "240")))
     epoch = beat // every_n
-    if epoch < 1 or epoch <= _ACCT_STATE["last_epoch"]:
+    if not _epoch_window("accounting", epoch, _ACCT_STATE):
         return None
     _ACCT_STATE["last_epoch"] = epoch
     try:
@@ -2640,7 +3065,7 @@ def needs_nudge_beat(channel=None, beat: int = 0) -> dict | None:
     if beat <= 0 or every_n <= 0:
         return None
     epoch = beat // every_n
-    if epoch < 1 or epoch <= _NUDGE_STATE["last_epoch"]:
+    if not _epoch_window("needs_nudge", epoch, _NUDGE_STATE):
         return None
     _NUDGE_STATE["last_epoch"] = epoch
     try:
@@ -2662,8 +3087,27 @@ def needs_nudge_beat(channel=None, beat: int = 0) -> dict | None:
         import datetime as _dt
         now = _dt.datetime.now().timestamp()
         aged = (now - float(st.get("last_ts", 0))) > 86400
-        changed = d["hash"] != st.get("last_hash")
-        should_send = d["n"] > 0 and (changed or (aged and pending))
+        # ۲۰۲۶-۰۷-۲۸ — `stable_hash` به‌جای `hash`: شمارندهٔ هشدار (۱۳→۱۴→۲۵)
+        # متنِ آیتم را عوض می‌کرد و همان سه نگرانی را دوباره «تغییر» می‌نمایاند.
+        h = d.get("stable_hash") or d["hash"]
+        changed = h != st.get("last_hash")
+        # و گاردِ تلاشِ مکرر: تا امروز حالت **فقط بعد از ارسالِ موفق** نوشته
+        # می‌شد، پس هر ارسالِ ناموفق (ساعتِ سکوت، خطای شبکه، یا نگه‌داشتنِ
+        # سیاستِ سطح) یعنی حالت کهنه می‌ماند و همان کارت هر epoch دوباره تلاش
+        # می‌شد. اندازه‌گیری: دو نگه‌داشتهٔ یکسان با فاصلهٔ ۶ دقیقه.
+        # حالا محتوای یکسان حداکثر ساعتی یک‌بار تلاش می‌کند.
+        # ⚠️ اصلاحِ همان روز. نسخهٔ اول شرط را روی `changed` گذاشته بود، ولی
+        # `last_hash` فقط با ارسالِ **موفق** جلو می‌رود. حالا که سیاستِ سطح این
+        # جریان را نگه می‌دارد، ارسالِ موفقی در کار نیست ⇒ `changed` برای همیشه
+        # True ⇒ گارد هرگز شلیک نمی‌کرد. دیده‌بانِ زنده گرفتش، نه سوئیت.
+        #
+        # مُهر باید روی «چه چیزی را آخرین بار **تلاش** کردم» بنشیند، نه «چه چیزی
+        # را رساندم». آن دو یک چیز نیستند، و همین تفاوت کلِ گارد را بی‌اثر کرد.
+        # نتیجه: محتوای یکسان حداکثر ساعتی یک تلاش — چه برسد چه نه؛ و اگر
+        # نگه‌داشتن برداشته شود، ساعتِ بعد دوباره تلاش می‌کند و گم نمی‌شود.
+        same_attempt = (h == st.get("last_attempt_hash"))
+        too_soon = same_attempt and (now - float(st.get("last_attempt", 0))) < 3600
+        should_send = d["n"] > 0 and (changed or (aged and pending)) and not too_soon
         sent = False
         if should_send and channel is not None and getattr(channel, "wired", False):
             body = "\n".join(f"• {it}" for it in d["items"])
@@ -2672,10 +3116,15 @@ def needs_nudge_beat(channel=None, beat: int = 0) -> dict | None:
             sent = bool(_send_stream(channel, 
                 f"🔔 <b>نیازت دارم</b> ({d['n']})\n──────────\n{body}", kb,
                     stream="needs"))
-            if sent:
-                with opslib.LockedJson(st_path) as lj:
-                    lj.write({"last_hash": d["hash"], "last_ts": now,
-                              "last_n": d["n"], "ts": opslib.now_iso()})
+            # حالت **همیشه** نوشته می‌شود، نه فقط بعد از موفقیت.
+            # `last_hash`/`last_ts` فقط با ارسالِ واقعی جلو می‌روند (پس کارتی که
+            # هرگز نرسید بعداً دوباره تلاش می‌کند و گم نمی‌شود)، ولی
+            # `last_attempt` هر بار ثبت می‌شود تا تلاشِ مکرر کران‌دار بماند.
+            with opslib.LockedJson(st_path) as lj:
+                lj.write({"last_hash": h if sent else st.get("last_hash"),
+                          "last_ts": now if sent else float(st.get("last_ts", 0)),
+                          "last_attempt": now, "last_attempt_hash": h,
+                          "last_n": d["n"], "ts": opslib.now_iso()})
         return {"n": d["n"], "changed": changed, "sent": sent}
     except Exception as e:  # noqa: BLE001 — §۴: نوتیف نباید tick را بکشد
         opslib.alert([f"wiring: needs_nudge خطا: {type(e).__name__}: {e}"])
@@ -2718,7 +3167,7 @@ def heartbeat_summary_beat(channel=None, beat: int = 0) -> dict | None:
     if beat <= 0 or every_n <= 0:
         return None
     epoch = beat // every_n
-    if epoch <= _HEARTBEAT_STATE["last_epoch"]:
+    if not _epoch_window("heartbeat", epoch, _HEARTBEAT_STATE, min_epoch=0):
         return None
     _HEARTBEAT_STATE["last_epoch"] = epoch
     try:
@@ -2888,7 +3337,7 @@ def discovery_nudge_beat(channel=None, beat: int = 0) -> dict | None:
     if beat <= 0 or every_n <= 0:
         return None
     epoch = beat // every_n
-    if epoch < 1 or epoch <= _DISCOVERY_STATE["last_epoch"]:
+    if not _epoch_window("discovery", epoch, _DISCOVERY_STATE):
         return None
     _DISCOVERY_STATE["last_epoch"] = epoch
     try:
@@ -2949,18 +3398,42 @@ def _dialogue_gate(state_name: str, new_hash: str, min_interval_s: float,
     now = _time.time()
     age = now - float(st.get("last_ts") or 0)
     changed = st.get("last_hash") != new_hash
+    # ۲۰۲۶-۰۷-۲۸ — گاردِ تلاشِ مکرر. تا امروز `last_ts` فقط بعد از ارسالِ **موفق**
+    # جلو می‌رفت، پس هر ارسالی که نرسید (سیاستِ سطح آن را نگه داشت، شبکه خطا داد،
+    # ساعتِ سکوت) یعنی حالت کهنه می‌ماند و همان کارت **هر تیک** دوباره ساخته و
+    # تلاش می‌شد. اندازه‌گیریِ زنده: سه کارتِ قلب با فاصلهٔ ۴۵ ثانیه، دوتایشان
+    # با **همان ضربان**؛ و `heart-card-nudge.json` از ۰۶:۴۰ یخ‌زده.
+    # همان درسِ needs_nudge، سه ماژول آن‌طرف‌تر: مُهر باید روی «آخرین چیزی که
+    # **تلاش** کردم» بنشیند، نه «آخرین چیزی که رساندم».
+    same_attempt = st.get("last_attempt_hash") == new_hash
+    attempt_age = now - float(st.get("last_attempt_ts") or 0)
+    if same_attempt and attempt_age < min(float(min_interval_s or 0), 3600.0):
+        return False
     if force:
         return age > 300
     return changed and age > min_interval_s
 
 
-def _dialogue_mark(state_name: str, new_hash: str) -> None:
+def _dialogue_mark(state_name: str, new_hash: str, *, sent: bool = True) -> None:
+    """مُهرِ دیالوگ. `sent=False` یعنی تلاش شد ولی نرسید.
+
+    `last_hash`/`last_ts` فقط با ارسالِ واقعی جلو می‌روند — پس کارتی که هرگز
+    نرسید بعداً دوباره تلاش می‌شود و گم نمی‌شود. ولی `last_attempt_*` همیشه
+    ثبت می‌شود تا تلاشِ مکرر کران‌دار بماند.
+    """
     import json as _json
     import time as _time
     p = opslib.STATE_DIR / state_name
+    now = _time.time()
+    try:
+        old = _json.loads(p.read_text("utf-8")) if p.exists() else {}
+    except (OSError, ValueError):
+        old = {}
     try:
         with opslib.LockedJson(p) as lj:
-            lj.write({"last_hash": new_hash, "last_ts": _time.time(),
+            lj.write({"last_hash": new_hash if sent else old.get("last_hash"),
+                      "last_ts": now if sent else float(old.get("last_ts") or 0),
+                      "last_attempt_hash": new_hash, "last_attempt_ts": now,
                       "ts": opslib.now_iso()})
     except Exception:  # noqa: BLE001
         pass
@@ -2985,8 +3458,7 @@ def doctor_digest_beat(channel=None, beat: int = 0) -> dict | None:
                 {"text": "🩺 تبِ دکتر", "callback_data": "menu:doctor"}]]}
             sent = bool(_send_stream(channel, d["text"], kb,
                 stream="doctor"))
-            if sent:
-                _dialogue_mark("doctor/digest-nudge.json", d["hash"])
+            _dialogue_mark("doctor/digest-nudge.json", d["hash"], sent=sent)
         return {"sent": sent, "rfc_open": d.get("rfc_open"), "beat": beat}
     except Exception as e:  # noqa: BLE001 — دیالوگ نباید tick را بکشد
         opslib.alert([f"wiring: doctor_digest_beat خطا: {type(e).__name__}: {e}"])
@@ -3023,8 +3495,7 @@ def brain_digest_beat(channel=None, beat: int = 0) -> dict | None:
             head = "🚨 تنشِ مغز 🔴 شد!\n" if red_flip else ""
             sent = bool(_send_stream(channel, head + d["text"], kb,
                 stream="brain"))
-            if sent:
-                _dialogue_mark("cortex/brain-digest-nudge.json", d["hash"])
+            _dialogue_mark("cortex/brain-digest-nudge.json", d["hash"], sent=sent)
         return {"sent": sent, "red_flip": red_flip,
                 "debate_pending": d.get("debate_pending"), "beat": beat}
     except Exception as e:  # noqa: BLE001 — دیالوگ نباید tick را بکشد
@@ -3056,10 +3527,56 @@ def heart_card_beat(channel=None, beat: int = 0) -> dict | None:
                 {"text": "📊 وضعیت", "callback_data": "menu:overview"}]]}
             sent = bool(_send_stream(channel, d["text"], kb,
                 stream="heart"))
-            if sent:
-                _dialogue_mark("pulse/heart-card-nudge.json", d["hash"])
+            _dialogue_mark("pulse/heart-card-nudge.json", d["hash"], sent=sent)
         return {"sent": sent, "stalled": d.get("stalled"),
                 "alerts": len(d.get("alerts") or []), "beat": beat}
     except Exception as e:  # noqa: BLE001 — دیالوگ نباید tick را بکشد
         opslib.alert([f"wiring: heart_card_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
+def leg_rooms_beat(beat: int = 0, channel=None, legs: dict | None = None,
+                   now: float | None = None) -> dict | None:
+    """به پاها در اتاقِ خودشان صدا بده — فقط وقتی وضعیتشان عوض شده.
+
+    ۲۰۲۶-۰۷-۲۸ (رأیِ مالک «گروه و پاها همه‌رو اتصالات رو کدنویسی کن»): ۷ تاپیکِ
+    گروه از روزِ ساختشان یک پیام هم نگرفته بودند. علتش نبودِ نگاشت نبود —
+    `surface_policy.LEG_TOPIC` درست بود — بلکه این بود که در کلِ این فایل فقط
+    **پنج** جریان تولید می‌شد (needs, discovery, doctor, brain, heart) و
+    هیچ‌کدام پا نبود. این beat آن حفرهٔ تولید را پر می‌کند.
+
+    محتوا اختراع نمی‌شود: همان سلولِ `business_legs` که از قبل ساخته می‌شد و
+    فقط در کارتِ جمعیِ `/organs` دیده می‌شد. مسیرِ ارسال هم همان `_send_stream`
+    است، پس `surface_policy` تصمیمِ اتاق را می‌گیرد نه این تابع.
+
+    `due`/`mark` عمداً جدایند: اگر ارسال شکست بخورد هیچ‌چیز mark نمی‌شود و دورِ
+    بعد دوباره تلاش می‌شود — علامت‌زدنِ **قصد** به‌جای **اثر** همان اشتباهی است
+    که این هفته سه بار پیدا شد.
+    """
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None                      # kill-switch مقدم
+    try:
+        _syspath(str(_HERE / "legs"))
+        import leg_room_report as _lrr   # noqa: WPS433 — lazy، خودش فلگ را چک می‌کند
+        if not _lrr.enabled():
+            return {"sent": 0, "flag": "off", "beat": beat}
+        if legs is None:
+            got = business_legs_beat(beat, write=False) or {}
+            legs = got.get("business_legs") or {}
+        pending = _lrr.due(legs, now=now)
+        if not pending:
+            return {"sent": 0, "due": 0, "beat": beat}
+        if channel is None or not getattr(channel, "wired", False):
+            # کانال نیست: هیچ mark نمی‌کنیم، پس وقتی بیاید همه‌شان می‌رسند.
+            return {"sent": 0, "due": len(pending), "no_channel": True,
+                    "beat": beat}
+        done = []
+        for leg, text, h in pending:
+            if bool(_send_stream(channel, text, None, stream=leg)):
+                done.append((leg, h))
+        _lrr.mark(done, now=now)
+        return {"sent": len(done), "due": len(pending),
+                "legs": [l for l, _ in done], "beat": beat}
+    except Exception as e:  # noqa: BLE001 — اتاقِ پاها نباید tick را بکشد
+        opslib.alert([f"wiring: leg_rooms_beat خطا: {type(e).__name__}: {e}"])
         return None

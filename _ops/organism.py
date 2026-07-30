@@ -605,6 +605,14 @@ def main() -> int:
                         _err_rate = min(1.0, max(0.0, float(_sj.get("organism_stress", 0.0) or 0.0)))
                     except Exception:  # noqa: BLE001 — فایلِ غایب/خراب = صفر (رفتارِ قبلی)
                         _err_rate = 0.0
+                    # ⚠️ شکلِ این payload یک **قرارداد** است، نه جزئیاتِ محلی:
+                    # `wiring.NEURAL_PAYLOAD_CONTRACT` آینه‌اش است و
+                    # `wiring.SIGNAL_DORMANT` می‌گوید کدام سیگنالِ واژگان
+                    # به‌خاطرِ همین شکل ساختاراً مرده است (اندازه‌گیریِ
+                    # ۲۰۲۶-۰۷-۳۰: از ۸ نام، فقط ۲ نام تا امروز آتش کرده).
+                    # کلیدِ تازه اینجا = آپدیتِ آن دو، وگرنه تستِ driftِ
+                    # دوطرفه قرمز می‌شود:
+                    #   _ops/tests/test_hebbian_eventclock.py
                     _neural_r = _w.neural_beat(_neural_stack, _beat_n, {
                         "rhythm": _rhythm_state or pulse.get("chrono", {}),
                         "budget": {"pct": opslib.usd(snap["month"].get("musd", 0)) / max(opslib.load_budgets().get("global", {}).get("cap_monthly", 30), 1)},
@@ -677,6 +685,30 @@ def main() -> int:
                                                     ("review_pending", "queue_open")}
                 except Exception as _spe:  # noqa: BLE001
                     opslib.alert([f"self_patch error (non-fatal): {type(_spe).__name__}: {_spe}"])
+                # ── صدای پاها (۲۰۲۶-۰۷-۲۸، رأیِ مالک «گروه بشه پایگاهِ پروژه‌ها
+                # و پاها»): هر پا وقتی **وضعیتش عوض شود** در اتاقِ خودش می‌گوید.
+                # کادنسِ epoch عمدی است — تغییرِ حالِ یک پا کُند است و گزارشِ
+                # پرتکرار همان چیزی است که گروه را به لولهٔ سروصدا تبدیل کرد.
+                #
+                # ⚠️ این خط دقیقاً همان چیزی است که نبودش کلِ فیچر را مرده
+                # می‌کرد: ماژول و beat و ۱۱ تست وجود داشتند و **صفر صداکننده**.
+                # قبل از مسلح‌کردنِ فلگ با AST شمرده شد؛ ۱۶ صداکننده بود و هر
+                # ۱۶ تا در فایلِ تست. `test_leg_rooms.t_l` این را قفل می‌کند.
+                try:
+                    # ⚠️ `_beat_n` نه `beat`: در `main()` متغیری به نامِ `beat`
+                    # وجود ندارد. نسخهٔ اولِ همین خط `beat` نوشت — NameError
+                    # می‌داد، `except` پایین می‌بلعیدش، یک alert می‌رفت که کسی
+                    # نمی‌خواند، و فیچر تا ابد بی‌صدا مرده می‌ماند. `_beat_n`
+                    # در خطِ ۵۹۰ ست می‌شود و ممکن است هنوز نباشد اگر شاخهٔ
+                    # بالاتر رد شده باشد، پس با locals() امن گرفته می‌شود.
+                    _lrr = _w.leg_rooms_beat(int(locals().get("_beat_n", 0) or 0),
+                                             channel=_chan)
+                    if _lrr and _lrr.get("sent"):
+                        epoch_info["leg_rooms"] = {k: _lrr.get(k)
+                                                  for k in ("sent", "legs")}
+                except Exception as _lre:  # noqa: BLE001
+                    opslib.alert([f"leg_rooms error (non-fatal): "
+                                  f"{type(_lre).__name__}: {_lre}"])
                 # ── ابتکار (۲۰۲۶-۰۷-۲۷، رأیِ مالک «آره، و حتی از من سؤال بپرسد»)
                 # تا امروز رابطه یک‌طرفه بود. این‌جا اختاپوس می‌تواند خودش شروع کند —
                 # خبر بدهد یا **سؤال بپرسد**. سکوت پیش‌فرض است: سقفِ ۲/روز، فاصلهٔ
@@ -692,6 +724,40 @@ def main() -> int:
                         epoch_info["initiative"] = {"kind": _ivr.get("kind")}
                 except Exception as _ive:  # noqa: BLE001
                     opslib.alert([f"initiative error (non-fatal): {type(_ive).__name__}: {_ive}"])
+                # ── درخواستِ ابزار (۲۰۲۶-۰۷-۳۰، رأیِ مالک «هرچی میخواد ابزارشو
+                # پیدا کنه از من بخواد») — یکی از سه سنجهٔ خودآگاهی در آزمونِ ۷ روزه.
+                # لاینِ سهمیهٔ **جدا** از initiative دارد: آن سقفِ ۲/روز با فاصلهٔ ۴
+                # ساعت داشت و درخواستِ ابزار بی‌صدا زیرش گم می‌شد. `scan` خودش قبل
+                # از خرجِ مغز گیتِ سهمیه را می‌بیند، و هر درخواست — حتی throttle‌شده
+                # — در دفتر ثبت می‌شود تا «نپرسید» از «پرسید ولی نرسید» جدا بماند.
+                try:
+                    import tool_request as _tr   # noqa: WPS433 — lazy، خودش flag را چک می‌کند
+                    _trr = _tr.scan(cycle=str(_cstat.get("beat", 0) if _cstat else 0))
+                    if _trr.get("ok") and _trr.get("delivered") and _chan is not None:
+                        _t, _k = _tr.card_for(_trr)
+                        _chan.send_text(_t, reply_markup={"inline_keyboard": _k},
+                                        stream="summary")
+                        epoch_info["tool_request"] = {
+                            "precise": _trr.get("precise"),
+                            "blocking": _trr.get("blocking")}
+                except Exception as _tre:  # noqa: BLE001 — §۴: نباید tick را بکشد
+                    opslib.alert([f"tool_request error (non-fatal): "
+                                  f"{type(_tre).__name__}: {_tre}"])
+                # ── بردِ بازیابی (۲۰۲۶-۰۷-۳۰) — سنجهٔ «به یاد می‌آورد؟».
+                # `recall_reach` از قبل نوشته شده بود ولی صفر صداکننده داشت، پس
+                # فقط عکسِ لحظه‌ای می‌داد؛ و یک عدد روند نیست. این‌جا مهر می‌خورد
+                # و در سری می‌نشیند تا پایانِ ۷ روز قابلِ مقایسه باشد. فقط‌خواندنی
+                # روی `consolidation.json`؛ $0.
+                try:
+                    import recall_trend as _rt   # noqa: WPS433 — lazy، خودش flag را چک می‌کند
+                    _rtr = _rt.sample(cycle=_cstat.get("beat", 0) if _cstat else 0)
+                    if _rtr.get("ok"):
+                        epoch_info["recall_reach"] = {
+                            k: _rtr.get(k) for k in ("events", "reach_median",
+                                                     "self_ratio")}
+                except Exception as _rte:  # noqa: BLE001 — §۴
+                    opslib.alert([f"recall_trend error (non-fatal): "
+                                  f"{type(_rte).__name__}: {_rte}"])
             # Phase 1: epoch-based sweep of stale gated_effects
             try:
                 if chrono is not None:
