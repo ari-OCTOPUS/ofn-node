@@ -850,6 +850,25 @@ class Center:
             pass
         return {"kind": "home", "verb": verb}
 
+    def _send_console_reply(self, reply: dict, src: dict) -> dict:
+        """پاسخِ مامور را به همان چتی که پیام از آن آمد بفرست (همیشه DM ِ مالک —
+        گیتِ adapter فقط core_conversation را رد کرده). fail-soft."""
+        msg = (src.get("message") or {}) if isinstance(src, dict) else {}
+        chat = (msg.get("chat") or {}).get("id")
+        kb = reply.get("keyboard") or None
+        try:
+            cbid = src.get("id") if isinstance(src, dict) else None
+            if cbid:
+                self._client.answer_callback(cbid, "")
+        except Exception:  # noqa: BLE001
+            pass
+        try:
+            self._client.send(_scrub(str(reply.get("text") or "")),
+                              chat_id=chat, keyboard=kb)
+        except Exception:  # noqa: BLE001
+            pass
+        return {"kind": "owner-console", "console_kind": reply.get("kind")}
+
     # ── مسیریابیِ ارسالِ محیطی (رأیِ مالک ۲۰۲۶-۰۷-۳۰: «بله، هر سه را انجام بده») ──
     def _route_send(self, stream: str, text: str, *, cfg=None, keyboard=None,
                     pin: bool = False):
@@ -1006,6 +1025,32 @@ class Center:
                         pass
                 return {"kind": "input-policy", "mode": _d.get("mode"),
                         "reason": _d.get("reason")}
+            # ── مامور (owner_console) — فقط با تصمیمِ مجازِ core_conversation ──
+            # وصل طبقِ HANDOFF-TO-TELEGRAM-SENIOR بعد از سبزیِ ۱۹+۴ سنجه و ۹
+            # جهشِ قرمز. adapter مالکیت/سطح را دوباره حدس نمی‌زند — همان تصمیمِ
+            # _d را می‌گیرد (identity-strict).
+            # یک انحرافِ سنجیده از اسکریپتِ handoff: پاسخِ `clarify` بلعیده
+            # نمی‌شود — متنِ آزادی که مامور نمی‌فهمد به مسیرِ گفت‌وگوی کاملِ
+            # موجود (مغز) می‌افتد؛ وگرنه وصلِ مامور، چتِ آزادِ مصوبِ Outer DM
+            # را می‌کشت. دکمه‌های oc:* هم این‌جا handler می‌گیرند — بستنِ
+            # کارتِ مردهٔ VQ-OWNER-CONSOLE-001.
+            try:
+                from owner_console import telegram_adapter as _oc
+                _cb = u.get("callback_query")
+                if isinstance(_cb, dict) and str(_cb.get("data") or "").startswith("oc:"):
+                    _r = _oc.handle_callback(str(_cb.get("data") or ""),
+                                             surface_decision=_d)
+                    if _r.get("handled") and _r.get("reply"):
+                        return self._send_console_reply(_r["reply"], _cb)
+                _mg = u.get("message")
+                if isinstance(_mg, dict) and str(_mg.get("text") or "").strip():
+                    _r = _oc.handle_message(str(_mg.get("text") or ""),
+                                            surface_decision=_d)
+                    _rep = _r.get("reply") if _r.get("handled") else None
+                    if _rep and _rep.get("kind") != "clarify":
+                        return self._send_console_reply(_rep, {"message": _mg})
+            except Exception:  # noqa: BLE001 — مامورِ شکسته = مسیرِ قبلی، نه سکوت
+                pass
         except Exception:  # noqa: BLE001 — گیتِ شکسته = رفتارِ قبلی، نه سکوت
             pass
         cbq = u.get("callback_query")
@@ -2435,6 +2480,27 @@ class Center:
         # بالادست (handle_update → _is_owner) از قبل گیت کرده.
         if verb == "hm":
             return self._handle_home_callback(cbq, data)
+        if verb == "oc":
+            # مامور (owner_console) — مسیرِ اصلی در handle_update است (با تصمیمِ
+            # سطحِ کامل)؛ این شاخه هم اعلامِ مسیر برای گاردِ parity است و هم
+            # fallback ِ واقعی وقتی گیتِ بالادست exception خورده باشد. تصمیمِ
+            # سطح همان‌جور ساخته می‌شود — نه حدس، همان classify.
+            try:
+                import input_surface_policy as _isp2
+                from owner_console import telegram_adapter as _oc2
+                _cfg2 = _load_config()
+                _d2 = _isp2.classify(
+                    {"callback_query": cbq}, bot_role="outer",
+                    owner_id=getattr(self._client, "owner_chat_id", None),
+                    group_id=_cfg2.get("chat_id"),
+                    topics=_cfg2.get("topics")
+                    if isinstance(_cfg2.get("topics"), dict) else {})
+                _r2 = _oc2.handle_callback(data, surface_decision=_d2)
+                if _r2.get("handled") and _r2.get("reply"):
+                    return self._send_console_reply(_r2["reply"], cbq)
+            except Exception:  # noqa: BLE001
+                pass
+            return {"kind": "owner-console", "console_kind": "blocked"}
         # 2026-07-29: کارتِ دکترِ اختاپوس callbackِ سه‌تکه دارد (ok|no:gate:mission)؛
         # اگر قبل از fallbackِ ok/no:<id> جدا نشود، به‌عنوانِ approvalِ بی‌ربط ثبت
         # می‌شود و دکتر هرگز رأی را نمی‌بیند. پشتِ OCTOPUS_WIRE_DOCTOR_TG؛ fail-soft.
