@@ -544,6 +544,39 @@ class Center:
                 cfg["status_message_id"] = mid
                 dirty = True
 
+        # ── دستورالعملِ پین‌شدهٔ General (۲۰۲۶-۰۷-۳۰) ──────────────────────────
+        # مالک: «گروه تلگرام هیچی نداره که دستورالعمل». راهنما از قبل در
+        # ابسیدین بود — ولی راهنمایی که در جای دیگری باشد راهنما نیست. یک‌بار
+        # ساخته و پین می‌شود؛ بعد فقط اگر **متن** عوض شد ویرایش می‌شود (هش)،
+        # پس هر restart یک پیامِ تازه نمی‌سازد.
+        try:
+            import hashlib
+            import guide as _gd
+            _gt = _gd.group_text()
+            _gh = hashlib.sha256(_gt.encode("utf-8", "replace")).hexdigest()[:16]
+            _gmid = cfg.get("guide_message_id")
+            if isinstance(_gmid, int) and cfg.get("guide_hash") == _gh:
+                pass                                   # بی‌تغییر — دست نزن
+            elif isinstance(_gmid, int):
+                try:
+                    if self._client.edit(_gmid, _scrub(_gt), chat_id=chat_id):
+                        cfg["guide_hash"] = _gh
+                        dirty = True
+                except Exception:  # noqa: BLE001
+                    pass
+            else:
+                try:
+                    _gmid = self._client.send(_scrub(_gt), chat_id=chat_id,
+                                              pin=True)
+                except Exception:  # noqa: BLE001
+                    _gmid = None
+                if isinstance(_gmid, int):
+                    cfg["guide_message_id"] = _gmid
+                    cfg["guide_hash"] = _gh
+                    dirty = True
+        except Exception:  # noqa: BLE001 — راهنما هرگز راه‌اندازی را نمی‌کشد
+            pass
+
         if dirty:
             _save_config(cfg)
         return True
@@ -1313,7 +1346,16 @@ class Center:
                 if _txb and _d.get("mode") == "core_conversation":
                     import build_cmd as _bc
                     if _bc.is_build_request(_txb):
-                        _res = _bc.enqueue(_bc.strip_prefix(_txb))
+                        _body = _bc.strip_prefix(_txb)
+                        if not _body:
+                            # «بساز:» ِ تنها. حدس نمی‌زنیم — می‌پرسیم.
+                            _res = {"ok": False, "id": None,
+                                    "note": ("چه چیزی بسازم؟ مسیرِ فایل را هم "
+                                             "بنویس.\nمثال: <code>بساز: یک تابع "
+                                             "شمارشِ لید به _ops/cortex/"
+                                             "improve.py اضافه کن</code>")}
+                        else:
+                            _res = _bc.enqueue(_body)
                         _bt = (f"📥 کارِ ساخت ثبت شد: <code>{_res['id']}</code>\n"
                                f"{_res['note']}") if _res.get("ok") else \
                             f"ثبت نشد — {_res.get('note')}"

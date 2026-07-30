@@ -207,12 +207,19 @@ def t_a_double_ensure_setup_idempotent():
     assert c.ensure_setup() is True
     assert len(fc.named("create_topic")) == 8          # هر ۸ پا یک تاپیک
     assert len(fc.named("set_commands")) == 1
+    # ۲۰۲۶-۰۷-۳۰: setup از امروز **دو** پیامِ یک‌بارهٔ پین‌شده می‌سازد —
+    # statusِ زنده و دستورالعملِ استفاده (مالک: «گروه هیچی نداره که
+    # دستورالعمل»). ناوردیِ این تست عدد نیست، «هیچ‌چیز دوبار ساخته نمی‌شود»
+    # است؛ پس شمارشِ خام جایش را به سنجهٔ دقیق‌تر می‌دهد: هر دو پین‌شده‌اند،
+    # و دورِ دوم صفر sendِ تازه.
     sends = fc.named("send")
-    assert len(sends) == 1 and sends[0]["pin"] is True  # status یک‌بار + پین
+    assert len(sends) == 2, [s["text"][:24] for s in sends]
+    assert all(s["pin"] is True for s in sends)         # هر دو پین
+    assert sum("این گروه چطور کار می‌کند" in s["text"] for s in sends) == 1
     assert c.ensure_setup() is True                     # دور دوم
     assert len(fc.named("create_topic")) == 8           # هیچ تاپیکِ تکراری
     assert len(fc.named("set_commands")) == 1
-    assert len(fc.named("send")) == 1                   # status دوباره ساخته نشد
+    assert len(fc.named("send")) == 2                   # هیچ‌کدام دوباره نساخت
     cfg = json.loads(CFG_PATH.read_text("utf-8"))
     assert isinstance(cfg.get("status_message_id"), int)
     assert sorted(cfg.get("topics", {}).keys()) == sorted(ALL_LEGS)

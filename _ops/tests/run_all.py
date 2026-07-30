@@ -246,6 +246,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_approval_actuator.py",
          "test_tg_api.py", "test_tg_actions.py", "test_tg_render.py", "test_tg_center.py",
          "test_tg_power.py",   # 2026-07-17: مرکزِ فرماندهی (مکثِ تک‌پا + ردهٔ قدرتِ دوکلیک)
+         # 2026-07-30: دستورالعملِ استفاده **داخلِ** تلگرام (پینِ General ِ گروه).
+         # مهم‌ترین بندش «هر ادعای راهنما در کد برقرار است» — راهنمای دروغ
+         # فعالانه گمراه می‌کند، بدتر از نبودنش.
+         "test_tg_guide.py",
          "test_tg_mission.py", # 2026-07-18: Mission Genome + Action Graph برای self-coding کنترل‌شده
          "test_tg_mission_runner.py", # 2026-07-18: Runner v0 — اجرای ایزولهٔ allowlisted + evidence
          "test_code_autonomy.py",

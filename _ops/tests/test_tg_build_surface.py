@@ -169,6 +169,26 @@ def t_a_build_request_from_the_group_is_structurally_impossible():
     assert d["mode"] != "core_conversation", d
 
 
+def t_a_bare_build_prefix_asks_instead_of_queueing_nonsense():
+    """«بساز:» ِ تنها نباید یک کارِ ساخت با محتوای «بساز:» بسازد.
+
+    ⚠️ این باگ زنده بود: `strip_prefix` یک `... or t` داشت که بدنهٔ خالی را به
+    خودِ کلمه برمی‌گردانْد. هیچ تستی نگرفتش — با یک **جهش روی راهنما** لو رفت
+    (مثالِ راهنما را به «بساز:» ِ خالی عوض کردم و انتظار داشتم قرمز شود؛ سبز
+    ماند و علتش این بود). قانون: نمی‌دانی ⇒ بپرس، حدس نزن."""
+    assert bc.strip_prefix("بساز:") == ""
+    assert bc.strip_prefix("بساز: ") == ""
+    assert bc.strip_prefix("بساز:  ساخت چیزی") == "ساخت چیزی"
+    # و درزِ مرکز باید بدنهٔ خالی را قبل از enqueue بگیرد
+    src = (_OPS / "telegram_center" / "center.py").read_text("utf-8")
+    i = src.index("_bc.is_build_request(_txb)")
+    seam = src[i:i + 900]
+    assert "_body = _bc.strip_prefix" in seam, "بدنه جدا نمی‌شود"
+    assert seam.index("if not _body") < seam.index("_bc.enqueue"), \
+        "enqueue قبل از سنجشِ خالی بودن ⇒ کارِ بی‌معنی ثبت می‌شود"
+    assert "چه چیزی بسازم؟" in seam, "به‌جای پرسیدن، ساکت می‌مانَد"
+
+
 def t_the_center_wires_the_build_seam_and_the_button():
     import ast
     src = (_OPS / "telegram_center" / "center.py").read_text("utf-8")

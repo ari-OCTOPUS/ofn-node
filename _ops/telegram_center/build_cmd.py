@@ -185,8 +185,14 @@ def is_build_request(text: str) -> bool:
 
 
 def strip_prefix(text: str) -> str:
+    """بدنهٔ درخواست، بدونِ پیشوند. بدنهٔ خالی ⇒ رشتهٔ **خالی**.
+
+    ⚠️ نسخهٔ اول `... or t` داشت: «بساز:» ِ تنها خودِ کلمه را برمی‌گردانْد، پس
+    یک کارِ ساخت با محتوای «بساز:» ثبت می‌شد و مغزِ کد رویش وقت می‌سوزاند.
+    یک جهشِ زندهٔ راهنما لُوش داد. حالا خالی یعنی خالی و مصرف‌کننده می‌پرسد
+    «چه چیزی بسازم؟» — قانونِ «نمی‌دانی، بپرس؛ حدس نزن»."""
     t = str(text or "").strip()
     for p in _BUILD:
         if t.startswith(p) or t.lower().startswith(p):
-            return t[len(p):].strip(" :،") or t
+            return t[len(p):].strip(" :،")
     return t
