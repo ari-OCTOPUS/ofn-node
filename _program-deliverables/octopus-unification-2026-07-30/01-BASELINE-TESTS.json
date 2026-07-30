@@ -65,14 +65,13 @@
    "file": "test_snapshot_compass.py",
    "cwd": "F:\\backup\\_ops\\unified_control\\tests",
    "exit": 0,
-   "pass": 3,
-   "total": 3,
-   "seconds": 0.3,
-   "suspicious_no_count": false,
+   "pass": null,
+   "total": null,
+   "seconds": 0.1,
+   "suspicious_no_count": true,
    "tail": [
     "OK 3"
-   ],
-   "count_source": "OK-N format"
+   ]
   },
   {
    "suite": "unified_control/test_snapshot_staleness",
@@ -81,7 +80,7 @@
    "exit": 0,
    "pass": 10,
    "total": 10,
-   "seconds": 0.2,
+   "seconds": 0.1,
    "suspicious_no_count": false,
    "tail": [
     "  ✅ t_unparseable_json_is_missing_never_authoritative",
@@ -93,56 +92,52 @@
    "file": "test_authority_policies.py",
    "cwd": "F:\\backup\\_ops\\unified_control\\tests",
    "exit": 0,
-   "pass": 4,
-   "total": 4,
+   "pass": null,
+   "total": null,
    "seconds": 0.1,
-   "suspicious_no_count": false,
+   "suspicious_no_count": true,
    "tail": [
     "OK 4"
-   ],
-   "count_source": "OK-N format"
+   ]
   },
   {
    "suite": "unified_control/test_pipeline",
    "file": "test_pipeline.py",
    "cwd": "F:\\backup\\_ops\\unified_control\\tests",
    "exit": 0,
-   "pass": 3,
-   "total": 3,
+   "pass": null,
+   "total": null,
    "seconds": 0.1,
-   "suspicious_no_count": false,
+   "suspicious_no_count": true,
    "tail": [
     "OK 3"
-   ],
-   "count_source": "OK-N format"
+   ]
   },
   {
    "suite": "unified_control/test_runtime_seam",
    "file": "test_runtime_seam.py",
    "cwd": "F:\\backup\\_ops\\unified_control\\tests",
    "exit": 0,
-   "pass": 2,
-   "total": 2,
+   "pass": null,
+   "total": null,
    "seconds": 0.1,
-   "suspicious_no_count": false,
+   "suspicious_no_count": true,
    "tail": [
     "OK 2"
-   ],
-   "count_source": "OK-N format"
+   ]
   },
   {
    "suite": "unified_control/test_translator_graph",
    "file": "test_translator_graph.py",
    "cwd": "F:\\backup\\_ops\\unified_control\\tests",
    "exit": 0,
-   "pass": 5,
-   "total": 5,
+   "pass": null,
+   "total": null,
    "seconds": 0.1,
-   "suspicious_no_count": false,
+   "suspicious_no_count": true,
    "tail": [
     "OK 5"
-   ],
-   "count_source": "OK-N format"
+   ]
   },
   {
    "suite": "wda/test_boundary",
@@ -151,7 +146,7 @@
    "exit": 0,
    "pass": 43,
    "total": 43,
-   "seconds": 0.2,
+   "seconds": 0.5,
    "suspicious_no_count": false,
    "tail": [
     "  ✅ t_42_the_report_preserves_no_valid_discovery",
@@ -163,56 +158,52 @@
    "file": "test_catalog.py",
    "cwd": "F:\\backup\\_ops\\owner_console\\tests",
    "exit": 0,
-   "pass": 5,
-   "total": 5,
-   "seconds": 0.2,
-   "suspicious_no_count": false,
+   "pass": null,
+   "total": null,
+   "seconds": 0.1,
+   "suspicious_no_count": true,
    "tail": [
     "OK 5"
-   ],
-   "count_source": "OK-N format"
+   ]
   },
   {
    "suite": "owner_console/test_conversation",
    "file": "test_conversation.py",
    "cwd": "F:\\backup\\_ops\\owner_console\\tests",
    "exit": 0,
-   "pass": 6,
-   "total": 6,
-   "seconds": 12.1,
-   "suspicious_no_count": false,
+   "pass": null,
+   "total": null,
+   "seconds": 10.4,
+   "suspicious_no_count": true,
    "tail": [
     "OK 6"
-   ],
-   "count_source": "OK-N format"
+   ]
   },
   {
    "suite": "owner_console/test_acceptance_questions",
    "file": "test_acceptance_questions.py",
    "cwd": "F:\\backup\\_ops\\owner_console\\tests",
    "exit": 0,
-   "pass": 4,
-   "total": 4,
-   "seconds": 29.1,
-   "suspicious_no_count": false,
+   "pass": null,
+   "total": null,
+   "seconds": 26.9,
+   "suspicious_no_count": true,
    "tail": [
     "OK 4"
-   ],
-   "count_source": "OK-N format"
+   ]
   },
   {
    "suite": "owner_console/test_telegram_adapter",
    "file": "test_telegram_adapter.py",
    "cwd": "F:\\backup\\_ops\\owner_console\\tests",
    "exit": 0,
-   "pass": 4,
-   "total": 4,
-   "seconds": 2.5,
-   "suspicious_no_count": false,
+   "pass": null,
+   "total": null,
+   "seconds": 2.1,
+   "suspicious_no_count": true,
    "tail": [
     "OK 4"
-   ],
-   "count_source": "OK-N format"
+   ]
   },
   {
    "suite": "owner_console/test_mutation_gaps",
@@ -221,7 +212,7 @@
    "exit": 0,
    "pass": 4,
    "total": 4,
-   "seconds": 1.5,
+   "seconds": 1.1,
    "suspicious_no_count": false,
    "tail": [
     "  ✅ t_the_callback_gate_and_the_message_gate_are_the_same_strictness",
@@ -235,7 +226,7 @@
    "exit": 0,
    "pass": 14,
    "total": 14,
-   "seconds": 0.5,
+   "seconds": 0.4,
    "suspicious_no_count": false,
    "tail": [
     "  ✅ t_two_slots_per_day_are_two_cycles",
@@ -249,7 +240,7 @@
    "exit": 0,
    "pass": 10,
    "total": 10,
-   "seconds": 0.2,
+   "seconds": 0.1,
    "suspicious_no_count": false,
    "tail": [
     "  ✅ t_validate_fails_closed_on_bad_target",
@@ -277,7 +268,7 @@
    "exit": 0,
    "pass": 14,
    "total": 14,
-   "seconds": 0.2,
+   "seconds": 0.1,
    "suspicious_no_count": false,
    "tail": [
     "  ✅ t_traversal_out_of_the_allow_root_is_rejected",
@@ -291,7 +282,7 @@
    "exit": 0,
    "pass": 14,
    "total": 14,
-   "seconds": 0.3,
+   "seconds": 0.1,
    "suspicious_no_count": false,
    "tail": [
     "  ✅ t_without_the_env_the_quota_is_two",
@@ -305,7 +296,7 @@
    "exit": 0,
    "pass": 6,
    "total": 6,
-   "seconds": 0.3,
+   "seconds": 0.2,
    "suspicious_no_count": false,
    "tail": [
     "  ✅ t_f_measure_sees_proposal_router_metrics",
@@ -333,7 +324,7 @@
    "exit": 0,
    "pass": 12,
    "total": 12,
-   "seconds": 0.8,
+   "seconds": 0.9,
    "suspicious_no_count": false,
    "tail": [
     "  ✅ t_l_runnable_missions_filters_by_state_and_allowlist",
@@ -361,13 +352,12 @@
    "exit": 0,
    "pass": null,
    "total": null,
-   "seconds": 0.2,
-   "suspicious_no_count": false,
+   "seconds": 0.3,
+   "suspicious_no_count": true,
    "tail": [
     "  ✅ داده نبود → rate_pct=None (قاعدهٔ صداقت حفظ شد)",
     "PASS — test_honest_outcomes"
-   ],
-   "count_source": "PASS/checkmark format (شمارش چاپ نمی‌کند، assert واقعی دارد — tail شاهد)"
+   ]
   },
   {
    "suite": "memory/test_outcome_spine",
@@ -391,12 +381,11 @@
    "pass": null,
    "total": null,
    "seconds": 0.2,
-   "suspicious_no_count": false,
+   "suspicious_no_count": true,
    "tail": [
     "ok t_e_evaluate_and_drift",
     "PASS test_acct_memory"
-   ],
-   "count_source": "PASS/checkmark format (شمارش چاپ نمی‌کند، assert واقعی دارد — tail شاهد)"
+   ]
   },
   {
    "suite": "spine/test_event_spine",
@@ -433,13 +422,12 @@
    "exit": 0,
    "pass": null,
    "total": null,
-   "seconds": 0.2,
-   "suspicious_no_count": false,
+   "seconds": 0.3,
+   "suspicious_no_count": true,
    "tail": [
     "  ✅ [۴] flag خاموش + idempotent",
     "  ✅ [۵] validate_row رویدادِ بد را رد می‌کند"
-   ],
-   "count_source": "PASS/checkmark format (شمارش چاپ نمی‌کند، assert واقعی دارد — tail شاهد)"
+   ]
   },
   {
    "suite": "spine/test_spine_multidomain",
@@ -448,7 +436,7 @@
    "exit": 0,
    "pass": 9,
    "total": 9,
-   "seconds": 1.5,
+   "seconds": 1.8,
    "suspicious_no_count": false,
    "tail": [
     "  ✅ t_i_zero_external_effect_structural",
@@ -476,7 +464,7 @@
    "exit": 0,
    "pass": 24,
    "total": 24,
-   "seconds": 0.2,
+   "seconds": 0.4,
    "suspicious_no_count": false,
    "tail": [
     "  ✅ t_zz_diagnostics_no_token_leak",
@@ -490,7 +478,7 @@
    "exit": 0,
    "pass": 12,
    "total": 12,
-   "seconds": 0.1,
+   "seconds": 0.4,
    "suspicious_no_count": false,
    "tail": [
     "  ✅ t_unknown_stream_falls_back_to_outer_not_silence",
@@ -504,7 +492,7 @@
    "exit": 0,
    "pass": 12,
    "total": 12,
-   "seconds": 0.3,
+   "seconds": 0.8,
    "suspicious_no_count": false,
    "tail": [
     "  ✅ t_the_home_keyboard_never_exceeds_three_decision_points",
@@ -518,7 +506,7 @@
    "exit": 0,
    "pass": 9,
    "total": 9,
-   "seconds": 0.4,
+   "seconds": 0.5,
    "suspicious_no_count": false,
    "tail": [
     "  ✅ t_the_held_view_summarises_without_echoing_text",
@@ -532,7 +520,7 @@
    "exit": 0,
    "pass": 24,
    "total": 24,
-   "seconds": 1.4,
+   "seconds": 2.0,
    "suspicious_no_count": false,
    "tail": [
     "  ✅ t_what_was_not_sent_is_still_recorded",
@@ -560,7 +548,7 @@
    "exit": 0,
    "pass": 20,
    "total": 20,
-   "seconds": 0.1,
+   "seconds": 0.2,
    "suspicious_no_count": false,
    "tail": [
     "  ✅ t_the_same_leg_named_in_its_own_topic_is_fine",
@@ -593,6 +581,146 @@
    "tail": [
     "  ✅ t_the_two_verbs_that_were_dead_are_now_routed",
     "✅ test_callback_routing: 6/6"
+   ]
+  },
+  {
+   "suite": "sgc/test_goal_action_bridge",
+   "file": "test_goal_action_bridge.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 14,
+   "total": 14,
+   "seconds": 0.4,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_the_seam_is_actually_present_in_the_source",
+    "✅ test_goal_action_bridge: 14/14"
+   ]
+  },
+  {
+   "suite": "tg/test_tg_group_is_legs_only",
+   "file": "test_tg_group_is_legs_only.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 7,
+   "total": 7,
+   "seconds": 0.5,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_core_streams_never_resolve_to_the_group",
+    "✅ test_tg_group_is_legs_only: 7/7"
+   ]
+  },
+  {
+   "suite": "tg/test_tg_client_contract",
+   "file": "test_tg_client_contract.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 7,
+   "total": 7,
+   "seconds": 0.4,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_the_router_resolves_group_against_the_real_client",
+    "✅ test_tg_client_contract: 7/7"
+   ]
+  },
+  {
+   "suite": "tg/test_tg_callback_emitter_parity",
+   "file": "test_tg_callback_emitter_parity.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 7,
+   "total": 7,
+   "seconds": 4.3,
+   "suspicious_no_count": false,
+   "tail": [
+    "✅ test_tg_callback_emitter_parity: 7/7",
+    "<unknown>:3: SyntaxWarning: invalid escape sequence '\\ '"
+   ]
+  },
+  {
+   "suite": "tg/test_two_bot_bridge",
+   "file": "test_two_bot_bridge.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 9,
+   "total": 9,
+   "seconds": 0.3,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_the_organism_router_still_owns_its_own_gates",
+    "✅ test_two_bot_bridge: 9/9"
+   ]
+  },
+  {
+   "suite": "tg/test_tg_stream_routing",
+   "file": "test_tg_stream_routing.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 10,
+   "total": 10,
+   "seconds": 0.3,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_unknown_stream_falls_back_to_dm",
+    "✅ test_tg_stream_routing: 10/10"
+   ]
+  },
+  {
+   "suite": "cap/test_capability_manifest_registry",
+   "file": "test_capability_manifest_registry.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 10,
+   "total": 10,
+   "seconds": 3.8,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_unreadable_json_does_not_crash_discovery",
+    "✅ test_capability_manifest_registry: 10/10"
+   ]
+  },
+  {
+   "suite": "mem/test_lead_outcome_recorder",
+   "file": "test_lead_outcome_recorder.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 7,
+   "total": 7,
+   "seconds": 0.5,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_g_memory_prior_never_overrides_hard_skip",
+    "OK test_lead_outcome_recorder: 7/7"
+   ]
+  },
+  {
+   "suite": "mem/test_lead_outcome_wiring",
+   "file": "test_lead_outcome_wiring.py",
+   "cwd": "F:\\backup\\_ops\\tests",
+   "exit": 0,
+   "pass": 7,
+   "total": 7,
+   "seconds": 0.6,
+   "suspicious_no_count": false,
+   "tail": [
+    "  ✅ t_g_memory_gate_writes_episodic",
+    "OK test_lead_outcome_wiring: 7/7"
+   ]
+  },
+  {
+   "suite": "os_v1/test_os_v1",
+   "file": "test_os_v1.py",
+   "cwd": "F:\\backup\\_ops\\os_v1\\tests",
+   "exit": 0,
+   "pass": null,
+   "total": null,
+   "seconds": 16.5,
+   "suspicious_no_count": true,
+   "tail": [
+    "نتیجه: 93 سبز · 0 قرمز",
+    "=================================================================="
    ]
   }
  ],

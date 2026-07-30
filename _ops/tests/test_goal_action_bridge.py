@@ -17,11 +17,13 @@ import harness
 
 ENV = harness.setup("goal-action-bridge")
 
-# ⚠️ گاردِ نشت — `harness` امروز `OCTOPUS_STATE_DIR` را pin **نمی‌کند**، و
-# `memory_store._default_path()` بدونِ آن به `_ops/state/memory/memory.db` ِ
-# **زنده** می‌رود. اولین اجرای اشکال‌زداییِ همین فایل سه ردیف در DB ِ زنده
-# نوشت (retract شدند، حذف نه). هر تستی که حافظه را لمس می‌کند باید خودش
-# این را pin کند تا آن اشتباه تکرار نشود. ثبت‌شده: VQ-HARNESS-STATEDIR-001.
+# گاردِ نشتِ حافظه (VQ-HARNESS-STATEDIR-001). ریشه در `harness.setup` فیکس شد
+# — این خط حالا افزونه است، نه ضروری: عمداً می‌ماند به‌عنوان assert ِ زنده که
+# اگر روزی pin ِ harness برداشته شود، این فایل هم درختِ زنده را لمس نکند.
+# تاریخچه: یک اجرای اشکال‌زدایی سه ردیف در `memory.db` ِ **واقعی** نوشت (با
+# `gate.retract` برگشتند، حذف نشدند).
+assert os.environ.get("OCTOPUS_STATE_DIR"), \
+    "harness ِ این نسخه OCTOPUS_STATE_DIR را pin نمی‌کند — نشتِ حافظه به درختِ زنده"
 os.environ["OCTOPUS_STATE_DIR"] = str(Path(ENV["ORG_ROOT"]) / "_ops" / "state")
 
 _OPS = Path(__file__).resolve().parent.parent

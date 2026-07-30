@@ -111,6 +111,15 @@ def setup(name: str) -> dict:
         "BUDGET_STATE": str(ops / "budget" / "budget-state.json"),
         "PF_BRAIN_DIR": str(pf_brain),
         "PF_STUDIO_DIR": str(pf_studio),
+        # ⚠️ VQ-HARNESS-STATEDIR-001 (۲۰۲۶-۰۷-۳۰، رأیِ مالک «ریشه رو فیکس کن»).
+        # `ORG_ROOT` **کافی نبود**: چند ماژول مسیرِ state را از متغیرِ خودشان
+        # می‌گیرند و بدونِ آن به درختِ زنده می‌افتند. مصداقِ اثبات‌شده:
+        # `memory/memory_store._default_path()` → `OCTOPUS_STATE_DIR` وگرنه
+        # `_HERE.parent/state` — یعنی `F:\backup\_ops\state\memory\memory.db` ِ
+        # **زنده**. یک اجرای اشکال‌زدایی سه ردیف در DB ِ واقعی نوشت (با
+        # `gate.retract` برگشتند، حذف نشدند). هر تستی که حافظه را لمس می‌کرد
+        # این نشتی را داشت — و چون گیت پیش‌فرض خاموش است، بی‌صدا بود.
+        "OCTOPUS_STATE_DIR": str(ops / "state"),
     }
     os.environ.update(env)
     # کدِ زیرِ تست = همان tree که این harness داخلش است — نه REAL_VAULT. وگرنه تستِ
