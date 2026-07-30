@@ -259,6 +259,69 @@ def t_c_digest_cadence_respects_injected_clock():
     assert fc.named("send")[-1]["text"] == "digest:lead"
 
 
+def t_c2_leg_cards_walk_every_leg_and_the_cursor_survives_on_disk():
+    """کارتِ زندهٔ پاها باید **دور** بزند، نه روی پای اول گیر کند.
+
+    ⚠️ این تست از یک شکستِ واقعی زاده شد: مالک گفت «گروه تلگرام هیچی نداره».
+    نسخهٔ اولِ کد شمارنده را روی `cfg` ِ محلیِ beat می‌نوشت و `dirty=True`
+    می‌زد — ولی `_save_config` ِ آن مسیر داخلِ شرطِ ساعتیِ پالس بود و
+    `_refresh_leg_card` هم خودش config را از دیسک تازه می‌خواند. پس شمارنده
+    روی صفر ماند، هر ضربان همان پای اول را گرفت، روی هش زود برگشت ⇒ در کلِ
+    عمرِ پروسه دقیقاً **یک** کارت. و گاردِ نحویِ من (که فقط وجودِ فراخوان و
+    رشتهٔ `leg_card_cursor` را می‌دید) سبز بود — پایهٔ زیرِ سطحِ هدف.
+
+    سنجهٔ درست فقط رفتار است: بعد از دو نوبتِ سررسیده، **دو تاپیکِ متفاوت**
+    کارت گرفته باشند و شمارنده روی دیسک جلو رفته باشد."""
+    _reset()
+    fc = FakeClient()
+    clk = Clock(50_000.0)
+    c = center.Center(client=fc, clock=clk, render_mod=fake_render())
+    c.ensure_setup()
+    topics = json.loads(CFG_PATH.read_text("utf-8"))["topics"]
+    fc.calls.clear()
+    c.beat()                                            # نوبتِ اول
+    cfg1 = json.loads(CFG_PATH.read_text("utf-8"))
+    ids1 = dict(cfg1.get("leg_card_ids") or {})
+    assert len(ids1) == 1, f"نوبتِ اول باید دقیقاً یک کارت بسازد، شد {ids1}"
+    assert cfg1.get("leg_card_cursor") == 1, \
+        f"شمارنده روی دیسک جلو نرفت: {cfg1.get('leg_card_cursor')!r}"
+    # ناوردیِ ضدِ رگبار: نوبتِ بلافاصله (ساعتِ یکسان) هیچ کارتِ تازه‌ای نمی‌سازد
+    c.beat()
+    assert dict(json.loads(CFG_PATH.read_text("utf-8"))
+                .get("leg_card_ids") or {}) == ids1, "کادنس رعایت نشد"
+    clk.t += center.LEG_CARD_EVERY_S + 1.0
+    c.beat()                                            # نوبتِ دوم، سررسیده
+    cfg2 = json.loads(CFG_PATH.read_text("utf-8"))
+    ids2 = dict(cfg2.get("leg_card_ids") or {})
+    assert len(ids2) == 2, f"دور نزد — هنوز روی همان پا: {ids2}"
+    assert cfg2.get("leg_card_cursor") == 2
+    # و کارت‌ها واقعاً به **تاپیکِ خودِ همان پا** رفتند، نه یک تاپیکِ مشترک
+    tids = {topics[leg] for leg in ids2}
+    assert len(tids) == 2, f"دو کارت در یک تاپیک: {tids}"
+
+
+def t_c3_a_bogus_message_id_is_never_trusted_forever():
+    """شناسهٔ جعلی + هشِ منطبق نباید کارت را برای همیشه قفل کند.
+
+    این هم یک شکستِ واقعی بود، نه فرضی: پروبِ e2e ِ خودم با کلاینتِ جاسوس
+    (که 9000+n برمی‌گرداند) روی center-config.json ِ **زنده** نوشت، `lead`
+    شناسهٔ ۹۰۱۰ گرفت، و کارتش دیگر هرگز ساخته نشد."""
+    _reset()
+    fc = FakeClient()
+    clk = Clock(50_000.0)
+    c = center.Center(client=fc, clock=clk, render_mod=fake_render())
+    c.ensure_setup()
+    c.beat()
+    cfg = json.loads(CFG_PATH.read_text("utf-8"))
+    leg = next(iter(cfg["leg_card_ids"]))
+    cfg["leg_card_ids"][leg] = 9010                     # آلودگیِ پروب
+    CFG_PATH.write_text(json.dumps(cfg, ensure_ascii=False), "utf-8")
+    c._refresh_leg_card(leg)
+    got = json.loads(CFG_PATH.read_text("utf-8"))["leg_card_ids"].get(leg)
+    assert isinstance(got, int) and not (9000 <= got < 9100), \
+        f"شناسهٔ جعلی باور شد و کارت قفل ماند: {got!r}"
+
+
 def t_d_decisions_posted_once_with_keyboard_dedupe_seen():
     _reset()
     items = [{"q": "یک تصمیم؟", "why": "w", "source": "approval", "priority": "high"}]
@@ -267,9 +330,19 @@ def t_d_decisions_posted_once_with_keyboard_dedupe_seen():
     c.ensure_setup()
     fc.calls.clear()
     assert c.beat()["decisions"] == 1
-    dec = [s for s in fc.named("send") if s["keyboard"]]
+    # ۲۰۲۶-۰۷-۳۰: فیلترِ قبلی «هر sendِ کیبورددار» بود و «یک‌بار پست شد» را با
+    # همان پروکسی می‌سنجید. از امروز beat کارتِ زندهٔ پا را هم می‌فرستد (که
+    # کیبوردِ tk: دارد)، پس پروکسی بی‌دقت شد — نه ناوردیْ نقض. فیلتر دقیق شد و
+    # در عوض بندِ تازه‌ای اضافه شد که **قوی‌تر** است: هر sendِ کیبورددارِ دیگر
+    # باید اثباتاً کارتِ پا باشد، پس یک sendِ ناخواستهٔ سوم هم قرمز می‌کند.
+    def _cb(s):
+        return str((s["keyboard"] or [[{}]])[0][0].get("callback_data", ""))
+    kbd = [s for s in fc.named("send") if s["keyboard"]]
+    dec = [s for s in kbd if _cb(s).startswith("ok:")]
     assert len(dec) == 1
     assert dec[0]["keyboard"][0][0]["callback_data"].startswith("ok:")
+    assert all(_cb(s).startswith("tk:") for s in kbd if s not in dec), \
+        [_cb(s) for s in kbd if s not in dec]
     assert c.beat()["decisions"] == 0                   # dedupe با seen در config
     cfg = json.loads(CFG_PATH.read_text("utf-8"))
     assert len(cfg.get("seen", [])) == 1

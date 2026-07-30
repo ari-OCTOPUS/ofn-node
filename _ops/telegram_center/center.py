@@ -84,6 +84,9 @@ def _restart_pending() -> bool:
 DEFAULT_DIGEST_S = 86400          # cadence پیش‌فرضِ دایجستِ هر پا: ۲۴ ساعت
 SEEN_CAP = 200                    # سقفِ حافظهٔ dedupeِ تصمیم‌ها در config
 POLL_TIMEOUT_S = 25               # long-poll ($0-idle، هم‌راستا با approval_channel)
+# کارتِ زندهٔ پاها: یک پا در هر بازه. کمی زیرِ beat_every_s=300 تا jitter ِ حلقه
+# یک نوبت را نپرانَد، و اندازه‌ای که ۱۰ پا در ~۵۰ دقیقه یک دور کامل بزنند.
+LEG_CARD_EVERY_S = 240.0
 # 2026-07-25 (build-spec §4): دایجستِ ادغام‌شده — یک پیام در topic=system به‌جایِ
 # ۹ پیامِ جدا به ۹ تاپیک. پشتِ فلگ (پیش‌فرض خاموش) تا رفتارِ فعلی حفظ شود.
 # وقتی روشن است، به‌جایِ حلقهٔ per-leg، همهٔ پاهایِ due در یک پیام جمع می‌شوند.
@@ -745,15 +748,48 @@ class Center:
         # «گروه هیچی نداره». حالا هر ضربان تازه می‌شود؛ ضدِ سیل هم هست چون
         # `_refresh_leg_card` روی هشِ متن زود برمی‌گردد و بی‌تغییر ویرایش
         # نمی‌زند. یک پا در هر ضربان تا رگبارِ ۹ ویرایشی نسازد.
+        # ⚠️ نسخهٔ اولِ این بند شمارنده را روی همین `cfg` ِ beat می‌نوشت و
+        # `dirty = True` می‌زد. اجرای واقعی نشانش داد که **دو** جا می‌بازد:
+        # (۱) خطِ `if dirty: _save_config(cfg)` ِ پایین داخلِ شرطِ ساعتیِ پالس
+        #     است، پس ذخیره فقط ساعتی یک بار رخ می‌داد؛
+        # (۲) `_refresh_leg_card` خودش `_load_config()` می‌کند و ذخیره می‌کند،
+        #     پس نوشتنِ من روی نسخهٔ کهنه هر طور بود دور می‌رفت.
+        # نتیجه در گروه: شمارنده روی صفر گیر کرد، هر ضربان همان پای اول را
+        # می‌گرفت، روی هش برمی‌گشت ⇒ فقط **یک** کارت تا ابد. حالا شمارنده را
+        # بعد از refresh از دیسکِ تازه می‌خوانم و همان‌جا می‌نویسم.
+        # کادنس (نه «هر beat»): با حلقهٔ زندهٔ ۳۰۰ثانیه‌ای عملاً یک پا در هر
+        # ضربان است، ولی دو beat با ساعتِ یکسان دومی را رد می‌کند — پس ناوردیِ
+        # «ضربانِ بلافاصلهٔ دوم صفر send» که از قبل اینجا بود دست‌نخورده می‌مانَد.
         try:
             _legs = self._legs()
-            if _legs:
-                _i = int(cfg.get("leg_card_cursor", 0) or 0) % len(_legs)
+            _c0 = _load_config()
+            _ll = float(_c0.get("last_leg_card", 0.0) or 0.0)
+        except (TypeError, ValueError, OSError):  # noqa: BLE001
+            _legs, _c0, _ll = [], None, 0.0
+        if _legs and now - _ll >= LEG_CARD_EVERY_S:
+            try:
+                _i = int(_c0.get("leg_card_cursor", 0) or 0) % len(_legs)
                 self._refresh_leg_card(_legs[_i])
-                cfg["leg_card_cursor"] = (_i + 1) % len(_legs)
-                dirty = True
-        except Exception:  # noqa: BLE001 — کارت هرگز beat را نمی‌کشد
-            pass
+                _c1 = _load_config()          # شاملِ نوشته‌های خودِ refresh
+                _c1["leg_card_cursor"] = (_i + 1) % len(_legs)
+                _c1["last_leg_card"] = now
+                _save_config(_c1)
+                # ⚠️⚠️ و اینجا بزرگ‌ترین تلهٔ این تابع: `cfg` در خطِ ۵۵۵ از دیسک
+                # خوانده شده و هر `_save_config(cfg)` ِ بعدی در همین beat آن
+                # نسخهٔ کهنه را می‌نویسد — پس نوشتهٔ `_refresh_leg_card` (که
+                # کلاینتِ خودش را دارد و مستقل ذخیره می‌کند) **بلعیده** می‌شود.
+                # اجرای واقعی نشانش داد: refresh کارتِ `lead` را با شناسهٔ ۱۱۰
+                # ثبت کرد و همان beat به None برگشت، چون شاخهٔ پالس ساعتی
+                # (last_pulse=0 ⇒ بارِ اول همیشه سررسیده) بعدش cfg ِ کهنه را
+                # نوشت. روی درختِ زنده تصادفاً جان برد چون آن ضربان پالس نداشت.
+                # درمان: نوشته‌های refresh را به cfg برگردان تا هر نویسندهٔ
+                # بعدی هم آن‌ها را داشته باشد. (دو نویسنده روی یک فایلِ حالت.)
+                for _k in ("leg_card_ids", "leg_card_hash",
+                           "leg_card_cursor", "last_leg_card"):
+                    if _k in _c1:
+                        cfg[_k] = _c1[_k]
+            except Exception:  # noqa: BLE001 — کارت هرگز beat را نمی‌کشد
+                pass
         # ── پالسِ ساعتیِ لنگر (رأیِ مالک ۲۰۲۶-۰۷-۳۰: «پالسِ ساعتی») ────────────
         # یک ضربانِ کوتاه در ساعت به DM ِ مالک — حسِ «زنده است» بدونِ رگبار.
         # هیچ فلگِ تازه‌ای ندارد: مقصدش از `center-pulse` می‌آید که current اش
@@ -929,8 +965,13 @@ class Center:
             cfg = _load_config()
             topics = cfg.get("topics") if isinstance(cfg.get("topics"), dict) else {}
             tid = topics.get(leg)
+            # ⚠️ نسخهٔ اول `chat is None` را هم شرطِ بازگشت گذاشته بود — از خودِ
+            # مرکز سخت‌گیرتر: در همه‌جای دیگر `chat_id=None` مسیرِ قانونی است و
+            # خودِ client حلش می‌کند (env TG_CENTER_CHAT_ID). روی درختِ زنده
+            # اتفاقی ست بود پس کار می‌کرد؛ در هر نصبی که نبود، کارتِ پاها بی‌صدا
+            # هرگز ساخته نمی‌شد. فقط تاپیک لازم است.
             chat = cfg.get("chat_id")
-            if not isinstance(tid, int) or chat is None:
+            if not isinstance(tid, int):
                 return
             paused = False
             try:
