@@ -6,7 +6,7 @@ created: 2026-07-30
 updated: 2026-07-30
 created_by: agent
 sources:
-  - "[[TG-FIX-PACK-2026-07-30]]"
+  - "[[TG-FIX-PACK-2026-07-29]]"
   - "[[TG-SPLIT-INNER-OUTER-2026-07-29]]"
   - "[[HANDOFF-PROMPT-2026-07-30]]"
 ---

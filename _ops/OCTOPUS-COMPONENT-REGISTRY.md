@@ -64,7 +64,7 @@ method: "شواهدمحور: ممیزیِ اتصالاتِ 07-18 (۲۴ اندا�
 | GLM-C | `observability/health_check.run()` + `render_status_summary()` | `run()->dict` | **نشسته در master** · ۱۶/۱۶ (ویندوز) | وصل به governor epoch + صفحهٔ ①؛ می‌تواند جایگزینِ منطقِ داخلیِ `owner_views` شود |
 | GLM-D | `approval_store.verify_scope()` + `content_sha256` | `verify_scope(jid,payload)->bool` | **نشسته در master** · ۸/۸ + ۲۴/۲۴ + run_all ۲۰۳ (ویندوز) · از `mission_contract`ِ ما استفاده کرد ✅ | وصل به مسیرِ apply (`power.py`/`mission_runner`) |
 
-> **نکتهٔ سندباکس:** سه سوئیتِ نشسته را در سندباکسِ لینوکسیِ من نمی‌شود اجرا کرد (وابسته به `genome-system/ledger` با مسیرِ خامِ ویندوزی — تلهٔ [[../../…/vault-sandbox-quirks]]). روی ویندوزِ مالک سبزند. چهار ماژولِ stdlib‌ِ Claude اینجا هم سبزند (۲۰/۲۰).
+> **نکتهٔ سندباکس:** سه سوئیتِ نشسته را در سندباکسِ لینوکسیِ من نمی‌شود اجرا کرد (وابسته به `genome-system/ledger` با مسیرِ خامِ ویندوزی — تلهٔ `vault-sandbox-quirks`). روی ویندوزِ مالک سبزند. چهار ماژولِ stdlib‌ِ Claude اینجا هم سبزند (۲۰/۲۰).
 > **نکتهٔ قرارداد (از GLM-B):** `make_envelope` مقدارِ `payload` را برای هش مصرف می‌کند ولی در envelope ذخیره نمی‌کند (عمدی — ضدِنشت؛ `verify_scope` payload را جدا در زمانِ apply می‌گیرد). اگر بعداً echo لازم شد، تصمیمِ لِنز است.
 
 ## ۳) پاها — Legs (Leg Owners)
@@ -203,10 +203,26 @@ method: "شواهدمحور: ممیزیِ اتصالاتِ 07-18 (۲۴ اندا�
 | ID | جزء | نقش | فلگ (خاموش) | Health | تست |
 |---|---|---|---|---|---|
 | DR1 | `OCTOPUS-DOCTOR/doctor/` ✨ | چشم (`scanner` فقط‌خواندنی) · ذهن (`mind` = ناخودآگاهِ جمعی، رنگ می‌دهد تصمیم نمی‌گیرد) · انگشت (`propose` با ۸ گیتِ در-کد + R-09) · مغز (`fugu` با دو سقفِ روزانه: ۶۰ فراخوان + $۲) · صدا (`channel` حالتِ outbox) | مغز: `SAKANA_API_KEY` **یا** `FUGU_API_KEY` (نامِ مالک؛ از `.env` via `_ops/run_doctor_day.py`) | 🟢 **LIVE** — اولین ask واقعی `fugu·418tok·exit 0` (۰۷-۲۹) | `test_doctor.py` ۱۵۷/۱۵۷ سبز |
-| DR2 | `_ops/os_v1/` ✨ | کتابخانهٔ OS: `honest_metric`/`outcome_ledger`/`efe`/`policy_sampler` (قید حذف می‌کند نه جریمه)/`silence`/`leg_failure`/`mission_runner` (worktree + گیتِ سوئیت + merge فقط با رأی؛ `env_root_key` سوئیت را به درختِ زیرِ آزمون pin می‌کند) | — (library، بدونِ side-effect) | 💤 (صفر صداکنندهٔ زنده تا VQ-DR-003) | `test_os_v1.py` **۷۸/۷۸** سبز |
+| DR2 | ~~`_ops/os_v1/`~~ → `_Archive/_ops-retired-2026-07-30/os_v1/` | کتابخانهٔ OS (۹ ماژول) | — | ⚫️ **بازنشسته ۰۷-۳۰** (رأیِ مالک) | — |
 | DR3 | `_ops/telegram_center/doctor_link.py` ✨ | پلِ outboxِ دکتر → clientِ مرکز (بدونِ اتصالِ دومِ تلگرام) + جداسازیِ رأیِ سه‌تکهٔ `ok\|no:gate:mission` قبل از fallbackِ approval → `cli.py votes`؛ cursorِ بایتی + dedupِ mission:gate + سقفِ ۲۰/روز | `OCTOPUS_WIRE_DOCTOR_TG` = **1** (رأیِ مالک ۰۷-۲۹، VQ-DR-001) | 🟢 **LIVE** — کارتِ تست `message_id=323` تحویل شد | `test_doctor_link.py` ۱۸/۱۸ سبز؛ ثبت در `run_all.py`؛ تسکِ روزانه `OCTOPUS-doctor-day` ۰۷:۰۰ |
 
 خطِ قرمزِ دکتر (در کد، با تست): در `_ops` نمی‌نویسد · پچ اعمال نمی‌کند · merge سه‌قفله (رأیِ ✅ دیف + `--apply` + `OCTOPUS_DOCTOR_MAY_MERGE=1` که **تنظیم نشده**). فعال‌سازیِ پل: `set OCTOPUS_WIRE_DOCTOR_TG=1` در flags.cmd + ری‌استارتِ TG-center ♻️. پلهٔ بعد (رأیِ مالک): کلیدِ Sakana برای پله‌های ۱–۲ (ask/diagnose/propose)، و `day --live` فقط زیرِ چشمِ مالک.
+
+بازنشستگیِ DR2 (۰۷-۳۰): `os_v1` هرگز روی `sys.path` نبود ⇒ هیچ import ای به آن حل نمی‌شد؛ `mission_runner` اش تکرارِ `telegram_center/mission_runner.py` بود. **منتقل شد با `git mv`، حذف نشد**؛ جدولِ canonical ِ جایگزین و فرمانِ برگشت در `DEPRECATED.md` همان پوشه. `schumann_rx` (INT1) هم با آن رفت — اندامِ شهود تا ساختِ حسگر همان `[UNKNOWN]` می‌ماند.
+
+## گروهِ ۱۲ — ستونِ مأموریت و ساختِ خود (۲۰۲۶-۰۷-۳۰، چهار رأیِ مالک)
+
+| # | مسیر | چه می‌کند | فلگ | وضعیت | تست |
+|---|---|---|---|---|---|
+| MS1 | `_ops/goal_action_bridge.py` ✨ | پلِ اقدامِ SGC: exact prereg → `prepare_records` → طبقه‌بندی → A0 → رسید → دفترِ mission؛ + consolidation ِ حکمِ **مستقل** به حافظه (outcome-bound) | `OCTOPUS_WIRE_ACTION_BRIDGE` = **1** (VQ-ACTION-BRIDGE-ARM-001) | 🟢 **LIVE** — اولین اجرای واقعی روی هدفِ پول: A3/OWNER_GATE، executor صدا نخورد، رسید ۰ | `test_goal_action_bridge.py` ۱۴/۱۴ · ۷/۷ جهش قرمز |
+| MS2 | `_ops/telegram_center/build_cmd.py` ✨ | هدایتِ کدنویسی از Outer DM: «بساز: …» → صفِ `code_brain`؛ وضعیتِ صادقِ **هر پلهٔ** حلقه؛ نمای صف/پچ بدونِ echo ِ کد | — (بدونِ فلگِ نو) | 🟢 LIVE | `test_tg_build_surface.py` ۱۳/۱۳ |
+| MS3 | `code_brain._draft_via_local` ✨ | پلهٔ محلیِ $0 (اولاما) بینِ API و L0 — بدونِ آن حلقهٔ ۲۴ساعته ساختاراً ناممکن بود. گاردِ **نحوی**: هر def/class ِ سطحِ ماژول باید بماند | `OCTOPUS_CODE_BRAIN` + knob `OCTOPUS_CODE_BRAIN_LOCAL_MODEL` (`qwen2.5:latest`) | 🟢 LIVE — پروبِ واقعی: `add` حفظ، `mul` اضافه | `test_code_brain_local.py` ۱۴/۱۴ |
+| MS4 | `_ops/telegram_center/hold_policy.py` ✨ | بحرانی/گذار/recovery → فوریِ Inner DM · نو → دایجستِ ساعتی · تکراری → HOLD ِ شمارشی · backlog **هرگز** replay نمی‌شود (ساختاری) | — | 🟢 **TG-HOLD-POLICY-LIVE** | `test_tg_hold_policy.py` ۹/۹ · ۹ جهش قرمز |
+| MS5 | `_ops/telegram_center/leg_tasks.py` ✨ | مدلِ Task ِ گروهِ پاها: ۴ وضعیتِ سخت، کارتِ زندهٔ ویرایش‌شونده، ۴ دکمه، موتورِ read-only یک-کار-در-ضربان | — | 🟢 LIVE | `test_tg_leg_tasks.py` ۱۶/۱۶ · ۶/۶ جهش قرمز |
+| MS6 | `_ops/telegram_center/surface_router.py` + `code-card` | مسیریابیِ خروجی: هسته → DM، پاها → تاپیک؛ کارتِ پچِ کد از گروه به DM آمد | `OCTOPUS_TG_SPLIT_V1` = **1** | 🟢 LIVE — شاهد: `center-pulse → DM` | `test_tg_route_seam.py` ۱۲/۱۲ |
+
+ناوردیِ گروهِ ۱۲: صفر poller/bot ِ نو · صفر subsystem ِ تکراری · هیچ‌کدام خودش
+اعمال/ارسال نمی‌کند · A3+ ساختاراً از این مسیرها غیرقابلِ‌دسترس.
 
 ## 🌐 SPLIT + شهود — درون/بیرون و اندامِ حسیِ نو (نو ۲۰۲۶-۰۷-۲۹)
 

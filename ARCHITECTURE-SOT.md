@@ -267,3 +267,45 @@ event_bridge = L3 نردبان) با verdictِ مالک انجام می‌شود
 `day --live` تا رأیِ مالک روشن نمی‌شود — `run_all` تست‌هایی دارد که فایلِ زندهٔ
 STOP می‌سازند؛ pinِ `ORG_ROOT` این را به worktree محدود می‌کند ولی اولین اجرای
 زنده باید زیرِ چشمِ مالک باشد. اثرِ فلگ فقط با ری‌استارتِ TG-center.
+
+## 🧬 ثبتِ ۲۰۲۶-۰۷-۳۰ — پلِ اقدام، سطحِ تلگرام، ساختِ خود (چهار رأیِ صریحِ مالک)
+
+**درسِ کلیدیِ این روز: چیزی گم نبود، صداکننده گم بود.** پلِ اقدام سه قطعه‌اش از
+قبل تست‌شده روی دیسک بود و صفر صداکنندهٔ تولیدی داشت. قبل از ساختنِ ماژولِ نو،
+`resolve`/`prepare_records`/`enqueue` ِ موجود را با **AST** بگرد.
+
+### الف) canonical ِ نو
+
+| concern | canonical | وضعیت |
+|---|---|---|
+| پلِ اقدامِ SGC (prereg → mission → عمل → رسید) | `_ops/goal_action_bridge.py` | **LIVE** — فلگ `OCTOPUS_WIRE_ACTION_BRIDGE=1` (VQ-ACTION-BRIDGE-ARM-001)؛ اولین اجرای واقعی روی هدفِ پول افتاد و درست به A3/OWNER_GATE رفت، executor صدا نخورد |
+| envelope و گذارِ قانونیِ mission | `_ops/mission_contract.py` | canonical؛ Mission Genome ِ ۱۲-وضعیتی هنوز ناسازگار — VQ-MISSION-RECONCILE-001 |
+| سیمِ exact-row | `unified_control.pipeline.prepare_records` | حالا صداکننده دارد (`test_cycle.run`)؛ ردیفِ journal شناسهٔ prereg را حمل می‌کند |
+| مسیریابیِ خروجیِ تلگرام | `_ops/telegram_center/surface_router.py` + `surface-routing.json` | **LIVE** — `OCTOPUS_TG_SPLIT_V1=1`؛ صداکننده `Center._route_send` |
+| سیاستِ ورودیِ تلگرام | `_ops/telegram_center/input_surface_policy.py` | **LIVE** در `center.handle_update` |
+| ماشینِ حالتِ HOLD/تحویل | `_ops/telegram_center/hold_policy.py` | **LIVE** — TG-HOLD-POLICY-LIVE (VQ-TG-HOLD-001) |
+| کارتِ واحدِ مالک («مامور») | `_ops/owner_console/` | WIRED به Outer DM؛ گیت ۵ مالک باقی |
+| مدلِ Task ِ پاها | `_ops/telegram_center/leg_tasks.py` | LIVE — ۴ وضعیت، ۴ دکمه، موتورِ read-only |
+| هدایتِ کدنویسی از DM | `_ops/telegram_center/build_cmd.py` | LIVE — «بساز: …» → صفِ `code_brain` |
+| پلهٔ محلیِ مغزِ کد ($0) | `code_brain._draft_via_local` (اولاما) | LIVE — knob `OCTOPUS_CODE_BRAIN_LOCAL_MODEL`، پیش‌فرض `qwen2.5:latest` |
+
+### ب) بازنشسته‌شده
+
+| مسیرِ قبلی | مقصد | چرا |
+|---|---|---|
+| `_ops/os_v1/` (کلِ بسته، ۹ ماژول) | `_Archive/_ops-retired-2026-07-30/os_v1/` | هرگز روی `sys.path` نبود ⇒ هیچ import ای به آن حل نمی‌شد؛ `mission_runner` اش تکرارِ `telegram_center/mission_runner.py`. **منتقل شد با `git mv`، حذف نشد**؛ `DEPRECATED.md` با جدولِ جایگزین و فرمانِ برگشت. ردیفِ ۲۶۲ همین سند دیگر معتبر نیست |
+
+### پ) گاردهای ساختاری که امروز اضافه شدند
+
+- **گاردِ ناوردیِ نحوی برای بازنویسیِ فایل** (`code_brain._defs_kept`): هر
+  `def`/`class` ِ سطحِ ماژول باید در خروجی بماند. گاردِ نسبتِ بایت **کافی نیست** —
+  پروبِ واقعی نشان داد مدل یک تابع را انداخت و بایتِ بیشتری تولید کرد.
+- **`harness` حالا `OCTOPUS_STATE_DIR` را pin می‌کند** (VQ-HARNESS-STATEDIR-001):
+  بدونش `MemoryStore()` در `memory.db` ِ **زنده** می‌نوشت.
+- **گاردِ رشته‌ای ممنوع وقتی همان رشته دو بار در فایل است** — سنجهٔ رفتاری.
+- **دفاعِ لایه‌ای بی‌سنجه بی‌صدا می‌پوسد** — هر لایه سنجهٔ خودش را لازم دارد.
+
+⚠️ **دو تلهٔ ابزار که امروز خورد شد:** (۱) ابزارِ ویرایش line-ending ِ کلِ
+`code_autonomy.py` را LF→CRLF کرد و دیف را به یک هانکِ کلِ-فایل تبدیل کرد —
+روی فایلِ مشترک یعنی لِه‌شدنِ هانکِ بیگانه؛ بعد از هر ویرایش CRLF/LF را بسنج.
+(۲) backtick داخلِ رشتهٔ bash، محتوا را می‌بلعد — متنِ بلند فقط با ابزارِ فایل.
