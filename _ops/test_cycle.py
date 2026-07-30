@@ -306,7 +306,11 @@ def run(*, goal: str, method: str, why: str = "", goal_source: str = "self",
                           "tool_requests_precise": _tro.get("precise"),
                           **({"action_receipt": _act.get("receipt_status"),
                               "action_mission": _act.get("mission_id"),
-                              "action_trace": _act.get("trace_id")}
+                              "action_trace": _act.get("trace_id"),
+                              # §۱۰.۴: retrieval باید در دفتر «دیده» شود، نه فقط
+                              # فراخوانی شود — وگرنه سنجهٔ مصرفِ حافظه دروغ می‌گوید.
+                              "action_memories_used":
+                                  (_act.get("memory") or {}).get("count", 0)}
                              if _act else {})})
     out["journal"] = rec
     # ── تعهدِ چرخه: fail-closed در هر دو پله ──────────────────────────────────
@@ -360,6 +364,17 @@ def beat(*, channel=None, now: "float | None" = None) -> dict:  # noqa: ARG001
             if _cm.get("consolidated"):
                 out["memory_consolidated"] = _cm["consolidated"]
     except Exception:  # noqa: BLE001 — حافظه هرگز beat را نمی‌کشد
+        pass
+    # ۱.۶) کارتِ مالک برای missionهای منتظرِ رأی (VQ-MISSION-CARD-001).
+    # عمداً قبل از گیتِ اسلات: کارتِ رأی نباید تا اسلاتِ بعدی ۱۲ ساعت صبر کند.
+    # فلگِ خودش (OCTOPUS_WIRE_MISSION_CARD)، پیش‌فرض خاموش = دقیقاً هیچ.
+    try:
+        import goal_action_bridge as _gab
+        if _gab.card_enabled():
+            _mc = _gab.emit_mission_cards()
+            if _mc.get("emitted"):
+                out["mission_cards"] = _mc["emitted"]
+    except Exception:  # noqa: BLE001 — کارت هرگز beat را نمی‌کشد
         pass
     d = due(now)
     out.update({"cycle_id": d["cycle_id"], "slot": d["slot"]})
