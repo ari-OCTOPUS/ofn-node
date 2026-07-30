@@ -80,6 +80,33 @@ def extract_json(text: str) -> dict[str, Any]:
             f"snippet: {candidate[max(0, exc.pos - 20):exc.pos + 40]!r}") from exc
 
 
+def _infer_finish(finish, tokens_out, max_tokens) -> "str | None":
+    """اگر provider ساکت است، بریدگی را از شمارِ توکن استنتاج کن.
+
+    ۲۰۲۶-۰۷-۳۰ — شاهد: در `state/paid-calls.jsonl` هر ۲۰۶ تماسِ موفق
+    `finish_reason=None` داشتند، چون sakana/fugu این میدان را برنمی‌گرداند. پس
+    گاردی که ۰۷-۲۷ برای دیدنِ «length» ساخته شده بود **هرگز شلیک نمی‌کرد** —
+    میدان لوله‌کشی شده بود ولی همیشه خالی می‌آمد.
+
+    چرا `tokens_out >= max_tokens` استنتاجِ معتبری است: مدلِ استدلالی توکن‌های
+    تفکرش را از همان بودجهٔ `max_tokens` می‌خورد. اگر شمارِ خروجی به سقف بخورد،
+    تولید **قطع** شده است؛ چه متنِ مرئی داشته باشیم چه نه. نمونهٔ زنده:
+    `tokens_out=500 (=سقف) → chars_out=3` — کلِ بودجه صرفِ استدلال شد و سه
+    کاراکتر بیرون آمد. بدونِ این استنتاج، آن پاسخ «موفق» شمرده می‌شد.
+
+    محافظه‌کار است: رأیِ صریحِ provider همیشه برنده است، و پاسخِ کوچکی که به سقف
+    نخورده (`tokens_out=18` با سقفِ ۷۰۰) دست‌نخورده می‌ماند — آن پاسخِ سالمِ
+    کوتاه است، نه بریده."""
+    if finish:
+        return finish
+    try:
+        if int(tokens_out or 0) >= int(max_tokens or 0) > 0:
+            return "length"
+    except (TypeError, ValueError):
+        pass
+    return finish
+
+
 class DeepSeekClient:
     """یک client، base_url از فایل. transport تزریقی = تست آفلاین بدون کلید/شبکه ($0)."""
 
@@ -166,7 +193,7 @@ class DeepSeekClient:
         _tier = raw.get("octopus_tier")
         return {"text": text, "model": raw.get("octopus_model") or self.model,
                 "tokens_in": tin, "tokens_out": tout, "cost_usd": cost,
-                "finish_reason": _finish,
+                "finish_reason": _infer_finish(_finish, tout, max_tokens),
                 "tier": _tier or ("stub" if self.transport is not None else "paid"),
                 "stub": self.transport is not None and (_tier or "stub") == "stub"}
 
@@ -517,7 +544,7 @@ class MultiProviderClient:
             cost = (tin / 1e6) * self.price_in + (tout / 1e6) * self.price_out
         return {"text": text, "model": self.model, "provider": self.provider,
                 "tokens_in": tin, "tokens_out": tout, "cost_usd": cost,
-                "finish_reason": _finish,
+                "finish_reason": _infer_finish(_finish, tout, max_tokens),
                 "subscription": self.subscription or "metered",
                 "via_gateway": self.use_gateway,
                 "stub": self.transport is not None}

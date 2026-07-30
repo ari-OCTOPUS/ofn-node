@@ -129,6 +129,29 @@ def paid_gate() -> tuple[bool, str]:
     return opslib.live_gate_open(ACT_CORTEX_PAID)
 
 
+def is_useless_truncation(text: str, finish_reason) -> bool:
+    """پاسخِ بریده‌ای که متنِ مرئیِ قابلِ‌استفاده ندارد → شکست، نه موفقیت.
+
+    عمداً **باریک**؛ هر دو شرط لازم است:
+      · `finish_reason == "length"` — تولید قطع شده (خودِ این از `client._infer_finish`
+        می‌آید که وقتی provider ساکت است از `tokens_out >= max_tokens` استنتاجش می‌کند).
+      · و متنِ مرئی زیرِ `PAID_MIN_USEFUL_CHARS` (پیش‌فرض ۴۰) باشد.
+
+    پس این‌ها **عبور می‌کنند** و باید عبور کنند:
+      · پاسخِ کوتاهِ سالم که به سقف نخورده («بله») — جوابِ درستِ کوتاه است.
+      · پاسخِ بریدهٔ طولانی — ناقص ولی مفید؛ صاحبِ فراخوان خودش تصمیم بگیرد.
+
+    شاهدی که این را لازم کرد (`state/paid-calls.jsonl`، ۲۰۲۶-۰۷-۲۹T۱۷:۳۳:۰۸):
+    `tokens_out=500` (=سقفِ آن‌روزِ سنتز) با `chars_out=3` → سنتز صفر پیشنهاد ثبت
+    کرد و هیچ آلارمی نزد. تابعِ خالص است تا گاردش بتواند خودِ همین منطق را بسنجد،
+    نه وجودِ یک رشته در سورس."""
+    try:
+        min_useful = int(os.environ.get("PAID_MIN_USEFUL_CHARS", "40"))
+    except (TypeError, ValueError):
+        min_useful = 40
+    return finish_reason == "length" and len(str(text or "").strip()) < min_useful
+
+
 def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int) -> dict | None:
     """مسیرِ پولی — فقط پشتِ گیتِ باز. lazy organ_gate (I2)؛ metering سهمیه‌ای:
     settle(actual=0.0) چون subscription؛ خودِ reserve/settle مصرف را ثبت می‌کند."""
@@ -204,6 +227,28 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int) -> dict | No
                   chars_out=len(out.get("text") or ""),
                   ms=int((_pt.time() - _t0) * 1000),
                   quota_used=_q.get("used"))
+        # ── پاسخِ بریدهٔ بی‌متن = شکست، نه موفقیت (۲۰۲۶-۰۷-۳۰) ──────────────────
+        # ۰۷-۲۷ `finish_reason` را عبور دادند تا صاحبِ فراخوان بریدگی را ببیند، ولی
+        # **هیچ‌کس نمی‌خواندش** و sakana هم هرگز پرش نمی‌کرد (۲۰۶/۲۰۶ تماسِ موفق
+        # `None`). نتیجه: مدلِ استدلالی کلِ بودجه را صرفِ تفکر می‌کرد، سه کاراکتر
+        # بیرون می‌داد، و این تابع همان را با `ok=True` تحویل می‌داد. شاهدِ زنده:
+        # `2026-07-29T17:33:08 tokens_out=500 (=سقف) chars_out=3` → سنتز صفر
+        # پیشنهاد ثبت کرد و هیچ آلارمی نزد.
+        #
+        # حالا این حالت مثلِ هر شکستِ دیگرِ tier رفتار می‌کند: `None` برگردان تا
+        # صداکننده ردهٔ پولیِ بعدی یا محلی را امتحان کند. استابِ بی‌مصرف بدتر از
+        # نبودِ جواب است، چون خودش را جوابِ معتبر جا می‌زند.
+        # عمداً باریک: فقط وقتی **هم** بریده باشد **و هم** متنِ مرئی بی‌مصرف. پاسخِ
+        # کوتاهِ سالم (که به سقف نخورده) و پاسخِ بریدهٔ طولانی (که ناقص ولی مفید
+        # است) هر دو دست‌نخورده عبور می‌کنند.
+        _txt = str(out.get("text") or "").strip()
+        if is_useless_truncation(_txt, out.get("finish_reason")):
+            opslib.alert([
+                f"cortex router {tier}: پاسخِ بریدهٔ بی‌متن — "
+                f"tokens_out={out.get('tokens_out')} به سقفِ max_tokens={max_tokens} "
+                f"خورد و فقط {len(_txt)} کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را "
+                f"صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت."])
+            return None
         # finish_reason را عبور بده (۲۰۲۶-۰۷-۲۷): بدونِ آن یک پاسخِ **بریده** از
         # درِ واحدِ مغز به‌عنوانِ موفقیت بیرون می‌آید و صاحبِ فراخوان فقط بعداً
         # می‌فهمد که parse شکست — همان کوری که مسیرِ گاورنر را ۲۴+ ساعت مرده نگه داشت.
