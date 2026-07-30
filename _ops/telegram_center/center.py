@@ -739,6 +739,21 @@ class Center:
             pass
         # ── موتورِ کارهای پاها (رأیِ ۰۷-۳۰ شب): یک کار در هر ضربان ──────────────
         self._drive_leg_engine()
+        # ── کارتِ زندهٔ هر پا، حتی وقتی بیکار است ────────────────────────────
+        # ⚠️ تا امروز کارت فقط وقتی ساخته می‌شد که کاری وجود داشت یا دکمه‌ای
+        # زده می‌شد. نتیجه: مالک گروه را باز می‌کرد و **هیچ کارتی نبود** —
+        # «گروه هیچی نداره». حالا هر ضربان تازه می‌شود؛ ضدِ سیل هم هست چون
+        # `_refresh_leg_card` روی هشِ متن زود برمی‌گردد و بی‌تغییر ویرایش
+        # نمی‌زند. یک پا در هر ضربان تا رگبارِ ۹ ویرایشی نسازد.
+        try:
+            _legs = self._legs()
+            if _legs:
+                _i = int(cfg.get("leg_card_cursor", 0) or 0) % len(_legs)
+                self._refresh_leg_card(_legs[_i])
+                cfg["leg_card_cursor"] = (_i + 1) % len(_legs)
+                dirty = True
+        except Exception:  # noqa: BLE001 — کارت هرگز beat را نمی‌کشد
+            pass
         # ── پالسِ ساعتیِ لنگر (رأیِ مالک ۲۰۲۶-۰۷-۳۰: «پالسِ ساعتی») ────────────
         # یک ضربانِ کوتاه در ساعت به DM ِ مالک — حسِ «زنده است» بدونِ رگبار.
         # هیچ فلگِ تازه‌ای ندارد: مقصدش از `center-pulse` می‌آید که current اش
@@ -926,7 +941,20 @@ class Center:
             h = hashlib.sha256(body.encode("utf-8", "replace")).hexdigest()[:16]
             hashes = cfg.setdefault("leg_card_hash", {})
             ids = cfg.setdefault("leg_card_ids", {})
-            if hashes.get(leg) == h and isinstance(ids.get(leg), int):
+            # ⚠️ ۲۰۲۶-۰۷-۳۰: این خطِ «بی‌تغییر ⇒ برگرد» یک تلهٔ ماندگار داشت.
+            # وجودِ **واقعیِ** پیام را نمی‌سنجید؛ فقط عدد بودنِ id را. پس یک
+            # شناسهٔ جعلی + هشِ منطبق = کارت **هرگز** ساخته نمی‌شود، برای همیشه.
+            # و همین افتاد: پروبِ e2e ِ خودم با کلاینتِ جاسوس (که 9000+n
+            # برمی‌گرداند) روی config ِ **زنده** نوشت، پس `lead` شناسهٔ ۹۰۱۰
+            # گرفت و کارتش دیگر ساخته نشد. گارد حالا شناسه‌های بازهٔ جاسوس را
+            # نامعتبر می‌شمارد و از نو می‌سازد.
+            _bogus = isinstance(ids.get(leg), int) and 9000 <= ids[leg] < 9100
+            if _bogus:
+                ids.pop(leg, None)
+                hashes.pop(leg, None)
+                _save_config(cfg)
+            if (not _bogus and hashes.get(leg) == h
+                    and isinstance(ids.get(leg), int)):
                 return                              # بی‌تغییر — ویرایشِ بیهوده نزن
             kb = _lt.card_keyboard(leg)
             mid = ids.get(leg)

@@ -156,6 +156,48 @@ def t_persian_digits_on_the_card_no_bare_latin_counters():
 
 
 # ── سیم: مرکز واقعاً وصل است (AST نه grep) ──────────────────────────────────
+def t_a_bogus_spy_message_id_never_freezes_the_card_forever():
+    """⚠️ باگی که مالک با «گروه هیچی نداره» پیدایش کرد.
+
+    `_refresh_leg_card` روی هشِ متن زود برمی‌گشت ولی **وجودِ واقعیِ پیام** را
+    نمی‌سنجید — فقط عدد بودنِ id را. پس یک شناسهٔ جعلی + هشِ منطبق = کارت
+    **برای همیشه** ساخته نمی‌شود. و افتاد: پروبِ e2e ِ من با کلاینتِ جاسوس
+    (9000+n) روی config ِ **زنده** نوشت.
+
+    سنجهٔ نحوی چون تابع به I/O ِ تلگرام گره خورده: شناسهٔ بازهٔ جاسوس باید
+    نامعتبر شمرده و پاک شود."""
+    src = (_OPS / "telegram_center" / "center.py").read_text("utf-8")
+    i = src.index("def _refresh_leg_card")
+    body = src[i:i + 2600]
+    assert "9000" in body and "9100" in body, \
+        "بازهٔ شناسهٔ جاسوس نامعتبر شمرده نمی‌شود"
+    assert "_bogus" in body, "گاردِ شناسهٔ جعلی وجود ندارد"
+    # ترتیب: پاک‌سازی باید **قبل** از همان early-return ِ «بی‌تغییر» باشد.
+    # ⚠️ نسخهٔ اولِ این بند با `body.index("return")` سنجید و قرمز شد — ولی آن
+    # اولین `return` ِ **گاردِ ورودی** بود (tid/chat نامعتبر)، نه early-return ِ
+    # هش. سنجهٔ موقعیتیِ خام روی تابعی با چند return دروغ می‌گوید.
+    i_bogus = body.index("_bogus")
+    i_skip = body.index("بی‌تغییر — ویرایشِ بیهوده نزن")
+    assert i_bogus < i_skip, "گارد بعد از early-return ِ هش آمده ⇒ بی‌اثر"
+
+
+def t_every_leg_card_is_refreshed_even_when_idle():
+    """گروهِ خالی همان چیزی است که مالک دید. کارت باید در هر ضربان تازه شود،
+    نه فقط وقتی کاری هست — با چرخشِ یک‌پا-در-ضربان تا رگبار نشود."""
+    import ast
+    src = (_OPS / "telegram_center" / "center.py").read_text("utf-8")
+    tree = ast.parse(src)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) and node.name == "beat":
+            called = {getattr(n.func, "attr", None) for n in ast.walk(node)
+                      if isinstance(n, ast.Call)}
+            assert "_refresh_leg_card" in called, \
+                "beat کارتِ پاها را تازه نمی‌کند ⇒ گروه خالی می‌مانَد"
+            assert "leg_card_cursor" in src, "چرخشِ یک‌پا-در-ضربان نیست"
+            return
+    raise AssertionError("beat پیدا نشد")
+
+
 def t_the_center_wires_all_three_seams():
     import ast
     src = (_OPS / "telegram_center" / "center.py").read_text("utf-8")
