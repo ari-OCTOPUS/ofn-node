@@ -157,6 +157,34 @@ def t_a_legs_own_persian_name_in_its_own_topic_is_not_cross_leg():
         assert d["allow"] is True and d["mode"] == "leg_scoped", (txt, d)
 
 
+def t_a_name_shared_by_two_legs_is_ambiguous_not_evidence():
+    """گاردِ `form in mine` — واژه‌ای که نامِ **هر دو** پاست شاهدِ بین-پایی نیست.
+
+    ⚠️ این بند بعد از یک **جهشِ سبز** نوشته شد: برداشتنِ کاملِ گارد هیچ تستی را
+    قرمز نکرد، چون در فهرستِ امروز هیچ دو پایی نامِ مشترک ندارند — یعنی آن خط
+    اصلاً اجرا نمی‌شد. جهشِ سبز یک گزارشِ باگ است، نه تأیید.
+
+    سنجه با فهرستِ **تزریق‌شده** انجام می‌شود تا به تصادفِ فهرستِ امروز گره
+    نخورد: اگر فردا کسی «نقاشی» را به studio_pf هم اضافه کند، آن واژه در
+    تاپیکِ lead باید همچنان مالِ خودِ lead خوانده شود، نه clarify."""
+    original = isp.LEG_ALIASES
+    try:
+        isp.LEG_ALIASES = dict(original)
+        isp.LEG_ALIASES["lead"] = ("لید", "نقاشی")
+        isp.LEG_ALIASES["studio_pf"] = ("استودیو", "نقاشی")   # تصادمِ عمدی
+        d = _c(_msg(chat_id=GROUP, chat_type="supergroup", thread=11,
+                    text="نقاشی چطور پیش می‌رود؟"))
+        assert d["allow"] is True and d["mode"] == "leg_scoped", d
+        # ولی نامِ **غیرمشترکِ** همان پا همچنان باید بگیرد — گارد نباید کل
+        # آن پا را از تشخیص معاف کند، فقط همان واژهٔ مبهم را.
+        d2 = _c(_msg(chat_id=GROUP, chat_type="supergroup", thread=11,
+                     text="استودیو چطور پیش می‌رود؟"))
+        assert d2["allow"] is False and d2["mode"] == "clarify", d2
+        assert "studio_pf" in d2["reason"], d2
+    finally:
+        isp.LEG_ALIASES = original
+
+
 def t_common_persian_words_are_not_mistaken_for_leg_names():
     """بیش‌بست به‌اندازهٔ کم‌بست بد است: clarify ِ بی‌مورد یعنی مالک یاد
     می‌گیرد گیت را جدی نگیرد. واژه‌های عمومی نباید نامِ پا شمرده شوند."""
