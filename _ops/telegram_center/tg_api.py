@@ -347,10 +347,14 @@ class TgClient:
 
     # ── متدهای عمومی (قراردادِ telegram_center) ───────────────────────────────
     def send(self, text: str, *, topic_id=None, keyboard=None,
-             chat_id=None, pin: bool = False) -> int | None:
+             chat_id=None, pin: bool = False, stream: str = "center") -> int | None:
         """sendMessage (HTML). خروجی = message_id یا None. topic_id → message_thread_id
         (تاپیکِ سوپرگروه). pin=True → بعد از ارسالِ موفق، pin هم می‌شود (شکستِ pin
-        ارسال را باطل نمی‌کند). not wired / متنِ خالی / chatِ نامعتبر → None، صفر شبکه."""
+        ارسال را باطل نمی‌کند). not wired / متنِ خالی / chatِ نامعتبر → None، صفر شبکه.
+
+        `stream` (۰۷-۳۰): برچسبِ رسید در tg-send-log. پیش‌فرض همان «center» ِ
+        همیشگی — صداکنندهٔ قدیمی هیچ تغییری نمی‌بیند؛ ولی مسیرِ `_route_send`
+        نامِ دقیق (center-digest/…) می‌دهد تا رسیدها قابلِ‌پروب باشند."""
         if not self.wired():
             return None
         cid = self._resolve_chat(chat_id)
@@ -380,7 +384,8 @@ class TgClient:
                 _sys.path.insert(0, _ops)
             import tg_send_log as _tsl  # noqa: WPS433
             _tsl.record(chat_id=cid, topic_id=body.get("message_thread_id"),
-                        text=body_text, stream="center", ok=data is not None)
+                        text=body_text, stream=str(stream or "center"),
+                        ok=data is not None)
         except Exception:  # noqa: BLE001
             pass
         if data is None:

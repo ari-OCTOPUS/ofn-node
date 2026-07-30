@@ -166,6 +166,11 @@ _VERDICT_APPROVAL_STATE = {"ok": "approved", "no": "denied", "later": "required"
 
 
 # ─── ابزارهای ماژول‌سطح (همه fail-soft، هیچ اثرِ import-time) ─────────────────────
+def _fa_num(n) -> str:
+    """عدد با رقمِ فارسی — عددِ لاتین وسطِ جملهٔ RTL جابه‌جا رندر می‌شود (bidi)."""
+    return str(n).translate(str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹"))
+
+
 def _scrub(s: object) -> str:
     """رشتهٔ حاویِ echo ِ ممنوع → کاملاً redact (parity با registry_scan.scrub)."""
     v = str(s if s is not None else "")
@@ -606,9 +611,9 @@ class Center:
                 if due_legs and merged_lines:
                     body = "\n\n".join(merged_lines)
                     try:
-                        m = self._client.send(_scrub(body),
-                                              topic_id=topics.get("system"),
-                                              chat_id=chat_id)
+                        # ۰۷-۳۰: دایجستِ ادغامی خلاصهٔ هسته‌ای است نه پیامِ یک پا —
+                        # مقصد از center-digest می‌آید (فلگ خاموش = همان system).
+                        m = self._route_send("center-digest", body, cfg=cfg)
                     except Exception:  # noqa: BLE001
                         m = None
                     if m is not None:
@@ -670,9 +675,11 @@ class Center:
                 except Exception:  # noqa: BLE001
                     continue
                 try:
-                    m = self._client.send(_scrub(txt), keyboard=kb,
-                                          topic_id=topics.get("system"),
-                                          chat_id=chat_id)
+                    # ۰۷-۳۰: کارتِ تصمیم دکمه دارد و دکمه‌هایش را خودِ همین مرکز
+                    # رسیدگی می‌کند ⇒ target باید روی outer بماند (surface-routing
+                    # همین را می‌گوید) وگرنه کارتِ مرده می‌سازیم — درسِ tr/iv.
+                    m = self._route_send("center-decision", txt, cfg=cfg,
+                                         keyboard=kb)
                 except Exception:  # noqa: BLE001
                     m = None
                 if m is not None:
@@ -706,20 +713,171 @@ class Center:
             _dl.beat(self)
         except Exception:  # noqa: BLE001 — link هرگز beat را نمی‌کشد
             pass
+        # ── پالسِ ساعتیِ لنگر (رأیِ مالک ۲۰۲۶-۰۷-۳۰: «پالسِ ساعتی») ────────────
+        # یک ضربانِ کوتاه در ساعت به DM ِ مالک — حسِ «زنده است» بدونِ رگبار.
+        # هیچ فلگِ تازه‌ای ندارد: مقصدش از `center-pulse` می‌آید که current اش
+        # `none` است ⇒ تا OCTOPUS_TG_SPLIT_V1 مسلح نشود، _route_send عمداً
+        # هیچ‌چیز نمی‌فرستد و فقط سررسید جلو می‌رود. بارِ اول بعد از فلگ، خودِ
+        # پیامِ خانه هم ساخته و پین می‌شود (hm:* دکمه‌هایش را همین مرکز دارد).
+        try:
+            _lp = float(cfg.get("last_pulse", 0.0) or 0.0)
+        except (TypeError, ValueError):
+            _lp = 0.0
+        if now - _lp >= 3600.0:
+            cfg["last_pulse"] = now
+            dirty = True
+            try:
+                _pt = self._home_pulse_text()
+                if _pt:
+                    _kb = self._home_keyboard()
+                    _mid = self._route_send("center-pulse", _pt, cfg=cfg,
+                                            keyboard=_kb)
+                    out["pulse"] = _mid is not None
+                    # خانهٔ پین‌شده: بارِ اولی که پالس واقعاً به DM رسید، همان
+                    # پیام پین می‌شود تا «خانه» همیشه بالای چت باشد.
+                    if (_mid is not None
+                            and not isinstance(cfg.get("home_message_id"), int)):
+                        try:
+                            _own = getattr(self._client, "owner_chat_id", None)
+                            if _own is not None:
+                                self._client.pin_message(_mid, chat_id=_own)
+                                cfg["home_message_id"] = _mid
+                        except Exception:  # noqa: BLE001 — pin نشد → پالس سرِ جایش است
+                            pass
+            except Exception:  # noqa: BLE001 — پالس هرگز beat را نمی‌کشد
+                pass
+            if dirty:
+                _save_config(cfg)
+                dirty = False
         return out
 
+    # ── خانهٔ لنگر: متن و دکمه‌ها ──────────────────────────────────────────────
+    def _home_pulse_text(self) -> str:
+        """متنِ پالسِ ساعتی — کوتاه، فارسی، بدونِ فهرستِ بلند.
+
+        رقم‌ها فارسی نوشته می‌شوند؛ عددِ لاتین وسطِ جملهٔ RTL جابه‌جا می‌شود
+        (درسِ bidi). هر بخش fail-soft است: نبودِ هر منبع ⇒ همان بخش حذف."""
+        lines = ["🐙 <b>نبضِ اختاپوس</b>"]
+        try:
+            txt = self._status_text() or ""
+            head = [ln for ln in txt.splitlines() if ln.strip()][:3]
+            lines += head
+        except Exception:  # noqa: BLE001
+            pass
+        try:
+            import surface_policy as _spol
+            held = len(_spol.held_since(500))
+            if held:
+                lines.append(f"🔇 نگه‌داشته‌شده: {_fa_num(held)} مورد (با دکمهٔ زیر ببین)")
+        except Exception:  # noqa: BLE001
+            pass
+        return "\n".join(lines[:8])
+
+    def _home_keyboard(self) -> list:
+        """سه دکمه — نه بیشتر. مالک ADHD دارد؛ هر دکمهٔ اضافه یک تصمیمِ اضافه است."""
+        return [[{"text": "🐙 وضعیتِ کامل", "callback_data": "hm:st"}],
+                [{"text": "🦵 پاها", "callback_data": "hm:legs"},
+                 {"text": "🔇 ناگفته‌ها", "callback_data": "hm:held"}]]
+
+    def _handle_home_callback(self, cbq: dict, data: str) -> dict:
+        """دکمه‌های خانهٔ لنگر — همه read-only، صفر جهش، صفر خرج.
+
+        مالکیت را `handle_update → _is_owner` از قبل گیت کرده؛ این‌جا فقط
+        رندر است. هر شکست ⇒ متنِ صادقِ کوتاه، هرگز سکوت."""
+        verb = str(data or "").split(":", 1)[-1]
+        msg = cbq.get("message") or {}
+        chat = (msg.get("chat") or {}).get("id")
+        try:
+            self._client.answer_callback(cbq.get("id"), "")
+        except Exception:  # noqa: BLE001
+            pass
+        if verb == "st":
+            body = self._status_text() or "هنوز چیزی برای گفتن ندارم."
+        elif verb == "legs":
+            rows = []
+            try:
+                cfg = _load_config()
+                r = self._rmod()
+                feeds = (r.collect_feeds() or {}) if r is not None else {}
+                legs_map = feeds.get("legs") if isinstance(feeds.get("legs"), dict) else {}
+                for leg in self._legs():
+                    d = legs_map.get(leg) or {}
+                    mark = "🟢" if d else "⚪️"
+                    rows.append(f"{mark} {leg}")
+            except Exception:  # noqa: BLE001
+                pass
+            body = ("🦵 <b>پاها</b>\n" + "\n".join(rows)) if rows else \
+                "🦵 هنوز گزارشی از پاها ندارم — تاپیک‌هایشان در گروه است."
+        elif verb == "held":
+            try:
+                import surface_policy as _spol
+                items = _spol.held_since(5)
+                if items:
+                    rows = [f"· <i>{str(i.get('stream') or '?')}</i> — "
+                            f"{str(i.get('text') or '')[:80]}" for i in items]
+                    body = "🔇 <b>آخرین ناگفته‌ها</b>\n" + "\n".join(rows)
+                else:
+                    body = "🔇 چیزی نگه نداشته‌ام."
+            except Exception:  # noqa: BLE001
+                body = "🔇 فهرستِ ناگفته‌ها در دسترس نیست."
+        else:
+            body = "این دکمه را نمی‌شناسم — خانه را دوباره باز کن."
+        try:
+            self._client.send(_scrub(body), chat_id=chat)
+        except Exception:  # noqa: BLE001
+            pass
+        return {"kind": "home", "verb": verb}
+
+    # ── مسیریابیِ ارسالِ محیطی (رأیِ مالک ۲۰۲۶-۰۷-۳۰: «بله، هر سه را انجام بده») ──
+    def _route_send(self, stream: str, text: str, *, cfg=None, keyboard=None,
+                    pin: bool = False):
+        """ارسالِ یک جریانِ محیطیِ مرکز از راهِ surface_router.resolve.
+
+        این همان صداکننده‌ای است که `resolve` از روزِ ساختش نداشت — تستش ۱۲/۱۲
+        سبز بود و در مسیرِ زندهٔ ارسال هیچ نقشی نداشت؛ به همین دلیل ۵۸ پیامِ
+        هسته‌ای با topic=None در General نشسته بود.
+
+        قرارداد:
+        · فلگ خاموش (`OCTOPUS_TG_SPLIT_V1`) ⇒ resolve بلوکِ `current` را می‌خواند
+          که واقعیتِ امروز است ⇒ رفتار بایت‌به‌بایت همان قبل.
+        · فلگ روشن ⇒ بلوکِ `target`: جریانِ هسته‌ای به DM می‌رود (قراردادِ
+          legs-only)، `center-alert` به رباتِ inner (بی‌دکمه، پس بدونِ ریسکِ
+          کارتِ مرده — دکمه‌دارها روی همان outer می‌مانند که خودش handler دارد).
+        · `(None, None, None)` از resolve (بلوکِ `none`) ⇒ عمداً هیچ ارسالی.
+        · هر خطا در خودِ روتر ⇒ سقوط به مسیرِ قدیمی (گروه/تاپیکِ system) —
+          پیامِ گم‌شده بدتر از پیامِ در جای اشتباه است.
+        """
+        if not self._wired() or not text:
+            return None
+        if cfg is None:
+            cfg = _load_config()
+        try:
+            import surface_router as _sr
+            cl, cid, tid = _sr.resolve(stream, clients=self._clients_map(), cfg=cfg)
+        except Exception:  # noqa: BLE001 — روتر هرگز ارسال را نمی‌کشد
+            topics = cfg.get("topics") if isinstance(cfg.get("topics"), dict) else {}
+            cl, cid, tid = self._client, cfg.get("chat_id"), topics.get("system")
+        if cl is None:
+            return None                      # بلوکِ none — سکوتِ عمدی (مثلِ pulse ِ پیش‌ازفلگ)
+        try:
+            return cl.send(_scrub(text), chat_id=cid, topic_id=tid,
+                           keyboard=keyboard, pin=pin, stream=stream)
+        except TypeError:
+            # کلاینتِ تستی/کهنه بدونِ پارامترِ stream — قراردادِ عمومی حفظ می‌شود.
+            return cl.send(_scrub(text), chat_id=cid, topic_id=tid,
+                           keyboard=keyboard, pin=pin)
+
     def push_alert(self, text: str) -> bool:
-        """push یک پیامِ alert به topic=system. منبعِ ارسالِ event_bridge و push-per-event.
-        fail-soft، scrubشده (parity با _scrub:120). false = ارسال نشد/خطا."""
+        """push یک پیامِ alert. منبعِ ارسالِ event_bridge و push-per-event.
+        fail-soft، scrubشده (parity با _scrub:120). false = ارسال نشد/خطا.
+
+        ۲۰۲۶-۰۷-۳۰: مقصد دیگر هاردکدِ topic=system نیست — از `center-alert` در
+        surface-routing.json می‌آید. فلگ خاموش = همان system ِ قبلی؛ فلگ روشن =
+        DM ِ رباتِ اختاپوس (inner)، طبقِ قراردادِ critical-alerts."""
         if not self._wired() or not text:
             return False
         try:
-            cfg = _load_config()
-            chat_id = cfg.get("chat_id")
-            topics = cfg.get("topics") if isinstance(cfg.get("topics"), dict) else {}
-            m = self._client.send(_scrub(text), topic_id=topics.get("system"),
-                                  chat_id=chat_id)
-            return m is not None
+            return self._route_send("center-alert", text) is not None
         except Exception:  # noqa: BLE001
             return False
 
@@ -2249,6 +2407,12 @@ class Center:
         توکنِ HumanAppendGuard (فقط با رازِ env)."""
         data = str(cbq.get("data") or "")
         verb = data.split(":", 1)[0]
+        # ۲۰۲۶-۰۷-۳۰ — دکمه‌های خانهٔ لنگر (hm:*). عمداً **این‌جا** dispatch می‌شود،
+        # جدا و بالاتر از جدولِ مرکز، تا با هانکِ کامیت‌نشدهٔ جلسهٔ موازی روی همان
+        # جدول تصادم نکند (§ درختِ مشترک). read-only اند و مالکیت را لایهٔ
+        # بالادست (handle_update → _is_owner) از قبل گیت کرده.
+        if verb == "hm":
+            return self._handle_home_callback(cbq, data)
         # 2026-07-29: کارتِ دکترِ اختاپوس callbackِ سه‌تکه دارد (ok|no:gate:mission)؛
         # اگر قبل از fallbackِ ok/no:<id> جدا نشود، به‌عنوانِ approvalِ بی‌ربط ثبت
         # می‌شود و دکتر هرگز رأی را نمی‌بیند. پشتِ OCTOPUS_WIRE_DOCTOR_TG؛ fail-soft.

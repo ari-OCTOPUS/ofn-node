@@ -5,11 +5,12 @@
     "bot: 'inner' = @Robo2725_bot (درونِ ارگانیسم: سلامت/هشدار/رسیدِ ترمیم) — DM",
     "bot: 'outer' = @intergrade2725_Bot (رابطِ شخصی: چت/شهود/کارتِ رأی) — DM",
     "surface: 'dm' = چتِ خصوصیِ مالک با همان بات · 'group' = گروهِ Organism (فقط پاها)",
-    "این فایل هنوز مصرف‌کنندهٔ زنده ندارد — پشتِ فلگِ OCTOPUS_TG_SPLIT_V1 (خاموش) سیم‌کشی می‌شود؛",
-    "تا آن رأی، 'current' واقعیتِ امروز است و 'target' مقصدِ مصوب."
+    "۲۰۲۶-۰۷-۳۰ (رأیِ مالک «بله، هر سه را انجام بده»): مدخل‌های center-* اضافه شد و روتر به مسیرِ ارسالِ مرکز وصل می‌شود.",
+    "نام‌های center-* جریان‌های واقعیِ خودِ پروسهٔ مرکزند — قبلاً همه با یک نامِ 'center' به گروه می‌رفتند (۵۸ پیام در General).",
+    "تا فلگ مسلح نشده، 'current' واقعیتِ امروز است و 'target' مقصدِ مصوب."
   ],
   "schema": "surface-routing.v2",
-  "updated": "2026-07-29",
+  "updated": "2026-07-30",
   "streams": {
     "chat":              {"current": {"bot": "outer", "surface": "group"}, "target": {"bot": "outer", "surface": "dm"},                     "شرح": "گفتگوی آزادِ مالک با اختاپوس"},
     "doctor-intent":     {"current": {"bot": "outer", "surface": "group"}, "target": {"bot": "outer", "surface": "dm"},                     "شرح": "کارتِ نیتِ خودبازنویسی — رأیِ مالک"},
@@ -20,6 +21,12 @@
     "organ-digest":      {"current": {"bot": "outer", "surface": "group"}, "target": {"bot": "inner", "surface": "dm"},                     "شرح": "دایجستِ ادواریِ ارگان‌ها"},
     "money-pulse":       {"current": {"bot": "outer", "surface": "group"}, "target": {"bot": "inner", "surface": "dm"},                     "شرح": "نبضِ درآمد (propose-only)"},
     "approvals-organism":{"current": {"bot": "inner", "surface": "group"}, "target": {"bot": "inner", "surface": "dm"},                     "شرح": "کارت‌های approval خودِ ارگانیسم"},
-    "legs-all":          {"current": {"bot": "outer", "surface": "group"}, "target": {"bot": "outer", "surface": "group", "topic": "per-leg"}, "شرح": "همهٔ جریان‌های پاها — تاپیکِ هر پا؛ مالکِ این بخش: جلسهٔ موازیِ بستهٔ اسکنِ گروه"}
+    "legs-all":          {"current": {"bot": "outer", "surface": "group"}, "target": {"bot": "outer", "surface": "group", "topic": "per-leg"}, "شرح": "همهٔ جریان‌های پاها — تاپیکِ هر پا؛ مالکِ این بخش: جلسهٔ موازیِ بستهٔ اسکنِ گروه"},
+
+    "center-status":     {"current": {"bot": "outer", "surface": "group"},                    "target": {"bot": "outer", "surface": "dm"},   "شرح": "پیامِ پینِ خانه/وضعیت — با فلگ می‌رود DM ِ لنگر و آنجا پین می‌شود"},
+    "center-digest":     {"current": {"bot": "outer", "surface": "group", "topic": "system"}, "target": {"bot": "outer", "surface": "dm"},   "شرح": "دایجستِ ادغامیِ پاها (MERGED_DIGEST) — خلاصهٔ هسته‌ای است نه پیامِ پا، پس DM"},
+    "center-decision":   {"current": {"bot": "outer", "surface": "group", "topic": "system"}, "target": {"bot": "outer", "surface": "dm"},   "شرح": "کارتِ تصمیم/راهنمایی — دکمه‌هایش را خودِ مرکز (outer) رسیدگی می‌کند، پس همان بات می‌ماند"},
+    "center-alert":      {"current": {"bot": "outer", "surface": "group", "topic": "system"}, "target": {"bot": "inner", "surface": "dm"},   "شرح": "هشدارِ push_alert — طبقِ قرارداد critical-alerts مالِ رباتِ اختاپوس (inner) است؛ بی‌دکمه، پس امنِ inner"},
+    "center-pulse":      {"current": {"bot": "none",  "surface": "none"},                     "target": {"bot": "outer", "surface": "dm"},   "شرح": "پالسِ ساعتیِ لنگر (رأیِ مالک ۰۷-۳۰: «پالسِ ساعتی») — تا فلگ مسلح نشود هیچ‌جا نمی‌رود"}
   }
 }
