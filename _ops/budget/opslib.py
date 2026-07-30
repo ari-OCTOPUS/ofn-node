@@ -271,7 +271,30 @@ class LockedJson:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         tmp = self.path.with_suffix(self.path.suffix + ".tmp")
         tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), "utf-8")
-        os.replace(tmp, self.path)
+        # VQ-STATE-WRITE-001: روی ویندوز `os.replace` گاهی با WinError 5 (قفلِ
+        # گذرای AV/ایندکسر روی فایلِ مقصد) می‌شکند — نتیجه: `.tmp` تازه کنارِ
+        # فایلِ اصلیِ کهنه، و heartbeat زنده بدونِ هیچ زنگی. retry ِ محدود با
+        # backoff؛ شکستِ نهایی fail-loud می‌ماند (استثنا بالا می‌رود — بلعیدنش
+        # کارِ این لایه نیست) + یک breadcrumb ِ ماشین‌خوان کنارِ فایل تا کهنگی
+        # قابلِ تشخیصِ قطعی باشد نه حدسی.
+        last: Exception | None = None
+        delay = 0.05
+        for _ in range(6):
+            try:
+                os.replace(tmp, self.path)
+                return
+            except (PermissionError, OSError) as e:
+                last = e
+                time.sleep(delay)
+                delay = min(delay * 2, 0.8)
+        try:
+            pathlib.Path(str(self.path) + ".replace-failed.json").write_text(
+                json.dumps({"ts": now_iso(), "error": str(last),
+                            "tmp": str(tmp), "attempts": 6},
+                           ensure_ascii=False), "utf-8")
+        except OSError:
+            pass
+        raise last if last is not None else OSError("replace-failed")
 
 
 def append_jsonl(path: pathlib.Path, record: dict) -> None:

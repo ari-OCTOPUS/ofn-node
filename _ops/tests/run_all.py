@@ -601,6 +601,14 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     # قرمزِ کاذبِ دائم. run_all هیچ glob/discovery ندارد ⇒ ثبت‌نشده = هرگز اجرا نشده.
     "test_hebbian_eventclock.py",                   # ساعتِ رخدادِ hebbian + سقفِ learned
     "test_watchdog_stall.py",                       # استالِ حلقه + احیای باصدا
+    # ۲۰۲۶-۰۷-۳۱ — موجِ «اتصال، نه اندامِ نو» (سندِ OCTOPUS-VS-FRONTIER): پنج
+    # فایل، همه plain-asserts (تابع‌های t_ + harness.run) ⇒ در TESTS، نه PYTEST.
+    "test_action_durability.py",     # دفترِ idempotency/nonce ِ persisted؛ replay=NOOP؛
+                                     # همین تست باگِ split/rsplit ِ CONFLICT را رو کرد
+    "test_retrieval_router.py",      # حافظه در نقطهٔ تصمیم — فقط narrowing، هرگز مجوز
+    "test_mission_kernel.py",        # پروندهٔ واحدِ مأموریت: timeline/resume/fsck، فقط‌خواندنی
+    "test_state_write_retry.py",     # ریشهٔ VQ-STATE-WRITE-001: retry ِ os.replace + breadcrumb
+    "test_action_schema_drift.py",   # دو کپیِ اعتبارسنجِ action-request — گاردِ drift
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
