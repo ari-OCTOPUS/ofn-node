@@ -71,6 +71,70 @@ def test_invalid_fields_normalized():
     assert out["risk"] in ("low", "medium", "high")
 
 
+# ─── ارتقا وقتی مغزِ محلی در پنجرهٔ انصافش است (2026-07-26) ──────────────────
+def test_escalates_to_paid_only_when_local_is_unavailable():
+    """اندازه‌گیریِ زنده: OLLAMA_MIN_INTERVAL_S=20s، پس پیامِ دومِ مالک در آن پنجره
+    `local-llm-unavailable` می‌گیرد و به منوی ثابت سقوط می‌کند. یک انسانِ منتظر
+    هم‌کلاسِ یک beatِ پس‌زمینه نیست. چهار پیامِ پشتِ‌سرِهم: ۲/۴ بدونِ ارتقا، ۴/۴ با آن."""
+    calls = []
+
+    def fake(task, prompt, system="", max_tokens=200, tier=None):
+        calls.append(tier)
+        if tier is None:
+            return {"ok": False, "reason": "local-llm-unavailable"}
+        return {"ok": True, "tier": "primary",
+                "text": '{"intent":"status","risk":"low","summary":"س","needs_mission":false}'}
+
+    os.environ.pop("OCTOPUS_TG_ASK_ESCALATE", None)
+    calls.clear()
+    r = li.understand("چه خبر؟", ask_fn=fake)
+    assert r["ok"] is False and r["reason"] == "llm-no-answer", r
+    assert calls == [None], f"با فلگِ خاموش نباید ارتقا بدهد: {calls}"
+
+    os.environ["OCTOPUS_TG_ASK_ESCALATE"] = "1"
+    try:
+        calls.clear()
+        r = li.understand("چه خبر؟", ask_fn=fake)
+        assert r["ok"] is True and r["tier"] == "primary", r
+        assert calls == [None, "primary"], f"باید دقیقاً یک‌بار ارتقا بدهد: {calls}"
+        assert r.get("escalated_from") == "local-llm-unavailable"
+    finally:
+        os.environ.pop("OCTOPUS_TG_ASK_ESCALATE", None)
+
+
+def test_a_healthy_local_answer_never_escalates():
+    """ارتقا نباید مسیرِ سالم را گران/کند کند."""
+    calls = []
+
+    def fake(task, prompt, system="", max_tokens=200, tier=None):
+        calls.append(tier)
+        return {"ok": True, "tier": "local",
+                "text": '{"intent":"status","risk":"low","summary":"س","needs_mission":false}'}
+
+    os.environ["OCTOPUS_TG_ASK_ESCALATE"] = "1"
+    try:
+        r = li.understand("چه خبر؟", ask_fn=fake)
+        assert r["ok"] is True and r["tier"] == "local"
+        assert calls == [None], f"جوابِ سالمِ محلی نباید ارتقا بگیرد: {calls}"
+        assert "escalated_from" not in r
+    finally:
+        os.environ.pop("OCTOPUS_TG_ASK_ESCALATE", None)
+
+
+def test_a_failed_escalation_still_falls_back_not_crashes():
+    def fake(task, prompt, system="", max_tokens=200, tier=None):
+        if tier is None:
+            return {"ok": False, "reason": "local-llm-unavailable"}
+        raise RuntimeError("پولی هم مرد")
+
+    os.environ["OCTOPUS_TG_ASK_ESCALATE"] = "1"
+    try:
+        r = li.understand("چه خبر؟", ask_fn=fake)
+        assert r["ok"] is False and r["reason"] == "llm-no-answer", r
+    finally:
+        os.environ.pop("OCTOPUS_TG_ASK_ESCALATE", None)
+
+
 if __name__ == "__main__":
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
     for fn in fns:

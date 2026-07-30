@@ -5,7 +5,7 @@ tags: [control-plane, governance, reconciliation, tri-plane, ops, nbb-cp, 4d, co
 created: 2026-07-12
 updated: 2026-07-16
 created_by: agent
-decision_ref: [VQ-ROOT-001, VQ-NBB-001, VQ-4D-001]
+# decision_ref: [VQ-ROOT-001, VQ-NBB-001, VQ-4D-001]
 sources:
   - "[[06 - Architecture Maps/URCP Reconciliation - control-plane on OCTOPUS]] (control-plane ~۶۰٪ ساخته)"
   - "[[06 - Architecture Maps/ADR-001 Pulse-Source coupled-not-merged]] (دکترینِ coupled-not-merged)"

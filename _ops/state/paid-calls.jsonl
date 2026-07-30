@@ -1,0 +1,2 @@
+{"ts": "2026-07-25T10:41:38", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 102, "tokens_out": 18, "cost_usd": 0.0, "chars_out": 4, "ms": 4265, "quota_used": 1}
+{"ts": "2026-07-25T11:10:42", "tier": "primary", "role": "orchestr", "provider": "sakana", "model": "fugu", "via_gateway": false, "subscription": "max", "ok": true, "tokens_in": 571, "tokens_out": 479, "cost_usd": 0.0, "chars_out": 674, "ms": 12657, "quota_used": 2}

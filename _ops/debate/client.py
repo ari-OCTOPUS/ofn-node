@@ -40,12 +40,71 @@ class TelemetryError(RuntimeError):
 
 
 def extract_json(text: str) -> dict[str, Any]:
-    """JSON را از پاسخ مدل بیرون می‌کشد (حصار ```json / نثر اطراف را تحمل می‌کند)."""
+    """JSON را از پاسخ مدل بیرون می‌کشد.
+
+    - حصارِ ```json ... ``` یا ``` ... ``` را حذف می‌کند (Markdown).
+    - JSON نامعتبر یا بریده (truncated by max_tokens) → خطای واضح با علت.
+    - وقتی آکولادِ پایانی غایب باشد، پیامِ «truncated» می‌دهد نه «no JSON object»
+      تا صاحبِ فراخوان بداند علت سقفِ توکن است نه نبودِ JSON.
+    """
     s = text.strip()
+    # ── strip markdown code fences ──────────────────────────────────────
+    # الگو: ```json ... ```  یا  ``` ... ``` — فقط اولین و آخرین حصار را حذف می‌کند
+    if s.startswith("```"):
+        first_nl = s.find("\n")
+        if first_nl != -1:
+            # حصارِ شروع: ```json یا ``` (3+ کاراکتر)
+            fence_open = first_nl + 1
+            # حصارِ پایانی: خطی که فقط ``` دارد
+            fence_close = s.rfind("```")
+            if fence_close > fence_open:
+                s = s[fence_open:fence_close].strip()
+            else:
+                # حصارِ پایانی غایب — JSON درون حصار شروع شده ولی تمام نشده (truncated)
+                s = s[fence_open:]
+    # ── find JSON braces ───────────────────────────────────────────────
     i, j = s.find("{"), s.rfind("}")
-    if i == -1 or j == -1:
+    if i == -1:
         raise ValueError(f"no JSON object in model reply: {s[:120]!r}")
-    return json.loads(s[i:j + 1])
+    if j == -1:
+        # بریدگیِ توکن — JSON شروع شده ولی تمام نشده
+        raise ValueError(
+            f"JSON response truncated (missing closing brace): "
+            f"{s[:120]!r}  — likely finish_reason=length; raise max_tokens")
+    candidate = s[i:j + 1]
+    try:
+        return json.loads(candidate)
+    except json.JSONDecodeError as exc:
+        raise ValueError(
+            f"invalid JSON in model reply (offset {exc.pos}): {exc.msg!r}  "
+            f"snippet: {candidate[max(0, exc.pos - 20):exc.pos + 40]!r}") from exc
+
+
+def _infer_finish(finish, tokens_out, max_tokens) -> "str | None":
+    """اگر provider ساکت است، بریدگی را از شمارِ توکن استنتاج کن.
+
+    ۲۰۲۶-۰۷-۳۰ — شاهد: در `state/paid-calls.jsonl` هر ۲۰۶ تماسِ موفق
+    `finish_reason=None` داشتند، چون sakana/fugu این میدان را برنمی‌گرداند. پس
+    گاردی که ۰۷-۲۷ برای دیدنِ «length» ساخته شده بود **هرگز شلیک نمی‌کرد** —
+    میدان لوله‌کشی شده بود ولی همیشه خالی می‌آمد.
+
+    چرا `tokens_out >= max_tokens` استنتاجِ معتبری است: مدلِ استدلالی توکن‌های
+    تفکرش را از همان بودجهٔ `max_tokens` می‌خورد. اگر شمارِ خروجی به سقف بخورد،
+    تولید **قطع** شده است؛ چه متنِ مرئی داشته باشیم چه نه. نمونهٔ زنده:
+    `tokens_out=500 (=سقف) → chars_out=3` — کلِ بودجه صرفِ استدلال شد و سه
+    کاراکتر بیرون آمد. بدونِ این استنتاج، آن پاسخ «موفق» شمرده می‌شد.
+
+    محافظه‌کار است: رأیِ صریحِ provider همیشه برنده است، و پاسخِ کوچکی که به سقف
+    نخورده (`tokens_out=18` با سقفِ ۷۰۰) دست‌نخورده می‌ماند — آن پاسخِ سالمِ
+    کوتاه است، نه بریده."""
+    if finish:
+        return finish
+    try:
+        if int(tokens_out or 0) >= int(max_tokens or 0) > 0:
+            return "length"
+    except (TypeError, ValueError):
+        pass
+    return finish
 
 
 class DeepSeekClient:
@@ -104,9 +163,18 @@ class DeepSeekClient:
                 data=json.dumps(body).encode("utf-8"),
                 headers={"Authorization": f"Bearer {self.api_key}",
                          "Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=120) as resp:  # pragma: no cover
+            with urllib.request.urlopen(
+                    req, timeout=_http_timeout(
+                        getattr(self, "role", None), max_tokens)) as resp:  # pragma: no cover
                 raw = json.loads(resp.read().decode("utf-8"))
-        _msg = (raw.get("choices") or [{}])[0].get("message", {})
+        _choice = (raw.get("choices") or [{}])[0]
+        # 2026-07-27: `finish_reason` هرگز سطح‌بالا نمی‌آمد، پس یک پاسخِ **بریده** از
+        # صدا درنمی‌آمد — فقط بعداً `extract_json` می‌شکست و آلارم «no JSON object»
+        # می‌داد. مسیرِ LLM ِ گاورنر ۲۴+ ساعت روی همین کوری مرده ماند و هر epoch یک
+        # فراخوانِ ~۳۰ ثانیه‌ای Fugu را دور ریخت. حالا صاحبِ فراخوان می‌تواند «length»
+        # را ببیند و سقف را بالا ببرد به‌جای اینکه دنبالِ باگِ parser بگردد.
+        _finish = _choice.get("finish_reason")
+        _msg = _choice.get("message", {})
         # fallback به reasoning_content — مدل‌های reasoning گاهی content را خالی می‌گذارند (fail-soft، صادق)
         text = _msg.get("content") or _msg.get("reasoning_content") or ""
         usage = raw.get("usage")
@@ -119,8 +187,15 @@ class DeepSeekClient:
             raise TelemetryError("usage صفر/ناقص — صفر بی‌صدا ممنوع (تلهٔ or 0)")
         cost = (tin / 1e6) * float(self.price_in or 0.0) \
             + (tout / 1e6) * float(self.price_out or 0.0)
-        return {"text": text, "model": self.model, "tokens_in": tin, "tokens_out": tout,
-                "cost_usd": cost, "stub": self.transport is not None}
+        # DEFECT-W4: transportِ تزریقی می‌تواند ردهٔ واقعیِ خود را اعلام کند (octopus_tier)
+        # تا ledger بینِ stubِ آفلاین و مغزِ محلیِ واقعی فرق بگذارد. نبودِ این کلید =
+        # رفتارِ امروز بایت‌به‌بایت (هر transport = stub؛ بدونِ transport = زنده).
+        _tier = raw.get("octopus_tier")
+        return {"text": text, "model": raw.get("octopus_model") or self.model,
+                "tokens_in": tin, "tokens_out": tout, "cost_usd": cost,
+                "finish_reason": _infer_finish(_finish, tout, max_tokens),
+                "tier": _tier or ("stub" if self.transport is not None else "paid"),
+                "stub": self.transport is not None and (_tier or "stub") == "stub"}
 
 
 # ─── MultiProviderClient (GLM/Fugu/DeepSeek) — تسکِ routing اصلی ──────────────
@@ -130,6 +205,135 @@ class DeepSeekClient:
 # (glm-coder, deepseek-bulk, orchestr, fugu) با cost-cap + audit + fallback.
 # کد از طریقِ gateway می‌زند، نه مستقیم. کلید = LITELLM_MASTER_KEY از gateway/.env.
 GATEWAY_URL = "http://localhost:4000"
+
+
+# ── سقفِ مشتق‌شده از اندازهٔ درخواست (یافتهٔ ۲۵ جولای، عدد-به-عدد) ──────────────
+# شاهدِ زنده در `state/paid-calls.jsonl`: **هر ۱۵ شکست** از ۳۰ فراخوان دقیقاً روی سقفِ
+# سوکتِ خودمان مرد (۶ تا روی ۴۵s، ۹ تا روی ۲۰s). صفر خطای فروشنده، صفر ۴۰۱.
+# نرخِ مشاهده‌شدهٔ Fugu از سه موفقیت (out=18→4.3s، 479→12.7s، 488→16.1s):
+#     ms ≈ 3811 + 25.2 × out_tokens        (~۴۰ tok/s + ~۳.۸s سرِ ثابت)
+# و `governor_epoch.py` با `max_tokens=1200` می‌زد ⇒ ≥۳۴ ثانیه لازم داشت. با سقفِ
+# سراسریِ ۲۰ ثانیه آن فراخوان **ریاضیاتاً غیرممکن** بود، نه بعید — و هر شکست به‌عنوان
+# «شکستِ فروشنده» شمرده می‌شد تا FUGU_FAIL_CEILING مغزِ پولی را خاموش کند.
+#
+# ریشهٔ معماری: یک عددِ سراسری نمی‌تواند هم GLMِ ۹ ثانیه‌ای و هم مسیرِ orchestrationِ
+# چند-ایجنتی را سرویس کند. پس سقف **مشتق** می‌شود: از max_tokensِ همان درخواست، با
+# حاشیهٔ ایمنی، کف‌دار به سقفِ صریح، و **کران‌دار به کسری از PAID_ASK_BUDGET_S** تا
+# فراخوانِ اول کلِ بودجهٔ ask را نخورد و fallbackِ tierِ دوم بی‌وقت نماند.
+_TOK_PER_S = 25.0          # محافظه‌کارانه‌تر از ۴۰ tok/sِ مشاهده‌شده (حاشیه برای افتِ نرخ)
+_OVERHEAD_S = 5.0          # سرِ ثابتِ مشاهده‌شده ۳.۸s، رُند به بالا
+_SAFETY = 1.5              # ضریبِ حاشیه
+_ASK_BUDGET_SHARE = 0.6    # حداکثر ۶۰٪ بودجهٔ ask برای یک سوکت → ۴۰٪ برای fallback
+
+# ۲۰۲۶-۰۷-۲۷ — بودجهٔ ask هم نمی‌تواند یک عددِ سراسری باشد، به همان دلیلی که سقفِ
+# سوکت نمی‌توانست. اندازه‌گیریِ زندهٔ همان روز نشان داد گاورنر با max_tokens=600
+# **بریده** می‌شود و فقط با ۲۰۰۰ خروجیِ parseشدنی می‌دهد؛ ولی مشتقِ همین ماژول برای
+# ۲۰۰۰ توکن ۱۲۷.۵s می‌خواهد و کرانِ ۶۰٪ از بودجهٔ سراسریِ ۹۰s فقط ۵۴s می‌داد. یعنی
+# فراخوان دوباره ریاضیاتاً محکوم بود — همان باگی که یک بار بسته شده بود، از سمتِ
+# دیگر برگشت.
+#
+# چرا سراسری را بالا نمی‌بریم: بودجهٔ ask فقط سقفِ صبر نیست؛ کرانِ زمانی است که نخِ
+# متابولیک تا دیدنِ STOP-ORGANISM تحمل می‌کند. بالابردنش برای همه، پاسخ‌گوییِ
+# کلیدِ کشتن را برای هر مسیرِ پولی کند می‌کند. پس فقط نقشی که واقعاً سقفِ بزرگ
+# لازم دارد بودجهٔ بزرگ می‌گیرد.
+_ASK_BUDGET_DEFAULT = 90.0
+_ASK_BUDGET_BY_ROLE = {
+    # حلقهٔ epochِ گاورنر هر ۲۰ دقیقه در نخِ خودش است؛ ۲۱۵s سقفِ ask یعنی
+    # ۱۲۹s سقفِ سوکت — کمی بالای ۱۲۷.۵sِ لازم برای ۲۰۰۰ توکن.
+    "ORCHESTR": 215.0,
+}
+
+
+def _ask_budget(role: "str | None") -> float:
+    """بودجهٔ askِ این نقش: envِ per-role → envِ سراسری → جدولِ نقش → پیش‌فرض."""
+    import os as _o
+    r = str(role or "").strip().upper()
+    if r:
+        per = _env_float(f"PAID_ASK_BUDGET_S_{r}", 0.0)
+        if per > 0:
+            return per
+    if str(_o.environ.get("PAID_ASK_BUDGET_S", "")).strip():
+        return _env_float("PAID_ASK_BUDGET_S", _ASK_BUDGET_DEFAULT)
+    return _ASK_BUDGET_BY_ROLE.get(r, _ASK_BUDGET_DEFAULT)
+
+
+def _env_float(name: str, default: float) -> float:
+    import os as _o
+    try:
+        return float(_o.environ.get(name, "") or default)
+    except (TypeError, ValueError):
+        return default
+
+
+_TRUNC_SEEN = set()
+
+
+def _timeout_truncated(role, max_tokens, need_s: float, cap_s: float) -> None:
+    """آلارمِ «سقفِ سوکت زیرِ نیازِ محاسبه‌شده» — یک بار per (نقش، سقف)، fail-soft.
+
+    عمداً بی‌صدا **نیست** ولی پرحرف هم نیست: هر ترکیب یک بار در عمرِ پروسه."""
+    key = (str(role or ""), int(max_tokens or 0))
+    if key in _TRUNC_SEEN:
+        return
+    _TRUNC_SEEN.add(key)
+    try:
+        # ⚠️ مسیر از `opslib.STATE_DIR` می‌آید نه از `__file__`.
+        # نسخهٔ اولِ همین تابع (چند ساعت پیش، همین جلسه) مسیر را از `__file__`
+        # می‌ساخت — یعنی **مستقل از env**. نتیجه: هر اجرای سوییت روی درختِ
+        # **زنده** می‌نوشت و ۹۸ ردیفِ آزمایشی در state واقعی نشست. دقیقاً همان
+        # دامِ «مسیر بی‌صدا به درختِ زنده می‌خورد» که در این مخزن ثبت شده است.
+        p = opslib.STATE_DIR / "paid-timeout-alerts.jsonl"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        import json as _j
+        import time as _t
+        with open(p, "a", encoding="utf-8") as f:
+            f.write(_j.dumps({
+                "ts": _t.strftime("%Y-%m-%dT%H:%M:%S"),
+                "role": str(role or ""), "max_tokens": int(max_tokens or 0),
+                "need_s": round(float(need_s), 1), "cap_s": round(float(cap_s), 1),
+                "why": "سقفِ سوکت زیرِ نیازِ مشتق‌شده — این فراخوان احتمالاً بریده می‌شود",
+                "fix": f"PAID_ASK_BUDGET_S_{str(role or '').upper()} را "
+                       f"≥{need_s / _ASK_BUDGET_SHARE:.0f} کن یا max_tokens را کم کن",
+            }, ensure_ascii=False) + "\n")
+    except (OSError, ValueError, TypeError):
+        pass
+
+
+def _http_timeout(role: "str | None" = None, max_tokens: "int | None" = None) -> float:
+    """سقفِ سختِ عملیاتِ سوکت روی مسیرِ پولی.
+
+    ترتیبِ اولویت:
+      ۱) `PAID_HTTP_TIMEOUT_S_<ROLE>` (مثلاً `PAID_HTTP_TIMEOUT_S_ORCHESTR`) — صریح، per-role
+      ۲) `PAID_HTTP_TIMEOUT_S` — سقفِ سراسری (پیش‌فرض ۴۵s)
+      ۳) کفِ مشتق‌شده از max_tokens: (OVERHEAD + tokens/RATE) × SAFETY
+    نتیجه = max(صریح، مشتق‌شده) و بعد کران‌دار به `ASK_BUDGET × 0.6` و بازهٔ [1, 300].
+    با `max_tokens=None` رفتار **بایت‌به‌بایت** مثلِ قبل است (سازگاریِ عقب‌رو)."""
+    base = _env_float("PAID_HTTP_TIMEOUT_S", 45.0)
+    if not (1.0 <= base <= 300.0):
+        base = 45.0
+    if role:
+        per = _env_float(f"PAID_HTTP_TIMEOUT_S_{str(role).strip().upper()}", 0.0)
+        if 1.0 <= per <= 300.0:
+            base = per
+    if max_tokens:
+        try:
+            need = (_OVERHEAD_S + float(max_tokens) / _TOK_PER_S) * _SAFETY
+        except (TypeError, ValueError, ZeroDivisionError):
+            need = 0.0
+        if need > base:
+            base = need
+        # کرانِ بالا: هرگز از سهمِ مجازِ بودجهٔ askِ بیرونی رد نشو
+        ask = _ask_budget(role)
+        if ask > 0:
+            cap = ask * _ASK_BUDGET_SHARE
+            if base > cap:
+                # ⚠️ این‌جا داریم تماسی می‌زنیم که خودمان محاسبه کرده‌ایم تمام
+                # نمی‌شود. یک بار همین اتفاق افتاد و ۸۷ آلارمِ «no JSON object»
+                # داد بدونِ اینکه یک بار بگوید علت ساعتِ خودمان است. سکوت اجازه
+                # نیست — بریدن ثبت می‌شود تا دفعهٔ بعد در همان دقیقهٔ اول پیدا شود.
+                _timeout_truncated(role, max_tokens, base, cap)
+                base = cap
+    return min(300.0, max(1.0, base))
 GATEWAY_ENV_PATH = Path(__file__).resolve().parent.parent.parent / "survival-gateway" / ".env"
 
 # نگاشتِ role (در budgets.yaml) → نامِ مدلِ مجازیِ gateway
@@ -301,7 +505,9 @@ class MultiProviderClient:
                 data=json.dumps(body).encode("utf-8"),
                 headers={"Authorization": f"Bearer {self.api_key}",
                          "Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=120) as resp:  # pragma: no cover
+            with urllib.request.urlopen(
+                    req, timeout=_http_timeout(
+                        getattr(self, "role", None), max_tokens)) as resp:  # pragma: no cover
                 raw = json.loads(resp.read().decode("utf-8"))
         else:
             req = urllib.request.Request(
@@ -309,9 +515,18 @@ class MultiProviderClient:
                 data=json.dumps(body).encode("utf-8"),
                 headers={"Authorization": f"Bearer {self.api_key}",
                          "Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=120) as resp:  # pragma: no cover
+            with urllib.request.urlopen(
+                    req, timeout=_http_timeout(
+                        getattr(self, "role", None), max_tokens)) as resp:  # pragma: no cover
                 raw = json.loads(resp.read().decode("utf-8"))
-        _msg = (raw.get("choices") or [{}])[0].get("message", {})
+        _choice = (raw.get("choices") or [{}])[0]
+        # 2026-07-27: `finish_reason` هرگز سطح‌بالا نمی‌آمد، پس یک پاسخِ **بریده** از
+        # صدا درنمی‌آمد — فقط بعداً `extract_json` می‌شکست و آلارم «no JSON object»
+        # می‌داد. مسیرِ LLM ِ گاورنر ۲۴+ ساعت روی همین کوری مرده ماند و هر epoch یک
+        # فراخوانِ ~۳۰ ثانیه‌ای Fugu را دور ریخت. حالا صاحبِ فراخوان می‌تواند «length»
+        # را ببیند و سقف را بالا ببرد به‌جای اینکه دنبالِ باگِ parser بگردد.
+        _finish = _choice.get("finish_reason")
+        _msg = _choice.get("message", {})
         # fallback به reasoning_content — مدل‌های reasoning گاهی content را خالی می‌گذارند (fail-soft، صادق)
         text = _msg.get("content") or _msg.get("reasoning_content") or ""
         usage = raw.get("usage")
@@ -329,6 +544,7 @@ class MultiProviderClient:
             cost = (tin / 1e6) * self.price_in + (tout / 1e6) * self.price_out
         return {"text": text, "model": self.model, "provider": self.provider,
                 "tokens_in": tin, "tokens_out": tout, "cost_usd": cost,
+                "finish_reason": _infer_finish(_finish, tout, max_tokens),
                 "subscription": self.subscription or "metered",
                 "via_gateway": self.use_gateway,
                 "stub": self.transport is not None}

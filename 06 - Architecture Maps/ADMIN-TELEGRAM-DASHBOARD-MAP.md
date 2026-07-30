@@ -1,10 +1,11 @@
 ---
-title: Admin Telegram Dashboard Map
+type: architecture
+# title: Admin Telegram Dashboard Map
 status: active
 created: 2026-07-12
 updated: 2026-07-12
 tags: [octopus, admin-telegram, dashboard, ui, wave-5]
-backlinks:
+related:
   - "[[OCTOPUS-CHANNEL-REGISTRY]]"
   - "[[OCTOPUS-EXTRACTOR-REGISTRY]]"
   - "[[WAVE-5-HARDENING-PLAN]]"

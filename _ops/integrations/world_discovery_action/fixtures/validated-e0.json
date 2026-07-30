@@ -1,0 +1,49 @@
+{
+ "schema": "world-discovery.bundle.v1",
+ "written_at": "2026-07-30T05:10:08Z",
+ "result": {
+  "schema": "world-discovery.discover.v1",
+  "status": "DISCOVERY_VALIDATED",
+  "discovery": {
+   "discovery_id": "disc-001",
+   "claim": "ادعای آزمایشی",
+   "evidence_urls": [
+    "https://src0.example/0",
+    "https://src1.example/1"
+   ],
+   "falsifier": "اگر TCO محلی بالاتر از API درآید",
+   "confidence": 0.4
+  },
+  "discovered_at": "2026-07-30T05:10:08Z",
+  "candidates": [],
+  "asymmetry_hypotheses": [],
+  "owner_action_cards": [],
+  "telegram_draft_brief": "",
+  "hard_invariant_violations": [],
+  "metrics": {
+   "candidates_found": 8,
+   "actionable_discovery_count": 1,
+   "spend_amount": 0.0,
+   "external_effect_count": 0,
+   "triangulated_discovery_count": 1,
+   "asymmetry_hypotheses": 4
+  },
+  "note": "",
+  "reason": "",
+  "experiment": {
+   "level": "E0",
+   "title": "آزمایشِ عمومیِ TCO",
+   "description": "مقایسهٔ هزینهٔ محلی و API از دادهٔ عمومی",
+   "target": "workspace/tco.json",
+   "falsifier": "اگر اختلاف <۱۰٪ شود",
+   "external_effect": false,
+   "estimated_cost": 0,
+   "expected_outcome": "جدولِ مقایسه",
+   "steps": [
+    {
+     "op": "read public pricing page"
+    }
+   ]
+  }
+ }
+}

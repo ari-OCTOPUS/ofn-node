@@ -1,0 +1,63 @@
+{
+  "ts": "2026-07-25T13:34:24",
+  "beat": 11994,
+  "version": 9,
+  "source": "heuristic",
+  "snapshot_hash": "4ff93b462ea65c11",
+  "stable_cycles": 0,
+  "llm_calls": 0,
+  "deep_dive_ran": false,
+  "focus": "درآمد صفر",
+  "understanding": {
+    "anatomy": "1 لِگ، 31 سیمِ روشن",
+    "physiology": "درآمد>۰",
+    "pathology": [
+      {
+        "symptom": "درآمد صفر",
+        "root_cause": "هیچ لِگی به سیگنالِ واقعی وصل نیست",
+        "severity": "high"
+      },
+      {
+        "symptom": "ترس روی ['legs', 'doctor']",
+        "root_cause": "لِگ‌های مرده → استرس=۱ → خود-تغییری منجمد",
+        "severity": "high"
+      },
+      {
+        "symptom": "خطای پرتکرار ValueError ×16",
+        "root_cause": "نامعلوم (نیاز به کاوش)",
+        "severity": "medium"
+      }
+    ],
+    "trajectory": "نامعلوم (بی‌LLM)",
+    "prescription": [
+      {
+        "action": "یک لِگ را به لیدِ واقعی وصل کن",
+        "why": "ترس را می‌شکند",
+        "priority": "high"
+      }
+    ],
+    "open_questions": [
+      "چرا خطاهای پرتکرار رخ می‌دهند؟"
+    ],
+    "focus": "درآمد صفر",
+    "confidence": 0.4
+  },
+  "deep_dive": {},
+  "trajectory": {
+    "focus_stable": false,
+    "prev_focus": "فعال کردن لگ‌های مرده و افزایش درآمد",
+    "confidence_delta": 0.0,
+    "converging": false
+  },
+  "snapshot_digest": {
+    "legs_alive": [],
+    "in_fear": [
+      "legs",
+      "doctor"
+    ],
+    "money_musd": 21295,
+    "recent_errors": {
+      "ValueError": 16
+    }
+  }
+}

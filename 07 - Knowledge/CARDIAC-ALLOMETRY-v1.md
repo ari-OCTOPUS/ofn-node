@@ -1,6 +1,6 @@
 ---
-type: theory
-status: draft-for-verdict
+type: research
+status: draft
 created_by: agent
 created: 2026-07-09
 updated: 2026-07-09
@@ -11,10 +11,10 @@ source: >
   با chrono.py فعلی (جلسهٔ ۳۳، پس از پیامِ آری دربارهٔ «منبعِ ضربان در طبیعت»).
   منابع: PMC4622013 (Kleiber)، StatPearls/NBK459238 (SA node)، Royal Society rstb.20220180،
   PMC10452035 (WBE / pace-of-life)، JACC jacep.2020.07.002 (origin of heartbeat).
-epistemics: >
+epistemic_status: >
   [EST]=برآوردِ تجربی · [THM]=قضیهٔ تثبیت‌شده (ریاضی/فیزیک) · [HYP]=فرضیهٔ پژوهشیِ falsifiable
   · [CHOICE]=انتخابِ طراحی · [OPEN]=سؤالِ باز
-relates_to: "[[07 - Knowledge/SHADOW-THEORY-5principles-v1]]"
+related: "[[07 - Knowledge/SHADOW-THEORY-5principles-v1]]"
 ---
 
 # CARDIAC-ALLOMETRY — چرا ضربانِ ثابت غیرطبیعی است، و قلبِ واقعی چه می‌کند

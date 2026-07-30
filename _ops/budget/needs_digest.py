@@ -25,6 +25,30 @@ def _read_json(p: Path) -> dict:
         return {}
 
 
+def _owner_parked(domain: str) -> bool:
+    """آیا مالک این حوزه را صریحاً **پارک** کرده؟
+
+    منبع: `VERDICT_QUEUE.md` در ریشهٔ vault — صفِ تصمیم‌های خودِ مالک. تا
+    ۲۰۲۶-۰۷-۲۷ هیچ خطِ کدی آن فایل را باز نمی‌کرد، پس ارگانیسم چیزی را مطالبه
+    می‌کرد که مالک با کلماتِ خودش متوقف کرده بود (`VQ-ACCT-PARK`: «حساب‌کتاب‌ها را
+    قاطی نکن چون همهٔ داده‌ها را نداده‌ام»).
+
+    fail-OPEN عمدی: اگر فایل نبود یا خوانده نشد، `False` برمی‌گردد — یعنی رفتارِ
+    قبلی. سکوتِ اشتباه بدتر از نویزِ اشتباه است؛ ارگانیسم نباید به‌خاطرِ یک خطای
+    خواندن، نیازی را از چشمِ مالک پنهان کند."""
+    try:
+        p = opslib.ORG_ROOT / "VERDICT_QUEUE.md"
+        if not p.exists():
+            return False
+        key = f"VQ-{str(domain).upper()}-PARK"
+        for line in p.read_text("utf-8", errors="replace").splitlines():
+            if line.startswith("|") and key in line and "PARK" in line.upper():
+                return True
+    except OSError:
+        return False
+    return False
+
+
 def compute(pending_count: int | None = None) -> dict:
     """نیازهای فعلی. خروجی: {items:[str], hash:str, n:int}. هر آیتم ≤۷۰ کاراکتر."""
     items: list[str] = []
@@ -38,15 +62,38 @@ def compute(pending_count: int | None = None) -> dict:
         if aq.exists():
             tail = aq.read_text("utf-8")[-4000:]
             heads = re.findall(r"## (2026-\d\d-\d\d)[^\n]*", tail)
-            if heads and heads[-1] >= opslib.today():
-                items.append(f"❓ سوال‌های تازه در AGENT_QUESTIONS ({heads[-1]})")
+            # ۲۰۲۶-۰۷-۲۷ — شرطِ قبلی `heads[-1] >= today()` **وارونه** بود: سؤال
+            # فقط در همان روزی که پرسیده شد دیده می‌شد و فردایش برای همیشه نامرئی.
+            # یعنی هرچه سؤال قدیمی‌تر و معطل‌تر، کمتر دیده می‌شد — دقیقاً برعکسِ
+            # چیزی که باید. اندازه‌گیری: ۳۰ سربرگ، قدیمی‌ترین ۲۰۲۶-۰۷-۰۴، و صفر
+            # نمایش. حالا کهنگی خودش سیگنال است.
+            if heads:
+                oldest, newest = min(heads), max(heads)
+                try:
+                    import datetime as _dt
+                    _age = (_dt.date.fromisoformat(opslib.today())
+                            - _dt.date.fromisoformat(oldest)).days
+                except (TypeError, ValueError):
+                    _age = 0
+                if _age >= 2:
+                    items.append(f"❓ {len(heads)} سوالِ بی‌جواب در AGENT_QUESTIONS — "
+                                 f"قدیمی‌ترین {oldest} ({_age} روز)")
+                elif newest >= opslib.today():
+                    items.append(f"❓ سوال‌های تازه در AGENT_QUESTIONS ({newest})")
     except OSError:
         pass
     # ۳) دادهٔ پولی: بدونِ CSV بانکی velocity پولی صفر می‌ماند
+    #
+    # ۲۰۲۶-۰۷-۲۷ — ولی **فقط اگر مالک پارکش نکرده باشد**. `VQ-ACCT-PARK` در
+    # VERDICT_QUEUE.md با کلماتِ خودش می‌گوید «حساب‌کتاب‌ها را قاطی نکن چون همهٔ
+    # داده‌ها را نداده‌ام». تا امروز هیچ کدی آن فایل را نمی‌خواند، پس این خط هر روز
+    # صدرِ لیستِ «📌 الان» بود — یعنی اختاپوس چیزی را مطالبه می‌کرد که مالک صریحاً
+    # متوقفش کرده بود. تفاوتِ «نمی‌دانم» با «تو گفتی نپرس» همین است.
     try:
-        rec_dir = opslib.OPS / "reconcile"
-        if not any(rec_dir.glob("*.csv")):
-            items.append("💵 CSV واریزی‌ها نیست → قلب پول را نمی‌بیند (بذار در _ops/reconcile)")
+        if not _owner_parked("ACCT"):
+            rec_dir = opslib.OPS / "reconcile"
+            if not any(rec_dir.glob("*.csv")):
+                items.append("💵 CSV واریزی‌ها نیست → قلب پول را نمی‌بیند (بذار در _ops/reconcile)")
     except OSError:
         pass
     # ۳.۵) حسابداری (اسکنِ 2026-07-16 #14): صفِ مرور/ثبت — از سایدکارِ acct_beat

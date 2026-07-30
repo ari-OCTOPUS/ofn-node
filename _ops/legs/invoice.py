@@ -55,12 +55,45 @@ def _read(p: Path) -> dict:
 
 
 # ─── business config from budgets.yaml ───────────────────────────────────────
+def _profile_business() -> dict:
+    """هویتِ کسب‌وکار از policy-profileِ **gitignored** (تک‌منبعِ درست).
+
+    چرا (۲۰۲۶-۰۷-۲۵): این تابع هویت را از `budgets.yaml` می‌خواند که **در git ردیابی
+    می‌شود** و هر چهار کلیدش (abn/trading_name/address/bank_details) خالی بودند — پس هر
+    فاکتوری که تولید می‌شد بدونِ ABN بود، یعنی برای یک کسب‌وکارِ GST-registered از نظرِ
+    قانونی ناقص و عملاً غیرقابلِ‌پرداخت. در همان حال `_gst_registered()` از فایلِ
+    **دیگری** (`personal/policy-profile.json`، gitignored) می‌خواند که abn و legal_name
+    را از قبل **پر** دارد. یعنی دادهٔ درست موجود بود و خوانده نمی‌شد (باگِ دو-منبعی).
+    حالا همان profile مقدم است. سودِ جانبیِ مهم: شمارهٔ حساب و آدرس هرگز لازم نیست در
+    فایلِ tracked نوشته شوند — و اگر نوشته می‌شدند برای همیشه در تاریخچهٔ git می‌ماندند.
+    fail-soft: هر خطا/غیبت → {} و سقوط به budgets.yaml (رفتارِ قبلی، بدونِ رگرسیون)."""
+    try:
+        import ledger_core  # noqa: WPS433 — هم‌پوشه، همان منبعِ _gst_registered
+        prof = ledger_core.load_profile() or {}
+        ents = prof.get("entities") or []
+        ent = next((e for e in ents if isinstance(e, dict) and e.get("abn")), None) \
+            or next((e for e in ents if isinstance(e, dict)), None) or {}
+        out = {
+            "abn": str(ent.get("abn", "") or "").strip(),
+            "trading_name": str(ent.get("trading_name")
+                                or ent.get("legal_name", "") or "").strip(),
+            # این دو کلید عمداً optional‌اند: مالک می‌تواند در همان فایلِ gitignored
+            # اضافه‌شان کند و هرگز واردِ git نمی‌شوند.
+            "address": str(prof.get("business_address", "") or "").strip(),
+            "bank_details": str(prof.get("bank_details", "") or "").strip(),
+        }
+        return {k: v for k, v in out.items() if v}
+    except Exception:  # noqa: BLE001 — هویت هرگز تولیدِ فاکتور را نمی‌کشد
+        return {}
+
+
 def _business_config() -> dict:
-    """خواندنِ business section از budgets.yaml. fail-soft."""
+    """هویتِ کسب‌وکار: **اول** policy-profileِ gitignored، بعد budgets.yaml، بعد پیش‌فرض."""
+    prof = _profile_business()
     try:
         budgets = opslib.load_budgets()
         biz = budgets.get("business", {})
-        return {
+        _merged = {
             "abn": str(biz.get("abn", "")).strip(),
             "trading_name": str(biz.get("trading_name", "")).strip(),
             "address": str(biz.get("address", "")).strip(),
@@ -68,10 +101,14 @@ def _business_config() -> dict:
             "payment_methods": str(biz.get("payment_methods", "Bank Transfer")).strip(),
             "bank_details": str(biz.get("bank_details", "")).strip(),
         }
+        _merged.update(prof)          # profileِ gitignored مقدم است
+        return _merged
     except Exception:  # noqa: BLE001
-        return {"abn": "", "trading_name": "", "address": "",
-                "payment_terms": "Due within 14 days",
-                "payment_methods": "Bank Transfer", "bank_details": ""}
+        _base = {"abn": "", "trading_name": "", "address": "",
+                 "payment_terms": "Due within 14 days",
+                 "payment_methods": "Bank Transfer", "bank_details": ""}
+        _base.update(prof)            # حتی اگر budgets.yaml بیفتد، profile را از دست نده
+        return _base
 
 
 # ─── INV number: INV-FY{YY}-{NNN} ────────────────────────────────────────

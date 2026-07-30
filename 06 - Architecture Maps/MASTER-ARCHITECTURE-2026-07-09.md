@@ -14,7 +14,7 @@ sources:
   - "[[04 - Architect System/architect/ARCHITECT_CHARTER]]"
   - "[[ROTATION_CHECKLIST]]"
   - "[[01 - Dashboard/HANDOFF]]"
-companion_agents:
+related:
   - "[[05 - Agents/Vault Cartographer]]"
   - "`.claude/agents/vault-cartographer.md`"
 ---

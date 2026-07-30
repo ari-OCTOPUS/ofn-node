@@ -7,7 +7,7 @@ updated: 2026-07-07
 created_by: agent
 extends: "[[03 - Projects/Ziman Galerry/content/first-sale-pack]]"
 tags: [marketing, video, higgsfield]
-note: "پیشنهاد — منتظر verdict آری. هیچ فایلِ هسته دست‌نخورده. handoff به architect در §۶."
+# note: "پیشنهاد — منتظر verdict آری. هیچ فایلِ هسته دست‌نخورده. handoff به architect در §۶."
 ---
 
 # پیشنهاد: موتورِ ویدیوی زیمان (هیگزفیلد) — جلسهٔ ۲۰۲۶-۰۷-۰۷

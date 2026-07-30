@@ -39,6 +39,9 @@ for _p in (str(_HERE), str(_HERE.parent), str(_HERE.parent / "memory")):
 FLAG = "OCTOPUS_WIRE_MEMORY_GATE"        # یادگیری پشتِ همان فلگِ Memory Gate (نویسندهٔ خاطره)
 # فقط این trustها «outcomeِ واقعی»اند؛ بقیه preference/ادعا → یاد گرفته نمی‌شوند.
 _LEARNABLE_TRUST = ("OWNER_CONFIRMED", "DETERMINISTIC", "GRADED")
+_OWNER_ATTEST_KEY = "owner_verdict_raw"
+_OWNER_ATTEST_VERDICT = "measurement"
+_UNATTESTED_SOURCE = "unattested_owner_claim"
 
 
 def flag_on() -> bool:
@@ -95,26 +98,47 @@ def _run_eval(evaluator, eval_ctx, internal_metric_pass) -> dict:
                 "raw": {"error": type(e).__name__}}
 
 
-def _verify_outcome(outcome_store, outcome_ref: str, trust: str) -> "tuple[bool, str]":
+def _owner_attested(row) -> bool:
+    """فقط ردیفِ واقعیِ رأی مالک گواهی می‌دهد: event_type=accepted-measurement،
+    verdict=measurement، و payload دارای owner_verdict_raw غیرخالی. هرگز رشتهٔ source."""
+    try:
+        et = str(row[0] or "") if row else ""
+        verdict = str(row[1] or "") if row and len(row) > 1 else ""
+        payload = {}
+        if row and len(row) > 2:
+            try:
+                payload = json.loads(row[2] or "{}")
+            except Exception:
+                payload = {}
+        return (et == "accepted-measurement" and verdict == _OWNER_ATTEST_VERDICT
+                and bool(str(payload.get(_OWNER_ATTEST_KEY) or "").strip()))
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def _verify_outcome(outcome_store, outcome_ref: str, trust: str) -> "tuple[bool, bool, str]":
     """گاردِ محتوایی (red-team P1 fix): outcome_refِ ادعایی باید یک ردیفِ **واقعیِ** outcomes.db
-    باشد و event_typeاش با trust سازگار. OWNER_CONFIRMED → فقط accepted-measurement. بدونِ این،
-    trust یک رشتهٔ جعل‌پذیر است. fail-closed."""
+    باشد و event_typeاش با trust سازگار. خروجی: (ok, owner_attested, why). fail-closed."""
     if outcome_store is None:
-        return (False, "no-outcome-store")   # نمی‌توان verify کرد → یاد نگیر (fail-closed)
+        return (False, False, "no-outcome-store")
     ref = str(outcome_ref or "").strip()
     if not ref:
-        return (False, "no-outcome-ref")
+        return (False, False, "no-outcome-ref")
     try:
         row = outcome_store._conn.execute(   # noqa: SLF001 — read-only verify
-            "SELECT event_type FROM outcomes WHERE idempotency_key=?", (ref,)).fetchone()
+            "SELECT event_type, verdict, payload_json FROM outcomes WHERE idempotency_key=?",
+            (ref,)).fetchone()
     except Exception:  # noqa: BLE001
-        return (False, "outcome-query-error")
+        return (False, False, "outcome-query-error")
     if not row:
-        return (False, "outcome-ref not found (forged trust)")
+        return (False, False, "outcome-ref not found (forged trust)")
     et = str(row[0] or "")
-    ok = (et == "accepted-measurement") if trust == "OWNER_CONFIRMED" else (et in (
-        "accepted-measurement", "delivered", "outcome-recorded", "decided"))
-    return (ok, f"outcome event_type={et}")
+    attested = _owner_attested(row)
+    if trust == "OWNER_CONFIRMED":
+        ok = (et == "accepted-measurement")
+    else:
+        ok = (et in ("accepted-measurement", "delivered", "outcome-recorded", "decided"))
+    return (ok, attested, f"outcome event_type={et}")
 
 
 def learn_from_outcome(*, memory_gate, signal: dict, receipt_store=None, outcome_store=None,
@@ -132,13 +156,27 @@ def learn_from_outcome(*, memory_gate, signal: dict, receipt_store=None, outcome
         content = str(signal.get("content") or "").strip()
         if not content:
             return {"learned": False, "reason": "empty learning content"}
-        trust = str(signal.get("trust") or "")
-        if trust not in _LEARNABLE_TRUST:
-            return {"learned": False, "reason": f"non-outcome trust {trust!r} (preference, not learned)"}
+        declared_trust = str(signal.get("trust") or "")
+        if declared_trust not in _LEARNABLE_TRUST:
+            return {"learned": False, "reason": f"non-outcome trust {declared_trust!r} (preference, not learned)"}
         # ── گاردِ ۱: outcome-binding (trust باید با یک outcomeِ واقعی پشتیبانی شود) ──
-        ok, why = _verify_outcome(outcome_store, signal.get("outcome_ref"), trust)
+        ok, owner_attested, why = _verify_outcome(outcome_store, signal.get("outcome_ref"), declared_trust)
         if not ok:
             return {"learned": False, "reason": f"unverified outcome — {why} (trust not bound to reality)"}
+        owner_claim_unattested = False
+        trust = declared_trust
+        source = str(signal.get("source", "learning_gate"))
+        if declared_trust == "OWNER_CONFIRMED" and not owner_attested:
+            trust = "GRADED"
+            owner_claim_unattested = True
+        if source == "owner" and not owner_attested:
+            source = _UNATTESTED_SOURCE
+            owner_claim_unattested = True
+        ns = str(signal.get("namespace") or "semantic")
+        if ns == "owner_fact" and not owner_attested:
+            return {"learned": False, "reason": "owner_fact requires attested owner verdict",
+                    "trust": trust, "trust_declared": declared_trust,
+                    "owner_claim_unattested": owner_claim_unattested}
 
         # ── گیتِ held-out (ضدِخودفریبی) ─────────────────────────────────────────
         ev = _run_eval(evaluator, eval_ctx, internal_metric_pass)
@@ -155,7 +193,6 @@ def learn_from_outcome(*, memory_gate, signal: dict, receipt_store=None, outcome
                     "eval_verdict": ev["verdict"],
                     "reason": "receipt_store required — no admitted memory without a receipt"}
         # ── commit خاطره از Memory Gate (dedup/version/trust یک‌جا) ──────────────
-        ns = str(signal.get("namespace") or "semantic")
         sal = signal.get("salience")
         try:
             sal = float(sal)
@@ -165,7 +202,7 @@ def learn_from_outcome(*, memory_gate, signal: dict, receipt_store=None, outcome
                      "content": content, "salience": max(sal, min_salience),
                      "confidence": signal.get("confidence", 0.7),
                      "privacy": signal.get("privacy", "scrubbed"),
-                     "source": signal.get("source", "learning_gate"),
+                     "source": source,
                      "producer": signal.get("producer", "learning_gate"),
                      "supersedes": signal.get("supersedes"),
                      "admission_state": "PENDING" if pending_admission else "ADMITTED"}
@@ -193,7 +230,8 @@ def learn_from_outcome(*, memory_gate, signal: dict, receipt_store=None, outcome
                 "mission_id": str(signal.get("mission_id") or "learning"),
                 "objective": "commit learned memory (held-out gated)"[:290],
                 "alternatives": ["commit", "reject"], "selected_alternative": "commit",
-                "reason_codes": [f"TRUST_{trust}", f"EVAL_{ev['verdict'].upper()}"],
+                "reason_codes": [f"TRUST_{trust}", f"DECLARED_{declared_trust}",
+                                 f"EVAL_{ev['verdict'].upper()}"],
                 "assumptions": ["held-out gate green", "outcome-not-preference"],
                 "memories_used": [],
                 "predicted_outcome": {"memory_id": str(mid)[:120], "salience": max(sal, min_salience)},
@@ -216,6 +254,8 @@ def learn_from_outcome(*, memory_gate, signal: dict, receipt_store=None, outcome
         return {"learned": not pending_admission, "staged": bool(pending_admission),
                 "memory_id": mid, "receipt_id": rid,
                 "eval_verdict": ev["verdict"], "anti_hacking_flag": False,
+                "trust": trust, "trust_declared": declared_trust,
+                "owner_claim_unattested": owner_claim_unattested,
                 "reason": ("staged (PENDING; invisible until final durable ledger)"
                            if pending_admission else
                            "learned (durable artifact: memory + receipt)")}

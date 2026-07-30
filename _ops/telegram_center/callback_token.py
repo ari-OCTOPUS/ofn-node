@@ -29,7 +29,12 @@ import os
 
 FLAG = "OCTOPUS_WIRE_CB_TOKEN"
 SECRET_ENV = "OCTOPUS_CB_SECRET"
-_TOKEN_LEN = 20   # hex chars از sha256 (کوتاه؛ سقفِ ۶۴ بایتِ callback_data)
+# بودجهٔ سختِ ۶۴B: بلندترین callback = "ap:ok:"(۶) + jid[:48] + ":"(۱) + token.
+# با token=۲۰ می‌شد ۷۵B > ۶۴ و تلگرام کلِ sendMessage را رد می‌کرد (نه فقط یک دکمه).
+# jid کوتاه‌شدنی نیست (handler دقیقاً aps_mod.get(jid) را lookup می‌کند)؛ پس token
+# کوتاه می‌شود: ۶+۴۸+۱+۹=۶۴. تنزلِ ۳۶-bit قابل‌قبول است چون این توکن defense-in-depth
+# است — is_owner(from.id) و single-useِ اتمیک گاردهای اصلی‌اند (رأیِ مالک ۲۰۲۶-۰۷-۳۰).
+_TOKEN_LEN = 9    # hex chars از sha256 — بودجهٔ ۶۴B را با jid[:48] تضمین می‌کند
 
 
 def flag_on() -> bool:

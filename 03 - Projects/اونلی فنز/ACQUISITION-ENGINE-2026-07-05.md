@@ -1,8 +1,9 @@
 ---
 created: 2026-07-05
 updated: 2026-07-05
-status: canonical-draft (awaiting GATE 0)
-type: operating-system
+status: draft
+# status پیشین: canonical-draft (awaiting GATE 0) — نرمال‌سازی 2026-07-29
+type: design
 tags: [project-f, acquisition, automation, funnel]
 aliases: ["Acquisition Engine", "موتور جذب", "مرجع جذب"]
 ---

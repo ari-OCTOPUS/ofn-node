@@ -338,10 +338,122 @@ def freeze(reason: str) -> None:
 
 
 # ─── گزارش‌دهی (قراردادهای موجود governor_shadow) ────────────────────────────
+_ALERT_ROTATE_BYTES = 2_000_000          # ~2MB؛ آرشیو = انتقال، نه حذف (قانونِ vault §۱)
+_ALERT_DEDUP_WINDOW_S = 21600.0          # ۶ ساعت — همان کفِ زمانیِ consolidation
+_ALERT_ESCALATION_MARKS = (10, 100, 1000)
+
+
+def _alert_rotate_if_huge() -> None:
+    """چرخشِ دفترِ هشدار وقتی از سقف گذشت — انتقال به آرشیوِ تاریخ‌دار، نه حذف.
+    بدونِ این، طوفانِ یک شب (اسکنِ 07-29: یک امضا ×۳۴۶) برای همیشه در هر
+    اسکنِ دکتر دوباره شمرده می‌شود و «اکنون» از «تاریخ» تفکیک‌ناپذیر می‌ماند."""
+    if not ALERTS_MD.exists() or ALERTS_MD.stat().st_size < _ALERT_ROTATE_BYTES:
+        return
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    dst = ALERTS_MD.with_name(f"governor-alerts-archive-{stamp}.md")
+    ALERTS_MD.replace(dst)   # اتمیک؛ بازندهٔ race فقط OSError می‌گیرد (caller می‌بلعد)
+    ALERTS_MD.write_text(f"# دفترِ تازه — قبلی چرخید به {dst.name} در {now_iso()}\n\n",
+                         "utf-8")
+
+
 def alert(items: list[str]) -> None:
+    """append + dedupِ امضامحور با **escalation، نه سرکوبِ خاموش** (2026-07-29).
+
+    قاعده‌ها: متن/امضای نو همیشه فوراً نوشته می‌شود؛ سه تکرارِ اول هم نوشته
+    می‌شوند؛ از آن به بعد فقط شمرده می‌شود و در نشانه‌های ×۱۰/×۱۰۰/×۱۰۰۰ یک
+    سطرِ escalation می‌آید. پنجره ۶ساعته است — بیرونِ پنجره، همان امضا دوباره
+    «نو» شمرده می‌شود (خرابیِ پایدار روزی چند بار دیده می‌شود، نه ×۳۴۶).
+    هر خطای مسیرِ dedup → appendِ سادهٔ قدیمی (آلارمِ گم‌شده بدتر از تکراری)."""
     ALERTS_MD.parent.mkdir(parents=True, exist_ok=True)
+    suffix = ""
+    try:
+        _alert_rotate_if_huge()
+        import hashlib as _hashlib   # noqa: WPS433 — الگویِ importِ محلیِ همین ماژول
+        sig = _hashlib.sha256("\n".join(items).encode("utf-8")).hexdigest()[:16]
+        p = STATE_DIR / "alert-signatures.json"
+        now = time.time()
+        try:
+            st = json.loads(p.read_text("utf-8")) if p.exists() else {}
+            if not isinstance(st, dict):
+                st = {}
+        except Exception:  # noqa: BLE001 — fail-open
+            st = {}
+        rec = st.get(sig) if isinstance(st.get(sig), dict) else {}
+        try:
+            last = float(rec.get("ts") or 0)
+        except (TypeError, ValueError):
+            last = 0.0
+        count = int(rec.get("count") or 0) if (now - last) < _ALERT_DEDUP_WINDOW_S else 0
+        count += 1
+        st[sig] = {"ts": now, "count": count,
+                   "head": (str(items[0])[:120] if items else "")}
+        if len(st) > 400:   # کرانِ ایندکس (نه دفتر): کهنه‌ترین امضاها از شمارش می‌افتند
+            st = dict(sorted(st.items(), key=lambda kv: (kv[1] or {}).get("ts", 0))[-200:])
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(json.dumps(st, ensure_ascii=False), "utf-8")
+        if count > 3 and count not in _ALERT_ESCALATION_MARKS:
+            return   # شمرده شد؛ دفتر و تلگرام دوباره پر نمی‌شوند
+        if count > 3:
+            suffix = f" (×{count} در پنجرهٔ ۶ساعته — escalation)"
+    except Exception:  # noqa: BLE001 — fail-open: dedup هرگز آلارم را نمی‌خورد
+        suffix = ""
     with ALERTS_MD.open("a", encoding="utf-8") as f:
-        f.write(f"## {now_iso()} (metabolism)\n" + "\n".join(f"- ⚠️ {i}" for i in items) + "\n\n")
+        f.write(f"## {now_iso()} (metabolism)\n"
+                + "\n".join(f"- ⚠️ {i}{suffix}" for i in items) + "\n\n")
+
+
+def alert_throttled(items: list[str], key: str, window_s: float = 3600.0) -> bool:
+    """alert با پنجرهٔ dedupe — **فقط برای سایت‌هایی که روی مسیرِ داغ می‌نشینند.**
+
+    چرا لازم شد (۲۰۲۶-۰۷-۲۵): `alert()` یک appendِ خالص بدونِ هیچ throttle است (برخلافِ
+    `conflict_to_human` که سقفِ روزانه per-tag دارد) و آلارم به تلگرامِ مالک می‌رود. تنها
+    اقدامِ context_fence روی screenِ مثبت همین alert است؛ با سه مسیرِ LLMِ مسلح، یک
+    payloadِ regex-تریگر در هر epoch سیلِ آلارم می‌سازد و **اعلانِ واقعیِ halt را زیر نویز
+    می‌برد** — یعنی یک گامِ مهاری، خودش رگرسیونِ مهار-همجوار می‌شود.
+
+    قاعده‌ها (به ترتیبِ اهمیت):
+      · **متنِ نو همیشه فوراً عبور می‌کند.** throttle فقط رویِ تکرارِ *عینِ همان* پیام است.
+      · fail-open: هر خطای I/O → alert نوشته می‌شود. آلارمِ گم‌شده بدتر از آلارمِ تکراری است.
+      · وقتی پنجره بسته می‌شود، شمارِ سرکوب‌شده‌ها در همان خط گزارش می‌شود (صفر پنهان‌کاری).
+    خروجی: True اگر نوشته شد، False اگر در پنجره سرکوب شد."""
+    import hashlib as _hashlib   # noqa: WPS433 — الگویِ importِ محلیِ همین ماژول
+    sig = _hashlib.sha256(("\n".join(items)).encode("utf-8")).hexdigest()[:16]
+    p = STATE_DIR / "alert-throttle.json"
+    try:
+        st = json.loads(p.read_text("utf-8")) if p.exists() else {}
+        if not isinstance(st, dict):
+            st = {}
+    except Exception:  # noqa: BLE001 — fail-open
+        st = {}
+    rec = st.get(key) if isinstance(st.get(key), dict) else {}
+    now = time.time()
+    try:
+        last = float(rec.get("ts", 0) or 0)
+    except (TypeError, ValueError):
+        last = 0.0
+    same = (rec.get("sig") == sig)
+    suppressed = int(rec.get("suppressed", 0) or 0)
+    if same and (now - last) < max(1.0, float(window_s)):
+        rec.update({"sig": sig, "ts": last, "suppressed": suppressed + 1})
+        st[key] = rec
+        try:
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(json.dumps(st, ensure_ascii=False), "utf-8")
+        except Exception:  # noqa: BLE001 — نتوانستیم بشماریم؛ آلارم را از دست نمی‌دهیم
+            alert(items)
+            return True
+        return False
+    out = list(items)
+    if suppressed:
+        out.append(f"(+{suppressed} تکرارِ سرکوب‌شده در پنجرهٔ {int(window_s)}s — کلید {key})")
+    alert(out)
+    st[key] = {"sig": sig, "ts": now, "suppressed": 0}
+    try:
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(json.dumps(st, ensure_ascii=False), "utf-8")
+    except Exception:  # noqa: BLE001 — آلارم نوشته شد؛ شمارنده مهم‌تر نیست
+        pass
+    return True
 
 
 def heartbeat(line: str) -> None:

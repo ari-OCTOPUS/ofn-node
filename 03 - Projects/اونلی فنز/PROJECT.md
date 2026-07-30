@@ -8,7 +8,7 @@ risk_level: high
 autonomy_level: read-only
 tags: [creator-business, faceless]
 created: 2026-07-03
-updated: 2026-07-20
+updated: 2026-07-29
 aliases: ["Project-F", "پروژه اونلی فنز", "Active Context"]
 ---
 
@@ -54,6 +54,7 @@ delivery-rate پارتنر در trial sprint `[To measure]` · engagement روی
 ## Active Context
 
 - تمرکز فعلی: **حاکمیت + سخت‌سازی (Forced Completion Sprint ‏2026-07-20) تمام شد — PAGE_SETUP = NO-GO تا سه امضای A.** اجرای بیرونی همچنان صفر.
+- **2026-07-29 (اسکنِ گروهِ تلگرام):** طبق حقیقتِ پایهٔ [[../../OCTOPUS-DOCTOR/50-اسکن‌ها/TG-GROUP-SCAN-PACKAGE-2026-07-29|TG-SCAN-PACKAGE]]، هر دو مسیرِ `pf_os` → تلگرام پشتِ فلگِ غایب خوابیده‌اند: `bridge.py` فقط به `saba-bridge.jsonl` می‌نویسد و مصرف‌کننده‌اش (`bridge_beat`) پشتِ `OCTOPUS_WIRE_SABA_BRIDGE` ست‌نشده است؛ `event_bus` هم از راهِ `event_bridge` می‌گذرد که `OCTOPUS_WIRE_EVENT_BRIDGE` آن هم غایب است (غیبت‌ها عمداً staged در `_ops/ARMING-ORDER-2026-07-29.md`). کنترلِ زندهٔ این پا از تلگرام فعلاً فقط از باتِ دوم (دستورهای لنگر `/pf_*`) و pause/resume مرکز است؛ در مرکز فقط دایجستِ content-free با نامِ «استودیو».
 - **2026-07-20 — Forced Completion Sprint (برنچ `claude/project-f-governance-sprint-515cf3`):**
   - **حاکمیت:** ۷ ورودی DL-2026-07-20-* به [[03 - Projects/اونلی فنز/DecisionLog|DecisionLog]] (G0 باز/فیلدهای انسانی · PF-V5 ‏INVALID تا REVOKE|RATIFY · متن کامل توافق دونفره · body-FREEZE · تست صادق · پروندهٔ PII · قاعدهٔ SoT)؛ هر دو VERDICT_QUEUE محافظه‌کارانه reconcile؛ manifest ‏`last_governance_pass` گرفت؛ [[03 - Projects/اونلی فنز/00 - Control/OWNER-BALLOT-2026-07-20|برگهٔ رأی ۱۲سؤالی]] آماده.
   - **کد:** فیکس P0 بای‌پس compliance (‏orchestrator حالا از manifest ‏fail-closed می‌خواند + tick ‏blocked_compliance) · importهای `_ops/neural` ‏lazy با fallback (استقلال کامل) · فیکس fail-open ‏ChannelLocks روی JSON خراب · RLock+atomic روی acq/dm · dedup ‏md5 · ‏approvals.jsonl · ‏/pf_dryrun · LinkState+کد tracking روی /pf_ready · فیلدهای funnel ‏KPI + ‏/kpi_import · join استودیو↔اکتساب (DraftSubmission+handoff_to_vault) · **C1 rename کامل استودیو** (creator_studio/creator_brain/PF-Studio UA/envهای STUDIO_* با fallback قدیمی) · پاکسازی PII از selftest/فیکسچر/runbook.

@@ -1,10 +1,11 @@
 ---
-title: OCTOPUS Known Risks
+type: reference
+# title: OCTOPUS Known Risks
 status: active
 created: 2026-07-12
 updated: 2026-07-12
 tags: [octopus, risks, wave-5, ops, security]
-backlinks:
+related:
   - "[[WAVE-5-HARDENING-PLAN]]"
   - "[[OCTOPUS-CHANNEL-REGISTRY]]"
   - "[[ADMIN-TELEGRAM-DASHBOARD-MAP]]"

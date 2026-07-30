@@ -37,6 +37,142 @@ STATE = opslib.STATE_DIR
 DIGEST_PATH = STATE / "cortex" / "upgrades-digest.json"
 VERDICTS_PATH = STATE / "cortex" / "improve-verdicts.jsonl"
 AUTO_STATE_PATH = STATE / "cortex" / "improve-auto-state.json"
+
+# ── سنتزِ عمیق (۲۰۲۶-۰۷-۲۷، «مغزِ اصلی را دوسطحی کن») ──────────────────────────
+# اندازه‌گیریِ همان روز: فکرِ این حلقه ask("think") بود → مدلِ محلیِ رایگان با سقفِ
+# ۹۰ توکن، در حالی که Fugu (پلنِ فلت) در کلِ ارگانیسم یک مشتری داشت. لایهٔ محیطی
+# همان محلیِ تند می‌ماند (بایت‌به‌بایت)؛ این لایه، جدا و flag-gated، چند بار در روز
+# صفِ کاملِ گاف‌ها را به مغزِ گران می‌دهد و جوابِ واقعی (نه یک‌جمله‌ای) می‌گیرد.
+# حلقه هر ~۷ دقیقه می‌دود پس سقفِ روزانه **داخلِ** همین ماژول است، نه دستِ کادنس.
+FLAG_DEEP = "CORTEX_IMPROVE_DEEP"
+DEEP_SLOTS_PATH = STATE / "cortex" / "improve-deep-slots.json"
+DEEP_LEDGER_PATH = STATE / "cortex" / "deep-synth.jsonl"
+DEEP_DAILY_DEFAULT = 2
+DEEP_MAX_TOKENS = 1200
+DEEP_MIN_CHARS = 200          # کوتاه‌تر از این = جوابِ بی‌ارزش؛ ثبت می‌شود ولی digest نمی‌رود
+
+
+def _deep_daily_cap() -> int:
+    try:
+        n = int(str(os.environ.get("CORTEX_IMPROVE_DEEP_DAILY", "")).strip())
+    except (TypeError, ValueError):
+        return DEEP_DAILY_DEFAULT
+    return n if 0 < n <= 8 else DEEP_DAILY_DEFAULT
+
+
+_DEEP_MEMO: dict = {"date": "", "used": 0}
+
+
+def _deep_slot_take() -> bool:
+    """یک اسلاتِ امروز را بسوزان — **قبل از** فراخوانِ گران (درسِ deep_think:
+    مغزِ خراب نباید هر چرخه یک تماسِ ۳۰ ثانیه‌ای بسوزاند). False = سقف پر است."""
+    today = opslib.today()
+    if _DEEP_MEMO.get("date") == today and int(_DEEP_MEMO.get("used", 0)) >= _deep_daily_cap():
+        return False          # دیسک شاید ننوشته باشد؛ این پروسه یادش هست
+    d = {"date": "", "used": 0}
+    try:
+        if DEEP_SLOTS_PATH.exists():
+            loaded = json.loads(DEEP_SLOTS_PATH.read_text("utf-8"))
+            if isinstance(loaded, dict):
+                d = loaded
+    except (OSError, ValueError):
+        pass
+    if d.get("date") != today:
+        d = {"date": today, "used": 0}
+    if int(d.get("used", 0)) >= _deep_daily_cap():
+        return False
+    d["used"] = int(d.get("used", 0)) + 1
+    try:
+        DEEP_SLOTS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        tmp = DEEP_SLOTS_PATH.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(d, ensure_ascii=False), "utf-8")
+        os.replace(tmp, DEEP_SLOTS_PATH)
+    except OSError:
+        # پشتیبانِ درون-پروسه‌ای (ممیزیِ ۰۷-۲۷): حلقه هر ~۷ دقیقه می‌دود، پس
+        # fail-openِ قبلی روی دیسکِ ناسالم یعنی ~۲۰۰ تماسِ گران در روز.
+        _DEEP_MEMO["date"] = today
+        _DEEP_MEMO["used"] = int(_DEEP_MEMO.get("used", 0)) + 1
+        if _DEEP_MEMO["used"] > _deep_daily_cap():
+            return False
+    return True
+
+
+def _previous_synth(n: int = 3) -> list:
+    """آنچه در جلسه‌های عمیقِ اخیر گفته‌ام. فقط جلسه‌های موفق؛ خطِ خراب رد می‌شود."""
+    out = []
+    try:
+        if not DEEP_LEDGER_PATH.exists():
+            return []
+        for line in DEEP_LEDGER_PATH.read_text("utf-8").splitlines()[-20:]:
+            if not line.strip():
+                continue
+            try:
+                r = json.loads(line)
+            except ValueError:
+                continue
+            if isinstance(r, dict) and r.get("ok") and r.get("text"):
+                out.append({"وقت": str(r.get("ts"))[:16], "گفتی": str(r["text"])[:300]})
+    except OSError:
+        return []
+    return out[-n:]
+
+
+def _deep_synth(top: list, rate, maturity) -> "dict | None":
+    """جوابِ عمیقِ مغزِ گران روی صفِ واقعیِ گاف‌ها. None = نبود/نخواست/نتوانست.
+    tier=primary **پین** است: بدونِ پین، CORTEX_LOCAL_FIRST ردهٔ میانی را بی‌صدا
+    به مدلِ رایگان می‌بَرد و این لایه نمایش می‌شد در حالِ گزارشِ موفقیت."""
+    if os.environ.get(FLAG_DEEP, "0") != "1" or not top:
+        return None
+    if not _deep_slot_take():
+        return None
+    items = [{k: t.get(k) for k in ("id", "priority", "title", "suggested_action",
+                                    "change_level", "source")} for t in top[:8]]
+    # ۲۰۲۶-۰۷-۲۷ — بدونِ این، هر جلسهٔ گران از صفر شروع می‌کرد: `deep-synth` سه بار
+    # در یک روز دوید و هر سه بار همان آیتم را با همان استدلال انتخاب کرد. جلسه‌ای
+    # که جلسهٔ قبل را نخوانَد، خرج است نه سرمایه.
+    body = {"گاف‌ها": items, "improvement_rate": rate, "maturity_pct": maturity}
+    prev = _previous_synth()
+    if prev:
+        body["قبلاً_گفتی"] = prev
+        body["توجه"] = ("حرفِ تکراری نزن. اگر همان انتخاب هنوز درست است، بگو چرا "
+                        "هنوز انجام نشده و قدمِ متفاوتی پیشنهاد بده.")
+    prompt = (
+        "صفِ اولویت‌دارِ گاف‌های یک سیستمِ خودبهبودگر، با نرخِ بهبودِ سنجیده:\n"
+        + json.dumps(body, ensure_ascii=False, indent=1)
+        + "\n\nیکی را انتخاب کن که اول باید حل شود. چرا آن و نه بقیه — با ارجاع به "
+          "همین داده‌ها. قدمِ اولِ مشخصش چیست؟ و چه مشاهده‌ای ثابت می‌کند انتخابت "
+          "غلط بوده؟ اگر صف آن‌قدر بی‌کیفیت است که هیچ‌کدام نمی‌ارزد، همین را صریح بگو.")
+    system = ("تو لایهٔ عمیقِ حلقهٔ خودارتقاییِ یک ارگانیسمِ نرم‌افزاری هستی. فارسی، "
+              "کوتاه، بدونِ تعارف. فقط از داده‌های داده‌شده استدلال کن؛ حدسِ بیرونی ممنوع. "
+              "«نمی‌دانم» و «هیچ‌کدام نمی‌ارزد» جواب‌های معتبرند.")
+    rec = {"ts": opslib.now_iso(), "schema": "deep-synth.v1", "n_top": len(items)}
+    try:
+        import model_router
+        r = model_router.ask("plan", prompt, system=system,
+                             max_tokens=DEEP_MAX_TOKENS, tier="primary")
+    except Exception as e:  # noqa: BLE001 — لایهٔ عمیق هرگز حلقه را نمی‌کشد
+        rec.update(ok=False, reason=f"ask-exception:{type(e).__name__}")
+        _deep_ledger(rec)
+        return None
+    text = str(r.get("text") or "").strip()
+    rec.update(ok=bool(r.get("ok")), model=r.get("model"), tier=r.get("tier"),
+               chars=len(text))
+    if not r.get("ok") or len(text) < DEEP_MIN_CHARS:
+        rec["reason"] = "empty-or-short"
+        _deep_ledger(rec)
+        return None
+    rec["text"] = text[:4000]
+    _deep_ledger(rec)
+    return {"ts": rec["ts"], "model": rec.get("model"), "text": text[:2000]}
+
+
+def _deep_ledger(rec: dict) -> None:
+    try:
+        DEEP_LEDGER_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(DEEP_LEDGER_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except OSError:
+        pass
 RFC_DIR = opslib.GENOME_DIR / "knowledge" / "internal"
 ACT_AUTO = opslib.OPS / "ACTIVATION-SELF-IMPROVE-AUTO.flag"
 
@@ -258,6 +394,56 @@ def generate_proposals(signals: dict) -> list[dict]:
     return out
 
 
+def improvement_rate(limit: int = 200) -> dict:
+    """نرخِ واقعیِ خودبهبودی — چه کسری از نیت‌های ثبت‌شده واقعاً یک متریکِ برون‌دادی
+    را جابه‌جا کردند. منبع: رکوردهای بستارِ state/cortex/outcomes.jsonl
+    (schema outcome-closure.v1 — نوشتهٔ goal_directed._close_intents).
+
+    چرا این و نه maturity_pct (W2): چک‌لیستِ self_audit تابعِ محضِ «وجودِ فایل +
+    grepِ سورس» است و ۱۷ بند از ۴۳ ساختاراً هرگز Done نمی‌شوند → آن عدد در سقفِ
+    خودش قفل است. این یکی از داده‌ای می‌آید که واقعاً حرکت می‌کند.
+
+    صداقت: نبودِ داده → rate_pct=None (نه صفرِ ساختگی). $0، فقط‌خواندنی، fail-soft.
+    """
+    p = STATE / "cortex" / "outcomes.jsonl"
+    closed = moved = 0
+    # T2 لایهٔ ۲ (2026-07-25، مگاپرامپت): مخرج = «تعدادِ نیتِ متمایزِ دارای نتیجهٔ
+    # نهایی»، نه تعدادِ رکوردِ closure. گواه: ۸۳ بستار روی فقط ۴ کلیدِ متمایز با
+    # ۲۰ جفتِ (ts,key) متناقض — «۴۵٪» یعنی «کارت جابه‌جا شد» نه نرخِ بهبود.
+    # پشتِ OCTOPUS_HONEST_OUTCOMES (خاموش = شمارشِ خامِ قدیم، بایت‌به‌بایت).
+    # نتیجهٔ موردِانتظار: rate_pct می‌افتد (احتمالاً صفر/None) — این موفقیت است،
+    # نه رگرسیون؛ عددِ پایینِ راست از عددِ بالای دروغ بهتر است.
+    honest = os.environ.get("OCTOPUS_HONEST_OUTCOMES") == "1"
+    per_key: dict[str, bool] = {}
+    try:
+        if not p.exists():
+            return {"closed": 0, "moved": 0, "rate_pct": None}
+        for line in p.read_text("utf-8").splitlines()[-limit:]:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                r = json.loads(line)
+            except (json.JSONDecodeError, ValueError):
+                continue
+            if r.get("kind") != "closure":
+                continue
+            if honest:
+                k = str(r.get("key") or "").strip()
+                if k:
+                    per_key[k] = bool(r.get("moved"))   # آخرین رأی per key برنده است
+            else:
+                closed += 1
+                moved += 1 if r.get("moved") else 0
+    except OSError:
+        return {"closed": 0, "moved": 0, "rate_pct": None}
+    if honest:
+        closed = len(per_key)
+        moved = sum(1 for v in per_key.values() if v)
+    return {"closed": closed, "moved": moved,
+            "rate_pct": round(100.0 * moved / closed, 1) if closed else None}
+
+
 def observability_ok() -> tuple[bool, str]:
     """گاردِ GAAT (SPEC §۲۱-۱): «مشاهده مُرد = خود-تغییری می‌ایستد.»
     معیار: ORGANISM-STATE موجود و تازه (≤OBS_MAX_AGE_MIN). فایلِ غایب (pre-birth/تست)
@@ -356,6 +542,15 @@ def run(write: bool = True, use_local_brain: bool = True) -> dict:
         goal_report = {"n_goal_serving": gr["n_goal_serving"],
                        "n_circular_dropped": gr["n_circular_dropped"],
                        "goals_count": gr["goals_count"],
+                       # ۲۰۲۶-۰۷-۳۰ — سهمیه **و دلیلش** باید در دفتر بنشیند،
+                       # وگرنه «چرا این پیشنهاد افتاد؟» فقط از حافظهٔ آدم‌ها
+                       # قابلِ جواب است. مخصوصاً حالا که سهمیه پنجرهٔ تاریخ‌دار
+                       # دارد (VQ-SELFGOAL-006: ۶ تا ۰۸-۰۶، بعد خودبه‌خود ۲) —
+                       # بدونِ این دو کلید، «آن روز سهمیه چند بود؟» بعداً
+                       # اثبات‌ناپذیر است. `rerank` از قبل هر دو را برمی‌گرداند؛
+                       # این‌جا فقط دور ریخته می‌شد — میدانِ یتیم.
+                       "max_circular": gr.get("max_circular"),
+                       "max_circular_reason": gr.get("max_circular_reason"),
                        "outcome": goal_directed.measure()}
     except Exception as e:  # noqa: BLE001 — بازچینی نباید حلقه را بکشد
         opslib.alert([f"goal_directed error (non-fatal): {type(e).__name__}: {e}"])
@@ -397,16 +592,29 @@ def run(write: bool = True, use_local_brain: bool = True) -> dict:
                 "suggested_action": "اول بدن/observability را زنده کن؛ خود-تغییری تا آن موقع L1.",
                 "change_level": "reconfig", "source": "guard",
                 "status_now": "Degraded", "status": "proposed"}] + top[:7]
+    rate = improvement_rate()
+    # لایهٔ عمیق: flag-gated، سقفِ روزانه داخلی، fail-soft — لایهٔ محلیِ بالا دست‌نخورده.
+    deep = None
+    try:
+        deep = _deep_synth(top, rate, signals["matrix"].get("maturity_pct"))
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"improve deep-synth error (non-fatal): {type(e).__name__}: {e}"])
     digest = {
         "ts": opslib.now_iso(), "schema": "upgrades-digest.v1",
         "observability_ok": obs_ok,
+        # W2: عددِ چک‌لیست ایستا است (سقفِ ثابت) — با نامِ صادق و پرچمِ صریح.
+        # maturity_pct فقط برای سازگاریِ مصرف‌کننده‌های موجود نگه داشته می‌شود.
+        "checklist_pct": signals["matrix"].get("maturity_pct"),
+        "checklist_static": True,
         "maturity_pct": signals["matrix"].get("maturity_pct"),
+        "improvement_rate": rate,
         "n_proposals": len(proposals),
         "by_category": by_cat,
         "top": top,
         "auto_eligible": auto,
         "auto_enabled": ACT_AUTO.exists(),
         **({"brain_note": thought} if thought else {}),
+        **({"deep_thought": deep} if deep else {}),
         **({"goal_directed": goal_report} if goal_report else {}),
         "learning": {"rejected_categories": _load_verdict_penalty()},
     }
@@ -416,7 +624,12 @@ def run(write: bool = True, use_local_brain: bool = True) -> dict:
             with opslib.LockedJson(DIGEST_PATH) as lj:
                 lj.write(digest)
             opslib.ledger_note("SELF_IMPROVE_DIGEST", {
-                "n": len(proposals), "maturity_pct": digest["maturity_pct"],
+                # W2 (2026-07-25): maturity_pct از لِجِر حذف شد — ۴۸ رکوردِ پشتِ‌هم
+                # دقیقاً ۷۵.۶ بود، چون تابعِ ایستایِ «وجودِ فایل + grepِ سورس» است و
+                # در سقفِ خودش قفل. به‌جایش نرخِ بستارِ واقعی ثبت می‌شود که حرکت دارد.
+                "n": len(proposals),
+                "improve_rate_pct": rate.get("rate_pct"),
+                "closed": rate.get("closed"), "moved": rate.get("moved"),
                 "top": [t["title"] for t in top[:3]]}, actor="self-improve")
         except Exception as e:  # noqa: BLE001
             opslib.alert([f"improve digest write failed: {e}"])

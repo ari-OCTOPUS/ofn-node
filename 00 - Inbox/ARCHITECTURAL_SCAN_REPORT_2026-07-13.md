@@ -1,3 +1,10 @@
+---
+type: report
+status: done
+tags: [octopus, scan, architecture]
+created: 2026-07-13
+updated: 2026-07-29
+---
 # OCTOPUS Architectural Scan Report
 **Date:** 2026-07-13 17:25
 **Scanner:** Vault Cartographer (architectural scanner)

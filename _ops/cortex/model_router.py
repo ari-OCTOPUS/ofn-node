@@ -30,12 +30,27 @@ sys.path.insert(0, str(_HERE.parent / "budget"))
 sys.path.insert(0, str(_HERE))
 import opslib  # noqa: E402
 import local_llm  # noqa: E402
+import circuit_breaker as _cb  # noqa: E402  # per-provider breaker (2026-07-25): Fugu timeoutlarını fail-fast کند
 
 ACT_CORTEX_PAID = opslib.OPS / "ACTIVATION-CORTEX-PAID.flag"
 # اهرمِ مالک (رأی 2026-07-10 «اینترنت هرچه زودتر»): اگر مالک این فایل را بسازد،
 # سپرِ تاریخِ فاز-۱ (2026-07-21) برای تحقیقِ پولی دور زده می‌شود — تصمیمِ آگاهانهٔ
 # خودِ مالک، نه ایجنت. کلید همچنان لازم است؛ organ_gate/بودجه همچنان حاکم.
 ACT_RESEARCH_EARLY = opslib.OPS / "ACTIVATION-RESEARCH-EARLY.flag"
+
+# ── ردِ append-only هر تماسِ پولی (B4) ────────────────────────────────────────
+# تنها فایلی که به سؤالِ «آیا مغزِ پولی واقعاً کار کرد؟» جواب می‌دهد.
+# عمداً پشتِ فلگ نیست: فلگ restart می‌خواهد و می‌تواند بی‌صدا خاموش بماند، و آن‌وقت
+# «فایلِ خالی» با «کار نکرد» یکی می‌شود. $۰، بدونِ شبکه، fail-soft، هرگز prompt/کلید.
+# subscription=max ⇒ cost_usd ساختاراً 0.0 است — شاهدِ مصرف این‌جا tokens/attempt است، نه دلار.
+PAID_LOG = opslib.STATE_DIR / "paid-calls.jsonl"
+
+
+def _paid_log(**rec) -> None:
+    try:
+        opslib.append_jsonl(PAID_LOG, {"ts": opslib.now_iso(), **rec})
+    except Exception:  # noqa: BLE001 — لاگ هرگز مسیرِ مغز را نمی‌کشد
+        pass
 
 # نگاشتِ نوعِ کار → ردهٔ پیش‌فرض (قابلِ override با tier=)
 TASK_TIERS = {
@@ -114,6 +129,29 @@ def paid_gate() -> tuple[bool, str]:
     return opslib.live_gate_open(ACT_CORTEX_PAID)
 
 
+def is_useless_truncation(text: str, finish_reason) -> bool:
+    """پاسخِ بریده‌ای که متنِ مرئیِ قابلِ‌استفاده ندارد → شکست، نه موفقیت.
+
+    عمداً **باریک**؛ هر دو شرط لازم است:
+      · `finish_reason == "length"` — تولید قطع شده (خودِ این از `client._infer_finish`
+        می‌آید که وقتی provider ساکت است از `tokens_out >= max_tokens` استنتاجش می‌کند).
+      · و متنِ مرئی زیرِ `PAID_MIN_USEFUL_CHARS` (پیش‌فرض ۴۰) باشد.
+
+    پس این‌ها **عبور می‌کنند** و باید عبور کنند:
+      · پاسخِ کوتاهِ سالم که به سقف نخورده («بله») — جوابِ درستِ کوتاه است.
+      · پاسخِ بریدهٔ طولانی — ناقص ولی مفید؛ صاحبِ فراخوان خودش تصمیم بگیرد.
+
+    شاهدی که این را لازم کرد (`state/paid-calls.jsonl`، ۲۰۲۶-۰۷-۲۹T۱۷:۳۳:۰۸):
+    `tokens_out=500` (=سقفِ آن‌روزِ سنتز) با `chars_out=3` → سنتز صفر پیشنهاد ثبت
+    کرد و هیچ آلارمی نزد. تابعِ خالص است تا گاردش بتواند خودِ همین منطق را بسنجد،
+    نه وجودِ یک رشته در سورس."""
+    try:
+        min_useful = int(os.environ.get("PAID_MIN_USEFUL_CHARS", "40"))
+    except (TypeError, ValueError):
+        min_useful = 40
+    return finish_reason == "length" and len(str(text or "").strip()) < min_useful
+
+
 def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int) -> dict | None:
     """مسیرِ پولی — فقط پشتِ گیتِ باز. lazy organ_gate (I2)؛ metering سهمیه‌ای:
     settle(actual=0.0) چون subscription؛ خودِ reserve/settle مصرف را ثبت می‌کند."""
@@ -122,6 +160,20 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int) -> dict | No
         return None
     role = _TIER_ROLE.get(tier)
     if not role:
+        return None
+    # ── circuit breaker (per-provider، auto half-open recovery) ────────────────
+    # 2026-07-25: fugu_quota global بود (موفقیتِ GLM consecutive_failures را ریست
+    # می‌کرد) و recovery دستی بود (فایلِ STOP-FUGU). در زنده، fugu ۳ ساعتِ پشتِ هم
+    # timeout شد چون هیچ fail-fast per-providerای وجود نداشت. این breaker:
+    #   · target = role ("orchestr"/"glm") → per-provider نه global
+    #   · بعد از N شکست (پیش‌فرض ۵) OPEN → فراخوانیِ بعدی بی‌شبکه None برمی‌گرداند
+    #   · بعد از cooldown (۶۰s) خودکار HALF_OPEN → یک probe → موفقیت → CLOSED
+    # با fugu_quota complementary است (breaker=per-provider/خودکار، quota=daily-cap/دستی).
+    _ccb = _cb.check(role)
+    if not _ccb.get("allow"):
+        _paid_log(tier=tier, role=role, ok=False,
+                  error=f"circuit_{_ccb.get('state')}",
+                  ms=0, note=_ccb.get("reason", ""))
         return None
     try:
         sys.path.insert(0, str(opslib.DEBATE_DIR))
@@ -133,20 +185,83 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int) -> dict | No
         r = organ_gate.reserve("ARCHITECT_SYS", est, task=f"cortex-{tier}")
         if not r.get("allow"):
             return None
+        # ── گاردِ فوگو (روزِ اول): شمارندهٔ attempt-counted + STOP-FUGU ──────────
+        # قبل از هر egressِ پولی +۱ می‌شود (پس شکست/حلقه هم سهمیه را می‌سوزاند)؛
+        # STOP-FUGU یا سقفِ روزانه → deny → برگشت به مغزِ محلی (fail-closed).
+        import fugu_quota  # noqa: E402 — همسایهٔ همین ماژول در cortex/
+        _q = fugu_quota.reserve(tier, "ARCHITECT_SYS")
+        if not _q.get("allow"):
+            organ_gate.release("ARCHITECT_SYS", est, task=f"cortex-{tier}")
+            return None
+        import time as _pt
+        _t0 = _pt.time()
         try:
             out = cli.complete(system, prompt, max_tokens=max_tokens)
-        except Exception:
+            fugu_quota.ok(tier)
+            _cb.record_success(role)   # provider سالم است → breaker را reset/بهبود بده
+        except Exception as _ce:
+            fugu_quota.fail(tier, error=_ce)
+            _cb.record_failure(role, f"{type(_ce).__name__}: {_ce}")   # provider ناسالم
+            _paid_log(tier=tier, role=role,
+                      provider=getattr(cli, "provider", ""),
+                      model=getattr(cli, "model", ""),
+                      via_gateway=bool(getattr(cli, "use_gateway", False)),
+                      subscription=getattr(cli, "subscription", None) or "metered",
+                      ok=False, error=type(_ce).__name__,
+                      ms=int((_pt.time() - _t0) * 1000),
+                      quota_used=_q.get("used"))
             organ_gate.release("ARCHITECT_SYS", est, task=f"cortex-{tier}")
             raise
         # subscription: هزینهٔ نقدی ~۰ ولی استفاده متر می‌شود (سهمیهٔ نصفِ اشتراک)
         organ_gate.settle("ARCHITECT_SYS", est,
                           float(out.get("cost_usd", 0.0) or 0.0),
                           task=f"cortex-{tier}")
+        _paid_log(tier=tier, role=role,
+                  provider=getattr(cli, "provider", ""),
+                  model=out.get("model"),
+                  via_gateway=bool(out.get("via_gateway")),
+                  subscription=out.get("subscription"),
+                  ok=True,
+                  tokens_in=out.get("tokens_in"), tokens_out=out.get("tokens_out"),
+                  cost_usd=float(out.get("cost_usd", 0.0) or 0.0),
+                  chars_out=len(out.get("text") or ""),
+                  ms=int((_pt.time() - _t0) * 1000),
+                  quota_used=_q.get("used"))
+        # ── پاسخِ بریدهٔ بی‌متن = شکست، نه موفقیت (۲۰۲۶-۰۷-۳۰) ──────────────────
+        # ۰۷-۲۷ `finish_reason` را عبور دادند تا صاحبِ فراخوان بریدگی را ببیند، ولی
+        # **هیچ‌کس نمی‌خواندش** و sakana هم هرگز پرش نمی‌کرد (۲۰۶/۲۰۶ تماسِ موفق
+        # `None`). نتیجه: مدلِ استدلالی کلِ بودجه را صرفِ تفکر می‌کرد، سه کاراکتر
+        # بیرون می‌داد، و این تابع همان را با `ok=True` تحویل می‌داد. شاهدِ زنده:
+        # `2026-07-29T17:33:08 tokens_out=500 (=سقف) chars_out=3` → سنتز صفر
+        # پیشنهاد ثبت کرد و هیچ آلارمی نزد.
+        #
+        # حالا این حالت مثلِ هر شکستِ دیگرِ tier رفتار می‌کند: `None` برگردان تا
+        # صداکننده ردهٔ پولیِ بعدی یا محلی را امتحان کند. استابِ بی‌مصرف بدتر از
+        # نبودِ جواب است، چون خودش را جوابِ معتبر جا می‌زند.
+        # عمداً باریک: فقط وقتی **هم** بریده باشد **و هم** متنِ مرئی بی‌مصرف. پاسخِ
+        # کوتاهِ سالم (که به سقف نخورده) و پاسخِ بریدهٔ طولانی (که ناقص ولی مفید
+        # است) هر دو دست‌نخورده عبور می‌کنند.
+        _txt = str(out.get("text") or "").strip()
+        if is_useless_truncation(_txt, out.get("finish_reason")):
+            opslib.alert([
+                f"cortex router {tier}: پاسخِ بریدهٔ بی‌متن — "
+                f"tokens_out={out.get('tokens_out')} به سقفِ max_tokens={max_tokens} "
+                f"خورد و فقط {len(_txt)} کاراکترِ مرئی برگشت. مدلِ استدلالی بودجه را "
+                f"صرفِ تفکر کرده؛ سقف را بالا ببر. این tier کنار رفت."])
+            return None
+        # finish_reason را عبور بده (۲۰۲۶-۰۷-۲۷): بدونِ آن یک پاسخِ **بریده** از
+        # درِ واحدِ مغز به‌عنوانِ موفقیت بیرون می‌آید و صاحبِ فراخوان فقط بعداً
+        # می‌فهمد که parse شکست — همان کوری که مسیرِ گاورنر را ۲۴+ ساعت مرده نگه داشت.
         return {"text": out.get("text", ""), "tier": tier,
-                "model": out.get("model"), "cost_usd": out.get("cost_usd", 0.0)}
+                "model": out.get("model"), "cost_usd": out.get("cost_usd", 0.0),
+                "finish_reason": out.get("finish_reason")}
     except Exception as e:  # noqa: BLE001 — پولی شکست → fallback
-        opslib.alert([f"cortex router {tier} failed (fallback local): "
-                      f"{type(e).__name__}: {e}"])
+        # صداقتِ متن (2026-07-25): این تابع نمی‌داند بعدش چه می‌شود — caller اول
+        # tierهای پولیِ بعدی را امتحان می‌کند و فقط اگر همه شکست خوردند به محلی می‌افتد.
+        # متنِ قبلی «fallback local» بود و مالک را گمراه می‌کرد: در شاهدِ زنده primary
+        # (fugu) تایم‌اوت شد، آلارم گفت «محلی»، ولی درجا secondary (glm) پولی جواب داد.
+        opslib.alert([f"cortex router {tier} failed (این tier کنار رفت؛ انتخابِ "
+                      f"tierِ بعدی یا محلی دستِ caller است): {type(e).__name__}: {e}"])
         return None
 
 
@@ -198,8 +313,18 @@ def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
         if _fence.enabled():
             _scr = _fence.screen(prompt)
             if not _scr.get("clean", True):
-                opslib.alert([f"context_fence: ورودیِ مشکوک به prompt-injection در "
-                              f"task={str(task)[:32]!r} — کدها: {_scr.get('findings')}"])
+                # throttled (2026-07-25): این تنها اقدامِ screen است و روی **مسیرِ داغِ
+                # LLM** می‌نشیند. با سه مسیرِ مسلح، یک payloadِ regex-تریگر در هر epoch
+                # سیلِ آلارم می‌سازد و آلارم به تلگرامِ مالک می‌رود → اعلانِ واقعیِ halt
+                # زیر نویز می‌رود. کلید per-task تا یک taskِ نو هرگز خفه نشود؛ متنِ نو
+                # (findingsِ متفاوت) هم فوراً عبور می‌کند. fail-open در هر خطای I/O.
+                _msg = (f"context_fence: ورودیِ مشکوک به prompt-injection در "
+                        f"task={str(task)[:32]!r} — کدها: {_scr.get('findings')}")
+                _thr = getattr(opslib, "alert_throttled", None)
+                if callable(_thr):
+                    _thr([_msg], key=f"context_fence:{str(task)[:32]}", window_s=1800.0)
+                else:                      # opslibِ قدیمی → رفتارِ قبلی
+                    opslib.alert([_msg])
     except Exception:  # noqa: BLE001 — غربال هرگز مسیرِ LLM را نمی‌کشد
         pass
     want = tier
@@ -234,9 +359,21 @@ def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
         _has = {"secondary": bool(kp.get("glm")), "primary": bool(kp.get("fugu"))}
         order = [want] + [t for t in ("primary", "secondary") if t != want]
         tried = []
+        # بودجهٔ ساعتِ دیواریِ کلِ تلاشِ پولی در یک ask (env PAID_ASK_BUDGET_S، پیش‌فرض ۹۰s).
+        # بدونِ این، دو ردهٔ پولیِ سریالی هرکدام تا timeoutِ سوکت وقت می‌گیرند و نخِ
+        # متابولیک همان‌قدر STOP-ORGANISM را نمی‌بیند (چکِ kill سرِ حلقه است).
+        import time as _tb
+        try:
+            _budget_s = float(os.environ.get("PAID_ASK_BUDGET_S", "90"))
+        except (TypeError, ValueError):
+            _budget_s = 90.0
+        _deadline = _tb.time() + max(5.0, _budget_s)
         for _t in order:
             if not _has.get(_t):
                 continue
+            if _tb.time() >= _deadline:
+                tried.append(f"{_t}:skipped-deadline")
+                break
             out = _ask_paid(_t, prompt, system, max_tokens)
             tried.append(_t)
             if out:

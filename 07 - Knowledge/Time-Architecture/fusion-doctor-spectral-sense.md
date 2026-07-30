@@ -4,7 +4,7 @@ project: "[[07 - Knowledge/Time-Architecture/PROJECT]]"
 status: draft
 created_by: agent
 extends: "[[07 - Knowledge/Time-Architecture/MAP]] · [[07 - Knowledge/Time-Architecture/claims]]"
-relates_to: "[[04 - Architect System/octopus-build-prompts/OCTOPUS-BASE-MAP-v0]] §D (Doctor) · _ops/doctor/doctor.py"
+related: "[[04 - Architect System/octopus-build-prompts/OCTOPUS-BASE-MAP-v0]] §D (Doctor) · _ops/doctor/doctor.py"
 tags: [time-architecture, fusion, laplacian, soc, doctor, spectral, propose-only]
 created: 2026-07-08
 updated: 2026-07-08

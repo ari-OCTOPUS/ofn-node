@@ -53,8 +53,18 @@ class SchoolBridge:
             self.state_path.parent.mkdir(parents=True, exist_ok=True)
             aw = {tid: round(self.field.a[i], 4)
                   for tid, i in self.field.idx.items() if self.field.a[i] > 0.0}
+            # عنوان‌های خوانا کنارِ شناسه‌ها (۲۰۲۶-۰۷-۲۷). بدونِ این، مصرف‌کنندهٔ
+            # پایین‌دست فقط `A01` را می‌بیند و همان را به موتورِ جست‌وجوی اینترنت
+            # می‌دهد — یعنی ارگانیسم در ویکی‌پدیا دنبالِ «A08» می‌گشت و صفحهٔ
+            # ابهام‌زدایی می‌گرفت، در حالی که عنوانِ واقعی همین‌جا در دسترس بود.
+            titles = {}
+            for tid in self.field.idx:
+                node = self.graph.nodes.get(tid)
+                t = getattr(node, "title", None)
+                if t:
+                    titles[tid] = str(t)[:80]
             tmp = self.state_path.with_suffix(".tmp")
-            tmp.write_text(json.dumps({"awareness": aw,
+            tmp.write_text(json.dumps({"awareness": aw, "titles": titles,
                                        "mean": round(self.field.mean_awareness(), 4)},
                                       ensure_ascii=False, indent=2), "utf-8")
             tmp.replace(self.state_path)
@@ -99,8 +109,14 @@ class SchoolBridge:
     def full_awareness_vector(self) -> list[float] | None:
         """کل awareness vector [0,1]^N — نه فقط mean.
         Phase 2: برای encode_awareness در latent space."""
+        # ۲۰۲۶-۰۷-۲۷ — این تابع صفتی می‌خواند که **وجود ندارد**: فیلد `a` است نه
+        # `awareness` (بازرسیِ زنده: dir(field) → [... 'a', 'awareness_of', ...]).
+        # استثنا در except بلعیده می‌شد، None برمی‌گشت، و `wiring.py:1230` بی‌صدا
+        # ردش می‌کرد. نتیجهٔ زنجیره‌ای: `state/latent-vectors.json` هرگز ساخته نشد،
+        # بازیابیِ چرخه‌های گذشته هرگز رخ نداد، و BCM ۶۵ قدم با `keys={}` برداشت —
+        # سه ماژول در فلگ‌ها «روشن» و در عمل گرسنه.
         try:
-            return self.field.awareness.tolist()
+            return list(self.field.a)
         except Exception:  # noqa: BLE001 — fail-soft
             return None
 

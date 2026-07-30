@@ -7,6 +7,7 @@ approval + توکنِ HumanAppendGuard (فقط با راز) + answer؛ فایل�
 """
 import json
 import os
+import pathlib
 import shutil
 import sys
 import tempfile
@@ -57,6 +58,9 @@ CFG_PATH = opslib.STATE_DIR / "telegram" / "center-config.json"
 APPROVALS = opslib.STATE_DIR / "telegram" / "approvals"
 ALL_LEGS = ("lead", "ziman", "mining", "crypto", "accounting",
             "studio_pf", "system", "knowledge")
+
+# ثابت‌های تستِ دو-باتیِ TG-P2 (center chat_id منفی = سوپرگروهِ forum)
+CENTER = -1009999
 
 
 # ─── fakeها (صفر شبکه، فقط ثبتِ فراخوان‌ها) ─────────────────────────────────────
@@ -203,12 +207,19 @@ def t_a_double_ensure_setup_idempotent():
     assert c.ensure_setup() is True
     assert len(fc.named("create_topic")) == 8          # هر ۸ پا یک تاپیک
     assert len(fc.named("set_commands")) == 1
+    # ۲۰۲۶-۰۷-۳۰: setup از امروز **دو** پیامِ یک‌بارهٔ پین‌شده می‌سازد —
+    # statusِ زنده و دستورالعملِ استفاده (مالک: «گروه هیچی نداره که
+    # دستورالعمل»). ناوردیِ این تست عدد نیست، «هیچ‌چیز دوبار ساخته نمی‌شود»
+    # است؛ پس شمارشِ خام جایش را به سنجهٔ دقیق‌تر می‌دهد: هر دو پین‌شده‌اند،
+    # و دورِ دوم صفر sendِ تازه.
     sends = fc.named("send")
-    assert len(sends) == 1 and sends[0]["pin"] is True  # status یک‌بار + پین
+    assert len(sends) == 2, [s["text"][:24] for s in sends]
+    assert all(s["pin"] is True for s in sends)         # هر دو پین
+    assert sum("این گروه چطور کار می‌کند" in s["text"] for s in sends) == 1
     assert c.ensure_setup() is True                     # دور دوم
     assert len(fc.named("create_topic")) == 8           # هیچ تاپیکِ تکراری
     assert len(fc.named("set_commands")) == 1
-    assert len(fc.named("send")) == 1                   # status دوباره ساخته نشد
+    assert len(fc.named("send")) == 2                   # هیچ‌کدام دوباره نساخت
     cfg = json.loads(CFG_PATH.read_text("utf-8"))
     assert isinstance(cfg.get("status_message_id"), int)
     assert sorted(cfg.get("topics", {}).keys()) == sorted(ALL_LEGS)
@@ -255,6 +266,69 @@ def t_c_digest_cadence_respects_injected_clock():
     assert fc.named("send")[-1]["text"] == "digest:lead"
 
 
+def t_c2_leg_cards_walk_every_leg_and_the_cursor_survives_on_disk():
+    """کارتِ زندهٔ پاها باید **دور** بزند، نه روی پای اول گیر کند.
+
+    ⚠️ این تست از یک شکستِ واقعی زاده شد: مالک گفت «گروه تلگرام هیچی نداره».
+    نسخهٔ اولِ کد شمارنده را روی `cfg` ِ محلیِ beat می‌نوشت و `dirty=True`
+    می‌زد — ولی `_save_config` ِ آن مسیر داخلِ شرطِ ساعتیِ پالس بود و
+    `_refresh_leg_card` هم خودش config را از دیسک تازه می‌خواند. پس شمارنده
+    روی صفر ماند، هر ضربان همان پای اول را گرفت، روی هش زود برگشت ⇒ در کلِ
+    عمرِ پروسه دقیقاً **یک** کارت. و گاردِ نحویِ من (که فقط وجودِ فراخوان و
+    رشتهٔ `leg_card_cursor` را می‌دید) سبز بود — پایهٔ زیرِ سطحِ هدف.
+
+    سنجهٔ درست فقط رفتار است: بعد از دو نوبتِ سررسیده، **دو تاپیکِ متفاوت**
+    کارت گرفته باشند و شمارنده روی دیسک جلو رفته باشد."""
+    _reset()
+    fc = FakeClient()
+    clk = Clock(50_000.0)
+    c = center.Center(client=fc, clock=clk, render_mod=fake_render())
+    c.ensure_setup()
+    topics = json.loads(CFG_PATH.read_text("utf-8"))["topics"]
+    fc.calls.clear()
+    c.beat()                                            # نوبتِ اول
+    cfg1 = json.loads(CFG_PATH.read_text("utf-8"))
+    ids1 = dict(cfg1.get("leg_card_ids") or {})
+    assert len(ids1) == 1, f"نوبتِ اول باید دقیقاً یک کارت بسازد، شد {ids1}"
+    assert cfg1.get("leg_card_cursor") == 1, \
+        f"شمارنده روی دیسک جلو نرفت: {cfg1.get('leg_card_cursor')!r}"
+    # ناوردیِ ضدِ رگبار: نوبتِ بلافاصله (ساعتِ یکسان) هیچ کارتِ تازه‌ای نمی‌سازد
+    c.beat()
+    assert dict(json.loads(CFG_PATH.read_text("utf-8"))
+                .get("leg_card_ids") or {}) == ids1, "کادنس رعایت نشد"
+    clk.t += center.LEG_CARD_EVERY_S + 1.0
+    c.beat()                                            # نوبتِ دوم، سررسیده
+    cfg2 = json.loads(CFG_PATH.read_text("utf-8"))
+    ids2 = dict(cfg2.get("leg_card_ids") or {})
+    assert len(ids2) == 2, f"دور نزد — هنوز روی همان پا: {ids2}"
+    assert cfg2.get("leg_card_cursor") == 2
+    # و کارت‌ها واقعاً به **تاپیکِ خودِ همان پا** رفتند، نه یک تاپیکِ مشترک
+    tids = {topics[leg] for leg in ids2}
+    assert len(tids) == 2, f"دو کارت در یک تاپیک: {tids}"
+
+
+def t_c3_a_bogus_message_id_is_never_trusted_forever():
+    """شناسهٔ جعلی + هشِ منطبق نباید کارت را برای همیشه قفل کند.
+
+    این هم یک شکستِ واقعی بود، نه فرضی: پروبِ e2e ِ خودم با کلاینتِ جاسوس
+    (که 9000+n برمی‌گرداند) روی center-config.json ِ **زنده** نوشت، `lead`
+    شناسهٔ ۹۰۱۰ گرفت، و کارتش دیگر هرگز ساخته نشد."""
+    _reset()
+    fc = FakeClient()
+    clk = Clock(50_000.0)
+    c = center.Center(client=fc, clock=clk, render_mod=fake_render())
+    c.ensure_setup()
+    c.beat()
+    cfg = json.loads(CFG_PATH.read_text("utf-8"))
+    leg = next(iter(cfg["leg_card_ids"]))
+    cfg["leg_card_ids"][leg] = 9010                     # آلودگیِ پروب
+    CFG_PATH.write_text(json.dumps(cfg, ensure_ascii=False), "utf-8")
+    c._refresh_leg_card(leg)
+    got = json.loads(CFG_PATH.read_text("utf-8"))["leg_card_ids"].get(leg)
+    assert isinstance(got, int) and not (9000 <= got < 9100), \
+        f"شناسهٔ جعلی باور شد و کارت قفل ماند: {got!r}"
+
+
 def t_d_decisions_posted_once_with_keyboard_dedupe_seen():
     _reset()
     items = [{"q": "یک تصمیم؟", "why": "w", "source": "approval", "priority": "high"}]
@@ -263,9 +337,19 @@ def t_d_decisions_posted_once_with_keyboard_dedupe_seen():
     c.ensure_setup()
     fc.calls.clear()
     assert c.beat()["decisions"] == 1
-    dec = [s for s in fc.named("send") if s["keyboard"]]
+    # ۲۰۲۶-۰۷-۳۰: فیلترِ قبلی «هر sendِ کیبورددار» بود و «یک‌بار پست شد» را با
+    # همان پروکسی می‌سنجید. از امروز beat کارتِ زندهٔ پا را هم می‌فرستد (که
+    # کیبوردِ tk: دارد)، پس پروکسی بی‌دقت شد — نه ناوردیْ نقض. فیلتر دقیق شد و
+    # در عوض بندِ تازه‌ای اضافه شد که **قوی‌تر** است: هر sendِ کیبورددارِ دیگر
+    # باید اثباتاً کارتِ پا باشد، پس یک sendِ ناخواستهٔ سوم هم قرمز می‌کند.
+    def _cb(s):
+        return str((s["keyboard"] or [[{}]])[0][0].get("callback_data", ""))
+    kbd = [s for s in fc.named("send") if s["keyboard"]]
+    dec = [s for s in kbd if _cb(s).startswith("ok:")]
     assert len(dec) == 1
     assert dec[0]["keyboard"][0][0]["callback_data"].startswith("ok:")
+    assert all(_cb(s).startswith("tk:") for s in kbd if s not in dec), \
+        [_cb(s) for s in kbd if s not in dec]
     assert c.beat()["decisions"] == 0                   # dedupe با seen در config
     cfg = json.loads(CFG_PATH.read_text("utf-8"))
     assert len(cfg.get("seen", [])) == 1
@@ -603,6 +687,154 @@ def t_x_mission_test_flag_on_invokes_runner():
         center.runner_mod = orig
         os.environ.pop("OCTOPUS_WIRE_MISSION_RUNNER", None)
     _redirect_octopus_paths()
+
+
+def t_center_pulses_every_loop_iteration():
+    """نبضِ زنده‌بودنِ مرکز (۲۰۲۶-۰۷-۲۹، رأیِ مالک).
+
+    چرا این گارد لازم است: مرکز تا آن روز هیچ سیگنالِ زنده‌بودنی نمی‌نوشت و
+    عصرِ همان روز دو نمونهٔ هم‌زمانش روی یک توکن (pid 23892 + 10096) فقط
+    به‌خاطرِ همین پالس دیده شد. اگر کسی فراخوانِ _pulse را از حلقه بردارد،
+    آن کوری برمی‌گردد و هیچ تستِ رفتاری‌ای نمی‌گیردش — پس محلِ فراخوان در
+    **متنِ منبع** سنجیده می‌شود، نه شکلِ ماژول."""
+    src = (pathlib.Path(__file__).resolve().parents[1]
+           / 'telegram_center' / 'center.py').read_text(encoding='utf-8', errors='replace')
+    body = src[src.index('def run_forever'):src.index('def _pulse')]
+    assert 'self._pulse(' in body, 'run_forever دیگر پالس نمی‌زند — مرگِ مرکز نامرئی می‌شود'
+    assert 'def _pulse' in src
+    # پالس هرگز شناسه/راز ننویسد: فقط ts/pid/mono
+    pulse = src[src.index('def _pulse'):]
+    pulse = pulse[:pulse.index('os.replace')]
+    for bad in ('CHAT_ID', 'TOKEN', 'chat_id', 'token'):
+        assert bad not in pulse, f'پالس نباید {bad} بنویسد'
+
+
+def t_center_has_a_real_singleton_lock():
+    """قفلِ تک‌نمونه (۲۰۲۶-۰۷-۲۹، رأیِ مالک).
+
+    شبِ همان روز دو مرکز هم‌زمان روی یک توکن زنده بودند (pid 23892 یتیم +
+    10096) — چون بر خلافِ organism/cortex/live که bindِ پورت mutex مجانی
+    می‌دهد، مرکز poller است و هیچ قفلی نداشت. این تست هم رفتار را می‌سنجد هم
+    محلِ فراخوان را، چون هیچ‌کدام تنها کافی نیست."""
+    P = 8901
+    s1, w1 = center.acquire_singleton(P)
+    assert s1 is not None and w1 is None, f'قفلِ اول باید بگیرد: {w1}'
+    try:
+        s2, w2 = center.acquire_singleton(P)
+        assert s2 is None and w2 == 'in-use', f'نمونهٔ دوم باید رد شود: {w2}'
+    finally:
+        s1.close()
+    s3, w3 = center.acquire_singleton(P)
+    assert s3 is not None, f'بعد از آزادشدن باید دوباره قفل شود: {w3}'
+    s3.close()
+    # قفلِ تستی هرگز نباید ارجاعِ سراسری را بگیرد (وگرنه پروسهٔ واقعی گیر می‌کند)
+    assert center._SINGLETON_SOCK is None
+
+    src = (pathlib.Path(__file__).resolve().parents[1]
+           / 'telegram_center' / 'center.py').read_text(encoding='utf-8', errors='replace')
+    main = src[src.index('if __name__ == "__main__":'):]
+    assert 'acquire_singleton()' in main, 'قفل در مسیرِ بوت صدا زده نمی‌شود'
+    assert main.index('acquire_singleton()') < main.index('c.run_forever()'),         'قفل باید پیش از حلقه گرفته شود'
+    # تلهٔ ویندوز: SO_REUSEADDR اجازهٔ double-bindِ ساکت می‌دهد و قفل را بی‌اثر می‌کند
+    fn = src[src.index('def acquire_singleton'):]
+    fn = fn[:fn.index('return s, None')]
+    assert 'SO_REUSEADDR' not in fn, 'SO_REUSEADDR قفل را روی ویندوز بی‌اثر می‌کند'
+    assert 'SO_EXCLUSIVEADDRUSE' in fn
+
+
+def t_inner_client_built_from_telegram_bot_token():
+    """آیتم ۲ِ TG-P2: کلاینتِ inner فقط-ارسال روی TELEGRAM_BOT_TOKEN ساخته می‌شود.
+
+    قاعدهٔ ۲ِ TG-SPLIT: هیچ pollerِ نو. کلاینتِ inner هرگز getUpdates نمی‌زند — این
+    تست فقط تأیید می‌کند که ساخته می‌شود و wired است، و post_fn/owner/center را از
+    outer به ارث می‌برد."""
+    _reset()
+    os.environ["TELEGRAM_BOT_TOKEN"] = "inner-tok-987"
+    try:
+        fc = FakeClient()
+        # outer fake باید خصیصه‌های واقعیِ TgClient را داشته باشد تا inner ازشان بخواند
+        fc._owner = 777
+        fc._center = CENTER
+        fc._post = lambda u, b, timeout_s=10.0: {"ok": True, "result": {"message_id": 1}}
+        fc._get = lambda u, t: {"ok": True, "result": []}
+        c = center.Center(client=fc, clock=Clock(), render_mod=fake_render())
+        inner = c._inner_client()
+        assert inner is not None, "inner باید ساخته شود وقتی TELEGRAM_BOT_TOKEN هست"
+        assert inner.wired() is True
+        assert inner._owner == 777 and inner._center == CENTER
+        cm = c._clients_map()
+        assert cm["inner"] is inner and cm["outer"] is fc
+    finally:
+        os.environ.pop("TELEGRAM_BOT_TOKEN", None)
+
+
+def t_inner_missing_when_telegram_bot_token_absent():
+    """نبودِ TELEGRAM_BOT_TOKEN → inner=None → surface_router به outer سقوط می‌کند."""
+    _reset()
+    os.environ.pop("TELEGRAM_BOT_TOKEN", None)
+    fc = FakeClient()
+    fc._owner = 777
+    fc._center = CENTER
+    fc._post = lambda u, b, timeout_s=10.0: {"ok": True, "result": {}}
+    fc._get = lambda u, t: {"ok": True, "result": []}
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render())
+    assert c._inner_client() is None
+    assert c._clients_map()["inner"] is None
+    assert c._clients_map()["outer"] is fc
+
+
+def t_set_my_commands_per_bot_under_split():
+    """آیتم ۴ِ TG-P2: flag-on → هر بات منویِ خودش را می‌گیرد (outer=COMMANDS، inner=COMMANDS_INNER).
+
+    با دو FakeClient جدا (outer و inner تزریقی) تا شمارشِ set_commands روی هرکدام
+    جدا دیده شود. flag-off → فقط outer (پاریتیِ امروز). جهش (پین به یک پروفایل) ⇒ قرمز."""
+    _reset()
+    os.environ["OCTOPUS_TG_SPLIT_V1"] = "1"
+    os.environ["TELEGRAM_BOT_TOKEN"] = "inner-tok"
+    try:
+        outer = FakeClient()
+        outer._owner = 777
+        outer._center = CENTER
+        outer._post = lambda u, b, timeout_s=10.0: {"ok": True, "result": {"message_id": 1}}
+        outer._get = lambda u, t: {"ok": True, "result": []}
+        c = center.Center(client=outer, clock=Clock(), render_mod=fake_render())
+        # inner را تزریق کن تا مستقل از outer شمارش شود
+        inner_fc = FakeClient()
+        inner_fc._owner = 777
+        inner_fc._center = CENTER
+        inner_fc._post = lambda u, b, timeout_s=10.0: {"ok": True, "result": {}}
+        inner_fc._get = lambda u, t: {"ok": True, "result": []}
+        c._inner = inner_fc
+        assert c.ensure_setup() is True
+        # outer پروفایلِ کاملِ COMMANDS را می‌گیرد
+        outer_cmds = outer.named("set_commands")
+        assert len(outer_cmds) == 1
+        assert len(outer_cmds[0]["commands"]) == len(center.COMMANDS)
+        # inner پروفایلِ COMMANDS_INNER را می‌گیرد (مستقل از outer)
+        inner_cmds = inner_fc.named("set_commands")
+        assert len(inner_cmds) == 1, f"inner باید منوی خودش را بگیرد: {inner_cmds}"
+        assert len(inner_cmds[0]["commands"]) == len(center.COMMANDS_INNER)
+        assert inner_cmds[0]["commands"] != outer_cmds[0]["commands"]
+    finally:
+        os.environ.pop("OCTOPUS_TG_SPLIT_V1", None)
+        os.environ.pop("TELEGRAM_BOT_TOKEN", None)
+
+
+def t_flag_off_never_sets_inner_commands():
+    """flag-off → inner اصلاً commands نمی‌گیرد (پاریتیِ تک-outerِ امروز بایت‌به‌بایت)."""
+    _reset()
+    os.environ.pop("OCTOPUS_TG_SPLIT_V1", None)
+    outer = FakeClient()
+    outer._owner = 777
+    outer._center = CENTER
+    outer._post = lambda u, b, timeout_s=10.0: {"ok": True, "result": {"message_id": 1}}
+    outer._get = lambda u, t: {"ok": True, "result": []}
+    c = center.Center(client=outer, clock=Clock(), render_mod=fake_render())
+    inner_fc = FakeClient()
+    c._inner = inner_fc
+    assert c.ensure_setup() is True
+    assert len(outer.named("set_commands")) == 1          # outer همان امروز
+    assert len(inner_fc.named("set_commands")) == 0, "flag-off نباید inner را ثبت کند"
 
 
 if __name__ == "__main__":

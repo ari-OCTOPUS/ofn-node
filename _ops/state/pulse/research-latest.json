@@ -1,76 +1,76 @@
 {
-  "ts": "2026-07-17T09:12:31",
+  "ts": "2026-07-25T03:35:56",
   "schema": "research-latest.v1",
   "n_topics": 3,
   "findings": [
     {
-      "topic": "C01",
+      "topic": "A08",
       "n": 4,
       "hits": [
         {
-          "title": "C1",
-          "snippet": "C1, C01, C.I or C-1 may refer to:",
-          "url": "https://en.wikipedia.org/wiki/C1",
+          "title": "A8",
+          "snippet": "A8, A08, A 8 or A-8 may refer to:",
+          "url": "https://en.wikipedia.org/wiki/A8",
           "source": "wikipedia"
         },
         {
-          "title": "Filling the gap in the IERS C01 polar motion series in 1858.9-1860.9",
-          "snippet": "The C01 Earth orientation parameters (EOP) series provided by the International Earth Rotation and Reference Systems Service (IERS) is the longest reliable record of the Earth's rotation. In particular, the polar motion (PM) series beginning from 1846 provides a basis for investigation of the long-term PM variations. However, the pole coordinate $Y_p$ in the IERS C01 PM series has a 2-year gap, which makes this series not completely evenly spaced. This paper presents the results of the first att",
-          "url": "http://arxiv.org/abs/2412.07868v3",
+          "title": "Interpreting Multi-Branch Anti-Spoofing Architectures: Correlating Internal Strategy with Empirical Performance",
+          "snippet": "Multi-branch deep neural networks like AASIST3 achieve state-of-the-art comparable performance in audio anti-spoofing, yet their internal decision dynamics remain opaque compared to traditional input-level saliency methods. While existing interpretability efforts largely focus on visualizing input artifacts, the way individual architectural branches cooperate or compete under different spoofing attacks is not well characterized. This paper develops a framework for interpreting AASIST3 at the com",
+          "url": "http://arxiv.org/abs/2602.17711v3",
           "source": "arxiv"
         },
         {
-          "title": "Chandra X-Ray Observation of the Globular Cluster GLIMPSE-C01",
-          "snippet": "We have observed the recently discovered rich star cluster GLIMPSE-C01 for 46 ks with the Chandra X-ray Observatory. Seventeen X-ray sources with luminosities greater than 0.6e31 ergs/s were discovered, one of which is likely a quiescent low-mass X-ray binary. The spatial distribution of these X-ray sources with respect to the NIR and IR images of the cluster, combined with the luminosity and spectral hardness distributions of the sources, provide strong evidence that GLIMPSE-C01 is a rich Galac",
-          "url": "http://arxiv.org/abs/0708.3365v1",
+          "title": "Challenges and Lessons Learned from fabrication, testing and analysis of eight MQXFA Low Beta Quadrupole magnets for HL-LHC",
+          "snippet": "By the end of October 2022, the US HL-LHC Accelerator Upgrade Project (AUP) had completed fabrication of ten MQXFA magnets and tested eight of them. The MQXFA magnets are the low beta quadrupole magnets to be used in the Q1 and Q3 Inner Triplet elements of the High Luminosity LHC. This AUP effort is shared by BNL, Fermilab, and LBNL, with strand verification tests at NHMFL. An important step of the AUP QA plan is the testing of MQXFA magnets in a vertical cryostat at BNL. The acceptance criteria",
+          "url": "http://arxiv.org/abs/2301.09523v1",
           "source": "arxiv"
         }
       ]
     },
     {
-      "topic": "C03",
+      "topic": "A07",
       "n": 4,
       "hits": [
         {
-          "title": "C3",
-          "snippet": "C3, C-3, C03, C.III or similar may refer to:",
-          "url": "https://en.wikipedia.org/wiki/C3",
+          "title": "A7",
+          "snippet": "A7, A.7, A 7, A07 or A-7 may refer to:",
+          "url": "https://en.wikipedia.org/wiki/A7",
           "source": "wikipedia"
         },
         {
-          "title": "The Spatiotemporal Structure of Induced Magnetic Fields in Callisto's Plasma Environment due to their Propagation with MHD Modes",
-          "snippet": "We investigate how the spatiotemporal structure of induced magnetic fields outside of Callisto is affected by their propagation with the magnetohydrodynamic (MHD) modes. At moons that are surrounded by dense magnetized plasmas like the Galilean moons, low-frequency induced magnetic fields cannot propagate with the ordinary electromagnetic mode as is implicitly used by standard analytical expressions. Instead, the induced magnetic fields propagate with the MHD modes, which exhibit anisotropic pro",
-          "url": "http://arxiv.org/abs/2411.15938v1",
+          "title": "Delta-Influence: Unlearning Poisons via Influence Functions",
+          "snippet": "Addressing data integrity challenges, such as unlearning the effects of data poisoning after model training, is necessary for the reliable deployment of machine learning models. State-of-the-art influence functions, such as EK-FAC and TRAK, often fail to accurately attribute abnormal model behavior to the specific poisoned training data responsible for the data poisoning attack. In addition, traditional unlearning algorithms often struggle to effectively remove the influence of poisoned samples,",
+          "url": "http://arxiv.org/abs/2411.13731v2",
           "source": "arxiv"
         },
         {
-          "title": "Light curves of transneptunian objects from the K2 mission of the Kepler Space Telescope",
-          "snippet": "The K2 mission of the Kepler Space Telescope allowed the observations of light curves of small solar system bodies throughout the whole Solar system. In this paper we present the results of a collection of K2 transneptunian object observations, between Campaigns C03 (November 2014 -- February 2015) to C19 (August -- September, 2018), which includes 66 targets. Due to the faintness of our targets the detectability rate of a light curve period is $\\sim$56%, notably lower than in the case of other ",
-          "url": "http://arxiv.org/abs/2210.06571v1",
+          "title": "Effect of salt concentration on the solubility, ion-dynamics, and transport properties of dissolved vanadium ions in lithium-ion battery electrolytes: Generalized solubility limit approach (Part II)",
+          "snippet": "In this article, we study the transport properties of superconcentrated electrolytes using Molecular Dynamics simulations, which have been shown experimentally to retard elemental dissolution in vanadium containing cathode materials. Five compositions between one and seven molar lithium bis(trifluoromethanesulfonyl)imide in 1,3-Dioxolane and 1,2-Dimethoxyethane solvent mixture are studied using non-polarizable Optimized Potentials for Liquid Simulations - All Atom force field. The simulated phys",
+          "url": "http://arxiv.org/abs/2111.14591v1",
           "source": "arxiv"
         }
       ]
     },
     {
-      "topic": "E01",
+      "topic": "B08",
       "n": 4,
       "hits": [
         {
-          "title": "E1",
-          "snippet": "E1, E01, E.I or E-1 may refer to:",
-          "url": "https://en.wikipedia.org/wiki/E1",
+          "title": "B8",
+          "snippet": "B8, B VIII or B-8 may refer to:",
+          "url": "https://en.wikipedia.org/wiki/B8",
           "source": "wikipedia"
         },
         {
-          "title": "Relativistic perturbations in $Λ$CDM: Eulerian & Lagrangian approaches",
-          "snippet": "We study the relativistic dynamics of a pressure-less and irrotational fluid of dark matter (CDM) with a cosmological constant ($Λ$), up to second order in cosmological perturbation theory. In our analysis we also account for vector and tensor perturbations and include primordial non-Gaussianity. We consider three gauges: the synchronous-comoving gauge, the Poisson gauge and the total matter gauge, where the first is the unique relativistic Lagrangian frame of reference, and the latters are conv",
-          "url": "http://arxiv.org/abs/1505.04782v4",
+          "title": "Mean Rational Approximation for Compact Subsets with Thin Boundaries",
+          "snippet": "In 1991, J. Thomson obtained a celebrated decomposition theorem for $P^t(μ),$ the closed subspace of $L^t(μ)$ spanned by the analytic polynomials, when $1 \\le t < ı.$ In 2008, J. Brennan \\cite{b08} generalized Thomson's theorem to $R^t(K, μ),$ the closed subspace of $L^t(μ)$ spanned by the rational functions with poles off a compact subset $K$ containing the support of $μ,$ when the diameters of the components of $\\mathbb C\\setminus K$ are bounded below. We extend the above decomposition theorem",
+          "url": "http://arxiv.org/abs/2212.10811v3",
           "source": "arxiv"
         },
         {
-          "title": "Cosmic strings with twisted magnetic flux lines and wound-strings in extra dimensions",
-          "snippet": "We consider a generalization of the Nielsen-Olesen ansatz, in an abelian-Higgs model with externally coupled charge, which describes strings with twisted magnetic flux lines in the vortex core. The solution does not possess cylindrical symmetry, which leads to the existence of components of conserved momentum, both around the core-axis and along the length of the string. In addition, we consider a model of F-strings with rotating, geodesic windings in the compact space of the Klebanov-Strassler ",
-          "url": "http://arxiv.org/abs/1207.4891v6",
+          "title": "Tensors as module homomorphisms over group rings",
+          "snippet": "Braman [B08] described a construction where third-order tensors are exactly the set of linear transformations acting on the set of matrices with vectors as scalars. This extends the familiar notion that matrices form the set of all linear transformations over vectors with real-valued scalars. This result is based upon a circulant-based tensor multiplication due to Kilmer et al. [KMP08]. In this work, we generalize these observations further by viewing this construction in its natural framework o",
+          "url": "http://arxiv.org/abs/1005.1894v1",
           "source": "arxiv"
         }
       ]

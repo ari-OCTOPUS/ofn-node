@@ -107,9 +107,85 @@ def shadow_test(target_rel: str, new_content: str, *, run_fn=None) -> dict:
     return _git_shadow_test(target_rel, new_content)
 
 
+def _shadow_env(wt: Path) -> dict:
+    """محیطِ فرزندِ سوییتِ سایه — ایزولاسیونِ **ساختاری**، نه قراردادی.
+
+    دو نشتِ تأییدشدهٔ ۲۰۲۶-۰۷-۲۷ که این تابع می‌بندد:
+      · مسیر: `opslib` ریشه را از `ORG_ROOT` (یا هاردکدِ F:\\backup) می‌گیرد نه از
+        `REAL_VAULT`. بدونِ pin، `test_tg_power` فایلِ زندهٔ STOP-ORGANISM را
+        می‌ساخت و هر شادو-تست ارگانیسمِ بالا را می‌خواباند.
+      · پول: محیطِ ارگانیسم کلیدهای پروایدر را دارد (بوت `.env` را بار می‌کند).
+        `dict(os.environ)` همه را به فرزند می‌داد، پس یک سوییتِ سایه می‌توانست
+        تماسِ پولیِ واقعی بزند و سهمیه بسوزاند. تست باید **نتواند** خرج کند.
+    allowlist نیست چون سوییت به PATH/SystemRoot/TEMP نیاز دارد؛ deny صریح است."""
+    import os as _os
+    import re as _re
+    env = dict(_os.environ)
+    env["REAL_VAULT"] = str(wt)
+    env["ORG_ROOT"] = str(wt)
+    env["PYTHONUTF8"] = "1"
+    for _k in ("OPS_DIR", "BUDGET_STATE"):
+        env.pop(_k, None)
+    # هر چیزی که بوی اعتبارنامه بدهد از فرزند حذف می‌شود (نام‌ها هرگز log نمی‌شوند).
+    _secretish = _re.compile(r"(API_KEY|_TOKEN$|^TELEGRAM|^TG_|SECRET|PASSWORD|_KEY$)", _re.I)
+    for _k in [k for k in env if _secretish.search(k)]:
+        env.pop(_k, None)
+    env["OCTOPUS_SHADOW_SUITE"] = "1"        # سوییت می‌تواند بداند در سایه است
+    return env
+
+
+def _suite_timeout_s() -> int:
+    """سقفِ هر دورِ سوییت در سایه.
+
+    ⚠️ ۲۰۲۶-۰۷-۳۰: سقفِ هاردکدِ ۶۰۰ ثانیه **کافی نبود** و اولین پچِ واقعیِ
+    مسیرِ «بساز» را کشت. تایم‌لاینِ سنجیده: سوییتِ مبنا ۲۲:۰۵:۲۴ شروع شد و
+    دقیقاً سرِ ۲۲:۱۵:۲۴ با `TimeoutExpired` مُرد — یعنی حتی **مبنا** تمام
+    نشد، چه رسد به دورِ دوم. سوییتِ کامل در یک worktree ِ تازه (با
+    `__pycache__` ِ سرد) از ۶۰۰ ثانیه رد می‌شود.
+
+    این یک threadِ daemon ِ پس‌زمینه است و `run_forever` بعدِ هر tick می‌خوابد،
+    پس tick ِ طولانی فقط تلاشِ بعدی را عقب می‌اندازد — هیچ‌چیز را بلاک نمی‌کند.
+    کیل‌سوییچ (`STOP-CODE-AUTONOMY`) هم هر ۵ ثانیه چک می‌شود.
+    """
+    import os
+    try:
+        return max(60, int(os.environ.get(
+            "OCTOPUS_CODE_SHADOW_SUITE_TIMEOUT_S", "1800")))
+    except (TypeError, ValueError):
+        return 1800
+
+
+def _run_suite(wt: Path, env: dict, timeout: "int | None" = None) -> dict:
+    import time as _t
+    t0 = _t.time()
+    r = subprocess.run([sys.executable, "-X", "utf8",
+                        str(wt / "_ops" / "tests" / "run_all.py")],
+                       capture_output=True, text=True,
+                       timeout=(timeout if timeout is not None
+                                else _suite_timeout_s()), env=env)
+    out = r.stdout or ""
+    fails = set(_re.findall(r"(test_[a-z0-9_]+)\.py", out.split("شکست:")[-1])) \
+        if "شکست:" in out else set()
+    # مدتِ واقعی ثبت می‌شود: سقف را بی‌اندازه‌گیری بالا بردن حدس است، نه فیکس.
+    return {"code": r.returncode, "fails": fails,
+            "seconds": round(_t.time() - t0, 1),
+            "tail": "\n".join(out.splitlines()[-3:])}
+
+
+import re as _re  # noqa: E402 — کنارِ مصرف‌کننده‌اش
+
+
 def _git_shadow_test(target_rel: str, new_content: str) -> dict:
-    """مسیرِ واقعی: git worktree از HEAD → نوشتنِ patch در نسخهٔ ایزوله → سوییتِ کامل → پاک‌سازی.
-    fail-soft: هر خطای git/اجرا → ok:False. درختِ زنده هرگز لمس نمی‌شود."""
+    """مسیرِ واقعی: git worktree از HEAD → سوییت **دوبار** → مقایسه با مبنا → پاک‌سازی.
+
+    چرا مبنا (ممیزیِ متخاصمِ ۲۰۲۶-۰۷-۲۷، بحرانیِ تأییدشده): «سبز» به‌معنای خروجیِ
+    صفرِ مطلق، در این ریپو **ساختاراً دست‌نیافتنی** است. worktree از HEAD ساخته
+    می‌شود و `_ops/OCTOPUS-flags.cmd` عمداً gitignored است، پس
+    `test_paid_router_dark_config` که وجودش را assert می‌کند در هر worktree قرمز
+    است — مستقل از پچ. نتیجه: هیچ پچی هرگز سبز نمی‌شد، ولی `drive()` هر شکست را
+    نهایی می‌شمرد؛ یعنی حلقه هر بار یک تماسِ پولی می‌سوزاند و یک نقص را برای همیشه
+    از صف حذف می‌کرد. حالا معیار «هیچ شکستِ **تازه** نسبت به همان HEAD بدونِ پچ»
+    است — یعنی دقیقاً همان چیزی که ادعا می‌شد: «پچ چیزی را نشکست»."""
     repo = _OPS.parent                                   # ریشهٔ worktree/repo
     tmp = Path(tempfile.mkdtemp(prefix="shadow-wt-"))
     wt = tmp / "wt"
@@ -122,21 +198,22 @@ def _git_shadow_test(target_rel: str, new_content: str) -> dict:
         if not tgt.exists():
             return {"ok": False, "reason": "target-missing-in-tree", "target": target_rel}
         old = tgt.read_text("utf-8")
+        env = _shadow_env(wt)
+        base = _run_suite(wt, env)                       # ← مبنا: همان HEAD، بدونِ پچ
         tgt.write_text(new_content, "utf-8")
         diff = subprocess.run(["git", "-C", str(wt), "diff", "--stat"],
                               capture_output=True, text=True, timeout=30)
-        import os as _os
-        env = dict(_os.environ)
-        env["REAL_VAULT"] = str(wt)
-        env["PYTHONUTF8"] = "1"
-        run = subprocess.run([sys.executable, "-X", "utf8",
-                              str(wt / "_ops" / "tests" / "run_all.py")],
-                             capture_output=True, text=True, timeout=600, env=env)
-        green = run.returncode == 0
-        tail = "\n".join((run.stdout or "").splitlines()[-3:])
+        cand = _run_suite(wt, env)                       # ← با پچ
+        new_fails = sorted(cand["fails"] - base["fails"])
+        fixed = sorted(base["fails"] - cand["fails"])
+        # سبز = هیچ شکستِ تازه. اگر مبنا خودش پاک بود، این دقیقاً «returncode==0» است.
+        green = not new_fails and (cand["code"] == 0 or bool(base["fails"]))
         return {"ok": True, "green": green, "target": target_rel,
-                "diff": (diff.stdout or "").strip()[:400], "suite_tail": tail,
-                "changed_bytes": len(new_content) - len(old)}
+                "diff": (diff.stdout or "").strip()[:400], "suite_tail": cand["tail"],
+                "baseline_fails": sorted(base["fails"]), "new_fails": new_fails,
+                "fixed_fails": fixed, "changed_bytes": len(new_content) - len(old),
+                "base_seconds": base.get("seconds"),
+                "cand_seconds": cand.get("seconds")}
     except Exception as e:  # noqa: BLE001
         return {"ok": False, "reason": f"shadow-error:{type(e).__name__}", "target": target_rel}
     finally:
@@ -201,27 +278,11 @@ APPROVALS_DIR = opslib.STATE_DIR / "telegram" / "approvals"
 
 
 def active() -> bool:
-    """سطح A زنده است؟ فلگِ مالک هست، کیل‌سوئیچ نیست، و — اگر OCTOPUS_REQUIRE_ARM روشن
-    باشد (P5) — arm-tokenِ تازهٔ دو-کلید هم حاضر است. flagِ خاموش = byte-identical با قبل.
-    این فقط سخت‌تر می‌کند؛ هرگز چیزی را که ACTIVATION تنها باز می‌کرد بازتر نمی‌کند."""
+    """سطح A زنده است؟ فلگِ مالک هست و کیل‌سوئیچ نیست."""
     try:
-        if not (ACTIVATION.exists() and not KILL.exists()):
-            return False
-        return _arm_ok()
+        return ACTIVATION.exists() and not KILL.exists()
     except OSError:
         return False
-
-
-def _arm_ok() -> bool:
-    """P5 fresh-arm-token gate. Enforced (OCTOPUS_REQUIRE_ARM) -> require arm_gate tokens;
-    otherwise pass-through. arm_gate unavailable while enforcing -> fail-closed (deny)."""
-    try:
-        import arm_gate as _ag  # _ops on sys.path (opslib already imported above)
-        return _ag.guard("code_autonomy")[0]
-    except Exception:  # noqa: BLE001
-        import os as _os
-        return _os.environ.get("OCTOPUS_REQUIRE_ARM", "").strip().lower() \
-            not in ("1", "true", "yes", "on")
 
 
 def _owner_approved(approval_id: str) -> bool:
@@ -365,8 +426,23 @@ def propose_to_owner(patch: dict) -> dict:
         text, kb = render.render_decision(item)
         text = "🧠🫀 <b>خودمختاریِ کد — زیرِ قانونِ قلب</b>\n" + text
         c = tg_api.TgClient()
-        posted = c.send(text, keyboard=kb, chat_id=cfg.get("chat_id"),
-                        topic_id=(cfg.get("topics") or {}).get("system"))
+        # ── مقصد از قراردادِ مسیریابی، نه هاردکدِ گروه (۲۰۲۶-۰۷-۳۰) ──────────
+        # تا امروز این کارت به `topics["system"]` ِ **گروه** می‌رفت. با
+        # قراردادِ مصوبِ legs-only آن نقض است: پچِ کد هسته‌ای است، نه پا — و
+        # بدتر، مالک باید در همان لحظه رأی بدهد. `code-card` در
+        # surface-routing.json تعریف شد؛ فلگ خاموش = همان system ِ قبلی
+        # بایت‌به‌بایت، فلگ روشن = DM ِ لنگر. دکمه‌ها روی همان باتِ outer
+        # می‌مانند چون handler ِ approval آن‌جاست (درسِ کارتِ مرده).
+        _chat, _topic = cfg.get("chat_id"), (cfg.get("topics") or {}).get("system")
+        try:
+            import surface_router as _sr
+            _cl, _cid, _tid = _sr.resolve(
+                "code-card", clients={"outer": c, "inner": None}, cfg=cfg)
+            if _cl is not None:
+                c, _chat, _topic = _cl, _cid, _tid
+        except Exception:  # noqa: BLE001 — روتر هرگز کارت را نمی‌کشد
+            pass
+        posted = c.send(text, keyboard=kb, chat_id=_chat, topic_id=_topic)
     except Exception:  # noqa: BLE001
         posted = None
     return {"ok": True, "id": did, "posted": posted}

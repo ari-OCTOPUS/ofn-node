@@ -1,3 +1,10 @@
+---
+type: research
+status: done
+tags: [research, geometry, cognitive-kernel]
+created: 2026-07-14
+updated: 2026-07-29
+---
 # GEOMETRY.md — صورت‌بندی هندسیِ ریاضیاتِ کرنل شناختی ۰.۱
 
 **نسخه:** 0.1 · **تاریخ:** 2026-07-14 · **دامنه:** C0 (کارکردی). هیچ گزارهٔ C4

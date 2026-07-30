@@ -1,0 +1,1472 @@
+{
+  "summary": "Verify the 130 blindspots against today's fixes, answer the deep-scan rows, and design the coherent learning system",
+  "agentCount": 34,
+  "logs": [
+    "تریاژ: 137 آیتم — 4 امروز بسته شد، 124 باز",
+    "اسکنِ عمیق: 24 شکاف، 8 تأییدشده"
+  ],
+  "result": {
+    "triage_total": 137,
+    "fixed_today": 4,
+    "still_open": 124,
+    "confirmed_gaps": 8,
+    "confirmed": [
+      {
+        "gap": "The uncommitted BCM feed and _apply_bcm share one BCMStabilizer instance and one weights file, and each wipes the other's entire key set on every call.",
+        "why": "BCM.step deletes every weight not present in known_keys (bcm.py:150-154). The in-flight feed passes known_keys=BCM_VOCAB (8 signal names, every tick); _apply_bcm passes known_keys=latent_space.keys() (cycle-N keys, every 720 beats). Same cached instance (neural_stack['bcm']), same bcm-weights.json. Arming OCTOPUS_WIRE_BCM_FEED as written would make BCM thrash between two disjoint vocabularies forever, and it would still look 'wired' from the outside. Secondary: neural_stack['bcm'] is only ever created by consolidation_beat (wiring.py:1648-1653) — make_neural_stack (1091-1109) has no 'bcm' key — so the feed is a silent no-op until the first consolidation epoch. Third: per-tick feeding violates bcm.py's own stated contract that memory time passes in consolidation steps, not wall-clock (docstring lines 79-82).",
+        "smallest_wire": "Give the signal-vocabulary feed its own instance and its own file: construct BCMStabilizer(persist_path=STATE_DIR/'bcm-signal-weights.json') in make_neural_stack() under key 'bcm_signals', and have the feed at wiring.py:1167 read that key instead of 'bcm'. ~4 lines, no change to _apply_bcm.",
+        "files": "F:\\backup\\_ops\\wiring.py:1091-1109,1156-1172,1309-1335,1646-1655; F:\\backup\\_ops\\neural\\bcm.py:150-158",
+        "effort": "small",
+        "unlocks": "The forgetting maths can run on live deviation signals without destroying the retrieval index, and bcm-weights.json stops being a permanently empty file that reports wire_bcm:true.",
+        "row": "B-learning",
+        "verdict": {
+          "real": true,
+          "reason": "CONFIRMED — survived refutation, but three of the scout's framings are wrong and must be corrected before acting.\n\nVERIFIED IN THE CURRENT TREE:\n- Shared instance, shared file: the feed reads `neural_stack.get(\"bcm\")` (wiring.py:1167) and `_apply_bcm` receives the same object (wiring.py:1648-1653 is the ONLY creation site, cached into the dict). Both hit `BCMStabilizer`'s default path `state/bcm-weights.json` (bcm.py:35-41). organism.py:535 and :734 pass the identical `_neural_stack`; brain_worker.py:183/:302 the same.\n- Disjoint vocabularies: feed passes `known_keys=list(BCM_VOCAB)` — 8 signal names (wiring.py:1084-1088, 1169); `_apply_bcm` passes `known_keys=all_keys` = `latent_space.keys()`, i.e. `cycle-N` / `cycle-N:...` keys (wiring.py:1321,1328). Structurally disjoint.\n- `BCM.step` silently deletes every weight absent from `known_keys` (bcm.py:150-154). Confirmed by reading.\n- Cadence asymmetry real: feed every tick vs `CHRONO_CONSOLIDATION_EVERY_N_BEATS=720` (wiring.py:1619).\n- Secondary claim CONFIRMED: `make_neural_stack()` (1091-1109) returns only driver/hebbian/consolidation — no `bcm`. Feed is a no-op until the first consolidation epoch.\n- `OCTOPUS_WIRE_BCM` is default-applied via PAPER_FULL_FLAGS (wiring.py:100) with default profile paper-full (wiring.py:121), so `_apply_bcm` genuinely runs — bcm-weights.json shows step 65.\n\nCORRECTION 1 — it is NOT uncommitted. The feed landed in 4517dfb (\"feed BCM at last\"), one commit past the 13 listed in the brief.\nCORRECTION 2 — it is NOT off by default. `OCTOPUS_WIRE_BCM_FEED` is present and set non-zero in _ops/OCTOPUS-flags.cmd (checked name+armed-state only, contents not read). The commit message's \"off by default\" is stale. Only a restart separates this from live.\nCORRECTION 3 — the headline harm \"destroys the retrieval index\" is FALSE. The sync-deletion at bcm.py:153-154 does not append to `report.pruned`; `_apply_bcm` calls `latent_space.remove(k)` only for `k in report.pruned` (wiring.py:1329-1330). The feed can therefore never delete a latent vector. The REAL harm is the decay ladder: `_apply_bcm` re-creates every latent key at w_init=1.0/theta=0.0 each consolidation, so w only ever reaches 0.98 (dw=-β·w=-0.02) and never crosses w_floor=0.05, which needs ~148 uninterrupted steps — the w_floor prune (bcm.py:179-181) becomes permanently unreachable, and past max_keys=512 the overflow prune tie-breaks alphabetically over identical weights (bcm.py:185), pruning by key name rather than genuine weakness.\n\nWHY IT IS LIVE NOW RATHER THAN THEORETICAL (the scout missed this): bcm-weights.json was empty not because of the feed but because `full_awareness_vector()` read a non-existent attribute — fixed TODAY in 435ab10, now `list(self.field.a)` in _ops/afferent/school_bridge.py. `latent-vectors.json` still does not exist on disk. So the next restart is the first time the latent index populates AND the first time the armed feed runs — both halves of the collision go live on the same boot.\n\n(b) SMALLEST: yes. `make_neural_stack()` exists, `BCMStabilizer(persist_path=...)` exists (bcm.py:85-89), `opslib.STATE_DIR` is already used in the same block (wiring.py:1186). One constructor + one key rename at 1167. It also incidentally fixes the boot no-op.\n\n(c) OBSERVABLE: yes — not record-only. bcm-weights.json is a live owner-facing surface: export_status.py:181 builds `bcm_weights_summary` (count, saturation_of_512, strongest_10/weakest_10) and `export_status.main()` is invoked from approval_channel.py:3141; cockpit_readmodel.read_bcm() (:128, :457) feeds rule R19 and the Telegram \"BCM (P3)\" card (approval_channel.py:3920-3925). With the collision that surface reports 8 deviation-signal names; without it, the actual retrieval-memory keys with real decay. Caveat: both cockpit call sites use `b.get('weights', b)` while the file's key is `keys`, so the card's count is already wrong either way — the honest observable win is in export_status and in `result.bcm_pruned`/`bcm_theta`/`bcm_saturation`.\n\nONE ISSUE THE WIRE DOES NOT FIX: organism.py and brain_worker.py both drive this pair; if they run as separate processes each holds its own BCMStabilizer against the same default path, and `_save()` rewrites the whole document — cross-context clobbering exists independently of the vocabulary split.\n\nKey files: F:\\backup\\_ops\\wiring.py (1084-1088, 1091-1109, 1156-1172, 1309-1335, 1619, 1643-1655), F:\\backup\\_ops\\neural\\bcm.py (35-41, 85-99, 148-189), F:\\backup\\_ops\\neural\\latent_space.py (22-27), F:\\backup\\_ops\\afferent\\school_bridge.py, F:\\backup\\_ops\\export_status.py:181, F:\\backup\\_ops\\budget\\cockpit_readmodel.py:128."
+        }
+      },
+      {
+        "gap": "Negotiation has no origination path — nothing in the organism ever creates a first offer.",
+        "why": "`negotiate.make_offer()` is called from exactly one line in the repo (center.py:730), inside the `_awaiting_counter` branch, reachable only via `ng:c` — which is dead. No beat, no wiring hook, no command. `offers.jsonl` contains only the 3 rows from the 14:24 manual proof. Even after the dispatch fix, the owner will never receive an offer card.",
+        "smallest_wire": "Either a `/deal` command in the `handlers` dict at center.py:673-688 that calls `negotiate.make_offer()` and sends `negotiate.card(...)`, or a low-frequency beat in wiring that offers at most once/day while `len(open_offers()) < MAX_OPEN` (the cap already exists at negotiate.py:57). The command is the smaller and more honest first step — it keeps origination owner-initiated.",
+        "files": "F:\\backup\\_ops\\telegram_center\\negotiate.py:163-224 (make_offer), :263-286 (card); F:\\backup\\_ops\\telegram_center\\center.py:673-688 (handlers dict)",
+        "effort": "small",
+        "unlocks": "Makes the negotiation loop actually observable, which is the precondition for ever measuring whether owner terms improve the organism's proposals.",
+        "row": "C-telegram",
+        "verdict": {
+          "real": true,
+          "reason": "CONFIRMED, though one of the scout's sub-claims is already stale.\n\nWHAT I VERIFIED IN THE CURRENT TREE (HEAD = e102fd1, which landed at 15:19 today, mid-investigation — 14 commits today, not 13):\n\n1. Origination is genuinely absent. Repo-wide grep for `make_offer` outside `_ops/tests/` returns exactly ONE production call: `F:\\backup\\_ops\\telegram_center\\center.py:730` — `rev = _ng.make_offer(revise_of=_await)`. Every production call passes `revise_of=`. The no-argument (first-offer) form exists only in `_ops/tests/test_negotiate.py`. Same for the card: `negotiate.card()` has exactly one production caller, center.py:732, and it renders `rev[\"offer\"]` — the revision, never an original.\n\n2. The path is circular, so it can never start. `_awaiting_counter` is set at exactly one place, center.py:1162, inside the `ng:c` callback branch. Pressing `ng:c` requires a card already in Telegram carrying `callback_data=\"ng:c:<oid>\"`; that keyboard is built only in `negotiate.card()` (negotiate.py:280-282); `card()` is only called on a revision, which requires a counter, which requires a card. No beat in `_ops/wiring.py`, no entry in the handlers dict (center.py:673-689), nothing in live_commands.py, and no reference to negotiate anywhere in `_ops` outside center.py, negotiate.py, tests, and a self-model.json inventory entry.\n\n3. Ledger corroborates. `_ops\\state\\telegram\\offers.jsonl` has exactly 3 rows, one offer id, all at 14:24 (open → countered → open rev-2) — the manual proof described in 6252efa. Effective open offers = 1 against `MAX_OPEN = 2`, so a new offer is permitted right now, i.e. the cap is not what is blocking.\n\nWHERE THE SCOUT IS OUT OF DATE (and why it strengthens rather than weakens the gap): \"reachable only via ng:c — which is dead\" was true until e102fd1, which added `\"ng\"` and `\"mr\"` to the dispatch tuple at center.py:1639 plus a `test_callback_routing` guard that fails if any emitted callback verb is unrouted. So the three negotiate buttons are now correctly routed AND regression-guarded — and still have zero producer. A routed, tested button nobody can ever see is a sharper defect than an unrouted one.\n\nWIRE QUALITY (criterion b): both cited functions exist — `make_offer` at negotiate.py:167 and `card` at negotiate.py:265 (scout's 163/263 drifted by ~4 lines because e102fd1 inserted the `owner_verdicts_open` block above). The handlers-dict form is genuinely the smallest: center.py:702-709 already unpacks `out if isinstance(out, tuple) else (str(out), None)` and sends with `keyboard=kb` — exactly the `(text, kb)` shape `negotiate.card()` returns, the same contract `_page()` uses. So a `/deal` lambda plus a small method that returns `card(r[\"offer\"])` on ok and a reason string otherwise needs no plumbing change at all. A beat would be strictly larger and would spend a paid brain unattended.\n\nOBSERVABILITY (criterion c): not record-only. The output is a Telegram card in the owner's chat with three buttons, and it is the precondition for the accept/reject/counter dispatch fixed 40 minutes ago ever firing from the owner's side.\n\nCAVEATS worth passing on: (i) `make_offer` gates on `OCTOPUS_TG_NEGOTIATE` — the key NAME is present in the gitignored flags file (2 occurrences; I did not read the values); (ii) each `/deal` costs a paid-brain call (`model_router.ask(..., tier=\"primary\")`, and it hard-rejects a free-tier answer with `not-a-paid-brain`), drawn from the shared `ask_brain._take` quota — which is exactly why the owner-initiated command, not the beat, is the right first step; (iii) the tg center needs a restart to pick any of this up."
+        }
+      },
+      {
+        "gap": "Model output and raw owner text are interpolated into `parse_mode: HTML` messages without escaping in three of the four new/updated card builders.",
+        "why": "`tg_api` always sends HTML (:278,:318). A single `<` in a brain reply, in a self-knowledge field, or in a correction the owner typed makes Telegram reject the message with a 400; `_call_post` fails soft, so the owner sees NOTHING and the only trace is a throttled alert. `negotiate.card` gets this right via `_e` (html.escape) — the other three do not, which shows the pattern is known and just wasn't applied.",
+        "smallest_wire": "Reuse `negotiate._e` (or `html.escape`) on the text/model/correction interpolations in `ask_brain.card`, `mirror_room.card`, `know_card`, and `corrections_card`. Four call sites, same one-line transformation each.",
+        "files": "F:\\backup\\_ops\\telegram_center\\ask_brain.py:226-231; F:\\backup\\_ops\\telegram_center\\mirror_room.py:243-251, :254-273, :276-282; pattern to copy: F:\\backup\\_ops\\telegram_center\\negotiate.py:284-286",
+        "effort": "small",
+        "unlocks": "Removes a class of silent conversation drop-outs in exactly the rooms where the owner is most likely to type angle brackets or paste code.",
+        "row": "C-telegram",
+        "verdict": {
+          "real": true,
+          "reason": "CONFIRMED — survived refutation on all five axes I tried (already-fixed, transport-protected, dispatch-protected, unreachable, non-observable).\\n\\nEVIDENCE:\\n1. tg_api.py:278/:318 hardcode parse_mode=\\\"HTML\\\" unconditionally. The only text transform is _scrub (tg_api.py:71), a banned-echo redactor that does not touch '<'. No plain-text retry exists anywhere in tg_api.py or center.py.\\n2. _call_post (tg_api.py:234) swallows the 400, calls the 1/hour/method-throttled _note_fail, returns None -> send() returns None -> call sites return {\\\"sent\\\": False}. Owner sees nothing.\\n3. center._scrub (center.py:136) is also a redactor, not html.escape. Call sites unescaped: center.py:754-758 (mirror), :860-865+:872 (ask_brain), :1181-1191 (mr:know / mr:corr).\\n4. EMPIRICALLY REPRODUCED in-process on the live tree with probe 'if x < 5 and y > 3: ...': ask_brain.card -> raw '<' present, '&lt;' absent; mirror_room.card -> raw '<' present, '&lt;' absent; negotiate.card -> raw '<' absent, '&lt;' present (correct).\\n5. NOT fixed by today's 13 commits: git log -- ask_brain.py mirror_room.py stops at 1d0ace2 / 965d008. 435ab10 added html.escape on WEB text only, not these builders. ask_brain._SYSTEM says nothing about avoiding tags.\\n6. PATH IS LIVE, not dormant: both flag names present in the flags file; _ops/state/telegram/ask-brain-state.json = {\\\"date\\\": \\\"2026-07-27\\\", \\\"used\\\": 9}; ask-brain.jsonl 4 records, mirror-history.jsonl 3 turns, owner-corrections.jsonl 2 entries. Zero of those 7 contain '<' -> latent, not yet fired.\\n7. Pattern already proven known: _ops/tests/test_negotiate.py:255 t_card_escapes_hostile_text asserts '&lt;script&gt;' in body. test_ask_brain.py and test_mirror_room.py have no equivalent.\\n\\nCORRECTION TO THE PROPOSED WIRE: do NOT literally reuse negotiate._e. Its body is html.escape(str(v or \\\"\\\"))[:300] (negotiate.py:286-288); that 300-char cap is sized for short offer fields, but ask_brain.card caps at 3400 and mirror_room.card at 3800. Reusing _e would silently truncate every brain answer to 300 chars — trading a rare invisible failure for a constant visible one. Smallest correct wire is a local html.escape on the interpolated VALUES only, never the whole body, since these cards intentionally emit their own <i>/<b> tags.\\n\\nFOUR SITES, all confirmed to exist: ask_brain.card (ask_brain.py:226-231, escape text+model); mirror_room.card (mirror_room.py:243-251, same two); mirror_room.know_card (:254-273, LLM-generated anatomy/physiology/focus/symptom/root_cause — currently short Persian, low risk, same class); mirror_room.corrections_card (:276-282, raw owner-typed text, highest risk since no system prompt governs it).\\n\\nOBSERVABLE: binary and direct. Today a '<' in a brain reply or pasted snippet produces an empty room — owner types, waits, nothing arrives, only trace is a throttled generic alert. After the wire the message renders. Behavior change, not a new record."
+        }
+      },
+      {
+        "gap": "The approvals card shows 5 of 45 pending jobs, oldest-first, with no pagination.",
+        "why": "`render_approvals_queue` slices `pend[:5]` twice (text at :706, keyboard at :723) and `load_pending()` preserves stored order. `_octopus/state/approvals.json` currently holds 45 jobs, all `pending`, the visible five dating to 2026-07-24, many `risk: high`. Every mission approved since then is queued behind a wall the owner cannot scroll past — the queue can only grow.",
+        "smallest_wire": "Reverse the slice to newest-first (`pend[-5:]` reversed, or sort by id/timestamp descending) as a one-line change, and add the count of hidden items to the header line at render.py:698 so the number is honest. Real pagination (a `mn:ap:<n>` verb) is the follow-up, not the first move.",
+        "files": "F:\\backup\\_ops\\telegram_center\\render.py:697-713, :722-726; F:\\backup\\_ops\\telegram_center\\approval_store.py:208-211; state: F:\\backup\\_octopus\\state\\approvals.json",
+        "effort": "small",
+        "unlocks": "Makes the newest high-risk missions decidable at all, and makes the size of the backlog visible instead of implied.",
+        "row": "C-telegram",
+        "verdict": {
+          "real": true,
+          "reason": "CONFIRMED in the current tree, not fixed by today's 13 commits. render.py:706 and :723 both still slice `pend[:5]`, approval_store.load_pending() (:208-211) returns the stored list unsorted/unfiltered, and nothing in render.py sorts pending. _octopus/state/approvals.json holds 45 pending, all type=mission and risk=high, in strictly ascending created_at order; the five shown are 2026-07-24T14:49..2026-07-25T10:55, while the eight created 07-26..07-27 are hidden. Worse than the scout said: 37 of 45 are already past their own expires_epoch (the visible five by 28-48h), and the only 8 unexpired ones are the hidden ones. Empirical proof of the wall: the approved bucket (13) shows batch approvals on 07-25/07-26 of missions created 07-24, and the newest mission ever approved was created 2026-07-25T09:24 - nothing created after that has ever been decided. The change is observable and load-bearing, not record-only: center.py:1568-1591 shows ap:ok calls aps_mod.approve() AND mission_mod.set_owner_verdict(jid, True) for mission-type jobs, the same effect as the ms:approve card; the page is reachable from the main menu (mn:ap at center.py:936, badge at :1017, render.py:565/579, menu_integration.py:71). No reaper drains pending and the expiry check is behind cbtok.flag_on() (OCTOPUS_WIRE_CB_TOKEN, absent from the flags file = off), so the queue can only grow. THREE CORRECTIONS to the proposal: (1) the header is already honest - render.py:697 uses summary()['pending'], so the card already prints 45; only \"showing 5 of 45\" is missing, so that half of the claimed unlock is already done. (2) It is not one line - the text loop (:706) and keyboard loop (:723) slice independently, and reversing only one binds the approve/reject buttons to different jobs than those listed, a dangerous mismatch on 45 high-risk missions; both must change identically. (3) A second surface has the same bias: owner_views.pending_decisions -> render_backlog(...)[:6] (owner_views.py:112) via menu_integration.py:60 reads the same oldest-first list. Guard tests do not pin ordering (test_tg_render.py:216-226 asserts membership with 2 items; S1-05_test_ap_binding.py:107-124 indexes kb[0] with a single item), so the reversal is test-safe."
+        }
+      },
+      {
+        "gap": "A single unreadable read of consolidation.json or approvals.json permanently destroys 535 rows of learning history / 45 pending owner approvals, because the load path returns an empty container and the save path atomically overwrites with it.",
+        "why": "These are the two files in the tree where one transient read failure converts into total, durable, unalerted loss. approvals.json currently holds 45 missions the owner has not yet decided; consolidation.json holds 139 KB accumulated since the system started. Both are written atomically, which makes the destruction complete rather than partial. No integrity check exists between load and save on either path.",
+        "smallest_wire": "Make the empty-read distinguishable from the empty-file. In _ops/neural/consolidation.py:81-85, on JSONDecodeError (as opposed to a missing file) rename the bad file to `.corrupt-<ts>` and call `opslib.alert([...])` before returning [] — never silently. Same three lines in _ops/telegram_center/approval_store.py:94-95. Guard clause: only treat `[]`/`_empty_state()` as authoritative when `not self._path.exists()`; otherwise refuse to save this cycle.",
+        "files": "_ops/neural/consolidation.py:81-85,87-93,145; _ops/telegram_center/approval_store.py:94-95,98-99,102-112; live files: _ops/neural/consolidation.json (139,446 B, 535 rows), _octopus/state/approvals.json (25,357 B, 45 pending)",
+        "effort": "small",
+        "unlocks": "Removes the two highest-blast-radius data-destruction paths in the repo. Also makes the corruption itself recoverable (the .corrupt sidecar) instead of overwritten.",
+        "row": "E-fragility",
+        "verdict": {
+          "real": true,
+          "reason": "CONFIRMED unwired in the current tree, with two of the scout's claims corrected.\n\n(a) UNWIRED: _ops/neural/consolidation.py:81-85 `_load()` catches (json.JSONDecodeError, OSError) -> returns []. Today's 6252efa touched this file (+20 lines) but ONLY the dedup block at 126-144; `_load` is unchanged. _ops/telegram_center/approval_store.py:80-95 `_load_octopus_approvals()` catches (OSError, ValueError) -> `_empty_state()`; file last committed 435d198 on 2026-07-20, untouched by all 13 of today's commits. No `.corrupt` sidecar pattern exists anywhere in _ops, and no test pins the current empty-on-corrupt behaviour, so the guard conflicts with nothing.\n\n(b) WIRE IS VALID AND NEAR-MINIMAL: opslib.alert(items: list[str]) really exists at _ops/budget/opslib.py:341. The cross-package import idiom is already established by a sibling in the same directory: mission.py:31-37 does sys.path.insert(_OPS/\"budget\") + try/except import opslib. The core guard (refuse to save when the file exists but failed to parse) is ~3 stdlib-only lines and preserves both modules' documented \"stdlib-only / import-time pure\" invariant even if the alert half is dropped.\n\n(c) OBSERVABLE, NOT RECORD-ONLY: _octopus/ is gitignored (.gitignore:139), so approvals.json has NO backup. I traced pending mission M-20260727-082326-709af2b4: it exists ONLY in _octopus/state/approvals.json and the append-only _octopus/logs/audit.log -- it is NOT in _ops/state/telegram/missions/missions.json (which holds just 2 records). 44 of 45 pending entries are like this, and entries are self-sufficient (id/title/risk/dry_run_report inline), so loss shows up directly as an emptied owner approval page rendered via render.py:687 load_pending() and owner_views.py:58.\n\nFREQUENCY ASYMMETRY THE SCOUT MISSED: ConsolidationCycle() is constructed once per process (wiring.py:1105 make_neural_stack) = one dice roll per restart. _load_octopus_approvals() runs a full read-modify-write on EVERY add_pending/_move/get/summary/load_pending -- hot path, live writers at center.py:805 and center.py:1276, newest queue entry today 12:03.\n\nEXTRA FINDING strengthening the \"unalerted\" claim: add_pending returns the job id unconditionally (line 165); `saved = _save_octopus_approvals(state)` gates only the _audit call, not the return, and the caller at center.py:805 wraps it in `except: pass`. The path is silent in BOTH directions -- a failed save still reports success on the owner's card.\n\nCORRECTIONS TO THE SCOUT: (1) \"permanently destroys 535 rows\" is wrong for consolidation.json -- it IS git-tracked (git ls-files confirms), history monotonic 117KB->130KB->139KB with no collapse, so loss recovers to the last commit. Only approvals.json is genuinely irrecoverable. (2) There is NO forensic evidence this has ever fired: no size collapse in consolidation git history, and the low missions.json count (2) is not a wipe -- mission-audit.jsonl independently contains only those same 2 mission ids. The mechanism is code-proven; the trigger (AV file-locking, documented in this environment for .git/HEAD.lock) is unobserved on these two files. This is a latent-risk fail-closed guard, not a live-defect fix -- but the asymmetry (3 lines vs. total silent loss of an unbacked-up 45-item owner queue) matches the fail-closed pattern this repo already treats as first-class.\n\nSAME BUG, LOWER VALUE: mission.py:112-125 has the identical load-empty/save-over shape but missions.json holds 2 rows; not worth bundling."
+        }
+      },
+      {
+        "gap": "Model-authored text reaches parse_mode=HTML unescaped on three surfaces added today — including the self-patch card, which is the only visible output of the entire self-improvement loop",
+        "why": "A Python diff practically always contains '<', '>' or '&'. Telegram 400s the whole message, tg_api._call_post returns None, self_patch.drive swallows it at :424, and _note_fail throttles to 1 alert/hour/method. The organism finds a real bug, writes a patch, proves the isolated suite green — and the owner is never told. This is byte-for-byte the failure mode documented at approval_channel.py:2603-2608 that hid the C6 card for a day.",
+        "smallest_wire": "Wrap the model text in html.escape() at the three render points, exactly as rfc_card already does at approval_channel.py:2639: ask_brain.py:229 `body = ('🐙 ' + html.escape(str(text or '').strip()))[:3400]`; mirror_room.py:244 the same; self_patch.py:198-199 escape rec['defect'] and rec['diff'] before interpolation. negotiate.py:279-281 already has the correct helper to copy.",
+        "files": "F:/backup/_ops/telegram_center/ask_brain.py:229; F:/backup/_ops/telegram_center/mirror_room.py:244; F:/backup/_ops/self_patch.py:193-200",
+        "effort": "small",
+        "unlocks": "The self-patch card can actually be delivered; the mirror room and free-form answers stop silently vanishing whenever the model writes a comparison operator or an ampersand.",
+        "row": "F-new",
+        "verdict": {
+          "real": true,
+          "reason": "CONFIRMED unwired in the current tree, with two corrections to the scout's reasoning.\n\n(a) Genuinely unwired. ask_brain.py:229 (`body = (\"🐙 \" + str(text or \"\").strip())[:3400]`), mirror_room.py:244 (`body = \"🪞 \" + str(text or \"\").strip()`), and self_patch.py:190-200 (`card_text`) all interpolate model-authored text into templates containing literal <b>/<i>/<code> tags. Both send layers hardcode parse_mode=\"HTML\" (tg_api.py:278, approval_channel.py:1431). The only filters in the path — center._scrub (center.py:136-142) and approval_channel._redact (:2848) — are secret/containment redactors that never touch <, >, or &. No html import exists in any of the three files.\n\n(b) The wire exists, is minimal, and matches an established house convention that these three violate. Escaping is already done at negotiate._e (negotiate.py:286-288 — not :279-281 as cited — shipped in today's NEWEST commit 6252efa, with a \"hostile-text escaping\" test), render._esc (render.py:112-114), live_loop._safe_card_text (:285-291), and rfc_card (approval_channel.py:2637). deep_think — the closest analogue, also shipped today (970601b) — is safe only incidentally, because it routes its model text through rfc_card's html.escape. So today's own author demonstrably knows the rule; these three surfaces were simply missed.\n\n(c) Observable, not record-only. A 400 drops the entire message. self_patch.py:421-425 calls channel.send_text(card_text(res), stream=\"c6\") inside a bare try/except: pass AND discards the return value; send_text swallows the HTTPError internally and returns False. Loss is completely silent — no alert, no ledger row. This is byte-for-byte the failure class documented in-repo at approval_channel.py:2603-2608 (the C6 card lost for 24h). The observable delta is \"owner sees the self-patch card / the mirror answer\" vs \"nothing arrives\".\n\nLive, not hypothetical: all four flag NAMES (OCTOPUS_TG_ASK_BRAIN, OCTOPUS_TG_MIRROR, OCTOPUS_WIRE_SELF_PATCH, OCTOPUS_TG_NEGOTIATE) are present with non-empty values in the flags file (names only inspected, no values read), and the paths have real traffic today: 4 rows in ask-brain.jsonl, 3 in mirror-history.jsonl, 3 in self-patch/defect-queue.jsonl, plus one written patch record.\n\nCORRECTION 1 — the scout's central premise is factually wrong. rec['diff'] is `git diff --stat` output (_ops/cortex/code_autonomy.py:177 runs [\"git\",\"-C\",str(wt),\"diff\",\"--stat\"], stored at :185 capped to 400 chars), i.e. file paths, |, +, -, digits. It carries essentially zero HTML risk; \"a Python diff practically always contains <\" does not apply. The real exposure in that card is rec['defect'] — model prose instructed to reference \"خطِ/تابعِ مشخص\", and _REVIEW_SYSTEM (self_patch.py:289-298) literally shows the model a template containing \"<شرحِ دقیقِ نقص…>\", so an echoed placeholder emits < directly.\n\nCORRECTION 2 — honest counterweight: this has not fired yet. Across all 11 model outputs currently on disk (4 ask_brain, 3 mirror, 3 deep_think, 1 defect) the count of < and & is 0, and _ops/state/tg-send-log.jsonl shows 93 sends with 0 failures. It is latent, not currently-breaking, and stray > alone is generally tolerated by Telegram (< is the reliable killer).\n\nVerdict remains real=true: the trigger is probabilistic on live paid-brain output, the failure is total and silent on the one surface that is the sole visible output of the self-improvement loop, and the fix is three one-line edits copying a helper that already exists two files away. Files: F:\\backup\\_ops\\telegram_center\\ask_brain.py:229; F:\\backup\\_ops\\telegram_center\\mirror_room.py:244; F:\\backup\\_ops\\self_patch.py:193-200."
+        }
+      },
+      {
+        "gap": "looks_like_correction() matches the bare substring 'نه ', so ordinary Persian sentences are recorded as permanent owner corrections — and since commit 435ab10 those corrections rewrite the daily diagnosis",
+        "why": "Measured: 7 of 9 benign test sentences fire, including «هزینهٔ ماهانه چقدر است؟» and «گزارش روزانه را بده» — any word ending in -انه/-ونه/-نه followed by a space. Each hit is appended to owner-corrections.jsonl, which is append-only with no delete path, and the last five now enter self_knowledge.snapshot(), the change-gate hash, negotiate._own_agenda(), and every future mirror turn. Ordinary typing irreversibly poisons the self-model. The correction is also written before the paid call, so it persists even when the answer never arrives.",
+        "smallest_wire": "Two changes in mirror_room.py: (a) require the hint at the start of the message — `low.startswith(h)` for the short hints instead of `h in low` at :118, and drop the bare 'نه ' in favour of 'نه،' / 'نه.' / 'نخیر'; (b) move the record_correction call at :205-208 to after a successful answer, so a failed turn leaves no residue. A follow-up worth the owner's vote: make it an explicit '✍️ این اشتباه است' button rather than a heuristic.",
+        "files": "F:/backup/_ops/telegram_center/mirror_room.py:61-62,116-118,205-208",
+        "effort": "small",
+        "unlocks": "The one genuinely measurable new capability of the mirror room — persistent owner corrections that reach forward — stops being a noise generator, and the correction ledger stays trustworthy enough to keep feeding the diagnosis.",
+        "row": "F-new",
+        "verdict": {
+          "real": true,
+          "reason": "CONFIRMED, survived every refutation attempt. (a) Unfixed in the current tree: mirror_room.py:61 still lists the bare hint \\\"نه \\\" and :116-118 still does `low = \\\" \\\" + text.lower() + \\\" \\\"` then `any(h in low ...)`. None of today's 13 commits touch this function (435ab10 changed only self_knowledge.py, deep_think.py, discoveries.py, school_bridge.py, work_pump.py). (b) Not dormant: center-config.json maps \\\"mirror\\\": 205, center.py:748 routes it, and mirror-history.jsonl has 3 real turns today at tier=primary with one already flagged was_correction=True; owner-corrections.jsonl has 2 live lines. (c) Measured on the real function, not theorised: هزینهٔ ماهانه چقدر است؟ / گزارش روزانه را بده / وضعیت خزانه چطور است؟ / خانه کجاست؟ / سود ماهیانه چقدر بود / بودجه ماهانه / دیوانه شدم all return True. (d) Observable in four live surfaces, more than the scout claimed: organ_dialogue.py:156 prints '✍️ تصحیحِ تو (n): <text>' into the daily digest card; negotiate.py:132 injects them into the offer prompt; self_knowledge.snapshot():247-260 serialises the last five into the diagnosis prompt (:395,:417) and into _hash_digest (:465) - and the self-knowledge cycle is live (latest file mtime 15:08 today, version 27); plus the mirror card's own '✍️ تصحیحت ثبت شد'. So this is not record-only. (e) The write-before-answer ordering is confirmed by live timestamps, not by reading: correction at 13:21:32, answer row at 13:21:57. (f) Worse than stated: negotiate.py:252-258 writes the owner's real counter-conditions into the SAME ledger, and snapshot() keeps only [-5:], so five noise lines evict a genuine negotiated condition from the diagnosis. CAVEATS for the implementer: the proposed `low.startswith(h)` CANNOT work - low is space-padded so it never matches; the truly smallest fix is a two-character edit at :61, \\\"نه \\\" -> \\\" نه \\\", since the existing padding already yields word-boundary matching (verified: kills all seven false positives, keeps «نه، اینطور نیست», «نه این درست نیست», and trailing «این نه»). Part (b) of the wire must land AFTER the answer but BEFORE the HISTORY append, otherwise recent_turns(1) returns the current turn and `about` becomes self-referential. No test guard blocks either change: test_mirror_room.py:134-143 passes today only because its three sample questions happen to lack the pattern, and :125 starts with «نه،». Bonus adjacent defect: _hash_digest's \\\"corrections\\\": len(...) saturates at 5 because the list is capped at [-5:], so once five corrections exist a fresh one no longer moves the change gate."
+        }
+      },
+      {
+        "gap": "A week of owner silence permanently erases the discovery queue, and reading it is what destroys it",
+        "why": "unseen_count() counts with no time window while lines() only shows the last 72 hours, and _menu_learned calls mark_seen() unconditionally, before the message is sent. The owner returns after a week, sees 'I learned N new things', taps, gets 'nothing new yet', and the counter resets to zero. Every discovery older than 72h is lost from the owner's view forever. The 72h/unbounded mismatch also means the badge number and the list can never agree.",
+        "smallest_wire": "In approval_channel.py:1017-1019, pass the same window to both — call `discoveries.lines(8)` and `discoveries.unseen_count()` through one window (or drop within_h in `recent`) — and move `discoveries.mark_seen()` to after the send succeeds, mirroring the discipline already documented at discoveries.py:100-102 for mark_nudged.",
+        "files": "F:/backup/_ops/budget/approval_channel.py:1017-1019; F:/backup/_ops/cortex/discoveries.py:56-58,61-68",
+        "effort": "small",
+        "unlocks": "The learning surface survives the owner being away, which is the normal case for a solo operator, not the exception.",
+        "row": "F-new",
+        "verdict": {
+          "real": true,
+          "reason": "CONFIRMED in the current tree, with two corrections to the prescription.\n\nTHE DEFECT IS LIVE. discoveries.py:56-58 `recent(n, within_h=72)`; lines() (110-121) calls `recent(n)` with that default, so every display path is 72h-bounded. unseen_count() (61-68) counts `_all()` with no window. approval_channel.py:975 builds the badge from unseen_count(); :1017-1019 builds the list from lines(8) then calls mark_seen() unconditionally. Neither number can agree with the other, and the tap that reveals the disagreement is what clears the badge.\n\nNOT ALREADY FIXED. (1) The 07-26 NUDGED/unseen_since_nudge/mark_nudged pair (discoveries.py:87-107) serves ONLY wiring.discovery_nudge_beat behind OCTOPUS_DISCOVERY_NUDGE_DELTA — a different marker and a different consumer. The home badge still calls unseen_count(); _menu_learned still calls mark_seen(). (2) Today's 435ab10 touched discoveries.py only to add html.escape inside lines(); its own commit message explicitly names the mark-seen-before-send hazard and says escaping \"covers both consumers\" — it patched the poison vector, not the ordering, and never touched the window. (3) A second live surface has the same bug: wiring.py:2850 computes n unbounded but wiring.py:2855 builds preview from lines(3), so a nudge can announce \"N new things\" above an empty preview.\n\nREACHABILITY PROVEN BY LIVE DATA, not argument. _ops/state/discoveries.jsonl has 20 records with gaps of 172.3h (07-17 11:14 -> 07-24 15:34) and 119.0h (07-11 -> 07-16). discoveries-seen.json is pinned at 07-17 10:32 and record #5 landed 07-17 11:14. So for ~4.2 days, 07-20 11:14 through 07-24 15:34, the live state WAS the described contradiction: unseen_count()==1 (badge line + button rendered) while lines(8)==[] (tap -> \"هنوز چیزِ تازه‌ای یاد نگرفتم\" + mark_seen() burns the record from view). Right now: unseen_count()=15, 14 within 72h, so today it only misreports 15-vs-8.\n\nOBSERVABLE AND UNGATED. _main_menu (2312) -> _simple_home (980) on every /start and menu:main, no flag. menu:learned has exactly two entry points: the badge button at :986, which vanishes once unseen_count() hits 0, and the flag-gated nudge card — so mark_seen() really does remove the owner's only route. Fixing lines() would have converted 4.2 days of \"I have learned nothing new\" into the actual discovery. Owner-facing, not record-only.\n\nCORRECTIONS THE IMPLEMENTER MUST APPLY. (a) The fix CANNOT live at approval_channel.py:1017-1019 — lines() takes no window argument, so nothing at the call site can unify the windows. The one-line fix belongs at discoveries.py:120-121: have lines() read `_all()[-n:][::-1]` instead of `recent(n)`. (b) DO NOT take the scout's alternative \"drop within_h in recent\": _ops/cortex/part_loops.py:107 calls recent(20, within_h=48) explicitly, the TypeError is swallowed by the bare except at :108 -> recent=0 -> _loop_learning falsely reports \"اخیراً چیزِ تازه‌ای یاد نگرفته\" and emits an auto=True proposal every cycle. That variant manufactures a new false signal. (c) The mark_seen-after-send half is mislocated and is NOT small: _menu_learned is a pure renderer returning a dict; the send happens at approval_channel.py:503 inside the generic dispatch_callback poller path shared by every menu page. Scope it separately or drop it — the window unification alone removes the \"badge says N, list says nothing\" failure. Note the existing guard test_discoveries.py:79-81 pins `unseen_count()==0` after dispatch_callback(\"menu:learned\"); the window fix does not disturb it, but the mark_seen relocation would.\n\nDirection of the fix matters: unbound lines(), do NOT window unseen_count(). Windowing the counter would make a week-away owner see badge 0 and lose the discoveries silently — the opposite of the stated goal."
+        }
+      }
+    ],
+    "still_open_items": [
+      {
+        "n": "1",
+        "status": "partly",
+        "evidence": "State still empty: _ops/state/bcm-weights.json == {\"step\":65,\"beta\":0.02,\"keys\":{}} (mtime 07-27 11:00), and _ops/state/latent-vectors.json does not exist. BUT the root cause was closed today by 435ab10 at _ops/afferent/school_bridge.py:118-121 (full_awareness_vector read field.awareness, which does not exist; the attribute is field.a — exception swallowed, None returned). That None made _enrich_with_latent (_ops/wiring.py:1254-1262) embed nothing, so _apply_bcm (_ops/wiring.py:1288-1296) called bcm.step({}, known_keys=[]) 65 times. Code fixed, state not: the live process booted 10:57:37 (ORGANISM-STATE.started) before the 14:13 commit, and consolidation_beat only fires every 720 beats (~12h)."
+      },
+      {
+        "n": "2",
+        "status": "partly",
+        "evidence": "Attribution is wrong: consolidation.py has no BCM reference at all and the API is bcm.step(), not bcm.update(). The real wire exists and is reachable — _ops/wiring.py:1277-1303 _apply_bcm builds activations from latent_space keys and calls bcm.step(activations, known_keys=all_keys), invoked at wiring.py:1365-1369 behind OCTOPUS_WIRE_BCM (in PAPER_FULL_FLAGS, absent from flags.cmd = ON). The conclusion (BCM receives no activation) was true, but because latent_space was empty, not because the wire was missing. Same root cause fixed today by 435ab10, school_bridge.py:118-121. Not yet materialized."
+      },
+      {
+        "n": "3",
+        "status": "still-open",
+        "evidence": "Worse than reported. _ops/neural/hebbian.json is now 2 bytes — literally [] — mtime 07-27 14:33. The pair the doc names (errors_high/rhythm_amber @0.132) is gone, as is the legacy green_mode/stable pair still visible in HEAD's copy. c1217f8 (_ops/wiring.py:1115-1129) made decay() run every tick regardless of signals and observe() require >=2 distinct coincident deviations, so a calm organism now empties the table by design. Learning is still starved: zero associations in production."
+      },
+      {
+        "n": "4",
+        "status": "partly",
+        "evidence": "Already fixed the evening BEFORE the doc was written: e7f7d42 (2026-07-26 19:11) added _hebbian_signals() in _ops/wiring.py with 8 possible deviation signals (rhythm_amber/yellow/red, sigma_high, budget_tight, budget_depleted, afferent_starved, errors_high) behind OCTOPUS_HEBBIAN_RICH, whose key name is present in _ops/OCTOPUS-flags.cmd; c1217f8's live log shows the rich pair errors_high+rhythm_amber firing at 08:16. So '~4 signals total' is understated. What remains: every signal is derived from internal homeostasis (rhythm/spectral/budget/sensory) — zero world content — and the live table is currently empty, so the substance of the complaint stands."
+      },
+      {
+        "n": "7",
+        "status": "still-open",
+        "evidence": "_ops/organism.py:734-735 calls _w.consolidation_beat(_neural_stack, school_bridge=_school_bridge, beat=...) with no acquisition_data= and no doctor_archive=; both default to None at _ops/wiring.py:1576-1577, so canonical_consolidation (wiring.py:1331-1352) builds sources with school_awareness only. Live confirmation: verified_sources counts across all 535 rows are school_awareness 456, acquisition 79, doctor_archive 79 — and the last 456 consecutive rows are school_awareness-only. Untouched today."
+      },
+      {
+        "n": "8",
+        "status": "partly",
+        "evidence": "Still null in live data: 0 of 535 rows in _ops/neural/consolidation.json have latent_vector, bcm_theta or bcm_pruned non-null, and _ops/state/latent-vectors.json does not exist. Root cause closed today by 435ab10 (_ops/afferent/school_bridge.py:118-121) — the commit message states the chain explicitly: 'latent-vectors.json was never created, no cycle ever recalled a previous one, and BCM took 65 steps with keys={}'. Phase 4 (sparse_ratio) is also still null and was not addressed."
+      },
+      {
+        "n": "9",
+        "status": "still-open",
+        "evidence": "Every consumer of the consolidation output is a counter or a display, none an actor: _ops/heart/producers.py:117-124 counts rows since a timestamp; _ops/budget/cockpit_readmodel.py:224 and _ops/export_status.py:198 read the file for panels; _ops/budget/approval_channel.py:3955 renders a row count. 6252efa's own commit message concedes this ('the only consumers read a count and the whole file'). No retraction path, no check that an insight changed an outcome."
+      },
+      {
+        "n": "10",
+        "status": "partly",
+        "evidence": "_ops/neural/neural_driver.py:62 still returns \"advisory_only\": True and nothing acts on it. 6252efa added only the shadow half at _ops/wiring.py:1149-1166 — it appends would_throttle_brain / would_schedule / confidence_adjustment / pain with \"applied\": False to state/neural/effect-shadow.jsonl. That directory (_ops/state/neural/) does not exist yet, so not a single shadow row has been written; live process booted 10:57:37, commit landed 14:26. The commit message is explicit: 'Arming the live half is a second flag that deliberately does not exist yet.'"
+      },
+      {
+        "n": "11",
+        "status": "still-open",
+        "evidence": "No production module reads the Hebbian table. grep for strength_of / strong_associations / .associations across _ops finds hits only in _ops/tests/test_neural.py:125-142. Nothing scores whether a learned pair predicts anything. c1217f8's own commit message says the same: 'nothing reads the table yet — the noise test in e7f7d42 still holds.'"
+      },
+      {
+        "n": "12",
+        "status": "partly",
+        "evidence": "A real labelled-feedback ledger now exists and is live: _ops/state/doctor/owner-corrections.jsonl has 2 genuine rows today — 13:21:32 source telegram-mirror (from 965d008 _ops/telegram_center/mirror_room.py) and 14:24:14 source telegram-negotiate (6252efa _ops/telegram_center/negotiate.py:248) — each carrying {about (what the organism said), text (the owner's correction)}. It is read back at _ops/doctor/self_knowledge.py:247-260 (435ab10) into the diagnosis snapshot. Still missing entirely: curriculum, reward shaping, distillation, and any path from those labels into BCM/Hebbian/consolidation."
+      },
+      {
+        "n": "13",
+        "status": "still-open",
+        "evidence": "The one wire added today is shadow-only and writes applied:false (_ops/wiring.py:1149-1166); the arming flag for the live half deliberately does not exist (6252efa commit message). No learning output changes any decision in any cycle: the noise test cited in e7f7d42 (protective_override byte-identical under fully randomised Hebbian/BCM/latent input) has not been invalidated by anything in today's commits."
+      },
+      {
+        "n": "14",
+        "status": "partly",
+        "evidence": "34b27af fixed all three real causes — _ops/budget/governor_epoch.py:101-110 (max_tokens 600 -> 2000, documented against measured reasoning_tokens=1174), _alloc_contract at governor_epoch.py:133+ appended to the SYSTEM message with real organ names from _known_organs (:113-130), and finish_reason propagated at _ops/debate/client.py:111-118 and :137 so truncation reports as truncation (governor_epoch.py:447-453). First genuine success is on disk: _ops/budget/epochs/epoch-20260727T130035163359.json contains allocation_llm keyed by ARCHITECT_SYS/PROJECT_F. But it is not repaired: the very next epoch failed again — _ops/governor/governor-alerts.md 2026-07-27T13:59:25 'no JSON object in model reply: Headroom is ~ $29.96 AUD. Plentiful.' and epoch-20260727T140106593268.json has no allocation_llm. Score today: 1 of 16 epochs produced an allocation."
+      },
+      {
+        "n": "16",
+        "status": "still-open",
+        "evidence": "Deeper than the doc knew. Even a successful LLM allocation changes nothing: _ops/budget/governor_epoch.py:551 does record[\"allocation_llm\"] = llm and that is the only use — the comment at :553 states 'allocation_dry دست‌نخورده می‌ماند' and no module reads allocation_llm back. Verified in the one green epoch (epoch-20260727T130035163359.json): allocation_llm sits beside an untouched allocation_dry. So organ budgets are still not allocated by pressure, and would not be even if the LLM path went 16/16."
+      },
+      {
+        "n": "17",
+        "status": "partly",
+        "evidence": "The timeout mechanism is untouched — _ops/debate/debate_loop.py:77 LOCAL_BUDGET_S defaults to 90s (OCTOPUS_DEBATE_LOCAL_BUDGET_S is absent from flags.cmd), fallback at :113-117 — and it fired twice today (governor-alerts.md 08:18:17 and 10:59:52). But the magnitude is wrong: measured across all 16 of today's epoch files, 38 debate rounds ran, 35 tagged tier='local' and only 3 tagged stub. No commit today touched debate."
+      },
+      {
+        "n": "19",
+        "status": "partly",
+        "evidence": "The entries are all still there and untouched: _ops/debate/SURVIVORS-QUEUE.md has 15 'undecided-after-3-rounds' rows including genuine Japanese (plan-5, 2026-07-25), Chinese and Thai (plan-7) text. But the 'stub' attribution is wrong — _stub_transport (_ops/debate/debate_loop.py:51-66) returns a fixed Persian payload that can never emit Japanese. Those rounds ran on the local brain (qwen2.5:1.5b, _ops/cortex/local_llm.py:25); this is 1.5B language drift, not stub output."
+      },
+      {
+        "n": "20",
+        "status": "partly",
+        "evidence": "The literal claim about the stub holds and is unchanged: _ops/debate/debate_loop.py:51-66, docstring 'transport قطعی آفلاین ($0): مستقل از محتوای topic'. But the conclusion 'debate is theatre, not adversarial selection' does not follow from today's data — 35 of 38 rounds today ran on the local brain with topic-derived content, and the loop produced real verdicts (statuses across today's 16 epochs: killed x5, queue-human x8, survived x3)."
+      },
+      {
+        "n": "22",
+        "status": "still-open",
+        "evidence": "Confirmed and untouched. grep for model_router / local_llm / DeepSeekClient / ask_brain across _ops/c6_producer.py, _ops/c6_trigger.py and _ops/c6_probes.py returns zero hits. mtimes are 2026-07-26 and 2026-07-25 — no commit today modified any c6 file. The falsification engine still runs entirely on deterministic probes."
+      },
+      {
+        "n": "23",
+        "status": "still-open",
+        "evidence": "By design, unchanged. _ops/deep_think.py:24-25 docstring: 'خروجی یک کارتِ propose-only است؛ این ماژول هیچ‌چیز را اجرا نمی‌کند', DEFAULT_SLOTS=4 at :55. Four sessions ran today (_ops/state/deep-think/sessions.jsonl, 08:59/09:00/11:00/12:00) and all four are cards. Today's additions were recall (435ab10, reads its last three sessions) and tier-pin verification (d07ae06), not actuation — the actuating sibling built today is the separate _ops/self_patch.py (ef99317)."
+      },
+      {
+        "n": "24",
+        "status": "partly",
+        "evidence": "The mechanism is unchanged: _ops/cortex/model_router.py:297 still sends want=='secondary' to local_llm first when CORTEX_LOCAL_FIRST==1, and the local model default is qwen2.5:1.5b (_ops/cortex/local_llm.py:25). But 'all secondary' overstates it — there is a quality gate at :304-307 that falls through to the paid path on failure, and primary was never local-first (:296, comment 'ردهٔ سنگین هرگز محلی-اول نمی‌شود'). Today's commits explicitly pinned tier='primary' on the paths that matter (improve.py:152, deep_think, self_patch, ask_brain.py:183) and d07ae06 added answer-side verification so a silent downgrade is rejected (ask_brain.py:200-205 refuses on fallback_from or non-paid tier)."
+      },
+      {
+        "n": "25",
+        "status": "partly",
+        "evidence": "Still no difficulty-based routing: _ops/cortex/model_router.py:288 is want = want or TASK_TIERS.get(task, 'local'), a static map at :56-63; the only dynamic advisor is _scored_tier behind CORTEX_ROUTE_SCORER (:223-241) and it predates today. What today added is hand-pinning plus per-module rate limits — deep_think 4 slots/day (_ops/deep_think.py:55), improve deep 2/day (_ops/cortex/improve.py:50, CORTEX_IMPROVE_DEEP_DAILY) — and d07ae06's guarantee that a pin pins the request, not just the ask. Policy by hand, not by measured difficulty."
+      },
+      {
+        "n": "26",
+        "status": "still-open",
+        "evidence": "Worse than reported. Queried _ops/state/chrono.db heartbeat table (read-only): the last 50 rows are 50/50 present_legs = [\"lead-naghshi\"] with absent_legs = []. The doc's '5 of 50 empty' no longer happens; there is exactly one ticking leg, beat_seq 14645."
+      },
+      {
+        "n": "27",
+        "status": "partly",
+        "evidence": "Half wrong on both counts. ORGANISM-STATE.json business_legs: lead live=true (money_link active, quotes/invoices 2/2), mining live=false age_days=21.3, crypto live=false age_days=41.9, accounting live=false age_days=607.8, knowledge live=false age_days=0.9. So 'all live:false' is false (lead is live) and '>35 days stale' holds only for crypto and accounting — mining is 21d and knowledge is under a day."
+      },
+      {
+        "n": "28",
+        "status": "still-open",
+        "evidence": "Confirmed exactly. _ops/state/chrono.db leg_clock contains exactly 1 row, leg_id='lead-naghshi'. Meanwhile ORGANISM-STATE.json carries live ziman entry (leg_id ziman-gallery, beat 14640) and cartographer entry (leg_id vault-cartographer, beat 14644) — status without a clock registration. Untouched today."
+      },
+      {
+        "n": "29",
+        "status": "still-open",
+        "evidence": "Confirmed. _ops/cortex/innervation.py:43-48 _age_min() is literally (time.time() - p.stat().st_mtime)/60 and check() at :62-94 grades each organ by that number against an sla_min. _ops/state/cortex/innervation-latest.json (14:43:30) reports n_organs=10, n_born=10, coverage_pct=100.0, dead_spots=[] on that basis alone — file mtimes, not process liveness."
+      },
+      {
+        "n": "30",
+        "status": "still-open",
+        "evidence": "Confirmed live and untouched: _ops/state/ORGANISM-STATE.json wiring block contains \"arm_gate_enforcing\": false and \"wire_actuator\": false (snapshot ts 2026-07-27T14:33:59). Also in the same block: wire_lead_verdict_effect false, wire_email false, wire_ingest false, wire_harvest false."
+      },
+      {
+        "n": "31",
+        "status": "still-open",
+        "evidence": "Confirmed. _ops/state/channel-status.json (ts 2026-07-27T14:33:21): whatsapp {live:false, mode:'NotWiredStub', activation:'human-gated'}, email {live:false, mode:'NotWiredStub', activation:'human-gated'}. Only dashboard (mode read-only-local, panel_8790 false) and telegram (long-poll T-8) are live."
+      },
+      {
+        "n": "32",
+        "status": "still-open",
+        "evidence": "Confirmed live. ORGANISM-STATE.json: leg {leg_id lead-naghshi, propose_only:true, proposals_emitted:0}, ziman {propose_only:true, outward_execution:false, drafts_count:0}, cartographer {propose_only:true, read_only:true, proposals_total:0}. proposal_metrics is all zeros including proposals_sent:0 — no leg has executed a business action."
+      },
+      {
+        "n": "33",
+        "status": "still-open",
+        "evidence": "Staler than reported. _ops/state/reconcile-latest.json mtime is 2026-07-23 13:22:54 — roughly 97 hours old at the time of this check (doc said 93h), and its contents are rows_read: 0, confirmed: [], attribution_coverage: null. Nothing today touched it."
+      },
+      {
+        "n": "34",
+        "status": "still-open",
+        "evidence": "Confirmed: _ops/state/ORGANISM-STATE.json wiring block has \"wire_reconcile\": false (alongside wire_fitness false), while reconcile-latest.json is still listed and graded by the freshness monitor. Untouched today."
+      },
+      {
+        "n": "35",
+        "status": "partly",
+        "evidence": "Line cite is wrong — improvement_rate lives at _ops/cortex/improve.py:397-444, not 261-292. The honest machinery was already in the tree (per-key dedup at :416/431-442, plus _vote_keys excluding _ENDOGENOUS_KEYS={'total_discoveries'} at _ops/cortex/goal_directed.py:49,240-246); 6252efa's contribution was arming OCTOPUS_HONEST_OUTCOMES ('flag only, zero code'). It is not live yet: recomputed on the current _ops/state/cortex/outcomes.jsonl the raw path gives 177 closures / 81 moved = 45.8%, and 0 of 177 closure rows carry honest:true or endogenous_delta — the running process (booted 10:57:37) still writes the old shape as of 14:18:29."
+      },
+      {
+        "n": "36",
+        "status": "still-open",
+        "evidence": "Worse. _ops/state/cortex/outcomes.jsonl is now 492 rows (was 230). Full field census: 315 intent rows carry {ts,id,title,serves_goal,impact,baseline}; 177 closure rows carry {ts,key,moved,kind,schema}. Zero rows anywhere carry after, result, delta, measured or verdict. The binary moved bit is still the entire outcome vocabulary."
+      },
+      {
+        "n": "37",
+        "status": "still-open",
+        "evidence": "Worse. Now 177 closures over 7 distinct keys (up-d6065f91ae x63, up-173d84e33e x59, up-cd9914d7a0 x24, up-929a463820 x15, up-67d11c38be x8, up-dc7d61ac97 x6, up-563740bdb2 x2) and 41 (ts,key) pairs carrying both true and false — up from the doc's 20. 42 closures were written today and 9 of those pairs are new; the clearest is 2026-07-27T12:07:31 where up-d6065f91ae was appended moved:true and moved:false with the identical timestamp."
+      },
+      {
+        "n": "38",
+        "status": "partly",
+        "evidence": "Line cite is wrong (_close_intents is at _ops/cortex/goal_directed.py:285-320, not 263-275) and the fix already exists — _dedupe_intents at :249-260 collapses repeated ids to the oldest baseline — but it only runs when _honest_outcomes() is true (:52-53, gate at :291-293). 6252efa armed that flag, so the code path is closed; the live process has not picked it up, proven by the fresh contradictory pair written at 2026-07-27T12:07:31, after the flag was armed in the file."
+      },
+      {
+        "n": "39",
+        "status": "partly",
+        "evidence": "The observation is confirmed exactly and is still true: comparing the first and last baseline blocks in outcomes.jsonl, total_discoveries went 1 -> 20 and it is the ONLY key that moved — confirmed_revenue 0, revenue_cells 0, proposals_delivered/sent/outcomes/positive/value_aud all 0 throughout. What today closed is the vote, not the fact: with OCTOPUS_HONEST_OUTCOMES armed, _vote_keys (_ops/cortex/goal_directed.py:240-246) drops total_discoveries from the moved computation, so self-exploration can no longer register as progress once the process restarts."
+      },
+      {
+        "n": "41",
+        "status": "partly",
+        "evidence": "Half closed: ef99317 (11:34) added _ops/self_patch.py propose() (lines 124-187) — defect → LLM-written patch → isolated shadow suite → card; 34b27af/d07ae06 hardened it. It really ran: _ops/state/self-patch/defect-queue.jsonl has 3 rows for sp-482568c63c12 (_ops/telegram_center/action_graph.py) and sp-482568c63c12.json (10KB, contains a real candidate). Half remaining: that one run was green=false / shadow-red at 01:47Z, application still needs an owner click (self_patch.py:29-31), and the loop is NOT live — organism.py PID 6264 started 10:57:35, before ef99317."
+      },
+      {
+        "n": "42",
+        "status": "still-open",
+        "evidence": "Unchanged and deliberate. self_patch.py:29-31 'هرگز به درختِ زنده نمی‌نویسد'; DAILY_CAP=3 at self_patch.py:56; allowlist borrowed not redefined at self_patch.py:137 (ca.allowed_target) and review_targets() at :274 restricted to _ops/telegram_center + _ops/cortex only."
+      },
+      {
+        "n": "43",
+        "status": "still-open",
+        "evidence": "_ops/doctor/doctor.py untouched today (git log --since='2026-07-27' -- _ops/doctor/doctor.py is empty). doctor.py:1032 fires apply_merge only on a Telegram verdict (OCTOPUS_WIRE_APPLY_MERGE default '1'); the only real effect is at doctor.py:675 behind OCTOPUS_WIRE_MERGE_APPLIES_KNOB (default off) and restricted to change_level=='tune' + the 3 knobs in improve.AUTO_KNOBS (improve.py:185-189). Everything else writes a lesson .md and nothing more."
+      },
+      {
+        "n": "44",
+        "status": "still-open",
+        "evidence": "Proof is sharper than the doc claimed: doctor.py:705 writes knowledge/internal/{rfc_id}-lesson.md, and improve.py:276 — the only code that reads that directory — does `if \"lesson\" in f.name: continue`. The lesson is written and then explicitly skipped by its only reader. Separately improve.record_verdict (improve.py:256) has zero production callers, so no feedback arc measures a lesson's effect."
+      },
+      {
+        "n": "45",
+        "status": "still-open",
+        "evidence": "_ops/state/replication-latest.json (ts 2026-07-27T11:00:14): sigma_effective 0.0, zone 'pre-replication', spawn_proposed 0, spawn_approved 0, proposals_written [], would_propose [], eligible_cells []. Untouched by any of today's commits."
+      },
+      {
+        "n": "46",
+        "status": "still-open",
+        "evidence": "replication.py:89 requires acceptance_rate>=0.40 AND judged>=5; replication.py:92-94 then ANDs live_gate_open + fit['authoritative'] + no sigma alerts + active<max_cells + not halted() + not frozen(). All six must hold simultaneously; fitness.authoritative alone is false, so can_propose is structurally False."
+      },
+      {
+        "n": "47",
+        "status": "still-open",
+        "evidence": "_ops/state/fitness-latest.json (ts 2026-07-27T11:00:14): \"authoritative\": false, authoritative_note 'قفل verdict جلسه ۱۶: تا ~۴ هفته دادهٔ ledger فقط سایه', experience_span_days 10. File written today by the live loop, unchanged in substance."
+      },
+      {
+        "n": "48",
+        "status": "still-open",
+        "evidence": "fitness-latest.json has cells {} and attribution {revenue_by_cell:{}, claimed:0, confirmed:0}. fitness.compute (budget/fitness.py:162-163) only builds cells from outbox rows, which exist only after a human click; replication.evaluate:87-90 derives 'eligible' from acceptance_rate/judged over those cells, so the selection signal is empty by construction — there is no gradient saying which behaviour is worth cloning."
+      },
+      {
+        "n": "49",
+        "status": "still-open",
+        "evidence": "_ops/germline.py:4 docstring: 'germline immortality = ۳-۲-۱ discipline (≥۳ کپی، ۲ مدیا، ۱ off-site)' with warn/ERROR/CRIT lag alarms. It is a backup-freshness monitor (ORGANISM-STATE germline_lag_h 0.34, germline_alert ok), not a reproduction mechanism. Accurate as written."
+      },
+      {
+        "n": "50",
+        "status": "still-open",
+        "evidence": "replication.sigma_state (replication.py:61-75) derives sigma purely from ledger SPAWN_PROPOSAL/APPROVAL counts; with both at 0 it returns zone 'pre-replication' and sigma 0.0. The only producer of the first proposal is evaluate()'s conjunctive gate at :92-94, which cannot open while fitness.authoritative is false. No bootstrap path exists anywhere between 0.0 and the 1.0 target."
+      },
+      {
+        "n": "51",
+        "status": "still-open",
+        "evidence": "replication.py:30 DEFAULTS = {max_cells:6, spawn_depth:1, accept_threshold:0.40}; replication-latest.json config mirrors it. spawn_proposed 0 / spawn_approved 0 — the guard is sound, the zero is the finding."
+      },
+      {
+        "n": "52",
+        "status": "still-open",
+        "evidence": "No owner fast-path exists: grep of _ops/telegram_center/*.py finds no clone/spawn/replication verb, and replication.evaluate only emits a SPAWN_PROPOSAL (replication.py:98-105) after the full six-condition gate at :92-94. The owner cannot say 'yes, clone X' — the gate is the only door and it is closed on fitness.authoritative."
+      },
+      {
+        "n": "53",
+        "status": "still-open",
+        "evidence": "_ops/neural/latent_space.py:175-176 — `except (json.JSONDecodeError, OSError, ValueError): pass  # corrupt file → start fresh (fail-soft)`. No alert, no counter, no quarantine copy. File untouched today. Nuance: store() at :134-135 returns early on an empty _vectors so the corrupt file is not erased immediately, but the loss is invisible and the next successful store() overwrites it."
+      },
+      {
+        "n": "54",
+        "status": "still-open",
+        "evidence": "_ops/neural/bcm.py:177-181 `del self._weights[k]` for every key below w_floor (0.05, :96), plus saturation prune at :183-189. _save (:203-213) is atomic tmp+replace but overwrites the single copy; _load (:215) can only read that one file. No restore path from consolidation.json exists. bcm.py untouched today."
+      },
+      {
+        "n": "55",
+        "status": "partly",
+        "evidence": "Dedup landed today: 6252efa added consolidation.py:126-144 which collapses an identical cycle into prev['repeats']/prev['last_cycle'] (line 139). Still missing: no retract of a falsified insight. And it has not run yet — _ops/neural/consolidation.json is still 535 rows / 139,446 bytes, mtime 11:00:16, with_repeats=0, and cycles 533/534/535 are three separate rows all reading 'آگاهیِ میانگین: 0.62'."
+      },
+      {
+        "n": "56",
+        "status": "still-open",
+        "evidence": "Three unlocked appenders confirmed at the exact lines cited: _ops/events.py:173 `with open(LOG, \"a\", ...)`; _ops/budget/opslib.py:277-280 append_jsonl (plain open/append); _ops/doctor/rules_store.py:143 `with p.open(\"a\", ...)`. None takes opslib.LockedJson or any other lock."
+      },
+      {
+        "n": "57",
+        "status": "still-open",
+        "evidence": "rules_store._append (rules_store.py:132-145) reads all records, takes _last(), computes rec['prev_sha256'] from it, then appends at :143 — all outside any lock. Two concurrent writers read the same tail and both write rows claiming the same prev_sha256, forking the hash chain."
+      },
+      {
+        "n": "58",
+        "status": "still-open",
+        "evidence": "_ops/budget/organ_gate.py:34-38 `_log()` calls opslib.append_jsonl(opslib.ORGAN_LOG) with no lock, while organ-state.json is protected by opslib.LockedJson at organ_gate.py:86, :124 and :150. The asymmetry the item describes is exact."
+      },
+      {
+        "n": "59",
+        "status": "still-open",
+        "evidence": "The system says so about itself: _ops/cortex/self_audit.py:126-127 returns _item('memory poisoning / false-canon guard', 'Partial', 'constitution §7: created_by:agent + sources≥2؛ ولی مانیتورِ خودکار نیست'). improve.py:212-213 still carries the automatic monitor as an unimplemented KNOWN_FIXES entry with change_level 'code'."
+      },
+      {
+        "n": "60",
+        "status": "still-open",
+        "evidence": "bcm._save (bcm.py:203-213) and hebbian._save (hebbian.py:~62-69) both write tmp + replace over the single file with no versioned copy and no pre-step snapshot. Live exposure is visible right now: _ops/neural/hebbian.json is `[]` (2 bytes, mtime 14:31:44) — the one pair the scan documented is gone with no way to recover it."
+      },
+      {
+        "n": "61",
+        "status": "still-open",
+        "evidence": "_ops/chrono.py:276 sets `PRAGMA journal_mode=WAL` and no `wal_checkpoint` call exists anywhere in the file (the `checkpoint` table at chrono.py:218 is an app-level beat checkpoint, a different thing). Live: _ops/state/chrono.db-wal is 4,124,152 bytes and still growing (mtime 14:33:58) against a 4,485,120-byte main DB."
+      },
+      {
+        "n": "63",
+        "status": "still-open",
+        "evidence": "ORGANISM-STATE.json (ts 14:35:26): brain_core.mode 'HARNESS', flag_on false, parity.counters.compared 0 / matched 0 / mismatched 0, parity.started_at null. brain_core.py:183-186 returns 'HARNESS' whenever OCTOPUS_ONE_HEARTBEAT is off, which short-circuits every comparison."
+      },
+      {
+        "n": "64",
+        "status": "still-open",
+        "evidence": "Same-minute snapshots: _ops/state/cortex/innervation-latest.json (14:34:56) coverage_pct 100.0, dead_spots [], all 10 organs '🟢 عصب‌دار'; cortex-state.json coherence 0.953; while stress-latest.json (14:34:56) reads organism_stress 0.5, level '🟡 استرس', alerts subsystem stress 0.5 detail '2473 خطِ هشدار'. Green dashboard, yellow body."
+      },
+      {
+        "n": "65",
+        "status": "still-open",
+        "evidence": "_ops/cortex/registry.py:56 `freshness = max(0.0, min(1.0, 1.0 - (age / (2.0 * sla))))`, returned with an explicit `\"source\": \"file-freshness\"` field, and sweep() at :64-73 weights those into the published 'coherence'. The field is honestly self-labelled in code but the number is still exported as coherence with no functional-health component."
+      },
+      {
+        "n": "66",
+        "status": "still-open",
+        "evidence": "_ops/state/cortex/audit-matrix.json (ts 2026-07-27T14:18:29): n 43, tally {Done 26, Partial 13, Missing 4}, maturity_pct 75.6, \"static_by_construction\": true, 17 gaps. improve.py:596-599 already flags it as checklist_static, but the ceiling is unchanged."
+      },
+      {
+        "n": "67",
+        "status": "still-open",
+        "evidence": "_ops/cortex/self_audit.py:261-264 hard-codes status 'Missing' for 'owner autonomy preference modulates behavior' with evidence 'panel autonomy radio → OWNER-PROFILE؛ ولی export/cockpit عمداً آن را نمی‌خوانند'. Unchanged today."
+      },
+      {
+        "n": "68",
+        "status": "partly",
+        "evidence": "Root cause fixed in the tree, not yet on disk. 435ab10 repaired school_bridge.full_awareness_vector — school_bridge.py:119 now `return list(self.field.a)` (it was reading field.awareness, an attribute that does not exist, so the exception was swallowed and None returned), which is exactly what starved BCM. Not yet observable: _ops/state/bcm-weights.json is still `{\"step\": 65, \"beta\": 0.02, \"keys\": {}}` (mtime 11:00:16), state/latent-vectors.json still does not exist, and the file's own git history shows step 12 → 29 → 41 → 43 → 65 with keys {} every time. No consolidation cycle has run since the fix (consolidation_every_n=720 beats)."
+      },
+      {
+        "n": "69",
+        "status": "still-open",
+        "evidence": "ORGANISM-STATE.json (14:35): beat 14639 while chrono.legs contains only {lead-naghshi: alive}, and business_legs shows mining/crypto/accounting/knowledge all live:false (age_days 21.3 / 41.9 / 607.8 / 0.9). Uptime keeps counting; agency does not."
+      },
+      {
+        "n": "71",
+        "status": "still-open",
+        "evidence": "_ops/neural/hebbian.py:71-83 observe() does read-modify-write on self._assocs (`a.strength = ...`, `a.co_occurrences += 1`) then _save(), and the file contains no `threading` import and no lock at all. Concurrent beats can drop a co-occurrence increment."
+      },
+      {
+        "n": "72",
+        "status": "still-open",
+        "evidence": "opslib.LockedJson.__init__ (opslib.py:236-237) derives the lock per target: `self.lock = pathlib.Path(str(path) + \".lock\")`. Every module locks only its own file; there is no organism-wide writer lock, and the unlocked JSONL appenders (item 56) bypass locking entirely."
+      },
+      {
+        "n": "73",
+        "status": "still-open",
+        "evidence": "organ_gate.reserve takes the global reserve at organ_gate.py:97 (budget_gate → budget-state.json) and writes organ-state.json only at :104; settle writes organ-state.json at :130 then budget_gate.settle at :131. Hard process death between those two writes leaks/desyncs the reserve. Nuance the doc missed: exception paths ARE covered — _refund_global rollback at :106-114 and opslib.freeze at :132-133 — so the gap is crash-only, not error-only."
+      },
+      {
+        "n": "74",
+        "status": "still-open",
+        "evidence": "opslib.py:235 `stale_s: float = 30.0`; opslib.py:249-251 unlinks any lock whose mtime is older than 30s and retries. A writer that stalls past 30s (a slow suite, an AV scan, a paused process) has its lock stolen mid-write by design."
+      },
+      {
+        "n": "75",
+        "status": "still-open",
+        "evidence": "opslib.append_jsonl (opslib.py:277-280) does `open(path,\"a\")` + write with no flush/fsync; identical in events.py:173-175 and rules_store.py:143-144. Data sits in the OS buffer until the kernel flushes it."
+      },
+      {
+        "n": "76",
+        "status": "partly",
+        "evidence": "The wire is built and switched off. _ops/afferent/ingest_raw.py + sensory_bus.ingest → school_bridge.learn_from is wired in wiring.py:1705-1715 (`ingest_beat(beat=beat)`), gated on OCTOPUS_WIRE_INGEST — and ORGANISM-STATE.json reads `wiring.wire_ingest = False` (also wire_email False, wire_harvest False). Consequence is exactly the item's symptom: consolidation cycles 533-535 list verified_sources ['school_awareness'] only, no external knowledge reaching the neural layer."
+      },
+      {
+        "n": "77",
+        "status": "partly",
+        "evidence": "A real curriculum exists: '07 - Knowledge/school-memory/curriculum.py::seed_curriculum' (line 222) builds 48 nodes across 6 layers A–F with within-layer chains plus cross-layer edges, and _ops/state/school-awareness.json (mtime 14:41) carries per-node awareness (A01 0.44 … F08 0.9976) plus titles added today by 435ab10. What is genuinely missing is the ascent policy — nothing sequences nodes by difficulty — and deep_think is flat as claimed: DEFAULT_SLOTS=4 (deep_think.py:66), current_slot = uniform hour division (:80-84), topic merely alternating self/business."
+      },
+      {
+        "n": "78",
+        "status": "partly",
+        "evidence": "A structured store exists and is live: _ops/outcomes/verdict_recorder.record_verdict_durably (verdict_recorder.py:109), called from live_loop.py:607, writes typed idempotent schema-versioned rows to _ops/state/outcomes/outcomes.db — 13 rows, newest 2026-07-27T13:06 (columns event_id/idempotency_key/proposal_id/event_type/verdict/value_aud_claimed/schema_version). What is missing is any learner consuming them: verdict_recorder.py:9-11 constrains them to MEASUREMENT-only, and the improve-side sink improve.record_verdict (improve.py:256) has zero production callers (only _ops/tests/test_self_improve.py:98-99), so state/cortex/improve-verdicts.jsonl has never been created and _load_verdict_penalty() returns {} forever."
+      },
+      {
+        "n": "79",
+        "status": "still-open",
+        "evidence": "No learning replay. _ops/checkpoint.py:44 replay() / :64 replay_state_at() reconstruct a leg's state at a past beat from the ledger — audit, not training. _ops/state/replay/ holds one stale artefact, S-BATCH-REPLAY.json (ts 2026-07-11T11:25, 38,934 bytes, untouched since Jul 11). ConsolidationCycle.run(sources) (consolidation.py:96) only ever accepts live sources; nothing re-feeds past beats."
+      },
+      {
+        "n": "80",
+        "status": "still-open",
+        "evidence": "No distillation anywhere: grep for distill/fine_tune/finetune/teacher across _ops/**.py returns only school_bridge.py (the word 'curriculum') and test files. Today's paid answers are stored and re-read only by the paid model itself — deep_think._previously_said (added 435ab10) and improve._previous_synth (improve.py:100-117) feed prior sessions back to tier='primary', never to the local model. state/deep-think/sessions.jsonl holds 4 fugu answers from today; none becomes a (question, answer) training pair."
+      },
+      {
+        "n": "81",
+        "status": "partly",
+        "evidence": "A natural-gradient module does exist — _ops/budget/fisher.py computes Δw = −η·G⁻¹·∇E on the fitness landscape — but it is structurally barred from writing weights (fisher.py:10-11 invariants I4/I6, `\"advisory_only\": True` at :127) and currently has no data: state/fisher-latest.json (11:00) reads cells_used 0, fisher_condition_number null, natural_step null, advisory_weights null, authoritative false. The learning weights themselves remain pure rules (bcm.py:167 `dw = self._eta * phi - self._beta * rec[\"w\"]`; hebbian LEARN_RATE/DECAY_RATE constants), and there is no model fine-tuning of any kind."
+      },
+      {
+        "n": "82",
+        "status": "still-open",
+        "evidence": "No teacher/student module exists (same grep as item 80). replication.py:98-103 emits only a bare `{\"cell\": name, \"kind\": \"spawn-subagent\", \"depth\": 1, \"justification\": ...}` proposal with no curriculum, no training set and no evaluation attached — and it has emitted zero (replication-latest.json proposals_written [])."
+      },
+      {
+        "n": "83",
+        "status": "partly",
+        "evidence": "A versioned HTTP surface does exist: _ops/legs/agent_gateway_http.py serves POST /api/v1/agent (do_POST at :320-321, /health at :312-313) with a CLOSED schema (peer.hello, discovery.list, discovery.fetch, discovery.prior_art), HMAC-SHA256, nonce-replay and rate-limit; plus lead_boundary_http.py, dashboard/server.py, live/server.py. But its own docstring says 'v1 is deliberately inert … ZERO effect-side', it is loopback-only and off by default (OCTOPUS_WIRE_AGENT_GATEWAY). Nothing exposes the decision/act surface as a callable service, so the 'filesystem+script tangle' half of the claim stands."
+      },
+      {
+        "n": "84",
+        "status": "still-open",
+        "evidence": "octopus_core/event_bus.py (161 lines) is in-process by construction: EventBus.__init__ at :31-36 holds a `Dict[str, List[Tuple[str, Callable]]]` of subscribers behind a `threading.Lock`, with optional JSONL persistence. Imports are json/queue/threading/time/uuid/pathlib only — no socket, no HTTP, no broker. Nothing can subscribe from another process."
+      },
+      {
+        "n": "86",
+        "status": "partly",
+        "evidence": "The per-call seam exists: model_router.ask(task, prompt, system, max_tokens, tier=None, opener=None, quality=None) at cortex/model_router.py:371-372, documented as 'درِ واحدِ LLM', and today's commits rely on pinning it per call (self_patch.py:96-97 tier='primary', improve.py:152, deep_think). What is hard-coded is the vendor set, not the call: _TIER_ROLE = {'secondary':'glm','primary':'orchestr'} at model_router.py:68, and debate/client.py:67-69 refuses any base_url not matching the configured vendor. Adding GPT/Gemini is a code change, not config."
+      },
+      {
+        "n": "87",
+        "status": "still-open",
+        "evidence": "ORGANISM-STATE.json (14:35): brain_core.mode 'HARNESS', flag_on false, parity.counters.compared 0, started_at null, continuous_elapsed_s 0.0, soak_min_hours 24.0. brain_core.py:48-49 defines REQUIRED_COMPARATORS {'health-contract-v1'} and the schema string, but mode() (:183-186) returns HARNESS while OCTOPUS_ONE_HEARTBEAT is off, so nothing is ever compared."
+      },
+      {
+        "n": "88",
+        "status": "partly",
+        "evidence": "Versioned contracts exist but not for the host-brain seam. brain_core.py:48-49 pins REQUIRED_COMPARATORS={'health-contract-v1'} and HEALTH_CONTRACT_SCHEMA='health-contract.v1:afferent_ratio>=0.5&&!protective_halt' — that governs internal legacy-vs-shadow parity, not an external model; agent_gateway_http.py versions the peer-discovery surface at /api/v1/agent. The actual brain seam (model_router.ask + _TIER_ROLE at model_router.py:68) carries no version and no schema, so there is still no safe contract for swapping in GPT/Gemini/local."
+      },
+      {
+        "n": "90",
+        "status": "still-open",
+        "evidence": "Confirmed and now demonstrably worse than 'flags': it applies to code too. Live processes and start times — organism.py PID 6264 @ 2026-07-27 10:57:35 (predates ef99317 11:34, 34b27af 12:23, d07ae06 12:28, 1d0ace2 13:07, 965d008 14:01, 435ab10 14:13, 6252efa 14:26); cortex/cortex.py PID 6328 @ 12:34:19; telegram_center/center.py PID 21844 @ 14:27:41; live/server.py PID 8132 @ 2026-07-26 09:33. Four processes at four code vintages. Two live consequences: the governor path repaired at 12:23 still failed at 13:59:25 in governor-alerts.md ('governor router path failed (fallback به dry): no JSON object in model reply: Headroom is ~ $29.96 AUD. Plentiful...'), and upgrades-digest.json (14:39) shows improvement_rate {closed:69, moved:32, rate_pct:46.4} — the raw per-record count over only 7 distinct keys, i.e. the honest-outcomes branch at improve.py:431-442 is not in effect in the process computing it."
+      },
+      {
+        "n": "91",
+        "status": "still-open",
+        "evidence": "Both orphans still on disk: _ops/STOP-FUGU.cleared-20260726 (700 bytes, Jul 26 17:21 — the marker rolled to a new date since the scan) and _ops/state$db (0 bytes exactly, Jul 25 15:11). Neither has an owner or a cleanup path."
+      },
+      {
+        "n": "92",
+        "status": "still-open",
+        "evidence": "_ops/governor/governor-alerts.md is now 2,473 lines / 162,260 bytes (mtime 13:59:25) — grown from the 2,461 the scan recorded. No rollup exists; parsing by hour shows one governor-router failure per epoch continuously from 2026-07-26T21 through 2026-07-27T13, each written as a fresh section."
+      },
+      {
+        "n": "93",
+        "status": "partly",
+        "evidence": "The reporting gap is untouched: ORGANISM-STATE.json still publishes wiring.wire_bcm=true while _ops/state/bcm-weights.json is keys:{} — a flag that says 'live' about a starved module, with no 'fed' dimension anywhere in the state schema. But the specific starvation was root-caused and fixed in the tree today (435ab10, school_bridge.py:119). Not yet visible: latent-vectors.json still absent, BCM keys still {}."
+      },
+      {
+        "n": "94",
+        "status": "partly",
+        "evidence": "Deadline half right, 'priority zero' half wrong. organ_table for the venture reads {floor: 3, human_priority: 2.0, deadline: '2026-07-20'} — priority is 2.0, not zero; the deadline is 7 days past. What is zero is the urgency contribution: the latest epoch (_ops/budget/epochs/epoch-20260727T140106593268.json, ts 13:58:50) has deadline_proximity 0.0 and deadline_ref '' because governor_epoch.py:60-72 deliberately zeroes lapsed deadlines and alerts instead — and that alert is being swallowed: state/alert-throttle.json key 'lapsed_deadline:PROJECT_F@2026-07-20 (-6d)' has suppressed: 47. Goal lapsed, zero urgency, alert suppressed, no owner action."
+      },
+      {
+        "n": "95",
+        "status": "still-open",
+        "evidence": "_ops/state/selfheal-events.jsonl holds 72 events, every one leg 'lead-naghshi'. The latest burst is beats 14005/14006/14007 at ts 1785088038/1785088100/1785088162 — ~61s apart — plus state/legs/lead-naghshi-last-failure.json at beat 14008 (2026-07-27T03:50:23), all reason 'phi-timeout:no-ack'. That file's own note says restart does not address the cause. stress-latest.json (14:34) still scores legs 0.38 with detail '3 خودترمیم/روز'."
+      },
+      {
+        "n": "97",
+        "status": "still-open",
+        "evidence": "grep for stub_rate|stub-rate|fallback_rate across _ops/**.py returns nothing. Only per-event alerts exist — 'debate: مغزِ محلی نشد → stub (TimeoutError: بودجهٔ زمانیِ 90.0s تمام شد)' appears 4 times today in governor-alerts.md (00,08,10 and Jul-26 18) — and they land in the same 2,473-line file as everything else, so a system running entirely on stubs would still read green."
+      },
+      {
+        "n": "98",
+        "status": "still-open",
+        "evidence": "wiring.py:1332-1345: `acquisition` is added only `if verified_acq` and `doctor_archive` only `if verified_doc`; an empty source is silently omitted from the sources dict with no alert. The only alert on that path is for a school *exception* (wiring.py:1350-1351). Live consequence: consolidation cycles 533-535 record verified_sources ['school_awareness'] and discarded_sources [] — the two vanished sources leave no trace that they ever existed."
+      },
+      {
+        "n": "99",
+        "status": "still-open",
+        "evidence": "_memory/HEARTBEAT.md is now 421 lines / 81,671 bytes (mtime 14:01:07) — grown past the 415 lines the scan recorded. No rollup or truncation was added today."
+      },
+      {
+        "n": "100",
+        "status": "still-open",
+        "evidence": "ConsolidationCycle is constructed once (wiring.py:1090) and its .history has no reader anywhere outside the class — grep for ConsolidationCycle(/.history across _ops/**.py (excluding tests) returns only that construction site. Today's dedup (consolidation.py:133-140) reads only self._history[-1] to collapse repeats, which is still write-side. Nothing ever checks whether a stored insight was falsified or acted upon. Note: I could not locate the 'I1' label the item cites anywhere in the tree, but the substance — write-only central memory, never reconciled — is confirmed."
+      },
+      {
+        "n": "C1",
+        "status": "still-open",
+        "evidence": "Correction holds and is unchanged today (no commit touched the venture folder). 03 - Projects/<venture>/PROJECT-F-CONTROL-MANIFEST.json lines 8-20: identity.phase=\"validation\", status_snapshot.execution_state=\"ZERO execution - planning/research/build only. No real accounts, no posts, no revenue\", primary_blocker=\"GATE 0 open\", security_gate=\"closed\", pending_human_verdicts=11. It is not the painting business; that is a separate leg (see C2). DecisionLog.md:39 still reads status: PARTIALLY-FILLED ... G0 همچنان OPEN."
+      },
+      {
+        "n": "C2",
+        "status": "still-open",
+        "evidence": "Confirmed distinct. _ops/legs/lead_scorer.py:1-8 is the painting lead-scoring engine, a stdlib port of _launchpad/second-brain-live/painting-bot/lead_scorer.py, pure-function propose-only, no relation to the venture. The venture lives entirely under 03 - Projects/<venture>/ with its own orchestrator.py, brain/, pf_os/, langar/, studio/. Untouched by all 13 of today's commits (git log --since 2026-07-26 20:00 --name-only lists zero files outside _ops/)."
+      },
+      {
+        "n": "C3",
+        "status": "partly",
+        "evidence": "Two live bots CONFIRMED: _ops/state/channel-status.json (mtime 2026-07-27 14:33) shows telegram live, writer=\"approval_channel(run_forever/poll_once)\" hosted inside the organism process (organism.py:290 _chan = make_telegram_channel; PID 6264 python organism.py), and center.py runs as its own process (PID 21844, started 14:27:41, i.e. after commit 6252efa 14:26). approval_channel.py is 4404 lines. WRONG half: it is no longer \"۷ بات دیگر\" - _ops/BOTS-REGISTRY.md now has 10 rows (row 10 = WLOS coach bot, line 95), so 8 others are dormant. Registry itself is stale (last commit 7ddb0d6, 2026-07-24)."
+      },
+      {
+        "n": "C4",
+        "status": "partly",
+        "evidence": "The flags are real: run-langar.bat:18-19 sets OCTOPUS_WIRE_PROJECTF_SPINE=1 and OCTOPUS_WIRE_PROJECTF_CORTEX=1, and orchestrator.py:284-291 emits into pf_os.spine each tick. But \"نیمه‌زنده\" is false TODAY - the venture is fully dark: no langar/studio/saba process in the live process table (only organism.py, cortex.py, center.py, live/server.py), no scheduled task for them (Get-ScheduledTask shows only OCTOPUS-Cortex/Live/TG-Center watchdogs, OctopusLiveDataRefresh, organism-watchdog), last mirrored pf_os event in _ops/state/events.jsonl is 2026-07-25T21:22:19, saba-bridge.jsonl mtime Jul 25 21:21, langar/langar_log.jsonl mtime Jul 25 21:07. Extra finding: run-langar.bat is LF-only (0 CRLF / 28 bare LF, both on disk and in the HEAD blob) while its sibling run-studio.bat is clean CRLF 27/0 - today's CRLF repairs (a8faa2f, 77eaab5) covered only _ops/telegram_center/RUN-TG-CENTER.bat and _ops/RUN-CORTEX.bat."
+      },
+      {
+        "n": "C5",
+        "status": "partly",
+        "evidence": "All five layers verified: (1) _ops/state/saba-bridge.jsonl exists (13042 B, Jul 25 21:21); (2) event-mirror confirmed - 609 pf_os/saba lines inside _ops/state/events.jsonl; (3) orchestrator.py:11-15 inserts _VAULT/_ops/neural into sys.path, :24-32 imports NeuralDriver/HebbianAssociator/ConsolidationCycle; (4) pf_os/config.py:64 CORTEX_URL default http://127.0.0.1:8772, prompt built at brain/cortex_augmented.py:67-86; (5) STOP walkup at langar/langar_bot.py:29-35, studio/creator_studio.py:32-38, pf_os/actuator.py:117. WRONG half: they are NOT all one-way. _ops/legs/langar_bridge.py is a live octopus->PF path - approval_channel.py:175-194 lazily imports it and :1602-1607 dispatches owner text into PF's LangarBot.handle()."
+      },
+      {
+        "n": "C6",
+        "status": "partly",
+        "evidence": "The corpse is real: _launchpad/second-brain-live/control-brain/DEPRECATED.md, core.db 32768 bytes frozen at 2026-07-06 13:07. But the named wire is wrong - _ops/brain_core.py's ParityTracker compares legacy-vs-shadow beat organs (brain_core.py:47, :263 health-contract-v1) and never touches the second brain. The actual live wires to the dead brain are elsewhere and all still armed: opslib.py:45-46 (BRAIN_DIR default = that directory), telemetry.py:89 + read_brain() (opens core.db read-only on every snapshot; comment at :172 says \"فعلاً یخ‌زده → 0\"), fitness.py:43/68/144, wiring.py:923 (outbox.jsonl)."
+      },
+      {
+        "n": "C7",
+        "status": "partly",
+        "evidence": "Source confirmed and growing: 07 - Knowledge/genome-system/ledger/ledger.jsonl is now 2194 entries / 1,227,067 bytes, mtime today 14:38:31 (the doc's \"۱۹۵۸ ورودی\" is stale), genome/values.yaml + gates.yaml + metrics.yaml exist. But \"genome->behavior contract not closed\" is only half true: the LEDGER is read for behaviour (telemetry.py:55 cost, fitness.py:102, replication.py:43 with EXCLUDED_ORGANS, brain_worker.py:251 chain verify). It is genome/values.yaml that has no consumer outside the genome-system's own common/config.py:33 - grep across _ops finds zero readers."
+      },
+      {
+        "n": "101",
+        "status": "partly",
+        "evidence": "Two simultaneous pollers confirmed, but the 409 framing is not supported. The two live bots use DIFFERENT tokens by design: tg_api.py:158-171 prefers TG_CENTER_BOT_TOKEN and only falls back to TELEGRAM_BOT_TOKEN, and when it does it emits an explicit alert naming the 409 risk (tg_api.py:177-178). approval_channel.py:418-423 has a live 409 detector. BOTS-REGISTRY.md:8-9 rates 409 risk \"پایین (نظری)\". The shared-token sibling (#7 control-brain) was formally retired 2026-07-24 (BOTS-REGISTRY.md RETIRED section, ~line 110). Nothing here was touched today."
+      },
+      {
+        "n": "102",
+        "status": "partly",
+        "evidence": "\"Only 2 live\" is correct (channel-status.json 14:33 + PID 21844 center.py). \"9 bots\" is stale: _ops/BOTS-REGISTRY.md now lists 10 (rows at lines 15-23 plus row 10 at line 95). The collision table (lines 28-32) is still accurate: #1/#7 share bot id 8187434784, #2/#6 share 7992324219, #1/#9 share TELEGRAM_BOT_TOKEN - all still latent because none of the dormant ones launch. Registry not updated since 2026-07-24 (7ddb0d6)."
+      },
+      {
+        "n": "103",
+        "status": "still-open",
+        "evidence": "_ops/budget/approval_channel.py is 4404 lines and untouched by every one of today's 13 commits (it appears nowhere in git log --since '2026-07-26 20:00' --name-only). Its money-settle monopoly is confirmed: approval_channel.py:1056 comment \"release_effectِ دقیقِ C4 ... تنها مسیرِ مجازِ پول/E4\", and chrono.py:710 release_effect is the single authorization entry (chrono.py:661/699 refuse id-only and generic approvals for money/E4). Still the largest unscanned surface."
+      },
+      {
+        "n": "104",
+        "status": "still-open",
+        "evidence": "Path in the doc was unstated; the file is _ops/outcomes/pending_card_recovery.py, 854 lines, untouched today. Its docstring (lines 3-40) confirms the described role: durable SoT at state/pulse/pending-cards.json, PENDING->LEASED->SENT delivery machine, HMAC-derived stateless callback token, raw bearer never persisted, single-use enforced in the money layer via chrono.release_effect's one-shot approval_id. Live store currently holds 11 cards."
+      },
+      {
+        "n": "105",
+        "status": "still-open",
+        "evidence": "Confirmed and slightly worse than described. cockpit_readmodel.py:515-520 redact() only masks HARD_SECRET_PATTERNS (whole-body REDACTED) and hex64 - it is a secret filter, not a PII filter (approval_channel.py:2861 has a separate _redact_pii). And the pass is EXPLICITLY fail-open: approval_channel.py:2848-2858 _redact() docstring says \"اگر لایهٔ redaction بشکند، fail-open ... یک‌بار alert می‌زند و متن را دست‌نخورده می‌فرستد\", and the code returns the raw text after a one-shot alert. Every output routes through it (approval_channel.py:547 toast, :737 money card, :1430 generic send). Untouched today."
+      },
+      {
+        "n": "106",
+        "status": "still-open",
+        "evidence": "Path in the doc was wrong: the file is _ops/cortex/autonomy_matrix.py (72 lines), not under _ops/budget/. Untouched today. Now scanned, and it matches the description: one _IMPORTANT_RE regex (lines 30-38) covering money/secret/delete/outbound/code/genome/kill/spawn/sigma/human-append/PII as the single source of truth, gated by OCTOPUS_AUTONOMY_FREE (default off), fail-safe to important. Three consumers, all fail-safe->gate on import failure: auto_approve.py:120, telegram_center/llm_intent.py:65-74 (the defense-in-depth recheck the item names), owner_menu.py:98-109."
+      },
+      {
+        "n": "107",
+        "status": "still-open",
+        "evidence": "Path in the doc was wrong: the file is _ops/instant_alert_bridge.py, not under _ops/budget/. It IS wired - organism.py:958 imports and calls it inside the beat - but stays default-off behind FLAG = \"OCTOPUS_TG_INSTANT\" (instant_alert_bridge.py:39, enabled() at :43). The flag NAME is present in the gitignored flags file (presence only; value not read out here). Neither the module nor organism.py:958 was changed by today's commits, so the described gap between digests is unchanged in code."
+      },
+      {
+        "n": "108",
+        "status": "partly",
+        "evidence": "The silent-loss half was already closed on 2026-07-26, BEFORE today: approval_channel.py:122-134 defines CALLBACK_DATA_MAX=64 and callback_fits(), and :2603-2614 checks it BEFORE minting the token and raises an owner alert instead of losing the card. But it guards ONLY the rfc: card. The money card is unguarded: approval_channel.py:740-742 builds \"app:approve:{effect_id}:{token}\" with a 24-hex token (pending_card_recovery.py:177), i.e. 37 bytes of fixed overhead leaving 27 bytes for effect_id, with no callback_fits() call anywhere on that path - the same failure mode, on the money path. Separately the HMAC token itself is still disarmed: callback_token.py:31 FLAG=\"OCTOPUS_WIRE_CB_TOKEN\", and that name does not appear in the flags file at all."
+      },
+      {
+        "n": "109",
+        "status": "partly",
+        "evidence": "The five layers all verified (see C5 evidence: saba-bridge.jsonl; 609 pf_os lines in _ops/state/events.jsonl; orchestrator.py:11-15/24-32; pf_os/config.py:64 -> 127.0.0.1:8772; STOP walkup in langar_bot.py:29-35 / creator_studio.py:32-38 / actuator.py:117). \"All one-way\" is wrong: a sixth layer runs the other direction - _ops/legs/langar_bridge.py instantiates PF's LangarBot and calls .handle(), reached from approval_channel.py:1602-1607."
+      },
+      {
+        "n": "110",
+        "status": "still-open",
+        "evidence": "CONFIRMED with a clean negative: grep for saba_bridge_beat across all of _ops/ returns zero hits (all matches are inside 03 - Projects/<venture>/pf_os/bridge_beat.py and its own test). OCTOPUS_WIRE_SABA_BRIDGE appears zero times in the flags file and zero times in any _ops .py/.bat/.cmd. bridge_beat.py:12-13 still says the integration needs one line in wiring.py/organism.py. The bridge file _ops/state/saba-bridge.jsonl has 13042 bytes last written Jul 25 21:21, all unread."
+      },
+      {
+        "n": "111",
+        "status": "partly",
+        "evidence": "The fix is real: pf_os/config.py:31-48 _resolve_vault() detects and rejects drive-relative OCTOPUS_VAULT values, and VAULT falls back to two levels above PF_ROOT. But the leftovers are NOT empty files. Both stray dirs still exist (03 - Projects/<venture>/F:\\backup and 03 - Projects/<venture>/pf_os/F:\\backup, names using PUA-escaped colon/backslash) and each contains one _ops/state/events.jsonl with real content: 77,255 bytes / 228 lines and 11,526 bytes / 34 lines, both last written 2026-07-24 15:34, both untracked by git. That is ~88KB of orphaned pf_os events, not empty stubs."
+      },
+      {
+        "n": "112",
+        "status": "still-open",
+        "evidence": "Untouched today and exactly as described. orchestrator.py:129-153 _load_compliance_checks() is fail-closed on every error path (manifest missing/unparseable, non-dict, hard_rules_locked not a list, mutability not starting with 'immutable', or any rule without an anchor -> all False). orchestrator.py:226-232: if not _checks_pass(checks), the tick fires on_error and returns TickResult(mode=\"blocked_compliance\") producing zero thoughts and zero messages. Good for safety, no resilience path."
+      },
+      {
+        "n": "113",
+        "status": "partly",
+        "evidence": "The mechanism is exactly as described - orchestrator.py:11-15 inserts _VAULT/_ops/neural and _VAULT/_ops into sys.path, and :24-32 wraps the imports in try/except ImportError setting NEURAL_AVAILABLE=False with stub NeuralDriver/HebbianAssociator/ConsolidationCycle. But the conclusion \"standalone نیست\" contradicts its own evidence: the stubs mean orchestrator DOES boot without the vault (the module comment at :21-23 says exactly that: \"استقلال کامل از vault ... tick هیچ قابلیتِ اضافه‌ای وانمود نمی‌کند\"). What is lost without the vault is the neural layer, not the boot. The genuinely hard couplings are the local imports at :17-19 and the _VAULT = _HERE.parent.parent layout assumption at :11."
+      },
+      {
+        "n": "114",
+        "status": "still-open",
+        "evidence": "Confirmed at exactly the cited lines. brain/cortex_augmented.py:67-86 _abstract_prompt() builds a numbers-only prompt (visitors, subscribers, conversion %, buyers, season, drafts_in_queue, partner_capacity) and closes with \"No names, no platform, no niche\"; docstring at :70-74 calls it hard containment. pf_os/config.py:63-64 CORTEX_URL defaults to http://127.0.0.1:8772 with an 8s timeout and heuristic fallback. Flag-gated (OCTOPUS_WIRE_PROJECTF_CORTEX, set only in run-langar.bat:19, which is not running)."
+      },
+      {
+        "n": "115",
+        "status": "partly",
+        "evidence": "The substance holds - no AUTOMATIC learning/verdict/spawn feedback reaches PF behaviour. But \"هیچ مسیرِ برگشت نیست\" is literally false: _ops/legs/langar_bridge.py is a live octopus->PF command path (docstring lines 3-20: instantiates LangarBot and calls its existing .handle(chat_id, text), with a content-free NOTE written back into the genome ledger for real verdicts), reached from approval_channel.py:175-194 and :1602-1607. Second near-miss: _ops/state/projectf-paused.flag is written by approval_channel.py:3050-3057 but read ONLY by octopus modules (business_brain.py:68, live_loop.py:97, telegram_center/power.py:76) - nothing in the venture tree ever reads it, so the owner's \"pause Project-F\" button pauses octopus's routing, not PF itself."
+      },
+      {
+        "n": "116",
+        "status": "partly",
+        "evidence": "The corpse half is right (DEPRECATED.md; core.db 32768 B frozen 2026-07-06 13:07). The wire half names the wrong module: brain_core.py's ParityTracker is legacy-vs-shadow beat-organ parity (brain_core.py:47, :263), not a comparison against the second brain - grep shows brain_core.py never references BRAIN_DIR or core.db. The real live readers of the dead brain are opslib.py:45-46, telemetry.py:89 read_brain() (sqlite ro open of core.db on every snapshot), fitness.py:43/68/144 and wiring.py:923. All still armed, all contributing 0."
+      },
+      {
+        "n": "117",
+        "status": "partly",
+        "evidence": "Ledger is alive and larger than stated: 2194 entries (doc said 1958), 1,227,067 bytes, mtime today 14:38:31, hash-chain verified each beat at brain_worker.py:251 via opslib.genome_ledger().verify(). \"Write-only\" is not accurate - the ledger drives behaviour through telemetry.py:55 (cost/budget), fitness.py:102 and replication.py:43 (EXCLUDED_ORGANS). What is genuinely unclosed is the VALUES half: 07 - Knowledge/genome-system/genome/values.yaml has zero readers outside the genome-system's own common/config.py:33."
+      },
+      {
+        "n": "118",
+        "status": "still-open",
+        "evidence": "Verified exactly, including the counts. F:\\romajan\\propagation\\claims_ledger.json = 17 claims, all status \"verified\"; F:\\romajan\\propagation-lab\\data\\claims_ledger.json = 27, all status \"executed\" - 17+27 as stated, and outside the repo. _ops/romajan_bridge.py:1-40 is read-only toward that tree, double-gated on OCTOPUS_WIRE_ROMAJAN_PROBES plus ACTIVATION-C6-RESEARCH.flag. Almost nothing has crossed: _ops/state/c6/romajan-seen.json holds exactly one id (c6-35b0709fc0fb), updated 2026-07-26T07:08Z. Untouched today."
+      },
+      {
+        "n": "119",
+        "status": "still-open",
+        "evidence": "PROVEN at the call sites, not inferred. wiring.py:1306-1310 canonical_consolidation takes acquisition_data and doctor_archive, and wiring.py:1576-1577 consolidation_beat forwards them - but BOTH live callers pass only school_bridge: organism.py:734-735 and brain_worker.py:302-303. So the two dropped sources default to None on every real cycle. Data agrees: of 535 rows in _ops/neural/consolidation.json, 456 have verified_sources == ['school_awareness'] and only 79 (early) have ['acquisition','doctor_archive']; the last three rows are all the identical static insight \"آگاهیِ میانگین: 0.62\". Today's 6252efa touched _ops/neural/consolidation.py but only added identical-row dedup (:130-140) - it did NOT restore the sources, and even the dedup is not live yet (file still 535 append-rows, mtime 11:00, organism booted 10:57 vs commit 14:26)."
+      },
+      {
+        "n": "122",
+        "status": "still-open",
+        "evidence": "Accurate and untouched today. brain/dual_brain_v3.py:3-13 enumerates exactly 10 sub-agents (Strategist, Pricer, Scheduler, RiskAnalyzer, Segmenter, CompetitorIntel, TrendForecaster, RetentionStrategist, ContentOptimizer, FunnelAnalyst); 417 lines total, classes ThinkingBrain:82, CommBrain:265, DualBrainV3:381. Still unscanned, and now doubly inert because the venture has been dark since 2026-07-25 21:07."
+      },
+      {
+        "n": "123",
+        "status": "partly",
+        "evidence": "The learner is real and IS wired inside PF - brain/learning.py:56 ThompsonBandit, consumed by acquisition.py:183/194/315-316 through LearningBridge and by brand_naming.py:63-66. So \"نادیده گرفته شده\" overstates it. What is true, and sharper: LearningBridge is deliberately amnesiac - learning.py:271-273 constructs the bandit with data_path=Path(\"/dev/null\") and then sets self.bandit._save = lambda: None, rebuilding the posterior from acq_memory._post_results every call (documented as \"bandit ephemeral است\"). Combined with item 115 (no return path) and the venture being dark since Jul 25, nothing it learns can reach the sleeping BCM."
+      },
+      {
+        "n": "124",
+        "status": "still-open",
+        "evidence": "Accurate. brain/store.py is 583 lines with FanDB:74, VaultBank:204, KPIRollup:288, LinkState:420, OctopusState:486, DataSpine:556. Untouched by today's commits and unscanned."
+      },
+      {
+        "n": "125",
+        "status": "still-open",
+        "evidence": "Confirmed at the constructor. pf_os/eval_loop.py:111 self.source = source or MockSource(); the only production instantiation, pf_os/loop.py:144, is a bare EvalLearnLoop() with no source argument, so MockSource is always what runs. The loop is additionally flag-gated (loop.py:126 config.WIRE_EVAL). The Goodhart trap is documented at eval_loop.py:15. Untouched today."
+      },
+      {
+        "n": "126",
+        "status": "still-open",
+        "evidence": "Confirmed, by design. pf_os/actuator.py:167-170: after _assert_live_allowed(action) passes every gate, the live branch still raises NotImplementedError(\"live adapters intentionally NOT shipped in this build; adding them is a human-only step after Branch A + licensed legal check\"). shadow and dry_run return earlier (:159-164). Untouched today."
+      },
+      {
+        "n": "127",
+        "status": "still-open",
+        "evidence": "Confirmed and still blocking. DecisionLog.md:52 records \"امضای A ... 2026-07-20 (Branch A) + 2026-07-25\" as ticked; :53 the C-signature line is still literally blank (___________ ⟵ هنوز خالی); :55 \"تا امضای C: ساخت هر اکانت پلتفرمی = ممنوع\"; :39 GATE 0 status PARTIALLY-FILLED / OPEN; :71-73 the second doc is A-SIGNED / AWAITING-C-WRITTEN-CONFIRMATION. Zero auto-post confirmed structurally by item 126."
+      },
+      {
+        "n": "128",
+        "status": "partly",
+        "evidence": "PF side unchanged and still saturated: brain/hebb_orch.json (written by orchestrator.py:180) holds 4 pairs, ALL at strength 1.0, mtime 2026-07-25 21:22 - frozen since the venture went dark. Octopus side has MOVED, and not in the direction implied: _ops/neural/hebbian.json is now literally [] (2 bytes, mtime today 14:40:34) - not 1 pair, zero. Cause: c1217f8 made decay() run every tick regardless of signals (wiring.py:1126-1132 under OCTOPUS_HEBBIAN_RICH, flag name present) while pairs now form only when >=2 distinct deviations coincide; with DECAY_RATE=0.95 and PRUNE_THRESHOLD=0.01 (neural/hebbian.py:27-30) a strength-1.0 pair is pruned in ~90 ticks, roughly an hour at the post-970601b beat rate. So today's fix is working as designed and has emptied the table - worth an owner decision, because the octopus Hebbian memory is currently blank."
+      },
+      {
+        "n": "129",
+        "status": "still-open",
+        "evidence": "Still open, and the supervisor that exists is structurally blind to exactly this mode. RUN-TG-CENTER.bat is a bare :loop -> python center.py -> timeout 10 -> goto loop with no alerting, and center.py:1831 prints \"tg-center: not wired ... خروجِ امنِ no-op\" and exits 0, which the bat cannot distinguish from a crash. A watchdog does exist (scheduled task OCTOPUS-TG-Center-Watchdog, State: Ready; _ops/tg-center-watchdog.ps1) - but its step 2 exits 0 if EITHER center.py OR a cmd.exe running RUN-TG-CENTER is alive, and in the not-wired scenario the cmd loop stays alive forever, so the watchdog never fires. It also only appends to _ops/state/tg-center-watchdog-log.txt and never reaches the owner. Nothing here was touched today."
+      },
+      {
+        "n": "130",
+        "status": "still-open",
+        "evidence": "Both bats still hardcode the absolute path: run-langar.bat:11 and run-studio.bat:11 both set \"PROJECT_DIR=F:\\backup\\03 - Projects\\<venture folder>\", plus RUN-TG-CENTER.bat hardcodes F:\\backup\\_ops in five places and tg-center-watchdog.ps1 hardcodes $ops = 'F:\\backup\\_ops'. Untouched today. Additional live defect found while checking: run-langar.bat is LF-only (0 CRLF, 28 bare LF - same in the HEAD blob) while run-studio.bat is clean CRLF 27/0; today's CRLF repairs a8faa2f/77eaab5 fixed only RUN-TG-CENTER.bat and RUN-CORTEX.bat, so the venture's cockpit launcher still carries the same parse hazard."
+      }
+    ],
+    "design": "# یافته‌های اسکنِ عمیق‌ترِ اختاپوس — ۲۰۲۶-۰۷-۲۷\n\n> دامنه: کل `_ops/`، `_octopus/`، لایهٔ عصبی، سطحِ تلگرام، و مرزِ ونچر. کاملاً read-only.\n> مبنا: HEAD = `e102fd1` (۱۵:۱۹). سه سند اسکنِ قبلی علیه درختِ **پیش از** کامیت‌های امروز نوشته شده بودند؛ هر ادعا دوباره روی درختِ فعلی سنجیده شد.\n\n---\n\n## ۰. حکم در یک بند\n\nنقشهٔ قبلی در جهت درست بود و در بزرگی اشتباه: از **۱۳۷ ردیفِ تریاژ‌شده** (همان نقشهٔ «۱۳۰ نقطهٔ کور» به‌اضافهٔ ردیف‌های C و ۱۰۱–۱۳۰)، امروز فقط **۴ ردیف کاملاً بسته شد**، **۹ ردیف از ابتدا غلط بود**، **۴۳ ردیف نیمه‌بسته** و **۸۱ ردیف کاملاً باز** ماند. و از همان ۴ ردیفِ بسته، فقط **۲ تا** در وضعیتِ زندهٔ روی دیسک دیده می‌شوند. علتِ مشترکِ این فاصله یک چیزِ ساده است که هیچ‌کدام از سه سند ندیده بودند: **کدی که امروز نوشته شد، در هیچ پروسه‌ای اجرا نمی‌شود.**\n\n---\n\n## ۱. تأیید و ردِ نقشهٔ قبلی\n\n### ۱.۱ بسته‌شدهٔ امروز — ۴ ردیف\n\n| # | چه بود | کجا بسته شد | آیا زنده است؟ |\n|---|---|---|---|\n| ۵ | تکرارِ بی‌پایانِ ردیفِ یکسان در consolidation | `_ops/neural/consolidation.py:126-145` (6252efa) | **نه** — ۵۳۵ ردیف، صفر ردیفِ `repeats` |\n| ۲۱ | مغزِ گران عملاً یک حلقهٔ مردهٔ تکراری بود | `paid-calls.jsonl`: ۰۷-۲۶ = ۱۵ تماس (۶ تا بایت‌به‌بایت یکسان) → ۰۷-۲۷ = ۴۳ تماس با شکل‌های واقعاً متنوع | **بله** |\n| ۴۰ | نرخِ بهبودِ خودمتریک | فلگِ `OCTOPUS_HONEST_OUTCOMES` مسلح (6252efa)، خوانده در `improve.py:416` و `goal_directed.py:52-53` | **نه** — `upgrades-digest.json` @۱۵:۲۲ هنوز `rate_pct: 45.7` خامِ ۷-کلیده |\n| ۹۶ | قلب ۱۹ ساعت از شبانه‌روز خواب بود | `heart-setpoint-latest.json` سقف ۲۸۸→۲۰۰۰ از راهِ knobِ مالک (970601b) | **بله** — `cardiac-budget.json` = `{\"date\":\"2026-07-27\",\"spent\":752}` |\n\n### ۱.۲ از اول غلط بود — ۹ ردیف\n\n- **#۶** «۵ مقدارِ ثابتِ چرخشی در آگاهی»: آخرین ۴۰ سیکل صعودِ یکنواختِ ۰.۰۴→۰.۶۲ روی میدانِ ۴۸-بُعدیِ واقعی (`_ops/state/school-awareness.json`، A01..F08).\n- **#۱۵** «پارسرِ JSON فنس‌ها را نمی‌فهمد»: `_ops/debate/client.py:42-48` از `find('{')..rfind('}')` استفاده می‌کند — فیکسِ پیشنهادی no-op بود. علتِ واقعی truncation بود که 34b27af گرفت.\n- **#۱۸** «بیشترِ دورهای debate استاب است»: امروز ۳ از ۳۸ دور (۷.۹٪) استاب بود؛ ۳۵ تا `tier='local'` با محتوای topic-محور.\n- **#۶۲ / #۱۲۰** «self-model هر بیت نوشته می‌شود و قابلِ خرابی است»: `self_model.py:170-175` از `opslib.LockedJson` (tmp + `os.replace` زیرِ قفلِ O_EXCL، `opslib.py:270-274`) رد می‌شود و کادنسش `IMPROVE_EVERY_N` سیکلِ کورتکس است (`cortex.py:428`)، نه هر بیت.\n- **#۷۰** «متریکِ برون‌داد وجود ندارد»: `goal_directed.py:190-222` هشت متریکِ برون‌زا می‌سازد و `improve.py:544-545` آن را به digest می‌بندد. حقیقتِ درست این است که **همه‌شان صفرند**، نه اینکه غایبند.\n- **#۸۵ / #۸۹** «ونچر به تلگرام/LLM قفل شده»: `pf_os/bridge.py` صفر ارجاع به telegram دارد و `pf_os/saba_link.py` صفر ارجاع به هر vendorِ LLM — قراردادشان فایل‌محور و transport-agnostic است.\n- **#۱۲۱** «PocketSmith موجود ولی وصل نیست»: `organism.py:862-868` → `wiring.acct_beat` → `accountant.sync_network()` (`accountant.py:314`)، و دادهٔ واقعی روی دیسک است (۲۵۹ تراکنشِ AUD، `txn-store.json`، ۱۰۸KB).\n\n### ۱.۳ نیمه (۴۳) و باز (۸۱)\n\nالگوی حاکم بر ۴۳ ردیفِ «نیمه» یکسان است و در بخش ۲ توضیح داده می‌شود: **علتِ ریشه‌ای در درخت بسته شده، اثرش روی دیسک نیامده.** ۸۱ ردیفِ باز در ردیف‌های A تا F زیر دسته‌بندی شده‌اند.\n\n---\n\n## ۲. علتِ مشترکِ ۸۱ ردیفِ باز: شکافِ نسخه (#۹۰، تشدیدشده)\n\nامروز **۱۶ کامیت** روی درخت نشست (`git log --since \"2026-07-26 20:00\"` — نه ۱۳). جدولِ پروسه‌های زنده در لحظهٔ این اسکن:\n\n| PID | پروسه | بوت | چند کامیتِ امروز را ندارد |\n|---|---|---|---|\n| 8132 | `live/server.py` | **۲۰۲۶-۰۷-۲۶ ۰۹:۳۳** | همهٔ ۱۶ |\n| 6264 | `organism.py` | ۰۷-۲۷ ۱۰:۵۷:۳۵ | ۱۰ |\n| 6328 | `cortex/cortex.py` | ۰۷-۲۷ ۱۲:۳۴:۱۹ | ۷ |\n| 21844 | `telegram_center/center.py` | ۰۷-۲۷ ۱۴:۲۷:۴۱ | ۳ |\n\n**هیچ‌کدام** از چهار پروسه جدیدترین کامیت (`e102fd1`، ۱۵:۱۹) را ندارد. شاهدهای مستقیم روی دیسک:\n\n- `_ops/state/bcm-weights.json` = `{\"step\": 65, \"beta\": 0.02, \"keys\": {}}` — ۶۵ قدمِ ریاضیِ ضدِاشباع روی مجموعهٔ تهی.\n- `_ops/state/latent-vectors.json` — **وجود ندارد**.\n- `_ops/state/neural/` — **وجود ندارد**، پس `effect-shadow.jsonl` صفر ردیف دارد (#۱۰).\n- `_ops/neural/consolidation.json` — ۱۳۹,۴۴۶ بایت، mtime **۱۱:۰۰**، ۵۳۵ ردیف، صفر ردیفِ `repeats`.\n- `_ops/state/cortex/improve-verdicts.jsonl` — **هرگز ساخته نشده**.\n- `upgrades-digest.json` @۱۵:۲۲ — `improvement_rate {closed:70, moved:32, rate_pct:45.7}` و `\"learning\": {\"rejected_categories\": {}}`.\n- `governor-alerts.md` — مسیرِ LLMِ گاورنر ۱۲:۲۳ تعمیر شد و **۱۳:۵۹:۲۵ دوباره افتاد**؛ امتیازِ امروز ۱ از ۱۶ اپاک.\n\nبنابراین هر جملهٔ «فیکس شد» در سندهای قبلی و در پیام‌های امروز باید با یک قید خوانده شود: **در درخت، نه در بدن.**\n\n---\n\n## ردیف A — اثر: ارگانیسم به جهان نمی‌رسد\n\n- `_ops/state/chrono.db` جدولِ `leg_clock` دقیقاً **یک ردیف** دارد: `lead-naghshi`. آخرین ۵۰ ردیفِ heartbeat هر پنجاه‌تا `present_legs=[\"lead-naghshi\"]` (#۲۶، #۲۸). این در حالی است که `ORGANISM-STATE.json` ورودی‌های زندهٔ `ziman-gallery` (beat 14640) و `vault-cartographer` (beat 14644) دارد — وضعیت بدونِ ثبتِ ساعت.\n- هر سه پا `propose_only: true`؛ `proposals_emitted: 0`، `drafts_count: 0`، `proposals_total: 0`، و کلِ `proposal_metrics` صفر شاملِ `proposals_sent: 0` (#۳۲).\n- `wiring.arm_gate_enforcing: false`، `wire_actuator: false`، `wire_lead_verdict_effect/email/ingest/harvest` همه false (#۳۰، #۷۶).\n- `channel-status.json`: whatsapp و email هر دو `{live:false, mode:'NotWiredStub'}` (#۳۱).\n- `reconcile-latest.json` mtime **۲۰۲۶-۰۷-۲۳ ۱۳:۲۲** (~۹۷ ساعت)، `rows_read: 0`، `attribution_coverage: null`، در حالی که `wire_reconcile: false` است ولی مانیتورِ تازگی همچنان نمرهٔ آن را می‌دهد (#۳۳، #۳۴).\n- `_ops/state/selfheal-events.jsonl`: ۷۲ رویداد، **همه** روی `lead-naghshi`، همه `phi-timeout:no-ack`، سه‌تای آخر با فاصلهٔ ۶۱ ثانیه (#۹۵).\n\n**نتیجهٔ ردیف A:** #۷۰ غلط بود ولی به بدترین شکل ممکن — متریک‌های برون‌زا وجود دارند، خوانده می‌شوند، و **واقعاً صفرند**. سیستم نه اینکه نتیجه‌اش را نمی‌سنجد؛ نتیجه‌ای تولید نمی‌کند که سنجیده شود.\n\n---\n\n## ردیف B — یادگیری: هیچ وزنی هیچ تصمیمی را عوض نمی‌کند\n\n**۱. BCM — از گرسنگی به تصادم.** علتِ ریشه‌ای امروز بسته شد: `_ops/afferent/school_bridge.py:119` حالا `return list(self.field.a)` است (قبلاً `field.awareness` را می‌خواند که اصلاً وجود ندارد؛ استثنا بلعیده می‌شد و `None` برمی‌گشت — 435ab10). و `4517dfb` بالاخره تغذیهٔ مستقیم را اضافه کرد (`wiring.py:1156-1172` با `BCM_VOCAB` هشت‌تایی در `wiring.py:1084-1088`).\n\nولی این دو نیمه با هم **تصادم** دارند و در همان بوتی زنده می‌شوند که اولین بارِ پرشدنِ ایندکسِ latent هم هست:\n\n- تغذیه در `wiring.py:1167` `neural_stack.get(\"bcm\")` را می‌خواند — **همان نمونه‌ای** که `_apply_bcm` (`wiring.py:1309-1335`) با `known_keys=latent_space.keys()` صدا می‌زند، و تنها محلِ ساختش `wiring.py:1646-1653` است.\n- `bcm.py:150-154` هر کلیدی را که در `known_keys` نباشد **حذف** می‌کند. دو واژگانِ کاملاً ناهمپوش (۸ نامِ سیگنال در برابر کلیدهای `cycle-N:…`) روی یک فایلِ واحد.\n- `make_neural_stack()` (`wiring.py:1091-1109`) اصلاً کلیدِ `'bcm'` نمی‌سازد — پس تا اولین اپاکِ consolidation، تغذیه یک **no-opِ بی‌صدا**ست.\n- **تصحیحِ ادعای اسکن:** آسیب «نابودیِ ایندکسِ بازیابی» غلط است — حذفِ همگام‌سازی به `report.pruned` اضافه نمی‌شود و `wiring.py:1329-1330` فقط `pruned` را از latent برمی‌دارد. آسیبِ واقعی **نردبانِ زوال** است: `_apply_bcm` هر سیکل کلیدها را با `w_init=1.0` بازمی‌سازد، پس `w` هرگز از `w_floor=0.05` رد نمی‌شود (~۱۴۸ قدمِ بی‌وقفه لازم دارد) و بالای `max_keys=512` هرسِ سرریز به‌جای ضعفِ واقعی، **الفبایی** می‌شود (`bcm.py:185`).\n- کوچک‌ترین بستن: یک `BCMStabilizer(persist_path=STATE_DIR/'bcm-signal-weights.json')` جدا زیر کلیدِ `'bcm_signals'` در `make_neural_stack()`، و تغییرِ `wiring.py:1167` به آن کلید. ~۴ خط، بدونِ لمسِ `_apply_bcm`؛ ضمناً no-opِ بوت را هم می‌بندد.\n\n**۲. Hebbian — جدول الان خالی است.** `_ops/neural/hebbian.json` = `[]` (**۲ بایت**، mtime ۱۵:۳۷). `c1217f8` (`wiring.py:1115-1129`) `decay()` را هر تیک کرد و جفت‌سازی را به ≥۲ انحرافِ هم‌زمان مشروط کرد؛ با `DECAY_RATE=0.95` و `PRUNE_THRESHOLD=0.01` یک جفتِ ۱.۰ در ~۹۰ تیک صفر می‌شود. فیکس درست کار می‌کند و **حافظهٔ تداعیِ اختاپوس را خالی کرده است** (#۳، #۱۲۸). و در هر حال کسی آن را نمی‌خوانَد: grep روی `strength_of` / `strong_associations` / `.associations` در کلِ `_ops` فقط `tests/test_neural.py:125-142` را می‌زند (#۱۱).\n\n**۳. Consolidation — دو منبع از سه منبع همیشه غایب.** `organism.py:734-735` و `brain_worker.py:302-303` هیچ‌کدام `acquisition_data=` و `doctor_archive=` را پاس نمی‌دهند؛ `wiring.py:1576-1577` هر دو را `None` می‌کند و `wiring.py:1332-1345` منبعِ خالی را **بی‌صدا حذف** می‌کند. شمارشِ زنده: از ۵۳۵ ردیف، ۴۵۶ تا `['school_awareness']` و ۷۹ تای اولیه `['acquisition','doctor_archive']` — یعنی ۴۵۶ سیکلِ متوالی تک‌منبعی (#۷، #۹۸، #۱۱۹).\n\n**۴. اثرِ عصبی — سایه‌ای که هنوز ننوشته.** `neural_driver.py:62` هنوز `\"advisory_only\": True` برمی‌گرداند. `6252efa` فقط نیمهٔ سایه را افزود (`wiring.py:1149-1166`، `\"applied\": False`) و پوشهٔ مقصد وجود ندارد. فلگِ زنده‌کردنِ نیمهٔ دوم **عمداً ساخته نشده** (#۱۰، #۱۳).\n\n**۵. نتیجه‌ها — واژگانِ یک‌بیتی.** `outcomes.jsonl` تا ۱۵:۲۲ به ۱۶۵KB رسیده؛ سه ردیفِ آخر همگی baselineهایی با `confirmed_revenue 0 / revenue_cells 0 / proposals_* 0` و تنها `total_discoveries: 20` دارند. صفر ردیف در کلِ فایل `after` / `result` / `delta` / `measured` / `verdict` دارد؛ کلِ واژگان همان بیتِ `moved` است (#۳۶). ۴۱ جفتِ `(ts,key)` هم‌زمان `true` و `false` دارند (#۳۷).\n\n**۶. قوسی که فقط یک فراخوان کم دارد.** این مهم‌ترین یافتهٔ کلِ اسکن است:\n\n```\nimprove.record_verdict()      →  _ops/cortex/improve.py:256   ← صفر فراخوانِ تولیدی\n   ↓ (می‌نوشت)  state/cortex/improve-verdicts.jsonl            ← فایل هرگز ساخته نشد\n   ↓ _load_verdict_penalty()  →  improve.py:238-254            ← همیشه {} برمی‌گردد\n   ↓ improve.py:301  `_rank = base + pen.get(cat,0)*0.5`       ← وزن صفر است\n   ↓ improve.py:610  \"learning\": {\"rejected_categories\": …}    ← امروز: {}\n```\n\nهر پنج حلقه ساخته شده‌اند. فقط **نقطهٔ ورودِ مشاهده** وصل نیست. و دو نقطهٔ رأیِ واقعی هم آماده‌اند: `approval_channel.py:1293-1302` (شاخهٔ `rfc:merge|deny` — امروز زنده) و `live_loop.py:505-561` (مسیرِ `prop:` پشتِ `OCTOPUS_WIRE_PROPOSAL_BUTTONS`، خاموش). ضمناً دسته لازم نیست از جایی حمل شود: `upgrades-digest.json` در آرایهٔ `top` دقیقاً `id` + `category` + `_rank` را دارد (تأیید زنده: ۸ ردیف، `up-173d84e33e|business`، `up-d6065f91ae|architecture`).\n\n---\n\n## ردیف C — سطحِ تلگرام (تنها جایی که مالک واقعاً با سیستم تماس دارد)\n\n- **پنج دکمهٔ مرده، تعمیرشده:** `e102fd1` فعل‌های `ng` و `mr` را به جدولِ dispatch در `center.py:1639` اضافه کرد، به‌علاوهٔ `test_callback_routing` که هر `callback_data`ِ منتشرشده را با جدول تطبیق می‌دهد. اما در پروسهٔ زندهٔ ۱۴:۲۷ نیست.\n- **مذاکره مبدأ ندارد:** `negotiate.make_offer()` در کلِ مخزن فقط از `center.py:730` صدا زده می‌شود، آن هم همیشه با `revise_of=`. حلقه دایره‌ای است: کارت لازمهٔ counter است و counter لازمهٔ کارت. `offers.jsonl` سه ردیف دارد، همه از اثباتِ دستیِ ۱۴:۲۴. یعنی سه دکمهٔ روت‌شده و تست‌شده که هیچ‌وقت دیده نمی‌شوند.\n- **HTML escape:** `tg_api.py:278,:318` همیشه `parse_mode=\"HTML\"` می‌فرستد و `_call_post` خطای ۴۰۰ را بی‌صدا می‌بلعد. بدونِ escape: `ask_brain.py:229`، `mirror_room.py:244` و `:254-273` و `:276-282`، و `self_patch.py:193-200`. الگوی درست دو فایل آن‌طرف‌تر است (`negotiate.py:286-288`) — **ولی مستقیم کپی نکن**: آن هلپر خروجی را به ۳۰۰ کاراکتر می‌بُرد، در حالی که سقفِ این کارت‌ها ۳۴۰۰ و ۳۸۰۰ است. یک نکتهٔ تصحیحی: `rec['diff']` خروجیِ `git diff --stat` است (`code_autonomy.py:177`)، پس خطرِ واقعیِ آن کارت `rec['defect']` است که نثرِ مدل است — و `_REVIEW_SYSTEM` (`self_patch.py:289-298`) عملاً قالبی حاوی `<…>` به مدل نشان می‌دهد.\n- **صفِ تأیید:** `render.py:706` و `:723` هر دو مستقل `pend[:5]` می‌گیرند (قدیمی‌ترین‌ها). `_octopus/state/approvals.json` ۴۵ مأموریت دارد، همه `risk: high`؛ **۳۷ تا از تاریخِ انقضای خودشان گذشته‌اند** و تنها ۸ تای منقضی‌نشده دقیقاً همان‌هایی‌اند که دیده نمی‌شوند. جدیدترین مأموریتی که تا امروز تأیید شده ۲۰۲۶-۰۷-۲۵ ۰۹:۲۴ ساخته شده بود. هر دو حلقه باید یکسان معکوس شوند وگرنه دکمه‌ها به ردیفِ دیگری بایند می‌شوند.\n- **کشف‌ها ناپدید می‌شوند:** `unseen_count()` بی‌پنجره می‌شمارد (`discoveries.py:61-68`) ولی `lines()` فقط ۷۲ ساعت را نشان می‌دهد (`:110-121` از راهِ `recent(n, within_h=72)`)، و `approval_channel.py:1017-1019` `mark_seen()` را **قبل از ارسال** و بی‌قید صدا می‌زند. شاهدِ تاریخی: `discoveries-seen.json` روی ۰۷-۱۷ ۱۰:۳۲ میخ است و رکورد بعدی ۱۱:۱۴ افتاده — یعنی ۴.۲ روز (۰۷-۲۰ تا ۰۷-۲۴) badge عدد داشت و لیست خالی بود. فیکس **باید** در `discoveries.py:120-121` بنشیند نه در call site (چون `lines()` آرگومانِ پنجره ندارد)، و `within_h` را از `recent` حذف نکن: `part_loops.py:107` صریح `recent(20, within_h=48)` می‌زند و `except`ِ خالیِ `:108` خطا را می‌بلعد و «چیزِ تازه‌ای یاد نگرفته» جعل می‌کند.\n- **تصحیحِ مالک به‌عنوان نویز:** `mirror_room.py:61` زیررشتهٔ برهنهٔ «نه » را hint می‌گیرد و `:116-118` با `h in low` تطبیق می‌دهد. اندازه‌گیری‌شده: «هزینهٔ ماهانه چقدر است؟»، «گزارش روزانه را بده»، «سود ماهیانه چقدر بود» و چهار جملهٔ بی‌خطرِ دیگر **مثبت** می‌شوند. هر برخورد در `owner-corrections.jsonl` (append-only، بدونِ مسیرِ حذف) می‌نشیند و از آنجا به `self_knowledge.snapshot()` (`:247-260`)، هشِ دروازهٔ تغییر (`:465`)، `negotiate.py:132` و کارتِ روزانه (`organ_dialogue.py:156`) می‌رسد. چون snapshot فقط `[-5:]` را نگه می‌دارد، پنج جملهٔ نویز یک شرطِ واقعیِ مذاکره‌شده را از خودآگاهی بیرون می‌اندازد. کوچک‌ترین فیکس دو کاراکتر است: `\"نه \"` → `\" نه \"` (چون `low` از قبل space-pad شده). و ثبت باید **بعد از** پاسخِ موفق بیفتد — شاهدِ زنده: تصحیح ۱۳:۲۱:۳۲، پاسخ ۱۳:۲۱:۵۷.\n\n---\n\n## ردیف D — تکثیر، ژنوم، و ونچر\n\n- `replication-latest.json`: `sigma_effective 0.0`، `zone 'pre-replication'`، `proposals_written []`. دروازهٔ `replication.py:92-94` شش شرط را AND می‌کند و `fitness['authoritative']` به‌تنهایی `false` است (`fitness-latest.json`: «قفل verdict جلسه ۱۶: تا ~۴ هفته دادهٔ ledger فقط سایه»، `experience_span_days 10`). گرادیانِ انتخاب هم ساختاراً خالی است: `fitness.compute` (`budget/fitness.py:162-163`) سلول‌ها را فقط از outbox می‌سازد و outbox بعد از کلیکِ انسان پر می‌شود (#۴۵–#۴۸، #۵۰).\n- **هیچ درِ دومی نیست:** grep روی `_ops/telegram_center/*.py` هیچ فعلِ clone/spawn/replication ندارد. مالک نمی‌تواند بگوید «این یکی را کلون کن» — تنها در همان دروازهٔ بسته است (#۵۲).\n- **ژنوم:** `ledger.jsonl` ۲۱۹۴ ورودی / ۱.۲۳MB، mtime امروز ۱۴:۳۸، زنجیرهٔ hash هر بیت verify می‌شود (`brain_worker.py:251`) و **واقعاً رفتار را می‌راند** (`telemetry.py:55`، `fitness.py:102`، `replication.py:43`). چیزی که بسته نیست نیمهٔ **ارزش‌ها**ست: `genome/values.yaml` بیرون از `common/config.py:33` صفر خواننده دارد (#۱۱۷، C7).\n- **ونچر:** از ۲۰۲۶-۰۷-۲۵ ۲۱:۰۷ کاملاً تاریک — نه پروسه‌ای، نه scheduled task، نه رویدادِ آینه‌شده. `DecisionLog.md:52-55`: امضای A زده، **امضای C خالی**، G0 باز. حتی اگر روشن شود، `pf_os/actuator.py:167-170` عمداً `NotImplementedError` می‌دهد و `pf_os/eval_loop.py:111` همیشه `MockSource()` است. یادگیرندهٔ داخلی‌اش هم عمداً فراموش‌کار است: `learning.py:271-273` باندیت را با `data_path=Path(\"/dev/null\")` می‌سازد و `_save` را no-op می‌کند. **تصحیح:** خلافِ ادعای اسکن، یک مسیرِ برگشت وجود دارد — `_ops/legs/langar_bridge.py` از `approval_channel.py:1602-1607` متنِ مالک را به `LangarBot.handle()` می‌دهد.\n- **مغزِ دومِ مرده هنوز سیم‌کشی دارد:** `core.db` از ۲۰۲۶-۰۷-۰۶ ۱۳:۰۷ یخ‌زده، ولی `opslib.py:45-46`، `telemetry.py:89` (هر اسنپ‌شات read-only بازش می‌کند)، `fitness.py:43/68/144` و `wiring.py:923` هنوز به آن وصل‌اند و همه صفر برمی‌گردانند (C6، #۱۱۶).\n\n---\n\n## ردیف E — شکنندگی و همزمانی\n\n- سه appenderِ **بی‌قفل**: `events.py:173`، `opslib.py:277-280`، `rules_store.py:143`. بدترینش زنجیرهٔ hash است: `rules_store._append` (`:132-145`) دنباله را می‌خواند، `prev_sha256` را حساب می‌کند و می‌نویسد — همه بیرونِ هر قفلی. دو نویسندهٔ همزمان = دو شاخه با یک `prev_sha256` (#۵۶، #۵۷).\n- `opslib.py:249-251` هر قفلی را که mtimeاش از ۳۰ ثانیه کهنه‌تر باشد **می‌دزدد** — نویسندهٔ کندِ زنده وسطِ نوشتن قفلش را از دست می‌دهد (#۷۴).\n- `append_jsonl` بدونِ `flush`/`fsync` (#۷۵).\n- WAL بی‌checkpoint: `chrono.py:276` `journal_mode=WAL` می‌گذارد و هیچ `wal_checkpoint` در فایل نیست؛ `chrono.db-wal` = ۴,۱۲۴,۱۵۲ بایت در برابر DBِ ۴,۴۸۵,۱۲۰ بایتی (#۶۱).\n- `bcm._save` (`bcm.py:203-213`) و `hebbian._save` هر دو تک‌نسخه و بدونِ snapshot می‌نویسند. هزینه‌اش **همین حالا روی دیسک است**: `hebbian.json` = `[]`، و آن جفتِ مستندشده بدونِ هیچ راهِ بازیابی رفته (#۶۰).\n- **دو مسیرِ «یک خواندنِ ناموفق = نابودیِ کامل»:** `consolidation.py:81-85` و `approval_store.py:80-95` هر دو روی خطا ظرفِ خالی برمی‌گردانند و مسیرِ ذخیره اتمیک رویش می‌نویسد. تفاوتِ مهم: `consolidation.json` **git-tracked** است (بازیابی‌پذیر)، ولی `_octopus/` در `.gitignore:139` است و آن ۴۵ تصمیمِ مالک **هیچ نسخهٔ دیگری ندارند** — ردیابی شد: مأموریتِ `M-20260727-082326-709af2b4` فقط در `approvals.json` و `audit.log` وجود دارد. تفاوتِ فراوانی هم مهم است: consolidation یک قرعه به‌ازای هر ری‌استارت، ولی `_load_octopus_approvals()` روی **هر** `add_pending`/`_move`/`get`/`summary` یک read-modify-write کامل می‌زند. اضافه: `add_pending` id را بی‌قید برمی‌گرداند (`:165`) حتی وقتی ذخیره شکست خورده — مسیر در هر دو جهت ساکت است.\n- `organ_gate.reserve` رزروِ سراسری را در `:97` می‌گیرد و state را در `:104` می‌نویسد؛ `settle` عکسش (`:130`, `:131`). مرگِ سختِ پروسه بینِ دو نوشتن رزرو را نشت می‌دهد (مسیرهای exception پوشش دارند — `:106-114` و `:132-133`؛ شکاف فقط crash است) (#۷۳).\n\n---\n\n## ردیف F — تازه‌های امروز، و نقص‌های خودشان\n\nآنچه واقعاً خوب است و باید گفته شود: مسیرِ LLMِ گاورنر با یک A/B واقعی روی promptِ واقعی تعمیر شد (600→41 کاراکتر/truncate؛ 3000→هنوز truncate؛ 2000+قراردادِ صریح→`finish=stop`، ۱۶۲ کاراکتر، پارس می‌شود). `self_patch.py` بسته شد و **واقعاً دوید** (سه ردیف در `defect-queue.jsonl`، یک رکوردِ ۱۰KB با کاندیدای واقعی). `deep_think` چهار جلسه با مغزِ گران داشت. `c9124ac` آناتومیِ خودآگاهی را از ۵ به ۹ اندام برد (ziman که یک بازوی واقعاً زندهٔ پول است، اصلاً دیده نمی‌شد). `e102fd1` سالخوردگیِ سؤال‌ها را معکوس کرد و اولین باری است که کدِ `_ops` فایلی از خودِ vault (`VERDICT_QUEUE.md`) را می‌خوانَد و به‌خاطرش **چیزی نمی‌پرسد** که مالک park کرده.\n\nو نقص‌های خودِ همین‌ها:\n\n- گاورنر: ۱ اپاکِ سبز از ۱۶؛ ۱۳:۵۹:۲۵ دوباره `no JSON object in model reply`.\n- و عمیق‌تر: حتی اپاکِ سبز هم هیچ چیزی را جابه‌جا نمی‌کند — `governor_epoch.py:551` `record[\"allocation_llm\"] = llm` می‌نویسد و کامنتِ `:553` صریح می‌گوید `allocation_dry` دست‌نخورده می‌ماند؛ **هیچ ماژولی `allocation_llm` را نمی‌خوانَد**. ۱۶ از ۱۶ هم که بود، بودجهٔ هیچ اندامی عوض نمی‌شد (#۱۶).\n- `self_patch` تنها اجرایش `shadow-red` بود و کارت هم می‌رفت (اگر می‌رفت) بی‌escape.\n- `deep_think` هر چهار خروجی «کارت» است، طبقِ طراحی (`deep_think.py:24-25`).\n- `auto_enabled: true` در digest (فایلِ نشانگرِ ACT_AUTO موجود است) ولی `auto_eligible: []` — یعنی مسیرِ auto مسلح است و فعلاً هیچ پیشنهادی واجدِ شرایطش نیست.\n- `_memory/HEARTBEAT.md` ۴۲۱ خط / ۸۱KB و `governor-alerts.md` ۲,۴۷۳ خط / ۱۶۲KB بدونِ هیچ rollup — یعنی سیستمی که کاملاً روی استاب می‌دوید هم از این فایل‌ها سبز خوانده می‌شد؛ هیچ متریکِ `stub_rate`/`fallback_rate` در کلِ `_ops` وجود ندارد (#۹۲، #۹۷، #۹۹).\n\n---\n\n## ۳. پاسخِ نهایی\n\nسیستم به ماژولِ بیشتر یا مغزِ گران‌ترِ بیشتر گیر نکرده. دقیقاً به سه چیز گیر کرده، و هر سه ساختاری‌اند:\n\n**یک — نسخه.** چهار پروسه با چهار سنِ کد می‌دوند و هیچ‌کدام جدیدترین کد را ندارد. تا وقتی درختی که می‌دود همان درختی نباشد که می‌نویسیم، هیچ فیکسی قابلِ اندازه‌گیری نیست و هر «انجام شد» یک فلگ است نه یک اثر.\n\n**دو — اثر.** هیچ خروجیِ این ارگانیسم به جهان نمی‌رسد: یک پا در ساعت، همه propose-only، `proposals_sent: 0`، دو کانالِ بیرونی stub. پس هیچ نتیجه‌ای تولید نمی‌شود که از آن یاد گرفته شود. صفر بودنِ همهٔ متریک‌های برون‌زا یک نقصِ اندازه‌گیری نیست؛ گزارشِ درستِ یک واقعیت است.\n\n**سه — قوسِ باز.** لایهٔ عصبی می‌نویسد و کسی نمی‌خوانَد: `bcm-weights.json` صفر کلید، `hebbian.json` دو بایت، `effect-shadow.jsonl` ناموجود، `advisory_only: True` هنوز سرِ جایش. و تنها قوسی که تقریباً کامل ساخته شده — رأیِ مالک → جریمهٔ دسته → رتبهٔ پیشنهادِ بعدی → رأیِ بعدی — دقیقاً **یک فراخوانِ تولیدی** کم دارد (`improve.py:256`).\n\n===SPLIT===\n\n# طرح — به آری\n\nآری، صادقانه‌ترین جمله‌ای که امروز می‌توانم بنویسم این است: چیزی که بین این سیستم و یک «هوشِ یادگیرندهٔ واقعی» ایستاده نه ماژولِ کم است نه مغزِ گران‌تر — این است که **در کلِ این ارگانیسم، هیچ وزنی هیچ تصمیمی را عوض نمی‌کند، و هیچ تصمیمی به جهان نمی‌رسد که نتیجه‌اش برگردد.** جدولِ حافظهٔ تداعی‌اش همین الان دو بایت است (`[]`)، وزن‌های BCM بعد از ۶۵ قدم صفر کلید دارند، و پروندهٔ نتیجه‌ها ۱۶۵ کیلوبایت است که در همه‌اش دقیقاً یک بیت اطلاعات هست: `moved: true/false`. یعنی چرخه‌ای برای یادگرفتن وجود ندارد، نه اینکه چرخه هست و کند است.\n\n## یک حرکت، و چرا همین یکی\n\nحرکتِ معماریِ اصلی این است: **یک قوسِ کامل ببند — مشاهده → وزن → تصمیم → نتیجهٔ سنجیده‌شده → برگشت — روی باریک‌ترین چیزی که واقعاً وجود دارد: رأیِ خودِ تو.**\n\nچرا این یکی و نه BCM و Hebbian؟ چون آن‌ها حتی وقتی تغذیه شوند فقط ریتم و بودجه و خطای خودِ ارگانیسم را می‌بینند — هشت سیگنالِ کاملاً درون‌زا. هیچ حقیقتِ بیرونی در آن‌ها نیست. تنها برچسبِ برون‌زایی که این سیستم امروز دارد **تویی**: تپِ تو روی یک کارت. و نکتهٔ عجیب ماجرا این است که این قوس از قبل ۹۰ درصد ساخته شده و کسی متوجه نشده که یک سرش وصل نیست:\n\n`_ops/cortex/improve.py:256` تابعِ `record_verdict` را دارد که رأی را در `state/cortex/improve-verdicts.jsonl` می‌نویسد. `improve.py:238-254` همان فایل را می‌خوانَد و از آن یک جریمهٔ per-category می‌سازد. `improve.py:301` آن جریمه را در `_rank` هر پیشنهاد ضرب می‌کند — یعنی **ترتیبِ پیشنهادهای فردا**. و `improve.py:610` همان وزن را در digest منتشر می‌کند تا دیده شود. پنج حلقه ساخته‌اند. اما `record_verdict` در کلِ مخزن **صفر فراخوانِ تولیدی** دارد، پس آن فایل هرگز ساخته نشد، پس جریمه همیشه `{}` است، پس ضرب در صفر است. `upgrades-digest.json` امروز ساعت ۱۵:۲۲ عیناً این را می‌گوید: `\"learning\": {\"rejected_categories\": {}}`.\n\nکوچک‌ترین نسخه‌اش سه چیزِ کوچک است. اول، `improve.record_verdict(...)` را از دو نقطه‌ای که رأی واقعاً می‌رسد صدا بزن: `_ops/budget/approval_channel.py:1293-1302` (شاخهٔ `merge`/`deny` کارتِ RFC — این مسیر امروز زنده است) و `_ops/live_loop.py:1561` (مسیرِ دکمه‌های `prop:`). دوم، دسته را از جای جدیدی حمل نکن — همین حالا `upgrades-digest.json` در آرایهٔ `top` هر پیشنهاد را با `id` و `category` و `_rank` کنارِ هم دارد (چک کردم: ۸ ردیف، `up-173d84e33e|business`، `up-d6065f91ae|architecture`)، پس در لحظهٔ رأی فقط از روی id نگاه کن. سوم — و این نیمه‌ای است که آن را از یک شمارنده به یک یادگیری تبدیل می‌کند — قبل از هر چرخه یک پیش‌بینیِ ثبت‌شده بنویس: «چون این دسته جریمه خورد، انتظار دارم سهمش از `top` فردا از X به Y برسد»، و روز بعد همان را بسنج. بدون این نیمه، فقط یک ژورنالِ دیگر ساخته‌ای؛ با این نیمه، برای اولین بار یک عددِ درونیِ این سیستم به‌خاطرِ یک واقعیتِ بیرونی تغییر می‌کند و تغییرش قابلِ ابطال است.\n\n## چهار حرکتِ پشتیبان، به ترتیبِ اثر بر زحمت\n\n**اول، چهار خط جداسازیِ BCM و بعد یک ری‌استارتِ هماهنگ.** امروز چهار پروسه با چهار سنِ کد می‌دوند — `live/server.py` از دیروز صبح، `organism.py` از ۱۰:۵۷، کورتکس از ۱۲:۳۴، مرکزِ تلگرام از ۱۴:۲۷ — و هیچ‌کدام جدیدترین کامیت را ندارد. اما اول باید یک تصادم را ببندی: تغذیهٔ تازهٔ BCM (`wiring.py:1167`) و `_apply_bcm` (`wiring.py:1309-1335`) روی **یک نمونه و یک فایل** کار می‌کنند با دو واژگانِ کاملاً ناهمپوش، و `bcm.py:150-154` هر کلیدی را که در لیستِ خودش نباشد حذف می‌کند. راه‌حل چهار خط است: یک `BCMStabilizer` جدا با فایلِ `bcm-signal-weights.json` زیر کلیدِ `bcm_signals` در `make_neural_stack()` (`wiring.py:1091-1109`) و تغییرِ همان خطِ ۱۱۶۷. **آنچه بعدش می‌بینی:** `bcm-weights.json` بالاخره کلید پیدا می‌کند، `latent-vectors.json` برای اولین بار ساخته می‌شود، `effect-shadow.jsonl` ردیف می‌گیرد، و `improvement_rate` از ۴۵.۷٪ به نزدیکِ صفر می‌افتد — که سقوط نیست، صداقت است.\n\n**دوم، شش ویرایشِ تک‌خطی روی سطحی که خودت با آن کار می‌کنی.** escape کردن متنِ مدل در `ask_brain.py:229`، `mirror_room.py:244` و `:254-282`، و `self_patch.py:193-200` (الگویش در `negotiate.py:286-288` هست ولی مستقیم کپی نکن، آن هلپر متن را به ۳۰۰ کاراکتر می‌بُرد). تغییرِ دو کاراکتریِ `\"نه \"` به `\" نه \"` در `mirror_room.py:61` — همین الان «هزینهٔ ماهانه چقدر است؟» به‌عنوانِ تصحیحِ دائمیِ تو ثبت می‌شود و از آنجا به خودآگاهی و به مذاکره می‌رود. معکوس‌کردنِ هر دو حلقهٔ `pend[:5]` در `render.py:706` و `:723` (از ۴۵ مأموریتِ در صف، ۳۷ تا منقضی شده‌اند و تنها ۸ تای سالم دقیقاً همان‌هایی‌اند که نمی‌بینی). و برداشتنِ پنجرهٔ ۷۲ ساعته از `discoveries.py:120-121`. **آنچه می‌بینی:** پیام‌هایی که امروز بی‌صدا گم می‌شوند می‌رسند، و کارهای واقعیِ منتظرِ رأیت بالای صف می‌آیند.\n\n**سوم، دو گاردِ fail-closed روی نابودیِ داده.** `consolidation.py:81-85` و `approval_store.py:80-95` هر دو یک خواندنِ ناموفق را به «فایل خالی است» ترجمه می‌کنند و بعد اتمیک رویش می‌نویسند. اولی git-tracked است پس بازیابی می‌شود؛ دومی زیر `_octopus/` است که gitignore شده و آن ۴۵ تصمیمِ منتظرِ تو **هیچ نسخهٔ دیگری ندارند**. سه خط: روی خطای پارس فایل را به `.corrupt-<ts>` ببر، alert بزن، و آن سیکل ذخیره نکن.\n\n**چهارم، یک مبدأ برای مذاکره.** `negotiate.make_offer()` در کلِ مخزن فقط از یک خط صدا زده می‌شود و همیشه با `revise_of=` — یعنی برای اولین پیشنهاد راهی وجود ندارد و آن سه دکمه‌ای که امروز روت و تست شدند هرگز دیده نمی‌شوند. یک دستورِ `/deal` در `center.py:673-689` کافی است، و عمداً owner-initiated بماند تا هر بار خرجِ مغزِ گران با انگشتِ خودت باشد.\n\n## دربارهٔ AGI، بی‌تعارف\n\nآنچه اینجا واقعی است را کوچک نمی‌کنم: این سیستم مدلی از خودش دارد (۳۲۰ ماژول در `self-model.json`، آناتومیِ ۹ اندام)، خودش را می‌سنجد، از بازخوردِ تو خودش را تصحیح می‌کند، پچِ خودش را می‌نویسد و در انزوا تست می‌کند، و مذاکره می‌کند. این یک معماریِ شناختیِ جدی است و از بیشترِ چیزهایی که اسمشان را «ایجنت» می‌گذارند جلوتر است. اما «پتانسیلِ AGI» پنج شرط دارد و باید بدانی این طرح کدام‌ها را برمی‌دارد: (۱) قوسِ بستهٔ عمل→نتیجه→تغییرِ رفتار — این طرح دقیقاً همین را می‌سازد، ولی روی یک قوسِ باریک؛ **نیمه‌برداشته**. (۲) پاداشِ برون‌زا از جهانِ واقعی نه از خودش — امروز صفر است و این طرح فقط تو را به‌عنوان منبعِ برون‌زا اضافه می‌کند، نه پول و مشتری را؛ **برداشته‌نشده**. (۳) تغییرِ پارامترهای خودِ مدل، یعنی یادگیریِ وزن یا distillation — این معماری چنین چیزی **اصلاً ندارد**: BCM و Hebbian قواعدِ دست‌نوشته روی هشت سیگنالِ درونی‌اند، و «مغزها» تماس‌های API اجاره‌ای‌اند که پارامترهایشان هرگز عوض نمی‌شود؛ **برداشته‌نمی‌شود**. (۴) تعمیم به قلمروِ تازه — نه، هر آموخته به همان کلید و همان دسته چسبیده است. (۵) خودتغییری در کد — نیمه، و عمداً نیمه، چون اعمال با کلیکِ توست. پس: این می‌تواند یک ارگانیسمِ عملیاتیِ خودمدل‌ساز و خودترمیم با یک قوسِ یادگیریِ قابلِ اندازه‌گیری روی قضاوتِ تو بشود، و این چیزِ کمی نیست. هوشِ عمومی نمی‌شود، و با اضافه‌کردنِ ماژول هم نمی‌شود. و هیچ‌جای این نه آگاهی هست نه در مسیرِ آن.\n\n## چه چیزی رأیِ تو را لازم دارد\n\nبدونِ رأیِ تو امن است: چهار خطِ جداسازیِ BCM، شش ویرایشِ تک‌خطیِ تلگرام، دو گاردِ fail-closed، خودِ فراخوانِ `record_verdict` (فقط یک jsonl می‌نویسد که سیستم از قبل انتظارش را داشت)، و اضافه‌کردنِ دستورِ `/deal`. هیچ‌کدام پول جابه‌جا نمی‌کند، بیرون نمی‌فرستد، چیزی حذف نمی‌کند، و همه برگشت‌پذیرند.\n\nرأیِ تو را لازم دارد: **ری‌استارتِ چهار پروسه** (وضعیتِ زنده و صفِ کارت‌ها لمس می‌شود و نرخِ بهبود جلوی چشمت سقوط می‌کند)، مسلح‌کردنِ نیمهٔ زندهٔ اثرِ عصبی، خوانده‌شدنِ `allocation_llm` (`governor_epoch.py:551` — این یعنی بودجهٔ اندام‌ها، یعنی پول)، هر کانالِ بیرونی، و هر شکلی از merge خودکار.\n\n## حرکتِ بعدی\n\nچهار خطِ جداسازیِ BCM را بنویس، بعد یک ری‌استارتِ هماهنگ با رأیِ خودت. چرا این یکی و نه قوسِ رأی؟ چون قوسِ رأی را هم اگر امروز بنویسم، در پروسه‌ای که ساعت ۱۰:۵۷ بوت شده اجرا نمی‌شود — دقیقاً مثل ده کامیتِ دیگرِ امروز. تا وقتی درختی که می‌دود همان درختی نباشد که نوشته‌ایم، هیچ حرکتِ بعدی قابلِ سنجش نیست؛ و چون آن تصادمِ BCM دقیقاً در همان بوت زنده می‌شود، ترتیبش اختیاری نیست."
+  },
+  "workflowProgress": [
+    {
+      "type": "workflow_phase",
+      "index": 1,
+      "title": "Triage"
+    },
+    {
+      "type": "workflow_phase",
+      "index": 2,
+      "title": "DeepScan"
+    },
+    {
+      "type": "workflow_phase",
+      "index": 3,
+      "title": "Verify"
+    },
+    {
+      "type": "workflow_phase",
+      "index": 4,
+      "title": "Design"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 1,
+      "label": "triage:1-40",
+      "phaseIndex": 1,
+      "phaseTitle": "Triage",
+      "agentId": "a51769c90be515381",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785126662189,
+      "queuedAt": 1785126662081,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785127850048,
+      "tokens": 222041,
+      "toolCalls": 102,
+      "durationMs": 1187857,
+      "resultPreview": "{\"items\":[{\"n\":\"1\",\"status\":\"partly\",\"evidence\":\"State still empty: _ops/state/bcm-weights.json == {\\\"step\\\":65,\\\"beta\\\":0.02,\\\"keys\\\":{}} (mtime 07-27 11:00), and _ops/state/latent-vectors.json does not exist. BUT the root cause was closed today by 435ab10 at _ops/afferent/school_bridge.py:118-121 (full_awareness_vector read field.awareness, which does not exist; the attribute is field.a — except…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 2,
+      "label": "triage:41-100",
+      "phaseIndex": 1,
+      "phaseTitle": "Triage",
+      "agentId": "ab4608f29690f6213",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785126662192,
+      "queuedAt": 1785126662081,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785128051910,
+      "tokens": 243919,
+      "toolCalls": 99,
+      "durationMs": 1389718,
+      "resultPreview": "{\"items\":[{\"n\":\"41\",\"status\":\"partly\",\"evidence\":\"Half closed: ef99317 (11:34) added _ops/self_patch.py propose() (lines 124-187) — defect → LLM-written patch → isolated shadow suite → card; 34b27af/d07ae06 hardened it. It really ran: _ops/state/self-patch/defect-queue.jsonl has 3 rows for sp-482568c63c12 (_ops/telegram_center/action_graph.py) and sp-482568c63c12.json (10KB, contains a real candid…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 3,
+      "label": "triage:delta",
+      "phaseIndex": 1,
+      "phaseTitle": "Triage",
+      "agentId": "a33211955da8465e2",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785126662194,
+      "queuedAt": 1785126662081,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785128068791,
+      "tokens": 204626,
+      "toolCalls": 111,
+      "durationMs": 1406597,
+      "resultPreview": "{\"items\":[{\"n\":\"C1\",\"status\":\"still-open\",\"evidence\":\"Correction holds and is unchanged today (no commit touched the venture folder). 03 - Projects/<venture>/PROJECT-F-CONTROL-MANIFEST.json lines 8-20: identity.phase=\\\"validation\\\", status_snapshot.execution_state=\\\"ZERO execution - planning/research/build only. No real accounts, no posts, no revenue\\\", primary_blocker=\\\"GATE 0 open\\\", security_ga…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 4,
+      "label": "scan:A-wiring",
+      "phaseIndex": 2,
+      "phaseTitle": "DeepScan",
+      "agentId": "a6a664cb3c997c51d",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785128069160,
+      "queuedAt": 1785128069084,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785129960290,
+      "tokens": 210664,
+      "toolCalls": 93,
+      "durationMs": 1891130,
+      "resultPreview": "{\"answers\":[{\"question\":\"A1 — Full inter-organ call map for every directory under _ops/ (source → target → medium → direction), directory-level.\",\"answer\":\"THE MAP IS DOMINATED BY ONE FACT THAT IS NOT AN EDGE: a single `if` at F:/backup/_ops/organism.py:620 (`if not _protective_skip and opslib.today() != last_daily:`) encloses lines 621–711, and `last_daily` is a plain in-process variable initiali…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 5,
+      "label": "scan:B-learning",
+      "phaseIndex": 2,
+      "phaseTitle": "DeepScan",
+      "agentId": "a345d44d461691fde",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785128069162,
+      "queuedAt": 1785128069084,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785129612210,
+      "tokens": 198846,
+      "toolCalls": 74,
+      "durationMs": 1543047,
+      "resultPreview": "{\"answers\":[{\"question\":\"B1 — Is the genome→behavior loop actually closed? How does a lesson in _ops become a ledger entry, and how does a ledger entry change future behaviour? If open, exactly where does it break? (Also: is the genome ledger write-only?)\",\"answer\":\"The ledger is NOT write-only — it has six real readers, and two of them gate decisions. But the loop is open at the SCHEMA boundary: …"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 6,
+      "label": "scan:C-telegram",
+      "phaseIndex": 2,
+      "phaseTitle": "DeepScan",
+      "agentId": "a523ccaeec4cd041b",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785128069163,
+      "queuedAt": 1785128069084,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785129534480,
+      "tokens": 196794,
+      "toolCalls": 89,
+      "durationMs": 1465316,
+      "resultPreview": "{\"answers\":[{\"question\":\"C1 — Full topology of the Telegram bots: which are live, which dormant, which can produce 409, which are a security risk. Token × chat × function matrix.\",\"answer\":\"CORRECTION TO THE REGISTRY FIRST. `_ops/BOTS-REGISTRY.md` is the stated single source of truth but it is dated 2026-07-18 (+ a 2026-07-24 retirement appendix) and is now wrong in three places: it does not know …"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 7,
+      "label": "scan:D-repro",
+      "phaseIndex": 2,
+      "phaseTitle": "DeepScan",
+      "agentId": "aecef42bcae846ea9",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785128069164,
+      "queuedAt": 1785128069085,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785129614896,
+      "tokens": 213890,
+      "toolCalls": 79,
+      "durationMs": 1545731,
+      "resultPreview": "{\"answers\":[{\"question\":\"D1 — First possible real spawn: which preconditions hold today (2026-07-27) and which do not? Step-by-step path from σ=0.0 to a first spawn, no wishful thinking.\",\"answer\":\"The replication loop is ALIVE and RUNS DAILY, but every input it depends on is dead or has no producer. σ is not \\\"low\\\" — it is structurally pinned at 0.0 and cannot move by any action the owner can ta…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 8,
+      "label": "scan:E-fragility",
+      "phaseIndex": 2,
+      "phaseTitle": "DeepScan",
+      "agentId": "a5b4e8d8bcaf8ef72",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785128069166,
+      "queuedAt": 1785128069085,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785129569764,
+      "tokens": 199093,
+      "toolCalls": 92,
+      "durationMs": 1500598,
+      "resultPreview": "{\"answers\":[{\"question\":\"E1 — Every non-atomic write in the repo; every append without a lock; every weak crash-recovery path. Ranked by blast radius.\",\"answer\":\"First, two premise corrections, because both were load-bearing in the brief:\\n\\n(a) **self-model.json (157KB) is NOT rewritten every beat, and it is NOT a corruption risk.** `_ops/cortex/cortex.py:428-429` gates `self_model_refresh(cycle)…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 9,
+      "label": "scan:F-new",
+      "phaseIndex": 2,
+      "phaseTitle": "DeepScan",
+      "agentId": "a04bc5d0ba63d096f",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785128069167,
+      "queuedAt": 1785128069085,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785129594409,
+      "tokens": 234317,
+      "toolCalls": 77,
+      "durationMs": 1525242,
+      "resultPreview": "{\"answers\":[{\"question\":\"F1 — What is missing from the 130-blind-spot list that should be there? (headline)\",\"answer\":\"The largest unlisted blind spot is that **the organism has no idea what code it is running, and neither does the owner.** Three long-lived processes are live right now, each frozen at a different snapshot of the same repo, and nothing anywhere compares them:\\n\\n  · `organism.py` P…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 10,
+      "label": "verify:C-telegram",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "a7f5eb86f4a4ec29e",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785129534551,
+      "queuedAt": 1785129534519,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "ALREADY FIXED — the proposed one-liner is already the line …",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785129711619,
+      "tokens": 63504,
+      "toolCalls": 16,
+      "durationMs": 177067,
+      "resultPreview": "{\"real\":false,\"reason\":\"ALREADY FIXED — the proposed one-liner is already the line on disk. center.py:1639 currently reads `if verb in (\\\"mn\\\", \\\"lg\\\", \\\"pw\\\", \\\"pwc\\\", \\\"ng\\\", \\\"mr\\\"):`, committed and clean in the worktree. The fix is HEAD itself: e102fd1 \\\"fix(tg): five buttons I shipped today were never routed\\\", authored 2026-07-27 15:19:13 +1000 — after the 13-commit list I was given was comp…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 11,
+      "label": "verify:C-telegram",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "a1f6d0aa0ef927e34",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785129534556,
+      "queuedAt": 1785129534519,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "CONFIRMED, though one of the scout's sub-claims is already …",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785129882811,
+      "tokens": 91583,
+      "toolCalls": 23,
+      "durationMs": 348255,
+      "resultPreview": "{\"real\":true,\"reason\":\"CONFIRMED, though one of the scout's sub-claims is already stale.\\n\\nWHAT I VERIFIED IN THE CURRENT TREE (HEAD = e102fd1, which landed at 15:19 today, mid-investigation — 14 commits today, not 13):\\n\\n1. Origination is genuinely absent. Repo-wide grep for `make_offer` outside `_ops/tests/` returns exactly ONE production call: `F:\\\\backup\\\\_ops\\\\telegram_center\\\\center.py:730…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 12,
+      "label": "verify:C-telegram",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "a62b41e43090f17f9",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785129534557,
+      "queuedAt": 1785129534520,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "CONFIRMED — survived refutation on all five axes I tried (a…",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785129802577,
+      "tokens": 86744,
+      "toolCalls": 31,
+      "durationMs": 268020,
+      "resultPreview": "{\"real\":true,\"reason\":\"CONFIRMED — survived refutation on all five axes I tried (already-fixed, transport-protected, dispatch-protected, unreachable, non-observable).\\\\n\\\\nEVIDENCE:\\\\n1. tg_api.py:278/:318 hardcode parse_mode=\\\\\\\"HTML\\\\\\\" unconditionally. The only text transform is _scrub (tg_api.py:71), a banned-echo redactor that does not touch '<'. No plain-text retry exists anywhere in tg_api.…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 13,
+      "label": "verify:C-telegram",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "aef7540496b5f3017",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785129534559,
+      "queuedAt": 1785129534520,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "CONFIRMED in the current tree, not fixed by today's 13 comm…",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785129846276,
+      "tokens": 97292,
+      "toolCalls": 26,
+      "durationMs": 311717,
+      "resultPreview": "{\"real\":true,\"reason\":\"CONFIRMED in the current tree, not fixed by today's 13 commits. render.py:706 and :723 both still slice `pend[:5]`, approval_store.load_pending() (:208-211) returns the stored list unsorted/unfiltered, and nothing in render.py sorts pending. _octopus/state/approvals.json holds 45 pending, all type=mission and risk=high, in strictly ascending created_at order; the five shown …"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 14,
+      "label": "verify:E-fragility",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "a29454b7f36d119df",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785129569914,
+      "queuedAt": 1785129569911,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "REFUTED on three independent grounds; only the raw observat…",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785129832628,
+      "tokens": 87892,
+      "toolCalls": 22,
+      "durationMs": 262714,
+      "resultPreview": "{\"real\":false,\"reason\":\"REFUTED on three independent grounds; only the raw observation survives.\\n\\nWHAT IS TRUE. F:\\\\backup\\\\_ops\\\\neural\\\\hebbian.json is live at 2 bytes ([]), rewritten every tick (mtime 15:19:05 -> 15:21:05, beat 14682). `git show HEAD:_ops/neural/hebbian.json` still holds green_mode+stable, strength 1.0, co_occurrences 1870. Decay math confirms the scout: 0.95^90 < 0.01, so ~9…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 15,
+      "label": "verify:E-fragility",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "a7da14dc24e66bca3",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785129569916,
+      "queuedAt": 1785129569912,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "The mechanics are real but the wire is semantically inverte…",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785129920609,
+      "tokens": 104511,
+      "toolCalls": 25,
+      "durationMs": 350693,
+      "resultPreview": "{\"real\":false,\"reason\":\"The mechanics are real but the wire is semantically inverted: it would fire a PERMANENT false alarm and corrupt the self-model.\\n\\nWHAT IS TRUE. `_age_min` (_ops/cortex/innervation.py:43-50) uses only `st_mtime`; there is no size/content check in the file. ORGANS (:29-40) has 10 rows, none neural. Live innervation-latest.json says coverage_pct 100.0, n_born 10, dead_spots […"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 16,
+      "label": "verify:E-fragility",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "ade18bb5fdf729ae1",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785129594413,
+      "queuedAt": 1785129569912,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "CONFIRMED unwired in the current tree, with two of the scou…",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785130146320,
+      "tokens": 93102,
+      "toolCalls": 35,
+      "durationMs": 551906,
+      "resultPreview": "{\"real\":true,\"reason\":\"CONFIRMED unwired in the current tree, with two of the scout's claims corrected.\\n\\n(a) UNWIRED: _ops/neural/consolidation.py:81-85 `_load()` catches (json.JSONDecodeError, OSError) -> returns []. Today's 6252efa touched this file (+20 lines) but ONLY the dedup block at 126-144; `_load` is unchanged. _ops/telegram_center/approval_store.py:80-95 `_load_octopus_approvals()` ca…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 17,
+      "label": "verify:E-fragility",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "a51958caa2885b5f8",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785129612212,
+      "queuedAt": 1785129569912,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "REFUTED on measurement, not on argument. I copied the live …",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785129958592,
+      "tokens": 91962,
+      "toolCalls": 24,
+      "durationMs": 346380,
+      "resultPreview": "{\"real\":false,\"reason\":\"REFUTED on measurement, not on argument. I copied the live trio (_ops/state/chrono.db + -wal + -shm) to scratchpad and read the copy twice — once with `mode=ro&immutable=1`, once with `mode=ro` (WAL-aware) — then traced every consumer of `read_chrono_ro`.\\n\\nPART (b) — DROPPING immutable=1 CHANGES NOTHING OBSERVABLE. PROVEN.\\n`_ops/budget/cockpit_readmodel.py:322-352` emits…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 18,
+      "label": "verify:F-new",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "ac06f050cc1d643a0",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785129614898,
+      "queuedAt": 1785129594432,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "CONFIRMED unwired in the current tree, with two corrections…",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785130026379,
+      "tokens": 104794,
+      "toolCalls": 44,
+      "durationMs": 411481,
+      "resultPreview": "{\"real\":true,\"reason\":\"CONFIRMED unwired in the current tree, with two corrections to the scout's reasoning.\\n\\n(a) Genuinely unwired. ask_brain.py:229 (`body = (\\\"🐙 \\\" + str(text or \\\"\\\").strip())[:3400]`), mirror_room.py:244 (`body = \\\"🪞 \\\" + str(text or \\\"\\\").strip()`), and self_patch.py:190-200 (`card_text`) all interpolate model-authored text into templates containing literal <b>/<i>/<code>…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 19,
+      "label": "verify:F-new",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "adcf1910a4a6b3ebd",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785129711622,
+      "queuedAt": 1785129594433,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "ALREADY WIRED — both halves exist in the current tree, and …",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785130105619,
+      "tokens": 87743,
+      "toolCalls": 34,
+      "durationMs": 393996,
+      "resultPreview": "{\"real\":false,\"reason\":\"ALREADY WIRED — both halves exist in the current tree, and the exact signal the scout says nobody has is firing right now.\\n\\n1) The boot stamp exists. `F:\\\\backup\\\\_ops\\\\organism.py:78-106` writes `CODE_SIDECAR = STATE_DIR/\\\"ORGANISM-STATE.code\\\"` at boot with `{\\\"booted\\\": START_TS, \\\"modules\\\": {name: {mtime, size}}}` for organism.py / wiring.py / live_loop.py, via atomi…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 20,
+      "label": "verify:F-new",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "a21daf1a6c7b80c8d",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785129802582,
+      "queuedAt": 1785129594433,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "CONFIRMED, survived every refutation attempt. (a) Unfixed i…",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785130061475,
+      "tokens": 85549,
+      "toolCalls": 19,
+      "durationMs": 258892,
+      "resultPreview": "{\"real\":true,\"reason\":\"CONFIRMED, survived every refutation attempt. (a) Unfixed in the current tree: mirror_room.py:61 still lists the bare hint \\\\\\\"نه \\\\\\\" and :116-118 still does `low = \\\\\\\" \\\\\\\" + text.lower() + \\\\\\\" \\\\\\\"` then `any(h in low ...)`. None of today's 13 commits touch this function (435ab10 changed only self_knowledge.py, deep_think.py, discoveries.py, school_bridge.py, work_pump.…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 21,
+      "label": "verify:F-new",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "a31afe3725d863968",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785129832630,
+      "queuedAt": 1785129594433,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "CONFIRMED in the current tree, with two corrections to the …",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785130114629,
+      "tokens": 87814,
+      "toolCalls": 21,
+      "durationMs": 281999,
+      "resultPreview": "{\"real\":true,\"reason\":\"CONFIRMED in the current tree, with two corrections to the prescription.\\n\\nTHE DEFECT IS LIVE. discoveries.py:56-58 `recent(n, within_h=72)`; lines() (110-121) calls `recent(n)` with that default, so every display path is 72h-bounded. unseen_count() (61-68) counts `_all()` with no window. approval_channel.py:975 builds the badge from unseen_count(); :1017-1019 builds the li…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 22,
+      "label": "verify:B-learning",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "a08aea3a01689dbb8",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785129846277,
+      "queuedAt": 1785129612479,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "CONFIRMED — survived refutation, but three of the scout's f…",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785130257527,
+      "tokens": 112212,
+      "toolCalls": 26,
+      "durationMs": 411250,
+      "resultPreview": "{\"real\":true,\"reason\":\"CONFIRMED — survived refutation, but three of the scout's framings are wrong and must be corrected before acting.\\n\\nVERIFIED IN THE CURRENT TREE:\\n- Shared instance, shared file: the feed reads `neural_stack.get(\\\"bcm\\\")` (wiring.py:1167) and `_apply_bcm` receives the same object (wiring.py:1648-1653 is the ONLY creation site, cached into the dict). Both hit `BCMStabilizer`…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 23,
+      "label": "verify:B-learning",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "ac40a1af7c287afe9",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785129882813,
+      "queuedAt": 1785129612479,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Mechanism confirmed but effect is not observable under the …",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785130122049,
+      "tokens": 99815,
+      "toolCalls": 22,
+      "durationMs": 239235,
+      "resultPreview": "{\"real\":false,\"reason\":\"Mechanism confirmed but effect is not observable under the live config. (1) Never executed: all 535 rows in _ops\\\\neural\\\\consolidation.json lack the `repeats` field and the file's last write is 2026-07-27 11:00:16, before commit 6252efa landed at 14:26 — the running process still has pre-dedup code. (2) OCTOPUS_HEART_HONEST_PULSE is armed (live heart-signals shows honest_p…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 24,
+      "label": "verify:B-learning",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "a3232f6b403fe88c7",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785129920611,
+      "queuedAt": 1785129612479,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "REFUTED on all three criteria. The central factual claim — …",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785130108489,
+      "tokens": 93382,
+      "toolCalls": 16,
+      "durationMs": 187877,
+      "resultPreview": "{\"real\":false,\"reason\":\"REFUTED on all three criteria. The central factual claim — \\\"the honesty computation has zero consumers on the control path\\\" — is false in the current tree.\\n\\n(a) NOT unwired. Three live consumers of exactly these fields already exist:\\n\\n1. `F:\\\\backup\\\\_ops\\\\heart\\\\autoregulation.py:37-38` already implements the scout's own \\\"separate owner-gated\\\" enforcement, verbatim…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 25,
+      "label": "verify:B-learning",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "a65438075a1a6e29c",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785129958596,
+      "queuedAt": 1785129612480,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "REFUTED on three independent grounds; the missing-outcome o…",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785130456064,
+      "tokens": 95194,
+      "toolCalls": 33,
+      "durationMs": 497467,
+      "resultPreview": "{\"real\":false,\"reason\":\"REFUTED on three independent grounds; the missing-outcome observation is technically true but the proposed wire is record-only, redundant, and aimed at a decision that cannot vary.\\n\\n1) ZERO READERS — record-only by definition. The string `effect-shadow` occurs in exactly ONE file in the whole `_ops` tree: F:\\\\backup\\\\_ops\\\\wiring.py (lines 1186/1188), the writer itself. N…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 26,
+      "label": "verify:D-repro",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "a953f2eb337db785f",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785129960293,
+      "queuedAt": 1785129614920,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Diagnosis correct, conclusion refuted on two independent gr…",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785130335903,
+      "tokens": 94037,
+      "toolCalls": 30,
+      "durationMs": 375607,
+      "resultPreview": "{\"real\":false,\"reason\":\"Diagnosis correct, conclusion refuted on two independent grounds.\\n\\nVERIFIED TRUE: opslib.py:45-46 defaults BRAIN_DIR to _launchpad/second-brain-live/control-brain, which carries DEPRECATED.md (verdict 2026-07-18). Directly inspected: no logs/ dir at all, core.db mtime Jul 6, outbox=0 rows, usage=0 rows. Live _ops/state/fitness-latest.json (today 11:00) reads \\\"cells\\\": {}…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 27,
+      "label": "verify:D-repro",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "ac354aa911f8d443b",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785130026385,
+      "queuedAt": 1785129614920,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "REFUTED — this is a rediscovery of commit c9d798b (2026-07-…",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785130609590,
+      "tokens": 98791,
+      "toolCalls": 30,
+      "durationMs": 583204,
+      "resultPreview": "{\"real\":false,\"reason\":\"REFUTED — this is a rediscovery of commit c9d798b (2026-07-26 19:58, ancestor of HEAD, \\\"fix(heart): the fragility brake was wired to the replication counter\\\"), which measured the same fact more thoroughly and reached the OPPOSITE conclusion, deliberately.\\n\\nFACTS THE SCOUT GOT RIGHT: ledger now has 2266 rows, types = METRIC 4 / HEARTBEAT 8 / PROPOSAL 6 / NOTE 2248. Zero …"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 28,
+      "label": "verify:D-repro",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "a4497b56b84e8769b",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785130061477,
+      "queuedAt": 1785129614920,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Refuted on three independent grounds, all verified in the c…",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785130401084,
+      "tokens": 110644,
+      "toolCalls": 29,
+      "durationMs": 339606,
+      "resultPreview": "{\"real\":false,\"reason\":\"Refuted on three independent grounds, all verified in the current tree.\\n\\n(1) THE INPUT IS NOT DROPPED — IT IS ALREADY PERSISTED AND JOINABLE. approval_store._move carries the full pending record into the approved/rejected bucket. Live _octopus/state/approvals.json: 45 pending / 13 approved, each entry keyed by the same id that becomes proposal_id in outcomes.db and carryi…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 29,
+      "label": "verify:D-repro",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "a36c007a74509e616",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785130105623,
+      "queuedAt": 1785129614920,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Premise is true, wire is not. Verified at HEAD e102fd1: imp…",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785130473620,
+      "tokens": 96912,
+      "toolCalls": 23,
+      "durationMs": 367997,
+      "resultPreview": "{\"real\":false,\"reason\":\"Premise is true, wire is not. Verified at HEAD e102fd1: improve.record_verdict (_ops/cortex/improve.py:256) has zero production callers (only tests/test_self_improve.py:98-99), and improve-verdicts.jsonl is absent — the live digest shows \\\"learning\\\": {\\\"rejected_categories\\\": {}}. Untouched by today's commits. But the proposed one-liner fails four independent ways and chan…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 30,
+      "label": "verify:A-wiring",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "a2b0d92070c2b3682",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785130108491,
+      "queuedAt": 1785129960583,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "REFUTED on all three criteria. (1) MECHANISM IS FACTUALLY W…",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785130367480,
+      "tokens": 95503,
+      "toolCalls": 16,
+      "durationMs": 258988,
+      "resultPreview": "{\"real\":false,\"reason\":\"REFUTED on all three criteria. (1) MECHANISM IS FACTUALLY WRONG: commit 34b27af recorded the raw Sakana response — `reasoning_tokens: 1174` is a usage-accounting field (completion_tokens_details), NOT a message field holding text. Fugu returns no `reasoning_content`. The 23 alarm echoes in _ops/governor/governor-alerts.md prove `content` holds the real answer (truncated JSO…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 31,
+      "label": "verify:A-wiring",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "a31a583b7b196a787",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785130114631,
+      "queuedAt": 1785129960583,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Real kernel, wrong wire, no observable payoff. TRUE part: h…",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785130634802,
+      "tokens": 94266,
+      "toolCalls": 40,
+      "durationMs": 520171,
+      "resultPreview": "{\"real\":false,\"reason\":\"Real kernel, wrong wire, no observable payoff. TRUE part: heart_wires.beat() has exactly one caller repo-wide (_ops/organism.py:704), nested inside the daily gate at :620, so the 60-beat cadence guard added 2026-07-26 (e0fbba8) is unreachable; none of today's 13 commits touched :619-712. Live proof holds: _ops/state/heart-wires-last.json = beat 14429 @ 11:00:16 vs ORGANISM-…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 32,
+      "label": "verify:A-wiring",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "a160440026d342ffe",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785130122051,
+      "queuedAt": 1785129960583,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "REFUTED on four independent grounds; the freeze is real but…",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785130491912,
+      "tokens": 89996,
+      "toolCalls": 20,
+      "durationMs": 369860,
+      "resultPreview": "{\"real\":false,\"reason\":\"REFUTED on four independent grounds; the freeze is real but the diagnosis, the wire, and the claimed unlock are all wrong.\\n\\n(1) NOT STRUCTURALLY FROZEN. _ops/state/doctor/self-knowledge.jsonl shows 8 distinct snapshot hashes in 30h (v20 f2749012 -> v27 3470583c), most with llm_calls=2 and deep_dive_ran=True. The gate fires routinely.\\n\\n(2) TODAY'S FIXES ALREADY INVALIDAT…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 33,
+      "label": "verify:A-wiring",
+      "phaseIndex": 3,
+      "phaseTitle": "Verify",
+      "agentId": "aa765a81ef2df3b4a",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785130146322,
+      "queuedAt": 1785129960583,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "REFUTED — the wire targets the wrong clock, and would leave…",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785130634306,
+      "tokens": 103498,
+      "toolCalls": 32,
+      "durationMs": 487984,
+      "resultPreview": "{\"real\":false,\"reason\":\"REFUTED — the wire targets the wrong clock, and would leave the observable state byte-identical.\\n\\n1) The premise is right but the cause is wrong. `F:\\\\backup\\\\_ops\\\\neural\\\\hebbian.json` is indeed `[]` (2 bytes, mtime tracks every tick), and `OCTOPUS_HEBBIAN_RICH` is armed (`^set ...=1`, count 1 — behaviourally confirmed too: under the legacy branch `stable` always fires …"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 34,
+      "label": "design",
+      "phaseIndex": 4,
+      "phaseTitle": "Design",
+      "agentId": "ab642ee4847d628b4",
+      "model": "claude-opus-5",
+      "state": "done",
+      "startedAt": 1785130634815,
+      "queuedAt": 1785130634812,
+      "attempt": 1,
+      "lastToolName": "Bash",
+      "lastToolSummary": "python -X utf8 -c \" import json,io,sys sys.stdout.reconfigu…",
+      "promptPreview": "Repo: F:/backup, branch claude/octopus-event-bridge-aligned. A LIVE self-governing organism in _ops/, run by a solo Persian-speaking operator in Sydney.\n\nSTRICTLY READ-ONLY. No writes, no run_all, no restarts, no telegram sends, no LLM/API calls, no network. Read/Grep/Glob freely; tiny read-only python to inspect state files is fine.\n\nHARD BOUNDARIES: never open or echo anything under \"08 - Partne…",
+      "lastProgressAt": 1785131408744,
+      "tokens": 159224,
+      "toolCalls": 26,
+      "durationMs": 773928,
+      "resultPreview": "# یافته‌های اسکنِ عمیق‌ترِ اختاپوس — ۲۰۲۶-۰۷-۲۷\n\n> دامنه: کل `_ops/`، `_octopus/`، لایهٔ عصبی، سطحِ تلگرام، و مرزِ ونچر. کاملاً read-only.\n> مبنا: HEAD = `e102fd1` (۱۵:۱۹). سه سند اسکنِ قبلی علیه درختِ **پیش از** کامیت‌های امروز نوشته شده بودند؛ هر ادعا دوباره روی درختِ فعلی سنجیده شد.\n\n---\n\n## ۰. حکم در یک بند\n\nنقشهٔ قبلی در جهت درست بود و در بزرگی اشتباه: از **۱۳۷ ردیفِ تریاژ‌شده** (همان نقشهٔ «…"
+    }
+  ],
+  "totalTokens": 4350154,
+  "totalToolCalls": 1479
+}

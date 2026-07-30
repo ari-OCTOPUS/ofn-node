@@ -424,7 +424,10 @@ def run_audit(write: bool = True) -> dict:
                   key=lambda it: (it["priority"], it["status"]))
     out = {"ts": opslib.now_iso(), "schema": "audit-matrix.v1",
            "n": len(items), "tally": tally,
+           # W2: پوششِ چک‌لیستِ ایستا (وجودِ فایل + grepِ سورس)، نه بلوغ. ۱۷/۴۳ بند
+           # ساختاراً به Done نمی‌رسند → عدد در سقفِ خودش قفل است و فقط پایین می‌آید.
            "maturity_pct": round(100 * (tally["Done"] + 0.5 * tally["Partial"]) / max(1, len(items)), 1),
+           "static_by_construction": True,
            "items": items, "gaps": gaps}
     if write:
         try:

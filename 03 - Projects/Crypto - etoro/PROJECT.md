@@ -8,7 +8,7 @@ risk_level: critical
 autonomy_level: read-only
 tags: [crypto, investing, etoro]
 created: 2026-07-03
-updated: 2026-07-06
+updated: 2026-07-29
 ---
 
 # پروژه: Crypto - etoro
@@ -51,6 +51,7 @@ Security Gate بسته (کلیدهای exchange CRITICAL) · رجیستری خا
 
 ## Active Context
 
+- **2026-07-29 (اسکنِ سطحِ تلگرام) — 🔴 کهنه‌ترین پا.** طبق [[../../OCTOPUS-DOCTOR/50-اسکن‌ها/TG-GROUP-SCAN-PACKAGE-2026-07-29|TG-SCAN-PACKAGE]]، سلولِ crypto در ORGANISM-STATE ‏`live=false` با سنِ **۴۴.۱ روز** است — یعنی تاپیکِ 📈 در گروه دایجستی نشان می‌دهد که دادهٔ پشتش یک ماه‌ونیم تکان نخورده. پای «نمایشی» (digest-only): صفر فرمانِ اختصاصی از تلگرام، فقط pause/resume. این با EdgeClassifier ِ سیم‌نشده و NO_ACTION ِ دائمی هم‌خوان است — پس عددِ کهنه نشانهٔ خرابی نیست، نشانهٔ **نبودِ جریانِ داده** است.
 - **2026-07-06 (جلسه ۱۷):** کد پروژه به `_code/` منتقل شد (B1 پلن NONMD-TRIAGE؛ propose→executed با verdict آری). لاگ کامل: `00 - Inbox/nonmd-move-log-2026-07-06.csv`.
 
 - تمرکز فعلی: ساخت رجیستری پوزیشن‌ها با exit_rules

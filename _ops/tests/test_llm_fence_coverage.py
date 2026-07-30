@@ -25,9 +25,15 @@ _OPS = harness.REAL_VAULT / "_ops"
 #   model_router.py = درِ fenced (چوک؛ local_llm.ask را از داخلِ فنس صدا می‌زند) ·
 #   chord/adapters/llm_adapter.py = fallbackِ bypass شناخته‌شده (shadow/advisory).
 # (local_llm.py خودِ primitive است — `def ask` دارد، نه `local_llm.ask(` → caller نیست.)
+# DEFECT-W4 (2026-07-25): debate/debate_loop.py هم اضافه شد — مسیرِ `_local_transport`.
+#   این bypass **نیست**: تنها صداکنندهٔ آن `client.complete` است که از `_gated_call`
+#   می‌آید، و _gated_call دقیقاً پیش از call، متنِ نامعتمد را با
+#   `fence_adapter.screen_llm_input(f"debate.{task}", [("external", user)])` غربال
+#   می‌کند (debate_loop.py، بلوکِ CONTEXT-FENCE). یعنی ورودی قبل از مغزِ محلی fenced است.
 _INVENTORIED_LOCAL_LLM = {
     "cortex/model_router.py",
     "chord/adapters/llm_adapter.py",
+    "debate/debate_loop.py",
 }
 
 

@@ -78,7 +78,41 @@ def shadow_step(beat: int = 0, snap: dict | None = None) -> dict:
             lj.write(record)
     except Exception as e:  # noqa: BLE001 — سایه نباید tick را بکشد
         opslib.alert([f"heart shadow sink write failed: {e}"])
+    _append_thesis_measurement(beat, signals, tel)
     return record
+
+
+# ── مسیرِ رویا: دوامِ Δ_self (رأیِ مالک 2026-07-25، پشتِ OCTOPUS_THESIS_MEASURE) ──
+# یافتهٔ زندهٔ 2026-07-25: Δ_self هر ضربان حساب می‌شد و روی `heart-shadow-latest.json`
+# **بازنویسی** می‌شد؛ هیچ فایلی جریانش نمی‌داد (`heart-params-shadow.jsonl` فقط ۶ کلیدِ
+# باروگیرنده دارد). یعنی مهم‌ترین عددِ ردیفِ `delta-self` دفترِ تز تاریخ نداشت، و
+# «آیا Δ با nِ بیشتر مثبت می‌شود؟» ساختاراً غیرقابل‌آزمون بود — نه سخت، غیرممکن.
+# این تابع کوچک‌ترین جبران است: یک استریمِ جدا، شمای قلب دست‌نخورده، fail-soft،
+# default-off. هیچ تصمیمی از این فایل گرفته نمی‌شود — فقط شاهد جمع می‌کند.
+THESIS_MEASURE_FLAG = "OCTOPUS_THESIS_MEASURE"
+THESIS_STREAM = opslib.STATE_DIR / "thesis" / "measurements.jsonl"
+
+
+def _append_thesis_measurement(beat: int, signals: dict, tel: dict) -> bool:
+    if os.environ.get(THESIS_MEASURE_FLAG) != "1":
+        return False
+    try:
+        ds = (signals.get("delta_self") or {}) if isinstance(signals, dict) else {}
+        row = {"ts": opslib.now_iso(), "beat": int(beat), "row_id": "delta-self",
+               "delta_self_live": ds.get("delta_self_live"),
+               "authoritative": ds.get("authoritative"),
+               "n": ds.get("n") or ds.get("samples"),
+               "s_informed": ds.get("S_informed"), "s_blind": ds.get("S_blind"),
+               "self_referential": ds.get("self_referential"),
+               "metronome_share": ds.get("metronome_share"),
+               "gate0_live_producer": signals.get("gate0_live_producer")}
+        if row["delta_self_live"] is None and isinstance(tel, dict):
+            row["delta_self_live"] = tel.get("delta_self_live")
+        THESIS_STREAM.parent.mkdir(parents=True, exist_ok=True)
+        opslib.append_jsonl(THESIS_STREAM, row)
+        return True
+    except Exception:  # noqa: BLE001 — شاهدِ تز هرگز ضربان را نمی‌کشد
+        return False
 
 
 def production_wire_open() -> tuple[bool, list[str]]:
@@ -98,10 +132,29 @@ def production_wire_open() -> tuple[bool, list[str]]:
         reasons.append("w_shadow>0 ولی E_shadow قفل نیست")
     if not lock.get("full_run"):
         reasons.append("lock رسمی نیست (full_run=false)")
-    # ۳) Gate-0: producerِ زندهٔ Δ_self با authoritative=true
+    # ۳) Gate-0: producerِ زندهٔ Δ_self — authoritative **و** Δ>0
+    # صداقت (2026-07-25، شاهدِ زنده): شرطِ قبلی فقط `authoritative` را می‌خواند، و آن
+    # با Δ *منفی* هم True است. یعنی «خودشناسیِ منفی» (مدلِ آگاه بدتر از کورِ محض) این
+    # گیت را باز می‌کرد — دقیقاً همان دروغی که T4 در سمتِ producer بست ولی به این
+    # مصرف‌کننده نرسیده بود (signals: delta_self_live=-0.027143, authoritative=true,
+    # gate0_live_producer=false). این گیت درِ ورودِ قلب به تولید است، پس fail-closed:
+    # هم عددِ صادقِ gate0_live_producer (اگر باشد) و هم Δ>0 لازم است.
     signals = producers.read_signals()
-    if not (signals.get("delta_self") or {}).get("authoritative"):
+    _ds = signals.get("delta_self") or {}
+    _gate0 = signals.get("gate0_live_producer")
+    if _gate0 is None:                       # فایلِ سیگنالِ قدیمی → به قاعدهٔ قبلی برگرد
+        _gate0 = bool(_ds.get("authoritative"))
+    _dlive = _ds.get("delta_self_live")
+    # ترتیبِ دلیل‌ها = ترتیبِ صداقت: هر شرط دلیلِ *خودش* را بدهد. اگر اول `_gate0` را
+    # می‌سنجیدیم، Δِ منفی دلیلِ گمراه‌کنندهٔ «authoritative نیست» می‌گرفت — در حالی که
+    # دقیقاً authoritative *است* و مشکل منفی‌بودنِ Δ است.
+    if not _ds.get("authoritative"):
         reasons.append("Gate-0: producerِ زندهٔ Δ_self هنوز authoritative نیست")
+    elif not (isinstance(_dlive, (int, float)) and _dlive > 0):
+        reasons.append(f"Gate-0: Δ_selfِ زنده مثبت نیست (delta_self_live={_dlive}) — "
+                       "خودشناسیِ منفی این گیت را باز نمی‌کند")
+    elif not _gate0:
+        reasons.append("Gate-0: gate0_live_producer در سیگنال false است")
     # ۴) hash-match: control_law فعلی == ثبت‌شده در sim-report
     cur = hashlib.sha256(Path(cl.__file__).read_bytes()).hexdigest()
     if rep.get("code_sha256") != cur:

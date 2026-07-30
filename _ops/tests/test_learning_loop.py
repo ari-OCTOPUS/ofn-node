@@ -34,6 +34,7 @@ import decision_receipt as dr  # noqa: E402
 import outcome_store as osx  # noqa: E402
 import learning_gate as lg  # noqa: E402
 import lead_outcome_recorder as lor  # noqa: E402
+import verdict_recorder as vr  # noqa: E402
 
 _STATE = Path(str(opslib.STATE_DIR))
 
@@ -87,16 +88,17 @@ _OREF = "corr-L1|P1|accepted-measurement"
 
 def _learn(g, rc, oc, evaluator, mkey="lesson-interior-1", trust="OWNER_CONFIRMED",
            internal=True, salience=0.7, oref=_OREF, record_outcome=True):
-    # outcome-binding: یک outcomeِ واقعی ثبت کن تا trust به آن bind شود (red-team P1)
+    # outcome-binding: رأی واقعی مالک را از مسیر canonical ثبت می‌کنیم تا attestation
+    # معتبر داشته باشیم (نه outcomeِ دستیِ خودنوشته).
     if record_outcome:
-        oc.record({"correlation_id": "corr-L1", "proposal_id": "P1", "leg_id": "lead",
-                   "event_type": "accepted-measurement", "value_aud_claimed": 0.0,
-                   "idempotency_key": _OREF})
+        vr.record_owner_verdict(oc, proposal_id="P1", verdict="approved",
+                                correlation_id="corr-L1", leg_id="lead",
+                                value_aud_claimed=0.0)
     return lg.learn_from_outcome(
         memory_gate=g, receipt_store=rc, outcome_store=oc,
         signal={"content": _LESSON, "mkey": mkey, "correlation_id": "corr-L1",
                 "outcome_ref": oref, "trust": trust,
-                "salience": salience, "source": "owner", "producer": "owner"},
+                "salience": salience, "source": "owner", "producer": "verdict_recorder"},
         evaluator=evaluator, internal_metric_pass=internal)
 
 

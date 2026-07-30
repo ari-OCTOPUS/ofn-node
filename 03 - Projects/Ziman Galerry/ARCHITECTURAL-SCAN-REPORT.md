@@ -1,3 +1,10 @@
+---
+type: report
+status: done
+tags: [ziman, scan, architecture]
+created: 2026-07-12
+updated: 2026-07-29
+---
 # گزارش اسکن معماری — Ziman Gallery
 
 > **تاریخ اسکن:** 2026-07-12  

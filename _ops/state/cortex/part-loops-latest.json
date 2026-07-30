@@ -1,7 +1,7 @@
 {
-  "ts": "2026-07-17T17:45:17",
+  "ts": "2026-07-25T12:31:55",
   "schema": "part-loops.v1",
-  "beat": 130,
+  "beat": 10,
   "parts": [
     {
       "id": "heart",
@@ -13,19 +13,19 @@
       "id": "cortex",
       "name": "🧠 مغز",
       "status": "🟢",
-      "detail": "هم‌آهنگی 96٪"
+      "detail": "هم‌آهنگی 95٪"
     },
     {
       "id": "doctor",
       "name": "🩺 دکتر",
-      "status": "🟢",
-      "detail": "0 منتظر"
+      "status": "🟡",
+      "detail": "7 منتظر"
     },
     {
       "id": "money",
       "name": "💰 پول",
       "status": "🟢",
-      "detail": "0.0$/۳۰"
+      "detail": "0.031942$/۳۰"
     },
     {
       "id": "learning",
@@ -43,11 +43,25 @@
       "id": "self",
       "name": "🪞 خودمدلی",
       "status": "🟢",
-      "detail": "99.5٪ سند"
+      "detail": "99.7٪ سند"
     }
   ],
-  "n_proposals": 2,
+  "n_proposals": 4,
   "proposals": [
+    {
+      "part": "قلب",
+      "title": "قلب در سایه می‌تپد (هنوز واقعی نمی‌راند)",
+      "action": "بعد از Gate-0 خودش زنده می‌شود؛ کاری لازم نیست.",
+      "change_level": "tune",
+      "auto_ok": false
+    },
+    {
+      "part": "دکتر",
+      "title": "7 پیشنهادِ بهبود منتظرِ رأیِ توست",
+      "action": "در خانه با آره/نه تصمیم بگیر.",
+      "change_level": "reconfig",
+      "auto_ok": false
+    },
     {
       "part": "اعضا",
       "title": "امروز 6 بار خودترمیمی شد — یه عضو ناپایدار است",

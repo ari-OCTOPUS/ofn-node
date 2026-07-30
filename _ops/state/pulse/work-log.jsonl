@@ -49,3 +49,13 @@
 {"ts": "2026-07-17T10:58:26", "beat": 7055, "period_s": 44.86, "kind": "search", "ok": false, "skipped": "paid-search provider هنوز انتخاب نشده (لِینِ $0 web_research فعال است)"}
 {"ts": "2026-07-17T11:14:20", "beat": 7070, "period_s": 71.67, "kind": "llm_learn", "ok": true, "tier": "local", "n_proposals": 3, "cost_usd": 0.0}
 {"ts": "2026-07-17T15:14:49", "beat": 7303, "period_s": 900.0, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 900.0, "gate0": true}}
+{"ts": "2026-07-24T15:03:35", "beat": 10732, "period_s": 900.0, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 900.0, "gate0": true}}
+{"ts": "2026-07-24T15:18:42", "beat": 10747, "period_s": 900.0, "kind": "gap_report", "ok": true, "gaps": [{"topic": "A08", "awareness": 0.0018}, {"topic": "A07", "awareness": 0.0036}, {"topic": "B08", "awareness": 0.0056}]}
+{"ts": "2026-07-24T15:34:06", "beat": 10762, "period_s": 900.0, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 12}
+{"ts": "2026-07-24T15:49:22", "beat": 10777, "period_s": 900.0, "kind": "search", "ok": false, "skipped": "paid-search provider هنوز انتخاب نشده (لِینِ $0 web_research فعال است)"}
+{"ts": "2026-07-24T16:04:47", "beat": 10792, "period_s": 900.0, "kind": "llm_learn", "ok": true, "tier": "local", "n_proposals": 3, "cost_usd": 0.0}
+{"ts": "2026-07-24T21:07:25", "beat": 11089, "period_s": 900.0, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 900.0, "gate0": true}}
+{"ts": "2026-07-25T03:09:53", "beat": 11445, "period_s": 145.23, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 145.23, "gate0": true}}
+{"ts": "2026-07-25T03:19:48", "beat": 11455, "period_s": 152.03, "kind": "gap_report", "ok": true, "gaps": [{"topic": "A08", "awareness": 0.0029}, {"topic": "A07", "awareness": 0.0054}, {"topic": "B08", "awareness": 0.0083}]}
+{"ts": "2026-07-25T03:35:57", "beat": 11470, "period_s": 162.36, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 12}
+{"ts": "2026-07-25T09:39:37", "beat": 11773, "period_s": 900.0, "kind": "health", "ok": true, "summary": {"sigma": 0.0, "period_shadow_s": 900.0, "gate0": true}}

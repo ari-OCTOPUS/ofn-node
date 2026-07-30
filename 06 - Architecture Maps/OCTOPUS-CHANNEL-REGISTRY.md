@@ -1,10 +1,11 @@
 ---
-title: OCTOPUS Channel Registry
+type: reference
+# title: OCTOPUS Channel Registry
 status: active
 created: 2026-07-12
 updated: 2026-07-12
 tags: [octopus, registry, wave-5, channels, nervous-system]
-backlinks:
+related:
   - "[[OCTOPUS-EXTRACTOR-REGISTRY]]"
   - "[[ADMIN-TELEGRAM-DASHBOARD-MAP]]"
   - "[[OCTOPUS-KNOWN-RISKS]]"

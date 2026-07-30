@@ -46,6 +46,9 @@ LEGS = {
     "system":     "سیستم",
     "knowledge":  "دانش",
     "cartographer": "نقشه‌بردار",
+    # ۲۰۲۶-۰۷-۲۷ — اتاقِ آینه: تنها جایی که هر پیام مستقیم به لایهٔ خودشناسی می‌رود
+    # (بدونِ نگاشتِ فرمان). پا نیست — دایجستِ دوره‌ای ندارد؛ فقط گفتگو.
+    "mirror": "آینه",
 }
 
 # برندینگِ بصریِ هر پا (رأی مالک: media-first، آیکنِ ثابت per پا) — جدا از LEGS تا
@@ -54,16 +57,34 @@ LEG_ICONS = {
     "lead": "🎨", "ziman": "🖼", "mining": "⛏", "crypto": "📈",
     "accounting": "🧾", "studio_pf": "🎬", "system": "⚙️", "knowledge": "🧠",
     "cartographer": "🗺",
+    "mirror": "🪞",
     "hq": "🐙",
 }
 DIVIDER = "─────── ✦ ───────"
+
+
+def topic_icon(leg_key: str, config: dict | None = None) -> str:
+    """آیکنِ تاپیک — `topic_icons` در configِ مالک برنده است، مثل `display_names`.
+
+    چرا override لازم شد: نامِ استعاری بدونِ آیکنِ هم‌خانواده گیج‌کننده است
+    («⚙️ قلب»). نامِ کد شناسهٔ پروژه است و عوض نمی‌شود (`Lead-نقاشی` مسیرِ فایل و
+    کلیدِ صفِ تأیید هم هست)، پس کلِ لایهٔ استعاره در config می‌نشیند و کد فقط
+    fallbackِ content-free می‌ماند. fail-soft: هر خطا → آیکنِ پیش‌فرض."""
+    k = str(leg_key or "")
+    try:
+        over = (config or {}).get("topic_icons") or {}
+        if isinstance(over, dict) and isinstance(over.get(k), str) and over[k].strip():
+            return over[k].strip()
+    except (AttributeError, TypeError):
+        pass
+    return LEG_ICONS.get(k, "")
 
 
 def topic_title(leg_key: str, config: dict | None = None) -> str:
     """عنوانِ تاپیکِ یک پا در سایدبارِ تلگرام: آیکنِ برند + نامِ نمایشیِ مالک.
     fail-soft: کلیدِ ناشناس = بدونِ آیکن."""
     name = display_name(leg_key, config)
-    icon = LEG_ICONS.get(str(leg_key or ""))
+    icon = topic_icon(leg_key, config)
     return f"{icon} {name}" if icon else name
 
 # کلیدهای قراردادیِ خروجیِ collect_feeds — همیشه همه حاضرند ({} در شکست).
@@ -373,6 +394,11 @@ def render_leg_digest(leg_key: str, leg: dict | None, config: dict | None = None
 
     شکلِ leg آزاد است (fail-soft): status/detail|summary/next|next_action خوانده
     می‌شوند؛ هر چه نبود، خطش حذف می‌شود. نامِ نمایشی از configِ مالک (پیش‌فرض LEGS)."""
+    # اتاقِ آینه پا نیست — وضعیتی ندارد که دایجست شود. بدونِ این، حلقهٔ دایجست
+    # روزی یک «🪞 آینه ⚪ سیگنالِ زنده‌ای نیست» می‌فرستد؛ یعنی اتاقِ گفتگو با نویزِ
+    # خودکار پر می‌شود. حلقه با متنِ خالی فقط سررسید را جلو می‌برد (بی‌ضرر).
+    if str(leg_key or "") == "mirror":
+        return ""
     d = leg if isinstance(leg, dict) else {}
     name = display_name(leg_key, config)
     icon = LEG_ICONS.get(str(leg_key or ""), "")

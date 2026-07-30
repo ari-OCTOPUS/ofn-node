@@ -241,6 +241,14 @@ def main() -> int:
 
     print(f"organism: زنده روی http://127.0.0.1:{port} — kill تمیز: فایل _ops/STOP-ORGANISM")
     opslib.heartbeat(f"organism=START port={port}")
+    # عکسِ envِ همین پروسه سرِ boot (رأیِ مالک ۲۰۲۶-۰۷-۲۹). بدونِ این، ادعای
+    # «فلگ را روشن کردم» هیچ مشاهده‌ای ندارد که ابطالش کند. بعد از env_loader
+    # می‌آید تا env کامل دیده شود؛ fail-soft مطلق و بدونِ هیچ اثرِ رفتاری.
+    try:
+        import flag_drift
+        flag_drift.snapshot_boot("organism")
+    except Exception:  # noqa: BLE001
+        pass
     _write_code_sidecar()   # A3: عکسِ نسخهٔ کدِ بارشده در بوت
     # ── W-1..W-5 + neural wiring (پشتِ flag، paper-mode؛ پیش‌فرض خاموز = no regression)
     _wire = {}
@@ -395,6 +403,71 @@ def main() -> int:
                                  name="telegram-poll")
             _poll_t.start()
             opslib.heartbeat("telegram poll thread started after callback recovery (C7.2)")
+        # ── حلقهٔ ۷ (۲۰۲۶-۰۷-۲۸، رأیِ صریحِ مالک «بله، وصل کن»): درایورِ اعمالِ پچ.
+        #
+        # تا امروز `code_autonomy.run_forever` **هیچ صداکننده‌ای نداشت** — و کامنتِ خودِ
+        # آن ماژول این وضع را «امنیتِ تصادفی» می‌نامید: فایلِ ACTIVATION از قبل باز است،
+        # پس تنها چیزی که جلوی اعمال را گرفته بود نبودِ سیم بود، نه بودنِ قفل.
+        #
+        # حالا سیم هست و قفل هم — چهار تا، پشتِ سرِ هم و مستقل:
+        #   ۱ فلگِ OCTOPUS_WIRE_CODE_APPLY — نبودش یعنی کلِ این بلوک no-op.
+        #   ۲ code_autonomy.active() — ACTIVATION باشد و STOP-CODE-AUTONOMY نباشد.
+        #   ۳ گیت‌های خودِ apply_approved — قلب/تأیید/deny/سایه/refractory/کهنگیِ تأیید.
+        #   ۴ خالی‌بودنِ صفِ ورودی: بدونِ OCTOPUS_WIRE_PATCH_CARD هیچ پچی به مالک
+        #     پیشنهاد نمی‌شود، پس هیچ تأییدی نیست که مصرف شود — درایور بی‌کار می‌چرخد.
+        #     (۲۰۲۶-۰۷-۲۸ مالک عمداً آن فلگ را مسلح نکرد؛ این قفلِ چهارم عمدی است.)
+        #
+        # threadِ daemon است: نه tick را بلاک می‌کند نه جلوی خاموشی را می‌گیرد.
+        # خاموشیِ آنی بدونِ ری‌استارت: ساختنِ فایلِ STOP-CODE-AUTONOMY — حلقه هر ۵
+        # ثانیه چکش می‌کند. شکستِ این بلوک هرگز بوت را نمی‌کشد.
+        try:
+            import os as _ca_os
+            if str(_ca_os.environ.get("OCTOPUS_WIRE_CODE_APPLY", "")).strip().lower() \
+                    in ("1", "true", "yes", "on"):
+                sys.path.insert(0, str(_HERE / "cortex"))
+                import code_autonomy as _ca   # noqa: WPS433 — lazy، عمداً بعد از فلگ
+                if _ca.active():
+                    threading.Thread(target=_ca.run_forever, daemon=True,
+                                     name="code-apply").start()
+                    opslib.heartbeat("code-apply driver started (حلقهٔ ۷؛ "
+                                     "kill = STOP-CODE-AUTONOMY)")
+                else:
+                    opslib.heartbeat("code-apply مسلح ولی active()=False — درایور استارت نشد")
+        except Exception as _cae:  # noqa: BLE001 — درایورِ اختیاری هرگز بوت را نمی‌کشد
+            opslib.alert([f"code-apply wiring failed (non-fatal): "
+                          f"{type(_cae).__name__}: {_cae}"])
+        # ── حلقهٔ ۸ (۲۰۲۶-۰۷-۲۸، رأیِ مالک «همه‌ش»): مغزِ تولیدِ patch (code_brain) ──
+        #
+        # این درایور ورودیِ code_autonomy را تغذیه می‌کند: taskهای pending (از /code در
+        # لنگر) را می‌خواند، با مغزِ LLM یک patch کاندید می‌سازد، و آن را به همان
+        # pipelineِ موجودِ code_autonomy.tick → shadow-test → propose_to_owner می‌سپارد.
+        # هیچ‌کدام از گیت‌های code_autonomy دست‌نخورده‌اند؛ این فقط منبعِ ورودی است.
+        #
+        # همان الگوی چهار-گیتِ code-apply:
+        #   ۱ فلگِ OCTOPUS_WIRE_CODE_BRAIN — نبودش یعنی کلِ این بلوک no-op.
+        #   ۲ code_brain.enabled() — OCTOPUS_CODE_BRAIN باید صریح مسلح شده باشد.
+        #   ۳ نبودِ کلید/بودجه → draft_patch None برمی‌گرداند → tick_once فقط شمارش.
+        #   ۴ خالی‌بودنِ صفِ pending-tasks → tick_once کار نمی‌کند. صف از /code پر می‌شود.
+        #
+        # kill همان STOP-CODE-AUTONISM است (اشتراکی با code-apply) + فلگِ OCTOPUS_CODE_BRAIN.
+        # threadِ daemon است: نه tick را بلاک می‌کند نه خاموشی را. شکست هرگز بوت را نمی‌کشد.
+        try:
+            import os as _cb_os
+            if str(_cb_os.environ.get("OCTOPUS_WIRE_CODE_BRAIN", "")).strip().lower() \
+                    in ("1", "true", "yes", "on"):
+                sys.path.insert(0, str(_HERE / "cortex"))
+                import code_brain as _cb   # noqa: WPS433 — lazy، عمداً بعد از فلگ
+                if _cb.enabled():
+                    threading.Thread(target=_cb.run_forever, daemon=True,
+                                     name="code-brain").start()
+                    opslib.heartbeat("code-brain driver started (حلقهٔ ۸؛ "
+                                     "kill = STOP-CODE-AUTONOMY · flag = OCTOPUS_CODE_BRAIN)")
+                else:
+                    opslib.heartbeat("code-brain مسلح ولی enabled()=False — "
+                                     "OCTOPUS_CODE_BRAIN را هم set کن")
+        except Exception as _cbe:  # noqa: BLE001 — درایورِ اختیاری هرگز بوت را نمی‌کشد
+            opslib.alert([f"code-brain wiring failed (non-fatal): "
+                          f"{type(_cbe).__name__}: {_cbe}"])
         if any(_wire.values()):
             opslib.heartbeat(f"organism wiring: {_wire}")
     except Exception as _e:  # noqa: BLE001 — wiring اختیاریِ additive
@@ -532,10 +605,33 @@ def main() -> int:
                         _err_rate = min(1.0, max(0.0, float(_sj.get("organism_stress", 0.0) or 0.0)))
                     except Exception:  # noqa: BLE001 — فایلِ غایب/خراب = صفر (رفتارِ قبلی)
                         _err_rate = 0.0
+                    # ⚠️ شکلِ این payload یک **قرارداد** است، نه جزئیاتِ محلی:
+                    # `wiring.NEURAL_PAYLOAD_CONTRACT` آینه‌اش است و
+                    # `wiring.SIGNAL_DORMANT` می‌گوید کدام سیگنالِ واژگان
+                    # به‌خاطرِ همین شکل ساختاراً مرده است (اندازه‌گیریِ
+                    # ۲۰۲۶-۰۷-۳۰: از ۸ نام، فقط ۲ نام تا امروز آتش کرده).
+                    # کلیدِ تازه اینجا = آپدیتِ آن دو، وگرنه تستِ driftِ
+                    # دوطرفه قرمز می‌شود:
+                    #   _ops/tests/test_hebbian_eventclock.py
                     _neural_r = _w.neural_beat(_neural_stack, _beat_n, {
                         "rhythm": _rhythm_state or pulse.get("chrono", {}),
                         "budget": {"pct": opslib.usd(snap["month"].get("musd", 0)) / max(opslib.load_budgets().get("global", {}).get("cap_monthly", 30), 1)},
-                        "spectral": {"sigma": _last_sigma},
+                        # ⚠️ ۲۰۲۶-۰۷-۲۶ — این «spectral» نیست. `_last_sigma` از
+                        # `replication-latest.json` می‌آید (organism.py:586) و کمیتش
+                        # **spawnهای تأییدشده ÷ سلول‌های فعال** است، نه شکنندگیِ
+                        # ساختاری. σِ طیفیِ واقعی جای دیگری تولید می‌شود
+                        # (`doctor/spectral.py::estimate_sigma` از طیفِ لاپلاسینِ
+                        # گرافِ رویداد) و `identity_equations` آن را می‌جوید و
+                        # صادقانه `missing: ['sigma']` گزارش می‌کند.
+                        # چون هیچ spawnی تأیید نشده، این عدد ۰/۱=۰.۰ است و
+                        # **ساختاراً** صفر می‌ماند — ۱۰۴۹ نمونه طیِ ۱۶ روز، همه صفر.
+                        # نام دست‌نخورده می‌ماند تا رفتار بایت‌به‌بایت حفظ شود؛
+                        # `sigma_is_replication_ratio` اضافه شد تا هیچ خوانندهٔ
+                        # بعدی دوباره آن را شکنندگی نخواند. وصل‌کردنِ منبعِ درست
+                        # تغییرِ رفتارِ ایمنی است و رأیِ مالک می‌خواهد.
+                        "spectral": {"sigma": _last_sigma,
+                                     "sigma_is_replication_ratio": True,
+                                     "sigma_source": "replication-latest.json"},
                         "sensory": {"afferent_ratio": _last_afferent_ratio,
                                     "error_rate": _err_rate},
                     })
@@ -561,6 +657,127 @@ def main() -> int:
                 epoch_info = {"last_epoch": rec["ts"],
                               "pressure": rec["pressure"],
                               "next_epoch_minutes": rec["next_epoch_minutes"]}
+            # ── جلسهٔ فکرِ عمیق (۲۰۲۶-۰۷-۲۷، دستورِ مالک «نهایتِ استفاده از Fugu»)
+            # اشتراکِ Fugu فلت است ولی تنها مشتری‌اش تخصیصِ ساعتیِ governor بود
+            # (۱۲٬۲۴۲ توکن → ~۵۰ کاراکتر). این اندام چند بارِ محدود در روز یک سؤالِ
+            # *سنگین* با contextِ عددیِ واقعی می‌پرسد و جواب را کارت می‌کند.
+            # هم‌جوارِ epoch است چون هر دو «کارِ غیرضروری»اند: protective-halt هر دو
+            # را می‌خواباند. flag خاموش (پیش‌فرض) → `run` بدونِ هیچ I/O برمی‌گردد.
+            if not _protective_skip:
+                try:
+                    import deep_think as _dt   # noqa: WPS433 — lazy، خودش flag را چک می‌کند
+                    _dtr = _dt.run(channel=_chan)
+                    if _dtr.get("ran"):
+                        epoch_info["deep_think"] = {
+                            "topic": _dtr.get("topic"), "delivered": _dtr.get("delivered"),
+                            "chars": _dtr.get("chars")}
+                except Exception as _de:  # noqa: BLE001 — §۴: خطای خاموش ممنوع، ولی tick نمی‌میرد
+                    opslib.alert([f"deep_think error (non-fatal): {type(_de).__name__}: {_de}"])
+                # ── حلقهٔ خودپچ‌زنی (۲۰۲۶-۰۷-۲۷، رأیِ مالک «هردو کامل انجام بشه»):
+                # مرورِ کدِ خود → صفِ نقص → پچ + سوییتِ ایزوله → کارت. beat_async
+                # همه‌چیز را در threadِ جدا می‌بَرد و فوری برمی‌گردد — تیک هرگز پشتِ
+                # تماسِ مغز یا سوییتِ چند دقیقه‌ای نمی‌ایستد. flag خاموش = no-op.
+                try:
+                    import self_patch as _sp   # noqa: WPS433 — lazy، خودش flag را چک می‌کند
+                    _spr = _sp.beat_async(channel=_chan)
+                    if _spr.get("spawned"):
+                        epoch_info["self_patch"] = {k: _spr.get(k) for k in
+                                                    ("review_pending", "queue_open")}
+                except Exception as _spe:  # noqa: BLE001
+                    opslib.alert([f"self_patch error (non-fatal): {type(_spe).__name__}: {_spe}"])
+                # ── صدای پاها (۲۰۲۶-۰۷-۲۸، رأیِ مالک «گروه بشه پایگاهِ پروژه‌ها
+                # و پاها»): هر پا وقتی **وضعیتش عوض شود** در اتاقِ خودش می‌گوید.
+                # کادنسِ epoch عمدی است — تغییرِ حالِ یک پا کُند است و گزارشِ
+                # پرتکرار همان چیزی است که گروه را به لولهٔ سروصدا تبدیل کرد.
+                #
+                # ⚠️ این خط دقیقاً همان چیزی است که نبودش کلِ فیچر را مرده
+                # می‌کرد: ماژول و beat و ۱۱ تست وجود داشتند و **صفر صداکننده**.
+                # قبل از مسلح‌کردنِ فلگ با AST شمرده شد؛ ۱۶ صداکننده بود و هر
+                # ۱۶ تا در فایلِ تست. `test_leg_rooms.t_l` این را قفل می‌کند.
+                try:
+                    # ⚠️ `_beat_n` نه `beat`: در `main()` متغیری به نامِ `beat`
+                    # وجود ندارد. نسخهٔ اولِ همین خط `beat` نوشت — NameError
+                    # می‌داد، `except` پایین می‌بلعیدش، یک alert می‌رفت که کسی
+                    # نمی‌خواند، و فیچر تا ابد بی‌صدا مرده می‌ماند. `_beat_n`
+                    # در خطِ ۵۹۰ ست می‌شود و ممکن است هنوز نباشد اگر شاخهٔ
+                    # بالاتر رد شده باشد، پس با locals() امن گرفته می‌شود.
+                    _lrr = _w.leg_rooms_beat(int(locals().get("_beat_n", 0) or 0),
+                                             channel=_chan)
+                    if _lrr and _lrr.get("sent"):
+                        epoch_info["leg_rooms"] = {k: _lrr.get(k)
+                                                  for k in ("sent", "legs")}
+                except Exception as _lre:  # noqa: BLE001
+                    opslib.alert([f"leg_rooms error (non-fatal): "
+                                  f"{type(_lre).__name__}: {_lre}"])
+                # ── ابتکار (۲۰۲۶-۰۷-۲۷، رأیِ مالک «آره، و حتی از من سؤال بپرسد»)
+                # تا امروز رابطه یک‌طرفه بود. این‌جا اختاپوس می‌تواند خودش شروع کند —
+                # خبر بدهد یا **سؤال بپرسد**. سکوت پیش‌فرض است: سقفِ ۲/روز، فاصلهٔ
+                # ۴ ساعت، ساکت در ساعتِ سکوت، و خودش هم می‌تواند بگوید «ارزشش را
+                # ندارد». flag خاموش → no-op.
+                try:
+                    import initiative as _iv   # noqa: WPS433 — lazy، خودش flag را چک می‌کند
+                    _ivr = _iv.speak()
+                    if _ivr.get("ok") and _chan is not None:
+                        _t, _k = _iv.card(_ivr)
+                        _chan.send_text(_t, reply_markup={"inline_keyboard": _k},
+                                        stream="summary")
+                        epoch_info["initiative"] = {"kind": _ivr.get("kind")}
+                except Exception as _ive:  # noqa: BLE001
+                    opslib.alert([f"initiative error (non-fatal): {type(_ive).__name__}: {_ive}"])
+                # ── درخواستِ ابزار (۲۰۲۶-۰۷-۳۰، رأیِ مالک «هرچی میخواد ابزارشو
+                # پیدا کنه از من بخواد») — یکی از سه سنجهٔ خودآگاهی در آزمونِ ۷ روزه.
+                # لاینِ سهمیهٔ **جدا** از initiative دارد: آن سقفِ ۲/روز با فاصلهٔ ۴
+                # ساعت داشت و درخواستِ ابزار بی‌صدا زیرش گم می‌شد. `scan` خودش قبل
+                # از خرجِ مغز گیتِ سهمیه را می‌بیند، و هر درخواست — حتی throttle‌شده
+                # — در دفتر ثبت می‌شود تا «نپرسید» از «پرسید ولی نرسید» جدا بماند.
+                try:
+                    import tool_request as _tr   # noqa: WPS433 — lazy، خودش flag را چک می‌کند
+                    _trr = _tr.scan(cycle=str(_cstat.get("beat", 0) if _cstat else 0))
+                    if _trr.get("ok") and _trr.get("delivered") and _chan is not None:
+                        _t, _k = _tr.card_for(_trr)
+                        _chan.send_text(_t, reply_markup={"inline_keyboard": _k},
+                                        stream="summary")
+                        epoch_info["tool_request"] = {
+                            "precise": _trr.get("precise"),
+                            "blocking": _trr.get("blocking")}
+                except Exception as _tre:  # noqa: BLE001 — §۴: نباید tick را بکشد
+                    opslib.alert([f"tool_request error (non-fatal): "
+                                  f"{type(_tre).__name__}: {_tre}"])
+                # ── بردِ بازیابی (۲۰۲۶-۰۷-۳۰) — سنجهٔ «به یاد می‌آورد؟».
+                # `recall_reach` از قبل نوشته شده بود ولی صفر صداکننده داشت، پس
+                # فقط عکسِ لحظه‌ای می‌داد؛ و یک عدد روند نیست. این‌جا مهر می‌خورد
+                # و در سری می‌نشیند تا پایانِ ۷ روز قابلِ مقایسه باشد. فقط‌خواندنی
+                # روی `consolidation.json`؛ $0.
+                try:
+                    import recall_trend as _rt   # noqa: WPS433 — lazy، خودش flag را چک می‌کند
+                    _rtr = _rt.sample(cycle=_cstat.get("beat", 0) if _cstat else 0)
+                    if _rtr.get("ok"):
+                        epoch_info["recall_reach"] = {
+                            k: _rtr.get(k) for k in ("events", "reach_median",
+                                                     "self_ratio")}
+                except Exception as _rte:  # noqa: BLE001 — §۴
+                    opslib.alert([f"recall_trend error (non-fatal): "
+                                  f"{type(_rte).__name__}: {_rte}"])
+                # ── حلقهٔ آزمونِ خودهدف‌گذاری (۲۰۲۶-۰۷-۳۰، منشور §۷) — این خط
+                # همان صداکننده‌ای است که نبودش تنها بلاکرِ ساختاریِ آزمونِ
+                # ۱۴ چرخه بود: ماژول و کادنس و دفتر همه بودند و صفر caller.
+                # سوار بر همین beat (poller ِ نو ممنوع)؛ کادنسِ ۲ اسلات/روز را
+                # `due()` خودش گیت می‌کند و دوبار-شلیک در یک اسلات ساختاراً
+                # بی‌اثر است. ترتیبِ داخلی: ارزیابیِ معوقِ مستقل → هدفِ معتبر
+                # (سنجهٔ موجود روی دیسک) → پیش‌ثبتِ fail-closed → اجرا.
+                # flag خاموش (پیش‌فرض) → بازگشتِ فوری، صفر I/O.
+                try:
+                    import test_cycle as _tcy   # noqa: WPS433 — lazy، خودش flag را چک می‌کند
+                    _tcr = _tcy.beat(channel=_chan)
+                    if _tcr.get("ok"):
+                        epoch_info["test_cycle"] = {
+                            k: _tcr.get(k) for k in ("cycle_id", "candidate",
+                                                     "switch", "prereg_id")}
+                    if _tcr.get("evaluated"):
+                        epoch_info["cycle_verdicts"] = _tcr.get("verdicts")
+                except Exception as _tcye:  # noqa: BLE001 — §۴: نباید tick را بکشد
+                    opslib.alert([f"test_cycle error (non-fatal): "
+                                  f"{type(_tcye).__name__}: {_tcye}"])
             # Phase 1: epoch-based sweep of stale gated_effects
             try:
                 if chrono is not None:
@@ -634,6 +851,38 @@ def main() -> int:
                             channel=_chan, beat=_cstat.get("beat", 0) if _cstat else 0)
                     except Exception as _c6e:  # noqa: BLE001 — §۴: c6 نباید tick را بکشد
                         opslib.alert([f"c6_research_beat error (non-fatal): {type(_c6e).__name__}: {_c6e}"])
+                # ۲۰۲۶-۰۷-۲۶ — ضربانِ اندام‌های پژوهش. `heart_wires.beat()` نوشته شده
+                # بود «از organism یا cron هر N beat صدا زده شود» ولی **هیچ‌جا صدا زده
+                # نمی‌شد**: صفر فراخوان در کلِ مخزن جز تست. یعنی تز/انسجام/هویت/
+                # seed-killer فقط وقتی /live یا /id صدایشان می‌زد اجرا می‌شدند و
+                # فلگ‌های روشنشان ضربانِ دوره‌ای نداشتند — و ردیفِ `seed-` هرگز کشته
+                # نشد. هر wire خودش گیتِ فلگِ خودش را دارد؛ اینجا فقط کادنس اضافه
+                # می‌شود چون coherence روی state گران است. پیش‌فرض خاموش.
+                if _w.flag("OCTOPUS_WIRE_HEART_WIRES") and _cstat is not None:
+                    try:
+                        _hw_every = int(os.environ.get("CHRONO_HEART_WIRES_EVERY_N_BEATS", "60"))
+                        _hw_beat = int(_cstat.get("beat", 0) or 0)
+                        # ۲۰۲۶-۰۷-۲۶، پیش‌بینیِ ردشده: نسخهٔ اول `_hw_beat % _hw_every == 0`
+                        # بود و **هرگز شلیک نکرد**. beat حدودِ یک‌بار در دقیقه بالا می‌رود
+                        # ولی tick با کادنسِ خودش نمونه می‌گیرد، پس عددی که tick می‌بیند
+                        # از مضربِ دقیق می‌پرد. تساویِ باقیمانده روی شمارنده‌ای که
+                        # نمونه‌برداری‌اش دستِ تو نیست، شرطی است که می‌تواند بی‌صدا
+                        # هیچ‌وقت درست نشود — همان بیماریِ امروز، در قالبِ کادنس.
+                        # نشانگرِ «آخرین اجرا» + مقایسهٔ `>=` هرگز نمی‌پرد.
+                        _hw_mark = opslib.STATE_DIR / "heart-wires-last.json"
+                        try:
+                            _hw_last = int(json.loads(_hw_mark.read_text("utf-8")).get("beat", 0))
+                        except Exception:  # noqa: BLE001
+                            _hw_last = 0
+                        if _hw_every > 0 and _hw_beat > 0 and (_hw_beat - _hw_last) >= _hw_every:
+                            import heart_wires as _hw
+                            _hw.beat()
+                            _hw_mark.parent.mkdir(parents=True, exist_ok=True)
+                            _hw_mark.write_text(json.dumps(
+                                {"beat": _hw_beat, "ts": opslib.now_iso()}), encoding="utf-8")
+                    except Exception as _hwe:  # noqa: BLE001 — پژوهش نباید tick را بکشد
+                        opslib.alert([f"heart_wires beat (non-fatal): "
+                                      f"{type(_hwe).__name__}: {_hwe}"])
             # ── W-2: Doctor beat (غیرضروری → زیرِ همان گیت؛ STOP/protective مقدم)
             _doctor_result = None
             if not _protective_skip and _doctor_inst is not None and _cstat is not None:
@@ -652,6 +901,14 @@ def main() -> int:
                 _w.doctor_selfknowledge_beat(beat=_cstat.get("beat", 0) if _cstat else 0)
             except Exception as _ske:  # noqa: BLE001 — خودشناسی نباید tick را بکشد
                 opslib.alert([f"doctor_selfknowledge_beat error (non-fatal): {type(_ske).__name__}"])
+            # ── Synapse SENSE (2026-07-28, C8): حسِ خود-ارجاعیِ ریاضیِ ارگانیسم —
+            # ضربانِ خود را روی تله‌متریِ خود می‌سنجد و سریِ زمانیِ صداقت می‌نویسد.
+            # عمداً بیرونِ _protective_skip (مشاهده ≠ تغییر)، $0، propose-only، fail-closed.
+            # flag خاموش (پیش‌فرض) → no-op.
+            try:
+                _w.synapse_beat(beat=_cstat.get("beat", 0) if _cstat else 0)
+            except Exception as _se:  # noqa: BLE001 — Sense نباید tick را بکشد
+                opslib.alert([f"synapse_beat error (non-fatal): {type(_se).__name__}"])
             # ── M (P-M2): canonical consolidation در حلقهٔ زنده (هر N beat، پشتِ flag)
             # یک مسیرِ حافظهٔ واحد — منبعِ School را می‌گنجاند. advisory فقط، صفر spend.
             if not _protective_skip and _neural_stack is not None and _cstat is not None:
@@ -771,6 +1028,17 @@ def main() -> int:
                         beat=_cstat.get("beat", 0) if _cstat else 0, write=False)
                 except Exception as _ble:  # noqa: BLE001 — §۴: نباید tick را بکشد
                     opslib.alert([f"business_legs_beat error (non-fatal): {type(_ble).__name__}: {_ble}"])
+            # ── زیر-OSِ Mining: ضربانِ فقط‌خواندنیِ ناوگان/کوین/برق → ORGANISM-STATE.mining_os
+            # پشتِ OCTOPUS_WIRE_MINING_OS (پیش‌فرض خاموش، خارج از PAPER_FULL_FLAGS) → None.
+            # ۲۰۲۶-۰۷-۲۸: این هوک قبلاً ادعا شده بود («ACTIVATION.md: organism.py:712») ولی
+            # در درخت نبود — بسته یتیم بود. propose-only؛ صفر spend/outward/SSH.
+            _mining_os = None
+            if not _protective_skip:
+                try:
+                    _mining_os = _w.mining_os_beat(
+                        beat=_cstat.get("beat", 0) if _cstat else 0)
+                except Exception as _moe:  # noqa: BLE001 — §۴: نباید tick را بکشد
+                    opslib.alert([f"mining_os_beat error (non-fatal): {type(_moe).__name__}: {_moe}"])
             # ── Asset oversight (ASSET-OVERSIGHT): نقشهٔ داراییِ کل → ORGANISM-STATE.asset_map
             # پشتِ OCTOPUS_WIRE_ASSET_MAP (پیش‌فرض خاموش، خارج از PAPER_FULL_FLAGS) → None.
             # فقط‌خواندنی/fail-soft؛ هرگز مبلغ echo نمی‌کند؛ propose-only مطلق.
@@ -875,6 +1143,16 @@ def main() -> int:
                     _w.doctor_digest_beat(_chan, beat=_cstat.get("beat", 0))
                     _w.brain_digest_beat(_chan, beat=_cstat.get("beat", 0))
                     _w.heart_card_beat(_chan, beat=_cstat.get("beat", 0))
+                    # ۲۰۲۶-۰۷-۲۶ — چیزی که تا دایجستِ ۶ساعته نباید صبر کند:
+                    # ترسِ 🔴، فرضیهٔ تازهٔ C6، و کارتِ بدهکار. فهرست عمداً کوتاه
+                    # است: «همه‌چیز فوری» یعنی هیچ‌چیز فوری نیست. پشتِ فلگِ خودش،
+                    # با throttleِ همین ماژول، fail-soft.
+                    try:
+                        import instant_alert_bridge as _iab
+                        _iab.check(_chan)
+                    except Exception as _iae:  # noqa: BLE001 — پل نباید tick را بکشد
+                        opslib.alert([f"instant_alert_bridge (non-fatal): "
+                                      f"{type(_iae).__name__}: {_iae}"])
                 except Exception as _nne:  # noqa: BLE001 — §۴: نوتیف نباید tick را بکشد
                     opslib.alert([f"needs_nudge error (non-fatal): {type(_nne).__name__}: {_nne}"])
             if now - last_heartbeat > 3600:
@@ -894,6 +1172,7 @@ def main() -> int:
                           **({"ziman": (_ziman_status or _ziman_last)} if (_ziman_status or _ziman_last) else {}),
                           **({"cartographer": _cartographer_status} if _cartographer_status else {}),
                           **({"business_legs": _biz_legs} if _biz_legs else {}),
+                          **({"mining_os": _mining_os} if _mining_os else {}),
                           **({"asset_map": _asset_map} if _asset_map else {}),
                           **({"accounting": _acct_beat} if _acct_beat else {}),
                           **({"lead_discovery": _lead_disc} if _lead_disc else {}),

@@ -1,0 +1,17 @@
+{
+  "booted": "2026-07-25T11:00:13",
+  "modules": {
+    "organism.py": {
+      "mtime": 1784935227.078,
+      "size": 64870
+    },
+    "wiring.py": {
+      "mtime": 1784938795.6,
+      "size": 162293
+    },
+    "live_loop.py": {
+      "mtime": 1784935226.989,
+      "size": 41100
+    }
+  }
+}

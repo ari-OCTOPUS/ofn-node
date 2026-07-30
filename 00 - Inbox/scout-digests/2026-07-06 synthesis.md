@@ -1,5 +1,5 @@
 ---
-type: synthesis
+type: report
 status: active
 tags: [selfimprove, synthesis, consolidator]
 created: 2026-07-06

@@ -1,12 +1,13 @@
 ---
-type: execution-prompt
+type: prompt
 project: "[[03 - Projects/Accounting/PROJECT]]"
-status: ready-to-run
+status: ready
 created: 2026-07-17
+updated: 2026-07-29
 created_by: deep-scan → UX-discovery agent (ZCode)
-audience: "the next ZCode session (self)"
+# audience: "the next ZCode session (self)"
 tags: [accounting, telegram-ux, auto-accountant, discovery, armin-abbas, execution-prompt]
-purpose: "از پایهٔ ساخته‌شدهٔ Accounting یک حسابدارِ خودکارِ تلگرامی بساز که آرمین و عباس (که هیچی از عدد/حسابداری نمی‌دانند) بتوانند باهاش کار کنند. اول کشفِ پتانسیل‌های بلااستفاده، بعد پیاده‌سازیِ draft-first و reversible."
+# purpose: "از پایهٔ ساخته‌شدهٔ Accounting یک حسابدارِ خودکارِ تلگرامی بساز که آرمین و عباس (که هیچی از عدد/حسابداری نمی‌دانند) بتوانند باهاش کار کنند. اول کشفِ پتانسیل‌های بلااستفاده، بعد پیاده‌سازیِ draft-first و reversible."
 aliases: ["پرامپت حسابدار خودکار تلگرام", "Telegram Auto-Accountant Discovery & Build"]
 ---
 

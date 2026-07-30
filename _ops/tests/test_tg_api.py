@@ -114,6 +114,23 @@ def t_c_send_builds_correct_payload():
     assert body["reply_markup"]["inline_keyboard"][0][1]["text"] == "نه"
 
 
+def t_c2_send_to_dm_never_sets_message_thread_id():
+    """آیتم ۳ِ TG-P2: فرستادنِ message_thread_id به چتِ خصوصی (DM، chat_id ≥ ۰) =
+    ۴۰۰ Bad Request. حتی اگر topic_id داده شود، در DM باید نادیده گرفته شود.
+
+    پاریتیِ گروه سالم می‌ماند (تستِ t_c با سوپرگروهِ forum CENTER=-1009999); این
+    تست فقط مسیرِ DM را قفل می‌کند. جهش (حذفِ گاردِ ``cid < -1000``) این تست را
+    قرمز می‌کند."""
+    c, net = _client({"sendMessage": {"ok": True, "result": {"message_id": 9}}})
+    # chat_id=OWNER=777 (مثبت = DM) + topic_id داده شده ⇒ باید نادیده گرفته شود
+    mid = c.send("سلامِ خصوصی", topic_id=7, chat_id=OWNER)
+    assert mid == 9
+    body = net.posts[0][2]
+    assert body["chat_id"] == OWNER
+    assert "message_thread_id" not in body, \
+        "DM نباید message_thread_id بگیرد (۴۰۰ از تلگرام)"
+
+
 def t_d_send_pin_and_explicit_chat():
     """pin=True → بعد از send موفق، pinChatMessage با همان message_id/chat."""
     c, net = _client({"sendMessage": {"ok": True, "result": {"message_id": 5}}})
@@ -351,6 +368,112 @@ def t_za_token_source_tracked():
         os.environ.pop("TELEGRAM_BOT_TOKEN", None)
     finally:
         _t._alert_soft = orig_alert
+
+
+def t_y_429_retry_after_respected_then_succeeds():
+    """آیتم ۵ِ TG-P2: پاسخِ ۴۲۹ با retry_after → صبر (با sleep تزریقی) + یک retry.
+
+    تلگرام می‌گوید ``parameters.retry_after``؛ ما تا سقفِ امن احترام می‌گذاریم و یک
+    تلاشِ مجدد می‌کنیم. این تست sleep واقعی نمی‌کند (``_sleep`` مونکی‌پچ می‌شود تا فقط
+    مدت را ثبت کند). FakeNet دفعهٔ اول ۴۲۹ می‌دهد و دفعهٔ دوم موفق.
+
+    جهش (حذفِ retry) ⇒ شمارشِ تماس‌ها ۱ می‌ماند و mid = None برمی‌گردد ⇒ قرمز."""
+    slept = []
+    ra_seen = []
+
+    def fake_sleep(s):
+        slept.append(s)
+
+    # state برای برگرداندنِ ۴۲۹ در دفعهٔ اول، موفق در دفعهٔ دوم
+    state = {"calls": 0}
+
+    def post_429_then_ok(url, body, timeout_s=10.0):
+        state["calls"] += 1
+        if state["calls"] == 1:
+            return {"ok": False, "error_code": 429,
+                    "parameters": {"retry_after": 5},
+                    "description": "Too Many Requests"}
+        return {"ok": True, "result": {"message_id": 71}}
+
+    c = TgClient(token=TOKEN, owner_chat_id=OWNER, center_chat_id=CENTER,
+                 post_fn=post_429_then_ok, get_fn=FakeNet().get)
+    c._sleep = fake_sleep
+    mid = c.send("پیامِ پس ازِ rate-limit")
+    assert mid == 71, f"باید بعد از retry موفق شود: {mid}"
+    assert state["calls"] == 2, f"باید دقیقاً ۲ بار POST زده باشد: {state['calls']}"
+    assert slept == [5.0], f"باید retry_after=5 را خوابیده باشد: {slept}"
+
+
+def t_y2_429_retry_after_capped_at_safe_ceiling():
+    """retry_after خطرناکِ بزرگ (مثلاً ۳۶۰۰s) باید تا سقفِ ۳۰s کلاه‌گذاری شود —
+    هیچ retry_afterای کلاینت را ساعت‌ها نخواباند."""
+    slept = []
+    state = {"calls": 0}
+
+    def post(url, body, timeout_s=10.0):
+        state["calls"] += 1
+        if state["calls"] == 1:
+            return {"ok": False, "error_code": 429,
+                    "parameters": {"retry_after": 3600}}
+        return {"ok": True, "result": {"message_id": 1}}
+
+    c = TgClient(token=TOKEN, owner_chat_id=OWNER, center_chat_id=CENTER,
+                 post_fn=post, get_fn=FakeNet().get)
+    c._sleep = slept.append
+    c.send("x")
+    assert slept == [30.0], f"retry_after=3600 باید به ۳۰ کلاه بخورد: {slept}"
+
+
+def t_y3_429_then_second_429_is_failsoft_no_storm():
+    """اگر retry هم ۴۲۹ بدهد → fail-soft (None) و فقط دو تماس (نه retry-storm)."""
+    slept = []
+    state = {"calls": 0}
+
+    def post(url, body, timeout_s=10.0):
+        state["calls"] += 1
+        return {"ok": False, "error_code": 429,
+                "parameters": {"retry_after": 1}}
+
+    c = TgClient(token=TOKEN, owner_chat_id=OWNER, center_chat_id=CENTER,
+                 post_fn=post, get_fn=FakeNet().get)
+    c._sleep = slept.append
+    assert c.send("x") is None
+    assert state["calls"] == 2, f"نباید بیشتر از یک retry بزند: {state['calls']}"
+    assert slept == [1.0], f"فقط یک sleep قبل از retry: {slept}"
+
+
+def t_y4_non_429_failure_still_single_attempt():
+    """خطای غیرِ ۴۲۹ (مثلاً ۴۰۰) همچنان یک تلاش، بی‌retry، fail-soft.
+    این ضمانت می‌کند که retry فقط مخصوصِ ۴۲۹ است و رفتارِ بقیه دست‌نخورده است."""
+    c, net = _client({"sendMessage": {"ok": False, "error_code": 400,
+                                      "description": "Bad Request: chat not found"}})
+    assert c.send("x") is None
+    assert len(net.posts) == 1, "خطای ۴۰۰ نباید retry کند"
+
+
+def t_y5_poll_updates_429_sleeps_before_returning_empty():
+    """مسیرِ poll هم رویِ ۴۲۹ باید قبل از برگشتنِ [] صبر کند (نه spin).
+    اگر خواب نکند، حلقهٔ poll فوراً دوباره getUpdates می‌زند و ۴۲۹ِ بیشتر می‌سازد."""
+    slept = []
+
+    class _Net429Get:
+        def __init__(self):
+            self.gets = []
+
+        def post(self, url, body, timeout_s=10.0):
+            return {"ok": True, "result": {}}
+
+        def get(self, url, timeout_s):
+            self.gets.append(url)
+            return {"ok": False, "error_code": 429,
+                    "parameters": {"retry_after": 3}}
+
+    net = _Net429Get()
+    c = TgClient(token=TOKEN, owner_chat_id=OWNER, center_chat_id=CENTER,
+                 post_fn=net.post, get_fn=net.get)
+    c._sleep = slept.append
+    assert c.poll_updates(offset=0) == []
+    assert slept == [3.0], f"poll باید retry_after=3 را خوابیده باشد: {slept}"
 
 
 if __name__ == "__main__":

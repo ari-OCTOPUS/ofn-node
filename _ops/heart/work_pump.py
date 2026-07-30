@@ -129,7 +129,15 @@ def _exec_gap_report() -> dict:
     if not aw:
         return {"ok": True, "gaps": [], "note": "مدرسه هنوز آگاهی ثبت نکرده"}
     gaps = sorted(aw.items(), key=lambda kv: kv[1])[:3]
-    return {"ok": True, "gaps": [{"topic": k, "awareness": round(v, 4)}
+    # ۲۰۲۶-۰۷-۲۷ — `topic` مستقیم به موتورِ جست‌وجوی اینترنت می‌رفت، و `k` شناسهٔ
+    # داخلی است (`A08`) نه موضوع. یعنی لِینِ اینترنتِ زنده واقعاً می‌دوید و در
+    # ویکی‌پدیا دنبالِ «A08» می‌گشت؛ جوابش صفحهٔ ابهام‌زدایی بود و همان به تلگرامِ
+    # مالک می‌رفت با عنوانِ «چند چیزِ جدید یاد گرفتم». مسخره‌اش این است که همان سه
+    # شناسه دقیقاً موضوع‌های خودآگاهی‌اند: A06 روایتِ خود، A07 انگیزه، A08 سوگیریِ
+    # ادراک. سازگارِ عقب‌رو: نبودِ `titles` = رفتارِ امروز، بایت‌به‌بایت.
+    titles = sch.get("titles") or {}
+    return {"ok": True, "gaps": [{"topic": titles.get(k) or k, "topic_id": k,
+                                  "awareness": round(v, 4)}
                                  for k, v in gaps]}
 
 
@@ -145,7 +153,14 @@ def _exec_paid_lane(kind: str, tpl: dict) -> dict:
         try:
             _syspath(_HERE.parent / "cortex")
             import synthesis as _syn
-            return _syn.run_and_persist()
+            # 2026-07-25: این لِین در DEFAULT_PLAN صریحاً paid:True است و پشتِ
+            # ACTIVATION-WORK-LLM.flag (فقط مالک) قفل شده. tier ندادن یعنی
+            # TASK_TIERS["research"]=="secondary" و بعد شاخهٔ محلی-اولِ روتر جوابِ
+            # qwen را می‌پذیرد (۶ از ۸ اجرای ثبت‌شده) — لِینِ «پولی» عملاً رایگان بود.
+            # tierِ صریح = صداقت: یا مغزِ پولی، یا fallback_fromِ ثبت‌شده.
+            import os as _os   # noqa: WPS433 — lazy، فقط برای خواندنِ tier
+            return _syn.run_and_persist(
+                tier=(_os.environ.get("WORK_LLM_TIER") or "primary"))
         except Exception as e:  # noqa: BLE001 — سنتز نباید pump را بکشد
             return {"ok": False, "error": f"{type(e).__name__}: {str(e)[:100]}"}
     if kind == "search":

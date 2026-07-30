@@ -11,6 +11,11 @@ ENV = harness.setup("debate")
 import opslib       # noqa: E402
 import debate_loop  # noqa: E402
 import topics       # noqa: E402
+import os           # noqa: E402
+
+# DEFECT-W4: harness متغیرهای OCTOPUS_* را پاک نمی‌کند؛ اگر مالک فلگ را در شلِ خود
+# روشن کرده باشد، تست‌های قطعیِ زیر به ollama وصل می‌شدند.
+os.environ.pop("OCTOPUS_WIRE_DEBATE_LOCAL", None)
 
 
 def t_offline_full_debate():
@@ -122,6 +127,53 @@ def t_queue_idempotent_per_topic():
     assert props_after == props_before, "PROPOSAL تکراری برای topic هنوز-در-صف"
 
 
+def t_local_brain_real_debate_and_stub_fallback():
+    """DEFECT-W4: با فلگ، مناظره باید از مغزِ محلی بیاید (stub=False، tier=local)؛
+    مغزِ خاموش = برگشتِ بایت‌به‌بایت به stub. بدونِ شبکه (local_llm.ask مونکی‌پچ)."""
+    sys.path.insert(0, str(Path(debate_loop.__file__).resolve().parent.parent / "cortex"))
+    import local_llm  # noqa: E402
+    _real = local_llm.ask
+    os.environ["OCTOPUS_WIRE_DEBATE_LOCAL"] = "1"
+    try:
+        def _brain_ok(prompt, system="", max_tokens=256, opener=None, force=False):
+            if "You are ARCHITECT" in system:
+                p = {"verdict": "kill", "kill_condition": "شرطِ مرگ",
+                     "cheapest_test": "ارزان‌ترین آزمون", "epistemic_tag": "EST"}
+            else:
+                p = {"idea": "ایدهٔ محلی", "why_genius": "g", "why_insane": "i",
+                     "est_tokens": 10, "quality_bar": "normal", "epistemic_tag": "EST"}
+            return {"text": json.dumps(p, ensure_ascii=False), "model": "qwen2.5:test",
+                    "tier": "local", "cost_usd": 0.0, "ms": 1}
+
+        local_llm.ask = _brain_ok
+        t = {"id": "local-1", "source": "SEED_TOPICS", "text": topics.SEED_TOPICS[0]}
+        r = debate_loop.run_debate(t)
+        assert r["status"] == "killed", r        # verdict از مغزِ محلی آمد، نه passِ ثابتِ stub
+        assert r["cost_usd"] == 0.0, r           # مغزِ محلی = صفر دلار
+        h = r["history"][0]
+        assert h["stub"] is False and h["tier"] == "local", h
+        assert h["muse"]["idea"] == "ایدهٔ محلی", h
+
+        local_llm.ask = lambda *a, **k: None     # مغز خاموش → fail-soft
+        t2 = {"id": "local-2", "source": "SEED_TOPICS", "text": topics.SEED_TOPICS[1]}
+        r2 = debate_loop.run_debate(t2)
+        assert r2["status"] == "survived", r2     # passِ ثابتِ stub
+        assert r2["history"][0]["stub"] is True, r2
+        assert r2["history"][0]["tier"] == "stub", r2
+    finally:
+        local_llm.ask = _real
+        os.environ.pop("OCTOPUS_WIRE_DEBATE_LOCAL", None)
+
+
+def t_topic_rotation_not_frozen():
+    """DEFECT-W4 (نیمهٔ دوم): whitelist باید بچرخد — ۶۳ دورِ ledger همه seed-3 بودند."""
+    n = len(topics.list_topics())
+    assert n >= 4, n
+    ids = {topics.next_topic(i)["id"] for i in range(n)}
+    assert len(ids) == n, ids                    # یک دورِ کامل = همهٔ موضوع‌ها
+    assert topics.next_topic(0)["id"] == topics.next_topic(n)["id"]   # چرخشی
+
+
 if __name__ == "__main__":
     failed = harness.run([
         ("مناظرهٔ کامل آفلاین $0 → صف انسان", t_offline_full_debate),
@@ -133,5 +185,7 @@ if __name__ == "__main__":
         ("topic بدقواره → invalid-topic (نه KeyError)", t_invalid_topic_fail_soft),
         ("topic هاردکد governor در whitelist است", t_governor_topic_whitelisted),
         ("صف/PROPOSAL per-topic idempotent (§۹)", t_queue_idempotent_per_topic),
+        ("مغزِ محلیِ $۰ → مناظرهٔ واقعی؛ خاموش → stub", t_local_brain_real_debate_and_stub_fallback),
+        ("چرخشِ موضوع (تکرارِ ابدیِ seed-3 ممنوع)", t_topic_rotation_not_frozen),
     ])
     sys.exit(1 if failed else 0)

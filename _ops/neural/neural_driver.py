@@ -63,8 +63,17 @@ class NeuralDriver:
         }
 
     def evaluate(self, beat: int = 0, rhythm=None, sensory=None,
-                 spectral=None, budget=None) -> dict:
-        """دورِ کامل: collect snapshot → reflex → brain inputs."""
+                 spectral=None, budget=None, bcm=None, hebbian=None) -> dict:
+        """دورِ کامل: collect snapshot → reflex → brain inputs.
+
+        FIX #310 (2026-07-28): پارامترهای اختیاری bcm/hebbian — برای اولین‌بار،
+        وزن‌های آموخته‌شده را در خروجی fold می‌کنیم (`learned_pressure`).
+        تا امروز کلِ لایهٔ عصبی advisory-only بود و `protective_override` فقط از
+        thresholdهای ثابت (nociceptor/reflex) می‌خواند. باbcm/hebbian، shadow path
+        می‌تواند ثبت کند که یادگیری *می‌گفت* چه — گامِ اولِ بستنِ حلقه.
+        bcm=None یا hebbian=None → learned_pressure=0 (صفر تغییرِ رفتار، backward compat).
+        اعمالِ واقعی پشت flag جداگانه (OCTOPUS_NEURAL_LEARNED_APPLY، default-off).
+        """
         # nociceptor — P3 (truth-map 2026-07-17): error_rate و partner_stress دیگر drop
         # نمی‌شوند؛ قبلاً ۲ از ۶ ورودیِ درد هرگز به measure نمی‌رسید و pain ساختاراً کور بود.
         _sens = sensory or {}
@@ -91,6 +100,32 @@ class NeuralDriver:
             pain_level=pain.pain_level)
         reflexes = self.reflex.evaluate(snap.to_dict())
         brain_inputs = self.snapshot_to_brain_inputs(snap.to_dict())
+
+        # FIX #310 (2026-07-28): برای اولین‌بار، وزن‌های آموخته‌شده را fold کن.
+        # learned_pressure = نرمال‌شدهٔ میانگینِ وزنِ ۳ کلیدِ برترِ BCM.
+        # اگر bcm مفقود/خالی → 0.0 (backward compat: هیچ تغییری در رفتار).
+        # این مقدار shadow log می‌شه (OCTOPUS_NEURAL_EFFECT_SHADOW) و اعمالش پشت
+        # flag جداگانه‌ست (OCTOPUS_NEURAL_LEARNED_APPLY، default-off).
+        learned_pressure = 0.0
+        learned_top_signal = ""
+        learned_n_keys = 0
+        if bcm is not None:
+            try:
+                _keys = bcm.keys() if hasattr(bcm, "keys") else []
+                learned_n_keys = len(_keys)
+                if _keys:
+                    _weighted = [(k, bcm.weight(k) or 0.0) for k in _keys]
+                    _top = sorted(_weighted, key=lambda kv: kv[1], reverse=True)[:3]
+                    _sum_top = sum(w for _, w in _top)
+                    # نرمال‌سازی: w_cap=4.0 (پیش‌فرض BCM)، ۳ کلید → max=12.0
+                    learned_pressure = min(1.0, _sum_top / 12.0)
+                    learned_top_signal = _top[0][0] if _top else ""
+            except Exception:  # noqa: BLE001 — یادگیری هرگز evaluate را نمی‌کشد
+                pass
+        brain_inputs["learned_pressure"] = round(learned_pressure, 3)
+        brain_inputs["learned_top_signal"] = learned_top_signal
+        brain_inputs["learned_n_keys"] = learned_n_keys
+
         return {
             "snapshot": snap.to_dict(),
             "pain": {"level": pain.pain_level, "protective": pain.protective_mode},

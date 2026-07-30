@@ -1,5 +1,5 @@
 {
-  "ts": "2026-07-17T17:45:18",
+  "ts": "2026-07-25T12:31:56",
   "schema": "audit-matrix.v1",
   "n": 43,
   "tally": {
@@ -9,6 +9,7 @@
     "Unknown": 0
   },
   "maturity_pct": 75.6,
+  "static_by_construction": true,
   "items": [
     {
       "item": "kill switch + stop reasons",

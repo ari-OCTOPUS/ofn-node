@@ -28,7 +28,7 @@ import opslib  # noqa: E402
 SCHEMA = "heartstate.v1"
 LATEST = opslib.STATE_DIR / "pulse" / "heartstate-latest.json"
 _FLAG_ENV = "HEARTSTATE_SHADOW"
-_FLAG_FILE = _OPS / "ACTIVATION-HEARTSTATE.flag"
+_FLAG_FILE = opslib.STATE_DIR.parent / "ACTIVATION-HEARTSTATE.flag"
 
 
 def enabled() -> bool:

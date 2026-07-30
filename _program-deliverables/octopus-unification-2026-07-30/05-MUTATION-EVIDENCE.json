@@ -1,0 +1,49 @@
+{
+ "schema": "octopus.mutation-evidence.v1",
+ "date": "2026-07-30",
+ "suite": "test_goal_action_bridge",
+ "mutations": [
+  {
+   "n": 4,
+   "label": "missing prereg → execute",
+   "result": "❌ test_goal_action_bridge: 13/14",
+   "red": true
+  },
+  {
+   "n": 7,
+   "label": "receipt/ledger failure → success",
+   "result": "❌ test_goal_action_bridge: 13/14",
+   "red": true
+  },
+  {
+   "n": 8,
+   "label": "illegal mission transition → accepted",
+   "result": "❌ test_goal_action_bridge: 13/14",
+   "red": true
+  },
+  {
+   "n": 5,
+   "label": "non-ALLOW plan → execute anyway",
+   "result": "❌ test_goal_action_bridge: 13/14",
+   "red": true
+  },
+  {
+   "n": 10,
+   "label": "memory: flag-off treated as consolidated",
+   "result": "❌ test_goal_action_bridge: 13/14",
+   "red": true
+  },
+  {
+   "n": 18,
+   "label": "seam runs without the flag",
+   "result": "❌ test_goal_action_bridge: 13/14",
+   "red": true
+  },
+  {
+   "n": 16,
+   "label": "journal drops the exact prereg_id",
+   "result": "❌ test_goal_action_bridge: 13/14",
+   "red": true
+  }
+ ]
+}

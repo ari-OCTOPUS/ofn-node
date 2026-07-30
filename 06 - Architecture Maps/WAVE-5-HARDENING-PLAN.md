@@ -1,10 +1,11 @@
 ---
-title: Wave 5 Hardening Plan
-status: in-progress
+type: design
+# title: Wave 5 Hardening Plan
+status: active
 created: 2026-07-12
 updated: 2026-07-12
 tags: [octopus, wave-5, hardening, control-readiness, ops]
-backlinks:
+related:
   - "[[OCTOPUS-CHANNEL-REGISTRY]]"
   - "[[OCTOPUS-EXTRACTOR-REGISTRY]]"
   - "[[ADMIN-TELEGRAM-DASHBOARD-MAP]]"

@@ -1,3 +1,10 @@
+---
+type: reference
+status: active
+tags: [research, governance]
+created: 2026-07-14
+updated: 2026-07-29
+---
 # SENSITIVITY-LADDER — how the agent decides what to do itself vs bring to the owner
 
 **Granted by owner 2026-07-14** ("کم و متوسط را خودت تصمیم بگیر و انجام بده،

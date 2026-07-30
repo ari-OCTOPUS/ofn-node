@@ -1,12 +1,13 @@
 ---
-type: deep-scan
+type: report
 project: "[[03 - Projects/Accounting/PROJECT]]"
 status: active
 created: 2026-07-17
+updated: 2026-07-29
 created_by: deep-scan agent (ZCode) — genome + competitive research
-audience: "آری (مالک) و ایجنت بعدی"
+# audience: "آری (مالک) و ایجنت بعدی"
 tags: [accounting, deep-scan, genome, organism, competitive-research, powerup, leapfin, botkeeper, xero]
-purpose: "کشفِ پتانسیل‌هایی که پایِ Accounting بتواند از ژنومِ اختاپوس بیشتر استفاده کند و از یک «کدِ خواب» به یک «عضوِ زندهٔ ارگانیسم» تبدیل شود — با درس‌گرفتن از رقبا و شکست‌های AI-حسابداریِ دنیای واقعی."
+# purpose: "کشفِ پتانسیل‌هایی که پایِ Accounting بتواند از ژنومِ اختاپوس بیشتر استفاده کند و از یک «کدِ خواب» به یک «عضوِ زندهٔ ارگانیسم» تبدیل شود — با درس‌گرفتن از رقبا و شکست‌های AI-حسابداریِ دنیای واقعی."
 aliases: ["دیپ‌اسکن ژنوم Accounting", "Genome Powerup Deep Scan"]
 ---
 

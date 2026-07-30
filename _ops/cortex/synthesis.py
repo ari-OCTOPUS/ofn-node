@@ -31,7 +31,12 @@ import opslib  # noqa: E402
 STATE = opslib.STATE_DIR
 SYNTH_PATH = STATE / "cortex" / "synthesis-latest.json"
 GOALS_PATH = _OPS / "GOALS-OCTOPUS.md"
-MAX_TOKENS = int(os.environ.get("SYNTHESIS_MAX_TOKENS", "500"))
+# ۲۰۲۶-۰۷-۳۰ — پیش‌فرض ۵۰۰ → ۲۰۰۰. علت روی دیسک ثبت شده بود و کسی نخوانده بود:
+# `paid-calls.jsonl` نشان می‌دهد تماسِ ۰۷-۲۹T۱۷:۳۳ با `tokens_out=500` (**دقیقاً**
+# سقف) فقط `chars_out=3` برگرداند. Fugu مدلِ استدلالی است و توکن‌های تفکرش از همین
+# بودجه می‌خورند، پس ۵۰۰ کلاً صرفِ تفکر می‌شد و جوابِ مرئی نمی‌ماند → صفر پیشنهاد.
+# سنجشِ تجربیِ همان پرامپت: سقفِ ۷۰۰ → ۱۲۳۵ کاراکترِ JSON سالم؛ ۲۰۰۰ → ۱۳۰۹.
+MAX_TOKENS = int(os.environ.get("SYNTHESIS_MAX_TOKENS", "2000"))
 
 
 def _read(p: Path) -> dict:
@@ -131,7 +136,7 @@ def _input_sig(ctx: dict) -> str:
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]
 
 
-def synthesize(ask=None, extra: dict | None = None) -> dict:
+def synthesize(ask=None, extra: dict | None = None, tier: str | None = None) -> dict:
     """یک دورِ سنتز: context → مغز (fugu→glm→local) → پروپوزال‌ها. ask تزریق‌پذیر (تست).
 
     extra (OCT-CORTISOL 2026-07-18): زمینهٔ رویدادِ ماشه — مثلاً {"alarm": "ورود به
@@ -171,12 +176,24 @@ def synthesize(ask=None, extra: dict | None = None) -> dict:
     # سنتزِ تایمریِ بی‌alarm مثلِ قبل tier=None (محلی-اولِ ارزان، بعد پولی).
     res = ask("research", prompt, system="پاسخ فقط فارسی، فشرده، بدونِ مقدمه.",
               max_tokens=MAX_TOKENS,
-              tier=("primary" if ctx.get("alarm") else None), **kw)
+              tier=(tier or ("primary" if ctx.get("alarm") else None)), **kw)
     if not res.get("ok"):
         return {"ok": False, "reason": res.get("reason", "brain-unavailable"),
                 "ctx_sizes": {k: len(v) if isinstance(v, list) else 1
                               for k, v in ctx.items()}}
     proposals = _parse_proposals(res.get("text", ""))
+    # ── صفرِ پیشنهاد از یک تماسِ «موفق» = خطا، نه نتیجه (۲۰۲۶-۰۷-۳۰) ───────────
+    # این تنها لایه‌ای بود که سکوت می‌کرد: `res["ok"]` درست بود، پس رکورد با
+    # `proposals: []` می‌نشست و هیچ‌کس نمی‌فهمید مولدِ هدف محصولی نداده. حلقه از
+    # بیرون سالم به‌نظر می‌آمد — مهرِ زمان داشت، استثنا نمی‌داد — و `cost_usd=0.0`
+    # هم لو نمی‌داد چون با `subscription: max` هزینه ساختاراً صفر است.
+    # هنوز **ذخیره می‌شود** (شاهد پاک نمی‌شود)، ولی دیگر بی‌صدا نیست.
+    if not proposals:
+        opslib.alert([
+            f"synthesis: صفر پیشنهاد از تماسِ موفق — tier={res.get('tier')} "
+            f"model={res.get('model')} finish={res.get('finish_reason')} "
+            f"chars={len(res.get('text') or '')} max_tokens={MAX_TOKENS}. "
+            f"مولدِ هدف این دور محصولی نداد؛ اگر finish=length است سقف را بالا ببر."])
     digest = {
         "ts": opslib.now_iso(), "schema": "synthesis.v1",
         "input_sig": sig,
@@ -192,9 +209,9 @@ def synthesize(ask=None, extra: dict | None = None) -> dict:
     return {"ok": True, "digest": digest}
 
 
-def run_and_persist(ask=None, extra: dict | None = None) -> dict:
+def run_and_persist(ask=None, extra: dict | None = None, tier: str | None = None) -> dict:
     """سنتز + نوشتنِ اتمیک + NOTE در ledger (شفافیتِ خرج/مسیرِ مغز)."""
-    r = synthesize(ask=ask, extra=extra)
+    r = synthesize(ask=ask, extra=extra, tier=tier)
     if not r.get("ok"):
         return r
     if r.get("skipped"):

@@ -76,7 +76,46 @@ def mark_seen() -> None:
         pass
 
 
+# ── «به تو گفتم» ≠ «تو نگاه کردی» (۲۰۲۶-۰۷-۲۶) ──────────────────────────────
+# `SEEN` فقط با کلیکِ مالک روی دکمهٔ «ببین چی یاد گرفتم» جلو می‌رود
+# (`approval_channel` تنها فراخوانِ `mark_seen` است). پس اگر مالک کلیک نکند،
+# `unseen_count` بی‌نهایت رشد می‌کند و نوتیف **همان انبارِ کامل را دوباره و
+# دوباره اعلام می‌کند** — ۲۰۲۶-۰۷-۲۶ اندازه‌گیری شد: نشانگر از ۲۰۲۶-۰۷-۱۹ تکان
+# نخورده بود و شمارنده روی ۱۰ بود.
+# راه‌حل: دو نشانگرِ جدا. `NUDGED` می‌گوید «دربارهٔ این‌ها خبر دادم» و `SEEN`
+# می‌ماند برای «مالک واقعاً نگاه کرد» — تا معنیِ دکمه از بین نرود.
+NUDGED = opslib.STATE_DIR / "discoveries-nudged.json"
+
+
+def unseen_since_nudge() -> int:
+    """چند کشف از آخرین باری که *خبر دادم*. کلیکِ مالک اینجا بی‌ربط است."""
+    try:
+        ts = float((json.loads(NUDGED.read_text("utf-8")) if NUDGED.exists() else {})
+                   .get("ts", 0))
+    except (OSError, ValueError):
+        ts = 0.0
+    return sum(1 for r in _all() if float(r.get("ts", 0)) > ts)
+
+
+def mark_nudged() -> None:
+    """فقط بعد از ارسالِ **موفق** صدا زده شود — وگرنه یک نوتیفِ ازدست‌رفته
+    برای همیشه دفن می‌شود (همان الگویی که کارتِ C6 را یک شبانه‌روز پنهان کرد)."""
+    try:
+        NUDGED.parent.mkdir(parents=True, exist_ok=True)
+        NUDGED.write_text(json.dumps({"ts": time.time()}), "utf-8")
+    except OSError:
+        pass
+
+
 def lines(n: int = 5) -> list[str]:
-    """خطوطِ سادهٔ فارسی برای نمایش (بی‌محتوا)."""
+    """خطوطِ سادهٔ فارسی برای نمایش (بی‌محتوا).
+
+    ۲۰۲۶-۰۷-۲۷ — `summary` از **متنِ خامِ صفحاتِ اینترنت** می‌آید و مصرف‌کننده‌هایش
+    با `parse_mode=HTML` می‌فرستند. یک عنوانِ صفحه با `<` کافی بود تا تلگرام کلِ
+    پیام را ۴۰۰ کند — و بدتر: دکمهٔ «ببین چی یاد گرفتم» رکوردها را **قبل از**
+    ارسال «دیده‌شده» علامت می‌زند، یعنی یک عنوانِ مسموم می‌توانست کلِ صفِ کشف‌ها
+    را برای همیشه دفن کند. escape اینجا هر دو مصرف‌کننده را پوشش می‌دهد."""
+    import html
     icons = {"research": "🔍", "idea": "💡", "learn": "🧠"}
-    return [f"{icons.get(r.get('kind'), '•')} {r.get('summary', '')}" for r in recent(n)]
+    return [f"{icons.get(r.get('kind'), '•')} {html.escape(str(r.get('summary', '')))}"
+            for r in recent(n)]

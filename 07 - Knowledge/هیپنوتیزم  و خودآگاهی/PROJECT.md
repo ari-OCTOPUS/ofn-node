@@ -8,7 +8,7 @@ risk_level: low
 autonomy_level: read-only
 tags: [knowledge, psychology, hypnosis, fusion]
 created: 2026-07-03
-updated: 2026-07-06
+updated: 2026-07-29
 ---
 
 > **شناسنامهٔ canonical** — این نسخه (با Inventory کامل) در ۲۰۲۶-۰۷-۰۴ تأیید و جایگزینِ v1 شد (ارتقا از `PROJECT.v2-proposal`؛ همهٔ محتوا additive بود).
@@ -48,6 +48,7 @@ updated: 2026-07-06
 
 ## Active Context
 
+- **2026-07-29 (اسکنِ سطحِ تلگرام):** طبق [[../../OCTOPUS-DOCTOR/50-اسکن‌ها/TG-GROUP-SCAN-PACKAGE-2026-07-29|TG-SCAN-PACKAGE]]، پای 🧠 دانش در گروه **digest-only** است: OS/مغزِ اجرایی ندارد، فقط دایجستِ دوره‌ای و pause/resume. جریان‌های `brain`/`discovery`/`c6` به تاپیکش مسیریابی می‌شوند (`OCTOPUS_TG_ROUTE_TOPICS=1`) ولی هیچ فرمانی از گروه به این حوزه اثر نمی‌گذارد. برای این پروژه اشکالی ندارد — ماهیتش دانشِ ماندگار است نه عملیات — ولی در ماتریسِ «هر پا یک مغزِ فرمان‌پذیر» عمداً بیرون می‌ماند.
 - تمرکز فعلی: تفکیک معرفت‌شناختی محتوا (تمرین vs تئوری vs داستان)
 - تغییرات اخیر: 2026-07-04 (agent، آدیت) — Inventory snapshot + دو فایل پیشنهادی ساخته شد (همین فایل + [[07 - Knowledge/هیپنوتیزم  و خودآگاهی/MAP|MAP]])؛ هیچ فایل موجودی تغییر نکرد. | 2026-07-04 (agent) — دو گزارش تحقیقاتی به Inbox: [[07 - Knowledge/هیپنوتیزم  و خودآگاهی/Report - هیپنوتیزم - Cardew و حلقه New Thought سیدنی|Cardew/New Thought]] و [[07 - Knowledge/هیپنوتیزم  و خودآگاهی/Report - هیپنوتیزم - HRV و خودهیپنوتیزم|HRV × خودهیپنوتیزم]]. یافته‌های Cardew در چک‌لیست مجهول‌ها §یافته‌های 2026-07-04 و لینک HRV در Practice-vs-Theory ادغام شد (همه additive، در انتظار بازبینی). | 2026-07-04 (triage، verdict آری) — هر دو گزارش + [[07 - Knowledge/هیپنوتیزم  و خودآگاهی/Prompt - هیپنوتیزم - آدیت و بازسازی PROJECT + نقشه 2026-07-04|پرامپت آدیت اجراشده]] از Inbox به همین پوشه منتقل شدند (status: done + epistemic_status)؛ `files.zip` → `_Archive` (قاعده ۳)؛ zip تکراری mindMonitor → `_Duplicates` (قاعده ۴) | 2026-07-03 — manifest فاز ۱ + epistemic_status + ایندکس Practice vs Theory
 - ۳ قدم بعدی: (۱) بازبینی برچسب‌های [Assumption] توسط مالک (۲) ثبت لاگ‌های تمرین آینده زیر Practice (۳) ارتقای نوت‌های دارای منبع به peer-reviewed

@@ -1,16 +1,18 @@
 ---
-title: "Lead-نقاشی Synthesis — Revised"
-subtitle: "Spider/Octopus mapping validated against actual code"
-date: 2026-07-12
-author: "ZCode (GLM-5.2), deep-read of brushline/60_code + کاریابی/bot"
-status: "draft-for-owner-review"
-supersedes_note: >
-  This document revises the earlier 'Lead-نقاشی Octopus Synthesis'
-  produced in a different agent sandbox. That synthesis contained several
-  claims (E15, E16, E24) that did not survive verification against the
-  actual codebase. This version keeps ONLY claims confirmed by direct
-  file reads with line-number evidence.
-owner_veto: "Ari retains full veto; all names are provisional."
+type: report
+# title: "Lead-نقاشی Synthesis — Revised"
+# subtitle: "Spider/Octopus mapping validated against actual code"
+created: 2026-07-12
+updated: 2026-07-29
+tags: [painting, lead, synthesis]
+created_by: "ZCode (GLM-5.2), deep-read of brushline/60_code + کاریابی/bot"
+status: draft
+# supersedes_note: This document revises the earlier 'Lead-نقاشی Octopus Synthesis'
+#   produced in a different agent sandbox. That synthesis contained several
+#   claims (E15, E16, E24) that did not survive verification against the
+#   actual codebase. This version keeps ONLY claims confirmed by direct
+#   file reads with line-number evidence.
+# owner_veto: "Ari retains full veto; all names are provisional."
 ---
 
 # Lead-نقاشی Synthesis — Revised (2026-07-12)

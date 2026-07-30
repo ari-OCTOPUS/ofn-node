@@ -112,6 +112,19 @@ def _owner_signal() -> dict:
 
 
 # ── snapshot: عکسِ غنی، چنددامنه‌ای، PII-safe ($0، read-only) ─────────────────────
+def _revenue_confirmed() -> float:
+    """درآمدِ **محقق‌شده** — تنها منبعِ راست. صفر یعنی صفر، نه «نامعلوم».
+
+    منبع همان چیزی است که `goal_directed._baseline_metrics` می‌خواند:
+    `fitness-latest.json → attribution.confirmed`. عمداً import نمی‌کنیم چون آن
+    تابع خودش فقط همین فایل را می‌خواند؛ یک خط مستقیم، بدونِ وابستگیِ تازه."""
+    try:
+        att = (_read_json("fitness-latest.json", {}) or {}).get("attribution") or {}
+        return float(att.get("confirmed") or 0.0)
+    except (TypeError, ValueError, AttributeError):
+        return 0.0
+
+
 def snapshot() -> dict:
     org = _read_json("ORGANISM-STATE.json", {})
     tel = _read_json("telemetry-latest.json", {})
@@ -119,6 +132,63 @@ def snapshot() -> dict:
     innerv = _read_json("cortex/innervation-latest.json", {})
     cortex = _read_json("cortex/cortex-state.json", {})
     legs = org.get("business_legs", {}) if isinstance(org.get("business_legs"), dict) else {}
+    # ── C3 (2026-07-25، پشتِ OCTOPUS_SELFKNOW_LEGS_UNWRAP، پیش‌فرض خاموش) ──────
+    # ORGANISM-STATE.business_legs **دو-لایه** است: {"business_legs": {mining, crypto,
+    # accounting, knowledge}, "beat": N}. این تابع فقط لایهٔ بیرونی را می‌خواند، پس
+    # snapshot()['legs'] یک شبه-لِگ به نامِ «business_legs» با live=None به‌علاوهٔ یک
+    # عددِ سرگردانِ beat می‌داد — یعنی **ساختاراً مستقل از واقعیت**: هیچ تغییری در
+    # وضعیتِ لِگ‌های واقعی نمی‌توانست این فیلد را عوض کند. اثباتِ زندهٔ همان روز: با
+    # unwrap چهار لِگِ واقعی با live/signalِ خودشان دیده می‌شوند (همه live=False).
+    # نتیجه: خودشناسیِ v1..v10 روی این فیلد کور بوده. doctor.py:771-773 از قبل همین
+    # unwrap را دارد — این‌جا فقط «یک حقیقت، دو خواننده» برقرار می‌شود.
+    # فلگ‌دار است چون ورودیِ مغزِ پولی را عوض می‌کند (رفتارِ نو، نه صرفاً bugfix).
+    if (os.environ.get("OCTOPUS_SELFKNOW_LEGS_UNWRAP") == "1"
+            and isinstance(legs.get("business_legs"), dict)):
+        legs = legs["business_legs"]
+    # ── نیمهٔ گمشدهٔ آناتومی (۲۰۲۶-۰۷-۲۷) ───────────────────────────────────
+    # اندازه‌گیری: خودآگاهی ۵ پا می‌دید، رجیستریِ واقعی ۱۰ تا. پنج بازو **نامرئی**
+    # بودند — `ziman` (بازوی زندهٔ واقعی با money_link=active!)، ونچر، لایهٔ system،
+    # نقشه‌بردار، و اتاقِ آینه. علت: این تابع فقط `business_legs` را می‌خواند، ولی
+    # آن چهار پای اسکلتی است؛ بقیهٔ بازوها کلیدِ **جدا**ی خودشان را در
+    # ORGANISM-STATE دارند (`ziman`, `leg`, `cartographer`) و هیچ‌کس جمعشان نمی‌کرد.
+    # نتیجه: ارگانیسم دربارهٔ نیمی از بدنِ خودش هیچ نمی‌دانست، و «آناتومی» در هر
+    # پرامپتِ مغزِ گران نصفِ حقیقت بود. content-free: فقط live/money_link/note.
+    for _key, _name in (("ziman", "ziman"), ("leg", "lead"),
+                        ("cartographer", "cartographer")):
+        _blk = org.get(_key)
+        if not isinstance(_blk, dict) or not _blk:
+            continue
+        _id = str(_blk.get("leg_id") or _name)
+        if _name in legs:
+            continue          # از business_legs آمده — دوباره‌شماری ممنوع
+        legs[_name] = {
+            "live": _blk.get("money_link") == "active",
+            "money_link": _blk.get("money_link"),
+            "note": f"{_id} · propose_only={_blk.get('propose_only')}"[:90],
+        }
+    # لایهٔ درونیِ سلامت (`part_loops`) هم بخشی از بدن است — بدونِ آن ارگانیسم
+    # فقط بازوهای بیرونی‌اش را می‌شمارد و خودش را جا می‌اندازد.
+    try:
+        _pl = _read_json("cortex/part-loops-latest.json", {}) or {}
+        _parts = _pl.get("parts") if isinstance(_pl.get("parts"), list) else []
+        if _parts and "system" not in legs:
+            _bad = sum(1 for p in _parts if isinstance(p, dict)
+                       and str(p.get("status")) in ("🔴", "🟡"))
+            legs["system"] = {"live": True, "money_link": None,
+                              "note": f"{len(_parts)} بخشِ درونی · {_bad} نیازِ توجه"}
+    except Exception:  # noqa: BLE001
+        pass
+    # ونچر — **content-free**: فقط وجود و گیت‌بودنش، هرگز نام/محتوا/هویت.
+    # بدونِ این، ارگانیسم یک پروژهٔ کاملِ خودش را در آناتومی نمی‌شمارد.
+    try:
+        _vp = opslib.ORG_ROOT / "03 - Projects"
+        if "studio_pf" not in legs and _vp.exists():
+            legs["studio_pf"] = {"live": False, "money_link": None,
+                                 "note": "ونچر — propose-only، پشتِ گیتِ مالک"}
+    except Exception:  # noqa: BLE001
+        pass
+    # `mirror` عمداً اینجا نیست: اتاقِ گفتگو است، نه اندام — وضعیتی ندارد که
+    # در آناتومی شمرده شود (همان تصمیمی که در render.render_leg_digest گرفته شد).
     wiring = org.get("wiring", {}) if isinstance(org.get("wiring"), dict) else {}
     month = org.get("month", {}) if isinstance(org.get("month"), dict) else {}
     cardiac = org.get("cardiac", {}) if isinstance(org.get("cardiac"), dict) else {}
@@ -131,9 +201,21 @@ def snapshot() -> dict:
         "wire_on": sorted(k for k, v in wiring.items() if str(k).startswith("wire_") and v),
         "wire_off": sorted(k for k, v in wiring.items() if str(k).startswith("wire_") and not v),
         # چرخهٔ پول (قلبِ ماموریت)
+        #
+        # ⚠ ۲۰۲۶-۰۷-۲۷ — `money.musd` **خرج** است، نه درآمد. `telemetry.py:174`
+        # آن را از جمعِ هزینه‌ها می‌سازد (ledgerِ ژنوم + organ_gate + core.db) و
+        # `organism.py:492` همان را بر سقفِ بودجه تقسیم می‌کند. نامش گمراه‌کننده
+        # است و کلید برای سازگاریِ عقب‌رو نگه داشته می‌شود (خواننده‌های موجود:
+        # `_hash_digest` و تستِ pin‌شدهٔ test_doctor_selfknowledge)، ولی هیچ‌کس
+        # نباید دوباره آن را درآمد بخواند.
         "money": {"musd": month.get("musd"),
+                  "_note": "musd = خرجِ خودم (micro-USD)، نه درآمد",
                   "proposal_metrics": prop,
                   "router": {k: router.get(k) for k in ("seen", "delivered", "sent")} if router else {}},
+        # درآمدِ **واقعی** — همان منبعی که goal_directed می‌خواند: فقط CONFIRMED.
+        # تا امروز این کلید وجود نداشت، پس تنها عددِ پولی که خودشناسی می‌دید خرجِ
+        # خودش بود و هر ۲۷ نسخه «درآمد>۰» نتیجه می‌گرفت در حالی که درآمد صفر بود.
+        "revenue": _revenue_confirmed(),
         "stress": {"level": stress.get("level"), "in_fear": stress.get("in_fear"),
                    "organism_stress": stress.get("organism_stress")},
         "innervation": {"coverage_pct": innerv.get("coverage_pct"),
@@ -156,9 +238,69 @@ def snapshot() -> dict:
             out["owner_focus"] = str(_pol["focus"])[:200]
     except Exception:  # noqa: BLE001
         pass
+    # تصحیح‌های مالک از اتاقِ آینه (۲۰۲۶-۰۷-۲۷). اتاق ادعا می‌کرد حرفِ مالک «واردِ
+    # هر چرخهٔ خودشناسیِ بعدی می‌شود» — ولی این تابع آن فایل را هرگز باز نمی‌کرد،
+    # پس ادعا فقط برای contextِ خودِ اتاق درست بود نه برای تشخیصِ روزانه. اینجا
+    # همان حلقه بسته می‌شود: حرفی که مالک زده در snapshot می‌نشیند، و چون کلِ
+    # snapshot سریال و به مغز داده می‌شود، صفر تغییرِ دیگری لازم نیست.
+    try:
+        _cp = opslib.STATE_DIR / "doctor" / "owner-corrections.jsonl"
+        if _cp.exists():
+            _rows = []
+            for _line in _cp.read_text("utf-8").splitlines()[-8:]:
+                if not _line.strip():
+                    continue
+                try:
+                    _r = json.loads(_line)
+                except ValueError:
+                    continue          # خطِ خراب کلِ تصحیح‌ها را کور نکند
+                if isinstance(_r, dict) and _r.get("text"):
+                    _rows.append(str(_r["text"])[:300])
+            if _rows:
+                out["owner_corrections"] = _rows[-5:]
+    except OSError:
+        pass
+    # ── صفِ رأیِ مالک (۲۰۲۶-۰۷-۲۷) ─────────────────────────────────────────
+    # تا امروز ارگانیسم **نمی‌دانست منتظرِ چیست**. `VERDICT_QUEUE.md` در ریشهٔ
+    # vault صفِ تصمیم‌های مالک است و ۵۸ ردیف دارد؛ خودآگاهی هرگز بازش نمی‌کرد.
+    # نتیجه: چیزی را که پشتِ رأیِ باز قفل است دوباره و دوباره پیشنهاد می‌داد، و
+    # هرگز نمی‌توانست بگوید «این کار منتظرِ توست». حالا فقط شناسه و عنوانِ
+    # ردیف‌های `open` می‌آید — بدونِ محتوا، بدونِ PII (خودِ فایل هم secret ندارد).
+    try:
+        _vq = opslib.ORG_ROOT / "VERDICT_QUEUE.md"
+        if _vq.exists():
+            _open = []
+            for _line in _vq.read_text("utf-8", errors="replace").splitlines():
+                if not _line.startswith("|"):
+                    continue
+                _cells = [c.strip() for c in _line.strip("|").split("|")]
+                if len(_cells) < 4 or not _cells[0].startswith("VQ-"):
+                    continue
+                if _cells[3].lower().startswith("open"):
+                    _open.append({"id": _cells[0], "تصمیم": _cells[1][:110]})
+            if _open:
+                out["owner_verdicts_open"] = {"n": len(_open), "نمونه": _open[:6]}
+    except OSError:
+        pass
     sig = _owner_signal()
     if sig:  # فقط وقتی OCTOPUS_WIRE_WLOS روشن و سیگنال معتبر باشد — وگرنه snapshot دست‌نخورده
         out["owner_signal"] = sig
+    # ۲۰۲۶-۰۷-۲۶ (رأیِ مالک: «دستش بیاید چطور با من رفتار کند») — دکترینِ گفت‌وگو
+    # به‌عنوان **ورودیِ** هر چرخهٔ خودشناسی، نه خروجیِ آن.
+    # چرا این‌جا و نه در understanding: `synthesize` هر دور از نو ساخته می‌شود، پس
+    # هر درسِ رفتاری که آن‌جا نوشته شود دورِ بعد پاک می‌شود. دکترین ماندگار و
+    # نسخه‌دار است (`tg/operator_doctrine`) و از این‌جا تزریق می‌شود تا مغز هر بار
+    # که دربارهٔ خودش فکر می‌کند، با دانستنِ نحوهٔ حرف‌زدن با مالک فکر کند.
+    # پشتِ فلگ چون promptِ مغزِ پولی را عوض می‌کند (رفتارِ نو، نه bugfix).
+    if os.environ.get("OCTOPUS_SELFKNOW_DOCTRINE") == "1":
+        try:
+            _tg = str(_HERE.parent / "tg")
+            if _tg not in sys.path:
+                sys.path.insert(0, _tg)
+            import operator_doctrine
+            out["owner_doctrine"] = operator_doctrine.for_snapshot()
+        except Exception:  # noqa: BLE001 — دکترین هرگز snapshot را نمی‌کشد
+            pass
     return out
 
 
@@ -207,7 +349,15 @@ def _heuristic(snap: dict, prev: dict) -> dict:
         path.append({"symptom": "نقطهٔ مردهٔ عصب‌کشی", "root_cause": "کالیبراسیونِ SLA یا نوشندهٔ غایب", "severity": "low"})
     focus = path[0]["symptom"] if path else "همه‌چیز آرام"
     return {"anatomy": f"{len(legs)} لِگ، {len(snap.get('wire_on') or [])} سیمِ روشن",
-            "physiology": ("درآمد صفر، propose-only" if not snap.get("money", {}).get("musd") else "درآمد>۰"),
+            # ۲۰۲۶-۰۷-۲۷: این خط به `money.musd` نگاه می‌کرد که **خرج** است، پس هر
+            # ۲۷ نسخه «درآمد>۰» می‌گفت در حالی که درآمدِ محقق‌شده صفر بود. برای
+            # ارگانیسمی که مأموریتش پول است، این بدترین باورِ ممکن بود — و در
+            # promptِ مغزِ گران هم می‌رفت. حالا از منبعِ درآمدِ واقعی می‌خواند.
+            "physiology": (f"درآمدِ محقق‌شده {snap.get('revenue')} · خرجِ خودم "
+                           f"{snap.get('money', {}).get('musd')} micro-USD"
+                           if snap.get("revenue")
+                           else f"درآمد صفر، propose-only · خرجِ خودم "
+                                f"{snap.get('money', {}).get('musd')} micro-USD"),
             "pathology": path[:5], "trajectory": "نامعلوم (بی‌LLM)",
             "prescription": [{"action": "یک لِگ را به لیدِ واقعی وصل کن", "why": "ترس را می‌شکند", "priority": "high"}],
             "open_questions": ["چرا خطاهای پرتکرار رخ می‌دهند؟"],
@@ -306,6 +456,13 @@ def _hash_digest(snap: dict) -> dict:
     return {"legs": legs, "wire_on": snap.get("wire_on"), "wire_off": snap.get("wire_off"),
             "fear": st.get("in_fear"), "level": st.get("level"),
             "musd": (snap.get("money") or {}).get("musd"),
+            # بدونِ این، تصحیحِ باورِ درآمد تا **تغییرِ طبیعیِ بعدیِ hash** پشتِ
+            # مسیرِ `cached:no-change` می‌ماند — و آن مسیر همین حالا ۱۱ چرخه یخ‌زده
+            # است. یعنی فیکس روی دیسک بود ولی باور عوض نمی‌شد (۲۰۲۶-۰۷-۲۷).
+            "revenue": snap.get("revenue"),
+            # تصحیحِ تازهٔ مالک باید **همان چرخه** تشخیص را تکان بدهد، نه اینکه
+            # پشتِ `cached:no-change` منتظرِ یک تغییرِ بی‌ربط بماند.
+            "corrections": len(snap.get("owner_corrections") or []),
             "prop": (snap.get("money") or {}).get("proposal_metrics"),
             "dead_spots": (snap.get("innervation") or {}).get("dead_spots"),
             "error_types": sorted((snap.get("recent_errors") or {}).keys()),

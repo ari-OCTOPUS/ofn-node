@@ -150,6 +150,21 @@ def maybe_export(rec: dict, state_dir=None):
         out = _outbox_dir(state_dir)
         out.mkdir(parents=True, exist_ok=True)
         stem = str(pkg["qt_number"]).replace("/", "-")
+        try:
+            import os as _og_os, sys as _og_sys
+            from pathlib import Path as _OGPath
+            if _og_os.environ.get("OCTOPUS_WIRE_OUTPUT_GUARD") == "1":
+                _ogd = str(_OGPath(__file__).resolve().parents[1])
+                if _ogd not in _og_sys.path:
+                    _og_sys.path.insert(0, _ogd)
+                import output_guard as _og
+                _og_json = json.dumps(pkg, ensure_ascii=False, indent=1)
+                for _og_nm, _og_ct in ((stem + ".tq.json", _og_json), (stem + ".txt", _txt(pkg))):
+                    _og_v = _og.check_output("state/legs/tradequote-outbox/" + _og_nm, _og_ct, allow_prefixes=("state/legs/",))
+                    if not _og_v.allowed:
+                        return None
+        except Exception:
+            pass
         jpath = out / f"{stem}.tq.json"
         tmp = out / f"{stem}.tq.json.tmp"
         tmp.write_text(json.dumps(pkg, ensure_ascii=False, indent=1), "utf-8")

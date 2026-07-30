@@ -79,9 +79,15 @@ def t_similar_keys_populated():
     r2 = wiring.canonical_consolidation(
         stack, acquisition_data={"rev": 20.0}, latent_space=ls)
     assert r2 is not None
-    # similar_keys ممکن None باشد یا list — نباید crash کند
-    if r2.similar_keys is not None:
-        assert isinstance(r2.similar_keys, list)
+    # ۲۰۲۶-۰۷-۳۰ — این assert قبلاً «ممکن None باشد یا list» بود، یعنی چه بازیابی
+    # کار می‌کرد چه نمی‌کرد سبز می‌شد. باگِ واقعی همان‌جا زنده ماند: `nearest(cycle_key)`
+    # قبل از embedِ همان کلید صدا زده می‌شد و برای کلیدِ غایب [] می‌داد ⇒ similar_keys
+    # همیشه خالی. حالا **محتوا** سنجیده می‌شود، نه صرفاً نوع.
+    assert isinstance(r2.similar_keys, list), r2.similar_keys
+    assert r2.similar_keys, "بازیابی باید سیکلِ قبلی را پیدا کند (نه لیستِ خالی)"
+    assert any("cycle-1" in k for k in r2.similar_keys),         f"cycle-1 باید در similar_keys باشد: {r2.similar_keys}"
+    # خودارجاعی ممنوع: کلیدهای خودِ همین سیکل نباید برگردند
+    assert not any(k == "cycle-2" or k.startswith("cycle-2:") for k in r2.similar_keys),         f"similar_keys نباید کلیدِ خودِ سیکل را داشته باشد: {r2.similar_keys}"
 
 
 def t_school_awareness_encoded():
@@ -159,6 +165,110 @@ def t_latent_fail_soft():
     assert len(result.verified_sources) >= 1 or result.latent_vector is not None
 
 
+def t_fold_never_clobbers_a_latent_row():
+    """۲۰۲۶-۰۷-۳۰ — مسیرِ زندهٔ fold (compress خاموش) نباید ردیفِ دارای latent_vector
+    را مقصدِ تا-کردن کند. `_foldable` این شرط را داشت ولی شاخهٔ compress-off نداشت،
+    پس سیکلِ نو داخلِ ردیفِ غنی تا می‌شد و `sync_latent` بردارش را بازنویسی می‌کرد —
+    از ۵۳۹ ردیفِ فایلِ زنده فقط ۳ بردار داشتند، یعنی کم‌یاب‌ترین داده لِه می‌شد."""
+    import json as _json
+    import tempfile as _tf
+    from neural.consolidation import ConsolidationCycle
+    td = _tf.mkdtemp()
+    hist = Path(td) / "consolidation.json"
+    src = {"school_awareness": {"mean_awareness": 0.42}}
+
+    # سیکلِ ۱: ردیفِ اول ساخته می‌شود
+    c1 = ConsolidationCycle(data_path=str(hist))
+    c1.run(src)
+    rows = _json.loads(hist.read_text("utf-8"))
+    assert len(rows) == 1, rows
+
+    # همان محتوا دوباره و بدونِ بردار → باید fold شود (رفتارِ موجود، حفظ می‌شود)
+    ConsolidationCycle(data_path=str(hist)).run(src)
+    rows = _json.loads(hist.read_text("utf-8"))
+    assert len(rows) == 1, f"بدونِ بردار باید fold شود: {len(rows)}"
+    assert int(rows[-1].get("repeats", 1)) >= 2, rows[-1]
+
+    # حالا ردیفِ آخر بردار می‌گیرد (شبیه‌سازیِ sync_latent)
+    rows[-1]["latent_vector"] = [0.1, 0.2, 0.3]
+    hist.write_text(_json.dumps(rows, ensure_ascii=False), encoding="utf-8")
+
+    # همان محتوا دوباره → این بار **نباید** fold شود؛ ردیفِ نو و بردار سالم
+    ConsolidationCycle(data_path=str(hist)).run(src)
+    rows2 = _json.loads(hist.read_text("utf-8"))
+    assert len(rows2) == 2, f"ردیفِ داری بردار نباید مقصدِ fold شود: {len(rows2)} ردیف"
+    assert rows2[0].get("latent_vector") == [0.1, 0.2, 0.3], \
+        f"بردارِ ردیفِ قبلی باید دست‌نخورده بماند: {rows2[0].get('latent_vector')}"
+
+
+def t_cycle_ordinal_survives_restart():
+    """۲۰۲۶-۰۷-۳۰ — شمارهٔ سیکل نباید به **شمارِ ردیف‌ها** pin شود.
+
+    `__init__` شمارنده را از `len(self._history)` می‌گرفت. چون دورِ هم‌محتوا داخلِ
+    ردیفِ قبلی تا می‌شود، شمارِ ردیف‌ها رشد نمی‌کند، پس هر ری‌استارتِ پروسه همان
+    شماره را دوباره می‌ساخت. اثرِ روی فایلِ زنده: (cycle=537, last_cycle=538,
+    repeats=13) — سیزده شلیکِ جدا، همه با مُهرِ «۵۳۸». و چون کلیدِ بازیابی
+    `f"cycle-{result.cycle}"` است، `latent_space.embed` همان کلید را بازنویسی
+    می‌کرد و ایندکس هرگز از تعدادِ ordinalهای متمایز بالاتر نمی‌رفت.
+
+    این تست عمداً **پنج** instance می‌سازد نه دو: با یک ردیف روی دیسک،
+    `len(history)` تصادفاً ۱ است و اولین بازخوانی هم ۲ می‌دهد. pin از instanceِ
+    سوم به بعد خودش را نشان می‌دهد — دقیقاً همان شکلی که در فایلِ زنده دیده شد.
+    """
+    import json as _json
+    import tempfile as _tf
+    from neural.consolidation import ConsolidationCycle
+    hist = Path(_tf.mkdtemp()) / "consolidation.json"
+    src = {"school_awareness": {"mean_awareness": 0.42}}
+
+    ordinals = [ConsolidationCycle(data_path=str(hist)).run(src).cycle]
+    for _ in range(4):                        # چهار «ری‌استارتِ پروسه»
+        ordinals.append(ConsolidationCycle(data_path=str(hist)).run(src).cycle)
+
+    rows = _json.loads(hist.read_text("utf-8"))
+    assert len(rows) == 1, f"فرضِ تست باطل شد — محتوای یکسان باید تا شود: {len(rows)} ردیف"
+    assert int(rows[0]["repeats"]) == 5, rows[0]
+
+    # هستهٔ گارد: هر instanceِ بعدی باید **اکیداً** جلوتر از قبلی باشد
+    for prev, cur in zip(ordinals, ordinals[1:]):
+        assert cur > prev, f"شمارهٔ سیکل جلو نرفت (pin به شمارِ ردیف): {ordinals}"
+    assert len(set(ordinals)) == 5, f"۵ شلیک باید ۵ ordinalِ متمایز بدهد: {ordinals}"
+    assert ordinals == [1, 2, 3, 4, 5], ordinals
+    assert int(rows[0]["last_cycle"]) == 5, rows[0]
+
+
+def t_seed_never_regresses_below_row_count():
+    """۲۰۲۶-۰۷-۳۰ — گاردِ خودِ فیکسِ بالا. seedِ نو (`max(last_cycle)`) روی ردیفی که
+    `last_cycle`/`cycle` **ندارد یا None است** صفر می‌دهد و هیچ خطایی هم نمی‌دهد، پس
+    `except (TypeError, ValueError)` نمی‌گیردش. بدونِ کف، شمارنده از ۱ از نو شروع
+    می‌شد — همان بازاستفادهٔ ordinal که فیکس قرار بود ببندد. اندازه‌گیری‌شده: ۵ ردیفِ
+    بی‌کلید → seed=۰ در برابرِ ۵ ِ رفتارِ قبلی."""
+    import json as _json
+    import tempfile as _tf
+    from neural.consolidation import ConsolidationCycle
+
+    def _seed(rows):
+        p = Path(_tf.mkdtemp()) / "consolidation.json"
+        p.write_text(_json.dumps(rows, ensure_ascii=False), encoding="utf-8")
+        return ConsolidationCycle(data_path=p).cycle_count
+
+    # سه شکلِ ردیفِ خراب که هیچ‌کدام استثنا نمی‌دهند
+    for label, rows in (
+        ("کلیدها غایب", [{"insights": []} for _ in range(5)]),
+        ("کلیدها None", [{"cycle": None, "last_cycle": None} for _ in range(5)]),
+        ("کلیدها غیرعددی", [{"cycle": "abc", "last_cycle": "abc"} for _ in range(5)]),
+    ):
+        got = _seed(rows)
+        assert got >= len(rows), \
+            f"seed زیرِ شمارِ ردیف افتاد ({label}) → بازاستفادهٔ ordinal: {got} < {len(rows)}"
+
+    # و کفِ جدید نباید seedِ درست را خفه کند: تاشدگی باید همچنان جلو بزند
+    folded = [{"cycle": i, "last_cycle": i} for i in range(1, 5)] + \
+             [{"cycle": 5, "last_cycle": 9}]
+    assert _seed(folded) == 9, f"کف نباید last_cycleِ جلوتر را پایین بکشد: {_seed(folded)}"
+    assert _seed([]) == 0, "تاریخچهٔ خالی باید صفر بماند"
+
+
 if __name__ == "__main__":
     failed = harness.run([
         ("latent_space → latent_vector", t_with_latent_space_has_vector),
@@ -168,5 +278,8 @@ if __name__ == "__main__":
         ("multiple sources integrated", t_multiple_sources_integrated),
         ("retrieval finds previous", t_retrieval_finds_previous),
         ("latent fail-soft", t_latent_fail_soft),
+        ("fold ردیفِ داری بردار را لِه نمی‌کند", t_fold_never_clobbers_a_latent_row),
+        ("شمارهٔ سیکل ری‌استارت را دوام می‌آورد", t_cycle_ordinal_survives_restart),
+        ("seed زیرِ شمارِ ردیف نمی‌افتد", t_seed_never_regresses_below_row_count),
     ])
     sys.exit(1 if failed else 0)

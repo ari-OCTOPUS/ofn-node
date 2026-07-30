@@ -1,92 +1,113 @@
 {
-  "ts": "2026-07-17T17:55:27",
-  "cycle": 131,
-  "coherence": 0.927,
+  "ts": "2026-07-25T13:43:27",
+  "cycle": 17,
+  "coherence": 0.92,
   "stale_members": [],
   "members": [
     {
       "id": "organism",
       "present": true,
-      "awareness": 0.835,
-      "age_s": 594,
+      "awareness": 0.86,
+      "age_s": 504,
       "sla_s": 1800,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "ORGANISM-STATE.json"
     },
     {
       "id": "heart",
       "present": true,
-      "awareness": 0.917,
-      "age_s": 595,
+      "awareness": 0.93,
+      "age_s": 506,
       "sla_s": 3600,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "pulse/heart-shadow-latest.json"
     },
     {
       "id": "producers",
       "present": true,
-      "awareness": 0.917,
-      "age_s": 595,
+      "awareness": 0.93,
+      "age_s": 506,
       "sla_s": 3600,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "pulse/heart-signals-latest.json"
     },
     {
       "id": "work_pump",
       "present": true,
-      "awareness": 0.959,
-      "age_s": 595,
+      "awareness": 0.919,
+      "age_s": 1170,
       "sla_s": 7200,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "pulse/work-state.json"
     },
     {
       "id": "doctor_setpoint",
       "present": true,
-      "awareness": 0.954,
-      "age_s": 15987,
+      "awareness": 0.903,
+      "age_s": 33411,
       "sla_s": 172800,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "pulse/heart-setpoint-latest.json"
     },
     {
       "id": "governor",
       "present": true,
-      "awareness": 0.958,
-      "age_s": 599,
+      "awareness": 0.956,
+      "age_s": 630,
       "sla_s": 7200,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "telemetry-latest.json"
     },
     {
       "id": "sigma",
       "present": true,
-      "awareness": 0.943,
-      "age_s": 19832,
+      "awareness": 0.972,
+      "age_s": 9740,
       "sla_s": 172800,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "replication-latest.json"
     },
     {
       "id": "fitness",
       "present": true,
-      "awareness": 0.943,
-      "age_s": 19832,
+      "awareness": 0.972,
+      "age_s": 9740,
       "sla_s": 172800,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "fitness-latest.json"
     },
     {
       "id": "school",
       "present": true,
-      "awareness": 0.963,
-      "age_s": 19106,
+      "awareness": 1.0,
+      "age_s": 16,
       "sla_s": 259200,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "school-awareness.json"
     },
     {
       "id": "reconcile",
       "present": true,
-      "awareness": 0.966,
-      "age_s": 17761,
+      "awareness": 0.664,
+      "age_s": 174020,
       "sla_s": 259200,
-      "note": "تازه"
+      "note": "تازه",
+      "source": "file-freshness",
+      "watches": "reconcile-latest.json"
     }
   ],
   "alignment": {
     "changed": false,
+    "aligned": true,
     "reason": "هم‌راستا بود"
   },
   "rhythm": {
@@ -96,17 +117,19 @@
   "brains": {
     "keys": {
       "fugu": true,
-      "glm": false,
+      "glm": true,
       "deepseek": false
     },
     "paid_gate": "open (owner research-early override — سپرِ تاریخ دور زده شد)",
     "local_model": "qwen2.5:latest"
   },
+  "thought": "[local] اندیشیدن به توسعهٔ محتوا و تعاملات بین اعضای تیم است.",
   "stress": {
     "level": "🔴 ترس",
-    "organism_stress": 0.75,
+    "organism_stress": 1.0,
     "in_fear": [
-      "legs"
+      "legs",
+      "doctor"
     ]
   },
   "innervation": {

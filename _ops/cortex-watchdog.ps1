@@ -76,6 +76,16 @@ if ($attempts.Count -ge 2) {
     Add-Content -Path $log -Value "$(Get-Date -Format s) cortex: REVIVE (2 consecutive misses)"
     Start-Process -FilePath (Join-Path $ops "RUN-CORTEX.bat") -WindowStyle Hidden
     Add-Content -Path $log -Value "$(Get-Date -Format s) cortex: launched RUN-CORTEX.bat"
+    # C-watchdog (2026-07-30): resurrection is no longer silent. AFTER the launch on
+    # purpose - a broken alert path must never stop a revive (fail-soft, swallowed).
+    # The word "incident" is LOAD-BEARING (measured 2026-07-30): telegram_center/
+    # event_bridge.py pushes ONLY alert lines matching _CRITICAL_KW, so without a
+    # qualifying word this alert is file-only and never reaches the owner. And NO
+    # varying numbers in the text: opslib.alert hashes the text for dedup, so a
+    # changing number makes every alert a fresh signature => the 6-hour window and
+    # the escalation marks never engage (up to 288 unthrottled alerts/day at a
+    # 5-minute cadence). Stable sentence only.
+    try { & python -X utf8 (Join-Path $ops "watchdog.py") --alert "WATCHDOG REVIVE incident (cortex :8772) - port dead for 2 consecutive checks - relaunched RUN-CORTEX.bat" 2>$null | Out-Null } catch {}
     $attempts = @()  # reset; give it a fresh window
 }
 

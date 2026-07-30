@@ -1,0 +1,9 @@
+{
+  "day": "2026-07-25",
+  "used_total": 2,
+  "consecutive_failures": 0,
+  "used": {
+    "primary:ARCHITECT_SYS": 2
+  },
+  "denied": {}
+}

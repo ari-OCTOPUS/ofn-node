@@ -22,7 +22,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import sys
+import time
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
@@ -62,6 +64,62 @@ def _stub_transport(body: dict) -> dict:
                    "epistemic_tag": "SPEC"}
     return {"choices": [{"message": {"content": json.dumps(payload, ensure_ascii=False)}}],
             "usage": {"prompt_tokens": 0, "completion_tokens": 0}}
+
+
+# ─── مغزِ محلی ($0) — DEFECT-W4 ────────────────────────────────────────
+# چرا: تنها صداکنندهٔ تولیدی (governor_epoch:422) همیشه live=False می‌فرستد، پس
+# خطِ ۱۳۱-۱۳۲ همیشه _stub_transport را می‌بندد → ۶۳ دورِ ledger همگی stub.
+# این مسیر همان مغزی است که cortex/model_router به آن می‌رسد؛ $۰، فقط localhost،
+# بدونِ خروجِ داده. هر شکست = همان stubِ امروز.
+# عمداً از model_router.ask رد نمی‌شویم: TASK_TIERS کارِ debate_muse/debate_architect
+# را به ردهٔ پولی می‌برد — و قرار است صفر دلار باشد.
+LOCAL_FLAG = "OCTOPUS_WIRE_DEBATE_LOCAL"
+LOCAL_BUDGET_S = float(os.environ.get("OCTOPUS_DEBATE_LOCAL_BUDGET_S", "90"))
+
+
+def _tier_of(raw: dict) -> str:
+    """ردهٔ واقعیِ یک پاسخ (local/stub/paid) — برای صداقتِ ledger."""
+    return str(raw.get("tier") or ("stub" if raw.get("stub", False) else "paid"))
+
+
+def _local_transport():
+    """transportِ مغزِ محلی با بودجهٔ زمانیِ مشترک؛ fallback = _stub_transport.
+
+    بودجهٔ زمانی لازم است چون run_epoch داخلِ تیکِ organism اجرا می‌شود؛ یک callِ کند
+    نباید تیک را گروگان بگیرد — رد شدن از بودجه یعنی ادامهٔ مناظره با stub (نه توقف،
+    نه کرش). force=True چون rate-limiterِ local_llm درون‌پروسه‌ای است و ۶ callِ متوالیِ
+    همین حلقه را به‌غلط می‌بُرد؛ گیتِ واقعیِ این مسیر organ_gate است که در _gated_call
+    دست‌نخورده مانده."""
+    deadline = time.time() + LOCAL_BUDGET_S
+    warned = {"n": 0}
+
+    def _tr(body: dict) -> dict:
+        system = body["messages"][0]["content"]
+        user = body["messages"][1]["content"]
+        try:
+            if time.time() >= deadline:
+                raise TimeoutError(f"بودجهٔ زمانیِ {LOCAL_BUDGET_S}s تمام شد")
+            _cx = str(_HERE.parent / "cortex")
+            if _cx not in sys.path:
+                sys.path.insert(0, _cx)
+            import local_llm  # noqa: WPS433 — lazy، همان مغزی که cortex می‌زند
+            out = local_llm.ask(user, system=system,
+                                max_tokens=int(body.get("max_tokens") or 700),
+                                force=True)
+            payload = extract_json((out or {}).get("text") or "")
+            keys = ARCHITECT_KEYS if "You are ARCHITECT" in system else MUSE_KEYS
+            if not keys.issubset(payload):
+                raise ValueError(f"قرارداد JSONِ محلی ناقص: {sorted(payload)}")
+        except Exception as e:  # noqa: BLE001 — §۴: مغزِ محلی هرگز مناظره را نمی‌کشد
+            if not warned["n"]:   # یک هشدار در هر مناظره، نه هر call (ضدِ اسپم)
+                opslib.alert([f"debate: مغزِ محلی نشد → stub ({type(e).__name__}: {e})"])
+            warned["n"] += 1
+            return _stub_transport(body)
+        return {"choices": [{"message": {"content": json.dumps(payload, ensure_ascii=False)}}],
+                "usage": {"prompt_tokens": 0, "completion_tokens": 0},
+                "octopus_tier": "local", "octopus_model": out.get("model")}
+
+    return _tr
 
 
 def _gated_call(client: DeepSeekClient, system: str, user: str,
@@ -129,7 +187,9 @@ def run_debate(topic: dict, live: bool = False, rounds: int = MAX_ROUNDS,
         if not ok:
             return {"status": "blocked", "reason": why}
     if not live and transport is None:
-        transport = _stub_transport
+        # DEFECT-W4: پیش‌فرض همچنان stub (بایت‌به‌بایتِ امروز)؛ با فلگ = مغزِ محلیِ $۰.
+        transport = (_local_transport() if os.environ.get(LOCAL_FLAG) == "1"
+                     else _stub_transport)
     muse_client = DeepSeekClient(role="econ", transport=transport)
     architect_client = DeepSeekClient(role="reason", transport=transport)
     muse_sys = _role_prompt("debate-muse-role.txt")
@@ -179,14 +239,19 @@ def _rounds(topic: dict, wrapped: str, topic_hash: str, rounds: int,
         arch_out = extract_json(arch_raw["text"])
         if not ARCHITECT_KEYS.issubset(arch_out):
             raise ValueError(f"architect JSON contract broken (r{rnd}): {sorted(arch_out)}")
+        # DEFECT-W4: دور وقتی stub است که *هرکدام* از دو نقش stub شده باشد
+        # (پیش‌تر فقط muse خوانده می‌شد = نیمه‌حقیقت)؛ tier برای تفکیکِ local/stub/paid.
+        _tiers = {_tier_of(muse_raw), _tier_of(arch_raw)}
         round_rec = {"round": rnd, "muse": muse_out, "architect": arch_out,
                      "cost_usd": muse_raw.get("cost_usd", 0.0) + arch_raw.get("cost_usd", 0.0),
-                     "stub": muse_raw.get("stub", False)}
+                     "stub": bool(muse_raw.get("stub", False) or arch_raw.get("stub", False)),
+                     "tier": _tiers.pop() if len(_tiers) == 1 else "mixed"}
         history.append(round_rec)
         opslib.ledger_note("EXPERIENCE", {
             "loop": "debate", "topic_id": topic["id"], "topic_hash": topic_hash,
             "round": rnd, "verdict": arch_out.get("verdict"),
-            "cost_usd": round_rec["cost_usd"], "stub": round_rec["stub"]}, actor="debate")
+            "cost_usd": round_rec["cost_usd"], "stub": round_rec["stub"],
+            "tier": round_rec["tier"]}, actor="debate")
         if arch_out.get("verdict") == "kill" and arch_out.get("kill_condition"):
             final = "killed"        # نیم‌سیکل میرا — چرخه بسته شد
             break

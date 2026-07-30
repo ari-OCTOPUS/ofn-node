@@ -22,6 +22,11 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent
 if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
+# ۲۰۲۶-۰۷-۲۶: خودِ `_ops` هم لازم شد (tg_send_log آن‌جاست). بدونِ این خط، قلابِ
+# سنجشِ ارسال داخل try/except بی‌صدا رد می‌شد و «اندازه‌گیری روشن است» یک ادعای
+# غیرقابلِ‌ابطال می‌ماند — همان بیماری‌ای که این ماژول‌ها برای شکارش ساخته شدند.
+if str(_HERE.parent) not in sys.path:
+    sys.path.insert(0, str(_HERE.parent))
 import opslib  # noqa: E402 — بعد از bootstrapِ مسیر؛ برای alertهای fail-soft لازم است
 
 # فقط این وضعیت‌ها = «کلیکِ انسانیِ واقعی» در صف کنترل‌برین/core.db (هم‌راستا با I7 outbox status='sent')
@@ -104,6 +109,128 @@ TELEGRAM_LONGPOLL_TIMEOUT_S = 30   # idle = $0: getUpdates تا این ثانی�
 # وابستگی‌هاش) → None → شاخهٔ delegation بی‌صدا skip می‌شود (fail-soft، مثلِ _ar/_jb).
 _langar_bridge_dispatch_cache: "callable | None" = None
 _langar_bridge_tried = False
+
+
+# ── مسیریابیِ جریانِ محیطی به تاپیک (رأی مالک ۲۰۲۶-۰۷-۲۶) ────────────────────
+# مسئله‌ای که این حل می‌کند: ۶ تابعِ beat هر تیک به **DMِ مالک** می‌نویسند (قلب،
+# دکتر، مغز، نیازها) چون این ماژول اصلاً `message_thread_id` نداشت. نتیجه: DM پر و
+# ۹ تاپیکِ گروه خالی — یعنی جریانِ محیطی در کانالِ کمیاب‌ترین منبع (توجهِ مالک) و
+# کانالِ مرتب بی‌استفاده. اینجا فقط *مقصد* عوض می‌شود؛ محتوا و کادنس دست‌نخورده.
+#
+# منبعِ حقیقتِ idها = همان center-config.json که خودِ مرکز می‌نویسد. کپی نمی‌کنیم،
+# چون دو نسخه از یک حقیقت دقیقاً همان بیماریِ b763adb است.
+# سقفِ سختِ تلگرام برای callback_data. کارتِ RFC این را می‌سازد:
+#     rfc:<verb>:<rfc_id>:<token>   →  len("rfc:merge:") + id + 1 + len(token)
+# طولانی‌ترین verb «merge» است و توکن ۲۴ کاراکترِ hex.
+CALLBACK_DATA_MAX = 64
+_RFC_CB_OVERHEAD = len("rfc:merge:") + 1 + 24
+
+
+def callback_fits(rfc_id: str, overhead: int = _RFC_CB_OVERHEAD) -> bool:
+    """آیا کارتِ این شناسه در سقفِ تلگرام جا می‌شود؟ (bytes، نه characters —
+    شناسهٔ غیرASCII در UTF-8 بزرگ‌تر از طولِ رشته‌اش است.)"""
+    try:
+        return len(str(rfc_id).encode("utf-8")) + int(overhead) <= CALLBACK_DATA_MAX
+    except (TypeError, ValueError, UnicodeError):
+        return False
+
+
+ROUTE_FLAG = "OCTOPUS_TG_ROUTE_TOPICS"
+# ── ساعتِ سکوتِ مالک (رأی ۲۰۲۶-۰۷-۲۷: «۰ تا ۷») ─────────────────────────────
+# اندازه‌گیریِ همان روز: ۷ پیامِ خودکار بینِ ۲۲ شب تا ۸ صبح رفته بود. این بازه
+# فقط جریانِ **محیطی** را ساکت می‌کند؛ پاسخِ مستقیم و هشدارِ حیاتی هرگز.
+# ساعتِ محلیِ همین ماشین (مالک و ارگانیسم یک‌جا هستند) — env قابلِ تنظیم.
+_NEVER_QUIET = frozenset({"cortisol", "alert", "heart"})
+
+
+def _quiet_hours() -> tuple:
+    def _h(name, default):
+        try:
+            v = int(str(os.environ.get(name, "")).strip())
+            return v if 0 <= v <= 23 else default
+        except (TypeError, ValueError):
+            return default
+    return _h("OCTOPUS_QUIET_FROM", 0), _h("OCTOPUS_QUIET_TO", 7)
+
+
+def _quiet_now(now=None) -> bool:
+    """آیا الان در بازهٔ سکوت است؟ بازهٔ گذرنده از نیمه‌شب هم پشتیبانی می‌شود."""
+    import datetime as _dt
+    h = (now or _dt.datetime.now()).hour
+    a, b = _quiet_hours()
+    if a == b:
+        return False
+    return (a <= h < b) if a < b else (h >= a or h < b)
+
+
+_STREAM_TOPIC = {
+    # ۲۰۲۶-۰۷-۳۰ · VQ-TG-HOLD-001 §۵: «هیچ doctor/heart/needs یا پیامِ هسته‌ای
+    # به General یا topic ِ پا fallback نکند.» این جدول مسیرِ **قدیمی** است که
+    # فقط وقتی surface_policy در یک پروسه پیدا نشود تصمیم می‌گیرد — و تا امروز
+    # heart/doctor/needs/brain/… را به تاپیک‌های گروه می‌برد. مدخل‌های هسته‌ای
+    # حذف شدند: نبودِ مدخل ⇒ (None, None) ⇒ DM ِ مالک (نه گروه، نه سکوت).
+    # فقط پاها ماندند. حذفِ مدخل ≠ حذفِ پیام — مقصد DM می‌شود.
+    "map": "cartographer",
+    # ۲۰۲۶-۰۷-۲۶ — مقصدِ هشدارهای فوری (instant_alert_bridge):
+    # ترس در 🫀قلب (وضعیتِ حیاتی)، فرضیه در 🧠مغز (یادگیری)، لید در بازوی خودش.
+    "lead": "lead",
+}
+def _center_cfg_path() -> Path:
+    """مسیرِ configِ مرکز — از opslib.STATE_DIR، نه ثابتِ hardcode. دلیلش عملی است:
+    مسیرِ ثابت در تست به درختِ **زنده** می‌خورد و شواهد را آلوده می‌کند."""
+    return Path(opslib.STATE_DIR) / "telegram" / "center-config.json"
+
+
+def _reply_thread_id(upd):
+    """تاپیکِ پیامِ ورودی — یا None. پشتِ همان فلگِ مرکز.
+
+    ۲۰۲۶-۰۷-۲۸ — ممیزیِ `tg_send_audit` نشان داد این ماژول **فرستندهٔ دومِ**
+    سیستم است و برخلافِ `tg_api.TgClient.send` هیچ مفهومی از تاپیک نداشت:
+    هر پاسخی که `chat_id`ِ صریح بگیرد بی‌تاپیک می‌رفت، یعنی در General.
+    ری‌استارت این را درست **نمی‌کند** — این باگِ کد است، نه رانشِ فلگ.
+
+    عمداً همان فلگِ `OCTOPUS_TG_TOPIC_REPLY` استفاده می‌شود تا یک رأیِ مالک
+    هر دو مسیر را هم‌زمان روشن کند، نه دو رأیِ جدا برای یک رفتار.
+    fail-closed: هر ابهام → None → رفتارِ امروز بایت‌به‌بایت.
+    """
+    try:
+        if str(os.environ.get("OCTOPUS_TG_TOPIC_REPLY", "")).strip().lower() \
+                not in ("1", "true", "yes", "on"):
+            return None
+        if not isinstance(upd, dict):
+            return None
+        m = upd.get("message")
+        if not isinstance(m, dict):
+            m = ((upd.get("callback_query") or {}).get("message")) or {}
+        if not m.get("is_topic_message"):
+            return None
+        t = m.get("message_thread_id")
+        return int(t) if isinstance(t, int) else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _stream_route(stream: str) -> tuple:
+    """(chat_id, topic_id) برای یک جریان — یا (None, None).
+
+    (None, None) یعنی «همان DMِ همیشگی». هر شکستی — فلگ خاموش، فایلِ نبود، JSONِ
+    خراب، تاپیکِ ساخته‌نشده — به DM برمی‌گردد و **هرگز به سکوت**. گم‌شدنِ پیام
+    بدتر از پیامِ در جای اشتباه است."""
+    if str(os.environ.get(ROUTE_FLAG, "") or "").strip().lower() not in (
+            "1", "true", "yes", "on"):
+        return (None, None)
+    key = _STREAM_TOPIC.get(str(stream or ""))
+    if not key:
+        return (None, None)
+    try:
+        cfg = json.loads(_center_cfg_path().read_text("utf-8"))
+        chat = cfg.get("chat_id")
+        tid = (cfg.get("topics") or {}).get(key)
+        if isinstance(chat, int) and isinstance(tid, int):
+            return (chat, tid)
+    except (OSError, ValueError, TypeError, AttributeError):
+        pass
+    return (None, None)
 
 
 def langar_bridge_dispatch(text: str, chat_id=None, owner=None):
@@ -393,7 +520,16 @@ class TelegramApprovalChannel(ApprovalChannel):
                 text = cbq.get("data") or ""
             else:
                 text = msg.get("text") or ""
-            from_id = (msg.get("from") or cbq.get("from") or {}).get("id")
+            # 🐛 ۲۰۲۶-۰۷-۲۶ — گزارشِ مالک: «کلیک می‌کنم تأیید، می‌گوید فقط مالک».
+            # برای یک callback، `msg` همان `cbq["message"]` است — یعنی **کارتی که خودِ
+            # بات فرستاده** — پس `msg["from"]` همیشه پر است و شناسهٔ *بات* را می‌دهد.
+            # فرمِ قبلی هرگز به `cbq["from"]` (که خودِ کلیک‌کننده است) نمی‌رسید، پس هر
+            # کلیک به بات نسبت داده می‌شد و `_callback_owner_ok` آن را رد می‌کرد.
+            # نتیجهٔ ساختاری: گیتِ fail-closed برای callbackها **همیشه** بسته بود — و
+            # همین توضیح می‌دهد چرا جدولِ rfc_decision در کلِ تاریخِ سیستم صفر ردیف
+            # دارد. کنشگرِ یک callback همیشه `cbq["from"]` است، هرگز فرستندهٔ پیام.
+            from_id = ((cbq.get("from") if is_callback else None)
+                       or msg.get("from") or {}).get("id")
             cbq_id = cbq.get("id")  # callback_query ID برای answerCallbackQuery
 
             # allowlist: chat_idهای مجاز (owner + گروه‌های TELEGRAM_ALLOWED_CHAT_IDS).
@@ -415,6 +551,7 @@ class TelegramApprovalChannel(ApprovalChannel):
             # پاسخ به همان chat_id (گروه یا چتِ ۱:۱) که فرمان از آن آمد — نه همیشه owner.
             # کارت‌های تأیید (request_approval_card) همچنان به owner می‌رود (قانونِ T-2: تنها
             # مسیرِ تأیید، owner-only intent)؛ ولی پاسخِ دستور به همان‌جا برمی‌گردد که پرسیده شد.
+            _thr = _reply_thread_id(upd)
             try:
                 if is_callback:
                     # callback_query → dispatch + answer
@@ -427,7 +564,7 @@ class TelegramApprovalChannel(ApprovalChannel):
                             self._answer_callback_query(cbq_id, "✅")
                         self.send_text(reply.get("text", ""),
                                        reply_markup=reply.get("reply_markup"),
-                                       chat_id=chat_id)
+                                       chat_id=chat_id, topic_id=_thr)
                     else:
                         if cbq_id:
                             self._answer_callback_query(cbq_id, reply or "📝")
@@ -440,9 +577,10 @@ class TelegramApprovalChannel(ApprovalChannel):
                         if isinstance(reply, dict):
                             self.send_text(reply.get("text", ""),
                                            reply_markup=reply.get("reply_markup"),
-                                           chat_id=chat_id)
+                                           chat_id=chat_id, topic_id=_thr)
                         else:
-                            self.send_text(reply, chat_id=chat_id)
+                            self.send_text(reply, chat_id=chat_id,
+                                           topic_id=_thr)
             except Exception as e:  # noqa: BLE001 — fail-soft: ارسال شکست → alert، حلقه ادامه
                 opslib.alert([f"telegram T-8 dispatch error: {type(e).__name__}: {e}"])
 
@@ -727,6 +865,21 @@ class TelegramApprovalChannel(ApprovalChannel):
                 pass
             elif not self._callback_owner_ok(from_id):
                 return "⛔ فقط مالک می‌تواند این تصمیم را اجرا کند"
+        # ۲۰۲۶-۰۷-۲۷ — تلهٔ **دو-باتی**. کارتِ ابتکار از همین کانال (باتِ
+        # ارگانیسم) فرستاده می‌شود (`organism.py`)، ولی handlerِ فعلِ `iv` فقط در
+        # `telegram_center/center.py` نوشته شده بود — یعنی پروسه و توکنِ دیگر.
+        # پس دکمه ساخته می‌شد، فرستاده می‌شد، کلیک می‌شد، و به هیچ‌جا نمی‌رسید.
+        #
+        # گاردِ ضدِ دکمهٔ مرده هم نگرفتش چون فقط یک پوشه را اسکن می‌کرد و فقط یک
+        # روتر را می‌شناخت. یک سیستمِ دو-باته با فرضِ تک-بات سنجیده می‌شد.
+        if parts[0] == "iv" and len(parts) > 1 and parts[1] == "q":
+            try:
+                import initiative as _iv   # noqa: WPS433 — lazy
+                r = _iv.quieter()
+                return (f"🔇 باشد — از این به بعد حداکثر {r['cap']} بار در روز.\n"
+                        "▸ نکنی: همین‌قدر می‌ماند.")
+            except Exception:  # noqa: BLE001
+                return "🔇 نشد."
         if parts[0] == "menu":
             return self._dispatch_menu(parts)
         if parts[0] == "home":              # جلسه ۴۶: آره/نهِ خانهٔ ساده
@@ -1115,8 +1268,12 @@ class TelegramApprovalChannel(ApprovalChannel):
             f"{t.get('priority')} · {html.escape(str(t.get('title','')))} "
             f"<code>[{t.get('change_level')}]</code>\n  ↳ {html.escape(str(t.get('suggested_action',''))[:90])}"
             for t in (u.get("top") or [])[:5])
-        return ("🧬 <b>خودارتقا — بلوغِ سیستم "
-                f"{u.get('maturity_pct','—')}%</b>" + self._DIV
+        _ir = u.get("improvement_rate") or {}
+        return ("🧬 <b>خودارتقا — نرخِ بهبود "
+                f"{_ir.get('rate_pct', '—')}%</b> "
+                f"<i>({_ir.get('moved', 0)}/{_ir.get('closed', 0)} نیت متریک را جابه‌جا کرد)</i>\n"
+                f"پوششِ چک‌لیست: {u.get('checklist_pct', u.get('maturity_pct', '—'))}% "
+                "<i>(ایستا — سقفِ ثابت، سنجهٔ پیشرفت نیست)</i>" + self._DIV
                 + f"{u.get('n_proposals','—')} پیشنهاد · auto: "
                 + ("🟢 روشن" if u.get("auto_enabled") else "⚪ خاموش (propose-only)") + "\n"
                 + f"دسته‌ها: {cats}\n\n{tops}\n"
@@ -1334,22 +1491,50 @@ class TelegramApprovalChannel(ApprovalChannel):
     }
 
     def send_text(self, text: str, reply_markup: dict | None = None,
-                  chat_id: int | None = None) -> bool:
+                  chat_id: int | None = None, stream: str | None = None,
+                  topic_id: int | None = None) -> bool:
         """پیامِ ساده (یا با کیبورد). مقصد = chat_id یا، اگر داده نشد، owner.
         گروه‌پذیری (رأی مالک 2026-07-17): پاسخ به همان chat (گروه/چت) که فرمان از آن آمد.
+        `stream` (رأی مالک 2026-07-26): جریانِ محیطی به تاپیکِ خودش می‌رود نه DM —
+        ولی فقط وقتی chat_id صریح داده نشده باشد (پاسخِ مستقیم همیشه برنده است).
         not wired → False. خطای شبکه fail-soft."""
         if not self.wired:
             return False
         target = int(chat_id) if chat_id is not None else self._owner
+        # `topic_id`ِ صریح برنده است. بدونِ آن مقدارش None است و کلِ شرطِ
+        # زیر دست‌نخورده می‌ماند → رفتارِ قبلی بایت‌به‌بایت.
+        thread = int(topic_id) if isinstance(topic_id, int) else None
+        if thread is None and chat_id is None and stream:
+            # ── ساعتِ سکوت (رأیِ مالک ۲۰۲۶-۰۷-۲۷: «۰ تا ۷») ──────────────────
+            # اندازه‌گیری: ۷ پیامِ خودکار بینِ ۲۲ تا ۸ رفته بود. فقط **جریانِ
+            # محیطی** ساکت می‌شود — پاسخِ مستقیمِ مالک (chat_id صریح) و هشدارِ
+            # فوری هرگز. چیزی صف نمی‌شود: جریانِ محیطی دوره‌ای است و نسخهٔ بعدی
+            # خودش می‌آید؛ نگه‌داشتنش فقط رگبارِ صبحگاهی می‌سازد.
+            if _quiet_now() and str(stream) not in _NEVER_QUIET:
+                return False
+            r_chat, r_topic = _stream_route(stream)
+            if r_chat is not None and r_topic is not None:
+                target, thread = r_chat, r_topic
         text = self._redact(text)   # Cockpit v2 · INV-12: هر خروجی از پاسِ redaction می‌گذرد
         body = {"chat_id": target, "text": text, "parse_mode": "HTML"}
+        if thread is not None:
+            body["message_thread_id"] = thread
         if reply_markup:
             body["reply_markup"] = reply_markup
+        ok = True
         try:
             self._http_post(self._build_url("sendMessage", {}), body)
         except Exception:  # noqa: BLE001
-            return False
-        return True
+            ok = False
+        # سنجشِ حجم و تکرار، قبل از هر تصمیمِ ضدِاسپم (رأیِ مالک ۲۰۲۶-۰۷-۲۶).
+        # فقط hashِ متن ثبت می‌شود، نه خودِ متن. خطای لاگ هرگز ارسال را عوض نمی‌کند.
+        try:
+            import tg_send_log as _tsl  # noqa: WPS433
+            _tsl.record(chat_id=target, topic_id=thread, text=text,
+                        stream=stream, ok=ok)
+        except Exception:  # noqa: BLE001
+            pass
+        return ok
 
     # دستوراتِ مرزِ-سختِ سراسری/kill — حتی داخلِ یک گروهِ allowlisted فقط شخصِ مالک
     # (from_id == owner) مجاز است، نه هر عضوِ گروه. (red-team GOV-P1، 2026-07-23)
@@ -2503,6 +2688,18 @@ class TelegramApprovalChannel(ApprovalChannel):
         هیچ settle/gate اینجا نیست. not wired → False (no-opِ امن)."""
         if not self.wired:
             return False
+        # سقفِ ۶۴ بایتِ callback_data (۲۰۲۶-۰۷-۲۶). کارت `rfc:<verb>:<rfc_id>:<token>`
+        # می‌سازد؛ رد شدن از سقف یعنی تلگرام **کلِ** sendMessage را ۴۰۰ می‌کند،
+        # `send_text` استثنا را می‌بلعد و False می‌دهد، و کارت بی‌هیچ ردی در هیچ لاگ
+        # گم می‌شود — کارتِ C6 دقیقاً یک شبانه‌روز همین‌طور ناپدید بود (۷۵ بایت).
+        # این چک عمداً **قبل از** mintِ توکن است: شناسهٔ غیرممکن نباید رکوردِ
+        # ماندگار و nonce بسوزاند. شکستِ بی‌صدا → شکستِ دیده‌شدنی.
+        if not callback_fits(rfc_id):
+            opslib.alert([
+                f"rfc_card: rfc_id طولش {len(str(rfc_id))} است و callback_data را از "
+                f"سقفِ {CALLBACK_DATA_MAX} بایت رد می‌کند — تلگرام کلِ پیام را رد "
+                f"می‌کند و کارت بی‌صدا گم می‌شود. کارت فرستاده نشد؛ شناسه را کوتاه کن."])
+            return False
         # Refuse re-card before touching durable intent: an unconsumed owner verdict must
         # never be overwritten by a fresh SUBMITTED nonce.
         with self._lk:
@@ -2738,20 +2935,26 @@ class TelegramApprovalChannel(ApprovalChannel):
 
     def _redact(self, text: str) -> str:
         """INV-12: پاسِ redactionِ خروجی. secretِ سخت → کلِ بدنه؛ hex64 → per-match (C7).
-        C3/C6: اگر لایهٔ redaction بشکند، fail-open و ساکت نیست — یک‌بار alert می‌زند و متن
-        را دست‌نخورده می‌فرستد (بهتر از سکوت). مسیرِ خوش‌کار از cockpit_readmodel.redact می‌رود."""
+        ۲۰۲۶-۰۷-۲۸ — blindspot #131 (CRITICAL): قبلاً fallbackِ محلی فقط ۳ الگو
+        داشت و هر الگوی جدیدی که به cockpit_readmodel اضافه می‌شد در لایهٔ افتاده
+        نمی‌گرفت → متنِ خام نشت می‌کرد. حالا fail-**closed**: هر خطایی = بدنهٔ
+        قرمز (چه secret باشد چه نباشد). محافظِ افتاده → محتوا هم حذف می‌شود."""
         try:
             import cockpit_readmodel as _crm
             return _crm.redact(text)
-        except Exception as e:  # noqa: BLE001
-            if not getattr(self, "_redact_warned", False):
-                self._redact_warned = True
-                opslib.alert([f"INV-12 redaction layer unavailable: {type(e).__name__}: {e}"])
-            return text
+        except Exception as e:  # noqa: BLE001 — blindspot #131: fail-closed
+            opslib.alert([f"INV-12 redaction FAIL-CLOSED (blindspot #131): "
+                          f"{type(e).__name__}: {e} — متنِ خام نشت نشد"])
+            # هیچ fallbackِ محلی — الگوهای محلی incomplete هستند؛
+            # هرگونه نشت ناقضِ INV-12 است. کلِ بدنه حذف می‌شود.
+            return "[redacted: error in scrub layer]"
 
     def _redact_pii(self, text: str) -> str:
         """لایهٔ دومِ INV-12 فقط برای mirrorهای خام (state/log/alerts/quarantine):
-        PII (تشخیصِ sensory_bus._contains_pii) → کلِ بدنه حذف می‌شود."""
+        PII (تشخیصِ sensory_bus._contains_pii) → کلِ بدنه حذف می‌شود.
+        ۲۰۲۶-۰۷-۲۸ — blindspot #131 (CRITICAL): قبلاً هر خطایی (import/attribute)
+        ساکت رد می‌شد → متنِ خام بدونِ بررسیِ PII رد می‌شد. حالا fail-**closed**:
+        هر خطایی = بدنهٔ قرمز. sensory_bus در دسترس نیست → محتوا حذف می‌شود."""
         try:
             import sys as _sys
             from pathlib import Path as _P
@@ -2762,8 +2965,12 @@ class TelegramApprovalChannel(ApprovalChannel):
             if _contains_pii(str(text or "")):
                 import cockpit_readmodel as _crm
                 return _crm.REDACTED_BODY
-        except Exception:  # noqa: BLE001 — گاردِ PII در دسترس نیست → لایهٔ secret کافی است
-            pass
+        except Exception as e:  # noqa: BLE001 — blindspot #131: fail-closed
+            opslib.alert([f"INV-12 PII guard FAIL-CLOSED (blindspot #131): "
+                          f"{type(e).__name__}: {e} — متنِ خام نشت نشد"])
+            # sensory_bus در دسترس نیست → نمی‌توان PII را تشخیص داد
+            # محتوا را حذف می‌کنیم (secure-by-default).
+            return "[redacted: PII guard unavailable]"
         return text
 
     def _new_act_token(self, verb: str, key: str, ttl_s: int = 3600, target=None) -> str:

@@ -1,5 +1,5 @@
 {
-  "ts": "2026-07-08T01:34:28",
+  "ts": "2026-07-25T13:48:09",
   "channels": {
     "dashboard": {
       "channel": "dashboard",
@@ -11,14 +11,11 @@
     },
     "telegram": {
       "channel": "telegram",
-      "live": false,
-      "mode": "stub(no-creds)",
+      "live": true,
+      "mode": "long-poll(T-8)",
+      "writer": "approval_channel(run_forever/poll_once)",
       "allowlist": false,
-      "required_env": [
-        "TELEGRAM_BOT_TOKEN",
-        "TELEGRAM_OWNER_CHAT_ID"
-      ],
-      "sends_last_min": 0
+      "owner_set": true
     },
     "whatsapp": {
       "channel": "whatsapp",
@@ -43,5 +40,6 @@
         "EMAIL_OWNER_ADDR"
       ]
     }
-  }
+  },
+  "writer_note": "entryِ telegram توسطِ کانالِ زنده refresh می‌شود (2026-07-24)؛ بقیهٔ کانال‌ها snapshot"
 }

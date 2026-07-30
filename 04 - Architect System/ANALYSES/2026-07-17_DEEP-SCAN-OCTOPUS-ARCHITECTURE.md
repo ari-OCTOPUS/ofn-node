@@ -9,9 +9,11 @@ created_by: agent (deep-scan session)
 audience: next-agent
 sources:
   - "[[_ops/ORGANISM-SPEC]]"
-  - "[[_ops/organism]]"
-  - "[[_ops/cortex/cortex]]"
-  - "[[_ops/heart/producers]]"
+  # 2026-07-29 — این سه از wikilink به متنِ ساده رفتند (§۵): مقصدشان فایلِ کد است
+  # نه نوت، پس لینک هرگز حل نمی‌شد و فقط در ابسیدین «حل‌نشده» دیده می‌شد.
+  - "_ops/organism.py"
+  - "_ops/cortex/cortex.py"
+  - "_ops/heart/producers.py"
 ---
 
 # 🐙 DEEP-SCAN — معماریِ طرز فکرِ اختاپوس (قلب‌ها، مغزها، پاها)

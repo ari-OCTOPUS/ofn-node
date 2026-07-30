@@ -1,10 +1,12 @@
 ---
-type: thread-closure
+type: report
 project: "[[03 - Projects/اونلی فنز/PROJECT]]"
-status: complete (deliverables) — تصمیم‌ها proposal
+status: done
+# status پیشین: complete (deliverables) — تصمیم‌ها proposal
 created: 2026-07-10
+updated: 2026-07-29
 created_by: agent (Claude Fable 5 — اجرای PROMPT D)
-relates_to: "[[RESEARCH-INTEGRATION-round2-2026-07-10]] · [[DECISION-MATRIX-M2-2026-07-10]] · [[COMPLIANT-PLAYBOOK-M3-2026-07-10]] · [[architecture-blueprint-2026-07-04]] · CLAUDE.md"
+related: "[[RESEARCH-INTEGRATION-round2-2026-07-10]] · [[DECISION-MATRIX-M2-2026-07-10]] · [[COMPLIANT-PLAYBOOK-M3-2026-07-10]] · [[architecture-blueprint-2026-07-04]] · CLAUDE.md"
 tags: [project-f, thread-closure, prompt-d, t1-t8]
 aliases: ["Thread Closure", "PROMPT D", "T1-T8"]
 ---

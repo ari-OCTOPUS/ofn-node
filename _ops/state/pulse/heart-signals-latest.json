@@ -1,16 +1,17 @@
 {
-  "ts": "2026-07-17T17:45:29",
+  "ts": "2026-07-25T13:43:51",
   "velocity": {
-    "velocity_per_hr": 2.2542,
+    "velocity_per_hr": 5.8292,
     "components": {
       "confirmed": 0,
       "effects": 0,
-      "consolidation": 3,
-      "beats": 511
+      "consolidation": 4,
+      "beats": 1359,
+      "cognition": null
     },
     "confirmed_ts": [],
     "window_hours": 24.0,
-    "sample_size": 3,
+    "sample_size": 4,
     "sources_available": [
       "beats",
       "confirmed",
@@ -19,7 +20,28 @@
     ],
     "authoritative": false,
     "provenance": "external: reconcile-job/effector-gate/consolidation/pacemaker",
-    "ts": "2026-07-17T17:45:31"
+    "ts": "2026-07-25T13:43:52",
+    "fuel_velocity_per_hr": null,
+    "value_velocity_per_hr": null,
+    "real_velocity_per_hr": null,
+    "real_components": {
+      "fuel_calls": null,
+      "fuel_musd": 0
+    },
+    "leg_money_count": 0,
+    "metronome_share": 0.9714,
+    "honest_pulse": {
+      "enabled": false,
+      "beat_cap": 3.0,
+      "capped_beat_units": 3.0
+    },
+    "channels": {
+      "leg_money": 0,
+      "fuel": null,
+      "value_cognition": null,
+      "effects": 0,
+      "beats": 1359
+    }
   },
   "cpi": {
     "cpi_0_1": 0.0,
@@ -30,19 +52,19 @@
     "sample_size": 2,
     "authoritative": false,
     "window_hours": 72.0,
-    "ts": "2026-07-17T17:45:31"
+    "ts": "2026-07-25T13:43:52"
   },
   "delta_self": {
-    "stream_rows": 452,
-    "sample_size": 452,
+    "stream_rows": 534,
+    "sample_size": 534,
     "min_samples": 48,
-    "ts": "2026-07-17T17:45:31",
+    "ts": "2026-07-25T13:43:52",
     "delta_self_live": 0.0,
-    "delta_self_raw": -0.034262,
-    "S_blind": 0.015576725348473769,
-    "S_informed": 0.01668152898800716,
-    "ceiling_live": 1.446869,
-    "holdout_n": 226,
+    "delta_self_raw": -0.026755,
+    "S_blind": 0.021989199058248567,
+    "S_informed": 0.023197880372756115,
+    "ceiling_live": 2.848602,
+    "holdout_n": 267,
     "authoritative": true,
     "estimator": "proxy-OLS (نه P_closed کانونی — قفلِ P0 جدا می‌ماند)",
     "provenance": "append-only velocity-stream (fixed-clock) + کوواریت‌های برون‌زاد",

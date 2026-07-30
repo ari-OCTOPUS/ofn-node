@@ -1,0 +1,130 @@
+{
+  "_meta": {
+    "schema": "world-discovery.fixture.v1",
+    "collected_at": "2026-07-30",
+    "collection_method": "WebSearch bridge (ZCode web_search_prime) — live public web",
+    "note": "These are REAL public-web observations collected 2026-07-30. The sandbox blocks direct Python network egress, so observations were gathered via the agent's WebSearch tool and cached here. Tier classification and independence checking run normally on this real data. Independent multi-source confirmation of any single claim still requires a live in-process retriever (see INTEGRATION-MANIFEST)."
+  },
+  "hits": [
+    {
+      "title": "Code with Claude 2026: 5 New Agent Features",
+      "snippet": "Anthropic targets three unsolved production agent problems: memory degrades across sessions, output quality hard to enforce, and more. Claude limits its own independence by pausing to ask questions when uncertain.",
+      "url": "https://www.mindstudio.ai/blog/code-with-claude-2026-new-agent-features",
+      "source": "mindstudio",
+      "source_date": "2026-07-01",
+      "competitor": "Anthropic"
+    },
+    {
+      "title": "Anthropic 2026 Code with Claude — Dotzlaw",
+      "snippet": "Anthropic targets five primitives: rate-limit headroom, long-context architecture, retry-with-grader loops, memory consolidation, and agent event push — each addressing a known limitation.",
+      "url": "https://dotzlaw.com/insights/anthropic-2026-code-with-claude/",
+      "source": "dotzlaw",
+      "source_date": "2026-06-28",
+      "competitor": "Anthropic"
+    },
+    {
+      "title": "Measuring AI Agent Autonomy in Practice — Anthropic Research",
+      "snippet": "Data from Oct 2025-Jan 2026. Claude intentionally limits its own independence by pausing to ask questions when uncertain — a built-in architectural constraint.",
+      "url": "https://anthropic.com/research/measuring-agent-autonomy",
+      "source": "anthropic",
+      "source_date": "2026-01-15",
+      "competitor": "Anthropic"
+    },
+    {
+      "title": "Grok for Coding 2026 — Verdent",
+      "snippet": "Grok 4.20 mobile support is limited and user reports highlight inconsistency. Domain-specific limitations noted.",
+      "url": "https://www.verdent.ai/guides/grok-for-coding-2026",
+      "source": "verdent",
+      "source_date": "2026-07-10",
+      "competitor": "xAI"
+    },
+    {
+      "title": "Grok vs ChatGPT 2026 — Coursiv",
+      "snippet": "Grok main drawbacks: ecosystem dependency, less predictable business output, smaller integration network, trust concerns compared to competitors.",
+      "url": "https://coursiv.io/blog/grok-vs-chatgpt",
+      "source": "coursiv",
+      "source_date": "2026-06-20",
+      "competitor": "xAI"
+    },
+    {
+      "title": "xAI Enters Coding Agent Race With Grok Build — DevOps",
+      "snippet": "2026 coding agent landscape is a three-way race: Anthropic Claude Code, OpenAI Codex CLI, xAI Grok Build. Grok playing catch-up, Grok Build still in beta.",
+      "url": "https://devops.com/xai-enters-the-coding-agent-race-with-grok-build/",
+      "source": "devops",
+      "source_date": "2026-05-14",
+      "competitor": "xAI"
+    },
+    {
+      "title": "Trinity: An Evolved LLM Coordinator — Sakana AI",
+      "snippet": "TRINITY is an evolved multi-agent coordination method that consistently outperforms existing multi-agent approaches and individual models across benchmarks.",
+      "url": "https://sakana.ai/trinity/",
+      "source": "sakana",
+      "source_date": "2026-06-15",
+      "competitor": "Sakana AI"
+    },
+    {
+      "title": "Sakana Fugu: Multi-Agent AI Orchestration Model 2026",
+      "snippet": "Sakana AI launched Fugu, a multi-agent orchestration system delivered as a single OpenAI-compatible model API. Fugu Ultra launched June 2026 priced at $5/M input, $30/M output.",
+      "url": "https://www.digitalapplied.com/blog/sakana-fugu-multi-agent-orchestration-model-2026",
+      "source": "digitalapplied",
+      "source_date": "2026-06-20",
+      "competitor": "Sakana AI"
+    },
+    {
+      "title": "Inside Sakana Fugu Ultra — Requesty",
+      "snippet": "Fugu Ultra is a multi-agent LLM conductor routing complex tasks across multiple frontier models. Priced at $5/M input tokens and $30/M output tokens.",
+      "url": "https://www.requesty.ai/blog/inside-sakana-fugu-ultra-multi-agent-orchestration-reverse-engineered",
+      "source": "requesty",
+      "source_date": "2026-06-25",
+      "competitor": "Sakana AI"
+    },
+    {
+      "title": "Kimi K3 Review 2026 — Bleap",
+      "snippet": "Kimi K3 released July 16 2026, 2.8T parameter open-weight model with 1M-token context window. Self-hosting requires ~1.4 TB storage, impractical for most users.",
+      "url": "https://www.bleap.finance/en-us/blog/kimi-k3-review",
+      "source": "bleap",
+      "source_date": "2026-07-16",
+      "competitor": "Moonshot/Kimi K3"
+    },
+    {
+      "title": "Kimi API Pricing — BenchLM",
+      "snippet": "Kimi K3 pricing: cache-miss input $3.00/M, cache-hit $0.30/M, output $15.00/M. 1M context window works effectively per community testing.",
+      "url": "https://benchlm.ai/moonshot/api-pricing",
+      "source": "benchlm",
+      "source_date": "2026-07-18",
+      "competitor": "Moonshot/Kimi K3"
+    },
+    {
+      "title": "Kimi K3 largest open-weight model — Reddit",
+      "snippet": "Community confirms 1M context window actually works but self-hosting needs 1.4 TB, pushing most users to the API route.",
+      "url": "https://www.reddit.com/r/AI_Agents/comments/1v81jk6/kimi_k3_is_the_largest_openweight_model_ever/",
+      "source": "reddit",
+      "source_date": "2026-07-17",
+      "competitor": "Moonshot/Kimi K3"
+    },
+    {
+      "title": "Perplexity AI Strengths and Weaknesses 2026 — Konabayev",
+      "snippet": "Perplexity weaknesses: citation reliability issues, shallow reasoning on complex tasks, weak long-form writing, limited coding depth, free plan restrictive.",
+      "url": "https://konabayev.com/blog/perplexity-ai-review/",
+      "source": "konabayev",
+      "source_date": "2026-07-05",
+      "competitor": "Perplexity"
+    },
+    {
+      "title": "Perplexity Computer Review — LowCode Agency",
+      "snippet": "Perplexity Computer cloud sandbox means you cannot inspect intermediate states or debug interactively. Questions if worth $200/month given constraints.",
+      "url": "https://www.lowcode.agency/blog/perplexity-computer-review",
+      "source": "lowcode",
+      "source_date": "2026-06-10",
+      "competitor": "Perplexity"
+    },
+    {
+      "title": "Perplexity vs ChatGPT — Nexos",
+      "snippet": "Perplexity cannot access internal systems, cannot generate empathetic personalized responses, better suited for agent tasks than conversational depth.",
+      "url": "https://nexos.ai/blog/perplexity-vs-chatgpt/",
+      "source": "nexos",
+      "source_date": "2026-06-12",
+      "competitor": "Perplexity"
+    }
+  ]
+}

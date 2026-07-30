@@ -1,12 +1,13 @@
 ---
-type: control
+type: report
 project: "[[03 - Projects/Accounting/PROJECT]]"
 status: active
 created: 2026-07-17
+updated: 2026-07-29
 created_by: deep-scan agent (ZCode)
 tags: [accounting, pocketsmith, deep-scan, status, read-first]
 aliases: ["دیپ‌اسکن Accounting PocketSmith", "PocketSmith Status Check"]
-purpose: "وضعیت راستی‌آزمایی‌شدهٔ اتصال PocketSmith و موتور حسابداری، با پرامپت اجرایی پیوست."
+# purpose: "وضعیت راستی‌آزمایی‌شدهٔ اتصال PocketSmith و موتور حسابداری، با پرامپت اجرایی پیوست."
 ---
 
 # 🔭 DEEP SCAN — Accounting / PocketSmith — 2026-07-17

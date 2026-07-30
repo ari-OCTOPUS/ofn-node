@@ -5818,5 +5818,257 @@
     "bcm_saturation": null,
     "sparse_ratio": null,
     "sparse_filtered": null
+  },
+  {
+    "cycle": 500,
+    "insights": [
+      "آگاهیِ میانگین: 0.46"
+    ],
+    "verified_sources": [
+      "school_awareness"
+    ],
+    "discarded_sources": [],
+    "timestamp": 1784758711.3775256,
+    "latent_vector": null,
+    "similar_keys": null,
+    "bcm_pruned": null,
+    "bcm_theta": null,
+    "bcm_saturation": null,
+    "sparse_ratio": null,
+    "sparse_filtered": null
+  },
+  {
+    "cycle": 501,
+    "insights": [
+      "آگاهیِ میانگین: 0.46"
+    ],
+    "verified_sources": [
+      "school_awareness"
+    ],
+    "discarded_sources": [],
+    "timestamp": 1784758964.673189,
+    "latent_vector": null,
+    "similar_keys": null,
+    "bcm_pruned": null,
+    "bcm_theta": null,
+    "bcm_saturation": null,
+    "sparse_ratio": null,
+    "sparse_filtered": null
+  },
+  {
+    "cycle": 502,
+    "insights": [
+      "آگاهیِ میانگین: 0.46"
+    ],
+    "verified_sources": [
+      "school_awareness"
+    ],
+    "discarded_sources": [],
+    "timestamp": 1784776081.3958657,
+    "latent_vector": null,
+    "similar_keys": null,
+    "bcm_pruned": null,
+    "bcm_theta": null,
+    "bcm_saturation": null,
+    "sparse_ratio": null,
+    "sparse_filtered": null
+  },
+  {
+    "cycle": 503,
+    "insights": [
+      "آگاهیِ میانگین: 0.46"
+    ],
+    "verified_sources": [
+      "school_awareness"
+    ],
+    "discarded_sources": [],
+    "timestamp": 1784776839.2634292,
+    "latent_vector": null,
+    "similar_keys": null,
+    "bcm_pruned": null,
+    "bcm_theta": null,
+    "bcm_saturation": null,
+    "sparse_ratio": null,
+    "sparse_filtered": null
+  },
+  {
+    "cycle": 504,
+    "insights": [
+      "آگاهیِ میانگین: 0.47"
+    ],
+    "verified_sources": [
+      "school_awareness"
+    ],
+    "discarded_sources": [],
+    "timestamp": 1784811642.0318043,
+    "latent_vector": null,
+    "similar_keys": null,
+    "bcm_pruned": null,
+    "bcm_theta": null,
+    "bcm_saturation": null,
+    "sparse_ratio": null,
+    "sparse_filtered": null
+  },
+  {
+    "cycle": 505,
+    "insights": [
+      "آگاهیِ میانگین: 0.49"
+    ],
+    "verified_sources": [
+      "school_awareness"
+    ],
+    "discarded_sources": [],
+    "timestamp": 1784817607.451964,
+    "latent_vector": null,
+    "similar_keys": null,
+    "bcm_pruned": null,
+    "bcm_theta": null,
+    "bcm_saturation": null,
+    "sparse_ratio": null,
+    "sparse_filtered": null
+  },
+  {
+    "cycle": 506,
+    "insights": [
+      "آگاهیِ میانگین: 0.49"
+    ],
+    "verified_sources": [
+      "school_awareness"
+    ],
+    "discarded_sources": [],
+    "timestamp": 1784829831.92764,
+    "latent_vector": null,
+    "similar_keys": null,
+    "bcm_pruned": null,
+    "bcm_theta": null,
+    "bcm_saturation": null,
+    "sparse_ratio": null,
+    "sparse_filtered": null
+  },
+  {
+    "cycle": 507,
+    "insights": [
+      "آگاهیِ میانگین: 0.50"
+    ],
+    "verified_sources": [
+      "school_awareness"
+    ],
+    "discarded_sources": [],
+    "timestamp": 1784838229.7071674,
+    "latent_vector": null,
+    "similar_keys": null,
+    "bcm_pruned": null,
+    "bcm_theta": null,
+    "bcm_saturation": null,
+    "sparse_ratio": null,
+    "sparse_filtered": null
+  },
+  {
+    "cycle": 508,
+    "insights": [
+      "آگاهیِ میانگین: 0.51"
+    ],
+    "verified_sources": [
+      "school_awareness"
+    ],
+    "discarded_sources": [],
+    "timestamp": 1784839704.38174,
+    "latent_vector": null,
+    "similar_keys": null,
+    "bcm_pruned": null,
+    "bcm_theta": null,
+    "bcm_saturation": null,
+    "sparse_ratio": null,
+    "sparse_filtered": null
+  },
+  {
+    "cycle": 509,
+    "insights": [
+      "آگاهیِ میانگین: 0.52"
+    ],
+    "verified_sources": [
+      "school_awareness"
+    ],
+    "discarded_sources": [],
+    "timestamp": 1784858311.0248954,
+    "latent_vector": null,
+    "similar_keys": null,
+    "bcm_pruned": null,
+    "bcm_theta": null,
+    "bcm_saturation": null,
+    "sparse_ratio": null,
+    "sparse_filtered": null
+  },
+  {
+    "cycle": 510,
+    "insights": [
+      "آگاهیِ میانگین: 0.53"
+    ],
+    "verified_sources": [
+      "school_awareness"
+    ],
+    "discarded_sources": [],
+    "timestamp": 1784873989.2123957,
+    "latent_vector": null,
+    "similar_keys": null,
+    "bcm_pruned": null,
+    "bcm_theta": null,
+    "bcm_saturation": null,
+    "sparse_ratio": null,
+    "sparse_filtered": null
+  },
+  {
+    "cycle": 511,
+    "insights": [
+      "آگاهیِ میانگین: 0.53"
+    ],
+    "verified_sources": [
+      "school_awareness"
+    ],
+    "discarded_sources": [],
+    "timestamp": 1784917581.5572877,
+    "latent_vector": null,
+    "similar_keys": null,
+    "bcm_pruned": null,
+    "bcm_theta": null,
+    "bcm_saturation": null,
+    "sparse_ratio": null,
+    "sparse_filtered": null
+  },
+  {
+    "cycle": 512,
+    "insights": [
+      "آگاهیِ میانگین: 0.53"
+    ],
+    "verified_sources": [
+      "school_awareness"
+    ],
+    "discarded_sources": [],
+    "timestamp": 1784936366.1038702,
+    "latent_vector": null,
+    "similar_keys": null,
+    "bcm_pruned": null,
+    "bcm_theta": null,
+    "bcm_saturation": null,
+    "sparse_ratio": null,
+    "sparse_filtered": null
+  },
+  {
+    "cycle": 513,
+    "insights": [
+      "آگاهیِ میانگین: 0.54"
+    ],
+    "verified_sources": [
+      "school_awareness"
+    ],
+    "discarded_sources": [],
+    "timestamp": 1784941255.8638587,
+    "latent_vector": null,
+    "similar_keys": null,
+    "bcm_pruned": null,
+    "bcm_theta": null,
+    "bcm_saturation": null,
+    "sparse_ratio": null,
+    "sparse_filtered": null
   }
 ]

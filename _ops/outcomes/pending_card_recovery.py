@@ -77,6 +77,22 @@ def _flag_on() -> bool:
     return str(os.environ.get(FLAG, "")) == "1"
 
 
+def card_delivery_ready(owner=None) -> "tuple[bool, str]":
+    """آیا لولهٔ کارتِ دکمه‌دار آمادهٔ ساخت است؟ (W7 · 2026-07-25)
+
+    prepare_money_card/prepare_rfc_card بدونِ رازِ callback هیچ توکنی mint نمی‌کنند و
+    None برمی‌گردانند — یعنی کارت اصلاً ساخته نمی‌شود، چه رسد به ارسال. این پروب فقط
+    همان پیش‌شرط‌ها را می‌سنجد تا caller بتواند صادقانه بگوید «چرا نرفت».
+    **هرگز مقدارِ راز را برنمی‌گرداند/چاپ/لاگ نمی‌کند** — فقط بود/نبود.
+    خروجی: (ready, reason) با reason ∈ {ok, no-secret, no-owner}."""
+    if _secret() is None:
+        return (False, "no-secret")
+    o = owner if owner is not None else os.environ.get("TELEGRAM_OWNER_CHAT_ID")
+    if o in (None, ""):
+        return (False, "no-owner")
+    return (True, "ok")
+
+
 # ── tamper-evident integrity tag (ضدِ card-swap/wrong-owner/amount-tamperِ storeِ durable) ──
 # این تگ **توکنِ callback نیست**. Bearer از nonce+binding مشتق می‌شود و خام persist نمی‌شود.
 # این تگ فقط صحتِ ردیفِ durable را می‌بندد به (effect|binding|amount|owner|exp): اگر مهاجم store را

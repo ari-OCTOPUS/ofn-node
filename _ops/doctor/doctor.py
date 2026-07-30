@@ -163,7 +163,13 @@ class RFC:
                 "expected_lift": self.expected_lift, "rollback": self.rollback,
                 "sandbox_result": self.sandbox_result, "critic_review": self.critic_review,
                 "status": self.status, "ledger_ref": self.ledger_ref, "rfc_hash": self.rfc_hash,
-                "change_level": self.change_level, "knob": self.knob}
+                "change_level": self.change_level, "knob": self.knob,
+                # 2026-07-25 (شاهدِ زنده): created_ts persist نمی‌شد و __post_init__ در هر
+                # لود آن را time.time() می‌کرد → همهٔ RFCها بعد از هر restart «نوزاد»
+                # می‌شدند، پس sweepِ سن‌محور (age_h) هیچ‌وقت expire نمی‌کرد؛ ۸ RFCِ روزهای
+                # قبل هنوز «باز» بودند و با dedupe آن گلوگاه را ابدی ساکت می‌کردند.
+                # لودِ RFC فیلترِ __dataclass_fields__ دارد → افزودنش سازگارِ عقب/جلو است.
+                "created_ts": self.created_ts}
 
     def to_markdown(self) -> str:
         """نمایشِ markdown برای knowledge/internal یا کارتِ P3."""
@@ -227,6 +233,11 @@ class Doctor:
     # RFCهای terminal (نتیجه ثبت‌شده) نباید بارگذاری شوند — نه به pending اضافه می‌کنند
     # (که attention-gate را باد می‌کند) و نه actionable‌اند. فقط RFCهای در جریان persist می‌شوند.
     _TERMINAL_RFC = ("merged", "rejected", "expired", "human-merged", "human-rejected")
+    # T8 (2026-07-25): وضعیت‌های «باز» — dedupe و reconcile روی همین مجموعه کار می‌کنند.
+    # stale-input عمداً نیست: RFCی که ورودی‌اش مرده دیگر باز محسوب نمی‌شود (نه dedupe را
+    # بلاک می‌کند، نه در digestِ باز دیده می‌شود) — ولی حذف هم نمی‌شود.
+    _OPEN_RFC = ("draft", "drafted", "sandboxed", "sandbox-skip", "submitted",
+                 "submitted-no-channel", "submit-failed", "reconcile-required")
 
     def _persist_enabled(self) -> bool:
         """persistence پشتِ flag (backward-compat: تست‌های قدیمی بدونِ flag دست‌نخورده؛
@@ -450,6 +461,13 @@ class Doctor:
         """از گلوگاه یک RFC می‌سازد. این یک proposal-event است، نه تغییرِ کد.
         RFC به knowledge/internal نوشته می‌شود (propose-only).
         change_level='tune' + knobِ whitelist → تپِ merge مالک اثرِ واقعیِ محدود دارد (نه فقط درس)."""
+        # T8 (2026-07-25): ضدِ تکرار — گواه: ۸ RFC با متنِ گلوگاهِ یکسانِ σ≈1/gap=0.000
+        # در صف. اگر RFCِ بازی با همین رشتهٔ گلوگاه هست، همان برگردانده می‌شود، نه نسخهٔ نو.
+        _bn = str(bottleneck.get("bottleneck", bottleneck)
+                  if isinstance(bottleneck, dict) else bottleneck)
+        for _r in self._rfcs.values():
+            if _r.status in self._OPEN_RFC and str(_r.bottleneck) == _bn:
+                return _r
         rfc = RFC(rfc_id=f"RFC-{uuid.uuid4().hex[:8]}",
                   bottleneck=bottleneck.get("bottleneck", str(bottleneck)),
                   fix=fix, expected_lift=expected_lift, rollback=rollback,
@@ -471,6 +489,17 @@ class Doctor:
         except OSError:
             pass   # fail-soft: RFC در registry است حتی اگر فایل نرفت
         self._journal(rfc.rfc_id, "propose", "ok")   # C2-D: قدمِ ۱ ثبتِ durable
+        try:
+            import os as _rs_os, sys as _rs_sys
+            from pathlib import Path as _RSPath
+            if _rs_os.environ.get("OCTOPUS_WIRE_RULES") == "1":
+                _rsd = str(_RSPath(__file__).resolve().parent)
+                if _rsd not in _rs_sys.path:
+                    _rs_sys.path.insert(0, _rsd)
+                import rules_store as _rs
+                _rs.record_occurrence(error_class=str((bottleneck or {}).get("bottleneck", bottleneck))[:120], source_trace=rfc.rfc_id)
+        except Exception:
+            pass
         return rfc
 
     # ─── D-4 · run_sandbox + Critic ──────────────────────────────────────────────
@@ -567,6 +596,21 @@ class Doctor:
         """RFC را برای merge به اپراتور بسته می‌کند. اگر P3 channel وصل باشد،
         کارتِ [merge پشتِ flag]/[reject] می‌فرستد. بدونِ channel → False (pending ابدی).
         فقط human-append (P3، is_human=1) merge را settle می‌کند."""
+        # T8 (2026-07-25): idempotency — RFCی که قبلاً submitted شده کارتِ تکراری نمی‌گیرد
+        # (مکملِ dedupe: اگر propose_rfc نسخهٔ موجود را برگرداند، این‌جا هم اسپم نمی‌شود).
+        if rfc.status == "submitted":
+            return True
+        try:
+            import os as _af_os, sys as _af_sys
+            from pathlib import Path as _AFPath
+            if _af_os.environ.get("OCTOPUS_WIRE_FATIGUE") == "1":
+                _afd = str(_AFPath(__file__).resolve().parents[1] / "budget")
+                if _afd not in _af_sys.path:
+                    _af_sys.path.insert(0, _afd)
+                import approval_fatigue as _af
+                _af.observe(risk="high" if getattr(rfc, "change_level", "") == "code" else "medium")
+        except Exception:
+            pass
         if self._channel is None:
             rfc.status = "submitted-no-channel"   # pending ابدی تا channel
             return False
@@ -580,7 +624,38 @@ class Doctor:
                                                             "rfc_hash": rfc.rfc_hash})
             self._journal(rfc.rfc_id, "submit", "ok")   # C2-D: قدمِ ۳
         else:
-            rfc.status = "submit-failed"
+            # W7 (2026-07-25): کارت ساخته/فرستاده نشد — و «چرا» هیچ‌جا ثبت نمی‌شد.
+            # نتیجه: ۷۰ draft بی‌صدا مردند و صفر verdict وارد سیستم شد. حالا دلیل در
+            # ledger/journal می‌نشیند و یک‌بار alert می‌شود. اگر بلاک ساختاری است (رازِ
+            # callback یا owner ست نشده)، RFC را «منتظرِ کانال» نگه می‌داریم تا با رفعِ
+            # پیش‌شرط، همان _sweep_stale_rfcs دوباره submit کند — نه مرگِ خاموشِ
+            # submit-failed که فقط expire می‌شود.
+            ready, reason = False, "unknown"
+            try:
+                import outcomes.pending_card_recovery as _pcr_probe  # noqa: WPS433
+                ready, reason = _pcr_probe.card_delivery_ready(
+                    getattr(self._channel, "_owner", None))
+            except Exception:  # noqa: BLE001 — پروب هرگز مسیرِ دکتر را نمی‌کشد
+                pass
+            rfc.status = ("submitted-no-channel"
+                          if (not ready and reason in ("no-secret", "no-owner"))
+                          else "submit-failed")
+            self._note("DOCTOR_SUBMIT_BLOCKED", {"rfc_id": rfc.rfc_id,
+                                                 "reason": reason,
+                                                 "status": rfc.status})
+            self._journal(rfc.rfc_id, "submit", "blocked", reason=reason)
+            _seen = getattr(self, "_submit_blocked_alerted", None)
+            if _seen is None:
+                _seen = set()
+                self._submit_blocked_alerted = _seen
+            if reason not in _seen:
+                _seen.add(reason)
+                try:
+                    opslib.alert([f"دکتر: کارتِ تأییدِ RFC ساخته نشد ({reason}) — "
+                                  f"حلقهٔ رأیِ مالک بسته است؛ هیچ verdict وارد نمی‌شود."])
+                except Exception:  # noqa: BLE001 — alert هم نباید مسیر را بکشد
+                    pass
+        self._persist_rfcs()   # W7: وضعیتِ پس از submit همان لحظه روی دیسک (flag-gated داخل خودش)
         return ok
 
     def apply_merge(self, rfc: RFC) -> bool:
@@ -852,6 +927,54 @@ class Doctor:
         except Exception:  # noqa: BLE001 — سایهٔ chord هرگز cycle را نمی‌کشد
             return None
 
+    # ─── T8 (2026-07-25): reconcileِ ورودیِ RFCها — درمانِ وضعیتی که دیگر نیست ──
+    def _reconcile_input_validity(self, trace: dict | None = None) -> dict:
+        """RFCهای باز که bottleneckشان به شرطِ ورودیِ دیگر-ناموجود گره خورده →
+        status='stale-input' + stale_reason داخلِ critic_review. RFC حذف نمی‌شود.
+
+        گواه (اسکن ۲۰۲۶-۰۷-۲۵): ۸ RFC با متنِ یکسانِ «σ≈1 (σ=1.00)؛ gap=0.000» در حالی
+        که هر سه منبعِ زنده σ=0.0 می‌گفتند و گرافِ خطا خالی بود؛ یکی «ارگانیسم FREEZE
+        است» در حالی که frozen:false بود. صفِ پیشنهادها وضعیتی را درمان می‌کرد که وجود
+        نداشت. این متد در هر run_cycle (کنارِ sweep) صف را با واقعیتِ زنده تطبیق می‌دهد.
+        fail-soft: خطا → صف دست‌نخورده."""
+        trace = trace if trace is not None else self._gather_trace()
+        marked = []
+        spectral_now = "<not-computed>"
+        for rfc in list(self._rfcs.values()):
+            if rfc.status not in self._OPEN_RFC:
+                continue
+            b = str(rfc.bottleneck or "")
+            reason = None
+            if ("σ≈1" in b) or ("شکافِ طیفی" in b):
+                if spectral_now == "<not-computed>":
+                    try:
+                        from spectral import spectral_mine as _sm
+                        spectral_now = _sm(trace or {})
+                    except Exception:  # noqa: BLE001 — spectral fail-soft → None = سالم
+                        spectral_now = None
+                if spectral_now is None:
+                    reason = ("شرطِ طیفیِ ورودی دیگر برقرار نیست — spectral_mine روی "
+                              "traceِ فعلی None می‌دهد (گرافِ خطا سالم/خالی است)")
+            elif b.startswith("σ_effective="):
+                try:
+                    _sig = float((trace or {}).get("sigma_effective", 0) or 0)
+                except (TypeError, ValueError):
+                    _sig = 0.0
+                if _sig <= 1.0:
+                    reason = f"σ_effectiveِ فعلی {_sig} ≤ ۱ است (خطِ قرمزِ سرطان برقرار نیست)"
+            elif "FREEZE" in b and not (trace or {}).get("frozen"):
+                reason = "ارگانیسم دیگر FREEZE نیست (frozen=false در ORGANISM-STATE فعلی)"
+            if reason:
+                rfc.status = "stale-input"
+                rfc.critic_review = {**(rfc.critic_review or {}),
+                                     "stale_reason": reason,
+                                     "stale_marked_ts": opslib.now_iso()}
+                marked.append({"rfc_id": rfc.rfc_id, "reason": reason[:120]})
+        if marked:
+            self._note("DOCTOR_RFC_STALE_INPUT", {"marked": marked})
+            self._persist_rfcs()
+        return {"stale_marked": len(marked), "details": marked}
+
     def run_cycle(self, beat: int | None = None, trace: dict | None = None,
                   use_calibration: bool = True, use_chamber: bool = True,
                   temperature: float | None = None) -> dict | None:
@@ -865,6 +988,11 @@ class Doctor:
         use_chamber: اگر True، RFC از Chamber تخاصمی می‌گذرد پیش از sandbox/submit."""
         # sweep RFCهای گیر کرده (expire stale, re-submit no-channel)
         self._sweep_stale_rfcs()
+        # T8 (2026-07-25): RFCی که وضعیتی را درمان می‌کند که دیگر وجود ندارد → stale-input
+        try:
+            self._reconcile_input_validity(trace if trace is not None else self._gather_trace())
+        except Exception:  # noqa: BLE001 — reconcile هرگز cycle را نمی‌کشد
+            pass
         # 3a (2026-07-24): بازنگری‌های free-textِ مالک (تلگرام) → ادغام در RFCهای باز
         try:
             self._consume_owner_revisions()
@@ -961,11 +1089,18 @@ class Doctor:
         if isinstance(bottleneck, dict) and bottleneck.get("_suppressed_by_attention_budget"):
             self._note("DOCTOR_ATTENTION_BLOCKED", bottleneck)
             return {"suppressed": bottleneck["_suppressed_by_attention_budget"], "beat": beat}
+        _before_ids = set(self._rfcs)
         rfc = self.propose_rfc(bottleneck, fix=_suggest_fix(bottleneck),
                                expected_lift=f"رفعِ {bottleneck['severity']}: {bottleneck['bottleneck']}",
                                rollback="revert flag")
+        # T8 (2026-07-25): dedupe-hit = propose_rfc نسخهٔ *موجود* را برگرداند، پس id تازه
+        # نیست. فقط مسیرِ «تصمیمِ نو» حذف می‌شود: chamber/sandbox/evolution/submit دوباره
+        # اجرا نمی‌شوند (ضدِ اسپمِ ۸ کارت با متنِ یکسان). ناظرهای per-cycle — یعنی Box —
+        # به تیک‌زدن ادامه می‌دهند: در تولید تکرارِ گلوگاه قاعده است (همان ۸ RFCِ یکسان)،
+        # پس early-returnِ کامل حلقهٔ box را عملاً یخ می‌زد.
+        _dedup = rfc.rfc_id in _before_ids
         # Chamber: RFC از دیالکتیکِ تخاصمی بگذرد (اگر use_chamber)
-        if use_chamber:
+        if use_chamber and not _dedup:
             try:
                 from chamber import run_chamber
                 # Phase 5: دمای Chamber — فقط پشتِ flag OCTOPUS_WIRE_CHAMBER_T.
@@ -990,7 +1125,8 @@ class Doctor:
                                                       "temperature": result.get("temperature")}
             except Exception:  # noqa: BLE001 — Chamber fail-soft
                 pass
-        self.run_sandbox(rfc)   # sandbox + critic (propose-only)
+        if not _dedup:
+            self.run_sandbox(rfc)   # sandbox + critic (propose-only)
         # N (P-N2): Box-of-Agents — کلِ خوشهٔ box در run_cycle (پشتِ flag).
         # Box.run_tick → bottlenecks adapter → b3_bridge → doctor.submit (propose-only، human-gate).
         # b4_fusion.compute_phi_t = novelty به Box؛ falsif کنترلِ دوره‌ای.
@@ -1003,14 +1139,20 @@ class Doctor:
         # mine از آرکیو نمونه می‌گیرد، tournament قبل از submit، measured_lift به‌جای expected.
         # verifier-independence دست‌نخورده: دکتر هرگز معیارِ سنجشِ خودش را ویرایش نمی‌کند.
         evolution_report = None
-        if os.environ.get("OCTOPUS_WIRE_EVOLUTION") == "1":
+        if os.environ.get("OCTOPUS_WIRE_EVOLUTION") == "1" and not _dedup:
             evolution_report = self._evolve_rfc(rfc, bottleneck, trace)
-        self.submit_for_approval(rfc)   # کارتِ P3 یا pending
+        if not _dedup:
+            self.submit_for_approval(rfc)   # کارتِ P3 یا pending
         result = {"rfc_id": rfc.rfc_id, "status": rfc.status,
                   "bottleneck": bottleneck["bottleneck"], "beat": beat}
+        if _dedup:
+            result["dedup"] = "open-rfc-exists"
         # CHORD فاز C: سایهٔ مشورتی کنارِ تصمیمِ خودِ دکتر — پشتِ فلگِ خاموش،
         # فقط ثبت + کلیدِ اطلاعاتیِ خروجی؛ هیچ شاخه/امتیاز/اقدامی عوض نمی‌شود.
-        if os.environ.get("OCTOPUS_WIRE_CHORD_SHADOW") == "1":
+        # T8: روی dedupe-hit اجرا نمی‌شود — chord یک annotationِ *تصمیم* است و
+        # shadow_assess(log=True)+CHORD_SHADOW هر دو می‌نویسند؛ تکرارش برای همان RFC
+        # فقط نویزِ لجر است (همان چیزی که dedupe جلویش را می‌گیرد).
+        if os.environ.get("OCTOPUS_WIRE_CHORD_SHADOW") == "1" and not _dedup:
             _cs = self._chord_shadow(rfc)
             if _cs is not None:
                 result["chord_shadow"] = _cs

@@ -149,13 +149,19 @@ class BCMStabilizer:
 
         if known_keys is not None:
             known = set(known_keys)
-            # sync: کلیدهایی که دیگر در ایندکس نیستند → از weights حذف
-            for k in [k for k in self._weights if k not in known]:
-                del self._weights[k]
-            # کلیدهای تازه (فقط از known_keys — دانش gate-passed)
-            for k in known_keys:
-                if k not in self._weights:
-                    self._weights[k] = {"w": self._w_init, "theta": 0.0}
+            # FIX #214 (2026-07-28): لیستِ خالی = «اطلاعاتی دربارهٔ ایندکس نداریم»،
+            # نه «ایندکس خالی است». نسخهٔ قبلی وقتی latent_space.keys() خالی بود
+            # (startup، corruption #53، یا bare cycle) همهٔ وزن‌ها را پاک می‌کرد —
+            # ریشهٔ خالی‌بودنِ BCM. محافظه‌کارانه‌ترین تفسیر: وقتی نمی‌دانیم،
+            # چیزی را پاک نکن. فقط وقتی لیست غیرخالی است sync اجرا شه.
+            if known:
+                # sync: کلیدهایی که دیگر در ایندکس نیستند → از weights حذف
+                for k in [k for k in self._weights if k not in known]:
+                    del self._weights[k]
+                # کلیدهای تازه (فقط از known_keys — دانش gate-passed)
+                for k in known_keys:
+                    if k not in self._weights:
+                        self._weights[k] = {"w": self._w_init, "theta": 0.0}
 
         decayed = 0
         reinforced = 0

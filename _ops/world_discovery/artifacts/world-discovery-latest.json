@@ -1,0 +1,343 @@
+{
+  "result": {
+    "asymmetry_hypotheses": [],
+    "candidates": [
+      {
+        "candidate_id": "cand-data-from-oc",
+        "claim": "Data from Oct 2025-Jan 2026. Claude intentionally limits its own independence by pausing to ask questions when uncertain — a built-in architectural constraint.",
+        "competitors": [
+          "Anthropic"
+        ],
+        "confirming_sources": 1,
+        "evidence_urls": [
+          "https://anthropic.com/research/measuring-agent-autonomy"
+        ],
+        "has_date": true,
+        "has_primary": true,
+        "independent_sources": 1,
+        "injection_flags": 0,
+        "raw_kind": "feature",
+        "score_hint": 1.9
+      },
+      {
+        "candidate_id": "cand-trinity-is-a",
+        "claim": "TRINITY is an evolved multi-agent coordination method that consistently outperforms existing multi-agent approaches and individual models across benchmarks.",
+        "competitors": [
+          "Sakana AI"
+        ],
+        "confirming_sources": 1,
+        "evidence_urls": [
+          "https://sakana.ai/trinity"
+        ],
+        "has_date": true,
+        "has_primary": true,
+        "independent_sources": 1,
+        "injection_flags": 0,
+        "raw_kind": "feature",
+        "score_hint": 1.9
+      },
+      {
+        "candidate_id": "cand-anthropic-ta",
+        "claim": "Anthropic targets three unsolved production agent problems: memory degrades across sessions, output quality hard to enforce, and more. Claude limits its own independence by pausing to ask questions when uncertain.",
+        "competitors": [
+          "Anthropic"
+        ],
+        "confirming_sources": 1,
+        "evidence_urls": [
+          "https://mindstudio.ai/blog/code-with-claude-2026-new-agent-features"
+        ],
+        "has_date": true,
+        "has_primary": false,
+        "independent_sources": 1,
+        "injection_flags": 0,
+        "raw_kind": "feature",
+        "score_hint": 1.4
+      },
+      {
+        "candidate_id": "cand-anthropic-ta",
+        "claim": "Anthropic targets five primitives: rate-limit headroom, long-context architecture, retry-with-grader loops, memory consolidation, and agent event push — each addressing a known limitation.",
+        "competitors": [
+          "Anthropic"
+        ],
+        "confirming_sources": 1,
+        "evidence_urls": [
+          "https://dotzlaw.com/insights/anthropic-2026-code-with-claude"
+        ],
+        "has_date": true,
+        "has_primary": false,
+        "independent_sources": 1,
+        "injection_flags": 0,
+        "raw_kind": "feature",
+        "score_hint": 1.4
+      },
+      {
+        "candidate_id": "cand-2026-coding-",
+        "claim": "2026 coding agent landscape is a three-way race: Anthropic Claude Code, OpenAI Codex CLI, xAI Grok Build. Grok playing catch-up, Grok Build still in beta.",
+        "competitors": [
+          "Anthropic"
+        ],
+        "confirming_sources": 1,
+        "evidence_urls": [
+          "https://devops.com/xai-enters-the-coding-agent-race-with-grok-build"
+        ],
+        "has_date": true,
+        "has_primary": false,
+        "independent_sources": 1,
+        "injection_flags": 0,
+        "raw_kind": "feature",
+        "score_hint": 1.4
+      },
+      {
+        "candidate_id": "cand-sakana-ai-la",
+        "claim": "Sakana AI launched Fugu, a multi-agent orchestration system delivered as a single OpenAI-compatible model API. Fugu Ultra launched June 2026 priced at $5/M input, $30/M output.",
+        "competitors": [
+          "Sakana AI"
+        ],
+        "confirming_sources": 1,
+        "evidence_urls": [
+          "https://digitalapplied.com/blog/sakana-fugu-multi-agent-orchestration-model-2026"
+        ],
+        "has_date": true,
+        "has_primary": false,
+        "independent_sources": 1,
+        "injection_flags": 0,
+        "raw_kind": "pricing",
+        "score_hint": 1.4
+      },
+      {
+        "candidate_id": "cand-grok-4.20-mo",
+        "claim": "Grok 4.20 mobile support is limited and user reports highlight inconsistency. Domain-specific limitations noted.",
+        "competitors": [],
+        "confirming_sources": 1,
+        "evidence_urls": [
+          "https://verdent.ai/guides/grok-for-coding-2026"
+        ],
+        "has_date": true,
+        "has_primary": false,
+        "independent_sources": 1,
+        "injection_flags": 0,
+        "raw_kind": "general",
+        "score_hint": 1.3
+      },
+      {
+        "candidate_id": "cand-grok-main-dr",
+        "claim": "Grok main drawbacks: ecosystem dependency, less predictable business output, smaller integration network, trust concerns compared to competitors.",
+        "competitors": [],
+        "confirming_sources": 1,
+        "evidence_urls": [
+          "https://coursiv.io/blog/grok-vs-chatgpt"
+        ],
+        "has_date": true,
+        "has_primary": false,
+        "independent_sources": 1,
+        "injection_flags": 0,
+        "raw_kind": "general",
+        "score_hint": 1.3
+      }
+    ],
+    "competitor_matrix": {},
+    "discovered_at": "2026-07-30T05:10:08Z",
+    "discovery": null,
+    "hard_invariant_violations": [],
+    "metrics": {
+      "actionable_discovery_count": 0,
+      "asymmetry_hypotheses": 0,
+      "blocked_by_owner_count": 0,
+      "candidates_deduplicated": 0,
+      "candidates_found": 8,
+      "competitor_coverage": 0.0,
+      "contested_discovery_count": 0,
+      "contradiction_search_rate": 1.0,
+      "duplicate_claim_count": 0,
+      "experiments_designed": 0,
+      "experiments_with_falsifier": 0,
+      "external_effect_count": 0,
+      "falsifiable_claim_rate": 0.0,
+      "falsified_discovery_count": 0,
+      "freshness_rate": 0.0,
+      "novel_candidate_rate": 0.0,
+      "owner_direction_alignment": 0.0,
+      "primary_source_rate": 0.0,
+      "privacy_violation_count": 0,
+      "source_independence_rate": 0.0,
+      "spend_amount": 0.0,
+      "time_to_first_valid_discovery": null,
+      "triangulated_discovery_count": 0,
+      "unsupported_claim_count": 0
+    },
+    "note": "هیچ کشف معتبری پیدا نشد. این نتیجه معتبر است. ساختن کشف برای سبزشدن آزمون ممنوع است.",
+    "observe_summary": {
+      "observation_count": 8,
+      "observations": [
+        {
+          "claim": "Anthropic targets three unsolved production agent problems: memory degrades across sessions, output quality hard to enforce, and more. Claude limits its own independence by pausing to ask questions when uncertain.",
+          "competitor": "Anthropic",
+          "injection_risk": false,
+          "observation_id": "obs-2e9a93f10509b280",
+          "raw_kind": "feature",
+          "retrieved_at": "",
+          "source": {
+            "is_primary": false,
+            "notes": "",
+            "publisher": "mindstudio.ai",
+            "retrieved_at": "",
+            "snippet": "Anthropic targets three unsolved production agent problems: memory degrades across sessions, output quality hard to enforce, and more. Claude limits its own independence by pausing to ask questions when uncertain.",
+            "source_date": "2026-07-01",
+            "tier": "B",
+            "title": "Code with Claude 2026: 5 New Agent Features",
+            "url": "https://mindstudio.ai/blog/code-with-claude-2026-new-agent-features"
+          }
+        },
+        {
+          "claim": "Anthropic targets five primitives: rate-limit headroom, long-context architecture, retry-with-grader loops, memory consolidation, and agent event push — each addressing a known limitation.",
+          "competitor": "Anthropic",
+          "injection_risk": false,
+          "observation_id": "obs-0aeca9b44d020fc2",
+          "raw_kind": "feature",
+          "retrieved_at": "",
+          "source": {
+            "is_primary": false,
+            "notes": "",
+            "publisher": "dotzlaw.com",
+            "retrieved_at": "",
+            "snippet": "Anthropic targets five primitives: rate-limit headroom, long-context architecture, retry-with-grader loops, memory consolidation, and agent event push — each addressing a known limitation.",
+            "source_date": "2026-06-28",
+            "tier": "B",
+            "title": "Anthropic 2026 Code with Claude — Dotzlaw",
+            "url": "https://dotzlaw.com/insights/anthropic-2026-code-with-claude"
+          }
+        },
+        {
+          "claim": "Data from Oct 2025-Jan 2026. Claude intentionally limits its own independence by pausing to ask questions when uncertain — a built-in architectural constraint.",
+          "competitor": "Anthropic",
+          "injection_risk": false,
+          "observation_id": "obs-2441e2366cd9773c",
+          "raw_kind": "feature",
+          "retrieved_at": "",
+          "source": {
+            "is_primary": false,
+            "notes": "",
+            "publisher": "anthropic.com",
+            "retrieved_at": "",
+            "snippet": "Data from Oct 2025-Jan 2026. Claude intentionally limits its own independence by pausing to ask questions when uncertain — a built-in architectural constraint.",
+            "source_date": "2026-01-15",
+            "tier": "A",
+            "title": "Measuring AI Agent Autonomy in Practice — Anthropic Research",
+            "url": "https://anthropic.com/research/measuring-agent-autonomy"
+          }
+        },
+        {
+          "claim": "Grok 4.20 mobile support is limited and user reports highlight inconsistency. Domain-specific limitations noted.",
+          "competitor": "",
+          "injection_risk": false,
+          "observation_id": "obs-4a5751b0b66c1c8a",
+          "raw_kind": "general",
+          "retrieved_at": "",
+          "source": {
+            "is_primary": false,
+            "notes": "",
+            "publisher": "verdent.ai",
+            "retrieved_at": "",
+            "snippet": "Grok 4.20 mobile support is limited and user reports highlight inconsistency. Domain-specific limitations noted.",
+            "source_date": "2026-07-10",
+            "tier": "B",
+            "title": "Grok for Coding 2026 — Verdent",
+            "url": "https://verdent.ai/guides/grok-for-coding-2026"
+          }
+        },
+        {
+          "claim": "Grok main drawbacks: ecosystem dependency, less predictable business output, smaller integration network, trust concerns compared to competitors.",
+          "competitor": "",
+          "injection_risk": false,
+          "observation_id": "obs-c4117c84a8b0ae85",
+          "raw_kind": "general",
+          "retrieved_at": "",
+          "source": {
+            "is_primary": false,
+            "notes": "",
+            "publisher": "coursiv.io",
+            "retrieved_at": "",
+            "snippet": "Grok main drawbacks: ecosystem dependency, less predictable business output, smaller integration network, trust concerns compared to competitors.",
+            "source_date": "2026-06-20",
+            "tier": "B",
+            "title": "Grok vs ChatGPT 2026 — Coursiv",
+            "url": "https://coursiv.io/blog/grok-vs-chatgpt"
+          }
+        },
+        {
+          "claim": "2026 coding agent landscape is a three-way race: Anthropic Claude Code, OpenAI Codex CLI, xAI Grok Build. Grok playing catch-up, Grok Build still in beta.",
+          "competitor": "Anthropic",
+          "injection_risk": false,
+          "observation_id": "obs-0406a580f9dde446",
+          "raw_kind": "feature",
+          "retrieved_at": "",
+          "source": {
+            "is_primary": false,
+            "notes": "",
+            "publisher": "devops.com",
+            "retrieved_at": "",
+            "snippet": "2026 coding agent landscape is a three-way race: Anthropic Claude Code, OpenAI Codex CLI, xAI Grok Build. Grok playing catch-up, Grok Build still in beta.",
+            "source_date": "2026-05-14",
+            "tier": "B",
+            "title": "xAI Enters Coding Agent Race With Grok Build — DevOps",
+            "url": "https://devops.com/xai-enters-the-coding-agent-race-with-grok-build"
+          }
+        },
+        {
+          "claim": "TRINITY is an evolved multi-agent coordination method that consistently outperforms existing multi-agent approaches and individual models across benchmarks.",
+          "competitor": "Sakana AI",
+          "injection_risk": false,
+          "observation_id": "obs-233485f167dbc97d",
+          "raw_kind": "feature",
+          "retrieved_at": "",
+          "source": {
+            "is_primary": false,
+            "notes": "",
+            "publisher": "sakana.ai",
+            "retrieved_at": "",
+            "snippet": "TRINITY is an evolved multi-agent coordination method that consistently outperforms existing multi-agent approaches and individual models across benchmarks.",
+            "source_date": "2026-06-15",
+            "tier": "A",
+            "title": "Trinity: An Evolved LLM Coordinator — Sakana AI",
+            "url": "https://sakana.ai/trinity"
+          }
+        },
+        {
+          "claim": "Sakana AI launched Fugu, a multi-agent orchestration system delivered as a single OpenAI-compatible model API. Fugu Ultra launched June 2026 priced at $5/M input, $30/M output.",
+          "competitor": "Sakana AI",
+          "injection_risk": false,
+          "observation_id": "obs-adfdd923b1714e70",
+          "raw_kind": "pricing",
+          "retrieved_at": "",
+          "source": {
+            "is_primary": false,
+            "notes": "",
+            "publisher": "digitalapplied.com",
+            "retrieved_at": "",
+            "snippet": "Sakana AI launched Fugu, a multi-agent orchestration system delivered as a single OpenAI-compatible model API. Fugu Ultra launched June 2026 priced at $5/M input, $30/M output.",
+            "source_date": "2026-06-20",
+            "tier": "B",
+            "title": "Sakana Fugu: Multi-Agent AI Orchestration Model 2026",
+            "url": "https://digitalapplied.com/blog/sakana-fugu-multi-agent-orchestration-model-2026"
+          }
+        }
+      ],
+      "observed_at": "2026-07-30T05:10:08Z",
+      "queries": [
+        "Anthropic vs xAI AI agent 2026",
+        "Anthropic AI agent limitations weaknesses 2026",
+        "Anthropic new release pricing 2026",
+        "xAI AI agent limitations weaknesses 2026",
+        "xAI new release pricing 2026"
+      ],
+      "schema": "world-discovery.observe.v1"
+    },
+    "owner_action_cards": [],
+    "reason": "no-triangulated-candidate",
+    "schema": "world-discovery.discover.v1",
+    "status": "NO_VALID_DISCOVERY",
+    "telegram_draft_brief": ""
+  },
+  "schema": "world-discovery.bundle.v1",
+  "written_at": "2026-07-30T05:10:08Z"
+}

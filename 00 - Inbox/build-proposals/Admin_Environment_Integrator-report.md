@@ -1,3 +1,10 @@
+---
+type: report
+status: inbox
+tags: [octopus, build-proposal]
+created: 2026-07-12
+updated: 2026-07-29
+---
 # گزارش Admin_Environment_Integrator — OCTOPUS Project
 
 > **تاریخ بازرسی:** ۲۰۲۶-۰۷-۱۲  

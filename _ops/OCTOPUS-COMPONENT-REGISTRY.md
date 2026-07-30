@@ -64,7 +64,7 @@ method: "شواهدمحور: ممیزیِ اتصالاتِ 07-18 (۲۴ اندا�
 | GLM-C | `observability/health_check.run()` + `render_status_summary()` | `run()->dict` | **نشسته در master** · ۱۶/۱۶ (ویندوز) | وصل به governor epoch + صفحهٔ ①؛ می‌تواند جایگزینِ منطقِ داخلیِ `owner_views` شود |
 | GLM-D | `approval_store.verify_scope()` + `content_sha256` | `verify_scope(jid,payload)->bool` | **نشسته در master** · ۸/۸ + ۲۴/۲۴ + run_all ۲۰۳ (ویندوز) · از `mission_contract`ِ ما استفاده کرد ✅ | وصل به مسیرِ apply (`power.py`/`mission_runner`) |
 
-> **نکتهٔ سندباکس:** سه سوئیتِ نشسته را در سندباکسِ لینوکسیِ من نمی‌شود اجرا کرد (وابسته به `genome-system/ledger` با مسیرِ خامِ ویندوزی — تلهٔ [[../../…/vault-sandbox-quirks]]). روی ویندوزِ مالک سبزند. چهار ماژولِ stdlib‌ِ Claude اینجا هم سبزند (۲۰/۲۰).
+> **نکتهٔ سندباکس:** سه سوئیتِ نشسته را در سندباکسِ لینوکسیِ من نمی‌شود اجرا کرد (وابسته به `genome-system/ledger` با مسیرِ خامِ ویندوزی — تلهٔ `vault-sandbox-quirks`). روی ویندوزِ مالک سبزند. چهار ماژولِ stdlib‌ِ Claude اینجا هم سبزند (۲۰/۲۰).
 > **نکتهٔ قرارداد (از GLM-B):** `make_envelope` مقدارِ `payload` را برای هش مصرف می‌کند ولی در envelope ذخیره نمی‌کند (عمدی — ضدِنشت؛ `verify_scope` payload را جدا در زمانِ apply می‌گیرد). اگر بعداً echo لازم شد، تصمیمِ لِنز است.
 
 ## ۳) پاها — Legs (Leg Owners)
@@ -173,3 +173,62 @@ method: "شواهدمحور: ممیزیِ اتصالاتِ 07-18 (۲۴ اندا�
 | TE7 | `_ops/heart/fuel_meter.py` ✨ | مترِ سوختِ واقعیِ API/Ollama (خونِ قلب) + consumer در `producers.velocity_meter` | `OCTOPUS_WIRE_HEART_FUEL` | 💤 | `test_heart_fuel.py` 7/7 |
 
 فعال‌سازیِ کاملِ لوله (owner-gated، پس از رأی روی قراردادها): `set OCTOPUS_WIRE_LEAD_CANDIDATES=1` + `OCTOPUS_WIRE_LEAD_BOUNDARY=1` + secretهای `OCTOPUS_INGEST_SECRET_<SRC>` (فقط .env مالک) + restart. فاز C پیاده شد؛ فاز D (workerِ outbound واقعی) = رأیِ جدا.
+
+## 🧠 SELF-ACCURACY — معیارِ دقتِ خودمدل C3 (نو ۲۰۲۶-۰۷-۲۸)
+
+اولین سنجهٔ ملموسِ «چقدر از خودم نمی‌دانم». بازسنجیِ ۲۰۲۶-۰۷-۲۵ گفت C3 «NOT_MEASURED» است؛ این شکاف را می‌بندد. پیش‌نیازِ خود-اصلاحیِ ایمن (C4): تا امروز ارگانیسم می‌توانست با اطمینانِ کامل غلط بگوید (۰۷-۲۵: ۱ لِگ به‌جای ۴؛ ۰۷-۲۷: خرج به‌جای درآمد).
+
+| ID | جزء | نقش | فلگ (خاموش) | Health | تست |
+|---|---|---|---|---|---|
+| SA1 | `_ops/doctor/self_accuracy.py` ✨ | سنجشِ ادعای `snapshot()` در برابرِ منابعِ حقیقتِ مستقل (legs/revenue/wire_on) → `{accuracy, drifts[]}`؛ سریِ زمانیِ صداقت | `OCTOPUS_SELFKNOW_ACCURACY` | 💤 shadow | `test_self_accuracy.py` ۱۳/۱۳ سبز |
+| SA2 | wiring در `doctor/self_knowledge.run()` ✨ | تزریقِ `self_accuracy` به هر دو شاخه (cached/changed)؛ flag-off = byte-identical | همان فلگ | 💤 | اثباتِ زنده: flag-on → فیلد ظاهر؛ flag-off → ناپدید |
+
+خروجی: append-only به `_ops/state/doctor/self-accuracy.jsonl` (سریِ زمانیِ صداقتِ C3 — شکافِ «حاضر ولی نه سنجش‌پذیر» از ۰۷-۲۵). خطِ قرمز: فقط‌خواندنی نسبت به state/ژنوم/ledger؛ $0؛ fail-soft. فعال‌سازی: `set OCTOPUS_SELFKNOW_ACCURACY=1` در flags.cmd + restart ♻️.
+
+## 👁 SYNAPSE SENSE — بیداریِ حسِ خود-ارجاعی C8 (نو ۲۰۲۶-۰۷-۲۸)
+
+سه ماژولِ synapse از ۲۰۲۶-۰۷-۲۴ کاملاً ساخته بودند ولی **ادغامِ رانتایمِ صفر** داشتند: هیچ beat/وایرینگ/فلگی آن‌ها را صدا نمی‌زد و `out/` هیچ‌وقت فایل نگرفت. این اولین وصل‌کردن به رانتایم است.
+
+| ID | جزء | نقش | فلگ (خاموش) | Health | تست |
+|---|---|---|---|---|---|
+| SN1 | `wiring.synapse_beat()` + `organism.py` tick ✨ | وصل‌کردنِ SENSE به ضربان: هر N beat یک چرخهٔ `sense_once`؛ flag-gated، STOP-aware، non-blocking | `OCTOPUS_SYNAPSE_ENABLED` | 💤 shadow | `test_synapse_beat.py` ۷/۷ سبز |
+| SN2 | `_ops/synapse/sense.py::_append_trail` ✨ | سریِ زمانیِ صداقتِ C8: هر چرخه ردیفی با `{ts, cpm, self_referential, gate0, delta, kind}` به `state/synapse-trail.jsonl` | همان فلگ | 💤 | `test_synapse_sense.py` ۳ چکِ trailِ نو سبز |
+
+خروجی: proposal در `_ops/synapse/out/` + ردیفِ صداقت در `state/synapse-trail.jsonl`. این دقیقاً شکافِ «sinkها per-cycle نه self_referential می‌نوشتند نه gate0 را نه علامتِ Δ» (از ۰۷-۲۵) را می‌بندد. `sense.flag_on()` هر دو نامِ `OCTOPUS_SYNAPSE_ENABLED` (canonical) و `SYNAPSE_ENABLED` (backward-compat) را می‌پذیرد. $0 (صرفاً ریاضی)، propose-only، fail-closed. فعال‌سازی: `set OCTOPUS_SYNAPSE_ENABLED=1` در flags.cmd + restart ♻️. نقطهٔ بعدی: مرحلهٔ ۳ (C4/خود-اصلاحیِ twin-tested) — ولی پیش‌نیازش R5-prevent (مهارِ واقعی).
+
+## 🩺 OCTOPUS-DOCTOR — دکترِ اختاپوس: چشم/ذهن/انگشت/بازو/صدا (نو ۲۰۲۶-۰۷-۲۹)
+
+دو بستهٔ نشست‌های ابری نصب شد و برای اولین بار **روی خودِ لپ‌تاپ** سنجیده شد (۲۲۱ سبز، نه ابری). دکتر = پکیجِ stdlib-only با والتِ Obsidian به‌عنوانِ حافظه؛ حلقهٔ آینده: پیامِ مالک در تلگرام → کارتِ نیت → worktree → سوئیت → کارتِ دیف → رأی → merge. نامِ importیِ `doctor` ملکِ `_ops/doctor` می‌ماند — پل عمداً subprocess/JSONL است، صفر import.
+
+| ID | جزء | نقش | فلگ (خاموش) | Health | تست |
+|---|---|---|---|---|---|
+| DR1 | `OCTOPUS-DOCTOR/doctor/` ✨ | چشم (`scanner` فقط‌خواندنی) · ذهن (`mind` = ناخودآگاهِ جمعی، رنگ می‌دهد تصمیم نمی‌گیرد) · انگشت (`propose` با ۸ گیتِ در-کد + R-09) · مغز (`fugu` با دو سقفِ روزانه: ۶۰ فراخوان + $۲) · صدا (`channel` حالتِ outbox) | مغز: `SAKANA_API_KEY` **یا** `FUGU_API_KEY` (نامِ مالک؛ از `.env` via `_ops/run_doctor_day.py`) | 🟢 **LIVE** — اولین ask واقعی `fugu·418tok·exit 0` (۰۷-۲۹) | `test_doctor.py` ۱۵۷/۱۵۷ سبز |
+| DR2 | ~~`_ops/os_v1/`~~ → `_Archive/_ops-retired-2026-07-30/os_v1/` | کتابخانهٔ OS (۹ ماژول) | — | ⚫️ **بازنشسته ۰۷-۳۰** (رأیِ مالک) | — |
+| DR3 | `_ops/telegram_center/doctor_link.py` ✨ | پلِ outboxِ دکتر → clientِ مرکز (بدونِ اتصالِ دومِ تلگرام) + جداسازیِ رأیِ سه‌تکهٔ `ok\|no:gate:mission` قبل از fallbackِ approval → `cli.py votes`؛ cursorِ بایتی + dedupِ mission:gate + سقفِ ۲۰/روز | `OCTOPUS_WIRE_DOCTOR_TG` = **1** (رأیِ مالک ۰۷-۲۹، VQ-DR-001) | 🟢 **LIVE** — کارتِ تست `message_id=323` تحویل شد | `test_doctor_link.py` ۱۸/۱۸ سبز؛ ثبت در `run_all.py`؛ تسکِ روزانه `OCTOPUS-doctor-day` ۰۷:۰۰ |
+
+خطِ قرمزِ دکتر (در کد، با تست): در `_ops` نمی‌نویسد · پچ اعمال نمی‌کند · merge سه‌قفله (رأیِ ✅ دیف + `--apply` + `OCTOPUS_DOCTOR_MAY_MERGE=1` که **تنظیم نشده**). فعال‌سازیِ پل: `set OCTOPUS_WIRE_DOCTOR_TG=1` در flags.cmd + ری‌استارتِ TG-center ♻️. پلهٔ بعد (رأیِ مالک): کلیدِ Sakana برای پله‌های ۱–۲ (ask/diagnose/propose)، و `day --live` فقط زیرِ چشمِ مالک.
+
+بازنشستگیِ DR2 (۰۷-۳۰): `os_v1` هرگز روی `sys.path` نبود ⇒ هیچ import ای به آن حل نمی‌شد؛ `mission_runner` اش تکرارِ `telegram_center/mission_runner.py` بود. **منتقل شد با `git mv`، حذف نشد**؛ جدولِ canonical ِ جایگزین و فرمانِ برگشت در `DEPRECATED.md` همان پوشه. `schumann_rx` (INT1) هم با آن رفت — اندامِ شهود تا ساختِ حسگر همان `[UNKNOWN]` می‌ماند.
+
+## گروهِ ۱۲ — ستونِ مأموریت و ساختِ خود (۲۰۲۶-۰۷-۳۰، چهار رأیِ مالک)
+
+| # | مسیر | چه می‌کند | فلگ | وضعیت | تست |
+|---|---|---|---|---|---|
+| MS1 | `_ops/goal_action_bridge.py` ✨ | پلِ اقدامِ SGC: exact prereg → `prepare_records` → طبقه‌بندی → A0 → رسید → دفترِ mission؛ + consolidation ِ حکمِ **مستقل** به حافظه (outcome-bound) | `OCTOPUS_WIRE_ACTION_BRIDGE` = **1** (VQ-ACTION-BRIDGE-ARM-001) | 🟢 **LIVE** — اولین اجرای واقعی روی هدفِ پول: A3/OWNER_GATE، executor صدا نخورد، رسید ۰ | `test_goal_action_bridge.py` ۱۴/۱۴ · ۷/۷ جهش قرمز |
+| MS2 | `_ops/telegram_center/build_cmd.py` ✨ | هدایتِ کدنویسی از Outer DM: «بساز: …» → صفِ `code_brain`؛ وضعیتِ صادقِ **هر پلهٔ** حلقه؛ نمای صف/پچ بدونِ echo ِ کد | — (بدونِ فلگِ نو) | 🟢 LIVE | `test_tg_build_surface.py` ۱۳/۱۳ |
+| MS3 | `code_brain._draft_via_local` ✨ | پلهٔ محلیِ $0 (اولاما) بینِ API و L0 — بدونِ آن حلقهٔ ۲۴ساعته ساختاراً ناممکن بود. گاردِ **نحوی**: هر def/class ِ سطحِ ماژول باید بماند | `OCTOPUS_CODE_BRAIN` + knob `OCTOPUS_CODE_BRAIN_LOCAL_MODEL` (`qwen2.5:latest`) | 🟢 LIVE — پروبِ واقعی: `add` حفظ، `mul` اضافه | `test_code_brain_local.py` ۱۴/۱۴ |
+| MS4 | `_ops/telegram_center/hold_policy.py` ✨ | بحرانی/گذار/recovery → فوریِ Inner DM · نو → دایجستِ ساعتی · تکراری → HOLD ِ شمارشی · backlog **هرگز** replay نمی‌شود (ساختاری) | — | 🟢 **TG-HOLD-POLICY-LIVE** | `test_tg_hold_policy.py` ۹/۹ · ۹ جهش قرمز |
+| MS5 | `_ops/telegram_center/leg_tasks.py` ✨ | مدلِ Task ِ گروهِ پاها: ۴ وضعیتِ سخت، کارتِ زندهٔ ویرایش‌شونده، ۴ دکمه، موتورِ read-only یک-کار-در-ضربان | — | 🟢 LIVE | `test_tg_leg_tasks.py` ۱۶/۱۶ · ۶/۶ جهش قرمز |
+| MS6 | `_ops/telegram_center/surface_router.py` + `code-card` | مسیریابیِ خروجی: هسته → DM، پاها → تاپیک؛ کارتِ پچِ کد از گروه به DM آمد | `OCTOPUS_TG_SPLIT_V1` = **1** | 🟢 LIVE — شاهد: `center-pulse → DM` | `test_tg_route_seam.py` ۱۲/۱۲ |
+
+ناوردیِ گروهِ ۱۲: صفر poller/bot ِ نو · صفر subsystem ِ تکراری · هیچ‌کدام خودش
+اعمال/ارسال نمی‌کند · A3+ ساختاراً از این مسیرها غیرقابلِ‌دسترس.
+
+## 🌐 SPLIT + شهود — درون/بیرون و اندامِ حسیِ نو (نو ۲۰۲۶-۰۷-۲۹)
+
+رأیِ مالک: هسته بینِ دو بات تقسیم شود — باتِ ۱ «درون» (خودترمیمی/سلامت) و باتِ ۲ «بیرون» (رابطِ شخصی). طرح: `06 - Architecture Maps/TG-SPLIT-INNER-OUTER-2026-07-29.md`.
+
+| ID | جزء | نقش | فلگ (خاموش) | Health | تست |
+|---|---|---|---|---|---|
+| SP1 | `_ops/telegram_center/surface-routing.json` ✨ | نگاشتِ جریان→بات/تاپیک — **مالِ مالک، قابلِ ویرایشِ دستی**؛ current=واقعیتِ امروز، target=طرحِ درون/بیرون | `OCTOPUS_TG_SPLIT_V1` (مصرف‌کننده هنوز ساخته نشده) | 💤 config-only | — |
+| INT1 | `_ops/os_v1/schumann_rx.py` + `OCTOPUS-DOCTOR/40-اندام‌ها/ORG-08-شهود.md` ✨ | اندامِ شهود (شومان): معادلات از امروز در context ِ مغز؛ فیدِ حسگر تا سخت‌افزار **[UNKNOWN] — هیچ دادهٔ ساختگی**؛ پروتکلِ ۳۰ روزِ منفعلِ MAG-09 بعد از ساخت | — (تا حسگر) | 🟡 ریاضی+کد سبز، حسگر غایب | `test_os_v1.py` (schumann_rx داخلِ سوئیت) |

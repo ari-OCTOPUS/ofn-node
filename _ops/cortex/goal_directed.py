@@ -41,6 +41,17 @@ SELF_MONITOR_FLAG = "CORTEX_SELF_MONITOR"
 _METRIC_KEYS = ("confirmed_revenue", "revenue_cells", "total_discoveries",
                 "proposals_delivered", "proposal_outcomes", "proposal_value_aud")
 
+# T2 لایهٔ ۳ (2026-07-25، مگاپرامپت): درون‌زاد در برابرِ برون‌زاد.
+# total_discoveries شمارندهٔ خودِ ارگانیسم است (با تحقیقِ ارگانیسم دربارهٔ خودش بالا
+# می‌رود) — «بهبود» با تولیدِ یک کشفِ دیگر دربارهٔ خود ارضا می‌شد = خودارجاعیِ حلقه.
+# گواه: baselineهای اولیه فقط یک کلیدِ متحرک داشتند — total_discoveries.
+# پشتِ OCTOPUS_HONEST_OUTCOMES: درون‌زاد لاگ می‌شود ولی رأی نمی‌دهد. خاموش = بایت‌به‌بایت.
+_ENDOGENOUS_KEYS = frozenset({"total_discoveries"})
+
+
+def _honest_outcomes() -> bool:
+    return os.environ.get("OCTOPUS_HONEST_OUTCOMES") == "1"
+
 # نشانه‌های «دایره‌ای» — بهبودِ خودِ ماشینِ سنجش، نه یک هدفِ واقعی.
 _CIRCULAR = re.compile(
     r"(بلوغ|maturity|probe|ماتریس|audit|ممیزی|هم‌آهنگی|coherence|خودآگاهیِ سند|"
@@ -105,9 +116,65 @@ def impact(p: dict, goals: list[str]) -> float:
     return 1.0
 
 
-def rerank(proposals: list[dict], *, max_circular: int = 2) -> dict:
+# ── سهمیهٔ پیشنهادِ دایره‌ای — و چرا تاریخ‌دار است ────────────────────────────
+# رأیِ مالک ۲۰۲۶-۰۷-۳۰ (VQ-SELFGOAL-006، گزینهٔ الف منشور §۳.۳): در پنجرهٔ آزمونِ
+# SGC-14 سهمیه ۲ → ۶ می‌رود، و در ۲۰۲۶-۰۸-۰۶ **خودبه‌خود** برمی‌گردد.
+#
+# چرا انقضا در خودِ کد و نه در یادِ آدم‌ها: رأیِ مالک «آزاد، فقط ثبت شود» بود
+# (VQ-SELFGOAL-003)، ولی `max_circular=2` هدفِ خودارجاع را فعالانه تنزل می‌دهد —
+# پس اختاپوس هدفِ آزاد انتخاب می‌کرد و ماشین دورش می‌ریخت، و ما نتیجه را
+# «انتخابِ بدِ اختاپوس» می‌خواندیم در حالی که سانسورِ خودمان بود. ولی همان سهمیه
+# بیرون از پنجرهٔ آزمون همان چیزی است که «خودبهبودیِ دایره‌ایِ الکی» را مهار
+# می‌کند (رأیِ جلسه ۴۶). یک استثنای بی‌تاریخ، استثنا نیست — قاعدهٔ نو است.
+# همان الگویی که `GOALS-OCTOPUS.md` برای سقفِ US$200 به‌کار برد.
+MAX_CIRCULAR_DEFAULT = 2
+MAX_CIRCULAR_ENV = "OCTOPUS_GOAL_MAX_CIRCULAR"
+MAX_CIRCULAR_UNTIL_ENV = "OCTOPUS_GOAL_MAX_CIRCULAR_UNTIL"   # YYYY-MM-DD، شاملِ خودِ روز
+
+
+def max_circular_now(today: "str | None" = None) -> dict:
+    """سهمیهٔ امروز + دلیلش. `today` **کاملاً** تزریق‌شدنی است — هیچ شاخه‌ای پشتِ
+    سرِ صداکننده ساعتِ دیوار را نمی‌خواند (درسِ «ساعتِ نیمه‌تزریقی = بمبِ ساعتی»:
+    تابعی که `now` می‌گیرد ولی شاخه‌ای `datetime.now()` می‌خواند، امروز سبز است و
+    فردا قرمز، و هیچ اسکنی نمی‌گیردش).
+
+    fail-closed به سمتِ **محافظه‌کار**: env ِ ناخوانا، تاریخِ بدشکل، یا نبودِ
+    تاریخِ انقضا ⇒ همان ۲. یعنی یک تایپو استثنا را ابدی نمی‌کند."""
+    import datetime as _dt
+    raw = str(os.environ.get(MAX_CIRCULAR_ENV, "") or "").strip()
+    until = str(os.environ.get(MAX_CIRCULAR_UNTIL_ENV, "") or "").strip()
+    if not raw:
+        return {"value": MAX_CIRCULAR_DEFAULT, "reason": "default"}
+    if not until:
+        # استثنای بی‌تاریخ = قاعدهٔ نو. رأیِ مالک تاریخ داشت، پس بدونِ تاریخ رد است.
+        return {"value": MAX_CIRCULAR_DEFAULT, "reason": "no-expiry-declared"}
+    try:
+        val = int(raw)
+    except (TypeError, ValueError):
+        return {"value": MAX_CIRCULAR_DEFAULT, "reason": "bad-value"}
+    try:
+        end = _dt.date.fromisoformat(until)
+        now = (_dt.date.fromisoformat(today) if today
+               else _dt.date.fromisoformat(opslib.today()))
+    except (TypeError, ValueError):
+        return {"value": MAX_CIRCULAR_DEFAULT, "reason": "bad-date"}
+    if now > end:
+        return {"value": MAX_CIRCULAR_DEFAULT, "reason": f"expired:{until}",
+                "expired": True}
+    return {"value": max(0, min(val, 24)), "reason": f"owner-window:{until}",
+            "window_open": True}
+
+
+def rerank(proposals: list[dict], *, max_circular: "int | None" = None,
+           today: "str | None" = None) -> dict:
     """پیشنهادها را هدف‌محور بازچینی کن: دایره‌ای‌ها به ته (سهمیهٔ کوچک)، هدف‌محورها بالا.
-    هر پیشنهاد با `serves_goal` و `impact` حاشیه‌نویسی می‌شود. خروجی: {ranked, dropped_circular}."""
+    هر پیشنهاد با `serves_goal` و `impact` حاشیه‌نویسی می‌شود. خروجی: {ranked, dropped_circular}.
+
+    `max_circular=None` (پیش‌فرض) یعنی «از پنجرهٔ تاریخ‌دار بپرس»؛ مقدارِ صریحِ
+    صداکننده همیشه برنده است (تا تست بتواند بدونِ env حکم بدهد)."""
+    _mc = ({"value": int(max_circular), "reason": "explicit"}
+           if max_circular is not None else max_circular_now(today))
+    max_circular = _mc["value"]
     goals = load_goals()
     scored, circular = [], []
     for p in proposals:
@@ -122,7 +189,10 @@ def rerank(proposals: list[dict], *, max_circular: int = 2) -> dict:
     ranked = scored + kept_circular
     return {"ranked": ranked, "n_goal_serving": sum(1 for p in scored if p["impact"] >= 2.0),
             "n_circular_dropped": max(0, len(circular) - len(kept_circular)),
-            "goals_count": len(goals)}
+            "goals_count": len(goals),
+            # سهمیه و **دلیلش** در خروجی می‌آید تا «چرا این پیشنهاد افتاد؟» از
+            # روی دفتر قابلِ بازسازی باشد، نه از حافظهٔ کسی.
+            "max_circular": max_circular, "max_circular_reason": _mc["reason"]}
 
 
 def record_intent(top: list[dict]) -> None:
@@ -226,6 +296,29 @@ def _movement_keys(now: dict, base: dict) -> tuple:
     return tuple(keys)
 
 
+def _vote_keys(now: dict, base: dict) -> tuple:
+    """کلیدهای رأی‌دهندهٔ moved — T2 لایهٔ ۳: با فلگِ صداقت فقط برون‌زاد رأی می‌دهد
+    (درون‌زاد لاگ می‌شود ولی رأی نه)؛ فلگ خاموش = همهٔ کلیدها (بایت‌به‌بایتِ قدیم)."""
+    keys = _movement_keys(now, base)
+    if _honest_outcomes():
+        return tuple(k for k in keys if k not in _ENDOGENOUS_KEYS)
+    return keys
+
+
+def _dedupe_intents(intents: list[dict]) -> list[dict]:
+    """T2 لایهٔ ۱ (نویسنده): یک id چند بار با baselineهای متفاوت در پنجرهٔ ۲۰تایی
+    می‌افتد (هر اجرا یک نیتِ نو append می‌شود) و _close_intents روی همه حلقه می‌زد →
+    بیت در همان فراخوان flip می‌شد و دو بستارِ متناقض با یک ts ساخته می‌شد.
+    قدیمی‌ترین baseline (اولین دیده‌شده به ترتیبِ فایل) baselineِ واقعی است."""
+    seen: dict[str, dict] = {}
+    for r in intents:
+        rid = str(r.get("id") or "").strip()
+        if not rid or rid in seen:
+            continue
+        seen[rid] = r
+    return list(seen.values())
+
+
 def measure() -> dict:
     """آیا پیشنهادهای اخیر واقعاً متریکی را جابه‌جا کردند؟ (بستنِ لوپ — ضدِ دایره).
     اگر برون‌دادها ثابت مانده‌اند → سیگنالِ «کارِ خودبهبودی به هدف نمی‌رسد».
@@ -243,7 +336,7 @@ def measure() -> dict:
     if not intents:
         return {"tracked": 0, "moved": False, "now": now}
     oldest = intents[0].get("baseline", {})
-    moved = any(now.get(k, 0) > oldest.get(k, 0) for k in _movement_keys(now, oldest))
+    moved = any(now.get(k, 0) > oldest.get(k, 0) for k in _vote_keys(now, oldest))
     _close_intents(intents, rows, now)
     return {"tracked": len(intents), "moved": moved, "now": now, "since": oldest}
 
@@ -255,6 +348,8 @@ def _close_intents(intents: list[dict], rows: list[dict], now: dict) -> None:
     فقط وقتی می‌نویسد که بیت نسبت به آخرین بستارِ همان key عوض شده باشد
     (رشدِ کران‌دار؛ «تازه‌ترین حقیقت» در probe برنده است). fail-soft."""
     try:
+        if _honest_outcomes():                # T2 لایهٔ ۱: تکرارِ متناقض ساختاراً ناممکن
+            intents = _dedupe_intents(intents)
         last: dict[str, bool] = {}
         for r in rows:                        # آخرین بستارِ ثبت‌شده per key (به ترتیبِ فایل)
             if "moved" in r and r.get("key"):
@@ -266,12 +361,18 @@ def _close_intents(intents: list[dict], rows: list[dict], now: dict) -> None:
                 continue                      # نیتِ بی‌id بستار‌پذیر نیست
             rid = str(rid).strip()
             base = r.get("baseline") or {}
-            moved_i = any(now.get(k, 0) > base.get(k, 0) for k in _movement_keys(now, base))
+            moved_i = any(now.get(k, 0) > base.get(k, 0) for k in _vote_keys(now, base))
             if last.get(rid) == moved_i:
                 continue                      # بیت عوض نشده → دوباره‌نویسی نکن
-            opslib.append_jsonl(OUTCOMES, {
-                "ts": ts, "key": rid, "moved": bool(moved_i),
-                "kind": "closure", "schema": "outcome-closure.v1"})
+            rec = {"ts": ts, "key": rid, "moved": bool(moved_i),
+                   "kind": "closure", "schema": "outcome-closure.v1"}
+            if _honest_outcomes():            # T2 لایهٔ ۳: درون‌زاد لاگ می‌شود ولی رأی نه
+                endo = {k: {"base": base.get(k, 0), "now": now.get(k, 0)}
+                        for k in _movement_keys(now, base) if k in _ENDOGENOUS_KEYS}
+                if endo:
+                    rec["endogenous_delta"] = endo
+                    rec["honest"] = True
+            opslib.append_jsonl(OUTCOMES, rec)
             last[rid] = moved_i
     except Exception as e:  # noqa: BLE001 — بستار هرگز measure را نمی‌کشد
         try:

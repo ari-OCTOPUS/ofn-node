@@ -1,11 +1,13 @@
 ---
-type: build-prompt
-status: ready-for-handoff
+type: prompt
+status: ready
 created_by: agent
 created: 2026-07-09
+updated: 2026-07-29
 tags: [octopus, epistemics, build-prompt, non-destructive, shadow-theory]
-source_theory: "[[07 - Knowledge/SHADOW-THEORY-5principles-v1]]"
-source_audit: "[[00 - Inbox/2026-07-09 COHERENCE-AUDIT — intelligence layer wiring + walls (read-only)]]"
+sources:
+  - "[[07 - Knowledge/SHADOW-THEORY-5principles-v1]]"
+  - "[[00 - Inbox/2026-07-09 COHERENCE-AUDIT — intelligence layer wiring + walls (read-only)]]"
 ---
 
 # PROMPT — لایهٔ Epistemics اختاپوس (پنج‌اصلِ SHADOW-THEORY)، ساختِ بدونِ‌تخریب
