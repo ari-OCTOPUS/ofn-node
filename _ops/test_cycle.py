@@ -223,25 +223,56 @@ def run(*, goal: str, method: str, why: str = "", goal_source: str = "self",
 
     out: dict = {"cycle_id": d["cycle_id"], "slot": d["slot"]}
 
-    # ۱) بازیابی — سنجهٔ «به یاد می‌آورد؟»
+    # ── چرا این‌جا «مشاهده» می‌کنیم و «فراخوانی» نمی‌کنیم (اثباتِ زندهٔ ۱۳:۱۲) ──
+    # `organism.py` از قبل هر تیک `recall_trend.sample()` و `tool_request.scan()`
+    # را صدا می‌زند. نسخهٔ اولِ این تابع دوباره صدایشان زد و در همان تیک:
+    #   · recall دو ردیفِ **یکسان** نوشت → پنجرهٔ `trend()` نصف شد؛
+    #   · scan سهمیه را سوخته دید و `too-soon` گرفت، پس دفتر
+    #     `tool_request_ok: false` ثبت کرد — یعنی «این چرخه ابزار نخواست»،
+    #     در حالی که همان چرخه یک درخواستِ دقیق و delivered ساخته بود.
+    # آن یک **دروغِ سنجش** بود، دقیقاً از جنسی که کلِ این هارنس برای بستنش است.
+    # پس سنجه از دفترِ روی دیسک خوانده می‌شود، نه از فراخوانیِ دوباره.
+
+    # ۱) بازیابی — سنجهٔ «به یاد می‌آورد؟». فقط اگر سری کاملاً خالی بود خودمان
+    # یک نمونه می‌گیریم (تا چرخهٔ اول روی ترازوی خالی ننشیند).
     try:
         import recall_trend as _rt
-        out["recall"] = _rt.sample(cycle=d["cycle_id"], now=now)
+        _rows_rt = _rt._rows()
+        if _rows_rt:
+            _last = _rows_rt[-1]
+            out["recall"] = {"ok": True, "observed": True, "samples": len(_rows_rt),
+                             **{k: _last.get(k) for k in
+                                ("events", "keys", "reach_median", "self_ratio",
+                                 "coverage")}}
+        else:
+            out["recall"] = _rt.sample(cycle=d["cycle_id"], now=now)
     except Exception as e:  # noqa: BLE001 — هیچ سنجه‌ای چرخه را نمی‌کشد
         out["recall"] = {"ok": False, "reason": f"{type(e).__name__}"}
 
-    # ۲) نیازِ ابزار — سنجهٔ «دقیق و به‌موقع می‌خواهد؟»
+    # ۲) نیازِ ابزار — سنجهٔ «دقیق و به‌موقع می‌خواهد؟». شمارشِ انباشتی؛ دلتای
+    # بینِ دو چرخهٔ متوالی همان «چند درخواست در این چرخه» است. هیچ سهمیه‌ای
+    # سوزانده نمی‌شود و هیچ تماسِ پولی‌ای از این مسیر نمی‌رود.
     try:
         import tool_request as _tr
-        out["tool_request"] = _tr.scan(cycle=d["cycle_id"], now=now)
+        _trs = [r for r in _tr._rows() if r.get("schema") == _tr.SCHEMA]
+        out["tool_request"] = {
+            "ok": True, "observed": True, "total": len(_trs),
+            "precise": sum(1 for r in _trs if r.get("precise")),
+            "delivered": sum(1 for r in _trs if r.get("delivered")),
+            "blocking": sum(1 for r in _trs if r.get("blocking"))}
     except Exception as e:  # noqa: BLE001
         out["tool_request"] = {"ok": False, "reason": f"{type(e).__name__}"}
 
     # ۳) دفتر — سنجهٔ «مسیر را وسطِ کار اصلاح می‌کند؟»
+    _tro = out.get("tool_request") or {}
+    _rco = out.get("recall") or {}
     rec = record(goal=goal, method=method, why=why, goal_source=goal_source,
                  cycle=d["cycle_id"], now=now,
-                 outcome={"recall_ok": bool((out.get("recall") or {}).get("ok")),
-                          "tool_request_ok": bool((out.get("tool_request") or {}).get("ok"))})
+                 outcome={"recall_ok": bool(_rco.get("ok")),
+                          "recall_events": _rco.get("events"),
+                          "tool_request_ok": bool(_tro.get("ok")),
+                          "tool_requests_total": _tro.get("total"),
+                          "tool_requests_precise": _tro.get("precise")})
     out["journal"] = rec
     _mark_done(d["cycle_id"])
     return {"ok": True, **out}

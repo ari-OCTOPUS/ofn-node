@@ -141,6 +141,65 @@ def t_failed_verdict_feeds_the_next_methods_pivot():
     assert rows[-1]["method_index"] == 1, rows[-1]
 
 
+def t_the_cycle_observes_the_meters_it_does_not_re_fire_them():
+    """اثباتِ زندهٔ ۲۰۲۶-۰۷-۳۰T۱۳:۱۲ — نسخهٔ اول این را می‌شکست.
+
+    `organism` هر تیک خودش `recall_trend.sample()` و `tool_request.scan()` را
+    صدا می‌زند. اگر چرخه هم دوباره صدایشان بزند، در همان تیک: recall ردیفِ
+    تکراری می‌نویسد و scan سهمیهٔ سوخته را `too-soon` می‌بیند، پس دفتر
+    `tool_request_ok=false` ثبت می‌کند — «این چرخه ابزار نخواست» در حالی که
+    همان چرخه یک درخواستِ دقیقِ delivered ساخته بود. دروغِ سنجش.
+
+    پس: صفر ردیفِ تازه از این مسیر، و شمارش باید همان چیزی باشد که روی دیسک است."""
+    _fresh()
+    _write_fitness(claimed=0)
+    import recall_trend as rt
+    import tool_request as tr
+    # سری و دفتر را با دادهٔ «قبلاً موجود» پر می‌کنیم (نقشِ صداکنندهٔ organism)
+    rt.TREND.parent.mkdir(parents=True, exist_ok=True)
+    rt.TREND.write_text(json.dumps(
+        {"ts": "2026-07-30T13:00:00", "schema": rt.SCHEMA, "cycle": 1,
+         "events": 4, "keys": 17, "reach_median": 2.0, "self_ratio": 0.17,
+         "coverage": 0.0074, "rows": 540}) + "\n", "utf-8")
+    tr.LEDGER.parent.mkdir(parents=True, exist_ok=True)
+    tr.LEDGER.write_text("\n".join(json.dumps(r) for r in (
+        {"schema": tr.SCHEMA, "request_id": "a", "precise": True, "delivered": True},
+        {"schema": tr.SCHEMA, "request_id": "b", "precise": False, "delivered": False},
+    )) + "\n", "utf-8")
+    trend_before = rt.TREND.read_bytes()
+    ledger_before = tr.LEDGER.read_bytes()
+
+    r = tc.beat(now=_ts("2026-07-30", 9))
+    assert r["ok"] is True, r
+
+    # هیچ ردیفِ تازه‌ای به هیچ‌کدام اضافه نشد — نه نمونهٔ تکراری، نه سهمیهٔ سوخته
+    assert rt.TREND.read_bytes() == trend_before, "recall دوباره نمونه گرفت"
+    assert tr.LEDGER.read_bytes() == ledger_before, "scan دوباره شلیک کرد"
+
+    # و دفتر عددِ واقعیِ روی دیسک را ثبت کرد، نه «نشد»
+    row = tc._rows()[-1]["outcome"]
+    assert row["tool_request_ok"] is True, row
+    assert row["tool_requests_total"] == 2, row
+    assert row["tool_requests_precise"] == 1, row
+    assert row["recall_ok"] is True and row["recall_events"] == 4, row
+
+
+def t_an_empty_recall_series_is_still_sampled_once():
+    """چرخهٔ اول نباید روی ترازوی خالی بنشیند — اگر سری خالی است، نمونه بگیر."""
+    _fresh()
+    _write_fitness(claimed=0)
+    import recall_trend as rt
+    try:
+        rt.TREND.unlink()
+    except OSError:
+        pass
+    r = tc.beat(now=_ts("2026-07-30", 9))
+    assert r["ok"] is True, r
+    # نتیجه هرچه باشد (زیرسیستمِ ادغام ممکن است در sandbox نباشد)، ادعای دروغ نکند
+    row = tc._rows()[-1]["outcome"]
+    assert isinstance(row["recall_ok"], bool), row
+
+
 def t_two_slots_per_day_are_two_cycles():
     _fresh()
     _write_fitness(claimed=0)

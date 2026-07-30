@@ -27,8 +27,15 @@ sys.path.insert(0, str(_HERE.parent / "cortex"))
 import self_patch as sp      # noqa: E402
 import code_autonomy as ca   # noqa: E402
 
-ALLOWED = "_ops/telegram_center/live_commands.py"
+# ۲۰۲۶-۰۷-۳۰ — فیکسچرِ ALLOWED از `telegram_center` به `cortex` رفت چون رأیِ صریحِ
+# مالک (VQ-SELFGOAL-005) آن ریشه را از `code_autonomy._ALLOW_ROOTS` برداشت: دامنهٔ
+# مصوبِ L3 فقط `_ops/cortex/**` + `_ops/state/**` بود، و `telegram_center` همان
+# جایی است که کارتِ تأیید رندر می‌شود (ارگانیسم می‌توانست دکمهٔ رأیِ خودش را
+# بازنویسی کند). این تغییرِ **فیکسچر** است نه تضعیفِ گارد — و برای اینکه دامنهٔ
+# نو خودش قفل شود، `DENIED_TG` پایین اضافه شد.
+ALLOWED = "_ops/cortex/local_llm.py"
 DENIED = "_ops/budget/approval_channel.py"
+DENIED_TG = "_ops/telegram_center/live_commands.py"   # رأیِ ۰۷-۳۰: دیگر مجاز نیست
 
 
 def _flag(on):
@@ -322,7 +329,7 @@ def t_loop_review_rotates_files_across_days():
     _reset_loop_state()
     try:
         seen = []
-        files = [ALLOWED, "_ops/telegram_center/tg_api.py", "_ops/cortex/improve.py"]
+        files = [ALLOWED, "_ops/cortex/synthesis.py", "_ops/cortex/improve.py"]
         for _ in range(3):
             r = sp.review_and_queue(ask_fn=_mk_ask("CLEAN"), targets=files)
             seen.append(r["target"])
@@ -460,6 +467,21 @@ def t_loop_review_targets_all_pass_the_borrowed_allowlist():
     for f in files:
         assert ca.allowed_target(f), f
         assert f.endswith(".py"), f
+
+
+def t_the_narrowed_scope_is_locked_not_just_unused():
+    """رأیِ مالک VQ-SELFGOAL-005 — دامنه **تنگ شد**، پس باید قفل شود.
+
+    اگر فقط فیکسچر را عوض می‌کردم و این بند نبود، برگشتنِ `telegram_center` به
+    `_ALLOW_ROOTS` هیچ تستی را قرمز نمی‌کرد — دقیقاً همان «گاردِ بی‌دندان».
+    و مسیرِ فرارِ `..` هم این‌جا بسته می‌ماند (سوراخِ اثبات‌شدهٔ ۰۷-۳۰)."""
+    assert ca.allowed_target(ALLOWED), ALLOWED
+    for denied in (DENIED_TG, "_ops/telegram_center/power.py",
+                   "_ops/cortex/../../PRE-0/governance.py",
+                   "_ops/cortex/../tests/run_all.py"):
+        assert not ca.allowed_target(denied), f"باید رد شود: {denied}"
+    assert not any(f.startswith("_ops/telegram_center/")
+                   for f in sp.review_targets()), sp.review_targets()
 
 
 # ═══ یافته‌های ممیزیِ متخاصمِ ۲۰۲۶-۰۷-۲۷ (۱۸ تأییدشده) — قفلِ رگرسیون ═══════════
