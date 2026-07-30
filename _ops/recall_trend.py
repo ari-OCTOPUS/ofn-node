@@ -87,23 +87,56 @@ def measure() -> dict:
         return {}
 
 
+# سنجه‌هایی که «تغییر» را تعریف می‌کنند. اگر همهٔ این‌ها با ردیفِ قبل یکی باشند،
+# ردیفِ نو اطلاعاتِ نو ندارد — گذشتِ زمان تغییر نیست (درسِ «شمارنده در کلیدِ dedup»).
+_MEASURE_KEYS = ("events", "keys", "reach_median", "reach_max", "self_ratio",
+                 "coverage", "rows")
+# ولی سکوتِ کامل هم مبهم است («سنجیده شد و ثابت بود» ≠ «سنجیده نشد»)، پس حتی
+# در حالتِ ثابت هر ۶ ساعت یک ردیفِ نبض می‌نشیند.
+_FLAT_HEARTBEAT_S = 6 * 3600.0
+
+
+def _same_measure(a: dict, b: dict) -> bool:
+    return all(a.get(k) == b.get(k) for k in _MEASURE_KEYS)
+
+
 def sample(*, cycle: "str | int | None" = None, now: "float | None" = None) -> dict:
     """اندازه بگیر و **مهرزده** در سری ثبت کن. همین کار روند را ممکن می‌کند.
 
     مهرِ زمان از `opslib.now_iso()` می‌آید (ساعتِ سیستم)، نه از عددی که خودمان
-    ساخته باشیم — درسِ «ساعتِ خودساخته در evidence = fabrication»."""
+    ساخته باشیم — درسِ «ساعتِ خودساخته در evidence = fabrication».
+
+    ⚠️ ردیفِ **بی‌تغییر نوشته نمی‌شود** (اندازه‌گیریِ زندهٔ ۲۰۲۶-۰۷-۳۰): صداکنندهٔ
+    `organism` هر تیک (~۴۳s) این را صدا می‌زند، پس نسخهٔ اول در ۷ روز ≈ ۱۴٬۰۰۰
+    ردیفِ **بایت‌به‌بایت یکسان** می‌ساخت — و چون `_rows()` هر بار کلِ فایل را
+    پارس می‌کند، هزینه‌اش درجه‌دوم بود. مهم‌تر: سری‌ای که ۹۹.۹٪ تکرار است «روند»
+    نیست. حالا سری یک **سریِ تغییر** است؛ مدتِ ثابت‌ماندن از فاصلهٔ ts دو ردیفِ
+    مجاور بازسازی می‌شود، پس چیزی گم نمی‌شود. نبضِ ۶ساعته «سنجیده شد و ثابت بود»
+    را از «اصلاً سنجیده نشد» جدا نگه می‌دارد."""
     if not enabled():
         return {"ok": False, "reason": "flag-off"}
     m = measure()
     if not m:
         return {"ok": False, "reason": "subsystem-unavailable"}
+    wall = float(now if now is not None else time.time())
+    prev = _rows()
+    if prev:
+        last = prev[-1]
+        if _same_measure(last, m):
+            try:
+                gap = wall - float(last.get("wall") or 0.0)
+            except (TypeError, ValueError):
+                gap = _FLAT_HEARTBEAT_S + 1.0
+            if gap < _FLAT_HEARTBEAT_S:
+                return {"ok": True, "unchanged": True, "written": False,
+                        "samples": len(prev), **m}
     rec = {"ts": opslib.now_iso(), "schema": SCHEMA, "cycle": cycle,
-           "wall": float(now if now is not None else time.time()), **m}
+           "wall": wall, **m}
     try:
         opslib.append_jsonl(TREND, rec)
     except (OSError, ValueError):
         return {"ok": False, "reason": "write-failed", **m}
-    return {"ok": True, **rec}
+    return {"ok": True, "written": True, **rec}
 
 
 def _rows() -> list:

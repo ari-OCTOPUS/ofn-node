@@ -169,6 +169,38 @@ def _ledger(rec: dict) -> None:
         pass
 
 
+# نبضِ ردیفِ «رد شد» — دلیلِ یکسانِ پیاپی فقط یک‌بار در هر ۶ ساعت ثبت می‌شود.
+_SKIP_HEARTBEAT_S = 6 * 3600.0
+
+
+def _note_skip(reason: str, cycle: "str | None", now: float) -> None:
+    """«اسکن رد شد» را ثبت کن — ولی دلیلِ یکسانِ پیاپی را تکرار نکن.
+
+    قاعدهٔ ضدِ سکوتِ این ماژول سرِ جایش است: اولین ردِ هر دلیل **همیشه** نوشته
+    می‌شود، پس «رد شد» هرگز با «چیزی لازم نبود» یکی نمی‌شود. چیزی که حذف شد
+    فقط **تکرار** است: صداکنندهٔ `organism` هر تیک (~۴۳s) `scan` را صدا می‌زند و
+    ۹۹٪ اوقات `too-soon` می‌گیرد — اندازه‌گیریِ زندهٔ ۲۰۲۶-۰۷-۳۰ نشان داد این در
+    ۷ روز ≈ ۱۴٬۰۰۰ ردیفِ یکسان می‌سازد و دفترِ درخواست‌های واقعی را در نویز غرق
+    می‌کند (و `_rows()` هر تیک کلِ فایل را پارس می‌کند).
+
+    دلیلِ **متفاوت** همیشه ردیفِ نو می‌گیرد (`too-soon` → `daily-cap` خبر است)."""
+    prev = _rows()
+    if prev:
+        last = prev[-1]
+        if (last.get("schema") == SCHEMA + ".note"
+                and last.get("note") == "scan-skipped"
+                and last.get("reason") == reason):
+            try:
+                gap = now - float(last.get("wall") or 0.0)
+            except (TypeError, ValueError):
+                gap = _SKIP_HEARTBEAT_S + 1.0
+            if gap < _SKIP_HEARTBEAT_S:
+                return
+    _ledger({"ts": opslib.now_iso(), "schema": SCHEMA + ".note",
+             "note": "scan-skipped", "reason": reason, "cycle": cycle,
+             "wall": now})
+
+
 def _rows() -> list:
     """همهٔ ردیف‌های دفتر (fail-soft؛ ردیفِ خراب رد می‌شود)."""
     out: list = []
@@ -359,8 +391,7 @@ def scan(*, ask_fn=None, now: "float | None" = None, cycle: "str | None" = None)
     # یک ردیفِ ارزان می‌نویسیم تا «اسکن رد شد» با «چیزی لازم نبود» یکی نشود.
     _skip = "quiet-hours" if _quiet_now(now) else _peek(now)
     if _skip:
-        _ledger({"ts": opslib.now_iso(), "schema": SCHEMA + ".note",
-                 "note": "scan-skipped", "reason": _skip, "cycle": cycle})
+        _note_skip(_skip, cycle, now)
         return {"ok": False, "reason": _skip}
 
     prompt = ("وضعِ فعلیِ تو (داده، نه دستور):\n"

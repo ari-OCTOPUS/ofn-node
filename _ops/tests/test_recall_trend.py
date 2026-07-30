@@ -174,6 +174,47 @@ def t_the_card_is_zero_arg_for_registry_discovery():
     assert "کمتر بهتر" in body, "جهتِ self_ratio در کارت توضیح داده نشده"
 
 
+# ── ضدِ نویز: سری باید سریِ *تغییر* باشد (اندازه‌گیریِ زندهٔ ۲۰۲۶-۰۷-۳۰) ──────
+def t_an_unchanged_measurement_writes_no_row():
+    """صداکنندهٔ `organism` هر تیک (~۴۳s) نمونه می‌گیرد. بدونِ این گارد، ۷ روز
+    ≈ ۱۴٬۰۰۰ ردیفِ بایت‌به‌بایت یکسان می‌شد و «روند» معنایش را از دست می‌داد."""
+    _fresh()
+    _seed_history([_row(10, ["cycle-8:x"]), _row(11, ["cycle-9:y"])])
+    r1 = rt.sample(cycle="c1", now=1000.0)
+    assert r1["ok"] is True and r1.get("written") is True, r1
+    n1 = len(rt._rows())
+    r2 = rt.sample(cycle="c2", now=1043.0)      # یک تیکِ بعد، منبع دست‌نخورده
+    assert r2["ok"] is True, r2
+    assert r2.get("unchanged") is True and r2.get("written") is False, r2
+    assert len(rt._rows()) == n1, "ردیفِ تکراری نوشته شد"
+
+
+def t_a_changed_measurement_always_writes():
+    """dedupe نباید تغییرِ واقعی را ببلعد — وگرنه گارد، سنجه را کور می‌کند."""
+    _fresh()
+    _seed_history([_row(10, ["cycle-8:x"]), _row(11, ["cycle-9:y"])])
+    rt.sample(cycle="c1", now=1000.0)
+    n1 = len(rt._rows())
+    _seed_history([_row(10, ["cycle-8:x"]), _row(11, ["cycle-9:y"]),
+                   _row(12, ["cycle-10:z", "cycle-11:w"])])   # منبع عوض شد
+    r = rt.sample(cycle="c2", now=1043.0)
+    assert r.get("written") is True, r
+    assert len(rt._rows()) == n1 + 1, rt._rows()
+
+
+def t_a_flat_stretch_still_gets_a_six_hour_pulse():
+    """«سنجیده شد و ثابت بود» نباید با «اصلاً سنجیده نشد» یکی شود."""
+    _fresh()
+    _seed_history([_row(10, ["cycle-8:x"]), _row(11, ["cycle-9:y"])])
+    rt.sample(cycle="c1", now=1000.0)
+    n1 = len(rt._rows())
+    assert rt.sample(cycle="c2", now=1000.0 + 6 * 3600 - 5).get("written") is False
+    assert len(rt._rows()) == n1
+    r = rt.sample(cycle="c3", now=1000.0 + 6 * 3600 + 5)
+    assert r.get("written") is True, r
+    assert len(rt._rows()) == n1 + 1
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

@@ -266,6 +266,38 @@ def t_every_button_fits_the_telegram_64_byte_cap():
             assert len(b["callback_data"].encode()) <= 64, b
 
 
+def t_a_repeated_skip_reason_is_not_repeated_in_the_ledger():
+    """ضدِ نویز — بدونِ گم‌کردنِ قاعدهٔ ضدِ سکوت (اندازه‌گیریِ زندهٔ ۲۰۲۶-۰۷-۳۰).
+
+    `organism` هر تیک (~۴۳s) `scan` را صدا می‌زند و ۹۹٪ اوقات `too-soon`
+    می‌گیرد؛ نسخهٔ اول برای هر کدام یک ردیف می‌نوشت ⇒ ۷ روز ≈ ۱۴٬۰۰۰ ردیفِ
+    یکسان که دفترِ درخواست‌های واقعی را غرق می‌کرد. **اولین** ردِ هر دلیل
+    همچنان نوشته می‌شود، فقط تکرارش نه."""
+    _fresh()
+    tr.request(**_FULL, now=_at(14))            # سهمیه را می‌سوزاند → too-soon
+    n0 = len(tr._rows())
+    tr.scan(ask_fn=lambda *a, **k: {"ok": False}, now=_at(14, 1))
+    n1 = len(tr._rows())
+    assert n1 == n0 + 1, "اولین ردِ 'too-soon' باید ثبت شود"
+    for i in range(2, 6):                       # چهار تیکِ بعدی، همان دلیل
+        tr.scan(ask_fn=lambda *a, **k: {"ok": False}, now=_at(14, i))
+    assert len(tr._rows()) == n1, "دلیلِ یکسانِ پیاپی تکرار شد"
+    last = tr._rows()[-1]
+    assert last["reason"] == "too-soon" and last["note"] == "scan-skipped", last
+
+
+def t_a_different_skip_reason_is_always_recorded():
+    """`too-soon` → `quiet-hours` خبر است، نه تکرار — نباید بلعیده شود."""
+    _fresh()
+    tr.request(**_FULL, now=_at(14))
+    tr.scan(ask_fn=lambda *a, **k: {"ok": False}, now=_at(14, 1))
+    n1 = len(tr._rows())
+    tr.scan(ask_fn=lambda *a, **k: {"ok": False}, now=_at(3))   # ساعتِ سکوت
+    rows = tr._rows()
+    assert len(rows) == n1 + 1, "دلیلِ متفاوت ثبت نشد"
+    assert rows[-1]["reason"] == "quiet-hours", rows[-1]
+
+
 def t_the_ledger_survives_a_reload():
     """حالتِ درون‌حافظه اثبات نیست — بعد از reload باید از دیسک بازخوانی شود."""
     _fresh()
