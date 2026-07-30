@@ -146,8 +146,17 @@ COMMANDS: list[tuple[str, str]] = [
     ("quote", "🧾 قیمت برایش فرستاده شد"),
 ]
 
+# منوی commandهای باتِ inner (@Robo2725، فقط-ارسال از دیدِ مرکز) — آیتم ۴ِ TG-P2.
+# این بات درونِ ارگانیسم است (سلامت/هشدار/دایجست) و مرکز رویش فقط می‌فرستد،
+# فرمان نمی‌گیرد (pollerش approval_channel است، در پروسهٔ جدا). پس منوی کوچک/خالی:
+# فقط اطلاع‌رسانیِ «این باتِ درون است». flag-off → این پروفایل اصلاً ثبت نمی‌شود
+# (کلاینتِ inner هم ساخته نمی‌شود) تا پاریتیِ تک-outerِ امروز بایت‌به‌بایت بماند.
+COMMANDS_INNER: list[tuple[str, str]] = [
+    ("status", "🐙 این باتِ درونِ ارگانیسم است — وضعیت را اینجا ببین"),
+]
+
 # دستورهایی که مرکز خودش پشتِ فلگ ثبت می‌کند — پل از آن‌ها رد می‌شود تا
-# پاریتهٔ فلگ نشکند. هر مدخل باید دلیلِ فلگ‌دار بودنش را داشته باشد.
+# پاریتهٔ فلگ نشکنند. هر مدخل باید دلیلِ فلگ‌دار بودنش را داشته باشد.
 _CENTRE_GATED = {"/panel": "OCTOPUS_WIRE_MENU_V2 — منوی v2",
                  "/mining": "OCTOPUS_WIRE_MINING_UI — منوی ⛏ زیر-OSِ Mining"}
 
@@ -258,6 +267,46 @@ class Center:
             return tg_api.TgClient()
         except Exception:  # noqa: BLE001
             return None
+
+    # ─ـ دو-باتیِ TG-P2 (آیتم ۲) ──────────────────────────────────────────────────
+    # کلاینتِ outer = self._client (روی TG_CENTER_BOT_TOKEN، pollerِ اصلی مرکز).
+    # کلاینتِ inner = فقط-ارسال روی TELEGRAM_BOT_TOKEN (همان باتی که approval_channel
+    # در پروسهٔ organism رویش poll می‌کند). قاعدهٔ ۲ِ TG-SPLIT: هیچ pollerِ نو؛ این
+    # کلاینت هرگز getUpdates صدا نمی‌زند — sendMessage آپدیت مصرف نمی‌کند و امن است.
+    # نبودِ TELEGRAM_BOT_TOKEN → inner=None → surface_router به outer سقوط می‌کند + alert.
+    def _inner_client(self):
+        """کلاینتِ inner (فقط-ارسال). ساختهٔ lazy و fail-soft؛ None اگر توکنِ inner نباشد."""
+        if getattr(self, "_inner", None) is not None:
+            return self._inner
+        try:
+            import tg_api
+            import os as _os
+            inner_tok = (_os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip()
+            if not inner_tok:
+                if not getattr(self, "_inner_missing_alerted", False):
+                    self._inner_missing_alerted = True
+                    try:
+                        opslib.alert(["tg-center: TELEGRAM_BOT_TOKEN غایب — کلاینتِ "
+                                      "inner ساخته نشد؛ جریان‌های inner به outer سقوط می‌کنند."])
+                    except Exception:  # noqa: BLE001
+                        pass
+                self._inner = None
+                return None
+            # owner/center همان outer است: DMِ مالک و گروهِ مرکز با همان chat idها.
+            owner = getattr(self._client, "_owner", None) if self._client else None
+            center = getattr(self._client, "_center", None) if self._client else None
+            self._inner = tg_api.TgClient(
+                token=inner_tok, owner_chat_id=owner, center_chat_id=center,
+                post_fn=getattr(self._client, "_post", None),
+                get_fn=getattr(self._client, "_get", None))
+            return self._inner
+        except Exception:  # noqa: BLE001
+            self._inner = None
+            return None
+
+    def _clients_map(self) -> dict:
+        """``{"inner": TgClient|None, "outer": TgClient|None}`` برایِ surface_router."""
+        return {"inner": self._inner_client(), "outer": self._client}
 
     def _rmod(self):
         """ماژولِ render (تزریقی یا lazy). نبود → None (بخش‌های وابسته skip می‌شوند)."""
@@ -449,7 +498,9 @@ class Center:
                 topics[leg] = tid
                 dirty = True
 
-        # منوی commandها — ثبتِ مجدد وقتی فهرست عوض شود (پرچم = تعدادِ ثبت‌شده)
+        # منوی commandها — ثبتِ مجدد وقتی فهرست عوض شود (پرچم = تعدادِ ثبت‌شده).
+        # آیتم ۴ِ TG-P2: زیرِ split، inner و outer هرکدام منویِ خودشان را می‌گیرند.
+        # flag-off → فقط outer (پاریتیِ تک-outerِ امروز بایت‌به‌بایت)؛ flag-on → هر دو.
         if cfg.get("commands_set") != len(COMMANDS):
             try:
                 ok = bool(self._client.set_commands(list(COMMANDS)))
@@ -458,6 +509,21 @@ class Center:
             if ok:
                 cfg["commands_set"] = len(COMMANDS)
                 dirty = True
+        try:
+            import surface_router as _sr
+            _split_on = _sr.enabled()
+        except Exception:  # noqa: BLE001
+            _split_on = False
+        if _split_on:
+            inner = self._inner_client()
+            if inner is not None and cfg.get("commands_set_inner") != len(COMMANDS_INNER):
+                try:
+                    ok_in = bool(inner.set_commands(list(COMMANDS_INNER)))
+                except Exception:  # noqa: BLE001
+                    ok_in = False
+                if ok_in:
+                    cfg["commands_set_inner"] = len(COMMANDS_INNER)
+                    dirty = True
 
         # پیامِ statusِ پین‌شده — فقط یک‌بار ساخته می‌شود؛ بعداً فقط edit (beat)
         if not isinstance(cfg.get("status_message_id"), int):

@@ -35,6 +35,8 @@ DEFAULT_LONGPOLL_S = 25                          # $0-idle: getUpdates روی س
 _ALERT_THROTTLE_S = 3600                         # هشدارِ شکست: حداکثر ۱/ساعت به‌ازای هر متد
 _TEXT_CAP = 4096                                 # سقفِ متنِ پیامِ تلگرام
 _TOAST_CAP = 200                                 # سقفِ متنِ answerCallbackQuery
+_429_RETRY_CAP_S = 30                            # سقفِ امنِ احترام به retry_after (طوفانِ sleep ممنوع)
+_429_MAX_RETRIES = 1                             # فقط یک تلاشِ مجدد (هرگز retry-storm)
 
 # containment — تنها جای مجاز برای این رشته‌ها (parity با events/_scrub، registry_scan)
 _BANNED_ECHO = ("اونلی", "onlyfans", "صبا")
@@ -133,14 +135,41 @@ def _url_json_get(url: str, timeout_s: float) -> dict:
 def _http_err_desc(exc) -> str:
     """descriptionِ Bot API از بدنهٔ HTTPError (مثلاً «Bad Request: message is not
     modified») — generic و بدونِ token/URL. هر شکست → '' (fail-soft)."""
+    return str(_http_err_json(exc).get("description") or "")[:200]
+
+
+def _http_err_json(exc) -> dict:
+    """بدنهٔ JSONِ یک HTTPError (مثلاً ۴۲۹ با retry_after) — برایِ تشخیصِ rate-limit.
+    هر شکست/غیر-HTTPError → {} (fail-soft). یک‌جا خوانده می‌شود تا دوبار read نشود."""
     try:
         import urllib.error
         if isinstance(exc, urllib.error.HTTPError):
             raw = exc.read(2048).decode("utf-8", "replace")
-            return str(json.loads(raw).get("description") or "")[:200]
+            data = json.loads(raw)
+            return data if isinstance(data, dict) else {}
     except Exception:  # noqa: BLE001
-        return ""
-    return ""
+        return {}
+    return {}
+
+
+def _retry_after_from_429(data: dict) -> float | None:
+    """از پاسخِ ۴۲۹ تلگرام مقدارِ ``parameters.retry_after`` را بیرون بکشد.
+
+    تلگرام می‌گوید «چند ثانیه صبر کن». ما تا سقفِ ``_429_RETRY_CAP_S`` احترام
+    می‌گذاریم — هیچ retry_afterای (حتی سوءاستفاده‌شده) نباید کلاینت را برایِ ساعت‌ها
+    بخواباند. مقدارِ نامعتبر/غایب → None (احترام‌گذاشتن به چیزی که نیست بی‌معنی است).
+
+    ۴۲۹ تا امروز در کلِ لایهٔ تلگرام غایب بود؛ send واقعی بی‌هیچ صبرِ، شکستِ fail-soft
+    می‌کرد و سرورِ تلگرام فقط بیشتر rate-limit می‌کرد. این مسیرِ retry را «همیشه
+    روشن» گذاشتیم (رأیِ مالک): ۴۲۹ یک باگِ واقعی است نه یک ویژگیٔ flag-gated."""
+    try:
+        params = (data or {}).get("parameters") or {}
+        ra = float(params.get("retry_after"))
+    except (TypeError, ValueError):
+        return None
+    if ra <= 0:
+        return None
+    return min(ra, _429_RETRY_CAP_S)
 
 
 def _url_json_post(url: str, body: dict, timeout_s: float = 10.0) -> dict:
@@ -189,6 +218,7 @@ class TgClient:
                         else (_env_int("TG_CENTER_CHAT_ID", 0) or None))
         self._post = post_fn or _url_json_post
         self._get = get_fn or _url_json_get
+        self._sleep = time.sleep                   # تزریقی برایِ تستِ ۴۲۹ بدونِ انتظارِ واقعی
         self._last_alert: dict[str, float] = {}   # ضدِ اسپم: هشدارِ شکست ۱/ساعت/متد
 
     # ── وضعیت ────────────────────────────────────────────────────────────────
@@ -240,19 +270,46 @@ class TgClient:
 
     def _call_post(self, method: str, body: dict) -> dict | None:
         """یک POST؛ خطا/پاسخِ نامعتبر → None. هشدارِ شکست throttled و بدونِ token.
+
         استثنا: «message is not modified» = وضعِ مطلوب از قبل برقرار → موفق، بی‌هشدار
-        (وگرنه هر بوت یک ⚠️ کاذب در /alerts می‌نشیند و کانال بی‌اعتبار می‌شود)."""
-        try:
-            data = self._post(self._build_url(method), body)
-        except Exception as e:  # noqa: BLE001 — fail-soft، بدونِ leakِ URL/token
-            desc = _http_err_desc(e)
-            if "message is not modified" in desc:
-                return {"ok": True, "result": True, "not_modified": True}
-            self._note_fail(method, e, desc)
+        (وگرنه هر بوت یک ⚠️ کاذب در /alerts می‌نشیند و کانال بی‌اعتبار می‌شود).
+
+        ۴۲۹ Too Many Requests: تلگرام ``parameters.retry_after`` می‌گوید. ما تا سقفِ
+        امن صبر می‌کنیم و **یک‌بار** دوباره تلاش می‌کنیم (آیتم ۵ِ TG-P2). هیچ‌گاه
+        retry-storm درست نمی‌شود؛ شکستِ دوم = fail-soft مثلِ بقیه."""
+        for _attempt in range(_429_MAX_RETRIES + 1):   # ۱ تلاشِ اولیه + ۱ retry
+            try:
+                data = self._post(self._build_url(method), body)
+            except Exception as e:  # noqa: BLE001 — fail-soft، بدونِ leakِ URL/token
+                # بدنهٔ HTTPError یک stream است و فقط یک‌بار خوانده می‌شود؛ پس JSON را
+                # یک‌بار بیرون بکش و هر دو (retry_after + description) را از آن بگیر.
+                err_json = _http_err_json(e)
+                ra = _retry_after_from_429(err_json)
+                desc = str(err_json.get("description") or "")[:200]
+                if "message is not modified" in desc:
+                    return {"ok": True, "result": True, "not_modified": True}
+                if ra is not None and _attempt < _429_MAX_RETRIES:
+                    try:
+                        self._sleep(ra)
+                    except Exception:  # noqa: BLE001
+                        pass
+                    continue
+                self._note_fail(method, e, desc)
+                return None
+            if not isinstance(data, dict):
+                return None
+            if data.get("ok"):
+                return data
+            # پاسخِ ok=False: اگر ۴۲۹ است و retry_after دارد، یک‌بار دوباره.
+            ra = _retry_after_from_429(data) if int(data.get("error_code") or 0) == 429 else None
+            if ra is not None and _attempt < _429_MAX_RETRIES:
+                try:
+                    self._sleep(ra)
+                except Exception:  # noqa: BLE001
+                    pass
+                continue
             return None
-        if not isinstance(data, dict) or not data.get("ok"):
-            return None
-        return data
+        return None
 
     def _note_fail(self, method: str, exc: Exception, desc: str = "") -> None:
         """هشدارِ fail-softِ throttled (۱/ساعت/متد) — نامِ متد + نوعِ خطا + descriptionِ
@@ -283,7 +340,10 @@ class TgClient:
         if cid is None or not body_text.strip():
             return None
         body: dict = {"chat_id": cid, "text": body_text, "parse_mode": "HTML"}
-        if topic_id is not None:
+        # message_thread_id فقط روی سوپرگروهِ forum معنا دارد (cid < -1000). فرستادنش
+        # به یک چتِ خصوصی (DM، cid ≥ ۰) = ۴۰۰ Bad Request از تلگرام (آیتم ۳ِ TG-P2).
+        # حتی اگر صداکننده اشتباهاً topic_id بدهد، اینجا بی‌اثر می‌شود.
+        if topic_id is not None and isinstance(cid, int) and cid < -1000:
             tid = _coerce_id(topic_id)
             if tid is not None:
                 body["message_thread_id"] = tid
@@ -391,7 +451,11 @@ class TgClient:
     def poll_updates(self, offset: int = 0, timeout_s: int = DEFAULT_LONGPOLL_S) -> list[dict]:
         """یک دورِ long-pollِ getUpdates ($0-idle). خروجی = لیستِ updateها (dict) —
         خطای شبکه/پاسخِ بد → [] بی‌صدا (حلقهٔ poll نباید alert-spam کند؛ الگوی
-        approval_channel.poll_once). offsetِ بعدی با next_offset حساب می‌شود."""
+        approval_channel.poll_once). offsetِ بعدی با next_offset حساب می‌شود.
+
+        ۴۲۹: اگر تلگرام rate-limit بگوید (retry_after)، قبل از برگشتنِ [] به‌اندازهٔ
+        آن صبر می‌کنیم تا حلقهٔ poll بلافاصله دوباره برخورد نکند و spinِ ۴۲۹ نسازد.
+        sleep واقعی فقط در تولید است؛ تست با ``_sleep`` تزریقی ثبت می‌کند."""
         if not self.wired():
             return []
         try:
@@ -401,6 +465,12 @@ class TgClient:
         except Exception:  # noqa: BLE001 — بی‌صدا، بدونِ leakِ URL/token
             return []
         if not isinstance(data, dict) or not data.get("ok"):
+            ra = _retry_after_from_429(data if isinstance(data, dict) else {})
+            if ra is not None:
+                try:
+                    self._sleep(ra)
+                except Exception:  # noqa: BLE001
+                    pass
             return []
         return [u for u in (data.get("result") or []) if isinstance(u, dict)]
 

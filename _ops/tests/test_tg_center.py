@@ -59,6 +59,9 @@ APPROVALS = opslib.STATE_DIR / "telegram" / "approvals"
 ALL_LEGS = ("lead", "ziman", "mining", "crypto", "accounting",
             "studio_pf", "system", "knowledge")
 
+# ثابت‌های تستِ دو-باتیِ TG-P2 (center chat_id منفی = سوپرگروهِ forum)
+CENTER = -1009999
+
 
 # ─── fakeها (صفر شبکه، فقط ثبتِ فراخوان‌ها) ─────────────────────────────────────
 class FakeClient:
@@ -657,6 +660,101 @@ def t_center_has_a_real_singleton_lock():
     fn = fn[:fn.index('return s, None')]
     assert 'SO_REUSEADDR' not in fn, 'SO_REUSEADDR قفل را روی ویندوز بی‌اثر می‌کند'
     assert 'SO_EXCLUSIVEADDRUSE' in fn
+
+
+def t_inner_client_built_from_telegram_bot_token():
+    """آیتم ۲ِ TG-P2: کلاینتِ inner فقط-ارسال روی TELEGRAM_BOT_TOKEN ساخته می‌شود.
+
+    قاعدهٔ ۲ِ TG-SPLIT: هیچ pollerِ نو. کلاینتِ inner هرگز getUpdates نمی‌زند — این
+    تست فقط تأیید می‌کند که ساخته می‌شود و wired است، و post_fn/owner/center را از
+    outer به ارث می‌برد."""
+    _reset()
+    os.environ["TELEGRAM_BOT_TOKEN"] = "inner-tok-987"
+    try:
+        fc = FakeClient()
+        # outer fake باید خصیصه‌های واقعیِ TgClient را داشته باشد تا inner ازشان بخواند
+        fc._owner = 777
+        fc._center = CENTER
+        fc._post = lambda u, b, timeout_s=10.0: {"ok": True, "result": {"message_id": 1}}
+        fc._get = lambda u, t: {"ok": True, "result": []}
+        c = center.Center(client=fc, clock=Clock(), render_mod=fake_render())
+        inner = c._inner_client()
+        assert inner is not None, "inner باید ساخته شود وقتی TELEGRAM_BOT_TOKEN هست"
+        assert inner.wired() is True
+        assert inner._owner == 777 and inner._center == CENTER
+        cm = c._clients_map()
+        assert cm["inner"] is inner and cm["outer"] is fc
+    finally:
+        os.environ.pop("TELEGRAM_BOT_TOKEN", None)
+
+
+def t_inner_missing_when_telegram_bot_token_absent():
+    """نبودِ TELEGRAM_BOT_TOKEN → inner=None → surface_router به outer سقوط می‌کند."""
+    _reset()
+    os.environ.pop("TELEGRAM_BOT_TOKEN", None)
+    fc = FakeClient()
+    fc._owner = 777
+    fc._center = CENTER
+    fc._post = lambda u, b, timeout_s=10.0: {"ok": True, "result": {}}
+    fc._get = lambda u, t: {"ok": True, "result": []}
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render())
+    assert c._inner_client() is None
+    assert c._clients_map()["inner"] is None
+    assert c._clients_map()["outer"] is fc
+
+
+def t_set_my_commands_per_bot_under_split():
+    """آیتم ۴ِ TG-P2: flag-on → هر بات منویِ خودش را می‌گیرد (outer=COMMANDS، inner=COMMANDS_INNER).
+
+    با دو FakeClient جدا (outer و inner تزریقی) تا شمارشِ set_commands روی هرکدام
+    جدا دیده شود. flag-off → فقط outer (پاریتیِ امروز). جهش (پین به یک پروفایل) ⇒ قرمز."""
+    _reset()
+    os.environ["OCTOPUS_TG_SPLIT_V1"] = "1"
+    os.environ["TELEGRAM_BOT_TOKEN"] = "inner-tok"
+    try:
+        outer = FakeClient()
+        outer._owner = 777
+        outer._center = CENTER
+        outer._post = lambda u, b, timeout_s=10.0: {"ok": True, "result": {"message_id": 1}}
+        outer._get = lambda u, t: {"ok": True, "result": []}
+        c = center.Center(client=outer, clock=Clock(), render_mod=fake_render())
+        # inner را تزریق کن تا مستقل از outer شمارش شود
+        inner_fc = FakeClient()
+        inner_fc._owner = 777
+        inner_fc._center = CENTER
+        inner_fc._post = lambda u, b, timeout_s=10.0: {"ok": True, "result": {}}
+        inner_fc._get = lambda u, t: {"ok": True, "result": []}
+        c._inner = inner_fc
+        assert c.ensure_setup() is True
+        # outer پروفایلِ کاملِ COMMANDS را می‌گیرد
+        outer_cmds = outer.named("set_commands")
+        assert len(outer_cmds) == 1
+        assert len(outer_cmds[0]["commands"]) == len(center.COMMANDS)
+        # inner پروفایلِ COMMANDS_INNER را می‌گیرد (مستقل از outer)
+        inner_cmds = inner_fc.named("set_commands")
+        assert len(inner_cmds) == 1, f"inner باید منوی خودش را بگیرد: {inner_cmds}"
+        assert len(inner_cmds[0]["commands"]) == len(center.COMMANDS_INNER)
+        assert inner_cmds[0]["commands"] != outer_cmds[0]["commands"]
+    finally:
+        os.environ.pop("OCTOPUS_TG_SPLIT_V1", None)
+        os.environ.pop("TELEGRAM_BOT_TOKEN", None)
+
+
+def t_flag_off_never_sets_inner_commands():
+    """flag-off → inner اصلاً commands نمی‌گیرد (پاریتیِ تک-outerِ امروز بایت‌به‌بایت)."""
+    _reset()
+    os.environ.pop("OCTOPUS_TG_SPLIT_V1", None)
+    outer = FakeClient()
+    outer._owner = 777
+    outer._center = CENTER
+    outer._post = lambda u, b, timeout_s=10.0: {"ok": True, "result": {"message_id": 1}}
+    outer._get = lambda u, t: {"ok": True, "result": []}
+    c = center.Center(client=outer, clock=Clock(), render_mod=fake_render())
+    inner_fc = FakeClient()
+    c._inner = inner_fc
+    assert c.ensure_setup() is True
+    assert len(outer.named("set_commands")) == 1          # outer همان امروز
+    assert len(inner_fc.named("set_commands")) == 0, "flag-off نباید inner را ثبت کند"
 
 
 if __name__ == "__main__":
