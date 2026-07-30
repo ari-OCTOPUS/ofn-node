@@ -320,8 +320,19 @@ def _draft_via_local(task: str) -> Optional[dict]:
         # AST جلویش را گرفت. بازنویسیِ کاملِ فایل کارِ سنگین‌تری است، پس این
         # tier مدلِ خودش را دارد. knob: OCTOPUS_CODE_BRAIN_LOCAL_MODEL.
         _prev_model = local_llm.MODEL
+        _prev_timeout = local_llm.TIMEOUT_S
         local_llm.MODEL = os.environ.get(
             "OCTOPUS_CODE_BRAIN_LOCAL_MODEL", "qwen2.5:latest")
+        # ⚠️ و مهلتِ خودش. `TIMEOUT_S=90` ِ چتِ روزمره برای **بازنویسیِ کاملِ
+        # فایل** کافی نیست: پروبِ واقعی روی یک فایلِ ۷۲خطی دقیقاً سرِ ۹۰ ثانیه
+        # با `chars=0` برگشت — یعنی مدل وسطِ تولید قطع شد و «امتناع» به نظر
+        # رسید. این tier یک daemon ِ پس‌زمینه با کادنسِ ۵ دقیقه است، پس مهلتِ
+        # بلندتر هزینه‌ای ندارد. knob: OCTOPUS_CODE_BRAIN_LOCAL_TIMEOUT_S.
+        try:
+            local_llm.TIMEOUT_S = float(os.environ.get(
+                "OCTOPUS_CODE_BRAIN_LOCAL_TIMEOUT_S", "600"))
+        except (TypeError, ValueError):
+            local_llm.TIMEOUT_S = 600.0
         # ⚠️ system prompt ِ **مخصوصِ محلی**. با system ِ tool-use ِ API، مدلِ
         # کوچک پاسخ را در قالبِ JSON ِ {target,content,intent} می‌دهد — سنجیده
         # شد. این‌جا شکلِ خروجی صریح و ساده خواسته می‌شود.
@@ -336,10 +347,13 @@ def _draft_via_local(task: str) -> Optional[dict]:
                     "```python fenced block containing the COMPLETE modified "
                     "file. Preserve every existing definition. No prose."),
             max_tokens=4096, force=True)
-        local_llm.MODEL = _prev_model      # مدلِ چتِ روزمره را برنگردان‌نکرده نگذار
+        # تنظیماتِ چتِ روزمره را برنگردان‌نکرده نگذار
+        local_llm.MODEL = _prev_model
+        local_llm.TIMEOUT_S = _prev_timeout
     except Exception as e:  # noqa: BLE001
         try:
             local_llm.MODEL = _prev_model
+            local_llm.TIMEOUT_S = _prev_timeout
         except Exception:  # noqa: BLE001
             pass
         _log({"event": "draft-error", "tier": "local", "err": str(e)[:200]})

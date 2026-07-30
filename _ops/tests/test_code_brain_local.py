@@ -109,25 +109,68 @@ def t_a_task_without_an_allowed_target_never_calls_the_model():
         os.environ.pop("OCTOPUS_CODE_BRAIN", None)
 
 
-def t_the_local_tier_uses_its_own_model_knob_and_restores_the_chat_model():
-    """مدلِ چتِ روزمره نباید بعد از این tier عوض بماند."""
+def t_the_local_tier_uses_its_own_knobs_and_restores_the_chat_settings():
+    """مدل **و مهلتِ** چتِ روزمره نباید بعد از این tier عوض بمانند.
+
+    ⚠️ مهلت از یک باگِ واقعی آمد: `TIMEOUT_S=90` ِ چت برای بازنویسیِ کاملِ یک
+    فایلِ ۷۲خطی کافی نبود — پروب دقیقاً سرِ ۹۰ ثانیه با `chars=0` برگشت و
+    شبیهِ «مدل امتناع کرد» به نظر رسید. با مهلتِ ۶۰۰ ثانیه همان کار در ۵۰۰
+    ثانیه سبز شد. این tier یک daemon ِ ۵-دقیقه‌ای است، پس مهلتِ بلند هزینه
+    ندارد — ولی نشتِ آن به چتِ روزمره **دارد**."""
     import local_llm
-    before = local_llm.MODEL
+    before_model, before_timeout = local_llm.MODEL, local_llm.TIMEOUT_S
     os.environ["OCTOPUS_CODE_BRAIN"] = "1"
+    seen = {}
     real = local_llm.ask
     real_avail = local_llm.available
     local_llm.available = lambda *a, **k: True
-    local_llm.ask = lambda *a, **k: {"text": "```python\n" + BEFORE + "```"}
+
+    def spy(*a, **k):
+        seen["model"] = local_llm.MODEL
+        seen["timeout"] = local_llm.TIMEOUT_S
+        return {"text": "```python\n" + BEFORE + "```"}
+
+    local_llm.ask = spy
     tgt = Path(ENV["ORG_ROOT"]) / "_ops" / "cortex" / "probe_t.py"
     tgt.parent.mkdir(parents=True, exist_ok=True)
     tgt.write_text(BEFORE, "utf-8")
     try:
         got = cb._draft_via_local("در _ops/cortex/probe_t.py چیزی عوض کن")
         assert got and got["target"] == "_ops/cortex/probe_t.py", got
-        assert local_llm.MODEL == before, ("مدلِ چت برنگشت", local_llm.MODEL)
+        # حینِ تماس: مدل و مهلتِ **مخصوصِ کد**
+        assert seen["timeout"] >= 300, ("مهلتِ کوتاه ⇒ فایلِ متوسط قطع می‌شود",
+                                       seen)
+        assert seen["model"] != "" and seen["model"] is not None, seen
+        # بعدِ تماس: هر دو برگشته
+        assert local_llm.MODEL == before_model, ("مدلِ چت برنگشت", local_llm.MODEL)
+        assert local_llm.TIMEOUT_S == before_timeout, ("مهلتِ چت برنگشت",
+                                                       local_llm.TIMEOUT_S)
     finally:
         local_llm.ask = real
         local_llm.available = real_avail
+        local_llm.MODEL, local_llm.TIMEOUT_S = before_model, before_timeout
+        os.environ.pop("OCTOPUS_CODE_BRAIN", None)
+
+
+def t_the_chat_settings_are_restored_even_when_the_model_raises():
+    """مسیرِ استثنا هم باید برگرداند — وگرنه یک خطا چتِ روزمره را برای همیشه
+    روی مدل/مهلتِ سنگین می‌گذارد."""
+    import local_llm
+    before_model, before_timeout = local_llm.MODEL, local_llm.TIMEOUT_S
+    os.environ["OCTOPUS_CODE_BRAIN"] = "1"
+    real, real_avail = local_llm.ask, local_llm.available
+    local_llm.available = lambda *a, **k: True
+    local_llm.ask = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom"))
+    tgt = Path(ENV["ORG_ROOT"]) / "_ops" / "cortex" / "probe_t2.py"
+    tgt.parent.mkdir(parents=True, exist_ok=True)
+    tgt.write_text(BEFORE, "utf-8")
+    try:
+        assert cb._draft_via_local("در _ops/cortex/probe_t2.py عوض کن") is None
+        assert local_llm.MODEL == before_model, local_llm.MODEL
+        assert local_llm.TIMEOUT_S == before_timeout, local_llm.TIMEOUT_S
+    finally:
+        local_llm.ask, local_llm.available = real, real_avail
+        local_llm.MODEL, local_llm.TIMEOUT_S = before_model, before_timeout
         os.environ.pop("OCTOPUS_CODE_BRAIN", None)
 
 
