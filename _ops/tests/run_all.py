@@ -608,6 +608,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     # حکم → دفترِ mission (mission_approval_bridge، فلگ‌خاموش) + منتقدِ رسید
     # (receipt_critic، فلگ‌خاموش). plain-assert.
     "test_mission_approval_and_receipt_critic.py",
+    # ۲۰۲۶-۰۷-۳۱ — حکمِ مالک به تصمیمِ بعدی برسد: توکن‌های category=/verdict= به
+    # حافظهٔ لید برمی‌گردند (رد + پذیرش)، فراموشیِ ردشده‌های doctor با کلیدِ
+    # واقعی شلیک می‌کند. plain-assert.
+    "test_verdict_feedback_loop.py",
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
