@@ -276,6 +276,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_prereg_evaluator.py",  # پیش‌ثبتِ fail-closed + ارزیابی که target را جابه‌جا نمی‌کند
          "test_test_cycle_beat.py",  # صداکنندهٔ چرخه: زنجیرهٔ کامل، ضدِ دوبار-شلیک
          "test_target_guard.py",  # مقصدِ پچ: resolve قبل از قضاوت (کورپوسِ فرارِ ۰۷-۳۰)
+         "test_goal_max_circular.py",  # سهمیهٔ دایره‌ای: استثنا باید **منقضی شود**
          "test_budget_judge.py",  # W1 — قاضیِ بودجه (رزروِ مالک تخطی‌ناپذیر)
          "test_decision_gate.py",  # W2 — گیتِ ۵۱/۴۹ (HARD-STOP با مدرکِ کامل هم بسته)
          "test_trajectory_log.py",  # W3 — دفترِ مسیر (redact ِ fail-closed)
