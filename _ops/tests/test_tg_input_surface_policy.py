@@ -25,7 +25,12 @@ import input_surface_policy as isp  # noqa: E402
 OWNER = 6150431610
 STRANGER = 999
 GROUP = -1004475788460
-TOPICS = {"lead": 11, "ziman": 12, "mining": 13}
+# کلیدها عمداً همان‌هایی‌اند که `center-config.json` واقعاً دارد — نه یک نمونهٔ
+# سه‌تایی. فیکسچرِ کوچک باعث شد حلقهٔ پوششِ نامِ فارسی فقط دو پا را بسنجد و
+# بقیه بی‌صدا رد شوند؛ فیکسچری که از واقعیت کوچک‌تر است، پوششِ کاذب می‌سازد.
+TOPICS = {"lead": 11, "ziman": 12, "mining": 13, "crypto": 14,
+          "accounting": 15, "studio_pf": 16, "system": 17,
+          "knowledge": 18, "cartographer": 19, "mirror": 20}
 
 
 def _msg(*, chat_id, chat_type, from_id=OWNER, text="", thread=None):
@@ -116,6 +121,49 @@ def t_the_same_leg_named_in_its_own_topic_is_fine():
     d = _c(_msg(chat_id=GROUP, chat_type="supergroup", thread=11,
                 text="lead چطور پیش می‌رود؟"))
     assert d["allow"] is True and d["mode"] == "leg_scoped", d
+
+
+def t_cross_leg_is_detected_when_the_owner_writes_in_persian():
+    """جملهٔ دقیقِ گیت ۶ِ ACCEPTANCE-RUNBOOK — و باگی که تستِ سبز نگرفت.
+
+    بندِ بالا با «وضعیتِ mining چطوره؟» می‌سنجید: واژهٔ **لاتین** داخلِ جملهٔ
+    فارسی. ولی کلیدهای تاپیک لاتین‌اند و مالک فارسی می‌نویسد، پس تشخیص در عملِ
+    واقعی کور بود — «ماینینگ را متوقف کن» در تاپیکِ lead اجازهٔ `leg_scoped`
+    می‌گرفت. الگو روی نمونه‌ای کالیبره شده بود که قطعاً می‌گیرد."""
+    d = _c(_msg(chat_id=GROUP, chat_type="supergroup", thread=11,
+                text="ماینینگ را متوقف کن"))
+    assert d["allow"] is False, d
+    assert d["mode"] == "clarify", d
+    assert "cross-leg" in d["reason"] and "mining" in d["reason"], d
+
+
+def t_every_leg_with_a_persian_name_is_detected_across_topics():
+    """پوششِ کامل: هر پایی که نامِ فارسی دارد باید از تاپیکِ یک پای دیگر
+    گرفته شود — وگرنه فهرست نیمه‌کاره است و همان کوریِ نقطه‌ای برمی‌گردد."""
+    for key, aliases in isp.LEG_ALIASES.items():
+        if key not in TOPICS or key == "lead":
+            continue
+        for alias in aliases:
+            d = _c(_msg(chat_id=GROUP, chat_type="supergroup", thread=11,
+                        text=f"{alias} را بررسی کن"))
+            assert d["allow"] is False and d["mode"] == "clarify", (key, alias, d)
+            assert key in d["reason"], (key, alias, d)
+
+
+def t_a_legs_own_persian_name_in_its_own_topic_is_not_cross_leg():
+    """ضدِ بیش‌بست، فارسی: «نقاشی» در تاپیکِ lead خودِ همان پاست."""
+    for txt in ("نقاشی چطور پیش می‌رود؟", "لید تازه داریم؟"):
+        d = _c(_msg(chat_id=GROUP, chat_type="supergroup", thread=11, text=txt))
+        assert d["allow"] is True and d["mode"] == "leg_scoped", (txt, d)
+
+
+def t_common_persian_words_are_not_mistaken_for_leg_names():
+    """بیش‌بست به‌اندازهٔ کم‌بست بد است: clarify ِ بی‌مورد یعنی مالک یاد
+    می‌گیرد گیت را جدی نگیرد. واژه‌های عمومی نباید نامِ پا شمرده شوند."""
+    for txt in ("حساب کن ببین چقدر شد", "سیستمش خوب کار می‌کند",
+                "ارزش این کار چقدره؟"):
+        d = _c(_msg(chat_id=GROUP, chat_type="supergroup", thread=11, text=txt))
+        assert d["mode"] != "clarify", (txt, d)
 
 
 # ── غیرمالک و ابهام ────────────────────────────────────────────────────────

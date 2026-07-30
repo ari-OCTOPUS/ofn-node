@@ -47,6 +47,29 @@ LEG_VERBS = frozenset({
     "pause", "resume_leg", "outcome", "نتیجه", "lead", "لید",
 })
 
+# نامِ فارسیِ هر پا. کلیدهای واقعیِ تاپیک (center-config) همه لاتین‌اند، ولی مالک
+# فارسی می‌نویسد — پس تشخیصِ بین-پایی که فقط کلیدِ لاتین را بگردد، در عمل کور است.
+#
+# ⚠️ این دقیقاً همان باگی بود که تستِ سبز نگرفت: بندِ cross-leg با
+# «وضعیتِ mining چطوره؟» سنجیده می‌شد — واژهٔ **لاتین** داخلِ جملهٔ فارسی. جملهٔ
+# واقعیِ runbook گیت ۶ («ماینینگ را متوقف کن») از گیت رد می‌شد و
+# `leg_scoped` می‌گرفت. الگو روی نمونه‌ای کالیبره شده بود که قطعاً می‌گیرد.
+#
+# فهرست عمداً **کوتاه و متمایز** است: هر واژهٔ پرکاربردِ عمومی («حساب»، «ارز»،
+# «سیستم») بیرون گذاشته شده، چون بیش‌بست هم به‌اندازهٔ کم‌بست بد است — clarify ِ
+# بی‌مورد یعنی مالک یاد می‌گیرد گیت را جدی نگیرد.
+LEG_ALIASES = {
+    "lead":       ("لید", "نقاشی", "painting"),
+    "ziman":      ("زیمان", "زیمن", "گالری"),
+    "mining":     ("ماینینگ", "ماینر", "استخراج"),
+    "crypto":     ("کریپتو", "اتورو", "etoro"),
+    "accounting": ("حسابداری",),
+    "studio_pf":  ("استودیو", "اونلی‌فنز", "اونلی فنز", "onlyfans"),
+    "knowledge":  ("دانش",),
+    "cartographer": ("نقشه‌کش", "کارتوگراف"),
+    "mirror":     ("آینه",),
+}
+
 _CMD = re.compile(r"^\s*/([A-Za-z_][A-Za-z0-9_]*)")
 _CORE_WORDS = re.compile(
     r"(کلِ? سیستم|همهٔ? پاها|بودجه|خرج|راز|توکن|ری[‌\s]*استارت|"
@@ -154,17 +177,32 @@ def _leg_of(thread_id, topics: dict) -> "str | None":
     return None
 
 
+def _surface_forms(key: str) -> tuple:
+    """همهٔ شکل‌هایی که یک پا ممکن است با آن‌ها نامیده شود — کلید + نامِ فارسی."""
+    k = str(key).lower()
+    return (k,) + tuple(a.lower() for a in LEG_ALIASES.get(k, ()))
+
+
 def _mentions_other_leg(text: str, leg: str, topics: dict) -> "str | None":
     """نامِ پای دیگری در تاپیکِ این پا؟ ⇒ clarify، نه اجرا.
 
     عمداً clarify و نه deny: مالک احتمالاً منظورِ درستی دارد، فقط جای اشتباه
     نوشته. ولی حدس‌زدنِ اینکه کدام پا را می‌خواهد، همان چیزی است که یک بار
-    «مسیریابی به فلگِ خاموش» ساخت."""
+    «مسیریابی به فلگِ خاموش» ساخت.
+
+    هر دو طرف با نامِ فارسی سنجیده می‌شوند: هم پایی که نامش برده شده، هم پایی
+    که تاپیک مالِ اوست — وگرنه «نقاشی» در تاپیکِ lead به‌اشتباه بین-پایی
+    شمرده می‌شد (بیش‌بست) در حالی که همان پاست."""
     t = str(text or "").lower()
+    mine = set(_surface_forms(leg))
     for key in (topics or {}):
-        k = str(key).lower()
-        if k and k != str(leg).lower() and re.search(rf"\b{re.escape(k)}\b", t):
-            return str(key)
+        if str(key).lower() == str(leg).lower():
+            continue
+        for form in _surface_forms(key):
+            if not form or form in mine:
+                continue          # شکلِ مشترک بینِ دو پا ⇒ مبهم، نه شاهدِ بین-پایی
+            if re.search(rf"\b{re.escape(form)}\b", t):
+                return str(key)
     return None
 
 
