@@ -654,6 +654,8 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_tg_weekly_review.py",             # مرورِ هفتگیِ شنبه (رأی ۱۲ + §۹)
     "test_tg_question_budget.py",           # بودجهٔ ۳۰-سؤال/هفته (رأی ۲۴)
     "test_tg_wiring_w2.py",                 # سیم‌کشیِ سریالِ همهٔ ماژول‌ها در center
+    "test_tg_owner_readiness.py",           # چک‌لیستِ آمادگیِ مالک (فقط‌خواندنی)
+    "test_tg_acceptance_journey.py",        # سفرِ ۶ساعتهٔ پذیرش (تستِ خودِ هارنس)
     "test_lead_pipeline.py",                # حلقهٔ لید: کشف→تحقیق→پیش‌نویس→گیر/کارت (رأی ۱۳)
     "test_lead_send_cap.py",                # سقفِ ۱۰/روز (رأی ARM ِ مالک ۰۷-۳۱) دو-لایه
     "test_lead_outbound_transport.py",      # transport ِ SMTP: بی‌creds=NOT_ARMED صادق

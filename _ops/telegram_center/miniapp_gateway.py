@@ -143,8 +143,47 @@ def _stopped() -> bool:
         return True
 
 
+HITS_NAME = "miniapp-hits.jsonl"
+
+
+def _hits_path() -> Path:
+    return Path(opslib.STATE_DIR) / "telegram" / HITS_NAME
+
+
+def _log_hit(path: str, status: int, authed: bool) -> None:
+    """یک خط به‌ازای هر درخواستِ سرو‌شده — **تنها** راهِ اثباتِ یک تپِ راه‌دور.
+
+    محتوا عمداً تهی از هویت است: نه توکن، نه initData، نه هیچ فیلدِ user —
+    فقط مسیر، موفقیت، و یک بولیِ «از دیوارِ HMAC رد شد یا نه». fail-soft:
+    خطای دیسک هرگز پاسخِ HTTP را عوض نمی‌کند (لاگ‌کردن هیچ‌وقت سرویس نیست)."""
+    try:
+        p = _hits_path()
+        p.parent.mkdir(parents=True, exist_ok=True)
+        row = {"ts": round(time.time(), 3),
+               "path": str(path or "").split("?", 1)[0][:64],
+               "ok": bool(200 <= int(status) < 400),
+               "authed": bool(authed)}
+        with p.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+    except Exception:  # noqa: BLE001 — رسید هرگز مسیرِ سرویس را نمی‌کشد
+        pass
+
+
 def handle(method: str, path: str, headers, *, fetch_fn=None,
            now: "float | None" = None) -> tuple:
+    """پوششِ نازکِ `_handle_core` که رسیدِ per-request می‌نویسد.
+
+    `authed` مشتق است نه حدس: تنها مسیری که پشتِ دیوارِ HMAC است
+    `/api/miniapp` است، و تنها وقتی وضعیتِ ۲xx/3xx می‌دهد که
+    `validate_init_data` پاس شده باشد (هر شکست = 403 با بدنهٔ خالی)."""
+    st, body, ctype = _handle_core(method, path, headers, fetch_fn=fetch_fn, now=now)
+    p = str(path or "").split("?", 1)[0]
+    _log_hit(path, st, p == "/api/miniapp" and 200 <= int(st) < 400)
+    return st, body, ctype
+
+
+def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
+                 now: "float | None" = None) -> tuple:
     """هستهٔ خالص/تزریق‌پذیرِ gateway → (status:int, body:bytes, ctype:str).
 
     تست‌ها همین را مستقیم صدا می‌زنند (بدونِ سرورِ واقعی)؛ لایهٔ HTTP فقط
