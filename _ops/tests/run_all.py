@@ -630,10 +630,18 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_tg_hold_policy.py",               # ماشینِ حالتِ HOLD (VQ-TG-HOLD-001)
     "test_tg_route_seam.py",                # درزِ _route_send
     "test_tg_build_surface.py",             # سطحِ «بساز:» + حلقهٔ ساختِ خود
+    # ۲۰۲۶-۰۷-۳۱ — حلقهٔ عملیاتی (برنچ claude/operational-loop-agi-566734):
+    "test_state_write_loudness.py",              # VQ-STATE-WRITE-001: شکستِ نوشتن باصدا
+    "test_mission_approval_and_receipt_critic.py",  # کارتِ A3 → صفِ مالک + منتقدِ رسید
+    "test_verdict_feedback_loop.py",             # حکمِ مالک → توکن‌ها → تصمیمِ بعدی
+    "test_mission_reconcile_step1.py",           # گذارِ قانونیِ Genome + واژگانِ ۱۲→۶
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
-               HERE.parents[1] / "07 - Knowledge" / "school-memory" / "test_curriculum.py"]
+               HERE.parents[1] / "07 - Knowledge" / "school-memory" / "test_curriculum.py",
+               # ۲۰۲۶-۰۷-۳۱ — تست‌های unified_control (ثبت‌نشده = هرگز اجرا نشده):
+               HERE.parent / "unified_control" / "tests" / "test_snapshot_staleness.py",
+               HERE.parent / "unified_control" / "tests" / "test_snapshot_linkage.py"]
 
 # این فایل‌ها pytest-style هستند (fixtureهای monkeypatch/tmp_path) و اجرای مستقیمشان
 # سبزِ دروغین می‌دهد. run_all باید واقعاً pytest را اجرا کند.
