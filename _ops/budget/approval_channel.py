@@ -715,31 +715,18 @@ class TelegramApprovalChannel(ApprovalChannel):
 
     def _set_my_commands(self) -> None:
         """منوی command تلگرام را پاک و دوباره ثبت می‌کند.
-        حذفِ کشِ قدیمی (deleteMyCommands) برای رفعِ مشکلِ دستوراتِ رباتِ قبلی."""
+        حذفِ کشِ قدیمی (deleteMyCommands) برای رفعِ مشکلِ دستوراتِ رباتِ قبلی.
+
+        منشور §۱ (۰۷-۳۱): باتِ درونی «بی‌منو» است — فقط هشدارِ حیاتی و سلامت.
+        منوی ۲۳تایی به ۴ خواندنیِ کوتاه کوچک شد (رأی ۴: «دکمه‌ای که کاری
+        نمی‌کند وجود ندارد»)؛ گفتگو/لید/بیزنس مالِ باتِ بیرونی و گروه است.
+        هر ۴ هندلرِ زنده در همین ماژول‌اند (handle_command). این متد تنها
+        نویسندهٔ منوی inner است — pushِ رقیبِ مرکز حذف می‌شود (outer-bot-12)."""
         commands = [
-            {"command": "start", "description": "🐙 منوی اصلی"},
-            {"command": "overview", "description": "📊 نمای کلی"},
-            {"command": "money", "description": "💰 پول و متابولیسم"},
-            {"command": "finance", "description": "📊 وضعِ من (خلاصهٔ پول)"},
-            {"command": "review", "description": "🧮 دسته‌بندی کن (یکی‌یکی)"},
-            {"command": "books", "description": "📋 ثبتِ نهایی"},
-            {"command": "sync", "description": "🔄 تازه‌ها رو بگیر"},
-            {"command": "doctor", "description": "🩺 دکتر و تکامل"},
-            {"command": "brain", "description": "🧠 حافظه و مغز"},
-            {"command": "blueprint", "description": "🧭 بلوپرینت P0–P6"},
-            {"command": "school", "description": "🎓 مدرسه"},
-            {"command": "safety", "description": "🛡️ ایمنی"},
-            {"command": "alerts", "description": "🚨 هشدارها و خام"},
-            {"command": "organs", "description": "🦾 اندام‌ها (مدیریت)"},
-            {"command": "neworgan", "description": "🆕 ساختِ اندامِ نو"},
-            {"command": "wiring", "description": "🔌 نقشهٔ اتصال‌ها (راست‌گو)"},
-            {"command": "health", "description": "🫀 سلامتِ اختاپوس"},
-            {"command": "heart", "description": "💓 قلب — ریتم و تنظیم"},
-            {"command": "queue", "description": "📥 صف تأیید"},
             {"command": "status", "description": "📊 وضعیت ارگانیسم"},
-            {"command": "lead", "description": "📝 ثبت لید جدید"},
-            {"command": "reentry", "description": "📋 بستهٔ بازگشت از gap"},
-            {"command": "stop", "description": "🛑 توقف اضطراری"},
+            {"command": "health", "description": "🫀 سلامتِ اختاپوس"},
+            {"command": "queue", "description": "📥 صف تأیید"},
+            {"command": "wiring", "description": "🔌 نقشهٔ اتصال‌ها (راست‌گو)"},
         ]
         try:
             self._http_post(self._build_url("deleteMyCommands", {}), {})
@@ -1587,8 +1574,17 @@ class TelegramApprovalChannel(ApprovalChannel):
         گروه‌پذیری (رأی مالک 2026-07-17): پاسخ به همان chat (گروه/چت) که فرمان از آن آمد.
         `stream` (رأی مالک 2026-07-26): جریانِ محیطی به تاپیکِ خودش می‌رود نه DM —
         ولی فقط وقتی chat_id صریح داده نشده باشد (پاسخِ مستقیم همیشه برنده است).
-        not wired → False. خطای شبکه fail-soft."""
+        not wired → False. خطای شبکه fail-soft.
+
+        رسیدِ سه‌حالتی (منشور UX-8، ۰۷-۳۱): **هر** مسیرِ خروج یک ردیف در
+        tg-send-log می‌گذارد — attempted (واقعاً POST شد) · held (سکوت/HOLD
+        نگهش داشت) · blocked (ساختاراً نمی‌توانست برود). قبلاً held/blocked
+        قبل از رسید return می‌کردند و سه سکوتِ متفاوت یک شکل بودند: هیچ."""
         if not self.wired:
+            self._send_receipt(chat_id=(chat_id if chat_id is not None
+                                        else self._owner),
+                               topic_id=None, text=text, stream=stream,
+                               ok=False, disposition="blocked")
             return False
         target = int(chat_id) if chat_id is not None else self._owner
         # `topic_id`ِ صریح برنده است. بدونِ آن مقدارش None است و کلِ شرطِ
@@ -1609,6 +1605,22 @@ class TelegramApprovalChannel(ApprovalChannel):
             _interactive = bool(reply_markup)
             if (_quiet_now() and str(stream) not in _NEVER_QUIET
                     and not _interactive):
+                # ── سکوت = HOLD نه DROP (رأی ۰۷-۳۱، inner-bot-14) ────────────
+                # ماشینِ hold دقیقاً ساخته شد که «سکوت ≠ فراموشی» باشد؛ ولی
+                # این شاخه از قبلِ آن ماشین مانده بود و پیامِ ساعتِ سکوت را
+                # کامل دور می‌ریخت — کارتِ بحرانیِ ساعت ۳ صبح هیچ ردی نداشت.
+                # حالا از همان طبقه‌بندِ HOLD می‌گذرد (فوری→outbox، نو→digest،
+                # تکراری→آرشیو) و رسیدِ held می‌ماند. معافیت‌ها همان دیروز:
+                # _NEVER_QUIET و کارتِ دکمه‌دار همچنان فوری می‌روند.
+                try:
+                    _spq = load_surface_policy()
+                    if _spq is not None:
+                        _spq.hold(stream, text)
+                except Exception:  # noqa: BLE001 — hold هرگز مسیر را نمی‌کشد
+                    pass
+                self._send_receipt(chat_id=target, topic_id=None, text=text,
+                                   stream=stream, ok=False,
+                                   disposition="held", surface="hold")
                 return False
             # ── سطحِ نسخهٔ ۲ (رأیِ مالک ۲۰۲۶-۰۷-۲۸) ─────────────────────────
             # «گروه = پاها · یک چتِ خصوصی برای خودآگاهی · بقیه جای دیگر» و
@@ -1627,6 +1639,10 @@ class TelegramApprovalChannel(ApprovalChannel):
                     if _dest == _sp.HOLD:
                         if not _interactive:
                             _sp.hold(stream, text)
+                            self._send_receipt(chat_id=target, topic_id=None,
+                                               text=text, stream=stream,
+                                               ok=False, disposition="held",
+                                               surface="hold")
                             return False
                         # کارتِ دکمه‌دار هرگز HOLD نمی‌شود — به DM ِ مالک
                         # می‌رود، همان‌جایی که handler ِ همین بات نشسته.
@@ -1652,7 +1668,11 @@ class TelegramApprovalChannel(ApprovalChannel):
                 target, thread = r_chat, r_topic
         text = self._redact(text)   # Cockpit v2 · INV-12: هر خروجی از پاسِ redaction می‌گذرد
         body = {"chat_id": target, "text": text, "parse_mode": "HTML"}
-        if thread is not None:
+        # گاردِ forum (پاریتی با tg_api، ۰۷-۳۱ shared-transport-18): thread فقط
+        # به سوپرگروهِ forum (cid < -1000) می‌چسبد — thread روی DM = ۴۰۰ Bad
+        # Request و کلِ پیام گم می‌شد. تا امروز فقط قراردادِ صداکننده نگهش
+        # داشته بود، نه کد.
+        if (thread is not None and isinstance(target, int) and target < -1000):
             body["message_thread_id"] = thread
         if reply_markup:
             body["reply_markup"] = reply_markup
@@ -1663,13 +1683,25 @@ class TelegramApprovalChannel(ApprovalChannel):
             ok = False
         # سنجشِ حجم و تکرار، قبل از هر تصمیمِ ضدِاسپم (رأیِ مالک ۲۰۲۶-۰۷-۲۶).
         # فقط hashِ متن ثبت می‌شود، نه خودِ متن. خطای لاگ هرگز ارسال را عوض نمی‌کند.
+        self._send_receipt(chat_id=target, topic_id=body.get("message_thread_id"),
+                           text=text, stream=stream, ok=ok,
+                           disposition="attempted",
+                           surface=("group" if (isinstance(target, int) and target < 0)
+                                    else "dm"))
+        return ok
+
+    def _send_receipt(self, *, chat_id, topic_id, text, stream, ok,
+                      disposition, surface=None) -> None:
+        """رسیدِ سه‌حالتیِ این بات (نقش همیشه inner — همین ماژول روی
+        TELEGRAM_BOT_TOKEN می‌نشیند). ثبت هرگز گیت نمی‌شود و هرگز مسیرِ
+        ارسال را نمی‌کشد (درسِ «ثبت را گیت نکن، تحویل را»). فقط hash ِ متن."""
         try:
             import tg_send_log as _tsl  # noqa: WPS433
-            _tsl.record(chat_id=target, topic_id=thread, text=text,
-                        stream=stream, ok=ok)
+            _tsl.record(chat_id=chat_id, topic_id=topic_id, text=text,
+                        stream=stream, ok=ok, disposition=disposition,
+                        bot_role="inner", surface=surface)
         except Exception:  # noqa: BLE001
             pass
-        return ok
 
     # دستوراتِ مرزِ-سختِ سراسری/kill — حتی داخلِ یک گروهِ allowlisted فقط شخصِ مالک
     # (from_id == owner) مجاز است، نه هر عضوِ گروه. (red-team GOV-P1، 2026-07-23)

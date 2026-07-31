@@ -151,11 +151,17 @@ def t_send_text_routes_to_the_topic():
 
 
 def t_explicit_chat_always_wins():
-    """پاسخِ مستقیم به یک پیام هرگز نباید به تاپیکِ دیگری منحرف شود."""
+    """پاسخِ مستقیم به یک پیام هرگز نباید به تاپیکِ دیگری منحرف شود.
+
+    ۰۷-۳۱ (گاردِ forum، پاریتی با tg_api / shared-transport-18): همین سایتِ
+    شمرده‌شدهٔ audit حالا topic_id ِ صریح هم می‌دهد — chat ِ مثبت (DM) هرگز
+    message_thread_id نمی‌گیرد (thread+DM = ۴۰۰ و پیامِ گم). حذفِ گاردِ
+    `target < -1000` این تست را قرمز می‌کند. (اتصالِ thread به گروهِ forum را
+    t_send_text_routes_to_the_topic قفل کرده است.)"""
     _write_cfg(); _flag(True)
     try:
         p = Post()
-        _chan(p).send_text("جواب", None, chat_id=999, stream="heart")
+        _chan(p).send_text("جواب", None, chat_id=999, stream="heart", topic_id=7)
         b = p.bodies[-1]
         assert b["chat_id"] == 999
         assert "message_thread_id" not in b
@@ -253,6 +259,54 @@ def t_a_keyboard_card_is_never_held_and_never_quiet_dropped():
             _ac2._quiet_now = orig
     finally:
         _flag(False)
+
+
+def t_b_quiet_hours_hold_not_drop_with_receipt():
+    """رأی ۰۷-۳۱ (inner-bot-14): ساعتِ سکوت = HOLD نه DROP.
+
+    پیامِ محیطیِ غیرِدکمه‌دار در بازهٔ سکوت (۱) فرستاده نمی‌شود، (۲) از همان
+    ماشینِ hold می‌گذرد (طبقه‌بندِ فوری/digest/آرشیو — سکوت ≠ فراموشی)، و
+    (۳) رسیدِ سه‌حالتیِ d="held" می‌گذارد. جهش (برگرداندنِ return False ِ
+    لخت) هر سه assert را قرمز می‌کند. معافیت‌ها (دکمه‌دار، _NEVER_QUIET)
+    را t_a قفل کرده است."""
+    _write_cfg(); _flag(False)
+    import approval_channel as _ac
+    held = []
+
+    class _SP:
+        HOLD = "hold"
+
+        def route(self, stream):
+            return (None, None)     # مسیرِ route این تست را منحرف نکند
+
+        def hold(self, stream, text):
+            held.append((str(stream), str(text)))
+            return True
+
+    log_p = Path(opslib.STATE_DIR) / "tg-send-log.jsonl"
+    if log_p.exists():
+        log_p.unlink()
+    orig_quiet = _ac._quiet_now
+    orig_sp = _ac.load_surface_policy
+    _ac._quiet_now = lambda: True
+    _ac.load_surface_policy = lambda: _SP()
+    os.environ["OCTOPUS_TG_SEND_LOG"] = "1"
+    try:
+        p = Post()
+        r = _chan(p).send_text("گزارشِ نیمه‌شب", None, stream="discovery")
+        assert r is False and not p.bodies, "ساعتِ سکوت نباید بفرستد"
+        assert held and held[0][0] == "discovery", \
+            "پیامِ ساعتِ سکوت باید واردِ ماشینِ hold شود، نه دور ریخته"
+        rows = [json.loads(x) for x in
+                log_p.read_text("utf-8").splitlines() if x.strip()]
+        assert rows, "رسیدِ held نوشته نشد"
+        last = rows[-1]
+        assert last["d"] == "held" and last["ok"] is False, last
+        assert last["bot"] == "inner" and last["surf"] == "hold", last
+    finally:
+        os.environ.pop("OCTOPUS_TG_SEND_LOG", None)
+        _ac._quiet_now = orig_quiet
+        _ac.load_surface_policy = orig_sp
 
 
 if __name__ == "__main__":

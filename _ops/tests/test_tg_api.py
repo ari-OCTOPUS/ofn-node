@@ -81,6 +81,9 @@ def t_a_unwired_no_token_all_noop_zero_network():
     assert c.pin_message(1) is False
     assert c.create_topic("تاپیک") is None
     assert c.set_commands([("start", "منو")]) is False
+    assert c.set_commands([("start", "منو")], scope={"type": "all_private_chats"}) is False
+    assert c.delete_commands() is False
+    assert c.delete_commands(scope={"type": "all_private_chats"}) is False
     assert c.poll_updates() == []
     assert c.poll_updates(offset=9, timeout_s=1) == []
     assert c.answer_callback("cb1", "متن") is False
@@ -181,6 +184,8 @@ def t_g_set_commands():
     assert m == "setMyCommands"
     assert body["commands"] == [{"command": "now", "description": "وضعیتِ الان"},
                                 {"command": "status", "description": "وضعیت"}]
+    # پیش‌فرض (بدونِ scope) = بدنهٔ دیروز بایت‌به‌بایت — هیچ کلیدِ scope
+    assert "scope" not in body, "بدونِ scope نباید کلیدِ scope برود"
     # لیستِ خالی/فرمِ خراب → False و صفر تماسِ اضافه
     assert c.set_commands([]) is False
     assert c.set_commands("bad-shape") is False

@@ -27,6 +27,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import time
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
@@ -137,12 +138,17 @@ def _chat_for(block: dict, client, cfg: dict):
     return getattr(client, "owner_chat_id", None)
 
 
-def resolve(stream, *, clients: dict, cfg: dict) -> tuple:
+def resolve(stream, *, clients: dict, cfg: dict, interactive: bool = False) -> tuple:
     """(client, chat_id, topic_id) برایِ یک جریان.
 
     · `clients` = ``{"inner": TgClient, "outer": TgClient}`` — کلاینت‌هایی که مرکز
       ساخته و نگه می‌دارد. کلاینتِ inner فقط-ارسال است (هرگز poll).
     · `cfg` = center-config (برایِ `chat_id` گروه و `topics`).
+    · `interactive=True` یعنی این ارسال کیبورد دارد. کلاینتِ inner هرگز poll
+      نمی‌کند، پس دکمهٔ روی پیامِ inner برای همیشه مرده است (الگوی «۳۵ کارتِ
+      مرده»؛ safe_default قرارداد: missing_callback_handler → BLOCK_CARD_EMISSION).
+      حکم: جریانِ دکمه‌دار به outer برمی‌گردد (chat/topic دست‌نخورده — هر دو
+      کلاینت همان DM/گروه را می‌بینند) + یک هشدارِ throttled؛ هرگز سکوت.
 
     flag-off → `current` از فایل: ارسالِ تک-کلاینتِ outer، رفتارِ امروز بایت‌به‌بایت.
     flag-on → `target`: جریان‌های منتقل‌شده به inner/dm می‌روند.
@@ -186,6 +192,11 @@ def resolve(stream, *, clients: dict, cfg: dict) -> tuple:
     if client is None:
         client = outer
 
+    # ── گاردِ کارتِ دکمه‌دار (۰۷-۳۱): keyboarded → هرگز کلاینتِ send-only ────
+    if interactive and inner is not None and client is inner:
+        _alert_interactive_inner(stream)
+        client = outer
+
     chat_id = _chat_for(block, client, cfg)
     topic_id = _topic_id_for(str(stream or ""), block, cfg or {})
     return (client, chat_id, topic_id)
@@ -198,6 +209,28 @@ def _alert_unknown(stream) -> None:
         import opslib
         opslib.alert([f"surface_router: جریانِ ناشناخته «{str(stream)[:60]}» "
                       "held شد (به گروه نرفت). یک مدخل در surface-routing.json لازم است."])
+    except Exception:  # noqa: BLE001
+        pass
+
+
+_KB_ALERT_THROTTLE_S = 3600
+_last_kb_alert: dict = {}
+
+
+def _alert_interactive_inner(stream) -> None:
+    """هشدارِ «جریانِ دکمه‌دار به inner می‌رفت» — throttled ۱/ساعت/جریان تا
+    یک حلقهٔ کارت‌ساز کانالِ هشدار را غرق نکند؛ ولی هرگز کاملاً ساکت نه —
+    سکوت همان چیزی است که ۳۵ کارتِ مرده را نامرئی نگه داشت. fail-soft."""
+    key = str(stream or "")[:60]
+    now = time.time()
+    if now - _last_kb_alert.get(key, 0.0) < _KB_ALERT_THROTTLE_S:
+        return
+    _last_kb_alert[key] = now
+    try:
+        import opslib
+        opslib.alert([f"surface_router: جریانِ دکمه‌دارِ «{key}» به کلاینتِ "
+                      "send-only ِ inner می‌رفت — به outer برگردانده شد "
+                      "(دکمهٔ روی inner برای همیشه مرده است)."])
     except Exception:  # noqa: BLE001
         pass
 

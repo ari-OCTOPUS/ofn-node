@@ -48,8 +48,18 @@ def digest(text: str) -> str:
 
 
 def record(*, chat_id=None, topic_id=None, text: str = "", stream=None,
-           ok: bool = True) -> bool:
-    """یک ارسال را ثبت کن. خروجی: ثبت شد؟ هر خطا → False، بی‌سروصدا."""
+           ok: bool = True, disposition: str = "attempted",
+           bot_role: str | None = None, surface: str | None = None) -> bool:
+    """یک ارسال را ثبت کن. خروجی: ثبت شد؟ هر خطا → False، بی‌سروصدا.
+
+    رسیدِ سه‌حالتی (منشور UX-8، ۲۰۲۶-۰۷-۳۱): پیش از این «HOLD شد» و «هرگز
+    تولید نشد» در این لاگ یک شکل بودند — یعنی هیچ. سه حالتِ `d`:
+      attempted = واقعاً POST شد (ok می‌گوید موفق/ناموفق)
+      held      = ماشینِ hold/سکوت نگهش داشت (فرستاده نشد، گم هم نشد)
+      blocked   = ساختاراً نمی‌توانست برود (not-wired و مانندش)
+    `bot` = outer|inner|None و `surf` = dm|group|hold|None — بدونِ این دو،
+    «به DM ِ inner رفت» ادعایی ابطال‌ناپذیر بود (هر دو بات به یک chat می‌فرستند).
+    صداکنندهٔ قدیمی بی‌تغییر: پیش‌فرض‌ها همان ردیفِ دیروز را می‌سازند."""
     global _since_prune
     if not enabled():
         return False
@@ -58,7 +68,10 @@ def record(*, chat_id=None, topic_id=None, text: str = "", stream=None,
                "chat": chat_id, "topic": topic_id,
                "stream": str(stream) if stream else None,
                "sha": digest(text), "chars": len(str(text or "")),
-               "ok": bool(ok)}
+               "ok": bool(ok),
+               "d": str(disposition or "attempted"),
+               "bot": (str(bot_role) if bot_role else None),
+               "surf": (str(surface) if surface else None)}
         p = _path()
         p.parent.mkdir(parents=True, exist_ok=True)
         with p.open("a", encoding="utf-8") as f:

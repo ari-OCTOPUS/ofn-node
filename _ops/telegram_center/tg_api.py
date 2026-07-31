@@ -106,6 +106,22 @@ def _toast_plain(text: str) -> str:
     return html.unescape(re.sub(r"<[^>]+>", "", str(text or ""))).strip()
 
 
+def _send_log_record(**kw) -> None:
+    """رسید در tg-send-log — lazy و fail-soft؛ خطای لاگ هرگز مسیرِ ارسال را عوض
+    نمی‌کند. یک‌جا تا send و edit یک قلم بنویسند (edit تا ۰۷-۳۱ اصلاً رسید
+    نداشت — ~۲۸۸ ویرایشِ بی‌رد در روز)."""
+    try:
+        import sys as _sys
+        from pathlib import Path as _P
+        _ops = str(_P(__file__).resolve().parent.parent)
+        if _ops not in _sys.path:
+            _sys.path.insert(0, _ops)
+        import tg_send_log as _tsl  # noqa: WPS433
+        _tsl.record(**kw)
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def _alert_soft(msg: str) -> None:
     """هشدارِ fail-soft و lazy به opslib.alert — importِ opslib فقط هنگامِ نیاز تا
     import-time این ماژول خالص/stdlib-only بماند. msg هرگز token/URL ندارد. شکست = سکوت."""
@@ -345,6 +361,33 @@ class TgClient:
             return _coerce_id(chat_id)
         return self._center if self._center is not None else self._owner
 
+    def _bot_role(self) -> str | None:
+        """outer|inner|None برای رسیدِ ارسال (منشور UX-8) — از منبعِ token.
+
+        توکنِ صریح (مرکز کلاینتِ inner را با توکنِ صریح می‌سازد) با env مقایسه
+        می‌شود؛ خودِ token هرگز لاگ/برگردانده نمی‌شود — فقط نقش."""
+        src = getattr(self, "_token_source", "")
+        if src == "TG_CENTER_BOT_TOKEN":
+            return "outer"
+        if src == "FALLBACK_TELEGRAM_BOT_TOKEN":
+            return "inner"
+        tok = self._token or ""
+        if tok:
+            if tok == _env_str("TG_CENTER_BOT_TOKEN"):
+                return "outer"
+            if tok == _env_str("TELEGRAM_BOT_TOKEN"):
+                return "inner"
+        return None
+
+    def _surface_of(self, cid) -> str | None:
+        """dm|group|None برای رسید: DM ِ مالک وقتی chat همان مالک است؛
+        group وقتی chat یک گروه/سوپرگروه است (id منفی)."""
+        if self._owner is not None and cid == self._owner:
+            return "dm"
+        if isinstance(cid, int) and cid < 0:
+            return "group"
+        return None
+
     # ── متدهای عمومی (قراردادِ telegram_center) ───────────────────────────────
     def send(self, text: str, *, topic_id=None, keyboard=None,
              chat_id=None, pin: bool = False, stream: str = "center") -> int | None:
@@ -376,18 +419,10 @@ class TgClient:
         # کلِ ارسال‌های باتِ مرکز (پاسخِ دستورها، دایجستِ تاپیک‌ها، کارتِ تصمیم)
         # از شمارش بیرون می‌ماند و «تکرار صفر است» یک ادعای نیم‌بند می‌شود.
         # فقط hashِ متن ثبت می‌شود، نه متن. خطای لاگ هرگز ارسال را عوض نمی‌کند.
-        try:
-            import sys as _sys
-            from pathlib import Path as _P
-            _ops = str(_P(__file__).resolve().parent.parent)
-            if _ops not in _sys.path:
-                _sys.path.insert(0, _ops)
-            import tg_send_log as _tsl  # noqa: WPS433
-            _tsl.record(chat_id=cid, topic_id=body.get("message_thread_id"),
-                        text=body_text, stream=str(stream or "center"),
-                        ok=data is not None)
-        except Exception:  # noqa: BLE001
-            pass
+        _send_log_record(chat_id=cid, topic_id=body.get("message_thread_id"),
+                         text=body_text, stream=str(stream or "center"),
+                         ok=data is not None, disposition="attempted",
+                         bot_role=self._bot_role(), surface=self._surface_of(cid))
         if data is None:
             return None
         mid = _coerce_id((data.get("result") or {}).get("message_id"))
@@ -408,7 +443,14 @@ class TgClient:
                       "text": body_text, "parse_mode": "HTML"}
         if keyboard:
             body["reply_markup"] = {"inline_keyboard": _scrub_keyboard(keyboard)}
-        return self._call_post("editMessageText", body) is not None
+        ok = self._call_post("editMessageText", body) is not None
+        # رسیدِ edit (اسکن A T-8، ۰۷-۳۱): کارتِ pin شده و کارتِ پاها با edit تازه
+        # می‌شوند — ~۲۸۸ ویرایش/روز که تا امروز در هیچ لاگی نبود؛ حالا هر edit
+        # یک ردیفِ attempted با stream="edit" می‌گذارد.
+        _send_log_record(chat_id=cid, topic_id=None, text=body_text,
+                         stream="edit", ok=ok, disposition="attempted",
+                         bot_role=self._bot_role(), surface=self._surface_of(cid))
+        return ok
 
     def pin_message(self, message_id, chat_id=None) -> bool:
         """pinChatMessage (بی‌صدا — بدونِ نوتیفِ اضافه). not wired/نامعتبر → False."""
@@ -454,9 +496,13 @@ class TgClient:
                                {"chat_id": cid, "message_thread_id": tid, "name": nm})
         return bool(data)
 
-    def set_commands(self, commands) -> bool:
+    def set_commands(self, commands, *, scope: dict | None = None) -> bool:
         """setMyCommands از list[tuple[str, str]] = (command, description).
-        فرمِ خراب/لیستِ خالی → False، صفر شبکه."""
+        فرمِ خراب/لیستِ خالی → False، صفر شبکه.
+
+        `scope` (منشور UX-5، ۰۷-۳۱): dict ِ BotCommandScope تلگرام (مثلاً
+        {"type": "all_private_chats"}) — منوی گروه ≠ منوی DM. None = رفتارِ
+        قبلی بایت‌به‌بایت (scope ِ پیش‌فرضِ تلگرام)."""
         if not self.wired():
             return False
         cmds: list[dict] = []
@@ -469,7 +515,22 @@ class TgClient:
             return False
         if not cmds:
             return False
-        return self._call_post("setMyCommands", {"commands": cmds}) is not None
+        body: dict = {"commands": cmds}
+        if scope is not None:
+            body["scope"] = scope
+        return self._call_post("setMyCommands", body) is not None
+
+    def delete_commands(self, *, scope: dict | None = None) -> bool:
+        """deleteMyCommands — پاک‌کردنِ منوی یک scope (یا پیش‌فرض).
+
+        لازمهٔ منوی scope-دار: بدونِ حذفِ scope ِ قدیمی، منوی کهنه در کشِ
+        تلگرام می‌ماند و دو حقیقت ساخته می‌شود. not wired → False، صفر شبکه."""
+        if not self.wired():
+            return False
+        body: dict = {}
+        if scope is not None:
+            body["scope"] = scope
+        return self._call_post("deleteMyCommands", body) is not None
 
     def poll_updates(self, offset: int = 0, timeout_s: int = DEFAULT_LONGPOLL_S) -> list[dict]:
         """یک دورِ long-pollِ getUpdates ($0-idle). خروجی = لیستِ updateها (dict) —

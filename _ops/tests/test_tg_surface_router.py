@@ -207,6 +207,51 @@ def t_dm_surface_never_returns_topic_even_with_spec():
     assert sr._topic_id_for("lead", {"surface": "group", "topic": "lead"}, cfg) == 22
 
 
+# ─── گاردِ کارتِ دکمه‌دار (۰۷-۳۱، inner-bot-7 / BLOCK_CARD_EMISSION) ─────────
+def t_interactive_never_selects_send_only_inner():
+    """resolve(interactive=True) هرگز کلاینتِ inner را برنمی‌گرداند — inner
+    هرگز poll نمی‌کند، پس دکمهٔ روی پیامش برای همیشه مرده است. chat/topic
+    resolution دست‌نخورده می‌ماند (فقط کلاینت عوض می‌شود). جهش (حذفِ گارد)
+    ⇒ client is inner ⇒ قرمز."""
+    # flag-off: approvals-organism در current، inner/group است
+    _flag(False)
+    cl = _clients()
+    client, chat, topic = sr.resolve("approvals-organism", clients=cl,
+                                     cfg=_cfg(), interactive=True)
+    assert client is cl["outer"], f"دکمه‌دار نباید inner بگیرد: {client}"
+    assert chat == CENTER, "مقصدِ group باید دست‌نخورده بماند"
+    # flag-on: doctor-daily در target، inner/dm است
+    _flag(True)
+    try:
+        client, chat, topic = sr.resolve("doctor-daily", clients=cl,
+                                         cfg=_cfg(), interactive=True)
+        assert client is cl["outer"], f"دکمه‌دار نباید inner بگیرد: {client}"
+        assert chat == OWNER and topic is None, "مقصدِ dm دست‌نخورده"
+        # پیش‌فرض (interactive نداده) = رفتارِ دیروز بایت‌به‌بایت: inner
+        client2, _, _ = sr.resolve("doctor-daily", clients=cl, cfg=_cfg())
+        assert client2 is cl["inner"], "پیش‌فرض نباید عوض شده باشد"
+    finally:
+        _flag(False)
+
+
+def t_interactive_inner_alert_is_throttled_not_silent():
+    """هشدارِ گارد باید بیاید (سکوت ممنوع) ولی throttled باشد (۱/ساعت/جریان)."""
+    import opslib
+    _flag(False)
+    cl = _clients()
+    alerts = []
+    orig = opslib.alert
+    opslib.alert = lambda msgs: alerts.append(list(msgs))
+    sr._last_kb_alert.clear()
+    try:
+        sr.resolve("approvals-organism", clients=cl, cfg=_cfg(), interactive=True)
+        sr.resolve("approvals-organism", clients=cl, cfg=_cfg(), interactive=True)
+        assert len(alerts) == 1, f"باید دقیقاً یک هشدارِ throttled باشد: {alerts}"
+    finally:
+        opslib.alert = orig
+        sr._last_kb_alert.clear()
+
+
 # ─── جهش‌های قرمزکننده ──────────────────────────────────────────────────────
 def t_mutation_hardcoding_bot_breaks_parity():
     """جهش: اگر bot همیشه outer شود، flag-on نباید inner برگرداند.
