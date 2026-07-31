@@ -1590,6 +1590,14 @@ class TelegramApprovalChannel(ApprovalChannel):
         not wired → False. خطای شبکه fail-soft."""
         if not self.wired:
             return False
+        # ── INV-12 · Cockpit v2 (۲۰۲۶-۰۷-۳۱، رفعِ boundary-3): redact در
+        # **اولین** فرصت، قبل از هر مسیر. تا امروز `_redact` در خطِ ۱۶۶۵ بود —
+        # یعنی مسیرِ HOLD (۱۶۲۹) متنِ خام را در held-stream.jsonl آرشیو می‌کرد
+        # و مسیرِ تعاملی هم raw را می‌فرستاد. کلاسی که این متد برای حذفِ آن
+        # ساخته شده (توکن/PEM/PII) دقیقاً در آرشیو نشت می‌کرد. redact در اینجا
+        # یک بار می‌گذرد؛ فراخوانیِ دوباره در ۱۶۶۵ idempotent است (متنِ پاک‌شده
+        # دوباره پاک نمی‌شود، ولی harm هم ندارد).
+        text = self._redact(text)
         target = int(chat_id) if chat_id is not None else self._owner
         # `topic_id`ِ صریح برنده است. بدونِ آن مقدارش None است و کلِ شرطِ
         # زیر دست‌نخورده می‌ماند → رفتارِ قبلی بایت‌به‌بایت.
@@ -1627,6 +1635,18 @@ class TelegramApprovalChannel(ApprovalChannel):
                     if _dest == _sp.HOLD:
                         if not _interactive:
                             _sp.hold(stream, text)
+                            # رسیدِ state="held" (۲۰۲۶-۰۷-۳۱، رفعِ boundary-13):
+                            # تا امروز یک پیامِ HOLDشده از یک هرگز-ساخته‌شده غیرقابل‌
+                            # تمایز بود. حالا هر نگه‌داشت یک ردیف با state=held
+                            # می‌گیرد. فقط hashِ متن ثبت می‌شود (متن هرگز).
+                            try:
+                                import tg_send_log as _tsl_held  # noqa: WPS433
+                                _tsl_held.record(chat_id=self._owner, topic_id=None,
+                                                 text=text, stream=stream, ok=False,
+                                                 bot_role="inner", surface="held",
+                                                 state="held")
+                            except Exception:  # noqa: BLE001
+                                pass
                             return False
                         # کارتِ دکمه‌دار هرگز HOLD نمی‌شود — به DM ِ مالک
                         # می‌رود، همان‌جایی که handler ِ همین بات نشسته.
@@ -1665,8 +1685,12 @@ class TelegramApprovalChannel(ApprovalChannel):
         # فقط hashِ متن ثبت می‌شود، نه خودِ متن. خطای لاگ هرگز ارسال را عوض نمی‌کند.
         try:
             import tg_send_log as _tsl  # noqa: WPS433
+            # bot_role="inner" (۲۰۲۶-۰۷-۳۱، رفعِ gate 8): این کانالِ ارگانیسم
+            # = باتِ inner. surface از target استنتاج (DM = target≥0، group = <0).
+            _surf = "dm" if (isinstance(target, int) and target >= 0) else "group"
             _tsl.record(chat_id=target, topic_id=thread, text=text,
-                        stream=stream, ok=ok)
+                        stream=stream, ok=ok, bot_role="inner", surface=_surf,
+                        state="sent" if ok else "blocked")
         except Exception:  # noqa: BLE001
             pass
         return ok

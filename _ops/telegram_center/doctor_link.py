@@ -121,7 +121,10 @@ def beat(center=None) -> dict:
         out["reason"] = "flag-off"
         return out
     client = getattr(center, "_client", None)
-    if client is None:
+    # (۲۰۲۶-۰۷-۳۱) اگر center ِ_route_send دارد، نیازی به clientِ مستقیم نیست —
+    # کارت از روتر می‌رود. ولی یکی از دو باید باشد (وگرنه no-client).
+    _can_route = center is not None and hasattr(center, "_route_send")
+    if client is None and not _can_route:
         out["reason"] = "no-client"
         return out
     cur = _load_cursor()
@@ -152,8 +155,19 @@ def beat(center=None) -> dict:
             continue
         mid = None
         try:
-            mid = client.send("🩺 " + text, topic_id=_topic_id(),
-                              keyboard=_keyboard(payload))
+            # (۲۰۲۶-۰۷-۳۱، رفعِ outer-11/inner-1/group-8) — تا امروز client.send
+            # مستقیم با topic_id=_topic_id() (که None بود چون OCTOPUS_DOCTOR_TOPIC_ID
+            # ست نشده) زده می‌شد ⇒ کارت در Generalِ گروه می‌افتاد، دقیقاً سطحی که
+            # قرارداد deny-and-redirect می‌کند. حالا از طریقِ _route_send می‌رود
+            # با stream = doctor-{gate} (intent/diff)، که در surface-routing.json
+            # target = outer/dm دارد. کارت به DM ِ مالک می‌رسد، نه گروه.
+            _stream = f"doctor-{rec.get('gate') or 'intent'}"
+            if center is not None and hasattr(center, "_route_send"):
+                mid = center._route_send(_stream, "🩺 " + text,
+                                         keyboard=_keyboard(payload))
+            else:
+                mid = client.send("🩺 " + text, topic_id=_topic_id(),
+                                  keyboard=_keyboard(payload))
         except Exception:  # noqa: BLE001 — ارسال هرگز beat را نمی‌کشد
             mid = None
         if mid is not None:

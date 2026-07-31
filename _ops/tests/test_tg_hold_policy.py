@@ -131,11 +131,15 @@ def t_proof3_a_new_normal_message_lands_in_the_hourly_digest():
     # همان موقع می‌رود (چیزی برای انتظار نیست):
     text = hp.flush_digest(now=NOW + 60)
     assert text and "needs" in text, text
+    # (۲۰۲۶-۰۷-۳۱، رفعِ inner-5): flush_digest نشانگر را جلو نمی‌برد —
+    # صداکننده بعد از ارسالِ موفق mark_digest_flushed می‌زند (قراردادِ urgent).
+    hp.mark_digest_flushed(now=NOW + 60)
     # ولی آیتمِ نو در همان ساعت، تا سررسید صبر می‌کند:
     hp.submit("doctor", "یافتهٔ تازهٔ دکتر", now=NOW + 120)
     assert hp.flush_digest(now=NOW + 180) is None, "سقفِ یک-در-ساعت شکست"
     text2 = hp.flush_digest(now=NOW + 60 + 3601)
     assert text2 and "doctor" in text2, text2
+    hp.mark_digest_flushed(now=NOW + 60 + 3601)
     _flag(True)
     try:
         c = {"inner": _FakeClient("inner"), "outer": _FakeClient("outer")}

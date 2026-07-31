@@ -80,9 +80,16 @@ def test_redact_pii_fail_closed_on_attribute_error():
 
 
 def test_redact_normal_operation():
-    """در شرایطِ عادی (بدونِ خطا) → redact crash نمی‌کند و یک str برمی‌گرداند."""
-    result = _redact(PLAIN_INPUT)
+    """در شرایطِ عادی (بدونِ خطا) → redact crash نمی‌کند و یک str برمی‌گرداند.
+
+    ⚠️ نسخهٔ قدیمی فقط `isinstance(result, str)` را چک می‌کرد — یک type-assert که
+    سبز می‌ماند حتی اگر `_redact` به یک pass-through تبدیل می‌شد (`return text`).
+    حالا شاهدِ واقعی: یک توکنِ شناخته‌شده در ورودی باید در خروجی غایب باشد.
+    این هم behavior assert است، نه فقط type assert."""
+    result = _redact(SECRET_INPUT)
     assert isinstance(result, str), f"باید str باشد: {type(result)}"
+    assert "1234567890:AA" not in result, (
+        f"FAIL: redact در شرایطِ عادی توکن را نشست — pass-through شده؟ {result!r}")
 
 
 if __name__ == "__main__":

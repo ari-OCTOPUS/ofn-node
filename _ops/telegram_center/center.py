@@ -825,7 +825,13 @@ class Center:
             if _hp.digest_due(now=now):
                 _dg = _hp.flush_digest(now=now)
                 if _dg:
-                    self._route_send("center-health-digest", _dg, cfg=cfg)
+                    # (۲۰۲۶-۰۷-۳۱، رفعِ inner-5) — نشانگر فقط بعد از ارسالِ موفق
+                    # جلو می‌رود، دقیقاً مثلِ مسیرِ urgent بالا. تا اینجا flush_digest
+                    # خودش نشانگر را قبل از ارسال جلو می‌برد ⇒ یک ارسالِ شکست‌خورده
+                    # آن ساعت را برای همیشه گم می‌کرد.
+                    _dmid = self._route_send("center-health-digest", _dg, cfg=cfg)
+                    if _dmid is not None:
+                        _hp.mark_digest_flushed(now=now)
         except Exception:  # noqa: BLE001 — تحویلِ hold-policy هرگز beat را نمی‌کشد
             pass
         # ── موتورِ کارهای پاها (رأیِ ۰۷-۳۰ شب): یک کار در هر ضربان ──────────────
@@ -1404,8 +1410,13 @@ class Center:
             import surface_router as _sr
             cl, cid, tid = _sr.resolve(stream, clients=self._clients_map(), cfg=cfg)
         except Exception:  # noqa: BLE001 — روتر هرگز ارسال را نمی‌کشد
-            topics = cfg.get("topics") if isinstance(cfg.get("topics"), dict) else {}
-            cl, cid, tid = self._client, cfg.get("chat_id"), topics.get("system")
+            # (۲۰۲۶-۰۷-۳۱، رفعِ shared-transport-8) — تا اینجا سقوط به گروه + تاپیکِ
+            # system بود. ولی surface_router خودش در ۰۷-۳۰ عمداً تغییر کرد تا ابهام
+            # به DM برود نه گروه (گروه = فقط پاها). fallbackِ این caller هنوز
+            # قانونِ قدیمیِ ردشده را داشت. حالا DM ِ مالک (پیامِ در جایِ اشتباه
+            # بهتر از پیامِ گم‌شده است، ولی DM اشتباه‌تر از گروهِ اشتباه نیست).
+            cl, cid, tid = (self._client,
+                            getattr(self._client, "owner_chat_id", None), None)
         if cl is None:
             return None                      # بلوکِ none — سکوتِ عمدی (مثلِ pulse ِ پیش‌ازفلگ)
         try:
@@ -1523,14 +1534,36 @@ class Center:
                 topics=_cfg.get("topics") if isinstance(_cfg.get("topics"), dict) else {})
             if not _d.get("allow"):
                 _t = _isp.redirect_text(_d)
+                _m = (u.get("message")
+                      or (u.get("callback_query") or {}).get("message") or {})
                 if _t:
-                    _m = (u.get("message")
-                          or (u.get("callback_query") or {}).get("message") or {})
                     try:
                         self._client.send(_t, chat_id=(_m.get("chat") or {}).get("id"),
                                           topic_id=_m.get("message_thread_id"))
                     except Exception:  # noqa: BLE001 — هدایت هرگز مرکز را نمی‌کشد
                         pass
+                # (۱) پاسخ به callback query (۲۰۲۶-۰۷-۳۱، رفعِ inner-16): بدونِ
+                # این، دکمه‌ای که در General/تاپیکِ ناشناخته تپ می‌شود spinner ِ
+                # ۶۰ثانیه‌ای می‌سازد — مالک فکر می‌کند بات شکسته. redirect ِ متن
+                # به چت کافی نیست؛ خودِ callback باید answer شود.
+                _cbq = u.get("callback_query")
+                if isinstance(_cbq, dict) and _cbq.get("id"):
+                    try:
+                        self._client.answer_callback(_cbq.get("id"), _t or "")
+                    except Exception:  # noqa: BLE001
+                        pass
+                # (۲) رسیدِ state="blocked" (۲۰۲۶-۰۷-۳۱، رفعِ boundary-13): یک
+                # ردِ سیاستِ ورودی تا امروز هیچ اثری نداشت — حالا ردیف می‌گیرد.
+                try:
+                    import tg_send_log as _tsl_blk  # noqa: WPS433
+                    _cid = (_m.get("chat") or {}).get("id")
+                    _tsl_blk.record(chat_id=_cid, topic_id=_m.get("message_thread_id"),
+                                    text=_t or "", stream="input-policy", ok=False,
+                                    bot_role="outer",
+                                    surface="group" if _cid == _cfg.get("chat_id") else "dm",
+                                    state="blocked")
+                except Exception:  # noqa: BLE001
+                    pass
                 return {"kind": "input-policy", "mode": _d.get("mode"),
                         "reason": _d.get("reason")}
             # ── «بساز: …» → صفِ ساختِ خود (رأیِ مالک ۰۷-۳۰) ──────────────────

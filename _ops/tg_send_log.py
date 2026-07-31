@@ -30,6 +30,33 @@ import opslib  # noqa: E402
 FLAG = "OCTOPUS_TG_SEND_LOG"
 RETAIN_S = 48 * 3600.0          # پنجرهٔ نگه‌داری؛ بیش از این هرس می‌شود
 _PRUNE_EVERY = 200              # هر N نوشتن یک‌بار هرس (نه هر بار — I/O بیهوده)
+# ریشهٔ باگِ «prune هرگز اجرا نمی‌شود» (یافتهٔ اسکنِ عمیق ۲۰۲۶-۰۷-۳۱):
+# `_since_prune` state ِ per-process بود و روی هر ری‌استارت صفر می‌شد. یک
+# پروسهٔ بلندمدت که ۲۰۰ بار record صدا نمی‌زد، prune را هرگز اجرا نمی‌کرد.
+# حل: در کنارِ شمارنده، timestamp ِ آخرین prune را هم در یک فایل کوچک نگه
+# می‌داریم تا across-restart هم کار کند. اگر فایل بگوید RETAIN_S گذشته، prune
+# می‌زند حتی اگر شمارنده کم باشد.
+_PRUNE_STATE = opslib.STATE_DIR / "tg-send-log-prune.json"
+
+
+def _since_last_prune_s() -> float:
+    """ثانیه از آخرین prune — across restartها (از فایل، نه memory)."""
+    try:
+        d = json.loads(_PRUNE_STATE.read_text("utf-8"))
+        return time.time() - float(d.get("last_prune_ts", 0))
+    except Exception:  # noqa: BLE001
+        return float("inf")   # هرگز prune نشده ⇒ اجرا شود
+
+
+def _mark_pruned() -> None:
+    try:
+        _PRUNE_STATE.parent.mkdir(parents=True, exist_ok=True)
+        _PRUNE_STATE.write_text(json.dumps({"last_prune_ts": time.time()}),
+                                encoding="utf-8")
+    except Exception:  # noqa: BLE001
+        pass
+
+
 _since_prune = 0
 
 
@@ -47,25 +74,51 @@ def digest(text: str) -> str:
     return hashlib.sha256(str(text or "").encode("utf-8")).hexdigest()[:16]
 
 
+# حالتِ سه‌گانهٔ رسید (یافتهٔ boundary-13): تا امروز فقط `ok: bool` بود، پس
+# یک پیامِ HELD یا DENIED از یک پیامِ هرگز-ساخته‌شده غیرقابل‌تمایز بود. حالا
+# هر رویداد یک ردیف می‌گیرد:
+#   sent    — واقعاً فرستاده شد (ok قدیمی)
+#   held    — سیاستِ سطح نگه‌اش داشت (HOLD/DIGEST)
+#   blocked — سیاستِ ورودی ردش کرد (DENY)
+STATES = frozenset({"sent", "held", "blocked"})
+
+
 def record(*, chat_id=None, topic_id=None, text: str = "", stream=None,
-           ok: bool = True) -> bool:
-    """یک ارسال را ثبت کن. خروجی: ثبت شد؟ هر خطا → False، بی‌سروصدا."""
+           ok: bool = True, bot_role: str | None = None,
+           surface: str | None = None,
+           state: str = "sent") -> bool:
+    """یک رویدادِ ارسال/نگه‌داشت/رد را ثبت کن. خروجی: ثبت شد؟ هر خطا → False.
+
+    فیلدهٔ جدید (۲۰۲۶-۰۷-۳۱، رفعِ gate 8 PARTIAL):
+      - bot_role: کدام بات فرستاد؟ ("outer"/"inner" — تا split قابل‌بررسی باشد).
+      - surface: سطحِ مقصد از دیدِ router ("dm"/"group"/None).
+      - state: sent/held/blocked — تا یک بلعیده/ردشده از یک هرگز-ساخته‌شده
+        متمایز شود. `ok` قدیمی همچنان کار می‌کند (state="sent" + ok=bool).
+    همهٔ فیلدهٔ جدید اختیاری‌اند ⇒ صداکنندهٔ قدیمی بدونِ تغییر کار می‌کند."""
     global _since_prune
     if not enabled():
         return False
+    _state = state if state in STATES else "sent"
     try:
         row = {"ts": round(time.time(), 3),
                "chat": chat_id, "topic": topic_id,
                "stream": str(stream) if stream else None,
                "sha": digest(text), "chars": len(str(text or "")),
-               "ok": bool(ok)}
+               "ok": bool(ok),
+               "state": _state}
+        if bot_role:
+            row["bot_role"] = str(bot_role)
+        if surface:
+            row["surface"] = str(surface)
         p = _path()
         p.parent.mkdir(parents=True, exist_ok=True)
         with p.open("a", encoding="utf-8") as f:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
         _since_prune += 1
-        if _since_prune >= _PRUNE_EVERY:
+        # prune هم روی شمارنده و هم روی زمان (across-restart) — هر کدام زودتر
+        if _since_prune >= _PRUNE_EVERY or _since_last_prune_s() > RETAIN_S:
             _since_prune = 0
+            _mark_pruned()
             prune()
         return True
     except Exception:  # noqa: BLE001 — لاگ هرگز نباید ارسال را بکشد

@@ -383,9 +383,14 @@ class TgClient:
             if _ops not in _sys.path:
                 _sys.path.insert(0, _ops)
             import tg_send_log as _tsl  # noqa: WPS433
+            # bot_role از token_source (۲۰۲۶-۰۷-۳۱، رفعِ gate 8): این کلاینتِ
+            # مرکز = باتِ outer. surface از chat id استنتاج می‌شود (DM = cid≥0،
+            # group = cid<-1000) تا بدونِ پاس‌دادنِ پارامترِ جدید درست کار کند.
+            _surf = "dm" if (isinstance(cid, int) and cid >= 0) else "group"
             _tsl.record(chat_id=cid, topic_id=body.get("message_thread_id"),
                         text=body_text, stream=str(stream or "center"),
-                        ok=data is not None)
+                        ok=data is not None, bot_role="outer", surface=_surf,
+                        state="sent" if data is not None else "blocked")
         except Exception:  # noqa: BLE001
             pass
         if data is None:
@@ -494,6 +499,19 @@ class TgClient:
                     self._sleep(ra)
                 except Exception:  # noqa: BLE001
                     pass
+            # (۲۰۲۶-۰۷-۳۱، رفعِ boundary-12) — تشخیصِ pollerِ رقیب: 409 Conflict
+            # یعنی مصرف‌کنندهٔ دیگری روی همین توکن getUpdates می‌زند (کنترل‌مغزِ
+            # قدیمی، دستگاهِ دیگر، یا وب‌هوک) و آپدیت‌ها را می‌بلعد. تا امروز این
+            # مسیر بی‌صدا [] برمی‌گرداند — تنها نشانه، یک «غیبت» بود (بات ساکت،
+            # صفر لاگ، صفر رسید). الگوی approval_channel.poll_once (جلسه ۴۶) اینجا
+            # آورده شد: هشدارِ throttled (۱/ساعت) تا spam نکند.
+            if isinstance(data, dict) and data.get("error_code") == 409:
+                import time as _t409
+                if _t409.time() - getattr(self, "_last_409_alert", 0.0) > 3600:
+                    self._last_409_alert = _t409.time()
+                    _alert_soft("tg-center getUpdates 409 Conflict — pollerِ رقیب روی "
+                                "همین توکن! آپدیت‌ها را او می‌بلعد (پروسهٔ دوم؟ "
+                                "وب‌هوک؟). تا حل نشود بات ساکت خواهد بود.")
             return []
         return [u for u in (data.get("result") or []) if isinstance(u, dict)]
 

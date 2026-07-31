@@ -11,13 +11,14 @@
     inner + DM + مالک            → سلامت، هشدار، approval، رسید
     outer + گروه + تاپیکِ پا     → فقط همان پا (leg-scoped)
     گروه + General/تاپیکِ ناشناخته → deny + redirect به DM
-    گروه + فرمانِ هسته‌ای         → deny + redirect به DM
+    گروه + هر فرمانِ / (هسته‌ای یا نه) → deny + redirect به DM  (۲۰۲۶-۰۷-۳۱)
     گروه + کارِ بین-پایی          → clarify (کدام پا؟)
     غیرمالک + هر جهش              → deny
 
-⚠️ **این ماژول صداکننده ندارد و عمداً.** وصل‌کردنش یعنی ویرایشِ `center.py` که
-امروز هانکِ کامیت‌نشدهٔ یک جلسهٔ موازی دارد (§۵ قاعدهٔ درختِ مشترک). این‌جا
-آماده و اثبات‌شده می‌ماند تا آن هانک‌ها کامیت شوند.
+**صداکننده:** `center.py` در `handle_update` (۲۰۲۶-۰۷-۳۰) این ماژول را روی
+هر update صدا می‌زند و تصمیمش را اجرا می‌کند. (تا ۲۰۲۶-۰۷-۳۱ این سرِصفحه
+می‌گفت «صداکننده ندارد و عمداً» — آن هنگام درست بود؛ حالا که وصل شد، اگر این
+سطر را نخوانده باشی ماژول را «یتیم» پنداشته و پاکش می‌کنی.)
 
 $0 · stdlib · تابعِ خالص · صفر I/O · صفر side effect.
 """
@@ -47,6 +48,14 @@ LEG_VERBS = frozenset({
     "pause", "resume_leg", "outcome", "نتیجه", "lead", "لید",
 })
 
+# ۸ پایِ مجاز در گروه (از TELEGRAM-ACCESS-CONTRACT.v1.json:117 allowed_topics).
+# system و mirror عمداً بیرون‌اند — آن‌ها پا نیستند، حتی اگر در center-config
+# باشند. این فهرست منبعِ حقیقتِ «چه چیزی در گروه پا شمرده می‌شود» است.
+ALLOWED_LEG_TOPICS = frozenset({
+    "lead", "ziman", "mining", "crypto",
+    "accounting", "studio_pf", "knowledge", "cartographer",
+})
+
 # نامِ فارسیِ هر پا. کلیدهای واقعیِ تاپیک (center-config) همه لاتین‌اند، ولی مالک
 # فارسی می‌نویسد — پس تشخیصِ بین-پایی که فقط کلیدِ لاتین را بگردد، در عمل کور است.
 #
@@ -71,13 +80,32 @@ LEG_ALIASES = {
 }
 
 _CMD = re.compile(r"^\s*/([A-Za-z_][A-Za-z0-9_]*)")
+# (۲۰۲۶-۰۷-۳۱) فرمانِ فارسی هم شناخته شود — تا /وضعیت و /بودجه در گروه گیر کنند.
+_CMD_FA = re.compile(r"^\s*/([\u0600-\u06FF][\u0600-\u06FF\s]*)")
+# فعلِ callback: pw: pwc: tr: tk: ap: … — با / شروع نمی‌شوند ولی کارِ هسته‌ای‌اند.
+_CB_VERB = re.compile(r"^([A-Za-z][A-Za-z0-9_]{0,15}):")
 _CORE_WORDS = re.compile(
     r"(کلِ? سیستم|همهٔ? پاها|بودجه|خرج|راز|توکن|ری[‌\s]*استارت|"
     r"خاموش کن|قطع کن|تأیید کن|فلگ|کشفِ? دنیا|دکتر|حافظه)", re.I)
 
 
 def _verb_of(text: str) -> "str | None":
-    m = _CMD.match(str(text or ""))
+    """فعلِ فرمان: /x یا /فارسی. None یعنی فرمان نیست (متنِ آزاد)."""
+    t = str(text or "")
+    m = _CMD.match(t)
+    if m:
+        return m.group(1).lower()
+    m = _CMD_FA.match(t)
+    if m:
+        return m.group(1).strip()
+    return None
+
+
+def _callback_verb_of(text: str) -> "str | None":
+    """فعلِ callback (pw: pwc: tr: …). در گروه فعلاً استفاده نمی‌شود (دکمه‌های
+    core دیگر در گروه رندر نمی‌شوند چون فرمانِ / ممنوع است) ولی برای آینده
+    و برای تست نگه داشته شده است."""
+    m = _CB_VERB.match(str(text or ""))
     return m.group(1).lower() if m else None
 
 
@@ -150,6 +178,19 @@ def classify(update: dict, *, bot_role: str, owner_id, group_id,
     if verb and verb in CORE_VERBS:
         return {"allow": False, "mode": "deny", "leg": leg,
                 "redirect": "outer_dm", "reason": f"core-command-in-group:/{verb}"}
+    # (۲۰۲۶-۰۷-۳۱، رفعِ boundary-1/group-1) — تا امروز فقط CORE_VERBS رد می‌شد؛
+    # هر فرمانِ / دیگری (/now, /menu, /missions, /lead, …) از گیت رد می‌شد،
+    # leg_scoped می‌گرفت، و بعد در _handle_message روی جدولِ کاملِ فرمان‌های مالک
+    # اجرا می‌شد. یعنی ۳۱ از ۳۹ فرمانِ probingشده در گروه اجرا می‌شدند.
+    # قانونِ اصولی: در گروه، **هیچ** فرمانِ / مجاز نیست — کارِ پا از مسیرِ
+    # طبیعی (leg_commands: «وضعیت»/«صف»/…) یا دکمه‌ها می‌رود، نه از /.
+    # (callback verbها مثلِ tk:/pw: عمداً بی‌اثر نشدند — آن‌ها از دکمه‌هایی
+    # می‌آیند که خودِ سیستم در جایِ مجاز گذاشته، و دکمه‌های core با همین قانون
+    # دیگر در گروه رندر نمی‌شوند.)
+    if verb:
+        return {"allow": False, "mode": "deny", "leg": leg,
+                "redirect": "outer_dm",
+                "reason": f"slash-command-in-group:/{verb}"}
     if _CORE_WORDS.search(text):
         return {"allow": False, "mode": "deny", "leg": leg,
                 "redirect": "outer_dm", "reason": "core-topic-in-group"}
@@ -165,13 +206,19 @@ def classify(update: dict, *, bot_role: str, owner_id, group_id,
 
 
 def _leg_of(thread_id, topics: dict) -> "str | None":
-    """تاپیک → کلیدِ پا. General (thread=None) و ناشناخته هر دو `None`."""
+    """تاپیک → کلیدِ پا. General (thread=None) و ناشناخته هر دو `None`.
+
+    (۲۰۲۶-۰۷-۳۱، رفعِ group-6/boundary-7) — تا امروز هر کلیدِ داخلِ topics
+    پذیرفته می‌شد، حتی system/mirror که قرارداد (allowed_topics = ۸) آن‌ها را
+    جزءِ پاها نمی‌داند. نتیجه: تاپیکِ ۲۸ (system) و ۲۰۵ (mirror) به‌عنوان پا
+    شناخته می‌شدند و فرمانِ هسته‌ای از آن‌ها مجاز می‌گرفت. حالا فقط ۸ پایِ
+    مصوب پذیرفته می‌شوند — بقیه (حتی اگر در center-config باشند) None می‌شوند."""
     if thread_id is None or not isinstance(topics, dict):
         return None
     for key, tid in topics.items():
         try:
             if int(tid) == int(thread_id):
-                return str(key)
+                return str(key) if key in ALLOWED_LEG_TOPICS else None
         except (TypeError, ValueError):
             continue
     return None
