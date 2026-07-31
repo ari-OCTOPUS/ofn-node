@@ -60,7 +60,7 @@ HOLD = "hold"       # ثبت می‌شود، فرستاده نمی‌شود؛ ب
 # و در این جدول نبودند — پس حتی با تولیدکننده هم بی‌صدا در General می‌افتادند.
 LEG_TOPIC = {
     "lead": "lead", "ziman": "ziman", "mining": "mining",
-    "crypto": "crypto", "accounting": "accounting", "studio": "studio_pf",
+    "crypto": "crypto", "accounting": "accounting", "studio_pf": "studio_pf",
     "knowledge": "knowledge", "cartographer": "cartographer",
 }
 
