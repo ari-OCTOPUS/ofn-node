@@ -185,6 +185,89 @@ def t_d3_sabt_prefix_expense_is_captured_and_dedup_is_idempotent():
     assert len(notes) == 1, f"idempotency شکست — {len(notes)} فایل"
 
 
+def t_d4_group_system_mirror_rooms_never_capture_even_with_the_flag_on():
+    """بازبینی ۰۷-۳۱ (BLOCKER 1): اتاق‌های system/mirror ِ گروه هم
+    core_conversation طبقه‌بندی می‌شوند — ولی پیامشان هرگز نباید بایگانی شود؛
+    مسیرِ آینه/ask ادامه می‌یابد. بدونِ گیتِ سطح، «ثبت:» در اتاقِ آینه یک
+    نوتِ vault می‌ساخت."""
+    _reset()
+    GROUP = -100999
+    CFG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    CFG_PATH.write_text(json.dumps(
+        {"chat_id": GROUP, "topics": {"system": 77, "mirror": 78}},
+        ensure_ascii=False), "utf-8")
+    fc = FakeClient()
+    c = center.Center(client=fc, clock=Clock(1000.0), render_mod=_render())
+    _flag("OCTOPUS_TG_CAPTURE")
+    try:
+        for thread in (77, 78):
+            r = c.handle_update({"update_id": 700 + thread, "message": {
+                "message_id": 700 + thread, "from": {"id": OWNER},
+                "chat": {"id": GROUP, "type": "supergroup"},
+                "message_thread_id": thread,
+                "text": "ثبت: خرید رنگ ۵۰ دلار"}})
+            assert not (isinstance(r, dict) and r.get("kind") == "capture"), \
+                f"اتاقِ گروه (thread={thread}) capture شد: {r}"
+    finally:
+        _unflag("OCTOPUS_TG_CAPTURE")
+    assert not list(RAW_DIR.rglob("*.md")), \
+        "پیامِ اتاقِ گروه در vault بایگانی شد — گیتِ سطح سوراخ است"
+
+
+def t_d5_a_vault_question_reaches_ask_vault_never_capture():
+    """بازبینی ۰۷-۳۱ (BLOCKER 4): «از والت بپرس دربارهٔ ماینینگ چی دارم؟» —
+    طبقه‌بندِ capture آن را task می‌بیند («بپرس») و بدونِ گیتِ vault-intent
+    بایگانی‌اش می‌کرد؛ باید به ask_vault برسد."""
+    _reset()
+    import leg_tasks as _lt
+    # دو شکل: با ؟ (که گیتِ سؤال هم می‌گیرد) و **بدونِ ؟** — دومی فقط با
+    # گیتِ vault-intent نجات می‌یابد (وگرنه «بپرس» → task → بایگانی)؛ جهشِ
+    # حذفِ گیتِ vault با شکلِ اول زنده می‌مانْد (گیتِ ج پوششش می‌داد).
+    for mid, q in ((801, "از والت بپرس دربارهٔ ماینینگ چی دارم؟"),
+                   (805, "از والت بپرس دربارهٔ ماینینگ")):
+        assert center.Center._vault_intent(q) is True, ("پیش‌فرضِ تست", q)
+    assert not (_lt.is_question("از والت بپرس دربارهٔ ماینینگ")
+                or "از والت بپرس دربارهٔ ماینینگ".endswith(("؟", "?"))), \
+        "پیش‌فرضِ تست: شکلِ دوم نباید سؤالِ نحوی باشد"
+    fc = FakeClient()
+    c = center.Center(client=fc, clock=Clock(1000.0), render_mod=_render())
+    _flag("OCTOPUS_TG_CAPTURE")
+    _flag("OCTOPUS_TG_ASK_VAULT")
+    try:
+        for mid, q in ((801, "از والت بپرس دربارهٔ ماینینگ چی دارم؟"),
+                       (805, "از والت بپرس دربارهٔ ماینینگ")):
+            r = c.handle_update(_dm_msg(mid, text=q))
+            assert not (isinstance(r, dict) and r.get("kind") == "capture"), \
+                f"سؤالِ vault بایگانی شد ({q!r}): {r}"
+    finally:
+        _unflag("OCTOPUS_TG_CAPTURE", "OCTOPUS_TG_ASK_VAULT")
+    assert not list(RAW_DIR.rglob("*.md")), \
+        "سؤالِ vault در Raw نوشته شد — به‌جای ask_vault به بایگانی رفت"
+
+
+def t_d6_questions_belong_to_the_chat_brain_but_sabt_still_captures():
+    """بازبینی ۰۷-۳۱ (BLOCKER 4): سؤال (is_question یا ؟) هرگز capture نمی‌شود
+    — مگر پیشوندِ صریحِ «ثبت:» که همیشه capture است (استثنای مصوب)."""
+    _reset()
+    fc = FakeClient()
+    c = center.Center(client=fc, clock=Clock(1000.0), render_mod=_render())
+    _flag("OCTOPUS_TG_CAPTURE")
+    try:
+        # «چطور …» = is_question ِ leg_tasks؛ طبقه‌بند آن را lead می‌دید
+        r1 = c.handle_update(_dm_msg(802, text="چطور لید بیشتر بگیرم"))
+        # علامتِ ؟ ِ صریح روی متنی که طبقه‌بند task می‌دید
+        r2 = c.handle_update(_dm_msg(803, text="باید مدارک بیمه را ببرم؟"))
+        assert not (isinstance(r1, dict) and r1.get("kind") == "capture"), r1
+        assert not (isinstance(r2, dict) and r2.get("kind") == "capture"), r2
+        assert not list(RAW_DIR.rglob("*.md")), "سؤال در vault بایگانی شد"
+        # استثنای صریح: «ثبت:» حتی روی جملهٔ سؤالی capture می‌شود
+        r3 = c.handle_update(_dm_msg(804, text="ثبت: باید مدارک بیمه را ببرم؟"))
+        assert r3 and r3.get("kind") == "capture", f"«ثبت:» دیگر capture نمی‌شود: {r3}"
+        assert list(RAW_DIR.rglob("*.md")), "نوتِ «ثبت:» نوشته نشد"
+    finally:
+        _unflag("OCTOPUS_TG_CAPTURE")
+
+
 # ── لِین E: یادآورها ────────────────────────────────────────────────────────
 def t_e1_reminder_beat_delivers_due_reminder_with_rm_buttons():
     _reset()
@@ -328,6 +411,34 @@ def t_h2_qbudget_question_is_delivered_once_and_reply_records_answer():
         assert d["queue"][0]["answer"] == "باید ۵ تا لید در روز بگیریم", d
     finally:
         _unflag("OCTOPUS_TG_QBUDGET", "OCTOPUS_TG_CAPTURE")
+
+
+def t_h3_qbudget_without_owner_dm_skips_the_beat_never_leaks_to_group():
+    """بازبینی ۰۷-۳۱ (wiring-4): owner_chat_id ِ غایب/falsy ⇒ این ضربان اصلاً
+    ارسال نمی‌شود — chat_id=None به chat ِ پیش‌فرضِ client (گروه/General)
+    می‌افتاد. بودجه هم نباید بسوزد (mark_asked فقط بعدِ تحویلِ واقعی)."""
+    _reset()
+    import question_budget as qb
+    now = datetime(2026, 7, 31, 11, 0).timestamp()
+    qp = qb._path()
+    qp.parent.mkdir(parents=True, exist_ok=True)
+    qp.write_text(json.dumps({
+        "week": qb._week_key(now), "used": 0, "seq": 1,
+        "queue": [{"id": "Q-9", "q": "سؤالِ بی‌مقصد؟", "context": "",
+                   "goal": "", "created": now, "asked": False,
+                   "asked_ts": None, "answer": None, "answered_ts": None}]},
+        ensure_ascii=False), "utf-8")
+    fc = FakeClient()
+    fc.owner_chat_id = None            # DM ِ مالک در دسترس نیست
+    c = center.Center(client=fc, clock=Clock(now), render_mod=_render())
+    _flag("OCTOPUS_TG_QBUDGET")
+    try:
+        c.beat()
+    finally:
+        _unflag("OCTOPUS_TG_QBUDGET")
+    assert not [s for s in fc.named("send") if "سؤالِ اختاپوس" in s["text"]], \
+        "سؤال بدونِ DM ِ مالک ارسال شد — نشتِ General"
+    assert qb.used(now) == 0, "بودجه بدونِ تحویلِ واقعی سوخت"
 
 
 # ── لِین F: دکمهٔ Mini App ──────────────────────────────────────────────────

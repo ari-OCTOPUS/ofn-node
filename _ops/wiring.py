@@ -2760,13 +2760,32 @@ def lead_pipeline_beat(lead_leg=None, beat: int = 0, send_fn=None) -> dict | Non
     every_n = int(os.environ.get("CHRONO_LEAD_PIPELINE_EVERY_N_BEATS", "30"))
     if not _epoch_fire("lead_pipeline", beat, every_n):
         return None
+    result = None
     try:
         _syspath(str(_HERE / "legs"))
         import lead_pipeline   # noqa: WPS433 — lazy
-        return lead_pipeline.beat(deps={"lead_leg": lead_leg, "send_fn": send_fn})
+        result = lead_pipeline.beat(deps={"lead_leg": lead_leg, "send_fn": send_fn})
     except Exception as e:  # noqa: BLE001 — §۴: pipeline نباید tick را بکشد
         opslib.alert([f"wiring: lead_pipeline_beat خطا: {type(e).__name__}: {e}"])
         return None
+    # ── درایورِ قوسِ ارسال (بازبینی ۰۷-۳۱، wiring W2؛ در deploy تاریک) ──────────
+    # فقط با فلگِ مسترِ OCTOPUS_WIRE_LEAD_OUTBOUND (پیش‌فرض خاموش = بایت‌به‌بایتِ
+    # امروز؛ خودِ drive_outbound هم اول فلگ را چک می‌کند — دو قفله). گیت با همان
+    # کارخانهٔ canonical ِ chrono ساخته می‌شود که make_telegram_channel به
+    # approval_channel تزریق می‌کند (live_loop گیتش را از channel.gate می‌گیرد که
+    # خروجیِ همین کارخانه است) — یک ChronoDB، یک حقیقت. fail-soft مطلق.
+    if flag("OCTOPUS_WIRE_LEAD_OUTBOUND"):
+        try:
+            import chrono as _chrono_lp   # noqa: WPS433 — lazy
+            _gdb = _chrono_lp.ChronoDB(str(opslib.STATE_DIR / "chrono.db"))
+            _gate_lp = _chrono_lp.EffectorGate(db=_gdb)
+            import outbound_worker as _ow_lp   # noqa: WPS433 — lazy
+            _drv = _ow_lp.drive_outbound(gate=_gate_lp)
+            if isinstance(result, dict) and isinstance(_drv, dict):
+                result["outbound"] = _drv
+        except Exception as e:  # noqa: BLE001 — درایور هرگز beat را نمی‌کشد
+            opslib.alert([f"wiring: drive_outbound خطا: {type(e).__name__}: {e}"])
+    return result
 
 
 # ─── قرارداد مشترکِ ۴ پای بیزنسیِ نو (mining/crypto/accounting/knowledge) ─────────

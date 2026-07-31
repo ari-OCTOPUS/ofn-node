@@ -261,12 +261,16 @@ def list_open(now: float | None = None) -> list:
     return [dict(it) for it in _load().get("items", []) if not it.get("done")]
 
 
-def mark_fired(rid: str) -> "dict | None":
+def mark_fired(rid: str, *, now: float | None = None) -> "dict | None":
+    """شلیک‌شده + مهرِ زمانِ ``fired_ts`` (بازبینی ۰۷-۳۱، BLOCKER 3):
+    سنجهٔ هفتگیِ weekly_review فقط fired ِ مهر‌دارِ داخلِ پنجره را می‌شمارد —
+    fired ِ بی‌تاریخ قابلِ‌شمارش در «این هفته» نیست. ساعت تزریق‌پذیر."""
     d = _load()
     it = _find(d, rid)
     if it is None:
         return None
     it["fired"] = True
+    it["fired_ts"] = float(now if now is not None else time.time())
     return dict(it) if _save(d) else None
 
 
@@ -342,6 +346,9 @@ def beat(*, now: float, send_dm_fn, send_leg_fn) -> int:
         except Exception:  # noqa: BLE001
             continue
         it["fired"] = True
+        # مهرِ زمان با همان clock ِ تزریقیِ beat (پاریتی با mark_fired) —
+        # سنجهٔ «یادآوری‌های fired ِ هفته» از همین fired_ts می‌خواند.
+        it["fired_ts"] = float(now)
         fired += 1
         changed = True
     if changed:

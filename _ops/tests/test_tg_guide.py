@@ -130,10 +130,15 @@ def t_every_claim_in_the_guide_is_true_in_the_code():
     """⚠️ مهم‌ترین بندِ این فایل. راهنما به مالک **قول** می‌دهد؛ اگر کد قولش را
     نگه ندارد، راهنما فعالانه گمراه می‌کند — بدتر از نبودنش."""
     g = guide.group_text()
-    # قولِ «۴ دکمه»
+    # قولِ «تا ۴ دکمه» (بازبینی ۰۷-۳۱): پای قابلِ‌مکث ۴ دکمه دارد ولی پای
+    # بی-pause (system/mirror) فقط ۲ — پس «۴ دکمه»ی مطلق دروغ بود؛ «تا ۴».
     kb = lt.card_keyboard("lead")
     n_btn = sum(len(row) for row in kb)
-    assert "۴ دکمه" in g and n_btn == 4, f"راهنما ۴ دکمه گفت، کد {n_btn} دارد"
+    assert "تا ۴ دکمه" in g and n_btn == 4, \
+        f"راهنما تا ۴ دکمه گفت، کد {n_btn} دارد"
+    n_min = sum(len(row) for row in lt.card_keyboard("system", pausable=False))
+    assert 0 < n_min < 4, \
+        f"پای بی-pause باید کمتر از ۴ دکمه داشته باشد (الان {n_min}) — وگرنه «تا» بی‌معناست"
     # قولِ «فقط ۴ حالت»
     assert "۴ حالت" in g and len(lt._STATES) == 4, \
         f"راهنما ۴ حالت گفت، کد {len(lt._STATES)} دارد"

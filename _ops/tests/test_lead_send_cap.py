@@ -167,6 +167,62 @@ def t_f_corrupt_counter_fails_closed():
     assert ow.sends_today(now=NOW_S) == 0
 
 
+def t_h_cap_hit_stops_before_settle_even_if_the_gate_layer_regressed():
+    """بازبینی ۰۷-۳۱ (security W1): کمربندِ worker باید **قبل از**
+    release_and_settle بایستد. سناریوی رگرسیونِ لایهٔ گیت شبیه‌سازی می‌شود
+    (may_release ِ همیشه-allow): با ترتیبِ قدیمی effect اول settle می‌شد
+    (مصرف می‌شد) و بعد ارسال رد می‌شد — settle-بی‌ارسال. با ترتیبِ نو effect
+    دست‌نخورده (pending) می‌مانَد و transport هم صفر تماس می‌گیرد."""
+    _fresh_counter()
+    _fresh_authz()
+    for _ in range(10):
+        ow.record_send(now=NOW_S)              # سقف پُر — بدونِ حتی یک ارسال
+    assert ow.cap_reached(now=NOW_S) is True
+    spy = SpyImpl()
+    _arm(spy)
+    orig_may_release = leg.may_release
+    leg.may_release = lambda *a, **k: {"allow": True, "reason": "ok",
+                                       "status": "pending"}
+    try:
+        gate = _gate("belt-order")
+        eid = gate.request("lead_outbound", "lead-belt", beat=1)
+        leg.authorize(eid, "lead-belt", "tok-belt")
+        r = ow.send_one(eid, CAND, "draft", gate=gate, now_ms=NOW_MS)
+        assert r["status"] == "CAP_REACHED" and r["sent"] is False, r
+        assert gate.status_of(eid) == "pending", \
+            f"effect ِ سقف‌خورده settle/مصرف شد: {gate.status_of(eid)!r}"
+        assert spy.calls == 0, "سقف‌خورده به transport رسید"
+    finally:
+        leg.may_release = orig_may_release
+        _disarm()
+        _fresh_counter()
+
+
+def t_i_drive_outbound_flag_off_is_zero_effects():
+    """درایور (بازبینی ۰۷-۳۱، wiring W2): فلگِ مستر خاموش ⇒ {"driven": 0} و
+    صفر اثر — نه release، نه settle، نه transport."""
+    _fresh_counter()
+    _fresh_authz()
+    os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
+    spy = SpyImpl()
+    os.environ.update(_SMTP_ENV)
+    import lead_outbound_transport as _lot2
+    _orig = _lot2._default_send_impl
+    _lot2._default_send_impl = spy
+    try:
+        gate = _gate("drv-off")
+        eid = gate.request("lead_outbound", "lead-drv-off", beat=1)
+        leg.authorize(eid, "lead-drv-off", "tok-off")
+        out = ow.drive_outbound(gate=gate, now_ms=NOW_MS)
+        assert out == {"driven": 0}, out
+        assert gate.status_of(eid) == "pending", "flag-off ولی effect لمس شد"
+        assert spy.calls == 0
+    finally:
+        _lot2._default_send_impl = _orig
+        for k in _SMTP_ENV:
+            os.environ.pop(k, None)
+
+
 def t_g_flag_off_worker_is_inert_regardless_of_counter():
     _fresh_counter()
     os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)

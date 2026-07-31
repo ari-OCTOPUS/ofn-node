@@ -168,6 +168,119 @@ def t_g_transport_never_raises():
     assert isinstance(r, dict) and r.get("sent") is False, r
 
 
+# ── درایورِ drive_outbound (بازبینی ۰۷-۳۱، wiring W2) ───────────────────────
+def _drv_gate(name):
+    import chrono
+    db = chrono.ChronoDB(str(opslib.STATE_DIR / f"drv-{name}.db"))
+    return chrono.EffectorGate(db)
+
+
+def _seed_inbox(lead_id, *, email="drv.customer@example.com",
+                candidate_type="consented_inbound", basis="explicit",
+                channel="telegram_manual", attribution_id="AT-DRV-001"):
+    p = opslib.STATE_DIR / "legs" / "lead-inbox" / f"{lead_id}.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({
+        "lead_id": lead_id, "source": channel,
+        "attribution_id": attribution_id,
+        "candidate": {"candidate_type": candidate_type,
+                      "consent": {"basis": basis},
+                      "request": {"scope_text": "repaint hallway"},
+                      "contact": {"email": email}}},
+        ensure_ascii=False), "utf-8")
+    return p
+
+
+def _seed_draft(attribution_id, scope="Repaint of hallway, two coats."):
+    d = opslib.STATE_DIR / "legs" / "lead-drafts"
+    d.mkdir(parents=True, exist_ok=True)
+    p = d / f"{attribution_id}.json"
+    p.write_text(json.dumps({
+        "schema": "lead-quote.v1", "qt_number": "QT-20260731-001",
+        "attribution_id": attribution_id, "intake": {"scope": scope},
+        "draft_only": True, "sent": False}, ensure_ascii=False), "utf-8")
+    return p
+
+
+def t_h_driver_sends_the_authorized_effect_via_the_spy_transport():
+    """قوسِ کامل: authorize → drive_outbound → send_one → transport (جاسوس).
+    پیش‌نویس از lead-drafts، گیرنده از contact ِ inbox؛ effect ِ بی‌پیش‌نویس
+    skip با رسیدِ no-draft — نه ارسالِ کور."""
+    import lead_effect_gate as leg
+    _set_creds(True)
+    _fresh_counter()
+    try:
+        leg._authz_store().unlink()
+    except OSError:
+        pass
+    _seed_inbox("L-drv", attribution_id="AT-DRV-001")
+    _seed_draft("AT-DRV-001")
+    _seed_inbox("L-nodraft", email="nod.customer@example.com",
+                attribution_id="")          # عمداً بدونِ پیش‌نویس
+    gate = _drv_gate("send")
+    e1 = gate.request("lead_outbound", "L-drv", beat=1)
+    assert leg.authorize(e1, "L-drv", "tok-drv")["ok"]
+    e2 = gate.request("lead_outbound", "L-nodraft", beat=1)
+    assert leg.authorize(e2, "L-nodraft", "tok-nod")["ok"]
+    os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND"] = "1"
+    spy = SpyImpl()
+    _orig = lot._default_send_impl
+    lot._default_send_impl = spy
+    try:
+        out = ow.drive_outbound(gate=gate, now_ms=int(NOW_S * 1000))
+    finally:
+        lot._default_send_impl = _orig
+        os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
+    assert out["sent"] == 1 and out["driven"] == 1, out
+    assert out["skipped"] == 1, out
+    assert len(spy.calls) == 1 and spy.calls[0]["to"] == "drv.customer@example.com", \
+        spy.calls
+    import email as _em
+    _m = _em.message_from_string(spy.calls[0]["message"])
+    _body = _m.get_payload(decode=True).decode("utf-8")
+    assert "Repaint of hallway" in _body, \
+        f"بدنهٔ پیش‌نویسِ واقعی به transport نرسید: {_body!r}"
+    assert gate.status_of(e1) == "settled", gate.status_of(e1)
+    assert gate.status_of(e2) == "pending", "بی‌پیش‌نویس نباید release/settle شود"
+    assert '"no-draft"' in _events_text(), "رسیدِ no-draft نوشته نشد"
+    assert ow.sends_today(now=NOW_S) == 1, "ارسالِ درایور شمرده نشد"
+
+
+def t_i_driver_never_sends_a_market_signal_even_if_somehow_authorized():
+    """R1 ساختاری در درایور: حتی اگر یک market_signal به‌زور authorize شده
+    باشد، بازچکِ گیت (may_release داخلِ send_one) آن را deny می‌کند —
+    صفر transport، صفر settle."""
+    import lead_effect_gate as leg
+    _set_creds(True)
+    _fresh_counter()
+    try:
+        leg._authz_store().unlink()
+    except OSError:
+        pass
+    _seed_inbox("L-sig", email="victim@example.com",
+                candidate_type="market_signal", basis="none",
+                channel="facebook_group", attribution_id="AT-SIG-001")
+    _seed_draft("AT-SIG-001")
+    gate = _drv_gate("sig")
+    eid = gate.request("lead_outbound", "L-sig", beat=1)
+    assert leg.authorize(eid, "L-sig", "tok-sig")["ok"]   # authorize ِ زوری
+    os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND"] = "1"
+    spy = SpyImpl()
+    _orig = lot._default_send_impl
+    lot._default_send_impl = spy
+    try:
+        out = ow.drive_outbound(gate=gate, now_ms=int(NOW_S * 1000))
+    finally:
+        lot._default_send_impl = _orig
+        os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
+    assert out["sent"] == 0, out
+    assert not spy.calls, "market_signal به transport رسید — نقضِ R1"
+    assert gate.status_of(eid) == "pending", \
+        f"سیگنال نباید settle شود: {gate.status_of(eid)!r}"
+    res = [r for r in out.get("results", []) if r["effect_id"] == eid]
+    assert res and res[0]["status"] == "gate_denied", out
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

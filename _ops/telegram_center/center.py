@@ -942,10 +942,16 @@ class Center:
             import question_budget as _qb
             if _qb.enabled():
                 _qi = _qb.pending(now)
-                if _qi:
+                # (بازبینی ۰۷-۳۱، wiring-4) گاردِ نشتِ General: بدونِ DM ِ
+                # مالک (owner_chat_id غایب/falsy) این ضربان اصلاً ارسال
+                # نمی‌شود — chat_id=None در client به chat ِ پیش‌فرض (گروه)
+                # می‌افتاد و سؤالِ هسته‌ای در General می‌نشست. بودجه هم
+                # نمی‌سوزد؛ ضربانِ بعد (با DM ِ برگشته) دوباره می‌کوشد.
+                _own_qb = getattr(self._client, "owner_chat_id", None)
+                if _qi and _own_qb:
                     _qm = self._client.send(
                         _scrub(_qb.question_text(_qi)),
-                        chat_id=getattr(self._client, "owner_chat_id", None),
+                        chat_id=_own_qb,
                         topic_id=self._dm_topic())
                     if _qm is not None:
                         _qb.mark_asked(_qi["id"], now=now)  # فقط بعدِ تحویل
@@ -1557,7 +1563,16 @@ class Center:
             cfg = _load_config()
         try:
             import surface_router as _sr
-            cl, cid, tid = _sr.resolve(stream, clients=self._clients_map(), cfg=cfg)
+            # (بازبینی ۰۷-۳۱، wiring-1) مسلح‌کردنِ گاردِ interactive: جریانِ
+            # دکمه‌دار هرگز کلاینتِ send-only ِ inner را نمی‌گیرد — دکمهٔ روی
+            # inner برای همیشه مرده است (الگوی «۳۵ کارتِ مرده»). fallback ِ
+            # TypeError برای پنجرهٔ ماژولِ کهنه در حافظهٔ پروسهٔ زنده.
+            try:
+                cl, cid, tid = _sr.resolve(stream, clients=self._clients_map(),
+                                           cfg=cfg, interactive=bool(keyboard))
+            except TypeError:
+                cl, cid, tid = _sr.resolve(stream, clients=self._clients_map(),
+                                           cfg=cfg)
         except Exception:  # noqa: BLE001 — روتر هرگز ارسال را نمی‌کشد
             # (۲۰۲۶-۰۷-۳۱، رفعِ shared-transport-8) — تا اینجا سقوط به گروه + تاپیکِ
             # system بود. ولی surface_router خودش در ۰۷-۳۰ عمداً تغییر کرد تا ابهام
@@ -1597,21 +1612,55 @@ class Center:
         سه ماشه: رسانه (عکس/ویس/سند/ویدیو) · پیشوندِ صریحِ «ثبت:» · متنی که
         طبقه‌بندِ خالصِ $0 آن را task/lead/idea/expense بداند. نوتِ ساده
         (kind=note) عمداً capture نمی‌شود — چتِ آزادِ رأی ۱۹ زنده می‌ماند.
-        ریپلای به «سؤالِ اختاپوس» هم هرگز capture نمی‌شود (مسیرِ جوابِ qb)."""
+        ریپلای به «سؤالِ اختاپوس» هم هرگز capture نمی‌شود (مسیرِ جوابِ qb).
+
+        بازبینیِ متخاصمِ ۰۷-۳۱ (BLOCKER 1+4) — سه گیتِ سخت، به ترتیب:
+        (الف) فقط DM ِ خصوصیِ مالک capture می‌شود. اتاق‌های system/mirror ِ
+              گروه هم mode=core_conversation می‌گیرند ولی هرگز نباید بایگانی
+              شوند — پیامشان به مسیرِ آینه/ask ِ موجود ادامه می‌یابد.
+        (ب)  سؤالِ vault («از والت بپرس …») پیش از capture سنجیده می‌شود و
+              همیشه به ask_vault می‌رسد، هرگز به بایگانی.
+        (ج)  سؤال (is_question یا ؟/?) مالِ مغزِ چت است، نه بایگانی.
+        استثنای صریح: «ثبت:» همیشه capture می‌شود؛ رسانه در DM هم."""
         import capture as _cap
         text = str(msg.get("text") or msg.get("caption") or "").strip()
         _rt = str((msg.get("reply_to_message") or {}).get("text") or "")
         if "سؤالِ اختاپوس" in _rt:
             return None                  # جوابِ بودجهٔ سؤال — _handle_message
+        # ── (الف) گیتِ سطح: chat باید DM ِ مالک باشد ─────────────────────────
+        _chat = msg.get("chat") if isinstance(msg.get("chat"), dict) else {}
+        _is_private = str(_chat.get("type") or "").strip().lower() == "private"
+        _own_dm = False
+        try:
+            _own_c = getattr(self._client, "owner_chat_id", None)
+            _own_dm = (_own_c is not None and int(_own_c) > 0
+                       and int(_chat.get("id")) == int(_own_c))
+        except (TypeError, ValueError):
+            _own_dm = False
+        if not (_is_private or _own_dm):
+            return None                  # اتاقِ گروه (system/mirror/…) ⇒ هرگز capture
         has_media = any(msg.get(k) for k in ("photo", "voice", "document",
                                              "video"))
-        if not has_media:
+        _explicit = text.startswith("ثبت:")
+        if not (has_media or _explicit):
             if not text:
                 return None
-            if not text.startswith("ثبت:"):
-                if _cap.classify(text).get("kind") not in ("task", "lead",
-                                                           "idea", "expense"):
-                    return None          # نوتِ ساده = گفتگو (درزِ عمدی)
+            # ── (ب) سؤالِ vault ⇒ ask_vault، هرگز بایگانی ────────────────────
+            if self._vault_intent(text):
+                return None
+            # ── (ج) سؤال ⇒ مغزِ چت، نه بایگانی ───────────────────────────────
+            _is_q = text.endswith(("؟", "?"))
+            if not _is_q:
+                try:
+                    import leg_tasks as _ltq
+                    _is_q = bool(_ltq.is_question(text))
+                except Exception:  # noqa: BLE001 — طبقه‌بندِ غایب = فقط علامتِ ؟/?
+                    _is_q = False
+            if _is_q:
+                return None
+            if _cap.classify(text).get("kind") not in ("task", "lead",
+                                                       "idea", "expense"):
+                return None              # نوتِ ساده = گفتگو (درزِ عمدی)
         try:
             import leg_tasks as _lt
         except Exception:  # noqa: BLE001

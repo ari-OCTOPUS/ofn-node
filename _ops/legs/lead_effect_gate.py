@@ -100,6 +100,18 @@ def is_authorized(effect_id: str) -> bool:
     return str(effect_id or "").strip() in _load_authz()
 
 
+def list_authorized() -> list:
+    """فهرستِ **فقط‌خواندنیِ** allowlist ِ per-effect (بازبینی ۰۷-۳۱ — برای
+    درایورِ outbound_worker.drive_outbound). token هرگز بیرون داده نمی‌شود.
+    خروجی: [{"effect_id": str, "lead_id": str}] — ترتیبِ درجِ store."""
+    out = []
+    for eid, rec in _load_authz().items():
+        if isinstance(rec, dict):
+            out.append({"effect_id": str(eid),
+                        "lead_id": str(rec.get("lead_id") or "")})
+    return out
+
+
 def _authorized_effect_for_lead(lead_id: str) -> str | None:
     """effect_idِ قبلاً authorize‌شده برای این lead_id، یا None. مبنای idempotencyِ per-lead."""
     lid = str(lead_id or "").strip()

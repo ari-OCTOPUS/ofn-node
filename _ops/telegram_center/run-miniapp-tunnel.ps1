@@ -91,6 +91,10 @@ while ($true) {
         Write-Output "cloudflared exited on its own."
         break
     }
+    # Freshness keepalive (review 2026-07-31): the centre only offers the web_app
+    # button while the url file is younger than 24h. A healthy long-lived tunnel
+    # must not age out, so touch the file every iteration while alive.
+    try { (Get-Item $UrlFile -ErrorAction Stop).LastWriteTime = Get-Date } catch {}
 }
 
 try { Stop-Process -Id $proc.Id -Force -Confirm:$false -ErrorAction Stop } catch {}

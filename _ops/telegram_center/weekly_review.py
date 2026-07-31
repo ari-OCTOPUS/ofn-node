@@ -12,7 +12,8 @@
   · leg_tasks (recent_done/queue/blockers) — چه شد/چه ماند/چه بعد
   · funnel.db (رویدادهای هفتهٔ لید: تحویل‌شده، paid)
   · ORGANISM-STATE.json → business_legs (نبضِ ziman/mining/…)
-  · budget/telemetry.snapshot(write=False) — جمعِ ماهِ Accounting به AUD
+  · budget/telemetry.snapshot(write=False) — خرجِ LLM ِ خودِ اختاپوس (AUD/ماه)
+  · «10 - Telegram processing/Raw» (ORG_ROOT) — سطرهای هزینهٔ capture ِ مالک
   · tg_send_log.stats — گزارشِ خودکارها
   · state/reminders (اگر لِینِ E ساخته باشد) — یادآوری‌های fired
   · state/telegram/approvals/*.json — نرخِ تأییدِ کارت‌ها به تفکیکِ نوع؛
@@ -166,44 +167,84 @@ def _send_log_week() -> "dict | None":
 
 
 def _reminders_fired_week(now: float) -> "int | None":
-    """یادآوری‌های fired ِ هفته — store ِ لِینِ E اگر موجود بود؛ نبود ⇒ None."""
+    """یادآوری‌های شلیک‌شدهٔ هفته — از شکلِ **واقعیِ** store ِ لِینِ E.
+
+    بازبینیِ ۰۷-۳۱ (BLOCKER 3): reminders.json یک dict است —
+    ``{"seq": int, "items": [...]}`` — و نسخهٔ قبلی آن را ``rows=[d]`` می‌کرد،
+    یعنی کلِ store یک «ردیف» شمرده می‌شد و شمار همیشه ۰ بود. حالا items
+    خوانده می‌شود و فقط آیتم‌هایی می‌شمارند که ``fired_ts`` ِ داخلِ پنجرهٔ
+    هفته دارند — fired ِ بی‌مهرِ زمان ادعای «این هفته» نیست (عددِ ساختگی
+    ممنوع). نبودِ دایرکتوری ⇒ None (غیابِ صادقانه)."""
     rdir = _state_dir() / "reminders"
     if not rdir.is_dir():
         return None
     since = float(now) - WEEK_S
     fired = 0
     try:
-        for p in list(rdir.glob("*.json")) + list(rdir.glob("*.jsonl")):
+        for p in rdir.glob("*.json"):
             try:
-                raw = p.read_text("utf-8")
-            except OSError:
+                d = json.loads(p.read_text("utf-8"))
+            except (OSError, ValueError):
                 continue
-            rows = []
-            if p.suffix == ".jsonl":
-                for line in raw.splitlines():
-                    try:
-                        rows.append(json.loads(line))
-                    except ValueError:
-                        continue
-            else:
-                try:
-                    d = json.loads(raw)
-                    rows = d if isinstance(d, list) else [d]
-                except ValueError:
-                    continue
-            for r in rows:
+            items = d.get("items") if isinstance(d, dict) else d
+            if not isinstance(items, list):
+                continue                 # config.json و هر شکلِ دیگر — نه store
+            for r in items:
                 if not isinstance(r, dict):
                     continue
-                ts = r.get("fired_ts") or r.get("fired") or 0
                 try:
-                    if (str(r.get("status") or "") == "fired"
-                            or float(ts or 0) >= since):
-                        fired += 1
+                    ts = float(r.get("fired_ts") or 0)
                 except (TypeError, ValueError):
                     continue
+                if since < ts <= float(now):
+                    fired += 1
     except OSError:
         return None
     return fired
+
+
+# ── هزینه‌های ثبت‌شدهٔ مالک (BLOCKER 2 — خواننده و نویسنده با هم) ─────────
+# نویسنده: capture.route (شاخهٔ expense) دقیقاً این سطر را append می‌کند:
+#   ``- YYYY-MM-DD هزینه: <خلاصه>``
+# این regex عمداً به همان قرارداد pin است — تغییرِ فرمتِ capture باید هر دو
+# را با هم عوض کند (تستِ round-trip همین را قفل می‌کند).
+_EXPENSE_LINE = re.compile(r"^- (\d{4}-\d{2}-\d{2}) هزینه: (.+)$")
+
+
+def _owner_expenses_week(vault_root, now: float) -> "list | None":
+    """سطرهای هزینهٔ هفتهٔ مرور از نوت‌های «10 - Telegram processing/Raw».
+
+    فقط‌خواندنی و fail-soft: ریشه از پارامتر یا env ORG_ROOT (harness-safe)؛
+    نبودِ ریشه/پوشه یا هر خطا ⇒ None (غیابِ صادقانه، هرگز crash/عددسازی).
+    خروجی: [(date_str, متن)] مرتب به تاریخ."""
+    try:
+        root_s = str(vault_root or os.environ.get("ORG_ROOT", "") or "").strip()
+        if not root_s:
+            return None
+        raw = Path(root_s) / "10 - Telegram processing" / "Raw"
+        if not raw.is_dir():
+            return None
+        since = float(now) - WEEK_S
+        out = []
+        for p in raw.rglob("*.md"):
+            try:
+                body = p.read_text("utf-8", errors="ignore")
+            except OSError:
+                continue
+            for line in body.splitlines():
+                m = _EXPENSE_LINE.match(line)
+                if not m:
+                    continue
+                try:
+                    ts = datetime.strptime(m.group(1), "%Y-%m-%d").timestamp()
+                except ValueError:
+                    continue
+                if since <= ts <= float(now):
+                    out.append((m.group(1), m.group(2).strip()))
+        out.sort()
+        return out
+    except Exception:  # noqa: BLE001 — بخشِ هزینه هرگز مرور را نمی‌کشد
+        return None
 
 
 _POSITIVE = frozenset({"ok", "approve", "approved", "yes", "good"})
@@ -320,8 +361,21 @@ def review_text(*, now: float, cfg: "dict | None" = None) -> str:
         lines.append("")
 
     aud = _month_aud()
-    lines.append("💰 جمع Accounting (ماه): "
+    # (بازبینی ۰۷-۳۱، BLOCKER 2c) برچسبِ صادق: این عدد از budget/telemetry
+    # می‌آید — هزینهٔ LLM ِ خودِ ارگانیسم است، نه پولِ مالک/بیزنس.
+    lines.append("💰 خرجِ خودِ اختاپوس (LLM) این ماه: "
                  + (f"AU${_fa(round(aud, 2))}" if aud is not None else NO_DATA))
+
+    # (بازبینی ۰۷-۳۱، BLOCKER 2a) هزینه‌های ثبت‌شدهٔ خودِ مالک — از سطرهایی
+    # که capture در نوت‌های Raw نوشته؛ نبودِ داده = غیابِ صادقانه.
+    lines.append("🧾 هزینه‌های ثبت‌شدهٔ هفته:")
+    exps = _owner_expenses_week(None, now)
+    if exps:
+        lines.append(f"· {_fa(len(exps))} هزینه ثبت شده")
+        for day, what in exps[:5]:
+            lines.append(f"  – {_fa(day)} · {what[:60]}")
+    else:
+        lines.append("· هیچ هزینه‌ای ثبت نشده")
 
     slog = _send_log_week()
     lines.append("🤖 خودکارهای هفته: "

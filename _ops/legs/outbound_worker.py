@@ -11,7 +11,8 @@
   · flag OCTOPUS_WIRE_LEAD_OUTBOUND خاموش = بی‌اثرِ مطلق.
   · ارسال فقط از مسیرِ lead_effect_gate.release_and_settle (STOP/consent/authorization/idempotent).
   · سقفِ روزانهٔ عددی LEAD_DAILY_SEND_CAP=10 (رأی مالک ۲۰۲۶-۰۷-۳۱) در **دو** لایه:
-    may_release (deny «daily-cap») + همین worker (کمربندِ CAP_REACHED قبل از transport).
+    may_release (deny «daily-cap») + همین worker (کمربندِ CAP_REACHED **قبل از**
+    release/settle — بازبینی ۰۷-۳۱: سقف‌خورده هرگز settle نمی‌شود).
     شمارنده فقط با sent=True ِ تأییدشدهٔ transport بالا می‌رود.
 
 stdlib-only در خودِ این ماژول.
@@ -152,26 +153,31 @@ def send_one(effect_id: str, candidate: dict, draft: str = "", *, gate, now_ms: 
         sys.path.insert(0, str(_HERE))
         import lead_effect_gate as leg   # noqa: WPS433 — lazy، هم‌پوشه
         _now_s = (float(now_ms) / 1000.0) if now_ms is not None else None
+        # کمربندِ worker (defense in depth) — **قبل از** release_and_settle
+        # (بازبینی ۰۷-۳۱، security W1): نسخهٔ قبلی این چک را بعدِ settle داشت،
+        # پس اگر لایهٔ گیت (may_release) رگرس می‌شد، effect ِ سقف‌خورده اول
+        # settle می‌شد (مصرف می‌شد) و بعد ارسال رد می‌شد — settle-بی‌ارسال =
+        # effect ِ برای‌همیشه‌سوخته. سقف باید پیش از هر مصرفِ گیت بایستد؛
+        # effect دست‌نخورده (releasable) می‌مانَد و بعدِ rollover می‌رود.
+        if cap_reached(now=_now_s):
+            _receipt("send.cap_reached", effect_id,
+                     {"cap": LEAD_DAILY_SEND_CAP, "layer": "worker",
+                      "sent_today": sends_today(now=_now_s)})
+            return {"ok": False, "sent": False, "status": "CAP_REACHED",
+                    "gate_reason": "daily-cap"}
         res = leg.release_and_settle(effect_id, candidate, gate=gate, now_ms=now_ms)
         if not res.get("settled"):
             # گیت اجازه نداد → هیچ transportی صدا نمی‌شود (هیچ ارسال).
             if str(res.get("reason")) == "daily-cap":
-                # سقفِ روزانه (رأی مالک ۲۰۲۶-۰۷-۳۱: ۱۰) — گیت deny کرد؛ effect
-                # releasable می‌مانَد و فردا (پس از rollover) دوباره می‌تواند برود.
+                # سقفِ روزانه (رأی مالک ۲۰۲۶-۰۷-۳۱: ۱۰) — لایهٔ گیت هم deny
+                # می‌کند (may_release)؛ effect releasable می‌مانَد و فردا
+                # (پس از rollover) دوباره می‌تواند برود.
                 _receipt("send.cap_reached", effect_id,
                          {"cap": LEAD_DAILY_SEND_CAP, "layer": "gate",
                           "sent_today": sends_today(now=_now_s)})
                 return {"ok": False, "sent": False, "status": "CAP_REACHED",
                         "gate_reason": "daily-cap"}
             return {"ok": False, "sent": False, "status": "gate_denied",
-                    "gate_reason": res.get("reason")}
-        # کمربندِ دوم (defense in depth): چکِ سقف بینِ settle ِ گیت و transport —
-        # اگر لایهٔ گیت رگرس شد، این‌جا هم هیچ transportی صدا نمی‌شود.
-        if cap_reached(now=_now_s):
-            _receipt("send.cap_reached", effect_id,
-                     {"cap": LEAD_DAILY_SEND_CAP, "layer": "worker",
-                      "sent_today": sends_today(now=_now_s)})
-            return {"ok": False, "sent": False, "status": "CAP_REACHED",
                     "gate_reason": res.get("reason")}
         # گیت settle کرد و سقف باز است؛ حالا transport (email = آداپترِ واقعیِ Lane G؛
         # بقیه stub). آداپترِ واقعی بدونِ envِ SMTP خودش NOT_ARMED می‌دهد.
@@ -189,6 +195,122 @@ def send_one(effect_id: str, candidate: dict, draft: str = "", *, gate, now_ms: 
                 "channel": channel, "gate_reason": res.get("reason")}
     except Exception as e:  # noqa: BLE001 — worker هرگز crash نمی‌کند و هرگز نمی‌فرستد
         return {"ok": False, "sent": False, "status": "worker_error", "reason": type(e).__name__}
+
+
+# ── درایورِ ارسال (بازبینی ۰۷-۳۱، wiring W2 — flag-off در deploy: تاریک ولی کامل) ──
+def _candidate_from_inbox(lead_id: str):
+    """بازسازیِ **فقط‌خواندنیِ** کاندید از state/legs/lead-inbox/<lead_id>.json —
+    همان الگوی lead_effect_gate.bridge_from_inbox (شاملِ contact تا transport
+    گیرنده داشته باشد). خروجی: (candidate|None, attribution_id) — نبود/خراب ⇒ (None, "")."""
+    try:
+        lid = str(lead_id or "").strip()
+        if not lid:
+            return None, ""
+        path = opslib.STATE_DIR / "legs" / "lead-inbox" / f"{lid}.json"
+        if not path.exists():
+            return None, ""
+        data = json.loads(path.read_text("utf-8"))
+        if not isinstance(data, dict):
+            return None, ""
+        cb = data.get("candidate") or {}
+        cand = {"lead_id": lid,
+                "source": {"channel": data.get("source")},
+                "candidate_type": cb.get("candidate_type"),
+                "consent": cb.get("consent") or {},
+                "request": cb.get("request") or {},
+                "contact": cb.get("contact") or {}}
+        aid = str(data.get("attribution_id") or cb.get("attribution_id") or "")
+        return cand, aid
+    except (OSError, ValueError, TypeError):
+        return None, ""
+
+
+def _draft_for(attribution_id: str):
+    """پیش‌نویسِ ارسال از state/legs/lead-drafts/<attribution_id>.json — best-effort.
+    فقط رکوردِ lead-quote.v1؛ نبود/خراب ⇒ None (صداکننده با رسیدِ no-draft رد می‌شود)."""
+    try:
+        import re as _re   # noqa: WPS433
+        aid = str(attribution_id or "").strip()
+        if not aid:
+            return None
+        safe = _re.sub(r"[^A-Za-z0-9_\-]", "-", aid)[:64]
+        p = opslib.STATE_DIR / "legs" / "lead-drafts" / f"{safe}.json"
+        if not p.exists():
+            return None
+        rec = json.loads(p.read_text("utf-8"))
+        if not isinstance(rec, dict) or rec.get("schema") != "lead-quote.v1":
+            return None
+        scope = str(((rec.get("intake") or {}).get("scope") or "")).strip()
+        qt = str(rec.get("qt_number") or aid)
+        return {"subject": f"Quote {qt} — painting works",
+                "body": scope or "Please find our quotation below."}
+    except (OSError, ValueError, TypeError):
+        return None
+
+
+def drive_outbound(*, gate, now_ms: int | None = None, cap_per_beat: int = 2) -> dict:
+    """درایورِ قوسِ ارسال: effectهای authorized-ولی-unsettled ِ lead_outbound را
+    یکی‌یکی از send_one (گیتِ per-effect → transport) عبور می‌دهد.
+
+    مرزها (همان خطوطِ قرمزِ send_one، به‌علاوهٔ سقفِ ضربان):
+      · فلگِ اصلی OCTOPUS_WIRE_LEAD_OUTBOUND **اول** چک می‌شود — خاموش ⇒
+        {"driven": 0} و صفر اثرِ جانبی (هیچ خواندن/رسید/گیت).
+      · halt سراسری مقدم؛ gate ِ غایب = هیچ.
+      · کاندید از lead-inbox/<lead_id>.json بازسازی می‌شود (الگوی
+        bridge_from_inbox شاملِ contact)؛ نبودش ⇒ skip با رسیدِ "no-candidate".
+      · پیش‌نویس از lead-drafts/<attribution_id>.json؛ نبودش ⇒ skip با رسیدِ
+        "no-draft" — ارسالِ بی‌پیش‌نویس ممنوع.
+      · توقف در cap_per_beat (پیش‌فرض ۲) یا سقفِ روزانهٔ ۱۰.
+      · consent/authz/idempotency/سقف همه داخلِ send_one دوباره حاکم‌اند —
+        market_signal حتی اگر به‌زور authorize شده باشد همان‌جا deny می‌شود.
+    همیشه dict؛ هرگز استثنا."""
+    out = {"driven": 0, "sent": 0, "skipped": 0, "results": []}
+    try:
+        if not enabled():
+            return {"driven": 0}
+        if opslib.master_halted():
+            return {"driven": 0, "reason": "halted"}
+        if gate is None:
+            return {"driven": 0, "reason": "no-gate"}
+        sys.path.insert(0, str(_HERE))
+        import lead_effect_gate as leg   # noqa: WPS433 — lazy، هم‌پوشه
+        _now_s = (float(now_ms) / 1000.0) if now_ms is not None else None
+        for rec in leg.list_authorized():
+            if out["driven"] >= int(cap_per_beat) or cap_reached(now=_now_s):
+                break
+            eid = str(rec.get("effect_id") or "")
+            lid = str(rec.get("lead_id") or "")
+            try:
+                st = gate.status_of(eid)
+            except Exception:  # noqa: BLE001 — گیتِ ناخوانا = skip، نه crash
+                continue
+            if st not in ("pending", "releasable"):
+                continue                 # settled/refused/ناشناخته — idempotent skip
+            cand, aid = _candidate_from_inbox(lid)
+            if cand is None:
+                _receipt("send.skipped", eid,
+                         {"reason": "no-candidate", "lead_id": lid})
+                out["skipped"] += 1
+                continue
+            draft = _draft_for(aid)
+            if draft is None:
+                _receipt("send.skipped", eid,
+                         {"reason": "no-draft", "lead_id": lid,
+                          "attribution_id": aid})
+                out["skipped"] += 1
+                continue
+            r = send_one(eid, cand, draft, gate=gate, now_ms=now_ms)
+            out["driven"] += 1
+            out["results"].append({"effect_id": eid, "status": r.get("status"),
+                                   "sent": bool(r.get("sent"))})
+            if r.get("sent"):
+                out["sent"] += 1
+            if r.get("status") in ("CAP_REACHED", "halted"):
+                break
+        return out
+    except Exception as e:  # noqa: BLE001 — درایور هرگز beat را نمی‌کشد
+        out["reason"] = f"driver_error:{type(e).__name__}"
+        return out
 
 
 if __name__ == "__main__":

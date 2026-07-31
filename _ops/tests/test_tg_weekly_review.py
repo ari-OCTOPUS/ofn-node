@@ -171,6 +171,69 @@ def t_stale_approvals_outside_the_week_are_ignored():
     assert "old-card" not in txt, txt
 
 
+# ── هزینه‌های ثبت‌شدهٔ مالک (بازبینی ۰۷-۳۱، BLOCKER 2) ─────────────────────
+def t_expenses_section_reads_the_real_capture_writer_and_is_honest_when_empty():
+    """round-trip از مسیرِ تولیدی: capture (نویسنده) سطرِ هزینه را در نوتِ Raw
+    می‌نویسد؛ weekly_review (خواننده) همان را در بخشِ «هزینه‌های ثبت‌شدهٔ
+    هفته» می‌آورد. خالی ⇒ «هیچ هزینه‌ای ثبت نشده» — عددسازی ممنوع."""
+    _clean()
+    import shutil as _sh
+    import capture as cap
+    raw_dir = Path(ENV["ORG_ROOT"]) / "10 - Telegram processing" / "Raw"
+    _sh.rmtree(raw_dir, ignore_errors=True)
+    # (الف) غیابِ صادقانه
+    txt0 = wr.review_text(now=SAT_0830, cfg={})
+    assert "هزینه‌های ثبت‌شدهٔ هفته" in txt0, txt0
+    assert "هیچ هزینه‌ای ثبت نشده" in txt0, txt0
+    # (ب) نویسندهٔ واقعی: capture ِ یک هزینه در همین هفته
+    kr = cap.classify("هزینه خرید رنگ ۴۵ دلار")
+    filed = cap.file_to_vault(kr, "هزینه خرید رنگ ۴۵ دلار",
+                              msg_meta={"message_id": 9101, "chat_id": 777},
+                              now=SAT_0830 - 3600)
+    r = cap.route(kr, filed["path"], now=SAT_0830 - 3600)
+    assert r["routed"] == "expense-line", r
+    # (ج) هزینهٔ بیرونِ پنجرهٔ هفته — نباید شمرده شود
+    old_day = datetime.fromtimestamp(SAT_0830 - 9 * 86400).strftime("%Y-%m-%d")
+    with Path(filed["path"]).open("a", encoding="utf-8") as f:
+        f.write(f"- {old_day} هزینه: هزینهٔ کهنهٔ خارج از هفته\n")
+    txt = wr.review_text(now=SAT_0830, cfg={})
+    assert "۱ هزینه ثبت شده" in txt, txt
+    assert "خرید رنگ" in txt, txt
+    assert "هزینهٔ کهنهٔ خارج از هفته" not in txt, txt
+    assert "هیچ هزینه‌ای ثبت نشده" not in txt, txt
+
+
+def t_octopus_llm_spend_is_labeled_as_its_own_money_not_the_owners():
+    """بازبینی ۰۷-۳۱ (BLOCKER 2c): عددِ telemetry خرجِ LLM ِ خودِ ارگانیسم است
+    — برچسبِ قبلی («جمع Accounting») آن را پولِ بیزنسِ مالک جا می‌زد."""
+    txt = wr.review_text(now=SAT_0830, cfg={})
+    assert "خرجِ خودِ اختاپوس (LLM)" in txt, txt
+    assert "جمع Accounting" not in txt, "برچسبِ گمراه‌کنندهٔ قدیمی هنوز هست"
+
+
+# ── یادآوری‌های fired ِ هفته (بازبینی ۰۷-۳۱، BLOCKER 3) ────────────────────
+def t_reminders_fired_count_reads_the_real_store_shape_and_the_real_clock():
+    """seed از مسیرِ تولیدی: reminders.add + شلیکِ واقعیِ beat با ساعتِ
+    تزریقی. شکلِ واقعیِ store یعنی {"seq","items":[...]} — نسخهٔ قبلی
+    (rows=[d]) کلِ store را یک ردیف می‌شمرد و همیشه ۰/غلط می‌داد."""
+    _clean()
+    import reminders as rmod
+    old_beat = SAT_0830 - 9 * 86400          # هفتهٔ پیش (بیرونِ پنجره)
+    new_beat = SAT_0830 - 3600               # همین هفته
+    assert rmod.add("پیگیریِ کهنه", due_ts=old_beat - 60, now=old_beat - 120)
+    assert rmod.add("زنگ بزن به مشتری", due_ts=new_beat - 60, now=new_beat - 120)
+    n_old = rmod.beat(now=old_beat, send_dm_fn=lambda t, rid: 1,
+                      send_leg_fn=lambda leg, t: 1)
+    n_new = rmod.beat(now=new_beat, send_dm_fn=lambda t, rid: 1,
+                      send_leg_fn=lambda leg, t: 1)
+    assert n_old == 1 and n_new == 1, (n_old, n_new)
+    # خوانندهٔ واقعی: فقط شلیکِ داخلِ پنجرهٔ هفته
+    assert wr._reminders_fired_week(SAT_0830) == 1, \
+        wr._reminders_fired_week(SAT_0830)
+    txt = wr.review_text(now=SAT_0830, cfg={})
+    assert "یادآوری‌های fired: ۱" in txt, txt
+
+
 # ── beat: فلگ، ارسالِ یک‌باره، cursor فقط بعدِ ارسالِ موفق ─────────────────
 def t_beat_is_silent_with_the_flag_off():
     _clean()

@@ -284,6 +284,48 @@ def t_g_resolve_interactive_never_returns_inner():
             os.environ.pop(sr.FLAG, None)
 
 
+# ─── (g2) مرکز: _route_send ِ کیبورددار هرگز از inner نمی‌فرستد ──────────────
+def t_g2_keyboarded_route_send_never_sends_via_the_send_only_inner():
+    """بازبینی ۰۷-۳۱ (wiring-1): resolve گاردِ interactive داشت ولی مرکز آن را
+    پاس نمی‌داد — کارتِ دکمه‌دارِ جریانِ inner (center-alert در target) روی
+    کلاینتِ send-only می‌نشست = دکمهٔ برای‌همیشه‌مرده. حالا _route_send
+    ‏interactive=bool(keyboard) می‌دهد؛ بدونِ kwarg این تست قرمز است."""
+    import center as _center
+
+    class _Fake:
+        def __init__(self):
+            self.sent = []
+            self.owner_chat_id = OWNER
+            self.center_chat_id = GROUP
+
+        def wired(self):
+            return True
+
+        def send(self, text, **kw):
+            self.sent.append((text, kw))
+            return 42
+
+    outer, inner = _Fake(), _Fake()
+    c = _center.Center(client=outer, clock=lambda: 1000.0, render_mod=None)
+    c._inner = inner                     # inner ِ تزریقی (send-only fake)
+    cfg = {"chat_id": GROUP, "topics": dict(TOPICS)}
+    kb = [[{"text": "✅", "callback_data": "tr:y:x"}]]
+    os.environ[sr.FLAG] = "1"            # target: center-alert → inner/dm
+    try:
+        mid = c._route_send("center-alert", "کارتِ دکمه‌دار", cfg=cfg,
+                            keyboard=kb)
+        assert mid is not None, "کارتِ دکمه‌دار اصلاً ارسال نشد"
+        assert inner.sent == [], \
+            "کارتِ دکمه‌دار روی کلاینتِ send-only ِ inner رفت (کارتِ مرده)"
+        assert outer.sent and outer.sent[-1][1].get("keyboard") == kb, outer.sent
+        # ضدِ بیش‌بست: جریانِ بی‌دکمهٔ همان stream همچنان به inner می‌رود
+        c._route_send("center-alert", "هشدارِ بی‌دکمه", cfg=cfg)
+        assert inner.sent and inner.sent[-1][0] == "هشدارِ بی‌دکمه", \
+            "جریانِ بی‌دکمه دیگر به inner نمی‌رود — گارد بیش‌بست شد"
+    finally:
+        os.environ.pop(sr.FLAG, None)
+
+
 # ─── (h) set_commands با scope ──────────────────────────────────────────────
 def t_h_set_commands_passes_scope_through():
     net = Net()
