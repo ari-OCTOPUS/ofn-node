@@ -102,6 +102,12 @@ def scan() -> dict:
                     imported.add((f, a.name.split(".")[-1]))
             elif isinstance(n, ast.ImportFrom) and n.module:
                 imported.add((f, n.module.split(".")[-1]))
+                # شکلِ چهارم (درسِ ثبت‌شدهٔ reachability): `from pkg import mod`
+                # خودِ mod را import می‌کند ولی فقط pkg ثبت می‌شد — center با
+                # همین شکل صدا می‌خورد و بعد از سفت‌شدنِ شاهدِ رشته‌ای، هشدارِ
+                # کاذبِ «یتیم» گرفت. نام‌های وارد‌شده هم شاهدِ اتصال‌اند.
+                for a in n.names:
+                    imported.add((f, a.name))
             elif isinstance(n, ast.Call):
                 nm = getattr(n.func, "attr", None) or getattr(n.func, "id", None)
                 if nm:
