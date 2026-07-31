@@ -248,11 +248,27 @@ def _check_processes(P: dict, now: float, live: bool) -> list:
         age = _age(ts, now)
         beat = st.get("beat")
         halted = bool(st.get("halted")) or bool(st.get("stop_organism"))
-        if halted:
+        # مارکرِ روی دیسک حجت است، نه snapshot: الگوی ری‌استارتِ sentinel باعث
+        # می‌شود پروسهٔ در حالِ خروج **آخرین** state را با stop_organism=True
+        # بنویسد و بعد مارکرها پاک و پروسهٔ نو بالا بیاید. بدونِ این تفکیک،
+        # هر ری‌استارتِ سالم یک «HALT» ِ کاذب گزارش می‌شد (۰۷-۳۱).
+        markers_live = any((P["ops"] / m).exists() for m in
+                           ("STOP-ORGANISM", "HALT-ALL"))
+        if halted and markers_live:
             rows.append(_row("processes.organism_state", BLOCKER,
                              f"ارگانیسم halted/stop است (ضربان {beat})",
                              "علتِ HALT را در _ops/state/watchdog-log.txt ببین "
                              "— برداشتنِ HALT رأیِ مالک است"))
+        elif halted and age <= ORGANISM_MAX_S:
+            rows.append(_row("processes.organism_state", WARN,
+                             f"snapshot ِ خداحافظیِ ری‌استارت (ضربان {beat}، "
+                             f"{_fa_age(age)} پیش) — هیچ مارکرِ STOP/HALT روی "
+                             "دیسک نیست؛ ضربانِ بعدی پاکش می‌کند",
+                             "اگر بعد از یک ضربانِ کامل باقی ماند، جدی است"))
+        elif halted:
+            rows.append(_row("processes.organism_state", BLOCKER,
+                             f"ارگانیسم halted/stop و state کهنه است (ضربان {beat})",
+                             "علتِ HALT را در _ops/state/watchdog-log.txt ببین"))
         elif age <= ORGANISM_MAX_S:
             rows.append(_row("processes.organism_state", OK,
                              f"ارگانیسم زنده — ضربان {beat} · {_fa_age(age)} پیش",
