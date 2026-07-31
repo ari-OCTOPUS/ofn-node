@@ -127,8 +127,14 @@ def t_core_streams_never_resolve_to_the_group():
 
 
 def t_a_leg_stream_may_reach_the_group_with_its_own_topic():
-    """گاردِ ضدِ بیش‌بست در سطحِ resolve: اگر مسیریابی پا را به گروه بفرستد،
-    باید برسد — وگرنه این فایل کلِ گروه را کشته، نه فقط غیرِ-پا را."""
+    """گاردِ ضدِ بیش‌بست در سطحِ resolve: اگر مسیریابیِ پا را به گروه بفرستد،
+    باید برسد — وگرنه این فایل کلِ گروه را کشته، نه فقط غیرِ-پا را.
+
+    ⚠️ نسخهٔ قدیمیِ این بند `assert got_group or True` بود — یک ثابت که هرگز
+    قرمز نمی‌شد. یعنی اگر مسیریابیِ پا را خراب می‌کردیم و هیچ جریانی به گروه
+    نمی‌رسید، تست همچنان سبز می‌ماند: دقیقاً همان رگرسیونی که باید می‌گرفت.
+    `legs-all` طبقِ surface-routing.json همیشه به گروه می‌رود؛ پس این assert
+    واقعی است، نه تزئینی."""
     _flag(False)
     cl = _clients()
     got_group = False
@@ -137,7 +143,8 @@ def t_a_leg_stream_may_reach_the_group_with_its_own_topic():
         if chat == GROUP:
             got_group = True
             break
-    assert got_group or True, "هیچ جریانِ پایی به گروه نرسید — مسیریابی را ببین"
+    assert got_group, (
+        "هیچ جریانِ پایی به گروه نرسید — مسیریابیِ legs-all احتمالاً خراب شده")
 
 
 if __name__ == "__main__":
