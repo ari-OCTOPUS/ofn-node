@@ -359,3 +359,16 @@ STOP می‌سازند؛ pinِ `ORG_ROOT` این را به worktree محدود �
 
 آشتیِ دو خط: merge ِ `d3b448a` (سخت‌سازیِ ایجنتِ موازی) با ارشدیتِ خطِ منشور — redact-اول، دکتر→DM، fallback→DM، 409-detector، prune، ledger-reanchor حفظ شد.
 ratchet ِ `tg_send_audit`: absent ‏۱۷ → **۷** (baseline ِ خودکار). run_all: تنها قرمزِ مجاز `test_paid_router_dark_config` (checkout-only).
+
+## 🛠 ثبتِ ۲۰۲۶-۰۷-۳۱ (عصر، خطِ ارشد) — موجِ ۰ پایداری +.instrument Hebbian (پلِ به EFE)
+
+مبنا: `04 - Architect System/2026-07-31 MASTER-PLAN — OCTOPUS repair-and-complete`. **خطِ ارشد** در موازیِ خطِ تلگرام، روی دامنه‌ی خودش (state/neural/budget) — تلگرام دست‌نخورده.
+
+| concern | canonical | نکته |
+|---------|-----------|------|
+| **W0.2 state-freeze** (VQ-STATE-WRITE-001) | `_ops/budget/opslib.py::LockedJson.write` | بازگشتِ نسخهٔ `0a303af` (که در merge `681907f` ضعیف شده بود): `os.fsync` قبل از replace + retry ِ ۵گانهٔ bounded + رسیدِ واقعی → `state/write-failures.jsonl` (مصرف‌کننده: snapshot blocker). WinError-5 حالا fail-loud است نه بی‌صدا. `test_state_write_loudness` ۶/۶ سبز. |
+| **W2 instrument Hebbian** (پلِ به EFE) | `_ops/wiring.py::_emit_hebbian_observation` + `taxonomy.py` | لایهٔ Hebbian واقعی (`hebbian.py`) تا حالا فقط به `hebbian.json` می‌رفت (بن‌بست). حالا هر بستنِ پنجره یک رخدادِ `hebb.observation` در spine.db می‌شود (payload: `window_n`, `signals`, `n_pairs`, `top_strength` بعد از decay). **پشتِ flag `OCTOPUS_HEBBIAN_LEDGER`** (خاموش = صفر I/O). EFE ساخته نشد (وجود ندارد) — مشاهده‌پذیری روی واقعیت است. hebbian ۱۸/۱۸+۱۰/۱۰، spine ۹/۹×۴. |
+| **W0.3 doctor meter** (VQ-BUDGET-001) | `_ops/budget/telemetry.py::ORGAN_MAP` + `budgets.yaml` | `"doctor": "DOCTOR"` + `DOCTOR {floor:0}` — رفعِ UNMAPPED:doctor. doctor فعلاً $0 (chamber stub) ولی وقتی LLM صدا زند دیگر «دکترِ پولیِ کور» نیست؛ به AU$30 متصل. plumbing فقط (cap بعداً). budget/organ/money ۴/۴ سبز. |
+| **W0.4 VQ-LEDGER-CHAIN-001** | `VERDICT_QUEUE.md` | fork هم‌زمان در record 9646 قبلاً با `ledger_repair_reanchor` حل شده بود؛ closure رسمی نوشته شد. |
+
+**یکپارچگیِ زنده (تأییدِ پس از ری‌استارتِ خطِ TG):** commit‌های Wave 0 (`260a0f9`, `5d3b844`) در HEAD `accc0d0` هستن؛ organism زنده (PID 8488) کد Wave 0 رو load کرده (fsync در کد فعلی `True`، beat 19966+ advancing، صفر `.tmp` سرگردان). **هر دو خط در یک organism ادغام شدند.** LEAD_DISCOVERY با دو `set` (L177=1 قدیمی / L817=0 نو) خاموش شد — آخرین `set` در .cmd برنده. `RESTART-VALIDATION-CHECKLIST` procedure کامل + rollback دارد.

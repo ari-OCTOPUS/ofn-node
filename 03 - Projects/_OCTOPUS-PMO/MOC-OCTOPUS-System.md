@@ -5,7 +5,7 @@ status: active
 wave: 5
 tags: [octopus, moc, system, pmo]
 created: 2026-07-12
-updated: 2026-07-13
+updated: 2026-07-31
 ---
 
 # OCTOPUS System · MOC
@@ -91,6 +91,7 @@ updated: 2026-07-13
 | **Wave 4** | Full channel fleet (16 channels, 17 extractors) | ✅ Done | [[Build Waves/Wave-4\|Wave-4]] |
 | **Wave 5** | Hardening: stability, observability, control | ✅ Done | [[OCTOPUS-WAVE5-HARDENING-PLAN\|Wave-5 Plan]] |
 | **Wave 6** | Control plane: gated, testable, replayable, owner-aware | ✅ Done | [[Build Waves/Wave-6\|Wave-6 Note]] |
+| **Wave 7 (07-31)** | Stability + Hebbian instrumentation (EFE bridge) + TG-UI 24-vote build | ✅ Done | `04-Architect/2026-07-31 MASTER-PLAN` + `2026-07-31 RESTART-VALIDATION-CHECKLIST` |
 
 ---
 
@@ -147,4 +148,4 @@ updated: 2026-07-13
 
 ---
 
-> **Steward note:** This MOC is updated by the Obsidian Steward agent when the filesystem changes. Last verification: 2026-07-13 (Wave 6 complete).
+> **Steward note:** This MOC is updated by the Obsidian Steward agent when the filesystem changes. Last verification: 2026-07-31 (Wave 7: stability + Hebbian instrumentation + TG-UI 24-vote build, integrated into one live organism).
