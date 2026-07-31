@@ -485,6 +485,88 @@ def t_the_age_cap_is_a_real_bound():
     assert 3600 <= CA.APPROVAL_MAX_AGE_S <= 7 * 24 * 3600, CA.APPROVAL_MAX_AGE_S
 
 
+def _tiny_repo(tmp: Path, body: str = "x = 1\n"):
+    """ریپوی واقعیِ کوچک — گیت را فیک نمی‌کنم چون همین مسیر است که خراب بود."""
+    import subprocess
+    ops = tmp / "_ops" / "cortex"
+    ops.mkdir(parents=True)
+    (ops / "x.py").write_bytes(body.encode("utf-8"))
+    for cmd in (["init", "-q"], ["config", "user.email", "t@t"],
+                ["config", "user.name", "t"], ["add", "-A"],
+                ["commit", "-qm", "base"]):
+        subprocess.run(["git", "-C", str(tmp)] + cmd, capture_output=True, timeout=60)
+    return tmp / "_ops"
+
+
+def _canary_with(monkey_suite, tmp, content="x = 1\ny = 2\n"):
+    """`_git_apply_canary` را روی ریپوی موقت با `_run_suite` ِ اسکریپت‌شده بدوان."""
+    old_ops, old_run = CA._OPS, CA._run_suite
+    try:
+        CA._OPS = _tiny_repo(tmp)
+        CA._run_suite = monkey_suite
+        return CA._git_apply_canary("_ops/cortex/x.py", content)
+    finally:
+        CA._OPS, CA._run_suite = old_ops, old_run
+
+
+def t_the_apply_gate_is_regression_not_absolute_green():
+    """رأیِ مالک VQ-CANARY-001 گزینهٔ الف.
+
+    ⚠️ چرا لازم شد: گیت `returncode == 0` می‌سنجید و مبنای درختِ زنده ۹ سوییتِ
+    قرمز داشت که از هیچ پچی نبودند. یعنی هر تأییدِ مالک ساختاراً به
+    rollback + freeze ختم می‌شد — fail-closed ِ همیشگی = نبودِ قابلیت.
+    مسیرِ **سایه** از ۰۷-۲۷ رگرسیونی بود؛ فقط مسیرِ **اعمال** جا مانده بود."""
+    import tempfile
+    # (الف) مبنای قرمز، پچ چیزی اضافه نمی‌کند ⇒ سبز، می‌مانَد
+    with tempfile.TemporaryDirectory() as d:
+        seq = [{"code": 1, "fails": {"test_a", "test_b"}, "seconds": 1, "tail": ""},
+               {"code": 1, "fails": {"test_a", "test_b"}, "seconds": 1, "tail": ""}]
+        r = _canary_with(lambda *a, **k: seq.pop(0), Path(d))
+        assert r["green"] is True, r
+        assert r["applied"] is True and r["rolled_back"] is False
+        assert r["new_fails"] == [] and r["baseline_fails"] == ["test_a", "test_b"]
+        assert "y = 2" in (Path(d) / "_ops" / "cortex" / "x.py").read_text("utf-8")
+    # (ب) پچ یک شکستِ **تازه** می‌آورد ⇒ قرمز، برمی‌گردد
+    with tempfile.TemporaryDirectory() as d:
+        seq = [{"code": 1, "fails": {"test_a"}, "seconds": 1, "tail": ""},
+               {"code": 1, "fails": {"test_a", "test_c"}, "seconds": 1, "tail": ""}]
+        r = _canary_with(lambda *a, **k: seq.pop(0), Path(d))
+        assert r["green"] is False and r["rolled_back"] is True, r
+        assert r["new_fails"] == ["test_c"]
+        assert "y = 2" not in (Path(d) / "_ops" / "cortex" / "x.py").read_text("utf-8"), \
+            "پچِ رگرسیون‌زا روی دیسک ماند"
+    # (ج) مبنای پاک ⇒ سخت‌گیری **ذره‌ای** کم نشده: returncode باید صفر باشد
+    with tempfile.TemporaryDirectory() as d:
+        seq = [{"code": 0, "fails": set(), "seconds": 1, "tail": ""},
+               {"code": 1, "fails": set(), "seconds": 1, "tail": ""}]
+        r = _canary_with(lambda *a, **k: seq.pop(0), Path(d))
+        assert r["green"] is False, "مبنای پاک + خروجِ غیرصفر باید قرمز بماند"
+    with tempfile.TemporaryDirectory() as d:
+        seq = [{"code": 0, "fails": set(), "seconds": 1, "tail": ""},
+               {"code": 0, "fails": set(), "seconds": 1, "tail": ""}]
+        assert _canary_with(lambda *a, **k: seq.pop(0), Path(d))["green"] is True
+
+
+def t_the_baseline_is_measured_before_the_patch_is_written():
+    """⚠️ ظریف‌ترین بندِ گیتِ رگرسیون. اگر مبنا **بعد** از نوشتن سنجیده شود،
+    مبنا خودش شاملِ پچ است و مقایسه همیشه «هیچ شکستِ تازه» می‌دهد — یعنی گیت
+    بی‌صدا از کار می‌افتد و هر پچی سبز می‌شود. اثباتش با خواندنِ **محتوای
+    فایل در لحظهٔ هر فراخوان**، نه با خواندنِ کد."""
+    import tempfile
+    seen = []
+    with tempfile.TemporaryDirectory() as d:
+        p = Path(d) / "_ops" / "cortex" / "x.py"
+
+        def spy(wt, env, timeout=None):
+            seen.append(p.read_text("utf-8"))
+            return {"code": 0, "fails": set(), "seconds": 1, "tail": ""}
+
+        _canary_with(spy, Path(d))
+        assert len(seen) == 2, f"سوییت باید **دوبار** بدود، دوید {len(seen)}"
+        assert "y = 2" not in seen[0], "مبنا بعد از نوشتنِ پچ سنجیده شد ⇒ گیت بی‌اثر"
+        assert "y = 2" in seen[1], "دورِ دوم پچ را ندید"
+
+
 def t_applying_a_patch_never_flips_the_targets_line_endings():
     """⚠️ مسیرِ اعمال `write_text` می‌زد. روی ویندوز `newline=None` است، پس هر
     `\\n` به `\\r\\n` ترجمه می‌شود — و مغزِ کد پچ را همیشه با LF می‌سازد. نتیجه:
@@ -547,29 +629,32 @@ def t_the_canary_suite_shares_the_measured_timeout_not_a_hardcoded_600():
     import ast
     src = (_HERE.parent / "cortex" / "code_autonomy.py").read_text("utf-8")
     tree = ast.parse(src)
-    for node in ast.walk(tree):
-        if not (isinstance(node, ast.FunctionDef)
-                and node.name == "_git_apply_canary"):
+    fn = next(n for n in ast.walk(tree)
+              if isinstance(n, ast.FunctionDef) and n.name == "_git_apply_canary")
+    # ۲۰۲۶-۰۷-۳۱: بعد از گیتِ رگرسیون، canary دیگر خودش run_all را صدا نمی‌زند —
+    # از `_run_suite` می‌آید (همان تابعی که مسیرِ سایه هم استفاده می‌کند). پس
+    # ناوردی دو تکه شد: canary باید delegate کند، و `_run_suite` سقف را از
+    # knob بگیرد. یک پیاده‌سازیِ دوم = دو سقف = همان باگ از نو.
+    dump = ast.dump(fn)
+    assert "_run_suite" in dump, "canary به _run_suite واگذار نمی‌کند"
+    assert "run_all.py" not in dump, \
+        "canary دوباره خودش سوییت را می‌دواند ⇒ سقفِ دوم و واگراییِ معیار"
+    rs = next(n for n in ast.walk(tree)
+              if isinstance(n, ast.FunctionDef) and n.name == "_run_suite")
+    for call in ast.walk(rs):
+        if not (isinstance(call, ast.Call)
+                and getattr(call.func, "attr", "") == "run"):
             continue
-        for call in ast.walk(node):
-            if not (isinstance(call, ast.Call)
-                    and getattr(call.func, "attr", "") == "run"):
-                continue
-            kw = {k.arg: k.value for k in call.keywords}
-            t = kw.get("timeout")
-            # فقط فراخوانِ سوییت مهم است — عملیاتِ git سقفِ کوتاهِ خودشان را دارند
-            args = ast.dump(call)
-            if "run_all.py" not in args:
-                continue
-            assert not isinstance(t, ast.Constant), \
-                f"سقفِ هاردکدِ {getattr(t, 'value', '?')} برگشت — باید _suite_timeout_s() باشد"
-            assert getattr(getattr(t, "func", None), "id", "") == "_suite_timeout_s", \
-                ast.dump(t)
-            assert CA._suite_timeout_s() >= 1078, \
-                f"سقف ({CA._suite_timeout_s()}s) از زمانِ سنجیده‌شدهٔ سوییت کمتر است"
-            return
-        raise AssertionError("فراخوانِ run_all در canary پیدا نشد")
-    raise AssertionError("_git_apply_canary پیدا نشد")
+        if "run_all.py" not in ast.dump(call):
+            continue
+        t = {k.arg: k.value for k in call.keywords}.get("timeout")
+        assert t is not None and not isinstance(t, ast.Constant), \
+            f"سقفِ هاردکد برگشت: {getattr(t, 'value', t)!r}"
+        assert "_suite_timeout_s" in ast.dump(t), ast.dump(t)
+        assert CA._suite_timeout_s() >= 1078, \
+            f"سقف ({CA._suite_timeout_s()}s) از زمانِ سنجیده‌شدهٔ سوییت کمتر است"
+        return
+    raise AssertionError("فراخوانِ run_all در _run_suite پیدا نشد")
 
 
 def t_a_timeout_after_the_commit_reverts_the_commit_not_just_the_file():

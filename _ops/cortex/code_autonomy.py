@@ -382,9 +382,25 @@ def _write_keeping_newlines(tgt, text: str, before_b: bytes) -> None:
 
 
 def _git_apply_canary(target_rel: str, new_content: str) -> dict:
-    """مسیرِ واقعی: نوشتنِ patch در شاخهٔ کاری → commit → canary (سوییتِ کامل) →
-    سبز: می‌ماند · قرمز: auto-rollback (git restore + reset) + freeze. masterِ زنده لمس نمی‌شود
-    (merge = گامِ جداگانهٔ مالک). fail-soft."""
+    """مسیرِ واقعی: مبنا → نوشتنِ patch → commit → canary → مقایسه با مبنا.
+    سبز = **هیچ شکستِ تازه** · قرمز: auto-rollback + freeze. masterِ زنده لمس
+    نمی‌شود (merge = گامِ جداگانهٔ مالک). fail-soft.
+
+    ⚠️ ۲۰۲۶-۰۷-۳۱ · رأیِ مالک (VQ-CANARY-001، گزینهٔ الف). تا امروز این تابع
+    `run.returncode == 0` می‌سنجید، یعنی **سبزیِ مطلقِ** کلِ سوییت. مبنای
+    درختِ زنده در همان لحظه ۹ سوییتِ قرمز داشت که هیچ‌کدام از هیچ پچی نبودند
+    (test_llm_fence_coverage · test_llm_call_inventory · test_tg_verdict_durable
+    · test_cb_token_legmiss · test_owner_answers_2026_07_27 · test_orphan_scan
+    · test_d2_halt_coverage · test_tg_send_audit · test_tg_instant_and_sendlog).
+    یعنی گیت ساختاراً هرگز پاس نمی‌شد: هر تأییدِ مالک به rollback + freeze ختم
+    می‌شد. fail-closed ِ همیشگی یعنی قابلیت وجود ندارد.
+
+    نکتهٔ عدم‌تقارن: مسیرِ **سایه** (`_git_shadow_test`) از ۰۷-۲۷ رگرسیونی بود
+    و دلیلش را هم مستند کرده بود — فقط مسیرِ **اعمال** جا مانده بود. همان
+    معیار این‌جا هم می‌آید، با همان `_run_suite`، نه یک پیاده‌سازیِ دوم.
+
+    هزینه: دو دورِ سوییت (~۳۶ دقیقه با عددِ سنجیده‌شدهٔ ۱۰۷۸ ثانیه). سقف از
+    `_suite_timeout_s()` می‌آید."""
     import os as _os
     repo = _OPS.parent
     tgt = repo.joinpath(*target_rel.split("/"))
@@ -393,19 +409,24 @@ def _git_apply_canary(target_rel: str, new_content: str) -> dict:
     before_b = tgt.read_bytes()          # بازگردانیِ بایت‌به‌بایت، نه «تقریباً»
     committed = False        # ⚠️ باید **بیرونِ** try باشد — مسیرِ استثنا لازمش دارد
     try:
+        env = dict(_os.environ); env["REAL_VAULT"] = str(repo); env["PYTHONUTF8"] = "1"
+        # مبنا **قبل** از نوشتن — روی همان درخت، همان لحظه. مبنای کهنه یعنی
+        # انتسابِ شکستِ کسِ دیگر به این پچ.
+        base = _run_suite(repo, env)
         _write_keeping_newlines(tgt, new_content, before_b)
-        add = subprocess.run(["git", "-C", str(repo), "add", target_rel],
-                             capture_output=True, text=True, timeout=60)
+        subprocess.run(["git", "-C", str(repo), "add", target_rel],
+                       capture_output=True, text=True, timeout=60)
         cm = subprocess.run(["git", "-C", str(repo), "commit", "-m",
                              f"auto(code-autonomy L-A): {target_rel} — approved+shadow-green, canary…"],
                             capture_output=True, text=True, timeout=60)
         committed = cm.returncode == 0
-        env = dict(_os.environ); env["REAL_VAULT"] = str(repo); env["PYTHONUTF8"] = "1"
-        run = subprocess.run([sys.executable, "-X", "utf8",
-                              str(repo / "_ops" / "tests" / "run_all.py")],
-                             capture_output=True, text=True,
-                             timeout=_suite_timeout_s(), env=env)
-        green = run.returncode == 0
+        cand = _run_suite(repo, env)
+        new_fails = sorted(cand["fails"] - base["fails"])
+        fixed = sorted(base["fails"] - cand["fails"])
+        # عیناً معیارِ `_git_shadow_test`: هیچ شکستِ تازه. اگر مبنا خودش پاک
+        # بود، این دقیقاً همان `returncode == 0` ِ قبلی است — پس سخت‌گیری روی
+        # درختِ سالم ذره‌ای کم نشده.
+        green = not new_fails and (cand["code"] == 0 or bool(base["fails"]))
         if not green:                                   # auto-rollback
             if committed:
                 subprocess.run(["git", "-C", str(repo), "revert", "--no-edit", "HEAD"],
@@ -415,7 +436,10 @@ def _git_apply_canary(target_rel: str, new_content: str) -> dict:
                 subprocess.run(["git", "-C", str(repo), "restore", "--staged", "--worktree",
                                 target_rel], capture_output=True, text=True, timeout=30)
         return {"applied": committed, "green": green, "target": target_rel,
-                "rolled_back": (not green), "branch_only": True}
+                "rolled_back": (not green), "branch_only": True,
+                "baseline_fails": sorted(base["fails"]), "new_fails": new_fails,
+                "fixed_fails": fixed, "base_seconds": base.get("seconds"),
+                "cand_seconds": cand.get("seconds")}
     except Exception as e:  # noqa: BLE001
         # ⚠️ ۲۰۲۶-۰۷-۳۰: نسخهٔ قبلی این‌جا فقط **محتوای فایل** را برمی‌گرداند.
         # ولی پرتکرارترین استثنای این مسیر `TimeoutExpired` ِ خودِ سوییت است —
