@@ -1789,7 +1789,11 @@ class Center:
             p = opslib.STATE_DIR / "telegram" / "miniapp-url.json"
             if not p.exists() or (time.time() - p.stat().st_mtime) >= 86400.0:
                 return None
-            url = str((json.loads(p.read_text("utf-8")) or {}).get("url") or "")
+            # utf-8-**sig**: نویسندهٔ فایل PowerShell است و `Set-Content -Encoding
+            # utf8` در PS 5.1 با BOM می‌نویسد؛ خواندنِ ساده json را می‌ترکاند و
+            # دکمه بی‌صدا ناپدید می‌شد (بلاکرِ B1 ِ دیباگِ ۰۷-۳۱ — tunnel زنده،
+            # دکمه نامرئی). BOM حالا هم در نوشتن حذف شد هم این‌جا تحمل می‌شود.
+            url = str((json.loads(p.read_text("utf-8-sig")) or {}).get("url") or "")
             return url if url.startswith("https://") else None
         except Exception:  # noqa: BLE001
             return None

@@ -76,7 +76,10 @@ if ($null -eq $TunnelUrl) {
 
 $Started = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
 $JsonBody = '{"url":"' + $TunnelUrl + '","started":"' + $Started + '","pid":' + $proc.Id + '}'
-Set-Content -Path $UrlFile -Value $JsonBody -Encoding utf8
+# BOM-less UTF-8 (blocker B1, 2026-07-31): PS 5.1 "Set-Content -Encoding utf8"
+# writes a BOM, python json.loads chokes on it, and the centre silently dropped
+# the dashboard button while the tunnel was perfectly alive.
+[System.IO.File]::WriteAllText($UrlFile, $JsonBody, (New-Object System.Text.UTF8Encoding($false)))
 Write-Output ("tunnel up: " + $TunnelUrl)
 Write-Output ("url file:  " + $UrlFile)
 
@@ -102,6 +105,8 @@ try { Stop-Process -Id $proc.Id -Force -Confirm:$false -ErrorAction Stop } catch
 # dead URL must not look alive: mark the handoff file as stopped.
 $Stopped = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
 $JsonDead = '{"url":"","started":"' + $Started + '","stopped":"' + $Stopped + '","pid":0}'
-try { Set-Content -Path $UrlFile -Value $JsonDead -Encoding utf8 } catch {}
+try {
+    [System.IO.File]::WriteAllText($UrlFile, $JsonDead, (New-Object System.Text.UTF8Encoding($false)))
+} catch {}
 Write-Output "tunnel stopped."
 exit 0

@@ -96,8 +96,18 @@ def _find(d: dict, qid: str) -> "dict | None":
 # ── API ────────────────────────────────────────────────────────────────────
 def submit(question: str, *, context: str = "", goal: str = "",
            now: "float | None" = None) -> "dict | None":
-    """سؤالِ نو از سمتِ اختاپوس. بودجه داشت ⇒ status=asked و مصرف++؛
-    نداشت ⇒ status=queued برای هفتهٔ بعد. خروجی: {"status","item","remaining"}."""
+    """سؤالِ نو از سمتِ اختاپوس **فقط ثبت می‌شود** — بودجه هنگامِ **تحویل**
+    مصرف می‌شود (`mark_asked`)، نه این‌جا.
+
+    ⚠️ ۲۰۲۶-۰۷-۳۱ (بلاکرِ B2 دیباگ): نسخهٔ اول این‌جا `asked=True` می‌گذاشت و
+    بودجه را همین‌جا می‌سوزاند. نتیجهٔ ساختاری: تنها آیتم‌های `asked=False`
+    وقتی ساخته می‌شدند که سقف پر شده باشد، و `pending()` دقیقاً در همان حالت
+    کوتاه می‌آمد ⇒ **`pending()` در کلِ هفته همیشه None** و هیچ سؤالی هرگز به
+    مالک نمی‌رسید. این همان درسِ ثبت‌شدهٔ «ثبت را گیت نکن، تحویل را» است.
+
+    خروجی: {"status","item","remaining"} —
+      queued   = در صف، بودجهٔ همین هفته را دارد (ضربانِ بعدی تحویلش می‌دهد)
+      deferred = سقفِ هفته پر است؛ در صف می‌مانَد تا rollover ِ هفتهٔ بعد."""
     q = str(question or "").strip()[:400]
     if not q:
         return None
@@ -108,16 +118,13 @@ def submit(question: str, *, context: str = "", goal: str = "",
     item = {"id": f"Q-{d['seq']}", "q": q,
             "context": str(context or "")[:300],
             "goal": str(goal or "")[:200],
-            "created": now, "asked": bool(has_budget),
-            "asked_ts": now if has_budget else None,
+            "created": now, "asked": False, "asked_ts": None,
             "answer": None, "answered_ts": None}
-    if has_budget:
-        d["used"] = int(d.get("used", 0)) + 1
     d["queue"].append(item)
     if not _save(d):
         return None
-    return {"status": "asked" if has_budget else "queued",
-            "item": dict(item), "remaining": WEEK_CAP - int(d["used"])}
+    return {"status": "queued" if has_budget else "deferred",
+            "item": dict(item), "remaining": WEEK_CAP - int(d.get("used", 0))}
 
 
 def used(now: "float | None" = None) -> int:

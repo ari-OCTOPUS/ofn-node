@@ -23,6 +23,13 @@ for p in (str(_OPS), str(_OPS / "budget"), str(_OPS / "tests")):
         sys.path.insert(0, p)
 
 import harness  # noqa: E402
+# ⚠️ ۲۰۲۶-۰۷-۳۱ (بلاکرِ B3 دیباگ): این فایل harness را import می‌کرد ولی
+# `setup()` را **صدا نمی‌زد**. پس `opslib.STATE_DIR` به درختِ **زنده** حل می‌شد و
+# ثابتِ ماژول‌سطحِ `WRITE_FAILURES = STATE_DIR/"write-failures.jsonl"` (کامیتِ
+# 260a0f9) هنگامِ اجرای همین سوییت در state ِ زنده می‌نوشت — «run_all درختِ زنده
+# را می‌زند» که این بار داخلِ یک سوییتِ تکی تکرار شده بود. setup() قبل از
+# import ِ opslib صدا زده می‌شود تا ORG_ROOT/OCTOPUS_STATE_DIR پین شوند.
+ENV = harness.setup("state-write-retry")  # noqa: E402
 import opslib  # noqa: E402
 
 _TMP = Path(tempfile.mkdtemp(prefix="state-retry-"))
@@ -92,10 +99,28 @@ def t_a_permanent_failure_is_loud_and_leaves_the_old_state_intact():
     assert raised, "شکستِ دائمی بی‌صدا بلعیده شد — همان باگِ اصلی!"
     assert json.loads((_TMP / "permanent.json").read_text("utf-8")) == \
         {"v": "old"}, "state ِ قبلی خراب شد"
+    # صداداریِ شکستِ دائمی — **کانالش عوض شد، خودش نه** (کامیتِ 260a0f9 ِ خطِ
+    # موازی، ۲۰۲۶-۰۷-۳۱): breadcrumb ِ کنارِ فایل جایش را به دفترِ مرکزیِ
+    # `STATE_DIR/write-failures.jsonl` داد. گارد نیتش را نگه می‌دارد (شکست
+    # **باید** ردِ قابل‌خواندن بگذارد) و هر دو کانال را می‌پذیرد؛ اگر هیچ‌کدام
+    # نبود قرمز می‌شود. ⚠️ تغییرِ قرارداد برای رأیِ مالک در HANDOFF ثبت شد.
     crumb = _TMP / "permanent.json.replace-failed.json"
-    assert crumb.exists(), "breadcrumb ِ تشخیصِ کهنگی نوشته نشد"
-    d = json.loads(crumb.read_text("utf-8"))
-    assert d.get("error") and d.get("attempts") == 6, d
+    ledger = opslib.STATE_DIR / "write-failures.jsonl"
+    loud_crumb = crumb.exists()
+    loud_ledger = False
+    if ledger.exists():
+        for line in ledger.read_text("utf-8").splitlines():
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            if str(row.get("path", "")).endswith("permanent.json") and row.get("error"):
+                loud_ledger = True
+    assert loud_crumb or loud_ledger, \
+        "شکستِ دائمی هیچ ردی نگذاشت — نه breadcrumb، نه دفترِ مرکزی"
+    if loud_crumb:
+        d = json.loads(crumb.read_text("utf-8"))
+        assert d.get("error") and d.get("attempts") == 6, d
     assert (_TMP / "permanent.json.tmp").exists(), \
         ".tmp ِ تازه باید بماند (شاهدِ جرم)"
 

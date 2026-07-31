@@ -34,24 +34,51 @@ def _fresh():
 
 
 # ── سقفِ ۳۰ ────────────────────────────────────────────────────────────────
-def t_thirty_questions_are_asked_then_the_31st_is_queued():
+def t_thirty_deliveries_burn_the_week_then_pending_goes_quiet():
+    """قراردادِ تصحیح‌شده (بلاکرِ B2، ۰۷-۳۱): **تحویل** بودجه را می‌سوزاند نه ثبت.
+
+    نسخهٔ قبلی این تست ثبت را «asked» می‌خواند و همان فرضِ غلط، `pending()` را
+    برای کلِ هفته None کرده بود — تستِ سبز روی مکانیزمِ مرده."""
     _fresh()
-    for i in range(30):
+    for i in range(31):
         r = qb.submit(f"سؤال {i}", now=NOW + i)
-        assert r["status"] == "asked", (i, r)
-    r31 = qb.submit("سؤالِ سی‌ویکم", now=NOW + 40)
-    assert r31["status"] == "queued", r31
-    assert r31["item"]["asked"] is False
-    assert qb.remaining(NOW + 41) == 0
+        assert r["item"]["asked"] is False, (i, r)
+        # همه «queued»اند: تا وقتی تحویلی نرفته، بودجه دست‌نخورده است
+        assert r["status"] == "queued", (i, r)
+    # ثبت هرگز بودجه نمی‌خورد
+    assert qb.used(NOW + 40) == 0 and qb.remaining(NOW + 40) == 30
+    # حالا تحویل: هر mark_asked یک واحد بودجه
+    for i in range(30):
+        nxt = qb.pending(NOW + 50 + i)
+        assert nxt is not None, f"pending در تحویلِ {i} خشک شد"
+        assert qb.mark_asked(nxt["id"], now=NOW + 50 + i) is not None
+    assert qb.used(NOW + 90) == 30 and qb.remaining(NOW + 90) == 0
+    # سقف پر ⇒ سکوت، هرچند صف هنوز آیتم دارد
+    assert qb.pending(NOW + 91) is None
+    # و ثبتِ نو در همان هفته صادقانه «deferred» می‌گیرد (نه دروغِ queued)
+    assert qb.submit("بعد از سقف", now=NOW + 92)["status"] == "deferred"
 
 
-def t_remaining_math_counts_down_from_30():
+def t_remaining_math_counts_down_on_delivery_not_on_submit():
     _fresh()
     assert qb.remaining(NOW) == 30
-    qb.submit("اول", now=NOW)
-    assert qb.remaining(NOW) == 29 and qb.used(NOW) == 1
-    qb.submit("دوم", now=NOW + 1)
-    assert qb.remaining(NOW) == 28
+    r1 = qb.submit("اول", now=NOW)
+    assert qb.remaining(NOW) == 30 and qb.used(NOW) == 0, "ثبت نباید بودجه بخورد"
+    assert qb.mark_asked(r1["item"]["id"], now=NOW + 1) is not None
+    assert qb.remaining(NOW + 1) == 29 and qb.used(NOW + 1) == 1
+    r2 = qb.submit("دوم", now=NOW + 2)
+    assert qb.mark_asked(r2["item"]["id"], now=NOW + 3) is not None
+    assert qb.remaining(NOW + 3) == 28
+
+
+def t_a_submitted_question_is_actually_deliverable():
+    """گاردِ ضدِ B2: بلافاصله بعد از submit، pending باید همان را بدهد.
+    (جهشِ برگرداندنِ asked=True در submit این را قرمز می‌کند.)"""
+    _fresh()
+    r = qb.submit("این باید تحویل شود", goal="اهدافِ خودمون", now=NOW)
+    nxt = qb.pending(NOW + 1)
+    assert nxt is not None and nxt["id"] == r["item"]["id"], (r, nxt)
+    assert nxt["asked"] is False
 
 
 def t_an_empty_question_is_rejected_not_counted():
@@ -63,10 +90,11 @@ def t_an_empty_question_is_rejected_not_counted():
 # ── rollover ِ هفته ────────────────────────────────────────────────────────
 def t_next_week_frees_the_queue_head():
     _fresh()
-    for i in range(30):
-        qb.submit(f"سؤال {i}", now=NOW + i)
+    for i in range(30):   # سی تحویلِ واقعی = سوختنِ بودجهٔ هفته
+        r = qb.submit(f"سؤال {i}", now=NOW + i)
+        qb.mark_asked(r["item"]["id"], now=NOW + i)
     q31 = qb.submit("سؤالِ صف‌شده", now=NOW + 40)
-    assert q31["status"] == "queued"
+    assert q31["status"] == "deferred", q31
     assert qb.pending(NOW + 41) is None, "با بودجهٔ صفر pending باید None باشد"
     # هفتهٔ بعد: بودجه تازه، صف‌شده سرِ صف
     assert qb.remaining(NEXT_WEEK) == 30
@@ -80,8 +108,9 @@ def t_next_week_frees_the_queue_head():
 
 def t_mark_asked_is_fail_closed_on_budget_and_idempotent():
     _fresh()
-    for i in range(30):
-        qb.submit(f"سؤال {i}", now=NOW + i)
+    for i in range(30):   # بودجه با **تحویل** می‌سوزد، نه با ثبت
+        r = qb.submit(f"سؤال {i}", now=NOW + i)
+        assert qb.mark_asked(r["item"]["id"], now=NOW + i) is not None
     q31 = qb.submit("صف‌شده", now=NOW + 40)["item"]
     assert qb.mark_asked(q31["id"], now=NOW + 41) is None, \
         "تحویلِ بی‌بودجه نباید ثبت شود"

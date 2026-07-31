@@ -22,7 +22,11 @@ sys.path.insert(0, str(_HERE))
 import harness   # noqa: E402
 ENV = harness.setup("funnel-cmd")
 
-_OPS = harness.REAL_VAULT / "_ops"
+# ⚠️ ۲۰۲۶-۰۷-۳۱: این خط `harness.REAL_VAULT / "_ops"` بود — یعنی سوییت کدِ
+# **درختِ زنده** را می‌سنجید، نه کدی که در این checkout تغییر کرده. نتیجه:
+# هر تغییرِ worktree نامرئی بود و جهشِ عمدی هم قرمز نمی‌شد (گاردِ بی‌دندانِ
+# ساختاری). دکترینِ harness: «کدِ تحتِ آزمون = همین درخت، هرگز REAL_VAULT».
+_OPS = _HERE.parent
 for _p in (str(_OPS), str(_OPS / "telegram_center"), str(_OPS / "outcomes"),
            str(_OPS / "budget")):
     if _p not in sys.path:
@@ -168,12 +172,25 @@ def t_the_dark_card_admits_what_is_lost():
 
 
 # ─── ۵: کشف‌پذیری ────────────────────────────────────────────────────────
-def t_every_verb_is_reachable_and_advertised():
-    """فعلی که در منو نباشد، مالک پیدایش نمی‌کند."""
+def t_every_verb_is_reachable_and_never_advertised_in_the_dm_menu():
+    """هر فعلِ قیف باید **قابلِ اجرا** باشد، و طبقِ رأیِ ۴ منشور
+    (TG-UI-CHARTER-2026-07-31) هیچ‌کدام نباید در منوی DM تبلیغ شود.
+
+    ⚠️ تغییرِ قرارداد ۲۰۲۶-۰۷-۳۱: نسخهٔ قبلی «ثبت در COMMANDS» را الزام
+    می‌کرد. مالک صریح رأی داد بلوکِ ۹تاییِ قیف از منوی DM برود («بیزنس هرگز
+    در DM») در حالی که فرمانِ تایپی زنده بماند — دفترِ حذف:
+    `_ops/telegram_contract/REMOVED-BUTTONS-2026-07-31.md`. پس گارد جهتش
+    برعکس شد: دندانش روی **دسترس‌پذیری** است، و علاوه بر آن نگهبانِ رأیِ
+    مالک است که کسی دوباره منو را شلوغ نکند."""
     center = (_OPS / "telegram_center" / "center.py").read_text("utf-8")
+    import re as _re
+    m = _re.search(r"^COMMANDS[^=\n]*=\s*[\[(](.*?)^[\])]", center, _re.S | _re.M)
+    assert m, "بلوکِ COMMANDS در center.py پیدا نشد"
+    menu = m.group(1)
     for verb in fc.VERBS:
         assert f'"/{verb}"' in center, f"/{verb} به handler وصل نیست"
-        assert f'("{verb}"' in center, f"/{verb} در COMMANDS ثبت نشده"
+        assert f'("{verb}"' not in menu, \
+            f"/{verb} دوباره به منوی DM برگشت — نقضِ رأیِ ۴ منشور"
 
 
 def t_the_card_lists_the_verbs_for_the_owner():
