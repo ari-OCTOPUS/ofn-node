@@ -177,3 +177,8 @@ OWNER-PROFILE*
 # فایلِ موقتِ الگوی write-and-rename (مثلاً state/cortex/self-model.json.tmp).
 # صفر فایلِ tracked با این پسوند وجود دارد، پس این قاعده no-op نیست.
 *.tmp
+
+# وزن‌های مدلِ محلیِ متن‌سازیِ ویس (faster-whisper، نصبِ ۲۰۲۶-۰۸-۰۱ با اجازهٔ
+# صریحِ مالک). ~۱GB باینری — نه germline است نه قابلِ merge؛ با یک فرمان
+# دوباره دانلود می‌شود. بدونِ این خط یک `git add -A` مخزن را می‌ترکاند.
+_ops/state/models/
