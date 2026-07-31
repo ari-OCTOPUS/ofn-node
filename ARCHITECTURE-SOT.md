@@ -309,3 +309,33 @@ STOP می‌سازند؛ pinِ `ORG_ROOT` این را به worktree محدود �
 `code_autonomy.py` را LF→CRLF کرد و دیف را به یک هانکِ کلِ-فایل تبدیل کرد —
 روی فایلِ مشترک یعنی لِه‌شدنِ هانکِ بیگانه؛ بعد از هر ویرایش CRLF/LF را بسنج.
 (۲) backtick داخلِ رشتهٔ bash، محتوا را می‌بلعد — متنِ بلند فقط با ابزارِ فایل.
+
+## 🧬 ثبتِ ۲۰۲۶-۰۷-۳۱ — موجِ «اتصال، نه اندامِ نو» (durability + حافظه در تصمیم + پروندهٔ مأموریت)
+
+مبنا: سندِ مقایسهٔ `06 - Architecture Maps/OCTOPUS-VS-FRONTIER-AGENT-ARCHITECTURES-2026-07-31.md`
+(حکم: قابلیت زیاد، اتصال کم). برنچ: `claude/stoic-bartik-d3edbd` — merge/فعال‌سازی = رأیِ مالک.
+
+| جزء | مسیر | وضعیت |
+|---|---|---|
+| دفترِ idempotency/nonce ِ persisted | `goal_action_bridge._load_ledger/_load_nonces` + پارامترهای نوی `unified_control.pipeline.prepare_records` | **کد روی برنچ** — crash وسطِ چرخه دیگر عمل را دوباره اجرا نمی‌کند: replay = `NOOP` ِ صادق (نه رسیدِ دوم، نه missionِ failed ِ دروغ) |
+| باگِ CONFLICT ِ idempotency | `action_bridge/idempotency.py` | **فیکس** — `split(":",1)` با action_id ِ دونقطه‌دار (`act:<sha>`) هرگز CONFLICT نمی‌داد؛ حالا `rsplit`. تستِ durability رو کرد |
+| هم‌راستاسازیِ mission_contract | `_ops/mission_contract.py` | هانکِ uncommitted ِ درختِ زنده (task_id/project_id/tenant/scope/critical) عیناً کامیت شد — روی این برنچ هر `prepare_records` با TypeError می‌مرد (VQ-COMMIT-HANDOFF-001) |
+| حافظه در نقطهٔ تصمیم | `_ops/memory/retrieval_router.py` ← مصرف در `goal_action_bridge` | فلگ `OCTOPUS_WIRE_MEMORY_DECISION` **خاموش، خارج از PAPER_FULL_FLAGS** — فقط narrowing: citation روی envelope + veto ِ `owner_fact` می‌بندد، هرگز باز نمی‌کند؛ خطای router زنجیره را نمی‌خواباند |
+| پروندهٔ واحدِ مأموریت | `_ops/mission_kernel.py` | read-only — `timeline(cycle_id)` / `resume_status` / `fsck` روی پنج دفترِ SGC؛ عمداً نه FSM ِ نو نه store ِ نو؛ envelopeها حالا `cycle_id`/`prereg_id` حمل می‌کنند (join ِ بی‌حدس) |
+| ریشهٔ VQ-STATE-WRITE-001 | `opslib.LockedJson.write` | retry ِ محدودِ `os.replace` (WinError 5) + breadcrumb ِ `<path>.replace-failed.json`؛ happy-path بایت‌به‌بایت همان؛ شکستِ دائمی همچنان fail-loud |
+| صداقتِ اسناد | `action_bridge/integration.py` + دو `capability-manifest.json` | `IMPLEMENTED_NOT_INTEGRATED` → `INTEGRATED_FLAG_GATED` — رجیستری/self-model دیگر دربارهٔ صداکننده دروغ نمی‌خوانند |
+| گاردِ drift ِ قرارداد | `_ops/tests/test_action_schema_drift.py` | دو کپیِ مستقلِ اعتبارسنجِ `action-request.v1` به هم پین شدند (شاملِ تنها تفاوتِ عمدی: scope ِ خالی) |
+
+تست: ۵ سوییتِ نو (۳۳ چک) در `run_all` ثبت شد؛ سوییت‌های داخلیِ هر دو بسته + پلِ اصلی سبز.
+⚠️ صادقانه: `unified_control/tests/test_pipeline.py` روی checkout ِ بدونِ `_ops/state` قرمز است
+(هر سه بندش `prepare()` ِ دیسک‌خوان را صدا می‌زنند) — محیطی و پیش‌موجود، در manifest ثبت شد.
+
+**موجِ دوم (همان روز) — نجات + قرمزهای اصیل:** run_all روی هر checkout ِ تازه ۶۰ قرمز داشت
+چون ۴۳ تستِ ثبت‌شده و ~۵۰ ماژولِ وابسته فقط uncommitted روی درختِ زنده بودند → کامیتِ
+نجاتِ `96602e7` (۱۰۷ فایل؛ اسکنِ secret تمیز؛ state/flags.cmd عمداً نه). شش قرمزِ اصیلِ
+باقی‌مانده در `0bc55ed` بسته شد: گیتِ halt ِ جاماندهٔ `_hebbian_eventclock_beat` در wiring ·
+کورِ اسکنرِ یتیم‌ها (رشتهٔ denylist ≠ صداکننده؛ `arm_gate` دوباره دیده می‌شود) · فنسِ ورودیِ
+`code_brain` (الگوی debate_loop) + ثبتِ `tool_request` در inventory · `chat.type=private` در
+فیکسچرهای TG-P2 · پنجرهٔ شکنندهٔ چکِ `qt` · قراردادِ جدیدِ مسیریابیِ streamها (غیاب=DM).
+دو قرمزِ ساختاری تا merge+deploy می‌مانند: `test_orphan_scan` (اسکنِ عمدیِ REAL_VAULT) و
+`test_paid_router_dark_config` (نیازمندِ `OCTOPUS-flags.cmd` ِ زندهٔ gitignored).
