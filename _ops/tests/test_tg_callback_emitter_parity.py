@@ -113,18 +113,29 @@ def t_the_scanner_actually_finds_something():
     assert len(handled) >= 3, f"اسکنرِ handler چیزی پیدا نکرد: {handled}"
 
 
-def t_every_verb_the_center_emits_is_handled_somewhere():
+def t_every_verb_the_center_emits_is_handled_on_its_own_router():
+    """هر verb ای که CENTER می‌سازد باید در روترِ خودِ CENTER شناخته شود.
+
+    درسِ تاریخیِ `tr:`: کارت از کانالِ ارگانیسم رفت ولی handler فقط در مرکز بود.
+    نسخهٔ قدیمیِ این تست handled را **اجتماعِ** هر دو روتر می‌گرفت — پس verb ای
+    که فقط در روترِ دیگر شناخته می‌شد می‌گذشت، و همین کارتِ مرده می‌ساخت. حالا
+    قانونِ واقعیِ قرارداد را می‌سنجد: **روترِ فرستنده خودش باید handler داشته باشد.**"""
     emitted = _emitted_verbs(CENTER) - KNOWN_HANDLERLESS
-    handled = _handled_verbs(CENTER) | _handled_verbs(APPROVAL)
-    orphan = sorted(emitted - handled)
-    assert not orphan, f"کارتِ مرده — verb بی‌handler از center: {orphan}"
+    handled_by_center = _handled_verbs(CENTER)
+    orphan = sorted(emitted - handled_by_center)
+    assert not orphan, (
+        f"کارتِ مرده — verb ای که center می‌فرستد ولی روترِ center خودش handler "
+        f"ندارد (فقط روی روترِ دیگر است؟): {orphan}")
 
 
-def t_every_verb_the_approval_channel_emits_is_handled_somewhere():
+def t_every_verb_the_approval_channel_emits_is_handled_on_its_own_router():
+    """همان قانون برای approval_channel — روترِ فرستنده باید handler داشته باشد."""
     emitted = _emitted_verbs(APPROVAL) - KNOWN_HANDLERLESS
-    handled = _handled_verbs(CENTER) | _handled_verbs(APPROVAL)
-    orphan = sorted(emitted - handled)
-    assert not orphan, f"کارتِ مرده — verb بی‌handler از approval_channel: {orphan}"
+    handled_by_approval = _handled_verbs(APPROVAL)
+    orphan = sorted(emitted - handled_by_approval)
+    assert not orphan, (
+        f"کارتِ مرده — verb ای که approval_channel می‌فرستد ولی روترِ "
+        f"approval_channel خودش handler ندارد: {orphan}")
 
 
 def t_verbs_emitted_by_shared_modules_are_handled_on_both_routers():

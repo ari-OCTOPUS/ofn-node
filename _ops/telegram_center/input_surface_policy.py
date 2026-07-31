@@ -73,6 +73,9 @@ GROUP_CALLBACK_VERBS = frozenset({
     "tk", "lg", "ok", "no", "later", "ap", "ms", "tr", "dg",
 })
 
+# نامِ مستعارِ لِینِ خواهر (۰۷-۳۱) برای همان ۸ پای قرارداد — یک منبعِ حقیقت.
+ALLOWED_LEG_TOPICS = CONTRACT_LEGS
+
 # نامِ فارسیِ هر پا. کلیدهای واقعیِ تاپیک (center-config) همه لاتین‌اند، ولی مالک
 # فارسی می‌نویسد — پس تشخیصِ بین-پایی که فقط کلیدِ لاتین را بگردد، در عمل کور است.
 #
@@ -101,6 +104,10 @@ LEG_ALIASES = {
 # حرفِ اول می‌تواند رقم هم باشد (/2fa و /1 فرمانِ معتبرِ تلگرام‌اند) — وگرنه
 # گیتِ «هیچ اسلشی در گروه» با یک فرمانِ رقم-اول دور می‌خورد (یافتهٔ بازبینِ ۰۷-۳۱).
 _CMD = re.compile(r"^\s*/([\w؀-ۿ][\w؀-ۿ]*)")
+# (۲۰۲۶-۰۷-۳۱) فرمانِ فارسی هم شناخته شود — تا /وضعیت و /بودجه در گروه گیر کنند.
+_CMD_FA = re.compile(r"^\s*/([\u0600-\u06FF][\u0600-\u06FF\s]*)")
+# فعلِ callback: pw: pwc: tr: tk: ap: … — با / شروع نمی‌شوند ولی کارِ هسته‌ای‌اند.
+_CB_VERB = re.compile(r"^([A-Za-z][A-Za-z0-9_]{0,15}):")
 _CORE_WORDS = re.compile(
     r"(کلِ? سیستم|همهٔ? پاها|بودجه|خرج|راز|توکن|ری[‌\s]*استارت|"
     r"خاموش کن|قطع کن|تأیید کن|فلگ|کشفِ? دنیا|دکتر|حافظه)", re.I)
@@ -112,7 +119,22 @@ _WS = re.compile(r"[\s‌]+")
 
 
 def _verb_of(text: str) -> "str | None":
-    m = _CMD.match(str(text or ""))
+    """فعلِ فرمان: /x یا /فارسی. None یعنی فرمان نیست (متنِ آزاد)."""
+    t = str(text or "")
+    m = _CMD.match(t)
+    if m:
+        return m.group(1).lower()
+    m = _CMD_FA.match(t)
+    if m:
+        return m.group(1).strip()
+    return None
+
+
+def _callback_verb_of(text: str) -> "str | None":
+    """فعلِ callback (pw: pwc: tr: …). در گروه فعلاً استفاده نمی‌شود (دکمه‌های
+    core دیگر در گروه رندر نمی‌شوند چون فرمانِ / ممنوع است) ولی برای آینده
+    و برای تست نگه داشته شده است."""
+    m = _CB_VERB.match(str(text or ""))
     return m.group(1).lower() if m else None
 
 
@@ -263,6 +285,8 @@ def _topic_key_of(thread_id, topics: dict) -> "str | None":
     for key, tid in topics.items():
         try:
             if int(tid) == int(thread_id):
+                # کلیدِ خام برمی‌گردد (system/mirror هم) — فیلترِ «پا بودن»
+                # کارِ _leg_of است؛ این‌جا فقط نگاشتِ تاپیک→کلید است.
                 return str(key)
         except (TypeError, ValueError):
             continue

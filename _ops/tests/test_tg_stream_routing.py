@@ -301,8 +301,8 @@ def t_b_quiet_hours_hold_not_drop_with_receipt():
                 log_p.read_text("utf-8").splitlines() if x.strip()]
         assert rows, "رسیدِ held نوشته نشد"
         last = rows[-1]
-        assert last["d"] == "held" and last["ok"] is False, last
-        assert last["bot"] == "inner" and last["surf"] == "hold", last
+        assert last["state"] == "held" and last["ok"] is False, last
+        assert last["bot_role"] == "inner" and last["surface"] == "hold", last
     finally:
         os.environ.pop("OCTOPUS_TG_SEND_LOG", None)
         _ac._quiet_now = orig_quiet

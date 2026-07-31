@@ -2,8 +2,9 @@
 
 سه سکوتِ متفاوت تا ۰۷-۳۱ در tg-send-log یک شکل بودند: هیچ. حالا هر مسیرِ
 خروجِ send_text/send/edit یک ردیف می‌گذارد:
-  d="attempted" (واقعاً POST شد؛ ok = نتیجه) · d="held" (سکوت/HOLD نگه داشت)
-  · d="blocked" (ساختاراً نمی‌توانست برود) + bot=outer|inner + surf=dm|group|hold.
+  state="sent" (واقعاً POST شد؛ ok = نتیجه) · state="held" (سکوت/HOLD نگه داشت)
+  · state="blocked" (ساختاراً نمی‌توانست برود) + bot_role=outer|inner + surface=dm|group|hold.
+  (وحدتِ ۰۷-۳۱: واژگانِ canonical = state/bot_role/surface؛ attempted≡sent در record.)
 
 صفر شبکه: http_post/post_fn تزریقی. رسیدها پشتِ فلگِ OCTOPUS_TG_SEND_LOG
 (این‌جا روشن؛ فایلِ لاگ داخلِ STATE_DIR ِ harness است، نه درختِ زنده).
@@ -101,7 +102,7 @@ def _write_cfg():
 
 # ─── (a) ساعتِ سکوت → held ──────────────────────────────────────────────────
 def t_a_quiet_non_interactive_writes_held_row():
-    """پیامِ محیطیِ غیرِدکمه‌دار در سکوت: نه POST، ولی ردیفِ d="held" + surf="hold"
+    """پیامِ محیطیِ غیرِدکمه‌دار در سکوت: نه POST، ولی ردیفِ state="held" + surface="hold"
     و ورود به ماشینِ hold (سکوت ≠ فراموشی). جهش (return False ِ لخت) ⇒ قرمز."""
     held = []
 
@@ -127,8 +128,8 @@ def t_a_quiet_non_interactive_writes_held_row():
         rows = _rows()
         assert rows, "رسیدِ held غایب است"
         r = rows[-1]
-        assert r["d"] == "held" and r["ok"] is False, r
-        assert r["bot"] == "inner" and r["surf"] == "hold", r
+        assert r["state"] == "held" and r["ok"] is False, r
+        assert r["bot_role"] == "inner" and r["surface"] == "hold", r
     finally:
         ac._quiet_now = orig_q
         ac.load_surface_policy = orig_sp
@@ -157,8 +158,8 @@ def t_b_hold_policy_writes_held_row():
         assert _chan(p).send_text("جریانِ محیطی", None, stream="needs") is False
         assert not p.bodies and held == ["needs"]
         r = _rows()[-1]
-        assert r["d"] == "held" and r["surf"] == "hold" and r["ok"] is False, r
-        assert r["bot"] == "inner", r
+        assert r["state"] == "held" and r["surface"] == "hold" and r["ok"] is False, r
+        assert r["bot_role"] == "inner", r
     finally:
         ac._quiet_now = orig_q
         ac.load_surface_policy = orig_sp
@@ -174,8 +175,8 @@ def t_c_not_wired_writes_blocked_row():
     assert ch.send_text("پیامی که جایی ندارد") is False
     assert not p.bodies
     r = _rows()[-1]
-    assert r["d"] == "blocked" and r["ok"] is False, r
-    assert r["bot"] == "inner", r
+    assert r["state"] == "blocked" and r["ok"] is False, r
+    assert r["bot_role"] == "inner", r
 
 
 # ─── (d) ارسالِ عادی → attempted + bot/surf ─────────────────────────────────
@@ -188,8 +189,8 @@ def t_d_normal_send_writes_attempted_inner_dm_and_group():
         p = Post()
         assert _chan(p).send_text("سلام", None, stream="chat-note") is True
         r = _rows()[-1]
-        assert r["d"] == "attempted" and r["ok"] is True, r
-        assert r["bot"] == "inner" and r["surf"] == "dm", r
+        assert r["state"] == "sent" and r["ok"] is True, r
+        assert r["bot_role"] == "inner" and r["surface"] == "dm", r
         # جریانِ پا با فلگِ روتینگ → گروه/تاپیک → surf="group"
         os.environ[ac.ROUTE_FLAG] = "1"
         try:
@@ -198,7 +199,7 @@ def t_d_normal_send_writes_attempted_inner_dm_and_group():
             assert p2.bodies[-1]["chat_id"] == GROUP
             assert p2.bodies[-1]["message_thread_id"] == TOPICS["lead"]
             r2 = _rows()[-1]
-            assert r2["d"] == "attempted" and r2["surf"] == "group", r2
+            assert r2["state"] == "sent" and r2["surface"] == "group", r2
             assert r2["topic"] == TOPICS["lead"], r2
         finally:
             os.environ.pop(ac.ROUTE_FLAG, None)
@@ -218,8 +219,8 @@ def t_e_tg_api_send_records_bot_role_and_surface():
         assert c._token_source == "TG_CENTER_BOT_TOKEN"
         assert c.send("متنِ آزمایشی") == 7
         r = _rows()[-1]
-        assert r["d"] == "attempted" and r["ok"] is True, r
-        assert r["bot"] == "outer" and r["surf"] == "dm", r
+        assert r["state"] == "sent" and r["ok"] is True, r
+        assert r["bot_role"] == "outer" and r["surface"] == "dm", r
         assert r["stream"] == "center", r
     finally:
         os.environ.pop("TG_CENTER_BOT_TOKEN", None)
@@ -231,7 +232,7 @@ def t_e_tg_api_send_records_bot_role_and_surface():
                       post_fn=net2.post, get_fn=net2.get)
         assert c2.send("متنِ دوم") == 7
         r2 = _rows()[-1]
-        assert r2["bot"] == "inner" and r2["surf"] == "dm", r2
+        assert r2["bot_role"] == "inner" and r2["surface"] == "dm", r2
     finally:
         os.environ.pop("TELEGRAM_BOT_TOKEN", None)
 
@@ -246,8 +247,8 @@ def t_f_edit_writes_receipt_row():
                  post_fn=net.post, get_fn=net.get)
     assert c.edit(9, "متنِ نو") is True
     r = _rows()[-1]
-    assert r["stream"] == "edit" and r["d"] == "attempted" and r["ok"] is True, r
-    assert r["surf"] == "group", r          # مقصدِ پیش‌فرض = گروهِ مرکز
+    assert r["stream"] == "edit" and r["state"] == "sent" and r["ok"] is True, r
+    assert r["surface"] == "group", r          # مقصدِ پیش‌فرض = گروهِ مرکز
     assert r["chat"] == GROUP, r
 
 

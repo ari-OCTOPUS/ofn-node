@@ -101,6 +101,36 @@ def t_core_commands_in_a_leg_topic_are_denied():
         assert "core-command" in d["reason"], (cmd, d)
 
 
+def t_non_core_slash_commands_are_also_denied_in_a_leg_topic():
+    """رفعِ boundary-1/group-1 (۲۰۲۶-۰۷-۳۱): تا امروز فقط CORE_VERBS رد می‌شد؛
+    هر فرمانِ / دیگری (/now, /menu, /missions, /lead, …) از گیت رد می‌شد،
+    leg_scoped می‌گرفت، و در جدولِ کاملِ فرمان‌های مالک اجرا می‌شد. حالا هیچ
+    فرمانِ / در گروه مجاز نیست — کارِ پا از مسیرِ طبیعی یا دکمه‌ها می‌رود."""
+    for cmd in ("/now", "/menu", "/missions", "/lead", "/verdicts", "/flags",
+                "/status", "/panel", "/x", "/live", "/id", "/box"):
+        d = _c(_msg(chat_id=GROUP, chat_type="supergroup", thread=11, text=cmd))
+        assert d["allow"] is False, (cmd, d)
+        assert d["redirect"] == "outer_dm", (cmd, d)
+        assert "slash-command-in-group" in d["reason"], (cmd, d)
+
+
+def t_persian_slash_commands_are_caught_too():
+    """رفعِ group-1: _verb_of فقط ASCII می‌زد؛ /بودجه از گیت رد می‌شد."""
+    for cmd in ("/بودجه", "/ری‌استارت", "/دکتر"):
+        d = _c(_msg(chat_id=GROUP, chat_type="supergroup", thread=11, text=cmd))
+        assert d["allow"] is False, (cmd, d)
+        assert "slash-command-in-group" in d["reason"], (cmd, d)
+
+
+def t_system_and_mirror_topics_are_not_legs():
+    """رفعِ group-6/boundary-7: قرارداد ۸ پای می‌گوید؛ system/mirror پا نیستند."""
+    for thread, name in ((28, "system"), (205, "mirror")):
+        d = _c(_msg(chat_id=GROUP, chat_type="supergroup", thread=thread,
+                    text="hello"))
+        assert d["allow"] is False, (name, d)
+        assert "general-or-unknown" in d["reason"], (name, d)
+
+
 def t_core_topics_in_natural_language_are_denied_too():
     """فرمان نبودن یعنی بی‌خطر نبودن — متنِ آزادِ هسته‌ای هم رد می‌شود."""
     for txt in ("کلِ سیستم رو ری‌استارت کن", "بودجه چقدره؟",

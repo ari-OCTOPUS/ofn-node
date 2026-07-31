@@ -419,6 +419,9 @@ class TgClient:
         # کلِ ارسال‌های باتِ مرکز (پاسخِ دستورها، دایجستِ تاپیک‌ها، کارتِ تصمیم)
         # از شمارش بیرون می‌ماند و «تکرار صفر است» یک ادعای نیم‌بند می‌شود.
         # فقط hashِ متن ثبت می‌شود، نه متن. خطای لاگ هرگز ارسال را عوض نمی‌کند.
+        # bot_role از token_source می‌آید نه هاردکدِ "outer" — کلاینتِ inner ِ
+        # داخلِ مرکز هم از همین کلاس است؛ هاردکد یعنی رسیدِ دروغ برای آن نمونه.
+        # شکستِ شبکه state="sent" + ok=False است، نه "blocked" (blocked = ردِ سیاست).
         _send_log_record(chat_id=cid, topic_id=body.get("message_thread_id"),
                          text=body_text, stream=str(stream or "center"),
                          ok=data is not None, disposition="attempted",
@@ -555,6 +558,19 @@ class TgClient:
                     self._sleep(ra)
                 except Exception:  # noqa: BLE001
                     pass
+            # (۲۰۲۶-۰۷-۳۱، رفعِ boundary-12) — تشخیصِ pollerِ رقیب: 409 Conflict
+            # یعنی مصرف‌کنندهٔ دیگری روی همین توکن getUpdates می‌زند (کنترل‌مغزِ
+            # قدیمی، دستگاهِ دیگر، یا وب‌هوک) و آپدیت‌ها را می‌بلعد. تا امروز این
+            # مسیر بی‌صدا [] برمی‌گرداند — تنها نشانه، یک «غیبت» بود (بات ساکت،
+            # صفر لاگ، صفر رسید). الگوی approval_channel.poll_once (جلسه ۴۶) اینجا
+            # آورده شد: هشدارِ throttled (۱/ساعت) تا spam نکند.
+            if isinstance(data, dict) and data.get("error_code") == 409:
+                import time as _t409
+                if _t409.time() - getattr(self, "_last_409_alert", 0.0) > 3600:
+                    self._last_409_alert = _t409.time()
+                    _alert_soft("tg-center getUpdates 409 Conflict — pollerِ رقیب روی "
+                                "همین توکن! آپدیت‌ها را او می‌بلعد (پروسهٔ دوم؟ "
+                                "وب‌هوک؟). تا حل نشود بات ساکت خواهد بود.")
             return []
         return [u for u in (data.get("result") or []) if isinstance(u, dict)]
 
