@@ -36,8 +36,33 @@ FEAR = 0.75              # ≥ این = فروپاشی/ترس → freeze (هم�
 _DENY = (".git", "genome", "ledger", ".env", "secret", "budget/", "money",
          "schema", "kill", "human_append_guard", "capability_gate", "auto_approve",
          "goal_directed", "self_audit", "sigma", "vault_updater", "settings.json",
-         "registry_scan", "organism", "germline")
-_ALLOW_ROOTS = ("_ops/telegram_center/", "_ops/cortex/")
+         "registry_scan", "organism", "germline",
+         # ── ۲۰۲۶-۰۷-۲۸ · منعِ خودویرایشی ───────────────────────────────────
+         # این چهار تا جا افتاده بودند و اندازه‌گیری نشانشان داد:
+         # `allowed_target("_ops/cortex/code_autonomy.py")` مقدارِ **True**
+         # می‌داد — یعنی فایلی که همین deny-list و allow-list و هر هفت گیت در
+         # آن است، داخلِ مجموعهٔ نوشتنیِ خودش بود. همین‌طور `power.py`، یعنی
+         # **خودِ کلیدِ توقف**.
+         #
+         # نویسنده همین شهود را پنج بار درست اعمال کرده بود (auto_approve،
+         # capability_gate، human_append_guard، self_audit، goal_directed) و
+         # فقط فایلی که فهرست در آن زندگی می‌کند را جا انداخته بود. رسیدش در
+         # تست بود: `test_code_autonomy.py:90` مسیرِ خودویرایشی را تایپ کرده و
+         # بعد با `.replace(...)` به نامِ دیگری تبدیلش کرده تا assert پاس شود —
+         # مورد روی صفحه بوده و به‌جای فیکس، جهش داده شده.
+         #
+         # `_ops/tests/` از روزِ اول بیرونِ `_ALLOW_ROOTS` بوده، پس دست‌کاریِ
+         # تست (مستندترین reward-hackِ ۲۰۲۶) از قبل بسته بود. این چهار تا
+         # حفرهٔ **پیکربندی** بودند نه حفرهٔ سنجه — ولی `power.py` بودنشان
+         # یعنی ایجنت می‌توانست ترمزِ خودش را بازنویسی کند.
+         #
+         # سنجیده شد: از ۶۳ فایلِ داخلِ allowlist دقیقاً همین ۴ تا بسته می‌شوند.
+         "code_autonomy", "code_brain", "power", "tg_api")
+# ۲۰۲۶-۰۷-۳۰ — رأیِ صریحِ مالک (VQ-SELFGOAL-005): `telegram_center` برداشته شد.
+# دامنهٔ مصوبِ L3 دقیقاً `_ops/cortex/**` + `_ops/state/**` بود؛ مجاز بودنِ
+# telegram_center از رأی وسیع‌تر بود — و همان جایی است که کارتِ تأیید رندر
+# می‌شود، یعنی ارگانیسم می‌توانست دکمهٔ رأیِ خودش را بازنویسی کند.
+_ALLOW_ROOTS = ("_ops/cortex", "_ops/state")
 
 _MOOD_VERDICT = {"فروپاشی": "freeze", "تنش": "throttle", "رکود": "push", "🔥جریان": "act"}
 
@@ -86,11 +111,26 @@ def heart_mood() -> dict:
 
 # ── قانونِ قلب §۳: محدودهٔ مجاز ─────────────────────────────────────────────────────
 def allowed_target(path) -> bool:
-    """فقط allowlist و هرگز deny-list. fail-closed (خالی/مشکوک = False)."""
-    p = str(path or "").replace("\\", "/").lower()
-    if not p or any(d in p for d in _DENY):
+    """فقط allowlist و هرگز deny-list. fail-closed (خالی/مشکوک = False).
+
+    ۲۰۲۶-۰۷-۳۰ — این تابع قبلاً فقط **زیررشته** می‌سنجید و سه ممنوعِ PRE-0 از آن
+    رد می‌شدند (اثباتِ تجربی روی همین تابع، HEAD=1ddc058؛ هر سه `True` دادند):
+
+        _ops/cortex/../../PRE-0/governance.py  →  قانونِ اساسی
+        _ops/cortex/../tests/run_all.py        →  خودِ سوییت (verifier)
+        _ops/telegram_center/power.py          →  کلیدِ توقف
+
+    و صداکننده مقصد را با `repo.joinpath(*target_rel.split("/"))` می‌سازد (:170 و
+    :334) که `..` را واقعاً دنبال می‌کند. حالا حکم از `target_guard` می‌آید:
+    **اول resolve، بعد containment، بعد deny روی مسیرِ resolve‌شده.**
+
+    نبودِ `target_guard` = `False` (fail-closed) — نه عبورِ بی‌گارد.""" 
+    try:
+        import target_guard as _tg
+    except Exception:  # noqa: BLE001 — گاردِ غایب یعنی «نه»، نه «بله»
         return False
-    return any(r in p for r in _ALLOW_ROOTS)
+    return _tg.is_allowed(path, repo_root=_OPS.parent,
+                          allow_roots=_ALLOW_ROOTS, deny=_DENY)
 
 
 # ── شادو-تست: patch در worktreeِ ایزوله، سوییتِ کامل، هرگز درختِ زنده ───────────────
@@ -285,11 +325,43 @@ def active() -> bool:
         return False
 
 
+# ۲۰۲۶-۰۷-۲۷ — سقفِ کهنگیِ تأیید.
+#
+# تا امروز `consume_approvals` هر تأییدِ اعمال‌نشده را می‌خواند **بدونِ هیچ چکِ
+# زمان**. امروز بی‌خطر بود چون هر دو صف خالی‌اند و درایور اصلاً اجرا نمی‌شود —
+# ولی این «امنیتِ تصادفی» است نه ساختاری. ترکیبِ خطرناک این است:
+#   ۱) کارتِ پچ دکمه بگیرد → تأییدها جمع شوند
+#   ۲) درایور روزها خاموش بماند (همین حالا خاموش است)
+#   ۳) کسی `RUN-CODE-AUTONOMY.bat` را بزند → **همه با هم شلیک کنند**
+# و آن پچ‌ها تا آن لحظه روی کدی نوشته شده‌اند که دیگر وجود ندارد.
+#
+# تأییدِ کهنه رضایتِ کهنه است. مالک به «همین پچ، همین حالا» آره گفته، نه به
+# «هر وقت شد». fail-closed: زمانِ ناخوانا هم کهنه شمرده می‌شود.
+APPROVAL_MAX_AGE_S = 48 * 3600
+
+
 def _owner_approved(approval_id: str) -> bool:
-    """تپِ ✅ مالک ثبت شده؟ (approvals/<id>.json با verdict=ok) — نوشتهٔ center.py."""
+    """تپِ ✅ مالک ثبت شده و **هنوز تازه است**؟ (approvals/<id>.json، verdict=ok)."""
     try:
-        d = json.loads((APPROVALS_DIR / f"{approval_id}.json").read_text("utf-8"))
-        return d.get("verdict") == "ok"
+        pth = APPROVALS_DIR / f"{approval_id}.json"
+        d = json.loads(pth.read_text("utf-8"))
+        if d.get("verdict") != "ok":
+            return False
+        import time as _t
+        ts = d.get("epoch") or d.get("ts_epoch")
+        try:
+            age = _t.time() - float(ts) if ts else _t.time() - pth.stat().st_mtime
+        except (TypeError, ValueError, OSError):
+            return False                     # زمانِ ناخوانا → کهنه (fail-closed)
+        if age > APPROVAL_MAX_AGE_S:
+            try:
+                opslib.alert([f"code-autonomy: تأییدِ {approval_id[:24]} "
+                              f"{age / 3600:.0f} ساعت کهنه است — اعمال نشد؛ "
+                              "کارت را دوباره از مالک بگیر"])
+            except Exception:  # noqa: BLE001
+                pass
+            return False
+        return True
     except Exception:  # noqa: BLE001
         return False
 
