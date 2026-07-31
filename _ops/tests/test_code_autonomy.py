@@ -81,8 +81,14 @@ def t_b_edge_of_chaos_band():
 
 # ── قانونِ قلب §۳ — deny/allowlist ────────────────────────────────────────────────
 def t_c_allowlist_and_denylist():
-    assert CA.allowed_target("_ops/telegram_center/render.py")
+    # ۰۷-۳۱: با رأیِ ثبت‌شدهٔ مالک (VQ-SELFGOAL-005، ۰۷-۳۰) `telegram_center`
+    # از allowlist ِ خودپچی **برداشته شد** (دامنه = دقیقاً `_ops/cortex` +
+    # `_ops/state`)؛ انتظارِ قدیمیِ این بند از قبل از آن رأی مانده بود و
+    # `test_self_patch.t_the_narrowed_scope_is_locked_not_just_unused` هم
+    # همین قفل را از سمتِ دیگر می‌سنجد.
     assert CA.allowed_target("_ops/cortex/stress.py")
+    assert not CA.allowed_target("_ops/telegram_center/render.py"), \
+        "دامنهٔ باریک‌شده باز شده — تضاد با VQ-SELFGOAL-005"
     # deny-list سخت — هرگز
     for bad in ("_ops/budget/money_gate.py", "_ops/cortex/auto_approve.py",
                 "_ops/cortex/goal_directed.py", ".git/config", "_ops/germline.py",
