@@ -1229,7 +1229,7 @@ def _emit_hebbian_observation(heb, window_n: int, union: list) -> None:
         from spine import spine_adapters  # lazy — جلوگیری از circular import
     except Exception:  # noqa: BLE001 — instrumentation نباید حلقه را بکشد
         return
-    n_pairs = len(union) * (len(union) - 1) // 2
+    n_pairs = len(union) * (len(union) - 1) // 2  # جفت‌های بالقوه (combinatorial)، نه necessarily observed
     top = 0.0
     if len(union) >= 2:
         for i in range(len(union)):
@@ -1244,7 +1244,10 @@ def _emit_hebbian_observation(heb, window_n: int, union: list) -> None:
             correlation_id=f"hebb-win-{window_n}",
             producer="wiring.hebbian",
             trust="ADVISORY",
-            payload={"window_n": window_n, "union_signals": list(union),
+            # «signals» به‌جای list union_signals: _sanitize_payload در event_spine.py
+            # فقط scalar/str کوتاه می‌پذیرد و list را ساکت حذف می‌کند (audit 2026-07-31).
+            # جدا‌شده با کاما تا نامِ سیگنال‌ها در payload باقی بماند (واژگان = ۸ کلمه، <۸۰char).
+            payload={"window_n": window_n, "signals": ",".join(union),
                      "n_pairs": n_pairs, "top_strength": round(top, 4)},
         )
     except Exception:  # noqa: BLE001 — fail-soft؛ spine نباید beat را متوقف کند

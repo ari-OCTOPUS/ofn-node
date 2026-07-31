@@ -459,10 +459,20 @@ run_all.py ثبتِ ۴ سوییت + ۲ ِ unified_control) بدونِ لمسِ �
 | VQ-PROMOTE-TRUST-001 | **closed — حل شد** | promote از راهِ گواهیِ **لحظهٔ خواندن** از outcomes.db (توکن‌های corr=/proposal= ↔ ردیفِ واقعیِ accepted-measurement با owner_verdict_raw). برچسبِ trust ِ حافظه GRADED می‌ماند — خاطره مجوز نیست، دفترِ نتیجه مجوز است. توکنِ جعلی بدونِ ردیفِ واقعی بی‌اثر (تستِ منفی + جهشِ قرمز) |
 | VQ-MISSION-RECONCILE-001 | **قدمِ ۱ انجام** | Genome جدولِ گذارِ قانونی گرفت (annotate-first — بلاک نمی‌کند، علامت می‌زند) + واژگانِ ۱۲→۶ در mission_contract + گزارشِ canonical ِ هر دو دنیا در snapshot. سفت‌کردنِ گذارها بعد از جمع‌شدنِ داده = رأیِ بعدی |
 
-### 🔴 VQ-LEDGER-CHAIN-001 (نو، P1) — دو ارزیاب دربارهٔ زنجیرهٔ ژنوم اختلاف دارند
+### ✅ VQ-LEDGER-CHAIN-001 (بسته شد ۲۰۲۶-۰۷-۳۱) — دو ارزیاب دربارهٔ زنجیرهٔ ژنوم اختلاف داشتند
 
-ارزیابِ scar-aware ِ ۱۴ کامیتِ اخیرِ `fix/tg-p2` می‌گوید `chain break at line 9646: prev mismatch`
-و ارزیابِ ce35f61 همان ledger را `valid=true` می‌داند. چون هر ۴ فلگِ یادگیری زنده روشن‌اند،
-حکمِ ارزیابِ نو الان **هر** `learn_from_outcome` را با anti-hacking بلاک می‌کند (سنجیده:
-learned=false روی مسیرِ زندهٔ رد/پذیرش). قضاوت/ترمیم = لِینِ canary + رأیِ تو — ledger
-شواهد است و بازنویسی‌اش A6؛ دست نزدم. تا حل‌شدن، یادگیریِ زنده fail-closed است (امن ولی خشک).
+ارزیابِ scar-aware ِ ۱۴ کامیتِ اخیرِ `fix/tg-p2` می‌گفت `chain break at line 9646: prev mismatch`
+و ارزیابِ ce35f61 همان ledger را `valid=true` می‌دانست. ریشه: forkِ هم‌زمان در record 9646
+(scheduler و self-improve هر دو به parent 9644 برگشتند → orphan 9645). تا حل‌شدن، یادگیریِ زنده
+fail-closed بود (امن ولی خشک).
+
+**✅ حل شد با reanchor (۲۰۲۶-۰۷-۳۱، رأیِ مالک):** `ledger_repair_reanchor_2026_07_31.py` اجرا شد؛
+زنجیرهٔ کهنه (۹۸۲۸ رکورد) به `archive/chain-pre-2026-07-31.jsonl` + `ledger.jsonl.bak-2026-07-31`
+بایگانی شد؛ genesis anchor تازه (prev=GENESIS، hash anchored به headِ کهنه) نوشته شد. زنجیرهٔ
+نو (۳۸۲+ رکورد) هر دو ارزیاب را pass می‌کند (`verify()` + `verify_scar_aware()` = "OK: ok").
+تستِ رگرسیون `test_ledger_reanchor_2026_07_31.py` ۵/۵ سبز است (شاملِ `t_live_chain_passes_both_verifiers`
+و `t_no_reanchor_rerun_possible`). یادگیریِ زنده دیگر توسط این اختلاف بلاک نمی‌شود.
+
+**بستنِ جلسه‌ی ارشد (۲۰۲۶-۰۷-۳۱):** شواهدِ بالا با خواندنِ مستقیم تأیید شد — ابزارِ repair،
+تستِ رگرسیون، و زنجیرهٔ زنده همگی موجود و سبز. این ردیف فقط closure رسمی است؛ هیچ کد
+جدیدی لازم نبود.
