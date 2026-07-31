@@ -150,8 +150,12 @@ def t_e_the_group_menu_is_emptied_with_the_group_scope():
     _reset()
     fc, _ = _setup_center()
     dc = fc.named("delete_commands")
-    assert len(dc) == 1, f"منوی گروه پاک نشد: {dc}"
-    assert dc[0]["scope"] == {"type": "all_group_chats"}, dc
+    # دو پاک‌سازی در بوتِ اول: scope ِ گروه + scope ِ default (کشفِ readback ِ
+    # deploy ِ ۰۷-۳۱: لیستِ کهنهٔ default روی سرور، fallback ِ گروه‌ها بود).
+    assert len(dc) == 2, f"منوی گروه/default پاک نشد: {dc}"
+    scopes = [d.get("scope") for d in dc]
+    assert {"type": "all_group_chats"} in scopes, dc
+    assert None in scopes or {} in scopes, f"پاک‌سازیِ default غایب: {dc}"
 
 
 def t_f_menu_registration_happens_exactly_once_per_content_change():
@@ -161,7 +165,7 @@ def t_f_menu_registration_happens_exactly_once_per_content_change():
     assert len(fc.named("set_commands")) == 1
     assert c.ensure_setup() is True
     assert len(fc.named("set_commands")) == 1, "بوتِ دوم دوباره ثبت کرد"
-    assert len(fc.named("delete_commands")) == 1, "بوتِ دوم دوباره پاک کرد"
+    assert len(fc.named("delete_commands")) == 2, "بوتِ دوم دوباره پاک کرد"
     cfg = json.loads(CFG_PATH.read_text("utf-8"))
     assert cfg.get("commands_set_v2"), "نشانگرِ محتوایی نوشته نشد"
     cfg["commands_set_v2"] = "stale-hash"
