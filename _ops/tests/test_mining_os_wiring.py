@@ -100,7 +100,9 @@ def t_organism_actually_calls_the_beat():
 def t_center_routes_the_mining_verb():
     """دکمهٔ `mo:` باید در جدولِ dispatch باشد وگرنه کلیک به هیچ‌جا نمی‌رسد."""
     i = _CENTER.index("def _handle_callback")
-    body = _CENTER[i:i + 4000]
+    # کلِ بدنهٔ تابع — پنجرهٔ ثابتِ ۴۰۰۰ با رشدِ dispatch (۰۷-۳۱) قلابی قرمز می‌شد.
+    _j = _CENTER.find("\n    def ", i + 1)
+    body = _CENTER[i:_j if _j != -1 else len(_CENTER)]
     assert re.search(r'verb\s*==\s*"mo"', body), "فعلِ mo در _handle_callback مسیر ندارد"
     assert "_handle_mining_callback" in _CENTER, "handlerِ mo تعریف نشده"
 

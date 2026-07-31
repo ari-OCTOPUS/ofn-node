@@ -38,7 +38,11 @@ def _center_routed() -> set:
     """افعالی که `center._handle_callback` (باتِ مرکزِ گروه) می‌سپارد."""
     out = set(_BASE_VERBS)
     i = _CENTER.index("def _handle_callback")
-    body = _CENTER[i:i + 4000]
+    # کلِ بدنهٔ تابع، نه پنجرهٔ ثابت — پنجرهٔ ۴۰۰۰کاراکتری با رشدِ تابع (rm/qb ِ
+    # ۰۷-۳۱) جدولِ dispatch را بیرون می‌انداخت و ۱۳ فعلِ سالم «بی‌مسیر» می‌شد
+    # (همان درسِ پنجرهٔ ۳۰۰۰کاراکتریِ qt در موجِ نجاتِ ۰۷-۳۱).
+    _j = _CENTER.find("\n    def ", i + 1)
+    body = _CENTER[i:_j if _j != -1 else len(_CENTER)]
     for m in re.finditer(r'verb\s+in\s+\(([^)]*)\)', body):
         out.update(re.findall(r'"([a-z_]+)"', m.group(1)))
     for m in re.finditer(r'verb\s*==\s*"([a-z_]+)"', body):
