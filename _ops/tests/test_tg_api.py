@@ -481,6 +481,212 @@ def t_y5_poll_updates_429_sleeps_before_returning_empty():
     assert slept == [3.0], f"poll باید retry_after=3 را خوابیده باشد: {slept}"
 
 
+# ── فایلِ ورودی: getFile + دانلود (لِینِ ویس، منشور رأی ۹) ────────────────────
+class FakeDl:
+    """transportِ دانلودِ جعلی: (url, timeout_s, max_bytes) → bytes. صفر شبکه."""
+
+    def __init__(self, blob=b"OggS-voice", raise_exc=None):
+        self.calls = []
+        self.blob = blob
+        self.raise_exc = raise_exc
+
+    def __call__(self, url, timeout_s, max_bytes):
+        self.calls.append((url, timeout_s, max_bytes))
+        if self.raise_exc is not None:
+            raise self.raise_exc
+        return self.blob
+
+
+def _dest(name="voice.oga"):
+    return str(Path(ENV["ops"]) / "state" / "tmp" / name)
+
+
+def t_p1_get_file_returns_path_and_never_sends_a_receipt():
+    """getFile یک **ورودی** است: هیچ ردیفِ رسیدِ ارسال نباید بنویسد."""
+    c, net = _client({"getFile": {"ok": True, "result": {
+        "file_id": "AF1", "file_path": "voice/file_9.oga", "file_size": 4096}}})
+    seen = []
+    from telegram_center import tg_api as _t
+    orig = _t._send_log_record
+    _t._send_log_record = lambda **kw: seen.append(kw)
+    try:
+        info = c.get_file("AF1")
+    finally:
+        _t._send_log_record = orig
+    assert info["file_path"] == "voice/file_9.oga", info
+    assert net.posts[0][0] == "getFile"
+    assert net.posts[0][2] == {"file_id": "AF1"}
+    assert seen == [], "دانلودِ ورودی نباید رسیدِ ارسال بنویسد (آلودنِ سنجه)"
+
+
+def t_p2_get_file_guards_size_cap_and_bad_shapes():
+    """>۲۵MB ⇒ None **قبل از** هر دانلودی؛ پاسخِ بی‌file_path هم ⇒ None."""
+    big = tg_api._FILE_MAX_BYTES + 1
+    c, _ = _client({"getFile": {"ok": True, "result": {
+        "file_path": "voice/big.oga", "file_size": big}}})
+    from telegram_center import tg_api as _t
+    orig = _t._alert_soft
+    _t._alert_soft = lambda *a, **k: None
+    try:
+        assert c.get_file("AF-big") is None, "فایلِ بزرگ‌تر از سقف باید رد شود"
+    finally:
+        _t._alert_soft = orig
+    c2, _ = _client({"getFile": {"ok": True, "result": {"file_size": 10}}})
+    assert c2.get_file("AF2") is None, "بدونِ file_path نتیجه بی‌معناست"
+    c3, net3 = _client()
+    assert c3.get_file("") is None and net3.posts == []   # id خالی ⇒ صفر شبکه
+    c4, _ = _client({"getFile": {"ok": False, "error_code": 400}})
+    assert c4.get_file("AF4") is None
+
+
+def t_p3_download_writes_atomically_to_the_file_endpoint():
+    dl = FakeDl(b"OggS-abc")
+    net = FakeNet()
+    c = TgClient(token=TOKEN, owner_chat_id=OWNER, center_chat_id=CENTER,
+                 post_fn=net.post, get_fn=net.get, download_fn=dl)
+    dest = _dest("ok.oga")
+    assert c.download_file("voice/file_9.oga", dest) is True
+    assert Path(dest).read_bytes() == b"OggS-abc"
+    assert not Path(dest + ".part").exists(), "فایلِ نیم‌کاره جا ماند"
+    url, timeout, cap = dl.calls[0]
+    assert url == f"https://api.telegram.org/file/bot{TOKEN}/voice/file_9.oga"
+    assert cap == tg_api._FILE_MAX_BYTES and timeout > 0
+
+
+def t_p4_download_rejects_traversal_absolute_and_oversized_blobs():
+    """`file_path` از بیرون می‌آید ⇒ گاردِ مسیر؛ و سقف روی بایت‌های واقعی."""
+    dl = FakeDl()
+    net = FakeNet()
+    c = TgClient(token=TOKEN, owner_chat_id=OWNER, center_chat_id=CENTER,
+                 post_fn=net.post, get_fn=net.get, download_fn=dl)
+    for bad in ("../../etc/passwd", "/etc/passwd", "C:/Windows/x.dll",
+                "voice/../../secret", "", "   "):
+        assert c.download_file(bad, _dest("bad.oga")) is False, bad
+    assert dl.calls == [], f"مسیرِ خطرناک نباید حتی دانلود شود: {dl.calls}"
+    assert c.download_file("voice/ok.oga", "") is False
+    # سقف روی بایتِ واقعی (transportِ تزریقی هم باید بخورد)
+    huge = FakeDl(b"x" * (tg_api._FILE_MAX_BYTES + 1))
+    c2 = TgClient(token=TOKEN, owner_chat_id=OWNER, center_chat_id=CENTER,
+                  post_fn=net.post, get_fn=net.get, download_fn=huge)
+    from telegram_center import tg_api as _t
+    orig = _t._alert_soft
+    _t._alert_soft = lambda *a, **k: None
+    try:
+        assert c2.download_file("voice/huge.oga", _dest("huge.oga")) is False
+    finally:
+        _t._alert_soft = orig
+    assert not Path(_dest("huge.oga")).exists(), "فایلِ بزرگ نوشته شد"
+
+
+def t_p5_download_is_failsoft_and_429_aware():
+    """خطای transport ⇒ False (نه استثنا)؛ ۴۲۹ ⇒ همان یک retry، نه storm."""
+    net = FakeNet()
+    from telegram_center import tg_api as _t
+    orig = _t._alert_soft
+    _t._alert_soft = lambda *a, **k: None
+    try:
+        boom = FakeDl(raise_exc=OSError("net down (fake)"))
+        c = TgClient(token=TOKEN, owner_chat_id=OWNER, center_chat_id=CENTER,
+                     post_fn=net.post, get_fn=net.get, download_fn=boom)
+        assert c.download_file("voice/x.oga", _dest("x.oga")) is False
+        assert len(boom.calls) == 1, "خطای غیر-۴۲۹ نباید retry کند"
+
+        import io
+        import json as _json
+        import urllib.error
+        state = {"n": 0}
+
+        def dl_429_then_ok(url, timeout_s, max_bytes):
+            state["n"] += 1
+            if state["n"] == 1:
+                body = _json.dumps({"ok": False, "error_code": 429,
+                                    "parameters": {"retry_after": 2}}).encode()
+                raise urllib.error.HTTPError("u", 429, "Too Many Requests", {},
+                                             io.BytesIO(body))
+            return b"OggS-after-429"
+
+        slept = []
+        c2 = TgClient(token=TOKEN, owner_chat_id=OWNER, center_chat_id=CENTER,
+                      post_fn=net.post, get_fn=net.get, download_fn=dl_429_then_ok)
+        c2._sleep = slept.append
+        dest = _dest("retry.oga")
+        assert c2.download_file("voice/r.oga", dest) is True
+        assert state["n"] == 2 and slept == [2.0], (state, slept)
+        assert Path(dest).read_bytes() == b"OggS-after-429"
+    finally:
+        _t._alert_soft = orig
+
+
+def t_p6_empty_body_is_a_failure_not_an_empty_file():
+    """پاسخِ خالی = شکست؛ نوشتنِ فایلِ صفربایتی یعنی «ویس داریم» ِ دروغ."""
+    net = FakeNet()
+    c = TgClient(token=TOKEN, owner_chat_id=OWNER, center_chat_id=CENTER,
+                 post_fn=net.post, get_fn=net.get, download_fn=FakeDl(b""))
+    dest = _dest("empty.oga")
+    assert c.download_file("voice/e.oga", dest) is False
+    assert not Path(dest).exists(), "فایلِ صفربایتی ساخته شد"
+
+
+def t_p7_fetch_file_composes_both_steps_and_unwired_is_zero_network():
+    c, net = _client({"getFile": {"ok": True, "result": {
+        "file_path": "voice/f.oga", "file_size": 100}}})
+    dl = FakeDl(b"OggS-fetch")
+    c._download = dl
+    dest = _dest("fetch.oga")
+    assert c.fetch_file("AF9", dest) is True
+    assert Path(dest).read_bytes() == b"OggS-fetch"
+    # getFile شکست ⇒ هیچ دانلودی
+    c2, _ = _client({"getFile": {"ok": False}})
+    dl2 = FakeDl()
+    c2._download = dl2
+    assert c2.fetch_file("AFx", _dest("no.oga")) is False and dl2.calls == []
+    # not wired ⇒ صفرِ مطلقِ شبکه
+    net3 = FakeNet()
+    dl3 = FakeDl()
+    c3 = TgClient(post_fn=net3.post, get_fn=net3.get, download_fn=dl3)
+    assert c3.get_file("AF1") is None
+    assert c3.download_file("voice/x.oga", _dest("nw.oga")) is False
+    assert c3.fetch_file("AF1", _dest("nw.oga")) is False
+    assert net3.posts == [] and dl3.calls == []
+
+
+def t_p8_default_file_transport_blocks_foreign_hosts_and_caps_bytes():
+    """transportِ پیش‌فرضِ دانلود: فقط endpointِ فایلِ تلگرام، و سقفِ بایت."""
+    for bad in ("https://evil.example.com/file/bot1/x.oga",
+                "https://api.telegram.org/bot123/getMe",           # نه /file/
+                "http://api.telegram.org.evil.tld/file/botx/a"):
+        try:
+            tg_api._url_bytes_get(bad, 1.0, 10)
+            raised = False
+        except ValueError:
+            raised = True
+        assert raised, bad
+
+
+def t_p9_token_never_appears_in_any_alert_from_the_file_path():
+    """URLِ فایل token دارد ⇒ هیچ هشدار/خطایی نباید آن را echo کند."""
+    alerts = []
+    from telegram_center import tg_api as _t
+    orig = _t._alert_soft
+    _t._alert_soft = alerts.append
+    try:
+        net = FakeNet()
+        c = TgClient(token=TOKEN, owner_chat_id=OWNER, center_chat_id=CENTER,
+                     post_fn=net.post, get_fn=net.get,
+                     download_fn=FakeDl(raise_exc=OSError("boom")))
+        c._last_alert.clear()
+        assert c.download_file("voice/x.oga", _dest("t.oga")) is False
+        cbig, _ = _client({"getFile": {"ok": True, "result": {
+            "file_path": "v.oga", "file_size": tg_api._FILE_MAX_BYTES + 1}}})
+        cbig._last_alert.clear()
+        assert cbig.get_file("AF") is None
+    finally:
+        _t._alert_soft = orig
+    assert alerts, "شکستِ دانلود باید دیده شود (سکوت ممنوع)"
+    dump = " ".join(str(a) for a in alerts)
+    assert TOKEN not in dump and "api.telegram.org" not in dump, dump
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

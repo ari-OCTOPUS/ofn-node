@@ -250,6 +250,82 @@ def t_w2_dm_promises_capture_reminder_brief_vault_and_menu_are_real():
         f"راهنما ۸ دکمه گفت، منو {len(center.COMMANDS)} دارد"
 
 
+def t_w3_dm_promises_voice_and_self_questions_are_real():
+    """موج ۳: دو قولِ تازهٔ DM — «ویس بفرست، متن می‌شود» و «خودش هم می‌پرسد
+    (تا ۳۰ در هفته، جواب با ریپلای)» — هر یک به کدِ واقعی بند، نه به ادعا."""
+    dm = guide.dm_text()
+    # ── قولِ ویس ────────────────────────────────────────────────────────────
+    assert "ویس بفرست" in dm and "متن می‌شود" in dm, "قولِ ویس از راهنما حذف شده"
+    import capture as cap
+    # (الف) درِ مرکز واقعاً دانلودر را به capture می‌دهد — نه فقط ماژول.
+    src = (Path(center.__file__)).read_text("utf-8")
+    assert '"download_fn": self._capture_voice_download' in src, \
+        "center دانلودر را به capture نمی‌دهد — قولِ ویس بی‌سیم است"
+    fc = FakeClient()
+    fetched = []
+    fc.fetch_file = lambda fid, dest: (fetched.append((fid, dest)), True)[1]
+    c = center.Center(client=fc, clock=lambda: 1000.0, render_mod=_render())
+    assert c._capture_voice_download("FID-1", "x.oga") is True and fetched, \
+        "آداپترِ دانلودِ مرکز به client.fetch_file نمی‌رسد"
+    # (ب) ژستِ کامل: ویس + موتورِ fake ⇒ نوتِ ساختاریافته با متن (مسلح‌شدنی).
+    _reset()
+    os.environ["OCTOPUS_TG_CAPTURE"] = "1"
+    os.environ["OCTOPUS_TG_VOICE_TRANSCRIBE"] = "1"
+    try:
+        r = cap.handle(
+            {"message_id": 9001, "chat": {"id": 777},
+             "voice": {"file_id": "V1", "duration": 4}},
+            deps={"download_fn": lambda fid, dest: (
+                      Path(dest).write_bytes(b"oga"), True)[1],
+                  "transcribe_available": lambda: (True, "fake"),
+                  "transcribe_fn": lambda p, lang="fa", duration_s=None: {
+                      "ok": True, "text": "فردا با علی تماس بگیر",
+                      "engine": "fake", "secs": 0.1}})
+        assert r.get("handled") and r.get("transcript") is True, \
+            f"قولِ «متن می‌شود» با موتورِ مسلح برقرار نیست: {r}"
+        note = Path(r["path"]).read_text("utf-8")
+        assert "فردا با علی تماس بگیر" in note, "متنِ ویس در نوت ننشست"
+        # (ج) نیمهٔ صادقانهٔ قول: فلگ خاموش ⇒ ack می‌گوید **چرا** متن نشد.
+        os.environ.pop("OCTOPUS_TG_VOICE_TRANSCRIBE", None)
+        r2 = cap.handle({"message_id": 9002, "chat": {"id": 777},
+                         "voice": {"file_id": "V2", "duration": 4}}, deps={})
+        assert r2.get("handled") and r2.get("transcript") is False \
+            and "متن‌سازی" in str(r2.get("ack") or ""), \
+            f"قولِ «صادقانه می‌گوید چرا» برقرار نیست: {r2}"
+    finally:
+        os.environ.pop("OCTOPUS_TG_CAPTURE", None)
+        os.environ.pop("OCTOPUS_TG_VOICE_TRANSCRIBE", None)
+    # ── قولِ «خودش هم می‌پرسد» ──────────────────────────────────────────────
+    import question_budget as qb
+    import question_producers as qp
+    assert "۳۰ سؤال در هفته" in dm and qb.WEEK_CAP == 30, \
+        f"راهنما ۳۰ گفت، WEEK_CAP={qb.WEEK_CAP}"
+    # تولید واقعاً به ضربانِ مرکز سیم شده (AST روی beat، نه grep ِ کامنت).
+    import ast as _ast
+    tree = _ast.parse(src)
+    beat_fn = next(n for n in _ast.walk(tree)
+                   if isinstance(n, _ast.FunctionDef) and n.name == "beat")
+    called = {getattr(n.func, "attr", None) for n in _ast.walk(beat_fn)
+              if isinstance(n, _ast.Call)}
+    assert "scan" in called, "beat ِ مرکز question_producers.scan را صدا نمی‌زند"
+    assert callable(qp.scan), "question_producers.scan وجود ندارد"
+    # «جواب با ریپلای»: ثبتِ جواب روی صفِ واقعی round-trip می‌شود.
+    now = 1_785_460_000.0
+    qpath = qb._path()
+    qpath.parent.mkdir(parents=True, exist_ok=True)
+    qpath.write_text(json.dumps({
+        "week": qb._week_key(now), "used": 1, "seq": 1,
+        "queue": [{"id": "Q-1", "q": "س؟", "context": "", "goal": "",
+                   "created": now, "asked": True, "asked_ts": now,
+                   "answer": None, "answered_ts": None}]},
+        ensure_ascii=False), "utf-8")
+    rec = qb.record_answer("Q-1", "جوابِ مالک", now=now + 60)
+    assert rec is not None and json.loads(qpath.read_text("utf-8"))[
+        "queue"][0]["answer"] == "جوابِ مالک", "ریپلایِ جواب ثبت نمی‌شود"
+    # و مسیرِ ریپلای در خودِ مرکز هست (شاخهٔ qbudget-answer).
+    assert "qbudget-answer" in src, "مسیرِ ریپلایِ جواب در مرکز نیست"
+
+
 def _run():
     ok = fail = 0
     for name, fn in sorted(globals().items()):

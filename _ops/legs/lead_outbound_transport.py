@@ -5,10 +5,20 @@
   · این ماژول **هرگز خودش تصمیمِ ارسال نمی‌گیرد** — تنها صداکنندهٔ مجازش
     outbound_worker.send_one است که قبلش گیتِ per-effect (consent/authz/idempotency/cap)
     را گذرانده. صدا زدنِ مستقیم = دورزدنِ گیت = ممنوع.
-  · بدونِ ۵ متغیرِ env (OCTOPUS_SMTP_HOST/PORT/USER/PASS/FROM) صادقانه NOT_ARMED
-    برمی‌گرداند — نه استثنا، نه ارسال. arming = رأیِ deploy ِ مالک (env ست می‌شود).
+  · credential از `mail_credentials.resolve()` می‌آید (تقدم: `OCTOPUS_SMTP_*` ِ
+    صریح، سپس fallback ِ Gmail پشتِ فلگِ `OCTOPUS_SMTP_USE_GMAIL`). حل‌نشدن =
+    NOT_ARMED ِ صادق با **دلیلِ دقیق** — نه استثنا، نه ارسال، نه سکوت.
+  · پسورد هرگز از مرزِ `mail_credentials` رد نمی‌شود: آن ماژول فقط **نامِ**
+    متغیرِ env را می‌دهد و همین‌جا لحظهٔ ارسال خوانده می‌شود (§۱۰ قانونِ اساسی).
   · secret (پسورد/کاربر) و گیرندهٔ کامل **هرگز** در رسید/لاگ نمی‌نشیند —
     local-part ِ ایمیل ماسک می‌شود (درسِ §۱۰ قانونِ اساسی).
+
+⛔ مرزِ سختِ ارسالِ واقعی (رأیِ مالک، شبِ ۰۷-۳۱): هیچ مسیری در این ماژول به
+   ایمیلِ یک لیدِ **واقعی** نمی‌فرستد مگر از دلِ `outbound_worker.send_one` —
+   یعنی بعدِ consent/authz/idempotency/سقف. تنها مسیرِ دیگری که واقعاً به SMTP
+   می‌رسد `self_test()` است و آن **فقط** به آدرسِ خودِ مالک
+   (`mail_credentials.owner_address()`) می‌فرستد؛ هر گیرندهٔ دیگری را رد می‌کند،
+   شمارندهٔ سقفِ روزانه را دست نمی‌زند و در دفترِ funnel چیزی نمی‌نویسد.
   · قفلِ test_effector_gate_bridge: settle ≠ sent. `communication.sent` در funnel.db
     فقط با ارسالِ **تأییدشدهٔ** transport نوشته می‌شود؛ شکست = communication.failed؛
     NOT_ARMED/SUPPRESSED = فقط رسیدِ events.jsonl، هیچ رویدادِ communication.*.
@@ -32,9 +42,8 @@ _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE))
 sys.path.insert(0, str(_HERE.parent / "budget"))
 import opslib   # noqa: E402
+import mail_credentials   # noqa: E402 — هم‌پوشه؛ حلِ نام، بدونِ I/O شبکه
 
-REQUIRED_ENV = ("OCTOPUS_SMTP_HOST", "OCTOPUS_SMTP_PORT", "OCTOPUS_SMTP_USER",
-                "OCTOPUS_SMTP_PASS", "OCTOPUS_SMTP_FROM")
 SMTP_TIMEOUT_S = 20.0
 
 
@@ -153,11 +162,25 @@ def _store_suppressed(email_norm: str) -> str | None:
 
 
 def creds() -> dict | None:
-    """۵ متغیرِ env — همه الزامی. یکی هم غایب → None (NOT_ARMED). مقدارها هرگز لاگ نمی‌شوند."""
-    vals = {name: str(os.environ.get(name, "") or "").strip() for name in REQUIRED_ENV}
-    if not all(vals.values()):
-        return None
-    return vals
+    """credential ِ حل‌شده (بدونِ پسورد) یا None اگر مسلح نیست.
+
+    نگه‌داشتنِ نامِ تاریخیِ `creds` عمدی است (صداکننده‌های موجود نشکنند)، ولی
+    محتوا عوض شده: دیگر پسورد داخلش نیست — فقط `secret_env` (نامِ متغیر)."""
+    cr = mail_credentials.resolve()
+    return cr if cr.get("ok") else None
+
+
+def armed_reason() -> str:
+    """دلیلِ صادقِ «چرا مسلح نیست» (رشتهٔ خالی = مسلح است). هرگز مقدارِ secret."""
+    cr = mail_credentials.resolve()
+    return "" if cr.get("ok") else str(cr.get("reason") or "smtp-creds-missing")
+
+
+def _read_secret(cr: dict) -> str:
+    """پسورد را **لحظهٔ ارسال** از env می‌خوانَد (با نامی که resolve داده).
+    این تنها نقطه‌ای است که مقدارِ پسورد در حافظه ظاهر می‌شود و هرگز از این
+    تابع بیرون نمی‌رود مگر مستقیم به داخلِ `send_impl`."""
+    return str(os.environ.get(str(cr.get("secret_env") or ""), "") or "")
 
 
 def _default_send_impl(host: str, port: int, user: str, password: str,
@@ -232,12 +255,21 @@ def send(candidate: dict, draft, *, now=None, send_impl=None) -> dict:
                       "to": mask_recipient(to_addr or "")})
             return {"sent": False, "status": "SUPPRESSED", "detail": marker}
 
-        # ۲) creds — همه یا هیچ. غایب → NOT_ARMED صادقانه (بدونِ استثنا).
-        cr = creds()
-        if cr is None:
+        # ۲) creds — حلِ نام. غایب/ناقص → NOT_ARMED صادقانه با دلیلِ دقیق.
+        cr = mail_credentials.resolve()
+        if not cr.get("ok"):
+            reason = str(cr.get("reason") or "smtp-creds-missing")
             _receipt("communication.not_armed", lead_id,
-                     {"status": "NOT_ARMED", "reason": "smtp-creds-missing"})
-            return {"sent": False, "status": "NOT_ARMED", "detail": "smtp-creds-missing"}
+                     {"status": "NOT_ARMED", "reason": reason})
+            return {"sent": False, "status": "NOT_ARMED", "detail": reason}
+        password = _read_secret(cr)
+        if not password:
+            # resolve حضور را دیده بود ولی env بینِ حل و ارسال خالی شد — نامِ
+            # متغیر را بگو (نه مقدار) و ساکت نمان.
+            reason = "secret-env-empty:" + str(cr.get("secret_env") or "?")
+            _receipt("communication.not_armed", lead_id,
+                     {"status": "NOT_ARMED", "reason": reason})
+            return {"sent": False, "status": "NOT_ARMED", "detail": reason}
 
         # ۳) گیرنده الزامی.
         if not to_addr:
@@ -246,12 +278,11 @@ def send(candidate: dict, draft, *, now=None, send_impl=None) -> dict:
             return {"sent": False, "status": "NO_RECIPIENT", "detail": "no-contact-email"}
 
         # ۴) یک تلاشِ واقعی — بدونِ retry، timeout ۲۰s.
-        message = _build_message(cr["OCTOPUS_SMTP_FROM"], to_addr, draft)
+        message = _build_message(cr["from_addr"], to_addr, draft)
         impl = send_impl if callable(send_impl) else _default_send_impl
         try:
-            impl(cr["OCTOPUS_SMTP_HOST"], int(cr["OCTOPUS_SMTP_PORT"]),
-                 cr["OCTOPUS_SMTP_USER"], cr["OCTOPUS_SMTP_PASS"],
-                 cr["OCTOPUS_SMTP_FROM"], to_addr, message)
+            impl(cr["host"], int(cr["port"]), cr["user"], password,
+                 cr["from_addr"], to_addr, message)
         except Exception as e:  # noqa: BLE001 — شکستِ ارسال = FAILED صادقانه
             detail = f"smtp-error:{type(e).__name__}"
             _receipt("communication.failed", lead_id,
@@ -273,7 +304,87 @@ def send(candidate: dict, draft, *, now=None, send_impl=None) -> dict:
         return {"sent": False, "status": "FAILED", "detail": f"transport-error:{type(e).__name__}"}
 
 
+def _self_test_message(owner_addr: str) -> str:
+    """پیامِ آشکارا-برچسب‌خوردهٔ خودآزمون — کسی نباید با ایمیلِ لید اشتباهش بگیرد."""
+    from email.mime.text import MIMEText   # noqa: WPS433 — stdlib
+    body = ("This is an automated SELF-TEST from the Octopus outbound transport.\n"
+            "It proves the SMTP pipe works end-to-end. It was sent to the owner's\n"
+            "own address only. No lead was contacted. No quota was consumed.\n\n"
+            "این یک خودآزمونِ خودکارِ لولهٔ ارسال است — به هیچ لیدی چیزی نرفت.\n")
+    msg = MIMEText(body, "plain", "utf-8")
+    msg["Subject"] = "[SELF-TEST] Octopus outbound transport"
+    msg["From"] = owner_addr
+    msg["To"] = owner_addr
+    return msg.as_string()
+
+
+def self_test(to_addr=None, *, now=None, send_impl=None) -> dict:
+    """اثباتِ end-to-end ِ لوله — **فقط** به آدرسِ خودِ مالک. همیشه dict، هرگز استثنا.
+
+    این تنها مسیرِ این ماژول است که بدونِ گذر از گیتِ لید واقعاً به SMTP می‌رسد،
+    و دقیقاً به همین دلیل سه قفل دارد:
+      ۱. گیرنده باید **برابرِ** `from_addr` ِ حل‌شده باشد (آدرسِ خودِ مالک).
+         هر چیزِ دیگر ⇒ REFUSED، صفر تلاش. (پیش‌فرضِ None = خودِ همان آدرس.)
+      ۲. شمارندهٔ سقفِ روزانه **لمس نمی‌شود** — خودآزمون سهمیهٔ لید را نمی‌خورد.
+      ۳. در دفترِ funnel (`communication.sent/failed`) چیزی نمی‌نویسد — این
+         ارسال یک «ارتباط با لید» نیست و نباید در قیفِ فروش دیده شود.
+    فقط یک رسیدِ `communication.self_test` در events.jsonl می‌نشیند (با آدرسِ ماسک‌شده).
+
+    خروجی: {"sent": bool, "status": str, "detail": str}
+    statusها: SENT | FAILED | NOT_ARMED | REFUSED
+    """
+    try:
+        cr = mail_credentials.resolve()
+        if not cr.get("ok"):
+            reason = str(cr.get("reason") or "smtp-creds-missing")
+            _receipt("communication.self_test", "self-test",
+                     {"status": "NOT_ARMED", "reason": reason})
+            return {"sent": False, "status": "NOT_ARMED", "detail": reason}
+        owner = _norm_email(cr.get("from_addr") or "")
+        target = _norm_email(to_addr) if to_addr is not None else owner
+        if not owner:
+            return {"sent": False, "status": "NOT_ARMED", "detail": "no-owner-address"}
+        if target != owner:
+            # قفلِ ۱ — خودآزمون هرگز به کسی جز مالک نمی‌رود.
+            _receipt("communication.self_test", "self-test",
+                     {"status": "REFUSED", "reason": "recipient-is-not-owner",
+                      "requested": mask_recipient(target)})
+            return {"sent": False, "status": "REFUSED",
+                    "detail": "self-test may only target the owner address"}
+        password = _read_secret(cr)
+        if not password:
+            reason = "secret-env-empty:" + str(cr.get("secret_env") or "?")
+            _receipt("communication.self_test", "self-test",
+                     {"status": "NOT_ARMED", "reason": reason})
+            return {"sent": False, "status": "NOT_ARMED", "detail": reason}
+        impl = send_impl if callable(send_impl) else _default_send_impl
+        try:
+            impl(cr["host"], int(cr["port"]), cr["user"], password,
+                 owner, owner, _self_test_message(owner))
+        except Exception as e:  # noqa: BLE001 — شکست = FAILED صادق
+            detail = f"smtp-error:{type(e).__name__}"
+            _receipt("communication.self_test", "self-test",
+                     {"status": "FAILED", "detail": detail,
+                      "to": mask_recipient(owner), "how": cr.get("how")})
+            return {"sent": False, "status": "FAILED", "detail": detail}
+        # قفلِ ۲ و ۳: نه _bump_send_counter، نه _funnel_record — عمداً.
+        _receipt("communication.self_test", "self-test",
+                 {"status": "SENT", "to": mask_recipient(owner),
+                  "how": cr.get("how")})
+        return {"sent": True, "status": "SENT",
+                "detail": f"self-test to={mask_recipient(owner)} via {cr.get('how')}"}
+    except Exception as e:  # noqa: BLE001
+        return {"sent": False, "status": "FAILED",
+                "detail": f"self-test-error:{type(e).__name__}"}
+
+
 if __name__ == "__main__":
-    print(json.dumps({"armed": creds() is not None,
-                      "note": "بدونِ ۵ envِ SMTP = NOT_ARMED؛ مسیرِ مجاز فقط outbound_worker.send_one."},
+    _st = mail_credentials.status()
+    print(json.dumps({"armed": bool(_st.get("ok")), "how": _st.get("how"),
+                      "reason": _st.get("reason"),
+                      "from_masked": _st.get("from_masked"),
+                      "secret_env": _st.get("secret_env"),
+                      "secret_present": _st.get("secret_present"),
+                      "note": "مسیرِ مجازِ ارسالِ لید فقط outbound_worker.send_one؛ "
+                              "self_test فقط به آدرسِ خودِ مالک."},
                      ensure_ascii=False))

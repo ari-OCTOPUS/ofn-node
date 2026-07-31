@@ -3,8 +3,12 @@
 
 تاریخچه: تا ۲۰۲۶-۰۷-۳۱ هر adapter یک stubِ NOT_ARMED بود. با رأیِ ARM ِ مالک
 (۲۰۲۶-۰۷-۳۱، رأی ۱۷ منشورِ TG-UI) کانالِ **email** به آداپترِ واقعیِ
-`lead_outbound_transport` وصل شد — که خودش بدونِ ۵ envِ SMTP صادقانه NOT_ARMED
-می‌دهد (arming ِ عملی = ستِ env در deploy، نه کد). بقیهٔ کانال‌ها stub می‌مانند.
+`lead_outbound_transport` وصل شد. شبِ ۰۷-۳۱ لوله واقعاً بسته شد: credential از
+`mail_credentials.resolve()` می‌آید — یا ۵ متغیرِ صریحِ `OCTOPUS_SMTP_*`، یا
+fallback ِ Gmail (`GMAIL_ADDRESS`/`GMAIL_APP_PASSWORD` ِ موجود در `.env`) پشتِ
+فلگِ `OCTOPUS_SMTP_USE_GMAIL`. حل‌نشدن = NOT_ARMED ِ صادق **با دلیلِ دقیق**
+(نه سکوت). arming ِ عملی همچنان تصمیمِ deploy ِ مالک است، نه کد.
+بقیهٔ کانال‌ها stub می‌مانند.
 
 خطوطِ قرمز (LEAD-SAFETY-C1 + رأی ۱۷):
   · این ماژول خودش هیچ import شبکه ندارد؛ ارسالِ واقعی فقط در lead_outbound_transport.
@@ -116,8 +120,8 @@ def _transport_for(channel: str, candidate: dict | None = None, now=None):
     """آداپترِ transport برای کانالِ ترجیحیِ مشتری.
 
     Lane G (رأی ۱۷، owner-armed در deploy): کانالِ «email» — یا کاندیدی که ایمیلِ تماس
-    دارد — به آداپترِ واقعیِ lead_outbound_transport می‌رود (که بدونِ ۵ envِ SMTP خودش
-    صادقانه NOT_ARMED می‌دهد). هر کانالِ دیگر همان stubِ NOT_ARMED ِ همیشگی است.
+    دارد — به آداپترِ واقعیِ lead_outbound_transport می‌رود (که اگر credential حل
+    نشود خودش صادقانه NOT_ARMED می‌دهد). هر کانالِ دیگر همان stubِ NOT_ARMED ِ همیشگی است.
     `now` به transport پاس می‌شود (شمارندهٔ سقف با clock ِ تزریقی — نه ساعتِ نیمه‌تزریقی)."""
     def _stub(cand: dict, draft: str) -> dict:
         # هیچ ارسالِ واقعی: transport مسلح نیست. صرفاً نیت را ثبت می‌کند.
@@ -315,8 +319,16 @@ def drive_outbound(*, gate, now_ms: int | None = None, cap_per_beat: int = 2) ->
 
 if __name__ == "__main__":
     import json
+    try:
+        import mail_credentials as _mc   # noqa: WPS433 — هم‌پوشه
+        _cred = {"armed": bool(_mc.status().get("ok")),
+                 "how": _mc.status().get("how"),
+                 "reason": _mc.status().get("reason")}
+    except Exception as _e:  # noqa: BLE001
+        _cred = {"armed": False, "how": None,
+                 "reason": f"mail_credentials-unavailable:{type(_e).__name__}"}
     print(json.dumps({"enabled": enabled(), "cap": LEAD_DAILY_SEND_CAP,
-                      "sent_today": sends_today(),
-                      "note": "email = آداپترِ واقعی (بدونِ envِ SMTP هنوز NOT_ARMED)؛ "
-                              "بقیهٔ کانال‌ها stub. سقفِ روزانه = رأی مالک ۲۰۲۶-۰۷-۳۱."},
+                      "sent_today": sends_today(), "credentials": _cred,
+                      "note": "email = آداپترِ واقعی؛ بقیهٔ کانال‌ها stub. "
+                              "سقفِ روزانه = رأی مالک ۲۰۲۶-۰۷-۳۱."},
                      ensure_ascii=False))

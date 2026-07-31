@@ -231,7 +231,125 @@ def t_reminders_fired_count_reads_the_real_store_shape_and_the_real_clock():
     assert wr._reminders_fired_week(SAT_0830) == 1, \
         wr._reminders_fired_week(SAT_0830)
     txt = wr.review_text(now=SAT_0830, cfg={})
-    assert "یادآوری‌های fired: ۱" in txt, txt
+    assert "یادآوری‌ها: ۱ شلیک" in txt, txt
+
+
+# ── کیفیتِ یادآوری (§۹): شلیک ≠ مفید ───────────────────────────────────────
+def t_reminder_quality_splits_fired_into_done_snoozed_and_open():
+    """سه سرنوشتِ متفاوت از **همان** store ِ واقعی: انجام‌شده / بعداً /
+    بی‌پاسخ. شمارِ لختِ fired این سه را یکی می‌کرد و «مفید» را نمی‌سنجید."""
+    _clean()
+    import reminders as rmod
+    t0 = SAT_0830 - 3600          # ۰۷:۳۰ — بیرونِ پنجرهٔ سکوتِ ۲۳–۷ (رأی ۸)
+    ids = []
+    for label in ("انجامش می‌دهم", "بعداً می‌رسم", "هیچ جوابی ندادم"):
+        it = rmod.add(label, due_ts=t0 - 60, now=t0 - 120)
+        ids.append(it["id"])
+    assert rmod.beat(now=t0, send_dm_fn=lambda t, rid: 1,
+                     send_leg_fn=lambda leg, t: 1) == 3
+    rmod.done(ids[0])                       # ✅ انجام شد
+    rmod.snooze(ids[1], 1800, now=t0)       # ⏰ بعداً
+    q = wr._reminder_quality(SAT_0830)
+    assert q == {"fired": 3, "done": 1, "snoozed": 1, "open": 1}, q
+    txt = wr.review_text(now=SAT_0830, cfg={})
+    assert ("یادآوری‌ها: ۳ شلیک · ۱ انجام‌شده · ۱ بعداً · ۱ بی‌پاسخ "
+            "(وضعِ فعلی)") in txt, txt
+
+
+def t_reminder_quality_is_honestly_absent_without_a_store():
+    _clean()
+    import shutil as _sh
+    _sh.rmtree(STATE / "reminders", ignore_errors=True)
+    assert wr._reminder_quality(SAT_0830) is None
+    txt = wr.review_text(now=SAT_0830, cfg={})
+    assert f"· یادآوری‌ها: {wr.NO_DATA}" in txt, txt
+
+
+# ── ساعتِ آزادشدهٔ مالک (§۹) — تخمینِ برچسب‌دار، هرگز عددِ لخت ─────────────
+def t_hours_freed_shows_its_formula_and_counts_only_engine_work():
+    """سه جزءِ سنجش‌پذیر با هم: کارِ بی‌دخالتِ مالک (کارِ حل‌شده با «➕
+    اطلاعات مالک» بیرون می‌ماند) + یادآوریِ انجام‌شده + ثبتِ خودکارِ capture."""
+    _clean()
+    import capture as cap
+    import reminders as rmod
+    # (الف) دو کارِ تمام‌شده — یکی با دخالتِ مالک ⇒ فقط یکی می‌شمارد
+    a = lt.add("mining", "گزارشِ نرخ هش", now=SAT_0830 - 5 * 3600)
+    lt.set_state("mining", a["id"], lt.DONE, result="ساخته شد",
+                 now=SAT_0830 - 4 * 3600)
+    b = lt.add("crypto", "خلاصهٔ بازار", now=SAT_0830 - 5 * 3600)
+    lt.set_state("crypto", b["id"], lt.BLOCKED, question="کدام جفت‌ارز؟",
+                 now=SAT_0830 - 4.5 * 3600)
+    lt.resolve_blocked("crypto", b["id"], "BTC و ETH", now=SAT_0830 - 4 * 3600)
+    lt.set_state("crypto", b["id"], lt.DONE, result="خلاصه آماده شد",
+                 now=SAT_0830 - 3 * 3600)
+    assert wr._engine_tasks_week(SAT_0830) == 1, wr._engine_tasks_week(SAT_0830)
+    # (ب) یک یادآوریِ انجام‌شده
+    it = rmod.add("زنگ به مشتری", due_ts=SAT_0830 - 2400,
+                  now=SAT_0830 - 2500)
+    # ۰۸:۰۰ — بیرونِ پنجرهٔ سکوتِ ۲۳–۷، وگرنه beat عمداً شلیک نمی‌کند
+    assert rmod.beat(now=SAT_0830 - 1800, send_dm_fn=lambda t, rid: 1,
+                     send_leg_fn=lambda leg, t: 1) == 1
+    rmod.done(it["id"])
+    # (ج) یک ثبتِ خودکار از **نویسندهٔ واقعی**
+    kr = cap.classify("ایده: کاتالوگ قاب‌های جدید")
+    cap.file_to_vault(kr, "ایده: کاتالوگ قاب‌های جدید",
+                      msg_meta={"message_id": 5511, "chat_id": 42},
+                      now=SAT_0830 - 3600)
+    assert wr._captures_filed_week(None, SAT_0830) >= 1
+
+    hf = wr.hours_freed(SAT_0830)
+    assert hf["tasks"] == 1 and hf["reminders_done"] == 1, hf
+    assert hf["minutes"] == (1 * wr.MIN_PER_TASK + 1 * wr.MIN_PER_REMINDER
+                             + hf["captures"] * wr.MIN_PER_CAPTURE), hf
+    txt = wr.review_text(now=SAT_0830, cfg={})
+    assert "ساعتِ آزادشدهٔ تو (تخمین)" in txt, txt
+    line = [ln for ln in txt.splitlines() if "فرمول:" in ln]
+    assert len(line) == 1, txt
+    # فرمول باید هر سه ضریب را نشان بدهد — عددِ لختِ بی‌فرمول ممنوع
+    for tok in ("کارِ بی‌دخالتِ تو", "یادآوریِ انجام‌شده", "ثبتِ خودکار",
+                "دقیقه"):
+        assert tok in line[0], (tok, line[0])
+    assert "۱۰د" in line[0] and "۲د" in line[0] and "۳د" in line[0], line[0]
+
+
+def t_hours_freed_disappears_when_no_component_has_data():
+    """غیابِ صادقانه: نه عدد، نه فرمول — فقط «داده‌ای نیست».
+
+    دو حالتِ متفاوت که هر دو باید ساکت بمانند (درسِ «جهشِ سبز = خطِ نادیده»:
+    نسخهٔ اولِ این تست فقط حالتِ الف را داشت، و چون همان‌جا زودتر برمی‌گشت،
+    جهشِ `minutes <= 0` زنده ماند):
+      الف) هیچ store ای وجود ندارد           ⇒ همهٔ اجزا None
+      ب) storeها هستند ولی خالی‌اند          ⇒ اجزا صفرِ واقعی‌اند
+    حالتِ (ب) همان جایی است که «صفرِ سنجیده» نباید به «~۰ ساعت آزاد شد»
+    ترجمه شود — صفر ساعت آزاد نشده، پس خطِ تخمین حرفی برای گفتن ندارد."""
+    _clean()
+    import shutil as _sh
+    raw = Path(ENV["ORG_ROOT"]) / "10 - Telegram processing" / "Raw"
+    _sh.rmtree(raw, ignore_errors=True)
+    _sh.rmtree(STATE / "reminders", ignore_errors=True)
+    # (الف) هیچ منبعی روی دیسک نیست
+    assert wr._engine_tasks_week(SAT_0830) is None
+    assert wr._captures_filed_week(None, SAT_0830) is None
+    assert wr._reminder_quality(SAT_0830) is None
+    assert wr.hours_freed(SAT_0830) is None
+    txt = wr.review_text(now=SAT_0830, cfg={})
+    assert f"· ساعتِ آزادشدهٔ تو: {wr.NO_DATA}" in txt, txt
+    assert "تخمین" not in txt and "فرمول" not in txt, txt
+
+    # (ب) storeها هستند و همه صفرند — نه None
+    import reminders as rmod
+    raw.mkdir(parents=True, exist_ok=True)
+    t = lt.add("mining", "کارِ هنوز در صف", now=SAT_0830 - 3600)
+    assert t and lt._path("mining").exists()
+    rmod.load_config()                   # پوشهٔ reminders را می‌سازد
+    assert wr._engine_tasks_week(SAT_0830) == 0
+    assert wr._captures_filed_week(None, SAT_0830) == 0
+    assert wr._reminder_quality(SAT_0830) == {"fired": 0, "done": 0,
+                                              "snoozed": 0, "open": 0}
+    assert wr.hours_freed(SAT_0830) is None, wr.hours_freed(SAT_0830)
+    txt = wr.review_text(now=SAT_0830, cfg={})
+    assert f"· ساعتِ آزادشدهٔ تو: {wr.NO_DATA}" in txt, txt
+    assert "فرمول" not in txt, txt
 
 
 # ── beat: فلگ، ارسالِ یک‌باره، cursor فقط بعدِ ارسالِ موفق ─────────────────

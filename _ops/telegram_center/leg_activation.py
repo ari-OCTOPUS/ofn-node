@@ -168,18 +168,67 @@ def zero_template_guard(text: str, *, blocklist=None) -> bool:
 
     قاعدهٔ منشور: از پای خلوت «پیام فقط رخدادِ واقعی، صفر template». متنِ
     خالی، متنِ حاویِ امضایِ boilerplate، و قالبِ پرنشده همه رد می‌شوند.
-    False یعنی متن از این نگهبان گذشت (رخدادِ واقعی به نظر می‌رسد)."""
+    False یعنی متن از این نگهبان گذشت (رخدادِ واقعی به نظر می‌رسد).
+
+    یک منبعِ حقیقت: خودِ قاعده در `template_reason` است تا نسخهٔ bool و نسخهٔ
+    دلیل‌دار هرگز از هم drift نکنند (وگرنه گاردِ مسیرِ ارسال و گاردِ قدیمی دو
+    نظرِ متفاوت می‌دادند و کسی نمی‌فهمید کدام حقیقت است)."""
+    return bool(template_reason(text, blocklist=blocklist))
+
+
+def template_reason(text: str, *, blocklist=None) -> str:
+    """**کدام** امضا گرفت — نه فقط «گرفت». پیامِ گاردی که دلیل نمی‌گوید،
+    دفعهٔ بعد دور زده می‌شود چون کسی نمی‌داند چه چیزی را باید عوض کند.
+    رشتهٔ خالی = هیچ امضایی نگرفت."""
     t = str(text or "").strip()
     if not t:
-        return True
+        return "متنِ خالی"
     low = t.casefold()
     for sig in tuple(blocklist) if blocklist is not None else DEFAULT_TEMPLATE_SIGNATURES:
-        if str(sig).casefold() in low:
-            return True
+        s = str(sig)
+        if s.casefold() in low:
+            return f"امضای template: «{s}»"
     for marker in _UNFILLED:
         if marker in t:
-            return True
-    return False
+            return f"قالبِ پرنشده: «{marker}»"
+    return ""
+
+
+# ── فرمِ قابلِ استفاده در مسیرِ ارسال (رفعِ شکافِ «صفر مصرف‌کننده») ───────────
+# `zero_template_guard` از روزِ اول درست بود و **هیچ‌کس صدایش نمی‌زد** ⇒ قاعدهٔ
+# «صفر template» ِ منشور (§۵) در تولید enforce نمی‌شد. این تابع همان قاعده را به
+# شکلی می‌دهد که مسیرِ ارسال بتواند مستقیم مصرف کند: تصمیم + دلیلِ خوانا.
+MIN_REAL_CHARS = 12               # کوتاه‌تر از این = مشکوک، مگر واقعیتِ عددی داشته باشد
+# allow-list ِ «کوتاه ولی واقعاً واقعی»: رخدادِ حقیقیِ یک پا معمولاً عدد/پول/زمان
+# دارد. بدونِ این، پیامِ درستِ «۳ لید نو» قربانیِ گاردِ طولِ متن می‌شد.
+_FACTUAL = (
+    r"[0-9۰-۹]",                       # رقمِ لاتین یا فارسی
+    r"(AU\$|\$|﷼|تومان|دلار)",                   # پول
+    r"(%|٪)",                                    # درصد
+    r"\b\d{1,2}:\d{2}\b",                        # ساعت
+)
+_FACTUAL_RE = tuple(re.compile(p) for p in _FACTUAL)
+
+
+def guard_send(text: str, leg=None, *, blocklist=None) -> dict:
+    """آیا این متن حق دارد از یک پا برود بیرون؟ → `{"send": bool, "reason": str}`.
+
+    قاعدهٔ منشور §۵ برای پاهای خلوت: «پیام فقط رخدادِ واقعی، صفر template».
+    ترتیبِ سخت‌گیری: خالی → امضای template/قالبِ پرنشده → کوتاهِ بی‌واقعیت.
+    `reason` همیشه پر است، حتی وقتی `send=True` — رسیدِ صادق یعنی بشود گفت
+    **چرا** رفت، نه فقط اینکه رفت. `leg` فقط برای خوانایی رسید است؛ این گارد
+    برای همهٔ پاها یکسان سخت‌گیر است (پای «شلوغ» مجوزِ filler نیست)."""
+    who = f"[{str(leg)[:24]}] " if leg else ""
+    t = str(text or "").strip()
+    if not t:
+        return {"send": False, "reason": who + "متنِ خالی — چیزی برای گفتن نبود"}
+    why = template_reason(t, blocklist=blocklist)
+    if why:
+        return {"send": False, "reason": who + why}
+    if len(t) < MIN_REAL_CHARS and not any(rx.search(t) for rx in _FACTUAL_RE):
+        return {"send": False,
+                "reason": who + f"کوتاه‌تر از {MIN_REAL_CHARS} نویسه و بدونِ عدد/پول/زمان"}
+    return {"send": True, "reason": who + "رخدادِ واقعی — از گاردِ صفر-template گذشت"}
 
 
 # ── نقشهٔ فعال‌سازی (propose-only) ─────────────────────────────────────────

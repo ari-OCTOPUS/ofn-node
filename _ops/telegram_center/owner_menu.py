@@ -52,7 +52,13 @@ def route(callback_data: str) -> Optional[str]:
 
 
 def looks_like_lead(text: str) -> bool:
-    """Cheap heuristic: is this free text likely a painting lead / new-work request?"""
+    """Cheap heuristic: is this free text likely a painting lead / new-work request?
+
+    ⚠️ این تابع تا ۰۷-۳۱ **صفر ارجاع** داشت (اسکنِ ۹۲-شکاف، outer-bot-6). حالا
+    `handle_panel_choice` تنها گیتِ مسیرِ ثبتِ لید است: True ⇒ target_leg='lead'
+    (ثبت اجرا می‌شود) · False ⇒ `NON_LEAD_LEG` (هیچ لیدی ثبت نمی‌شود). اگر این
+    تابع دوباره بی‌صداکننده شود، `t_looks_like_lead_is_the_only_gate_of_capture`
+    قرمز می‌شود."""
     if not text:
         return False
     t = text.strip().lower()
@@ -109,8 +115,16 @@ def _is_important(intent: str):
         return True, "fail-safe: autonomy_matrix unavailable → gate"
 
 
+def _dep(deps, name, fallback):
+    """تزریقِ وابستگی برای تست: `deps={"register_lead": fn, "is_important": fn}`.
+    نبود/غیرقابل‌فراخوان → همان مسیرِ تولیدی. هیچ رفتارِ تولیدی عوض نمی‌شود."""
+    fn = (deps or {}).get(name) if isinstance(deps, dict) else None
+    return fn if callable(fn) else fallback
+
+
 def handle_new_mission(intent: str, *, target_leg: str = "lead",
-                       owner: str = "octopus_core", risk: str = "low") -> Dict[str, Any]:
+                       owner: str = "octopus_core", risk: str = "low",
+                       deps: "Dict[str, Any] | None" = None) -> Dict[str, Any]:
     """Option ②: turn a plain-language request into a conformant mission envelope.
 
     PHILOSOPHY (owner 2026-07-18) — capability is ALLOWED, gated by the owner, never denied:
@@ -118,7 +132,7 @@ def handle_new_mission(intent: str, *, target_leg: str = "lead",
     routed to the owner's Telegram approval. autonomy_matrix.is_important is the source of truth;
     important -> status 'needs_approval' (an approval card is emitted; NOTHING runs until owner ✅).
     Free/low-risk -> may proceed. Fail-safe: doubt = gate. This is the doctor's 'bold but protected'."""
-    important, why = _is_important(intent)
+    important, why = _dep(deps, "is_important", _is_important)(intent)
     if important:
         risk = "high"                                  # force requires_approval=True (the gate)
     env = mc.make_envelope(source="telegram_owner", target_leg=target_leg,
@@ -142,8 +156,9 @@ def handle_new_mission(intent: str, *, target_leg: str = "lead",
     if target_leg == "lead":
         # همگراییِ producer (2026-07-21): اول مسیرِ canonicalِ Trust-Engine (submit_candidate،
         # پشتِ OCTOPUS_WIRE_LEAD_CANDIDATES). خاموش → fallback به inboxِ frozenِ قدیمی.
-        rec = _register_lead_canonical(intent) or {}
-        if not rec:
+        _inject = _dep(deps, "register_lead", None)
+        rec = (_inject(intent) or {}) if _inject else (_register_lead_canonical(intent) or {})
+        if not rec and not _inject:
             leg = _lazy("legs.lead_leg_inbox")     # frozen fallback
             if leg is not None and hasattr(leg, "register_lead"):
                 try:
@@ -161,6 +176,89 @@ def handle_new_mission(intent: str, *, target_leg: str = "lead",
             env["status"] = "queued"                # no backend reachable — graceful
         return env
     return env
+
+
+# ── تنها درِ ورودیِ پنل (رفعِ outer-bot-6) ────────────────────────────────────
+# چرا اصلاً وجود دارد: `handle_new_mission` کامل ساخته و تست شده بود ولی گزینهٔ ②
+# در `menu_integration.dispatch` فقط **نثر** برمی‌گرداند و هرگز صدایش نمی‌زد. یعنی
+# قابلیتی که نقشه «پوشش‌داده» نشانش می‌داد، در تولید غیرقابلِ رسیدن بود. حالا مرکز
+# فقط یک تابع را صدا می‌زند و مسیر واقعاً به هندلر می‌رسد.
+#
+# قراردادِ خروجی (center.py هیچ منطقی اضافه نمی‌کند):
+#   kind="prompt"   → متن را نشان بده و پیامِ بعدیِ مالک را دوباره به همین تابع بده
+#   kind="mission"  → متن را بفرست؛ envelope در کلیدِ "mission" است (چیزی اجرا نشده)
+#   kind="delegate" → این گزینه مالِ viewهای موجودِ menu_integration است؛ دست نزن
+#   kind="unknown"  → callback ناشناخته (fail-closed، خانه)
+NON_LEAD_LEG = "core"          # مقصدِ mission وقتی looks_like_lead رد کرد
+_MISSION_MAX = 900             # متنِ آزادِ مالک — سقفِ محافظه‌کارانه قبل از envelope
+
+
+def _home_kb() -> List[List[Dict[str, str]]]:
+    """تنها دکمهٔ مجاز در این مسیر: `m:home` — هندلرش در همان باتِ فرستنده
+    (center._handle_menu2_callback) هست. هیچ فعلِ تازه‌ای اختراع نمی‌کنیم؛ درسِ
+    «۳۵ کارتِ مرده» یعنی هر دکمهٔ نو بدونِ هندلر یک دروغِ تازه است."""
+    return [[{"text": "🐙 منو", "callback_data": "m:home"}]]
+
+
+def mission_card(env: Dict[str, Any], *, lead_gated: bool) -> str:
+    """کارتِ صادقانهٔ نتیجهٔ ②. هر وضعیت جملهٔ خودش را دارد — «queued» هرگز
+    به‌شکلِ «ثبت شد» نشان داده نمی‌شود (دروغِ موفقیت بدتر از نبودِ قابلیت است)."""
+    st = str(env.get("status") or "")
+    head = f"② <b>مأموریت ثبت شد</b> · <code>{env.get('mission_id')}</code>"
+    lines = [head, f"▸ پا: {env.get('target_leg')}"]
+    if st == "needs_approval":
+        lines += ["▸ ⏳ <b>منتظرِ رأیِ توست</b> — تا ✅ نزنی هیچ‌چیز اجرا نمی‌شود.",
+                  f"▸ چرا: {str(env.get('gate_reason') or 'گیتِ مالک')[:120]}"]
+    elif st == "running" and env.get("output_refs"):
+        lines.append(f"▸ ✅ لید ثبت شد: <code>{env['output_refs'][0]}</code>")
+    elif st == "queued" and lead_gated:
+        lines.append("▸ ⚠️ در صف — <b>هنوز ثبت نشد</b>: backendِ لید خاموش/در دسترس نیست.")
+    elif st == "blocked":
+        lines.append("▸ ⛔️ ثبت نشد (متنِ خالی یا خطای نوشتن) — دوباره بفرست.")
+    elif not lead_gated:
+        lines.append("▸ این متن لید به نظر نرسید، پس هیچ لیدی ثبت نشد — فقط مأموریت.")
+    lines.append("▸ نکنی: هیچ اتفاقی نمی‌افتد.")
+    return "\n".join(lines)[:3500]
+
+
+def handle_panel_choice(choice: str, text: str = "",
+                        deps: "Dict[str, Any] | None" = None) -> Dict[str, Any]:
+    """تنها درِ پنل. `choice` هم `m:mission` را می‌پذیرد هم `mission`.
+
+    `text` = متنِ آزادِ مالک (برای ② لازم است؛ خالی → prompt). هرگز raise نمی‌کند،
+    هرگز چیزی نمی‌فرستد، هرگز اجرا نمی‌کند — فقط envelope و متن می‌سازد."""
+    raw = str(choice or "").strip()
+    key = route(raw) or (raw if raw in {m["key"] for m in MENU} else None)
+    body = str(text or "").strip()[:_MISSION_MAX]
+    if key is None:
+        return {"key": None, "kind": "unknown", "text": "", "keyboard": _home_kb(),
+                "mission": None, "lead_gated": False, "reason": "callback ناشناخته"}
+    if key != "mission":
+        return {"key": key, "kind": "delegate", "text": "", "keyboard": [],
+                "mission": None, "lead_gated": False,
+                "reason": "viewهای ①③④⑤⑥ مالِ menu_integration است"}
+    if not body:
+        return {"key": key, "kind": "prompt", "mission": None, "lead_gated": False,
+                "reason": "متنِ مأموریت لازم است",
+                "text": ("② <b>مأموریت جدید</b>\nبه زبانِ ساده بنویس چی می‌خوای.\n"
+                         "▸ اگر کارِ مهمی باشد (پول/کد/حذف/ارسال) کارتِ تأیید می‌آید و "
+                         "تا ✅ نزنی اجرا نمی‌شود.\n"
+                         "▸ اگر بوی لیدِ نقاشی بدهد، همان‌جا ثبتش می‌کنم."),
+                "keyboard": _home_kb()}
+    gated = looks_like_lead(body)          # ← تنها گیتِ مسیرِ ثبتِ لید
+    try:
+        env = handle_new_mission(body, target_leg="lead" if gated else NON_LEAD_LEG,
+                                 deps=deps)
+    except Exception as exc:  # noqa: BLE001 — صدای بلند، نه موفقیتِ جعلی
+        return {"key": key, "kind": "error", "mission": None, "lead_gated": gated,
+                "reason": f"{type(exc).__name__}",
+                "text": ("② مأموریت ساخته <b>نشد</b> — "
+                         f"خطای داخلی: <code>{type(exc).__name__}</code>. "
+                         "هیچ‌چیز ثبت نشد؛ دوباره بفرست."),
+                "keyboard": _home_kb()}
+    return {"key": key, "kind": "mission", "mission": env, "lead_gated": gated,
+            "reason": str(env.get("status") or ""),
+            "text": mission_card(env, lead_gated=gated), "keyboard": _home_kb()}
 
 
 if __name__ == "__main__":

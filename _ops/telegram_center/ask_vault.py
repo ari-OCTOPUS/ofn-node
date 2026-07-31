@@ -19,16 +19,23 @@
     · جواب همیشه با «منابع:» + فهرستِ wikilink ِ نوت‌های منبع تمام می‌شود —
       فهرست را خودِ ماژول می‌سازد، نه مدل (مدل منبع جعل نکند).
     · این ماژول هیچ‌چیز نمی‌فرستد و هیچ عملی نمی‌کند — فقط متن برمی‌گرداند.
+    · رسیدِ ماشینی (۰۷-۳۱): هر پرسش یک ردیف در
+      `STATE_DIR/telegram/ask-vault-log.jsonl` می‌گذارد — **بدونِ متنِ سؤال و
+      بدونِ جواب**، فقط hash و شمار. تا «مالک از vault پرسید» از یک ادعای
+      ابطال‌ناپذیر به یک شاهد تبدیل شود. شکستِ لاگ هرگز جواب را نمی‌کشد.
 """
 from __future__ import annotations
 
 import fnmatch
+import functools
+import hashlib
 import json
 import os
 import re
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
@@ -91,6 +98,114 @@ def _rg() -> "str | None":
         except OSError:
             continue
     return None
+
+
+# ── رسیدِ ماشینی: «پرسید» باید شاهد داشته باشد ───────────────────────────────
+# چرا (۲۰۲۶-۰۷-۳۱): تا امروز هیچ ردی از پرسش‌های vault نمی‌ماند. یعنی جملهٔ
+# «قابلیت کار می‌کند» ابطال‌ناپذیر بود — نه می‌شد ثابت کرد، نه رد. حالا هر
+# فراخوانی (موفق **و ناموفق**) یک ردیف می‌گذارد. درسِ «ثبت را گیت نکن، تحویل
+# را»: اگر فقط جواب‌های موفق ثبت می‌شدند، `rg-not-found` ِ خاموش با «هرگز
+# نپرسید» یک شکل می‌شد.
+#
+# مرزِ حریمِ خصوصی، سخت و آزموده: **نه متنِ سؤال، نه متنِ جواب، نه مسیرِ نوت**
+# — فقط hash ِ سؤال، شمارِ منابع، ok، tier، ثانیه، و دلیلِ شکست (که یک واژهٔ
+# ثابت است، نه محتوای مالک).
+LOG_REL = ("telegram", "ask-vault-log.jsonl")
+
+
+def _log_path() -> "Path | None":
+    try:
+        import opslib  # noqa: WPS433 — تنبل: importِ این ماژول را سنگین نکن
+        return Path(opslib.STATE_DIR).joinpath(*LOG_REL)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def q_sha(question: str) -> str:
+    """اثرِ انگشتِ سؤال. متنِ سؤال هیچ‌جا ذخیره نمی‌شود — فقط این."""
+    return hashlib.sha256(str(question or "").encode("utf-8")).hexdigest()[:16]
+
+
+def _log(question: str, result: dict, secs: float) -> bool:
+    """append-only. هر خطا → False و سکوت (رسید هرگز جواب را نمی‌کشد)."""
+    try:
+        # ⚠️ `_log_path()` **داخلِ** try — نسخهٔ اول بیرون بود و یک OSError از
+        # resolve ِ مسیر مستقیم از دلِ `query` بیرون می‌زد. یعنی رسیدی که برای
+        # اثباتِ کارکرد ساخته شده بود، خودش می‌توانست جواب را بکشد.
+        p = _log_path()
+        if p is None:
+            return False
+        row = {"ts": round(time.time(), 3),
+               "q_sha": q_sha(question),
+               "sources_n": len(result.get("sources") or []),
+               "ok": bool(result.get("ok")),
+               "tier": str(result.get("tier") or ""),
+               "secs": round(float(secs), 3)}
+        reason = str(result.get("reason") or "")
+        if reason:
+            row["reason"] = reason[:60]
+        p.parent.mkdir(parents=True, exist_ok=True)
+        with p.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+        return True
+    except Exception:  # noqa: BLE001
+        return False
+
+
+# ── نشانگرِ زمانی: «امروز چی گفتم؟» یعنی نوتِ تازه، نه نوتِ پرتکرار ──────────
+# بدونِ این، پرسشِ زمانی همان رتبه‌بندیِ ایستا را می‌گرفت و یک نوتِ سه‌ماهه که
+# اتفاقاً کلیدواژه را ۲۰ بار دارد، نوتِ **امروزِ** مالک را می‌زد.
+_TEMPORAL_FA = ("امروز", "دیروز", "دیشب", "امشب", "این هفته", "هفتهٔ گذشته",
+                "هفته گذشته", "اخیر", "تازگی", "آخرین", "جدیدترین", "همین حالا")
+_TEMPORAL_EN = re.compile(r"\b(today|yesterday|this week|recent|recently|now|"
+                          r"latest)\b", re.I)
+
+
+def _is_temporal(question: str) -> bool:
+    s = str(question or "")
+    if any(m in s for m in _TEMPORAL_FA):
+        return True
+    return bool(_TEMPORAL_EN.search(s))
+
+
+# وزن‌ها — ترتیبشان یک قاعده است نه سلیقه: «نامِ فایل > تگِ فرانت‌متر > بدنه».
+# سقفِ بدنه (۱۰) عمداً زیرِ وزنِ تگ (۶۰) است و بیشینهٔ امتیازِ تازگی (۲۵) هم
+# نمی‌تواند این ترتیب را وارونه کند: بدنه+فرانت‌متر+تازه = ۵۰ < ۶۰. یعنی
+# تازگی فقط **درونِ** یک طبقه جابه‌جا می‌کند، نه بینِ طبقه‌ها.
+_W_NAME, _W_TAG, _W_FM, _W_BODY_CAP = 150.0, 60.0, 15.0, 10.0
+_RECENCY_STEPS = ((24 * 3600.0, 25.0), (7 * 24 * 3600.0, 15.0),
+                  (30 * 24 * 3600.0, 6.0))
+
+_TAG_LINE = re.compile(r"^\s*tags\s*:\s*(.*)$", re.I | re.M)
+
+
+def _fm_tags(head: str) -> str:
+    """مقدارِ `tags:` فرانت‌متر (چه inline چه فهرستِ چندخطی) — رشتهٔ خام."""
+    m = _TAG_LINE.search(head or "")
+    if not m:
+        return ""
+    out = [m.group(1)]
+    lines = (head or "").splitlines()
+    start = (head or "")[:m.start()].count("\n") + 1
+    for ln in lines[start:]:
+        if re.match(r"^\s*-\s+", ln):
+            out.append(ln)
+        elif ln.strip():
+            break
+    return " ".join(out)
+
+
+def _recency_boost(root: Path, rel: str, now: float) -> float:
+    """نوتِ تازه‌ویرایش‌شده امتیاز می‌گیرد — فقط وقتی سؤال زمانی باشد."""
+    try:
+        age = float(now) - (root / rel).stat().st_mtime
+    except (OSError, ValueError):
+        return 0.0
+    age = max(age, 0.0)
+    for span, bonus in _RECENCY_STEPS:
+        if age <= span:
+            return bonus
+    return 0.0
 
 
 def _keywords(question: str) -> list:
@@ -167,11 +282,18 @@ def _run_rg(args: list, cwd: Path) -> "str | None":
 
 
 def _frontmatter_head(root: Path, rel: str) -> str:
-    """چند خطِ اولِ نوت (برای امتیازِ تگِ فرانت‌متر) — fail-soft، هرگز کلِ فایل."""
+    """فقط **فرانت‌مترِ واقعی** — fail-soft، هرگز کلِ فایل.
+
+    اصلاحِ ۲۰۲۶-۰۷-۳۱: نسخهٔ قبلی وقتی نوت اصلاً فرانت‌متر نداشت، ۲۱ خطِ اولِ
+    **بدنه** را برمی‌گرداند و آن را «فرانت‌متر» می‌نامید — یعنی یک تطبیقِ
+    معمولیِ بدنه امتیازِ فرانت‌متر می‌گرفت. حالا نوتِ بی‌فرانت‌متر رشتهٔ خالی
+    می‌دهد و امتیازش فقط از بدنه می‌آید."""
     try:
         with open(root / rel, "r", encoding="utf-8", errors="replace") as f:
             head = []
             for i, line in enumerate(f):
+                if i == 0 and line.strip() != "---":
+                    return ""          # فرانت‌متر ندارد
                 head.append(line)
                 if i > 0 and line.strip() == "---":
                     break
@@ -182,17 +304,30 @@ def _frontmatter_head(root: Path, rel: str) -> str:
         return ""
 
 
-def _rank(root: Path, hits: dict, kws: list) -> list:
-    """رتبه: تطبیقِ نامِ فایل > تگِ فرانت‌متر > شمارِ تطبیقِ بدنه."""
+def _rank(root: Path, hits: dict, kws: list, *,
+          recent: bool = False, now: float | None = None) -> list:
+    """رتبه: نامِ فایل > تگِ فرانت‌متر > فرانت‌مترِ دیگر > بدنه (+تازگیِ مشروط).
+
+    نسخهٔ قبلی وزنِ بدنه را تا ۲۰ می‌داد و تگ را ۲۰ — یعنی یک نوت با ۲۰ تطبیقِ
+    عمیقِ بدنه دقیقاً هم‌تراز نوتی می‌شد که همان کلیدواژه را در `tags:` داشت.
+    حالا سقفِ بدنه ۱۰ است و ساختاراً نمی‌تواند به تگ برسد."""
+    _now = float(now) if now is not None else time.time()
+    lows = [k.lower() for k in kws]
     scored = []
     for rel, count in hits.items():
-        name = Path(rel).stem
-        score = float(min(int(count or 0), 20))
-        if any(k.lower() in name.lower() for k in kws):
-            score += 50.0
+        score = min(float(int(count or 0)), 20.0) / 20.0 * _W_BODY_CAP
+        name = Path(rel).stem.lower()
+        if any(k in name for k in lows):
+            score += _W_NAME
         fm = _frontmatter_head(root, rel)
-        if fm and any(k.lower() in fm.lower() for k in kws):
-            score += 20.0
+        if fm:
+            tags = _fm_tags(fm).lower()
+            if tags and any(k in tags for k in lows):
+                score += _W_TAG
+            elif any(k in fm.lower() for k in lows):
+                score += _W_FM
+        if recent:
+            score += _recency_boost(root, rel, _now)
         scored.append((score, rel))
     scored.sort(key=lambda t: (-t[0], t[1]))
     return [rel for _, rel in scored]
@@ -222,8 +357,34 @@ _SYSTEM = (
 )
 
 
-def query(question: str, *, vault_root=None, ask_fn=None, k: int = 4) -> dict:
-    """سؤالِ آزاد → جوابِ مستند از نوت‌های vault.
+def _with_receipt(fn):
+    """پوستهٔ رسید: **هیچ مسیرِ return ای** نمی‌تواند از ثبت فرار کند.
+
+    چرا decorator و نه یک تابعِ کمکیِ `_query`: گاردِ لِینِ راهنما
+    (`test_tg_guide.t_w2_dm_promises_...`) با `inspect.getsource(av.query)`
+    ثابت می‌کند که قولِ «با ذکرِ منبع» واقعاً در کد هست. اگر منطق زیرِ نامِ
+    دیگری می‌رفت، آن گارد **بی‌دندان** می‌شد: سبز، ولی دیگر چیزی را نمی‌دید.
+    `functools.wraps` + `inspect.unwrap` باعث می‌شود getsource همچنان بدنهٔ
+    واقعی را ببیند؛ گارد بازنویسی نشد و سرِ جایش دندان دارد.
+
+    اگر ثبت به‌جای این پوسته داخلِ خودِ منطق پخش می‌شد، اولین `return` ِ
+    فراموش‌شده یک شکافِ نامرئی می‌ساخت — دقیقاً همان چیزی که رسید قرار است
+    قابلِ ابطال کند."""
+    @functools.wraps(fn)
+    def _wrapped(question, **kw):
+        t0 = time.monotonic()
+        r = fn(question, **kw)
+        if enabled():
+            # flag خاموش = ماژول وجود ندارد ⇒ ردیف هم نباید بسازد (no-op ِ کامل).
+            _log(question, r, time.monotonic() - t0)
+        return r
+    return _wrapped
+
+
+@_with_receipt
+def query(question: str, *, vault_root=None, ask_fn=None, k: int = 4,
+          now: float | None = None) -> dict:
+    """سؤالِ آزاد → جوابِ مستند از نوت‌های vault (+رسیدِ ماشینی).
 
     خروجی: {ok, answer, sources, tier} (+reason وقتی ok=False).
     sources = مسیرهای vault-نسبی نوت‌های منبع. tier ِ مدل همیشه «محلی» است —
@@ -275,7 +436,8 @@ def query(question: str, *, vault_root=None, ask_fn=None, k: int = 4) -> dict:
         except ValueError:
             hits[rel] = 1
 
-    ranked = _rank(root, hits, kws)[:max(1, int(k))]
+    ranked = _rank(root, hits, kws, recent=_is_temporal(q),
+                   now=now)[:max(1, int(k))]
     snips = _snippets(rg, root, ranked, pattern, excl) if ranked else {}
     sources = [r for r in ranked if r in snips]
     if not sources:

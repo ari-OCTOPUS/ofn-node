@@ -654,6 +654,14 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_tg_weekly_review.py",             # مرورِ هفتگیِ شنبه (رأی ۱۲ + §۹)
     "test_tg_question_budget.py",           # بودجهٔ ۳۰-سؤال/هفته (رأی ۲۴)
     "test_tg_wiring_w2.py",                 # سیم‌کشیِ سریالِ همهٔ ماژول‌ها در center
+    # ۲۰۲۶-۰۸-۰۱ — موجِ «هر وعده واقعی شود» (ویس، ارسالِ لید، بودجه‌ها، یتیم‌ها):
+    "test_tg_wiring_w3.py",                 # سیم‌کشیِ دورِ دوم (ویس/بودجه/سؤال/یتیم)
+    "test_tg_transcribe.py",                # نردبانِ متن‌سازیِ ویس + صداقتِ شکست
+    "test_tg_notify_budget.py",             # سقفِ ۵ اعلانِ قطع‌کننده (منشور §۳)
+    "test_tg_question_producers.py",        # اختاپوس واقعاً سؤال می‌سازد (رأی ۲۴)
+    "test_tg_send_log_stats.py",            # خطِ آمارِ ضدِاسپم در پالس
+    "test_tg_orphans_wired.py",             # سه ماژولِ ساخته‌شده که حالا صداکننده دارند
+    "test_mail_credentials.py",             # اعتبارِ SMTP: هرگز خودِ راز را برنمی‌گرداند
     "test_tg_owner_readiness.py",           # چک‌لیستِ آمادگیِ مالک (فقط‌خواندنی)
     "test_tg_acceptance_journey.py",        # سفرِ ۶ساعتهٔ پذیرش (تستِ خودِ هارنس)
     "test_lead_pipeline.py",                # حلقهٔ لید: کشف→تحقیق→پیش‌نویس→گیر/کارت (رأی ۱۳)

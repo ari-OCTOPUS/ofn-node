@@ -52,9 +52,9 @@ class TopicParamTests(unittest.TestCase):
 
 
 class StreamRoutedTests(unittest.TestCase):
-    """`send_text` تاپیک را فقط از `stream` می‌گیرد، و فقط بدونِ `chat_id`."""
+    """`send_text`: اول `topic_id` صریح، بعد استنتاج از `stream`."""
 
-    def test_explicit_chat_id_can_never_get_a_topic(self):
+    def test_explicit_chat_id_without_topic_can_never_get_a_topic(self):
         s = one("def f(self, chat_id):\n"
                 "    self.send_text('x', None, chat_id=chat_id)\n")
         self.assertEqual(s["topic"], "absent")
@@ -71,6 +71,41 @@ class StreamRoutedTests(unittest.TestCase):
     def test_positional_chat_id_is_detected(self):
         s = one("def f(self, cid):\n    self.send_text('x', None, cid)\n")
         self.assertEqual(s["topic"], "absent")
+
+    # ── `topic_id` روی send_text (اصلاحِ ۲۰۲۶-۰۷-۳۱) ─────────────────────────
+    # این چهار تست همان قرمزِ دروغینی را قفل می‌کنند که طبقه‌بند تولید می‌کرد:
+    # `send_text(..., chat_id=cid, topic_id=_thr)` صریحاً تاپیک می‌دهد، ولی
+    # چون طبقه‌بند فقط `chat_id` را می‌دید، «بی‌تاپیک» اعلامش می‌کرد.
+
+    def test_explicit_topic_id_beats_the_chat_id_rule(self):
+        s = one("def f(self, cid, upd):\n"
+                "    self.send_text('x', None, chat_id=cid, "
+                "topic_id=_reply_thread_id(upd))\n")
+        self.assertEqual(s["topic"], "conditional")
+        self.assertEqual(s["topic_expr"], "_reply_thread_id(upd)")
+
+    def test_literal_topic_id_on_send_text_is_certain(self):
+        s = one("def f(self, cid):\n"
+                "    self.send_text('x', None, chat_id=cid, topic_id=28)\n")
+        self.assertEqual(s["topic"], "certain")
+        self.assertEqual(s["topic_expr"], "28")
+
+    def test_topic_id_none_falls_back_to_the_old_rules_not_a_new_class(self):
+        """`isinstance(None, int)` رد می‌شود ⇒ عملاً «داده نشده»."""
+        s = one("def f(self, cid):\n"
+                "    self.send_text('x', None, chat_id=cid, topic_id=None)\n")
+        self.assertEqual(s["topic"], "absent")
+
+    def test_positional_topic_id_is_seen_too(self):
+        s = one("def f(self, cid, thr):\n"
+                "    self.send_text('x', None, cid, 'heart', thr)\n")
+        self.assertEqual(s["topic"], "conditional")
+        self.assertEqual(s["topic_expr"], "thr")
+
+    def test_star_kwargs_on_send_text_is_conditional_not_absent(self):
+        s = one("def f(self, cid, opts):\n"
+                "    self.send_text('x', None, chat_id=cid, **opts)\n")
+        self.assertEqual(s["topic"], "conditional")
 
 
 class ScopeTests(unittest.TestCase):
@@ -132,6 +167,20 @@ class RealTreeRatchetTests(unittest.TestCase):
     پس خط‌پایه خودش را بارِ اول از واقعیت می‌سازد و در
     `_ops/tests/_baselines/tg-send-audit.json` می‌نشیند. بعد از آن فقط سفت‌تر
     می‌شود: هر بهبود، خط‌پایه را پایین می‌کشد و برگشت‌ناپذیر می‌کند.
+
+    ── چرا عدد در ۲۰۲۶-۰۷-۳۱ از ۷ به ۳ آمد ─────────────────────────────────
+    **کد بدتر یا بهتر نشد؛ ترازو دقیق‌تر شد.** خط‌پایهٔ ۷ روی طبقه‌بندی گرفته
+    شده بود که `topic_id` را روی `send_text` اصلاً نگاه نمی‌کرد. چهار نقطه
+    عملاً تاپیک می‌دادند و «بی‌تاپیک» شمرده می‌شدند:
+        approval_channel.poll_once ×۳   `topic_id=_thr`  → conditional
+        test_tg_stream_routing:164      `topic_id=7`     → certain
+    یعنی ۴ تا از آن ۷ تا **قرمزِ دروغین** بودند. با دیدنِ `topic_id`، شمارشِ
+    راست‌گو ۳ است — و هر سه فیکسچرِ عمدیِ تست‌اند، نه مسیرِ تولیدی.
+
+    اگر خط‌پایه روی ۷ می‌ماند، چرخ‌دنده چهار واحد شل بود: می‌شد چهار ارسالِ
+    بی‌تاپیکِ **واقعیِ** تازه اضافه کرد و تست همچنان سبز می‌ماند. پایین‌کشیدنِ
+    عدد این‌جا سخت‌گیرانه‌تر است، نه آسان‌گیرانه‌تر — و همان جهتِ مجازِ
+    چرخ‌دنده است (فقط پایین).
     """
 
     @staticmethod

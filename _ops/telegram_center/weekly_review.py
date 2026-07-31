@@ -203,6 +203,150 @@ def _reminders_fired_week(now: float) -> "int | None":
     return fired
 
 
+# ── کیفیتِ یادآوری (§۹): شلیک ≠ مفید ───────────────────────────────────────
+# «یادآوری‌های به‌موقع/مفید» ِ منشور با یک شمارندهٔ fired سنجیده نمی‌شود؛
+# یادآوری‌ای که مالک همان لحظه «بعداً» زد، شلیک شد ولی کار نکرد.
+#
+# ⚠️ محدودیتِ صادقانهٔ شکلِ داده (reminders.py مالِ لِینِ E است و این‌جا عوض
+# نمی‌شود): store نه `done_ts` دارد نه شمارندهٔ snooze. پس تنها چیزی که از
+# روی *وضعِ فعلی* قابلِ استنتاج است این است:
+#   · fired   = آیتمی که `fired_ts` ِ آن داخلِ پنجرهٔ هفته است
+#   · done    = همان‌ها که الان `done=True`اند
+#   · snoozed = همان‌ها که `done` نیستند ولی `fired` دوباره False شده —
+#               امضای منحصربه‌فردِ `reminders.snooze` (fired را صفر می‌کند و
+#               `fired_ts` را دست نمی‌زند)
+#   · open    = بقیه (شلیک شد، نه انجام، نه به تعویق)
+# دو تعویقِ پشت‌سرهم یک بار شمرده می‌شود و «انجام‌شده بعد از تعویق» در ستونِ
+# done می‌نشیند. همین محدودیت در متن هم اعلام می‌شود («وضعِ فعلی») تا عدد
+# بیش از آن‌چه هست ادعا نکند.
+def _reminder_quality(now: float) -> "dict | None":
+    rdir = _state_dir() / "reminders"
+    if not rdir.is_dir():
+        return None
+    since = float(now) - WEEK_S
+    q = {"fired": 0, "done": 0, "snoozed": 0, "open": 0}
+    try:
+        for p in rdir.glob("*.json"):
+            try:
+                d = json.loads(p.read_text("utf-8"))
+            except (OSError, ValueError):
+                continue
+            items = d.get("items") if isinstance(d, dict) else d
+            if not isinstance(items, list):
+                continue                 # config.json و هر شکلِ دیگر — نه store
+            for r in items:
+                if not isinstance(r, dict):
+                    continue
+                try:
+                    ts = float(r.get("fired_ts") or 0)
+                except (TypeError, ValueError):
+                    continue
+                if not (since < ts <= float(now)):
+                    continue
+                q["fired"] += 1
+                if r.get("done"):
+                    q["done"] += 1
+                elif not r.get("fired"):
+                    q["snoozed"] += 1
+                else:
+                    q["open"] += 1
+    except OSError:
+        return None
+    return q
+
+
+# ── ساعتِ آزادشدهٔ مالک (§۹) — تخمین، با فرمولِ نمایان ─────────────────────
+# رأیِ ساختاری: «ساعتِ آزادشده» ذاتاً اندازه‌گیری‌شدنی نیست (هیچ‌کس کرنومتر
+# نزده). پس یا تخمینِ **برچسب‌دارِ فرمول‌نما** می‌دهیم یا هیچ — عددِ لختِ
+# بی‌فرمول همان «عددِ ساختگی» ِ ممنوعِ این ماژول است.
+MIN_PER_TASK = 10        # کارِ موتور که مالک هیچ ورودی‌ای نداد
+MIN_PER_REMINDER = 2     # یادآوری‌ای که مالک «انجام شد» زد
+MIN_PER_CAPTURE = 3      # ثبتِ خودکارِ یک نوت در vault
+# نشانِ دخالتِ مالک — عینِ رشته‌ای که `leg_tasks.resolve_blocked` می‌نویسد.
+# تغییرِ آن‌جا باید این‌جا را هم عوض کند (تستِ round-trip قفلش می‌کند).
+_OWNER_INPUT_MARK = "➕ اطلاعات مالک:"
+
+
+def _engine_tasks_week(now: float) -> "int | None":
+    """کارهای تمام‌شدهٔ هفته که **هیچ ورودیِ مالک** نداشتند. هیچ فایلِ کاری
+    وجود نداشت ⇒ None (نه صفر — «نبود» با «صفر» یکی نیست)."""
+    lt = _leg_tasks()
+    if lt is None:
+        return None
+    week0 = float(now) - WEEK_S
+    seen_any = False
+    n = 0
+    for leg in BUSINESS_LEGS:
+        try:
+            if not lt._path(leg).exists():
+                continue
+            seen_any = True
+            rows = lt.recent_done(leg, 200)
+        except Exception:  # noqa: BLE001
+            continue
+        for t in rows:
+            try:
+                upd = float(t.get("updated") or 0)
+            except (TypeError, ValueError):
+                continue
+            if upd < week0 or upd > float(now):
+                continue
+            if t.get("result") == "لغو شد":
+                continue
+            if _OWNER_INPUT_MARK in str(t.get("text") or ""):
+                continue                 # مالک وسطِ کار اطلاعات داد ⇒ آزاد نشد
+            n += 1
+    return n if seen_any else None
+
+
+# نامِ فایلِ capture طبق §۵ منشورِ vault: `YYYY-MM-DD HHmm <slug>.md` —
+# دقیقاً همان چیزی که `capture.file_to_vault` می‌سازد (خواننده به نویسنده pin).
+_CAPTURE_NAME = re.compile(r"^(\d{4}-\d{2}-\d{2}) \d{4} ")
+
+
+def _captures_filed_week(vault_root, now: float) -> "int | None":
+    """نوت‌های خودکارِ بایگانی‌شدهٔ هفته در «10 - Telegram processing/Raw»."""
+    try:
+        root_s = str(vault_root or os.environ.get("ORG_ROOT", "") or "").strip()
+        if not root_s:
+            return None
+        raw = Path(root_s) / "10 - Telegram processing" / "Raw"
+        if not raw.is_dir():
+            return None
+        since = float(now) - WEEK_S
+        n = 0
+        for p in raw.rglob("*.md"):
+            m = _CAPTURE_NAME.match(p.name)
+            if not m:
+                continue
+            try:
+                ts = datetime.strptime(m.group(1), "%Y-%m-%d").timestamp()
+            except ValueError:
+                continue
+            if since <= ts <= float(now):
+                n += 1
+        return n
+    except OSError:
+        return None
+
+
+def hours_freed(now: float, *, quality: "dict | None" = None) -> "dict | None":
+    """تخمینِ ساعتِ آزادشده + اجزای فرمول. هیچ جزئی داده نداشت ⇒ None."""
+    tasks = _engine_tasks_week(now)
+    caps = _captures_filed_week(None, now)
+    q = quality if quality is not None else _reminder_quality(now)
+    done = q.get("done") if isinstance(q, dict) else None
+    parts = [tasks, done, caps]
+    if all(v is None for v in parts):
+        return None                      # هیچ منبعی روی دیسک نیست
+    t, d, c = (int(v or 0) for v in parts)
+    minutes = t * MIN_PER_TASK + d * MIN_PER_REMINDER + c * MIN_PER_CAPTURE
+    if minutes <= 0:
+        return None                      # صفرِ خالی خط نمی‌گیرد
+    return {"tasks": t, "reminders_done": d, "captures": c,
+            "minutes": minutes, "hours": round(minutes / 60.0, 1)}
+
+
 # ── هزینه‌های ثبت‌شدهٔ مالک (BLOCKER 2 — خواننده و نویسنده با هم) ─────────
 # نویسنده: capture.route (شاخهٔ expense) دقیقاً این سطر را append می‌کند:
 #   ``- YYYY-MM-DD هزینه: <خلاصه>``
@@ -382,9 +526,31 @@ def review_text(*, now: float, cfg: "dict | None" = None) -> str:
                  + (f"{_fa(slog['sends'])} ارسال" if slog else NO_DATA))
 
     lines += ["", "📏 <b>سنجه‌ها (§۹)</b>"]
-    fired = _reminders_fired_week(now)
-    lines.append("· یادآوری‌های fired: "
-                 + (_fa(fired) if fired is not None else NO_DATA))
+    # کیفیتِ یادآوری، نه فقط شمارِ شلیک (§۹ «به‌موقع/مفید»). شکلِ store اجازهٔ
+    # بیش از این نمی‌دهد و متن همین را اعلام می‌کند («وضعِ فعلی»).
+    qual = _reminder_quality(now)
+    if qual is None:
+        lines.append(f"· یادآوری‌ها: {NO_DATA}")
+    elif not qual["fired"]:
+        lines.append("· یادآوری‌ها: این هفته هیچ یادآوری‌ای شلیک نشد")
+    else:
+        lines.append(f"· یادآوری‌ها: {_fa(qual['fired'])} شلیک · "
+                     f"{_fa(qual['done'])} انجام‌شده · "
+                     f"{_fa(qual['snoozed'])} بعداً · "
+                     f"{_fa(qual['open'])} بی‌پاسخ (وضعِ فعلی)")
+
+    # ساعتِ آزادشده — **تخمین**، و فرمولش همیشه کنارش. داده نبود ⇒ عدد نه.
+    hf = hours_freed(now, quality=qual)
+    if hf is None:
+        lines.append(f"· ساعتِ آزادشدهٔ تو: {NO_DATA}")
+    else:
+        lines.append(f"· ساعتِ آزادشدهٔ تو (تخمین): ~{_fa(hf['hours'])} ساعت")
+        lines.append(f"  فرمول: ({_fa(hf['tasks'])} کارِ بی‌دخالتِ تو × "
+                     f"{_fa(MIN_PER_TASK)}د) + ({_fa(hf['reminders_done'])} "
+                     f"یادآوریِ انجام‌شده × {_fa(MIN_PER_REMINDER)}د) + "
+                     f"({_fa(hf['captures'])} ثبتِ خودکار × "
+                     f"{_fa(MIN_PER_CAPTURE)}د) = {_fa(hf['minutes'])} دقیقه")
+
     delivered = None
     if funnel:
         delivered = int(funnel.get("proposal.routed", 0))

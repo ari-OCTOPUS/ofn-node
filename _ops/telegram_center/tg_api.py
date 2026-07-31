@@ -37,6 +37,8 @@ _TEXT_CAP = 4096                                 # سقفِ متنِ پیامِ 
 _TOAST_CAP = 200                                 # سقفِ متنِ answerCallbackQuery
 _429_RETRY_CAP_S = 30                            # سقفِ امنِ احترام به retry_after (طوفانِ sleep ممنوع)
 _429_MAX_RETRIES = 1                             # فقط یک تلاشِ مجدد (هرگز retry-storm)
+_FILE_MAX_BYTES = 25 * 1024 * 1024               # سقفِ دانلودِ فایلِ ورودی (۲۵MB)
+_FILE_TIMEOUT_S = 30.0                           # مهلتِ دانلود (ویسِ چنددقیقه‌ای هم جا می‌شود)
 
 # containment — تنها جای مجاز برای این رشته‌ها (parity با events/_scrub، registry_scan)
 _BANNED_ECHO = ("اونلی", "onlyfans", "صبا")
@@ -200,13 +202,33 @@ def _url_json_post(url: str, body: dict, timeout_s: float = 10.0) -> dict:
         return json.loads(resp.read().decode("utf-8"))
 
 
+def _url_bytes_get(url: str, timeout_s: float, max_bytes: int) -> bytes:
+    """دانلودِ باینریِ فایلِ ورودی از endpointِ فایلِ تلگرام.
+
+    ⚠️ این URL شکلِ دیگری دارد: ``/file/bot<token>/<file_path>`` — پس گاردِ
+    میزبان جدا نوشته شده. هرگز URL لاگ نمی‌شود (token داخلش است).
+
+    سقف در **لحظهٔ خواندن** اعمال می‌شود، نه فقط روی Content-Length: سروری که
+    طولِ دروغ اعلام کند نباید بتواند حافظه را پر کند. یک بایت بیشتر ⇒ رد."""
+    if not url.startswith(TELEGRAM_API_BASE + "/file/"):
+        raise ValueError("blocked host (only api.telegram.org file endpoint)")
+    cap = int(max_bytes)
+    req = urllib.request.Request(url, headers={"User-Agent": "octopus-tg-center/0.1"})
+    with urllib.request.urlopen(req, timeout=timeout_s) as resp:  # noqa: S310 — only TELEGRAM_API_BASE
+        blob = resp.read(cap + 1)
+    if len(blob) > cap:
+        raise ValueError("file too large")
+    return blob
+
+
 class TgClient:
     """کلاینتِ نازک و بی‌حالتِ Bot API. همهٔ متدهای عمومی fail-soft و flag-off-امن‌اند:
     not wired → پیش‌فرضِ امن، صفر شبکه. keyboard = list[list[{'text','callback_data'}]].
     parse_mode همیشه HTML."""
 
     def __init__(self, token: str | None = None, owner_chat_id=None,
-                 center_chat_id=None, post_fn=None, get_fn=None):
+                 center_chat_id=None, post_fn=None, get_fn=None,
+                 download_fn=None):
         # TG_CENTER_BOT_TOKEN = باتِ اختصاصیِ مرکزِ گروه (توصیه: باتِ دوم تا با pollerِ
         # approval_channel داخلِ organism روی یک توکن جنگِ 409 نشود)؛ fallback = باتِ اصلی.
         tg_center_tok = _env_str("TG_CENTER_BOT_TOKEN")
@@ -234,6 +256,9 @@ class TgClient:
                         else (_env_int("TG_CENTER_CHAT_ID", 0) or None))
         self._post = post_fn or _url_json_post
         self._get = get_fn or _url_json_get
+        # transportِ سومِ تزریق‌پذیر: (url, timeout_s, max_bytes) → bytes.
+        # تست هرگز شبکه نمی‌زند؛ همین امضا در تست جعل می‌شود.
+        self._download = download_fn or _url_bytes_get
         self._sleep = time.sleep                   # تزریقی برایِ تستِ ۴۲۹ بدونِ انتظارِ واقعی
         self._last_alert: dict[str, float] = {}   # ضدِ اسپم: هشدارِ شکست ۱/ساعت/متد
 
@@ -590,6 +615,101 @@ class TgClient:
             if uid + 1 > off:
                 off = uid + 1
         return off
+
+    # ── فایلِ ورودی (getFile + دانلود) — لِینِ ویس، منشور رأی ۹ ────────────────
+    # این دو متد **ورودی**اند: هیچ رسیدِ ارسال نمی‌نویسند (tg-send-log فقط
+    # خروجی را می‌شمارد؛ یک ردیفِ attempted برایِ یک دانلود = آلوده‌کردنِ سنجهٔ
+    # «چقدر حرف زدیم»). همان discipline بقیه: fail-soft، ۴۲۹-aware، بی‌leakِ URL.
+    def _build_file_url(self, file_path: str) -> str:
+        """URLِ endpointِ فایل: ``/file/bot<token>/<file_path>``. هرگز لاگ نشود."""
+        safe = urllib.parse.quote(str(file_path or ""), safe="/")
+        return f"{TELEGRAM_API_BASE}/file/bot{self._token}/{safe}"
+
+    def get_file(self, file_id) -> dict | None:
+        """getFile → dictِ resultِ تلگرام ({file_path, file_size, …}) یا None.
+
+        سقفِ ۲۵MB همین‌جا هم سنجیده می‌شود: وقتی تلگرام `file_size` می‌دهد،
+        دانلودِ فایلِ بزرگ اصلاً شروع نمی‌شود (رد کردن **قبل از** مصرفِ پهنای
+        باند). نبودِ file_size ⇒ سقف در خودِ دانلود اعمال می‌شود."""
+        if not self.wired():
+            return None
+        fid = str(file_id or "").strip()
+        if not fid:
+            return None
+        data = self._call_post("getFile", {"file_id": fid})
+        if data is None:
+            return None
+        res = data.get("result")
+        if not isinstance(res, dict) or not str(res.get("file_path") or "").strip():
+            return None
+        try:
+            size = int(res.get("file_size"))
+        except (TypeError, ValueError):
+            size = None
+        if size is not None and size > _FILE_MAX_BYTES:
+            self._note_fail("getFile", ValueError("file too large"),
+                            f"{size} > {_FILE_MAX_BYTES} bytes")
+            return None
+        return res
+
+    def download_file(self, file_path: str, dest: str) -> bool:
+        """فایلِ تلگرام → مسیرِ محلیِ `dest`. موفق؟ not wired/نامعتبر → False.
+
+        نوشتن atomic است (tmp + os.replace) تا مصرف‌کننده هرگز فایلِ نیم‌کاره
+        نبیند. `file_path` از خودِ تلگرام می‌آید ولی باز هم سنجیده می‌شود:
+        مسیرِ مطلق یا `..` رد می‌شود (اعتماد به ورودیِ بیرونی = رد شدنِ گارد)."""
+        if not self.wired():
+            return False
+        fp = str(file_path or "").strip().replace("\\", "/")
+        dst = str(dest or "").strip()
+        if not fp or not dst:
+            return False
+        if fp.startswith("/") or ".." in fp.split("/") or ":" in fp.split("/")[0]:
+            return False
+        url = self._build_file_url(fp)
+        blob = None
+        for _attempt in range(_429_MAX_RETRIES + 1):
+            try:
+                blob = self._download(url, _FILE_TIMEOUT_S, _FILE_MAX_BYTES)
+            except Exception as e:  # noqa: BLE001 — fail-soft، بدونِ leakِ URL/token
+                err_json = _http_err_json(e)
+                ra = _retry_after_from_429(err_json)
+                if ra is not None and _attempt < _429_MAX_RETRIES:
+                    try:
+                        self._sleep(ra)
+                    except Exception:  # noqa: BLE001
+                        pass
+                    continue
+                self._note_fail("getFileDownload", e,
+                                str(err_json.get("description") or "")[:200])
+                return False
+            break
+        if not isinstance(blob, (bytes, bytearray)) or not blob:
+            return False
+        if len(blob) > _FILE_MAX_BYTES:      # transportِ تزریقی هم باید سقف بخورد
+            self._note_fail("getFileDownload", ValueError("file too large"),
+                            f"{len(blob)} > {_FILE_MAX_BYTES} bytes")
+            return False
+        try:
+            parent = os.path.dirname(os.path.abspath(dst))
+            if parent:
+                os.makedirs(parent, exist_ok=True)
+            tmp = dst + ".part"
+            with open(tmp, "wb") as fh:
+                fh.write(blob)
+            os.replace(tmp, dst)
+        except OSError as e:
+            self._note_fail("getFileDownload", e, "write failed")
+            return False
+        return True
+
+    def fetch_file(self, file_id, dest: str) -> bool:
+        """getFile + دانلود در یک قدم — تا سیم‌کشیِ صداکننده یک خط بماند.
+        هر شکستِ میانی → False (بدونِ استثنا، بدونِ فایلِ نیم‌کاره)."""
+        info = self.get_file(file_id)
+        if not info:
+            return False
+        return self.download_file(str(info.get("file_path") or ""), dest)
 
     def answer_callback(self, callback_id, text: str = "") -> bool:
         """answerCallbackQuery — بستنِ spinnerِ دکمه. متنِ toast ساده است (HTML render

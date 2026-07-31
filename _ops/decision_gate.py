@@ -234,6 +234,115 @@ def card(rec: dict) -> tuple:
     return "\n".join(lines)[:3500], kb
 
 
+# ── امیتر: کدام تصمیم‌ها **باید** روی سطح بیایند (رفعِ outer-bot-7) ──────────
+# شکاف: `card()` هندلر داشت (`dg:e:<trace>`) ولی **هیچ امیتری** نداشت — تنها
+# مصرف‌کنندهٔ تولیدی (`cortex/auto_approve._shadow_gate`) فقط decide+record در
+# سایه می‌زد. یعنی دفترِ تصمیم پر می‌شد و مالک هرگز یک کارت نمی‌دید: آینهٔ همان
+# باگِ tr:/iv: که این کدبیس یک بار یاد گرفته بود.
+#
+# این تابع **فقط انتخاب می‌کند**؛ نه می‌فرستد، نه می‌نویسد، نه cursor نگه می‌دارد.
+# idempotency کارِ صداکننده است (`since=` را از cursorِ خودش بدهد) — چون نوشتنِ
+# state از این‌جا یعنی یک نویسندهٔ دوم روی یک فایل، و آن اشتباه در همین ریپو
+# دو بار ثبت شده.
+MAX_CARD_AGE_S = 24 * 3600.0      # کارتِ کهنه = نویز؛ دفتر تاریخ دارد، سطح ندارد
+
+_last_scan: dict = {"rows": 0, "candidates": 0, "skipped_ai": 0,
+                    "skipped_no_trace": 0, "skipped_stale": 0, "skipped_seen": 0,
+                    "returned": 0, "error": ""}
+
+
+def last_scan() -> dict:
+    """آمارِ آخرین `pending_cards` — برایِ لاگِ صداکننده. سکوت نباید نامرئی باشد:
+    اگر صفر کارت برگشت، این می‌گوید **چرا** (کهنه؟ بی‌trace؟ همه AI؟ دفتر خالی؟)."""
+    return dict(_last_scan)
+
+
+def _row_ts(row: dict) -> float:
+    """`ts` ِ ISO ِ محلی (opslib.now_iso) → epoch. نامعتبر → 0.0 (کهنه شمرده می‌شود)."""
+    import datetime as _dt
+    try:
+        return _dt.datetime.fromisoformat(str(row.get("ts") or "")).timestamp()
+    except (TypeError, ValueError, OSError):
+        return 0.0
+
+
+def _tail(path, limit_bytes: int = 400_000) -> list:
+    """آخرین بخشِ دفتر — دفترِ append-only بی‌سقف است و کارتِ امروز فقط ته آن است."""
+    try:
+        with open(path, "rb") as f:
+            try:
+                f.seek(-limit_bytes, os.SEEK_END)
+                f.readline()                      # خطِ نصفه‌بریده را دور بینداز
+            except OSError:
+                f.seek(0)
+            return f.read().decode("utf-8", "replace").splitlines()
+    except OSError:
+        return []
+
+
+def pending_cards(now=None, limit: int = 3, *, since=None) -> list:
+    """تصمیم‌هایی که **باید** به مالک نشان داده شوند، آماده برای یک beat.
+
+    خروجی: لیستِ `{trace_id, ts, action, text, keyboard, record}` — تازه‌ترین اول.
+    ملاک‌ها (هر کدام صریح، هیچ‌کدام حدسی):
+      · `executor == "owner_required"` — یعنی ۴۹٪ِ مالک لازم است؛ ردیفِ `ai` کارت ندارد.
+      · `trace_id` ناتهی — دکمه‌های کارت `ok:<tid>` هستند؛ tid ِ خالی = کارتِ مرده،
+        پس اصلاً ساخته نمی‌شود (شمارشش در `last_scan`).
+      · تازه‌تر از `MAX_CARD_AGE_S` و (اگر داده شد) تازه‌تر از `since`.
+      · هر trace فقط یک بار: تازه‌ترین تصمیمِ همان trace برنده است.
+    read-only و fail-soft: هر خطا → لیستِ خالی + دلیل در `last_scan()["error"]`."""
+    import time as _t
+    st = {"rows": 0, "candidates": 0, "skipped_ai": 0, "skipped_no_trace": 0,
+          "skipped_stale": 0, "skipped_seen": 0, "returned": 0, "error": ""}
+    out: list = []
+    try:
+        now_f = float(now if now is not None else _t.time())
+        since_f = float(since) if since is not None else None
+        rows = []
+        for line in _tail(LEDGER):
+            if not line.strip():
+                continue
+            st["rows"] += 1
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            if not isinstance(row, dict) or row.get("schema") != SCHEMA:
+                continue
+            rows.append(row)
+        seen = set()
+        for row in reversed(rows):                # تازه‌ترین اول
+            if row.get("executor") != "owner_required":
+                st["skipped_ai"] += 1
+                continue
+            tid = str(row.get("trace_id") or "").strip()[:16]
+            if not tid:
+                st["skipped_no_trace"] += 1
+                continue
+            if tid in seen:
+                st["skipped_seen"] += 1
+                continue
+            seen.add(tid)
+            ts = _row_ts(row)
+            if now_f - ts > MAX_CARD_AGE_S or (since_f is not None and ts <= since_f):
+                st["skipped_stale"] += 1
+                continue
+            st["candidates"] += 1
+            if len(out) >= max(0, int(limit)):
+                continue
+            text, kb = card(row)
+            out.append({"trace_id": tid, "ts": ts,
+                        "action": str(row.get("action") or ""),
+                        "text": text, "keyboard": kb, "record": row})
+        st["returned"] = len(out)
+    except Exception as exc:  # noqa: BLE001 — انتخابِ کارت هرگز beat را نمی‌کشد
+        st["error"] = f"{type(exc).__name__}: {exc}"
+        out = []
+    _last_scan.clear()
+    _last_scan.update(st)
+    return out
+
+
 def explain(trace_id: str) -> str:
     """پشتِ دکمهٔ «🔍 مدرک کم است» — **چه** مدرکی کم بود، نه اینکه کم بود.
 

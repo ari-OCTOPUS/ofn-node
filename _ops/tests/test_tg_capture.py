@@ -288,6 +288,247 @@ def t_r_capture_writes_only_inside_the_isolated_vault():
     assert not p.startswith(live), f"نوشتن روی درختِ زنده: {p}"
 
 
+# ── ویس → نوتِ ساختاریافته (منشور رأی ۹) ────────────────────────────────────
+# صفر شبکه، صفر موتور: دانلودر و موتور تزریق می‌شوند. مسیرِ زیرِ آزمون همان
+# مسیرِ تولیدی است (capture._voice_transcribe)، نه یک نسخهٔ موازی.
+_VOICE_MSG_ID = [900]
+
+
+def _voice_msg(**voice):
+    _VOICE_MSG_ID[0] += 1
+    v = {"file_id": "AF-voice-1", "duration": 12}
+    v.update(voice)
+    return {"message_id": _VOICE_MSG_ID[0], "chat": {"id": 777}, "voice": v}
+
+
+class _Dl:
+    """دانلودرِ جعلی: فایلِ صوت را واقعاً می‌سازد تا حذفش قابلِ‌سنجش باشد."""
+
+    def __init__(self, ok=True):
+        self.ok = ok
+        self.paths = []
+
+    def __call__(self, file_id, dest):
+        self.paths.append(dest)
+        if not self.ok:
+            return False
+        Path(dest).write_bytes(b"OggS-fake")
+        return True
+
+
+def _tr_ok(text, engine="faster-whisper", secs=1.5):
+    def _fn(path, lang="fa", duration_s=None):
+        return {"ok": True, "text": text, "engine": engine, "secs": secs,
+                "reason": ""}
+    return _fn
+
+
+def _voice_deps(dl, tr_fn, *, avail=True, **extra):
+    d = {"now": NOW, "download_fn": dl, "transcribe_fn": tr_fn,
+         "transcribe_available": lambda: (avail, "faster-whisper"
+                                          if avail else "no-backend")}
+    d.update(extra)
+    return d
+
+
+def _run_voice(deps, msg=None, flag=True):
+    os.environ[capture.FLAG_CAPTURE] = "1"
+    if flag:
+        os.environ[capture.FLAG_VOICE] = "1"
+    else:
+        os.environ.pop(capture.FLAG_VOICE, None)
+    try:
+        return capture.handle(msg or _voice_msg(), deps=deps)
+    finally:
+        os.environ.pop(capture.FLAG_CAPTURE, None)
+        os.environ.pop(capture.FLAG_VOICE, None)
+
+
+def t_s_voice_becomes_a_structured_note_not_a_raw_transcript():
+    """رأی ۹: عنوان از اولین بندِ معنادار · خطِ خلاصه · متنِ کامل زیرِ سرتیتر."""
+    dl = _Dl()
+    text = ("فردا ساعت ۹ باید به گالری زیمان زنگ بزنم. "
+            "قرار بود قیمت قاب را بگویند")
+    r = _run_voice(_voice_deps(dl, _tr_ok(text)))
+    assert r["handled"] and r.get("transcript") is True, r
+    body = Path(r["path"]).read_text("utf-8")
+    assert body.startswith("---"), body[:40]
+    assert "# فردا ساعت ۹ باید به گالری زیمان زنگ بزنم" in body, body
+    assert "**خلاصه:**" in body, body
+    assert "## متنِ ویس" in body, body
+    assert text in body, "متنِ کامل زیرِ سرتیترِ transcript نیست"
+    # خطِ خلاصه واقعاً ساختار دارد (نوع/پا/زمان/طول/موتور)
+    line = [l for l in body.splitlines() if l.startswith("**خلاصه:**")][0]
+    for token in ("نوع:", "پا:", "زمان:", "طول:", "موتور:"):
+        assert token in line, (token, line)
+
+
+def t_t_voice_frontmatter_keeps_file_id_duration_and_adds_transcript_keys():
+    dl = _Dl()
+    r = _run_voice(_voice_deps(dl, _tr_ok("یادم بنداز فردا رنگ بخرم")),
+                   msg=_voice_msg(file_id="AF-front", duration=41))
+    fm = _front(r["path"])
+    assert fm["file_id"] == "AF-front" and fm["duration"] == "41", fm
+    assert fm["transcribed_by"] == "faster-whisper", fm
+    assert fm["transcript_secs"] == "1.5", fm
+    for key in ("type", "project", "status", "tags", "created", "updated"):
+        assert key in fm, (key, fm)
+
+
+def t_u_transcript_is_classified_and_routed_exactly_like_text():
+    """ویس هم کار/لید/هزینه می‌شود — همان درختِ تصمیمِ متن (§۴)."""
+    dl = _Dl()
+    calls = []
+    fake = SimpleNamespace(add=lambda leg, text, now=None:
+                           calls.append((leg, text)) or {"id": "T-1"})
+    r = _run_voice(_voice_deps(dl, _tr_ok("سایت زیمان را بررسی کن"),
+                               leg_tasks_mod=fake))
+    assert r["kind"] == "task" and r["routed"] == "leg-task", r
+    assert calls and calls[0][0] == "ziman", calls
+    assert "ویس متن شد" in r["ack"] and "زیمان" in r["ack"], r
+
+    leads = []
+    r2 = _run_voice(_voice_deps(_Dl(),
+                                _tr_ok("مشتری جدید برای نقاشی 0412345678"),
+                                lead_submit_fn=leads.append))
+    assert r2["kind"] == "lead" and r2["routed"] == "lead-inbox", r2
+    assert leads and leads[0]["channel"] == "telegram_manual", leads
+    assert leads[0]["phone"], "تلفنِ لیدِ ویس گم شد"
+
+    r3 = _run_voice(_voice_deps(_Dl(), _tr_ok("هزینه خرید رنگ ۴۵ دلار")))
+    assert r3["kind"] == "expense" and r3["routed"] == "expense-line", r3
+
+
+def t_v_the_audio_file_never_survives_and_never_touches_the_vault():
+    """صوت در temp دانلود می‌شود و بعدِ متن‌سازی پاک — نه در vault، نه در temp."""
+    dl = _Dl()
+    seen = {}
+
+    def tr_fn(path, lang="fa", duration_s=None):
+        seen["path"] = path
+        seen["exists_during"] = Path(path).exists()
+        seen["lang"] = lang
+        seen["duration_s"] = duration_s
+        return {"ok": True, "text": "سلام آرمین", "engine": "faster-whisper",
+                "secs": 0.4, "reason": ""}
+
+    before = _raw_count()
+    r = _run_voice(_voice_deps(dl, tr_fn), msg=_voice_msg(duration=33))
+    assert r.get("transcript") is True, r
+    assert seen["exists_during"] is True, "موتور فایلِ صوت را ندید"
+    assert seen["lang"] == "fa" and seen["duration_s"] == 33, seen
+    assert not Path(seen["path"]).exists(), "فایلِ صوت پاک نشد"
+    assert not Path(seen["path"]).parent.exists(), "دایرکتوریِ موقت جا ماند"
+    vault = str(Path(ENV["ORG_ROOT"]).resolve()).lower()
+    assert not str(Path(seen["path"]).resolve()).lower().startswith(vault), \
+        "صوت داخلِ vault دانلود شد"
+    assert _raw_count() == before + 1, "دقیقاً یک نوت باید ساخته شود"
+    assert not list(RAW_DIR.glob("*.oga")), "باینری داخلِ vault ماند"
+
+
+def t_w_every_failure_branch_is_honest_and_says_why():
+    """no-backend / download-failed / too-long / موتورِ منفجر — همه با دلیل.
+
+    نوتِ صادقِ file_id/duration نوشته می‌شود، ولی **هیچ transcript ای** نه."""
+    cases = [
+        # (deps, دلیلِ منتظره، تکه‌ای از ack)
+        (_voice_deps(_Dl(), _tr_ok("x"), avail=False), "no-backend",
+         "موتورِ متن‌سازی نصب نیست"),
+        (_voice_deps(_Dl(ok=False), _tr_ok("x")), "download-failed",
+         "دانلودِ ویس نشد"),
+        (_voice_deps(_Dl(), lambda p, lang="fa", duration_s=None:
+                     {"ok": False, "text": "", "engine": "faster-whisper",
+                      "secs": 0.0, "reason": "too-long"}), "too-long",
+         "بلندتر از سقف"),
+        (_voice_deps(_Dl(), lambda p, lang="fa", duration_s=None:
+                     {"ok": True, "text": "   ", "engine": "faster-whisper",
+                      "secs": 0.1, "reason": ""}), "empty-transcript",
+         "چیزی شنیده نشد"),
+        ({"now": NOW}, "no-downloader", "دانلودر غایب"),
+    ]
+    for deps, reason, ack_bit in cases:
+        r = _run_voice(deps)
+        assert r["handled"] and r.get("transcript") is False, (reason, r)
+        assert r["reason"] == reason, (reason, r)
+        assert ack_bit in r["ack"], (reason, r["ack"])
+        assert "ویس ثبت شد" in r["ack"], r["ack"]
+        body = Path(r["path"]).read_text("utf-8")
+        assert "## متنِ ویس" not in body, (reason, "سرتیترِ transcript بی‌متن!")
+        assert "(بدون متن)" in body, (reason, body)
+        assert f"- متن‌سازی: ناموفق ({reason})" in body, (reason, body)
+        assert "transcribed_by" not in _front(r["path"]), \
+            (reason, "کلیدِ متن‌سازی روی نوتِ بی‌متن نشست")
+
+
+def t_x_a_failed_backend_can_never_smuggle_text_into_the_vault():
+    """گاردِ ضدِ جعل (دندان‌دار): آداپترِ بدقلق ok=False می‌دهد **ولی متن هم**.
+
+    این دقیقاً همان حالتی است که یک روز پیش می‌آید (کتابخانه‌ای که در شکست
+    متنِ نیم‌کاره برمی‌گرداند). آن متن هرگز نباید به نوت برسد.
+    جهش (`if not res.get("ok"):` → `if False:`) این تست را قرمز می‌کند."""
+    fake_text = "این جملهٔ کاملاً ساختگی است"
+
+    def liar(path, lang="fa", duration_s=None):
+        return {"ok": False, "text": fake_text, "engine": "faster-whisper",
+                "secs": 0.2, "reason": "no-backend"}
+
+    r = _run_voice(_voice_deps(_Dl(), liar))
+    assert r.get("transcript") is False and r["reason"] == "no-backend", r
+    body = Path(r["path"]).read_text("utf-8")
+    assert fake_text not in body, "متنِ جعلیِ یک شکست وارد vault شد"
+    assert fake_text not in r["ack"], r["ack"]
+    assert "(بدون متن)" in body, body
+
+
+def t_x2_voice_flag_off_keeps_yesterdays_behaviour_byte_for_byte():
+    """فلگِ خاموش ⇒ نه دانلود، نه موتور، و همان ack ِ دیروز."""
+    dl = _Dl()
+    called = []
+    r = _run_voice(_voice_deps(dl, lambda *a, **k: called.append(1) or {}),
+                   flag=False)
+    assert r["ack"].endswith("متن‌سازی هنوز نصب نیست"), r["ack"]
+    assert dl.paths == [] and called == [], "فلگ خاموش ولی کار انجام شد"
+    body = Path(r["path"]).read_text("utf-8")
+    assert "متن‌سازی: ناموفق" not in body, "نوتِ flag-off نباید عوض شود"
+    assert "[voice]" in body and "(بدون متن)" in body, body
+
+
+def t_x4_voice_language_is_persian_by_default_and_overridable():
+    """پیش‌فرض `fa` (زبانِ مالک)؛ env/deps می‌تواند `auto` کند."""
+    seen = []
+
+    def spy(path, lang="fa", duration_s=None):
+        seen.append(lang)
+        return {"ok": True, "text": "سلام", "engine": "e", "secs": 0.1,
+                "reason": ""}
+
+    _run_voice(_voice_deps(_Dl(), spy))
+    os.environ["OCTOPUS_WHISPER_LANG"] = "auto"
+    try:
+        _run_voice(_voice_deps(_Dl(), spy))
+    finally:
+        os.environ.pop("OCTOPUS_WHISPER_LANG", None)
+    _run_voice(_voice_deps(_Dl(), spy, voice_lang="en"))
+    assert seen == ["fa", "auto", "en"], seen
+
+
+def t_x3_voice_dedup_still_holds_after_transcription():
+    """§۹ idempotent: همان message_id دوباره ⇒ نوتِ دوم نه، مسیریابیِ دوم نه."""
+    msg = _voice_msg(file_id="AF-dup")
+    calls = []
+    fake = SimpleNamespace(add=lambda leg, text, now=None:
+                           calls.append(leg) or {"id": "T-2"})
+    first = _run_voice(_voice_deps(_Dl(), _tr_ok("سایت زیمان را بررسی کن"),
+                                   leg_tasks_mod=fake), msg=msg)
+    before = _raw_count()
+    again = _run_voice(_voice_deps(_Dl(), _tr_ok("سایت زیمان را بررسی کن"),
+                                   leg_tasks_mod=fake), msg=msg)
+    assert first["routed"] == "leg-task" and calls == ["ziman"], (first, calls)
+    assert again.get("dup") and "تکراری" in again["ack"], again
+    assert _raw_count() == before, "ویسِ تکراری نوتِ دوم ساخت"
+    assert calls == ["ziman"], "ویسِ تکراری دوباره Task ساخت"
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

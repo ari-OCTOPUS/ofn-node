@@ -29,6 +29,14 @@ import chrono                          # noqa: E402
 import outbound_worker as ow           # noqa: E402
 import lead_effect_gate as leg         # noqa: E402
 import lead_outbound_transport as lot  # noqa: E402
+import mail_credentials as mc          # noqa: E402
+
+# ⚠️ از وقتی transport یک fallback ِ Gmail دارد، کلیدهای زندهٔ ماشینِ میزبان
+# می‌توانند این تست را بی‌خبر مسلح کنند. هر مسیرِ credential صریحاً کنترل شود،
+# و هیچ `.env` ِ واقعی‌ای وسطِ تست تزریق نکند.
+mc._ensure_env_loaded = lambda: None
+for _k in (mc.GMAIL_ADDR_ENV, mc.GMAIL_SECRET_ENV, mc.GMAIL_FALLBACK_FLAG):
+    os.environ.pop(_k, None)
 
 NOW_MS = 1_785_400_000_000             # لنگرِ زمانی ثابت (یک روزِ مشخص)
 NOW_S = NOW_MS / 1000.0
@@ -83,7 +91,8 @@ def _arm(spy):
 
 def _disarm():
     os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
-    for k in _SMTP_ENV:
+    for k in tuple(_SMTP_ENV) + (mc.GMAIL_ADDR_ENV, mc.GMAIL_SECRET_ENV,
+                                 mc.GMAIL_FALLBACK_FLAG):
         os.environ.pop(k, None)
     if hasattr(lot, "_orig_impl"):
         lot._default_send_impl = lot._orig_impl
@@ -194,6 +203,40 @@ def t_h_cap_hit_stops_before_settle_even_if_the_gate_layer_regressed():
         assert spy.calls == 0, "سقف‌خورده به transport رسید"
     finally:
         leg.may_release = orig_may_release
+        _disarm()
+        _fresh_counter()
+
+
+def t_hb_cap_holds_on_the_real_gmail_credential_path_too():
+    """سقف نباید وابسته به **مسیرِ credential** باشد. این تست همان کمربندِ
+    قبل-از-settle را این‌بار روی مسیری می‌سنجد که واقعاً زنده می‌شود
+    (fallback ِ Gmail، رأیِ ARM ِ ۰۷-۳۱) — نه فقط روی OCTOPUS_SMTP_* ِ ساختگی."""
+    _fresh_counter()
+    _fresh_authz()
+    spy = SpyImpl()
+    os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND"] = "1"
+    os.environ[mc.GMAIL_ADDR_ENV] = "owner.person@gmail.com"
+    os.environ[mc.GMAIL_SECRET_ENV] = "GMAIL-PW-SENTINEL-CAP"
+    os.environ[mc.GMAIL_FALLBACK_FLAG] = "1"
+    lot._orig_impl = getattr(lot, "_orig_impl", lot._default_send_impl)
+    lot._default_send_impl = spy
+    try:
+        assert mc.resolve()["how"] == "gmail-app-password", mc.resolve()
+        gate = _gate("gmail-cap")
+        # ۱۰ ارسالِ واقعی از همین مسیر
+        for i in range(10):
+            r = _one_send(gate, 100 + i)
+            assert r.get("sent") is True, (i, r)
+        assert spy.calls == 10 and ow.sends_today(now=NOW_S) == 10
+        # یازدهمی: نه transport، نه settle
+        eid = gate.request("lead_outbound", "lead-cap-gmail", beat=1)
+        leg.authorize(eid, "lead-cap-gmail", "tok-gmail")
+        r11 = ow.send_one(eid, CAND, "draft", gate=gate, now_ms=NOW_MS)
+        assert r11["status"] == "CAP_REACHED" and r11["sent"] is False, r11
+        assert spy.calls == 10, "سقف روی مسیرِ Gmail نشت کرد"
+        assert gate.status_of(eid) == "pending", \
+            f"effect ِ سقف‌خورده مصرف شد: {gate.status_of(eid)!r}"
+    finally:
         _disarm()
         _fresh_counter()
 

@@ -9,6 +9,7 @@
 import json
 import os
 import sys
+import time
 from pathlib import Path
 
 import harness
@@ -25,6 +26,12 @@ import ask_vault as av  # noqa: E402
 ROOT = Path(ENV["root"])
 CANARY_ARCHIVE = "کاناری-آرشیو-x91"
 CANARY_IGNORED = "کاناری-ممنوع-k44"
+# رشتهٔ **ساختگیِ** رمزنما — هیچ رازِ واقعی‌ای این‌جا نیست؛ فقط شکلِ یک راز را
+# دارد تا اگر مسیرِ ممنوع نشت کند، نشت در assert فریاد بزند.
+CANARY_SECRET = "AKIA_FAKE_TEST_NOT_A_SECRET_0000"
+
+NOW = 1_800_000_000.0
+DAY = 86400.0
 
 
 def _plant():
@@ -46,6 +53,32 @@ def _plant():
     ig.parent.mkdir(parents=True, exist_ok=True)
     ig.write_text(f"کولر ماینر — {CANARY_IGNORED}\n", "utf-8")
     (ROOT / ".agentignore").write_text("# تست\nprivate-dir/\n", "utf-8")
+    # مسیرهای ممنوعِ سختِ دیگر (هرگز از `.agentignore` نمی‌آیند — در خودِ کد
+    # پین‌اند). هر دو کلیدواژهٔ همان پرسش را دارند، پس اگر غربال سوراخ بود
+    # حتماً cite می‌شدند.
+    for d in ("_code", "_Duplicates"):
+        p = ROOT / d / "کلیدها.md"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(f"کولر ماینر — توکنِ سرویس: {CANARY_SECRET}\n", "utf-8")
+    # ── فیکسچرِ رتبه‌بندی: تازگی و تگ ────────────────────────────────────────
+    # کلیدواژه‌های یکتا تا با پرسشِ «کولر» تداخل نکنند.
+    # `rg -c` **خط** می‌شمارد نه واژه — پس تکرار باید چندخطی باشد وگرنه هر دو
+    # نوت شمارِ ۱ می‌گیرند و تست به‌جای امتیاز، تصادفیِ tie-break را می‌سنجد.
+    old = ROOT / "07 - Knowledge" / "زنبور-الف.md"
+    old.write_text("---\ntype: note\ntags: [other]\n---\n"
+                   + "زنبورداری در این خط.\n" * 5, "utf-8")
+    os.utime(old, (NOW - 60 * DAY, NOW - 60 * DAY))
+    new = ROOT / "07 - Knowledge" / "زنبور-ب.md"
+    new.write_text("---\ntype: note\ntags: [other]\n---\nزنبورداری یک بار.\n",
+                   "utf-8")
+    os.utime(new, (NOW - 600.0, NOW - 600.0))
+    tagged = ROOT / "07 - Knowledge" / "برگ-الف.md"
+    tagged.write_text("---\ntype: note\ntags: [آبیاری, باغ]\n---\n"
+                      "یک اشارهٔ کوتاه.\n", "utf-8")
+    os.utime(tagged, (NOW - 60 * DAY, NOW - 60 * DAY))
+    deep = ROOT / "07 - Knowledge" / "برگ-ب.md"
+    deep.write_text("بدونِ فرانت‌متر.\n" + "آبیاری در این خط.\n" * 25, "utf-8")
+    os.utime(deep, (NOW - 600.0, NOW - 600.0))
 
 
 _plant()
@@ -217,6 +250,228 @@ def t_this_module_only_reads_and_talks_it_never_sends_or_pays():
 def t_state_stays_inside_the_isolated_tree():
     live = str(harness.REAL_VAULT).lower()
     assert not str(ROOT).lower().startswith(live), ROOT
+
+
+# ═══ رسیدِ ماشینی — «پرسید» باید شاهد داشته باشد ═══════════════════════════
+def _log_rows():
+    p = av._log_path()
+    if p is None or not p.exists():
+        return []
+    return [json.loads(ln) for ln in p.read_text("utf-8").splitlines()
+            if ln.strip()]
+
+
+def _log_clear():
+    p = av._log_path()
+    try:
+        if p is not None and p.exists():
+            p.unlink()
+    except OSError:
+        pass
+
+
+def t_the_receipt_log_lands_in_the_isolated_state_dir():
+    p = av._log_path()
+    assert p is not None, "مسیرِ رسید resolve نشد"
+    assert p.name == "ask-vault-log.jsonl" and p.parent.name == "telegram", p
+    assert not str(p).lower().startswith(str(harness.REAL_VAULT).lower()), p
+
+
+def t_a_successful_question_leaves_a_provable_receipt():
+    _on()
+    _log_clear()
+    try:
+        q = "کولر ماینر چند درجه است؟"
+        r = av.query(q, vault_root=ROOT, ask_fn=_fake_ask())
+        rows = _log_rows()
+        assert len(rows) == 1, rows
+        row = rows[0]
+        assert set(row) >= {"ts", "q_sha", "sources_n", "ok", "tier", "secs"}, row
+        assert row["ok"] is True and row["tier"] == "local", row
+        assert row["sources_n"] == len(r["sources"]) >= 1, (row, r["sources"])
+        assert row["q_sha"] == av.q_sha(q) and len(row["q_sha"]) == 16, row
+        assert isinstance(row["secs"], float) and row["secs"] >= 0.0, row
+        assert row["ts"] > 1_700_000_000, row
+    finally:
+        _on(False)
+
+
+def t_the_receipt_stores_neither_the_question_nor_the_answer():
+    """حریمِ خصوصی: لاگ نباید کپیِ دومِ محتوای مالک شود."""
+    _on()
+    _log_clear()
+    try:
+        av.query("کولر ماینر چند درجه است؟", vault_root=ROOT, ask_fn=_fake_ask())
+        blob = av._log_path().read_text("utf-8")
+        for leak in ("کولر", "ماینر", "۶۵ درجه", "03 - Projects"):
+            assert leak not in blob, f"نشت در رسید: {leak}"
+    finally:
+        _on(False)
+
+
+def t_a_failure_is_recorded_too_so_silence_becomes_falsifiable():
+    """درسِ «ثبت را گیت نکن»: اگر فقط موفق‌ها ثبت شوند، خرابیِ خاموش با
+    «هرگز نپرسید» یک شکل می‌شود."""
+    _on()
+    _log_clear()
+    try:
+        r = av.query("از به در که", vault_root=ROOT, ask_fn=_fake_ask())
+        assert not r["ok"] and r["reason"] == "no-keywords", r
+        rows = _log_rows()
+        assert len(rows) == 1, rows
+        assert rows[0]["ok"] is False, rows[0]
+        assert rows[0]["reason"] == "no-keywords", rows[0]
+        assert rows[0]["sources_n"] == 0, rows[0]
+    finally:
+        _on(False)
+
+
+def t_the_honest_not_found_answer_is_recorded_with_zero_sources():
+    _on()
+    _log_clear()
+    try:
+        r = av.query("زکسقصثقث یعنی چه؟", vault_root=ROOT, ask_fn=_fake_ask())
+        assert r["answer"] == av.NO_ANSWER, r
+        rows = _log_rows()
+        assert len(rows) == 1 and rows[0]["ok"] is True, rows
+        assert rows[0]["sources_n"] == 0, rows[0]
+    finally:
+        _on(False)
+
+
+def t_the_receipt_is_append_only():
+    _on()
+    _log_clear()
+    try:
+        av.query("کولر ماینر چند درجه است؟", vault_root=ROOT, ask_fn=_fake_ask())
+        first = _log_rows()[0]
+        av.query("کولر ماینر ماهانه؟", vault_root=ROOT, ask_fn=_fake_ask())
+        rows = _log_rows()
+        assert len(rows) == 2, rows
+        assert rows[0] == first, "ردیفِ قبلی بازنویسی شد — append-only نیست"
+        assert rows[0]["q_sha"] != rows[1]["q_sha"], rows
+    finally:
+        _on(False)
+
+
+def t_flag_off_writes_no_receipt():
+    _log_clear()
+    _on(False)
+    av.query("کولر ماینر چند درجه است؟", vault_root=ROOT, ask_fn=_fake_ask())
+    assert _log_rows() == [], "با flag خاموش ردیف ساخته شد (no-op نیست)"
+
+
+def t_the_receipt_wrapper_stays_transparent_to_inspect():
+    """پوستهٔ رسید نباید گاردِ لِینِ خواهر را کور کند.
+
+    `test_tg_guide` قولِ «با ذکرِ منبع» را با `inspect.getsource(av.query)`
+    می‌سنجد. اگر روزی `functools.wraps` از این پوسته بیفتد، آن گارد **سبز
+    می‌ماند ولی دیگر چیزی نمی‌بیند** — بدترین حالتِ ممکن. این تست همان‌جا
+    می‌ایستد."""
+    import inspect
+    src = inspect.getsource(av.query)
+    assert "_rank(" in src and "منابع:" in src, src[:300]
+    assert av.query.__name__ == "query", av.query.__name__
+
+
+def t_a_broken_receipt_path_never_kills_the_answer():
+    """رسید هرگز جواب را نمی‌کشد — fail-soft، مثلِ tg_send_log."""
+    _on()
+    _log_clear()
+    real = av._log_path
+    try:
+        def boom():
+            raise OSError("دیسک پر است")
+        av._log_path = boom
+        r = av.query("کولر ماینر چند درجه است؟", vault_root=ROOT,
+                     ask_fn=_fake_ask())
+        assert r["ok"] and r["sources"], r
+    finally:
+        av._log_path = real
+        _on(False)
+
+
+# ═══ رتبه‌بندی: تازگیِ مشروط + برتریِ نام/تگ بر بدنه ════════════════════════
+def t_a_temporal_question_boosts_the_recently_modified_note():
+    _on()
+    try:
+        r = av.query("این هفته زنبورداری چه نوشتم؟", vault_root=ROOT,
+                     ask_fn=_fake_ask(), k=2, now=NOW)
+        assert r["ok"] and r["sources"], r
+        assert "زنبور-ب" in r["sources"][0], r["sources"]
+    finally:
+        _on(False)
+
+
+def t_without_a_temporal_marker_recency_does_not_reorder():
+    """تازگی یک **گاردِ مشروط** است، نه یک ترجیحِ همیشگی."""
+    _on()
+    try:
+        r = av.query("زنبورداری چیست؟", vault_root=ROOT,
+                     ask_fn=_fake_ask(), k=2, now=NOW)
+        assert r["ok"] and r["sources"], r
+        assert "زنبور-الف" in r["sources"][0], r["sources"]
+    finally:
+        _on(False)
+
+
+def t_the_temporal_marker_is_detected_but_not_over_detected():
+    for q in ("امروز چی شد؟", "دیروز نوشتم", "این هفته چه کردم",
+              "اخیراً چه خبر", "what did I write today?", "recent notes"):
+        assert av._is_temporal(q), q
+    for q in ("کولر ماینر چند درجه است؟", "دربارهٔ نقاشی چه دارم؟",
+              "I know the answer", "nowhere near"):
+        assert not av._is_temporal(q), q
+
+
+def t_a_frontmatter_tag_outranks_a_deep_body_match():
+    _on()
+    try:
+        r = av.query("آبیاری چطور؟", vault_root=ROOT, ask_fn=_fake_ask(),
+                     k=2, now=NOW)
+        assert r["ok"] and r["sources"], r
+        assert "برگ-الف" in r["sources"][0], r["sources"]
+    finally:
+        _on(False)
+
+
+def t_recency_can_reorder_inside_a_class_but_never_across_classes():
+    """قفلِ وزن‌ها: بدنه+فرانت‌متر+تازه هرگز به تگ نمی‌رسد."""
+    rels = ["07 - Knowledge/برگ-الف.md", "07 - Knowledge/برگ-ب.md"]
+    ranked = av._rank(ROOT, {rels[0]: 1, rels[1]: 25}, ["آبیاری"],
+                      recent=True, now=NOW)
+    assert ranked[0] == rels[0], ranked
+    assert av._W_BODY_CAP + av._W_FM + av._RECENCY_STEPS[0][1] < av._W_TAG
+    assert av._W_TAG + av._RECENCY_STEPS[0][1] < av._W_NAME
+
+
+def t_a_note_without_frontmatter_gets_no_frontmatter_bonus():
+    assert av._frontmatter_head(ROOT, "07 - Knowledge/برگ-ب.md") == ""
+    fm = av._frontmatter_head(ROOT, "07 - Knowledge/برگ-الف.md")
+    assert fm.startswith("---") and "آبیاری" in av._fm_tags(fm), fm
+
+
+# ═══ مسیرهای ممنوع: رازِ کاشته‌شده هرگز cite نمی‌شود ════════════════════════
+def t_a_secret_shaped_string_in_an_excluded_path_is_never_cited():
+    _on()
+    try:
+        fn = _fake_ask()
+        r = av.query("کولر ماینر چند درجه است؟", vault_root=ROOT, ask_fn=fn)
+        blob = json.dumps(r, ensure_ascii=False) + (fn._calls[0]["prompt"]
+                                                    if fn._calls else "")
+        assert CANARY_SECRET not in blob, "رشتهٔ رمزنما از مسیرِ ممنوع نشت کرد"
+        for d in ("_code", "_Duplicates", "_Archive", "private-dir"):
+            assert d not in blob, f"مسیرِ ممنوع cite شد: {d}"
+    finally:
+        _on(False)
+
+
+def t_the_hard_exclusion_list_is_independent_of_agentignore():
+    """این پنج مسیر در خودِ کد پین‌اند — پاک‌شدنِ .agentignore بازشان نمی‌کند."""
+    for d in ("_Archive", "_Duplicates", ".git", "_code", "__pycache__"):
+        assert d in av._ALWAYS_EXCLUDE, d
+        assert av._is_excluded(f"{d}/x.md", []), d
+        assert av._is_excluded(f"a/{d}/x.md", []), d
 
 
 # ═══ چتِ آزادِ محلی-اول (لِین F — «مغزِ محلی $0 روزمره، گران فقط مهم») ═══════

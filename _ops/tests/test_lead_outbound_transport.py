@@ -27,6 +27,7 @@ for _p in (str(_OPS), str(_OPS / "legs"), str(_OPS / "budget"), str(_OPS / "outc
 import opslib                          # noqa: E402
 import outbound_worker as ow           # noqa: E402
 import lead_outbound_transport as lot  # noqa: E402
+import mail_credentials as mc          # noqa: E402
 import funnel_store as fs              # noqa: E402
 
 _SMTP_ENV = {"OCTOPUS_SMTP_HOST": "localhost", "OCTOPUS_SMTP_PORT": "2525",
@@ -34,15 +35,26 @@ _SMTP_ENV = {"OCTOPUS_SMTP_HOST": "localhost", "OCTOPUS_SMTP_PORT": "2525",
              "OCTOPUS_SMTP_PASS": "hunter2-super-secret",
              "OCTOPUS_SMTP_FROM": "quotes@example.com"}
 
+# ⚠️ خطرِ واقعیِ کشف‌شدهٔ ۰۷-۳۱: از وقتی transport یک fallback ِ Gmail دارد، اگر
+# ماشینِ میزبان `GMAIL_ADDRESS`/`GMAIL_APP_PASSWORD` ِ **زنده** در env داشته باشد
+# (اجرا از درختِ زنده، یا `.env` ِ لودشده)، تستِ «بی-creds» دیگر NOT_ARMED نمی‌گرفت
+# و چون `send_impl` نمی‌دهد، `_default_send_impl` ِ **واقعی** به یک آدرسِ نمونه
+# ایمیل می‌زد. پس هر مسیرِ credential باید در این فایل صریحاً کنترل شود.
+_CRED_KEYS = tuple(_SMTP_ENV) + (mc.GMAIL_ADDR_ENV, mc.GMAIL_SECRET_ENV,
+                                 mc.GMAIL_FALLBACK_FLAG)
+for _k in _CRED_KEYS:
+    os.environ.pop(_k, None)
+# و هیچ `.env` ِ واقعی‌ای وسطِ تست کلید تزریق نکند (تعیّن + صفر کلیدِ واقعی).
+mc._ensure_env_loaded = lambda: None
+
 NOW_S = 1_785_400_000.0
 
 
 def _set_creds(on: bool):
+    for k in _CRED_KEYS:
+        os.environ.pop(k, None)
     if on:
         os.environ.update(_SMTP_ENV)
-    else:
-        for k in _SMTP_ENV:
-            os.environ.pop(k, None)
 
 
 def _fresh_counter():
@@ -166,6 +178,162 @@ def t_g_transport_never_raises():
     _set_creds(True)
     r = lot.send(None, None, now=NOW_S, send_impl=SpyImpl())
     assert isinstance(r, dict) and r.get("sent") is False, r
+
+
+def t_ib_market_signal_is_denied_even_with_perfect_consent_on_an_allowed_channel():
+    """جهش‌سنجیِ واقعیِ ناوردای «سیگنال هرگز نمی‌فرستد» (R1).
+
+    چرا این تست جدا از t_i لازم شد: کاندیدِ t_i هم‌زمان market_signal است، هم
+    basis=none، هم روی کانالِ سیگنالیِ facebook_group — یعنی **سه** دلیلِ مستقلِ
+    رد. پس وقتی گاردِ market_signal را جهش دادیم t_i سبز ماند (لایه‌های دیگر
+    گرفتندش): t_i ناوردا را می‌سنجد ولی این گاردِ خاص را پین نمی‌کند.
+    این‌جا فیکسچر عمداً **زیرِ سطحِ هدف** است: رضایتِ صریح با evidence، روی
+    کانالِ مجازِ telegram_manual — تنها چیزی که جلوی ارسال را می‌گیرد همان
+    ردهٔ market_signal است (`classify` ِ declared زیرِ سقفِ کانال را می‌پذیرد).
+    اگر R1 بمیرد، این کاندید واقعاً می‌رود — و این تست قرمز می‌شود."""
+    import lead_effect_gate as leg
+    import consent_firewall as cf
+    _set_creds(True)
+    _fresh_counter()
+    try:
+        leg._authz_store().unlink()
+    except OSError:
+        pass
+    signal_cand = {"lead_id": "L-sig2",
+                   "candidate_type": "market_signal",
+                   "source": {"channel": "telegram_manual"},
+                   "consent": {"basis": "explicit",
+                               "evidence": "submitted_quote_form"},
+                   "request": {"scope_text": "repaint hallway"},
+                   "contact": {"email": "signal.victim@example.com"}}
+    # پیش‌شرطِ فیکسچر: واقعاً market_signal طبقه‌بندی می‌شود و تنها مانع همین است.
+    assert cf.classify(signal_cand) == "market_signal", cf.classify(signal_cand)
+    gate = _drv_gate("sig2")
+    eid = gate.request("lead_outbound", "L-sig2", beat=1)
+    assert leg.authorize(eid, "L-sig2", "tok-sig2")["ok"]
+    os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND"] = "1"
+    spy = SpyImpl()
+    _orig = lot._default_send_impl
+    lot._default_send_impl = spy
+    try:
+        r = ow.send_one(eid, signal_cand, {"subject": "Q", "body": "x"},
+                        gate=gate, now_ms=int(NOW_S * 1000))
+    finally:
+        lot._default_send_impl = _orig
+        os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
+    assert r["sent"] is False, f"سیگنال فرستاده شد — نقضِ R1: {r}"
+    assert r["status"] == "gate_denied", r
+    assert not spy.calls, "سیگنال به transport رسید — نقضِ R1"
+    assert gate.status_of(eid) == "pending", \
+        f"سیگنال نباید settle/مصرف شود: {gate.status_of(eid)!r}"
+    assert ow.sends_today(now=NOW_S) == 0
+
+
+# ── fallback ِ Gmail + خودآزمون (شبِ ۰۷-۳۱: لوله واقعاً کامل شد) ────────────────
+OWNER_ADDR = "owner.person@gmail.com"
+OWNER_PW = "GMAIL-PW-SENTINEL-4c7e"
+
+
+def _arm_gmail():
+    """fallback ِ Gmail را مسلح کن (بدونِ هیچ کلیدِ واقعی — همه ساختگی)."""
+    _set_creds(False)
+    os.environ[mc.GMAIL_ADDR_ENV] = OWNER_ADDR
+    os.environ[mc.GMAIL_SECRET_ENV] = OWNER_PW
+    os.environ[mc.GMAIL_FALLBACK_FLAG] = "1"
+
+
+def t_j_gmail_fallback_completes_the_arc_and_reads_the_secret_at_send_time():
+    """قوسِ واقعیِ Lane G: بدونِ هیچ secret ِ نو، با کلیدهای موجودِ Gmail،
+    ارسال کامل می‌شود — و پسورد **لحظهٔ ارسال** از env با نامش خوانده می‌شود."""
+    _arm_gmail()
+    _fresh_counter()
+    spy = SpyImpl()
+    r = lot.send(_cand("L-gmail", email="gmail.customer@example.com"),
+                 {"subject": "Quote", "body": "کارِ نقاشی"},
+                 now=NOW_S, send_impl=spy)
+    assert r["sent"] is True and r["status"] == "SENT", r
+    call = spy.calls[0]
+    assert call["host"] == "smtp.gmail.com", call
+    assert ow.sends_today(now=NOW_S) == 1, "ارسالِ واقعیِ لید باید بشمارد"
+    # پسورد از env با **نام** خوانده شد و به impl رسید — ولی از resolve بیرون نیامد
+    assert lot._read_secret(mc.resolve()) == OWNER_PW
+    assert mc.resolve().get("secret_env") == mc.GMAIL_SECRET_ENV
+    assert OWNER_PW not in json.dumps(mc.resolve(), ensure_ascii=False)
+
+
+def t_k_gmail_creds_without_the_flag_are_honestly_not_armed():
+    """کلیدها هستند ولی رأیِ مالک (فلگ) نیست ⇒ NOT_ARMED با دلیلی که نامِ فلگ
+    را می‌گوید، و **صفر** تلاشِ ارسال."""
+    _arm_gmail()
+    os.environ.pop(mc.GMAIL_FALLBACK_FLAG, None)
+    spy = SpyImpl()
+    r = lot.send(_cand("L-noflag"), "hello", now=NOW_S, send_impl=spy)
+    assert r["sent"] is False and r["status"] == "NOT_ARMED", r
+    assert mc.GMAIL_FALLBACK_FLAG in r["detail"], r
+    assert not spy.calls, "بدونِ فلگ نباید هیچ تلاشی برود"
+
+
+def t_l_self_test_goes_only_to_the_owner_address():
+    _arm_gmail()
+    _fresh_counter()
+    spy = SpyImpl()
+    r = lot.self_test(send_impl=spy, now=NOW_S)
+    assert r["sent"] is True and r["status"] == "SENT", r
+    assert len(spy.calls) == 1 and spy.calls[0]["to"] == OWNER_ADDR, spy.calls
+    import email as _em
+    m = _em.message_from_string(spy.calls[0]["message"])
+    assert "SELF-TEST" in m["Subject"], m["Subject"]
+    body = m.get_payload(decode=True).decode("utf-8")
+    assert "No lead was contacted" in body, body
+
+
+def t_m_self_test_refuses_any_recipient_that_is_not_the_owner():
+    """قفلِ ۱ — خودآزمون نباید به سلاحِ ارسالِ دلخواه تبدیل شود."""
+    _arm_gmail()
+    spy = SpyImpl()
+    for victim in ("someone.else@example.com", "attacker@evil.test",
+                   "OWNER.PERSON@gmail.com.evil.test"):
+        r = lot.self_test(victim, send_impl=spy, now=NOW_S)
+        assert r["sent"] is False and r["status"] == "REFUSED", (victim, r)
+        assert not spy.calls, f"خودآزمون به {victim} تلاشِ ارسال کرد!"
+    # ولی خودِ آدرسِ مالک (حتی با حروفِ بزرگ/فاصله) پذیرفته می‌شود
+    r_ok = lot.self_test("  OWNER.Person@Gmail.com  ", send_impl=spy, now=NOW_S)
+    assert r_ok["status"] == "SENT", r_ok
+
+
+def t_n_self_test_never_touches_the_cap_counter_or_the_funnel_ledger():
+    """قفلِ ۲ و ۳ — خودآزمون سهمیهٔ روزانهٔ لید را نمی‌خورد و در قیفِ فروش
+    به‌عنوانِ «ارتباط با مشتری» ثبت نمی‌شود."""
+    _arm_gmail()
+    _fresh_counter()
+    before = ow.sends_today(now=NOW_S)
+    for _ in range(3):
+        assert lot.self_test(send_impl=SpyImpl(), now=NOW_S)["sent"] is True
+    assert ow.sends_today(now=NOW_S) == before == 0, \
+        "خودآزمون شمارندهٔ سقف را لمس کرد"
+    assert not _funnel_types("self-test"), "خودآزمون در دفترِ funnel نشست"
+    # شکستِ خودآزمون هم نباید communication.failed ِ قیف بنویسد
+    assert lot.self_test(send_impl=SpyImpl(fail=True), now=NOW_S)["status"] == "FAILED"
+    assert not _funnel_types("self-test"), "شکستِ خودآزمون در دفترِ funnel نشست"
+    assert ow.sends_today(now=NOW_S) == 0
+
+
+def t_o_self_test_without_creds_is_honest_and_silent():
+    _set_creds(False)
+    spy = SpyImpl()
+    r = lot.self_test(send_impl=spy, now=NOW_S)
+    assert r["sent"] is False and r["status"] == "NOT_ARMED", r
+    assert not spy.calls
+
+
+def t_p_no_secret_value_ever_reaches_the_receipts():
+    """قاعدهٔ §۱۰ روی کلِ رسیدها — شاملِ مسیرِ Gmail و خودآزمون."""
+    text = _events_text()
+    for secret in (OWNER_PW, "hunter2-super-secret"):
+        assert secret not in text, f"secret در رسیدها نشسته: {secret[:6]}…"
+    assert OWNER_ADDR not in text, "آدرسِ کاملِ مالک در رسیدها نشسته"
+    assert "ow***@gmail.com" in text, "ماسکِ آدرسِ مالک در رسیدِ خودآزمون نیست"
+    assert '"communication.self_test"' in text, "رسیدِ خودآزمون نوشته نشد"
 
 
 # ── درایورِ drive_outbound (بازبینی ۰۷-۳۱، wiring W2) ───────────────────────

@@ -3,8 +3,11 @@
 """test_tg_reminders — موتورِ یادآوریِ NL (لِین E؛ منشور رأی‌های ۵–۸).
 
     parser ِ فارسیِ قطعی · store ِ اتمیک · شلیک در beat با ساعتِ تزریقی ·
-    پنجرهٔ سکوتِ ۲۳–۷ (معوق، نه حذف؛ بحرانی رد می‌شود) · صفر ارسالِ مستقیم
+    پنجرهٔ سکوتِ ۲۳–۷ (معوق، نه حذف؛ بحرانی رد می‌شود) · صفر ارسالِ مستقیم ·
+    **سکوتِ تطبیقی**: روی دادهٔ نازک تکان نمی‌خورد، روی دادهٔ پُر حرکت می‌کند،
+    کفِ ۵ ساعت را نمی‌شکند، و رأیِ دستیِ مالک همیشه برنده است
 """
+import json
 import os
 import sys
 from datetime import datetime
@@ -154,6 +157,265 @@ def t_quiet_window_defers_normal_but_lets_critical_through():
                  send_leg_fn=lambda leg, t: None)
     assert n2 == 1 and len(sent) == 2 and "معمولی" in sent[1], \
         "معوقِ شب سرِ ۰۷:۰۰ نرسید (حذف شده؟)"
+
+
+# ══ سکوتِ تطبیقی (رأی ۸ — «بعد خودتنظیم») ═════════════════════════════════
+#
+# ⚠️ همهٔ seedها **مهرِ واقعی** می‌سازند (`fired_ts`/`done_ts`) — چون خودِ
+# یادگیرنده هم دقیقاً همان مهرها را می‌خوانَد. آیتمِ done ِ بی‌مهر عمداً
+# «غیرقابلِ سنجش» است و اگر seed بی‌مهر بسازیم، تست روی مکانیزمِ مرده سبز
+# می‌شود (درسِ «خواننده و نویسنده را با هم بسنج»).
+
+DAY = (2026, 8, 3)                     # دوشنبه — روزِ مرجعِ نمونه‌ها
+
+
+def _seed_hours(spec: dict, *, base_day=DAY) -> None:
+    """spec: {ساعت: (تعدادِ فایر، تعدادِ «سریع عمل کرد»)} → storeِ واقعی."""
+    d = {"seq": 0, "items": []}
+    for h, (n, fast) in sorted(spec.items()):
+        for i in range(n):
+            fired = _ts(*base_day, h, 0) + i * 60
+            d["seq"] += 1
+            it = {"id": f"RM-{d['seq']}", "text": f"نمونه {h}-{i}",
+                  "due": fired, "scope": "dm", "leg": None,
+                  "created": fired - 600, "fired": True, "fired_ts": fired,
+                  "done": False}
+            if i < fast:                        # جوابِ سریع: ۵ دقیقه
+                it["done"] = True
+                it["done_ts"] = fired + 300
+            d["items"].append(it)
+    rm._save(d)
+
+
+def _seed_send_log(rows_per_hour: dict, *, base_day=DAY) -> None:
+    """ردیف‌های DM ِ tg-send-log — تنها شکلی که یادگیرنده می‌پذیرد."""
+    p = rm._send_log_path()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    lines = []
+    for h, n in sorted(rows_per_hour.items()):
+        for i in range(n):
+            lines.append(json.dumps({"ts": _ts(*base_day, h, 0) + i * 30,
+                                     "chat": 1, "topic": None, "sha": "x",
+                                     "chars": 10, "ok": True, "state": "sent",
+                                     "bot_role": "outer", "surface": "dm"}))
+    p.write_text("\n".join(lines) + "\n", "utf-8")
+
+
+# دادهٔ پُر: ۲۳ و ۶ بیدار (سریع جواب می‌دهد)، ۰–۵ خواب — ۸ ساعتِ حکم‌دار
+RICH = {23: (5, 5), 6: (5, 5), 0: (5, 0), 1: (5, 0), 2: (5, 0), 3: (5, 0),
+        4: (5, 0), 5: (5, 0)}
+LATER = _ts(2026, 8, 4, 12, 0)         # بعد از روزِ نمونه‌ها
+
+
+def _clear_send_log():
+    try:
+        rm._send_log_path().unlink()
+    except OSError:
+        pass
+
+
+def t_learner_refuses_to_move_on_thin_data_and_says_so():
+    _fresh()
+    _clear_send_log()
+    _seed_hours({23: (3, 0), 0: (3, 0)})          # ۶ نمونه، خیلی کمتر از ۲۰
+    v = rm.learn(LATER)
+    assert v["samples"] == 6, v
+    assert (v["quiet_from"], v["quiet_to"]) == (23, 7), v
+    assert v["changed"] is False and v["confidence"] < rm.CONFIDENCE_BAR, v
+    assert "دادهٔ کم" in v["why"], v["why"]
+    assert rm.adapt_quiet(LATER)["applied"] is False
+    assert rm.load_config()["quiet_from"] == 23, "با دادهٔ نازک پنجره تکان خورد"
+
+
+def t_learner_moves_on_rich_data_and_writes_the_window():
+    """۲۳ و ۶ ثابت می‌کنند مالک بیدار است ⇒ سکوت به ۰–۶ جمع می‌شود."""
+    _fresh()
+    _clear_send_log()
+    _seed_hours(RICH)
+    v = rm.learn(LATER)
+    assert v["samples"] == 40 and v["judged_hours"] == 8, v
+    assert (v["quiet_from"], v["quiet_to"]) == (0, 6), v
+    assert v["changed"] is True and v["confidence"] >= rm.CONFIDENCE_BAR, v
+    out = rm.adapt_quiet(LATER)
+    assert out["applied"] is True, out
+    cfg = rm.load_config()
+    assert (cfg["quiet_from"], cfg["quiet_to"]) == (0, 6), cfg
+    # و پنجرهٔ نو واقعاً رفتارِ beat را عوض می‌کند: ۲۳:۳۰ دیگر ساکت نیست
+    rm.add("یادِ معمولی", due_ts=_ts(2026, 8, 4, 23, 0), now=LATER)
+    sent = []
+    n = rm.beat(now=_ts(2026, 8, 4, 23, 30),
+                send_dm_fn=lambda t, rid: sent.append(t),
+                send_leg_fn=lambda leg, t: None)
+    assert n == 1 and sent, "پنجرهٔ یادگرفته روی شلیک اثر نکرد"
+    # شفافیت: مالک باید بتواند بپرسد «چرا؟»
+    assert cfg.get("quiet_learned_why") and cfg.get("quiet_learned_conf")
+
+
+def t_learner_never_produces_a_window_shorter_than_the_floor():
+    """۲۳ تا ۳ همه بیدار ⇒ باقی‌ماندهٔ سکوت ۳ ساعت است؛ کف ۵ ساعت است پس
+    یادگیرنده **حرکت نمی‌کند** (نه اینکه پنجرهٔ ۳ساعته بسازد)."""
+    _fresh()
+    _clear_send_log()
+    _seed_hours({23: (5, 5), 0: (5, 5), 1: (5, 5), 2: (5, 5), 3: (5, 5)})
+    v = rm.learn(LATER)
+    assert v["samples"] == 25, v
+    assert (v["quiet_from"], v["quiet_to"]) == (23, 7), v
+    assert v["changed"] is False, v
+    assert "کف" in v["why"], v["why"]
+    assert len(rm.quiet_hours(v)) >= rm.QUIET_FLOOR_H, v
+    assert rm.adapt_quiet(LATER)["applied"] is False
+    assert rm.load_config()["quiet_from"] == 23
+
+
+def t_a_manual_window_wins_forever_even_against_rich_data():
+    _fresh()
+    _clear_send_log()
+    rm._write_config({rm.MANUAL_KEY: True, "quiet_from": 22, "quiet_to": 6})
+    _seed_hours(RICH)
+    _seed_send_log({h: 4 for h in range(24)})     # حتی با تأییدِ کاملِ لاگ
+    v = rm.learn(LATER)
+    assert v["manual"] is True, v
+    assert (v["quiet_from"], v["quiet_to"]) == (22, 6), v
+    assert v["confidence"] == 0.0 and v["changed"] is False, v
+    assert rm.MANUAL_KEY in v["why"], v["why"]
+    out = rm.adapt_quiet(LATER)
+    assert out["applied"] is False, out
+    cfg = rm.load_config()
+    assert (cfg["quiet_from"], cfg["quiet_to"]) == (22, 6), cfg
+    assert cfg[rm.MANUAL_KEY] is True
+    assert "quiet_learned_day" not in cfg, "قفلِ دستی حتی مهرِ روز هم نمی‌خورد"
+    # و beat هم آن را نمی‌شکند
+    rm.beat(now=LATER, send_dm_fn=lambda t, rid: None,
+            send_leg_fn=lambda leg, t: None)
+    assert rm.load_config()["quiet_from"] == 22, "beat قفلِ دستی را شکست"
+
+
+def t_send_log_dm_rows_are_the_corroboration_that_tips_the_bar():
+    """گاردِ «tg-send-log واقعاً خوانده می‌شود»: همان دادهٔ یادآوری، یک‌بار
+    بدونِ ردیفِ DM (زیرِ میله ⇒ فقط گزارش) و یک‌بار با آن (بالای میله ⇒ اعمال)."""
+    _fresh()
+    _clear_send_log()
+    marginal = {23: (7, 7), 6: (7, 7), 0: (7, 0), 1: (7, 0), 2: (7, 0),
+                3: (7, 0)}                        # ۶ ساعتِ حکم‌دار، ۴۲ نمونه
+    _seed_hours(marginal)
+    v0 = rm.learn(LATER)
+    assert v0["dm_rows"] == 0, v0
+    assert v0["changed"] is True and v0["confidence"] < rm.CONFIDENCE_BAR, v0
+    assert rm.adapt_quiet(LATER)["applied"] is False
+    assert rm.load_config()["quiet_from"] == 23
+
+    _seed_send_log({9: 10, 14: 10, 20: 5})
+    v1 = rm.learn(LATER)
+    assert v1["dm_rows"] == 25, v1
+    assert v1["confidence"] > v0["confidence"], (v0, v1)
+    assert v1["confidence"] >= rm.CONFIDENCE_BAR, v1
+    assert rm.adapt_quiet(LATER)["applied"] is True
+    assert (rm.load_config()["quiet_from"],
+            rm.load_config()["quiet_to"]) == (0, 6)
+
+
+def t_send_log_rows_that_are_not_owner_dm_are_ignored():
+    """ردیفِ گروه/held/بی‌surface هرگز «رسیدن به مالک» شمرده نمی‌شود."""
+    _fresh()
+    _clear_send_log()
+    p = rm._send_log_path()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    base = _ts(*DAY, 9, 0)
+    p.write_text("\n".join(json.dumps(r) for r in [
+        {"ts": base, "surface": "group", "state": "sent", "ok": True},
+        {"ts": base + 1, "surface": "dm", "state": "held", "ok": True},
+        {"ts": base + 2, "surface": "dm", "state": "sent", "ok": False},
+        {"ts": base + 3, "state": "sent", "ok": True},          # بی‌surface
+        {"ts": base + 4, "surface": "dm", "state": "sent", "ok": True},
+        "خطِ خراب",
+    ]) + "\n", "utf-8")
+    assert rm._dm_by_hour(LATER)[1] == 1, rm._dm_by_hour(LATER)
+    # و ردیفِ کهنه‌تر از پنجره هم شمرده نمی‌شود
+    assert rm._dm_by_hour(base + 100 + rm.SEND_LOG_WINDOW_S)[1] == 0
+
+
+def t_done_stamps_the_time_the_learner_needs():
+    """بدونِ `done_ts` کلِ یادگیری حدس است — پس مهر باید واقعاً نوشته شود."""
+    _fresh()
+    rm.add("قرص", due_ts=NOW + 10, now=NOW)
+    rm.beat(now=NOW + 20, send_dm_fn=lambda t, rid: None,
+            send_leg_fn=lambda leg, t: None)
+    it = rm.done("RM-1", now=NOW + 200)
+    assert it["done"] is True and it["done_ts"] == NOW + 200, it
+    fresh = rm._find(rm._load(), "RM-1")
+    assert fresh["done_ts"] == NOW + 200 and fresh["fired_ts"] == NOW + 20
+    n, fast, total = rm._act_samples()
+    assert total == 1 and fast[datetime.fromtimestamp(NOW + 20).hour] == 1
+
+
+def t_legacy_items_without_a_stamp_are_unmeasurable_not_slow():
+    """آیتمِ done ِ بی‌مهر (میراثِ قبل از ۰۷-۳۱) نباید به «کندی» تعبیر شود —
+    وگرنه یادگیرنده از نبودِ داده، شبِ دروغین می‌سازد."""
+    _fresh()
+    _clear_send_log()
+    d = {"seq": 2, "items": [
+        {"id": "RM-1", "text": "کهنه", "due": 0, "scope": "dm", "leg": None,
+         "created": 0, "fired": True, "fired_ts": _ts(*DAY, 2, 0),
+         "done": True},                                   # بی‌done_ts
+        {"id": "RM-2", "text": "نو", "due": 0, "scope": "dm", "leg": None,
+         "created": 0, "fired": True, "fired_ts": _ts(*DAY, 2, 30),
+         "done": True, "done_ts": _ts(*DAY, 2, 35)},
+    ]}
+    rm._save(d)
+    n, fast, total = rm._act_samples()
+    assert total == 1 and n[2] == 1 and fast[2] == 1, (n[2], fast[2], total)
+
+
+def t_beat_runs_the_learner_once_a_day_by_itself():
+    """گاردِ سیم‌کشی: center.py قفل است، پس beat خودش یادگیری را می‌دواند.
+    بدونِ این، قابلیت «اعلام‌شده ولی مرده» می‌ماند."""
+    _fresh()
+    _clear_send_log()
+    _seed_hours(RICH)
+    rm.beat(now=LATER, send_dm_fn=lambda t, rid: None,
+            send_leg_fn=lambda leg, t: None)
+    cfg = rm.load_config()
+    assert (cfg["quiet_from"], cfg["quiet_to"]) == (0, 6), cfg
+    assert cfg["quiet_learned_day"] == "2026-08-04", cfg
+    # دومین ضربانِ همان روز دوباره یاد نمی‌گیرد (نشانگرِ روز)
+    rm._write_config({"quiet_from": 23, "quiet_to": 7})
+    rm.beat(now=LATER + 60, send_dm_fn=lambda t, rid: None,
+            send_leg_fn=lambda leg, t: None)
+    assert rm.load_config()["quiet_from"] == 23, "یادگیری هر ضربان دوید"
+    # و فردا دوباره می‌دود
+    rm.beat(now=LATER + 86400, send_dm_fn=lambda t, rid: None,
+            send_leg_fn=lambda leg, t: None)
+    assert rm.load_config()["quiet_from"] == 0
+
+
+def t_the_learner_writes_nothing_and_preserves_the_owner_keys():
+    _fresh()
+    _clear_send_log()
+    rm._write_config({"brief_hour": 6.25, "wrap_hour": 22.0, "topics": {"x": 1}})
+    _seed_hours(RICH)
+    before = rm._cfg_file().read_text("utf-8")
+    v = rm.learn(LATER)
+    assert v["changed"] is True
+    assert rm._cfg_file().read_text("utf-8") == before, "learn نوشت!"
+    rm.adapt_quiet(LATER)
+    cfg = rm.load_config()
+    assert cfg["brief_hour"] == 6.25 and cfg["wrap_hour"] == 22.0, cfg
+    assert cfg["topics"] == {"x": 1}, "کلیدِ ناشناختهٔ مالک پاک شد"
+
+
+def t_the_adaptive_learner_can_be_switched_off_by_the_owner():
+    _fresh()
+    _clear_send_log()
+    _seed_hours(RICH)
+    os.environ[rm.ADAPT_FLAG] = "0"
+    try:
+        assert rm.adapt_enabled() is False
+        rm.beat(now=LATER, send_dm_fn=lambda t, rid: None,
+                send_leg_fn=lambda leg, t: None)
+        assert rm.load_config()["quiet_from"] == 23, "فلگِ خاموش رعایت نشد"
+    finally:
+        os.environ.pop(rm.ADAPT_FLAG, None)
+    assert rm.adapt_enabled() is True, "پیش‌فرض باید روشن باشد"
 
 
 # ── انضباط ─────────────────────────────────────────────────────────────────

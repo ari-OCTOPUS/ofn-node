@@ -36,19 +36,30 @@ from pathlib import Path
 
 SCHEMA = "tg-send-audit.v1"
 
-# ── دو فرستندهٔ مستقل، دو سیاستِ متفاوتِ تاپیک (کشفِ ۲۸ جولای) ──────────────
+# ── دو فرستندهٔ مستقل، دو سیاستِ متفاوتِ تاپیک ──────────────────────────────
 #
 #   tg_api.TgClient.send(...)              پارامترِ صریحِ `topic_id` دارد
-#   approval_channel.send_text(...)        `topic_id` **ندارد**؛ تاپیک را فقط از
-#                                          روی `stream` استنتاج می‌کند، و آن هم
-#                                          تنها وقتی `chat_id` صریح داده نشده
-#                                          باشد (approval_channel.py:1467).
+#   approval_channel.send_text(...)        از ۰۷-۳۱ **هم** `topic_id` دارد؛ اگر
+#                                          داده نشود، تاپیک را از `stream`
+#                                          استنتاج می‌کند و آن هم تنها وقتی
+#                                          `chat_id` صریح داده نشده باشد.
 #
-# نتیجهٔ عملی: پاسخِ مستقیمی که `chat_id`ِ گروه بگیرد، از مسیرِ دوم **همیشه**
-# بی‌تاپیک می‌رود — یعنی در General — و هیچ فلگی این را درست نمی‌کند. این همان
-# «یکدست نیست» است، در دقیق‌ترین شکلش.
+# ⚠️ اصلاحِ ۲۰۲۶-۰۷-۳۱ — این کامنت تا امروز می‌گفت «send_text ِ topic_id ندارد».
+# آن جمله از ۲۸ جولای مانده بود و **دیگر درست نبود**: پارامتر اضافه شده و در
+# `send_text` صریحاً برنده است (`thread = int(topic_id) if isinstance(...)`).
+# چون طبقه‌بندِ زیر هرگز `topic_id` را روی `send_text` نگاه نمی‌کرد، هر سه
+# فراخوانیِ `approval_channel.poll_once` — که دقیقاً `topic_id=_thr` پاس
+# می‌دهند — تا ابد «بی‌تاپیک» شمرده می‌شدند. یعنی ابزارِ اندازه‌گیری، سه
+# **قرمزِ دروغین** تولید می‌کرد؛ همان بیماریِ سبزِ دروغین، آینه‌شده.
+#
+# نتیجهٔ عملی که هنوز پابرجاست: پاسخِ مستقیمی که `chat_id`ِ گروه بگیرد **و**
+# `topic_id` ندهد، از مسیرِ دوم همیشه بی‌تاپیک می‌رود — یعنی در General.
 SEND_METHODS = ("send", "send_text")
 STREAM_ROUTED = ("send_text",)
+# جایگاهِ positional ِ `topic_id` در امضای send_text:
+#   send_text(self, text, reply_markup=None, chat_id=None, stream=None, topic_id=None)
+# (شمارش بدونِ self، چون گرهٔ Call هم `self` را ندارد.)
+_SEND_TEXT_POS = {"chat_id": 2, "stream": 3, "topic_id": 4}
 # پارامترهایی که «این تابع دارد به یک پیامِ ورودی جواب می‌دهد» را لو می‌دهند.
 REPLY_PARAMS = ("msg", "message", "update")
 
@@ -140,16 +151,47 @@ def audit_source(src: str, filename: str = "<mem>") -> list:
     return sites
 
 
-def _classify_stream_routed(call, kinds):
-    """`send_text` تاپیک را از `stream` می‌گیرد — ولی فقط اگر `chat_id` نباشد.
+def _arg_node(call, name):
+    """گرهٔ آرگومانِ `name` — چه kwarg باشد چه positional. نبود → None."""
+    for kw in call.keywords:
+        if kw.arg == name:
+            return kw.value
+    pos = _SEND_TEXT_POS.get(name)
+    if pos is not None and len(call.args) > pos:
+        return call.args[pos]
+    return None
 
-    منطقِ واقعیِ approval_channel.py:1467 :
-        if chat_id is None and stream:  → مسیریابی به تاپیک
-    پس:
-      · chat_id صریح            → هرگز تاپیک ندارد → `absent`
-      · فقط stream              → شاید تاپیک بگیرد → `conditional`
-      · هیچ‌کدام                → DMِ مالک، تاپیک بی‌معناست → `dm`
+
+def _classify_stream_routed(call, kinds):
+    """`send_text`: اول `topic_id` صریح، بعد استنتاج از `stream`.
+
+    منطقِ واقعیِ approval_channel.send_text :
+        thread = int(topic_id) if isinstance(topic_id, int) else None
+        if thread is None and chat_id is None and stream:  → مسیریابی به تاپیک
+    پس دقیقاً به همان ترتیب:
+      · topic_id = عددِ ثابت      → ایستا اثبات‌شده → `certain`
+      · topic_id = هر عبارتِ زنده → ممکن است None شود → `conditional`
+      · topic_id = None/غیرعددی   → `isinstance(...,int)` رد می‌شود، thread همچنان
+                                    None است ⇒ می‌افتد به قواعدِ زیر (نه یک طبقهٔ
+                                    جدا؛ وگرنه دروغ می‌گفتیم)
+      · chat_id صریح             → هرگز تاپیک ندارد → `absent`
+      · فقط stream               → شاید تاپیک بگیرد → `conditional`
+      · هیچ‌کدام                 → DMِ مالک، تاپیک بی‌معناست → `dm`
     """
+    node = _arg_node(call, "topic_id")
+    if node is not None:
+        if isinstance(node, ast.Constant):
+            if isinstance(node.value, int):
+                return "certain", repr(node.value)
+            # None یا لیترالِ غیرعددی: عملاً «داده نشده» — ادامه به قواعدِ پایین.
+        else:
+            try:
+                return "conditional", ast.unparse(node)
+            except Exception:  # noqa: BLE001 — py<3.9
+                return "conditional", "<expr>"
+    elif any(kw.arg is None for kw in call.keywords):
+        # `**opts` می‌تواند topic_id داشته باشد — ایستا نمی‌دانیم.
+        return "conditional", "**kwargs"
     has_chat = "chat_id" in kinds or len(call.args) >= 3
     has_stream = "stream" in kinds or len(call.args) >= 4
     if has_chat:

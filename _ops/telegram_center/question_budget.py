@@ -180,15 +180,25 @@ def record_answer(qid: str, answer_text: str, *,
 
 
 # ── رندر (متن، نه ارسال) — برای لِینِ wiring ───────────────────────────────
+def _esc(s: str) -> str:
+    """⚠️ ۰۷-۳۱ (لِینِ ASKS): از وقتی `question_producers` هست، متنِ سؤال از
+    artifactهای واقعی می‌آید — خطِ GOALS، متنِ Task، توضیحِ لید. این‌ها می‌توانند
+    `<` یا `&` داشته باشند و مرکز با parse_mode=HTML می‌فرستد ⇒ یک `<` ِ
+    بی‌گناه کلِ پیام را رد می‌کرد (نه خطا، نه پیام — سکوت). فقط تکه‌های
+    داده‌ای escape می‌شوند؛ `<b>` ِ خودِ قالب دست‌نخورده می‌ماند."""
+    return (str(s or "").replace("&", "&amp;")
+            .replace("<", "&lt;").replace(">", "&gt;"))
+
+
 def question_text(item: dict) -> str:
     ctx = str(item.get("context") or "").strip()
     goal = str(item.get("goal") or "").strip()
-    lines = [f"❓ <b>{item.get('id', '؟')}</b> — سؤالِ اختاپوس", "",
-             str(item.get("q") or "")[:400]]
+    lines = [f"❓ <b>{_esc(item.get('id', '؟'))}</b> — سؤالِ اختاپوس", "",
+             _esc(str(item.get("q") or "")[:400])]
     if ctx:
-        lines.append(f"زمینه: {ctx[:200]}")
+        lines.append(f"زمینه: {_esc(ctx[:200])}")
     if goal:
-        lines.append(f"هدف: {goal[:150]}")
+        lines.append(f"هدف: {_esc(goal[:150])}")
     lines.append("\nبرای جواب به همین پیام ریپلای کن.")
     return "\n".join(lines)
 

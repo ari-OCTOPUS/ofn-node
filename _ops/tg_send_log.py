@@ -131,11 +131,15 @@ def record(*, chat_id=None, topic_id=None, text: str = "", stream=None,
         return False
 
 
-def _rows(window_s: float | None = None) -> list:
+def _rows(window_s: float | None = None, now: float | None = None) -> list:
     p = _path()
     if not p.exists():
         return []
-    cutoff = (time.time() - window_s) if window_s else 0.0
+    # ساعتِ تزریقی — درسِ «ساعتِ نیمه‌تزریقی»: اگر فقط بعضی شاخه‌ها `now` را
+    # بگیرند و بقیه `time.time()` بخوانند، پنجرهٔ تست با پنجرهٔ واقعی فرق
+    # می‌کند و تست چیزی را می‌سنجد که وجود ندارد. تنها ساعتِ این تابع همین است.
+    _now = float(now) if now is not None else time.time()
+    cutoff = (_now - window_s) if window_s else 0.0
     out = []
     try:
         for ln in p.read_text("utf-8", errors="replace").splitlines():
@@ -145,7 +149,15 @@ def _rows(window_s: float | None = None) -> list:
                 d = json.loads(ln)
             except ValueError:
                 continue
-            if float(d.get("ts") or 0) >= cutoff:
+            # ⚠️ ۲۰۲۶-۰۷-۳۱: این خط قبلاً `float(d.get("ts") or 0)` بی‌محافظ
+            # بود. یک ردیف با `ts` ِ غیرعددی (لاگِ نیمه‌نوشته/دستکاری‌شده)
+            # کلِ `stats()` را با ValueError می‌کشت — یعنی یک بایتِ خراب کلِ
+            # لایهٔ اندازه‌گیری را خاموش می‌کرد. حالا فقط همان ردیف می‌افتد.
+            try:
+                ts = float(d.get("ts") or 0)
+            except (TypeError, ValueError):
+                continue
+            if ts >= cutoff:
                 out.append(d)
     except OSError:
         return []
@@ -166,12 +178,15 @@ def prune(retain_s: float = RETAIN_S) -> int:
         return -1
 
 
-def stats(window_h: float = 24.0) -> dict:
+def stats(window_h: float = 24.0, now: float | None = None) -> dict:
     """تصویرِ واقعیِ حجم و تکرار در پنجرهٔ داده‌شده.
 
     `duplicates` = ارسال‌هایی که دقیقاً همان محتوا در همان مقصد قبلاً رفته بود.
-    این عددی است که تصمیمِ ساختنِ dedup باید بر آن سوار شود — نه بر حدس."""
-    rows = _rows(window_h * 3600.0)
+    این عددی است که تصمیمِ ساختنِ dedup باید بر آن سوار شود — نه بر حدس.
+
+    `now` اختیاری است (پیش‌فرض = ساعتِ سیستم) تا تست بتواند پنجره را قطعی
+    بسنجد؛ صداکنندهٔ قدیمی بایت‌به‌بایت همان رفتار را می‌گیرد."""
+    rows = _rows(window_h * 3600.0, now=now)
     if not rows:
         return {"window_h": window_h, "sends": 0, "unique": 0, "duplicates": 0,
                 "by_stream": {}, "top_repeats": [], "note": "هیچ ارسالی ثبت نشده"}
@@ -180,13 +195,77 @@ def stats(window_h: float = 24.0) -> dict:
     c = Counter(keys)
     dup = sum(n - 1 for n in c.values())
     by_stream = Counter(str(r.get("stream")) for r in rows)
-    top = [{"repeats": n, "stream": k.split("|")[0]} for k, n in c.most_common(5) if n > 1]
+    # کلیدِ `c` سه‌تکه است: chat|topic|sha — پس `[0]` **chat** است نه stream.
+    # تا امروز اسمش "stream" بود؛ یک برچسبِ دروغ در خودِ لایهٔ اندازه‌گیری.
+    # هیچ صداکننده‌ای این کلید را نمی‌خواند (weekly_review فقط `sends` را
+    # می‌گیرد)، پس تغییرِ نام هیچ‌چیزی را نمی‌شکند و یک دروغِ کوچک را می‌بندد.
+    top = [{"repeats": n, "chat": k.split("|")[0]} for k, n in c.most_common(5) if n > 1]
     return {"window_h": window_h, "sends": len(rows), "unique": len(c),
             "duplicates": dup,
             "duplicate_pct": round(100.0 * dup / len(rows), 1),
             "by_stream": dict(by_stream), "top_repeats": top}
 
 
+# ── خطِ نبض: تنها مصرف‌کنندهٔ ساعتیِ همین اندازه‌گیری ────────────────────────
+# چرا اضافه شد (۲۰۲۶-۰۷-۳۱): `stats()` از ۲۶ جولای وجود داشت و تنها خواننده‌اش
+# مرورِ **هفتگی** بود، آن هم فقط فیلدِ `sends`. یعنی درصدِ تکرار — دقیقاً عددی
+# که کلِ این ماژول برای دیدنش ساخته شد — هیچ‌وقت به چشمِ مالک نمی‌رسید. یک
+# سنجهٔ خوانده‌نشده با سنجهٔ نبود فرقی ندارد.
+_PULSE_MIN_SENDS = 3   # زیرِ این، خبری نیست که ارزشِ یک خط در پالس را داشته باشد
+_FA_DIGITS = str.maketrans("0123456789.", "۰۱۲۳۴۵۶۷۸۹٫")
+_LRI, _PDI = "⁦", "⁩"   # ایزولهٔ bidi دورِ تکهٔ LTR (منشور UX-۹)
+
+
+def _fa(v) -> str:
+    return str(v).translate(_FA_DIGITS)
+
+
+def _top_stream(by_stream: dict) -> "str | None":
+    """پرحجم‌ترین جریان. مساوی → نامِ الفبایی (قطعی، نه وابسته به ترتیبِ dict)."""
+    if not by_stream:
+        return None
+    name, n = sorted(by_stream.items(), key=lambda kv: (-int(kv[1]), str(kv[0])))[0]
+    if not n:
+        return None
+    # `str(None)` یعنی ارسالِ بی‌جریان — پنهانش نمی‌کنیم؛ اگر بیشترِ ترافیک
+    # بی‌جریان است، همان خودش یافته است.
+    return "بی‌جریان" if str(name) in ("None", "", "null") else str(name)
+
+
+def pulse_line(window_h: float = 24.0, now: float | None = None) -> "str | None":
+    """یک خطِ فارسی برای پالسِ ساعتیِ لنگر — یا None وقتی حرفی برای گفتن نیست.
+
+    ناوردی‌ها: صفر side-effect (فقط می‌خواند) · fail-soft (هر خطا → None،
+    پالس هرگز به‌خاطرِ این خط نمی‌میرد) · هرگز متنِ پیام را لو نمی‌دهد (فقط
+    شمار و نامِ جریان).
+
+    None برمی‌گردد وقتی: فلگِ ثبت خاموش است (عدد ناقص را «واقعیت» جا نمی‌زنیم)
+    · هیچ ردیفی در پنجره نیست · حجم زیرِ `_PULSE_MIN_SENDS` است."""
+    try:
+        if not enabled():
+            # ثبت خاموش ⇒ هر عددی زیرشمارش است. سکوت صادق‌تر از عددِ ناقص است.
+            return None
+        s = stats(window_h, now=now)
+        sends = int(s.get("sends") or 0)
+        if sends < _PULSE_MIN_SENDS:
+            return None
+        parts = [f"📨 ارسالِ {_fa(f'{float(window_h):g}')} ساعت: {_fa(sends)}",
+                 f"یکتا {_fa(int(s.get('unique') or 0))}"]
+        dup = float(s.get("duplicate_pct") or 0.0)
+        if dup >= 1.0:
+            parts.append(f"تکراری {_fa(int(round(dup)))}٪")
+        top = _top_stream(s.get("by_stream") or {})
+        if top:
+            # ایزوله فقط دورِ تکهٔ **لاتین**؛ گذاشتنش دورِ متنِ فارسی جهت را
+            # برعکس می‌کند و همان bidi ای را می‌شکند که قرار بود درست کند.
+            parts.append("بیشترین: "
+                         + (f"{_LRI}{top}{_PDI}" if top.isascii() else top))
+        return " · ".join(parts)
+    except Exception:  # noqa: BLE001 — سنجه هرگز نباید پالس را بکشد
+        return None
+
+
 if __name__ == "__main__":  # pragma: no cover — گزارشِ دستی، صفر ارسال
     w = float(sys.argv[1]) if len(sys.argv) > 1 else 24.0
     print(json.dumps(stats(w), ensure_ascii=False, indent=2))
+    print(pulse_line(w) or "(خطِ نبض: چیزی برای گفتن نیست)")
