@@ -268,33 +268,50 @@ class LockedJson:
         return json.loads(self.path.read_text("utf-8"))
 
     def write(self, data: dict) -> None:
+        # VQ-STATE-WRITE-001 (۲۰۲۶-۰۷-۳۱): روی ویندوز `os.replace` وقتی AV یا یک
+        # reader هندلِ مقصد را باز نگه داشته PermissionError (WinError 5) می‌دهد؛
+        # نتیجهٔ ثبت‌شدهٔ ۰۷-۳۰: «tmp تازه، فایلِ اصلی کهنه» برای self-model و
+        # ORGANISM-STATE. قفلِ .lock فقط نویسنده‌های همکار را serialize می‌کند،
+        # نه خواننده‌های بیرونی را — پس replace باید retry ِ محدود داشته باشد و
+        # شکستِ نهایی هرگز بی‌رسید نماند (tmp عمداً برای forensics می‌ماند).
+        # بازگشتِ نسخهٔ 0a303af (fsync + receipt + snapshot) که در merge 681907f
+        # ضعیف‌تر شده بود (6-attempt بدون fsync، breadcrumb-only).
         self.path.parent.mkdir(parents=True, exist_ok=True)
         tmp = self.path.with_suffix(self.path.suffix + ".tmp")
-        tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), "utf-8")
-        # VQ-STATE-WRITE-001: روی ویندوز `os.replace` گاهی با WinError 5 (قفلِ
-        # گذرای AV/ایندکسر روی فایلِ مقصد) می‌شکند — نتیجه: `.tmp` تازه کنارِ
-        # فایلِ اصلیِ کهنه، و heartbeat زنده بدونِ هیچ زنگی. retry ِ محدود با
-        # backoff؛ شکستِ نهایی fail-loud می‌ماند (استثنا بالا می‌رود — بلعیدنش
-        # کارِ این لایه نیست) + یک breadcrumb ِ ماشین‌خوان کنارِ فایل تا کهنگی
-        # قابلِ تشخیصِ قطعی باشد نه حدسی.
-        last: Exception | None = None
-        delay = 0.05
-        for _ in range(6):
+        with open(tmp, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(data, ensure_ascii=False, indent=2))
+            fh.flush()
+            os.fsync(fh.fileno())   # تضمینِ دیسک قبل از replace — WinError 5 نمی‌پذیرد
+        last_err: "OSError | None" = None
+        for attempt in range(5):                    # ~۱.۵s سقف — bounded
             try:
                 os.replace(tmp, self.path)
                 return
-            except (PermissionError, OSError) as e:
-                last = e
-                time.sleep(delay)
-                delay = min(delay * 2, 0.8)
-        try:
-            pathlib.Path(str(self.path) + ".replace-failed.json").write_text(
-                json.dumps({"ts": now_iso(), "error": str(last),
-                            "tmp": str(tmp), "attempts": 6},
-                           ensure_ascii=False), "utf-8")
-        except OSError:
-            pass
-        raise last if last is not None else OSError("replace-failed")
+            except OSError as e:
+                last_err = e
+                time.sleep(0.05 * (2 ** attempt))
+        _write_failure_receipt(self.path, last_err)
+        raise last_err
+
+
+WRITE_FAILURES = STATE_DIR / "write-failures.jsonl"
+
+
+def _write_failure_receipt(path: pathlib.Path, err: "BaseException | None") -> None:
+    """رسیدِ شکستِ نوشتنِ state — شکست هرگز بی‌صدا نیست (VQ-STATE-WRITE-001).
+    content-free: فقط مسیر/نوعِ خطا/جزئیاتِ bounded؛ payload هرگز.
+    best-effort: خطای خودِ رسید نباید خطای اصلیِ صداکننده را بپوشاند.
+    مصرف‌کننده: unified_control.snapshot (blocker ِ state-write-failures)."""
+    try:
+        append_jsonl(WRITE_FAILURES, {
+            "ts": time.strftime("%Y-%m-%dT%H:%M:%S"),
+            "epoch": time.time(),
+            "path": str(path),
+            "error": type(err).__name__ if err else "?",
+            "detail": str(err)[:200] if err else "",
+        })
+    except Exception:  # noqa: BLE001 — رسید ثانویه است؛ خطای اصلی مقدم
+        pass
 
 
 def append_jsonl(path: pathlib.Path, record: dict) -> None:

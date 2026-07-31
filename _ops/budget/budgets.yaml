@@ -37,6 +37,7 @@ projects:
   ZIMAN:          {floor: 1,  human_priority: 0.5}
   PAINTING:       {floor: 1,  human_priority: 1.0}   # بیزنس نقاشی (lead-naghshi) — [proposed-diff §۵ · verdict 2026-07-18]؛ قبلاً UNMAPPED بود → crash lead-naghshi
   ACCOUNTING:     {floor: 1,  human_priority: 1.0}   # حسابداری — [proposed-diff §۵ · verdict 2026-07-18]؛ privacy: sensitive (ژنوم)
+  DOCTOR:         {floor: 0,  human_priority: 0.5}   # W0.3 (۲۰۲۶-۰۷-۳۱): رفع VQ-BUDGET-001 — plumbing فقط. doctor فعلاً صفر LLM (chamber stub)، floor=0 یعنی سهم پایه نمی‌گیرد ولی وقتی reserve/settle صدا زده شد به AU$30 سراسری متصل و قابل‌مشاهده می‌شود (نه «دکترِ پولیِ کور»). cap صریح بعداً با verdict.
   # جمع floorها = AU$10 (+ explore 10% = AU$3 + DEBATE_LOOP AU$5) → headroom رقابتی ≈ AU$12/ماه.
 
 loop:

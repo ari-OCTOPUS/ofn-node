@@ -34,7 +34,10 @@ EVENT_TYPES = ("delivered", "deferred", "accepted-measurement", "rejected", "fai
                "mission-created", "decision-recorded", "proposal-issued",
                "owner-verdict-recorded", "outcome-recorded",
                "system.booted",   # C2-E: شناسنامهٔ تولد (RESURRECTION §birth-certificate)
-               "system.beat")     # C5: ضربانِ واحد (one-heartbeat scheduler)
+               "system.beat",     # C5: ضربانِ واحد (one-heartbeat scheduler)
+               "hebb.observation")  # W2 (۲۰۲۶-۰۷-۳۱): مشاهدهٔ Hebbian واقعی — «پلِ به EFE».
+                                    # additive: نام‌های قدیمی معتبر می‌مانند (همان قراردادِ ۰۷-۲۱).
+                                    # domain=neural؛ Advisory؛ پشتِ OCTOPUS_HEBBIAN_LEDGER.
 
 # ── privacy ──────────────────────────────────────────────────────────────────
 PRIVACY_CLASSES = ("public", "scrubbed", "owner_only")
