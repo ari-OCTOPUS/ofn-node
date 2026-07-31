@@ -191,16 +191,46 @@ def _load_config() -> dict:
 
 
 def _save_config(cfg: dict) -> bool:
-    """نوشتنِ اتمیک (tmp + os.replace، idiomِ opslib.LockedJson.write). شکست → False."""
+    """نوشتنِ اتمیکِ config با fsync و retry — شکست → False **و صدادار**.
+
+    ⚠️ ۲۰۲۶-۰۷-۳۱ (یافتهٔ دیباگ W1): این تابع کپیِ دستیِ idiom بود و سخت‌سازیِ
+    `opslib.LockedJson.write` (VQ-STATE-WRITE-001: fsync + retry روی
+    `os.replace` ِ گذرا-شکسته) هرگز به آن نرسید. این فایل **هر نشانگرِ منو،
+    هر cursor و هر شناسهٔ کارت** را نگه می‌دارد؛ یک قفلِ گذرای آنتی‌ویروس
+    یعنی از دست رفتنِ بی‌صدای همان‌ها (بریفِ دوباره، کارتِ گم‌شده، منوی
+    دوباره‌ثبت‌شده). حالا: تا ۴ تلاش با backoff، fsync قبل از replace، و
+    شکستِ دائمی یک هشدارِ واقعی می‌دهد (نه فقط False ِ خاموش)."""
+    p = _config_path()
+    payload = None
     try:
-        p = _config_path()
+        payload = json.dumps(cfg, ensure_ascii=False, indent=2)
         p.parent.mkdir(parents=True, exist_ok=True)
-        tmp = p.with_suffix(".json.tmp")
-        tmp.write_text(json.dumps(cfg, ensure_ascii=False, indent=2), "utf-8")
-        os.replace(tmp, p)
-        return True
-    except (OSError, TypeError, ValueError):
+    except (OSError, TypeError, ValueError) as e:  # noqa: BLE001
+        try:
+            opslib.alert([f"tg-center: ساختِ payload ِ config شکست: {type(e).__name__}"])
+        except Exception:  # noqa: BLE001
+            pass
         return False
+    tmp = p.with_suffix(".json.tmp")
+    last = None
+    for attempt in range(4):
+        try:
+            with open(tmp, "w", encoding="utf-8") as fh:
+                fh.write(payload)
+                fh.flush()
+                os.fsync(fh.fileno())      # دوامِ واقعی، نه صرفاً بافرِ OS
+            os.replace(tmp, p)
+            return True
+        except OSError as e:               # noqa: PERF203 — قفلِ AV گذراست
+            last = e
+            if attempt < 3:
+                time.sleep(0.15 * (2 ** attempt))
+    try:
+        opslib.alert(["🚩 tg-center: نوشتنِ center-config پس از ۴ تلاش شکست "
+                      f"({type(last).__name__}) — نشانگرها/cursorها به‌روز نشدند"])
+    except Exception:  # noqa: BLE001 — هشدار هرگز مسیرِ ارسال را نمی‌کشد
+        pass
+    return False
 
 
 def _decision_id(item: dict) -> str:

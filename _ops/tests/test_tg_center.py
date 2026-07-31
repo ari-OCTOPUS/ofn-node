@@ -1058,6 +1058,48 @@ def t_flag_off_never_sets_inner_commands():
     assert len(outer.named("set_commands")) == 1          # outer همان امروز
     assert len(inner_fc.named("set_commands")) == 0, "flag-off نباید inner را ثبت کند"
 
+def t_c10_save_config_retries_transient_locks_and_is_loud_when_permanent():
+    """W1 ِ دیباگِ ۰۷-۳۱: این فایل هر نشانگر/cursor/شناسهٔ کارت را نگه می‌دارد.
+    قفلِ گذرای AV نباید بی‌صدا آن‌ها را ببلعد؛ شکستِ دائمی باید صدا کند."""
+    import center as _c
+    calls = {"n": 0}
+    real_replace = _c.os.replace
+    real_sleep = _c.time.sleep
+    real_alert = _c.opslib.alert
+
+    def flaky(src, dst):
+        calls["n"] += 1
+        if calls["n"] <= 2:                      # دو قفلِ گذرا، بعد موفق
+            raise PermissionError("[Errno 13] simulated AV lock")
+        return real_replace(src, dst)
+
+    slept = []
+    _c.os.replace = flaky
+    _c.time.sleep = lambda s: slept.append(s)
+    try:
+        assert _c._save_config({"probe": "transient"}) is True, "قفلِ گذرا جذب نشد"
+        assert calls["n"] == 3 and slept, (calls, slept)
+    finally:
+        _c.os.replace = real_replace
+        _c.time.sleep = real_sleep
+
+    alerts = []
+
+    def _boom(*_a, **_k):
+        raise PermissionError("permanent")
+
+    _c.os.replace = _boom
+    _c.time.sleep = lambda s: None
+    _c.opslib.alert = lambda lines: alerts.append(list(lines))
+    try:
+        assert _c._save_config({"probe": "permanent"}) is False, "شکستِ دائمی True داد"
+        assert alerts and any("center-config" in " ".join(a) for a in alerts), alerts
+    finally:
+        _c.os.replace = real_replace
+        _c.time.sleep = real_sleep
+        _c.opslib.alert = real_alert
+
+
 
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
