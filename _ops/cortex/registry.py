@@ -61,6 +61,10 @@ def member_awareness(m: dict, state_dir: Path | None = None) -> dict:
             "source": "file-freshness", "watches": str(m["file"])}
 
 
+def ping() -> str:
+    return "ok"
+
+
 def sweep(state_dir: Path | None = None) -> dict:
     """جاروی کاملِ اعضا → آگاهیِ per-عضو + coherence مجموعه (وزنی با vital)."""
     rows = [member_awareness(m, state_dir) for m in MEMBERS]

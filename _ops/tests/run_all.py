@@ -609,6 +609,12 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_mission_kernel.py",        # پروندهٔ واحدِ مأموریت: timeline/resume/fsck، فقط‌خواندنی
     "test_state_write_retry.py",     # ریشهٔ VQ-STATE-WRITE-001: retry ِ os.replace + breadcrumb
     "test_action_schema_drift.py",   # دو کپیِ اعتبارسنجِ action-request — گاردِ drift
+    # ۲۰۲۶-۰۷-۳۱ — اتاقِ کنترلِ پاها. دو فایلِ اول ۰۷-۳۰ نوشته شده بودند و در
+    # **هیچ** لیستی نبودند (همان تلهٔ مستندِ بالا: تست ساخته شد، به رانر وصل
+    # نشد). هر سه قبل از ثبت جدا اجرا و سبز شدند (۱۸/۱۸ · ۷/۷ · ۱۵/۱۵).
+    "test_tg_leg_tasks.py",         # مدلِ Task ِ گروه: ۴ وضعیت، کارت، رسید
+    "test_tg_group_is_legs_only.py",  # گروه legs-only: جریانِ هسته‌ای هرگز در گروه
+    "test_tg_leg_commands.py",      # ۹ فرمانِ طبیعی + رفعِ مانع با ریپلای + گزارشِ روزانه
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",

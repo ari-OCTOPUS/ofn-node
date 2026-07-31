@@ -81,20 +81,49 @@ def t_b_edge_of_chaos_band():
 
 # ── قانونِ قلب §۳ — deny/allowlist ────────────────────────────────────────────────
 def t_c_allowlist_and_denylist():
-    # ۰۷-۳۱: با رأیِ ثبت‌شدهٔ مالک (VQ-SELFGOAL-005، ۰۷-۳۰) `telegram_center`
-    # از allowlist ِ خودپچی **برداشته شد** (دامنه = دقیقاً `_ops/cortex` +
-    # `_ops/state`)؛ انتظارِ قدیمیِ این بند از قبل از آن رأی مانده بود و
-    # `test_self_patch.t_the_narrowed_scope_is_locked_not_just_unused` هم
-    # همین قفل را از سمتِ دیگر می‌سنجد.
+    # ۲۰۲۶-۰۷-۳۰ · رأیِ مالک VQ-SELFGOAL-005 — `telegram_center` از
+    # `_ALLOW_ROOTS` برداشته شد (دامنهٔ مصوبِ L3 = `_ops/cortex/**` +
+    # `_ops/state/**`). خطِ قبلی مجاز بودنش را assert می‌کرد؛ حالا
+    # **ممنوع بودنش** assert می‌شود تا برگشتنِ دامنه قرمز کند.
     assert CA.allowed_target("_ops/cortex/stress.py")
-    assert not CA.allowed_target("_ops/telegram_center/render.py"), \
-        "دامنهٔ باریک‌شده باز شده — تضاد با VQ-SELFGOAL-005"
+    assert CA.allowed_target("_ops/state/pulse/work-plan.json")
+    assert not CA.allowed_target("_ops/telegram_center/render.py")
+    # و مسیرِ فرارِ `..` که تا امروز از گاردِ زیررشته‌ای رد می‌شد
+    # (اثباتِ تجربی روی همین تابع، HEAD=1ddc058؛ هر سه True بودند):
+    for escape in ("_ops/cortex/../../PRE-0/governance.py",
+                   "_ops/cortex/../tests/run_all.py",
+                   "_ops/telegram_center/power.py",
+                   "_OPS/CORTEX/../../PRE-0/GOVERNANCE.py"):
+        assert not CA.allowed_target(escape), f"فرار بسته نشد: {escape}"
     # deny-list سخت — هرگز
     for bad in ("_ops/budget/money_gate.py", "_ops/cortex/auto_approve.py",
                 "_ops/cortex/goal_directed.py", ".git/config", "_ops/germline.py",
                 "OCTOPUS.env", "_ops/registry_scan.py", ".claude/settings.json",
-                "_ops/cortex/code_autonomy.py".replace("code_autonomy", "capability_gate")):
+                "_ops/budget/capability_gate.py",
+                # ── ۲۰۲۶-۰۷-۲۸ · خودویرایشی ────────────────────────────────
+                # ⚠️ خطِ قبلی این‌جا `"_ops/cortex/code_autonomy.py".replace(
+                # "code_autonomy", "capability_gate")` بود: نویسنده مسیرِ
+                # خودویرایشی را تایپ کرده، دیده assert قرمز می‌شود، و به‌جای
+                # فیکسِ deny-list رشته را به فایلِ دیگری تبدیل کرده. مورد روی
+                # صفحه بوده و جهش داده شده.
+                #
+                # این چهار مسیر همان چیزی‌اند که واقعاً باز بود:
+                #   code_autonomy → فایلِ خودِ deny-list و هر هفت گیت
+                #   code_brain    → پچ‌نویس
+                #   power         → کلیدِ توقف. ایجنت می‌توانست ترمزش را بنویسد
+                #   tg_api        → لایهٔ شبکه
+                "_ops/cortex/code_autonomy.py",
+                "_ops/cortex/code_brain.py",
+                "_ops/telegram_center/power.py",
+                "_ops/telegram_center/tg_api.py"):
         assert not CA.allowed_target(bad), f"deny نشد: {bad}"
+    # و منعِ تازه نباید همسایه‌های بی‌گناه را ببندد.
+    # ۲۰۲۶-۰۷-۳۰ · دو نمونهٔ `telegram_center` از این فهرست بیرون رفتند —
+    # نه چون گارد بیش‌بست شد، چون رأیِ مالک (VQ-SELFGOAL-005) کلِ آن ریشه
+    # را از allowlist برداشت. نمونه‌های جایگزین از `cortex`/`state` اند.
+    for ok in ("_ops/cortex/stress.py", "_ops/cortex/synthesis.py",
+               "_ops/state/pulse/heart-signals-latest.json"):
+        assert CA.allowed_target(ok), f"بیش‌بست: {ok}"
     # خارج از allowlist
     assert not CA.allowed_target("_ops/live/server.py")
     assert not CA.allowed_target("") and not CA.allowed_target(None)
@@ -417,6 +446,250 @@ def t_p_a_patch_that_breaks_a_test_is_still_red():
         check("شکستِ تازه نام‌برده می‌شود", r.get("new_fails") == ["test_broken_by_patch"])
     finally:
         CA._run_suite, CA._shadow_env = real_suite, real_env
+
+
+# ─── سقفِ کهنگیِ تأیید (۲۰۲۶-۰۷-۲۷) ─────────────────────────────────────────
+def t_a_stale_approval_never_applies():
+    """تأییدِ کهنه رضایتِ کهنه است.
+
+    تا امروز `consume_approvals` هیچ چکِ زمانی نداشت. بی‌خطر بود چون هر دو صف
+    خالی‌اند و درایور اجرا نمی‌شود — ولی این امنیتِ **تصادفی** بود: کافی بود
+    کارتِ پچ دکمه بگیرد تا تأییدها جمع شوند، و بعد یک اجرای درایور همه را
+    یک‌جا شلیک کند، روی کدی که دیگر وجود ندارد.
+
+    مالک به «همین پچ، همین حالا» آره گفته، نه به «هر وقت شد»."""
+    import json as _j, time as _t
+    d = CA.APPROVALS_DIR
+    d.mkdir(parents=True, exist_ok=True)
+    cases = {
+        "fresh": ({"verdict": "ok", "epoch": _t.time()}, True),
+        "old": ({"verdict": "ok", "epoch": _t.time() - 72 * 3600}, False),
+        "edge": ({"verdict": "ok", "epoch": _t.time() - CA.APPROVAL_MAX_AGE_S - 60}, False),
+        "no": ({"verdict": "no", "epoch": _t.time()}, False),
+        "bad_ts": ({"verdict": "ok", "epoch": "دیروز"}, False),
+    }
+    try:
+        for name, (body, want) in cases.items():
+            (d / f"{name}.json").write_text(_j.dumps(body), "utf-8")
+            got = CA._owner_approved(name)
+            assert got is want, f"{name}: {got} (انتظار {want})"
+    finally:
+        for name in cases:
+            try:
+                (d / f"{name}.json").unlink()
+            except OSError:
+                pass
+
+
+def t_the_age_cap_is_a_real_bound():
+    assert 3600 <= CA.APPROVAL_MAX_AGE_S <= 7 * 24 * 3600, CA.APPROVAL_MAX_AGE_S
+
+
+def _tiny_repo(tmp: Path, body: str = "x = 1\n"):
+    """ریپوی واقعیِ کوچک — گیت را فیک نمی‌کنم چون همین مسیر است که خراب بود."""
+    import subprocess
+    ops = tmp / "_ops" / "cortex"
+    ops.mkdir(parents=True)
+    (ops / "x.py").write_bytes(body.encode("utf-8"))
+    for cmd in (["init", "-q"], ["config", "user.email", "t@t"],
+                ["config", "user.name", "t"], ["add", "-A"],
+                ["commit", "-qm", "base"]):
+        subprocess.run(["git", "-C", str(tmp)] + cmd, capture_output=True, timeout=60)
+    return tmp / "_ops"
+
+
+def _canary_with(monkey_suite, tmp, content="x = 1\ny = 2\n"):
+    """`_git_apply_canary` را روی ریپوی موقت با `_run_suite` ِ اسکریپت‌شده بدوان."""
+    old_ops, old_run = CA._OPS, CA._run_suite
+    try:
+        CA._OPS = _tiny_repo(tmp)
+        CA._run_suite = monkey_suite
+        return CA._git_apply_canary("_ops/cortex/x.py", content)
+    finally:
+        CA._OPS, CA._run_suite = old_ops, old_run
+
+
+def t_the_apply_gate_is_regression_not_absolute_green():
+    """رأیِ مالک VQ-CANARY-001 گزینهٔ الف.
+
+    ⚠️ چرا لازم شد: گیت `returncode == 0` می‌سنجید و مبنای درختِ زنده ۹ سوییتِ
+    قرمز داشت که از هیچ پچی نبودند. یعنی هر تأییدِ مالک ساختاراً به
+    rollback + freeze ختم می‌شد — fail-closed ِ همیشگی = نبودِ قابلیت.
+    مسیرِ **سایه** از ۰۷-۲۷ رگرسیونی بود؛ فقط مسیرِ **اعمال** جا مانده بود."""
+    import tempfile
+    # (الف) مبنای قرمز، پچ چیزی اضافه نمی‌کند ⇒ سبز، می‌مانَد
+    with tempfile.TemporaryDirectory() as d:
+        seq = [{"code": 1, "fails": {"test_a", "test_b"}, "seconds": 1, "tail": ""},
+               {"code": 1, "fails": {"test_a", "test_b"}, "seconds": 1, "tail": ""}]
+        r = _canary_with(lambda *a, **k: seq.pop(0), Path(d))
+        assert r["green"] is True, r
+        assert r["applied"] is True and r["rolled_back"] is False
+        assert r["new_fails"] == [] and r["baseline_fails"] == ["test_a", "test_b"]
+        assert "y = 2" in (Path(d) / "_ops" / "cortex" / "x.py").read_text("utf-8")
+    # (ب) پچ یک شکستِ **تازه** می‌آورد ⇒ قرمز، برمی‌گردد
+    with tempfile.TemporaryDirectory() as d:
+        seq = [{"code": 1, "fails": {"test_a"}, "seconds": 1, "tail": ""},
+               {"code": 1, "fails": {"test_a", "test_c"}, "seconds": 1, "tail": ""}]
+        r = _canary_with(lambda *a, **k: seq.pop(0), Path(d))
+        assert r["green"] is False and r["rolled_back"] is True, r
+        assert r["new_fails"] == ["test_c"]
+        assert "y = 2" not in (Path(d) / "_ops" / "cortex" / "x.py").read_text("utf-8"), \
+            "پچِ رگرسیون‌زا روی دیسک ماند"
+    # (ج) مبنای پاک ⇒ سخت‌گیری **ذره‌ای** کم نشده: returncode باید صفر باشد
+    with tempfile.TemporaryDirectory() as d:
+        seq = [{"code": 0, "fails": set(), "seconds": 1, "tail": ""},
+               {"code": 1, "fails": set(), "seconds": 1, "tail": ""}]
+        r = _canary_with(lambda *a, **k: seq.pop(0), Path(d))
+        assert r["green"] is False, "مبنای پاک + خروجِ غیرصفر باید قرمز بماند"
+    with tempfile.TemporaryDirectory() as d:
+        seq = [{"code": 0, "fails": set(), "seconds": 1, "tail": ""},
+               {"code": 0, "fails": set(), "seconds": 1, "tail": ""}]
+        assert _canary_with(lambda *a, **k: seq.pop(0), Path(d))["green"] is True
+
+
+def t_the_baseline_is_measured_before_the_patch_is_written():
+    """⚠️ ظریف‌ترین بندِ گیتِ رگرسیون. اگر مبنا **بعد** از نوشتن سنجیده شود،
+    مبنا خودش شاملِ پچ است و مقایسه همیشه «هیچ شکستِ تازه» می‌دهد — یعنی گیت
+    بی‌صدا از کار می‌افتد و هر پچی سبز می‌شود. اثباتش با خواندنِ **محتوای
+    فایل در لحظهٔ هر فراخوان**، نه با خواندنِ کد."""
+    import tempfile
+    seen = []
+    with tempfile.TemporaryDirectory() as d:
+        p = Path(d) / "_ops" / "cortex" / "x.py"
+
+        def spy(wt, env, timeout=None):
+            seen.append(p.read_text("utf-8"))
+            return {"code": 0, "fails": set(), "seconds": 1, "tail": ""}
+
+        _canary_with(spy, Path(d))
+        assert len(seen) == 2, f"سوییت باید **دوبار** بدود، دوید {len(seen)}"
+        assert "y = 2" not in seen[0], "مبنا بعد از نوشتنِ پچ سنجیده شد ⇒ گیت بی‌اثر"
+        assert "y = 2" in seen[1], "دورِ دوم پچ را ندید"
+
+
+def t_applying_a_patch_never_flips_the_targets_line_endings():
+    """⚠️ مسیرِ اعمال `write_text` می‌زد. روی ویندوز `newline=None` است، پس هر
+    `\\n` به `\\r\\n` ترجمه می‌شود — و مغزِ کد پچ را همیشه با LF می‌سازد. نتیجه:
+    هر پچ روی یک فایلِ LF کلِ فایل را CRLF می‌کرد ⇒ دیفِ سه‌خطی به دیفِ **کلِ
+    فایل**، مرور غیرممکن، و روی درختِ مشترک لِه‌شدنِ هانکِ بیگانه.
+
+    هدفِ اولین پچِ واقعی (`_ops/cortex/registry.py`) دقیقاً LF است، پس این
+    فرضی نبود. سنجهٔ رفتاری روی فایلِ موقت — نحوی این را نمی‌شود دید."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        # (الف) هدفِ LF با پچِ LF ⇒ LF می‌مانَد
+        p = Path(d) / "lf.py"
+        p.write_bytes(b"def a():\n    return 1\n")
+        CA._write_keeping_newlines(p, "def a():\n    return 1\n\ndef b():\n    return 2\n",
+                                   p.read_bytes())
+        b = p.read_bytes()
+        assert b.count(b"\r\n") == 0, f"فایلِ LF به CRLF برگشت: {b!r}"
+        assert b.count(b"\n") == 5
+        # (ب) هدفِ CRLF با پچِ LF ⇒ CRLF می‌مانَد
+        q = Path(d) / "crlf.py"
+        q.write_bytes(b"def a():\r\n    return 1\r\n")
+        CA._write_keeping_newlines(q, "def a():\n    return 1\n\ndef b():\n    return 2\n",
+                                   q.read_bytes())
+        c = q.read_bytes()
+        assert c.count(b"\r\n") == 5 and c.count(b"\n") - c.count(b"\r\n") == 0, \
+            f"فایلِ CRLF یکدست نماند: {c!r}"
+        # (ج) پچی که خودش CRLF دارد نباید \\r\\r\\n بسازد
+        r = Path(d) / "mix.py"
+        r.write_bytes(b"x = 1\r\n")
+        CA._write_keeping_newlines(r, "x = 1\r\ny = 2\r\n", r.read_bytes())
+        assert b"\r\r\n" not in r.read_bytes()
+        # (د) newline ِ انتهایی — اولین پچِ واقعیِ اولاما انداختش و گاردِ
+        #     نحوی نمی‌بیندش چون تابع نیست.
+        e = Path(d) / "eof.py"
+        e.write_bytes(b"x = 1\n")
+        CA._write_keeping_newlines(e, "x = 1\ny = 2", e.read_bytes())
+        assert e.read_bytes().endswith(b"\n"), "newline ِ انتهایی افتاد"
+        # و اگر فایل از اول بی‌newline بود، اضافه نمی‌کنیم
+        f = Path(d) / "noeof.py"
+        f.write_bytes(b"x = 1")
+        CA._write_keeping_newlines(f, "x = 1\ny = 2", f.read_bytes())
+        assert not f.read_bytes().endswith(b"\n"), "newline ِ ناخواسته اضافه شد"
+    # و مسیرِ اعمال باید همین را صدا بزند، نه write_text
+    import ast
+    src = (_HERE.parent / "cortex" / "code_autonomy.py").read_text("utf-8")
+    fn = next(n for n in ast.walk(ast.parse(src))
+              if isinstance(n, ast.FunctionDef) and n.name == "_git_apply_canary")
+    dump = ast.dump(fn)
+    assert "_write_keeping_newlines" in dump, "مسیرِ اعمال از گاردِ خطِ پایان رد می‌شود"
+    assert "write_text" not in dump, "هنوز write_text ِ ترجمه‌کننده در مسیر هست"
+
+
+def t_the_canary_suite_shares_the_measured_timeout_not_a_hardcoded_600():
+    """⚠️ سقفِ ۶۰۰ ثانیه یک بار اولین پچِ واقعیِ «بساز» را کشت. آن مورد در
+    `_run_suite` فیکس شد ولی `_git_apply_canary` **سقفِ خودش** را داشت.
+
+    عددِ سنجیده‌شدهٔ همان شب: سوییتِ کامل ۱۰۷۸ ثانیه. با ۶۰۰، تأییدِ مالک پچ را
+    می‌نوشت، تایم‌اوت می‌خورد، برمی‌گرداند و **کلِ خودمختاری را freeze** می‌کرد —
+    با دلیلی که واقعی نیست. یک سقف، یک knob، برای هر دو مسیر."""
+    import ast
+    src = (_HERE.parent / "cortex" / "code_autonomy.py").read_text("utf-8")
+    tree = ast.parse(src)
+    fn = next(n for n in ast.walk(tree)
+              if isinstance(n, ast.FunctionDef) and n.name == "_git_apply_canary")
+    # ۲۰۲۶-۰۷-۳۱: بعد از گیتِ رگرسیون، canary دیگر خودش run_all را صدا نمی‌زند —
+    # از `_run_suite` می‌آید (همان تابعی که مسیرِ سایه هم استفاده می‌کند). پس
+    # ناوردی دو تکه شد: canary باید delegate کند، و `_run_suite` سقف را از
+    # knob بگیرد. یک پیاده‌سازیِ دوم = دو سقف = همان باگ از نو.
+    dump = ast.dump(fn)
+    assert "_run_suite" in dump, "canary به _run_suite واگذار نمی‌کند"
+    assert "run_all.py" not in dump, \
+        "canary دوباره خودش سوییت را می‌دواند ⇒ سقفِ دوم و واگراییِ معیار"
+    rs = next(n for n in ast.walk(tree)
+              if isinstance(n, ast.FunctionDef) and n.name == "_run_suite")
+    for call in ast.walk(rs):
+        if not (isinstance(call, ast.Call)
+                and getattr(call.func, "attr", "") == "run"):
+            continue
+        if "run_all.py" not in ast.dump(call):
+            continue
+        t = {k.arg: k.value for k in call.keywords}.get("timeout")
+        assert t is not None and not isinstance(t, ast.Constant), \
+            f"سقفِ هاردکد برگشت: {getattr(t, 'value', t)!r}"
+        assert "_suite_timeout_s" in ast.dump(t), ast.dump(t)
+        assert CA._suite_timeout_s() >= 1078, \
+            f"سقف ({CA._suite_timeout_s()}s) از زمانِ سنجیده‌شدهٔ سوییت کمتر است"
+        return
+    raise AssertionError("فراخوانِ run_all در _run_suite پیدا نشد")
+
+
+def t_a_timeout_after_the_commit_reverts_the_commit_not_just_the_file():
+    """پرتکرارترین استثنای این مسیر `TimeoutExpired` ِ سوییت است — که **بعد** از
+    commit رخ می‌دهد. نسخهٔ قبلی فقط محتوای فایل را برمی‌گرداند، پس کامیت در
+    تاریخچه می‌ماند در حالی که گزارش می‌گوید «اعمال نشد». روی درختِ مشترک این
+    یعنی یک کامیتِ یتیم که هیچ‌کس دنبالش نمی‌گردد."""
+    import ast
+    src = (_HERE.parent / "cortex" / "code_autonomy.py").read_text("utf-8")
+    tree = ast.parse(src)
+    fn = next(n for n in ast.walk(tree)
+              if isinstance(n, ast.FunctionDef) and n.name == "_git_apply_canary")
+    # `committed` باید بیرونِ try مقدار بگیرد وگرنه مسیرِ استثنا NameError می‌دهد
+    body_pre_try = [s for s in fn.body if not isinstance(s, ast.Try)]
+    assert any(isinstance(s, ast.Assign)
+               and any(getattr(t, "id", "") == "committed" for t in s.targets)
+               for s in body_pre_try), "committed بیرونِ try مقداردهی نشده"
+    handler = next(h for s in fn.body if isinstance(s, ast.Try) for h in s.handlers)
+    # ⚠️ نسخهٔ اولِ این دو بند رشته‌ای بود (`"committed" in ast.dump(...)`) و جهشِ
+    # `if committed:` → `if False:` **زنده ماند** — چون خودِ خطِ return هم
+    # `"was_committed": committed` دارد و رشته را ارضا می‌کرد. سنجه باید به
+    # **شرطِ واقعی** بسته شود، نه به حضورِ یک اسم در متن.
+    branch = None
+    for node in ast.walk(ast.Module(body=handler.body, type_ignores=[])):
+        if isinstance(node, ast.If) and getattr(node.test, "id", "") == "committed":
+            branch = node
+            break
+    assert branch is not None, \
+        "مسیرِ استثنا روی `committed` شاخه نمی‌زند ⇒ نمی‌داند کامیت خورده یا نه"
+    taken = ast.dump(ast.Module(body=branch.body, type_ignores=[]))
+    assert "'revert'" in taken, "شاخهٔ committed کامیت را برنمی‌گردانَد"
+    other = ast.dump(ast.Module(body=branch.orelse, type_ignores=[]))
+    # `write_bytes` نه `write_text`: بازگردانی باید بایت‌به‌بایت باشد وگرنه
+    # خودِ rollback خطِ پایانِ فایل را عوض می‌کند (t_applying_a_patch_...).
+    assert "write_bytes" in other, "شاخهٔ بدونِ کامیت فایل را برنمی‌گردانَد"
 
 
 if __name__ == "__main__":

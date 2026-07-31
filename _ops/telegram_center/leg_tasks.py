@@ -144,6 +144,68 @@ def claim_next(leg: str, *, now: float | None = None) -> "dict | None":
     return None
 
 
+def start_next(leg: str, *, now: float | None = None) -> "dict | None":
+    """قدیمی‌ترین QUEUED → WORKING («قدم بعدی» ِ مالک — همان اختیارِ دکمهٔ
+    «شروع»، فقط بدونِ نامِ کار). QUEUED نبود → None."""
+    d = _load(leg)
+    for t in d.get("tasks", []):
+        if t.get("state") == QUEUED:
+            return set_state(leg, t["id"], WORKING, now=now)
+    return None
+
+
+def resolve_blocked(leg: str, task_id: str, answer: str, *,
+                    now: float | None = None) -> "dict | None":
+    """رفعِ مانع: جوابِ مالک به کارتِ 🚧 → همان کار برمی‌گردد به WORKING.
+
+    بدونِ این، اطلاعاتِ تکمیلیِ مالک خودش یک TASK ِ نو می‌شد و کارِ
+    BLOCKED برای همیشه گیر می‌مانْد. فقط روی BLOCKED اثر دارد (fail-closed:
+    ریپلای به کارِ تمام‌شده چیزی را زنده نمی‌کند)."""
+    a = str(answer or "").strip()
+    if not a:
+        return None
+    now = float(now if now is not None else time.time())
+    d = _load(leg)
+    t = _find(d, task_id)
+    if t is None or t.get("state") != BLOCKED:
+        return None
+    t["text"] = (str(t.get("text") or "") +
+                 f"\n➕ اطلاعات مالک: {a[:300]}")[:600]
+    t["state"] = WORKING
+    t["question"] = None
+    t["updated"] = now
+    return dict(t) if _save(leg, d) else None
+
+
+def record_feedback(leg: str, task_id: str, verdict: str, *, reason: str = "",
+                    now: float | None = None) -> "dict | None":
+    """رأیِ کیفیِ مالک روی خروجیِ یک کار (فاز ۲ بند ۱۱ — ۰۷-۳۱).
+
+    به همان پا و همان کار سنجاق می‌شود، نه مجوزِ عمومی. علاوه بر خودِ task،
+    یک خطِ append-only در `<leg>-feedback.jsonl` می‌نشیند تا بعداً درسِ
+    per-leg از آن ساخته شود (خواندنش کارِ لایهٔ یادگیری است، نه این‌جا)."""
+    if verdict not in ("good", "bad"):
+        return None
+    now = float(now if now is not None else time.time())
+    d = _load(leg)
+    t = _find(d, task_id)
+    if t is None:
+        return None
+    t["feedback"] = {"v": verdict, "reason": str(reason or "")[:40], "ts": now}
+    if not _save(leg, d):
+        return None
+    try:
+        fp = _dir() / f"{_path(leg).stem.replace('-tasks', '')}-feedback.jsonl"
+        with fp.open("a", encoding="utf-8") as f:
+            f.write(json.dumps({"task": task_id, "v": verdict,
+                                "reason": str(reason or "")[:40], "ts": now,
+                                "text": str(t.get("text") or "")[:120]},
+                               ensure_ascii=False) + "\n")
+    except OSError:
+        pass                                     # ثبتِ jsonl هرگز مسیر را نمی‌کشد
+    return dict(t)
+
+
 def queue(leg: str) -> list:
     d = _load(leg)
     return [dict(t) for t in d.get("tasks", []) if t.get("state") != DONE]
@@ -168,8 +230,12 @@ def _age(ts, now: float) -> str:
     return f"{_fa(m)} دقیقه قبل" if m < 60 else f"{_fa(m // 60)} ساعت قبل"
 
 
-def card_text(leg: str, *, paused: bool, now: float | None = None) -> str:
-    """کارتِ پین‌شدهٔ زنده — دقیقاً قالبِ مصوب. فقط ویرایش می‌شود، سیل نمی‌سازد."""
+def card_text(leg: str, *, paused: bool, now: float | None = None,
+              kpi: "int | None" = None) -> str:
+    """کارتِ پین‌شدهٔ زنده — دقیقاً قالبِ مصوب. فقط ویرایش می‌شود، سیل نمی‌سازد.
+
+    `kpi` = هدفِ روزانهٔ مالک (فاز ۲ بند ۱۳). فقط وقتی مالک هدف گذاشته خط
+    می‌گیرد — KPI ِ بی‌هدف عددسازی است، نه سنجه."""
     now = float(now if now is not None else time.time())
     d = _load(leg)
     tasks = d.get("tasks", [])
@@ -200,6 +266,8 @@ def card_text(leg: str, *, paused: bool, now: float | None = None) -> str:
              f"وضعیت: {status}",
              f"کار فعلی: {cur}",
              f"پیشرفت: {_fa(len(done_today))}/{_fa(max(total_today, len(done_today)))}",
+             *([f"KPI امروز: {_fa(len(done_today))}/{_fa(int(kpi))}"]
+               if isinstance(kpi, int) and kpi > 0 else []),
              f"نتیجه معتبر: {_fa(len(done_today))}",
              f"مانع: {blocked[0].get('question') or '—' if blocked else '—'}",
              f"در صف: {_fa(len(queued))}",
@@ -237,6 +305,32 @@ def receipt_text(t: dict) -> str:
             f"ارسال بیرونی: انجام نشد")
 
 
+def receipt_keyboard(leg: str, t: dict) -> list:
+    """دو دکمهٔ رأیِ کیفی روی هر رسید (بند ۱۱) — بازخورد به همان کار سنجاق."""
+    return [[{"text": "✅ خوب بود", "callback_data": f"tk:g:{leg}:{t['id']}"[:64]},
+             {"text": "❌ بد بود", "callback_data": f"tk:b:{leg}:{t['id']}"[:64]}]]
+
+
+# کدهای دلیلِ «بد بود» — بسته و کوتاه تا در ۶۴ بایتِ callback جا بگیرد.
+FEEDBACK_REASONS = {
+    "d": "داده اشتباه", "i": "نتیجه بی‌ربط", "w": "شاهد ضعیف",
+    "l": "خیلی طولانی", "a": "اقدام اشتباه",
+}
+
+
+def bad_feedback_keyboard(leg: str, t: dict) -> list:
+    rows, row = [], []
+    for code, label in FEEDBACK_REASONS.items():
+        row.append({"text": label,
+                    "callback_data": f"tk:br:{leg}:{t['id']}:{code}"[:64]})
+        if len(row) == 2:
+            rows.append(row)
+            row = []
+    if row:
+        rows.append(row)
+    return rows
+
+
 def blocked_text(t: dict) -> str:
     return (f"🚧 <b>{t['id']}</b> — برای ادامه اطلاعات کافی ندارم.\n\n"
             f"نیاز دارم:\n{(t.get('question') or 'توضیحِ بیشتر')[:200]}")
@@ -246,6 +340,60 @@ def blocked_keyboard(leg: str, t: dict) -> list:
     return [[{"text": "با اطلاعات فعلی ادامه بده",
               "callback_data": f"tk:s:{leg}:{t['id']}"[:64]}],
             [{"text": "لغو", "callback_data": f"tk:x:{leg}:{t['id']}"[:64]}]]
+
+
+def blockers_text(leg: str) -> str:
+    """فهرستِ موانعِ باز — پاسخِ «مانع چیست». مانعی نبود → همین را صادقانه بگو."""
+    rows = [t for t in _load(leg).get("tasks", [])
+            if t.get("state") == BLOCKED]
+    if not rows:
+        return "🚧 مانعی ثبت نشده."
+    lines = ["🚧 <b>موانع باز</b>"]
+    for t in rows[:8]:
+        q = (t.get("question") or "توضیحِ بیشتر لازم است")[:120]
+        lines.append(f"· {t['id']}: {q}")
+    lines.append("\nبرای رفع، به کارتِ 🚧 همان کار ریپلای کن و اطلاعات را بنویس.")
+    return "\n".join(lines)
+
+
+def daily_report_text(leg: str, *, now: float | None = None) -> str:
+    """گزارشِ روزانهٔ یک پا از حقیقتِ Taskها (پنجرهٔ ۲۴ ساعت).
+
+    قراردادِ سکوت: هیچ کاری در پنجره لمس نشده ⇒ "" — دایجست پیامِ خالی
+    نمی‌سازد. خرج/ارسال ادعای اندازه‌گیری نیست؛ ساختارِ موتورِ read-only است."""
+    now = float(now if now is not None else time.time())
+    tasks = _load(leg).get("tasks", [])
+    day0 = now - 86400
+    touched = [t for t in tasks if float(t.get("updated", 0) or 0) >= day0]
+    if not touched:
+        return ""
+    created = [t for t in touched if float(t.get("created", 0) or 0) >= day0]
+    done = [t for t in touched if t.get("state") == DONE
+            and t.get("result") != "لغو شد"]
+    cancelled = [t for t in touched if t.get("state") == DONE
+                 and t.get("result") == "لغو شد"]
+    blocked = [t for t in tasks if t.get("state") == BLOCKED]
+    queued = [t for t in tasks if t.get("state") == QUEUED]
+    lines = [f"🦵 <b>خلاصه روزانه {leg}</b>", "",
+             f"ثبت‌شده: {_fa(len(created))}",
+             f"تکمیل: {_fa(len(done))}",
+             f"لغوشده: {_fa(len(cancelled))}",
+             f"مسدود: {_fa(len(blocked))}",
+             f"در صف: {_fa(len(queued))}"]
+    if blocked:
+        q = (blocked[0].get("question") or "—")[:100]
+        lines.append(f"بزرگ‌ترین مانع: {q}")
+    if done:
+        best = (done[-1].get("result") or "—")[:100]
+        lines.append(f"آخرین نتیجه: {best}")
+    fb = [t.get("feedback") for t in tasks
+          if isinstance(t.get("feedback"), dict)
+          and float(t["feedback"].get("ts", 0) or 0) >= day0]
+    if fb:
+        good = sum(1 for f in fb if f.get("v") == "good")
+        lines.append(f"بازخورد تو: 👍 {_fa(good)} · 👎 {_fa(len(fb) - good)}")
+    lines += ["خرج: صفر", "ارسال بیرونی: انجام نشد"]
+    return "\n".join(lines)
 
 
 # ── حکمِ نتیجهٔ موتور ──────────────────────────────────────────────────────
