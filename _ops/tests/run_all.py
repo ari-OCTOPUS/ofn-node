@@ -643,6 +643,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_tg_poll_health.py",                # گوشِ مرده دیده شود: هر دورِ getUpdates ثبت + هشدارِ کوری
     "test_tg_voice_worker.py",               # ویسِ کند روی نخِ کارگر، نه روی حلقهٔ poll
     "test_tg_model_cache.py",                 # مدل یک‌بار بار شود، نه به‌ازای هر ویس
+    "test_tg_voice_keep_audio.py",           # صوت فقط با فلگِ صریحِ تشخیص می‌ماند
     # ۲۰۲۶-۰۷-۳۱ — ساختِ ۴موجهٔ منشورِ UI تلگرام (۸ لِین + لِینِ سیم‌کشی):
     "test_tg_menu_contract.py",             # منوی DM ≤۱۰ ِ scope-دار + تک‌نویسندهٔ منوی inner
     "test_tg_callback_answer.py",           # هیچ تپی بی‌answer نمی‌ماند (مرگِ spinner)

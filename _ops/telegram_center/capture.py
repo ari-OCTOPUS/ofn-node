@@ -44,6 +44,10 @@ _HERE = Path(__file__).resolve().parent
 FLAG_CAPTURE = "OCTOPUS_TG_CAPTURE"
 FLAG_CAPTURE_LLM = "OCTOPUS_TG_CAPTURE_LLM"
 FLAG_VOICE = "OCTOPUS_TG_VOICE_TRANSCRIBE"
+# فلگِ **تشخیصیِ** نگه‌داشتنِ صوت — پیش‌فرض خاموش، و باید خاموش بماند.
+# فقط برای وقتی که متنِ ویس مرتب غلط درمی‌آید و باید روی **همان** فایل چند
+# مدل/تنظیم را سنجید؛ بدونِ آن هر انتخابِ مدل یک حدسِ چندگیگابایتی است.
+FLAG_KEEP_AUDIO = "OCTOPUS_TG_VOICE_KEEP_AUDIO"
 
 KINDS = ("task", "lead", "idea", "expense", "note")
 
@@ -194,6 +198,14 @@ def classify(text: str, *, media_kind: "str | None" = None,
 
 
 # ── بایگانی در vault (قانونِ اساسی §۳/۵/۶/۹) ────────────────────────────────
+def _keep_dir() -> Path:
+    """کجا صوتِ تشخیصی نگه داشته شود. کنارِ بقیهٔ state، نه داخلِ والت —
+    والت جای نوت است و صوت نباید در ایندکس و بکاپِ نوت‌ها بنشیند."""
+    base = str(os.environ.get("OCTOPUS_STATE_DIR", "") or "").strip()
+    root = Path(base) if base else (Path(__file__).resolve().parent.parent / "state")
+    return root / "telegram" / "voice-diag"
+
+
 def _vault_root(vault_root) -> Path:
     """ریشهٔ vault: پارامتر ← env ِ ORG_ROOT ← **درختی که خودِ این فایل در آن است**.
 
@@ -538,6 +550,24 @@ def _voice_transcribe(msg_meta: dict, deps: dict) -> dict:
                     "error": type(e).__name__}
     finally:
         # صوت هرگز نمی‌ماند — نه در temp، نه (به‌طریقِ اولی) در vault.
+        #
+        # تنها استثنا، و فقط با فلگِ صریحِ **پیش‌فرض-خاموش**: تشخیص.
+        # ۲۰۲۶-۰۸-۰۱ — دو ویسِ فارسیِ مالک با دو مدلِ متفاوت متنِ پرت دادند
+        # («سلام حالتون چطوره» → «ها نوم هالتون چه توره»). مسیرِ صدا با
+        # آزمایشِ کنترل‌شده تبرئه شد (همان جمله از WAV و از OGG/Opus ِ ۴۸k،
+        # با و بدونِ VAD، بی‌غلط خوانده شد)، پس متغیرِ باقی‌مانده یا تواناییِ
+        # فارسیِ مدل است یا چیزی مختصِ همان صدا — و جداکردنشان بدونِ خودِ
+        # فایل ممکن نیست، در حالی که همین‌جا پاک می‌شود.
+        # روشن‌کردنِ این فلگ یعنی «صدای مالک روی دیسک می‌مانَد» — تصمیمی که
+        # فقط خودش می‌گیرد، برای یک ویس، و بعد خاموش می‌شود.
+        try:
+            if _flag_on(FLAG_KEEP_AUDIO) and os.path.exists(dest):
+                keep = _keep_dir()
+                keep.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(dest, keep / ("voice-%s.oga"
+                                           % (msg_meta.get("message_id") or "x")))
+        except Exception:  # noqa: BLE001 — تشخیص هرگز مسیرِ ویس را نمی‌کشد
+            pass
         shutil.rmtree(tmpdir, ignore_errors=True)
 
     if not res.get("ok"):
