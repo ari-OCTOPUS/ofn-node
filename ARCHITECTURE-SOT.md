@@ -339,3 +339,23 @@ STOP می‌سازند؛ pinِ `ORG_ROOT` این را به worktree محدود �
 فیکسچرهای TG-P2 · پنجرهٔ شکنندهٔ چکِ `qt` · قراردادِ جدیدِ مسیریابیِ streamها (غیاب=DM).
 دو قرمزِ ساختاری تا merge+deploy می‌مانند: `test_orphan_scan` (اسکنِ عمدیِ REAL_VAULT) و
 `test_paid_router_dark_config` (نیازمندِ `OCTOPUS-flags.cmd` ِ زندهٔ gitignored).
+
+## 📱 ثبتِ ۲۰۲۶-۰۷-۳۱ (عصر) — ساختِ ۴موجهٔ منشورِ UI تلگرام (TG-UI-CHARTER، ۲۴ رأی + ۴ حکمِ پایانی)
+
+مبنا: `_ops/telegram_contract/TG-UI-CHARTER-2026-07-31.md` (حاکم) + `MEGAPROMPT-TG-UI-BUILD-2026-07-31.md`.
+دفترِ حذفی‌ها: `_ops/telegram_contract/REMOVED-BUTTONS-2026-07-31.md`.
+
+| concern | canonical | نکته |
+|---------|-----------|------|
+| **capture یک‌ژسته** | `_ops/telegram_center/capture.py` | DM-only + dedup ِ message_id؛ بایگانی در `10 - Telegram processing/Raw/`؛ کلیدهای فرانت‌مترِ نو در Property Schema §۲.۲ |
+| **یادآوری + بریف** | `_ops/telegram_center/reminders.py` + `brief.py` | سوار بر beat ِ ۳۰۰ثانیه‌ای؛ سکوتِ ۲۳–۷ معوق-نه-حذف؛ cursor فقط بعدِ ارسالِ موفق |
+| **سؤال-از-vault** | `_ops/telegram_center/ask_vault.py` | ripgrep + مغزِ محلی $0؛ «منابع:» اجباری؛ `.agentignore` محترم |
+| **Mini App** | `live/server.py:/miniapp` + `miniapp_gateway.py` (8774) + `run-miniapp-tunnel.ps1` | tunnel فقط 8774 (initData-گیت)؛ دکمه فقط با url ِ تازهٔ <۲۴h |
+| **ماشینِ لید** | `_ops/legs/lead_pipeline.py` + `lead_research.py` + `lead_outbound_transport.py` + `outbound_worker.drive_outbound` | `LEAD_DAILY_SEND_CAP=10` (رأی مالک ۰۷-۳۱)؛ سقف قبل از settle؛ transport بی‌creds = NOT_ARMED |
+| **مرور هفتگی / بودجهٔ سؤال** | `weekly_review.py` + `question_budget.py` | شنبه ۰۸+؛ ۳۰ سؤال/هفته ISO-week |
+| **رسیدِ ارسال** | `_ops/tg_send_log.py` | سه‌حالتی `state ∈ sent/held/blocked` + `bot_role/surface` (canonical؛ `disposition=` alias) |
+| **گیتِ ورودی گروه** | `input_surface_policy.py` | deny-by-default: هر اسلش‌کامندی DM-only؛ callback ِ گروه فقط `GROUP_CALLBACK_VERBS`؛ system/mirror = core_conversation نه پا |
+| **منوها** | `center.py:COMMANDS` (۸، scope=all_private_chats) | منوی گروه خالی؛ منوی inner تک‌نویسنده (approval_channel، ≤۴) |
+
+آشتیِ دو خط: merge ِ `d3b448a` (سخت‌سازیِ ایجنتِ موازی) با ارشدیتِ خطِ منشور — redact-اول، دکتر→DM، fallback→DM، 409-detector، prune، ledger-reanchor حفظ شد.
+ratchet ِ `tg_send_audit`: absent ‏۱۷ → **۷** (baseline ِ خودکار). run_all: تنها قرمزِ مجاز `test_paid_router_dark_config` (checkout-only).
