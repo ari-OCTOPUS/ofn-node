@@ -2741,6 +2741,34 @@ def lead_discovery_beat(lead_leg, beat: int = 0) -> dict | None:
         return None
 
 
+def lead_pipeline_beat(lead_leg=None, beat: int = 0, send_fn=None) -> dict | None:
+    """Lane G (منشور TG-UI ۲۰۲۶-۰۷-۳۱، رأی ۱۳/۱۷/۱۸) · ارکستراتورِ ماشینِ لید — پشتِ
+    OCTOPUS_WIRE_LEAD_PIPELINE (پیش‌فرض خاموش، عمداً خارج از PAPER_FULL_FLAGS).
+
+    حلقهٔ کامل در legs/lead_pipeline.beat: کشف→تحقیق→امتیاز→پیش‌نویس→گیر=کارِ BLOCKED با
+    سؤالِ فارسی→لیدِ آماده=کارت در 🎨 (stream="lead"). **هیچ ارسالِ خروجی به مشتری** —
+    کارت فقط با send_fn ِ کانالِ approval (لِینِ سریِ سیم‌کشی پاس می‌دهد؛ بدونش headless).
+    ارسالِ واقعی همچنان فقط از قوسِ verdict→lead_effect_gate→outbound_worker (سقفِ ۱۰/روز،
+    رأی مالک ۲۰۲۶-۰۷-۳۱). هم‌الگوی lead_discovery_beat: kill-switch مقدم، pause ِ تک‌پا،
+    epoch-gate، fail-soft مطلق."""
+    if not flag("OCTOPUS_WIRE_LEAD_PIPELINE"):
+        return None   # flag خاموش = «not wired» (بایت‌به‌بایتِ امروز)
+    if leg_paused("lead"):
+        return None   # مکثِ تک‌پا از مرکزِ تلگرام (runtime)
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None   # kill-switch مقدم
+    every_n = int(os.environ.get("CHRONO_LEAD_PIPELINE_EVERY_N_BEATS", "30"))
+    if not _epoch_fire("lead_pipeline", beat, every_n):
+        return None
+    try:
+        _syspath(str(_HERE / "legs"))
+        import lead_pipeline   # noqa: WPS433 — lazy
+        return lead_pipeline.beat(deps={"lead_leg": lead_leg, "send_fn": send_fn})
+    except Exception as e:  # noqa: BLE001 — §۴: pipeline نباید tick را بکشد
+        opslib.alert([f"wiring: lead_pipeline_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
 # ─── قرارداد مشترکِ ۴ پای بیزنسیِ نو (mining/crypto/accounting/knowledge) ─────────
 # WP-F ماژول‌ها را می‌سازد؛ اینجا (WP-C) status()های read-only را جمع می‌کنیم؛ WP-D در
 # رندر می‌خواند. هر پا یک helperِ ماژول‌سطحِ فقط‌خواندنی دارد:

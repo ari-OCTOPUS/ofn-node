@@ -156,6 +156,11 @@ def _to_lead_sense_file(lead_id: str, candidate: dict, verdict: dict) -> dict:
                 "compliance_reason": verdict["compliance_reason"],
             },
             "request": req,
+            # (۲۰۲۶-۰۷-۳۱) contact عبور داده می‌شود تا transport ِ سقف‌دارِ W3 گیرنده داشته
+            # باشد؛ حضورِ contact هیچ مجوزی نمی‌دهد — consent فقط از verdict بالا می‌آید.
+            "contact": {k: contact.get(k) for k in
+                        ("name", "organisation", "email", "phone", "preferred_channel")
+                        if contact.get(k)},
             "workflow": {
                 "status": "received",
                 "owner_action_required": True,

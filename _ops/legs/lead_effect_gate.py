@@ -116,8 +116,10 @@ def _authz_token(effect_id: str) -> str | None:
     return rec.get("token") if isinstance(rec, dict) else None
 
 
-def may_release(effect_id: str, candidate: dict, *, gate=None) -> dict:
+def may_release(effect_id: str, candidate: dict, *, gate=None, now=None) -> dict:
     """رأیِ نهاییِ آزادسازی — هرگز استثنا، همیشه dict با `allow`. fail-closed مطلق.
+
+    `now` (ثانیه، تزریق‌پذیر) فقط برای چکِ سقفِ روزانه است (رأی مالک ۲۰۲۶-۰۷-۳۱: ۱۰).
 
     خروجی: {allow: bool, reason: str, status?: str}
     """
@@ -144,6 +146,15 @@ def may_release(effect_id: str, candidate: dict, *, gate=None) -> dict:
         # ۴) authorizationِ صریحِ per-effect (allowlist؛ پیش‌فرض خالی)
         if not is_authorized(eid):
             return {"allow": False, "reason": "not_authorized"}
+        # ۴٫۵) سقفِ روزانهٔ عددی (رأی مالک ۲۰۲۶-۰۷-۳۱: LEAD_DAILY_SEND_CAP=10) —
+        # دفاع در عمق: لایهٔ اولِ deny این‌جاست تا effect ِ سقف‌خورده releasable بمانَد
+        # و پس از rollover ِ نیمه‌شب دوباره بتواند برود. لایهٔ دوم در خودِ worker.
+        try:
+            import outbound_worker as _ow   # noqa: WPS433 — lazy، هم‌پوشه
+            if _ow.cap_reached(now=now):
+                return {"allow": False, "reason": "daily-cap"}
+        except Exception:  # noqa: BLE001 — شمارِ نامعلوم = fail-closed (ارسال ممنوع)
+            return {"allow": False, "reason": "cap_probe_error"}
         # ۵) idempotency: settled/refused دوباره release نمی‌شود
         try:
             st = gate.status_of(eid)
@@ -238,6 +249,9 @@ def bridge_from_inbox(lead_id: str, *, gate) -> dict:
             "candidate_type": cb.get("candidate_type"),
             "consent": cb.get("consent") or {},
             "request": cb.get("request") or {},
+            # (۲۰۲۶-۰۷-۳۱) contact ِ حفظ‌شده در فایلِ inbox عبور می‌کند تا transport
+            # گیرنده داشته باشد؛ نبودش = NO_RECIPIENT ِ صادقِ همان لایه.
+            "contact": cb.get("contact") or {},
         }
         return on_lead_verdict(lid, candidate, "approve", gate=gate)
     except Exception as e:  # noqa: BLE001 — bridge هرگز caller را نمی‌کشد
@@ -250,7 +264,8 @@ def release_and_settle(effect_id: str, candidate: dict, *, gate, now_ms: int | N
 
     خروجی: {released: bool, settled: bool, reason: str}
     """
-    verdict = may_release(effect_id, candidate, gate=gate)
+    verdict = may_release(effect_id, candidate, gate=gate,
+                          now=(float(now_ms) / 1000.0 if now_ms is not None else None))
     if not verdict.get("allow"):
         return {"released": False, "settled": False, "reason": verdict.get("reason", "deny")}
     eid = str(effect_id).strip()
@@ -287,7 +302,8 @@ def release_only(effect_id: str, candidate: dict, *, gate, now_ms: int | None = 
     may_release را چک می‌کند، اگر اجازه داد release_one + mark_released (در t0).
     خروجی: {released: bool, reason: str, released_at_ms?: int}
     هرگز settle/send. caller بعداً settle_after_release را (در t1) صدا می‌زند."""
-    verdict = may_release(effect_id, candidate, gate=gate)
+    verdict = may_release(effect_id, candidate, gate=gate,
+                          now=(float(now_ms) / 1000.0 if now_ms is not None else None))
     if not verdict.get("allow"):
         return {"released": False, "reason": verdict.get("reason", "deny")}
     eid = str(effect_id).strip()
