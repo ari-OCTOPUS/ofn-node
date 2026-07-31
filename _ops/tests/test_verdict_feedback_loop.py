@@ -81,14 +81,14 @@ def t_a_rejected_verdict_returns_to_lead_memory_with_tokens():
     assert prior["demote"] is True, ("خوانندهٔ تولید demote نکرد", prior)
 
 
-def t_b_accepted_verdict_is_learned_with_tokens_but_promote_stays_owner_gated():
-    """پذیرشِ مالک با توکن‌ها یاد گرفته می‌شود (learned=True + verdict=accepted).
+def t_b_accepted_verdict_promotes_via_readtime_outcome_attestation():
+    """پذیرشِ مالک یاد گرفته می‌شود و promote با گواهیِ **لحظهٔ خواندن** از
+    outcomes.db ممکن می‌شود (VQ-PROMOTE-TRUST-001، حل‌شده):
 
-    قراردادِ صادقانهٔ فعلی: گیتِ حافظه برای namespace=semantic هرگز بالاتر از
-    GRADED نمی‌دهد (gate._grade: scrub_salience_bar) در حالی که promote ِ
-    خواننده OWNER_CONFIRMED می‌خواهد ⇒ promote از مسیرِ تولید ساختاراً ناممکن
-    است — و این جهتِ **محافظه‌کارانه** است (جسورترشدن بدونِ رأیِ ساختاریِ
-    مالک نه). حل‌کردنِ تضاد = کارتِ VQ-PROMOTE-TRUST-001، نه بازنویسیِ گارد."""
+    گیتِ حافظه برای semantic درست‌ می‌گوید حداکثر GRADED — خاطره مجوز نیست.
+    مجوزِ promote دفترِ نتیجه است: توکن‌های corr=/proposal= با ردیفِ واقعیِ
+    accepted-measurement (owner_verdict_raw دار) تطبیق می‌خورند. fail-closed:
+    بدونِ store هیچ promote ی نیست؛ توکنِ جعلی بدونِ ردیفِ واقعی بی‌اثر."""
     _seed_decision_memory()
     out = vr.record_verdict_durably(proposal_id="P-acc-1", verdict="approved",
                                     correlation_id=CORR, leg_id="lead",
@@ -100,9 +100,23 @@ def t_b_accepted_verdict_is_learned_with_tokens_but_promote_stays_owner_gated():
     acc = [r for r in recs if "verdict=accepted" in str(r.get("content"))]
     assert acc, ("ردیفِ پذیرش با توکن نوشته نشد",
                  [r.get("content") for r in recs])
-    prior = lor._memory_prior(recs, CAT)
-    assert prior["promote"] is False, \
-        ("promote بدونِ OWNER_CONFIRMED ممکن شد — سیاست عوض شده؟", prior)
+    # fail-closed: بدونِ دفترِ نتیجه promote ممنوع
+    prior_no_store = lor._memory_prior(recs, CAT)
+    assert prior_no_store["promote"] is False, prior_no_store
+    # با دفترِ نتیجه: گواهیِ read-time → promote
+    import outcome_store as osx
+    o = osx.OutcomeStore(path=opslib.STATE_DIR / "outcomes" / "outcomes.db")
+    try:
+        prior = lor._memory_prior(recs, CAT, outcome_store=o)
+        assert prior["promote"] is True, ("گواهیِ read-time کار نکرد", prior)
+        # توکنِ جعلی (proposal ی که ردیفِ رأی ندارد) هرگز promote نمی‌شود
+        fake = [{"content": f"lead-decision category={CAT} verdict=accepted "
+                            f"proposal=P-forged corr={CORR}",
+                 "trust": "GRADED", "memory_id": "mem_forged"}]
+        pf = lor._memory_prior(fake, CAT, outcome_store=o)
+        assert pf["promote"] is False, ("توکنِ جعلی promote گرفت", pf)
+    finally:
+        o.close()
 
 
 def t_c_verdict_without_prior_category_stays_honest():

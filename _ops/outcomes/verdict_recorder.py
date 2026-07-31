@@ -181,8 +181,12 @@ def record_verdict_durably(*, proposal_id: str, verdict: str, correlation_id: st
                             _cat = ""
                         _accepted = out["event_type"] == "accepted-measurement"
                         _vt = "accepted" if _accepted else "rejected"
+                        # corr= هم حمل می‌شود تا خوانندهٔ promote بتواند در لحظهٔ
+                        # خواندن از خودِ outcomes.db گواهیِ رأیِ مالک بگیرد
+                        # (VQ-PROMOTE-TRUST-001: حافظه مجوز نیست؛ دفترِ نتیجه مجوز است).
                         _content = (f"lead-decision category={_cat} verdict={_vt} "
-                                    f"proposal={proposal_id}" if _cat else
+                                    f"proposal={proposal_id} corr={correlation_id}"
+                                    if _cat else
                                     f"owner {_vt} proposal (leg={leg_id or 'unknown'})")
                         _lr = _lg.learn_from_outcome(
                             memory_gate=_gx.MemoryGate(_mem), outcome_store=o,

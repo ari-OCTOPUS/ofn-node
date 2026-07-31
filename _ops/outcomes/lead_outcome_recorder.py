@@ -40,10 +40,40 @@ _MEM_TOKEN_RE = re.compile(r"(\w+)=(\S+)")
 _ACTION_LADDER = ("skip", "save", "draft")
 
 
-def _memory_prior(recs: list, category: str) -> dict:
+def _owner_attested_accept(toks: dict, outcome_store) -> bool:
+    """گواهیِ رأیِ مالک در **لحظهٔ خواندن**، از خودِ outcomes.db (VQ-PROMOTE-TRUST-001).
+
+    گیتِ حافظه برای semantic هرگز بالاتر از GRADED نمی‌دهد (درست — خاطره مجوز
+    نیست)، پس promote به برچسبِ trust تکیه نمی‌کند: توکن‌های corr=/proposal= ِ
+    خودِ خاطره را با ردیفِ واقعیِ accepted-measurement (با owner_verdict_raw)
+    در دفترِ نتیجه تطبیق می‌دهیم. جعلِ توکن بدونِ ردیفِ واقعیِ رأی بی‌اثر است.
+    fail-closed: بدونِ store/توکن/ردیف = False."""
+    if outcome_store is None:
+        return False
+    corr = str(toks.get("corr") or "")
+    pid = str(toks.get("proposal") or "")
+    if not corr or not pid:
+        return False
+    try:
+        for ev in outcome_store.events(correlation_id=corr) or []:
+            if (str(ev.get("event_type")) == "accepted-measurement"
+                    and str(ev.get("proposal_id")) == pid):
+                try:
+                    payload = json.loads(ev.get("payload_json") or "{}")
+                except ValueError:
+                    continue
+                if str(payload.get("owner_verdict_raw") or "").strip():
+                    return True
+    except Exception:  # noqa: BLE001 — گواهیِ ناخوانا = بدونِ promote
+        return False
+    return False
+
+
+def _memory_prior(recs: list, category: str, outcome_store=None) -> dict:
     """priorِ قطعی از خاطره‌های بازیابی‌شده — فقط توکن‌های قابل‌پارسِ خودِ سیستم
     (`category=… verdict=…`)، هرگز تفسیرِ آزادِ متن. حداکثر یک پلهٔ تغییر.
-    خروجی: {"demote","promote","evidence"} — evidence = memory_idها برای رسید."""
+    promote فقط با گواهیِ read-time از دفترِ نتیجه (یا سطرِ OWNER_CONFIRMED
+    ِ دست‌کاشتِ مالک). خروجی: {"demote","promote","evidence"}."""
     demote, promote, evidence = False, False, []
     for r in recs or []:
         try:
@@ -54,7 +84,9 @@ def _memory_prior(recs: list, category: str) -> dict:
             if verdict == "rejected":
                 demote = True
                 evidence.append(str(r.get("memory_id")))
-            elif verdict in ("won", "accepted") and str(r.get("trust")) == "OWNER_CONFIRMED":
+            elif verdict in ("won", "accepted") and (
+                    str(r.get("trust")) == "OWNER_CONFIRMED"
+                    or _owner_attested_accept(toks, outcome_store)):
                 promote = True
                 evidence.append(str(r.get("memory_id")))
         except Exception:  # noqa: BLE001 — یک خاطرهٔ بدشکل prior را نمی‌کشد
@@ -105,7 +137,7 @@ def record_lead_decision(lead: dict, outcome_store, receipt_store, memory_store=
             memories_used = memory_store.as_memories_used(recs)
         except Exception:  # noqa: BLE001 — بازیابی fail-soft
             memories_used, recs = [], []
-    prior = _memory_prior(recs, scored.category)
+    prior = _memory_prior(recs, scored.category, outcome_store=outcome_store)
     action = str(scored.action)
     if prior["demote"] and action == "draft":
         action = "save"     # سابقهٔ ردشده در همین دسته → یک پله محافظه‌کارتر
