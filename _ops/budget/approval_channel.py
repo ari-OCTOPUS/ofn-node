@@ -1590,6 +1590,14 @@ class TelegramApprovalChannel(ApprovalChannel):
         not wired → False. خطای شبکه fail-soft."""
         if not self.wired:
             return False
+        # ── INV-12 · Cockpit v2 (۲۰۲۶-۰۷-۳۱، رفعِ boundary-3): redact در
+        # **اولین** فرصت، قبل از هر مسیر. تا امروز `_redact` در خطِ ۱۶۶۵ بود —
+        # یعنی مسیرِ HOLD (۱۶۲۹) متنِ خام را در held-stream.jsonl آرشیو می‌کرد
+        # و مسیرِ تعاملی هم raw را می‌فرستاد. کلاسی که این متد برای حذفِ آن
+        # ساخته شده (توکن/PEM/PII) دقیقاً در آرشیو نشت می‌کرد. redact در اینجا
+        # یک بار می‌گذرد؛ فراخوانیِ دوباره در ۱۶۶۵ idempotent است (متنِ پاک‌شده
+        # دوباره پاک نمی‌شود، ولی harm هم ندارد).
+        text = self._redact(text)
         target = int(chat_id) if chat_id is not None else self._owner
         # `topic_id`ِ صریح برنده است. بدونِ آن مقدارش None است و کلِ شرطِ
         # زیر دست‌نخورده می‌ماند → رفتارِ قبلی بایت‌به‌بایت.
