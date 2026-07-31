@@ -640,6 +640,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_tg_send_receipt_schema.py",       # رسیدِ ارسال: bot_role+surface+state سه‌حالتی (gate 8)
     "test_redact_before_archive.py",        # redact قبل از hold (boundary-3: نشت در آرشیو)
     "test_tg_409_rival_poller.py",           # تشخیصِ pollerِ رقیب روی باتِ مرکز (boundary-12)
+    "test_tg_poll_health.py",                # گوشِ مرده دیده شود: هر دورِ getUpdates ثبت + هشدارِ کوری
     # ۲۰۲۶-۰۷-۳۱ — ساختِ ۴موجهٔ منشورِ UI تلگرام (۸ لِین + لِینِ سیم‌کشی):
     "test_tg_menu_contract.py",             # منوی DM ≤۱۰ ِ scope-دار + تک‌نویسندهٔ منوی inner
     "test_tg_callback_answer.py",           # هیچ تپی بی‌answer نمی‌ماند (مرگِ spinner)

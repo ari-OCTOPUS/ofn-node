@@ -221,6 +221,72 @@ def _url_bytes_get(url: str, timeout_s: float, max_bytes: int) -> bytes:
     return blob
 
 
+# ── سلامتِ گوش: هر دورِ getUpdates ثبت می‌شود، نه فقط دورهای موفق ─────────────
+# چرا (۲۰۲۶-۰۸-۰۱، صبحی که منتظرِ «سلام» مالک بودیم): مسیرِ **دریافت** تنها
+# چیزی است که هیچ ردی از خودش نمی‌گذارد. ارسال رسید دارد، ۴۰۹ از ۰۷-۳۱ هشدار
+# دارد — ولی هر خطای دیگری (URLError، DNS، تایم‌اوت) بی‌صدا [] می‌دهد و از
+# بیرون دقیقاً شبیهِ «کسی پیام نداده» است. آن صبح دو ساعت نمی‌شد این دو را از
+# هم جدا کرد، و همان لاگ نشان داد ۰۶:۴۴ یک URLError واقعاً خورده بود.
+#
+# فایل هرگز توکن/URL/متنِ پیام ندارد — فقط زمانِ آخرین دورِ **موفق** و شمارِ
+# شکست‌های پشتِ‌سرِ هم. نوشتن بی‌قید است (درسِ «ثبت را گیت نکن، تحویل را»)؛
+# فقط هشدار throttle دارد، هم‌شکلِ هشدارِ ۴۰۹ ِ پایین‌تر.
+POLL_HEALTH_NAME = "poll-health.json"
+POLL_DEAF_AFTER_S = 300.0        # پنجِ دقیقه شکستِ پیاپی = گوش مرده، نه نوسان
+
+
+def _poll_health_path():
+    """مسیرِ فایلِ سلامت، بدونِ importِ سنگین. env اول (تست‌ها ایزوله می‌شوند)."""
+    from pathlib import Path as _P
+    base = str(os.environ.get("OCTOPUS_STATE_DIR", "") or "").strip()
+    root = _P(base) if base else (_P(__file__).resolve().parents[1] / "state")
+    return root / "telegram" / POLL_HEALTH_NAME
+
+
+def _record_poll(ok: bool, reason: str = "") -> dict:
+    """یک دورِ poll را ثبت کن و وضعیتِ تازه را برگردان. هر خطا ⇒ سکوت
+    (رصد هرگز حلقهٔ poll را نمی‌کشد)."""
+    path = _poll_health_path()
+    now = time.time()
+    state = {"last_ok_ts": 0.0, "consecutive_failures": 0, "last_reason": ""}
+    try:
+        if path.exists():
+            loaded = json.loads(path.read_text("utf-8"))
+            if isinstance(loaded, dict):
+                state.update(loaded)
+    except (OSError, ValueError):
+        pass
+    if ok:
+        state["last_ok_ts"] = now
+        state["consecutive_failures"] = 0
+        state["last_reason"] = ""
+    else:
+        state["consecutive_failures"] = int(state.get("consecutive_failures", 0)) + 1
+        state["last_reason"] = str(reason or "unknown")[:80]
+    state["last_round_ts"] = now
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(state, ensure_ascii=False), "utf-8")
+        os.replace(tmp, path)
+    except OSError:
+        pass
+    return state
+
+
+def poll_deaf_for_s(now: "float | None" = None) -> "float | None":
+    """چند ثانیه است که هیچ دورِ موفقی نداشته‌ایم؟ None = نمی‌دانیم (هنوز فایلی
+    نیست) — «نمی‌دانم» هرگز «سالم» گزارش نمی‌شود."""
+    try:
+        state = json.loads(_poll_health_path().read_text("utf-8"))
+        last = float(state.get("last_ok_ts") or 0.0)
+    except (OSError, ValueError, TypeError):
+        return None
+    if last <= 0:
+        return None
+    return max(0.0, float(now if now is not None else time.time()) - last)
+
+
 class TgClient:
     """کلاینتِ نازک و بی‌حالتِ Bot API. همهٔ متدهای عمومی fail-soft و flag-off-امن‌اند:
     not wired → پیش‌فرضِ امن، صفر شبکه. keyboard = list[list[{'text','callback_data'}]].
@@ -574,9 +640,13 @@ class TgClient:
             params = {"offset": int(offset), "timeout": int(timeout_s),
                       "allowed_updates": json.dumps(["message", "callback_query"])}
             data = self._get(self._build_url("getUpdates", params), float(timeout_s))
-        except Exception:  # noqa: BLE001 — بی‌صدا، بدونِ leakِ URL/token
+        except Exception as e:  # noqa: BLE001 — بی‌صدا، بدونِ leakِ URL/token
+            st = _record_poll(False, type(e).__name__)
+            self._maybe_alert_deaf(st)
             return []
         if not isinstance(data, dict) or not data.get("ok"):
+            _code = data.get("error_code") if isinstance(data, dict) else "no-dict"
+            self._maybe_alert_deaf(_record_poll(False, "api:%s" % (_code,)))
             ra = _retry_after_from_429(data if isinstance(data, dict) else {})
             if ra is not None:
                 try:
@@ -597,7 +667,31 @@ class TgClient:
                                 "همین توکن! آپدیت‌ها را او می‌بلعد (پروسهٔ دوم؟ "
                                 "وب‌هوک؟). تا حل نشود بات ساکت خواهد بود.")
             return []
+        _record_poll(True)
         return [u for u in (data.get("result") or []) if isinstance(u, dict)]
+
+    def _maybe_alert_deaf(self, state: dict) -> None:
+        """گوشِ مرده را یک‌بار در ساعت فریاد بزن. «مرده» = هیچ دورِ موفقی در
+        POLL_DEAF_AFTER_S، نه یک شکستِ تکی (شبکه تک‌وتوک می‌لرزد و هشدارِ
+        گرگ‌گرگ بدتر از سکوت است)."""
+        try:
+            last_ok = float((state or {}).get("last_ok_ts") or 0.0)
+            fails = int((state or {}).get("consecutive_failures") or 0)
+        except (TypeError, ValueError):
+            return
+        if fails < 2 or last_ok <= 0:
+            return
+        quiet_s = time.time() - last_ok
+        if quiet_s < POLL_DEAF_AFTER_S:
+            return
+        if time.time() - getattr(self, "_last_deaf_alert", 0.0) <= 3600:
+            return
+        self._last_deaf_alert = time.time()
+        _alert_soft("tg-center getUpdates: %.0f دقیقه هیچ دورِ موفقی نبوده "
+                    "(%d شکستِ پیاپی، آخرین دلیل: %s). ارسال ممکن است سالم "
+                    "به‌نظر برسد ولی بات پیام‌های مالک را **نمی‌شنود**."
+                    % (quiet_s / 60.0, fails,
+                       str((state or {}).get("last_reason") or "?")))
 
     @staticmethod
     def next_offset(updates, current: int = 0) -> int:

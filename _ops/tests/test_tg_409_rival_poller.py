@@ -24,6 +24,10 @@ sys.path.insert(0, str(_HERE.parent / "telegram_center"))
 
 import harness  # noqa: E402
 
+# ۰۸-۰۱: از وقتی `poll_updates` سلامتِ هر دور را ثبت می‌کند، این فایل هم روی
+# دیسک می‌نویسد — و بدونِ setup آن نوشتن به `_ops/state` ِ **درختِ زنده** می‌رفت.
+ENV = harness.setup("tg-409-rival-poller")
+
 
 def _make_client(get_fn, alert_sink=None):
     """یک TgClient با get_fn و post_fn تزریقی، و alert_sink برای گرفتنِ هشدار."""
