@@ -31,8 +31,17 @@ if (Test-Path $StopFile) {
 }
 
 $cf = Get-Command cloudflared -ErrorAction SilentlyContinue
-if ($null -eq $cf) {
-    Write-Output "cloudflared not found on PATH - aborting (no tunnel started)."
+$CfExe = $null
+if ($null -ne $cf) { $CfExe = $cf.Source }
+if ($null -eq $CfExe) {
+    # winget install location (2026-07-31) - PATH refresh only reaches NEW shells,
+    # so a supervisor-launched run needs the absolute fallback.
+    $Known = @("C:\Program Files (x86)\cloudflared\cloudflared.exe",
+               "C:\Program Files\cloudflared\cloudflared.exe")
+    foreach ($k in $Known) { if (Test-Path $k) { $CfExe = $k; break } }
+}
+if ($null -eq $CfExe) {
+    Write-Output "cloudflared not found (PATH + known dirs) - aborting (no tunnel started)."
     exit 1
 }
 
@@ -40,7 +49,7 @@ if (Test-Path $LogFile) {
     try { Remove-Item -Force -Confirm:$false $LogFile -ErrorAction Stop } catch {}
 }
 
-$proc = Start-Process -FilePath $cf.Source `
+$proc = Start-Process -FilePath $CfExe `
     -ArgumentList @("tunnel", "--url", ("http://127.0.0.1:" + $Port)) `
     -RedirectStandardError $LogFile -PassThru -WindowStyle Hidden
 

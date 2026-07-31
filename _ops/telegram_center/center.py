@@ -650,6 +650,42 @@ class Center:
         except Exception:  # noqa: BLE001 — رسید هرگز راه‌اندازی را نمی‌کشد
             pass
 
+        # ── رسیدِ بوت با نسخه (۲۰۲۶-۰۷-۳۱، حکمِ ضدِ فراموشیِ مالک) ────────────
+        # هر بوتِ تازه (نه فقط بعدِ مرگِ واچ‌داگ) **یک خط** به DM: زنده‌ام —
+        # PID + HEAD ِ کوتاهِ git + شمارِ فلگ‌های مسلحِ OCTOPUS_. dedupe با
+        # pid در config: همان پروسه دوبار نمی‌گوید؛ پروسهٔ نو = بوتِ نو.
+        try:
+            _own3 = getattr(self._client, "owner_chat_id", None)
+            _pid = os.getpid()
+            if _own3 is not None and cfg.get("boot_receipt_pid") != _pid:
+                _head = ""
+                try:
+                    import subprocess as _sp
+                    _hv = _sp.run(["git", "rev-parse", "--short", "HEAD"],
+                                  cwd=str(opslib.ORG_ROOT),
+                                  capture_output=True, timeout=2)
+                    if _hv.returncode == 0:
+                        _head = _hv.stdout.decode("ascii", "replace").strip()
+                except Exception:  # noqa: BLE001 — بی‌git ⇒ «نامعلوم»، نه سکوت
+                    _head = ""
+                _nf = sum(1 for _k, _v in os.environ.items()
+                          if _k.startswith("OCTOPUS_") and
+                          str(_v).strip().lower() in ("1", "true", "yes", "on"))
+                _ver = f"⁦{_head}⁩" if _head else "نامعلوم"
+                _bl = (f"🟢 بیدار شدم — PID ⁦{_pid}⁩ · نسخه: {_ver}"
+                       f" · فلگِ فعال: {_fa_num(_nf)}")
+                _bs = None
+                try:
+                    _bs = self._client.send(_scrub(_bl), chat_id=_own3,
+                                            topic_id=self._dm_topic())
+                except Exception:  # noqa: BLE001
+                    _bs = None
+                if _bs is not None:
+                    cfg["boot_receipt_pid"] = _pid
+                    dirty = True
+        except Exception:  # noqa: BLE001 — رسیدِ بوت هرگز راه‌اندازی را نمی‌کشد
+            pass
+
         if dirty:
             _save_config(cfg)
         return True
@@ -870,6 +906,51 @@ class Center:
                         _hp.mark_digest_flushed(now=now)
         except Exception:  # noqa: BLE001 — تحویلِ hold-policy هرگز beat را نمی‌کشد
             pass
+        # ── لِین E (موج ۲): یادآوری‌ها + بریفِ صبح/شب — سوارِ همین beat ─────────
+        # هر دو پشتِ فلگِ خودشان (پیش‌فرض خاموش). شکستِ ارسال داخلِ callback
+        # عمداً استثنا می‌شود (نه بلعیده) تا reminders آن آیتم را fired نکند و
+        # brief روزِ خود را سوخته حساب نکند — ضربانِ بعد دوباره می‌کوشد.
+        try:
+            import reminders as _rm
+            if _rm.enabled():
+                _rm.beat(now=now,
+                         send_dm_fn=lambda text, rid:
+                             self._reminder_dm_send(text, rid),
+                         send_leg_fn=lambda leg, text:
+                             self._reminder_leg_send(leg, text, cfg))
+        except Exception:  # noqa: BLE001 — یادآور هرگز beat را نمی‌کشد
+            pass
+        try:
+            import brief as _bf
+            if _bf.enabled():
+                # brief.beat cursorهایش را داخلِ همین cfg می‌نویسد (الگوی
+                # last_pulse) — ذخیرهٔ فوری، وگرنه ری‌استارت = بریفِ دوباره.
+                if _bf.beat(now=now, cfg=cfg,
+                            send_dm_fn=self._dm_send_strict, state=cfg):
+                    _save_config(cfg)
+        except Exception:  # noqa: BLE001 — بریف هرگز beat را نمی‌کشد
+            pass
+        # ── لِین H (موج ۲/۴): مرورِ هفتگیِ شنبه + بودجهٔ ۳۰-سؤالی ──────────────
+        try:
+            import weekly_review as _wr
+            if _wr.beat(now=now, cfg=cfg, send_dm_fn=self._dm_send_strict,
+                        state=cfg):
+                _save_config(cfg)      # cursor ِ هفته فقط بعدِ ارسالِ موفق
+        except Exception:  # noqa: BLE001 — مرورِ هفتگی هرگز beat را نمی‌کشد
+            pass
+        try:
+            import question_budget as _qb
+            if _qb.enabled():
+                _qi = _qb.pending(now)
+                if _qi:
+                    _qm = self._client.send(
+                        _scrub(_qb.question_text(_qi)),
+                        chat_id=getattr(self._client, "owner_chat_id", None),
+                        topic_id=self._dm_topic())
+                    if _qm is not None:
+                        _qb.mark_asked(_qi["id"], now=now)  # فقط بعدِ تحویل
+        except Exception:  # noqa: BLE001 — بودجهٔ سؤال هرگز beat را نمی‌کشد
+            pass
         # ── موتورِ کارهای پاها (رأیِ ۰۷-۳۰ شب): یک کار در هر ضربان ──────────────
         self._drive_leg_engine()
         # ── کارتِ زندهٔ هر پا، حتی وقتی بیکار است ────────────────────────────
@@ -1039,10 +1120,18 @@ class Center:
         (`t_the_home_keyboard_never_exceeds_three_decision_points`) دکمهٔ
         چهارمِ «ساختِ خود» را گرفت. گارد بازنویسی **نشد**: درِ ساخت به سطحِ
         دوم رفت (زیرِ «وضعیتِ کامل») و راهِ اصلی‌اش متنِ آزادِ «بساز: …» است
-        که در پالس هم یادآوری می‌شود. یک تصمیمِ کمتر در سطحِ اول."""
-        return [[{"text": "🐙 وضعیتِ کامل", "callback_data": "hm:st"}],
+        که در پالس هم یادآوری می‌شود. یک تصمیمِ کمتر در سطحِ اول.
+
+        استثنای رأی ۲۲ (Mini App، contract F.3): ردیفِ «📊 داشبورد» یک web_app
+        ِ **نمایشی** است نه تصمیم — و فقط با فلگِ OCTOPUS_TG_MINIAPP + فایلِ
+        URL ِ تازهٔ https ظاهر می‌شود؛ بدونِ URL ِ زنده، دکمه‌ای وجود ندارد."""
+        rows = [[{"text": "🐙 وضعیتِ کامل", "callback_data": "hm:st"}],
                 [{"text": "🦵 پاها", "callback_data": "hm:legs"},
                  {"text": "🔇 ناگفته‌ها", "callback_data": "hm:held"}]]
+        _mu = self._miniapp_url()
+        if _mu:
+            rows.append([{"text": "📊 داشبورد", "web_app": {"url": _mu}}])
+        return rows
 
     def _handle_home_callback(self, cbq: dict, data: str) -> dict:
         """دکمه‌های خانهٔ لنگر — همه read-only، صفر جهش، صفر خرج.
@@ -1501,6 +1590,179 @@ class Center:
         except Exception:  # noqa: BLE001
             return False
 
+    # ── موج ۲ (لِین‌های D/E/F/H): capture · یادآور · بریف · vault · سؤال ─────
+    def _capture_hook(self, msg: dict) -> "dict | None":
+        """درزِ capture ِ یک‌ژسته (contract D). None = مسیرِ عادی ادامه یابد.
+
+        سه ماشه: رسانه (عکس/ویس/سند/ویدیو) · پیشوندِ صریحِ «ثبت:» · متنی که
+        طبقه‌بندِ خالصِ $0 آن را task/lead/idea/expense بداند. نوتِ ساده
+        (kind=note) عمداً capture نمی‌شود — چتِ آزادِ رأی ۱۹ زنده می‌ماند.
+        ریپلای به «سؤالِ اختاپوس» هم هرگز capture نمی‌شود (مسیرِ جوابِ qb)."""
+        import capture as _cap
+        text = str(msg.get("text") or msg.get("caption") or "").strip()
+        _rt = str((msg.get("reply_to_message") or {}).get("text") or "")
+        if "سؤالِ اختاپوس" in _rt:
+            return None                  # جوابِ بودجهٔ سؤال — _handle_message
+        has_media = any(msg.get(k) for k in ("photo", "voice", "document",
+                                             "video"))
+        if not has_media:
+            if not text:
+                return None
+            if not text.startswith("ثبت:"):
+                if _cap.classify(text).get("kind") not in ("task", "lead",
+                                                           "idea", "expense"):
+                    return None          # نوتِ ساده = گفتگو (درزِ عمدی)
+        try:
+            import leg_tasks as _lt
+        except Exception:  # noqa: BLE001
+            _lt = None
+        res = _cap.handle(msg, deps={
+            "leg_tasks_mod": _lt,
+            "reminder_add_fn": self._capture_reminder_add,
+            "lead_submit_fn": self._capture_lead_submit(),
+            "ask_fn": None,      # پالایشِ LLM فقط با فلگِ جدا — این موج خاموش
+        })
+        if not res.get("handled"):
+            return None                  # فلگ خاموش/رد ⇒ مسیرِ امروز
+        try:
+            self._client.send(_scrub(str(res.get("ack") or "ثبت شد ✅")),
+                              chat_id=(msg.get("chat") or {}).get("id"),
+                              topic_id=self._dm_topic())
+        except Exception:  # noqa: BLE001 — ack ِ گم‌شده نباید ثبت را پس بگیرد
+            pass
+        return {"kind": "capture", "capture_kind": res.get("kind"),
+                "routed": res.get("routed"), "dup": bool(res.get("dup"))}
+
+    @staticmethod
+    def _capture_reminder_add(text, when):
+        """adapter ِ دستِ لِین E (contract E.3): متن/زمانِ فارسی → reminders.add.
+        زمانِ نافهمیده ⇒ None — بدونِ حدس (capture خودش صادقانه ack می‌سازد)."""
+        import reminders as _rm
+        now = time.time()
+        due, cleaned = _rm.parse_when(str(text or ""), now=now)
+        body = cleaned or str(text or "")
+        if due is None and when:
+            due, _c2 = _rm.parse_when(str(when), now=now)
+            body = str(text or "") or _c2
+        if due is None:
+            return None
+        return _rm.add(body, due_ts=due, scope="dm", now=now)
+
+    @staticmethod
+    def _capture_lead_submit():
+        """adapter ِ صفِ لید (contract D): payload → lead_candidate_inbox.
+        importِ شکسته ⇒ None تا capture صادقانه «صفِ لید هنوز وصل نیست» بگوید.
+        کانال telegram_manual = consented_inbound؛ فایروالِ consent دست‌نخورده."""
+        try:
+            _legs = str(_HERE.parent / "legs")
+            if _legs not in sys.path:
+                sys.path.insert(0, _legs)
+            import lead_candidate_inbox as _lci
+
+            def _submit(payload: dict):
+                p = dict(payload or {})
+                cand = {"source": {"channel": str(p.get("channel")
+                                                 or "telegram_manual")},
+                        "request": {"scope_text": str(p.get("summary") or "")},
+                        "contact": {"phone": p.get("phone")},
+                        "description": str(p.get("summary") or ""),
+                        "source_note": p.get("source_note")}
+                return _lci.submit_candidate(cand, source_id="tg-capture")
+            return _submit
+        except Exception:  # noqa: BLE001
+            return None
+
+    def _reminder_dm_send(self, text: str, rid: str):
+        """ارسالِ یادآوریِ DM — شکست باید **بالا بیاید** تا reminders آن آیتم
+        را fired نکند و ضربانِ بعد دوباره بکوشد (قراردادِ لِین E: بلعیدنِ
+        خطا = fired روی پیامِ گم‌شده)."""
+        import reminders as _rm
+        mid = self._client.send(
+            _scrub(text),
+            chat_id=getattr(self._client, "owner_chat_id", None),
+            keyboard=_rm.reminder_keyboard(rid),
+            topic_id=self._dm_topic())
+        if mid is None:
+            raise RuntimeError("reminder-dm-send-failed")
+        return mid
+
+    def _reminder_leg_send(self, leg: str, text: str, cfg: dict):
+        """یادآوریِ بیزنسی در تاپیکِ همان پا (رأی ۶) — شکست بالا می‌آید."""
+        topics = cfg.get("topics") if isinstance(cfg.get("topics"), dict) else {}
+        mid = self._client.send(_scrub(text), chat_id=cfg.get("chat_id"),
+                                topic_id=topics.get(leg))
+        if mid is None:
+            raise RuntimeError("reminder-leg-send-failed")
+        return mid
+
+    def _dm_send_strict(self, text: str):
+        """ارسالِ DM که موفقیت را با mid ِ truthy گواهی می‌دهد؛ None ⇒ استثنا.
+        brief/weekly فقط روی ارسالِ واقعی cursor جلو می‌برند (contract E/H)."""
+        mid = self._client.send(
+            _scrub(text),
+            chat_id=getattr(self._client, "owner_chat_id", None),
+            topic_id=self._dm_topic())
+        if mid is None:
+            raise RuntimeError("dm-send-failed")
+        return mid
+
+    @staticmethod
+    def _vault_intent(text: str) -> bool:
+        """آیا این جمله صریحاً از vault می‌پرسد؟ (contract F.1 — ماشهٔ باریک:
+        پیشوندِ صریح، یا سؤال‌بودن + یکی از واژه‌های vault)."""
+        t = str(text or "").strip()
+        if t.startswith(("از والت", "تو نوت‌هام", "/vault")):
+            return True
+        return (("؟" in t or "?" in t)
+                and any(w in t for w in ("والت", "نوت", "ابسیدین")))
+
+    def _miniapp_url(self) -> "str | None":
+        """URL ِ داشبوردِ Mini App (contract F.3) — فقط فایلِ تازهٔ https.
+        غایب/کهنه (≥۲۴h)/خالی/غیرِhttps ⇒ None ⇒ بدونِ دکمه — URL ِ مرده هرگز
+        پیشنهاد نمی‌شود (tunnel هنگامِ stop فایل را با url:"" بازنویسی می‌کند)."""
+        if os.environ.get("OCTOPUS_TG_MINIAPP", "0") != "1":
+            return None
+        try:
+            p = opslib.STATE_DIR / "telegram" / "miniapp-url.json"
+            if not p.exists() or (time.time() - p.stat().st_mtime) >= 86400.0:
+                return None
+            url = str((json.loads(p.read_text("utf-8")) or {}).get("url") or "")
+            return url if url.startswith("https://") else None
+        except Exception:  # noqa: BLE001
+            return None
+
+    def _handle_reminder_callback(self, cbq: dict, data: str) -> dict:
+        """rm:done:<id> / rm:snz:<id> — هر دو idempotent (دبل‌تاپ بی‌اثر)؛
+        answer همیشه اول (مرگِ spinner §۶.۴)، بعد ویرایشِ کارت به وضعِ نو."""
+        parts = str(data or "").split(":")
+        act = parts[1] if len(parts) > 1 else ""
+        rid = parts[2] if len(parts) > 2 else ""
+        self._answer(cbq, {"done": "انجام شد ✅",
+                           "snz": "نیم ساعت بعد ⏰"}.get(act, "نشناختم"))
+        it = None
+        try:
+            import reminders as _rm
+            if act == "done" and rid:
+                it = _rm.done(rid)
+            elif act == "snz" and rid:
+                it = _rm.snooze(rid, 1800)   # قولِ دکمه: «نیم ساعت بعد»
+        except Exception:  # noqa: BLE001
+            it = None
+        msg = cbq.get("message") or {}
+        mid = msg.get("message_id")
+        if it is not None and isinstance(mid, int):
+            _b = (str(it.get("text") or "").replace("&", "&amp;")
+                  .replace("<", "&lt;").replace(">", "&gt;"))
+            new_txt = (f"✅ انجام شد: {_b}" if act == "done"
+                       else f"⏰ نیم ساعت بعد دوباره می‌گویم: {_b}")
+            try:
+                self._client.edit(mid, _scrub(new_txt),
+                                  chat_id=(msg.get("chat") or {}).get("id"))
+            except Exception:  # noqa: BLE001
+                pass
+        return {"kind": "reminder", "act": act, "id": rid,
+                "ok": it is not None}
+
     def _topic_key(self, msg: dict) -> str:
         """نامِ پا برای تاپیکی که پیام در آن آمده — یا "" (General/خصوصی/ناشناخته).
 
@@ -1660,6 +1922,22 @@ class Center:
                         return {"kind": "build-task", "ok": _res.get("ok"),
                                 "task": _res.get("id")}
             except Exception:  # noqa: BLE001 — صفِ شکسته = مسیرِ قبلی، نه سکوت
+                pass
+            # ── Capture ِ یک‌ژسته (لِین D، رأی ۹–۱۰؛ ۲۰۲۶-۰۷-۳۱) ─────────────
+            # بعد از «بساز:» و قبل از مامور. درزِ عمدی (رأی ۱۹ — چتِ آزاد باید
+            # زنده بماند): capture فقط برای رسانه، پیشوندِ «ثبت:»، یا متنی که
+            # طبقه‌بندِ $0 آن را task/lead/idea/expense بداند صدا زده می‌شود؛
+            # نوتِ سادهٔ kind=note به گفتگوی موجود (مامور/مغز) می‌افتد.
+            # فلگ خاموش ⇒ این بلوک هیچ اجرا نمی‌شود — بایت‌به‌بایتِ امروز.
+            try:
+                _mgc = u.get("message")
+                if (isinstance(_mgc, dict)
+                        and _d.get("mode") == "core_conversation"
+                        and os.environ.get("OCTOPUS_TG_CAPTURE", "0") == "1"):
+                    _rc = self._capture_hook(_mgc)
+                    if _rc is not None:
+                        return _rc
+            except Exception:  # noqa: BLE001 — capture ِ شکسته = مسیرِ قبلی، نه سکوت
                 pass
             # ── مامور (owner_console) — فقط با تصمیمِ مجازِ core_conversation ──
             # وصل طبقِ HANDOFF-TO-TELEGRAM-SENIOR بعد از سبزیِ ۱۹+۴ سنجه و ۹
@@ -1862,6 +2140,33 @@ class Center:
                             "chat_id": chat_id, "auth_kind": rec.get("kind")}
             except Exception:  # noqa: BLE001 — ثبت نشدن نباید پیام را بخورد
                 pass
+        # ── جوابِ سؤالِ بودجه (لِین H): ریپلای به پیامِ «سؤالِ اختاپوس» ──────
+        # مارکرِ پایدار: question_text با «Q-<n> … سؤالِ اختاپوس» شروع می‌شود.
+        # تلگرام تگِ HTML را در reply-text می‌اندازد ⇒ به تگ تکیه نمی‌کنیم.
+        try:
+            import question_budget as _qb
+            if _qb.enabled() and not text.startswith("/"):
+                _rt = str((msg.get("reply_to_message") or {}).get("text") or "")
+                if "سؤالِ اختاپوس" in _rt:
+                    _qm = re.search(r"Q-\d+", _rt)
+                    if _qm:
+                        _rec = _qb.record_answer(_qm.group(0), text)
+                        _ak = (f"✍️ جوابت روی {_qm.group(0)} ثبت شد — ممنون."
+                               if _rec is not None else
+                               "این سؤال را پیدا نکردم — شاید مالِ هفتهٔ کهنه است.")
+                        _mid = None
+                        try:
+                            _mid = self._client.send(
+                                _scrub(_ak), chat_id=chat_id,
+                                topic_id=self._reply_thread(msg))
+                        except Exception:  # noqa: BLE001
+                            pass
+                        return {"kind": "qbudget-answer",
+                                "id": _qm.group(0),
+                                "recorded": _rec is not None,
+                                "sent": _mid is not None}
+        except Exception:  # noqa: BLE001 — جوابِ سؤال هرگز پیام را نمی‌کشد
+            pass
         handlers = {
             "/now": lambda: self._status_text() or "🐙 هنوز چیزی برای گفتن ندارم.",
             "/budget": self._budget_text,
@@ -2306,6 +2611,25 @@ class Center:
             except Exception:  # noqa: BLE001 — آینه هرگز مسیرِ بات را نمی‌کشد
                 pass
         try:
+            # ── سؤال از vault با منبع (رأی ۹؛ لِین F.1؛ OCTOPUS_TG_ASK_VAULT) ──
+            # قبل از mission-inference تا نیتِ صریحِ «از والت …» را چیزی نبلعد.
+            # فلگ خاموش یا ok=False ⇒ سقوط به مسیرِ امروز — هرگز block.
+            try:
+                import ask_vault as _av
+                if _av.enabled() and self._vault_intent(text):
+                    _q = text[6:].strip() if text.startswith("/vault") else text
+                    _rv = _av.query(_q)
+                    if _rv.get("ok"):
+                        import html as _h
+                        _body = "🗄 " + _h.escape(
+                            str(_rv.get("answer") or ""))[:3400]
+                        mid = self._client.send(
+                            _scrub(_body), chat_id=chat_id,
+                            topic_id=self._reply_thread(msg))
+                        return {"kind": "ask_vault", "sent": mid is not None,
+                                "sources": len(_rv.get("sources") or [])}
+            except Exception:  # noqa: BLE001 — vault هرگز مسیرِ پرسش را نمی‌کشد
+                pass
             # Mission Genome: درخواست‌های کدنویسی/تست/یادگیری/جهش نباید به منوی ثابت
             # سقوط کنند. اول به Mission قابل‌ردیابی تبدیل می‌شوند؛ اجرا/apply همچنان
             # پشتِ action_graph/approval می‌ماند و اینجا فقط کارتِ کنترل ساخته می‌شود.
@@ -2397,7 +2721,11 @@ class Center:
                     if _ab.enabled():
                         _a = _ab.ask(text, topic_key=self._topic_key(msg))
                         if _a.get("ok"):
-                            out = _ab.card(_a["text"], _a.get("model") or "")
+                            # F.2: با نردبانِ محلی، مالک باید بداند جوابِ
+                            # «🧠 محلی» را می‌خواند یا «🐡 گران». tier خالی =
+                            # کارتِ قدیمی بایت‌به‌بایت.
+                            out = _ab.card(_a["text"], _a.get("model") or "",
+                                           tier=_a.get("tier") or "")
                         elif _a.get("reason") in ("not-a-paid-brain", "no-answer",
                                                   "ask-exception"):
                             _brain_busy = "llm-no-answer"
@@ -3335,6 +3663,26 @@ class Center:
         if verb == "tk":
             # دکمه‌های کارتِ پا (رأیِ ۰۷-۳۰ شب). مالکیت را بالادست گیت کرده.
             return self._handle_tasks_callback(cbq, data)
+        if verb == "rm":
+            # یادآورها (لِین E، پشتِ OCTOPUS_TG_REMINDERS). فلگ خاموش ⇒ سقوط به
+            # مسیرِ امروز («نادیده») — parity. دبل‌تاپ بی‌اثر (done/snooze idempotent).
+            try:
+                import reminders as _rm0
+                if _rm0.enabled():
+                    return self._handle_reminder_callback(cbq, data)
+            except Exception:  # noqa: BLE001
+                pass
+        if verb == "qb":
+            # بودجهٔ سؤال (لِین H، پشتِ OCTOPUS_TG_QBUDGET): جوابِ واقعی از
+            # **ریپلای** می‌آید نه تاپ — این شاخه فقط راه را می‌گوید و spinner
+            # را می‌کشد (§۶.۴). فلگ خاموش ⇒ مسیرِ امروز — parity.
+            try:
+                import question_budget as _qb0
+                if _qb0.enabled():
+                    self._answer(cbq, "برای جواب، به پیامِ سؤال ریپلای کن")
+                    return {"kind": "qbudget", "hint": True}
+            except Exception:  # noqa: BLE001
+                pass
         if verb == "oc":
             # مامور (owner_console) — مسیرِ اصلی در handle_update است (با تصمیمِ
             # سطحِ کامل)؛ این شاخه هم اعلامِ مسیر برای گاردِ parity است و هم

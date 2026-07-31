@@ -12,6 +12,7 @@ General ِ گروه پین می‌شود.
      مثلاً «۴ دکمه» را با خودِ `leg_tasks.card_keyboard` می‌سنجم، نه با چشم.
 """
 import json
+import os
 import re
 import shutil
 import sys
@@ -154,13 +155,94 @@ def t_every_claim_in_the_guide_is_true_in_the_code():
         assert bc.strip_prefix(ex), f"بدنهٔ خالی بعد از strip: {ex}"
     # و دستورش هم باید در متن باشد، نه فقط مثالش
     assert "بنویس «بساز:»" in dm, "دستورِ «بساز:» از متن حذف شده — فقط مثال مانده"
-    # مثالِ گروه باید **کار** شود نه سؤال (قولِ «می‌شود یک کار»)
-    g_ex = [ln.strip().strip("«»") for ln in g.splitlines()
-            if ln.strip().startswith("«") and ln.strip().endswith("»")]
-    assert g_ex, "راهنمای گروه هیچ مثالی ندارد"
-    for ex in g_ex:
-        assert lt.is_question(ex) is False, \
-            f"راهنما گفت این کار می‌شود ولی سؤال طبقه‌بندی شد: {ex}"
+    # مثالِ کارِ آزادِ گروه باید **کار** شود نه سؤال (قولِ «می‌شود یک کار»)
+    assert "«این لینک را بررسی کن»" in g, "مثالِ کارِ آزادِ گروه حذف شده"
+    assert lt.is_question("این لینک را بررسی کن") is False, \
+        "راهنما گفت این کار می‌شود ولی سؤال طبقه‌بندی شد"
+
+
+def t_w2_group_promises_natural_commands_the_classifier_really_knows():
+    """موج ۲: هر فرمانِ طبیعی که راهنمای گروه یاد می‌دهد، طبقه‌بندِ واقعیِ
+    leg_commands باید بشناسد — قول‌به‌قول، نه با چشم."""
+    import leg_commands as lc
+    g = guide.group_text()
+    for ex, want in (("وضعیت", "status"), ("صف", "queue"),
+                     ("گزارش امروز", "report")):
+        assert f"«{ex}»" in g, f"مثالِ «{ex}» از راهنما حذف شده"
+        assert lc.classify(ex) == want, \
+            f"راهنما «{ex}» را یاد می‌دهد ولی طبقه‌بند نمی‌فهمد"
+    assert "«هدف روزانه ۵»" in g and lc.parse_kpi_set("هدف روزانه ۵") == 5, \
+        "قولِ «هدف روزانه N» با parse_kpi_set نمی‌خوانَد"
+    assert "«این را به صف اضافه کن: متنِ کار»" in g \
+        and lc.strip_enqueue_prefix("این را به صف اضافه کن: متنِ کار") == "متنِ کار", \
+        "قولِ «به صف اضافه کن» با strip_enqueue_prefix نمی‌خوانَد"
+    # قولِ ریپلای به کارتِ 🚧: کارتِ مسدود واقعاً 🚧 و شناسهٔ TASK دارد و
+    # مسیرِ رفعِ مانع در کد هست (resolve_blocked).
+    assert "🚧" in g, "قولِ کارتِ 🚧 از راهنما حذف شده"
+    bt = lt.blocked_text({"id": "TASK-9", "question": "کدام سایز؟"})
+    assert "🚧" in bt and "TASK-9" in bt, \
+        "کارتِ مسدود 🚧/شناسه ندارد — ریپلایِ مالک به چه چیزی بند شود؟"
+    assert callable(lt.resolve_blocked), "resolve_blocked وجود ندارد"
+    # قولِ «لید فقط اتاقِ 🎨»: طبقه‌بندِ capture لید را به پای lead می‌چسباند.
+    import capture as cap
+    kr = cap.classify("یک لید از مشتری برای نقاشی")
+    assert kr["kind"] == "lead" and kr["leg"] == "lead", \
+        f"قولِ «لید فقط 🎨» با طبقه‌بندِ capture نمی‌خوانَد: {kr}"
+
+
+def t_w2_dm_promises_capture_reminder_brief_vault_and_menu_are_real():
+    """موج ۲: قول‌های DM — capture ِ یک‌ژسته و «ثبت:»، یادآوریِ زبانِ طبیعی،
+    بریفِ صبح/شب، «از والت بپرس»، منوی ۸تایی — هر یک به کدِ واقعی بند."""
+    import re as _re
+    dm = guide.dm_text()
+    import capture as cap
+    # «ثبت: خرید رنگ ۵۰ دلار» — از خودِ درزِ مرکز (نه فقط ماژول): flag روشن،
+    # پیام از هوکِ واقعی می‌گذرد و ack ِ هزینه می‌گیرد.
+    ex_sabt = "ثبت: خرید رنگ ۵۰ دلار"
+    assert f"«{ex_sabt}»" in dm, "مثالِ «ثبت:» از راهنما حذف شده"
+    _reset()
+    fc = FakeClient()
+    fc.owner_chat_id = 777
+    c = center.Center(client=fc, clock=lambda: 1000.0, render_mod=_render())
+    os.environ["OCTOPUS_TG_CAPTURE"] = "1"
+    try:
+        r = c._capture_hook({"message_id": 4001, "chat": {"id": 777},
+                             "text": ex_sabt})
+    finally:
+        os.environ.pop("OCTOPUS_TG_CAPTURE", None)
+    assert r is not None and r.get("kind") == "capture" \
+        and r.get("capture_kind") == "expense", \
+        f"قولِ «ثبت:» در درزِ مرکز برقرار نیست: {r}"
+    # capture ِ متن/عکس/ویس: تشخیصِ رسانه واقعی است، نه ادعا.
+    assert cap._media_kind({"voice": {"file_id": "x"}}, "") == "voice"
+    assert cap._media_kind({"photo": [{"file_id": "y"}]}, "") == "photo"
+    # یادآوریِ زبانِ طبیعی: مثالِ خودِ راهنما باید با ساعتِ درست parse شود.
+    import reminders as rm
+    from datetime import datetime as _dt
+    ex_rm = "فردا ساعت ۹ زنگ بزن به علی"
+    assert f"«{ex_rm}»" in dm, "مثالِ یادآوری از راهنما حذف شده"
+    base = _dt(2026, 7, 31, 12, 0).timestamp()
+    due, cleaned = rm.parse_when(ex_rm, now=base)
+    assert due is not None and _dt.fromtimestamp(due).hour == 9, \
+        f"مثالِ یادآوریِ راهنما درست parse نمی‌شود: {due}"
+    assert "زنگ بزن" in cleaned, f"متنِ پاک‌شدهٔ یادآوری غلط است: {cleaned!r}"
+    # بریفِ صبح/شب: قولِ راهنما به خروجیِ واقعیِ ماژول بند است.
+    import brief as bf
+    assert "بریف" in dm and "بریف صبح" in bf.morning_text(now=base, cfg={})
+    assert "جمع‌بندی" in dm and "جمع‌بندی شب" in bf.evening_text(now=base, cfg={})
+    # «از والت بپرس …»: مثالِ راهنما باید ماشهٔ واقعیِ مرکز را بکشد.
+    m = _re.search(r"«(از والت[^»]+)»", dm)
+    assert m, "مثالِ «از والت بپرس» از راهنما حذف شده"
+    assert center.Center._vault_intent(m.group(1)) is True, \
+        f"مثالِ راهنما ماشهٔ vault را نمی‌کشد: {m.group(1)!r}"
+    # و جوابِ vault واقعاً منبع‌دار است (فهرست را ماژول می‌سازد نه مدل).
+    import ask_vault as av
+    import inspect as _ins
+    assert "منابع:" in _ins.getsource(av.query), \
+        "قولِ «با ذکرِ منبع» در ask_vault.query برقرار نیست"
+    # منوی ۸تایی: شمارِ واقعیِ COMMANDS.
+    assert "۸ دکمه" in dm and len(center.COMMANDS) == 8, \
+        f"راهنما ۸ دکمه گفت، منو {len(center.COMMANDS)} دارد"
 
 
 def _run():

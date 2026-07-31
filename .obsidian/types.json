@@ -35,6 +35,10 @@
     "audits": "text",
     "result": "text",
     "language": "text",
-    "salience": "number"
+    "salience": "number",
+    "message_id": "number",
+    "chat_id": "number",
+    "file_id": "text",
+    "duration": "number"
   }
 }

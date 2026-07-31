@@ -3,7 +3,7 @@ type: reference
 status: active
 tags: [schema, frontmatter]
 created: 2026-07-03
-updated: 2026-07-06
+updated: 2026-07-31
 ---
 
 # Property Schema — زبان داده Vault (تک‌منبع حقیقت)
@@ -46,6 +46,13 @@ updated: 2026-07-06
 - `audits` / `result`: text — نوت‌های audit/red-team — موضوع بازرسی و خلاصهٔ یافته.
 - `language`: text — زبان سند (مثلاً `bilingual`).
 - `salience`: number — اسکور اهمیت ۰–۱ دیجست‌های اسکات (ورودیِ evaporation/TTL ناوگان).
+
+### ۲.۲ کلیدهای capture ِ ماشینی (نوت‌های `telegram-log` ِ Raw — ۲۰۲۶-۰۷-۳۱، رأی capture)
+
+- `message_id`: number — شناسهٔ پیامِ تلگرام؛ کلیدِ dedup در محدودهٔ همان `chat_id` (۲۰۲۶-۰۷-۳۱، رأی capture).
+- `chat_id`: number — شناسهٔ چتِ مبدأ پیام (۲۰۲۶-۰۷-۳۱، رأی capture).
+- `file_id`: text — شناسهٔ رسانهٔ تلگرام (ویس/عکس) — ثبتِ ارجاع، بدونِ دانلود (۲۰۲۶-۰۷-۳۱، رأی capture).
+- `duration`: number — طولِ ویس به ثانیه (۲۰۲۶-۰۷-۳۱، رأی capture).
 
 ## ۳. قواعد
 

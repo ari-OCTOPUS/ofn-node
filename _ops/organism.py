@@ -1085,6 +1085,20 @@ def main() -> int:
                         _leg, beat=_cstat.get("beat", 0) if _cstat else 0)
                 except Exception as _lde:  # noqa: BLE001 — §۴: نباید tick را بکشد
                     opslib.alert([f"lead_discovery_beat error (non-fatal): {type(_lde).__name__}: {_lde}"])
+            # ── Lead pipeline (Lane G ِ منشورِ TG-UI ۰۷-۳۱): کشف→تحقیق→امتیاز→پیش‌نویس→
+            # کارتِ لیدِ آماده در تاپیکِ 🎨 (stream="lead"). پشتِ OCTOPUS_WIRE_LEAD_PIPELINE
+            # (پیش‌فرض خاموش) → None. همان LeadLeg و همان کانالِ approval ِ بالادست؛ صفر
+            # ارسالِ بیرونی — قوسِ verdict→lead_effect_gate→outbound_worker جدا می‌ماند.
+            if not _protective_skip:
+                try:
+                    _w.lead_pipeline_beat(
+                        _leg, beat=_cstat.get("beat", 0) if _cstat else 0,
+                        send_fn=(None if _chan is None else
+                                 (lambda text, keyboard=None, stream="lead":
+                                  _chan.send_text(text, reply_markup=keyboard,
+                                                  stream=stream))))
+                except Exception as _lpe:  # noqa: BLE001 — §۴: نباید tick را بکشد
+                    opslib.alert([f"lead_pipeline_beat error (non-fatal): {type(_lpe).__name__}: {_lpe}"])
             # ── Legs cultivation (2026-07-16): متابولیسمِ دادهٔ $0 برای همهٔ پاها —
             # پشتِ OCTOPUS_WIRE_LEG_CULTIVATE (پیش‌فرض خاموش، خارج از PAPER_FULL_FLAGS)
             # → None. digest → دکتر (گزارشِ گلوگاه) + مغزِ B (اگر bus/bridge زنده باشند).
