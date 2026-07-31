@@ -2484,7 +2484,12 @@ def _record_lead_decisions(items, beat: int = 0) -> dict:
         odir = opslib.STATE_DIR / "outcomes"
         odir.mkdir(parents=True, exist_ok=True)
         o = _osx.OutcomeStore(path=odir / "outcomes.db")
-        r = _drx.DecisionReceiptStore(odir / "receipts.db")
+        # GAP-1 (۰۷-۳۱): مخزنِ رسید دو-پاره بود — این‌جا outcomes/receipts.db باز
+        # می‌شد ولی c6_trigger و verdict_recorder روی receipts/receipts.db می‌نویسند
+        # (و روی دیسکِ زنده فقط دومی وجود دارد). «همهٔ رسیدها» باید یک مخزن باشد.
+        rdir = opslib.STATE_DIR / "receipts"
+        rdir.mkdir(parents=True, exist_ok=True)
+        r = _drx.DecisionReceiptStore(rdir / "receipts.db")
         # حافظه: READ (memories_used) اگر db از قبل هست؛ WRITE (episodic) اگر Memory Gate
         # روشن است (آن‌گاه db ساخته می‌شود — این beat تولیدکنندهٔ واقعیِ گیت است، رفعِ dead-flag).
         mem_db = opslib.STATE_DIR / "memory" / "memory.db"

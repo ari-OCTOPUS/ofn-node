@@ -73,7 +73,11 @@ def _clean_inbox():
 
 
 def _receipts_db() -> Path:
-    return opslib.STATE_DIR / "outcomes" / "receipts.db"
+    # GAP-1 (۰۷-۳۱): مخزنِ رسید یکی شد — canonical همان receipts/receipts.db است
+    # (مسیرِ c6_trigger/verdict_recorder)؛ outcomes/receipts.db دوپارهٔ بازنشسته بود.
+    # سبزِ ماندگارِ این تست با مسیرِ کهنه سبزِ کاذب بود: ردیف‌های ته‌مانده از
+    # اجراهای قبلی با idهای پین‌شدهٔ همان تگ resolve می‌شدند.
+    return opslib.STATE_DIR / "receipts" / "receipts.db"
 
 
 def _run_beat(tag):

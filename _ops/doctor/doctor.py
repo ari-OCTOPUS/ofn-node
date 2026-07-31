@@ -148,6 +148,12 @@ class RFC:
     created_ts: float = 0.0                            # time.time() hنگام ساخت — sweep/expire
     change_level: str = "code"                         # tune|reconfig|rewrite|code — فقط 'tune'+knobِ whitelist اعمالِ واقعی می‌شود
     knob: str = ""                                     # اگر change_level=='tune': نامِ knobِ AUTO_KNOBS که merge اعمالش می‌کند
+    # ۰۷-۳۱ (GAP-6): کلیدِ evidenceِ گلوگاه (مثلاً 'error-rate-high'). بدونِ این،
+    # record_verdict با bottleneck_key="" ثبت می‌شد و get_verdict_history که بر
+    # همین کلید فیلتر می‌کند هیچ ردیفی نمی‌دید ⇒ should_skip_bottleneck (فراموشیِ
+    # ردشده‌ها بعد از ۳ reject) ساختاراً هرگز شلیک نمی‌کرد. لودِ RFC فیلترِ
+    # __dataclass_fields__ دارد → افزودن با default سازگارِ عقب/جلو است.
+    evidence_key: str = ""
 
     def __post_init__(self):
         if not self.rfc_hash:
@@ -169,7 +175,8 @@ class RFC:
                 # می‌شدند، پس sweepِ سن‌محور (age_h) هیچ‌وقت expire نمی‌کرد؛ ۸ RFCِ روزهای
                 # قبل هنوز «باز» بودند و با dedupe آن گلوگاه را ابدی ساکت می‌کردند.
                 # لودِ RFC فیلترِ __dataclass_fields__ دارد → افزودنش سازگارِ عقب/جلو است.
-                "created_ts": self.created_ts}
+                "created_ts": self.created_ts,
+                "evidence_key": self.evidence_key}
 
     def to_markdown(self) -> str:
         """نمایشِ markdown برای knowledge/internal یا کارتِ P3."""
@@ -471,7 +478,9 @@ class Doctor:
         rfc = RFC(rfc_id=f"RFC-{uuid.uuid4().hex[:8]}",
                   bottleneck=bottleneck.get("bottleneck", str(bottleneck)),
                   fix=fix, expected_lift=expected_lift, rollback=rollback,
-                  status="draft", change_level=change_level, knob=knob)
+                  status="draft", change_level=change_level, knob=knob,
+                  evidence_key=str(((bottleneck.get("evidence") or {}).get("key")
+                                    or "") if isinstance(bottleneck, dict) else ""))
         # reward-integrity: اگر fix ناظر به uptime/keep-beating باشد، جریمه می‌خورد
         fix_lower = fix.lower()
         if any(w in fix_lower for w in ("uptime", "keep-beating", "keep-alive", "keep alive")):
@@ -1024,7 +1033,12 @@ class Doctor:
                     if mapped is None:
                         continue
                     from calibration import record_verdict
-                    record_verdict(self._db, rfc_id, mapped)
+                    # GAP-6 (۰۷-۳۱): بدونِ bottleneck_key هر ردیف با کلیدِ خالی
+                    # ثبت می‌شد و should_skip_bottleneck هرگز شلیک نمی‌کرد.
+                    record_verdict(self._db, rfc_id, mapped,
+                                   bottleneck_key=getattr(
+                                       self._rfcs.get(rfc_id), "evidence_key", "")
+                                   if rfc_id in self._rfcs else "")
                     applied = False
                     receipt_id = ""
                     if rfc_id in self._rfcs:

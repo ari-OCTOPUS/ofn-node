@@ -58,6 +58,29 @@ _ALLOWED_STATES = (
     "awaiting_owner", "approved", "applied", "monitored", "done", "reverted", "rejected",
 )
 
+# VQ-MISSION-RECONCILE-001 قدمِ ۱ (۰۷-۳۱): تا امروز set_state هر عضوِ
+# _ALLOWED_STATES را از هر وضعی می‌پذیرفت (done→created قانونی بود!) در حالی که
+# دنیای canonical (mission_contract) گذارِ اجباری دارد. حالت: **annotate-first** —
+# گذارِ خارج از جدول بلاک نمی‌شود (رفتارِ زندهٔ تلگرام دست‌نخورده) ولی روی خودِ
+# mission و در audit علامت می‌خورد تا دادهٔ واقعی جمع شود؛ سفت‌کردن = رأیِ مالک.
+LEGAL_TRANSITIONS_12 = {
+    "created": ("planned", "awaiting_owner", "rejected"),
+    "planned": ("patched", "tested", "awaiting_owner", "rejected"),
+    "patched": ("tested", "rejected"),
+    "tested": ("reviewed", "awaiting_owner", "rejected"),
+    "reviewed": ("awaiting_owner", "approved", "rejected"),
+    "awaiting_owner": ("approved", "rejected"),
+    "approved": ("applied", "rejected"),
+    "applied": ("monitored", "done", "reverted"),
+    "monitored": ("done", "reverted"),
+    "done": (), "reverted": (), "rejected": (),
+}
+
+
+def can_transition_12(old: str, new: str) -> bool:
+    """گذارِ قانونیِ Genome. ناشناخته = غیرقانونی (fail-closed در قضاوت، نه در ثبت)."""
+    return str(new) in LEGAL_TRANSITIONS_12.get(str(old), ())
+
 # کلمات فارسی/انگلیسی برای intentهای mission-level. اینها مکمل intent.py هستند.
 _CODE_KWS = (
     "کد", "کدنویسی", "patch", "diff", "باگ", "bug", "fix", "درست کن",
@@ -296,12 +319,24 @@ def _update(mid: str, mutate) -> dict | None:
 
 
 def set_state(mid: str, new_state: str, note: str = "") -> dict | None:
-    """state مأموریت را با validation عوض کن."""
+    """state مأموریت را با validation عوض کن.
+
+    annotate-first (۰۷-۳۱): گذارِ خارج از LEGAL_TRANSITIONS_12 ثبت می‌شود ولی
+    بلاک نمی‌شود — علامتِ `illegal_transitions` روی mission + `legal:false` در
+    audit، تا الگوی واقعیِ گذارها قبل از سفت‌کردن سنجیده شود."""
     ns = str(new_state or "")
     if ns not in _ALLOWED_STATES:
         return None
+    legal_holder = {"ok": True, "from": ""}
 
     def mut(m: dict) -> dict:
+        old = str(m.get("state") or "")
+        legal_holder["from"] = old
+        if old and not can_transition_12(old, ns):
+            legal_holder["ok"] = False
+            m.setdefault("illegal_transitions", []).append(
+                {"from": old, "to": ns, "ts": _now_iso()})
+            m["illegal_transitions"] = m["illegal_transitions"][-10:]
         m["state"] = ns
         if note:
             m.setdefault("notes", []).append({"ts": _now_iso(), "note": _scrub_text(note, 200)})
@@ -309,7 +344,8 @@ def set_state(mid: str, new_state: str, note: str = "") -> dict | None:
 
     out = _update(mid, mut)
     if out:
-        _audit("mission.state", id=out["id"], state=ns)
+        _audit("mission.state", id=out["id"], state=ns,
+               legal=legal_holder["ok"], prev=legal_holder["from"])
     return out
 
 

@@ -26,6 +26,11 @@ if str(_OPS / "budget") not in sys.path:
 import opslib  # noqa: E402
 
 MODEL_PATH = opslib.STATE_DIR / "cortex" / "self-model.json"
+# VQ-STATE-WRITE-001: نشانگرِ شکستِ نوشتن — فایلِ *نو* در همان پوشه (طبق
+# تشخیصِ VQ-OBS-REPLACE-001، replace روی فایلِ نو حتی وقتی خودِ self-model
+# با WinError 5 قفل است موفق می‌شود). حضورِ این فایل = آخرین تلاشِ نوشتن
+# شکست خورده؛ نوشتنِ موفق پاکش می‌کند.
+WRITE_FAILURE_PATH = opslib.STATE_DIR / "cortex" / "self-model.write-failure.json"
 # ── طرفِ «خود» برای واسنجیِ برخط (ORPH-SELF-CLAIMS) ────────────────────────────
 # calibration_probe فقط این لِجِر را می‌خواند و هرگز خودش نمی‌نویسدش؛ اینجا تنها
 # تولیدکننده است. رکورد: {key, confidence∈[0,1], ts, ...} — دقیقاً شِمایی که
@@ -180,7 +185,26 @@ def run_and_persist(root: Path | None = None) -> dict:
         with opslib.LockedJson(MODEL_PATH) as lj:
             lj.write(model)
     except Exception as e:  # noqa: BLE001
+        # VQ-STATE-WRITE-001: این شکست قبلاً کاملاً بی‌صدا بود — heartbeat زنده
+        # می‌مانْد و نقشهٔ خود روزها کهنه می‌شد بی‌آنکه زنگی بخورد (۶ روز در
+        # عمل). حالا: آلارم + نشانگرِ روی دیسک؛ خودِ خطا مثل قبل بلعیده
+        # می‌شود تا چرخهٔ کورتکس نمیرد.
+        try:
+            opslib.alert([f"self_model write FAILED — نقشهٔ خود در حالِ کهنه‌شدن: {e}"])
+        except Exception:  # noqa: BLE001
+            pass
+        try:
+            WRITE_FAILURE_PATH.write_text(json.dumps(
+                {"schema": "state-write-failure.v1", "ts": opslib.now_iso(),
+                 "target": "cortex/self-model.json", "error": str(e)},
+                ensure_ascii=False, indent=1), "utf-8")
+        except Exception:  # noqa: BLE001
+            pass
         return {"ok": False, "error": str(e)}
+    try:
+        WRITE_FAILURE_PATH.unlink(missing_ok=True)   # موفقیت = نشانگرِ شکست پاک
+    except OSError:
+        pass
     claims_written = emit_self_claims(model)   # زیرِ فلگ؛ خاموش → صفر اثر، fail-soft
     return {"ok": True, "n_modules": model["n_modules"],
             "total_lines": model["total_lines"],

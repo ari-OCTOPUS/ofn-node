@@ -329,6 +329,136 @@ def t_c3_a_bogus_message_id_is_never_trusted_forever():
         f"شناسهٔ جعلی باور شد و کارت قفل ماند: {got!r}"
 
 
+def t_c4_an_unknown_callback_bridges_to_the_organism_router():
+    """⚠️ یافتهٔ اسکنِ عمیقِ ۰۷-۳۱: پلِ فرمان‌ها جواب را با کیبورد روی باتِ
+    بیرونی می‌فرستاد ولی تپِ همان کیبورد «نادیده» می‌گرفت — ~۳۵ فرمانِ bridged
+    همگی کارتِ مرده بودند، از جمله app:approve/deny (پول). حالا تپ هم همان پل
+    را طی می‌کند و ناشناختهٔ هر دو، «نادیده»ی امروز می‌مانَد."""
+    import sys as _sys
+    import types as _types
+    _reset()
+    fc = FakeClient()
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render())
+    c.ensure_setup()
+    calls = {}
+
+    class _FakeCh:
+        def dispatch_callback(self, data, from_id=None, external=False,
+                              trusted_internal=False):
+            calls["data"], calls["from_id"], calls["external"] = \
+                data, from_id, external
+            if data.startswith("app:"):
+                return "✅ ثبت شد"
+            if data.startswith("menu:"):
+                return {"text": "MENU-PAGE", "reply_markup": [[{"text": "x",
+                        "callback_data": "menu:2"}]]}
+            return "نادیده"
+
+    fake_mod = _types.ModuleType("approval_channel")
+    fake_mod.TelegramApprovalChannel = _FakeCh
+    old = _sys.modules.get("approval_channel")
+    _sys.modules["approval_channel"] = fake_mod
+    try:
+        fc.calls.clear()
+        # (الف) verb ِ ارگانیسمی با پاسخِ متنی → toast ِ همان پاسخ
+        r = c.handle_update({"update_id": 9, "callback_query": {
+            "id": "cb9", "from": {"id": 777}, "data": "app:ok:e1:tok",
+            "message": {"chat": {"id": 777}}}})
+        assert r and r.get("kind") == "bridged-callback", r
+        assert calls["data"] == "app:ok:e1:tok" and calls["external"] is True
+        assert calls["from_id"] == 777, "هویتِ واقعی به dispatch نرسید"
+        assert any("ثبت شد" in a["text"] for a in fc.named("answer"))
+        # (ب) پاسخِ dict ِ کیبورددار → پیامِ جدا با همان کیبورد
+        fc.calls.clear()
+        r2 = c.handle_update({"update_id": 10, "callback_query": {
+            "id": "cb10", "from": {"id": 777}, "data": "menu:1",
+            "message": {"chat": {"id": 777}}}})
+        assert r2 and r2.get("kind") == "bridged-callback"
+        sends = [s for s in fc.named("send") if s["text"] == "MENU-PAGE"]
+        assert sends and sends[0]["keyboard"], "کیبوردِ پاسخ دوباره دور ریخته شد"
+        # (ج) ناشناخته برای هر دو → «نادیده»ی امروز (parity)
+        fc.calls.clear()
+        r3 = c.handle_update({"update_id": 11, "callback_query": {
+            "id": "cb11", "from": {"id": 777}, "data": "zz:1",
+            "message": {"chat": {"id": 777}}}})
+        assert r3 == {"kind": "callback", "verdict": None}
+        assert any(a["text"] == "نادیده" for a in fc.named("answer"))
+    finally:
+        if old is not None:
+            _sys.modules["approval_channel"] = old
+        else:
+            _sys.modules.pop("approval_channel", None)
+
+
+def t_c5_the_home_message_is_edited_not_resent_and_dm_guide_is_pinned():
+    """⚠️ دو یافتهٔ اسکن: (۱) «خانه» یک‌بار پین می‌شد و دیگر هرگز ویرایش نه —
+    هر پالس پیامِ نو، پس خانهٔ بالای چت عکسِ کهنه بود. (۲) guide.dm_text صفر
+    صداکننده داشت — سطحِ اصلیِ مالک بی‌دستورالعمل."""
+    _reset()
+    fc = FakeClient()
+    fc.owner_chat_id = 777          # زنده: از env می‌آید؛ fake باید صریح بدهد
+    clk = Clock(50_000.0)
+    c = center.Center(client=fc, clock=clk, render_mod=fake_render())
+    c.ensure_setup()
+    # center-pulse با فلگِ خاموش عمداً هیچ‌جا نمی‌رود (current=none) — این تست
+    # رفتارِ «فلگ روشن» را می‌سنجد، همان چیزی که روی درختِ زنده مسلح است.
+    os.environ["OCTOPUS_TG_SPLIT_V1"] = "1"
+    try:
+        c.beat()                                        # پالسِ اول: ساخت+پین
+        cfg = json.loads(CFG_PATH.read_text("utf-8"))
+        hid = cfg.get("home_message_id")
+        assert isinstance(hid, int), "خانه ساخته نشد"
+        dmid = cfg.get("dm_guide_message_id")
+        assert isinstance(dmid, int), "راهنمای DM فرستاده نشد — صداکننده هنوز صفر"
+        # ⚠️ شمارشِ خامِ send این‌جا دروغ می‌گوید: ضربانِ دوم کارتِ پا هم
+        # می‌فرستد (round-robin ِ مشروع). سنجه فقط خودِ پالس است.
+        def _pulses():
+            return [s for s in fc.named("send") if "نبضِ اختاپوس" in s["text"]]
+        n_pulse = len(_pulses())
+        clk.t += 3601.0
+        c.beat()                                        # پالسِ دوم: فقط ویرایش
+        assert len(_pulses()) == n_pulse, \
+            "پالسِ دوم پیامِ نو فرستاد — خانه باید همان پیام ویرایش شود"
+        assert any(e["message_id"] == hid for e in fc.named("edit")), \
+            "خانهٔ پین‌شده ویرایش نشد"
+        # راهنمای DM هم دوباره فرستاده نمی‌شود (هش بی‌تغییر)
+        assert (json.loads(CFG_PATH.read_text("utf-8"))
+                ["dm_guide_message_id"] == dmid)
+    finally:
+        os.environ.pop("OCTOPUS_TG_SPLIT_V1", None)
+
+
+def t_c6_a_watchdog_revival_is_reported_to_the_owner_once():
+    """⚠️ یافتهٔ منتقدِ اسکن: بات ۳ ساعت و ۵۳ دقیقه مرده بود («centre down
+    (silent 14006s)») و مالک هرگز نفهمید — اعلانِ واچ‌داگ به event_bridge ِ
+    تاریک می‌رود. حالا خودِ مرکز در بوت لاگ را می‌خوانَد و یک‌بار می‌گوید."""
+    _reset()
+    wl = opslib.STATE_DIR / "tg-center-watchdog-log.txt"
+    wl.parent.mkdir(parents=True, exist_ok=True)
+    wl.write_text(
+        "2026-07-31T08:00:00 STOP-TG-CENTER present - not reviving centre\n"
+        "2026-07-31T08:37:14 centre down (silent 14006s) - launching "
+        "RUN-TG-CENTER.bat\n", "utf-8")
+    try:
+        fc = FakeClient()
+        fc.owner_chat_id = 777
+        c = center.Center(client=fc, clock=Clock(), render_mod=fake_render())
+        c.ensure_setup()
+        rec = [s for s in fc.named("send") if "واچ‌داگ" in s["text"]]
+        assert rec, "رسیدِ بازگشت فرستاده نشد"
+        assert "۲۳۳" in rec[0]["text"], \
+            f"مدتِ سکوت (۱۴۰۰۶s≈۲۳۳ دقیقه، رقمِ فارسی) در رسید نیست: {rec[0]['text']!r}"
+        # بوتِ دوم بدونِ خطِ launching ِ تازه → صفر رسید (dedupe با cursor)
+        fc2 = FakeClient()
+        fc2.owner_chat_id = 777
+        c2 = center.Center(client=fc2, clock=Clock(), render_mod=fake_render())
+        c2.ensure_setup()
+        assert not [s for s in fc2.named("send") if "واچ‌داگ" in s["text"]], \
+            "هر ری‌استارتِ عادی هم رسید می‌فرستد ⇒ رگبار"
+    finally:
+        wl.unlink(missing_ok=True)
+
+
 def t_d_decisions_posted_once_with_keyboard_dedupe_seen():
     _reset()
     items = [{"q": "یک تصمیم؟", "why": "w", "source": "approval", "priority": "high"}]

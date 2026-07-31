@@ -79,6 +79,29 @@ def _goals() -> list[str]:
         return []
 
 
+def _genome_missions() -> dict:
+    """دنیای دومِ mission (Genome ِ تلگرام) با واژگانِ canonical — آشتیِ
+    VQ-MISSION-RECONCILE-001 قدمِ ۱: یک خواننده، یک زبان. read-only و fail-soft."""
+    out = {"counts": {}, "awaiting_owner": 0, "total": 0}
+    try:
+        import sys as _sys
+        if str(OPS) not in _sys.path:
+            _sys.path.insert(0, str(OPS))
+        import mission_contract as _mc
+        d = _json(STATE / "telegram" / "missions" / "missions.json")
+        for m in (d.get("missions") or []):
+            if not isinstance(m, dict):
+                continue
+            canon = _mc.genome_to_canonical(m.get("state"))
+            out["counts"][canon] = out["counts"].get(canon, 0) + 1
+            out["total"] += 1
+            if canon == "needs_approval":
+                out["awaiting_owner"] += 1
+    except Exception:  # noqa: BLE001 — دنیای دوم هرگز snapshot را نمی‌کشد
+        pass
+    return out
+
+
 def build(*, now: float | None = None) -> dict:
     now = float(now if now is not None else time.time())
     self_model = _state(STATE / "cortex" / "self-model.json", now=now, sla_s=7200)
@@ -103,8 +126,26 @@ def build(*, now: float | None = None) -> dict:
         heart["authority"] = "AUTHORITATIVE"
 
     latest_pre = preregs[-1] if preregs else {}
-    latest_cycle = cycles[-1] if cycles else {}
-    latest_verdict = verdicts[-1] if verdicts else {}
+    # پیوندِ exact-row (۰۷-۳۱): ردیفِ journal/verdict ِ نمایش‌داده‌شده باید مالِ
+    # همان چرخهٔ آخرین پیش‌ثبت باشد — سه «آخرین» ِ مستقل می‌توانند سه چرخهٔ
+    # متفاوت باشند و link_graph آن‌وقت حکمِ چرخهٔ کهنه را در ردِ چرخهٔ نو
+    # نشان می‌دهد. کلیدِ اتصال: prereg_id (اگر ردیف حمل کند)، وگرنه cycle_id.
+    _pid = str(latest_pre.get("prereg_id") or "")
+    _cid = str(latest_pre.get("cycle_id") or "")
+
+    def _same_cycle(rows: list) -> dict:
+        for r in reversed(rows):
+            rp = str(r.get("prereg_id") or "")
+            if rp and _pid:
+                if rp == _pid:
+                    return r
+                continue
+            if _cid and str(r.get("cycle_id") or "") == _cid:
+                return r
+        return {}
+
+    latest_cycle = _same_cycle(cycles) if latest_pre else {}
+    latest_verdict = _same_cycle(verdicts) if latest_pre else {}
     dead = list((innervation["data"] or {}).get("dead_spots") or [])
     coverage = (innervation["data"] or {}).get("coverage_pct")
 
@@ -117,7 +158,9 @@ def build(*, now: float | None = None) -> dict:
         blockers.append(f"innervation-{coverage:g}-pct")
     if not latest_pre:
         blockers.append("no-preregistered-goal")
-    if not latest_verdict:
+    # سلامتِ حلقه = «آیا ارزیاب تا حالا حکمی داده؟» — نه «حکمِ همین چرخه»؛
+    # حکمِ چرخهٔ جاری همیشه بعد از deadline می‌آید و نبودش بازدارنده نیست.
+    if not verdicts:
         blockers.append("no-independent-verdict-yet")
 
     return {
@@ -131,11 +174,15 @@ def build(*, now: float | None = None) -> dict:
         "innervation": {**innervation, "coverage_pct": coverage, "dead_spots": dead},
         "work_plan": work,
         "goal_cycle": {"prereg": latest_pre, "journal": latest_cycle,
-                       "verdict": latest_verdict, "counts": {
+                       "verdict": latest_verdict,
+                       "link_basis": ("prereg_id" if _pid else
+                                      ("cycle_id" if _cid else None)),
+                       "counts": {
                            "prereg": len(preregs), "cycles": len(cycles),
                            "verdicts": len(verdicts)}},
         "owner_guidance": {"latest": guidance[-1] if guidance else None,
                            "count": len(guidance)},
+        "genome_missions": _genome_missions(),
         "blockers": blockers,
         "fully_integrated": not blockers,
     }

@@ -137,7 +137,12 @@ def _verify_outcome(outcome_store, outcome_ref: str, trust: str) -> "tuple[bool,
     if trust == "OWNER_CONFIRMED":
         ok = (et == "accepted-measurement")
     else:
-        ok = (et in ("accepted-measurement", "delivered", "outcome-recorded", "decided"))
+        # «rejected» (۰۷-۳۱): ردِ مالک هم یک outcomeِ واقعیِ durable است و هدفِ
+        # اعلام‌شدهٔ verdict_recorder «یادگیری از پذیرش/رد» بود — ولی این فهرست
+        # ردش می‌کرد ⇒ درسِ رد ساختاراً هرگز ثبت نمی‌شد. ضدجعل سرِ جاست: ردیف
+        # باید واقعاً وجود داشته باشد و trust هرگز از GRADED بالاتر نمی‌رود.
+        ok = (et in ("accepted-measurement", "rejected", "delivered",
+                     "outcome-recorded", "decided"))
     return (ok, attested, f"outcome event_type={et}")
 
 
