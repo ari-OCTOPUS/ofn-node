@@ -444,3 +444,25 @@ test_d2_halt_coverage · test_tg_send_audit · test_tg_instant_and_sendlog
 کورتکس زنده نمی‌شوند — و ری‌استارتِ سرویسِ زنده رأیِ توست.
 
 </details>
+
+## حلقهٔ عملیاتی تحویل و مسلح شد — ۲۰۲۶-۰۷-۳۱ (رأی مالک: «همرو کامل کن»)
+
+تحویل: کامیت `2ca6459` روی `fix/tg-p2` (۲۰ فایل از برنچِ `claude/operational-loop-agi-566734`،
+۴ اجرای کاملِ سوییت با صفر رگرسیون) + hand-apply ِ ۴ فایلِ drift دار
+(center.py هوکِ beat · mission.py گذارِ قانونی · self_model.py صداداری ·
+run_all.py ثبتِ ۴ سوییت + ۲ ِ unified_control) بدونِ لمسِ هانک‌های جلسه‌های موازی.
+
+| ID | حکم | اثرِ سنجیده |
+|---|---|---|
+| VQ-MISSION-APPROVAL-001 | **closed — مسلح (۱۱:۰۰)** | `OCTOPUS_WIRE_MISSION_APPROVAL=1` بارشده در پروسهٔ مرکز (`flags-loaded-center`، pid 2732، نبض ۱۱:۰۰:۴۵). کارتِ A3 ِ چرخهٔ بعدیِ SGC (اسلات ۲ امروز) خودکار stage → صفِ تأیید → حکمِ تو → گذارِ قانونیِ دفترِ mission. دو missionِ معطلِ قبلی کارتِ stage‌شده ندارند (قبل از این کد ساخته شدند) — با تکرارِ همان هدف در چرخهٔ بعد کارت می‌گیرند؛ backfill جعلی نساختم |
+| VQ-RECEIPT-CRITIC-001 | **closed — مسلح (۱۱:۰۰)** | `OCTOPUS_WIRE_RECEIPT_CRITIC=1` بارشده در organism (pid 13876). تا اولین رسیدِ واقعیِ executor ساکت است (ledger هنوز خالی — صادقانه) |
+| VQ-PROMOTE-TRUST-001 | **closed — حل شد** | promote از راهِ گواهیِ **لحظهٔ خواندن** از outcomes.db (توکن‌های corr=/proposal= ↔ ردیفِ واقعیِ accepted-measurement با owner_verdict_raw). برچسبِ trust ِ حافظه GRADED می‌ماند — خاطره مجوز نیست، دفترِ نتیجه مجوز است. توکنِ جعلی بدونِ ردیفِ واقعی بی‌اثر (تستِ منفی + جهشِ قرمز) |
+| VQ-MISSION-RECONCILE-001 | **قدمِ ۱ انجام** | Genome جدولِ گذارِ قانونی گرفت (annotate-first — بلاک نمی‌کند، علامت می‌زند) + واژگانِ ۱۲→۶ در mission_contract + گزارشِ canonical ِ هر دو دنیا در snapshot. سفت‌کردنِ گذارها بعد از جمع‌شدنِ داده = رأیِ بعدی |
+
+### 🔴 VQ-LEDGER-CHAIN-001 (نو، P1) — دو ارزیاب دربارهٔ زنجیرهٔ ژنوم اختلاف دارند
+
+ارزیابِ scar-aware ِ ۱۴ کامیتِ اخیرِ `fix/tg-p2` می‌گوید `chain break at line 9646: prev mismatch`
+و ارزیابِ ce35f61 همان ledger را `valid=true` می‌داند. چون هر ۴ فلگِ یادگیری زنده روشن‌اند،
+حکمِ ارزیابِ نو الان **هر** `learn_from_outcome` را با anti-hacking بلاک می‌کند (سنجیده:
+learned=false روی مسیرِ زندهٔ رد/پذیرش). قضاوت/ترمیم = لِینِ canary + رأیِ تو — ledger
+شواهد است و بازنویسی‌اش A6؛ دست نزدم. تا حل‌شدن، یادگیریِ زنده fail-closed است (امن ولی خشک).
