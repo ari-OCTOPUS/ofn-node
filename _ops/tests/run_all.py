@@ -640,6 +640,23 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_tg_send_receipt_schema.py",       # رسیدِ ارسال: bot_role+surface+state سه‌حالتی (gate 8)
     "test_redact_before_archive.py",        # redact قبل از hold (boundary-3: نشت در آرشیو)
     "test_tg_409_rival_poller.py",           # تشخیصِ pollerِ رقیب روی باتِ مرکز (boundary-12)
+    # ۲۰۲۶-۰۷-۳۱ — ساختِ ۴موجهٔ منشورِ UI تلگرام (۸ لِین + لِینِ سیم‌کشی):
+    "test_tg_menu_contract.py",             # منوی DM ≤۱۰ ِ scope-دار + تک‌نویسندهٔ منوی inner
+    "test_tg_callback_answer.py",           # هیچ تپی بی‌answer نمی‌ماند (مرگِ spinner)
+    "test_tg_group_allowlist_policy.py",    # گیتِ گروه deny-by-default + گیتِ callback
+    "test_tg_send_receipts.py",             # رسیدِ سه‌حالتی state/bot_role/surface در هر مسیر
+    "test_tg_capture.py",                   # capture یک‌ژسته → vault (رأی ۹-۱۰)
+    "test_tg_reminders.py",                 # یادآوریِ NL + سکوتِ ۲۳-۷ (رأی ۶/۸)
+    "test_tg_brief.py",                     # بریفِ صبح/شب + لینکِ تاپیک (رأی ۱۱)
+    "test_tg_ask_vault.py",                 # سؤال-از-vault با منبع (رأی ۹)
+    "test_miniapp_gateway.py",              # گیتِ initData ِ Mini App (رأی ۲۲)
+    "test_tg_leg_activation.py",            # قالبِ پای فعال‌شونده + گاردِ صفر-template
+    "test_tg_weekly_review.py",             # مرورِ هفتگیِ شنبه (رأی ۱۲ + §۹)
+    "test_tg_question_budget.py",           # بودجهٔ ۳۰-سؤال/هفته (رأی ۲۴)
+    "test_tg_wiring_w2.py",                 # سیم‌کشیِ سریالِ همهٔ ماژول‌ها در center
+    "test_lead_pipeline.py",                # حلقهٔ لید: کشف→تحقیق→پیش‌نویس→گیر/کارت (رأی ۱۳)
+    "test_lead_send_cap.py",                # سقفِ ۱۰/روز (رأی ARM ِ مالک ۰۷-۳۱) دو-لایه
+    "test_lead_outbound_transport.py",      # transport ِ SMTP: بی‌creds=NOT_ARMED صادق
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
