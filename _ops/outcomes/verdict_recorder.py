@@ -148,7 +148,8 @@ def record_verdict_durably(*, proposal_id: str, verdict: str, correlation_id: st
         # outcome-bound (به outcomeِ همین‌الان‌نوشته‌شده) + held-out-gated. پشتِ MEMORY_GATE؛
         # fail-soft؛ صفر اثرِ بیرونی. dedup per-proposal → صفر flood.
         try:
-            if out.get("recorded") and out.get("event_type") == "accepted-measurement":
+            if out.get("recorded") and out.get("event_type") in (
+                    "accepted-measurement", "rejected"):
                 import learning_gate as _lg  # noqa: WPS433
                 if _lg.flag_on():
                     import memory_store as _msx  # noqa: WPS433
@@ -162,20 +163,55 @@ def record_verdict_durably(*, proposal_id: str, verdict: str, correlation_id: st
                     # C7-S2 (audit #3): رسیدِ canonical روی مسیرِ زندهٔ رأی — هیچ خاطرهٔ بی‌رسید
                     _rcp = _drx.DecisionReceiptStore(rdir / "receipts.db")
                     try:
+                        # GAP-2/GAP-3 (۰۷-۳۱): حکمِ مالک باید به حافظهٔ لید **برگردد** —
+                        # با توکن‌های ماشین‌خوانِ `category=…` + `verdict=…` که تنها
+                        # خوانندهٔ زنده (`lead_outcome_recorder._memory_prior`) پارس
+                        # می‌کند. قبلاً: accepted فقط متنِ آزادِ بی‌توکن می‌نوشت و
+                        # rejected اصلاً یاد گرفته نمی‌شد ⇒ demote/promote ساختاراً
+                        # هرگز شلیک نمی‌کرد (مکانیزمِ اثبات‌شده-در-تست، گرسنه-در-تولید).
+                        # دسته از خاطرهٔ تصمیمِ همان correlation می‌آید (mkey=corr).
+                        _cat = ""
+                        try:
+                            import re as _re
+                            _prev = _mem.get("semantic", str(correlation_id or ""))
+                            _mt = _re.search(r"category=(\S+)",
+                                             str((_prev or {}).get("content") or ""))
+                            _cat = _mt.group(1) if _mt else ""
+                        except Exception:  # noqa: BLE001
+                            _cat = ""
+                        _accepted = out["event_type"] == "accepted-measurement"
+                        _vt = "accepted" if _accepted else "rejected"
+                        # corr= هم حمل می‌شود تا خوانندهٔ promote بتواند در لحظهٔ
+                        # خواندن از خودِ outcomes.db گواهیِ رأیِ مالک بگیرد
+                        # (VQ-PROMOTE-TRUST-001: حافظه مجوز نیست؛ دفترِ نتیجه مجوز است).
+                        _content = (f"lead-decision category={_cat} verdict={_vt} "
+                                    f"proposal={proposal_id} corr={correlation_id}"
+                                    if _cat else
+                                    f"owner {_vt} proposal (leg={leg_id or 'unknown'})")
                         _lr = _lg.learn_from_outcome(
                             memory_gate=_gx.MemoryGate(_mem), outcome_store=o,
                             receipt_store=_rcp,
-                            signal={"content": f"owner accepted proposal (leg={leg_id or 'unknown'})"[:200],
-                                    "mkey": f"owner-accept-{proposal_id}", "namespace": "semantic",
+                            signal={"content": _content[:200],
+                                    "mkey": f"owner-{_vt}-{proposal_id}",
+                                    "namespace": "semantic",
                                     "correlation_id": correlation_id,
                                     "outcome_ref": out.get("idempotency_key"),
-                                    "trust": "OWNER_CONFIRMED", "salience": 0.6,
-                                    "source": "owner", "producer": "owner_verdict"},
+                                    "trust": ("OWNER_CONFIRMED" if _accepted
+                                              else "GRADED"),
+                                    "salience": 0.6,
+                                    "source": ("owner" if _accepted
+                                               else "deterministic"),
+                                    # نامِ producer باید عضوِ _OWNER_PRODUCERS ِ گیت
+                                    # باشد؛ «owner_verdict» ِ قبلی در allowlist نبود
+                                    # ⇒ گیت هر ادعای owner را رد می‌کرد و مسیرِ
+                                    # یادگیریِ پذیرش ساختاراً مرده بود (۰۷-۳۱).
+                                    "producer": "verdict_recorder"},
                             evaluator=_lg.fast_ledger_eval)   # hot-path: سبک (~۱s)
                         # telemetry صادق: learned + memory_id + receipt_idِ واقعی
                         out["learned"] = _lr.get("learned")
                         out["learn_memory_id"] = _lr.get("memory_id")
                         out["learn_receipt_id"] = _lr.get("receipt_id")
+                        out["learn_tokens"] = bool(_cat)
                     finally:
                         _mem.close()
                         try:

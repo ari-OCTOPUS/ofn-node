@@ -26,7 +26,7 @@ import uuid
 from typing import Any, Dict, List, Optional
 
 # ── canonical vocabulary ─────────────────────────────────────────────
-RISK = ("low", "medium", "high")
+RISK = ("low", "medium", "high", "critical")
 STATUS = ("queued", "running", "blocked", "needs_approval", "done", "failed")
 TERMINAL = ("done", "failed")
 
@@ -69,8 +69,8 @@ def content_sha256(action: str, target_leg: str, payload: Optional[Any] = None) 
 
 
 def requires_approval(risk: str) -> bool:
-    """Gray-zone rule: medium/high always need an owner card; low is free."""
-    return risk in ("medium", "high")
+    """Risk-proportional authorization: medium/high/critical require an owner verdict."""
+    return risk in ("medium", "high", "critical")
 
 
 # ── builders / validators ────────────────────────────────────────────
@@ -80,6 +80,9 @@ def make_envelope(
     input_refs: Optional[List[str]] = None, output_refs: Optional[List[str]] = None,
     next_owner: str = "octopus_core", mission_id: Optional[str] = None,
     trace_id: Optional[str] = None, status: str = "queued",
+    tenant_id: str = "personal", project_id: str = "octopus-core",
+    task_id: str = "", scope: str = "project", schema_version: int = 2,
+    policy_version: str = "octopus-policy.v1",
 ) -> Dict[str, Any]:
     """Build a conformant mission record. Computes id, trace, sha, and requires_approval."""
     if risk not in RISK:
@@ -101,8 +104,31 @@ def make_envelope(
         "next_owner": next_owner,
         "trace_id": trace_id or new_trace_id(),
         "content_sha256": content_sha256(action, target_leg, payload),
+        "tenant_id": str(tenant_id or "personal"),
+        "project_id": str(project_id or "octopus-core"),
+        "task_id": str(task_id or ""),
+        "scope": str(scope or "project"),
+        "schema_version": int(schema_version),
+        "policy_version": str(policy_version or "octopus-policy.v1"),
         "created_ts": time.time(),
     }
+
+
+# ── واژگانِ آشتیِ دو دنیا (VQ-MISSION-RECONCILE-001 قدمِ ۱، ۰۷-۳۱) ──────────
+# Mission Genome (telegram_center/mission.py) ۱۲ وضعیت دارد و این قرارداد ۶ تا.
+# این نگاشتِ خالص هر وضعِ Genome را به واژگانِ canonical می‌برد تا خواننده‌های
+# cross-world (snapshot/کارت‌ها) یک زبان ببینند. ناشناخته = blocked (fail-up).
+GENOME_STATE_MAP = {
+    "created": "queued", "planned": "queued",
+    "patched": "running", "tested": "running", "reviewed": "running",
+    "awaiting_owner": "needs_approval",
+    "approved": "running", "applied": "running", "monitored": "running",
+    "done": "done", "reverted": "failed", "rejected": "failed",
+}
+
+
+def genome_to_canonical(state: str) -> str:
+    return GENOME_STATE_MAP.get(str(state or ""), "blocked")
 
 
 def can_transition(old: str, new: str) -> bool:
@@ -125,10 +151,13 @@ def validate(record: Dict[str, Any]) -> List[str]:
         errs.append(f"invalid risk: {record.get('risk')!r}")
     if record.get("status") not in STATUS:
         errs.append(f"invalid status: {record.get('status')!r}")
-    # consistency: medium/high must be gated
+    # consistency: medium/high/critical must be gated
     r = record.get("risk")
-    if r in ("medium", "high") and record.get("requires_approval") is not True:
-        errs.append("medium/high risk must have requires_approval=True")
+    if r in ("medium", "high", "critical") and record.get("requires_approval") is not True:
+        errs.append("medium/high/critical risk must have requires_approval=True")
+    for f in ("tenant_id", "project_id", "scope"):
+        if f in record and not str(record.get(f) or "").strip():
+            errs.append(f"{f} must be non-empty when present")
     sha = record.get("content_sha256")
     if isinstance(sha, str) and len(sha) != 64:
         errs.append("content_sha256 must be 64 hex chars")

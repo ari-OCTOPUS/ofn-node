@@ -114,6 +114,44 @@ def _append_mission(env: dict) -> bool:
         return False
 
 
+# ── stage ِ کارتِ مالک (OWNER_GATE → فایل، نه سکوت) ─────────────────────────
+def _stage_owner_card(env: dict, req: dict, plan: dict,
+                      *, now: float) -> bool:
+    """کارتِ A3 + request ِ دقیق را کنارِ دفترِ mission بنشان — idempotent روی
+    mission_id. فقط فایل: تحویل به مالک کارِ mission_approval_bridge است."""
+    try:
+        mid = str(env.get("mission_id") or "")
+        if not mid:
+            return False
+        d = _state_dir() / "owner_cards"
+        d.mkdir(parents=True, exist_ok=True)
+        safe = "".join(ch if (ch.isalnum() or ch in "._-") else "_" for ch in mid)[:80]
+        p = d / f"{safe}.json"
+        if p.exists():
+            return True                      # قبلاً stage شده — idempotent
+        rec = {
+            "schema": "octopus.owner-card-stage.v1",
+            "mission_id": mid,
+            "trace_id": env.get("trace_id"),
+            "action_id": str(req.get("action_id") or ""),
+            "cycle_id": str(env.get("task_id") or ""),
+            "classification": plan.get("classification"),
+            "risk": env.get("risk"),
+            "card": (plan.get("owner_gate") or {}).get("card") or {},
+            "request": dict(req),
+            "plan_reason": plan.get("reason"),
+            "created_ts": float(now),
+            "staged_job_id": "",             # پر می‌شود وقتی به صفِ تأیید برود
+            "verdict": "",                   # approved/rejected بعد از رأیِ مالک
+        }
+        tmp = p.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(rec, ensure_ascii=False, indent=1), "utf-8")
+        os.replace(tmp, p)
+        return True
+    except Exception:  # noqa: BLE001 — stage هرگز زنجیره را نمی‌کشد
+        return False
+
+
 # ── زنجیرهٔ یک چرخه ─────────────────────────────────────────────────────────
 def run_for_cycle(cycle_id: str, *, now: "float | None" = None) -> dict:
     """exact prereg → prepare_records → plan(ALLOW?) → execute(A0) → receipt →
@@ -159,6 +197,13 @@ def run_for_cycle(cycle_id: str, *, now: "float | None" = None) -> dict:
         _transition(env_final, "failed") if env_final.get("status") == "queued" \
             else None
         _append_mission(env_final)
+        # OWNER_GATE (۰۷-۳۱): کارتِ ساخته‌شدهٔ planner قبلاً همین‌جا دور ریخته
+        # می‌شد — mission با needs_approval می‌نشست و هیچ مسیری به مالک نداشت
+        # (شکافِ «کارتِ تولیدشده و مصرف‌نشده»). حالا کارت + request ِ دقیق روی
+        # دیسک stage می‌شود تا mission_approval_bridge (فلگِ جدا) به صفِ تأییدِ
+        # مالک برساند. stage صرفاً فایل است: صفر ارسال، صفر اجرا.
+        if plan.get("decision") == "OWNER_GATE":
+            out["card_staged"] = _stage_owner_card(env_final, req, plan, now=now)
         return {**out, "ok": False, "status": plan.get("decision"),
                 "reason": f"plan:{plan.get('reason')}"}
 

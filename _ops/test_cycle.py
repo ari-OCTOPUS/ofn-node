@@ -361,6 +361,22 @@ def beat(*, channel=None, now: "float | None" = None) -> dict:  # noqa: ARG001
                 out["memory_consolidated"] = _cm["consolidated"]
     except Exception:  # noqa: BLE001 — حافظه هرگز beat را نمی‌کشد
         pass
+    # ۱.۶) کارتِ A3 → صفِ تأییدِ مالک: **این‌جا نه.** پلِ تأیید
+    # (telegram_center/mission_approval_bridge) عمداً از beat ِ خودِ مرکز صدا
+    # زده می‌شود، نه از این‌جا — invariant ِ approval_store (S1-05 t_o):
+    # هر تماس با صفِ تأیید فقط در پروسهٔ مرکز؛ نویسندهٔ دومِ بین‌پروسه‌ای
+    # روی approvals.json همان race ی است که قفلِ درون‌پروسه‌ای نمی‌پوشاند.
+    # ۱.۷) منتقدِ رسید — ناوردی‌های اجراکننده را از دیسک قضاوت کن (فلگِ جدا).
+    # رسیدِ بی‌منتقد همان «دفاعِ لایه‌ای بی‌سنجه» است که بی‌صدا می‌پوسد.
+    try:
+        import receipt_critic as _rcx
+        if _rcx.enabled():
+            _rv = _rcx.evaluate_new(now=now)
+            if _rv.get("evaluated"):
+                out["receipt_verdicts"] = {"evaluated": _rv["evaluated"],
+                                           "fails": _rv.get("fails", 0)}
+    except Exception:  # noqa: BLE001 — منتقد هرگز beat را نمی‌کشد
+        pass
     d = due(now)
     out.update({"cycle_id": d["cycle_id"], "slot": d["slot"]})
     if not d["due"]:
