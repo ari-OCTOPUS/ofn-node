@@ -1404,8 +1404,13 @@ class Center:
             import surface_router as _sr
             cl, cid, tid = _sr.resolve(stream, clients=self._clients_map(), cfg=cfg)
         except Exception:  # noqa: BLE001 — روتر هرگز ارسال را نمی‌کشد
-            topics = cfg.get("topics") if isinstance(cfg.get("topics"), dict) else {}
-            cl, cid, tid = self._client, cfg.get("chat_id"), topics.get("system")
+            # (۲۰۲۶-۰۷-۳۱، رفعِ shared-transport-8) — تا اینجا سقوط به گروه + تاپیکِ
+            # system بود. ولی surface_router خودش در ۰۷-۳۰ عمداً تغییر کرد تا ابهام
+            # به DM برود نه گروه (گروه = فقط پاها). fallbackِ این caller هنوز
+            # قانونِ قدیمیِ ردشده را داشت. حالا DM ِ مالک (پیامِ در جایِ اشتباه
+            # بهتر از پیامِ گم‌شده است، ولی DM اشتباه‌تر از گروهِ اشتباه نیست).
+            cl, cid, tid = (self._client,
+                            getattr(self._client, "owner_chat_id", None), None)
         if cl is None:
             return None                      # بلوکِ none — سکوتِ عمدی (مثلِ pulse ِ پیش‌ازفلگ)
         try:
