@@ -142,6 +142,33 @@ def main() -> int:
     check("فلگ خاموش ⇒ حتی رأیِ سه‌تکه هم مصرف نمی‌شود",
           doctor_link.handle_callback(c, cbq) is False)
 
+    # ── (۲۰۲۶-۰۷-۳۱، رفعِ outer-11/inner-1/group-8) وقتی center ِ_route_send
+    # دارد، کارت از مسیرِ روتر می‌رود (doctor-intent/doctor-diff → DM)، نه از
+    # client.send مستقیم (که به گروه می‌افتاد). FakeCenter با _route_send:
+    class RoutingCenter:
+        def __init__(self):
+            self.routed = []
+        def _route_send(self, stream, text, *, cfg=None, keyboard=None, pin=False):
+            self.routed.append({"stream": stream, "text": text,
+                                "keyboard": keyboard})
+            return 200 + len(self.routed)
+    os.environ["OCTOPUS_WIRE_DOCTOR_TG"] = "1"
+    rc = RoutingCenter()
+    doctor_link.OUTBOX.parent.mkdir(parents=True, exist_ok=True)
+    # یک فایلِ تازهٔ outbox + cursor صفر (مستقل از stateِ تست‌های قبلی)
+    doctor_link.OUTBOX.write_text(
+        json.dumps(_card("m-route", "intent"), ensure_ascii=False) + "\n",
+        encoding="utf-8")
+    if doctor_link.CURSOR.exists():
+        doctor_link.CURSOR.unlink()
+    out = doctor_link.beat(rc)
+    check("center با _route_send ⇒ کارت از روتر می‌رود (نه client.send مستقیم)",
+          out["sent"] == 1 and rc.routed and rc.routed[0]["stream"] == "doctor-intent",
+          str(out) + " routed=" + str(rc.routed))
+    check("کارتِ doctor از طریقِ روتر keyboard نگه می‌دارد",
+          rc.routed and rc.routed[0]["keyboard"] is not None)
+    os.environ["OCTOPUS_WIRE_DOCTOR_TG"] = "0"
+
     print("\n" + "=" * 60)
     print(f"نتیجه: {len(PASS)} سبز · {len(FAIL)} قرمز")
     for f in FAIL:
