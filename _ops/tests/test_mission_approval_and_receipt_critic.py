@@ -242,14 +242,24 @@ def t_i_evaluate_new_is_flag_gated_and_idempotent():
     assert {r["action_id"] for r in rows} >= {"act-idem-1", "act-idem-2"}, rows
 
 
-def t_j_beat_wiring_present_in_test_cycle_source():
-    """صداکننده باید در beat ِ موجود باشد (poller ِ نو ممنوع) — سنجهٔ منبع
-    روی هر دو بلوکِ جدید + گاردِ flag-check (وصلِ بی‌گارد = فلگِ تزئینی)."""
-    src = (_OPS / "test_cycle.py").read_text("utf-8")
-    assert "mission_approval_bridge" in src and "_mab.enabled()" in src, \
-        "پلِ تأیید به beat وصل نیست"
-    assert "receipt_critic" in src and "_rcx.enabled()" in src, \
+def t_j_beat_wiring_respects_the_single_consumer_process_invariant():
+    """صداکننده‌ها در beat ِ موجودِ **پروسهٔ درست** (poller ِ نو ممنوع):
+      · پلِ تأیید فقط از beat ِ مرکز (invariant ِ approval_store — S1-05 t_o)؛
+        importش از test_cycle (پروسهٔ organism) = نویسندهٔ دومِ بین‌پروسه‌ای.
+      · منتقدِ رسید در test_cycle (به approval_store دست نمی‌زند).
+      · خودِ ماژولِ پل داخلِ telegram_center زندگی می‌کند."""
+    assert (_OPS / "telegram_center" / "mission_approval_bridge.py").exists(), \
+        "پلِ تأیید باید داخلِ telegram_center باشد"
+    assert not (_OPS / "mission_approval_bridge.py").exists(), \
+        "نسخهٔ بیرونِ telegram_center هنوز هست"
+    tc = (_OPS / "test_cycle.py").read_text("utf-8")
+    assert "import mission_approval_bridge" not in tc, \
+        "test_cycle (پروسهٔ organism) نباید پلِ تأیید را صدا بزند"
+    assert "receipt_critic" in tc and "_rcx.enabled()" in tc, \
         "منتقدِ رسید به beat وصل نیست"
+    ctr = (_OPS / "telegram_center" / "center.py").read_text("utf-8")
+    assert "import mission_approval_bridge" in ctr and "_mab.enabled()" in ctr, \
+        "پلِ تأیید به beat ِ مرکز وصل نیست"
     i_stage = (_OPS / "goal_action_bridge.py").read_text("utf-8")
     assert "_stage_owner_card" in i_stage and \
         i_stage.count("_stage_owner_card") >= 2, "stage در مسیرِ OWNER_GATE نیست"

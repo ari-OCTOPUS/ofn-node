@@ -36,8 +36,12 @@ import sys
 import time
 from pathlib import Path
 
-_OPS = Path(__file__).resolve().parent
-for _p in (str(_OPS), str(_OPS / "telegram_center")):
+# این ماژول عمداً داخلِ telegram_center زندگی می‌کند: invariant ِ approval_store
+# (تک‌پروسه‌ای بودنِ مصرف — S1-05 t_o) یعنی هر تماس با صفِ تأیید فقط از پروسهٔ
+# مرکز مجاز است؛ صداکنندهٔ runtime هم beat ِ خودِ Center است، نه organism.
+_HERE = Path(__file__).resolve().parent                  # _ops/telegram_center
+_OPS = _HERE.parent                                       # _ops
+for _p in (str(_OPS), str(_HERE)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 

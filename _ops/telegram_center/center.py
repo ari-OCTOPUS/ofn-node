@@ -749,6 +749,15 @@ class Center:
             _dl.beat(self)
         except Exception:  # noqa: BLE001 — link هرگز beat را نمی‌کشد
             pass
+        # ── VQ-MISSION-APPROVAL-001: کارتِ A3 ِ پلِ اقدام → صفِ تأیید → حکم ────
+        # فقط در همین پروسه (invariant ِ approval_store: مصرفِ تک‌پروسه‌ای —
+        # S1-05 t_o). فلگ غایب=خاموش؛ الگوی doctor_link: صفر poller ِ نو.
+        try:
+            import mission_approval_bridge as _mab
+            if _mab.enabled():
+                _mab.beat(now=now)
+        except Exception:  # noqa: BLE001 — پلِ تأیید هرگز beat را نمی‌کشد
+            pass
         # ── VQ-TG-HOLD-001: outboxِ فوری + دایجستِ سلامتِ ساعتی ────────────────
         # ارگانیسم (پروسهٔ دیگر) پیام‌های بحرانی/گذار/recovery را در outbox
         # می‌گذارد و آیتم‌های نو را در بافرِ digest؛ این‌جا — تنها جایی که

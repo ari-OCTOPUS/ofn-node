@@ -50,7 +50,9 @@ def t_lead_decision_writes_receipted_citable_memory():
     assert out.get("memories_written") == 1, f"خاطره باید نوشته شود: {out}"
 
     store = ms.MemoryStore(path=_STATE / "memory" / "memory.db")
-    rcp = dr.DecisionReceiptStore(_STATE / "outcomes" / "receipts.db")
+    # GAP-1 (۰۷-۳۱): مخزنِ رسید یکی شد — مسیرِ canonical همان receipts/receipts.db
+    # است که c6_trigger/verdict_recorder می‌نویسند؛ outcomes/receipts.db دوپارهٔ کهنه بود.
+    rcp = dr.DecisionReceiptStore(_STATE / "receipts" / "receipts.db")
     oc = osx.OutcomeStore(path=_STATE / "outcomes" / "outcomes.db")
     try:
         rows = store._conn.execute(
