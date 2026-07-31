@@ -2173,6 +2173,21 @@ class Center:
                                     pass
                                 return {"kind": "leg-cmd",
                                         "cmd": "enqueue-empty", "leg": _leg}
+                        # تأییدِ لخت («موافقم/باشه/👍») کار نیست — اصطکاکِ زندهٔ
+                        # ۰۷-۳۱ ۱۹:۵۰: مالک «موافقم» نوشت تا کارتِ لید را تأیید
+                        # کند و TASK-2 ِ بی‌صاحب ساخته شد. حالا به‌جای صف، مسیرِ
+                        # درست را می‌گوییم (دکمهٔ کارت / ریپلای به کارتِ 🚧).
+                        if _lc.is_ack(_tx):
+                            try:
+                                self._client.send(
+                                    _scrub("👍 گرفتم — ولی این‌جا فقط «کار» ثبت "
+                                           "می‌شود.\nبرای تأییدِ یک کارت، دکمهٔ "
+                                           "خودِ کارت را بزن.\nبرای جوابِ کارتِ "
+                                           "🚧، روی همان کارت ریپلای کن."),
+                                    chat_id=_ch2, topic_id=_th2)
+                            except Exception:  # noqa: BLE001
+                                pass
+                            return {"kind": "leg-ack", "leg": _leg}
                         if not _lt.is_question(_tx):
                             _task = _lt.add(_leg, _tx)
                             if _task:

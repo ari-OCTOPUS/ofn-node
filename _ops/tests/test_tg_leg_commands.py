@@ -396,6 +396,37 @@ def t_u_every_feedback_button_has_a_dispatch_branch():
         assert f'op == "{op}"' in handler, f"tk:{op} ساخته می‌شود ولی شاخه ندارد"
 
 
+def t_v_a_bare_acknowledgement_is_never_filed_as_work():
+    """اصطکاکِ زندهٔ ۲۰۲۶-۰۷-۳۱ ۱۹:۵۰ — مالک در تاپیکِ 🎨 نوشت «موافقم» تا کارتِ
+    لید را تأیید کند و مدلِ Task آن را کارِ نو ثبت کرد (TASK-2)، بعد موتور روی
+    آن گیر کرد و BLOCKED شد. تأییدِ لخت نه فرمان است نه کار."""
+    for ack in ("موافقم", "باشه", "اوکی", "بله", "تایید", "👍", "  اوکی  ", "OK"):
+        assert lc.is_ack(ack), ack
+        assert lc.classify(ack) is None, f"{ack} نباید فرمانِ پا باشد"
+
+
+def t_w_an_ack_prefix_does_not_swallow_real_work():
+    """مرزِ گارد: «لخت» یعنی لخت. جملهٔ کاری که با تأیید شروع شود کار می‌ماند —
+    وگرنه گاردِ نو خودش کارِ واقعی را می‌بلعد (بدتر از باگِ اصلی)."""
+    for real in ("باشه دیوار را رنگ بزن",
+                 "موافقم ولی اول قیمت را بگیر",
+                 "اوکی فردا میرم سایت",
+                 "دیوار اتاق را رنگ بزن"):
+        assert not lc.is_ack(real), real
+
+
+def t_x_the_centre_answers_an_ack_with_the_two_real_paths():
+    """گاردِ سیم‌کشی: مرکز باید به‌جای ثبتِ Task، دو مسیرِ واقعی را بگوید
+    (دکمهٔ کارت / ریپلای به کارتِ 🚧). متنِ منبع سنجیده می‌شود چون این شاخه
+    داخلِ همان بلوکِ leg_scoped است و رندرِ کاملش کلاینتِ زنده می‌خواهد."""
+    src = (_OPS / "telegram_center" / "center.py").read_text("utf-8")
+    i = src.index("_lc.is_ack(_tx)")
+    win = src[i:i + 700]
+    assert "leg-ack" in win, "شاخهٔ تأیید خروجیِ خودش را ندارد"
+    assert "ریپلای" in win and "دکمه" in win, "مسیرهای درست به مالک گفته نمی‌شود"
+    assert "_lt.add(" not in win.split("return")[0], "تأیید هنوز Task می‌سازد"
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)
