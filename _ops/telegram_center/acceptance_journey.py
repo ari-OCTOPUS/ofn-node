@@ -2138,6 +2138,23 @@ class Journey:
         ممیزی ۰۷-۳۱ (§5b): اول Query (فقط‌خواندنی) — تسکِ نبوده «حذف شد»
         ادعا نمی‌شود و پیامِ صادقانهٔ not-found برمی‌گردد؛ Delete فقط وقتی
         تسک واقعاً هست. سفر هرگز نمی‌گوید خودش را متوقف کرد مگر rc=0."""
+        # ⚠️ ۲۲:۴۵ ِ ۰۷-۳۱ — این تابع دو بار زمان‌بندیِ **زندهٔ** مالک را پاک کرد:
+        # تست‌ها Journey را بدونِ task_name می‌سازند (پس نامِ پیش‌فرضِ واقعی) و هر
+        # تستی که به فازِ پایانی می‌رسد، schtasks ِ واقعیِ ماشین را حذف می‌کند —
+        # سفر ~۲ ساعت بی‌تیک ماند. همان کلاسِ «سوییتی که در درختِ زنده می‌نویسد».
+        # گاردِ ساختاری: سفری که state اش در درختِ زنده نیست، حقِ دست‌زدن به
+        # زمان‌بندیِ ماشین را ندارد — نه قاعدهٔ ادبی برای تست‌نویس، خودِ کد.
+        try:
+            # مرجع از **مسیرِ خودِ ماژول** گرفته می‌شود، نه از env/opslib —
+            # چون harness ِ تست دقیقاً همان‌ها را به پوشهٔ موقت پین می‌کند و
+            # مقایسه با آن‌ها همیشه «داخلِ درختِ زنده» می‌شود (گاردِ بی‌اثر).
+            live_state = (Path(__file__).resolve().parent.parent / "state").resolve()
+            mine = Path(self.state_path).resolve()
+            if live_state not in mine.parents:
+                return {"ok": False,
+                        "msg": "isolated-run: refused (state خارج از درختِ زنده)"}
+        except Exception:  # noqa: BLE001 — ابهام در مسیر ⇒ محافظه‌کارانه رد
+            return {"ok": False, "msg": "isolated-run: refused (مسیر نامعلوم)"}
         try:
             q = subprocess.run(["schtasks", "/Query", "/TN", self._task_name],
                                capture_output=True, text=True, timeout=30)

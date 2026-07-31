@@ -1407,8 +1407,15 @@ def t_the_default_task_name_matches_the_live_scheduled_task():
 
 def t_deleting_a_missing_task_is_reported_honestly_not_claimed():
     """Query-اول: تسکِ نبوده «حذف شد» ادعا نمی‌شود؛ پیامِ not-found برمی‌گردد
-    و Delete اصلاً صدا زده نمی‌شود."""
+    و Delete اصلاً صدا زده نمی‌شود.
+
+    نکته: از ۲۲:۴۵ ِ ۰۷-۳۱ گاردِ ایزوله جلوتر از این منطق می‌ایستد (سفری که
+    state اش در درختِ زنده نیست به زمان‌بندیِ ماشین دست نمی‌زند)، پس این تست
+    عمداً state را داخلِ درختِ زنده وانمود می‌کند تا **خودِ منطقِ not-found**
+    سنجیده شود، نه گارد."""
+    live_state = (Path(aj.__file__).resolve().parent.parent / "state")
     j = _journey(task_name="OctopusJourneyTestTaskDoesNotExist")
+    j.state_path = live_state / "telegram" / "acceptance-journey.json"  # فقط برای عبور از گارد
     r = j._delete_scheduled_task()
     assert r["ok"] is False, r
     assert r.get("found") is False, r
@@ -1684,6 +1691,19 @@ def t_only_send_is_used_on_the_client():
     for bad in ("cl.edit(", "client.edit(", "cl.pin_message(", "cl.delete",
                 "answer_callback"):
         assert bad not in src, bad
+
+
+def t_an_isolated_journey_can_never_delete_the_machines_schedule():
+    """۲۲:۴۵ ِ ۰۷-۳۱ — همین سوییت دو بار زمان‌بندیِ زندهٔ مالک را پاک کرد:
+    `_journey()` نامِ پیش‌فرضِ **واقعی** را می‌گیرد و هر تستی که به فازِ پایانی
+    می‌رسد schtasks ِ ماشین را حذف می‌کرد. گارد ساختاری است، نه قراردادِ
+    ادبی: state ِ خارج از درختِ زنده ⇒ حقِ لمسِ زمان‌بندی ندارد."""
+    j = _journey()
+    assert j._task_name == aj.DEFAULT_TASK_NAME, "پیش‌فرض عوض شد — گارد را بازبینی کن"
+    r = j._delete_scheduled_task()
+    assert r["ok"] is False, r
+    assert "isolated" in str(r.get("msg", "")), r
+
 
 
 if __name__ == "__main__":
