@@ -2328,6 +2328,10 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="سفرِ پذیرشِ بدونِ ناظر (یک تیک)")
     ap.add_argument("--tick", action="store_true", help="یک تیکِ سفر (پیش‌فرض)")
     ap.add_argument("--status", action="store_true", help="فقط چاپِ وضعیت (صفر ارسال)")
+    ap.add_argument("--finish", action="store_true",
+                    help="همین حالا کارنامه را ببند (فازهای نرسیده با اثباتِ "
+                         "قابلیت نمره می‌گیرند) — برای وقتی مهلتِ مالک زودتر از "
+                         "مهلتِ داخلی سر می‌رسد")
     args = ap.parse_args(argv)
     try:
         import env_loader
@@ -2338,6 +2342,8 @@ def main(argv=None) -> int:
     if args.status and not args.tick:
         print(json.dumps(j.status(), ensure_ascii=False, indent=1))
         return 0
+    if args.finish:
+        j._deadline_s = 0.0        # مهلت همین حالا سر آمده ⇒ مسیرِ force-finish
     out = j.tick()
     print(json.dumps(out, ensure_ascii=False))
     return 0
