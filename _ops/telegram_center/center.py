@@ -562,6 +562,20 @@ class Center:
             if ok_g:
                 cfg["commands_group_cleared_v2"] = _menu_hash
                 dirty = True
+        # scope ِ default هم باید خالی شود — لیستِ کهنهٔ ۲۴تایی روی سرورِ تلگرام
+        # می‌مانَد و گروه‌ها (که scope ِ گروهی‌شان خالی است) به آن fallback
+        # می‌کنند (کشفِ readback ِ deploy ِ ۰۷-۳۱: private=۸ ولی default=۲۴ کهنه).
+        if cfg.get("commands_default_cleared_v2") != _menu_hash:
+            _del2 = getattr(self._client, "delete_commands", None)
+            ok_d = False
+            if callable(_del2):
+                try:
+                    ok_d = bool(_del2())          # بدونِ scope = default
+                except Exception:  # noqa: BLE001
+                    ok_d = False
+            if ok_d:
+                cfg["commands_default_cleared_v2"] = _menu_hash
+                dirty = True
         # منوی باتِ inner دیگر از مرکز push نمی‌شود (outer-bot-12: دو نویسنده
         # با دو فهرستِ متفاوت روی یک بات = race ِ بی‌صدا). تک-نویسنده =
         # approval_channel در پروسهٔ organism.
