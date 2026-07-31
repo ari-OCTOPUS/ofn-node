@@ -41,8 +41,11 @@ _SKIP = {"tests", "_code", ".git", "__pycache__", "_Archive", "_Duplicates",
          "eval", "smoke"}
 
 # ماژول‌هایی که یتیم‌بودنشان طبیعی است — نقطهٔ ورودی یا ابزارِ دستی‌اند.
+# ۰۷-۳۱: `center` اضافه شد — مرکزِ تلگرام با `python center.py` (bat/schtask)
+# بالا می‌آید و هیچ importer ای ندارد؛ تا وقتی شاهدِ رشته‌ایِ شل او را «وصل»
+# می‌شمرد این دیده نمی‌شد. entry point ِ بی‌importer یتیم نیست.
 _EXPECTED_STANDALONE = re.compile(
-    r"^(organism|run_|smoke_|.*_cli|setup|conftest|__init__|owner_ping)")
+    r"^(organism|run_|smoke_|.*_cli|setup|conftest|__init__|owner_ping|center$)")
 
 # نشانه‌های اینکه یتیم‌بودن **مهم** است: پول، ایمنی، یا گیت.
 _WEIGHTY = re.compile(
