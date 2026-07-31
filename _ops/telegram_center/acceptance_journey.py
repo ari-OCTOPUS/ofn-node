@@ -929,14 +929,22 @@ class Journey:
                      + _age_str(org_age))
 
         cfg = self._center_cfg()
+        # ⚠️ ۰۷-۳۱: نسخهٔ اول `cfg["last_pulse"]` را «نبض» خواند — آن cursor ِ
+        # کارتِ خانهٔ **ساعتی** است، پس ۱۷ دقیقه کهنگی طبیعی بود و P0 حکمِ
+        # DEGRADED ِ کاذب داد. نبضِ زندگیِ مرکز فایلِ pulse/tg-center.json است
+        # (همانی که واچ‌داگ می‌خوانَد): هر تکرارِ حلقه اتمیک نوشته می‌شود.
+        pulse_p = self.center_config_path.parent.parent / "pulse" / "tg-center.json"
+        pulse_age, pulse_pid = None, cfg.get("boot_receipt_pid", "؟")
         try:
-            pulse_age = now - float(cfg.get("last_pulse") or 0)
-        except (TypeError, ValueError):
+            pulse_age = now - pulse_p.stat().st_mtime
+            _pj = json.loads(pulse_p.read_text("utf-8-sig"))
+            pulse_pid = _pj.get("pid", pulse_pid)
+        except (OSError, ValueError, TypeError):
             pulse_age = None
-        if pulse_age is None or pulse_age > 900:
+        if pulse_age is None or pulse_age > 420:
             ok = False
         lines.append("مرکزِ تلگرام: نبض " + _age_str(pulse_age)
-                     + f" · PID {_fa(cfg.get('boot_receipt_pid', '؟'))}")
+                     + f" · PID {_fa(pulse_pid)}")
 
         pids = []
         for name, f in (("مرکز", "flags-loaded-center.json"),
