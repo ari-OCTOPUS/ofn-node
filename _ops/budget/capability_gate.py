@@ -62,12 +62,60 @@ def live_enabled() -> bool:
     return LIVE_ENABLED_FLAG.exists()
 
 
-def mark_capability(evidence: str) -> None:
-    """فقط از مسیرِ اجرای سبزِ کاملِ سوئیت (run_all). fingerprintِ کدِ پول را به marker می‌بندد."""
+_MIN_SUITE_FILES = 100          # سوئیتِ واقعی امروز ۳۶۸ فایل دارد؛ ۱۰۰ کفِ محافظه‌کارانه
+
+
+def _is_live_marker() -> bool:
+    """آیا مارکری که می‌نویسیم همان مارکرِ **زنده** است، یا کپیِ ایزولهٔ یک تست؟"""
+    try:
+        live = (Path(__file__).resolve().parent.parent / "state").resolve()
+        return CAPABILITY_MARKER.parent.resolve() == live
+    except OSError:
+        return True             # شک = سخت‌گیرانه رفتار کن
+
+
+def _is_suite_evidence(evidence) -> bool:
+    """شواهدِ معتبر = فهرستِ **ماشینیِ** تست‌ها، نه نثرِ دست‌نویس."""
+    s = str(evidence or "")
+    if not s.startswith("green: "):
+        return False
+    names = [x.strip() for x in s[len("green: "):].split(",")]
+    return sum(1 for n in names if n.endswith(".py")) >= _MIN_SUITE_FILES
+
+
+def mark_capability(evidence: str) -> bool:
+    """فقط از مسیرِ اجرای سبزِ کاملِ سوئیت (run_all). fingerprintِ کدِ پول را به marker می‌بندد.
+
+    ۲۰۲۶-۰۷-۲۸ — تا امروز این جمله فقط یک **قرارداد** بود: تابع هیچ گاردی نداشت
+    و هر کدی می‌توانست مارکرِ گیتِ پول را بنویسد. همان روز کسی با این شواهد نوشتش:
+
+        "green-canary: 5/5 held-out canaries pass; 2 pre-existing red (…)"
+
+    یعنی نثرِ دست‌نویسی که **خودش به دو قرمز اعتراف می‌کرد** تبدیل شد به مجوزِ
+    عبور از گیتِ پول. آن روز بی‌ضرر بود (یکی از دو قرمز تستی کهنه بود و دیگری
+    سبز)، ولی این «امنیتِ تصادفی» است نه ساختاری.
+
+    گارد عمداً فقط روی **مارکرِ زنده** می‌نشیند: تستِ ایزوله (ORG_ROOT موقت)
+    آزاد است، چون نمی‌تواند به گیتِ واقعی دست بزند. روی درختِ زنده، شواهد باید
+    فهرستِ ماشینیِ ≥۱۰۰ فایلِ تست باشد — چیزی که فقط `run_all` می‌سازد.
+
+    fail-closed: شواهدِ نامعتبر → **هیچ مارکری نوشته نمی‌شود** و هشدار می‌رود.
+    نبودِ مارکر یعنی capability بسته، که سمتِ امنِ خطاست.
+    خروجی: True اگر واقعاً نوشته شد.
+    """
+    if _is_live_marker() and not _is_suite_evidence(evidence):
+        try:
+            opslib.alert([
+                "capability_gate: mark_capability با شواهدِ غیرِسوئیت رد شد — "
+                f"مارکر نوشته نشد. شواهد: {str(evidence)[:80]!r}"])
+        except Exception:  # noqa: BLE001
+            pass
+        return False
     CAPABILITY_MARKER.parent.mkdir(parents=True, exist_ok=True)
     CAPABILITY_MARKER.write_text(json.dumps(
         {"ts": opslib.now_iso(), "evidence": evidence, "fingerprint": _source_fingerprint()},
         ensure_ascii=False), "utf-8")
+    return True
 
 
 def revoke_capability() -> None:

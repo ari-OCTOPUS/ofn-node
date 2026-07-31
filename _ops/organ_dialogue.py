@@ -228,6 +228,56 @@ def pop_rfc_revisions(state_dir=None) -> dict:
 # ════════════════════════════════════════════════════════════════════════════════
 # Brains — digest از state-file (cortex هرگز channel نمی‌گیرد؛ ضدِ 409)
 # ════════════════════════════════════════════════════════════════════════════════
+def _debate_verdict_on() -> bool:
+    return os.environ.get("OCTOPUS_WIRE_DEBATE_VERDICT") == "1"
+
+
+def debate_survivor_card(state_dir=None) -> dict:
+    """ایده‌های مناظرهٔ منتظرِ رأی — **متن**، برای کارتِ مغز (WS-E).
+
+    منبع: پروژکشنِ `_ops/debate/survivors-pending.jsonl` (نوشتهٔ خودِ حلقهٔ مناظره،
+    همین پروسه) منهای آن‌هایی که مالک قبلاً رأی داده (`state/telegram/approvals/
+    <id>.json`، نوشتهٔ مرکز). عمداً `approval_store` را import نمی‌کند: قفلش
+    درون‌پروسه‌ای است و این تابع در پروسهٔ ارگانیسم صدا زده می‌شود
+    (گارد: S1-05 t_o_single_consumer_process_invariant).
+
+    ⚠️ صادقانه: اینجا **دکمه‌ای** برنمی‌گردد. تنها صداکنندهٔ زندهٔ brain_digest
+    (`wiring.brain_digest_beat`) کیبوردِ خودش را hardcode می‌کند و هر kbای که از
+    اینجا برگردد خوانده نمی‌شود؛ دکمه‌سازی برای همین در کارتِ `mn:ap` انجام شده
+    که مصرف‌کنندهٔ واقعی دارد. fail-soft → {}."""
+    try:
+        rows, order = {}, []
+        # opslib.DEBATE_DIR = env-اول؛ `_HERE / "debate"` بی‌صدا به درختِ زنده می‌خورد.
+        p = opslib.DEBATE_DIR / "survivors-pending.jsonl"
+        if not p.exists():
+            return {}
+        for ln in p.read_text("utf-8", errors="replace").splitlines()[-200:]:
+            try:
+                rec = json.loads(ln)
+            except ValueError:
+                continue
+            if not (isinstance(rec, dict) and rec.get("id")):
+                continue
+            jid = str(rec["id"])
+            if jid not in rows:
+                order.append(jid)
+            rows[jid] = rec
+        vdir = _sd(state_dir) / "telegram" / "approvals"
+        open_rows = [rows[j] for j in order if not (vdir / f"{j}.json").exists()]
+        if not open_rows:
+            return {}
+        lines = [f"⚖️ <b>مناظره</b> — {len(open_rows)} ایده منتظرِ رأیِ توست "
+                 "(کارتِ رأی: 📮 صف تأیید)"]
+        for i, r in enumerate(open_rows[:3], 1):
+            lines.append(f"<b>{i}.</b> {_esc(r.get('title'), 150)}")
+        if len(open_rows) > 3:
+            lines.append(f"▸ {len(open_rows) - 3} ایدهٔ دیگر")
+        return {"text": "\n".join(lines), "kb": [], "n": len(open_rows),
+                "sig": _h(*[str(r.get("id", "")) for r in open_rows])}
+    except (OSError, ValueError):  # دیالوگ هرگز tick را نمی‌کشد
+        return {}
+
+
 def brain_digest(state_dir=None) -> dict:
     """خلاصهٔ «حرفِ مغز» از artifactهای cortex + صفِ بازمانده‌های debate.
     منبع‌ها همه state-file‌اند (پلِ درست برای پروسهٔ out-of-process). فقط‌خواندنی."""
@@ -276,14 +326,31 @@ def brain_digest(state_dir=None) -> dict:
         if guid.get("paused"):
             g.append("paused")
         lines.append(f"🧭 steeringِ فعالِ تو: {_esc(' · '.join(g), 120)}")
-    if debate_n:
+    # ۲۰۲۶-۰۷-۲۸ (WS-E) — تا امروز رأیِ خواسته‌شده از مالک به‌شکلِ **یک عدد** + یک خطِ
+    # بریده‌شده به ۱۲۰ کاراکتر می‌رسید؛ نه ایده‌ای خوانا، نه دکمه‌ای برای جواب‌دادن.
+    # با فلگ روشن، همان اطلاعات از صفِ واقعیِ تأیید می‌آید و کیبوردش (kb) هم برمی‌گردد.
+    # فلگ خاموش → dbt تهی → دقیقاً همان یک‌خطِ امروز.
+    dbt = debate_survivor_card(sd) if _debate_verdict_on() else {}
+    if dbt.get("text"):
+        lines.append(dbt["text"])
+    elif debate_n:
         lines.append(f"⚖️ debate: {debate_n} بازمانده در صفِ رأیِ تو — {_esc(debate_last, 90)}")
     lines.append("<i>پاسخ: «/brain guide &lt;متن&gt;» — bounded: focus:… · "
                  "think_every_n:N · pause/resume: think</i>")
-    hsh = _h(cycle, coherence, stress_level, thought, debate_n,
-             json.dumps(guid, sort_keys=True, ensure_ascii=False))
+    # ۲۰۲۶-۰۷-۲۸ — `cycle` از کلیدِ تشخیصِ تغییر حذف شد (در متن می‌ماند).
+    # همان دلیلِ `spent` در کارتِ قلب: شمارندهٔ چرخهٔ کورتکس یک‌طرفه بالا می‌رود،
+    # پس hash هر چرخه عوض می‌شد و «فکرِ تازه» با «چرخهٔ تازه» یکی گرفته می‌شد.
+    # آنچه واقعاً تغییرِ معنادار است همین‌جا مانده: خودِ فکر، انسجام، سطحِ استرس،
+    # شمارِ مناظره و راهنماییِ مالک. اگر هیچ‌کدام عوض نشد، کارت حرفِ تازه‌ای ندارد.
+    _extra = [dbt.get("sig", "")] if dbt else []   # فلگ خاموش → لیستِ تهی → hashِ امروز
+    hsh = _h(coherence, stress_level, thought, debate_n,
+             json.dumps(guid, sort_keys=True, ensure_ascii=False), *_extra)
     return {"text": "\n".join(lines), "hash": hsh, "stress_level": stress_level,
-            "coherence": coherence, "debate_pending": debate_n}
+            "coherence": coherence, "debate_pending": debate_n,
+            # همیشه [] — و عمداً. دکمه جایی ساخته می‌شود که مصرف‌کننده دارد
+            # (کارتِ `mn:ap`)؛ کیبوردی که هیچ‌کس نمی‌خواند همان «مکانیزمِ خاموش
+            # دقیقاً روی خطی که رفتار عوض می‌شود» است. کلید برای صداکنندهٔ آینده می‌ماند.
+            "kb": [], "debate_open": (dbt.get("n") or 0) if dbt else 0}
 
 
 def brain_guide(text: str, state_dir=None, by: str = "owner") -> dict:
@@ -415,8 +482,20 @@ def heart_digest(state_dir=None, beat=None) -> dict:
         lines.extend(alerts)
     lines.append("<i>تنظیم (فقط setpoint، هرگز period — ADR-001): "
                  "«/heart set sigma 0.8» · «/heart set hi 6» · «/heart set cap 288»</i>")
+    # ۲۰۲۶-۰۷-۲۸ — `spent` از کلیدِ تشخیصِ تغییر **حذف شد** (در متنِ کارت می‌ماند).
+    #
+    # `spent` بودجهٔ ضربانِ مصرف‌شدهٔ امروز است و هر ضربان (۶۰ثانیه) یکی بالا
+    # می‌رود. یعنی hash **به‌طور ساختاری** هر دقیقه عوض می‌شد و کارت هر دقیقه
+    # «تغییرکرده» شمرده می‌شد. اندازه‌گیریِ زنده: ۳۲ کارتِ قلب در ۲۵ دقیقه، و
+    # بعد از فیکسِ گاردِ دیالوگ همچنان ۱.۴۵ در دقیقه — چون گارد روی تطبیقِ hash
+    # کار می‌کند و hashی که هر دقیقه عوض شود هرگز تطبیق نمی‌دهد.
+    #
+    # `spent` برای تشخیصِ تغییر **زائد** است: لحظهٔ معنادارش «بودجه ته کشید»
+    # است که `depleted` از قبل جدا در کلید هست. سومین نمونهٔ یک الگو در یک روز
+    # (شمارندهٔ هشدار در کارتِ نیازها، و همین‌جا): **شمارندهٔ یک‌طرفه هرگز نباید
+    # داخلِ کلیدِ dedup باشد** — وگرنه «تغییر» را با «گذشتِ زمان» یکی می‌گیری.
     hsh = _h(mode, depleted, bool(alerts), stall.get("stalled"),
-             setp.get("epoch_seq"), round(float(vel or 0), 1), spent)
+             setp.get("epoch_seq"), round(float(vel or 0), 1))
     return {"text": "\n".join(lines), "hash": hsh, "mode": mode, "alerts": alerts,
             "stalled": bool(stall.get("stalled")),
             "stall_new": bool(stall.get("stalled")) and not stall.get("already_alerted"),

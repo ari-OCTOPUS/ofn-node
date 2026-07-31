@@ -62,8 +62,12 @@ _TERMINAL_VERDICTS = ("accepted", "rejected", "quarantined", "verified-not-admit
 # ثبتِ آزمایشِ اجراپذیر: row_id → کلیدِ آزمایش. هرچه این‌جا نیست، آزمایش ندارد — و
 # صادقانه گزارش می‌شود. **حق اختراعِ آزمایش برای یک ردیف را این ماژول ندارد.**
 EXPERIMENT_REGISTRY: dict[str, str] = {
-    "delta-self": "selfmodel_delta_paired",   # heart/shadow.py — استریمِ زنده، n در حالِ رشد
-    "phi-liveness": "phi_saturation_probe",   # chrono.py — آزمونِ اشباعِ سقف
+    "delta-self": "selfmodel_delta_paired",   # heart/shadow.py
+    "phi-liveness": "phi_saturation_probe",   # chrono.py
+    "metabolic-budget": "metabolic_value_paired",  # cardiac.py — آزمونِ ارزشِ ترمز
+    "effect-gate-once": "effect_double_apply_probe",  # arm_gate.py — double-apply test
+    "identity-O": "organism_identity_tracker",  # identity_equations.py — روندِ O
+    "lead-direct": "lead_direct_residential_probe",  # legs/lead_scorer.py — draft rate
 }
 
 

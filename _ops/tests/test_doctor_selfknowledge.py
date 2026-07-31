@@ -402,6 +402,52 @@ def t_the_venture_entry_is_content_free():
         for banned in ("فنز", "OnlyFans", "onlyfans", "feet", "creator"):
             assert banned not in blob, f"نشتِ هویتِ ونچر: {banned}"
 
+def t_revenue_is_dollars_not_a_count():
+    """۲۰۲۶-۰۷-۲۷ — دومین تصحیح در یک روز، و درسش مهم‌تر از خودِ باگ.
+
+    نسخهٔ اولِ امروز فهمید `money.musd` خرجِ خودمان است نه درآمد، و به
+    `attribution.confirmed` رفت. ولی آن هم دلار نبود — با `confirmed += 1`
+    ساخته می‌شود، یعنی **شمارشِ ادعاها**. سه لیدِ تأییدشده می‌شد «revenue: 3.0»
+    و همان عدد در promptِ مغزِ گران و در تصمیمِ هدف‌محور می‌نشست.
+
+    هر دو نسخه `float` برمی‌گرداندند و هیچ‌چیز **واحد** را نمی‌سنجید. این تست
+    همان را می‌سنجد."""
+    import json as _j
+    fit = sk.opslib.STATE_DIR / "fitness-latest.json"  # _read_json از ریشهٔ state می‌خواند نه doctor/
+    fit.parent.mkdir(parents=True, exist_ok=True)
+    old = fit.read_text("utf-8") if fit.exists() else None
+    try:
+        # سه ادعای تأییدشده، جمعاً ۱۲۵۰ دلار
+        fit.write_text(_j.dumps({"attribution": {
+            "confirmed": 3, "claimed": 3,
+            "revenue_by_cell": {"lead": 1000.0, "ziman": 250.0}}}), "utf-8")
+        got = sk._revenue_confirmed()
+        assert got == 1250.0, f"دلار انتظار می‌رفت، {got} آمد (شمارش بود؟)"
+        assert got != 3.0, "هنوز شمارش برمی‌گرداند"
+        # و خالی یعنی صفرِ صادق، نه شمارش
+        fit.write_text(_j.dumps({"attribution": {"confirmed": 7,
+                                                 "revenue_by_cell": {}}}), "utf-8")
+        assert sk._revenue_confirmed() == 0.0, "با دلارِ صفر، شمارش نشتی کرد"
+    finally:
+        if old is not None:
+            fit.write_text(old, "utf-8")
+
+
+def t_revenue_survives_a_broken_attribution_block():
+    import json as _j
+    fit = sk.opslib.STATE_DIR / "fitness-latest.json"  # _read_json از ریشهٔ state می‌خواند نه doctor/
+    old = fit.read_text("utf-8") if fit.exists() else None
+    try:
+        for bad in ({"attribution": None}, {"attribution": {"revenue_by_cell": "x"}},
+                    {"attribution": {"revenue_by_cell": {"a": "نه‌عدد"}}}, {}):
+            fit.write_text(_j.dumps(bad), "utf-8")
+            v = sk._revenue_confirmed()
+            assert isinstance(v, float) and v >= 0.0, (bad, v)
+    finally:
+        if old is not None:
+            fit.write_text(old, "utf-8")
+
+
 if __name__ == "__main__":
     failed = harness.run([
         ("snapshotِ غنی", t_snapshot_richer),
@@ -429,5 +475,9 @@ if __name__ == "__main__":
         ("خودآگاهی کلِ بدنش را ببیند", t_the_self_model_sees_its_whole_body),
         ("بازوی زنده live گزارش شود", t_a_live_arm_is_reported_live),
         ("مدخلِ ونچر content-free بماند", t_the_venture_entry_is_content_free),
+        # ۲۰۲۶-۰۷-۲۷ (دومین تصحیح در یک روز) — «عددِ درست‌تر» با «عددِ درست»
+        # یکی نیست: تصحیحِ اول شمارش را به‌جای دلار برداشت.
+        ("درآمد دلار است نه شمارش", t_revenue_is_dollars_not_a_count),
+        ("بلوکِ خرابِ انتساب crash ندهد", t_revenue_survives_a_broken_attribution_block),
     ])
     sys.exit(1 if failed else 0)

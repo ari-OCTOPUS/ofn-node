@@ -539,22 +539,100 @@ def verify_callback(*, state_dir, effect_id, token, owner, chrono_db_path=None,
     return True, rec, "ok"
 
 
+# ── ماشینِ حالتِ پول (نقطهٔ کورِ ۱۳۶) ────────────────────────────────────────
+# تا امروز فقط **حالتِ مقصد** اعتبارسنجی می‌شد، نه **گذار**. یعنی `APPROVED →
+# PENDING` مجاز بود: یک پرداختِ تمام‌شده می‌توانست به عقب برگردد و دوباره کارت
+# بگیرد. هیچ صداکنندهٔ امروزی این کار را نمی‌کند، ولی «امروز هیچ‌کس نمی‌کند»
+# ناوردی نیست — فقط یک مشاهده است.
+#
+# ناوردیِ واقعی: **تصمیمِ پولی هرگز بی‌تصمیم نمی‌شود.** APPROVED و DENIED پایانی‌اند.
+MONEY_STATES = {"PENDING", "DEFERRED", "DENIED", "APPROVING", "APPROVED", "EXPIRED",
+                "RECONCILE_REQUIRED"}
+MONEY_TRANSITIONS = {
+    "": set(MONEY_STATES),                       # رکوردِ تازه، بدونِ حالتِ قبلی
+    "PENDING": {"DEFERRED", "DENIED", "APPROVING", "EXPIRED"},
+    "DEFERRED": {"PENDING", "DEFERRED", "DENIED", "APPROVING", "EXPIRED"},
+    "APPROVING": {"APPROVED", "RECONCILE_REQUIRED", "DENIED"},
+    "RECONCILE_REQUIRED": {"APPROVED", "DENIED"},   # فقط رأیِ مالک بازش می‌کند
+    "APPROVED": set(),                              # پایانی
+    "DENIED": set(),                                # پایانی
+    "EXPIRED": set(),                               # پایانی
+}
+# ⚠️ عمداً پیش‌فرض **خاموش**. این گارد روی مسیرِ زندهٔ پول می‌نشیند و فهرستِ
+# گذارهای بالا از خواندنِ کد آمده، نه از مشاهدهٔ ترافیکِ واقعی. اگر همین حالا
+# اجباری شود و یک گذارِ مشروعِ نادیده وجود داشته باشد، پرداختِ واقعیِ مالک
+# می‌شکند. پس اول **می‌شمارد**، بعد — با شواهد — مسلح می‌شود.
+TRANSITION_FLAG = "OCTOPUS_ENFORCE_MONEY_FSM"
+
+
+def _illegal_transition(prev: str, nxt: str) -> bool:
+    return nxt not in MONEY_TRANSITIONS.get(str(prev or ""), set(MONEY_STATES))
+
+
+def _log_transition(effect_id, prev: str, nxt: str, enforced: bool,
+                    *, state_dir=None) -> None:
+    """۲۰۲۶-۰۷-۲۸ — `state_dir` اضافه شد چون این تابع مقصدِ خودش را حساب می‌کرد.
+
+    `persist_money_decision` مسیرِ درست را به‌عنوان پارامتر می‌گیرد و به
+    `_mutate_store` می‌دهد، ولی این لاگ آن را **نادیده می‌گرفت** و
+    `_ops_state_dir()` را صدا می‌زد. نتیجه: `test_money_fsm` با harnessِ ایزوله
+    اجرا می‌شد و لاگش در `_ops/state` ِ **زنده** می‌نشست.
+
+    پیامدش تزئینی نبود: تنها شواهدی که کدِ خودِ FSM قبل از مسلح‌شدن طلب می‌کند
+    همین فایل است، و آن فایل با دو ردیفِ ساختهٔ تست آلوده شده بود (`APPROVED →
+    PENDING` با `enforced` هم True هم False در یک ثانیه — چیزی که کدِ زنده با
+    فلگِ همیشه‌خاموش نمی‌تواند بنویسد). یعنی «صفر گذارِ واقعی» شبیهِ «دو نمونه»
+    به نظر می‌رسید. خویشاوندِ `_timeout_truncated` (همان روز، صبح).
+
+    `state_dir` نداده‌شده = رفتارِ قبلی، پس هیچ صداکنندهٔ دیگری نمی‌شکند.
+    """
+    try:
+        base = Path(state_dir) if state_dir else Path(_ops_state_dir())
+        p = base / "money-fsm-violations.jsonl"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        with open(p, "a", encoding="utf-8") as f:
+            f.write(json.dumps({"ts": _now(), "effect_id": str(effect_id)[:64],
+                                "from": prev, "to": nxt, "enforced": bool(enforced)},
+                               ensure_ascii=False) + "\n")
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def _ops_state_dir():
+    try:
+        import opslib
+        return opslib.STATE_DIR
+    except Exception:  # noqa: BLE001
+        return Path(__file__).resolve().parent.parent / "state"
+
+
 def persist_money_decision(*, state_dir, effect_id, decision, defer_count=None) -> bool:
-    allowed = {"PENDING", "DEFERRED", "DENIED", "APPROVING", "APPROVED", "EXPIRED",
-               "RECONCILE_REQUIRED"}
+    allowed = MONEY_STATES
     if decision not in allowed:
         return False
-    changed = {"ok": False}
+    enforce = str(os.environ.get(TRANSITION_FLAG, "")).strip().lower() in (
+        "1", "true", "yes", "on")
+    changed = {"ok": False, "blocked": False}
     def _do(store):
         rec = store.get(_key("money", str(effect_id)))
         if isinstance(rec, dict):
+            prev = str(rec.get("decision") or "")
+            if _illegal_transition(prev, decision):
+                _log_transition(effect_id, prev, decision, enforce,
+                                state_dir=state_dir)
+                if enforce:
+                    changed["blocked"] = True
+                    return
             rec["decision"] = decision
             if defer_count is not None:
                 rec["defer_count"] = int(defer_count)
                 rec["deferred_at"] = _now()
             rec["updated_ts"] = _now()
             changed["ok"] = True
-    return _mutate_store(state_dir, _do) and changed["ok"]
+    wrote = _mutate_store(state_dir, _do)
+    if changed["blocked"]:
+        return False        # گذارِ غیرمجاز، با فلگِ اجبار → صریحاً ناموفق
+    return wrote and changed["ok"]
 
 
 def _reissue(channel, effect_id, amount, summary, content_hash, action_kind, target_ref,

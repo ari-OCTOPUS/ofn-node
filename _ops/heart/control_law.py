@@ -76,6 +76,72 @@ def precision_weight(vstate: "dict | None") -> float:
     return _clamp(pi_n * pi_reg, 0.0, 1.0)
 
 
+# ── اشباعِ plant: آیا این حلقه اصلاً پهنای‌باند دارد؟ (۲۰۲۶-۰۷-۲۸) ──────────────
+# `weights["beats"]` در producers.velocity_meter. اینجا آینه‌ای است، نه منبع؛
+# تستِ drift مقدار را با producers مقایسه می‌کند.
+_BEAT_UNIT_WEIGHT = 0.1
+
+
+def plant_saturation(vstate: "dict | None", floor_s: float = FLOOR_S,
+                     max_s: float = MAX_S) -> dict:
+    """آیا متغیرِ تنظیم‌شونده (velocity) اصلاً به عملگرِ حلقه (period) پاسخ می‌دهد؟
+
+    تابعِ pure (بدونِ I/O). محاسبه‌ای، نه آماری: در حالتِ honest-pulse
+    `v = fuel + min(beats·۰.۱، beat_cap)` و beats خودش تابعِ period است. اگر در
+    **کندترین** حالتِ ممکن (period=MAX_S) هم beats·۰.۱ از سقف بیشتر باشد، آنگاه در
+    کلِ دامنهٔ عملگر [floor_s, max_s] مشتقِ dv/du دقیقاً صفر است — یعنی حلقه باز
+    است و «کنترل» فقط یک ثابت را دنبال می‌کند.
+
+    اندازه‌گیریِ زندهٔ ۲۰۲۶-۰۷-۲۸ (`state/pulse/heart-signals-latest.json`):
+    beats=۱۳۱۸ در پنجرهٔ ۲۴س، beat_cap=۳.۰، fuel=None، confirmed=۰، effects=۰
+    → v = ۳.۰/۲۴ = **۰.۱۲۵ دقیقاً**. حتی در کندترین ضربانِ مجاز (۹۰۰s → ۹۶ ضربان
+    در روز → ۹.۶ واحد) هنوز ۳.۲ برابرِ سقف است. ۷۹۲ نمونهٔ velocity-stream همین
+    ۰.۱۲۵ را می‌دهند.
+
+    خروجی telemetry-only است؛ هیچ تصمیمی را عوض نمی‌کند."""
+    v = vstate or {}
+    hp = v.get("honest_pulse") or {}
+    out = {
+        "saturated": False,
+        "loop_gain": None,          # dv/du در دامنهٔ عملگر
+        "velocity_now": v.get("velocity_per_hr"),
+        "reason": "",
+    }
+    if not hp.get("enabled"):
+        out["reason"] = "honest-pulse off — کانالِ کلاسیک، این تحلیل صدق نمی‌کند"
+        return out
+    try:
+        cap = float(hp.get("beat_cap") or 0.0)
+        window_h = float(v.get("window_hours") or 24.0)
+        fuel = (v.get("real_components") or {}).get("fuel_calls")
+        fuel_units = 0.0 if fuel is None else float(fuel)
+        # کندترین ضربانِ مجاز = بیشترین period → کمترین beats در پنجره
+        beats_slowest = (window_h * 3600.0) / max(float(max_s), 1e-9)
+        beats_fastest = (window_h * 3600.0) / max(float(floor_s), 1e-9)
+    except (TypeError, ValueError):
+        out["reason"] = "ورودیِ ناخوانا"
+        return out
+    units_slowest = beats_slowest * _BEAT_UNIT_WEIGHT
+    out.update({
+        "beat_cap": round(cap, 4),
+        "window_hours": round(window_h, 4),
+        "beats_at_slowest_period": round(beats_slowest, 2),
+        "beats_at_fastest_period": round(beats_fastest, 2),
+        "beat_units_at_slowest_period": round(units_slowest, 4),
+        "fuel_units": round(fuel_units, 4),
+        "velocity_locked_at": round((fuel_units + cap) / window_h, 6),
+    })
+    if cap > 0 and fuel_units == 0.0 and units_slowest >= cap:
+        out["saturated"] = True
+        out["loop_gain"] = 0.0
+        out["reason"] = (f"beat_units در کندترین ضربان ({units_slowest:.1f}) ≥ "
+                         f"سقف ({cap:.1f}) و سوخت صفر → velocity در کلِ دامنهٔ "
+                         f"عملگر [{floor_s:g}s..{max_s:g}s] ثابت است")
+    else:
+        out["reason"] = "غیراشباع — عملگر می‌تواند velocity را حرکت دهد"
+    return out
+
+
 def gather_inputs(beat: int = 0) -> dict:
     """ورودی‌های heart_step از state-fileها — همه read-only، همه fail-soft/None."""
     signals = producers.read_signals()
@@ -216,6 +282,14 @@ def heart_step(inputs: dict, setpoint: "hi.HeartParams | None" = None
     period_raw = BASE_PERIOD_S * math.exp(K_P * err_eff)
     baro = math.exp(K_P * err_eff)
     gates["err"] = round(err, 4)
+    # صداقتِ حلقه (۲۰۲۶-۰۷-۲۸، telemetry-only، پیش‌فرض خاموش): اگر متغیرِ
+    # تنظیم‌شونده روی سقف قفل باشد، این `err` یک عددِ *ثابت* است نه بازخورد.
+    # هیچ شاخهٔ کنترلی این کلید را نمی‌خواند — فقط در سایه ثبت می‌شود.
+    if os.environ.get("OCTOPUS_HEART_SATURATION_TELEMETRY", "0") == "1":
+        try:
+            gates["plant_saturation"] = plant_saturation(vstate)
+        except Exception:  # noqa: BLE001 — تله‌متری هرگز ضربان را نمی‌کشد
+            pass
 
     # ۴ب) گاردِ بی‌ثمری (anti-futility): اگر شتابِ قبلی throughput را بالا نبرد،
     # دیگر شتاب نده (سکوت = استراحت، نه pin روی کف)

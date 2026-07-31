@@ -83,10 +83,24 @@ def t_e_studio_pf_default_display_name():
 def t_f_legs_nine_ordered_keys():
     # ۲۰۲۶-۰۷-۱۳: پای نهم «cartographer» افزوده شده بود ولی این تست روی ۸ مانده بود
     # (drift ِ تست-vs-کد؛ render.LEGS مرجع است). به ۹ کلید هم‌ترتیبِ کد اصلاح شد.
-    assert list(render.LEGS) == ["lead", "ziman", "mining", "crypto",
-                                 "accounting", "studio_pf", "system", "knowledge",
-                                 "cartographer"]
+    # ۲۰۲۶-۰۷-۲۷: «آینه» اتاق است نه پا — ولی در LEGS هست چون نام و آیکنِ تاپیک
+    # از همین‌جا می‌آید. عددِ خام دو بار کهنه شده (۸→۹→۱۰)، پس این‌بار به‌جای شمردن،
+    # چیزی سنجیده می‌شود که واقعاً باید درست بماند: **ترتیبِ پاهای کسب‌وکار** ثابت
+    # است، و هر ورودیِ غیرپا نه دایجست می‌دهد نه دکمهٔ pause می‌گیرد.
+    assert list(render.LEGS)[:9] == ["lead", "ziman", "mining", "crypto",
+                                     "accounting", "studio_pf", "system", "knowledge",
+                                     "cartographer"]
     assert render.LEGS["studio_pf"] == "استودیو"
+
+    # اتاق ≠ پا: هر ورودیِ ROOMS باید دایجستِ خالی بدهد (وگرنه اتاقِ گفتگو روزی
+    # یک «⚪ سیگنالِ زنده‌ای نیست» می‌گیرد)، و هر پای واقعی باید دایجست بدهد.
+    assert render.ROOMS and render.ROOMS <= set(render.LEGS), render.ROOMS
+    for key in render.LEGS:
+        out = render.render_leg_digest(key, {"status": "🟢", "detail": "x"})
+        if key in render.ROOMS:
+            assert out == "", f"اتاقِ «{key}» دایجست می‌دهد — نویزِ خودکار در اتاقِ گفتگو"
+        else:
+            assert out, f"پای «{key}» دایجست نمی‌دهد — از رادار افتاده"
 
 
 # ─── کارتِ تصمیم: ok/no/later:<id> ────────────────────────────────────────────────

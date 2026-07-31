@@ -43,6 +43,9 @@ from pathlib import Path
 # ── ثابت‌ها ──────────────────────────────────────────────────────────────────
 
 FLAG = "SYNAPSE_ENABLED"
+# ۲۰۲۶-۰۷-۲۸ — نامِ canonical با قاعدهٔ کلیِ OCTOPUS_ prefix (هم‌الگو با بقیهٔ wiring).
+# SYNAPSE_ENABLED (بدونِ prefix) برای backward-compat با README/SOT نگه داشته شد.
+FLAG_OCTOPUS = "OCTOPUS_SYNAPSE_ENABLED"
 DAILY_CAP_ENV = "SYNAPSE_DAILY_MAX"
 DAILY_CAP_DEFAULT = 3
 
@@ -65,11 +68,23 @@ DEFAULT_EVENTS = _OPS_ROOT / "state" / "events.jsonl"
 DEFAULT_4D_ROOT = _VAULT_ROOT / "4d_system"
 DEFAULT_OUT_DIR = _HERE.parent / "out"
 
+# ۲۰۲۶-۰۷-۲۸ — سریِ زمانیِ صداقت (C8). بازسنجیِ ۰۷-۲۵ گفت C8 «حاضر و اجراشونده ولی نه
+# سنجش‌پذیر» است: sinkهای per-cycle نه self_referential را می‌نوشتند نه gate0 را نه
+# علامتِ Δ. این ردیف‌ها شکافِ «اندام ساخته شد ولی هیچ‌کس خروجی‌اش را در زمان نمی‌دید»
+# را می‌بندند. مسیر با DEFAULT_OUT_DIR سازگار است (پشتِ همان فایلِ flags-off no-op).
+DEFAULT_TRAIL = _OPS_ROOT / "state" / "synapse-trail.jsonl"
+
 
 # ── ابزارهای پایه ────────────────────────────────────────────────────────────
 
 def flag_on() -> bool:
-    return str(os.environ.get(FLAG, "")).strip().lower() in ("1", "true", "yes", "on")
+    """روشن است اگر FLAG_OCTOPUS (canonical، OCTOPUS_ prefix) یا FLAG (backward-compat)
+    هر یک روشن باشند. هر دو نام پشتیبانی می‌شوند تا wiring از قاعدهٔ کلی پیروی کند
+    و README/SOT قدیمی هم honor شود."""
+    for k in (FLAG_OCTOPUS, FLAG):
+        if str(os.environ.get(k, "")).strip().lower() in ("1", "true", "yes", "on"):
+            return True
+    return False
 
 
 def _daily_cap() -> int:
@@ -378,14 +393,45 @@ def _write_atomic(out_dir: Path, proposal: dict, now: datetime) -> Path:
     return final
 
 
+def _append_trail(metrics: dict, proposal_kind: str, trail_path: Path | None = None) -> None:
+    """سریِ زمانیِ صداقت (C8، ۲۰۲۶-۰۷-۲۸) — append-only، atomic-per-line.
+
+    هر چرخهٔ SENSE یک ردیف با فیلدهای {ts, self_referential, gate0, delta, cpm, kind}
+    می‌نویسد. این دقیقاً همان چیزی است که بازسنجیِ ۰۷-۲۵ گفت «وجود ندارد»: یک سریِ
+    زمانیِ قابل‌رصد که نشان می‌دهد حسِ خود-ارجاعیِ ارگانیسم در طولِ زمان چه می‌کند.
+    fail-closed: هر خطای I/O بی‌صدا — اندامِ Sense هرگز ارگانیسم را نمی‌کشد."""
+    try:
+        p = Path(trail_path) if trail_path else DEFAULT_TRAIL
+        p.parent.mkdir(parents=True, exist_ok=True)
+        emp = metrics.get("empirical") or {}
+        fit = metrics.get("fit") or {}
+        rec = {
+            "ts": _iso_z(_utc_now()),
+            "cpm": metrics.get("cpm"),
+            "series_points": metrics.get("series_points"),
+            "self_referential": emp.get("temporal_mi"),     # MI خود-سریِ ضربان
+            "gate0": fit.get("detectable"),                  # آیا ساختارِ قابل‌تشخیص بود؟
+            "delta": metrics.get("delta_self_proxy"),        # شکافِ درونی vs خام
+            "kind": proposal_kind,
+            "degraded": bool(metrics.get("degraded")),
+        }
+        with p.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except Exception:  # noqa: BLE001 — trail هرگز Sense را نمی‌کشد
+        pass
+
+
 def sense_once(
     ops_root: Path | None = None,
     fourd_root: Path | None = None,
     out_dir: Path | None = None,
     tail_n: int = TAIL_N_DEFAULT,
+    trail_path: Path | None = None,
 ) -> dict:
     """یک چرخه‌ی SENSE. خروجیِ dict؛ هرگز raise نمی‌کند.
-    پیش‌فرضِ flag خاموش → {"ran": False, "reason": "flag-off"}."""
+    پیش‌فرضِ flag خاموش → {"ran": False, "reason": "flag-off"}.
+    trail_path: مسیرِ سریِ زمانیِ صداقت (پیش‌فرض state/synapse-trail.jsonl)؛ برای
+    تست‌های ایزوله قابلِ override است."""
     if not flag_on():
         return {"ran": False, "reason": "flag-off"}
     try:
@@ -408,6 +454,9 @@ def sense_once(
         snap = _snapshot(events_path, events, raw)
         proposal = build_proposal(metrics=m, snapshot=snap)
         path = _write_atomic(out_dir, proposal, now)
+        # سریِ زمانیِ صداقت (C8) — حتی در حالتِ degraded هم نوشته می‌شود تا رصدِ «هیچ
+        # چرخه‌ای نچرخیده» ممکن باشد. شکافِ «حاضر ولی نه سنجش‌پذیر» (از ۰۷-۲۵).
+        _append_trail(m, proposal["proposal"]["kind"], trail_path)
         return {
             "ran": True,
             "proposal_path": str(path),

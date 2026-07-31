@@ -33,6 +33,12 @@ _INTENT_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
     # danger=low: مکث/ادامه فقط کارت می‌سازند، اجرا بعد از کلیک؛ لذا خود classify read است.
     ("pause_leg",     ("مکث", "متوقف", "نگه دار", "نگهدار", "توقف", "pause", "stop", "hold")),
     ("resume_leg",    ("ادامه", "شروع کن", "ری‌استارت", "resume", "restart", "continue")),
+    # 2026-07-25 live path: identity / blackbox / collab-coding / live summary
+    ("identity",      ("/id", "هویت", "معادله", "مگا-معادله", "identity", "/eq")),
+    ("blackbox",      ("/box", "جعبه", "جعبه‌سیاه", "جعبه سیاه", "blackbox", "black box")),
+    ("collab_code",   ("/code", "/کد", "هم‌کدنویسی", "هم کدنویسی", "collab",
+                       "پیشنهاد کد", "propose code")),
+    ("live_summary",  ("/live", "زنده", "live summary", "جمع‌بندی زنده")),
     ("scan_metadata", ("نقشه", "اسکن", "اسکنش", "manifest", "metadata", "کشف کن",
                        "چی توشه", "چی داریم", "چی توی", "نقشه‌برداری", "نقشه برداری")),
     ("approvals",     ("تأیید", "تصمیم", "صف", "approval", "approve", "decide", "منتظر")),
@@ -50,6 +56,10 @@ _INTENT_DANGER: dict[str, str] = {
     "revenue":       "read",
     "approvals":     "read",      # نمایشِ صف؛ تأیید/رد از ap:ok/no می‌گذرد
     "scan_metadata": "read",      # فقط metadata، محتوا نه؛ کارتِ map:start پیشنهاد
+    "identity":      "read",      # معادلات هویت — فقط خواندنی
+    "blackbox":      "read",      # نقشهٔ جعبه‌سیاه — فقط خواندنی
+    "live_summary":  "read",
+    "collab_code":   "low",       # propose-only؛ اعمال هرگز از این مسیر
     "pause_leg":     "low",       # برگشت‌پذیر ولی state را عوض می‌کند
     "resume_leg":    "low",
     "unknown":       "read",

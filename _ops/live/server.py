@@ -155,12 +155,43 @@ def _age_min(p: Path):
         return None
 
 
+# ⚠️ نسخهٔ حداقلیِ **مستقل** از الگوهای سختِ INV-12. عمداً تکرار شده: کلِ خطر این
+# است که لایهٔ اصلی در دسترس نباشد؛ اگر fallback هم به همان ماژول تکیه کند،
+# fallback نیست. سه الگو باید با cockpit_readmodel.HARD_SECRET_PATTERNS هم‌راستا
+# بماند (تستِ هم‌ترازی این را قفل می‌کند).
+_FALLBACK_SECRET = (
+    r"\d{8,12}:AA[A-Za-z0-9_-]{30,}",      # توکن بات تلگرام
+    r"sk-[A-Za-z0-9_-]{20,}",               # کلیدهای sk-*
+    r"-----BEGIN [A-Z ]*KEY",               # PEM
+)
+_FALLBACK_BODY = "⚠️ محتوا حذف شد — لایهٔ redaction در دسترس نبود"
+_REDACT_WARNED = [False]
+
+
 def _redact(text: str) -> str:
+    """INV-12 — و **fail-closed**.
+
+    قبلاً این تابع روی هر خطا `text` خام برمی‌گرداند. یعنی دقیقاً در لحظه‌ای که
+    محافظ از کار می‌افتاد، محافظت هم صفر می‌شد و هیچ‌کس خبردار نمی‌شد: بدترین
+    ترکیبِ ممکن. حالا اگر لایهٔ اصلی نبود، الگوهای سختِ محلی اعمال می‌شوند و
+    یک‌بار آلارم می‌رود. متنِ خام هرگز از این در بیرون نمی‌رود."""
     try:
         import cockpit_readmodel as crm
         return crm.redact(text)
-    except Exception:  # noqa: BLE001
-        return text
+    except Exception as e:  # noqa: BLE001
+        import re as _re
+        t = str(text or "")
+        if not _REDACT_WARNED[0]:
+            _REDACT_WARNED[0] = True
+            try:
+                opslib.alert([f"INV-12 redaction unavailable → fallbackِ محلی: "
+                              f"{type(e).__name__}"])
+            except Exception:  # noqa: BLE001
+                pass
+        for pat in _FALLBACK_SECRET:
+            if _re.search(pat, t):
+                return _FALLBACK_BODY
+        return _re.sub(r"\b[0-9a-fA-F]{64}\b", "‹hex64:حذف‌شده›", t)
 
 
 def aggregate(probe=None) -> dict:

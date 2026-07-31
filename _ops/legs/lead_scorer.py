@@ -15,7 +15,34 @@ propose-only است و ارسال همیشه human-gated می‌ماند.
 from __future__ import annotations
 
 import math
+import os
 from dataclasses import dataclass, field
+
+
+# ─── VQ-SCORER-001 (2026-07-25): دستهٔ مسکونیِ مستقیم — additive، flag-gated ────
+# کارِ واقعیِ مالک (رنگ‌آمیزیِ مستقیمِ خانه، $715–$15k) در هیچ‌یک از ۴ دستهٔ
+# DA-محورِ اصلی جا نمی‌گرفت: base=0 + سقفِ سیگنال‌ها 36 < save_threshold=45 → همیشه
+# skip. این دسته آن لوله را باز می‌کند. پیش‌فرض خاموش؛ با
+# OCTOPUS_LEAD_DIRECT_RESIDENTIAL=1 روشن می‌شود. چهار دستهٔ اصلی و آستانه‌ها
+# دست‌نخورده‌اند؛ rollback = حذفِ فلگ یا set 0.
+_DIRECT_FLAG = "OCTOPUS_LEAD_DIRECT_RESIDENTIAL"
+
+
+def _direct_residential_on() -> bool:
+    return str(os.environ.get(_DIRECT_FLAG, "")).strip().lower() in ("1", "true", "yes", "on")
+
+
+# عباراتِ رنگ‌آمیزیِ مستقیم — برای معافیت از hard-skipِ single-dwelling.
+# فقط وقتی فلگ روشن است اثر دارد. hard-skipهای any_phrase (demolition و…)
+# همیشه برقرارند.
+_DIRECT_REPAINT_PHRASES = [
+    "repaint", "repainting", "painting works", "paint work",
+    "interior painting", "exterior painting", "house painting",
+    "fence painting", "deck painting", "roof painting",
+    "touch up", "touch-up", "maintenance painting",
+    "re-paint", "re-coat", "recoat",
+]
+
 
 # ─── کانفیگ — inlineِ عیناً painter_lead_scoring.yaml (فلسفه: فیلترِ سخت + مسیریابی
 # بر اساسِ «نوعِ خریدار»؛ strata اول = رابطهٔ تکرارشونده) ───────────────────────────
@@ -32,6 +59,7 @@ DEFAULT_CONFIG: dict = {
     },
     "category_priority": [
         "strata_remedial",
+        "residential_repaint_direct",   # VQ-SCORER-001 — بعد از strata، قبل از بقیه
         "government_education",
         "new_residential_multi",
         "commercial_fitout",
@@ -86,6 +114,25 @@ DEFAULT_CONFIG: dict = {
                 "fitout", "fit out", "fit-out", "change of use",
                 "retail premises", "office", "tenancy", "shopfront",
                 "refurbishment",
+            ],
+        },
+        # ── VQ-SCORER-001: کارِ واقعیِ مالک (رنگ‌آمیزیِ مستقیمِ مسکونی) ──────────
+        # base=50: با paint_scope(+18) و geo(+8) → 76 = draft. بدونِ geo → 68 = save.
+        # value_tiers اختصاصی ندارد (بازهٔ $715–$15k زیرِ کفِ ۱۰۰kِ tiersِ اصلی است
+        # و تغییرِ tiersِ سراسری رفتارِ ۴ دستهٔ دیگر را عوض می‌کرد — additive نیست).
+        "residential_repaint_direct": {
+            "base": 50,
+            "label": "Direct residential repaint / maintenance (owner's real work)",
+            "required_any": [
+                "repaint", "repainting", "painting works", "paint work",
+                "interior painting", "exterior painting", "house painting",
+                "fence painting", "deck painting", "roof painting",
+                "touch up", "touch-up", "maintenance painting",
+                "re-paint", "re-coat", "recoat",
+            ],
+            "context_any": [
+                "dwelling", "house", "residential", "home", "property",
+                "apartment", "unit", "townhouse", "villa", "duplex",
             ],
         },
     },
@@ -192,16 +239,27 @@ class LeadScorer:
             return f"hard-skip ({hit[0]})"
         sd = _matches(hay, hs.get("single_dwelling_phrases"))
         if sd:
-            cost = lead.get("cost_of_development")
-            floor = hs.get("single_dwelling_value_floor", 0)
-            if cost is not None and cost < floor:
-                return f"single dwelling under ${floor:,} ({sd[0]})"
+            # VQ-SCORER-001: رنگ‌آمیزیِ مستقیمِ مسکونی کارِ واقعیِ مالک است؛
+            # وقتی فلگ روشن است و لید عبارتِ رنگ‌آمیزی دارد، از hard-skipِ
+            # single-dwelling معاف می‌شود. hard-skipهای any_phrase (demolition،
+            # tree removal و…) همیشه برقرارند — آن‌ها واقعاً کارِ ما نیستند.
+            if _direct_residential_on() and _matches(hay, _DIRECT_REPAINT_PHRASES):
+                pass  # fall through to routing — این لید رنگ‌آمیزی است، نه ساخت‌وساز
+            else:
+                cost = lead.get("cost_of_development")
+                floor = hs.get("single_dwelling_value_floor", 0)
+                if cost is not None and cost < floor:
+                    return f"single dwelling under ${floor:,} ({sd[0]})"
         return None
 
     # -- مسیریابیِ دسته (اولین اصابت برنده — strata عمداً اول) -----------------------
     def _route(self, hay: str) -> tuple[str, dict]:
         cats = self.cfg["categories"]
         for name in self.cfg["category_priority"]:
+            # VQ-SCORER-001: دستهٔ مسکونیِ مستقیم فقط با فلگ فعال است.
+            # بدونِ فلگ، رفتار بایت‌به‌بایت identical با نسخهٔ قبل است.
+            if name == "residential_repaint_direct" and not _direct_residential_on():
+                continue
             c = cats[name]
             if not _matches(hay, c.get("required_any")):
                 continue

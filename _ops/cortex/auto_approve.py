@@ -30,6 +30,7 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE))
 sys.path.insert(0, str(_HERE.parent / "budget"))
+sys.path.insert(0, str(_HERE.parent))          # _ops — برای decision_gate/trajectory_log
 import opslib      # noqa: E402
 import improve     # noqa: E402 — AUTO_KNOBS + observability_ok + refractory_open
 
@@ -123,6 +124,78 @@ def _matrix():
         return None
 
 
+_RISK_CLASS = {"high": 4, "med": 3, "medium": 3, "low": 1}
+
+
+def _shadow_gate(p: dict, risk: str, imp: bool) -> None:
+    """گیتِ ۵۱/۴۹ را **موازیِ** مسیرِ امروز می‌سنجد — بدونِ هیچ اثری بر تصمیم.
+
+    چرا سایه و نه سیم: قبل از اینکه اجازهٔ اجرا به چیزی بدهیم باید بدانیم چند بار
+    با قاضیِ امروز اختلاف پیدا می‌کند و در کدام جهت. جهتِ خطرناک یکی است:
+    `imp=False` (امروز می‌گوید بی‌اهمیت، پس خودتصمیم مجاز است) ولی گیت ردهٔ نابودی
+    ببیند — یعنی چیزی که امروز **بی‌سؤال** رد می‌شود. نقطهٔ کورِ ۱۳۸ دقیقاً همین
+    شکل بود: `{"params": {"amount_aud": 500}}` که خواندنِ سطحیِ کلیدها نمی‌دیدش.
+
+    fail-soft مطلق: هر خطایی این‌جا بی‌صدا رد می‌شود — سنجش هرگز حق ندارد مسیرِ
+    تصمیم را بشکند."""
+    # ⚠️ مسیر در زمانِ import ست می‌شود، نه این‌جا. نسخهٔ اول همین‌جا
+    # `sys.path.insert(0, _ops)` می‌زد — یعنی وسطِ یک فراخوانِ زنده، ترتیبِ
+    # resolutionِ ماژول‌ها برای کلِ پروسه عوض می‌شد. سوییت یک بار همان‌جا
+    # لرزید و بارِ بعد سبز شد؛ سبزِ دوم اثباتِ سلامت نیست، فقط اثباتِ شانس است.
+    try:
+        import decision_gate as _dg
+        rec = _dg.decide(action=str(p.get("title") or p.get("action") or "")[:120],
+                         payload=p,
+                         evidence=p.get("evidence"),
+                         risk_class=_RISK_CLASS.get(str(risk), 4),
+                         trace_id=str(p.get("id") or "")[:64])
+        rec["shadow_of"] = {"is_important": bool(imp), "risk": str(risk)}
+        # اختلافِ جهت‌دار: امروز آزاد، گیت بسته. این عدد است که ارزشِ مسلح‌کردن را
+        # ثابت (یا رد) می‌کند.
+        rec["divergence"] = bool(rec.get("destruction_risk") and not imp)
+        _dg.record(rec)
+        # G0 — همین نقطه تنها جایی است که «وضعیت» و «تصمیم» با هم حاضرند. اگر
+        # این‌جا ثبت نشود، بعداً هیچ‌جا نمی‌شود بازسازی‌شان کرد.
+        import trajectory_log as _tl
+        _tl.step(traj_id=str(p.get("id") or "")[:64], phase="decide",
+                 state={"risk": str(risk), "is_important": bool(imp),
+                        "evidence_score": rec.get("evidence_score")},
+                 action=str(p.get("title") or p.get("action") or "")[:120],
+                 decision={"executor": rec.get("executor"),
+                           "destruction_risk": rec.get("destruction_risk")},
+                 meta={"source": "auto_approve.decide"})
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def _autonomy_allows(p: dict, risk: str, imp: bool) -> tuple:
+    """آیا این پیشنهاد داخلِ اختیارِ اعطاشدهٔ مالک است؟ (fail-closed)
+
+    سه شرطِ هم‌زمان، و هر سه لازم:
+      · فلگِ اختیار روشن باشد،
+      · ردهٔ خطر پایین و **غیرمهم** باشد (پس هیچ‌وقت پول/کد/راز را نمی‌گیرد)،
+      · و `autonomy_grant` صریحاً بگوید بله.
+
+    خروجی (False, "") یعنی «چیزی نمی‌گویم» — نه «نه». پس نبودِ اختیار هرگز
+    مسیرِ امروز را عوض نمی‌کند."""
+    if imp or risk == "high":
+        return (False, "")
+    try:
+        import sys as _s
+        from pathlib import Path as _P
+        _o = str(_P(__file__).resolve().parent.parent)
+        if _o not in _s.path:
+            _s.path.insert(0, _o)
+        import autonomy_grant as _ag
+        if not _ag.enabled():
+            return (False, "")
+        blob = f"{p.get('title', '')} {p.get('action', '')} {p.get('suggested_action', '')}"
+        r = _ag.may("read_only", blob[:200])
+        return (bool(r.get("ok")), str(r.get("why") or ""))
+    except Exception:  # noqa: BLE001 — نبودِ ماژول = رفتارِ امروز
+        return (False, "")
+
+
 def decide(p: dict) -> dict:
     """تصمیمِ درجه‌بندیِ خطر برای یک پیشنهاد.
     خروجی: {action: auto|self|escalate, risk, reason}.
@@ -135,6 +208,15 @@ def decide(p: dict) -> dict:
     am = _matrix()
     free_on = bool(am and am.free_enabled())
     imp, imp_why = (am.is_important(p) if am else (False, ""))
+    _shadow_gate(p, risk, imp)          # سنجشِ سایه — هرگز تصمیم را عوض نمی‌کند
+    # ۲۰۲۶-۰۷-۲۷ — `autonomy_grant` ساخته شده بود و **صفر صداکننده** داشت:
+    # یعنی حتی با فلگِ روشن هیچ اتفاقی نمی‌افتاد. ماژولِ اختیار خودش یتیم بود،
+    # که بدترین شکلِ ممکن است — چون از بیرون شبیهِ «اختیار داریم» به‌نظر می‌رسید.
+    #
+    # این‌جا تنها مصرف‌کننده‌اش است و **فقط در یک جهت** کار می‌کند: می‌تواند
+    # پیشنهادِ بی‌خطر را از صفِ مالک بردارد، ولی هرگز چیزی را که مالک باید
+    # ببیند رد نمی‌کند. اگر اختیار چیزی نگوید، رفتار دقیقاً همان قبل است.
+    _granted, _gwhy = _autonomy_allows(p, risk, imp)
     if risk == "high" or imp:
         return {"action": "escalate", "risk": "high" if risk == "high" else risk,
                 "reason": ("خطرِ بالا → رأیِ مالک" if risk == "high"
@@ -144,6 +226,9 @@ def decide(p: dict) -> dict:
             return {"action": "self", "verdict": "defer", "risk": risk,
                     "reason": "غیرمهم ولی با اهداف هم‌راستا نیست — خودتصمیم: defer (ثبت، بدونِ سوال)"}
         return {"action": "escalate", "risk": risk, "reason": "با اهداف هم‌راستا نیست → مالک"}
+    if _granted:
+        return {"action": "self", "verdict": "approve", "risk": risk,
+                "reason": f"اختیارِ اعطاشده: {_gwhy} — خودتصمیم، ثبت‌شده"}
     knob = _knob_for(p)
     if knob is None:
         if free_on:

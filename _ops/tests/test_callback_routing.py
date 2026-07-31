@@ -31,8 +31,11 @@ _CENTER = (_TC / "center.py").read_text("utf-8")
 _BASE_VERBS = {"ok", "no", "later"}
 
 
-def _routed_verbs() -> set:
-    """افعالی که `_handle_callback` واقعاً به یک handler می‌سپارد."""
+_AC = (_HERE.parent / "budget" / "approval_channel.py").read_text("utf-8")
+
+
+def _center_routed() -> set:
+    """افعالی که `center._handle_callback` (باتِ مرکزِ گروه) می‌سپارد."""
     out = set(_BASE_VERBS)
     i = _CENTER.index("def _handle_callback")
     body = _CENTER[i:i + 4000]
@@ -43,11 +46,45 @@ def _routed_verbs() -> set:
     return out
 
 
+def _organism_routed() -> set:
+    """افعالی که `approval_channel.dispatch_callback` (باتِ ارگانیسم) می‌سپارد.
+
+    دو شکلِ نگارش وجود دارد و هر دو باید خوانده شوند: `parts[0] == "x"` و
+    `parts[0] != "x"` (شکلِ نگهبانی، مثلِ `if ... parts[0] != "app": return رد`).
+    نسخه‌ای که فقط شکلِ اول را می‌دید، `app` را «بی‌مسیر» می‌خواند در حالی که
+    مسیرِ اصلیِ پولِ همین فایل است."""
+    out = set(re.findall(r'parts\[0\]\s*[=!]=\s*"([a-z_]+)"', _AC))
+    # فهرستِ صریحِ schemeهای owner-gated هم اعلامِ مسیر است
+    m = re.search(r'_callback_requires_owner[\s\S]{0,400}?\(([^)]*)\)', _AC)
+    if m:
+        out.update(re.findall(r'"([a-z_]+)"', m.group(1)))
+    return out
+
+
+def _routed_verbs() -> set:
+    """⚠️ این سیستم **دو بات** دارد، با دو پروسه و دو توکنِ جدا.
+
+    نسخهٔ اولِ این گارد فقط `center.py` را می‌شناخت. آن فرض دو خطا می‌ساخت، در
+    هر دو جهت: افعالِ باتِ ارگانیسم را «مرده» می‌خواند (هشدارِ کاذب)، و — بدتر —
+    دکمه‌ای را که از باتِ **الف** فرستاده می‌شود ولی فقط باتِ **ب** می‌شناسدش،
+    سبز می‌دید. دقیقاً همین اتفاق برای `iv:q` افتاد: کارتش از باتِ ارگانیسم
+    می‌رفت، handlerش فقط در مرکز بود، و کلیک به هیچ‌جا نمی‌رسید."""
+    return _center_routed() | _organism_routed()
+
+
 def _emitted_verbs() -> dict:
     """افعالی که کدِ تولید در `callback_data` می‌سازد → فایل‌هایی که می‌سازندشان."""
+    # ⚠️ ۲۰۲۶-۰۷-۲۷ — این اسکن فقط `telegram_center/` را می‌دید. ولی سه
+    # تولیدکنندهٔ واقعیِ دکمه بیرونِ آن پوشه‌اند (`initiative.py`،
+    # `decision_gate.py`، `capability_registry.py`) — یعنی گاردی که کارش
+    # «هیچ دکمه‌ای مرده نماند» است، دقیقاً همان دکمه‌هایی را نمی‌دید که همان روز
+    # ساخته شدند. سبز می‌ماند در حالی که دکمه مرده است: بدترین حالتِ یک گارد.
+    #
+    # ریشهٔ اسکن حالا کلِ `_ops` است. اگر دکمه‌ای از هر جای بدن بیاید، دیده می‌شود.
     found: dict = {}
-    for py in sorted(_TC.glob("*.py")):
-        if py.name.startswith("test_"):
+    for py in sorted(_TC.parent.rglob("*.py")):
+        if py.name.startswith("test_") or set(py.parts) & {
+                "tests", "_code", "__pycache__", "_Archive"}:
             continue
         src = py.read_text("utf-8", errors="replace")
         for m in re.finditer(r'"callback_data"\s*:\s*f?"([a-z_]+):', src):
@@ -62,7 +99,12 @@ def t_every_emitted_callback_verb_is_routed():
     routed = _routed_verbs()
     emitted = _emitted_verbs()
     assert emitted, "هیچ callback_data ای پیدا نشد — اسکنر شکسته است"
-    orphan = {v: sorted(f) for v, f in emitted.items() if v not in routed}
+    # ماژولِ یتیم (صفر صداکنندهٔ تولیدی) دکمه‌اش هم مرده است، ولی علتش «فعلِ
+    # بی‌مسیر» نیست — کلِ ماژول هرگز اجرا نمی‌شود. `orphan_scan` جای درستِ آن
+    # است؛ این‌جا شمردنش نویز می‌سازد و گارد را بی‌اثر می‌کند.
+    _DEAD_MODULES = {"approval_channel_merge.py"}
+    orphan = {v: sorted(f) for v, f in emitted.items()
+              if v not in routed and set(f) - _DEAD_MODULES}
     assert not orphan, (
         "دکمه‌هایی با فعلِ بی‌مسیر — کلیک می‌شوند و به هیچ handlerی نمی‌رسند: "
         f"{orphan}")
@@ -75,11 +117,28 @@ def t_the_two_verbs_that_were_dead_are_now_routed():
         assert v in routed, f"فعلِ «{v}» دوباره از جدولِ dispatch افتاد"
 
 
+def t_a_card_sent_by_the_organism_bot_is_routed_by_the_organism_bot():
+    """تلهٔ دو-باتی: کارتی که باتِ الف می‌فرستد باید همان بات جوابش را بدهد.
+
+    `organism.py` کارتِ ابتکار را از `approval_channel` (باتِ ارگانیسم)
+    می‌فرستد. اگر فعلش فقط در `center.py` شناخته شود، دکمه ساخته می‌شود،
+    فرستاده می‌شود، کلیک می‌شود — و به هیچ‌جا نمی‌رسد."""
+    org = (_HERE.parent / "organism.py").read_text("utf-8")
+    assert "_iv.card(" in org and "_chan.send_text" in org,         "مسیرِ ارسالِ کارتِ ابتکار عوض شده — این گارد را به‌روز کن"
+    assert "iv" in _organism_routed(),         "کارتِ ابتکار از باتِ ارگانیسم می‌رود ولی آن بات فعلِ iv را نمی‌شناسد"
+
+
 def t_the_center_callback_handler_actually_knows_them():
     """مسیر داشتن کافی نیست — handler هم باید شاخه‌اش را داشته باشد."""
+    # ⚠️ نسخهٔ اول ۶۰۰۰ کاراکترِ بعد از نامِ تابع را برش می‌زد. با اضافه‌شدنِ یک
+    # شاخهٔ تازه، شاخه‌های پایین‌تر از پنجره بیرون افتادند و تست قرمز شد در حالی
+    # که کد **درست** بود. پنجرهٔ ثابت روی کدی که رشد می‌کند، گاردِ کاذب می‌سازد.
+    # حالا مرز از خودِ ساختار می‌آید: تا تعریفِ متدِ بعدی.
     i = _CENTER.index("def _handle_center_callback")
-    body = _CENTER[i:i + 6000]
-    for v in ("ng", "mr"):
+    rest = _CENTER[i + 1:]
+    j = rest.find("\n    def ")
+    body = rest if j < 0 else rest[:j]
+    for v in ("ng", "mr", "qt", "iv", "dg", "x"):
         assert f'verb == "{v}"' in body, f"شاخهٔ «{v}» در handler نیست"
 
 

@@ -359,6 +359,102 @@ def t_beats_send_then_hash_throttle():
             os.environ.pop(f, None)
 
 
+# ─── ۲۰۲۶-۰۷-۲۸: کارتی که نرسید هم باید مهر بخورد ────────────────────────
+# اندازه‌گیریِ زنده: سه کارتِ قلب با فاصلهٔ ۴۵ ثانیه، دوتایشان با **همان ضربان**
+# (۱۵۸۷۵)، و `pulse/heart-card-nudge.json` از ۰۶:۴۰ یخ‌زده. علت: `_dialogue_mark`
+# فقط پشتِ `if sent:` صدا زده می‌شد، و چون سیاستِ سطحِ نسخهٔ ۲ جریانِ `heart` را
+# نگه می‌دارد، `sent` همیشه False بود ⇒ حالت هرگز جلو نمی‌رفت ⇒ گیت هر تیک
+# عبور می‌داد. هر سه دایجست (دکتر/مغز/قلب) همین را داشتند — یک هلپر، سه قربانی.
+
+def t_no_monotonic_counter_sits_in_a_dedup_key():
+    """⚠️ سومین نمونهٔ یک الگو در یک روز — و گران‌ترینش.
+
+    گاردِ `_dialogue_gate` را درست کردم و **هیچ اثری نداشت**: نرخِ کارتِ قلب
+    ۱.۴۵ در دقیقه ماند. علت این بود که hash خودش هر دقیقه عوض می‌شد:
+
+        قلب : `spent` — بودجهٔ ضربانِ مصرف‌شده، هر ۶۰ثانیه +۱
+        مغز : `cycle` — شمارندهٔ چرخهٔ کورتکس، هر چرخه +۱
+
+    گاردی که روی تطبیقِ hash کار می‌کند، با hashی که با **گذشتِ زمان** عوض
+    می‌شود هرگز تطبیق نمی‌دهد. «تغییر» و «گذشتِ زمان» یکی گرفته شده بودند.
+
+    هر دو از کلید بیرون رفتند و در **متنِ کارت** ماندند — مالک عدد را می‌بیند،
+    ولی عدد تصمیمِ فرستادن را نمی‌گیرد. (همان الگوی `stable_hash` در کارتِ
+    نیازها، که آن‌جا شمارندهٔ هشدار بود.)
+    """
+    src = Path(od.__file__).read_text("utf-8")
+    for fn_marker, banned in (('"mode": mode', "spent"),
+                              ('"stress_level": stress_level', "cycle")):
+        i = src.index(fn_marker)
+        j = src.rfind("hsh = _h(", 0, i)
+        assert j != -1, fn_marker
+        key = src[j:src.index(")\n", j)]
+        assert banned not in key, f"شمارندهٔ «{banned}» دوباره در کلیدِ dedup است"
+
+
+def t_the_heart_hash_survives_the_passage_of_beats():
+    """رفتارِ واقعی، نه ساختار: چهار beat مختلف باید یک hash بدهند."""
+    hs = {od.heart_digest(beat=b)["hash"] for b in (15900, 15901, 15960, 16200)}
+    assert len(hs) == 1, f"hash با گذشتِ ضربان عوض می‌شود: {hs}"
+
+
+def t_the_brain_and_doctor_hashes_are_stable_too():
+    for fn in (od.brain_digest, od.doctor_digest):
+        hs = {fn()["hash"] for _ in range(3)}
+        assert len(hs) == 1, (fn.__name__, hs)
+
+
+def _probe_state():
+    import opslib
+    p = opslib.STATE_DIR / "probe-dialogue-nudge.json"
+    p.unlink(missing_ok=True)
+    return "probe-dialogue-nudge.json", p
+
+
+def t_an_undelivered_card_is_still_throttled():
+    """پنج تلاش با ارسالِ همیشه‌ناموفق → فقط یکی باید عبور کند."""
+    name, _ = _probe_state()
+    passes = 0
+    for _ in range(5):
+        if wiring._dialogue_gate(name, "H1", 21600.0):
+            passes += 1
+            wiring._dialogue_mark(name, "H1", sent=False)
+    assert passes == 1, f"{passes} تلاش عبور کرد — گارد بی‌اثر است"
+
+
+def t_an_undelivered_card_can_retry_later():
+    """نرسیده نباید `last_hash` را جلو ببرد، وگرنه وقتی نگه‌داشتن برداشته شد
+    آن کارت برای همیشه گم می‌شود."""
+    import json
+    name, p = _probe_state()
+    assert wiring._dialogue_gate(name, "H2", 21600.0) is True
+    wiring._dialogue_mark(name, "H2", sent=False)
+    st = json.loads(p.read_text("utf-8"))
+    assert st.get("last_hash") is None, st
+    assert st.get("last_attempt_hash") == "H2", st
+
+
+def t_the_three_digests_share_one_gate():
+    """اگر هرکدام گیتِ خودش را بنویسد، فیکس باید سه بار تکرار شود."""
+    src = (harness.REAL_VAULT / "_ops" / "wiring.py").read_text("utf-8")
+    assert src.count("def _dialogue_gate(") == 1
+    assert src.count("def _dialogue_mark(") == 1
+
+
+def t_no_caller_marks_only_on_success():
+    """⚠️ گاردِ بازگشت: اگر کسی دوباره `if sent:` بنویسد، سه دایجست بی‌صدا
+    به همان حلقهٔ تکرار برمی‌گردند."""
+    import re
+    src = (harness.REAL_VAULT / "_ops" / "wiring.py").read_text("utf-8").splitlines()
+    bad = []
+    for n, line in enumerate(src, 1):
+        if "_dialogue_mark(" in line and "def " not in line:
+            prev = [src[k - 1].strip() for k in range(max(1, n - 3), n)]
+            if any(re.match(r"^if\s+sent\b", x) for x in prev):
+                bad.append(n)
+    assert not bad, f"صداکنندهٔ پشتِ if-sent در خطوط {bad}"
+
+
 if __name__ == "__main__":
     sys.exit(harness.run([
         ("3a: digest دکتر render+hash", t_doctor_digest_renders_and_hashes),
@@ -377,5 +473,12 @@ if __name__ == "__main__":
         ("3c: apply → epochِ نو + audit (ردشده نمی‌نویسد)", t_heart_set_apply_epoch_and_audit),
         ("3c: جریانِ کاملِ تلگرام + ضدِ replay + owner-gate", t_heartset_full_telegram_flow),
         ("wiring: flag-off = no-op", t_beats_flag_off_noop),
+        ("wiring: سه دایجست یک هلپرِ مشترک دارند", t_the_three_digests_share_one_gate),
         ("wiring: ارسال + hash-throttle (ضدِ اسپم)", t_beats_send_then_hash_throttle),
+        ("hash: شمارندهٔ یک‌طرفه در کلیدِ dedup نباشد", t_no_monotonic_counter_sits_in_a_dedup_key),
+        ("hash: قلب با گذشتِ ضربان عوض نشود", t_the_heart_hash_survives_the_passage_of_beats),
+        ("hash: مغز و دکتر هم پایدار", t_the_brain_and_doctor_hashes_are_stable_too),
+        ("wiring: ارسالِ نرسیده هم مهر می‌خورد", t_an_undelivered_card_is_still_throttled),
+        ("wiring: نرسیده last_hash را جلو نمی‌برد", t_an_undelivered_card_can_retry_later),
+        ("wiring: هیچ صداکننده‌ای پشتِ if-sent نماند", t_no_caller_marks_only_on_success),
     ]))

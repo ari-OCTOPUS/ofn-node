@@ -265,12 +265,15 @@ def post_phase_check(phase_id: str,
         all_passed = False
 
     # ۴) ledger chain (فقط اگر مسیر واقعی باشد)
+    # v0.4.7 + verdict 2026-07-28: هم‌راستا با evaluate_held_out — valid=None یعنی
+    # «ledger غایب/آفلاین» (skip)، نه fail. فقط valid=False (tamper/chain-broken)
+    # رد می‌شود. (قبلاً not None == True بود و آفلاین را بی‌دلیل قرمز می‌کرد.)
     try:
         if ledger_path.is_dir():
             from held_out_evaluator import verify_ledger_chain
             chain = verify_ledger_chain(ledger_path)
             checks["ledger_chain"] = chain
-            if not chain.get("valid"):
+            if chain.get("valid") is False:
                 all_passed = False
         else:
             checks["ledger_chain"] = {"valid": None, "note": "ledger-path-not-found"}

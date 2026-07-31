@@ -28,6 +28,20 @@ import urllib.error
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
+
+# ⚠️ این فایل در سربرگش می‌گوید «هیچ فایلِ زندهٔ state» — ولی تا ۲۰۲۶-۰۷-۲۷
+# `OPS_DIR`/`ORG_ROOT` را ست نمی‌کرد، پس `opslib.STATE_DIR` به درختِ **زنده**
+# اشاره می‌کرد. تنها دلیلی که کسی نفهمید این بود که هیچ مسیرِ زیرِ آزمون تا آن
+# روز چیزی در state نمی‌نوشت؛ لحظه‌ای که یکی نوشت، ۹۸ ردیفِ آزمایشی در stateِ
+# واقعی نشست.
+#
+# ادعای hermetic بودن باید **اجرا** شود، نه فقط نوشته — و قبل از هر importی که
+# مسیر را می‌خواند.
+_ISO = Path(tempfile.mkdtemp(prefix="paid-timeout-"))
+os.environ["ORG_ROOT"] = str(_ISO)
+os.environ["OPS_DIR"] = str(_ISO / "_ops")
+(_ISO / "_ops" / "state").mkdir(parents=True, exist_ok=True)
+
 for _p in (str(_HERE.parent / "debate"), str(_HERE.parent / "budget"),
            str(_HERE.parent / "cortex"), str(_HERE.parent)):
     if _p not in sys.path:
@@ -259,11 +273,19 @@ def t7_flag_on_exempts_timeout_only():
 def t8_governor_request_fits():
     import client
     import governor_epoch as ge
-    old = _env(OCTOPUS_GOVERNOR_MAX_TOKENS=None, PAID_ASK_BUDGET_S=90)
+    # ۲۰۲۶-۰۷-۲۷ — این تست `mt == 600` را پین کرده بود. بعد اندازه‌گیریِ زنده نشان
+    # داد ۶۰۰ خروجی را **می‌بُرَد** و گاورنر فقط با ۲۰۰۰ parse می‌شود. پس عددِ پین‌شده
+    # کهنه شد — ولی چیزی که تست واقعاً محافظت می‌کرد کهنه نشد: «هر سقفی که گاورنر
+    # انتخاب کند، ساعتِ سوکت باید با حاشیه جا بدهد.» عدد برداشته شد، ناوردی ماند —
+    # حالا این گارد **مستقل از سقف** همان کلاسِ باگ را می‌گیرد.
+    # `PAID_ASK_BUDGET_S` هم دیگر پین نمی‌شود چون مسیرِ واقعیِ حل، جدولِ per-role است
+    # (`_ask_budget`) و ستِ صریحِ سراسری آن را دور می‌زد — یعنی تست چیزی را می‌سنجید
+    # که در استقرار وجود ندارد.
+    old = _env(OCTOPUS_GOVERNOR_MAX_TOKENS=None, PAID_ASK_BUDGET_S=None)
     try:
         ge = importlib.reload(ge)
         mt = ge._gov_max_tokens()
-        ck(mt == 600, f"T8: پیش‌فرضِ max_tokensِ گاورنر باید ۶۰۰ باشد، شد {mt}")
+        ck(64 <= mt <= 4096, f"T8: سقفِ گاورنر خارج از بازهٔ امن: {mt}")
         # در هر دو رژیمِ سقفِ زنده جا می‌شود، با حاشیهٔ ≥۲×
         for cap in (20, 45):
             _env(PAID_HTTP_TIMEOUT_S=cap)
@@ -277,7 +299,9 @@ def t8_governor_request_fits():
         ck(need_s(1200) > 20.0,
            "T8: مرجعِ عددیِ یافته عوض شد (۱۲۰۰ توکن باید >۲۰s لازم داشته باشد)")
         # env قابلِ تنظیم، با بازهٔ امن
-        for v, want in ((1200, 1200), (64, 64), (4096, 4096), (10, 600), (99999, 600), ("x", 600)):
+        _dflt = ge.GOV_MAX_TOKENS_DEFAULT
+        for v, want in ((1200, 1200), (64, 64), (4096, 4096),
+                        (10, _dflt), (99999, _dflt), ("x", _dflt)):
             _env(OCTOPUS_GOVERNOR_MAX_TOKENS=v)
             ge = importlib.reload(ge)
             ck(ge._gov_max_tokens() == want,

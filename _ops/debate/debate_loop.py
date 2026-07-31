@@ -122,6 +122,106 @@ def _local_transport():
     return _tr
 
 
+# ─── رأیِ مالک: پایدار و عواقب‌دار (WS-E) ──────────────────────────────────────
+# اندازه‌گیریِ امروز (۲۰۲۶-۰۷-۲۸، از ledger و خودِ صف):
+#   ۲۱ مناظرهٔ تمام‌شده → ۱۳ killed · ۲ survived · ۶ queue-human.
+#   یعنی ۸ نتیجه رأیِ مالک را می‌خواست، و مالک آن ۸ تا را به‌شکلِ **یک عدد** دید:
+#   `organ_dialogue.brain_digest` فقط تعداد + آخرین خطِ بریده‌شده به ۱۲۰ کاراکتر را
+#   داخلِ کارتِ مغز می‌گذاشت. هیچ کارتی، هیچ دکمه‌ای، هیچ راهی برای گفتنِ «نه».
+#
+#   و بدتر: «نه» حتی اگر گفته می‌شد جایی نمی‌نشست. ایدهٔ killed هیچ اثری بر تصمیمِ
+#   بعدی نداشت — همان ایده روی همان موضوع دوباره پیشنهاد می‌شد، چون تنها حافظهٔ این
+#   حلقه فایلِ append-only بود که فقط «قبلاً نوشتم؟» را می‌دانست، نه «مالک چه گفت؟».
+#
+# راهِ حل ــ نه اختراع، وصل‌کردن: بازمانده به همان صفِ واقعیِ تأیید
+# (`telegram_center/approval_store`) می‌رود که مرکزِ فرمان **امروز** با دکمه‌های
+# `ap:ok:<id>` / `ap:no:<id>` رویش رأی می‌گیرد و در `_handle_approval_callback`
+# اجرا می‌کند. شناسه قطعی است (`dbt-<sig>`) پس رأی به **محتوا** بایند می‌شود نه به
+# یک ردیفِ گذرا.
+#
+# ⚠️ مرزِ پروسه — این حلقه approval_store را **نه می‌نویسد و نه import می‌کند**.
+#   قفلِ آن ماژول `threading.RLock` است، یعنی فقط درون‌پروسه‌ای؛ ناوردیِ مستندش
+#   می‌گوید تنها پروسهٔ نویسنده Telegram Center است (گاردِ دائمی:
+#   `tests/S1-05_test_ap_binding.py::t_o_single_consumer_process_invariant`).
+#   این حلقه داخلِ تیکِ organism می‌دود = پروسهٔ دوم؛ یک add_pending از اینجا
+#   می‌توانست approve ِ همان لحظهٔ مالک را بی‌صدا clobber کند (کلِ فایل
+#   read-modify-write می‌شود و هر ۹۴ ردیفِ pending یک‌جا بازنویسی). نسخهٔ اولِ همین
+#   کار دقیقاً همین اشتباه را کرد و آن گارد گرفتش.
+#   پس تقسیمِ کار:
+#     · اینجا (ارگانیسم، تنها نویسندهٔ این فایل): append به `survivors-pending.jsonl`.
+#     · آنجا (مرکز، تنها نویسندهٔ approvals.json): `render.ingest_debate_survivors`
+#       همان فایل را به jobِ واقعیِ دکمه‌دار تبدیل می‌کند.
+#     · و رأی از `state/telegram/approvals/<id>.json` خوانده می‌شود — یک فایل به‌ازای
+#       هر تصمیم که مرکز با os.replace می‌نویسد؛ خواندنش cross-process امن است.
+VERDICT_FLAG = "OCTOPUS_WIRE_DEBATE_VERDICT"
+JOB_TYPE = "debate"
+JOB_PREFIX = "dbt-"
+PENDING_JSONL = opslib.DEBATE_DIR / "survivors-pending.jsonl"
+_VERDICT_MAP = {"ok": "approved", "no": "rejected"}
+_DECIDED = ("approved", "rejected")
+
+
+def _verdict_on() -> bool:
+    return os.environ.get(VERDICT_FLAG) == "1"
+
+
+def _verdict_dir():
+    """همان مسیری که `approval_store.record_legacy_verdict` رویش می‌نویسد —
+    یک فایل به‌ازای هر تصمیم، پس هیچ قفلِ مشترکی لازم نیست."""
+    return opslib.STATE_DIR / "telegram" / "approvals"
+
+
+def survivor_sig(topic_id, idea) -> str:
+    """امضای محتوا: «همین ایده روی همین موضوع». کلیدِ dedup و کلیدِ رأی، یکی."""
+    return hashlib.sha256(f"{topic_id}|{idea}".encode("utf-8")).hexdigest()[:12]
+
+
+def survivor_job_id(sig: str) -> str:
+    """شناسهٔ jobِ صفِ تأیید. عمداً قطعی و مشتق از محتوا: تکرارِ ایده = همان id،
+    پس ingest خودش idempotent می‌شود و رأیِ قبلی پیدا می‌شود."""
+    return f"{JOB_PREFIX}{sig}"
+
+
+def owner_verdict_for(sig: str) -> str:
+    """رأیِ ثبت‌شدهٔ مالک روی یک امضای محتوا.
+
+    خروجی: '' (هنوز رأیی نیامده) | 'approved' | 'rejected'.
+    منبع = فایلِ per-decision که مرکز پس از هر تپِ موفقِ `ap:ok`/`ap:no` می‌نویسد
+    (`record_legacy_verdict`). نه md، نه approvals.json: md فقط می‌داند چه نوشته
+    شده، و approvals.json مالِ پروسهٔ دیگری است."""
+    p = _verdict_dir() / f"{survivor_job_id(sig)}.json"
+    try:
+        if not p.exists():
+            return ""
+        d = json.loads(p.read_text("utf-8"))
+    except (OSError, ValueError):
+        return ""
+    return _VERDICT_MAP.get(str((d or {}).get("verdict") or ""), "")
+
+
+def _publish_survivor(sig: str, topic: dict, muse: dict, status: str) -> str:
+    """ایده را برای مرکز منتشر کن (append-only، تک‌نویسنده = همین پروسه).
+
+    این فایل قرارداد است نه صف: مرکز آن را می‌خواند و به jobِ دکمه‌دار تبدیل
+    می‌کند (`render.ingest_debate_survivors`). چرا jsonl و نه یک json: append
+    هیچ read-modify-write ندارد، پس حتی اگر روزی نویسندهٔ دومی اضافه شود ردیفِ
+    قبلی گم نمی‌شود. risk=medium آگاهانه است — `render._by_priority` مرتب می‌کند و
+    امروز هر ۹۴ jobِ pending ِ زنده risk=high‌اند. fail-soft: شکستِ انتشار هرگز
+    مناظره را نمی‌کشد."""
+    rec = {"id": survivor_job_id(sig), "sig": sig, "type": JOB_TYPE,
+           "title": str(muse.get("idea") or topic.get("text") or "ایدهٔ مناظره")[:160],
+           "risk": "medium", "topic_id": str(topic.get("id") or ""),
+           "debate_status": str(status), "ts": opslib.now_iso()}
+    try:
+        PENDING_JSONL.parent.mkdir(parents=True, exist_ok=True)
+        with PENDING_JSONL.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        return rec["id"]
+    except OSError as e:
+        opslib.alert([f"debate: انتشارِ بازمانده نشد ({type(e).__name__}: {e})"])
+        return ""
+
+
 def _gated_call(client: DeepSeekClient, system: str, user: str,
                 max_tokens: int, task: str) -> dict:
     """reserve → call → settle/release. deny = RuntimeError (fail-closed، بدون mock)."""
@@ -155,18 +255,62 @@ def _queue_survivor(topic: dict, muse: dict, architect: dict, status: str) -> bo
         QUEUE_MD.write_text(
             "# صف تأیید انسان — بازمانده‌های مناظره (append-only)\n\n"
             "> «بازمانده» فقط یعنی وارد این صف شد؛ تأیید = verdict آری.\n\n", "utf-8")
-    # idempotent (§۹): تا وقتی این topic در صف است، append تکراری ممنوع —
-    # وگرنه debateِ هر epoch (~۲۰ دقیقه) صف انسان و ledger را غرق می‌کند.
-    if f"— {topic['id']} ·" in QUEUE_MD.read_text("utf-8"):
-        return False
+    # idempotent (§۹) — ۲۰۲۶-۰۷-۲۸ **بازنویسی شد**، و علتش اندازه‌گیری است:
+    #
+    # نسخهٔ قبلی روی `topic['id']` تنها کلید می‌زد: «تا وقتی این موضوع در صف
+    # است، تکراری ننویس». ولی صف **append-only** است، پس آن شرط هرگز باطل
+    # نمی‌شود — یک‌بار که شناسه‌ای نوشته شد، آن موضوع **برای همیشه** بسته
+    # می‌ماند. و موضوع‌ها یک چرخهٔ ثابتِ شش‌تایی‌اند (seed-2/3، plan-0..3).
+    #
+    # نتیجه‌اش در دادهٔ واقعی: از ۶۰ epochِ اخیر، ۲۸ تا `queue-human` و ۷ تا
+    # `survived` بودند — ۳۵ نتیجه‌ای که رأیِ مالک می‌خواست — و فقط **۴** تا در
+    # صف نشستند. صف از ۰۷-۲۷ ۰۶:۳۱ یخ زد، دقیقاً وقتی آخرین شناسهٔ
+    # استفاده‌نشده مصرف شد. مناظره تمامِ آن مدت **می‌دوید**؛ خروجی‌اش بی‌صدا
+    # دور ریخته می‌شد.
+    #
+    # کلید باید روی **ایده** باشد نه شناسهٔ موضوع: ایدهٔ تازه روی موضوعِ قدیمی
+    # حرفِ تازه است، ولی همان ایده دوباره نه. به‌علاوهٔ یک کفِ زمانیِ هر-موضوع
+    # تا مناظرهٔ هر ~۲۰ دقیقه صف را غرق نکند (~۷۰ ردیف در روز).
+    import datetime as _dt
+    import re as _re
+    _txt = QUEUE_MD.read_text("utf-8")
+    _sig = survivor_sig(topic["id"], muse.get("idea", ""))
+    # ── WS-E: رأیِ مالک عواقب دارد. ────────────────────────────────────────────
+    # این چکِ **اول** است و عمداً پیش از گاردِ فایلی می‌آید: گاردِ فایلی می‌گوید
+    # «قبلاً نوشتم»، این می‌گوید «قبلاً **جواب گرفتم**». دومی بادوام‌تر است — فایلِ
+    # صف ممکن است بچرخد/آرشیو شود، رأی نه. تا امروز چنین چیزی وجود نداشت: ایدهٔ
+    # ردشده دقیقاً به همان راحتیِ ایدهٔ تازه دوباره صف می‌شد.
+    # فلگ خاموش → این بلوک اصلاً اجرا نمی‌شود و رفتار بایت‌به‌بایتِ امروز است.
+    if _verdict_on() and owner_verdict_for(_sig) in _DECIDED:
+        return False                      # مالک رأی داده — دوباره نپرس
+    if f"sig:{_sig}" in _txt:
+        return False                      # همان ایده، قبلاً ثبت شده
+    _cool = float(os.environ.get("OCTOPUS_DEBATE_QUEUE_COOLDOWN_H", "6") or 6)
+    if _cool > 0:
+        _last = None
+        for _m in _re.finditer(r"^## (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})[^\n]*— "
+                               + _re.escape(str(topic["id"])) + r" ·", _txt, _re.M):
+            _last = _m.group(1)
+        if _last:
+            try:
+                _age = (_dt.datetime.now()
+                        - _dt.datetime.fromisoformat(_last)).total_seconds() / 3600.0
+                if _age < _cool:
+                    return False          # همین موضوع تازه ثبت شده — بگذار بنشیند
+            except ValueError:
+                pass
     with QUEUE_MD.open("a", encoding="utf-8") as f:
-        f.write(f"## {opslib.now_iso()} — {topic['id']} · status: {status}\n\n"
+        f.write(f"## {opslib.now_iso()} — {topic['id']} · status: {status} · sig:{_sig}\n\n"
                 f"- **topic** ({topic['source']}): {topic['text']}\n"
                 f"- **idea:** {muse.get('idea', '—')}\n"
                 f"- **why_genius:** {muse.get('why_genius', '—')}\n"
                 f"- **why_insane:** {muse.get('why_insane', '—')}\n"
                 f"- **kill_condition:** {architect.get('kill_condition', '—')}\n"
                 f"- **cheapest_test:** {architect.get('cheapest_test', '—')}\n\n")
+    # ردیفِ md برای انسانِ خواننده است؛ jobِ صف برای انگشتِ مالک. فلگ خاموش → فقط md
+    # (همان چیزی که تا امروز بود: متن بدونِ دکمه).
+    if _verdict_on():
+        _publish_survivor(_sig, topic, muse, status)
     return True
 
 

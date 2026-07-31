@@ -558,8 +558,44 @@ class LiveLoop:
         # lead_effect_gate (effectِ authorize‌شده؛ transport هنوز NOT_ARMED). پس از measurement.
         if mapped == "approved":
             self._fire_lead_effect_hook(meta)
+        # ۲۰۲۶-۰۷-۲۷ — حلقهٔ یادگیری این‌جا **باز** بود. `cortex/improve.py` در خطِ
+        # ۱۹ خودش می‌نویسد «یادگیری: verdictهای مالک روی پیشنهادها دسته‌های ردشده
+        # را جریمه می‌کنند» — ولی `improve.record_verdict` در کلِ مخزن **صفر
+        # صداکننده** داشت، و `state/cortex/improve-verdicts.jsonl` روی دیسکِ زنده
+        # **اصلاً وجود نداشت**. یعنی آن جریمه هرگز حتی یک بار محاسبه نشده بود:
+        # `_load_verdict_penalty()` همیشه {} برمی‌گرداند.
+        #
+        # نتیجه‌اش این بود که مالک هر بار «نه» می‌گفت و همان جنسِ پیشنهاد دوباره
+        # می‌آمد. رأی دیده می‌شد، ولی چیزی از آن یاد گرفته نمی‌شد.
+        self._feed_improve_learner(meta, mapped)
         return self.record_proposal_outcome(meta["proposal_id"], mapped,
                                             source="ari-button", value_aud=value)
+
+    def _feed_improve_learner(self, meta: dict, mapped: str) -> None:
+        """رأیِ مالک → یادگیرندهٔ improve. پشتِ فلگ، fail-soft، فقط سه فعل.
+
+        مرزها: هیچ اجرایی، هیچ پولی، هیچ کدی. تنها اثرش این است که دسته‌ای که
+        مالک ردش کرده، دفعهٔ بعد امتیازِ کمتری بگیرد — یعنی **کمتر پیشنهاد شود**.
+        همچنان propose-only."""
+        import os as _os
+        if str(_os.environ.get("OCTOPUS_WIRE_IMPROVE_LEARN", "")).strip().lower()                 not in ("1", "true", "yes", "on"):
+            return
+        v = {"approved": "accept", "rejected": "reject", "deferred": "later"}.get(mapped)
+        if not v:
+            return
+        try:
+            import sys as _sys
+            from pathlib import Path as _P
+            _c = str(_P(__file__).resolve().parent / "cortex")
+            if _c not in _sys.path:
+                _sys.path.insert(0, _c)
+            import improve as _imp
+            # دسته از خودِ پیشنهاد می‌آید؛ نبودش «unknown» است نه حدس — دستهٔ
+            # حدسی یعنی جریمه‌خوردنِ چیزی که مالک اصلاً ردش نکرده.
+            cat = str(meta.get("category") or meta.get("kind") or "unknown")[:40]
+            _imp.record_verdict(str(meta.get("proposal_id") or ""), cat, v)
+        except Exception:  # noqa: BLE001 — یادگیری هرگز مسیرِ رأی را نمی‌کشد
+            pass
 
     def _fire_lead_effect_hook(self, meta: dict) -> None:
         """D1 (فاز D): رأیِ approve روی یک کارتِ lead → lead_effect_gate (لایهٔ اثر).

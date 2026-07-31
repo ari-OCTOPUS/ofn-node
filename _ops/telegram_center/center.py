@@ -677,6 +677,15 @@ class Center:
                         txt = str(r.render_leg_digest(leg, leg_data) or "")
                     except Exception:  # noqa: BLE001
                         continue
+                    # حقیقتِ Taskهای ۲۴ ساعتِ پا (رأیِ ۰۷-۳۱: گزارشِ روزانه) —
+                    # قراردادِ سکوت سرِ جایش می‌ماند: هر دو خالی ⇒ پیامی نیست.
+                    try:
+                        import leg_tasks as _lt2
+                        _rep = _lt2.daily_report_text(leg, now=now)
+                    except Exception:  # noqa: BLE001
+                        _rep = ""
+                    if _rep:
+                        txt = (txt + "\n\n" + _rep) if txt else _rep
                     if not txt:
                         last[leg] = now                  # چیزی برای گفتن نیست — سررسید جلو
                         dirty = True
@@ -1075,30 +1084,15 @@ class Center:
             pass
         import leg_tasks as _lt
         body = ""
+        # چهار دکمهٔ کارت = همان چهار فرمانِ طبیعی (یک منبع: _exec_leg_command).
         if op == "c":
-            try:
-                import power as _pw
-                ok, why = _pw.resume_leg(leg)
-                body = "▶️ ادامه — پا برگشت." if ok else f"ادامه نشد: {why}"
-            except Exception:  # noqa: BLE001
-                body = "ادامه نشد — power در دسترس نیست."
+            body = self._exec_leg_command("resume", leg)[0]
         elif op == "p":
-            try:
-                import power as _pw
-                ok, why = _pw.pause_leg(leg)
-                body = "⏸ متوقف شد — با «ادامه» برمی‌گردد." if ok else \
-                    f"توقف نشد: {why}"
-            except Exception:  # noqa: BLE001
-                body = "توقف نشد — power در دسترس نیست."
+            body = self._exec_leg_command("pause", leg)[0]
         elif op == "q":
-            rows = _lt.queue(leg)
-            body = ("📋 <b>صفِ " + leg + "</b>\n" + "\n".join(
-                f"· {t['id']} [{t['state']}] {t['text'][:60]}"
-                for t in rows[:10])) if rows else "📋 صف خالی است."
+            body = self._exec_leg_command("queue", leg)[0]
         elif op == "r":
-            done = _lt.recent_done(leg, 5)
-            body = "\n\n".join(_lt.receipt_text(t) for t in done) \
-                if done else "هنوز نتیجه‌ای ثبت نشده."
+            body = self._exec_leg_command("receipts", leg)[0]
         elif op == "s" and tid:
             t = _lt.set_state(leg, tid, _lt.WORKING)
             body = (f"▶️ {tid} شروع شد — نتیجه با رسید می‌آید.") if t else \
@@ -1114,6 +1108,58 @@ class Center:
             pass
         self._refresh_leg_card(leg)
         return {"kind": "leg-task", "op": op, "leg": leg}
+
+    def _exec_leg_command(self, cmd: str, leg: str) -> tuple:
+        """(body, keyboard|None) برای فرمان‌های طبیعیِ leg_commands.COMMANDS.
+
+        هیچ قابلیتِ تازه‌ای نمی‌سازد — نامِ طبیعی به همان مسیرهای ممیزی‌شدهٔ
+        دکمه‌ها می‌رسد (توقف/ادامه از power ِ audit-دار، صف/رسید از
+        leg_tasks). هر کلیدِ COMMANDS این‌جا شاخه دارد؛ تستِ ضدِ دکمهٔ مرده
+        این را قفل می‌کند."""
+        import leg_tasks as _lt
+        if cmd == "status":
+            paused = False
+            try:
+                import power as _pw
+                paused = bool(_pw.leg_paused(leg))
+            except Exception:  # noqa: BLE001
+                pass
+            return _lt.card_text(leg, paused=paused), _lt.card_keyboard(leg)
+        if cmd == "queue":
+            rows = _lt.queue(leg)
+            return (("📋 <b>صفِ " + leg + "</b>\n" + "\n".join(
+                f"· {t['id']} [{t['state']}] {t['text'][:60]}"
+                for t in rows[:10])) if rows else "📋 صف خالی است."), None
+        if cmd == "resume":
+            try:
+                import power as _pw
+                ok, why = _pw.resume_leg(leg)
+                return ("▶️ ادامه — پا برگشت." if ok
+                        else f"ادامه نشد: {why}"), None
+            except Exception:  # noqa: BLE001
+                return "ادامه نشد — power در دسترس نیست.", None
+        if cmd == "pause":
+            try:
+                import power as _pw
+                ok, why = _pw.pause_leg(leg)
+                return ("⏸ متوقف شد — با «ادامه» برمی‌گردد." if ok
+                        else f"توقف نشد: {why}"), None
+            except Exception:  # noqa: BLE001
+                return "توقف نشد — power در دسترس نیست.", None
+        if cmd == "next":
+            t = _lt.start_next(leg)
+            return ((f"▶️ {t['id']} شروع شد — نتیجه با رسید می‌آید.") if t
+                    else "چیزی در صف نیست."), None
+        if cmd == "blockers":
+            return _lt.blockers_text(leg), None
+        if cmd == "receipts":
+            done = _lt.recent_done(leg, 5)
+            return ("\n\n".join(_lt.receipt_text(t) for t in done)
+                    if done else "هنوز نتیجه‌ای ثبت نشده."), None
+        if cmd == "report":
+            rep = _lt.daily_report_text(leg)
+            return (rep or "در ۲۴ ساعتِ گذشته فعالیتی ثبت نشده."), None
+        return "این فرمان را نمی‌شناسم.", None
 
     def _drive_leg_engine(self) -> None:
         """در هر ضربان حداکثر **یک** کارِ WORKING از کلِ پاها به مغزِ
@@ -1397,34 +1443,84 @@ class Center:
                         return self._send_console_reply(_rep, {"message": _mg})
             except Exception:  # noqa: BLE001 — مامورِ شکسته = مسیرِ قبلی، نه سکوت
                 pass
-            # ── مدلِ Task ِ گروهِ پاها (رأیِ مالک ۰۷-۳۰ شب) ─────────────────
-            # «هر پیامِ تو = یک کار برای همان پا.» سؤال همان لحظه از مسیرِ
-            # موجودِ چت جواب می‌گیرد؛ غیرسؤال → TASK ِ صف‌شده + کارتِ
-            # [شروع][لغو]. اجرا فقط بعدِ تپِ «شروع»، در beat، با مغزِ
-            # read-only — هیچ اثرِ بیرونی از گروه ممکن نیست.
+            # ── مدلِ Task ِ گروهِ پاها (رأیِ مالک ۰۷-۳۰ شب + ۰۷-۳۱) ─────────
+            # «هر پیامِ تو = یک کار برای همان پا» — با سه استثنای صریح، به
+            # همین ترتیب: (الف) ریپلای به کارتِ 🚧 = رفعِ مانعِ همان کار؛
+            # (ب) ۹ فرمانِ طبیعیِ نسخهٔ اول (leg_commands، تطابقِ کامل) =
+            # همان اثرِ دکمه‌های ممیزی‌شده؛ (ج) پیشوندِ «به صف اضافه کن».
+            # سؤال همان لحظه از مسیرِ موجودِ چت جواب می‌گیرد؛ باقی → TASK ِ
+            # صف‌شده + کارتِ [شروع][لغو]. اجرا فقط بعدِ تپِ «شروع»، در beat،
+            # با مغزِ read-only — هیچ اثرِ بیرونی از گروه ممکن نیست.
             try:
                 if _d.get("mode") == "leg_scoped" and _d.get("leg"):
                     _mg2 = u.get("message")
                     _tx = str((_mg2 or {}).get("text") or "").strip()
                     if _tx and not _tx.startswith("/"):
+                        import leg_commands as _lc
                         import leg_tasks as _lt
+                        _leg = _d["leg"]
+                        _ch2 = (_mg2.get("chat") or {}).get("id")
+                        _th2 = _mg2.get("message_thread_id")
+                        _rt = str(((_mg2.get("reply_to_message") or {})
+                                   .get("text")) or "")
+                        _cmd = _lc.classify(_tx)
+                        if (_cmd is None and "🚧" in _rt
+                                and not _lt.is_question(_tx)):
+                            _mrt = re.search(r"TASK-\d+", _rt)
+                            _res = (_lt.resolve_blocked(_leg, _mrt.group(0),
+                                                        _tx)
+                                    if _mrt else None)
+                            if _res:
+                                try:
+                                    self._client.send(_scrub(
+                                        f"🔓 مانع {_res['id']} برطرف شد — "
+                                        "ادامه می‌دهم."),
+                                        chat_id=_ch2, topic_id=_th2)
+                                except Exception:  # noqa: BLE001
+                                    pass
+                                self._refresh_leg_card(_leg)
+                                return {"kind": "leg-task-unblock",
+                                        "task": _res["id"], "leg": _leg}
+                        if _cmd is not None:
+                            _b2, _k2 = self._exec_leg_command(_cmd, _leg)
+                            try:
+                                self._client.send(_scrub(_b2), chat_id=_ch2,
+                                                  topic_id=_th2, keyboard=_k2)
+                            except Exception:  # noqa: BLE001
+                                pass
+                            self._refresh_leg_card(_leg)
+                            return {"kind": "leg-cmd", "cmd": _cmd,
+                                    "leg": _leg}
+                        _enq = _lc.strip_enqueue_prefix(_tx)
+                        if _enq is not None:
+                            # «این را» بدونِ متن = پیامِ ریپلای‌شده؛ هیچ‌کدام
+                            # نبود ⇒ صادقانه بپرس، حدس نزن.
+                            _tx = _enq or _rt.strip()
+                            if not _tx:
+                                try:
+                                    self._client.send(_scrub(
+                                        "چه چیزی را به صف اضافه کنم؟ متن را "
+                                        "بنویس یا به پیامش ریپلای کن."),
+                                        chat_id=_ch2, topic_id=_th2)
+                                except Exception:  # noqa: BLE001
+                                    pass
+                                return {"kind": "leg-cmd",
+                                        "cmd": "enqueue-empty", "leg": _leg}
                         if not _lt.is_question(_tx):
-                            _task = _lt.add(_d["leg"], _tx)
+                            _task = _lt.add(_leg, _tx)
                             if _task:
-                                _ch2 = (_mg2.get("chat") or {}).get("id")
-                                _th2 = _mg2.get("message_thread_id")
                                 try:
                                     self._client.send(
                                         _scrub(_lt.intake_text(_task)),
                                         chat_id=_ch2, topic_id=_th2,
                                         keyboard=_lt.intake_keyboard(
-                                            _d["leg"], _task))
+                                            _leg, _task))
                                 except Exception:  # noqa: BLE001
                                     pass
-                                self._refresh_leg_card(_d["leg"])
+                                self._refresh_leg_card(_leg)
                                 return {"kind": "leg-task",
                                         "task": _task["id"],
-                                        "leg": _d["leg"]}
+                                        "leg": _leg}
             except Exception:  # noqa: BLE001 — صفِ شکسته = مسیرِ قبلی، نه سکوت
                 pass
         except Exception:  # noqa: BLE001 — گیتِ شکسته = رفتارِ قبلی، نه سکوت
@@ -2332,6 +2428,52 @@ class Center:
             self._answer(cbq, "کمتر حرف می‌زنم")
             return {"kind": "initiative", "act": "quieter"}
 
+        # ── رأیِ مالک روی درخواستِ ابزار (۲۰۲۶-۰۷-۳۰) ────────────────────────
+        # `tr:y|n|l:<id>` = بگیر/نه/بعداً، و `tr:list` صفِ باز را نشان می‌دهد.
+        # احرازِ مالک از قبل در `handle_update` انجام شده (خطِ ۷۲۴) — غیرمالک
+        # هرگز اینجا نمی‌رسد. «بعداً» عمداً رأی نیست و درخواست را باز می‌گذارد؛
+        # زمانِ انتظار (`wait_s`) از همین تپ محاسبه می‌شود و سنجهٔ «به‌موقع» است.
+        if verb == "tr" and len(parts) >= 2:
+            msg = cbq.get("message") or {}
+            _VERDICTS = {"y": "granted", "n": "denied", "l": "later"}
+            try:
+                import tool_request as _tr
+                if parts[1] == "list":
+                    body, _kb = _tr.card()
+                    toast = "صف"
+                elif parts[1] in _VERDICTS and len(parts) >= 3:
+                    v = _VERDICTS[parts[1]]
+                    r = _tr.answer(_sanitize_id(parts[2]), v)
+                    if not r.get("ok"):
+                        body = f"🧰 نشد: {r.get('reason')}"
+                        toast = "نشد"
+                    elif v == "later":
+                        body = ("🕓 باشد، باز می‌ماند — «بعداً» رأی نیست، پس این "
+                                "درخواست بسته نشد و باز هم یادت می‌آورم.")
+                        toast = "بعداً"
+                    elif v == "granted":
+                        body = ("✅ ثبت شد: بگیر.\n▸ تا وقتی ابزار واقعاً وصل نشود، "
+                                "این فقط یک رأی است نه یک قابلیت.")
+                        toast = "گرفتم"
+                    else:
+                        body = ("❌ ثبت شد: نه.\n▸ جایگزینی که خودش پیشنهاد داده بود "
+                                "را پیش می‌برد.")
+                        toast = "نه"
+                    if r.get("wait_s") is not None:
+                        body += f"\n<i>زمانِ انتظار: {int(r['wait_s'] // 60)} دقیقه</i>"
+                else:
+                    body, toast = "🧰 دستورِ نامعتبر.", "نامعتبر"
+            except Exception:  # noqa: BLE001 — مسیرِ callback هرگز نمی‌میرد
+                body, toast = "🧰 نشد.", "نشد"
+            try:
+                self._client.send(_scrub(body),
+                                  chat_id=(msg.get("chat") or {}).get("id"),
+                                  topic_id=self._reply_thread(msg))
+            except Exception:  # noqa: BLE001
+                pass
+            self._answer(cbq, toast)
+            return {"kind": "tool_request", "act": parts[1]}
+
         # `x:c:<key>` یک کارت را باز می‌کند، `x:p:<n>` صفحهٔ فهرست را عوض.
         # هر دو فقط‌خواندنی‌اند و هیچ چیزی را اجرا نمی‌کنند.
         if verb == "x" and len(parts) >= 3:
@@ -2895,7 +3037,8 @@ class Center:
         # می‌سنجید نه مسیرِ dispatch را — همان «سبز به‌خاطرِ نبودِ خطا».
         # گاردِ `t_every_emitted_callback_verb_is_routed` حالا هر فعلی را که کد
         # تولید می‌کند با همین جدول تطبیق می‌دهد.
-        if verb in ("mn", "lg", "pw", "pwc", "ng", "mr", "qt", "iv", "dg", "x"):
+        if verb in ("mn", "lg", "pw", "pwc", "ng", "mr", "qt", "iv", "dg", "x",
+                    "tr"):
             return self._handle_center_callback(cbq, data)
         if verb == "map":
             return self._handle_map_callback(cbq, data)

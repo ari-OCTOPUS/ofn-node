@@ -210,6 +210,50 @@ def _reply_thread_id(upd):
         return None
 
 
+def load_surface_policy():
+    """ماژولِ سیاستِ سطح، از **هر** پروسه‌ای. `None` یعنی واقعاً نبود.
+
+    ۲۰۲۶-۰۷-۲۸، ممیزیِ متخاصم: `import surface_policy` لختِ داخلِ مسیرِ ارسال
+    فقط در پروسهٔ **مرکز** کار می‌کرد، چون آن‌جا `_ops/telegram_center` تصادفاً
+    `sys.path[0]` است. از `organism` و `cortex` و `live` غایب بود → `except` →
+    مسیرِ قدیمی. چون fallback درست کار می‌کرد، هیچ خطایی دیده نمی‌شد: سیاست از
+    یک پروسه اعمال می‌شد و از سه تای دیگر بی‌صدا رد. همان الگویی که در حافظه
+    «ساعتِ نیمه‌تزریقی» ثبت شده — نصف تزریق، دوپاره‌رفتار، صفر خطا.
+
+    تابعِ سطحِ ماژول است تا **رفتارش** سنجیده شود؛ گاردِ متنی (grepِ دو خط کنارِ
+    هم) دقیقاً همان چیزی است که این باگ ازش رد شد."""
+    import sys as _s
+    from pathlib import Path as _P
+    _tgc = str(_P(__file__).resolve().parent.parent / "telegram_center")
+    if _tgc not in _s.path:
+        _s.path.insert(0, _tgc)
+    try:
+        import surface_policy as _sp
+        return _sp
+    except Exception:  # noqa: BLE001 — سیاست هرگز مسیرِ ارسال را نمی‌کشد
+        return None
+
+
+def _topic_by_key(key) -> tuple:
+    """(chat_id, topic_id) از کلیدِ اتاق — یا (None, None).
+
+    ۲۰۲۶-۰۷-۲۸ — `_stream_route` همین کار را می‌کند ولی با کلیدِ **جریان**.
+    سیاستِ سطحِ نسخهٔ ۲ کلیدِ **اتاق** می‌دهد (چون یک پا ممکن است چند جریان
+    داشته باشد)، پس همان جست‌وجو با ورودیِ دیگر لازم است. هر شکستی →
+    (None, None) و صداکننده به مسیرِ قدیمی برمی‌گردد؛ هرگز سکوت."""
+    if not key:
+        return (None, None)
+    try:
+        cfg = json.loads(_center_cfg_path().read_text("utf-8"))
+        chat = cfg.get("chat_id")
+        tid = (cfg.get("topics") or {}).get(str(key))
+        if isinstance(chat, int) and isinstance(tid, int):
+            return (chat, tid)
+    except (OSError, ValueError, TypeError, AttributeError):
+        pass
+    return (None, None)
+
+
 def _stream_route(stream: str) -> tuple:
     """(chat_id, topic_id) برای یک جریان — یا (None, None).
 
@@ -296,6 +340,20 @@ def _mask_token(tok: str) -> str:
     if not tok:
         return "∅"
     return (tok[:4] + "…") if len(tok) > 4 else "…"
+
+
+# ⚠️ نسخهٔ حداقلیِ **مستقل** از الگوهای سختِ INV-12 — هم‌راستا با live/server.py.
+# عمداً تکرار شده: این کانال مسیرِ عبورِ توکنِ بات تلگرام است، پس الگوهای سختِ
+# INV-12 باید به‌صورتِ مستقل (نه فقط از طریقِ cockpit_readmodel) این‌جا هم موجود
+# باشند. الگوها باید با cockpit_readmodel.HARD_SECRET_PATTERNS هم‌راستا بمانند —
+# تستِ test_trajectory_log.t_the_fallback_redactors_match_the_real_one این را قفل
+# می‌کند. این لایه fail-closedِ #131 را جای نمی‌گیرد؛ مسیرِ فعال در _redact همچنان
+# fail-closed است و این ثابت صرفاً هم‌راستاییِ الگوها را دیداری/قابلِ‌تست می‌کند.
+_FALLBACK_SECRET = (
+    r"\d{8,12}:AA[A-Za-z0-9_-]{30,}",      # توکن بات تلگرام
+    r"sk-[A-Za-z0-9_-]{20,}",               # کلیدهای sk-*
+    r"-----BEGIN [A-Z ]*KEY",               # PEM
+)
 
 
 def _url_json_get(url: str, timeout_s: float) -> dict:
@@ -829,7 +887,11 @@ class TelegramApprovalChannel(ApprovalChannel):
     # C7.2: سیاستِ مرکزیِ callback. هر scheme که state/ledger/effect/control را تغییر می‌دهد
     # فقط با هویتِ واقعیِ مالک مجاز است. navigation/read-only می‌تواند در گروه allowlisted خوانده شود.
     _MUTATING_CALLBACK_SCHEMES = frozenset({
-        "app", "rfc", "home", "act", "rev", "jrn", "acct", "prop"
+        "app", "rfc", "home", "act", "rev", "jrn", "acct", "prop",
+        # `tr` رأیِ مالک روی درخواستِ ابزار است — دفتر را می‌نویسد و درخواست را
+        # می‌بندد، پس mutation است و fail-closed می‌ماند. (`iv` اینجا نیست چون
+        # خودخفه‌کردنِ بی‌خطر است، ولی «بگیر/نه» یک تصمیم است.)
+        "tr",
     })
     _MUTATING_MENU_PAGES = frozenset({"stop_confirm", "learned"})
 
@@ -880,6 +942,34 @@ class TelegramApprovalChannel(ApprovalChannel):
                         "▸ نکنی: همین‌قدر می‌ماند.")
             except Exception:  # noqa: BLE001
                 return "🔇 نشد."
+        # ── درخواستِ ابزار (۲۰۲۶-۰۷-۳۰) ─────────────────────────────────────
+        # کارتش را `organism.py` از همین بات می‌فرستد، پس کلیک هم به همین بات
+        # برمی‌گردد — و طبقِ درسِ `iv:q`، handler باید در **هر دو** روتر باشد،
+        # وگرنه دکمه ساخته و فرستاده و کلیک می‌شود و به هیچ‌جا نمی‌رسد.
+        if parts[0] == "tr" and len(parts) > 1:
+            try:
+                import tool_request as _tr   # noqa: WPS433 — lazy
+                if parts[1] == "list":
+                    return _tr.card()[0]
+                _V = {"y": "granted", "n": "denied", "l": "later"}
+                if parts[1] not in _V or len(parts) < 3:
+                    return "🧰 دستورِ نامعتبر."
+                _rid = re.sub(r"[^0-9a-f]", "", str(parts[2]))[:32]
+                r = _tr.answer(_rid, _V[parts[1]])
+                if not r.get("ok"):
+                    return f"🧰 نشد: {r.get('reason')}"
+                if _V[parts[1]] == "later":
+                    return ("🕓 باشد، باز می‌ماند — «بعداً» رأی نیست، پس این "
+                            "درخواست بسته نشد.")
+                _w = (f"\nزمانِ انتظار: {int(r['wait_s'] // 60)} دقیقه"
+                      if r.get("wait_s") is not None else "")
+                if _V[parts[1]] == "granted":
+                    return ("✅ ثبت شد: بگیر.\n▸ تا وقتی ابزار واقعاً وصل نشود، "
+                            "این فقط یک رأی است نه یک قابلیت." + _w)
+                return ("❌ ثبت شد: نه.\n▸ جایگزینی که خودش پیشنهاد داده بود را "
+                        "پیش می‌برد." + _w)
+            except Exception:  # noqa: BLE001
+                return "🧰 نشد."
         if parts[0] == "menu":
             return self._dispatch_menu(parts)
         if parts[0] == "home":              # جلسه ۴۶: آره/نهِ خانهٔ ساده
@@ -1512,7 +1602,39 @@ class TelegramApprovalChannel(ApprovalChannel):
             # خودش می‌آید؛ نگه‌داشتنش فقط رگبارِ صبحگاهی می‌سازد.
             if _quiet_now() and str(stream) not in _NEVER_QUIET:
                 return False
-            r_chat, r_topic = _stream_route(stream)
+            # ── سطحِ نسخهٔ ۲ (رأیِ مالک ۲۰۲۶-۰۷-۲۸) ─────────────────────────
+            # «گروه = پاها · یک چتِ خصوصی برای خودآگاهی · بقیه جای دیگر» و
+            # «فقط وقتی واقعاً به من نیاز داری حرف بزن».
+            # اندازه‌گیری‌ای که این را ساخت: از ۱۷۶ ارسالِ دو روز، ۶۲٪ در General
+            # افتاده بود و ۷ تاپیکِ بیزنسی هرکدام **یک** پیام داشتند (کارتِ
+            # ساخته‌شدنشان). گروه در عمل لولهٔ سروصدای سیستم بود.
+            # جریانِ محیطیِ بی‌مقصد **ثبت** می‌شود و فرستاده نمی‌شود — سکوت
+            # نباید فراموشی باشد، وگرنه بعداً نمی‌شود سنجید که درست بوده یا نه.
+            # ایمنی (cortisol/alert) هرگز نگه داشته نمی‌شود. فلگ خاموش = no-op.
+            _policy = None
+            try:
+                _sp = load_surface_policy()   # از هر پروسه‌ای، نه فقط مرکز
+                if _sp is not None:
+                    _dest, _key = _sp.route(stream)
+                    if _dest == _sp.HOLD:
+                        _sp.hold(stream, text)
+                        return False
+                    _policy = (_dest, _key)
+            except Exception:  # noqa: BLE001 — سیاست هرگز مسیرِ ارسال را نمی‌کشد
+                pass
+            # ۲۰۲۶-۰۷-۲۸ (اصلاحِ همان روز) — نسخهٔ اول فقط شاخهٔ HOLD را سیم کرده
+            # بود. اندازه‌گیریِ زنده سه دقیقه بعد از ری‌استارت نشانش داد: `needs`
+            # درست نگه داشته شد، ولی `discovery` — که طبقِ رأیِ مالک باید به چتِ
+            # خصوصی برود — به تاپیکِ گروه رفت، چون مسیرِ قدیمی همچنان تصمیم
+            # می‌گرفت. سیاست جوابِ درست را می‌داد و کسی نمی‌خواندش.
+            if _policy and _policy[0] == "dm":
+                r_chat, r_topic = (None, None)            # چتِ خصوصیِ مالک
+            elif _policy and _policy[0] == "group":
+                r_chat, r_topic = _topic_by_key(_policy[1])
+                if r_chat is None:
+                    r_chat, r_topic = _stream_route(stream)   # اتاق نبود → مسیرِ قدیمی
+            else:
+                r_chat, r_topic = _stream_route(stream)
             if r_chat is not None and r_topic is not None:
                 target, thread = r_chat, r_topic
         text = self._redact(text)   # Cockpit v2 · INV-12: هر خروجی از پاسِ redaction می‌گذرد
@@ -1637,6 +1759,11 @@ class TelegramApprovalChannel(ApprovalChannel):
         if t in ("/overview", "/blueprint", "/brain", "/doctor", "/money",
                  "/finance", "/school", "/safety", "/alerts", "/organs"):
             return self._render_tab(t[1:])
+        # `/organs <slug>` — کارتِ یک اندام. عمداً **قبل از** بقیه و به‌شکلِ
+        # prefix، چون `/organs` تنها بالاتر با تطابقِ دقیق گرفته شده و آرگومان‌دارش
+        # تا امروز از همه‌جا رد می‌شد و به `return None` می‌رسید: سکوت.
+        if t.startswith("/organs "):
+            return self._organ_text(t[len("/organs "):])
         if t == "/upgrades":
             return self._upgrades_text()
         if t == "/queue":
@@ -2938,15 +3065,25 @@ class TelegramApprovalChannel(ApprovalChannel):
         ۲۰۲۶-۰۷-۲۸ — blindspot #131 (CRITICAL): قبلاً fallbackِ محلی فقط ۳ الگو
         داشت و هر الگوی جدیدی که به cockpit_readmodel اضافه می‌شد در لایهٔ افتاده
         نمی‌گرفت → متنِ خام نشت می‌کرد. حالا fail-**closed**: هر خطایی = بدنهٔ
-        قرمز (چه secret باشد چه نباشد). محافظِ افتاده → محتوا هم حذف می‌شود."""
+        قرمز (چه secret باشد چه نباشد). محافظِ افتاده → محتوا هم حذف می‌شود.
+        ۲۰۲۶-۰۷-۲۸ (همان‌روز، رأیِ مالک): ثابتِ `_FALLBACK_SECRET` برگشت — نه
+        به‌عنوانِ مسیرِ فعال (fail-closed سخت‌گیرانه‌تر به‌تنهایی کافی است و
+        placeholder آن دست‌نخورده ماند)، بلکه به‌عنوانِ **هم‌راستاییِ صریح** با
+        الگوهای سختِ INV-12. این کانال، مسیرِ عبورِ توکنِ بات تلگرام است؛
+        داشتنِ الگوهای مستقل در کنارِ هم (هم‌تراز با live/server.py) ضمانتِ
+        دیداری می‌دهد که هیچ‌کدام از این رازها حتی در لایهٔ افتاده ناشناخته
+        نمانند. تستِ test_trajectory_log.t_the_fallback_redactors_match_the_real_one
+        این هم‌راستایی را قفل می‌کند."""
         try:
             import cockpit_readmodel as _crm
             return _crm.redact(text)
         except Exception as e:  # noqa: BLE001 — blindspot #131: fail-closed
             opslib.alert([f"INV-12 redaction FAIL-CLOSED (blindspot #131): "
                           f"{type(e).__name__}: {e} — متنِ خام نشت نشد"])
-            # هیچ fallbackِ محلی — الگوهای محلی incomplete هستند؛
-            # هرگونه نشت ناقضِ INV-12 است. کلِ بدنه حذف می‌شود.
+            # الگوهای مستقل در _FALLBACK_SECRET موجود‌اند (دفاعِ در عمق، هم‌راستا
+            # با server.py)، ولی در این مسیرِ fail-closed شکارِ اضافی نمی‌کنیم:
+            # placeholder یکسان (مستقل از اینکه الگوی سخت بود یا نه) ساده‌ترین
+            # و امن‌ترین خروجی است — هرگز متنِ خام بیرون نمی‌رود.
             return "[redacted: error in scrub layer]"
 
     def _redact_pii(self, text: str) -> str:
@@ -3487,6 +3624,72 @@ class TelegramApprovalChannel(ApprovalChannel):
         lines.append(f"🟢 فعالِ built-in: {on}/{len(self.ORGANS)} · 🆕 owner-ساخت: {len(customs)}")
         lines.append("<i>فعال/غیرفعال: دکمه‌ها (تأییدِ دومرحله‌ای، بوتِ بعدی) · 🩺 دکتر.\n"
                      "ساختِ اندامِ نو: <code>/neworgan &lt;نام&gt;</code> سپس <code>/organ-approve</code>.</i>")
+        return "\n".join(lines)
+
+    def _organ_text(self, slug: str) -> str:
+        """🦾 کارتِ **یک** اندام. `/organs crypto`
+
+        چرا این به‌جای سه فرمانِ تازه (۲۰۲۶-۰۷-۲۸، رأیِ مالک «گروه و پاها همه‌رو
+        اتصالات رو کدنویسی کن»): از ۷ اندامِ ثبت‌شده، سه‌تا — `cartographer`
+        `crypto` `knowledge` — **هیچ فرمانی نداشتند**. در گروه تاپیک داشتند، در
+        رجیستری بودند، و هیچ راهی به آن‌ها نبود. راهِ ساده ساختنِ سه فرمانِ تازه
+        بود، ولی مالک همان روز گفته بود «خلوتش کنیم … کم ولی سازنده». پس یک
+        آرگومان به فرمانِ موجود اضافه شد: صفر سطحِ تازه، و **هر هفت** اندام
+        یک‌جا قابلِ آدرس‌دهی شدند نه فقط آن سه‌تا.
+
+        همان قانونِ راست‌گوییِ `_organs_text`: 🟢 فقط برای فلگِ واقعاً روشن؛
+        اندامِ بی‌داده ⚪ اسکلت است، نه سبز.
+        """
+        slug = str(slug or "").strip().lower()
+        table = {k: (lbl, env, kind) for k, lbl, env, kind in self.ORGANS}
+        if slug not in table:
+            known = " · ".join(f"<code>{k}</code>" for k in table)
+            return ("🦾 <b>اندامی به این نام نیست</b>\n"
+                    f"▸ هست: {known}\n"
+                    "<i>فهرستِ کامل: <code>/organs</code></i>")
+        label, env, kind = table[slug]
+        if env:
+            is_on = self._current_flag(env)
+            fstate = "🟢 روشن" if is_on else "⚪ خاموش"
+        else:
+            is_on, fstate = True, "◽ همیشه‌روشن"
+        # دادهٔ زنده از همان منبعی که کارتِ جمعی می‌خواند — دو منبع = دو حقیقت.
+        cell, rm = None, self._rm()
+        if rm is not None:
+            try:
+                bl = (rm.read_state() or {}).get("business_legs") or {}
+                if isinstance(bl.get("business_legs"), dict):
+                    bl = bl["business_legs"]
+                cell = bl.get(slug) if isinstance(bl, dict) else None
+            except Exception:  # noqa: BLE001 — کارت هرگز به‌خاطرِ read-model نمی‌میرد
+                cell = None
+        if isinstance(cell, dict):
+            note = str(cell.get("signal") or cell.get("note") or "")[:80]
+            live_txt = ("🟢 زنده" if cell.get("live") else "⚪ اسکلت")
+            if note:
+                live_txt += f" — {html.escape(note)}"
+        elif env and is_on:
+            live_txt = "روشن، ولی هنوز داده‌ای نرسیده"
+        elif env:
+            live_txt = "خاموش"
+        else:
+            live_txt = "—"
+        lines = [self._hdr(f"{label}"),
+                 f"وضعیت: {fstate} · {live_txt}",
+                 f"نوع: {html.escape(kind)}"]
+        if env:
+            lines.append(f"فلگ: <code>{html.escape(env)}</code>")
+        # اتاقش در گروه — اگر تاپیک ندارد، همین‌جا گفته می‌شود نه اینکه بی‌صدا
+        # در General بیفتد (۶۲٪ ارسال‌های دو روز همان‌جا افتاده بود).
+        try:
+            import json as _json
+            cfg = _json.loads(_center_cfg_path().read_text("utf-8"))
+            has_topic = slug in (cfg.get("topics") or {})
+            lines.append("اتاقِ گروه: " + ("✅ دارد" if has_topic else "⚠️ ندارد"))
+        except Exception:  # noqa: BLE001
+            pass
+        lines.append(self._DIV.strip())
+        lines.append("<i>همهٔ اندام‌ها: <code>/organs</code></i>")
         return "\n".join(lines)
 
     # ── 💰 دارایی‌ها/حساب — نظارتِ داراییِ کل + دفترِ شخصی/مشترک (فقط‌خواندنی) ────────

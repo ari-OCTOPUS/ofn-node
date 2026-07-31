@@ -127,6 +127,65 @@ def t_queue_idempotent_per_topic():
     assert props_after == props_before, "PROPOSAL تکراری برای topic هنوز-در-صف"
 
 
+# ─── ۲۰۲۶-۰۷-۲۸: کلیدِ idempotency روی ایده، نه شناسهٔ موضوع ────────────
+# صفِ بازمانده‌ها ۳۴ ساعت یخ زده بود و مناظره تمامِ آن مدت **می‌دوید**. علت:
+# گارد روی `topic['id']` تنها کلید می‌زد و صف append-only است، پس یک‌بار که
+# شناسه‌ای نوشته می‌شد آن موضوع **برای همیشه** بسته می‌ماند — و موضوع‌ها یک
+# چرخهٔ ثابتِ شش‌تایی‌اند.
+#
+# اندازه‌گیریِ دادهٔ واقعی (۶۰ epochِ اخیر): ۲۸ `queue-human` + ۷ `survived`
+# = ۳۵ نتیجه‌ای که رأیِ مالک می‌خواست، و فقط **۴** تا در صف نشستند.
+# کلید باید روی **ایده** باشد: ایدهٔ تازه روی موضوعِ قدیمی حرفِ تازه است.
+
+def _q(idea, topic_id="plan-9", status="survived"):
+    return debate_loop._queue_survivor(
+        {"id": topic_id, "source": "test", "text": "t"},
+        {"idea": idea}, {"kill_condition": "k", "cheapest_test": "c"}, status)
+
+
+def t_a_new_idea_on_an_old_topic_reaches_the_queue():
+    """قلبِ فیکس — نسخهٔ قبلی اینجا برای همیشه False می‌داد."""
+    old = os.environ.get("OCTOPUS_DEBATE_QUEUE_COOLDOWN_H")
+    os.environ["OCTOPUS_DEBATE_QUEUE_COOLDOWN_H"] = "0"
+    try:
+        assert _q("ایدهٔ الف") is True
+        assert _q("ایدهٔ ب") is True, "ایدهٔ تازه روی همان موضوع صف نشد"
+    finally:
+        if old is None:
+            os.environ.pop("OCTOPUS_DEBATE_QUEUE_COOLDOWN_H", None)
+        else:
+            os.environ["OCTOPUS_DEBATE_QUEUE_COOLDOWN_H"] = old
+
+
+def t_the_same_idea_is_never_queued_twice():
+    """مرزِ مقابل: تکرار نباید صف را غرق کند."""
+    old = os.environ.get("OCTOPUS_DEBATE_QUEUE_COOLDOWN_H")
+    os.environ["OCTOPUS_DEBATE_QUEUE_COOLDOWN_H"] = "0"
+    try:
+        _q("ایدهٔ تکراری", topic_id="plan-8")
+        assert _q("ایدهٔ تکراری", topic_id="plan-8") is False
+    finally:
+        if old is None:
+            os.environ.pop("OCTOPUS_DEBATE_QUEUE_COOLDOWN_H", None)
+        else:
+            os.environ["OCTOPUS_DEBATE_QUEUE_COOLDOWN_H"] = old
+
+
+def t_the_cooldown_bounds_the_queue():
+    """مناظره هر ~۲۰ دقیقه می‌دود؛ بدونِ کف، ~۷۰ ردیف در روز می‌سازد."""
+    old = os.environ.get("OCTOPUS_DEBATE_QUEUE_COOLDOWN_H")
+    os.environ["OCTOPUS_DEBATE_QUEUE_COOLDOWN_H"] = "6"
+    try:
+        _q("اولی", topic_id="plan-7")
+        assert _q("دومیِ کاملاً متفاوت", topic_id="plan-7") is False, \
+            "کفِ زمانی رعایت نشد"
+    finally:
+        if old is None:
+            os.environ.pop("OCTOPUS_DEBATE_QUEUE_COOLDOWN_H", None)
+        else:
+            os.environ["OCTOPUS_DEBATE_QUEUE_COOLDOWN_H"] = old
+
+
 def t_local_brain_real_debate_and_stub_fallback():
     """DEFECT-W4: با فلگ، مناظره باید از مغزِ محلی بیاید (stub=False، tier=local)؛
     مغزِ خاموش = برگشتِ بایت‌به‌بایت به stub. بدونِ شبکه (local_llm.ask مونکی‌پچ)."""
@@ -187,5 +246,8 @@ if __name__ == "__main__":
         ("صف/PROPOSAL per-topic idempotent (§۹)", t_queue_idempotent_per_topic),
         ("مغزِ محلیِ $۰ → مناظرهٔ واقعی؛ خاموش → stub", t_local_brain_real_debate_and_stub_fallback),
         ("چرخشِ موضوع (تکرارِ ابدیِ seed-3 ممنوع)", t_topic_rotation_not_frozen),
+        ("ایدهٔ تازه روی موضوعِ قدیمی صف می‌شود", t_a_new_idea_on_an_old_topic_reaches_the_queue),
+        ("همان ایده دوبار صف نمی‌شود", t_the_same_idea_is_never_queued_twice),
+        ("کفِ زمانی صف را غرق نمی‌گذارد", t_the_cooldown_bounds_the_queue),
     ])
     sys.exit(1 if failed else 0)

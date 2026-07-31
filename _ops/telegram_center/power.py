@@ -125,7 +125,46 @@ def resume_leg(key: str) -> tuple[bool, str]:
 EMERGENCY_ACTIONS = frozenset({"panic", "stop", "resume-all"})
 
 
+def _isolation_mismatch() -> str:
+    """آیا این پروسه *ادعای* ایزوله‌بودن دارد ولی نشانگر در درختِ **زنده** می‌افتد؟
+
+    حادثهٔ ۲۰۲۶-۰۷-۲۸: یک پروب `power` را بعد از ماژولِ دیگری import کرد، وقتی
+    `opslib` از قبل با مسیرهای زنده لود شده بود. پنج تابعِ قدرت در یک ثانیه صدا
+    زده شدند و `stop_organism()` یک `STOP-ORGANISM` واقعی نوشت. ارگانیسم و مرکز
+    ۳۰ دقیقه خوابیدند و مالک باید دستی فایل را پاک می‌کرد.
+
+    `harness.setup` درست کار می‌کند وقتی **اول** صدا زده شود؛ شکست وقتی است که
+    `opslib` زودتر بایند شده باشد. آن ناسازگاری دقیقاً همین‌جا قابلِ دیدن است:
+    `ORG_ROOT` به temp اشاره می‌کند و نشانگر جای دیگری می‌افتد.
+
+    ⚠️ در هر ابهامی رشتهٔ خالی برمی‌گرداند، یعنی **اجازه**. این عمدی است: بستنِ
+    ترمزِ اضطراریِ واقعی بدتر از یک نشانگرِ سرگردان است. گارد فقط حالتی را رد
+    می‌کند که خودش قابلِ اثبات باشد.
+    """
+    try:
+        import os as _os
+        from pathlib import Path as _P
+        root = str(_os.environ.get("ORG_ROOT", "") or "").strip()
+        if not root:
+            return ""                      # ادعای ایزوله‌بودن نیست → تولید
+        claimed = _P(root).resolve()
+        target = _P(opslib.STOP_ORGANISM).resolve()
+        if claimed == target or claimed in target.parents:
+            return ""                      # سازگار
+        return f"ORG_ROOT={claimed} ولی نشانگر در {target} می‌افتد"
+    except Exception:  # noqa: BLE001 — گاردِ خراب هرگز ترمز را نمی‌بندد
+        return ""
+
+
 def _deny_if_off(action: str) -> "tuple[bool, str] | None":
+    # ناسازگاریِ ایزوله‌سازی قبل از هر چیز — حتی قبل از ترمزِ اضطراری. اگر پروسه
+    # فکر می‌کند در sandbox است، هیچ عملی نباید به درختِ زنده برسد؛ «اضطراری»
+    # بودنِ عمل این را عوض نمی‌کند، چون آن اضطرار هم ساختگی است.
+    _mm = _isolation_mismatch()
+    if _mm:
+        _audit(action, False, "isolation-mismatch")
+        return False, ("🧪 ایزوله‌سازیِ ناسازگار — این پروسه ادعای sandbox دارد "
+                       f"ولی نشانگر به درختِ زنده می‌رفت. ({_mm})")
     if action in EMERGENCY_ACTIONS:
         return None   # ترمزِ اضطراری هرگز قفل نیست (فقط-مالک + دوکلیک در center)
     if not power_on():

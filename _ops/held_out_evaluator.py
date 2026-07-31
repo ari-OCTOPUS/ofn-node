@@ -89,16 +89,18 @@ def verify_ledger_chain(ledger_path: Path | str | None = None) -> dict:
         ledger_path = Path(ledger_path)
 
     # اگر مسیر وجود ندارد → skip (نه fail — تست آفلاین)
-    if not ledger_path.is_dir():
-        return {"valid": None, "broken_at": None,
-                "details": "ledger directory not found (skipped)"}
-
+    # v0.4.7 + verdict 2026-07-28: هر دو حالتِ «دایرکتوری غایب» و «دایرکتوری
+    # هست ولی ledger.py/jsonl داخلش نیست» به‌یک‌سان skip می‌شوند (valid=None).
+    # دلایل: (۱) آفلاین/CI معمولاً ledger ندارد — fail-closedِ سختْ ارزیابی را
+    # بی‌دلیل قرمز می‌کرد و anti_hacking_flag را کاذب روشن می‌کرد؛ (۲) روی
+    # ویندوز Path("/x").is_dir() برای ریشهٔ drive هویتِ گمراه‌کننده‌ای دارد،
+    # پس معیارِ واقعیِ «ledger هست» وجودِ خودِ فایل‌هاست، نه دایرکتوری‌بودن.
+    # valid=False فقط برای tamper/chain-broken واقعی محفوظ می‌ماند (پایین‌تر).
     ledger_py = ledger_path / "ledger.py"
     ledger_db = ledger_path / "ledger.jsonl"
-
-    if not ledger_py.is_file() or not ledger_db.is_file():
-        return {"valid": False, "broken_at": None,
-                "details": "ledger files not found"}
+    if not (ledger_py.is_file() and ledger_db.is_file()):
+        return {"valid": None, "broken_at": None,
+                "details": "ledger files not found (skipped)"}
 
     # ledger.py را از طریق CLI subprocess صدا بزن (avoid import side-effects)
     # v0.4.7 + verdict default-applied 2026-07-10 (قابل‌وتو، AGENT_QUESTIONS):

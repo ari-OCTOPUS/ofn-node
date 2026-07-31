@@ -57,13 +57,40 @@ if flags_path.exists():
     check(b"\n" not in raw.replace(b"\r\n", b""), "flags.cmd نباید lone-LF داشته باشد")
     check(b"\r\r\n" not in raw, "flags.cmd نباید CRCRLF داشته باشد (تبدیل دوبارهٔ CRLF)")
     text = raw.decode("utf-8", errors="replace")
+    # ۲۰۲۶-۰۷-۲۷ — این بلوک قبلاً `== "0"` را هاردکد می‌کرد. وقتی مالک تصمیمش را
+    # عوض کرد («همه رو بزن»)، گارد **دائماً** قرمز شد. و تستِ همیشه‌قرمز خودش یک
+    # نقص است: آدم را عادت می‌دهد قرمز را نادیده بگیرد، و آن‌وقت رگرسیونِ واقعی
+    # پشتِ همان قرمزِ «انتظاری» پنهان می‌شود.
+    #
+    # پس مرجع عوض شد، نه سخت‌گیری: به‌جای عددِ ثابت، اعلامیهٔ ثبت‌شدهٔ مالک.
+    # این **سخت‌گیرتر** است — نسخهٔ قبلی فقط driftِ صفر←یک را می‌گرفت؛ این هر
+    # اختلافِ استقرار↔تصمیم را در **هر دو جهت** می‌گیرد، و هر ردیفِ اعلامیه
+    # بدونِ شاهدِ تصمیمِ مالک خودش قرمز است.
+    import json as _json
+    decl_path = _OPS / "PAID-FLAGS-DECLARATION.json"
+    check(decl_path.exists(), "PAID-FLAGS-DECLARATION.json باید وجود داشته باشد")
+    decl = {}
+    if decl_path.exists():
+        try:
+            decl = (_json.loads(decl_path.read_text("utf-8")) or {}).get("flags") or {}
+        except ValueError:
+            check(False, "اعلامیهٔ فلگ‌های پولی JSONِ معتبر نیست")
     for name in ("OCTOPUS_WIRE_C6_PRODUCER", "OCTOPUS_GOVERNOR_USE_ROUTER",
                  "OCTOPUS_HEART_DOCTOR_USE_ROUTER", "OCTOPUS_DOCTOR_SELFKNOW_PAID"):
+        row = decl.get(name) or {}
+        want = str(row.get("expected", "")).strip()
+        check(want in ("0", "1"), f"{name} در اعلامیه نیست یا مقدارش نامعتبر است")
+        # فلگی که «روشن» اعلام شده ولی شاهدِ تصمیمِ مالک ندارد، اعلامیه نیست —
+        # حدس است. بدونِ این شرط، این فایل تبدیل می‌شد به دری برای دورزدنِ گارد.
+        if want == "1":
+            ev = str(row.get("evidence", "")).strip()
+            check(len(ev) >= 20, f"{name} روشن اعلام شده ولی شاهدِ تصمیمِ مالک ندارد")
         # فقط assignment واقعی را بسنج؛ comment/substrings مثل «NAME=1 برای فعال‌سازی»
-        # پیکربندی نیستند. آخرین assignment مؤثر باید دقیقاً 0 باشد.
+        # پیکربندی نیستند. آخرین assignment مؤثر باید با اعلامیه بخواند.
         vals = re.findall(rf"(?im)^\s*(?:set\s+)?{re.escape(name)}\s*=\s*([01])\s*$", text)
         check(bool(vals), f"{name} باید assignment صریح داشته باشد")
-        check(bool(vals) and vals[-1] == "0", f"{name} آخرین assignment باید صفر باشد: {vals}")
+        check(bool(vals) and vals[-1] == want,
+              f"{name}: استقرار={vals} ولی تصمیمِ ثبت‌شده={want} — یکی از دو طرف کهنه است")
 
 
 # ── fake router/client ماژول‌ها ───────────────────────────────────────────────

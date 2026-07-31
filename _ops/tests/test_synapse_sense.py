@@ -55,11 +55,13 @@ def ops_tree(tmp_path: Path) -> Path:
 
 @pytest.fixture(autouse=True)
 def _clean_env():
-    for k in (sense.FLAG, sense.DAILY_CAP_ENV, trajectory_monitor.FLAG,
+    for k in (sense.FLAG, getattr(sense, "FLAG_OCTOPUS", "OCTOPUS_SYNAPSE_ENABLED"),
+              sense.DAILY_CAP_ENV, trajectory_monitor.FLAG,
               egress_policy.FLAG_ENFORCE, egress_policy.FLAG_AUDIT):
         os.environ.pop(k, None)
     yield
-    for k in (sense.FLAG, sense.DAILY_CAP_ENV, trajectory_monitor.FLAG,
+    for k in (sense.FLAG, getattr(sense, "FLAG_OCTOPUS", "OCTOPUS_SYNAPSE_ENABLED"),
+              sense.DAILY_CAP_ENV, trajectory_monitor.FLAG,
               egress_policy.FLAG_ENFORCE, egress_policy.FLAG_AUDIT):
         os.environ.pop(k, None)
 
@@ -112,6 +114,43 @@ class TestSense:
 
     def test_self_test_passes(self):
         assert sense.self_test()["ALL"] is True
+
+    # ── ۲۰۲۶-۰۷-۲۸ — سریِ زمانیِ صداقت (C8): شکافِ «حاضر ولی نه سنجش‌پذیر» ──
+    # بازسنجیِ ۰۷-۲۵ گفت C8 «حاضر و اجراشونده ولی نه سنجش‌پذیر» است. این تست‌ها
+    # اثبات می‌کنند که هر چرخهٔ Sense حالا یک ردیفِ قابل‌رصد با self_referential /
+    # gate0 / delta می‌نویسد — یعنی خروجیِ اندام در زمان قابلِ دیدن است.
+
+    def test_trail_appended_with_honesty_fields(self, ops_tree, tmp_path):
+        """هر چرخه باید فیلدهای self_referential/gate0/delta را به trail بنویسد."""
+        os.environ[sense.FLAG] = "1"
+        trail = tmp_path / "trail.jsonl"
+        trail.unlink(missing_ok=True)
+        sense.sense_once(ops_root=ops_tree, fourd_root=tmp_path / "no4d",
+                         out_dir=tmp_path / "out", trail_path=trail)
+        sense.sense_once(ops_root=ops_tree, fourd_root=tmp_path / "no4d",
+                         out_dir=tmp_path / "out2", trail_path=trail)
+        lines = trail.read_text("utf-8").strip().splitlines()
+        assert len(lines) >= 2, f"دو چرخه باید دو ردیف بنویسد، {len(lines)} شد"
+        for line in lines:
+            rec = json.loads(line)
+            for fld in ("ts", "cpm", "self_referential", "gate0", "delta", "kind"):
+                assert fld in rec, f"فیلدِ {fld} مفقود در trail: {rec}"
+
+    def test_trail_path_configurable(self, tmp_path):
+        """_append_trail باید مسیرِ دلخواه را بپذیرد تا تست ایزوله بماند."""
+        m = sense.compute_sense(_mk_events(100), metrics_mod=None)
+        p = tmp_path / "custom-trail.jsonl"
+        sense._append_trail(m, "observation", trail_path=p)
+        assert p.exists()
+        rec = json.loads(p.read_text("utf-8").strip())
+        assert rec["kind"] == "observation"
+        assert "cpm" in rec
+
+    def test_trail_failsoft_on_broken_path(self):
+        """مسیرِ غیرقابل‌نوشتن نباید Sense را بکشد (fail-closed)."""
+        m = sense.compute_sense(_mk_events(50), metrics_mod=None)
+        # مسیرِ غیرمعتبر → بی‌صدا برمی‌گردد
+        sense._append_trail(m, "observation", trail_path=Path("/nonexistent/x/y/trail.jsonl"))
 
 
 # ── trajectory_monitor ───────────────────────────────────────────────────────

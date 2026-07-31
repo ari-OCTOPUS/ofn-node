@@ -41,6 +41,10 @@ try:
     import action_graph  # noqa: E402
 except Exception:  # noqa: BLE001 — package import fallback
     from . import action_graph  # type: ignore  # noqa: E402
+try:
+    import mission_contract as _mission_contract  # noqa: E402
+except Exception:  # noqa: BLE001
+    _mission_contract = None  # type: ignore
 
 _SCHEMA_VERSION = 1
 _BASE_STATE = (opslib.STATE_DIR if opslib is not None else (_OPS / "state"))
@@ -216,8 +220,17 @@ def create_mission(owner_intent: str, *, source: str = "telegram", organ: str | 
     mid = f"M-{stamp}-{digest}"
     actions = actions_for_type(mt)
     risk = action_graph.max_risk(actions)
+    trace_id = (_mission_contract.new_trace_id() if _mission_contract is not None
+                else hashlib.sha256((mid + "|trace").encode()).hexdigest())
     mission = {
         "id": mid,
+        "mission_id": mid,
+        "task_id": f"task-{digest}",
+        "trace_id": trace_id,
+        "tenant_id": "personal",
+        "project_id": str(organ or "octopus-core"),
+        "scope": "project",
+        "policy_version": "octopus-policy.v1",
         "schema_version": _SCHEMA_VERSION,
         "source": _scrub_text(source, 40) or "telegram",
         "owner_intent": safe_intent,

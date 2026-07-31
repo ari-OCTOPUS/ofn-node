@@ -39,6 +39,15 @@ STATE = opslib.STATE_DIR / "ORGANISM-STATE.json"
 C6_JOURNAL = opslib.STATE_DIR / "c6" / "state-machine.jsonl"
 CURSOR = opslib.STATE_DIR / "telegram" / "event-bridge-cursor.json"
 MAX_PUSH_PER_HOUR = 10
+# 2026-07-25 (build-spec §4): سقفِ روزانهٔ سراسری — حداکثر ۶ پیامِ ابتکاری در روز.
+# رسیدن به سقف = لاگ، نه پیامِ بیشتر. رباتی که زیاد حرف می‌زند mute می‌شود و کل سیستم می‌میرد.
+MAX_PUSH_PER_DAY = 6
+# 2026-07-25 (build-spec §4): ضدِ تکرار — همان امضای محتوا در ۲۴ ساعت فقط یک‌بار push.
+# قبل از این، event_bridge با byte-offset کار می‌کرد: اگر governor-alerts.md همان خط را
+# ۳۴۸ بار می‌نوشت، ۳۴۸ push رخ می‌داد. حالا امضای محتوا sha256 می‌شود و در ۲۴h فقط یک‌بار.
+DEDUP_WINDOW_S = 86400.0   # ۲۴ ساعت
+# سقفِ اندازهٔ set امضاهای دیده‌شده (ضدِ رشدِ بی‌نهایتِ cursor با گذشتِ هفته‌ها).
+_SIGN_CAP = 500
 
 # واژگانِ بحرانی — فقط این alertها push می‌شوند تا spam نشود (نه همهٔ alertها).
 _CRITICAL_KW = (
@@ -101,15 +110,59 @@ def _read_past(path: Path, pos: int) -> "tuple[list[str], int]":
 
 
 def _rate_ok(cur: dict, now: float) -> bool:
-    """rate-limit سخت: نهایتاً MAX_PUSH_PER_HOUR در هر پنجرهٔ ۳۶۰۰s."""
+    """rate-limit سخت: نهایتاً MAX_PUSH_PER_HOUR در هر پنجرهٔ ۳۶۰۰s.
+    2026-07-25 (build-spec §4): + سقفِ روزانهٔ MAX_PUSH_PER_DAY (پنجرهٔ ۸۶۴۰۰s)."""
+    # پنجرهٔ ساعتی
     window = cur.get("window_start", 0.0)
     count = cur.get("push_count", 0)
     if now - window >= 3600.0:
         cur["window_start"] = now
         cur["push_count"] = 0
-        return True
-    if count >= MAX_PUSH_PER_HOUR:
+    # پنجرهٔ روزانه (نخستین لایهٔ محافظ — مهم‌تر از ساعتی)
+    day_window = cur.get("day_window_start", 0.0)
+    day_count = cur.get("day_push_count", 0)
+    if now - day_window >= 86400.0:
+        cur["day_window_start"] = now
+        cur["day_push_count"] = 0
+        day_count = 0
+    if day_count >= MAX_PUSH_PER_DAY:
         return False
+    if cur.get("push_count", 0) >= MAX_PUSH_PER_HOUR:
+        return False
+    return True
+
+
+def _sign(text: str) -> str:
+    """امضای محتوا برای dedup — sha256 (اولین ۱۶ hex کافی‌اند؛ این dedup است نه امنیت)."""
+    import hashlib
+    return hashlib.sha256((text or "").encode("utf-8", "replace")).hexdigest()[:16]
+
+
+def _dedup_ok(cur: dict, now: float, text: str) -> bool:
+    """ضدِ تکرارِ محتوا: همان امضا در DEDUP_WINDOW_S فقط یک‌بار مجاز.
+    ورودی: cursor (دیکشنریِ پایدار). خروجی: True = مجاز، False = تکرار.
+    لایهٔ دوم روی cursor: ردیف‌های منقضی را هر بار هرس می‌کند (garbage-collect)."""
+    sig = _sign(text)
+    seen = cur.get("pushed_signatures")
+    if not isinstance(seen, dict):
+        seen = {}
+    # هرسِ امضاهای منقضی (garbage-collect، تکراری در O(n))
+    expired = [k for k, ts in seen.items() if now - float(ts or 0) >= DEDUP_WINDOW_S]
+    for k in expired:
+        seen.pop(k, None)
+    if sig in seen:
+        cur["pushed_signatures"] = seen
+        return False
+    # ثبتِ امضا به‌عنوان «دیده‌شده». این قبل از ارسالِ واقعی ثبت می‌شود (نه بعد از آن):
+    # اگر push ناموفق بود (شبکه)، امضا همچنان stale می‌ماند تا حلقه‌ی بی‌پایانِ تلاش‌های
+    # ناموفق نسازد — pushِ بعدی در beatِ بعدی امضایِ متفاوتی می‌خواهد. این fail-soft است:
+    # ترجیح می‌دهیم یک هشدارِ واحدِ گمشده را بپذیریم تا اینکه با تلاشِ مکرر ربات را mute کنیم.
+    seen[sig] = now
+    # سقفِ اندازه: اگر از _SIGN_CAP گذشت، قدیمی‌ترین‌ها را بیرون بریز.
+    if len(seen) > _SIGN_CAP:
+        for k, _ in sorted(seen.items(), key=lambda kv: float(kv[1] or 0))[:len(seen) - _SIGN_CAP]:
+            seen.pop(k, None)
+    cur["pushed_signatures"] = seen
     return True
 
 
@@ -172,6 +225,10 @@ def beat(center=None) -> dict:
         if not _rate_ok(cur, now):
             out["skipped"] += 1
             return False
+        # ضدِ تکرارِ محتوا (build-spec §4): همان امضا در ۲۴h فقط یک‌بار.
+        if not _dedup_ok(cur, now, text):
+            out["skipped"] += 1
+            return False
         ok = False
         try:
             if center is not None and hasattr(center, "push_alert"):
@@ -181,6 +238,7 @@ def beat(center=None) -> dict:
         if ok:
             out["pushed"] += 1
             cur["push_count"] = cur.get("push_count", 0) + 1
+            cur["day_push_count"] = cur.get("day_push_count", 0) + 1
         else:
             out["skipped"] += 1
         return ok

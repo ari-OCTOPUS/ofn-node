@@ -106,10 +106,92 @@ def t_f_single_dwelling_value_floor():
     assert sc2.category != "filtered", sc2           # کفِ ارزش فقط با هزینهٔ KNOWN
 
 
+# ─── VQ-SCORER-001: تست‌های دستهٔ مسکونیِ مستقیم (flag-gated) ──────────────────
+import os as _os
+
+DIRECT_REPAINT_LEAD = {
+    "source": "direct_enquiry",
+    "description": ("Repaint of existing dwelling house — interior walls, "
+                    "ceiling and exterior weatherboards. Two-storey home."),
+    "address": "42 Elm Street, Marrickville NSW 2204",
+    "cost_of_development": 8500,       # $8.5k — زیرِ کفِ ۲۵۰kِ hard-skipِ قدیم
+    "lat": -33.9070, "lng": 151.1550,  # ~7km از CBD → داخلِ شعاع
+}
+
+DIRECT_REPAINT_NO_GEO = {
+    "source": "direct_enquiry",
+    "description": "Exterior repainting of residential property, fence and deck.",
+    "address": "8 Banksia Ave, Chatswood NSW 2067",
+    "cost_of_development": 4200,
+    # بدون lat/lng → بدونِ geo bonus
+}
+
+
+def t_g_direct_residential_flag_off_is_skip():
+    """فلگ خاموش (پیش‌فرض): لیدِ مسکونیِ مستقیم دقیقاً مثلِ قبل skip می‌شود.
+    رفتارِ بایت‌به‌بایت identical با نسخهٔ پیش از VQ-SCORER-001."""
+    _os.environ.pop("OCTOPUS_LEAD_DIRECT_RESIDENTIAL", None)
+    sc = lead_scorer.score_lead(DIRECT_REPAINT_LEAD)
+    # cost=8500 < 250000 + "dwelling house" in text → hard-skip (مثلِ قبل)
+    assert sc.action == "skip", f"flag-off باید skip بدهد: {sc}"
+    assert sc.category == "filtered", sc
+
+
+def t_h_direct_residential_flag_on_is_draft():
+    """فلگ روشن: لیدِ مسکونیِ مستقیم با geo → draft (50+18+8=76 ≥ 70)."""
+    _os.environ["OCTOPUS_LEAD_DIRECT_RESIDENTIAL"] = "1"
+    try:
+        sc = lead_scorer.score_lead(DIRECT_REPAINT_LEAD)
+        assert sc.category == "residential_repaint_direct", sc
+        assert sc.score == 76, f"50+18(paint)+8(geo)=76, got {sc.score}: {sc.reasons}"
+        assert sc.action == "draft", sc
+        assert any("base 50" in r for r in sc.reasons), sc.reasons
+    finally:
+        _os.environ.pop("OCTOPUS_LEAD_DIRECT_RESIDENTIAL", None)
+
+
+def t_i_direct_residential_no_geo_is_save():
+    """فلگ روشن، بدونِ geo: 50+18=68 → save (بینِ ۴۵ و ۷۰)."""
+    _os.environ["OCTOPUS_LEAD_DIRECT_RESIDENTIAL"] = "1"
+    try:
+        sc = lead_scorer.score_lead(DIRECT_REPAINT_NO_GEO)
+        assert sc.category == "residential_repaint_direct", sc
+        assert sc.score == 68, f"50+18=68, got {sc.score}: {sc.reasons}"
+        assert sc.action == "save", sc
+    finally:
+        _os.environ.pop("OCTOPUS_LEAD_DIRECT_RESIDENTIAL", None)
+
+
+def t_j_hard_skip_still_works_for_non_repaint():
+    """فلگ روشن هم باشد، demolition only هنوز hard-skip است."""
+    _os.environ["OCTOPUS_LEAD_DIRECT_RESIDENTIAL"] = "1"
+    try:
+        sc = lead_scorer.score_lead(DEMOLITION_NOISE)
+        assert sc.action == "skip" and sc.category == "filtered", sc
+    finally:
+        _os.environ.pop("OCTOPUS_LEAD_DIRECT_RESIDENTIAL", None)
+
+
+def t_k_pin_new_category_values():
+    """پینِ ضدِ drift: مقادیرِ کلیدیِ دستهٔ نو باید ثابت بمانند."""
+    c = lead_scorer.DEFAULT_CONFIG
+    rd = c["categories"]["residential_repaint_direct"]
+    assert rd["base"] == 50
+    assert "repaint" in rd["required_any"]
+    assert "dwelling" in rd["context_any"]
+    assert c["category_priority"][0] == "strata_remedial"     # strata هنوز اول
+    assert c["category_priority"][1] == "residential_repaint_direct"
+
+
 if __name__ == "__main__":
     for f in (t_a_strata_dream_is_draft, t_b_commercial_fitout_is_save,
               t_c_demolition_hard_skip, t_d_thresholds_pinned_to_yaml,
-              t_e_out_of_radius_penalised, t_f_single_dwelling_value_floor):
+              t_e_out_of_radius_penalised, t_f_single_dwelling_value_floor,
+              t_g_direct_residential_flag_off_is_skip,
+              t_h_direct_residential_flag_on_is_draft,
+              t_i_direct_residential_no_geo_is_save,
+              t_j_hard_skip_still_works_for_non_repaint,
+              t_k_pin_new_category_values):
         f()
         print("ok", f.__name__)
     print("PASS test_lead_scorer")

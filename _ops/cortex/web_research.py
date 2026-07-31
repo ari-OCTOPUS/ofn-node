@@ -149,6 +149,65 @@ def search(query: str, k: int = 4, *, opener: Optional[Opener] = None,
     return results
 
 
+def _query_of(topic: str) -> str:
+    """اسلاگِ داخلی → عبارتِ قابلِ جستجو.
+
+    ۲۰۲۶-۰۷-۲۸ — چرا این تابع وجود دارد. موضوع‌ها از `school-awareness.json`
+    می‌آیند که دو نگاشت دارد: `A08 → 0.1584` و `titles: A08 → "perception-bias"`.
+    تا امروز آن رشته **دست‌نخورده** به جستجو می‌رفت، و نتیجه‌اش این بود:
+
+      · دیروز خودِ شناسه رفت  → «A08»            → نتیجه: «A8» (یک بزرگراه)
+      · امروز عنوان رفت       → «perception-bias» → نتیجه: «Perceptual hashing»
+
+    هیچ‌کدام غلط‌گیری نمی‌شد چون هر دو **نتیجه برمی‌گرداندند** — فقط نتیجه‌ای که
+    ربطی به موضوع نداشت. یک اسلاگِ خط‌تیره‌دار عبارتِ زبانِ طبیعی نیست؛ موتور
+    نزدیک‌ترین چیزِ هم‌پیشوند را می‌دهد و آن را «چیزی که یاد گرفتم» می‌نامیدیم.
+
+    برچسبِ اصلی در `topic` دست‌نخورده می‌ماند (خوراکِ improve/کارت)؛ فقط `query`
+    نرمال می‌شود، و هر دو در رکورد ثبت می‌شوند تا قابلِ ممیزی باشد.
+    """
+    q = re.sub(r"[-_]+", " ", str(topic))
+    return re.sub(r"\s+", " ", q).strip()
+
+
+def _relevant(query: str, hits: list) -> list:
+    """نتیجه‌ای که هیچ واژهٔ کوئری در عنوانش نیست، جوابِ این سؤال نیست.
+
+    ۲۰۲۶-۰۷-۲۸، نیمهٔ دومِ فیکسِ صبح. نرمال‌سازیِ اسلاگ نقصِ **مکانیکی** را برد
+    (`motivation` حالا درست تطبیق می‌دهد و `self narrative` صادقانه صفر می‌دهد)،
+    ولی یکی ماند:
+
+        query='perception bias'  →  «Perceptual hashing»
+
+    فقط هم‌پیشوند است، نه هم‌موضوع. و چون شمارِ نتایج **غیرصفر** بود، هیچ گاردی
+    صدایش را درنمی‌آورد و این «چیزی که یاد گرفتم» نامیده می‌شد. همان شکلِ شکست
+    که کلِ امروز تکرار شد: خروجی‌ای که فرم دارد و محتوا ندارد.
+
+    معیار عمداً **سخت‌گیرانه و ساده** است: دستِ‌کم یک واژهٔ ≥۴حرفیِ کوئری باید
+    در عنوان باشد (یا برعکس). «perception»/«bias» هیچ‌کدام در «perceptual
+    hashing» نیستند ⇒ رد. هوشمندتر از این (stemming، شباهتِ برداری) وسوسه‌انگیز
+    است ولی نتیجه‌اش قابلِ توضیح نیست، و گاردی که نتوانی توضیحش بدهی دیر یا زود
+    چیزِ درست را هم می‌خورد.
+
+    ردکردن یعنی صفر نتیجه — و صفرِ صادق از یک جوابِ بی‌ربط بهتر است.
+    """
+    toks = [w for w in re.split(r"\W+", str(query or "").lower()) if len(w) >= 4]
+    if not toks:
+        return list(hits or [])          # کوئریِ کوتاه: چیزی برای سنجیدن نیست
+    out = []
+    for h in (hits or []):
+        title = str((h or {}).get("title", "")).lower()
+        if not title:
+            continue
+        # مرزِ واژه، نه زیررشته. تفاوتش را همان روز دیدم: «habit» زیررشتهٔ
+        # «habituation» است و مقالهٔ بی‌ربط را نگه می‌داشت. با `\b` هر سه موردِ
+        # واقعی درست می‌شوند: attention↔«Attention economy» می‌ماند،
+        # habit↔«Habituation» و perception↔«Perceptual hashing» رد می‌شوند.
+        if any(re.search(r"\b" + re.escape(w) + r"\b", title) for w in toks):
+            out.append(h)
+    return out
+
+
 def research_topics(topics: list[str], *, per_topic: int = 3,
                     opener: Optional[Opener] = None) -> dict:
     """چند موضوعِ عمومی را تحقیق کن و یک دایجستِ ماندگار بساز.
@@ -158,8 +217,16 @@ def research_topics(topics: list[str], *, per_topic: int = 3,
         t = str(t).strip()
         if not t:
             continue
-        hits = search(t, k=per_topic, opener=opener)
-        findings.append({"topic": t, "n": len(hits), "hits": hits[:per_topic]})
+        # شناسهٔ خامِ داخلی هرگز به موتورِ جستجو نمی‌رود. ۰۷-۲۷ «A08» هفت بار رفت و
+        # هفت بار «A8» (یک بزرگراه) برگشت — و هفت بار «چیزی که یاد گرفتم» نامیده شد.
+        # ردکردنش یعنی سقوط به FALLBACK_TOPICS که عبارتِ واقعی‌اند: بدترین حالتش
+        # موضوعِ عمومی است، نه نویزِ بی‌ربط که شبیهِ دانش لباس پوشیده.
+        if re.fullmatch(r"[A-Za-z]{1,3}\d{1,4}", t):
+            continue
+        q = _query_of(t)
+        hits = _relevant(q, search(q, k=per_topic, opener=opener))
+        findings.append({"topic": t, "query": q, "n": len(hits),
+                         "hits": hits[:per_topic]})
     digest = {"ts": opslib.now_iso(), "schema": "research-latest.v1",
               "n_topics": len(findings), "findings": findings, "cost_aud": 0}
     return digest

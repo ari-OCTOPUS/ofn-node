@@ -24,12 +24,14 @@ if str(_HERE.parent / "outcomes") not in sys.path:
     sys.path.insert(0, str(_HERE.parent / "outcomes"))
 import taxonomy as tax  # noqa: E402
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 _LOCK = threading.RLock()
 _ADMISSION_STATES = frozenset({"PENDING", "ADMITTED", "RETRACTED"})
 _COLS = ("memory_id", "namespace", "mkey", "content", "content_sha256", "trust",
          "provenance_json", "confidence", "salience", "valid_from", "valid_to",
-         "supersedes", "privacy", "admission_state", "schema_version", "created_at")
+         "supersedes", "privacy", "admission_state", "schema_version", "created_at",
+         "tenant_id", "project_id", "scope", "agent_id", "task_id", "classification",
+         "policy_version")
 
 
 def _utc_now_iso() -> str:
@@ -63,12 +65,22 @@ class MemoryStore:
                 "valid_from TEXT NOT NULL, valid_to TEXT, supersedes TEXT,"
                 "privacy TEXT NOT NULL, admission_state TEXT NOT NULL DEFAULT 'ADMITTED',"
                 "schema_version INTEGER NOT NULL, created_at TEXT NOT NULL)")
-            # Additive v1→v2 migration. Existing memories were visible before this column,
-            # therefore they are explicitly ADMITTED. New research/learning can stage PENDING.
+            # Additive v1→v3 migrations. Existing memories preserve their previous visibility.
             cols = {r[1] for r in self._conn.execute("PRAGMA table_info(memory)").fetchall()}
             if "admission_state" not in cols:
                 self._conn.execute(
                     "ALTER TABLE memory ADD COLUMN admission_state TEXT NOT NULL DEFAULT 'ADMITTED'")
+            for name, ddl in (
+                ("tenant_id", "TEXT NOT NULL DEFAULT 'personal'"),
+                ("project_id", "TEXT NOT NULL DEFAULT 'octopus-core'"),
+                ("scope", "TEXT NOT NULL DEFAULT 'project'"),
+                ("agent_id", "TEXT NOT NULL DEFAULT 'unknown'"),
+                ("task_id", "TEXT NOT NULL DEFAULT ''"),
+                ("classification", "TEXT NOT NULL DEFAULT 'internal'"),
+                ("policy_version", "TEXT NOT NULL DEFAULT 'memory-policy.v1'"),
+            ):
+                if name not in cols:
+                    self._conn.execute(f"ALTER TABLE memory ADD COLUMN {name} {ddl}")
             # C6 evolution_v3: secondary indexes — get() and the insert() dedupe check were
             # full-table SCANs (O(n); ~6.7ms/7.5ms at 20k rows). Additive + idempotent,
             # access-path only: explicit ORDER BY already fixes result order, so outputs are
@@ -77,6 +89,9 @@ class MemoryStore:
                 self._conn.execute(
                     "CREATE INDEX IF NOT EXISTS idx_memory_ns_mkey "
                     "ON memory(namespace, mkey, created_at DESC)")
+                self._conn.execute(
+                    "CREATE INDEX IF NOT EXISTS idx_memory_scope_lookup "
+                    "ON memory(tenant_id, project_id, scope, namespace, created_at DESC)")
                 self._conn.execute(
                     "CREATE INDEX IF NOT EXISTS idx_memory_ns_sha "
                     "ON memory(namespace, content_sha256)")
@@ -106,12 +121,16 @@ class MemoryStore:
         csha = _sha(content)
         mkey = rec.get("mkey")
         mkey = str(mkey) if mkey is not None else None
+        tenant_id = str(rec.get("tenant_id") or "personal")
+        project_id = str(rec.get("project_id") or "octopus-core")
+        scope = str(rec.get("scope") or "project")
         with _LOCK:
             dup = self._conn.execute(
                 "SELECT memory_id FROM memory WHERE namespace=? AND content_sha256=? "
-                "AND (mkey IS ? OR mkey=?) AND admission_state IN ('PENDING','ADMITTED') "
+                "AND (mkey IS ? OR mkey=?) AND tenant_id=? AND project_id=? AND scope=? "
+                "AND admission_state IN ('PENDING','ADMITTED') "
                 "AND (valid_to IS NULL OR valid_to>?)",
-                (ns, csha, mkey, mkey, _utc_now_iso())).fetchone()
+                (ns, csha, mkey, mkey, tenant_id, project_id, scope, _utc_now_iso())).fetchone()
             if dup:
                 return None   # dedupe: already an active identical memory
             mid = "mem_" + _sha(f"{ns}|{mkey}|{csha}|{rec.get('created_at') or _utc_now_iso()}")[:16]
@@ -125,7 +144,14 @@ class MemoryStore:
                    (str(rec.get("admission_state") or "ADMITTED")
                     if str(rec.get("admission_state") or "ADMITTED") in _ADMISSION_STATES
                     else "PENDING"),
-                   SCHEMA_VERSION, str(rec.get("created_at") or _utc_now_iso()))
+                   SCHEMA_VERSION, str(rec.get("created_at") or _utc_now_iso()),
+                   tenant_id,
+                   project_id,
+                   scope,
+                   str(rec.get("agent_id") or "unknown"),
+                   str(rec.get("task_id") or ""),
+                   str(rec.get("classification") or "internal"),
+                   str(rec.get("policy_version") or "memory-policy.v1"))
             self._conn.execute(
                 "INSERT OR IGNORE INTO memory(" + ",".join(_COLS) + ") VALUES(" +
                 ",".join("?" * len(_COLS)) + ")", row)
@@ -161,10 +187,43 @@ class MemoryStore:
             return d
         return None
 
-    def search(self, query: str, namespace: str = None, k: int = 5, min_trust: str = None) -> list:
-        """FTS5 bm25 + رتبه‌بندیِ ترکیبی با salience/recency؛ fallback به LIKE اگر FTS نبود.
-        فقط رکوردهای معتبر؛ اختیاری min_trust."""
+    def search(self, query: str, namespace: str = None, k: int = 5, min_trust: str = None,
+               tenant_id: str = None, project_id: str = None, scopes: "tuple | list | None" = None) -> list:
+        """FTS5/LIKE retrieval with mandatory post-hydration scope fencing when requested.
+        Vector/FTS is a derived recall index; canonical metadata remains in SQLite."""
         q = str(query or "").strip()
+        # A scoped query is answered from canonical SQLite, not from a global FTS candidate
+        # window. This prevents a noisy tenant/project from crowding the requested scope out
+        # before post-filtering. FTS remains a derived accelerator for unscoped recall.
+        if tenant_id is not None or project_id is not None or scopes is not None:
+            conds = ["admission_state='ADMITTED'", "(valid_to IS NULL OR valid_to>?)",
+                     "(content LIKE ? OR mkey LIKE ?)"]
+            args = [_utc_now_iso(), f"%{q}%", f"%{q}%"]
+            if namespace:
+                conds.append("namespace=?"); args.append(str(namespace))
+            if tenant_id is not None:
+                conds.append("tenant_id=?"); args.append(str(tenant_id))
+            if project_id is not None:
+                conds.append("project_id=?"); args.append(str(project_id))
+            if scopes is not None:
+                ss = [str(x) for x in scopes]
+                if not ss:
+                    return []
+                conds.append("scope IN (" + ",".join("?" * len(ss)) + ")")
+                args.extend(ss)
+            with _LOCK:
+                rows = self._conn.execute(
+                    "SELECT " + ",".join(_COLS) + " FROM memory WHERE " +
+                    " AND ".join(conds) + " ORDER BY salience DESC, created_at DESC LIMIT ?",
+                    (*args, max(1, int(k)) * 4)).fetchall()
+            out = []
+            for r in rows:
+                d = dict(zip(_COLS, r))
+                if min_trust and not tax.trust_at_least(d["trust"], min_trust):
+                    continue
+                d["_rank"] = -(d.get("salience") or 0.0)
+                out.append(d)
+            return out[:max(1, int(k))]
         # FTS5 lenient: توکن‌های alnum (≥۳ کاراکتر) را OR کن — تا AND ضمنی/نویسه‌های خاص match را نکشند
         import re as _re
         terms = [t for t in _re.findall(r"[^\W_]{3,}", q, _re.UNICODE)][:12]
@@ -207,6 +266,12 @@ class MemoryStore:
                     continue
                 d = dict(zip(_COLS, r))
                 if namespace and d["namespace"] != namespace:
+                    continue
+                if tenant_id is not None and d.get("tenant_id") != str(tenant_id):
+                    continue
+                if project_id is not None and d.get("project_id") != str(project_id):
+                    continue
+                if scopes is not None and d.get("scope") not in {str(x) for x in scopes}:
                     continue
                 if min_trust and not tax.trust_at_least(d["trust"], min_trust):
                     continue

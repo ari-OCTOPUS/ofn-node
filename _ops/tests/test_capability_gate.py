@@ -85,8 +85,54 @@ def t_stale_capability_marker_revoked():
     assert ok is False and "capability" in why, why
 
 
+# ─── ۲۰۲۶-۰۷-۲۸: مارکر را فقط سوئیت می‌نویسد ─────────────────────────────
+# تا امروز «فقط از run_all» یک **قرارداد** بود نه گارد: تابع هیچ چکی نداشت و
+# همان روز کسی مارکرِ گیتِ پول را با این نثر نوشت —
+#   "green-canary: 5/5 held-out canaries pass; 2 pre-existing red (…)"
+# یعنی متنی که خودش به دو قرمز اعتراف می‌کرد، مجوزِ عبور از گیتِ پول شد.
+
+def t_prose_evidence_is_rejected_as_suite_proof():
+    bad = ("green-canary: 5/5 held-out canaries pass; "
+           "2 pre-existing red (test_x now fixed)")
+    assert cg._is_suite_evidence(bad) is False
+
+
+def t_a_real_suite_list_is_accepted():
+    names = ",".join(f"test_{i}.py" for i in range(cg._MIN_SUITE_FILES + 5))
+    assert cg._is_suite_evidence("green: " + names) is True
+
+
+def t_a_short_list_is_not_enough():
+    """پنج تستِ دستچین سوئیت نیست."""
+    assert cg._is_suite_evidence("green: a.py,b.py,c.py,d.py,e.py") is False
+
+
+def t_an_isolated_marker_is_not_guarded():
+    """تستِ ایزوله باید آزاد باشد — نمی‌تواند به گیتِ واقعی دست بزند.
+    اگر این گارد آن‌جا هم می‌بست، هر تستِ پول را قرمز می‌کرد."""
+    assert cg._is_live_marker() is False, cg.CAPABILITY_MARKER
+    assert cg.mark_capability("green: test") is True
+
+
+def t_the_marker_is_not_written_when_evidence_is_rejected():
+    """fail-closed: شواهدِ بد → هیچ مارکری، نه مارکرِ ضعیف."""
+    real = cg._is_live_marker
+    cg._is_live_marker = lambda: True          # وانمود کن زنده است
+    try:
+        cg.CAPABILITY_MARKER.unlink(missing_ok=True)
+        assert cg.mark_capability("نثرِ دست‌نویس") is False
+        assert not cg.CAPABILITY_MARKER.exists(), "مارکر با شواهدِ بد نوشته شد"
+    finally:
+        cg._is_live_marker = real
+
+
 if __name__ == "__main__":
     failed = harness.run([
+        ("نثرِ دست‌نویس شواهدِ سوئیت نیست", t_prose_evidence_is_rejected_as_suite_proof),
+        ("فهرستِ واقعیِ سوئیت پذیرفته می‌شود", t_a_real_suite_list_is_accepted),
+        ("فهرستِ کوتاه کافی نیست", t_a_short_list_is_not_enough),
+        ("مارکرِ ایزوله گارد نمی‌خورد", t_an_isolated_marker_is_not_guarded),
+        ("شواهدِ بد → هیچ مارکری", t_the_marker_is_not_written_when_evidence_is_rejected),
         ("بدونِ کانالِ وصل (paper) → بسته", t_closed_when_not_wired),
         ("بدونِ capability → بسته", t_closed_without_capability),
         ("بدونِ LIVE_ENABLED → بسته", t_closed_without_live_enabled),

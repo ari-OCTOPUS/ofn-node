@@ -32,6 +32,29 @@ FLAG_NAME = "OCTOPUS_WIRE_DOCTOR_SELFKNOW"
 _PAID_FLAG = "OCTOPUS_DOCTOR_SELFKNOW_PAID"           # =1 → tierِ پولیِ گیت‌دار (cortisol)
 _HISTORY_MAX = 200
 
+# ── ۲۰۲۶-۰۷-۲۸ · سه فلگِ تازه، هر سه پیش‌فرض خاموش (خاموش = byte-identical با دیروز) ──
+# اندازه‌گیریِ ممیزیِ امشب که این‌ها را ساخت:
+#   · ۱۵ رکوردِ heuristic از ۴۷، **هر ۱۵ تا** confidence = دقیقاً 0.4 (ثابتِ هاردکد).
+#   · ۲۸ از ۴۶ مقایسهٔ `confidence_delta` بین **دو مغزِ متفاوت** محاسبه شده بود
+#     (llm → heuristic)، یعنی سنجهٔ «کدام مغز جواب داد»، نه «فهمم بهتر شد؟».
+#   · بعد از تصحیحِ مالک (۲۰۲۶-۰۷-۲۷T۱۳:۲۱): llm:secondary در ۵ نسخه از ۵ به
+#     خواستهٔ او چرخید، heuristic در ۰ از ۸ — چون `_heuristic(snap, prev)` پارامترِ
+#     `prev` را می‌گرفت و در بدنه **هرگز** استفاده نمی‌کرد و `owner_corrections` را
+#     که خودِ `snapshot()` می‌ساخت هم نمی‌خواند.
+_STEER_FLAG = "OCTOPUS_SELFKNOW_HEURISTIC_V2"      # (a)(b)(c): steer + شاهدِ سنجیده + گاردِ backend
+_PROBE_FLAG = "OCTOPUS_SELFKNOW_HEURISTIC_PROBE"   # (d1): شاخهٔ heuristic هم بتواند کاوش را ماشه بکشد
+_UNKNOWN_C6_FLAG = "OCTOPUS_C6_UNKNOWN_ROOTCAUSE"  # (d2): ریشهٔ نامعلوم → فرضیهٔ قابل‌آزمون در صفِ C6
+
+# ۲۰۲۶-۰۷-۲۸ — معیارِ دقتِ خودمدل (C3): خودگزارش را در برابرِ منابعِ حقیقتِ مستقل
+# می‌سنجد و سریِ زمانیِ صداقت می‌سازد. importِ این‌جا (نه بالا) تا fail-softِ مطلق
+# باشد: نبودِ ماژول هرگز خودشناسی را نمی‌کشد. پشتِ OCTOPUS_SELFKNOW_ACCURACY (خاموش).
+def _self_accuracy_measure(snap: dict) -> dict:
+    try:
+        import self_accuracy  # noqa: WPS433 — lazy importِ محلی
+        return self_accuracy.run_from_snapshot(snap)
+    except Exception:  # noqa: BLE001
+        return {}
+
 _lock = threading.Lock()
 _running = False
 
@@ -113,14 +136,29 @@ def _owner_signal() -> dict:
 
 # ── snapshot: عکسِ غنی، چنددامنه‌ای، PII-safe ($0، read-only) ─────────────────────
 def _revenue_confirmed() -> float:
-    """درآمدِ **محقق‌شده** — تنها منبعِ راست. صفر یعنی صفر، نه «نامعلوم».
+    """درآمدِ **محقق‌شده به دلار**. صفر یعنی صفر، نه «نامعلوم».
 
-    منبع همان چیزی است که `goal_directed._baseline_metrics` می‌خواند:
-    `fitness-latest.json → attribution.confirmed`. عمداً import نمی‌کنیم چون آن
-    تابع خودش فقط همین فایل را می‌خواند؛ یک خط مستقیم، بدونِ وابستگیِ تازه."""
+    ⚠️ ۲۰۲۶-۰۷-۲۷، تصحیحِ دوم در یک روز. نسخهٔ اولِ امروز فهمید که
+    `money.musd` خرجِ خودمان است نه درآمد، و به `attribution.confirmed` رفت —
+    ولی آن هم دلار نیست: در `attribution.confirmed_revenue()` با `confirmed += 1`
+    ساخته می‌شود، یعنی **شمارشِ ادعاهای تأییدشده**. سه لیدِ تأییدشده می‌شد
+    «revenue: 3.0» و همان عدد در promptِ مغزِ گران و در تصمیمِ هدف‌محور می‌نشست.
+    دلارِ واقعی در `revenue_by_cell` است.
+
+    درسِ این دو تصحیح: «عددِ درست‌تر» با «عددِ درست» یکی نیست. اولی هم شمارش را
+    به‌جای دلار برداشت چون هر دو `float` بودند و هیچ‌چیز واحد را نمی‌سنجید."""
     try:
         att = (_read_json("fitness-latest.json", {}) or {}).get("attribution") or {}
-        return float(att.get("confirmed") or 0.0)
+        cells = att.get("revenue_by_cell") or att.get("by_cell") or {}
+        if isinstance(cells, dict):
+            total = 0.0
+            for v in cells.values():
+                try:
+                    total += float(v or 0.0)
+                except (TypeError, ValueError):
+                    continue
+            return round(total, 2)
+        return 0.0
     except (TypeError, ValueError, AttributeError):
         return 0.0
 
@@ -230,6 +268,25 @@ def snapshot() -> dict:
         "recent_lanes": _pulse_lanes(),
         "doctor_self": {"rfcs": _rfc_count(), "box_stepped": (_dir() / "box-latest.json").exists()},
         "telemetry_cost_musd": (tel.get("month") or {}).get("musd") if isinstance(tel.get("month"), dict) else None,
+        # ۲۰۲۶-۰۷-۲۷ — «چقدر از من برای مالک دیدنی است؟»
+        #
+        # این عدد تا امروز هیچ‌جا نبود، و نبودنش یک کوریِ عجیب می‌ساخت: سیستمی که
+        # مأموریتش کمک به یک اپراتورِ تنهاست، نمی‌دانست چند تا از توانایی‌هایش
+        # اصلاً به چشمِ او می‌رسد. می‌توانست ده کارت بسازد که هیچ‌کدام باز نشوند
+        # و همچنان خودش را «سالم» گزارش کند.
+        #
+        # خودآگاهی فقط «چه کار می‌کنم» نیست؛ «چقدر از آنچه می‌کنم دیده می‌شود» هم
+        # هست. سطحِ نامرئی، از دیدِ مالک، با نبودن فرقی ندارد.
+        "surface": _surface_coverage(),
+        # ۲۰۲۶-۰۷-۲۷ — «اسمشم بزار اختاپوس، بشناسه خودشو» (رأیِ مالک).
+        #
+        # تا امروز هیچ «من»ی در این تصویر نبود: وقتی مالک پرسید «چقدر راجب خودت
+        # می‌دونی؟»، جواب فهرستی از اعداد بود — ضربان، فای، سیم‌کشی. سیستمی که
+        # فقط سنجه‌های خودش را می‌داند، خودش را نمی‌شناسد؛ یک داشبورد است.
+        #
+        # و صادقانه‌ترین بخشِ این مدخل این است که می‌گوید اسم را **کسی به او
+        # داده** — نه اینکه خودش انتخاب کرده.
+        "identity": _identity(),
     }
     # 3a (2026-07-24): steeringِ مالک (doctor focus) — hint متنی، PII-free، فقط سوگیری
     try:
@@ -331,6 +388,104 @@ def _ask_llm(prompt: str, system: str, max_tokens: int = 700):
         return None, type(e).__name__
 
 
+def _on(flag: str) -> bool:
+    return str(os.environ.get(flag, "")).strip().lower() in ("1", "true", "yes", "on")
+
+
+# ── (a) سوگیریِ heuristic با حرفِ مالک ────────────────────────────────────────
+# هیچ NLPای اینجا نیست و هیچ کلمه‌ای اختراع نمی‌شود: فقط توکن‌های **خودِ مالک** با
+# توکن‌های نشانه‌های سنجیده‌شده تلاقی داده می‌شوند. الگوی نقلِ داخلِ گیومه در همین
+# vault قرارداد است (اتاقِ آینه متنِ مالک را عیناً ذخیره می‌کند)، پس «چیزی که مالک
+# رد کرد» از همان گیومه‌ها خوانده می‌شود — و اگر گیومه‌ای نبود، هیچ ردی ثبت نمی‌شود
+# (سوگیریِ فقط-مثبت). نبودِ تصحیح = رفتارِ دیروز.
+_STEER_NEG = ("مهم نیست", "اشتباه", "غلط", "نکن", "بی‌خیال",
+              "not important", "wrong", "stop focusing", "no longer")
+_STEER_STOP = frozenset((
+    "این", "آن", "که", "برای", "روی", "است", "نیست", "باید", "میخوام", "می‌خوام",
+    "کنی", "کن", "تمرکزت", "خودت", "الان", "دیگر", "چون", "ولی", "همان", "هست",
+    "the", "and", "for", "with", "that", "this", "from", "your", "want", "focus",
+))
+_STEER_QUOTED = re.compile("[«\"'“‘]([^»\"'”’]{2,80})[»\"'”’]")
+_STEER_WORD = re.compile(r"[\w‌]{4,}", re.UNICODE)
+
+
+def _steer_tokens(text) -> set:
+    return {w for w in _STEER_WORD.findall(str(text).lower()) if w not in _STEER_STOP}
+
+
+def _owner_steer(snap: dict) -> dict:
+    """تصحیح‌های مالک → {wanted, rejected} به‌صورتِ توکن. بدونِ تصحیح → {}."""
+    rows = [str(x) for x in (snap.get("owner_corrections") or []) if str(x).strip()]
+    if snap.get("owner_focus"):
+        rows.append(str(snap["owner_focus"]))
+    if not rows:
+        return {}
+    wanted, rejected = set(), set()
+    for text in rows:
+        quoted = _STEER_QUOTED.findall(text) if any(m in text for m in _STEER_NEG) else []
+        for q in quoted:
+            rejected |= _steer_tokens(q)
+        wanted |= _steer_tokens(text)
+    wanted -= rejected
+    if not wanted and not rejected:
+        return {}
+    return {"text": rows[-1][:160], "wanted": wanted, "rejected": rejected,
+            "corrections": len(rows)}
+
+
+def _steer_rank(path: list, steer: dict) -> tuple:
+    """نشانه‌ها را با خواستهٔ مالک مرتب می‌کند و بهترین امتیاز را برمی‌گرداند.
+    ردشده وزنِ منفیِ ۳ برابر می‌گیرد تا یک تلاقیِ اتفاقی آن را برنگرداند."""
+    want, rej = steer.get("wanted") or set(), steer.get("rejected") or set()
+    scored = []
+    for i, item in enumerate(path):
+        if not isinstance(item, dict):
+            continue
+        tok = _steer_tokens(f"{item.get('symptom', '')} {item.get('root_cause', '')}")
+        net = len(tok & want) - 3 * len(tok & rej)
+        scored.append(((-net, i), item))
+    if not scored:
+        return [], 0
+    scored.sort(key=lambda x: x[0])
+    return [it for _k, it in scored], -scored[0][0][0]
+
+
+# ── (b) به‌جای عددِ ساختگی: شاهدی که واقعاً شمرده شده ─────────────────────────
+# مسیرهایی که خودِ `_heuristic` از آن‌ها تغذیه می‌شود. «چند تا خواندنی بود و چقدر
+# تازه» یک سنجهٔ واقعی است؛ «۰.۴» نبود.
+_EVIDENCE_INPUTS = (
+    ("state", "ORGANISM-STATE.json"),
+    ("stress", "cortex/stress-latest.json"),
+    ("innervation", "cortex/innervation-latest.json"),
+    ("fitness", "fitness-latest.json"),
+    ("lanes", "pulse/work-log.jsonl"),
+)
+
+
+def _evidence() -> dict:
+    """چند ورودیِ heuristic خواندنی بود و کهنه‌ترینشان چند ثانیه سن دارد."""
+    import time as _t
+    now = _t.time()
+    readable, blind, ages = [], [], []
+    for name, rel in _EVIDENCE_INPUTS:
+        try:
+            ages.append(now - (opslib.STATE_DIR / rel).stat().st_mtime)
+            readable.append(name)
+        except OSError:
+            blind.append(name)
+    try:
+        p = getattr(opslib, "ALERTS_MD", None) or (opslib.OPS / "governor" / "governor-alerts.md")
+        ages.append(now - Path(p).stat().st_mtime)
+        readable.append("alerts")
+    except (OSError, AttributeError):
+        blind.append("alerts")
+    total = len(_EVIDENCE_INPUTS) + 1
+    return {"readable": len(readable), "total": total, "blind": sorted(blind),
+            "coverage": round(len(readable) / total, 2),
+            "oldest_input_age_s": int(max(ages)) if ages else None,
+            "newest_input_age_s": int(min(ages)) if ages else None}
+
+
 def _heuristic(snap: dict, prev: dict) -> dict:
     """فهمِ لایه‌ایِ قاعده‌محور وقتی LLM نیست — فقط از snapshot، بدونِ اختراع."""
     legs = snap.get("legs") or {}
@@ -348,6 +503,46 @@ def _heuristic(snap: dict, prev: dict) -> dict:
     if (snap.get("innervation") or {}).get("dead_spots"):
         path.append({"symptom": "نقطهٔ مردهٔ عصب‌کشی", "root_cause": "کالیبراسیونِ SLA یا نوشندهٔ غایب", "severity": "low"})
     focus = path[0]["symptom"] if path else "همه‌چیز آرام"
+    # ── (a)+(b) پشتِ _STEER_FLAG؛ خاموش → دقیقاً همان دیکشنریِ دیروز ──────────
+    extra: dict = {}
+    if _on(_STEER_FLAG):
+        steer = _owner_steer(snap)
+        if steer:
+            ranked, best = _steer_rank(path, steer)
+            if ranked:
+                path = ranked
+            if best > 0:
+                focus = path[0]["symptom"]
+                extra["focus_source"] = "pathology+owner"
+            elif steer.get("wanted"):
+                # هیچ نشانه‌ای با خواستهٔ مالک نمی‌خواند و او صریح گفته کجا را
+                # نگاه کنم. نقلِ حرفِ خودش، نه ساختنِ نشانهٔ تازه.
+                focus = "(خواستهٔ مالک) " + steer["text"][:120]
+                extra["focus_source"] = "owner_correction"
+            else:
+                extra["focus_source"] = "pathology"
+            # و این‌جا `prev` بالاخره خوانده می‌شود. تا امروز پارامترش اعلام شده
+            # بود و در بدنه **صفر بار** می‌آمد؛ نتیجه‌اش سنجیده شد: از ۸ نسخهٔ
+            # heuristicِ بعد از تصحیح، ۸ تا دوباره روی همان «خطای پرتکرار»ی
+            # نشستند که مالک صریح رد کرده بود. تمرکزِ ردشده را دوباره تحویل نده.
+            pf = str((prev or {}).get("focus") or "")
+            if pf and steer.get("rejected") and (_steer_tokens(pf) & steer["rejected"]):
+                extra["prev_focus_rejected"] = True
+                if focus == pf and steer.get("wanted"):
+                    focus = "(خواستهٔ مالک) " + steer["text"][:120]
+                    extra["focus_source"] = "owner_correction"
+            extra["owner_steer"] = {"corrections": steer.get("corrections"),
+                                    "wanted": sorted(steer.get("wanted") or set())[:10],
+                                    "rejected": sorted(steer.get("rejected") or set())[:10]}
+        else:
+            extra["focus_source"] = "pathology"
+        # عددِ اطمینان **حذف** می‌شود، جایگزین نمی‌شود: یک موتورِ قاعده‌محور
+        # اطمینانِ کالیبره ندارد، و ۰.۴ ثابت باعث شده بود `_trajectory` بینِ دو
+        # مغزِ متفاوت دلتا بسازد. چیزی که صادقانه گفتنی است این است که چند ورودی
+        # خواندنی بود — و آن شمرده می‌شود، نه حدس زده.
+        extra["confidence"] = None
+        extra["confidence_basis"] = "none — rule engine, not calibrated"
+        extra["evidence"] = _evidence()
     return {"anatomy": f"{len(legs)} لِگ، {len(snap.get('wire_on') or [])} سیمِ روشن",
             # ۲۰۲۶-۰۷-۲۷: این خط به `money.musd` نگاه می‌کرد که **خرج** است، پس هر
             # ۲۷ نسخه «درآمد>۰» می‌گفت در حالی که درآمدِ محقق‌شده صفر بود. برای
@@ -361,7 +556,7 @@ def _heuristic(snap: dict, prev: dict) -> dict:
             "pathology": path[:5], "trajectory": "نامعلوم (بی‌LLM)",
             "prescription": [{"action": "یک لِگ را به لیدِ واقعی وصل کن", "why": "ترس را می‌شکند", "priority": "high"}],
             "open_questions": ["چرا خطاهای پرتکرار رخ می‌دهند؟"],
-            "focus": focus, "confidence": 0.4}
+            "focus": focus, "confidence": 0.4, **extra}
 
 
 def _history_digest(n: int = 6) -> list:
@@ -424,16 +619,39 @@ def deep_dive(focus, snap: dict) -> dict:
     return {}
 
 
-def _trajectory(prev: dict, u: dict) -> dict:
-    """خود-تصحیح: فهمِ نو را با قبلی می‌سنجد — focus پایدار شد؟ اطمینان بالا رفت؟ (همگرایی)."""
+def _trajectory(prev: dict, u: dict, backend: "str | None" = None) -> dict:
+    """خود-تصحیح: فهمِ نو را با قبلی می‌سنجد — focus پایدار شد؟ اطمینان بالا رفت؟ (همگرایی).
+
+    ⚠ ۲۰۲۶-۰۷-۲۸ (پشتِ `_STEER_FLAG`): تا امروز این تابع `confidence` را بدونِ
+    نگاه‌کردن به **مغزی که جواب داده** تفریق می‌کرد. اندازه‌گیری روی تاریخچهٔ زنده:
+    ۲۸ از ۴۶ دلتا بینِ دو backendِ متفاوت محاسبه شده بود — مثلاً ‎-0.45‎ که فقط
+    یعنی «این دور heuristic جواب داد»، نه «فهمم بدتر شد». دو مقیاسِ ناهم‌جنس.
+    حالا: backendِ متفاوت → `comparable=False` و دلتا اصلاً تولید نمی‌شود."""
     pu = prev.get("understanding", {}) if isinstance(prev.get("understanding"), dict) else {}
     pf, nf = prev.get("focus"), (u.get("focus") if isinstance(u, dict) else None)
     pc = pu.get("confidence") if isinstance(pu.get("confidence"), (int, float)) else None
     nc = u.get("confidence") if isinstance(u, dict) and isinstance(u.get("confidence"), (int, float)) else None
     delta = round(nc - pc, 3) if (pc is not None and nc is not None) else None
-    return {"focus_stable": (pf == nf) if pf and nf else None,
-            "prev_focus": pf, "confidence_delta": delta,
-            "converging": bool(pf == nf and (delta or 0) >= 0) if pf and nf else None}
+    out = {"focus_stable": (pf == nf) if pf and nf else None,
+           "prev_focus": pf, "confidence_delta": delta,
+           "converging": bool(pf == nf and (delta or 0) >= 0) if pf and nf else None}
+    if not _on(_STEER_FLAG):
+        return out
+    pb = str(prev.get("source") or "").strip() or None
+    nb = str(backend or "").strip() or None
+    out["prev_backend"], out["backend"] = pb, nb
+    if pb and nb and pb != nb:
+        out.update({"comparable": False, "confidence_delta": None, "converging": None,
+                    "incomparable_reason": "backend-changed"})
+    elif pc is None or nc is None:
+        out.update({"comparable": False, "confidence_delta": None, "converging": None,
+                    "incomparable_reason": "unknown-confidence"})
+    elif pb and nb:
+        out["comparable"] = True
+    else:
+        # یکی از دو طرف backend ندارد → «نمی‌دانم»، نه «مقایسه‌پذیر».
+        out.update({"comparable": None, "incomparable_reason": "backend-unknown"})
+    return out
 
 
 def _cap_history() -> None:
@@ -448,6 +666,29 @@ def _cap_history() -> None:
         pass
 
 
+def _identity() -> dict:
+    """نامِ ارگانیسم و اینکه آن نام از کجا آمده. fail-soft."""
+    try:
+        import identity as _id
+        return _id.snapshot()
+    except Exception:  # noqa: BLE001
+        return {}
+
+
+def _surface_coverage() -> dict:
+    """چند توانایی کارت دارد، و چندتاشان الان محتوای واقعی نشان می‌دهند.
+
+    fail-soft: نبودِ فهرست = {} — کوریِ صادق بهتر از عددِ ساختگی است."""
+    try:
+        import capability_registry as _cr
+        c = _cr.coverage()
+        return {"cards_total": c.get("total"), "cards_live": c.get("live"),
+                "cards_dark": c.get("dark"),
+                "dark_keys": (c.get("dark_keys") or [])[:12]}
+    except Exception:  # noqa: BLE001
+        return {}
+
+
 def _hash_digest(snap: dict) -> dict:
     """زیرمجموعهٔ معنادار و کم‌نوسانِ snapshot برای change-gate — کلاکِ خام (beat/ts) و
     شمارشِ نوسانیِ خطا/لِین را حذف می‌کند تا فقط «تغییرِ مهم برای فهم» hash را عوض کند."""
@@ -460,6 +701,13 @@ def _hash_digest(snap: dict) -> dict:
             # مسیرِ `cached:no-change` می‌ماند — و آن مسیر همین حالا ۱۱ چرخه یخ‌زده
             # است. یعنی فیکس روی دیسک بود ولی باور عوض نمی‌شد (۲۰۲۶-۰۷-۲۷).
             "revenue": snap.get("revenue"),
+            # سطحِ دیدنی هم باید hash را عوض کند، وگرنه توانایی‌ای که تازه دیدنی
+            # (یا تازه نامرئی) شده تا تغییرِ بعدیِ چیزِ دیگری پشتِ `cached:no-change`
+            # می‌ماند — همان دامی که باورِ درآمد را ۱۱ چرخه یخ زده نگه داشت.
+            "surface_live": (snap.get("surface") or {}).get("cards_live"),
+            "surface_total": (snap.get("surface") or {}).get("cards_total"),
+            # عوض‌شدنِ نام یا بازشدنِ مسیرِ خودنام‌گذاری باید همان چرخه دیده شود.
+            "identity_name": (snap.get("identity") or {}).get("name"),
             # تصحیحِ تازهٔ مالک باید **همان چرخه** تشخیص را تکان بدهد، نه اینکه
             # پشتِ `cached:no-change` منتظرِ یک تغییرِ بی‌ربط بماند.
             "corrections": len(snap.get("owner_corrections") or []),
@@ -483,6 +731,10 @@ def _should_deep_dive(u: dict, prev: dict, focus) -> bool:
     if not prev.get("deep_dive"):
         return True
     conf = u.get("confidence")
+    # «نمی‌دانم چقدر مطمئنم» خودش دلیلِ کاوش است — نه دلیلِ رد. (شاخهٔ heuristic
+    # از امروز confidence=None می‌دهد و بدونِ این خط بی‌صدا از کاوش رد می‌شد.)
+    if conf is None and _on(_PROBE_FLAG):
+        return True
     if isinstance(conf, (int, float)) and conf < 0.75:
         return True
     for p in (u.get("pathology") or []):
@@ -533,6 +785,23 @@ def _spine_outcome(rec: dict) -> None:
         pass
 
 
+def _queue_unknown_root_causes(rec: dict) -> dict:
+    """هر ریشهٔ نامعلوم → حداکثر یک فرضیهٔ قابل‌آزمونِ تازه در صفِ C6.
+
+    فقط پیشنهاد: ردیف `PENDING` می‌نشیند و هیچ اجرایی این‌جا رخ نمی‌دهد. کلِ
+    قرارداد/سقف/dedupe دستِ `c6_producer` است — این‌جا فقط پل است. fail-soft:
+    نبودِ ماژول یا هر خطا هرگز حلقهٔ خودشناسی را نمی‌کشد."""
+    try:
+        _o = str(_HERE.parent)
+        if _o not in sys.path:
+            sys.path.insert(0, _o)
+        import c6_producer  # noqa: WPS433 — lazy: فلگ خاموش → صفر import
+        return c6_producer.produce_from_unknown(
+            opslib.STATE_DIR / "c6" / "hypothesis-queue.jsonl", record=rec)
+    except Exception as e:  # noqa: BLE001
+        return {"produced": False, "reason": f"failsoft:{type(e).__name__}"}
+
+
 def run(persist: bool = True) -> dict:
     """یک دورِ خودشناسیِ عمیقِ **بهینه** (2026-07-18، «سریع‌تر و بهینه‌تر»):
     ۱) CHANGE-GATE: اگر hashِ تصویرِ معنادار = دورِ قبل → صفر کالِ LLM؛ فهمِ قبلی حمل می‌شود،
@@ -545,6 +814,11 @@ def run(persist: bool = True) -> dict:
         prev = {}
     snap = snapshot()
     h = _snapshot_hash(snap)
+    # ۲۰۲۶-۰۷-۲۸ — سنجشِ دقتِ خودمدل (C3): ادعای snapshot را در برابرِ منابعِ حقیقتِ
+    # مستقل می‌سنجد. پشتِ OCTOPUS_SELFKNOW_ACCURACY (خاموش → {}؛ byte-identical با
+    # نبودِ ماژول). fail-soft: خطا → {}. یک‌بار اینجا می‌سنجیم تا هر دو شاخه (cached/
+    # changed) تغذیه شوند — دقتِ خودمدل نباید به تغییرِ تصویر گره بخورد.
+    accuracy = _self_accuracy_measure(snap)
 
     # ── CHANGE-GATE: تصویرِ معنادار عوض نشده → هیچ کالِ LLM (بزرگ‌ترین صرفه) ──
     if prev and prev.get("snapshot_hash") == h and prev.get("understanding"):
@@ -554,6 +828,8 @@ def run(persist: bool = True) -> dict:
         rec["source"] = "cached:no-change"
         rec["stable_cycles"] = int(prev.get("stable_cycles", 0) or 0) + 1
         rec["llm_calls"] = 0
+        if accuracy:
+            rec["self_accuracy"] = accuracy
         if persist:
             _persist_latest(rec, append_history=False)
         return rec
@@ -565,7 +841,12 @@ def run(persist: bool = True) -> dict:
     focus = u.get("focus") if isinstance(u, dict) else None
     is_llm = str(synth.get("source", "")).startswith("llm")
     calls = 1 if is_llm else 0
-    if focus and is_llm and _should_deep_dive(u, prev, focus):
+    # ۲۰۲۶-۰۷-۲۸ — تنها پلِ «عدم‌قطعیت → کنش» روی `is_llm` گیت بود، یعنی دقیقاً
+    # همان شاخه‌ای که «نامعلوم (نیاز به کاوش)» تولید می‌کند **هرگز** نمی‌توانست
+    # کاوش را ماشه بکشد. رکوردِ زندهٔ امروز اثباتش بود: heuristic · deep_dive={} ·
+    # deep_dive_ran=false · دو ریشهٔ نامعلوم. پشتِ فلگ چون یک کالِ LLMِ اضافه است.
+    _may_probe = is_llm or (_on(_PROBE_FLAG) and bool(focus))
+    if focus and _may_probe and _should_deep_dive(u, prev, focus):
         deep = deep_dive(focus, snap)
         calls += 1
         deep_ran = True
@@ -584,12 +865,30 @@ def run(persist: bool = True) -> dict:
         "focus": focus,
         "understanding": u,
         "deep_dive": deep,
-        "trajectory": _trajectory(prev, u),
+        "trajectory": _trajectory(prev, u, backend=synth.get("source")),
         "snapshot_digest": {"legs_alive": [k for k, v in (snap.get("legs") or {}).items() if v.get("live")],
                             "in_fear": (snap.get("stress") or {}).get("in_fear"),
                             "money_musd": (snap.get("money") or {}).get("musd"),
                             "recent_errors": snap.get("recent_errors")},
     }
+    if accuracy:
+        rec["self_accuracy"] = accuracy   # C3 (2026-07-28) — دقتِ خودمدل در هر نسخه
+    # ۲۰۲۶-۰۷-۲۸ — `initiative._context()` سه سال است این دو کلید را از **رکورد**
+    # می‌خواند (`sk.get("owner_corrections")`, `sk.get("owner_verdicts_open")`)،
+    # ولی رکورد هرگز آن‌ها را نداشته: فقط `snapshot()` می‌سازدشان و همان‌جا
+    # می‌میرند. اندازه‌گیری: هر ۱۳ کلیدِ رکوردِ زنده — هیچ‌کدام این دو نیست.
+    # پس دو شاخهٔ خواندنِ ساکت. حالا آن‌چه مصرف‌کننده می‌خواهد در رکورد هست.
+    if _on(_STEER_FLAG):
+        for _k in ("owner_verdicts_open", "owner_corrections"):
+            if snap.get(_k):
+                rec[_k] = snap[_k]
+    # ── «نمی‌دانم» باید به جایی برسد (۲۰۲۶-۰۷-۲۸) ────────────────────────────
+    # `root_cause: "نامعلوم (نیاز به کاوش)"` دو مصرف‌کننده داشت و **هر دو فقط
+    # رندرش می‌کردند**. یعنی ارگانیسم می‌گفت «نیاز به کاوش» و هیچ کاوشی صف
+    # نمی‌شد. این‌جا همان جمله به یک ردیفِ PENDINGِ قابل‌ابطال در صفِ C6 تبدیل
+    # می‌شود — propose-only، با همان قراردادی که `c6_producer` از قبل دارد.
+    if _on(_UNKNOWN_C6_FLAG):
+        rec["c6_unknown"] = _queue_unknown_root_causes(rec)
     if persist:
         _persist_latest(rec, append_history=True)
         _spine_outcome(rec)   # LIMITED shadow (flag-off → no-op؛ fail-soft)

@@ -172,6 +172,13 @@ def propose(*, target_rel: str, defect: str, fix_hint: str = "",
         "suite_tail": str((shadow or {}).get("suite_tail") or "")[:400],
         "bytes_before": len(original.encode("utf-8")),
         "bytes_after": len(candidate.encode("utf-8")),
+        # ۲۰۲۶-۰۷-۲۷ — متنِ پچ تا امروز **ذخیره نمی‌شد**، فقط diffِ ۶۰۰کاراکتری.
+        # یعنی حتی اگر مالک «آره» می‌زد، چیزی برای اعمال وجود نداشت: کارت یک
+        # گزارش بود نه یک پیشنهادِ اجراشدنی. بدونِ این کلید، کلِ حلقهٔ خودپچ‌زنی
+        # ساختاراً به بن‌بست می‌خورد — و هیچ‌کس نمی‌فهمید چون هر تکه جدا کار
+        # می‌کرد.
+        "content": candidate,
+        "shadow_green": green,
     }
     try:
         _dir().mkdir(parents=True, exist_ok=True)
@@ -430,7 +437,100 @@ def drive(*, channel=None, ask_fn=None, shadow_fn=None) -> dict:
             channel.send_text(card_text(res), stream="c6")
         except Exception:  # noqa: BLE001 — کارت هرگز حلقه را نمی‌کشد
             pass
+    _offer_patch_to_owner(res)
     return res
+
+
+def _authorization_shadow(res: dict) -> dict:
+    """سایه: پچ را به قراردادِ typed ترجمه کن و اثرانگشتِ **دقیقِ اکشن** را ثبت کن.
+
+    ۲۰۲۶-۰۷-۲۸ — قدمِ ۴ از فهرستِ «vertical slice». چرا `self_patch` اولین
+    مشتری شد: این تنها مسیری است که به نوشتنِ کد روی درختِ **زنده** می‌رسد، پس
+    بیشترین سود را از گاردِ TOCTOU می‌برد؛ و کارتِ تأییدِ خودش را از قبل دارد،
+    پس اینجا فقط یک لایه اضافه می‌شود نه یک جریانِ تازه.
+
+    مسئله‌ای که این لایه برای حلش هست: امروز تأیید به **پیشنهاد** گره می‌خورد،
+    نه به **محتوای دقیقِ پچ**. یعنی بینِ «آره»ی مالک و لحظهٔ اعمال، اگر متنِ
+    پچ عوض شود، همان تأیید هنوز معتبر شمرده می‌شود. `action_sha256` این شکاف
+    را می‌بندد: مجوز به هشِ دقیقِ (هدف + عملیات + محتوا) بسته می‌شود.
+
+    ⚠️ این تابع **هیچ‌چیز را گیت نمی‌کند** — فقط می‌سنجد و می‌نویسد. تبدیلش به
+    گاردِ واقعی قدمِ بعد و تصمیمِ مالک است. سایه‌بودن عمدی است: قبل از اینکه
+    یک گارد بتواند چیزی را رد کند، باید ثابت شود روی ترافیکِ واقعی درست
+    قضاوت می‌کند. (درسِ همین روز: گاردِ درست روی مکانیزمِ غلط.)
+    """
+    import os as _os
+    if str(_os.environ.get("OCTOPUS_WIRE_AUTHZ_SHADOW", "")).strip().lower() \
+            not in ("1", "true", "yes", "on"):
+        return {"ok": False, "reason": "flag-off"}
+    try:
+        import hashlib as _hl
+        import sys as _s
+        from pathlib import Path as _P
+        _r = str(_P(__file__).resolve().parent)
+        if _r not in _s.path:
+            _s.path.insert(0, _r)
+        import control_contracts as _cc
+        import opslib as _ops
+
+        content = str((res or {}).get("content") or "")
+        target = str((res or {}).get("target") or "")
+        csha = _hl.sha256(content.encode("utf-8")).hexdigest()
+        spec = _cc.ActionSpec(
+            action_type="code_patch", target=target, operation="apply_patch",
+            args={"content_sha256": csha, "bytes": len(content)},
+            reversible=True, sandbox_required=True)
+        prop = _cc.ActionProposal.create(
+            mission_id=str(res.get("id") or "self-patch"),
+            task_id=str(res.get("id") or "self-patch"),
+            trace_id=str(res.get("id") or "self-patch"),
+            tenant_id="personal", project_id="octopus-core",
+            agent_id="self_patch", title="self-patch",
+            summary=str(res.get("defect") or "")[:200],
+            risk="high", confidence=1.0 if res.get("shadow_green") else 0.0,
+            action=spec, expected_impact="one file on the live tree",
+            rollback_plan="git revert of the applied patch")
+        verdict = _cc.authorization(prop, None)
+        rec = {"ts": _ops.now_iso(), "target": target,
+               "action_sha256": prop.action_sha256,
+               "content_sha256": csha,
+               "allow": verdict.get("allow"), "reason": verdict.get("reason")}
+        _ops.append_jsonl(_ops.STATE_DIR / "authz-shadow.jsonl", rec)
+        return {"ok": True, **rec}
+    except Exception as e:  # noqa: BLE001 — سایه هرگز مسیرِ پیشنهاد را نمی‌کشد
+        return {"ok": False, "reason": type(e).__name__}
+
+
+def _offer_patch_to_owner(res: dict) -> dict:
+    """پچِ سبزِ سایه → کارتِ **دکمه‌دار** در صفِ تصمیم. پشتِ فلگ، پیش‌فرض خاموش.
+
+    چرا این حلقه تا امروز باز بود: `card_text()` فقط رشته می‌سازد و `send_text`
+    هیچ `reply_markup` نمی‌گیرد. پس مالک می‌دید «باگی در خودم یافتم و پچش سبز
+    است» و **هیچ راهی برای جواب نداشت**. کارتِ دکمه‌دارِ کامل از قبل در
+    `code_autonomy.propose_to_owner` نوشته شده بود و هیچ‌کس صدایش نمی‌زد.
+
+    چرا فلگ‌دار و خاموش: این تنها مسیری است که به نوشتنِ **کد روی درختِ زنده**
+    ختم می‌شود. هفت گیت پایین‌دستش هست (فعال‌سازی، قلب، refractory، سایه، deny،
+    dedup، و از امروز سقفِ کهنگیِ ۴۸ ساعته) — ولی مسلح‌کردنِ ورودیِ آن زنجیره
+    تصمیمِ استقرار است، نه تصمیمِ من."""
+    import os as _os
+    if str(_os.environ.get("OCTOPUS_WIRE_PATCH_CARD", "")).strip().lower()             not in ("1", "true", "yes", "on"):
+        return {"ok": False, "reason": "flag-off"}
+    if not (res or {}).get("shadow_green") or not (res or {}).get("content"):
+        return {"ok": False, "reason": "not-offerable"}
+    # سایهٔ مجوز (قدمِ ۴): می‌سنجد و ثبت می‌کند، هیچ‌چیز را گیت نمی‌کند.
+    # عمداً **بعد از** گاردهای موجود است تا ترتیبِ تصمیم‌ها عوض نشود.
+    _authorization_shadow(res)
+    try:
+        import sys as _s
+        from pathlib import Path as _P
+        _c = str(_P(__file__).resolve().parent / "cortex")
+        if _c not in _s.path:
+            _s.path.insert(0, _c)
+        import code_autonomy as _ca
+        return _ca.propose_to_owner(res)
+    except Exception as e:  # noqa: BLE001 — پیشنهاد هرگز حلقه را نمی‌کشد
+        return {"ok": False, "reason": type(e).__name__}
 
 
 def _queue_effective() -> dict:

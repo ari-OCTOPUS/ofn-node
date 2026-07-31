@@ -104,9 +104,11 @@ def test_absent_state_safe_default_no_crash() -> None:
         # ziman و ۴ پای بیزنس همه پیش‌فرض می‌مانند (هیچ سیگنالِ زنده‌ای تزریق نشده)
         for k in ("ziman", "mining", "crypto", "accounting", "knowledge"):
             assert legs[k]["status"] == render._LEG_DEFAULT["status"], (k, legs[k])
-    # قراردادِ نام‌ها دست‌نخورده: دقیقاً ۹ کلیدِ LEGS
-    assert len(render.LEGS) == 9, render.LEGS
-    assert set(legs.keys()) == set(render.LEGS.keys())
+    # قراردادِ نام‌ها دست‌نخورده. ۲۰۲۶-۰۷-۲۷: عددِ خام (۹) با افزودنِ اتاقِ آینه
+    # کهنه شد. آنچه واقعاً باید بماند این است که `_collect_legs` و `LEGS` **یک
+    # مجموعه** باشند — وگرنه یا پایی بی‌نام می‌ماند یا نامی بی‌داده.
+    assert set(legs.keys()) == set(render.LEGS.keys()), \
+        set(legs.keys()) ^ set(render.LEGS.keys())
 
 
 def test_partial_business_legs_only_named_surface() -> None:

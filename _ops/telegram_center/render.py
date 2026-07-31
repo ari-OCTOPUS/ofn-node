@@ -23,6 +23,7 @@ from __future__ import annotations
 import hashlib
 import html
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -50,6 +51,12 @@ LEGS = {
     # (بدونِ نگاشتِ فرمان). پا نیست — دایجستِ دوره‌ای ندارد؛ فقط گفتگو.
     "mirror": "آینه",
 }
+
+# ورودی‌هایی از LEGS که **اتاق‌اند نه پا**: نام و آیکنِ تاپیک دارند، ولی وضعیت،
+# دایجست و چرخهٔ سلامت ندارند. بدونِ این مجموعه، «اتاق» فقط در ذهنِ نویسنده وجود
+# داشت و هر مصرف‌کننده‌ای باید خودش حدس می‌زد — و یک تست هم دقیقاً سرِ همین حدس
+# شکست. حالا مفهوم صریح است و یک‌جا تعریف شده.
+ROOMS = frozenset({"mirror"})
 
 # برندینگِ بصریِ هر پا (رأی مالک: media-first، آیکنِ ثابت per پا) — جدا از LEGS تا
 # قراردادِ نام‌ها (تست/`display_name`) دست‌نخورده بماند. HQ برای تاپیک/هدرِ فرماندهی.
@@ -397,7 +404,7 @@ def render_leg_digest(leg_key: str, leg: dict | None, config: dict | None = None
     # اتاقِ آینه پا نیست — وضعیتی ندارد که دایجست شود. بدونِ این، حلقهٔ دایجست
     # روزی یک «🪞 آینه ⚪ سیگنالِ زنده‌ای نیست» می‌فرستد؛ یعنی اتاقِ گفتگو با نویزِ
     # خودکار پر می‌شود. حلقه با متنِ خالی فقط سررسید را جلو می‌برد (بی‌ضرر).
-    if str(leg_key or "") == "mirror":
+    if str(leg_key or "") in ROOMS:
         return ""
     d = leg if isinstance(leg, dict) else {}
     name = display_name(leg_key, config)
@@ -678,10 +685,137 @@ def render_map_page(scan_state: dict | None = None) -> tuple:
 
 
 # ─── صفحهٔ صف تأیید واقعی (فاز E — bridge اختاپوس) ───────────────────────────────
+_PAGE = 5          # سقفِ ردیف در هر صفحه (کیبوردِ تلگرام)
+_RISK_ORDER = {"high": 0, "medium": 1, "med": 1, "read": 2, "low": 2}
+
+
+def _by_priority(jobs: list) -> list:
+    """پرخطرها اول. با سقفِ ۵ ردیف، **کدام** ۵تا مهم‌تر از خودِ سقف است:
+    اگر یک کارتِ 🔴 در ردیفِ ۱۲ باشد، عملاً وجود ندارد."""
+    return sorted([j for j in jobs if isinstance(j, dict)],
+                  key=lambda j: _RISK_ORDER.get(str(j.get("risk") or "read"), 2))
+
+
+# ─── بازمانده‌های مناظره: کارتِ واقعی با دکمهٔ واقعی (WS-E) ──────────────────────
+DEBATE_JOB_TYPE = "debate"
+DEBATE_FLAG = "OCTOPUS_WIRE_DEBATE_VERDICT"
+_DEBATE_MAX = 3            # سه ردیف = شش دکمه؛ بیش از این کارت را غیرقابل‌خواندن می‌کند
+
+
+def _debate_on() -> bool:
+    return os.environ.get(DEBATE_FLAG) == "1"
+
+
+def _ap_callback(action: str, jid: str, mint=None) -> str:
+    """callback_data از **رجیستریِ** actions، نه از رشتهٔ hardcode.
+
+    چرا این مسیر: callbackِ اختراعی دکمه‌ای می‌سازد که هیچ handlerی ندارد — بدتر از
+    نبودِ دکمه، چون مالک فکر می‌کند رأی داد. `actions.approval.approve/reject` تنها
+    دو مدخلی‌اند که `center._handle_approval_callback` امروز واقعاً اجرا می‌کند.
+    توکنِ HMAC دقیقاً مثلِ حلقهٔ اصلیِ همین فایل الحاق می‌شود (وگرنه وقتی
+    OCTOPUS_WIRE_CB_TOKEN روشن باشد، هر تپ «توکنِ نامعتبر» می‌خورد)."""
+    name = "approval.approve" if action == "ok" else "approval.reject"
+    base = ""
+    try:
+        _here = str(Path(__file__).resolve().parent)
+        if _here not in sys.path:
+            sys.path.insert(0, _here)
+        import actions as _act  # noqa: WPS433 — lazy؛ import-time ِ render خالص می‌ماند
+        base = str(_act.callback_for(name, id=jid) or "")
+    except Exception:  # noqa: BLE001
+        base = ""
+    if not base:
+        base = f"ap:{action}:{jid}"     # fail-soft: همان قراردادِ رجیستری
+    return f"{base}:{mint(jid, action) or 'x'}" if callable(mint) else base
+
+
+def _debate_pending_path() -> Path:
+    """`_ops/debate/survivors-pending.jsonl` — پروژکشنی که پروسهٔ ارگانیسم می‌نویسد.
+
+    env-اول (همان قرارداد `opslib.OPS`): مسیرِ مشتق از `__file__` بی‌صدا به درختِ
+    **زنده** می‌خورد حتی وقتی نویسنده در worktree/تستِ ایزوله می‌نویسد — دو طرفِ این
+    پل باید به یک فایل نگاه کنند وگرنه کارت همیشه خالی است."""
+    ops = os.environ.get("OPS_DIR")
+    base = Path(ops) if ops else Path(__file__).resolve().parent.parent
+    return base / "debate" / "survivors-pending.jsonl"
+
+
+def ingest_debate_survivors(limit: int = 200) -> list:
+    """پروژکشنِ مناظره → jobِ واقعیِ صفِ تأیید. خروجی: ردیف‌های pending ِ debate.
+
+    ⚠️ چرا این‌جا و نه در debate_loop: قفلِ `approval_store` یک `threading.RLock`
+    است، پس ناوردیِ مستندش می‌گوید فقط **یک** پروسه اجازهٔ نوشتنِ approvals.json را
+    دارد و آن پروسه همین مرکز است (گارد: S1-05 t_o_single_consumer_process_invariant).
+    debate_loop داخلِ تیکِ organism می‌دود؛ اگر خودش add_pending می‌زد، می‌توانست
+    approve ِ همان لحظهٔ مالک را clobber کند. پس ارگانیسم فقط append می‌کند و
+    تبدیلش این‌جا — کنارِ تنها مصرف‌کنندهٔ `ap:` — انجام می‌شود.
+
+    idempotent: شناسه‌ها قطعی‌اند (`dbt-<sig>`)، jobی که قبلاً تصمیم‌گرفته‌شده باشد
+    دوباره ساخته نمی‌شود. fail-soft → [] (کارت بدونِ بخشِ مناظره رندر می‌شود)."""
+    p = _debate_pending_path()
+    try:
+        import approval_store as _aps  # noqa: WPS433 — درونِ telegram_center: مجاز
+    except Exception:  # noqa: BLE001
+        return []
+    seen: dict = {}
+    try:
+        if p.exists():
+            for ln in p.read_text("utf-8", errors="replace").splitlines()[-limit:]:
+                try:
+                    rec = json.loads(ln)
+                except ValueError:
+                    continue
+                if isinstance(rec, dict) and rec.get("id"):
+                    seen[str(rec["id"])] = rec      # آخرین نسخهٔ هر شناسه برنده است
+    except OSError:
+        return []
+    for jid, rec in seen.items():
+        try:
+            if _aps.get(jid) is not None:
+                continue                            # قبلاً هست (pending یا تصمیم‌شده)
+            _aps.add_pending({"id": jid, "type": DEBATE_JOB_TYPE,
+                              "title": rec.get("title") or "ایدهٔ مناظره",
+                              "risk": rec.get("risk") or "medium",
+                              "requires_confirmation": True,
+                              "source": f"debate:{rec.get('topic_id', '')}"})
+        except Exception:  # noqa: BLE001 — یک ردیفِ خراب کلِ کارت را نمی‌کشد
+            continue
+    try:
+        return [j for j in (_aps.load_pending() or [])
+                if isinstance(j, dict) and str(j.get("type")) == DEBATE_JOB_TYPE]
+    except Exception:  # noqa: BLE001
+        return []
+
+
+def render_debate_survivors(rows: list | None = None, mint=None) -> tuple:
+    """(متن، کیبورد) برای ایده‌های مناظره‌ای که منتظرِ رأیِ مالک‌اند.
+
+    rows = jobهای pending با ``type == "debate"`` (از approval_store.load_pending()).
+    تا امروز این‌ها فقط یک **عدد** داخلِ کارتِ مغز بودند؛ اینجا هر ایده متنِ خودش و
+    دو دکمهٔ آره/نه را می‌گیرد. شماره روی دکمه‌ها عمدی است: بدونِ آن سه ردیفِ «آره»
+    از هم قابلِ تشخیص نیستند. rows تهی → ("", []) تا صداکننده چیزی نچسباند."""
+    items = [r for r in (rows or []) if isinstance(r, dict)]
+    if not items:
+        return "", []
+    page = items[:_DEBATE_MAX]
+    lines = [f"⚖️ <b>مناظره</b> — <code>{len(items)}</code> ایده منتظرِ رأیِ توست"]
+    kb: list = []
+    for i, job in enumerate(page, 1):
+        jid = str(job.get("id", "?"))[:48]
+        lines.append(f"<b>{i}.</b> {_esc(_one(job.get('title'), 150))}")
+        kb.append([{"text": f"✅ آره {i}", "callback_data": _ap_callback("ok", jid, mint)},
+                   {"text": f"❌ نه {i}", "callback_data": _ap_callback("no", jid, mint)},
+                   {"text": "📝 جزئیات", "callback_data": f"ap:detail:{jid}"}])
+    hidden = len(items) - len(page)
+    if hidden:
+        lines.append(f"▸ {hidden} ایدهٔ دیگر در صف — بعد از رأی به این‌ها می‌آیند")
+    return scrub("\n".join(lines)), kb
+
+
 def render_approvals_queue(pending: list | None = None,
                            summary_counts: dict | None = None,
                            legacy_recent: list | None = None,
-                           mint=None) -> tuple:
+                           mint=None, offset: int = 0) -> tuple:
     """کارتِ صفِ تأیید: pending jobs با دکمه‌های ap:ok/no/detail.
 
     pending = approval_store.load_pending()
@@ -694,16 +828,51 @@ def render_approvals_queue(pending: list | None = None,
     sc = summary_counts if isinstance(summary_counts, dict) else {}
     leg = legacy_recent if isinstance(legacy_recent, list) else []
 
-    n_pend = _int(sc.get("pending")) or len(pend)
+    # ۲۰۲۶-۰۷-۲۷ — قبلاً هدر عددِ درست (۴۵) می‌گفت و بدنه ۵ ردیف نشان می‌داد،
+    # **بدونِ هیچ اشاره‌ای** به ۴۰ تای دیگر و بدونِ هیچ راهی برای رسیدن به آن‌ها.
+    # عددِ صادق در هدر، بریدنِ خاموش در بدنه را جبران نمی‌کند: مالک می‌دید ۴۵ تا
+    # هست ولی نمی‌توانست بیش از ۵ تا را لمس کند.
+    pend = _by_priority(pend)
+    # ── WS-E (پشتِ OCTOPUS_WIRE_DEBATE_VERDICT، پیش‌فرض خاموش) ────────────────
+    # ایده‌های مناظره از فهرستِ صفحه‌بندی‌شده بیرون کشیده می‌شوند و بخشِ خودشان را
+    # می‌گیرند. علتش اندازه‌گیری است، نه سلیقه: امروز هر ۹۴ jobِ pending ِ زنده
+    # risk=high‌اند، پس یک ایدهٔ risk=medium در صفحهٔ ۱۹ می‌افتد — یعنی دکمه‌ای که
+    # هست ولی هیچ‌وقت دیده نمی‌شود، همان «خاموش دقیقاً روی خطی که رفتار عوض می‌شود».
+    # فلگ خاموش → dbt_rows تهی، pend دست‌نخورده، خروجی بایت‌به‌بایتِ امروز.
+    dbt_rows: list = []
+    if _debate_on():
+        dbt_rows = ingest_debate_survivors()      # پروژکشن → jobِ واقعی (این پروسه)
+        _dbt_ids = {str(j.get("id")) for j in dbt_rows}
+        _dbt_ids |= {str(j.get("id")) for j in pend
+                     if str(j.get("type")) == DEBATE_JOB_TYPE}
+        if _dbt_ids:
+            # از فهرستِ صفحه‌بندی‌شده بیرون (وگرنه دو بار دکمه می‌گیرند)
+            pend = [j for j in pend if str(j.get("id")) not in _dbt_ids]
+            _have = {str(j.get("id")) for j in dbt_rows}
+            dbt_rows += [j for j in (pending if isinstance(pending, list) else [])
+                         if isinstance(j, dict) and str(j.get("type")) == DEBATE_JOB_TYPE
+                         and str(j.get("id")) not in _have]
+    total = len(pend)
+    try:
+        off = max(0, min(int(offset), max(0, total - 1)))
+    except (TypeError, ValueError):
+        off = 0
+    page = pend[off:off + _PAGE]
+    hidden = max(0, total - (off + len(page)))
+    n_pend = _int(sc.get("pending")) or total
     lines = [f"📮 <b>صف تأیید</b> · <code>{n_pend}</code> منتظر",
              f"✅ تأییدشده <code>{_int(sc.get('approved'))}</code> · "
              f"❌ ردشده <code>{_int(sc.get('rejected'))}</code> · "
              f"🎯 انجام‌شده <code>{_int(sc.get('done'))}</code>"]
+    dbt_text, dbt_kb = render_debate_survivors(dbt_rows, mint=mint)
+    if dbt_text:
+        lines.append(DIVIDER)
+        lines.append(dbt_text)
     if not pend:
         lines.append("هیچ jobی منتظرِ تأیید نیست.")
     else:
         lines.append(DIVIDER)
-        for job in pend[:5]:        # حداکثر ۵ مورد (سقفِ تلگرام)
+        for job in page:
             if not isinstance(job, dict):
                 continue
             jid = str(job.get("id", "?"))[:48]
@@ -711,6 +880,9 @@ def render_approvals_queue(pending: list | None = None,
             title = _one(job.get("title"), 60)
             risk_emoji = "🔴" if risk == "high" else ("🟡" if risk == "medium" else "🟢")
             lines.append(f"{risk_emoji} <code>{_esc(jid)}</code> · {_esc(title)}")
+        if hidden or off:
+            lines.append(f"▸ نمایش {off + 1}–{off + len(page)} از {total} "
+                         f"(پرخطر اول){' · ' + str(hidden) + ' تای دیگر مانده' if hidden else ''}")
     if leg:
         lines.append(DIVIDER)
         lines.append("📜 آخرین verdictها:")
@@ -718,9 +890,9 @@ def render_approvals_queue(pending: list | None = None,
             if isinstance(v, dict):
                 emo = {"ok": "✅", "no": "❌", "later": "⏳"}.get(str(v.get("verdict")), "•")
                 lines.append(f"{emo} <code>{_esc(str(v.get('id', '?'))[:32])}</code>")
-    # کیبورد: per-job دکمه‌های ok/no/detail (اگر pending هست) + refresh + منو
-    kb: list = []
-    for job in pend[:5]:
+    # کیبورد: بازمانده‌های مناظره اول (اگر فلگ روشن) + per-job ok/no/detail + refresh
+    kb: list = list(dbt_kb)
+    for job in page:
         if not isinstance(job, dict):
             continue
         jid = str(job.get("id", "?"))[:48]
@@ -735,6 +907,16 @@ def render_approvals_queue(pending: list | None = None,
         kb.append([{"text": f"✅ تأیید {jid[:20]}", "callback_data": ok_cb},
                    {"text": f"❌ رد {jid[:20]}", "callback_data": no_cb},
                    {"text": "📝 جزئیات", "callback_data": f"ap:detail:{jid}"}])
+    # صفحه‌بندی: بدونِ این، آیتمِ ششم به بعد از هیچ سطحی قابلِ لمس نبود.
+    nav = []
+    if off > 0:
+        nav.append({"text": "◀️ قبلی",
+                    "callback_data": f"ap:page:{max(0, off - _PAGE)}"})
+    if hidden:
+        nav.append({"text": f"بعدی ({hidden}) ▶️",
+                    "callback_data": f"ap:page:{off + _PAGE}"})
+    if nav:
+        kb.append(nav)
     kb.append([{"text": "🔄 تازه‌سازی", "callback_data": "mn:ap"}])
     kb.append([{"text": "🔙 منو", "callback_data": "mn:menu"}])
     return scrub("\n".join(lines)), kb

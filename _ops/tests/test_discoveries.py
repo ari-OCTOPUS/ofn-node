@@ -48,12 +48,36 @@ def t_b_web_research_fallback_topics_always_learn():
 def t_c_web_research_records_discovery():
     os.environ[wr.FLAG_ENV] = "1"
 
+    # ۲۰۲۶-۰۷-۲۸ — stub حالا عنوانی می‌دهد که به **همان کوئری** ربط دارد.
+    #
+    # نسخهٔ قبلی برای هر موضوعی «Neural network» برمی‌گرداند. از وقتی
+    # `web_research._relevant()` نتیجهٔ بی‌ربط را دور می‌ریزد (گاردِ همان روز:
+    # کوئری «perception bias» → «Perceptual hashing» فقط هم‌پیشوند بود و
+    # «چیزی که یاد گرفتم» نامیده می‌شد)، این stub صفر نتیجه می‌داد و هیچ کشفی
+    # ثبت نمی‌شد. موضوع‌های fallback «reinforcement learning» و
+    # «vector memory databases»‌اند — هیچ واژهٔ مشترکی با «Neural network».
+    #
+    # این تست **سیم‌کشی** را می‌سنجد نه ربط را، پس stub باید مثلِ یک موتورِ
+    # واقعی رفتار کند: عنوانی هم‌واژه با پرسش. ضعیف‌کردنِ گارد برای سبزکردنِ
+    # تست، همان کاری است که قاعدهٔ این مخزن ممنوع کرده.
+    def _q(url):
+        import urllib.parse as _up
+        qs = _up.parse_qs(_up.urlparse(url).query)
+        raw = (qs.get("search") or qs.get("q") or [""])[0]
+        return _up.unquote_plus(raw) or "reinforcement learning"
+
     def fake(url):
         if "opensearch" in url:
-            return json.dumps(["q", ["Neural network"], [""], ["u"]])
+            t = _q(url).title()
+            return json.dumps(["q", [t], [""], ["u"]])
         if "rest_v1/page/summary" in url:
-            return json.dumps({"title": "Neural network", "extract": "a model"})
+            title = _up_title(url)
+            return json.dumps({"title": title, "extract": "a model"})
         return ""
+
+    def _up_title(url):
+        import urllib.parse as _up
+        return _up.unquote(url.rsplit("/", 1)[-1]).replace("_", " ")
     try:
         before = disc.unseen_count()
         r = wr.run_and_persist([], opener=fake, beat=2)   # خالی → fallback

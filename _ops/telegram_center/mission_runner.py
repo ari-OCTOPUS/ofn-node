@@ -33,6 +33,7 @@ import re
 import subprocess
 import sys
 import time
+from dataclasses import asdict
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
@@ -50,6 +51,10 @@ try:
     import action_graph  # noqa: E402
 except Exception:  # noqa: BLE001
     from . import action_graph  # type: ignore  # noqa: E402
+try:
+    import context_bundle as _context_bundle  # noqa: E402
+except Exception:  # noqa: BLE001
+    _context_bundle = None  # type: ignore
 
 # ── قرارداد v0 ────────────────────────────────────────────────────────────────
 ALLOWLIST = ("code.plan", "code.test", "code.diff", "doctor.review", "epistemics.review")
@@ -223,6 +228,25 @@ def run_mission(mid: str, *, vault_root: "Path | str | None" = None,
             "started_at": mission._now_iso(), "actions": todo, "skipped": skipped}
     if not _atomic_write_json(art / "run.json", head):
         return {"ok": False, "refused": "artifact_write_failed"}
+    # Narrow machine handoff: task state is offloaded into a typed phase bundle rather
+    # than replaying mission/chat history into every specialist.
+    if _context_bundle is not None:
+        try:
+            bundle = _context_bundle.ContextBundle.create(
+                mission_id=m.get("mission_id") or m["id"],
+                task_id=m.get("task_id") or f"task-{m['id']}",
+                trace_id=m.get("trace_id") or f"trace-{m['id']}",
+                tenant_id=m.get("tenant_id") or "personal",
+                project_id=m.get("project_id") or "octopus-core",
+                agent_role="mission_runner", phase="verify",
+                objective=m.get("owner_intent") or "verify mission",
+                constraints=["allowlisted actions only", "no live-tree mutation"],
+                verified_facts=[f"risk={m.get('risk')}", f"state={m.get('state')}"],
+                tool_allowlist=["git-worktree", "python-test"],
+                output_contract={"run.json": "required", "test logs": "on code.test"})
+            _atomic_write_json(art / "context-bundle.json", asdict(bundle))
+        except Exception:  # noqa: BLE001 — context packaging never weakens runner containment
+            pass
 
     results: list[dict] = []
     wt = None
