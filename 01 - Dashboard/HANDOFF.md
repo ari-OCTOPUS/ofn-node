@@ -1,6 +1,6 @@
 ---
 type: handoff
-updated: 2026-07-30
+updated: 2026-07-31
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
@@ -8,6 +8,8 @@ updated: 2026-07-30
 > قاعده: این فایل ایندکسِ wikilink است، زیرِ ۲۰۰ خط — نه آرشیو. تاریخچهٔ کاملِ قبلی: `_Archive/Logs/HANDOFF-archive-2026-07-16.md` (۲۶۳KB، قرنطینه‌شده 2026-07-16). سرریزِ 2026-07-29 (ورودی‌های ≤ 07-24): `_Archive/Logs/HANDOFF-archive-2026-07-29.md`.
 
 ## وضعِ لحظه‌ای
+
+- 🧩 **2026-07-31 (مأموریتِ یکپارچه‌سازی، شاخهٔ `claude/octopus-code-integration-175ecb` — merge نشده، صفر لمسِ درختِ زنده/فلگ/restart.** شاخه از master ِ ۱۸۳-کامیت-عقب ff شد به نوکِ tg-p2 و رویش: (۱) **نجاتِ کدِ زندهٔ بی‌گیت** — بستهٔ کاملِ owner_console (مسیرِ داغِ center به فایلِ بی‌گیت وابسته بود) + epoch_guard + ۶ ماژول + ۴۴ تستی که TESTS ِ tracked نامشان را داشت (۴۳ قرمزِ ساختگی روی هر clone). (۲) **VQ-STATE-WRITE-001 بسته (sandbox):** LockedJson.write حالا fsync+retry+رسیدِ شکست دارد و snapshot رسیدِ تازه را blocker می‌کند. (۳) **درزِ VQ-MISSION-CARD-001 وصل (flag-off):** دو missionِ واقعیِ needs_approval که مالک هرگز ندید، بعد از arm کارتِ ap: می‌شوند. (۴) **حافظه دیگر فقط-نوشتنی نیست (flag-off):** retrieval ِ ساخت‌یافتهٔ مشورتی پیش از planning، مشاهده‌پذیر در دفترِ چرخه. (۵) **MANIFEST_INVALID قابلِ‌دیدن** + اولین manifest ِ world_discovery + ثبتِ ۲۱ سوییتِ یتیمِ سبز در run_all. ۱۹ جهش قرمز؛ رگرسیون سبز. **کشفِ ساختاری:** درختِ زنده ~۱۲۰ فایلِ tracked ِ کامیت‌نشده اجرا می‌کند — ۲۹/۳۶ قرمزِ baseline ازهمین‌جاست → کارتِ [[../VERDICT_QUEUE|VQ-LIVE-DIRTY-RECONCILE-001]]. رأی‌های باز: merge + arm ِ دو فلگِ نو — [[../_program-deliverables/octopus-unification-2026-07-31/LIVE-GATE-CARD-MISSION-CARD|کارتِ arm]] · پرونده: [[../_program-deliverables/octopus-unification-2026-07-31/FINAL-VERDICT|FINAL-VERDICT]] · [[../_program-deliverables/octopus-unification-2026-07-31/02-CONFLICT-MAP|CONFLICT-MAP]] · [[../_program-deliverables/octopus-unification-2026-07-31/12-HANDOFF|HANDOFF ِ مأموریت]].
 
 - 🦵🟢 **2026-07-30 (نیمه‌شب) — «گروه تلگرام هیچی نداره» سه باگِ مستقل بود که هر سه روی درختِ زنده *تصادفاً* پنهان مانده بودند؛ و راهنمایی که در ابسیدین باشد راهنما نیست.** کامیت‌ها: `d4d342c` · `b8814b1` · کامیتِ راهنما. راهنمای انسانی: [[راهنمای تلگرام اختاپوس]] — حالا **داخلِ خودِ تلگرام** هم پین است.
   **🔴 دو نویسنده روی یک فایلِ حالت.** `cfg` در `beat()` یک‌بار از دیسک خوانده می‌شود و هر `_save_config(cfg)` ِ بعدی همان نسخهٔ کهنه را می‌نویسد — ولی `_refresh_leg_card` مستقل load/save می‌کند. پس شناسهٔ کارت ثبت می‌شد و **همان ضربان بلعیده** می‌شد (شاخهٔ پالسِ ساعتی، `last_pulse=0` ⇒ بارِ اول همیشه سررسیده). روی درختِ زنده تصادفاً جان برد چون آن ضربان پالس نداشت. درمان: merge-back ِ چهار کلید. حذفِ همین درمان علاوه بر گاردِ خودم `t_c_digest_cadence` را هم قرمز می‌کند ⇒ باگ فراتر از این فیچر اثر داشت.
