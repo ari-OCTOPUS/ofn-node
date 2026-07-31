@@ -1600,7 +1600,15 @@ class TelegramApprovalChannel(ApprovalChannel):
             # محیطی** ساکت می‌شود — پاسخِ مستقیمِ مالک (chat_id صریح) و هشدارِ
             # فوری هرگز. چیزی صف نمی‌شود: جریانِ محیطی دوره‌ای است و نسخهٔ بعدی
             # خودش می‌آید؛ نگه‌داشتنش فقط رگبارِ صبحگاهی می‌سازد.
-            if _quiet_now() and str(stream) not in _NEVER_QUIET:
+            # ⚠️ ۲۰۲۶-۰۷-۳۱ (یافتهٔ اسکنِ عمیق): پیامِ **دکمه‌دار** از این دو
+            # فیلتر مستثناست. کارتِ reply_markup دار یعنی «نیازمندِ رأیِ مالک»
+            # و رأیِ مصوبِ VQ-TG-HOLD-001 صریح است: «نیازمندِ تأیید → فوری با
+            # کارتِ معتبر». تا امروز ۹ درخواستِ ابزار delivered=True ثبت شده
+            # بود در حالی که hold کیبوردشان را دور ریخته بود — مالک عملاً هرگز
+            # نتوانسته بود روی درخواستِ ابزار ✅ بزند.
+            _interactive = bool(reply_markup)
+            if (_quiet_now() and str(stream) not in _NEVER_QUIET
+                    and not _interactive):
                 return False
             # ── سطحِ نسخهٔ ۲ (رأیِ مالک ۲۰۲۶-۰۷-۲۸) ─────────────────────────
             # «گروه = پاها · یک چتِ خصوصی برای خودآگاهی · بقیه جای دیگر» و
@@ -1617,9 +1625,14 @@ class TelegramApprovalChannel(ApprovalChannel):
                 if _sp is not None:
                     _dest, _key = _sp.route(stream)
                     if _dest == _sp.HOLD:
-                        _sp.hold(stream, text)
-                        return False
-                    _policy = (_dest, _key)
+                        if not _interactive:
+                            _sp.hold(stream, text)
+                            return False
+                        # کارتِ دکمه‌دار هرگز HOLD نمی‌شود — به DM ِ مالک
+                        # می‌رود، همان‌جایی که handler ِ همین بات نشسته.
+                        _policy = ("dm", _key)
+                    else:
+                        _policy = (_dest, _key)
             except Exception:  # noqa: BLE001 — سیاست هرگز مسیرِ ارسال را نمی‌کشد
                 pass
             # ۲۰۲۶-۰۷-۲۸ (اصلاحِ همان روز) — نسخهٔ اول فقط شاخهٔ HOLD را سیم کرده
