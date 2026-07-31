@@ -20,6 +20,7 @@ I3 (fail-closed): اگر جمع ماه از cap_monthly گذشت، یا billed (
 """
 from __future__ import annotations
 
+import datetime as _dt
 import json
 import sqlite3
 import sys
@@ -54,6 +55,33 @@ def _organ_of(business: str) -> str:
     return ORGAN_MAP.get(b, f"UNMAPPED:{b or 'none'}")
 
 
+def _local_day(ts: str) -> str:
+    """تاریخِ **محلیِ** یک ts ِ لجرِ ژنوم.
+
+    ⚠️ ۲۰۲۶-۰۸-۰۱، ۰۰:۰۵ محلی — دو ساعت در یک بدن:
+        ledger.py:61  ts = datetime.now(timezone.utc)   → «2026-07-31»
+        opslib.today()/month()                          → «2026-08-01»
+    سیدنی UTC+10 است، پس ده ساعتِ اولِ هر روزِ محلی، هزینهٔ استکِ ژنوم با
+    تاریخِ **دیروز** ثبت می‌شود و `today_musd` نمی‌بیندش؛ روزِ اولِ ماه،
+    `month_musd` هم نمی‌بیندش. یعنی سقفِ ماهانه ده ساعت در روز کور بود و
+    reconcile همان کوری را «شکافِ رصد» می‌خواند. عددِ پول نباید به ساعتِ روز
+    وابسته باشد.
+
+    لجر append-only و hash-chain است — بازنویسی نمی‌شود؛ **خواننده** تراز
+    می‌کند. ts ِ بی‌منطقه یا بدشکل ⇒ دقیقاً رفتارِ قبلی (۱۰ کاراکترِ اول).
+    """
+    s = str(ts or "")
+    if not s:
+        return ""
+    try:
+        d = _dt.datetime.fromisoformat(s.replace("Z", "+00:00"))
+    except ValueError:
+        return s[:10]
+    if d.tzinfo is None:
+        return s[:10]
+    return d.astimezone().date().isoformat()
+
+
 def read_genome() -> dict:
     """METRICهای llm_cost_usd از ledger ژنوم. همهٔ مصرف این استک = ارگان GENOME_SYS."""
     out = {"events": 0, "cost_musd": 0, "by_day": {}, "suspect_zero": 0, "source": None}
@@ -75,7 +103,7 @@ def read_genome() -> dict:
             p = rec.get("payload") or {}
             if "llm_cost_usd" not in p:
                 continue
-            day = (rec.get("ts") or "")[:10]
+            day = _local_day(rec.get("ts") or "")
             cost = p.get("llm_cost_usd")
             m = opslib.micro(float(cost or 0.0))
             out["events"] += 1

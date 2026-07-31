@@ -25,9 +25,18 @@ def git(*args, binary=False, ok=(0,)):
     return r.stdout if binary else r.stdout.decode("utf-8", "replace")
 
 
+# مقصد از خطِ فرمان — پیش‌فرض master، همان رفتارِ دیروز.
+# ⚠️ ۰۸-۰۱: درختِ زنده خودش روی master است، پس `merge --ff-only master` هیچ
+# کاری نمی‌کند و اسکریپت «سبز» چاپ می‌کرد بی‌آنکه چیزی deploy شده باشد.
+# مقصدِ واقعی نامِ شاخهٔ کار است؛ ref را صداکننده می‌دهد.
+TARGET = (sys.argv[1] if len(sys.argv) > 1 else "master").strip()
+
 head = git("rev-parse", "HEAD").strip()
-master = git("rev-parse", "master").strip()
-print("live HEAD:", head[:9], "-> target:", master[:9])
+master = git("rev-parse", TARGET).strip()
+print("live HEAD:", head[:9], "-> target:", TARGET, master[:9])
+if head == master:
+    print("nothing to deploy - live is already at the target")
+    sys.exit(0)
 
 changed = [ln for ln in git("diff", "--name-only", f"{head}..master").splitlines() if ln]
 status = {}
@@ -41,7 +50,7 @@ for p in changed:
     if st == "??":
         U.append(p)
     elif st.strip():
-        blob = git("show", f"master:{p}", binary=True)
+        blob = git("show", f"{TARGET}:{p}", binary=True)
         try:
             cur = (LIVE / p).read_bytes()
         except OSError:
@@ -75,7 +84,7 @@ for p in U:
 
 # ff (retry for AV locks)
 for i in range(6):
-    r = subprocess.run(["git", "-C", str(LIVE), "merge", "--ff-only", "master"],
+    r = subprocess.run(["git", "-C", str(LIVE), "merge", "--ff-only", TARGET],
                        capture_output=True)
     if r.returncode == 0:
         break
@@ -87,7 +96,7 @@ else:
     sys.exit(4)
 
 new_head = git("rev-parse", "HEAD").strip()
-print("live HEAD now:", new_head[:9], "== master:", new_head == master)
+print("live HEAD now:", new_head[:9], "== target:", new_head == master)
 print("STOP-ORGANISM exists:", (LIVE / "_ops" / "STOP-ORGANISM").exists())
 n_dirty = len([ln for ln in git("status", "--porcelain").splitlines() if ln])
 print("dirty entries after ff:", n_dirty)

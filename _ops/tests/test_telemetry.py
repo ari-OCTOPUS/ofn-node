@@ -117,12 +117,46 @@ def t_germline_lag_vital():
     assert lag2 is not None and lag2 < 0.1, lag2   # تازه‌ترین مصنوع می‌بَرد
 
 
+def t_genome_cost_is_bucketed_by_the_local_day_not_utc():
+    """پولِ امروز نباید به ساعتِ روز وابسته باشد.
+
+    شاهدِ زنده (۲۰۲۶-۰۸-۰۱، ۰۰:۰۵ محلی): سوییت قرمز شد چون ردیفی که همان
+    لحظه نوشته شد با تاریخِ «۲۰۲۶-۰۷-۳۱» ثبت شده بود — لجرِ ژنوم UTC می‌نویسد
+    و تلمتری با تاریخِ محلی جمع می‌زند. سیدنی UTC+10 است، پس ده ساعتِ اولِ هر
+    روزِ محلی، هزینهٔ استکِ ژنوم از `today` و (روزِ اولِ ماه) از `month` غایب
+    بود: سقفِ ماهانه ده ساعت در روز کور، و reconcile همان کوری را «شکافِ رصد»
+    می‌خواند.
+
+    این تست ساعتِ دیوار را انتظار نمی‌کشد؛ خودش همان لحظه را می‌سازد —
+    ۰۰:۳۰ بامدادِ **محلیِ** امروز، نوشته‌شده به UTC، دقیقاً مثلِ خودِ لجر.
+    روی ماشینی با آفستِ صفر هم معتبر می‌ماند (آن‌جا دو تاریخ یکی‌اند).
+    """
+    import datetime as _dt
+    local_early = _dt.datetime.combine(_dt.date.today(), _dt.time(0, 30)).astimezone()
+    ts_utc = local_early.astimezone(_dt.timezone.utc).isoformat()
+    path = opslib.GENOME_DIR / "ledger" / "ledger.jsonl"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    row = json.dumps({"type": "METRIC", "ts": ts_utc, "actor": "router",
+                      "payload": {"llm_cost_usd": 0.25, "model": "m", "task": "t"}},
+                     ensure_ascii=False)
+    with open(path, "a", encoding="utf-8") as fh:
+        fh.write(row + "\n")
+    g = telemetry.read_genome()
+    assert g["by_day"].get(opslib.today(), 0) >= opslib.micro(0.25), (
+        "هزینهٔ بامدادِ امروز در سطلِ امروز نیست: %r" % (g["by_day"],))
+    # و همان عدد باید در جمعِ ماه دیده شود — سطحِ پول، نه فقط سطلِ روز.
+    snap = telemetry.snapshot(write=False)
+    assert snap["month"]["musd"] >= opslib.micro(0.25), snap["month"]
+
+
 if __name__ == "__main__":
     failed = harness.run([
         ("شکافِ رصد (منبعِ تهی) → soft، نه مرگ", t_zero_source_gap_no_death),
         ("ژنوم: METRIC + تله or0", t_genome_metric_and_or0),
         ("مغز: usage + UNMAPPED + NULL", t_brain_usage_unmapped_or0),
         ("واحدها: micro-USD و نرخ پین AUD", t_snapshot_units),
+        ("سطلِ روزِ ژنوم محلی است نه UTC",
+         t_genome_cost_is_bucketed_by_the_local_day_not_utc),
         ("تطبیق سالم", t_reconcile_healthy),
         ("عبور از سقف → FREEZE + CONFLICT", t_reconcile_cap_breach_freezes),
         ("واگرایی billed↔telemetry → STOP-METABOLIC", t_divergence_death),
