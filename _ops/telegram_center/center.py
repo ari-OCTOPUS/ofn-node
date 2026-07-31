@@ -424,10 +424,29 @@ class Center:
 
     def _handle_menu2_callback(self, cbq: dict, data: str, m2) -> dict:
         """verbِ m: — منوی v2 (پشتِ OCTOPUS_WIRE_MENU_V2). dispatch → editِ درجای همان پیام؛
-        fail-soft. صفر settle/effector — فقط ناوبریِ منو (render)."""
+        fail-soft. صفر settle/effector — فقط ناوبریِ منو (render).
+
+        گزینهٔ ② (قرارداد ORPHANS A1): «m:mission» **قبل از** dispatch به درِ
+        واقعی می‌رسد — owner_menu.handle_panel_choice (kind == "prompt") — و
+        متنِ بعدیِ مالک را _awaiting_mission مصرف می‌کند (الگوی
+        _awaiting_counter؛ RAM، ری‌استارت = لغوِ امن). فقط kind == "delegate"
+        حق دارد به menu_integration.dispatch سقوط کند (A3)."""
         msg = cbq.get("message") or {}
         mid = msg.get("message_id")
         chat = (msg.get("chat") or {}).get("id")
+        if str(data or "") == "m:mission":
+            try:
+                import owner_menu as _om
+                _out = _om.handle_panel_choice("m:mission", "")
+                self._awaiting_mission = True
+                if isinstance(mid, int):
+                    self._client.edit(mid, _scrub(str(_out.get("text") or "")),
+                                      keyboard=_out.get("keyboard"),
+                                      chat_id=chat)
+            except Exception:  # noqa: BLE001 — پنلِ شکسته هرگز dispatch را نمی‌کشد
+                pass
+            self._answer(cbq, "متنِ مأموریت را بنویس")
+            return {"kind": "menu2", "data": data, "panel": "mission-prompt"}
         try:
             txt, kb = m2.dispatch(data)
             if isinstance(mid, int):
@@ -876,16 +895,56 @@ class Center:
                     # ۰۷-۳۰: کارتِ تصمیم دکمه دارد و دکمه‌هایش را خودِ همین مرکز
                     # رسیدگی می‌کند ⇒ target باید روی outer بماند (surface-routing
                     # همین را می‌گوید) وگرنه کارتِ مرده می‌سازیم — درسِ tr/iv.
-                    m = self._route_send("center-decision", txt, cfg=cfg,
-                                         keyboard=kb)
+                    # بودجهٔ اعلان (منشور §۳): kind="card". سرریز ⇒ متنِ کارت
+                    # در digest می‌نشیند و seen جلو می‌رود — تحویلِ digestی هم
+                    # تحویل است (وگرنه هر ضربان دوباره defer = digest ِ تکراری).
+                    m, _handed = self._budgeted_send(
+                        "card", txt,
+                        lambda _t=txt, _k=kb: self._route_send(
+                            "center-decision", _t, cfg=cfg, keyboard=_k))
                 except Exception:  # noqa: BLE001
-                    m = None
-                if m is not None:
+                    m, _handed = None, False
+                if _handed:
                     seen.append(did)
                     out["decisions"] += 1
                     dirty = True
             cfg["seen"] = seen[-SEEN_CAP:]
 
+        # ── امیترِ کارت‌های decision_gate (رفعِ outer-bot-7؛ قرارداد ORPHANS B) ──
+        # هندلرِ dg:e از قبل بود ولی هیچ امیتری نبود — دفترِ تصمیم پر می‌شد و
+        # مالک هرگز کارتی نمی‌دید. گیت: فلگِ خودِ ماژول (OCTOPUS_WIRE_DECISION_GATE؛
+        # B5: گیت روی beat، نه روی ماژول) — فلگ خاموش = بایت‌به‌بایتِ امروز.
+        # B1: جریانِ center-decision (outer/DM — دکمه‌دار هرگز روی inner).
+        # B2: _tok_kb اجباری. B3: نشانگر فقط بعدِ تحویلِ تأییدشده (mid ِ واقعی
+        # یا defer ِ تأییدشدهٔ بودجه — هر دو handoff ِ تأییدشده‌اند). B4: صفرِ
+        # کارت با last_scan در خروجیِ beat قابلِ‌مشاهده می‌شود، نه نامرئی.
+        try:
+            import decision_gate as _dgm
+            if _dgm.enabled():
+                try:
+                    _dgcur = float(cfg.get("dg_cursor", 0.0) or 0.0)
+                except (TypeError, ValueError):
+                    _dgcur = 0.0
+                _dgadv = _dgcur
+                _dgcards = _dgm.pending_cards(now=now, limit=3, since=_dgcur)
+                if not _dgcards:
+                    out["dg_scan"] = _dgm.last_scan()
+                for _cd in _dgcards:
+                    _ckb = self._tok_kb(_cd.get("keyboard"))
+                    _ctxt = str(_cd.get("text") or "")
+                    _cm, _chand = self._budgeted_send(
+                        "card", _ctxt,
+                        lambda _t=_ctxt, _k=_ckb: self._route_send(
+                            "center-decision", _t, cfg=cfg, keyboard=_k))
+                    if not _chand:
+                        break                # تحویل نشد ⇒ نشانگر جلو نمی‌رود
+                    _dgadv = max(_dgadv, float(_cd.get("ts") or 0.0))
+                    out["decisions"] += 1
+                if _dgadv > _dgcur:
+                    cfg["dg_cursor"] = _dgadv
+                    dirty = True
+        except Exception:  # noqa: BLE001 — امیترِ کارت هرگز beat را نمی‌کشد
+            pass
         if dirty:
             _save_config(cfg)
         # فاز A (event bridge، هماهنگ با c6_state_machine از Opus مافوق): push رویدادهای
@@ -982,6 +1041,18 @@ class Center:
                 _save_config(cfg)      # cursor ِ هفته فقط بعدِ ارسالِ موفق
         except Exception:  # noqa: BLE001 — مرورِ هفتگی هرگز beat را نمی‌کشد
             pass
+        # ── لِینِ ASKS: تولیدِ سؤال (ثبت است، نه تحویل) ──────────────────
+        # عمداً بی‌فلگ و **قبل از** بلوکِ تحویل: درسِ «ثبت را گیت نکن، تحویل
+        # را» — اگر scan پشتِ فلگ برود، صفی که فلگ قرار است آزادش کند هرگز پر
+        # نمی‌شود. throttle (۹۰۰s) داخلِ خودِ ماژول است؛ آیتمِ error بلند
+        # می‌شود، نه بی‌صدا (دکترینِ صداقت).
+        try:
+            import question_producers as _qp
+            for _it in _qp.scan(now=now):     # throttle داخلِ خودِ ماژول
+                if _it.get("status") == "error":
+                    opslib.alert([f"question_producers: {_it.get('error')}"])
+        except Exception:  # noqa: BLE001 — تولیدِ سؤال هرگز beat را نمی‌کشد
+            pass
         try:
             import question_budget as _qb
             if _qb.enabled():
@@ -993,11 +1064,19 @@ class Center:
                 # نمی‌سوزد؛ ضربانِ بعد (با DM ِ برگشته) دوباره می‌کوشد.
                 _own_qb = getattr(self._client, "owner_chat_id", None)
                 if _qi and _own_qb:
-                    _qm = self._client.send(
-                        _scrub(_qb.question_text(_qi)),
-                        chat_id=_own_qb,
-                        topic_id=self._dm_topic())
-                    if _qm is not None:
+                    # بودجهٔ اعلان (منشور §۳): kind="question" قطع‌کننده است.
+                    # سرریز ⇒ متنِ سؤال (با مارکرِ Q-n) در digest می‌نشیند و
+                    # mark_asked می‌خورد — ریپلای به همان digest هم جواب را
+                    # ثبت می‌کند (مارکر داخلِ متن است). ارسالِ شکست‌خورده ⇒
+                    # asked نمی‌شود؛ ضربانِ بعد دوباره می‌کوشد.
+                    _qtxt = _qb.question_text(_qi)
+                    _qm, _qhand = self._budgeted_send(
+                        "question", _qtxt,
+                        lambda: self._client.send(
+                            _scrub(_qtxt),
+                            chat_id=_own_qb,
+                            topic_id=self._dm_topic()))
+                    if _qhand:
                         _qb.mark_asked(_qi["id"], now=now)  # فقط بعدِ تحویل
         except Exception:  # noqa: BLE001 — بودجهٔ سؤال هرگز beat را نمی‌کشد
             pass
@@ -1162,6 +1241,15 @@ class Center:
             else:
                 lines.append("🛠 بنویس «بساز: …» تا خودش را بسازد")
         except Exception:  # noqa: BLE001
+            pass
+        # سنجهٔ ضدِاسپم — تنها خوانندهٔ ساعتیِ tg_send_log (لِینِ رصد ۰۷-۳۱).
+        # عدد از خودِ لاگ می‌آید، نه از حدس؛ None یعنی حرفی برای گفتن نیست.
+        try:
+            import tg_send_log as _tsl_pulse  # noqa: WPS433
+            _pl = _tsl_pulse.pulse_line(24.0)
+            if _pl:
+                lines.append(_pl)
+        except Exception:  # noqa: BLE001 — سنجه هرگز پالس را نمی‌کشد
             pass
         return "\n".join(lines[:9])
 
@@ -1330,6 +1418,28 @@ class Center:
             if (not _bogus and hashes.get(leg) == h
                     and isinstance(ids.get(leg), int)):
                 return                              # بی‌تغییر — ویرایشِ بیهوده نزن
+            # گاردِ صفر-template (منشور §۵؛ قرارداد ORPHANS C1): کارتِ دوره‌ایِ
+            # پا فقط رخدادِ واقعی — filler/قالبِ پرنشده هرگز بیرون نمی‌رود.
+            # C5: بلاکِ بی‌صدا ممنوع — دلیل به‌عنوانِ ردیفِ held در send-log
+            # می‌نشیند (متنِ ردیف = خودِ دلیل، تا رسید بگوید «چرا» نرفت).
+            # C4: این گارد فقط همین خروجیِ دوره‌ای است؛ پاسخ به مالک/کارتِ
+            # تأیید/جریانِ فوری هرگز از اینجا نمی‌گذرد.
+            try:
+                import leg_activation as _la
+                _gv = _la.guard_send(body, leg=leg)
+            except Exception:  # noqa: BLE001 — گاردِ غایب = رفتارِ امروز
+                _gv = {"send": True, "reason": "guard-unavailable"}
+            if not _gv.get("send"):
+                try:
+                    import tg_send_log as _tsl_lg  # noqa: WPS433
+                    _tsl_lg.record(chat_id=chat, topic_id=tid,
+                                   text=str(_gv.get("reason") or ""),
+                                   stream=f"leg-card-{leg}", ok=False,
+                                   bot_role="outer", surface="held",
+                                   state="held")
+                except Exception:  # noqa: BLE001
+                    pass
+                return
             # گروه ۵ِ اسکن: کارتِ پای بی-pause (system/mirror) دکمهٔ ⏸/▶️ نمی‌گیرد.
             kb = _lt.card_keyboard(leg, pausable=self._leg_pausable(leg))
             mid = ids.get(leg)
@@ -1645,7 +1755,14 @@ class Center:
         if not self._wired() or not text:
             return False
         try:
-            return self._route_send("center-alert", text) is not None
+            # بودجهٔ اعلان: kind="alert" **معاف** است (بحرانی هرگز گیت نمی‌شود)
+            # ولی جدا شمرده می‌شود (exempt_used) تا گزارش صادق بماند —
+            # «۵ عادی + ۳ بحرانی»، نه یک عددِ قاطیِ دروغ.
+            _amid, _ = self._budgeted_send(
+                "alert", text,
+                lambda: self._route_send("center-alert", text),
+                critical=True)
+            return _amid is not None
         except Exception:  # noqa: BLE001
             return False
 
@@ -1713,6 +1830,7 @@ class Center:
             "leg_tasks_mod": _lt,
             "reminder_add_fn": self._capture_reminder_add,
             "lead_submit_fn": self._capture_lead_submit(),
+            "download_fn": self._capture_voice_download,  # ← ویس (contract D-voice)
             "ask_fn": None,      # پالایشِ LLM فقط با فلگِ جدا — این موج خاموش
         })
         if not res.get("handled"):
@@ -1741,6 +1859,17 @@ class Center:
             return None
         return _rm.add(body, due_ts=due, scope="dm", now=now)
 
+    def _capture_voice_download(self, file_id, dest) -> bool:
+        """آداپترِ دانلودِ ویس (contract D-voice): file_id → فایلِ محلیِ موقت.
+        tg_api خودش سقف‌دار/۴۲۹-aware/fail-soft است؛ اینجا فقط عبور.
+        همان کلاینتی که پیام را گرفت باید فایل را بگیرد (توکنِ درست) —
+        هرگز کلاینتِ نو ساخته نمی‌شود. dest داخلِ tempِ خودِ capture است و
+        مرکز به آن دست نمی‌زند."""
+        try:
+            return bool(self._client.fetch_file(file_id, dest))
+        except Exception:  # noqa: BLE001 — دانلودِ شکسته = دلیلِ صادقِ capture
+            return False
+
     @staticmethod
     def _capture_lead_submit():
         """adapter ِ صفِ لید (contract D): payload → lead_candidate_inbox.
@@ -1765,19 +1894,93 @@ class Center:
         except Exception:  # noqa: BLE001
             return None
 
+    # ── بودجهٔ اعلان (منشور §۳: «≤۵ پیامِ قطع‌کننده در روز؛ سرریز → digest») ──
+    @staticmethod
+    def _nb():
+        """notify_budget (lazy، fail-soft). None = بودجه در دسترس نیست ⇒ ارسالِ
+        امروز — سقفِ شکسته نباید مرکز را کر کند (هم‌جهت با fail-safe ِ خودِ ماژول)."""
+        try:
+            import notify_budget as _nbm
+            return _nbm
+        except Exception:  # noqa: BLE001
+            return None
+
+    def _budgeted_send(self, kind, text, send_fn, *, critical: bool = False):
+        """گیتِ بودجهٔ اعلان دورِ یک ارسالِ قطع‌کننده (قرارداد BUDGETS، یک درز).
+
+        `send_fn()` = همان ارسالِ موجودِ صداکننده (بدونِ الگوی دوم). خروجی
+        `(mid, handed)`:
+          · mid = شناسهٔ پیامِ واقعی یا None.
+          · handed = پیام «به مالک رسیده حساب می‌شود» — یا ارسالِ واقعی موفق
+            بود، یا در بافرِ digest ِ hold_policy نشست (سرریزِ منشور: digest،
+            هرگز حذف؛ flush ِ ساعتیِ همین beat آن را می‌بَرد).
+        route == "digest" ⇒ عمداً هیچ ارسالی؛ "send-anyway" ⇒ بافر ننوشت،
+        سکوت بدتر از سرریز است پس می‌فرستیم. ارسالِ شکست‌خورده بعد از
+        allow=True ⇒ refund (واحدِ سوخته برمی‌گردد).
+        اعلامِ صادقانهٔ سرریز (announce_line) مستقیم می‌رود — خودش هرگز از
+        allow/route رد نمی‌شود و فقط بعد از ارسالِ واقعی mark می‌شود."""
+        nb = self._nb()
+        if nb is None:
+            mid = send_fn()
+            return mid, mid is not None
+        now = float(self._clock())
+        try:
+            d = nb.route(kind, text, now, critical=critical)
+        except Exception:  # noqa: BLE001 — بودجهٔ شکسته = ارسالِ امروز
+            mid = send_fn()
+            return mid, mid is not None
+        mid, handed = None, False
+        if d.get("route") in ("send", "send-anyway"):
+            try:
+                mid = send_fn()
+            except Exception:  # noqa: BLE001
+                mid = None
+            if mid is None and d.get("route") == "send":
+                try:
+                    nb.refund(kind, now)
+                except Exception:  # noqa: BLE001
+                    pass
+            handed = mid is not None
+        elif d.get("route") == "digest":
+            handed = True                    # در بافرِ digest نشست — گم نشد
+        if d.get("announce"):
+            try:
+                _own = getattr(self._client, "owner_chat_id", None)
+                _al = nb.announce_line(now)
+                if _own is not None and _al:
+                    if self._client.send(_scrub(_al), chat_id=_own,
+                                         topic_id=self._dm_topic()) is not None:
+                        nb.mark_announced(now)
+            except Exception:  # noqa: BLE001 — اعلام هرگز ارسال را نمی‌کشد
+                pass
+        return mid, handed
+
     def _reminder_dm_send(self, text: str, rid: str):
         """ارسالِ یادآوریِ DM — شکست باید **بالا بیاید** تا reminders آن آیتم
         را fired نکند و ضربانِ بعد دوباره بکوشد (قراردادِ لِین E: بلعیدنِ
-        خطا = fired روی پیامِ گم‌شده)."""
+        خطا = fired روی پیامِ گم‌شده).
+
+        بودجهٔ اعلان (منشور §۳): kind="reminder" قطع‌کننده است؛ یادآوریِ
+        بحرانی/فوری با critical=True معاف. سرریز ⇒ متن در digest ِ ساعتی
+        می‌نشیند و همان «رسیدن» است (fired جلو می‌رود — وگرنه هر ضربان دوباره
+        defer می‌شد و digest پر از تکرار)."""
         import reminders as _rm
-        mid = self._client.send(
-            _scrub(text),
-            chat_id=getattr(self._client, "owner_chat_id", None),
-            keyboard=_rm.reminder_keyboard(rid),
-            topic_id=self._dm_topic())
-        if mid is None:
+        _crit = False
+        try:
+            _crit = bool(_rm.is_critical(text))
+        except Exception:  # noqa: BLE001
+            _crit = False
+        mid, handed = self._budgeted_send(
+            "reminder", text,
+            lambda: self._client.send(
+                _scrub(text),
+                chat_id=getattr(self._client, "owner_chat_id", None),
+                keyboard=_rm.reminder_keyboard(rid),
+                topic_id=self._dm_topic()),
+            critical=_crit)
+        if not handed:
             raise RuntimeError("reminder-dm-send-failed")
-        return mid
+        return mid if mid is not None else True
 
     def _reminder_leg_send(self, leg: str, text: str, cfg: dict):
         """یادآوریِ بیزنسی در تاپیکِ همان پا (رأی ۶) — شکست بالا می‌آید."""
@@ -1789,15 +1992,22 @@ class Center:
         return mid
 
     def _dm_send_strict(self, text: str):
-        """ارسالِ DM که موفقیت را با mid ِ truthy گواهی می‌دهد؛ None ⇒ استثنا.
-        brief/weekly فقط روی ارسالِ واقعی cursor جلو می‌برند (contract E/H)."""
-        mid = self._client.send(
-            _scrub(text),
-            chat_id=getattr(self._client, "owner_chat_id", None),
-            topic_id=self._dm_topic())
-        if mid is None:
+        """ارسالِ DM که موفقیت را با خروجیِ truthy گواهی می‌دهد؛ شکست ⇒ استثنا.
+        brief/weekly فقط روی تحویلِ واقعی cursor جلو می‌برند (contract E/H).
+
+        بودجهٔ اعلان (منشور §۳): kind="brief" (بریفِ صبح/شب و مرورِ هفتگی هر
+        دو از همین درز می‌روند). سرریز ⇒ متن در digest ِ ساعتی می‌نشیند و
+        خروجی True است تا cursor جلو برود — تحویل از راهِ digest هم تحویل است
+        (وگرنه هر ضربان دوباره defer می‌شد)."""
+        mid, handed = self._budgeted_send(
+            "brief", text,
+            lambda: self._client.send(
+                _scrub(text),
+                chat_id=getattr(self._client, "owner_chat_id", None),
+                topic_id=self._dm_topic()))
+        if not handed:
             raise RuntimeError("dm-send-failed")
-        return mid
+        return mid if mid is not None else True
 
     @staticmethod
     def _vault_intent(text: str) -> bool:
@@ -1984,6 +2194,34 @@ class Center:
                     pass
                 return {"kind": "input-policy", "mode": _d.get("mode"),
                         "reason": _d.get("reason")}
+            # ── جوابِ گزینهٔ ② پنل (قرارداد ORPHANS A2) ──────────────────────
+            # مصرف‌کنندهٔ قرینهٔ _awaiting_mission — **قبل از** بساز/capture/
+            # مامور، وگرنه متنِ مأموریتِ مالک را یکی از آن درزها می‌بلعید.
+            # فقط Outer DM (core_conversation). kind == "error" عیناً به مالک
+            # نشان داده می‌شود، هرگز بلعیده نمی‌شود (A3).
+            try:
+                if getattr(self, "_awaiting_mission", False):
+                    _mgp = u.get("message")
+                    _txp = str((_mgp or {}).get("text") or "").strip() \
+                        if isinstance(_mgp, dict) else ""
+                    if _txp and _d.get("mode") == "core_conversation":
+                        self._awaiting_mission = False
+                        import owner_menu as _om2
+                        _po = _om2.handle_panel_choice("m:mission", _txp)
+                        try:
+                            self._client.send(
+                                _scrub(str(_po.get("text") or "")),
+                                chat_id=(_mgp.get("chat") or {}).get("id"),
+                                topic_id=self._dm_topic(),
+                                keyboard=self._tok_kb(_po.get("keyboard")))
+                        except Exception:  # noqa: BLE001
+                            pass
+                        return {"kind": "panel-mission",
+                                "panel_kind": _po.get("kind"),
+                                "mission": (_po.get("mission") or {}).get(
+                                    "mission_id")}
+            except Exception:  # noqa: BLE001 — پنلِ شکسته = مسیرِ قبلی، نه سکوت
+                pass
             # ── «بساز: …» → صفِ ساختِ خود (رأیِ مالک ۰۷-۳۰) ──────────────────
             # قبل از مامور، چون مامور متنِ آزاد را clarify می‌کند و این یک
             # نیتِ صریح است. فقط Outer DM (تصمیمِ core_conversation)؛ از گروه
@@ -2752,7 +2990,16 @@ class Center:
             # پشتِ همان گیت (autonomy_matrix دوباره چک می‌کند؛ مدل هرگز گیت را پایین نمی‌آورد).
             # flag خاموش → این بلوک هیچ اجرا نمی‌شود؛ مسیرِ امروز بایت‌به‌بایت.
             _brain_busy = ""
-            if mt == "general":
+            # تعارفِ کوتاه («سلام»/«مرسی») نیازی به دسته‌بندیِ نیت ندارد و آن
+            # تماسِ محلی ~۲۰ ثانیه از جوابِ مالک می‌دزدد (اندازه‌گیریِ ۰۸-۰۱:
+            # ۴۰ ثانیه با طبقه‌بند، ~۳ ثانیه بدونش). مأموریت از «سلام» درنمی‌آید.
+            _social = False
+            try:
+                import ask_brain as _ab0
+                _social = bool(_ab0._is_social(text))
+            except Exception:  # noqa: BLE001 — نبودِ کمکی = رفتارِ قبلی
+                _social = False
+            if mt == "general" and not _social:
                 try:
                     import llm_intent as _li
                     if _li.enabled():

@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -60,6 +61,8 @@ DAILY_MAX = 40
 MIN_GAP_S = 20.0              # فاصلهٔ حداقلیِ دو سؤال (ضدِ اسپمِ سهوی)
 MAX_TOKENS = 900
 MIN_CHARS = 40
+# کفِ مطلقِ «این اصلاً جواب است؟» — زیرِ این، حتی برای «سلام» هم جواب نیست.
+MIN_ANSWER_CHARS = 8
 MAX_QUESTION = 600            # سؤالِ بلندتر از این بریده می‌شود (context/هزینه)
 
 # تاپیک → کدام contextِ عددی به مغز داده شود. کلیدها نامِ پا در center-config است.
@@ -215,6 +218,36 @@ _SYSTEM = (
 )
 
 
+# ── تُرنِ اجتماعی: «سلام» جوابِ «سلام» می‌خواهد، نه گزارشِ وضعیت ─────────────
+# شاهدِ زنده (۲۰۲۶-۰۸-۰۱): با رفعِ نوبت‌بندی، «سلام» بالاخره به مغز رسید و این
+# را گرفت: «وضعیت فعلی تو همان است که در context ذکر شده». طبقِ قواعدِ خودش
+# درست، به‌عنوانِ گفتگو بی‌فایده — چون هر پیام با یک بلوکِ JSON ِ وضعیت و
+# سیستم‌پرامپتی که همه‌اش دربارهٔ استدلال از عدد است بسته‌بندی می‌شد؛ مدلِ
+# مطیع وقتی «سلام» می‌بیند چیزِ دیگری جلوی خود ندارد جز همان وضعیت.
+_SOCIAL = re.compile(
+    r"^\s*(?:سلام|درود|صبح بخیر|ظهر بخیر|عصر بخیر|شب بخیر|شبت بخیر|"
+    r"خسته نباشی|چطوری|خوبی|حالت چطوره|مرسی|ممنون|دمت گرم|مچکرم|"
+    r"بای|فعلا|شب خوش|hi|hello|hey|thanks|thank you|good morning|"
+    r"good night|how are you)\b[\s!.،؟?]*$", re.I)
+
+_SOCIAL_MAX_CHARS = 40          # تُرنِ اجتماعی کوتاه است؛ بلندتر یعنی سؤالِ واقعی
+
+_SYSTEM_SOCIAL = (
+    "تو اختاپوسی — دستیارِ شخصیِ یک اپراتورِ تنها (فارسی‌زبان، سیدنی).\n"
+    "او الان فقط یک تعارفِ کوتاه گفت (سلام/خوبی/مرسی).\n"
+    "قواعد:\n"
+    "۱) مثلِ یک آدم جواب بده: گرم، کوتاه، حداکثر دو جمله، فارسی.\n"
+    "۲) گزارشِ وضعیت نده مگر بپرسد. عدد نگو. فهرست نده.\n"
+    "۳) می‌توانی بپرسی چه کاری از دستت برمی‌آید — همین و بس."
+)
+
+
+def _is_social(q: str) -> bool:
+    """آیا این یک تعارفِ کوتاه است (نه سؤالِ واقعی)؟ بلند = سؤال، حتی با «سلام»."""
+    t = str(q or "").strip()
+    return len(t) <= _SOCIAL_MAX_CHARS and bool(_SOCIAL.match(t))
+
+
 def ask(question: str, *, topic_key: str = "", ask_fn=None,
         now: "float | None" = None) -> dict:
     """یک سؤالِ آزاد → یک جوابِ متنی. هرگز اجرا نمی‌کند.
@@ -236,9 +269,31 @@ def ask(question: str, *, topic_key: str = "", ask_fn=None,
             r = _ask_local(q, topic_key=topic_key, ask_fn=ask_fn, now=now)
             if r.get("ok"):
                 return r
+            # کوتاهیِ جواب دلیلِ خرج‌کردن نیست: پلهٔ پولی هم برای سؤالِ
+            # غیرِمهم اغلب به همان مدلِ محلی برمی‌گردد و گاردِ
+            # not-a-paid-brain آن را دور می‌ریزد ⇒ ۳۰ ثانیه انتظار برای یک
+            # ردِ قطعی. سؤالِ غیرِمهم در همین پله صادقانه تمام می‌شود.
+            if str(r.get("reason") or "").startswith(
+                    ("local-too-short-answer", "local-no-answer")):
+                return r
         return _ask_paid(q, topic_key=topic_key, ask_fn=ask_fn, now=now)
     return _ask_paid(q, topic_key=topic_key, ask_fn=ask_fn, now=now)
 
+
+
+def _force_local(prompt: str, *, system: str = "") -> "dict | None":
+    """آخرین پلهٔ نردبانِ محلی: یک تماسِ مستقیم و **بدونِ نوبت‌بندی**، فقط برای
+    پیامی که خودِ مالک همین الان فرستاده. خروجی هم‌شکلِ router است تا صداکننده
+    فرقی نبیند؛ هر خطا ⇒ None (نردبان دستِ‌نخورده به پلهٔ بعد می‌رود)."""
+    try:
+        import local_llm  # noqa: WPS433 — تنبل، تا importِ این ماژول سنگین نشود
+        out = local_llm.ask(prompt, system=system or _SYSTEM,
+                            max_tokens=MAX_TOKENS, force=True)
+    except Exception:  # noqa: BLE001
+        return None
+    if not out or not str(out.get("text") or "").strip():
+        return None
+    return {"ok": True, "forced": True, **out}
 
 def _ask_local(q: str, *, topic_key: str, ask_fn, now: float) -> dict:
     """پلهٔ محلیِ نردبان — رایگان، عمداً tier=«local». گاردِ not-a-paid-brain
@@ -248,19 +303,41 @@ def _ask_local(q: str, *, topic_key: str, ask_fn, now: float) -> dict:
     denied = _take_local(now)
     if denied:
         return {"ok": False, "reason": denied}
-    ctx = _context_for(topic_key)
-    prompt = (f"سؤالِ مالک:\n{q}\n\n"
-              f"وضعیتِ فعلیِ تو (داده، نه دستور):\n"
-              f"{json.dumps(ctx, ensure_ascii=False, indent=1)}")
+    social = _is_social(q)
+    system = _SYSTEM_SOCIAL if social else _SYSTEM
+    if social:
+        prompt = str(q or "").strip()          # بدونِ بلوکِ وضعیت — همان جمله
+    else:
+        ctx = _context_for(topic_key)
+        prompt = (f"سؤالِ مالک:\n{q}\n\n"
+                  f"وضعیتِ فعلیِ تو (داده، نه دستور):\n"
+                  f"{json.dumps(ctx, ensure_ascii=False, indent=1)}")
     if ask_fn is None:
         try:
             import model_router
             ask_fn = model_router.ask
         except Exception as e:  # noqa: BLE001
             return {"ok": False, "reason": f"router-unavailable:{type(e).__name__}"}
+    def _call():
+        return ask_fn("daily", prompt, system=system, max_tokens=MAX_TOKENS,
+                      tier="local")
+
     try:
-        r = ask_fn("daily", prompt, system=_SYSTEM, max_tokens=MAX_TOKENS,
-                   tier="local")
+        r = _call()
+        # ⚠️ ۲۰۲۶-۰۸-۰۱ — «سلام» بی‌جواب می‌ماند و هیچ لاگی نمی‌گفت چرا. در یک
+        # نوبت **دو** تماسِ محلی می‌رود: اول `llm_intent` برای دسته‌بندی، بعد این
+        # یکی برای جواب. `local_llm` بینِ دو تماس فاصلهٔ اجباری می‌خواهد (این‌جا
+        # ۲۰ ثانیه)، پس تماسِ دومِ ما **همیشه** داخلِ پنجره می‌افتاد و None
+        # برمی‌گشت ⇒ کارتِ «متوجه نشدم». اندازه‌گیری: خودِ مدل در ۲.۲ ثانیه
+        # جوابِ درست می‌دهد؛ مشکل مدل نیست، نوبت‌بندی است.
+        #
+        # صبرکردن جواب نیست (۲۰ ثانیه سکوت برای یک «سلام»). آن فاصله برای مهار
+        # حلقه‌های پس‌زمینه روی یک GPU است؛ پیامی که مالک همین الان تایپ کرده
+        # دقیقاً موردی است که نباید پشتش بماند: با سرعتِ تایپِ او کران دارد،
+        # ترتیبی است (تماسِ طبقه‌بند قبلاً برگشته)، و سقفِ روزانه و min-gap ِ
+        # خودِ این ماژول یک لایه بالاتر همچنان برقرارند.
+        if not (isinstance(r, dict) and r.get("ok")):
+            r = _force_local(prompt, system=system) or r
     except Exception as e:  # noqa: BLE001
         _ledger({"ts": opslib.now_iso(), "schema": SCHEMA, "ok": False,
                  "reason": f"local-ask-exception:{type(e).__name__}",
@@ -269,7 +346,13 @@ def _ask_local(q: str, *, topic_key: str, ask_fn, now: float) -> dict:
     if not isinstance(r, dict) or not r.get("ok"):
         return {"ok": False, "reason": "local-no-answer"}
     text = str(r.get("text") or "").strip()
-    if len(text) < MIN_CHARS:
+    # کفِ طول **نسبی** است، نه مطلق (شاهدِ زندهٔ ۰۷-۳۱ ۱۹:۳۸): «سلام» جوابِ
+    # کوتاه دارد و کفِ ثابتِ ۴۰ کاراکتری دقیقاً رایج‌ترین پیامِ اجتماعی را دور
+    # می‌ریخت — مالک سلام کرد و کارتِ «مغزم مشغول است» گرفت. هدفِ کف، گرفتنِ
+    # آشغالِ مدل است نه مطالبهٔ انشا: جوابی که دستِ‌کم به اندازهٔ خودِ سؤال
+    # جان دارد (و خالی نیست) جوابِ واقعی است.
+    floor = min(MIN_CHARS, max(MIN_ANSWER_CHARS, len(q.strip())))
+    if len(text) < floor:
         return {"ok": False, "reason": "local-too-short-answer"}
     tier = str(r.get("tier") or "local")
     _ledger({"ts": opslib.now_iso(), "schema": SCHEMA, "ok": True,
