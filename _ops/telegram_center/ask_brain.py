@@ -272,9 +272,14 @@ def ask(question: str, *, topic_key: str = "", ask_fn=None,
             # کوتاهیِ جواب دلیلِ خرج‌کردن نیست: پلهٔ پولی هم برای سؤالِ
             # غیرِمهم اغلب به همان مدلِ محلی برمی‌گردد و گاردِ
             # not-a-paid-brain آن را دور می‌ریزد ⇒ ۳۰ ثانیه انتظار برای یک
-            # ردِ قطعی. سؤالِ غیرِمهم در همین پله صادقانه تمام می‌شود.
-            if str(r.get("reason") or "").startswith(
-                    ("local-too-short-answer", "local-no-answer")):
+            # ردِ قطعی. سؤالِ غیرِمهمی که **جواب گرفت** (فقط کوتاه بود) در
+            # همین پله صادقانه تمام می‌شود.
+            #
+            # ⚠️ فقط همین یک مورد. «local-no-answer» یعنی مغزِ رایگان اصلاً
+            # جواب نداد — همان پلهٔ منشور که باید به پولی برود. یک بار
+            # (۰۸-۰۱) این دو را یکی گرفتم و پلهٔ escalate بی‌صدا حذف شد؛
+            # تستِ نردبان همان شب گرفتش.
+            if str(r.get("reason") or "").startswith("local-too-short-answer"):
                 return r
         return _ask_paid(q, topic_key=topic_key, ask_fn=ask_fn, now=now)
     return _ask_paid(q, topic_key=topic_key, ask_fn=ask_fn, now=now)
@@ -312,6 +317,7 @@ def _ask_local(q: str, *, topic_key: str, ask_fn, now: float) -> dict:
         prompt = (f"سؤالِ مالک:\n{q}\n\n"
                   f"وضعیتِ فعلیِ تو (داده، نه دستور):\n"
                   f"{json.dumps(ctx, ensure_ascii=False, indent=1)}")
+    injected = ask_fn is not None      # seam ِ تزریقیِ تست/شبیه‌ساز
     if ask_fn is None:
         try:
             import model_router
@@ -336,7 +342,13 @@ def _ask_local(q: str, *, topic_key: str, ask_fn, now: float) -> dict:
         # دقیقاً موردی است که نباید پشتش بماند: با سرعتِ تایپِ او کران دارد،
         # ترتیبی است (تماسِ طبقه‌بند قبلاً برگشته)، و سقفِ روزانه و min-gap ِ
         # خودِ این ماژول یک لایه بالاتر همچنان برقرارند.
-        if not (isinstance(r, dict) and r.get("ok")):
+        # فقط وقتی شکست از **نوبت‌بندی** بوده، نه خرابیِ واقعیِ مدل — وگرنه
+        # نردبانِ «مغزِ رایگان شکست ⇒ برو پولی» می‌شکند. و اگر صداکننده ask_fn
+        # تزریق کرده باشد هرگز دورش نمی‌زنیم: seam ِ تزریقی باید تنها راهِ
+        # رسیدن به مدل بماند، وگرنه تست چیزی را می‌سنجد که اجرا نمی‌شود.
+        if (not injected
+                and not (isinstance(r, dict) and r.get("ok"))
+                and "local-llm-unavailable" in str((r or {}).get("reason") or "")):
             r = _force_local(prompt, system=system) or r
     except Exception as e:  # noqa: BLE001
         _ledger({"ts": opslib.now_iso(), "schema": SCHEMA, "ok": False,

@@ -30,6 +30,19 @@ import approval_channel as ac   # noqa: E402
 CHAT = -1004475788460
 TOPICS = {"system": 28, "knowledge": 29, "cartographer": 65, "lead": 22}
 
+# ── ساعت را پین کن، وگرنه این فایل شب‌ها دروغ می‌گوید ────────────────────────
+# ۲۰۲۶-۰۸-۰۱، درست قبلِ deploy: `t_send_text_routes_to_the_topic` با
+# «IndexError: list index out of range» ترکید. باگی در کار نبود — ساعت ۰۰:۰۵
+# بود و بازهٔ سکوت ۰..۷ است، پس جریانِ محیطیِ `lead` قبل از رسیدن به http_post
+# جواب داد HOLD و `bodies` خالی ماند. یعنی این فایل تا دیشب فقط تصادفاً سبز
+# بود: روزها سبز، شب‌ها قرمز — و هیچ‌کس تا شبی که کنارِ deploy افتاد نفهمید.
+#
+# قلمروِ این فایل «کدام تاپیک» است، نه «چه ساعتی»؛ رفتارِ ساعتِ سکوت جای
+# دیگری و به‌صورت قطعی گارد شده (test_tg_send_receipts، هر دو جهت پین‌شده).
+# پس این‌جا ساعت را از معادله بیرون می‌گذاریم — دورزدنِ گارد نیست، پین‌کردنِ
+# یک ورودیِ نامربوط است.
+ac._quiet_now = lambda *a, **k: False
+
 
 def _write_cfg(chat=CHAT, topics=None):
     p = Path(opslib.STATE_DIR) / "telegram" / "center-config.json"
