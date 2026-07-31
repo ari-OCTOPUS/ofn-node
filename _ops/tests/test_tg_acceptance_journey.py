@@ -215,18 +215,53 @@ def t_our_own_send_row_is_never_counted_as_the_owners_reply():
     assert j.load_state()["phases"]["P1"]["verdict"] == aj.VERDICT_PENDING
 
 
-def t_a_foreign_dm_row_passes_free_chat():
+def t_free_chat_needs_both_a_consumed_update_and_an_outer_reply():
+    """قراردادِ دو-شاهدی (سختگیریِ ۰۷-۳۱ بعد از یک سبزِ کاذبِ واقعی):
+    فقط وقتی PASS که (۱) cursor ِ pollerِ outer جلو رفته باشد — یعنی آپدیتی
+    واقعاً مصرف شده — **و** (۲) خودِ باتِ outer پاسخِ DM داده باشد."""
     c, cl = Clock(), FakeClient()
     j = _journey(c, cl)
     _fresh(j)
-    _center_config(j)
-    _seed_to(j, "P1", prompt_ts=c.t)
-    _plant_send_row(j, ts=c.t + 30, stream="center", sha="abc123")
+    _center_config(j, last_offset=1000)
+    _seed_to(j, "P1", prompt_ts=c.t, meta={"offset_at_prompt": 1000})
+    _plant_send_row(j, ts=c.t + 30, stream="center", sha="abc123",
+                    bot_role="outer")
+    _center_config(j, last_offset=1007)          # آپدیت مصرف شد
     c.advance(600)
     j.tick()
     st = j.load_state()
     assert st["phases"]["P1"]["verdict"] == aj.VERDICT_PASS, st["phases"]["P1"]
-    assert any("tg-send-log" in e for e in st["phases"]["P1"]["evidence"])
+    assert any("cursor" in e for e in st["phases"]["P1"]["evidence"])
+
+
+def t_a_spontaneous_organism_card_is_never_read_as_a_conversation():
+    """بازتولیدِ دقیقِ سبزِ کاذبِ ۲۰۲۶-۰۷-۳۱ ۱۸:۰۰:۵۷ — ردیفِ DM ِ باتِ inner
+    در حالی که هیچ آپدیتی مصرف نشده بود. باید PENDING بماند، نه PASS."""
+    c, cl = Clock(), FakeClient()
+    j = _journey(c, cl)
+    _fresh(j)
+    _center_config(j, last_offset=1000)
+    _seed_to(j, "P1", prompt_ts=c.t, meta={"offset_at_prompt": 1000})
+    _plant_send_row(j, ts=c.t + 30, stream=None, sha="c08279492294b840",
+                    bot_role="inner", chars=421)
+    c.advance(600)
+    j.tick()
+    st = j.load_state()
+    assert st["phases"]["P1"]["verdict"] == aj.VERDICT_PENDING, st["phases"]["P1"]
+
+
+def t_a_received_but_unanswered_message_is_partial_not_pass():
+    """پیام رسید ولی جوابی نیامد: نه سبز، نه هیچ — PARTIAL ِ صادق."""
+    c, cl = Clock(), FakeClient()
+    j = _journey(c, cl)
+    _fresh(j)
+    _center_config(j, last_offset=1000)
+    _seed_to(j, "P1", prompt_ts=c.t, meta={"offset_at_prompt": 1000})
+    _center_config(j, last_offset=1003)
+    c.advance(600)
+    j.tick()
+    st = j.load_state()
+    assert st["phases"]["P1"]["verdict"] == aj.VERDICT_PARTIAL, st["phases"]["P1"]
 
 
 # ─── capture ───────────────────────────────────────────────────────────────

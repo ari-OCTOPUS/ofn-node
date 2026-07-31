@@ -61,6 +61,7 @@ _LRI, _PDI = "⁦", "⁩"        # ایزولهٔ bidi برای تکه‌های 
 
 VERDICT_PASS = "PASS"
 VERDICT_PENDING = "PENDING"
+VERDICT_PARTIAL = "PARTIAL"   # شاهدِ نیم‌بند — نه سبز، نه هیچ
 VERDICT_TIMEOUT = "TIMEOUT"
 VERDICT_WAIT = "WAIT"                  # هنوز موعدش نرسیده — تلاش شمرده نمی‌شود
 VERDICT_NOT_DUE = "SCHEDULED-NOT-DUE"
@@ -68,7 +69,10 @@ VERDICT_BLOCKED = "BLOCKED"            # پیش‌نیازِ ساختاری غا
 VERDICT_DEGRADED = "DEGRADED"          # سنجیده شد ولی محیط کامل نبود (P0)
 VERDICT_NOT_RUN = "NOT-RUN"
 
-_TERMINAL = (VERDICT_PASS, VERDICT_TIMEOUT, VERDICT_NOT_DUE, VERDICT_BLOCKED,
+# PARTIAL هم پایانی است: «رسید ولی جواب نگرفت» یک واقعیتِ سنجیده است، نه
+# انتظار — تکرارش سبزش نمی‌کند و در کارنامه باید همان‌طور دیده شود.
+_TERMINAL = (VERDICT_PASS, VERDICT_PARTIAL, VERDICT_TIMEOUT, VERDICT_NOT_DUE,
+             VERDICT_BLOCKED,
              VERDICT_DEGRADED)
 
 _PHASES = (
@@ -405,6 +409,16 @@ class Journey:
         v = st.setdefault("consumed", {}).setdefault(bucket, [])
         return v if isinstance(v, list) else []
 
+    def _outer_offset(self):
+        """cursor ِ pollerِ باتِ outer (center-config.last_offset) — عددی یا None.
+        این تنها شاهدِ در دسترس است که «آپدیتی مصرف شد»؛ خودِ متنِ ورودی را
+        هرگز نمی‌بینیم (یک poller بیشتر مجاز نیست)."""
+        try:
+            v = (self._center_cfg() or {}).get("last_offset")
+            return int(v) if v is not None else None
+        except (TypeError, ValueError):
+            return None
+
     def _foreign_dm_rows(self, st: dict, since: float) -> list:
         """ردیفِ DM ِ «نه-از-ما» در پنجره — یعنی خودِ مرکز جواب داده.
 
@@ -498,7 +512,13 @@ class Journey:
         txt = ("۱/۱۲ — <b>چتِ آزاد</b>\n"
                "یک جملهٔ ساده برام بنویس (هرچی؛ نه دستور، نه «ثبت:»).\n"
                "می‌خوام ببینم گفتگوی معمولی جواب می‌دهد یا نه.")
-        return self._send(st, txt, label="P1") is not None
+        sent = self._send(st, txt, label="P1") is not None
+        if sent:
+            # لنگرِ شاهد: cursor ِ pollerِ outer در لحظهٔ پرسیدن. اگر بعداً جلو
+            # رفته باشد یعنی واقعاً یک آپدیت مصرف شده (پیامِ مالک رسیده).
+            rec = st["phases"].setdefault("P1", {})
+            rec.setdefault("meta", {})["offset_at_prompt"] = self._outer_offset()
+        return sent
 
     def _prompt_p2(self, st: dict, rec: dict) -> bool:
         txt = ("۲/۱۲ — <b>ثبتِ متنی</b>\n"
@@ -658,16 +678,37 @@ class Journey:
         return (VERDICT_PASS if env.get("ok") else VERDICT_DEGRADED), ev
 
     def _verify_p1(self, st: dict, rec: dict) -> tuple:
+        """دو شاهدِ مستقل — وگرنه کارتِ خودجوشِ ارگانیسم «گفتگو» خوانده می‌شود.
+
+        ⚠️ ۰۷-۳۱ ۱۸:۰۰:۵۷ این دقیقاً اتفاق افتاد: ردیفِ DM ِ ۴۲۱ کاراکتری با
+        bot_role=inner در حالی که offset ِ pollerِ inner از ۱۶:۱۶ تکان نخورده
+        بود — هیچ‌کس چیزی نفرستاده بود و P1 سبزِ کاذب گرفت."""
         since = float(rec.get("prompt_sent_ts") or 0)
-        rows = self._foreign_dm_rows(st, since)
-        if not rows:
-            return VERDICT_PENDING, ["هنوز هیچ ردیفِ DM ِ نه-از-ما در tg-send-log"]
-        r = rows[0]
-        self._claim_dm_row(st, r)
-        return VERDICT_PASS, [
-            "مشاهدهٔ مالک: مرکز یک پاسخِ DM تولید کرد که ما نفرستادیم — "
-            f"tg-send-log ts={_ltr(round(float(r.get('ts') or 0), 1))} "
-            f"sha={_ltr(r.get('sha'))} stream={_ltr(r.get('stream'))}"]
+        before = (rec.get("meta") or {}).get("offset_at_prompt")
+        now_off = self._outer_offset()
+        advanced = (isinstance(before, int) and isinstance(now_off, int)
+                    and now_off > before)
+        rows = [r for r in self._foreign_dm_rows(st, since)
+                if str(r.get("bot_role") or "") == "outer"]
+        if rows and advanced:
+            r = rows[0]
+            self._claim_dm_row(st, r)
+            return VERDICT_PASS, [
+                "مشاهدهٔ مالک: cursor ِ outer از "
+                f"{_ltr(before)} به {_ltr(now_off)} رفت (آپدیت مصرف شد) و "
+                "باتِ outer پاسخِ DM داد — "
+                f"ts={_ltr(round(float(r.get('ts') or 0), 1))} "
+                f"sha={_ltr(r.get('sha'))}"]
+        if advanced:
+            return VERDICT_PARTIAL, [
+                f"پیامِ مالک رسید (cursor {_ltr(before)}→{_ltr(now_off)}) ولی "
+                "باتِ outer در این پنجره پاسخِ DM نداد — یا مسیرِ جواب کند بود "
+                "یا پیام به مسیرِ دیگری (capture/console) رفت"]
+        if rows:
+            return VERDICT_PENDING, [
+                "ردیفِ DM هست ولی cursor تکان نخورده — احتمالاً کارتِ خودجوشِ "
+                "سیستم، نه جوابِ پیام (شاهدِ دوم نداریم)"]
+        return VERDICT_PENDING, ["نه cursor جلو رفته، نه پاسخِ DM ِ outer هست"]
 
     def _verify_p2(self, st: dict, rec: dict) -> tuple:
         since = float(rec.get("prompt_sent_ts") or 0)
