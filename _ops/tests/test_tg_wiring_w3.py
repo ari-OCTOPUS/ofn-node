@@ -169,6 +169,24 @@ def _nb_state(day_ts, used=0, deferred=0, announced=None):
 
 
 # ── V: ویس از هوکِ واقعیِ مرکز ──────────────────────────────────────────────
+
+def _drain_voice(timeout_s=8.0):
+    """صبر کن تا کارگرِ ویس تمام کند.
+
+    ۰۸-۰۱: transcription از حلقهٔ poll به یک نخِ کارگر منتقل شد (ویسِ ۵
+    ثانیه‌ای ۲۲.۶ ثانیه بات را می‌خواباند). این کمکی باید **داخلِ** بلوکِ
+    try صدا شود — وگرنه `finally` فیک‌ها را برمی‌گرداند در حالی که کارگر
+    هنوز مشغول است و کار به موتورِ واقعی می‌خورد.
+    `unfinished_tasks` معیارِ درست است، نه `empty()`: صف به‌محضِ **برداشتنِ**
+    کار خالی می‌شود."""
+    import time as _t
+    q = getattr(center, "_VOICE_Q", None)
+    if q is None:
+        return
+    end = _t.time() + timeout_s
+    while _t.time() < end and getattr(q, "unfinished_tasks", 0) > 0:
+        _t.sleep(0.02)
+
 def t_v1_voice_dep_reaches_capture_and_a_fake_backend_yields_a_note():
     """دانلودر = خودِ client ِ مرکز (fetch_file)؛ موتورِ fake ⇒ نوتِ
     ساختاریافته با متنِ ویس، از handle_update ِ واقعی — نه از ماژولِ تنها."""
@@ -186,6 +204,7 @@ def t_v1_voice_dep_reaches_capture_and_a_fake_backend_yields_a_note():
     try:
         r = c.handle_update(_dm_msg(9101, voice={"file_id": "VOICE-1",
                                                  "duration": 4}))
+        _drain_voice()          # کارِ ویس روی نخِ کارگر است — قبل از finally
     finally:
         _unflag("OCTOPUS_TG_CAPTURE", "OCTOPUS_TG_VOICE_TRANSCRIBE")
         tr.available, tr.transcribe = orig_avail, orig_tr
@@ -197,8 +216,13 @@ def t_v1_voice_dep_reaches_capture_and_a_fake_backend_yields_a_note():
     body = notes[0].read_text("utf-8")
     assert "فردا با علی تماس بگیر" in body and "متنِ ویس" in body, \
         f"نوتِ ساختاریافته نیست: {body[:200]}"
-    acks = [s for s in fc.named("send") if "ویس متن شد" in s["text"]]
-    assert acks, "ack ِ «ویس متن شد» نرفت"
+    # ackِ فوری «دارم گوش می‌دم» می‌رود و بعد **همان پیام** به نتیجه ویرایش
+    # می‌شود؛ پس نتیجه در edit است، نه در send ِ دوم.
+    said = [s["text"] for s in fc.named("send")] + \
+           [e["text"] for e in fc.named("edit")]
+    assert any("ویس متن شد" in t for t in said), \
+        f"ack ِ «ویس متن شد» نرفت: {said}"
+    assert any("گوش" in t for t in said), "ackِ فوری نرفت — مالک در سکوت می‌ماند"
 
 
 def t_v2_flag_off_voice_stays_a_raw_note_with_an_honest_reason():
@@ -211,13 +235,16 @@ def t_v2_flag_off_voice_stays_a_raw_note_with_an_honest_reason():
     try:
         r = c.handle_update(_dm_msg(9102, voice={"file_id": "VOICE-2",
                                                  "duration": 4}))
+        _drain_voice()
     finally:
         _unflag("OCTOPUS_TG_CAPTURE")
     assert r is not None and r.get("kind") == "capture", r
     assert not fc.fetched, "فلگ خاموش ولی دانلود اجرا شد — پاریته شکست"
-    acks = [s for s in fc.named("send") if "ویس ثبت شد" in s["text"]]
-    assert acks and "متن‌سازی" in acks[0]["text"], \
-        f"ack ِ صادقِ فلگ-خاموش نیست: {[s['text'] for s in fc.named('send')]}"
+    said = [s["text"] for s in fc.named("send")] + \
+           [e["text"] for e in fc.named("edit")]
+    honest = [t for t in said if "ویس ثبت شد" in t]
+    assert honest and "متن‌سازی" in honest[0], \
+        f"ack ِ صادقِ فلگ-خاموش نیست: {said}"
 
 
 # ── N: بودجهٔ اعلان ─────────────────────────────────────────────────────────

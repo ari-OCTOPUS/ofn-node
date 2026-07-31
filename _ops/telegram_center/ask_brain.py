@@ -290,6 +290,18 @@ def _force_local(prompt: str, *, system: str = "") -> "dict | None":
     """آخرین پلهٔ نردبانِ محلی: یک تماسِ مستقیم و **بدونِ نوبت‌بندی**، فقط برای
     پیامی که خودِ مالک همین الان فرستاده. خروجی هم‌شکلِ router است تا صداکننده
     فرقی نبیند؛ هر خطا ⇒ None (نردبان دستِ‌نخورده به پلهٔ بعد می‌رود)."""
+    # CONTEXT-FENCE (۰۸-۰۱ — گاردِ inventory این bypass را رو کرد): این تماس
+    # مستقیم است و از فنسِ داخلِ `model_router.ask` رد نمی‌شود. prompt جملهٔ
+    # خودِ مالک است (کم‌نامعتمدترین ورودیِ سیستم) و در مسیرِ غیرِاجتماعی یک
+    # بلوکِ وضعیتِ عددی هم دارد — ولی قاعده دقیقاً برای همین است که هیچ‌کس
+    # نتواند بگوید «ورودیِ من سالم است». غربال observe-only است و هرگز
+    # prompt را عوض یا بلاک نمی‌کند؛ هر خطا = همان مسیرِ قبلی.
+    try:
+        import fence_adapter  # noqa: WPS433 — lazy، مونکی‌پچ‌پذیرِ تست
+        fence_adapter.screen_llm_input("ask_brain.force_local",
+                                       [("external", str(prompt)[:4000])])
+    except Exception:  # noqa: BLE001 — غربال هرگز جوابِ مالک را نمی‌کشد
+        pass
     try:
         import local_llm  # noqa: WPS433 — تنبل، تا importِ این ماژول سنگین نشود
         out = local_llm.ask(prompt, system=system or _SYSTEM,

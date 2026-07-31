@@ -39,6 +39,13 @@ _INVENTORIED_LOCAL_LLM = {
     # (task ِ تلگرامی + محتوای فایل) را پیش از call با
     # fence_adapter.screen_llm_input غربال می‌کند (observe-only، fail-soft).
     "cortex/code_brain.py",
+    # ۲۰۲۶-۰۸-۰۱ — ask_brain._force_local: وقتی روتر به‌خاطرِ **نوبت‌بندیِ**
+    # مغزِ محلی رد می‌کند، نوبتِ خودِ مالک نباید پشتِ یک حلقهٔ پس‌زمینه بماند
+    # (اندازه‌گیری: «سلام» ۲۰ ثانیه سکوت می‌گرفت چون طبقه‌بندِ نیت پنجره را
+    # خورده بود). این تماس هم مثلِ debate_loop/code_brain ورودی‌اش را پیش از
+    # مدل با fence_adapter.screen_llm_input غربال می‌کند (observe-only،
+    # fail-soft)، و فقط روی مسیرِ غیرِتزریقی اجرا می‌شود.
+    "telegram_center/ask_brain.py",
 }
 
 

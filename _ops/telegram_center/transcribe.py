@@ -29,6 +29,7 @@ from __future__ import annotations
 import importlib
 import importlib.util
 import os
+import threading
 import time
 from pathlib import Path
 
@@ -132,14 +133,72 @@ def available() -> "tuple[bool, str]":
     return False, "no-backend"
 
 
+# ── کشِ مدل: بارکردن یک‌بار، نه به‌ازای هر ویس ────────────────────────────────
+# اندازه‌گیریِ ۲۰۲۶-۰۸-۰۱ روی همین ماشین:
+#     small   بارِ اول  ۸.۷s   بارِ دوم  ۱.۳s
+#     medium  بارِ اول ۲۶.۹s   بارِ دوم ۱۸.۱s
+# یعنی از ۲۲.۶ ثانیه‌ای که ویسِ ۵ ثانیه‌ایِ مالک برد، بخشِ عمده **بارکردنِ
+# وزن‌هایی** بود که بلافاصله دور ریخته می‌شدند. با medium این سربار ۱۸ تا ۲۷
+# ثانیه به‌ازای هر ویس است — یعنی انتخابِ خودِ مالک را بدتر از مدلِ قبلی
+# می‌کرد.
+#
+# پس مدل کش می‌شود، **ولی برای همیشه نگه داشته نمی‌شود**: medium در int8 بیش
+# از یک گیگابایت رم می‌گیرد و این پروسه تا ابد بالاست. بعد از بی‌کاری آزاد
+# می‌شود — سریع وقتی واقعاً استفاده می‌کند، بی‌مالیاتِ دائمی وقتی نمی‌کند.
+MODEL_IDLE_RELEASE_S = 600.0     # ۱۰ دقیقه بی‌ویس ⇒ رم را پس بده
+
+_MODEL_CACHE = {"key": None, "model": None, "last_used": 0.0}
+_MODEL_LOCK = threading.Lock()
+_EVICTOR = None
+
+
+def _start_evictor() -> None:
+    """نخِ آزادکننده (تنبل، daemon). بدونِ آن، رم فقط با تماسِ بعدی آزاد
+    می‌شد — یعنی دقیقاً وقتی که دیگر نمی‌خواهیم آزاد شود."""
+    global _EVICTOR
+    if _EVICTOR is not None and _EVICTOR.is_alive():
+        return
+
+    def _loop():
+        while True:
+            time.sleep(30.0)
+            with _MODEL_LOCK:
+                if _MODEL_CACHE["model"] is None:
+                    continue
+                idle = time.time() - float(_MODEL_CACHE["last_used"] or 0.0)
+                if idle >= MODEL_IDLE_RELEASE_S:
+                    _MODEL_CACHE.update(key=None, model=None, last_used=0.0)
+
+    _EVICTOR = threading.Thread(target=_loop, name="whisper-model-evictor",
+                                daemon=True)
+    _EVICTOR.start()
+
+
+def _cached_model(fw, name: str, md, local_only: bool):
+    """مدلِ آماده — از کش اگر همان مدل است، وگرنه تازه ساخته و کش می‌شود.
+
+    تعویضِ نامِ مدل (env) کشِ قبلی را دور می‌ریزد؛ دو مدل هم‌زمان در رم
+    نگه داشته نمی‌شوند."""
+    key = (str(name), bool(local_only))
+    with _MODEL_LOCK:
+        if _MODEL_CACHE["key"] == key and _MODEL_CACHE["model"] is not None:
+            _MODEL_CACHE["last_used"] = time.time()
+            return _MODEL_CACHE["model"]
+        _MODEL_CACHE.update(key=None, model=None)      # مدلِ قبلی آزاد شود
+    model = fw.WhisperModel(name, device="cpu", compute_type="int8",
+                            download_root=str(md), local_files_only=local_only)
+    with _MODEL_LOCK:
+        _MODEL_CACHE.update(key=key, model=model, last_used=time.time())
+    _start_evictor()
+    return model
+
+
 # ── موتورها (هر کدام: (path, lang) → متنِ خام؛ استثنا مجاز است) ──────────────
 def _run_faster_whisper(path: str, lang: str) -> str:
     fw = importlib.import_module("faster_whisper")
     md = models_dir()
     md.mkdir(parents=True, exist_ok=True)
-    model = fw.WhisperModel(model_name(), device="cpu", compute_type="int8",
-                            download_root=str(md),
-                            local_files_only=not allow_download())
+    model = _cached_model(fw, model_name(), md, not allow_download())
     segments, _info = model.transcribe(str(path), language=_lang_arg(lang),
                                        vad_filter=True)
     return " ".join(str(getattr(s, "text", "") or "").strip() for s in segments)

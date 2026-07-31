@@ -642,6 +642,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_tg_409_rival_poller.py",           # تشخیصِ pollerِ رقیب روی باتِ مرکز (boundary-12)
     "test_tg_poll_health.py",                # گوشِ مرده دیده شود: هر دورِ getUpdates ثبت + هشدارِ کوری
     "test_tg_voice_worker.py",               # ویسِ کند روی نخِ کارگر، نه روی حلقهٔ poll
+    "test_tg_model_cache.py",                 # مدل یک‌بار بار شود، نه به‌ازای هر ویس
     # ۲۰۲۶-۰۷-۳۱ — ساختِ ۴موجهٔ منشورِ UI تلگرام (۸ لِین + لِینِ سیم‌کشی):
     "test_tg_menu_contract.py",             # منوی DM ≤۱۰ ِ scope-دار + تک‌نویسندهٔ منوی inner
     "test_tg_callback_answer.py",           # هیچ تپی بی‌answer نمی‌ماند (مرگِ spinner)
