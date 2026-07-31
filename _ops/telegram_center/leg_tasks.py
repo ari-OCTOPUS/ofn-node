@@ -275,8 +275,15 @@ def card_text(leg: str, *, paused: bool, now: float | None = None,
     return "\n".join(lines)
 
 
-def card_keyboard(leg: str) -> list:
-    """چهار دکمه — نه بیشتر. ≤۶۴ بایت."""
+def card_keyboard(leg: str, *, pausable: bool = True) -> list:
+    """چهار دکمه — نه بیشتر. ≤۶۴ بایت.
+
+    `pausable=False` (گروه ۵ِ اسکنِ ۰۷-۳۱): پایی که در power.PAUSABLE_LEGS نیست
+    (system/mirror) دکمهٔ ⏸/▶️ نمی‌گیرد — تپش همیشه «پای ناشناخته» می‌داد؛
+    «دکمه‌ای که کاری نمی‌کند وجود ندارد» (منشور، رأی ۴)."""
+    if not pausable:
+        return [[{"text": "📋 صف", "callback_data": f"tk:q:{leg}"[:64]},
+                 {"text": "✅ نتیجه", "callback_data": f"tk:r:{leg}"[:64]}]]
     return [[{"text": "▶️ ادامه", "callback_data": f"tk:c:{leg}"[:64]},
              {"text": "📋 صف", "callback_data": f"tk:q:{leg}"[:64]}],
             [{"text": "⏸ توقف", "callback_data": f"tk:p:{leg}"[:64]},

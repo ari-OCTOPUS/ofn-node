@@ -116,47 +116,38 @@ DEFAULT_DISPLAY = {
     "knowledge": "دانش",
 }
 
-# منوی command — فقط چیزی که این مرکز واقعاً handle می‌کند (قرارداد: /now)
+# منوی command — منشورِ ۲۴-رأیی (TG-UI-CHARTER-2026-07-31 §۱ و §۶.۵):
+# DM شخصی/وضعیتی است — بیزنس/قیفِ لید هرگز در منوی DM نیست و سقف ≤۱۰ فرمان.
+# ۲۰۲۶-۰۷-۳۱ (رأی ۴، حذفِ بی‌رحمانه): بلوکِ ۹تاییِ قیفِ لید (lead/funnel/won/
+# lost/paid/sent/replied/meeting/quote) + deal/revenue/id/box/code/doctrine/eq
+# از منو خارج شدند — handlerهای تایپی سرِ جایشان ماندند (W3 مصرفشان می‌کند).
 COMMANDS: list[tuple[str, str]] = [
     ("menu", "🎛 منوی فرماندهی — همه‌چیز از اینجا"),
     ("now", "📊 وضعیت — همین حالا"),
-    ("budget", "🐙 پیشنهادِ تخصیصِ ماهِ بعد (propose-only)"),
-    ("revenue", "💰 درآمدِ تأییدشده (aggregate)"),
-    ("missions", "🧬 مأموریت‌ها — Mission Genome"),
-    # 2026-07-25 live path — identity / blackbox / collab / summary
     ("live", "🐙 خلاصهٔ زنده‌بودن (flags + هویت + جعبه‌سیاه)"),
-    ("id", "🧬 مگا-معادلاتِ هویت (read-only)"),
-    ("box", "📦 نقشهٔ جعبه‌سیاه‌ها"),
-    ("code", "🧩 هم‌کدنویسی propose-only با مالک"),
-    # ۲۰۲۶-۰۷-۲۷ — این فهرست ۹ تا بود در حالی که handlerها ۲۰ تا بودند. یعنی
-    # نصفِ دستورها **کار می‌کردند ولی در منوی تلگرام دیده نمی‌شدند**: مالک باید
-    # از قبل می‌دانست وجود دارند تا بتواند تایپشان کند. همان کژیِ کارت‌های
-    # نامرئی، یک لایه بالاتر — و `test_command_discoverability` حالا قفلش می‌کند.
-    ("x", "🗂 هر چیزی که می‌توانم نشانت بدهم"),
-    ("stuck", "💰 پرداخت‌های نیمه‌کاره"),
+    ("missions", "🧬 مأموریت‌ها — Mission Genome"),
     ("verdicts", "🗳 رأی‌هایی که دیگر سؤال نیستند"),
-    ("lead", "🎨 قیمتِ یک کارِ نقاشی (تا مرزِ ارسال)"),
-    ("deal", "🤝 پیشنهادِ خودم را بشنو"),
-    ("doctrine", "📖 دکترینِ اپراتور"),
-    ("eq", "🧬 معادلاتِ هویت"),
-    ("funnel", "📈 قیفِ لید — چه می‌دانیم و چه نه"),
-    ("won", "🎉 این لید را بردیم"),
-    ("lost", "❌ این لید از دست رفت"),
-    ("paid", "💰 پولِ این لید رسید (گزارش، نه تراکنش)"),
-    ("sent", "📤 برای این لید پیام رفت"),
-    ("replied", "💬 مشتری جواب داد"),
-    ("meeting", "📅 قرارِ بازدید گذاشته شد"),
-    ("quote", "🧾 قیمت برایش فرستاده شد"),
+    ("stuck", "💰 پرداخت‌های نیمه‌کاره"),
+    ("x", "🗂 هر چیزی که می‌توانم نشانت بدهم"),
+    ("budget", "🐙 پیشنهادِ تخصیصِ ماهِ بعد (propose-only)"),
 ]
 
-# منوی commandهای باتِ inner (@Robo2725، فقط-ارسال از دیدِ مرکز) — آیتم ۴ِ TG-P2.
-# این بات درونِ ارگانیسم است (سلامت/هشدار/دایجست) و مرکز رویش فقط می‌فرستد،
-# فرمان نمی‌گیرد (pollerش approval_channel است، در پروسهٔ جدا). پس منوی کوچک/خالی:
-# فقط اطلاع‌رسانیِ «این باتِ درون است». flag-off → این پروفایل اصلاً ثبت نمی‌شود
-# (کلاینتِ inner هم ساخته نمی‌شود) تا پاریتیِ تک-outerِ امروز بایت‌به‌بایت بماند.
-COMMANDS_INNER: list[tuple[str, str]] = [
-    ("status", "🐙 این باتِ درونِ ارگانیسم است — وضعیت را اینجا ببین"),
-]
+# scope ِ منوها (قاعدهٔ UX §۶.۵: منوی گروه ≠ منوی DM). منوی تلگرام فقط
+# فرمانِ اسلشِ لاتین می‌پذیرد؛ رابطِ گروه فارسیِ طبیعیِ LEG_VERBS است ⇒
+# منوی گروه باید **خالی** باشد (deleteMyCommands روی scope گروه‌ها).
+MENU_SCOPE_PRIVATE = {"type": "all_private_chats"}
+MENU_SCOPE_GROUPS = {"type": "all_group_chats"}
+
+# فرمان‌های جدولِ خودِ مرکز (کلیدهای handlers در _handle_message) — برای اینکه
+# مامور (owner_console) هرگز فرمانِ اسلشِ شناخته‌شده را قبل از جدول نبلعد
+# (یافتهٔ outer-bot-4: /menu و /start هرگز به _page نمی‌رسیدند).
+_CENTER_SLASH = frozenset({
+    "/now", "/budget", "/revenue", "/missions", "/menu", "/start", "/live",
+    "/id", "/eq", "/box", "/code", "/doctrine", "/deal", "/lead", "/verdicts",
+    "/stuck", "/x", "/توان", "/won", "/lost", "/paid", "/sent", "/replied",
+    "/meeting", "/quote", "/funnel", "/رفتار", "/کد", "/flags", "/trace",
+    "/scan", "/insight",
+})
 
 # دستورهایی که مرکز خودش پشتِ فلگ ثبت می‌کند — پل از آن‌ها رد می‌شود تا
 # پاریتهٔ فلگ نشکنند. هر مدخل باید دلیلِ فلگ‌دار بودنش را داشته باشد.
@@ -315,6 +306,36 @@ class Center:
     def _clients_map(self) -> dict:
         """``{"inner": TgClient|None, "outer": TgClient|None}`` برایِ surface_router."""
         return {"inner": self._inner_client(), "outer": self._client}
+
+    @staticmethod
+    def _menu_hash() -> str:
+        """هشِ محتواییِ منوی DM (فهرست + scope) — نشانگرِ ثبتِ مجدد."""
+        import hashlib as _hl
+        base = json.dumps([list(COMMANDS), MENU_SCOPE_PRIVATE],
+                          ensure_ascii=False, sort_keys=True)
+        return _hl.sha256(base.encode("utf-8")).hexdigest()[:16]
+
+    # ── نیتِ مقصدِ ارسال (ratchet ِ tg_send_audit) ──────────────────────────
+    # DM و General ِ فوروم تاپیک ندارند؛ topic_id=None آن‌جا **درست** است ولی
+    # از ارسالِ سرگردانِ بی‌تاپیک (که در General می‌نشیند) قابلِ‌تفکیک نبود.
+    # این دو resolver همان None را با **نامِ نیت** می‌دهند تا هر سایتِ ارسال
+    # مقصدش را اعلام کند و ممیزِ ایستا سایتِ بی‌نیت را جدا بشمارد.
+    def _dm_topic(self):
+        """مقصد by-design = DM ِ مالک (بدونِ تاپیک)."""
+        return None
+
+    def _general_topic(self):
+        """مقصد by-design = General ِ گروه (پیامِ پین‌شدهٔ سراسری، بدونِ تاپیک)."""
+        return None
+
+    def _leg_pausable(self, leg: str) -> bool:
+        """آیا این پا دکمهٔ ⏸/▶️ می‌گیرد؟ فقط اعضای power.PAUSABLE_LEGS.
+        نبودِ power ⇒ False (به‌سمتِ دکمهٔ کمتر می‌افتد، نه دکمهٔ مرده — گروه ۵ِ اسکن)."""
+        try:
+            import power as _pw
+            return str(leg) in tuple(getattr(_pw, "PAUSABLE_LEGS", ()))
+        except Exception:  # noqa: BLE001
+            return False
 
     def _rmod(self):
         """ماژولِ render (تزریقی یا lazy). نبود → None (بخش‌های وابسته skip می‌شوند)."""
@@ -506,38 +527,51 @@ class Center:
                 topics[leg] = tid
                 dirty = True
 
-        # منوی commandها — ثبتِ مجدد وقتی فهرست عوض شود (پرچم = تعدادِ ثبت‌شده).
-        # آیتم ۴ِ TG-P2: زیرِ split، inner و outer هرکدام منویِ خودشان را می‌گیرند.
-        # flag-off → فقط outer (پاریتیِ تک-outerِ امروز بایت‌به‌بایت)؛ flag-on → هر دو.
-        if cfg.get("commands_set") != len(COMMANDS):
+        # منوی commandها — scope-دار (منشور §۶.۵) و ثبتِ مجدد با **محتوا** نه فقط
+        # طول (commands_set_v2 = هشِ فهرست+scope؛ عوض‌کردنِ متنِ توضیح هم باید
+        # روی بات بنشیند — نشانگرِ طولی آن را نمی‌دید). نشانگرِ طولیِ قدیمی هم
+        # نگه داشته می‌شود (گاردِ discoverability همان را متن‌سنجی می‌کند).
+        _menu_hash = self._menu_hash()
+        if (cfg.get("commands_set") != len(COMMANDS)
+                or cfg.get("commands_set_v2") != _menu_hash):
             try:
-                ok = bool(self._client.set_commands(list(COMMANDS)))
+                ok = bool(self._client.set_commands(
+                    list(COMMANDS), scope=dict(MENU_SCOPE_PRIVATE)))
+            except TypeError:
+                # کلاینتِ قدیمی بدونِ scope — منو ثبت می‌شود ولی سراسری (fallback).
+                try:
+                    ok = bool(self._client.set_commands(list(COMMANDS)))
+                except Exception:  # noqa: BLE001
+                    ok = False
             except Exception:  # noqa: BLE001
                 ok = False
             if ok:
                 cfg["commands_set"] = len(COMMANDS)
+                cfg["commands_set_v2"] = _menu_hash
                 dirty = True
-        try:
-            import surface_router as _sr
-            _split_on = _sr.enabled()
-        except Exception:  # noqa: BLE001
-            _split_on = False
-        if _split_on:
-            inner = self._inner_client()
-            if inner is not None and cfg.get("commands_set_inner") != len(COMMANDS_INNER):
+        # منوی گروه = خالی (منوی تلگرام لاتین-اسلش است؛ رابطِ گروه فارسیِ
+        # طبیعی است — LEG_VERBS). فقط یک‌بار به‌ازای هر تغییرِ منو.
+        if cfg.get("commands_group_cleared_v2") != _menu_hash:
+            _del = getattr(self._client, "delete_commands", None)
+            ok_g = False
+            if callable(_del):
                 try:
-                    ok_in = bool(inner.set_commands(list(COMMANDS_INNER)))
+                    ok_g = bool(_del(scope=dict(MENU_SCOPE_GROUPS)))
                 except Exception:  # noqa: BLE001
-                    ok_in = False
-                if ok_in:
-                    cfg["commands_set_inner"] = len(COMMANDS_INNER)
-                    dirty = True
+                    ok_g = False
+            if ok_g:
+                cfg["commands_group_cleared_v2"] = _menu_hash
+                dirty = True
+        # منوی باتِ inner دیگر از مرکز push نمی‌شود (outer-bot-12: دو نویسنده
+        # با دو فهرستِ متفاوت روی یک بات = race ِ بی‌صدا). تک-نویسنده =
+        # approval_channel در پروسهٔ organism.
 
         # پیامِ statusِ پین‌شده — فقط یک‌بار ساخته می‌شود؛ بعداً فقط edit (beat)
         if not isinstance(cfg.get("status_message_id"), int):
             text = self._status_text() or "🐙 مرکزِ فرماندهی — راه‌اندازی…"
             try:
-                mid = self._client.send(_scrub(text), chat_id=chat_id, pin=True)
+                mid = self._client.send(_scrub(text), chat_id=chat_id,
+                                        topic_id=self._general_topic(), pin=True)
             except Exception:  # noqa: BLE001
                 mid = None
             if isinstance(mid, int):
@@ -567,6 +601,7 @@ class Center:
             else:
                 try:
                     _gmid = self._client.send(_scrub(_gt), chat_id=chat_id,
+                                              topic_id=self._general_topic(),
                                               pin=True)
                 except Exception:  # noqa: BLE001
                     _gmid = None
@@ -604,8 +639,9 @@ class Center:
                         _sent2 = None
                         if _own2 is not None:
                             try:
-                                _sent2 = self._client.send(_scrub(_txt),
-                                                           chat_id=_own2)
+                                _sent2 = self._client.send(
+                                    _scrub(_txt), chat_id=_own2,
+                                    topic_id=self._dm_topic())
                             except Exception:  # noqa: BLE001
                                 _sent2 = None
                         if _sent2 is not None:
@@ -943,6 +979,7 @@ class Center:
                                 dirty = True
                         elif _own is not None:
                             _dmid = self._client.send(_scrub(_dt), chat_id=_own,
+                                                      topic_id=self._dm_topic(),
                                                       pin=True)
                             if isinstance(_dmid, int):
                                 cfg["dm_guide_message_id"] = _dmid
@@ -1005,27 +1042,41 @@ class Center:
         """دکمه‌های خانهٔ لنگر — همه read-only، صفر جهش، صفر خرج.
 
         مالکیت را `handle_update → _is_owner` از قبل گیت کرده؛ این‌جا فقط
-        رندر است. هر شکست ⇒ متنِ صادقِ کوتاه، هرگز سکوت."""
+        رندر است. هر شکست ⇒ متنِ صادقِ کوتاه، هرگز سکوت.
+
+        ۲۰۲۶-۰۷-۳۱ (منشور §۶.۲/§۶.۳ — حذفِ منوی تو در تو): هر تپِ hm: همان
+        پیام را **ویرایش** می‌کند (الگوی _edit_page)، پیامِ نو نمی‌بارد؛ عمقِ
+        منو ≤۲ و «hm:home» راهِ برگشت به خانه است. زنجیرهٔ سه‌پیامیِ
+        st→build→bq مُرد."""
         verb = str(data or "").split(":", 1)[-1]
         msg = cbq.get("message") or {}
         chat = (msg.get("chat") or {}).get("id")
+        mid = msg.get("message_id")
         try:
             self._client.answer_callback(cbq.get("id"), "")
         except Exception:  # noqa: BLE001
             pass
-        if verb == "st":
+        _back = [{"text": "🏠 خانه", "callback_data": "hm:home"}]
+        kb = [_back]
+        if verb == "home":
+            body = self._home_pulse_text() or "🐙 هنوز چیزی برای گفتن ندارم."
+            kb = self._home_keyboard()
+        elif verb == "st":
             body = self._status_text() or "هنوز چیزی برای گفتن ندارم."
-            # درِ «ساختِ خود» در سطحِ **دوم** — سطحِ اول سه دکمه می‌ماند.
+            # وضعیتِ حلقهٔ ساخت یک **خط** است نه یک منوی پایین‌تر (عمق ≤۲؛
+            # درِ اصلیِ ساخت متنِ آزادِ «بساز: …» است که پالس یادش می‌دهد).
             try:
-                self._client.send(_scrub(body), chat_id=chat, keyboard=[
-                    [{"text": "🛠 ساختِ خود", "callback_data": "hm:build"}]])
-                return {"kind": "home", "verb": verb}
+                import build_cmd as _bc
+                _s = _bc.loop_status()
+                if _s.get("tasks") or _s.get("patches"):
+                    body += (f"\n\n🛠 صفِ ساخت: {_fa_num(_s['tasks'])} · "
+                             f"پچِ منتظرِ رأی: {_fa_num(_s['patches'])}")
             except Exception:  # noqa: BLE001
                 pass
+            kb = [[{"text": "🔄 تازه‌سازی", "callback_data": "hm:st"}], _back]
         elif verb == "legs":
             rows = []
             try:
-                cfg = _load_config()
                 r = self._rmod()
                 feeds = (r.collect_feeds() or {}) if r is not None else {}
                 legs_map = feeds.get("legs") if isinstance(feeds.get("legs"), dict) else {}
@@ -1039,8 +1090,7 @@ class Center:
                 "🦵 هنوز گزارشی از پاها ندارم — تاپیک‌هایشان در گروه است."
         elif verb == "held":
             # رأی §۶ VQ-TG-HOLD-001: فقط خلاصه/دسته‌بندی · حداکثر ۱۰ · متن echo
-            # نمی‌شود (نسخهٔ اول text[:80] را نشان می‌داد — همان نقضی که رأی
-            # بست) · خواندن = HELD_VIEWED، نه sent، و هیچ ارسال/اجرایی نمی‌سازد.
+            # نمی‌شود · خواندن = HELD_VIEWED، نه sent، و هیچ ارسال/اجرایی نمی‌سازد.
             try:
                 import hold_policy as _hp
                 import surface_policy as _spol
@@ -1048,18 +1098,14 @@ class Center:
             except Exception:  # noqa: BLE001
                 body = "🔇 فهرستِ ناگفته‌ها در دسترس نیست."
         elif verb == "build":
-            # زیرمنوی «ساختِ خود» — وضعیتِ صادقِ هر پلهٔ حلقه + صف + پچ‌ها.
+            # صفحهٔ «ساختِ خود» — فقط از دکمهٔ ackِ «بساز: …» می‌آید (یک تاپ
+            # تا اطلاعِ واقعی)؛ صف/پچ سطحِ دومِ همین صفحه‌اند.
             try:
                 import build_cmd as _bc
                 body = (_bc.status_text() + "\n\n" + _bc.queue_text()
                         + "\n\n" + _bc.patches_text())
                 kb = [[{"text": "📥 صف", "callback_data": "hm:bq"},
-                       {"text": "🧩 پچ‌ها", "callback_data": "hm:bp"}]]
-                try:
-                    self._client.send(_scrub(body), chat_id=chat, keyboard=kb)
-                except Exception:  # noqa: BLE001
-                    pass
-                return {"kind": "home", "verb": verb}
+                       {"text": "🧩 پچ‌ها", "callback_data": "hm:bp"}], _back]
             except Exception:  # noqa: BLE001
                 body = "🛠 حلقهٔ ساخت در دسترس نیست."
         elif verb == "bq":
@@ -1068,19 +1114,31 @@ class Center:
                 body = _bc.queue_text()
             except Exception:  # noqa: BLE001
                 body = "📥 صف در دسترس نیست."
+            kb = [[{"text": "🛠 ساختِ خود", "callback_data": "hm:build"}], _back]
         elif verb == "bp":
             try:
                 import build_cmd as _bc
                 body = _bc.patches_text()
             except Exception:  # noqa: BLE001
                 body = "🧩 فهرستِ پچ در دسترس نیست."
+            kb = [[{"text": "🛠 ساختِ خود", "callback_data": "hm:build"}], _back]
         else:
             body = "این دکمه را نمی‌شناسم — خانه را دوباره باز کن."
-        try:
-            self._client.send(_scrub(body), chat_id=chat)
-        except Exception:  # noqa: BLE001
-            pass
-        return {"kind": "home", "verb": verb}
+        edited = False
+        if isinstance(mid, int):
+            try:
+                edited = bool(self._client.edit(mid, _scrub(body), keyboard=kb,
+                                                chat_id=chat))
+            except Exception:  # noqa: BLE001
+                edited = False
+        if not edited:
+            # پیامِ مرجع نیست/پاک شده — تنها آن‌وقت پیامِ نو (DM ِ مالک by-design).
+            try:
+                self._client.send(_scrub(body), chat_id=chat, keyboard=kb,
+                                  topic_id=self._dm_topic())
+            except Exception:  # noqa: BLE001
+                pass
+        return {"kind": "home", "verb": verb, "edited": edited}
 
     # ── مدلِ Task ِ پاها: کارت، دکمه‌ها، موتور ─────────────────────────────
     def _refresh_leg_card(self, leg: str) -> None:
@@ -1127,7 +1185,8 @@ class Center:
             if (not _bogus and hashes.get(leg) == h
                     and isinstance(ids.get(leg), int)):
                 return                              # بی‌تغییر — ویرایشِ بیهوده نزن
-            kb = _lt.card_keyboard(leg)
+            # گروه ۵ِ اسکن: کارتِ پای بی-pause (system/mirror) دکمهٔ ⏸/▶️ نمی‌گیرد.
+            kb = _lt.card_keyboard(leg, pausable=self._leg_pausable(leg))
             mid = ids.get(leg)
             ok = False
             if isinstance(mid, int):
@@ -1271,7 +1330,7 @@ class Center:
                 pass
             kpi = self._kpi_target(_load_config(), leg)
             return (_lt.card_text(leg, paused=paused, kpi=kpi),
-                    _lt.card_keyboard(leg))
+                    _lt.card_keyboard(leg, pausable=self._leg_pausable(leg)))
         if cmd == "queue":
             rows = _lt.queue(leg)
             return (("📋 <b>صفِ " + leg + "</b>\n" + "\n".join(
@@ -1372,7 +1431,8 @@ class Center:
             pass
         try:
             self._client.send(_scrub(str(reply.get("text") or "")),
-                              chat_id=chat, keyboard=kb)
+                              chat_id=chat, keyboard=kb,
+                              topic_id=self._dm_topic())
         except Exception:  # noqa: BLE001
             pass
         return {"kind": "owner-console", "console_kind": reply.get("kind")}
@@ -1495,6 +1555,8 @@ class Center:
         if not self._wired() or not isinstance(u, dict):
             return None
         if not self._is_owner(u):
+            # غیرمالک عمداً حتی answer_callback هم نمی‌گیرد (fail-closed:
+            # هر پاسخی وجودِ بات/مالک را لو می‌دهد) — spinner ِ غریبه مشکلِ ما نیست.
             return None                              # سکوتِ کامل برای غیرمالک
         # ── سیاستِ ورودی (VQ-TG-GAP-INPUT-001، رأیِ مالک ۲۰۲۶-۰۷-۳۰ گزینهٔ A) ──
         # تا امروز فقط **خروجی** سیاست داشت، پس گروه فرمانِ هسته‌ای می‌گرفت حتی
@@ -1531,6 +1593,12 @@ class Center:
                                           topic_id=_m.get("message_thread_id"))
                     except Exception:  # noqa: BLE001 — هدایت هرگز مرکز را نمی‌کشد
                         pass
+                # مرگِ spinner (منشور §۶.۴): تپِ deny-شدهٔ مالک هم باید
+                # answerCallbackQuery بگیرد وگرنه دکمه تا ابد می‌چرخد
+                # (inner-bot-16/group-14 — سه کارتِ زندهٔ دکتر دقیقاً همین بودند).
+                _cbq0 = u.get("callback_query")
+                if isinstance(_cbq0, dict):
+                    self._answer(_cbq0, (_t or "اجازه نیست")[:180])
                 return {"kind": "input-policy", "mode": _d.get("mode"),
                         "reason": _d.get("reason")}
             # ── «بساز: …» → صفِ ساختِ خود (رأیِ مالک ۰۷-۳۰) ──────────────────
@@ -1560,6 +1628,7 @@ class Center:
                             self._client.send(
                                 _scrub(_bt),
                                 chat_id=(_mgb.get("chat") or {}).get("id"),
+                                topic_id=self._dm_topic(),
                                 keyboard=[[{"text": "🛠 وضعیتِ حلقه",
                                             "callback_data": "hm:build"}]])
                         except Exception:  # noqa: BLE001
@@ -1586,9 +1655,15 @@ class Center:
                     if _r.get("handled") and _r.get("reply"):
                         return self._send_console_reply(_r["reply"], _cb)
                 _mg = u.get("message")
-                if isinstance(_mg, dict) and str(_mg.get("text") or "").strip():
-                    _r = _oc.handle_message(str(_mg.get("text") or ""),
-                                            surface_decision=_d)
+                _mtx0 = str((_mg or {}).get("text") or "").strip() \
+                    if isinstance(_mg, dict) else ""
+                # outer-bot-4: فرمانِ اسلشِ جدولِ خودِ مرکز (/menu، /start، …)
+                # هرگز به مامور نمی‌رسد — وگرنه regexِ مامور آن را می‌بلعید و
+                # فرمانِ #۱ ِ تبلیغ‌شده هیچ‌وقت به _page("menu") نمی‌رسید.
+                _cmd0 = (_mtx0.split()[0].split("@")[0].lower()
+                         if _mtx0.startswith("/") else "")
+                if _mtx0 and _cmd0 not in _CENTER_SLASH:
+                    _r = _oc.handle_message(_mtx0, surface_decision=_d)
                     _rep = _r.get("reply") if _r.get("handled") else None
                     if _rep and _rep.get("kind") != "clarify":
                         return self._send_console_reply(_rep, {"message": _mg})
@@ -2870,7 +2945,8 @@ class Center:
                     latest_report = files[0] if files else None
                 if latest_report and latest_report.exists():
                     txt = latest_report.read_text("utf-8")[:3500]
-                    self._client.send(_scrub(txt), chat_id=chat)
+                    self._client.send(_scrub(txt), chat_id=chat,
+                                      topic_id=self._dm_topic())
                     self._answer(cbq, "گزارش ارسال شد")
                 else:
                     self._answer(cbq, "هنوز گزارشی نیست — اول map:start را بزن")
@@ -3255,6 +3331,9 @@ class Center:
                     return self._send_console_reply(_r2["reply"], cbq)
             except Exception:  # noqa: BLE001
                 pass
+            # مسیرِ blocked هم answer می‌گیرد — spinner ِ oc: (یافتهٔ §4 نقشه:
+            # adapter بی‌جواب/exception ⇒ تا امروز هیچ answerCallbackQuery نبود).
+            self._answer(cbq, "مامور جوابی نداشت")
             return {"kind": "owner-console", "console_kind": "blocked"}
         # 2026-07-29: کارتِ دکترِ اختاپوس callbackِ سه‌تکه دارد (ok|no:gate:mission)؛
         # اگر قبل از fallbackِ ok/no:<id> جدا نشود، به‌عنوانِ approvalِ بی‌ربط ثبت

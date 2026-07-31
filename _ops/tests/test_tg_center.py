@@ -96,8 +96,13 @@ class FakeClient:
         self._next_topic += 1
         return self._next_topic
 
-    def set_commands(self, commands):
-        self.calls.append(("set_commands", {"commands": list(commands)}))
+    def set_commands(self, commands, scope=None):
+        self.calls.append(("set_commands", {"commands": list(commands),
+                                            "scope": scope}))
+        return True
+
+    def delete_commands(self, scope=None):
+        self.calls.append(("delete_commands", {"scope": scope}))
         return True
 
     def poll_updates(self, offset=0, timeout_s=25):
@@ -457,6 +462,98 @@ def t_c6_a_watchdog_revival_is_reported_to_the_owner_once():
             "هر ری‌استارتِ عادی هم رسید می‌فرستد ⇒ رگبار"
     finally:
         wl.unlink(missing_ok=True)
+
+
+def t_c7_unpausable_leg_cards_carry_no_pause_resume_buttons():
+    """گروه ۵ِ اسکنِ ۰۷-۳۱: کارتِ system/mirror دکمهٔ ⏸/▶️ داشت که همیشه
+    «پای ناشناخته» می‌داد (power.PAUSABLE_LEGS شاملشان نیست). منشور رأی ۴:
+    «دکمه‌ای که کاری نمی‌کند وجود ندارد.»"""
+    _reset()
+    fc = FakeClient()
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render())
+    c.ensure_setup()
+    fc.calls.clear()
+    c._refresh_leg_card("system")
+    sends = [s for s in fc.named("send") if s["keyboard"]]
+    assert sends, "کارتِ system ساخته نشد"
+    cds = [b["callback_data"] for row in sends[-1]["keyboard"] for b in row]
+    assert not any(cd.startswith(("tk:c:", "tk:p:")) for cd in cds), \
+        f"کارتِ بی-pause هنوز ⏸/▶️ دارد: {cds}"
+    assert any(cd.startswith("tk:q:") for cd in cds), cds
+    # و پای قابلِ‌مکث چهار دکمه‌اش را نگه می‌دارد (ضدِ بیش‌بست)
+    fc.calls.clear()
+    c._refresh_leg_card("lead")
+    sends = [s for s in fc.named("send") if s["keyboard"]]
+    cds = [b["callback_data"] for row in sends[-1]["keyboard"] for b in row]
+    assert any(cd.startswith("tk:c:") for cd in cds) \
+        and any(cd.startswith("tk:p:") for cd in cds), cds
+
+
+def t_c8_menu_and_start_are_never_swallowed_by_the_owner_console():
+    """outer-bot-4: مامور /menu و /start را قبل از جدولِ فرمان می‌بلعید —
+    فرمانِ #۱ ِ تبلیغ‌شده هرگز به _page('menu') نمی‌رسید. حتی مامورِ
+    همه‌چیزخوار هم نباید فرمانِ جدولِ مرکز را بگیرد."""
+    import types as _types
+    _reset()
+    fake_pkg = _types.ModuleType("owner_console")
+    fake_ad = _types.ModuleType("owner_console.telegram_adapter")
+    fake_ad.handle_callback = lambda data, surface_decision=None: {"handled": False}
+    fake_ad.handle_message = lambda text, surface_decision=None: {
+        "handled": True, "reply": {"kind": "answer", "text": "CONSOLE-ATE-IT"}}
+    fake_pkg.telegram_adapter = fake_ad
+    old_pkg = sys.modules.get("owner_console")
+    old_ad = sys.modules.get("owner_console.telegram_adapter")
+    sys.modules["owner_console"] = fake_pkg
+    sys.modules["owner_console.telegram_adapter"] = fake_ad
+    try:
+        fc = FakeClient(owner_id=777)
+        fc.owner_chat_id = 777
+        c = center.Center(client=fc, clock=Clock(), render_mod=fake_render())
+        for cmd in ("/menu", "/start"):
+            fc.calls.clear()
+            res = c.handle_update({"update_id": 30, "message": {
+                "from": {"id": 777}, "text": cmd,
+                "chat": {"id": 777, "type": "private"}}})
+            assert res and res.get("kind") != "owner-console", (cmd, res)
+            sent = fc.named("send")
+            assert sent and "CONSOLE-ATE-IT" not in sent[-1]["text"], \
+                f"{cmd} را مامور بلعید — به جدولِ فرمان نرسید"
+        # و متنِ آزادِ غیرفرمان همچنان به مامور می‌رسد (ضدِ بیش‌بست)
+        fc.calls.clear()
+        res = c.handle_update({"update_id": 31, "message": {
+            "from": {"id": 777}, "text": "یک متنِ آزادِ ماموری",
+            "chat": {"id": 777, "type": "private"}}})
+        assert res and res.get("kind") == "owner-console", res
+    finally:
+        for name, old in (("owner_console", old_pkg),
+                          ("owner_console.telegram_adapter", old_ad)):
+            if old is not None:
+                sys.modules[name] = old
+            else:
+                sys.modules.pop(name, None)
+
+
+def t_c9_home_taps_edit_the_same_message_instead_of_sending_new_ones():
+    """منشور §۶.۲/§۶.۳: hm: زنجیرهٔ پیامِ نو نمی‌سازد — همان پیام ویرایش
+    می‌شود و راهِ برگشت hm:home است (عمق ≤۲). زنجیرهٔ سه‌پیامیِ
+    st→build→bq مُرد."""
+    _reset()
+    fc = FakeClient(owner_id=777)
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render())
+    c.ensure_setup()
+    for verb in ("hm:st", "hm:legs", "hm:held", "hm:home"):
+        fc.calls.clear()
+        res = c.handle_update({"update_id": 32, "callback_query": {
+            "id": f"cb-{verb}", "from": {"id": 777}, "data": verb,
+            "message": {"message_id": 444,
+                        "chat": {"id": 777, "type": "private"}}}})
+        assert res and res.get("kind") == "home", (verb, res)
+        edits = fc.named("edit")
+        assert edits and edits[-1]["message_id"] == 444, \
+            f"{verb} پیامِ خانه را ویرایش نکرد"
+        assert fc.named("send") == [], \
+            f"{verb} هنوز پیامِ نو می‌فرستد — منوی تو در تو برگشت"
+        assert fc.named("answer"), f"{verb} بدونِ answer"
 
 
 def t_d_decisions_posted_once_with_keyboard_dedupe_seen():
@@ -913,11 +1010,10 @@ def t_inner_missing_when_telegram_bot_token_absent():
     assert c._clients_map()["outer"] is fc
 
 
-def t_set_my_commands_per_bot_under_split():
-    """آیتم ۴ِ TG-P2: flag-on → هر بات منویِ خودش را می‌گیرد (outer=COMMANDS، inner=COMMANDS_INNER).
-
-    با دو FakeClient جدا (outer و inner تزریقی) تا شمارشِ set_commands روی هرکدام
-    جدا دیده شود. flag-off → فقط outer (پاریتیِ امروز). جهش (پین به یک پروفایل) ⇒ قرمز."""
+def t_set_my_commands_single_writer_even_under_split():
+    """W1 (outer-bot-12): مرکز **هرگز** منوی باتِ inner را نمی‌نویسد — حتی با
+    فلگِ split روشن. تک-نویسندهٔ منوی inner = approval_channel در پروسهٔ
+    organism؛ دو نویسنده با دو فهرست = race ِ بی‌صدا روی setMyCommands."""
     _reset()
     os.environ["OCTOPUS_TG_SPLIT_V1"] = "1"
     os.environ["TELEGRAM_BOT_TOKEN"] = "inner-tok"
@@ -928,23 +1024,19 @@ def t_set_my_commands_per_bot_under_split():
         outer._post = lambda u, b, timeout_s=10.0: {"ok": True, "result": {"message_id": 1}}
         outer._get = lambda u, t: {"ok": True, "result": []}
         c = center.Center(client=outer, clock=Clock(), render_mod=fake_render())
-        # inner را تزریق کن تا مستقل از outer شمارش شود
+        # inner تزریقی تا هر setMyCommands ِ ناخواسته رویش دیده شود
         inner_fc = FakeClient()
         inner_fc._owner = 777
         inner_fc._center = CENTER
-        inner_fc._post = lambda u, b, timeout_s=10.0: {"ok": True, "result": {}}
-        inner_fc._get = lambda u, t: {"ok": True, "result": []}
         c._inner = inner_fc
         assert c.ensure_setup() is True
-        # outer پروفایلِ کاملِ COMMANDS را می‌گیرد
         outer_cmds = outer.named("set_commands")
         assert len(outer_cmds) == 1
         assert len(outer_cmds[0]["commands"]) == len(center.COMMANDS)
-        # inner پروفایلِ COMMANDS_INNER را می‌گیرد (مستقل از outer)
-        inner_cmds = inner_fc.named("set_commands")
-        assert len(inner_cmds) == 1, f"inner باید منوی خودش را بگیرد: {inner_cmds}"
-        assert len(inner_cmds[0]["commands"]) == len(center.COMMANDS_INNER)
-        assert inner_cmds[0]["commands"] != outer_cmds[0]["commands"]
+        assert inner_fc.named("set_commands") == [], \
+            "مرکز منوی inner را نوشت — تک-نویسندگی نقض شد"
+        assert inner_fc.named("delete_commands") == [], \
+            "مرکز منوی inner را پاک کرد — آن بات مالِ approval_channel است"
     finally:
         os.environ.pop("OCTOPUS_TG_SPLIT_V1", None)
         os.environ.pop("TELEGRAM_BOT_TOKEN", None)
