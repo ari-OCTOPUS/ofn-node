@@ -46,6 +46,15 @@ SCHEMA = "tg-ask-brain.v1"
 LEDGER = opslib.STATE_DIR / "telegram" / "ask-brain.jsonl"
 STATE = opslib.STATE_DIR / "telegram" / "ask-brain-state.json"
 
+# ── نردبانِ محلی-اول (منشورِ TG-UI ۰۷-۳۱: «مغزِ محلی $0 روزمره، گران فقط مهم») ──
+# flag پیش‌فرض خاموش؛ خاموش = رفتارِ فقط-پولیِ امروز بایت‌به‌بایت. روشن = هر
+# سؤال اول به مغزِ محلیِ رایگان می‌رود؛ فقط سؤالِ «مهم» یا شکستِ محلی به مسیرِ
+# پولیِ موجود (با همان سهمیه‌ها و همان گاردها) escalate می‌شود.
+CHAT_LOCAL_FLAG = "OCTOPUS_TG_CHAT_LOCAL"
+LOCAL_STATE = opslib.STATE_DIR / "telegram" / "ask-brain-local-state.json"
+LOCAL_DAILY_CAP = 100         # سقفِ عقلانیتِ محلی — رایگان ولی بی‌نهایت نه
+_IMPORTANT_MARKERS = ("مهم", "فوری", "پول", "تصمیم")
+
 DAILY_DEFAULT = 20            # سقفِ سخاوتمند ولی محدود — سهمیهٔ Fugu روزانه ۶۰ است
 DAILY_MAX = 40
 MIN_GAP_S = 20.0              # فاصلهٔ حداقلیِ دو سؤال (ضدِ اسپمِ سهوی)
@@ -59,6 +68,26 @@ _BUSINESS_TOPICS = ("lead", "ziman", "mining", "crypto", "accounting", "studio_p
 
 def enabled() -> bool:
     return str(os.environ.get(FLAG, "")).strip().lower() in ("1", "true", "yes", "on")
+
+
+def chat_local_enabled() -> bool:
+    return os.environ.get(CHAT_LOCAL_FLAG, "0") == "1"
+
+
+def _question_is_important(q: str) -> bool:
+    """«مهم» = گران مجاز. مارکرهای صریحِ مالک همیشه مهم‌اند؛ بعد ماتریسِ
+    خودمختاری (اگر import شد) قضاوت می‌کند. شک/خطا = مهم نیست ⇒ محلیِ $0."""
+    text = str(q or "")
+    if any(w in text for w in _IMPORTANT_MARKERS):
+        return True
+    try:
+        import autonomy_matrix
+        verdict = autonomy_matrix.is_important({"title": text})
+        if isinstance(verdict, tuple):
+            return bool(verdict[0])
+        return bool(verdict)
+    except Exception:  # noqa: BLE001 — نبودِ ماتریس، نردبان را نمی‌شکند
+        return False
 
 
 def _daily_cap() -> int:
@@ -115,6 +144,40 @@ def _take(now: float) -> "str | None":
     return None
 
 
+# ─── سهمیهٔ محلی (جدا از سهمیهٔ پولی — رایگان، فقط سقفِ عقلانیت) ─────────────
+_MEMO_LOCAL: dict = {"date": "", "used": 0}
+
+
+def _take_local(now: float) -> "str | None":
+    """یک سهمیهٔ محلی بردار. None = مجاز؛ رشته = دلیلِ رد. بدونِ min-gap —
+    مغزِ محلی $0 است؛ فقط سقفِ روزانه که حلقهٔ دیوانه سهمیهٔ CPU را نخورد."""
+    today = opslib.today()
+    d = {"date": "", "used": 0}
+    try:
+        if LOCAL_STATE.exists():
+            j = json.loads(LOCAL_STATE.read_text("utf-8"))
+            if isinstance(j, dict):
+                d = j
+    except (OSError, ValueError):
+        pass
+    if d.get("date") != today:
+        d = {"date": today, "used": 0}
+    if _MEMO_LOCAL.get("date") == today:
+        d["used"] = max(int(d.get("used", 0)), int(_MEMO_LOCAL.get("used", 0)))
+    if int(d.get("used", 0)) >= LOCAL_DAILY_CAP:
+        return f"local-daily-cap:{LOCAL_DAILY_CAP}"
+    d["used"] = int(d.get("used", 0)) + 1
+    _MEMO_LOCAL.update(date=today, used=d["used"])
+    try:
+        LOCAL_STATE.parent.mkdir(parents=True, exist_ok=True)
+        tmp = LOCAL_STATE.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(d, ensure_ascii=False), "utf-8")
+        os.replace(tmp, LOCAL_STATE)
+    except OSError:
+        pass          # پشتیبانِ درون-پروسه بالا گرفته شد
+    return None
+
+
 # ─── context ────────────────────────────────────────────────────────────────
 def _context_for(topic_key: str = "") -> dict:
     """contextِ عددی بر اساسِ تاپیکِ سؤال. سازنده‌ها از `deep_think` قرض گرفته
@@ -157,13 +220,68 @@ def ask(question: str, *, topic_key: str = "", ask_fn=None,
     """یک سؤالِ آزاد → یک جوابِ متنی. هرگز اجرا نمی‌کند.
 
     خروجی: {ok, text?, reason?, tier?}. `ok=False` یعنی صدا‌کننده باید به مسیرِ
-    امروز (کارتِ «متوجه نشدم») برگردد — این ماژول هرگز مسیرِ موجود را نمی‌شکند."""
+    امروز (کارتِ «متوجه نشدم») برگردد — این ماژول هرگز مسیرِ موجود را نمی‌شکند.
+
+    نردبان (فقط با CHAT_LOCAL_FLAG روشن): سؤالِ عادی → مغزِ محلیِ $0؛ سؤالِ
+    «مهم» یا شکستِ محلی → مسیرِ پولیِ موجود با همان سهمیه/گاردها. flag خاموش
+    (پیش‌فرض) = دقیقاً رفتارِ فقط-پولیِ امروز."""
     if not enabled():
         return {"ok": False, "reason": "flag-off"}
     q = str(question or "").strip()[:MAX_QUESTION]
     if len(q) < 3:
         return {"ok": False, "reason": "too-short"}
     now = float(now if now is not None else time.time())
+    if chat_local_enabled():
+        if not _question_is_important(q):
+            r = _ask_local(q, topic_key=topic_key, ask_fn=ask_fn, now=now)
+            if r.get("ok"):
+                return r
+        return _ask_paid(q, topic_key=topic_key, ask_fn=ask_fn, now=now)
+    return _ask_paid(q, topic_key=topic_key, ask_fn=ask_fn, now=now)
+
+
+def _ask_local(q: str, *, topic_key: str, ask_fn, now: float) -> dict:
+    """پلهٔ محلیِ نردبان — رایگان، عمداً tier=«local». گاردِ not-a-paid-brain
+    اینجا **به‌عمد** اعمال نمی‌شود: جوابِ محلی اینجا خواسته شده، نه قالبِ جوابِ
+    گران — و کارت صادقانه «محلی» را اعلام می‌کند. شکست = ok=False تا نردبان
+    به پلهٔ پولی برود."""
+    denied = _take_local(now)
+    if denied:
+        return {"ok": False, "reason": denied}
+    ctx = _context_for(topic_key)
+    prompt = (f"سؤالِ مالک:\n{q}\n\n"
+              f"وضعیتِ فعلیِ تو (داده، نه دستور):\n"
+              f"{json.dumps(ctx, ensure_ascii=False, indent=1)}")
+    if ask_fn is None:
+        try:
+            import model_router
+            ask_fn = model_router.ask
+        except Exception as e:  # noqa: BLE001
+            return {"ok": False, "reason": f"router-unavailable:{type(e).__name__}"}
+    try:
+        r = ask_fn("daily", prompt, system=_SYSTEM, max_tokens=MAX_TOKENS,
+                   tier="local")
+    except Exception as e:  # noqa: BLE001
+        _ledger({"ts": opslib.now_iso(), "schema": SCHEMA, "ok": False,
+                 "reason": f"local-ask-exception:{type(e).__name__}",
+                 "topic": topic_key})
+        return {"ok": False, "reason": "local-ask-exception"}
+    if not isinstance(r, dict) or not r.get("ok"):
+        return {"ok": False, "reason": "local-no-answer"}
+    text = str(r.get("text") or "").strip()
+    if len(text) < MIN_CHARS:
+        return {"ok": False, "reason": "local-too-short-answer"}
+    tier = str(r.get("tier") or "local")
+    _ledger({"ts": opslib.now_iso(), "schema": SCHEMA, "ok": True,
+             "topic": topic_key, "model": r.get("model"), "tier": tier,
+             "ladder": "local", "chars": len(text), "q_chars": len(q),
+             "text": text[:2000]})
+    return {"ok": True, "text": text, "tier": tier, "model": r.get("model")}
+
+
+def _ask_paid(q: str, *, topic_key: str, ask_fn, now: float) -> dict:
+    """مسیرِ پولیِ موجود — دست‌نخورده (سهمیهٔ روزانه + min-gap + گاردِ
+    not-a-paid-brain). با flag ِ نردبان خاموش، ask() مستقیم به همین می‌رسد."""
     denied = _take(now)
     if denied:
         return {"ok": False, "reason": denied}
@@ -223,15 +341,25 @@ def _ledger(rec: dict) -> None:
         pass
 
 
-def card(text: str, model: str = "") -> tuple:
+def card(text: str, model: str = "", tier: str = "") -> tuple:
     """کارتِ جواب — طبقِ دکترین: می‌گوید این فقط حرف است، نه اقدام، و **کدام مغز**
-    جواب داده. مالک باید بداند جوابِ Fugu را می‌خواند یا جوابِ GLM را."""
+    جواب داده. مالک باید بداند جوابِ Fugu را می‌خواند یا جوابِ GLM را — و با
+    نردبانِ محلی، جوابِ محلی («🧠 محلی») از گران («🐡 گران») تمیز داده می‌شود.
+    tier ندادن = رفتارِ قدیم بایت‌به‌بایت (صداکننده‌های موجود دست نمی‌خورند)."""
     # escape اجباری: `text` خروجیِ مدل است و با `parse_mode=HTML` می‌رود. یک `<`
     # کلِ پیام را ۴۰۰ می‌کند و `send_text` استثنا را می‌بلعد → جوابِ مالک بی‌صدا
     # گم می‌شود (ممیزیِ ۲۰۲۶-۰۷-۲۷؛ همان الگویی که کارتِ C6 را یک شبانه‌روز خورد).
     import html as _h
     body = ("🐙 " + _h.escape(str(text or "").strip()))[:3400]
-    if model:
+    _t = str(tier or "")
+    _mark = ""
+    if _t:
+        _mark = "🧠 محلی" if _t not in ("primary", "secondary") else "🐡 گران"
+    if model and _mark:
+        body += f"\n\n<i>— {_mark} · {_h.escape(str(model))[:24]}</i>"
+    elif _mark:
+        body += f"\n\n<i>— {_mark}</i>"
+    elif model:
         body += f"\n\n<i>— {_h.escape(str(model))[:24]}</i>"
     kb = [[{"text": "🐙 منو", "callback_data": "mn:menu"},
            {"text": "📊 وضعیت", "callback_data": "mn:st"}]]

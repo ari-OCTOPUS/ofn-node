@@ -500,6 +500,47 @@ def ops_state() -> dict:
         return {"overall": "—", "error": f"{type(e).__name__}", "log": [], "parts": []}
 
 
+def miniapp_state(probe=None) -> dict:
+    """دادهٔ Mini App (منشورِ TG-UI رأی ۲۲) — زیرمجموعهٔ **redacted** ِ aggregate:
+    فقط پول/لیدها/سلامت. dict ِ اختصاصی ساخته می‌شود (نه کلِ aggregate) و در
+    لایهٔ HTTP از همان پاسِ `_redact` رد می‌شود. read-only، fail-soft، صفر اقدام."""
+    org = _read_json(STATE / "ORGANISM-STATE.json") or {}
+    tel = _read_json(STATE / "telemetry-latest.json") or {}
+    ld = _read_json(STATE / "ORGANISM-STATE.lead_discovery") or {}
+
+    def _count_json(p: Path) -> int:
+        try:
+            return sum(1 for f in p.glob("*.json")
+                       if not f.name.startswith(("_TEMPLATE", "_qt")))
+        except OSError:
+            return 0
+
+    month = org.get("month") or {}
+    today = org.get("today") or {}
+    return {
+        "ts": opslib.now_iso(),
+        "money": {
+            "month_key": month.get("key") or tel.get("month"),
+            "month_aud": month.get("aud"),
+            "today_usd": today.get("usd"),
+            "suspects": org.get("suspect_zero_total"),
+        },
+        "leads": {
+            "sensed": ld.get("sensed"), "proposed": ld.get("proposed"),
+            "saved": ld.get("saved"), "duplicates": ld.get("duplicates"),
+            "inbox": _count_json(STATE / "legs" / "lead-inbox"),
+            "drafts": _count_json(STATE / "legs" / "lead-drafts"),
+            "updated_at": ld.get("updated_at"),
+        },
+        "health": {
+            "processes": {k: _port_alive(v, probe) for k, v in PORTS.items()},
+            "heartbeat_age_min": _age_min(STATE / "ORGANISM-STATE.json"),
+            "halted": org.get("halted"),
+            "frozen": bool(org.get("frozen")),
+        },
+    }
+
+
 # ── داشبوردِ اتوماسیونِ مینیمال (رأی مالک): وضعیت + Now/آخرین/گیرکرده + خلاصهٔ ۵min + لاگ ──
 OPS_PAGE = """<!doctype html><html dir="rtl" lang="fa"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -824,6 +865,94 @@ build(); tick(); setInterval(tick, 4000);
 </script></body></html>"""
 
 
+# ── Mini App (منشور TG-UI رأی ۲۲) — فقط نمایش: پول/لیدها/سلامت. DNA ِ بصری از
+# octopus-vitals ِ مالک (plane ‎#0d0d0d، کارتِ ‎#1a1a19، نقطهٔ وضعیت، عددِ hero،
+# annotation ِ صادق). داخلِ تلگرام SDK ِ web-app لود می‌شود؛ بیرونِ تلگرام هم
+# (شکستِ اسکریپت) صفحه مستقل رندر می‌شود. هیچ POST ی — عملیات در چت می‌ماند.
+MINIAPP_PAGE = """<!doctype html><html dir="rtl" lang="fa"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🐙 داشبورد</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--plane:#0d0d0d;--surface:#1a1a19;--ink:#fff;--muted:#898781;
+ --good:#0ca30c;--warn:#fab219;--serious:#ec835a;--crit:#d03b3b;--line:#2a2a28}
+*{box-sizing:border-box;margin:0}
+body{background:var(--plane);color:var(--ink);font:15px/1.75 system-ui,'Segoe UI',Tahoma,sans-serif;
+ padding:14px;max-width:1080px;margin:0 auto}
+h1{font-size:19px;margin-bottom:2px}
+.sub{color:var(--muted);font-size:12px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.card h2{font-size:15px;display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:var(--muted)}
+.dot.g{background:var(--good)}.dot.w{background:var(--warn)}.dot.c{background:var(--crit)}
+.hero{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums}
+.hero small{font-size:13px;font-weight:400;color:var(--muted)}
+.note{color:var(--muted);font-size:12px;line-height:1.7}
+.row{display:flex;justify-content:space-between;font-size:13px;border-top:1px solid var(--line);
+ padding:4px 0}
+.row span:last-child{font-variant-numeric:tabular-nums}
+.pill{border:1px solid var(--line);border-radius:999px;padding:1px 9px;font-size:11px;color:var(--muted)}
+footer{color:var(--muted);font-size:11px;margin-top:14px}
+</style></head><body>
+<h1>🐙 داشبوردِ اختاپوس</h1>
+<div class="sub">فقط‌خواندنی — عملیات در چتِ تلگرام می‌ماند · تازه‌سازی هر ۳۰ ثانیه ·
+ <span id="upd">—</span></div>
+<div class="grid">
+ <div class="card"><h2><span class="dot" id="dMoney"></span>💰 پول</h2>
+  <div class="hero"><span id="mAud">—</span> <small>AUD این ماه</small></div>
+  <div class="row"><span>امروز (USD)</span><span id="mToday">—</span></div>
+  <div class="row"><span>ماه</span><span id="mKey">—</span></div>
+  <div class="note">قرائتِ صادق: عددِ ماه از telemetry ِ ارگانیسم است، نه از بانک —
+   تطبیقِ بانکی جداست.</div></div>
+ <div class="card"><h2><span class="dot" id="dLeads"></span>🩸 لیدها</h2>
+  <div class="hero"><span id="lSaved">—</span> <small>ذخیره‌شده</small></div>
+  <div class="row"><span>حس‌شده</span><span id="lSensed">—</span></div>
+  <div class="row"><span>پیشنهادشده</span><span id="lProposed">—</span></div>
+  <div class="row"><span>صندوق / پیش‌نویس</span><span id="lInbox">—</span></div>
+  <div class="note">قرائتِ صادق: شمارنده‌های کشفِ لید — «ذخیره‌شده» یعنی روی دیسک،
+   نه یعنی تماس گرفته شده.</div></div>
+ <div class="card"><h2><span class="dot" id="dHealth"></span>❤️ سلامت</h2>
+  <div class="hero"><span id="hUp">—</span> <small>از ۴ پروسه زنده</small></div>
+  <div id="hProcs" style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0"></div>
+  <div class="row"><span>عمرِ آخرین state</span><span id="hAge">—</span></div>
+  <div class="row"><span>halt / freeze</span><span id="hHalt">—</span></div>
+  <div class="note">قرائتِ صادق: «زنده» = پورت جواب می‌دهد؛ دربارهٔ کیفیتِ کار
+   هیچ نمی‌گوید.</div></div>
+</div>
+<footer>منبع: <code>/api/miniapp</code> (redacted) · صفحه بدونِ تلگرام هم کار می‌کند.</footer>
+<script>
+function fa(n){return (n==null||n==='')?'—':Number(n).toLocaleString('fa-IR')}
+function dot(id,cls){var e=document.getElementById(id);e.className='dot'+(cls?' '+cls:'')}
+async function tick(){try{
+ var d=await(await fetch('/api/miniapp')).json();
+ var m=d.money||{},l=d.leads||{},h=d.health||{};
+ document.getElementById('upd').textContent=new Date().toLocaleTimeString('fa-IR');
+ document.getElementById('mAud').textContent=(m.month_aud==null)?'—':fa(m.month_aud);
+ document.getElementById('mToday').textContent=fa(m.today_usd);
+ document.getElementById('mKey').textContent=m.month_key||'—';
+ dot('dMoney',(m.month_aud==null)?'w':'g');
+ document.getElementById('lSaved').textContent=fa(l.saved);
+ document.getElementById('lSensed').textContent=fa(l.sensed);
+ document.getElementById('lProposed').textContent=fa(l.proposed);
+ document.getElementById('lInbox').textContent=fa(l.inbox)+' / '+fa(l.drafts);
+ dot('dLeads',(l.saved>0||l.inbox>0)?'g':'w');
+ var pr=h.processes||{},names={organism:'بدن',cortex:'مغز',ollama:'ollama',dashboard:'داشبورد'};
+ var up=0,html='';
+ for(var k in names){var ok=!!pr[k];if(ok)up++;
+  html+='<span class="pill">'+(ok?'🟢':'🔴')+' '+names[k]+'</span>'}
+ document.getElementById('hProcs').innerHTML=html;
+ document.getElementById('hUp').textContent=fa(up);
+ document.getElementById('hAge').textContent=(h.heartbeat_age_min==null)?'—':fa(Math.round(h.heartbeat_age_min))+' دقیقه';
+ var halted=h.halted&&h.halted!=='—';
+ document.getElementById('hHalt').textContent=halted?String(h.halted):(h.frozen?'freeze':'—');
+ dot('dHealth',halted?'c':(up>=3?'g':'w'));
+}catch(e){document.getElementById('upd').textContent='قطع'}}
+try{if(window.Telegram&&window.Telegram.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand()}}catch(e){}
+tick();setInterval(tick,30000);
+</script></body></html>"""
+
+
 class _Srv(ThreadingHTTPServer):
     allow_reuse_address = False
 
@@ -847,6 +976,13 @@ class _Handler(BaseHTTPRequestHandler):
             return
         if self.path == "/api/ops":
             self._send(200, _redact(json.dumps(ops_state(), ensure_ascii=False)).encode("utf-8"))
+            return
+        if self.path == "/api/miniapp":
+            self._send(200, _redact(json.dumps(miniapp_state(), ensure_ascii=False))
+                       .encode("utf-8"))
+            return
+        if self.path in ("/miniapp", "/miniapp/"):
+            self._send(200, MINIAPP_PAGE.encode("utf-8"), "text/html; charset=utf-8")
             return
         if self.path in ("/ops", "/ops/"):
             self._send(200, OPS_PAGE.encode("utf-8"), "text/html; charset=utf-8")

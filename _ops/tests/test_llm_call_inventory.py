@@ -74,6 +74,10 @@ ROUTER_FENCED = {
     "telegram_center/ask_brain.py",
     # اتاقِ آینه — گفتگو با لایهٔ خودشناسی. همان مرزها؛ سهمیه‌اش هم مشترک با بالایی.
     "telegram_center/mirror_room.py",
+    # ۲۰۲۶-۰۷-۳۱ (لِین F) — سؤال از vault با ذکرِ منبع: retrievalِ ripgrep +
+    # `ask_fn = model_router.ask` با tier="local" ِ پین‌شده (هرگز پولی، هرگز
+    # escalation). از همان درِ فنس‌دار می‌گذرد؛ همین گارد بلافاصله گرفتش.
+    "telegram_center/ask_vault.py",
     # ۲۰۲۶-۰۷-۳۱ — سنجهٔ «ابزارخواهیِ» SGC (۰۷-۳۰): scan() با الگوی bind ِ
     # شناخته‌شده (`ask_fn = model_router.ask`) از همان درِ فنس‌دار می‌رود؛ همین
     # گارد در جاروی ۰۷-۳۱ گرفتش که ثبت نشده بود.
