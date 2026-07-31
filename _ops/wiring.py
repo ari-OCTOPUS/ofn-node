@@ -1264,6 +1264,12 @@ def _hebbian_eventclock_beat(neural_stack, signals) -> dict:
     گیتِ `>=2` عمداً دست‌نخورده می‌ماند: `observe()` با یک سیگنال ساختاراً صفر
     جفت ثبت می‌کند، پس پایین‌آوردنش به `>=1` صفر اثر و صرفاً I/Oِ بیشتر است.
     """
+    if _tg_halt_reason():
+        # D2 (شکافی که test_d2_halt_coverage رو کرد — تنها beat ِ بی‌گیت):
+        # زیرِ مرزِ سختِ سراسری حتی یادگیری/زوالِ جدول هم نباید بجنبد؛ پنجرهٔ
+        # نیمه‌پر دست‌نخورده می‌ماند تا بعد از رفعِ halt همان‌جا ادامه یابد.
+        return {"fired": 0, "window": 0, "union": 0,
+                "observed": False, "decayed": False, "skipped": "halt"}
     heb = neural_stack["hebbian"]
     fired = tuple(sorted(set(signals or [])))
     if not fired:

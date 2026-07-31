@@ -83,10 +83,16 @@ def t_the_send_button_records_a_verdict_it_does_not_send():
 
 
 def t_the_quote_verb_is_routed():
-    """درسِ همان روز: دکمه‌ای که فعلش در جدولِ dispatch نباشد مرده است."""
+    """درسِ همان روز: دکمه‌ای که فعلش در جدولِ dispatch نباشد مرده است.
+
+    ⚠️ ۰۷-۳۱: پنجرهٔ ثابتِ ۳۰۰۰ کاراکتری قلابی بود — با رشدِ طبیعیِ
+    `_handle_callback` (شاخه‌های نو قبل از qt) تستِ سبز قرمز می‌شد بی‌آنکه
+    سیمی قطع شده باشد. سنجهٔ درست: کلِ بدنهٔ همان تابع، نه N کاراکترِ اول."""
     src = (_OPS / "telegram_center" / "center.py").read_text("utf-8")
     i = src.index("def _handle_callback")
-    assert '"qt"' in src[i:i + 3000], "فعلِ qt مسیر ندارد — دکمه‌ها مرده‌اند"
+    j = src.find("\ndef ", i + 1)
+    body = src[i:j if j != -1 else len(src)]
+    assert '"qt"' in body, "فعلِ qt مسیر ندارد — دکمه‌ها مرده‌اند"
 
 
 # ─── ۲: سکوتِ ۰ تا ۷ ────────────────────────────────────────────────────────
@@ -128,12 +134,55 @@ def t_vital_streams_are_never_silenced():
 
 
 def t_a_direct_reply_is_never_silenced():
-    """گاردِ ساختاری: شرطِ سکوت فقط داخلِ شاخهٔ `chat_id is None` است."""
-    src = Path(ac.__file__).read_text("utf-8")
-    i = src.index("_quiet_now() and str(stream)")
-    ctx = src[max(0, i - 500):i]
-    assert "if chat_id is None and stream:" in ctx, \
-        "سکوت خارج از شاخهٔ جریانِ محیطی است — پاسخِ مستقیم را هم می‌خورد"
+    """گاردِ ساختاری: شرطِ سکوت فقط داخلِ شاخه‌ای که `chat_id is None` می‌خواهد.
+
+    ۲۰۲۶-۰۷-۲۸ — نسخهٔ اول این گارد دنبالِ رشتهٔ **عیناً**
+    `"if chat_id is None and stream:"` در پنجرهٔ ۵۰۰ کاراکتریِ قبل می‌گشت. وقتی
+    فیکسِ تاپیک یک شرطِ دیگر جلویش گذاشت (`thread is None and chat_id is None
+    and stream`)، تست قرمز شد در حالی که **رفتار حتی سخت‌گیرتر شده بود**.
+
+    آن قرمز بی‌ضرر نبود: در شواهدِ markerِ capability به‌عنوان «۲ قرمزِ از قبل
+    موجود» ثبت شد و مارکر با وجودش نوشته شد — یعنی یک تستِ کهنه تبدیل شد به
+    مجوزِ عبور از گیتِ پول. گاردی که به **نحوِ نوشتن** حساس باشد، دیر یا زود
+    یا دروغِ قرمز می‌گوید یا سبزِ دروغ می‌سازد.
+
+    حالا **ناوردی** سنجیده می‌شود نه املا: هر `if`ی که `_quiet_now()` را صدا
+    می‌زند باید جایی در زنجیرهٔ اجدادش شرطی داشته باشد که `chat_id` را با None
+    مقایسه می‌کند. هر بازنویسی‌ای که این را نگه دارد، سبز می‌ماند.
+    """
+    import ast
+    tree = ast.parse(Path(ac.__file__).read_text("utf-8"))
+    parent = {}
+    for node in ast.walk(tree):
+        for child in ast.iter_child_nodes(node):
+            parent[child] = node
+
+    def _guards_chat_id(test) -> bool:
+        for n in ast.walk(test):
+            if isinstance(n, ast.Compare) and isinstance(n.left, ast.Name) \
+                    and n.left.id == "chat_id" \
+                    and any(isinstance(c, ast.Constant) and c.value is None
+                            for c in n.comparators):
+                return True
+        return False
+
+    found = 0
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.If):
+            continue
+        if "_quiet_now" not in ast.dump(node.test):
+            continue
+        found += 1
+        cur, ok = node, False
+        while cur in parent and not ok:
+            cur = parent[cur]
+            if isinstance(cur, ast.If) and _guards_chat_id(cur.test):
+                ok = True
+            if isinstance(cur, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                break          # از مرزِ تابع فراتر نرو
+        assert ok, ("سکوت خارج از شاخه‌ای است که chat_id را چک می‌کند — "
+                    "پاسخِ مستقیم را هم می‌خورد")
+    assert found, "شرطِ سکوت (_quiet_now) اصلاً پیدا نشد — گارد بی‌هدف شده"
 
 
 # ─── ۳: فقط منقضی‌ها ────────────────────────────────────────────────────────

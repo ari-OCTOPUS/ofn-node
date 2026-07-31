@@ -315,6 +315,17 @@ def _draft_via_local(task: str) -> Optional[dict]:
         if not local_llm.available():
             _log({"event": "skipped", "tier": "local", "reason": "ollama-down"})
             return None
+        # CONTEXT-FENCE (۰۷-۳۱ — گاردِ inventory این bypass را رو کرد): task از
+        # صفِ تلگرام و `current` از دیسک می‌آیند = دادهٔ نامعتمد؛ غربالِ
+        # injection پیش از مغزِ محلی — observe-only، هرگز بلاک/تغییرِ prompt؛
+        # هر خطا = مسیرِ قدیم بایت‌به‌بایت (همان قراردادِ debate_loop).
+        try:
+            import fence_adapter  # noqa: WPS433 — lazy، مونکی‌پچ‌پذیرِ تست
+            fence_adapter.screen_llm_input(
+                "code_brain.local_draft",
+                [("external", str(task)), ("file", current[:4000])])
+        except Exception:  # noqa: BLE001 — غربال هرگز draft را نمی‌کشد
+            pass
         # مدلِ **بزرگ‌ترِ** محلی برای کد. `qwen2.5:1.5b` (پیش‌فرضِ چتِ روزمره)
         # در پروبِ واقعی فایل را بازنویسی نکرد و `def add` را انداخت — گاردِ
         # AST جلویش را گرفت. بازنویسیِ کاملِ فایل کارِ سنگین‌تری است، پس این

@@ -264,8 +264,16 @@ def t_a_refused_send_is_not_marked_so_it_retries():
 
 
 def t_every_signal_stream_has_a_topic_route():
-    """گاردِ ضدِ typo: هر streamِ پل باید در جدولِ مسیریابیِ کانال باشد."""
+    """گاردِ ضدِ typo: هر streamِ پل یا در جدولِ پاهاست یا صریحاً هسته‌ای.
+
+    ⚠️ ۰۷-۳۱ — قراردادِ مسیریابی عوض شد (VQ-TG-HOLD-001 §۵): مدخل‌های هسته‌ای
+    عمداً از `_STREAM_TOPIC` حذف شدند و «نبودِ مدخل ⇒ DM ِ مالک، نه سکوت».
+    پس غیاب دیگر typo نیست — ولی گارد بی‌دندان هم نمی‌شود: هر stream باید یا
+    در جدولِ پاها باشد یا در فهرستِ صریحِ هسته‌ای (DM) این‌جا. streamِ نویی که
+    در هیچ‌کدام نیست همچنان قرمز می‌شود."""
     import approval_channel as ac
+    core_dm = {"c6", "fear", "hypothesis", "heart", "doctor", "needs", "brain",
+               "cortisol"}
     seen = set()
     for name, fn in ib.SIGNALS.items():
         try:
@@ -275,7 +283,8 @@ def t_every_signal_stream_has_a_topic_route():
         if out:
             seen.add(out[1])
     for s in seen:
-        assert s in ac._STREAM_TOPIC, f"streamِ {s!r} مقصدی ندارد"
+        assert s in ac._STREAM_TOPIC or s in core_dm, \
+            f"streamِ {s!r} نه در جدولِ پاهاست نه هسته‌ایِ اعلام‌شده"
 
 
 if __name__ == "__main__":

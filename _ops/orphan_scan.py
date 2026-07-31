@@ -86,6 +86,16 @@ def scan() -> dict:
     # هر ارجاعی که از **فایلِ دیگری** می‌آید
     imported, called, quoted = set(), set(), set()
     for f, tree in trees.items():
+        # ۰۷-۳۱ (کورِ اسکن که test_orphan_scan رو کرد): رشتهٔ ثابت فقط وقتی
+        # شاهدِ «اتصال» است که همان فایل واقعاً importِ پویا انجام دهد
+        # (import_module/__import__). وگرنه نامِ ماژول در denylist ِ
+        # scope_guard — که یعنی «این ماژول هرگز هدف نشود» — به‌عنوانِ صداکننده
+        # شمرده می‌شد و یتیمِ واقعی (arm_gate) از گزارش می‌افتاد: حفاظت ≠ سیم.
+        dyn_import = any(
+            isinstance(n, ast.Call) and (
+                getattr(n.func, "id", None) == "__import__"
+                or getattr(n.func, "attr", None) == "import_module")
+            for n in ast.walk(tree))
         for n in ast.walk(tree):
             if isinstance(n, ast.Import):
                 for a in n.names:
@@ -96,7 +106,8 @@ def scan() -> dict:
                 nm = getattr(n.func, "attr", None) or getattr(n.func, "id", None)
                 if nm:
                     called.add((f, nm))
-            elif isinstance(n, ast.Constant) and isinstance(n.value, str):
+            elif dyn_import and isinstance(n, ast.Constant) \
+                    and isinstance(n.value, str):
                 v = n.value.strip()
                 if v and len(v) < 60:
                     quoted.add((f, v.split(".")[-1]))

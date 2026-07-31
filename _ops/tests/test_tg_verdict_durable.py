@@ -103,8 +103,14 @@ def _center(fail_send=False):
 
 
 def _cb(data, uid=_OWNER, chat=_OWNER):
+    # ۰۷-۳۱: سیاستِ سطحِ ورودی (TG-P2) نوعِ chat را می‌سنجد؛ DM ِ مالک در
+    # تلگرامِ واقعی همیشه type=private دارد — فیکسچرِ قدیمی بی‌type بود و
+    # unknown-chat می‌خورد. این هم‌راستاسازی با واقعیت است، نه شل‌کردنِ گارد
+    # (پروندهٔ غیرمالک uid=666 همچنان deny می‌گیرد).
     return {"callback_query": {"id": "cb1", "from": {"id": uid},
-                               "message": {"message_id": 100, "chat": {"id": chat}},
+                               "message": {"message_id": 100,
+                                           "chat": {"id": chat,
+                                                    "type": "private"}},
                                "data": data}}
 
 

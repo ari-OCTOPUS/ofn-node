@@ -85,8 +85,12 @@ def _center():
 
 
 def _cb(data, uid=_OWNER, chat=_OWNER):
+    # ۰۷-۳۱: هم‌راستاسازیِ فیکسچر با سیاستِ سطحِ ورودی — DM ِ واقعی type=private
+    # دارد (توضیحِ کامل در test_tg_verdict_durable._cb).
     return {"callback_query": {"id": "cb1", "from": {"id": uid},
-                               "message": {"message_id": 100, "chat": {"id": chat}},
+                               "message": {"message_id": 100,
+                                           "chat": {"id": chat,
+                                                    "type": "private"}},
                                "data": data}}
 
 

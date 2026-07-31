@@ -34,6 +34,11 @@ _INVENTORIED_LOCAL_LLM = {
     "cortex/model_router.py",
     "chord/adapters/llm_adapter.py",
     "debate/debate_loop.py",
+    # ۲۰۲۶-۰۷-۳۱ — code_brain (پلهٔ محلیِ «بساز:»، ۰۷-۳۰) دقیقاً همان الگوی
+    # debate_loop را گرفت: caller ِ مستقیمِ local_llm.ask که ورودیِ نامعتمدش
+    # (task ِ تلگرامی + محتوای فایل) را پیش از call با
+    # fence_adapter.screen_llm_input غربال می‌کند (observe-only، fail-soft).
+    "cortex/code_brain.py",
 }
 
 

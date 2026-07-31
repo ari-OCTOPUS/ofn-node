@@ -58,6 +58,14 @@ ROUTER_FENCED = {
     # این تست همان روز قرمز شد چون `deep_think` اضافه شد و اینجا ثبت نشد — و همان
     # قرمزی سوییتِ سایهٔ self_patch را هم می‌بست (هیچ پچی نمی‌توانست سبز شود).
     "deep_think.py",                 # جلسه‌های فکرِ عمیق (۴/روز، کارتِ propose-only)
+    # ۲۰۲۶-۰۷-۲۷ (W2) — دو مسیرِ تازه‌ای که اختاپوس **خودش** شروع می‌کند. هر دو
+    # `ask_fn = model_router.ask` را می‌بندند و با `tier="primary"` می‌زنند؛ الگوی
+    # RX_ROUTER_BIND همان روز دقیقاً برای همین شکل اضافه شده بود.
+    "initiative.py",                 # ابتکار: اختاپوس گفتگو را شروع/سؤال می‌کند
+    "telegram_center/negotiate.py",  # مذاکره: پیشنهادِ خودش را می‌سازد
+    # W4 — حلقهٔ معلم: **هر دو** طرفِ جفت از `model_router.ask` می‌روند
+    # (معلم tier="primary"، شاگرد tier="local")، پس هیچ تماسِ مستقیمی نمانده.
+    "teacher_loop.py",               # جفتِ معلم/شاگرد برای تقطیر
     "self_patch.py",                 # مرورِ کدِ خود → صفِ نقص → پچ (اعمال با کلیکِ مالک)
     # همان الگویِ bind، از قبل موجود بود و این گارد نمی‌دیدش (tg_intent → ردهٔ local).
     "telegram_center/llm_intent.py",
@@ -66,12 +74,22 @@ ROUTER_FENCED = {
     "telegram_center/ask_brain.py",
     # اتاقِ آینه — گفتگو با لایهٔ خودشناسی. همان مرزها؛ سهمیه‌اش هم مشترک با بالایی.
     "telegram_center/mirror_room.py",
+    # ۲۰۲۶-۰۷-۳۱ — سنجهٔ «ابزارخواهیِ» SGC (۰۷-۳۰): scan() با الگوی bind ِ
+    # شناخته‌شده (`ask_fn = model_router.ask`) از همان درِ فنس‌دار می‌رود؛ همین
+    # گارد در جاروی ۰۷-۳۱ گرفتش که ثبت نشده بود.
+    "tool_request.py",
 }
 ADAPTER_FENCED = {
     "debate/debate_loop.py",         # _gated_call → DeepSeekClient.complete
     "heart/doctor_setpoint.py",      # llm_refine → DeepSeekClient.complete
     "budget/governor_epoch.py",      # allocate_llm → DeepSeekClient.complete
     "chord/adapters/llm_adapter.py",  # فقط شاخهٔ fallbackِ local_llm.ask
+    # ۲۰۲۶-۰۷-۳۱ — پلهٔ محلیِ حلقهٔ ساختِ خود (۰۷-۳۰، $0/ollama) مستقیم
+    # local_llm.ask می‌زند و همین گارد گرفتش. طبقِ سابقهٔ debate_loop:
+    # fence_adapter.screen_llm_input («task تلگرامی + محتوای فایل = نامعتمد»)
+    # پیش از call سیم شد (observe-only، fail-soft). عبور از model_router عمداً
+    # نه: این tier مدل/مهلتِ مخصوصِ خودش را pin می‌کند (کامنتِ خودِ ماژول).
+    "cortex/code_brain.py",
 }
 CHOKE_PRIMITIVES = {
     "cortex/model_router.py",        # چوکِ fenced — local_llm.ask/cli.complete داخلِ فنس
