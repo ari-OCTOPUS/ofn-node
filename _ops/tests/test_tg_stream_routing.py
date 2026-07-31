@@ -203,6 +203,58 @@ def t_every_stream_key_maps_to_a_real_topic_key():
             f"جریانِ {stream!r} به کلیدِ ناشناخته {topic_key!r} می‌رود"
 
 
+def t_a_keyboard_card_is_never_held_and_never_quiet_dropped():
+    """⚠️ یافتهٔ اسکنِ عمیقِ ۰۷-۳۱ + رأیِ مصوبِ VQ-TG-HOLD-001:
+    «نیازمندِ تأیید → فوری با کارتِ معتبر». ولی مسیرِ HOLD کیبورد را دور
+    می‌ریخت و ledger با delivered=True دروغ می‌گفت — ۹ درخواستِ ابزار
+    این‌طور بلعیده شده بودند و مالک عملاً هرگز نتوانسته بود ✅ بزند.
+    و ساعتِ سکوت هم کارتِ دکمه‌دار را کامل می‌انداخت (نه حتی HOLD)."""
+    _write_cfg(); _flag(True)
+    kb = {"inline_keyboard": [[{"text": "✅", "callback_data": "tr:y:x"}]]}
+    try:
+        # (الف) سیاستِ HOLD ِ تزریقی: بی‌کیبورد = نگه؛ باکیبورد = ارسال به DM.
+        # (سیاستِ واقعی در پروسهٔ organism لود می‌شود؛ این‌جا همان قرارداد
+        # تزریق می‌شود تا خودِ شاخهٔ send_text سنجیده شود نه لودر.)
+        import approval_channel as _ac1
+        held = []
+
+        class _SP:
+            HOLD = "hold"
+            def route(self, stream):
+                return ("hold", "x")
+            def hold(self, stream, text):
+                held.append((stream, text))
+
+        orig_sp = _ac1.load_surface_policy
+        _ac1.load_surface_policy = lambda: _SP()
+        try:
+            p1 = Post()
+            r1 = _chan(p1).send_text("درخواستِ ابزار", None, stream="needs")
+            assert not p1.bodies and held, "مسیرِ HOLD ِ تزریقی کار نکرد"
+            p2 = Post()
+            r2 = _chan(p2).send_text("درخواستِ ابزار", kb, stream="needs")
+            assert p2.bodies, "کارتِ دکمه‌دار هم بلعیده شد — رأیِ HOLD-001 نقض"
+            assert p2.bodies[-1].get("reply_markup") is not None,                 "کیبورد باز هم دور ریخته شد"
+            assert p2.bodies[-1]["chat_id"] == 555,                 f"کارت به DM ِ مالک نرفت: {p2.bodies[-1]['chat_id']}"
+        finally:
+            _ac1.load_surface_policy = orig_sp
+        # (ب) ساعتِ سکوت: پیامِ عادی می‌افتد، کارتِ دکمه‌دار هرگز
+        import approval_channel as _ac2
+        orig = _ac2._quiet_now
+        _ac2._quiet_now = lambda: True
+        try:
+            p3 = Post()
+            _chan(p3).send_text("محیطیِ عادی", None, stream="discovery")
+            assert not p3.bodies, "ساعتِ سکوت پیامِ عادی را باید بیندازد"
+            p4 = Post()
+            _chan(p4).send_text("کارتِ تأیید", kb, stream="discovery")
+            assert p4.bodies, "ساعتِ سکوت کارتِ دکمه‌دار را خورد"
+        finally:
+            _ac2._quiet_now = orig
+    finally:
+        _flag(False)
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

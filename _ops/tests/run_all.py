@@ -630,6 +630,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_tg_hold_policy.py",               # ماشینِ حالتِ HOLD (VQ-TG-HOLD-001)
     "test_tg_route_seam.py",                # درزِ _route_send
     "test_tg_build_surface.py",             # سطحِ «بساز:» + حلقهٔ ساختِ خود
+    "test_ledger_reanchor_2026_07_31.py",   # رگرسیونِ ترمیمِ زنجیرهٔ ledger (genesis تازه)
     # ۲۰۲۶-۰۷-۳۱ — حلقهٔ عملیاتی (برنچ claude/operational-loop-agi-566734):
     "test_state_write_loudness.py",              # VQ-STATE-WRITE-001: شکستِ نوشتن باصدا
     "test_mission_approval_and_receipt_critic.py",  # کارتِ A3 → صفِ مالک + منتقدِ رسید
@@ -641,7 +642,9 @@ EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_
                HERE.parents[1] / "07 - Knowledge" / "school-memory" / "test_curriculum.py",
                # ۲۰۲۶-۰۷-۳۱ — تست‌های unified_control (ثبت‌نشده = هرگز اجرا نشده):
                HERE.parent / "unified_control" / "tests" / "test_snapshot_staleness.py",
-               HERE.parent / "unified_control" / "tests" / "test_snapshot_linkage.py"]
+               HERE.parent / "unified_control" / "tests" / "test_snapshot_linkage.py",
+               # ۲۰۲۶-۰۷-۳۱ — اعتبارسنجِ قراردادِ تلگرام (تا امروز صداکننده‌ نداشت).
+               HERE.parent / "telegram_contract" / "validate_contract.py"]
 
 # این فایل‌ها pytest-style هستند (fixtureهای monkeypatch/tmp_path) و اجرای مستقیمشان
 # سبزِ دروغین می‌دهد. run_all باید واقعاً pytest را اجرا کند.
