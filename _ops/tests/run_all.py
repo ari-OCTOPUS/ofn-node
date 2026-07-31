@@ -635,6 +635,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_mission_approval_and_receipt_critic.py",  # کارتِ A3 → صفِ مالک + منتقدِ رسید
     "test_verdict_feedback_loop.py",             # حکمِ مالک → توکن‌ها → تصمیمِ بعدی
     "test_mission_reconcile_step1.py",           # گذارِ قانونیِ Genome + واژگانِ ۱۲→۶
+    # ۲۰۲۶-۰۷-۳۱ — موجِ یکپارچه‌سازی:
+    "test_ledger_reanchor_2026_07_31.py",   # رگرسیونِ ترمیمِ زنجیرهٔ ledger (genesis تازه)
+    "test_tg_send_receipt_schema.py",       # رسیدِ ارسال: bot_role+surface+state سه‌حالتی (gate 8)
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",

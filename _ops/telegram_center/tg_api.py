@@ -383,9 +383,14 @@ class TgClient:
             if _ops not in _sys.path:
                 _sys.path.insert(0, _ops)
             import tg_send_log as _tsl  # noqa: WPS433
+            # bot_role از token_source (۲۰۲۶-۰۷-۳۱، رفعِ gate 8): این کلاینتِ
+            # مرکز = باتِ outer. surface از chat id استنتاج می‌شود (DM = cid≥0،
+            # group = cid<-1000) تا بدونِ پاس‌دادنِ پارامترِ جدید درست کار کند.
+            _surf = "dm" if (isinstance(cid, int) and cid >= 0) else "group"
             _tsl.record(chat_id=cid, topic_id=body.get("message_thread_id"),
                         text=body_text, stream=str(stream or "center"),
-                        ok=data is not None)
+                        ok=data is not None, bot_role="outer", surface=_surf,
+                        state="sent" if data is not None else "blocked")
         except Exception:  # noqa: BLE001
             pass
         if data is None:

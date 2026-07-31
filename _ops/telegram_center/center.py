@@ -1523,14 +1523,36 @@ class Center:
                 topics=_cfg.get("topics") if isinstance(_cfg.get("topics"), dict) else {})
             if not _d.get("allow"):
                 _t = _isp.redirect_text(_d)
+                _m = (u.get("message")
+                      or (u.get("callback_query") or {}).get("message") or {})
                 if _t:
-                    _m = (u.get("message")
-                          or (u.get("callback_query") or {}).get("message") or {})
                     try:
                         self._client.send(_t, chat_id=(_m.get("chat") or {}).get("id"),
                                           topic_id=_m.get("message_thread_id"))
                     except Exception:  # noqa: BLE001 — هدایت هرگز مرکز را نمی‌کشد
                         pass
+                # (۱) پاسخ به callback query (۲۰۲۶-۰۷-۳۱، رفعِ inner-16): بدونِ
+                # این، دکمه‌ای که در General/تاپیکِ ناشناخته تپ می‌شود spinner ِ
+                # ۶۰ثانیه‌ای می‌سازد — مالک فکر می‌کند بات شکسته. redirect ِ متن
+                # به چت کافی نیست؛ خودِ callback باید answer شود.
+                _cbq = u.get("callback_query")
+                if isinstance(_cbq, dict) and _cbq.get("id"):
+                    try:
+                        self._client.answer_callback(_cbq.get("id"), _t or "")
+                    except Exception:  # noqa: BLE001
+                        pass
+                # (۲) رسیدِ state="blocked" (۲۰۲۶-۰۷-۳۱، رفعِ boundary-13): یک
+                # ردِ سیاستِ ورودی تا امروز هیچ اثری نداشت — حالا ردیف می‌گیرد.
+                try:
+                    import tg_send_log as _tsl_blk  # noqa: WPS433
+                    _cid = (_m.get("chat") or {}).get("id")
+                    _tsl_blk.record(chat_id=_cid, topic_id=_m.get("message_thread_id"),
+                                    text=_t or "", stream="input-policy", ok=False,
+                                    bot_role="outer",
+                                    surface="group" if _cid == _cfg.get("chat_id") else "dm",
+                                    state="blocked")
+                except Exception:  # noqa: BLE001
+                    pass
                 return {"kind": "input-policy", "mode": _d.get("mode"),
                         "reason": _d.get("reason")}
             # ── «بساز: …» → صفِ ساختِ خود (رأیِ مالک ۰۷-۳۰) ──────────────────
