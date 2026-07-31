@@ -825,7 +825,13 @@ class Center:
             if _hp.digest_due(now=now):
                 _dg = _hp.flush_digest(now=now)
                 if _dg:
-                    self._route_send("center-health-digest", _dg, cfg=cfg)
+                    # (۲۰۲۶-۰۷-۳۱، رفعِ inner-5) — نشانگر فقط بعد از ارسالِ موفق
+                    # جلو می‌رود، دقیقاً مثلِ مسیرِ urgent بالا. تا اینجا flush_digest
+                    # خودش نشانگر را قبل از ارسال جلو می‌برد ⇒ یک ارسالِ شکست‌خورده
+                    # آن ساعت را برای همیشه گم می‌کرد.
+                    _dmid = self._route_send("center-health-digest", _dg, cfg=cfg)
+                    if _dmid is not None:
+                        _hp.mark_digest_flushed(now=now)
         except Exception:  # noqa: BLE001 — تحویلِ hold-policy هرگز beat را نمی‌کشد
             pass
         # ── موتورِ کارهای پاها (رأیِ ۰۷-۳۰ شب): یک کار در هر ضربان ──────────────

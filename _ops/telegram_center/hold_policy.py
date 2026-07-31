@@ -299,8 +299,14 @@ def flush_digest(*, now: float | None = None, cap: int = 12) -> "str | None":
 
     فقط آیتم‌های **بعد از آخرین flush** — پس backlog ِ پیش از تولدِ این سیاست
     ساختاراً هرگز وارد نمی‌شود (آن فایلِ دیگری است که این ماژول نمی‌خواند).
-    صداکننده (مرکز) مسئولِ ارسال با کلاینتِ inner است؛ این تابع فقط متن
-    می‌سازد و نشانگرِ flush را جلو می‌برد."""
+    صداکننده (مرکز) مسئولِ ارسال با کلاینتِ inner است.
+
+    (۲۰۲۶-۰۷-۳۱، رفعِ inner-5) — تا امروز این تابع نشانگرِ flush را **قبل از**
+    بازگشتِ متن جلو می‌برد. اگر ارسالِ مرکز شکست می‌خورد، آن آیتم‌ها همیشه پشتِ
+    نشانگر می‌ماندند و دیگر بازنمی‌گشتند — نامتقارن با مسیرِ urgent (که فقط بعد
+    از ارسالِ موفق mark می‌زند). حالا این تابع متن را می‌سازد ولی نشانگر را
+    **جلو نمی‌برد**؛ صداکننده باید بعد از ارسالِ موفق `mark_digest_flushed`
+    را صدا بزند."""
     now = float(now if now is not None else time.time())
     st = _load_state()
     last = float(st.get("last_digest_flush", 0.0) or 0.0)
@@ -320,9 +326,23 @@ def flush_digest(*, now: float | None = None, cap: int = 12) -> "str | None":
         if len(lines) >= cap:
             lines.append("…")
             break
-    st["last_digest_flush"] = now
-    _save_state(st)
     return "\n".join(lines)
+
+
+def mark_digest_flushed(now: float | None = None) -> bool:
+    """نشانگرِ flush ِ digest را جلو ببر — فقط بعد از ارسالِ موفق (رفعِ inner-5).
+
+    تقارن با `mark_urgent_flushed`: نشانگر فقط وقتی جلو می‌رود که مرکز پیام را
+    واقعاً فرستاده باشد. اگر ارسال شکست بخورد، آیتم‌ها در flushِ بعدی دوباره
+    بازمی‌گردند."""
+    now = float(now if now is not None else time.time())
+    try:
+        st = _load_state()
+        st["last_digest_flush"] = now
+        _save_state(st)
+        return True
+    except Exception:  # noqa: BLE001
+        return False
 
 
 # ── نمای «🔇 ناگفته‌ها» (رأی §۶) ────────────────────────────────────────────
