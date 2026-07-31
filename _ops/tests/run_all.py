@@ -612,6 +612,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     # حافظهٔ لید برمی‌گردند (رد + پذیرش)، فراموشیِ ردشده‌های doctor با کلیدِ
     # واقعی شلیک می‌کند. plain-assert.
     "test_verdict_feedback_loop.py",
+    # ۲۰۲۶-۰۷-۳۱ — آشتیِ دو ماشینِ mission قدمِ ۱: گذارِ قانونیِ Genome
+    # (annotate-first) + واژگانِ ۱۲→۶ + گزارشِ canonical در snapshot. plain-assert.
+    "test_mission_reconcile_step1.py",
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",

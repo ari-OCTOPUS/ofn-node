@@ -79,6 +79,29 @@ def _goals() -> list[str]:
         return []
 
 
+def _genome_missions() -> dict:
+    """دنیای دومِ mission (Genome ِ تلگرام) با واژگانِ canonical — آشتیِ
+    VQ-MISSION-RECONCILE-001 قدمِ ۱: یک خواننده، یک زبان. read-only و fail-soft."""
+    out = {"counts": {}, "awaiting_owner": 0, "total": 0}
+    try:
+        import sys as _sys
+        if str(OPS) not in _sys.path:
+            _sys.path.insert(0, str(OPS))
+        import mission_contract as _mc
+        d = _json(STATE / "telegram" / "missions" / "missions.json")
+        for m in (d.get("missions") or []):
+            if not isinstance(m, dict):
+                continue
+            canon = _mc.genome_to_canonical(m.get("state"))
+            out["counts"][canon] = out["counts"].get(canon, 0) + 1
+            out["total"] += 1
+            if canon == "needs_approval":
+                out["awaiting_owner"] += 1
+    except Exception:  # noqa: BLE001 — دنیای دوم هرگز snapshot را نمی‌کشد
+        pass
+    return out
+
+
 def build(*, now: float | None = None) -> dict:
     now = float(now if now is not None else time.time())
     self_model = _state(STATE / "cortex" / "self-model.json", now=now, sla_s=7200)
@@ -159,6 +182,7 @@ def build(*, now: float | None = None) -> dict:
                            "verdicts": len(verdicts)}},
         "owner_guidance": {"latest": guidance[-1] if guidance else None,
                            "count": len(guidance)},
+        "genome_missions": _genome_missions(),
         "blockers": blockers,
         "fully_integrated": not blockers,
     }

@@ -114,6 +114,23 @@ def make_envelope(
     }
 
 
+# ── واژگانِ آشتیِ دو دنیا (VQ-MISSION-RECONCILE-001 قدمِ ۱، ۰۷-۳۱) ──────────
+# Mission Genome (telegram_center/mission.py) ۱۲ وضعیت دارد و این قرارداد ۶ تا.
+# این نگاشتِ خالص هر وضعِ Genome را به واژگانِ canonical می‌برد تا خواننده‌های
+# cross-world (snapshot/کارت‌ها) یک زبان ببینند. ناشناخته = blocked (fail-up).
+GENOME_STATE_MAP = {
+    "created": "queued", "planned": "queued",
+    "patched": "running", "tested": "running", "reviewed": "running",
+    "awaiting_owner": "needs_approval",
+    "approved": "running", "applied": "running", "monitored": "running",
+    "done": "done", "reverted": "failed", "rejected": "failed",
+}
+
+
+def genome_to_canonical(state: str) -> str:
+    return GENOME_STATE_MAP.get(str(state or ""), "blocked")
+
+
 def can_transition(old: str, new: str) -> bool:
     return new in LEGAL_TRANSITIONS.get(old, ())
 
