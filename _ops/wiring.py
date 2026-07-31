@@ -1216,6 +1216,41 @@ SIGNAL_DORMANT = {
 HEBBIAN_WINDOW = 20
 
 
+def _emit_hebbian_observation(heb, window_n: int, union: list) -> None:
+    """W2 (۲۰۲۶-۰۷-۳۱): انتشارِ یک رخدادِ spine برای مشاهدهٔ Hebbian — «پلِ به EFE».
+
+    پشتِ OCTOPUS_HEBBIAN_LEDGER (پیش‌فرض خاموش → این تابع صدا زده نمی‌شود).
+    fail-soft: emit_event هرگز raise نمی‌کند؛ خطا = بی‌اثر.
+    importِ lazy: spine_adapters فقط هنگامِ نیاز بارگذاری می‌شود تا circular-import
+    نباشد (wiring در bootstrap زود است).
+    payload: شمارهٔ پنجره، اجتماعِ سیگنال‌ها، تعداد جفت‌ها، قوی‌ترین قدرتِ فعلی.
+    این مشاهده‌پذیری است، نه محاسبهٔ EFE."""
+    try:
+        from spine import spine_adapters  # lazy — جلوگیری از circular import
+    except Exception:  # noqa: BLE001 — instrumentation نباید حلقه را بکشد
+        return
+    n_pairs = len(union) * (len(union) - 1) // 2
+    top = 0.0
+    if len(union) >= 2:
+        for i in range(len(union)):
+            for j in range(i + 1, len(union)):
+                s = heb.strength_of(union[i], union[j])
+                if s > top:
+                    top = s
+    try:
+        spine_adapters.emit_event(
+            event_type="hebb.observation",
+            domain="neural",
+            correlation_id=f"hebb-win-{window_n}",
+            producer="wiring.hebbian",
+            trust="ADVISORY",
+            payload={"window_n": window_n, "union_signals": list(union),
+                     "n_pairs": n_pairs, "top_strength": round(top, 4)},
+        )
+    except Exception:  # noqa: BLE001 — fail-soft؛ spine نباید beat را متوقف کند
+        pass
+
+
 def _hebbian_eventclock_beat(neural_stack, signals) -> dict:
     """کلاکِ زوال را با کلاکِ یادگیری یکی کن + پنجرهٔ eligibility.
 
@@ -1294,6 +1329,13 @@ def _hebbian_eventclock_beat(neural_stack, signals) -> dict:
         heb.decay()
         decayed = True
         acc.clear()
+        # W2 (۲۰۲۶-۰۷-۳۱): instrument کردنِ لایهٔ Hebbian واقعی — «پلِ به EFE».
+        # هم‌وقوعی/قدرتِ انجمن‌ها تا حالا فقط به hebbian.json (flat، بن‌بست) می‌رفت.
+        # حالا هر بستنِ پنجرهٔ observable یک رخدادِ spine می‌شود (پشتِ flag،
+        # fail-soft، additive). این EFE نیست — مشاهده‌پذیر کردنِ واقعیت است؛
+        # پیش‌نیازِ هر EFEٔ آینده. محاسبات یادگیری عوض نمی‌شود.
+        if flag("OCTOPUS_HEBBIAN_LEDGER") and observed:
+            _emit_hebbian_observation(heb, n, union)
     return {"fired": len(fired), "window": filled, "union": len(union),
             "observed": observed, "decayed": decayed}
 

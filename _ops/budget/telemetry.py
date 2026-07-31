@@ -41,6 +41,11 @@ ORGAN_MAP = {
     "evolution": "ARCHITECT_SYS",
     "painting": "PAINTING",        # verdict 2026-07-18 integration-debug (proposed-diff §۵) — رفع UNMAPPED:painting
     "accounting": "ACCOUNTING",    # verdict 2026-07-18 integration-debug (proposed-diff §۵) — رفع UNMAPPED:accounting
+    "doctor": "DOCTOR",            # W0.3 (۲۰۲۶-۰۷-۳۱): رفع VQ-BUDGET-001 — رفع UNMAPPED:doctor.
+                                   # plumbing فقط: چون chamber.py فعلاً stub است (صفر LLM) هیچ
+                                   # cost واقعی نیست، ولی وقتی doctor واقعاً LLM صدا بزند، دیگر
+                                   # «دکترِ پولیِ کور» نخواهد بود — به AU$30 متصل می‌شود. cap صریح
+                                   # هنوز نیست (owner: «فقط plumbing»، ceiling بعداً).
 }
 
 
