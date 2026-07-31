@@ -1020,7 +1020,8 @@ class Center:
                 paused = bool(_pw.leg_paused(leg))
             except Exception:  # noqa: BLE001
                 pass
-            body = _lt.card_text(leg, paused=paused)
+            body = _lt.card_text(leg, paused=paused,
+                                 kpi=self._kpi_target(cfg, leg))
             h = hashlib.sha256(body.encode("utf-8", "replace")).hexdigest()[:16]
             hashes = cfg.setdefault("leg_card_hash", {})
             ids = cfg.setdefault("leg_card_ids", {})
@@ -1084,6 +1085,7 @@ class Center:
             pass
         import leg_tasks as _lt
         body = ""
+        kb = None
         # چهار دکمهٔ کارت = همان چهار فرمانِ طبیعی (یک منبع: _exec_leg_command).
         if op == "c":
             body = self._exec_leg_command("resume", leg)[0]
@@ -1100,14 +1102,70 @@ class Center:
         elif op == "x" and tid:
             t = _lt.cancel(leg, tid)
             body = f"❌ {tid} لغو شد." if t else f"{tid} پیدا نشد."
+        elif op == "g" and tid:
+            # بازخوردِ مثبت (بند ۱۱) — به همان پا و همان کار سنجاق می‌شود.
+            t = _lt.record_feedback(leg, tid, "good")
+            body = "🧠 ثبت شد — همین مسیر ادامه پیدا می‌کند." if t else \
+                f"{tid} پیدا نشد."
+        elif op == "b" and tid:
+            # بازخوردِ منفی: اول دلیل — بدونِ دلیل، درسِ قابلِ‌مصرف نمی‌شود.
+            t = _lt.record_feedback(leg, tid, "bad")
+            if t:
+                body = "مشکل چه بود؟"
+                kb = _lt.bad_feedback_keyboard(leg, {"id": tid})
+            else:
+                body = f"{tid} پیدا نشد."
+        elif op == "br" and tid and len(parts) > 4:
+            code = parts[4]
+            label = _lt.FEEDBACK_REASONS.get(code, "")
+            t = _lt.record_feedback(leg, tid, "bad", reason=code) if label \
+                else None
+            body = (f"ثبت شد: «{label}» — در گزارشِ روزانه و درسِ همین پا "
+                    "دیده می‌شود.") if t else "دلیلِ ناشناخته."
         else:
             body = "این دکمه را نمی‌شناسم."
         try:
-            self._client.send(_scrub(body), chat_id=chat, topic_id=thread)
+            self._client.send(_scrub(body), chat_id=chat, topic_id=thread,
+                              keyboard=kb)
         except Exception:  # noqa: BLE001
             pass
         self._refresh_leg_card(leg)
         return {"kind": "leg-task", "op": op, "leg": leg}
+
+    @staticmethod
+    def _kpi_target(cfg: dict, leg: str) -> "int | None":
+        """هدفِ روزانهٔ مالک برای این پا از config — نبود/خرابی → None (خطِ
+        KPI فقط با هدفِ واقعی روی کارت می‌آید، عددسازی ممنوع)."""
+        try:
+            kd = (cfg or {}).get("kpi_daily")
+            n = int(kd.get(leg)) if isinstance(kd, dict) else 0
+            return n if n > 0 else None
+        except (TypeError, ValueError, AttributeError):
+            return None
+
+    @staticmethod
+    def _media_task_text(msg: dict) -> str:
+        """پیامِ غیرمتنی → متنِ کار: برچسبِ نوع + caption (بند ۸ فاز ۲).
+
+        فقط توصیف — نه دانلود، نه پردازش؛ file بر روی سرورِ تلگرام می‌ماند و
+        موتورِ read-only فقط با همین متن کار می‌کند (اگر کافی نبود، صادقانه
+        BLOCKED می‌شود و از مالک توضیح می‌خواهد)."""
+        cap = str(msg.get("caption") or "").strip()[:300]
+        if msg.get("photo"):
+            tag = "[عکس]"
+        elif isinstance(msg.get("document"), dict):
+            name = str(msg["document"].get("file_name") or "فایل")[:60]
+            tag = f"[فایل: {name}]"
+        elif msg.get("voice") or msg.get("audio"):
+            tag = "[صدا]"
+        elif msg.get("video") or msg.get("video_note"):
+            tag = "[ویدئو]"
+        elif isinstance(msg.get("location"), dict):
+            loc = msg["location"]
+            tag = f"[لوکیشن {loc.get('latitude')}, {loc.get('longitude')}]"
+        else:
+            return ""
+        return f"{tag} {cap}".strip()
 
     def _exec_leg_command(self, cmd: str, leg: str) -> tuple:
         """(body, keyboard|None) برای فرمان‌های طبیعیِ leg_commands.COMMANDS.
@@ -1124,7 +1182,9 @@ class Center:
                 paused = bool(_pw.leg_paused(leg))
             except Exception:  # noqa: BLE001
                 pass
-            return _lt.card_text(leg, paused=paused), _lt.card_keyboard(leg)
+            kpi = self._kpi_target(_load_config(), leg)
+            return (_lt.card_text(leg, paused=paused, kpi=kpi),
+                    _lt.card_keyboard(leg))
         if cmd == "queue":
             rows = _lt.queue(leg)
             return (("📋 <b>صفِ " + leg + "</b>\n" + "\n".join(
@@ -1187,9 +1247,13 @@ class Center:
                                          evidence=answer)
                     if done:
                         try:
+                            # رسید + دو دکمهٔ رأیِ کیفی (بند ۱۱) — بازخورد
+                            # به همین کار سنجاق می‌شود، نه مجوزِ عمومی.
                             self._client.send(_scrub(_lt.receipt_text(done)),
                                               chat_id=chat,
-                                              topic_id=topics.get(leg))
+                                              topic_id=topics.get(leg),
+                                              keyboard=_lt.receipt_keyboard(
+                                                  leg, done))
                         except Exception:  # noqa: BLE001
                             pass
                 else:
@@ -1455,6 +1519,29 @@ class Center:
                 if _d.get("mode") == "leg_scoped" and _d.get("leg"):
                     _mg2 = u.get("message")
                     _tx = str((_mg2 or {}).get("text") or "").strip()
+                    # ورودیِ غیرمتنی (فاز ۲ بند ۸): عکس/فایل/صدا/لوکیشن در
+                    # تاپیکِ پا = کارِ همان پا، با برچسبِ نوع + caption.
+                    # مستقیم صف می‌شود (سؤال/فرمان روی رسانه معنا ندارد —
+                    # مغزِ متنی تصویر را نمی‌بیند و حدس نمی‌زنیم). ارسالِ
+                    # فایل به‌تنهایی هیچ اقدامِ بیرونی ندارد — موتور read-only.
+                    if not _tx and isinstance(_mg2, dict):
+                        _mtx = self._media_task_text(_mg2)
+                        if _mtx:
+                            import leg_tasks as _lt
+                            _task = _lt.add(_d["leg"], _mtx)
+                            if _task:
+                                try:
+                                    self._client.send(
+                                        _scrub(_lt.intake_text(_task)),
+                                        chat_id=(_mg2.get("chat") or {}).get("id"),
+                                        topic_id=_mg2.get("message_thread_id"),
+                                        keyboard=_lt.intake_keyboard(
+                                            _d["leg"], _task))
+                                except Exception:  # noqa: BLE001
+                                    pass
+                                self._refresh_leg_card(_d["leg"])
+                                return {"kind": "leg-task", "media": True,
+                                        "task": _task["id"], "leg": _d["leg"]}
                     if _tx and not _tx.startswith("/"):
                         import leg_commands as _lc
                         import leg_tasks as _lt
@@ -1491,6 +1578,25 @@ class Center:
                             self._refresh_leg_card(_leg)
                             return {"kind": "leg-cmd", "cmd": _cmd,
                                     "leg": _leg}
+                        # «هدف روزانه N» — KPI ِ همان پا (بند ۱۳). رأیِ مالک
+                        # در تاپیکِ خودِ پا = مجوزِ همان پا؛ برگشت‌پذیر.
+                        _kpi = _lc.parse_kpi_set(_tx)
+                        if _kpi is not None:
+                            _cfgk = _load_config()
+                            _kd = _cfgk.setdefault("kpi_daily", {})
+                            if isinstance(_kd, dict):
+                                _kd[_leg] = int(_kpi)
+                                _save_config(_cfgk)
+                            try:
+                                self._client.send(_scrub(
+                                    f"🎯 هدف روزانهٔ این پا: {_kpi} — روی "
+                                    "کارت دیده می‌شود."),
+                                    chat_id=_ch2, topic_id=_th2)
+                            except Exception:  # noqa: BLE001
+                                pass
+                            self._refresh_leg_card(_leg)
+                            return {"kind": "leg-cmd", "cmd": "kpi-set",
+                                    "leg": _leg, "kpi": _kpi}
                         _enq = _lc.strip_enqueue_prefix(_tx)
                         if _enq is not None:
                             # «این را» بدونِ متن = پیامِ ریپلای‌شده؛ هیچ‌کدام
