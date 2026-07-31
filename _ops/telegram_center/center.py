@@ -276,6 +276,64 @@ def _emit_event(event_name: str, **kw) -> None:
 
 
 # ─── Center ──────────────────────────────────────────────────────────────────────
+
+# ── کارگرِ ویس: کارِ کند از حلقهٔ poll بیرون ─────────────────────────────────
+# اندازه‌گیریِ ۲۰۲۶-۰۸-۰۱: ویسِ ۵ ثانیه‌ای مالک ۲۲.۶ ثانیه transcription برد و
+# چون `_capture_hook` داخلِ `_handle_message` و آن داخلِ dispatch است، مرکز در
+# تمامِ آن مدت به هیچ پیام و هیچ دکمه‌ای جواب نمی‌داد. با مدلِ `medium` (رأیِ
+# مالک، ~۳ برابر کندتر) یک ویسِ نیم‌دقیقه‌ای بات را چند دقیقه می‌خواباند — و از
+# بیرون، باتِ خواب با باتِ مرده یک شکل است.
+#
+# یک کارگر، نه استخر: transcription روی CPU است و دوتا هم‌زمان فقط هر دو را کند
+# می‌کند. صف کوچک است؛ پرشدنش یعنی برگرد به همان مسیرِ همگام (کندی بهتر از
+# گم‌شدنِ ویسِ مالک).
+_VOICE_Q = None
+_VOICE_THREAD = None
+VOICE_QUEUE_MAX = 8
+
+
+def _voice_queue():
+    """صفِ کارگر را (تنبل) بساز و نخش را زنده نگه دار. None = نشد ⇒ همگام."""
+    global _VOICE_Q, _VOICE_THREAD
+    try:
+        import queue as _queue
+        import threading as _threading
+    except Exception:  # noqa: BLE001
+        return None
+    if _VOICE_Q is None:
+        _VOICE_Q = _queue.Queue(maxsize=VOICE_QUEUE_MAX)
+    if _VOICE_THREAD is None or not _VOICE_THREAD.is_alive():
+        def _loop():
+            while True:
+                job = _VOICE_Q.get()
+                if job is None:
+                    return
+                try:
+                    job()
+                except Exception as e:  # noqa: BLE001 — کارگر هرگز نمی‌میرد
+                    try:
+                        opslib.alert(["voice-worker: %s" % type(e).__name__])
+                    except Exception:  # noqa: BLE001
+                        pass
+                finally:
+                    _VOICE_Q.task_done()
+        _VOICE_THREAD = _threading.Thread(target=_loop, name="tg-voice-worker",
+                                          daemon=True)
+        _VOICE_THREAD.start()
+    return _VOICE_Q
+
+
+def _submit_voice_job(job) -> bool:
+    """کار را به کارگر بده. False = نشد ⇒ صداکننده همگام انجامش دهد."""
+    q = _voice_queue()
+    if q is None:
+        return False
+    try:
+        q.put_nowait(job)
+        return True
+    except Exception:  # noqa: BLE001 — صفِ پر = مسیرِ همگام
+        return False
+
 class Center:
     """حلقهٔ مرکز: client (TgClient یا fakeِ تست) + clockِ تزریقی + renderِ تزریقی.
 
@@ -1826,19 +1884,52 @@ class Center:
             import leg_tasks as _lt
         except Exception:  # noqa: BLE001
             _lt = None
-        res = _cap.handle(msg, deps={
+        _deps = {
             "leg_tasks_mod": _lt,
             "reminder_add_fn": self._capture_reminder_add,
             "lead_submit_fn": self._capture_lead_submit(),
             "download_fn": self._capture_voice_download,  # ← ویس (contract D-voice)
             "ask_fn": None,      # پالایشِ LLM فقط با فلگِ جدا — این موج خاموش
-        })
+        }
+        _chat_id = (msg.get("chat") or {}).get("id")
+
+        # ویس تنها ورودیِ **کندِ** capture است (دانلود + مدلِ محلی). بقیه —
+        # متن، عکس، سند — میلی‌ثانیه‌اند و همان مسیرِ همگامِ دیروز را می‌روند.
+        if msg.get("voice") or msg.get("audio"):
+            _mid = None
+            try:
+                _mid = self._client.send(
+                    _scrub("🎧 ویس رسید — دارم گوش می‌دم…"),
+                    chat_id=_chat_id, topic_id=self._dm_topic())
+            except Exception:  # noqa: BLE001
+                _mid = None
+
+            def _job(_msg=msg, _d=_deps, _cid=_chat_id, _m=_mid):
+                r = _cap.handle(_msg, deps=_d)
+                _txt = (str(r.get("ack") or "ثبت شد ✅") if r.get("handled")
+                        else "ویس ثبت نشد — capture ردش کرد (فلگ/گیت).")
+                try:
+                    if _m is not None:
+                        # همان پیامِ «دارم گوش می‌دم» جایش را به نتیجه می‌دهد —
+                        # دو پیام برای یک ژست، شلوغی است.
+                        if self._client.edit(_m, _scrub(_txt), chat_id=_cid):
+                            return
+                    self._client.send(_scrub(_txt), chat_id=_cid,
+                                      topic_id=self._dm_topic())
+                except Exception:  # noqa: BLE001 — ack ِ گم‌شده ثبت را پس نمی‌گیرد
+                    pass
+
+            if _submit_voice_job(_job):
+                return {"kind": "capture", "capture_kind": "voice",
+                        "queued": True}
+            # کارگر در دسترس نبود ⇒ همگام، دقیقاً مثلِ دیروز (کند ولی مطمئن)
+
+        res = _cap.handle(msg, deps=_deps)
         if not res.get("handled"):
             return None                  # فلگ خاموش/رد ⇒ مسیرِ امروز
         try:
             self._client.send(_scrub(str(res.get("ack") or "ثبت شد ✅")),
-                              chat_id=(msg.get("chat") or {}).get("id"),
-                              topic_id=self._dm_topic())
+                              chat_id=_chat_id, topic_id=self._dm_topic())
         except Exception:  # noqa: BLE001 — ack ِ گم‌شده نباید ثبت را پس بگیرد
             pass
         return {"kind": "capture", "capture_kind": res.get("kind"),
