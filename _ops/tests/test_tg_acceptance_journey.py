@@ -592,8 +592,18 @@ def t_reminder_fired_detection_needs_the_reminders_own_sha():
     c.advance(1200)
     j.tick()
     rec = j.load_state()["phases"]["P4B"]
-    assert rec["verdict"] == aj.VERDICT_PENDING, rec
+    # نکتهٔ ماندگاری: این تست نباید به عددِ MAX_ATTEMPTS گره بخورد (۰۷-۳۱ آهنگِ
+    # سفر وسطِ کار ۳→۲ شد و همین assert شکست، در حالی که رفتار درست بود). چیزی
+    # که واقعاً مهم است: کارتِ بی‌ربط هرگز «تحویل» شمرده نمی‌شود.
+    assert rec["verdict"] != aj.VERDICT_PASS, rec
     assert any("شلیک ثبت شد" in e for e in rec["evidence"]), rec["evidence"]
+    # و برای بندِ بعدی، فازِ پایان‌یافته را باز می‌کنیم تا خودِ قاعده سنجیده شود
+    _st = j.load_state()
+    _st["phases"]["P4B"]["verdict"] = aj.VERDICT_PENDING
+    _st["phases"]["P4B"]["attempts"] = 0
+    _st["phase_idx"] = [i for i, ph in enumerate(aj._PHASES)
+                        if ph["key"] == "P4B"][0]      # cursor هم برگردد
+    j.save_state(_st)
     # ۳) ردیف با sha ِ خودِ متنِ یادآوری ⇒ PASS (نویسنده و خواننده یک متن)
     _plant_send_row(j, ts=fired_at + 3, stream="center",
                     sha=_tsl.digest(_rm.fire_text(item)))
