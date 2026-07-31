@@ -577,6 +577,43 @@ class Center:
         except Exception:  # noqa: BLE001 — راهنما هرگز راه‌اندازی را نمی‌کشد
             pass
 
+        # ── رسیدِ مرگ/بازگشت (۲۰۲۶-۰۷-۳۱، یافتهٔ منتقدِ اسکن) ─────────────────
+        # امروز باتِ بیرونی ۳ ساعت و ۵۳ دقیقه مرده بود («centre down (silent
+        # 14006s)») و واچ‌داگ احیایش کرد — ولی مالک **هرگز نفهمید**، چون اعلانِ
+        # واچ‌داگ به event_bridge می‌رود که cursor اش اصلاً وجود ندارد. حالا
+        # خودِ مرکز در بوت لاگِ واچ‌داگ را می‌خوانَد: اگر آخرین خطِ «launching»
+        # تازه‌تر از آخرین رسیدِ داده‌شده باشد، یک خطِ کوتاه به DM ِ مالک
+        # می‌گوید که مُرد و برگشت — با مدتِ سکوت. dedupe با cursor در config،
+        # پس ری‌استارتِ عادی (بدونِ خطِ launching ِ تازه) هیچ نمی‌فرستد.
+        try:
+            _wl = opslib.STATE_DIR / "tg-center-watchdog-log.txt"
+            if _wl.exists():
+                _lines = [ln for ln in
+                          _wl.read_text("utf-8", errors="replace").splitlines()
+                          if "launching" in ln]
+                if _lines:
+                    _last = _lines[-1]
+                    if _last != cfg.get("watchdog_receipt_cursor"):
+                        _own2 = getattr(self._client, "owner_chat_id", None)
+                        _m = re.search(r"silent (\d+)s", _last)
+                        _dur = (f" — {_fa_num(int(int(_m.group(1)) / 60))} "
+                                "دقیقه ساکت بودم" if _m else "")
+                        _txt = ("🩹 <b>مرده بودم و واچ‌داگ برم گرداند</b>"
+                                f"{_dur}.\nپیام‌هایی که در آن بازه فرستادی را "
+                                "ندیده‌ام — اگر مهم بود دوباره بگو.")
+                        _sent2 = None
+                        if _own2 is not None:
+                            try:
+                                _sent2 = self._client.send(_scrub(_txt),
+                                                           chat_id=_own2)
+                            except Exception:  # noqa: BLE001
+                                _sent2 = None
+                        if _sent2 is not None:
+                            cfg["watchdog_receipt_cursor"] = _last
+                            dirty = True
+        except Exception:  # noqa: BLE001 — رسید هرگز راه‌اندازی را نمی‌کشد
+            pass
+
         if dirty:
             _save_config(cfg)
         return True
@@ -849,20 +886,61 @@ class Center:
                 _pt = self._home_pulse_text()
                 if _pt:
                     _kb = self._home_keyboard()
-                    _mid = self._route_send("center-pulse", _pt, cfg=cfg,
-                                            keyboard=_kb)
-                    out["pulse"] = _mid is not None
-                    # خانهٔ پین‌شده: بارِ اولی که پالس واقعاً به DM رسید، همان
-                    # پیام پین می‌شود تا «خانه» همیشه بالای چت باشد.
-                    if (_mid is not None
-                            and not isinstance(cfg.get("home_message_id"), int)):
+                    # ⚠️ ۲۰۲۶-۰۷-۳۱ (یافتهٔ اسکن): خانهٔ پین‌شده یک‌بار نوشته
+                    # می‌شد و دیگر هرگز — هر پالسِ بعدی پیامِ **نو** می‌فرستاد،
+                    # پس «خانه»ی بالای چت یک عکسِ یک-روزه بود (پیامِ ۱۴۹ از
+                    # ۱۸:۴۳ دیروز، ده پالسِ تازه‌تر زیرش رد شده بودند). حالا
+                    # اول **ویرایشِ** همان پیامِ پین؛ فقط اگر ویرایش شکست
+                    # (پیام پاک شده) پیامِ نو + پینِ دوباره.
+                    _hid = cfg.get("home_message_id")
+                    _own = getattr(self._client, "owner_chat_id", None)
+                    _edited = False
+                    if isinstance(_hid, int) and _own is not None:
                         try:
-                            _own = getattr(self._client, "owner_chat_id", None)
-                            if _own is not None:
+                            _edited = bool(self._client.edit(
+                                _hid, _scrub(_pt), keyboard=_kb, chat_id=_own))
+                        except Exception:  # noqa: BLE001
+                            _edited = False
+                    if _edited:
+                        out["pulse"] = True
+                    else:
+                        _mid = self._route_send("center-pulse", _pt, cfg=cfg,
+                                                keyboard=_kb)
+                        out["pulse"] = _mid is not None
+                        if _mid is not None and _own is not None:
+                            try:
                                 self._client.pin_message(_mid, chat_id=_own)
                                 cfg["home_message_id"] = _mid
-                        except Exception:  # noqa: BLE001 — pin نشد → پالس سرِ جایش است
-                            pass
+                            except Exception:  # noqa: BLE001 — pin نشد → پالس سرِ جایش است
+                                pass
+                    # ── راهنمای DM (یافتهٔ اسکن: dm_text صفر صداکننده) ──────
+                    # دیشب راهنما در گروه پین شد ولی نسخهٔ DM ساخته شد و هرگز
+                    # فرستاده نشد — سطحِ اصلیِ مالک بدونِ دستورالعمل ماند.
+                    # همان الگوی guide ِ گروه: یک‌بار ساخت+پین، بعد فقط با
+                    # تغییرِ هش ویرایش.
+                    try:
+                        import hashlib as _hl
+                        import guide as _gd2
+                        _dt = _gd2.dm_text()
+                        _dh = _hl.sha256(
+                            _dt.encode("utf-8", "replace")).hexdigest()[:16]
+                        _dmid = cfg.get("dm_guide_message_id")
+                        if isinstance(_dmid, int) and cfg.get("dm_guide_hash") == _dh:
+                            pass                        # بی‌تغییر — دست نزن
+                        elif isinstance(_dmid, int) and _own is not None:
+                            if self._client.edit(_dmid, _scrub(_dt),
+                                                 chat_id=_own):
+                                cfg["dm_guide_hash"] = _dh
+                                dirty = True
+                        elif _own is not None:
+                            _dmid = self._client.send(_scrub(_dt), chat_id=_own,
+                                                      pin=True)
+                            if isinstance(_dmid, int):
+                                cfg["dm_guide_message_id"] = _dmid
+                                cfg["dm_guide_hash"] = _dh
+                                dirty = True
+                    except Exception:  # noqa: BLE001 — راهنما هرگز پالس را نمی‌کشد
+                        pass
             except Exception:  # noqa: BLE001 — پالس هرگز beat را نمی‌کشد
                 pass
             if dirty:
@@ -1827,6 +1905,47 @@ class Center:
             return _cr.card(), _cr.keyboard(0)
         except Exception:  # noqa: BLE001
             return "🗂 فهرستِ توانایی‌ها در دسترس نیست."
+
+    def _bridge_callback_to_organism(self, cbq: dict, data: str):
+        """تپِ دکمه‌ای که مرکز نمی‌شناسد → روترِ callback ِ ارگانیسم، در همین
+        پروسه. ناشناخته برای هر دو → None → «نادیده»ی امروز.
+
+        قرینهٔ `_bridge_to_organism` برای دکمه‌ها. همان الگو: هیچ گاردی دور
+        زده نمی‌شود — `dispatch_callback` با `external=True` و `from_id` ِ
+        واقعی صدا می‌خورد و خودش mutating را owner-gate می‌کند."""
+        try:
+            import sys as _s
+            from pathlib import Path as _P
+            _b = str(_P(__file__).resolve().parent.parent / "budget")
+            if _b not in _s.path:
+                _s.path.insert(0, _b)
+            import approval_channel as _ac
+            ch = _ac.TelegramApprovalChannel()
+            out = ch.dispatch_callback(
+                data, from_id=(cbq.get("from") or {}).get("id"), external=True)
+        except Exception:  # noqa: BLE001 — پل هرگز مسیرِ دکمه را نمی‌کشد
+            return None
+        if not out or out == "نادیده":
+            return None
+        _vb = data.split(":", 1)[0]
+        if isinstance(out, dict):
+            # پیامِ جداگانه با کیبورد (قراردادِ reply_markup ِ روترِ ارگانیسم —
+            # همان دو-نامیِ مستندِ پلِ فرمان‌ها).
+            _body = str(out.get("text", ""))
+            _kb = out.get("reply_markup") or out.get("keyboard")
+            _msg = cbq.get("message") or {}
+            _sent = None
+            try:
+                _sent = self._client.send(
+                    _scrub(_body), chat_id=(_msg.get("chat") or {}).get("id"),
+                    topic_id=self._reply_thread(_msg), keyboard=_kb)
+            except Exception:  # noqa: BLE001
+                pass
+            self._answer(cbq, "✅")
+            return {"kind": "bridged-callback", "verb": _vb,
+                    "sent": _sent is not None}
+        self._answer(cbq, str(out)[:180])
+        return {"kind": "bridged-callback", "verb": _vb}
 
     def _bridge_to_organism(self, text: str, chat_id, msg: dict):
         """دستورِ ناشناخته در مرکز → روترِ باتِ ارگانیسم، در همین پروسه.
@@ -3117,6 +3236,19 @@ class Center:
             # flag خاموش → سقوط به fallbackِ امروز (m در _VERDICTS نیست → «نادیده»). parity.
         parts = data.split(":", 1)
         if len(parts) != 2 or parts[0] not in _VERDICTS:
+            # ── پلِ دکمه‌ها (۲۰۲۶-۰۷-۳۱، یافتهٔ اسکنِ عمیق) ──────────────────
+            # پلِ فرمان‌ها (`_bridge_to_organism`) جواب را با **کیبوردش** روی
+            # باتِ بیرونی می‌فرستد — ولی تپِ همان کیبورد به همین‌جا برمی‌گشت و
+            # «نادیده» می‌گرفت: ~۳۵ فرمانِ bridged همگی کارتِ مرده بودند، از
+            # جمله app:approve/deny (**پول**) و rfc:merge. پروبِ ۱۳ verb
+            # اثباتش کرد (menu/card/pg/act/acct/jrn/rev/rfc/app/brain/home/
+            # prop). حالا تپ هم همان پل را طی می‌کند — متقارن با فرمان.
+            # امنیت دو-لایه: بالادست فقط مالک را به این‌جا می‌رساند، و خودِ
+            # dispatch_callback با external=True هر mutating را fail-closed
+            # می‌سنجد (C7.2/P0). ناشناخته برای هر دو → «نادیده»ی امروز.
+            _r = self._bridge_callback_to_organism(cbq, data)
+            if _r is not None:
+                return _r
             self._answer(cbq, "نادیده")
             return {"kind": "callback", "verdict": None}
         verb = parts[0]

@@ -607,6 +607,21 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_tg_leg_tasks.py",         # مدلِ Task ِ گروه: ۴ وضعیت، کارت، رسید
     "test_tg_group_is_legs_only.py",  # گروه legs-only: جریانِ هسته‌ای هرگز در گروه
     "test_tg_leg_commands.py",      # ۹ فرمانِ طبیعی + رفعِ مانع با ریپلای + گزارشِ روزانه
+    # ۲۰۲۶-۰۷-۳۱ — اسکنِ عمیقِ تلگرام ۹ سوییتِ سبزِ دیگر را هم ثبت‌نشده یافت؛
+    # از جمله test_tg_callback_emitter_parity که **دقیقاً گاردِ کارتِ مرده**
+    # است و هرگز نمی‌دوید. هر ۹ تا قبل از ثبت جدا اجرا و سبز شدند.
+    # (test_mining_leg عمداً ثبت نشد — ImportError ِ واقعیِ پیش‌موجود:
+    # `MiningLeg` دیگر در legs/mining_leg.py نیست؛ فیکسش کارِ جداست.
+    # test_studio_telegram هم self-skip است: ماژولش در worktree ِ Project-F است.)
+    "test_tg_callback_emitter_parity.py",   # هر verb ِ ساخته‌شده حتماً route می‌شود
+    "test_tg_input_surface_policy.py",      # گیتِ ورودی: outer/inner × DM/group
+    "test_tg_surface_router.py",            # stream → (client, chat, topic)
+    "test_tg_canonical_access_model.py",    # مدلِ دسترسیِ مصوب
+    "test_tg_client_contract.py",           # قراردادِ کلاینتِ دو-باتی
+    "test_capability_manifest_registry.py", # کاتالوگِ قابلیت‌ها
+    "test_tg_hold_policy.py",               # ماشینِ حالتِ HOLD (VQ-TG-HOLD-001)
+    "test_tg_route_seam.py",                # درزِ _route_send
+    "test_tg_build_surface.py",             # سطحِ «بساز:» + حلقهٔ ساختِ خود
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
