@@ -235,7 +235,12 @@ def query(question: str, *, vault_root=None, ask_fn=None, k: int = 4) -> dict:
     if len(q) < 3:
         return {"ok": False, "reason": "too-short", "answer": "",
                 "sources": [], "tier": ""}
-    root = Path(vault_root or os.environ.get("ORG_ROOT") or ".").resolve()
+    # ریشه: پارامتر ← ORG_ROOT ← درختِ خودِ فایل. «.» (cwd) عمداً حذف شد:
+    # پروسهٔ زنده از `F:\backup\_ops` بالا می‌آید، پس cwd یعنی جست‌وجو در
+    # **کد** به‌جای vault — منابعِ برگشتی README و اسناد قرارداد بودند، نه نوت
+    # (بلاکرِ readiness ۰۷-۳۱، هم‌ریشه با ValueError ِ capture).
+    root = Path(vault_root or os.environ.get("ORG_ROOT")
+                or Path(__file__).resolve().parents[2]).resolve()
     if not root.exists():
         return {"ok": False, "reason": "vault-root-missing", "answer": "",
                 "sources": [], "tier": ""}

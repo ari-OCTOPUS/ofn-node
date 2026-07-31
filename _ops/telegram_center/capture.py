@@ -170,12 +170,25 @@ def classify(text: str, *, media_kind: "str | None" = None,
 
 # ── بایگانی در vault (قانونِ اساسی §۳/۵/۶/۹) ────────────────────────────────
 def _vault_root(vault_root) -> Path:
+    """ریشهٔ vault: پارامتر ← env ِ ORG_ROOT ← **درختی که خودِ این فایل در آن است**.
+
+    ⚠️ ۲۰۲۶-۰۷-۳۱ (بلاکرِ readiness): هیچ launcher ی `ORG_ROOT` را ست نمی‌کند،
+    پس در تولید این تابع ValueError می‌داد، `center._capture_hook` آن را
+    می‌بلعید و **کلِ capture (و یادآوریِ زبانِ‌طبیعیِ سوارِ آن) بی‌صدا مرده
+    بود** — سنگین‌ترین وعدهٔ راهنما، بدون یک خط لاگ. حالا fallback ساختاری
+    است: `<این فایل>/../../` همان ریشهٔ vault است (چه زنده، چه worktree)،
+    پس هیچ‌وقت به env وابسته نیست. تست‌ها با harness همچنان ایزوله‌اند چون
+    `ORG_ROOT` را صریح ست می‌کنند و اولویتش بالاتر از fallback است."""
     if vault_root:
         return Path(str(vault_root))
     env = os.environ.get("ORG_ROOT", "").strip()
     if env:
         return Path(env)
-    raise ValueError("vault_root نامشخص: نه پارامتر، نه env ORG_ROOT")
+    here = Path(__file__).resolve()
+    root = here.parents[2]           # <root>/_ops/telegram_center/capture.py
+    if (root / "10 - Telegram processing").exists() or (root / "_ops").exists():
+        return root
+    raise ValueError("vault_root نامشخص: نه پارامتر، نه env، نه درختِ معتبر")
 
 
 def _slug(text: str) -> str:
