@@ -287,6 +287,21 @@ def _collect_legs(feeds: dict) -> dict:
         cell = {"status": "🟢" if live else "⚪", "detail": detail}
         if live and note and note != detail:
             cell["next"] = note
+        # D-013: کارتِ عددیِ ماینینگ — skeleton هم عددی (۱۶۲ نود + اندازه‌گیری‌نشده).
+        # دیجستِ روزانه از mining_card.digest_detail می‌آید، نه از note. fail-soft:
+        # اگر import شکست خورد، detailِ بالا (رفتارِ امروز) باقی می‌ماند.
+        if name == "mining" and not live:
+            try:
+                _legs_p = str(_OPS / "legs")
+                if _legs_p not in sys.path:
+                    sys.path.insert(0, _legs_p)
+                import importlib
+                _mc_mod = importlib.import_module("mining_card")
+                _mc = _mc_mod.digest_detail(live=False, signal=signal or "skeleton")
+                if _mc:
+                    cell["detail"] = _mc
+            except Exception:  # noqa: BLE001 — نباید digest را بکشد
+                pass
         legs[name] = cell
 
     return legs
