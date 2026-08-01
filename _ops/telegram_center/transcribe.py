@@ -145,11 +145,50 @@ def available() -> "tuple[bool, str]":
 # پس مدل کش می‌شود، **ولی برای همیشه نگه داشته نمی‌شود**: medium در int8 بیش
 # از یک گیگابایت رم می‌گیرد و این پروسه تا ابد بالاست. بعد از بی‌کاری آزاد
 # می‌شود — سریع وقتی واقعاً استفاده می‌کند، بی‌مالیاتِ دائمی وقتی نمی‌کند.
-MODEL_IDLE_RELEASE_S = 600.0     # ۱۰ دقیقه بی‌ویس ⇒ رم را پس بده
+MODEL_IDLE_RELEASE_S = 180.0     # سه دقیقه بی‌ویس ⇒ رم را پس بده
+# کف رمِ آزاد. اگر بعد از بارکردنِ مدل کمتر از این بماند، مدل **کش نمی‌شود**
+# و همان‌جا آزاد می‌گردد.
+#
+# چرا (اندازه‌گیریِ ۲۰۲۶-۰۸-۰۱ روی ماشینِ خودِ مالک): رمِ آزاد ~۲ گیگ بود
+# (فایرفاکس، دیفندر، چند نشستِ claude، و llama-server که مغزِ محلی است).
+# مدلِ `medium` ۱.۳ گیگ برمی‌دارد؛ کشِ ده‌دقیقه‌ای‌اش ویندوز را وادار به
+# صفحه‌گردانی کرد و یک ویسِ **سه ثانیه‌ای** ۴.۵ دقیقه طول کشید — با صفر
+# مصرفِ CPU، یعنی هیچ محاسبه‌ای در کار نبود، فقط انتظارِ دیسک.
+# کشی که ماشین را به زانو درآورد بهینه‌سازی نیست.
+MODEL_CACHE_MIN_FREE_GB = 1.5
 
 _MODEL_CACHE = {"key": None, "model": None, "last_used": 0.0}
 _MODEL_LOCK = threading.Lock()
 _EVICTOR = None
+
+
+def free_ram_gb() -> "float | None":
+    """رمِ فیزیکیِ آزاد، به گیگابایت. None = نتوانستیم بفهمیم.
+
+    «نمی‌دانم» هرگز به «کم است» ترجمه نمی‌شود: اگر اندازه‌گیری نشد، رفتارِ
+    قبلی (کش‌کردن) ادامه می‌یابد — وگرنه یک API ِ در دسترس‌نبودن، کش را روی
+    هر ماشینی بی‌صدا خاموش می‌کرد."""
+    try:
+        import ctypes
+
+        class _MS(ctypes.Structure):
+            _fields_ = [("dwLength", ctypes.c_ulong),
+                        ("dwMemoryLoad", ctypes.c_ulong),
+                        ("ullTotalPhys", ctypes.c_ulonglong),
+                        ("ullAvailPhys", ctypes.c_ulonglong),
+                        ("ullTotalPageFile", ctypes.c_ulonglong),
+                        ("ullAvailPageFile", ctypes.c_ulonglong),
+                        ("ullTotalVirtual", ctypes.c_ulonglong),
+                        ("ullAvailVirtual", ctypes.c_ulonglong),
+                        ("ullAvailExtendedVirtual", ctypes.c_ulonglong)]
+
+        st = _MS()
+        st.dwLength = ctypes.sizeof(st)
+        if not ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(st)):
+            return None
+        return float(st.ullAvailPhys) / 1e9
+    except Exception:  # noqa: BLE001 — غیرِویندوز یا هر خطا ⇒ نمی‌دانیم
+        return None
 
 
 def _start_evictor() -> None:
@@ -187,6 +226,11 @@ def _cached_model(fw, name: str, md, local_only: bool):
         _MODEL_CACHE.update(key=None, model=None)      # مدلِ قبلی آزاد شود
     model = fw.WhisperModel(name, device="cpu", compute_type="int8",
                             download_root=str(md), local_files_only=local_only)
+    # کش فقط وقتی که ماشین جا دارد. اگر بعد از بارکردن رمِ آزاد زیرِ کف
+    # افتاد، مدل برمی‌گردد ولی **نگه داشته نمی‌شود** — دفعهٔ بعد دوباره بار
+    # می‌شود (کند)، که خیلی بهتر از خواباندنِ کلِ ماشین است.
+    if free_ram_gb() is not None and free_ram_gb() < MODEL_CACHE_MIN_FREE_GB:
+        return model
     with _MODEL_LOCK:
         _MODEL_CACHE.update(key=key, model=model, last_used=time.time())
     _start_evictor()
