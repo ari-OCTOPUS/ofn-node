@@ -3422,10 +3422,31 @@ class Center:
             if cbtok.flag_on():
                 _owner = getattr(self._client, "owner_chat_id", None)
                 _by_id = {str(j.get("id")): j for j in pending if isinstance(j, dict)}
+
+                # ۲۰۲۶-۰۸-۰۱ — jobی که **خودِ همین رندر** وارد صف می‌کند در snapshot نیست.
+                # `pending` بالا خوانده شده، ولی `render.ingest_debate_survivors` (پشتِ
+                # OCTOPUS_WIRE_DEBATE_VERDICT) داخلِ خودِ render اجرا می‌شود و بازمانده‌های
+                # مناظره را **بعد** از این snapshot به صف اضافه می‌کند. آن‌وقت mint با dictِ
+                # تهی امضا می‌زد (type=None · risk=None · expires="") ولی handler لحظهٔ تپ
+                # jobِ واقعی را می‌خواند (type=debate · risk=medium · expires=…) → hash فرق
+                # می‌کرد → «توکنِ نامعتبر». یعنی دکمه دیده می‌شد، مالک می‌زد، و رأی هرگز
+                # ثبت نمی‌شد. resolve به تعویق می‌افتد تا mint-time (بعد از ingest) و فقط
+                # برای شناسه‌هایی که در snapshot نیستند — پس هر jobِ موجود دقیقاً همان
+                # binding قبلی را می‌گیرد (anti-TOCTOU دست‌نخورده).
+                def _job_at_mint(jid: str) -> dict:
+                    j = _by_id.get(str(jid))
+                    if j is None:
+                        try:
+                            j = aps_mod.get(str(jid))
+                        except Exception:  # noqa: BLE001 — نبودِ job = رفتارِ قبلی ({})
+                            j = None
+                        _by_id[str(jid)] = j if isinstance(j, dict) else {}
+                    return _by_id[str(jid)] or {}
+
                 _mint = lambda jid, act: cbtok.mint(
                     str(jid), act, _owner,
-                    self._ap_action_hash(act, str(jid), _by_id.get(str(jid), {})),
-                    str(_by_id.get(str(jid), {}).get("expires_epoch", "")))
+                    self._ap_action_hash(act, str(jid), _job_at_mint(jid)),
+                    str(_job_at_mint(jid).get("expires_epoch", "")))
         except Exception:  # noqa: BLE001 — mint اختیاری؛ خطا = کارتِ عادی
             _mint = None
         try:
