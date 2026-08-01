@@ -65,9 +65,17 @@ def mining_beat(state: dict | None = None) -> dict:
 def _skeleton(reason: str) -> dict:
     return {
         "leg": "mining", "live": False, "signal": "skeleton", "phase": "P0",
-        "generated": _now(), "fleet": {"nodes_total": 0, "running": 0, "status_known": False},
+        "generated": _now(),
+        # ۲۰۲۶-۰۸-۰۱ — اسکلت باید **همان شش کلیدی** را بدهد که summarize_fleet می‌دهد.
+        # سه کلید غایب بود و UI کلیدِ غایب را ۰/«—» چاپ می‌کرد، یعنی به مالک می‌گفت
+        # «اندازه گرفتیم، صفر بود» در حالی که اصلاً اندازه‌گیری نشده.
+        "fleet": {"nodes_total": 0, "running": 0, "broken": 0, "unknown": 0,
+                  "status_known": False, "thermal_warn": []},
         "coins": {"count": 0, "top": []}, "electricity": {"gate": "HALT", "reason": "نامعلوم"},
-        "halt_proposal": False, "readiness": {"score": 0, "reasons": [reason]},
+        # gate این‌جا "HALT" است پس halt_proposal هم باید True باشد — دقیقاً کاری که
+        # مسیرِ زنده (`halt_proposal = gate == "HALT"`) می‌کند. تا امروز False بود و
+        # کارت رویِ گیتِ HALT «برق OK» چاپ می‌کرد.
+        "halt_proposal": True, "readiness": {"score": 0, "reasons": [reason]},
         "verdicts_open": 0, "open_verdict_ids": [], "blockers": [],
         "wallet_access": False,
         "note": f"skeleton — {reason} · scorer/afferent سیم‌کشی نشده؛ live جعل نمی‌شود.",

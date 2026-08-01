@@ -2922,7 +2922,9 @@ def mining_os_beat(beat: int = 0, write: bool = True) -> dict | None:
     try:
         _syspath(str(_MINING_OS_DIR))
         from mining_os.loop import tick as _mining_tick  # noqa: WPS433 — lazy
-        snap = _mining_tick(beat)
+        # write را واقعاً پاس بده: وگرنه mining_os_beat(write=False) فقط سایدکارِ _ops
+        # را ساکت می‌کرد و snapshotِ داخلِ بسته را همچنان می‌نوشت (قولِ شکسته).
+        snap = _mining_tick(beat, write=write)
     except Exception as e:  # noqa: BLE001 — زیر-OS نباید tickِ ارگانیسم را بکشد
         opslib.alert([f"wiring: mining_os_beat خطا: {type(e).__name__}: {e}"])
         return None

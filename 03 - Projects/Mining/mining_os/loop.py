@@ -17,13 +17,20 @@ _STATE_FILE = _STATE_DIR / "MINING-STATE.json"     # منبعِ حقیقت (اخ
 _SNAPSHOT = _STATE_DIR / "last-beat.json"           # خروجیِ هر tick (fail-soft)
 
 
-def tick(beat: int = 0) -> dict:
-    """یک ضربانِ فقط‌خواندنی. state را می‌خواند، snapshot می‌نویسد، dict برمی‌گرداند. هرگز استثنا."""
+def tick(beat: int = 0, write: bool = True) -> dict:
+    """یک ضربانِ فقط‌خواندنی. state را می‌خواند، snapshot می‌نویسد، dict برمی‌گرداند. هرگز استثنا.
+
+    ۲۰۲۶-۰۸-۰۱ — `write=False` یعنی **هیچ** نوشتنی. پیش‌تر snapshot بی‌قید نوشته می‌شد،
+    پس `wiring.mining_os_beat(write=False)` قولش را می‌شکست: تست‌ها داخلِ ولتِ زنده
+    می‌نوشتند. شاهدِ روی دیسک: `beat: 7` در `state/last-beat.json` — عددی که در تولید
+    هیچ‌جا نیست و فقط از `_ops/tests/test_mining_os_wiring.py` می‌آمد.
+    """
     try:
         state = load_state(_STATE_FILE)          # None اگر فایل نبود → skeleton صادق
         snap = mining_beat(state)
         snap["beat"] = beat
-        save_state(_SNAPSHOT, snap)              # اتمیک؛ در مسیرِ read-only بی‌صدا False
+        if write:
+            save_state(_SNAPSHOT, snap)          # اتمیک؛ در مسیرِ read-only بی‌صدا False
         return snap
     except Exception:  # noqa: BLE001 — زیرـOS نباید heartbeat را بکشد
         return {"leg": "mining", "live": False, "signal": "skeleton",

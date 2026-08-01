@@ -125,6 +125,36 @@ def t_ui_is_dark_until_the_owner_flips_the_flag():
     assert imp == -1 or fl < imp, "فلگ بعد از import سنجیده می‌شود — گاردِ بی‌اثر"
 
 
+def t_write_false_touches_no_file_in_the_live_tree():
+    """قولِ `write=False` باید واقعی باشد — روی **اثر** سنجیده، نه روی فلگ.
+
+    شاهدِ تاریخی (۲۰۲۶-۰۸-۰۱): `mining_os/state/last-beat.json` مقدارِ `beat: 7`
+    داشت — عددی که در تولید هیچ‌جا نیست و فقط از همین فایل می‌آمد. `write=False`
+    فقط سایدکارِ `_ops` را ساکت می‌کرد و `loop.tick` داخلِ بسته بی‌قید می‌نوشت.
+    """
+    _syspath = str((_HERE.parents[1] / "03 - Projects" / "Mining").resolve())
+    if _syspath not in sys.path:
+        sys.path.insert(0, _syspath)
+    from mining_os import loop as _loop           # noqa: WPS433 — lazy
+
+    snap_path = Path(_loop._SNAPSHOT)
+    before = (snap_path.exists(),
+              snap_path.stat().st_mtime_ns if snap_path.exists() else None,
+              snap_path.read_bytes() if snap_path.exists() else None)
+
+    os.environ["OCTOPUS_WIRE_MINING_OS"] = "1"
+    try:
+        wiring.mining_os_beat(beat=4242, write=False)
+    finally:
+        _flag_off()
+
+    after = (snap_path.exists(),
+             snap_path.stat().st_mtime_ns if snap_path.exists() else None,
+             snap_path.read_bytes() if snap_path.exists() else None)
+    assert before == after, (
+        f"write=False فایلِ زنده را عوض کرد: {snap_path}")
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)
