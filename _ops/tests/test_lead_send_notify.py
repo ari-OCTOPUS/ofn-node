@@ -453,6 +453,57 @@ def t_g_b_latin_identifiers_are_bidi_isolated():
     assert lri + "example.com" + pdi in text, repr(text)
 
 
+# ── ۸) خودِ کارخانهٔ کانال (نه جاسوس) ──────────────────────────────────────────
+def t_h_a_the_real_channel_factory_resolves_and_matches_the_call_shape():
+    """نقطهٔ کورِ بقیهٔ این فایل: همه‌شان `_owner_channel` را جعل می‌کنند.
+
+    اگر مسیرِ import ِ `wiring` از داخلِ `legs` حل نشود، `_owner_channel` برای
+    همیشه None می‌دهد، قابلیت در تولید همیشه NO_CHANNEL می‌ماند — و **تمامِ**
+    تست‌های بالا سبز می‌مانند، چون هیچ‌کدام کارخانهٔ واقعی را صدا نمی‌زنند.
+    این‌جا نویسنده و خواننده با هم سنجیده می‌شوند: کارخانهٔ واقعی ساخته می‌شود و
+    امضایِ `send_text` ِ همان شیء با چیزی که `_deliver` صدا می‌زند تطبیق داده
+    می‌شود — نه با یک fixture. صفر شبکه: فقط ساخت و بازرسیِ امضا.
+
+    و **در پروسهٔ خودش** سنجیده می‌شود، نه این‌جا. نسخهٔ اولِ این تست همین‌جا
+    `_owner_channel()` را صدا می‌زد و جهشِ «مسیرِ import را خراب کن» زنده ماند:
+    خودِ فایلِ تست `_ops` را به `sys.path` اضافه کرده بود، پس `import wiring`
+    صرف‌نظر از اینکه ماژول چه مسیری insert می‌کند موفق می‌شد. سنجه، اثرِ کارِ
+    خودِ harness را می‌سنجید نه کدِ تحتِ آزمون. حالا یک پروسهٔ تازه با
+    cwd ِ خنثی و بدونِ `_ops` روی مسیر، فقط از `legs` شروع می‌کند."""
+    import subprocess
+    probe = (
+        "import sys, os, json, inspect\n"
+        "sys.path.insert(0, sys.argv[1])\n"           # فقط legs
+        "import lead_outbound_transport as lot\n"
+        "os.environ.pop('TELEGRAM_BOT_TOKEN', None)\n"
+        "no_tok = lot._owner_channel()\n"
+        "os.environ['TELEGRAM_BOT_TOKEN'] = '111:FAKE-TOKEN-NOT-REAL'\n"
+        "os.environ['TELEGRAM_OWNER_CHAT_ID'] = '424242'\n"
+        "ch = lot._owner_channel()\n"
+        "shape = ''\n"
+        "if ch is not None:\n"
+        "    try:\n"
+        "        inspect.signature(ch.send_text).bind('m', None,\n"
+        "                                            stream=lot.NOTIFY_STREAM)\n"
+        "        shape = 'binds'\n"
+        "    except TypeError as e:\n"
+        "        shape = 'MISMATCH:' + str(e)\n"
+        "print(json.dumps({'no_token': no_tok is None,\n"
+        "                  'built': ch is not None and hasattr(ch, 'send_text'),\n"
+        "                  'shape': shape}))\n")
+    p = subprocess.run([sys.executable, "-X", "utf8", "-c", probe,
+                        str(_OPS / "legs")],
+                       cwd=ENV["ORG_ROOT"], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace", timeout=180)
+    assert p.returncode == 0, f"پروبِ کانال ترکید:\n{p.stdout}\n{p.stderr}"
+    out = json.loads(p.stdout.strip().splitlines()[-1])
+    assert out["no_token"] is True, "بدونِ توکن باید None باشد، نه استثنا"
+    assert out["built"] is True, \
+        "با توکن کانالِ واقعی ساخته نشد — مسیرِ import ِ `wiring` از داخلِ legs حل نمی‌شود"
+    # همان فراخوانی‌ای که `_deliver` می‌زند باید به امضایِ همان شیء bind شود.
+    assert out["shape"] == "binds", out["shape"]
+
+
 if __name__ == "__main__":
     try:
         checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
