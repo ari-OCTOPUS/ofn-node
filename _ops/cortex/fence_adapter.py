@@ -68,11 +68,31 @@ def screen_llm_input(caller: str, parts, alert_fn=None) -> dict | None:
             if not sc.get("clean", True):
                 flagged.append((label, sc.get("findings") or []))
         if flagged:
+            _record(caller, flagged)         # ثبت همیشه — **پیش از** تحویل
             _emit_alert(caller, flagged, alert_fn)
         return {"caller": _scrub(caller), "clean": not flagged,
                 "flagged": len(flagged), "parts": results}
     except Exception:  # noqa: BLE001 — غربال هرگز مسیرِ LLM را نمی‌کشد
         return None
+
+
+def _record(caller, flagged) -> None:
+    """شمارشِ پایدارِ screenهای مثبت — **قاعدهٔ خانه: ثبت همیشه، گیت فقط روی تحویل.**
+
+    `_emit_alert` تحویل است و حق دارد throttle/dedup شود (و می‌شود: پنجرهٔ ۳۰دقیقه‌ای
+    per-task + dedupِ ۶ساعتهٔ `opslib.alert`). دقیقاً زیرِ یک سیلِ تزریق — همان لحظه‌ای
+    که فنس برایش ساخته شده — آن دو لایه ردِ اکثرِ شلیک‌ها را پاک می‌کنند. این ثبت
+    **قبل** از تحویل و مستقل از آن اتفاق می‌افتد تا «چند بار و از کجا» پاسخ‌پذیر بماند.
+
+    content-free: فقط برچسبِ provenance + کدهای یافته می‌روند؛ هرگز متنِ خام."""
+    try:
+        if str(_HERE) not in sys.path:
+            sys.path.insert(0, str(_HERE))
+        import fence_ledger                  # noqa: WPS433 — همسایهٔ همین ماژول
+        for label, codes in flagged:
+            fence_ledger.record(caller, codes, provenance=label)
+    except Exception:  # noqa: BLE001 — دفتر هرگز مسیرِ LLM را نمی‌کشد
+        pass
 
 
 def _emit_alert(caller, flagged, alert_fn) -> None:

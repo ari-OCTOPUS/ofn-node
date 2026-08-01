@@ -313,6 +313,16 @@ def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
         if _fence.enabled():
             _scr = _fence.screen(prompt)
             if not _scr.get("clean", True):
+                # ثبت همیشه، گیت فقط روی تحویل (۲۰۲۶-۰۸-۰۱): alertِ زیر throttle
+                # دارد و dedupِ `opslib.alert` هم بعد از ۳ تکرار دیگر چیزی نمی‌نویسد،
+                # پس زیرِ سیلِ تزریق ردِ اکثرِ شلیک‌ها پاک می‌شد و مالک نمی‌توانست
+                # بپرسد «چند بار؟». شمارش **قبل** از تحویل و مستقل از آن. content-free.
+                try:
+                    import fence_ledger as _fl   # noqa: WPS433 — همسایهٔ همین ماژول
+                    _fl.record(f"model_router.{str(task)[:24]}", _scr.get("findings"),
+                               provenance="external")
+                except Exception:  # noqa: BLE001 — دفتر هرگز مسیرِ LLM را نمی‌کشد
+                    pass
                 # throttled (2026-07-25): این تنها اقدامِ screen است و روی **مسیرِ داغِ
                 # LLM** می‌نشیند. با سه مسیرِ مسلح، یک payloadِ regex-تریگر در هر epoch
                 # سیلِ آلارم می‌سازد و آلارم به تلگرامِ مالک می‌رود → اعلانِ واقعیِ halt

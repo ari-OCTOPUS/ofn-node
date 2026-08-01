@@ -679,6 +679,14 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_lead_price_in_email.py",         # GAP-2: کوت بدونِ عدد کوت نیست
     "test_funnel_sent.py",                 # GAP-3: /funnel «فرستاده شد» را هم نشان می‌دهد
     "test_tg_receive_probe.py",            # پروبِ سلامتِ دریافت (رأیِ مالک ۰۸-۰۱، توکن فقط از env)
+    # ۲۰۲۶-۰۸-۰۱ — مگاپرامپتِ آزادسازی: قابلیت‌هایی که ساخته بودند
+    # ولی مالک نمی‌توانست به آن‌ها برسد. ثبت مرکزی است چون لِین‌ها
+    # حق نداشتند run_all را دست بزنند.
+    "test_approval_actuator_panel.py",       # ۴۳ تأییدِ ✅ ِ بی‌اکشن به کارتِ مالک می‌رسد
+    "test_kill_seam_closer.py",              # درزِ /stop: مسیرِ پول هم می‌ایستد
+    "test_kill_seam_wire.py",                # همان درز، از سمتِ سیم‌کشی
+    "test_debate_card_roundtrip.py",         # کارتِ مناظره: توکن به jobِ واقعی بایند شود
+    "test_fence_ledger_owner_surface.py",    # غربالِ تزریق: یافته به سطحِ مالک برسد
     # union از لِینِ موازی (ماینینگ/پول) — این هفت ثبت در درختِ زنده بودند
     # (پنج stage-شده، دو نه) و deploy درست حاضر نشد رویشان ff بزند. ثبت
     # افزایشی است و هر هفت فایل روی دیسک‌اند، پس union نه انتخاب.

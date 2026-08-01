@@ -743,6 +743,13 @@ def wire_summary() -> dict:
         # می‌تواند همان مغزهای پولی را که مالک امروز مسلح کرد ببندد.
         "arm_gate_enforcing": flag("OCTOPUS_REQUIRE_ARM"),
         "wire_actuator": flag("OCTOPUS_WIRE_ACTUATOR"),   # گاف #۱: اکچوایتورِ approval (visibility)
+        # غربالِ prompt-injection روی هر ورودیِ LLM (۲۰۲۶-۰۸-۰۱). سیم‌کشی‌اش از قبل کامل
+        # بود — model_router.ask + چهار callerِ مستقیم — ولی در هیچ‌کدام از ۴۹ کلیدِ این
+        # خلاصه نبود، پس تنها سطحی که ARMING-ORDER «سنجهٔ قطعی» می‌نامدش
+        # (`state/ORGANISM-STATE.json`، خروجیِ همین تابع **بعد از** apply_profile)
+        # دربارهٔ فنس ساکت بود: مالک نمی‌توانست بعد از مسلح‌کردن تأییدش کند.
+        # عمداً در PAPER_FULL_FLAGS **نیست** → غیاب یعنی خاموش، نه روشن.
+        "wire_context_fence": flag("OCTOPUS_WIRE_CONTEXT_FENCE"),
         "wire_ideas": flag("OCTOPUS_WIRE_IDEAS"),        # P-I: idea-graph engine
         "wire_spectral": flag("OCTOPUS_WIRE_SPECTRAL"),  # P-spectral: spectral bottleneck
         "wire_rhythm": flag("OCTOPUS_WIRE_NEURAL"),      # rhythm (shares neural flag)
