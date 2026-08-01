@@ -2460,6 +2460,103 @@ def heartstate_beat(beat: int = 0) -> dict | None:
         return None
 
 
+def _lead_first_reply_draft(candidate: dict, submit_out: dict) -> dict:
+    """کاندیدِ پذیرفته‌شده → **پیش‌نویسِ** پاسخِ اول روی دیسک. هرگز ارسال.
+
+    این تنها صداکنندهٔ تولیدیِ `lead_first_reply` است. بدونِ آن، آن ماژول —
+    با ۳۶ تستِ سبز — کدِ مرده بود؛ همان الگویی که در این مخزن دو بار در ۲۴
+    ساعت تکرار شد و در حافظه ثبت است.
+
+    مرزها، به‌ترتیبِ اهمیت:
+      · **صفر transport.** خروجی یک فایلِ پیش‌نویس است. تبدیلِ پیش‌نویس به
+        ایمیلِ واقعی تصمیمِ جداگانه و گیت‌شدهٔ مالک است (`OCTOPUS_SMTP_*` +
+        `OCTOPUS_WIRE_LEAD_OUTBOUND`، هر دو امروز تاریک).
+      · **رضایت را خودش نمی‌سنجد.** `compose_first_reply` داخلاً از
+        `consent_firewall` می‌پرسد و برای هرچه `consented_inbound` نباشد
+        `ok=False` و بدنهٔ تهی می‌دهد. اینجا آن حکم فقط رعایت می‌شود.
+      · **fail-soft.** هر خطایی بلعیده می‌شود؛ لیدِ ثبت‌شدهٔ بی‌پیش‌نویس بی‌نهایت
+        بهتر از لیدِ ازدست‌رفته است.
+
+    ⚠️ شکافِ صادقانه: این پیش‌نویس هنوز **سطحِ مالک‌رو ندارد** — کارتِ تلگرام
+    آن را نشان نمی‌دهد. یعنی امروز نوشته می‌شود و کسی نمی‌خواندش. آگاهانه
+    این‌طور رها شده تا «نویسنده‌ای بی‌خواننده» در سند ثبت باشد نه پنهان؛
+    قدمِ بعدیِ این زنجیره وصلِ همین فایل به کارت است.
+    """
+    try:
+        _syspath(str(_HERE / "legs"))
+        import lead_first_reply   # noqa: WPS433 — lazy تا env ِ تست اثر کند
+        res = lead_first_reply.compose_first_reply(candidate) or {}
+        if not res.get("ok"):
+            return res
+        lead_id = str((submit_out or {}).get("lead_id") or "").strip()
+        if not lead_id:
+            return {"ok": False, "reason": "no_lead_id"}
+        import json as _json  # noqa: WPS433
+        d = opslib.STATE_DIR / "legs" / "lead-first-reply-drafts"
+        d.mkdir(parents=True, exist_ok=True)
+        p = d / f"{lead_id}.json"
+        if p.exists():          # idempotent: پیش‌نویسِ موجود بازنویسی نمی‌شود
+            return {"ok": True, "reason": "already_drafted"}
+        tmp = p.with_suffix(".tmp")
+        tmp.write_text(_json.dumps(
+            {"lead_id": lead_id, "subject": res.get("subject"),
+             "body": res.get("body"), "delivered": False,
+             "drafted_at": opslib.now_iso()}, ensure_ascii=False, indent=2), "utf-8")
+        os.replace(tmp, p)
+        return {"ok": True, "lead_id": lead_id}
+    except Exception:  # noqa: BLE001 — §۴: پیش‌نویس هرگز جذبِ لید را نمی‌کشد
+        return {"ok": False, "reason": "draft_failed"}
+
+
+def lead_email_intake_beat(beat: int = 0, fetch_fn=None) -> dict | None:
+    """۲۰۲۶-۰۸-۰۱ · **تولیدکنندهٔ گمشدهٔ سرِ لولهٔ لید** — پشتِ OCTOPUS_WIRE_LEAD_EMAIL_INTAKE.
+
+    ممیزیِ ۱۱-ایجنتی: کلِ ماشینِ لید مسلح بود و صفر پروپوزال داشت، چون هر نویسندهٔ
+    `state/legs/lead-inbox/` انسان-ماشه بود؛ هیچ producer ای وجود نداشت. این ضربان آن
+    producer است: صندوقِ ایمیل را **فقط‌خوانده** می‌خواند، محافظه‌کارانه استعلام را از
+    غیرِ استعلام جدا می‌کند، و فقط استعلام‌ها را به درِ canonical ِ
+    `lead_candidate_inbox.submit_candidate` می‌دهد.
+
+    مرزها: صفر ارسال (این مسیر هیچ SMTP ای ندارد)؛ صفر حذف/انتقال؛ هرگز `\\Seen`
+    نمی‌گذارد (EXAMINE + BODY.PEEK)؛ کانال صادقانه انتخاب می‌شود تا consent_firewall
+    سخت‌گیر بماند. پیامِ غیرِ استعلام **هیچ ردی** نمی‌گذارد — سایدکار فقط عدد و کُد دارد،
+    نه subject، نه بدنه، نه آدرس. اتصالِ واقعی قفلِ دومِ صریح دارد (OCTOPUS_IMAP_USE_GMAIL)
+    چون این صندوقِ **شخصیِ** مالک است؛ بدونِ آن ضربان صادقانه not_armed گزارش می‌دهد.
+    kill-switch مقدم؛ pause ِ تک‌پا؛ epoch-gate؛ fail-soft مطلق."""
+    if not flag("OCTOPUS_WIRE_LEAD_EMAIL_INTAKE"):
+        return None   # flag خاموش = «not wired» (بایت‌به‌بایتِ امروز)
+    if leg_paused("lead"):
+        return None   # مکثِ تک‌پا از مرکزِ تلگرام (runtime)
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None   # kill-switch مقدم
+    every_n = int(os.environ.get("CHRONO_LEAD_EMAIL_INTAKE_EVERY_N_BEATS", "15"))
+    if not _epoch_fire("lead_email_intake", beat, every_n):
+        return None
+    try:
+        _syspath(str(_HERE / "legs"))
+        import lead_email_intake   # noqa: WPS433 — lazy تا env ِ تست اثر کند
+        r = lead_email_intake.beat(fetch_fn=fetch_fn,
+                                   reply_fn=_lead_first_reply_draft) or {}
+        out = {k: r.get(k) for k in ("ok", "armed", "fetched", "inquiries", "submitted",
+                                     "signals", "duplicates", "dropped", "quarantined",
+                                     "replies_drafted", "blocked", "reason")}
+        out["beat"] = beat
+        try:   # سایدکارِ cockpit — **فقط شمارش و کُد**، هرگز محتوای هیچ پیامی
+            sp = opslib.STATE_DIR / "ORGANISM-STATE.lead_email_intake"
+            sp.parent.mkdir(parents=True, exist_ok=True)
+            import json as _json  # noqa: WPS433
+            tmp = sp.with_suffix(".lead_email_intake.tmp")
+            tmp.write_text(_json.dumps({**out, "updated_at": opslib.now_iso()},
+                                       ensure_ascii=False, indent=2), "utf-8")
+            os.replace(tmp, sp)
+        except (OSError, TypeError, ValueError):
+            pass   # fail-soft: سایدکار اختیاری است
+        return out
+    except Exception as e:  # noqa: BLE001 — §۴: intake نباید tick را بکشد
+        opslib.alert([f"wiring: lead_email_intake_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
+
 def email_beat(beat: int = 0) -> dict | None:
     """LEG-06 · پلِ ایمیلِ ورودی (لیدِ نقاشی از ایمیل) پشتِ OCTOPUS_WIRE_EMAIL.
 
@@ -2467,9 +2564,17 @@ def email_beat(beat: int = 0) -> dict | None:
     خودش no-op برمی‌گرداند و اینجا هم پیش از هر کاری فلگ را چک می‌کنیم → صفر pollِ صندوق
     (بایت‌به‌بایتِ امروز: «not wired»). روشن = هر N beat یک بار صندوق را می‌خواند/parse می‌کند
     (propose-only: فقط تشخیصِ لیدِ کاندید؛ هیچ replyِ خودکار/send). kill-switch مقدم؛ fail-soft.
-    ⚠️ هیچ‌گاه پیش‌فرضِ pollِ صندوقِ واقعی را روشن نمی‌کند."""
+    ⚠️ هیچ‌گاه پیش‌فرضِ pollِ صندوقِ واقعی را روشن نمی‌کند.
+
+    ۲۰۲۶-۰۸-۰۱ — این تابع علاوه‌بر کارِ خودش، **قبل از** گیتِ OCTOPUS_WIRE_EMAIL،
+    `lead_email_intake_beat` را صدا می‌زند (که خودش فلگِ مستقل دارد). چرا اینجا:
+    `email_beat` تنها تابعِ ایمیلیِ wiring است که دو صداکنندهٔ تولیدی دارد
+    (`organism.py` و `brain_worker.py`) و نویسندهٔ intake مالکِ آن دو فایل نیست.
+    اگر producer پشتِ گیتِ OCTOPUS_WIRE_EMAIL می‌ماند، «مسیرِ درست به فرمانِ خاموش»
+    می‌شد — یعنی گرسنگیِ بی‌صدا. هر دو فلگ خاموش ⇒ همان None ِ دیروز."""
+    _intake = lead_email_intake_beat(beat=beat)
     if not flag("OCTOPUS_WIRE_EMAIL"):
-        return None   # flag خاموش = «not wired» (رفتارِ فعلی)
+        return _intake   # flag خاموش = «not wired» (رفتارِ فعلی؛ intake ِ خاموش None است)
     if opslib.STOP_ORGANISM.exists() or opslib.halted():
         return None   # kill-switch مقدم
     every_n = int(os.environ.get("CHRONO_EMAIL_EVERY_N_BEATS", "60"))  # ~۱h با tick=60s
