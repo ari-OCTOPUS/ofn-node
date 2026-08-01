@@ -2851,6 +2851,19 @@ class Center:
 
     def _quote_cmd(self, text: str):
         """`/lead …` → کارتِ قیمتِ واقعی. هرگز ارسال نمی‌کند."""
+        # union از لِینِ موازی (۰۸-۰۱) — `/lead` روی دو باتِ مالک دو گرامرِ
+        # متفاوت دارد و فیلدِ دومش در یکی متر است و در دیگری AUD. اگر پیامِ
+        # گرامرِ «ثبتِ لید» این‌جا بیفتد، پارسرِ کوت بی‌صدا AUD را متر می‌خواند.
+        # منطقِ تشخیص عمداً در `chat_room` است (همان‌جا که «ابهام = می‌پرسد»
+        # زندگی می‌کند) و این‌جا فقط یک صدا زدن است. فلگ خاموش → None →
+        # مسیرِ امروز بایت‌به‌بایت.
+        try:
+            import chat_room as _cr
+            _lg = _cr.lead_guard(text)
+            if _lg:
+                return _lg
+        except Exception:  # noqa: BLE001 — تشخیصِ ابهام هرگز کوت را نمی‌کشد
+            pass
         try:
             import quote_cmd as _q
             return _q.quote(text, leg=getattr(self, "_leg", None))
