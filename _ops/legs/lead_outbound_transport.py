@@ -190,21 +190,45 @@ def _feed_suppression(email_norm: str, reason: str) -> None:
 
 
 def _store_suppressed(email_norm: str) -> str | None:
-    """لایهٔ دوم: اگر consent_store در دسترس است، suppression فعال را بپرس.
-    نبودِ store = None (نه fail-closed — لایهٔ اول و گیتِ بالادست سرِ جایشان‌اند)."""
+    """لایهٔ دوم: suppression فعال را از هر دو شکلِ کلید بپرس.
+
+    ⚠️ ۲۰۲۶-۰۸-۰۱ — باگی که این تابع را بی‌صدا کور کرده بود:
+    `lead_suppression.record_optout` عمداً کلید را **هشِ نمک‌دار** می‌نویسد
+    (`e1:` + pbkdf2) تا آدرسِ مشتری متنِ ساده روی دیسک ننشیند. ولی این خواننده
+    فقط `suppression_active(<متنِ ساده>)` را می‌پرسید. یعنی کسی که STOP زده بود
+    ثبت می‌شد و **این گارد پیدایش نمی‌کرد** — و بعد ایمیل می‌رفت.
+
+    نویسنده و خواننده باید با هم سنجیده شوند، وگرنه هر دو جدا-جدا سبزند و
+    وسط خالی است. حالا هر دو شکل پرسیده می‌شود: کلیدِ قدیمیِ متنِ ساده
+    (رکوردهای پیش از این تاریخ) و اثرانگشتِ هش‌شده.
+
+    نبودِ store = None (نه fail-closed — لایهٔ اول و گیتِ بالادست سرِ جایشان‌اند)،
+    ولی `lead_suppression` خودش سه‌حالتی است و «رکورد هست ولی نمی‌توانم
+    تطبیق دهم» را fail-closed برمی‌گرداند.
+    """
     store = None
     try:
         import consent_store as _cs   # noqa: WPS433 — lazy
         store = _cs.ConsentStore()
-        return store.suppression_active(email_norm)
+        hit = store.suppression_active(email_norm)
+        if hit:
+            return hit
     except Exception:  # noqa: BLE001
-        return None
+        pass
     finally:
         try:
             if store is not None:
                 store.close()
         except Exception:  # noqa: BLE001
             pass
+    try:
+        import lead_suppression as _ls   # noqa: WPS433 — lazy
+        res = _ls.is_suppressed(email_norm) or {}
+        if res.get("suppressed"):
+            return str(res.get("reason") or res.get("code") or "suppressed")
+    except Exception:  # noqa: BLE001
+        pass
+    return None
 
 
 def creds() -> dict | None:
