@@ -274,6 +274,30 @@ def t_b_b_the_three_other_non_send_outcomes_are_silent_too():
     assert f.calls == 0, "هیچ‌کدام نباید کانال بسازد"
 
 
+def t_b_c_a_crash_before_the_smtp_call_is_silent_too():
+    """کچ‌آلِ **بیرونیِ** `send()` هم یک FAILED است — و هیچ ایمیلی نرفته.
+
+    این شاخه با هندلرِ SMTP فرق دارد و تا امروز بی‌گارد بود: جهشی که اعلان را به
+    `except Exception` ِ بیرونی اضافه می‌کرد سبز می‌ماند، چون هیچ تستی آن مسیر را
+    نمی‌پیمود. اگر روزی کسی «برای ثبتِ بیشتر» اعلان را آن‌جا هم بگذارد، مالک
+    «ایمیل فرستاده شد» می‌بیند در حالی که transport اصلاً به SMTP نرسیده."""
+    class _ExplodingDraft(dict):
+        """قبل از هر تماسِ SMTP، داخلِ `_build_message` می‌ترکد."""
+
+        def get(self, *a, **k):
+            raise RuntimeError("draft is broken")
+
+    ch = SpyChannel()
+    f = _arm(channel=ch)
+    smtp = SpySmtp()
+    r = lot.send(_cand("L-outer"), _ExplodingDraft(), now=NOW_S, send_impl=smtp)
+    assert r["status"] == "FAILED", r
+    assert str(r["detail"]).startswith("transport-error:"), r
+    assert not smtp.calls, "هیچ ایمیلی نباید رفته باشد"
+    assert not ch.sent, f"کچ‌آلِ بیرونی نباید اعلان بدهد: {ch.sent!r}"
+    assert f.calls == 0, "کچ‌آلِ بیرونی حتی نباید کانال بسازد"
+
+
 # ── ۳) اعلانِ خراب ارسال را نمی‌شکند ────────────────────────────────────────────
 def t_c_a_a_broken_notifier_never_breaks_the_send():
     """کانال استثنا می‌دهد ⇒ ایمیل همچنان SENT است و شمارنده بالا رفته.
@@ -319,6 +343,34 @@ def t_c_c_no_channel_still_leaves_a_receipt():
     assert r["status"] == "SENT", r
     rec = _notified_since(n)
     assert len(rec) == 1 and (rec[0].get("payload") or {}).get("status") == "NO_CHANNEL", rec
+
+
+def t_c_d_a_channel_without_the_stream_kwarg_still_delivers():
+    """کانالِ قدیمی (امضای بدونِ `stream`) نباید به سکوت بیفتد.
+
+    `_deliver` عمداً روی TypeError به امضایِ کوتاه برمی‌گردد — «به DM برو، نه به
+    سکوت» (الگوی instant_alert_bridge). بدونِ این تست آن شاخه تزئین بود: خالی‌کردنِ
+    fallback هیچ تستی را قرمز نمی‌کرد و پیام بی‌صدا گم می‌شد."""
+    class LegacyChannel:
+        """امضای قدیمی: `stream` را نمی‌شناسد ⇒ TypeError ⇒ مسیرِ fallback."""
+
+        def __init__(self):
+            self.sent = []
+
+        def send_text(self, text, reply_markup=None):
+            self.sent.append(text)
+            return True
+
+    n = len(_events())
+    ch = LegacyChannel()
+    _arm(channel=ch)
+    r = lot.send(_cand("L-legacy"), _draft(), now=NOW_S, send_impl=SpySmtp())
+    assert r["status"] == "SENT", r
+    assert len(ch.sent) == 1, f"کانالِ بی‌stream باید پیام را گرفته باشد: {ch.sent!r}"
+    assert _DOMAIN in ch.sent[0], ch.sent[0]
+    assert _FULL_ADDR not in ch.sent[0], "مسیرِ fallback هم فقط دامنه می‌فرستد"
+    rec = _notified_since(n)
+    assert len(rec) == 1 and (rec[0].get("payload") or {}).get("status") == "DELIVERED", rec
 
 
 # ── ۴) فلگِ خاموش = بایت‌به‌بایتِ دیروز ─────────────────────────────────────────
@@ -420,10 +472,25 @@ def t_f_b_the_count_reflects_this_send_not_the_previous_one():
 
 def t_f_c_the_cap_comes_from_the_worker_not_a_local_guess():
     """سقف تک‌منبع است. عددِ هاردکد این‌جا یعنی روزی که مالک رأیش را عوض کند،
-    اعلان با اطمینانِ کامل عددِ اشتباه می‌گوید."""
-    text = lot.notify_text("L-x", "example.com", "QT-1", 4, lot._daily_cap())
+    اعلان با اطمینانِ کامل عددِ اشتباه می‌گوید.
+
+    مقایسهٔ لختِ `_daily_cap() == ow.LEAD_DAILY_SEND_CAP` کافی **نیست** و تا امروز
+    نبود: سقف امروز ۱۰ است، پس یک `return 10` ِ هاردکد هم از آن رد می‌شد (جهشِ
+    «سقف را هاردکد کن» سبز ماند — پایه‌اش از قبل همان جواب را می‌داد). سنجهٔ
+    واقعی این است که رأی مالک را عوض کنیم و ببینیم اعلان دنبالش می‌آید."""
     assert lot._daily_cap() == ow.LEAD_DAILY_SEND_CAP
-    assert "۴ از " + str(ow.LEAD_DAILY_SEND_CAP).translate(lot._FA_DIGITS) in text, text
+    real = ow.LEAD_DAILY_SEND_CAP
+    probe = int(real) + 7                       # عمداً هیچ‌جا هاردکد نشده
+    ow.LEAD_DAILY_SEND_CAP = probe
+    try:
+        got = lot._daily_cap()
+        assert got == probe, \
+            f"سقف هاردکد است: رأی مالک {probe} شد ولی اعلان {got} می‌گوید"
+        text = lot.notify_text("L-x", "example.com", "QT-1", 4, got)
+        assert "۴ از " + str(probe).translate(lot._FA_DIGITS) in text, text
+    finally:
+        ow.LEAD_DAILY_SEND_CAP = real
+    assert lot._daily_cap() == real, "سقف باید به مقدارِ واقعی برگشته باشد"
 
 
 def t_f_d_unknown_numbers_are_reported_as_unknown_not_zero():
