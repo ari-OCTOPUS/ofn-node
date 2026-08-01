@@ -126,6 +126,41 @@ def t_f_last_used_moves_on_every_hit_so_a_busy_model_is_never_evicted():
     assert transcribe._MODEL_CACHE["last_used"] > first, "hit ِ کش زمان را جلو نبرد"
 
 
+def t_g_a_starving_machine_does_not_get_a_cached_model():
+    """کشی که ماشین را به زانو درآورد بهینه‌سازی نیست.
+
+    اندازه‌گیریِ ۰۸-۰۱ روی ماشینِ مالک: با ~۲ گیگ رمِ آزاد، کشِ `medium`
+    (۱.۳ گیگ) ویندوز را به صفحه‌گردانی انداخت و یک ویسِ **سه ثانیه‌ای**
+    ۴.۵ دقیقه طول کشید — با صفر مصرفِ CPU، یعنی فقط انتظارِ دیسک."""
+    _clear()
+    fw = FakeFW()
+    md = Path(ENV["ORG_ROOT"])
+    orig = transcribe.free_ram_gb
+    transcribe.free_ram_gb = lambda: transcribe.MODEL_CACHE_MIN_FREE_GB - 0.5
+    try:
+        m = transcribe._cached_model(fw, "medium", md, True)
+        assert m is not None, "مدل باید برگردد، فقط کش نشود"
+        assert transcribe._MODEL_CACHE["model"] is None, "روی ماشینِ گرسنه کش شد"
+        transcribe._cached_model(fw, "medium", md, True)
+        assert len(fw.built) == 2, "بدونِ کش باید هر بار دوباره بار شود: %r" % (fw.built,)
+    finally:
+        transcribe.free_ram_gb = orig
+
+
+def t_h_not_knowing_the_free_ram_keeps_the_old_behaviour():
+    """«نمی‌دانم» نباید به «کم است» ترجمه شود — وگرنه یک API ِ در دسترس‌نبودن
+    کش را روی هر ماشینی بی‌صدا خاموش می‌کند."""
+    _clear()
+    fw = FakeFW()
+    md = Path(ENV["ORG_ROOT"])
+    orig = transcribe.free_ram_gb
+    transcribe.free_ram_gb = lambda: None
+    try:
+        transcribe._cached_model(fw, "small", md, True)
+        assert transcribe._MODEL_CACHE["model"] is not None, "ندانستن کش را کشت"
+    finally:
+        transcribe.free_ram_gb = orig
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)
