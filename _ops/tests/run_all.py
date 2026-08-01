@@ -682,13 +682,6 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     # union از لِینِ موازی (ماینینگ/پول) — این هفت ثبت در درختِ زنده بودند
     # (پنج stage-شده، دو نه) و deploy درست حاضر نشد رویشان ff بزند. ثبت
     # افزایشی است و هر هفت فایل روی دیسک‌اند، پس union نه انتخاب.
-    "test_pain_input_census.py",            # ۵ از ۶ ترمِ درد ساختاراً صفر بود
-    "test_langar_route_parity.py",          # ۹ handler بی‌مسیر · گاردِ دوجهته
-    "test_initiative_worth_it.py",          # سقفِ عددی → آستانهٔ ارزش (رأیِ مالک)
-    "test_mirror_rooms_memory.py",          # حافظهٔ per-room · تصحیحِ سراسری
-    "test_lowrisk_and_brier.py",            # «کم‌ریسک» = تابعِ خالص · کارتِ Brier
-    "test_proposal_counter_durable.py",     # شمارندهٔ پیشنهاد: ری‌استارت صفرش می‌کرد
-    "test_invoice_unpayable_is_loud.py",    # فاکتورِ بی‌بانک دیگر بی‌صدا نیست
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
