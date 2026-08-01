@@ -19,6 +19,7 @@
 """
 import os
 import sys
+import threading
 import time
 from pathlib import Path
 
@@ -90,29 +91,37 @@ def _with_capture_on(fn):
 def t_a_voice_returns_immediately_and_does_not_block_the_loop():
     """کارِ کند نباید در تماسِ hook اتفاق بیفتد.
 
-    capture را عمداً «کند» می‌کنیم (۱.۵ ثانیه). اگر hook همگام باشد، خودش
-    ۱.۵ ثانیه طول می‌کشد؛ اگر واقعاً صف شده باشد، میلی‌ثانیه."""
+    ناوردا با **رویداد** سنجیده می‌شود نه با ساعت: وقتی hook برمی‌گردد، کارِ
+    کند هنوز باید در جریان باشد. نسخهٔ اولِ این تست `elapsed < 0.5s` را
+    می‌سنجید و زیرِ بارِ سوییتِ کامل با ۰.۹۷ ثانیه قرمز شد — در حالی که کارِ
+    کند ۱.۵ ثانیه بود، یعنی hook **واقعاً** منتظرش نمانده بود و ناوردا
+    برقرار بود. آن تست سرعتِ ماشین را می‌سنجید، نه رفتار را؛ و آستانهٔ
+    ساعتی روی ماشینِ شلوغ فقط لرزش تولید می‌کند."""
     fc = FakeClient()
     c = _center(fc)
     seen = []
+    started = threading.Event()
+    release = threading.Event()
 
     def slow_handle(msg, deps=None):
-        time.sleep(1.5)
+        started.set()
+        release.wait(10)            # تا وقتی تست اجازه ندهد تمام نمی‌شود
         seen.append(msg.get("message_id"))
         return {"handled": True, "kind": "note", "ack": "نوتِ ویس ثبت شد ✅"}
 
     orig = capture.handle
     capture.handle = slow_handle
     try:
-        t0 = time.time()
         r = _with_capture_on(lambda: c._capture_hook(_voice_msg(7101)))
-        elapsed = time.time() - t0
-        assert elapsed < 0.5, "hook همگام ماند (%.2fs) — حلقه هنوز قفل می‌شود" % elapsed
         assert r and r.get("queued") is True, r
-        assert not seen, "capture داخلِ حلقه اجرا شد"
+        assert not seen, "capture داخلِ حلقه تمام شد — یعنی همگام بود"
+        assert started.wait(10), "کارگر اصلاً شروع نکرد"
+        assert not seen, "hook تا پایانِ کارِ کند منتظر ماند"
+        release.set()
         _drain()
         assert seen == [7101], "کارگر کار را انجام نداد: %r" % (seen,)
     finally:
+        release.set()
         capture.handle = orig
 
 

@@ -87,7 +87,12 @@ def scan() -> dict:
             continue
 
     # هر ارجاعی که از **فایلِ دیگری** می‌آید
-    imported, called, quoted = set(), set(), set()
+    # ۲۰۲۶-۰۸-۰۱ — `called` نامِ **برهنه** را می‌گرفت و همان یک نقصِ کور بود:
+    # هر فایلی که تابعی به نامِ `verdict` صدا می‌زد، `drawdown_guard` را (که
+    # نامِ عمومی‌اش `verdict` است) «متصل» می‌کرد. حالا شاهد باید به خودِ ماژول
+    # بسته باشد: `attr_called` سه‌تایی (فایل، شیء، صفت) است، پس فقط
+    # `drawdown_guard.verdict(...)` شاهد است نه هر `verdict(...)`ی.
+    imported, attr_called, quoted = set(), set(), set()
     for f, tree in trees.items():
         # ۰۷-۳۱ (کورِ اسکن که test_orphan_scan رو کرد): رشتهٔ ثابت فقط وقتی
         # شاهدِ «اتصال» است که همان فایل واقعاً importِ پویا انجام دهد
@@ -112,9 +117,11 @@ def scan() -> dict:
                 for a in n.names:
                     imported.add((f, a.name))
             elif isinstance(n, ast.Call):
-                nm = getattr(n.func, "attr", None) or getattr(n.func, "id", None)
-                if nm:
-                    called.add((f, nm))
+                # فقط تماسِ **صفتی** روی یک نام: obj.attr(...) — و obj باید
+                # همان نامِ ماژول (یا aliasِ importش) باشد تا شاهد حساب شود.
+                fn = n.func
+                if isinstance(fn, ast.Attribute) and isinstance(fn.value, ast.Name):
+                    attr_called.add((f, fn.value.id, fn.attr))
             elif dyn_import and isinstance(n, ast.Constant) \
                     and isinstance(n.value, str):
                 v = n.value.strip()
@@ -132,7 +139,7 @@ def scan() -> dict:
         others = [g for g in trees if g != f]
         wired = any(
             (g, stem) in imported or (g, stem) in quoted or
-            any((g, p) in called for p in pub)
+            any((g, stem, p) in attr_called for p in pub)
             for g in others)
         if wired:
             continue
