@@ -60,7 +60,12 @@ def _refund_global(organ: str, est_usd: float) -> None:
 def reserve(organ: str, est_usd: float, task: str = "") -> dict:
     """گیت دومرحله‌ای. خروجی: {allow: bool, reason?: str, reserved?: float}."""
     stop = opslib.halted()
-    if __import__("os").environ.get("OCTOPUS_WIRE_KILL_SEAM") == "1" and not stop and __import__("now_moves.kill_seam_closer", fromlist=["seam_denies"]).seam_denies(): stop = "STOP(organism)"  # M5 (now_moves): flag-gated kill-seam — default OFF; rollback = delete this line
+    # M5 — درزِ کیل‌سوییچ: `halted()` فایلِ STOP-ORGANISM (همانی که `/stop` ِ تلگرام
+    # می‌نویسد) را نمی‌بیند، پس یک‌تپِ توقفِ مالک جلوی رزروِ **پولی** را نمی‌گرفت.
+    # گاردِ افزودنی، پیش‌فرض خاموش (OCTOPUS_WIRE_KILL_SEAM). `not stop` یعنی دلیلِ
+    # توقفِ قبلی هرگز بازنویسی نمی‌شود. rollback = حذفِ همین دو خط.
+    if not stop and opslib.kill_seam_denies():
+        stop = "STOP(organism)"
     if stop:
         v = {"allow": False, "reason": f"halted:{stop}"}
         _log("reserve", organ, est_usd, v, task); return v

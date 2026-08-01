@@ -346,6 +346,36 @@ def halted(*, for_debate: bool = False) -> str | None:
     return None
 
 
+KILL_SEAM_FLAG = "OCTOPUS_WIRE_KILL_SEAM"
+
+
+def kill_seam_denies() -> bool:
+    """درزِ کیل‌سوییچ (M5) — گاردِ **افزودنی** و پیش‌فرض‌خاموش، نه تغییرِ `halted()`.
+
+    مسئله: `halted()` سه سوییچ را می‌بیند (STOP ِ معمار / STOP-METABOLIC /
+    STOP-DEBATE) ولی `_ops/STOP-ORGANISM` را نه — و همان فایلی است که `/stop` ِ
+    تلگرام و کیلِ داشبورد می‌نویسند. افکتورها خودشان STOP-ORGANISM را چک می‌کنند،
+    ولی مرجعِ **خرج** (`organ_gate.reserve`) و مناظرهٔ پولی از `halted()` رد
+    می‌شوند؛ پس یک‌تپِ `/stop` به‌تنهایی جلوی یک رزروِ پولی را نمی‌گیرد.
+
+    این تابع همان چکِ غایب است، جدا از `halted()` تا SoT ِ مشترک دست‌نخورده بماند.
+    خاموش (پیش‌فرض) → همیشه False → رفتارِ بایت‌به‌بایتِ امروز. روشن + وجودِ
+    STOP-ORGANISM → True → صداکننده `stop` را «STOP(organism)» می‌گذارد.
+
+    فقط‌خواندنی و بی‌استثنا: خطای فایل‌سیستم نباید مسیرِ پول را بترکاند — و چون
+    این گارد فقط **اضافه** می‌کند، ندانستن = همان رفتارِ قبلی (False)، نه deny ِ
+    ساختگی. (زنجیرهٔ fail-closed ِ خودِ organ_gate سرِ جایش است.)
+
+    فلگ: OCTOPUS_WIRE_KILL_SEAM=1 — مسلح‌سازی فقط رأیِ مالک.
+    """
+    if os.environ.get(KILL_SEAM_FLAG) != "1":
+        return False
+    try:
+        return STOP_ORGANISM.exists()
+    except OSError:
+        return False
+
+
 def raise_halt_all(reason: str) -> None:
     """🔴 پنیک: مرزِ سختِ سراسری را می‌نویسد (idempotent). هر حلقه تیکِ بعد تمیز می‌ایستد.
     آزادسازی فقط با clear_halt_all (مالک/پنل). کد این فایل را فقط از مسیرِ پنیکِ صریح می‌سازد

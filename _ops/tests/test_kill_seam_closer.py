@@ -6,6 +6,13 @@ Verifies seam_denies() (flag off → False even with STOP present; flag on + STO
 True), that organ_gate.reserve() denies with the seam armed, and — the key
 zero-change proof — that with the flag OFF reserve() ignores STOP-ORGANISM exactly
 as before. Standalone (exit 0/1) per run_all.py; also exposes test_*.
+
+⚠️ ۲۰۲۶-۰۸-۰۱ — دامنهٔ این فایل فقط همین ماژول است. `test_callsite_logic` و
+`test_precedence_existing_stop_wins` منطقِ صداکننده را **بازنویسی** می‌کنند، پس
+جهشِ خودِ organ_gate/debate_loop را نمی‌کشند — همان درسِ «گاردِ بی‌دندان». سیم‌کشیِ
+واقعی (رزروِ پولی، مناظرهٔ پولی، شکلِ sys.path ِ تولیدی، دست‌نخوردگیِ `halted()`)
+در `test_kill_seam_wire.py` سنجیده می‌شود که harness دارد و قابلِ ثبت است.
+این فایل هنوز harness ندارد، پس هنوز در run_all ثبت نشده.
 """
 import os
 import sys
