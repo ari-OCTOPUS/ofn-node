@@ -110,7 +110,20 @@ def lead_to_intake(lead: dict, scored: dict | None = None) -> QuoteIntake:
                   if any(k in desc for k in kws))
 
     try:
-        size_m2 = max(float((lead or {}).get("size_m2") or 0.0), 0.0)
+        # D-10-fix ۲۰۲۶-۰۸-۰۱ — کلیدِ canonical اکنون `floor_area_m2` است (از
+        # lead_email_intake.extract_property). `size_m2` فقط fallback برای دادهٔ
+        # legacy است. تا امروز این خط `size_m2` می‌خواند که هرگز نوشته نمی‌شد
+        # ⇒ همیشه ۰ ⇒ قیمت A$0.00 ⇒ گاردِ قیمت ایمیل را بی‌صدا رد می‌کرد.
+        # اگر range هست، میانگینش را بگیر (بازهٔ کار، نه نقطه).
+        src = lead or {}
+        if src.get("floor_area_m2") is not None:
+            fa = float(src["floor_area_m2"])
+        elif src.get("floor_area_range_m2"):
+            lo, hi = src["floor_area_range_m2"]
+            fa = (float(lo) + float(hi)) / 2.0
+        else:
+            fa = float(src.get("size_m2") or 0.0)   # legacy
+        size_m2 = max(fa, 0.0)
     except (TypeError, ValueError):
         size_m2 = 0.0
 
