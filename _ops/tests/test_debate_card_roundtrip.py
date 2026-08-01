@@ -216,6 +216,41 @@ def t_a_job_already_in_pending_keeps_its_old_binding():
     assert got[0].split(":")[3] == want, "بایندِ jobِ عادی عوض شد"
 
 
+def t_binding_comes_from_the_snapshot_not_a_fresh_read():
+    """ضدِ TOCTOU: بایند باید از **snapshot** بیاید، نه از خواندنِ تازه لحظهٔ mint.
+
+    فیکس فقط برای شناسه‌های **غایب** از snapshot به store رجوع می‌کند. اگر روزی آن
+    شرط برداشته شود و هر بار تازه خوانده شود، تستِ خواهر (`…keeps_its_old_binding`)
+    هیچ نمی‌فهمد — چون آنجا snapshot و خواندنِ تازه یک مقدارند. اینجا عمداً واگرا
+    می‌شوند: کارت riskِ قدیمی را نشان می‌دهد، پس توکن هم باید به همان قدیمی بایند
+    بماند تا تپ روی کارتِ کهنه رد شود (`_ap_action_hash` روی type/risk).
+    """
+    _armed()
+    _reset()
+    aps.add_pending({"id": "job-shift", "type": "task", "title": "کار", "risk": "read"})
+    snap = aps.get("job-shift")
+    drift = dict(snap)
+    drift["risk"] = "high"          # پروسهٔ دیگر job را بعد از snapshot عوض می‌کند
+    _real_get = aps.get
+    aps.get = lambda jid: (dict(drift) if str(jid) == "job-shift" else _real_get(jid))
+    try:
+        _text, kb = _center()._approvals_queue_page()
+    finally:
+        aps.get = _real_get
+    got = [x for x in _buttons(kb) if x.split(":")[:3] == ["ap", "ok", "job-shift"]]
+    assert len(got) == 1, _buttons(kb)
+    c = _center()
+    want_snap = cbtok.mint("job-shift", "ok", _OWNER,
+                           c._ap_action_hash("ok", "job-shift", snap),
+                           str(snap.get("expires_epoch", "")))
+    want_fresh = cbtok.mint("job-shift", "ok", _OWNER,
+                            c._ap_action_hash("ok", "job-shift", drift),
+                            str(drift.get("expires_epoch", "")))
+    assert want_snap != want_fresh, "سناریو برپا نشد (دو توکن یکی درآمدند)"
+    assert got[0].split(":")[3] == want_snap, \
+        "بایند از خواندنِ تازه آمد نه از snapshot — پنجرهٔ TOCTOU باز شد"
+
+
 # ═══ ۴. گاردها برداشته نشده‌اند ════════════════════════════════════════════════
 def t_tampered_token_is_still_rejected():
     _text, kb = _card_after_queue()
@@ -309,6 +344,8 @@ CHECKS = [
      t_token_binds_to_the_real_job_not_an_empty_one),
     ("jobی که از قبل در صف است بایندِ قبلی‌اش را نگه می‌دارد",
      t_a_job_already_in_pending_keeps_its_old_binding),
+    ("بایند از snapshot می‌آید نه از خواندنِ تازه (ضدِ TOCTOU)",
+     t_binding_comes_from_the_snapshot_not_a_fresh_read),
     ("توکنِ دستکاری‌شده هنوز رد می‌شود", t_tampered_token_is_still_rejected),
     ("callbackِ قدیمیِ بی‌توکن هنوز رد می‌شود",
      t_tokenless_legacy_callback_is_still_rejected),
@@ -325,7 +362,7 @@ CHECKS = [
 
 if __name__ == "__main__":
     print(f"پلِ رأیِ مناظره — رفت‌وبرگشتِ کامل ({len(CHECKS)} چک)")
-    assert len(CHECKS) >= 13, "فهرستِ چک‌ها ناقص است — تستِ بی‌صدا"
+    assert len(CHECKS) >= 14, "فهرستِ چک‌ها ناقص است — تستِ بی‌صدا"
     failed = harness.run(CHECKS)
     print(f"\n{len(CHECKS) - failed}/{len(CHECKS)} پاس")
     sys.exit(1 if failed else 0)
