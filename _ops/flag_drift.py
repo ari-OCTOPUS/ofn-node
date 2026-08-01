@@ -139,6 +139,64 @@ def loaded_from_env(env=None) -> dict[str, str]:
     return {k.upper(): v for k, v in env.items() if _tracked(k)}
 
 
+# ── فروپاشیِ بی‌صدای پیکربندی ────────────────────────────────────────────────
+# ۲۰۲۶-۰۸-۰۱، ۰۹:۰۶: یک ویرایشِ متنی `OCTOPUS-flags.cmd` را از CRLF به LF برد.
+# cmd.exe چنین فایلی را تقریباً **یک‌درمیان** اجرا می‌کند، پس مرکز در ۰۹:۰۷ با
+# ۵۹ از ۱۵۶ فلگ بالا آمد. `OCTOPUS_TG_CAPTURE` بینِ گم‌شده‌ها بود و ویسِ مالک
+# سیزده دقیقه بی‌صدا هیچ کاری نکرد، در حالی که سه پروسهٔ دیگر با پیکربندیِ
+# کاملِ قدیمی‌شان درست کار می‌کردند.
+#
+# هیچ‌چیز نفهمید: فایل در پایتون تمیز پارس می‌شد (`splitlines()` به CRLF کاری
+# ندارد)، پروسه بالا آمد، استثنایی پرتاب نشد، و هر فلگی که بار شده بود درست
+# بود. تنها نشانه یک **عدد** بود و کسی مقایسه‌اش نکرد.
+#
+# آستانه: بیش از ۱۰٪ از فلگ‌هایی که فایل تعریف کرده به env نرسیده باشد.
+# کفِ ۲۰تایی هست تا فایلِ کوچکِ تست هشدارِ بی‌جا نسازد.
+LOAD_SHORTFALL_RATIO = 0.10
+LOAD_SHORTFALL_MIN_FLAGS = 20
+
+
+def load_shortfall(file_flags, env_flags) -> dict:
+    """چقدر از آنچه فایل تعریف کرده به env نرسید؟
+
+    خروجی همیشه یک dict است (هرگز استثنا) با `alarm: bool` — تا صداکننده
+    بتواند بی‌قید صدایش بزند."""
+    tracked = sorted(k for k in (file_flags or {}) if _tracked(k))
+    env = {str(k).upper() for k in (env_flags or {})}
+    missing = [k for k in tracked if k.upper() not in env]
+    n = len(tracked)
+    ratio = (len(missing) / n) if n else 0.0
+    return {
+        "file_count": n,
+        "env_count": len(env),
+        "missing_count": len(missing),
+        "ratio": round(ratio, 4),
+        "missing_sample": missing[:12],
+        "alarm": bool(n >= LOAD_SHORTFALL_MIN_FLAGS and ratio > LOAD_SHORTFALL_RATIO),
+    }
+
+
+def _alert_shortfall(sf: dict, source) -> None:
+    """هشدارِ fail-soft. هرگز boot را نمی‌کشد — پیکربندیِ ناقص بد است،
+    پروسه‌ای که به‌خاطرِ هشدار بالا نیامد بدتر."""
+    try:
+        import sys as _s
+        from pathlib import Path as _P
+        _b = _P(__file__).resolve().parent / "budget"
+        if str(_b) not in _s.path:
+            _s.path.insert(0, str(_b))
+        import opslib
+        opslib.alert([
+            "فروپاشیِ پیکربندی سرِ boot: از %d فلگی که %s تعریف کرده، "
+            "%d تا به env نرسید (%.0f%%). نمونه: %s. "
+            "محتمل‌ترین علت: پایان‌خطِ فایل به LF تبدیل شده و cmd.exe "
+            "یک‌درمیان می‌خواند — با CRLF بازش گردان و پروسه را دوباره بالا بیاور."
+            % (sf.get("file_count", 0), source, sf.get("missing_count", 0),
+               100.0 * float(sf.get("ratio", 0.0)),
+               ", ".join(sf.get("missing_sample") or []) or "-")])
+    except Exception:  # noqa: BLE001
+        pass
+
 def snapshot(flags_path, out_path, env=None, extra=None) -> dict:
     """وضعیتِ بارگذاری‌شده را ثبت می‌کند. سرِ boot صدا زده شود، یک‌بار."""
     file_flags, stats = parse_flags_file(flags_path)
@@ -156,6 +214,18 @@ def snapshot(flags_path, out_path, env=None, extra=None) -> dict:
         # هر بار چند «removed»ِ کاذب می‌دهد — یعنی پروبِ همیشه‌قرمز.
         "file_flags": sorted(k for k in file_flags if _tracked(k)),
     }
+    # مقایسهٔ «فایل چه تعریف کرده» با «چه چیزی واقعاً به env رسید» — همان دو
+    # عددی که از قبل کنارِ هم نوشته می‌شدند و کسی مقایسه‌شان نمی‌کرد.
+    try:
+        doc["load_shortfall"] = sf = load_shortfall(file_flags, env_flags)
+        if sf.get("alarm"):
+            _alert_shortfall(sf, flags_path)
+    except Exception:  # noqa: BLE001 — رصد هرگز boot را نمی‌کشد
+        # `_alert_shortfall` خودش هم محافظ دارد، ولی صداکننده نباید به
+        # خوش‌رفتاریِ صداشونده تکیه کند: یک refactor ِ آینده که استثنا نشت
+        # بدهد، این‌جا کلِ پروسه را زمین می‌زد. پیکربندیِ ناقص بد است؛
+        # پروسه‌ای که به‌خاطرِ *گزارشِ* آن بالا نیامد بدتر.
+        doc.setdefault("load_shortfall", {"alarm": False, "error": True})
     if extra:
         doc.update(extra)
     out = Path(out_path)

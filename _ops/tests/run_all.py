@@ -640,6 +640,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_tg_send_receipt_schema.py",       # رسیدِ ارسال: bot_role+surface+state سه‌حالتی (gate 8)
     "test_redact_before_archive.py",        # redact قبل از hold (boundary-3: نشت در آرشیو)
     "test_tg_409_rival_poller.py",           # تشخیصِ pollerِ رقیب روی باتِ مرکز (boundary-12)
+    "test_flag_load_shortfall.py",             # پیکربندیِ نصفه سرِ boot داد بزند (فروپاشیِ ۰۹:۰۷)
     "test_tg_poll_health.py",                # گوشِ مرده دیده شود: هر دورِ getUpdates ثبت + هشدارِ کوری
     "test_tg_voice_worker.py",               # ویسِ کند روی نخِ کارگر، نه روی حلقهٔ poll
     "test_tg_model_cache.py",                 # مدل یک‌بار بار شود، نه به‌ازای هر ویس
