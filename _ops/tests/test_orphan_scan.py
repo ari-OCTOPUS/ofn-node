@@ -31,6 +31,49 @@ import orphan_scan as osc   # noqa: E402
 _R = osc.scan()
 
 
+# ── درختِ نحوی یک‌بار پارس می‌شود، نه به‌ازای هر یتیم ─────────────────────────
+# ۲۰۲۶-۰۸-۰۱: بعد از بستنِ نقطهٔ کورِ اسکنر، شمارِ یتیم‌ها ۲۰ → ۷۱ شد و همین
+# حلقه ۷۱ بار روی ~۴۵۰ فایل دوید — سوییت پیش از پایانش تایم‌اوت می‌گرفت.
+# منطقِ سنجش دست‌نخورده است؛ فقط پارس یک‌بار انجام می‌شود.
+_TREES: "dict | None" = None
+
+
+def _trees() -> dict:
+    global _TREES
+    if _TREES is not None:
+        return _TREES
+    import warnings
+    out = {}
+    for f in _OPS.rglob("*.py"):
+        if set(f.parts) & {"tests", "_code", "__pycache__"}:
+            continue
+        if f.name.startswith("test_"):
+            continue
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", SyntaxWarning)
+                out[f] = ast.parse(f.read_text("utf-8"))
+        except (OSError, SyntaxError, ValueError, UnicodeDecodeError):
+            continue
+    _TREES = out
+    return out
+
+def _bound(tree) -> set:
+    """نام‌هایی که در این فایل با import بسته شده‌اند (با alias).
+
+    تنها این نام‌ها می‌توانند در `X.attr` به یک **ماژول** اشاره کنند؛ هر نامِ
+    دیگری متغیرِ محلی است."""
+    out = set()
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Import):
+            for a in n.names:
+                out.add(a.asname or a.name.split(".")[-1])
+        elif isinstance(n, ast.ImportFrom):
+            for a in n.names:
+                out.add(a.asname or a.name)
+    return out
+
+
 def _callers(stem: str) -> int:
     """شمارشِ مستقل — نه از کدِ زیرِ آزمون.
 
@@ -41,18 +84,9 @@ def _callers(stem: str) -> int:
 
     عمداً **سخت‌گیرتر** از اسکنر است: رشته‌های ثابت (importِ پویا) را شاهد
     نمی‌گیرد. پس اگر اختلافی باشد، در جهتِ امنِ «تست شاهدِ کمتری می‌بیند» است."""
-    import warnings
     n = 0
-    for f in _OPS.rglob("*.py"):
-        if set(f.parts) & {"tests", "_code", "__pycache__"} or f.stem == stem:
-            continue
-        if f.name.startswith("test_"):
-            continue
-        try:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", SyntaxWarning)
-                tree = ast.parse(f.read_text("utf-8"))
-        except (OSError, SyntaxError, ValueError, UnicodeDecodeError):
+    for f, tree in _trees().items():
+        if f.stem == stem:
             continue
         hit = False
         for node in ast.walk(tree):
@@ -64,7 +98,13 @@ def _callers(stem: str) -> int:
                     hit = True
             elif isinstance(node, ast.Attribute):
                 v = node.value
-                if isinstance(v, ast.Name) and v.id == stem:
+                # ۰۸-۰۱ — `X.attr` فقط وقتی شاهد است که `X` را importی در همین
+                # فایل بسته باشد. بدونِ این شرط یک پارامترِ هم‌نام کافی بود:
+                # `action_boundary.py` پارامتری به نامِ `opportunity` دارد و
+                # `opportunity.get(...)` صدا می‌زند، پس این شمارنده ماژولِ
+                # `world_discovery/opportunity.py` را «صداشده» می‌دید و اسکنرِ
+                # درست را «هشدارِ کاذب» می‌خواند. سایه‌اندازیِ نام ≠ ارجاع.
+                if isinstance(v, ast.Name) and v.id == stem and stem in _bound(tree):
                     hit = True
             if hit:
                 break
