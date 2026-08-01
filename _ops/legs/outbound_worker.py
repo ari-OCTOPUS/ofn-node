@@ -18,6 +18,11 @@ fallback ِ Gmail (`GMAIL_ADDRESS`/`GMAIL_APP_PASSWORD` ِ موجود در `.env
     may_release (deny «daily-cap») + همین worker (کمربندِ CAP_REACHED **قبل از**
     release/settle — بازبینی ۰۷-۳۱: سقف‌خورده هرگز settle نمی‌شود).
     شمارنده فقط با sent=True ِ تأییدشدهٔ transport بالا می‌رود.
+  · GAP-2 (۲۰۲۶-۰۸-۰۱): بدنهٔ ایمیل باید **مبلغِ ثبت‌شدهٔ کوت** را داشته باشد.
+    منبع فقط `breakdown.total_incl_gst` ِ رکوردِ lead-quote.v1 (یا همان عدد در
+    `proposal.payload.price_range_aud`) — بدونِ هیچ re-compute. کوتِ بی‌مبلغ
+    ارسال نمی‌شود: skip + رسیدِ `no-price:<دلیل>` + alert به مالک (نه ارسالِ
+    بی‌قیمت، نه سکوت). خطِ opt-out (الزامِ انطباق) دست‌نخورده می‌مانَد.
 
 stdlib-only در خودِ این ماژول.
 """
@@ -229,27 +234,101 @@ def _candidate_from_inbox(lead_id: str):
         return None, ""
 
 
+# ── قیمت در بدنهٔ ایمیل (GAP-2، ۲۰۲۶-۰۸-۰۱) ──────────────────────────────────
+# تا امروز بدنهٔ ایمیلِ مشتری فقط `intake.scope` بود — یعنی «کوت»ی که هیچ عددی
+# نداشت. عدد از هوا ساخته نمی‌شود و **هرگز دوباره محاسبه نمی‌شود**: تنها منبعِ
+# مجاز همان چیزی است که `lead_quote.create_quote` پایدار کرده —
+# `breakdown.total_incl_gst` (بازهٔ [lo, hi] ِ شاملِ GST، خروجیِ
+# `pricing.estimate_price`). مسیرِ دومِ **همان** عدد
+# `proposal.payload.price_range_aud` است (نوشتهٔ `lead_leg.draft_quote` از روی
+# همان bd_dict). re-compute ممنوع است چون نرخ‌های `pricing.py` تغییر می‌کنند و
+# آن‌وقت عددِ ایمیل با عددِ ثبت‌شدهٔ کوت یکی نمی‌ماند — مشتری و دفتر دو عدد
+# متفاوت می‌بینند.
+AUD_PREFIX = "A$"
+
+
+def _finite(v):
+    """floatِ متناهی یا None. bool عدد نیست؛ رشتهٔ عددی پذیرفته می‌شود."""
+    import math as _math   # noqa: WPS433
+    if isinstance(v, bool):
+        return None
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return None
+    return f if _math.isfinite(f) else None
+
+
+def _price_range(rec: dict):
+    """بازهٔ قیمتِ **ثبت‌شدهٔ** همان کوت. خروجی: ((lo, hi), "") یا (None, "<دلیل>").
+
+    دلیلِ ردشدن هرگز خالی نیست — صداکننده باید بتواند به مالک بگوید چرا این
+    کوت ایمیل نشد (سکوت = همان باگی که این گارد می‌بندد)."""
+    r = rec if isinstance(rec, dict) else {}
+    bd = r.get("breakdown")
+    src = bd.get("total_incl_gst") if isinstance(bd, dict) else None
+    if src is None:
+        prop = r.get("proposal")
+        pay = prop.get("payload") if isinstance(prop, dict) else None
+        src = pay.get("price_range_aud") if isinstance(pay, dict) else None
+    if src is None:
+        return None, "missing"
+    if not isinstance(src, (list, tuple)) or len(src) != 2:
+        return None, "malformed"
+    lo, hi = _finite(src[0]), _finite(src[1])
+    if lo is None or hi is None:
+        return None, "non-numeric"
+    if lo <= 0 or hi <= 0:
+        return None, "zero-or-negative"
+    if hi < lo:
+        return None, "inverted"
+    return (lo, hi), ""
+
+
+def format_aud(lo, hi) -> str:
+    """قالبِ پولی که مشتریِ استرالیایی انتظار دارد:
+    نمادِ `A$` (نه `$` ِ مبهم)، کامای هزارگان، دو رقمِ اعشار، و افشای صریحِ GST
+    (قیمتِ اعلامیِ مصرف‌کننده در استرالیا شاملِ GST است). بازه با en-dash؛
+    lo == hi ⇒ یک عدد، نه بازهٔ تکراری."""
+    lo_f, hi_f = float(lo), float(hi)
+    lo_s = f"{AUD_PREFIX}{lo_f:,.2f}"
+    hi_s = f"{AUD_PREFIX}{hi_f:,.2f}"
+    body = lo_s if abs(hi_f - lo_f) < 0.005 else f"{lo_s} – {hi_s}"
+    return f"{body} (incl. GST)"
+
+
 def _draft_for(attribution_id: str):
     """پیش‌نویسِ ارسال از state/legs/lead-drafts/<attribution_id>.json — best-effort.
-    فقط رکوردِ lead-quote.v1؛ نبود/خراب ⇒ None (صداکننده با رسیدِ no-draft رد می‌شود)."""
+    فقط رکوردِ lead-quote.v1.
+
+    خروجی: `(draft|None, reason)` — reason ِ خالی یعنی پیش‌نویس سالم است.
+      · نبودِ فایل / JSON خراب / schema ِ دیگر ⇒ `(None, "no-draft")`
+      · رکورد هست ولی مبلغِ ثبت‌شده ندارد (نبود/صفر/غیرعددی/وارونه) ⇒
+        `(None, "no-price:<جزئیات>")` — ایمیلِ بی‌عدد **کوت نیست**؛ صداکننده
+        skip می‌کند و مالک را خبر می‌کند، نه اینکه یک «کوت»ِ خالی بفرستد."""
     try:
         import re as _re   # noqa: WPS433
         aid = str(attribution_id or "").strip()
         if not aid:
-            return None
+            return None, "no-draft"
         safe = _re.sub(r"[^A-Za-z0-9_\-]", "-", aid)[:64]
         p = opslib.STATE_DIR / "legs" / "lead-drafts" / f"{safe}.json"
         if not p.exists():
-            return None
+            return None, "no-draft"
         rec = json.loads(p.read_text("utf-8"))
         if not isinstance(rec, dict) or rec.get("schema") != "lead-quote.v1":
-            return None
+            return None, "no-draft"
+        rng, why = _price_range(rec)
+        if rng is None:
+            return None, f"no-price:{why}"
         scope = str(((rec.get("intake") or {}).get("scope") or "")).strip()
         qt = str(rec.get("qt_number") or aid)
-        return {"subject": f"Quote {qt} — painting works",
-                "body": scope or "Please find our quotation below."}
+        body = "\n".join([scope or "Please find our quotation below.", "",
+                          f"Total price: {format_aud(rng[0], rng[1])}"])
+        return {"subject": f"Quote {qt} — painting works", "body": body,
+                "price_aud": [rng[0], rng[1]]}, ""
     except (OSError, ValueError, TypeError):
-        return None
+        return None, "no-draft"
 
 
 def drive_outbound(*, gate, now_ms: int | None = None, cap_per_beat: int = 2) -> dict:
@@ -264,6 +343,9 @@ def drive_outbound(*, gate, now_ms: int | None = None, cap_per_beat: int = 2) ->
         bridge_from_inbox شاملِ contact)؛ نبودش ⇒ skip با رسیدِ "no-candidate".
       · پیش‌نویس از lead-drafts/<attribution_id>.json؛ نبودش ⇒ skip با رسیدِ
         "no-draft" — ارسالِ بی‌پیش‌نویس ممنوع.
+      · GAP-2 (۰۸-۰۱): پیش‌نویسِ بدونِ **مبلغِ ثبت‌شده** ⇒ skip با رسیدِ
+        "no-price:<دلیل>" + alert به مالک. «کوت»ِ بی‌عدد کوت نیست؛ نه ارسالِ
+        بی‌قیمت، نه سکوت.
       · توقف در cap_per_beat (پیش‌فرض ۲) یا سقفِ روزانهٔ ۱۰.
       · consent/authz/idempotency/سقف همه داخلِ send_one دوباره حاکم‌اند —
         market_signal حتی اگر به‌زور authorize شده باشد همان‌جا deny می‌شود.
@@ -296,11 +378,22 @@ def drive_outbound(*, gate, now_ms: int | None = None, cap_per_beat: int = 2) ->
                          {"reason": "no-candidate", "lead_id": lid})
                 out["skipped"] += 1
                 continue
-            draft = _draft_for(aid)
+            draft, why = _draft_for(aid)
             if draft is None:
+                reason = why or "no-draft"
                 _receipt("send.skipped", eid,
-                         {"reason": "no-draft", "lead_id": lid,
+                         {"reason": reason, "lead_id": lid,
                           "attribution_id": aid})
+                if reason.startswith("no-price"):
+                    # GAP-2: کوتِ بی‌عدد ایمیل نمی‌شود — ولی مالک هم بی‌خبر
+                    # نمی‌مانَد. رسید همیشه نوشته می‌شود (بالا)؛ این alert
+                    # همان رسید را به چشمِ مالک می‌رسانَد. سکوت پذیرفته نیست.
+                    try:
+                        opslib.alert([f"کوتِ لید بدونِ مبلغ بود و ایمیل نشد "
+                                      f"(lead={lid}، quote={aid}، {reason}) — "
+                                      f"قیمت را در پیش‌نویس بگذار"])
+                    except Exception:  # noqa: BLE001
+                        pass
                 out["skipped"] += 1
                 continue
             r = send_one(eid, cand, draft, gate=gate, now_ms=now_ms)

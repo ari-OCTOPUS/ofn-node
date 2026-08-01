@@ -359,14 +359,22 @@ def _seed_inbox(lead_id, *, email="drv.customer@example.com",
     return p
 
 
-def _seed_draft(attribution_id, scope="Repaint of hallway, two coats."):
+def _seed_draft(attribution_id, scope="Repaint of hallway, two coats.",
+                total_incl_gst=(1980.0, 2640.0)):
     d = opslib.STATE_DIR / "legs" / "lead-drafts"
     d.mkdir(parents=True, exist_ok=True)
     p = d / f"{attribution_id}.json"
-    p.write_text(json.dumps({
-        "schema": "lead-quote.v1", "qt_number": "QT-20260731-001",
-        "attribution_id": attribution_id, "intake": {"scope": scope},
-        "draft_only": True, "sent": False}, ensure_ascii=False), "utf-8")
+    rec = {"schema": "lead-quote.v1", "qt_number": "QT-20260731-001",
+           "attribution_id": attribution_id, "intake": {"scope": scope},
+           "draft_only": True, "sent": False}
+    # GAP-2 (۰۸-۰۱): از این تاریخ کوتِ **بی‌مبلغ** ایمیل نمی‌شود — درایور با
+    # رسیدِ `no-price` skip می‌کند. فیکسچرِ قبلی هیچ breakdownی نداشت، پس t_h/t_i
+    # سرِ چیزی قرمز می‌شدند که ربطی به قراردادِ خودشان (ارسال/R1) ندارد. همان
+    # کلیدی نوشته می‌شود که `lead_quote.create_quote` از `PriceBreakdown.to_dict()`
+    # پایدار می‌کند. `None` = کوتِ عمداً بی‌مبلغ.
+    if total_incl_gst is not None:
+        rec["breakdown"] = {"total_incl_gst": list(total_incl_gst)}
+    p.write_text(json.dumps(rec, ensure_ascii=False), "utf-8")
     return p
 
 
@@ -408,6 +416,10 @@ def t_h_driver_sends_the_authorized_effect_via_the_spy_transport():
     _body = _m.get_payload(decode=True).decode("utf-8")
     assert "Repaint of hallway" in _body, \
         f"بدنهٔ پیش‌نویسِ واقعی به transport نرسید: {_body!r}"
+    # GAP-2: اگر روزی فیکسچرِ بالا دوباره بی‌مبلغ شود، این تست باید همان‌جا
+    # قرمز شود — نه اینکه بی‌صدا یک «کوت»ِ بی‌عدد را سبز بشمارد.
+    assert "A$1,980.00" in _body, \
+        f"مبلغِ ثبت‌شدهٔ کوت به بدنه نرسید (GAP-2): {_body!r}"
     assert gate.status_of(e1) == "settled", gate.status_of(e1)
     assert gate.status_of(e2) == "pending", "بی‌پیش‌نویس نباید release/settle شود"
     assert '"no-draft"' in _events_text(), "رسیدِ no-draft نوشته نشد"

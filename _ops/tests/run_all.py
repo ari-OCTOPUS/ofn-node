@@ -672,6 +672,13 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_lead_pipeline.py",                # حلقهٔ لید: کشف→تحقیق→پیش‌نویس→گیر/کارت (رأی ۱۳)
     "test_lead_send_cap.py",                # سقفِ ۱۰/روز (رأی ARM ِ مالک ۰۷-۳۱) دو-لایه
     "test_lead_outbound_transport.py",      # transport ِ SMTP: بی‌creds=NOT_ARMED صادق
+    # ۲۰۲۶-۰۸-۰۱ — سه شکافِ پیش از مسلح‌سازیِ لید + پروبِ دریافت.
+    # ثبت عمداً مرکزی است: پنج لِینِ موازی حق نداشتند run_all را دست بزنند،
+    # چون تصادمِ همین فایل امروز یک deploy را متوقف کرد.
+    "test_lead_send_notify.py",            # GAP-1: ایمیلِ رفته دیگر بی‌صدا نمی‌رود (فلگ default-off)
+    "test_lead_price_in_email.py",         # GAP-2: کوت بدونِ عدد کوت نیست
+    "test_funnel_sent.py",                 # GAP-3: /funnel «فرستاده شد» را هم نشان می‌دهد
+    "test_tg_receive_probe.py",            # پروبِ سلامتِ دریافت (رأیِ مالک ۰۸-۰۱، توکن فقط از env)
     # union از لِینِ موازی (ماینینگ/پول) — این هفت ثبت در درختِ زنده بودند
     # (پنج stage-شده، دو نه) و deploy درست حاضر نشد رویشان ff بزند. ثبت
     # افزایشی است و هر هفت فایل روی دیسک‌اند، پس union نه انتخاب.

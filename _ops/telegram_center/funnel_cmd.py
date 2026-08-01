@@ -25,11 +25,13 @@
 """
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
 _OPS = Path(__file__).resolve().parent.parent
-for _p in (str(_OPS), str(_OPS / "outcomes"), str(_OPS / "budget")):
+for _p in (str(_OPS), str(_OPS / "outcomes"), str(_OPS / "budget"),
+           str(_OPS / "legs")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
@@ -57,6 +59,168 @@ def enabled() -> bool:
 def _store():
     import funnel_store
     return funnel_store.FunnelStore()
+
+
+# ── واقعیتِ ارسالِ بیرونی (۲۰۲۶-۰۸-۰۱، شکافِ ۳ از ۳ پیش از arming) ──────────────
+# کارت تا امروز فقط برده/باخته/پول‌رسیده را می‌گفت — یعنی نیمهٔ **برگشتِ** قیف.
+# نیمهٔ **رفت** (چند تا واقعاً بیرون رفت؟ چند تا در صف است؟) هیچ‌جای تلگرام دیده
+# نمی‌شد. بعد از arming این یعنی مالک صفر دید روی خروجی دارد، در حالی که سقفِ
+# روزانه‌اش ۱۰ است. این بلوک همان دید است — و از **همان منابعی** می‌خواند که
+# نویسنده در آن‌ها می‌نویسد، نه یک انبارِ تازهٔ اختراعی.
+_NO_ANSWER = "نامعلوم"
+
+
+def _why_fa(why: str, subject: str = "شمارندهٔ ارسال") -> str:
+    """چرا نمی‌دانیم — به زبانِ مالک. «نمی‌دانم»ِ بی‌دلیل هم یک‌جور دروغ است."""
+    w = str(why or "")
+    if w in ("no-counter", "no-authz"):
+        return f"{subject} هنوز ساخته نشده"
+    if w == "corrupt":
+        return f"{subject} خراب است"
+    if w.startswith("unreadable"):
+        return f"{subject} خوانده نشد"
+    if w.startswith("no-worker") or w.startswith("no-path") or w.startswith("no-gate"):
+        return "پایِ ارسال در دسترس نیست"
+    return "دلیلش معلوم نیست"
+
+
+def _authz_path():
+    """مسیرِ دفترِ مجوزِ ارسال (`lead_effect_gate._authz_store()`).
+
+    عمداً خودِ `lead_effect_gate` import نمی‌شود: آن ماژول `consent_firewall`
+    و بقیهٔ زنجیره را می‌کشد و این کارت on-demand در حلقهٔ poll رندر می‌شود.
+    در عوض تست برابریِ این مسیر با مسیرِ خودِ گیت را قفل می‌کند، پس drift
+    قرمز می‌شود نه ساکت."""
+    import opslib   # noqa: WPS433 — budget از قبل روی sys.path است
+    return opslib.STATE_DIR / "legs" / "lead-effect-authz.json"
+
+
+def _authorized_count() -> tuple:
+    """چند effect تا حالا مجازِ ارسال شده. خروجی: (n:int|None, why:str).
+
+    ⚠️ این عدد «تا حالا» است، نه «همین الان در صف»: دفترِ مجوز بعد از ارسال
+    پاک نمی‌شود. کارت هم دقیقاً همین را می‌گوید و بیشتر ادعا نمی‌کند."""
+    try:
+        p = _authz_path()
+        raw = p.read_text("utf-8")
+    except FileNotFoundError:
+        return None, "no-authz"
+    except OSError as e:  # noqa: BLE001
+        return None, f"unreadable:{type(e).__name__}"
+    except Exception as e:  # noqa: BLE001
+        return None, f"no-gate:{type(e).__name__}"
+    try:
+        d = json.loads(raw)
+        if not isinstance(d, dict):
+            raise ValueError("authz store must be a dict")
+    except (ValueError, TypeError):
+        return None, "corrupt"
+    return sum(1 for v in d.values() if isinstance(v, dict)), "ok"
+
+
+def outbound_snapshot(*, now=None) -> dict:
+    """چند تا امروز رفت، از چه سقفی — و اگر نمی‌دانیم، صریح بگو نمی‌دانیم.
+
+    خروجی: {"today": int|None, "cap": int|None, "armed": bool|None, "why": str}
+    `today is None` یعنی **نمی‌دانم**؛ هرگز صفرِ مطمئن جای ندانستن نمی‌نشیند.
+
+    دو نکتهٔ عمدی:
+      · `outbound_worker.sends_today()` این‌جا صدا **نمی‌شود**. آن تابع عمداً
+        fail-closed است (فایلِ خراب ⇒ خودِ سقف) چون کارش جلوگیری از ارسالِ
+        اضافه است. برای یک کارتِ گزارشی همان عدد یک دروغِ تمام‌عیار است:
+        «۱۰ تا رفت» در حالی که هیچ‌کس نمی‌داند چند تا رفت.
+      · روزِ «امروز» از خودِ `_day_str` ِ نویسنده گرفته می‌شود، نه از ساعتِ
+        مستقلِ خودمان — وگرنه همان دامِ همیشگی: نویسنده محلی، خواننده UTC.
+    """
+    snap = {"today": None, "cap": None, "armed": None, "why": ""}
+    try:
+        import outbound_worker as _ow   # noqa: WPS433 — lazy: کارت on-demand است
+    except Exception as e:  # noqa: BLE001
+        snap["why"] = f"no-worker:{type(e).__name__}"
+        return snap
+    try:
+        snap["cap"] = int(_ow.LEAD_DAILY_SEND_CAP)
+    except Exception:  # noqa: BLE001
+        snap["cap"] = None
+    try:
+        snap["armed"] = bool(_ow.enabled())
+    except Exception:  # noqa: BLE001
+        snap["armed"] = None
+    try:
+        p = _ow._counter_path()
+        raw = p.read_text("utf-8")
+    except FileNotFoundError:
+        snap["why"] = "no-counter"
+        return snap
+    except OSError as e:  # noqa: BLE001 — قفل/دسترسی/دیسک: ندانستن، نه صفر
+        snap["why"] = f"unreadable:{type(e).__name__}"
+        return snap
+    except Exception as e:  # noqa: BLE001
+        snap["why"] = f"no-path:{type(e).__name__}"
+        return snap
+    try:
+        d = json.loads(raw)
+        if not isinstance(d, dict):
+            raise ValueError("counter must be a dict")
+        n = max(0, int(d.get("sent", 0)))
+        day = str(d.get("date") or "")
+    except (ValueError, TypeError):
+        snap["why"] = "corrupt"
+        return snap
+    if day != _ow._day_str(now):
+        # شمارنده هست ولی مالِ روزِ دیگری است ⇒ امروز واقعاً صفر (rollover).
+        snap["today"], snap["why"] = 0, "rollover"
+    else:
+        snap["today"], snap["why"] = n, "ok"
+    return snap
+
+
+def _sent_lines(m, *, now=None, no_ledger: str = "دفترِ قیف خوانده نشد") -> list:
+    """بلوکِ «رفت» برای کارت. `m` = متریکِ قیف یا None (دفتر در دسترس نبود).
+
+    `no_ledger` دلیلِ نبودِ دفتر است — «خوانده نشد» و «اصلاً پرسیده نشد» دو
+    چیزند و یکی‌کردنشان همان دروغی است که این شکاف را ساخت.
+    هیچ شناسه، هیچ آدرس، هیچ نامِ مشتری — فقط شمار و وضعیت (رأیِ PII).
+    """
+    snap = outbound_snapshot(now=now)
+    cap = snap.get("cap")
+    cap_txt = str(cap) if isinstance(cap, int) else "؟"
+    today = snap.get("today")
+    if today is None:
+        lines = [f"▸ ارسالِ امروز: {_NO_ANSWER} — {_why_fa(snap.get('why'))} "
+                 f"· سقفِ روزانه: {cap_txt}"]
+    else:
+        lines = [f"▸ ارسالِ امروز: {today} از {cap_txt}"]
+        if isinstance(cap, int) and today >= cap:
+            lines.append("▸ سقفِ امروز پر شده — تا فردا چیزی بیرون نمی‌رود.")
+    if snap.get("armed") is False:
+        lines.append("▸ لولهٔ ارسال خاموش است — پس هیچ ارسالی ممکن نیست.")
+    ok_n = None
+    if isinstance(m, dict):
+        by = m.get("events_by_type") or m.get("by_event") or m.get("counts") or {}
+        ok_n = int(by.get("communication.sent", 0) or 0)
+        bad_n = int(by.get("communication.failed", 0) or 0)
+        lines.append(f"▸ در دفتر: {ok_n} ارسالِ تأییدشده · {bad_n} ناموفق")
+        # `send_pending` فقط وقتی نشان داده می‌شود که واقعاً چیزی در دفتر باشد.
+        # امروز هیچ‌کس `effect.released` را در funnel.db نمی‌نویسد (گیت آن را در
+        # `events.jsonl` می‌زند)، پس چاپِ «در صف: 0» یک صفرِ مطمئنِ بی‌پشتوانه
+        # بود: مالک می‌خواند «هیچ در صف نیست» در حالی که دفتر اصلاً صف را
+        # نمی‌شناسد. اگر روزی نویسنده‌ای پیدا شد، این خط خودش برمی‌گردد.
+        waiting = int((m.get("leads_by_state") or {}).get("send_pending", 0) or 0)
+        if waiting:
+            lines.append(f"▸ در صف: {waiting} منتظرِ ارسال")
+    else:
+        lines.append(f"▸ کل ارسالِ دفتر: {_NO_ANSWER} — {no_ledger}.")
+    n_auth, why_a = _authorized_count()
+    if n_auth is None:
+        lines.append(f"▸ مجازِ ارسال: {_NO_ANSWER} — "
+                     f"{_why_fa(why_a, 'دفترِ مجوزِ ارسال')}")
+    elif ok_n is None:
+        lines.append(f"▸ مجازِ ارسال: {n_auth} تا حالا")
+    else:
+        lines.append(f"▸ مجازِ ارسال: {n_auth} تا حالا · حداکثر "
+                     f"{max(0, n_auth - ok_n)} هنوز نرفته")
+    return lines
 
 
 def record(verb: str, lead_id: str, note: str = "") -> dict:
@@ -112,13 +276,18 @@ def handle(text: str) -> str:
             "▸ نکنی: هیچ.")
 
 
-def card() -> str:
+def card(*, now=None) -> str:
     """کارتِ قیف: چه می‌دانیم و چه نمی‌دانیم."""
     if not enabled():
-        return ("📈 <b>قیفِ لید: خاموش</b>\n"
-                "▸ نتیجهٔ بازار هیچ‌جا ثبت نمی‌شود — یعنی ارگانیسم هرگز "
-                "نمی‌فهمد کدام لید برنده شد.\n"
-                "▸ نکنی: همین‌طور می‌ماند.")
+        # بلوکِ «رفت» به فلگِ قیف بند نیست: شمارندهٔ ارسال منبعِ دیگری دارد.
+        # اگر این‌جا هم نیاید، کارتِ خاموش می‌شود سیاه‌چالهٔ کاملِ خروجی —
+        # یعنی مالک ۱۰ ارسال در روز داشته باشد و کارت بگوید «هیچ».
+        return "\n".join(
+            ["📈 <b>قیفِ لید: خاموش</b>",
+             "▸ نتیجهٔ بازار هیچ‌جا ثبت نمی‌شود — یعنی ارگانیسم هرگز "
+             "نمی‌فهمد کدام لید برنده شد."]
+            + _sent_lines(None, now=now, no_ledger="دفترِ قیف خاموش است")
+            + ["▸ نکنی: همین‌طور می‌ماند."])
     try:
         st = _store()
         try:
@@ -126,8 +295,14 @@ def card() -> str:
         finally:
             st.close()
     except Exception as e:  # noqa: BLE001
-        return f"📈 قیف در دسترس نیست: {type(e).__name__}"
-    counts = m.get("by_event") or m.get("counts") or {}
+        return "\n".join([f"📈 قیف در دسترس نیست: {type(e).__name__}"]
+                         + _sent_lines(None, now=now))
+    # ⚠️ ۲۰۲۶-۰۸-۰۱: این خط `m.get("by_event") or m.get("counts")` بود و
+    # `metrics()` کلیدش `events_by_type` است — یعنی خواننده و نویسنده هرگز
+    # همدیگر را ندیده بودند و کارت **همیشه** «برده: 0 · باخته: 0» می‌داد،
+    # حتی با بردِ ثبت‌شده در دفتر. کلیدِ واقعی اول، دو کلیدِ قدیمی به‌عنوان
+    # fallback سرِ جایشان (هیچ‌چیز حذف نشد).
+    counts = m.get("events_by_type") or m.get("by_event") or m.get("counts") or {}
     won = int(counts.get("quote.won", 0) or 0)
     lost = int(counts.get("quote.lost", 0) or 0)
     paid = int(counts.get("invoice.paid", 0) or 0)
@@ -136,6 +311,7 @@ def card() -> str:
     if won + lost == 0:
         lines.append("▸ هنوز هیچ نتیجه‌ای نگفته‌ای — پس هیچ چیزی هم "
                      "قابلِ یادگیری نیست.")
+    lines += _sent_lines(m, now=now)
     lines += ["",
               "<b>افعال:</b> " + " · ".join(f"/{v}" for v in VERBS),
               "مثال: <code>/won lead-123</code>",
