@@ -78,10 +78,19 @@ def _write_json(p: Path, data: dict) -> None:
 
 
 def _age_days(ts_iso) -> float:
-    """سنِ یک approval بر حسبِ روز. ناخوانا → 0 (fail-open: تازه فرض کن تا دیده شود)."""
+    """سنِ یک approval بر حسبِ روز. ناخوانا → 0 (fail-open: تازه فرض کن تا دیده شود).
+
+    ۲۰۲۶-۰۸-۰۱ — مرکز هر دو شکل را می‌نویسد: `...T09:11:02` (بی‌منطقه) و
+    `...T09:28:48+1000` (با منطقه). کسرِ awareِ منطقه‌دار از naive در پایتون
+    TypeError است و همین‌جا بلعیده می‌شد → **هر** رکوردِ منطقه‌دار سنِ ۰ می‌گرفت،
+    یعنی پنجرهٔ RECENT_DAYS برای بیشترِ رکوردهای واقعی مرده بود (۳۰ از ۴۳ فایلِ
+    زندهٔ امروز منطقه‌دارند). درست: aware را به وقتِ محلی ببر و tzinfo را بردار.
+    """
     try:
         import datetime as _dt
         t = _dt.datetime.fromisoformat(str(ts_iso))
+        if t.tzinfo is not None:
+            t = t.astimezone().replace(tzinfo=None)
         return max(0.0, (_dt.datetime.now() - t).total_seconds() / 86400.0)
     except Exception:  # noqa: BLE001
         return 0.0

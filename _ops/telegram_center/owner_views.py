@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import time
 from typing import Any, Dict, List, Optional
 
@@ -102,9 +103,41 @@ def proposals(ops_state_root: str = DEFAULT_OPS_STATE) -> List[Dict[str, Any]]:
     return out
 
 
-def render_backlog(approvals: List[Dict[str, Any]], props: List[Dict[str, Any]]) -> str:
-    """③ کارهای من — the REAL backlog: yes/no approvals + queued proposals (what the owner sees)."""
-    if not approvals and not props:
+# ── ③ بندِ سوم — ✅هایی که مالک زده و هیچ اکشنی نگرفتند ───────────────
+def _load_actuator():
+    """approval_actuator را از `_ops/cortex` بردار (همان شیءِ ماژولِ پروسه، پس اگر
+    کدِ owner-gated ای handler ثبت کرده باشد اینجا هم دیده می‌شود)."""
+    import importlib
+    ops = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    for p in (os.path.join(ops, "cortex"), os.path.join(ops, "budget"), ops):
+        if p not in sys.path:
+            sys.path.insert(0, p)
+    return importlib.import_module("approval_actuator")
+
+
+def approved_no_action() -> Dict[str, Any]:
+    """✅هایی که مالک زده ولی هیچ اکچوایتوری مصرفشان نکرده — «حل‌شدنِ کاذبِ نامرئی».
+
+    منبع: `approval_actuator.scan()` — **فقط‌خواندنی**: هیچ فایلی نمی‌نویسد، هیچ
+    handlerی صدا نمی‌زند، هیچ پولی/ارسالی ندارد. عمداً بدونِ فلگ است چون *دیدن*
+    اکشن نیست؛ خودِ اکچوایشن (نوشتنِ marker + صدا زدنِ handler، `actuator_beat`)
+    پشتِ OCTOPUS_WIRE_ACTUATOR می‌ماند و مسلح‌کردنش رأیِ مالک است.
+    شکست/غیابِ ماژول → {n:0} (کارتْ ساکت می‌شود، هرگز crash نمی‌کند)."""
+    try:
+        s = _load_actuator().scan() or {}
+        ids = [str(x) for x in (s.get("acknowledged") or [])]
+        return {"n": len(ids), "ids": ids}
+    except Exception:
+        return {"n": 0, "ids": []}
+
+
+def render_backlog(approvals: List[Dict[str, Any]], props: List[Dict[str, Any]],
+                   unactuated: Optional[Dict[str, Any]] = None) -> str:
+    """③ کارهای من — the REAL backlog: yes/no approvals + queued proposals + the ✅s that
+    produced no action (approved_no_action). `unactuated=None` → بندِ سوم نمایش داده نمی‌شود
+    (پاریتهٔ کاملِ رفتارِ قبلی برای صداکننده‌های دو-آرگومانی)."""
+    un_ids = [i for i in ((unactuated or {}).get("ids") or [])]
+    if not approvals and not props and not un_ids:
         return "③ کارهای من: چیزی منتظرِ تو نیست ✅"
     lines = ["③ کارهای من:"]
     if approvals:
@@ -117,6 +150,10 @@ def render_backlog(approvals: List[Dict[str, Any]], props: List[Dict[str, Any]])
             pr = f"[{it['priority']}] " if it.get("priority") else ""
             src = f"  ({it['source']})" if it.get("source") else ""
             lines.append(f"  • {pr}{it['title']}{src}")
+    if un_ids:
+        lines.append(f"— ✅ زده‌ای ولی هیچ اکشنی نشد ({len(un_ids)}) — دستی پیگیری کن:")
+        for did in un_ids[:6]:
+            lines.append(f"  • {str(did)[:48]}")
     return "\n".join(lines)
 
 

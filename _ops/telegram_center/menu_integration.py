@@ -57,7 +57,10 @@ def dispatch(data: str) -> Tuple[str, Keyboard]:
         if key == "status":
             return ov.render_dashboard(ov.dashboard()), [_back_row()]
         if key == "mytasks":
-            return ov.render_backlog(ov.pending_decisions(), ov.proposals()), [_back_row()]
+            # بندِ سوم (۰۸-۰۱): ✅هایی که مالک زده و هیچ اکشنی نگرفتند. فقط‌خواندنی —
+            # دیدنشان اکچوایت نمی‌کند؛ اکچوایشن پشتِ OCTOPUS_WIRE_ACTUATOR است.
+            return (ov.render_backlog(ov.pending_decisions(), ov.proposals(),
+                                      ov.approved_no_action()), [_back_row()])
         if key == "legs":
             rows = ov.legs_status()
             kb: Keyboard = []
