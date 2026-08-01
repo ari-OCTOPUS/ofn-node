@@ -30,6 +30,7 @@
 """
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -87,6 +88,38 @@ def _log_rows():
 
 def _topic():
     return {"id": "seam-0", "source": "SEED_TOPICS", "text": topics.SEED_TOPICS[0]}
+
+
+# سه آینهٔ مستقلِ «کدام flag در profileِ بوت است». هر سه باید بررسی شوند؛ اگر یکی
+# پیدا نشد (rename/refactor) تست قرمز می‌شود، نه اینکه بی‌صدا از رویش رد شود.
+_PROFILE_MIRRORS = ("wiring.py", "budget/cockpit_readmodel.py", "dashboard/server.py")
+_OPENERS = {"(": ")", "{": "}", "[": "]"}
+
+
+def _paper_full_block(rel: str) -> str | None:
+    """متنِ **کاملِ** مجموعهٔ `PAPER_FULL_FLAGS` یک فایل — با شمارشِ متوازنِ براکت.
+
+    چرا نه پنجرهٔ کاراکتریِ ثابت: نسخهٔ اولِ این گارد ۱۲۰۰ کاراکترِ اولِ بعد از نام
+    را می‌خواند، ولی تاپلِ `wiring.py` همین امروز ۱۵۰۴ کاراکتر است — یعنی گارد از
+    قبل ~۲۰٪ کور بود و با هر flagِ تازه کورتر می‌شد. سنجیده شد: درجِ همین FLAG
+    درست پیش از پرانتزِ بسته، تست را **سبز** نگه می‌داشت. یعنی دقیقاً همان قاعده‌ای
+    که این بند قرار بود قفلش کند از ته فهرست قابلِ دور زدن بود.
+    """
+    src = (_OPS_SELF / rel).read_text("utf-8", errors="replace")
+    m = re.search(r"PAPER_FULL_FLAGS\s*=\s*([({\[])", src)
+    if not m:
+        return None
+    o = m.group(1)
+    c = _OPENERS[o]
+    depth = 0
+    for i in range(m.start(1), len(src)):
+        if src[i] == o:
+            depth += 1
+        elif src[i] == c:
+            depth -= 1
+            if depth == 0:
+                return src[m.start():i + 1]
+    return None
 
 
 def t_a_flag_off_means_stop_organism_is_ignored_by_the_spender():
@@ -230,12 +263,15 @@ def t_h_the_flag_is_off_by_default_and_out_of_the_boot_profile():
         assert opslib.kill_seam_denies() is False, "بدونِ فلگ نباید ببندد"
     finally:
         _clean()
-    for rel in ("wiring.py", "budget/cockpit_readmodel.py"):
-        src = (_OPS_SELF / rel).read_text("utf-8", errors="replace")
-        head = src.split("PAPER_FULL_FLAGS", 1)
-        if len(head) > 1:
-            block = head[1][:1200]
-            assert FLAG not in block, f"{rel}: {FLAG} نباید در PAPER_FULL_FLAGS باشد"
+    checked = 0
+    for rel in _PROFILE_MIRRORS:
+        block = _paper_full_block(rel)
+        if block is None:
+            continue
+        checked += 1
+        assert FLAG not in block, f"{rel}: {FLAG} نباید در PAPER_FULL_FLAGS باشد"
+    assert checked == len(_PROFILE_MIRRORS), (
+        f"گاردِ profile کور شد: فقط {checked} از {len(_PROFILE_MIRRORS)} آینه خوانده شد")
 
 
 if __name__ == "__main__":
