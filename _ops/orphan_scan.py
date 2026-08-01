@@ -38,6 +38,10 @@ for _p in (str(_HERE), str(_HERE / "budget")):
 SCHEMA = "orphan-scan.v1"
 CARD_TITLE = "🔌 ساخته‌شده ولی وصل‌نشده"
 _SKIP = {"tests", "_code", ".git", "__pycache__", "_Archive", "_Duplicates",
+         # union از لِینِ موازی (۰۸-۰۱): `.claude` ~۵.۵GB و ۶۷k فایل در
+         # ۱۸ worktree است که ۹۶٪ رونوشت‌اند — اسکنشان هم کند است هم
+         # نتیجه را با کپی‌های خودمان آلوده می‌کند.
+         ".claude", "worktrees",
          "eval", "smoke"}
 
 # ماژول‌هایی که یتیم‌بودنشان طبیعی است — نقطهٔ ورودی یا ابزارِ دستی‌اند.
@@ -56,7 +60,16 @@ _WEIGHTY = re.compile(
 def _files() -> list:
     out = []
     for f in sorted(_HERE.rglob("*.py")):
-        if set(f.parts) & _SKIP or f.name.startswith("test_"):
+        # ⚠️ نسبت به ریشهٔ اسکن، نه مسیرِ مطلق. لِینِ موازی `.claude` و
+        # `worktrees` را به _SKIP اضافه کرد (درست: ۵.۵GB رونوشت) ولی با
+        # parts ِ مطلق، هر اجرایی از داخلِ یک worktree خودش را حذف می‌کرد
+        # — `checked: 0` و گزارشِ «صفر یتیم»، یعنی سکوتی که سلامت خوانده
+        # می‌شود. مسیرِ نسبی در هر دو درخت درست کار می‌کند.
+        try:
+            _rel_parts = set(f.relative_to(_HERE).parts)
+        except ValueError:
+            _rel_parts = set(f.parts)
+        if _rel_parts & _SKIP or f.name.startswith("test_"):
             continue
         out.append(f)
     return out
