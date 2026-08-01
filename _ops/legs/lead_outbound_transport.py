@@ -28,6 +28,25 @@
   · یک تلاش، بدونِ retry، timeout ثابت ۲۰s. شمارندهٔ سقفِ روزانه فقط با sent=True
     (outbound_worker.record_send) بالا می‌رود.
 
+📣 اعلانِ ارسال به مالک (GAP-1، ۲۰۲۶-۰۸-۰۱ — پشتِ `OCTOPUS_WIRE_LEAD_SEND_NOTIFY`):
+   تا امروز یک ایمیلِ **موفق** به لید هیچ صدایی در تلگرام نداشت — فقط یک رسید در
+   events.jsonl، یک ردیف در funnel.db و یک ++ روی شمارنده. تنها هشدارِ این قوس
+   (`outbound_worker.py:193`) وقتی می‌خواند که گیت باز شد ولی transport **نفرستاد**؛
+   یعنی اولین ایمیلِ واقعی به یک مشتریِ واقعی در سکوتِ کامل می‌رفت.
+   مرزها:
+     · سیستمِ اعلانِ دومی ساخته نمی‌شود. تحویل از همان کانالِ اثبات‌شده‌ای می‌رود که
+       `organism`/`c6_trigger`/`instant_alert_bridge` استفاده می‌کنند:
+       `wiring.make_telegram_channel()` → `send_text(text, None, stream="lead")`.
+       پس ساعتِ سکوت، HOLD، redaction، رسیدِ tg-send-log و مسیریابیِ تاپیک همه
+       همان‌هایی‌اند که مالک قبلاً تصویب کرده.
+     · **هرگز** ارسال را برنمی‌گرداند و هرگز نمی‌کُشد: ایمیل رفته است؛ اعلانِ گم‌شده
+       ضررِ کوچک‌تری از ایمیلِ تکراری دارد. کلِ مسیر بعد از ثبتِ funnel و شمارنده
+       می‌آید و در یک try/except مطلق است.
+     · انضباطِ PII: فقط **دامنهٔ** گیرنده (نه آدرس، نه local-part ِ ماسک‌شده).
+     · فلگ خاموش (پیش‌فرض) = بایت‌به‌بایتِ امروز؛ صفر خواندن، صفر رسید، صفر import.
+       فلگ روشن = «ثبت همیشه، گیت فقط روی تحویل»: هر نتیجه (تحویل/ناموفق/بی‌کانال)
+       یک رسیدِ `communication.notified` می‌گذارد تا سه سکوتِ متفاوت یکی نشوند.
+
 تزریق‌پذیر: send_impl (برای تست، جای smtplib) و now. stdlib-only.
 """
 from __future__ import annotations
@@ -45,6 +64,18 @@ import opslib   # noqa: E402
 import mail_credentials   # noqa: E402 — هم‌پوشه؛ حلِ نام، بدونِ I/O شبکه
 
 SMTP_TIMEOUT_S = 20.0
+
+# ── اعلانِ ارسال (GAP-1) ──────────────────────────────────────────────────────
+# فلگِ نو، پیش‌فرض **خاموش** و عمداً بیرونِ wiring.PAPER_FULL_FLAGS: مسلح‌کردنش
+# تصمیمِ مالک است، نه پروفایل، نه ایجنت.
+NOTIFY_FLAG = "OCTOPUS_WIRE_LEAD_SEND_NOTIFY"
+# جریانِ مسیریابی: همان «lead» که `lead_pipeline` کارتِ لیدش را با آن می‌فرستد و
+# `approval_channel._STREAM_TOPIC` می‌شناسدش. نامِ تازه نمی‌سازیم — جریانِ ناشناخته
+# یعنی مسیرِ ناشناخته.
+NOTIFY_STREAM = "lead"
+# ایزولهٔ bidi برای تکه‌های LTR (شناسه/دامنه/شمارهٔ کوت) داخلِ متنِ فارسی — منشور UX-9.
+_LRI, _PDI = "\u2066", "\u2069"
+_FA_DIGITS = str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")
 
 
 def _events() -> Path:
@@ -92,6 +123,21 @@ def mask_recipient(addr: str) -> str:
     if not dom:
         return "***"
     return (local[:2] + "***@" + dom) if local else ("***@" + dom)
+
+
+def recipient_domain(addr: str) -> str:
+    """**فقط** دامنهٔ گیرنده — local-part هرگز از این تابع بیرون نمی‌آید.
+
+    `mask_recipient` برای رسیدِ فنی است و دو حرفِ اولِ local-part را نگه می‌دارد؛
+    اعلانِ تلگرام سخت‌گیرتر است چون در یک چت می‌نشیند و برای همیشه آن‌جا می‌ماند.
+    ورودیِ بی‌`@` (یا دامنهٔ خالی) ⇒ «unknown» — نه خودِ رشته. اگر این‌جا به
+    rpartition ِ لخت تکیه شود، «hunter2» بی‌`@` عیناً به‌عنوان «دامنه» چاپ می‌شود."""
+    a = str(addr or "").strip()
+    _local, sep, dom = a.rpartition("@")
+    dom = dom.strip().lower()
+    if not sep or not dom:
+        return "unknown"
+    return dom
 
 
 def _norm_email(addr: str) -> str:
@@ -217,17 +263,149 @@ def _build_message(from_addr: str, to_addr: str, draft) -> str:
     return msg.as_string()
 
 
-def _bump_send_counter(now=None) -> None:
+def _bump_send_counter(now=None) -> "int | None":
     """شمارندهٔ سقفِ روزانه فقط با ارسالِ تأییدشده بالا می‌رود (رأی مالک ۲۰۲۶-۰۷-۳۱: ۱۰).
-    منبعِ شمارنده outbound_worker است (کنارِ LEAD_DAILY_SEND_CAP). fail-soft + alert."""
+    منبعِ شمارنده outbound_worker است (کنارِ LEAD_DAILY_SEND_CAP). fail-soft + alert.
+
+    خروجی (نو، ۰۸-۰۱): شمارِ **جدیدِ** امروز، یا None اگر ثبت نشد. فقط اعلان از آن
+    استفاده می‌کند؛ هیچ تصمیمی به آن وابسته نیست، پس مسیرِ ارسال دست‌نخورده است."""
     try:
         import outbound_worker as _ow   # noqa: WPS433 — lazy، هم‌پوشه
-        _ow.record_send(now=now)
+        _n = _ow.record_send(now=now)
     except Exception:  # noqa: BLE001
         try:
             opslib.alert(["lead transport: sent ولی شمارندهٔ سقف ثبت نشد — بررسی کن"])
         except Exception:  # noqa: BLE001
             pass
+        return None
+    try:
+        return int(_n)
+    except (TypeError, ValueError):
+        return None
+
+
+# ── اعلانِ «ایمیل واقعاً رفت» به مالک (GAP-1) ───────────────────────────────────
+def notify_enabled() -> bool:
+    """فلگِ اعلان — پیش‌فرض خاموش. خاموش = بایت‌به‌بایتِ رفتارِ امروز."""
+    return str(os.environ.get(NOTIFY_FLAG, "") or "").strip().lower() in (
+        "1", "true", "yes", "on")
+
+
+def _esc(s) -> str:
+    """گریزِ HTML — کانالِ تلگرام با parse_mode=HTML می‌فرستد؛ `<` ِ خام پیام را می‌شکند."""
+    return (str(s if s is not None else "")
+            .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
+
+
+def _ltr(s) -> str:
+    """تکهٔ LTR داخلِ متنِ فارسی — بدونِ ایزوله، `QT-20260801-003` وارونه دیده می‌شود."""
+    return _LRI + str(s if s is not None else "") + _PDI
+
+
+def _fa(n) -> str:
+    """رقمِ فارسی برای عددهای متن (نه برای شناسه‌ها). None ⇒ «؟» — نه صفر."""
+    return "؟" if n is None else str(n).translate(_FA_DIGITS)
+
+
+def _qt_number(draft) -> str:
+    """شمارهٔ کوت از draft. ترتیب: کلیدِ صریحِ `qt_number` → الگویِ
+    `QT-YYYYMMDD-NNN` ِ lead_quote داخلِ سوژه (چیزی که
+    `outbound_worker._draft_for` می‌سازد) → «unknown». هرگز حدس، هرگز استثنا."""
+    try:
+        import re as _re   # noqa: WPS433 — stdlib، lazy
+        if isinstance(draft, dict):
+            qt = str(draft.get("qt_number") or "").strip()
+            if qt:
+                return qt[:40]
+            text = str(draft.get("subject") or "")
+        else:
+            text = str(draft or "")
+        m = _re.search(r"QT-\d{8}-\d+", text)
+        if m:
+            return m.group(0)
+        m = _re.search(r"Quote\s+(\S+)", text)
+        if m:
+            return m.group(1)[:40]
+    except Exception:  # noqa: BLE001
+        pass
+    return "unknown"
+
+
+def _daily_cap() -> "int | None":
+    """سقفِ روزانه از خودِ outbound_worker (تک‌منبع). نبود ⇒ None، نه عددِ حدسی —
+    عددِ حدسی یعنی گزارشِ «۳ از ۱۰» وقتی سقف واقعاً چیزِ دیگری است."""
+    try:
+        import outbound_worker as _ow   # noqa: WPS433 — lazy، هم‌پوشه
+        return int(_ow.LEAD_DAILY_SEND_CAP)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def notify_text(lead_id: str, domain: str, qt: str, sent_today, cap) -> str:
+    """متنِ اعلان. چهار چیزی که مالک لازم دارد و **نه بیشتر**: کدام لید، دامنهٔ
+    گیرنده (نه آدرس)، شمارهٔ کوت، و شمارِ امروز در برابرِ سقف."""
+    return ("📤 <b>ایمیلِ لید فرستاده شد</b> — اطلاع است، نه درخواستِ رأی\n"
+            f"🆔 لید: <code>{_ltr(_esc(lead_id))}</code>\n"
+            f"✉️ دامنهٔ گیرنده: <code>{_ltr(_esc(domain))}</code> "
+            "(آدرسِ کامل عمداً نوشته نمی‌شود)\n"
+            f"📄 کوت: <code>{_ltr(_esc(qt))}</code>\n"
+            f"📊 امروز: {_fa(sent_today)} از {_fa(cap)}")
+
+
+def _owner_channel():
+    """کانالِ اثبات‌شدهٔ تحویل به مالک — همان کارخانهٔ `wiring.make_telegram_channel`
+    که organism/c6_trigger/deep_think استفاده می‌کنند. بدونِ توکن None می‌دهد.
+
+    عمداً یک لوله‌ی تازه ساخته نمی‌شود: سیستمِ اعلانِ دوم یعنی دو مسیرِ ارسال که
+    یکی‌شان همیشه از سیاستِ مالک (ساعتِ سکوت/HOLD/redaction) عقب می‌ماند."""
+    try:
+        _p = str(_HERE.parent)
+        if _p not in sys.path:
+            sys.path.insert(0, _p)
+        import wiring as _w   # noqa: WPS433 — lazy؛ فقط وقتی فلگ روشن است
+        return _w.make_telegram_channel()
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _deliver(text: str) -> str:
+    """تحویلِ واقعی. خروجی: DELIVERED | UNDELIVERED | NO_CHANNEL. هرگز raise."""
+    ch = _owner_channel()
+    if ch is None or not hasattr(ch, "send_text"):
+        return "NO_CHANNEL"
+    try:
+        ok = bool(ch.send_text(text, None, stream=NOTIFY_STREAM))
+    except TypeError:
+        # کانالِ قدیمی بدونِ `stream` — به DM برو، نه به سکوت (الگوی instant_alert_bridge).
+        ok = bool(ch.send_text(text))
+    return "DELIVERED" if ok else "UNDELIVERED"
+
+
+def notify_sent(lead_id: str, to_addr: str, draft, *, sent_today=None) -> dict:
+    """اعلانِ یک ارسالِ **تأییدشده** به مالک. همیشه dict، هرگز استثنا.
+
+    قاعدهٔ «ثبت همیشه، گیت فقط روی تحویل»: با فلگِ روشن، هر خروجی — حتی نبودِ
+    کانال — یک رسیدِ `communication.notified` می‌گذارد. بدونِ آن، «نرفت چون
+    کانال نبود» و «نرفت چون تلگرام ۴۰۰ داد» یک شکل می‌شوند: هیچ.
+
+    خروجی: {"notified": bool, "status": str}
+    statusها: DELIVERED | UNDELIVERED | NO_CHANNEL | FLAG_OFF | NOTIFY_ERROR
+    """
+    if not notify_enabled():
+        return {"notified": False, "status": "FLAG_OFF"}
+    domain = qt = "unknown"
+    try:
+        domain = recipient_domain(to_addr)
+        qt = _qt_number(draft)
+        cap = _daily_cap()
+        status = _deliver(notify_text(str(lead_id or "unknown"), domain, qt,
+                                      sent_today, cap))
+    except Exception as e:  # noqa: BLE001 — اعلان هرگز صداکننده را نمی‌کشد
+        status = f"NOTIFY_ERROR:{type(e).__name__}"
+    _receipt("communication.notified", lead_id,
+             {"status": status, "channel": "telegram", "stream": NOTIFY_STREAM,
+              "to_domain": domain, "qt_number": qt, "sent_today": sent_today})
+    return {"notified": status == "DELIVERED", "status": status}
 
 
 def send(candidate: dict, draft, *, now=None, send_impl=None) -> dict:
@@ -298,7 +476,15 @@ def send(candidate: dict, draft, *, now=None, send_impl=None) -> dict:
                  {"status": "SENT", "channel": "email", "to": mask_recipient(to_addr)})
         _funnel_record("communication.sent", lead_id,
                        {"channel": "email", "to": mask_recipient(to_addr)})
-        _bump_send_counter(now=now)
+        _sent_today = _bump_send_counter(now=now)
+        # ── اعلانِ مالک (GAP-1) — **آخرین** کارِ مسیر، بعد از هر ثبتِ پایدار ────
+        # ترتیب عمدی است: شمارنده اول بالا می‌رود تا عددِ اعلان شاملِ همین ارسال
+        # باشد. try/except مطلق است چون ایمیل همین حالا رفته — هیچ خطای اعلانی
+        # حق ندارد status را عوض کند یا استثنا بدهد (اعلانِ گم‌شده < ایمیلِ تکراری).
+        try:
+            notify_sent(lead_id, to_addr, draft, sent_today=_sent_today)
+        except Exception:  # noqa: BLE001
+            pass
         return {"sent": True, "status": "SENT", "detail": f"to={mask_recipient(to_addr)}"}
     except Exception as e:  # noqa: BLE001 — transport هرگز caller را نمی‌کشد
         return {"sent": False, "status": "FAILED", "detail": f"transport-error:{type(e).__name__}"}
