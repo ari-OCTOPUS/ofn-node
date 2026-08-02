@@ -34,8 +34,36 @@ import harness  # noqa: E402
 
 ENV = harness.setup("miniapp-ops-readmodel")
 
+# انبارِ Ops را **قبل از** هر import به یک پوشهٔ موقت پین کن — وگرنه این تست
+# sqlite ِ زندهٔ درختِ کاری را می‌خواند و «برشِ لیدها» با «برشِ کارها» تصادفاً
+# یکی می‌شود (هر دو صفر) و جهش نمی‌تواند بکشدش.
+_OPS_RT = tempfile.mkdtemp(prefix="ops-readmodel-")
+os.environ["OCTOPUS_OPS_RUNTIME_DIR"] = _OPS_RT
+os.environ["OCTOPUS_OPS_DB_PATH"] = str(Path(_OPS_RT) / "ops.sqlite3")
+os.environ["OCTOPUS_OPS_AUDIT_PATH"] = str(Path(_OPS_RT) / "audit.jsonl")
+os.environ["OCTOPUS_OPS_IDEMPOTENCY_PATH"] = str(Path(_OPS_RT) / "idem.sqlite3")
+
 import miniapp_gateway as mg  # noqa: E402
 import miniapp_state as ms  # noqa: E402
+
+
+def _seed():
+    """۲ لید و ۱ کار — تا leads_total ≠ tasks_total و برش‌ها قابلِ‌تمیز باشند."""
+    from agi2027_control.ops_actions import OpsActionEngine  # noqa: WPS433
+    eng = OpsActionEngine(ms._ROOT)
+    try:
+        owner = {"is_owner": True}
+        eng.execute("lead.create", {"handle": "@a", "stage": "new"}, owner,
+                    action_id="seed-lead-a")
+        eng.execute("lead.create", {"handle": "@b", "stage": "warm"}, owner,
+                    action_id="seed-lead-b")
+        eng.execute("task.create", {"title": "پیگیری", "kind": "followup"}, owner,
+                    action_id="seed-task-a")
+    finally:
+        eng.close()
+
+
+_seed()
 
 NOW = 1_785_400_000.0
 TOKEN = "123456789:AA" + "y" * 32          # توکنِ **جعلیِ** تستی
@@ -327,6 +355,9 @@ def t_obsidian_never_echoes_the_reference_dir_value():
 # ── ۶. زیرمسیرها = برشِ دقیقِ همان بخش ───────────────────────────────────────
 def t_each_sub_endpoint_matches_its_slice_of_api_ops():
     full = _get("/api/ops")
+    # پیش‌شرطِ خودِ تست: دو شمارنده باید متفاوت باشند وگرنه تطابق بی‌معنی است.
+    assert full["leads_total"] == 2 and full["tasks_total"] == 1, \
+        (full["leads_total"], full["tasks_total"])
     b = _get("/api/ops/brain")
     assert b["section"] == "brain" and b["status"] == "ok", b
     assert b["brain"] == full["brain"], "برشِ brain با /api/ops یکی نیست"
