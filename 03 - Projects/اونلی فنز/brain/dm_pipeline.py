@@ -37,13 +37,36 @@ except ImportError:  # pragma: no cover
 DM_CHANNELS = ("of", "fansly", "feetfinder", "reddit", "x")
 
 # پاریته با acquisition_pipeline._BANNED_COPY — containment/rule #6/PII guard.
+# نرمال‌سازِ سبکِ فارسی — خالص، stdlib، خودبسنده (عمداً import نمی‌شود: هر گارد
+# باید مستقل بایستد؛ importِ fail-soft یعنی گاردی که بی‌صدا بی‌دندان می‌شود).
+_FA_TRANS = str.maketrans({"ي": "ی", "ى": "ی", "ك": "ک", "‌": "", "ـ": ""})
+
+
+def _fa_norm(text: str) -> str:
+    """کوچک‌سازی + یکسان‌سازیِ ی/ک عربی + حذفِ نیم‌فاصله/کشیده."""
+    return str(text or "").translate(_FA_TRANS).lower()
+
+
+# چرا فهرست دوزبانه است (لِین B · 2026-08-03): تطبیق substring روی `.lower()`
+# است و `str.lower()` روی فارسی بی‌اثر — پس «paypal» بلاک می‌شد ولی «پی‌پال»،
+# «کارت به کارت» و «شبا» از همین گارد رد می‌شدند. برای DM این مهم‌ترین درز است:
+# rule #3 می‌گوید پرداخت فقط درون‌پلتفرم، و درفت‌های فارسی از آن معاف بودند.
+# «استرالیا/استرالیایی» عمداً اضافه نشده — مثلِ Aussie کشوری و مجاز است.
 _BANNED_DM = (
     "اونلی", "onlyfans", "fansly", "صبا", "saba",
+    "انلی فنز", "اونلی فنز", "اونلی‌فنز", "فنسلی",
     "sydney", "سیدنی", "harbour", "harbor", "bondi", "nsw", "melbourne", "opera house",
+    "ملبورن", "تهران", "sidney", "sydeny",
     "persian", "iranian",
+    "ایران", "ایرانی", "پارسی", "پرشین", "فارسی", "farsi", "irani", "persion",
     # DM-specific: هرگز به بیرون از پلتفرم هدایت نکن (rule #3 — payment only in-platform).
     "paypal", "cashapp", "venmo", "bank transfer", "crypto", "bitcoin", "usdt",
     "wire", "zelle", "western union",
+    # همان مسیرها به فارسی. توجه: «شبا» زیررشتهٔ «شباهت/شبانه» هم هست ⇒ ممکن است
+    # درفتِ بی‌خطری را flag کند. عمداً نگه داشته شده: rule #3 قفل‌شده است و flagِ
+    # اضافی فقط یک بازنویسیِ انسانی هزینه دارد، ولی درزِ پرداخت هزینه‌اش حساب است.
+    "بیت کوین", "بیت‌کوین", "بیتکوین", "پی پال", "پی‌پال", "پیپال",
+    "تتر", "حواله", "رمزارز", "شبا", "کارت به کارت", "کریپتو",
 )
 _FLAG = "(DM flagged: containment/rule#3/rule#6 — بازنویسی لازم)"
 
@@ -97,8 +120,10 @@ class DmPipeline:
     # ── DM copy guard (rule #3 + #6 / containment / PII) ─────────────────
     @staticmethod
     def _copy_ok(text: str) -> bool:
-        low = (text or "").lower()
-        return not any(b in low for b in _BANNED_DM)
+        # نرمال‌سازی قبل از تطبیق: «پي‌پال» با ی عربی و «پی‌پال» با نیم‌فاصله باید
+        # یکی شمرده شوند. نگاشت روی لاتین بی‌اثر ⇒ رفتارِ واژه‌های لاتین دست‌نخورده.
+        low = _fa_norm(text)
+        return not any(_fa_norm(b) in low for b in _BANNED_DM)
 
     @classmethod
     def _dm_clean(cls, body: str, subject: str = "") -> bool:

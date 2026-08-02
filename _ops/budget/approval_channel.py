@@ -3093,6 +3093,16 @@ class TelegramApprovalChannel(ApprovalChannel):
         ("crypto",       "📈 Crypto",         None,                        "business"),
         ("accounting",   "🧾 Accounting",     None,                        "business"),
         ("knowledge",    "📚 Knowledge",      None,                        "business"),
+        # 2026-08-03: این فهرست **هاردکد** است و از `_BUSINESS_LEGS_SPEC` مشتق
+        # نمی‌شود — پس هر پای تازه‌ای که به رجیستریِ پاها اضافه شود، این‌جا
+        # نامرئی می‌ماند (امروز `sync_agent` و `studio_pf` هر دو قربانی بودند).
+        # گاردِ ساختاری در `_ops/tests/test_leg_registry_parity.py` نشست تا
+        # قاعده بسته شود نه فقط این گپ. برچسب خنثی است (قاعدهٔ #۷ پروژه).
+        ("studio_pf",    "🎬 Project-F",      None,                        "business"),
+        # ⚠️ `sync_agent` عمداً این‌جا **نیامد**: در درختِ زنده به رجیستریِ پاها اضافه
+        # شده (هانکِ کامیت‌نشده) ولی تاپیکِ گروه ندارد، و `test_leg_parity.t_a`
+        # استثنا نمی‌پذیرد — درست هم هست: اندامِ بی‌تاپیک حرفش در General می‌افتد.
+        # وقتی لِینِ خودش تاپیک را ساخت، این ردیف اضافه شود (گاردِ parity یادآوری می‌کند).
     )
     _DIV = "\n➖➖➖➖➖\n"
 

@@ -179,7 +179,7 @@ class TestSabaLink(unittest.TestCase):
     def test_send_to_saba_creates_file(self):
         ok = SL.send_to_saba("hi from pf_os")
         self.assertTrue(ok)
-        msgs = json.loads((Path(self._tmp.name) / "for_saba.json").read_text())
+        msgs = json.loads((Path(self._tmp.name) / "for_saba.json").read_text(encoding="utf-8"))
         self.assertEqual(len(msgs), 1)
         self.assertEqual(msgs[0]["text"], "hi from pf_os")
         self.assertFalse(msgs[0]["read"])
@@ -191,7 +191,7 @@ class TestSabaLink(unittest.TestCase):
     def test_send_to_saba_caps_at_50(self):
         for i in range(60):
             SL.send_to_saba(f"msg {i}")
-        msgs = json.loads((Path(self._tmp.name) / "for_saba.json").read_text())
+        msgs = json.loads((Path(self._tmp.name) / "for_saba.json").read_text(encoding="utf-8"))
         self.assertEqual(len(msgs), 50)
         # آخرین‌ها باقی مانده
         self.assertEqual(msgs[-1]["text"], "msg 59")
@@ -199,7 +199,7 @@ class TestSabaLink(unittest.TestCase):
     def test_send_brief(self):
         ok = SL.send_brief(["line1", "line2"])
         self.assertTrue(ok)
-        msgs = json.loads((Path(self._tmp.name) / "for_saba.json").read_text())
+        msgs = json.loads((Path(self._tmp.name) / "for_saba.json").read_text(encoding="utf-8"))
         self.assertIn("بریف", msgs[0]["text"])
 
     def test_send_notify(self):
@@ -242,7 +242,7 @@ class TestSabaLink(unittest.TestCase):
         draft = {"title": "some title"}
         out = SL.on_new_draft(draft)
         self.assertIsNotNone(out)
-        msgs = json.loads((Path(self._tmp.name) / "for_saba.json").read_text())
+        msgs = json.loads((Path(self._tmp.name) / "for_saba.json").read_text(encoding="utf-8"))
         self.assertEqual(len(msgs), 1)
         self.assertIn("kind", msgs[0])
         self.assertEqual(msgs[0]["kind"], "draft_ack")

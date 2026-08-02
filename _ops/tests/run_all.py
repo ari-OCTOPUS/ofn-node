@@ -346,6 +346,13 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_wiring_cleanup.py", "test_deadwrite_readers.py",
          # 2026-07-15: تست‌های نوِ راست‌گویی/کابین + دو orphanِ ziman (سبز، ثبت‌نشده بودند)
          "test_business_legs_shape.py", "test_correlation_id_generated.py",
+         # 2026-08-03 (رأیِ مالک «اختاپوس یادش بمونه»): پای Project-F از فهرستِ
+         # business_legs غایب بود ⇒ ۱۲ مصرف‌کننده نمی‌دیدندش. چهار گاردِ جهش‌آزموده:
+         # content-free (#۷) · سه‌حالتیِ صادق · live فقط با مهرِ انسانی · ثبت در رجیستری.
+         "test_studio_pf_leg.py",
+         # 2026-08-03: گاردِ **کلاسِ** باگ — رجیستریِ پاها سه جاست و از هم مشتق
+         # نمی‌شود؛ هر پای تازه که به یکی اضافه شود و به بقیه نه، نامرئی می‌ماند.
+         "test_leg_registry_parity.py",
          "test_channel_status_stale_not_green.py", "test_cockpit_truthful.py",
          "test_tg_exec_consumer.py",
          "test_ziman_wiring.py", "test_ziman_biology.py",
@@ -675,6 +682,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_tg_brief.py",                     # بریفِ صبح/شب + لینکِ تاپیک (رأی ۱۱)
     "test_tg_ask_vault.py",                 # سؤال-از-vault با منبع (رأی ۹)
     "test_miniapp_gateway.py",              # گیتِ initData ِ Mini App (رأی ۲۲)
+    # ۲۰۲۶-۰۸-۰۳ (GO ِ مالک، PROP-D5 فاز ۱): کارت‌های read-only ِ Project-F.
+    # چهار گاردِ جهش‌آزموده: flag-off=404 · دیوارِ auth · content-free (قاعدهٔ #۷) ·
+    # سه‌حالتیِ صادق (فایلِ غایب = unknown، نه صفرِ جعلی).
+    "test_pf_miniapp.py",
     "test_tg_leg_activation.py",            # قالبِ پای فعال‌شونده + گاردِ صفر-template
     "test_tg_weekly_review.py",             # مرورِ هفتگیِ شنبه (رأی ۱۲ + §۹)
     "test_tg_question_budget.py",           # بودجهٔ ۳۰-سؤال/هفته (رأی ۲۴)

@@ -941,7 +941,8 @@ class LangarBot:
         except Exception as e:  # noqa: BLE001
             return f"❌ code error: {type(e).__name__}"
 
-
+    # ── DM ورودی ──
+    def _dm_inbox(self, text: str) -> str:
         """incoming DM از مشتری → FAQ auto-draft (HITL — هیچ auto-send)."""
         try:
             sys.path.insert(0, str(PROJECT_ROOT / "brain"))

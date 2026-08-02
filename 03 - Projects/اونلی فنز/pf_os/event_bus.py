@@ -43,7 +43,15 @@ _EVENT_RE = re.compile(r"^[a-z]+\.[a-z]+\.[a-z_]+$")
 # 2026-07-25: این لیست وظیفه‌اش scrub کردنِ نشانه‌های حساس است، نه ذخیرهٔ هویت.
 # "اونلی/onlyfans" = containmentِ پلتفرم. نامِ شخصِ real از فایلِ gitignored خوانده
 # می‌شود (PF_PII_BLOCKLIST) تا در کد هاردکد نباشد. در اینجا فقط نشانه‌های structural.
-_BANNED_ECHO_BASE = ("اونلی", "onlyfans")
+#
+# دوزبانه (لِین B · 2026-08-03): «اونلی» شکل‌های «اونلی فنز/اونلی‌فنز» را هم
+# می‌گیرد، ولی املای بدونِ واو و نامِ پلتفرمِ دوم به فارسی از فهرست بیرون بودند.
+#
+# حلِ تلاقیِ merge (۲۰۲۶-۰۸-۰۳): دو املای تازه **نشانهٔ پلتفرم**‌اند نه شخص، پس
+# طبقِ همان قاعدهٔ ۰۷-۲۵ اینجا می‌مانند. ولی تکْ‌نامِ شخصی که نسخهٔ لِین B هنوز
+# هاردکد داشت عمداً برنگشت — جایش همان فایلِ gitignored است؛ برگرداندنش یعنی
+# نوشتنِ یک نامِ واقعی در تاریخچهٔ دائمیِ گیت، که §۱۰ منعش می‌کند.
+_BANNED_ECHO_BASE = ("اونلی", "onlyfans", "انلی فنز", "فنسلی")
 import os as _os
 _blocklist = _os.environ.get("PF_PII_BLOCKLIST", "")
 _BANNED_ECHO = _BANNED_ECHO_BASE
@@ -54,6 +62,10 @@ if _blocklist and _os.path.isfile(_blocklist):
             _BANNED_ECHO = _BANNED_ECHO_BASE + _extra
     except OSError:
         pass
+
+# نگاشتِ ۱:۱ ی/ک عربی → فارسی. عمداً **بدونِ** حذفِ نیم‌فاصله/کشیده، چون این
+# تابع باید طولِ رشته را حفظ کند تا آفست‌های `norm` روی `out` معتبر بمانند.
+_FA_CHARS = str.maketrans({"ي": "ی", "ى": "ی", "ك": "ک"})
 
 # نگاشتِ رویدادِ taxonomy → ۷ نامِ legacyِ loggerِ مرکزی (fail-soft mirror)
 _LEGACY_MAP = {
@@ -67,11 +79,25 @@ _span_var: contextvars.ContextVar[str] = contextvars.ContextVar("pf_span", defau
 
 
 def _scrub(text: str) -> str:
-    """حذفِ رشته‌های ممنوع از هر خروجی (containment). fail-soft."""
+    """حذفِ رشته‌های ممنوع از هر خروجی (containment). fail-soft.
+
+    دو پاس: (۱) تحت‌اللفظی — همان رفتارِ قبلی، بایت‌به‌بایت؛ (۲) روی شکلِ نرمالِ
+    **هم‌طول** (ی/ک عربی → فارسی) تا «اونلي» هم مثلِ «اونلی» گرفته شود.
+    چرا هم‌طول: خروجیِ این تابع در `make_event` به `json.loads` داده می‌شود، پس
+    نه می‌شود کلِ رشته را redact کرد (JSON خراب می‌شود) و نه طول را به‌هم زد؛
+    نگاشت ۱:۱ آفست‌ها را معتبر نگه می‌دارد. متنِ پاک دست‌نخورده برمی‌گردد.
+    """
     out = str(text)
     for b in _BANNED_ECHO:
         if b and b in out:
             out = out.replace(b, "▇")
+    norm = out.translate(_FA_CHARS)
+    for b in _BANNED_ECHO:
+        bn = b.translate(_FA_CHARS)
+        while bn and bn in norm:
+            i = norm.index(bn)
+            out = out[:i] + "▇" + out[i + len(bn):]
+            norm = out.translate(_FA_CHARS)
     return out
 
 

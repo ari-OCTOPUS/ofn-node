@@ -52,10 +52,36 @@ except Exception:  # noqa: BLE001 — fallback نیست؟ heuristic-off، ولی
 
 # ─── PII scrubbing (طبقِ dual_brain_v3::FORBIDDEN_TERMS + langar::OpsecGuard) ──
 # این نقاطِ کلیدیِ قراردادِ containment هستند. هرگز محتوای raw به cortex نرود.
+# معادل‌های فارسی/فینگلیش (لِین B · 2026-08-03).
+# چرا اینجا و نه فقط از FORBIDDEN_TERMS: (۱) تطبیق substring روی `.lower()` است و
+# `str.lower()` روی فارسی بی‌اثر — «a trip to Sydney» reject می‌شد ولی «سفر به
+# سیدنی» مستقیم به cortex می‌رفت؛ (۲) importِ بالای این فایل fail-soft است
+# (`except` → `FORBIDDEN_TERMS = []`)، پس اگر dual_brain_v3 لود نشود کلِ scrub
+# بی‌دندان می‌ماند. این فهرست به هیچ importی وابسته نیست.
+# **هیچ نامِ شخصیِ تازه‌ای اینجا اضافه نمی‌شود** — سطرِ نام‌ها دست‌نخورده است.
+# «استرالیا/استرالیایی» عمداً نیست — کشوری و مجاز.
+_FA_SCRUB_TERMS = [
+    "تهران", "خاورمیانه", "سیدنی", "sidney", "sydeny",
+    "ایران", "ایرانی", "پارسی", "پرشین", "فارسی", "farsi", "irani", "persion",
+    "انلی فنز", "اونلی فنز", "اونلی‌فنز", "فنسلی",
+    "آدرس", "اسم واقعی", "ایمیل", "شماره تلفن", "نام واقعی",
+    "بیت کوین", "بیت‌کوین", "پی پال", "پی‌پال", "پیپال", "حواله",
+    "رمزارز", "کارت به کارت", "کریپتو",
+]
+
 _SCRUB_TERMS = list(FORBIDDEN_TERMS) + [
     "anar", "amber", "yalda", "arch",  # brand candidates
     "ari", "saba",  # operator/creator names
-]
+] + _FA_SCRUB_TERMS
+
+# نرمال‌سازِ سبکِ فارسی — خالص، stdlib، خودبسنده (عمداً import نمی‌شود: هر گارد
+# باید مستقل بایستد؛ importِ fail-soft یعنی گاردی که بی‌صدا بی‌دندان می‌شود).
+_FA_TRANS = str.maketrans({"ي": "ی", "ى": "ی", "ك": "ک", "‌": "", "ـ": ""})
+
+
+def _fa_norm(text: str) -> str:
+    """کوچک‌سازی + یکسان‌سازیِ ی/ک عربی + حذفِ نیم‌فاصله/کشیده."""
+    return str(text or "").translate(_FA_TRANS).lower()
 
 
 def scrub_for_cortex(text: str) -> str:
@@ -66,10 +92,12 @@ def scrub_for_cortex(text: str) -> str:
     """
     if not text:
         return ""
-    t = str(text).lower()
+    # نرمال‌سازی فقط برای **تشخیص**؛ متنِ برگشتی همان ورودیِ خام است.
+    # نگاشت روی لاتین بی‌اثر ⇒ رفتارِ واژه‌های لاتین بایت‌به‌بایت دست‌نخورده.
+    t = _fa_norm(text)
     # اگر هر کلمه‌ی ممنوعه‌ای در متن است، reject کلی
     for term in _SCRUB_TERMS:
-        if term and term in t:
+        if term and _fa_norm(term) in t:
             return ""  # سیگنال به caller: scrub نتوانست، fallback بزن
     # محدود کردن طول (هرگز بیش از ۲۰۰ کاراکتر)
     return str(text).strip()[:200]
@@ -210,9 +238,9 @@ class BrainCore:
         if len(t) > 350:
             t = t[:347] + "…"
         # اگر LLM از کلمه‌ی ممنوعه‌ای استفاده کرد، scrub
-        tl = t.lower()
+        tl = _fa_norm(t)
         for bad in _SCRUB_TERMS:
-            if bad and bad in tl:
+            if bad and _fa_norm(bad) in tl:
                 return self._heuristic_saba_response(intent)
         return t
 

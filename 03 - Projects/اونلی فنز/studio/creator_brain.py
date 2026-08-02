@@ -61,13 +61,38 @@ FUGU_URL = "https://api.sakana.ai/v1/chat/completions"
 FUGU_MODEL = "fugu-ultra-20260615"
 FUGU_TIMEOUT = 45
 
-# ─── FORBIDDEN_TERMS (هم‌خوان با brain/dual_brain_v3.py:33-37) ──────────────
+# ─── FORBIDDEN_TERMS (هم‌خوان با brain/dual_brain_v3.py::FORBIDDEN_TERMS) ───
+# چرا دوزبانه (لِین B · 2026-08-03): این گارد روی **خروجیِ LLM** می‌نشیند و طبقِ
+# SYSTEM_PROMPT خروجی عمداً فارسی است — ولی تطبیق substring روی `.lower()` بود و
+# `str.lower()` روی فارسی بی‌اثر. یعنی دقیقاً در زبانی که مدل حرف می‌زند، گارد
+# خاموش بود: «Sydney» بلاک می‌شد ولی «سیدنی» به خالق برمی‌گشت (rule #6).
+# «استرالیا/استرالیایی» عمداً اضافه نشده — کشوری و مجاز؛ بن‌کردنش over-blocking است.
 FORBIDDEN_TERMS = [
     "persian", "sydney", "iran", "tehran", "middle east",
     "real name", "address", "phone", "email",
     "paypal", "crypto", "bank transfer", "p2p",
     "onlyfans",  # containment: هرگز در پاسخ نباشد
+    # ── شهر/جغرافیا ──
+    "تهران", "خاورمیانه", "سیدنی", "sidney", "sydeny",
+    # ── قومیت/زبان ──
+    "ایران", "ایرانی", "پارسی", "پرشین", "فارسی", "farsi", "irani", "persion",
+    # ── نامِ پلتفرم (containment) ──
+    "انلی فنز", "اونلی فنز", "اونلی‌فنز", "فنسلی",
+    # ── PII ──
+    "آدرس", "اسم واقعی", "ایمیل", "شماره تلفن", "نام واقعی",
+    # ── مسیرِ پرداختِ خارج‌پلتفرم (rule #3) ──
+    "بیت کوین", "بیت‌کوین", "پی پال", "پی‌پال", "پیپال", "حواله",
+    "رمزارز", "کارت به کارت", "کریپتو",
 ]
+
+# نرمال‌سازِ سبکِ فارسی — خالص، stdlib، خودبسنده (عمداً import نمی‌شود: هر گارد
+# باید مستقل بایستد؛ importِ fail-soft یعنی گاردی که بی‌صدا بی‌دندان می‌شود).
+_FA_TRANS = str.maketrans({"ي": "ی", "ى": "ی", "ك": "ک", "‌": "", "ـ": ""})
+
+
+def _fa_norm(text: str) -> str:
+    """کوچک‌سازی + یکسان‌سازیِ ی/ک عربی + حذفِ نیم‌فاصله/کشیده."""
+    return str(text or "").translate(_FA_TRANS).lower()
 
 # ─── intent classification (بدون LLM — keyword matching) ──────────────────
 _INTENT_KEYWORDS = {
@@ -132,11 +157,13 @@ class GuardLayer:
         """بعد از دریافت از LLM. (safe, text_or_reason)."""
         if not text:
             return False, "[empty]"
-        t = str(text).lower()
-        violations = [term for term in FORBIDDEN_TERMS if term in t]
+        # نرمال‌سازی قبل از تطبیق ⇒ «سيدني» با ی عربی هم گرفته می‌شود.
+        # نگاشت روی لاتین بی‌اثر ⇒ رفتارِ واژه‌های لاتین دست‌نخورده می‌ماند.
+        t = _fa_norm(text)
+        violations = [term for term in FORBIDDEN_TERMS if _fa_norm(term) in t]
         if violations:
             return False, f"[blocked: {','.join(violations[:3])}]"
-        # red-flag پرداختِ خارج‌پلتفرم
+        # red-flag پرداختِ خارج‌پلتفرم (فارسی‌اش در FORBIDDEN_TERMS بالا هست)
         payment_red_flags = ["paypal", "crypto", "bitcoin", "bank transfer",
                              "send me money", "direct transfer"]
         for flag in payment_red_flags:

@@ -2962,6 +2962,11 @@ _BUSINESS_LEGS_SPEC = (
     ("crypto", "crypto_leg", "crypto_status"),
     ("accounting", "accounting_leg", "accounting_status"),
     ("knowledge", "knowledge_leg", "knowledge_status"),
+    # 2026-08-03 (رأیِ مالک «هرکاری می‌کنن اختاپوس یادش بمونه»): پای Project-F تا امروز
+    # در این فهرست **نبود** — نه زنده گزارش می‌شد نه مرده، یعنی در خودآگاهیِ ارگانیسم
+    # وجود نداشت (همان بیماریِ ۰۷-۲۵ که برای `lead` بالا ثبت شده). status فقط‌خواندنی،
+    # fail-soft و **content-free** است (مرزِ قاعدهٔ #۷: صفر متن/هویت، فقط شمار).
+    ("studio_pf", "studio_pf_leg", "studio_pf_status"),
 )
 
 
