@@ -70,6 +70,7 @@ _DRIVER = r"""
 "use strict";
 const fs = require("fs");
 const APP = process.argv[2], INDEX = process.argv[3], SCENARIO = process.argv[4], FIXTURE = process.argv[5];
+const SUBARG = process.argv[5] || "";
 const out = {scenario: SCENARIO};
 
 const registry = new Map();
@@ -385,6 +386,47 @@ try {
     out.content = html("content");
   }
 
+  else if(SCENARIO === "honesty_edges"){
+    // چهار لبهٔ صداقت که هیچ سناریوی دیگری لمس نمی‌کند، در یک بار:
+    //  · بخشی که **آرایه** است (فهرست یک وضعیت نیست) ⇒ نامعلوم، نه سبز
+    //  · obsidian با نُتِ غایب ⇒ degraded — شکلِ زندهٔ امروز missing_count=0
+    //    است، پس شاخهٔ «بد» را هیچ فیکسچرِ زنده‌ای نمی‌سنجد
+    //  · read-only + بک‌اندِ configured ⇒ Owner Auth هرگز «سالم» نیست
+    //  · مقدارِ آمده از بک‌اند با markup ⇒ escape‌شده رندر شود
+    windowStub.Telegram = undefined;
+    const ops = Object.assign({}, OPS_BARE, {
+      brain: ["step-1", "step-2"],
+      obsidian: {missing_count: 3, checked: 11},
+      governor: {detail: '<img src=x onerror="boom()">&<b>bold</b>'}});
+    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: ops}};
+    boot(); await flush();
+    out.content = html("content");
+  }
+
+  else if(SCENARIO === "error_body_is_not_cached"){
+    // پاسخِ HTTP 200 با بدنهٔ {status:"error"} یک پاسخِ **سالم** نیست. اگر کش
+    // شود، دفعهٔ بعد با برچسبِ «آخرین به‌روزرسانیِ سالم» بازپخش می‌شود — یعنی
+    // خطا به‌عنوانِ آخرین حالتِ خوب به مالک نشان داده می‌شود.
+    withOwner();
+    routes = {"/api/state": {body: STATE_OK},
+              "/api/ops": {body: {status: "error", reason: "ops_boom_marker"}}};
+    boot(); await flush();
+    out.cache_raw = store.get("octopus.cockpit.cache.v1") || "";
+  }
+
+  else if(SCENARIO === "deep_link"){
+    // دکمهٔ web_app یِ `/ops` مینی‌اپ را با `#tab=` باز می‌کند. سه حالت:
+    // کلیدِ معتبر ⇒ همان تب؛ کلیدِ جعلی ⇒ home؛ بدونِ فرگمنت ⇒ home.
+    withOwner();
+    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: OPS_BARE}};
+    windowStub.location = {hash: SUBARG || ""};
+    boot(); await flush();
+    out.content = html("content");
+    out.boot_tab = windowStub.__cockpit.bootTab();
+    out.tab_active = tabsEl.children.filter(x => x.classList.contains("active"))
+                                    .map(x => x.getAttribute("data-tab"));
+  }
+
   else { out.error = "unknown scenario"; }
 } catch(e){ out.error = String(e && e.stack || e); }
 process.stdout.write(JSON.stringify(out));
@@ -413,7 +455,7 @@ def _driver_path() -> Path:
 
 
 def run_scenario(name: str, app_js: "Path | None" = None,
-                 fixture: "Path | None" = None) -> dict:
+                 fixture: "Path | str | None" = None) -> dict:
     exe = _node()
     app = str(app_js or APP_JS)
     cmd = [exe, str(_driver_path()), app, str(INDEX_HTML), name]
@@ -768,6 +810,81 @@ def t_x_a_subendpoint_envelope_status_never_becomes_the_sections_health():
     assert 'data-state="degraded"' in d["brain_tab"], d["brain_tab"][:400]
     assert 'data-state="ok"' not in d["brain_tab"], "پاکتِ status:ok به سلامتِ بخش نشت کرد"
     assert "daemon_state.json غایب" in d["brain_tab"], "دلیل به مالک نشان داده نشد"
+
+
+def t_y_an_array_section_is_unknown_and_missing_notes_are_degraded():
+    """دو شاخه‌ای که فیکسچرِ زندهٔ امروز اتفاقاً لمس نمی‌کند.
+
+    هر دو با جهش‌آزمایی پیدا شدند و هر دو زنده مانده بودند — نه چون گارد کور
+    است، بلکه چون پایهٔ فیکسچر از قبل همان نتیجه را می‌داد (`missing_count=0`
+    ⇒ ok). «جهشِ سبز = خطِ نادیده»: موردِ زیرِ سطحِ هدف لازم است."""
+    d = run_scenario("honesty_edges")
+    tl = tiles(d["content"])
+    assert tl["4D Brain"][2] == "unknown", ("فهرست یک وضعیت نیست", tl["4D Brain"])
+    assert tl["4D Brain"][1] != "live"
+    assert tl["Obsidian"][2] == "degraded", ("۳ نُتِ غایب سبز شد", tl["Obsidian"])
+    assert tl["Obsidian"][1] != "live"
+    assert "3 غایب از 11" in d["content"], "شمارِ نُت‌های غایب به مالک گفته نشد"
+
+
+def t_z_readonly_never_claims_full_owner_auth():
+    """بک‌اند می‌گوید configured، ولی این نشست initData ندارد.
+
+    «سالم» گفتن یعنی نشان‌دادنِ جمله‌ای (`configured + initData`) که در همان
+    لحظه دروغ است — و دقیقاً روی نشانگرِ اختیارِ مالک."""
+    d = run_scenario("honesty_edges")
+    tl = tiles(d["content"])
+    assert tl["Owner Auth"][2] == "degraded", tl["Owner Auth"]
+    assert tl["Owner Auth"][1] != "live"
+    assert "configured ولی بدونِ initData" in d["content"], "دلیل به مالک گفته نشد"
+
+
+def t_zz_backend_values_are_html_escaped_before_they_are_painted():
+    """`esc()` یک گارد است، پس باید جهشی داشته باشد که بکُشدش.
+
+    مقدارها از read-model می‌آیند (متنِ vault، نُتِ لید، مسیرِ obsidian)؛ اگر
+    escape برداشته شود، markup داخلِ WebView ِ تلگرام اجرا می‌شود — همان‌جا که
+    initData در دسترس است."""
+    d = run_scenario("honesty_edges")
+    c = d["content"]
+    assert "&lt;img src=x onerror=&quot;boom()&quot;&gt;" in c, "مقدارِ بک‌اند escape نشد"
+    assert "<img src=x" not in c, "markup ِ خام وارد DOM شد"
+    assert "<b>bold</b>" not in c, "تگِ خام از مقدارِ بک‌اند رد شد"
+
+
+def t_zzz_an_error_body_is_never_written_to_the_local_cache():
+    """کش «آخرین پاسخِ سالم» است، نه «آخرین پاسخ».
+
+    یک 200 با بدنهٔ {status:"error"} اگر کش شود، بعداً با برچسبِ
+    «آخرین به‌روزرسانیِ سالم» بازپخش می‌شود — کهنه‌بودن را صادقانه می‌گوید ولی
+    دربارهٔ سالم‌بودن دروغ می‌گوید."""
+    d = run_scenario("error_body_is_not_cached")
+    raw = d["cache_raw"]
+    assert '"/api/state"' in raw, "کش اصلاً چیزی ننوشت — این تست آن‌وقت بی‌معنا است"
+    assert "ops_boom_marker" not in raw, "بدنهٔ خطا کش شد و بعداً «آخرین حالتِ سالم» می‌شود"
+    assert '"/api/ops"' not in raw, "مسیرِ خطادار وارد کش شد"
+
+
+def t_zzzz_a_telegram_deep_link_opens_the_named_tab_and_nothing_else():
+    """`/ops` دکمهٔ web_app می‌سازد با `#tab=`.
+
+    center.py خودش مستند کرده بود که «app.js امروز location.hash را
+    نمی‌خواند» — یعنی دکمه زده می‌شد و همیشه کاکپیت باز می‌شد. یک
+    درزِ بینِ دو لِین که هیچ کدام به تنهایی قرمز نمی‌شد."""
+    d = run_scenario("deep_link", fixture="#tab=brain")
+    assert d["boot_tab"] == "brain", d["boot_tab"]
+    assert d["tab_active"] == ["brain"], d["tab_active"]
+    assert "4D Brain" in d["content"], d["content"][:300]
+
+    # کلیدِ جعلی هرگز تب نمی‌شود (وگرنه activeTab مسموم و صفحه خالی)
+    d2 = run_scenario("deep_link", fixture="#tab=__proto__")
+    assert d2["boot_tab"] == "home", d2["boot_tab"]
+    assert "Cockpit" in d2["content"], d2["content"][:300]
+
+    # بدونِ فرگمنت = دقیقاً رفتارِ دیروز
+    d3 = run_scenario("deep_link", fixture="")
+    assert d3["boot_tab"] == "home", d3["boot_tab"]
+    assert "Cockpit" in d3["content"], d3["content"][:300]
 
 
 if __name__ == "__main__":

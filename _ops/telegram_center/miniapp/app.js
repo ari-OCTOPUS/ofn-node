@@ -809,13 +809,30 @@
                    registry:renderRegistry, truth:renderTruth};
   function render(name){ (renderers[name]||renderHome)(); }
 
+  // عمق-لینکِ تلگرام ───────────────────────────────────
+  // دکمه‌های web_app یِ `/ops` مینی‌اپ را با `#tab=<key>` باز می‌کنند.
+  // تا امروز این فرگمنت خوانده نمی‌شد (center.py خودش مستند کرده
+  // بود: «app.js امروز location.hash را نمی‌خواند») — یعنی دکمه می‌زدی
+  // و همیشه کاکپیت باز می‌شد. فقط کلیدِ موجود در `renderers` پذیرفته
+  // می‌شود — رشتهٔ دلخواهِ URL هرگز مستقیم به تب ترجمه نمی‌شود.
+  // نبودِ فرگمنت یا کلیدِ ناشناخته = دقیقاً رفتارِ دیروز (home).
+  function bootTab(){
+    try {
+      var h = String((window.location && window.location.hash) || "");
+      var m = /[#&]tab=([a-z_0-9]{1,24})/.exec(h);
+      if(m && Object.prototype.hasOwnProperty.call(renderers, m[1])) return m[1];
+    } catch(e){}
+    return "home";
+  }
+
   // boot
   setAuth(devMode ? "dev-mode" : "…");
   banners("");
-  render("home");
+  gotoTab(bootTab());
 
   // برای تست/دیباگ از داخلِ همان صفحه — فقط توابعِ خالص، بدونِ هیچ داده‌ای.
   window.__cockpit = {triState:triState, badgeClass:badgeClass, boardStates:boardStates,
                       nbaRows:nbaRows, nbaHeadline:nbaHeadline, runCommand:runCommand,
-                      gotoTab:gotoTab, scheduleRefresh:scheduleRefresh, COMMANDS:COMMANDS};
+                      gotoTab:gotoTab, scheduleRefresh:scheduleRefresh, COMMANDS:COMMANDS,
+                      bootTab:bootTab};
 })();

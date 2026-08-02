@@ -44,9 +44,10 @@ pre{white-space:pre-wrap;word-break:break-word;font-size:11px;color:var(--muted)
 .tile{border:1px solid var(--border);border-radius:8px;padding:8px;background:#151823}
 .tile .tl{font-size:12px;color:var(--text);margin-bottom:4px}
 .tile .td{font-size:11px;color:var(--muted);margin-top:4px;word-break:break-word}
-.tile.live{border-color:rgba(61,220,132,.45)}
-.tile.staged{border-color:rgba(255,181,71,.45)}
-.tile.unknown{border-style:dashed}
+/* کلاسِ واقعیِ ساخته‌شده در boardHtml() پیشوندِ st- دارد؛ بدونِ آن این سه قاعده مرده بودند. */
+.tile.st-live{border-color:rgba(61,220,132,.45)}
+.tile.st-staged{border-color:rgba(255,181,71,.45)}
+.tile.st-unknown{border-style:dashed}
 
 /* Next Best Action */
 .nba-head{font-size:13px;margin-bottom:8px}
