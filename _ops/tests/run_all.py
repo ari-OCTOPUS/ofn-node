@@ -667,6 +667,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_tg_brief.py",                     # بریفِ صبح/شب + لینکِ تاپیک (رأی ۱۱)
     "test_tg_ask_vault.py",                 # سؤال-از-vault با منبع (رأی ۹)
     "test_miniapp_gateway.py",              # گیتِ initData ِ Mini App (رأی ۲۲)
+    # ۲۰۲۶-۰۸-۰۳ (GO ِ مالک، PROP-D5 فاز ۱): کارت‌های read-only ِ Project-F.
+    # چهار گاردِ جهش‌آزموده: flag-off=404 · دیوارِ auth · content-free (قاعدهٔ #۷) ·
+    # سه‌حالتیِ صادق (فایلِ غایب = unknown، نه صفرِ جعلی).
+    "test_pf_miniapp.py",
     "test_tg_leg_activation.py",            # قالبِ پای فعال‌شونده + گاردِ صفر-template
     "test_tg_weekly_review.py",             # مرورِ هفتگیِ شنبه (رأی ۱۲ + §۹)
     "test_tg_question_budget.py",           # بودجهٔ ۳۰-سؤال/هفته (رأی ۲۴)

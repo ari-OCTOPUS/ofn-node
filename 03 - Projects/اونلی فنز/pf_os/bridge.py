@@ -70,12 +70,31 @@ def _atomic_append(line: str) -> bool:
 
 
 # ─── فیلترِ PII (defense-in-depth، حتی اگر caller اشتباه کند) ─────────────────
+# چرا دوزبانه (لِین B · 2026-08-03): تطبیق substring روی `.lower()` است و
+# `str.lower()` روی فارسی بی‌اثر — پس summaryِ «draft از سیدنی» بی‌سروصدا
+# داخلِ فایلِ bridge می‌نشست، در حالی که «from Sydney» scrub می‌شد.
+# دامنهٔ افزوده فقط جغرافیا/قومیت/برچسبِ PII است؛ **هیچ نامِ شخصیِ تازه‌ای
+# (لاتین یا فارسی) اینجا اضافه نمی‌شود** — سطرِ نام‌ها دست‌نخورده باقی ماند.
+# «استرالیا/استرالیایی» عمداً اضافه نشده — کشوری و مجاز.
 _PII_TERMS = (
     "ari", "saba", "anar", "amber", "yalda",
     "sydney", "stanhope", "mohebiazal", "armin",
     "tehran", "iran",
     "real name", "phone", "address",
+    # ── معادل‌های فارسی/فینگلیشِ همان مفاهیم (نه نام‌ها) ──
+    "سیدنی", "تهران", "خاورمیانه", "sidney", "sydeny",
+    "ایران", "ایرانی", "پارسی", "پرشین", "فارسی", "farsi", "irani", "persion",
+    "آدرس", "اسم واقعی", "شماره تلفن", "نام واقعی",
 )
+
+# نرمال‌سازِ سبکِ فارسی — خالص، stdlib، خودبسنده (عمداً import نمی‌شود: هر گارد
+# باید مستقل بایستد؛ importِ fail-soft یعنی گاردی که بی‌صدا بی‌دندان می‌شود).
+_FA_TRANS = str.maketrans({"ي": "ی", "ى": "ی", "ك": "ک", "‌": "", "ـ": ""})
+
+
+def _fa_norm(text: str) -> str:
+    """کوچک‌سازی + یکسان‌سازیِ ی/ک عربی + حذفِ نیم‌فاصله/کشیده."""
+    return str(text or "").translate(_FA_TRANS).lower()
 
 
 def _scrub_summary(text: str) -> str:
@@ -83,9 +102,10 @@ def _scrub_summary(text: str) -> str:
     if not text:
         return ""
     t = str(text)
-    tl = t.lower()
+    # نرمال‌سازی فقط برای **تشخیص**؛ متنِ برگشتی همان ورودیِ خام است.
+    tl = _fa_norm(t)
     for bad in _PII_TERMS:
-        if bad in tl:
+        if _fa_norm(bad) in tl:
             return "[scrubbed]"
     # کپ طول
     return t.strip()[:200]

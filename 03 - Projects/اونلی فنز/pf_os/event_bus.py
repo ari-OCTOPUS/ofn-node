@@ -40,7 +40,13 @@ APPROVAL = frozenset({"required", "approved", "denied", "not_required",
 _EVENT_RE = re.compile(r"^[a-z]+\.[a-z]+\.[a-z_]+$")
 
 # containment parity با _ops/events.py (هیچ رشته‌ی ممنوع echo نمی‌شود)
-_BANNED_ECHO = ("اونلی", "onlyfans", "صبا")
+# دوزبانه (لِین B · 2026-08-03): «اونلی» شکل‌های «اونلی فنز/اونلی‌فنز» را هم
+# می‌گیرد، ولی املای بدونِ واو و نامِ پلتفرمِ دوم به فارسی از فهرست بیرون بودند.
+_BANNED_ECHO = ("اونلی", "onlyfans", "صبا", "انلی فنز", "فنسلی")
+
+# نگاشتِ ۱:۱ ی/ک عربی → فارسی. عمداً **بدونِ** حذفِ نیم‌فاصله/کشیده، چون این
+# تابع باید طولِ رشته را حفظ کند تا آفست‌های `norm` روی `out` معتبر بمانند.
+_FA_CHARS = str.maketrans({"ي": "ی", "ى": "ی", "ك": "ک"})
 
 # نگاشتِ رویدادِ taxonomy → ۷ نامِ legacyِ loggerِ مرکزی (fail-soft mirror)
 _LEGACY_MAP = {
@@ -54,11 +60,25 @@ _span_var: contextvars.ContextVar[str] = contextvars.ContextVar("pf_span", defau
 
 
 def _scrub(text: str) -> str:
-    """حذفِ رشته‌های ممنوع از هر خروجی (containment). fail-soft."""
+    """حذفِ رشته‌های ممنوع از هر خروجی (containment). fail-soft.
+
+    دو پاس: (۱) تحت‌اللفظی — همان رفتارِ قبلی، بایت‌به‌بایت؛ (۲) روی شکلِ نرمالِ
+    **هم‌طول** (ی/ک عربی → فارسی) تا «اونلي» هم مثلِ «اونلی» گرفته شود.
+    چرا هم‌طول: خروجیِ این تابع در `make_event` به `json.loads` داده می‌شود، پس
+    نه می‌شود کلِ رشته را redact کرد (JSON خراب می‌شود) و نه طول را به‌هم زد؛
+    نگاشت ۱:۱ آفست‌ها را معتبر نگه می‌دارد. متنِ پاک دست‌نخورده برمی‌گردد.
+    """
     out = str(text)
     for b in _BANNED_ECHO:
         if b and b in out:
             out = out.replace(b, "▇")
+    norm = out.translate(_FA_CHARS)
+    for b in _BANNED_ECHO:
+        bn = b.translate(_FA_CHARS)
+        while bn and bn in norm:
+            i = norm.index(bn)
+            out = out[:i] + "▇" + out[i + len(bn):]
+            norm = out.translate(_FA_CHARS)
     return out
 
 

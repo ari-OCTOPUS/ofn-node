@@ -30,11 +30,47 @@ from collections import defaultdict
 
 LAMBDA_PERSIST = -1.0
 
+# denylist دوزبانه (لاتین + فارسی/فینگلیش).
+# چرا دوزبانه (لِین B · 2026-08-03): تطبیق substring روی `.lower()` است و
+# `str.lower()` روی فارسی بی‌اثر — پس تا امروز «Sydney» بلاک می‌شد ولی «سیدنی»
+# از همین فیلتر رد می‌شد، یعنی قاعدهٔ #۶ (هیچ فکتِ جغرافیایی در حدِ شهر، هیچ
+# سیگنالِ متنیِ قومی) در برابرِ ورودیِ فارسی بی‌دندان بود — و ورودیِ فارسی در
+# این ونچر حالتِ عادی است نه لبه.
+# عمداً **نیست**: «استرالیا / استرالیایی / Aussie» — کشوری‌اند و طبقِ
+# VOICE-AND-STYLE مجاز؛ بن‌کردنشان over-blocking است.
 FORBIDDEN_TERMS = [
     "persian", "sydney", "iran", "tehran", "middle east",
     "real name", "address", "phone", "email",
     "paypal", "crypto", "bank transfer", "p2p",
+    # ── شهر/جغرافیا (پاریتهٔ sydney/tehran/middle east) ──
+    "تهران", "خاورمیانه", "سیدنی", "sidney", "sydeny",
+    # ── قومیت/زبان (پاریتهٔ persian) ──
+    "ایران", "ایرانی", "پارسی", "پرشین", "فارسی", "farsi", "irani", "persion",
+    # ── نامِ پلتفرم (containment) ──
+    "انلی فنز", "اونلی فنز", "اونلی‌فنز", "فنسلی",
+    # ── PII (پاریتهٔ real name/address/phone/email) ──
+    "آدرس", "اسم واقعی", "ایمیل", "شماره تلفن", "نام واقعی",
+    # ── مسیرِ پرداختِ خارج‌پلتفرم (پاریتهٔ paypal/crypto/bank transfer) ──
+    "بیت کوین", "بیت‌کوین", "پی پال", "پی‌پال", "پیپال", "حواله",
+    "رمزارز", "کارت به کارت", "کریپتو",
 ]
+
+# نرمال‌سازِ سبکِ فارسی — خالص، stdlib، بدونِ وابستگی.
+# لازم است چون فهرست بالا نمی‌تواند همهٔ املاهای «ی/ک عربی» را برشمارد:
+# «سيدني» چهار ترکیب دارد و «ایرانی» هم چهار. نگاشت روی حروفِ لاتین بی‌اثر است،
+# پس رفتارِ امروزِ واژه‌های لاتین بایت‌به‌بایت دست‌نخورده می‌ماند.
+_FA_TRANS = str.maketrans({
+    "ي": "ی",   # ي عربی → ی فارسی
+    "ى": "ی",   # ى الف مقصوره → ی فارسی
+    "ك": "ک",   # ك عربی → ک فارسی
+    "‌": "",         # نیم‌فاصله (ZWNJ)
+    "ـ": "",         # کشیده (tatweel)
+})
+
+
+def fa_norm(text: str) -> str:
+    """کوچک‌سازی + یکسان‌سازیِ ی/ک عربی + حذفِ نیم‌فاصله/کشیده (برای تطبیقِ denylist)."""
+    return str(text or "").translate(_FA_TRANS).lower()
 
 COMPLIANCE_RULES = [
     "faceless", "feet_only", "no_explicit", "over_18",
@@ -67,8 +103,8 @@ class Message:
 
 
 def _guard_text(text: str) -> tuple[bool, list[str]]:
-    t = str(text).lower()
-    violations = [term for term in FORBIDDEN_TERMS if term in t]
+    t = fa_norm(text)
+    violations = [term for term in FORBIDDEN_TERMS if fa_norm(term) in t]
     return (len(violations) == 0, violations)
 
 

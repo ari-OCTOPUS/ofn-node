@@ -42,11 +42,29 @@ CHANNELS = ("reddit", "x", "of", "fansly")
 # گاردِ کپیِ عمومی — best-effort denylist (نه جامع؛ انسان هر آیتم را هم بازبینی می‌کند).
 # پاریته با _ops/events.py _BANNED_ECHO (هویت/پلتفرم) + شهرِ ممنوع + قومیتِ متنی + claimِ ممنوع.
 # توجه: «Aussie / Australia / Down Under» کشوری‌اند و مجاز — عمداً بن نمی‌شوند (VOICE-AND-STYLE).
+# نرمال‌سازِ سبکِ فارسی — خالص، stdlib، خودبسنده (عمداً import نمی‌شود: هر گارد
+# باید مستقل بایستد؛ importِ fail-soft یعنی گاردی که بی‌صدا بی‌دندان می‌شود).
+_FA_TRANS = str.maketrans({"ي": "ی", "ى": "ی", "ك": "ک", "‌": "", "ـ": ""})
+
+
+def _fa_norm(text: str) -> str:
+    """کوچک‌سازی + یکسان‌سازیِ ی/ک عربی + حذفِ نیم‌فاصله/کشیده."""
+    return str(text or "").translate(_FA_TRANS).lower()
+
+
+# چرا فهرست دوزبانه است (لِین B · 2026-08-03): تطبیق substring روی `.lower()`
+# است و `str.lower()` روی فارسی بی‌اثر — پس «Sydney» بلاک می‌شد ولی «سیدنی» و
+# «ایرانی» از همین گارد رد می‌شدند. ورودیِ فارسی اینجا حالتِ عادی است.
+# «استرالیا/استرالیایی» عمداً اضافه نشده — مثلِ Aussie کشوری و مجاز است.
 _BANNED_COPY = (
     "اونلی", "onlyfans", "fansly", "صبا", "saba",              # هویت/پلتفرم (containment)
+    "انلی فنز", "اونلی فنز", "اونلی‌فنز", "فنسلی",              # همان‌ها به فارسی
     "sydney", "سیدنی", "harbour", "harbor", "bondi", "nsw",     # شهرِ ممنوع (rule #6)
-    "melbourne", "opera house",
+    "melbourne", "opera house", "ملبورن", "تهران",
+    "sidney", "sydeny",                                         # فینگلیشِ رایج
     "persian", "iranian",                                       # قومیتِ متنیِ ممنوع (rule #6/#9)
+    "ایران", "ایرانی", "پارسی", "پرشین", "فارسی",               # همان‌ها به فارسی
+    "farsi", "irani", "persion",                                # فینگلیشِ رایج
     "best in", "guaranteed", "fresh flower",                    # claimِ ممنوع
 )
 _FLAG = "(draft flagged: rule #6/containment — بازنویسی لازم)"
@@ -115,8 +133,11 @@ class AcquisitionPipeline:
     # ── copy guard (rule #6 / CLAIMS-REGISTER) ───────────────────────────────
     @staticmethod
     def _copy_ok(text: str) -> bool:
-        low = (text or "").lower()
-        return not any(b in low for b in _BANNED_COPY)
+        # نرمال‌سازی قبل از تطبیق: «سيدني» با ی/ک عربی و «اونلی‌فنز» با نیم‌فاصله
+        # باید مثلِ املای فارسیِ استاندارد گرفته شوند (شمردنِ همهٔ املاها در فهرست
+        # ترکیبیاتی است). نگاشت روی لاتین بی‌اثر است ⇒ رفتارِ لاتین دست‌نخورده.
+        low = _fa_norm(text)
+        return not any(_fa_norm(b) in low for b in _BANNED_COPY)
 
     @classmethod
     def _all_clean(cls, *texts) -> bool:

@@ -303,6 +303,31 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
         if st2 == 200:
             body2 = _redact(body2.decode("utf-8", "replace")).encode("utf-8")
         return st2, body2, ctype2
+    # PROP-D5 فاز ۱ (2026-08-03، GO ِ مالک): کارت‌های read-only ِ Project-F.
+    # همان دیوارِ HMAC ِ /api/miniapp — هر شکست 403 با بدنهٔ خالی.
+    # content-free مطلق: فقط aggregate/count؛ هیچ متنِ درفت از مرزِ پوشهٔ
+    # پروژه عبور نمی‌کند (قاعدهٔ قفل‌شدهٔ #۷). فلگ خاموش = 404 (no-op).
+    if p.startswith("/api/pf/"):
+        token = os.environ.get("TG_CENTER_BOT_TOKEN", "")
+        owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID", "")
+        try:
+            init_data = headers.get("X-Tg-Init-Data") or ""
+        except Exception:  # noqa: BLE001
+            init_data = ""
+        if not token or not owner:
+            return 403, b"", "text/plain; charset=utf-8"   # پیکربندیِ ناقص = بسته
+        if validate_init_data(init_data, bot_token=token, owner_id=owner,
+                              now=now) is None:
+            return 403, b"", "text/plain; charset=utf-8"
+        try:
+            import pf_miniapp  # noqa: WPS433 — هم‌پوشه
+        except Exception:  # noqa: BLE001
+            return 500, b'{"status":"error","reason":"pf_module_unavailable"}', \
+                "application/json; charset=utf-8"
+        st3, body3, ctype3 = pf_miniapp.dispatch_api(p)
+        if st3 == 200:
+            body3 = _redact(body3.decode("utf-8", "replace")).encode("utf-8")
+        return st3, body3, ctype3
     return 404, b"{}", "application/json; charset=utf-8"
 
 

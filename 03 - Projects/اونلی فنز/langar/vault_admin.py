@@ -27,13 +27,33 @@ VAULT_HELP = ("دستورهای Vault:\n"
               "/vault_metric <id> <up> [comments] [unlocks]")
 
 # پاریته با acquisition_pipeline._BANNED_COPY — گuard containment
+# چرا دوزبانه (لِین B · 2026-08-03): اپراتور این دستورها را از تلگرام و به فارسی
+# تایپ می‌کند، ولی تطبیق substring روی `.lower()` بود و `str.lower()` روی فارسی
+# بی‌اثر است — یعنی «Sydney» رد می‌شد ولی «سیدنی»/«ایرانی» مستقیم داخلِ vault
+# می‌نشست و بعداً از همان‌جا draft می‌شد (rule #6).
+# «استرالیا/استرالیایی» عمداً اضافه نشده — مثلِ Aussie کشوری و مجاز است.
 _BANNED = ("اونلی", "onlyfans", "fansly", "صبا", "saba", "sydney", "سیدنی",
-           "persian", "iranian", "harbour", "bondi", "nsw")
+           "persian", "iranian", "harbour", "bondi", "nsw",
+           # نامِ پلتفرم و قومیت/زبان به فارسی + فینگلیشِ رایج
+           "انلی فنز", "اونلی فنز", "اونلی‌فنز", "فنسلی",
+           "ایران", "ایرانی", "پارسی", "پرشین", "فارسی",
+           "sidney", "sydeny", "farsi", "irani", "persion")
+
+# نرمال‌سازِ سبکِ فارسی — خالص، stdlib، خودبسنده (عمداً import نمی‌شود: هر گارد
+# باید مستقل بایستد؛ importِ fail-soft یعنی گاردی که بی‌صدا بی‌دندان می‌شود).
+_FA_TRANS = str.maketrans({"ي": "ی", "ى": "ی", "ك": "ک", "‌": "", "ـ": ""})
+
+
+def _fa_norm(text: str) -> str:
+    """کوچک‌سازی + یکسان‌سازیِ ی/ک عربی + حذفِ نیم‌فاصله/کشیده."""
+    return str(text or "").translate(_FA_TRANS).lower()
 
 
 def _is_clean(*texts) -> bool:
-    blob = " ".join(texts).lower()
-    return not any(b in blob for b in _BANNED)
+    # نرمال‌سازی قبل از تطبیق: «سيدني» با ی عربی هم باید گرفته شود.
+    # نگاشت روی لاتین بی‌اثر ⇒ رفتارِ واژه‌های لاتین دست‌نخورده می‌ماند.
+    blob = _fa_norm(" ".join(texts))
+    return not any(_fa_norm(b) in blob for b in _BANNED)
 
 
 def _bank():
