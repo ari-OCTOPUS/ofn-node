@@ -389,9 +389,14 @@ class TestTelegramControlHookPassThrough(unittest.TestCase):
                 json.dumps({"OCTOPUS_WIRE_TG_CONTROL": "1"}), encoding="utf-8"
             )
             self.assertTrue(is_control_command("/ops"))
+            for cmd in ["/ui", "/open", "/truth", "/legs", "/approvals"]:
+                self.assertTrue(is_control_command(cmd), cmd)
             res = try_handle_control("/ops", {"is_owner": True}, root=root)
             self.assertIsInstance(res, dict)
             self.assertEqual(res.get("status"), "OK")
+            ui = try_handle_control("/ui", {"is_owner": True}, root=root)
+            self.assertIsInstance(ui, dict)
+            self.assertIn(ui.get("status"), {"CONFIG_NEEDED", "OK"})
 
 if __name__ == "__main__":
     unittest.main()

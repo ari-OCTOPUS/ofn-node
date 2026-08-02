@@ -26,6 +26,9 @@ DEFAULT_ROOT = Path(__file__).resolve().parents[2]  # _ops/agi2027_control -> F:
 # /deal and normal owner text MUST fall through to the existing Telegram center.
 CONTROL_COMMANDS = {
     "/ops", "/repair", "/impact", "/fugu", "/outbound", "/projectf",
+    # MiniApp / owner cockpit commands. These must be handled by the
+    # control-plane instead of falling through silently in Telegram.
+    "/ui", "/open", "/truth", "/legs", "/approvals",
 }
 def is_control_command(text: str) -> bool:
     raw = str(text or "").strip()
@@ -81,6 +84,26 @@ def format_control_result(result: Dict[str, Any]) -> str:
         lines = [f"{ok} <b>Octopus control</b>: <code>{status}</code>"]
         if reason:
             lines.append(f"علت/جزئیات: <code>{reason[:240]}</code>")
+        message = str(result.get("message") or "")
+        if message:
+            lines.append(f"message: <code>{message[:500]}</code>")
+        note = str(result.get("note") or "")
+        if note:
+            lines.append(f"note: <code>{note[:500]}</code>")
+        if result.get("web_app_url"):
+            lines.append("MiniApp: <code>" + str(result.get("web_app_url"))[:500] + "</code>")
+        if result.get("preview"):
+            lines.append("Truth preview:\n<code>" + str(result.get("preview"))[:900] + "</code>")
+        if result.get("legs") is not None:
+            legs = result.get("legs") or {}
+            if isinstance(legs, dict):
+                lines.append(f"Legs: <code>{len(legs)}</code> items")
+            else:
+                lines.append("Legs: <code>available</code>")
+        if result.get("pending") is not None:
+            pending = result.get("pending") or []
+            count = result.get("count", len(pending) if isinstance(pending, list) else "?")
+            lines.append(f"Approvals pending: <code>{count}</code>")
         reps = result.get("repairs")
         if isinstance(reps, list) and reps:
             vals = reps[:8]
