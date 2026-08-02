@@ -29,9 +29,9 @@ sources:
 
 | چه | لنگر | شاهد |
 |---|---|---|
-| MiniApp gateway با ۸ routeِ `/api/*` فقط‌خواندنی | `_ops/telegram_center/miniapp_gateway.py` (dispatch در `_handle_core`) | مجموعهٔ مسیرها در همان تابع صریح فهرست شده |
-| dispatcherِ state | `_ops/telegram_center/miniapp_state.py::dispatch_api` | ۸ کلید: `state, outbound, approvals, legs, value, ui-registry, current-truth, ops` |
-| `/api/ops` (خلاصهٔ CRM محلی) | `_ops/telegram_center/miniapp_state.py::get_ops_state` | فراخوانی شد؛ کلیدها: `status, leads_total, lead_stages, tasks_total, task_status, value_events_total, value_events_per_leg, actions` |
+| MiniApp gateway با ۱۱ routeِ `/api/*` فقط‌خواندنی | `_ops/telegram_center/miniapp_gateway.py` (`READ_API_PATHS`، dispatch در `_handle_core`) | فهرستِ صریح؛ **تک‌فهرست** ⇒ زیرمسیرها نمی‌توانند از والد بازتر باشند |
+| dispatcherِ state | `_ops/telegram_center/miniapp_state.py::dispatch_api` | ۱۱ مسیر: `state, outbound, approvals, legs, value, ui-registry, current-truth, ops` + `ops/brain, ops/leads, ops/tasks` |
+| `/api/ops` (خلاصهٔ CRM محلی) | `_ops/telegram_center/miniapp_state.py::get_ops_state` | فراخوانی شد ۲۰۲۶-۰۸-۰۳ — **۱۳ کلید**: `status, leads_total, lead_stages, tasks_total, task_status, value_events_total, value_events_per_leg, actions, brain, governor, obsidian, next_steps, owner_auth`. ⚠️ نسخهٔ اولِ این سطر فقط ۸ کلیدِ اول را داشت — سنجشش از پیش از کامیتِ `3a8cb2d` بود |
 | موتورِ actionِ owner-gated | `_ops/agi2027_control/ops_actions.py::OpsActionEngine.execute` | گیتِ `actor["is_owner"]`، allowlist ِ ۶تایی، idempotency، audit |
 | کنترل‌پلینِ تلگرام وصل به بات | `_ops/telegram_center/center.py::_handle_message` → `agi2027_control.integration.try_handle_control` | importِ واقعی در همان تابع؛ flag-off ⇒ `None` ⇒ fallthrough |
 | فلگِ کنترل روشن است | `_ops/agi2027_runtime/managed_flags.json` | `OCTOPUS_WIRE_TG_CONTROL="1"` (به‌علاوهٔ `..._LEAD_OUTBOUND_WAL`، `..._VALUE_LEDGER`) |
@@ -116,8 +116,10 @@ sources:
 2. `_ops/budget/governor.py` را وارد git کن (N-2) — **هنوز untracked** است، و حالا تستش
    (`test_governor_routing.py`) هم untracked و در `run_all.py` ثبت‌نشده است. صداکنندهٔ
    تولیدی همچنان صفر (N-3).
-3. بخش‌های `brain / governor / obsidian / next_steps` را به `/api/ops` اضافه کن (N-4) —
-   lane دیگری روی همین است؛ وضعیت را قبل از دست‌زدن دوباره بسنج.
+3. ~~بخش‌های `brain / governor / obsidian / next_steps` را به `/api/ops` اضافه کن (N-4)~~ —
+   **انجام شده** در `3a8cb2d`، به‌علاوهٔ سه زیرمسیرِ `/api/ops/{brain,leads,tasks}`.
+   سنجیده شد ۲۰۲۶-۰۸-۰۳ با فراخوانیِ مستقیم. این بند در نسخهٔ اولِ سند «باز» نوشته شده
+   بود چون سنجشش یازده دقیقه قدیمی‌تر از کامیتِ خودِ سند بود.
 
 ## Do Not Do
 

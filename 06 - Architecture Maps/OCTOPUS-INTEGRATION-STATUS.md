@@ -62,16 +62,34 @@ sources:
 | فلگِ کنترل | `managed_flags.json` یا `OCTOPUS_WIRE_TG_CONTROL=1` | **WIRED** | در فایل `="1"` است |
 | دکمهٔ داشبورد در خانه | `center.py::_home_keyboard` | **PARTIAL** | فقط با `OCTOPUS_TG_MINIAPP=1` **و** فایلِ URL؛ الان URL نیست ⇒ دکمه وجود ندارد |
 | gateway ِ HTTP | `_ops/telegram_center/miniapp_gateway.py` | **PARTIAL** | routeها هستند؛ اجرای زنده روی پورت سنجیده نشد |
-| تب‌های cockpit | `_ops/telegram_center/miniapp/index.html` | **WIRED (۸ تب)** | `home, studio, outbound, approvals, legs, value, registry, truth` — هر ۸ تا renderer دارند |
+| تب‌های cockpit | `_ops/telegram_center/miniapp/index.html` | **WIRED (۱۲ تب)** | `home, studio, outbound, approvals, legs, value, registry, truth` + چهار تبِ تازهٔ `brain, governor, obsidian, next` (کامیتِ `9283afe`). هر چهارتای تازه renderer دارند: `renderBrain/renderGovernor/renderObsidian/renderNext` در `app.js` |
 | `X-Tg-Init-Data` در frontend | `miniapp/app.js::tgHeaders` | **WIRED** | روی هر `api()` و `apiPost()` سوار می‌شود |
 | اعتبارسنجیِ initData در backend | `miniapp_gateway.py` → `validate_init_data` | **WIRED** | بدونِ token/owner **یا** initDataِ نامعتبر → `403` |
 | رفتار در گروه در برابر DM | — | **UNKNOWN** | نسنجیدم. سابقهٔ ثبت‌شدهٔ این سیستم: پلِ فرمان و سیاستِ ورودیِ گروه دو لایهٔ **مستقل**اند و منوی مسلح می‌تواند به گروه نرسد. فرض نکن. |
 
-**گپِ اصلیِ باز:** `/api/ops` هیچ بخشِ `brain` / `governor` / `obsidian` / `next_steps` ندارد و
-هیچ زیرـendpointی (`/api/ops/...`) وجود ندارد. سنجیده شد با فراخوانیِ مستقیمِ
-`get_ops_state()` → کلیدها فقط `status, leads_total, lead_stages, tasks_total, task_status,
-value_events_total, value_events_per_leg, actions`. **lane دیگری همین حالا روی این است**؛
-قبل از دست‌زدن دوباره بسنج.
+**~~گپِ اصلیِ باز~~ → بسته شد (تصحیحِ ۲۰۲۶-۰۸-۰۳):** این بند در نسخهٔ اولِ سند گفته بود
+`/api/ops` بخشِ `brain/governor/obsidian/next_steps` و زیرـendpoint ندارد. **آن ادعا غلط بود.**
+lane ِ `api-ops` در کامیتِ `3a8cb2d` (۰۰:۱۳) آن را بست — یازده دقیقه **پیش از** کامیتِ همین
+سند (`5f65333`، ۰۰:۲۴). سنجشِ این سند از قبلِ آن کامیت بود و پیش از commit دوباره سنجیده نشد.
+
+سنجشِ تازه (فراخوانیِ مستقیم، ۲۰۲۶-۰۸-۰۳):
+
+- `get_ops_state()` → `status, leads_total, lead_stages, tasks_total, task_status,
+  value_events_total, value_events_per_leg, actions, **brain, governor, obsidian,
+  next_steps, owner_auth**` (۱۳ کلید).
+- زیرمسیرها **هستند**: `/api/ops/brain`، `/api/ops/leads`، `/api/ops/tasks` در
+  `miniapp_state.dispatch_api` و در `miniapp_gateway.READ_API_PATHS`.
+- **auth یکسان است** (سنجیده شد، نه استنتاج): هر سه زیرمسیر از همان `READ_API_PATHS` ِ
+  **تک‌فهرست** و همان `_read_api_authorized` ِ والدشان رد می‌شوند ⇒ ساختاراً نمی‌توانند
+  بازتر باشند. با `OCTOPUS_MINIAPP_READ_OWNER_GATE=1` هر پنج مسیر `403` دادند؛ با فلگِ
+  خاموش (پیش‌فرض) `200` — دقیقاً مثلِ هشت مسیرِ خواندنیِ قبلی. فلگ بیرونِ
+  `wiring.PAPER_FULL_FLAGS` است و گارد **اضافه** می‌کند، برنمی‌دارد.
+
+> **درسِ این بند (نه صرفاً تصحیحش):** همان تلهٔ R-5 که این سند دربارهٔ governor
+> گرفتش، درست در بندِ کناری از خودش قِسِر در رفت. lane دربارهٔ governor برگشت و پنج
+> سند را اصلاح کرد، ولی `/api/ops` و تب‌ها را دوباره نسنجید. **قاعده:** روی درختی که
+> lane موازی دارد، هر ادعای «سنجیده شد» را در همان دقیقهٔ commit دوباره بسنج — وگرنه
+> برچسبِ «سنجیده شد» ادعا را از حدس **خطرناک‌تر** می‌کند، نه امن‌تر.
 
 ## Obsidian
 
@@ -106,7 +124,8 @@ value_events_total, value_events_per_leg, actions`. **lane دیگری همین �
 
 1. **N-1** — دو خواننده‌ی truth را به این vault بِبَر.
 2. **N-2/N-3** — `governor.py` را track کن، تست بده، یک صداکنندهٔ واقعی پشتِ فلگِ خاموش.
-3. **N-4** — بخش‌های `brain/governor/obsidian/next_steps` در `/api/ops` (lane دیگر).
+3. ~~**N-4** — بخش‌های `brain/governor/obsidian/next_steps` در `/api/ops`~~ — **انجام شد**
+   در `3a8cb2d` + زیرمسیرها. سنجیده شد ۲۰۲۶-۰۸-۰۳.
 4. **N-5** — mojibake ِ `app.js`.
 5. **N-6** — رفتارِ گروه در برابر DM را بسنج.
 
