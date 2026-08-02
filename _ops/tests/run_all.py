@@ -177,6 +177,15 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # فقط release_one صریح + authorization + consent-recheck (market_signal/synthetic هرگز)؛
          # outbound worker همیشه NOT_ARMED (صفر ارسال). flag OCTOPUS_WIRE_LEAD_OUTBOUND خاموش.
          "test_lead_effect_gate.py",
+         # 2026-08-02 LEG-SYNC: resumable sync_agent over studio_pf/cartographer/lead.
+         # studio_pf has no callable build API, so the real adapter blocks honestly;
+         # injected fakes prove the rest of authorize→draft→first_reply is ordered and idempotent.
+         "test_sync_agent.py",
+         # 2026-08-02 (ZCode, OMEGA-PARITY-inspired): three additive observability
+         # modules — budget frustration index (deny aggregation), cross-leg syndrome
+         # (budget integrity + outbound funnel invariant), test green-lie classifier.
+         # All flag-off, read-only, additive. Evidence in DEEP-SCAN-REPORT-2026-08-02.
+         "test_octopus_parity_modules.py",
          # 2026-07-24 Phase-D (Wave-2 WS-5): consent gate/store + funnel + speed-to-lead +
          # release/settle separation + verdict→effect hook. همه flag-off.
          # (عمداً نیامد: D7 owner-transport — گاردِ no-networkِ تازه‌ترِ master؛ producer-migration —
@@ -701,6 +710,14 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     # union از لِینِ موازی (ماینینگ/پول) — این هفت ثبت در درختِ زنده بودند
     # (پنج stage-شده، دو نه) و deploy درست حاضر نشد رویشان ff بزند. ثبت
     # افزایشی است و هر هفت فایل روی دیسک‌اند، پس union نه انتخاب.
+    # ۲۰۲۶-۰۸-۰۱ (شب) — بازسازیِ ماشینِ لید. union است نه انتخاب:
+    # هر پنج فایل روی دیسک و سبزند.
+    "test_lead_suppression.py",              # قفلِ قانونیِ STOP — Spam Act، و transport مسلح است
+    "test_lead_suppression_wired.py",        # همان قفل، ولی در **درزها**: شنیدنِ ورودی + تطابقِ نویسنده/خواننده
+    "test_lead_property_extract.py",         # suburb/متراژ — بدونش هر کوت A$0.00 است
+    "test_lead_scorer_farsi.py",             # استعلامِ فارسی دیگر صفر نمی‌گیرد
+    "test_lead_card.py",                     # کارتِ قابلِ‌لمس: tel: و نامِ مشتری
+    "test_new_capability_cards.py",            # کارت‌های تازه — قابلیتی که دیده نشود وجود ندارد
          ]
 # تست‌های خارج از _ops/tests/ (path tuyệtق)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
