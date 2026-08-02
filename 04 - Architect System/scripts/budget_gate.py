@@ -55,6 +55,54 @@ def _drawdown_shadow_observe(agent, d, c):
         pass   # fail-soft — گاردِ shadow هرگز مسیرِ پول را متأثر نمی‌کند
 
 
+# ── A1 (۲۰۲۶-۰۸-۰۳): پنجرهٔ استثنای سقفِ ماهانه — در کد، نه در متن ──────────
+# رأیِ مالک ۰۷-۳۰ (تمدیدشده ۰۸-۰۳): «سقفِ این پنجره US$200 است، نه AU$30.»
+# تا امروز آن استثنا فقط در `_ops/GOALS-OCTOPUS.md` **نوشته** شده بود و هیچ کدی
+# نمی‌خواندش: `_caps()` همان min(hard=30, yaml=30) را می‌داد و `reserve()` روی
+# AU$30 هالت می‌کرد. یعنی پنجره از ۰۷-۳۰ تا امروز اثرِ واقعی نداشت. (چون
+# spent_month=0 بود هرگز گاز نگرفت — پس چیزی از دست نرفت، ولی ادعا و رفتار یکی
+# نبودند؛ و همین شکل از «متن به‌جای کد» جای دیگری ۳۱ ساعت قحطی ساخت.)
+#
+# خواهرش `goal_directed.max_circular_now()` از ۰۷-۳۰ همین قرارداد را دارد و
+# خودش منقضی می‌شود؛ این تابع عمداً **همان الگو** است تا یکی یاد گرفتنش کافی باشد.
+SPEND_CAP_USD_ENV, SPEND_CAP_UNTIL_ENV = "OCTOPUS_SPEND_CAP_USD", "OCTOPUS_SPEND_CAP_UNTIL"
+
+
+def spend_cap_now(base_aud, aud_per_usd, disaster_aud, today=None):
+    """سقفِ ماهانهٔ مؤثر (AUD) + دلیلش. `today` **کاملاً** تزریق‌شدنی است؛ هیچ
+    شاخه‌ای پشتِ سرِ صداکننده ساعتِ دیوار را نمی‌خواند (درسِ «ساعتِ نیمه‌تزریقی»).
+
+    fail-closed به سمتِ **محافظه‌کار** — یعنی پایهٔ سخت‌گیر — روی: نبودِ env،
+    **نبودِ تاریخِ انقضا** (استثنای بی‌تاریخ = قاعدهٔ نو، و رأیِ مالک تاریخ داشت)،
+    مقدارِ ناخوانا/نامثبت، تاریخِ بدشکل، و پنجرهٔ گذشته. پس یک تایپو سقف را
+    ابدی باز نمی‌کند. استثنا فقط **بالا** می‌برد و هرگز از خطِ فاجعه رد نمی‌شود.
+
+    بدونِ کش خوانده می‌شود، پس در روزِ انقضا **بدونِ ری‌استارت** برمی‌گردد."""
+    base = float(base_aud)
+    shut = lambda why: {"value_aud": base, "reason": why, "window_open": False}  # noqa: E731
+    raw = str(os.environ.get(SPEND_CAP_USD_ENV, "") or "").strip()
+    until = str(os.environ.get(SPEND_CAP_UNTIL_ENV, "") or "").strip()
+    if not raw:
+        return shut("default")
+    if not until:
+        return shut("no-expiry-declared")
+    try:
+        usd = float(raw)
+    except (TypeError, ValueError):
+        return shut("bad-value")
+    if not usd > 0:
+        return shut("bad-value")
+    try:
+        end = datetime.date.fromisoformat(until)
+        now = datetime.date.fromisoformat(today) if today else datetime.date.today()
+    except (TypeError, ValueError):
+        return shut("bad-date")
+    if now > end:
+        return {**shut(f"expired:{until}"), "expired": True}
+    value = min(max(base, usd * float(aud_per_usd)), float(disaster_aud))
+    return {"value_aud": value, "reason": f"owner-window:{until}", "window_open": True}
+
+
 def _caps():
     """v2/A1: سقف‌ها را از budgets.yaml (تک‌منبع حقیقت) می‌خواند. fail-closed:
       • yaml ناخوانا/غایب/بی‌PyYAML → کفِ هاردکد (هرگز نامحدود، هرگز crash).
@@ -79,8 +127,15 @@ def _caps():
             src = "budgets.yaml ∧ hardcode-floor"
     except Exception:
         pass  # fail-closed → کفِ هاردکد
+    # A1: پنجرهٔ استثنای مالک — **بعد از** کفِ سخت‌گیر اعمال می‌شود چون عمداً
+    # بالابرنده است. بسته/منقضی ⇒ `month` بایت‌به‌بایت همان قبلی می‌ماند.
+    window = spend_cap_now(month, aud, disaster)
+    if window["window_open"]:
+        month = window["value_aud"]
+        src += f" ∧ {window['reason']}"
     return {"day_aud": day, "month_aud": month, "disaster_aud": disaster, "aud": aud,
-            "src": src, "spike_pct": spike}   # spike_pct صرفاً برای گاردِ shadow؛ در تصمیمِ پول استفاده نمی‌شود
+            "src": src, "spike_pct": spike,   # spike_pct صرفاً برای گاردِ shadow؛ در تصمیمِ پول استفاده نمی‌شود
+            "month_window": window}           # قابلِ مشاهده در گزارش — پنجرهٔ باز هرگز پنهان نیست
 
 
 def _load():
