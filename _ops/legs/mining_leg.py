@@ -47,8 +47,8 @@ def mining_status() -> dict:
         has_docs = False
     a = age_days(DECISIONS_PATH)
     if a is not None:
-        src = (f"منبعِ دادهٔ واقعیِ بعدی: «02 - Code/Ai bots/coordinator/data/decisions.jsonl» "
-               f"(سن ≈ {a:.0f} روز — راکد؛ تا جریانِ تازه، scorerِ زنده جعل نمی‌شود).")
+        src = ("منبعِ دادهٔ واقعیِ بعدی: «02 - Code/Ai bots/coordinator/data/decisions.jsonl» "
+               "— راکد؛ تا جریانِ تازه، scorerِ زنده جعل نمی‌شود.")
     else:
         src = ("منبعِ دادهٔ واقعیِ بعدی: «02 - Code/Ai bots/coordinator/data/decisions.jsonl» — "
                "فایل پیدا نشد.")

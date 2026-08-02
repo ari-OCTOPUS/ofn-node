@@ -37,6 +37,7 @@ from urllib.parse import parse_qsl
 
 _HERE = Path(__file__).resolve().parent
 _OPS = _HERE.parent
+_MINIAPP_DIR = _HERE / "miniapp"
 for _p in (str(_OPS), str(_OPS / "budget")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
@@ -125,6 +126,37 @@ _INJECT = ("<script>(function(){var g=function(){try{return (window.Telegram&&"
            "</script>")
 
 
+def _miniapp_static_response(path: str) -> tuple:
+    """Serve the committed read-only cockpit shell/assets from disk.
+    Only an explicit allowlist is served; no path traversal and no directory
+    listing. The page contains no secrets and all mutating actions remain
+    disabled in the frontend/backend until owner auth is explicitly wired.
+    """
+    p = str(path or "").split("?", 1)[0]
+    if p in ("/miniapp", "/miniapp/"):
+        rel = "index.html"
+        ctype = "text/html; charset=utf-8"
+    elif p in ("/miniapp/app.js", "/app.js"):
+        rel = "app.js"
+        ctype = "application/javascript; charset=utf-8"
+    elif p in ("/miniapp/style.css", "/style.css"):
+        rel = "style.css"
+        ctype = "text/css; charset=utf-8"
+    else:
+        return 404, b"", "text/plain; charset=utf-8"
+    f = _MINIAPP_DIR / rel
+    try:
+        body = f.read_bytes()
+    except OSError:
+        return 404, b"", "text/plain; charset=utf-8"
+    if rel == "index.html":
+        snippet = _INJECT.encode("utf-8")
+        if b"</body>" in body:
+            body = body.replace(b"</body>", snippet + b"</body>", 1)
+        else:
+            body = body + snippet
+    return 200, body, ctype
+
 def _default_fetch(path: str) -> tuple:
     """proxy ِ loopback به 8773 — فقط GET، فقط دو مسیرِ سفید. (status, body, ctype)."""
     url = f"http://127.0.0.1:{UPSTREAM_PORT}{path}"
@@ -191,18 +223,53 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
     fetch = fetch_fn if fetch_fn is not None else _default_fetch
     if _stopped():
         return 503, b"", "text/plain; charset=utf-8"       # کلیدِ کشتار
-    if str(method or "").upper() != "GET":
-        return 405, b"", "text/plain; charset=utf-8"       # فقط‌خواندنی — صفر POST
+    method_u = str(method or "").upper()
     p = str(path or "").split("?", 1)[0]
-    if p in ("/miniapp", "/miniapp/"):
-        st, body, ctype = fetch("/miniapp")
-        if st == 200:
-            snippet = _INJECT.encode("utf-8")
-            if b"</body>" in body:
-                body = body.replace(b"</body>", snippet + b"</body>", 1)
-            else:
-                body = body + snippet
-        return st, body, ctype
+    if method_u not in {"GET", "POST"}:
+        return 405, b"", "text/plain; charset=utf-8"
+    if method_u == "POST" and p != "/api/actions":
+        return 405, b"", "text/plain; charset=utf-8"
+    if p in ("/miniapp", "/miniapp/", "/miniapp/app.js", "/miniapp/style.css",
+             "/app.js", "/style.css"):
+        return _miniapp_static_response(p)
+    if p == "/api/actions":
+        if method_u != "POST":
+            return 405, b"", "text/plain; charset=utf-8"
+        token = os.environ.get("TG_CENTER_BOT_TOKEN", "")
+        owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID", "")
+        try:
+            init_data = headers.get("X-Tg-Init-Data") or ""
+        except Exception:
+            init_data = ""
+        if not token or not owner or validate_init_data(init_data, bot_token=token, owner_id=owner, now=now) is None:
+            return 403, b'{"ok":false,"status":"DENIED","reason":"owner_auth_required"}', "application/json; charset=utf-8"
+        try:
+            raw_body = b""
+            try:
+                raw_body = headers.get("_body") or b""
+            except Exception:
+                raw_body = b""
+            if isinstance(raw_body, str):
+                raw_body = raw_body.encode("utf-8")
+            payload = json.loads(raw_body.decode("utf-8") or "{}")
+            action = str(payload.get("action") or "")
+            action_payload = payload.get("payload") if isinstance(payload.get("payload"), dict) else {}
+            action_id = payload.get("action_id")
+            import sys as _sys
+            ops_path = str(_OPS)
+            if ops_path not in _sys.path:
+                _sys.path.insert(0, ops_path)
+            from agi2027_control.ops_actions import OpsActionEngine  # noqa: WPS433
+            eng = OpsActionEngine(_OPS.parent)
+            try:
+                res = eng.execute(action, action_payload, {"is_owner": True}, action_id=action_id)
+                body = json.dumps(res, ensure_ascii=False, sort_keys=True).encode("utf-8")
+                return 200, body, "application/json; charset=utf-8"
+            finally:
+                eng.close()
+        except Exception as exc:
+            body = json.dumps({"ok": False, "status": "ERROR", "reason": type(exc).__name__}, ensure_ascii=False).encode("utf-8")
+            return 500, body, "application/json; charset=utf-8"
     if p == "/api/miniapp":
         token = os.environ.get("TG_CENTER_BOT_TOKEN", "")
         owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID", "")
@@ -221,6 +288,21 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
             # دفاعِ دولایه: 8773 خودش redact کرده؛ این لایه دوباره رد می‌کند.
             body = _redact(body.decode("utf-8", "replace")).encode("utf-8")
         return st, body, ctype
+    # PHASE 4 (2026-08-02): read-only /api/* cockpit helpers (secret-scrubbed, fail-closed).
+    # No POST/PUT/DELETE here — read-only. Actions are Phase 7 (owner-gated, not wired yet).
+    if p.startswith("/api/") and p in {
+        "/api/state", "/api/outbound", "/api/approvals", "/api/legs",
+        "/api/value", "/api/ui-registry", "/api/current-truth", "/api/ops",
+    }:
+        try:
+            import miniapp_state  # noqa: WPS433 — هم‌پوشه
+        except Exception:  # noqa: BLE001
+            return 500, b'{"status":"error","reason":"state_module_unavailable"}', \
+                "application/json; charset=utf-8"
+        st2, body2, ctype2 = miniapp_state.dispatch_api(p)
+        if st2 == 200:
+            body2 = _redact(body2.decode("utf-8", "replace")).encode("utf-8")
+        return st2, body2, ctype2
     return 404, b"{}", "application/json; charset=utf-8"
 
 
@@ -235,7 +317,20 @@ class _Srv(ThreadingHTTPServer):
 
 class _Handler(BaseHTTPRequestHandler):
     def _run(self, method: str):
-        st, body, ctype = handle(method, self.path, self.headers)
+        headers = self.headers
+        if str(method or "").upper() == "POST":
+            try:
+                length = int(self.headers.get("Content-Length") or "0")
+            except Exception:
+                length = 0
+            if length > 65536:
+                self.send_response(413)
+                self.end_headers()
+                return
+            raw = self.rfile.read(length) if length > 0 else b""
+            headers = {k: v for k, v in self.headers.items()}
+            headers["_body"] = raw
+        st, body, ctype = handle(method, self.path, headers)
         self.send_response(st)
         self.send_header("Content-Type", ctype)
         self.send_header("Cache-Control", "no-store")

@@ -3,7 +3,7 @@ type: log
 status: active
 tags: [selfimprove, ledger, ops]
 created: 2026-07-05
-updated: 2026-07-30
+updated: 2026-08-02
 ---
 
 # EXPERIENCE-LEDGER — حافظهٔ انباشتی چرخهٔ خودبهبودی
@@ -127,3 +127,43 @@ updated: 2026-07-30
   مجبور بودم لمس کنم (`code_autonomy.py`) با رأیِ صریحِ مالک و به‌صورتِ هانکِ
   **افزوده** روی هانکِ آن‌ها ویرایش شد، نه بازنویسی — با پشتیبانِ بایتی و
   CRLF محفوظ (loneLF=0 قبل و بعد).
+
+## 2026-08-02 — جلسهٔ مقایسهٔ خلاقانه + پنج تحویلِ commit‌شده
+
+خلاصهٔ کامل و لنگرها: [[00 - Inbox/SESSION-NOTES-2026-08-02|SESSION-NOTES-2026-08-02]].
+
+- **درسِ اول — شباهتِ ظاهری ≠ تطبیقِ ساختاری.** شش ایدهٔ «خلاقانه» برای وصل‌کردنِ
+  OMEGA-PARITY (تحقیقاتِ GNN/parity) به اختاپوس امتحان شد؛ فقط **سه** واقعاً
+  تطبیق داشت (frustration، cross-leg syndrome، green-lie). سه دیگر hammer-looking-
+  for-nail بودن: bipartiteness (با guardهای ساده enforce می‌شد نه topology)،
+  sign-invariance (organism خودش net-effect می‌کرد)، spectral-gap (cut-vertex
+  بدیهی بود). **قاعده: قبل از ساختنِ پل، ثابت کن مشکل واقعاً ساختارِ ریاضیِ
+  primitive را دارد، نه فقط شبیه‌اش.**
+
+- **درسِ دوم — بازنویسیِ کلِ فایل، تغییرِ واقعی را پنهان می‌کند.** یک سشنِ موازی
+  `center.py` را کل‌فایل بازنویسی کرد → diff ۹۰۰۰ خط (۴۵۷۱ درج/۴۵۴۶ حذف) در حالی
+  که فقط ۲۵ خطِ معنادار داشت. علت: re-indentation/re-emission. `git diff
+  --ignore-all-space` فوراً ۲۵ خطِ واقعی را نشان داد. **قاعده: هر diffِ بزرگ
+  (line-count ≈ کلِ فایل) را اول با `--ignore-all-space` بسانج؛ اگه کوچک شد،
+  churn است نه تغییر. بازگردان به HEAD + re-insertِ فقطِ تغییرِ واقعی.**
+
+- **درسِ سوم — گزارشِ «تست سبز» بدونِ صداکنندهٔ production = green-lieِ کامل.**
+  AGI2027 package ۲۳/۲۳ سبز بود ولی grep نشان داد صفر فایلِ production فلگ/ماژولِ
+  نو را می‌خواند. **قاعده: قبل از گزارشِ «تحویل»، grep کن چه کسی از primitive جدید
+  صدا می‌زند. تستِ سبز به‌تنهایی، اثباتِ wired بودن نیست.**
+
+- **درسِ چهارم — working-treeِ کثیف: هرگز `git add -A`.** ۷۱۳ فایلِ uncommitted
+  از سشن‌های موازی در working-tree بود. `git commit -am` همه را با پیامِ اشتباه
+  ثبت می‌کرد. همیشه مسارِ صریح: `git add <file1> <file2>`.
+
+- **درسِ پنجم — «unknown» را به‌عنوان 0 گزارش نکن.** در organism_syndrome، وقتی
+  منبعی غایب بود، بیت = None (unknown) نه True (ok). fail-closed در observability
+  یعنی: اگه نمی‌دانی، بگو نمی‌دانم، نه «همه‌چیز خوب است».
+
+- **درسِ ششم — MiniApp باید اول auth-gated و فقط‌خواندنی باشد؛ actionها بعداً.**
+  ساختِ MiniApp cockpit: helperهای فقط‌خواندنی (read-only) اول، با scrub دو-لایه
+  (regex در helper + redact در gateway). actionها (mark-sent/cancel/retry) فقط وقتی
+  فعال شوند که `OCTOPUS_MINIAPP_URL` + `TG_CENTER_BOT_TOKEN` + `TELEGRAM_OWNER_CHAT_ID`
+  همگی set شوند — وگرنه `BLOCKED_NEEDS_AUTH_CONFIG`. هرگز endpoint عمومیِ بدونِ
+  owner-gate برای action نساز. **Telegram MiniApp must be auth-gated; read-only
+  first, actions later.**
