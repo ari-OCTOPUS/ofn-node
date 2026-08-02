@@ -22,11 +22,24 @@
 [CmdletBinding()]
 param(
     [string[]]$Skip = @(),
-    [switch]$WhatIf
+    [switch]$WhatIf,
+
+    # Test seam (2026-08-03). The preflight guards below are pure functions of a
+    # directory, but with the path hardcoded the ONLY way to answer "does it really
+    # abort on a stray marker?" was to drop a real STOP-* file into the live tree -
+    # the exact act that once kept the whole system down for 30 minutes, and which
+    # the permission layer rightly refuses. An untestable guard is a guard nobody
+    # can prove, so the root is injectable.
+    #
+    # Injecting it is safe by CONSTRUCTION, not by good manners: a non-canonical
+    # root is preflight-only (enforced immediately below), so a test can never
+    # reach the restart loop no matter what it passes.
+    [string]$OpsRoot = "F:\backup\_ops"
 )
 
 $ErrorActionPreference = "Continue"
-$ops     = "F:\backup\_ops"
+$CanonicalOps = "F:\backup\_ops"
+$ops     = $OpsRoot
 $runner  = Join-Path $ops "RESTART-PROCESS.ps1"
 $stateF  = Join-Path $ops "state\ORGANISM-STATE.json"
 $flagsF  = Join-Path $ops "OCTOPUS-flags.cmd"
@@ -53,6 +66,22 @@ $targets = $order | Where-Object { $Skip -notcontains $_ }
 
 # ---------------------------------------------------------------- PREFLIGHT --
 Write-Host "=== PREFLIGHT ==="
+
+# Enforcement of the -OpsRoot seam, FIRST, before any other check: an injected root
+# must be unable to reach a Stop-Process no matter what else is passed. Exit code 2
+# is reserved for "the seam was misused" so a test can tell it apart from exit 1,
+# which means "preflight ran and found a real problem".
+$normSelf  = $ops.TrimEnd('\','/').ToLowerInvariant()
+$normCanon = $CanonicalOps.TrimEnd('\','/').ToLowerInvariant()
+$isCanonical = ($normSelf -eq $normCanon)
+if (-not $isCanonical) {
+    Write-Host ("  ops root     : {0}" -f $ops)
+    Write-Host "  mode         : NON-CANONICAL ROOT - preflight only, restart loop unreachable"
+    if (-not $WhatIf) {
+        Write-Host "ABORT: -OpsRoot other than the canonical tree is preflight-only. Re-run with -WhatIf."
+        exit 2
+    }
+}
 if (-not (Test-Path $runner)) { Write-Host "ABORT: RESTART-PROCESS.ps1 not found."; exit 1 }
 
 # A stray marker means something already went wrong; restarting on top of it hides
