@@ -221,6 +221,21 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
             # دفاعِ دولایه: 8773 خودش redact کرده؛ این لایه دوباره رد می‌کند.
             body = _redact(body.decode("utf-8", "replace")).encode("utf-8")
         return st, body, ctype
+    # PHASE 4 (2026-08-02): read-only /api/* cockpit helpers (secret-scrubbed, fail-closed).
+    # No POST/PUT/DELETE here — read-only. Actions are Phase 7 (owner-gated, not wired yet).
+    if p.startswith("/api/") and p in {
+        "/api/state", "/api/outbound", "/api/approvals", "/api/legs",
+        "/api/value", "/api/ui-registry", "/api/current-truth",
+    }:
+        try:
+            import miniapp_state  # noqa: WPS433 — هم‌پوشه
+        except Exception:  # noqa: BLE001
+            return 500, b'{"status":"error","reason":"state_module_unavailable"}', \
+                "application/json; charset=utf-8"
+        st2, body2, ctype2 = miniapp_state.dispatch_api(p)
+        if st2 == 200:
+            body2 = _redact(body2.decode("utf-8", "replace")).encode("utf-8")
+        return st2, body2, ctype2
     return 404, b"{}", "application/json; charset=utf-8"
 
 

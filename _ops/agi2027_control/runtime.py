@@ -699,7 +699,45 @@ class ControlPlane:
                     "commands": ["/repair list", "/repair plan <id>", "/repair execute <id>",
                                  "/repair rollback <id>", "/outbound status", "/outbound recover",
                                  "/outbound mark-sent <effect_id>", "/outbound cancel <effect_id>",
-                                 "/outbound retry <effect_id>", "/impact <leg>", "/fugu"]}
+                                 "/outbound retry <effect_id>", "/impact <leg>", "/fugu",
+                                 "/ui", "/truth", "/legs", "/approvals"]}
+        # PHASE 6 (2026-08-02): /ui launcher — graceful when URL unset (no fake-live).
+        if raw in {"/ui", "/open"}:
+            url = os.getenv("OCTOPUS_MINIAPP_URL", "").strip()
+            if url:
+                return {"ok": True, "status": "OK", "title": "Octopus Cockpit",
+                        "web_app_url": url, "note": "open MiniApp via Telegram web_app button"}
+            return {"ok": True, "status": "CONFIG_NEEDED",
+                    "message": "MiniApp URL تنظیم نشده. OCTOPUS_MINIAPP_URL را set کن. "
+                               "local/dev: _ops/telegram_center/miniapp/",
+                    "note": "read-only cockpit; actions disabled until owner auth"}
+        if raw == "/truth":
+            try:
+                tp = self.root / "OCTOPUS-CURRENT-TRUTH-2026-08-02.md"
+                preview = tp.read_text("utf-8", "replace")[:600] if tp.exists() else ""
+            except Exception:  # noqa: BLE001
+                preview = ""
+            return {"ok": True, "status": "OK" if preview else "MISSING", "preview": preview[:600]}
+        if raw == "/legs":
+            try:
+                import sys as _sys
+                _tc = str(self.root / "_ops" / "telegram_center")
+                if _tc not in _sys.path:
+                    _sys.path.insert(0, _tc)
+                from miniapp_state import get_legs_state  # type: ignore
+                return {"ok": True, "status": "OK", "legs": get_legs_state(self.root).get("legs", {})}
+            except Exception as exc:  # noqa: BLE001
+                return {"ok": False, "status": "ERROR", "reason": f"{type(exc).__name__}"}
+        if raw == "/approvals":
+            try:
+                import sys as _sys
+                _tc = str(self.root / "_ops" / "telegram_center")
+                if _tc not in _sys.path:
+                    _sys.path.insert(0, _tc)
+                from miniapp_state import get_approvals_state  # type: ignore
+                return {"ok": True, "status": "OK", **get_approvals_state(self.root)}
+            except Exception as exc:  # noqa: BLE001
+                return {"ok": False, "status": "ERROR", "reason": f"{type(exc).__name__}"}
         if raw == "/repair list":
             return {"ok": True, "status": "OK", "repairs": self.list_repairs()}
         if raw in {"/outbound", "/outbound status"}:

@@ -1,0 +1,32 @@
+:root{
+  --bg:#0f1117; --card:#1a1d27; --border:#2a2e3a; --text:#e4e6eb; --muted:#8b8f9b;
+  --accent:#4a9eff; --green:#3ddc84; --amber:#ffb547; --red:#ff5c5c;
+  font-family: -apple-system, system-ui, "Segoe UI", Tahoma, sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);padding:12px;max-width:760px;margin:0 auto;font-size:14px}
+h1{font-size:18px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+h1 .dot{width:10px;height:10px;border-radius:50%;background:var(--green);display:inline-block}
+h1 .dot.halted{background:var(--red)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px}
+.card h2{font-size:14px;color:var(--accent);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.badge{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--border);color:var(--muted)}
+.badge.live{background:rgba(61,220,132,.15);color:var(--green)}
+.badge.staged{background:rgba(255,181,71,.15);color:var(--amber)}
+.badge.blocked{background:rgba(255,92,92,.15);color:var(--red)}
+.tabs{display:flex;gap:4px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px}
+.tab{padding:7px 12px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;white-space:nowrap;font-size:13px}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px}
+.kv .k{color:var(--muted)}
+.flag{display:inline-block;margin:2px 4px 2px 0;padding:2px 6px;border-radius:6px;background:var(--border);font-size:11px}
+.flag.on{background:rgba(61,220,132,.15);color:var(--green)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{text-align:right;padding:4px 6px;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-weight:600}
+.warn{background:rgba(255,181,71,.1);border:1px solid var(--amber);color:var(--amber);padding:8px;border-radius:8px;font-size:12px;margin-bottom:8px}
+.muted{color:var(--muted);font-size:12px}
+pre{white-space:pre-wrap;word-break:break-word;font-size:11px;color:var(--muted);background:var(--bg);padding:8px;border-radius:6px;max-height:240px;overflow:auto}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.err{color:var(--red);font-size:12px}
+.loading{color:var(--muted);font-style:italic}

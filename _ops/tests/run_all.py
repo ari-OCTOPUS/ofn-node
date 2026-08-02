@@ -186,6 +186,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # (budget integrity + outbound funnel invariant), test green-lie classifier.
          # All flag-off, read-only, additive. Evidence in DEEP-SCAN-REPORT-2026-08-02.
          "test_octopus_parity_modules.py",
+         # 2026-08-02 (ZCode, PHASE 9): MiniApp read-only state helpers —
+         # secret-scrubbed, fail-closed, JSON-safe. Read-only; no actions.
+         "test_miniapp_state.py",
          # 2026-07-24 Phase-D (Wave-2 WS-5): consent gate/store + funnel + speed-to-lead +
          # release/settle separation + verdict→effect hook. همه flag-off.
          # (عمداً نیامد: D7 owner-transport — گاردِ no-networkِ تازه‌ترِ master؛ producer-migration —
