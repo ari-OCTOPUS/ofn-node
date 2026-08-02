@@ -1,4 +1,4 @@
-﻿// Octopus MiniApp Ã¢â‚¬â€ read-only cockpit. No secret in frontend. Actions disabled (Phase 7, not wired).
+// Octopus MiniApp Ã¢â‚¬â€ read-only cockpit. No secret in frontend. Actions disabled (Phase 7, not wired).
 // Dev mode when Telegram.WebApp absent.
 (function(){
   "use strict";
@@ -20,7 +20,9 @@
     render(t.getAttribute("data-tab"));
   });
 
-  function tgHeaders(extra){ var h=extra||{}; if(tg && tg.initData){ h["X-Tg-Init-Data"] = tg.initData; } return h; }`n  function api(path){`n    return fetch(path, {headers: tgHeaders({})}).then(function(r){
+  function tgHeaders(extra){ var h=extra||{}; if(tg && tg.initData){ h["X-Tg-Init-Data"] = tg.initData; } return h; }
+  function api(path){
+    return fetch(path, {headers: tgHeaders({})}).then(function(r){
       if(!r.ok) throw new Error("HTTP "+r.status);
       return r.json();
     }).catch(function(e){
@@ -161,4 +163,3 @@
   setAuth(devMode ? "dev-mode" : "Ã¢â‚¬Â¦");
   render("home");
 })();
-
