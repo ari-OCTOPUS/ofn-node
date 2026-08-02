@@ -211,9 +211,39 @@
   }
   function sectionState(sec){
     if(!sec) return "unknown";
+    if(Array.isArray(sec)) return "unknown";      // فهرست یک وضعیت نیست
     var raw = pick(sec, ["status", "state", "health"]);
-    if(raw === undefined) return "unknown";
-    return triState(raw);
+    if(raw !== undefined) return triState(raw);
+    // شکل‌های واقعیِ read-model ِ /api/ops کلیدِ `status` ندارند ولی جوابِ
+    // **معلوم** می‌دهند. «معلومِ بد» degraded است نه unknown — این دو را یکی
+    // کردن همان‌قدر دروغ است که سبزکردنِ نامعلوم.
+    var avail = pick(sec, ["available", "reachable", "configured"]);
+    if(avail === true) return "ok";
+    if(avail === false) return "degraded";
+    var drift = pick(sec, ["drift_status", "drift", "drift_report"]);
+    if(drift && typeof drift === "object"){
+      var ds = String(pick(drift, ["status"]) || "").toLowerCase();
+      if(ds === "drift" || ds === "mismatch") return "degraded";
+      if(ds) return triState(ds);
+    }
+    if(typeof sec.missing_count === "number" && typeof sec.checked === "number"){
+      return (sec.missing_count === 0 && sec.checked > 0) ? "ok" : "degraded";
+    }
+    return "unknown";
+  }
+
+  // پاکتِ زیرمسیر: `/api/ops/brain` → {status:"ok", section:"brain", brain:{…}}
+  // اینجا `status:"ok"` یعنی «درخواست موفق بود»، نه «مغز سالم است». اگر پاکت
+  // را به‌جای محتوا بخوانیم، یک مغزِ available:false سبز کشیده می‌شود —
+  // دقیقاً همان دروغی که این سطح برای حذفش ساخته شده. پاکتِ ناشناخته = null.
+  function unwrapSub(resp){
+    if(!resp || typeof resp !== "object") return null;
+    var name = resp.section;
+    if(name && Object.prototype.hasOwnProperty.call(resp, name)){
+      var inner = resp[name];
+      return (inner && typeof inner === "object") ? inner : null;
+    }
+    return null;
   }
 
   // ── نشانگرهای بردِ وضعیت ────────────────────────────────────────────────
@@ -233,9 +263,20 @@
     if(have === want.length) return {state:"ok", detail:have+"/"+want.length+" روشن"};
     return {state:"degraded", detail:have+"/"+want.length+" روشن"};
   }
-  function badgeOwnerAuth(st){
-    if(!st || st.auth_status === undefined) return {state:"unknown", detail:"auth_status نیامد"};
-    if(String(st.auth_status) !== "configured") return {state:"degraded", detail:String(st.auth_status)};
+  // Owner Auth دو منبع دارد و اولویت با read-model ِ /api/ops است
+  // (`owner_auth.configured`)؛ `/api/state.auth_status` پشتیبانِ قدیمی‌تر.
+  // هیچ‌کدام نبود ⇒ unknown.
+  function badgeOwnerAuth(st, ops){
+    var oa = section(ops, ["owner_auth"]);
+    var configured;
+    if(oa && typeof oa.configured === "boolean") configured = oa.configured;
+    else if(st && st.auth_status !== undefined) configured = (String(st.auth_status) === "configured");
+    if(configured === undefined) return {state:"unknown", detail:"owner_auth/auth_status نیامد"};
+    if(!configured){
+      var why = oa ? ("token:"+String(oa.bot_token||"?")+" · owner:"+String(oa.owner_id||"?"))
+                   : String(st.auth_status);
+      return {state:"degraded", detail:why};
+    }
     if(devMode) return {state:"degraded", detail:"configured ولی بدونِ initData (read-only)"};
     return {state:"ok", detail:"configured + initData"};
   }
@@ -252,7 +293,14 @@
   function badgeFromSection(ops, names, missingNote){
     var sec = section(ops, names);
     if(!sec) return {state:"unknown", detail: missingNote};
-    return {state: sectionState(sec), detail: String(pick(sec, ["detail","note","summary"]) || "")};
+    var detail = pick(sec, ["detail","note","summary","reason"]);
+    if(detail === undefined && sec.drift_status && typeof sec.drift_status === "object"){
+      detail = "drift: " + String(pick(sec.drift_status, ["status"]) || "?");
+    }
+    if(detail === undefined && typeof sec.missing_count === "number"){
+      detail = sec.missing_count + " غایب از " + String(sec.checked==null?"?":sec.checked);
+    }
+    return {state: sectionState(sec), detail: String(detail == null ? "" : detail).slice(0, 160)};
   }
 
   var BOARD = [
@@ -266,7 +314,7 @@
   function boardStates(st, ops){
     return {
       wave1:    badgeWave1(st, ops),
-      auth:     badgeOwnerAuth(st),
+      auth:     badgeOwnerAuth(st, ops),
       brain:    badgeFromSection(ops, ["brain","brain_4d","fourd_brain"], "بخشِ brain در /api/ops نیست"),
       daemon:   badgeDaemon(st),
       governor: badgeFromSection(ops, ["governor"], "بخشِ governor در /api/ops نیست"),
@@ -292,8 +340,17 @@
     {keys:["drafts_pending","pending_drafts"], fa:"پیش‌نویس‌های منتظرِ تأیید", verb:"صفِ ارسالِ دستی را باز کن"},
     {keys:["consolidation_stale_days","consolidation_staleness_days","consolidation_age_days"], fa:"کهنگیِ تجمیع (روز)", verb:"تجمیع را اجرا کن"}
   ];
-  function nbaRows(ops, nextSec){
+  // نکتهٔ قرارداد (۲۰۲۶-۰۸-۰۳): `next_steps` در /api/ops یک **فهرستِ نقشهٔ راه**
+  // است ({id,title,status,evidence})، نه شمارنده‌های NBA. فهرست را به‌جای
+  // شمارنده خواندن یعنی ساختنِ عدد از هیچ — پس صریحاً ردش می‌کنیم و هر چهار
+  // سنجه «نامعلوم» می‌مانند تا وقتی منبعِ واقعی‌شان بیاید.
+  function countsSource(ops, nextSec){
     var src = nextSec || section(ops, ["next_steps","next","next_best_action"]);
+    if(Array.isArray(src)) return null;
+    return src;
+  }
+  function nbaRows(ops, nextSec){
+    var src = countsSource(ops, nextSec);
     return NBA_FIELDS.map(function(f){
       var v = pick(src, f.keys);
       if(v === undefined) return {fa:f.fa, verb:f.verb, state:"unknown", value:null};
@@ -304,7 +361,7 @@
   }
   function nbaHeadline(rows){
     var known = rows.filter(function(r){ return r.state !== "unknown"; });
-    if(known.length === 0) return {state:"unknown", text:"داده‌ای برای پیشنهاد نیست — بخشِ next_steps در /api/ops نیامده."};
+    if(known.length === 0) return {state:"unknown", text:"شمارنده‌های اقدام هنوز منبعی ندارند — نه در /api/ops و نه در زیرمسیرها. (next_steps یک فهرستِ نقشهٔ راه است، نه شمارنده.)"};
     var due = known.filter(function(r){ return r.value > 0; });
     if(due.length === 0){
       if(known.length < rows.length) return {state:"unknown", text:"بخشی از سنجه‌ها نیامده — «همه‌چیز مرتب» قابلِ ادعا نیست."};
@@ -403,7 +460,8 @@
   // متناظر در /api/ops؛ اگر آن هم نبود → unknown با دلیلِ صریح.
   function loadSection(subPath, opsKeys){
     return apiOptional(subPath).then(function(sub){
-      if(sub && typeof sub === "object" && sub.status !== "not_found") return {sec: sub, src: subPath};
+      var inner = unwrapSub(sub);
+      if(inner) return {sec: inner, src: subPath};
       return apiWithFallback("/api/ops").then(function(res){
         var sec = section(res.data || {}, opsKeys);
         return {sec: sec, src: sec ? "/api/ops" : null, stale: res};
@@ -439,7 +497,7 @@
     showSkeleton("governor", 3);
     loadSection("/api/ops/governor", ["governor"]).then(function(r){
       var st = r.sec ? sectionState(r.sec) : "unknown";
-      var drift = r.sec ? pick(r.sec, ["drift","drift_report"]) : undefined;
+      var drift = r.sec ? pick(r.sec, ["drift_status","drift","drift_report"]) : undefined;
       var driftHtml = (drift === undefined)
         ? '<div class="muted">Drift Report نیامد — نامعلوم (unknown).</div>'
         : ((drift && typeof drift === "object") ? kvTable(drift) : '<div>'+esc(String(drift))+'</div>');
@@ -459,11 +517,28 @@
     showSkeleton("next", 4);
     loadSection("/api/ops/next", ["next_steps","next","next_best_action"]).then(function(r){
       return apiWithFallback("/api/ops").then(function(res){
+        var ops = res.data || {};
+        var road = r.sec || section(ops, ["next_steps","next","next_best_action"]);
+        var roadHtml;
+        if(Array.isArray(road)){
+          roadHtml = '<table><tr><th>مرحله</th><th>وضعیت</th><th>شاهد</th></tr>' +
+            road.map(function(it){
+              var s = triState(pick(it, ["status"]));
+              return '<tr><td>'+esc(pick(it,["title","id"])||"?")+'</td>'+
+                     '<td>'+badge3(s, String(pick(it,["status"])||"?"))+'</td>'+
+                     '<td>'+esc(String(pick(it,["evidence","note"])||"—")).slice(0,80)+'</td></tr>';
+            }).join("") + '</table>';
+        } else if(road){
+          roadHtml = kvTable(road);
+        } else {
+          roadHtml = '<div class="muted">بخشِ next_steps نیامد.</div>';
+        }
         paint("next", (r.stale ? staleNote(r.stale) : "") + staleNote(res) +
-          nbaHtml(res.data || {}, r.sec) +
-          '<div class="card"><h2>جزئیات</h2>'+
-          (r.sec ? kvTable(r.sec) : '<div class="muted">بخشِ next_steps نیامد — همهٔ سنجه‌ها نامعلوم‌اند.</div>')+
-          '<div class="muted" style="margin-top:8px">منبع: '+esc(r.src || "— (هیچ منبعی پاسخ نداد)")+'</div></div>');
+          nbaHtml(ops, r.sec) +
+          '<div class="card"><h2>نقشهٔ راه (next_steps) '+badge3(road?"ok":"unknown", road?"موجود":"نامعلوم")+'</h2>'+
+          roadHtml+
+          '<div class="muted" style="margin-top:8px">منبع: '+esc(r.src || "/api/ops")+
+          ' — این فهرستِ مراحل است، نه شمارنده‌های «بهترین اقدامِ بعدی».</div></div>');
       });
     });
   }

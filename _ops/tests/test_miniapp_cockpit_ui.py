@@ -69,7 +69,7 @@ def _reset_src_cache():
 _DRIVER = r"""
 "use strict";
 const fs = require("fs");
-const APP = process.argv[2], INDEX = process.argv[3], SCENARIO = process.argv[4];
+const APP = process.argv[2], INDEX = process.argv[3], SCENARIO = process.argv[4], FIXTURE = process.argv[5];
 const out = {scenario: SCENARIO};
 
 const registry = new Map();
@@ -202,6 +202,35 @@ try {
     routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: ops}};
     boot(); await flush();
     out.content = html("content");
+  }
+
+  else if(SCENARIO === "live_payload"){
+    // fixture از خروجیِ **واقعیِ** miniapp_state.dispatch_api می‌آید، نه از
+    // چیزی که من حدس زده‌ام. اگر لِینِ read-model شکلِ داده را عوض کند، این
+    // سناریو همان لحظه می‌ترکد.
+    withOwner();
+    const fx = JSON.parse(fs.readFileSync(FIXTURE, "utf8"));
+    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: fx.ops},
+              "/api/ops/brain": {body: fx.sub_brain}};
+    boot(); await flush();
+    out.content = html("content");
+    windowStub.__cockpit.gotoTab("brain"); await flush();
+    out.brain_tab = html("content");
+    windowStub.__cockpit.gotoTab("next"); await flush();
+    out.next_tab = html("content");
+    windowStub.__cockpit.gotoTab("governor"); await flush();
+    out.governor_tab = html("content");
+  }
+
+  else if(SCENARIO === "envelope_status_must_not_leak"){
+    // پاکتِ زیرمسیر status:"ok" دارد ولی محتوایش available:false است.
+    withOwner();
+    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: OPS_BARE},
+              "/api/ops/brain": {body: {status: "ok", section: "brain",
+                                        brain: {available: false, reason: "daemon_state.json غایب"}}}};
+    boot(); await flush();
+    windowStub.__cockpit.gotoTab("brain"); await flush();
+    out.brain_tab = html("content");
   }
 
   else if(SCENARIO === "section_present_without_status"){
@@ -383,11 +412,14 @@ def _driver_path() -> Path:
     return _DRIVER_PATH
 
 
-def run_scenario(name: str, app_js: "Path | None" = None) -> dict:
+def run_scenario(name: str, app_js: "Path | None" = None,
+                 fixture: "Path | None" = None) -> dict:
     exe = _node()
     app = str(app_js or APP_JS)
-    r = subprocess.run([exe, str(_driver_path()), app, str(INDEX_HTML), name],
-                       capture_output=True, text=True, timeout=90, encoding="utf-8")
+    cmd = [exe, str(_driver_path()), app, str(INDEX_HTML), name]
+    if fixture is not None:
+        cmd.append(str(fixture))
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=90, encoding="utf-8")
     assert r.returncode == 0, f"node خطا داد ({r.returncode}): {r.stderr[:800]}"
     assert r.stdout.strip(), f"درایور چیزی چاپ نکرد. stderr={r.stderr[:400]}"
     d = json.loads(r.stdout)
@@ -666,6 +698,76 @@ def t_v_a_dead_backend_is_unknown_not_ok():
     for label in ("4D Brain", "Governor", "Obsidian"):
         assert tl[label][2] == "unknown", (label, tl[label])
     assert tl["Owner Auth"][2] == "unknown", tl["Owner Auth"]
+
+
+def _live_ops_fixture() -> "tuple[Path, dict]":
+    """خروجیِ **واقعیِ** read-model را می‌گیرد و به درایور می‌دهد.
+
+    این تفاوتِ «تستِ نویسنده و خواننده با هم» است با «تستِ fixture ِ خودساخته»:
+    اگر لِینِ read-model فردا کلیدی را عوض کند، این round-trip می‌ترکد؛ یک
+    fixture ِ دست‌ساز تا ابد سبز می‌ماند و هیچ‌چیز نمی‌گوید."""
+    sys.path.insert(0, str(_HERE.parent / "telegram_center"))
+    import miniapp_state  # noqa: WPS433
+    ops = json.loads(miniapp_state.dispatch_api("/api/ops")[1].decode("utf-8"))
+    sub_brain = json.loads(miniapp_state.dispatch_api("/api/ops/brain")[1].decode("utf-8"))
+    d = Path(tempfile.mkdtemp(prefix="cockpit-fx-"))
+    p = d / "ops.json"
+    p.write_text(json.dumps({"ops": ops, "sub_brain": sub_brain}, ensure_ascii=False),
+                 encoding="utf-8", newline="\n")
+    return p, ops
+
+
+def t_w_the_real_ops_payload_never_paints_green_over_missing_data():
+    """قرارداد را با خروجیِ زندهٔ read-model می‌سنجد، نه با حدسِ من.
+
+    ادعاها state-independent‌اند: هرچه در payload باشد، رابطه‌ی «دادهٔ معلومِ
+    بد ⇒ غیرِ سبز» و «دادهٔ غایب ⇒ نامعلوم» باید برقرار بماند."""
+    fx, ops = _live_ops_fixture()
+    d = run_scenario("live_payload", fixture=fx)
+    tl = tiles(d["content"])
+    for label in ("Wave 1", "Owner Auth", "4D Brain", "Daemon", "Governor", "Obsidian"):
+        assert label in tl, f"{label} رندر نشد"
+        assert tl[label][2] in ("ok", "degraded", "unknown"), tl[label]
+
+    brain = ops.get("brain")
+    if isinstance(brain, dict) and brain.get("available") is False:
+        assert tl["4D Brain"][2] == "degraded", ("مغزِ available:false نباید ok باشد", tl["4D Brain"])
+        assert tl["4D Brain"][1] != "live"
+    elif brain is None:
+        assert tl["4D Brain"][2] == "unknown", tl["4D Brain"]
+
+    gov = ops.get("governor")
+    if isinstance(gov, dict) and isinstance(gov.get("drift_status"), dict) \
+            and gov["drift_status"].get("status") == "drift":
+        assert tl["Governor"][2] == "degraded", ("drift نباید ok باشد", tl["Governor"])
+
+    obs = ops.get("obsidian")
+    if isinstance(obs, dict) and isinstance(obs.get("missing_count"), int):
+        want = "ok" if (obs["missing_count"] == 0 and obs.get("checked", 0) > 0) else "degraded"
+        assert tl["Obsidian"][2] == want, (obs["missing_count"], obs.get("checked"), tl["Obsidian"])
+
+    oa = ops.get("owner_auth")
+    if isinstance(oa, dict) and oa.get("configured") is False:
+        assert tl["Owner Auth"][2] == "degraded", tl["Owner Auth"]
+
+    # next_steps ِ واقعی یک فهرست است، نه شمارنده ⇒ هر چهار سنجه نامعلوم
+    if isinstance(ops.get("next_steps"), list):
+        assert "نامعلوم (unknown)" in d["content"]
+        assert "هیچ اقدامِ سررسیدشده‌ای نیست" not in d["content"], \
+            "فهرستِ نقشهٔ راه به‌جای شمارنده خوانده شد و «مرتب» اعلام شد"
+        assert "نقشهٔ راه (next_steps)" in d["next_tab"], "فهرستِ واقعیِ مراحل رندر نشد"
+    assert "منبع: /api/ops/brain" in d["brain_tab"], "زیرمسیرِ موجود استفاده نشد"
+
+
+def t_x_a_subendpoint_envelope_status_never_becomes_the_sections_health():
+    """`{status:"ok", section:"brain", brain:{available:false}}`.
+
+    `status:"ok"` یعنی «درخواست موفق بود». اگر پاکت به‌جای محتوا خوانده شود،
+    یک مغزِ مرده سبز کشیده می‌شود — بدترین حالتِ ممکن برای این سطح."""
+    d = run_scenario("envelope_status_must_not_leak")
+    assert 'data-state="degraded"' in d["brain_tab"], d["brain_tab"][:400]
+    assert 'data-state="ok"' not in d["brain_tab"], "پاکتِ status:ok به سلامتِ بخش نشت کرد"
+    assert "daemon_state.json غایب" in d["brain_tab"], "دلیل به مالک نشان داده نشد"
 
 
 if __name__ == "__main__":
