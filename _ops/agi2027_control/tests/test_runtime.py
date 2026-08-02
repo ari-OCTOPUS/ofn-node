@@ -322,20 +322,19 @@ class TestLiveWiringHooks(unittest.TestCase):
             sys.path.insert(0, str(legs))
         mod = importlib.import_module("lead_outbound_transport")
         saved = {k: os.environ.get(k) for k in [
-            "OCTOPUS_WIRE_LEAD_OUTBOUND_WAL", "OCTOPUS_SMTP_HOST", "OCTOPUS_SMTP_PORT",
-            "OCTOPUS_SMTP_USER", "OCTOPUS_SMTP_FROM", "OCTOPUS_SMTP_PASS"]}
+            "OCTOPUS_WIRE_LEAD_OUTBOUND_WAL", "OCTOPUS_AGI2027_RUNTIME_DIR",
+            "OCTOPUS_SMTP_HOST", "OCTOPUS_SMTP_PORT", "OCTOPUS_SMTP_USER",
+            "OCTOPUS_SMTP_FROM", "OCTOPUS_SMTP_PASS"]}
         try:
+            import tempfile
+            temp_runtime = Path(tempfile.mkdtemp(prefix="octopus-wal-test-"))
+            os.environ["OCTOPUS_AGI2027_RUNTIME_DIR"] = str(temp_runtime)
             os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND_WAL"] = "1"
             os.environ["OCTOPUS_SMTP_HOST"] = "smtp.example.invalid"
             os.environ["OCTOPUS_SMTP_PORT"] = "587"
             os.environ["OCTOPUS_SMTP_USER"] = "owner@example.invalid"
             os.environ["OCTOPUS_SMTP_FROM"] = "owner@example.invalid"
             os.environ["OCTOPUS_SMTP_PASS"] = "dummy-secret"
-            for suffix in ("", "-wal", "-shm"):
-                try:
-                    (OPS / "agi2027_runtime" / ("outbound-effects.sqlite3" + suffix)).unlink()
-                except FileNotFoundError:
-                    pass
             candidate = {"lead_id": "L-WAL-1", "contact": {"email": "client@example.invalid"}}
             draft = {"subject": "Quote QT-20260802-001", "body": "hello"}
             calls = []

@@ -85,6 +85,29 @@ def _read_json_safe(path: Path) -> "dict | None":
         return d if isinstance(d, dict) else None
     except (OSError, ValueError, TypeError):
         return None
+def _miniapp_url_configured() -> bool:
+    """Best-effort config check without exposing the URL.
+    The gateway may be started before the User env is inherited by the process,
+    while run-miniapp-tunnel.ps1 always writes state/telegram/miniapp-url.json.
+    Treat either source as configured so the cockpit does not show a false
+    CONFIG_NEEDED warning.
+    """
+    if str(os.environ.get("OCTOPUS_MINIAPP_URL", "") or "").strip():
+        return True
+    try:
+        import subprocess
+        code = "[Environment]::GetEnvironmentVariable('OCTOPUS_MINIAPP_URL','User')"
+        r = subprocess.run(["powershell", "-NoProfile", "-Command", code],
+                           capture_output=True, text=True, timeout=2)
+        if (r.stdout or "").strip():
+            return True
+    except Exception:
+        pass
+    try:
+        d = _read_json_safe(STATE_DIR / "telegram" / "miniapp-url.json")
+        return bool(isinstance(d, dict) and str(d.get("url") or "").strip())
+    except Exception:
+        return False
 
 
 def get_miniapp_state(root: "Path | None" = None) -> dict:
@@ -118,7 +141,7 @@ def get_miniapp_state(root: "Path | None" = None) -> dict:
         "active_flags": flags,
         "auth_status": "configured" if auth_configured else "CONFIG_NEEDED",
         "projectf_status": "BLOCKED_NEEDS_CREDENTIALS",
-        "miniapp_url_configured": bool(os.environ.get("OCTOPUS_MINIAPP_URL")),
+        "miniapp_url_configured": _miniapp_url_configured(),
         "commit": _git_head_short(root),
     }
     return _scrub_dict(out)
