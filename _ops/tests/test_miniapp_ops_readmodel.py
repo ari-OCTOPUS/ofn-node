@@ -553,6 +553,95 @@ def t_the_read_model_stays_read_only():
     assert not hits, f"مسیرِ نوشتن در سطحِ فقط‌خواندنی: {hits}"
 
 
+# ── ۱۰. شکاف‌هایی که جهش‌آزماییِ مستقلِ ممیز نشان داد (۲۰۲۶-۰۸-۰۳) ────────────
+def t_the_cache_is_keyed_per_path_not_shared():
+    """کلیدِ کش باید per-path باشد وگرنه یک برش پاسخِ برشِ دیگر را سرو می‌کند.
+
+    تست‌های بالا قبل از **هر** dispatch کش را پاک می‌کنند، پس دو مسیرِ متفاوت
+    هرگز داخلِ یک پنجرهٔ TTL دیده نمی‌شدند — یعنی کلیدِ کش بی‌ناظر بود. در تولید
+    هیچ‌کس کش را پاک نمی‌کند، پس دقیقاً همان‌جا که ناظر نبود، خطرِ واقعی است."""
+    clock = _Clock()
+    old_mono = ms._mono
+    ms._mono = clock
+    try:
+        ms.cache_clear()
+        a = json.loads(ms.dispatch_api("/api/ops")[1])
+        b = json.loads(ms.dispatch_api("/api/ops/leads")[1])    # داخلِ همان TTL
+        c = json.loads(ms.dispatch_api("/api/ops/tasks")[1])    # بدونِ cache_clear
+        assert b.get("section") == "leads", b
+        assert c.get("section") == "tasks", c
+        assert "brain" in a and "brain" not in b, (sorted(a), sorted(b))
+        assert b["leads_total"] == 2 and c["tasks_total"] == 1, (b, c)
+    finally:
+        ms._mono = old_mono
+        ms.cache_clear()
+
+
+def t_the_light_slice_never_calls_the_heavy_builder():
+    """«کلیدش در پاسخ نیست» ثابت نمی‌کند «ساخته نشد» — خودِ فراخوانی را بشمار.
+
+    گاردِ شکلِ پاسخ یک برشِ سبک را که مغز را می‌سازد و نتیجه را دور می‌ریزد
+    سبز می‌کند؛ هدفِ split سرعت است نه شکل."""
+    calls = {"n": 0}
+    old = ms.get_brain_state
+
+    def counting(*a, **k):
+        calls["n"] += 1
+        return old(*a, **k)
+
+    ms.get_brain_state = counting
+    try:
+        ms.cache_clear()
+        ms.dispatch_api("/api/ops/leads")
+        ms.dispatch_api("/api/ops/tasks")
+        assert calls["n"] == 0, f"برشِ سبک {calls['n']} بار بخشِ سنگین را ساخت"
+        ms.cache_clear()
+        ms.dispatch_api("/api/ops/brain")
+        assert calls["n"] >= 1, "برشِ brain اصلاً بخشِ brain را نساخت"
+    finally:
+        ms.get_brain_state = old
+        ms.cache_clear()
+
+
+def t_the_drift_step_follows_the_measured_drift_status():
+    """قدمِ drift باید از خودِ سنجه بیاید — یک «done» ِ ثابت هم امروز سبز می‌ماند."""
+    old = ms._governor_drift
+    try:
+        for status, expect in (("drift", "open"), ("aligned", "done"),
+                               ("unknown", "unknown")):
+            ms._governor_drift = (lambda s: (lambda *a, **k: {
+                "status": s, "reason": None, "declared_paths": [],
+                "missing": [], "notes": []}))(status)
+            steps = {x["id"]: x["status"] for x in ms.get_next_steps()}
+            assert steps["fugu-policy-drift"] == expect, \
+                (status, steps["fugu-policy-drift"])
+    finally:
+        ms._governor_drift = old
+        ms.cache_clear()
+
+
+def t_a_half_built_ui_is_not_reported_as_a_finished_step():
+    """چهار تب یک **فهرستِ لازم**اند نه املاهای جایگزین: دو از چهار هنوز open است.
+
+    بدونِ این فیکسچر، `any()` به‌جای `all()` هم سبز می‌ماند — چون امروز هر چهار
+    تب حاضرند و پایه هرگز زیرِ سطحِ هدف نمی‌رود."""
+    with tempfile.TemporaryDirectory() as d:
+        (Path(d) / "miniapp").mkdir()
+        (Path(d) / "miniapp" / "index.html").write_text(
+            '<div data-tab="brain"></div><div data-tab="governor"></div>', "utf-8")
+        (Path(d) / "miniapp" / "app.js").write_text("// هنوز خالی\n", "utf-8")
+        old = ms._HERE
+        ms._HERE = Path(d)
+        try:
+            steps = {x["id"]: x["status"] for x in ms.get_next_steps()}
+        finally:
+            ms._HERE = old
+            ms.cache_clear()
+    assert steps["miniapp-tabs"] == "open", steps["miniapp-tabs"]
+    assert steps["command-palette"] == "open", steps["command-palette"]
+    assert steps["next-best-action"] == "open", steps["next-best-action"]
+
+
 CHECKS = [
     ("کلیدهای موجود دست‌نخورده", t_every_pre_existing_key_keeps_its_name_and_meaning),
     ("registry از خودِ موتور", t_the_action_registry_is_read_from_the_engine_not_hand_copied),
@@ -578,6 +667,10 @@ CHECKS = [
     ("کش خطای کهنه را موفقیت نمی‌کند", t_the_cache_never_serves_a_stale_error_as_a_success),
     ("استثنا هرگز کش نمی‌شود", t_an_exception_inside_a_handler_is_never_cached),
     ("سطحِ خواندنی نمی‌نویسد", t_the_read_model_stays_read_only),
+    ("کش per-path است نه مشترک", t_the_cache_is_keyed_per_path_not_shared),
+    ("برشِ سبک بخشِ سنگین را صدا نمی‌زند", t_the_light_slice_never_calls_the_heavy_builder),
+    ("قدمِ drift از خودِ سنجه می‌آید", t_the_drift_step_follows_the_measured_drift_status),
+    ("UI ِ نیمه‌ساخته «done» نمی‌شود", t_a_half_built_ui_is_not_reported_as_a_finished_step),
 ]
 
 
