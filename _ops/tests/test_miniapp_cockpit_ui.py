@@ -41,7 +41,7 @@ STYLE_CSS = MINIAPP / "style.css"
 
 # ── لنگرهای یکتا ────────────────────────────────────────────────────────────
 # هرکدام دقیقاً یک بار در app.js می‌آید؛ جهش روی همین رشته‌ها تست را می‌کُشد.
-HEADER_LITERAL = 'h["X-Tg-Init-Data"] = window.Telegram?.WebApp?.initData || "";'
+HEADER_LITERAL = '"X-Tg-Init-Data": window.Telegram?.WebApp?.initData || ""'
 PAINT_GUARD = 'if(activeTab !== tab) return false;'
 TRISTATE_FALLBACK = 'return "unknown";     // شکِ باقی‌مانده = unknown، هرگز ok'
 PALETTE_GATE = 'if(COMMANDS[i].mutating && devMode) return false;'

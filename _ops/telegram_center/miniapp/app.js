@@ -49,10 +49,13 @@
   }
 
   // ── شبکه ────────────────────────────────────────────────────────────────
+  // تنها نقطهٔ تعریفِ هدرِ هویت. عمداً **همیشه** ست می‌شود (حتی رشتهٔ خالی):
+  // gateway هم `or ""` می‌کند، پس رفتار عوض نمی‌شود ولی قرارداد صریح و
+  // گرپ‌شدنی می‌ماند و «هدر جا افتاد» دیگر یک حالتِ ممکن نیست.
   function tgHeaders(extra){
-    var h = extra || {};
-    h["X-Tg-Init-Data"] = window.Telegram?.WebApp?.initData || "";
-    return h;
+    return Object.assign({}, extra || {}, {
+      "X-Tg-Init-Data": window.Telegram?.WebApp?.initData || ""
+    });
   }
 
   // coalescing: دو صداکننده در یک لحظه = یک درخواستِ واقعی.
