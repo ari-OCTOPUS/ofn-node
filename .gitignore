@@ -59,6 +59,18 @@ _ops/OCTOPUS-flags.cmd.bak*
 # PII: langar opsec policy holds real names/phone/address — never commit
 03 - Projects/اونلی فنز/langar/langar_config.json
 
+# 🔴 SECRET: پروفایلِ کسب‌وکار — BSB و شمارهٔ حسابِ واقعی. هرگز commit نشود.
+#
+# ۲۰۲۶-۰۸-۰۱ — مالک این فایل را ساخت و `git status` بلافاصله `?? personal/`
+# نشان داد: **untracked ولی ignore-نشده**. یعنی یک `git add -A` کافی بود تا
+# شمارهٔ حساب برای همیشه در تاریخچهٔ مخزن بنشیند. سه ردیفِ زیرِ این خط مسیرِ
+# `03 - Projects/Accounting/personal/` را می‌پوشاندند و کسی ندید که `personal/`
+# ریشه یک مسیرِ دیگر است.
+#
+# `invoice._business_config()` این فایل را **مقدم بر** budgets.yaml می‌خواند
+# (invoice.py:104) — یعنی همین‌جا جای درستش است، فقط باید نامرئیِ گیت بماند.
+personal/
+
 # PII: دفترِ شخصی/مشترک حاوی دادهٔ مالیِ واقعی — هرگز commit نشود
 03 - Projects/Accounting/personal/ledger.json
 
@@ -148,8 +160,17 @@ _ops/state/ORGANISM-STATE.ziman
 03 - Projects/*/langar/link_state.json
 03 - Projects/*/brain/dm_queue.json
 
-# octopus runtime root (queue/logs/config incl. bot tokens) - never commit
-_octopus/
+# octopus runtime root (queue/logs/state) - never commit.
+# EXCEPTION (2026-08-03, owner vote): the four governance config files are
+# secret-scanned and tracked so policy changes get git history. Runtime state stays out.
+# Note: `_octopus/*` (not `_octopus/`) — a dir-pattern would block the `!` re-includes below.
+_octopus/*
+!_octopus/config/
+_octopus/config/*
+!_octopus/config/policy.yaml
+!_octopus/config/octopus.yaml
+!_octopus/config/projects.yaml
+!_octopus/config/bots.yaml
 
 # chord shadow ledger (runtime, hash-chained) — 2026-07-18
 _ops/chord/state/

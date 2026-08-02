@@ -23,6 +23,13 @@ import harness
 
 ENV = harness.setup("goal-max-circular")   # env قبل از import ِ opslib — ترتیب مهم است
 
+# A2 (۲۰۲۶-۰۸-۰۳): از ۰۸-۰۳ نبودِ env دیگر یعنی «رأیِ ثبت‌شده در
+# `_ops/owner-verdicts.yaml`»، نه «هیچ استثنایی». این فایل **منطقِ خالصِ انقضا**
+# را می‌سنجد، پس باید هر دو ورودی‌اش را کنترل کند نه فقط env — وگرنه سوییت به
+# فایلِ زندهٔ والت گره می‌خورد و با هر رأیِ تازهٔ مالک قرمز/سبز می‌شود.
+# پوششِ خودِ fallback جای دیگری است: `test_owner_verdicts.py`.
+os.environ["OCTOPUS_OWNER_VERDICTS"] = "__isolated_no_owner_verdicts__.yaml"
+
 _CORTEX = str(Path(__file__).resolve().parent.parent / "cortex")
 if _CORTEX not in sys.path:
     sys.path.insert(0, _CORTEX)
@@ -31,6 +38,16 @@ import opslib          # noqa: E402
 import goal_directed as gd  # noqa: E402
 
 WINDOW_END = "2026-08-06"
+
+
+def t_this_suite_is_isolated_from_the_live_verdicts_file():
+    """گاردِ ایزوله (A2): اگر پینِ `OCTOPUS_OWNER_VERDICTS` برداشته شود، این
+    قرمز می‌شود — نه اینکه سوییت بی‌صدا رأی‌های زندهٔ مالک را بخواند."""
+    _ops = str(Path(__file__).resolve().parent.parent)
+    if _ops not in sys.path:
+        sys.path.insert(0, _ops)
+    import owner_verdicts  # noqa: PLC0415
+    assert owner_verdicts.load() == {}, "سوییت دارد فایلِ زندهٔ owner-verdicts را می‌خواند"
 
 
 def _set(value=None, until=None):

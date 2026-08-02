@@ -147,6 +147,40 @@ class TestAdaptiveValue(unittest.TestCase):
             self.assertEqual(score["verdict"], "INSUFFICIENT_SIGNAL")
             self.assertFalse(score["low_impact"])
 
+    def test_fixture_rows_never_count_as_impact(self):
+        with tempfile.TemporaryDirectory() as d:
+            ledger = AdaptiveValueLedger(Path(d) / "value.jsonl")
+            ledger.record("leg-z", "email_sent", "production", output_score=1,
+                          effect_settled=True,
+                          metadata={"lead_id": "L-WAL-1", "to_domain": "example.invalid"})
+            ledger.record("leg-z", "email_sent", "production", output_score=1,
+                          effect_settled=True,
+                          metadata={"lead_id": "L-9", "to_domain": "example.invalid"})
+            ledger.record("leg-z", "email_sent", "production", output_score=1,
+                          effect_settled=True,
+                          metadata={"lead_id": "L-ok", "to_domain": "example.com"})
+            score = ledger.score("leg-z")
+            self.assertEqual(score["verdict"], "INSUFFICIENT_SIGNAL")
+            self.assertEqual(score["reason"], "fixture_only")
+            self.assertEqual(score["fixture_excluded"], 3)
+            self.assertEqual(score["real_events"], 0)
+            self.assertFalse(score["impact_valid"])
+
+    def test_real_rows_score_without_fixture_inflation(self):
+        with tempfile.TemporaryDirectory() as d:
+            ledger = AdaptiveValueLedger(Path(d) / "value.jsonl")
+            ledger.record("leg-z", "email_sent", "production", output_score=1,
+                          effect_settled=True, metadata={"lead_id": "L-WAL-1"})
+            ledger.record("leg-z", "expensive_no_output", "production",
+                          output_score=0, cost_score=2, risk_score=1,
+                          metadata={"lead_id": "L-77"})
+            score = ledger.score("leg-z")
+            # a fixture's settled send must not lift the real burden out of LOW_IMPACT
+            self.assertEqual(score["verdict"], "LOW_IMPACT")
+            self.assertEqual(score["fixture_excluded"], 1)
+            self.assertEqual(score["real_events"], 1)
+            self.assertTrue(score["impact_valid"])
+
 
 class TestControlPlane(unittest.TestCase):
     def test_non_owner_denied(self):

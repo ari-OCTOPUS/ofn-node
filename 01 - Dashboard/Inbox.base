@@ -19,7 +19,7 @@ views:
     filters:
       and:
         - file.inFolder("10 - Telegram processing")
-        - status != "processed"
+        - status != "done"
     order:
       - file.name
       - type

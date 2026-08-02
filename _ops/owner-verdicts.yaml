@@ -1,0 +1,47 @@
+# owner-verdicts.yaml — رأی‌های تاریخ‌دارِ مالک که به knob تبدیل شده‌اند.
+# ردیفِ A2 ِ REPAIR-PLAN-2026-08-03، با رأیِ مالک در چت ۲۰۲۶-۰۸-۰۳.
+#
+# چرا این فایل هست:
+#   `_ops/OCTOPUS-flags.cmd` عمداً gitignore است (داشبورد تولیدش می‌کند و ممکن
+#   است secret بگیرد) — و همین یعنی هر رأیِ مالک که به فلگ تبدیل می‌شد **در هیچ
+#   کامیتی نبود**. تمدیدِ ۰۸-۰۳ ِ دو استثنا هم فقط روی یک ماشین زندگی می‌کرد.
+#   این‌جا فقط knobهای **غیرمحرمانه** می‌نشینند تا تاریخچه‌شان در گیت بماند.
+#
+# ⛔ هرگز secret این‌جا نمی‌آید: نه کلیدِ API، نه توکن، نه سید، نه آدرسِ کیف‌پول.
+#    این فایل tracked است؛ هر چه این‌جا بنویسی برای همیشه در تاریخچه می‌ماند.
+#
+# تقدم (عمدی، تغییرش رأی می‌خواهد):
+#   env (از flags.cmd) **برنده** است؛ این فایل فقط وقتی خوانده می‌شود که env
+#   غایب باشد. پس رفتارِ امروز بایت‌به‌بایت همان است و این فایل تورِ نجات است:
+#   اگر flags.cmd گم یا بازتولید شود، رأی‌ها زنده می‌مانند.
+#   واگراییِ env با این فایل = خطا، نه سکوت → `owner_verdicts.drift()`.
+#
+# قالب سخت‌گیر است (پارسرِ stdlib، بدونِ PyYAML): دقیقاً دو سطح تورفتگی،
+# `verdicts:` در ستون ۰، نامِ رأی با ۲ فاصله، کلیدها با ۴ فاصله.
+
+verdicts:
+  spend_cap:
+    env: OCTOPUS_SPEND_CAP_USD
+    until_env: OCTOPUS_SPEND_CAP_UNTIL
+    value: "200"
+    until: "2026-08-13"
+    unit: USD
+    decided: "2026-07-30"
+    extended: "2026-08-03"
+    reader: budget_gate.spend_cap_now
+    expires_to: "سقفِ پایه (AU$30/ماه)"
+    quote: "سقفِ این پنجره US$200 است، نه AU$30."
+    note: "تا ۰۸-۰۳ فقط در GOALS-OCTOPUS.md نوشته بود و هیچ کدی نمی‌خواندش."
+
+  goal_max_circular:
+    env: OCTOPUS_GOAL_MAX_CIRCULAR
+    until_env: OCTOPUS_GOAL_MAX_CIRCULAR_UNTIL
+    value: "6"
+    until: "2026-08-13"
+    unit: count
+    decided: "2026-07-30"
+    extended: "2026-08-03"
+    reader: goal_directed.max_circular_now
+    expires_to: "2"
+    quote: "max_circular رو بذار ۶ تا آخر آزمون."
+    note: "از ۰۷-۳۰ خودکار منقضی می‌شد؛ این‌جا فقط تاریخچه‌اش گیت‌دار شد."

@@ -132,6 +132,23 @@ MAX_CIRCULAR_ENV = "OCTOPUS_GOAL_MAX_CIRCULAR"
 MAX_CIRCULAR_UNTIL_ENV = "OCTOPUS_GOAL_MAX_CIRCULAR_UNTIL"   # YYYY-MM-DD، شاملِ خودِ روز
 
 
+# A2 (۲۰۲۶-۰۸-۰۳): جای خالیِ env را رأیِ **tracked** ِ مالک پر می‌کند، چون
+# `OCTOPUS-flags.cmd` گیت‌ایگنور است و تنها ردِ ماندگارِ رأی `owner-verdicts.yaml`
+# است. env همچنان برنده می‌ماند ⇒ رفتارِ امروز تغییر نمی‌کند. fail-soft.
+def _knob(env_name: str) -> str:
+    live = str(os.environ.get(env_name, "") or "").strip()
+    if live:
+        return live
+    try:
+        _ops = str(Path(__file__).resolve().parents[1])
+        if _ops not in sys.path:
+            sys.path.insert(0, _ops)
+        import owner_verdicts  # noqa: PLC0415
+        return owner_verdicts.get(env_name)
+    except Exception:  # noqa: BLE001
+        return ""
+
+
 def max_circular_now(today: "str | None" = None) -> dict:
     """سهمیهٔ امروز + دلیلش. `today` **کاملاً** تزریق‌شدنی است — هیچ شاخه‌ای پشتِ
     سرِ صداکننده ساعتِ دیوار را نمی‌خواند (درسِ «ساعتِ نیمه‌تزریقی = بمبِ ساعتی»:
@@ -141,8 +158,8 @@ def max_circular_now(today: "str | None" = None) -> dict:
     fail-closed به سمتِ **محافظه‌کار**: env ِ ناخوانا، تاریخِ بدشکل، یا نبودِ
     تاریخِ انقضا ⇒ همان ۲. یعنی یک تایپو استثنا را ابدی نمی‌کند."""
     import datetime as _dt
-    raw = str(os.environ.get(MAX_CIRCULAR_ENV, "") or "").strip()
-    until = str(os.environ.get(MAX_CIRCULAR_UNTIL_ENV, "") or "").strip()
+    raw = _knob(MAX_CIRCULAR_ENV)
+    until = _knob(MAX_CIRCULAR_UNTIL_ENV)
     if not raw:
         return {"value": MAX_CIRCULAR_DEFAULT, "reason": "default"}
     if not until:
