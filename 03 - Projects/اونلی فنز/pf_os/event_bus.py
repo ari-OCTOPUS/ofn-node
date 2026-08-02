@@ -40,7 +40,20 @@ APPROVAL = frozenset({"required", "approved", "denied", "not_required",
 _EVENT_RE = re.compile(r"^[a-z]+\.[a-z]+\.[a-z_]+$")
 
 # containment parity با _ops/events.py (هیچ رشته‌ی ممنوع echo نمی‌شود)
-_BANNED_ECHO = ("اونلی", "onlyfans", "صبا")
+# 2026-07-25: این لیست وظیفه‌اش scrub کردنِ نشانه‌های حساس است، نه ذخیرهٔ هویت.
+# "اونلی/onlyfans" = containmentِ پلتفرم. نامِ شخصِ real از فایلِ gitignored خوانده
+# می‌شود (PF_PII_BLOCKLIST) تا در کد هاردکد نباشد. در اینجا فقط نشانه‌های structural.
+_BANNED_ECHO_BASE = ("اونلی", "onlyfans")
+import os as _os
+_blocklist = _os.environ.get("PF_PII_BLOCKLIST", "")
+_BANNED_ECHO = _BANNED_ECHO_BASE
+if _blocklist and _os.path.isfile(_blocklist):
+    try:
+        with open(_blocklist, encoding="utf-8") as _f:
+            _extra = tuple(_ln.strip().lower() for _ln in _f if _ln.strip())
+            _BANNED_ECHO = _BANNED_ECHO_BASE + _extra
+    except OSError:
+        pass
 
 # نگاشتِ رویدادِ taxonomy → ۷ نامِ legacyِ loggerِ مرکزی (fail-soft mirror)
 _LEGACY_MAP = {

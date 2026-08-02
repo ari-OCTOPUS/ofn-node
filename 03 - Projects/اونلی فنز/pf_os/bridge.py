@@ -70,12 +70,29 @@ def _atomic_append(line: str) -> bool:
 
 
 # ─── فیلترِ PII (defense-in-depth، حتی اگر caller اشتباه کند) ─────────────────
+# 2026-07-25: پاک‌سازی PII — اسم‌های واقعی اشخاص از کد حذف شدند. این لیست حالا
+# فقط شاملِ نشانه‌های عمومی + tokenهای شناخته‌شدهٔ برند است. برای محافظتِ کامل،
+# هر اسمِ واقعیِ جدید باید از فایلِ gitignored `pii_blocklist.txt` (اختیاری) خوانده
+# شود، نه در کد هاردکد. این هم دفاع را قوی‌تر کرد (اضافه‌کردن = بدون تغییرِ کد).
 _PII_TERMS = (
-    "ari", "saba", "anar", "amber", "yalda",
-    "sydney", "stanhope", "mohebiazal", "armin",
+    "ari",       # کدِ تاریخیِ مالک (هنوز در داده‌های قدیمی ممکن است باشد)
+    "anar", "amber", "yalda",   # نام‌های برندِ کاندید (نه اشخاص)
+    "sydney", "stanhope",       # نشانه‌های جغرافیایی
     "tehran", "iran",
     "real name", "phone", "address",
 )
+# لیستِ اضافی از فایل (اختیاری، gitignored). هر خط = یک واژهٔ ban.
+import os as _os
+_BLOCKLIST_FILE = _os.environ.get("PF_PII_BLOCKLIST", "")
+if _BLOCKLIST_FILE and _os.path.isfile(_BLOCKLIST_FILE):
+    try:
+        with open(_BLOCKLIST_FILE, encoding="utf-8") as _f:
+            for _line in _f:
+                _w = _line.strip().lower()
+                if _w and _w not in _PII_TERMS:
+                    _PII_TERMS = _PII_TERMS + (_w,)
+    except OSError:
+        pass
 
 
 def _scrub_summary(text: str) -> str:

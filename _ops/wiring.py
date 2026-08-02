@@ -2955,6 +2955,9 @@ _BUSINESS_LEGS_SPEC = (
     # درآمدی در آن نبود — یعنی خودآگاهیِ ارگانیسم پاهای مرده را می‌شمرد و کسب‌وکارِ
     # واقعی را نمی‌دید. lead_status فقط‌خواندنی و fail-soft است (الگوی همان چهار).
     ("lead", "lead_leg", "lead_status"),
+    # 2026-08-02 G-02: sync_agent was armed but invisible in ORGANISM-STATE/cards.
+    # Status-only/read-only/fail-soft like the other business legs.
+    ("sync_agent", "sync_agent", "sync_agent_status"),
     ("mining", "mining_leg", "mining_status"),
     ("crypto", "crypto_leg", "crypto_status"),
     ("accounting", "accounting_leg", "accounting_status"),

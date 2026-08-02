@@ -308,6 +308,11 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_command_discoverability.py",  # دستوری که دیده نمی‌شود، نیست
          "test_improve_learning_loop.py",  # رأیِ مالک باید به یادگیرنده برسد
          "test_orphan_scan.py",  # ارگانیسم بداند کدام اندامش وصل نیست
+         # ۰۸-۰۳ Control Plane فاز ۱: قاعدهٔ مالکیتِ حالت باید **اجرا** شود.
+         # مالک پروسهٔ مستقل را انتخاب کرد؛ ریسکش «نویسندهٔ دوم» است که در این
+         # ارگانیسم دو بار باگ ساخته. اگر این تست در سوییت نباشد، همان کلاسِ
+         # «تستِ سبزی که هیچ‌وقت نمی‌دود» می‌شود که ۰۸-۰۳ کشف شد.
+         "test_control_plane.py",
          "test_funnel_cmd.py",  # D3b — مالک واقعیتِ بازار را می‌گوید
          "test_two_bot_bridge.py",  # پلِ عام — دستورِ تبلیغ‌شده از گروه کار کند
          "test_self_coding_chain.py",  # زنجیرهٔ هفت‌حلقه‌ایِ کدنویسیِ واقعی
