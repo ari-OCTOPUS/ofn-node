@@ -2551,6 +2551,31 @@ class Center:
         cmd = text.split()[0].split("@")[0].lower()
         chat_id = (msg.get("chat") or {}).get("id")  # پاسخ به همان‌جا که پرسید
 
+        # ── AGI2027/Owner Control Plane (2026-08-02) ─────────────────────────
+        # owner-only already enforced in handle_update. Flag-off => None => exact fallthrough.
+        # Commands: /ops, /repair list|plan|execute|rollback, /impact, /fugu.
+        try:
+            _ops_path = str(_HERE.parent)
+            if _ops_path not in sys.path:
+                sys.path.insert(0, _ops_path)
+            from agi2027_control.integration import (  # noqa: WPS433
+                try_handle_control as _agi_try_control,
+                format_control_result as _agi_format_control,
+            )
+            _ctrl = _agi_try_control(text, {"is_owner": True})
+            if _ctrl is not None:
+                _mid = None
+                try:
+                    _mid = self._client.send(
+                        _scrub(_agi_format_control(_ctrl)), chat_id=chat_id,
+                        topic_id=self._reply_thread(msg))
+                except Exception:  # noqa: BLE001
+                    pass
+                return {"kind": "agi2027-control", "status": _ctrl.get("status"),
+                        "ok": _ctrl.get("ok"), "sent": _mid is not None}
+        except Exception:  # noqa: BLE001 — control hook must never break normal TG flow
+            pass
+
         # ۲۰۲۶-۰۷-۲۷ — عبارت‌های مجوزِ قرارداد (`OWNER_AUTH: …`) تا امروز در
         # **هیچ خطی از کد** شناخته نمی‌شدند. یعنی اگر مالک نیمه‌شب مجوزی می‌داد و
         # هیچ ایجنتی بیدار نبود، آن جمله تبخیر می‌شد: تصمیمِ مالک فرّارترین دادهٔ

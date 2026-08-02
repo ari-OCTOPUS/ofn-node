@@ -55,6 +55,7 @@ import json
 import os
 import sys
 import uuid
+import hashlib
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
@@ -64,6 +65,134 @@ import opslib   # noqa: E402
 import mail_credentials   # noqa: E402 — هم‌پوشه؛ حلِ نام، بدونِ I/O شبکه
 
 SMTP_TIMEOUT_S = 20.0
+
+# ── G-03: write-ahead send ledger (owner-approved 2026-08-02) ───────────────
+# If SMTP accepts but process dies before local settle, the next beat must NOT
+# resend automatically. Flag-off = previous behavior.
+WAL_FLAG = "OCTOPUS_WIRE_LEAD_OUTBOUND_WAL"
+VALUE_FLAG = "OCTOPUS_WIRE_VALUE_LEDGER"
+_TRUTHY_FLAG = ("1", "true", "yes", "on")
+
+
+def _wal_runtime_dir() -> Path:
+    """Runtime dir for AGI2027 control state.
+
+    Default is `_ops/agi2027_runtime`. Tests may override with
+    OCTOPUS_AGI2027_RUNTIME_DIR so they never delete/modify live runtime ledgers.
+    """
+    override = str(os.environ.get("OCTOPUS_AGI2027_RUNTIME_DIR", "") or "").strip()
+    return Path(override) if override else (_HERE.parent / "agi2027_runtime")
+
+
+def _managed_flag_enabled(name: str) -> bool:
+    raw = str(os.environ.get(name, "") or "").strip().lower()
+    if raw in _TRUTHY_FLAG:
+        return True
+    try:
+        flags = _wal_runtime_dir() / "managed_flags.json"
+        if flags.exists():
+            data = json.loads(flags.read_text(encoding="utf-8"))
+            return str(data.get(name, "") or "").strip().lower() in _TRUTHY_FLAG
+    except Exception:  # noqa: BLE001 — flag read failure = disabled, not crash
+        pass
+    return False
+
+
+def _wal_enabled() -> bool:
+    # Telegram Control Plane writes managed flags here; reading it makes G-03
+    # controllable by the owner without requiring secret/env edits.
+    return _managed_flag_enabled(WAL_FLAG)
+
+
+def _wal_effect_id(lead_id: str, to_addr: str, draft) -> str:
+    if isinstance(draft, dict):
+        subj = str(draft.get("subject") or "")
+        body = str(draft.get("body") or draft.get("text") or "")
+        qt = str(draft.get("qt_number") or "")
+    else:
+        subj = ""
+        body = str(draft or "")
+        qt = ""
+    raw = json.dumps({
+        "lead_id": str(lead_id or "unknown"),
+        "to": _norm_email(to_addr),
+        "subject": subj,
+        "body_sha256": hashlib.sha256(body.encode("utf-8", "ignore")).hexdigest(),
+        "qt": qt,
+    }, sort_keys=True, ensure_ascii=False)
+    return "lead-email:" + hashlib.sha256(raw.encode("utf-8")).hexdigest()[:32]
+
+
+def _wal_payload(lead_id: str, to_addr: str, draft) -> dict:
+    if isinstance(draft, dict):
+        subj = str(draft.get("subject") or "")
+        body = str(draft.get("body") or draft.get("text") or "")
+        qt = str(draft.get("qt_number") or "")
+    else:
+        subj = ""
+        body = str(draft or "")
+        qt = ""
+    return {
+        "kind": "lead_outbound_email",
+        "lead_id": str(lead_id or "unknown"),
+        "to_domain": recipient_domain(to_addr),
+        "subject_sha256": hashlib.sha256(subj.encode("utf-8", "ignore")).hexdigest(),
+        "body_sha256": hashlib.sha256(body.encode("utf-8", "ignore")).hexdigest(),
+        "qt_number": qt[:80],
+    }
+
+
+def _wal_ledger():
+    try:
+        _ops = str(_HERE.parent)
+        if _ops not in sys.path:
+            sys.path.insert(0, _ops)
+        from agi2027_control.runtime import OutboundWriteAheadLedger  # noqa: WPS433
+        return OutboundWriteAheadLedger(_wal_runtime_dir() / "outbound-effects.sqlite3")
+    except Exception as e:  # noqa: BLE001
+        _receipt("communication.wal_error", "wal", {
+            "status": "WAL_ERROR", "detail": f"import-or-open:{type(e).__name__}"})
+        return None
+
+
+def wal_recover_pending() -> dict:
+    """Startup/beat callable: sending -> needs_owner; never auto-resend."""
+    led = _wal_ledger()
+    if led is None:
+        return {"ok": False, "status": "WAL_ERROR"}
+    try:
+        rows = led.recover_pending(older_than_seconds=0)
+        return {"ok": True, "status": "RECOVERED", "count": len(rows)}
+    finally:
+        try:
+            led.close()
+        except Exception:  # noqa: BLE001
+            pass
+
+
+def _value_record(event: str, *, lead_id: str, value_type: str = "production",
+                  output_score: float = 0.0, cost_score: float = 0.0,
+                  risk_score: float = 0.0, effect_settled: bool = False,
+                  metadata: dict | None = None) -> None:
+    """Real value-ledger producer for the lead outbound path. Fail-soft.
+
+    This is the missing bridge from "status exists" to "does this help the human?".
+    It never logs full recipient or secrets; callers pass scrubbed metadata only.
+    """
+    if not _managed_flag_enabled(VALUE_FLAG):
+        return
+    try:
+        _ops = str(_HERE.parent)
+        if _ops not in sys.path:
+            sys.path.insert(0, _ops)
+        from agi2027_control.runtime import AdaptiveValueLedger  # noqa: WPS433
+        AdaptiveValueLedger(_wal_runtime_dir() / "value-ledger.jsonl").record(
+            "lead_outbound_transport", event, value_type,
+            output_score=output_score, cost_score=cost_score, risk_score=risk_score,
+            owner_visible=True, effect_settled=effect_settled,
+            metadata={"lead_id": str(lead_id or "unknown"), **(metadata or {})})
+    except Exception:  # noqa: BLE001 — value telemetry never changes send outcome
+        pass
 
 # ── اعلانِ ارسال (GAP-1) ──────────────────────────────────────────────────────
 # فلگِ نو، پیش‌فرض **خاموش** و عمداً بیرونِ wiring.PAPER_FULL_FLAGS: مسلح‌کردنش
@@ -482,24 +611,90 @@ def send(candidate: dict, draft, *, now=None, send_impl=None) -> dict:
         # ۴) یک تلاشِ واقعی — بدونِ retry، timeout ۲۰s.
         message = _build_message(cr["from_addr"], to_addr, draft)
         impl = send_impl if callable(send_impl) else _default_send_impl
+        _wal = None
+        _effect_id = ""
+        if _wal_enabled():
+            _effect_id = _wal_effect_id(lead_id, to_addr, draft)
+            _wal = _wal_ledger()
+            if _wal is None:
+                return {"sent": False, "status": "FAILED", "detail": "wal-unavailable"}
+            _gate = _wal.begin_sending(_effect_id, lead_id,
+                                       _wal_payload(lead_id, to_addr, draft))
+            if not _gate.get("allow_send"):
+                _existing = _gate.get("existing") or {}
+                _state = str(_existing.get("state") or _gate.get("state") or "existing")
+                _receipt("communication.wal_blocked", lead_id,
+                         {"status": "WAL_BLOCKED", "state": _state,
+                          "effect_id": _effect_id, "to": mask_recipient(to_addr)})
+                _value_record("duplicate_or_ambiguous_send_blocked", lead_id=lead_id,
+                              value_type="safety", output_score=1.0,
+                              risk_score=-1.0, metadata={"state": _state})
+                try:
+                    _wal.close()
+                except Exception:  # noqa: BLE001
+                    pass
+                return {"sent": False,
+                        "status": "AMBIGUOUS" if _state in ("sending", "needs_owner") else "DUPLICATE",
+                        "detail": f"wal-existing:{_state}"}
         try:
             impl(cr["host"], int(cr["port"]), cr["user"], password,
                  cr["from_addr"], to_addr, message)
         except Exception as e:  # noqa: BLE001 — شکستِ ارسال = FAILED صادقانه
             detail = f"smtp-error:{type(e).__name__}"
+            if _wal is not None and _effect_id:
+                try:
+                    _wal.mark_failed(_effect_id, detail)
+                except Exception:  # noqa: BLE001
+                    pass
             _receipt("communication.failed", lead_id,
                      {"status": "FAILED", "detail": detail,
                       "to": mask_recipient(to_addr)})
             _funnel_record("communication.failed", lead_id,
                            {"channel": "email", "detail": detail,
                             "to": mask_recipient(to_addr)})
+            _value_record("email_failed", lead_id=lead_id,
+                          output_score=0.0, cost_score=1.0,
+                          metadata={"detail": detail, "to_domain": recipient_domain(to_addr)})
+            try:
+                if _wal is not None:
+                    _wal.close()
+            except Exception:  # noqa: BLE001
+                pass
             return {"sent": False, "status": "FAILED", "detail": detail}
+
+        if _wal is not None and _effect_id:
+            try:
+                _wal.mark_sent(_effect_id, "smtp-sendmail-returned")
+            except Exception as e:  # noqa: BLE001
+                try:
+                    _wal.mark_needs_owner(_effect_id, f"settle-error:{type(e).__name__}")
+                except Exception:  # noqa: BLE001
+                    pass
+                _receipt("communication.wal_ambiguous", lead_id,
+                         {"status": "NEEDS_OWNER", "effect_id": _effect_id,
+                          "detail": f"settle-error:{type(e).__name__}"})
+                _value_record("email_ambiguous_needs_owner", lead_id=lead_id,
+                              value_type="safety", output_score=1.0,
+                              metadata={"effect_id": _effect_id})
+                try:
+                    _wal.close()
+                except Exception:  # noqa: BLE001
+                    pass
+                return {"sent": False, "status": "AMBIGUOUS",
+                        "detail": "smtp-accepted-settle-failed"}
+            try:
+                _wal.close()
+            except Exception:  # noqa: BLE001
+                pass
 
         # ۵) ارسالِ تأییدشده — تنها جایی که communication.sent و شمارندهٔ سقف می‌نشیند.
         _receipt("communication.sent", lead_id,
                  {"status": "SENT", "channel": "email", "to": mask_recipient(to_addr)})
         _funnel_record("communication.sent", lead_id,
                        {"channel": "email", "to": mask_recipient(to_addr)})
+        _value_record("email_sent", lead_id=lead_id,
+                      output_score=1.0, effect_settled=True,
+                      metadata={"to_domain": recipient_domain(to_addr)})
         _sent_today = _bump_send_counter(now=now)
         # ── اعلانِ مالک (GAP-1) — **آخرین** کارِ مسیر، بعد از هر ثبتِ پایدار ────
         # ترتیب عمدی است: شمارنده اول بالا می‌رود تا عددِ اعلان شاملِ همین ارسال
