@@ -84,6 +84,12 @@ def _urgent_path() -> Path:
 
 # ── امضا و شدت ─────────────────────────────────────────────────────────────
 _NUMS = re.compile(r"[0-9۰-۹]+([.,:/][0-9۰-۹]+)*\s*[%٪]?")
+_TAGS = re.compile(r"<[^>]{0,80}>?")        # تگ/تگِ بریده — سرخط متنِ ساده است
+
+
+def _html_escape(t: str) -> str:
+    return (t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
+
 _WS = re.compile(r"\s+")
 
 _CRIT = re.compile(r"🔴|⛔|🆘|CRITICAL|critical|بحران|قرمز|HALT|halted|"
@@ -187,7 +193,11 @@ def _buffer_append(stream: str, text: str, sev: str, now: float) -> bool:
     try:
         p = _buffer_path()
         p.parent.mkdir(parents=True, exist_ok=True)
-        head = _WS.sub(" ", str(text or "").strip())[:160]
+        # ⚠️ ۲۰۲۶-۰۸-۰۳: تگ‌ها قبل از برش حذف می‌شوند. برشِ خامِ ۱۶۰تایی یک
+        # <code> ِ باز را وسط برید، تلگرام روی تگِ نبسته 400 داد، و چون
+        # آیتمِ مسموم پشتِ نشانگر می‌مانْد **هر** دایجستِ بعدی هم می‌مرد —
+        # ۲۶۸ شکستِ پیاپی از ۰۸-۰۲. سرخط خلاصه است؛ تگ معنایی ندارد.
+        head = _WS.sub(" ", _TAGS.sub("", str(text or "")).strip())[:160]
         with open(p, "a", encoding="utf-8") as f:
             f.write(json.dumps({"ts": now, "stream": str(stream or "")[:40],
                                 "sev": sev, "head": head},
@@ -364,7 +374,9 @@ def flush_digest(*, now: float | None = None, cap: int = 12) -> "str | None":
     lines = ["🩺 <b>دایجستِ سلامت</b> — ساعتی یک‌بار"]
     for s in sorted(by_stream):
         rows = by_stream[s]
-        head = str(rows[-1].get("head") or "")[:80]
+        # escape در لحظهٔ ساخت — لایهٔ دوم، و نجاتِ بافرهایی که از قبل
+        # آیتمِ تگ‌دار دارند (مثلِ بافرِ زندهٔ همین حادثه).
+        head = _html_escape(str(rows[-1].get("head") or "")[:80])
         lines.append(f"· <b>{s}</b> ×{_fa(len(rows))} — {head}")
         if len(lines) >= cap:
             lines.append("…")

@@ -295,6 +295,42 @@ def t_a_marker_already_in_the_shared_state_is_still_honoured():
     assert hp.digest_due(now=NOW + 300) is False,         "نشانگرِ قدیمیِ داخلِ state ِ مشترک نادیده گرفته شد"
 
 
+def t_a_truncated_html_tag_in_a_head_can_never_kill_the_digest():
+    """⚠️ حادثهٔ زندهٔ ۰۸-۰۲→۰۸-۰۳: کارتِ c6 با <code> واردِ بافر شد، برشِ
+    ۱۶۰تایی تگ را وسط برید، تلگرام روی تگِ نبسته 400 داد — و چون آیتمِ مسموم
+    پشتِ نشانگر می‌مانْد **هر** دایجستِ بعدی هم می‌مرد: ۲۶۸ شکستِ پیاپی،
+    retry ِ هر ۵ دقیقه، و مالک هیچ دایجستی نگرفت.
+
+    دو لایه: ورود تگ‌زدایی می‌کند؛ خروج escape — پس بافرِ از-قبل-مسموم هم
+    (نصبِ زنده) امن رندر می‌شود."""
+    import re
+    _fresh()
+    # (الف) ورود: متنِ تگ‌دارِ بلند که برشش تگِ باز می‌سازد
+    hp.submit("c6", "🔧 <b>یک باگ پیدا کردم</b> ▸ فایل: <code>" + "x" * 200,
+              now=NOW)
+    txt = hp.flush_digest(now=NOW + 3700)
+    assert txt, "دایجست ساخته نشد"
+    bad = re.findall("<(?!/?(?:b|i|u|s|a|code|pre)" + chr(92) + "b)[^>]{0,30}", txt)
+    assert not bad, f"HTML ِ ناامن در دایجست: {bad[:3]}"
+    # و لایهٔ **ورود** پروبِ خودش را دارد (دفاعِ لایه‌ای بی‌سنجه می‌پوسد —
+    # بدونِ این بند، حذفِ تگ‌زداییِ ورود پشتِ escape ِ خروج پنهان می‌شود):
+    import json as _j2
+    row0 = _j2.loads(hp._buffer_path().read_text("utf-8").splitlines()[0])
+    assert "<" not in row0["head"], \
+        f"تگ واردِ بافر شد — لایهٔ ورود مرده: {row0['head'][:60]!r}"
+    # (ب) خروج: بافرِ از-قبل-مسموم (شبیه‌سازیِ نصبِ زنده — دورزدنِ لایهٔ ورود)
+    _fresh()
+    import json as _j
+    hp._buffer_path().parent.mkdir(parents=True, exist_ok=True)
+    row = _j.dumps({"ts": NOW, "stream": "c6", "sev": "normal",
+                    "head": "🔧 قدیمی: <code>_ops/cortex/disco"},
+                   ensure_ascii=False)
+    hp._buffer_path().write_text(row + "\n", "utf-8")
+    txt2 = hp.flush_digest(now=NOW + 3700)
+    assert txt2 and "&lt;code&gt;" in txt2, \
+        "بافرِ مسمومِ قدیمی escape نشد — نصبِ زنده بعد از deploy هم می‌میرد"
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)
