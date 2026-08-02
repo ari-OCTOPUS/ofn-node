@@ -21,24 +21,58 @@ function Log($msg) {
     Write-Output $line
 }
 
-function Get-Procs($pattern) {
-    Get-CimInstance Win32_Process -Filter "Name like '%'" -ErrorAction SilentlyContinue |
-        Where-Object { $_.CommandLine -and $_.CommandLine -match $pattern }
+# 2026-08-03: this used to filter "Name like '%'" and match CommandLine alone, which
+# also matches the SHELL that invoked this script - its own command line contains the
+# pattern text. Consequence, observed live: the gateway was killed, this watchdog was
+# invoked one second later, matched the calling shell, logged "OK - gateway up" and
+# never revived it. The tunnel branch is worse: it calls Stop-Process on every match,
+# so a self-match could kill the invoking shell instead of the tunnel. Same class of
+# bug RESTART-PROCESS.ps1 documents ("that false positive made a probe report six
+# supervisor loops when there were two").
+#
+# Two independent guards, because either alone is insufficient:
+#   1. $imageNames - filter on the executable first (a python gateway is python.exe,
+#      never powershell.exe). Does not help when the target IS a powershell script.
+#   2. $SelfChain  - exclude this process and its whole ancestor chain, which is what
+#      catches the powershell-matching-powershell case.
+$script:SelfChain = @()
+try {
+    $walk = Get-CimInstance Win32_Process -Filter "ProcessId=$PID" -ErrorAction SilentlyContinue
+    $hops = 0
+    while ($walk -and $hops -lt 12) {
+        $script:SelfChain += [int]$walk.ProcessId
+        if (-not $walk.ParentProcessId) { break }
+        $walk = Get-CimInstance Win32_Process -Filter ("ProcessId=" + $walk.ParentProcessId) -ErrorAction SilentlyContinue
+        $hops++
+    }
+} catch { $script:SelfChain = @([int]$PID) }
+
+function Get-Procs($pattern, [string[]]$imageNames) {
+    $procs = if ($imageNames -and $imageNames.Count -gt 0) {
+        $clauses = ($imageNames | ForEach-Object { "Name='$_'" }) -join " OR "
+        Get-CimInstance Win32_Process -Filter $clauses -ErrorAction SilentlyContinue
+    } else {
+        Get-CimInstance Win32_Process -ErrorAction SilentlyContinue
+    }
+    $procs | Where-Object {
+        $_.CommandLine -and $_.CommandLine -match $pattern -and
+        ($script:SelfChain -notcontains [int]$_.ProcessId)
+    }
 }
 
 if (Test-Path $StopFile) {
     Log "STOP-MINIAPP present - stopping gateway+tunnel, no revive."
-    foreach ($p in @(Get-Procs "miniapp_gateway\.py")) {
+    foreach ($p in @(Get-Procs "miniapp_gateway\.py" @("python.exe","pythonw.exe"))) {
         try { Stop-Process -Id $p.ProcessId -Force -Confirm:$false -ErrorAction Stop } catch {}
     }
-    foreach ($p in @(Get-Procs "trycloudflare|cloudflared.*127\.0\.0\.1:$Port")) {
+    foreach ($p in @(Get-Procs "trycloudflare|cloudflared.*127\.0\.0\.1:$Port" @("cloudflared.exe"))) {
         try { Stop-Process -Id $p.ProcessId -Force -Confirm:$false -ErrorAction Stop } catch {}
     }
     exit 0
 }
 
 # --- 1) gateway ------------------------------------------------------------
-$gw = @(Get-Procs "miniapp_gateway\.py")
+$gw = @(Get-Procs "miniapp_gateway\.py" @("python.exe","pythonw.exe"))
 if ($gw.Count -eq 0) {
     Log "gateway DOWN - relaunching."
     $envFile = Join-Path $Ops "OCTOPUS.env"
@@ -61,7 +95,7 @@ if ($gw.Count -eq 0) {
 }
 
 # --- 2) tunnel + url freshness --------------------------------------------
-$tunnelAlive = @(Get-Procs "cloudflared").Count -gt 0
+$tunnelAlive = @(Get-Procs "cloudflared" @("cloudflared.exe")).Count -gt 0
 $urlFresh = $false
 if (Test-Path $UrlFile) {
     try {
@@ -73,7 +107,10 @@ if (Test-Path $UrlFile) {
 
 if (-not $tunnelAlive -or -not $urlFresh) {
     Log ("tunnel state: alive=" + $tunnelAlive + " urlFresh=" + $urlFresh + " - restarting tunnel script.")
-    foreach ($p in @(Get-Procs "run-miniapp-tunnel\.ps1")) {
+    # powershell matching powershell: the image filter cannot separate the tunnel
+    # script from the shell running this watchdog, so $SelfChain is the load-bearing
+    # guard here - without it this Stop-Process kills the caller.
+    foreach ($p in @(Get-Procs "run-miniapp-tunnel\.ps1" @("powershell.exe","pwsh.exe"))) {
         try { Stop-Process -Id $p.ProcessId -Force -Confirm:$false -ErrorAction Stop } catch {}
     }
     try {
