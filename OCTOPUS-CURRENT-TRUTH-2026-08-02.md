@@ -1,4 +1,4 @@
-﻿---
+---
 type: status
 project: Octopus
 date: 2026-08-02

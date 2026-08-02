@@ -1,4 +1,4 @@
-﻿> [!IMPORTANT]
+> [!IMPORTANT]
 > Superseded status update — 2026-08-02
 >
 > This report was created before the final production wiring.
@@ -109,4 +109,3 @@ wiring â€” but it must be an explicit owner-approved code edit, not this pa
 Remove-Item -Recurse -Force F:\backup\_ops\agi2027_control
 # (rollback.py restores from a backup dir if one was made; none was needed here â€” all files are new.)
 ```
-
