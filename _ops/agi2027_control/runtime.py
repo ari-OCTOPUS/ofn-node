@@ -405,11 +405,38 @@ class AdaptiveValueLedger:
         avg_gap = sum(gaps) / len(gaps)
         return max(300.0, min(14 * 86400.0, avg_gap * 4.0))
 
+    # RFC-2606/6761 reserved names — a send to these can never be a real customer.
+    _RESERVED_DOMAINS = {"example.com", "example.net", "example.org", "localhost"}
+
+    @classmethod
+    def _is_fixture(cls, row: Dict[str, Any]) -> bool:
+        # Fixture/drill rows (L-WAL-1 write-ahead drills, transport drills against
+        # reserved domains) must never count as real-world impact; the raw journal
+        # keeps them untouched.
+        meta = row.get("metadata") or {}
+        if row.get("fixture") is True or meta.get("fixture") is True:
+            return True
+        if "L-WAL-1" in (str(meta.get("lead_id", "")), str(meta.get("correlation_id", ""))):
+            return True
+        dom = str(meta.get("to_domain", "")).lower()
+        if dom in cls._RESERVED_DOMAINS or dom.endswith((".invalid", ".test", ".example")):
+            return True
+        return "example.invalid" in json.dumps(row, ensure_ascii=False)
+
     def score(self, leg: str) -> Dict[str, Any]:
-        rows = [r for r in self.audit.read_all() if r.get("leg") == leg]
+        all_rows = [r for r in self.audit.read_all() if r.get("leg") == leg]
+        rows, fixture_excluded = [], 0
+        for r in all_rows:
+            if self._is_fixture(r):
+                fixture_excluded += 1
+            else:
+                rows.append(r)
         if not rows:
             return {"leg": leg, "verdict": "INSUFFICIENT_SIGNAL", "low_impact": False,
-                    "auto_delete": False, "reason": "no_value_events_yet"}
+                    "auto_delete": False,
+                    "reason": "fixture_only" if fixture_excluded else "no_value_events_yet",
+                    "real_events": 0, "fixture_excluded": fixture_excluded,
+                    "impact_valid": False}
         ts = now_ts()
         latest = max(float(r.get("ts", 0)) for r in rows)
         horizon = self._adaptive_horizon(rows)
@@ -430,7 +457,9 @@ class AdaptiveValueLedger:
                 "low_impact": bool(low), "auto_delete": False,
                 "latest_event_age_seconds": ts - latest, "recent_events": len(recent),
                 "output": output, "cost": cost, "risk": risk, "settled_effects": settled,
-                "owner_visible_events": owner_visible, "adaptive_horizon_seconds": horizon}
+                "owner_visible_events": owner_visible, "adaptive_horizon_seconds": horizon,
+                "real_events": len(rows), "fixture_excluded": fixture_excluded,
+                "impact_valid": True}
 
 
 class FuguFootprint:
