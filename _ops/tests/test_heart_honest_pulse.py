@@ -100,13 +100,19 @@ check(on.get("authoritative") is False,
       "فلگ روشن: authoritative=False — عددِ متروَنوم دیگر «معتبر» اعلام نمی‌شود")
 
 # ═══ ۲) انتشارِ Δ منفی ════════════════════════════════════════════════════════
-# سریِ ساختگی: نیمهٔ اول v با cov هم‌جهت (+)، نیمهٔ دوم ضد‌جهت — مدلِ informed روی
-# holdout بدتر از blind می‌شود (S_informed > S_blind → raw < 0).
+# سریِ ساختگی: در train کوواریتِ confirmed پیش‌بینِ کاملِ v است، در holdout خیانت
+# می‌کند (وارونه می‌شود) — مدلِ informed که به آن اعتماد کرده روی holdout مادّیاً
+# بدتر از blind می‌شود (S_informed > S_blind → raw < 0).
+# بازطراحیِ W3 (2026-08-03): فیکسچرِ قبلی degenerate بود — confirmed=i دقیقاً برابرِ
+# v[t-1] بود (هم‌خطیِ کامل با جملهٔ AR) و علامتِ Δ اش به توزیعِ دلبخواهِ وزن بینِ
+# دو ستونِ هم‌خط بسته بود؛ استانداردسازیِ کوواریت همان توزیع را عوض کرد و علامت
+# برگشت. سریِ sawtooth هم‌خطی ندارد و «خیانتِ کوواریت» را مستقیم می‌سازد.
 rows = []
-for i in range(12):
-    rows.append({"v": float(i), "cov": {"confirmed": float(i), "effects": 0.0, "hour": 1.0}})
-for i in range(12, 24):
-    rows.append({"v": float(23 - i), "cov": {"confirmed": float(i), "effects": 0.0, "hour": 1.0}})
+for i in range(40):
+    _nxt = float((i + 1) % 5)
+    _lead = _nxt if i < 20 else (4.0 - _nxt)
+    rows.append({"v": float(i % 5),
+                 "cov": {"confirmed": _lead, "effects": 0.0, "hour": 1.0}})
 
 d = producers.delta_self_estimator(min_samples=8, rows=rows)
 check(d.get("delta_self_raw") is not None and d["delta_self_raw"] < 0,
@@ -121,6 +127,39 @@ os.environ["OCTOPUS_HEART_HONEST_PULSE"] = "0"
 d_off = producers.delta_self_estimator(min_samples=8, rows=rows)
 check(d_off.get("delta_self_live") == 0.0,
       "فلگ خاموش: clamp به 0.0 (بایت‌به‌بایتِ رفتارِ قدیم)")
+
+# ═══ ۲.۵) W3 (2026-08-03): رژیمِ کهنه + سریِ ثابت دیگر log را منفجر نمی‌کند ═══
+# بازتولیدِ پاتولوژیِ زنده (اسکنِ ۰۸-۰۲: raw=-2.297): نیمهٔ کهنه اسپایکِ همبسته با
+# hour دارد، دنباله ثابتِ ۰.۱۲۵ است. مدلِ informed شیبِ hour را از رژیمِ مرده یاد
+# می‌گرفت و روی سریِ ثابت extrapolate می‌کرد؛ کور تقریباً بی‌خطا بود ⇒ ½log منفجر.
+# فیکسِ باربر پنجرهٔ اخیر است — همین فیکسچر بدونِ پنجره باید مادّیاً منفی بماند
+# (دندانِ تست) و با پنجره «تفکیک‌ناپذیر» (≈0) شود.
+os.environ["OCTOPUS_HEART_HONEST_PULSE"] = "1"
+patho = []
+for i in range(100):
+    _h = float(i % 24)
+    patho.append({"v": 0.125 + (3.0 if _h < 6 else 0.0),
+                  "cov": {"confirmed": 0.0, "effects": 0.0, "hour": _h}})
+for i in range(100, 440):
+    patho.append({"v": 0.125,
+                  "cov": {"confirmed": 0.0, "effects": 0.0, "hour": float(i % 24)}})
+_orig_window = producers.DELTA_WINDOW
+try:
+    producers.DELTA_WINDOW = 0
+    d_nowin = producers.delta_self_estimator(min_samples=8, rows=patho)
+    check(d_nowin.get("delta_self_raw") is not None and d_nowin["delta_self_raw"] < -0.2,
+          f"دندان: بدونِ پنجره همین فیکسچر مادّیاً منفی است (raw={d_nowin.get('delta_self_raw')})")
+    producers.DELTA_WINDOW = 336
+    d_win = producers.delta_self_estimator(min_samples=8, rows=patho)
+    check(d_win.get("delta_self_raw") is not None and d_win["delta_self_raw"] > -0.05,
+          f"پنجره رژیمِ مرده را پیر می‌کند: raw≈0 (raw={d_win.get('delta_self_raw')})")
+    check(d_win.get("cov_dropped_zero_variance") == ["confirmed", "effects"],
+          "کوواریت‌های بی‌واریانس (مرده) صادقانه در خروجی اعلام می‌شوند")
+    check("resolution_mse" in d_win and d_win["resolution_mse"] > 0,
+          "کفِ رزولوشن با رسید منتشر می‌شود (clamp ِ پنهان نیست)")
+finally:
+    producers.DELTA_WINDOW = _orig_window
+os.environ.pop("OCTOPUS_HEART_HONEST_PULSE", None)
 
 # ═══ ۳) gate0 در مودِ honest با Δ≤0 بسته است ═══════════════════════════════════
 # بخش ۲ با estimator واقعی ثابت کرد fixture یک Δ منفی منتشر می‌کند. تکرار مکانیکی

@@ -356,6 +356,10 @@ def internal_cpi(window_hours: float = 72.0, now: dt.datetime | None = None) -> 
 
 # ─── ۳) delta_self_estimator ────────────────────────────────────────────────────
 SAMPLE_INTERVAL_S = float(os.environ.get("HEART_SAMPLE_INTERVAL_S", "3600.0"))
+# W3 (2026-08-03): پنجرهٔ سنجش (نمونه؛ ~۱۴ روز با نمونهٔ ساعتی) و کسرِ رزولوشن
+# (سهمی از سطحِ سیگنال که زیرش دو MSE «تفکیک‌ناپذیر» شمرده می‌شوند، نه بهتر/بدتر).
+DELTA_WINDOW = int(os.environ.get("HEART_DELTA_WINDOW", "336"))
+DELTA_RES_FRAC = float(os.environ.get("HEART_DELTA_RES_FRAC", "0.01"))
 
 
 def should_sample(now: dt.datetime | None = None) -> bool:
@@ -453,22 +457,42 @@ def delta_self_estimator(min_samples: int = MIN_DELTA_SAMPLES,
             continue
         c = r.get("cov") or {}
         covs.append([float(c.get(k, 0) or 0) for k in _COV_KEYS])
+    # W3 (2026-08-03): پنجرهٔ اخیر — Δ_self «مدلِ فعلی» را می‌سنجد، نه کلِ تاریخ را.
+    # بدونِ پنجره، نیمهٔ train رژیمِ کهنهٔ جولای بود (v تا ۱۳.۹) و holdout سریِ
+    # ثابتِ امروز (۰.۱۲۵)؛ شیبِ جعلیِ hour از رژیمِ کهنه به holdout ِ ثابت
+    # extrapolate می‌شد و چون کور روی سریِ ثابت تقریباً بی‌خطاست، ½log به −۲.۳
+    # منفجر شد (S=6.5e-5 در برابر S_b=5.8e-7) — و با هر نمونهٔ ثابتِ تازه بدتر.
+    if DELTA_WINDOW > 0 and len(series) > DELTA_WINDOW:
+        series = series[-DELTA_WINDOW:]
+        covs = covs[-DELTA_WINDOW:]
     n = len(series)
-    base = {"stream_rows": len(rows), "sample_size": n,
+    base = {"stream_rows": len(rows), "sample_size": n, "window": DELTA_WINDOW,
             "min_samples": min_samples, "ts": opslib.now_iso()}
     if n < max(8, min_samples // 4):
         return {**base, "delta_self_live": None, "ceiling_live": None,
                 "authoritative": False, "reason": "insufficient-stream"}
-    # نرمال‌سازیِ کوواریت‌ها (z-score روی train؛ ضدِ انفجارِ مقیاس)
     split = n // 2
+    tr = split - 1 if split >= 2 else 1
+    # استانداردسازیِ واقعی روی train — کامنتِ قبلی «z-score روی train» را قول داده
+    # بود و کد کوواریتِ خام می‌داد. ستونِ بی‌واریانس (امروز: confirmed و effects،
+    # هر دو سراسر صفر) حذف می‌شود: ثابت با intercept هم‌خطی است و وزنش دلبخواه.
+    mu, sd, dropped = [], [], []
+    for i, key in enumerate(_COV_KEYS):
+        col = [covs[t][i] for t in range(tr)]
+        m = sum(col) / len(col)
+        s = (sum((x - m) ** 2 for x in col) / len(col)) ** 0.5
+        mu.append(m)
+        sd.append(s)
+        if s < 1e-9:
+            dropped.append(key)
     X_blind, X_inf, y = [], [], []
     for t in range(1, n):
         xb = [1.0, series[t - 1]]
-        xi = xb + covs[t - 1]
+        xi = xb + [((covs[t - 1][i] - mu[i]) / sd[i]) if sd[i] >= 1e-9 else 0.0
+                   for i in range(len(_COV_KEYS))]
         X_blind.append(xb)
         X_inf.append(xi)
         y.append(series[t])
-    tr = split - 1 if split >= 2 else 1
     wb = _ols_fit(X_blind[:tr], y[:tr])
     wi = _ols_fit(X_inf[:tr], y[:tr])
     def _mse(w, X, ys):
@@ -477,7 +501,13 @@ def delta_self_estimator(min_samples: int = MIN_DELTA_SAMPLES,
     S_b = _mse(wb, X_blind[tr:], y[tr:])
     S = _mse(wi, X_inf[tr:], y[tr:])
     eps = 1e-12
-    raw = 0.5 * math.log(max(S_b, eps) / max(S, eps))
+    # کفِ رزولوشن: زیرِ ~۱٪ سطحِ سیگنال، دو مدل «تفکیک‌ناپذیر»ند نه «بهتر/بدتر» —
+    # بدونِ کف، اختلافِ float در مقیاسِ 1e-18 روی سریِ ثابت log را می‌ترکاند.
+    # این clamp ِ Δ نیست (R-02): S_blind/S_informed خام منتشر می‌شوند و کف هم.
+    yh = y[tr:]
+    level = sum(abs(v) for v in yh) / len(yh)
+    res2 = (DELTA_RES_FRAC * max(level, 1e-9)) ** 2
+    raw = 0.5 * math.log(max(S_b, res2, eps) / max(S, res2, eps))
     # T4 (2026-07-25): clampِ صفر حذف شد — پشتِ همان فلگِ honest. Δ منفی یعنی «مدلِ
     # آگاه از کورِ محض بدتر پیش‌بینی می‌کند» (گواه: S_informed=0.02342 > S_blind=0.02225،
     # raw=-0.02573 که تا امروز 0.0 منتشر می‌شد در حالی که authoritative=true بود).
@@ -487,16 +517,18 @@ def delta_self_estimator(min_samples: int = MIN_DELTA_SAMPLES,
     delta_live = raw if honest_delta else max(0.0, raw)
     # سقفِ زنده = کرانِ اطلاعِ کلِ سری: Δ نمی‌تواند از ½log(Var(v)/S) بگذرد (S_b≤Var(v)).
     # اصولی‌تر از fit-gapِ in-sample؛ drift-flag جفتِ ناسازگار/دست‌خورده را می‌گیرد.
-    yh = y[tr:]
+    # مخرج همان کفِ رزولوشنِ raw را می‌گیرد وگرنه روی سریِ ثابت همین‌جا منفجر می‌شد.
     ym = sum(yh) / len(yh)
     var_hold = sum((x - ym) ** 2 for x in yh) / len(yh)
-    ceiling_live = 0.1 + 0.5 * math.log(max(var_hold, eps) / max(S, eps)) \
+    ceiling_live = 0.1 + 0.5 * math.log(max(var_hold, eps) / max(S, res2, eps)) \
         if var_hold > 0 else 0.1
     ceiling_live = max(ceiling_live, delta_live + 0.05)
     return {**base,
             "delta_self_live": round(delta_live, 6),
             "delta_self_raw": round(raw, 6),
             "S_blind": S_b, "S_informed": S,
+            "resolution_mse": res2,
+            "cov_dropped_zero_variance": dropped,
             "ceiling_live": round(ceiling_live, 6),
             "holdout_n": n - 1 - tr,
             "authoritative": n >= min_samples,
