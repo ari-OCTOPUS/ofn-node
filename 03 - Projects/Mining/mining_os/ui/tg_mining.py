@@ -43,6 +43,28 @@ def _menu_kb(beat: dict) -> list:
         [{"text": "⚠️ ریسک", "callback_data": "mo:risk"},
          {"text": "📊 گزارش", "callback_data": "mo:report"}],
     ]
+    # D-014: دکمهٔ توقف (ثبتِ نیت، نه SSH). همیشه موجود چون مالک ممکن است بخواهد.
+    kb.append([{"text": "⏹ توقفِ نودها", "callback_data": "mo:stop"}])
+    # D-016: دکمه‌های swap فقط برای پیشنهادهای pending
+    try:
+        import sys as _sys
+        _legs = str(_PKG.parents[2] / "_ops" / "legs")
+        if _legs not in _sys.path:
+            _sys.path.insert(0, _legs)
+        from mining_swap_card import card_text as _sc  # noqa: WPS433
+        _s = _sc()
+        if _s:
+            # کارتِ swap متن دارد ولی دکمه‌هایش را ما اینجا می‌سازیم
+            from mining_swap_card import _load as _sload  # noqa: WPS433
+            for d in _sload():
+                if d.get("status") == "pending":
+                    sid = d.get("id", "?")
+                    fr = d.get("from", "?")
+                    to = d.get("to", "?")
+                    kb.append([{"text": f"💰 swap {fr}→{to} (تأیید)",
+                                "callback_data": f"mo:swap:{sid}"}])
+    except Exception:  # noqa: BLE001 — نباید منو را بکشد
+        pass
     for vid in beat.get("open_verdict_ids", []):
         if vid and str(vid).isascii():
             kb.append([{"text": f"✅ {vid}", "callback_data": f"mo:vok:{vid}"},
@@ -192,6 +214,39 @@ def handle_callback(data: str):
         ok = record_verdict(vid, decision)
         txt, kb = render_menu()
         toast = (f"verdict {decision} ثبت شد: {vid}" if ok else "ثبت نشد (fail-soft)")
+        return txt, kb, toast
+    # ── D-014: ثبتِ نیتِ توقف (از مسیرِ ثبت، نه SSH — D-20) ─────────────────────
+    # صادقانه: امروز هیچ نودی زنده نیست، پس «۰ نود تأیید کرد».
+    if data == "mo:stop":
+        toast = ""
+        try:
+            import sys as _sys
+            _legs = str(_PKG.parents[2] / "_ops" / "legs")
+            if _legs not in _sys.path:
+                _sys.path.insert(0, _legs)
+            from mining_stop_intent import register_stop_intent as _rsi  # noqa: WPS433
+            r = _rsi(reason="owner tap: stop all nodes")
+            acked = r.get("acked_count", 0)
+            toast = f"ثبت شد · {acked} نود تأیید کرد"
+        except Exception:  # noqa: BLE001 — نباید callback را بکشد
+            toast = "ثبت نشد (fail-soft)"
+        txt, kb = render_menu()
+        return txt, kb, toast
+    # ── D-016: تأییدِ یک‌ضربه‌ایِ swap (D-11: اجرا با خودت) ────────────────────────
+    if data.startswith("mo:swap:"):
+        sid = data.split(":", 2)[2] if data.count(":") >= 2 else "?"
+        toast = ""
+        try:
+            import sys as _sys
+            _legs = str(_PKG.parents[2] / "_ops" / "legs")
+            if _legs not in _sys.path:
+                _sys.path.insert(0, _legs)
+            from mining_swap_card import owner_approved as _oa, owner_approval_text as _oat  # noqa: WPS433
+            _oa(sid)
+            toast = _oat(sid)   # صادقانه: «اجرا با خودت (D-11)»
+        except Exception:  # noqa: BLE001
+            toast = "ثبت نشد (fail-soft)"
+        txt, kb = render_menu()
         return txt, kb, toast
     pane = data.split(":", 1)[1] if ":" in data else "menu"
     if pane in ("", "menu"):
