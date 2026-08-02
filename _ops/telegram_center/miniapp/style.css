@@ -8,12 +8,18 @@ body{background:var(--bg);color:var(--text);padding:12px;max-width:760px;margin:
 h1{font-size:18px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
 h1 .dot{width:10px;height:10px;border-radius:50%;background:var(--green);display:inline-block}
 h1 .dot.halted{background:var(--red)}
+.palbtn{margin-inline-start:auto;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:15px;line-height:1}
+.palbtn:hover{border-color:var(--accent)}
 .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px}
-.card h2{font-size:14px;color:var(--accent);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.card h2{font-size:14px;color:var(--accent);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .badge{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--border);color:var(--muted)}
 .badge.live{background:rgba(61,220,132,.15);color:var(--green)}
 .badge.staged{background:rgba(255,181,71,.15);color:var(--amber)}
 .badge.blocked{background:rgba(255,92,92,.15);color:var(--red)}
+/* «نامعلوم» عمداً نه سبز است نه کهربایی: خاکستریِ خط‌چین تا با یک نگاه از
+   «سالم» جدا باشد. سبزِ روی دادهٔ غایب همان حالتِ شکستی است که این سطح
+   قرار است حذفش کند. */
+.badge.unknown{background:transparent;color:var(--muted);border:1px dashed var(--border)}
 .tabs{display:flex;gap:4px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px}
 .tab{padding:7px 12px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;white-space:nowrap;font-size:13px}
 .tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
@@ -25,14 +31,53 @@ table{width:100%;border-collapse:collapse;font-size:12px}
 th,td{text-align:right;padding:4px 6px;border-bottom:1px solid var(--border)}
 th{color:var(--muted);font-weight:600}
 .warn{background:rgba(255,181,71,.1);border:1px solid var(--amber);color:var(--amber);padding:8px;border-radius:8px;font-size:12px;margin-bottom:8px}
+.warn.readonly{border-style:dashed}
+.warn .muted{color:var(--muted)}
 .muted{color:var(--muted);font-size:12px}
 pre{white-space:pre-wrap;word-break:break-word;font-size:11px;color:var(--muted);background:var(--bg);padding:8px;border-radius:6px;max-height:240px;overflow:auto}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .err{color:var(--red);font-size:12px}
 .loading{color:var(--muted);font-style:italic}
 
+/* بردِ وضعیت — سه حالت */
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:10px}
+.tile{border:1px solid var(--border);border-radius:8px;padding:8px;background:#151823}
+.tile .tl{font-size:12px;color:var(--text);margin-bottom:4px}
+.tile .td{font-size:11px;color:var(--muted);margin-top:4px;word-break:break-word}
+.tile.live{border-color:rgba(61,220,132,.45)}
+.tile.staged{border-color:rgba(255,181,71,.45)}
+.tile.unknown{border-style:dashed}
+
+/* Next Best Action */
+.nba-head{font-size:13px;margin-bottom:8px}
+.nba-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px}
+.nba-row:last-child{border-bottom:none}
+.nba-k{flex:1;color:var(--muted)}
+.nba-v{min-width:60px}
+
+/* کهنگیِ داده — عددِ کهنه فقط با برچسبِ کهنه نشان داده می‌شود */
+.stale{background:rgba(255,181,71,.08);border:1px dashed var(--amber);color:var(--amber);padding:6px 8px;border-radius:8px;font-size:11px;margin-bottom:8px}
+
+/* skeleton */
+.skeleton .sk-head{height:14px;width:40%;background:var(--border);border-radius:6px;margin-bottom:10px;opacity:.6}
+.skeleton .sk-row{height:11px;background:var(--border);border-radius:6px;margin-bottom:7px;opacity:.35}
+.skeleton .sk-row:nth-child(odd){width:85%}
+
+/* پالتِ فرمان */
+.palette{display:none}
+.palette.open{display:block;position:fixed;inset:0;background:rgba(9,11,16,.72);z-index:50;padding:40px 12px}
+.pal-box{max-width:520px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px}
+.pal-box input{width:100%}
+.pal-list{margin:8px 0;max-height:60vh;overflow:auto}
+.pal-item{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;cursor:pointer;font-size:12px}
+.pal-item:hover{background:#212636}
+.pal-item .pal-l{flex:1}
+.pal-item .pal-fa{color:var(--muted)}
+.pal-item.blocked{opacity:.5;cursor:not-allowed}
+
 .formgrid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
 input,select,textarea,button{background:#0f1117;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px;font:inherit}
 button{background:var(--accent);border-color:var(--accent);cursor:pointer}
 button:disabled{background:var(--border);border-color:var(--border);color:var(--muted);opacity:.55;cursor:not-allowed}
+input:disabled,select:disabled,textarea:disabled{opacity:.5;cursor:not-allowed}
 .result{margin-top:8px;padding:8px;border-radius:8px;background:#10131b;color:var(--muted);font-size:12px;white-space:pre-wrap}

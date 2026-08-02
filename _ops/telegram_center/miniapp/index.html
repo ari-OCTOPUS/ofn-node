@@ -8,11 +8,16 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-<h1><span class="dot" id="statusDot"></span> Octopus Cockpit <span class="badge" id="authBadge">…</span></h1>
+<h1><span class="dot" id="statusDot"></span> Octopus Cockpit <span class="badge" id="authBadge">…</span>
+  <button id="paletteBtn" class="palbtn" title="پالتِ فرمان — Ctrl/Cmd+K">⚡</button></h1>
 
 <div class="tabs" id="tabs">
-  <div class="tab active" data-tab="home">Home</div>
-  <div class="tab" data-tab="studio">Studio</div>
+  <div class="tab active" data-tab="home">Cockpit</div>
+  <div class="tab" data-tab="studio">Ops</div>
+  <div class="tab" data-tab="brain">Brain</div>
+  <div class="tab" data-tab="governor">Governor</div>
+  <div class="tab" data-tab="obsidian">Obsidian</div>
+  <div class="tab" data-tab="next">Next</div>
   <div class="tab" data-tab="outbound">Outbound</div>
   <div class="tab" data-tab="approvals">Approvals</div>
   <div class="tab" data-tab="legs">Legs</div>
@@ -23,6 +28,7 @@
 
 <div id="warn"></div>
 <div id="content"><div class="loading">در حال بارگذاری…</div></div>
+<div id="palette" class="palette"></div>
 
 <div class="muted" style="margin-top:14px">owner-gated actions · no secret stored in frontend</div>
 <script src="/miniapp/app.js"></script>
