@@ -204,6 +204,19 @@ try {
     out.content = html("content");
   }
 
+  else if(SCENARIO === "section_present_without_status"){
+    withOwner();
+    // بخش **هست** ولی هیچ کلیدِ status/state/health ندارد. این حالت با «بخش
+    // نیست» فرق دارد و مسیرِ کدِ دیگری را می‌رود — پس تستِ خودش را می‌خواهد.
+    const ops = Object.assign({}, OPS_BARE, {
+      brain: {detail: "some detail, no status key"},
+      governor: {status: "ok"},
+      obsidian: {note: "no status here either"}});
+    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: ops}};
+    boot(); await flush();
+    out.content = html("content");
+  }
+
   else if(SCENARIO === "partial_next_is_not_allclear"){
     withOwner();
     const ops = Object.assign({}, OPS_BARE, {next_steps: {followups_due: 0, drafts_pending: 0}});
@@ -307,6 +320,7 @@ try {
     await flush();
     out.after_item_click = html("content");
     out.palette_after = html("palette");
+    out.post_count = fetchLog.filter(f => f.method === "POST").length;
     // Ctrl+K
     documentStub.dispatch("keydown", {ctrlKey: true, key: "k", preventDefault(){}});
     out.palette_after_ctrlk = registry.get("palette").className;
@@ -533,6 +547,20 @@ def t_k_present_sections_do_render_ok_and_degraded():
     assert "پیگیری کن" in d["content"], "پیشنهادِ NBA روی دادهٔ واقعی نیامد"
 
 
+def t_ka_a_section_that_exists_but_reports_no_status_is_unknown():
+    """«بخش نیست» و «بخش هست ولی status ندارد» دو مسیرِ کدِ متفاوت‌اند.
+
+    این تست از جهش‌آزمایی زاده شد: جهشِ `raw === undefined → "ok"` زنده ماند،
+    چون هیچ سناریویی بخشِ بی‌status نمی‌ساخت. یعنی یک تکه از گاردِ «سبزِ روی
+    هیچ» اصلاً دیده نمی‌شد."""
+    d = run_scenario("section_present_without_status")
+    tl = tiles(d["content"])
+    assert tl["4D Brain"][2] == "unknown", tl["4D Brain"]
+    assert tl["4D Brain"][1] != "live", "بخشِ بدونِ status سبز شد"
+    assert tl["Obsidian"][2] == "unknown", tl["Obsidian"]
+    assert tl["Governor"][2] == "ok", ("قرینه: بخشِ دارای status باید ok شود", tl["Governor"])
+
+
 def t_l_a_partially_reported_next_section_is_never_all_clear():
     """دو تا از چهار سنجه آمده و صفرند. این «مرتب» نیست، «نامعلوم» است."""
     d = run_scenario("partial_next_is_not_allclear")
@@ -612,6 +640,8 @@ def t_s_the_palette_lists_every_command_and_keeps_the_gate():
     assert d["palette_class"] == "palette open"
     assert "4D Brain" in d["after_item_click"], "کلیک روی آیتمِ پالت تب را عوض نکرد"
     assert d["palette_after"] == "", "پالت بعد از اجرای فرمان بسته نشد"
+    assert d["post_count"] == 0, \
+        "پالت خودش POST زد — پالت میان‌بُر است، نه درِ دومِ ورود"
     assert d["palette_after_ctrlk"] == "palette open", "Ctrl/Cmd+K پالت را باز نکرد"
 
 
