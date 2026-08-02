@@ -56,6 +56,67 @@ updated: 2026-08-03
 - `transcribed_by`: text — موتورِ transcribe ِ ویس، مثلاً `faster-whisper` (۲۰۲۶-۰۸-۰۳، رأی مالک).
 - `transcript_secs`: number — مدتِ اجرای transcribe به ثانیه (۲۰۲۶-۰۸-۰۳، رأی مالک).
 
+### ۲.۳ فهرستِ ماشین‌خوان — تک‌منبعِ حقیقتِ ابزارها (۲۰۲۶-۰۸-۰۳)
+
+> جدول‌های بالا توضیحِ **انسانی**‌اند؛ بلوکِ زیر چیزی است که **ابزارها** می‌خوانند
+> (`04 - Architect System/scripts/validate_frontmatter.py`). قبلاً همان فهرست در
+> `KNOWN_KEYS` ِ آن اسکریپت هاردکد بود و بی‌صدا از این سند جدا می‌افتاد — همان
+> روز که دو کلیدِ ویس اضافه شد، validator تا ویرایشِ **سومین** جا قرمز ماند.
+>
+> کلیدِ جدید = یک ردیف این‌جا (+ همان کلید در `.obsidian/types.json`؛ اگر یادت
+> برود، خودِ validator دقیقاً می‌گوید کدام کلید کم است). مرزها را دست نزن.
+
+<!-- SCHEMA-MACHINE:BEGIN -->
+```yaml
+keys:
+  type: text
+  project: text
+  status: text
+  tags: multitext
+  created: date
+  updated: date
+  kind: text
+  owner: text
+  start: date
+  source: text
+  sources: multitext
+  created_by: text
+  org: text
+  role: text
+  telegram: text
+  related: multitext
+  model: text
+  trigger: text
+  code: text
+  version: text
+  aliases: multitext
+  risk_level: text
+  autonomy_level: text
+  epistemic_status: text
+  parent: text
+  aligns_to: text
+  extends: text
+  supersedes: text
+  superseded_by: text
+  canon_rank: text
+  depends-on: multitext
+  closes: multitext
+  target: text
+  audits: text
+  result: text
+  language: text
+  salience: number
+  message_id: number
+  chat_id: number
+  file_id: text
+  duration: number
+  transcribed_by: text
+  transcript_secs: number
+types: [project, knowledge, log, telegram-log, person, agent, moc, reference, handoff, dashboard, instructions, report, research, prompt, architecture, design, proposal, runbook, tasks]
+statuses: [idea, active, paused, done, archived, inbox, draft, ready, superseded]
+```
+<!-- SCHEMA-MACHINE:END -->
+
 ## ۳. قواعد
 
 - کلیدها انگلیسی، حروف کوچک؛ مفرد مگر لیست (`tags`، `sources`، `related`، `aliases`).

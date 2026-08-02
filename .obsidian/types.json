@@ -12,6 +12,7 @@
     "source": "text",
     "sources": "multitext",
     "created_by": "text",
+    "aliases": "multitext",
     "org": "text",
     "role": "text",
     "telegram": "text",
