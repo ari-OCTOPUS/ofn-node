@@ -558,6 +558,19 @@ class TgClient:
                                {"chat_id": cid, "message_id": mid,
                                 "disable_notification": True}) is not None
 
+    def delete_message(self, message_id, chat_id=None) -> bool:
+        """deleteMessage. پیامِ خودِ ربات (یا reply-to-own) را حذف می‌کند.
+        Bot API تلگرام فقط پیام‌های اخیر (<48h برای دیگران، نامحدود برای رباتِ خود)
+        را حذف می‌کند. not wired/نامعتبر → False."""
+        if not self.wired():
+            return False
+        cid = self._resolve_chat(chat_id)
+        mid = _coerce_id(message_id)
+        if cid is None or mid is None:
+            return False
+        return self._call_post("deleteMessage",
+                               {"chat_id": cid, "message_id": mid}) is not None
+
     def create_topic(self, name: str, chat_id=None) -> int | None:
         """createForumTopic در سوپرگروهِ مرکز. خروجی = message_thread_id یا None."""
         if not self.wired():
