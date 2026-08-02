@@ -1,12 +1,11 @@
 ---
-type: plan
+type: proposal
 project: "[[03 - Projects/اونلی فنز/PROJECT]]"
 status: active
 tags: [project-f, plan, completion, auto-marketing, contained]
 created: 2026-08-01
-updated: 2026-08-01
+updated: 2026-08-03
 created_by: agent
-containment: "Project-F only — صفر PII/هویتِ پارتنر؛ کدِ عمومی = Project-F"
 ---
 
 # پلنِ تکمیل + مارکتینگِ خودکارِ Project-F — ۲۰۲۶-۰۸-۰۱

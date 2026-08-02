@@ -56,7 +56,9 @@ KNOWN_KEYS = CORE_KEYS | {"project", "created", "kind", "owner", "start", "sourc
                           "canon_rank", "depends-on", "closes", "target",
                           "audits", "result", "language", "salience",
                           # کلیدهای capture ماشینی تلگرام — ۲۰۲۶-۰۷-۳۱، رأی capture (§۲.۲ Property Schema)
-                          "message_id", "chat_id", "file_id", "duration"}
+                          "message_id", "chat_id", "file_id", "duration",
+                          # کلیدهای transcribe ویس — ۲۰۲۶-۰۸-۰۳، رأی مالک (§۲.۲ Property Schema)
+                          "transcribed_by", "transcript_secs"}
 
 def parse_frontmatter(text):
     if not text.startswith("---"):

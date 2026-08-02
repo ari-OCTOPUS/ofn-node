@@ -337,7 +337,7 @@ part_loops.py, route_scorer.py, stress.py, target_guard.py, wlos_bridge.py`
 Output: `OCTOPUS_05_BRAIN_REGISTRY.md`
 
 ### PHASE 6 — Vault Semantic Scan
-Obsidian `.md`ها را اسکن کن: frontmatter, tags, [[wikilinks]], backlinks, checklists,
+Obsidian `.md`ها را اسکن کن: frontmatter, tags, wikilinks, backlinks, checklists,
 duplicate/stale/orphan, high-centrality notes. به ۱۵ اصل OMEGA-PARITY map کن.
 Output: `OCTOPUS_06_VAULT_GRAPH_INDEX.md` + `octopus_vault_graph.json` + `octopus_vault_checklists.json`
 

@@ -39,6 +39,8 @@
     "message_id": "number",
     "chat_id": "number",
     "file_id": "text",
-    "duration": "number"
+    "duration": "number",
+    "transcribed_by": "text",
+    "transcript_secs": "number"
   }
 }

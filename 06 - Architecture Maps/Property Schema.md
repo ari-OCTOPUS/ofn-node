@@ -3,7 +3,7 @@ type: reference
 status: active
 tags: [schema, frontmatter]
 created: 2026-07-03
-updated: 2026-07-31
+updated: 2026-08-03
 ---
 
 # Property Schema — زبان داده Vault (تک‌منبع حقیقت)
@@ -53,6 +53,8 @@ updated: 2026-07-31
 - `chat_id`: number — شناسهٔ چتِ مبدأ پیام (۲۰۲۶-۰۷-۳۱، رأی capture).
 - `file_id`: text — شناسهٔ رسانهٔ تلگرام (ویس/عکس) — ثبتِ ارجاع، بدونِ دانلود (۲۰۲۶-۰۷-۳۱، رأی capture).
 - `duration`: number — طولِ ویس به ثانیه (۲۰۲۶-۰۷-۳۱، رأی capture).
+- `transcribed_by`: text — موتورِ transcribe ِ ویس، مثلاً `faster-whisper` (۲۰۲۶-۰۸-۰۳، رأی مالک).
+- `transcript_secs`: number — مدتِ اجرای transcribe به ثانیه (۲۰۲۶-۰۸-۰۳، رأی مالک).
 
 ## ۳. قواعد
 

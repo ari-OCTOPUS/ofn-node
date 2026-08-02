@@ -1,15 +1,15 @@
 ---
-type: session-note
+type: log
 status: active
 tags: [session, octopus, handoff, agent-orientation]
 created: 2026-08-02
-updated: 2026-08-02
-session_author: ZCode
-audience: any agent (stranger) entering the vault after this session
+updated: 2026-08-03
 ---
 
 # session-note — کارهای 2026-08-02 (برای ایجنتِ بعدی)
 
+> نویسندهٔ جلسه: ZCode · مخاطب: هر ایجنتِ غریبه‌ای که بعد از این جلسه وارد vault می‌شود.
+> (این دو، قبلاً کلیدِ فرانت‌متر بودند؛ 08-03 طبق Property Schema به بدنه منتقل شدند.)
 > اگر ایجنتِ غریبه‌ای این vault را باز می‌کنی: این خلاصهٔ کاملِ کارِ امروز است.
 > لنگرها به اسنادِ مفصل. همه‌چیز commit شده یا documented. هیچ‌چیزِ نیمه‌کارهٔ
 > مخفی نیست — اگه هست، زیرِ «honest boundaries» صراحتاً نوشته‌ام.
