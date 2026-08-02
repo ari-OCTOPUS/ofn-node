@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-ORPHAN 2026-07-16: zero live callers (audit R-13) — kept, not deleted; candidate for _Archive on owner verdict.
+ORPHAN 2026-07-16 → REVIVED 2026-08-02: path mismatch fixed (paused.flag → daemon.pause).
+4D brain APIs all verified present (self_code, budget, frontier, research_agenda, self_growth, events).
+Zero live callers remains — wiring into _ops telegram launch chain is the next step (see Track B plan).
 
 approval_channel_merge.py — پلِ ادغامِ کانالِ تأییدِ _ops با مغزِ 4d_system.
 
@@ -53,10 +55,13 @@ logger = logging.getLogger(__name__)
 
 # ── constants ──────────────────────────────────────────────────────────────
 # مسیرهای مغز (4d_system)
+# REVIVAL 2026-08-02: was `paused.flag` (never existed). daemon.py line 54 uses
+# `daemon.pause`; canonical stop is `daemon.stop` (line 47). Path mismatch was the
+# only real rot — every 4D brain API imported below still exists.
 _4D_ROOT = _HERE.parents[1] / "4d_system"
 _4D_OUTPUT = _4D_ROOT / "outputs"
 _DAEMON_STATE = _4D_OUTPUT / "daemon_state.json"
-_PAUSE_FILE = _4D_OUTPUT / "paused.flag"
+_PAUSE_FILE = _4D_OUTPUT / "daemon.pause"
 
 # ── helpers: brain state (fail-safe) ───────────────────────────────────────
 
