@@ -42,7 +42,7 @@ NOW = 1_785_400_000.0                          # clockِ تزریقی — نه �
 def _fresh():
     """state ِ تمیز برای هر سنجه — فایل‌های ایزولهٔ harness پاک می‌شوند."""
     for p in (hp._state_path(), hp._buffer_path(), hp._urgent_path(),
-              hp._viewed_path()):
+              hp._viewed_path(), hp._markers_path()):
         try:
             p.unlink()
         except OSError:
@@ -237,6 +237,62 @@ def t_classifier_failure_never_silences_and_never_crashes_the_send_path():
     hp._state_path().write_text("{این json نیست", "utf-8")
     d = hp.submit("doctor", "🔴 CRITICAL: باز هم قرمز", now=NOW)
     assert d["action"] == hp.SEND, d
+
+
+def t_the_organism_writer_can_never_clobber_the_flush_marker():
+    """⚠️ باگِ زندهٔ ۰۸-۰۲: نشانگرِ flush ۲۷ ساعت گیر کرد و «دایجستِ ساعتی»
+    ۲۵۴ بار در یک روز رفت — هر ~۵ دقیقه. علت: classify() ِ پروسهٔ organism
+    با هر پیام کلِ state را load→save می‌کند و نشانگری که مرکز نوشته بود را
+    لِه می‌کرد (یا نوشتنِ نادرِ مرکز زیرِ قفلِ AV می‌باخت و False ِ بی‌صدا).
+    سومین موردِ «دو نویسنده روی یک فایلِ حالت» در سه روز.
+
+    سناریوی دقیقِ زنده: mark ِ مرکز → نوشتنِ organism (classify) → سنجش."""
+    _fresh()
+    hp.submit("doctor", "دکتر: وضعیتِ تازه ۱", now=NOW)          # آیتم واردِ بافر
+    assert hp.digest_due(now=NOW + 3700) is True
+    # ⚠️ دو نسخهٔ قبلیِ این تست هر دو کور بودند و جهشِ «mark به state ِ
+    # مشترک بنویس» سبز می‌ماند: نسخهٔ ۱ لِه‌شدن را ترتیبی شبیه‌سازی می‌کرد
+    # (تک-پروسه، load ِ بعدی نشانگر را می‌بیند و حفظ می‌کند)؛ نسخهٔ ۲
+    # درهم‌تنیده بود ولی snapshot را **بعد** از اولین mark می‌گرفت، پس
+    # نشانگر داخلِ snapshot بود و لِه بی‌اثر. ترتیبِ مرگِ واقعی:
+    # خواندنِ organism → mark ِ مرکز → نوشتنِ organism.
+    st_stale = hp._load_state()              # organism خواند — نشانگرِ کهنه
+    assert hp.mark_digest_flushed(now=NOW + 3700) is True   # مرکز فرستاد
+    st_stale.setdefault("streams", {})["doctor"] = {
+        "sig": "x", "sev": "normal", "ts": NOW + 3800}
+    hp._save_state(st_stale)                 # organism ذخیره کرد — لِه‌گر
+    # و آیتم‌های تازهٔ واقعی (متنِ واقعاً متفاوت — امضا رقم را حذف می‌کند،
+    # درسِ «شمارنده در کلیدِ dedup»؛ متنِ هم‌اسکلت HOLD می‌شود و به بافر
+    # نمی‌رسد)
+    for word in ("الف", "ب", "پ", "ت", "ث"):
+        hp.submit("doctor", f"دکتر: مشکلِ تازهٔ {word}", now=NOW + 3800)
+    # سنجه: نشانگر جان به در برده — دایجست تا یک ساعتِ بعد سررسید نیست
+    assert hp.digest_due(now=NOW + 3900) is False,         "نویسندهٔ organism نشانگرِ مرکز را لِه کرد — رگبارِ ۵دقیقه‌ای برمی‌گردد"
+    # و بعد از یک ساعت، با آیتم‌های تازه، درست سررسید می‌شود
+    assert hp.digest_due(now=NOW + 3700 + 3601) is True
+
+
+def t_the_urgent_marker_survives_the_same_interleaving():
+    """قرینهٔ همان گارد برای مسیرِ urgent — همان بیماری، همان درهم‌تنیدگی."""
+    _fresh()
+    hp.submit("doctor", "🔴 CRITICAL: قرمز شد", now=NOW)      # واردِ outbox
+    rows = hp.urgent_pending(now=NOW + 10)
+    assert rows, "outbox خالی است"
+    st_stale = hp._load_state()              # organism خواند
+    assert hp.mark_urgent_flushed(float(rows[-1]["ts"])) is True   # مرکز فرستاد
+    hp._save_state(st_stale)                 # organism لِه کرد
+    assert hp.urgent_pending(now=NOW + 20) == [],         "ردیفِ flush‌شده دوباره برگشت — رگبارِ پیامِ بحرانیِ تکراری"
+
+
+def t_a_marker_already_in_the_shared_state_is_still_honoured():
+    """سازگاری با گذشته: نشانگری که قبلاً در state ِ مشترک نوشته شده (نصبِ
+    قدیمی) باید همچنان دیده شود — خواننده max ِ دو منبع است."""
+    _fresh()
+    st = hp._load_state()
+    st["last_digest_flush"] = NOW + 100
+    hp._save_state(st)
+    hp.submit("doctor", "دکتر: چیزی", now=NOW + 200)
+    assert hp.digest_due(now=NOW + 300) is False,         "نشانگرِ قدیمیِ داخلِ state ِ مشترک نادیده گرفته شد"
 
 
 if __name__ == "__main__":

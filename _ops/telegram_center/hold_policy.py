@@ -120,6 +120,50 @@ def _load_state() -> dict:
         return {}
 
 
+def _markers_path() -> Path:
+    return _state_dir() / "hold-flush-markers.json"
+
+
+def _load_markers() -> dict:
+    """نشانگرهای flush — فایلِ **تک‌نویسنده** (فقط مرکز می‌نویسد).
+
+    ⚠️ ۲۰۲۶-۰۸-۰۳: چرا از state ِ مشترک جدا شد. `classify()` در پروسهٔ
+    organism با هر پیامِ محیطی کلِ `hold-policy-state.json` را load→save
+    می‌کند؛ `mark_digest_flushed` ِ مرکز یا زیرِ همین رفت‌وآمد لِه می‌شد یا
+    نوشتنِ نادرش زیرِ قفلِ AV می‌باخت و `False` ِ بی‌صدا می‌گرفت. اندازه‌گیریِ
+    زنده: نشانگر ۲۷ ساعت روی «۰۸-۰۱ ۲۱:۳۵:۴۴» گیر کرد و «دایجستِ ساعتی»
+    ۲۵۴ بار در یک روز رفت — هر ~۵ دقیقه. سومین موردِ همین بیماری در سه روز
+    (cfg ِ beat ِ مرکز · گزارشِ canary · حالا این). قاعده: **هر فایلِ حالت
+    دقیقاً یک نویسنده.** خواننده‌ها `max` ِ هر دو منبع را می‌بینند تا
+    نشانگرهای قدیمیِ داخلِ state ِ مشترک هم محترم بمانند."""
+    try:
+        d = json.loads(_markers_path().read_text("utf-8"))
+        return d if isinstance(d, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def _save_markers(d: dict) -> bool:
+    for _try in range(3):                    # قفلِ AV = retry ِ کران‌دار، نه سکوت
+        try:
+            p = _markers_path()
+            p.parent.mkdir(parents=True, exist_ok=True)
+            tmp = p.with_suffix(".json.tmp")
+            tmp.write_text(json.dumps(d, ensure_ascii=False), "utf-8")
+            os.replace(tmp, p)
+            return True
+        except OSError:
+            time.sleep(0.05)
+    return False
+
+
+def _marker(key: str) -> float:
+    """بزرگ‌ترینِ دو منبع — فایلِ نشانگر (نو) و state ِ مشترک (قدیمی)."""
+    a = float(_load_markers().get(key, 0.0) or 0.0)
+    b = float(_load_state().get(key, 0.0) or 0.0)
+    return max(a, b)
+
+
 def _save_state(d: dict) -> bool:
     try:
         p = _state_path()
@@ -243,8 +287,7 @@ def urgent_pending(*, now: float | None = None, cap: int = 5) -> list:
     """ردیف‌های outbox که هنوز flush نشده‌اند — حداکثر ``cap`` در هر ضربان
     (ضدِ طوفان). فقط ردیف‌های بعد از نشانگرِ آخرین flush."""
     now = float(now if now is not None else time.time())
-    st = _load_state()
-    last = float(st.get("last_urgent_flush", 0.0) or 0.0)
+    last = _marker("last_urgent_flush")
     out = []
     try:
         for line in _urgent_path().read_text("utf-8").splitlines():
@@ -260,20 +303,21 @@ def urgent_pending(*, now: float | None = None, cap: int = 5) -> list:
 
 
 def mark_urgent_flushed(upto_ts: float) -> bool:
-    """نشانگر را تا ts ِ آخرین ردیفِ فرستاده‌شده جلو ببر — idempotent."""
-    st = _load_state()
-    if float(upto_ts) <= float(st.get("last_urgent_flush", 0.0) or 0.0):
+    """نشانگر را تا ts ِ آخرین ردیفِ فرستاده‌شده جلو ببر — idempotent.
+    فقط در فایلِ تک‌نویسندهٔ نشانگرها (بیماریِ دو-نویسنده — سندش در
+    `_load_markers`)."""
+    if float(upto_ts) <= _marker("last_urgent_flush"):
         return True
-    st["last_urgent_flush"] = float(upto_ts)
-    return _save_state(st)
+    m = _load_markers()
+    m["last_urgent_flush"] = float(upto_ts)
+    return _save_markers(m)
 
 
 # ── flush ِ digest (مصرف‌کننده: مرکز، ساعتی یک‌بار) ─────────────────────────
 def digest_due(*, now: float | None = None) -> bool:
     """آیا از آخرین flush یک ساعت گذشته و چیزی در بافر هست؟"""
     now = float(now if now is not None else time.time())
-    st = _load_state()
-    last = float(st.get("last_digest_flush", 0.0) or 0.0)
+    last = _marker("last_digest_flush")
     if now - last < DIGEST_INTERVAL_S:
         return False
     return bool(_pending_items(last))
@@ -308,8 +352,7 @@ def flush_digest(*, now: float | None = None, cap: int = 12) -> "str | None":
     **جلو نمی‌برد**؛ صداکننده باید بعد از ارسالِ موفق `mark_digest_flushed`
     را صدا بزند."""
     now = float(now if now is not None else time.time())
-    st = _load_state()
-    last = float(st.get("last_digest_flush", 0.0) or 0.0)
+    last = _marker("last_digest_flush")
     if now - last < DIGEST_INTERVAL_S:
         return None
     items = _pending_items(last)
@@ -337,10 +380,9 @@ def mark_digest_flushed(now: float | None = None) -> bool:
     بازمی‌گردند."""
     now = float(now if now is not None else time.time())
     try:
-        st = _load_state()
-        st["last_digest_flush"] = now
-        _save_state(st)
-        return True
+        m = _load_markers()
+        m["last_digest_flush"] = now
+        return _save_markers(m)
     except Exception:  # noqa: BLE001
         return False
 
