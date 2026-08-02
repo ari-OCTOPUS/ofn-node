@@ -67,6 +67,30 @@ def _drawdown_shadow_observe(agent, d, c):
 # خودش منقضی می‌شود؛ این تابع عمداً **همان الگو** است تا یکی یاد گرفتنش کافی باشد.
 SPEND_CAP_USD_ENV, SPEND_CAP_UNTIL_ENV = "OCTOPUS_SPEND_CAP_USD", "OCTOPUS_SPEND_CAP_UNTIL"
 
+# A2 (۲۰۲۶-۰۸-۰۳): اگر env نبود، رأیِ **tracked** ِ مالک پرش می‌کند —
+# `_ops/OCTOPUS-flags.cmd` گیت‌ایگنور است، پس تنها ردِ ماندگارِ رأی همان فایل است.
+# env همچنان برنده می‌ماند (رفتارِ امروز بایت‌به‌بایت همان). import ِ fail-soft:
+# این مسیرِ پول است و نبودِ ماژول فقط یعنی برگشت به رفتارِ env-only.
+try:
+    import sys as _sys
+    _OPS = pathlib.Path(__file__).resolve().parents[2] / "_ops"
+    if str(_OPS) not in _sys.path:
+        _sys.path.insert(0, str(_OPS))
+    import owner_verdicts as _verdicts
+except Exception:  # noqa: BLE001
+    _verdicts = None
+
+
+def _knob(env_name):
+    """مقدارِ مؤثرِ یک knob: env، وگرنه رأیِ ثبت‌شده، وگرنه رشتهٔ خالی."""
+    live = str(os.environ.get(env_name, "") or "").strip()
+    if live or _verdicts is None:
+        return live
+    try:
+        return _verdicts.get(env_name)
+    except Exception:  # noqa: BLE001
+        return ""
+
 
 def spend_cap_now(base_aud, aud_per_usd, disaster_aud, today=None):
     """سقفِ ماهانهٔ مؤثر (AUD) + دلیلش. `today` **کاملاً** تزریق‌شدنی است؛ هیچ
@@ -80,8 +104,8 @@ def spend_cap_now(base_aud, aud_per_usd, disaster_aud, today=None):
     بدونِ کش خوانده می‌شود، پس در روزِ انقضا **بدونِ ری‌استارت** برمی‌گردد."""
     base = float(base_aud)
     shut = lambda why: {"value_aud": base, "reason": why, "window_open": False}  # noqa: E731
-    raw = str(os.environ.get(SPEND_CAP_USD_ENV, "") or "").strip()
-    until = str(os.environ.get(SPEND_CAP_UNTIL_ENV, "") or "").strip()
+    raw = _knob(SPEND_CAP_USD_ENV)
+    until = _knob(SPEND_CAP_UNTIL_ENV)
     if not raw:
         return shut("default")
     if not until:

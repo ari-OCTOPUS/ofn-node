@@ -32,9 +32,16 @@ os.environ["BUDGET_STATE"] = str(_TMP / "budget-state.json")
 os.environ["BUDGETS_YAML"] = str(_TMP / "budgets.yaml")      # عمداً غایب
 os.environ.pop("OCTOPUS_SPEND_CAP_USD", None)
 os.environ.pop("OCTOPUS_SPEND_CAP_UNTIL", None)
+# A2 (۲۰۲۶-۰۸-۰۳): از ۰۸-۰۳ نبودِ env یعنی «رأیِ ثبت‌شده در owner-verdicts.yaml»
+# نه «هیچ استثنایی». این سوییت **منطقِ خالصِ پنجره** را می‌سنجد، پس هر دو ورودی
+# را کنترل می‌کند — وگرنه به فایلِ زندهٔ والت گره می‌خورد و با هر رأیِ تازهٔ مالک
+# رنگ عوض می‌کند. پوششِ خودِ fallback در `test_owner_verdicts.py` است.
+os.environ["OCTOPUS_OWNER_VERDICTS"] = "__isolated_no_owner_verdicts__.yaml"
 
 ROOT = Path(__file__).resolve().parents[2]
 GATE = ROOT / "04 - Architect System" / "scripts" / "budget_gate.py"
+if str(ROOT / "_ops") not in sys.path:
+    sys.path.insert(0, str(ROOT / "_ops"))
 _spec = importlib.util.spec_from_file_location("_bg_under_test", GATE)
 bg = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(bg)
@@ -83,6 +90,13 @@ def t_the_day_after_falls_back_to_the_base():
 
 
 # ── fail-closed: هر ابهامی به پایهٔ سخت‌گیر برمی‌گردد ───────────────────────
+
+def t_this_suite_is_isolated_from_the_live_verdicts_file():
+    """گاردِ ایزوله: اگر کسی پینِ بالای فایل را بردارد، این قرمز می‌شود — نه
+    اینکه سوییت بی‌صدا شروع کند به خواندنِ رأی‌های زندهٔ مالک."""
+    import owner_verdicts as _ov  # noqa: PLC0415
+    assert _ov.load() == {}, "سوییت دارد فایلِ زندهٔ owner-verdicts را می‌خواند"
+
 
 def t_without_the_env_the_base_stands():
     _win(None, None)
