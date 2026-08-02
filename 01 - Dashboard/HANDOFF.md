@@ -8,6 +8,30 @@ updated: 2026-08-02
 > قاعده: این فایل ایندکسِ wikilink است، زیرِ ۲۰۰ خط — نه آرشیو. تاریخچهٔ کاملِ قبلی: `_Archive/Logs/HANDOFF-archive-2026-07-16.md` (۲۶۳KB، قرنطینه‌شده 2026-07-16). سرریزِ 2026-07-29 (ورودی‌های ≤ 07-24): `_Archive/Logs/HANDOFF-archive-2026-07-29.md`. سرریزِ 2026-08-01 (ورودی‌های ≤ 07-27): `_Archive/Logs/HANDOFF-archive-2026-08-01.md`.
 > 🧭 **ایجنتِ جدید؟** خلاصهٔ کاملِ کارِ 2026-08-02 + honest boundaries + قواعدی که این سشن رعایت کرد: [[00 - Inbox/SESSION-NOTES-2026-08-02|SESSION-NOTES-2026-08-02]]. درس‌های این سشن در [[../_memory/EXPERIENCE-LEDGER|ledger]] (§ 2026-08-02).
 
+## 🔒 WORKLOCK — قفلِ کارِ موازی
+
+<!-- WORKLOCK: بخشِ زندهٔ هماهنگی. ورودی‌های تاریخ‌دارِ پایین را دست نزن.
+     lane که کارش تمام شد، ردیفِ خودش را به «آزاد» ببرد — ردیف را پاک نکند. -->
+
+**چرا هست:** ۲۰۲۶-۰۸-۰۲ چهار deploy روی تصادمِ فایلِ مشترک سقط شد — نه باگِ منطقی، هر بار دو lane یک فایل. شاهد: `8af1924`/`b61d75c`/`5ff1119` (هر سه «union … registrations» روی `run_all.py`)، `6099de4` (`wiring.py`)، `b3fb9a5` (`orphan_scan.py`)، `f51a3dc` (`center.py`).
+**و بدتر:** `.gitattributes` = `*.md merge=union` ⇒ تصادمِ markdown اصلاً conflict نمی‌دهد، **بلوکِ تکراری** می‌دهد. خطا ساکت است — بعد از merge روی `HANDOFF.md`/`PROJECT.md`ها چشمی چک کن.
+
+**کی فعال است (2026-08-02):**
+
+| lane | روی چه | رزرو | وضعیت |
+|---|---|---|---|
+| vault-docs | لایهٔ حقیقت در vault | `06 - Architecture Maps/OCTOPUS-*.md`, `WAVE2-CRM-PLAN.md`, `FUGU-CALL-CONTRACT.md`, و **فقط همین بخشِ** HANDOFF | ✅ تمام |
+| api-ops | `brain/governor/obsidian/next_steps` در `/api/ops` | `_ops/telegram_center/miniapp_state.py`, `miniapp_gateway.py` | 🟡 در جریان |
+| cockpit-tabs | تب‌های تازهٔ MiniApp | `_ops/telegram_center/miniapp/{app.js,index.html,style.css}` | 🟡 در جریان |
+
+> دو ردیفِ آخر از بریفِ جلسه است نه سنجشِ مستقیم — قبل از دست‌زدن **`git status` بزن**.
+
+**همیشه رزرو:** `_ops/tests/run_all.py` (ثبتِ تست **مرکزی**؛ سه تصادم در یک روز — نامِ فایلِ تستت را **گزارش کن**، خودت ثبتش نکن) · `_ops/wiring.py` (فلگِ نو **بیرونِ** `PAPER_FULL_FLAGS` و خاموش) · `_ops/telegram_center/center.py` · `_ops/orphan_scan.py`.
+
+**همیشه امن موازی:** سندِ نو در `06`/`07`/`00` (نه بخشِ دیگران در HANDOFF و PROJECT.mdها) · **فایلِ تستِ نو** با نامِ یکتا در `_ops/tests/` · ممیزیِ ایستا (grep، `git log`، اجرای read-only، هر دو validator).
+
+**ثابت:** فقط داخلِ worktree بنویس — **`F:\backup` درختِ زندهٔ در حالِ اجراست** · `git add -A` هرگز · >~۵ فایل ⇒ اول `agent-checkpoint:` · «fatal: stash failed»/قفلِ `.git/objects` = قفلِ AV ⇒ **retry** نه دورزدن · lane که تمام کرد ردیفش را ✅ کند (پاک نکند).
+
 ## وضعِ لحظه‌ای
 
 - 🖥 **2026-08-02 (ZCode — MiniApp/UI cockpit read-only، staged):** ۷ endpoint فقط‌خواندنی + frontend + `/ui` `/truth` `/legs` `/approvals` commands. MiniApp URL = CONFIG_NEEDED (نه fake-live). action API = BLOCKED تا owner auth. ۱۰۹ تست سبز. گزارش: [[_ops/implementation_reports/MINIAPP-UI-COCKPIT-2026-08-02|MINIAPP-UI-COCKPIT]].

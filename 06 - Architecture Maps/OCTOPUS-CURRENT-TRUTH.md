@@ -1,0 +1,186 @@
+---
+type: architecture
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: active
+tags: [octopus, truth, cockpit, miniapp, integration, telegram]
+created: 2026-08-02
+updated: 2026-08-02
+created_by: agent
+sources:
+  - "[[_ops/implementation_reports/MINIAPP-UI-COCKPIT-2026-08-02]]"
+  - "[[06 - Architecture Maps/MASTER-ARCHITECTURE-2026-07-29]]"
+  - "[[06 - Architecture Maps/OCTOPUS-KNOWN-RISKS]]"
+---
+
+# OCTOPUS — Current Truth
+
+<!-- BEGIN GENERATED: vault-docs lane, 2026-08-02. تا مرزِ END GENERATED ماشین‌نوشت است.
+     ویرایشِ انسانی را **زیرِ** بخشِ «Owner notes» بگذار تا بازنویسی نشود. -->
+
+> **قاعدهٔ این سند:** هر ادعا با یک مسیرِ واقعی لنگر دارد. چیزی که نتوانستم بسنجم
+> `UNKNOWN` نوشته شده — نه «احتمالاً کار می‌کند». اگر جمله‌ای مسیر ندارد، ادعا نیست.
+>
+> **روشِ سنجش:** اجرای واقعی (`python -X utf8 …`)، `git log`، `git status`، grep روی درخت.
+> نه استنتاج از گزارش‌های قبلی. جایی که گزارشِ قبلی با درخت اختلاف داشت، **درخت** برنده شد.
+
+## Live
+
+چیزهایی که اجراشان را دیدم یا مسیرِ صداکننده‌شان را تا انتها دنبال کردم.
+
+| چه | لنگر | شاهد |
+|---|---|---|
+| MiniApp gateway با ۸ routeِ `/api/*` فقط‌خواندنی | `_ops/telegram_center/miniapp_gateway.py` (dispatch در `_handle_core`) | مجموعهٔ مسیرها در همان تابع صریح فهرست شده |
+| dispatcherِ state | `_ops/telegram_center/miniapp_state.py::dispatch_api` | ۸ کلید: `state, outbound, approvals, legs, value, ui-registry, current-truth, ops` |
+| `/api/ops` (خلاصهٔ CRM محلی) | `_ops/telegram_center/miniapp_state.py::get_ops_state` | فراخوانی شد؛ کلیدها: `status, leads_total, lead_stages, tasks_total, task_status, value_events_total, value_events_per_leg, actions` |
+| موتورِ actionِ owner-gated | `_ops/agi2027_control/ops_actions.py::OpsActionEngine.execute` | گیتِ `actor["is_owner"]`، allowlist ِ ۶تایی، idempotency، audit |
+| کنترل‌پلینِ تلگرام وصل به بات | `_ops/telegram_center/center.py::_handle_message` → `agi2027_control.integration.try_handle_control` | importِ واقعی در همان تابع؛ flag-off ⇒ `None` ⇒ fallthrough |
+| فلگِ کنترل روشن است | `_ops/agi2027_runtime/managed_flags.json` | `OCTOPUS_WIRE_TG_CONTROL="1"` (به‌علاوهٔ `..._LEAD_OUTBOUND_WAL`، `..._VALUE_LEDGER`) |
+| ۱۱ آیتمِ live در رجیستریِ UI | `_ops/agi2027_runtime/ui-registry.json` | شمارشِ واقعی: ۱۷ آیتم = ۱۱ live / ۵ staged / ۱ unknown |
+| درِ واحدِ مدل | `_ops/cortex/model_router.py::ask` (خطِ ۴۲۶) | تنها choke-point؛ امضا: `ask(task, prompt, system, max_tokens, tier, opener, quality)` |
+
+## Verified
+
+سنجه‌هایی که خودم دواندم، با خروجی.
+
+- **`validate_frontmatter.py`** — ۳۹۷ نوت بررسی شد، **۲ خطا**، هر دو **از پیش موجود** و در
+  `00 - Inbox/SESSION-NOTES-2026-08-02.md` (`type: session-note` نامعتبر + دو کلیدِ خارج از
+  schema: `audience`, `session_author`). هیچ‌کدام از سندهای این lane نیست.
+- **`find_broken_links.py`** — ۲۰۰۴ نوت، **۸ لینکِ شکسته در لایهٔ دست‌چین** (+۷۲ در لایهٔ
+  عملیاتی که §۱۱ از دامنه خارجش می‌کند). ۴ تا از آن ۸ تا از قبل داخلِ `01 - Dashboard/HANDOFF.md` بود.
+- **`_ops/budget/governor.py`** مستقیم اجرا شد (`python -X utf8`) — پنج تصمیمِ نمونه درست
+  برگشت: `deep_audit`+`allow_ultra=true` → `primary`؛ همان با `allow_ultra=false` → `secondary`؛
+  `contains_secrets=true` → `local`.
+- **`_ops/tests/test_governor_routing.py`** اجرا شد → **۱۷/۱۷ سبز**.
+- **`_ops/agi2027_runtime/ui-registry.json`** با json پارس و شمرده شد (نه از روی گزارش).
+
+> **⚠️ به‌روزرسانیِ وسطِ جلسه (نمونهٔ زندهٔ همان چیزی که این سند دربارهٔ آن هشدار می‌دهد):**
+> بینِ نوشتنِ پیش‌نویس و پایانِ این جلسه، یک lane موازی `governor.py` را از ۱۹KB به ۲۶.۸KB
+> رساند (`delivery_allowed()` به تابعِ نام‌دار درآمد، `decide()` پارامترِ `cache_lookup` گرفت)
+> و `_ops/tests/test_governor_routing.py` را ساخت. جمله‌ی «governor صفر تست دارد» **دیگر
+> درست نیست** و اصلاح شد. اگر همین را دوباره سنجیدی و باز فرق داشت، درخت برنده است نه این سند.
+
+## Degraded
+
+کار می‌کند ولی نه آن‌طور که سند/گزارشِ قبلی ادعا می‌کند.
+
+- **`/truth` و `/api/current-truth` این سند را نمی‌خوانند.** هر دو خواننده یک فایلِ
+  **ریشهٔ repo با نامِ تاریخ‌دار** را hardcode کرده‌اند:
+  - `_ops/telegram_center/miniapp_state.py` → `_TRUTH = _ROOT / "OCTOPUS-CURRENT-TRUTH-2026-08-02.md"`
+  - `_ops/agi2027_control/runtime.py` → `self.root / "OCTOPUS-CURRENT-TRUTH-2026-08-02.md"`
+
+  آن فایل واقعاً وجود دارد (`./OCTOPUS-CURRENT-TRUTH-2026-08-02.md`, ~۲.۷KB). یعنی حکمِ مالک
+  («truth داخلِ vault باشد، نه docs/») در **سند** رعایت شده ولی در **کد** هنوز نه.
+  تا وقتی آن دو مسیر به `06 - Architecture Maps/OCTOPUS-CURRENT-TRUTH.md` تغییر نکند،
+  این سند برای cockpit نامرئی است. → `OCTOPUS-NEXT-ACTIONS` ردیفِ N-1.
+- **گزارشِ `MINIAPP-UI-COCKPIT-2026-08-02.md` دربارهٔ رجیستری کهنه است.** می‌گوید
+  «۹ live، ۶ staged، ۱ unknown»؛ شمارشِ امروزِ فایل: **۱۱ live، ۵ staged، ۱ unknown**.
+- **گزارشِ همان فایل «۷ تب» می‌گوید؛ واقعیت ۸ تب است.** `index.html` هشت `data-tab` دارد
+  (`home, studio, outbound, approvals, legs, value, registry, truth`) و `app.js` هشت renderer.
+  تبِ `studio` بعداً اضافه شد (کامیت `417e75a`).
+- **متنِ فارسیِ `app.js` دوبار-انکود شده (mojibake).** مثلاً به‌جای «خطا» رشتهٔ
+  `Ã˜Â®Ã˜Â·Ã˜Â§` در سورس است — `_ops/telegram_center/miniapp/app.js`. فایل UTF-8 است ولی
+  محتوایش قبلاً از cp1252 عبور کرده. `index.html` و `style.css` سالم‌اند. **lane این سند
+  نیست؛ فقط ثبت شد.**
+
+## Blocked
+
+- **`OCTOPUS_MINIAPP_URL` ست نشده** ⇒ `/ui` صادقانه `CONFIG_NEEDED` برمی‌گرداند
+  (`_ops/agi2027_control/runtime.py`). دکمهٔ «📊 داشبورد» در `center.py::_home_keyboard`
+  فقط با `OCTOPUS_TG_MINIAPP=1` + فایلِ URL ِ تازه ظاهر می‌شود؛ بدونِ URL دکمه‌ای وجود ندارد
+  (fake-live نیست).
+- **actionهای HTTP پشتِ owner-auth بسته‌اند.** `POST /api/actions` بدونِ
+  `TG_CENTER_BOT_TOKEN` + `TELEGRAM_OWNER_CHAT_ID` + initDataِ معتبر → `403 DENIED
+  owner_auth_required`. این گیت **درست** است و برداشته نمی‌شود.
+- **Project-F** — بدونِ credential، BLOCKED (طبقِ گزارشِ MiniApp؛ خودم credential را نسنجیدم).
+
+### Blocked Forever — مرزِ ثابتِ مالک
+
+این‌ها «هنوز نه» نیستند؛ **هرگز** هستند. اگر تسکی به یکی از این‌ها نیاز داشت، توقف کن و گزارش بده.
+
+- اتوماسیونِ لاگین در OnlyFans / Fansly
+- scraping
+- APIهای مهندسی‌معکوس‌شده
+- auto-DM
+- mass messaging
+- cookie import
+
+اجرای ماشینیِ همین مرز — نه فقط متن — در `_ops/agi2027_control/ops_actions.py`:
+`BLOCKED_PREFIXES = ("onlyfans.", "fansly.", "platform.scrape", "platform.login",
+"mass_message", "cookie_import", "reverse_api")`، و پیش از allowlist چک می‌شود.
+
+## Next
+
+سه قدمِ بعد؛ کاملش در [[06 - Architecture Maps/OCTOPUS-NEXT-ACTIONS|OCTOPUS-NEXT-ACTIONS]].
+
+1. دو خواننده‌ی truth را به همین فایلِ vault بِبَر (N-1) — بدونش این سند تزئین است.
+2. `_ops/budget/governor.py` را وارد git کن (N-2) — **هنوز untracked** است، و حالا تستش
+   (`test_governor_routing.py`) هم untracked و در `run_all.py` ثبت‌نشده است. صداکنندهٔ
+   تولیدی همچنان صفر (N-3).
+3. بخش‌های `brain / governor / obsidian / next_steps` را به `/api/ops` اضافه کن (N-4) —
+   lane دیگری روی همین است؛ وضعیت را قبل از دست‌زدن دوباره بسنج.
+
+## Do Not Do
+
+- **`_ops/tests/run_all.py` را در یک lane موازی ویرایش نکن.** امروز چهار deploy روی همین
+  فایل به collision خورد. نامِ تستت را گزارش کن؛ ثبت مرکزی است. شاهد: کامیت‌های
+  `8af1924`، `b61d75c`، `5ff1119` (هر سه «union … registrations»).
+- **`F:\backup` را ننویس.** آن درختِ زندهٔ در حالِ اجراست. فقط داخلِ worktree بنویس.
+- **گیت را برندار.** وصل‌کردنِ مسیر **به** یک گیت مجاز است؛ حذفِ گیت هرگز.
+- **فلگِ جدید را داخلِ `wiring.PAPER_FULL_FLAGS` نگذار.** پیش‌فرض خاموش، بیرونِ آن tuple.
+  (نمونهٔ درست: `OCTOPUS_WIRE_GOVERNOR` که عمداً بیرون است.)
+- **هرگز حذف نکن؛ منتقل کن** (`_Duplicates` / `_Archive`).
+- **تستِ pytest-style ننویس.** فایلِ مستقیم‌اجرا صفر assert می‌دواند و بی‌صدا سبز شمرده
+  می‌شود. شکل را از `_ops/tests/test_tg_poll_health.py` کپی کن.
+- **`.cmd`/`.bat` را با ابزارِ متنی ویرایش نکن** — CRLF می‌شکند و امروز یک‌بار سیستم را خواباند.
+
+## Canonical Files
+
+| نقش | مسیرِ canonical | نکته |
+|---|---|---|
+| درِ واحدِ مدل | `_ops/cortex/model_router.py` — `ask()` خطِ ۴۲۶ | تنها choke-point. providerِ دوم ساخته نمی‌شود. |
+| آداپتورِ حاکمیت/بودجه روی مدل | `_ops/budget/governor.py` | **untracked**؛ flag `OCTOPUS_WIRE_GOVERNOR` خاموش؛ تست `_ops/tests/test_governor_routing.py` (۱۷/۱۷، خودش هم untracked + ثبت‌نشده) |
+| gatewayِ MiniApp | `_ops/telegram_center/miniapp_gateway.py` | |
+| helperهای فقط‌خواندنیِ state | `_ops/telegram_center/miniapp_state.py` | scrub دو-لایه |
+| frontendِ cockpit | `_ops/telegram_center/miniapp/{index.html,app.js,style.css}` | ۸ تب |
+| موتورِ actionِ owner-gated | `_ops/agi2027_control/ops_actions.py` | allowlist + idempotency + audit |
+| کنترل‌پلینِ فرمانِ تلگرام | `_ops/agi2027_control/integration.py` + `runtime.py` | `CONTROL_COMMANDS` ِ ۱۱تایی |
+| قلبِ باتِ تلگرام | `_ops/telegram_center/center.py` | ۴۵۷۱ خط |
+| ثبتِ فلگ‌ها | `_ops/wiring.py` — `PAPER_FULL_FLAGS` (۱۳ عضو) | فلگِ نو **بیرونش** |
+| ثبتِ تست‌ها | `_ops/tests/run_all.py` | ۴۹۲ فایلِ تست در `_ops/tests/` |
+| فلگ‌های runtime | `_ops/agi2027_runtime/managed_flags.json` | |
+
+### `wlos/` — تصحیحِ نقشه
+
+طرح‌هایی که در گردش‌اند `wlos/packages/fugu-provider` را جوری نام می‌برند که انگار دروازهٔ
+مدلِ اختاپوس است. **این‌طور نیست.** واقعیتِ سنجیده‌شده:
+
+- در **ریشهٔ repo** هیچ `wlos/` وجود ندارد (`ls -d ./wlos` → not found).
+- `wlos/packages/fugu-provider` **وجود دارد**، ولی این‌جا:
+  `03 - Projects/WLOS - Weight Loss OS/wlos/packages/fugu-provider` — یک پروژهٔ **جدای**
+  TypeScript/Node (کوچِ کاهشِ وزن) با DB و مسیرِ خودش. ۱۰ package دارد
+  (`agents, behavior-engine, fugu-provider, jitai-engine, memory, nutrition-engine,
+  safety, shared, testing, training-engine`).
+- **دروازهٔ مدلِ اختاپوس آن نیست** — `_ops/cortex/model_router.py::ask` است.
+- تنها پلِ بینِ این دو: `_ops/cortex/wlos_bridge.py` — فقط‌خواندنی، whitelistِ فیلد،
+  پشتِ فلگِ خاموشِ `OCTOPUS_WIRE_WLOS`، و OCTOPUS هرگز در DBِ سلامت نمی‌نویسد.
+
+پس جملهٔ درست این است: «`wlos/` در ریشه نیست و `fugu-provider` یک پروژهٔ جدا در
+`03 - Projects` است، نه دروازهٔ مدل» — نه «wlos وجود ندارد» (که با یک grep نقض می‌شود و
+اعتمادِ کلِ سند را می‌برد).
+
+## Last Verification
+
+- **کِی:** 2026-08-02، همین جلسه (lane: vault-docs).
+- **کجا:** worktree ِ `F:\backup\.claude\worktrees\clever-pike-721a16`، برنچِ
+  `claude/telegram-ui-build-2026-14804d`، HEAD `303da54`.
+- **چطور:** اجرای مستقیمِ `governor.py`، فراخوانیِ `miniapp_state.get_ops_state()`،
+  پارسِ `ui-registry.json`، هر دو validator، و `git log/status` روی فایل‌های مورد ادعا.
+- **چه چیزی سنجیده نشد (صادقانه):** رفتارِ زندهٔ HTTP روی یک پورتِ واقعی؛ Telegramِ زنده؛
+  گروه‌ها در برابر DM؛ credentialهای Project-F؛ و اجرای سوییتِ ۴۹۲تایی. این سند
+  دربارهٔ هیچ‌کدام ادعای «سبز» نمی‌کند.
+
+<!-- END GENERATED -->
+
+## Owner notes
+
+<!-- این بخش دستِ مالک است. ایجنت‌ها این‌جا را بازنویسی نمی‌کنند — فقط بالای مرزِ GENERATED می‌نویسند. -->
