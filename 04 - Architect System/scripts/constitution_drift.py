@@ -115,7 +115,77 @@ def check_constitution() -> None:
     check(not leaked, "state/logs/queue ِ ران‌تایم بیرونِ گیت‌اند", f"نشت: {leaked[:3]}")
 
 
-# ── ۴) §۸: ایندکس‌های نام‌برده زیرِ ~۲۰۰ خط ──────────────────────────────────
+# ── ۴) A2 (حکمِ ارشد ۰۸-۰۳): مرزِ secret/non-secret ِ رجیستریِ رأی‌ها ─────────
+def check_owner_verdicts() -> None:
+    """سه سنجهٔ مالک: secret وارد گیت نشود · مؤثر-ولی-غیرنسخه‌دار هشدار بدهد ·
+    فلگِ پول/حذف یا tracked باشد یا در گزارشِ boot ‏(flags-loaded-*.json) دیده شود."""
+    import datetime as _dt
+
+    yml = ROOT / "_ops" / "owner-verdicts.yaml"
+    if not yml.exists():
+        check(False, "رجیستریِ رأی‌ها موجود است (_ops/owner-verdicts.yaml)",
+              "غایب — A2 هنوز روی این چک‌اوت نیست")
+        return
+    ops_dir = str(ROOT / "_ops")
+    if ops_dir not in sys.path:
+        sys.path.insert(0, ops_dir)
+    try:
+        import flag_drift as fd
+        import owner_verdicts as ov
+    except Exception as exc:  # noqa: BLE001
+        check(False, "owner_verdicts/flag_drift import شدند", f"{type(exc).__name__}: {exc}")
+        return
+    entries = ov.load()
+    check(bool(entries), "رجیستری پارس می‌شود و خالی نیست", "صفر ورودیِ معتبر")
+    emap = ov.env_map()
+    # ۱) هیچ نامِ secret-گونه و هیچ مقدارِ token-گونه در فایلِ tracked
+    bad_names = sorted(n for n in emap if fd.is_secret_name(n))
+    check(not bad_names, "هیچ envِ secret-گونه در رجیستری نیست", f"{bad_names}")
+    tokish = re.compile(r"\d{8,10}:[A-Za-z0-9_-]{30,}|sk-[A-Za-z0-9]{8,}|AKIA|ghp_|xox[bp]-")
+    bad_vals = sorted(n for n, v in emap.items() if tokish.search(str(v)))
+    check(not bad_vals, "هیچ مقدارِ token-گونه در رجیستری نیست", f"{bad_vals}")
+    # ۲) انقضا: until ِ گذشته = رأیِ فعال‌نما (تاریخچه در git می‌ماند؛ هرس یا تمدید)
+    today = _dt.date.today().isoformat()
+    expired = sorted(k for k, spec in entries.items()
+                     if spec.get("until", "") and str(spec["until"]) < today)
+    check(not expired, "هیچ رأیِ منقضیِ فعال‌نما در رجیستری نیست",
+          f"{expired} — تمدیدِ رأی یا هرس (git تاریخچه را نگه می‌دارد)")
+    # ۳) واگراییِ env↔رجیستری — از خودِ ماژول (single-source)
+    d = ov.drift()
+    check(not d, "env و رجیستریِ رأی‌ها هم‌داستان‌اند", "؛ ".join(d[:3]))
+    # ۴) tracked بودنِ خودِ رجیستری و ماژولش
+    try:
+        tracked = set(subprocess.run(["git", "-C", str(ROOT), "ls-files"],
+                                     capture_output=True, text=True, encoding="utf-8",
+                                     errors="replace", timeout=30).stdout.splitlines())
+        for f in ("_ops/owner-verdicts.yaml", "_ops/owner_verdicts.py"):
+            check(f in tracked, f"tracked: {f}",
+                  "روی دیسک هست ولی untracked — رأی هنوز در هیچ کامیتی نیست")
+    except OSError as exc:
+        check(False, "git ls-files برای رجیستری", str(exc))
+    # ۵) هشدار (قرمز نیست): فلگ‌های کلاسِ پول/outbound ِ مسلح در cmd که در رجیستری نیستند.
+    #    قاعدهٔ مالک: این‌ها باید یا tracked باشند یا در گزارشِ boot صریح دیده شوند —
+    #    flags-loaded-*.json همهٔ غیرsecretها را چاپ می‌کند، پس این فقط اعلامِ گپ است.
+    cmd = ROOT / "_ops" / "OCTOPUS-flags.cmd"
+    if cmd.exists():
+        try:
+            flags, _stats = fd.parse_flags_file(cmd)
+            money_tok = ("OUTBOUND", "SMTP", "SPEND", "BUDGET", "APPLY", "MERGE",
+                         "KILL", "CIRCULAR", "PAID")
+            risky = sorted(n for n, v in flags.items()
+                           if str(v).strip() not in ("", "0")
+                           and any(t in n for t in money_tok)
+                           and n not in emap and not fd.is_secret_name(n))
+            if risky:
+                shown = "، ".join(risky[:8]) + (" …" if len(risky) > 8 else "")
+                print(f"  ⚠ مؤثر ولی غیرنسخه‌دار ({len(risky)}): {shown}")
+                print("    (boot-visible در flags-loaded-*.json؛ نامزدِ افزودن به رجیستری)")
+        except Exception as exc:  # noqa: BLE001
+            check(False, "اسکنِ فلگ‌های مؤثر-غیرنسخه‌دار اجرا شد",
+                  f"{type(exc).__name__}: {exc}")
+
+
+# ── ۵) §۸: ایندکس‌های نام‌برده زیرِ ~۲۰۰ خط ──────────────────────────────────
 def check_index_caps() -> None:
     for rel in ("_PROJECT_INSTRUCTIONS.md", "01 - Dashboard/Home.md",
                 "_ops/octopus_mcp/CONSTITUTION.md"):
@@ -127,7 +197,8 @@ def check_index_caps() -> None:
 
 
 def main() -> int:
-    for fn in (check_instructions, check_policy_vs_mcp, check_constitution, check_index_caps):
+    for fn in (check_instructions, check_policy_vs_mcp, check_constitution,
+               check_owner_verdicts, check_index_caps):
         try:
             fn()
         except Exception as exc:  # خطای خودِ چک = قرمز، نه سکوت
