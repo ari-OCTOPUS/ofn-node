@@ -341,6 +341,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_wiring_cleanup.py", "test_deadwrite_readers.py",
          # 2026-07-15: تست‌های نوِ راست‌گویی/کابین + دو orphanِ ziman (سبز، ثبت‌نشده بودند)
          "test_business_legs_shape.py", "test_correlation_id_generated.py",
+         # 2026-08-03 (رأیِ مالک «اختاپوس یادش بمونه»): پای Project-F از فهرستِ
+         # business_legs غایب بود ⇒ ۱۲ مصرف‌کننده نمی‌دیدندش. چهار گاردِ جهش‌آزموده:
+         # content-free (#۷) · سه‌حالتیِ صادق · live فقط با مهرِ انسانی · ثبت در رجیستری.
+         "test_studio_pf_leg.py",
          "test_channel_status_stale_not_green.py", "test_cockpit_truthful.py",
          "test_tg_exec_consumer.py",
          "test_ziman_wiring.py", "test_ziman_biology.py",

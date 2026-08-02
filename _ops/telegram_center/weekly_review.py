@@ -45,9 +45,13 @@ NO_DATA = "داده‌ای نیست"
 DEMOTE_THRESHOLD = 90.0            # §۹: بالای ۹۰٪ تأیید = گیت شل است
 DEMOTE_MIN_N = 3                   # با کمتر از ۳ کارت درصد معنی ندارد
 
-BUSINESS_LEGS = ("lead", "ziman", "mining", "crypto", "accounting")
+# 2026-08-03: `studio_pf` افزوده شد — تا امروز سکوتِ این پا حتی در گزارشِ هفتگی هم
+# دیده نمی‌شد (رأیِ مالک: «هرکاری می‌کنن اختاپوس یادش بمونه»). نامِ نمایشی عمداً
+# خنثی است: بیرون از پوشهٔ پروژه فقط کدِ «Project-F» (قاعدهٔ قفل‌شدهٔ #۷).
+BUSINESS_LEGS = ("lead", "ziman", "mining", "crypto", "accounting", "studio_pf")
 DISPLAY = {"lead": "🎨 نقاشی", "ziman": "🖼 زیمان", "mining": "⛏ ماینینگ",
-           "crypto": "📈 کریپتو", "accounting": "🧾 حسابداری"}
+           "crypto": "📈 کریپتو", "accounting": "🧾 حسابداری",
+           "studio_pf": "🅿️ Project-F"}
 
 _FA = str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")
 
