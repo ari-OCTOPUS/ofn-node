@@ -1,0 +1,29 @@
+policy:
+  default_mode: "propose-only"
+
+  allowed_without_approval:
+    - "scan_metadata"
+    - "create_report"
+    - "write_octopus_state"
+    - "append_audit_log"
+
+  requires_approval:
+    - "move_file"
+    - "rename_file"
+    - "delete_file"
+    - "modify_file"
+    - "deduplicate"
+    - "archive"
+    - "run_external_command"
+
+  forbidden_now:
+    - "delete_file"
+    - "format_drive"
+    - "modify_user_content_without_approval"
+
+money:
+  locked: true
+
+content:
+  containment: true
+  show_identity_in_project_cards: false
