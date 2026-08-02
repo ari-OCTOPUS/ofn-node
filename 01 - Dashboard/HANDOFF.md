@@ -1,13 +1,20 @@
 ---
 type: handoff
-updated: 2026-08-01
+updated: 2026-08-02
 ---
 
 # HANDOFF — وضعیت برای جلسه بعد
 
 > قاعده: این فایل ایندکسِ wikilink است، زیرِ ۲۰۰ خط — نه آرشیو. تاریخچهٔ کاملِ قبلی: `_Archive/Logs/HANDOFF-archive-2026-07-16.md` (۲۶۳KB، قرنطینه‌شده 2026-07-16). سرریزِ 2026-07-29 (ورودی‌های ≤ 07-24): `_Archive/Logs/HANDOFF-archive-2026-07-29.md`. سرریزِ 2026-08-01 (ورودی‌های ≤ 07-27): `_Archive/Logs/HANDOFF-archive-2026-08-01.md`.
+> 🧭 **ایجنتِ جدید؟** خلاصهٔ کاملِ کارِ 2026-08-02 + honest boundaries + قواعدی که این سشن رعایت کرد: [[00 - Inbox/SESSION-NOTES-2026-08-02|SESSION-NOTES-2026-08-02]]. درس‌های این سشن در [[../_memory/EXPERIENCE-LEDGER|ledger]] (§ 2026-08-02).
 
 ## وضعِ لحظه‌ای
+
+- 🖥 **2026-08-02 (ZCode — MiniApp/UI cockpit read-only، staged):** ۷ endpoint فقط‌خواندنی + frontend + `/ui` `/truth` `/legs` `/approvals` commands. MiniApp URL = CONFIG_NEEDED (نه fake-live). action API = BLOCKED تا owner auth. ۱۰۹ تست سبز. گزارش: [[_ops/implementation_reports/MINIAPP-UI-COCKPIT-2026-08-02|MINIAPP-UI-COCKPIT]].
+- 🔬 **2026-08-02 (ZCode — سه ماژولِ الهام‌گرفته از OMEGA-PARITY، کامیت‌شده `b430c4a`).** مقایسهٔ خلاقانه پیدا کرد: ۳ نقاط کوریِ واقعی (budget frustration visibility، ۲ cross-leg invariant غایب، green-lie تست‌ها). سه ماژول additive + ۱۳/۱۳ تست سبز + observable روی دادهٔ واقعی. همه flag-off. مگاپرامپت‌ها ذخیره شدند. صادقانه: ۳ شباهتِ دیگر دروغ بود (hammer بدون میخ).
+- 🛠 **2026-08-02 (ZCode — AGI2027/Fugu/Control: نصبِ اصلاح‌شده در `_ops/agi2027_control/`).** اسکریپتِ ایجنتِ بیرونی ۳ مشکل داشت (collision روی `_octopus/` زنده، `rglob` از ریشه، green-lie). تثبیت‌شده نصب شد. **۱۴/۱۴ تست واقعی سبز** (۲ باگ فیکس: SQLite handle + LOW_IMPACT). G-03 آماده ولی `NEEDS_OWNER_HOOK` به SMTP. گزارش: [[_ops/implementation_reports/AGI2027-FUGU-FINAL-REPORT-2026-08-02|گزارشِ نهایی]]. `_octopus/` دست‌نخورده، `.env` دست‌نخورده.
+- 🔬 **2026-08-02 (ZCode — دیپ‌اسکنِ ۲۰۰تاییِ read-only: ۸ شکافِ واقعی، ۸۵٪ PASS).** ۴ ایجنتِ موازی در `_ops/` (نه از ریشه). خروجی: [[_ops/DEEP-SCAN-REPORT-2026-08-02|گزارشِ دیپ‌اسکن]]. Telegram/lead/observervability/security همگی PASS (fail-closed + HMAC + scrub چندلایه). studio_pf = `MISSING_API`. 🔴 **بزرگ‌ترین ریسک (G-03):** duplicate email در partial-failureِ outbound (transport مسلح است) — پیشنهاد: write-ahead. مگاپرامپت: [[_ops/MEGAPROMPT-DEEP-SCAN-2026-08-02|DEEP-SCAN megaprompt]].
+- 🔗 **2026-08-02 (ZCode — LEG-SYNC: لایهٔ همگام‌ساز روی سه جعبهٔ سیاه ساخته شد).** شش فایلِ additive در `_ops/`: ارکستراتورِ resumable/idempotent + نگاشتِ pure `SyncRun→SyncStatus` + آداپتورِ **صادقانهٔ blocked** برای studio_pf (API ندارد، `module_id` جعلی نمی‌سازد) + آداپتورِ نازک روی lead (بدونِ ماشینِ حالتِ دوم) + تست **۱۰/۱۰ سبز** با جهش‌آزمایی. رأیِ مالک در چت: `OCTOPUS_WIRE_SYNC_AGENT=1` مسلح شد (فعال‌سازی با ری‌استارتِ ORGANISM). 🔴 صادقانه: مسیرِ real هنوز در `module_build` به `blocked` ختم می‌شود چون studio_pf قراردادِ build ندارد — قابل مشاهده از طریقِ `cartographer.status()`، نه موفقیتِ جعلی. جزئیات: [[04 - Architect System/architect/PROJECT|architect § Active Context]] · [[_ops/SYNC-AGENT-DELIVERY-REPORT-2026-08-02|گزارشِ تحویل]] · [[_ops/MEGAPROMPT-LEG-SYNC-2026-08-02|LEG-SYNC megaprompt]].
 
 - 🔌⛏ **2026-08-02 (وصل‌کردن + فلگ‌های سبز + دو مگاپرامپت):** سشنِ موازی بسته شد و ری‌استارت تأیید شد (هر ۴ پروسه ۲۵-۲۸ دقیقه، رانشِ فلگ = ۰، هر دو فیکسِ قبلی در حافظه بارگذاری شد). **ماژول‌های mining وصل شدند:** `tg_mining.handle_callback` حالا `mo:stop` (ثبتِ نیتِ صادقانه: «۰ نود تأیید کرد») و `mo:swap:<id>` («اجرا با خودت — D-11») را می‌شنود، و دکمه‌هایشان در منو ظاهر می‌شوند (کامیت `3158ae8`). **سه فلگِ امن مسلح شد:** `FATIGUE` · `OUTPUT_GUARD` · `MINING_UI` (در `OCTOPUS-flags.cmd`؛ فعال‌سازی با ری‌استارت). 🔴 سه فلگِ خطرناک (`APPLY_MERGE`/`RUNNER_APPLY`/`MERGE_APPLIES_KNOB`) **عمداً خاموش ماندند** — merge خودکار به master خطرِ غیرقابل‌برگشت است. **یافتهٔ هنگِ لپ‌تاپ:** ollama بی‌تقصیر است (۴۷MB)؛ متهم ۶ پروسهٔ gitِ سرگردان (۴.۵GB RAM) + آنتی‌ویروسِ غیرمستثنا. دو سندِ تازه: [[_ops/MEGAPROMPT-BLACKBOX-SCAN-2026-08-02|اسکنِ جعبهٔ سیاه]] + [[_ops/MEGAPROMPT-WIRE-25-MODULES-2026-08-02|وصلِ ۲۵ ماژول در ۵ فاز]].
 

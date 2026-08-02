@@ -159,3 +159,11 @@ updated: 2026-08-02
 - **درسِ پنجم — «unknown» را به‌عنوان 0 گزارش نکن.** در organism_syndrome، وقتی
   منبعی غایب بود، بیت = None (unknown) نه True (ok). fail-closed در observability
   یعنی: اگه نمی‌دانی، بگو نمی‌دانم، نه «همه‌چیز خوب است».
+
+- **درسِ ششم — MiniApp باید اول auth-gated و فقط‌خواندنی باشد؛ actionها بعداً.**
+  ساختِ MiniApp cockpit: helperهای فقط‌خواندنی (read-only) اول، با scrub دو-لایه
+  (regex در helper + redact در gateway). actionها (mark-sent/cancel/retry) فقط وقتی
+  فعال شوند که `OCTOPUS_MINIAPP_URL` + `TG_CENTER_BOT_TOKEN` + `TELEGRAM_OWNER_CHAT_ID`
+  همگی set شوند — وگرنه `BLOCKED_NEEDS_AUTH_CONFIG`. هرگز endpoint عمومیِ بدونِ
+  owner-gate برای action نساز. **Telegram MiniApp must be auth-gated; read-only
+  first, actions later.**

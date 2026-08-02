@@ -106,3 +106,13 @@ Set:
 ```
 
 Then restart Telegram center.
+
+## MiniApp / UI Cockpit (added 2026-08-02 evening)
+
+- **MiniApp status: STAGED (not live yet)** — read-only cockpit built but `OCTOPUS_MINIAPP_URL` unset → CONFIG_NEEDED.
+- **`/ui` Telegram command: live (graceful)** — returns CONFIG_NEEDED message until URL set; does not fake-live.
+- **UI Registry:** `_ops/agi2027_runtime/ui-registry.json` (17 items: 9 live, 6 staged, 1 unknown).
+- **Read-only API:** `/api/state`, `/api/outbound`, `/api/approvals`, `/api/legs`, `/api/value`, `/api/ui-registry`, `/api/current-truth` — secret-scrubbed, fail-closed, tested (7/7).
+- **Action API: BLOCKED_NEEDS_AUTH_CONFIG** — no action endpoints until owner auth (`TG_CENTER_BOT_TOKEN` + `TELEGRAM_OWNER_CHAT_ID`) configured.
+- **Tests:** miniapp_state 7/7; full regression 109 green.
+- Report: `_ops/implementation_reports/MINIAPP-UI-COCKPIT-2026-08-02.md`.
