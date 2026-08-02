@@ -48,10 +48,13 @@ DEMOTE_MIN_N = 3                   # با کمتر از ۳ کارت درصد م�
 # 2026-08-03: `studio_pf` افزوده شد — تا امروز سکوتِ این پا حتی در گزارشِ هفتگی هم
 # دیده نمی‌شد (رأیِ مالک: «هرکاری می‌کنن اختاپوس یادش بمونه»). نامِ نمایشی عمداً
 # خنثی است: بیرون از پوشهٔ پروژه فقط کدِ «Project-F» (قاعدهٔ قفل‌شدهٔ #۷).
-BUSINESS_LEGS = ("lead", "ziman", "mining", "crypto", "accounting", "studio_pf")
+# گاردِ parity در `_ops/tests/test_leg_registry_parity.py` تضمین می‌کند این فهرست
+# از `wiring._BUSINESS_LEGS_SPEC` عقب نماند (`knowledge` تا امروز جا افتاده بود).
+BUSINESS_LEGS = ("lead", "ziman", "mining", "crypto", "accounting",
+                 "knowledge", "studio_pf")
 DISPLAY = {"lead": "🎨 نقاشی", "ziman": "🖼 زیمان", "mining": "⛏ ماینینگ",
            "crypto": "📈 کریپتو", "accounting": "🧾 حسابداری",
-           "studio_pf": "🅿️ Project-F"}
+           "knowledge": "📚 دانش", "studio_pf": "🅿️ Project-F"}
 
 _FA = str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")
 

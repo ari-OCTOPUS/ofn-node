@@ -126,7 +126,11 @@ def _get_langar_bot(owner: int | None):
 
 # ── API عمومی که approval_channel.py صدا می‌زند ──
 def dispatch(text: str, chat_id=None, owner=None) -> str | None:
-    """دستور را به langar بسپار. خروجیِ langar (از OpsecGuard گذشته) را برگردان.
+    """دستور را به langar بسپار و خروجی را **پس از عبور از OpsecGuard** برگردان.
+
+    ⚠️ تا ۲۰۲۶-۰۸-۰۳ این جمله یک ادعای غلط بود: `bot.handle()` پاسخ را «قبل از
+    guard» می‌دهد و `scrub` فقط داخلِ `langar_bot.send` صدا زده می‌شود که در این
+    مسیر اجرا نمی‌شود. حالا `_scrub_via_langar` صریحاً اعمال می‌شود (fail-closed).
 
     اگر دستور متعلق به langar نباشد → None (تا handle_command به مسیرهای دیگر برود).
     اگر langار import/ساخت نشد → None (fail-soft).
@@ -159,6 +163,34 @@ def dispatch(text: str, chat_id=None, owner=None) -> str | None:
         reply = bot.handle(cid_for_langar, t)
     except Exception:  # noqa: BLE001 — fail-soft
         return None
+    # ⚠️ فیکسِ ۲۰۲۶-۰۸-۰۳ (ممیزیِ CONFIRMED): docstring ِ همین فایل ادعا می‌کرد
+    # «OpsecGuard ِ langar روی هر خروجی فعال است» — **غلط بود**. `handle()` طبق
+    # docstring ِ خودش پاسخ را «قبل از guard» برمی‌گرداند؛ تنها جایی که
+    # `guard.scrub` صدا زده می‌شود `langar_bot.send` است که در این مسیر **هرگز**
+    # اجرا نمی‌شود. یعنی خروجیِ langar بدونِ scrub به تلگرام می‌رفت، در حالی که
+    # قواعدِ قفل‌شدهٔ حریمِ Project-F (قاعدهٔ #۶/#۷: بدونِ نامِ شهر/هویت بیرون از
+    # پوشه) دقیقاً به همین لایه تکیه دارند. حالا صریحاً از همان گاردِ خودِ langar
+    # عبور می‌دهیم — نه یک گاردِ دوم و موازی (که می‌پوسد).
+    reply = _scrub_via_langar(bot, reply)
     if _is_effecting(t):
         _ledger_note_verdict(t, reply, chat_id)
     return reply
+
+
+def _scrub_via_langar(bot, reply):
+    """خروجی را از OpsecGuard ِ خودِ langar عبور بده. fail-closed:
+
+    اگر گارد در دسترس نبود یا خطا داد، متنِ خام **برنمی‌گردد** — چون سیاستِ
+    scrub ِ langar خودش deny-by-default است و متنِ بی‌گارد ممکن است نامِ شهر/
+    هویت را بیرون ببرد. جایگزین: یک پیامِ صادقانهٔ کوتاه."""
+    if not isinstance(reply, str) or not reply:
+        return reply
+    guard = getattr(bot, "guard", None)
+    fn = getattr(guard, "clean", None) or getattr(guard, "scrub", None)
+    if not callable(fn):
+        return "⚠️ پاسخ ارسال نشد — گاردِ حریمِ Project-F در دسترس نبود (fail-closed)."
+    try:
+        out = fn(reply)
+    except Exception:  # noqa: BLE001 — شک = ندادنِ متن
+        return "⚠️ پاسخ ارسال نشد — گاردِ حریم خطا داد (fail-closed)."
+    return out if isinstance(out, str) else reply
