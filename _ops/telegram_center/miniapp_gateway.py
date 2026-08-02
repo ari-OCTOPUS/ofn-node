@@ -37,6 +37,7 @@ from urllib.parse import parse_qsl
 
 _HERE = Path(__file__).resolve().parent
 _OPS = _HERE.parent
+_MINIAPP_DIR = _HERE / "miniapp"
 for _p in (str(_OPS), str(_OPS / "budget")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
@@ -125,6 +126,37 @@ _INJECT = ("<script>(function(){var g=function(){try{return (window.Telegram&&"
            "</script>")
 
 
+def _miniapp_static_response(path: str) -> tuple:
+    """Serve the committed read-only cockpit shell/assets from disk.
+    Only an explicit allowlist is served; no path traversal and no directory
+    listing. The page contains no secrets and all mutating actions remain
+    disabled in the frontend/backend until owner auth is explicitly wired.
+    """
+    p = str(path or "").split("?", 1)[0]
+    if p in ("/miniapp", "/miniapp/"):
+        rel = "index.html"
+        ctype = "text/html; charset=utf-8"
+    elif p in ("/miniapp/app.js", "/app.js"):
+        rel = "app.js"
+        ctype = "application/javascript; charset=utf-8"
+    elif p in ("/miniapp/style.css", "/style.css"):
+        rel = "style.css"
+        ctype = "text/css; charset=utf-8"
+    else:
+        return 404, b"", "text/plain; charset=utf-8"
+    f = _MINIAPP_DIR / rel
+    try:
+        body = f.read_bytes()
+    except OSError:
+        return 404, b"", "text/plain; charset=utf-8"
+    if rel == "index.html":
+        snippet = _INJECT.encode("utf-8")
+        if b"</body>" in body:
+            body = body.replace(b"</body>", snippet + b"</body>", 1)
+        else:
+            body = body + snippet
+    return 200, body, ctype
+
 def _default_fetch(path: str) -> tuple:
     """proxy ِ loopback به 8773 — فقط GET، فقط دو مسیرِ سفید. (status, body, ctype)."""
     url = f"http://127.0.0.1:{UPSTREAM_PORT}{path}"
@@ -194,15 +226,9 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
     if str(method or "").upper() != "GET":
         return 405, b"", "text/plain; charset=utf-8"       # فقط‌خواندنی — صفر POST
     p = str(path or "").split("?", 1)[0]
-    if p in ("/miniapp", "/miniapp/"):
-        st, body, ctype = fetch("/miniapp")
-        if st == 200:
-            snippet = _INJECT.encode("utf-8")
-            if b"</body>" in body:
-                body = body.replace(b"</body>", snippet + b"</body>", 1)
-            else:
-                body = body + snippet
-        return st, body, ctype
+    if p in ("/miniapp", "/miniapp/", "/miniapp/app.js", "/miniapp/style.css",
+             "/app.js", "/style.css"):
+        return _miniapp_static_response(p)
     if p == "/api/miniapp":
         token = os.environ.get("TG_CENTER_BOT_TOKEN", "")
         owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID", "")

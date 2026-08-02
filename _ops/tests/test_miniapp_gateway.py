@@ -156,11 +156,19 @@ def t_unknown_paths_are_404():
 
 
 def t_the_page_serves_without_initdata_and_injects_the_header_snippet():
-    fn = _fetch(body=b"<html><body>shell</body></html>", ctype="text/html")
+    # /miniapp must serve the committed read-only cockpit shell, not the old
+    # upstream legacy placeholder dashboard. No initData is required for the
+    # shell; data/action APIs stay gated/read-only separately.
+    fn = _fetch(body=b"<html><body>legacy-shell</body></html>", ctype="text/html")
     st, body, ctype = mg.handle("GET", "/miniapp", {}, fetch_fn=fn, now=NOW)
-    assert st == 200 and b"shell" in body, (st, body[:80])
-    assert b"X-Tg-Init-Data" in body, "اسنیپتِ initData تزریق نشد"
+    assert st == 200, (st, body[:80])
+    assert b"Octopus Cockpit" in body, body[:160]
+    for tab in (b"Outbound", b"Approvals", b"Legs", b"Value", b"UI Registry", b"Truth"):
+        assert tab in body, tab
+    assert b"legacy-shell" not in body, "legacy placeholder was served instead of cockpit"
+    assert b"X-Tg-Init-Data" in body, "initData injection snippet missing"
     assert body.index(b"X-Tg-Init-Data") < body.index(b"</body>")
+    assert fn._calls == [], "static cockpit shell must not proxy to legacy 8773"
 
 
 # ── کلیدِ کشتار + فلگ ───────────────────────────────────────────────────────
