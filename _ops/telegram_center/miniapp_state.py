@@ -229,6 +229,32 @@ def get_ui_registry(root: "Path | None" = None) -> dict:
     return reg
 
 
+
+def get_ops_state(root: "Path | None" = None) -> dict:
+    """Ops Studio local summary: leads/tasks/value from local SQLite."""
+    try:
+        import sys as _sys
+        ops_path = str(_OPS)
+        if ops_path not in _sys.path:
+            _sys.path.insert(0, ops_path)
+        from agi2027_control.ops_actions import OpsActionEngine  # noqa: WPS433
+        eng = OpsActionEngine(_ROOT)
+        try:
+            out = eng.summary()
+            out["actions"] = {
+                "enabled_when": "owner-auth configured + Telegram initData valid",
+                "safe_local_actions": [
+                    "lead.create", "lead.add_note", "lead.update_stage",
+                    "task.create", "task.done", "value.record_event",
+                ],
+                "blocked_external_automation": ["onlyfans.*", "fansly.*", "mass_message", "cookie_import"],
+            }
+            return _scrub_dict(out)
+        finally:
+            eng.close()
+    except Exception as exc:  # noqa: BLE001
+        return {"status": "error", "reason": f"{type(exc).__name__}"}
+
 def get_current_truth(root: "Path | None" = None) -> dict:
     """Current Truth: خلاصهٔ OCTOPUS-CURRENT-TRUTH markdown."""
     if not _TRUTH.exists():
@@ -266,6 +292,7 @@ def dispatch_api(path: str, root: "Path | None" = None) -> "tuple[int, bytes, st
         "/api/value": get_value_state,
         "/api/ui-registry": get_ui_registry,
         "/api/current-truth": get_current_truth,
+        "/api/ops": get_ops_state,
     }
     fn = handlers.get(p)
     if fn is None:
@@ -283,7 +310,7 @@ if __name__ == "__main__":
     # self-test: همه‌ی helpers را فراخوانی کن و خروجی JSON چاپ کن
     for name, fn in [("miniapp", get_miniapp_state), ("outbound", get_outbound_state),
                      ("approvals", get_approvals_state), ("legs", get_legs_state),
-                     ("value", get_value_state), ("ui-registry", get_ui_registry),
+                     ("value", get_value_state), ("ops", get_ops_state), ("ui-registry", get_ui_registry),
                      ("current-truth", get_current_truth)]:
         print(f"=== {name} ===")
         print(json.dumps(fn(), ensure_ascii=False, indent=2)[:600])

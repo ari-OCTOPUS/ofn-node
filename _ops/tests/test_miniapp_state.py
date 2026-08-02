@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""test_miniapp_state.py — تست‌های واحد برای MiniApp read-only state helpers.
+"""test_miniapp_state.py â€” ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ ÙˆØ§Ø­Ø¯ Ø¨Ø±Ø§ÛŒ MiniApp read-only state helpers.
 
-قرارداد (PHASE 4 megaprompt): read-only، secret-scrubbed، fail-closed، JSON-safe.
+Ù‚Ø±Ø§Ø±Ø¯Ø§Ø¯ (PHASE 4 megaprompt): read-onlyØŒ secret-scrubbedØŒ fail-closedØŒ JSON-safe.
 """
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ import miniapp_state  # noqa: E402
 
 
 def t_state_missing_returns_unknown_not_fake():
-    # remove ORGANISM-STATE → must be unknown, not ok with fake zeros
+    # remove ORGANISM-STATE â†’ must be unknown, not ok with fake zeros
     with tempfile.TemporaryDirectory() as d:
         miniapp_state.STATE_DIR = Path(d)
         s = miniapp_state.get_miniapp_state()
@@ -53,7 +53,7 @@ def t_dispatch_unknown_path_is_404():
 
 def t_dispatch_known_paths_return_200():
     for p in ["/api/state", "/api/outbound", "/api/legs", "/api/value",
-              "/api/ui-registry", "/api/current-truth"]:
+              "/api/ui-registry", "/api/current-truth", "/api/ops"]:
         st, body, ct = miniapp_state.dispatch_api(p)
         assert st == 200, f"{p} -> {st}"
         # must be valid JSON
@@ -77,11 +77,11 @@ def t_scrub_redacts_token():
 
 
 CHECKS = [
-    ("state missing → unknown (not fake)", t_state_missing_returns_unknown_not_fake),
+    ("state missing â†’ unknown (not fake)", t_state_missing_returns_unknown_not_fake),
     ("state scrubs secrets", t_state_scrubs_secrets),
-    ("dispatch unknown → 404", t_dispatch_unknown_path_is_404),
-    ("dispatch known → 200 + valid JSON", t_dispatch_known_paths_return_200),
-    ("outbound missing db → honest", t_outbound_missing_db_is_honest),
+    ("dispatch unknown â†’ 404", t_dispatch_unknown_path_is_404),
+    ("dispatch known â†’ 200 + valid JSON", t_dispatch_known_paths_return_200),
+    ("outbound missing db â†’ honest", t_outbound_missing_db_is_honest),
     ("scrub redacts email", t_scrub_redacts_email),
     ("scrub redacts token", t_scrub_redacts_token),
 ]
@@ -89,5 +89,5 @@ CHECKS = [
 
 if __name__ == "__main__":
     failed = harness.run(CHECKS)
-    print(f"\n{'✅' if not failed else '❌'} test_miniapp_state: {len(CHECKS) - failed}/{len(CHECKS)} passed")
+    print(f"\n{'âœ…' if not failed else 'âŒ'} test_miniapp_state: {len(CHECKS) - failed}/{len(CHECKS)} passed")
     sys.exit(1 if failed else 0)

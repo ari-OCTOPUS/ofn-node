@@ -223,12 +223,53 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
     fetch = fetch_fn if fetch_fn is not None else _default_fetch
     if _stopped():
         return 503, b"", "text/plain; charset=utf-8"       # کلیدِ کشتار
-    if str(method or "").upper() != "GET":
-        return 405, b"", "text/plain; charset=utf-8"       # فقط‌خواندنی — صفر POST
+    method_u = str(method or "").upper()
     p = str(path or "").split("?", 1)[0]
+    if method_u not in {"GET", "POST"}:
+        return 405, b"", "text/plain; charset=utf-8"
+    if method_u == "POST" and p != "/api/actions":
+        return 405, b"", "text/plain; charset=utf-8"
     if p in ("/miniapp", "/miniapp/", "/miniapp/app.js", "/miniapp/style.css",
              "/app.js", "/style.css"):
         return _miniapp_static_response(p)
+    if p == "/api/actions":
+        if method_u != "POST":
+            return 405, b"", "text/plain; charset=utf-8"
+        token = os.environ.get("TG_CENTER_BOT_TOKEN", "")
+        owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID", "")
+        try:
+            init_data = headers.get("X-Tg-Init-Data") or ""
+        except Exception:
+            init_data = ""
+        if not token or not owner or validate_init_data(init_data, bot_token=token, owner_id=owner, now=now) is None:
+            return 403, b'{"ok":false,"status":"DENIED","reason":"owner_auth_required"}', "application/json; charset=utf-8"
+        try:
+            raw_body = b""
+            try:
+                raw_body = headers.get("_body") or b""
+            except Exception:
+                raw_body = b""
+            if isinstance(raw_body, str):
+                raw_body = raw_body.encode("utf-8")
+            payload = json.loads(raw_body.decode("utf-8") or "{}")
+            action = str(payload.get("action") or "")
+            action_payload = payload.get("payload") if isinstance(payload.get("payload"), dict) else {}
+            action_id = payload.get("action_id")
+            import sys as _sys
+            ops_path = str(_OPS)
+            if ops_path not in _sys.path:
+                _sys.path.insert(0, ops_path)
+            from agi2027_control.ops_actions import OpsActionEngine  # noqa: WPS433
+            eng = OpsActionEngine(_OPS.parent)
+            try:
+                res = eng.execute(action, action_payload, {"is_owner": True}, action_id=action_id)
+                body = json.dumps(res, ensure_ascii=False, sort_keys=True).encode("utf-8")
+                return 200, body, "application/json; charset=utf-8"
+            finally:
+                eng.close()
+        except Exception as exc:
+            body = json.dumps({"ok": False, "status": "ERROR", "reason": type(exc).__name__}, ensure_ascii=False).encode("utf-8")
+            return 500, body, "application/json; charset=utf-8"
     if p == "/api/miniapp":
         token = os.environ.get("TG_CENTER_BOT_TOKEN", "")
         owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID", "")
@@ -251,7 +292,7 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
     # No POST/PUT/DELETE here — read-only. Actions are Phase 7 (owner-gated, not wired yet).
     if p.startswith("/api/") and p in {
         "/api/state", "/api/outbound", "/api/approvals", "/api/legs",
-        "/api/value", "/api/ui-registry", "/api/current-truth",
+        "/api/value", "/api/ui-registry", "/api/current-truth", "/api/ops",
     }:
         try:
             import miniapp_state  # noqa: WPS433 — هم‌پوشه
@@ -276,7 +317,20 @@ class _Srv(ThreadingHTTPServer):
 
 class _Handler(BaseHTTPRequestHandler):
     def _run(self, method: str):
-        st, body, ctype = handle(method, self.path, self.headers)
+        headers = self.headers
+        if str(method or "").upper() == "POST":
+            try:
+                length = int(self.headers.get("Content-Length") or "0")
+            except Exception:
+                length = 0
+            if length > 65536:
+                self.send_response(413)
+                self.end_headers()
+                return
+            raw = self.rfile.read(length) if length > 0 else b""
+            headers = {k: v for k, v in self.headers.items()}
+            headers["_body"] = raw
+        st, body, ctype = handle(method, self.path, headers)
         self.send_response(st)
         self.send_header("Content-Type", ctype)
         self.send_header("Cache-Control", "no-store")

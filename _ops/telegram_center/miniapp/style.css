@@ -30,3 +30,9 @@ pre{white-space:pre-wrap;word-break:break-word;font-size:11px;color:var(--muted)
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .err{color:var(--red);font-size:12px}
 .loading{color:var(--muted);font-style:italic}
+
+.formgrid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
+input,select,textarea,button{background:#0f1117;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px;font:inherit}
+button{background:var(--accent);border-color:var(--accent);cursor:pointer}
+button:disabled{background:var(--border);border-color:var(--border);color:var(--muted);opacity:.55;cursor:not-allowed}
+.result{margin-top:8px;padding:8px;border-radius:8px;background:#10131b;color:var(--muted);font-size:12px;white-space:pre-wrap}
