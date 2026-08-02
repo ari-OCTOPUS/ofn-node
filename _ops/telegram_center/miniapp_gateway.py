@@ -50,9 +50,29 @@ UPSTREAM_PORT = int(os.environ.get("LIVE_PORT", "8773"))
 AUTH_MAX_AGE_S = 300.0
 STOP_NAME = "STOP-MINIAPP"
 
+# سطحِ فقط‌خواندنی (secret-scrubbed در miniapp_state، دوباره redact در همین فایل).
+# **تک‌فهرست** است نه دو کپی: زیرمسیرهای /api/ops دقیقاً از همان درِ والدشان رد
+# می‌شوند، پس ساختاراً نمی‌توانند بازتر باشند — سوراخِ «اندپوینتِ تازهٔ بی‌گارد»
+# با قاعده بسته می‌شود نه با یادآوری.
+READ_API_PATHS = {
+    "/api/state", "/api/outbound", "/api/approvals", "/api/legs",
+    "/api/value", "/api/ui-registry", "/api/current-truth",
+    "/api/ops", "/api/ops/brain", "/api/ops/leads", "/api/ops/tasks",
+}
+
+# سفت‌کردنِ اختیاریِ سطحِ خواندنی: با فلگِ روشن، **هر** مسیرِ READ_API_PATHS
+# همان دیوارِ HMAC ِ /api/miniapp را می‌خواهد. پیش‌فرض خاموش و عمداً بیرونِ
+# wiring.PAPER_FULL_FLAGS ⇒ رفتارِ امروز بایت‌به‌بایت دست‌نخورده می‌ماند.
+# (این فلگ گارد **اضافه** می‌کند؛ هیچ گاردی را برنمی‌دارد.)
+READ_GATE_FLAG = "OCTOPUS_MINIAPP_READ_OWNER_GATE"
+
 
 def enabled() -> bool:
     return os.environ.get(FLAG, "0") == "1"
+
+
+def read_gate_enabled() -> bool:
+    return os.environ.get(READ_GATE_FLAG, "0") == "1"
 
 
 # ⚠️ کپیِ import-امنِ الگوی redaction ِ 8773 (نه import ِ متقابل از live/server —
@@ -166,6 +186,27 @@ def _default_fetch(path: str) -> tuple:
             return int(r.status), r.read(), ctype
     except Exception:  # noqa: BLE001 — بالادستی خاموش = جوابِ صادقِ ساده
         return 502, b"", "text/plain; charset=utf-8"
+
+
+def _owner_initdata_ok(headers, now: "float | None" = None) -> bool:
+    """همان دیوارِ §۲ به‌شکلِ یک تابعِ مشترک — نه کپیِ دوم، نه شاخهٔ نرم‌تر."""
+    token = os.environ.get("TG_CENTER_BOT_TOKEN", "")
+    owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID", "")
+    if not token or not owner:
+        return False                                   # پیکربندیِ ناقص = بسته
+    try:
+        init_data = headers.get("X-Tg-Init-Data") or ""
+    except Exception:  # noqa: BLE001
+        init_data = ""
+    return validate_init_data(init_data, bot_token=token, owner_id=owner,
+                              now=now) is not None
+
+
+def _read_api_authorized(headers, now: "float | None" = None) -> bool:
+    """گاردِ **یکسانِ** همهٔ مسیرهای READ_API_PATHS (والد و زیرمسیر، یک تابع)."""
+    if not read_gate_enabled():
+        return True
+    return _owner_initdata_ok(headers, now=now)
 
 
 def _stopped() -> bool:
@@ -290,10 +331,11 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
         return st, body, ctype
     # PHASE 4 (2026-08-02): read-only /api/* cockpit helpers (secret-scrubbed, fail-closed).
     # No POST/PUT/DELETE here — read-only. Actions are Phase 7 (owner-gated, not wired yet).
-    if p.startswith("/api/") and p in {
-        "/api/state", "/api/outbound", "/api/approvals", "/api/legs",
-        "/api/value", "/api/ui-registry", "/api/current-truth", "/api/ops",
-    }:
+    # PHASE 5 (2026-08-03): زیرمسیرهای /api/ops/* از همین درِ واحد رد می‌شوند.
+    if p.startswith("/api/") and p in READ_API_PATHS:
+        if not _read_api_authorized(headers, now=now):
+            return 403, b'{"status":"DENIED","reason":"owner_auth_required"}', \
+                "application/json; charset=utf-8"
         try:
             import miniapp_state  # noqa: WPS433 — هم‌پوشه
         except Exception:  # noqa: BLE001
