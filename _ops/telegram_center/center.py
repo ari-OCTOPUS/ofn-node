@@ -334,6 +334,27 @@ def _submit_voice_job(job) -> bool:
     except Exception:  # noqa: BLE001 — صفِ پر = مسیرِ همگام
         return False
 
+# ── /ops دکمه‌ای (لِینِ chat-actions) — فلگ، مارکرها، واژگانِ toast ─────────────
+# فلگِ نو، پیش‌فرض **خاموش** و عمداً بیرونِ wiring.PAPER_FULL_FLAGS: خاموش یعنی
+# `/ops` دقیقاً همان پیامِ بی‌کیبوردِ امروز است، `ops:` هرگز به روترِ callback
+# نمی‌رسد، و ریپلای‌ها نادیده می‌مانند — parity بایت‌به‌بایت.
+OPS_BUTTONS_FLAG = "OCTOPUS_TG_OPS_BUTTONS"
+# مارکرهای پایدارِ ورودی — همان الگوی question_budget («سؤالِ اختاپوس»): ورودیِ
+# جهش از **ریپلای به پیامِ نشان‌دار** می‌آید نه از ماشینِ حالتِ نو. تلگرام تگِ
+# HTML را در reply-text می‌اندازد، پس مارکر عمداً متنِ ساده است نه تگ.
+OPS_ASK_LEAD = "OPS-NEW-LEAD"
+OPS_ASK_MONEY = "OPS-REC-MONEY"
+# سقفِ هندلِ لید: `ops_actions.make_id` شناسه را `lead_<handle>` می‌سازد و
+# callbackِ دکمهٔ پیگیری (`ops:t:<lead_id>`) باید زیرِ سقفِ ۶۴ بایتیِ تلگرام
+# بماند: len("ops:t:")۶ + len("lead_")۵ + ۴۰ = ۵۱.
+OPS_HANDLE_MAX = 40
+_OPS_FA2EN = str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789")
+_OPS_TOAST = {"APPLIED": "ثبت شد ✅",
+              "DUPLICATE": "قبلاً ثبت شده بود — دوباره نساختم 🔁",
+              "DENIED": "اجازه نیست",
+              "BLOCKED": "رد شد"}
+
+
 class Center:
     """حلقهٔ مرکز: client (TgClient یا fakeِ تست) + clockِ تزریقی + renderِ تزریقی.
 
@@ -2565,15 +2586,37 @@ class Center:
             _ctrl = _agi_try_control(text, {"is_owner": True})
             if _ctrl is not None:
                 _mid = None
+                # لِینِ chat-actions: کیبوردِ `/ops` **به همین روت** می‌چسبد،
+                # روتِ دومی ساخته نمی‌شود. فلگ خاموش ⇒ `_okb` تهی ⇒ دقیقاً
+                # همان فراخوانیِ امروز، بدونِ حتی یک kwargِ اضافه (parity).
+                try:
+                    _okb = self._ops_keyboard(text)
+                except Exception:  # noqa: BLE001 — کیبورد هرگز جواب را نمی‌خورد
+                    _okb = None
+                _okw = {"chat_id": chat_id, "topic_id": self._reply_thread(msg)}
+                if _okb:
+                    _okw["keyboard"] = _okb
                 try:
                     _mid = self._client.send(
-                        _scrub(_agi_format_control(_ctrl)), chat_id=chat_id,
-                        topic_id=self._reply_thread(msg))
+                        _scrub(_agi_format_control(_ctrl)), **_okw)
                 except Exception:  # noqa: BLE001
                     pass
-                return {"kind": "agi2027-control", "status": _ctrl.get("status"),
-                        "ok": _ctrl.get("ok"), "sent": _mid is not None}
+                _ores = {"kind": "agi2027-control", "status": _ctrl.get("status"),
+                         "ok": _ctrl.get("ok"), "sent": _mid is not None}
+                if _okb:
+                    _ores["ops_buttons"] = len(_okb)
+                return _ores
         except Exception:  # noqa: BLE001 — control hook must never break normal TG flow
+            pass
+        # ── جوابِ دکمه‌های `/ops` (لِینِ chat-actions) ───────────────────────
+        # ورودیِ جهش از ریپلای به پیامِ نشان‌دار می‌آید — همان جریانی که
+        # question_budget دارد؛ ماشینِ حالتِ نو ساخته نمی‌شود. فلگ خاموش یا
+        # بی‌مارکر ⇒ None ⇒ مسیرِ امروزِ پیام، دست‌نخورده.
+        try:
+            _opsr = self._ops_reply(msg, text, chat_id)
+            if _opsr is not None:
+                return _opsr
+        except Exception:  # noqa: BLE001 — جریانِ ریپلای هرگز پیام را نمی‌بلعد
             pass
 
         # ۲۰۲۶-۰۷-۲۷ — عبارت‌های مجوزِ قرارداد (`OWNER_AUTH: …`) تا امروز در
@@ -4172,6 +4215,12 @@ class Center:
         if verb == "tk":
             # دکمه‌های کارتِ پا (رأیِ ۰۷-۳۰ شب). مالکیت را بالادست گیت کرده.
             return self._handle_tasks_callback(cbq, data)
+        if verb == "ops" and self._ops_buttons_on():
+            # دکمه‌های `/ops` (لِینِ chat-actions، پشتِ OCTOPUS_TG_OPS_BUTTONS).
+            # عمداً همین بالا و جدا از جدولِ مرکز — تا با هانکِ لِینِ موازی روی
+            # آن جدول تصادم نکند (§ درختِ مشترک). فلگ خاموش ⇒ سقوط به مسیرِ
+            # امروز (`ops` در _VERDICTS نیست → پل → «نادیده») — parity.
+            return self._handle_ops_callback(cbq, data)
         if verb == "rm":
             # یادآورها (لِین E، پشتِ OCTOPUS_TG_REMINDERS). فلگ خاموش ⇒ سقوط به
             # مسیرِ امروز («نادیده») — parity. دبل‌تاپ بی‌اثر (done/snooze idempotent).
@@ -4378,6 +4427,354 @@ class Center:
             return bool(self._client.answer_callback(cid, text))
         except Exception:  # noqa: BLE001
             return False
+
+    # ══ /ops دکمه‌ای — لِینِ chat-actions (پشتِ OCTOPUS_TG_OPS_BUTTONS) ═══════
+    #
+    # چرا این‌جا و نه یک روتِ نو: `/ops` از قبل روت دارد — بلوکِ AGI2027 در
+    # `_handle_message` که به `agi2027_control.integration.try_handle_control`
+    # می‌رود و جوابش را با `format_control_result` می‌فرستد. این لِین همان روت
+    # را **کامل** می‌کند (کیبورد به همان پیام می‌چسبد)؛ روتِ دوم ساخته نمی‌شود.
+    #
+    # مالکیت: گیتِ تازه‌ای اختراع نشده. `handle_update → _is_owner` غیرمالک را
+    # کاملاً ساکت رد می‌کند (نه پیام، نه answer، نه رسید — عمدی و قفل‌شده در
+    # test_tg_callback_answer)، و لایهٔ دومِ `OpsActionEngine.execute` هم
+    # `actor["is_owner"]` می‌خواهد.
+    #
+    # جهش فقط از **همان** مسیرِ owner-gated ِ موجود (Ops Studio) می‌رود؛ هیچ
+    # گیتی برداشته نمی‌شود — فقط دکمه به گیت وصل می‌شود.
+
+    @staticmethod
+    def _ops_buttons_on() -> bool:
+        """فلگِ دکمه‌های `/ops` — پیش‌فرض خاموش."""
+        return str(os.environ.get(OPS_BUTTONS_FLAG, "")).strip().lower() in (
+            "1", "true", "yes", "on")
+
+    @staticmethod
+    def _ops_mod():
+        """ماژولِ موتورِ اکشنِ Ops Studio — **همان** موتوری که MiniApp صدا می‌زند."""
+        p = str(_HERE.parent)
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        import agi2027_control.ops_actions as _oa   # noqa: WPS433
+        return _oa
+
+    def _ops_receipt(self, **kw) -> bool:
+        """رسیدِ هر تپ: که، چه، کِی، نتیجه — **شاملِ ردها**.
+
+        چرا رسیدِ جدا و نه اتکا به AuditLog ِ خودِ موتور: `OpsActionEngine.
+        execute` برای `DENIED`/`BLOCKED` **پیش از** `self.audit.append`
+        برمی‌گردد — یعنی دقیقاً ردها بی‌رد می‌مانند. این‌جا رد هم می‌نشیند،
+        وگرنه «هیچ اتفاقی نیفتاد» و «رد شد» یک شکل می‌شوند.
+
+        هم‌ریشهٔ همان موتور (env-اول ⇒ تست خودکار ایزوله)، append-only + fsync.
+        fail-soft: شکستِ رسید هرگز مسیرِ دکمه را عوض نمی‌کند."""
+        try:
+            _oa = self._ops_mod()
+            from agi2027_control.runtime import AuditLog as _AL  # noqa: WPS433
+            rt = Path(os.environ.get(
+                "OCTOPUS_OPS_RUNTIME_DIR",
+                str(_oa.ROOT / "_ops" / "agi2027_runtime")))
+            rec = {"event": "ops_button", "source": "tg-center"}
+            rec.update(kw)
+            _AL(rt / "ops-buttons-audit.jsonl").append(rec)
+            return True
+        except Exception:  # noqa: BLE001
+            return False
+
+    def _ops_miniapp_url(self) -> "str | None":
+        """URL ِ کاکپیت از **همان دو منبعی که از قبل هست**: فایلِ تازهٔ
+        `_miniapp_url()` (contract F.3) و بعد `OCTOPUS_MINIAPP_URL` که
+        ControlPlane ِ `/ui` می‌خوانَد. منبعِ سوم اختراع نمی‌شود."""
+        try:
+            u = self._miniapp_url()
+            if u:
+                return u
+        except Exception:  # noqa: BLE001
+            pass
+        u = str(os.environ.get("OCTOPUS_MINIAPP_URL", "") or "").strip()
+        return u if u.startswith("https://") else None
+
+    def _ops_keyboard(self, text: str) -> "list | None":
+        """کیبوردِ `/ops`. فلگ خاموش یا فرمانِ غیرِ `/ops` ⇒ None ⇒ همان پیامِ
+        بی‌کیبوردِ امروز.
+
+        ناوبری `web_app` است و فقط به تب‌هایی می‌رود که **امروز در
+        `miniapp/index.html` وجود دارند** (home/studio/approvals). بدونِ
+        URL ِ زنده هیچ دکمهٔ web_app ساخته نمی‌شود — جایش یک callback که
+        صادقانه علت را می‌گوید؛ دکمهٔ مرده هرگز.
+
+        ⚠️ ثبت‌شده و اثبات‌شده: `miniapp/app.js` امروز `location.hash` را
+        نمی‌خوانَد (همیشه `render("home")`)، پس `#tab=` هنوز عمق-لینکِ
+        **واقعی نیست** — فرگمنت جلوجلو فرستاده می‌شود تا لحظه‌ای که لِینِ
+        MiniApp خواننده‌اش را اضافه کند کار کند. این فایل مالکِ app.js نیست."""
+        if not self._ops_buttons_on():
+            return None
+        raw = str(text or "").strip()
+        if not raw or raw.split()[0].split("@")[0].lower() != "/ops":
+            return None
+        url = self._ops_miniapp_url()
+
+        def _nav(label: str, tab: str, cb: str) -> dict:
+            if url:
+                return {"text": label, "web_app": {"url": f"{url}#tab={tab}"}}
+            return {"text": label, "callback_data": cb}
+
+        return [
+            [_nav("🖥 کاکپیت", "home", "ops:ui"),
+             _nav("📋 کارهای امروز", "studio", "ops:tsk")],
+            [{"text": "🆕 لیدِ نو", "callback_data": "ops:lead"},
+             {"text": "💰 ثبتِ پول", "callback_data": "ops:money"}],
+            [{"text": "🧠 وضعیتِ مغز", "callback_data": "ops:brain"},
+             _nav("✅ تأییدها", "approvals", "ops:apr")],
+        ]
+
+    def _handle_ops_callback(self, cbq: dict, data: str) -> dict:
+        """دکمه‌های `/ops`. **هر مسیر** — شاملِ رد و ناشناخته — answer می‌گیرد
+        (منشور §۶.۴: دکمه‌ای که تا ابد می‌چرخد دکمهٔ مرده است) و رسید می‌گذارد.
+
+        مالکیت بالادست گیت شده؛ این‌جا گیتِ دوم ساخته نمی‌شود."""
+        seg = str(data or "").split(":")
+        act = seg[1] if len(seg) > 1 else ""
+        who = (cbq.get("from") or {}).get("id")
+        if act in ("lead", "money"):
+            return self._ops_ask(cbq, act, who)
+        if act == "t":
+            return self._ops_followup_task(
+                cbq, seg[2] if len(seg) > 2 else "", who)
+        msg = cbq.get("message") or {}
+        if act == "brain":
+            self._answer(cbq, "وضعیتِ مغز")
+            _sent = None
+            try:
+                _sent = self._client.send(
+                    _scrub(self._ops_brain_text()),
+                    chat_id=(msg.get("chat") or {}).get("id"),
+                    topic_id=msg.get("message_thread_id"))
+            except Exception:  # noqa: BLE001
+                pass
+            self._ops_receipt(actor=who, act="brain", outcome="OK",
+                              mutated=False, sent=_sent is not None)
+            return {"kind": "ops-button", "act": "brain", "outcome": "OK",
+                    "mutated": False, "sent": _sent is not None}
+        if act in ("ui", "tsk", "apr"):
+            # این callbackها فقط وقتی **ساخته** می‌شوند که URL ِ زنده نبوده
+            # (وگرنه همان دکمه web_app است و اصلاً callback نمی‌فرستد). پس
+            # تنها جوابِ صادق «هنوز آدرسی نیست» است، نه spinner.
+            self._answer(cbq, "کاکپیت هنوز URL ندارد — OCTOPUS_MINIAPP_URL یا "
+                              "تونلِ MiniApp را روشن کن")
+            self._ops_receipt(actor=who, act=act, outcome="CONFIG_NEEDED",
+                              mutated=False)
+            return {"kind": "ops-button", "act": act,
+                    "outcome": "CONFIG_NEEDED", "mutated": False}
+        self._answer(cbq, "این دکمه را نمی‌شناسم")
+        self._ops_receipt(actor=who, act=act or None, outcome="UNKNOWN_BUTTON",
+                          mutated=False)
+        return {"kind": "ops-button", "act": act or None,
+                "outcome": "UNKNOWN_BUTTON", "mutated": False}
+
+    def _ops_ask(self, cbq: dict, kind: str, who) -> dict:
+        """دکمهٔ جهش‌زایی که **ورودی لازم دارد** → جریانِ ریپلایِ موجود.
+
+        ماشینِ حالتِ نو ساخته نمی‌شود: پیامِ راهنما یک مارکرِ پایدار دارد و
+        مصرف‌کننده‌اش (`_ops_reply`) فقط `reply_to_message` را می‌بیند — همان
+        الگویی که question_budget با «سؤالِ اختاپوس» دارد.
+
+        نتیجه: خودِ تپ **هیچ رکوردی نمی‌سازد** (دبل‌تپ هم صفر)؛ ثبت با ریپلای
+        است و آن هم به `message_id` ِ همان ریپلای idempotent شده."""
+        if kind == "lead":
+            body = ("🆕 <b>لیدِ نو</b>\n"
+                    "▸ به همین پیام ریپلای کن و فقط نام/هندلِ لید را بنویس.\n"
+                    "▸ مثال: <code>علی چتسوود</code>\n"
+                    f"<code>{OPS_ASK_LEAD}</code>")
+        else:
+            body = ("💰 <b>ثبتِ پول</b>\n"
+                    "▸ به همین پیام ریپلای کن: اول مبلغ، بعد توضیحِ کوتاه.\n"
+                    "▸ مثال: <code>۴۵۰ بیعانهٔ چتسوود</code>\n"
+                    "▸ این فقط یک <b>ثبت</b> است — هیچ پولی جابه‌جا نمی‌شود.\n"
+                    f"<code>{OPS_ASK_MONEY}</code>")
+        self._answer(cbq, "به پیامِ راهنما ریپلای کن")
+        msg = cbq.get("message") or {}
+        _sent = None
+        try:
+            _sent = self._client.send(
+                _scrub(body), chat_id=(msg.get("chat") or {}).get("id"),
+                topic_id=msg.get("message_thread_id"))
+        except Exception:  # noqa: BLE001
+            pass
+        self._ops_receipt(actor=who, act=kind, outcome="PROMPTED",
+                          mutated=False, sent=_sent is not None)
+        return {"kind": "ops-button", "act": kind, "outcome": "PROMPTED",
+                "mutated": False, "sent": _sent is not None}
+
+    def _ops_action(self, action: str, payload: dict, action_id: str) -> dict:
+        """اجرا از **همان** مسیرِ owner-gated ِ موجود (`OpsActionEngine`).
+
+        هیچ گیتی برداشته نمی‌شود: خودِ `execute` مالکیت، allowlist ِ اکشن و
+        ممنوعیتِ اتوماسیونِ پلتفرم‌های بیرونی را می‌سنجد، و `IdempotencyStore`
+        تضمین می‌کند دو بار = یک رکورد. `actor` دقیقاً مثلِ بلوکِ AGI2027 ِ
+        بالادست ساخته می‌شود، چون `_is_owner` قبلاً شلیک کرده و غیرمالک اصلاً
+        به این‌جا نمی‌رسد."""
+        eng = None
+        try:
+            eng = self._ops_mod().OpsActionEngine()
+            return eng.execute(action, payload, {"is_owner": True},
+                               action_id=action_id)
+        except Exception as _e:  # noqa: BLE001 — موتورِ خراب = ردِ صادق نه crash
+            return {"ok": False, "status": "ERROR",
+                    "reason": f"ops_engine_exception:{type(_e).__name__}"}
+        finally:
+            if eng is not None:
+                try:
+                    eng.close()
+                except Exception:  # noqa: BLE001
+                    pass
+
+    def _ops_followup_task(self, cbq: dict, lead_id: str, who) -> dict:
+        """`ops:t:<lead_id>` — کارِ پیگیری برای لیدی که همین‌الان ساخته شد.
+
+        تنها دکمهٔ جهش‌زایی که **ورودی نمی‌خواهد**، پس دبل‌تپ را مستقیم
+        می‌سنجد. دو گاردِ مستقل: (۱) `action_id` قطعی است
+        (`tgops:task.create:<lead>`) ⇒ تپِ دوم `DUPLICATE` می‌گیرد؛ (۲) حتی
+        اگر کلید عوض شود، `id` ِ قطعیِ کار باعثِ UPSERT روی همان ردیف می‌شود."""
+        lid = _sanitize_id(lead_id)
+        if not str(lead_id or "").strip() or lid == "unknown":
+            self._answer(cbq, "شناسهٔ لید نامعتبر")
+            self._ops_receipt(actor=who, act="t", outcome="BLOCKED",
+                              reason="invalid_lead_id", mutated=False)
+            return {"kind": "ops-button", "act": "t", "outcome": "BLOCKED",
+                    "mutated": False}
+        key = f"tgops:task.create:{lid}"
+        res = self._ops_action(
+            "task.create",
+            {"id": f"followup-{lid}", "title": f"پیگیریِ {lid}",
+             "kind": "followup", "target_type": "lead", "target_id": lid}, key)
+        st = str(res.get("status") or "ERROR")
+        self._answer(cbq, _OPS_TOAST.get(st, f"نشد: {st}"))
+        self._ops_receipt(actor=who, act="t", action="task.create",
+                          action_id=key, outcome=st, ok=bool(res.get("ok")),
+                          mutated=(st == "APPLIED"))
+        return {"kind": "ops-button", "act": "t", "outcome": st,
+                "mutated": st == "APPLIED", "task_id": res.get("task_id")}
+
+    def _ops_refuse(self, kind: str, reason: str, chat_id, msg: dict, who,
+                    say: str) -> dict:
+        """ردِ ورودی — و **ثبتش**. رد بی‌رسید یعنی «هیچ اتفاقی نیفتاد» و
+        «رد شد» یک شکل شوند (درسِ ثبت-همیشه/گیتِ-تحویل)."""
+        _sent = None
+        try:
+            _sent = self._client.send(_scrub(f"⚠️ {say}"), chat_id=chat_id,
+                                      topic_id=self._reply_thread(msg))
+        except Exception:  # noqa: BLE001
+            pass
+        self._ops_receipt(actor=who, act=kind, outcome="REFUSED",
+                          reason=reason, mutated=False, sent=_sent is not None)
+        return {"kind": "ops-reply", "act": kind, "outcome": "REFUSED",
+                "reason": reason, "mutated": False}
+
+    def _ops_reply(self, msg: dict, text: str, chat_id) -> "dict | None":
+        """ریپلای به پیامِ راهنمای `/ops` → جهش از مسیرِ owner-gated.
+
+        فلگ خاموش یا بی‌مارکر ⇒ None ⇒ مسیرِ امروزِ پیام، بایت‌به‌بایت.
+
+        idempotency: کلید به هویتِ **همان پیامِ ریپلای** بسته است
+        (`tgops:<action>:<chat>:<message_id>`)، پس تحویلِ دوبارهٔ همان update
+        رکوردِ دوم نمی‌سازد؛ و شناسهٔ خودِ رکورد هم از محتوا ساخته می‌شود
+        (UPSERT)، پس دو ریپلایِ هم‌محتوا هم یک ردیف می‌مانند."""
+        if not self._ops_buttons_on():
+            return None
+        _rt = str((msg.get("reply_to_message") or {}).get("text") or "")
+        if OPS_ASK_LEAD in _rt:
+            kind, action = "lead", "lead.create"
+        elif OPS_ASK_MONEY in _rt:
+            kind, action = "money", "value.record_event"
+        else:
+            return None
+        who = (msg.get("from") or {}).get("id")
+        body = str(text or "").strip()
+        if not body:
+            return self._ops_refuse(kind, "empty_input", chat_id, msg, who,
+                                    "چیزی ننوشتی — دوباره ریپلای کن.")
+        key = f"tgops:{action}:{chat_id}:{msg.get('message_id')}"
+        if kind == "lead":
+            handle = body.splitlines()[0].strip()[:OPS_HANDLE_MAX]
+            if not handle:
+                return self._ops_refuse(kind, "missing_handle", chat_id, msg,
+                                        who, "نام/هندلِ لید خالی بود.")
+            payload = {"handle": handle, "stage": "new", "source": "tg-ops",
+                       "platform": "manual", "notes": body}
+        else:
+            _m = re.search(r"\d+(?:[.,]\d+)?", body.translate(_OPS_FA2EN))
+            if _m is None:
+                return self._ops_refuse(kind, "missing_amount", chat_id, msg,
+                                        who, "مبلغ پیدا نشد — اول عدد بنویس.")
+            payload = {"leg": "ops_studio", "event": "money_in",
+                       "value_type": "money",
+                       "output_score": float(_m.group(0).replace(",", ".")),
+                       "metadata": {"note": body[:200], "source": "tg-ops"}}
+        res = self._ops_action(action, payload, key)
+        st = str(res.get("status") or "ERROR")
+        _inner = res.get("result") if isinstance(res.get("result"), dict) else {}
+        rid = str(res.get("lead_id") or res.get("value_event_id")
+                  or _inner.get("lead_id") or _inner.get("value_event_id") or "")
+        if st == "APPLIED":
+            head = "🆕 لید ثبت شد ✅" if kind == "lead" else "💰 ثبت شد ✅"
+        elif st == "DUPLICATE":
+            head = "🔁 قبلاً ثبت شده بود — رکوردِ دومی ساخته نشد."
+        else:
+            head = f"⚠️ نشد: <code>{_sanitize_id(st)}</code>"
+        lines = [head]
+        if rid:
+            lines.append(f"▸ <code>{_sanitize_id(rid)}</code>")
+        if kind == "money":
+            lines.append("▸ فقط ثبت شد — هیچ پولی جابه‌جا نشد.")
+        kb = None
+        # ⚠️ فقط شناسه‌ای که **رفت‌وبرگشت** می‌کند دکمه می‌گیرد: `make_id` نویسه‌های
+        # `.:@` را هم مجاز می‌داند، ولی `:` جداکنندهٔ خودِ callback است و
+        # `_sanitize_id` هم `@` را به `-` می‌برد — یعنی دکمه به شناسهٔ دیگری اشاره
+        # می‌کرد. سقفِ ۵۶ هم بودجهٔ ۶۴بایتیِ تلگرام را تضمین می‌کند (۶+۵۶=۶۲).
+        if (kind == "lead" and rid and st in ("APPLIED", "DUPLICATE")
+                and re.fullmatch(r"[A-Za-z0-9_-]{1,56}", rid)):
+            kb = [[{"text": "🗒 کارِ پیگیری", "callback_data": f"ops:t:{rid}"}]]
+        _sent = None
+        try:
+            _sent = self._client.send(
+                _scrub("\n".join(lines)), chat_id=chat_id, keyboard=kb,
+                topic_id=self._reply_thread(msg))
+        except Exception:  # noqa: BLE001
+            pass
+        self._ops_receipt(actor=who, act=kind, action=action, action_id=key,
+                          outcome=st, ok=bool(res.get("ok")),
+                          mutated=(st == "APPLIED"), record_id=rid,
+                          sent=_sent is not None)
+        return {"kind": "ops-reply", "act": kind, "outcome": st,
+                "mutated": st == "APPLIED", "record_id": rid,
+                "sent": _sent is not None}
+
+    def _ops_brain_text(self) -> str:
+        """وضعیتِ مغز — فقط‌خواندنی، $۰، بدونِ هیچ تماسِ LLM.
+
+        عمداً به تبِ MiniApp لینک **نمی‌شود**: امروز در `miniapp/index.html`
+        تبِ Brain وجود ندارد (تب‌ها: home/studio/outbound/approvals/legs/
+        value/registry/truth). لینک به تبی که نیست همان کارتِ مرده است."""
+        try:
+            import ask_brain as _ab   # noqa: WPS433
+        except Exception:  # noqa: BLE001
+            return "🧠 ماژولِ مغز در دسترس نیست."
+        lines = ["🧠 <b>وضعیتِ مغز</b>"]
+        try:
+            lines.append("▸ مغزِ گران: "
+                         + ("روشن" if _ab.enabled() else "خاموش"))
+            lines.append("▸ گفتگوی محلی: "
+                         + ("روشن" if _ab.chat_local_enabled() else "خاموش"))
+            _st = _ab._load_state()
+            _used = (int(_st.get("used") or 0)
+                     if _st.get("date") == opslib.today() else 0)
+            lines.append(f"▸ سهمیهٔ پولیِ امروز: {_fa_num(_used)}"
+                         f"/{_fa_num(_ab._daily_cap())}")
+        except Exception:  # noqa: BLE001 — سنجه هرگز کارت را نمی‌کشد
+            lines.append("▸ خواندنِ سهمیه نشد.")
+        lines.append("▸ این کارت هیچ تماسی با مغز نمی‌گیرد — $۰.")
+        return "\n".join(lines)
 
     # ── run: یک دورِ poll+dispatch / حلقه با STOP ────────────────────────────────
     def run_once(self) -> int:
