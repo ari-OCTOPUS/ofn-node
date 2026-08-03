@@ -18,7 +18,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 ENV = harness.setup("connection-selftest")
 
-_OPS = (harness.REAL_VAULT / r"_ops")
+# ⚠️ تا ۲۰۲۶-۰۸-۰۳ این `harness.REAL_VAULT / "_ops"` بود — یعنی ماژول‌ها از درختِ
+# **زنده** import می‌شدند. دو پیامد داشت: (۱) تست کدِ زنده را می‌سنجید نه کدِ زیرِ
+# آزمون (قراردادِ صریحِ `harness.SELF_OPS`)؛ (۲) ماژول‌هایی که مسیرِ state را نسبت به
+# **فایلِ خودشان** حساب می‌کنند — `school_bridge.AWARENESS_STATE = _HERE.parent/"state"`،
+# که `OCTOPUS_STATE_DIR` را هم نمی‌بیند — داخلِ `F:\backup\_ops\state` ِ زنده
+# می‌نوشتند. سه نوشتنِ اندازه‌گیری‌شده روی `school-awareness.tmp`.
+# دادهٔ واقعیِ vault (school-memory پایین) همچنان از REAL_VAULT خوانده می‌شود.
+_OPS = harness.SELF_OPS
 for _p in [str(_OPS), str(_OPS / "budget"), str(_OPS / "neural"),
            str(_OPS / "doctor"), str(_OPS / "doctor" / "box"),
            str(_OPS / "afferent"), str(_OPS / "legs")]:

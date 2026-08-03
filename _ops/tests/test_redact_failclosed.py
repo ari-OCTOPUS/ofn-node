@@ -15,8 +15,16 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 _HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE))
 sys.path.insert(0, str(_HERE.parent))
 sys.path.insert(0, str(_HERE.parent / "budget"))
+
+# ⚠️ `harness` تا ۲۰۲۶-۰۸-۰۳ فقط داخلِ `__main__` (پایینِ فایل) import می‌شد — یعنی
+# **بعد از** import ِ opslib. ولی `opslib.STATE_DIR` در زمانِ import بسته می‌شود، پس
+# `opslib.alert()` چهار بار روی `state/alert-signatures.json` ِ **زنده** می‌نوشت.
+# ترتیب باربر است: setup قبل از اولین import ِ ماژولِ ارگانیسم.
+import harness  # noqa: E402
+ENV = harness.setup("redact-failclosed")
 
 import opslib  # noqa: E402
 import approval_channel as _ac  # noqa: E402

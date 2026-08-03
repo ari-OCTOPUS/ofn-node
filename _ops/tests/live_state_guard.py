@@ -316,36 +316,59 @@ def _is_loopback(addr) -> bool:
     return h.startswith("127.")
 
 
-def _wrap_connect(orig, name):
-    def guarded(self_or_addr, *a, **kw):
-        # متدِ نمونه (socket.connect) → arg اولِ واقعی خودِ آدرس در a[0] نیست؛
-        # این wrapper هم برای متد و هم برای تابعِ ماژولی استفاده می‌شود.
-        addr = a[0] if a else self_or_addr
-        if _net_armed and not _is_loopback(addr):
-            rec = {"op": name, "addr": str(addr), "pid": os.getpid()}
-            _net_hits.append(rec)
-            _emit({"op": f"net:{name}", "path": str(addr), "detail": "خروجیِ غیرِ loopback",
-                   "benign": False, "allowed": False, "reason": ""})
-            raise ExternalNetworkError(
-                f"اتصالِ بیرونی مسدود شد: {name} → {addr}\n"
-                f"  اجرای اندازه‌گیری حق ندارد اثرِ بیرونی/هزینهٔ واقعی بسازد."
-            )
-        return orig(self_or_addr, *a, **kw)
+def _check_addr(name: str, address) -> None:
+    if not _net_armed or _is_loopback(address):
+        return
+    _net_hits.append({"op": name, "addr": str(address), "pid": os.getpid()})
+    _emit({"op": f"net:{name}", "path": str(address), "detail": "خروجیِ غیرِ loopback",
+           "benign": False, "allowed": False, "reason": ""})
+    raise ExternalNetworkError(
+        f"اتصالِ بیرونی مسدود شد: {name} → {address}\n"
+        f"  اجرای اندازه‌گیری حق ندارد اثرِ بیرونی/هزینهٔ واقعی بسازد."
+    )
+
+
+# ⚠️ متد و تابع **جای آرگومانِ متفاوت** دارند و یک wrapper ِ مشترک برای هر دو غلط است:
+# `sock.connect(addr)` آدرس را در arg ِ اول بعد از self دارد، ولی
+# `create_connection(addr, timeout)` آن را در arg ِ اولِ خودش. نسخهٔ اولِ این گارد
+# «اگر a تهی نبود a[0]» را برمی‌داشت، پس وقتی timeout **موضعی** پاس می‌شد عددِ timeout
+# را آدرس می‌خواند: هم گزارش را بی‌معنا می‌کرد، هم یک اتصالِ loopback ِ مجاز را رد
+# می‌کرد (`test_lead_boundary_http` که سرورِ محلی بالا می‌آورد قرمز شد؛ ۹ از ۱۰
+# «تماسِ بیرونی» ِ گزارش‌شده مثبتِ کاذب بودند).
+def _wrap_sock_method(orig, name):
+    def guarded(self, address, *a, **kw):
+        fam = getattr(self, "family", None)
+        af_unix = getattr(_socket_mod, "AF_UNIX", None)
+        if af_unix is not None and fam == af_unix:
+            return orig(self, address, *a, **kw)      # سوکتِ محلیِ فایل‌محور
+        _check_addr(name, address)
+        return orig(self, address, *a, **kw)
     return guarded
+
+
+def _wrap_create_connection(orig):
+    def guarded(address, *a, **kw):
+        _check_addr("create_connection", address)
+        return orig(address, *a, **kw)
+    return guarded
+
+
+_socket_mod = None
 
 
 def arm_network() -> None:
     """فقط loopback مجاز. صداکننده: runner ِ ایزوله — نه harness ِ عمومی."""
-    global _net_armed
+    global _net_armed, _socket_mod
     if _net_armed:
         return
     import socket
+    _socket_mod = socket
     _orig["socket.connect"] = (socket.socket, "connect", socket.socket.connect)
     _orig["socket.connect_ex"] = (socket.socket, "connect_ex", socket.socket.connect_ex)
     _orig["socket.create_connection"] = (socket, "create_connection", socket.create_connection)
-    socket.socket.connect = _wrap_connect(socket.socket.connect, "connect")
-    socket.socket.connect_ex = _wrap_connect(socket.socket.connect_ex, "connect_ex")
-    socket.create_connection = _wrap_connect(socket.create_connection, "create_connection")
+    socket.socket.connect = _wrap_sock_method(socket.socket.connect, "connect")
+    socket.socket.connect_ex = _wrap_sock_method(socket.socket.connect_ex, "connect_ex")
+    socket.create_connection = _wrap_create_connection(socket.create_connection)
     _net_armed = True
 
 

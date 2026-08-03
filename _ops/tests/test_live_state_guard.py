@@ -110,10 +110,21 @@ class GuardCase(unittest.TestCase):
 
     # ── ۴. عبور با `..` — اول resolve، بعد قضاوت ─────────────────────────────
     def t_traversal_cannot_escape_the_check(self):
-        sneaky = self.state / ".." / "state" / "sneak.txt"
+        # شکلِ **واقعیِ** فرار: مسیری که لفظاً با ریشه شروع نمی‌شود ولی به داخلِ آن
+        # resolve می‌شود. (نسخهٔ اولِ این تست `state/../state/x` بود — که چون رشته‌اش
+        # همچنان با `state\` شروع می‌شد، حتی گاردِ بی‌abspath هم می‌گرفتش؛ جهش‌آزمایی
+        # نشان داد آن تست کور بود، نه گارد.)
+        escape = self.state.parent / "other" / ".." / "state" / "sneak.txt"
+        self.assertFalse(os.path.normcase(str(escape)).startswith(
+            os.path.normcase(str(self.state)) + os.sep),
+            "فیکسچر باید مسیری باشد که با زیررشته گرفته **نمی‌شود**")
         with self.assertRaises(G.LiveStateWriteError):
-            open(sneaky, "w")
+            open(escape, "w")
         self.assertFalse((self.state / "sneak.txt").exists())
+        # و شکلِ سادهٔ درون-ریشه هم همچنان گرفته شود
+        with self.assertRaises(G.LiveStateWriteError):
+            open(self.state / ".." / "state" / "plain.txt", "w")
+        self.assertFalse((self.state / "plain.txt").exists())
 
     # ── ۵. صفر-بایتی از جهش تفکیک می‌شود ────────────────────────────────────
     def t_zero_byte_ops_are_recorded_but_not_blocked(self):
@@ -158,13 +169,27 @@ class GuardCase(unittest.TestCase):
                 socket.create_connection(("93.184.216.34", 80), timeout=2)
             with self.assertRaises(G.ExternalNetworkError):
                 socket.socket().connect(("smtp.gmail.com", 587))
-            # loopback نباید *توسط گارد* رد شود؛ خطای شبکه مجاز است
-            try:
-                socket.create_connection(("127.0.0.1", 9), timeout=0.3).close()
-            except G.ExternalNetworkError:
-                self.fail("loopback نباید مسدود شود")
-            except OSError:
-                pass
+            # loopback نباید *توسط گارد* رد شود؛ خطای شبکه مجاز است.
+            # هر دو شکلِ timeout سنجیده می‌شود: کلیدواژه‌ای **و موضعی**. شکلِ موضعی
+            # رگرسیونِ واقعی بود — wrapper عددِ timeout را آدرس می‌خواند و loopback را
+            # رد می‌کرد (`test_lead_boundary_http` قرمز شد).
+            for label, call in (
+                ("timeout کلیدواژه‌ای", lambda: socket.create_connection(("127.0.0.1", 9), timeout=0.3)),
+                ("timeout موضعی",      lambda: socket.create_connection(("127.0.0.1", 9), 0.3)),
+                ("متدِ سوکت",           lambda: socket.socket().connect(("127.0.0.1", 9))),
+            ):
+                try:
+                    call().close()
+                except G.ExternalNetworkError:
+                    self.fail(f"loopback نباید مسدود شود ({label})")
+                except (OSError, AttributeError):
+                    pass
+            # و آدرسِ گزارش‌شده باید خودِ آدرس باشد، نه timeout
+            G._net_hits.clear()
+            with self.assertRaises(G.ExternalNetworkError):
+                socket.create_connection(("93.184.216.34", 80), 2)
+            self.assertIn("93.184.216.34", G.network_hits()[-1]["addr"],
+                          "آدرسِ گزارش‌شده باید میزبانِ واقعی باشد")
         finally:
             G.disarm()
 
