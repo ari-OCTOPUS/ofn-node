@@ -1,4 +1,4 @@
-@_PROJECT_INSTRUCTIONS.md
+@agent-prompts/_PROJECT_INSTRUCTIONS.md
 
 ## Claude Code — نکات اجرایی این vault
 

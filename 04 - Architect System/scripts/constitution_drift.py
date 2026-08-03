@@ -28,7 +28,31 @@ def check(ok: bool, label: str, why: str = "") -> None:
 
 # ── ۱) _PROJECT_INSTRUCTIONS.md: هر مسیر/فایلی که نام می‌برد باید وجود داشته باشد ──
 def check_instructions() -> None:
-    src = ROOT / "_PROJECT_INSTRUCTIONS.md"
+    # VQ-CONSTITUTION-EVICTED-001 (۲۰۲۶-۰۸-۰۳): این تابع قبلاً بی‌قید
+    # `ROOT/"_PROJECT_INSTRUCTIONS.md"` را باز می‌کرد. کامیتِ ea69126 فایل را به
+    # `agent-prompts/` برد و `CLAUDE.md` را به‌روز نکرد ⇒ FileNotFoundError ⇒
+    # `except` ِ فراگیرِ main یک خطِ عمومی چاپ کرد و **هیچ‌کدام از ~۳۰ ادعای این
+    # تابع اجرا نشد**. یعنی نگهبانِ رانشِ قانون، کورِ همان رانش بود. حالا:
+    # (۱) هر دو محل را می‌شناسد، (۲) اگر هیچ‌کدام نبود **صریح** قرمز می‌دهد.
+    src = None
+    for cand in (ROOT / "agent-prompts" / "_PROJECT_INSTRUCTIONS.md",
+                 ROOT / "_PROJECT_INSTRUCTIONS.md"):
+        if cand.exists():
+            src = cand
+            break
+    if src is None:
+        check(False, "منشور پیدا نشد",
+              "_PROJECT_INSTRUCTIONS.md نه در ریشه است نه در agent-prompts/ — "
+              "قانونِ اساسی برای هیچ ایجنتی لود نمی‌شود")
+        return
+    # importer ِ CLAUDE.md باید به همان محلِ واقعی اشاره کند، وگرنه منشور
+    # بی‌صدا به‌عنوانِ «هیچ» لود می‌شود (همان شکستِ ۰۸-۰۳).
+    claude = ROOT / "CLAUDE.md"
+    if claude.exists():
+        head = claude.read_text(encoding="utf-8", errors="replace")
+        want = src.relative_to(ROOT).as_posix()
+        check(f"@{want}" in head, "importer ِ CLAUDE.md به منشور می‌رسد",
+              f"CLAUDE.md به @{want} اشاره نمی‌کند — منشور لود نمی‌شود")
     text = src.read_text(encoding="utf-8", errors="replace")
     # backtick-مسیرهایی که شبیه مسیرِ واقعی‌اند (پوشهٔ شماره‌دار، _ops، اسکریپت، .md/.py/.json)
     cand = set(re.findall(r"`([^`\n]{3,120})`", text))
