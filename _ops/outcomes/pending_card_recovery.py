@@ -137,14 +137,25 @@ def _store_path(state_dir) -> Path:
 
 
 def _load_store(state_dir) -> dict:
+    """بارگذاریِ store. blindspot #148 (2026-08-03): قبلاً corrupted/unreadable
+    ساکت {} برمی‌گرداند → همهٔ کارت‌هایِ پولِ pending بی‌صدا محو می‌شدند. حالا
+    fail-closed: در صورتِ خطا، یک marker مخصوص برمی‌گرداند که callerها باید
+    تشخیص دهند (کلیدِ __corrupted__). فقط «فایلِ غایب» {} مجاز است (اولین اجرا)."""
+    p = _store_path(state_dir)
+    if not p.exists():
+        return {}  # اولین اجرا — store هنوز ساخته نشده
     try:
-        p = _store_path(state_dir)
-        if p.exists():
-            d = json.loads(p.read_text("utf-8"))
-            return d if isinstance(d, dict) else {}
-    except Exception:  # noqa: BLE001
-        pass
-    return {}
+        d = json.loads(p.read_text("utf-8"))
+        return d if isinstance(d, dict) else {}
+    except Exception as e:  # noqa: BLE001 — blindspot #148: fail-closed
+        try:
+            import opslib as _ops  # noqa: PLC0415
+            _ops.alert([f"pending_card_recovery _load_store CORRUPTED (#148): "
+                        f"{type(e).__name__}: {e} — store ممکن است خراب باشد، "
+                        "بازگرداندن marker به‌جای dict خالی برای جلوگیری از محوِ بی‌صدا"])
+        except Exception:
+            pass
+        return {"__corrupted__": True, "__error__": f"{type(e).__name__}: {e}"}
 
 
 def _save_store(state_dir, store: dict) -> bool:
@@ -855,6 +866,22 @@ def mark_rfc_consumed(*, state_dir, rfc_id) -> bool:
     except Exception:  # noqa: BLE001
         pass
     return False
+
+
+def reconstruct_rfc_from_card(*, state_dir, rfc_id) -> "dict | None":
+    """وقتی self._rfcs (RAM/rfcs.json ِ دکتر) دیگر بدنهٔ اصلیِ RFC را ندارد ولی
+    کارتِ durable (pending-cards.json) دارد — summary را به‌عنوان تنها منبعِ
+    بازمانده برمی‌گرداند تا doctor.run_cycle بتواند یک RFC نمادین بسازد و
+    apply_merge را صدا بزند. هرگز فیلدهایی (fix/rollback/expected_lift) را که
+    اصلاً ذخیره نشده‌اند حدس نمی‌زند — فقط summary ِ واقعاً persist-شده.
+    خروجی: {"summary": str} یا None اگر کارت هم نبود/summary خالی بود."""
+    rec = _load_store(state_dir).get(_key("rfc", str(rfc_id)))
+    if not isinstance(rec, dict):
+        return None
+    summary = str(rec.get("summary") or "").strip()
+    if not summary:
+        return None
+    return {"summary": summary}
 
 
 def load_rfc_verdicts(state_dir) -> dict:
