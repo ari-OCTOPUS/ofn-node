@@ -73,6 +73,13 @@ PHANTOM_TESTS = (
 # ۱۸۸ نامِ فلگ که کدِ `_ops/**/*.py` می‌خواندشان و در OCTOPUS-flags.cmd صفر
 # بار ظاهر می‌شوند. فقط **نام** — هیچ مقداری از آن فایل خوانده/چاپ نمی‌شود.
 UNDECLARED_FLAGS = (
+    # ۲۰۲۶-۰۸-۰۳ — تنها ورودیِ افزوده‌شده پس از انجماد، با رأیِ متناظرش:
+    # گامِ ۱۷ (C7) این را برای پلهٔ سایه معرفی کرد. سه حالت دارد و پیش‌فرضش
+    # `shadow` است، یعنی عددهای منتشرشده دست‌نخورده می‌مانند و فقط حقیقتِ
+    # چرخهٔ عمر کنارشان می‌نشیند. تنها حالتِ `lifecycle` منبع را عوض می‌کند و
+    # آن **رأیِ مالک** است. اعلامش در `OCTOPUS-flags.cmd` گامِ ۲۱ ِ طرح است —
+    # همان‌جا که سه فلگِ دیگر هم منتظرند. تا آن رأی، این‌جا ثبت می‌شود نه پنهان.
+    "OCTOPUS_PROPOSAL_METRICS_SOURCE",
     "OCTOPUS_ACTION_BRIDGE_HMAC", "OCTOPUS_AGENT_GATEWAY_PORT",
     "OCTOPUS_AGENT_MAX_BYTES", "OCTOPUS_AGENT_OWNER_SECRET",
     "OCTOPUS_AGENT_PEERS", "OCTOPUS_AGENT_RATE_PER_MIN",
