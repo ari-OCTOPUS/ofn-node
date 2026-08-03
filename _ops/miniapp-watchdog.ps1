@@ -83,7 +83,16 @@ if ($gw.Count -eq 0) {
             }
         }
     }
-    $env:OCTOPUS_TG_MINIAPP = "1"
+    # 2026-08-03 (owner decision, Slice 3 security review): this used to
+    # unconditionally overwrite OCTOPUS_TG_MINIAPP with "1" AFTER loading
+    # OCTOPUS.env above -- so a "0" placed there to turn the gateway off was
+    # silently discarded on every watchdog tick (every 10 min), making the
+    # flag lie about what actually controlled the process. Only default to
+    # "1" when OCTOPUS.env left it unset; an explicit "0" now sticks.
+    # STOP-MINIAPP remains the hard, unconditional kill switch (checked above).
+    if (-not $env:OCTOPUS_TG_MINIAPP) {
+        $env:OCTOPUS_TG_MINIAPP = "1"
+    }
     try {
         $p = Start-Process -FilePath "python" `
              -ArgumentList @("-X","utf8", (Join-Path $Ops "telegram_center\miniapp_gateway.py")) `
