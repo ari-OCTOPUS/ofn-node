@@ -85,6 +85,15 @@ class SecretTests(unittest.TestCase):
         for name in ("OCTOPUS_WIRE_IDENTITY_EQ", "OCTOPUS_WIRE_IDEAS"):
             self.assertFalse(fd.is_secret_name(name), name)
 
+    def test_miniapp_url_is_treated_as_a_secret(self):
+        """VQ-CAPABILITY-URL-LEAK-001 (۲۰۲۶-۰۸-۰۳، برشِ ۳): OCTOPUS_MINIAPP_URL
+        حاملِ اعتبار است (هر کسی داشته باشدش به تونلِ خصوصی می‌رسد) ولی هیچ
+        توکنِ رازِ قبلی نامش را نمی‌گرفت — snapshot ِ boot خام می‌نوشتش."""
+        self.assertTrue(fd.is_secret_name("OCTOPUS_MINIAPP_URL"))
+        # ولی هر چیزی که فقط "URL" دارد نه — الگو دقیقاً MINIAPP_URL است
+        for name in ("OCTOPUS_WEBHOOK_URL", "OCTOPUS_BASE_URL"):
+            self.assertFalse(fd.is_secret_name(name), name)
+
     def test_snapshot_boot_never_writes_a_chat_id(self):
         """گاردِ end-to-end: مقدارِ شناسهٔ چت نباید در فایلِ روی دیسک باشد."""
         tmp = Path(tempfile.mkdtemp())

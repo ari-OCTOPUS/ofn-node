@@ -69,6 +69,15 @@ _SECRET_TOKENS = ("SECRET", "TOKEN", "KEY", "PASS", "PWD", "CRED", "AUTH")
 # وگرنه `OCTOPUS_WIRE_IDENTITY_EQ` هم بی‌دلیل redact می‌شد.
 _ID_TOKENS = ("CHAT_ID", "CHAT_IDS", "OWNER_ID", "OWNER_CHAT", "ALLOWED_IDS")
 
+# VQ-PORT-COLLISION-001 خواهرش (۲۰۲۶-۰۸-۰۳، برشِ ۳، آیتمِ ۳): `OCTOPUS_MINIAPP_URL`
+# یک حاملِ اعتبار است — هر کسی این URL را داشته باشد به تونلِ خصوصیِ mini-app
+# می‌رسد، دقیقاً مثلِ یک bearer token — ولی هیچ‌کدام از توکن‌های بالا نامش را
+# نمی‌گیرد، پس در `flags-loaded-*.json` رمزنگاری‌نشده می‌نشیند و
+# `format_control_result` آن را داخلِ چتِ تلگرام هم چاپ می‌کند. الگو عمداً
+# **دقیق**اش «MINIAPP_URL» است نه «_URL» خالی (امروز تنها نمونهٔ این کلاس؛ یک
+# `OCTOPUS_*_URL` ِ آیندهٔ صرفاً پیکربندی/غیرِ-حاملِ-اعتبار نباید بی‌دلیل redact شود).
+_CAPABILITY_URL_TOKENS = ("MINIAPP_URL",)
+
 # `set "X=Y"`  |  `set X=Y`  — هرجای خط (مثلاً بعد از `if not defined X`).
 _RE_QUOTED = re.compile(r'(?:^|\s|@)set\s+"([A-Za-z_][A-Za-z0-9_]*)=([^"]*)"')
 _RE_BARE = re.compile(r'(?:^|\s|@)set\s+([A-Za-z_][A-Za-z0-9_]*)=([^\r\n]*)')
@@ -81,7 +90,7 @@ def is_secret_name(name: str) -> bool:
     تعریفِ متفاوت از «راز» در سیستم وجود نداشته باشد.
     """
     up = str(name or "").upper()
-    return any(tok in up for tok in _SECRET_TOKENS + _ID_TOKENS)
+    return any(tok in up for tok in _SECRET_TOKENS + _ID_TOKENS + _CAPABILITY_URL_TOKENS)
 
 
 def _safe(name: str, value):

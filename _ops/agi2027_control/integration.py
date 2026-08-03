@@ -91,7 +91,11 @@ def format_control_result(result: Dict[str, Any]) -> str:
         if note:
             lines.append(f"note: <code>{note[:500]}</code>")
         if result.get("web_app_url"):
-            lines.append("MiniApp: <code>" + str(result.get("web_app_url"))[:500] + "</code>")
+            # VQ-CAPABILITY-URL-LEAK-001 (۲۰۲۶-۰۸-۰۳، برشِ ۳، آیتمِ ۳): این URL خودش
+            # حاملِ اعتبار است (هر کسی داشته باشدش به تونلِ خصوصی می‌رسد) — عیناً
+            # هم‌کلاسِ secret، حتی وقتی گیرنده خودِ مالک است (§۱۰: هرگز در چت).
+            # مالک URL ِ واقعی را از دکمهٔ داشبورد/فایلِ miniapp-url.json می‌گیرد.
+            lines.append("MiniApp: <code>[REDACTED — دکمهٔ داشبورد را ببین]</code>")
         if result.get("preview"):
             lines.append("Truth preview:\n<code>" + str(result.get("preview"))[:900] + "</code>")
         if result.get("legs") is not None:
