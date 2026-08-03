@@ -27,6 +27,8 @@ if _MODE:
         import live_state_guard
 
         _roots = live_state_guard.arm()
+        if (os.environ.get("OCTOPUS_TEST_NET_GUARD") or "").strip():
+            live_state_guard.arm_network()
         _echo = os.environ.get("OCTOPUS_TEST_ISOLATION_ECHO")
         if _echo:
             # رسیدِ سمتِ خواننده: runner این را می‌خواند تا بداند گارد **واقعاً** بالا آمد.

@@ -60,6 +60,10 @@ DISARM_DROP = (
     "TELEGRAM_BOT_TOKEN", "TG_CENTER_BOT_TOKEN", "OCTOPUS_MINIAPP_URL",
 )
 
+# پیش‌فرض: خروجیِ غیرِ loopback در فرزند مسدود است. سنجشِ ایزوله‌بودن نباید خودش
+# تماسِ پولیِ vendor یا ارسالِ واقعی تولید کند. با `--allow-network` برداشته می‌شود.
+NET_GUARD = True
+
 GROUPS = {
     "lead":     ("lead", "outbound", "funnel"),
     "miniapp":  ("miniapp", "gateway", "pf_"),
@@ -105,6 +109,8 @@ def run_one(test: Path, workdir: Path, timeout: int = 300) -> dict:
     env["PYTHONPATH"] = os.pathsep.join(
         [str(BOOT_DIR)] + ([env["PYTHONPATH"]] if env.get("PYTHONPATH") else []))
     env["OCTOPUS_TEST_LIVE_STATE_GUARD"] = "block"
+    if NET_GUARD:
+        env["OCTOPUS_TEST_NET_GUARD"] = "loopback-only"
     env["OCTOPUS_TEST_ISOLATION_ECHO"] = str(echo)
     env["OCTOPUS_TEST_ISOLATION_LOG"] = str(log)
     for k in DISARM_ZERO:
@@ -167,9 +173,15 @@ def main() -> int:
                     help="اثرانگشتِ قبل/بعد هم بگیر (کند، و ذاتاً نویزِ ارگانیسمِ زنده دارد)")
     ap.add_argument("--timeout", type=int, default=300)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--allow-network", action="store_true",
+                    help="گاردِ شبکه را بردار (تست می‌تواند تماسِ بیرونی/پولی بزند)")
     args = ap.parse_args()
 
+    global NET_GUARD
+    NET_GUARD = not args.allow_network
+
     print(f"ریشهٔ محافظت‌شده: {LIVE_STATE}")
+    print(f"گاردِ شبکه: {'فقط loopback' if NET_GUARD else 'برداشته شده'}")
     if args.fingerprint:
         fp = fingerprint()
         print(f"فایل‌های اثرانگشت‌شده: {len(fp)}")
@@ -184,7 +196,7 @@ def main() -> int:
     print(f"تست‌های انتخابی: {len(tests)}\n")
 
     workdir = Path(tempfile.mkdtemp(prefix="isolation-check-"))
-    results, leakers, unarmed, pointers = [], [], [], []
+    results, leakers, unarmed, pointers, networked = [], [], [], [], []
     fp_before = fingerprint() if args.ambient else None
 
     for i, t in enumerate(tests, 1):
@@ -196,9 +208,13 @@ def main() -> int:
         # دو ردهٔ متفاوت که هرگز جمع زده نمی‌شوند:
         #   bad = جهشِ واقعی (بایت عوض می‌شد) → مسدود شد
         #   ptr = نشتیِ اشاره‌ای (مسیرِ زنده resolve شد، ولی صفر بایت) → فقط ثبت
-        bad = [v for v in res["violations"] if not v.get("allowed") and not v.get("benign")]
-        ptr = [v for v in res["violations"] if not v.get("allowed") and v.get("benign")]
-        res["bad"], res["ptr"] = bad, ptr
+        vio = [v for v in res["violations"] if not str(v.get("op", "")).startswith("net:")]
+        net = [v for v in res["violations"] if str(v.get("op", "")).startswith("net:")]
+        bad = [v for v in vio if not v.get("allowed") and not v.get("benign")]
+        ptr = [v for v in vio if not v.get("allowed") and v.get("benign")]
+        res["bad"], res["ptr"], res["net"] = bad, ptr, net
+        if net:
+            networked.append(res)
         if not res["armed"]:
             unarmed.append(res["test"])
             flag = "🚫 گارد مسلح نشد"
@@ -216,7 +232,13 @@ def main() -> int:
 
     print("\n" + "=" * 72)
     print(f"اجرا: {len(results)}   جهشِ زنده: {len(leakers)}   "
-          f"نشتیِ اشاره‌ای: {len(pointers)}   مسلح‌نشده: {len(unarmed)}")
+          f"نشتیِ اشاره‌ای: {len(pointers)}   خروجیِ بیرونی: {len(networked)}   "
+          f"مسلح‌نشده: {len(unarmed)}")
+    if networked:
+        print("\nتست‌هایی که خواستند به بیرون وصل شوند (مسدود شد — بدونِ گارد پول/اثرِ واقعی):")
+        for r in networked:
+            addrs = sorted({v["path"] for v in r["net"]})[:3]
+            print(f"  {r['test']}  →  {', '.join(addrs)}")
     if args.ambient and fp_before is not None:
         changed = diff_fp(fp_before, fingerprint())
         print(f"تغییرِ محیطی زیرِ state زنده: {len(changed)} فایل "

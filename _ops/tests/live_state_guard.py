@@ -290,6 +290,69 @@ def is_armed() -> bool:
     return _armed
 
 
+# ── تریپ‌وایرِ دوم: شبکهٔ بیرونی ──────────────────────────────────────────────
+# چرا لازم شد: برای سنجشِ «سوییت کجا می‌نویسد» باید سوییت را دواند، ولی بعضی تست‌ها
+# مسیرِ vendor ِ **پولی** را می‌زنند (ممیزیِ ۰۷-۲۷: تماسِ مستقیمِ client.complete که
+# نه breaker می‌بیندش نه شمارندهٔ سهمیه). خرجِ پول گیتِ مالک دارد؛ پس خودِ ابزارِ
+# اندازه‌گیری حق ندارد آن را ناخواسته تولید کند. loopback باز می‌ماند چون چند تست
+# عمداً سرورِ محلی بالا می‌آورند.
+
+class ExternalNetworkError(RuntimeError):
+    """تست خواست به میزبانِ غیرِ loopback وصل شود."""
+
+
+_net_armed = False
+_net_hits: list[dict] = []
+_LOOPBACK_NAMES = {"localhost", "localhost.localdomain", "ip6-localhost", ""}
+
+
+def _is_loopback(addr) -> bool:
+    host = addr[0] if isinstance(addr, (tuple, list)) and addr else addr
+    if not isinstance(host, str):
+        return False
+    h = host.strip("[]").lower()
+    if h in _LOOPBACK_NAMES or h == "::1":
+        return True
+    return h.startswith("127.")
+
+
+def _wrap_connect(orig, name):
+    def guarded(self_or_addr, *a, **kw):
+        # متدِ نمونه (socket.connect) → arg اولِ واقعی خودِ آدرس در a[0] نیست؛
+        # این wrapper هم برای متد و هم برای تابعِ ماژولی استفاده می‌شود.
+        addr = a[0] if a else self_or_addr
+        if _net_armed and not _is_loopback(addr):
+            rec = {"op": name, "addr": str(addr), "pid": os.getpid()}
+            _net_hits.append(rec)
+            _emit({"op": f"net:{name}", "path": str(addr), "detail": "خروجیِ غیرِ loopback",
+                   "benign": False, "allowed": False, "reason": ""})
+            raise ExternalNetworkError(
+                f"اتصالِ بیرونی مسدود شد: {name} → {addr}\n"
+                f"  اجرای اندازه‌گیری حق ندارد اثرِ بیرونی/هزینهٔ واقعی بسازد."
+            )
+        return orig(self_or_addr, *a, **kw)
+    return guarded
+
+
+def arm_network() -> None:
+    """فقط loopback مجاز. صداکننده: runner ِ ایزوله — نه harness ِ عمومی."""
+    global _net_armed
+    if _net_armed:
+        return
+    import socket
+    _orig["socket.connect"] = (socket.socket, "connect", socket.socket.connect)
+    _orig["socket.connect_ex"] = (socket.socket, "connect_ex", socket.socket.connect_ex)
+    _orig["socket.create_connection"] = (socket, "create_connection", socket.create_connection)
+    socket.socket.connect = _wrap_connect(socket.socket.connect, "connect")
+    socket.socket.connect_ex = _wrap_connect(socket.socket.connect_ex, "connect_ex")
+    socket.create_connection = _wrap_connect(socket.create_connection, "create_connection")
+    _net_armed = True
+
+
+def network_hits() -> list[dict]:
+    return list(_net_hits)
+
+
 if __name__ == "__main__":                                    # پروبِ دستی
     roots = arm("report")
     print("ریشه‌های محافظت‌شده:", roots)
