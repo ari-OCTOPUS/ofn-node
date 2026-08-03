@@ -73,6 +73,17 @@ class LiveLoop:
         self._proposal_seen: set[str] = set()
         self._proposal_outcomes: list[dict] = []
         self._proposal_cb: dict[str, dict] = {}   # G3: token→proposal meta (bounded)
+        # ۲۰۲۶-۰۸-۰۱ — شمارنده حافظه‌دار شد. کامنتِ بالا می‌گوید «in-memory by
+        # design»، و آن استدلال برای **دوباره‌ننوشتنِ منبعِ append-only** درست
+        # است — ولی عارضه‌اش این بود که `proposal_metrics()` بعد از هر ری‌استارت
+        # از صفر شروع می‌کرد. اندازه‌گیریِ ۰۸-۰۱: `proposals_delivered = 0` در
+        # حالی که ارگانیسم روزها بالا بوده.
+        #
+        # پس اولین کارِ واقعیِ مالک **نامرئی** می‌شد: تحویل در انبارِ ماندگار
+        # ثبت می‌شد و شمارنده هیچ‌وقت نمی‌دیدش. این‌جا فقط **خوانده** می‌شود،
+        # هیچ‌چیز بازنویسی نمی‌شود — همان کاری که `_rehydrate_stateless` از قبل
+        # برای توکن‌ها می‌کند.
+        self._rehydrate_proposal_counter()
 
         # W-2: ثبتِ advisory subscribers
         self.bus.subscribe(self._on_advisory, event_type="RHYTHM")
@@ -648,20 +659,235 @@ class LiveLoop:
         except Exception:  # noqa: BLE001 — §۴: ثبتِ رأی هرگز مسیرِ دکمه را نمی‌کشد
             pass
 
-    def proposal_metrics(self) -> dict:
-        """Small near-action metric set for learning loops (G3)."""
+    REHYDRATE_FLAG = "OCTOPUS_PROPOSAL_COUNTER_DURABLE"
+
+    def _rehydrate_proposal_counter(self) -> dict:
+        """شمارندهٔ پیشنهاد را از انبارِ ماندگار پر کن. فقط خواندن.
+
+        چرا لازم شد (اندازه‌گیریِ ۲۰۲۶-۰۸-۰۱): `proposal_metrics()` روی یک لیستِ
+        درون‌حافظه‌ای می‌نشیند که هر ری‌استارت خالی‌اش می‌کند، و لولهٔ لید تحویل
+        را در `proposal_registry` می‌نویسد و **هرگز** به این لیست اضافه نمی‌کند.
+        نتیجه: `proposals_delivered = 0` برای همیشه، هرچقدر هم کارِ واقعی برود.
+        یعنی اولین موفقیتِ واقعیِ مالک دیده نمی‌شد.
+
+        فلگ‌خاموش = رفتارِ امروز، بایت‌به‌بایت (لیست خالی می‌ماند).
+
+        ⚠️ `event_type` انبار با `event` این لیست یکی نیست: انبار
+        `delivered|rejected|accepted_measurement|…` می‌نویسد و این‌جا فقط دو
+        شکل خوانده می‌شود (`delivered` و `outcome`). نگاشت صریح است تا یک
+        نامِ ناشناخته بی‌صدا به‌عنوانِ تحویل شمرده نشود.
+        """
+        # ⚠️ importِ محلی، طبقِ قراردادِ خودِ این فایل (چهار جای دیگر `_os` را
+        # همین‌طور می‌گیرند). نسخهٔ اولِ من `os` سطحِ ماژول اضافه کرد و در همان
+        # لحظه دیدم که این فایل اصلاً `os` را import نمی‌کند — یعنی چک کردنِ
+        # فلگ **بیرونِ** try یک `NameError` در `__init__` می‌شد و کلِ حلقهٔ
+        # زنده بالا نمی‌آمد.
+        import os as _os  # noqa: WPS433
+        if str(_os.environ.get(self.REHYDRATE_FLAG, "")).strip().lower() not in (
+                "1", "true", "yes", "on"):
+            return {"rehydrated": 0, "reason": "flag-off"}
+        try:
+            _op = str(_HERE / "outcomes")
+            if _op not in sys.path:
+                sys.path.insert(0, _op)
+            import proposal_registry as _pr  # noqa: WPS433
+            store = _pr._open_store()
+            if store is None:
+                return {"rehydrated": 0, "reason": "no-store"}
+            rows = store.events()
+        except Exception:  # noqa: BLE001 — شمارنده هرگز بوت را نمی‌کشد
+            return {"rehydrated": 0, "reason": "error"}
+        # ⚠️ `accepted-measurement` با **خط تیره** — همان چیزی که
+        # `outcome_store.EVENT_TYPES` واقعاً می‌پذیرد (خطِ ۲۷). نسخهٔ اولِ من
+        # زیرخط نوشت و چون انبار هرگز آن شکل را ذخیره نمی‌کند، **هیچ نتیجه‌ای
+        # هرگز شمرده نمی‌شد** — فیکس بی‌صدا نصفه می‌ماند. تست گرفتش.
+        # `metrics()` خودِ انبار (خطِ ۱۳۴) هم `-` را به `_` تبدیل می‌کند، که
+        # همان تلهٔ املایی را می‌سازد.
+        _POS = {"accepted-measurement": "approved", "rejected": "rejected"}
+        n = 0
+        for r in rows:
+            et = str(r.get("event_type") or "")
+            pid = str(r.get("proposal_id") or "")
+            if et == "delivered":
+                if pid:
+                    self._proposal_seen.add(pid)
+                self._proposal_outcomes.append({
+                    "event": "delivered", "proposal_id": pid,
+                    "sent": bool(r.get("lead_id")),   # لیدِ واقعی = ارسالِ واقعی
+                    "leg_id": r.get("leg_id"), "_durable": True})
+                n += 1
+            elif et in _POS:
+                self._proposal_outcomes.append({
+                    "event": "outcome", "proposal_id": pid,
+                    "verdict": _POS[et],
+                    "value_aud": float(r.get("value_aud_claimed") or 0.0),
+                    "_durable": True})
+                n += 1
+        try:
+            store.close()
+        except Exception:  # noqa: BLE001
+            pass
+        return {"rehydrated": n, "rows": len(rows)}
+
+    # ── C7 (گامِ ۱۷ ِ UNIFICATION-DESIGN-2026-08-03): منبعِ `proposal_metrics` ──
+    #
+    # چرا: تا امروز این اعداد **فقط** از `self._proposal_outcomes` می‌آمدند — یک
+    # لیستِ درون‌حافظه‌ای که هر ری‌استارت خالی‌اش می‌کند و تنها با فلگِ
+    # `OCTOPUS_PROPOSAL_COUNTER_DURABLE` از `proposal_registry` پر می‌شود. آن فلگ
+    # خاموش است، پس `ORGANISM-STATE.json` صفرِ مطلق منتشر می‌کند در حالی که
+    # چرخهٔ عمرِ واقعی (`lifecycle_fold.fold`) ۴۱ کارتِ تحویل‌شده و ۲۱ تصمیم
+    # می‌شمارد. همان شکستِ «منبعِ اشتباه»، یک لایه بالاتر.
+    #
+    # پلهٔ سایه (خواستهٔ صریحِ طرح، نه تزئین): `goal_directed._baseline_metrics()`
+    # هفته‌هاست در برابرِ همان صفرها تفاضل می‌گیرد و `measure()` با
+    # `now[k] > oldest[k]` رأی می‌دهد؛ یک پرشِ ۰→۴۱ هر نیتِ بازِ ثبت‌شده را
+    # یک‌جا «moved» اعلام می‌کند — یک موفقیتِ جعلی که تا `outcomes.jsonl` و
+    # `calibration_probe` سفر می‌کند. پس حتی وقتی مالک منبع را عوض می‌کند،
+    # **چرخهٔ اولِ بعد از ری‌استارت هنوز عددِ قدیمی را منتشر می‌کند** و فقط
+    # قدیم/جدید را کنارِ هم می‌گذارد؛ از چرخهٔ دوم عدد جابه‌جا می‌شود.
+    #
+    # صفر نویسندهٔ دوم: همان کلید، همان زنجیره (brain_worker → latch →
+    # organism._write_state). این‌جا فقط منبعِ عدد عوض می‌شود.
+
+    PM_SOURCE_FLAG = "OCTOPUS_PROPOSAL_METRICS_SOURCE"
+    #: «off» = رفتارِ بایت‌به‌بایتِ پیش از C7 · «shadow» (پیش‌فرض) = عددهای منتشرشده
+    #: دست‌نخورده‌اند ولی حقیقتِ چرخهٔ عمر کنارشان می‌نشیند · «lifecycle» = رأیِ
+    #: مالک: پس از یک چرخهٔ سایه، عددها از fold می‌آیند.
+    PM_MODES = ("off", "shadow", "lifecycle")
+    #: حداقل چرخهٔ سایه پیش از جایگزینیِ کلید. `0` یعنی پلهٔ سایه وجود ندارد.
+    PM_SHADOW_MIN_CYCLES = 1
+    #: `lifecycle_fold` هر بار `pending_card_recovery._rfc_con()` را باز می‌کند و آن
+    #: روی هر باز شدن `mkdir` + `CREATE TABLE IF NOT EXISTS` + WAL می‌زند —
+    #: هشدارِ صریحِ خودِ C1. ریتمِ اعلام‌شدهٔ fold شش ساعت است؛ این memo چند
+    #: دقیقه‌ای بسیار تنگ‌تر از آن است و اثرِ جانبیِ هر-تیک را حذف می‌کند.
+    PM_LIFECYCLE_TTL_S = 300.0
+    #: کلیدهایی که در حالتِ `lifecycle` منبعشان عوض می‌شود.
+    PM_LIFECYCLE_KEYS = ("proposals_delivered", "proposal_outcomes", "proposals_effected")
+    #: کلیدهایی که **مشتقِ** کلیدهای بالا هستند و با عوض‌شدنِ منبع بی‌معنا
+    #: می‌شوند. «۰٪ از ۲۱ تصمیم» دقیقاً همان دروغی است که این جزء آمده پاکش کند،
+    #: پس به‌جای عددِ کهنه `None` منتشر می‌شود — نبودِ داده، نه صفرِ ساختگی.
+    PM_DERIVED_KEYS = ("proposals_fake_delivered", "proposal_accept_rate")
+
+    def _pm_mode(self) -> str:
+        import os as _os   # noqa: WPS433 — قراردادِ importِ محلیِ همین فایل
+        raw = str(_os.environ.get(self.PM_SOURCE_FLAG, "")).strip().lower()
+        return raw if raw in self.PM_MODES else "shadow"
+
+    def _pm_state_dir(self):
+        """ذخیرهٔ حالت: `<OPS_DIR>/state` — همان قراردادِ env که بقیهٔ ارگانیسم
+        مسیرِ حالت را از آن می‌سازد، ولی بدونِ importِ لایهٔ تولیدی.
+
+        نامِ آن ماژول عمداً این‌جا نوشته نمی‌شود: گاردِ خطِ قرمزِ این فایل
+        (`test_live_loop.t_no_production_import`) متنِ سورس را می‌گردد و
+        یک کامنت را هم مثلِ import می‌شمارد."""
+        import os as _os   # noqa: WPS433
+        ops = _os.environ.get("OPS_DIR")
+        if ops:
+            return Path(ops) / "state"
+        sd = _os.environ.get("OCTOPUS_STATE_DIR")
+        return Path(sd) if sd else (_HERE / "state")
+
+    def _pm_lifecycle(self, state_dir=None, _fold=None, _now=None) -> dict:
+        """تاشدگیِ چرخهٔ عمر، memo-شده. هرگز استثنا بیرون نمی‌دهد.
+
+        همیشه dict با کلیدِ `unknown` برمی‌گرداند. `unknown=True` **هیچ عددی حمل
+        نمی‌کند** — منبعِ غایب نباید به صفرِ بی‌صدا تبدیل شود (ناوردیِ ۲ ِ
+        `provenance`). تزریقِ `state_dir`/`_fold` memo را دور می‌زند تا هر مسیرِ
+        تحتِ آزمون ایزوله بماند."""
+        import time as _time   # noqa: WPS433
+        explicit = state_dir is not None or _fold is not None
+        now = float(_now) if _now is not None else _time.monotonic()
+        if not explicit:
+            cached = getattr(self, "_pm_life_cache", None)
+            if cached and (now - cached[0]) < self.PM_LIFECYCLE_TTL_S:
+                return cached[1]
+        out = self._pm_lifecycle_uncached(state_dir, _fold)
+        if not explicit:
+            self._pm_life_cache = (now, out)
+        return out
+
+    def _pm_lifecycle_uncached(self, state_dir=None, _fold=None) -> dict:
+        try:
+            fold = _fold
+            if fold is None:
+                import lifecycle_fold as _lf   # noqa: WPS433 — lazy: بوت را نمی‌کشد
+                fold = _lf.fold
+            got = fold(state_dir if state_dir is not None else self._pm_state_dir())
+        except Exception as e:   # noqa: BLE001 — منبعِ خراب هرگز تیک را نمی‌کشد
+            return {"unknown": True, "reason": type(e).__name__}
+        if not isinstance(got, dict) or not got.get("readable"):
+            return {"unknown": True, "reason": "source-unreadable"}
+        out = {"unknown": False, "source": "lifecycle_fold"}
+        for key in ("delivered", "decided", "effected", "stalled", "proposed"):
+            stamped = got.get(key)
+            # تمبرِ UNKNOWN عمداً کلیدِ `value` ندارد؛ اگر نبود، نبود — صفر نمی‌سازیم.
+            if not isinstance(stamped, dict) or "value" not in stamped:
+                return {"unknown": True, "reason": "no-value:" + key}
+            out[key] = int(stamped["value"])
+        return out
+
+    def proposal_metrics(self, *, _state_dir=None, _fold=None, _now=None) -> dict:
+        """Small near-action metric set for learning loops (G3).
+
+        C7: عددها می‌توانند از `lifecycle_fold` بیایند — ولی هرگز بدونِ عبور از
+        پلهٔ سایه. آرگومان‌های `_state_dir/_fold/_now` فقط برای تزریق در تست‌اند
+        (صداکنندهٔ بی‌آرگومان به ذخیرهٔ زنده می‌خورد)."""
         delivered = [r for r in self._proposal_outcomes if r.get("event") == "delivered"]
         sent = [r for r in delivered if r.get("sent")]
         outcomes = [r for r in self._proposal_outcomes if r.get("event") == "outcome"]
         positive = {"approved", "sent", "paid", "accepted", "won"}
         approved = [r for r in outcomes if r.get("verdict") in positive]
         revenue = sum(float(r.get("value_aud") or 0.0) for r in outcomes)
-        return {"proposals_delivered": len(delivered), "proposal_outcomes": len(outcomes),
-                "proposals_sent": len(sent),
-                "proposals_fake_delivered": len(delivered) - len(sent),
-                "proposal_positive": len(approved),
-                "proposal_accept_rate": (len(approved) / len(outcomes)) if outcomes else 0.0,
-                "proposal_value_aud": round(revenue, 2)}
+        out = {"proposals_delivered": len(delivered), "proposal_outcomes": len(outcomes),
+               "proposals_sent": len(sent),
+               "proposals_fake_delivered": len(delivered) - len(sent),
+               "proposal_positive": len(approved),
+               "proposal_accept_rate": (len(approved) / len(outcomes)) if outcomes else 0.0,
+               "proposal_value_aud": round(revenue, 2)}
+        mode = self._pm_mode()
+        if mode == "off":
+            return out
+        life = self._pm_lifecycle(state_dir=_state_dir, _fold=_fold, _now=_now)
+        # شمارندهٔ سایه فقط **درونی** است و هرگز منتشر نمی‌شود: یک عددِ صعودی
+        # داخلِ کلید، hash ِ `self_knowledge._snapshot_hash` را هر تیک عوض می‌کند
+        # و مسیرِ `cached:no-change` را برای همیشه می‌کشد (همان درسِ «شمارنده در
+        # کلیدِ dedup»). بیرون فقط بیتِ پایدارِ `shadow_complete` می‌رود.
+        cycles = int(getattr(self, "_pm_shadow_cycles", 0)) + 1
+        self._pm_shadow_cycles = cycles
+        if life.get("unknown"):
+            # منبعِ غایب ⇒ نه عددِ تازه، نه صفرِ ساختگی. `proposals_effected`
+            # اصلاً ظاهر نمی‌شود: نبودِ داده حکم نیست.
+            out["lifecycle"] = {"published": "unknown", "source": "lifecycle_fold",
+                                "reason": life.get("reason") or "unknown"}
+            return out
+        compare = {"proposals_delivered": {"old": out["proposals_delivered"],
+                                           "new": life["delivered"]},
+                   "proposal_outcomes": {"old": out["proposal_outcomes"],
+                                         "new": life["decided"]},
+                   # این کلید تا امروز اصلاً وجود نداشت — `old` عمداً None است،
+                   # نه صفر.
+                   "proposals_effected": {"old": None, "new": life["effected"]}}
+        shadow_complete = cycles > self.PM_SHADOW_MIN_CYCLES
+        published = "shadow"
+        if mode == "lifecycle" and shadow_complete:
+            published = "lifecycle"
+            out["proposals_delivered"] = life["delivered"]
+            out["proposal_outcomes"] = life["decided"]
+            for key in self.PM_DERIVED_KEYS:
+                out[key] = None
+        # صریح در هر دو حالت: «صفر اثر» یافتهٔ اصلیِ ۰۸-۰۳ است و پنهان‌کردنش همان
+        # دروغی است که این جزء آمده پاکش کند.
+        out["proposals_effected"] = life["effected"]
+        out["lifecycle"] = {"published": published, "source": "lifecycle_fold",
+                            "shadow_complete": bool(shadow_complete),
+                            "delivered": life["delivered"], "decided": life["decided"],
+                            "effected": life["effected"], "stalled": life["stalled"],
+                            "proposed": life["proposed"],
+                            "keys_from_lifecycle": list(self.PM_LIFECYCLE_KEYS),
+                            "keys_unknown": (list(self.PM_DERIVED_KEYS)
+                                             if published == "lifecycle" else []),
+                            "compare": compare}
+        return out
 
     # ─── W-1: Lead-نقاشی path (همان حلقهٔ واحد) ────────────────────────────────
     def process_lead(self, leg=None, lead_name: str = "", expected_aud: float = 0.0,

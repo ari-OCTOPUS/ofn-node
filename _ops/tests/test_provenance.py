@@ -141,6 +141,49 @@ def t_iso_and_epoch_both_parse():
     assert P.parse_ts(None) is None
 
 
+def t_round_trip_through_the_real_writer():
+    """🔴 گاردِ باگی که یک‌بار زد و یک‌بار برگشت: منطقهٔ زمانیِ نویسنده در برابر خواننده.
+
+    نسخهٔ اولِ `parse_ts` ‏ISO ِ بدونِ منطقه را UTC فرض می‌کرد، ولی نویسندهٔ
+    canonicalِ هر ظرف `opslib.now_iso()` است که **محلیِ بدونِ منطقه** می‌دهد.
+    نتیجه روی دادهٔ زنده: `age_s = -35,879` — و چون `age > 2×cadence` با عددِ
+    منفی هرگز درست نمی‌شود، `HELD` هیچ‌وقت شلیک نمی‌کرد.
+
+    هیچ فیکسچری این را نمی‌گرفت. فقط round-trip از **مسیرِ نویسندهٔ تولیدی**
+    می‌گیردش — درسِ «خواننده و نویسنده را با هم بسنج».
+    """
+    import time as _t
+    sys.path.insert(0, str(_OPS / "budget"))
+    import opslib   # noqa: PLC0415
+
+    written = opslib.now_iso()          # همان چیزی که هر ظرفِ زنده می‌نویسد
+    parsed = P.parse_ts(written)
+    assert parsed is not None, f"خروجیِ نویسندهٔ واقعی پارس نشد: {written!r}"
+    age = _t.time() - parsed
+    assert age >= -2.0, (
+        f"age منفی شد ({age:.0f}s) — خواننده منطقهٔ نویسنده را اشتباه می‌فهمد. "
+        f"نویسنده داد {written!r}")
+    assert age < 120.0, f"age بی‌دلیل بزرگ است: {age:.0f}s"
+
+
+def t_a_stale_vessel_written_by_the_real_writer_is_held():
+    """پیامدِ همان باگ: با ساعتِ درست، ظرفِ کهنه باید واقعاً HELD شود."""
+    import datetime as _dt
+    import time as _t
+    old = (_dt.datetime.now() - _dt.timedelta(minutes=30)).isoformat(timespec="seconds")
+    s = P.stamp(60.0, "heart-shadow-latest.json", old, 285.0, now=_t.time())
+    assert s["age_s"] > 0, f"age هنوز منفی است: {s['age_s']}"
+    assert s["mode"] == P.Mode.HELD, f"ظرفِ ۳۰دقیقه‌ای HELD نشد: {s['mode']}"
+
+
+def t_timezone_aware_strings_keep_their_offset():
+    """رشتهٔ دارای منطقه نباید دوباره تفسیر شود."""
+    utc = P.parse_ts("2026-08-03T00:00:00Z")
+    plus10 = P.parse_ts("2026-08-03T10:00:00+10:00")
+    assert utc is not None and plus10 is not None
+    assert abs(utc - plus10) < 1.0, f"هر دو باید یک لحظه باشند: {utc} vs {plus10}"
+
+
 def t_clock_is_fully_injected():
     """درسِ «ساعتِ نیمه‌تزریقی»: با now ِ تزریقی هیچ شاخه‌ای ساعتِ دیوار نخواند."""
     src = (_OPS / "provenance.py").read_text("utf-8")

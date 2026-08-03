@@ -342,6 +342,17 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_sync_health_unknown.py",
          "test_arbiter_consensus_rule.py",
          "test_state_write_monopoly.py",
+         # ۰۸-۰۳ گام‌های ۱۲–۲۰. برجسته‌ترین یافته حینِ اجرا: `parse_ts` ِ گامِ ۱
+         # ‏ISO ِ بدونِ منطقه را UTC می‌خواند در حالی که `opslib.now_iso()` **محلی**
+         # می‌نویسد ⇒ هر age روی دادهٔ زنده ۱۰ ساعت منفی ⇒ HELD هرگز شلیک نمی‌کرد.
+         # همان کلاسِ باگِ ثبت‌شده («UTC در نویسنده، محلی در خواننده»). گاردش
+         # round-trip از مسیرِ نویسندهٔ تولیدی است، نه فیکسچر.
+         "test_scanner_provenance.py",
+         "test_card_spec_contract.py",
+         "test_reconcile_card.py",
+         "test_proposal_metrics_honesty.py",
+         "test_miniapp_lifecycle_view.py",
+         "test_owner_debt.py",
          # ۰۸-۰۳ گام‌های ۴ و ۵. گام ۴: اسکنِ نقشه هرگز والت را ندیده بود — سقفش در
          # محلِ فراخوانی هاردکد بود و `.claude` استثنا نشده بود، پس ۴۹٬۹۳۹ از ۵۰٬۰۰۰
          # رکورد نُه رونوشتِ کهنهٔ والت زیرِ worktreeها بودند. گام ۵: `_sha256_file`

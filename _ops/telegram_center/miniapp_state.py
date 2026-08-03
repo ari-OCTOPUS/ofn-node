@@ -231,23 +231,36 @@ def get_ui_registry(root: "Path | None" = None) -> dict:
 
 
 def get_ops_state(root: "Path | None" = None) -> dict:
-    """Ops Studio local summary: leads/tasks/value from local SQLite."""
+    """Ops Studio local summary: leads/tasks/value + owner-auth + action registry.
+
+    اضافه‌شده (Wave 1 plan §read-model): فیلدهای `owner_auth` و `actions.registry`
+    مستقیماً از خودِ موتور خوانده می‌شوند، نه کپیِ دستی — تا اگر اکشنی به
+    `ALLOWED_ACTIONS`/`BLOCKED_PREFIXES` اضافه شد، این سطح همانیِ خودکار داشته باشد.
+    """
     try:
         import sys as _sys
         ops_path = str(_OPS)
         if ops_path not in _sys.path:
             _sys.path.insert(0, ops_path)
-        from agi2027_control.ops_actions import OpsActionEngine  # noqa: WPS433
+        from agi2027_control.ops_actions import (  # noqa: WPS433
+            ALLOWED_ACTIONS,
+            BLOCKED_PREFIXES,
+            OpsActionEngine,
+        )
         eng = OpsActionEngine(_ROOT)
         try:
             out = eng.summary()
+            has_bot = bool(os.environ.get("TG_CENTER_BOT_TOKEN"))
+            has_owner = bool(os.environ.get("TELEGRAM_OWNER_CHAT_ID"))
+            out["owner_auth"] = {
+                "configured": has_bot and has_owner,
+                "bot_token": "set" if has_bot else "missing",
+                "owner_id": "set" if has_owner else "missing",
+            }
             out["actions"] = {
                 "enabled_when": "owner-auth configured + Telegram initData valid",
-                "safe_local_actions": [
-                    "lead.create", "lead.add_note", "lead.update_stage",
-                    "task.create", "task.done", "value.record_event",
-                ],
-                "blocked_external_automation": ["onlyfans.*", "fansly.*", "mass_message", "cookie_import"],
+                "registry": sorted(ALLOWED_ACTIONS),
+                "blocked_prefixes": list(BLOCKED_PREFIXES),
             }
             return _scrub_dict(out)
         finally:
@@ -280,6 +293,211 @@ def _git_head_short(root: "Path | None" = None) -> str:
         return "unknown"
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# C6 — نمای **خواندنیِ** چرخهٔ عمرِ تصمیم (UNIFICATION-DESIGN-2026-08-03، گامِ ۱۹)
+#
+# مینی‌اپ یک سطحِ **خواندنیِ اضافی** است و حق ندارد به صفحهٔ فرمانِ دوم تبدیل
+# شود. پس این بخش عمداً سه قید دارد:
+#
+#   ۱. هیچ verb ِ نوشتنی. نه POST، نه PUT، نه DELETE، نه هیچ effector. دیوارِ
+#      405 ِ `miniapp_gateway._handle_core` دست‌نخورده می‌ماند و تستِ خواهرِ
+#      این ماژول متنِ آن دیوار را بایت‌به‌بایت pin می‌کند.
+#   ۲. whitelist ِ سختِ بدنه: فقط **شمارش و timestamp**. صفر متنِ کارت، صفر
+#      هویتِ مالک، صفر مادهٔ توکن. `pending-cards.json` روی درختِ زنده این
+#      فیلدها را دارد: token_sha256 / nonce / owner / summary / expires_at —
+#      و تنها مقصدِ تونلِ cloudflared همین gateway است، پس یک باگِ projection
+#      این تونل را به سطحِ اعتبارنامه تبدیل می‌کند. دو دیوارِ مستقل: ساختِ
+#      گزینشی، به‌علاوهٔ `_lifecycle_enforce` که هر کلید/رشتهٔ ممنوع را
+#      **استثنا** می‌کند (نه sanitize ِ بی‌صدا).
+#   ۳. غیاب ⇒ UNKNOWN، هرگز صفر. یک ذخیرهٔ غایب و «صفر کارتِ راکد» دو چیزِ
+#      متفاوت‌اند؛ stampِ UNKNOWN عمداً کلیدِ `value` ندارد.
+#
+# فلگ: `OCTOPUS_PF_MINIAPP` (پیش‌فرض خاموش — رأیِ مالک، گامِ ۲۴). خاموش یعنی
+# مسیر اصلاً وجود ندارد (۴۰۴) و این ماژول حتی یک فایل هم باز نمی‌کند.
+LIFECYCLE_FLAG = "OCTOPUS_PF_MINIAPP"
+LIFECYCLE_PATH = "/api/lifecycle"
+#: ریتمِ اعلام‌شدهٔ همان تاشدگی (lifecycle_fold.CADENCE_S) — کارت‌ها رویدادمحورند.
+LIFECYCLE_CADENCE_S = 6 * 3600.0
+
+#: تنها شمارش‌هایی که project می‌شوند.
+LIFECYCLE_COUNTS = ("proposed", "delivered", "decided", "effected",
+                    "stalled", "unknown", "reconcile_required")
+#: تنها زیرکلیدهایی که از یک stampِ provenance عبور می‌کنند.
+LIFECYCLE_STAMP_KEYS = ("value", "mode", "reason", "source",
+                        "observed_ts", "age_s", "cadence_s", "dof")
+#: زیررشته‌های ممنوع (case-insensitive) در **هر** کلید یا رشتهٔ خروجی.
+#: قاعدهٔ #۷ منشور: بیرون از مرزِ پروژه فقط aggregate ِ بی‌محتوا.
+LIFECYCLE_FORBIDDEN = ("token", "nonce", "summary", "owner", "chat",
+                       "user", "secret", "rfc_id", "expires", "verdict")
+#: مسیرهای اعلام‌شدهٔ منبع. عمداً یک allowlist ِ **دقیق** است نه یک اسکنِ
+#: زیررشته‌ای: نامِ فایلِ دفترِ حکم‌ها خودش شاملِ «verdict» است، ولی یک مسیرِ
+#: ثابتِ کدنویسی‌شده هرگز محتوای کارت نیست. هر رشتهٔ دیگری که ادعای منبع کند
+#: به `unlisted-source` تقلیل می‌یابد — پس یک مسیرِ مشتق‌شده از داده نمی‌تواند
+#: از این در بیرون برود.
+LIFECYCLE_DECLARED_SOURCES = (
+    "_ops/state/pulse/pending-cards.json",
+    "_ops/state/doctor/rfc-verdicts.db::rfc_decision",
+)
+_LIFECYCLE_FALLBACK_SOURCE = LIFECYCLE_DECLARED_SOURCES[0]
+
+
+def lifecycle_enabled() -> bool:
+    """فلگِ پیش‌فرض‌خاموش. خاموش = no-op مطلق (هیچ فایلی باز نمی‌شود)."""
+    return os.environ.get(LIFECYCLE_FLAG, "0") == "1"
+
+
+def _lifecycle_state_dir(root: "Path | None" = None,
+                         state_dir: "Path | None" = None) -> Path:
+    """`state_dir` صریح برنده است. پیش‌فرضِ ضمنی به ذخیرهٔ **زنده** می‌خورد."""
+    if state_dir is not None:
+        return Path(state_dir)
+    if root is not None:
+        return Path(root) / "_ops" / "state"
+    return Path(STATE_DIR)
+
+
+def _lifecycle_forbidden_hit(text: Any) -> str:
+    low = str(text).lower()
+    for bad in LIFECYCLE_FORBIDDEN:
+        if bad in low:
+            return bad
+    return ""
+
+
+def _lifecycle_enforce(node: Any, where: str = "$") -> Any:
+    """دیوارِ دومِ whitelist: هر کلید/رشتهٔ ممنوع **استثنا** می‌دهد.
+
+    عمداً raise و نه sanitize: یک نشتِ خاموشِ پاک‌شده همان باگ را فردا
+    برمی‌گرداند، ولی یک ۵۰۰ ِ بلند صداکننده را می‌شکند. صداقتِ fail-closed.
+    """
+    if isinstance(node, dict):
+        for k, v in node.items():
+            hit = _lifecycle_forbidden_hit(k)
+            if hit:
+                raise ValueError(f"lifecycle projection leaked key {where}.{k} (~{hit})")
+            _lifecycle_enforce(v, f"{where}.{k}")
+        return node
+    if isinstance(node, (list, tuple)):
+        for i, v in enumerate(node):
+            _lifecycle_enforce(v, f"{where}[{i}]")
+        return node
+    if isinstance(node, str):
+        hit = _lifecycle_forbidden_hit(node)
+        if hit:
+            raise ValueError(f"lifecycle projection leaked text at {where} (~{hit})")
+        return node
+    if node is None or isinstance(node, (int, float, bool)):
+        return node
+    raise ValueError(f"lifecycle projection carries {type(node).__name__} at {where}")
+
+
+def _lifecycle_safe_sources(sources: Any) -> list:
+    """فقط مسیرهای اعلام‌شده عبور می‌کنند؛ هر رشتهٔ دیگر `unlisted-source`."""
+    out = []
+    for s in (sources or []):
+        out.append(str(s) if str(s) in LIFECYCLE_DECLARED_SOURCES else "unlisted-source")
+    return out or [_LIFECYCLE_FALLBACK_SOURCE]
+
+
+def _lifecycle_prov():
+    """`provenance` را تنبل import می‌کند — ماژولِ خالصِ بی‌مسیر و بی‌نوشتن."""
+    import provenance as _prov  # noqa: WPS433 — _OPS از قبل روی sys.path است
+    return _prov
+
+
+def _lifecycle_stamp_view(stamped: Any) -> dict:
+    """یک stamp را به زیرمجموعهٔ whitelist تقلیل می‌دهد. UNKNOWN بی‌`value`."""
+    if not isinstance(stamped, dict):
+        return {"mode": "UNKNOWN", "reason": "not-a-stamp"}
+    out = {k: stamped[k] for k in LIFECYCLE_STAMP_KEYS if k in stamped}
+    if out.get("mode") == "UNKNOWN":
+        out.pop("value", None)          # ناوردیِ ۲ ِ provenance
+    return out
+
+
+def _lifecycle_count_stamp(n: Any, source: str, ts_now: float) -> dict:
+    """شمارش را تمبر می‌زند. `None`/منفی ⇒ UNKNOWN — هرگز صفر."""
+    prov = _lifecycle_prov()
+    try:
+        value = None if n is None else int(n)
+    except (TypeError, ValueError):
+        value = None
+    if value is not None and value < 0:
+        value = None                    # قراردادِ `-1` ِ stalled_cards = UNKNOWN
+    return prov.stamp(value, source, ts_now, LIFECYCLE_CADENCE_S, now=ts_now)
+
+
+def get_lifecycle_state(root: "Path | None" = None,
+                        state_dir: "Path | None" = None, *,
+                        now: "float | None" = None,
+                        _fold=None, _stalled=None) -> dict:
+    """نمای خواندنیِ «این تصمیم کجاست» — فقط شمارش و timestamp.
+
+    منبع: `_ops/lifecycle_fold.fold()` (همان مدلِ خواندنِ C1). عددِ `stalled`
+    و `oldest_stalled_ts` عمداً از `stalled_cards()` می‌آیند نه از fold: آن
+    مسیر **فقط** فایلِ کارت‌ها را می‌خواند و به دفترِ حکم‌ها دست نمی‌زند، پس
+    عددی که کارتِ مالک را می‌سازد به هیچ side-effect ی وابسته نیست و دقیقاً
+    با پروبِ C2 برابر می‌ماند.
+    """
+    if not lifecycle_enabled():
+        # قراردادِ pf_miniapp: فلگ خاموش ⇒ مسیر وجود ندارد و صفر فایل باز می‌شود.
+        return {"status": "disabled", "flag": LIFECYCLE_FLAG,
+                "reason": "flag-off: nothing was read"}
+
+    fold_fn, stalled_fn = _fold, _stalled
+    if fold_fn is None or stalled_fn is None:
+        import lifecycle_fold as _lf  # noqa: WPS433 — تنبل: خطای import مسیرِ دیگر را نکشد
+        fold_fn = fold_fn or _lf.fold
+        stalled_fn = stalled_fn or _lf.stalled_cards
+
+    sd = _lifecycle_state_dir(root, state_dir)
+    import time as _time  # noqa: WPS433
+    ts_now = float(now) if now is not None else _time.time()
+
+    folded = fold_fn(sd, now=ts_now)
+    n_stalled, oldest, total = stalled_fn(sd, now=ts_now)
+
+    sources = _lifecycle_safe_sources(folded.get("sources"))
+    src0 = _LIFECYCLE_FALLBACK_SOURCE
+    readable = bool(folded.get("readable"))
+
+    counts = {}
+    for name in LIFECYCLE_COUNTS:
+        counts[name] = _lifecycle_stamp_view(folded.get(name))
+    # «راکد» از پروبِ بی‌DB — همان عددی که C2 منتشر می‌کند.
+    counts["stalled"] = _lifecycle_stamp_view(
+        _lifecycle_count_stamp(n_stalled, src0, ts_now))
+
+    by_stage: dict
+    if readable and isinstance(folded.get("by_stage"), dict):
+        by_stage = {"mode": "LIVE", "source": src0,
+                    "value": {str(k): int(v) for k, v in folded["by_stage"].items()}}
+    else:
+        by_stage = {"mode": "UNKNOWN", "reason": "store-unreadable", "source": src0}
+
+    if oldest is None:
+        oldest_view = {"mode": "UNKNOWN", "reason": "no-timestamp", "source": src0}
+    else:
+        oldest_view = {"mode": "LIVE", "source": src0, "value": float(oldest)}
+
+    out = {
+        "status": "ok",
+        "flag": LIFECYCLE_FLAG,
+        "readable": readable,
+        "counts": counts,
+        "by_stage": by_stage,
+        "oldest_stalled_ts": oldest_view,
+        "total_cards": _lifecycle_stamp_view(
+            _lifecycle_count_stamp(total if n_stalled is not None and int(n_stalled) >= 0
+                                   else None, src0, ts_now)),
+    }
+    _lifecycle_enforce(out)
+    # `sources` پس از دیوار سوار می‌شود چون allowlist ِ دقیقِ خودش را دارد
+    # (نامِ فایلِ دفترِ حکم‌ها شاملِ «verdict» است ولی محتوای کارت نیست).
+    out["sources"] = sources
+    return out
+
+
 # dispatcher برای gateway
 def dispatch_api(path: str, root: "Path | None" = None) -> "tuple[int, bytes, str]":
     """GET /api/* dispatcher. خروجی: (status, body_bytes, content_type)."""
@@ -293,9 +511,13 @@ def dispatch_api(path: str, root: "Path | None" = None) -> "tuple[int, bytes, st
         "/api/ui-registry": get_ui_registry,
         "/api/current-truth": get_current_truth,
         "/api/ops": get_ops_state,
+        LIFECYCLE_PATH: get_lifecycle_state,
     }
     fn = handlers.get(p)
     if fn is None:
+        return 404, b'{"status":"not_found"}', "application/json; charset=utf-8"
+    if p == LIFECYCLE_PATH and not lifecycle_enabled():
+        # فلگ خاموش ⇒ مسیر **وجود ندارد**؛ همان قراردادِ pf_miniapp، نه ۲۰۰ ِ تهی.
         return 404, b'{"status":"not_found"}', "application/json; charset=utf-8"
     try:
         data = fn(root)

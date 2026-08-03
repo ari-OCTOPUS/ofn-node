@@ -827,14 +827,34 @@ def ack_rfc_verdict(*, state_dir, rfc_id, revision, applied, receipt_id="") -> b
 
 
 def mark_rfc_consumed(*, state_dir, rfc_id) -> bool:
-    """Legacy compatibility: claim then terminally acknowledge a deny-only/read consumption."""
-    claims = claim_rfc_verdicts(state_dir=state_dir, worker_id="legacy-pop", lease_s=60)
-    hit = [x for x in claims if x[0] == str(rfc_id)]
-    if not hit:
-        return False
-    rid, verdict, rev = hit[0]
-    return ack_rfc_verdict(state_dir=state_dir, rfc_id=rid, revision=rev,
-                           applied=False, receipt_id="")
+    """RETIRED 2026-08-03 (بازنشسته — گامِ ۱۴ ِ UNIFICATION-DESIGN، جزءِ C5).
+
+    این میان‌بر همان مسیری است که هر ۲۱ پایانهٔ بی‌رسیدِ درختِ زنده را ساخت: با
+    `applied=False` و `receipt_id=""` صدا می‌زد و **هرگز** `begin_rfc_apply` را
+    نمی‌پیمود، پس `operation_key` هم `NULL` می‌ماند. نتیجه طبقِ طراحیِ خودِ
+    `ack_rfc_verdict` وضعیتِ `RECONCILE_REQUIRED` بود — یعنی مالک تصمیم می‌گرفت و
+    هیچ اثری ثبت نمی‌شد.
+
+    نکتهٔ مهم: مکانیزمِ رسید هرگز خراب نبود. `ack_rfc_verdict` از قبل fail-closed
+    است و برای `APPLIED` هم `receipt_id` ِ ناتهی می‌خواهد هم `operation_key`. مسیر
+    فقط هیچ‌وقت **پیموده** نشد. پس این تابع حذف نمی‌شود (قاعدهٔ «هرگز حذف نکن») ولی
+    دیگر پایانه نمی‌سازد: صریح رد می‌کند تا صداکنندهٔ احتمالی خطا را ببیند، نه یک
+    ردیفِ بی‌رسیدِ دیگر.
+
+    مسیرِ درست: `record_rfc_card` → `persist_rfc_verdict` → `claim_rfc_verdicts`
+    → `begin_rfc_apply(operation_key=...)` → `ack_rfc_verdict(receipt_id=...)`.
+    """
+    # هشدار fail-soft: این ماژول عمداً opslib را در سطحِ ماژول import نمی‌کند (مسیرِ
+    # پول، وابستگیِ سبک). نبودنش نباید ردکردن را بشکند — ردکردن خودش قرارداد است.
+    try:
+        sys.path.insert(0, str(_HERE.parent / "budget"))
+        import opslib as _ops_lib   # noqa: PLC0415
+        _ops_lib.alert("rfc-legacy-consume-refused",
+                       f"mark_rfc_consumed بازنشسته است (rfc={rfc_id}); "
+                       "مسیرِ رسیددار را بپیمایید — C5")
+    except Exception:  # noqa: BLE001
+        pass
+    return False
 
 
 def load_rfc_verdicts(state_dir) -> dict:
@@ -850,13 +870,17 @@ def load_rfc_verdicts(state_dir) -> dict:
             # از «تصمیم ثبت شد» جدا کرد — و همین تفاوت کلِ یافتهٔ ۰۸-۰۳ است:
             # هر ۲۱ ردیف در RECONCILE_REQUIRED با receipt_id='' نشسته‌اند، یعنی
             # مالک ۲۱ بار تصمیم گرفت و صفر اثر ثبت شد. کلیدهای قبلی دست‌نخورده‌اند.
-            for rid, verdict, rev, state, receipt, opkey in con.execute(
-                    "SELECT rfc_id,verdict,revision,state,receipt_id,operation_key "
-                    "FROM rfc_decision"):
+            for rid, verdict, rev, state, receipt, opkey, uts in con.execute(
+                    "SELECT rfc_id,verdict,revision,state,receipt_id,operation_key,"
+                    "updated_ts FROM rfc_decision"):
                 out[rid] = {"verdict": verdict, "revision": int(rev), "state": state,
                             "consumed": state in ("APPLIED", "REJECTED"),
                             "receipt_id": receipt or "",
-                            "operation_key": opkey or ""}
+                            "operation_key": opkey or "",
+                            # `updated_ts` لازم است تا «چند وقت است اینجا مانده»
+                            # محاسبه شود. بدونش سنِ بدهی None می‌شود و کارتِ
+                            # تجمیعی نمی‌تواند بگوید قدیمی‌ترین چند روزه است.
+                            "updated_ts": uts}
         finally:
             con.close()
     except Exception:

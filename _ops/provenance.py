@@ -84,11 +84,28 @@ class Mtime(float):
     __slots__ = ()
 
 
-def parse_ts(value):
+def parse_ts(value, naive_is_local=True):
     """ISO-8601 یا epoch را به epoch-float تبدیل می‌کند. ناموفق ⇒ None.
 
     هر دو شکل در این ارگانیسم زنده‌اند: `heart-signals`/`heart-shadow`/
     `heartstate` رشتهٔ ISO می‌دهند، `heart-card-state`/`work-state` اپاکِ float.
+
+    ── چرا `naive_is_local=True` (فیکسِ ۲۰۲۶-۰۸-۰۳) ──────────────────────────
+    نسخهٔ اولِ همین تابع timestampِ بدونِ منطقه را **UTC** فرض می‌کرد. نویسندهٔ
+    canonicalِ هر ظرفِ این درخت `opslib.now_iso()` است که دقیقاً
+    `datetime.datetime.now().isoformat(timespec="seconds")` می‌دهد — یعنی
+    **محلیِ بدونِ منطقه** (سیدنی، +۱۰). نتیجه: هر `age_s` روی دادهٔ زنده
+    **منفیِ ~۳۵٬۸۰۰ ثانیه** می‌شد و چون `age > 2×cadence` هرگز با عددِ منفی
+    درست نمی‌شود، **`HELD` روی دادهٔ زنده هیچ‌وقت شلیک نمی‌کرد** — دقیقاً همان
+    کوری‌ای که این ماژول آمده رفعش کند.
+
+    این همان کلاسِ باگِ ثبت‌شده در تاریخِ همین ارگانیسم است: «UTC در نویسنده،
+    محلی در خواننده» که یک‌بار سقفِ پول را ده ساعت در روز کور کرد. فیکسچر آن را
+    نمی‌گیرد؛ فقط round-trip از مسیرِ **نویسندهٔ تولیدی** می‌گیردش — و تستِ
+    `t_round_trip_through_the_real_writer` دقیقاً همین کار را می‌کند.
+
+    رشتهٔ دارای منطقه (پسوندِ `Z` یا `+10:00`) دست‌نخورده می‌ماند؛ فقط شکلِ
+    naive تفسیر می‌شود.
     """
     if value is None or isinstance(value, bool):
         return None
@@ -111,6 +128,10 @@ def parse_ts(value):
     except ValueError:
         return None
     if parsed.tzinfo is None:
+        if naive_is_local:
+            # `.timestamp()` روی یک datetimeِ naive، آن را در منطقهٔ **محلی**
+            # تفسیر می‌کند — که همان چیزی است که `opslib.now_iso()` نوشته.
+            return parsed.timestamp()
         parsed = parsed.replace(tzinfo=timezone.utc)
     return parsed.timestamp()
 

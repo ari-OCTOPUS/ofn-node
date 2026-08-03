@@ -189,7 +189,12 @@ with tempfile.TemporaryDirectory() as td:
           all("provenance" in m for m in M.values()), f"{len(M)} سنجه")
     check("سنجه‌های درون‌زاد به‌درستی برچسب می‌خورند",
           all(M[k]["provenance"] == "درون‌زاد"
-              for k in ("beat","velocity_per_hr","innervation_pct","self_awareness_pct")))
+              # ۲۰۲۶-۰۸-۰۳ (گامِ ۱۲): نامِ سنجه‌ای که *دکتر منتشر می‌کند* از
+              # `self_awareness_pct` به `docstring_coverage_pct` رفت، چون دو کمیتِ
+              # کاملاً نامرتبط یک نام داشتند: یک عددِ یخ‌زدهٔ کنترل‌پلین، و پوششِ
+              # docstring روی `_ops/`. کلیدِ داخلِ خودِ `self-model.json` (خطِ ۱۵۹
+              # بالا) عمداً دست‌نخورده ماند — ۱۲+ خواننده دارد.
+              for k in ("beat","velocity_per_hr","innervation_pct","docstring_coverage_pct")))
     check("سنجه‌های برون‌زاد با درون‌زاد قاطی نمی‌شوند",
           M["confirmed_revenue"]["provenance"] == "برون‌زاد"
           and M["memory_rows"]["provenance"] == "برون‌زاد")

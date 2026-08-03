@@ -163,9 +163,30 @@ def t_state_dir_is_mandatory():
 
 
 def t_module_writes_nothing():
-    src = (_OPS / "lifecycle_fold.py").read_text("utf-8")
-    for forbidden in ("write_text(", "open(", "json.dump", "mkdir("):
-        assert forbidden not in src, f"lifecycle_fold باید صفر نوشتن باشد، ولی {forbidden} دارد"
+    """با AST، نه با grepِ متن — یک نام در docstring نوشتن نیست."""
+    tree = ast.parse((_OPS / "lifecycle_fold.py").read_text("utf-8"))
+    called = _calls_in(tree)
+    # `replace` و `rename` عمداً در این فهرست **نیستند**: نامِ برهنه‌شان با
+    # `str.replace` تصادم دارد و همین تست یک بار روی `str(db).replace("\\","/")`
+    # قرمز شد — همان باگِ تصادمِ نامِ برهنه که در `orphan_scan` هم دهان باز کرده
+    # بود. جای‌گزینی‌های فایل‌سیستمی جدا و با نامِ کامل سنجیده می‌شوند.
+    forbidden = {"write_text", "write_bytes", "mkdir", "dump", "touch", "unlink",
+                 "makedirs", "rmtree", "copy", "copy2"}
+    bad = called & forbidden
+    assert not bad, f"lifecycle_fold این‌ها را صدا می‌زند: {sorted(bad)}"
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) \
+                and node.func.attr in ("replace", "rename", "move") \
+                and isinstance(node.func.value, ast.Name) \
+                and node.func.value.id in ("os", "shutil", "Path"):
+            raise AssertionError(f"جای‌گزینیِ فایل‌سیستمی: {node.func.value.id}.{node.func.attr}")
+    # `open` فقط اگر با حالتِ نوشتن باشد ممنوع است
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and getattr(node.func, "id", None) == "open":
+            mode = ""
+            if len(node.args) > 1 and isinstance(node.args[1], ast.Constant):
+                mode = str(node.args[1].value)
+            assert not any(c in mode for c in "wax+"), f"open با حالتِ نوشتن: {mode!r}"
 
 
 def t_load_rfc_verdicts_now_has_an_external_production_caller():
@@ -191,6 +212,53 @@ def t_load_rfc_verdicts_now_has_an_external_production_caller():
     assert external, ("load_rfc_verdicts هنوز صفر صداکنندهٔ بیرونی دارد؛ "
                       f"همهٔ صداکننده‌ها داخلی‌اند: {callers}")
     assert "lifecycle_fold.py" in external, external
+
+
+def t_fold_on_the_live_store_creates_no_files():
+    """🔴 ادعا از سنجه بزرگ‌تر بود: fold روی **خودِ** state ِ زنده هم نباید چیزی بسازد.
+
+    تستِ زیر فقط ثابت می‌کرد اجرا روی **فیکسچر** به state ِ زنده دست نمی‌زند — که
+    ادعای ضعیف‌تری است. دو لِینِ مستقل کشف کردند مسیرِ ساده به
+    `pcr._rfc_con()` می‌رسد که `mkdir` + WAL + `CREATE TABLE` می‌زند، یعنی یک
+    سطحِ خواندنی روی دیتابیسِ نزدیکِ پول اتصالِ نوشتنی باز می‌کند.
+    """
+    live = _OPS / "state"
+    doctor = live / "doctor"
+    before = {p.name for p in doctor.glob("*")} if doctor.exists() else set()
+    LF.fold(live)                     # روی ذخیرهٔ **زنده**، فقط‌خواندنی
+    after = {p.name for p in doctor.glob("*")} if doctor.exists() else set()
+    new = after - before
+    assert not new, f"fold روی ذخیرهٔ زنده فایل ساخت: {sorted(new)}"
+
+
+def _calls_in(tree):
+    """نامِ هر تابعی که واقعاً **صدا زده** می‌شود — با AST، نه با grepِ متن."""
+    out = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            nm = getattr(node.func, "attr", None) or getattr(node.func, "id", None)
+            if nm:
+                out.add(nm)
+    return out
+
+
+def t_fold_never_opens_a_writable_connection():
+    """گاردِ ساختاری: مسیرِ خواندن نباید سازندهٔ نوشتنی را صدا بزند.
+
+    با AST سنجیده می‌شود، نه با grepِ متن. نسخهٔ اولِ همین assert روی docstringی
+    قرمز شد که خودش توضیح می‌داد **چرا** `_rfc_con` صدا زده نمی‌شود — سومین بارِ
+    امروز که همین تله دهان باز کرد. یک نام در مستندات فراخوانی نیست.
+    """
+    src = (_OPS / "lifecycle_fold.py").read_text("utf-8")
+    assert "mode=ro" in src, "مسیرِ خواندنی اتصالِ read-only ندارد"
+    tree = ast.parse(src)
+    fn = next((n for n in ast.walk(tree)
+               if isinstance(n, ast.FunctionDef) and n.name == "_read_verdicts"), None)
+    assert fn is not None, "_read_verdicts پیدا نشد"
+    called = _calls_in(fn)
+    assert "connect" in called, "اتصالِ صریحِ read-only باز نمی‌شود"
+    # `load_rfc_verdicts` فقط در شاخهٔ fail-soft مجاز است؛ `_rfc_con` هرگز مستقیم.
+    assert "_rfc_con" not in called, f"سازندهٔ نوشتنی مستقیم صدا زده می‌شود: {sorted(called)}"
 
 
 def t_fold_touches_zero_bytes_of_live_state():

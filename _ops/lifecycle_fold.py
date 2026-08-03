@@ -70,6 +70,55 @@ class Stage:
     ALL = (PROPOSED, DELIVERED, DECIDED, EFFECTED, MEASURED, STALLED, UNKNOWN)
 
 
+def _read_verdicts(state_dir, pcr):
+    """پروجکشنِ حکم‌ها — **بدونِ باز کردنِ اتصالِ نوشتنی** روی دیتابیسِ پول.
+
+    فیکسِ ۲۰۲۶-۰۸-۰۳. ادعای C1 «صفر نوشتن» بود، ولی مسیرِ ساده
+    (`pcr.load_rfc_verdicts`) به `pcr._rfc_con()` می‌رسد که
+    `mkdir(parents=True)` + `PRAGMA journal_mode=WAL` + `CREATE TABLE IF NOT
+    EXISTS` می‌زند. روی دیتابیسِ موجود بی‌ضرر است، ولی یک **سطحِ خواندنی** که
+    ممکن است به‌ازای هر درخواست صدا زده شود (مینی‌اپ، بریف) نباید اتصالِ نوشتنی
+    روی ظرفِ نزدیکِ پول باز کند و فایل‌های `-wal`/`-shm` بسازد.
+
+    دو لِینِ مستقل این را کشف کردند؛ تستِ ایزولهٔ خودم نگرفته بود چون فقط ثابت
+    می‌کرد اجرا روی **فیکسچر** به state ِ زنده دست نمی‌زند — نه اینکه fold روی
+    خودِ state ِ زنده چیزی نمی‌سازد. ادعا از سنجه بزرگ‌تر بود.
+
+    اگر دیتابیس وجود دارد: اتصالِ `mode=ro`. اگر نه: هیچ — نبودِ دیتابیس یعنی
+    هیچ حکمی ثبت نشده، نه اینکه باید ساخته شود. مسیرِ سازنده فقط با
+    `allow_create=True` صدا زده می‌شود که هیچ مسیرِ خواندنی‌ای استفاده‌اش نمی‌کند.
+    """
+    db = Path(pcr._rfc_db_path(state_dir))
+    if not db.exists():
+        return {}
+    try:
+        import sqlite3   # noqa: PLC0415
+        from urllib.parse import quote   # noqa: PLC0415
+        # مسیرِ ویندوزی باید به شکلِ `file:///F:/...` بیاید. نسخهٔ اولِ این خط
+        # `file:F:/...` می‌داد که sqlite ردش می‌کرد، استثنا می‌خورد، و fail-soft
+        # بی‌صدا به مسیرِ نوشتنی برمی‌گشت — یعنی فیکس ظاهراً اعمال شده بود و در
+        # عمل هیچ کاری نمی‌کرد. تستِ «هیچ فایلی ساخته نشود» گرفتش (`-wal`/`-shm`).
+        uri = "file:///" + quote(str(db).replace("\\", "/")) + "?mode=ro"
+        con = sqlite3.connect(uri, uri=True, timeout=5.0)
+        try:
+            out = {}
+            for rid, verdict, rev, state, receipt, opkey, uts in con.execute(
+                    "SELECT rfc_id,verdict,revision,state,receipt_id,operation_key,"
+                    "updated_ts FROM rfc_decision"):
+                out[rid] = {"verdict": verdict, "revision": int(rev), "state": state,
+                            "consumed": state in ("APPLIED", "REJECTED"),
+                            "receipt_id": receipt or "", "operation_key": opkey or "",
+                            "updated_ts": uts}
+            return out
+        finally:
+            con.close()
+    except Exception:   # noqa: BLE001
+        # fail-soft: اگر read-only ممکن نبود، پروجکشنِ canonical را صدا بزن.
+        # این تنها مسیری است که `load_rfc_verdicts` را نگه می‌دارد — قراردادِ
+        # C1 و صداکنندهٔ تولیدی‌اش که تستِ AST قفلش کرده.
+        return pcr.load_rfc_verdicts(state_dir)
+
+
 def _stage_of(record, verdict):
     """مرحلهٔ یک کارت. `verdict` می‌تواند None باشد (در دفتر نیست)."""
     if not isinstance(record, dict):
@@ -105,7 +154,7 @@ def fold(state_dir, now=None, _pcr=None):
         import pending_card_recovery as pcr   # noqa: PLC0415
 
     store = pcr._load_store(state_dir)
-    verdicts = pcr.load_rfc_verdicts(state_dir)
+    verdicts = _read_verdicts(state_dir, pcr)
 
     store_path = Path(state_dir) / "pulse" / "pending-cards.json"
     readable = store_path.exists()

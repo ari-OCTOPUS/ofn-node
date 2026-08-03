@@ -373,9 +373,16 @@ class TickPipeline:
             except Exception as _pre:  # noqa: BLE001
                 opslib.alert([f"proposal_router error (non-fatal): {type(_pre).__name__}: {_pre}"])
             try:
+                # C7 (گامِ ۱۷): منبعِ عددها داخلِ خودِ `proposal_metrics()` تصحیح
+                # شد — این‌جا هنوز همان زنجیرهٔ تک‌نویسنده است (latch →
+                # organism._write_state) و عمداً نویسندهٔ دومی اضافه نمی‌شود.
                 _proposal_metrics = ctx.wired.live_loop.proposal_metrics()
-            except Exception:  # noqa: BLE001
-                _proposal_metrics = None
+            except Exception as _pme:  # noqa: BLE001
+                # کلید را **حذف** نکن: غیابش یعنی `_write_state.merge_prev` مقدارِ
+                # چرخهٔ قبل را back-fill می‌کند و هم‌زمان `ts` سطحِ بالا را جلو
+                # می‌برد — عددی کهنه که تازه به‌نظر می‌رسد (ناوردیِ ۴ ِ
+                # `provenance`). UNKNOWNِ صریح بهتر از صفرِ بی‌صداست.
+                _proposal_metrics = {"unknown": True, "reason": type(_pme).__name__}
 
         # ── cartographer (organism.py:686-695) ───────────────────────────────────
         _cartographer_status = None
