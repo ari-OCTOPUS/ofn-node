@@ -65,6 +65,11 @@ def shadow_step(beat: int = 0, snap: dict | None = None) -> dict:
         "gate0_live_producer": signals.get("gate0_live_producer"),
         "sampled_this_step": sampled,
         "production_wire": {"open": wire_ok, "reasons": wire_reasons},
+        # C8: برچسبِ اصالتِ 4.py — VERIFIED/MISMATCH/UNVERIFIABLE. هیچ عددی را عوض
+        # نمی‌کند؛ فقط می‌گوید قفلی که سه گیت را `locked` می‌خواند، از کدام منبع آمده
+        # و آیا آن منبع امروز قابلِ راستی‌آزمایی هست یا نه. نویسنده همان نویسندهٔ
+        # واحدِ همین ظرف است (LockedJson پایین) — نه فایلِ نو، نه نویسندهٔ دوم.
+        "sog_provenance": sog_math.source_provenance(),
         "mode": "shadow",
     }
     try:

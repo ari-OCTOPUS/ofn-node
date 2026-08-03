@@ -320,6 +320,23 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # می‌دارد، حالا هر چهار مارکر + فایلِ فلگِ LF جدا سنجیده می‌شوند.
          # هر سه گارد جهش‌آزموده‌اند؛ خودِ درز هم یک تست دارد که اگر حذف شود قرمز شود.
          "test_restart_preflight.py",
+         # ۰۸-۰۳ گام‌های ۱–۳ ِ UNIFICATION-DESIGN. ترتیبشان وابستگی است نه سلیقه:
+         # provenance تنها جایی است که قواعدِ LIVE/HELD/CONSTANT/UNKNOWN وجود دارند؛
+         # lifecycle_fold تنها جایی که «تصمیم اثر کرد» از «تصمیم ثبت شد» جدا می‌شود
+         # (سنجشِ زنده: decided=21، effected=0)؛ و probe_predicate_rule قاعده‌ای است
+         # که هر فیلترِ ساختاراً-مرده را می‌گیرد — نمونه‌اش ۲۰ کارتِ راکد را هشت روز
+         # پشتِ یک صفرِ تمیز پنهان کرده بود.
+         "test_provenance.py",
+         "test_lifecycle_fold.py",
+         "test_probe_predicate_rule.py",
+         # ۰۸-۰۳ گام‌های ۴ و ۵. گام ۴: اسکنِ نقشه هرگز والت را ندیده بود — سقفش در
+         # محلِ فراخوانی هاردکد بود و `.claude` استثنا نشده بود، پس ۴۹٬۹۳۹ از ۵۰٬۰۰۰
+         # رکورد نُه رونوشتِ کهنهٔ والت زیرِ worktreeها بودند. گام ۵: `_sha256_file`
+         # روی خطا رشتهٔ لفظیِ "unavailable" می‌داد که truthy است، پس هم گاردِ null
+         # و هم گاردِ حضورِ هش از کنارش رد می‌شدند و قفلی نوشته می‌شد که سه گیتِ
+         # زندهٔ قلب را هنوز `locked` نشان می‌داد.
+         "test_metadata_scan_honesty.py",
+         "test_sog_provenance.py",
          "test_funnel_cmd.py",  # D3b — مالک واقعیتِ بازار را می‌گوید
          "test_two_bot_bridge.py",  # پلِ عام — دستورِ تبلیغ‌شده از گروه کار کند
          "test_self_coding_chain.py",  # زنجیرهٔ هفت‌حلقه‌ایِ کدنویسیِ واقعی

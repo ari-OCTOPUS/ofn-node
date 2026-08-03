@@ -3774,7 +3774,9 @@ class Center:
         if action == "start":
             # یک scan محدود و sync همین حالا (خطرِ کم: فقط metadata)
             try:
-                result = ms_mod.scan_metadata(max_files=50_000, max_seconds=60)
+                # C9: سقفِ فایل عمداً پاس نمی‌شود — metadata_scan.MAP_SCAN_MAX_FILES تنها محلِ
+                # اعلام است. max_seconds=60 می‌ماند: اسکنِ بازگشتی روی این ماشین پاتولوژیک است.
+                result = ms_mod.scan_metadata(max_seconds=60)
                 paths = ms_mod.write_manifest(result)
                 summary = ms_mod.summarize_manifest(result)
                 # job در صف تأیید (برای بازبینیِ انسان)

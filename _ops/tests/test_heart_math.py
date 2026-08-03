@@ -5,6 +5,7 @@ Gate-A: بازتولیدِ anchorها + DARE crosscheck + شاهدِ MCِ هست
 بدونِ literalِ anchor در مسیرِ production). همه‌چیز deterministic (seedهای ثابت).
 """
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -82,20 +83,62 @@ def t_identifiability():
 
 
 def t_lock_file_shape_and_honesty():
-    """run_lock (کوچک، در vault موقتِ تست): schema + وضعیتِ un-collapsible + provenance."""
-    out = Path(ENV["OPS_DIR"]) / "state" / "sim" / "PULSE-EQUATIONS-LOCKED.json"
-    rec = sm.run_lock(out_path=out, full=False, write=True)
-    assert out.exists()
-    on_disk = json.loads(out.read_text("utf-8"))
-    assert on_disk["schema"] == "PULSE-EQUATIONS-LOCKED.v1"
-    for k in ("delta_self", "e_shadow", "i_pred"):
-        assert on_disk["status"][k] in ("locked", "excluded-unlocked")
-    assert on_disk["status"]["i_pred_gates_nothing"] is True
-    assert on_disk["provenance"]["code_sha256"] not in ("", "unavailable")
-    assert on_disk["full_run"] is False   # صادق: این lockِ تستی است نه رسمی
-    # read_lock همان را برگرداند؛ مسیرِ غایب → {}
-    assert sm.read_lock(out)["schema"] == "PULSE-EQUATIONS-LOCKED.v1"
-    assert sm.read_lock(Path(ENV["OPS_DIR"]) / "state" / "no-such.json") == {}
+    """run_lock (کوچک، در vault موقتِ تست): schema + وضعیتِ un-collapsible + provenance.
+
+    به‌روزشده ۲۰۲۶-۰۸-۰۳ (گامِ ۵ ِ UNIFICATION-DESIGN، جزءِ C8). دو ادعای این تست
+    قراردادِ **قبلی** را پین کرده بودند و طرح عمداً هر دو را عوض کرد:
+
+      · `run_lock` دیگر با اصالتِ غیرقابلِ‌راستی‌آزمایی نمی‌نویسد (fail-closed).
+        پیش‌تر `_sha256_file` روی OSError رشتهٔ لفظیِ `"unavailable"` می‌داد و
+        همان به‌عنوان provenance نوشته می‌شد — مقداری truthy و غیرِnull که هم از
+        گاردِ null رد می‌شد هم از گاردِ حضورِ هش، و قفلی می‌نوشت که هنوز سه گیت
+        را `locked` نشان می‌داد.
+      · `read_lock` روی غیاب دیگر `{}` نمی‌دهد؛ نشانگرِ صریحِ UNKNOWN می‌دهد،
+        چون «غایب» و «تهی» دو چیزِ متفاوت‌اند.
+
+    پس تست **قوی‌تر** شد نه ضعیف‌تر: مسیرِ موفق با یک منبعِ راستی‌آزمایی‌پذیرِ
+    ساختگی هنوز کاملاً سنجیده می‌شود، و مسیرِ fail-closed هم یک ادعای تازه گرفت.
+    """
+    ops = Path(ENV["OPS_DIR"])
+    out = ops / "state" / "sim" / "PULSE-EQUATIONS-LOCKED.json"
+
+    # ── مسیرِ fail-closed: منبعِ غایب ⇒ استثنا، و **هیچ فایلی نوشته نشود** ──
+    out.parent.mkdir(parents=True, exist_ok=True)
+    missing_src = ops / "no-such-4.py"
+    os.environ["SOG_4PY_PATH"] = str(missing_src)
+    try:
+        sm.run_lock(out_path=out, full=False, write=True)
+    except sm.ProvenanceUnverifiable:
+        pass
+    else:
+        raise AssertionError("run_lock با منبعِ غایب باید fail-closed باشد، نه اینکه بنویسد")
+    assert not out.exists(), "fail-closed نباید هیچ قفلی روی دیسک بگذارد"
+
+    # ── مسیرِ موفق: یک منبعِ راستی‌آزمایی‌پذیرِ ساختگی ──
+    src = ops / "fixture-4.py"
+    src.write_text("# fixture source for provenance\n", encoding="utf-8")
+    os.environ["SOG_4PY_PATH"] = str(src)
+    try:
+        sm.run_lock(out_path=out, full=False, write=True)
+        assert out.exists()
+        on_disk = json.loads(out.read_text("utf-8"))
+        assert on_disk["schema"] == "PULSE-EQUATIONS-LOCKED.v1"
+        for k in ("delta_self", "e_shadow", "i_pred"):
+            assert on_disk["status"][k] in ("locked", "excluded-unlocked")
+        assert on_disk["status"]["i_pred_gates_nothing"] is True
+        assert on_disk["provenance"]["code_sha256"] not in ("", "unavailable")
+        assert on_disk["full_run"] is False   # صادق: این lockِ تستی است نه رسمی
+        # اصالتِ نوشته‌شده باید یک sha256 ِ واقعی باشد، نه رشتهٔ "unavailable"
+        digest = on_disk["provenance"]["source_4py_sha256"]
+        assert sm.is_verifiable_digest(digest), f"اصالتِ غیرقابلِ‌راستی‌آزمایی نوشته شد: {digest!r}"
+        assert sm.read_lock(out)["schema"] == "PULSE-EQUATIONS-LOCKED.v1"
+    finally:
+        os.environ.pop("SOG_4PY_PATH", None)
+
+    # ── قراردادِ نوِ read_lock: غیاب ⇒ UNKNOWN ِ صریح، نه دیکشنریِ تهی ──
+    absent = sm.read_lock(ops / "state" / "no-such.json")
+    assert absent != {}, "غیاب دوباره به دیکشنریِ تهی ترجمه شد"
+    assert sm.lock_is_unknown(absent), f"نشانگرِ UNKNOWN غایب است: {absent!r}"
 
 
 def t_structural_no_money_imports_no_anchor_literals():

@@ -440,34 +440,37 @@ def _probe_tg_oversized_callback() -> dict:
 
 
 def _probe_tg_stale_delivery() -> dict:
-    """کارتی که رکوردش می‌گوید PENDING و ساعت‌هاست همان‌جا مانده.
+    """کارتی که به مالک **رسید** و هرگز تصمیم نگرفت.
 
-    PENDING یعنی `send_text` شکست خورد. اگر ساعت‌ها بماند، یعنی کسی retry نمی‌کند
-    و مالک منتظرِ چیزی است که هرگز نمی‌آید — بدونِ اینکه جایی خطایی ثبت شده باشد.
+    بازنشانه‌شده ۲۰۲۶-۰۸-۰۳ (گامِ ۳ ِ UNIFICATION-DESIGN، جزءِ C2).
+
+    نسخهٔ قبلی روی `delivery == "PENDING"` فیلتر می‌کرد. سنجشِ زنده نشان داد
+    **هیچ** رکوردی delivery=PENDING ندارد (هر ۴۱ تا SENT اند)، پس این پروب یک
+    صفرِ تمیز برمی‌گرداند که از سلامت قابلِ تشخیص نبود — در حالی که ۲۰ کارت،
+    قدیمی‌ترین هشت‌روزه، در فیلدِ `decision` راکد مانده بودند. پروب فیلدِ اشتباه
+    را می‌خواند؛ صف جای دیگری بود.
+
+    حالا از `lifecycle_fold.stalled_cards` می‌خواند — یعنی همان تعریفی که کلِ
+    طرح رویش ایستاده: راکد = تحویل شد و تصمیم نگرفت. و اگر فیلدِ `decision` در
+    هیچ رکوردی نباشد، `-1` (UNKNOWN) می‌دهد نه `0` — چون «نمی‌دانم» و «هیچ‌کدام»
+    دو چیزِ متفاوت‌اند. برای دومی گاردِ عام `predicate_never_matches` هم هست.
     """
     try:
-        p = opslib.STATE_DIR / "pulse" / "pending-cards.json"
-        if not p.exists():
-            return {"count": -1, "unit": "card", "detail": "pending-cards.json غایب"}
-        doc = json.loads(p.read_text("utf-8"))
-        if not isinstance(doc, dict) or not doc:
-            return {"count": -1, "unit": "card", "detail": "هیچ کارتِ ثبت‌شده‌ای نیست"}
-        min_age_s = 6 * 3600.0
-        now = time.time()
-        stale = 0
-        for v in doc.values():
-            if not isinstance(v, dict) or str(v.get("delivery") or "") != "PENDING":
-                continue
-            # زمانِ مرجع: expires_at منهای TTL، وگرنه mtimeِ خودِ فایل
-            born = v.get("created_at") or v.get("recorded_at")
-            try:
-                born = float(born) if born is not None else (float(v.get("expires_at", 0)) - 86400.0)
-            except (TypeError, ValueError):
-                born = 0.0
-            if born and (now - born) > min_age_s:
-                stale += 1
-        return {"count": stale, "unit": "card",
-                "detail": f"pending_older_than_6h={stale} of records={len(doc)}"}
+        _here = str(Path(__file__).resolve().parent)
+        for _p in (_here, str(Path(_here) / "outcomes")):
+            if _p not in sys.path:
+                sys.path.insert(0, _p)
+        import lifecycle_fold as _lf   # noqa: PLC0415
+
+        count, oldest, total = _lf.stalled_cards(opslib.STATE_DIR)
+        if count < 0:
+            return {"count": -1, "unit": "card",
+                    "detail": f"UNKNOWN: decision field unreadable over records={total}"}
+        age_d = ""
+        if oldest:
+            age_d = f", oldest={time.strftime('%Y-%m-%d', time.localtime(oldest))}"
+        return {"count": count, "unit": "card",
+                "detail": f"delivered_but_undecided={count} of records={total}{age_d}"}
     except Exception as e:  # noqa: BLE001
         return {"count": -1, "unit": "card", "detail": f"probe-failed:{type(e).__name__}"}
 
@@ -559,6 +562,65 @@ for _k, _s in list(PROBES.items()):
     _s.setdefault("fix_hint", "see probe subject")
     _s.setdefault("unit", "ops")
 
+def _probe_predicate_never_matches() -> dict:
+    """قاعده، نه نمونه: فیلتری که روی ذخیرهٔ **ناتهی** صفر رکورد بگیرد، مرده است.
+
+    گامِ ۳ ِ UNIFICATION-DESIGN-2026-08-03 (جزءِ C2).
+
+    چرا: `_probe_tg_stale_delivery` روی `delivery == "PENDING"` فیلتر می‌کرد در
+    حالی که کلِ صف در فیلدِ `decision` نشسته بود و هیچ رکوردی delivery=PENDING
+    نداشت. پس صفرِ تمیز برمی‌گرداند — و صفرِ تمیز از سلامت قابلِ تشخیص نیست.
+    ۲۰ کارتِ راکد، قدیمی‌ترین هشت‌روزه، پشتِ همان صفر پنهان بودند.
+
+    این پروب نمونه را وصله نمی‌کند؛ **کلاسِ** باگ را می‌گیرد. هر ردیفِ PROBES که
+    `reads: {path, field, expected_values}` اعلام کند اینجا سنجیده می‌شود:
+    اگر ذخیره ناتهی باشد ولی هیچ رکوردی با آن predicate نخوانَد، همان یک نقصِ
+    گزارش‌شدنی است — چه کسی آن پروب را نوشته باشد چه نه.
+
+    ذخیرهٔ غایب یا تهی اینجا شمرده **نمی‌شود**: صفر روی ذخیرهٔ تهی صادقانه است.
+    """
+    dead = []
+    for name, spec in PROBES.items():
+        decl = spec.get("reads")
+        if not isinstance(decl, dict):
+            continue
+        rel, field = decl.get("path"), decl.get("field")
+        want = [str(w) for w in (decl.get("expected_values") or [])]
+        if not rel or not field:
+            continue
+        p = opslib.STATE_DIR / rel
+        if not p.exists():
+            continue                      # نبودِ ذخیره نقصِ دیگری است
+        try:
+            doc = json.loads(p.read_text("utf-8"))
+        except Exception:                 # noqa: BLE001
+            continue
+        rows = list(doc.values()) if isinstance(doc, dict) else (doc if isinstance(doc, list) else [])
+        rows = [r for r in rows if isinstance(r, dict)]
+        if not rows:
+            continue                      # ذخیرهٔ تهی: صفر صادقانه است
+        present = sorted({str(r.get(field)) for r in rows if field in r})
+        if not present:
+            dead.append(f"{name}: field '{field}' in 0/{len(rows)} records")
+            continue
+        if want and not any(str(r.get(field)) in want for r in rows):
+            dead.append(f"{name}: {field}={want} matches 0/{len(rows)}; actual={present[:4]}")
+    return {"count": len(dead), "unit": "probe",
+            "detail": " | ".join(dead) or "every declared predicate matches >=1 record"}
+
+
+PROBES["predicate_never_matches"] = {
+    "measure": _probe_predicate_never_matches, "floor": 0, "unit": "probe",
+    "subject": "PROBES[*].reads → predicate liveness over a non-empty store",
+    "question": "آیا پروبی هست که روی ذخیرهٔ ناتهی هیچ‌وقت چیزی نمی‌گیرد؟",
+    "hypothesis": ("a probe filters a field that no record carries, so it returns a "
+                   "clean 0 that is indistinguishable from health while the real "
+                   "backlog sits in a different field."),
+    "expected_artifact": "count of declared predicates matching zero records",
+    "falsification": ["dead == 0 (every declared predicate matches at least one record)"],
+    "fix_hint": "repoint the probe at the field the backlog actually lives in",
+}
+
 PROBES["c6_undelivered_cards"] = {
     "measure": _probe_c6_undelivered_cards, "floor": 0, "unit": "card",
     "subject": "state/c6/hypothesis-queue.jsonl → owner card delivery",
@@ -581,13 +643,16 @@ PROBES["tg_oversized_callback"] = {
 }
 PROBES["tg_stale_delivery"] = {
     "measure": _probe_tg_stale_delivery, "floor": 0, "unit": "card",
-    "subject": "state/pulse/pending-cards.json → delivery=PENDING backlog",
-    "question": "آیا کارتی ساعت‌هاست PENDING مانده و کسی retry نمی‌کند؟",
-    "hypothesis": ("cards sit at delivery=PENDING for hours because send failed and "
-                   "nothing retries; the owner waits for something that never arrives."),
-    "expected_artifact": "count of PENDING delivery records older than 6h",
-    "falsification": ["stale == 0 (no delivery has been stuck for hours)"],
-    "fix_hint": "a retry pass over PENDING records, or surface them on the cockpit",
+    "reads": {"path": "pulse/pending-cards.json", "field": "decision",
+              "expected_values": ["SUBMITTED"]},
+    "subject": "state/pulse/pending-cards.json → delivered-but-undecided backlog",
+    "question": "آیا کارتی به مالک رسیده و روزهاست تصمیم نگرفته؟",
+    "hypothesis": ("cards reach the owner (delivery=SENT) and stay at "
+                   "decision=SUBMITTED for days; the queue is invisible because the "
+                   "old probe filtered `delivery`, where nothing was ever pending."),
+    "expected_artifact": "count of records with delivery=SENT and decision!=DECIDED",
+    "falsification": ["stalled == 0 (every delivered card has been decided)"],
+    "fix_hint": "surface the backlog on the daily digest; only the owner can decide",
 }
 PROBES["flags_armed_not_loaded"] = {
     "measure": _probe_flags_armed_not_loaded, "floor": 0, "unit": "minute",

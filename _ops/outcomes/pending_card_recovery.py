@@ -845,10 +845,18 @@ def load_rfc_verdicts(state_dir) -> dict:
     try:
         con = _rfc_con(state_dir)
         try:
-            for rid, verdict, rev, state in con.execute(
-                    "SELECT rfc_id,verdict,revision,state FROM rfc_decision"):
+            # 2026-08-03 (گامِ ۲ ِ UNIFICATION-DESIGN، افزودنی): receipt_id و
+            # operation_key هم پروجکت می‌شوند. بدونشان نمی‌شود «تصمیم اثر کرد» را
+            # از «تصمیم ثبت شد» جدا کرد — و همین تفاوت کلِ یافتهٔ ۰۸-۰۳ است:
+            # هر ۲۱ ردیف در RECONCILE_REQUIRED با receipt_id='' نشسته‌اند، یعنی
+            # مالک ۲۱ بار تصمیم گرفت و صفر اثر ثبت شد. کلیدهای قبلی دست‌نخورده‌اند.
+            for rid, verdict, rev, state, receipt, opkey in con.execute(
+                    "SELECT rfc_id,verdict,revision,state,receipt_id,operation_key "
+                    "FROM rfc_decision"):
                 out[rid] = {"verdict": verdict, "revision": int(rev), "state": state,
-                            "consumed": state in ("APPLIED", "REJECTED")}
+                            "consumed": state in ("APPLIED", "REJECTED"),
+                            "receipt_id": receipt or "",
+                            "operation_key": opkey or ""}
         finally:
             con.close()
     except Exception:

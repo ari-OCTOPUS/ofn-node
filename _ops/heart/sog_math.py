@@ -326,17 +326,90 @@ def evaluate_gates(core: dict, ipred: dict, dare: dict) -> dict:
     return gates
 
 
+# ─── C8: اصالتِ صادق — «قابلِ راستی‌آزمایی» یعنی هش، نه رشتهٔ حاضر ───────────────
+UNAVAILABLE = "unavailable"          # خروجیِ _sha256_file روی OSError
+PROV_VERIFIED = "VERIFIED"
+PROV_MISMATCH = "MISMATCH"
+PROV_UNVERIFIABLE = "UNVERIFIABLE"
+LOCK_STATE_KEY = "lock_state"
+LOCK_UNKNOWN = "UNKNOWN"
+_HEXDIGITS = frozenset("0123456789abcdef")
+
+
+class ProvenanceUnverifiable(RuntimeError):
+    """اصالتِ منبع قابلِ راستی‌آزمایی نیست ⇒ قفل **نوشته نمی‌شود**."""
+
+    def __init__(self, digest: object, path: object) -> None:
+        self.digest = digest
+        self.path = path
+        super().__init__(
+            f"source_4py_sha256={digest!r} (path={path}) قابلِ راستی‌آزمایی نیست — "
+            "lock نوشته نشد (fail-closed)")
+
+
+def is_verifiable_digest(value: object) -> bool:
+    """فقط sha256ِ ۶۴نویسه‌ایِ hex «قابلِ راستی‌آزمایی» است.
+
+    رشتهٔ لفظیِ `"unavailable"` **صریحاً** رد می‌شود (ردِ صریح مقدم بر چکِ طول تا نیت
+    خوانده شود): آن مقدار truthy و غیرِ null است، پس هم گاردِ «null نباشد» و هم گاردِ
+    «کلید حاضر باشد» از کنارش رد می‌شوند و قفلی نوشته می‌شود که هنوز سه گیت را
+    `locked` نشان می‌دهد — همان سبزِ کاذبی که C8 می‌بندد."""
+    if not isinstance(value, str):
+        return False
+    s = value.strip().lower()
+    if s == UNAVAILABLE:
+        return False
+    return len(s) == 64 and set(s) <= _HEXDIGITS
+
+
 def _sha256_file(p: Path) -> str:
     try:
         return hashlib.sha256(p.read_bytes()).hexdigest()
     except OSError:
-        return "unavailable"
+        return UNAVAILABLE
+
+
+def source_4py_path() -> Path:
+    """مسیرِ 4.py در **لحظهٔ فراخوانی** (env برنده)؛ SOURCE_4PY فقط پیش‌فرضِ ماژول است."""
+    return Path(os.environ.get("SOG_4PY_PATH") or str(SOURCE_4PY))
+
+
+def source_provenance(lock: dict | None = None, source: Path | None = None) -> str:
+    """برچسبِ اصالتِ 4.py در برابرِ هشِ ثبت‌شده در خودِ قفل. هرگز استثنا نمی‌دهد.
+
+    VERIFIED فقط اگر فایل باشد **و** دقیقاً به هشِ ثبت‌شده بخورد؛ MISMATCH اگر باشد و
+    نخورد (پس یک 4.pyِ بازیابی‌شده از نسخه‌ای ناشناخته نمی‌تواند سبزِ کاذب بسازد)؛
+    در بقیهٔ حالت‌ها UNVERIFIABLE. هشِ مرجع از قفل خوانده می‌شود، هیچ‌جا hardcode نیست."""
+    try:
+        rec = read_lock() if lock is None else lock
+        recorded = ((rec or {}).get("provenance") or {}).get("source_4py_sha256")
+        if not is_verifiable_digest(recorded):
+            return PROV_UNVERIFIABLE
+        p = source if source is not None else source_4py_path()
+        if not p.exists():
+            return PROV_UNVERIFIABLE
+        actual = _sha256_file(p)
+        if not is_verifiable_digest(actual):
+            return PROV_UNVERIFIABLE
+        if actual.strip().lower() != recorded.strip().lower():
+            return PROV_MISMATCH
+        return PROV_VERIFIED
+    except Exception:  # noqa: BLE001 — برچسبِ اصالت هرگز ضربان را نمی‌کشد
+        return PROV_UNVERIFIABLE
 
 
 def run_lock(out_path: Path | None = None, full: bool = True,
              write: bool = True) -> dict:
     """اجرای کاملِ Gate-A و نوشتنِ lock-file (اتمیک) + NOTE به ledger.
-    full=False فقط برای توسعه/تست — lock واقعی همیشه با full=True."""
+    full=False فقط برای توسعه/تست — lock واقعی همیشه با full=True.
+
+    **fail-closed (C8):** اگر هشِ منبع قابلِ راستی‌آزمایی نباشد، `ProvenanceUnverifiable`
+    می‌دهد — پیش از هر MC و پیش از هر نوشتن، پس قفلِ موجود بایت‌به‌بایت دست‌نخورده
+    می‌ماند. قفلی که اصالتش قابلِ اثبات نیست، نباید سه گیت را `locked` اعلام کند."""
+    src_path = source_4py_path()
+    src_digest = _sha256_file(src_path)
+    if not is_verifiable_digest(src_digest):
+        raise ProvenanceUnverifiable(src_digest, src_path)
     T = 1_200_000 if full else 120_000
     n_windows = 50_000 if full else 8_000
     core = mc_witness_core(T=T)
@@ -363,7 +436,7 @@ def run_lock(out_path: Path | None = None, full: bool = True,
                "dare": dare},
         "provenance": {
             "code_sha256": _sha256_file(Path(__file__)),
-            "source_4py_sha256": _sha256_file(SOURCE_4PY),
+            "source_4py_sha256": src_digest,   # گاردِ بالا تضمین کرده hexِ ۶۴نویسه‌ای است
             "method": "independent stdlib-RNG forward-simulation (نه بازاجرای numpy)",
         },
     }
@@ -381,17 +454,44 @@ def run_lock(out_path: Path | None = None, full: bool = True,
     return record
 
 
+def _lock_unknown(p: Path, reason: str) -> dict:
+    """نشانگرِ صریحِ «ورودی غایب است» — نه {}، نه صفر، نه سبز."""
+    return {LOCK_STATE_KEY: LOCK_UNKNOWN, "reason": reason, "path": str(p)}
+
+
+def lock_is_unknown(lock: dict | None) -> bool:
+    """آیا این خروجیِ read_lock به‌جای قفل، نشانگرِ UNKNOWN است؟"""
+    return isinstance(lock, dict) and lock.get(LOCK_STATE_KEY) == LOCK_UNKNOWN
+
+
 def read_lock(path: Path | None = None) -> dict:
-    """خواندنِ fail-softِ lock-file — غایب/خراب → {}."""
+    """خواندنِ lock-file. غایب/خراب → نشانگرِ صریحِ **UNKNOWN**، نه `{}`.
+
+    fail-softِ قبلی یک ورودیِ **غایب** را به ورودیِ **تهی** ترجمه می‌کرد و پایین‌دست
+    آن را «مشکلی نیست» می‌خواند. حالا غیاب یک نوع دارد. مسیرِ موفق دست‌نخورده است —
+    رکورد بی‌هیچ کلیدِ تزریقی برمی‌گردد، پس هیچ مصرف‌کننده‌ای تغییرِ عددی نمی‌بیند
+    (`lock.get("status")` روی UNKNOWN هم مثل قبل None می‌دهد ⇒ همان fail-closed)."""
     p = path or LOCK_PATH_DEFAULT
     try:
-        return json.loads(p.read_text("utf-8")) if p.exists() else {}
-    except (OSError, ValueError):
-        return {}
+        if not p.exists():
+            return _lock_unknown(p, "missing")
+        rec = json.loads(p.read_text("utf-8"))
+    except (OSError, ValueError) as e:
+        return _lock_unknown(p, type(e).__name__)
+    if not isinstance(rec, dict):
+        return _lock_unknown(p, "not-a-mapping")
+    return rec
 
 
 if __name__ == "__main__":
-    rec = run_lock(full=True)
+    try:
+        rec = run_lock(full=True)
+    except ProvenanceUnverifiable as e:      # fail-closed: قفلِ روی دیسک دست نخورد
+        print(json.dumps({"error": "provenance_unverifiable", "detail": str(e),
+                          "lock_written": False,
+                          "sog_provenance": source_provenance()},
+                         ensure_ascii=False, indent=2))
+        sys.exit(2)
     print(json.dumps({"status": rec["status"],
                       "gates_ok": {k: v for k, v in rec["gates"].items()
                                    if k.endswith("_locked")}},
