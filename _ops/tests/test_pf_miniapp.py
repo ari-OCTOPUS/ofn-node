@@ -26,9 +26,17 @@ from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
 _OPS = _HERE.parent
-for _p in (str(_OPS), str(_OPS / "telegram_center")):
+for _p in (str(_HERE), str(_OPS), str(_OPS / "telegram_center")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
+
+# ⚠️ ادعای «هرمتیک» ِ بالا تا ۲۰۲۶-۰۸-۰۳ **enforce نبود**: `miniapp_gateway._hits_path()`
+# مسیر را از `opslib.STATE_DIR` می‌گیرد و آن در زمانِ **import** بسته می‌شود. این فایل
+# بدونِ harness ماژول را import می‌کرد، پس هر درخواستِ تست از راهِ `_log_hit` داخلِ
+# `F:\backup\_ops\state\telegram\miniapp-hits.jsonl` ِ **زنده** می‌نوشت — ۸ تلاشِ
+# نوشتن در یک اجرا. `setup()` باید **قبل از** اولین import ِ ماژولِ زیرِ آزمون بیاید.
+import harness  # noqa: E402
+ENV = harness.setup("pf-miniapp")
 
 import pf_miniapp  # noqa: E402
 import miniapp_gateway as gw  # noqa: E402

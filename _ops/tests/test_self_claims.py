@@ -27,6 +27,12 @@ for _p in (_HERE.parent / "budget", _HERE.parent / "cortex", _HERE.parent):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
+# ایزوله قبل از اولین import — وگرنه `opslib.alert()` (از راهِ self_model) روی
+# `state/alert-signatures.json` ِ زنده می‌نوشت و `self-model.write-failure.json` ِ
+# زنده را unlink می‌کرد.
+import harness  # noqa: E402
+ENV = harness.setup("self-claims")
+
 import self_model  # noqa: E402
 import calibration_probe  # noqa: E402
 

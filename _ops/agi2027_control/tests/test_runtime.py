@@ -18,6 +18,20 @@ OPS = HERE.parents[1]  # _ops
 if str(OPS) not in sys.path:
     sys.path.insert(0, str(OPS))
 
+# ⚠️ VQ-ISOLATION-AGI2027-001 (2026-08-03). This file wrote into the LIVE organism:
+# `state/legs/lead-inbox/events.jsonl` (append) and a WRITE connection to
+# `state/legs/consent.db`. Its `L-WAL-1` / `client@example.invalid` drill rows are
+# the 54 `communication.sent` events sitting in the live lead ledger, and they burned
+# real slots off `lead-send-counter.json` (5 of 10 on 2026-08-03 alone).
+# Cause: the ledgers this file DOES isolate are the obvious ones (explicit tempdirs);
+# the leak is on the paths taken by no-arg constructors, which fall back to
+# `opslib.STATE_DIR` — bound at IMPORT time. So isolation has to come first.
+_TESTS = OPS / "tests"
+if str(_TESTS) not in sys.path:
+    sys.path.insert(0, str(_TESTS))
+import harness  # noqa: E402
+ENV = harness.setup("agi2027-runtime")
+
 from agi2027_control.runtime import (  # noqa: E402
     AdaptiveValueLedger,
     ControlPlane,

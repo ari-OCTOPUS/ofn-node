@@ -27,6 +27,11 @@ for _p in (str(_HERE.parent / "budget"), str(_HERE.parent)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
+# ایزوله قبل از هر import ِ ماژولِ ارگانیسم (این فایل با importlib بارگذاری می‌کند،
+# پس بدونِ setup ِ اول، `opslib.alert()` ‏۳۲ بار روی state ِ زنده می‌نوشت).
+import harness  # noqa: E402
+ENV = harness.setup("governor-lapsed-deadline")
+
 FLAG = "OCTOPUS_GOV_LAPSED_DEADLINE_HONEST"
 FAILURES: list[str] = []
 CHECKS = 0

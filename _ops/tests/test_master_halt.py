@@ -23,6 +23,13 @@ for _p in (_HERE.parent / "budget", _HERE.parent / "telegram_center", _HERE.pare
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
+# ⚠️ `_isolate_opslib` ِ پایین فقط پرچم‌های STOP/HALT را جابه‌جا می‌کند؛ `opslib.alert()`
+# از کنارش رد می‌شد و `state/alert-signatures.json` ِ **زنده** را بازنویسی می‌کرد
+# (اندازه‌گیریِ ۲۰۲۶-۰۸-۰۳). `STATE_DIR` در زمانِ **import** بسته می‌شود، پس ایزولهٔ
+# بعد-از-import هرگز نمی‌توانست بگیردش. setup باید قبل از import ِ opslib بیاید.
+import harness  # noqa: E402
+ENV = harness.setup("master-halt")
+
 import opslib  # noqa: E402
 
 

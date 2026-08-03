@@ -25,6 +25,11 @@ for _p in (_HERE.parent / "budget", _HERE.parent / "cortex", _HERE.parent):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
+# ایزوله باید **قبل از** اولین import بیاید: `opslib.STATE_DIR` در زمانِ import بسته
+# می‌شود و `opslib.alert()` بی‌آن `state/alert-signatures.json` ِ زنده را می‌نوشت.
+import harness  # noqa: E402
+ENV = harness.setup("route-scorer-wire")
+
 import opslib          # noqa: E402
 import model_router    # noqa: E402
 import route_scorer    # noqa: E402
