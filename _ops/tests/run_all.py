@@ -758,6 +758,12 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_lead_price_in_email.py",         # GAP-2: کوت بدونِ عدد کوت نیست
     "test_funnel_sent.py",                 # GAP-3: /funnel «فرستاده شد» را هم نشان می‌دهد
     "test_tg_receive_probe.py",            # پروبِ سلامتِ دریافت (رأیِ مالک ۰۸-۰۱، توکن فقط از env)
+    # ۲۰۲۶-۰۸-۰۳ — B5 (سطحِ کنترلِ یکپارچه). ثبت مرکزی است چون
+    # ویرایشِ هم‌زمانِ run_all امروز چهار بار deploy را بست.
+    "test_governor_routing.py",          # B5.1 — مسیریابیِ گاورنر: راز هرگز به تیرِ دور نمی‌رسد
+    "test_miniapp_ops_readmodel.py",   # B5.0 — /api/ops: کلیدهای قدیمی دست‌نخورده، fail-soft، گاردِ زیرمسیر
+    "test_tg_ops_buttons.py",            # B5 — دکمه‌های /ops: مالک‌فقط، idempotent، audited
+    "test_miniapp_cockpit_ui.py",        # B5 — کاکپیت: هدرِ initData و «نمی‌دانم» هرگز سبز
     # ── union از لِینِ ایمیل/لید (۰۸-۰۱) ────────────────────────────────
     # هفت فایل روی درختِ زنده‌اند و آن‌جا سبز؛ در این شاخه هنوز untracked
     # مانده‌اند، پس تا وقتی آن لِین کامیت نکند، اجرای سوییت از این worktree
