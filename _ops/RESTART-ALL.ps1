@@ -60,6 +60,15 @@ function Read-Beat {
 function Read-StateTs {
     try { (Get-Content $stateF -Raw | ConvertFrom-Json).ts } catch { $null }
 }
+function Read-StateStarted {
+    # `started` = boot time of the process that wrote this state (organism.py START_TS).
+    # The shutdown snapshot of the OLD process keeps its own `started` — only the new
+    # process writes its boot time here. This is the reliable freshness signal: `ts`
+    # alone can be newer than $startedAt yet still carry stop_organism=true from the
+    # dying process's last write (2026-08-03 false-negative: the gate read that
+    # transient state and FAILED a healthy restart).
+    try { (Get-Content $stateF -Raw | ConvertFrom-Json).started } catch { $null }
+}
 
 $fail = @()
 $targets = $order | Where-Object { $Skip -notcontains $_ }
@@ -188,14 +197,24 @@ if ($counts.Count -gt 0) {
     }
 }
 
-# 4. the organism must write a FRESH state file. The snapshot written at shutdown
-#    still says stop_organism=true; reading it too early reports a healthy restart
-#    from a dead process's last words.
+# 4. the organism must write a FRESH state file. Two independent signals must both
+#    hold, because each alone has produced a false result:
+#      (a) `started` >= $startedAt — the state was written by the NEW process, not
+#          the dying one. The shutdown snapshot keeps the OLD process's `started`
+#          (organism.py:66 START_TS), so a state from the dying process fails this.
+#      (b) `ts` > $startedAt — the state was written after this restart began.
+#    The 2026-08-03 false-negative checked only `ts`, read the transient shutdown
+#    snapshot (stop_organism=true, old `started`), and FAILED a healthy restart.
 $fresh = $false
 for ($i = 0; $i -lt 24; $i++) {
     $ts = Read-StateTs
-    if ($ts) {
-        try { if ([datetime]$ts -gt $startedAt) { $fresh = $true; break } } catch { }
+    $startedField = Read-StateStarted
+    if ($ts -and $startedField) {
+        try {
+            $tsNewer    = [datetime]$ts        -gt $startedAt
+            $bootNewer  = [datetime]$startedField -ge $startedAt
+            if ($tsNewer -and $bootNewer) { $fresh = $true; break }
+        } catch { }
     }
     Start-Sleep -Seconds 5
 }
@@ -205,7 +224,7 @@ if (-not $fresh) {
 } else {
     $j = Get-Content $stateF -Raw | ConvertFrom-Json
     $beatAfter = $j.beat
-    Write-Host ("  OK   fresh state at {0}" -f $j.ts)
+    Write-Host ("  OK   fresh state (boot={0}) at {1}" -f $j.started, $j.ts)
     if ($j.halted)        { Write-Host ("  FAIL halted = " + $j.halted);        $fail += "organism : halted" }
     if ($j.stop_organism) { Write-Host ("  FAIL stop_organism = true");         $fail += "organism : stop flag" }
     if ($j.frozen)        { Write-Host ("  FAIL frozen = true");                $fail += "organism : frozen" }
