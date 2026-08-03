@@ -59,6 +59,11 @@ def t_consensus_acceleration():
                       V("control_law", 45, False, 1.0),
                       V("rhythm", 50, False, 0.7)])
     assert 30.0 <= r["effective_period_s"] < 60.0, r
+    # ۲۰۲۶-۰۸-۰۳ (C11): «اجماع» از این پس فقط با ≥۲ قلبِ **متحرک** معنا دارد.
+    # این فیکسچر روی پیش‌فرضِ `mode="LIVE"` ِ `_vote` تکیه دارد؛ صریحش می‌کنیم تا
+    # اگر روزی آن پیش‌فرض عوض شد، اینجا با پیامِ روشن قرمز شود نه بی‌صدا با معنای
+    # عوض‌شده سبز بماند.
+    assert r["n_moving"] == 3, f"فیکسچر باید سه رأیِ متحرک بدهد: {r}"
     assert r["driver"] == "consensus", r
     # نزدیکِ میانگینِ هندسیِ وزن‌دار
     assert abs(r["consensus_s"] - r["effective_period_s"]) < 1e-6, r

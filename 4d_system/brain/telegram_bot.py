@@ -13,12 +13,80 @@ long-polling است — نه webhook، نه URLِ عمومی لازم دارد.
 from __future__ import annotations
 
 import os
+import sys
 import time
 import logging
 
 logger = logging.getLogger(__name__)
 
 _API = "https://api.telegram.org/bot{token}/{method}"
+
+
+# ── گاردِ fail-closed ِ «پولرِ دوم» (C14 ِ UNIFICATION-DESIGN-2026-08-03) ──────
+#
+# چرا این گارد وجود دارد (سنجیده، نه حدس):
+#   این دایرکتوری از ۲۰۲۶-۰۷-۱۸ بازنشسته است (4d_system/DEPRECATED.md) و هیچ
+#   پروسه/تسکی آن را اجرا نمی‌کند. ولی همین ماژول روی `getUpdates` long-poll
+#   می‌کند و توکنش را از **همان نامِ env ِ مرکزِ زنده** می‌گیرد:
+#   `TELEGRAM_BOT_TOKEN` — دقیقاً همان نامی که `_ops/budget/approval_channel.py`
+#   می‌خواند. دو پولر روی یک توکن ⇒ تلگرام `409 Conflict` می‌دهد و آپدیت‌ها را
+#   هرکدام که برنده شد می‌بلعد؛ یعنی **فشارِ دکمهٔ مالک بی‌صدا گم می‌شود**.
+#   خودِ DEPRECATED.md همین را به‌عنوانِ شرطِ اولِ revive نوشته است.
+#
+# پس خطر «نهفته» است نه فعال — و این گارد نهفته نگهش می‌دارد:
+#   هیچ مسیرِ شبکه‌ای بدونِ رأیِ صریحِ مالک باز نمی‌شود. ماژول **حذف نمی‌شود**
+#   (قاعدهٔ vault: هرگز حذف نکن؛ فقط منتقل/بسته کن) و هیچ رفتارِ موجودی وقتی
+#   رأی داده شده تغییر نمی‌کند.
+OPT_IN_ENV = "OCTOPUS_4D_TELEGRAM_BOT_OPT_IN"
+REFUSAL_EXIT_CODE = 3
+_TRUTHY = ("1", "true", "yes", "on")
+
+# ASCII اول، فارسی بعد: کنسولِ ویندوز اینجا cp1252 است و یک خطِ فارسی می‌تواند
+# روی write کرش کند. خطوطِ باربر (409 / DEPRECATED.md / نامِ متغیر) باید حتی در
+# بدترین کدپیج خوانده شوند، و هر خط جدا emit می‌شود تا شکستِ یکی بقیه را نکشد.
+_REFUSAL_LINES = (
+    "REFUSED: 4d_system/brain/telegram_bot.py is DEPRECATED and will not poll.",
+    "REASON:  it long-polls getUpdates using the SAME token env name as the live",
+    "         centre (TELEGRAM_BOT_TOKEN). A second poller on one token makes",
+    "         Telegram answer 409 Conflict, and the owner's button presses are",
+    "         eaten by whichever poller wins.",
+    "SEE:     4d_system/DEPRECATED.md",
+    "OPT-IN:  set " + OPT_IN_ENV + "=1 only after confirming that no other",
+    "         process polls that token (owner vote, not an agent decision).",
+    "دلیل: پولرِ دومِ نهفته روی توکنِ مرکزِ زنده — ریسکِ ۴۰۹ و بلعیدنِ رأیِ مالک.",
+)
+
+
+def _emit(line: str) -> None:
+    """چاپِ امن روی کنسولِ cp1252: پیامِ رد هرگز نباید خودش کرش کند."""
+    try:
+        sys.stderr.write(line + "\n")
+        return
+    except Exception:  # noqa: BLE001 — UnicodeEncodeError روی کدپیجِ قدیمی
+        pass
+    try:
+        sys.stderr.buffer.write(line.encode("utf-8", "replace") + b"\n")
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def opt_in_enabled(env=None) -> bool:
+    """رأیِ صریحِ مالک. غیاب یا هر مقدارِ دیگر = خاموش (fail-closed)."""
+    src = os.environ if env is None else env
+    try:
+        return str(src.get(OPT_IN_ENV, "")).strip().lower() in _TRUTHY
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def require_opt_in(env=None) -> None:
+    """گاردِ ورودی: بدونِ رأیِ مالک با کدِ ناصفر خارج شو — پیش از هر شبکه،
+    و پیش از اینکه توکن اصلاً خوانده شود."""
+    if opt_in_enabled(env):
+        return
+    for line in _REFUSAL_LINES:
+        _emit(line)
+    raise SystemExit(REFUSAL_EXIT_CODE)
 
 
 # ── پیکربندی ─────────────────────────────────────────────────────────────
@@ -42,6 +110,7 @@ def _is_owner(chat_id) -> bool:
 # ── شبکه (نازک) ──────────────────────────────────────────────────────────
 
 def _api(method: str, **params):
+    require_opt_in()          # چوک‌پوینتِ شبکه: پیش از import/فراخوانیِ requests
     import requests
     try:
         r = requests.post(_API.format(token=_token(), method=method),
@@ -323,6 +392,7 @@ def _set_pause(on: bool) -> None:
 
 def poll_once(offset: int) -> int:
     """یک دورِ getUpdates + پردازش. آخرین update_id+1 را برمی‌گرداند."""
+    require_opt_in()          # نقطهٔ ورودِ long-poll — قبل از هر چیزِ دیگر
     resp = _api("getUpdates", offset=offset, timeout=30)
     if not resp or not resp.get("ok"):
         return offset
@@ -366,6 +436,7 @@ def _global_stop() -> bool:
 
 
 def run_bot() -> None:
+    require_opt_in()          # اولین دستور: قبل از خواندنِ توکن، قبل از هر شبکه
     if not is_configured():
         print("تلگرام تنظیم نشده — TELEGRAM_BOT_TOKEN و TELEGRAM_CHAT_ID را در .env بگذار.")
         print("راهنما: TELEGRAM_SETUP.md")

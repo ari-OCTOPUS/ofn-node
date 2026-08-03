@@ -62,6 +62,10 @@ BRAKE_PERIOD_S = float(os.environ.get("PULSE_ARBITER_BRAKE_S", str(MAX_S)))
 # کفِ precision برای قلبِ حاضر (تا Σπ هرگز صفر نشود و رأیش کاملاً محو نشود)
 PI_FLOOR = 0.05
 
+#: ریتمِ اعلام‌شدهٔ `heart-shadow-latest.json` — هر ~۵ بیت. برای تشخیصِ HELD لازم
+#: است: این ظرف کندتر **نوشته** می‌شود از آنچه **خوانده** می‌شود.
+_SHADOW_CADENCE_S = float(os.environ.get("PULSE_ARBITER_SHADOW_CADENCE_S", "220.0"))
+
 # ── 2027-alignment (active-inference): precisionِ inverse-variance به‌جای gainِ دستی ──
 # استانداردِ ۲۰۲۷ (pymdp γ / predictive-coding؛ [[2027 Standards Base & Backlog]] #۲):
 # وزنِ هر کانال = inverse-varianceِ سیگنالِ خودش، نه ثابتِ دست‌چین (۱.۰/۰.۷). پشتِ فلگِ
@@ -128,8 +132,20 @@ def _apply_precision(votes: list[dict]) -> list[dict]:
 # هستهٔ خالص — سه رأی → یک period. بدونِ I/O، کاملاً تست‌پذیر.
 # ════════════════════════════════════════════════════════════════════════════════
 def _vote(name: str, period, braking: bool, precision: float,
-          color: str = "GREEN", present: bool = True, note: str = "") -> dict:
-    """یک رأیِ نرمال‌شدهٔ قلب. period=None یا present=False → قلب رأی نمی‌دهد (abstain)."""
+          color: str = "GREEN", present: bool = True, note: str = "",
+          mode: str = "LIVE", dof: int = 0, last_change_ts=None) -> dict:
+    """یک رأیِ نرمال‌شدهٔ قلب. period=None یا present=False → قلب رأی نمی‌دهد (abstain).
+
+    ۲۰۲۶-۰۸-۰۳ (گامِ ۱۰، جزءِ C11): هر رأی حالا `mode`/`dof`/`last_change_ts` هم
+    حمل می‌کند. بدونِ این‌ها «حاضر بودن» و «حرف تازه داشتن» یکی می‌شدند — و همان
+    باعث شد داور با یک متحرک و دو ثابت، `driver="consensus"` و `n_present=3` و
+    `color=GREEN` منتشر کند. حضور رأی نیست؛ **حرکت** رأی است.
+
+        LIVE      عدد واقعاً تازه است
+        HELD      اسنپ‌شاتِ نگه‌داشته‌شده (نوشته کندتر از خوانده)
+        CONSTANT  تابعِ قطعیِ ورودی‌هایی که تکان نمی‌خورند (dof=1)
+        UNKNOWN   نمی‌دانیم
+    """
     p = None
     if present and period is not None:
         try:
@@ -146,6 +162,9 @@ def _vote(name: str, period, braking: bool, precision: float,
         "precision": _clamp(float(precision) if precision is not None else 1.0, 0.0, 1.0),
         "color": color if color in _COLOR_RANK else "GREEN",
         "note": note,
+        "mode": mode if mode in ("LIVE", "HELD", "CONSTANT", "UNKNOWN") else "UNKNOWN",
+        "dof": int(dof) if isinstance(dof, int) else 0,
+        "last_change_ts": last_change_ts,
     }
 
 
@@ -202,10 +221,25 @@ def arbitrate(votes: list[dict], base_period_s: float = BASE_PERIOD_S,
             if v.get("braking"):
                 reasons.append(f"ترمزِ «{v['heart']}»: {v.get('note') or 'braking'} → period≥{brake_s:.0f}s")
     else:
-        driver = "consensus"
-        fastest = min(present, key=lambda v: float(v["period_s"]))
-        reasons.append(f"اجماعِ {len(present)} قلب (وزن‌دار) → {consensus:.0f}s؛ "
-                       f"تندترین «{fastest['heart']}» {float(fastest['period_s']):.0f}s")
+        # ── قاعدهٔ سختِ C11 (۲۰۲۶-۰۸-۰۳): «اجماع» فقط وقتی معنا دارد که بیش از یک
+        # قلب واقعاً حرف تازه بزند. سنجیده: با یک متحرک و دو ثابت، این تابع
+        # `driver="consensus"` و `n_present=3` و `color=GREEN` منتشر می‌کرد —
+        # بلندترین دروغِ باربرِ ارگانیسم. حضور رأی نیست؛ حرکت رأی است.
+        movers = [v["heart"] for v in present if v.get("mode") == "LIVE"]
+        if len(movers) == 1:
+            driver = f"solo:{movers[0]}"
+            reasons.append(f"تنها «{movers[0]}» متحرک است؛ بقیه نگه‌داشته/ثابت‌اند — "
+                           f"اجماع نیست، یک قلب می‌راند → {consensus:.0f}s")
+        elif not movers:
+            driver = "frozen"
+            reasons.append(f"هیچ قلبی حرف تازه ندارد (همه HELD/CONSTANT) → {consensus:.0f}s "
+                           f"عددی ثابت است، نه اجماع")
+        else:
+            driver = "consensus"
+            fastest = min(present, key=lambda v: float(v["period_s"]))
+            reasons.append(f"اجماعِ {len(movers)} قلبِ متحرک (از {len(present)} حاضر، وزن‌دار) "
+                           f"→ {consensus:.0f}s؛ تندترین «{fastest['heart']}» "
+                           f"{float(fastest['period_s']):.0f}s")
     if color == "RED":
         reasons.append("رنگِ آشتی RED — throttle/observe (بدترین قلبِ حاضر)")
 
@@ -220,6 +254,12 @@ def arbitrate(votes: list[dict], base_period_s: float = BASE_PERIOD_S,
         "votes": votes,
         "n_present": len(present),
         "n_braking": len(brakes),
+        # C11: تفکیکِ «حاضر» از «متحرک». `n_present=3` تنها چیزی بود که منتشر
+        # می‌شد و همان اطمینانِ کاذب می‌ساخت — سه رأی، ولی یکی حرف تازه داشت.
+        "n_moving": sum(1 for v in present if v.get("mode") == "LIVE"),
+        "n_held": sum(1 for v in present if v.get("mode") == "HELD"),
+        "n_constant": sum(1 for v in present if v.get("mode") == "CONSTANT"),
+        "n_unknown_mode": sum(1 for v in present if v.get("mode") == "UNKNOWN"),
     }
 
 
@@ -246,7 +286,15 @@ def _cardiac_vote(cardiac_snapshot: dict | None = None) -> dict:
         depleted = bool(bud.get("depleted"))
         pace = bio.get("pace", "balanced")
         color = "AMBER" if depleted else "GREEN"
+        # تمبرِ ساختاری (C11): `bio_rhythm.period_s` تابعِ قطعیِ mass است و mass فقط
+        # از organهای بودجه و `fitness attribution.confirmed` رشد می‌کند. تا وقتی
+        # mass روی کفِ ۱.۰ نشسته، این عدد ریاضیاً ثابت است — پس CONSTANT با dof=1،
+        # بدونِ نیاز به هیچ تاریخچه‌ای. سنجیده: از ۰۷-۲۸ همان ۴۲.۴۲۶۴ ثانیه.
+        _mass = bio.get("mass")
+        _pinned = (_mass is None) or (float(_mass) <= 1.0)
+        _mode = "CONSTANT" if _pinned else "LIVE"
         return _vote("cardiac", period, depleted, 1.0, color=color,
+                     mode=_mode, dof=1 if _pinned else 0,
                      note=f"pace={pace}" + (" · بودجه تمام" if depleted else ""))
     except Exception as e:  # noqa: BLE001 — قلبِ غایب هرگز داور را نمی‌کشد
         return _vote("cardiac", None, False, 0.0, present=False,
@@ -279,8 +327,21 @@ def _control_vote(heart_shadow: dict | None = None) -> dict:
         precision = float(pi) if isinstance(pi, (int, float)) else 1.0
         color = "RED" if braking else "GREEN"
         note = reason or ("drift" if drift else "velocity-tracking")
+        # تمبرِ کهنگی (C11): این ظرف هر ~۵ بیت (~۲۲۰s) **نوشته** و هر تیک (~۵۷s)
+        # **خوانده** می‌شود. یعنی چهار تیک از پنج، یک اسنپ‌شاتِ نگه‌داشته‌شده به‌عنوان
+        # رأیِ زنده شمرده می‌شد. با `ts` ِ خودِ رکورد سنجیده می‌شود، نه با mtime —
+        # ۱۴ از ۲۰ فایلِ این پوشه گیت‌tracked اند و mtime شان آرتیفکتِ merge است.
+        _mode, _dof = "LIVE", 0
+        try:
+            import provenance as _prov   # _ops/provenance.py
+            _st = _prov.stamp(period, "heart-shadow-latest.json",
+                              _prov.observed_in(rec or {}), _SHADOW_CADENCE_S)
+            _mode = _st.get("mode", "UNKNOWN")
+            _dof = int(_st.get("dof") or 0)
+        except Exception:  # noqa: BLE001
+            _mode = "UNKNOWN"
         vote = _vote("control_law", period, braking, precision, color=color,
-                     note=str(note))
+                     mode=_mode, dof=_dof, note=str(note))
         # ۲۰۲۷: precisionِ کانونیِ control_law.precision_weight (اگر HEART_PRECISION_WEIGHT
         # روشن بوده) برای مسیرِ PULSE_ARBITER_PRECISION نگه داشته می‌شود (بازاستفاده، نه کپی)
         if isinstance(pi, (int, float)):
@@ -316,7 +377,11 @@ def _rhythm_vote(rhythm_state: dict | None = None) -> dict:
         note = f"mode={st.get('mode_focus', '?')}/{color}"
         if isinstance(hrv, (int, float)):
             note += f" · hrv={hrv:.2f}"
-        return _vote("rhythm", t_beat, braking, 0.7, color=color, note=note)
+        # تنها قلبِ واقعاً متحرک: `organism.py` هر تیک `rhythm_beat` را تازه صدا
+        # می‌زند، پس این عدد در همان تیک ساخته شده. سنجیده: ۱۰۰٪ حرکتِ اجماع فقط
+        # نویزِ ۱/f همین یکی است.
+        return _vote("rhythm", t_beat, braking, 0.7, color=color, note=note,
+                     mode="LIVE", dof=0)
     except Exception as e:  # noqa: BLE001
         return _vote("rhythm", None, False, 0.0, present=False,
                      note=f"err:{type(e).__name__}")

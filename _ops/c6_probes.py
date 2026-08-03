@@ -717,3 +717,224 @@ PROBES["romajan_engine_idle"] = {
     "falsification": ["age_days <= 7"],
     "fix_hint": "owner runs engine_a/evalharness or touches ledger; no auto-exec from C6",
 }
+
+
+# ─── C14 · پروبِ «پولرِ دومِ نهفته» روی یک توکن (409) ─────────────────────────
+# گامِ ۶ ِ UNIFICATION-DESIGN-2026-08-03.
+#
+# قاعده: **حداکثر یک** نقطهٔ ورودِ long-poll ِ getUpdates روی نامِ توکنِ مرکزِ
+# زنده قابلِ رسیدن باشد. دو پولر روی یک توکن ⇒ 409 Conflict ⇒ آپدیت‌ها را
+# هرکدام که برنده شد می‌بلعد و فشارِ دکمهٔ مالک بی‌صدا گم می‌شود.
+#
+# سه‌حالتی، چون «نمی‌دانم» و «امن» یکی نیستند (درسِ ثبت‌شدهٔ این vault):
+#   ACTIVE   — ماژول رکوردِ نبضی را که **خودش نامش را می‌برد** تازه نگه داشته.
+#   LATENT   — کد هست، نبضی نیست، و بدونِ رأیِ صریحِ مالک اصلاً بالا نمی‌آید
+#              (گاردِ fail-closed در خودِ ماژول، و opt-inش در هیچ فلگِ
+#              بارگذاری‌شده‌ای مسلح نیست).
+#   UNKNOWN  — نبض نیست ولی مسیرِ روشن‌شدن (لانچر/.bat) هست و گاردی نیست ⇒
+#              محتاطانه «قابلِ رسیدن» شمرده می‌شود، نه امن.
+# count = قابلِ‌رسیدن‌ها (ACTIVE + UNKNOWN). floor=1 ⇒ ۲ یعنی مرکز در آستانهٔ
+# ازدست‌دادنِ updateهایش است.
+_POLL_METHOD = "getUpdates"
+_SHARED_TOKEN_ENV = "TELEGRAM_BOT_TOKEN"     # نامی که مرکزِ زنده هم می‌خواند
+_POLLER_FRESH_S = 1800.0
+_POLLER_GUARD_SYMBOL = "require_opt_in"
+_POLLER_ROOTS = ("_ops/*.py", "_ops/budget/*.py", "_ops/telegram_center/*.py",
+                 "_ops/legs/*.py", "_ops/cortex/*.py", "4d_system/brain/*.py")
+_POLLER_LAUNCHERS = ("_ops/*.cmd", "_ops/*.bat", "_ops/*.ps1", "*.cmd", "*.bat",
+                     "4d_system/scripts/*.bat", "4d_system/scripts/*.ps1")
+_TRUTHY_FLAG = ("1", "true", "yes", "on")
+
+
+def _poller_sources(repo: Path) -> list:
+    """اسکنِ **کم‌عمقِ** نامیده‌شده — هرگز rglob روی کلِ درخت.
+    (این لپ‌تاپ دو آنتی‌ویروسِ لحظه‌ای دارد؛ اسکنِ بازگشتی پاتولوژیک است.)"""
+    out: list = []
+    for pat in _POLLER_ROOTS:
+        out.extend(sorted(repo.glob(pat)))
+    return [p for p in out
+            if "tests" not in p.parts and "_agent_reports" not in p.parts]
+
+
+def _poller_facts(path: Path) -> dict | None:
+    """حقایقِ ASTی یک ماژول. AST نه grep: grep کامنت و نثرِ docstring را
+    می‌شمارد و همین‌جا چهار فایل را کاذباً نامزد می‌کرد."""
+    import ast       # noqa: PLC0415
+    import warnings  # noqa: PLC0415
+    try:
+        # SyntaxWarning ِ فایل‌های اسکن‌شده مالِ ما نیست و خروجیِ پروب را کثیف
+        # می‌کند؛ خودِ parse همچنان fail-soft است.
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", SyntaxWarning)
+            tree = ast.parse(path.read_text("utf-8", errors="replace"),
+                             filename=str(path))
+    except (OSError, SyntaxError, ValueError):
+        return None
+    consts = {n.value for n in ast.walk(tree)
+              if isinstance(n, ast.Constant) and isinstance(n.value, str)}
+    envs: set = set()
+    for n in ast.walk(tree):
+        if not isinstance(n, ast.Call) or not n.args:
+            continue
+        a0 = n.args[0]
+        if not (isinstance(a0, ast.Constant) and isinstance(a0.value, str)):
+            continue
+        fname = getattr(n.func, "attr", None) or getattr(n.func, "id", None)
+        if fname in ("getenv", "_env_str", "_env_int"):
+            envs.add(a0.value)
+        elif fname == "get":
+            v = getattr(n.func, "value", None)
+            if ((isinstance(v, ast.Attribute) and v.attr == "environ")
+                    or (isinstance(v, ast.Name) and v.id == "environ")):
+                envs.add(a0.value)
+    funcs = {n.name for n in ast.walk(tree)
+             if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))}
+    return {
+        # `== "getUpdates"` نه `in`: نامِ متدِ پاس‌شده به سازندهٔ URL، نه نثر.
+        "polls": _POLL_METHOD in consts,
+        "token_envs": {e for e in envs if e.endswith("_TOKEN")},
+        "funcs": funcs,
+        "pulse_names": {c for c in consts if c.endswith(".json")},
+        "opt_in_envs": {c for c in consts if c.startswith("OCTOPUS_") and "OPT_IN" in c},
+    }
+
+
+def _poller_pulse_age_s(state_dir: Path, names) -> float | None:
+    """تازه‌ترین سنِ رکوردِ نبضی که خودِ ماژول نامش را می‌برد.
+    سن از `ts` ِ **درونِ** فایل خوانده می‌شود، هرگز از mtime (mtime اینجا
+    آرتیفکتِ merge است — تا ۶.۶ ساعت جلوترِ محتوا)."""
+    best = None
+    for name in sorted(names):
+        p = state_dir / "pulse" / name
+        try:
+            if not p.exists():
+                continue
+            doc = json.loads(p.read_text("utf-8"))
+        except (OSError, ValueError):
+            continue
+        ts = doc.get("ts") if isinstance(doc, dict) else None
+        if not isinstance(ts, str):
+            continue
+        try:   # opslib.now_iso() ساعتِ **محلی** می‌نویسد؛ محلی هم خوانده شود
+            t = time.mktime(time.strptime(ts[:19], "%Y-%m-%dT%H:%M:%S"))
+        except ValueError:
+            continue
+        age = time.time() - t
+        if best is None or age < best:
+            best = age
+    return best
+
+
+def _poller_opt_in_armed(state_dir: Path, names) -> str | None:
+    """آیا opt-in ِ گارد در پروسهٔ زنده‌ای مسلح است؟ فقط **نامِ** فلگ مقایسه
+    می‌شود؛ هیچ مقداری خوانده/چاپ نمی‌شود (فایل شاملِ نامِ secretهاست)."""
+    if not names:
+        return None
+    try:
+        files = sorted(state_dir.glob("flags-loaded-*.json"))
+    except OSError:
+        return None
+    for p in files:
+        try:
+            doc = json.loads(p.read_text("utf-8"))
+        except (OSError, ValueError):
+            continue
+        flags = doc.get("flags") if isinstance(doc, dict) else None
+        if not isinstance(flags, dict):
+            continue
+        for n in names:
+            if str(flags.get(n, "")).strip().lower() in _TRUTHY_FLAG:
+                return p.name
+    return None
+
+
+def _poller_ignition(repo: Path, path: Path) -> list:
+    """لانچرهایی که این ماژول را نام می‌برند — «مسیرِ روشن‌شدن»، نه اثبات اجرا."""
+    stem = path.stem
+    dotted = ".".join(path.parts[-2:])[:-3] if len(path.parts) >= 2 else stem
+    hits = []
+    for pat in _POLLER_LAUNCHERS:
+        for f in sorted(repo.glob(pat)):
+            try:
+                txt = f.read_text("utf-8", errors="replace")
+            except OSError:
+                continue
+            if dotted in txt or (stem + ".py") in txt:
+                hits.append(f.name)
+    return hits
+
+
+def _probe_latent_second_poller(repo_root=None, state_dir=None) -> dict:
+    """چند ماژول می‌توانند روی **همان توکن** getUpdates بزنند، و چندتاشان
+    قابلِ رسیدن‌اند؟ فقط‌خواندنی: صفر شبکه، صفر اجرا، صفر نوشتن."""
+    try:
+        repo = Path(repo_root) if repo_root else OPS.parent
+        sd = Path(state_dir) if state_dir else opslib.STATE_DIR
+        srcs = _poller_sources(repo)
+        if not srcs:
+            return {"count": -1, "unit": "poller",
+                    "detail": f"UNKNOWN: هیچ سورسی زیرِ {repo} اسکن نشد"}
+        cands, fallbacks, parsed = [], [], 0
+        for p in srcs:
+            f = _poller_facts(p)
+            if f is None:
+                continue
+            parsed += 1
+            if not f["polls"] or _SHARED_TOKEN_ENV not in f["token_envs"]:
+                continue
+            rel = p.relative_to(repo).as_posix()
+            distinct = sorted(f["token_envs"] - {_SHARED_TOKEN_ENV})
+            if distinct:
+                # توکنِ پیش‌فرضش **متمایز** است و فقط در fallback به نامِ مشترک
+                # می‌رسد؛ نامزدِ هم‌ردهٔ بقیه نیست، ولی پنهانش هم نمی‌کنیم.
+                fallbacks.append(f"{rel}(prefers {distinct[0]})")
+                continue
+            cands.append((rel, p, f))
+        if parsed == 0:
+            return {"count": -1, "unit": "poller",
+                    "detail": f"UNKNOWN: {len(srcs)} فایل خوانده شد ولی هیچ‌کدام parse نشد"}
+        if not cands:
+            return {"count": -1, "unit": "poller",
+                    "detail": (f"UNKNOWN: هیچ نامزدی روی {_SHARED_TOKEN_ENV} پیدا نشد در "
+                               f"{parsed} ماژولِ اسکن‌شده — پیش‌فرضِ اسکن مشکوک است")}
+        reachable, parts = 0, []
+        for rel, p, f in cands:
+            age = _poller_pulse_age_s(sd, f["pulse_names"])
+            armed = _poller_opt_in_armed(sd, f["opt_in_envs"])
+            guarded = (_POLLER_GUARD_SYMBOL in f["funcs"]) and bool(f["opt_in_envs"])
+            ignition = _poller_ignition(repo, p)
+            if age is not None and age <= _POLLER_FRESH_S:
+                state, why = "ACTIVE", f"pulse age={age:.0f}s"
+            elif guarded and not armed:
+                state, why = "LATENT", f"fail-closed guard {sorted(f['opt_in_envs'])[0]}"
+            elif ignition:
+                state, why = "UNKNOWN", f"ignition={ignition[:2]} no-pulse guard={guarded}"
+            else:
+                state, why = "LATENT", "no pulse, no ignition path"
+            if state in ("ACTIVE", "UNKNOWN"):
+                reachable += 1
+            parts.append(f"{rel}={state}({why})")
+        tail = f" | fallback-only: {', '.join(fallbacks)}" if fallbacks else ""
+        return {"count": reachable, "unit": "poller",
+                "detail": (f"candidates={len(cands)} reachable={reachable} on "
+                           f"{_SHARED_TOKEN_ENV} | " + " ".join(parts) + tail)}
+    except Exception as e:  # noqa: BLE001
+        return {"count": -1, "unit": "poller", "detail": f"probe-failed:{type(e).__name__}"}
+
+
+PROBES["latent_second_poller"] = {
+    "measure": _probe_latent_second_poller, "floor": 1, "unit": "poller",
+    # عمداً بدونِ `reads`: قاعدهٔ predicate_never_matches روی یک ذخیرهٔ JSON با
+    # رکوردهای فیلددار تعریف شده؛ predicate این پروب روی **درختِ سورس** (AST)
+    # است. اعلانِ ساختگی باعث می‌شد آن قاعده بی‌صدا skip کند و در عین حال سندی
+    # بسازد که انگار سنجیده می‌شود — دقیقاً همان سبزِ دروغینی که می‌خواهیم نباشد.
+    "subject": "getUpdates long-poll entrypoints sharing one bot token (409)",
+    "question": "آیا بیش از یک پولرِ getUpdates روی توکنِ مرکزِ زنده قابلِ رسیدن است؟",
+    "hypothesis": ("more than one module can long-poll getUpdates on the live centre's "
+                   "token env name; Telegram answers 409 Conflict and the owner's "
+                   "button presses are eaten by whichever poller wins."),
+    "expected_artifact": "count of reachable getUpdates pollers on the shared token",
+    "falsification": ["reachable <= 1 (exactly one poller owns the token)"],
+    "fix_hint": ("give the second poller a distinct *_BOT_TOKEN, or keep it behind a "
+                 "fail-closed opt-in guard as 4d_system/brain/telegram_bot.py now is"),
+}

@@ -329,6 +329,19 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_provenance.py",
          "test_lifecycle_fold.py",
          "test_probe_predicate_rule.py",
+         # ۰۸-۰۳ گام‌های ۶–۱۱. همه گارد یا صداقتِ گزارش‌اند، هیچ‌کدام رفتار عوض نمی‌کنند:
+         # ۶ ← ۴۰۹ ِ نهفتهٔ باتِ ۴D پیش از هر دست‌زدنی به آن دایرکتوری خنثی شد
+         # ۷ ← فایل‌های ACTIVATION-* گیت‌ایگنورند، پس حذفشان تاریخچه ندارد؛ heartstate
+         #     با فایل مسلح است نه env، و هر ممیزیِ فلگ آن را «خاموش» می‌خواند
+         # ۸ ← دو کلاسِ phantom: تستِ ثبت‌شدهٔ untracked (۱۳ مورد) و فلگِ بی‌محلِ اعلان
+         # ۱۰ ← «اجماع» با یک قلبِ متحرک و دو ثابت دیگر ممکن نیست
+         # ۱۱ ← دقیقاً یک نویسنده روی ORGANISM-STATE.json (مستقیم و غیرمستقیم)
+         "test_latent_poller_guard.py",
+         "test_activation_flag_presence.py",
+         "test_phantom_guards.py",
+         "test_sync_health_unknown.py",
+         "test_arbiter_consensus_rule.py",
+         "test_state_write_monopoly.py",
          # ۰۸-۰۳ گام‌های ۴ و ۵. گام ۴: اسکنِ نقشه هرگز والت را ندیده بود — سقفش در
          # محلِ فراخوانی هاردکد بود و `.claude` استثنا نشده بود، پس ۴۹٬۹۳۹ از ۵۰٬۰۰۰
          # رکورد نُه رونوشتِ کهنهٔ والت زیرِ worktreeها بودند. گام ۵: `_sha256_file`
