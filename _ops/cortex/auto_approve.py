@@ -127,7 +127,7 @@ def _matrix():
 _RISK_CLASS = {"high": 4, "med": 3, "medium": 3, "low": 1}
 
 
-def _shadow_gate(p: dict, risk: str, imp: bool) -> None:
+def _shadow_gate(p: dict, risk: str, imp: bool) -> bool:
     """گیتِ ۵۱/۴۹ را **موازیِ** مسیرِ امروز می‌سنجد — بدونِ هیچ اثری بر تصمیم.
 
     چرا سایه و نه سیم: قبل از اینکه اجازهٔ اجرا به چیزی بدهیم باید بدانیم چند بار
@@ -164,8 +164,20 @@ def _shadow_gate(p: dict, risk: str, imp: bool) -> None:
                  decision={"executor": rec.get("executor"),
                            "destruction_risk": rec.get("destruction_risk")},
                  meta={"source": "auto_approve.decide"})
+        # VQ-DEEP-GATE-AUTHORITATIVE-001 (۲۰۲۶-۰۸-۰۳، رأیِ مالک «زنده‌اش کن»).
+        # تا امروز این تابع `None` می‌داد و `rec` دور ریخته می‌شد — یعنی خوانندهٔ
+        # **عمیق** (که `flatten()` می‌زند و مبلغِ تودرتو را می‌بیند) فقط ناظری بود
+        # که هیچ‌چیز را عوض نمی‌کرد، و خوانندهٔ **کم‌عمق** مرجع می‌ماند. نمونهٔ
+        # بلایندسپات #۱۳۸: `{"params": {"amount_aud": 500}}` برای `is_important`
+        # و `classify` هر دو یک بلابِ خالی است ⇒ «آزاد» طبقه‌بندی می‌شد.
+        # حالا نتیجه برمی‌گردد. مصرفش در `decide()` عمداً **یک‌جهته** است —
+        # فقط می‌تواند escalate کند، هرگز چیزی را آزاد نمی‌کند (همان الگوی
+        # `_autonomy_allows`). پس بدترین حالتِ یک مثبتِ کاذب، یک سؤالِ اضافه از
+        # مالک است، نه یک اثرِ بی‌گیت.
+        return bool(rec.get("destruction_risk"))
     except Exception:  # noqa: BLE001
         pass
+    return False
 
 
 def _autonomy_allows(p: dict, risk: str, imp: bool) -> tuple:
@@ -208,7 +220,16 @@ def decide(p: dict) -> dict:
     am = _matrix()
     free_on = bool(am and am.free_enabled())
     imp, imp_why = (am.is_important(p) if am else (False, ""))
-    _shadow_gate(p, risk, imp)          # سنجشِ سایه — هرگز تصمیم را عوض نمی‌کند
+    # خوانندهٔ عمیق (decision_gate، با flatten ِ بازگشتی). با فلگِ خاموش رفتار
+    # بایت‌به‌بایتِ قبلی است؛ با فلگِ روشن فقط **اضافه** escalate می‌کند.
+    _deep_destroy = _shadow_gate(p, risk, imp)
+    if _deep_destroy and not imp:
+        try:
+            import decision_gate as _dgf
+            if _dgf.enabled():
+                imp, imp_why = True, "خوانندهٔ عمیق: مبلغ/خطرِ تودرتو (decision_gate)"
+        except Exception:  # noqa: BLE001
+            pass
     # ۲۰۲۶-۰۷-۲۷ — `autonomy_grant` ساخته شده بود و **صفر صداکننده** داشت:
     # یعنی حتی با فلگِ روشن هیچ اتفاقی نمی‌افتاد. ماژولِ اختیار خودش یتیم بود،
     # که بدترین شکلِ ممکن است — چون از بیرون شبیهِ «اختیار داریم» به‌نظر می‌رسید.
