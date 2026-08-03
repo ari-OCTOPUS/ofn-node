@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("rhythm")
-_RH = (harness.REAL_VAULT / r"_ops\chrono_rhythm")
+_RH = (harness.SELF_OPS / "chrono_rhythm")
 if str(_RH) not in sys.path:
     sys.path.insert(0, str(_RH))
 

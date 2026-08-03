@@ -26,7 +26,7 @@ sys.path.insert(0, str(_HERE))
 import harness   # noqa: E402
 ENV = harness.setup("code-apply-wiring")
 
-_OPS = harness.REAL_VAULT / "_ops"
+_OPS = harness.SELF_OPS
 for _p in (str(_OPS), str(_OPS / "budget"), str(_OPS / "cortex")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
@@ -51,7 +51,7 @@ def _wiring_block():
 # ─── ۰: خودِ تست نباید به درختِ زنده دست بزند ─────────────────────────────
 def t_this_test_never_touches_the_live_tree():
     """اگر ایزوله‌سازی نشت کند، بقیهٔ چک‌ها ارگانیسمِ واقعی را می‌خوابانند."""
-    live = str(harness.REAL_VAULT / "_ops").lower()
+    live = str(harness.SELF_OPS).lower()
     for p in (ca.KILL, ca.ACTIVATION):
         assert not str(p).lower().startswith(live), f"مسیرِ زنده: {p}"
 

@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("proposal-buttons")
-# ⚠️ تا ۲۰۲۶-۰۸-۰۳ این `harness.REAL_VAULT / "_ops"` بود، پس `live_loop` از درختِ
+# ⚠️ تا ۲۰۲۶-۰۸-۰۳ این `harness.REAL_VAULT` بود، پس `live_loop` از درختِ
 # **زنده** import می‌شد و روی `state/channel-status.json` ِ زنده می‌نوشت.
 # `SELF_OPS` قراردادِ خودِ harness است: کدِ زیرِ آزمون = همین درخت.
 _OPS = harness.SELF_OPS

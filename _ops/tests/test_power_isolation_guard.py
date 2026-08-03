@@ -40,7 +40,7 @@ import harness  # noqa: E402
 ENV = harness.setup("power-isolation-guard")
 
 _OPS = _HERE.parent
-_LIVE = harness.REAL_VAULT / "_ops"
+_LIVE = harness.SELF_OPS
 
 
 def _run(code: str) -> str:

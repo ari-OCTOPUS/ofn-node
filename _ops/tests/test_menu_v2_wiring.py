@@ -20,7 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 harness.setup("menu-v2-wiring")
 
-_OPS = harness.REAL_VAULT / "_ops"
+_OPS = harness.SELF_OPS
 for _p in (str(_OPS), str(_OPS / "telegram_center")):
     if _p not in sys.path:
         sys.path.insert(0, _p)

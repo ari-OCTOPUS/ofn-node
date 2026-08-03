@@ -17,8 +17,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 ENV = harness.setup("adv-eval")
 
-_EVAL = harness.REAL_VAULT / "_ops" / "eval"
-_LEGS = harness.REAL_VAULT / "_ops" / "legs"
+_EVAL = harness.SELF_OPS / "eval"
+_LEGS = harness.SELF_OPS / "legs"
 for _p in (str(_EVAL), str(_LEGS)):
     if _p not in sys.path:
         sys.path.insert(0, _p)

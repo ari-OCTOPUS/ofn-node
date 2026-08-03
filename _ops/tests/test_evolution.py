@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("evolution")
-_DR = (harness.REAL_VAULT / r"_ops\doctor")
+_DR = (harness.SELF_OPS / "doctor")
 if str(_DR) not in sys.path:
     sys.path.insert(0, str(_DR))
 

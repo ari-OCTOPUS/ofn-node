@@ -7,7 +7,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 ENV = harness.setup("deep-pf")
 _PF = (harness.REAL_VAULT / r"03 - Projects\اونلی فنز")
-_NEURAL = (harness.REAL_VAULT / r"_ops\neural")
+_NEURAL = (harness.SELF_OPS / "neural")
 for _p in (str(_PF / "brain"), str(_PF / "studio"), str(_NEURAL)):
     if _p not in sys.path: sys.path.insert(0, _p)
 

@@ -27,7 +27,7 @@ sys.path.insert(0, str(_HERE))
 import harness   # noqa: E402
 ENV = harness.setup("latent-persist")
 
-_OPS = harness.REAL_VAULT / "_ops"
+_OPS = harness.SELF_OPS
 for _p in (str(_OPS), str(_OPS / "budget"), str(_OPS / "neural")):
     if _p not in sys.path:
         sys.path.insert(0, _p)

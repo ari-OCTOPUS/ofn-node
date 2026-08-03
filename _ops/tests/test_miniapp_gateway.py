@@ -244,7 +244,7 @@ def t_the_module_never_writes_the_token_to_disk_or_logs():
 
 
 def t_state_stays_inside_the_isolated_tree():
-    live = str(harness.REAL_VAULT / "_ops").lower()
+    live = str(harness.SELF_OPS).lower()
     assert not str(_stop_file()).lower().startswith(live), _stop_file()
 
 

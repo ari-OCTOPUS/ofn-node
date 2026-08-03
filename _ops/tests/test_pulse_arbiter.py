@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("pulse-arbiter")
-_HEART = harness.REAL_VAULT / "_ops" / "heart"
+_HEART = harness.SELF_OPS / "heart"
 if str(_HEART) not in sys.path:
     sys.path.insert(0, str(_HEART))
 

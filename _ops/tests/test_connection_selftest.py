@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 ENV = harness.setup("connection-selftest")
 
-# ⚠️ تا ۲۰۲۶-۰۸-۰۳ این `harness.REAL_VAULT / "_ops"` بود — یعنی ماژول‌ها از درختِ
+# ⚠️ تا ۲۰۲۶-۰۸-۰۳ این `harness.REAL_VAULT` بود — یعنی ماژول‌ها از درختِ
 # **زنده** import می‌شدند. دو پیامد داشت: (۱) تست کدِ زنده را می‌سنجید نه کدِ زیرِ
 # آزمون (قراردادِ صریحِ `harness.SELF_OPS`)؛ (۲) ماژول‌هایی که مسیرِ state را نسبت به
 # **فایلِ خودشان** حساب می‌کنند — `school_bridge.AWARENESS_STATE = _HERE.parent/"state"`،

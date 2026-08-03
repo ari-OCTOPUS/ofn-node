@@ -21,7 +21,7 @@ ENV = harness.setup("indicator-scorecard")
 
 import indicator_scorecard as isc   # noqa: E402
 
-_ROOT = harness.REAL_VAULT / "_ops"          # درختِ تحتِ تست (worktree)
+_ROOT = harness.SELF_OPS          # درختِ تحتِ تست (worktree)
 _VALID = {isc.ABSENT, isc.WEAK, isc.PRESENT}
 
 

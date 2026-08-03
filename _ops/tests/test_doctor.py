@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("doctor")
-_REAL_OPS = (harness.REAL_VAULT / r"_ops")
+_REAL_OPS = (harness.SELF_OPS)
 if str(_REAL_OPS / "doctor") not in sys.path:
     sys.path.insert(0, str(_REAL_OPS / "doctor"))
 

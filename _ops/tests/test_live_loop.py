@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("live-loop")
-_OPS = (harness.REAL_VAULT / r"_ops")
+_OPS = (harness.SELF_OPS)
 _PF = (harness.REAL_VAULT / r"03 - Projects\اونلی فنز")
 for _p in (str(_OPS), str(_OPS / "brain"), str(_OPS / "budget"),
            str(_PF / "studio"), str(_PF / "brain"), str(_OPS / "legs")):

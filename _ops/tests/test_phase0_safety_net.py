@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 ENV = harness.setup("phase0-safety-net")
 
-# ⚠️ تا ۲۰۲۶-۰۸-۰۳ این `harness.REAL_VAULT / "_ops"` بود، پس `chrono` از درختِ **زنده**
+# ⚠️ تا ۲۰۲۶-۰۸-۰۳ این `harness.REAL_VAULT` بود، پس `chrono` از درختِ **زنده**
 # import می‌شد و یک اتصالِ **نوشتنی** به `F:\backup\_ops\state\chrono.db` ِ زنده باز
 # می‌کرد — همان دیتابیسی که جدولِ `gated_effect` ِ آن سنجهٔ پذیرشِ برشِ ۱ است.
 # `SELF_OPS` قراردادِ خودِ harness است: کدِ زیرِ آزمون = همین درخت، نه درختِ زنده.

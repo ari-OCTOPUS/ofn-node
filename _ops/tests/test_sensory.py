@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("sensory")
-_AFF = (harness.REAL_VAULT / r"_ops\afferent")
+_AFF = (harness.SELF_OPS / "afferent")
 if str(_AFF) not in sys.path:
     sys.path.insert(0, str(_AFF))
 

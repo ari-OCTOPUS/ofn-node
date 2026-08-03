@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 ENV = harness.setup("phase5-epi-wiring")
 
-_OPS = (harness.REAL_VAULT / r"_ops")
+_OPS = (harness.SELF_OPS)
 for _p in [str(_OPS), str(_OPS / "budget"), str(_OPS / "neural")]:
     if _p not in sys.path:
         sys.path.insert(0, _p)

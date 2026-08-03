@@ -20,7 +20,7 @@ sys.path.insert(0, str(_HERE))
 import harness   # noqa: E402
 ENV = harness.setup("vault-wires")
 
-_OPS = harness.REAL_VAULT / "_ops"
+_OPS = harness.SELF_OPS
 for _p in (str(_OPS), str(_OPS / "budget")):
     if _p not in sys.path:
         sys.path.insert(0, _p)

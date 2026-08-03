@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("cockpit")
-for _p in (str((harness.REAL_VAULT / r"_ops\brain")), str((harness.REAL_VAULT / r"_ops"))):
+for _p in (str((harness.SELF_OPS / "brain")), str((harness.SELF_OPS))):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 

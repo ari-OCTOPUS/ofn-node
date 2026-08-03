@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("panel-lead")
-sys.path.insert(0, str(harness.REAL_VAULT / "_ops" / "panel"))
+sys.path.insert(0, str(harness.SELF_OPS / "panel"))
 import server        # noqa: E402  — پنلِ واقعی
 import attribution   # noqa: E402
 

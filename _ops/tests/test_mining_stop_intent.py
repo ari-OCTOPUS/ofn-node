@@ -14,7 +14,7 @@ sys.path.insert(0, str(_HERE))
 import harness  # noqa: E402
 ENV = harness.setup("mining-stop-intent")
 
-_OPS = harness.REAL_VAULT / "_ops"
+_OPS = harness.SELF_OPS
 _LEGS = _OPS / "legs"
 for _p in (str(_OPS), str(_LEGS)):
     if _p not in sys.path:

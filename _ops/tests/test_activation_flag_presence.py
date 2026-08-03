@@ -47,7 +47,7 @@ import heartstate                                 # noqa: E402  (فلگش داخ
 
 # فلگ‌ها **داده** اند (رأیِ مالک)، نه کد: مثل بقیهٔ harness از درختِ زنده خوانده می‌شوند،
 # در حالی که منبع و رجیستری از worktree می‌آیند. در درختِ زنده هر دو یکی‌اند.
-_LIVE_OPS = (harness.REAL_VAULT / "_ops").resolve()
+_LIVE_OPS = (harness.REAL_VAULT / "_ops").resolve()   # عمداً زنده — کامنتِ بالا
 _REGISTRY = _OPS / "ACTIVATION-FLAGS.md"
 
 FLAG_GLOB = "ACTIVATION-*.flag"

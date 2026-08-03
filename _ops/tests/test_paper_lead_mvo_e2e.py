@@ -25,7 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 harness.setup("paper-lead-mvo-e2e")
 
-_OPS = harness.REAL_VAULT / "_ops"
+_OPS = harness.SELF_OPS
 for _p in (str(_OPS), str(_OPS / "legs"), str(_OPS / "outcomes"), str(_OPS / "spine"),
            str(_OPS / "memory"), str(_OPS / "metrics"), str(_OPS / "telegram_center")):
     if _p not in sys.path:

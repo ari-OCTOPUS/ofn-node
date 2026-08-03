@@ -22,7 +22,7 @@ ENV = harness.setup("leg")
 # مسیرِ legs به sys.path
 _LEGS = ENV["ops"] / "legs"
 # legs/ موقت نیست (کد واقعی) — از REAL_VAULT بخوان
-_REAL_LEGS = (harness.REAL_VAULT / r"_ops\legs")
+_REAL_LEGS = (harness.SELF_OPS / "legs")
 if str(_REAL_LEGS) not in sys.path:
     sys.path.insert(0, str(_REAL_LEGS))
 

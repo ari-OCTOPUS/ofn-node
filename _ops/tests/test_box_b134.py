@@ -14,8 +14,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 
 ENV = harness.setup("box-b134")
-_BOX = (harness.REAL_VAULT / r"_ops\doctor\box")
-_DR = (harness.REAL_VAULT / r"_ops\doctor")
+_BOX = (harness.SELF_OPS / "doctor" / "box")
+_DR = (harness.SELF_OPS / "doctor")
 for _p in (str(_BOX), str(_DR), str(_DR.parent)):
     if _p not in sys.path:
         sys.path.insert(0, _p)

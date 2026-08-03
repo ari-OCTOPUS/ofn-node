@@ -33,7 +33,7 @@ os.environ["OCTOPUS_STATE_ROOT"] = str(_OCT)
 os.environ["OPS_STATE_ROOT"] = str(_OPS_STATE)
 os.environ["OCTOPUS_VAULT_ROOT"] = str(_TMP)
 
-_OPS = harness.REAL_VAULT / "_ops"
+_OPS = harness.SELF_OPS
 for _p in (str(_OPS), str(_OPS / "telegram_center")):
     if _p not in sys.path:
         sys.path.insert(0, _p)

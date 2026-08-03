@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 harness.setup("llm-fence-coverage")
 
-_OPS = harness.REAL_VAULT / "_ops"
+_OPS = harness.SELF_OPS
 
 # inventoryِ مستندِ callerهای مستقیمِ local_llm.ask (ممیزیِ Sol 2026-07-20):
 #   model_router.py = درِ fenced (چوک؛ local_llm.ask را از داخلِ فنس صدا می‌زند) ·

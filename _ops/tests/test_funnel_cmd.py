@@ -22,7 +22,7 @@ sys.path.insert(0, str(_HERE))
 import harness   # noqa: E402
 ENV = harness.setup("funnel-cmd")
 
-# ⚠️ ۲۰۲۶-۰۷-۳۱: این خط `harness.REAL_VAULT / "_ops"` بود — یعنی سوییت کدِ
+# ⚠️ ۲۰۲۶-۰۷-۳۱: این خط `harness.SELF_OPS` بود — یعنی سوییت کدِ
 # **درختِ زنده** را می‌سنجید، نه کدی که در این checkout تغییر کرده. نتیجه:
 # هر تغییرِ worktree نامرئی بود و جهشِ عمدی هم قرمز نمی‌شد (گاردِ بی‌دندانِ
 # ساختاری). دکترینِ harness: «کدِ تحتِ آزمون = همین درخت، هرگز REAL_VAULT».

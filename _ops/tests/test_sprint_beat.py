@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 ENV = harness.setup("sprint-beat")
 
-_NEURAL = (harness.REAL_VAULT / r"_ops\neural")
+_NEURAL = (harness.SELF_OPS / "neural")
 if str(_NEURAL) not in sys.path:
     sys.path.insert(0, str(_NEURAL))
 

@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 ENV = harness.setup("txn-store")
 
-_LEGS = harness.REAL_VAULT / "_ops" / "legs"
+_LEGS = harness.SELF_OPS / "legs"
 if str(_LEGS) not in sys.path:
     sys.path.insert(0, str(_LEGS))
 import txn_store as ts   # noqa: E402

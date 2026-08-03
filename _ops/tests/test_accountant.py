@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 ENV = harness.setup("accountant")
 
-_LEGS = harness.REAL_VAULT / "_ops" / "legs"
+_LEGS = harness.SELF_OPS / "legs"
 if str(_LEGS) not in sys.path:
     sys.path.insert(0, str(_LEGS))
 import accountant  # noqa: E402

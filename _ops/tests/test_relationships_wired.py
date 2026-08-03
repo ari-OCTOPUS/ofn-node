@@ -20,7 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harness  # noqa: E402
 ENV = harness.setup("relationships-wired")
 
-_OPS = (harness.REAL_VAULT / r"_ops")
+_OPS = (harness.SELF_OPS)
 for _p in [str(_OPS), str(_OPS / "budget"), str(_OPS / "neural"),
            str(_OPS / "chrono_rhythm"), str(_OPS / "debate")]:
     if _p not in sys.path:

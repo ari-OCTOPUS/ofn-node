@@ -436,7 +436,7 @@ def t_an_undelivered_card_can_retry_later():
 
 def t_the_three_digests_share_one_gate():
     """اگر هرکدام گیتِ خودش را بنویسد، فیکس باید سه بار تکرار شود."""
-    src = (harness.REAL_VAULT / "_ops" / "wiring.py").read_text("utf-8")
+    src = (harness.SELF_OPS / "wiring.py").read_text("utf-8")
     assert src.count("def _dialogue_gate(") == 1
     assert src.count("def _dialogue_mark(") == 1
 
@@ -445,7 +445,7 @@ def t_no_caller_marks_only_on_success():
     """⚠️ گاردِ بازگشت: اگر کسی دوباره `if sent:` بنویسد، سه دایجست بی‌صدا
     به همان حلقهٔ تکرار برمی‌گردند."""
     import re
-    src = (harness.REAL_VAULT / "_ops" / "wiring.py").read_text("utf-8").splitlines()
+    src = (harness.SELF_OPS / "wiring.py").read_text("utf-8").splitlines()
     bad = []
     for n, line in enumerate(src, 1):
         if "_dialogue_mark(" in line and "def " not in line:

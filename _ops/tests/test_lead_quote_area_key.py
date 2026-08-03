@@ -16,7 +16,7 @@ sys.path.insert(0, str(_HERE))
 import harness  # noqa: E402
 harness.setup("lead-quote-area-key")
 
-_LEGS = harness.REAL_VAULT / "_ops" / "legs"
+_LEGS = harness.SELF_OPS / "legs"
 if str(_LEGS) not in sys.path:
     sys.path.insert(0, str(_LEGS))
 

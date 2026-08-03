@@ -18,7 +18,7 @@ sys.path.insert(0, str(_HERE))
 import harness   # noqa: E402
 ENV = harness.setup("command-discoverability")
 
-_OPS = harness.REAL_VAULT / "_ops"
+_OPS = harness.SELF_OPS
 _CENTER_PATH = _OPS / "telegram_center" / "center.py"
 _CENTER = _CENTER_PATH.read_text("utf-8")
 
