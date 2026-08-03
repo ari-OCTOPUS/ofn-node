@@ -476,3 +476,14 @@ fail-closed بود (امن ولی خشک).
 **بستنِ جلسه‌ی ارشد (۲۰۲۶-۰۷-۳۱):** شواهدِ بالا با خواندنِ مستقیم تأیید شد — ابزارِ repair،
 تستِ رگرسیون، و زنجیرهٔ زنده همگی موجود و سبز. این ردیف فقط closure رسمی است؛ هیچ کد
 جدیدی لازم نبود.
+## مأموریتِ یکپارچه‌سازی — ۲۰۲۶-۰۷-۳۱ (شاخهٔ claude/octopus-code-integration-175ecb، merge نشده)
+
+| ID | تصمیم | وضعیت | اثر |
+|---|---|---|---|
+| VQ-STATE-WRITE-001 | freshness ِ self-model/ORGANISM-STATE | 🟢 **ریشه در sandbox بسته شد** — منتظرِ merge | `LockedJson.write` حالا fsync + retry ِ محدود (~۱.۵s) + رسیدِ شکست در `state/write-failures.jsonl` دارد و شکست **هرگز** ساکت نیست؛ snapshot رسیدِ ≤۲۴h را blocker می‌کند (`state-write-failures-N`). ۶ سنجهٔ رفتاری + ۴ جهشِ قرمز. کامیت `0a303af`. نکتهٔ صادقانه: state ِ زنده در پروبِ امروز **تازه** بود (self-model ‏۵.۹min، ORGANISM-STATE ‏۰.۱min) — این فیکس ساختار را می‌بندد، بحرانِ فعال نبود |
+| VQ-MISSION-CARD-001 | درزِ mission→کارت | 🟢 **وصل شد (flag-off)** → کارتِ arm جدا | `emit_mission_cards` در beat: needs_approval → jobِ content-free در صفِ ap: ِ موجودِ center؛ idempotent حتی پس از رأی؛ ۷ سنجه + ۵ جهشِ قرمز. کامیت `830e38c`. **دو missionِ واقعیِ دیده‌نشده روی درخت زنده منتظرند** |
+| VQ-MISSION-CARD-ARM-001 | مسلح‌کردنِ `OCTOPUS_WIRE_MISSION_CARD` | 🔴 باز — رأیِ مالک | کارتِ کامل: `_program-deliverables/octopus-unification-2026-07-31/LIVE-GATE-CARD-MISSION-CARD.md` (merge + فلگ + restart ِ organism؛ backlog = دقیقاً ۲ کارت) |
+| VQ-MEMORY-READ-ARM-001 | مسلح‌کردنِ `OCTOPUS_WIRE_MEMORY_READ` | 🔴 باز — رأیِ مالک | retrieval ِ ساخت‌یافتهٔ مشورتی پیش از planning؛ بر plan صفر اثر (سنجه+جهش)؛ خروجی در دفترِ چرخه (`action_memories_used`) برای A/B ِ §۱۰.۵. همان کارت، بندِ جدا |
+| VQ-LIVE-DIRTY-RECONCILE-001 | آشتیِ درخت زنده با گیت | 🔴 باز — تصمیمِ مالک/لِین‌های موازی | درخت زنده ~۱۲۰ فایلِ tracked ِ کامیت‌نشده دارد (+۲۶k خط) و ارگانیسم همان را اجرا می‌کند؛ ۲۹/۳۶ قرمزِ baseline ازهمین‌جاست. نقشهٔ کامل: `02-CONFLICT-MAP.md`. این جلسه فقط کمینهٔ وابستگیِ tracked را پذیرفت (mission_contract v2 + memory v2 در `a9492c7`) و ۶۳ فایلِ بی‌گیت را نجات داد (`2ac7e9b`) |
+
+پروندهٔ کامل + baseline (۳۹۹ سوییت) + شواهدِ جهش: `_program-deliverables/octopus-unification-2026-07-31/`

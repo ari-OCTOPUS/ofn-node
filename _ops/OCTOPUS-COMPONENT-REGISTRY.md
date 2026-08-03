@@ -224,6 +224,20 @@ method: "شواهدمحور: ممیزیِ اتصالاتِ 07-18 (۲۴ اندا�
 ناوردیِ گروهِ ۱۲: صفر poller/bot ِ نو · صفر subsystem ِ تکراری · هیچ‌کدام خودش
 اعمال/ارسال نمی‌کند · A3+ ساختاراً از این مسیرها غیرقابلِ‌دسترس.
 
+## گروهِ ۱۳ — یکپارچه‌سازیِ ۰۷-۳۱ (شاخهٔ claude/octopus-code-integration-175ecb — merge نشده)
+
+| # | مسیر | چه می‌کند | فلگ | وضعیت | تست |
+|---|---|---|---|---|---|
+| UN1 | `opslib.LockedJson.write` + `_write_failure_receipt` | مسیرِ نوشتنِ کلِ state: fsync + retry ِ محدود (WinError5) + رسیدِ شکست در `state/write-failures.jsonl`؛ شکست هرگز ساکت نیست | — (همیشه فعال؛ رفتارِ موفقیت بی‌تغییر) | 🟡 INTEGRATED_IN_SANDBOX (VQ-STATE-WRITE-001) | `test_lockedjson_write.py` ۶/۶ · ۴ جهش قرمز |
+| UN2 | `unified_control/snapshot.py` (blocker ِ نو) | رسیدِ شکستِ نوشتنِ ≤۲۴h → blocker ِ `state-write-failures-N` — رسید مصرف‌کنندهٔ تصمیمی دارد | — | 🟡 INTEGRATED_IN_SANDBOX | همان سوییت |
+| UN3 | `goal_action_bridge.emit_mission_cards` + درزِ beat | mission ِ needs_approval → کارتِ content-free در صفِ ap: ِ موجود؛ idempotent حتی پس از رأی | `OCTOPUS_WIRE_MISSION_CARD` (absent=off) | 🟡 TESTED_NOT_ARMED (کارتِ VQ-MISSION-CARD-ARM-001) | `test_mission_card_seam.py` ۷/۷ · ۵ جهش قرمز |
+| UN4 | `goal_action_bridge._recall_for_goal` | retrieval ِ ساخت‌یافتهٔ مشورتی (goal/goal_key/candidate) پیش از planning؛ بر plan صفر اثر؛ در دفترِ چرخه `action_memories_used` | `OCTOPUS_WIRE_MEMORY_READ` (absent=off) | 🟡 TESTED_NOT_ARMED (A/B ِ §۱۰.۵ پیش از مصرفِ تصمیمی) | `test_memory_read_seam.py` ۵/۵ · ۳ جهش قرمز |
+| UN5 | `capability_registry.manifest_report` | MANIFEST_INVALID قابلِ‌دیدن (دلیل‌دار، dedup)؛ نامعتبر هرگز listed نمی‌شود؛ هشدار در کارتِ /x | — | 🟡 INTEGRATED_IN_SANDBOX | `test_manifest_truth.py` ۴/۴ · ۲ جهش قرمز |
+| UN6 | `world_discovery/capability-manifest.json` ✨ | اولین اعلامِ رسمیِ حسگرِ کشف؛ probe ِ صادق: TESTED_NOT_WIRED؛ ۷ سوییت/۸۵ سنجه از ۰۷-۳۱ در run_all | — | 🟡 TESTED_NOT_WIRED | `validate_contract.py` PASS (۶ manifest) |
+| UN7 | نجاتِ کدِ بی‌گیت | owner_console (کامل) + epoch_guard + ۶ ماژول + ۴۴ تستِ TESTS — مسیرِ داغِ tracked دیگر به فایلِ بی‌گیت وابسته نیست | — | 🟢 در گیت (کامیت `2ac7e9b`) | — |
+
+ناوردیِ گروهِ ۱۳: صفر تغییر در رفتارِ زنده تا merge+رأی+restart · organism/wiring/center/approval_channel لمس نشدند · نقشهٔ ناسازگاریِ درختِ زنده↔گیت: `_program-deliverables/octopus-unification-2026-07-31/02-CONFLICT-MAP.md` (VQ-LIVE-DIRTY-RECONCILE-001).
+
 ## 🌐 SPLIT + شهود — درون/بیرون و اندامِ حسیِ نو (نو ۲۰۲۶-۰۷-۲۹)
 
 رأیِ مالک: هسته بینِ دو بات تقسیم شود — باتِ ۱ «درون» (خودترمیمی/سلامت) و باتِ ۲ «بیرون» (رابطِ شخصی). طرح: `06 - Architecture Maps/TG-SPLIT-INNER-OUTER-2026-07-29.md`.
