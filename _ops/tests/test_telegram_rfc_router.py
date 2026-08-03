@@ -176,6 +176,40 @@ def t_rfc_unknown_verb_ignored():
     assert ch._pending_rfc["RFC-001"]["status"] == "pending"
 
 
+# ═══ VQ-RFC-RAM-FIRST-001 (برشِ ۲): کانالِ تازه هم باید verdict ثبت کند ═══════
+
+def t_rfc_dispatch_recovers_after_fresh_channel_instance():
+    """center._bridge_callback_to_organism هر لمس یک TelegramApprovalChannel()
+    کاملاً تازه می‌سازد (self._pending_rfc خالی). قبل از فیکس، دقیقاً همین حالت
+    «RFC ناشناخته» می‌داد چون RAM قبل از verify_rfc_callback ِ ماندگار چک می‌شد —
+    یعنی هیچ کلیکِ واقعیِ RFC از این مسیر هرگز به _persist_rfc_verdict نمی‌رسید."""
+    sd = _new_state_dir()
+    ch_a = TC(token="FAKETOKEN123456", owner_chat_id=42, http_post=_fake_post_factory([]),
+             state_dir=sd)
+    assert ch_a.rfc_card("RFC-FRESH", "خلاصهٔ آزمونِ کانالِ تازه") is True
+    token = ch_a._pending_rfc["RFC-FRESH"]["token"]
+    # کانالِ کاملاً تازه — همان سازنده، صفر RAM (دقیقاً الگوی center)
+    ch_b = TC(token="FAKETOKEN123456", owner_chat_id=42, http_post=_fake_post_factory([]),
+             state_dir=sd)
+    assert "RFC-FRESH" not in ch_b._pending_rfc
+    resp = ch_b.dispatch_callback(f"rfc:merge:RFC-FRESH:{token}")
+    assert "ثبت شد" in resp, resp
+    assert ch_b._pending_rfc["RFC-FRESH"]["status"] == "merge-approved"
+
+
+def t_rfc_dispatch_fresh_channel_wrong_token_still_rejected():
+    """کانالِ تازه + توکنِ غلط → رد (بازسازی نباید احراز را دور بزند)."""
+    sd = _new_state_dir()
+    ch_a = TC(token="FAKETOKEN123456", owner_chat_id=42, http_post=_fake_post_factory([]),
+             state_dir=sd)
+    assert ch_a.rfc_card("RFC-FRESH2", "s") is True
+    ch_b = TC(token="FAKETOKEN123456", owner_chat_id=42, http_post=_fake_post_factory([]),
+             state_dir=sd)
+    resp = ch_b.dispatch_callback("rfc:merge:RFC-FRESH2:WRONGTOKEN")
+    assert "رد" in resp, resp
+    assert "RFC-FRESH2" not in ch_b._pending_rfc, "توکنِ غلط نباید حتی cache را پر کند"
+
+
 # ═══ pop_rfc_verdicts: exactly-once + ترتیبِ قطعی ═════════════════════════════
 
 def t_pop_rfc_verdicts_exactly_once_sorted():
@@ -365,6 +399,9 @@ if __name__ == "__main__":
         ("[W-3] re-card هرگز verdictِ مصرف‌نشده را clobber نمی‌کند", t_rfc_recard_never_clobbers_unconsumed_verdict),
         ("[W-3] کارتِ قدیمیِ ۳-تکه → graceful، بدونِ crash", t_rfc_legacy_3part_graceful),
         ("[W-3] فعلِ ناشناخته → نادیده", t_rfc_unknown_verb_ignored),
+        ("[برشِ ۲] کانالِ تازه هم verdict را ثبت می‌کند (RAM-first رفع شد)",
+         t_rfc_dispatch_recovers_after_fresh_channel_instance),
+        ("[برشِ ۲] کانالِ تازه + توکنِ غلط → هنوز رد", t_rfc_dispatch_fresh_channel_wrong_token_still_rejected),
         ("[W-3] pop_rfc_verdicts: exactly-once + sorted", t_pop_rfc_verdicts_exactly_once_sorted),
         ("[T-8] callbackِ مالک از poll_once به dispatch می‌رسد", t_poll_once_owner_callback_dispatched),
         ("[T-8] callbackِ غریبه dispatch نمی‌شود (allowlist)", t_poll_once_stranger_callback_not_dispatched),

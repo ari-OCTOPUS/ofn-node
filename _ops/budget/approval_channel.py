@@ -1419,7 +1419,15 @@ class TelegramApprovalChannel(ApprovalChannel):
         """شاخهٔ RFCِ dispatch_callback. ثبتِ verdict یک اثرِ پولی نیست — هیچ
         settle/gate/effectorی اینجا صدا زده نمی‌شود. اعمالِ merge پشتِ flag و با
         human-append در مسیرِ doctor است (مصرفِ pop_rfc_verdicts).
-        ضدِ replay: فقط status == 'pending' پذیرفته می‌شود؛ token با _cteq چک می‌شود."""
+
+        VQ-RFC-RAM-FIRST-001 (۲۰۲۶-۰۸-۰۳، برشِ ۲): قبلاً RAM (self._pending_rfc)
+        **اول** چک می‌شد و نبودش کارت را بی‌آنکه حتی به verify_rfc_callback ِ
+        ماندگار برسد «ناشناخته» می‌کرد. چون center._bridge_callback_to_organism
+        هر لمس یک TelegramApprovalChannel() تازه می‌سازد (سه دیکشنری‌اش ساختاراً
+        خالی)، هر کلیکِ واقعیِ RFC از این مسیر رد می‌شد. حالا ماندگار مرجعِ نهایی
+        است؛ RAM فقط cache ِ سریع است و اگر غایب بود از دلِ همان تأییدِ ماندگار
+        بازسازی می‌شود. ضدِ replay از ماندگار می‌آید: verify_rfc_callback فقط
+        decision=='SUBMITTED' را قبول می‌کند."""
         if len(parts) == 3:
             # کارتِ قدیمیِ ۳-تکه (پیش از W-3، بدونِ token/registry) — graceful، بدونِ crash
             return "رد: کارتِ قدیمی — کارتِ نو صادر می‌شود"
@@ -1428,8 +1436,8 @@ class TelegramApprovalChannel(ApprovalChannel):
         verb, rfc_id, token = parts[1], parts[2], parts[3]
         with self._lk:
             meta = self._pending_rfc.get(rfc_id)
-        if meta is None or meta.get("status") != "pending":
-            return "رد: RFC ناشناخته یا قبلاً تصمیم‌گرفته"
+        if meta is not None and not _cteq(token, meta.get("token", "")):
+            return "رد: توکنِ RFC نامعتبر/منقضی (ram-mismatch)"
         try:
             import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
             ok_rfc, _durable, why_rfc = _pcr.verify_rfc_callback(
@@ -1437,8 +1445,15 @@ class TelegramApprovalChannel(ApprovalChannel):
                 owner=self._owner)
         except Exception:
             ok_rfc, why_rfc = False, "verify-error"
-        if not ok_rfc or not _cteq(token, meta.get("token", "")):
-            return f"رد: توکنِ RFC نامعتبر/منقضی ({why_rfc})"
+        if not ok_rfc:
+            if why_rfc in ("bad-token", "token-hash-mismatch", "expired"):
+                return f"رد: توکنِ RFC نامعتبر/منقضی ({why_rfc})"
+            return "رد: RFC ناشناخته یا قبلاً تصمیم‌گرفته"
+        if meta is None:
+            # کانالِ تازه: ماندگار تأیید کرد — RAM برای بقیهٔ این تابع بازسازی می‌شود.
+            with self._lk:
+                meta = self._pending_rfc.setdefault(
+                    rfc_id, {"summary": "(recovered)", "token": token, "status": "pending"})
         if verb == "edit":
             # 3a-afferent: [✍️ ویرایش] → حالتِ انتظارِ متنِ آزاد (الگوی acct_review).
             # هیچ verdict ثبت نمی‌شود و token مصرف نمی‌شود (decision همچنان SUBMITTED —
@@ -1500,6 +1515,15 @@ class TelegramApprovalChannel(ApprovalChannel):
                 applied=applied, receipt_id=receipt_id))
         except Exception:
             return False
+
+    def rebuild_rfc_summary(self, rfc_id: str) -> "dict | None":
+        """VQ-RFC-REBUILD-001: fallback برای doctor.run_cycle وقتی RFC از self._rfcs
+        غایب است — summary ِ durable از دفترِ کارت (pending-cards.json)."""
+        try:
+            import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+            return _pcr.reconstruct_rfc_from_card(state_dir=self._state_dir, rfc_id=rfc_id)
+        except Exception:
+            return None
 
     def pop_rfc_verdicts(self) -> list[tuple[str, str]]:
         """Legacy at-least-once lease API.

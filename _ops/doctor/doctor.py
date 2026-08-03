@@ -1041,23 +1041,44 @@ class Doctor:
                                    if rfc_id in self._rfcs else "")
                     applied = False
                     receipt_id = ""
-                    if rfc_id in self._rfcs:
+                    rfc_obj = self._rfcs.get(rfc_id)
+                    if rfc_obj is None and mapped == "merged":
+                        # VQ-RFC-REBUILD-001 (۲۰۲۶-۰۸-۰۳، برشِ ۲): self._rfcs فقط از
+                        # rfcs.json در بوت لود می‌شود. برای RFCای که آن‌جا نیست (مثلاً
+                        # rfcs.json پیش‌تر بدونِ آن بازنویسی شد)، این گیت قبلاً
+                        # applied=False می‌داد و ack_rfc_verdict مستقیم LEASED→
+                        # RECONCILE_REQUIRED می‌برد — برای همیشه، چون هیچ‌جا rfc_id به
+                        # self._rfcs اضافه نمی‌شد تا دوباره امتحان شود (شاهدِ زنده: هر
+                        # ۲۱ ردیفِ merge-approved). دفترِ کارتِ durable
+                        # (pending-cards.json) summary ِ اصلی را PERSIST-BEFORE-SEND
+                        # نگه داشته — از همان‌جا یک RFC نمادین بازسازی می‌شود.
+                        # change_level پیش‌فرض 'code' می‌ماند ⇒ apply_merge هرگز اثرِ
+                        # tune نمی‌زند، فقط رسیدِ lesson-merge می‌نویسد (بی‌خطر).
+                        rebuilt = (self._channel.rebuild_rfc_summary(rfc_id)
+                                  if hasattr(self._channel, "rebuild_rfc_summary") else None)
+                        if rebuilt and rebuilt.get("summary"):
+                            rfc_obj = RFC(rfc_id=rfc_id, bottleneck=rebuilt["summary"],
+                                         fix=rebuilt["summary"],
+                                         expected_lift="نامعلوم — بازسازی از دفترِ کارت",
+                                         status="submitted")
+                            self._rfcs[rfc_id] = rfc_obj
+                    if rfc_obj is not None:
                         if mapped == "merged" and \
                                 os.environ.get("OCTOPUS_WIRE_APPLY_MERGE", "1") == "1":
                             op_key = f"rfc:{rfc_id}:rev:{revision}"
                             # Persist RECONCILE_REQUIRED before apply. Crash after this line
                             # never auto-retries the mutation; an operation receipt closes it.
                             if not self._channel.begin_rfc_apply(rfc_id, revision, op_key):
-                                self._rfcs[rfc_id].status = "reconcile-required"
+                                rfc_obj.status = "reconcile-required"
                                 continue
                             try:
-                                applied = self.apply_merge(self._rfcs[rfc_id])
+                                applied = self.apply_merge(rfc_obj)
                                 if applied:
-                                    receipt_id = str(self._rfcs[rfc_id].ledger_ref or "")
+                                    receipt_id = str(rfc_obj.ledger_ref or "")
                             except Exception as _ame:
                                 opslib.alert([f"doctor apply_merge failed: {type(_ame).__name__}"])
                         elif mapped == "rejected":
-                            self._rfcs[rfc_id].status = "human-rejected"
+                            rfc_obj.status = "human-rejected"
                     # APPLIED only after an operation receipt. Deny is terminal REJECTED.
                     acked = self._channel.ack_rfc_verdict(
                         rfc_id, revision, applied=applied,

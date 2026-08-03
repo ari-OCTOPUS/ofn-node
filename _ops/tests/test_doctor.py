@@ -363,6 +363,54 @@ def t_run_cycle_non_blocking():
     assert elapsed < 5.0, f"run_cycle باید سریع باشد، نه {elapsed:.1f}s"
 
 
+# ════════════════════════════════════════════════════════════════════════════════
+# برشِ ۲ (۲۰۲۶-۰۸-۰۳) · VQ-RFC-REBUILD-001 — RFCی که self._rfcs نمی‌شناسد اما
+# verdict='merge-approved' ِ ماندگار دارد (دقیقاً حالتِ زندهٔ ۲۱ ردیفِ
+# rfc_decision) باید APPLIED با receipt_id بگیرد، نه ابدی RECONCILE_REQUIRED.
+# کانالِ واقعی (نه فیک) ساخته می‌شود — فیکِ سوییتِ خواهر دقیقاً همین باگ را
+# پنهان نگه داشته بود (feedback-toothless-guard).
+# ════════════════════════════════════════════════════════════════════════════════
+
+def t_run_cycle_applies_merge_for_rfc_missing_from_registry():
+    import approval_channel as ac
+    prev_secret = os.environ.get("OCTOPUS_CB_SECRET")
+    prev_owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID")
+    os.environ["OCTOPUS_CB_SECRET"] = "unit-test-rfc-rebuild-secret"
+    os.environ["TELEGRAM_OWNER_CHAT_ID"] = "777"
+    try:
+        sd = str(ENV["ops"] / "state" / "rfc-rebuild-test")
+        Path(sd).mkdir(parents=True, exist_ok=True)
+        ch = ac.TelegramApprovalChannel(
+            token="X", owner_chat_id=777, state_dir=sd,
+            http_post=lambda *a, **k: {"ok": True, "result": {"message_id": 1}})
+        assert ch.rfc_card("RFC-ghost-01", "گلوگاهِ فرضی X — فیکسِ فرضیِ Y") is True
+        token = ch._pending_rfc["RFC-ghost-01"]["token"]
+        resp = ch.dispatch_callback(f"rfc:merge:RFC-ghost-01:{token}")
+        assert "ثبت شد" in resp, resp
+        doc = _doctor(state_dir=sd, approval_channel=ch)
+        assert "RFC-ghost-01" not in doc._rfcs, (
+            "پیش‌شرطِ تست: دکتر نباید از قبل این RFC را در RAM/rfcs.json داشته باشد")
+        doc.mine = lambda trace=None: None   # فقط مصرفِ verdict مهم است، نه mine
+        doc.run_cycle(beat=1, trace={})
+        import outcomes.pending_card_recovery as pcr
+        v = pcr.load_rfc_verdicts(sd).get("RFC-ghost-01")
+        assert v is not None, "ردیفِ RFC از rfc_decision گم شد"
+        assert v["state"] == "APPLIED", (
+            f"باید APPLIED شود، ماند {v['state']!r} — دقیقاً همان باگِ ۲۱-ردیفی")
+        assert v["receipt_id"], "APPLIED بدونِ receipt_id — دقیقاً شکایتِ ۰۸-۰۳"
+        assert "RFC-ghost-01" in doc._rfcs, "بازسازی باید self._rfcs را هم پر کند (self-heal)"
+        assert doc._rfcs["RFC-ghost-01"].status == "merged"
+    finally:
+        if prev_secret is None:
+            os.environ.pop("OCTOPUS_CB_SECRET", None)
+        else:
+            os.environ["OCTOPUS_CB_SECRET"] = prev_secret
+        if prev_owner is None:
+            os.environ.pop("TELEGRAM_OWNER_CHAT_ID", None)
+        else:
+            os.environ["TELEGRAM_OWNER_CHAT_ID"] = prev_owner
+
+
 if __name__ == "__main__":
     failed = harness.run([
         # D-1 stable_read
@@ -399,5 +447,7 @@ if __name__ == "__main__":
         ("[D-6] run_cycle: RFC تولید", t_run_cycle_produces_rfc),
         ("[D-6] run_cycle: بدونِ گلوگاه → None", t_run_cycle_no_bottleneck_returns_none),
         ("[D-6] run_cycle: غیربلاک", t_run_cycle_non_blocking),
+        ("[برشِ ۲] run_cycle: RFCِ غایب از رجیستری هم APPLIED+receipt می‌گیرد",
+         t_run_cycle_applies_merge_for_rfc_missing_from_registry),
     ])
     sys.exit(1 if failed else 0)
