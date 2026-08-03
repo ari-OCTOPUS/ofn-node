@@ -1,0 +1,223 @@
+{
+  "ts": "2026-07-25T17:19:36",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.998,
+    "deadline_ref": "PROJECT_F@2026-07-20 (-5d)",
+    "anomaly": 0.0,
+    "pressure": 0.998
+  },
+  "next_epoch_minutes": 15.1,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 15.1,
+  "heart_pressure_effective": 0.998,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 4.176655,
+        "total_month_aud": 7.176655,
+        "fitness": 0.6327,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 4.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 4.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 1.870154,
+        "total_month_aud": 2.870154,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 3.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 3.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 2.590638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999999,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "ARCHITECT_SYS": {
+        "quota": 6,
+        "fitness_score": 0.85,
+        "reasoning": "[FACT] Based on historical efficiency and human priority, ARCHITECT_SYS is performing well and has a high human priority.",
+        "allocation_tag": "[EST]"
+      },
+      "GENOME_SYS": {
+        "quota": 6,
+        "fitness_score": 0.82,
+        "reasoning": "[FACT] GENOME_SYS is performing above average in terms of efficiency and value, and has a moderate human priority.",
+        "allocation_tag": "[EST]"
+      },
+      "PROJECT_F": {
+        "quota": 4,
+        "fitness_score": 0.75,
+        "reasoning": "[EST] PROJECT_F is currently underperforming but still contributes to the overall productivity of the organism.",
+        "allocation_tag": "[EST]"
+      },
+      "ZIMAN": {
+        "quota": 2,
+        "fitness_score": 0.68,
+        "reasoning": "[EST] ZIMAN has a lower human priority and is currently performing below average, but it still has a deadline within the next two weeks.",
+        "allocation_tag": "[EST]"
+      },
+      "PAINTING": {
+        "quota": 2,
+        "fitness_score": 0.65,
+        "reasoning": "[EST] PAINTING has a lower human priority and is currently underperforming, but it still contributes to the overall productivity of the organism.",
+        "allocation_tag": "[EST]"
+      },
+      "ACCOUNTING": {
+        "quota": 2,
+        "fitness_score": 0.63,
+        "reasoning": "[EST] ACCOUNTING has a lower human priority and is currently underperforming, but it still contributes to the overall productivity of the organism.",
+        "allocation_tag": "[EST]"
+      }
+    },
+    "model": "qwen2.5:latest",
+    "cost_usd": 0.0
+  },
+  "debate": {
+    "status": "queue-human",
+    "topic_id": "plan-3",
+    "rounds": 3,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از هوش مصنوعی برای تولید محتوا در زمینه خلاقیت",
+          "why_genius": "این روش می‌تواند به طور موثر کمک کند تا خلاقیت‌پذیری سامانه افزایش یابد و نوآوری‌های جدید را فراهم کند. با استفاده از الگوهای یادگرفته از داده‌های قبلی، می‌توان به طور خودکار محتوا تولید کرد و ایده‌های جدید را پیشنهاد داد.",
+          "why_insane": "استفاده از هوش مصنوعی ممکن است منجر به عدم شفافیت در فرآیند خلاقیت شود. همچنین، اگر الگوریتم‌ها ناپایدار باشند، ممکن است نوآوری‌های ناموفق را تولید کنند و سطح اطمینان کاربران را کاهش دهد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "lack of transparency and potential for generating unreliable outputs",
+          "cheapest_test": "conduct a case study on the reliability and transparency of AI-generated content in creative processes, comparing it to human-generated content",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از الگوهای پیچیده در مدل آموزشی برای تولید نتایج با کیفیت بالا",
+          "why_genius": "این روش می‌تواند جاده‌ای نوین برای بهبود کیفیت خلاقیت ارائه دهد، زیرا الگوهای پیچیده می‌توانند توانایی‌های نوآورانه و خلاق بیشتری را در مدل آموزشی فراهم کنند.",
+          "why_insane": "استفاده از الگوهای پیچیده می‌تواند منجر به عدم شفافیت بیشتر و تولید خروجی‌های ناپذیر برای درک شود، که ممکن است باعث عدم اطمینان و مقاومت جامعه دانشمندان شود.",
+          "est_tokens": 125,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "الگوهای پیچیده بدون ارزیابی دقیق ممکن است منجر به خروجی‌های ناپذیر برای درک شوند.",
+          "cheapest_test": "بررسی آزمونی با استفاده از مدل کوچکتر و مقایسه جامعه دانشمندان درباره شفافیت و قابلیت درک خروجی‌ها.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از شبکه عصبی مصنوعی برای پیش‌بینی نتایج باز ژنوم",
+          "why_genius": "شبکه‌های عصبی مصنوعی می‌توانند الگوها را با دقت بالا تشخیص دهند و پیش‌بینی کنند. این روش می‌تواند به شناسایی نمادها و الگوهای پیچیده در باز ژنوم کمک کند.",
+          "why_insane": "استفاده از شبکه‌های عصبی مصنوعی می‌تواند منجر به خروجی‌های ناپذیر برای درک شوند، زیرا خروجی‌ها پیچیده و غیرقابل فهم ممکن است باشد. این می‌تواند موجب عدم شفافیت و عدم قابلیت درک نتایج شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "网络模型的输出不可解释将导致结果不透明和难以理解，这在科学研究中是不可接受的。",
+          "cheapest_test": "使用一个简单的基因组数据集测试该神经网络模型的输出是否容易理解和解释。如果输出复杂且难以理解，则需要改进模型以提高可解释性。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

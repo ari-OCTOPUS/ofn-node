@@ -1,0 +1,194 @@
+{
+  "ts": "2026-07-28T09:54:09",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.55,
+        "DEBATE_LOOP": 0.15,
+        "GENOME_SYS": 0.3
+      },
+      "reason": "Only ARCHITECT_SYS shows realized spend; GENOME idle(0 events) but floor-protected; no anomalies [EST]"
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "killed",
+    "topic_id": "plan-7",
+    "rounds": 3,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از تکنولوژی Machine Learning برای پیش‌بینی هزینه‌ها و بهبود دستورالعمل‌های مالی",
+          "why_genius": "این روش می‌تواند اطلاعات تاریخچه‌ای را استفاده کند تا پیش‌بینی دقیق‌تری درباره هزینه‌ها ارائه دهد و به تصمیمات مالی مناسب‌تر کمک کند.",
+          "why_insane": "استفاده نامناسب از Machine Learning می‌تواند باعث خطاها و زیانات شود، از جمله عدم درک دقیق ترایده‌های داده و نتایج نادرست گرفتن.",
+          "est_tokens": 123,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "فوت تمام داده‌های تاریخچه‌ای و عدم امکان استفاده از آنها برای پیش‌بینی.",
+          "cheapest_test": "بررسی در دسترس بودن و کیفیت داده‌های تاریخچه‌ای موجود.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از شبکه های عصبی مصنوعی برای پیش‌بینی بودجه",
+          "why_genius": "شبکه‌های عصبی مصنوعی قادر به استخراج الگوهای پیچیده و پیش‌بینی آنها با دقت بالا هستند. این روش می‌تواند بخش تاریخچه‌ای کمپلکس را در نظر بگیرد و بهترین قدم بعدی را پیش‌بینی کند.",
+          "why_insane": "استفاده از شبکه‌های عصبی مصنوعی برای پیش‌بینی بودجه ممکن است ناشناخته و ناتوان باشد، زیرا داده‌ها ممکن است در خصوصیت و کیفیت ناقص باشند. همچنین، پیش‌بینی‌های دقیق احتمالاً منجر به تصمیمات نادرست شوند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "شبکه‌های عصبی مصنوعی نیاز به داده‌های کیفی و معتبر دارند، در صورتی که داده‌ها ناقص باشند، پیش‌بینی‌های دقیق احتمالاً نامناسب خواهند بود.",
+          "cheapest_test": "بررسی کیفیت و معتبر بودن داده‌های موجود برای آموزش شبکه عصبی.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از داده‌های شباهت‌برداری شده برای تقویت کیفیت مجموعه آموزشی",
+          "why_genius": "توسعه یک روش شباهت‌برداری برای پرکردن فاصله داده‌ها باعث افزایش کیفیت و معتبر بودن مجموعه آموزشی خواهد شد. این کار منجر به تولید پیش‌بینی‌های دقیق‌تر برای شبکه عصبی مصنوعی می‌شود.",
+          "why_insane": "استفاده از داده‌های شباهت‌برداری شده ممکن است منجر به فساد داده‌ها و نقض حریم خصوصی کاربران شود. همچنین، این روش ممکن است باعث افزایش زمان پردازش و هزینه‌های محاسباتی شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "kill",
+          "kill_condition": "استفاده از داده‌های شباهت‌برداری شده ممکن است منجر به فساد داده‌ها و نقض حریم خصوصی کاربران شود.",
+          "cheapest_test": "اطلاعات شخصی کاربران را بررسی کردن قبل از شباهت‌برداری و مطمئن شدن که آنها در حفظ حریم خصوصی نگهداری می‌شوند.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

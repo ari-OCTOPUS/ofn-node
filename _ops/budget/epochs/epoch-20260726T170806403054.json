@@ -1,0 +1,181 @@
+{
+  "ts": "2026-07-26T17:05:32",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "debate": {
+    "status": "queue-human",
+    "topic_id": "plan-0",
+    "rounds": 3,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از الگوریتم‌های هوش مصنوعی برای تجزیه و تحلیل داده‌های باز ژنوم",
+          "why_genius": "این رویکرد می‌تواند به شناسایی پатرین‌های جدید در باز ژنوم کمک کند و ابزارهای دقیق‌تری برای تحلیل فراهم کند.",
+          "why_insane": "استفاده از آلات هوش مصنوعی ممکن است منجر به نتایج غیرانتظارده باشد و نیاز به رقابت زیادی برای ارزیابی دقیق دارد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "الگوریتم‌های هوش مصنوعی باید با استفاده از داده‌های آزمایشگاهی دقیق و نمونه‌ها تست شوند تا اطمینان حاصل شود که نتایج دقیق و قابل اعتماد هستند.",
+          "cheapest_test": "استفاده از داده‌های آزمایشگاهی معتبر برای مقایسه نتایج الگوریتم هوش مصنوعی با روش‌های تحلیلی سنتی و تأیید یا رد فرضیات.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از داده‌های آزمایشگاهی معتبر برای بهینه‌سازی الگوریتم phase0_genome و مقایسه نتایج با روش‌های تحلیلی سنتی.",
+          "why_genius": "این رویکرد امکان پیدا کردن نقاط ضعف و قوت الگوریتم فعلی را فراهم می‌کند و نتایج دقیق‌تری در حوزه ژنوم باز را تضمین می‌کند.",
+          "why_insane": "استفاده از داده‌های آزمایشگاهی معتبر ممکن است زمان‌بر و پیچیده باشد و نتایج کوتاه مدت ممکن است تأثیر قابل توجهی بر عملکرد الگوریتم داشته باشد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "idea does not specify a clear and concrete method for validating the experimental data or comparing it with traditional analytical methods.",
+          "cheapest_test": "Specify a clear procedure for validating the experimental data, such as peer-reviewed sources or established benchmarks in genomics research.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از الگوریتم‌های یادگیری ماشین برای پیش‌بینی و مقایسه نتایج تجربی با داده‌های آنالیزیک.",
+          "why_genius": "این روش می‌تواند به طور موثر اطلاعات تجربی را با داده‌های آنالیزیک مقایسه کند و نتایج دقیق‌تری دریافت کرد. همچنین، استفاده از الگوریتم‌های یادگیری ماشین می‌تواند به شناسایی پatern‌ها و روابط پیچیده بین ویژگی‌های ژنوم کمک کند.",
+          "why_insane": "استفاده از الگوریتم‌های یادگیری ماشین ممکن است نیاز به دسترسی به داده‌های حساس و پیچیده داشته باشد که ممکن است راه‌حل مناسبی برای احراز قابلیت آن باشد. همچنین، نیاز به ترکیب داده‌های مختلف و پیاده‌سازی الگوریتم‌ها ممکن است زمان‌بر و پیچیده باشد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "缺乏具体的数据集和基准，该想法无法验证其有效性。",
+          "cheapest_test": "提供一个公开的基因组数据集和相应的分析结果，并用机器学习算法进行预测和对比。如果两者在多个指标上表现差异显著，则需进一步改进或确认数据质量。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

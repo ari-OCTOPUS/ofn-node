@@ -1,0 +1,217 @@
+{
+  "ts": "2026-07-25T16:37:58",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.998,
+    "deadline_ref": "PROJECT_F@2026-07-20 (-5d)",
+    "anomaly": 0.0,
+    "pressure": 0.998
+  },
+  "next_epoch_minutes": 15.1,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 15.1,
+  "heart_pressure_effective": 0.998,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 4.176655,
+        "total_month_aud": 7.176655,
+        "fitness": 0.6327,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 4.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 4.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 1.870154,
+        "total_month_aud": 2.870154,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 3.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 3.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 2.590638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999999,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "ARCHITECT_SYS": {
+        "quota": 2,
+        "fitness_score": 0.85,
+        "reasoning": "URGENCY: close to deadline, VALUE: high revenue potential, EFFICIENCY: above baseline"
+      },
+      "GENOME_SYS": {
+        "quota": 1.6,
+        "fitness_score": 0.75,
+        "reasoning": "URGENCY: some urgency, VALUE: moderate revenue, EFFICIENCY: slightly below baseline but still productive"
+      },
+      "PROJECT_F": {
+        "quota": 1.2,
+        "fitness_score": 0.6,
+        "reasoning": "URGENCY: moderate urgency, VALUE: good potential, EFFICIENCY: meeting baseline efficiency"
+      },
+      "ZIMAN": {
+        "quota": 0.8,
+        "fitness_score": 0.55,
+        "reasoning": "URGENCY: low urgency, VALUE: moderate revenue, EFFICIENCY: below baseline but not critical"
+      },
+      "PAINTING": {
+        "quota": 0.6,
+        "fitness_score": 0.45,
+        "reasoning": "URGENCY: low urgency, VALUE: potential for future value, EFFICIENCY: meeting baseline efficiency"
+      },
+      "ACCOUNTING": {
+        "quota": 0.4,
+        "fitness_score": 0.35,
+        "reasoning": "URGENCY: very low urgency, VALUE: minimal revenue, EFFICIENCY: meeting baseline efficiency"
+      }
+    },
+    "model": "qwen2.5:latest",
+    "cost_usd": 0.0
+  },
+  "debate": {
+    "status": "queue-human",
+    "topic_id": "plan-1",
+    "rounds": 3,
+    "queued": true,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "توسعه یک سیستم تشخیصی پیشرفته برای شناسایی ژنوم با استفاده از یادگیری عمیق",
+          "why_genius": "این سیستم می‌تواند دقت بالاتری در تشخیص ژنوم فراهم کند و منجر به پیشرفت بیشتر در تحلیل ژنومی شود. این می‌تواند به طور قابل توجهی به پروژه کمک کند.",
+          "why_insane": "برای توسعه چندرسانه‌ای پیچیده و سخت‌الساخت، منابع زیادی نیاز دارد. همچنین، احتمالات خطا و عدم قطعیت در مدل‌سازی ژنوم را می‌تواند پرت کند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "缺乏明确的性能基准和评估方法来验证系统的高精度。",
+          "cheapest_test": "定义并公开一个或多个现有的基因组识别基准数据集，并说明计划如何使用这些数据集进行模型训练和测试。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از داده‌های حسگر IoT برای بهبود دقت شناسایی ژنوم",
+          "why_genius": "این رویکرد می‌تواند با استفاده از داده‌های حسگر IoT در محیط‌های واقعی، دقت شناسایی ژنوم را بهبود بخشد. این داده‌ها می‌توانند شامل پارامترهای مانند فشار هوایی، دما و نور بررسی شوند که می‌توانند در تشخیص ژنوم‌های خاص نقش حیاتی بازی کنند.",
+          "why_insane": "استفاده از داده‌های حسگر IoT ممکن است منجر به تراز داده‌ها و اختلال در حریم خصوصی کاربران شود. علاوه بر این، همچنان نیاز به یک روش قابل اعتماد برای ارزش‌بندی دقت سیستم وجود دارد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "از لحاظ قانونی و اخلاقی، استفاده از داده‌های حسگر IoT بدون موافقت مستقیم کاربران می‌تواند منجر به تراز داده‌ها و اختلال در حریم خصوصی شود.",
+          "cheapest_test": "پرسیدن از طرف مسئول قانونی شرکت، آیا استفاده از این داده‌ها با همانگونه‌ای که توضیح داده شده، مناسب و قانونی است؟",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از الگوریتم‌های پردازش سیگنال برای تبدیل داده‌های حسگر IoT به نمادهای آنالوگ که نامشخص هستند.",
+          "why_genius": "این روش می‌تواند حریم خصوصی کاربران را محافظت کند و همچنین دقت در پردازش داده‌ها را افزایش دهد. به عنوان یک راه حل میانجی، این الگوریتم‌ها می‌توانند داده‌های حسگر را تبدیل کنند و همچنان مفید باشد.",
+          "why_insane": "استفاده از این روش می‌تواند منجر به عدم شفافیت در استفاده از داده‌ها شود و کاربران نمی‌توانند بدانند که داده‌های خود چگونه پردازش شده‌اند. همچنین، این روش ممکن است باعث تحریک حقوقی شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "缺乏对数据处理透明度和用户隐私保护措施的具体描述，以及如何防止潜在的法律问题。",
+          "cheapest_test": "提供一个详细的隐私政策和技术文档，说明如何在不损害隐私的情况下处理数据，并展示如何遵守相关法律法规。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

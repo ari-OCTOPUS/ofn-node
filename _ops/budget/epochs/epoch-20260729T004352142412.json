@@ -1,0 +1,194 @@
+{
+  "ts": "2026-07-29T00:42:08",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21624,
+    "usd": 0.021624,
+    "aud": 0.032436
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.032436,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.72,
+        "DEBATE_LOOP": 0.08,
+        "GENOME_SYS": 0.2
+      },
+      "reason": "[EST] ARCHITECT_SYS sole active spender; GENOME_SYS zero-output held at floor pending idle check."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "killed",
+    "topic_id": "seed-1",
+    "rounds": 3,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از فناوری‌های هوش مصنوعی برای پیش‌بینی و کاهش هزینه‌های رویدادهای متر صفر",
+          "why_genius": "این روش می‌تواند با استفاده از داده‌های تاریخچه‌ای از رویدادها، پیش‌بینی دقیق‌تری از زمان و مکان هر رویداد صفر بدهد. به این ترتیب، منابع محدود را می‌توان به طور مؤثرتر مدیریت کرد.",
+          "why_insane": "فناوری‌های هوش مصنوعی ممکن است نیازمند داده‌های شخصی باشد که ممکن است حفظ حریم خصوصی مشتریان را جلوگیری کند. علاوه بر این، پیش‌بینی دقیق رویدادها ممکن نیست و هزینه‌های زیادی برای توسعه و حفظ سیستم لازم است.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "فناوری‌های هوش مصنوعی نیازمند داده‌های شخصی است که ممکن است حریم خصوصی مشتریان را جلوگیری کند.",
+          "cheapest_test": "بررسی اینکه آیا استفاده از فناوری‌های هوش مصنوعی برای پیش‌بینی رویدادهای صفر با حفظ حریم خصوصی مشتریان همپوشانی دارد یا نه.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از الگوریتم‌های هوش مصنوعی بر پایه داده‌های جمع‌آوری شده از منابع عمومی و با حفظ حریم خصوصی مشتریان.",
+          "why_genius": "این روش به طور موثر در پیش‌بینی رویدادهای صفر کمک می‌کند، زیرا دسترسی به داده‌های شخصی نیازمندی ندارد و از منابع عمومی برای آموختن الگوها استفاده می‌کند.",
+          "why_insane": "امکان وجود داده‌های ناقص یا نادر در منابع عمومی وجود دارد که ممکن است دقت پیش‌بینی را کاهش دهد. همچنین، اگر الگوریتم‌ها به طور غیر منتظره تغییر کنند، دقت آن‌ها ممکن است نادیده‌گرفته شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "الگوریتم‌های هوش مصنوعی نباید به داده‌های ناقص یا نادر در منابع عمومی بستگی داشته باشند و باید دقت پیش‌بینی را حفظ کنند.",
+          "cheapest_test": "بررسی دقت الگوریتم‌ها با استفاده از داده‌های تستی مستقل برای تأیید صحت پیش‌بینی‌ها.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از شبکه‌های عصبی کاهش‌نامه شده (pruned neural networks) برای پیش‌بینی داده‌های ناقص.",
+          "why_genius": "شبکه‌های عصبی کاهش‌نامه شده می‌توانند با استفاده از الگوها و روابط بین ورودی‌ها و خروجی‌ها، داده‌های ناقص را پیش‌بینی کنند و به طور مؤثر بهبود دهند. این روش می‌تواند با کاهش حجم داده‌ها و منابع محاسباتی، هزینه‌های کلی را کاهش دهد.",
+          "why_insane": "استفاده از شبکه‌های عصبی کاهش‌نامه شده ممکن است باعث خساراتی شود زیرا نباید به داده‌های ناقص بستگی داشته باشیم. همچنین، این روش ممکن است در برخی موارد دقت پیش‌بینی را کاهش دهد و منجر به شکست‌ها یا نتایج نامناسب شود.",
+          "est_tokens": 150,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "kill",
+          "kill_condition": "رویدادهای متر صفر (suspect_zero) نمی‌توانند به صفر برسند زیرا شبکه‌های عصبی کاهش‌نامه شده ممکن است دقت پیش‌بینی را کاهش دهند و منجر به خطاها یا نتایج نامناسب شوند.",
+          "cheapest_test": "آزمایش با شبکه‌های عصبی کامل و کاهش‌نامه شده بر روی مجموعه داده‌های مشابه و مقایسه دقت پیش‌بینی آنها.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

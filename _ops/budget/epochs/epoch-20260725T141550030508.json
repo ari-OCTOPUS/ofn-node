@@ -1,0 +1,167 @@
+{
+  "ts": "2026-07-25T14:14:30",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.998,
+    "deadline_ref": "PROJECT_F@2026-07-20 (-5d)",
+    "anomaly": 0.0,
+    "pressure": 0.998
+  },
+  "next_epoch_minutes": 15.1,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 5.8333,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 15.1,
+  "heart_pressure_effective": 0.998,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 4.176655,
+        "total_month_aud": 7.176655,
+        "fitness": 0.6327,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 4.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 4.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 1.870154,
+        "total_month_aud": 2.870154,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 3.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 3.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 2.590638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999999,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "GENOME_SYS": {
+        "grant_aud": 1.4,
+        "status": "L2",
+        "reason": "[FACT] Base allocation for idle core member."
+      },
+      "ARCHITECT_SYS": {
+        "grant_aud": 0.7,
+        "status": "L2",
+        "reason": "[FACT] Consumed ~70% of monthly floor already; capped at daily safe limit (15% of remaining)."
+      },
+      "ZIMAN": {
+        "grant_aud": 0.7,
+        "status": "L2",
+        "reason": "[FACT] Base allocation for idle core member."
+      },
+      "PROJECT_F": {
+        "grant_aud": 0.0,
+        "status": "L4",
+        "reason": "[FACT] Deadline expired (2026-07-20). Hibernating per H5/H2."
+      }
+    },
+    "model": "glm-4.6",
+    "cost_usd": 0.0
+  },
+  "debate": {
+    "status": "killed",
+    "topic_id": "organ-ZIMAN",
+    "rounds": 1,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از سایت‌های مرجعي آنلاین برای خرید کتاب‌های علمی",
+          "why_genius": "این روش نمی‌تواند هزینه زیادی داشته باشد، زیرا استفاده از وب‌سایت‌ها معمولاً آزاد و بدون هزینه است. علاوه بر این، کتاب‌های علمی در آنلاین با کیفیت بالا موجودند که می‌توانند بیشترین ارزش را فراهم کنند.",
+          "why_insane": "در صورتی که سایت‌ها معتبر نباشند، خرید کتاب‌های علمی ممکن است منجر به دریافت اطلاعات نادرست و ناگهانی شود. همچنین، پشتیبانی کافی از وب‌سایت‌ها را نمی‌توان تضمین کرد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "kill",
+          "kill_condition": "سایت‌های مرجعي آنلاین نمی‌توانند همیشه معتبر و امن باشند.",
+          "cheapest_test": "بررسی تعداد سایت‌هایی که توصیه شده را برای این موضوع استفاده می‌کنند و آنها را برای نقد و بررسی مستقل فهرست می‌کنند.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

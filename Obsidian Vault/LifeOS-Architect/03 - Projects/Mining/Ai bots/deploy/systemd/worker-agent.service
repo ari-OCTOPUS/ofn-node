@@ -1,0 +1,18 @@
+[Unit]
+Description=Fleet Worker Agent (OPi5 Pro)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/ai-bots
+EnvironmentFile=/etc/worker-agent.env
+ExecStart=/home/pi/ai-bots/.venv/bin/python -m fleet.worker_agent
+Restart=always
+RestartSec=15
+StandardOutput=append:/var/log/worker-agent.log
+StandardError=append:/var/log/worker-agent.log
+
+[Install]
+WantedBy=multi-user.target

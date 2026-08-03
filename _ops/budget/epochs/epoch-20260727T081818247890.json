@@ -1,0 +1,181 @@
+{
+  "ts": "2026-07-27T08:16:08",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "debate": {
+    "status": "survived",
+    "topic_id": "seed-1",
+    "rounds": 3,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از فناوری‌های هوش مصنوعی برای پیش‌بینی و کنترل رویدادهای متر صفر (suspect_zero)",
+          "why_genius": "استفاده از AI در پیش‌بینی و مدیریت رویدادها می‌تواند به شناسایی نشاطات غیرقانونی با سرعت و دقت بالا کمک کند. این روش می‌تواند به طور موثر هزینه‌های تحقیق و توسعه، نظارت و پیگیری را کاهش دهد.",
+          "why_insane": "استفاده از فناوری‌های هوش مصنوعی ممکن است منجر به اختلالات اخلاقی شود. آنالیز داده‌ها بدون رعایت حریم خصوصی ممکن است نقض حقوق فردی باشد و بتواند در گرفتن تصمیمات غیرعادی منجر شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "فناوری‌های هوش مصنوعی باید رعایت حریم خصوصی و حقوق فردی را در نظر بگیرند.",
+          "cheapest_test": "بررسی آنالیز داده‌ها با استفاده از ابزارهای پنهان‌کردن هوش مصنوعی (privacy-preserving AI tools) و تأیید عدم نقض حریم خصوصی.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از شبکه‌های حملات محدود (Constrained Adversarial Networks) برای شناسایی و حذف اطلاعات شخصی در داده‌ها.",
+          "why_genius": "این روش توانایی تشخیص و حذف اطلاعات شخصی را بدون ناشی کردن خسارات زیادی برای فرد دارد. شبکه‌های حملات محدود می‌توانند با استفاده از هوش مصنوعی به صورت دقیق و سریع اطلاعات شخصی را شناسایی کنند و آنها را حذف کنند، بدون ناشی کردن داده‌های مهم.",
+          "why_insane": "استفاده از شبکه‌های حملات محدود ممکن است منجر به عدم اطمینان فردی در مورد حریم خصوصی آنها شود. همچنین، اگر ناگهانی برخوردهای نامناسبی باشد، ممکن است اطلاعات حساس را بدست برسند و به کاربران ناسازگاری‌های زیادی ایجاد کنند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "روش شناسایی و حذف اطلاعات شخصی با استفاده از شبکه‌های حملات محدود نمی‌تواند به صورت کامل و بدون خسارات عمل کند.",
+          "cheapest_test": "بررسی آنچه شبکه‌های حملات محدود در صورت ناگهانی برخورد با اطلاعات شخصی نمی‌توانند تشخیص دهند و آنها را حذف نکنند.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از الگوریتم‌های هوش مصنوعی برای تشخیص و حذف اطلاعات شخصی",
+          "why_genius": "الگوریتم‌های هوش مصنوعی می‌توانند با استفاده از تکنیک‌های یادگیری عمیق و پردازش زبان طبیعی، اطلاعات شخصی را با دقت بالا تشخیص دهند و حذف کنند. این روش می‌تواند به صورت خودکار و بدون نیاز به تریال-ایروی عمل کند، کاهش هزینه‌ها را فراهم کند.",
+          "why_insane": "استفاده از الگوریتم‌های هوش مصنوعی ممکن است باعث شوی به سوءاستفاده و زیان‌های جدید مانند تلفات اطلاعات شخصی، نقض حریم خصوصی و هیجان‌بازی بین مخاطبان شود. همچنین، نگرانی‌های فناوری و امنیتی وجود دارد که ممکن است منجر به مقاومت گسترده‌ای در بازار شوند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "pass",
+          "kill_condition": "اگر ۱۴ روز بگذرد و هیچ APPROVAL ثبت نشود",
+          "cheapest_test": "شمارش رویدادهای sent هفتهٔ جاری از logs/outbox.jsonl",
+          "epistemic_tag": "SPEC"
+        },
+        "cost_usd": 0.0,
+        "stub": true,
+        "tier": "mixed"
+      }
+    ]
+  }
+}

@@ -1,0 +1,202 @@
+{
+  "ts": "2026-08-01T21:09:58",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-08",
+    "musd": 0,
+    "usd": 0.0,
+    "aud": 0.0
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.05,
+      4.0379
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.0,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.496427,
+        "total_month_aud": 5.496427,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 4.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 4.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 1.845129,
+        "total_month_aud": 2.845129,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 3.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 3.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DOCTOR": {
+        "verdict": "GRANT",
+        "floor_aud": 0.0,
+        "competitive_aud": 1.845129,
+        "total_month_aud": 1.845129,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 2.562662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999995,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.445,
+        "DEBATE_LOOP": 0.11,
+        "GENOME_SYS": 0.445
+      },
+      "reason": "All telemetry zero (suspect_zero); no fitness signal, allocate by floors, hold aggressive moves."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "queue-human",
+    "topic_id": "plan-4",
+    "rounds": 3,
+    "queued": true,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "برای افزایش کارایی، پیاده‌سازی یک سیستم مبتنی بر یادگیری عمیق برای تجزیه و تحلیل داده‌ها در brain_llm_wired.",
+          "why_genius": "این ایده باعث می‌شود که الگوریتم‌های پیشرفته‌تری برای پیش‌بینی و بهینه‌سازی عملکرد استخراج شوند، که در نتیجه کارایی بیشتری و دقت بالاتری در پیش‌بینی رفتار ژنوم خواهیم داشت.",
+          "why_insane": "استفاده از الگوریتم‌های پیچیده مانند یادگیری عمیق ممکن است منجر به نوسانات نامطلوب در عملکرد سیستم شود و همچنین برای توضیح و بررسی دقیق آن‌ها پیش‌بینی‌پذیری کمتری دارد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "این ایده نیاز به حل مشکلات مربوط به پیش‌بینی‌پذیری و امنیت الگوریتم‌های پیچیده مانند یادگیری عمیق.",
+          "cheapest_test": "بررسی از طریق آزمون‌های نرم‌افزاری بر پیش‌بینی‌پذیری و امنیت الگوریتم‌های یادگیری عمیق در محیط محاکمه.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از شبکه‌های عصبی پیچیده تر با روش‌های نوین آموزش",
+          "why_genius": "این رویکرد می‌تواند منجر به افزایش دقت و پیچیدگی الگوریتم‌ها شود، که در نتیجه عملکرد بهتری در مسائل پیچیده داشته باشیم.",
+          "why_insane": "استفاده از شبکه‌های عصبی پیچیده تر می‌تواند منجر به مشکلات پیش‌بینی‌پذیری و امنیتی شود، که بدون حل آنها ممکن است ناامن باشد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "بدون ایجاد مکانیسم‌های پیش‌بینی‌پذیری و امنیتی، استفاده از شبکه‌های عصبی پیچیده تر ممکن است ناامن باشد.",
+          "cheapest_test": "بررسی آگاهی‌های کاربر از روش‌های آموزش و امنیتی در پلتفرم.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از شبکه عصبی مصنوعی با الگوریتم‌های آموزشی پیشرفته برای پیش‌بینی نیازهای کاربر و مقاومت در برابر حملات.",
+          "why_genius": "این رویکرد می‌تواند به طور موثر از داده‌های کاربری برای پیش‌بینی نیازهای آنها استفاده کند و همچنین مقاومت بیشتری در برابر حملات سیبری فراهم کند.",
+          "why_insane": "استفاده از الگوریتم‌های پیشرفته ممکن است نیاز به داده‌های شخصی زیادی داشته باشد که می‌تواند خصوصیات کاربر را در اختیار سوءاستفاده‌کنندگان قرار دهد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "لازم است که مطمئن شویم الگوریتم‌ها نیاز به داده‌های شخصی زیادی ندارند و احتمال سوءاستفاده کمتر است.",
+          "cheapest_test": "بررسی پولیکی و قانونی موجود در مورد استفاده از الگوریتم‌های آموزشی برای پردازش داده‌های شخصی و مقاومت مناسب در برابر حملات سیبری.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

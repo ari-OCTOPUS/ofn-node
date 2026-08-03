@@ -1,0 +1,194 @@
+{
+  "ts": "2026-07-29T16:56:23",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21624,
+    "usd": 0.021624,
+    "aud": 0.032436
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.032436,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.7,
+        "DEBATE_LOOP": 0.15,
+        "GENOME_SYS": 0.15
+      },
+      "reason": "[EST] ARCHITECT_SYS is sole active organ (21295 musd); GENOME_SYS zero output held at life-support floor."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "killed",
+    "topic_id": "organ-PAINTING",
+    "rounds": 3,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "ایجاد یک مسابقه رسمی در شبکه اجتماعی برای تصویر سفارشی با استفاده از AI",
+          "why_genius": "این رویداد می‌تواند بیشترین ارزش را فراهم کند زیرا تولید تصاویر با کمترین هزینه و بهبود جامعه رسمی را برآورده می‌کند. برنده مسابقه می‌تواند در شبکه اجتماعی شناخته شود و ارزش تبلیغاتی بسیار بالایی داشته باشد.",
+          "why_insane": "اگر نفوذ به شبکه اجتماعی بدون کنترل یا رعایت قوانین انجام شود، ممکن است منجر به اطلاعات شخصی دردسرسازی و نقض حریم خصوصی شود. همچنین، تبلیغات غیرقانونی یا پیش‌بینی‌های غلط ممکن است باعث آزاردهنده شدن کاربران شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "منجر به اطلاعات شخصی دردسرسازی و نقض حریم خصوصی شود.",
+          "cheapest_test": "تایید از رعایت قوانین مربوط به حفظ حریم خصوصی در شبکه‌اجتماعی قبل از اجرای رویداد.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از کامپیوتر هوشمند برای تشخیص و آموزش نسل جدید نقاشی‌ها",
+          "why_genius": "این روش می‌تواند با استفاده از هوش مصنوعی برای تشخیص و تحلیل نقاشی‌های قبلی، به طور خودکار نسل جدید نقاشی‌ها پیشنهاد دهد که بیشترین ارزش را دارند. این گام می‌تواند هزینه‌های زمان و منابع را کاهش دهد.",
+          "why_insane": "استفاده از کامپیوتر هوشمند ممکن است نتایج غیرانتظارداری پدید آورد، به عنوان مثال، تشخیص نادرست نقاشی‌ها یا نگرانی‌های حریم خصوصی کاربران از تحلیل تصاویر شخصی آنها.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "尚无明确的、可验证的方法来确保AI能够准确识别和推荐最具价值的艺术作品，且不会引发隐私问题。",
+          "cheapest_test": "通过对比现有AI系统在艺术作品识别上的表现与人工专家的选择，评估其准确性。同时，公开征集艺术家和观众对AI推荐结果的意见，检查是否有明显的偏差或隐私泄露风险。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "ایجاد یک ربات تصویرسازی مبتنی بر AI که با استفاده از فناوری های 3D پیچیده ترین نقاشی‌ها را با هزینه‌های کمتر از 1000 دلار تولید می‌کند.",
+          "why_genius": "این ربات می‌تواند نقاشی‌های پیچیده و جذابی را با هزینه‌های مناسب تولید کرده و با ارزش فرهنگی و سازماندهی بسیار بالا آنها را به موزه‌ها و گالری‌ها پیشنهاد دهد. همچنین، این روبات می‌تواند به کارگران هنری کمک کند تا با استفاده از فناوری‌های AI بهترین نتایج در زمینه نقاشی برسند.",
+          "why_insane": "این ربات ممکن است با تولید نقاشی‌های پیچیده و غیرمعمول، به جای ارتقاء فهم و توانایی هنرمندان، نسبت‌ها را در زمینه هنر تغییر دهد. همچنین، اگر AI برای تولید نقاشی‌ها استفاده می‌شود، ممکن است مسائل فرهنگی و حقوق خواهانه را ببازد.",
+          "est_tokens": 150,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "kill",
+          "kill_condition": "ایجاد یک ربات تصویرسازی مبتنی بر AI که با استفاده از فناوری‌های 3D پیچیده ترین نقاشی‌ها را با هزینه‌های کمتر از 1000 دلار تولید می‌کند، ناممکن است.",
+          "cheapest_test": "بررسی قابلیت تولید نقاشی‌های پیچیده با هزینه‌های کمتر از 1000 دلار در بازار فروشگاه‌های AI.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

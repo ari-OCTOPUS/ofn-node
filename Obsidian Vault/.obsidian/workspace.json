@@ -1,0 +1,234 @@
+{
+  "main": {
+    "id": "78d52caca35b738a",
+    "type": "split",
+    "children": [
+      {
+        "id": "aef0204ae65f4ee3",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e4cf0f1dfaf44414",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "5d9a912cd413c8bb",
+    "type": "split",
+    "children": [
+      {
+        "id": "8439ff8d3c3df6bb",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "366a566ca6661fc9",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "90740e9c1a8396c1",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "path:\"LifeOS-Architect/\" ",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "1544a0cb379cbe01",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "8667bfb3bbf0de43",
+    "type": "split",
+    "children": [
+      {
+        "id": "4ca4d7591bb5ec07",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "8bfcdbb48a73c46d",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Welcome.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for Welcome"
+            }
+          },
+          {
+            "id": "9cf5b7663a88cbae",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Welcome.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from Welcome"
+            }
+          },
+          {
+            "id": "56353ed211190268",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "169d766b40a26925",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "2c3b08b73a0e5d0f",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Welcome.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of Welcome"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "e4cf0f1dfaf44414",
+  "lastOpenFiles": [
+    "Untitled.base",
+    "2026-07-03.md",
+    "LifeOS-Architect/03 - Projects/Lead-نقاشی/AiFarm-Lead/Ai farm- sister Painting/brushline/00_governance/CLAUDE_PROJECT_SETUP.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/Hypnosis-Research/nodes/X1_fusion_vs_real_hypnosis.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/Hypnosis-Research/nodes/P3_susceptibility_predictors.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/Hypnosis-Research/nodes/P2_method_taxonomy.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/Hypnosis-Research/nodes/P2b_customization_methods.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/Hypnosis-Research/nodes/P1_mechanism_map.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/Hypnosis-Research/nodes/P0_scope_epistemic_guardrails.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/17_Archive/README.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/16_Future/README.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/15_Ideas/README.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/14_Workflows/README.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/13_Frameworks/README.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/12_Architecture/README.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/10_Research/README.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/11_Experiments/README.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/09_Prompts/README.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/08_Business/README.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/07_Marketing/README.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/06_Robotics/README.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/05_Neuroscience/README.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/04_Mining/README.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/03_Quantum/README.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/02_Consciousness/README.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/01_AI/README.md",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/Silabi-Bot/silabi_bot.py",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/Neuro-HRV-Nof1/heart-awareness-map.html",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/Hypnosis-Research/nodes",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/17_Archive",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/16_Future",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/15_Ideas",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/14_Workflows",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/13_Frameworks",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/فیوژن هیپنوتیزم/00_Knowledge_Base/12_Architecture",
+    "LifeOS-Architect/07 - Knowledge/هیپنوتیزم  و خودآگاهی/photos/photo_786@02-07-2026_06-58-58.jpg",
+    "LifeOS-Architect/03 - Projects/هیپنوتیزم  و خودآگاهی/photos/photo_786@02-07-2026_06-58-58.jpg",
+    "LifeOS-Architect/03 - Projects/Ziman Galerry/WhatsApp Image 2026-06-12 at 23.06.11.jpeg",
+    "LifeOS-Architect/03 - Projects/Ziman Galerry/WhatsApp Image 2026-06-12 at 23.04.00.jpeg",
+    "LifeOS-Architect/03 - Projects/Ziman Galerry/WhatsApp Image 2026-06-12 at 23.04.00 (9).jpeg",
+    "LifeOS-Architect/03 - Projects/Ziman Galerry/WhatsApp Image 2026-06-12 at 23.04.00 (8).jpeg",
+    "LifeOS-Architect/03 - Projects/Ziman Galerry/WhatsApp Image 2026-06-12 at 23.04.00 (7).jpeg",
+    "LifeOS-Architect/03 - Projects/Ziman Galerry/WhatsApp Image 2026-06-12 at 23.04.00 (6).jpeg",
+    "LifeOS-Architect/03 - Projects/Ziman Galerry/WhatsApp Image 2026-06-12 at 23.04.00 (5).jpeg",
+    "LifeOS-Architect/03 - Projects/Ziman Galerry/WhatsApp Image 2026-06-12 at 23.04.00 (4).jpeg",
+    "Untitled.canvas",
+    "Untitled 1.canvas",
+    "LifeOS-Architect.canvas",
+    "Mining.canvas"
+  ]
+}

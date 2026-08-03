@@ -1,0 +1,237 @@
+{
+  "ts": "2026-07-25T14:54:40",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.998,
+    "deadline_ref": "PROJECT_F@2026-07-20 (-5d)",
+    "anomaly": 0.0,
+    "pressure": 0.998
+  },
+  "next_epoch_minutes": 15.1,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 15.1,
+  "heart_pressure_effective": 0.998,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 4.176655,
+        "total_month_aud": 7.176655,
+        "fitness": 0.6327,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 4.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 4.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 1.870154,
+        "total_month_aud": 2.870154,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 3.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 3.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 2.590638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999999,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "PROJECT_F": {
+        "status": "DEADLINE_SHIELD",
+        "share_pct": 0.33,
+        "grant_aud": 10.0,
+        "grant_musd": 6666,
+        "fitness": 0.0,
+        "tier_policy": "T0_ECON",
+        "tag": "H5(deadline passed, floor enforced)"
+      },
+      "ARCHITECT_SYS": {
+        "status": "ACTIVE",
+        "share_pct": 0.33,
+        "grant_aud": 10.0,
+        "grant_musd": 6666,
+        "fitness": 1.0,
+        "tier_policy": "T0_ECON",
+        "tag": "S1(history: sole consumer)"
+      },
+      "GENOME_SYS": {
+        "status": "ACTIVE",
+        "share_pct": 0.33,
+        "grant_aud": 10.0,
+        "grant_musd": 6666,
+        "fitness": 1.0,
+        "tier_policy": "T0_ECON",
+        "tag": "S1(history: core member)"
+      },
+      "ZIMAN": {
+        "status": "IDLE_DECAY",
+        "share_pct": 0.0,
+        "grant_aud": 1.0,
+        "grant_musd": 666,
+        "fitness": 0.0,
+        "tier_policy": "T0_ECON",
+        "tag": "S2(no telemetry, floor enforced)"
+      },
+      "PAINTING": {
+        "status": "IDLE_DECAY",
+        "share_pct": 0.0,
+        "grant_aud": 1.0,
+        "grant_musd": 666,
+        "fitness": 0.0,
+        "tier_policy": "T0_ECON",
+        "tag": "S2(no telemetry, floor enforced)"
+      },
+      "ACCOUNTING": {
+        "status": "IDLE_DECAY",
+        "share_pct": 0.0,
+        "grant_aud": 1.0,
+        "grant_musd": 666,
+        "fitness": 0.0,
+        "tier_policy": "T0_ECON",
+        "tag": "S2(no telemetry, floor enforced)"
+      },
+      "MUSE_RESERVE": {
+        "status": "MUTATION_RESERVE",
+        "share_pct": 0.1,
+        "grant_aud": 3.0,
+        "grant_musd": 2000,
+        "fitness": 0.0,
+        "tier_policy": "T0_ECON",
+        "tag": "S3(explore_pct)"
+      },
+      "_META": {
+        "global_cap_aud": 30.0,
+        "epoch_musd_burned": 0,
+        "allocation_musd_total": 24002,
+        "pct_cap_used": 0.0,
+        "ts": "2026-07-25T14:54:40"
+      }
+    },
+    "model": "glm-4.6",
+    "cost_usd": 0.0
+  },
+  "debate": {
+    "status": "killed",
+    "topic_id": "organ-ACCOUNTING",
+    "rounds": 2,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از فناوری Machine Learning برای پیش‌بینی تغییرات قیمت و بهینه‌سازی زمان خرید.",
+          "why_genius": "این روش می‌تواند با استفاده از داده‌های تاریخچه قیمت، نمودارهای روندها و عوامل بیرونی پیش‌بینی دقیق‌تری از حرکت قیمت در این هفته ارائه دهد. به طور مثال، می‌تواند در زمان مناسب خرید کند تا با هزینه کمتر بازار بیشترین سود را برآورد.",
+          "why_insane": "استفاده از Machine Learning در حوزه پیش‌بینی قیمت ممکن است نیاز به داده‌های زیاد و پردازش پیچیده داشته باشد که ممکن است هزینه بالا و عدم قطعیت در نتایج را ایجاد کند. علاوه بر این، تغییرات سودآور خارجی نظیر جویانه‌پردازی ممکن است با پیش‌بینی دقیق آشفته کند.",
+          "est_tokens": 125,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "نیاز به داده‌های زیاد و پردازش پیچیده",
+          "cheapest_test": "بررسی آسان‌تر: سرویس‌های Machine Learning در بازار کمترین هزینه را بررسی کنید و نتایج آن‌ها را مقایسه کنید.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از سرویس Machine Learning در شبکه‌های اجتماعی برای پیش‌بینی ترافیک مالی",
+          "why_genius": "با استفاده از داده‌های زمان واقعی از شبکه‌های اجتماعی، می‌توان به صورت دقیق‌تر ارزش تراکنش‌ها را پیش‌بینی کرد. این روش نیازمند داده‌های زیاد نمی‌باشد و هزینه‌های مربوط به سرویس‌های پیچیده‌تر را کاهش می‌دهد.",
+          "why_insane": "پیش‌بینی دقیق ترافیک مالی با استفاده از شبکه‌های اجتماعی ممکن نیست و ممکن است منجر به خرابی سیستم شود زیرا داده‌های اجتماعی متغیر و غیرقابل اعتماد هستند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "kill",
+          "kill_condition": "پیش‌بینی دقیق ترافیک مالی با استفاده از داده‌های شبکه‌های اجتماعی ناممکن است.",
+          "cheapest_test": "بررسی دقیقه‌ای پیش‌بینی‌های سرویس Machine Learning در شرایط مختلف با داده‌های واقعی شبکه‌های اجتماعی و مقایسه آن با پیش‌بینی‌های روش‌های تقاضا تجربیات زمان واقعی.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

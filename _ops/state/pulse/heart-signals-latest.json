@@ -1,12 +1,12 @@
 {
-  "ts": "2026-08-03T18:01:52",
+  "ts": "2026-08-03T18:06:40",
   "velocity": {
     "velocity_per_hr": 0.125,
     "components": {
       "confirmed": 0,
       "effects": 0,
       "consolidation": 7,
-      "beats": 1045,
+      "beats": 1046,
       "cognition": null
     },
     "confirmed_ts": [],
@@ -21,7 +21,7 @@
     "authoritative": false,
     "self_referential": true,
     "provenance": "external: reconcile-job/effector-gate/consolidation/pacemaker",
-    "ts": "2026-08-03T18:03:12",
+    "ts": "2026-08-03T18:06:40",
     "fuel_velocity_per_hr": null,
     "value_velocity_per_hr": null,
     "real_velocity_per_hr": null,
@@ -30,7 +30,7 @@
       "fuel_musd": 0
     },
     "leg_money_count": 0,
-    "metronome_share": 0.9372,
+    "metronome_share": 0.9373,
     "honest_pulse": {
       "enabled": true,
       "beat_cap": 3.0,
@@ -41,7 +41,7 @@
       "fuel": null,
       "value_cognition": null,
       "effects": 0,
-      "beats": 1045
+      "beats": 1046
     }
   },
   "cpi": {
@@ -53,14 +53,14 @@
     "sample_size": 2,
     "authoritative": false,
     "window_hours": 72.0,
-    "ts": "2026-08-03T18:03:13"
+    "ts": "2026-08-03T18:06:40"
   },
   "delta_self": {
     "stream_rows": 1264,
     "sample_size": 336,
     "window": 336,
     "min_samples": 48,
-    "ts": "2026-08-03T18:03:13",
+    "ts": "2026-08-03T18:06:40",
     "delta_self_live": 0.0,
     "delta_self_raw": 0.0,
     "S_blind": 5.431506756740812e-19,

@@ -1,0 +1,194 @@
+{
+  "ts": "2026-07-28T11:23:04",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.6,
+        "DEBATE_LOOP": 0.15,
+        "GENOME_SYS": 0.25
+      },
+      "reason": "[EST] ARCHITECT_SYS only organ with measured spend/activity; GENOME_SYS+DEBATE_LOOP idle, held at life-support floor pending real telemetry."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "killed",
+    "topic_id": "organ-ZIMAN",
+    "rounds": 3,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از طراحی سازگار با محیط زیست برای تولید محصولات در صنعت مصنوعی ذرات",
+          "why_genius": "این روش نهایتا هزینه‌ها را کاهش می‌دهد، زیرا استفاده از مواد محیط‌زیستی و فناوری‌های پایدار کمترین تولید نقره‌ای و آلودگی را به دست می‌دهد. همچنین، بازار عرضه شدن محصولات پایدار افزایش خواهد یافت.",
+          "why_insane": "در حال حاضر، فناوری‌های کامل و قابل اجرا برای طراحی سازگار با محیط زیست در صنعت مصنوعی ذرات وجود ندارد. همچنین، تغییرات ساختاری مورد نیاز برای پذیرش این روش ممکن است منجر به مقاومت از طرف شرکت‌های موجود شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "فناوری‌های کامل و قابل اجرا برای طراحی سازگار با محیط زیست در صنعت مصنوعی ذرات وجود ندارد.",
+          "cheapest_test": "بررسی موجودی فناوری‌های پایدار در صنعت مصنوعی ذرات.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از چاپ 3D برای ساخت قطعات ذرات",
+          "why_genius": "چاپ 3D می‌تواند کم‌هزینه و بسیار موثر باشد زیرا هزینه تولید و نگهداری پلتفرم‌های ساخت قطعات ذرات را کاهش دهد. این فناوری همچنین می‌تواند جریان‌های محیط زیست را بهبود بخشد.",
+          "why_insane": "فناوری‌های پایدار برای طراحی سازگار با محیط زیست در صنعت مصنوعی ذرات هنوز در حال توسعه هستند. استفاده از چاپ 3D ممکن است ناتوانی فنی و هزینه‌ای بزرگ را باعث شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "چاپ 3D برای ساخت قطعات ذرات در حال حاضر نه تنها ناتوان فنی است، بلکه هزینه‌های زیادی را نیز دارد.",
+          "cheapest_test": "بررسی وضعیت تکنولوژی چاپ 3D در صنعت مصنوعی ذرات و مقایسه هزینه‌ها با روش‌های موجود.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از شبکه‌های عصبی مصنوعی برای پیش‌بینی سطوح قیمت مواد معدنی",
+          "why_genius": "این روش می‌تواند با استفاده از داده‌های تاریخچه قیمتی، به طور دقیق‌تر و با هزینه کمتر پیش‌بینی سطوح قیمت مواد معدنی انجام شود.",
+          "why_insane": "پیش‌بینی با دقت بالا نیاز به دسترسی به داده‌های حساس و تحلیل پیچیده است که ممکن است مشکلات خصوصیتی را ایجاد کند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "kill",
+          "kill_condition": "缺乏历史价格数据的访问权限或数据质量差会严重影响预测准确性。",
+          "cheapest_test": "检查是否可以免费获取至少一年的历史价格数据，并验证其完整性和准确性。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

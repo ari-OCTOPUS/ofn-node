@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>fBackup · Black Box · Cross-Section</title>
+<style>
+  html,body{margin:0;height:100%;background:#080808;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#e5e7eb}
+  #panel{position:fixed;top:16px;right:16px;z-index:10;background:rgba(15,15,15,.85);border:1px solid #262626;border-radius:10px;padding:12px 14px;font-size:12px;min-width:180px}
+  #panel h2{margin:0 0 8px;font-size:13px;font-weight:600}
+  #panel .lbl{color:#8b8b8b;font-size:11px;margin:8px 0 4px}
+  #reveal{width:100%}
+  #foot{position:fixed;bottom:14px;left:0;right:0;text-align:center;font-size:11px;color:#6b7280;z-index:10}
+  .lil-gui{--background-color:#131313;--width:200px}
+</style>
+</head>
+<body>
+<div id="panel">
+  <h2>cross-section view</h2>
+  <div class="lbl">reveal interior →</div>
+  <input id="reveal" type="range" min="0" max="1" step="0.001" value="0.35" />
+</div>
+<div id="foot">black box — internal geometry hidden by default</div>
+
+<!-- deps: jsDelivr primary, unpkg auto-fallback -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script>window.THREE||document.write('<script src="https://unpkg.com/three@0.128.0/build/three.min.js">\x3C/script>');</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>(window.THREE&&THREE.OrbitControls)||document.write('<script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js">\x3C/script>');</script>
+<script src="https://cdn.jsdelivr.net/npm/lil-gui@0.18/dist/lil-gui.umd.min.js"></script>
+<script>window.lil||document.write('<script src="https://unpkg.com/lil-gui@0.18/dist/lil-gui.umd.min.js">\x3C/script>');</script>
+<script>
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.1, 1000);
+camera.position.set(40, 30, 60);
+
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setClearColor(0x080808, 1);
+renderer.localClippingEnabled = true;
+document.body.appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+const key = new THREE.DirectionalLight(0xffffff, 0.7);
+key.position.set(30,40,50); scene.add(key);
+
+// ---- Clipping plane (reveals interior as it sweeps +x) ----
+const clip = new THREE.Plane(new THREE.Vector3(-1,0,0), 15);
+
+// ---- Outer glass shell ----
+const shell = new THREE.Mesh(
+  new THREE.BoxGeometry(30,20,20),
+  new THREE.MeshPhysicalMaterial({
+    color:0x0a0a0a, metalness:0.1, roughness:0.1,
+    transmission:0.6, transparent:true, opacity:0.3,
+    thickness:2, side:THREE.DoubleSide, clippingPlanes:[clip], clipShadows:true
+  })
+);
+scene.add(shell);
+// wire cage so the box reads as a box even when glass is faint
+const cage = new THREE.LineSegments(
+  new THREE.EdgesGeometry(new THREE.BoxGeometry(30,20,20)),
+  new THREE.LineBasicMaterial({ color:0x333333, transparent:true, opacity:0.5, clippingPlanes:[clip] })
+);
+scene.add(cage);
+
+// ---- Internal processing nodes ----
+function node(x, color){
+  const m = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(3,1),
+    new THREE.MeshStandardMaterial({ color, emissive:color, emissiveIntensity:0.35, roughness:0.4, metalness:0.3, flatShading:true })
+  );
+  m.position.set(x,0,0);
+  scene.add(m);
+  return m;
+}
+const input  = node(-8, 0x3b82f6);
+const coreN  = node( 0, 0xa855f7);
+const output = node( 8, 0x22c55e);
+
+// inner glow inside core
+const glow = new THREE.PointLight(0xa855f7, 1.4, 40);
+glow.position.set(0,0,0);
+scene.add(glow);
+
+// ---- Internal tubes connecting nodes ----
+function tube(a,b){
+  const curve = new THREE.CatmullRomCurve3([
+    a.clone(), new THREE.Vector3((a.x+b.x)/2, 3, 0), b.clone()
+  ]);
+  const t = new THREE.Mesh(
+    new THREE.TubeGeometry(curve, 40, 0.35, 6, false),
+    new THREE.MeshBasicMaterial({ color:0x444444, wireframe:true, transparent:true, opacity:0.3 })
+  );
+  scene.add(t);
+  return curve;
+}
+const c1 = tube(new THREE.Vector3(-8,0,0), new THREE.Vector3(0,0,0));
+const c2 = tube(new THREE.Vector3(0,0,0), new THREE.Vector3(8,0,0));
+
+// ---- Data packets along internal tubes ----
+const packets = [];
+function addPackets(curve, color){
+  for (let i=0;i<3;i++){
+    const p = new THREE.Mesh(
+      new THREE.SphereGeometry(0.8,12,12),
+      new THREE.MeshBasicMaterial({ color })
+    );
+    p.userData = { curve, t:Math.random(), speed:0.25+Math.random()*0.1 };
+    scene.add(p); packets.push(p);
+  }
+}
+addPackets(c1, 0x3b82f6);
+addPackets(c2, 0x22c55e);
+
+// ---- I/O ports + arrows ----
+function ports(sign, color){
+  [-6,0,6].forEach(z=>{
+    const cyl = new THREE.Mesh(
+      new THREE.CylinderGeometry(1,1,2,16),
+      new THREE.MeshStandardMaterial({ color, emissive:color, emissiveIntensity:0.2, metalness:0.5, roughness:0.4 })
+    );
+    cyl.rotation.z = Math.PI/2;
+    cyl.position.set(sign*16, 0, z);
+    scene.add(cyl);
+  });
+}
+ports(-1, 0x3b82f6);
+ports( 1, 0x22c55e);
+scene.add(new THREE.ArrowHelper(new THREE.Vector3(1,0,0), new THREE.Vector3(-24,0,0), 8, 0x3b82f6, 3, 2));
+scene.add(new THREE.ArrowHelper(new THREE.Vector3(1,0,0), new THREE.Vector3(16,0,0), 8, 0x22c55e, 3, 2));
+
+// ---- Controls: slider + lil-gui ----
+const slider = document.getElementById('reveal');
+const params = { reveal:0.35, autoSweep:true };
+function applyReveal(v){ clip.constant = 15 - v*30; }
+applyReveal(params.reveal);
+slider.addEventListener('input', e=>{ params.reveal=+e.target.value; applyReveal(params.reveal); });
+
+const gui = new lil.GUI({ title:'clipping' });
+gui.add(params,'autoSweep').name('auto sweep');
+gui.add(params,'reveal',0,1,0.001).name('reveal').listen().onChange(v=>{ applyReveal(v); slider.value=v; });
+
+// ---- Animate ----
+const clock = new THREE.Clock();
+let sweepDir = 1;
+function animate(){
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta();
+
+  input.rotation.y += 0.6*dt; input.rotation.x += 0.2*dt;
+  output.rotation.y -= 0.6*dt; output.rotation.x += 0.2*dt;
+  coreN.scale.setScalar(1 + Math.sin(clock.elapsedTime*3)*0.18);
+  glow.intensity = 1.1 + Math.sin(clock.elapsedTime*3)*0.5;
+
+  if (params.autoSweep){
+    params.reveal += sweepDir*dt*0.12;
+    if (params.reveal>1){ params.reveal=1; sweepDir=-1; }
+    if (params.reveal<0){ params.reveal=0; sweepDir=1; }
+    applyReveal(params.reveal);
+    slider.value = params.reveal;
+  }
+
+  packets.forEach(p=>{
+    p.userData.t = (p.userData.t + dt*p.userData.speed) % 1;
+    p.position.copy(p.userData.curve.getPointAt(p.userData.t));
+  });
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+addEventListener('resize', ()=>{
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>

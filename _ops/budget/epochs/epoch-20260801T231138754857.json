@@ -1,0 +1,202 @@
+{
+  "ts": "2026-08-01T23:10:22",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-08",
+    "musd": 0,
+    "usd": 0.0,
+    "aud": 0.0
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.05,
+      4.0379
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.0,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.496427,
+        "total_month_aud": 5.496427,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 4.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 4.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 1.845129,
+        "total_month_aud": 2.845129,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 3.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 3.062662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DOCTOR": {
+        "verdict": "GRANT",
+        "floor_aud": 0.0,
+        "competitive_aud": 1.845129,
+        "total_month_aud": 1.845129,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.062662,
+        "total_month_aud": 2.562662,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999995,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.45,
+        "DEBATE_LOOP": 0.1,
+        "GENOME_SYS": 0.45
+      },
+      "reason": "[EST] All telemetry zero (suspect_zero=0); no fitness signal, so allocate by floors, DEBATE_LOOP smallest."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "queue-human",
+    "topic_id": "plan-6",
+    "rounds": 3,
+    "queued": true,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از API Key مخفیانه برای تest خودکار",
+          "why_genius": "این روش می‌تواند به ما کمک کند تا پیش‌بینی مشکلات و ارور‌های محیط عملیاتی را قبل از زمان بکشف کنیم. همچنین، آزمون خودکار API Key می‌تواند به اطمینان حفظ امنیت سیستم در طول نوآوری‌های آینده کمک کند.",
+          "why_insane": "استفاده از API Key مخفیانه می‌تواند منجر به تسرب اطلاعات حساس شود. همچنین، اگر API Key در نسخه آزمایشی برداشته شود، می‌تواند باعث خرابی عملکرد سیستم و عدم قابلیت دسترسی به خدمات API شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "API Key مخفیانه برای آزمون خودکار استفاده نمی‌شود، زیرا این می‌تواند منجر به تسرب اطلاعات حساس شود.",
+          "cheapest_test": "استفاده از API Key عمومی یا تست بدون API Key برای تأیید کارایی سیستم در نسخه آزمایشی.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از API Key مخفیانه در محیط آزمایشی با استفاده از رمزگذاری پیشرفته و کانال تلگرام برای ارسال نتایج.",
+          "why_genius": "این روش می‌تواند API Key را در محیط آزمایشی حفظ کند، همچنین با استفاده از رمزگذاری پیشرفته، امنیت داده‌ها تضمین شود. کانال تلگرام برای ارسال نتایج به طور مداوم می‌تواند سطح اطمینان را افزایش دهد.",
+          "why_insane": "استفاده از API Key در محیط آزمایشی ممکن است منجر به تسرب اطلاعات حساس شود، همچنین کاربرد رمزگذاری پیشرفته ممکن است سخت‌الساخت و نیازمند تسلط فنی بیشتر باشد. ارسال نتایج به طور مستقیم از طریق کانال تلگرام هم ممکن است مشکلات خصوصیت داشته باشد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "API Key مخفیانه در محیط آزمایشی با استفاده از رمزگذاری پیشرفته و کانال تلگرام برای ارسال نتایج، همچنان می‌تواند منجر به تسرب اطلاعات حساس شود.",
+          "cheapest_test": "بررسی آنالیز حساسیت API Key در محیط آزمایشی و بررسی امنیت کانال تلگرام برای ارسال نتایج.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از API Key مخفی در سرور و ارسال نتایج به کانال تلگرام پس از تجزیه و تحلیل داده‌ها",
+          "why_genius": "این روش می‌تواند حفظ حریم خصوصی API Key را در محیط آزمایشی بهبود بخشد، زیرا اطلاعات حساس فقط در سرور ذخیره می‌شوند و نتایج پس از تجزیه و تحلیل به صورت مخفی ارسال می‌شوند.",
+          "why_insane": "در صورت تسرب API Key از سرور، می‌تواند منجر به تسرب داده‌های حساس شود. همچنین، اگر کانال تلگرام نامناسب باشد، می‌تواند نتایج را ناقص یا غیرمجاز ارسال کند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "API Key مخفی در سرور ذخیره شود و اگر تسرب کند، داده‌های حساس را نیز آسونانه تسرب خواهد کرد.",
+          "cheapest_test": "تلاش برای استفاده از API Key مخفی در محیط آزمایشی و شبیه‌سازی تسرب آن.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

@@ -1,0 +1,71 @@
+--- a/_ops/chrono.py
++++ b/_ops/chrono.py
+@@ -1358,16 +1358,58 @@ class Pacemaker:
+                 "effects_pending": self.db.q(
+                     "SELECT COUNT(*) FROM gated_effect WHERE status='pending'")[0][0]}
+
+-    def run_forever(self) -> None:
+-        """حلقهٔ پس‌زمینه برای organism.py — تسلیمِ بی‌قیدوشرط به STOP (kill supreme)."""
+-        while True:
+-            if opslib.STOP_ORGANISM.exists() or opslib.halted():
+-                return
+-            try:
+-                self.beat_once()
+-            except Exception as e:  # noqa: BLE001 — خطای خاموش ممنوع (منشور §۴)
+-                opslib.alert([f"chrono beat error: {type(e).__name__}: {e}"])
+-            time.sleep(self.period_s)
++    def _halt_reason(self) -> str | None:
++        """چرا این ضربان باید **مکث** کند (نه بمیرد)، یا None اگر آزاد است.
++        شاملِ STOP-ORGANISM و opslib.halted() (که خودش HALT-ALL/architect-STOP/
++        STOP-METABOLIC را می‌پوشاند). fail-SAFE: هر خطای خواندنِ پرچم = مکث
++        (هرگز ضربانِ کور زیرِ haltِ نامعلوم؛ هرگز مرگِ thread). فقط می‌خوانَد —
++        هیچ markerِ STOP/FREEZE اینجا نوشته یا پاک نمی‌شود."""
++        try:
++            if opslib.STOP_ORGANISM.exists():
++                return "STOP-ORGANISM"
++            r = opslib.halted()
++            if r:
++                return r
++        except Exception:  # noqa: BLE001 — خواندنِ پرچم نباید thread را بکشد؛ محتاطانه مکث
++            return "halt-check-error (fail-safe pause)"
++        return None
++
++    def run_forever(self) -> None:
++        """حلقهٔ پس‌زمینهٔ organism.py — زیرِ STOP/HALT **مکث** می‌کند، نه مرگِ دائم.
++
++        پیش‌تر این متد روی halted() یک‌بار `return` می‌کرد و چون pacemaker یک
++        threadِ daemonِ یک‌بار-ساخته است (start_pacemaker_thread)، ضربان تا
++        restartِ بعدیِ پروسه یخ می‌زد — ریشهٔ فریزِ beat=9890 در STOP-METABOLICِ
++        کاذبِ ۲۰۲۶-۰۷-۲۳. حالا هر دوره halt دوباره سنجیده می‌شود و با پاک‌شدنِ
++        halt ضربان **خودبه‌خود** از سر گرفته می‌شود.
++
++        ناوردی‌ها: (۱) زیرِ halt هیچ اثرِ beat_once رخ نمی‌دهد — عیناً صفر-اثرِ
++        امروز؛ تنها تفاوت این است که thread زنده می‌ماند تا با رفعِ halt دوباره
++        بتپد. (۲) restart-safe: __init__ همچنان self.beat را از last_beat_seq()
++        ماندگار می‌خوانَد. (۳) kill-switch دست‌نخورده: STOP-ORGANISM/HALT-ALL/
++        architect-STOP باعثِ خروجِ خودِ پروسه از حلقهٔ main می‌شوند و این daemon
++        هم با پروسه می‌میرد؛ STOP-METABOLIC (که main عمداً از آن نمی‌میرد) درست
++        همان چیزی است که باید مکث شود و با clear از سر گرفته شود. (۴) هیچ marker
++        اینجا پاک نمی‌شود. (۵) busy-loop نیست: هر تکرار sleep(period_s) دارد."""
++        _paused = False
++        while True:
++            reason = self._halt_reason()
++            if reason is not None:
++                if not _paused:              # edge-trigger: یک‌بار لاگ، بدون اسپم
++                    _paused = True
++                    opslib.heartbeat(f"chrono=PAUSE beat={self.beat} ({reason}) — "
++                                     "ضربان مکث کرد؛ با رفعِ halt از سر می‌گیرد")
++                time.sleep(self.period_s)
++                continue
++            if _paused:                      # لبهٔ خروج از مکث
++                _paused = False
++                opslib.heartbeat(f"chrono=RESUME beat={self.beat} — "
++                                 "halt رفع شد، ضربان از سر گرفته شد")
++            try:
++                self.beat_once()
++            except Exception as e:  # noqa: BLE001 — خطای خاموش ممنوع (منشور §۴)
++                opslib.alert([f"chrono beat error: {type(e).__name__}: {e}"])
++            time.sleep(self.period_s)
+
+
+ # ─── سوارشدن روی organism.py (P-Chrono-1، additive) ─────────────────────────────

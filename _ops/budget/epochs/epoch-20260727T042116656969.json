@@ -1,0 +1,181 @@
+{
+  "ts": "2026-07-27T04:19:13",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "debate": {
+    "status": "queue-human",
+    "topic_id": "organ-ZIMAN",
+    "rounds": 3,
+    "queued": true,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "ارزشمندی که می‌تواند در زمینه فناوری‌های پشتیبانی شرکت‌ها ارائه شود، مانند سرویس‌های AI برای تجزیه و تحلیل داده‌ها.",
+          "why_genius": "این ایده با استفاده از فناوری AI می‌تواند کم هزینه‌تر شود زیرا نیاز به نیروی بشر کاهش یابد و عملکرد بهینه‌سازی خود را در زمان و هزینه ارائه می‌دهد. همچنین، این سرویس‌ها می‌توانند داده‌های شرکت‌ها را با کیفیت بالاتری تجزیه و تحلیل کنند.",
+          "why_insane": "با استفاده از AI برای تجزیه و تحلیل داده‌ها ممکن است مشکلات خصوصیت و حریم خصوصی رخ دهد. همچنین، نگرانی‌های فناوری مانند امنیت داده‌ها و پایداری سیستم ممکن است تأثیر بگذارند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "The idea fails if it cannot address privacy concerns and data security risks.",
+          "cheapest_test": "A cost-benefit analysis of the AI service versus traditional methods, focusing on privacy and security impacts.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از هوش مصنوعی برای پیش‌بینی تراکنش‌های غیرعادی و به روز کردن فرآیندهای مدیریت ریسک",
+          "why_genius": "این رویکرد می‌تواند ارزش بیشتری در هفته فعلی ایجاد کند، زیرا با استفاده از هوش مصنوعی می‌توان به صورت خودکار و دقیق‌تر تراکنش‌های غیرعادی را شناسایی و مدیریت کرد. این نه تنها هزینه‌های مالی را کاهش می‌دهد، بلکه سطح امنیت را بهبود می‌بخشد.",
+          "why_insane": "استفاده از هوش مصنوعی در این حجم داده‌ها و پیچیدگی فرآیندهای مدیریت ریسک، ممکن است خطرات جدی امنیتی شامل کاهش حریم خصوصی و مشکلات تانسوری برای سیستم‌های موجود بوجود آید. همچنین، نیاز به پشتیبانی فناوری و آموزش مجدداً ممکن است هزینه‌های زیادی را ایجاد کند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "منافع مالی و امنیتی نشان دهنده کاهش هزینه‌ها و بهبود سطح امنیت را باید دقیق‌تر بررسی کند. نیاز است توضیح داده شود چگونه هوش مصنوعی می‌تواند خطرات امنیتی را کاهش دهد و آیا این پروژه باعث کاهش حریم خصوصی کاربران خواهد شد.",
+          "cheapest_test": "درخواست دادن به مساعید فناوری برای ارائه مثال‌های واقعی یا تست‌های نرم‌افزاری کوتاه مدت برای نشان دادن کاهش هزینه‌ها و بهبود امنیت.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از هوش مصنوعی برای پیش‌بینی و درک نگرانی‌های امنیتی و بهبود سطح حفاظت",
+          "why_genius": "این روش می‌تواند با استفاده از داده‌ها و تحلیل‌های هوش مصنوعی، نگرانی‌های امنیتی را پیش‌بینی کند و سعی کند آن‌ها را حل کند. این به کاهش خطرات امنیتی و بهبود سطح حفاظت کمک می‌کند.",
+          "why_insane": "استفاده از هوش مصنوعی در زمینه‌ای حساس مثل امنیت می‌تواند منجر به نقض حریم خصوصی کاربران شود. همچنین، پیاده‌سازی دقیق و آگاهانه این روش ضروری است تا از سوی دیگران مورد اختلاف قرار ندهد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "idea must specify concrete steps to ensure user privacy and avoid vendor lock-in.",
+          "cheapest_test": "MUSE should outline specific measures for data anonymization, user consent, and open API standards in the next iteration.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+# کپی کن به .env و مقادیر واقعی را بگذار. .env را هرگز commit نکن.
+BOT_TOKEN=123456:ABC-توکن-از-BotFather
+OWNER_ID=123456789
+
+# --- مغزِ دوم (اختیاری) ---
+# اگر کلید بگذاری، سؤال‌های روزانه پویا از Claude گرفته می‌شوند.
+# اگر خالی بماند، بات از بانکِ سؤالِ آفلاین استفاده می‌کند (بدون هزینه/بدون ارسالِ داده).
+CLAUDE_KEY=
+LANGAR_MODEL=claude-haiku-4-5-20251001
+# ساعتِ پینگِ صبحگاهی (۰ تا ۲۳، به وقتِ سرور). پیش‌فرض ۸.
+LANGAR_PING_HOUR=8
+import openai
+
+# تنظیم کلاینت با استفاده از آدرس اختصاصی چتباکس و لایسنس پرو شما
+client = openai.OpenAI(
+    api_key="2eca7cac-d527-4242-b816-7ba9be8de313",  # کلید لایسنس خود را اینجا بگذارید
+    base_url="https://ai.chatboxai.app/v1"  # آدرس اتصال به سرور چتباکس
+)
+
+# ارسال درخواست به مدل هوش مصنوعی دلخواه
+response = client.chat.completions.create(
+    model="deepseek-reasoner",  # می‌توانید مدل‌های دیگر مثل gpt-5 یا gemini-2.5-flash را هم تست کنید
+    messages=[
+        {"role": "user", "content": "یک تابع پایتون برای هش کردن پسورد با الگوریتم SHA-256 بنویس."}
+    ]
+)
+
+# چاپ پاسخ هوش مصنوعی
+print(response.choices[0].message.content)

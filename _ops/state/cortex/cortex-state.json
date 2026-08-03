@@ -1,7 +1,7 @@
 {
-  "ts": "2026-08-03T18:03:23",
-  "cycle": 72,
-  "coherence": 0.94,
+  "ts": "2026-08-03T18:11:38",
+  "cycle": 76,
+  "coherence": 0.936,
   "stale_members": [
     "reconcile"
   ],
@@ -9,8 +9,8 @@
     {
       "id": "organism",
       "present": true,
-      "awareness": 0.963,
-      "age_s": 134,
+      "awareness": 0.999,
+      "age_s": 4,
       "sla_s": 1800,
       "note": "تازه",
       "source": "file-freshness",
@@ -19,8 +19,8 @@
     {
       "id": "heart",
       "present": true,
-      "awareness": 0.999,
-      "age_s": 6,
+      "awareness": 0.959,
+      "age_s": 294,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -29,8 +29,8 @@
     {
       "id": "producers",
       "present": true,
-      "awareness": 0.999,
-      "age_s": 6,
+      "awareness": 0.959,
+      "age_s": 294,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -39,8 +39,8 @@
     {
       "id": "work_pump",
       "present": true,
-      "awareness": 0.973,
-      "age_s": 383,
+      "awareness": 0.98,
+      "age_s": 293,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -49,8 +49,8 @@
     {
       "id": "doctor_setpoint",
       "present": true,
-      "awareness": 0.997,
-      "age_s": 895,
+      "awareness": 0.996,
+      "age_s": 1391,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -59,8 +59,8 @@
     {
       "id": "governor",
       "present": true,
-      "awareness": 0.994,
-      "age_s": 90,
+      "awareness": 1.0,
+      "age_s": 6,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -69,8 +69,8 @@
     {
       "id": "sigma",
       "present": true,
-      "awareness": 0.997,
-      "age_s": 895,
+      "awareness": 0.996,
+      "age_s": 1391,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -79,8 +79,8 @@
     {
       "id": "fitness",
       "present": true,
-      "awareness": 0.997,
-      "age_s": 895,
+      "awareness": 0.996,
+      "age_s": 1391,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -89,8 +89,8 @@
     {
       "id": "school",
       "present": true,
-      "awareness": 0.998,
-      "age_s": 895,
+      "awareness": 0.997,
+      "age_s": 1391,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -100,7 +100,7 @@
       "id": "reconcile",
       "present": true,
       "awareness": 0.0,
-      "age_s": 967224,
+      "age_s": 967720,
       "sla_s": 259200,
       "note": "کهنه (268h)",
       "source": "file-freshness",
@@ -125,7 +125,7 @@
     "paid_gate": "open (owner research-early override — سپرِ تاریخ دور زده شد)",
     "local_model": "qwen2.5:latest"
   },
-  "thought": "[local] البته، مهم‌ترین کارِ مجموعه حالا ترکیب‌وپایش روابط بین اعضای 10 نفره است.",
+  "thought": "[local] اندیشیدن به راه‌حل‌های توافق‌برانگیز برای تطبیق دادن اعضا ضروری است.",
   "stress": {
     "level": "🟢 آرام",
     "organism_stress": 0.27,

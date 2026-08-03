@@ -1,0 +1,260 @@
+{
+  "ts": "2026-07-26T15:44:51",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 43.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.378,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-stall",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.378,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "ARCHITECT_SYS": {
+        "floor": 2,
+        "quota": 1.95875,
+        "allocation": [
+          {
+            "cell": "CELL_0",
+            "task_class": "planning",
+            "tier": "T2",
+            "est_tokens": 150,
+            "amount": 0.3
+          },
+          {
+            "cell": "CELL_1",
+            "task_class": "verification",
+            "tier": "T1",
+            "est_tokens": 100,
+            "amount": 0.2
+          }
+        ]
+      },
+      "GENOME_SYS": {
+        "floor": 2,
+        "quota": 2.0735,
+        "allocation": [
+          {
+            "cell": "CELL_2",
+            "task_class": "routine_agent_chatter",
+            "tier": "T0",
+            "est_tokens": 100,
+            "amount": 0.1
+          },
+          {
+            "cell": "CELL_3",
+            "task_class": "second_opinion",
+            "tier": "T2",
+            "est_tokens": 150,
+            "amount": 0.3
+          }
+        ]
+      },
+      "PROJECT_F": {
+        "floor": 3,
+        "quota": 2.87625,
+        "allocation": [
+          {
+            "cell": "CELL_4",
+            "task_class": "drafts",
+            "tier": "T0",
+            "est_tokens": 100,
+            "amount": 0.2
+          },
+          {
+            "cell": "CELL_5",
+            "task_class": "summaries",
+            "tier": "T0",
+            "est_tokens": 150,
+            "amount": 0.3
+          }
+        ]
+      },
+      "ZIMAN": {
+        "floor": 1,
+        "quota": 1.48725,
+        "allocation": [
+          {
+            "cell": "CELL_6",
+            "task_class": "routine_agent_chatter",
+            "tier": "T0",
+            "est_tokens": 100,
+            "amount": 0.1
+          }
+        ]
+      }
+    },
+    "model": "qwen2.5:latest",
+    "cost_usd": 0.0
+  },
+  "debate": {
+    "status": "queue-human",
+    "topic_id": "seed-2",
+    "rounds": 3,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از سیستم هوش مصنوعی برای تولید محتوای گفتمانی با کیفیت در زمینه مناظره‌ها",
+          "why_genius": "این رویکرد می‌تواند به طور خودکار محتوای گفتمانی با کیفیت تولید کند و افزایش نظرسنجی‌های مثبت را فراهم کند، که در نهایت منجر به افزایش سطح حلقه مناظره شود.",
+          "why_insane": "استفاده از هوش مصنوعی برای تولید محتوای گفتمانی ممکن است باعث ایجاد محتوای غیرمنطقی یا جدای از حرف‌ها شود، که ممکن است نتیجه‌ای نامطلوب برای حلقه مناظره باشد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "سیستم هوش مصنوعی باید توانایی داشته باشد که محتوای منطقی و مرتبط با حلقه مناظره تولید کند.",
+          "cheapest_test": "بررسی آزاد از نظر سازمان‌دهنده یک پست گفتمانی تولید شده توسط سیستم هوش مصنوعی و بررسی آیا آن محتوای منطقی و مرتبط با حلقه مناظره دارد.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "برای ارزیابی تولید AU$5/ماه، ساختار یک بازیگر مدل‌سازی کارایی پروژه را ارائه داده و برخی از نتایج آن را به عنوان یک پست گفتمانی منتشر کرد.",
+          "why_genius": "این تصویربرداری تولید محتوا را با استفاده از ساختار دقیق و شفاف نشان می‌دهد، که بتواند منطقی و مرتبط با حلقه مناظره باشد.",
+          "why_insane": "اگر مدل‌سازی کارایی پروژه ناقص باشد، این ممکن است منجر به تولید محتوای غیرمنطقی و بدون رابطه شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "نمایش نتایج مدل‌سازی کارایی پروژه به صورت قابل اعتبارسنجی و مقیاس‌پذیر.",
+          "cheapest_test": "درخواست دادن به نویسنده برای ارائه چندین نمونه محتوا تولید شده توسط مدل که شامل موضوعات مختلفی است و مقایسه آنها با معیارهای منطقی و مرتبط بود.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از ساختار خلاقیت‌سنجی برای تولید محتوا",
+          "why_genius": "این رویکرد با استفاده از نشانگرهای خلاقیت و معیارهای مناسب، می‌تواند محتوای کیفیت بالا را تولید کند و به صورت قابل اعتبارسنجی و مقیاس‌پذیر ثابت کند.",
+          "why_insane": "با وجود اینکه خلاقیت سنجی پیچیده است، ممکن است نتواند دقیق باشد و محتوای تولید شده ممکن است ناقص یا نامناسب باشد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "بدون ارزش ثابت ماندن به AU$5/ماه، ساختار خلاقیت‌سنجی نمی‌تواند کافی باشد.",
+          "cheapest_test": "بررسی آنچه تولید شده است و آیا در بازار قابل فروش و با هزینه AU$5/ماه معتبر است.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

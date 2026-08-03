@@ -1,0 +1,194 @@
+{
+  "ts": "2026-07-30T03:34:07",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21624,
+    "usd": 0.021624,
+    "aud": 0.032436
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.032436,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.6,
+        "DEBATE_LOOP": 0.15,
+        "GENOME_SYS": 0.25
+      },
+      "reason": "[EST] GENOME_SYS zero output→floor-only; ARCHITECT_SYS sole active spender gets bulk; cap headroom vast."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "killed",
+    "topic_id": "plan-5",
+    "rounds": 3,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از سرویس‌های Cloud Storage برای ذخیره داده‌ها در فاز پشتیبان‌گیری خارجی",
+          "why_genius": "این روش نمی‌تواند فقط به عنوان یک پلتفرم قابل اعتماد و با هزینه‌های مناسب برای ذخیره داده‌ها عمل کند، بلکه می‌تواند بخشی از راه‌حل‌های ملیت‌پذیر و ناگهانی شود. به علاوه، آنچه که قابل توجه در Cloud Storage است، امنیت بالا و دسترسی سریع در هر زمان است.",
+          "why_insane": "با این حال، ممکن است نیاز به بررسی دقیق‌تر پیش‌بینی هزینه‌ها و امنیت داده‌ها باشد. همچنین، در صورت عدم تجربه کافی در استفاده از Cloud Storage، ممکن است مشکلات فنی و زمان‌بری رخ دهد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "پیش‌بینی دقیق هزینه‌ها و امنیت داده‌ها نیاز است.",
+          "cheapest_test": "بررسی پیش‌بینی هزینه‌ها و امنیت در سرویس‌های Cloud Storage با استفاده از آزمون‌های نمونه.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از تکنولوژی ZFS در سیستم ذخیره‌سازی به عنوان یک راه حل پیشنهادی",
+          "why_genius": "ZFS (Z File System) نرم‌افزاری است که می‌تواند برای افزایش امنیت و کنترل هزینه‌ها مناسب باشد. آن به طور خودکار پشتیبان‌گیری فشرده‌سازی را اجرا می‌کند، که می‌تواند هزینه ذخیره‌سازی را کاهش دهد. همچنین، ZFS در مقایسه با سیستم‌های ذخیره‌سازی دیگر امنیت بیشتری فراهم می‌کند.",
+          "why_insane": "استفاده از ZFS نیاز به آموزش و آشنایی کافی با آن دارد، که ممکن است هزینه زمانی و مالی بزرگی باشد. علاوه بر این، این تغییر ممکن است نیاز به تنظیمات جدید در سرورها و سرویس‌های ذخیره‌سازی داشته باشد که ممکن است منجر به انحراف از پلتفرم فعلی شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "ZFS requires significant training and setup, which could be costly in terms of time and money.",
+          "cheapest_test": "Conduct a cost-benefit analysis comparing ZFS implementation costs with potential savings from compression and reduced backup frequency.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از روش‌های پیشرفته آموزش دادن مدل‌های ZFS برای کاهش زمان و هزینه",
+          "why_genius": "این رویکرد می‌تواند با استفاده از هوش مصنوعی تلاش کند تا زمان آموزش و تنظیم ZFS را کاهش دهد، که در نتیجه هزینه‌ها و زمان‌های لازم برای پیاده‌سازی این سیستم را کاهش دهد.",
+          "why_insane": "استفاده از هوش مصنوعی برای آموزش ZFS ممکن است ناتوان باشد و هزینه‌های زیادی در فهم و پیاده‌سازی روش‌های آموزش دادن نسبت به هزینه‌های اولیه ZFS بیشتر باشد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "kill",
+          "kill_condition": "无证据表明使用机器学习方法训练ZFS模型能显著降低部署时间或成本。",
+          "cheapest_test": "通过比较标准部署流程与假设采用ML优化后的实际部署所需时间和成本来验证。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

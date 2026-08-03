@@ -1,0 +1,181 @@
+{
+  "ts": "2026-07-27T00:14:06",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "debate": {
+    "status": "survived",
+    "topic_id": "plan-7",
+    "rounds": 3,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از هوش مصنوعی برای تحلیل داده‌ها و پیش‌بینی نیازهای مالی",
+          "why_genius": "این روش می‌تواند به ارائه پیشنهادات دقیق‌تر و هدفمندتر برای بودجه توانایی برساند، که می‌تواند منجر به صرفه‌جویی در باز ژنوم شود.",
+          "why_insane": "استفاده از هوش مصنوعی ممکن است نتایج غیرانتظارداری داشته باشد، که می‌تواند منجر به نقص در مدیریت مالی شود و حتی میزان بزرگی از بودجه را ناامید ساز کند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "idea must specify a concrete budgeting process or method that mitigates the risk of unexpected results from AI analysis.",
+          "cheapest_test": "MUSE should propose a specific, validated budgeting algorithm or framework that ensures financial stability and reduces the risk of over-optimistic predictions.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از الگوریتم بودجت‌سازی پایدار ساده (SBA) برای مراحل پیش‌بینی AI",
+          "why_genius": "الگوریتم SBA نسبت به تغییرات ناپیش‌بین از طریق AI پاسخگوی است و احتمالات خسارات را کاهش می‌دهد. همچنین، این الگوریتم با استفاده از داده‌های تاریخی بهترین نتایج را فراهم می‌کند.",
+          "why_insane": "الگوریتم SBA بسیار پیچیده و نیازمند آموزش عمیق است که ممکن است منابع زیادی را نیاز داشته باشد. همچنین، اگر AI به طور نامناسب پیش‌بینی کند، الگوریتم SBA نمی‌تواند آن را کنترل کند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "الگوریتم SBA نیازمند آموزش عمیق است که ممکن است منابع زیادی را نیاز داشته باشد.",
+          "cheapest_test": "بررسی هزینه‌های آموزش الگوریتم SBA در پروژه و مقایسه آن با منابع موجود.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "پروکسی ارزش per-organ از APPROVALهای sent ساخته شود",
+          "why_genius": "fitness را از حدس به دادهٔ انسانی-تأییدشده می‌برد",
+          "why_insane": "حجم دادهٔ اولیه کم است؛ نویز نرخ پذیرش",
+          "est_tokens": 800,
+          "quality_bar": "normal",
+          "epistemic_tag": "SPEC"
+        },
+        "architect": {
+          "verdict": "pass",
+          "kill_condition": "اگر ۱۴ روز بگذرد و هیچ APPROVAL ثبت نشود",
+          "cheapest_test": "شمارش رویدادهای sent هفتهٔ جاری از logs/outbox.jsonl",
+          "epistemic_tag": "SPEC"
+        },
+        "cost_usd": 0.0,
+        "stub": true,
+        "tier": "stub"
+      }
+    ]
+  }
+}

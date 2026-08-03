@@ -1,0 +1,223 @@
+{
+  "ts": "2026-07-25T21:46:04",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "ARCHITECT_SYS": {
+        "quota": 1.897,
+        "fitness_score": 0.654,
+        "urgency_factor": 0.3,
+        "efficiency_ratio": 0.82,
+        "human_priority": 1.0,
+        "waste_adjustment": -0.02,
+        "allocation_reason": "[EST] Initial allocation based on historical performance and current urgency."
+      },
+      "GENOME_SYS": {
+        "quota": 2.395,
+        "fitness_score": 0.781,
+        "urgency_factor": 0.4,
+        "efficiency_ratio": 0.86,
+        "human_priority": 1.0,
+        "waste_adjustment": -0.01,
+        "allocation_reason": "[EST] Initial allocation based on historical performance and current urgency."
+      },
+      "PROJECT_F": {
+        "quota": 2.793,
+        "fitness_score": 0.854,
+        "urgency_factor": 0.6,
+        "efficiency_ratio": 0.91,
+        "human_priority": 2.0,
+        "waste_adjustment": -0.03,
+        "allocation_reason": "[EST] Initial allocation based on historical performance and current urgency."
+      },
+      "ZIMAN": {
+        "quota": 1.827,
+        "fitness_score": 0.564,
+        "urgency_factor": 0.2,
+        "efficiency_ratio": 0.79,
+        "human_priority": 0.5,
+        "waste_adjustment": -0.01,
+        "allocation_reason": "[EST] Initial allocation based on historical performance and current urgency."
+      }
+    },
+    "model": "qwen2.5:latest",
+    "cost_usd": 0.0
+  },
+  "debate": {
+    "status": "queue-human",
+    "topic_id": "seed-1",
+    "rounds": 3,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از فناوری های خودکار تحلیل داده برای پیش‌بینی و حذف عوامل موجب شدن رویدادهای متر صفر.",
+          "why_genius": "این روش می‌تواند با استفاده از هوش مصنوعی تحلیل داده‌ها را به طور دقیق و سریع انجام دهد، کاهش هزینه‌های فنی و زمانی را فراهم کند و به صحت تصمیمات بپردازد.",
+          "why_insane": "با توجه به پیچیدگی ساختار داده‌ها و مسائل اخلاقی، ممکن است نتایج غیرانتظارده و ناشناس باشند که می‌توانند هزینه‌های فراوانی را به وجود آورند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "فناوری‌های خودکار تحلیل داده ممکن است نتایج غیرانتظارده و ناشناس باشد که می‌توانند هزینه‌های فراوانی را به وجود آورند.",
+          "cheapest_test": "بررسی اثربخشی فناوری‌ها در یک محیط کنترل شده و مقایسه نتایج با رویدادهای فعلی بدون استفاده از این فناوری.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از هوش مصنوعی برای پیش‌بینی و کاهش هزینه‌های ناشناس",
+          "why_genius": "استفاده از هوش مصنوعی (AI) برای پیش‌بینی مشکلات و سوءاستفاده‌ها می‌تواند در مقایسه با روش‌های کنترلی دستی، دقیق‌تر و به نوسانات بیشتر واکنش گذاری کند. این راه حل می‌تواند هزینه‌های ناشناس را کاهش دهد و به سطح صفر نزدیک شود.",
+          "why_insane": "استفاده از AI برای پیش‌بینی مشکلات ممکن است نتایج غیرانتظارده و ناشناس باشد، که می‌توانند هزینه‌های فراوانی را به وجود آورند. همچنین، این روش ممکن است دسترسی غیرقانونی به داده‌ها را ایجاد کند و سوءاستفاده‌های جدیدی را ایجاد کند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "AI predictions must be validated and audited to prevent unforeseen costs and security breaches.",
+          "cheapest_test": "Implement a pilot program with regular audits and cost-benefit analysis to ensure AI predictions do not lead to unexpected expenses or vulnerabilities.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از هوش مصنوعی برای پیش‌بینی و بهینه‌سازی نگهداری سیستم‌های کاربردی",
+          "why_genius": "این روش می‌تواند هزینه‌های نگهداری را کاهش دهد، زیرا هوش مصنوعی بتواند به طور خودکار امکانات نازل شده را بررسی و بهینه‌سازی کند. پیش‌بینی دقیق وضعیت سیستم‌ها باعث شده تلاش‌های ناخالص را کاهش دهد.",
+          "why_insane": "استفاده از هوش مصنوعی ممکن است منجر به پیچیدگی‌های جدید و عدم قطعیت در مدیریت سیستم‌ها شود. همچنین، نیاز به تغییرات فنی گسترده برای ادراک و استفاده از پیش‌بینی‌های هوش مصنوعی ممکن است باعث افزایش هزینه‌ها شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "روش پیش‌بینی و بهینه‌سازی نگهداری با هوش مصنوعی باید هزینه‌های فعلی را کاهش دهد و نه افزایش آن.",
+          "cheapest_test": "مقایسه هزینه‌های فعلی نگهداری سیستم با هزینه‌های پیش‌بینی شده توسط هوش مصنوعی.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

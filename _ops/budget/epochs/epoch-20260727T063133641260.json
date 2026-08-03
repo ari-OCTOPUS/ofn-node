@@ -1,0 +1,181 @@
+{
+  "ts": "2026-07-27T06:29:35",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "debate": {
+    "status": "queue-human",
+    "topic_id": "organ-ACCOUNTING",
+    "rounds": 3,
+    "queued": true,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از چارچوب حسابداری ESG در تصمیمات فنی",
+          "why_genius": "استفاده از چارچوب حسابداری ESG می‌تواند به شرکت کم‌هزینه‌ترین راه را پیدا کند زیرا نهایت هزینه‌ها و عوامل محیط زیستی، اجتماعی و اقتصادی را در نظر می‌گیرد. این چارچوب توانایی تشخیص دادن به فرصت‌های پایدار را فراهم می‌کند.",
+          "why_insane": "استفاده از ESG ممکن است باعث افزایش هزینه‌ها شود زیرا نیاز به سرگرمی‌های بیشتر و تحلیل‌های پیچیده‌تر در تصمیمات فنی خواهد گرداند. علاوه بر این، کارکنان ممکن است مقاومت نشان دهند زیرا آنها به سراغ نوآوری‌های جدید بایستی پردازند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "ESG框架在技术决策中的应用确实可能增加成本和复杂性，特别是在需要更多协商和更深入分析的情况下。此外，员工的抵制也可能导致实施难度加大。",
+          "cheapest_test": "评估在一个小型试点项目中采用ESG框架的成本效益比，以及员工对新流程的接受程度。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از هوش مصنوعی برای پیش‌بینی واردها و هزینه‌ها",
+          "why_genius": "استفاده از هوش مصنوعی (AI) می‌تواند داده‌های تاریخچه‌ای را برای پیش‌بینی دقیق‌تر واردها و هزینه‌ها استفاده کند، که منجر به تصمیمات بهتر در زمان سفارشات و اداره‌گری موجود می‌شود. این روش نیازمند یک تحلیل کوتاه مدت برای پیش‌بینی هزینه‌ها است، که می‌تواند به طور قابل توجهی هزینه‌های غیرضروری را کاهش دهد.",
+          "why_insane": "استفاده از هوش مصنوعی برای پیش‌بینی داده‌ها ممکن است ناشناخته و پیچیده باشد، به ویژه در صورت عدم وجود داده‌های تأیید شده. همچنین، این روش ممکن است منجر به افزایش هزینه‌های نرم‌افزاری و آموزش مدل باشد که در چندین ماه طول می‌کشد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "Lack of validated historical data for accurate predictions.",
+          "cheapest_test": "Review existing financial records and check if there is sufficient historical data to train AI models.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از هوش مصنوعی برای پیش‌بینی هزینه‌های آتی",
+          "why_genius": "توسعه الگوریتم‌های پیش‌بینی‌کننده برای تحلیل داده‌های تاریخچه‌ای می‌تواند هزینه‌های آتی را کاهش دهد و ارزش بیشتری در سال‌های آینده ایجاد کند.",
+          "why_insane": "با وجود پتانسیل زیاد، نقص در دسترسی به داده‌های تاریخچه‌ای ممکن است منجر به نتایج دقیق‌ترین پیش‌بینی نشود و هزینه‌ها افزایش یابند.",
+          "est_tokens": 150,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "دونوکن Eğer (با وجود پتانسیل زیاد) نقص در دسترسی به داده‌های تاریخچه‌ای ممکن است منجر به نتایج دقیق‌ترین پیش‌بینی نشود و هزینه‌ها افزایش یابند.",
+          "cheapest_test": "بررسی دسترسی به داده‌های تاریخچه‌ای برای آموزش الگوریتم پیش‌بینی‌کننده.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

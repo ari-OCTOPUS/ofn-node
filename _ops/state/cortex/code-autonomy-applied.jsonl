@@ -1,0 +1,1 @@
+{"ts": "2026-07-31T09:42:44", "epoch": 1785454964.7455268, "target": "_ops/cortex/registry.py", "approval_id": "code-2191f6fc43", "mood": "🔥جریان", "applied": false, "canary_green": null, "rolled_back": true, "reason": "apply-error:TimeoutExpired"}

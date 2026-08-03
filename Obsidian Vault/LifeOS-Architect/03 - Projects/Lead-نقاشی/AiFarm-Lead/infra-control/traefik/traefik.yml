@@ -1,0 +1,55 @@
+# traefik/traefik.yml — Static configuration for Traefik v3
+# Dynamic config (routers/services) comes from Docker labels.
+
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+log:
+  level: INFO
+
+accessLog: {}
+
+api:
+  dashboard: true
+  insecure: false    # dashboard only via HTTPS + basic auth (see docker-compose labels)
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+
+  websecure:
+    address: ":443"
+    http:
+      tls:
+        certResolver: letsencrypt
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false   # IMPORTANT: services must opt-in with traefik.enable=true
+    network: proxy
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      # Option A: DNS challenge via Cloudflare (recommended — works behind firewall, supports wildcards)
+      # Set CF_API_TOKEN env var on the traefik container.
+      email: ${ACME_EMAIL}
+      storage: /acme.json
+      dnsChallenge:
+        provider: cloudflare
+        resolvers:
+          - "1.1.1.1:53"
+          - "8.8.8.8:53"
+
+      # Option B: HTTP challenge (if not using Cloudflare).
+      # Comment out dnsChallenge above and uncomment:
+      # httpChallenge:
+      #   entryPoint: web

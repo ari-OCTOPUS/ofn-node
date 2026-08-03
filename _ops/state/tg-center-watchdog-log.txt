@@ -1,0 +1,18 @@
+2026-07-25T22:37:02 centre+loop both down - launching RUN-TG-CENTER.bat
+2026-07-26T09:32:05 centre+loop both down - launching RUN-TG-CENTER.bat
+2026-07-27T14:27:06 STOP-TG-CENTER present - not reviving centre
+2026-07-27T16:07:04 STOP-TG-CENTER present - not reviving centre
+2026-07-28T06:32:03 centre+loop both down - launching RUN-TG-CENTER.bat
+2026-07-29T06:52:03 centre+loop both down - launching RUN-TG-CENTER.bat
+2026-07-31T08:37:14 centre down (silent 14006s) - launching RUN-TG-CENTER.bat
+2026-07-31T10:02:02 STOP-TG-CENTER present - not reviving centre
+2026-07-31T19:57:02 STOP-TG-CENTER present - not reviving centre
+2026-08-01T09:07:02 STOP-TG-CENTER present - not reviving centre
+2026-08-01T09:47:04 STOP-TG-CENTER present - not reviving centre
+2026-08-01T16:02:03 centre down (silent 334s) - launching RUN-TG-CENTER.bat
+2026-08-02T09:37:02 centre down (silent 3567s) - launching RUN-TG-CENTER.bat
+2026-08-02T11:27:03 centre down (silent 999999s) - launching RUN-TG-CENTER.bat
+2026-08-02T11:37:01 STOP-TG-CENTER present - not reviving centre
+2026-08-02T12:52:04 centre down (silent 999999s) - launching RUN-TG-CENTER.bat
+2026-08-02T13:27:02 centre down (silent 307s) - launching RUN-TG-CENTER.bat
+2026-08-03T15:27:03 centre down (silent 20408s) - launching RUN-TG-CENTER.bat

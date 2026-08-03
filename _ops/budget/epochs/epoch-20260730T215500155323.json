@@ -1,0 +1,194 @@
+{
+  "ts": "2026-07-30T21:53:17",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21624,
+    "usd": 0.021624,
+    "aud": 0.032436
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.032436,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.4444,
+        "DEBATE_LOOP": 0.1112,
+        "GENOME_SYS": 0.4444
+      },
+      "reason": "[EST] No output signals; allocation follows relative floors."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "queue-human",
+    "topic_id": "seed-0",
+    "rounds": 3,
+    "queued": true,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از UNMAPPED برای ارزیابی دقیق‌تر محدودیت‌ها و نیازهای صاحب ارگان",
+          "why_genius": "این روش می‌تواند منجر به تصمیمات بهینه‌تر در تخصیص منابع شود، که باعث بهبود کارایی سازمان می‌شود.",
+          "why_insane": "پیاده‌سازی این روش ممکن است پیچیدگی بیشماری در فرآیند تصمیم‌گیری ایجاد کند و منجر به خرابی سازمانی شود.",
+          "est_tokens": 125,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "فیلتر عدم قطعیت در روش‌های ارزیابی دقیق محدودیت‌ها و نیازهای صاحب ارگان باید تضمین شود.",
+          "cheapest_test": "بررسی آنچه فیلتر عدم قطعیت در روش‌های ارزیابی دقیق محدودیت‌ها و نیازهای صاحب ارگان است، تا اطمینان حاصل شود که این فرآیند به طور مناسب پیاده‌سازی شده است.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از الگوریتم هوش مصنوعی برای تعیین صاحب ارگان",
+          "why_genius": "الگوریتم هوش مصنوعی می‌تواند با استفاده از داده‌های تاریخچه‌ای و نیازهای فعلی، بهترین راه حل را پیدا کند و صاحب ارگان را تعیین کند. این روش می‌تواند قابلیت‌های فشرده سازی و تجزیه و تحلیل داده را بهره‌برداری کند.",
+          "why_insane": "استفاده از الگوریتم هوش مصنوعی ممکن است ناشناخته و پیچیده باشد. همچنین، این روش ممکن است عدم قطعیت در تصمیمات صاحب ارگان را ایجاد کند و بدون بررسی دقیق ممکن است منجر به نتایج نامناسب شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "الگوریتم هوش مصنوعی باید با استفاده از داده‌های خودآموزی و تأیید شده عمل کند، در غیر این صورت ناپایداری و عدم قطعیت در تصمیمات صاحب ارگان رخ خواهد داد.",
+          "cheapest_test": "بررسی آزمونی با استفاده از داده‌های حاشیه‌ای (edge cases) برای نشان دادن نقاط ضعف الگوریتم و مطمئن شدن که آنالیز‌ها دقیق و تأیید شده هستند.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از UNMAPPED (painting/accounting) برای صاحب ارگان با استفاده از طراحی هوش مصنوعی که توانایی پیش‌بینی و مدیریت ریسک‌ها را دارد.",
+          "why_genius": "این رویکرد می‌تواند بخش مهمی از تصمیمات صاحب ارگان شود که توانایی پیش‌بینی و مدیریت ریسک‌ها را فراهم می‌کند. با استفاده از داده‌های خودآموزی، الگوریتم می‌تواند به صاحب ارگان پیشنهادات دقیق و مناسب بدهد.",
+          "why_insane": "اگر الگوریتم ناپایدار باشد، ممکن است تصمیمات نادرست و ریسک‌های بالا ایجاد کند. آزمون‌های حاشیه‌ای نشان می‌دهد که هرچند الگوریتم تأیید شده باشد، هنوز نمی‌توان به طور قطع اطمینان داشت که همه ریسک‌ها را مدیریت خواهد کرد.",
+          "est_tokens": 123,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "نیاز به تأیید دقیق عملکرد الگوریتم در محیط واقعی و پوشش کامل ریسک‌های ممکن.",
+          "cheapest_test": "اجرای آزمون حاشیه‌ای الگوریتم با داده‌های واقعی از طریق ساختار مدیریتی صاحب ارگان برای شناسایی نرم‌وپایداری و نقاط ضعف.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

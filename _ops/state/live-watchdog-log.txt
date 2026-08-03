@@ -1,0 +1,12 @@
+2026-07-26T09:33:04 8773 down - launching run-live-headless.bat
+2026-07-28T06:33:03 8773 down - launching run-live-headless.bat
+2026-07-28T10:13:06 8773 down - launching run-live-headless.bat
+2026-07-29T06:53:03 8773 down - launching run-live-headless.bat
+2026-07-30T21:23:03 8773 down - launching run-live-headless.bat
+2026-07-31T08:38:03 8773 down - launching run-live-headless.bat
+2026-08-01T16:03:04 8773 down - launching run-live-headless.bat
+2026-08-02T09:38:03 8773 down - launching run-live-headless.bat
+2026-08-02T11:28:03 8773 down - launching run-live-headless.bat
+2026-08-02T12:53:04 8773 down - launching run-live-headless.bat
+2026-08-02T13:28:03 8773 down - launching run-live-headless.bat
+2026-08-03T15:28:04 8773 down - launching run-live-headless.bat

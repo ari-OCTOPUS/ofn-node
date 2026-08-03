@@ -1,9 +1,9 @@
 {
-  "ts": "2026-08-03T18:03:13",
-  "beat": 23795,
+  "ts": "2026-08-03T18:06:40",
+  "beat": 23800,
   "signal": {
     "schema": "HeartSignal.v1",
-    "beat_seq": 23795,
+    "beat_seq": 23800,
     "period_s": 60.0,
     "sigma_now": 0.0,
     "baro_factor": 0.714
@@ -41,7 +41,7 @@
     "baroreflex_gain": 0.0
   },
   "gate0_live_producer": false,
-  "sampled_this_step": false,
+  "sampled_this_step": true,
   "production_wire": {
     "open": false,
     "reasons": [

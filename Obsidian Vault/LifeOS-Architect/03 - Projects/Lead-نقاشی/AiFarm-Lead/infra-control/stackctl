@@ -1,0 +1,346 @@
+#!/usr/bin/env python3
+"""
+stackctl — Root CLI for infra-control
+Multi-project Docker Compose controller with audit log and kill switch.
+
+Usage:
+    stackctl up <project>
+    stackctl down <project>
+    stackctl restart <project>
+    stackctl status [project]
+    stackctl logs <project> [-f]
+    stackctl deploy <project>
+    stackctl kill <project>
+    stackctl kill --all
+    stackctl list
+
+Audit log: /var/log/stackctl/audit.jsonl (hash-chained, INV-3)
+"""
+import sys
+import os
+import json
+import hashlib
+import subprocess
+import time
+import urllib.request
+from datetime import datetime, timezone
+from pathlib import Path
+
+try:
+    import yaml
+except ImportError:
+    print("ERROR: pyyaml not installed. Run: pip3 install pyyaml", file=sys.stderr)
+    sys.exit(1)
+
+# ── Paths ─────────────────────────────────────────────────────────────────
+SCRIPT_DIR = Path(__file__).parent.resolve()
+CONFIG_FILE = SCRIPT_DIR / "projects.yaml"
+AUDIT_LOG = Path("/var/log/stackctl/audit.jsonl")
+KILL_SWITCH_ALL = SCRIPT_DIR / ".kill_all"
+
+# ── Audit log (hash-chained, INV-3) ───────────────────────────────────────
+
+def _last_hash() -> str:
+    if not AUDIT_LOG.exists():
+        return "genesis"
+    with open(AUDIT_LOG, "rb") as f:
+        lines = f.read().strip().split(b"\n")
+    for line in reversed(lines):
+        line = line.strip()
+        if line:
+            try:
+                entry = json.loads(line)
+                return entry.get("hash", "genesis")
+            except Exception:
+                continue
+    return "genesis"
+
+
+def audit(action: str, project: str, result: str, detail: str = "") -> None:
+    AUDIT_LOG.parent.mkdir(parents=True, exist_ok=True)
+    prev_hash = _last_hash()
+    entry = {
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "action": action,
+        "project": project,
+        "result": result,
+        "detail": detail[:500],  # truncate to avoid bloat
+    }
+    entry_str = json.dumps(entry, sort_keys=True)
+    entry["hash"] = hashlib.sha256(
+        f"{prev_hash}:{entry_str}".encode()
+    ).hexdigest()[:16]
+    with open(AUDIT_LOG, "a") as f:
+        f.write(json.dumps(entry) + "\n")
+
+
+# ── Config loader ──────────────────────────────────────────────────────────
+
+def load_projects() -> dict:
+    if not CONFIG_FILE.exists():
+        print(f"ERROR: {CONFIG_FILE} not found.", file=sys.stderr)
+        sys.exit(1)
+    with open(CONFIG_FILE) as f:
+        data = yaml.safe_load(f)
+    return data.get("projects", {})
+
+
+def get_project(name: str, projects: dict) -> dict:
+    if name not in projects:
+        print(f"ERROR: project '{name}' not in projects.yaml", file=sys.stderr)
+        print(f"  Known: {', '.join(projects.keys())}", file=sys.stderr)
+        sys.exit(1)
+    return projects[name]
+
+
+# ── Docker Compose wrapper ─────────────────────────────────────────────────
+
+def compose(project_path: str, compose_file: str, *args, capture: bool = False):
+    cmd = ["docker", "compose", "-f", compose_file] + list(args)
+    if capture:
+        return subprocess.run(cmd, cwd=project_path, capture_output=True, text=True)
+    else:
+        return subprocess.run(cmd, cwd=project_path)
+
+
+# ── Health check ───────────────────────────────────────────────────────────
+
+def wait_healthy(project: str, cfg: dict, timeout: int = 60) -> bool:
+    url = cfg.get("health_url")
+    if not url:
+        # No HTTP health — check container running status
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            r = subprocess.run(
+                ["docker", "inspect", "--format", "{{.State.Status}}",
+                 cfg.get("container_name", project)],
+                capture_output=True, text=True
+            )
+            if r.stdout.strip() == "running":
+                return True
+            time.sleep(3)
+        return False
+
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            with urllib.request.urlopen(url, timeout=5) as resp:
+                if resp.status == 200:
+                    return True
+        except Exception:
+            pass
+        time.sleep(3)
+    return False
+
+
+# ── Commands ───────────────────────────────────────────────────────────────
+
+def cmd_list(projects: dict) -> None:
+    print(f"{'PROJECT':<20} {'PATH':<40} {'HEALTH'}")
+    print("-" * 70)
+    for name, cfg in projects.items():
+        path = cfg.get("path", "?")
+        health = cfg.get("health_url", "process-check")
+        print(f"{name:<20} {path:<40} {health}")
+
+
+def cmd_status(project_name: str | None, projects: dict) -> None:
+    targets = {project_name: projects[project_name]} if project_name else projects
+    for name, cfg in targets.items():
+        r = subprocess.run(
+            ["docker", "compose", "-f", cfg["compose"], "ps", "--format", "json"],
+            cwd=cfg["path"], capture_output=True, text=True
+        )
+        print(f"\n=== {name} ===")
+        if r.returncode != 0:
+            print(f"  ERROR: {r.stderr.strip()}")
+        elif not r.stdout.strip():
+            print("  (no containers running)")
+        else:
+            try:
+                for line in r.stdout.strip().split("\n"):
+                    if not line.strip():
+                        continue
+                    c = json.loads(line)
+                    state = c.get("State", c.get("Status", "?"))
+                    svc = c.get("Service", c.get("Name", "?"))
+                    print(f"  {svc:<30} {state}")
+            except json.JSONDecodeError:
+                print(r.stdout[:500])
+
+
+def cmd_up(project_name: str, projects: dict) -> None:
+    cfg = get_project(project_name, projects)
+    print(f"[stackctl] up: {project_name}")
+    r = compose(cfg["path"], cfg["compose"], "up", "-d")
+    result = "ok" if r.returncode == 0 else "error"
+    audit("up", project_name, result)
+    if r.returncode != 0:
+        print(f"ERROR: docker compose up failed (rc={r.returncode})")
+        sys.exit(1)
+    print(f"[stackctl] {project_name} up.")
+
+
+def cmd_down(project_name: str, projects: dict) -> None:
+    cfg = get_project(project_name, projects)
+    print(f"[stackctl] down: {project_name}")
+    r = compose(cfg["path"], cfg["compose"], "down")
+    result = "ok" if r.returncode == 0 else "error"
+    audit("down", project_name, result)
+    if r.returncode != 0:
+        print(f"ERROR: docker compose down failed (rc={r.returncode})")
+        sys.exit(1)
+
+
+def cmd_restart(project_name: str, projects: dict) -> None:
+    cmd_down(project_name, projects)
+    time.sleep(2)
+    cmd_up(project_name, projects)
+    audit("restart", project_name, "ok")
+
+
+def cmd_logs(project_name: str, projects: dict, follow: bool = False) -> None:
+    cfg = get_project(project_name, projects)
+    args = ["logs", "--tail=100"]
+    if follow:
+        args.append("-f")
+    compose(cfg["path"], cfg["compose"], *args)
+
+
+def cmd_kill(project_name: str | None, projects: dict) -> None:
+    if project_name == "--all":
+        print("[stackctl] KILL ALL — stopping every project.")
+        KILL_SWITCH_ALL.touch()
+        for name, cfg in projects.items():
+            print(f"  killing {name}...")
+            compose(cfg["path"], cfg["compose"], "down", capture=True)
+            audit("kill", name, "ok", "global kill switch")
+        print("[stackctl] All projects stopped. Kill switch file created.")
+        print(f"  Remove {KILL_SWITCH_ALL} and run 'stackctl up <project>' to resume.")
+    else:
+        cfg = get_project(project_name, projects)
+        print(f"[stackctl] KILL: {project_name}")
+        compose(cfg["path"], cfg["compose"], "down")
+        kill_file = Path(cfg["path"]) / ".kill_switch"
+        kill_file.touch()
+        audit("kill", project_name, "ok", "per-project kill switch")
+        print(f"  Kill switch set at {kill_file}")
+
+
+def cmd_deploy(project_name: str, projects: dict) -> None:
+    """
+    Pull latest image from GHCR, bring up, health-check, rollback on failure.
+    Triggered by CI via SSH: ssh deploy@vps 'stackctl deploy brushline'
+    """
+    cfg = get_project(project_name, projects)
+    path = cfg["path"]
+    compose_file = cfg["compose"]
+    timeout = cfg.get("health_timeout", 60)
+
+    print(f"[stackctl] deploy: {project_name}")
+    audit("deploy_start", project_name, "start")
+
+    # 1. Pull latest image
+    print("  [1/4] Pulling image...")
+    r = compose(path, compose_file, "pull", capture=True)
+    if r.returncode != 0:
+        print(f"  WARN: pull failed (may be local build only): {r.stderr[:200]}")
+
+    # 2. Capture current image ID for rollback
+    r_img = subprocess.run(
+        ["docker", "compose", "-f", compose_file, "images", "--quiet"],
+        cwd=path, capture_output=True, text=True
+    )
+    prev_image_ids = r_img.stdout.strip()
+
+    # 3. Up new version
+    print("  [2/4] Starting new containers...")
+    r = compose(path, compose_file, "up", "-d", "--remove-orphans", capture=True)
+    if r.returncode != 0:
+        audit("deploy", project_name, "error", f"up failed: {r.stderr[:200]}")
+        print(f"  ERROR: up failed:\n{r.stderr[:500]}")
+        sys.exit(1)
+
+    # 4. Health check
+    print(f"  [3/4] Health check (timeout={timeout}s)...")
+    healthy = wait_healthy(project_name, cfg, timeout=timeout)
+
+    if healthy:
+        audit("deploy", project_name, "ok")
+        print(f"  [4/4] Deploy OK — {project_name} is healthy.")
+    else:
+        print(f"  FAIL: health check timed out — rolling back...")
+        compose(path, compose_file, "down")
+        # Note: true image rollback requires tagging previous image.
+        # For now: down + alert. CI should handle full rollback via GHCR tag.
+        audit("deploy", project_name, "rollback", "health check failed")
+        print(f"  ROLLBACK: {project_name} stopped. Previous state was: {prev_image_ids[:100]}")
+        print("  Action: redeploy previous image tag manually or from CI.")
+        sys.exit(2)
+
+
+# ── Main ───────────────────────────────────────────────────────────────────
+
+def main() -> None:
+    args = sys.argv[1:]
+    if not args:
+        print(__doc__)
+        sys.exit(0)
+
+    # Check global kill switch
+    if KILL_SWITCH_ALL.exists() and args[0] not in ("kill", "list", "status"):
+        print(f"[stackctl] BLOCKED: global kill switch is active ({KILL_SWITCH_ALL})")
+        print("  Remove the file to resume operations.")
+        sys.exit(3)
+
+    projects = load_projects()
+    cmd = args[0]
+
+    if cmd == "list":
+        cmd_list(projects)
+
+    elif cmd == "status":
+        project = args[1] if len(args) > 1 else None
+        if project and project not in projects:
+            print(f"ERROR: unknown project '{project}'", file=sys.stderr)
+            sys.exit(1)
+        cmd_status(project, projects)
+
+    elif cmd == "up":
+        if len(args) < 2:
+            print("Usage: stackctl up <project>", file=sys.stderr); sys.exit(1)
+        cmd_up(args[1], projects)
+
+    elif cmd == "down":
+        if len(args) < 2:
+            print("Usage: stackctl down <project>", file=sys.stderr); sys.exit(1)
+        cmd_down(args[1], projects)
+
+    elif cmd == "restart":
+        if len(args) < 2:
+            print("Usage: stackctl restart <project>", file=sys.stderr); sys.exit(1)
+        cmd_restart(args[1], projects)
+
+    elif cmd == "logs":
+        if len(args) < 2:
+            print("Usage: stackctl logs <project> [-f]", file=sys.stderr); sys.exit(1)
+        follow = "-f" in args
+        cmd_logs(args[1], projects, follow=follow)
+
+    elif cmd == "deploy":
+        if len(args) < 2:
+            print("Usage: stackctl deploy <project>", file=sys.stderr); sys.exit(1)
+        cmd_deploy(args[1], projects)
+
+    elif cmd == "kill":
+        target = args[1] if len(args) > 1 else "--all"
+        cmd_kill(target, projects)
+
+    else:
+        print(f"ERROR: unknown command '{cmd}'", file=sys.stderr)
+        print(__doc__)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

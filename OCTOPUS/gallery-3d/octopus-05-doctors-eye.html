@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OCTOPUS — چشمِ دکتر</title>
+<style>
+  html,body{margin:0;height:100%;background:#02030e;overflow:hidden;font-family:"Segoe UI",Tahoma,sans-serif}
+  #app{position:fixed;inset:0}
+  #vig{position:fixed;inset:0;pointer-events:none;z-index:3;background:radial-gradient(120% 90% at 50% 45%,transparent 50%,rgba(0,0,4,.93) 100%)}
+  .top{position:fixed;top:14px;left:0;right:0;text-align:center;z-index:5;pointer-events:none}
+  .top b{font-size:15px;font-weight:800;letter-spacing:3px;background:linear-gradient(90deg,#00ffff,#67e8f9,#fcd34d);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 22px #00ffff44}
+  .top span{display:block;font-size:11px;color:#5b6b85;margin-top:3px;letter-spacing:1px}
+  #st{position:fixed;top:16px;left:16px;z-index:6;direction:ltr;text-align:left;font:12px/1.7 ui-monospace,Menlo,monospace;color:#67e8f9;pointer-events:none}
+  #st b{color:#fcd34d}
+  #hint{position:fixed;bottom:14px;left:0;right:0;text-align:center;z-index:5;pointer-events:none;font-size:11.5px;color:#5b6b85}
+  #hint b{color:#67e8f9}
+</style>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div id="app"></div><div id="vig"></div>
+<div class="top"><b>DOCTOR'S EYE</b><span>نگهبانِ تکامل · نظارتِ منفعل، هوشیار · نگاه می‌کند، اثر نمی‌گذارد — منتظرِ گلوگاه</span></div>
+<div id="st"></div>
+<div id="hint">بکش تا بچرخانی · اسکرول = زوم · مردمک هرازگاهی یک <b>اسکنِ آرام</b> انجام می‌دهد</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+const ADD=THREE.AdditiveBlending;
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
+document.getElementById('app').appendChild(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x02030e);scene.fog=new THREE.FogExp2(0x02030e,0.012);
+const camera=new THREE.PerspectiveCamera(50,innerWidth/innerHeight,0.1,400);camera.position.set(0,-4,26);
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=0.05;
+controls.autoRotate=true;controls.autoRotateSpeed=0.35;controls.target.set(0,2,0);controls.minDistance=12;controls.maxDistance=70;
+scene.add(new THREE.AmbientLight(0x22344f,0.5));
+const pupilL=new THREE.PointLight(0x00ffff,14,60);scene.add(pupilL);
+(function(){const n=700,p=new Float32Array(n*3);for(let i=0;i<n;i++){const r=80+Math.random()*80,t=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);p[i*3]=r*Math.sin(ph)*Math.cos(t);p[i*3+1]=r*Math.cos(ph);p[i*3+2]=r*Math.sin(ph)*Math.sin(t);}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x6688bb,size:0.16,transparent:true,opacity:0.5})));})();
+// eye group up high
+const eye=new THREE.Group();eye.position.set(0,7,0);scene.add(eye);
+const sclera=new THREE.Mesh(new THREE.SphereGeometry(4,40,30),new THREE.MeshStandardMaterial({color:0x081826,emissive:0x2a8fd6,emissiveIntensity:0.5,roughness:0.35,metalness:0.45,transparent:true,opacity:0.55,flatShading:true}));eye.add(sclera);
+const iris=new THREE.Mesh(new THREE.CircleGeometry(2.2,48),new THREE.MeshStandardMaterial({color:0x001018,emissive:0x002028,emissiveIntensity:0.3,side:THREE.DoubleSide}));iris.position.set(0,-0.6,3.6);iris.lookAt(0,-10,20);eye.add(iris);
+const pupil=new THREE.Mesh(new THREE.CircleGeometry(0.9,48),new THREE.MeshBasicMaterial({color:0x00ffff,blending:ADD}));pupil.position.set(0,-0.65,3.85);pupil.lookAt(0,-10,20);eye.add(pupil);
+const pupilGlow=new THREE.Mesh(new THREE.CircleGeometry(1.6,48),new THREE.MeshBasicMaterial({color:0x00ffff,transparent:true,opacity:0.25,blending:ADD}));pupilGlow.position.copy(pupil.position);pupilGlow.rotation.copy(pupil.rotation);eye.add(pupilGlow);
+// calibration ring
+const cal=new THREE.Mesh(new THREE.TorusGeometry(4.7,0.04,8,120),new THREE.MeshBasicMaterial({color:0xfcd34d,transparent:true,opacity:0.5,blending:ADD}));cal.rotation.x=Math.PI/2.3;eye.add(cal);
+// watched brain node below
+const brain=new THREE.Mesh(new THREE.IcosahedronGeometry(2,1),new THREE.MeshStandardMaterial({color:0x1a0b2e,emissive:0xa855f7,emissiveIntensity:0.9,roughness:0.4,metalness:0.3,transparent:true,opacity:0.7,flatShading:true}));brain.position.set(0,-6,0);scene.add(brain);
+// tendrils from eye to brain
+for(let i=0;i<7;i++){const ang=(i/7)*Math.PI*2;const c=new THREE.CatmullRomCurve3([new THREE.Vector3(Math.cos(ang)*1.6,3,Math.sin(ang)*1.6),new THREE.Vector3(Math.cos(ang)*2.4,-1,Math.sin(ang)*2.4),new THREE.Vector3(Math.cos(ang)*1.2,-4.5,Math.sin(ang)*1.2)]);eye.add(new THREE.Mesh(new THREE.TubeGeometry(c,24,0.04,6,false),new THREE.MeshBasicMaterial({color:0x67e8f9,transparent:true,opacity:0.5,blending:ADD})));}
+const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),1.1,0.85,0.1));
+const stEl=document.getElementById('st');const clock=new THREE.Clock();
+function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();
+  const scan=Math.sin(t*0.35);eye.rotation.y=scan*0.3;
+  const dil=1+Math.sin(t*0.8)*0.14;pupil.scale.setScalar(dil);pupilGlow.scale.setScalar(dil);
+  pupilL.position.set(eye.position.x+Math.sin(eye.rotation.y)*4,eye.position.y-0.6,eye.position.z+Math.cos(eye.rotation.y)*4);
+  cal.rotation.z+=0.01;sclera.material.emissiveIntensity=0.45+Math.sin(t*1.2)*0.08;
+  brain.rotation.y+=0.006;brain.material.emissiveIntensity=0.7+Math.sin(t*2.2)*0.25;brain.position.y=-6+Math.sin(t*1.5)*0.2;
+  const scanning=Math.abs(scan)>0.85;
+  stEl.innerHTML=`<b>◉ watching</b> · evolutionary guardian<br>mode: ${scanning?'<span style="color:#fcd34d">DIAGNOSTIC SCAN</span>':'<span style="color:#67e8f9">passive observe</span>'}<br><span style="color:#6b5b85">acts only at a bottleneck</span>`;
+  controls.update();composer.render();}
+animate();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);});
+</script>
+</body>
+</html>

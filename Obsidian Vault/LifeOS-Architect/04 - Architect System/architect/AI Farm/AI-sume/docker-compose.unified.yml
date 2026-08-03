@@ -1,0 +1,84 @@
+# ============================================================================
+# LANGAR — Unified stack  |  استکِ واحد
+# bot (langar) + api (langar-pro) + db (postgres+pgvector) + redis
+# همه با یک دستور:  docker compose -f docker-compose.unified.yml up -d --build
+# هیچ پروژه‌ای حذف نشده؛ بات «چهره» و api «بک‌اندِ پژوهش» است.
+# ============================================================================
+# NOTE: تصویرِ db را pgvector/pgvector:pg15 گذاشتیم (نه postgres:15-alpine خام)
+#       چون schema از افزونه‌ی vector استفاده می‌کند. این همان Postgres 15 + pgvector است.
+# ============================================================================
+
+services:
+  # ── Telegram bot (چهره کاربر) ─────────────────────────────────────────────
+  bot:
+    build: ./langar
+    container_name: langar-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # بات از این آدرس به api وصل می‌شود (نامِ سرویس روی شبکه‌ی داخلی)
+      - LANGAR_PRO_URL=http://api:8000
+    depends_on:
+      api:
+        condition: service_started
+    volumes:
+      - ./langar/data:/app/data
+      - ./langar/patches:/app/patches
+      - ./langar/logs:/app/logs
+    networks:
+      - langar-net
+
+  # ── Research backend (FastAPI) ────────────────────────────────────────────
+  api:
+    build: ./langar-pro
+    container_name: langar-pro-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    networks:
+      - langar-net
+
+  # ── Postgres (+pgvector) ──────────────────────────────────────────────────
+  db:
+    image: pgvector/pgvector:pg15
+    container_name: langar-pro-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-langar}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-langar}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./langar-pro/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-langar}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - langar-net
+
+  # ── Redis (صف/کش، برای فازهای بعد) ────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: langar-redis
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+    networks:
+      - langar-net
+
+networks:
+  langar-net:
+    driver: bridge
+
+volumes:
+  pgdata:
+  redisdata:

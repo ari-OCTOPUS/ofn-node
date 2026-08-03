@@ -1,0 +1,9 @@
+.env
+*.db
+*.db-wal
+*.db-shm
+*.pickle
+langar_export_*.json
+__pycache__/
+venv/
+*.pyc

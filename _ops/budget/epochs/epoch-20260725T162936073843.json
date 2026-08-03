@@ -1,0 +1,227 @@
+{
+  "ts": "2026-07-25T16:28:00",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.998,
+    "deadline_ref": "PROJECT_F@2026-07-20 (-5d)",
+    "anomaly": 0.0,
+    "pressure": 0.998
+  },
+  "next_epoch_minutes": 15.1,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 15.1,
+  "heart_pressure_effective": 0.998,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 4.176655,
+        "total_month_aud": 7.176655,
+        "fitness": 0.6327,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 4.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 4.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 1.870154,
+        "total_month_aud": 2.870154,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 3.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 3.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 2.590638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999999,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "PROJECT_F": {
+        "status": "GRANT",
+        "amount_aud": 0.0,
+        "tier": "L4",
+        "reason": "Deadline passed (2026-07-20). Throttled to L4 floor per H5 [FACT]"
+      },
+      "ARCHITECT_SYS": {
+        "status": "GRANT",
+        "amount_aud": 0.75,
+        "tier": "L0",
+        "reason": "Top quartile fitness (active). Allocated daily share of remaining cap [EST]"
+      },
+      "GENOME_SYS": {
+        "status": "GRANT",
+        "amount_aud": 0.5,
+        "tier": "L0",
+        "reason": "Baseline allocation. Zero spend detected; monitoring for idle decay [EST]"
+      },
+      "ZIMAN": {
+        "status": "GRANT",
+        "amount_aud": 0.25,
+        "tier": "L0",
+        "reason": "Baseline allocation maintained above floor [EST]"
+      },
+      "PAINTING": {
+        "status": "GRANT",
+        "amount_aud": 0.25,
+        "tier": "L0",
+        "reason": "Baseline allocation maintained [EST]"
+      },
+      "ACCOUNTING": {
+        "status": "GRANT",
+        "amount_aud": 0.25,
+        "tier": "L0",
+        "reason": "Baseline allocation maintained [EST]"
+      },
+      "_RESERVE": {
+        "amount_aud": 0.2,
+        "reason": "10% Explore reserve (MUSE) held back [FACT]"
+      }
+    },
+    "model": "glm-4.6",
+    "cost_usd": 0.0
+  },
+  "debate": {
+    "status": "queue-human",
+    "topic_id": "plan-0",
+    "rounds": 3,
+    "queued": true,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از الگوریتم‌های هوش مصنوعی برای تجزیه و تحلیل داده‌های باز ژنوم",
+          "why_genius": "این رویکرد می‌تواند به شناسایی پатرین‌ها و ویژگی‌های مهم در باز ژنوم کمک کند و امکان بهبود دستاوردها را فراهم کند.",
+          "why_insane": "استفاده از الگوریتم‌های پیچیده ممکن است منجر به نتایج نامفهوم شود و نیازمند تلاش بسیار زیاد برای تفسیر باشد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "فقط الگوریتم‌های هوش مصنوعی استفاده شده‌اند، اما نتایج آن‌ها بدون تفسیر قابل درک نیستند.",
+          "cheapest_test": "بررسی آسان‌تر: انتخاب چند الگوریتم ساده و پیچیده و بررسی آن‌ها با داده‌های مشخص، آیا نتایج ساده قابل تفسیر هستند یا خلاصه‌شوند به نتایج پیچیده و نامفهوم؟",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از شبکه‌های عصبی مصنوعی (ANN) برای تفسیر داده‌ها",
+          "why_genius": "شبکه‌های عصبی مصنوعی قادر به تشخیص الگوها و خلاصه کردن داده‌ها هستند. این روش نمی‌تواند فقط نتایج پیچیده را تولید کند، بلکه آن‌ها را با مفاهیم ساده‌تر خلاصه می‌کنند و به شکل قابل درک‌تری ارائه می‌دهند.",
+          "why_insane": "استفاده از شبکه‌های عصبی مصنوعی برای تفسیر داده‌ها ممکن است نتایج غیرقابل تفسیری را تولید کند، زیرا پارامترهای شبکه ممکن است به طور غیرمستقیم تنظیم شوند و خروجی آن‌ها بدون اطلاعات کافی قابل درک نباشد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "缺乏具体的证据证明ANN能够比现有的基因组解释方法更有效地解释基因组数据，特别是在没有足够训练数据的情况下。",
+          "cheapest_test": "收集或查找已有的研究案例，展示ANN在解释基因组数据方面的有效性及优于其他现有方法的证据。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "使用增强学习算法优化基因组解析过程",
+          "why_genius": "通过模拟自然选择和进化机制，增强学习可以动态调整参数以更准确地解释复杂的基因组数据。这种方法能够适应不断变化的数据集，并在缺乏充分训练数据的情况下提供更好的泛化能力。",
+          "why_insane": "增强学习算法的黑盒性质可能导致难以理解模型决策过程，这可能引发伦理和监管问题。此外，该方法需要大量计算资源，可能会增加成本并延长开发周期。",
+          "est_tokens": 150,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "需要具体说明增强学习算法如何在基因组解析中动态调整参数，以及它相较于传统方法的优势。",
+          "cheapest_test": "提供一个具体的案例研究或实验设计，展示增强学习算法在基因组解析中的应用效果。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

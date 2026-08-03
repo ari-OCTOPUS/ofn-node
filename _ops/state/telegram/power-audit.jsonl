@@ -1,0 +1,7 @@
+{"ts": "2026-07-28T19:57:21", "action": "budget-apply", "ok": false, "detail": "power-flag-off", "source": "tg-center"}
+{"ts": "2026-07-28T19:57:21", "action": "panic", "ok": true, "detail": "", "source": "tg-center"}
+{"ts": "2026-07-28T19:57:21", "action": "restart", "ok": false, "detail": "power-flag-off", "source": "tg-center"}
+{"ts": "2026-07-28T19:57:21", "action": "resume-all", "ok": true, "detail": "", "source": "tg-center"}
+{"ts": "2026-07-28T19:57:21", "action": "stop", "ok": true, "detail": "", "source": "tg-center"}
+{"ts": "2026-07-28T20:21:04", "action": "stop", "ok": false, "detail": "isolation-mismatch", "source": "tg-center"}
+{"ts": "2026-07-31T19:42:39", "action": "resume:lead", "ok": true, "detail": "", "source": "tg-center"}

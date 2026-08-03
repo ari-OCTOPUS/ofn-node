@@ -1,0 +1,194 @@
+{
+  "ts": "2026-07-29T20:32:14",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21624,
+    "usd": 0.021624,
+    "aud": 0.032436
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.032436,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.55,
+        "DEBATE_LOOP": 0.15,
+        "GENOME_SYS": 0.3
+      },
+      "reason": "[EST] ARCHITECT_SYS sole active organ; GENOME_SYS zero output held at floor, DEBATE_LOOP minor."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "survived",
+    "topic_id": "seed-2",
+    "rounds": 3,
+    "queued": true,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از سیستم تشخیص داده‌ها برای پیش‌بینی نتایج مناظره و به روز رسانی محتوای آموزشی.",
+          "why_genius": "این رویکرد می‌تواند از طریق تحلیل داده‌ها، پیش‌بینی دقیق‌تری از نتایج مناظره ارائه کند و به بهبود کیفیت همگام‌سازی بین متعارfsان کمک کند.",
+          "why_insane": "استفاده از سیستم تشخیص داده‌ها ممکن است ناشناخته و غیرقابل فهم باشد، که ممکن است منجر به عدم اطمینان بین متعارفان شود و گرفتار تغییرات نامزد شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "سیستم تشخیص داده‌ها باید اثبات شود که قادر به تولید مناظره‌های با کیفیت AU$5/ماه است.",
+          "cheapest_test": "درخواست چندین مناظره آزمایشی از سیستم و بررسی هزینه‌های مربوط به هر مناظره.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از هوش مصنوعی برای تولید سوالات و پاسخ‌ها در مناظرات",
+          "why_genius": "استفاده از AI می‌تواند منجر به تولید سوالات و پاسخ‌های با کیفیت بیشتر شود، که نه تنها هزینه‌های زمان و جهد را کاهش می‌دهد بلکه کیفیت مناظرات را بهبود می‌بخشد.",
+          "why_insane": "استفاده از AI ممکن است باعث تولید سوالات غیرمنطقی و پاسخ‌های نامتعارف شود که منجر به خسارات مالی و اعتماد قانونی می‌شود. همچنین، این روش ممکن است منجر به عدم شفافیت در مناظرات شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "مناظره‌ای که تولیدش با استفاده از AI رخ می‌دهد باید در حوزه‌های مختلف (مثل منطق، شناخت فرهنگی، و تجربیات شخصی) نمرات بالا در آزمون‌های کیفیت مناظره داشته باشد.",
+          "cheapest_test": "درخواست مقالات علمی موجود در حوزه‌های مختلف و بررسی آنها برای اینکه آیا سوالات و پاسخ‌های تولید شده منطقی و کاربردی هستند.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "پروکسی ارزش per-organ از APPROVALهای sent ساخته شود",
+          "why_genius": "fitness را از حدس به دادهٔ انسانی-تأییدشده می‌برد",
+          "why_insane": "حجم دادهٔ اولیه کم است؛ نویز نرخ پذیرش",
+          "est_tokens": 800,
+          "quality_bar": "normal",
+          "epistemic_tag": "SPEC"
+        },
+        "architect": {
+          "verdict": "pass",
+          "kill_condition": "اگر ۱۴ روز بگذرد و هیچ APPROVAL ثبت نشود",
+          "cheapest_test": "شمارش رویدادهای sent هفتهٔ جاری از logs/outbox.jsonl",
+          "epistemic_tag": "SPEC"
+        },
+        "cost_usd": 0.0,
+        "stub": true,
+        "tier": "stub"
+      }
+    ]
+  }
+}

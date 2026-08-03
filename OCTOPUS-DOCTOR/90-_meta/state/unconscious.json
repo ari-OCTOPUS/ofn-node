@@ -1,0 +1,108 @@
+{
+  "n": 90,
+  "arch": [
+    {
+      "sig": "خودشناسیِ منفی",
+      "support": 0,
+      "exo_support": 0,
+      "actors": [],
+      "days": [],
+      "born": 1785308418.9390233,
+      "last_confirmed": 0.0,
+      "counter": 11,
+      "valence": -1.0
+    },
+    {
+      "sig": "حافظهٔ بلندمدت تقریباً خالی",
+      "support": 0,
+      "exo_support": 0,
+      "actors": [],
+      "days": [],
+      "born": 1785308418.9390233,
+      "last_confirmed": 0.0,
+      "counter": 9,
+      "valence": -1.0
+    },
+    {
+      "sig": "هشدارِ تکراری ×N",
+      "support": 0,
+      "exo_support": 0,
+      "actors": [],
+      "days": [],
+      "born": 1785308418.9390233,
+      "last_confirmed": 0.0,
+      "counter": 48,
+      "valence": -1.0
+    },
+    {
+      "sig": "wire",
+      "support": 12,
+      "exo_support": 12,
+      "actors": [
+        "owner",
+        "owner",
+        "owner",
+        "owner",
+        "owner",
+        "owner",
+        "owner",
+        "owner",
+        "owner",
+        "owner",
+        "owner",
+        "owner"
+      ],
+      "days": [
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29"
+      ],
+      "born": 1785307328.9982107,
+      "last_confirmed": 1785307328.9982107,
+      "counter": 0,
+      "valence": 1.0
+    },
+    {
+      "sig": "ابزارِ فقط‌خواندنیِ خلاصهٔ وضع دکتر افزوده شود.",
+      "support": 10,
+      "exo_support": 10,
+      "actors": [
+        "owner",
+        "owner",
+        "owner",
+        "owner",
+        "owner",
+        "owner",
+        "owner",
+        "owner",
+        "owner",
+        "owner"
+      ],
+      "days": [
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29",
+        "2026-07-29"
+      ],
+      "born": 1785313248.597469,
+      "last_confirmed": 1785313248.597469,
+      "counter": 0,
+      "valence": 1.0
+    }
+  ]
+}

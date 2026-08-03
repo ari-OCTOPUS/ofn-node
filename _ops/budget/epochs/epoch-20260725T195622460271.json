@@ -1,0 +1,242 @@
+{
+  "ts": "2026-07-25T19:53:45",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.998,
+    "deadline_ref": "PROJECT_F@2026-07-20 (-5d)",
+    "anomaly": 0.0,
+    "pressure": 0.998
+  },
+  "next_epoch_minutes": 15.1,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 15.1,
+  "heart_pressure_effective": 0.998,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 4.176655,
+        "total_month_aud": 7.176655,
+        "fitness": 0.6327,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 4.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 4.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 1.870154,
+        "total_month_aud": 2.870154,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 3.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 3.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 2.590638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999999,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "ARCHITECT_SYS": {
+        "quota": 2,
+        "allocated": [
+          {
+            "cell": "Ari",
+            "amount": 1.5,
+            "tier": "econ"
+          },
+          {
+            "cell": "Mother",
+            "amount": 0.5,
+            "tier": "econ"
+          }
+        ]
+      },
+      "GENOME_SYS": {
+        "quota": 2,
+        "allocated": [
+          {
+            "cell": "Ari",
+            "amount": 1.5,
+            "tier": "reason"
+          },
+          {
+            "cell": "Mother",
+            "amount": 0.5,
+            "tier": "econ"
+          }
+        ]
+      },
+      "PROJECT_F": {
+        "quota": 3,
+        "allocated": [
+          {
+            "cell": "Ari",
+            "amount": 2.1,
+            "tier": "reason"
+          },
+          {
+            "cell": "Saba",
+            "amount": 0.9,
+            "tier": "econ"
+          }
+        ]
+      },
+      "ZIMAN": {
+        "quota": 1,
+        "allocated": [
+          {
+            "cell": "Ari",
+            "amount": 0.7,
+            "tier": "reason"
+          }
+        ]
+      }
+    },
+    "model": "qwen2.5:latest",
+    "cost_usd": 0.0
+  },
+  "debate": {
+    "status": "killed",
+    "topic_id": "organ-ZIMAN",
+    "rounds": 3,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "ایجاد یک پروژه ملی برای تولید انرژی شور در مناطق باز، به صورتی که هم از بین رسانی غیرقانونی انرژی و هم از سرمایه‌گذاری در فناوری‌های پیشرفته برای تولید انرژی شور استفاده شود.",
+          "why_genius": "این پروژه می‌تواند با کمترین هزینه‌ها ارزش بسیار بالا را فراهم کند، زیرا برای تولید انرژی شور، نیاز به سرمایه‌گذاری در فناوری‌های پیشرفته و جدید است که می‌توانند با کاهش هزینه‌ها و افزایش ارزش تولیدی، بیشترین برندهای رونوشتی را به دست آورند.",
+          "why_insane": "در صورت عدم وجود سنجش دقیق و پیگیری مناسب فرآیند تولید انرژی شور، ممکن است از بین رسانی غیرقانونی انرژی به وجود آید که نهایتاً باعث خسارت‌های زیادی برای صنعت و سلامت عموم شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "ขาดการตรวจสอบและส่งเสริมที่เพียงพอของกระบวนการผลิตพลังงานชั่วคราว",
+          "cheapest_test": "การตรวจสอบประมวลผลข้อมูลการใช้พลังงานชั่วคราวในพื้นที่เป้าหมายอย่างสม่ำเสมอ",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "ارگان ZIMAN (floor 1): تحقیق در محصولات پایدار با استفاده از انرژی تحریکی.",
+          "why_genius": "این ایده به طور قابل توجهی هزینه‌های مالی را کاهش می‌دهد، زیرا برای تولید محصولات پایدار می‌توان از انرژی تحریکی (مانند آب و هوای طبیعی) استفاده کرد. همچنین، این روش به گسترش فناوری‌های پایدار خواهد کشید.",
+          "why_insane": "اگرچه تحقیق در انرژی تحریکی ممکن است هزینه‌ها را کاهش دهد، اما آنالیز دقیق نیاز به زمان و منابع فراوان است. علاوه بر این، عدم پایداری انرژی تحریکی ممکن است باعث عدم قابلیت اطمینان در تولید محصولات شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "缺乏对可再生能源稳定性的深入分析和验证，无法确保长期可持续性。",
+          "cheapest_test": "进行为期一年的实地测试，观察选定的可再生能源来源（如风能、太阳能）在不同天气条件下的稳定性。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از انرژی باد در مناطق با سرعت باد پایین",
+          "why_genius": "در مناطقی که سرعت باد معمولاً پایین است، تجهیزات بادی کاهش هزینه نگهداری را دارند و همچنین نیاز به نگهداری زیرزمینی کمتری دارد. این رویکرد می‌تواند در مقایسه با انرژی‌های دیگر، هزینه‌های بالاتر را کاهش دهد.",
+          "why_insane": "در مناطقی که سرعت باد پایین است، احتمال شکست و نگهداری تجهیزات بادی بالاست. همچنین، انرژی باد در نیازمندی‌های خاصی مانند روندهای جوی سختی که ممکن است منجر به عدم قابلیت عملکرد شود، محدود است.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "kill",
+          "kill_condition": "تجهیزات بادی در مناطق با سرعت باد پایین معمولاً نیاز به نگهداری زیرزمینی کمتری دارند اما شکست‌پذیری بالاتر دارد و در صورت شکست، هزینه‌های نگهداری و تعمیر بسیار بالا می‌شود.",
+          "cheapest_test": "مقایسه هزینه‌های نگهداری و تعمیر تجهیزات بادی در مناطق با سرعت باد پایین با مناطق دیگر در یک ماه.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

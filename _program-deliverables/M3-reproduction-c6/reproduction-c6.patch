@@ -1,0 +1,365 @@
+DRAFT — DO NOT APPLY. Propose-only unified diff for M3.A generation 2.
+Paths are relative to the repo root (F:\backup). Additive + fail-soft only.
+Adds: unified reproduction state machine (new module), trigger reconciliation +
+propose_only_apply_guard tripwire + card-gated-on-ADMITTED, replication doctrine
++ read-only C6 generation counter. No auto-apply. Genome untouched.
+
+diff --git a/_ops/c6_state_machine.py b/_ops/c6_state_machine.py
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/_ops/c6_state_machine.py
+@@ -0,0 +1,145 @@
++#!/usr/bin/env python3
++# -*- coding: utf-8 -*-
++"""c6_state_machine.py — unified reproduction (C6) lifecycle reconciler + recorder.
++
++Reconciles the four scattered state vocabularies into ONE canonical lifecycle and
++writes an append-only transition journal + a DecisionReceipt at every edge:
++
++  research verdict (research_loop ResearchLedger, research_loop.py:35)
++  memory admission_state (memory_store.py:29; PENDING invisible)
++  hypothesis-queue status (c6_trigger.py PENDING/RUNNING/DONE)
++  RFC card state (approval_channel merge/deny/edit)
++
++Canonical lifecycle:
++  PROPOSED -> RUNNING -> VERIFIED -> PENDING_ADMISSION -> ADMITTED -> TRANSPLANTED
++  with leaves REJECTED / QUARANTINED / RETRACTED / VERIFIED_NOT_ADMITTED /
++  TERMINATED / DENIED.
++
++This module DERIVES state from artifacts run_experiment already produces; it holds
++NO authority and can change no verdict. Owner-gate boundary is unchanged:
++ADMITTED -> TRANSPLANTED is only ever an owner tap (merge_or_deploy stays FORBIDDEN,
++governance.py:62). stdlib-only, fail-soft, append-only.
++"""
++from __future__ import annotations
++
++import hashlib
++import json
++import time
++from pathlib import Path
++
++STATES = ("PROPOSED", "RUNNING", "VERIFIED", "PENDING_ADMISSION", "ADMITTED",
++          "TRANSPLANTED", "REJECTED", "QUARANTINED", "RETRACTED",
++          "VERIFIED_NOT_ADMITTED", "TERMINATED", "DENIED")
++
++# fail-closed edge table — illegal transitions are refused (same posture as
++# memory_store.set_admission_state, memory_store.py:220-247).
++_ALLOWED = {
++    "PROPOSED": {"RUNNING", "TERMINATED"},
++    "RUNNING": {"VERIFIED", "REJECTED", "QUARANTINED", "VERIFIED_NOT_ADMITTED",
++                "TERMINATED"},
++    "VERIFIED": {"PENDING_ADMISSION", "QUARANTINED", "VERIFIED_NOT_ADMITTED"},
++    "PENDING_ADMISSION": {"ADMITTED", "VERIFIED_NOT_ADMITTED", "QUARANTINED",
++                          "RETRACTED"},
++    "ADMITTED": {"TRANSPLANTED", "DENIED", "RETRACTED"},
++}
++
++# run_experiment verdict (research_loop.py) -> unified state.
++_VERDICT_MAP = {
++    "accepted": "ADMITTED",
++    "rejected": "REJECTED",
++    "quarantined": "QUARANTINED",
++    "verified-not-admitted": "VERIFIED_NOT_ADMITTED",
++    "terminated": "TERMINATED",
++}
++
++
++def _journal_path(state_dir) -> Path:
++    return Path(state_dir) / "c6" / "state-machine.jsonl"
++
++
++def repro_id(contract_id) -> str:
++    return "repro_" + hashlib.sha256(str(contract_id or "").encode("utf-8")).hexdigest()[:16]
++
++
++def derive(result: dict) -> str:
++    """Map a run_experiment result dict to a unified state (research_loop.py:202-203).
++    An accepted row still carrying admission_state==PENDING (promotion crashed) is
++    reported as PENDING_ADMISSION rather than ADMITTED."""
++    verdict = str((result or {}).get("verdict", "")).strip()
++    entry = (result or {}).get("ledger_entry") or {}
++    if verdict == "accepted" and entry.get("admission_state") == "PENDING":
++        return "PENDING_ADMISSION"
++    return _VERDICT_MAP.get(verdict, "TERMINATED")
++
++
++def _last_state(state_dir, rid: str) -> "str | None":
++    p = _journal_path(state_dir)
++    if not p.exists():
++        return None
++    last = None
++    try:
++        for ln in p.read_text("utf-8").splitlines():
++            ln = ln.strip()
++            if not ln:
++                continue
++            try:
++                d = json.loads(ln)
++            except ValueError:
++                continue
++            if d.get("repro_id") == rid:
++                last = d.get("to")
++    except Exception:  # noqa: BLE001
++        return None
++    return last
++
++
++def transition(*, state_dir, contract_id, to_state: str, result=None,
++               receipt_store=None, from_state: str = None) -> dict:
++    """Append one transition row + one DecisionReceipt (effect_class E0). Illegal
++    edges are refused. Never raises; never applies anything external."""
++    try:
++        if to_state not in STATES:
++            return {"ok": False, "reason": f"unknown state {to_state!r}"}
++        rid = repro_id(contract_id)
++        prev = from_state or _last_state(state_dir, rid)
++        if prev is not None and to_state not in _ALLOWED.get(prev, set()) \
++                and to_state != prev:
++            return {"ok": False, "reason": f"illegal edge {prev}->{to_state}"}
++        result = result or {}
++        receipt_id = None
++        if receipt_store is not None:
++            try:
++                receipt_id = receipt_store.record({
++                    "receipt_id": "dr_" + hashlib.sha256(
++                        f"{rid}|{prev}|{to_state}|{time.time()}".encode()).hexdigest()[:16],
++                    "trace_id": str(contract_id or ""),
++                    "mission_id": "c6-reproduction",
++                    "objective": f"repro transition {prev}->{to_state}"[:290],
++                    "alternatives": sorted(_ALLOWED.get(prev, {to_state})) or [to_state],
++                    "selected_alternative": to_state,
++                    "reason_codes": [f"STATE_{to_state}",
++                                     f"VERDICT_{str(result.get('verdict','na')).upper()}"],
++                    "assumptions": ["owner-gated transplant is the only path to birth"],
++                    "memories_used": [], "predicted_outcome": {"memory_id":
++                        str(result.get("memory_id") or "")[:120]},
++                    "effect_class": "E0"})
++            except Exception:  # noqa: BLE001
++                receipt_id = None
++        row = {"repro_id": rid, "contract_id": str(contract_id or ""),
++               "from": prev, "to": to_state,
++               "verdict": result.get("verdict"), "memory_id": result.get("memory_id"),
++               "receipt_id": receipt_id,
++               "evidence_sha": (result.get("ledger_entry") or {}).get("artifact_sha256"),
++               "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
++        p = _journal_path(state_dir)
++        p.parent.mkdir(parents=True, exist_ok=True)
++        with open(p, "a", encoding="utf-8") as f:
++            f.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
++            f.flush()
++        return {"ok": True, "row": row}
++    except Exception as e:  # noqa: BLE001 — recorder never kills caller
++        return {"ok": False, "reason": f"failsoft:{type(e).__name__}"}
++
++
++def history(state_dir, contract_id) -> list:
++    """Full ordered transition history for one reproduction lineage (read-only)."""
++    rid = repro_id(contract_id)
++    p = _journal_path(state_dir)
++    if not p.exists():
++        return []
++    out = []
++    for ln in p.read_text("utf-8").splitlines():
++        ln = ln.strip()
++        if not ln:
++            continue
++        try:
++            d = json.loads(ln)
++        except ValueError:
++            continue
++        if d.get("repro_id") == rid:
++            out.append(d)
++    return out
+diff --git a/_ops/c6_trigger.py b/_ops/c6_trigger.py
+index 2222222..3333333 100644
+--- a/_ops/c6_trigger.py
++++ b/_ops/c6_trigger.py
+@@ -39,6 +39,8 @@ QUEUE = opslib.STATE_DIR / "c6" / "hypothesis-queue.jsonl"
+ LEDGER = opslib.STATE_DIR / "c6" / "research-ledger.jsonl"
+ # سقفِ روزانهٔ محافظه‌کارانه (نیمی از ARCHITECT_SYS floor، با headroom).
+ DAILY_BUDGET = {"cost_aud": 0.50, "time_s": 120, "tokens": 50000, "max_experiments": 1}
++# gen-2: card delivered only when unified state == ADMITTED and utility>0.
++CARD_MIN_UTILITY = 0.0
+
+
+ def flag_on() -> bool:
+@@ -108,6 +110,7 @@ def c6_research_beat(*, state_dir: str, channel=None, beat: int = 0) -> dict:
+         import gate as _gx
+         import decision_receipt as _drx
+         import outcome_store as _osx
+         import learning_gate as _lg
++        import c6_state_machine as _sm
+     except Exception as e:  # noqa: BLE001
+         opslib.alert([f"c6_research_beat import failed: {type(e).__name__}: {e}"])
+         return {"ran": False, "reason": f"import-failed:{type(e).__name__}"}
+
++    # gen-2 Gap-4 tripwire: the loop must NEVER be permitted to auto-apply. If
++    # governance is ever mutated to permit merge_or_deploy, halt instead of birthing.
++    try:
++        _guard = _rl.propose_only_apply_guard("merge_or_deploy")
++        if _guard.get("permitted"):
++            opslib.alert(["c6 HALT: propose_only_apply_guard permitted merge_or_deploy "
++                          "— governance boundary breached; refusing to run"])
++            return {"ran": False, "reason": "guard-tripwire:merge_permitted"}
++    except Exception as _ge:  # noqa: BLE001 — fail-closed
++        opslib.alert([f"c6 guard check failed (fail-closed): {type(_ge).__name__}: {_ge}"])
++        return {"ran": False, "reason": "guard-check-failed"}
++
+     h = _pop_next_hypothesis()
+     if h is None:
+         return {"ran": False, "reason": "no-pending-hypothesis"}
+@@ -152,8 +166,17 @@ def c6_research_beat(*, state_dir: str, channel=None, beat: int = 0) -> dict:
+         return {"ran": False, "reason": f"run-failed:{type(e).__name__}"}
+
+     verdict = result.get("verdict", "?")
++    # gen-2: reconcile scattered verdict → ONE unified reproduction state and
++    # write a transition row + DecisionReceipt (c6_state_machine). Telemetry only.
++    _state = None
++    try:
++        _sm.transition(state_dir=str(sd), contract_id=contract.get("contract_id"),
++                       to_state="RUNNING", result={}, receipt_store=_rcp)
++        _state = _sm.derive(result)
++        _sm.transition(state_dir=str(sd), contract_id=contract.get("contract_id"),
++                       to_state=_state, result=result, receipt_store=_rcp)
++    except Exception as _se:  # noqa: BLE001 — telemetry نباید beat را بکشد
++        opslib.alert([f"c6 state emit failed: {type(_se).__name__}: {_se}"])
+     # نتیجه → RFC card به مالک (فقط اگر چیز ارزشمندی برای گفتن باشد).
+     summary = _summarize(h, result)
+     delivered = False
+@@ -166,7 +189,10 @@ def c6_research_beat(*, state_dir: str, channel=None, beat: int = 0) -> dict:
+         except Exception:  # noqa: BLE001
+             _chan = None
+-    if _chan is not None and hasattr(_chan, "rfc_card"):
++    # gen-2: card only for an ADMITTED result with positive utility (DESIGN intent
++    # "card only if utility>0"). Failure leaves are surfaced via alert, not a card.
++    _admitted = (_state == "ADMITTED") and float(result.get("utility", 0) or 0) > CARD_MIN_UTILITY
++    if _admitted and _chan is not None and hasattr(_chan, "rfc_card"):
+         try:
+             cid = contract.get("contract_id", f"c6-{beat}")[:60]
+             delivered = _chan.rfc_card(rfc_id=f"c6-{cid}",
+                                        summary=summary[:800])
+@@ -253,6 +279,32 @@ def _mark_hypothesis(hid: str, verdict: str, delivered: bool) -> None:
+     except Exception:  # noqa: BLE001
+         pass
+
+
++def admit_transplant(*, state_dir: str, contract_id: str, approve: bool,
++                     receipt_store=None) -> dict:
++    """Owner-gate leaf: record the owner's tap on an ADMITTED reproduction as the
++    generational birth (approve → TRANSPLANTED) or a decline (DENIED). This records
++    the owner's decision ONLY; it NEVER applies the patch itself — the owner performs
++    the merge by hand (merge_or_deploy FORBIDDEN, governance.py:62). Call this from
++    the RFC-card merge/deny handler, never automatically."""
++    try:
++        import c6_state_machine as _sm
++    except Exception as e:  # noqa: BLE001
++        return {"ok": False, "reason": f"import-failed:{type(e).__name__}"}
++    cur = _sm._last_state(state_dir, _sm.repro_id(contract_id))  # noqa: SLF001
++    if cur != "ADMITTED":
++        return {"ok": False, "reason": f"not transplantable from {cur!r}"}
++    to = "TRANSPLANTED" if approve else "DENIED"
++    res = _sm.transition(state_dir=state_dir, contract_id=contract_id,
++                         to_state=to, result={"verdict": "owner-tap"},
++                         receipt_store=receipt_store)
++    if res.get("ok"):
++        opslib.alert([f"c6 reproduction {to} (owner-gated): {contract_id}"])
++    return {"ok": bool(res.get("ok")), "to": to, "reason": res.get("reason")}
++
++
+ def seed_default_hypothesis() -> bool:
+     """اگر صف خالی است، یک فرضیهٔ نمونهٔ بی‌خطر اضافه کن (با اولین بوت)."""
+     try:
+diff --git a/_ops/outcomes/research_loop.py b/_ops/outcomes/research_loop.py
+index 4444444..5555555 100644
+--- a/_ops/outcomes/research_loop.py
++++ b/_ops/outcomes/research_loop.py
+@@ -471,6 +471,26 @@ def propose_only_apply_guard(action: str = "merge_or_deploy") -> dict:
+ def propose_only_apply_guard(action: str = "merge_or_deploy") -> dict:
+     """گاردِ صریح: خودِ حلقه هرگز apply/merge/deploy نمی‌کند. تأییدِ constitutional."""
+     return {"permitted": _permit(action), "note": "self-improvement loop never auto-applies; owner-gated"}
+
+
++def unified_state(result: dict) -> str:
++    """gen-2 reconciler shim: map a run_experiment result to the unified C6
++    reproduction state without a hard dependency on c6_state_machine (which lives
++    outside outcomes/). Pure; no side effects. Kept here so research_loop callers
++    can label a verdict consistently even in a bare test harness."""
++    verdict = str((result or {}).get("verdict", "")).strip()
++    entry = (result or {}).get("ledger_entry") or {}
++    if verdict == "accepted" and entry.get("admission_state") == "PENDING":
++        return "PENDING_ADMISSION"
++    return {"accepted": "ADMITTED", "rejected": "REJECTED",
++            "quarantined": "QUARANTINED",
++            "verified-not-admitted": "VERIFIED_NOT_ADMITTED",
++            "terminated": "TERMINATED"}.get(verdict, "TERMINATED")
++
++
+ def plan_recovery(*, state_dir=None, within_h: float = 720.0) -> list:
+     """C7.1 (Mission B / B8): نقشهٔ بازیابیِ **advisory** برای runهای پژوهشیِ ناتمام — از
+     **research-journal** (نه run-journal). برای هر run: contract_id، last_completed_step،
+diff --git a/_ops/budget/replication.py b/_ops/budget/replication.py
+index 6666666..7777777 100644
+--- a/_ops/budget/replication.py
++++ b/_ops/budget/replication.py
+@@ -14,6 +14,15 @@ replication.py — STAGE 3 پک (نیمهٔ تکثیر): قفل branching_ratio (σ) ≈ 1. فقط آفلاین/پیشنهادی.
+   - فعال‌سازی زندهٔ پیشنهاددهی دوقفله: تاریخ ≥ 2026-07-21 + ACTIVATION-REPLICATION.flag
+     مالک + fitness.authoritative=true. پیش از آن فقط would_propose گزارش می‌شود.
++
++  C6 DOCTRINE (owner decision): «تولید مثل» = خودبهبودیِ کدِ owner-gated —
++  transplantِ یک patchِ سبزِ sandbox به master (یک patchِ ADMITTED که مالک tap می‌زند).
++  نه spawnِ پروسه. شمارندهٔ canonical نسل = تعدادِ patchهای ADMITTED/TRANSPLANTED در
++  C6 research-ledger (c6_generations()، read-only). هندسهٔ σ/spawn فقط به‌عنوانِ گاردِ
++  جمعیتِ سلول‌ها باقی می‌ماند (آلارمِ σ>1→cancer). این ماژول هرگز نباید منطقِ spawn-execution
++  بگیرد؛ `replicate` در SELF_IMPROVEMENT_FORBIDDEN است (governance.py:62) — برای همیشه.
+ """
+ from __future__ import annotations
+
+ import json
+ import sys
+ from pathlib import Path
+@@ -75,6 +84,34 @@ def sigma_state(active_cells: int) -> dict:
+             "parents": parents, "alerts": alerts}
+
+
++def c6_generations(ledger_path=None) -> dict:
++    """READ-ONLY doctrinal generation counter: number of owner-gated C6 patch
++    transplants, counted from ADMITTED rows in the C6 research ledger (rows shaped
++    at research_loop.py:430-432). NEVER spawns; proposes nothing; reads one file.
++    Reproduction = governed code self-improvement, not process spawn."""
++    p = Path(ledger_path) if ledger_path else (
++        opslib.STATE_DIR / "c6" / "research-ledger.jsonl")
++    seen = set()
++    if not p.exists():
++        return {"generations": 0, "source": str(p),
++                "note": "owner-gated transplants; never process spawns"}
++    try:
++        for ln in p.read_text("utf-8").splitlines():
++            ln = ln.strip()
++            if not ln:
++                continue
++            try:
++                rec = json.loads(ln)
++            except ValueError:
++                continue
++            if rec.get("verdict") == "admission-promoted" and \
++                    rec.get("admission_state") == "ADMITTED":
++                seen.add(rec.get("memory_id") or rec.get("contract_id"))
++    except Exception:  # noqa: BLE001
++        pass
++    return {"generations": len(seen), "source": str(p),
++            "note": "owner-gated transplants (ADMITTED C6 patches); never spawns"}
++
++
+ def evaluate(write: bool = True) -> dict:
+     """چرخهٔ کامل تکثیر (سایه): fitness → واجدان شرایط → σ → پیشنهاد (فقط پشت گیت دوقفله)."""
+     cfg = _cfg()
+@@ -115,6 +152,7 @@ def evaluate(write: bool = True) -> dict:
+     report = {
+         "ts": opslib.now_iso(),
+         "config": cfg, "excluded_organs": sorted(EXCLUDED_ORGANS),
+         "sigma": sig,
++        "c6_generations": c6_generations(),
+         "fitness_authoritative": fit["authoritative"],
+         "eligible_cells": eligible,
+         "live_gate": {"open": gate_ok, "why": gate_why},

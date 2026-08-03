@@ -203,3 +203,8 @@ OWNER-PROFILE*
 # صریحِ مالک). ~۱GB باینری — نه germline است نه قابلِ merge؛ با یک فرمان
 # دوباره دانلود می‌شود. بدونِ این خط یک `git add -A` مخزن را می‌ترکاند.
 _ops/state/models/
+nul
+docs/math/nul
+docs/nul
+_ops/state/telegram/poll-health.json
+_ops/state/bcm-signal-weights.json

@@ -1,0 +1,194 @@
+{
+  "ts": "2026-07-27T20:06:09",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.6,
+        "DEBATE_LOOP": 0.12,
+        "GENOME_SYS": 0.28
+      },
+      "reason": "[EST] ARCHITECT_SYS sole organ with realized spend/output; GENOME_SYS idle-held at floor, DEBATE_LOOP floor-only; total burn 0.03 AUD far under cap."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "killed",
+    "topic_id": "organ-ZIMAN",
+    "rounds": 3,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از تکنولوژی IoT برای پیگیری و کاهش نگهداری سازه‌ها",
+          "why_genius": "این روش می‌تواند با استفاده از داده‌های زمان واقعی و تحلیل‌های هوش مصنوعی، هزینه نگهداری سازه‌ها را کاهش دهد و به صورت دقیق مشخصات نگهداری‌های لازم را ارائه کند.",
+          "why_insane": "توسعه و پیاده‌سازی چنین سیستمی در زمان محدود هفته حاضر، هزینه بالا و نیاز به تجهیزات فناوری پیشرفته می‌تواند منجر به خودکارآمدی شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "توسعه و پیاده‌سازی سیستم IoT در زمان محدود هفته حاضر ناپذیر است.",
+          "cheapest_test": "بررسی آیا تجهیزات فناوری پیشرفته که لازم برای توسعه این سیستم وجود دارد، در دسترس و قابل پیاده‌سازی در هفته حاضر موجود است.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از تکنولوژی های مانیتورینگ سبک ( Lightweight Monitoring Technologies )",
+          "why_genius": "این روش با استفاده از تجهیزات فناوری پیشرفته کم هزینه و قابلیت نصب سریع، بتواند به سرعت سیستم IoT را توسعه دهد. این طراحی می‌تواند با استفاده از گوشی‌ها، دوربین‌های هوشمند و تجهیزات ساده قابل پیاده‌سازی باشد.",
+          "why_insane": "با وجود کاهش هزینه، این روش ممکن است دقت نسبتاً پایینی داشته باشد و در صورت عدم حضور تجهیزات مناسب، عملکرد سیستم قابل قبول نخواهد بود. همچنین، این روش ممکن است برای پشتیبانی از سخت‌افزارهای پیشرفته کمتر مؤثر باشد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "缺乏适当的轻量级监控技术实施环境，系统的性能将不可接受。",
+          "cheapest_test": "检查当前可用的设备和基础设施是否支持所需的轻量级监控技术。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از پلتفرم مراقبت‌دهندگان AI برای رصد عملکرد سرویس‌ها",
+          "why_genius": "این پلتفرم با استفاده از الگوریتم‌های هوش مصنوعی، عملکرد سرویس‌ها را به طور خودکار و بدون نیاز به تغییرات فشرده مراقبت می‌کند. این روش کم هزینه و با بیشترین ارزش است زیرا هیچ سخت‌افزار جدیدی نیاز ندارد و تنها به نصب یک پلتفرم AI برای مراقبت‌دهندگان می‌پردازد.",
+          "why_insane": "در صورت عدم وجود اساتید متخصص در حوزه هوش مصنوعی، پلتفرم مراقبت‌دهندگان AI ممکن است عملکرد نامطلوبی داشته باشد. همچنین، اگر سرویس‌ها به طور مستقیم به شبکه متصل شوند، ممکن است به حملات امنیتی عرضه شوند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "kill",
+          "kill_condition": "پلتفرم مراقبت‌دهندگان AI بدون ساختار مدیریت امنیتی مناسب، به حملات امنیتی عرضه کرده و عملکرد نامطلوب دارد.",
+          "cheapest_test": "بررسی آیا پلتفرم مراقبت‌دهندگان AI شامل ساختار مدیریت امنیتی مناسب است چون بدون آن ممکن است به حملات امنیتی عرضه شود.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

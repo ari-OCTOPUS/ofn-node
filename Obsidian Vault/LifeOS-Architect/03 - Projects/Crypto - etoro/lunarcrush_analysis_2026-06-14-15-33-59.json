@@ -1,0 +1,250 @@
+{
+  "generated_at": "2026-06-14T15:33:59.046Z",
+  "plan": "Individual (10 req/min)",
+  "settings": {
+    "gs_threshold": "60",
+    "ar_threshold": "50"
+  },
+  "summary": {
+    "total_coins": 1000,
+    "buy_signals": 10,
+    "sell_signals": 400,
+    "hold_signals": 590
+  },
+  "top_buy_candidates": [
+    {
+      "symbol": "AIOT",
+      "name": "OKZOO",
+      "price": 0.07915299269666963,
+      "change_24h": 8.131759446816,
+      "change_7d": 41.51359271085,
+      "galaxy_score": 82.3,
+      "alt_rank": 34,
+      "social_volume": 76,
+      "sentiment": 92
+    },
+    {
+      "symbol": "SYN",
+      "name": "Synapse",
+      "price": 0.038392168394715286,
+      "change_24h": 20.469338139196,
+      "change_7d": -5.280288257223,
+      "galaxy_score": 77.2,
+      "alt_rank": 15,
+      "social_volume": 121,
+      "sentiment": 79
+    },
+    {
+      "symbol": "AKT",
+      "name": "Akash Network",
+      "price": 0.7285656672566515,
+      "change_24h": 7.033426514334,
+      "change_7d": 17.238966680931,
+      "galaxy_score": 71.8,
+      "alt_rank": 11,
+      "social_volume": 350,
+      "sentiment": 63
+    },
+    {
+      "symbol": "CREPE",
+      "name": "CREPE",
+      "price": 0.00001443,
+      "change_24h": 15.106389266872819,
+      "change_7d": 28.385337080382143,
+      "galaxy_score": 69.7,
+      "alt_rank": 13,
+      "social_volume": 307,
+      "sentiment": 78
+    },
+    {
+      "symbol": "ZEC",
+      "name": "Zcash",
+      "price": 420.07276018565494,
+      "change_24h": 1.931986868731,
+      "change_7d": -1.82088383924,
+      "galaxy_score": 69.1,
+      "alt_rank": 29,
+      "social_volume": 2486,
+      "sentiment": 74
+    },
+    {
+      "symbol": "RIF",
+      "name": "Rootstock Infrastructure Framework",
+      "price": 0.1023379952951089,
+      "change_24h": 4.958777851159,
+      "change_7d": 54.848473249659,
+      "galaxy_score": 67.1,
+      "alt_rank": 20,
+      "social_volume": 293,
+      "sentiment": 65
+    },
+    {
+      "symbol": "NOCK",
+      "name": "Nockchain",
+      "price": 0.04096280338447155,
+      "change_24h": 16.753305110754,
+      "change_7d": 1.666432068358,
+      "galaxy_score": 65.3,
+      "alt_rank": 10,
+      "social_volume": 267,
+      "sentiment": 86
+    },
+    {
+      "symbol": "CRO",
+      "name": "Cronos",
+      "price": 0.06072747134803782,
+      "change_24h": 1.577090406908,
+      "change_7d": 1.397398919756,
+      "galaxy_score": 63.2,
+      "alt_rank": 40,
+      "social_volume": 1616,
+      "sentiment": 78
+    },
+    {
+      "symbol": "ON",
+      "name": "Orochi Network",
+      "price": 0.0834336937606845,
+      "change_24h": 8.921655707658,
+      "change_7d": 3.535424619036,
+      "galaxy_score": 63.2,
+      "alt_rank": 5,
+      "social_volume": 415,
+      "sentiment": 93
+    },
+    {
+      "symbol": "QUBIC",
+      "name": "Qubic",
+      "price": 4.588702221319713e-7,
+      "change_24h": 5.303338607118,
+      "change_7d": 2.107289253955,
+      "galaxy_score": 60.1,
+      "alt_rank": 16,
+      "social_volume": 446,
+      "sentiment": 75
+    }
+  ],
+  "top_sell_candidates": [
+    {
+      "symbol": "SN77",
+      "name": "Liquidity",
+      "price": 1.99,
+      "change_24h": -8.216879753445474,
+      "galaxy_score": 100
+    },
+    {
+      "symbol": "UB",
+      "name": "Unibase",
+      "price": 0.12393241233476474,
+      "change_24h": -7.229147953173,
+      "galaxy_score": 71.8
+    },
+    {
+      "symbol": "WLD",
+      "name": "Worldcoin",
+      "price": 0.4923108000986942,
+      "change_24h": -5.342741153275,
+      "galaxy_score": 65.5
+    },
+    {
+      "symbol": "AUKI",
+      "name": "Auki Token",
+      "price": 0.005389967004188428,
+      "change_24h": -5.781639365241,
+      "galaxy_score": 65.1
+    },
+    {
+      "symbol": "GRASS",
+      "name": "Grass",
+      "price": 0.3764253689162541,
+      "change_24h": -5.062168343875,
+      "galaxy_score": 59.7
+    },
+    {
+      "symbol": "UFART",
+      "name": "Unit Fartcoin",
+      "price": 0.115401,
+      "change_24h": -5.29334459141731,
+      "galaxy_score": 59.5
+    },
+    {
+      "symbol": "MIM",
+      "name": "Magic Internet Money",
+      "price": 0.776875220972695,
+      "change_24h": -11.332584107457,
+      "galaxy_score": 59.1
+    },
+    {
+      "symbol": "EDGE",
+      "name": "EdgeX",
+      "price": 0.364996,
+      "change_24h": -13.731706779140119,
+      "galaxy_score": 58.2
+    },
+    {
+      "symbol": "VIRTUAL",
+      "name": "Virtuals Protocol",
+      "price": 0.6041675557378479,
+      "change_24h": -6.051370478226,
+      "galaxy_score": 56.6
+    },
+    {
+      "symbol": "SIREN",
+      "name": "SIREN",
+      "price": 0.0727744529242492,
+      "change_24h": -42.811143438425,
+      "galaxy_score": 55.9
+    }
+  ],
+  "errors": [
+    "ADCO: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "SN77: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "GVNR: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "NIL: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "TAO: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "JELLYJELLY: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "SPK: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "BLUAI: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "AIOT: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "EIGEN: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "XCN: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "SYN: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "XION: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "CAT: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "KNTQ: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "ANKR: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "JASMY: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "MAX: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "UB: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "AKT: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "CAW2: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "CHR: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "SUSDE: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "SOMI: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "TIA: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "TEL: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "YELLOW: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "GOMINING: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "CREPE: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "WBTC: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "ZEC: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "SHIB: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "FET: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "GOAT: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "PONKE: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "EIGEN: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "RIF: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "FT: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "NOS: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "PEAQ: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "STRK: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "IDOL: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "ESP: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "GTC: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "XAI: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "WLD: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "GWEI: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "MX: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "NOCK: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}",
+    "TRUTH: HTTP 404: {\"error\":\"Invalid endpoint (2)\"}"
+  ]
+}

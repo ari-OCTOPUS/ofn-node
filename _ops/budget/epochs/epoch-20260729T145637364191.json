@@ -1,0 +1,194 @@
+{
+  "ts": "2026-07-29T14:55:18",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21624,
+    "usd": 0.021624,
+    "aud": 0.032436
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.032436,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.444444,
+        "DEBATE_LOOP": 0.111112,
+        "GENOME_SYS": 0.444444
+      },
+      "reason": "[EST] No output or urgency signals; allocation follows configured floor ratios."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "killed",
+    "topic_id": "organ-GENOME_SYS",
+    "rounds": 3,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "ارسال کشتی فضایی سفرگردان به نجوم برای جمع‌آوری نمونه‌های ماده‌های اولیه",
+          "why_genius": "این حرکت بیشترین ارزش را در این هفته فراهم می‌کند زیرا می‌تواند به ما درک عمیق‌تری از شکل‌گیری سیارات و ستاره‌ها دهد، که می‌تواند نتایج علمی بزرگ را فراهم کند.",
+          "why_insane": "این حرکت هزینه خیلی بالا دارد و ممکن است سال‌ها زمان ببرد، همچنین ممکن است ارگان GENOME_SYS در تأمین فناوری لازم برای این پروژه کمبود داشته باشد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "ارگان GENOME_SYS نباید در حال حاضر با هزینه‌های بسیار بالا و زمان‌بر کشتی فضایی سفرگردان را برای جمع‌آوری نمونه‌های ماده‌های اولیه پیشنهاد کند.",
+          "cheapest_test": "تایید آن که ارگان GENOME_SYS در حال حاضر فناوری‌های لازم را برای این پروژه تأمین نمی‌کند.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "ارگان GENOME_SYS باید با استفاده از فناوری‌های سنسورس‌ها و هوش مصنوعی برای جمع‌آوری نمونه‌های ماده‌های اولیه از زمین اقدام کند.",
+          "why_genius": "این روش با استفاده از فناوری‌های پیشرفته سنسورس و هوش مصنوعی، هزینه‌ها را کاهش دهد و زمان برگیری را به حداقل برساند. همچنین می‌تواند از فناوری‌های یادگیری ماشین برای شناسایی نمونه‌های مناسب استفاده کند.",
+          "why_insane": "اگر فناوری‌های لازم برای پیاده‌سازی این روش در دسترس نباشد، ممکن است هزینه‌های زیادی بخورد و کارآمدی آن به طور گسترده‌ای تأیید نشود. همچنین، نیاز به توسعه فناوری‌های جدید ممکن است منجر به دوره‌های زمان‌بر شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "فناوری‌های لازم برای پیاده‌سازی این روش در دسترس نباشد.",
+          "cheapest_test": "بررسی موجودیت فناوری‌های سنسورس و هوش مصنوعی که ضروری است برای جمع‌آوری نمونه‌ها.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از ربات‌های AI در جمع‌آوری نمونه‌ها",
+          "why_genius": "این روش می‌تواند هزینه‌های فرسودگی و زمانی را کاهش دهد، به آنالیز دقیق‌تر و سریع‌تر نمونه‌ها اجازه دهد و با استفاده از هوش مصنوعی، دقت جمع‌آوری نمونه‌ها را بسیار افزایش دهد.",
+          "why_insane": "در صورت عدم پیشرفت فناوری‌های AI در زمینه سنسورس و هوش مصنوعی، این روش ممکن است کارآمدی مناسبی نداشته باشد. همچنین، احتمالات خرابی گسترده در حوزه‌ای پیچیده مانند AI وجود دارد که می‌تواند به توقف عملیات برقی و سازمان‌دهی نمونه‌ها منجر شود.",
+          "est_tokens": 125,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "kill",
+          "kill_condition": "AI systems in critical biological applications must have a fail-safe mechanism to prevent total system failure.",
+          "cheapest_test": "Check if the AI system used for sample collection has redundant backup mechanisms and emergency shutdown protocols.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

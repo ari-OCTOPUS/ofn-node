@@ -1,0 +1,23 @@
+{
+  "targets": {
+    "orchestr": {
+      "state": "closed",
+      "fail_count": 0,
+      "success_count": 0,
+      "last_fail_ts": "2026-07-27T15:59:16",
+      "last_ok_ts": "2026-08-03T18:03:38",
+      "opened_at_ts": null,
+      "half_open_attempts": 0
+    },
+    "glm": {
+      "state": "closed",
+      "fail_count": 0,
+      "success_count": 0,
+      "last_fail_ts": "2026-07-29T21:13:53",
+      "last_ok_ts": "2026-08-03T16:55:11",
+      "opened_at_ts": null,
+      "half_open_attempts": 0
+    }
+  },
+  "ts": "2026-07-25T18:46:00"
+}

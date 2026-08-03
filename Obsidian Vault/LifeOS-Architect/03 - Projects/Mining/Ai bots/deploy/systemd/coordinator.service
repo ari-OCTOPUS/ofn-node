@@ -1,0 +1,17 @@
+[Unit]
+Description=Coordinator — QA + Sentinel confluence scorer (scheduled every 6h)
+After=network-online.target fleet-manager.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=pi
+WorkingDirectory=/home/pi/ai-bots
+EnvironmentFile=/home/pi/ai-bots/QuantumAlphaBot/.env
+ExecStart=/home/pi/ai-bots/.venv/bin/python -m coordinator.run --once
+StandardOutput=append:/var/log/coordinator.log
+StandardError=append:/var/log/coordinator.log
+TimeoutStartSec=600
+
+[Install]
+WantedBy=multi-user.target

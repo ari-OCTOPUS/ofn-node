@@ -1,0 +1,82 @@
+﻿2025-05-11 17:54:04.759 - ShareX starting.
+2025-05-11 17:54:04.760 - Version: 17.0
+2025-05-11 17:54:04.760 - Build: MicrosoftStore
+2025-05-11 17:54:04.760 - Command line: "C:\Program Files\WindowsApps\19568ShareX.ShareX_17.0.0.0_x64__egrzcvs15399j\ShareX.exe" 
+2025-05-11 17:54:04.760 - Personal path: D:\Bussiness Apps Data
+2025-05-11 17:54:04.760 - Personal path detection method: PersonalPath.cfg file (C:\Users\Master Painting\OneDrive\اسناد\ShareX\PersonalPath.cfg)
+2025-05-11 17:54:04.761 - Operating system: Windows 10 Pro N (64-bit)
+2025-05-11 17:54:04.761 - Running as elevated process: False
+2025-05-11 17:54:04.787 - ApplicationConfig file does not exist: D:\Bussiness Apps Data\ApplicationConfig.json
+2025-05-11 17:54:04.787 - ApplicationConfig file does not exist: D:\Bussiness Apps Data\ApplicationConfig.json.temp
+2025-05-11 17:54:04.787 - ApplicationConfig file does not exist: D:\Bussiness Apps Data\Backup\ApplicationConfig.json
+2025-05-11 17:54:04.787 - Loading new ApplicationConfig instance.
+2025-05-11 17:54:04.856 - UploadersConfig file does not exist: D:\Bussiness Apps Data\UploadersConfig.json
+2025-05-11 17:54:04.856 - UploadersConfig file does not exist: D:\Bussiness Apps Data\UploadersConfig.json.temp
+2025-05-11 17:54:04.857 - UploadersConfig file does not exist: D:\Bussiness Apps Data\Backup\UploadersConfig.json
+2025-05-11 17:54:04.857 - Loading new UploadersConfig instance.
+2025-05-11 17:54:04.867 - MainForm init started.
+2025-05-11 17:54:04.871 - HotkeysConfig file does not exist: D:\Bussiness Apps Data\HotkeysConfig.json
+2025-05-11 17:54:04.871 - HotkeysConfig file does not exist: D:\Bussiness Apps Data\HotkeysConfig.json.temp
+2025-05-11 17:54:04.871 - HotkeysConfig file does not exist: D:\Bussiness Apps Data\Backup\HotkeysConfig.json
+2025-05-11 17:54:04.871 - Loading new HotkeysConfig instance.
+2025-05-11 17:54:05.277 - MainForm init finished.
+2025-05-11 17:54:05.443 - Hotkey registered: Hotkey: Ctrl + Print Screen, Description: Capture region, Job: RectangleRegion
+2025-05-11 17:54:05.444 - Unable to register hotkey: Print Screen
+2025-05-11 17:54:05.444 - Hotkey register failed: Hotkey: Print Screen, Description: Capture entire screen, Job: PrintScreen
+2025-05-11 17:54:05.444 - Unable to register hotkey: Alt + Print Screen
+2025-05-11 17:54:05.444 - Hotkey register failed: Hotkey: Alt + Print Screen, Description: Capture active window, Job: ActiveWindow
+2025-05-11 17:54:05.444 - Hotkey registered: Hotkey: Shift + Print Screen, Description: Start/Stop screen recording, Job: ScreenRecorder
+2025-05-11 17:54:05.444 - Hotkey registered: Hotkey: Ctrl + Shift + Print Screen, Description: Start/Stop screen recording (GIF), Job: ScreenRecorderGIF
+2025-05-11 17:54:08.100 - HotkeyManager started.
+2025-05-11 17:54:08.101 - WatchFolderManager started.
+2025-05-11 17:54:08.114 - Startup time: 3397 ms
+2025-05-11 17:54:18.857 - ApplicationConfig save started: D:\Bussiness Apps Data\ApplicationConfig.json
+2025-05-11 17:54:18.857 - HotkeysConfig save started: D:\Bussiness Apps Data\HotkeysConfig.json
+2025-05-11 17:54:18.859 - UploadersConfig save started: D:\Bussiness Apps Data\UploadersConfig.json
+2025-05-11 17:54:19.022 - HotkeysConfig save successful: D:\Bussiness Apps Data\HotkeysConfig.json
+2025-05-11 17:54:19.176 - UploadersConfig save successful: D:\Bussiness Apps Data\UploadersConfig.json
+2025-05-11 17:54:19.287 - ApplicationConfig save successful: D:\Bussiness Apps Data\ApplicationConfig.json
+2025-05-11 18:07:30.390 - Arguments received: ""
+2025-05-11 18:07:46.392 - UploadersConfig save started: D:\Bussiness Apps Data\UploadersConfig.json
+2025-05-11 18:07:46.552 - UploadersConfig save successful: D:\Bussiness Apps Data\UploadersConfig.json
+2025-05-11 18:07:49.624 - Found program with first method: C:\Windows\system32\mspaint.exe
+2025-05-11 18:07:51.951 - ApplicationConfig save started: D:\Bussiness Apps Data\ApplicationConfig.json
+2025-05-11 18:07:52.122 - ApplicationConfig save successful: D:\Bussiness Apps Data\ApplicationConfig.json
+2025-05-11 18:08:16.990 - ApplicationConfig save started: D:\Bussiness Apps Data\ApplicationConfig.json
+2025-05-11 18:08:17.326 - ApplicationConfig save successful: D:\Bussiness Apps Data\ApplicationConfig.json
+2025-05-11 18:08:19.096 - Unable to register hotkey: Print Screen
+2025-05-11 18:08:19.097 - Hotkey register failed: Hotkey: Print Screen, Description: Capture entire screen, Job: PrintScreen
+2025-05-11 18:08:19.097 - Unable to register hotkey: Alt + Print Screen
+2025-05-11 18:08:19.097 - Hotkey register failed: Hotkey: Alt + Print Screen, Description: Capture active window, Job: ActiveWindow
+2025-05-11 18:08:27.995 - HotkeysConfig save started: D:\Bussiness Apps Data\HotkeysConfig.json
+2025-05-11 18:08:28.110 - HotkeysConfig save successful: D:\Bussiness Apps Data\HotkeysConfig.json
+2025-05-11 18:08:37.110 - Unable to register hotkey: Print Screen
+2025-05-11 18:08:37.110 - Hotkey register failed: Hotkey: Print Screen, Description: Capture entire screen, Job: PrintScreen
+2025-05-11 18:08:37.110 - Unable to register hotkey: Alt + Print Screen
+2025-05-11 18:08:37.110 - Hotkey register failed: Hotkey: Alt + Print Screen, Description: Capture active window, Job: ActiveWindow
+2025-05-11 18:08:44.126 - HotkeysConfig save started: D:\Bussiness Apps Data\HotkeysConfig.json
+2025-05-11 18:08:44.255 - HotkeysConfig save successful: D:\Bussiness Apps Data\HotkeysConfig.json
+2025-05-11 18:09:05.954 - ShareX.UploadersLib.ImageUploaders.Imgur - Authorization URL is opened: https://api.imgur.com/oauth2/authorize?client_id=d297fd441566f99&response_type=pin
+2025-05-11 18:09:06.281 - URL opened: https://api.imgur.com/oauth2/authorize?client_id=d297fd441566f99&response_type=pin
+2025-05-11 18:10:50.609 - ShareX.UploadersLib.ImageUploaders.Imgur - Authorization URL is opened: https://api.imgur.com/oauth2/authorize?client_id=d297fd441566f99&response_type=pin
+2025-05-11 18:10:50.639 - URL opened: https://api.imgur.com/oauth2/authorize?client_id=d297fd441566f99&response_type=pin
+2025-05-11 18:11:23.235 - ShareX.UploadersLib.ImageUploaders.Imgur - Authorization URL is opened: https://api.imgur.com/oauth2/authorize?client_id=d297fd441566f99&response_type=pin
+2025-05-11 18:11:23.267 - URL opened: https://api.imgur.com/oauth2/authorize?client_id=d297fd441566f99&response_type=pin
+2025-05-11 18:11:42.957 - ShareX.UploadersLib.ImageUploaders.Imgur - Authorization URL is opened: https://api.imgur.com/oauth2/authorize?client_id=d297fd441566f99&response_type=pin
+2025-05-11 18:11:42.994 - URL opened: https://api.imgur.com/oauth2/authorize?client_id=d297fd441566f99&response_type=pin
+2025-05-11 18:12:27.946 - UploadersConfig save started: D:\Bussiness Apps Data\UploadersConfig.json
+2025-05-11 18:12:29.709 - UploadersConfig save successful: D:\Bussiness Apps Data\UploadersConfig.json
+2025-05-11 18:13:18.402 - UploadersConfig save started: D:\Bussiness Apps Data\UploadersConfig.json
+2025-05-11 18:13:20.240 - UploadersConfig save successful: D:\Bussiness Apps Data\UploadersConfig.json
+2025-05-11 18:14:42.696 - Hotkey unregistered: Hotkey: Ctrl + Print Screen, Description: Capture region, Job: RectangleRegion
+2025-05-11 18:14:42.696 - Hotkey unregistered: Hotkey: Shift + Print Screen, Description: Start/Stop screen recording, Job: ScreenRecorder
+2025-05-11 18:14:42.696 - Hotkey unregistered: Hotkey: Ctrl + Shift + Print Screen, Description: Start/Stop screen recording (GIF), Job: ScreenRecorderGIF
+2025-05-11 18:14:42.745 - ShareX closing.
+2025-05-11 18:14:42.746 - ApplicationConfig save started: D:\Bussiness Apps Data\ApplicationConfig.json
+2025-05-11 18:14:44.658 - ApplicationConfig save successful: D:\Bussiness Apps Data\ApplicationConfig.json
+2025-05-11 18:14:44.658 - UploadersConfig save started: D:\Bussiness Apps Data\UploadersConfig.json
+2025-05-11 18:14:44.749 - UploadersConfig save successful: D:\Bussiness Apps Data\UploadersConfig.json
+2025-05-11 18:14:44.750 - HotkeysConfig save started: D:\Bussiness Apps Data\HotkeysConfig.json
+2025-05-11 18:14:44.773 - HotkeysConfig save successful: D:\Bussiness Apps Data\HotkeysConfig.json
+2025-05-11 18:14:44.773 - ShareX closed.
+2025-05-11 18:14:44.774 - ShareX restarting.

@@ -1,0 +1,194 @@
+{
+  "ts": "2026-07-28T03:08:08",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.55,
+        "DEBATE_LOOP": 0.2,
+        "GENOME_SYS": 0.25
+      },
+      "reason": "[FACT] only ARCHITECT_SYS shows spend (21295 musd); GENOME_SYS idle-zero, DEBATE_LOOP no telemetry; floors held, burn far below cap"
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "queue-human",
+    "topic_id": "plan-0",
+    "rounds": 3,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از الگوریتم‌های تقویتی (Reinforcement Learning) برای بهبود phase0_genome",
+          "why_genius": "الگوریتم‌های تقویتی می‌توانند با استفاده از آموزش درون‌ساختار، قابلیت‌های جدید و بهینه‌سازی‌های بیشتری برای phase0_genome ایجاد کنند. این رویکرد می‌تواند منجر به پیشرفت سریع‌تر در فرآیند ژنوم باز شود.",
+          "why_insane": "استفاده از الگوریتم‌های تقویتی ممکن است نیازمند داده‌های وسیع‌تر و زمان بیشتری برای آموزش باشد، که می‌تواند منجر به سرشار شدن منابع شود. همچنین، این رویکرد ممکن است ناشناخته‌بودن بالا و عدم قطعیت در عملکرد نهایی را ایجاد کند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "الگوریتم‌های تقویتی نیازمند داده‌های وسیع و زمان بیشتر برای آموزش هستند، که می‌تواند منجر به سرشار شدن منابع شود.",
+          "cheapest_test": "پرسیدن از تیم مدیریت منابع در سازمان، آیا پروژه باز ژنوم قابلیت پیش‌بینی‌سازی و دسترسی به داده‌های وسیع کافی برای آموزش الگوریتم‌های تقویتی را دارد؟",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از شبکه‌های عصبی مصنوعی برای پیش‌بینی نیازهای منابع در طول فرآیند آموزش الگوریتم",
+          "why_genius": "شبکه‌های عصبی می‌توانند داده‌های تاریخچه‌ای را بررسی کرده و پیش‌بینی کنند که منابع در آینده نیازمند خواهند بود. این روش می‌تواند به سازمان هزینه‌های آموزش الگوریتم‌ها را کاهش دهد و منابع را بهتر مدیریت کند.",
+          "why_insane": "استفاده از شبکه‌های عصبی می‌تواند با تقریب داده‌های پیچیده و عدم وجود نمونه‌های کافی منجر به نتایج نادرست شود. همچنین، آموختن الگوهای غیرمنتظره ممکن است باعث ارتقا سوءاستفاده و خطرات فرآیند باز ژنوم شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "网络模型在缺乏足够数据的情况下可能出现错误预测，导致资源管理不当。",
+          "cheapest_test": "收集并验证当前算法训练过程中产生的历史资源需求数据量是否充足以训练有效的神经网络模型。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "使用基因编辑技术优化phase0_genome的参数设置，确保在有限数据下也能有效预测",
+          "why_genius": "通过精确调整和优化phase0_genome的参数，即使在数据量不足的情况下也能提高模型预测准确性。这将减少资源浪费并提升整体系统效率。",
+          "why_insane": "如果基因编辑技术引入错误或未预见的偏差，可能会导致模型性能下降甚至完全失效，从而增加资源管理风险。",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "需要具体说明如何在有限数据下验证基因编辑技术对phase0_genome参数优化的有效性，否则无法证明该方法的实际效果。",
+          "cheapest_test": "通过对比使用基因编辑前后模型在相同少量训练集上的预测准确率变化来初步评估其有效性。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

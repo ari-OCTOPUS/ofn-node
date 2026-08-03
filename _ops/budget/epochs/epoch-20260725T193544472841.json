@@ -1,0 +1,226 @@
+{
+  "ts": "2026-07-25T19:32:51",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.998,
+    "deadline_ref": "PROJECT_F@2026-07-20 (-5d)",
+    "anomaly": 0.0,
+    "pressure": 0.998
+  },
+  "next_epoch_minutes": 15.1,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 15.1,
+  "heart_pressure_effective": 0.998,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 4.176655,
+        "total_month_aud": 7.176655,
+        "fitness": 0.6327,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 4.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 4.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 1.870154,
+        "total_month_aud": 2.870154,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 3.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 3.090638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.090638,
+        "total_month_aud": 2.590638,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999999,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "GENOME_SYS": {
+        "quota": 18976,
+        "allocated": [
+          {
+            "cell": "ZIMAN",
+            "amount": 18034,
+            "tier": "econ",
+            "expiry": "2026-07-25T23:59:59"
+          },
+          {
+            "cell": "ARCHITECT_SYS",
+            "amount": 942,
+            "tier": "reason",
+            "expiry": "2026-07-25T23:59:59"
+          }
+        ]
+      },
+      "ARCHITECT_SYS": {
+        "quota": 18976,
+        "allocated": [
+          {
+            "cell": "GENOME_SYS",
+            "amount": 942,
+            "tier": "reason",
+            "expiry": "2026-07-25T23:59:59"
+          }
+        ]
+      },
+      "PROJECT_F": {
+        "quota": 18976,
+        "allocated": [
+          {
+            "cell": "GENOME_SYS",
+            "amount": 18034,
+            "tier": "econ",
+            "expiry": "2026-07-25T23:59:59"
+          }
+        ]
+      }
+    },
+    "model": "qwen2.5:latest",
+    "cost_usd": 0.0
+  },
+  "debate": {
+    "status": "queue-human",
+    "topic_id": "organ-GENOME_SYS",
+    "rounds": 3,
+    "queued": true,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از چرخه محدود (limit cycle) برای پیدا کردن حرکت کم‌هزینه‌تر با بیشترین ارزش در ساختار GENOME_SYS.",
+          "why_genius": "این روش می‌تواند به طور موثر حرکت‌ها را پیش‌بینی کند و از داده‌های تاریخچه برای تصمیم‌گیری استفاده کند. همچنین، می‌تواند با استفاده از الگوها و رفتارهای گذشته، حرکت‌های کم‌هزینه‌تر با بیشترین ارزش را شناسایی کند.",
+          "why_insane": "اگر داده‌های تاریخچه ناقص یا نادرست باشند، ممکن است الگوها و رفتارهای صحیح پیدا نشود. همچنین، این روش ممکن است به دلیل پیچیدگی ساختار GENOME_SYS نتایج غیرقابل تفسیری ایجاد کند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "داشتن داده‌های تاریخچه کامل و صحیح برای شناسایی الگوها و رفتارهای مرتبط.",
+          "cheapest_test": "بررسی صحت و کامل بودن داده‌های تاریخچه از طریق نمایش حالت‌های مشاهده شده و درخواست تصحیحات از منبع داده.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از هوش مصنوعی برای پیشبینی رفتار بازار و تعیین حرکت کم‌هزینه‌تر",
+          "why_genius": "با استفاده از الگوریتم‌های پیشرفته هوش مصنوعی، می‌توان به صحت و دقیق‌تری در پیشبینی رفتار بازار دست یافت. این روش کم‌هزینه‌تر از بررسی داده‌های تاریخچه است و می‌تواند بخشی از الگوهای رفتاری مشاهده شده را پیش‌بینی کند.",
+          "why_insane": "استفاده از هوش مصنوعی برای پیشبینی بازار ممکن است ناشناخته و غیرقابل فهم بود. همچنین، داده‌های تاریخچه کامل و صحیح لازم برای آموختن الگوهای بهتر وجود ندارد و این می‌تواند منجر به تصمیمات نادرست شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "缺乏历史数据不足以训练出可靠的预测模型。",
+          "cheapest_test": "收集过去一年的市场数据并使用该数据训练一个简单的预测模型，如果模型的表现不佳，则需要更多的历史数据。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از روش‌های پردازش زبان طبیعی (NLP) برای تحلیل بازار و تشخیص نمودارهای سهمی",
+          "why_genius": "با استفاده از NLP، می‌توان به صورت خودکار اطلاعات فراوانی از رسانه‌ها و پلتفرم‌های تحلیل بازار را جمع‌آوری کرد و این اطلاعات برای تشخیص نمودارهای سهمی مفید خواهد بود. این روش می‌تواند هزینه‌ها را کاهش دهد زیرا بدون نیاز به تحلیل گردآوری شده انسانی.",
+          "why_insane": "NLP در حوزه‌ای پیچیده و متغیر مانند بازار، نمی‌تواند همیشه دقت بالا را فراهم کند. نگرانی‌ها شامل عدم قطعیت در معنای صحیح از اطلاعات جمع‌آوری شده و عدم قابلیت تحلیل دقیق برخی لغات و عبارات خاص می‌شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "NLP 方法在复杂多变的市场环境中无法始终提供高精度分析，且可能因信息收集中的语义歧义和特定词汇解析不准确而失效。",
+          "cheapest_test": "进行一次模拟测试，使用 NLP 工具分析近期新闻报道和市场数据，并与专业分析师的手动分析结果对比，评估其准确性。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

@@ -1,0 +1,134 @@
+"""
+providers.py — لایه‌ی ارائه‌دهنده‌ی LLM.
+
+سه پیاده‌سازی پشتِ یک رابطِ مشترک:
+  • AnthropicBrainProvider   (CLAUDE_KEY)
+  • OpenAICompatBrainProvider (CHATBOX_API_KEY + CHATBOX_BASE_URL + BRAIN_MODEL؛ deepseek/gpt/…)
+  • OfflineBrainProvider     (بانکِ سؤال، بدونِ شبکه)
+
+factory هرگز crash نمی‌کند: اگر provider در دسترس نبود، به Offline برمی‌گردد.
+"""
+
+from __future__ import annotations
+
+import logging
+from abc import ABC, abstractmethod
+
+log = logging.getLogger("langar.brain")
+
+
+def _format_user(context: dict) -> str:
+    label = context.get("label", context.get("domain", "—"))
+    data = context.get("data", "")
+    return (
+        f"حوزه‌ی امروز: {label} ({context.get('domain','')})\n\n"
+        f"context داده‌های کاربر:\n{data}\n\n"
+        "طبق قالب، فقط یک سؤالِ امروز را بده."
+    )
+
+
+class BaseBrainProvider(ABC):
+    @abstractmethod
+    def ask(self, system_prompt: str, context: dict) -> str: ...
+
+    @abstractmethod
+    def is_available(self) -> bool: ...
+
+    @property
+    def name(self) -> str:
+        return self.__class__.__name__
+
+
+class OfflineBrainProvider(BaseBrainProvider):
+    def __init__(self, bank):
+        self.bank = bank
+
+    @property
+    def name(self) -> str:
+        return "offline"
+
+    def is_available(self) -> bool:
+        return True
+
+    def ask(self, system_prompt: str, context: dict) -> str:
+        return self.bank.get_question(context.get("domain", "body_hrv"), context)
+
+
+class AnthropicBrainProvider(BaseBrainProvider):
+    def __init__(self, api_key, model="claude-haiku-4-5-20251001"):
+        self.api_key = api_key
+        self.model = model
+
+    @property
+    def name(self) -> str:
+        return "anthropic"
+
+    def is_available(self) -> bool:
+        return bool(self.api_key)
+
+    def ask(self, system_prompt: str, context: dict) -> str:
+        from anthropic import Anthropic
+        client = Anthropic(api_key=self.api_key)
+        resp = client.messages.create(
+            model=self.model, max_tokens=300, system=system_prompt,
+            messages=[{"role": "user", "content": _format_user(context)}],
+        )
+        out = "".join(b.text for b in resp.content if getattr(b, "type", "") == "text").strip()
+        if not out:
+            raise RuntimeError("پاسخِ خالی")
+        return out
+
+
+class OpenAICompatBrainProvider(BaseBrainProvider):
+    """برای ChatBox/DeepSeek/هر API سازگار با OpenAI."""
+
+    def __init__(self, api_key, base_url, model="deepseek-reasoner"):
+        self.api_key = api_key
+        self.base_url = base_url
+        self.model = model
+
+    @property
+    def name(self) -> str:
+        return "openai_compat"
+
+    def is_available(self) -> bool:
+        return bool(self.api_key and self.base_url)
+
+    def ask(self, system_prompt: str, context: dict) -> str:
+        import openai
+        client = openai.OpenAI(api_key=self.api_key, base_url=self.base_url)
+        resp = client.chat.completions.create(
+            model=self.model, max_tokens=300,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": _format_user(context)},
+            ],
+        )
+        out = (resp.choices[0].message.content or "").strip()
+        if not out:
+            raise RuntimeError("پاسخِ خالی")
+        return out
+
+
+def get_brain_provider(config, bank) -> BaseBrainProvider:
+    """انتخابِ provider طبق config.brain_provider، با fallbackِ امن به Offline."""
+    offline = OfflineBrainProvider(bank)
+    choice = (getattr(config, "brain_provider", "auto") or "auto").lower()
+
+    candidates = []
+    if choice in ("auto", "anthropic") and config.claude_key:
+        candidates.append(AnthropicBrainProvider(config.claude_key, config.brain_model
+                                                 if "claude" in (config.brain_model or "") else
+                                                 "claude-haiku-4-5-20251001"))
+    if choice in ("auto", "chatbox") and config.chatbox_api_key and config.chatbox_base_url:
+        candidates.append(OpenAICompatBrainProvider(
+            config.chatbox_api_key, config.chatbox_base_url, config.brain_model))
+    if choice == "offline":
+        return offline
+
+    for p in candidates:
+        if p.is_available():
+            log.info("brain provider: %s", p.name)
+            return p
+    log.info("brain provider: offline (fallback)")
+    return offline

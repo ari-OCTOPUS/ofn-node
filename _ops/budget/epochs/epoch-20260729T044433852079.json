@@ -1,0 +1,194 @@
+{
+  "ts": "2026-07-29T04:43:15",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21624,
+    "usd": 0.021624,
+    "aud": 0.032436
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.032436,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.55,
+        "DEBATE_LOOP": 0.15,
+        "GENOME_SYS": 0.3
+      },
+      "reason": "[EST] ARCHITECT_SYS carries ~98% of spend/output; GENOME_SYS zero activity held at life-support floor only."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "queue-human",
+    "topic_id": "plan-1",
+    "rounds": 3,
+    "queued": true,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "توسعه یک سیستم تشخیص لرزشی پیشرفته برای ژنوم",
+          "why_genius": "این ایده می‌تواند باعث بهبود دقت تشخیص نوسانات در ژنوم شود و منجر به کشف نوسانات جدید و مهم در فرآیندهای زیستی می‌شود.",
+          "why_insane": "توسعه سیستم تشخیص لرزشی پیشرفته نیازمند هزینه‌های زیاد و زمان‌بر است و ممکن است منجر به افزایش خطاها در فرآیندها شود.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "این ایده نیازمند تحلیل دقیق هزینه‌ها و برنامه‌ریزی پیش‌بینی‌پذیر است. بدون این، ممکن است به پروژه زمان‌بر و هزینه‌های بیش از حد منجر شود.",
+          "cheapest_test": "بررسی تحلیل هزینه‌ها و برنامه‌ریزی پروژه برای phase1_perception",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "استفاده از هوش مصنوعی برای تجزیه و تحلیل داده‌های حسگری",
+          "why_genius": "این روش می‌تواند به طور موثر داده‌ها را پیش‌بینی کند و به شناسایی نمودارهای جدید در داده‌ها کمک کند. همچنین، این می‌تواند منابع را بهتر مدیریت کند و هزینه‌های لازم را کاهش دهد.",
+          "why_insane": "استفاده از هوش مصنوعی در این مرحله ممکن است نیازمند پشتیبانی بشری عمیق باشد، که ممکن است هزینه‌های بیش از حد منجر شود. به علاوه، بدون تجزیه و تحلیل دقیق، ممکن است نتایج نادرست یا غیرقابل درک باشد.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "نیازمند تجزیه و تحلیل دقیق برای ارزیابی عملکرد هوش مصنوعی در پیش‌بینی داده‌ها و مدیریت منابع.",
+          "cheapest_test": "ارائه نتایج پیش‌بینی از هوش مصنوعی بر روی داده‌های حسگری آزمایشی و مقایسه آن با روش‌های موجود.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "استفاده از شبکه های عصبی تولیدی برای تقویت پیش‌بینی داده‌ها در phase1_perception",
+          "why_genius": "شبکه های عصبی تولیدی می‌توانند با استفاده از داده‌های حسگری آزمایشی به طور خودآموزی پیش‌بینی‌های دقیق‌تری ایجاد کنند و عملکرد هوش مصنوعی را بهبود بخشد.",
+          "why_insane": "استفاده از شبکه های عصبی تولیدی ممکن است منجر به پیچیدگی زیاد در ساختار داده‌ها شود و نیازمند مجموعه‌ای بزرگتر از داده‌ها برای آموزش باشد که ممکن است هزینه بالا را پرداخت کند.",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "نیازمند مجموعه داده‌ای بزرگتر و هزینه بالاتر برای آموزش شبکه عصبی تولیدی وجود دارد.",
+          "cheapest_test": "بررسی سودمندی از استفاده از شبکه عصبی تولیدی با یک مجموعه داده کوچک و مقایسه عملکرد آن با روش‌های پیشین.",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

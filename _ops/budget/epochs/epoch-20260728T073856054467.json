@@ -1,0 +1,194 @@
+{
+  "ts": "2026-07-28T07:37:49",
+  "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
+  "pressure": {
+    "spend_velocity": 0.0,
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
+    "anomaly": 0.0,
+    "pressure": 0.0
+  },
+  "next_epoch_minutes": 60.0,
+  "weekly_replan": false,
+  "halted": null,
+  "frozen": false,
+  "conflicts": [],
+  "telemetry_month": {
+    "key": "2026-07",
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
+  },
+  "suspects": 0,
+  "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+      0.5134,
+      5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+      "velocity": "velocity-not-authoritative",
+      "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+  },
+  "next_epoch_minutes_raw": 60.0,
+  "heart_pressure_effective": 0.0,
+  "allocation_dry": {
+    "cap_monthly_aud": 30.0,
+    "explore_reserve_aud": 3.0,
+    "spent_month_aud": 0.031942,
+    "fx_aud_per_usd": 1.5,
+    "grants": {
+      "PROJECT_F": {
+        "verdict": "GRANT",
+        "floor_aud": 3.0,
+        "competitive_aud": 2.810741,
+        "total_month_aud": 5.810741,
+        "fitness": 0.3833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ARCHITECT_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "GENOME_SYS": {
+        "verdict": "GRANT",
+        "floor_aud": 2.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 4.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ZIMAN": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.077441,
+        "total_month_aud": 3.077441,
+        "fitness": 0.2833,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "PAINTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "ACCOUNTING": {
+        "verdict": "GRANT",
+        "floor_aud": 1.0,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 3.322363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      },
+      "DEBATE_LOOP": {
+        "verdict": "GRANT",
+        "floor_aud": 0.5,
+        "competitive_aud": 2.322363,
+        "total_month_aud": 2.822363,
+        "fitness": 0.3167,
+        "tag": "SPEC(shadow — صفر enforce)"
+      }
+    },
+    "h1_check": {
+      "sum_grants_aud": 29.999997,
+      "cap_aud": 30.0,
+      "ok": true
+    }
+  },
+  "allocation_llm": {
+    "llm_allocation": {
+      "organ_pct": {
+        "ARCHITECT_SYS": 0.55,
+        "DEBATE_LOOP": 0.2,
+        "GENOME_SYS": 0.25
+      },
+      "reason": "[EST] Only ARCHITECT_SYS shows spend/fitness; GENOME_SYS zero output but floor-protected, no cut past floor."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+  },
+  "debate": {
+    "status": "queue-human",
+    "topic_id": "plan-4",
+    "rounds": 3,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+      {
+        "round": 1,
+        "muse": {
+          "idea": "استفاده از شبکه‌های عصبی مصنوعی برای تقویت توانایی پردازش زبانی در brain_llm_wired",
+          "why_genius": "شبکه‌های عصبی مصنوعی می‌توانند با استفاده از داده‌های بزرگ و آموزش عمیق، توانایی پردازش زبانی را در brain_llm_wired بهبود بخورند. این می‌تواند منجر به افزایش دقت پاسخ‌ها و کاهش خطاهای فهم زبانی شود.",
+          "why_insane": "استفاده از شبکه‌های عصبی مصنوعی ممکن است باعث افزایش پیچیدگی سیستم شود و منجر به مشکلات تکنولوژیکی ناشی از آموزش عمیق شود. همچنین، ممکن است نیاز به ذخیره‌سازی بزرگی از داده‌ها و پارامترها برای آموزش این شبکه‌ها را در بردارد.",
+          "est_tokens": 125,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "网络模型在处理语言任务时过拟合或泛化能力差",
+          "cheapest_test": "使用较小的数据集对当前的brain_llm_wired进行评估，然后与应用神经网络后的性能进行比较。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 2,
+        "muse": {
+          "idea": "利用迁移学习预训练模型来增强brain_llm_wired的功能",
+          "why_genius": "通过使用已经过大规模数据集训练的预训练模型，我们可以快速提升brain_llm_wired在多种语言任务上的表现。这不仅能够解决当前过拟合的问题，还能显著提高其泛化能力。",
+          "why_insane": "尽管迁移学习可以带来性能的大幅提升，但需要大量的计算资源和时间来微调这些预训练模型。此外，过度依赖预训练模型可能导致知识转移不完全或出现偏差。",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "需要明确指定具体的预训练模型及其数据集，以避免知识转移不完全或出现偏差。",
+          "cheapest_test": "提供所选预训练模型的名称和相关数据集的信息，并简要说明如何评估其与brain_llm_wired的兼容性。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      },
+      {
+        "round": 3,
+        "muse": {
+          "idea": "使用GPT-3.5作为预训练模型并结合Wikipedia数据集",
+          "why_genius": "GPT-3.5具有广泛的知识基础，能够提供高质量的文本生成能力。结合Wikipedia这样的大规模文本数据集可以确保知识转移更加全面和准确，从而提高brain_llm_wired的整体性能。",
+          "why_insane": "尽管GPT-3.5在技术上非常先进，但其庞大的参数量可能会导致资源消耗过高，且与脑机接口的兼容性尚未完全验证。此外，Wikipedia数据集虽然丰富但也存在过时或不准确的信息，这可能对brain_llm_wired产生负面影响。",
+          "est_tokens": 120,
+          "quality_bar": "normal",
+          "epistemic_tag": "EST"
+        },
+        "architect": {
+          "verdict": "needs-fix",
+          "kill_condition": "需要验证GPT-3.5与脑机接口的兼容性以及Wikipedia数据集的有效性和及时性。",
+          "cheapest_test": "进行小规模实验，使用GPT-3.5生成文本并与实际脑机接口的数据进行对比测试，同时检查Wikipedia数据集中的信息是否准确和最新。",
+          "epistemic_tag": "EST"
+        },
+        "cost_usd": 0.0,
+        "stub": false,
+        "tier": "local"
+      }
+    ]
+  }
+}

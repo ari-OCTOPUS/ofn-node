@@ -1,0 +1,32 @@
+"""base_agent.py — کلاسِ پایه‌ی ایجنتِ تخصصی."""
+
+from __future__ import annotations
+
+from abc import ABC
+
+
+class BaseAgent(ABC):
+    name: str = "base"
+    domains: list[str] = []          # حوزه‌هایی که این ایجنت پوشش می‌دهد
+    system_prompt: str = ""          # تخصصِ این ایجنت (به system promptِ مغز افزوده می‌شود)
+
+    def __init__(self, brain, bank, base_prompt: str = ""):
+        self.brain = brain
+        self.bank = bank
+        self.base_prompt = base_prompt
+
+    def _full_prompt(self) -> str:
+        return (self.base_prompt + "\n\n" + self.system_prompt).strip() or self.system_prompt
+
+    def generate_question(self, domain: str, context: dict | None = None,
+                          mental_model: dict | None = None) -> str:
+        ctx = dict(context or {})
+        ctx["domain"] = domain
+        ctx["label"] = self.bank.label(domain)
+        if mental_model:
+            ctx["mental_model"] = mental_model
+        try:
+            return self.brain.ask(self._full_prompt(), ctx)
+        except Exception:
+            # سقوطِ نرم به بانکِ آفلاین — بات هرگز به‌خاطرِ LLM ساکت نمی‌ماند
+            return self.bank.get_question(domain, ctx)

@@ -78,8 +78,8 @@
     "cartographer": 372,
     "mirror": 374
   },
-  "leg_card_cursor": 8,
-  "last_leg_card": 1785744275.0256562,
+  "leg_card_cursor": 9,
+  "last_leg_card": 1785744600.0763733,
   "guide_message_id": 358,
   "guide_hash": "54c2aa87a0fd6935",
   "watchdog_receipt_cursor": "2026-08-03T15:27:03 centre down (silent 20408s) - launching RUN-TG-CENTER.bat",
@@ -92,3 +92,4 @@
   "commands_default_cleared_v2": "15d32b5dd1d7ed4f",
   "last_evening_day": "2026-08-02",
   "last_weekly_review": "2026-W31"
+}

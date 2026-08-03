@@ -1,0 +1,77 @@
+"""
+budget.py — چک‌لیست #۱: متابولیسم = بودجه و حسابداری منابع.
+
+هر فراخوانی مدل هزینه دارد و ثبت می‌شود. سقف per-agent و سقف کل اعمال می‌شود؛
+اگر هر ایجنت یا کل سیستم از بودجه‌اش عبور کند، BudgetExceeded پرتاب و
+اجرا «خودکار» قطع می‌شود (budget hook).
+"""
+from __future__ import annotations
+from dataclasses import dataclass, field
+
+import config
+
+
+class BudgetExceeded(Exception):
+    pass
+
+
+@dataclass
+class Usage:
+    calls: int = 0
+    input_tokens: int = 0
+    output_tokens: int = 0
+    cost_usd: float = 0.0
+
+
+@dataclass
+class BudgetLedger:
+    """دفترکل هزینه: مرکز حسابداری منابع برای همه‌ی ایجنت‌ها."""
+    per_agent: dict[str, Usage] = field(default_factory=dict)
+    total: Usage = field(default_factory=Usage)
+
+    @staticmethod
+    def cost_of(input_tokens: int, output_tokens: int) -> float:
+        return (input_tokens / 1_000_000 * config.PRICE_PER_MTOK_INPUT
+                + output_tokens / 1_000_000 * config.PRICE_PER_MTOK_OUTPUT)
+
+    def precheck(self, agent: str) -> None:
+        """قبل از فراخوانی: آیا اجازه‌ی یک گام دیگر هست؟ (rate + budget)"""
+        u = self.per_agent.setdefault(agent, Usage())
+        if u.calls >= config.MAX_CALLS_PER_AGENT:
+            raise BudgetExceeded(f"{agent}: سقف تعداد فراخوانی ({config.MAX_CALLS_PER_AGENT}) پر شد")
+        cap = config.PER_AGENT_BUDGET_USD.get(agent, 0.0)
+        if u.cost_usd >= cap:
+            raise BudgetExceeded(f"{agent}: سقف بودجه (${cap}) پر شد")
+        if self.total.cost_usd >= config.GLOBAL_BUDGET_USD:
+            raise BudgetExceeded(f"سقف بودجه کل (${config.GLOBAL_BUDGET_USD}) پر شد")
+
+    def record(self, agent: str, input_tokens: int, output_tokens: int) -> float:
+        """بعد از فراخوانی: هزینه را ثبت می‌کند و در صورت عبور، خطا می‌دهد."""
+        cost = self.cost_of(input_tokens, output_tokens)
+        u = self.per_agent.setdefault(agent, Usage())
+        u.calls += 1
+        u.input_tokens += input_tokens
+        u.output_tokens += output_tokens
+        u.cost_usd += cost
+        self.total.calls += 1
+        self.total.input_tokens += input_tokens
+        self.total.output_tokens += output_tokens
+        self.total.cost_usd += cost
+        # قطع خودکار پس از عبور
+        cap = config.PER_AGENT_BUDGET_USD.get(agent, 0.0)
+        if u.cost_usd > cap:
+            raise BudgetExceeded(f"{agent} از بودجه‌اش (${cap}) عبور کرد — قطع خودکار")
+        if self.total.cost_usd > config.GLOBAL_BUDGET_USD:
+            raise BudgetExceeded(f"کل سیستم از بودجه (${config.GLOBAL_BUDGET_USD}) عبور کرد — قطع خودکار")
+        return cost
+
+    def report(self) -> str:
+        lines = ["── گزارش هزینه (cost-accounting) ──"]
+        for agent, u in self.per_agent.items():
+            cap = config.PER_AGENT_BUDGET_USD.get(agent, 0.0)
+            lines.append(f"  {agent:<10} calls={u.calls} "
+                         f"tok={u.input_tokens}+{u.output_tokens} "
+                         f"cost=${u.cost_usd:.4f}/{cap}")
+        lines.append(f"  {'TOTAL':<10} calls={self.total.calls} "
+                     f"cost=${self.total.cost_usd:.4f}/{config.GLOBAL_BUDGET_USD}")
+        return "\n".join(lines)
