@@ -208,15 +208,17 @@ def send_one(effect_id: str, candidate: dict, draft: str = "", *, gate, now_ms: 
 
 # ── درایورِ ارسال (بازبینی ۰۷-۳۱، wiring W2 — flag-off در deploy: تاریک ولی کامل) ──
 def _candidate_from_inbox(lead_id: str):
-    """بازسازیِ **فقط‌خواندنیِ** کاندید از state/legs/lead-inbox/<lead_id>.json —
-    همان الگوی lead_effect_gate.bridge_from_inbox (شاملِ contact تا transport
-    گیرنده داشته باشد). خروجی: (candidate|None, attribution_id) — نبود/خراب ⇒ (None, "")."""
+    """بازسازیِ **فقط‌خواندنیِ** کاندید از `lead_sense.resolve_lead_path` (inbox یا
+    processed/، هر کدام تازه‌تر بود — رفعِ قفلِ دوتایی ۲۰۲۶-۰۸-۰۳؛ همان مسیری که
+    lead_effect_gate.bridge_from_inbox می‌گیرد، شاملِ contact تا transport گیرنده
+    داشته باشد). خروجی: (candidate|None, attribution_id) — نبود/خراب ⇒ (None, "")."""
     try:
         lid = str(lead_id or "").strip()
         if not lid:
             return None, ""
-        path = opslib.STATE_DIR / "legs" / "lead-inbox" / f"{lid}.json"
-        if not path.exists():
+        import lead_sense   # noqa: WPS433 — lazy، هم‌پوشه
+        path = lead_sense.resolve_lead_path(lid)
+        if path is None:
             return None, ""
         data = json.loads(path.read_text("utf-8"))
         if not isinstance(data, dict):
