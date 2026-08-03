@@ -62,6 +62,30 @@ def _headers(body, *, ts=None, nonce="n-1", source=_SRC, secret=_SECRET, sign=Tr
     return hdr
 
 
+# VQ-PORT-COLLISION-001 (برشِ ۳، آیتمِ ۲): این پیش‌فرض قبلاً 8774 بود — دقیقاً
+# پورتِ miniapp_gateway.PORT. اگر لیدباکس زودتر بالا می‌آمد، bind ِ gateway
+# شکست می‌خورد و تونلِ عمومی بی‌صدا به این endpoint می‌رسید نه mini-app.
+def t_default_port_never_collides_with_the_miniapp_gateway():
+    _tc = str(_HERE.parent / "telegram_center")
+    if _tc not in sys.path:
+        sys.path.insert(0, _tc)
+    _prev = os.environ.pop("OCTOPUS_MINIAPP_PORT", None)
+    _prev_lead = os.environ.pop("OCTOPUS_LEAD_INBOX_PORT", None)
+    try:
+        import miniapp_gateway as mg
+        importlib.reload(mg)
+        importlib.reload(b)
+        assert b.DEFAULT_PORT != mg.PORT, (
+            f"lead_boundary_http.DEFAULT_PORT ({b.DEFAULT_PORT}) == "
+            f"miniapp_gateway.PORT ({mg.PORT}) — همان تصادمِ ۰۸-۰۳ برگشته")
+    finally:
+        if _prev is not None:
+            os.environ["OCTOPUS_MINIAPP_PORT"] = _prev
+        if _prev_lead is not None:
+            os.environ["OCTOPUS_LEAD_INBOX_PORT"] = _prev_lead
+        importlib.reload(b)
+
+
 def t_a_valid_signed_accepted():
     _setup_env()
     body = _body(external_id="DA-a")

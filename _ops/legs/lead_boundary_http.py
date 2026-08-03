@@ -35,7 +35,13 @@ import lead_candidate_inbox as lci  # noqa: E402
 
 FLAG = "OCTOPUS_WIRE_LEAD_BOUNDARY"
 TS_WINDOW_S = 300
-DEFAULT_PORT = int(os.environ.get("OCTOPUS_LEAD_INBOX_PORT", "8774"))
+# VQ-PORT-COLLISION-001 (۲۰۲۶-۰۸-۰۳، برشِ ۳): این پیش‌فرض قبلاً 8774 بود — عیناً
+# همان پورتِ miniapp_gateway.PORT. اگر این listener زودتر بالا بیاید، bind ِ
+# gateway با OSError شکست می‌خورد و با `return 0` ِ **تمیز** خارج می‌شود؛ تونلِ
+# عمومی همچنان روی 127.0.0.1:8774 می‌ماند و بی‌صدا به این endpoint ِ لید وصل
+# می‌شود، نه به mini-app. 8775/8776/8778 هم قبلاً گرفته‌اند (agent_gateway_http،
+# center singleton-lock، control_plane supervisor) — 8777 آزاد است.
+DEFAULT_PORT = int(os.environ.get("OCTOPUS_LEAD_INBOX_PORT", "8777"))
 
 _H_SOURCE = "X-Octopus-Source"
 _H_TS = "X-Octopus-Timestamp"

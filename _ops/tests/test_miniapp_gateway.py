@@ -189,11 +189,30 @@ def t_owner_can_create_local_lead_but_onlyfans_automation_is_blocked():
 # _Handler._run actually hands to handle() for /api/actions -- simulate that
 # here instead of the idealized "X-Tg-Init-Data" dict every other test uses.
 def t_post_auth_works_with_lowercase_header_like_a_real_browser_sends():
-    body = json.dumps({"action": "lead.create", "payload": {"handle": "@x"}}).encode("utf-8")
-    headers = {"x-tg-init-data": _init_data(), "_body": body}
-    st, payload, _ = mg.handle("POST", "/api/actions", headers, fetch_fn=_fetch(), now=NOW)
-    assert st != 403, (st, payload)
-    assert b"owner_auth_required" not in payload, payload
+    with tempfile.TemporaryDirectory() as d:
+        old = {k: os.environ.get(k) for k in
+               ("OCTOPUS_OPS_RUNTIME_DIR", "OCTOPUS_OPS_DB_PATH",
+                "OCTOPUS_OPS_AUDIT_PATH", "OCTOPUS_OPS_IDEMPOTENCY_PATH")}
+        try:
+            os.environ["OCTOPUS_OPS_RUNTIME_DIR"] = d
+            os.environ["OCTOPUS_OPS_DB_PATH"] = str(Path(d) / "ops.sqlite3")
+            os.environ["OCTOPUS_OPS_AUDIT_PATH"] = str(Path(d) / "audit.jsonl")
+            os.environ["OCTOPUS_OPS_IDEMPOTENCY_PATH"] = str(Path(d) / "idem.sqlite3")
+            body = json.dumps({"action": "lead.create", "payload": {"handle": "@x"}}).encode("utf-8")
+            headers = {"x-tg-init-data": _init_data(), "_body": body}
+            st, payload, _ = mg.handle("POST", "/api/actions", headers, fetch_fn=_fetch(), now=NOW)
+            res = json.loads(payload)
+            # Tightened past "not 403": a swallowed exception (e.g. a blocked
+            # live-state write) also degrades to a non-403 status, so this
+            # must confirm the action actually ran, not just that auth passed.
+            assert st == 200 and res.get("ok") and str(res.get("lead_id", "")).startswith("lead_"), \
+                (st, res)
+        finally:
+            for k, v in old.items():
+                if v is None:
+                    os.environ.pop(k, None)
+                else:
+                    os.environ[k] = v
 
 
 def t_get_header_is_case_insensitive_both_directions():
@@ -231,6 +250,41 @@ def t_stop_miniapp_kills_every_request_with_503():
             assert st == 503 and body == b"", (m, p, st)
     finally:
         sf.unlink()
+
+
+# VQ-PORT-COLLISION-001 (برشِ ۳، آیتمِ ۲): قبلاً وقتی bind شکست می‌خورد main()
+# فقط print می‌کرد و ۰ برمی‌گرداند -- بی‌صدا، حتی وقتی شنوندهٔ اشغال‌کننده خودِ
+# gateway نبود (تونلِ عمومی بی‌خبر به سرویسِ اشتباه می‌رسید). حالا باید alert کند.
+def t_bind_failure_alerts_instead_of_silent_exit():
+    import importlib
+    import socket as _socket
+    _prev_port_env = os.environ.get("OCTOPUS_MINIAPP_PORT")
+    blocker = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)
+    blocker.bind(("127.0.0.1", 0))   # OS-assigned free port, isolated from prod 8774
+    blocker.listen(1)
+    real_port = blocker.getsockname()[1]
+    try:
+        os.environ["OCTOPUS_MINIAPP_PORT"] = str(real_port)
+        importlib.reload(mg)
+        os.environ[mg.FLAG] = "1"
+        sf = _stop_file()
+        if sf.exists():
+            sf.unlink()
+        try:
+            rc = mg.main()
+        finally:
+            blocker.close()
+            os.environ.pop(mg.FLAG, None)
+        assert rc == 0, rc
+        import opslib
+        assert opslib.ALERTS_MD.exists(), "bind-failure باید alert بنویسد"
+        assert f"{real_port}" in opslib.ALERTS_MD.read_text(encoding="utf-8")
+    finally:
+        if _prev_port_env is None:
+            os.environ.pop("OCTOPUS_MINIAPP_PORT", None)
+        else:
+            os.environ["OCTOPUS_MINIAPP_PORT"] = _prev_port_env
+        importlib.reload(mg)
 
 
 def t_the_flag_is_default_off():

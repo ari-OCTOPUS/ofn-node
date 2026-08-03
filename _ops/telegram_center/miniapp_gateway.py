@@ -444,6 +444,18 @@ def main() -> int:
     try:
         srv = _Srv(("127.0.0.1", PORT), _Handler)
     except OSError:
+        # VQ-PORT-COLLISION-001: پیام همیشه امیدوارانه («نمونهٔ دیگری») ولی هیچ
+        # تأییدی نمی‌کند که آن نمونه واقعاً خودِ gateway است — می‌تواند هر
+        # listener ِ دیگری باشد که همان پورت را گرفته (lead_boundary_http قبلاً
+        # همین پیش‌فرض را داشت). آن‌وقت تونلِ عمومی بی‌صدا به سرویسِ اشتباه
+        # وصل می‌ماند. حالا alert می‌کند تا سکوت نشکند — bind هرگز retry
+        # نمی‌شود (idempotent-safe نیست)، فقط دیدنی می‌شود.
+        try:
+            opslib.alert([f"miniapp_gateway: bind روی 127.0.0.1:{PORT} شکست خورد — "
+                          f"شنوندهٔ دیگری آن‌جاست. اگر خودِ gateway نیست، تونلِ "
+                          f"عمومی دارد به سرویسِ اشتباه می‌رسد."])
+        except Exception:  # noqa: BLE001
+            pass
         print(f"miniapp_gateway: نمونهٔ دیگری روی {PORT} زنده است — خروجِ تمیز.")
         return 0
     print(f"miniapp_gateway: دیوارِ Mini App روی http://127.0.0.1:{PORT}")
