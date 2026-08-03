@@ -56,11 +56,31 @@ def _tmp_yaml(body: str) -> str:
 # ── فایلِ زندهٔ والت ────────────────────────────────────────────────────────
 
 def t_the_live_file_declares_both_dated_knobs():
+    """۲۰۲۶-۰۸-۰۴ — دامنه باریک شد، دندان نه.
+
+    نسخهٔ اول روی **هر** رأی حلقه می‌زد و `until`/`until_env` می‌خواست، چون وقتی
+    نوشته شد هر دو رأیِ موجود پنجرهٔ تاریخ‌دار بودند. با آمدنِ `fugu_weekly_share`
+    (سیاستِ ماندگارِ درصدی، بدونِ انقضا) آن فرض شکست. گذاشتنِ تاریخِ جعلی یعنی
+    بودجهٔ مالک یک روزِ دلخواه بی‌صدا به پیش‌فرض برگردد — بدتر از قرمزِ تست.
+
+    پس: رأیِ تاریخ‌دار همان قرارداد را کامل نگه می‌دارد، و رأیِ ماندگار **باید
+    صریح** خودش را `standing: yes` اعلام کند. حذفِ `until` بدونِ آن اعلام همچنان
+    قرمز است — یعنی «فراموش کردم تاریخ بگذارم» از «عمداً ماندگار است» تفکیک
+    می‌شود و گارد بی‌دندان نمی‌شود."""
     v = ov.load()
     assert set(v) >= {"spend_cap", "goal_max_circular"}, sorted(v)
-    for spec in v.values():
-        for key in ("env", "until_env", "value", "until", "decided", "reader"):
-            assert spec.get(key), (key, spec)
+    for name, spec in v.items():
+        for key in ("env", "value", "decided", "reader"):
+            assert spec.get(key), (name, key, spec)
+        if str(spec.get("standing") or "").lower() in ("yes", "true", "1"):
+            assert not spec.get("until"), (
+                name, "رأیِ ماندگار نباید تاریخِ انقضا داشته باشد", spec)
+            continue
+        for key in ("until_env", "until"):
+            assert spec.get(key), (
+                name, key,
+                "رأیِ تاریخ‌دار باید انقضا اعلام کند، یا صریح `standing: yes` شود",
+                spec)
 
 
 def t_the_live_file_carries_no_secret_looking_keys():

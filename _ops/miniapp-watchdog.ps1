@@ -119,14 +119,31 @@ if (-not $tunnelAlive -or -not $urlFresh) {
     # powershell matching powershell: the image filter cannot separate the tunnel
     # script from the shell running this watchdog, so $SelfChain is the load-bearing
     # guard here - without it this Stop-Process kills the caller.
-    foreach ($p in @(Get-Procs "run-miniapp-tunnel\.ps1" @("powershell.exe","pwsh.exe"))) {
+    foreach ($p in @(Get-Procs "run-miniapp-tunnel(-named)?\.ps1" @("powershell.exe","pwsh.exe"))) {
         try { Stop-Process -Id $p.ProcessId -Force -Confirm:$false -ErrorAction Stop } catch {}
+    }
+    # 2026-08-03/04: prefer the NAMED tunnel. Telegram requires a registered
+    # origin since 2026-07-20, and the quick tunnel mints a NEW random hostname
+    # on every relaunch -- so this very "self-heal" was the thing breaking the
+    # Mini App, silently, while every probe here still reported green (they all
+    # check reachability, none checks registration).
+    # The named script exits rc=0 without touching the URL file when it is not
+    # configured yet, so this stays safe before the owner has run
+    # `cloudflared tunnel login` / `tunnel create` / `tunnel route dns`.
+    $named = Join-Path $Ops "telegram_center\run-miniapp-tunnel-named.ps1"
+    $quick = Join-Path $Ops "telegram_center\run-miniapp-tunnel.ps1"
+    $cfDir = Join-Path $env:USERPROFILE ".cloudflared"
+    $namedReady = $env:OCTOPUS_MINIAPP_HOSTNAME -and (Test-Path (Join-Path $cfDir "cert.pem")) `
+                  -and (@(Get-ChildItem -Path $cfDir -Filter "*.json" -ErrorAction SilentlyContinue).Count -gt 0)
+    $script = if ($namedReady -and (Test-Path $named)) { $named } else { $quick }
+    if (-not $namedReady) {
+        Log "named tunnel not configured (need OCTOPUS_MINIAPP_HOSTNAME + cert.pem + credentials) - using quick tunnel; Telegram may refuse this origin."
     }
     try {
         Start-Process -FilePath "powershell" `
-            -ArgumentList @("-ExecutionPolicy","Bypass","-File", (Join-Path $Ops "telegram_center\run-miniapp-tunnel.ps1")) `
+            -ArgumentList @("-ExecutionPolicy","Bypass","-File", $script) `
             -WindowStyle Hidden | Out-Null
-        Log "tunnel script relaunched."
+        Log ("tunnel script relaunched: " + (Split-Path $script -Leaf))
     } catch { Log ("tunnel relaunch FAILED: " + $_.Exception.Message) }
 } else {
     Log "OK - gateway up, tunnel up, url fresh."

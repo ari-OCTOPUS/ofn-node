@@ -45,3 +45,17 @@ verdicts:
     expires_to: "2"
     quote: "max_circular رو بذار ۶ تا آخر آزمون."
     note: "از ۰۷-۳۰ خودکار منقضی می‌شد؛ این‌جا فقط تاریخچه‌اش گیت‌دار شد."
+
+  fugu_weekly_share:
+    env: OCTOPUS_FUGU_WEEKLY_SHARE_PCT
+    value: "40"
+    unit: percent_of_measured_capacity
+    decided: "2026-08-04"
+    reader: "NONE-YET — متر توکن هنوز ساخته نشده (ممیزیِ ۰۸-۰۳)"
+    quote: "۴۰٪ = ۷۲M/هفته → زیمان ۲۸٫۸M · لید ۲۸٫۸M · استودیو ۱۴٫۴M"
+    split_ziman_pct: "40"
+    split_lead_pct: "40"
+    split_studio_pct: "20"
+    standing: "yes"
+    note: "درصد است نه عددِ مطلق. رأیِ مالک: اگر مصرفِ واقعی نشان داد تخمین غلط بوده، ۴۰٪ روی ظرفیتِ *واقعی* اعمال می‌شود نه روی ۱۸۰M ِ تخمینی — کرنل خودش اصلاح می‌کند. پس ۷۲M مشتق است، رأی همان ۴۰٪ است."
+    blocked_on: "صفر صداکننده: هیچ متری در ریپو توکن نمی‌شمارد. fugu_quota درخواست می‌شمارد؛ subscription=max باعث می‌شود est_worst_case و complete صفر بدهند پس organ_gate/budget_gate صفر جمع می‌زنند (organ-state.json روی spent_month_musd=0 بعد از ۳۹۵ فراخوان). تنها منبعِ توکنِ واقعی paid-calls.jsonl است و خواننده ندارد."
