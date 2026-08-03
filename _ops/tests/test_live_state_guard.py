@@ -193,7 +193,7 @@ class GuardCase(unittest.TestCase):
         finally:
             G.disarm()
 
-    # ── ۹. ریشهٔ پیش‌فرض واقعاً درختِ زنده است (بدونِ هیچ نوشتنی) ─────────────
+    # ── ۹. هر دو ریشهٔ پیش‌فرض واقعاً درختِ زنده‌اند (بدونِ هیچ نوشتنی) ─────────
     def t_default_root_is_the_live_tree(self):
         saved = os.environ.pop("REAL_VAULT", None)
         try:
@@ -201,12 +201,18 @@ class GuardCase(unittest.TestCase):
         finally:
             if saved is not None:
                 os.environ["REAL_VAULT"] = saved
-        self.assertEqual(len(roots), 1)
+        self.assertEqual(len(roots), 2)
         self.assertEqual(roots[0], os.path.normcase(os.path.abspath(
             os.path.join(G.REAL_VAULT_DEFAULT, "_ops", "state"))))
-        # و state ِ خودِ این worktree زیرِ آن ریشه نیست — وگرنه گارد کلِ سوییت را می‌کُشت
+        self.assertEqual(roots[1], os.path.normcase(os.path.abspath(
+            os.path.join(G.REAL_VAULT_DEFAULT, "_ops", "agi2027_runtime"))))
+        # و state/agi2027_runtime ِ خودِ این worktree زیرِ هیچ‌کدام نیست — وگرنه گارد
+        # کلِ سوییت را می‌کُشت
         wt_state = str(_HERE.parent / "state")
-        self.assertFalse(os.path.normcase(os.path.abspath(wt_state)).startswith(roots[0] + os.sep))
+        wt_runtime = str(_HERE.parent / "agi2027_runtime")
+        for root in roots:
+            self.assertFalse(os.path.normcase(os.path.abspath(wt_state)).startswith(root + os.sep))
+            self.assertFalse(os.path.normcase(os.path.abspath(wt_runtime)).startswith(root + os.sep))
 
 
 def _load():

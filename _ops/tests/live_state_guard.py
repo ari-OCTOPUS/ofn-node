@@ -77,7 +77,11 @@ def _norm(p) -> str | None:
 
 def live_state_roots() -> tuple[str, ...]:
     vault = os.environ.get("REAL_VAULT") or REAL_VAULT_DEFAULT
-    return (os.path.normcase(os.path.abspath(os.path.join(vault, "_ops", "state"))),)
+    # agi2027_runtime هم اضافه شد (۲۰۲۶-۰۸-۰۳، VQ-WAL-RUNTIME-001): همان کلاسِ خطر —
+    # مسیری که با `_HERE.parent` حساب می‌شود و اگر تستی هنوز از REAL_VAULT import کند
+    # (دفاعِ لایه‌دومی، لایهٔ اول = knob ِ harness.setup) به کنترل‌پلینِ tracked ِ زنده می‌رسد.
+    return tuple(os.path.normcase(os.path.abspath(os.path.join(vault, "_ops", sub)))
+                 for sub in ("state", "agi2027_runtime"))
 
 
 def _inside(path) -> str | None:
