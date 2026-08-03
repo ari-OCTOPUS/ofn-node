@@ -5,11 +5,25 @@
 afferent→confidence، sigma→throttle. هرگز effect.
 """
 from __future__ import annotations
+import os
 import sys
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE))
+
+# ── WS-2 (۲۰۲۶-۰۸-۰۱): فلگِ رؤیت‌پذیریِ تفکیکِ درد ──────────────────────────────
+# چرا env مستقیم و نه `wiring.flag`: `wiring` خودش `neural_driver` را import می‌کند
+# (wiring.py:1409) — importِ معکوس حلقه می‌سازد. معناشناسی **دقیقاً** همان
+# `wiring.flag` است (`os.environ.get(name, "0") == "1"`).
+# ⚠️ این نام عمداً در `wiring.PAPER_FULL_FLAGS` نیست، پس `apply_profile` آن را
+# روشن نمی‌کند: غیاب = خاموش. (برای این نام، برخلافِ خانوادهٔ OCTOPUS_WIRE_*.)
+PAIN_BREAKDOWN_FLAG = "OCTOPUS_PAIN_BREAKDOWN"
+
+
+def breakdown_enabled() -> bool:
+    """فلگِ تفکیکِ درد. پیش‌فرض خاموش → خروجی بایت‌به‌بایتِ امروز."""
+    return os.environ.get(PAIN_BREAKDOWN_FLAG, "0") == "1"
 
 
 class NeuralDriver:
@@ -86,6 +100,8 @@ class NeuralDriver:
                 return default
             return f if 0.0 <= f <= 1.0 else (1.0 if f > 1.0 and f != float("inf") else default)
 
+        # WS-2: با فلگ خاموش، `breakdown=False` و مسیر بایت‌به‌بایتِ قبل است.
+        _breakdown = breakdown_enabled()
         pain = self.nociceptor.measure(
             budget_pct=budget.get("pct", 0) if budget else 0,
             error_rate=_unit(_sens.get("error_rate", 0.0), 0.0),
@@ -93,6 +109,7 @@ class NeuralDriver:
             partner_stress=_unit(_sens.get("partner_stress", 0.0), 0.0),
             afferent_ratio=_unit(_sens.get("afferent_ratio", 1.0), 1.0),
             sigma=spectral.get("sigma", 0) if spectral else 0,
+            breakdown=_breakdown,
         )
         snap = self.hub.collect(
             beat=beat, rhythm=rhythm or {}, sensory=sensory or {},
@@ -126,9 +143,20 @@ class NeuralDriver:
         brain_inputs["learned_top_signal"] = learned_top_signal
         brain_inputs["learned_n_keys"] = learned_n_keys
 
+        # WS-2 (۲۰۲۶-۰۸-۰۱): تا امروز این dict فقط اسکالرِ fuse‌شده را بیرون می‌داد و
+        # `contributors` را دور می‌ریخت — به همین دلیل `effect-shadow.jsonl` هیچ‌وقت
+        # نمی‌گفت درد **از کدام ورودی** آمده، و کشفِ «۵ از ۶ صفرند» فقط با بازسازیِ
+        # آفلاینِ ۸۵۱۱ ردیف ممکن شد. با فلگ روشن، تفکیک هم بیرون می‌آید.
+        # کلیدهای level/protective دست‌نخورده‌اند → `wiring.protective_override`
+        # (که فقط `pain.level` را می‌خواند، wiring.py:1659) بی‌اثر می‌ماند.
+        _pain_out = {"level": pain.pain_level, "protective": pain.protective_mode}
+        if _breakdown and pain.contributions is not None:
+            _pain_out["contributions"] = pain.contributions
+            _pain_out["zero_terms"] = list(pain.zero_terms)
+
         return {
             "snapshot": snap.to_dict(),
-            "pain": {"level": pain.pain_level, "protective": pain.protective_mode},
+            "pain": _pain_out,
             "reflexes": [{"name": r.name, "triggered": r.triggered,
                           "action": r.action} for r in reflexes],
             "brain_inputs": brain_inputs,

@@ -175,7 +175,7 @@ extract_telegram_control.py→ T (depends on channel state)
 
 ## Related
 
-- [[Wave-3 · Cockpit Worlds + Preview]] — previous wave
+- [[Wave-3|Wave-3 · Cockpit Worlds + Preview]] — previous wave
 - [[OCTOPUS-CHANNEL-REGISTRY]] — all 16 channels in one view
 - [[OCTOPUS-EXTRACTOR-REGISTRY]] — all 17 extractors in one view
 - [[OCTOPUS-WAVE5-HARDENING-PLAN]] — next wave objectives

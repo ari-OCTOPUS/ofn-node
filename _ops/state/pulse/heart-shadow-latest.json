@@ -1,49 +1,51 @@
 {
-  "ts": "2026-07-25T13:43:52",
-  "beat": 12013,
+  "ts": "2026-08-03T18:03:13",
+  "beat": 23795,
   "signal": {
     "schema": "HeartSignal.v1",
-    "beat_seq": 12013,
-    "period_s": 900.0,
+    "beat_seq": 23795,
+    "period_s": 60.0,
     "sigma_now": 0.0,
-    "baro_factor": 1.6011
+    "baro_factor": 0.714
   },
-  "period_s": 900.0,
+  "period_s": 60.0,
   "telemetry": {
     "schema": "HeartTelemetry.v1",
-    "velocity_per_hr": 5.8292,
+    "velocity_per_hr": 0.125,
     "cpi_0_1": 0.0,
     "delta_self_live": 0.0,
-    "band_lo": 0.5134,
-    "band_hi": 5.0476,
+    "band_lo": 0.05,
+    "band_hi": 4.0379,
     "gates": {
       "g_learn": 0.0,
-      "band_effective_mid": 2.7805,
-      "err": 0.6724,
+      "band_effective_mid": 2.0439,
+      "err": -0.4812,
+      "futility_backoff": true,
       "cpi_guard": 1.0,
-      "budget_pressure": 2.0,
+      "budget_pressure": 1.0,
       "e_shadow": "locked",
       "w_shadow_active": false,
       "fail_closed_reason": null,
       "drift_flag": false
     },
-    "period_s": 900.0
+    "period_s": 60.0
   },
   "setpoint": {
     "schema": "HeartParams.v1",
     "target_sigma": 1.0,
-    "viable_band_lo": 0.5134,
-    "viable_band_hi": 5.0476,
-    "epoch_seq": 25,
+    "viable_band_lo": 0.05,
+    "viable_band_hi": 4.0379,
+    "epoch_seq": 38,
     "target_mass_scale": 1.0,
-    "daily_beat_cap": 288,
+    "daily_beat_cap": 2000,
     "baroreflex_gain": 0.0
   },
-  "gate0_live_producer": true,
-  "sampled_this_step": true,
+  "gate0_live_producer": false,
+  "sampled_this_step": false,
   "production_wire": {
     "open": false,
     "reasons": [
+      "Gate-0: Δ_selfِ زنده مثبت نیست (delta_self_live=0.0) — خودشناسیِ منفی این گیت را باز نمی‌کند",
       "hash قانونِ کنترل با SIM-REPORT نمی‌خواند (کد عوض شده — sim دوباره)"
     ]
   },

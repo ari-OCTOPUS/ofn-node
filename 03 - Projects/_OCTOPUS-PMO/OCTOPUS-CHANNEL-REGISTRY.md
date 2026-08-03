@@ -165,7 +165,7 @@ These are not counted in the 16 above because they are data foundations consumed
 
 ## Backlinks
 
-- [[Wave-4 · Full Channel Fleet]] — build context
+- [[Wave-4|Wave-4 · Full Channel Fleet]] — build context
 - [[OCTOPUS-EXTRACTOR-REGISTRY]] — extractor-level detail
 - [[OCTOPUS-ADMIN-DASHBOARD-MAP]] — how channels map to UI panels
 - [[OCTOPUS-KNOWN-RISKS]] — risks by channel

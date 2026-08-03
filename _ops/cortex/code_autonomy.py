@@ -133,6 +133,225 @@ def allowed_target(path) -> bool:
                           allow_roots=_ALLOW_ROOTS, deny=_DENY)
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+# WS-7 (۲۰۲۶-۰۸-۰۱، رأیِ ثبت‌شدهٔ مالک) — «کم‌ریسک» یک **تابعِ خالص** است، نه صفت.
+#
+# مکانیزمِ auto-apply از ۰۷-۳۰ وجود داشت (`code_brain.tick_once` پشتِ فلگِ
+# `OCTOPUS_CODE_AUTOAPPLY_LOWRISK`) ولی کلِ تعریفِ «کم‌ریسک»ِ آن **یک شرط** بود:
+# `code_autonomy.allowed_target(patch["target"])` — یعنی فقط «مسیر مجاز است؟».
+# با آن تعریف، یک بازنویسیِ کاملِ ۲۰۰۰ خطی که نیمی از توابعِ یک ماژولِ cortex را
+# پاک کند دقیقاً به‌اندازهٔ یک پچِ سه‌خطیِ کامنت «کم‌ریسک» بود. تفاوتشان اندازه،
+# جهت (افزودن یا برداشتن)، و این است که چه چیزی را برمی‌دارند.
+#
+# پس این‌جا «کم‌ریسک» به شکلی نوشته می‌شود که بتوان **دروغش را گرفت**: یک تابعِ
+# خالص روی (مسیر، متنِ قبل، متنِ بعد) که هیچ I/O ندارد و هر ردش یک اسمِ کوتاه
+# برمی‌گرداند. تست می‌تواند تک‌تکِ بندها را جهش بدهد.
+#
+# دامنه — یک تعارضِ صریح که به مالک برمی‌گردد (به‌جای اینکه بی‌صدا حل شود):
+#   متنِ WS-7 می‌گوید «داخلِ `_ops/telegram_center/` و `_ops/cortex/`».
+#   ولی `_ALLOW_ROOTS` در ۰۷-۳۰ با رأیِ صریحِ مالک (VQ-SELFGOAL-005) عمداً
+#   `telegram_center` را **بیرون** کرد، چون کارتِ تأیید همان‌جا رندر می‌شود و
+#   ارگانیسم می‌توانست دکمهٔ رأیِ خودش را بازنویسی کند.
+#   بازکردنِ دوبارهٔ آن یک منعِ بسته‌شده را باز می‌کند ⇒ انجام **نشد**.
+#   دامنهٔ کم‌ریسک = اشتراکِ دو حکم = فقط `_ops/cortex/`. تصمیمِ بازکردنِ
+#   telegram_center مالِ مالک است و در گزارش بالا آمده.
+# ══════════════════════════════════════════════════════════════════════════════
+AUTO_APPROVAL_BY = "auto-lowrisk"     # همان رشته‌ای که code_brain._stamp_auto_approval می‌زند
+LOWRISK_ROOTS = ("_ops/cortex/",)     # زیرمجموعهٔ سختِ _ALLOW_ROOTS (نه گسترشِ آن)
+LOWRISK_MAX_CHANGED_LINES = 40        # +/- روی دیفِ unified (n=0)؛ بالاتر = مرورِ انسانی
+LOWRISK_MIN_KEEP_RATIO = 0.80         # پچی که >۲۰٪ بایت را برمی‌دارد کم‌ریسک نیست
+# نامِ فایل‌هایی که «گارد» هستند حتی اگر در _DENY نباشند. برداشتنِ یک شرط داخلِ
+# این‌ها همان چیزی است که هیچ سوییتی لزوماً قرمز نمی‌کند.
+_LOWRISK_GUARD_TOKENS = ("guard", "gate", "approve", "approval", "auth", "deny",
+                         "allowlist", "policy", "fence", "secret", "token",
+                         "credential", "permission", "verdict", "consent")
+# ریشهٔ فراخوانی‌هایی که «اثرِ بیرونی» می‌سازند. سنجه **دلتا** است: پچی که به
+# ماژولی که از قبل subprocess داشت دست می‌زند مسدود نمی‌شود؛ فقط **افزودنِ**
+# یک اثرِ تازه مسدود می‌شود.
+_LOWRISK_EFFECT_ROOTS = frozenset({
+    "subprocess", "socket", "smtplib", "ftplib", "telnetlib", "http", "urllib",
+    "requests", "httpx", "ctypes", "shutil", "multiprocessing", "pickle",
+    "marshal", "webbrowser", "ssl", "signal", "winreg", "sqlite3", "os", "sys",
+})
+_LOWRISK_EFFECT_BUILTINS = frozenset({
+    "eval", "exec", "compile", "__import__", "setattr", "delattr", "globals",
+    "locals", "open", "input", "breakpoint",
+})
+
+
+def _lowrisk_norm(path) -> str:
+    """مسیر را به شکلِ posix ِ نسبی‌شده نرمال کن (بدونِ لمسِ دیسک — تابع خالص)."""
+    s = str(path or "").replace("\\", "/").strip().lstrip("./")
+    while "//" in s:
+        s = s.replace("//", "/")
+    return s
+
+
+def _lowrisk_dotted(node) -> "str | None":
+    """`a.b.c(...)` → "a.b.c" · فراخوانیِ غیرِنامی → None."""
+    import ast
+    parts = []
+    while isinstance(node, ast.Attribute):
+        parts.append(node.attr)
+        node = node.value
+    if isinstance(node, ast.Name):
+        parts.append(node.id)
+        return ".".join(reversed(parts))
+    return None
+
+
+def _lowrisk_fingerprint(src: str) -> "dict | None":
+    """اثرِ انگشتِ نحویِ یک فایل. غیرقابلِ‌پارس → None (یعنی «نمی‌دانم» ⇒ کم‌ریسک نیست)."""
+    import ast
+    from collections import Counter
+    try:
+        tree = ast.parse(src)
+    except (SyntaxError, ValueError, RecursionError):
+        return None
+    defs, imports, effects = set(), set(), Counter()
+    asserts = raises = tests = 0
+    for n in ast.walk(tree):
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            defs.add(n.name)
+            if n.name.startswith("test_") or n.name.startswith("t_"):
+                tests += 1
+        elif isinstance(n, ast.Assert):
+            asserts += 1
+        elif isinstance(n, ast.Raise):
+            raises += 1
+        elif isinstance(n, ast.Import):
+            for a in n.names:
+                imports.add(a.name.split(".")[0])
+        elif isinstance(n, ast.ImportFrom):
+            if n.module:
+                imports.add(n.module.split(".")[0])
+        elif isinstance(n, ast.Call):
+            nm = _lowrisk_dotted(n.func)
+            if not nm:
+                continue
+            root = nm.split(".")[0]
+            if root in _LOWRISK_EFFECT_ROOTS or nm in _LOWRISK_EFFECT_BUILTINS:
+                effects[nm] += 1
+    return {"defs": defs, "imports": imports, "effects": effects,
+            "asserts": asserts, "raises": raises, "tests": tests}
+
+
+def _lowrisk_changed_lines(before: str, after: str) -> int:
+    """تعدادِ خطوطِ +/- در دیفِ unified با context صفر. تابعِ خالص."""
+    import difflib
+    a = str(before).replace("\r\n", "\n").splitlines()
+    b = str(after).replace("\r\n", "\n").splitlines()
+    n = 0
+    for ln in difflib.unified_diff(a, b, n=0, lineterm=""):
+        if ln.startswith("+++") or ln.startswith("---") or ln.startswith("@@"):
+            continue
+        if ln.startswith("+") or ln.startswith("-"):
+            n += 1
+    return n
+
+
+def risk_report(target_rel, before_text, after_text) -> dict:
+    """**تابعِ خالص**: این پچ کم‌ریسک است؟ صفر I/O، صفر env، صفر ساعت.
+
+    خروجی: {low_risk: bool, blockers: [slug…], changed_lines, added, removed, …}
+    هر بندِ رد یک slugِ کوتاه است تا تست بتواند دقیقاً همان بند را هدف بگیرد.
+    fail-closed: هر ابهام (غیرقابلِ‌پارس، ورودیِ خالی، مسیرِ ناشناخته) ⇒ رد.
+    """
+    b = str(before_text or "")
+    a = str(after_text or "")
+    rel = _lowrisk_norm(target_rel)
+    blockers: list[str] = []
+
+    # ۱ مسیر — دامنهٔ کم‌ریسک زیرمجموعهٔ سختِ allowlist است
+    if not rel.endswith(".py"):
+        blockers.append("not-python")
+    if not any(rel.startswith(r) for r in LOWRISK_ROOTS):
+        blockers.append("outside-lowrisk-roots")
+    low = rel.lower()
+    if any(tok in low for tok in _DENY):
+        blockers.append("deny-token-in-path")
+    base = rel.rsplit("/", 1)[-1]
+    if "/tests/" in f"/{rel}" or base.startswith("test_"):
+        blockers.append("test-file")
+    if any(tok in low for tok in _LOWRISK_GUARD_TOKENS):
+        blockers.append("guard-file")
+
+    # ۲ محتوا
+    if not a.strip():
+        blockers.append("empty-after")
+    if not b.strip():
+        blockers.append("empty-before")     # فایلِ تازه = مرورِ انسانی، نه کم‌ریسک
+
+    fb = _lowrisk_fingerprint(b)
+    fa = _lowrisk_fingerprint(a)
+    if fb is None:
+        blockers.append("before-unparsable")
+    if fa is None:
+        blockers.append("after-unparsable")
+
+    changed = _lowrisk_changed_lines(b, a)
+    if changed == 0:
+        blockers.append("no-change")
+    if changed > LOWRISK_MAX_CHANGED_LINES:
+        blockers.append(f"too-many-changed-lines:{changed}")
+
+    nb, na = len(b.encode("utf-8")), len(a.encode("utf-8"))
+    if nb and na < nb * LOWRISK_MIN_KEEP_RATIO:
+        blockers.append(f"shrink:{na}/{nb}")
+
+    removed_defs: list[str] = []
+    if fb is not None and fa is not None:
+        removed_defs = sorted(fb["defs"] - fa["defs"])
+        if removed_defs:
+            blockers.append("defs-removed:" + ",".join(removed_defs[:5]))
+        if fa["asserts"] < fb["asserts"]:
+            blockers.append(f"asserts-removed:{fb['asserts']}→{fa['asserts']}")
+        if fa["raises"] < fb["raises"]:
+            blockers.append(f"raises-removed:{fb['raises']}→{fa['raises']}")
+        if fa["tests"] != fb["tests"]:
+            blockers.append(f"tests-changed:{fb['tests']}→{fa['tests']}")
+        new_imports = sorted((fa["imports"] - fb["imports"]) & _LOWRISK_EFFECT_ROOTS)
+        if new_imports:
+            blockers.append("new-effect-import:" + ",".join(new_imports[:5]))
+        new_effects = sorted(k for k, v in fa["effects"].items()
+                             if v > fb["effects"].get(k, 0))
+        if new_effects:
+            blockers.append("new-effect-call:" + ",".join(new_effects[:5]))
+
+    return {"low_risk": not blockers, "blockers": blockers, "target": rel,
+            "changed_lines": changed, "bytes_before": nb, "bytes_after": na,
+            "defs_removed": removed_defs,
+            "max_changed_lines": LOWRISK_MAX_CHANGED_LINES,
+            "roots": list(LOWRISK_ROOTS)}
+
+
+def low_risk_patch(patch: dict, *, before_text: "str | None" = None) -> dict:
+    """پوستهٔ ناخالصِ `risk_report`: متنِ فعلیِ هدف را از دیسک می‌خواند.
+    خواندنِ ناموفق ⇒ رد (fail-closed) — نه «فرضِ کم‌ریسک»."""
+    tgt = str((patch or {}).get("target", ""))
+    after = str((patch or {}).get("content", ""))
+    if before_text is None:
+        try:
+            p = _OPS.parent.joinpath(*_lowrisk_norm(tgt).split("/"))
+            before_text = p.read_text("utf-8", errors="replace")
+        except OSError:
+            return {"low_risk": False, "blockers": ["target-unreadable"],
+                    "target": _lowrisk_norm(tgt), "changed_lines": 0}
+    return risk_report(tgt, before_text, after)
+
+
+def _approval_is_auto(approval_id: str) -> bool:
+    """این تأیید را خودِ ارگانیسم زده (`by == auto-lowrisk`) یا انگشتِ مالک؟
+    ناخوانا ⇒ True (fail-closed: تأییدِ مشکوک، سخت‌گیرانه‌ترین مسیر)."""
+    try:
+        d = json.loads((APPROVALS_DIR / f"{approval_id}.json").read_text("utf-8"))
+    except (OSError, ValueError):
+        return True
+    if not isinstance(d, dict):
+        return True
+    return str(d.get("by") or "") == AUTO_APPROVAL_BY
+
+
 # ── شادو-تست: patch در worktreeِ ایزوله، سوییتِ کامل، هرگز درختِ زنده ───────────────
 def shadow_test(target_rel: str, new_content: str, *, run_fn=None) -> dict:
     """patch را ایزوله تست می‌کند. run_fn تزریق‌پذیر است (تست fake می‌زند).
@@ -389,10 +608,11 @@ def freeze_autonomy(reason: str) -> None:
 
 
 def apply_approved(patch: dict, approval_id: str, *, apply_fn=None, clock=None) -> dict:
-    """اکچوایتورِ سطح A. **هفت گیتِ هم‌زمان، همه لازم:**
+    """اکچوایتورِ سطح A. **هشت گیتِ هم‌زمان، همه لازم:**
     ۱ فعال‌سازی (ACTIVATION + not KILL) · ۲ قلب ≠ freeze (بازچکِ لحظهٔ اعمال) ·
     ۳ تأییدِ مالک (تپِ ✅) · ۴ deny-list · ۵ shadow سبز (در patch) · ۶ refractory ·
-    ۷ محتوای معتبر. هر کدام نبود → رد، صفر اعمال. apply_fn تزریق‌پذیر (تست)."""
+    ۷ محتوای معتبر · ۸ اگر تأیید **خودکار** بود، پچ باید `risk_report` را پاس کند.
+    هر کدام نبود → رد، صفر اعمال. apply_fn تزریق‌پذیر (تست)."""
     if not active():
         return {"ok": False, "reason": "not-activated (ACTIVATION-CODE-AUTONOMY خاموش یا KILL)"}
     m = heart_mood()
@@ -410,6 +630,15 @@ def apply_approved(patch: dict, approval_id: str, *, apply_fn=None, clock=None) 
         return {"ok": False, "reason": "empty-content"}
     if _in_refractory(clock):
         return {"ok": False, "reason": "refractory (خیلی زود بعد از اعمالِ قبل)"}
+    # ── گیتِ ۸ (WS-7) — تأییدِ **خودکار** فقط برای پچِ کم‌ریسک ────────────────
+    # فقط روی تأییدی که خودِ ارگانیسم زده (`by == auto-lowrisk`). انگشتِ مالک
+    # هیچ‌وقت این‌جا نمی‌افتد ⇒ مسیرِ HITL بایت‌به‌بایتِ دیروز است. سنجیده شد:
+    # هر ۴۳ فایلِ approvals/ روی درختِ زنده `by = None` دارند.
+    if _approval_is_auto(approval_id):
+        risk = low_risk_patch({"target": tgt, "content": content})
+        if not risk.get("low_risk"):
+            return {"ok": False, "reason": "not-low-risk (auto-approval)",
+                    "risk": risk}
 
     res = apply_fn(tgt, content) if apply_fn is not None else _git_apply_canary(tgt, content)
     import time

@@ -64,3 +64,12 @@
 {"leg": "lead-naghshi", "ts": 1784941277.8380213}
 {"leg": "lead-naghshi", "ts": 1784941338.793009}
 {"leg": "lead-naghshi", "ts": 1784941399.5761325}
+{"leg": "lead-naghshi", "ts": 1784952991.242453, "beat": 12046, "reason": "phi-timeout:no-ack", "phi": 300.0}
+{"leg": "lead-naghshi", "ts": 1784953052.5540612, "beat": 12047, "reason": "phi-timeout:no-ack", "phi": 300.0}
+{"leg": "lead-naghshi", "ts": 1784953113.4453604, "beat": 12048, "reason": "phi-timeout:no-ack", "phi": 300.0}
+{"leg": "lead-naghshi", "ts": 1785088038.6388242, "beat": 14005, "reason": "phi-timeout:no-ack", "phi": 21.895}
+{"leg": "lead-naghshi", "ts": 1785088100.6023948, "beat": 14006, "reason": "phi-timeout:no-ack", "phi": 36.041}
+{"leg": "lead-naghshi", "ts": 1785088162.384549, "beat": 14007, "reason": "phi-timeout:no-ack", "phi": 53.842}
+{"leg": "lead-naghshi", "ts": 1785452472.6856534, "beat": 19541, "reason": "phi-timeout:no-ack", "phi": 26.897}
+{"leg": "lead-naghshi", "ts": 1785683521.0797215, "beat": 23154, "reason": "phi-timeout:no-ack", "phi": 62.09}
+{"leg": "lead-naghshi", "ts": 1785683632.1383913, "beat": 23155, "reason": "phi-timeout:no-ack", "phi": 136.804}

@@ -213,6 +213,50 @@ def t_the_scan_covers_the_whole_tree():
     assert _R["checked"] >= 200, _R["checked"]
 
 
+# ─── ۵: چهار مکانیزمِ صداکننده که ۰۸-۰۳ اضافه شدند ────────────────────────
+# فیکسِ ۰۸-۰۱ (تصادمِ نامِ برهنه) کم‌گزارشی را بست ولی جهتِ خطا را برعکس کرد:
+# اسکنر ۷۵ یتیم می‌گفت که ~۳۱ تای‌شان زنده بودند. چهار شکلِ زیر مدل نمی‌شدند.
+# هر چهار مورد جهش‌آزمایی شد؛ این تست‌ها همان را دائمی می‌کنند.
+_REPORTED = {Path(o["module"]).stem for o in _R["orphans"]}
+
+
+def t_a_card_discoverable_module_is_not_an_orphan():
+    """`capability_registry` هر `card()` ِ بی‌آرگومان داخلِ `SCAN_DIRS` را خودش
+    پیدا می‌کند و `center.py` رندرش می‌کند — یعنی از تلگرام قابلِ لمس است حتی
+    با صفر importer. `orphan_scan` خودش نمونهٔ زنده است."""
+    assert "orphan_scan" not in _REPORTED, \
+        "آشکارساز خودش را یتیم اعلام کرد — چنین ابزاری خاموش می‌شود"
+    assert "self_scan" not in _REPORTED
+    assert "self_insight" not in _REPORTED
+
+
+def t_a_script_launched_entrypoint_is_not_an_orphan():
+    """`RUN-JOURNEY.cmd` ماژول را اجرا می‌کند؛ نقطهٔ ورود یتیم نیست."""
+    for stem in ("acceptance_journey", "watchdog", "miniapp_gateway"):
+        assert stem not in _REPORTED, f"«{stem}» از اسکریپت اجرا می‌شود"
+
+
+def t_a_relative_import_counts_as_a_caller():
+    """`from . import X` ‏`n.module is None` دارد و گاردِ قبلی کلِ شاخه را
+    می‌انداخت — چهار ماژولِ زندهٔ `epistemics`/`world_discovery` یتیمِ کاذب شدند."""
+    for stem in ("emit", "contradiction", "novelty", "opportunity"):
+        assert stem not in _REPORTED, f"«{stem}» با `from . import` صدا زده می‌شود"
+
+
+def t_a_production_organ_named_test_still_counts_as_a_caller():
+    """`test_cycle.py` حلقهٔ آزمونِ ۷روزه است (رأیِ مالک ۰۷-۳۰) نه یک تست.
+
+    فیلترِ نام‌محورِ `test_*` درست است برای **کاندیدا** و غلط برای **صداکننده**.
+    این سه ماژول از `test_cycle.beat` صدا زده می‌شوند."""
+    for stem in ("goal_action_bridge", "receipt_critic", "cycle_evaluator"):
+        assert stem not in _REPORTED, f"«{stem}» را test_cycle صدا می‌زند"
+
+
+def t_the_test_named_organ_is_not_itself_a_candidate():
+    """صداکننده‌بودن یعنی خوانده‌شدن، نه واردشدن به فهرست."""
+    assert not any("test" in o["module"] for o in _R["orphans"])
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

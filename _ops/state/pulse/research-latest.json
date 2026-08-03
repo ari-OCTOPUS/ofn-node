@@ -1,76 +1,61 @@
 {
-  "ts": "2026-07-25T03:35:56",
+  "ts": "2026-08-03T17:56:54",
   "schema": "research-latest.v1",
   "n_topics": 3,
   "findings": [
     {
-      "topic": "A08",
-      "n": 4,
+      "topic": "perception-bias",
+      "query": "perception bias",
+      "n": 3,
       "hits": [
         {
-          "title": "A8",
-          "snippet": "A8, A08, A 8 or A-8 may refer to:",
-          "url": "https://en.wikipedia.org/wiki/A8",
-          "source": "wikipedia"
-        },
-        {
-          "title": "Interpreting Multi-Branch Anti-Spoofing Architectures: Correlating Internal Strategy with Empirical Performance",
-          "snippet": "Multi-branch deep neural networks like AASIST3 achieve state-of-the-art comparable performance in audio anti-spoofing, yet their internal decision dynamics remain opaque compared to traditional input-level saliency methods. While existing interpretability efforts largely focus on visualizing input artifacts, the way individual architectural branches cooperate or compete under different spoofing attacks is not well characterized. This paper develops a framework for interpreting AASIST3 at the com",
-          "url": "http://arxiv.org/abs/2602.17711v3",
+          "title": "Perception-Aware Bias Detection for Query Suggestions",
+          "snippet": "Bias in web search has been in the spotlight of bias detection research for quite a while. At the same time, little attention has been paid to query suggestions in this regard. Awareness of the problem of biased query suggestions has been raised. Likewise, there is a rising need for automatic bias detection approaches. This paper adds on the bias detection pipeline for bias detection in query suggestions of person-related search developed by Bonart et al. \\cite{Bonart_2019a}. The sparseness and ",
+          "url": "http://arxiv.org/abs/2601.03730v1",
           "source": "arxiv"
         },
         {
-          "title": "Challenges and Lessons Learned from fabrication, testing and analysis of eight MQXFA Low Beta Quadrupole magnets for HL-LHC",
-          "snippet": "By the end of October 2022, the US HL-LHC Accelerator Upgrade Project (AUP) had completed fabrication of ten MQXFA magnets and tested eight of them. The MQXFA magnets are the low beta quadrupole magnets to be used in the Q1 and Q3 Inner Triplet elements of the High Luminosity LHC. This AUP effort is shared by BNL, Fermilab, and LBNL, with strand verification tests at NHMFL. An important step of the AUP QA plan is the testing of MQXFA magnets in a vertical cryostat at BNL. The acceptance criteria",
-          "url": "http://arxiv.org/abs/2301.09523v1",
+          "title": "Second Order WinoBias (SoWinoBias) Test Set for Latent Gender Bias Detection in Coreference Resolution",
+          "snippet": "We observe an instance of gender-induced bias in a downstream application, despite the absence of explicit gender words in the test cases. We provide a test set, SoWinoBias, for the purpose of measuring such latent gender bias in coreference resolution systems. We evaluate the performance of current debiasing methods on the SoWinoBias test set, especially in reference to the method's design and altered embedding space properties. See https://github.com/hillarydawkins/SoWinoBias.",
+          "url": "http://arxiv.org/abs/2109.14047v1",
+          "source": "arxiv"
+        },
+        {
+          "title": "Delving into the Devils of Bird's-eye-view Perception: A Review, Evaluation and Recipe",
+          "snippet": "Learning powerful representations in bird's-eye-view (BEV) for perception tasks is trending and drawing extensive attention both from industry and academia. Conventional approaches for most autonomous driving algorithms perform detection, segmentation, tracking, etc., in a front or perspective view. As sensor configurations get more complex, integrating multi-source information from different sensors and representing features in a unified view come of vital importance. BEV perception inherits se",
+          "url": "http://arxiv.org/abs/2209.05324v4",
           "source": "arxiv"
         }
       ]
     },
     {
-      "topic": "A07",
-      "n": 4,
+      "topic": "motivation",
+      "query": "motivation",
+      "n": 2,
       "hits": [
         {
-          "title": "A7",
-          "snippet": "A7, A.7, A 7, A07 or A-7 may refer to:",
-          "url": "https://en.wikipedia.org/wiki/A7",
+          "title": "Motivation",
+          "snippet": "Motivation is an internal state that propels individuals to engage in goal-directed behavior. It is often understood as a force that explains why people or other animals initiate, continue, or terminate a certain behavior at a particular time. It is a complex phenomenon and its precise definition is disputed. It contrasts with amotivation, which is a state of apathy or listlessness. Motivation is studied in fields such as psychology, motivation science, neuroscience, and philosophy.",
+          "url": "https://en.wikipedia.org/wiki/Motivation",
           "source": "wikipedia"
         },
         {
-          "title": "Delta-Influence: Unlearning Poisons via Influence Functions",
-          "snippet": "Addressing data integrity challenges, such as unlearning the effects of data poisoning after model training, is necessary for the reliable deployment of machine learning models. State-of-the-art influence functions, such as EK-FAC and TRAK, often fail to accurately attribute abnormal model behavior to the specific poisoned training data responsible for the data poisoning attack. In addition, traditional unlearning algorithms often struggle to effectively remove the influence of poisoned samples,",
-          "url": "http://arxiv.org/abs/2411.13731v2",
-          "source": "arxiv"
-        },
-        {
-          "title": "Effect of salt concentration on the solubility, ion-dynamics, and transport properties of dissolved vanadium ions in lithium-ion battery electrolytes: Generalized solubility limit approach (Part II)",
-          "snippet": "In this article, we study the transport properties of superconcentrated electrolytes using Molecular Dynamics simulations, which have been shown experimentally to retard elemental dissolution in vanadium containing cathode materials. Five compositions between one and seven molar lithium bis(trifluoromethanesulfonyl)imide in 1,3-Dioxolane and 1,2-Dimethoxyethane solvent mixture are studied using non-polarizable Optimized Potentials for Liquid Simulations - All Atom force field. The simulated phys",
-          "url": "http://arxiv.org/abs/2111.14591v1",
+          "title": "Measuring Motivations of Crowdworkers: The Multidimensional Crowdworker Motivation Scale",
+          "snippet": "Crowd employment is a new form of short-term and flexible employment which has emerged during the past decade. In order to understand this new form of employment, it is crucial to illuminate the underlying motivations of the workforce involved in it. This paper introduces the Multidimensional Crowdworker Motivation Scale (MCMS), a scale for measuring the motivation of crowdworkers on micro-task platforms. The MCMS is theoretically grounded in self-determination theory and tailored specifically t",
+          "url": "http://arxiv.org/abs/1702.01661v3",
           "source": "arxiv"
         }
       ]
     },
     {
-      "topic": "B08",
-      "n": 4,
+      "topic": "self-narrative",
+      "query": "self narrative",
+      "n": 1,
       "hits": [
         {
-          "title": "B8",
-          "snippet": "B8, B VIII or B-8 may refer to:",
-          "url": "https://en.wikipedia.org/wiki/B8",
-          "source": "wikipedia"
-        },
-        {
-          "title": "Mean Rational Approximation for Compact Subsets with Thin Boundaries",
-          "snippet": "In 1991, J. Thomson obtained a celebrated decomposition theorem for $P^t(μ),$ the closed subspace of $L^t(μ)$ spanned by the analytic polynomials, when $1 \\le t < ı.$ In 2008, J. Brennan \\cite{b08} generalized Thomson's theorem to $R^t(K, μ),$ the closed subspace of $L^t(μ)$ spanned by the rational functions with poles off a compact subset $K$ containing the support of $μ,$ when the diameters of the components of $\\mathbb C\\setminus K$ are bounded below. We extend the above decomposition theorem",
-          "url": "http://arxiv.org/abs/2212.10811v3",
-          "source": "arxiv"
-        },
-        {
-          "title": "Tensors as module homomorphisms over group rings",
-          "snippet": "Braman [B08] described a construction where third-order tensors are exactly the set of linear transformations acting on the set of matrices with vectors as scalars. This extends the familiar notion that matrices form the set of all linear transformations over vectors with real-valued scalars. This result is based upon a circulant-based tensor multiplication due to Kilmer et al. [KMP08]. In this work, we generalize these observations further by viewing this construction in its natural framework o",
-          "url": "http://arxiv.org/abs/1005.1894v1",
+          "title": "CHATTER: A Character Attribution Dataset for Narrative Understanding",
+          "snippet": "Computational narrative understanding studies the identification, description, and interaction of the elements of a narrative: characters, attributes, events, and relations. Narrative research has given considerable attention to defining and classifying character types. However, these character-type taxonomies do not generalize well because they are small, too simple, or specific to a domain. We require robust and reliable benchmarks to test whether narrative models truly understand the nuances ",
+          "url": "http://arxiv.org/abs/2411.05227v2",
           "source": "arxiv"
         }
       ]

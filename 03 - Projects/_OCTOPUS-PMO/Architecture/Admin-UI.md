@@ -131,5 +131,5 @@ Footer nav links to other worlds:
 
 - [[Dataflow]] — where the data comes from
 - [[Backbone]] — shared data layer
-- [[CH-04 · Telegram Bot Unified]] — the *real* execution surface (this UI is view-only)
-- [[CH-14 · HITL Queue]] — queue data source
+- [[CH-04|CH-04 · Telegram Bot Unified]] — the *real* execution surface (this UI is view-only)
+- [[CH-14|CH-14 · HITL Queue]] — queue data source

@@ -67,8 +67,8 @@ updated: 2026-07-19
 
 برای LIVE:
 ```cmd
-:: ۱) ربات را در @BotFather بساز (ارمین یا صبا، دستِ انسان)
-:: ۲) chat_id صبا را از @userinfobot بگیر
+:: ۱) ربات را در @BotFather بساز (operator یا creator، دستِ انسان)
+:: ۲) chat_id creator را از @userinfobot بگیر
 set TELEGRAM_SABA_BOT_TOKEN=<token_from_botfather>
 set TELEGRAM_SABA_CHAT_ID=<saba_chat_id>
 :: ۳) اجرا

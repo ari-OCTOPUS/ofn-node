@@ -299,6 +299,6 @@ extract_audit_data.py       ──► independent
 ## Backlinks
 
 - [[OCTOPUS-CHANNEL-REGISTRY]] — channel-level view
-- [[Wave-4 · Full Channel Fleet]] — build context
+- [[Wave-4|Wave-4 · Full Channel Fleet]] — build context
 - [[OCTOPUS-ADMIN-DASHBOARD-MAP]] — how extractors feed the UI
 - [[OCTOPUS-KNOWN-RISKS]] — risks by extractor

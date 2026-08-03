@@ -40,6 +40,10 @@ SCHEMA_VERSION = "1.1"
 _VALID_CHANNELS = frozenset({
     "telegram_manual", "website_form", "missed_call", "meta_lead_ad", "facebook_group",
     "nsw_da", "domain_listing", "synthetic_test", "other",
+    # ۲۰۲۶-۰۸-۰۱ — کسی که خودش به آدرسِ کسب‌وکار نوشته. سقفش در
+    # `consent_firewall._CHANNEL_CEILING` تعریف شده (consented_inbound) و
+    # تولیدکننده‌اش پشتِ فلگِ خاموشِ `OCTOPUS_LEAD_EMAIL_INBOUND_CONSENT` است.
+    "email_inbound",
 })
 
 

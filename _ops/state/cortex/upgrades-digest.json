@@ -1,14 +1,14 @@
 {
-  "ts": "2026-07-25T12:32:02",
+  "ts": "2026-08-03T17:59:13",
   "schema": "upgrades-digest.v1",
   "observability_ok": true,
   "checklist_pct": 75.6,
   "checklist_static": true,
   "maturity_pct": 75.6,
   "improvement_rate": {
-    "closed": 74,
-    "moved": 35,
-    "rate_pct": 47.3
+    "closed": 4,
+    "moved": 0,
+    "rate_pct": 0.0
   },
   "n_proposals": 36,
   "by_category": {
@@ -23,9 +23,9 @@
         "status": "proposed"
       },
       {
-        "id": "up-67d11c38be",
+        "id": "up-399bcd9635",
         "priority": "P1",
-        "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (8/۲۸ روز، سایه)",
+        "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (3/۲۸ روز، سایه)",
         "suggested_action": "چند لیدِ واقعی بده تا اتریبیوشن معتبر شود.",
         "change_level": "tune",
         "source": "business-brain",
@@ -44,28 +44,28 @@
         "status": "proposed"
       },
       {
-        "id": "up-a8501ff5ee",
+        "id": "up-1676596a3a",
         "priority": "P2",
-        "title": "سنتزِ مغز: مهار ایمنِ «legs»",
-        "suggested_action": "تعریف گیت اضطراری: در استرس ≥۰٫۹ فقط مشاهده و پیشنهاد؛ بدون اعمال یا ارتقا",
+        "title": "سنتزِ مغز: جهشِ اولین مطالبه برای Ziman/Lead-نقاشی",
+        "suggested_action": "قدم اول: تعریف قرارداد رویداد `claim_candidate→claim_sent→attribution.claimed` و انتخاب یک لیدِ آمادهٔ خرید",
         "change_level": "reconfig",
         "source": "synthesis",
         "status": "proposed"
       },
       {
-        "id": "up-e39fdced58",
+        "id": "up-b84b37d643",
         "priority": "P2",
-        "title": "سنتزِ مغز: کالبدشکافی موازیِ ترس",
-        "suggested_action": "ثبت اسنپ‌شات فقط‌خواندنی از رویدادهای «legs» و سپردن هم‌زمانِ تحلیل علت، نقد فرضیه و جست‌وجوی سابقه به سه مغز",
+        "title": "سنتزِ مغز: آزمایش سایه‌ایِ سه‌مغزیِ تبدیل لید",
+        "suggested_action": "قدم اول: ساخت قرارداد ارزیابی روی ۲۰ لید با سنجه‌های پاسخ، قیمت‌خواهی، پذیرش انتساب و هزینه",
         "change_level": "reconfig",
         "source": "synthesis",
         "status": "proposed"
       },
       {
-        "id": "up-8c4f6ae2da",
+        "id": "up-c0b3bd675b",
         "priority": "P2",
-        "title": "سنتزِ مغز: بازیابی سایه‌ای با بازگشت تضمینی",
-        "suggested_action": "تدوین یک کاندید tune کم‌خطر و سنجش سایه‌ای آن با معیارهای کاهش استرس، سلامت لید/درآمد و مسیر بازگشت ازپیش‌تعریف‌شده",
+        "title": "سنتزِ مغز: دفترکل ماندگارِ انتساب و هزینه",
+        "suggested_action": "قدم اول: تعیین شِمای append-only برای `lead_id، evidence، brain، cost، claim_status، expiry، rollback_ref`",
         "change_level": "reconfig",
         "source": "synthesis",
         "status": "proposed"
@@ -91,20 +91,11 @@
         "status": "proposed"
       },
       {
-        "id": "up-c6fca20745",
-        "priority": "P2",
-        "title": "دکتر: 7 پیشنهادِ بهبود منتظرِ رأیِ توست",
-        "suggested_action": "در خانه با آره/نه تصمیم بگیر.",
-        "change_level": "reconfig",
-        "source": "part-loop",
-        "status": "proposed"
-      },
-      {
-        "id": "up-e471431bc0",
-        "priority": "P2",
-        "title": "اعضا: امروز 6 بار خودترمیمی شد — یه عضو ناپایدار است",
-        "suggested_action": "بررسیِ ریشه‌ایِ آن عضو (به مالک گزارش).",
-        "change_level": "reconfig",
+        "id": "up-5555566270",
+        "priority": "P3",
+        "title": "قلب: قلب هنوز دادهٔ کافی برای هدایتِ زنده ندارد",
+        "suggested_action": "بگذار ~۱۲ ساعت نمونه جمع شود؛ خودکار باز می‌شود.",
+        "change_level": "tune",
         "source": "part-loop",
         "status": "proposed"
       },
@@ -113,6 +104,15 @@
         "priority": "P3",
         "title": "قلب: قلب در سایه می‌تپد (هنوز واقعی نمی‌راند)",
         "suggested_action": "بعد از Gate-0 خودش زنده می‌شود؛ کاری لازم نیست.",
+        "change_level": "tune",
+        "source": "part-loop",
+        "status": "proposed"
+      },
+      {
+        "id": "up-4c033e4bf9",
+        "priority": "P3",
+        "title": "خودآگاهی: 10 ماژول بدونِ توضیح",
+        "suggested_action": "یک docstringِ یک‌خطی به هرکدام (سندی، بی‌خطر).",
         "change_level": "tune",
         "source": "part-loop",
         "status": "proposed"
@@ -356,9 +356,9 @@
         "status": "proposed"
       },
       {
-        "id": "up-f172bc09a0",
+        "id": "up-c5a8220ab6",
         "priority": "P3",
-        "title": "خودآگاهیِ سند: 1 ماژول بدونِ docstring",
+        "title": "خودآگاهیِ سند: 10 ماژول بدونِ docstring",
         "suggested_action": "به هر ماژول یک docstringِ یک‌خطی بده (تغییرِ سندی، بی‌خطر).",
         "change_level": "tune",
         "source": "self_model",
@@ -384,12 +384,12 @@
       "impact": 3.0
     },
     {
-      "id": "up-67d11c38be",
+      "id": "up-399bcd9635",
       "source": "business-brain",
       "category": "business",
       "priority": "P1",
       "_rank": 1.0,
-      "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (8/۲۸ روز، سایه)",
+      "title": "Lead-نقاشی: دادهٔ درآمد هنوز در حالِ ساخت است (3/۲۸ روز، سایه)",
       "rationale": "مغزِ دومِ کسب‌وکار این را یافت",
       "evidence": "business-brain-latest.json",
       "suggested_action": "چند لیدِ واقعی بده تا اتریبیوشن معتبر شود.",
@@ -434,51 +434,51 @@
       "impact": 2.6
     },
     {
-      "id": "up-a8501ff5ee",
+      "id": "up-1676596a3a",
       "source": "synthesis",
       "category": "architecture",
       "priority": "P2",
       "_rank": 1.8,
-      "title": "سنتزِ مغز: مهار ایمنِ «legs»",
-      "rationale": "زنگ قرمز نیازمند شرط توقف است تا تغییرات خودکار به Ziman، Lead-نقاشی و درآمد آسیب نزند",
+      "title": "سنتزِ مغز: جهشِ اولین مطالبه برای Ziman/Lead-نقاشی",
+      "rationale": "مستقیم `attribution.claimed` را ۳ گام جلو می‌برد: لید واقعی ← پیشنهاد قیمتِ قابل‌ردیابی ← تأیید کتبیِ انتساب توسط مشتری",
       "evidence": "synthesis-latest.json [primary]",
-      "suggested_action": "تعریف گیت اضطراری: در استرس ≥۰٫۹ فقط مشاهده و پیشنهاد؛ بدون اعمال یا ارتقا",
+      "suggested_action": "قدم اول: تعریف قرارداد رویداد `claim_candidate→claim_sent→attribution.claimed` و انتخاب یک لیدِ آمادهٔ خرید",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
-      "serves_goal": "ارگانیسم خودش را تحلیل، تحقیق و ارتقا بدهد — تا جای امن خودکار، بقیه پیشنهاد به من.",
+      "serves_goal": "**اولین پولِ مطالبه‌شده: `attribution.claimed` از صفر دربیاید.** سنجه در `state/fitness-latest.json`؛ امروز صفر است. هر پیشنهاد، هر جلسهٔ فکرِ عمیق و هر مذاکره باید بگوید این را چند قدم جلو می‌بَرد — و اگر نمی‌بَرد، صریح بگوید.",
       "impact": 2.2
     },
     {
-      "id": "up-e39fdced58",
+      "id": "up-b84b37d643",
       "source": "synthesis",
       "category": "architecture",
       "priority": "P2",
       "_rank": 1.8,
-      "title": "سنتزِ مغز: کالبدشکافی موازیِ ترس",
-      "rationale": "تکمیل حلقهٔ observe→critique→propose با تفکیک نقش fugu/glm/ollama و جلوگیری از تشخیص تزئینی",
+      "title": "سنتزِ مغز: آزمایش سایه‌ایِ سه‌مغزیِ تبدیل لید",
+      "rationale": "fugu و GLM و Ollama موازی رتبه‌بندی/پیشنهاد می‌دهند؛ با کنترل سوگیری ادراکی، شرط توقف، سطح تغییر و rollback فقط برنده ترویج می‌شود؛ `attribution.claimed` را ۲ گام جلو می‌برد: پیشنه",
       "evidence": "synthesis-latest.json [primary]",
-      "suggested_action": "ثبت اسنپ‌شات فقط‌خواندنی از رویدادهای «legs» و سپردن هم‌زمانِ تحلیل علت، نقد فرضیه و جست‌وجوی سابقه به سه مغز",
+      "suggested_action": "قدم اول: ساخت قرارداد ارزیابی روی ۲۰ لید با سنجه‌های پاسخ، قیمت‌خواهی، پذیرش انتساب و هزینه",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
-      "serves_goal": "هر مغز (fugu اصلی، glm فرعی، ollama محلی) موازی روی ردهٔ کارِ خودش پیش برود.",
+      "serves_goal": "**اولین پولِ مطالبه‌شده: `attribution.claimed` از صفر دربیاید.** سنجه در `state/fitness-latest.json`؛ امروز صفر است. هر پیشنهاد، هر جلسهٔ فکرِ عمیق و هر مذاکره باید بگوید این را چند قدم جلو می‌بَرد — و اگر نمی‌بَرد، صریح بگوید.",
       "impact": 2.2
     },
     {
-      "id": "up-8c4f6ae2da",
+      "id": "up-c0b3bd675b",
       "source": "synthesis",
       "category": "architecture",
       "priority": "P2",
       "_rank": 1.8,
-      "title": "سنتزِ مغز: بازیابی سایه‌ای با بازگشت تضمینی",
-      "rationale": "رفع گپ‌های shadow-eval، قرارداد سطح تغییر و rollback پیش از اعمال، بدون تبدیل سیگنال مشکوک به حافظهٔ رسمی",
+      "title": "سنتزِ مغز: دفترکل ماندگارِ انتساب و هزینه",
+      "rationale": "شواهد لید، تصمیم مغزها، تأیید مشتری و خرج مدل‌ها را با منشأ، ضدِ false-canon و بازیابی پس از خاموشی نگه می‌دارد؛ `attribution.claimed` را ۱ گام جلو می‌برد: جلوگیری از گم‌شدن/نامعتب",
       "evidence": "synthesis-latest.json [primary]",
-      "suggested_action": "تدوین یک کاندید tune کم‌خطر و سنجش سایه‌ای آن با معیارهای کاهش استرس، سلامت لید/درآمد و مسیر بازگشت ازپیش‌تعریف‌شده",
+      "suggested_action": "قدم اول: تعیین شِمای append-only برای `lead_id، evidence، brain، cost، claim_status، expiry، rollback_ref`",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
-      "serves_goal": "حافظهٔ ماندگار مثلِ شرکت‌های بزرگ: با خاموش/روشن هیچ‌چیز گم نشود.",
+      "serves_goal": "**اولین پولِ مطالبه‌شده: `attribution.claimed` از صفر دربیاید.** سنجه در `state/fitness-latest.json`؛ امروز صفر است. هر پیشنهاد، هر جلسهٔ فکرِ عمیق و هر مذاکره باید بگوید این را چند قدم جلو می‌بَرد — و اگر نمی‌بَرد، صریح بگوید.",
       "impact": 2.2
     },
     {
@@ -500,18 +500,19 @@
   ],
   "auto_eligible": [],
   "auto_enabled": true,
-  "brain_note": "[local] در این گاف‌ها، \"Lead-نقاشی\" دادهٔ درآمد هنوز در حال ساخت است که نیازمند تأیید شده‌است. بنابراین، اولویت باید به تأیید این داده‌ها گذاشته شود زیرا بدون آن، امک",
   "goal_directed": {
     "n_goal_serving": 7,
-    "n_circular_dropped": 1,
-    "goals_count": 6,
+    "n_circular_dropped": 0,
+    "goals_count": 7,
+    "max_circular": 6,
+    "max_circular_reason": "owner-window:2026-08-13",
     "outcome": {
-      "tracked": 11,
-      "moved": true,
+      "tracked": 17,
+      "moved": false,
       "now": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 11,
+        "total_discoveries": 97,
         "proposals_delivered": 0,
         "proposal_outcomes": 0,
         "proposal_positive": 0,
@@ -522,7 +523,7 @@
       "since": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 9,
+        "total_discoveries": 89,
         "proposals_delivered": 0,
         "proposal_outcomes": 0,
         "proposal_positive": 0,

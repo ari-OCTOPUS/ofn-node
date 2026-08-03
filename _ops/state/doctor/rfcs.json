@@ -1,21 +1,7 @@
 {
-  "ts": "2026-07-25T11:00:55",
+  "ts": "2026-08-03T15:39:14",
   "schema": "doctor-rfcs.v1",
   "rfcs": [
-    {
-      "rfc_id": "RFC-aa01e8ff",
-      "bottleneck": "knob:CHRONO_NUDGE_EVERY_N_BEATS — بدونِ مقدارِ صریح (unset)",
-      "fix": "knobِ `CHRONO_NUDGE_EVERY_N_BEATS` مقدارِ صریح ندارد. پیشنهاد: به میانهٔ کرانِ امن (780.0، بازهٔ [120,1440]) ست شود تا آهنگِ کاری صریح و قابلِ‌کنترل شود. اثرِ محدود و برگشت‌پذیر.",
-      "expected_lift": "خود-تنظیمیِ نرم در کرانِ امن (کنترلِ صریحِ آهنگِ کاری)",
-      "rollback": "ورودیِ CHRONO_NUDGE_EVERY_N_BEATS را از state/cortex/auto-knobs.json حذف کن",
-      "sandbox_result": null,
-      "critic_review": null,
-      "status": "submitted",
-      "ledger_ref": "520858a2d257e2a8da4b6504227dae36f9bfcd4e73e4598681b334901e1bd6b5",
-      "rfc_hash": "76d7df19832c10710573b379",
-      "change_level": "tune",
-      "knob": "CHRONO_NUDGE_EVERY_N_BEATS"
-    },
     {
       "rfc_id": "RFC-baffa23c",
       "bottleneck": "ارگانیسم در حالت FREEZE است (حسابداری نامعلوم)",
@@ -23,12 +9,17 @@
       "expected_lift": "رفعِ critical: ارگانیسم در حالت FREEZE است (حسابداری نامعلوم)",
       "rollback": "revert flag",
       "sandbox_result": null,
-      "critic_review": null,
-      "status": "drafted",
+      "critic_review": {
+        "stale_reason": "ارگانیسم دیگر FREEZE نیست (frozen=false در ORGANISM-STATE فعلی)",
+        "stale_marked_ts": "2026-07-25T14:15:50"
+      },
+      "status": "stale-input",
       "ledger_ref": "9866b00eae30282b53e3a410ecac902451e92bd38120ebaee59fe3bd7090f158",
       "rfc_hash": "caa38c60032710098df920f0",
       "change_level": "code",
-      "knob": ""
+      "knob": "",
+      "created_ts": 1784959687.0487342,
+      "evidence_key": ""
     },
     {
       "rfc_id": "RFC-b23935ef",
@@ -56,13 +47,17 @@
         "verdict": "unvalidated",
         "concerns": [],
         "reward_integrity_ok": true,
-        "sandbox_validated": false
+        "sandbox_validated": false,
+        "stale_reason": "شرطِ طیفیِ ورودی دیگر برقرار نیست — spectral_mine روی traceِ فعلی None می‌دهد (گرافِ خطا سالم/خالی است)",
+        "stale_marked_ts": "2026-07-25T16:09:19"
       },
-      "status": "submit-failed",
+      "status": "stale-input",
       "ledger_ref": "fddc030c3d16eb01a86252e663d2858652a3e5b5897fc35c557903f945f75db9",
       "rfc_hash": "8a57a99857e23065258f7a11",
       "change_level": "code",
-      "knob": ""
+      "knob": "",
+      "created_ts": 1784959687.0487378,
+      "evidence_key": ""
     },
     {
       "rfc_id": "RFC-ee25c0b6",
@@ -71,12 +66,17 @@
       "expected_lift": "رفعِ critical: σ≈1 (σ=1.00 = نزدیکِ گذارِ فاز/SOC)؛ شکافِ طیفیِ کوچک (gap=0.000 = شکننده)",
       "rollback": "revert flag",
       "sandbox_result": null,
-      "critic_review": null,
-      "status": "drafted",
+      "critic_review": {
+        "stale_reason": "شرطِ طیفیِ ورودی دیگر برقرار نیست — spectral_mine روی traceِ فعلی None می‌دهد (گرافِ خطا سالم/خالی است)",
+        "stale_marked_ts": "2026-07-25T16:09:19"
+      },
+      "status": "stale-input",
       "ledger_ref": "75a0d903043d33dc5e00587fbf95430a8a228820bce5851aef7dd0ccefcba9c1",
       "rfc_hash": "4abcb61eda4e13d1696dae35",
       "change_level": "code",
-      "knob": ""
+      "knob": "",
+      "created_ts": 1784959687.0487409,
+      "evidence_key": ""
     },
     {
       "rfc_id": "RFC-61f9955d",
@@ -85,12 +85,17 @@
       "expected_lift": "رفعِ critical: σ≈1 (σ=1.00 = نزدیکِ گذارِ فاز/SOC)؛ شکافِ طیفیِ کوچک (gap=0.000 = شکننده)",
       "rollback": "revert flag",
       "sandbox_result": null,
-      "critic_review": null,
-      "status": "drafted",
+      "critic_review": {
+        "stale_reason": "شرطِ طیفیِ ورودی دیگر برقرار نیست — spectral_mine روی traceِ فعلی None می‌دهد (گرافِ خطا سالم/خالی است)",
+        "stale_marked_ts": "2026-07-25T16:09:19"
+      },
+      "status": "stale-input",
       "ledger_ref": "e3c62ea69207413b43a708ba3882930fe2284302fd49bcf7871d4b93f80983b6",
       "rfc_hash": "b0cbf4be891ac5ac452a38bb",
       "change_level": "code",
-      "knob": ""
+      "knob": "",
+      "created_ts": 1784959687.0487437,
+      "evidence_key": ""
     },
     {
       "rfc_id": "RFC-e49f22b2",
@@ -99,12 +104,17 @@
       "expected_lift": "رفعِ critical: σ≈1 (σ=1.00 = نزدیکِ گذارِ فاز/SOC)؛ شکافِ طیفیِ کوچک (gap=0.000 = شکننده)",
       "rollback": "revert flag",
       "sandbox_result": null,
-      "critic_review": null,
-      "status": "drafted",
+      "critic_review": {
+        "stale_reason": "شرطِ طیفیِ ورودی دیگر برقرار نیست — spectral_mine روی traceِ فعلی None می‌دهد (گرافِ خطا سالم/خالی است)",
+        "stale_marked_ts": "2026-07-25T16:09:19"
+      },
+      "status": "stale-input",
       "ledger_ref": "2f564eb982bd57a4bd4db5e6b6bc6c3b5a1690353e0f47387231e8ff4a682ce6",
       "rfc_hash": "9f12950c4273c956535b1034",
       "change_level": "code",
-      "knob": ""
+      "knob": "",
+      "created_ts": 1784959687.0487459,
+      "evidence_key": ""
     },
     {
       "rfc_id": "RFC-75b23b4f",
@@ -132,13 +142,17 @@
         "verdict": "unvalidated",
         "concerns": [],
         "reward_integrity_ok": true,
-        "sandbox_validated": false
+        "sandbox_validated": false,
+        "stale_reason": "شرطِ طیفیِ ورودی دیگر برقرار نیست — spectral_mine روی traceِ فعلی None می‌دهد (گرافِ خطا سالم/خالی است)",
+        "stale_marked_ts": "2026-07-25T16:09:19"
       },
-      "status": "submit-failed",
+      "status": "stale-input",
       "ledger_ref": "1d140b0982a0fb13047364a067b646183b5b6626d0928e397b720f1815c69017",
       "rfc_hash": "f7d118b2764488fbdf199147",
       "change_level": "code",
-      "knob": ""
+      "knob": "",
+      "created_ts": 1784959687.0487487,
+      "evidence_key": ""
     },
     {
       "rfc_id": "RFC-db317258",
@@ -147,12 +161,17 @@
       "expected_lift": "رفعِ critical: σ≈1 (σ=1.00 = نزدیکِ گذارِ فاز/SOC)؛ شکافِ طیفیِ کوچک (gap=0.000 = شکننده)",
       "rollback": "revert flag",
       "sandbox_result": null,
-      "critic_review": null,
-      "status": "drafted",
+      "critic_review": {
+        "stale_reason": "شرطِ طیفیِ ورودی دیگر برقرار نیست — spectral_mine روی traceِ فعلی None می‌دهد (گرافِ خطا سالم/خالی است)",
+        "stale_marked_ts": "2026-07-25T16:09:19"
+      },
+      "status": "stale-input",
       "ledger_ref": "e641c7556bdc3311166c70f4c586eb595832fd51f8b2cc91e42c5dbca68a8f5a",
       "rfc_hash": "f2a0cb17a418d8738e08e0be",
       "change_level": "code",
-      "knob": ""
+      "knob": "",
+      "created_ts": 1784959687.048751,
+      "evidence_key": ""
     },
     {
       "rfc_id": "RFC-0ea87247",
@@ -161,12 +180,17 @@
       "expected_lift": "رفعِ critical: σ≈1 (σ=1.00 = نزدیکِ گذارِ فاز/SOC)؛ شکافِ طیفیِ کوچک (gap=0.000 = شکننده)",
       "rollback": "revert flag",
       "sandbox_result": null,
-      "critic_review": null,
-      "status": "drafted",
+      "critic_review": {
+        "stale_reason": "شرطِ طیفیِ ورودی دیگر برقرار نیست — spectral_mine روی traceِ فعلی None می‌دهد (گرافِ خطا سالم/خالی است)",
+        "stale_marked_ts": "2026-07-25T16:09:19"
+      },
+      "status": "stale-input",
       "ledger_ref": "7ec5027f6e8799ccd9c8b096c986420094ce5377c970723e8e603141fc45f617",
       "rfc_hash": "936dce5871063ac8b0c1cc9a",
       "change_level": "code",
-      "knob": ""
+      "knob": "",
+      "created_ts": 1784959687.0487535,
+      "evidence_key": ""
     },
     {
       "rfc_id": "RFC-617573e1",
@@ -194,13 +218,33 @@
         "verdict": "unvalidated",
         "concerns": [],
         "reward_integrity_ok": true,
-        "sandbox_validated": false
+        "sandbox_validated": false,
+        "stale_reason": "شرطِ طیفیِ ورودی دیگر برقرار نیست — spectral_mine روی traceِ فعلی None می‌دهد (گرافِ خطا سالم/خالی است)",
+        "stale_marked_ts": "2026-07-25T16:09:19"
       },
-      "status": "submitted-no-channel",
+      "status": "stale-input",
       "ledger_ref": "b7fa46b0549cd443808434e259ab70e51868d009ed39d6fb78214a93f215d109",
       "rfc_hash": "ab7db343ecca8dba76e1fbff",
       "change_level": "code",
-      "knob": ""
+      "knob": "",
+      "created_ts": 1784959687.0487554,
+      "evidence_key": ""
+    },
+    {
+      "rfc_id": "RFC-64b0d170",
+      "bottleneck": "knob:CHRONO_NUDGE_EVERY_N_BEATS — بدونِ مقدارِ صریح (unset)",
+      "fix": "knobِ `CHRONO_NUDGE_EVERY_N_BEATS` مقدارِ صریح ندارد. پیشنهاد: به میانهٔ کرانِ امن (780.0، بازهٔ [120,1440]) ست شود تا آهنگِ کاری صریح و قابلِ‌کنترل شود. اثرِ محدود و برگشت‌پذیر.",
+      "expected_lift": "خود-تنظیمیِ نرم در کرانِ امن (کنترلِ صریحِ آهنگِ کاری)",
+      "rollback": "ورودیِ CHRONO_NUDGE_EVERY_N_BEATS را از state/cortex/auto-knobs.json حذف کن",
+      "sandbox_result": null,
+      "critic_review": null,
+      "status": "submitted",
+      "ledger_ref": "4d8084696ab241a9a91fed3160730ff690138688111a742ca7fe78df276f8d71",
+      "rfc_hash": "5dd2c93dee7b3979038a5355",
+      "change_level": "tune",
+      "knob": "CHRONO_NUDGE_EVERY_N_BEATS",
+      "created_ts": 1785675767.473475,
+      "evidence_key": ""
     }
   ]
 }

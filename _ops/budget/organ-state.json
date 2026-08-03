@@ -1,13 +1,13 @@
 {
-  "month": "2026-07",
+  "month": "2026-08",
   "organs": {
     "ARCHITECT_SYS": {
-      "date": "2026-07-25",
+      "date": "2026-08-03",
       "spent_today_musd": 0,
-      "spent_month_musd": 21295
+      "spent_month_musd": 0
     },
     "DEBATE_LOOP": {
-      "date": "2026-07-25",
+      "date": "2026-08-03",
       "spent_today_musd": 0,
       "spent_month_musd": 0
     }

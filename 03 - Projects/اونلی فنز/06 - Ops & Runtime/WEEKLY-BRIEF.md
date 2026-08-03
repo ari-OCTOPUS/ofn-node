@@ -16,7 +16,7 @@ created_by: agent
 
 **🚦 گیت‌ها:** GATE 0 **باز** (خط اقامت پارتنر خالی) · Security Gate: تناقضِ سندی → verdict ‏PF-SECGATE-V1 · ⚠️ merge شاخهٔ stage-5 پشتِ `index.lock` قدیمی (07-12) در `.git` — پاک‌کردن دستِ مالک.
 
-**🗳 verdictهای باز:** بستهٔ ۱۹تاییِ تصمیم ([[03 - Projects/اونلی فنز/00 - Control/MASTER-SCHEDULE-2026-07-14|MASTER-SCHEDULE §۱]] — روی شاخه تا merge) — شامل G0، ‏۱۱ ردیفِ THREAD-CLOSURE، ‏PF-STRUCT-V2، ‏PF-STATE-RESET-V1، ‏PF-CODE-REFACTOR-V1، ‏PF-LEARN-WIRE-V1، ‏PF-SECGATE-V1، ‏D1، ‏merge. یادآورِ یک‌بارهٔ فردا صبح (07-15 ‏۰۹:۰۰) چک‌لیست را می‌آورد.
+**🗳 verdictهای باز:** بستهٔ ۱۹تاییِ تصمیم (`MASTER-SCHEDULE §۱` — روی شاخه تا merge) — شامل G0، ‏۱۱ ردیفِ THREAD-CLOSURE، ‏PF-STRUCT-V2، ‏PF-STATE-RESET-V1، ‏PF-CODE-REFACTOR-V1، ‏PF-LEARN-WIRE-V1، ‏PF-SECGATE-V1، ‏D1، ‏merge. یادآورِ یک‌بارهٔ فردا صبح (07-15 ‏۰۹:۰۰) چک‌لیست را می‌آورد.
 
 **📋 این هفته:** تو = بستهٔ تصمیم (~۹۰ دقیقه) + پاکِ `index.lock` · C = (پس از G0) پاسخ اقامت + توافق §۴.۱ · ایجنت = روتین‌های زمان‌بندی‌شده (سایهٔ لنگر روزانه، چهارشنبه chores، جمعه KPI).
 

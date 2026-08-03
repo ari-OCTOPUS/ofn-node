@@ -12,6 +12,12 @@ set "PROJECT_DIR=F:\backup\03 - Projects\اونلی فنز"
 set "LANGAR_DIR=%PROJECT_DIR%\langar"
 set "PYTHON=python"
 
+REM 2026-07-25 (فاز ۱ یکپارچه‌سازی): فعال‌سازیِ ستونِ فقرات + مغزِ غنی‌شده.
+REM هر دو پیش‌فرض خاموش بودند. با این خطوط، langar_bot هنگامِ اجرا این‌ها را
+REM می‌بیند. اگر خواستی برگردانی: این دو خط را به =0 تغییر بده یا پاک کن.
+set "OCTOPUS_WIRE_PROJECTF_SPINE=1"
+set "OCTOPUS_WIRE_PROJECTF_CORTEX=1"
+
 cd /d "%LANGAR_DIR%"
 
 :LOOP

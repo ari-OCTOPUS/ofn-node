@@ -1,29 +1,29 @@
 {
-  "ts": "2026-07-25T13:34:24",
-  "beat": 11994,
-  "version": 9,
-  "source": "heuristic",
-  "snapshot_hash": "4ff93b462ea65c11",
-  "stable_cycles": 0,
+  "ts": "2026-08-03T17:56:10",
+  "beat": 23789,
+  "version": 111,
+  "source": "cached:no-change",
+  "snapshot_hash": "3e65b3d3375df5d9",
+  "stable_cycles": 2,
   "llm_calls": 0,
   "deep_dive_ran": false,
-  "focus": "درآمد صفر",
+  "focus": "خطای پرتکرار failed ×4",
   "understanding": {
-    "anatomy": "1 لِگ، 31 سیمِ روشن",
-    "physiology": "درآمد>۰",
+    "anatomy": "10 لِگ، 32 سیمِ روشن",
+    "physiology": "درآمد صفر، propose-only · خرجِ خودم 0 micro-USD",
     "pathology": [
       {
-        "symptom": "درآمد صفر",
-        "root_cause": "هیچ لِگی به سیگنالِ واقعی وصل نیست",
-        "severity": "high"
+        "symptom": "خطای پرتکرار failed ×4",
+        "root_cause": "نامعلوم (نیاز به کاوش)",
+        "severity": "medium"
       },
       {
-        "symptom": "ترس روی ['legs', 'doctor']",
-        "root_cause": "لِگ‌های مرده → استرس=۱ → خود-تغییری منجمد",
-        "severity": "high"
+        "symptom": "خطای پرتکرار ValueError ×1",
+        "root_cause": "نامعلوم (نیاز به کاوش)",
+        "severity": "medium"
       },
       {
-        "symptom": "خطای پرتکرار ValueError ×16",
+        "symptom": "خطای پرتکرار URLError ×1",
         "root_cause": "نامعلوم (نیاز به کاوش)",
         "severity": "medium"
       }
@@ -39,25 +39,28 @@
     "open_questions": [
       "چرا خطاهای پرتکرار رخ می‌دهند؟"
     ],
-    "focus": "درآمد صفر",
+    "focus": "خطای پرتکرار failed ×4",
     "confidence": 0.4
   },
   "deep_dive": {},
   "trajectory": {
     "focus_stable": false,
-    "prev_focus": "فعال کردن لگ‌های مرده و افزایش درآمد",
-    "confidence_delta": 0.0,
+    "prev_focus": "شکستنِ گلوگاهِ گزارش‌دهیِ درآمدِ لِگِ lead (Revenue) و واقعی‌کردنِ درآمدِ نقاشی",
+    "confidence_delta": -0.55,
     "converging": false
   },
   "snapshot_digest": {
-    "legs_alive": [],
-    "in_fear": [
-      "legs",
-      "doctor"
+    "legs_alive": [
+      "lead",
+      "ziman",
+      "system"
     ],
-    "money_musd": 21295,
+    "in_fear": [],
+    "money_musd": 0,
     "recent_errors": {
-      "ValueError": 16
+      "failed": 4,
+      "ValueError": 1,
+      "URLError": 1
     }
   }
 }

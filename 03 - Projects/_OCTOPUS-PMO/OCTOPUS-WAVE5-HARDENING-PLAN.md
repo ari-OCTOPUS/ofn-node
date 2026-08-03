@@ -207,7 +207,7 @@ Wave 5 is complete when:
 
 ## Related
 
-- [[Wave-4 · Full Channel Fleet]] — what Wave 5 hardens
+- [[Wave-4|Wave-4 · Full Channel Fleet]] — what Wave 5 hardens
 - [[OCTOPUS-CHANNEL-REGISTRY]] — channels being hardened
 - [[OCTOPUS-EXTRACTOR-REGISTRY]] — extractors being documented
 - [[OCTOPUS-KNOWN-RISKS]] — detailed risk register

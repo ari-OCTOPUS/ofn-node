@@ -1,14 +1,16 @@
 {
-  "ts": "2026-07-25T13:43:27",
-  "cycle": 17,
-  "coherence": 0.92,
-  "stale_members": [],
+  "ts": "2026-08-03T18:03:23",
+  "cycle": 72,
+  "coherence": 0.94,
+  "stale_members": [
+    "reconcile"
+  ],
   "members": [
     {
       "id": "organism",
       "present": true,
-      "awareness": 0.86,
-      "age_s": 504,
+      "awareness": 0.963,
+      "age_s": 134,
       "sla_s": 1800,
       "note": "تازه",
       "source": "file-freshness",
@@ -17,8 +19,8 @@
     {
       "id": "heart",
       "present": true,
-      "awareness": 0.93,
-      "age_s": 506,
+      "awareness": 0.999,
+      "age_s": 6,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -27,8 +29,8 @@
     {
       "id": "producers",
       "present": true,
-      "awareness": 0.93,
-      "age_s": 506,
+      "awareness": 0.999,
+      "age_s": 6,
       "sla_s": 3600,
       "note": "تازه",
       "source": "file-freshness",
@@ -37,8 +39,8 @@
     {
       "id": "work_pump",
       "present": true,
-      "awareness": 0.919,
-      "age_s": 1170,
+      "awareness": 0.973,
+      "age_s": 383,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -47,8 +49,8 @@
     {
       "id": "doctor_setpoint",
       "present": true,
-      "awareness": 0.903,
-      "age_s": 33411,
+      "awareness": 0.997,
+      "age_s": 895,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -57,8 +59,8 @@
     {
       "id": "governor",
       "present": true,
-      "awareness": 0.956,
-      "age_s": 630,
+      "awareness": 0.994,
+      "age_s": 90,
       "sla_s": 7200,
       "note": "تازه",
       "source": "file-freshness",
@@ -67,8 +69,8 @@
     {
       "id": "sigma",
       "present": true,
-      "awareness": 0.972,
-      "age_s": 9740,
+      "awareness": 0.997,
+      "age_s": 895,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -77,8 +79,8 @@
     {
       "id": "fitness",
       "present": true,
-      "awareness": 0.972,
-      "age_s": 9740,
+      "awareness": 0.997,
+      "age_s": 895,
       "sla_s": 172800,
       "note": "تازه",
       "source": "file-freshness",
@@ -87,8 +89,8 @@
     {
       "id": "school",
       "present": true,
-      "awareness": 1.0,
-      "age_s": 16,
+      "awareness": 0.998,
+      "age_s": 895,
       "sla_s": 259200,
       "note": "تازه",
       "source": "file-freshness",
@@ -97,10 +99,10 @@
     {
       "id": "reconcile",
       "present": true,
-      "awareness": 0.664,
-      "age_s": 174020,
+      "awareness": 0.0,
+      "age_s": 967224,
       "sla_s": 259200,
-      "note": "تازه",
+      "note": "کهنه (268h)",
       "source": "file-freshness",
       "watches": "reconcile-latest.json"
     }
@@ -111,8 +113,8 @@
     "reason": "هم‌راستا بود"
   },
   "rhythm": {
-    "period_s": 600.0,
-    "source": "×۲ قلبِ سایه (900.0s)"
+    "period_s": 120.0,
+    "source": "×۲ قلبِ سایه (60.0s)"
   },
   "brains": {
     "keys": {
@@ -123,19 +125,16 @@
     "paid_gate": "open (owner research-early override — سپرِ تاریخ دور زده شد)",
     "local_model": "qwen2.5:latest"
   },
-  "thought": "[local] اندیشیدن به توسعهٔ محتوا و تعاملات بین اعضای تیم است.",
+  "thought": "[local] البته، مهم‌ترین کارِ مجموعه حالا ترکیب‌وپایش روابط بین اعضای 10 نفره است.",
   "stress": {
-    "level": "🔴 ترس",
-    "organism_stress": 1.0,
-    "in_fear": [
-      "legs",
-      "doctor"
-    ]
+    "level": "🟢 آرام",
+    "organism_stress": 0.27,
+    "in_fear": []
   },
   "innervation": {
     "coverage_pct": 100.0,
     "dead_spots": [],
-    "heart_period_s": 900.0
+    "heart_period_s": 60.0
   },
   "schema": "cortex-state.v1"
 }

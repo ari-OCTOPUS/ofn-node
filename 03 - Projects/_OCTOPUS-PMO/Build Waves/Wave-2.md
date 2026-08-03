@@ -126,6 +126,6 @@ python extract_queue_data.py      ← new
 
 ## Related
 
-- [[Wave-1 · Nervous System Foundation]] — previous wave
+- [[Wave-1|Wave-1 · Nervous System Foundation]] — previous wave
 - [[Dataflow]] — full pipeline
 - [[CH-04]] · [[CH-07]] · [[CH-10]] · [[CH-11]] · [[CH-14]] · [[CH-16]] · [[CH-17]] — individual channels

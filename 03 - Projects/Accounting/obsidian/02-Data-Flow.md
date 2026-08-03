@@ -32,7 +32,7 @@ flowchart TD
 ```
 
 ## جریان پول cross-project (اتصال به Octopus)
-منبع: [[../docs/Ecosystem-Rollout-Plan|Ecosystem-Rollout-Plan §2]] + [[../contracts/adapter|adapter.yaml]].
+منبع: [[../docs/Ecosystem-Rollout-Plan|Ecosystem-Rollout-Plan §2]] + [[../contracts/adapter.yaml|adapter.yaml]].
 
 | پروژه | رویداد trigger | ثبت در دفتر Accounting |
 |---|---|---|

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""saba_link.py — پلِ مستقیمِ من (pf_os) ↔ صبا.
+"""saba_link.py — پلِ مستقیمِ من (pf_os) ↔ creator.
 
 سه جهتِ ارتباطی، همه از طریقِ فایل (طبقِ الگوی file-based pub/sub پروژه):
 
-  1. من ← صبا (INITIATIVE): نوشتنِ brief/نوتیف به studio/for_saba.json.
-     صبا در saba_studio::inbox_page این فایل را می‌خواند و در /inbox نشان می‌دهد.
-     این یعنی من می‌توانم به صبا پیام بفرستم — نه فقط از ارمین رد بشه.
+  1. من ← creator (INITIATIVE): نوشتنِ brief/نوتیف به studio/for_saba.json.
+     creator در saba_studio::inbox_page این فایل را می‌خواند و در /inbox نشان می‌دهد.
+     این یعنی من می‌توانم به creator پیام بفرستم — نه فقط از operator رد بشه.
 
-  2. صبا ← من (DRAFT): خواندنِ studio/drafts.json. وقتی صبا draft ثبت می‌کند،
+  2. creator ← من (DRAFT): خواندنِ studio/drafts.json. وقتی creator draft ثبت می‌کند،
      من آن را می‌بینم و می‌توانم پیشنهادِ قیمت/زمان/ترند بدهم (propose-only).
 
   3. نوتیفِ خودکار: send_notify() برای رویدادهای مهم (halt، warmup، capacity).
@@ -157,7 +157,7 @@ def saba_capacity() -> dict:
 
 
 def inbox_for_saba() -> list[dict]:
-    """پیام‌های موجود در for_saba.json (از همه: من + ارمین)."""
+    """پیام‌های موجود در for_saba.json (از همه: من + operator)."""
     data = _load(_for_saba_path(), [])
     return data if isinstance(data, list) else []
 

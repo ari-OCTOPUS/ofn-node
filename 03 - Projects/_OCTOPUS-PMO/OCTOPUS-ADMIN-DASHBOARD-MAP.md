@@ -307,4 +307,4 @@ updated: 2026-07-13
 - [[OCTOPUS-CHANNEL-REGISTRY]] — channels feeding these panels
 - [[OCTOPUS-EXTRACTOR-REGISTRY]] — extractors producing the data
 - [[OCTOPUS-WAVE5-HARDENING-PLAN]] — panel hardening objectives
-- [[Wave-4 · Full Channel Fleet]] — when these panels were built
+- [[Wave-4|Wave-4 · Full Channel Fleet]] — when these panels were built

@@ -177,3 +177,25 @@
 ## ۵. اگر فقط یکی را انتخاب کنم
 
 **`deep_dive.smallest_fix` به دایجست.** دو خط. چون بعد از بستنِ دروغِ درآمد، این دقیق‌ترین جمله‌ای است که سیستم تولید می‌کند و تنها چیزی که بینِ «تشخیص» و «نسخه» ایستاده. تا وقتی نرسد، اختاپوس هر روز درست تشخیص می‌دهد و هیچ‌کس نمی‌شنود.
+
+---
+
+## ۶. الحاق ۲۰۲۶-۰۷-۲۸ — Control Plane 2030 (additive)
+
+گزارش و handoff: `_agent_reports/OCTOPUS-2030-ARCHITECTURE-IMPLEMENTATION-2026-07-28.md`.
+
+```text
+mission identity → scoped context → action proposal → exact authorization
+→ sandbox/execution gateway → outcome/receipt → scoped memory/workflow
+```
+
+| concern | canonical | وضعیت |
+|---|---|---|
+| typed proposal/approval + exact hash | `_ops/control_contracts.py` | pure/inert؛ wiring زنده باز |
+| specialist context/handoff | `_ops/context_bundle.py` | pure؛ mission_runner artifact می‌نویسد |
+| mission scope identity | `_ops/mission_contract.py` + `telegram_center/mission.py` | additive |
+| scoped canonical memory | `_ops/memory/memory_store.py` v3 + `memory/gate.py` | SQLite SoT؛ FTS derived |
+| regression | `_ops/tests/test_control_contracts_v2.py` | در run_all؛ runtime verify باز |
+
+این الحاق ادعای AGI/هوشیاری نمی‌کند؛ هدف، agency و self-model قابل‌اندازه‌گیری،
+context discipline، و self-build سریع‌تر با verifier و human sovereignty است.

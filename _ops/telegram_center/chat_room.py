@@ -164,6 +164,96 @@ ROOM_ALIAS: dict[str, tuple] = {
 }
 
 
+# ─── `/lead` یک نام است و دو معنی ──────────────────────────────────────────
+#
+# اندازه‌گیریِ ۲۰۲۶-۰۸-۰۱ — دو روتر، دو گرامر، یک نام:
+#
+#   باتِ بیرونی  · center.py:2634 → quote_cmd.quote
+#       /lead <شرحِ کار> | <متراژ m²> | <interior|exterior> | <آماده‌سازی> | <بخش>
+#   باتِ درونی   · approval_channel.py:1776 → attribution.propose / LeadLeg.intake
+#       /lead <نامِ لید> | <ارزشِ تخمینی AUD> | <پا: lead.doer|ziman.doer|crypto.doer>
+#
+# هر دو زنده‌اند، هر دو مالِ خودِ مالک‌اند، و **هیچ‌کدام دیگری را نمی‌شناسد**.
+# فیلدِ دوم در یکی متر است و در دیگری دلار. مثالِ خودِ راهنمای باتِ درونی —
+# `/lead بازسازی آشپزخانه | 5000 | lead.doer` — اگر در گروه تایپ شود، پارسرِ
+# کوت آن را **کوتِ ۵۰۰۰ متری** می‌خواند: بدونِ خطا، بدونِ هشدار، با یک عدد که
+# ۴۰ برابرِ یک خانه است. این بدترین شکلِ باگ است — جوابِ غلط که شبیهِ درست است.
+#
+# این ماژول همان کاری را می‌کند که برای پیامِ مبهمِ فارسی می‌کند: **می‌پرسد**.
+# نه فرمانِ تازه، نه گرامرِ تازه، نه ادغامِ دو روتر (که مالکِ approval_channel
+# نیستیم). فقط تشخیصِ شکل + کارتی که هر دو معنی را نام می‌برد.
+#
+# مرزِ عمدی: فقط شکلِ **قطعیِ** گرامرِ ثبت را می‌گیرد (۳ فیلد، فیلدِ دوم عدد،
+# فیلدِ سوم یک پای شناخته‌شده). دو-فیلدی («فقط دوتای اول لازم است» — راهنمای
+# کوت) دست‌نخورده می‌ماند، چون آن‌جا ابهام واقعی نیست: مسیرِ اعلام‌شدهٔ کوت است.
+LEAD_FLAG = "OCTOPUS_LEAD_DISAMBIGUATE"
+
+# پاهای گرامرِ ثبت — هم‌سان با approval_channel.LEAD_CELLS و panel/server.py.
+LEAD_REGISTER_CELLS = ("lead.doer", "ziman.doer", "crypto.doer")
+# فیلدِ سومِ گرامرِ کوت — هم‌سان با quote_cmd (`area_type`).
+LEAD_QUOTE_AREAS = ("interior", "exterior", "داخلی", "بیرونی")
+
+_LEAD_DIGITS = str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789")
+
+
+def lead_disambiguation_enabled() -> bool:
+    return str(os.environ.get(LEAD_FLAG, "") or "").strip().lower() in (
+        "1", "true", "yes", "on")
+
+
+def _lead_parts(text: str) -> list:
+    body = str(text or "").strip()
+    for pre in ("/lead", "/کوت", "/quote"):
+        if body.startswith(pre):
+            body = body[len(pre):]
+            break
+    return [p.strip() for p in body.strip().split("|")] if body.strip() else []
+
+
+def lead_intent(text: str) -> dict:
+    """`/lead …` کدام معنی؟ {intent, why, parts}
+
+    intent ∈ {"register", "quote", "unknown"}:
+      · register — گرامرِ باتِ درونی؛ اگر به پارسرِ کوت برسد عدد را متر می‌خواند.
+      · quote    — فیلدِ سوم یک `area_type` است؛ ابهامی نیست.
+      · unknown  — هیچ ادعایی. صداکننده باید رفتارِ امروز را ادامه دهد.
+    """
+    parts = _lead_parts(text)
+    if len(parts) < 3:
+        return {"intent": "unknown", "why": "too-few-fields", "parts": len(parts)}
+    third = _norm(parts[2])
+    if third in [_norm(a) for a in LEAD_QUOTE_AREAS]:
+        return {"intent": "quote", "why": "area-type", "parts": len(parts)}
+    if len(parts) != 3 or third not in LEAD_REGISTER_CELLS:
+        return {"intent": "unknown", "why": "no-cell", "parts": len(parts)}
+    num = parts[1].translate(_LEAD_DIGITS).replace(",", "")
+    try:
+        float(num)
+    except ValueError:
+        return {"intent": "unknown", "why": "second-not-number", "parts": len(parts)}
+    return {"intent": "register", "why": "cell+number", "parts": len(parts)}
+
+
+def lead_ask(info: dict | None = None) -> str:
+    """کارتِ ابهامِ `/lead` — هر دو معنی را نام می‌برد، هیچ‌کدام را انتخاب نمی‌کند."""
+    return ("🤔 <b>«/lead» دو معنی دارد و این یکی شکلِ «ثبتِ لید» است</b>\n"
+            "این پیام در باتِ <b>کوت</b> افتاده و فیلدِ دوم این‌جا <b>متراژ</b> "
+            "خوانده می‌شود، نه AUD.\n\n"
+            "▸ <b>کوتِ نقاشی</b> (همین بات):\n"
+            "  <code>/lead شرحِ کار | متراژ | interior | standard | residential</code>\n"
+            "▸ <b>ثبتِ فرصت</b> (باتِ تأیید — همان‌جا بفرست):\n"
+            "  <code>/lead نام | ارزش AUD | lead.doer</code>\n\n"
+            "<i>چیزی ثبت نشد. عددِ ۵۰۰۰ به‌عنوانِ ۵۰۰۰ متر یک کوتِ بی‌معنی "
+            "می‌سازد که شبیهِ کوتِ درست است — پس پرسیدن مقدم است.</i>")
+
+
+def lead_guard(text: str) -> "str | None":
+    """تنها نقطهٔ تماسِ مرکز. `None` = دست نزدم (رفتارِ امروز، بایت‌به‌بایت)."""
+    if not lead_disambiguation_enabled():
+        return None
+    return lead_ask(None) if lead_intent(text).get("intent") == "register" else None
+
+
 def enabled() -> bool:
     return str(os.environ.get(FLAG, "") or "").strip().lower() in (
         "1", "true", "yes", "on")

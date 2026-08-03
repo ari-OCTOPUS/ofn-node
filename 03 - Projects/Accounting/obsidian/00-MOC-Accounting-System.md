@@ -28,7 +28,7 @@ updated: 2026-07-13
 - [[../MANIFEST|MANIFEST.yaml]] — قرارداد ماشین‌خوان اتصال به مغز مرکزی
 - [[../RUNBOOK|RUNBOOK.md]] · [[../REGISTRY|REGISTRY.md]] · [[../VERDICT_QUEUE|VERDICT_QUEUE.md]]
 - [[../DecisionLog|DecisionLog.md]] · [[../OpenQuestions|OpenQuestions.md]] · [[../INDEX|INDEX.md]]
-- [[../contracts/adapter|contracts/adapter.yaml]] — ★ درزِ Octopus
+- [[../contracts/adapter.yaml|contracts/adapter.yaml]] — ★ درزِ Octopus
 
 ## قواعد قفل‌شده (immutable بدون verdict + حسابدار)
 1. هیچ ایجنت **مشاورهٔ مالیاتی** نمی‌دهد — همه `[Unverified — accountant to confirm]`.

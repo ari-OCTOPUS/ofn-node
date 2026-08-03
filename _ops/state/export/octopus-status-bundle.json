@@ -3,33 +3,268 @@
   "generator": "export_status.py v1 (read-only)",
   "bundle_version": 1,
   "note": "بستهٔ وضعیت اکتاپوس برای کابین بازرسی — هیچ secret؛ پروفایل خصوصی مالک عمداً غایب",
-  "generated_at": "2026-07-10T11:30:53"
+  "generated_at": "2026-07-28T19:49:54"
  },
  "organism_state": {
-  "ts": "2026-07-10T11:28:46",
-  "started": "2026-07-08T15:07:05",
+  "ts": "2026-07-28T19:49:10",
+  "started": "2026-07-28T19:22:06",
   "epoch_mode": "allostatic — تابع فشار (نه clock)",
   "halted": null,
   "frozen": false,
   "stop_organism": false,
   "month": {
    "key": "2026-07",
-   "musd": 0,
-   "usd": 0.0,
-   "aud": 0.0
+   "musd": 21295,
+   "usd": 0.021295,
+   "aud": 0.031942
   },
   "today": {
    "musd": 0,
    "usd": 0.0
   },
+  "beat": 16291,
   "suspect_zero_total": 0,
   "conflicts": [],
-  "germline_lag_h": 0.64
+  "germline_lag_h": 0.96,
+  "germline_alert": "ok",
+  "chrono": {
+   "beat": 16291,
+   "hlc": [
+    1785232141512,
+    0
+   ],
+   "legs": {
+    "lead-naghshi": "alive"
+   },
+   "legs_diag": {
+    "lead-naghshi": {
+     "state": "alive",
+     "phi": 0.33,
+     "phi_dead": 16.0,
+     "ack_samples": 20,
+     "silence_ms": 45258,
+     "mean_gap_ms": 43500,
+     "honest_tolerance": true
+    }
+   },
+   "metabolic_age": 16292.0,
+   "age_tick": 6,
+   "effects_pending": 0
+  },
+  "arbiter": {
+   "effective_period_s": 65.79,
+   "driver": "consensus",
+   "color": "GREEN",
+   "n_present": 3,
+   "n_braking": 0,
+   "wire_open": false
+  },
+  "protective_skip": false,
+  "wiring": {
+   "wire_doctor": true,
+   "wire_telegram": true,
+   "wire_unified": true,
+   "wire_lead": true,
+   "wire_neural": true,
+   "wire_school": true,
+   "wire_consolidation": true,
+   "wire_live_loop": true,
+   "wire_evolution": true,
+   "wire_box": true,
+   "wire_leg_tick": true,
+   "paid_governor_router": true,
+   "paid_heart_doctor_router": true,
+   "paid_doctor_selfknow": true,
+   "arm_gate_enforcing": false,
+   "wire_actuator": false,
+   "wire_ideas": true,
+   "wire_spectral": true,
+   "wire_rhythm": true,
+   "wire_circadian": true,
+   "wire_sprint": true,
+   "wire_barbell": false,
+   "wire_debate": true,
+   "wire_scheduler": true,
+   "wire_reconcile": false,
+   "wire_fitness": false,
+   "wire_epistemics": true,
+   "wire_bcm": true,
+   "wire_sparse": true,
+   "wire_chamber_t": false,
+   "wire_heart": true,
+   "wire_heart_work": true,
+   "wire_bio": true,
+   "wire_pulse": true,
+   "wire_selfheal": true,
+   "wire_pocketsmith": false,
+   "wire_web_research": true,
+   "wire_ziman": true,
+   "wire_cartographer": true,
+   "wire_fisher": true,
+   "wire_mining": true,
+   "wire_email": false,
+   "wire_ingest": false,
+   "wire_harvest": false,
+   "wire_lead_verdict_effect": false,
+   "profile": "paper-full",
+   "doctor_every_n": 1440,
+   "consolidation_every_n": 720,
+   "afferent_every_n": 1440
+  },
+  "leg": {
+   "leg_id": "lead-naghshi",
+   "hlc": [
+    1785232149635,
+    0
+   ],
+   "events_this_beat": 1,
+   "last_beat_seen": 16291,
+   "money_link": "active",
+   "proposals_emitted": 0,
+   "propose_only": true
+  },
+  "cartographer": {
+   "leg_id": "vault-cartographer",
+   "organ": "CARTOGRAPHER",
+   "money_link": "incubating",
+   "autonomy_floor": "read-only",
+   "read_only": true,
+   "proposals_total": 0,
+   "propose_only": true,
+   "outward_execution": false,
+   "beat": 16291,
+   "map_updated": "2026-07-16",
+   "map_age_days": 12,
+   "map_stale": false,
+   "drift_files": 536,
+   "refresh_recommended": true,
+   "mood": "🔴"
+  },
+  "business_legs": {
+   "business_legs": {
+    "lead": {
+     "leg": "lead",
+     "live": true,
+     "money_link": "active",
+     "confirmed_revenue_aud": null,
+     "note": "حساب‌کتاب با رأیِ مالک پارک است — درآمد None است نه صفر.",
+     "identity": {
+      "abn_valid": true,
+      "gst_registered": true,
+      "has_bank_details": false
+     },
+     "inbox": {
+      "exists": true,
+      "pending": 0,
+      "processed": 0,
+      "rejected": 0,
+      "frozen_LD": 0
+     },
+     "artifacts": {
+      "quotes": 2,
+      "invoices": 2
+     },
+     "signal": "هویتِ فاکتور ✅ · صندوق: 0 در انتظار · کوت/فاکتور روی دیسک: 2/2 · ⚠️ bank_details خالی → فاکتور قابلِ پرداخت نیست"
+    },
+    "mining": {
+     "leg": "mining",
+     "live": false,
+     "signal": "skeleton",
+     "age_days": 22.5,
+     "note": "skeleton — اسنادِ پروژه هست ولی afferent/scorer سیم‌کشی نشده. منبعِ دادهٔ واقعیِ بعدی: «02 - Code/Ai bots/coordinator/data/decisions.jsonl» (سن ≈ 23 روز — راکد؛ تا جریانِ تازه، scorerِ زنده جعل نمی‌شود). نیازمندِ business-spec از مالک (هش‌ریت/برق/سود)."
+    },
+    "crypto": {
+     "leg": "crypto",
+     "live": false,
+     "signal": "assets=21 completeness=11% errors=0",
+     "age_days": 43.1,
+     "note": "10 snapshot؛ آخرین analysis: cryptoquant_analysis_2026-06-15-16-38-35.json (بی‌PII، فقط‌خواندنی، صفر ترید). دادهٔ کهنه (>7 روز) → live=False؛ pipeline (ingest_raw) باید دوباره داده بیاورد."
+    },
+    "accounting": {
+     "leg": "accounting",
+     "live": false,
+     "signal": "workbooks=6",
+     "age_days": 609.0,
+     "note": "منبعِ مالی موجود — فقط تعداد/mtimeِ workbook دیده شد؛ صفر مقدار/نام/عدد خوانده شد (خط‌قرمزِ PII، فقط‌خواندنی). workbookها >35 روز دست‌نخورده‌اند → live=False (داده جریان ندارد)."
+    },
+    "knowledge": {
+     "leg": "knowledge",
+     "live": false,
+     "signal": "skeleton",
+     "age_days": 0.5,
+     "note": "skeleton — نوت‌های دانشِ انسانی هست ولی afferent/بیزنسی سیم‌کشی نشده. منبعِ دادهٔ واقعیِ بعدی: پایپ‌لاینِ afferent روی نوت‌های «07 - Knowledge» (تازه‌ترین نوت ≈ 1 روز پیش). نیازمندِ business-spec از مالک (این پا چه سیگنالی بدهد؟)."
+    }
+   },
+   "beat": 16291
+  },
+  "proposal_router": {
+   "seen_total": 0,
+   "new": 0,
+   "delivered": 0,
+   "sent": 0,
+   "proposals": []
+  },
+  "proposal_metrics": {
+   "proposals_delivered": 0,
+   "proposal_outcomes": 0,
+   "proposals_sent": 0,
+   "proposals_fake_delivered": 0,
+   "proposal_positive": 0,
+   "proposal_accept_rate": 0.0,
+   "proposal_value_aud": 0
+  },
+  "brain_core": {
+   "mode": "HARNESS",
+   "flag_on": false,
+   "beat": null,
+   "degraded": false,
+   "parity": {
+    "status": "HARNESS",
+    "counters": {
+     "compared": 0,
+     "matched": 0,
+     "mismatched": 0,
+     "missing_old": 0,
+     "missing_new": 0,
+     "critical_mismatched": 0
+    },
+    "started_at": null,
+    "last_sample_at": null,
+    "continuous_elapsed_s": 0.0,
+    "soak_min_hours": 24.0,
+    "restart_gaps": 0,
+    "per_organ_samples": {},
+    "required_comparators": [
+     "health-contract-v1"
+    ],
+    "soak_fingerprint": "b4f982a367a60c21204aa801add782cf9d95603f31807fbdc7b45526bcf2d9ae",
+    "schema": "health-contract.v1:afferent_ratio>=0.5&&!protective_halt"
+   }
+  },
+  "cardiac": {
+   "enabled": true,
+   "bio_rhythm": {
+    "period_s": 42.42640687119285,
+    "mass": 1.0,
+    "pace": "mice",
+    "reason": "جرمِ کم (m=1.0) → ضربانِ تند و سبک (آزمایش)"
+   },
+   "budget": {
+    "enabled": true,
+    "date": "2026-07-28",
+    "spent": 1483,
+    "resting": 0,
+    "daily_cap": 2000,
+    "remaining": 517,
+    "depleted": false
+   },
+   "baroreflex_factor": 1.0
+  }
  },
  "fitness": {
-  "ts": "2026-07-10T00:03:38",
+  "ts": "2026-07-28T19:22:57",
   "authoritative": false,
-  "experience_span_days": 0,
+  "experience_span_days": 11,
   "authoritative_note": "قفل verdict جلسه ۱۶: تا ~۴ هفته دادهٔ ledger فقط سایه",
   "acceptance_source": "logs/outbox.jsonl ⟂ core.db/outbox (فقط بعد از کلیک انسان)",
   "integrity_alerts": [],
@@ -50,7 +285,7 @@
   }
  },
  "replication": {
-  "ts": "2026-07-10T00:03:38",
+  "ts": "2026-07-28T19:22:57",
   "config": {
    "max_cells": 6,
    "spawn_depth": 1,
@@ -70,8 +305,8 @@
   "fitness_authoritative": false,
   "eligible_cells": [],
   "live_gate": {
-   "open": false,
-   "why": "live locked until 2026-07-21 (phase -1 shield)"
+   "open": true,
+   "why": "open"
   },
   "proposals_written": [],
   "would_propose": [],
@@ -79,15 +314,16 @@
   "note": "این ماژول هرگز spawn اجرا نمی‌کند؛ فقط PROPOSAL human-gated (تو propose، انسان dispose)"
  },
  "telemetry": {
-  "ts": "2026-07-10T11:28:46",
+  "ts": "2026-07-28T19:49:09",
   "unit": "micro-USD (int)",
   "fx_aud_per_usd": {
    "rate": 1.5,
-   "tag": "EST(default=budget_gate.AUD)"
+   "tag": "FACT(budgets.yaml)"
   },
   "sources": {
    "genome_ledger": "F:\\backup\\07 - Knowledge\\genome-system\\ledger\\ledger.jsonl",
-   "brain_core_db": "F:\\backup\\_launchpad\\second-brain-live\\control-brain\\core.db"
+   "brain_core_db": "F:\\backup\\_launchpad\\second-brain-live\\control-brain\\core.db",
+   "organ_gate": "F:\\backup\\_ops\\budget\\organ-state.json"
   },
   "genome": {
    "events": 0,
@@ -99,15 +335,21 @@
    "cost_musd": 0,
    "suspect_zero": 0
   },
+  "organ_gate": {
+   "month_musd": 21295,
+   "today_musd": 0,
+   "live": true
+  },
   "per_organ_alltime_musd": {
-   "GENOME_SYS": 0
+   "GENOME_SYS": 0,
+   "ARCHITECT_SYS": 21295
   },
   "unmapped_musd": {},
   "month": {
    "key": "2026-07",
-   "musd": 0,
-   "usd": 0.0,
-   "aud": 0.0
+   "musd": 21295,
+   "usd": 0.021295,
+   "aud": 0.031942
   },
   "today": {
    "musd": 0,
@@ -117,17 +359,109 @@
  },
  "school_awareness": {
   "awareness": {
-   "C01": 0.06,
-   "C02": 0.88,
-   "C03": 0.06,
-   "E01": 0.06,
-   "E02": 0.88,
-   "E03": 0.06
+   "A01": 0.5064,
+   "A02": 0.4263,
+   "A03": 0.3563,
+   "A04": 0.2971,
+   "A05": 0.2492,
+   "A06": 0.2132,
+   "A07": 0.1892,
+   "A08": 0.1772,
+   "B01": 0.6133,
+   "B02": 0.5272,
+   "B03": 0.4502,
+   "B04": 0.384,
+   "B05": 0.3296,
+   "B06": 0.288,
+   "B07": 0.26,
+   "B08": 0.2459,
+   "C01": 0.8325,
+   "C02": 0.9899,
+   "C03": 0.9968,
+   "C04": 0.9468,
+   "C05": 0.8977,
+   "C06": 0.857,
+   "C07": 0.8279,
+   "C08": 0.8128,
+   "D01": 0.8549,
+   "D02": 0.7567,
+   "D03": 0.6657,
+   "D04": 0.5849,
+   "D05": 0.5167,
+   "D06": 0.4637,
+   "D07": 0.4274,
+   "D08": 0.4089,
+   "E01": 0.9918,
+   "E02": 0.9999,
+   "E03": 1.0,
+   "E04": 0.9984,
+   "E05": 0.9735,
+   "E06": 0.9512,
+   "E07": 0.9348,
+   "E08": 0.9259,
+   "F01": 0.9819,
+   "F02": 0.9694,
+   "F03": 0.9613,
+   "F04": 0.9589,
+   "F05": 0.9624,
+   "F06": 0.9714,
+   "F07": 0.9845,
+   "F08": 0.9991
   },
-  "mean": 0.0417
+  "titles": {
+   "A01": "attention",
+   "A02": "working-memory",
+   "A03": "habit-loop",
+   "A04": "emotion-regulation",
+   "A05": "identity",
+   "A06": "self-narrative",
+   "A07": "motivation",
+   "A08": "perception-bias",
+   "B01": "trust",
+   "B02": "reciprocity",
+   "B03": "small-team-dynamics",
+   "B04": "family-systems",
+   "B05": "homophily",
+   "B06": "social-contagion",
+   "B07": "status",
+   "B08": "cooperation",
+   "C01": "law",
+   "C02": "markets",
+   "C03": "inequality",
+   "C04": "bureaucracy",
+   "C05": "power",
+   "C06": "collective-action",
+   "C07": "institutions",
+   "C08": "governance",
+   "D01": "narrative",
+   "D02": "myth-religion",
+   "D03": "art",
+   "D04": "media-ecology",
+   "D05": "values",
+   "D06": "ritual",
+   "D07": "meaning-making",
+   "D08": "taboo",
+   "E01": "platforms",
+   "E02": "recommender-loops",
+   "E03": "ai-agency",
+   "E04": "attention-economy",
+   "E05": "privacy",
+   "E06": "addiction",
+   "E07": "digital-identity",
+   "E08": "automation",
+   "F01": "historical-cycles",
+   "F02": "demographic-transition",
+   "F03": "climate",
+   "F04": "pandemics",
+   "F05": "technological-phase-shifts",
+   "F06": "existential-risk",
+   "F07": "long-termism",
+   "F08": "civilizational-resilience"
+  },
+  "mean": 0.6858
  },
  "channel_status": {
-  "ts": "2026-07-08T01:34:28",
+  "ts": "2026-07-28T19:38:09",
   "channels": {
    "dashboard": {
     "channel": "dashboard",
@@ -139,14 +473,11 @@
    },
    "telegram": {
     "channel": "telegram",
-    "live": false,
-    "mode": "stub(no-creds)",
+    "live": true,
+    "mode": "long-poll(T-8)",
+    "writer": "approval_channel(run_forever/poll_once)",
     "allowlist": false,
-    "required_env": [
-     "TELEGRAM_BOT_TOKEN",
-     "TELEGRAM_OWNER_CHAT_ID"
-    ],
-    "sends_last_min": 0
+    "owner_set": true
    },
    "whatsapp": {
     "channel": "whatsapp",
@@ -171,12 +502,111 @@
      "EMAIL_OWNER_ADDR"
     ]
    }
+  },
+  "writer_note": "entryِ telegram توسطِ کانالِ زنده refresh می‌شود (2026-07-24)؛ بقیهٔ کانال‌ها snapshot"
+ },
+ "fisher": {
+  "ts": "2026-07-28T19:22:58",
+  "cells_used": 0,
+  "fisher_condition_number": null,
+  "current_weights": {
+   "value": 0.3,
+   "urgency": 0.25,
+   "efficiency": 0.2,
+   "human": 0.2,
+   "waste": 0.05
+  },
+  "advisory_weights": null,
+  "natural_step": null,
+  "eta": 0.1,
+  "eps": 0.001,
+  "advisory_only": true,
+  "authoritative": false,
+  "numpy_used": true,
+  "note": "no-cells (shadow) — منتظر دادهٔ EXPERIENCE"
+ },
+ "chamber_temperature": null,
+ "bcm_weights_summary": {
+  "step": 85,
+  "beta": 0.02,
+  "count": 8,
+  "saturation_of_512": 0.0156,
+  "strongest_10": [
+   [
+    "cycle-538:school_awareness",
+    4.0
+   ],
+   [
+    "cycle-538",
+    4.0
+   ],
+   [
+    "cycle-537",
+    3.995087431352099
+   ],
+   [
+    "cycle-539:school_awareness",
+    3.744524539859029
+   ],
+   [
+    "cycle-539",
+    3.744524539859029
+   ],
+   [
+    "cycle-536",
+    3.0593315479235508
+   ],
+   [
+    "cycle-537:school_awareness",
+    2.9595383939473647
+   ],
+   [
+    "cycle-536:school_awareness",
+    2.1144076809224375
+   ]
+  ],
+  "weakest_10": [
+   [
+    "cycle-538:school_awareness",
+    4.0
+   ],
+   [
+    "cycle-538",
+    4.0
+   ],
+   [
+    "cycle-537",
+    3.995087431352099
+   ],
+   [
+    "cycle-539:school_awareness",
+    3.744524539859029
+   ],
+   [
+    "cycle-539",
+    3.744524539859029
+   ],
+   [
+    "cycle-536",
+    3.0593315479235508
+   ],
+   [
+    "cycle-537:school_awareness",
+    2.9595383939473647
+   ],
+   [
+    "cycle-536:school_awareness",
+    2.1144076809224375
+   ]
+  ]
+ },
+ "latent_summary": {
+  "total": 8,
+  "by_layer": {
+   "school": 4,
+   "consolidation": 4
   }
  },
- "fisher": null,
- "chamber_temperature": null,
- "bcm_weights_summary": null,
- "latent_summary": null,
  "phase_metrics": [
   {
    "phase": "blueprint-phase-3-bcm",
@@ -610,65 +1040,182 @@
   }
  ],
  "consolidation_summary": {
-  "cycles": 552,
+  "cycles": 538,
   "last": {
-   "cycle": 552,
+   "cycle": 538,
    "insights": [
-    "آگاهیِ میانگین: 0.02"
+    "آگاهیِ میانگین: 0.69"
    ],
    "verified_sources": [
     "school_awareness"
    ],
    "discarded_sources": [],
-   "timestamp": 1783645545.6402445,
-   "latent_vector": null,
-   "similar_keys": null,
+   "timestamp": 1785220417.9989364,
+   "latent_vector": [
+    0.1491868590326731,
+    0.12558917457667565,
+    0.10496697842287012,
+    0.08752649253279457,
+    0.07341501830754767,
+    0.06280931742844768,
+    0.05573885017571436,
+    0.052203616549347694,
+    0.1806798985875561,
+    0.1553145973183753,
+    0.13263018154918924,
+    0.11312747604373316,
+    0.09710108360420429,
+    0.08484560703279986,
+    0.07659672857127765,
+    0.07244282906029684,
+    0.24525683282918712,
+    0.2916273138950298,
+    0.29366007323019067,
+    0.27892993312032954,
+    0.264464935532446,
+    0.25247460148301903,
+    0.2439016599390799,
+    0.23945315762590183,
+    0.25185593559840486,
+    0.22292594042263772,
+    0.19611708542269052,
+    0.172313179005155,
+    0.1522212678953045,
+    0.13660731937885173,
+    0.12591323765909257,
+    0.12046308581844396
+   ],
+   "similar_keys": [
+    "cycle-539:school_awareness",
+    "cycle-538",
+    "cycle-538:school_awareness",
+    "cycle-537"
+   ],
    "bcm_pruned": null,
    "bcm_theta": null,
    "bcm_saturation": null,
    "sparse_ratio": null,
-   "sparse_filtered": null
+   "sparse_filtered": null,
+   "repeats": 3,
+   "last_cycle": 539
   }
  },
  "governor_alerts_tail": [
-  "## 2026-07-10T08:40:28 (metabolism)",
-  "- ⚠️ wiring: canonical_consolidation خطا: consolidation crashed",
+  "## 2026-07-28T18:34:00 (metabolism)",
+  "- ⚠️ tg-center: دستورِ /now شکست — RuntimeError",
   "",
-  "## 2026-07-10T09:01:31 (metabolism)",
-  "- ⚠️ consolidation: neural_stack is None — WIRE_CONSOLIDATION off",
+  "## 2026-07-28T18:34:00 (metabolism)",
+  "- ⚠️ tg-center: دستورِ /budget شکست — RuntimeError",
   "",
-  "## 2026-07-10T09:01:31 (metabolism)",
-  "- ⚠️ wiring: canonical_consolidation خطا: consolidation crashed",
+  "## 2026-07-28T18:34:00 (metabolism)",
+  "- ⚠️ tg-center: دستورِ /revenue شکست — RuntimeError",
   "",
-  "## 2026-07-10T09:15:44 (metabolism)",
-  "- ⚠️ consolidation bcm خطا: RuntimeError: boom",
+  "## 2026-07-28T18:34:00 (metabolism)",
+  "- ⚠️ tg-center: دستورِ /missions شکست — RuntimeError",
   "",
-  "## 2026-07-10T09:15:56 (metabolism)",
-  "- ⚠️ consolidation: neural_stack is None — WIRE_CONSOLIDATION off",
+  "## 2026-07-28T18:34:00 (metabolism)",
+  "- ⚠️ tg-center: دستورِ /menu شکست — RuntimeError",
   "",
-  "## 2026-07-10T09:15:56 (metabolism)",
-  "- ⚠️ wiring: canonical_consolidation خطا: consolidation crashed",
+  "## 2026-07-28T18:34:00 (metabolism)",
+  "- ⚠️ tg-center: دستورِ /start شکست — RuntimeError",
   "",
-  "## 2026-07-10T09:17:16 (metabolism)",
-  "- ⚠️ consolidation: neural_stack is None — WIRE_CONSOLIDATION off",
+  "## 2026-07-28T19:39:32 (metabolism)",
+  "- ⚠️ cockpit tab error (brain): AttributeError: 'list' object has no attribute 'get'",
   "",
-  "## 2026-07-10T09:17:16 (metabolism)",
-  "- ⚠️ wiring: canonical_consolidation خطا: consolidation crashed",
+  "## 2026-07-28T19:48:58 (metabolism)",
+  "- ⚠️ cockpit tab error (brain): AttributeError: 'list' object has no attribute 'get'",
   "",
-  "## 2026-07-10T09:17:18 (metabolism)",
-  "- ⚠️ consolidation bcm خطا: RuntimeError: boom",
+  "## 2026-07-28T19:49:00 (metabolism)",
+  "- ⚠️ cockpit tab error (brain): AttributeError: 'list' object has no attribute 'get'",
   "",
-  "## 2026-07-10T09:45:03 (metabolism)",
-  "- ⚠️ consolidation bcm خطا: RuntimeError: boom",
+  "## 2026-07-28T19:49:52 (metabolism)",
+  "- ⚠️ cockpit tab error (brain): AttributeError: 'list' object has no attribute 'get'",
   ""
  ],
  "chrono": {
-  "exists": false
+  "exists": true,
+  "heartbeats": 16291,
+  "gated_effects": 0,
+  "duration_markers": 10,
+  "rfc_verdicts_tail": [
+   {
+    "rfc_id": "RFC-aa01e8ff",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785049693710
+   },
+   {
+    "rfc_id": "c6-32d7981f0d99",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785049694255
+   },
+   {
+    "rfc_id": "RFC-886f7fac",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785056010706
+   },
+   {
+    "rfc_id": "c6-3fe57ed09556",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785056011329
+   },
+   {
+    "rfc_id": "c6-ae344f4b31e3",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785104300616
+   },
+   {
+    "rfc_id": "dt0727s2",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785132382325
+   },
+   {
+    "rfc_id": "dt0727s3",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785184772974
+   },
+   {
+    "rfc_id": "dt0728s0",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785184774044
+   },
+   {
+    "rfc_id": "RFC-c649c8f3",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785196565651
+   },
+   {
+    "rfc_id": "dt0728s1",
+    "verdict": "merged",
+    "bottleneck_key": "",
+    "effect": {},
+    "ts": 1785196566227
+   }
+  ],
+  "rfc_verdicts_total": 10,
+  "effects_by_status": {}
  },
  "genome_ledger": {
   "exists": true,
-  "records": 102,
-  "verify_scars": "OK: ok-with-scars: 1 torn-but-anchored record(s) at line(s) [40]",
+  "records": 4669,
+  "verify_scars": "OK: ok",
   "verify_scars_ok": true
  },
  "organ_table": {
@@ -689,87 +1236,173 @@
    "floor": 1,
    "human_priority": 0.5
   },
+  "PAINTING": {
+   "floor": 1,
+   "human_priority": 1.0
+  },
+  "ACCOUNTING": {
+   "floor": 1,
+   "human_priority": 1.0
+  },
   "DEBATE_LOOP": {
-   "floor": 0,
-   "cap_monthly": 10
+   "floor": 0.5,
+   "cap_monthly": 5
   }
  },
  "epochs": {
-  "count": 57,
+  "count": 445,
   "latest": {
-   "ts": "2026-07-10T10:58:44",
+   "ts": "2026-07-28T19:22:13",
    "epoch_mode": "allostatic — تابع فشار (نه clock ثابت)",
    "pressure": {
     "spend_velocity": 0.0,
-    "deadline_proximity": 0.182,
-    "deadline_ref": "PROJECT_F@2026-07-20 (10d)",
+    "deadline_proximity": 0.0,
+    "deadline_ref": "",
     "anomaly": 0.0,
-    "pressure": 0.182
+    "pressure": 0.0
    },
-   "next_epoch_minutes": 51.8,
-   "weekly_replan": true,
+   "next_epoch_minutes": 60.0,
+   "weekly_replan": false,
    "halted": null,
    "frozen": false,
    "conflicts": [],
    "telemetry_month": {
     "key": "2026-07",
-    "musd": 0,
-    "usd": 0.0,
-    "aud": 0.0
+    "musd": 21295,
+    "usd": 0.021295,
+    "aud": 0.031942
    },
    "suspects": 0,
+   "heart_autoreg": {
+    "available": true,
+    "heart_pressure": 0.0,
+    "velocity": 0.125,
+    "band": [
+     0.5134,
+     5.0476
+    ],
+    "epoch_damping": 1.0,
+    "cpi": 0.0,
+    "tighten": 0.0,
+    "explore_advice": "explore_pct × 1.0 (advisory)",
+    "reasons": {
+     "velocity": "velocity-not-authoritative",
+     "cpi": "cpi-neutral"
+    },
+    "invariant": "raw-beat-never-sets-spend (cadence+advisory فقط)"
+   },
+   "next_epoch_minutes_raw": 60.0,
+   "heart_pressure_effective": 0.0,
    "allocation_dry": {
     "cap_monthly_aud": 30.0,
     "explore_reserve_aud": 3.0,
-    "spent_month_aud": 0.0,
+    "spent_month_aud": 0.031942,
     "fx_aud_per_usd": 1.5,
     "grants": {
      "PROJECT_F": {
       "verdict": "GRANT",
       "floor_aud": 3.0,
-      "competitive_aud": 4.902304,
-      "total_month_aud": 7.902304,
-      "fitness": 0.4289,
+      "competitive_aud": 2.810741,
+      "total_month_aud": 5.810741,
+      "fitness": 0.3833,
       "tag": "SPEC(shadow — صفر enforce)"
      },
      "ARCHITECT_SYS": {
       "verdict": "GRANT",
       "floor_aud": 2.0,
-      "competitive_aud": 3.619864,
-      "total_month_aud": 5.619864,
+      "competitive_aud": 2.322363,
+      "total_month_aud": 4.322363,
       "fitness": 0.3167,
       "tag": "SPEC(shadow — صفر enforce)"
      },
      "GENOME_SYS": {
       "verdict": "GRANT",
       "floor_aud": 2.0,
-      "competitive_aud": 3.619864,
-      "total_month_aud": 5.619864,
+      "competitive_aud": 2.322363,
+      "total_month_aud": 4.322363,
       "fitness": 0.3167,
       "tag": "SPEC(shadow — صفر enforce)"
      },
      "ZIMAN": {
       "verdict": "GRANT",
       "floor_aud": 1.0,
-      "competitive_aud": 3.238103,
-      "total_month_aud": 4.238103,
+      "competitive_aud": 2.077441,
+      "total_month_aud": 3.077441,
       "fitness": 0.2833,
+      "tag": "SPEC(shadow — صفر enforce)"
+     },
+     "PAINTING": {
+      "verdict": "GRANT",
+      "floor_aud": 1.0,
+      "competitive_aud": 2.322363,
+      "total_month_aud": 3.322363,
+      "fitness": 0.3167,
+      "tag": "SPEC(shadow — صفر enforce)"
+     },
+     "ACCOUNTING": {
+      "verdict": "GRANT",
+      "floor_aud": 1.0,
+      "competitive_aud": 2.322363,
+      "total_month_aud": 3.322363,
+      "fitness": 0.3167,
       "tag": "SPEC(shadow — صفر enforce)"
      },
      "DEBATE_LOOP": {
       "verdict": "GRANT",
-      "floor_aud": 0.0,
-      "competitive_aud": 3.619864,
-      "total_month_aud": 3.619864,
+      "floor_aud": 0.5,
+      "competitive_aud": 2.322363,
+      "total_month_aud": 2.822363,
       "fitness": 0.3167,
       "tag": "SPEC(shadow — صفر enforce)"
      }
     },
     "h1_check": {
-     "sum_grants_aud": 29.999999,
+     "sum_grants_aud": 29.999997,
      "cap_aud": 30.0,
      "ok": true
     }
+   },
+   "allocation_llm": {
+    "llm_allocation": {
+     "organ_pct": {
+      "ARCHITECT_SYS": 0.6,
+      "DEBATE_LOOP": 0.15,
+      "GENOME_SYS": 0.25
+     },
+     "reason": "[EST] ARCHITECT_SYS carries all measured spend/value; GENOME_SYS shows zero events (idle risk) but held at floor; ample headroom vs cap."
+    },
+    "model": "fugu",
+    "cost_usd": 0.0,
+    "finish_reason": "stop"
+   },
+   "debate": {
+    "status": "killed",
+    "topic_id": "organ-PROJECT_F",
+    "rounds": 1,
+    "queued": false,
+    "cost_usd": 0.0,
+    "history": [
+     {
+      "round": 1,
+      "muse": {
+       "idea": "استفاده از قطار‌های هوایی محلی برای حمل مواد ضروری",
+       "why_genius": "قطار‌های هوایی محلی می‌توانند با هزینه‌ها کمتر و زمان کوتاه‌تری از راهبردهای سنتی مثل خودروها و لوازم آتیک استفاده شوند. در حال حاضر، این روش به دلیل عدم وجود شبکه قطار محلی گسترده ناامکان است، اما با توسعه شبکه‌ای مناسب، می‌تواند بخش مهمی از سیستم توزیع مواد شود.",
+       "why_insane": "از آنجا که قطار‌های هوایی محلی در حال حاضر وجود ندارند و هیچ شبکه ای برای آن‌ها وجود ندارد، این راه حل ممکن است منجر به سرمایه‌گذاری غیرمعقول شود. همچنین، تولید و نصب سیستم‌های لازم برای حمل مواد با قطار‌های هوایی محلی می‌تواند پیچیده و هزینه‌بر باشد.",
+       "est_tokens": 120,
+       "quality_bar": "normal",
+       "epistemic_tag": "EST"
+      },
+      "architect": {
+       "verdict": "kill",
+       "kill_condition": "実現可能性の欠如: 現在の技術水準とインフラストラクチャでは、地方向け飛行列車が実装不可能であり、その導入は非効率的かつ資金的に不合理。",
+       "cheapest_test": "確認する最安の方法： 当地の物流業界の専門家に調査を依頼し、現存するインフラと技術水準に基づいて地方向け飛行列車の実装可能性を評価してもらう。",
+       "epistemic_tag": "EST"
+      },
+      "cost_usd": 0.0,
+      "stub": false,
+      "tier": "local"
+     }
+    ]
    }
   }
  }

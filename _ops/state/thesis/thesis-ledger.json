@@ -29,6 +29,39 @@
       "dated": "2026-07-25"
     },
     {
+      "id": "identity-O",
+      "family": "C8 خودآگاهیِ عملیاتی",
+      "claim": "مگا-معادلهٔ O (ارگانیسم) یک سنجهٔ فشرده از سلامت سیستم است که از ۵ زیرمعادله (L,E,G,K,alive) ساخته می‌شود.",
+      "proof": "O با شاخص‌های مستقل همبستگی معنادار داشته باشد و تغییراتش منطبق بر تغییرات واقعی سلامت باشد.",
+      "kill": "اگر O>0.5 گزارش شود ولی M=0 و Δ≤0 و C6=0 — عدد تئاتر است.",
+      "status": "UNTESTED",
+      "evidence": null,
+      "fix": "ردیابیِ روند O در state/identities-latest.json و آزمونِ همبستگی با phi/memory.db/alert-rate",
+      "dated": "2026-07-25"
+    },
+    {
+      "id": "lead-direct",
+      "family": "C9 نرخِ اقدام / درآمد",
+      "claim": "دستهٔ مسکونیِ مستقیم (OCTOPUS_LEAD_DIRECT_RESIDENTIAL) نرخ draft/save را نسبت به قبل افزایش می‌دهد.",
+      "proof": "قبل/بعد: تعداد لیدهای مسکونی که از skip به save/draft می‌روند افزایش یابد.",
+      "kill": "اگر پس از ۳۰ روز روشن بودن، هیچ لید مسکونی از ۰ به save/draft نرود.",
+      "status": "UNTESTED",
+      "evidence": null,
+      "fix": "روشن کردن فلگ + restart + ۳۰ روز رصد",
+      "dated": "2026-07-25"
+    },
+    {
+      "id": "romajan-bridge",
+      "family": "🌙 رویا / سیم",
+      "claim": "پلِ romajan→C6 می‌تواند ادعاهای verified/executed آزمایشگاه را به فرضیه‌های C6 تبدیل کند.",
+      "proof": "≥۱ romajan claim وارد صف C6 شود و research_loop تأییدش کند.",
+      "kill": "اگر ROMAJAN_PROBES روشن باشد و ۳۰ روز هیچ ادعایی وارد نشود (یا همه رد شوند).",
+      "status": "UNTESTED",
+      "evidence": null,
+      "fix": "OCTOPUS_WIRE_ROMAJAN_PROBES=1 + restart + مالک F:\romajan را تأیید کند",
+      "dated": "2026-07-25"
+    },
+    {
       "id": "spectral-sigma",
       "family": "C7 / گلوگاهِ ساختاری",
       "claim": "σ حاصل از طیفِ لاپلاسینِ گرافِ رویداد، نزدیکیِ سیستم به گذارِ فاز را می‌سنجد.",
@@ -48,7 +81,23 @@
       "status": "FALSIFIED_SO_FAR",
       "evidence": "عددِ زندهٔ ۲۰۲۶-۰۷-۲۵: S_informed=0.02342 > S_blind=0.02225 → raw=-0.027143 با authoritative=true و n=536. تا امروز 0.0 منتشر می‌شد (clamp) در حالی که واقعیت منفی بود.",
       "fix": "clamp حذف شد؛ عددِ منفی صادقانه منتشر می‌شود و gate0_live_producer با Δ≤0 بسته می‌ماند.",
-      "dated": "2026-07-25"
+      "dated": "2026-07-25",
+      "status_history": [
+        {
+          "from": "FALSIFIED_SO_FAR",
+          "to": "FALSIFIED_SO_FAR",
+          "status_changed": false,
+          "at": 1785033507.4949067,
+          "verdict": "accepted",
+          "measured": {
+            "count": 2,
+            "detail": "n=2 negative=2 mean=-0.004005 latest=-0.004005 trend=+0.000000 (Δ<=0 ⇒ دسترسیِ درونی بدتر از کوری؛ trend>0 ⇒ به سمتِ مثبت)",
+            "unit": "sample"
+          },
+          "experiment_key": "c6:c6-90fe811c6925",
+          "contract_id": "c6-90fe811c6925"
+        }
+      ]
     },
     {
       "id": "metronome-guard",

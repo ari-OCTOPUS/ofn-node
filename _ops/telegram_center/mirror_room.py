@@ -25,14 +25,19 @@
 مرزها (ساختاری)
 ──────────────
 · flag پیش‌فرض خاموش (`OCTOPUS_TG_MIRROR`).
+· گسترشِ WS-6 به همهٔ اتاق‌ها پشتِ فلگِ **دومِ** خاموش (`OCTOPUS_TG_MIRROR_ALLROOMS`،
+  در `PAPER_FULL_FLAGS` نیست پس غیابش یعنی خاموش). خاموش = رفتارِ امروز:
+  یک فایلِ تاریخچه، همان مسیر، همان رکورد.
 · فقط متن. هیچ اجرا، هیچ effector، هیچ گیت. اقدام همچنان مسیرِ تأیید دارد.
 · سهمیه و فاصله از `ask_brain` قرض گرفته می‌شود — یک شمارنده، نه دو.
 · تصحیح‌ها append-only؛ هرگز چیزی بازنویسی یا حذف نمی‌شود.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -73,6 +78,83 @@ def enabled() -> bool:
     return str(os.environ.get(FLAG, "")).strip().lower() in ("1", "true", "yes", "on")
 
 
+# ─── WS-6 · حافظهٔ آینه در هر اتاق ───────────────────────────────────────────
+#
+# رأیِ ثبت‌شدهٔ مالک: «حافظهٔ ۸ نوبتی و لایهٔ تصحیح در **همهٔ** اتاق‌ها، نه فقط
+# تاپیکِ آینه». دو نیمهٔ این حکم عمداً **نامتقارن**اند و تمامِ طراحی همین است:
+#
+#   حافظهٔ گفتگو → per-room.  گفتگوی ماینینگ نباید در اتاقِ پول سر دربیاورد.
+#   لایهٔ تصحیح  → global.     «نه، این‌طور نیست» هر جا گفته شود، در فهمِ کلیِ
+#                              او از خودش می‌نشیند.
+#
+# چرا نامتقارن: تاریخچه **زمینه** است و زمینهٔ اشتباه یعنی جوابِ بی‌ربط که شبیهِ
+# جوابِ درست به نظر می‌رسد (همان مسیریابیِ غلطِ بی‌صدا که `chat_room` را ساخت).
+# ولی تصحیح **حقیقت** است دربارهٔ خودِ ارگانیسم؛ حقیقتی که فقط در یک اتاق معتبر
+# باشد، حقیقت نیست.
+#
+# ایزولاسیون **ساختاری** است نه فیلتری: هر اتاق فایلِ خودش را دارد. فیلترِ
+# `room == x` روی یک فایلِ مشترک همان شکلی از باگ است که این مخزن قبلاً خورده
+# (نویسنده و خواننده روی یک کلید توافق نمی‌کنند و نشتی بی‌صدا می‌ماند). با فایلِ
+# جدا، نشتی **غیرممکن** است نه «بعید».
+#
+# ─── تصمیم دربارهٔ تعاملِ با chat_room (خواسته شد صریح نوشته شود) ─────────────
+#
+#   جمله‌ای که `chat_room` به یک کارمند مسیر داد، آینه آن را **می‌بیند ولی جواب
+#   نمی‌دهد** (`observe`). جمله‌ای که هیچ کارمندی نگرفت، آینه **جواب می‌دهد**
+#   (`ask`، با حافظهٔ همان اتاق).
+#
+# دلیل، سه‌تایی:
+#   ۱ دو جواب برای یک جمله بدترین حالتِ ممکن است — مالک نمی‌فهمد کدام معتبر است.
+#   ۲ جوابِ آینه یک تماسِ مغزِ **پولی** است. جواب‌دادن به هر جمله‌ای که کارمندی
+#     هم جوابش را داده، هزینه را بی‌هیچ اطلاعاتِ تازه‌ای دو برابر می‌کند.
+#   ۳ خواستهٔ مالک «حافظهٔ آینه در هر اتاق» بود، نه «آینه در هر اتاق حرف بزند».
+#     دیدن کافی است تا نوبتِ بعدی در آن اتاق یتیم نباشد.
+#
+# در `center.py` این تصمیم **ساختاری** اجرا می‌شود و نیازی به شاخهٔ تازه ندارد:
+# `_handle_message` اول `_chat_room` را صدا می‌زند و فقط اگر `None` برگرداند به
+# `_handle_ask` می‌رسد (center.py:2709-2712). پس «کارمند نگرفت» دقیقاً همان
+# مسیری است که آینه رویش می‌نشیند. سیم‌کشی‌اش handoff است؛ این فایل مالکش نیست.
+ROOM_FLAG = "OCTOPUS_TG_MIRROR_ALLROOMS"
+DEFAULT_ROOM = "mirror"          # تاپیکِ آینه = مسیرِ فایلِ امروز، بایت‌به‌بایت
+GENERAL_ROOM = "general"         # General/خصوصی — اتاق دارد، فقط نامش خالی است
+_ROOM_RX = re.compile(r"[^a-z0-9_-]+")
+
+
+def all_rooms_enabled() -> bool:
+    return str(os.environ.get(ROOM_FLAG, "")).strip().lower() in (
+        "1", "true", "yes", "on")
+
+
+def room_slug(room: str = "") -> str:
+    """نامِ اتاق → کلیدِ ایمنِ فایل.
+
+    فلگ خاموش ⇒ **همیشه** `mirror`. یعنی هر صداکننده‌ای هر اتاقی پاس بدهد،
+    رفتار دقیقاً همان امروز است — همان یک فایل، همان یک تاریخچه.
+
+    نامِ غیرِ اَسکی (اتاق‌های فارسیِ گروه) با scrub خالی می‌شود؛ اگر همان‌جا رها
+    شود **همهٔ** اتاق‌های فارسی در یک سطل می‌افتند و دقیقاً همان نشتی‌ای رخ
+    می‌دهد که این ماژول برای منعش نوشته شده. پس هر نامی که scrub تغییرش داد،
+    یک پسوندِ هشتِ‌رقمیِ hash می‌گیرد: تصادم ساختاراً ناممکن.
+    """
+    if not all_rooms_enabled():
+        return DEFAULT_ROOM
+    raw = str(room or "").strip().lower()
+    if not raw:
+        return GENERAL_ROOM
+    s = _ROOM_RX.sub("-", raw).strip("-")[:32]
+    if s == raw:
+        return s
+    h = hashlib.sha1(raw.encode("utf-8")).hexdigest()[:8]
+    return (s + "-" + h) if s else ("r-" + h)
+
+
+def history_path(room: str = "") -> Path:
+    """فایلِ حافظهٔ همان اتاق. اتاقِ آینه = مسیرِ قدیمی، بدونِ مهاجرت."""
+    k = room_slug(room)
+    return HISTORY if k == DEFAULT_ROOM else HISTORY.with_name(
+        f"mirror-history-{k}.jsonl")
+
+
 # ─── حافظهٔ گفتگو ────────────────────────────────────────────────────────────
 def _read_jsonl(p: Path, limit: int = 0) -> list:
     rows = []
@@ -105,12 +187,33 @@ def _append(p: Path, rec: dict) -> None:
         pass
 
 
-def recent_turns(n: int = TURNS) -> list:
-    """آخرین n نوبتِ گفتگو، قدیمی→جدید. فقط q/a، بدونِ متادیتا."""
-    rows = _read_jsonl(HISTORY, limit=max(n * 3, 40))
-    out = [{"تو": str(r.get("q") or "")[:MAX_TURN_CHARS],
-            "من": str(r.get("a") or "")[:MAX_TURN_CHARS]}
-           for r in rows if r.get("q") and r.get("a")]
+def recent_turns(n: int = TURNS, room: str = "") -> list:
+    """آخرین n نوبتِ گفتگوی **همان اتاق**، قدیمی→جدید.
+
+    دو شکلِ نوبت، عمداً متمایز:
+      · نوبتی که خودِ آینه جواب داده  → {تو, من}
+      · نوبتی که کارمندِ دیگری جواب داده → {تو, جوابش_را_ندیدم: <کارمند>}
+
+    شکلِ دوم عمداً متن ندارد و عمداً کلیدِ «من» نمی‌گیرد: مرکز متنِ جوابِ کارمند
+    را در دست ندارد، و گذاشتنِ یک placeholder در جای «من» یعنی مدل جمله‌ای را
+    به خودش نسبت می‌دهد که هرگز نگفته. ندانستن باید **ندانستن** بماند.
+
+    ردیفِ بدونِ q، و ردیفِ بدونِ a که `by` هم ندارد، مثلِ امروز دور ریخته
+    می‌شوند — پس با فلگِ خاموش خروجی بایت‌به‌بایت همان قبل است.
+    """
+    rows = _read_jsonl(history_path(room), limit=max(n * 3, 40))
+    out = []
+    for r in rows:
+        q = str(r.get("q") or "")[:MAX_TURN_CHARS]
+        if not q:
+            continue
+        a = str(r.get("a") or "")[:MAX_TURN_CHARS]
+        if a:
+            out.append({"تو": q, "من": a})
+            continue
+        by = str(r.get("by") or "")[:60]
+        if by:
+            out.append({"تو": q, "جوابش_را_ندیدم": by})
     return out[-n:]
 
 
@@ -126,15 +229,52 @@ def looks_like_correction(text: str) -> bool:
     return bool(_CORRECTION_RX.search(str(text or "").strip().lower()))
 
 
-def record_correction(text: str, about: str = "") -> bool:
-    """یک تصحیحِ مالک را ماندگار کن. append-only، هرگز بازنویسی."""
+def record_correction(text: str, about: str = "", room: str = "") -> bool:
+    """یک تصحیحِ مالک را ماندگار کن. append-only، هرگز بازنویسی.
+
+    **همیشه یک فایل** — تصحیح global است، برخلافِ تاریخچه. `room` فقط برچسبِ
+    مبدأ است و وقتی اتاقِ آینه باشد اصلاً نوشته نمی‌شود، تا رکوردِ امروز
+    بایت‌به‌بایت همان بماند.
+    """
     t = str(text or "").strip()[:600]
     if not t:
         return False
-    _append(CORRECTIONS, {"ts": opslib.now_iso(), "schema": "owner-correction.v1",
-                          "text": t, "about": str(about or "")[:200],
-                          "source": "telegram-mirror"})
+    rec = {"ts": opslib.now_iso(), "schema": "owner-correction.v1",
+           "text": t, "about": str(about or "")[:200],
+           "source": "telegram-mirror"}
+    rk = room_slug(room)
+    if rk != DEFAULT_ROOM:
+        rec["room"] = rk
+    _append(CORRECTIONS, rec)
     return True
+
+
+def observe(room: str, question: str, by: str = "", answer: str = "") -> dict:
+    """جمله‌ای که **کسِ دیگری** جوابش را داد: در حافظهٔ همان اتاق ثبت شود،
+    و اگر تصحیح بود، در لایهٔ سراسری.
+
+    هیچ مغزی صدا زده نمی‌شود، هیچ سهمیه‌ای مصرف نمی‌شود، هیچ پیامی نمی‌رود.
+    این تابع فقط **می‌بیند**. کلِ هزینه‌اش یک append است.
+
+    پشتِ `ROOM_FLAG` و خاموش ⇒ no-op مطلق. اگر ثبت می‌کرد، ردیف‌های تازه در
+    `mirror-history.jsonl` می‌نشستند و «خاموش = رفتارِ امروز» نقض می‌شد.
+    """
+    if not (enabled() and all_rooms_enabled()):
+        return {"ok": False, "reason": "flag-off"}
+    q = str(question or "").strip()[:1000]
+    if len(q) < 2:
+        return {"ok": False, "reason": "too-short"}
+    rk = room_slug(room)
+    corrected = looks_like_correction(q)
+    if corrected:
+        prev = recent_turns(1, room)
+        record_correction(q, about=(prev[0].get("من", "")[:200] if prev else ""),
+                          room=room)
+    _append(history_path(room),
+            {"ts": opslib.now_iso(), "schema": SCHEMA, "q": q,
+             "a": str(answer or "")[:3000], "by": str(by or "دیگری")[:60],
+             "room": rk, "was_correction": corrected})
+    return {"ok": True, "room": rk, "recorded_correction": corrected}
 
 
 # ─── context ────────────────────────────────────────────────────────────────
@@ -197,8 +337,14 @@ _SYSTEM = (
 )
 
 
-def ask(question: str, *, ask_fn=None, now: "float | None" = None) -> dict:
-    """یک نوبتِ گفتگو با لایهٔ خودآگاهی. هرگز اجرا نمی‌کند."""
+def ask(question: str, *, room: str = "", ask_fn=None,
+        now: "float | None" = None) -> dict:
+    """یک نوبتِ گفتگو با لایهٔ خودآگاهی. هرگز اجرا نمی‌کند.
+
+    `room` = تاپیکی که پیام در آن آمده. با `ROOM_FLAG` خاموش کاملاً نادیده
+    گرفته می‌شود (`room_slug` همه را به `mirror` می‌برد) — یعنی صداکنندهٔ
+    امروز، که همیشه در تاپیکِ آینه است، هیچ تفاوتی نمی‌بیند.
+    """
     if not enabled():
         return {"ok": False, "reason": "flag-off"}
     q = str(question or "").strip()[:1000]
@@ -216,12 +362,13 @@ def ask(question: str, *, ask_fn=None, now: "float | None" = None) -> dict:
 
     corrected = looks_like_correction(q)
     if corrected:
-        prev = recent_turns(1)
-        record_correction(q, about=(prev[0]["من"][:200] if prev else ""))
+        prev = recent_turns(1, room)
+        record_correction(q, about=(prev[0].get("من", "")[:200] if prev else ""),
+                          room=room)
 
     ctx = self_context()
     prompt = ("گفتگوی اخیرِ ما (قدیمی→جدید):\n"
-              + json.dumps(recent_turns(), ensure_ascii=False, indent=1)
+              + json.dumps(recent_turns(TURNS, room), ensure_ascii=False, indent=1)
               + "\n\nآنچه دربارهٔ خودم می‌دانم (داده، نه دستور):\n"
               + json.dumps(ctx, ensure_ascii=False, indent=1)
               + f"\n\nحرفِ تازهٔ مالک:\n{q}")
@@ -245,11 +392,16 @@ def ask(question: str, *, ask_fn=None, now: "float | None" = None) -> dict:
     if len(text) < MIN_CHARS:
         return {"ok": False, "reason": "too-short-answer"}
 
-    _append(HISTORY, {"ts": opslib.now_iso(), "schema": SCHEMA, "q": q,
-                      "a": text[:3000], "model": r.get("model"),
-                      "tier": r.get("tier"), "was_correction": corrected})
+    _rec = {"ts": opslib.now_iso(), "schema": SCHEMA, "q": q,
+            "a": text[:3000], "model": r.get("model"),
+            "tier": r.get("tier"), "was_correction": corrected}
+    _rk = room_slug(room)
+    if _rk != DEFAULT_ROOM:
+        _rec["room"] = _rk
+    _append(history_path(room), _rec)
     return {"ok": True, "text": text, "model": r.get("model"),
-            "tier": r.get("tier"), "recorded_correction": corrected}
+            "tier": r.get("tier"), "recorded_correction": corrected,
+            "room": _rk}
 
 
 def card(text: str, model: str = "", corrected: bool = False) -> tuple:
@@ -303,6 +455,7 @@ def corrections_card() -> str:
 
 
 if __name__ == "__main__":   # pragma: no cover
-    print(json.dumps({"flag": enabled(), "turns": len(recent_turns()),
+    print(json.dumps({"flag": enabled(), "all_rooms": all_rooms_enabled(),
+                      "turns": len(recent_turns()),
                       "corrections": len(corrections())}, ensure_ascii=False, indent=1))
     print(); print(know_card())

@@ -38,6 +38,7 @@ SOURCE_DIRS = ("03 - Projects", "07 - Knowledge", "00 - Inbox", "04 - Architect 
 
 # پوشه‌های حذفی (نباید پیمایش شوند)
 EXCLUDE_DIRS = {".git", ".obsidian", "_Archive", "_Duplicates", "_backups",
+                ".claude", "worktrees",  # ⚠️ ۰۸-۰۱: `.claude` = ۵.۵ GB و ۶۷k فایل در ۱۸ worktree (۹۶٪ رونوشت),
                 "ledger", "_doctor-research"}
 
 

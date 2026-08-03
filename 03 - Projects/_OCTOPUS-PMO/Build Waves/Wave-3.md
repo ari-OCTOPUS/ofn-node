@@ -103,7 +103,7 @@ All 10 worlds now load from the real data backbone:
 
 ## Related
 
-- [[Wave-2 · P1 Channels]] — previous wave
-- [[Wave-4 · Full Channel Fleet]] — next wave
+- [[Wave-2|Wave-2 · P1 Channels]] — previous wave
+- [[Wave-4|Wave-4 · Full Channel Fleet]] — next wave
 - [[OCTOPUS-CHANNEL-REGISTRY]] — all 16 channels
 - [[OCTOPUS-ADMIN-DASHBOARD-MAP]] — panel-to-data mapping

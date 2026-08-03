@@ -82,6 +82,32 @@ _BRAIN_STATE = Path(os.environ.get("PF_BRAIN_DIR") or (_HERE / "brain"))
 
 LAMBDA_PERSIST = -1.0
 
+# ── مغزِ پیش‌فرض: flag-off = DualBrainV3 (رفتارِ آزموده‌شده)، flag-on = CortexAugmentedBrain
+# 2026-07-25 (فاز ۱b): وقتی OCTOPUS_WIRE_PROJECTF_CORTEX=1 است، مغزِ orchestrator
+# از CortexAugmentedBrain می‌آید — DualBrainV3 + insight از cortexِ مرکزی (مرزِ #۷).
+# importِ cortex_augmented به‌صورتِ lazy تا وابستگیِ circular نباشد و flag-off
+# دقیقاً مثلِ قبل بماند.
+_CORTEX_FLAG = "OCTOPUS_WIRE_PROJECTF_CORTEX"
+
+
+def _default_brain():
+    """مغزِ پیش‌فرضِ orchestrator. flag-off = DualBrainV3 (رفتارِ آزموده‌شده).
+    flag-on = CortexAugmentedBrain (enriched با cortex). هرگز raise نمی‌کند."""
+    if os.environ.get(_CORTEX_FLAG, "0") == "1":
+        try:
+            # cortex_augmented وابسته به brain/ در sys.path است (الان هست).
+            from cortex_augmented import CortexAugmentedBrain
+            return CortexAugmentedBrain()
+        except Exception as _e:  # noqa: BLE001 — fail-soft: برگرد به DualBrainV3
+            # در محیطِ زنده لاگ می‌شوند (opslib.alert) ولی در تست بی‌صدا.
+            try:
+                import opslib  # noqa
+                opslib.alert([f"_default_brain: CortexAugmentedBrain در دسترس نیست، "
+                              f"fallback به DualBrainV3: {type(_e).__name__}: {_e}"])
+            except Exception:  # noqa
+                pass
+    return DualBrainV3()
+
 # ── compliance از manifest (فیکس بای‌پس 2026-07-20؛ قبلاً همه True هاردکد بود) ──
 # قراردادِ ماشین‌خوان. تست‌ها _MANIFEST را swap می‌کنند؛ لودر هر بار از فایل می‌خواند.
 _MANIFEST = _HERE / "PROJECT-F-CONTROL-MANIFEST.json"
@@ -147,7 +173,7 @@ class PFOrchestrator:
     def __init__(self, studio=None, brain=None, acquisition=None,
                  data_dir: str | Path | None = None):
         self.studio = studio or ContentStudio()
-        self.brain = brain or DualBrainV3()
+        self.brain = brain or _default_brain()
         self.acquisition = acquisition or AcquisitionBrain(
             memory=AcquisitionMemory(data_path=str(_BRAIN_STATE / "acq_orch.json")))
         self.neural = NeuralDriver()
@@ -251,6 +277,20 @@ class PFOrchestrator:
         self.sprint_runner.finish(now_beat=self._beat)
 
         self.hooks.fire("post_sprint", {"beat": self._beat, "completed": True})
+
+        # 2026-07-25 (فاز ۱a): انتشارِ یکپارچه به ستونِ فقرات. flag-off = no-op.
+        # یک تپِ بی‌نام به bus داخلی + bridge به ارگانیسم (summaryِ content-free).
+        # هرگز raise نمی‌کند (fail-soft) — tick نباید بمیرد. spine به‌صورتِ package
+        # import می‌شود (relative-importها دارد)، پس ریشهٔ پروژه باید در sys.path باشد.
+        try:
+            if str(_HERE) not in sys.path:
+                sys.path.insert(0, str(_HERE))
+            from pf_os import spine as _spine
+            _spine.emit("orchestrator.tick.done", "orchestrator",
+                        f"tick {self._beat} completed (mode={ 'throttled' if throttle else 'normal' })",
+                        bridge_text=f"tick {self._beat} done")
+        except Exception:  # noqa: BLE001 — spine هرگز tick را نمی‌کشد
+            pass
 
         mode = "throttled" if throttle else "normal"
         return TickResult(beat=self._beat, mode=mode, pain=pain,

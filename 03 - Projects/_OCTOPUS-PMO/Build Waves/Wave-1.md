@@ -89,6 +89,6 @@ updated: 2026-07-12
 
 ## Related
 
-- [[Wave-2 · P1 Channels]] — next wave
+- [[Wave-2|Wave-2 · P1 Channels]] — next wave
 - [[Dataflow]] — full pipeline architecture
 - [[Backbone]] — shared JS data layer

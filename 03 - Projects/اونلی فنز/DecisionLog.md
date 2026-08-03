@@ -36,21 +36,23 @@ updated: 2026-07-20
 > از این تاریخ، **DecisionLog تنها SoT تصمیم‌هاست**؛ VERDICT_QUEUE فقط سینی رأی است، نه مجوز. شواهد: [[00 - Control/SCAN-LOCK-2026-07-20|SCAN-LOCK-2026-07-20]]. کد اشخاص: A=Operator، C=Creator.
 
 ### DL-2026-07-20-G0 — حقیقتِ GATE 0
-`status: PARTIALLY-FILLED (2026-07-20 عصر) — G0 همچنان OPEN`
+`status: PARTIALLY-FILLED (2026-07-25) — Branch A + اقامت سیدنی تأیید؛ G0 همچنان OPEN (امضای C باقی‌مانده)`
 
-> **به‌روزرسانی 2026-07-20 (رأی چت A):** ‏Branch = **A** به اتکای اظهار صریح A («مدرک اقامت C را شخصاً دیده‌ام»). این **اظهار** است نه سندِ روی دیسک؛ فیلد «نوع منبع» هنوز خالی است و باید توسط A تکمیل شود. G0 بسته **نمی‌شود** چون دو شرط دیگر باز است: تأیید مکتوب C روی توافق (فقط امضای A ثبت شده) + تعیین تکلیف سؤال آخر پرسشنامه. تا آن‌موقع: هیچ اکانت/KYC/پست.
+> **به‌روزرسانی 2026-07-25 (رأی چت A):** مخاطبِ هدف = **ایرانیانِ ساکنِ سیدنی** (استرالیا) → این یعنی C در **سیدنی** ساکن است = **Branch A** (خارج از ایران؛ blueprint مستقیم اجرا می‌شود). منبعِ تأیید = **گفت‌وگوی مالک ۲۰۲۶-۰۷-۲۵** (A شخصاً محل را تأیید کرد). Branch B (داخل ایران) رد شد. G0 هنوز **بسته نمی‌شود** چون تأیید مکتوبِ C روی توافق (DL-AGREEMENT) باز است.
 
-**EN (short form):** GATE 0 remains **OPEN**. The 2026-07-16 "temporary-A" recorded in VERDICT_QUEUE authorized **propose-only preparation only** — it never authorized platform accounts, KYC, posting, DM, or payment, and it is not a G0 closure. C's residency is **unverifiable on disk**; Branch A is an assertion, not a fact. G0 closes only when ALL of the following are written here and signed by A: (1) residency + Branch A/B, (2) signed (or dual-confirmed written) 2-person agreement (DL-2026-07-20-AGREEMENT), (3) C's final questionnaire item resolved or explicitly deferred with A's signature. While OPEN, **platform account creation and every outward action remain forbidden.**
+**EN (short form):** GATE 0 remains **OPEN** but closer. Target audience = Iranians residing in Sydney (Australia), which means C (creator) resides in Sydney = **Branch A** (outside Iran; blueprint executes directly, no sanctions/counsel needed). Branch B rejected. Residency source = owner attestation 2026-07-25 (A personally confirmed the location). G0 closes only when C signs the agreement (DL-2026-07-20-AGREEMENT). While OPEN, **platform account creation and every outward action remain forbidden.**
 
-**FA:** GATE 0 **باز می‌ماند** تا A این فیلدها را پر و امضا کند. «temporary-A» (ثبت 07-16 در VERDICT_QUEUE) فقط اجازهٔ آماده‌سازی propose-only بود — نه BotFather برای publish تولیدی، نه شروع KYC هیچ پلتفرمی، نه هیچ پست/DM/پرداخت. اقامت C روی دیسک قابل‌اثبات نیست؛ Branch A فعلاً ادعاست، نه فکت. اگر Branch B (داخل ایران) درست از آب دربیاید، پیامدها existential است (تحریم/KYC/payout) — این سند آن را لاپوشانی نمی‌کند.
+**FA:** GATE 0 **باز می‌ماند** تا C امضا کند. Branch A و محلِ اقامت (سیدنی) تأیید شد — یعنی مسیرِ اجرا مستقیم است و پیامدهای existentialِ Branch B (تحریم/KYC/payout) در بازی نیست. ولی تا امضای C، هیچ اکانت/KYC/پست.
 
-فیلدهای بازِ فقط-انسان (A پر کند):
-- منبع تأیید اقامت C: `___________` (نوع منبع — مثلاً «سند اقامت/ویزا که شخصاً دیدم»؛ جزئیات سند نوشته نشود) ⟵ **هنوز خالی**
-- تاریخ تأیید توسط C: `___________` ⟵ **هنوز خالی**
-- Branch: `A / B / UNKNOWN` → **A** (اظهار A در چت، 2026-07-20 — مدرک روی دیسک نیست)
-- امضای A (تایپ نام‌کد + تاریخ): **A — 2026-07-20 (تأیید چت: «موافقم با رأی‌های ثبت‌شده» + انتخاب صریح Branch A)**
+فیلدهای بازِ فقط-انسان (A/C پر کنند):
+- منبع تأیید اقامت C: `گفت‌وگوی مالک 2026-07-25 (A شخصاً محل را تأیید کرد)` ✅ پر شد
+- محلِ اقامت: `سیدنی، استرالیا` ✅ پر شد (تأیید A)
+- Branch: `A / B / UNKNOWN` → **A** ✅ (سیدنی = خارج از ایران؛ تأیید A 2026-07-25)
+- تاریخ تأیید توسط C: `___________` ⟵ **هنوز خالی** (تأیید مکتوب C لازم)
+- امضای A (نام‌کد + تاریخ): **A — 2026-07-20 (Branch A) + 2026-07-25 (اقامت سیدنی تأیید)** ✅
+- امضای C (نام‌کد + تاریخ): `___________` ⟵ **هنوز خالی** (دلتا با DL-AGREEMENT)
 
-**تا امضا: ساخت هر اکانت پلتفرمی = ممنوع. این بند با هیچ سند دیگری (از جمله PF-V5) override نمی‌شود.**
+**تا امضای C: ساخت هر اکانت پلتفرمی = ممنوع. این بند با هیچ سند دیگری (از جمله PF-V5) override نمی‌شود.**
 
 ### DL-2026-07-20-PF-V5 — reconcile مجوز لانچ (انتخاب اجباری A)
 `status: ✅ APPROVED — REVOKE (2026-07-20)`
@@ -132,15 +134,15 @@ A در چت اعلام کرد «موافقم با رأی‌های ثبت‌شد�
 1. **PF-V5 → APPROVED: REVOKE** (بالا ثبت شد).
 2. **Branch A** به اتکای اظهار A («مدرک را شخصاً دیده‌ام») — نوع منبع/تاریخ C هنوز خالی؛ **G0 باز** (دو شرط دیگر: تأیید C روی توافق + سؤال آخر پرسشنامه).
 3. **توافق: متن تأیید + امضای A** — منتظر تأیید مکتوب C.
-4. **Body freeze: APPROVED** → ‏VQ-PF-003 بسته (FREEZE).
+4. **Body freeze: APPROVED** → APPROVED VQ-PF-003 بسته (FREEZE).
 5. **Fansly = mirror + discovery-first** — قفل شد (verdict قدیمی T7 تأیید نهایی گرفت).
 6. **نردبان قیمت: رأی صریح داده نشد** → تگ CONFLICT می‌ماند (EXT-04 پیشنهاد باقی است، قفل نشد).
 7. **برند: OPEN** (پیش‌نیاز page نیست).
-8. **Remote git: NO — هیچ‌وقت** → چرخش فوری شماره لازم نیست؛ قاعدهٔ جدید: **قبل از ساخت هر remote در آینده، اول R10 (انتقال PII) + بازبینی تاریخچه انجام شود.** فایل‌های PII ‏tracked ‏(دو سند + ۸ عکس `test/`) هنوز منتظر تصمیم انتقال (R10).
+8. **Remote git: NO — هیچ‌وقت** → چرخش فوری شماره لازم نیست؛ قاعدهٔ جدید: **قبل از ساخت هر remote در آینده، اول R10 (انتقال PII) + بازبینی تاریخچه انجام شود.** فایل‌های PII APPROVED tracked APPROVED (دو سند + ۸ عکس `test/`) هنوز منتظر تصمیم انتقال (R10).
 9. **Q10/Q11: YES** → کامیت `ab8b8bd` تأیید + **مجوز merge برنچ sprint به master** (اجرا شد — hash در ادامهٔ همین ورودی).
 10. Day-Zero: تعیین نشد = NO-GO ادامه دارد.
 
-**اثر روی GATE-STAMP:** ‏PAGE_SETUP همچنان **NO-GO** — بازشدنش فقط با: تکمیل فیلد منبع اقامت در DL-G0 + تأیید مکتوب C روی توافق + سؤال آخر پرسشنامه + چک‌لیست OpSec (R11) + scrub کپی عمومی (R9).
+**اثر روی GATE-STAMP:** APPROVED PAGE_SETUP همچنان **NO-GO** — بازشدنش فقط با: تکمیل فیلد منبع اقامت در DL-G0 + تأیید مکتوب C روی توافق + سؤال آخر پرسشنامه + چک‌لیست OpSec (R11) + scrub کپی عمومی (R9).
 
 ---
 

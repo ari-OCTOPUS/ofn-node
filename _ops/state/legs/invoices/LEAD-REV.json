@@ -1,10 +1,10 @@
 {
-  "ts": "2026-07-17T17:45:29",
+  "ts": "2026-07-31T16:15:06",
   "schema": "invoice.v1",
-  "inv_number": "INV-FY26-313",
+  "inv_number": "INV-FY26-373",
   "attribution_id": "LEAD-REV",
-  "issue_date": "2026-07-17",
-  "due_date": "2026-07-31",
+  "issue_date": "2026-07-31",
+  "due_date": "2026-08-14",
   "line_items": [
     {
       "description": "Labor: interior wall (prep: standard, 2 coat(s))",
@@ -27,9 +27,9 @@
   "total_incl_gst": 7150.0,
   "deposit_max": 715.0,
   "business": {
-    "abn": "",
-    "trading_name": "",
-    "address": "",
+    "abn": "46 673 280 030",
+    "trading_name": "MASTER PAINTING AND MAINTENANCE AND DESIGN PTY LTD",
+    "address": "9 Cycas Pl, Stanhope Gardens NSW 2768",
     "payment_terms": "Due within 14 days",
     "payment_methods": "Bank Transfer",
     "bank_details": ""

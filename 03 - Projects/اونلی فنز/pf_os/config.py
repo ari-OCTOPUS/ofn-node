@@ -27,8 +27,29 @@ def flag(name: str) -> bool:
 PF_ROOT = os.environ.get("PF_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 """ریشه‌ی Project-F (پوشه‌ی 03 - Projects/اونلی فنز)."""
 
-VAULT = os.environ.get("OCTOPUS_VAULT") or os.path.dirname(os.path.dirname(PF_ROOT))
-"""ریشه‌ی vault اختاپوس (F:\\backup)."""
+
+def _resolve_vault() -> str:
+    """ریشه‌ی vault اختاپوس را به‌صورتِ ویندوز-امن resolve کن.
+
+    2026-07-25 fix: قبلاً یک‌خطی بود و در Git-Bash/دورزدنِ drive، مسیرِ drive-relative
+    مثل 'F:backup' (بدونِ بک‌اسلش) → dirname دو بار → 'F:' → makedirs یک دایرکتوریِ
+    literal به‌نامِ 'F:backup' در کنارِ پروژه می‌ساخت (باگِ path-escaping؛ دو دایرکتوریِ
+    خالیِ زائد ساخته شده بودند). این نگاشت drive-relative را تشخیص می‌دهد و آن را
+    به fallbackِ واقعی (دو سطح بالاتر از PF_ROOT) رد می‌کند. fail-safe."""
+    env_vault = os.environ.get("OCTOPUS_VAULT", "").strip()
+    if env_vault:
+        # drive-relative مثلِ 'F:backup' یا 'C:foo' = ناقص (وجودِ colon بدونِ بک‌اسلش
+        # بعدش). در ویندوز این یعنی مسیرِ نسبی روی آن drive، نه absolute. رد کن.
+        if len(env_vault) >= 2 and env_vault[1] == ":" and \
+                (len(env_vault) == 2 or env_vault[2] not in ("\\", "/")):
+            pass   # drive-relative → به fallback بیفت
+        elif os.path.isdir(env_vault):
+            return env_vault
+    return os.path.dirname(os.path.dirname(PF_ROOT))
+
+
+VAULT = _resolve_vault()
+"""ریشه‌ی vault اختاپوس (F:\\backup) — drive-relative‌ها رد می‌شوند (fail-safe)."""
 
 OPS_STATE = os.path.join(VAULT, "_ops", "state")
 """مسیرِ state ارگانیسم مرکزی (برای saba-bridge.jsonl و غیره)."""

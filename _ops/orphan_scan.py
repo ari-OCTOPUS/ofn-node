@@ -14,9 +14,17 @@
 روش، و صادق‌بودن دربارهٔ حدودش
 ─────────────────────────────
 پارسِ نحوی، بدونِ import. یک ماژول «وصل» شمرده می‌شود اگر هر یک از این‌ها باشد:
-  · جایی import شود (`import x` یا `from x import …`)
-  · نامش به‌شکلِ رشته جایی بیاید (importِ پویا با `importlib`)
-  · یکی از نام‌های عمومی‌اش جای دیگری صدا زده شود
+  · جایی import شود (`import x` · `from x import …` · `from pkg import x`)
+  · نامش به‌شکلِ رشته در فایلی بیاید که واقعاً importِ پویا می‌کند
+  · یکی از نام‌های عمومی‌اش **روی خودش** صدا زده شود (`x.foo()`، نه هر `foo()`)
+  · ۰۸-۰۳ — `card()` ِ بی‌آرگومان داشته باشد و داخلِ `SCAN_DIRS` ِ
+    `capability_registry` باشد: آن رجیستری خودش پیدایش می‌کند و `center.py`
+    رندرش می‌کند، پس از تلگرام قابلِ لمس است حتی با صفر importer
+  · ۰۸-۰۳ — از یک `.bat`/`.cmd`/`.ps1` با نامِ `x.py` اجرا شود (نقطهٔ ورود)
+
+دو موردِ آخر تا ۰۸-۰۳ مدل نمی‌شدند و ~۳۱ هشدارِ کاذب می‌ساختند — از جمله
+`watchdog`، `miniapp_gateway`، `budget_judge`، `dark_capabilities` و **خودِ این
+ماژول**. آشکارسازی که خودش را یتیم اعلام کند، خاموش می‌شود.
 
 **این روش محافظه‌کار است و عمداً کم‌گزارش می‌دهد**: هر ابهام به نفعِ «وصل» حل
 می‌شود. پس فهرستِ خروجی کفِ مسئله است، نه سقفش — چیزی که این‌جا می‌آید، تقریباً
@@ -57,6 +65,17 @@ _WEIGHTY = re.compile(
     r"arm|breaker|limit|safety|invoice|revenue|recover)", re.I)
 
 
+# ۰۸-۰۳ — اندام‌های تولیدی که نامشان با `test_` شروع می‌شود.
+# `_files()` هر `test_*` را رد می‌کند (درست، برای کاندیداها)، ولی این‌ها
+# **صداکننده**اند: `test_cycle.py` حلقهٔ آزمونِ ۷روزه است (رأیِ مالک ۰۷-۳۰،
+# کادنس و دفترِ خودش) و `goal_action_bridge` / `receipt_critic` /
+# `cycle_evaluator` را صدا می‌زند. تا وقتی این فایل از جمع‌آوریِ ارجاع بیرون
+# بود، آن سه «یتیم» گزارش می‌شدند در حالی که مسلح و زنده‌اند.
+#
+# تفکیکِ کلیدی: «کاندیدِ یتیمی» و «منبعِ ارجاع» دو فهرستِ متفاوت‌اند.
+_PROD_TEST_NAMED = {"test_cycle.py"}
+
+
 def _files() -> list:
     out = []
     for f in sorted(_HERE.rglob("*.py")):
@@ -75,6 +94,21 @@ def _files() -> list:
     return out
 
 
+def _caller_files() -> list:
+    """فایل‌هایی که برای **یافتنِ ارجاع** خوانده می‌شوند.
+
+    اَبَرمجموعهٔ کاندیداها: به‌علاوهٔ اندام‌های تولیدیِ `test_`-نام. این‌ها
+    کاندیدِ یتیمی نیستند (نامشان تستی است و `t_forbidden_paths_are_never_scanned`
+    درست می‌گوید تستی نباید در فهرست بیاید) ولی صداکنندهٔ واقعی‌اند."""
+    out = _files()
+    seen = {f.resolve() for f in out}
+    for name in _PROD_TEST_NAMED:
+        p = _HERE / name
+        if p.is_file() and p.resolve() not in seen:
+            out.append(p)
+    return out
+
+
 def _public_names(tree) -> set:
     out = set()
     for n in tree.body:
@@ -84,12 +118,105 @@ def _public_names(tree) -> set:
     return out
 
 
+def _card_scan_dirs() -> tuple:
+    """`SCAN_DIRS` ِ capability_registry — با **پارس**، نه import.
+
+    عمداً از خودِ فایل خوانده می‌شود نه رونوشتِ دستی: اگر روزی پوشه‌ای به آن
+    رجیستری اضافه شود، این‌جا خودبه‌خود درست می‌ماند. importش هم ممنوع است —
+    `t_the_scanner_imports_nothing_it_scans` هر ماژولِ تازه در `sys.modules` را
+    قرمز می‌کند."""
+    import warnings
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", SyntaxWarning)
+            tree = ast.parse((_HERE / "capability_registry.py").read_text("utf-8"))
+    except (OSError, SyntaxError, ValueError, UnicodeDecodeError):
+        return ()
+    for n in tree.body:
+        if not isinstance(n, ast.Assign):
+            continue
+        for t in n.targets:
+            if isinstance(t, ast.Name) and t.id == "SCAN_DIRS":
+                try:
+                    return tuple(str(x) for x in ast.literal_eval(n.value))
+                except (ValueError, SyntaxError, TypeError):
+                    return ()
+    return ()
+
+
+def _has_zero_arg_card(tree) -> bool:
+    """همان قاعدهٔ `capability_registry._zero_arg_card` — کارتی که ورودی بخواهد
+    خودکار کشف نمی‌شود، پس شاهدِ اتصال هم نیست."""
+    for node in tree.body:
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        if node.name != "card":
+            continue
+        a = node.args
+        required = [x for x in a.args if x.arg not in ("self", "cls")]
+        n_req = len(required) - len(a.defaults)
+        kw_req = sum(1 for d in a.kw_defaults or [] if d is None)
+        if n_req <= 0 and kw_req <= 0:
+            return True
+    return False
+
+
+def _card_discoverable(trees) -> set:
+    """ماژول‌هایی که رجیستریِ توانایی‌ها خودش پیدایشان می‌کند.
+
+    مرزِ `SCAN_DIRS` جدی است: `card()` بیرونِ آن پوشه‌ها **کشف نمی‌شود**، پس
+    شاهدِ اتصال نیست. اگر این را نادیده بگیریم، دقیقاً همان اشتباهِ برعکس
+    می‌شود — یتیمِ واقعی را «وصل» اعلام کردن."""
+    dirs = _card_scan_dirs()
+    if not dirs:
+        return set()
+    out = set()
+    for f, tree in trees.items():
+        try:
+            rel_dir = f.relative_to(_HERE).parent.as_posix()
+        except ValueError:
+            continue
+        if rel_dir == ".":
+            rel_dir = ""
+        if rel_dir in dirs and _has_zero_arg_card(tree):
+            out.add(f.stem)
+    return out
+
+
+def _script_launched() -> set:
+    """ماژول‌هایی که یک `.bat`/`.cmd`/`.ps1` اجرایشان می‌کند — نقطهٔ ورود."""
+    out = set()
+    for pattern in ("*.bat", "*.cmd", "*.ps1"):
+        for s in _HERE.rglob(pattern):
+            try:
+                rel_parts = set(s.relative_to(_HERE).parts)
+            except ValueError:
+                rel_parts = set(s.parts)
+            if rel_parts & _SKIP:
+                continue
+            try:
+                txt = s.read_text("utf-8", errors="replace")
+            except OSError:
+                continue
+            # `%~dp0acceptance_journey.py` بدونِ این پاک‌سازی به
+            # `dp0acceptance_journey` می‌خورد (رقم هم `\w` است) و یک نقطهٔ
+            # ورودِ واقعی «یتیم» گزارش می‌شد.
+            txt = re.sub(r"%~?[a-zA-Z]*\d*%?", " ", txt)
+            for m in re.finditer(r"([A-Za-z_][\w]*)\.py", txt):
+                out.add(m.group(1))
+    return out
+
+
 def scan() -> dict:
     """{orphans: [...], total, checked}. فقط خواندن."""
     import warnings
     files = _files()
+    candidates = set(files)
+
+    # `ref_trees` اَبَرمجموعه است: کاندیداها + اندام‌های تولیدیِ `test_`-نام.
+    # کاندیدِ یتیمی از `candidates` می‌آید، شاهدِ ارجاع از `ref_trees`.
     trees, texts = {}, {}
-    for f in files:
+    for f in _caller_files():
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", SyntaxWarning)
@@ -121,8 +248,14 @@ def scan() -> dict:
             if isinstance(n, ast.Import):
                 for a in n.names:
                     imported.add((f, a.name.split(".")[-1]))
-            elif isinstance(n, ast.ImportFrom) and n.module:
-                imported.add((f, n.module.split(".")[-1]))
+            elif isinstance(n, ast.ImportFrom):
+                # ۰۸-۰۳ — گاردِ قبلی `and n.module` بود، پس `from . import X`
+                # (که `n.module is None` دارد) **کلِ شاخه** را می‌انداخت. چهار
+                # ماژولِ زنده از همین راه یتیمِ کاذب شدند: `emit` از
+                # `epistemics/__init__.py:7`، و `contradiction`/`novelty`/
+                # `opportunity` از `world_discovery/octopus_adapter.py:24`.
+                if n.module:
+                    imported.add((f, n.module.split(".")[-1]))
                 # شکلِ چهارم (درسِ ثبت‌شدهٔ reachability): `from pkg import mod`
                 # خودِ mod را import می‌کند ولی فقط pkg ثبت می‌شد — center با
                 # همین شکل صدا می‌خورد و بعد از سفت‌شدنِ شاهدِ رشته‌ای، هشدارِ
@@ -141,13 +274,23 @@ def scan() -> dict:
                 if v and len(v) < 60:
                     quoted.add((f, v.split(".")[-1]))
 
+    # دو مکانیزمِ صداکننده که تا ۰۸-۰۳ مدل نمی‌شدند. هر دو **مستقل از importer**
+    # اند، پس ماژولی که هیچ‌کس importش نمی‌کند باز هم می‌تواند کاملاً زنده باشد.
+    card_ok = _card_discoverable(trees)
+    cli_ok = _script_launched()
+
     orphans = []
     for f, tree in trees.items():
+        # اندامِ `test_`-نام صداکننده است ولی کاندیدِ یتیمی نیست.
+        if f not in candidates:
+            continue
         stem = f.stem
         if _EXPECTED_STANDALONE.match(stem):
             continue
         pub = _public_names(tree)
         if not pub:
+            continue
+        if stem in card_ok or stem in cli_ok:
             continue
         others = [g for g in trees if g != f]
         wired = any(

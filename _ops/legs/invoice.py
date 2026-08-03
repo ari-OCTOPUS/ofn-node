@@ -80,11 +80,42 @@ def _profile_business() -> dict:
             # این دو کلید عمداً optional‌اند: مالک می‌تواند در همان فایلِ gitignored
             # اضافه‌شان کند و هرگز واردِ git نمی‌شوند.
             "address": str(prof.get("business_address", "") or "").strip(),
-            "bank_details": str(prof.get("bank_details", "") or "").strip(),
+            # ۲۰۲۶-۰۸-۰۱ — دو شکلِ مجاز، به همین ترتیب.
+            #
+            # مالک `bank_details` را زیرِ `bank_accounts[0]` گذاشت، نه در ریشه —
+            # و آن **جای درست‌تری است**: جزئیاتِ پرداخت به یک حسابِ مشخص تعلق
+            # دارد، نه به کلِ پروفایل. پروفایل از قبل `bank_accounts[]` با
+            # `bank_account_id` و `entity_id` دارد؛ ریشه فقط یک میان‌بر بود.
+            #
+            # پس به‌جای اینکه مالک دوباره جابه‌جایش کند (و شمارهٔ حساب از دستِ
+            # دیگری رد شود)، خواننده سخاوتمند می‌شود. ریشه مقدم است تا اگر روزی
+            # صریح ست شد، برنده باشد — و آن ترتیب در تست قفل است.
+            "bank_details": (str(prof.get("bank_details", "") or "").strip()
+                             or _bank_from_accounts(prof)),
         }
         return {k: v for k, v in out.items() if v}
     except Exception:  # noqa: BLE001 — هویت هرگز تولیدِ فاکتور را نمی‌کشد
         return {}
+
+
+def _bank_from_accounts(prof: dict) -> str:
+    """`bank_details` از `bank_accounts[]` — اولین حسابی که پُرش دارد.
+
+    هرگز مقدار را لاگ/چاپ نمی‌کند و هرگز چیزی نمی‌نویسد؛ فقط می‌خواند.
+    چند-حسابی: اولینِ پُر برنده است، و اگر روزی مهم شد ریشه صریح ست می‌شود
+    (که مقدم است). fail-soft: هر شکلِ بدقواره → رشتهٔ خالی، یعنی فاکتور
+    هشدارِ «پرداخت‌ناپذیر» می‌دهد — که رفتارِ درستِ ندانستن است.
+    """
+    try:
+        for acc in (prof.get("bank_accounts") or []):
+            if not isinstance(acc, dict):
+                continue
+            v = str(acc.get("bank_details", "") or "").strip()
+            if v:
+                return v
+    except Exception:  # noqa: BLE001
+        pass
+    return ""
 
 
 def _business_config() -> dict:
@@ -373,8 +404,24 @@ def render_invoice_html(rec: dict) -> str:
         "",
         f"Payment: {html.escape(biz.get('payment_methods', ''))}",
     ])
-    if biz.get("bank_details"):
-        lines.append(f"Bank: <code>{html.escape(biz['bank_details'])}</code>")
+    # ⚠️ `.strip()` عمدی: `if biz.get(...)` یک رشتهٔ فاصله را **صادق** می‌بیند و
+    # `Bank: <code>   </code>` می‌ساخت — خطِ بانکی که وجود دارد و پوچ است، که از
+    # نبودنش بدتر است چون فرستنده فکر می‌کند کامل است. با پروب دیده شد.
+    if str(biz.get("bank_details") or "").strip():
+        lines.append(f"Bank: <code>{html.escape(biz['bank_details'].strip())}</code>")
+    else:
+        # ۲۰۲۶-۰۸-۰۱ — قبلاً این شاخه وجود نداشت: خطِ بانک **بی‌صدا حذف** می‌شد.
+        # نتیجه یک فاکتورِ ظاهراً کامل بود که مشتری هیچ راهی برای پرداختش
+        # نداشت — و مالک تا وقتی پول نمی‌آمد نمی‌فهمید چرا.
+        #
+        # `lead_leg.py:214` این را در سیگنالِ پا هشدار می‌داد، ولی آن هشدار در
+        # کارتِ وضعیت است نه روی خودِ سند؛ کسی که فاکتور را می‌فرستد آن را
+        # نمی‌بیند. سکوت روی **خودِ آرتیفکت** بدترین جای سکوت است.
+        #
+        # طبقِ قرارداد این مخزن سکوت با یک جملهٔ صریح جایگزین می‌شود، نه با
+        # raise: فاکتور باید ساخته شود تا مالک ببیندش و بفهمد چه کم است.
+        lines.append("⚠️ <b>Bank details not set — this invoice cannot be paid.</b>")
+        lines.append("<i>Add `bank_details` to the business config, then re-issue.</i>")
     lines.append(f"Terms: {html.escape(biz.get('payment_terms', ''))}")
     return "\n".join(lines)
 

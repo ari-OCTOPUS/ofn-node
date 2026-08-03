@@ -9,8 +9,16 @@
     capability_registry     «چه چیزی می‌توانم به مالک نشان دهم؟»
     flag_drift.py           «مسلح در برابرِ بارگذاری‌شده»
     tg_send_audit.py        «پیام‌ها به کجا می‌روند؟»
+    dark_capabilities.py    «کدام قابلیت کد دارد و در هر پروسه نمی‌دود؟»
 
     self_scan.py  ← این‌جا: **پنج شکافی که هیچ‌کدامِ بالا نمی‌بیند**
+
+⚠️ همپوشانیِ صادقانه با `dark_capabilities` (۲۰۲۶-۰۸-۰۱): پرسشِ F ِ این فایل
+(«مسلح ولی بی‌خواننده») همان پرسشِ `orphan_armed` آن‌جاست و هر دو امروز عددِ
+یکسان می‌دهند — که خودش شاهدِ متقاطع است، نه دوباره‌کاری. تفاوتِ واقعی این است
+که آن‌جا حکم از snapshotِ بوتِ **هر پروسه** می‌آید، پس حالتِ «در center روشن،
+در organism خاموش» را می‌بیند و این‌جا نمی‌شود دید؛ و دروازه را از پارامترِ
+تنظیمی جدا می‌کند. اگر روزی اعدادشان واگرا شدند، یکی از دو اسکنر شکسته است.
 
 پنج پرسشِ این ماژول
 ───────────────────
@@ -51,7 +59,8 @@ CARD_TITLE = "خودشناسی — نقاطِ کور"
 # ساختاراً ممنوع. حتی اگر کسی مسیر بدهد، این‌ها رد می‌شوند.
 _FORBIDDEN_PARTS = ("08 - Partner (PII)", "Identity", ".git", "__pycache__",
                     "_code", "node_modules", ".venv")
-_SKIP_DIRS = ("_Archive", "_Duplicates", ".pytest_cache")
+_SKIP_DIRS = ("_Archive", "_Duplicates", ".pytest_cache",
+              ".claude", "worktrees")  # ⚠️ ۰۸-۰۱: `.claude` = ۵.۵ GB و ۶۷k فایل در ۱۸ worktree (۹۶٪ رونوشت)
 
 _FLAG_RE = re.compile(r"\b((?:OCTOPUS|PAID|FUGU|TELEGRAM)_[A-Z0-9_]{2,})\b")
 _STATE_SUFFIXES = (".json", ".jsonl", ".db", ".txt", ".md", ".cursor", ".lock")
