@@ -152,7 +152,8 @@ def is_useless_truncation(text: str, finish_reason) -> bool:
     return finish_reason == "length" and len(str(text or "").strip()) < min_useful
 
 
-def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int) -> dict | None:
+def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int,
+              task: str = "") -> dict | None:
     """مسیرِ پولی — فقط پشتِ گیتِ باز. lazy organ_gate (I2)؛ metering سهمیه‌ای:
     settle(actual=0.0) چون subscription؛ خودِ reserve/settle مصرف را ثبت می‌کند."""
     ok, why = paid_gate()
@@ -171,7 +172,7 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int) -> dict | No
     # با fugu_quota complementary است (breaker=per-provider/خودکار، quota=daily-cap/دستی).
     _ccb = _cb.check(role)
     if not _ccb.get("allow"):
-        _paid_log(tier=tier, role=role, ok=False,
+        _paid_log(task=task, tier=tier, role=role, ok=False,
                   error=f"circuit_{_ccb.get('state')}",
                   ms=0, note=_ccb.get("reason", ""))
         return None
@@ -202,7 +203,7 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int) -> dict | No
         except Exception as _ce:
             fugu_quota.fail(tier, error=_ce)
             _cb.record_failure(role, f"{type(_ce).__name__}: {_ce}")   # provider ناسالم
-            _paid_log(tier=tier, role=role,
+            _paid_log(task=task, tier=tier, role=role,
                       provider=getattr(cli, "provider", ""),
                       model=getattr(cli, "model", ""),
                       via_gateway=bool(getattr(cli, "use_gateway", False)),
@@ -216,7 +217,7 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int) -> dict | No
         organ_gate.settle("ARCHITECT_SYS", est,
                           float(out.get("cost_usd", 0.0) or 0.0),
                           task=f"cortex-{tier}")
-        _paid_log(tier=tier, role=role,
+        _paid_log(task=task, tier=tier, role=role,
                   provider=getattr(cli, "provider", ""),
                   model=out.get("model"),
                   via_gateway=bool(out.get("via_gateway")),
@@ -384,7 +385,7 @@ def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
             if _tb.time() >= _deadline:
                 tried.append(f"{_t}:skipped-deadline")
                 break
-            out = _ask_paid(_t, prompt, system, max_tokens)
+            out = _ask_paid(_t, prompt, system, max_tokens, task=task)
             tried.append(_t)
             if out:
                 return {"ok": True, **out}
