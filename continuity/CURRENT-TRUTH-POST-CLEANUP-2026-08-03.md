@@ -76,6 +76,37 @@ F:\backup\
 - 🗑️ branch `fix/neural-loop-close-310-214` حذف شد (کاملاً dead)
 - **اقدام لازم**: هیچ merge لازم نیست؛ فقط review و فعال‌سازیِ کنترل‌شدهٔ flagها در آینده (پس از ۲۴–۴۸h shadow review طبق طراحی).
 
+## NOTE — nbb-cp-kre app (verified 2026-08-03)
+
+`4d_system/nbb-cp-kre/` در baseline `ea69126` موجود بود **قبل از قفلِ نشستِ پاک‌سازی**. این یک پکیجِ پایتونِ از-قبل‌موجود است (تحتِ `src/nbb_cp_kre/`)، نه featureِ ساخته‌شده در نشستِ no-feature.
+
+وقایعِ راستی‌آزمایی‌شده:
+- ✅ `watcher.py` از watchdog observer و file_hash reads استفاده می‌کند؛ هیچ write یافت نشد
+- ✅ `ReadOnlyGuard` choke-pointِ filesystem-write است و fail-closed است
+- ✅ `read_note_body` روی خطا/escape fail-closed می‌شود (`return None`)
+- ✅ `start.bat` و `run_dashboard.bat` موجودند
+- ⛔ اپ در این نشست **اجرا نشد**
+
+وضعیتِ اجرا:
+- **NOT RUN** در این نشست
+- نیاز به Decision Recordِ جداگانه قبل از اجرا دارد، چون `run_dashboard.bat` ممکن است وابستگی نصب کند (`pip install -e ".[ui,live]"`) و کلِ `F:\backup` را scan کند
+
+### طبقه‌بندیِ manifest
+```
+kind: app/tool
+status: BASELINE_PREEXISTING
+decision: KEEP_STAGED_READONLY_TOOL
+execution: NOT_RUN_THIS_SESSION
+risk: medium
+reason: dependency install + vault-wide scan + watcher/live mode concerns
+```
+
+### پیش‌نیازهای اجرای امن (نشستِ بعدی)
+۱. Decision Record (D3): environment_change=yes, vault_scan=yes, owner_required=yes
+۲. نصب داخل `.venv`، نه global pip
+۳. اول روی snapshot/test vault کوچک، نه کلِ `F:\backup`
+۴. ترتیب: package-check → dashboard-only → scan read-only sample → بعداً watcher
+
 ## rollback
 
 اگه نیاز به بازگشت به این baseline بود:
