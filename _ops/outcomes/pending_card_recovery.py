@@ -759,7 +759,17 @@ def persist_rfc_verdict(*, state_dir, rfc_id, verdict) -> bool:
 
 
 def claim_rfc_verdicts(*, state_dir, worker_id, lease_s=300) -> list:
-    """DECIDED→LEASED with a durable lease. Returns (rfc_id, verdict, revision)."""
+    """DECIDED→LEASED with a durable lease. Returns (rfc_id, verdict, revision).
+
+    VQ-RFC-STALL-RECOVERY-001 (۲۰۲۶-۰۸-۰۳، برشِ ۲): ردیفی که به RECONCILE_REQUIRED
+    رسید ولی operation_key هرگز ست نشد (یعنی begin_rfc_apply/apply_merge هرگز صدا
+    زده نشدند — دقیقاً هر ۲۱ ردیفِ زندهٔ ۰۸-۰۳، محصولِ باگِ self._rfcs) قبلاً برای
+    همیشه گیر می‌ماند: این تابع فقط DECIDED/LEASEDِ منقضی را claim می‌کرد، و
+    RECONCILE_REQUIRED از دیدش کاملاً بیرون بود. حالا این حالتِ خاص هم claim
+    می‌شود — **فقط** وقتی operation_key هنوز NULL است (یعنی apply_merge هرگز
+    اجرا نشده، پس retry از صفر بی‌خطر است). ردیفی که operation_key دارد (apply
+    واقعاً شروع شده و نتیجه‌اش نامعلوم مانده) عمداً دست‌نخورده می‌ماند — آن یکی
+    reconciliation ِ انسانی می‌خواهد، نه retry ِ خودکار."""
     out = []
     try:
         con = _rfc_con(state_dir)
@@ -768,11 +778,15 @@ def claim_rfc_verdicts(*, state_dir, worker_id, lease_s=300) -> list:
             now = _now()
             rows = con.execute(
                 "SELECT rfc_id,verdict,revision FROM rfc_decision WHERE state='DECIDED' "
-                "OR (state='LEASED' AND COALESCE(lease_until,0)<?) ORDER BY rfc_id", (now,)).fetchall()
+                "OR (state='LEASED' AND COALESCE(lease_until,0)<?) "
+                "OR (state='RECONCILE_REQUIRED' AND operation_key IS NULL) "
+                "ORDER BY rfc_id", (now,)).fetchall()
             for rid, verdict, rev in rows:
                 cur = con.execute(
                     "UPDATE rfc_decision SET state='LEASED',lease_owner=?,lease_until=?,updated_ts=? "
-                    "WHERE rfc_id=? AND revision=? AND (state='DECIDED' OR lease_until<?)",
+                    "WHERE rfc_id=? AND revision=? AND (state='DECIDED' "
+                    "OR (state='LEASED' AND lease_until<?) "
+                    "OR (state='RECONCILE_REQUIRED' AND operation_key IS NULL))",
                     (str(worker_id), now + int(lease_s), now, rid, rev, now))
                 if cur.rowcount == 1:
                     out.append((rid, verdict, int(rev)))

@@ -321,6 +321,50 @@ def t_rfc_consume_then_crash_no_duplicate():
         f"RFCِ رأی‌خورده+مصرف‌شده نه reinject نه rebuild: {r}"
 
 
+# ── ۱۳ (برشِ ۲): RECONCILE_REQUIRED با operation_key=NULL باید دوباره claim شود ──
+def t_rfc_stalled_without_opkey_is_reclaimable():
+    """VQ-RFC-STALL-RECOVERY-001: دقیقاً حالتِ زندهٔ ۲۱ ردیفِ ۰۸-۰۳ — رأی ثبت شده
+    ولی begin_rfc_apply هرگز صدا زده نشد (operation_key=NULL) و state مستقیم
+    RECONCILE_REQUIRED مانده (شبیه‌سازیِ باگِ self._rfcs ِ قدیمی با SQL مستقیم،
+    چون آن مسیرِ قدیمی دیگر در کد نیست). باید دوباره claim و تا APPLIED برود."""
+    _env(); _reset_store()
+    pcr.persist_rfc_verdict(state_dir=_STATE, rfc_id="RFC-STALL", verdict="merge-approved")
+    con = pcr._rfc_con(_STATE)
+    con.execute("UPDATE rfc_decision SET state='RECONCILE_REQUIRED' WHERE rfc_id=?",
+               ("RFC-STALL",))
+    con.commit()
+    con.close()
+    claimed = pcr.claim_rfc_verdicts(state_dir=_STATE, worker_id="doctor-recover")
+    hit = [x for x in claimed if x[0] == "RFC-STALL"]
+    assert hit, f"ردیفِ گیرافتاده دوباره claim نشد: {claimed}"
+    rid, verdict, rev = hit[0]
+    assert verdict == "merge-approved"
+    assert pcr.begin_rfc_apply(state_dir=_STATE, rfc_id=rid, revision=rev,
+                              operation_key=f"rfc:{rid}:rev:{rev}")
+    assert pcr.ack_rfc_verdict(state_dir=_STATE, rfc_id=rid, revision=rev,
+                              applied=True, receipt_id="ledger:recovered")
+    v = pcr.load_rfc_verdicts(_STATE)["RFC-STALL"]
+    assert v["state"] == "APPLIED" and v["receipt_id"] == "ledger:recovered", v
+
+
+# ── ۱۴ (برشِ ۲): RECONCILE_REQUIRED با operation_key ست‌شده هرگز دوباره claim نمی‌شود ──
+def t_rfc_reconcile_with_opkey_never_reclaimed():
+    """اگر begin_rfc_apply واقعاً صدا زده شده بود (operation_key موجود) یعنی
+    apply_merge ممکن است یک‌بار اجرا شده و نتیجه‌اش نامعلوم مانده — این حالت
+    **نباید** خودکار دوباره claim شود (ریسکِ اثرِ دوگانه). مرزِ سختِ retry:
+    فقط operation_key=NULL."""
+    _env(); _reset_store()
+    pcr.persist_rfc_verdict(state_dir=_STATE, rfc_id="RFC-AMBIG", verdict="merge-approved")
+    claimed0 = pcr.claim_rfc_verdicts(state_dir=_STATE, worker_id="doctor-1")
+    rid, _v, rev = [x for x in claimed0 if x[0] == "RFC-AMBIG"][0]
+    assert pcr.begin_rfc_apply(state_dir=_STATE, rfc_id=rid, revision=rev,
+                              operation_key=f"rfc:{rid}:rev:{rev}")
+    # اینجا apply_merge فرضاً اجرا شده ولی هرگز ack نشده (کرش وسطِ راه) — عمداً هیچ ack ای نمی‌زنیم
+    claimed1 = pcr.claim_rfc_verdicts(state_dir=_STATE, worker_id="doctor-2")
+    assert [x for x in claimed1 if x[0] == "RFC-AMBIG"] == [], (
+        "ردیفِ operation_key-دار نباید خودکار دوباره claim شود — ریسکِ اثرِ دوگانه", claimed1)
+
+
 if __name__ == "__main__":
     failed = harness.run([
         ("[۱] projection هر بوت + دکمهٔ واقعی (B1/B2)", t_projection_every_boot_with_buttons),
@@ -335,5 +379,9 @@ if __name__ == "__main__":
         ("[۱۰] RFC submitted rebuild، decided نه", t_rfc_submitted_rebuilt_decided_not),
         ("[۱۱] RFC رأی زنده می‌ماند + exactly-once (B7)", t_rfc_verdict_survives_crash_before_consume),
         ("[۱۲] RFC consume→crash→no-dup (B7)", t_rfc_consume_then_crash_no_duplicate),
+        ("[۱۳ برشِ ۲] RECONCILE_REQUIRED بدونِ opkey دوباره claim می‌شود",
+         t_rfc_stalled_without_opkey_is_reclaimable),
+        ("[۱۴ برشِ ۲] RECONCILE_REQUIRED با opkey هرگز دوباره claim نمی‌شود",
+         t_rfc_reconcile_with_opkey_never_reclaimed),
     ])
     sys.exit(1 if failed else 0)
