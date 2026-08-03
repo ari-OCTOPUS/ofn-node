@@ -128,6 +128,24 @@ def setup(name: str) -> dict:
     sys.path.insert(0, str(_ops_self / "budget"))
     sys.path.insert(0, str(_ops_self / "debate"))
     sys.path.insert(0, str(_ops_self))
+
+    # ⚠️ VQ-LIVE-STATE-GUARD-001 (۲۰۲۶-۰۸-۰۳). envهای بالا لازم‌اند ولی **کافی نیستند**:
+    # هر ماژولی که مسیرش را نسبت به فایلِ خودش حساب کند (`school_bridge.AWARENESS_STATE`)،
+    # یا هر تستی که قبل از `setup()` چیزی import کند، همچنان به `F:\backup\_ops\state`
+    # می‌افتد. سنجهٔ ۵۴۰-تستیِ ۰۸-۰۳ چهار نمونهٔ زنده پیدا کرد — یکی اتصالِ **نوشتنی**
+    # به `chrono.db`. گارد به‌جای ست‌کردنِ مسیر، خودِ نوشتن را می‌گیرد.
+    # گاردِ **شبکه** اینجا مسلح نمی‌شود: `test_llm_routing_smoke` عمداً تماسِ زنده
+    # می‌زند. آن یکی فقط در runner ِ ایزوله بالا می‌آید.
+    if (os.environ.get("OCTOPUS_TEST_ALLOW_LIVE_STATE") or "") != "1":
+        try:
+            sys.path.insert(0, str(Path(__file__).resolve().parent))
+            import live_state_guard
+            live_state_guard.arm("block")
+        except Exception as _e:  # noqa: BLE001
+            sys.stderr.write(
+                f"⚠️  live_state_guard مسلح نشد ({type(_e).__name__}: {_e}) — "
+                f"این اجرا می‌تواند داخلِ state ِ زنده بنویسد\n")
+
     return {"root": root, "ops": ops, "genome": genome, "brain": brain, "arch": arch, **env}
 
 
