@@ -100,6 +100,22 @@ session_window: ~16:00–20:15 (+10 AEST)
 
 ---
 
+## ERRATA — neural-loop #310 (2026-08-03, post-verification)
+
+بخشِ بالا **اشتباه بود**. راستی‌آزماییِ دقیق‌تر (فاز B، post-baseline) نشان داد:
+
+- ✅ **#۲۱۴ BCM self-wipe guard** روی master جذب شده — `bcm.py:150 if known:` + تست‌ها
+- ✅ **#۳۱۰ neural→decision shadow-first** روی master جذب شده — `neural_driver.py:79-88` (`bcm=None`، `learned_pressure`، shadow path)
+- ✅ flagها روی master هستن و default-off:
+  - `OCTOPUS_NEURAL_EFFECT_SHADOW` (shadow logging)
+  - `OCTOPUS_NEURAL_LEARNED_APPLY` (apply path — پشتِ flagِ جدا)
+- 🗑️ branch `fix/neural-loop-close-310-214` **حذف شد** (کاملاً dead — کارش روی master بود)
+- **اقدام لازم**: هیچ merge لازم نیست. neural loop قبلاً به‌صورتِ shadow-first بسته شده. فقط review و فعال‌سازیِ کنترل‌شدهٔ flagها در آینده (پس از ۲۴–۴۸h shadow).
+
+> این errata بخشِ «مورد بحرانی باقی‌مانده» در بالا را باطل می‌کند.
+
+---
+
 ## 📁 ساختارِ نهاییِ ریشه
 
 ```

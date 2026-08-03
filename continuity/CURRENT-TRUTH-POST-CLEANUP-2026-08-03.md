@@ -63,6 +63,19 @@ F:\backup\
 ├── 📁 agent-prompts, continuity, _Templates, _archive-binaries, _Archive, _Duplicates
 ```
 
+## ERRATA — neural-loop #310 (2026-08-03, post-verification)
+
+در نسخهٔ اولیهٔ SESSION-SUMMARY نوشته شد که #۳۱۰ neural→decision روی master نیست.
+این **اشتباه بود**. راستی‌آزمایی بعدی (فاز B) نشان داد:
+
+- ✅ #۲۱۴ BCM self-wipe guard روی master جذب شده (`bcm.py:150 if known:`)
+- ✅ #۳۱۰ neural→decision shadow-first روی master جذب شده (`neural_driver.py:79-88`)
+- ✅ flagها default-off هستند:
+  - `OCTOPUS_NEURAL_EFFECT_SHADOW` (shadow logging، default-off)
+  - `OCTOPUS_NEURAL_LEARNED_APPLY` (apply path، default-off)
+- 🗑️ branch `fix/neural-loop-close-310-214` حذف شد (کاملاً dead)
+- **اقدام لازم**: هیچ merge لازم نیست؛ فقط review و فعال‌سازیِ کنترل‌شدهٔ flagها در آینده (پس از ۲۴–۴۸h shadow review طبق طراحی).
+
 ## rollback
 
 اگه نیاز به بازگشت به این baseline بود:
