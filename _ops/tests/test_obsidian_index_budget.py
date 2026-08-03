@@ -15,6 +15,20 @@
 رفع: پسوندهای غیرقابلِ‌رندر به فیلترِ موجود اضافه شدند ⇒ ۱۳٬۰۶۴ → ۶٬۹۰۳
 (‏۴۷٪ کمتر)، با **صفر** نوتِ markdown ِ ازدست‌رفته و **صفر** لینکِ شکسته.
 
+⚠️ تصحیحِ ادعای اولِ خودم دربارهٔ **مکانیزم** (ممیزیِ موازی، ۰۸-۰۴):
+`userIgnoreFilters` تنظیمِ «Excluded files» ِ ابسیدین است. آنچه قطعاً می‌کند:
+حذف از **جستجو، گراف، quick switcher، پیشنهادِ لینک و unlinked mentions**.
+آنچه مستند **نیست** که بکند: ردکردنِ شمارشِ اولیهٔ vault، ‏file watcher، یا
+metadata cache. پس این تغییر بردِ واقعی دارد ولی بردش «۴۷٪ سریع‌تر بالا
+می‌آید» **نیست** — «۴۷٪ کمتر آشغال در نتایج و گراف» است.
+دو عددِ سنجیده که همین را نشان می‌دهند: روی ویندوز، پایشِ بازگشتی **یک**
+هندلِ `ReadDirectoryChangesW` روی ریشه است و با تعدادِ فایل بزرگ نمی‌شود؛ و
+شمارشِ دایرکتوری اندازه و mtime را **بدون بازکردنِ محتوا** می‌دهد، پس حجمِ
+بایتی اصلاً وارد تابعِ هزینه نمی‌شود.
+گلوگاهِ واقعیِ این ماشین جای دیگری است و رأیِ مالک است: کلِ vault روی یک
+دیسکِ ۵۴۰۰ دورِ مکانیکی (`F:` = WDC WD10SPZX، HDD) نشسته در حالی که سیستم
+روی NVMe است — بازکردنِ سردِ فایل ‏۳۲٫۲ms در برابرِ ۴۶µs گرم.
+
 ⚠️ چرا این تست لازم است: `.obsidian/app.json` را خودِ ابسیدین هم می‌نویسد.
 یک تغییر در تنظیمات از داخلِ برنامه می‌تواند این فهرست را بازنویسی کند و
 هیچ‌کس متوجه نشود — بار بی‌صدا به ۱۳ هزار برمی‌گردد.
@@ -58,14 +72,28 @@ MUST_NOT_FILTER_EXT = ("md", "png", "jpg", "jpeg", "pdf", "canvas", "base",
 MUST_FILTER_DIRS = ("_Archive/", "_Duplicates/")
 
 
-def _cfg():
-    return json.loads(APP.read_text("utf-8", errors="replace"))
+#: مسیرِ پیکربندی، تزریق‌پذیر. پیش‌فرض همان فایلِ زنده است پس رفتارِ تولیدی
+#: بایت‌به‌بایت همان قبل می‌ماند — ولی جهش‌آزمایی حالا روی یک **کپیِ موقت**
+#: می‌دود. نسخهٔ اول این پارامتر را نداشت و من برای اثباتِ دندانِ گارد، شش بار
+#: روی `.obsidian/app.json` ِ **زنده** نوشتم و برگرداندم. بایت‌به‌بایت هم
+#: برگشت (با `diff -q` سنجیده شد) ولی الگو غلط است: اگر وسطِ آن شش نوبت
+#: ابسیدین باز بود، یا جلسهٔ موازی همان فایل را می‌خواند، پیکربندیِ مالک قربانی
+#: می‌شد. همان درسِ «ایزوله را برای مسیرِ واقعی بگذار».
+_APP_OVERRIDE = None
 
 
-def _ext_regexes():
+def _app_path():
+    return _APP_OVERRIDE or APP
+
+
+def _cfg(path=None):
+    return json.loads((path or _app_path()).read_text("utf-8", errors="replace"))
+
+
+def _ext_regexes(path=None):
     """فیلترهایی که ابسیدین به‌عنوان regex می‌خواند: با `/` شروع و تمام می‌شوند."""
     out = []
-    for f in _cfg().get("userIgnoreFilters") or []:
+    for f in _cfg(path).get("userIgnoreFilters") or []:
         if f.startswith("/") and f.endswith("/") and len(f) > 2:
             out.append(f[1:-1])
     return out
@@ -73,7 +101,7 @@ def _ext_regexes():
 
 def t_a_the_config_is_readable_and_not_empty():
     """گاردِ «اسکنر خراب است» — فایلِ غایب یا تهی نباید سبز بدهد."""
-    assert APP.exists(), APP
+    assert _app_path().exists(), _app_path()
     filters = _cfg().get("userIgnoreFilters")
     assert filters, "userIgnoreFilters تهی است — ابسیدین کلِ درخت را می‌بلعد"
     assert len(filters) >= 9, f"فقط {len(filters)} فیلتر — فهرست کوتاه شده"
@@ -131,7 +159,11 @@ def t_f_this_test_only_reads():
     assert not hits, ("این تست فقط می‌خواند", hits)
 
 
-def main():
+def main(app_path=None):
+    """`app_path` فقط برای جهش‌آزمایی روی کپیِ موقت. تولید هرگز پاسش نمی‌دهد."""
+    global _APP_OVERRIDE
+    if app_path:
+        _APP_OVERRIDE = Path(app_path)
     tests = [v for k, v in sorted(globals().items())
              if k.startswith("t_") and callable(v)]
     passed, failed = 0, []
@@ -148,4 +180,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1] if len(sys.argv) > 1 else None))
