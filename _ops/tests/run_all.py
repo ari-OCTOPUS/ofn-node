@@ -876,6 +876,31 @@ def is_infra_false_red(first_rc: int, retry_rc: int) -> bool:
     return retry_rc == 0 and first_rc in INFRA_EXIT_CODES
 
 
+# ── گاردِ حالتِ زنده برای **هر** تست، نه فقط runnerِ ایزوله ────────────────────
+# یافتهٔ ممیزیِ ۲۰۲۶-۰۸-۰۳: از ۵۴۸ فایلِ تست، ۸۸ تا `harness` را import نمی‌کنند —
+# و `harness.setup()` تنها جایی است که `live_state_guard` را مسلح می‌کرد. پوششِ
+# آن شکاف از قبل ساخته شده بود (`_isolation_boot/sitecustomize.py`) ولی فقط
+# `check_state_isolation.py` آن را روی PYTHONPATH می‌گذاشت. یعنی اجرای **روزمرهٔ**
+# سوییت ۸۸ فایل را بی‌گارد می‌دواند — و دقیقاً از همان‌جا بود که یک تستِ
+# ثبت‌نشده اسلاتِ ارسالِ واقعیِ لید را سوزاند.
+#
+# گاردِ **شبکه** عمداً این‌جا مسلح نمی‌شود: `test_llm_routing_smoke` عمداً تماسِ
+# زنده می‌زند و بستنش این‌جا یک قرمزِ کاذبِ همیشگی می‌سازد. آن یکی مالِ runnerِ
+# ایزوله می‌ماند — همان تفکیکی که خودِ harness مستندش کرده.
+_BOOT_DIR = HERE / "_isolation_boot"
+
+
+def _guarded_env():
+    """envِ فرزند با تریپ‌وایرِ state ِ زنده. نبودِ boot-dir ⇒ رفتارِ قبلی."""
+    env = dict(os.environ)
+    if not _BOOT_DIR.is_dir():
+        return env
+    env["PYTHONPATH"] = os.pathsep.join(
+        [str(_BOOT_DIR)] + ([env["PYTHONPATH"]] if env.get("PYTHONPATH") else []))
+    env.setdefault("OCTOPUS_TEST_LIVE_STATE_GUARD", "block")
+    return env
+
+
 if __name__ == "__main__":
     failed = []
     for t in TESTS + EXTRA_TESTS:
@@ -890,7 +915,7 @@ if __name__ == "__main__":
         # والد خروجی را روی همان جریانِ اصلی بازپخش می‌کند تا لاگ کم‌ نشود.
         r = subprocess.run(cmd, cwd=str(p.parent), timeout=300,
                            capture_output=True, text=True,
-                           encoding="utf-8", errors="replace")
+                           encoding="utf-8", errors="replace", env=_guarded_env())
         if r.stdout:
             sys.stdout.write(r.stdout)
         if r.stderr:
@@ -912,7 +937,7 @@ if __name__ == "__main__":
                 _d.mkdir(exist_ok=True)
                 _r2 = subprocess.run(cmd, cwd=str(p.parent), timeout=300,
                                      capture_output=True, text=True,
-                                     encoding="utf-8", errors="replace")
+                                     encoding="utf-8", errors="replace", env=_guarded_env())
                 _tag = "سبز-بارِ-دوم" if _r2.returncode == 0 else "قرمزِ-پایدار"
                 if is_infra_false_red(r.returncode, _r2.returncode):
                     # ۲۰۲۶-۰۷-۳۰ — پاک‌کردنِ برچسب **عمداً غیرفعال شد** (بازبینیِ متخاصم).
