@@ -1738,7 +1738,35 @@ class Center:
     def _drive_leg_engine(self) -> None:
         """در هر ضربان حداکثر **یک** کارِ WORKING از کلِ پاها به مغزِ
         read-only داده می‌شود (محلی-اول، صفر اثرِ بیرونی). جوابِ «داده کم
-        است» ⇒ BLOCKED با کارتِ سؤال؛ وگرنه DONE با رسید و شاهد."""
+        است» ⇒ BLOCKED با کارتِ سؤال؛ وگرنه DONE با رسید و شاهد.
+
+        ۲۰۲۶-۰۸-۰۳ — این متد **inline** از `beat()` صدا زده می‌شود و `beat()`
+        خودش inline از `run_forever` است. یعنی برخلافِ نامش، «beat» پس‌زمینه
+        نبود: یک `ask_brain.ask` ِ کند اینجا همان حلقهٔ poll را می‌بست. حالا کلِ
+        متد به لِینِ مغز می‌رود (نه تک‌تکِ askها — رسیدها را خودش می‌فرستد و به
+        الگوی ack/edit نیاز ندارد).
+
+        ⚠️ گاردِ تک‌اجرا اجباری است: `leg_tasks.claim_next` عمداً وضعیت را عوض
+        **نمی‌کند** (فقط قدیمی‌ترین WORKING را برمی‌گرداند)، پس دو اجرای هم‌زمان
+        همان تسک را برمی‌دارند و دوبار جواب می‌دهند. beat ِ بعدی اگر قبلی هنوز
+        در پرواز باشد ساده رد می‌شود — کارِ جامانده نمی‌ماند، فقط یک ضربان دیرتر.
+        """
+        if getattr(self, "_leg_engine_busy", False):
+            return
+        if _submit_bg_job("brain", self._drive_leg_engine_now, BRAIN_QUEUE_MAX):
+            return
+        self._drive_leg_engine_now()      # لِین در دسترس نبود ⇒ همگام، مثلِ دیروز
+
+    def _drive_leg_engine_now(self) -> None:
+        """بدنهٔ واقعی. مستقیم صدا نزن مگر همگام لازم باشد — `_drive_leg_engine`
+        گاردِ تک‌اجرا و مسیرِ لِین را دارد."""
+        self._leg_engine_busy = True
+        try:
+            self._drive_leg_engine_body()
+        finally:
+            self._leg_engine_busy = False
+
+    def _drive_leg_engine_body(self) -> None:
         try:
             import leg_tasks as _lt
             cfg = _load_config()
@@ -3172,6 +3200,22 @@ class Center:
                 import negotiate as _ng
                 r = _ng.respond(_await, "counter", counter=text)
                 if r.get("ok"):
+                    # ۲۰۲۶-۰۸-۰۳ (لِینِ مغز): `make_offer` هم `tier="primary"` پین
+                    # می‌کند. `respond` بالا حالت را از قبل ماندگار کرده، پس
+                    # بازنگری بی‌خطر می‌تواند پس‌زمینه برود — شرطِ مالک در هر
+                    # صورت ثبت شده است.
+                    def _neg_work(_a=_await):
+                        _rv = _ng.make_offer(revise_of=_a)
+                        if _rv.get("ok"):
+                            return _ng.card(_rv["offer"])
+                        return ("✍️ شرطت ثبت شد. پیشنهادِ بازنگری‌شده الان نشد — "
+                                f"({str(_rv.get('reason'))[:40]}) بعداً می‌آید.")
+
+                    if self._defer_with_ack(
+                            chat_id, "✍️ شرطت ثبت شد — دارم بازنگری می‌کنم…",
+                            _neg_work, topic_id=self._reply_thread(msg)):
+                        return {"kind": "negotiate_revised", "sent": True,
+                                "queued": True}
                     rev = _ng.make_offer(revise_of=_await)
                     if rev.get("ok"):
                         _t, _k = _ng.card(rev["offer"])
@@ -3193,6 +3237,26 @@ class Center:
         if self._topic_key(msg) == "mirror":
             try:
                 import mirror_room as _mr
+                # ۲۰۲۶-۰۸-۰۳ (لِینِ مغز): `mirror_room.ask` هم `tier="primary"`
+                # پین می‌کند، پس همان بلاکِ تا-۲۳۵ثانیه‌ای را داشت. صفِ پر ⇒
+                # مسیرِ همگامِ زیر، بایت‌به‌بایت.
+                if _mr.enabled():
+                    def _mirror_work(_t=text):
+                        _r = _mr.ask(_t)
+                        if _r.get("ok"):
+                            return _mr.card(_r["text"], _r.get("model") or "",
+                                            bool(_r.get("recorded_correction")))
+                        _w = {"daily-cap": "سهمیهٔ امروزِ فکرِ عمیقم تمام شد",
+                              "not-a-paid-brain": "مغزِ گرانم الان در دسترس نیست",
+                              "no-answer": "مغزم جواب نداد",
+                              }.get(str(_r.get("reason") or "").split(":")[0], "")
+                        return (f"🪞 {_w} — چند دقیقهٔ دیگر دوباره بپرس." if _w
+                                else "🪞 نشد — دوباره بپرس.")
+
+                    if self._defer_with_ack(
+                            chat_id, "🪞 دارم فکر می‌کنم…", _mirror_work,
+                            topic_id=self._reply_thread(msg)):
+                        return {"kind": "mirror", "sent": True, "queued": True}
                 if _mr.enabled():
                     _m = _mr.ask(text)
                     if _m.get("ok"):

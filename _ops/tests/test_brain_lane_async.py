@@ -179,6 +179,40 @@ def t_h_voice_helpers_still_work_backward_compatible():
     assert done.wait(3.0), "کارگرِ ویس اجرا نکرد"
 
 
+def t_i_leg_engine_never_runs_twice_concurrently():
+    """گاردِ تک‌اجرا: `leg_tasks.claim_next` وضعیت را عوض نمی‌کند، پس دو اجرای
+    هم‌زمان **همان تسک** را برمی‌دارند و مالک دو جواب می‌گیرد. beat ِ بعدی وقتی
+    قبلی در پرواز است باید ساده رد شود."""
+    _reset_lanes()
+
+    class _LegHost:
+        _drive_leg_engine = center.Center._drive_leg_engine
+        _drive_leg_engine_now = center.Center._drive_leg_engine_now
+
+        def __init__(self):
+            self.runs = 0
+            self.concurrent_seen = 0
+            self._in = 0
+
+        def _drive_leg_engine_body(self):
+            self._in += 1
+            if self._in > 1:
+                self.concurrent_seen += 1
+            self.runs += 1
+            time.sleep(0.6)
+            self._in -= 1
+
+    h = _LegHost()
+    h._drive_leg_engine()          # می‌رود به لِین
+    time.sleep(0.1)                # مطمئن شو کارگر شروع کرده
+    h._drive_leg_engine()          # beat ِ بعدی وسطِ اجرای قبلی
+    h._drive_leg_engine()
+    time.sleep(1.5)
+    assert h.concurrent_seen == 0, ("دو اجرای هم‌زمان — تسک دوبار جواب می‌گیرد",
+                                    h.concurrent_seen)
+    assert h.runs == 1, ("beat ِ همپوشان باید رد شود، نه صف شود", h.runs)
+
+
 def main():
     tests = [v for k, v in sorted(globals().items()) if k.startswith("t_") and callable(v)]
     passed, failed = 0, []
