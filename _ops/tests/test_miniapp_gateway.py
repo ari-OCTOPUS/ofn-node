@@ -183,6 +183,26 @@ def t_owner_can_create_local_lead_but_onlyfans_automation_is_blocked():
                     os.environ[k] = v
 
 
+# Slice 3, item 6: real browsers send header field names lowercase over the
+# wire, and _Handler._run downgrades headers to a plain (case-sensitive) dict
+# on POST only. A dict built with the exact request-line casing is what
+# _Handler._run actually hands to handle() for /api/actions -- simulate that
+# here instead of the idealized "X-Tg-Init-Data" dict every other test uses.
+def t_post_auth_works_with_lowercase_header_like_a_real_browser_sends():
+    body = json.dumps({"action": "lead.create", "payload": {"handle": "@x"}}).encode("utf-8")
+    headers = {"x-tg-init-data": _init_data(), "_body": body}
+    st, payload, _ = mg.handle("POST", "/api/actions", headers, fetch_fn=_fetch(), now=NOW)
+    assert st != 403, (st, payload)
+    assert b"owner_auth_required" not in payload, payload
+
+
+def t_get_header_is_case_insensitive_both_directions():
+    assert mg._get_header({"X-Tg-Init-Data": "v1"}, "X-Tg-Init-Data") == "v1"
+    assert mg._get_header({"x-tg-init-data": "v2"}, "X-Tg-Init-Data") == "v2"
+    assert mg._get_header({"X-TG-INIT-DATA": "v3"}, "X-Tg-Init-Data") == "v3"
+    assert mg._get_header({}, "X-Tg-Init-Data") == ""
+
+
 def t_the_page_serves_without_initdata_and_injects_the_header_snippet():
     # /miniapp must serve the committed read-only cockpit shell, not the old
     # upstream legacy placeholder dashboard. No initData is required for the

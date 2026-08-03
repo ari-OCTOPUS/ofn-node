@@ -188,16 +188,39 @@ def _default_fetch(path: str) -> tuple:
         return 502, b"", "text/plain; charset=utf-8"
 
 
+def _get_header(headers, name: str) -> str:
+    """جستجویِ **حساس‌نبودن به حروف** — HTTP header field name عمداً case-
+    insensitive است (RFC 7230 §3.2)، ولی `_Handler._run` برای POST هدرها را
+    به یک dict ِ معمولی (حساس-به-حروف) تنزل می‌دهد و مرورگر/`fetch()` نامِ
+    هدر را lowercase می‌فرستد. نتیجه: `headers.get("X-Tg-Init-Data")` روی
+    POST هرگز چیزی پیدا نمی‌کرد — یعنی تنها مسیرِ نوشتن (`/api/actions`)
+    همیشه ۴۰۳ می‌داد صرفِ‌نظر از initData ِ واقعاً معتبر. `email.message.Message`
+    (مسیرِ GET، `self.headers`) خودش از قبل case-insensitive است؛ این تابع هر
+    دو شکل را یکسان می‌کند — یک نقطهٔ خواندن برای هر شکلِ نوشتن."""
+    try:
+        v = headers.get(name)
+        if v is not None:
+            return v
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        low = name.lower()
+        for k in headers.keys():
+            if str(k).lower() == low:
+                v = headers.get(k) if hasattr(headers, "get") else headers[k]
+                return v if v is not None else ""
+    except Exception:  # noqa: BLE001
+        pass
+    return ""
+
+
 def _owner_initdata_ok(headers, now: "float | None" = None) -> bool:
     """همان دیوارِ §۲ به‌شکلِ یک تابعِ مشترک — نه کپیِ دوم، نه شاخهٔ نرم‌تر."""
     token = os.environ.get("TG_CENTER_BOT_TOKEN", "")
     owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID", "")
     if not token or not owner:
         return False                                   # پیکربندیِ ناقص = بسته
-    try:
-        init_data = headers.get("X-Tg-Init-Data") or ""
-    except Exception:  # noqa: BLE001
-        init_data = ""
+    init_data = _get_header(headers, "X-Tg-Init-Data") or ""
     return validate_init_data(init_data, bot_token=token, owner_id=owner,
                               now=now) is not None
 
@@ -278,10 +301,7 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
             return 405, b"", "text/plain; charset=utf-8"
         token = os.environ.get("TG_CENTER_BOT_TOKEN", "")
         owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID", "")
-        try:
-            init_data = headers.get("X-Tg-Init-Data") or ""
-        except Exception:
-            init_data = ""
+        init_data = _get_header(headers, "X-Tg-Init-Data") or ""
         if not token or not owner or validate_init_data(init_data, bot_token=token, owner_id=owner, now=now) is None:
             return 403, b'{"ok":false,"status":"DENIED","reason":"owner_auth_required"}', "application/json; charset=utf-8"
         try:
@@ -314,11 +334,7 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
     if p == "/api/miniapp":
         token = os.environ.get("TG_CENTER_BOT_TOKEN", "")
         owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID", "")
-        init_data = ""
-        try:
-            init_data = headers.get("X-Tg-Init-Data") or ""
-        except Exception:  # noqa: BLE001
-            init_data = ""
+        init_data = _get_header(headers, "X-Tg-Init-Data") or ""
         if not token or not owner:
             return 403, b"", "text/plain; charset=utf-8"   # پیکربندیِ ناقص = بسته
         if validate_init_data(init_data, bot_token=token, owner_id=owner,
@@ -352,10 +368,7 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
     if p.startswith("/api/pf/"):
         token = os.environ.get("TG_CENTER_BOT_TOKEN", "")
         owner = os.environ.get("TELEGRAM_OWNER_CHAT_ID", "")
-        try:
-            init_data = headers.get("X-Tg-Init-Data") or ""
-        except Exception:  # noqa: BLE001
-            init_data = ""
+        init_data = _get_header(headers, "X-Tg-Init-Data") or ""
         if not token or not owner:
             return 403, b"", "text/plain; charset=utf-8"   # پیکربندیِ ناقص = بسته
         if validate_init_data(init_data, bot_token=token, owner_id=owner,
