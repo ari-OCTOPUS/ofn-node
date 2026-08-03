@@ -351,6 +351,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # غیرقابلِ‌رندر بود (npy+py تنهایی ۴۲٪). app.json را خودِ ابسیدین
          # هم می‌نویسد، پس بدونِ گارد بی‌صدا برمی‌گردد.
          "test_obsidian_index_budget.py",
+         # ۰۸-۰۴ ← §۱۱ منشور می‌گوید هر دو validator ِ vault باید پاس شوند،
+         # ولی صفر صداکننده داشت. ratchet است نه گیتِ صفر: ۳۰ لینکِ شکسته و
+         # ۲۷ خطای فرانت‌متر بدهیِ پیش‌موجودند و فقط نباید بدتر شوند.
+         "test_vault_hygiene_ratchet.py",
          "test_sync_health_unknown.py",
          "test_arbiter_consensus_rule.py",
          "test_state_write_monopoly.py",
