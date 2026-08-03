@@ -65,6 +65,7 @@ def setup(name: str) -> dict:
     (ops / "state").mkdir(parents=True)
     (ops / "debate").mkdir(parents=True)
     (ops / "neural").mkdir(parents=True)   # state ماژول‌های neural (OPS_DIR-اول)
+    (ops / "agi2027_runtime").mkdir(parents=True)
     genome = root / "genome-system"
     (genome / "ledger").mkdir(parents=True)
     brain = root / "brain"
@@ -120,6 +121,13 @@ def setup(name: str) -> dict:
         # `gate.retract` برگشتند، حذف نشدند). هر تستی که حافظه را لمس می‌کرد
         # این نشتی را داشت — و چون گیت پیش‌فرض خاموش است، بی‌صدا بود.
         "OCTOPUS_STATE_DIR": str(ops / "state"),
+        # ⚠️ VQ-WAL-RUNTIME-001 (۲۰۲۶-۰۸-۰۳). `lead_outbound_transport._wal_runtime_dir()`
+        # این env را از قبل می‌خواند (docstring خودش هم می‌گفت «تست‌ها می‌توانند override
+        # کنند») ولی harness هرگز ست نمی‌کرد — پس هر تستی که این ماژول را import می‌کرد
+        # (حتی از راهِ SELF_OPS) به `<worktree>/_ops/agi2027_runtime` ِ **tracked** می‌افتاد:
+        # فایل‌های واقعیِ کنترل‌پلین (control-actions.sqlite3، value-ledger.jsonl، …) که در
+        # git کامیت شده‌اند. یک اجرای اندازه‌گیری کافی بود تا این ظرف‌ها را dirty کند.
+        "OCTOPUS_AGI2027_RUNTIME_DIR": str(ops / "agi2027_runtime"),
     }
     os.environ.update(env)
     # کدِ زیرِ تست = همان tree که این harness داخلش است — نه REAL_VAULT. وگرنه تستِ

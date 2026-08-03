@@ -136,6 +136,41 @@ def mark_processed(path: Path, lead: dict, result: dict) -> None:
     _move_with_sidecar(path, _processed(), result)
 
 
+def resolve_lead_path(lead_id: str) -> Path | None:
+    """مسیرِ فایلِ دادهٔ یک lead_id — **تازه‌ترین** نسخهٔ موجود، یا None.
+
+    قفلِ دوتایی (کشفِ ۲۰۲۶-۰۸-۰۳): `lead_pipeline.run()` همان beat ی که کارت
+    صادر می‌شود `mark_processed` را صدا می‌زند — یعنی فایلِ `lead-inbox/<id>.json`
+    به `processed/` منتقل می‌شود. دو مصرف‌کننده (`lead_effect_gate.bridge_from_inbox`،
+    `outbound_worker._candidate_from_inbox`) که بعداً — وقتی مالک approve می‌کند —
+    همان داده را می‌خواهند، مستقیماً مسیرِ `lead-inbox/` را می‌ساختند: چون فایل
+    قبلاً منتقل شده بود، هر دو با `no_inbox_file`/`no-candidate` fail می‌شدند.
+
+    اول `lead-inbox/<id>.json` (هنوز پردازش‌نشده). اگر نبود، بینِ نسخه‌های
+    `processed/<id>.json` و `processed/<id>.N.json` (تصادمِ نامِ `_move_with_sidecar`)
+    تازه‌ترین (mtime) برمی‌گردد — سایدکارهای `*.result.json` هرگز کاندید نیستند."""
+    lid = str(lead_id or "").strip()
+    if not lid:
+        return None
+    direct = _inbox() / f"{lid}.json"
+    if direct.exists():
+        return direct
+    box = _processed()
+    if not box.is_dir():
+        return None
+    hits = []
+    for p in box.glob(f"{lid}*.json"):
+        if p.name.endswith(".result.json"):
+            continue
+        stem = p.stem
+        if stem == lid or (stem.startswith(lid + ".") and stem[len(lid) + 1:].isdigit()):
+            hits.append(p)
+    if not hits:
+        return None
+    hits.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+    return hits[0]
+
+
 def _move_with_sidecar(path: Path, dest_dir: Path, result: dict) -> None:
     """انتقالِ اتمیک (نه حذف) + سایدکارِ `<name>.result.json` (fail-soft)."""
     try:

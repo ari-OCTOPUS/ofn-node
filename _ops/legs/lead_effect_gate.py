@@ -231,10 +231,13 @@ def on_lead_verdict(lead_id: str, candidate: dict, verdict: str, *, gate) -> dic
 
 
 def bridge_from_inbox(lead_id: str, *, gate) -> dict:
-    """D1 (فاز D، 2026-07-21): bridge سبک برای لایهٔ wire (live_loop). فایلِ inboxِ یک lead_id
-    را می‌خواند، کاندیدِ سازگار با consent-firewall را بازسازی می‌کند، و on_lead_verdict(approve)
-    را صدا می‌زند. هم‌الگو با verdict_recorder برای live_loop: کل منطقِ I/O + consent در همین
-    ماژول محصور می‌ماند تا live_loop **لایهٔ wireِ خالص** بماند (بدونِ importِ لایهٔ production).
+    """D1 (فاز D، 2026-07-21): bridge سبک برای لایهٔ wire (live_loop). فایلِ دادهٔ یک lead_id
+    را (از `lead_sense.resolve_lead_path` — inbox یا processed/، هر کدام تازه‌تر بود؛ رفعِ
+    قفلِ دوتایی ۲۰۲۶-۰۸-۰۳: `lead_pipeline.run` همان beat که کارت صادر می‌شود فایل را به
+    processed/ منتقل می‌کند) می‌خواند، کاندیدِ سازگار با consent-firewall را بازسازی می‌کند، و
+    on_lead_verdict(approve) را صدا می‌زند. هم‌الگو با verdict_recorder برای live_loop: کل
+    منطقِ I/O + consent در همین ماژول محصور می‌ماند تا live_loop **لایهٔ wireِ خالص** بماند
+    (بدونِ importِ لایهٔ production).
 
     همهٔ گاردهای on_lead_verdict (consent re-check، idempotency، STOP، fail-closed) اعمال می‌شوند.
     هرگز settle/send/ledger نمی‌زند؛ فقط یک effectِ lead_outbound می‌سازد و authorize می‌کند
@@ -248,8 +251,9 @@ def bridge_from_inbox(lead_id: str, *, gate) -> dict:
         lid = str(lead_id or "").strip()
         if not lid:
             return {"authorized": False, "reason": "no_inbox_file"}
-        path = opslib.STATE_DIR / "legs" / "lead-inbox" / f"{lid}.json"
-        if not path.exists():
+        import lead_sense   # noqa: WPS433 — lazy، هم‌پوشه
+        path = lead_sense.resolve_lead_path(lid)
+        if path is None:
             return {"authorized": False, "reason": "no_inbox_file"}
         with path.open("r", encoding="utf-8") as fh:
             data = json.load(fh)

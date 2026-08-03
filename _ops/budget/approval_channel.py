@@ -426,6 +426,13 @@ class TelegramApprovalChannel(ApprovalChannel):
         """لوله وصل است؟ token + owner هر دو لازم. نبودِ هر = no-opِ امن."""
         return bool(self._token) and self._owner is not None
 
+    @property
+    def gate(self):
+        """EffectorGate ِ تزریق‌شده (یا None) — بدونِ این property، `getattr(chan,
+        "gate", None)` (مصرف‌کنندهٔ live_loop._lead_effect_hook) همیشه None می‌دید،
+        حتی وقتی wiring.make_telegram_channel یک gate ِ واقعی تزریق کرده بود."""
+        return self._gate
+
     def __repr__(self) -> str:
         n_q = n_ap = -1
         with self._lk:

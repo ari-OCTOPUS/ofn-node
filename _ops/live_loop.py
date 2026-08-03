@@ -632,7 +632,7 @@ class LiveLoop:
             import lead_effect_gate as _legd1   # noqa: WPS433 — lazy
             res = _legd1.bridge_from_inbox(lead_id, gate=gate)
             self._emit_advisory("LEAD_EFFECT_HOOK", {"lead_id": lead_id, "result": res,
-                                                     "advisory_only": True, "armed": False})
+                                                     "advisory_only": True, "armed": gate is not None})
         except Exception as _ed1:  # noqa: BLE001 — لایهٔ اثر هرگز مسیرِ دکمه را نمی‌کشد
             try:
                 self._emit_advisory("LEAD_EFFECT_HOOK_ERROR",
