@@ -135,6 +135,19 @@ def t_a_wrong_token_key_direction_would_fail():
     assert st == 403, st
 
 
+# VQ-GATEWAY-DRIFT-BLIND-001 (برشِ ۳، آیتمِ ۵): organism/center/cortex/live
+# همه snapshot_boot را صدا می‌زنند تا flag_drift.probe_all رانشِ فلگِ آن پروسه
+# را ببیند؛ gateway تنها limb ِ بدونش بود. main() سرور را بلاک می‌کند (serve_
+# forever)، پس اینجا فقط سازه سنجیده می‌شود -- همان الگویِ compare_digest پایین.
+def t_main_snapshots_boot_flags_like_every_other_limb():
+    src = Path(mg.__file__).read_text("utf-8")
+    i = src.find("def main(")
+    assert i >= 0
+    seg = src[i:i + 2000]
+    assert "flag_drift" in seg and "snapshot_boot" in seg, \
+        "main() باید flag_drift.snapshot_boot('miniapp-gateway') را صدا بزند"
+
+
 def t_compare_digest_is_used_no_timing_leak():
     src = Path(mg.__file__).read_text("utf-8")
     assert "compare_digest" in src, "Ù…Ù‚Ø§ÛŒØ³Ù‡Ù” hash Ø¨Ø¯ÙˆÙ†Ù Ø¶Ø¯Ù-timing"
@@ -213,6 +226,23 @@ def t_post_auth_works_with_lowercase_header_like_a_real_browser_sends():
                     os.environ.pop(k, None)
                 else:
                     os.environ[k] = v
+
+
+# VQ-OPEN-READ-API-001 (برشِ ۳، آیتمِ ۱): این ۱۱ مسیر قبلاً بی‌قیدوشرط باز
+# بودند مگر یک فلگِ اضافه صریحاً روشن می‌شد. حالا برعکس: بسته مگر صریحاً باز شود.
+def t_read_api_paths_require_owner_auth_by_default():
+    os.environ.pop(mg.READ_GATE_FLAG, None)   # پیش‌فرض — env دست‌نخورده
+    assert mg.read_gate_enabled() is True, "پیش‌فرض باید بسته باشد"
+    st, body, _ = mg.handle("GET", "/api/approvals", {}, fetch_fn=_fetch(), now=NOW)
+    assert st == 403, (st, body)
+
+
+def t_read_api_paths_can_be_explicitly_reopened():
+    os.environ[mg.READ_GATE_FLAG] = "0"
+    try:
+        assert mg.read_gate_enabled() is False
+    finally:
+        os.environ.pop(mg.READ_GATE_FLAG, None)
 
 
 def t_get_header_is_case_insensitive_both_directions():

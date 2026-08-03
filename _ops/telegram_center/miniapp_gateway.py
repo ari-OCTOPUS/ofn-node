@@ -60,10 +60,14 @@ READ_API_PATHS = {
     "/api/ops", "/api/ops/brain", "/api/ops/leads", "/api/ops/tasks",
 }
 
-# سفت‌کردنِ اختیاریِ سطحِ خواندنی: با فلگِ روشن، **هر** مسیرِ READ_API_PATHS
-# همان دیوارِ HMAC ِ /api/miniapp را می‌خواهد. پیش‌فرض خاموش و عمداً بیرونِ
-# wiring.PAPER_FULL_FLAGS ⇒ رفتارِ امروز بایت‌به‌بایت دست‌نخورده می‌ماند.
-# (این فلگ گارد **اضافه** می‌کند؛ هیچ گاردی را برنمی‌دارد.)
+# دیوارِ HMAC ِ سطحِ خواندنی: **هر** مسیرِ READ_API_PATHS همان چیزی را می‌خواهد
+# که /api/miniapp می‌خواهد. VQ-OPEN-READ-API-001 (۲۰۲۶-۰۸-۰۳، برشِ ۳، آیتمِ ۱):
+# پیش‌فرضِ قبلی خاموش بود — یعنی ۱۱ مسیر (شاملِ /api/approvals، /api/value)
+# روی تونلِ عمومی صفر احرازِ owner داشتند، فقط با حدسِ URL ِ تونل. شِلِ
+# mini-app از قبل initData را روی **هر** fetch می‌گذارد (`_INJECT`، پایین‌تر)،
+# پس UI ِ واقعی هیچ اثری نمی‌بیند — فقط دسترسیِ بی‌احرازِ بیرونی بسته می‌شود.
+# برای بازگشتِ صریح به رفتارِ قدیم (نبایدِ owner-decision، نه پیش‌فرض): این env
+# را به "0" ست کن.
 READ_GATE_FLAG = "OCTOPUS_MINIAPP_READ_OWNER_GATE"
 
 
@@ -72,7 +76,7 @@ def enabled() -> bool:
 
 
 def read_gate_enabled() -> bool:
-    return os.environ.get(READ_GATE_FLAG, "0") == "1"
+    return os.environ.get(READ_GATE_FLAG, "1") == "1"
 
 
 # ⚠️ کپیِ import-امنِ الگوی redaction ِ 8773 (نه import ِ متقابل از live/server —
@@ -459,6 +463,15 @@ def main() -> int:
         print(f"miniapp_gateway: نمونهٔ دیگری روی {PORT} زنده است — خروجِ تمیز.")
         return 0
     print(f"miniapp_gateway: دیوارِ Mini App روی http://127.0.0.1:{PORT}")
+    # VQ-GATEWAY-DRIFT-BLIND-001 (۲۰۲۶-۰۸-۰۳، برشِ ۳، آیتمِ ۵): برخلافِ
+    # organism/center/cortex/live، gateway هرگز snapshot_boot را صدا نمی‌زد —
+    # یعنی flag_drift.probe_all اصلاً نمی‌دانست این پروسه با چه فلگ‌هایی بالا
+    # آمده؛ رانشِ فلگِ این limb ساختاراً نامرئی بود.
+    try:
+        import flag_drift
+        flag_drift.snapshot_boot("miniapp-gateway")
+    except Exception:  # noqa: BLE001
+        pass
     try:
         opslib.heartbeat(f"miniapp-gateway=START port={PORT}")
     except Exception:  # noqa: BLE001
