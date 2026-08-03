@@ -245,6 +245,21 @@ def t_read_api_paths_can_be_explicitly_reopened():
         os.environ.pop(mg.READ_GATE_FLAG, None)
 
 
+def t_lifecycle_requires_owner_auth_like_every_other_read_path():
+    # نمایِ lifecycle (برشِ ۳-جای‌افتاده): handler در miniapp_state هست ولی تا
+    # route در READ_API_PATHS ثبت نشود، dispatch نمی‌شود. با فلگِ روشن + بدونِ auth
+    # باید 403 (gate) بدهد، نه 404 (feature-off) — یعنی route واقعاً ثبت شده.
+    # اگر «/api/lifecycle» از READ_API_PATHS حذف شود، این تست قرمز می‌شود (404).
+    os.environ.pop(mg.READ_GATE_FLAG, None)   # gate پیش‌فرض = بسته
+    os.environ["OCTOPUS_PF_MINIAPP"] = "1"    # تا miniapp_state پیش از gate، 404 ندهد
+    try:
+        st, body, _ = mg.handle("GET", "/api/lifecycle", {}, fetch_fn=_fetch(), now=NOW)
+        assert st == 403, (st, body)
+        assert b"owner_auth_required" in body, body
+    finally:
+        os.environ.pop("OCTOPUS_PF_MINIAPP", None)
+
+
 def t_get_header_is_case_insensitive_both_directions():
     assert mg._get_header({"X-Tg-Init-Data": "v1"}, "X-Tg-Init-Data") == "v1"
     assert mg._get_header({"x-tg-init-data": "v2"}, "X-Tg-Init-Data") == "v2"
