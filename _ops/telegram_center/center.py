@@ -287,45 +287,64 @@ def _emit_event(event_name: str, **kw) -> None:
 # یک کارگر، نه استخر: transcription روی CPU است و دوتا هم‌زمان فقط هر دو را کند
 # می‌کند. صف کوچک است؛ پرشدنش یعنی برگرد به همان مسیرِ همگام (کندی بهتر از
 # گم‌شدنِ ویسِ مالک).
-_VOICE_Q = None
-_VOICE_THREAD = None
 VOICE_QUEUE_MAX = 8
 
+# ── لِینِ مغز (۲۰۲۶-۰۸-۰۳) ──────────────────────────────────────────────────
+# ممیزیِ ۰۸-۰۳ اندازه گرفت: یک پیامِ آزادِ مالک می‌تواند **۲۳۵ ثانیه** مرکز را کر
+# کند — `ask_brain` مستقیم به Fugu می‌رود (`OCTOPUS_TG_CHAT_LOCAL` ست نیست)، و
+# زنجیرهٔ timeout ِ ۶۱.۵s + ۵۴s + ۱۲۰s روی همان تک‌رشتهٔ poll می‌نشیند. در تمامِ
+# آن مدت هیچ دکمه‌ای در هیچ تاپیکی answerCallbackQuery نمی‌گیرد.
+#
+# **لِینِ جدا، نه صفِ مشترک با ویس.** ویس CPU-bound است (transcription) و باید
+# سریال بماند؛ فراخوانِ مغز شبکه‌ای و تا ۲۷۰ ثانیه است. یک صفِ مشترک یعنی یک
+# Fugu ِ کند، ویسِ مالک را پشتِ خودش حبس می‌کند.
+BRAIN_QUEUE_MAX = 4
 
-def _voice_queue():
-    """صفِ کارگر را (تنبل) بساز و نخش را زنده نگه دار. None = نشد ⇒ همگام."""
-    global _VOICE_Q, _VOICE_THREAD
+#: lane → (queue, thread). یک پیاده‌سازی، چند لِینِ نام‌دار — نه چند کپیِ کارگر.
+_BG_LANES: dict = {}
+
+
+def _bg_queue(lane: str, maxsize: int):
+    """صفِ لِین را (تنبل) بساز و نخش را زنده نگه دار. None = نشد ⇒ همگام.
+
+    ۲۰۲۶-۰۸-۰۳: تعمیمِ کارگرِ ویس. رفتارِ لِینِ `voice` بایت‌به‌بایتِ قبلی است
+    (همان نامِ نخ `tg-voice-worker`، همان maxsize، همان fail-soft)."""
     try:
         import queue as _queue
         import threading as _threading
     except Exception:  # noqa: BLE001
         return None
-    if _VOICE_Q is None:
-        _VOICE_Q = _queue.Queue(maxsize=VOICE_QUEUE_MAX)
-    if _VOICE_THREAD is None or not _VOICE_THREAD.is_alive():
-        def _loop():
+    q, th = _BG_LANES.get(lane, (None, None))
+    if q is None:
+        q = _queue.Queue(maxsize=maxsize)
+    if th is None or not th.is_alive():
+        def _loop(_q=q, _lane=lane):
             while True:
-                job = _VOICE_Q.get()
+                job = _q.get()
                 if job is None:
                     return
                 try:
                     job()
                 except Exception as e:  # noqa: BLE001 — کارگر هرگز نمی‌میرد
                     try:
-                        opslib.alert(["voice-worker: %s" % type(e).__name__])
+                        opslib.alert(["%s-worker: %s" % (_lane, type(e).__name__)])
                     except Exception:  # noqa: BLE001
                         pass
                 finally:
-                    _VOICE_Q.task_done()
-        _VOICE_THREAD = _threading.Thread(target=_loop, name="tg-voice-worker",
-                                          daemon=True)
-        _VOICE_THREAD.start()
-    return _VOICE_Q
+                    _q.task_done()
+        th = _threading.Thread(target=_loop, name="tg-%s-worker" % lane,
+                               daemon=True)
+        th.start()
+    _BG_LANES[lane] = (q, th)
+    return q
 
 
-def _submit_voice_job(job) -> bool:
-    """کار را به کارگر بده. False = نشد ⇒ صداکننده همگام انجامش دهد."""
-    q = _voice_queue()
+def _submit_bg_job(lane: str, job, maxsize: int) -> bool:
+    """کار را به لِین بده. False = نشد ⇒ صداکننده همگام انجامش دهد.
+
+    صفِ پر عمداً **همگام** برمی‌گردد نه بلاک: کندیِ یک پیام بهتر از گم‌شدنش است،
+    و بلاک‌شدنِ اینجا دقیقاً همان کر‌شدنی است که این لِین آمده رفعش کند."""
+    q = _bg_queue(lane, maxsize)
     if q is None:
         return False
     try:
@@ -333,6 +352,21 @@ def _submit_voice_job(job) -> bool:
         return True
     except Exception:  # noqa: BLE001 — صفِ پر = مسیرِ همگام
         return False
+
+
+def _voice_queue():
+    """سازگاریِ عقب‌رو — همان لِینِ `voice`."""
+    return _bg_queue("voice", VOICE_QUEUE_MAX)
+
+
+def _submit_voice_job(job) -> bool:
+    """کار را به کارگر بده. False = نشد ⇒ صداکننده همگام انجامش دهد."""
+    return _submit_bg_job("voice", job, VOICE_QUEUE_MAX)
+
+
+def _submit_brain_job(job) -> bool:
+    """کارِ مدل‌محور را از حلقهٔ poll بیرون ببر. False ⇒ مسیرِ همگامِ قبلی."""
+    return _submit_bg_job("brain", job, BRAIN_QUEUE_MAX)
 
 # ── /ops دکمه‌ای (لِینِ chat-actions) — فلگ، مارکرها، واژگانِ toast ─────────────
 # فلگِ نو، پیش‌فرض **خاموش** و عمداً بیرونِ wiring.PAPER_FULL_FLAGS: خاموش یعنی
@@ -1956,6 +1990,54 @@ class Center:
         return {"kind": "capture", "capture_kind": res.get("kind"),
                 "routed": res.get("routed"), "dup": bool(res.get("dup"))}
 
+    def _defer_with_ack(self, chat_id, ack_text: str, work_fn,
+                        *, topic_id=None, lane: str = "brain") -> bool:
+        """الگوی «ثبتِ فوری → کارِ کند در پس‌زمینه → ویرایشِ همان پیام».
+
+        ۲۰۲۶-۰۸-۰۳ — تعمیمِ همان چیزی که مسیرِ ویس از ۰۸-۰۱ اثباتش کرده. چرا
+        اینجا و نه در هر صداکننده: تا امروز فقط ویس این را داشت و هر مسیرِ
+        مدل‌محورِ دیگر (ask_brain / mirror_room / negotiate / llm_intent) روی
+        همان تک‌رشتهٔ poll بلاک می‌شد.
+
+        قرارداد:
+          · `work_fn()` متن برمی‌گرداند، یا `(متن, کیبورد)` — همان شکلی که
+            صداکننده‌های همگام از قبل می‌سازند (`ask_brain.card` یک tuple است).
+            `None` ⇒ چیزی ویرایش نمی‌شود.
+          · هر استثنایی داخلِ `work_fn` بلعیده می‌شود و به مالک متنِ صادقانه
+            می‌رسد — کارگر هرگز به‌خاطرِ یک کارِ بد نمی‌میرد.
+          · خروجی `True` = صف گرفت؛ `False` = صداکننده **باید** همان کارِ
+            همگامِ قبلی را بکند (کندی بهتر از سکوت).
+
+        عمداً پیامِ ack **قبل از** enqueue فرستاده می‌شود: اگر ارسال شکست بخورد
+        هنوز می‌شود همگام ادامه داد، ولی اگر بعد از enqueue بفرستیم دو پیام
+        برای یک ژست می‌سازیم.
+        """
+        try:
+            mid = self._client.send(_scrub(ack_text), chat_id=chat_id,
+                                    topic_id=topic_id)
+        except Exception:  # noqa: BLE001
+            mid = None
+
+        def _job(_cid=chat_id, _m=mid, _tid=topic_id, _fn=work_fn):
+            try:
+                out = _fn()
+            except Exception as e:  # noqa: BLE001
+                out = "نشد — %s. دوباره بفرست." % type(e).__name__
+            if out is None:
+                return
+            body, kb = out if isinstance(out, tuple) else (out, None)
+            txt = _scrub(str(body or ""))
+            try:
+                if _m is not None and self._client.edit(_m, txt, keyboard=kb,
+                                                        chat_id=_cid):
+                    return
+                self._client.send(txt, chat_id=_cid, keyboard=kb, topic_id=_tid)
+            except Exception:  # noqa: BLE001 — پاسخِ گم‌شده کار را پس نمی‌گیرد
+                pass
+
+        return _submit_bg_job(lane, _job,
+                              BRAIN_QUEUE_MAX if lane == "brain" else VOICE_QUEUE_MAX)
+
     @staticmethod
     def _capture_reminder_add(text, when):
         """adapter ِ دستِ لِین E (contract E.3): متن/زمانِ فارسی → reminders.add.
@@ -3249,6 +3331,30 @@ class Center:
                 out = None
                 try:
                     import ask_brain as _ab
+                    # ۲۰۲۶-۰۸-۰۳ (لِینِ مغز): این فراخوان تا ۲۳۵ ثانیه روی
+                    # تک‌رشتهٔ poll می‌نشست و در تمامِ آن مدت هیچ پیام و هیچ
+                    # دکمه‌ای در هیچ تاپیکی جواب نمی‌گرفت. حالا اول «دارم فکر
+                    # می‌کنم» می‌رود، بعد همان پیام با جواب ویرایش می‌شود.
+                    # صفِ پر/نخِ مرده ⇒ `False` ⇒ دقیقاً مسیرِ همگامِ زیر،
+                    # بایت‌به‌بایتِ دیروز.
+                    if _ab.enabled():
+                        def _brain_work(_t=text, _key=self._topic_key(msg)):
+                            _r = _ab.ask(_t, topic_key=_key)
+                            if _r.get("ok"):
+                                return _ab.card(_r["text"], _r.get("model") or "",
+                                                tier=_r.get("tier") or "")
+                            _why = (_r.get("reason")
+                                    if _r.get("reason") in ("not-a-paid-brain",
+                                                            "no-answer",
+                                                            "ask-exception")
+                                    else None)
+                            return self._ask_unknown_card(
+                                "llm-no-answer" if _why else _brain_busy)
+
+                        if self._defer_with_ack(
+                                chat_id, "🧠 دارم فکر می‌کنم…", _brain_work,
+                                topic_id=self._reply_thread(msg)):
+                            return {"kind": kind, "sent": True, "queued": True}
                     if _ab.enabled():
                         _a = _ab.ask(text, topic_key=self._topic_key(msg))
                         if _a.get("ok"):
