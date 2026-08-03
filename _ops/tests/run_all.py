@@ -343,6 +343,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # phantom_guards نگهبانِ **نامِ** فلگ است؛ این یکی نگهبانِ **مقدار**،
          # چون `=0` هم نام را حفظ می‌کند و اعلان را سبز نگه می‌دارد.
          "test_safety_flags_stay_armed.py",
+         # ۰۸-۰۴ ← هوکِ PII فقط `Read` را می‌دید؛ Bash/Grep/Glob همان محتوا
+         # را می‌آوردند و اصلاً صدا زده نمی‌شد. این تست هم پوشش را می‌سنجد و
+         # هم مثبتِ کاذب را (روی ۳۷۱ فرمانِ واقعیِ جلسه: صفر).
+         "test_pii_guard_covers_every_read_tool.py",
          "test_sync_health_unknown.py",
          "test_arbiter_consensus_rule.py",
          "test_state_write_monopoly.py",
