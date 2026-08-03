@@ -1,9 +1,0 @@
-{
-  "schema": "c6-evolution-v3-prediction-2",
-  "registered_at": "2026-07-24T07:55:00Z",
-  "registered_before_results": true,
-  "capability": "memory-secondary-indexes",
-  "unseen_cells": [{"n": 2000, "seed": 21}, {"n": 10000, "seed": 22}],
-  "predicted_conservative_gain": 0.40,
-  "rationale": "Fitted on experiment-1: insert() is always the worst cell (index maintenance offsets scan savings at small n). Measured insert gains: n=1000 -> 0.29, n=5000 -> 0.64, n=20000 -> 0.956. The unseen worst cell is insert@n=2000; interpolating base ~0.32ms and indexed ~0.185ms gives ~0.42. Experiment-1 taught me my min-cell estimates skew high (predicted 0.5, measured 0.29), so I shade the prediction down to 0.40. get() cells will all exceed this."
-}

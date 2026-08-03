@@ -1,7 +1,7 @@
 {
-  "ts": "2026-08-03T18:11:35",
+  "ts": "2026-08-03T20:32:55",
   "schema": "innervation.v1",
-  "heart_period_s": 60.0,
+  "heart_period_s": 45.45,
   "coverage_pct": 100.0,
   "n_organs": 10,
   "n_born": 10,
@@ -11,7 +11,7 @@
       "id": "spine",
       "name": "🦴 ستونِ فقرات (pacemaker)",
       "status": "🟢 عصب‌دار",
-      "age_min": 0.1,
+      "age_min": 1.0,
       "sla_min": 5,
       "connected": true
     },
@@ -19,7 +19,7 @@
       "id": "heart",
       "name": "❤️ قلب",
       "status": "🟢 عصب‌دار",
-      "age_min": 4.9,
+      "age_min": 6.3,
       "sla_min": 30,
       "connected": true
     },
@@ -27,7 +27,7 @@
       "id": "cortex",
       "name": "🧠 مغزِ مرکزی",
       "status": "🟢 عصب‌دار",
-      "age_min": 2.0,
+      "age_min": 0.7,
       "sla_min": 30,
       "connected": true
     },
@@ -35,7 +35,7 @@
       "id": "work",
       "name": "⚙️ پمپِ کار",
       "status": "🟢 عصب‌دار",
-      "age_min": 4.9,
+      "age_min": 6.3,
       "sla_min": 360,
       "connected": true
     },
@@ -51,7 +51,7 @@
       "id": "parts",
       "name": "🔁 لوپِ بخش‌ها",
       "status": "🟢 عصب‌دار",
-      "age_min": 12.4,
+      "age_min": 12.5,
       "sla_min": 120,
       "connected": true
     },
@@ -59,7 +59,7 @@
       "id": "business",
       "name": "💼 مغزِ دومِ کسب‌وکار",
       "status": "🟢 عصب‌دار",
-      "age_min": 12.4,
+      "age_min": 12.5,
       "sla_min": 120,
       "connected": true
     },
@@ -67,7 +67,7 @@
       "id": "learning",
       "name": "📚 یادگیری/تحقیق",
       "status": "🟢 عصب‌دار",
-      "age_min": 14.7,
+      "age_min": 12.1,
       "sla_min": 1440,
       "connected": true
     },
@@ -75,7 +75,7 @@
       "id": "selfmodel",
       "name": "🪞 خودمدلی",
       "status": "🟢 عصب‌دار",
-      "age_min": 12.4,
+      "age_min": 12.5,
       "sla_min": 120,
       "connected": true
     },
@@ -83,7 +83,7 @@
       "id": "telemetry",
       "name": "💰 تلمتریِ مالی",
       "status": "🟢 عصب‌دار",
-      "age_min": 0.1,
+      "age_min": 0.3,
       "sla_min": 360,
       "connected": true
     }

@@ -35,14 +35,22 @@ SECRET_ISH = f"وضعیت: خوب — {CITY} · مسیر C:\\backup\\private"
 
 
 class _Guard:
-    def __init__(self, fail=False):
+    def __init__(self, fail=False, allowed=True):
         self.fail = fail
+        self.allowed = allowed
         self.calls = 0
 
-    def clean(self, text):
+    def scrub(self, text):
         self.calls += 1
         if self.fail:
             raise RuntimeError("guard exploded")
+        if not self.allowed:
+            return False, ""
+        return True, str(text).replace(CITY, "⟦geo⟧").replace("C:\\backup\\private", "⟦path⟧")
+
+
+class _CleanOnlyGuard:
+    def clean(self, text):
         return str(text).replace(CITY, "⟦geo⟧")
 
 
@@ -75,6 +83,18 @@ class TestBridgeScrub(unittest.TestCase):
     def test_missing_guard_is_fail_closed(self):
         out = self._dispatch_with(_Bot(guard=None))
         self.assertNotIn(CITY, out, "بدونِ گارد نباید متنِ خام بیرون برود")
+        self.assertIn("fail-closed", out)
+
+    def test_clean_without_policy_scrub_is_fail_closed(self):
+        """clean تنها کافی نیست؛ باید scrub() سیاستِ deny-by-default را enforce کند."""
+        out = self._dispatch_with(_Bot(guard=_CleanOnlyGuard()))
+        self.assertNotIn(CITY, out)
+        self.assertIn("fail-closed", out)
+
+    def test_policy_denial_is_fail_closed(self):
+        """وقتی OpsecGuard.scrub به‌علت config/blocklist ناکافی deny کند، متن خام نرود."""
+        out = self._dispatch_with(_Bot(guard=_Guard(allowed=False)))
+        self.assertNotIn(CITY, out)
         self.assertIn("fail-closed", out)
 
     def test_broken_guard_is_fail_closed(self):

@@ -1,13 +1,13 @@
 {
   "day": "2026-08-03",
-  "used_total": 46,
+  "used_total": 48,
   "consecutive_failures": 0,
   "consecutive_failures_by_tier": {
     "primary": 0,
     "secondary": 0
   },
   "used": {
-    "primary:ARCHITECT_SYS": 39,
+    "primary:ARCHITECT_SYS": 41,
     "secondary:ARCHITECT_SYS": 7
   },
   "denied": {

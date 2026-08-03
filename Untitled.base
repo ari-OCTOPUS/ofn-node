@@ -1,8 +1,0 @@
-views:
-  - type: table
-    name: Table
-    order:
-      - file.path
-    sort:
-      - property: file.path
-        direction: DESC

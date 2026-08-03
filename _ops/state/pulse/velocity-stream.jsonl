@@ -1263,3 +1263,11 @@
 {"ts": "2026-08-03T17:35:26", "v": 0.125, "cov": {"confirmed": 0, "effects": 0, "hour": 17}}
 {"ts": "2026-08-03T17:50:39", "v": 0.125, "cov": {"confirmed": 0, "effects": 0, "hour": 17}}
 {"ts": "2026-08-03T18:06:40", "v": 0.125, "cov": {"confirmed": 0, "effects": 0, "hour": 18}}
+{"ts": "2026-08-03T18:25:54", "v": 0.125, "cov": {"confirmed": 0, "effects": 0, "hour": 18}}
+{"ts": "2026-08-03T18:41:37", "v": 0.125, "cov": {"confirmed": 0, "effects": 0, "hour": 18}}
+{"ts": "2026-08-03T19:02:37", "v": 0.125, "cov": {"confirmed": 0, "effects": 0, "hour": 19}}
+{"ts": "2026-08-03T19:18:27", "v": 0.125, "cov": {"confirmed": 0, "effects": 0, "hour": 19}}
+{"ts": "2026-08-03T19:33:55", "v": 0.125, "cov": {"confirmed": 0, "effects": 0, "hour": 19}}
+{"ts": "2026-08-03T19:49:30", "v": 0.125, "cov": {"confirmed": 0, "effects": 0, "hour": 19}}
+{"ts": "2026-08-03T20:05:08", "v": 0.125, "cov": {"confirmed": 0, "effects": 0, "hour": 20}}
+{"ts": "2026-08-03T20:20:30", "v": 0.125, "cov": {"confirmed": 0, "effects": 0, "hour": 20}}

@@ -210,3 +210,12 @@
 {"ts": "2026-08-03T17:41:04", "beat": 23775, "period_s": 60.0, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}
 {"ts": "2026-08-03T17:56:55", "beat": 23790, "period_s": 60.0, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}
 {"ts": "2026-08-03T18:03:39", "beat": 23795, "period_s": 60.0, "kind": "llm_learn", "ok": true, "tier": "primary", "n_proposals": 3, "cost_usd": 0.0}
+{"ts": "2026-08-03T18:13:02", "beat": 23805, "period_s": 60.0, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}
+{"ts": "2026-08-03T18:26:14", "beat": 23815, "period_s": 60.0, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}
+{"ts": "2026-08-03T18:41:58", "beat": 23830, "period_s": 60.0, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}
+{"ts": "2026-08-03T19:03:00", "beat": 23845, "period_s": 60.0, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}
+{"ts": "2026-08-03T19:18:48", "beat": 23860, "period_s": 60.0, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}
+{"ts": "2026-08-03T19:34:16", "beat": 23875, "period_s": 60.0, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}
+{"ts": "2026-08-03T19:49:51", "beat": 23890, "period_s": 60.84, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}
+{"ts": "2026-08-03T20:05:29", "beat": 23905, "period_s": 44.3, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}
+{"ts": "2026-08-03T20:20:51", "beat": 23920, "period_s": 63.24, "kind": "web_research", "ok": true, "n_topics": 3, "n_hits": 6}

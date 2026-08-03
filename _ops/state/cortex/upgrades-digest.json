@@ -1,10 +1,10 @@
 {
-  "ts": "2026-08-03T17:59:13",
+  "ts": "2026-08-03T20:20:28",
   "schema": "upgrades-digest.v1",
   "observability_ok": true,
-  "checklist_pct": 75.6,
+  "checklist_pct": 74.4,
   "checklist_static": true,
-  "maturity_pct": 75.6,
+  "maturity_pct": 74.4,
   "improvement_rate": {
     "closed": 4,
     "moved": 0,
@@ -44,28 +44,28 @@
         "status": "proposed"
       },
       {
-        "id": "up-1676596a3a",
+        "id": "up-d6ae0f6107",
         "priority": "P2",
-        "title": "سنتزِ مغز: جهشِ اولین مطالبه برای Ziman/Lead-نقاشی",
-        "suggested_action": "قدم اول: تعریف قرارداد رویداد `claim_candidate→claim_sent→attribution.claimed` و انتخاب یک لیدِ آمادهٔ خرید",
+        "title": "سنتزِ مغز: مسیر «صفر تا اولین مطالبه»",
+        "suggested_action": "تعریف قرارداد پذیرش رویداد شامل شناسهٔ لید، مبلغ، مدرک مطالبه و منبع انتساب",
         "change_level": "reconfig",
         "source": "synthesis",
         "status": "proposed"
       },
       {
-        "id": "up-b84b37d643",
+        "id": "up-9e985220f4",
         "priority": "P2",
-        "title": "سنتزِ مغز: آزمایش سایه‌ایِ سه‌مغزیِ تبدیل لید",
-        "suggested_action": "قدم اول: ساخت قرارداد ارزیابی روی ۲۰ لید با سنجه‌های پاسخ، قیمت‌خواهی، پذیرش انتساب و هزینه",
+        "title": "سنتزِ مغز: سلول درآمدِ سه‌مغزی",
+        "suggested_action": "انتخاب یک لید واقعی و تعیین ورودی/خروجی و شرط توقف هر مغز",
         "change_level": "reconfig",
         "source": "synthesis",
         "status": "proposed"
       },
       {
-        "id": "up-c0b3bd675b",
+        "id": "up-d53d512813",
         "priority": "P2",
-        "title": "سنتزِ مغز: دفترکل ماندگارِ انتساب و هزینه",
-        "suggested_action": "قدم اول: تعیین شِمای append-only برای `lead_id، evidence، brain، cost، claim_status، expiry، rollback_ref`",
+        "title": "سنتزِ مغز: حلقهٔ ارتقای درآمد با حافظهٔ ماندگار",
+        "suggested_action": "طراحی یک shadow-eval روی متن پیشنهاد قیمت با معیار «احتمال مطالبه، صحت انتساب، هزینه و امکان بازگشت",
         "change_level": "reconfig",
         "source": "synthesis",
         "status": "proposed"
@@ -232,6 +232,16 @@
     ],
     "governance": [
       {
+        "id": "up-1f41a4499b",
+        "priority": "P1",
+        "title": "memory poisoning / false-canon guard",
+        "suggested_action": "مانیتورِ خودکارِ created_by:agent بدونِ sources≥2 → هشدار (validate_frontmatter در لوپ).",
+        "change_level": "code",
+        "source": "audit",
+        "status_now": "Missing",
+        "status": "proposed"
+      },
+      {
         "id": "up-b229e6ba53",
         "priority": "P1",
         "title": "change leveled: tune/reconfig/rewrite + contract",
@@ -239,16 +249,6 @@
         "change_level": "reconfig",
         "source": "audit",
         "status_now": "Missing",
-        "status": "proposed"
-      },
-      {
-        "id": "up-1f41a4499b",
-        "priority": "P1",
-        "title": "memory poisoning / false-canon guard",
-        "suggested_action": "مانیتورِ خودکارِ created_by:agent بدونِ sources≥2 → هشدار (validate_frontmatter در لوپ).",
-        "change_level": "code",
-        "source": "audit",
-        "status_now": "Partial",
         "status": "proposed"
       },
       {
@@ -434,15 +434,15 @@
       "impact": 2.6
     },
     {
-      "id": "up-1676596a3a",
+      "id": "up-d6ae0f6107",
       "source": "synthesis",
       "category": "architecture",
       "priority": "P2",
       "_rank": 1.8,
-      "title": "سنتزِ مغز: جهشِ اولین مطالبه برای Ziman/Lead-نقاشی",
-      "rationale": "مستقیم `attribution.claimed` را ۳ گام جلو می‌برد: لید واقعی ← پیشنهاد قیمتِ قابل‌ردیابی ← تأیید کتبیِ انتساب توسط مشتری",
+      "title": "سنتزِ مغز: مسیر «صفر تا اولین مطالبه»",
+      "rationale": "مستقیم ۳ قدم جلو می‌برد: لید واقعی ← پیشنهاد قیمت مستند ← ثبت `attribution.claimed`؛ اولویت با Ziman و Lead-نقاشی",
       "evidence": "synthesis-latest.json [primary]",
-      "suggested_action": "قدم اول: تعریف قرارداد رویداد `claim_candidate→claim_sent→attribution.claimed` و انتخاب یک لیدِ آمادهٔ خرید",
+      "suggested_action": "تعریف قرارداد پذیرش رویداد شامل شناسهٔ لید، مبلغ، مدرک مطالبه و منبع انتساب",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
@@ -450,15 +450,15 @@
       "impact": 2.2
     },
     {
-      "id": "up-b84b37d643",
+      "id": "up-9e985220f4",
       "source": "synthesis",
       "category": "architecture",
       "priority": "P2",
       "_rank": 1.8,
-      "title": "سنتزِ مغز: آزمایش سایه‌ایِ سه‌مغزیِ تبدیل لید",
-      "rationale": "fugu و GLM و Ollama موازی رتبه‌بندی/پیشنهاد می‌دهند؛ با کنترل سوگیری ادراکی، شرط توقف، سطح تغییر و rollback فقط برنده ترویج می‌شود؛ `attribution.claimed` را ۲ گام جلو می‌برد: پیشنه",
+      "title": "سنتزِ مغز: سلول درآمدِ سه‌مغزی",
+      "rationale": "۲ قدم جلو می‌برد: fugu مذاکره، glm تحقیق و امتیازدهی لید، ollama استخراج شواهد محلی؛ بدون هزینهٔ پولی و با خروجی واحد",
       "evidence": "synthesis-latest.json [primary]",
-      "suggested_action": "قدم اول: ساخت قرارداد ارزیابی روی ۲۰ لید با سنجه‌های پاسخ، قیمت‌خواهی، پذیرش انتساب و هزینه",
+      "suggested_action": "انتخاب یک لید واقعی و تعیین ورودی/خروجی و شرط توقف هر مغز",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
@@ -466,15 +466,15 @@
       "impact": 2.2
     },
     {
-      "id": "up-c0b3bd675b",
+      "id": "up-d53d512813",
       "source": "synthesis",
       "category": "architecture",
       "priority": "P2",
       "_rank": 1.8,
-      "title": "سنتزِ مغز: دفترکل ماندگارِ انتساب و هزینه",
-      "rationale": "شواهد لید، تصمیم مغزها، تأیید مشتری و خرج مدل‌ها را با منشأ، ضدِ false-canon و بازیابی پس از خاموشی نگه می‌دارد؛ `attribution.claimed` را ۱ گام جلو می‌برد: جلوگیری از گم‌شدن/نامعتب",
+      "title": "سنتزِ مغز: حلقهٔ ارتقای درآمد با حافظهٔ ماندگار",
+      "rationale": "۱ قدم جلو می‌برد: بهبود تبدیل لید به مطالبه؛ پوشش observe→critique→propose→shadow-validate→promote، ضد‌مسمومیت، سطح تغییر، توقف و rollback",
       "evidence": "synthesis-latest.json [primary]",
-      "suggested_action": "قدم اول: تعیین شِمای append-only برای `lead_id، evidence، brain، cost، claim_status، expiry، rollback_ref`",
+      "suggested_action": "طراحی یک shadow-eval روی متن پیشنهاد قیمت با معیار «احتمال مطالبه، صحت انتساب، هزینه و امکان بازگشت",
       "change_level": "reconfig",
       "auto_applicable": false,
       "status": "proposed",
@@ -507,12 +507,12 @@
     "max_circular": 6,
     "max_circular_reason": "owner-window:2026-08-13",
     "outcome": {
-      "tracked": 17,
+      "tracked": 18,
       "moved": false,
       "now": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 97,
+        "total_discoveries": 106,
         "proposals_delivered": 0,
         "proposal_outcomes": 0,
         "proposal_positive": 0,
@@ -523,7 +523,7 @@
       "since": {
         "confirmed_revenue": 0,
         "revenue_cells": 0,
-        "total_discoveries": 89,
+        "total_discoveries": 99,
         "proposals_delivered": 0,
         "proposal_outcomes": 0,
         "proposal_positive": 0,

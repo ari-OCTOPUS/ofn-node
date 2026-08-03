@@ -1,14 +1,14 @@
 {
-  "ts": "2026-08-03T17:59:12",
+  "ts": "2026-08-03T20:20:28",
   "schema": "audit-matrix.v1",
   "n": 43,
   "tally": {
     "Done": 26,
-    "Partial": 13,
-    "Missing": 4,
+    "Partial": 12,
+    "Missing": 5,
     "Unknown": 0
   },
-  "maturity_pct": 75.6,
+  "maturity_pct": 74.4,
   "static_by_construction": true,
   "items": [
     {
@@ -30,7 +30,7 @@
     {
       "item": "heartbeat / pulse system",
       "status": "Done",
-      "evidence": "heart-shadow period=60.0",
+      "evidence": "heart-shadow period=44.86",
       "priority": "P1",
       "gap_type": "none",
       "section": "§16 time-loops"
@@ -77,7 +77,7 @@
     },
     {
       "item": "memory poisoning / false-canon guard",
-      "status": "Partial",
+      "status": "Missing",
       "evidence": "constitution §7: created_by:agent + sources≥2؛ ولی مانیتورِ خودکار نیست",
       "priority": "P1",
       "gap_type": "governance",
@@ -374,20 +374,20 @@
       "section": "§9/§10 self-improve"
     },
     {
+      "item": "memory poisoning / false-canon guard",
+      "status": "Missing",
+      "evidence": "constitution §7: created_by:agent + sources≥2؛ ولی مانیتورِ خودکار نیست",
+      "priority": "P1",
+      "gap_type": "governance",
+      "section": "§6 memory"
+    },
+    {
       "item": "change leveled: tune/reconfig/rewrite + contract",
       "status": "Missing",
       "evidence": "none — سطح‌بندیِ صریحِ تغییر و change-contract هنوز نیست (کارِ improve.py)",
       "priority": "P1",
       "gap_type": "governance",
       "section": "§10 self-modify"
-    },
-    {
-      "item": "memory poisoning / false-canon guard",
-      "status": "Partial",
-      "evidence": "constitution §7: created_by:agent + sources≥2؛ ولی مانیتورِ خودکار نیست",
-      "priority": "P1",
-      "gap_type": "governance",
-      "section": "§6 memory"
     },
     {
       "item": "self-analysis loop has stop-condition",

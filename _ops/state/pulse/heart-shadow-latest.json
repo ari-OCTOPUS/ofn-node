@@ -1,14 +1,14 @@
 {
-  "ts": "2026-08-03T18:06:40",
-  "beat": 23800,
+  "ts": "2026-08-03T20:26:36",
+  "beat": 23925,
   "signal": {
     "schema": "HeartSignal.v1",
-    "beat_seq": 23800,
-    "period_s": 60.0,
+    "beat_seq": 23925,
+    "period_s": 45.45,
     "sigma_now": 0.0,
     "baro_factor": 0.714
   },
-  "period_s": 60.0,
+  "period_s": 45.45,
   "telemetry": {
     "schema": "HeartTelemetry.v1",
     "velocity_per_hr": 0.125,
@@ -20,15 +20,14 @@
       "g_learn": 0.0,
       "band_effective_mid": 2.0439,
       "err": -0.4812,
-      "futility_backoff": true,
       "cpi_guard": 1.0,
-      "budget_pressure": 1.0,
+      "budget_pressure": 1.061,
       "e_shadow": "locked",
       "w_shadow_active": false,
       "fail_closed_reason": null,
       "drift_flag": false
     },
-    "period_s": 60.0
+    "period_s": 45.45
   },
   "setpoint": {
     "schema": "HeartParams.v1",
@@ -41,7 +40,7 @@
     "baroreflex_gain": 0.0
   },
   "gate0_live_producer": false,
-  "sampled_this_step": true,
+  "sampled_this_step": false,
   "production_wire": {
     "open": false,
     "reasons": [

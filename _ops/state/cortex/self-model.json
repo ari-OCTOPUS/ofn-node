@@ -1,10 +1,10 @@
 {
-  "ts": "2026-08-03T17:59:10",
+  "ts": "2026-08-03T20:20:27",
   "schema": "self-model.v1",
-  "n_modules": 500,
-  "total_lines": 137879,
-  "n_tests": 532,
-  "n_wire_flags": 145,
+  "n_modules": 501,
+  "total_lines": 138859,
+  "n_tests": 541,
+  "n_wire_flags": 146,
   "wire_flags": [
     "ACTIVATION-CODE-AUTONOMY.flag",
     "ACTIVATION-CORTEX-PAID.flag",
@@ -870,6 +870,29 @@
         "opslib"
       ]
     },
+    "budget/governor.py": {
+      "purpose": "governor.py — آداپتورِ مشترکِ بودجه/حاکمیت روی «درِ واحدِ مغز» (B5.1).",
+      "lines": 487,
+      "n_funcs": 19,
+      "n_classes": 0,
+      "top_defs": [
+        "enabled",
+        "_norm_choice",
+        "_as_bool",
+        "_as_bool_leaky",
+        "_task_id",
+        "normalize",
+        "cache_clear",
+        "cache_get"
+      ],
+      "wire_flags": [
+        "OCTOPUS_WIRE_GOVERNOR"
+      ],
+      "house_imports": [
+        "model_router",
+        "opslib"
+      ]
+    },
     "budget/governor_epoch.py": {
       "purpose": "governor_epoch.py — T3 پک: حلقهٔ Governor در shadow-mode. صفر enforce، فقط لاگ.",
       "lines": 601,
@@ -1131,18 +1154,18 @@
     },
     "capability_registry.py": {
       "purpose": "capability_registry — هر چیزی که ارگانیسم می‌تواند نشان دهد، خودش پیدا می‌شود.",
-      "lines": 374,
-      "n_funcs": 10,
+      "lines": 416,
+      "n_funcs": 11,
       "n_classes": 0,
       "top_defs": [
         "_zero_arg_card",
         "_read_manifest",
+        "manifest_report",
         "discover_manifests",
         "catalog",
         "discover",
         "render",
-        "_esc",
-        "coverage"
+        "_esc"
       ],
       "wire_flags": [],
       "house_imports": []
@@ -4164,7 +4187,7 @@
     },
     "legs/langar_bridge.py": {
       "purpose": "langar_bridge — پلِ additive از رباتِ واحد اختاپوس به langarِ Project-F.",
-      "lines": 369,
+      "lines": 375,
       "n_funcs": 12,
       "n_classes": 0,
       "top_defs": [
@@ -7143,7 +7166,7 @@
     },
     "telegram_center/center.py": {
       "purpose": "center.py — «مرکزِ فرماندهیِ تلگرام» (hub): حلقهٔ setup/beat/poll روی TgClient.",
-      "lines": 4574,
+      "lines": 4971,
       "n_funcs": 14,
       "n_classes": 1,
       "top_defs": [
@@ -7473,18 +7496,18 @@
     },
     "telegram_center/miniapp_gateway.py": {
       "purpose": "miniapp_gateway — دیوارِ 8774 برای Mini App (PLAN-T4 §۱–۳؛ GO ِ مالک ۲۰۲۶-۰۷-۳۱).",
-      "lines": 417,
-      "n_funcs": 11,
+      "lines": 459,
+      "n_funcs": 14,
       "n_classes": 2,
       "top_defs": [
         "_Srv",
         "_Handler",
         "enabled",
+        "read_gate_enabled",
         "_redact",
         "validate_init_data",
         "_miniapp_static_response",
-        "_default_fetch",
-        "_stopped"
+        "_default_fetch"
       ],
       "wire_flags": [],
       "house_imports": [
@@ -8296,7 +8319,7 @@
     },
     "unified_control/snapshot.py": {
       "purpose": "Read-only truth snapshot: self, direction, heart, cortex, goal-cycle and guidance.",
-      "lines": 189,
+      "lines": 195,
       "n_funcs": 7,
       "n_classes": 0,
       "top_defs": [

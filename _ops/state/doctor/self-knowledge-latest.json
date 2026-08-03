@@ -1,16 +1,16 @@
 {
-  "ts": "2026-08-03T17:56:10",
-  "beat": 23789,
-  "version": 111,
+  "ts": "2026-08-03T20:10:08",
+  "beat": 23909,
+  "version": 112,
   "source": "cached:no-change",
-  "snapshot_hash": "3e65b3d3375df5d9",
-  "stable_cycles": 2,
+  "snapshot_hash": "890de94af878b096",
+  "stable_cycles": 1,
   "llm_calls": 0,
-  "deep_dive_ran": false,
-  "focus": "خطای پرتکرار failed ×4",
+  "deep_dive_ran": true,
+  "focus": "خطاهای پرتکرار failed ×4",
   "understanding": {
-    "anatomy": "10 لِگ، 32 سیمِ روشن",
-    "physiology": "درآمد صفر، propose-only · خرجِ خودم 0 micro-USD",
+    "anatomy": "32 سیمِ روشن، 10 لِگ",
+    "physiology": "درآمد صفر با توجه به حالتِ پروژه‌ها، خرجِ خودم 0 micro-USD",
     "pathology": [
       {
         "symptom": "خطای پرتکرار failed ×4",
@@ -18,35 +18,55 @@
         "severity": "medium"
       },
       {
-        "symptom": "خطای پرتکرار ValueError ×1",
+        "symptom": "خطای پرتکرار ImportError ×1",
         "root_cause": "نامعلوم (نیاز به کاوش)",
-        "severity": "medium"
-      },
-      {
-        "symptom": "خطای پرتکرار URLError ×1",
-        "root_cause": "نامعلوم (نیاز به کاوش)",
-        "severity": "medium"
+        "severity": "low"
       }
     ],
-    "trajectory": "نامعلوم (بی‌LLM)",
+    "trajectory": "بهتر شده است نسبت به نسخه‌های قبل، با توجه به افزایشِ روندِ اطمینان",
     "prescription": [
       {
         "action": "یک لِگ را به لیدِ واقعی وصل کن",
         "why": "ترس را می‌شکند",
         "priority": "high"
+      },
+      {
+        "action": "بررسی دقیق‌تر خطاهای پرتکرار failed و ImportError برای مشخصه‌سازی جذارت‌ها",
+        "why": "جذارت‌ها را شناسایی کرد و حل ممکن است به افزایشِ اعتماد برسد",
+        "priority": "medium"
       }
     ],
     "open_questions": [
-      "چرا خطاهای پرتکرار رخ می‌دهند؟"
+      "چرا خطاهای پرتکرار failed و ImportError رخ می‌دهند؟"
     ],
-    "focus": "خطای پرتکرار failed ×4",
-    "confidence": 0.4
+    "focus": "خطاهای پرتکرار failed ×4",
+    "confidence": 0.6
   },
-  "deep_dive": {},
+  "deep_dive": {
+    "topic": "خطاهای پرتکرار failed ×4",
+    "cause_chain": [
+      "ModuleNotFoundError (نشانه)",
+      "ImportError (نشانه)",
+      "RuntimeError (نشانه)",
+      "chyron: cryptoquant_analysis_2026-06-15-16-38-35.json (خطی که ممکن است منبع ریشه باشد)"
+    ],
+    "evidence": [
+      {
+        "type": "recent_errors",
+        "details": "ModuleNotFoundError: 2, RuntimeError: 1, ImportError: 1"
+      },
+      {
+        "type": "money",
+        "details": "musd = خرجِ خودم (micro-USD)، نه درآمد"
+      }
+    ],
+    "smallest_fix": "تائید و تنظیم مسیر پوشه‌ها و فایل‌های مورد نیاز برای دسترسی صحیح به آن‌ها",
+    "blocked_by": "کمبود زمان و توجه برای انجام اصلاحات ضروری"
+  },
   "trajectory": {
     "focus_stable": false,
-    "prev_focus": "شکستنِ گلوگاهِ گزارش‌دهیِ درآمدِ لِگِ lead (Revenue) و واقعی‌کردنِ درآمدِ نقاشی",
-    "confidence_delta": -0.55,
+    "prev_focus": "خطای پرتکرار failed ×4",
+    "confidence_delta": 0.2,
     "converging": false
   },
   "snapshot_digest": {
@@ -58,9 +78,9 @@
     "in_fear": [],
     "money_musd": 0,
     "recent_errors": {
-      "failed": 4,
-      "ValueError": 1,
-      "URLError": 1
+      "ModuleNotFoundError": 2,
+      "RuntimeError": 1,
+      "ImportError": 1
     }
   }
 }

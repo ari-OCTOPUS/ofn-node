@@ -352,17 +352,23 @@ def dispatch(text: str, chat_id=None, owner=None) -> str | None:
 def _scrub_via_langar(bot, reply):
     """خروجی را از OpsecGuard ِ خودِ langar عبور بده. fail-closed:
 
-    اگر گارد در دسترس نبود یا خطا داد، متنِ خام **برنمی‌گردد** — چون سیاستِ
-    scrub ِ langar خودش deny-by-default است و متنِ بی‌گارد ممکن است نامِ شهر/
-    هویت را بیرون ببرد. جایگزین: یک پیامِ صادقانهٔ کوتاه."""
+    نکتهٔ مهم: فقط `scrub()` معتبر است، نه `clean()`. `clean()` صرفاً تبدیل متن است
+    و سیاستِ deny-by-default (`policy_ok`: config/blocklist صریح) را enforce نمی‌کند.
+    اگر گارد/سیاست در دسترس نبود یا خطا داد، متنِ خام **برنمی‌گردد** — چون ممکن
+    است نامِ شهر/هویت را بیرون ببرد. جایگزین: پیامِ صادقانهٔ کوتاه."""
     if not isinstance(reply, str) or not reply:
         return reply
     guard = getattr(bot, "guard", None)
-    fn = getattr(guard, "clean", None) or getattr(guard, "scrub", None)
+    fn = getattr(guard, "scrub", None)
     if not callable(fn):
         return "⚠️ پاسخ ارسال نشد — گاردِ حریمِ Project-F در دسترس نبود (fail-closed)."
     try:
         out = fn(reply)
     except Exception:  # noqa: BLE001 — شک = ندادنِ متن
         return "⚠️ پاسخ ارسال نشد — گاردِ حریم خطا داد (fail-closed)."
-    return out if isinstance(out, str) else reply
+    if not (isinstance(out, tuple) and len(out) == 2):
+        return "⚠️ پاسخ ارسال نشد — خروجیِ گاردِ حریم نامعتبر بود (fail-closed)."
+    allowed, safe = out
+    if not allowed:
+        return "⚠️ پاسخ ارسال نشد — سیاستِ حریمِ Project-F فعال/کافی نبود (fail-closed)."
+    return safe if isinstance(safe, str) else ""

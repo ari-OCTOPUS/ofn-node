@@ -1,19 +1,19 @@
 {
-  "ts": "2026-08-03T17:59:11",
+  "ts": "2026-08-03T20:20:27",
   "schema": "part-loops.v1",
-  "beat": 70,
+  "beat": 140,
   "parts": [
     {
       "id": "heart",
       "name": "❤️ قلب",
       "status": "🟢",
-      "detail": "ضربان 60s"
+      "detail": "ضربان 45s"
     },
     {
       "id": "cortex",
       "name": "🧠 مغز",
       "status": "🟢",
-      "detail": "هم‌آهنگی 94٪"
+      "detail": "هم‌آهنگی 93٪"
     },
     {
       "id": "doctor",
@@ -37,7 +37,7 @@
       "id": "legs",
       "name": "🦿 اعضا",
       "status": "🟢",
-      "detail": "2 خودترمیم/روز"
+      "detail": "3 خودترمیم/روز"
     },
     {
       "id": "self",
