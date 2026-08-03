@@ -487,3 +487,20 @@ fail-closed بود (امن ولی خشک).
 | VQ-LIVE-DIRTY-RECONCILE-001 | آشتیِ درخت زنده با گیت | 🔴 باز — تصمیمِ مالک/لِین‌های موازی | درخت زنده ~۱۲۰ فایلِ tracked ِ کامیت‌نشده دارد (+۲۶k خط) و ارگانیسم همان را اجرا می‌کند؛ ۲۹/۳۶ قرمزِ baseline ازهمین‌جاست. نقشهٔ کامل: `02-CONFLICT-MAP.md`. این جلسه فقط کمینهٔ وابستگیِ tracked را پذیرفت (mission_contract v2 + memory v2 در `a9492c7`) و ۶۳ فایلِ بی‌گیت را نجات داد (`2ac7e9b`) |
 
 پروندهٔ کامل + baseline (۳۹۹ سوییت) + شواهدِ جهش: `_program-deliverables/octopus-unification-2026-07-31/`
+## حلقهٔ عملیاتی — ۲۰۲۶-۰۷-۳۱ (برنچ `claude/operational-loop-agi-566734`، merge/arm = رأیِ تو)
+
+### کارت‌های تازه
+
+| ID | تصمیم | چرا باز است |
+|---|---|---|
+| VQ-MISSION-APPROVAL-001 | مسلح‌کردنِ `OCTOPUS_WIRE_MISSION_APPROVAL` (+ ری‌استارتِ مرکز ♻️) | کارتِ A3 ِ پلِ اقدام دیگر دور ریخته نمی‌شود: stage روی دیسک + صفِ approval_store + حکمِ مالک → گذارِ قانونیِ mission (`needs_approval→running→done/failed`). صفر قدرتِ اجراییِ نو (executor صدا نمی‌خورد؛ grant صادر نمی‌شود). ماژول داخلِ telegram_center و صداکننده‌اش beat ِ خودِ مرکز است — گاردِ S1-05 t_o نسخهٔ organism-side را قرمز کرد (نویسندهٔ دومِ بین‌پروسه‌ای روی approvals.json) و طرح اصلاح شد. تا فلگ خاموش است mission ها مثلِ امروز در `needs_approval` می‌مانند — نیمهٔ SGC ِ شکافِ VQ-MISSION-CARD-001 |
+| VQ-RECEIPT-CRITIC-001 | مسلح‌کردنِ `OCTOPUS_WIRE_RECEIPT_CRITIC` | `action-ledger.jsonl` تا امروز صفر خواننده داشت — هیچ منتقدی بینِ رسیدِ اقدام و یادگیری نبود. منتقد ۵ ناوردیِ خودِ executor را از دیسک قضاوت می‌کند (اثرِ بیرونی/هزینه/قدم/rollback/تطابقِ دفترِ mission) و حکم را به `receipt-verdicts.jsonl` + MemoryGate می‌دهد |
+| VQ-PROMOTE-TRUST-001 | تضادِ سیاست: promote ِ لید ساختاراً ناممکن | گیتِ حافظه برای semantic هرگز بالاتر از GRADED نمی‌دهد (`gate._grade`) ولی promote ِ `lead_outcome_recorder` سطرِ OWNER_CONFIRMED می‌خواهد ⇒ «بردِ تأییدشده → جسورتر» هرگز شلیک نمی‌کند. جهتِ فعلی محافظه‌کارانه/امن است؛ بازکردنش (grade ِ استثنایی برای رأیِ attested یا نرم‌کردنِ خواننده) تصمیمِ توست — گارد را برای سبزکردن بازنویسی نکردم |
+
+### وضعیت‌های به‌روزشده
+
+| ID | تغییر |
+|---|---|
+| VQ-STATE-WRITE-001 | **نیمهٔ صداکننده بسته شد** (کامیت `9604d90`): شکستِ نوشتنِ self-model حالا آلارم + نشانگرِ `self-model.write-failure.json` دارد، cortex هم `ok` را می‌خواند، و `improve.observability_ok` خودمدلِ کهنه/نشانگر را «مشاهدهٔ مرده» می‌شمارد (L2 نمی‌جنبد). `LockedJson` عمداً دست‌نخورده — همان تصمیمِ ثبت‌شده |
+| VQ-MISSION-RECONCILE-001 | همچنان باز؛ این جلسه v2 ِ envelope (کامیت `1b80a8d` — قبلاً فقط روی درختِ کاریِ زنده بود و checkout ِ تمیز `prepare:TypeError` می‌گرفت) کامیت شد و snapshot به exact-row رفت. مهاجرتِ کامل هنوز رأیِ توست |
+| — | یادگیری از حکمِ مالک زنده شد (کامیت `1936fd4`): ردِ مالک هم درس می‌شود (توکن‌های `category=`/`verdict=` به حافظهٔ لید برمی‌گردند)، فراموشیِ ردشده‌های doctor با کلیدِ واقعی شلیک می‌کند، producer ِ `verdict_recorder` با allowlist ِ گیت هم‌نام شد، و مخزنِ رسیدِ دوپاره یکی شد (`state/receipts/receipts.db`) |
