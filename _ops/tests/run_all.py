@@ -347,6 +347,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # را می‌آوردند و اصلاً صدا زده نمی‌شد. این تست هم پوشش را می‌سنجد و
          # هم مثبتِ کاذب را (روی ۳۷۱ فرمانِ واقعیِ جلسه: صفر).
          "test_pii_guard_covers_every_read_tool.py",
+         # ۰۸-۰۴ ← بودجهٔ ایندکسِ ابسیدین. ۸۱٪ از چیزی که بار می‌کرد
+         # غیرقابلِ‌رندر بود (npy+py تنهایی ۴۲٪). app.json را خودِ ابسیدین
+         # هم می‌نویسد، پس بدونِ گارد بی‌صدا برمی‌گردد.
+         "test_obsidian_index_budget.py",
          "test_sync_health_unknown.py",
          "test_arbiter_consensus_rule.py",
          "test_state_write_monopoly.py",
