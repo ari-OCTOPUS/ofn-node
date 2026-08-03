@@ -339,6 +339,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_latent_poller_guard.py",
          "test_activation_flag_presence.py",
          "test_phantom_guards.py",
+         # ۰۸-۰۴ ← نگهبانِ tracked برای `OCTOPUS-flags.cmd` ِ gitignore‌شده.
+         # phantom_guards نگهبانِ **نامِ** فلگ است؛ این یکی نگهبانِ **مقدار**،
+         # چون `=0` هم نام را حفظ می‌کند و اعلان را سبز نگه می‌دارد.
+         "test_safety_flags_stay_armed.py",
          "test_sync_health_unknown.py",
          "test_arbiter_consensus_rule.py",
          "test_state_write_monopoly.py",
