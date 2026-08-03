@@ -58,9 +58,17 @@ _RUN_ALL = _OPS / "tests" / "run_all.py"
 _FLAGS_CMD = _OPS / "OCTOPUS-flags.cmd"
 
 # ── دفترِ منجمد ────────────────────────────────────────────────────────────
-# ۱۳ تستِ ثبت‌شده در TESTS که git نمی‌شناسدشان. هر ۱۳ ورودی در HEAD هم ثبت
-# شده‌اند و هر ۱۳ فایل از درختِ HEAD غایب‌اند ⇒ روی clone تازه phantomِ واقعی.
-PHANTOM_TESTS = (
+# ۲۰۲۶-۰۸-۰۴ — این دفتر **پرداخت شد**، پاک نشد. تا ۰۸-۰۳ سیزده تستِ ثبت‌شده
+# در TESTS بودند که git نمی‌شناختشان: روی درختِ زنده سبز می‌دویدند و روی یک
+# clone تازه اصلاً وجود نداشتند. کامیتِ `9f7c4a8` هر سیزده را وارد گیت کرد.
+#
+# مستقل سنجیده شد، نه از روی ادعای خودِ گارد: `git ls-files --error-unmatch`
+# روی هر سیزده مسیر ⇒ صفر untracked، و `git cat-file -e HEAD:<path>` ⇒ موجود.
+#
+# نام‌ها عمداً این‌جا می‌مانند (به‌عنوان تاریخچه، نه بدهی) چون تنها راهِ فهمیدنِ
+# اینکه یک دفترِ تهی «پرداخت‌شده» است نه «پاک‌شده»، همین است. گاردِ
+# `t_the_ledger_is_not_empty` حالا تهی‌بودن را به شاهد گره می‌زند نه به قاعده.
+PHANTOM_TESTS_PAID_2026_08_04 = (
     "test_control_plane.py", "test_dark_capabilities.py",
     "test_invoice_unpayable_is_loud.py", "test_lead_card.py",
     "test_lead_email_intake.py", "test_lead_first_reply.py",
@@ -69,6 +77,7 @@ PHANTOM_TESTS = (
     "test_new_capability_cards.py", "test_proposal_counter_durable.py",
     "test_sync_agent.py",
 )
+PHANTOM_TESTS = ()
 
 # ۱۸۸ نامِ فلگ که کدِ `_ops/**/*.py` می‌خواندشان و در OCTOPUS-flags.cmd صفر
 # بار ظاهر می‌شوند. فقط **نام** — هیچ مقداری از آن فایل خوانده/چاپ نمی‌شود.
@@ -80,6 +89,24 @@ UNDECLARED_FLAGS = (
     # آن **رأیِ مالک** است. اعلامش در `OCTOPUS-flags.cmd` گامِ ۲۱ ِ طرح است —
     # همان‌جا که سه فلگِ دیگر هم منتظرند. تا آن رأی، این‌جا ثبت می‌شود نه پنهان.
     "OCTOPUS_PROPOSAL_METRICS_SOURCE",
+    # ۲۰۲۶-۰۸-۰۴ — نُه knob ِ **فقط-هارنس**. هر کدام دقیقاً یک خواننده دارند و آن
+    # خواننده یک فایلِ `_ops/tests/**` است؛ صفر خوانندهٔ تولیدی (گرپِ بی‌سقف روی
+    # کلِ `_ops`). پس نبودشان از پروفایلِ بوت اشتباه نیست — **الزام** است: اگر
+    # نامشان به OCTOPUS-flags.cmd برود، `apply_profile` ممکن است روزی روشنشان کند
+    # و یک knob ِ تست به تولید نشت می‌کند. این‌جا ثبت می‌شوند تا «بی‌اعلان» بودنشان
+    # یک تصمیمِ نوشته‌شده باشد، نه یک فراموشی.
+    #
+    # ⚠️ سه‌تای اولِ زیر یک شکافِ **دیگر** را هم لو می‌دهند و همان‌جا ثبت شد:
+    # `test_outbound_owner_transport.py` این نام‌ها را ست می‌کند و انتظار دارد
+    # `outbound_worker` به آن‌ها گوش دهد — ولی آن transport هرگز نوشته نشد
+    # (`git log -S owner_chat_sent` خالی)، تولید `TELEGRAM_OWNER_CHAT_ID` می‌خواند
+    # نه `OCTOPUS_OWNER_CHAT_ID`، و فایل در run_all ثبت نیست پس ۵ قرمزش نامرئی بود.
+    # رفعش رأیِ مالک است (مسیرِ ارسال، رأیِ ایستادهٔ «فعلاً هیچ ارسالی») — نه کارِ گارد.
+    "OCTOPUS_LEAD_OUTBOUND_TARGET", "OCTOPUS_OWNER_CHAT_ID",
+    "OCTOPUS_WIRE_LEAD_MIGRATE_PRODUCERS", "OCTOPUS_MINIAPP_CACHE_TTL_S",
+    "OCTOPUS_TEST_ALLOW_LIVE_STATE", "OCTOPUS_TEST_ISOLATION_ECHO",
+    "OCTOPUS_TEST_ISOLATION_LOG", "OCTOPUS_TEST_LIVE_STATE_GUARD",
+    "OCTOPUS_TEST_NET_GUARD",
     "OCTOPUS_ACTION_BRIDGE_HMAC", "OCTOPUS_AGENT_GATEWAY_PORT",
     "OCTOPUS_AGENT_MAX_BYTES", "OCTOPUS_AGENT_OWNER_SECRET",
     "OCTOPUS_AGENT_PEERS", "OCTOPUS_AGENT_RATE_PER_MIN",
@@ -123,7 +150,7 @@ UNDECLARED_FLAGS = (
     "OCTOPUS_OPS_DB_PATH", "OCTOPUS_OPS_IDEMPOTENCY_PATH",
     "OCTOPUS_OPS_RUNTIME_DIR", "OCTOPUS_OWNER_VERDICTS",
     "OCTOPUS_PAIN_BREAKDOWN", "OCTOPUS_PAIN_THRESHOLD_CALIBRATED",
-    "OCTOPUS_PF_MINIAPP", "OCTOPUS_PROFILE",
+    "OCTOPUS_PROFILE",
     "OCTOPUS_PROPOSAL_COUNTER_DURABLE", "OCTOPUS_RAM_MAX_PCT",
     "OCTOPUS_REFLEX_SEVERITY_RECOVER", "OCTOPUS_REQUIRE_ARM",
     "OCTOPUS_RG_EXE", "OCTOPUS_SELFKNOW_ACCURACY",
@@ -143,7 +170,7 @@ UNDECLARED_FLAGS = (
     "OCTOPUS_WIRE_AUTHZ_SHADOW", "OCTOPUS_WIRE_BARBELL",
     "OCTOPUS_WIRE_BCM", "OCTOPUS_WIRE_BOX",
     "OCTOPUS_WIRE_BUDGET_FRUSTRATION", "OCTOPUS_WIRE_CARTOGRAPHER",
-    "OCTOPUS_WIRE_CB_TOKEN", "OCTOPUS_WIRE_CHAMBER_T",
+    "OCTOPUS_WIRE_CHAMBER_T",
     "OCTOPUS_WIRE_CHORD_SHADOW", "OCTOPUS_WIRE_COGNITION_EFFECT",
     "OCTOPUS_WIRE_COMPANY_BOOKS", "OCTOPUS_WIRE_CONSENT_FW",
     "OCTOPUS_WIRE_CONSOLIDATION", "OCTOPUS_WIRE_CONTEXT_FENCE",
@@ -154,7 +181,7 @@ UNDECLARED_FLAGS = (
     "OCTOPUS_WIRE_FITNESS", "OCTOPUS_WIRE_HEART_FUEL",
     "OCTOPUS_WIRE_IDEAS", "OCTOPUS_WIRE_IMPROVE_LEARN",
     "OCTOPUS_WIRE_INGEST", "OCTOPUS_WIRE_INGEST_EXAMPLE",
-    "OCTOPUS_WIRE_INITIATIVE", "OCTOPUS_WIRE_KILL_SEAM",
+    "OCTOPUS_WIRE_INITIATIVE",
     "OCTOPUS_WIRE_LEAD", "OCTOPUS_WIRE_LEAD_BOUNDARY",
     "OCTOPUS_WIRE_LEAD_CARD_CONTACT", "OCTOPUS_WIRE_LEAD_EMAIL_INTAKE",
     "OCTOPUS_WIRE_LEAD_FIRST_REPLY", "OCTOPUS_WIRE_LEAD_FIRST_RESPONSE",
@@ -195,6 +222,17 @@ AST_BLIND_SPOTS = (
 INDIRECT_READ_CANARIES = (
     "OCTOPUS_WIRE_PULSE_ARBITER",
     "OCTOPUS_WIRE_DEADWRITE_CARDS",
+)
+
+# ۲۰۲۶-۰۸-۰۴ — `OCTOPUS_PF_MINIAPP` از فهرستِ بالا **جابه‌جا** شد، نه حذف.
+# این گارد دو ادعای مستقل داشت که در یک تاپل قاطی شده بودند:
+#   (۱) آشکارسازِ خواندنِ غیرمستقیم هنوز پیدایش می‌کند  ← دندانِ واقعی
+#   (۲) هنوز در OCTOPUS-flags.cmd بی‌اعلان است          ← فقط دفترداری
+# حالا اعلان دارد، پس ادعای (۲) دربارهٔ آن غلط است. حذفِ کاملش ادعای (۱) را
+# هم می‌کشت و یکی از سه لنگرِ آشکارساز بی‌صدا از بین می‌رفت — همان فرسایشی که
+# خودِ این فایل قرار است بگیرد. پس فقط ادعای (۱) رویش می‌ماند.
+# لنگرِ نماد: _ops/telegram_center/pf_miniapp.py::FLAG
+DETECTOR_ONLY_CANARIES = (
     "OCTOPUS_PF_MINIAPP",
 )
 
@@ -475,7 +513,14 @@ def t_indirect_flag_reads_are_still_detected():
             f"dashboard/server.py::DEADWRITE_FLAG، pf_miniapp.py::FLAG)")
         assert name not in declared, (
             f"«{name}» حالا در {_FLAGS_CMD.name} اعلان دارد — خبرِ خوب، ولی "
-            f"از INDIRECT_READ_CANARIES و UNDECLARED_FLAGS حذفش کن")
+            f"از INDIRECT_READ_CANARIES و UNDECLARED_FLAGS حذفش کن "
+            f"(به DETECTOR_ONLY_CANARIES منتقلش کن تا لنگرِ آشکارساز نمیرد)")
+    # لنگرهایی که دیگر بی‌اعلان نیستند ولی هنوز باید **کشف** شوند. اگر
+    # `flag_reads_in` به «فقط رشتهٔ لفظی» ساده شود، این‌ها هم می‌افتند.
+    for name in DETECTOR_ONLY_CANARIES:
+        assert name in reads, (
+            f"«{name}» دیگر کشف نمی‌شود — آشکارسازِ غیرمستقیم کور شد "
+            f"(لنگر: pf_miniapp.py::FLAG)")
 
 
 def t_ast_blind_spots_are_frozen():
@@ -488,9 +533,26 @@ def t_ast_blind_spots_are_frozen():
 
 def t_the_ledger_is_not_empty():
     """دفترِ تهی یعنی این فایل دیگر چیزی را قفل نمی‌کند — و بدترین حالتِ
-    ممکن است: سبزِ کاملاً بی‌معنا که شبیهِ درختِ تمیز به‌نظر می‌رسد."""
-    assert len(PHANTOM_TESTS) > 0, "PHANTOM_TESTS تهی شد"
+    ممکن است: سبزِ کاملاً بی‌معنا که شبیهِ درختِ تمیز به‌نظر می‌رسد.
+
+    ۲۰۲۶-۰۸-۰۴ — این گارد با `t_registered_tests_are_tracked_by_git` به تضادِ
+    واقعی خورد: هر ۱۳ phantom در کامیتِ `9f7c4a8` tracked شدند (مستقل سنجیده:
+    `git ls-files --error-unmatch` روی هر ۱۳ ⇒ صفر untracked)، پس آن گارد
+    دفترِ ۰ می‌خواست و این گارد دفترِ >۰. فایل با هیچ مقداری سبز نمی‌شد.
+
+    رفع، بدونِ کندکردنِ دندان: تهی‌بودن دیگر **ممنوع** نیست، بلکه به **شاهد**
+    گره خورده. دفتری فقط وقتی می‌تواند تهی باشد که واقعیتِ سنجیده هم تهی باشد.
+    پس «خالی‌کردنِ دفتر برای سبزشدن» همچنان قرمز است — چون آن‌وقت واقعیت
+    تهی نیست — ولی «بدهی واقعاً پرداخت شد» دیگر برای همیشه قرمز نمی‌ماند.
+    و شرطِ اصلیِ خودِ گارد سرِ جایش می‌ماند: این فایل باید چیزی قفل کند."""
+    if not PHANTOM_TESTS:
+        measured = untracked_registered()
+        assert not measured, (
+            "PHANTOM_TESTS تهی شد ولی واقعیت تهی نیست — دفتر برای سبزشدن "
+            f"خالی شده، نه چون بدهی پرداخت شده: {measured}")
     assert len(UNDECLARED_FLAGS) > 0, "UNDECLARED_FLAGS تهی شد"
+    assert PHANTOM_TESTS or UNDECLARED_FLAGS, \
+        "هر دو دفتر تهی — این فایل دیگر هیچ چیزی قفل نمی‌کند"
     assert len(set(PHANTOM_TESTS)) == len(PHANTOM_TESTS), "تکرار در PHANTOM_TESTS"
     assert len(set(UNDECLARED_FLAGS)) == len(UNDECLARED_FLAGS), "تکرار در UNDECLARED_FLAGS"
     assert all(_FLAG_NAME.match(n) for n in UNDECLARED_FLAGS), \
