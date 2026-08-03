@@ -1,3 +1,9 @@
+> **⚠️ سندِ تاریخی (۲۰۲۶-۰۷-۱۷/۱۸).** این گزارشِ پروبِ آن تاریخ است و
+> بازتابِ وضعیتِ **پیش از** برش‌های ۰-۳ ِ طرحِ هیدرید کنترل‌پلین. سؤالاتِ بازِ این
+> سند (مثل «Source of Truth کدام است؟») در `02-OCTOPUS-KNOWLEDGE-SNAPSHOT.md` پاسخ
+> داده شده‌اند. برایِ شناختِ به‌روز `00-README-START-HERE.md` و `04-NEXT-AGENT-MEGAPROMPT.md`
+> را بخوان. این دادهٔ پروب برایِ پشت‌زمینه نگه داشته شده، نه برایِ عمل.
+
 # 🐛 Truth Map — Debug Diagnostic Report
 
 > **تاریخ:** 2026-07-17 شب (probe window ~22:15–22:45 AEST) | **ایجنت:** OCTOPUS DEBUG & DIAGNOSTIC AGENT (طبق `08-DEBUG-AGENT-MEGAPROMPT.md` v1.1)

@@ -1,155 +1,117 @@
-# 🐙 شناخت فعلی اختاپوس — Snapshot
+# 🐙 شناخت اختاپوس — Snapshot (۲۰۲۶-۰۸-۰۴)
 
-> این فایل خلاصهٔ شناخت فعلی از اختاپوس است، بر اساس کاوش‌های آزمون‌وخطا روی `F:\backup`.
+> **به‌روزرسانیِ ۲۰۲۶-۰۸-۰۴.** نسخهٔ ۲۰۲۶-۰۷-۱۷ سؤالاتِ بازِ زیادی داشت
+> («Source of Truth کدام است؟») که حالا پاسخ داده شده. نسخهٔ پیشین در git موجود است.
 
 ---
 
-## 1. تعریف فعلی اختاپوس
+## ۱. پاسخِ حیاتی: Source of Truth اجرایی کدام است؟
 
-[FACT] اختاپوس در `F:\backup` یک پوشهٔ واحد نیست؛ یک اکوسیستم چندلایه است.
+[FACT] **`_ops` بدنِ زندهٔ اجرایی است.** این سؤالِ بازِ ۲۰۲۶-۰۷-۱۷ حالا پاسخ دارد:
 
-لایه‌های مشاهده‌شده:
+```text
+اگر امروز فقط یکی را «بدن زنده» بنامیم: _ops/organism.py رویِ 8771.
+```
 
-| لایه | مسیر | نقش فعلی |
+لایه‌های دیگر نقش‌های متمایز دارند، نه رقابت بر سر SoT:
+
+| لایه | مسیر | نقشِ تأییدشده (۲۰۲۶-۰۸) |
 |---|---|---|
-| بدن اجرایی/حاکم | `_ops` | organism, cortex, heart, budget, legs, doctor, state |
-| هستهٔ v2 | `octopus_core` | event bus, actuator, telemetry, health |
-| کنترل‌پلین مالی/گیت | `app` | NBB Control Plane, invariants, budget, ledger, human verdict |
-| مغز پژوهشی | `4d_system` | SOG / Brain-OS / self-model experiments |
-| visualization | `OCTOPUS` | HTML worlds, architecture bible, dashboard visuals |
-| سیستم عصبی داده | `nervous-system` | extractors, JS globals, live-data, ops-data |
-| ابزار نقشه‌برداری | `نقشه اختاپوس` | vault scanner, report, inventory |
-| پروژه‌ها/پاها | `03 - Projects` | ۶ پای درآمدی + اندام‌های تازه مثل PMO/spec compiler |
+| **بدنِ اجرایی/زنده** | `_ops` | organism, cortex, heart, budget, legs, doctor, chrono, state — **این می‌دود** |
+| مغزِ پژوهشی | `4d_system` | SOG / Brain-OS / self-model — پشتِ `OCTOPUS_WIRE_NEURAL`، paper-mode |
+| کنترل‌پلینِ پول/گیت | `app` | NBB Control Plane، invariants، human verdict — مرجعِ پول |
+| پروژه‌ها/پاها | `03 - Projects` | پایِ lead (نقاشی، فعال)، ziman، + اندام‌های skeleton |
+| ابزارِ نقشه‌برداری | cartographer (در `_ops`) | vault scanner، drift — read-only |
+
+[INFERENCE] پس split-brain و drift که ۲۰۲۶-۰۷-۱۷ می‌ترساندیم، حل شده: **`_ops` حاکم
+است، بقیه افزونه‌اند.**
 
 ---
 
-## 2. مدل اندامی
+## ۲. مدلِ اندامیِ زنده
 
 ```text
 Owner / GOALS / Verdict / Kill
         ↓
-_ops/organism.py
+_ops/organism.py  (8771)  ← حلقهٔ اصلی، پشتِ RUN-ORGANISM.bat
+        ↓  (هر beat: allostatic، نه clock)
+[cortex]    تصمیم، synthesis، route، self-model (پشتِ OCTOPUS_WIRE_*)
+[heart]     ضربانِ allostatic، کنترل، work pump
+[budget]    متابولیسم، پول، گیت، fitness، cardiac-budget
+[legs]      پاهایِ propose-only (lead، ziman، cartographer، ...)
+[doctor]    خودبهبود، RFC (پشتِ CHRONO_DOCTOR_EVERY_N_BEATS=1440 ≈ روزانه)
+[chrono]    gated_effect + release_effect (بهترین احرازِ ریپو)
+[state]     حافظه، events، chrono.db، telemetry
         ↓
-[cortex]  تصمیم، synthesis، route، self-model
-[heart]   ضربان، کنترل، work pump
-[budget]  متابولیسم، پول، گیت، fitness، replication
-[legs]    پاهای اجرایی propose-only
-[doctor]  خودبهبود، RFC، sandbox، critic
-[state]   حافظه، event، chrono، queue، telemetry
+telegram_center/center.py (پلِ تلگرام) → miniapp_gateway.py (8774)
         ↓
-app / octopus_core / 4d_system / nervous-system / OCTOPUS
+مالک (تلگرام/مینی‌اپ)
 ```
 
 ---
 
-## 3. یافته‌های کلیدی
+## ۳. یافته‌هایِ کلیدیِ تأییدشده (۲۰۲۶-۰۸)
 
-### 3.1 `_ops` محتمل‌ترین بدن اجرایی است
+### ۳.۱ `_ops` واقعاً زنده است (برخلافِ ۲۰۲۶-۰۷-۱۷ که `[UNKNOWN]` بود)
+[FACT] پنج+ پروسهٔ پایتون می‌دوند: organism (8771), center (پلِ تلگرام), gateway (8774),
+cortex, live/server. state files هر چند ثانیه به‌روز می‌شوند. beat در حالِ پیشرفت است.
 
-[FACT] `_ops` شامل این‌هاست:
-
-- `organism.py`
-- `cortex/`
-- `heart/`
-- `budget/`
-- `legs/`
-- `doctor/`
-- `state/`
-- activation flags
-- run scripts
-
-[INFERENCE] پس `_ops` احتمالاً بدن اجرایی/حاکم اصلی است.
-
----
-
-### 3.2 `octopus_core` هستهٔ v2 است
-
-[FACT] `octopus_core` شامل:
-
-- `event_bus.py`
-- `actuator.py`
-- `telemetry.py`
-- `health.py`
-- `capability_registry.py`
-- گزارش rebuild با ادعای ۳۶ تست pass
-
-[INFERENCE] این لایه برای تبدیل استعارهٔ اختاپوس به event bus / actuator / telemetry واقعی ساخته شده است.
-
----
-
-### 3.3 `app` نقش NBB Control Plane دارد
-
-[FACT] `app/README.md` می‌گوید:
-
-- human-sovereign
-- budget-governed
-- Governor proposes, gates enforce, human rules
-- ۱۲ invariant
-
-[INFERENCE] `app` کنترل‌پلین رسمی برای پول، گیت، ledger و human verdict است.
-
----
-
-### 3.4 عدد پاها drift دارد
-
-[FACT] اسناد از ۶ پای پروژه‌ای حرف می‌زنند.
-[FACT] اما `03 - Projects` شامل این‌ها بود:
-
-- `Accounting`
-- `Crypto - etoro`
-- `Lead-نقاشی`
-- `Mining`
-- `Ziman Galerry`
-- `اونلی فنز`
-- `research-spec-compiler`
-- `_OCTOPUS-PMO`
-
-[INFERENCE] تعبیر درست‌تر:
-
-```text
-۶ پای درآمدی/کسب‌وکار
-۸ اندام عملیاتی در 03 - Projects
-```
-
----
-
-## 4. DNA حاکمیتی
-
-[FACT] در چند لایه تکرار شده:
-
-- propose-only
-- human verdict برای اقدام برگشت‌ناپذیر
-- budget cap
-- kill-switch
-- fail-closed
-- ledger append-only
-- quarantine برای boundary text
+### ۳.۲ DNA حاکمیتی (تأییدشده در چند لایه)
+- propose-only (پاها فقط پیشنهاد می‌دهند، اجرا مالک/گیت)
+- human verdict برای اقدامِ برگشت‌ناپذیر
+- budget cap (`cardiac-budget`، daily cap)
+- kill-switch (`STOP-ORGANISM`، `HALT-ALL`)
+- fail-closed (هر خطا = بسته، نه باز)
+- ledger append-only (`genome-system/ledger`)
+- quarantine برایِ boundary text
 - no self-law-edit
 
-[INFERENCE] DNA اصلی اختاپوس کنترل، گیت، مشاهده‌پذیری و تسلیم در برابر انسان است.
+### ۳.۳ حلقهٔ میانی (the broken middle) — تمرکزِ کارِ امروز
+[FACT] هوش (`cortex`، `doctor`، LLM routing) از قبل ساخته شده. آنچه شکسته بود تبدیلِ
+**تصمیمِ ثبت‌شده → اثرِ مقیدشده → رسید** بود. مگاپرامپت §۲ این را قلبِ کار می‌داند.
+
+### ۳.۴ عددِ پاها (اصلاحِ ۲۰۲۶-۰۷-۱۷)
+[FACT] امروز: یه پایِ lead فعال (`lead-naghshi`، money_link=active، propose_only=true)،
+به‌اضافهٔ ziman/cartographer/sync_agent و چند skeleton (mining/crypto/accounting/knowledge).
 
 ---
 
-## 5. وضعیت اجرای واقعی
+## ۴. مکانیزمِ مسلح vs. خاموش (۲۰۲۶-۰۸)
 
-[FACT] launchers، state، chrono.db، logs و activation flags وجود دارند.
-[UNKNOWN] اما runtime زنده اجرا/تست نشد.
+### مسلح (کار می‌کنند)
+- `chrono.release_effect` — binding + ضدِ replay + ضدِ TOCTOU (بهترین احراز).
+- `outcomes/pending_card_recovery.py` — FSM ِ رسیدِ اجباری.
+- `legs/leg_tasks` — فایل‌محور، تنها حلقهٔ نوشتنِ تلگرامیِ اثباتاً کارکن.
+- `live_state_guard` + `check_state_isolation.py` — گاردِ تستِ زنده.
+- مسیرِ lead تا کارتِ تأیید (submit_candidate → lead_pipeline → کارت → تلگرام).
 
-پس:
-
-```text
-وجود ارگانیسم از روی فایل‌ها تأیید شده؛ زنده‌بودن runtime هنوز نیازمند probe جداگانه است.
-```
+### نیمه‌مسلح / گپ‌دار
+- `OCTOPUS_WIRE_LEAD_VERDICT_EFFECT` — روشن، ولی organism باید با فلگِ تازه بالا بیاید.
+- `OCTOPUS_LEAD_FA_VOCAB` — **خاموش**؛ لیدِ فارسی score=0 می‌گیرد و skip می‌شود.
+- `/api/lifecycle` — route ثبت شد (۲۰۲۶-۰۸-۰۴) ولی هنوز مصرف‌کننده‌ای در UI ندارد.
+- `governor/obsidian` در miniapp_state — توابع گم‌شده؛ تست‌ها شکست می‌خورند.
 
 ---
 
-## 6. قانون فعلی برای ادامه
+## ۵. قابِ کارِ بعدی
 
-مهم‌ترین سؤال بعدی:
+مهم‌ترین سؤالِ امروز (نه ۲۰۲۶-۰۷-۱۷):
 
 ```text
-Source of Truth اجرایی کدام است؟
-_ops؟ octopus_core؟ app؟ 4d_system؟ ترکیبی؟
+چطور اولین تأییدِ واقعیِ مالک رویِ کارتِ لید را به سه سنجهٔ اثبات‌پذیر
+(gated_effect + owner_approved + outcomes) تبدیل کنیم؟
 ```
 
-تا این معلوم نشود، هر اتصال/اجرا ریسک split-brain و drift دارد.
+مسیر مسلح است؛ فقط **لمسِ واقعیِ مالک** مانده. بعد از آن: رفعِ گپِ scorer فارسی،
+تحقیقِ governor/obsidian گم‌شده، و اولویت ۲ (card_registry).
+
+---
+
+## ۶. قانونِ طلایی (بدون تغییر از ۲۰۲۶-۰۷-۱۷، چون درست بود)
+
+```text
+هیچ ادعایی بدون شاهد.
+هیچ secret خوانده نشود.
+هیچ اسکنِ کور/عظیم انجام نشود مگر مالک خواسته باشد.
+هر شک باید به task قابل‌آزمون تبدیل شود.
+```

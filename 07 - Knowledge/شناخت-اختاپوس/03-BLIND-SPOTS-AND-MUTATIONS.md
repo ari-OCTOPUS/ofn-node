@@ -1,134 +1,97 @@
-# 🧬 نقاط کور و جهش‌های احتمالی اختاپوس
+# 🧬 نقاط کور و جهش‌های اختاپوس (۲۰۲۶-۰۸-۰۴)
 
-> هدف این فایل: ثبت قابلیت‌هایی که ممکن است «غریبه»، «خارج از هدف آشکار»، یا شبیه جهش ژنتیکی معماری باشند.
+> **به‌روزرسانیِ ۲۰۲۶-۰۸-۰۴.** جهش‌هایِ ۲۰۲۶-۰۷-۱۷ را با وضعیتِ تأییدشده‌ی امروز
+> علامت‌گذاری کردیم + جهش‌هایِ جدید کشف‌شده در برش‌های ۰-۳ و جلسهٔ راستی‌آزمایی را
+> افزودیم. نسخهٔ پیشین در git موجود است.
 
 ---
 
-## 1. تعریف جهش در این پروژه
+## ۱. تعریفِ جهش در این پروژه
 
 [MUTATION] یعنی قابلیتی که:
-
-- مستقیماً به هدف‌های درآمدی آشکار مثل Lead/Ziman/Accounting/Mining/Crypto محدود نیست.
-- به self-improvement، self-model، survival، novelty، epistemics، doctor، dreamer، یا governance مربوط است.
-- اگر فعال شود، رفتار کل ارگانیسم را تغییر می‌دهد.
-- ممکن است scaffold باشد ولی اگر به loop وصل شود، مهم می‌شود.
-
----
-
-## 2. جهش‌های مشاهده‌شده یا مشکوک
-
-| جهش | مسیر | شاهد | چرا غریبه است؟ | وضعیت |
-|---|---|---|---|---|
-| Box-of-Agents | `_ops/doctor/box` | agent_state, dynamics, topology, falsif_harness, b3_bridge, b4_fusion | شبیه آزمایشگاه درونی تولید insight است، نه ابزار درآمدی | [MUTATION] نیازمند probe |
-| Falsifiability harness | `_ops/doctor/box/falsif_harness.py` | neural vs null dreamer, MI, quality comparison | سیستم خودش را علیه baseline تصادفی می‌سنجد | [OPPORTUNITY] مثبت ولی باید تست شود |
-| Fusion/novelty | `_ops/doctor/box/b4_fusion.py` | φ_t, near_critical, sigma, novelty_boost | تولید novelty از edge-of-chaos | [MUTATION] مهم |
-| Doctor bridge | `_ops/doctor/box/b3_bridge.py` | BoxInsight → Doctor RFC → submit_for_approval | خروجی box می‌تواند وارد مسیر دکتر شود | [RISK] اگر on-loop شود مهم است |
-| Epistemics | `_ops/epistemics` | functional self/whole awareness, off-loop, authoritative=False | self-awareness کارکردی، نه هدف درآمدی | [MUTATION] فعلاً off-loop |
-| Germline | `_ops/germline.py` | germline immortality, backup lag, death thresholds | doctrine بقای ژنوم سیستم | [RISK]/[OPPORTUNITY] |
-| Nociceptor | `_ops/neural/nociceptor.py` | pain, protective redirect, sigma cancer | سیستم درد و رفلکس محافظتی دارد | [MUTATION] مثبت اگر درست کنترل شود |
-| Neural consolidation | `_ops/neural` | hebbian, bcm, circadian, consolidation, latent_space | یادگیری/تحکیم حافظه شبیه عصبی | [UNKNOWN] نیازمند probe |
-| Research spec compiler | `03 - Projects/research-spec-compiler` | پروژهٔ تازه خارج از ۶ پای اصلی | شاید اندام تولید spec/بدن جدید باشد | [UNKNOWN] |
-| OCTOPUS PMO | `03 - Projects/_OCTOPUS-PMO` | برنامه/منبع حقیقت/ریسک/کانال | اندام مدیریت برنامه اضافه شده | [UNKNOWN] |
+- مستقیماً به هدف‌های درآمدی آشکار (lead/ziman/...) محدود نیست.
+- به self-improvement، self-model، survival، novelty، epistemics، doctor، governance مربوط است.
+- اگر فعال شود، رفتارِ کلِ ارگانیسم را تغییر می‌دهد.
+- ممکن است scaffold باشد، ولی اگر به loop وصل شود، مهم می‌شود.
 
 ---
 
-## 3. نقاط کور اصلی
+## ۲. جهش‌هایِ ثبت‌شده (با وضعیتِ امروز)
 
-### 3.1 آیا Box-of-Agents واقعاً فعال است یا فقط scaffold؟
-
-[UNKNOWN] وجود فایل‌ها تأیید شده، اما execution path زنده بررسی نشده.
-
-سؤال:
-
-```text
-آیا خروجی Box در runtime به Doctor وصل می‌شود یا فقط قابلیت خاموش است؟
-```
-
----
-
-### 3.2 آیا Epistemics به loop وصل شده؟
-
-[FACT] README می‌گوید off-loop و هنوز وصل نکن.
-[UNKNOWN] آیا جای دیگری flag یا wiring فعالش کرده؟
-
-ریسک:
-
-```text
-off-loop becoming on-loop without updated SoT
-```
+| جهش | مسیر | وضعیتِ ۲۰۲۶-۰۸ |
+|---|---|---|
+| **Box-of-Agents** | `_ops/doctor/box` | [UNKNOWN] هنوز probeِ هدفمند نشده — اولویتِ پایین (بی‌ربط به مسیرِ lead/اثر). |
+| **Falsifiability harness** | `doctor/box/falsif_harness.py` | [OPPORTUNITY] مثبت؛ خود را با null baseline می‌سنجد. |
+| **Fusion/novelty** | `doctor/box/b4_fusion.py` | [MUTATION] off-loop؛ اگر on-loop شود human-gate لازم دارد. |
+| **Epistemics** | `_ops/epistemics` | [FACT] پشتِ `OCTOPUS_WIRE_EPISTEMICS`؛ در state ِ زنده روشن دیده شد (wiring.epistemics). |
+| **Germline** | `_ops/germline.py` | [FACT] در state: `germline_lag_h` و `germline_alert:"ok"` — alert است، نه control signal. |
+| **Nociceptor** | `_ops/neural/nociceptor.py` | [UNKNOWN] pain/protective وجود دارد؛ مسیرِ مصرف در cortex هنوز نگاشته نشده. |
+| **Neural consolidation** | `_ops/neural` | [FACT] پشتِ `OCTOPUS_WIRE_NEURAL`؛ hebbian/bcm/circadian فعال. |
+| **PMO** | `03 - Projects/_OCTOPUS-PMO` | [FACT] اندامِ مدیریتِ برنامه است، نه duplication. |
+| **Autonomy free tier** | `cortex/autonomy_matrix` | [FACT] `OCTOPUS_AUTONOMY_FREE` از قبل روشن است (ردّ ادعای مگاپرامپت §۹). |
 
 ---
 
-### 3.3 آیا Germline فقط backup است یا survival doctrine؟
+## ۳. نقاط کورِ **جديد** (کشفِ ۲۰۲۶-۰۸)
 
-[FACT] `germline.py` از immortality، death، CRIT thresholds حرف می‌زند.
+### ۳.۱ [RISK] governor/obsidian گم‌شده در miniapp_state
+[FACT] تست‌های `test_miniapp_ops_readmodel.py` به `get_governor_state`,
+`get_obsidian_state`، `_OBSIDIAN_DOCS`، `_governor_drift`، `cache_clear`، `_mono`
+اشاره می‌کنند که در `miniapp_state` **وجود ندارند** → ۲۵ شکستِ `AttributeError`.
+[UNKNOWN] این توابع حذف شده‌اند یا به ماژولِ دیگری منتقل؟ اگر حذف، تست stale است؛
+اگر منتقل، import شکسته. **نیازمندِ تحقیق.**
 
-نقطه کور:
+### ۳.۲ [RISK] scorer فارسی = لیدِ قانونی را دور می‌ریزد
+[FACT] `lead_scorer.py` ۱۰۰٪ انگلیسی است؛ vocab فارسی (`fa_required_any`: رنگ/نقاشی/...)
+پشتِ `OCTOPUS_LEAD_FA_VOCAB` است که **خاموش** است. کامنتِ `lead_scorer.py:42` خود
+این را تأیید می‌کند. یه لیدِ فارسیِ قانونی از مشتری وارد می‌شود ولی `score=0, skip`
+می‌گیرد. **گپِ واقعی در مسیرِ lead.** (lead 001 در جلسهٔ ۲۰۲۶-۰۸-۰۳ این دام را خورد.)
 
-```text
-آیا این فقط هشدار backup است یا می‌تواند رفتار سیستم را redirect کند؟
-```
+### ۳.۳ [RISK] drive_outbound در تولید ولی فقط هر ۳۰ beat
+[FACT] `wiring.py:2934` در `lead_pipeline_beat`، `outbound_worker.drive_outbound` را
+صدا می‌زند (پشتِ `OCTOPUS_WIRE_LEAD_OUTBOUND`). یعنی ایمیلِ واقعی **می‌تواند** خودبخود
+ارسال شود، فقط هر ۳۰ beat و با gated_effect ِ authorized. برایِ اولین ارسال، گیرندهٔ
+انسانِ واقعی (برگشت‌ناپذیر) لازم است.
 
----
+### ۳.۴ [RISK] drive_outbound از دو secret ِ جدا تغذیه می‌شود
+[FACT] gateway از `OCTOPUS.env` می‌خواند (RESTART-PROCESS.ps1:161)، organism از
+`OCTOPUS-flags.cmd` (RUN-ORGANISM.bat:26). یه فلگ در یکی و نه دیگری = رفتارِ ناهماهنگ.
+جلسهٔ ۲۰۲۶-۰۸-۰۳ PF_MINIAPP را اول در flags.cmd گذاشت (gateway ندید)، بعد در OCTOPUS.env.
 
-### 3.4 آیا Nociceptor در تصمیم‌ها اثر دارد؟
-
-[FACT] pain/protective redirect وجود دارد.
-[UNKNOWN] آیا این خروجی وارد cortex/governor/doctor می‌شود؟
-
----
-
-### 3.5 چند Source of Truth وجود دارد؟
-
-[UNKNOWN] رابطهٔ دقیق بین این‌ها:
-
-- `_ops`
-- `octopus_core`
-- `app`
-- `4d_system`
-- `nervous-system`
-- `OCTOPUS`
-
-ریسک:
-
-```text
-split-brain / duplicate governance / stale maps
-```
+### ۳.۵ [RISK] RESTART-ALL false-negative (رفع شد)
+[FACT] acceptance gate فقط `ts` را چک می‌کرد → snapshotِ گذرایِ shutdown با
+`stop_organism=true` یه ری‌استارتِ سالم را FAIL کرد. **رفع شد** (`97b3caf`): حالا
+هم `ts` و هم `started` ِ پروسهٔ نو چک می‌شود.
 
 ---
 
-## 4. ریسک‌های جهش ژنتیکی
+## ۴. نقاط کورِ **بسته‌شده** (پاسخ‌داده‌شده از ۲۰۲۶-۰۷-۱۷)
+
+| نقطه‌کورِ قدیم | پاسخِ ۲۰۲۶-۰۸ |
+|---|---|
+| چند Source of Truth؟ | **`_ops` بدنِ زنده است؛ بقیه افزونه.** (Snapshot §۱) |
+| Box-of-Agents active یا scaffold؟ | [UNKNOWN] ولی اولویتِ پایین — بی‌ربط به اثر. |
+| Epistemics off-loop؟ | روشن در wiring ولی authoritative نیست. |
+| Germline control یا alert؟ | **alert** (`germline_alert:"ok"`، نه freeze/redirect). |
+
+---
+
+## ۵. ریسک‌هایِ جهش (بدون تغییر — هنوز معتبر)
 
 | ریسک | توضیح |
 |---|---|
-| objective creep | قابلیت‌های self-improvement از هدف درآمدی جلو بزنند |
-| self-preservation drift | survival/germline از backup به هدف رفتاری تبدیل شود |
-| observability gap | قابلیت‌ها هستند ولی trace یکپارچه ندارند |
+| objective creep | self-improvement از هدفِ درآمدی جلو بزند |
+| self-preservation drift | germline از backup به هدفِ رفتاری تبدیل شود |
 | off-loop activation | scaffoldهای خاموش بدون readiness وارد loop شوند |
 | split-brain | چند بدن/مغز هم‌زمان خود را SoT بدانند |
-| novelty without gate | خلاقیت/edge-of-chaos بدون human gate به production برسد |
-| stale documentation | نقشه‌ها عقب‌تر از فایل‌های واقعی باشند |
+| novelty without gate | خلاقیت بدون human gate به production برسد |
+| **stale documentation** | نقشه‌ها/اسناد از فایل‌های واقعی عقب باشند — **این خودِ این vault قربانیِ آن بود** |
 
 ---
 
-## 5. فرصت‌های جهش مثبت
+## ۶. اولویتِ probe بعدی (به ترتیبِ ارزش برای «اثر»)
 
-| فرصت | توضیح |
-|---|---|
-| falsifiable intelligence | سیستم می‌تواند خود را با null baseline مقایسه کند |
-| self-healing | Doctor می‌تواند bottleneck → RFC → sandbox → approval بسازد |
-| bounded creativity | novelty از fusion/near-critical می‌تواند controlled exploration بدهد |
-| pain-based protection | nociceptor می‌تواند جلوی هزینه/خطا/سرطان sigma را بگیرد |
-| germline resilience | backup lag و off-site doctrine می‌تواند حافظه را حفظ کند |
-| functional self-awareness | epistemics می‌تواند self/whole metrics بدهد، اگر با احتیاط وصل شود |
-
----
-
-## 6. اولویت probe بعدی
-
-1. Box-of-Agents active یا scaffold؟
-2. Epistemics واقعاً off-loop مانده؟
-3. Nociceptor به کجا وصل است؟
-4. Germline فقط alert است یا control signal؟
-5. Source of Truth اجرایی چیست؟
-6. research-spec-compiler و PMO duplication هستند یا اندام تازه؟
+1. **governor/obsidian گم‌شده** — کجا رفتند؟ stale یا منتقل؟ (۳.۱)
+2. **scorer فارسی** — `OCTOPUS_LEAD_FA_VOCAB` روشن کنیم؟ (۳.۲) — رأیِ مالک لازم.
+3. Nociceptor به کجا وصل است؟ (مصداقِ کاملِ ۳.۴ قدیم).
+4. Box-of-Agents — فقط اگر اولویتِ اثر اجازه داد.
