@@ -144,7 +144,7 @@ def t_main_snapshots_boot_flags_like_every_other_limb():
     i = src.find("def main(")
     assert i >= 0
     seg = src[i:i + 2000]
-    assert "flag_drift" in seg and "snapshot_boot" in seg, \
+    assert "flag_drift.snapshot_boot(" in seg, \
         "main() باید flag_drift.snapshot_boot('miniapp-gateway') را صدا بزند"
 
 
