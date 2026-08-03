@@ -149,6 +149,19 @@ def run_one(test: Path, workdir: Path, timeout: int = 300) -> dict:
 def select(args) -> list[Path]:
     if args.files:
         return [TESTS_DIR / f if not Path(f).is_absolute() else Path(f) for f in args.files]
+    if args.all_repo:
+        # کلِ ریپو، شاملِ پوشه‌های تستِ تودرتو (`agi2027_control/tests`, `owner_console/tests`, …).
+        # نویسندهٔ L-WAL-1 دقیقاً یکی از همین‌ها بود و در `_ops/tests` نبود.
+        # فهرست‌سازی **داخلِ** runner انجام می‌شود: پاس‌دادنِ ۵۵۸ مسیر از پوسته
+        # «Argument list too long» می‌دهد و اجرا بی‌صدا انجام نمی‌شود.
+        ops = TESTS_DIR.parent
+        out = []
+        for p in sorted(ops.rglob("test_*.py")):
+            parts = set(p.parts)
+            if "patch_backups" in parts or "__pycache__" in parts or "_Archive" in parts:
+                continue
+            out.append(p)
+        return out
     allt = sorted(TESTS_DIR.glob("test_*.py"))
     if args.no_harness:
         keep = []
@@ -168,6 +181,8 @@ def main() -> int:
     ap.add_argument("files", nargs="*")
     ap.add_argument("--group", choices=sorted(GROUPS))
     ap.add_argument("--no-harness", action="store_true")
+    ap.add_argument("--all-repo", action="store_true",
+                    help="کلِ _ops شاملِ پوشه‌های تستِ تودرتو")
     ap.add_argument("--fingerprint", action="store_true")
     ap.add_argument("--ambient", action="store_true",
                     help="اثرانگشتِ قبل/بعد هم بگیر (کند، و ذاتاً نویزِ ارگانیسمِ زنده دارد)")
