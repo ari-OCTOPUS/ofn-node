@@ -2,7 +2,14 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- `defer`, and that is the whole point. Loaded synchronously in the head,
+     a third-party script paints NOTHING until it arrives — on a network that
+     cannot reach telegram.org quickly, that is a white screen for as long as
+     the request takes to time out. The same mistake the web font made in
+     ziman.html, with the same symptom.
+     Deferred scripts still run before DOMContentLoaded, so the SDK is present
+     by the time `boot` is called below. -->
+<script defer src="https://telegram.org/js/telegram-web-app.js"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>چیدمان</title>
 <style>
@@ -949,7 +956,30 @@ async function boot() {
   }
 }
 
-boot();
+/* Ordering: a bare `boot()` here would run while the document is still
+   parsing, which is BEFORE any deferred script has executed — so the
+   Telegram SDK would always look absent and every launch would read as
+   "opened outside Telegram".
+
+   And it is wrapped: a blank screen is the worst failure this app can have,
+   because it says nothing at all. Anything that goes wrong during boot now
+   becomes a sentence on the page instead of silence. */
+function start() {
+  try {
+    boot();
+  } catch (err) {
+    const box = document.getElementById('state');
+    if (box) {
+      box.hidden = false;
+      box.textContent = 'این صفحه بالا نیامد: ' + (err && err.message ? err.message : err);
+    }
+  }
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', start);
+} else {
+  start();
+}
 </script>
 </body>
 </html>

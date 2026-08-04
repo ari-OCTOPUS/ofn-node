@@ -334,3 +334,38 @@ class TestTheUploadFormIsOneDecision(unittest.TestCase):
 
     def test_the_same_file_can_be_chosen_again_after_a_failure(self):
         self.assertIn("ev.target.value = ''", JS)
+
+
+class TestABlankScreenIsNotAPossibleOutcome(unittest.TestCase):
+    """A partner reported "it shows nothing, completely white". That is the
+    worst failure this app can have, because it says nothing at all — no
+    reason, no retry, no way to tell a down node from a broken one."""
+
+    def test_the_third_party_script_does_not_block_the_first_paint(self):
+        """Loaded synchronously in the head, a third-party script paints
+        nothing until it arrives. On a network that cannot reach
+        telegram.org quickly that is a white screen for as long as the
+        request takes to time out — the same mistake the web font made in
+        ziman.html, with the same symptom."""
+        tag = re.search(r"<script[^>]*telegram-web-app\.js[^>]*>", SRC)
+        self.assertIsNotNone(tag)
+        self.assertIn("defer", tag.group(0))
+
+    def test_boot_waits_for_the_document(self):
+        """A bare `boot()` runs while the document is still parsing, which is
+        before any deferred script has executed — so the SDK would always
+        look absent and every launch would read as "opened outside
+        Telegram"."""
+        self.assertIn("DOMContentLoaded", JS)
+        self.assertNotRegex(JS, r"\n\s*boot\(\);\s*\n\s*(?:function start|$)")
+
+    def test_a_boot_failure_becomes_a_sentence_not_silence(self):
+        body = re.search(r"function start\(\)\s*\{(.*?)\n\}", JS, re.S)
+        self.assertIsNotNone(body)
+        self.assertIn("catch", body.group(1))
+        self.assertIn("این صفحه بالا نیامد", body.group(1))
+
+    def test_it_also_works_if_the_document_is_already_parsed(self):
+        """`DOMContentLoaded` has already fired by the time a cached page
+        runs its script; listening for it alone would never boot."""
+        self.assertIn("document.readyState === 'loading'", JS)

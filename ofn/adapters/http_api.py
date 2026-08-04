@@ -41,6 +41,9 @@ from ..kernel.auth import (
 from ..kernel.domain import RiskTier, TenantId
 from ..kernel.tenancy import TenantRegistry, TenantScope
 
+# Paths that serve a shell under a name other than "/".
+_SHELL_ALIASES = ("/sabaapp",)
+
 MAX_MEDIA_BODY_BYTES = 24 * 1024 * 1024
 MAX_BODY_BYTES = 64 * 1024
 
@@ -407,7 +410,10 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
             partner's identity does not belong in the journal, and the leg
             name is enough to tell whose shell it was.
             """
-            page = path == "/"
+            # A shell is also served at an alias path (`/sabaapp`), and
+            # `path == "/"` did not know that — so the one event worth seeing
+            # when a partner reports a blank screen was the one not recorded.
+            page = path == "/" or path.rstrip("/") in _SHELL_ALIASES
             auth = path.endswith("/auth/session")
             if not (page or auth or (path.startswith("/api/") and status >= 400)):
                 return
