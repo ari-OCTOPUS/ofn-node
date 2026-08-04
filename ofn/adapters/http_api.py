@@ -257,9 +257,16 @@ class ApiApp:
     # unauthenticated — it has to be, since the failure it exists to report is
     # "could not authenticate" — so nothing the page sends may reach the
     # journal as free text.
+    # `no-shell` used to be both of the two below at once. They have opposite
+    # causes and opposite fixes, so one name for them meant the journal could
+    # never answer the only question worth asking. Kept as an accepted stage
+    # because journal history contains it and the other three shells still
+    # send it; new reports from the studio shell use the split pair.
     _BOOT_STAGES = frozenset({
         "opened",       # script ran at all
-        "no-shell",     # no launch blob: opened outside the messaging client
+        "no-shell",     # legacy: either of the two below, indistinguishable
+        "no-sdk",       # telegram-web-app.js never ran — a LOADING failure
+        "no-initdata",  # SDK present, nothing signed — wrong way in
         "rejected", "not-allowed", "unreachable", "error",
         "threw",        # an exception during boot
         "live",         # session established, screen drawn

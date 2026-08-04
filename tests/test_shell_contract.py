@@ -171,8 +171,18 @@ class TestShellsSurviveABadNetwork(unittest.TestCase):
             src = read(name)
             with self.subTest(shell=name):
                 self.assertIn("REASONS", src)
-                for reason in ("no-shell", "unreachable", "rejected"):
+                for reason in ("unreachable", "rejected"):
                     self.assertIn(f"'{reason}'", src)
+                # The no-launch-blob case, under whichever name the shell
+                # gives it. The studio shell splits it in two — an SDK that
+                # never loaded and a route that signs nothing are different
+                # failures with different instructions — and the other three
+                # still carry the merged name. Either satisfies this; what is
+                # not allowed is having no sentence for it at all.
+                self.assertTrue(
+                    "'no-shell'" in src
+                    or ("'no-sdk'" in src and "'no-initdata'" in src),
+                    f"{name} never explains being opened outside the client")
 
 
 class TestInlineScriptsAreWellFormed(unittest.TestCase):

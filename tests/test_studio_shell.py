@@ -225,7 +225,11 @@ class TestNothingIsInvented(unittest.TestCase):
         self.assertIn("هنوز چیزی اندازه گرفته نشده", SRC)
 
     def test_the_connection_reason_is_specific(self):
-        for kind in ("no-shell", "rejected", "unreachable", "not-allowed"):
+        # `no-shell` was two failures under one name: the SDK never loading
+        # (fix: reload) and the SDK loading with nothing signed (fix: open it
+        # from the menu button). See tests/test_shell_boot_order.py.
+        for kind in ("no-sdk", "no-initdata",
+                     "rejected", "unreachable", "not-allowed"):
             self.assertIn(f"'{kind}'", JS)
 
 

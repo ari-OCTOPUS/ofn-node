@@ -9,6 +9,17 @@
      ziman.html, with the same symptom.
      Deferred scripts still run before DOMContentLoaded, so the SDK is present
      by the time `boot` is called below. -->
+<!-- `defer` stays. Loaded synchronously this third-party script blocks first
+     paint, which on a network that cannot reach telegram.org is a white
+     screen for the length of a timeout — a failure this shell already fixed
+     once and must not reacquire.
+
+     But deferring it means it has NOT run while the document is parsing, so
+     nothing evaluated at parse time may read window.Telegram. The connector
+     below therefore reads it through a function, never into a variable, and
+     boot() waits for DOMContentLoaded — which fires after deferred scripts.
+     Both halves are required; the shell was broken by having only the
+     second. See tests/test_shell_boot_order.py. -->
 <script defer src="https://telegram.org/js/telegram-web-app.js"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>چیدمان</title>
@@ -580,7 +591,22 @@ function go(b){swap(()=>{document.querySelectorAll('nav button')
    look like it published something it did not.                            */
 const OFN = (() => {
   let session = null, live = false, why = '', who = '';
-  const tg = window.Telegram && window.Telegram.WebApp;
+  /* Read at call time. Never captured.
+
+     This inline script runs while the document is still parsing; the SDK tag
+     is `defer`, so it executes only after parsing ends. A `const tg =
+     window.Telegram && window.Telegram.WebApp` here therefore binds
+     `undefined` ONCE AND FOREVER — on every platform, phone included — and
+     every launch reads as "not opened from Telegram". That was the bug, and
+     it is why this shell showed nothing to anyone.
+
+     The call site of `boot()` was already deferred to DOMContentLoaded to
+     respect this exact ordering, but deferring the call does not help when
+     the *value* was frozen a thousand lines earlier at parse time. The read
+     has to be late, not the caller. A function is late by construction, and
+     stays correct whether the tag is defer, async, or blocking — which the
+     other three shells rely on today and nothing was checking. */
+  const tg = () => window.Telegram && window.Telegram.WebApp;
 
   async function req(path, opts = {}) {
     const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
@@ -596,11 +622,38 @@ const OFN = (() => {
     /* The given name, from the verified session. Empty until then — this
        page has no name of its own to fall back on, deliberately. */
     get who() { return who; },
+    /* Where this page is running, as the client itself reports it. Both are
+       client properties, not user data — no PII, so they may go in a journal
+       line. Empty string when the SDK never arrived, which is itself the
+       answer to a different question. */
+    where() {
+      const t = tg();
+      if (!t) return '';
+      return `${t.platform || '?'} ${t.version || '?'}`;
+    },
     async connect() {
-      if (!tg || !tg.initData) { why = 'no-shell'; return false; }
+      const t = tg();
+      /* Two realities, and until now one name for both.
+
+         no-sdk       telegram-web-app.js never ran. Since it is fetched from
+                      telegram.org, this is a LOADING failure — blocked,
+                      offline, or an execution-order mistake. It does not
+                      mean "this is not Telegram", which is what one shared
+                      label made it look like for both cases.
+         no-initdata  The SDK is here and says nothing was signed. So this is
+                      a real client, opened by a route that carries no launch
+                      blob: a plain browser, an in-app link preview, or a
+                      desktop build that hands mini-apps to the system
+                      browser.
+
+         Opposite causes, opposite fixes, and a reload only helps the first.
+         `where()` separates the last two of those on sight: platform
+         `unknown` is a browser, `tdesktop`/`ios`/`android` is the client. */
+      if (!t) { why = 'no-sdk'; return false; }
+      if (!t.initData) { why = 'no-initdata'; return false; }
       try {
         const out = await req('/api/v1/auth/session', {
-          method: 'POST', body: JSON.stringify({ init_data: tg.initData }),
+          method: 'POST', body: JSON.stringify({ init_data: t.initData }),
         });
         session = out.session; who = out.first_name || ''; live = true; why = '';
         return true;
@@ -614,11 +667,13 @@ const OFN = (() => {
     get(p) { return req(p); },
     post(p, b) { return req(p, { method: 'POST', body: JSON.stringify(b) }); },
     shell() {
-      if (!tg) return;
-      tg.ready(); tg.expand && tg.expand();
+      const t = tg();
+      if (!t) return;
+      t.ready(); t.expand && t.expand();
     },
     tap(style = 'light') {
-      if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(style);
+      const t = tg();
+      if (t && t.HapticFeedback) t.HapticFeedback.impactOccurred(style);
       else if (navigator.vibrate) navigator.vibrate(8);
     },
   };
@@ -640,9 +695,17 @@ const REASONS = {
      matters because the fix is one tap away and not guessable — a link
      opened in a browser looks identical to the real thing and can never
      work, since the launch blob only exists inside the client. */
-  'no-shell': 'این صفحه از داخل تلگرام باز نشده، برای همین هیچ‌چیزش کار '
+  'no-initdata': 'این صفحه از داخل تلگرام باز نشده، برای همین هیچ‌چیزش کار '
             + 'نمی‌کند. ربات را در تلگرام باز کنید و دکمهٔ منو — کنار کادر '
             + 'پیام — را بزنید. باز کردن لینک در مرورگر جواب نمی‌دهد.',
+  /* A different sentence because it is a different failure: the client is
+     probably fine and the page simply did not finish loading. Telling
+     somebody to "open it from inside Telegram" when they already did is the
+     kind of instruction that makes a person doubt themselves instead of the
+     network. */
+  'no-sdk': 'بخشی از این صفحه بارگذاری نشد. اینترنت را بررسی کنید و دوباره '
+            + 'تلاش کنید. اگر با فیلترشکن باز کرده‌اید، یک بار بدون آن '
+            + 'امتحان کنید.',
   'rejected': 'این حساب اجازهٔ ورود ندارد.',
   'not-allowed': 'این حساب در فهرست این استودیو نیست.',
   'unreachable': 'به دستگاه وصل نشد. چیزی ثبت نشده.',
@@ -880,7 +943,12 @@ function showState(kind, detail) {
   box.hidden = false;
   box.textContent = '';
   box.append(Object.assign(document.createElement('div'), { textContent: say }));
-  if (kind !== 'no-shell') {
+  /* Offered whenever reloading could plausibly change the answer. It cannot
+     for `no-initdata` — the launch blob is absent because of HOW the page was
+     opened, so the same route will produce the same nothing, and a button
+     that always fails teaches people to distrust the ones that work. It very
+     much can for `no-sdk`, which is usually one failed fetch. */
+  if (kind !== 'no-initdata') {
     const again = document.createElement('button');
     again.type = 'button';
     again.textContent = 'دوباره تلاش کن';
@@ -1536,7 +1604,14 @@ async function boot() {
     });
   });
 
-  if (!await OFN.connect()) { tell(OFN.why); showState(OFN.why); return; }
+  /* The platform ships with the failure, not separately: a journal line
+     saying only "no-initdata" still leaves two guesses open, and one touch
+     should end the guessing rather than start a second round of it. */
+  if (!await OFN.connect()) {
+    tell(OFN.why, OFN.where());
+    showState(OFN.why);
+    return;
+  }
   greet(OFN.who);
 
   let status, qs;
