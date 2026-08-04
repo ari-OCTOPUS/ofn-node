@@ -379,6 +379,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # بیرونی رفت — که ساکت است — و ترافیکِ واقعیِ مالک از باتِ درونی
          # می‌گذشت. هر ابزارِ رصدی باید هر دو را بپوشاند.
          "test_both_bots_log_inbound.py",
+         # ۰۸-۰۴ ← مغز پاسخِ خودش را نمی‌دید: دو فهرستِ غیرقابلِ‌پیوند در
+         # _context. ۷۲ درخواستِ pending، ۸ رأیِ granted — و همان نیاز شش بار
+         # در یک روز تکرار شد.
+         "test_tool_request_sees_its_answers.py",
          "test_sync_health_unknown.py",
          "test_arbiter_consensus_rule.py",
          "test_state_write_monopoly.py",
