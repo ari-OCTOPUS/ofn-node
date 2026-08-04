@@ -1,0 +1,16 @@
+# /etc/systemd/system/ofn-backup.service
+[Unit]
+Description=OFN nightly backup
+After=ofn.service
+OnFailure=ofn-backup-alert.service
+
+[Service]
+Type=oneshot
+User=ari
+Group=ari
+WorkingDirectory=/home/ari/ofn
+Nice=10
+IOSchedulingClass=idle
+EnvironmentFile=-/home/ari/.config/ofn/node.env
+ExecStart=/usr/bin/python3 -m ofn.backup_job
+TimeoutStartSec=600s

@@ -1,0 +1,67 @@
+# /etc/systemd/system/ofn.service
+[Unit]
+Description=OFN field node
+Documentation=file:///home/ari/ofn/README.md
+After=network-online.target local-fs.target ofn-boot.service
+Wants=network-online.target
+Requires=ofn-boot.service
+# Soft dependency: if the tunnel is down the node still runs and still
+# records. Making this Requires= would turn a network blip into a dead node.
+Wants=cloudflared.service
+After=cloudflared.service
+
+# NOTE: these two belong in [Unit], not [Service]. They moved in systemd 229
+# and are silently ignored if placed in [Service] — a common and invisible
+# misconfiguration.
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=notify
+NotifyAccess=main
+WatchdogSec=30s
+WatchdogSignal=SIGABRT
+
+Restart=always
+RestartSec=2s
+RestartSteps=5
+RestartMaxDelaySec=60s
+RestartMode=direct
+TimeoutStartSec=45s
+TimeoutStopSec=20s
+
+User=ari
+Group=ari
+WorkingDirectory=/home/ari/ofn
+EnvironmentFile=-/home/ari/.config/ofn/node.env
+EnvironmentFile=-/home/ari/.config/ofn/secrets.env
+
+# Without this, Python buffers stdout when it is a pipe — which it is under
+# systemd. The node's boot lines then reach the journal only when the process
+# exits, so `journalctl -u ofn` on a perfectly healthy node looks empty, and
+# the boot summary appears stamped with the time of the *next* restart. That
+# is how a working service gets restarted at 2am for no reason.
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 -m ofn.run
+
+# 4 GB total on this board. Capping here means the OOM killer takes this
+# service rather than sshd, which is the difference between a restart and a
+# trip to the cupboard with a keyboard.
+MemoryMax=512M
+MemoryHigh=400M
+
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/ari/ofn /home/ari/.local/share/ofn
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictSUIDSGID=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target

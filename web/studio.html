@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>استودیو — سبا</title>
+<!-- Non-blocking font: promoted to all media on load, so a slow or blocked
+     font host costs nothing and the page paints in the local stack below. -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+:root{
+  --bg:#0e0b0d; --bg2:#151114; --card:#1b1519; --card2:#221a1f;
+  --line:#2c222a; --line2:#3d2f38;
+  --tx:#f3ecef; --tx2:#b2a2ab; --tx3:#7d6d77;
+  --amber:#e0a458; --amber-d:#a8703a; --amber-bg:rgba(224,164,88,.11);
+  --rose:#d98a9a; --rose-bg:rgba(217,138,154,.11);
+  --green:#6dc79a; --green-bg:rgba(109,199,154,.12);
+  --r:20px;
+  /* Persian-capable fallbacks in order of likely presence on these phones. */
+  --fa:'Vazirmatn','Vazir','IRANSans','IRANYekan','Sahel','Noto Naskh Arabic',
+       'Noto Sans Arabic','Segoe UI',Tahoma,system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--fa);
+  background:
+    radial-gradient(700px 420px at 88% -8%, #2a1c24 0%, transparent 62%),
+    radial-gradient(560px 380px at 0% 96%, #241a26 0%, transparent 58%),
+    var(--bg);
+  color:var(--tx);min-height:100vh;line-height:1.8;
+  display:flex;justify-content:center;padding-bottom:36px;-webkit-font-smoothing:antialiased}
+.app{inline-size:100%;max-inline-size:450px;padding:0 18px}
+
+header{padding:26px 0 20px;display:flex;align-items:center;gap:13px}
+.av{inline-size:48px;block-size:48px;border-radius:15px;flex:none;
+  background:linear-gradient(145deg,#33232c,#1d151a);border:1px solid var(--line2);
+  display:grid;place-items:center;font-size:22px;box-shadow:0 4px 20px rgba(224,164,88,.15)}
+.hn{font-size:19px;font-weight:600;letter-spacing:-.01em}
+.hs{font-size:12.5px;color:var(--tx3)}
+.bell{margin-inline-start:auto;inline-size:38px;block-size:38px;border-radius:12px;
+  background:var(--card);border:1px solid var(--line);display:grid;place-items:center;
+  font-size:16px;position:relative}
+.bell i{position:absolute;inset-block-start:9px;inset-inline-end:9px;inline-size:7px;block-size:7px;
+  border-radius:50%;background:var(--rose)}
+
+/* calendar strip */
+.cal{display:flex;gap:7px;overflow-x:auto;padding-bottom:6px;margin-bottom:22px}
+.cal::-webkit-scrollbar{display:none}
+.cd{flex:none;inline-size:52px;padding:11px 5px;border-radius:14px;text-align:center;
+  background:var(--card);border:1px solid var(--line)}
+.cd.today{background:linear-gradient(165deg,#3a2733,#251a20);border-color:var(--amber-d)}
+.cd.has::after{content:'';display:block;inline-size:5px;block-size:5px;border-radius:50%;
+  background:var(--amber);margin:5px auto 0}
+.cdn{font-size:11px;color:var(--tx3)}
+.cdd{font-size:17px;font-weight:600;line-height:1.4}
+
+.sec{margin-bottom:24px}
+.sh{display:flex;align-items:center;gap:9px;margin-bottom:13px}
+.sh h2{font-size:15px;font-weight:600}
+.pillc{font-size:11px;font-weight:600;padding:2.5px 9px;border-radius:99px;
+  background:var(--amber-bg);color:var(--amber)}
+
+/* draft card */
+.dr{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);
+  border-radius:var(--r);overflow:hidden;margin-bottom:13px;transition:.22s}
+.dr.gone{opacity:.35}
+.thumb{block-size:118px;position:relative;display:grid;place-items:center;font-size:38px}
+.t1{background:linear-gradient(140deg,#4a3140,#2a1d26)}
+.t2{background:linear-gradient(140deg,#3d3550,#231f30)}
+.t3{background:linear-gradient(140deg,#4d3a2c,#2b211a)}
+.kind{position:absolute;inset-block-start:11px;inset-inline-start:11px;font-size:10.5px;font-weight:600;
+  padding:3.5px 10px;border-radius:8px;background:rgba(0,0,0,.5);
+  border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(6px)}
+.when{position:absolute;inset-block-end:11px;inset-inline-end:11px;font-size:10.5px;color:var(--tx2);
+  background:rgba(0,0,0,.5);padding:3.5px 10px;border-radius:8px;backdrop-filter:blur(6px)}
+.drb{padding:16px}
+.drt{font-size:15.5px;font-weight:600;line-height:1.65;margin-bottom:7px}
+.drx{font-size:13px;color:var(--tx2);line-height:1.85;margin-bottom:13px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tg{font-size:11px;padding:3px 9px;border-radius:7px;background:var(--card2);
+  border:1px solid var(--line);color:var(--tx3)}
+.acts{display:flex;gap:8px}
+.b{flex:1;padding:12px;border-radius:12px;border:1px solid var(--line2);background:var(--card2);
+  font-family:inherit;font-size:13.5px;font-weight:600;color:var(--tx2);cursor:pointer;transition:.16s}
+.b:active{transform:scale(.97)}
+.b.ok{background:linear-gradient(180deg,#e0a458,#bd8038);border-color:#c98d45;color:#1a1216;
+  box-shadow:0 4px 16px rgba(224,164,88,.24)}
+.b.sm{flex:none;inline-size:48px}
+.res{padding:12px;border-radius:12px;font-size:13px;font-weight:600;text-align:center}
+.res.ok{background:var(--green-bg);color:var(--green)}
+.res.no{background:var(--card2);color:var(--tx3)}
+
+/* task */
+.task{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);
+  border-radius:15px;padding:14px;margin-bottom:10px;cursor:pointer;transition:.18s}
+.task:hover{border-color:var(--line2)}
+.tic{inline-size:38px;block-size:38px;border-radius:12px;flex:none;display:grid;place-items:center;
+  font-size:17px;background:var(--rose-bg)}
+.tt{font-size:14px;font-weight:500;line-height:1.5}
+.ts{font-size:11.5px;color:var(--tx3)}
+.tgo{margin-inline-start:auto;color:var(--tx3);font-size:17px}
+.task.done .tt{text-decoration:line-through;color:var(--tx3)}
+.task.done .tic{background:var(--green-bg)}
+
+.gate{background:var(--rose-bg);border:1px solid rgba(217,138,154,.24);border-radius:15px;
+  padding:14px 16px;font-size:12.5px;color:var(--tx2);line-height:1.85;margin-bottom:22px}
+.gate b{color:var(--rose);font-weight:600}
+
+footer{text-align:center;font-size:11.5px;color:var(--tx3);line-height:1.9;margin-top:20px}
+.demo{display:inline-block;background:var(--card);border:1px solid var(--line);
+  color:var(--tx3);padding:3px 11px;border-radius:8px;font-size:11px;margin-bottom:7px}
+.demo.offline{background:var(--rose-bg);border-color:rgba(217,138,154,.3);color:var(--rose)}
+.demo.livebadge{background:var(--green-bg);border-color:rgba(109,199,154,.3);color:var(--green)}
+
+/* connection state */
+.state{border-radius:15px;padding:14px 16px;font-size:13px;line-height:1.85;
+  margin-bottom:20px;border:1px solid var(--line);background:var(--card);color:var(--tx2)}
+.state.warn{background:var(--rose-bg);border-color:rgba(217,138,154,.26);color:#e8c3cb}
+.state b{color:var(--tx);font-weight:600}
+.state button{font-family:inherit;font-size:13px;margin-top:10px;padding:9px 16px;
+  border-radius:11px;border:1px solid var(--line2);background:var(--card2);
+  color:var(--tx);cursor:pointer}
+
+/* question card */
+.qc{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:20px 18px;margin-bottom:12px}
+.qq{font-size:18px;font-weight:600;line-height:1.6;margin-bottom:8px}
+.qh{font-size:13px;color:var(--tx2);line-height:1.85;margin-bottom:16px}
+.qnum{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:4px}
+.qv{font-size:40px;font-weight:600;min-inline-size:84px;text-align:center;
+  font-variant-numeric:tabular-nums;color:var(--amber)}
+.qu{text-align:center;font-size:12px;color:var(--tx3);margin-bottom:14px}
+.qb{inline-size:44px;block-size:44px;border-radius:50%;border:1px solid var(--line2);
+  background:var(--card2);font-size:22px;color:var(--amber);cursor:pointer;
+  font-family:inherit;display:grid;place-items:center}
+.qopt{display:flex;flex-direction:column;gap:9px}
+.qo{inline-size:100%;text-align:start;font-family:inherit;font-size:15.5px;font-weight:500;
+  padding:15px 16px;border-radius:13px;border:1px solid var(--line);
+  background:var(--card2);color:var(--tx);cursor:pointer}
+.qo.pick{border-color:var(--amber-d);background:var(--amber-bg);color:var(--amber)}
+.qta{inline-size:100%;font-family:inherit;font-size:15.5px;line-height:1.85;color:var(--tx);
+  padding:14px 15px;border-radius:13px;border:1px solid var(--line);background:var(--card2);
+  resize:vertical;min-block-size:110px}
+.qta::placeholder{color:var(--tx3)}
+.qgo{inline-size:100%;padding:16px;border-radius:13px;border:0;font-family:inherit;
+  font-size:16px;font-weight:600;color:#241a10;cursor:pointer;margin-top:16px;
+  background:linear-gradient(180deg,#e7b26b,#c98c44)}
+.qgo:disabled{background:var(--line);color:var(--tx3)}
+.qlater{inline-size:100%;padding:12px;border:0;background:none;font-family:inherit;
+  font-size:13.5px;color:var(--tx3);cursor:pointer;margin-top:4px}
+.qerr{font-size:13px;color:var(--rose);margin-top:10px}
+.b:focus-visible,.qb:focus-visible,.qo:focus-visible,.qgo:focus-visible,
+.task:focus-visible,.qta:focus{outline:2px solid var(--amber);outline-offset:2px}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;scroll-behavior:auto !important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <div class="av">🎬</div>
+  <div>
+    <div class="hn">سبا</div>
+    <div class="hs">استودیو محتوا · دوشنبه ۱۲ مرداد</div>
+  </div>
+  <div class="bell">🔔<i></i></div>
+</header>
+
+<div class="cal">
+  <div class="cd today has"><div class="cdn">دوشنبه</div><div class="cdd">۱۲</div></div>
+  <div class="cd has"><div class="cdn">سه‌شنبه</div><div class="cdd">۱۳</div></div>
+  <div class="cd"><div class="cdn">چهارشنبه</div><div class="cdd">۱۴</div></div>
+  <div class="cd has"><div class="cdn">پنجشنبه</div><div class="cdd">۱۵</div></div>
+  <div class="cd"><div class="cdn">جمعه</div><div class="cdd">۱۶</div></div>
+  <div class="cd"><div class="cdn">شنبه</div><div class="cdd">۱۷</div></div>
+</div>
+
+<div class="state" id="state" hidden role="status" aria-live="polite"></div>
+<div id="live" hidden></div>
+
+<div class="gate">
+  🔒 <b>همه پیش‌نویس‌اند.</b> هرچه تأیید کنی، می‌رود پیش آری.
+</div>
+
+<div class="sec">
+  <div class="sh"><h2>پیش‌نویس‌های آماده</h2><span class="pillc">۳ مورد</span></div>
+
+  <div class="dr">
+    <div class="thumb t1">🎞️<span class="kind">ریل</span><span class="when">پیشنهاد: سه‌شنبه ۱۹:۳۰</span></div>
+    <div class="drb">
+      <div class="drt">پشت صحنه — نسخهٔ کوتاه</div>
+      <div class="drx">از سه کلیپ هفتهٔ پیش. بدون گفتار.</div>
+      <div class="tags"><span class="tg">#پشت‌صحنه</span><span class="tg">۲۲ ثانیه</span><span class="tg">بدون صدا</span></div>
+      <div class="acts">
+        <button class="b ok" onclick="go(this,'✓ تأیید شد — رفت به صف آری')">تأیید</button>
+        <button class="b" onclick="go(this,'برای بازبینی علامت خورد')">تغییر می‌خواهم</button>
+        <button class="b sm" onclick="go(this,'حذف شد',1)">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="dr">
+    <div class="thumb t2">📸<span class="kind">پست</span><span class="when">پیشنهاد: پنجشنبه ۱۲:۰۰</span></div>
+    <div class="drb">
+      <div class="drt">کاروسل — معرفی مجموعه</div>
+      <div class="drx">سه اسلاید. کپشن آماده است.</div>
+      <div class="tags"><span class="tg">#معرفی</span><span class="tg">۳ اسلاید</span><span class="tg">کپشن آماده</span></div>
+      <div class="acts">
+        <button class="b ok" onclick="go(this,'✓ تأیید شد — رفت به صف آری')">تأیید</button>
+        <button class="b" onclick="go(this,'برای بازبینی علامت خورد')">تغییر می‌خواهم</button>
+        <button class="b sm" onclick="go(this,'حذف شد',1)">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="dr">
+    <div class="thumb t3">✍️<span class="kind">استوری</span><span class="when">پیشنهاد: امروز ۲۱:۰۰</span></div>
+    <div class="drb">
+      <div class="drt">نظرسنجی — کدام را بیشتر دوست دارید؟</div>
+      <div class="drx">دو گزینه. برای فروش نیست، فقط نظرسنجی.</div>
+      <div class="tags"><span class="tg">#نظرسنجی</span><span class="tg">آزمایش</span></div>
+      <div class="acts">
+        <button class="b ok" onclick="go(this,'✓ تأیید شد — رفت به صف آری')">تأیید</button>
+        <button class="b" onclick="go(this,'برای بازبینی علامت خورد')">تغییر می‌خواهم</button>
+        <button class="b sm" onclick="go(this,'حذف شد',1)">✕</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh"><h2>کارهای این هفته</h2></div>
+  <div class="task" onclick="tick(this)">
+    <div class="tic">🎥</div>
+    <div><div class="tt">۳ کلیپ کوتاه بگیر</div><div class="ts">زیر ۱۵ ثانیه · نور روز</div></div>
+    <div class="tgo">‹</div>
+  </div>
+  <div class="task" onclick="tick(this)">
+    <div class="tic">🖼️</div>
+    <div><div class="tt">۵ عکس محصول</div><div class="ts">پس‌زمینهٔ روشن · برای پنجشنبه</div></div>
+    <div class="tgo">‹</div>
+  </div>
+  <div class="task done" onclick="tick(this)">
+    <div class="tic">✅</div>
+    <div><div class="tt">تأیید متن معرفی برند</div><div class="ts">انجام شد — دیروز</div></div>
+    <div class="tgo">‹</div>
+  </div>
+</div>
+
+<footer>
+  <span class="demo">نمونه</span><br>
+  بدون تأیید تو چیزی منتشر نمی‌شود
+</footer>
+
+</div>
+
+<script>
+/* ── OFN connector ────────────────────────────────────────────────────────
+   Tries the real API. If it is not there — opened as a plain file, or the
+   node is down — the page keeps working on its sample data instead of
+   showing an error. A design preview and the live app are the same file.   */
+const OFN = (() => {
+  let session = null, live = false, why = '';
+  const tg = window.Telegram && window.Telegram.WebApp;
+
+  async function req(path, opts = {}) {
+    const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+    if (session) headers['Authorization'] = 'Bearer ' + session;
+    const r = await fetch(path, { ...opts, headers });
+    if (!r.ok) {
+      const err = new Error('http ' + r.status);
+      err.status = r.status;
+      throw err;
+    }
+    return r.json();
+  }
+
+  return {
+    get live() { return live; },
+    /* Which of the several ways to not be live this is. */
+    get why() { return why; },
+    async connect() {
+      if (!tg || !tg.initData) { why = 'no-shell'; return false; }
+      try {
+        const out = await req('/api/v1/auth/session', {
+          method: 'POST',
+          body: JSON.stringify({ init_data: tg.initData }),
+        });
+        session = out.session; live = true; why = '';
+        return true;
+      } catch (e) {
+        why = (e && e.status === 401) ? 'rejected'
+            : (e && e.status) ? 'error' : 'unreachable';
+        return false;
+      }
+    },
+    get(path) { return req(path); },
+    post(path, body) {
+      return req(path, { method: 'POST', body: JSON.stringify(body) });
+    },
+    /* Telegram chrome: theme, buttons, haptics. All optional — every call is
+       guarded so the page also runs in a plain browser tab. */
+    shell() {
+      if (!tg) return;
+      tg.ready();
+      tg.expand && tg.expand();
+      const apply = () => {
+        const p = tg.themeParams || {};
+        if (p.bg_color) document.documentElement.style.setProperty('--tg-bg', p.bg_color);
+      };
+      apply();
+      tg.onEvent && tg.onEvent('themeChanged', apply);
+    },
+    tap(style = 'light') {
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(style);
+      else if (navigator.vibrate) navigator.vibrate(8);
+    },
+    done(kind = 'success') {
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred(kind);
+      else if (navigator.vibrate) navigator.vibrate([10, 40, 10]);
+    },
+  };
+})();
+
+const fa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+const mk = (tag, cls, txt) => {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (txt != null) n.textContent = txt;   // never innerHTML for node data
+  return n;
+};
+
+/* Sample-card handlers. Preview only; disabled outright when not live. */
+function go(btn,msg,neg){
+  const d=btn.closest('.dr');
+  d.querySelector('.acts').replaceWith(mk('div','res '+(neg?'no':'ok'),msg));
+  if(neg)d.classList.add('gone');
+  OFN.done(neg?'warning':'success');
+}
+function tick(elm){
+  elm.classList.toggle('done');
+  elm.querySelector('.tic').textContent=elm.classList.contains('done')?'✅':'🎥';
+  OFN.tap();
+}
+
+/* ── live questions ────────────────────────────────────────────────────── */
+const LIVE = document.getElementById('live');
+let queue = [], at = 0;
+
+function card(q) {
+  const wrap = mk('div', 'qc');
+  wrap.append(mk('div', 'qq', q.label));
+  if (q.hint) wrap.append(mk('div', 'qh', q.hint));
+  if (!q.has_label) wrap.append(mk('div', 'qh', 'متن این سؤال هنوز در پک نوشته نشده.'));
+
+  const err = mk('div', 'qerr');
+  err.hidden = true;
+  let read = () => null;
+
+  if (q.kind === 'number') {
+    const lo = q.min != null ? q.min : 0;
+    const hi = q.max != null ? q.max : 1e9;
+    let val = q.default != null ? q.default : Math.max(lo, 1);
+    const out = mk('div', 'qv', fa(val));
+    out.setAttribute('aria-live', 'polite');
+    const row = mk('div', 'qnum');
+    const move = d => { val = Math.max(lo, Math.min(hi, val + d)); out.textContent = fa(val); OFN.tap(); };
+    const minus = mk('button', 'qb', '−');
+    minus.type = 'button'; minus.setAttribute('aria-label', 'کمتر');
+    minus.onclick = () => move(-1);
+    const plus = mk('button', 'qb', '+');
+    plus.type = 'button'; plus.setAttribute('aria-label', 'بیشتر');
+    plus.onclick = () => move(1);
+    row.append(minus, out, plus);
+    wrap.append(row);
+    if (q.unit) wrap.append(mk('div', 'qu', q.unit));
+    read = () => val;
+
+  } else if (q.kind === 'choice' || q.kind === 'confirm') {
+    const opts = q.kind === 'confirm' ? ['بله', 'نه'] : (q.options || []);
+    const box = mk('div', 'qopt');
+    let chosen = null;
+    opts.forEach(opt => {
+      const b = mk('button', 'qo', opt);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', 'false');
+      b.onclick = () => {
+        box.querySelectorAll('.qo').forEach(x => {
+          x.classList.remove('pick'); x.setAttribute('aria-pressed', 'false');
+        });
+        b.classList.add('pick'); b.setAttribute('aria-pressed', 'true');
+        chosen = q.kind === 'confirm' ? (opt === 'بله') : opt;
+        OFN.tap();
+      };
+      box.append(b);
+    });
+    wrap.append(box);
+    read = () => chosen;
+
+  } else {
+    const ta = mk('textarea', 'qta');
+    ta.placeholder = q.placeholder || '';
+    ta.setAttribute('aria-label', q.label);
+    wrap.append(ta);
+    read = () => ta.value.trim() || null;
+  }
+
+  const send = mk('button', 'qgo', 'ثبت کن');
+  send.type = 'button';
+  send.onclick = async () => {
+    const value = read();
+    if (value === null || value === '') {
+      err.textContent = 'اول جواب را بنویس.'; err.hidden = false; return;
+    }
+    err.hidden = true; send.disabled = true; send.textContent = 'در حال ثبت…';
+    try {
+      const out = await OFN.post('/api/v1/answers', { key: q.key, value });
+      if (!out.ok) {
+        err.textContent = out.error || 'ثبت نشد.'; err.hidden = false;
+        send.disabled = false; send.textContent = 'دوباره'; return;
+      }
+      OFN.done();
+      queue = out.remaining || []; at = 0;
+      draw();
+    } catch (e) {
+      /* A session lasts an hour; that is not a network fault. */
+      err.textContent = e && e.status === 401
+        ? 'وقت این صفحه تمام شد. جواب ثبت نشده — برنامه را ببند و دوباره باز کن.'
+        : 'به دستگاه وصل نشد. جواب ثبت نشده — دوباره بزن.';
+      err.hidden = false; send.disabled = false; send.textContent = 'دوباره';
+    }
+  };
+  const later = mk('button', 'qlater', 'بعداً');
+  later.type = 'button';
+  later.onclick = () => { at += 1; draw(); };
+
+  wrap.append(send, later, err);
+  return wrap;
+}
+
+function draw() {
+  LIVE.textContent = '';
+  const head = mk('div', 'sh');
+  if (at < queue.length) {
+    head.append(mk('h2', null, 'دستگاه از تو می‌پرسد'),
+                mk('span', 'pillc', `${fa(queue.length - at)} مورد`));
+    LIVE.append(head, card(queue[at]));
+  } else {
+    head.append(mk('h2', null, 'سؤالی نمانده'));
+    const note = mk('div', 'qc');
+    note.append(mk('div', 'qq', 'همه چیز ثبت شده'),
+                mk('div', 'qh', 'وقتی چیز تازه‌ای لازم باشد، همین‌جا ظاهر می‌شود.'));
+    LIVE.append(head, note);
+  }
+}
+
+/* ── boot ──────────────────────────────────────────────────────────────── */
+const REASONS = {
+  'no-shell': ['نمونه', 'این صفحه <b>نمونه</b> است. پیش‌نویس‌های زیر واقعی نیستند و تأیید آن‌ها هیچ‌جا ثبت نمی‌شود — نسخهٔ زنده از داخل تلگرام باز می‌شود.'],
+  'unreachable': ['قطع', 'به دستگاه وصل نشد. پیش‌نویس‌های زیر <b>نمونه</b>اند.'],
+  'rejected': ['ورود نشد', 'دستگاه این ورود را نپذیرفت. به آری بگو — پیش‌نویس‌های زیر <b>نمونه</b>اند.'],
+  'error': ['خطا', 'دستگاه با خطا جواب داد. پیش‌نویس‌های زیر <b>نمونه</b>اند.'],
+};
+
+function showState(kind) {
+  const [tag, text] = REASONS[kind] || REASONS['error'];
+  const badge = document.querySelector('.demo');
+  if (badge) { badge.textContent = tag; badge.classList.add('offline'); }
+  const box = document.getElementById('state');
+  box.hidden = false;
+  box.className = 'state warn';
+  box.textContent = '';
+  const p = mk('div');
+  p.innerHTML = text;             // fixed strings above; no data interpolated
+  box.append(p);
+  if (kind !== 'no-shell') {
+    const retry = mk('button', null, 'دوباره تلاش کن');
+    retry.type = 'button';
+    retry.onclick = () => location.reload();
+    box.append(retry);
+  }
+  document.querySelectorAll('.dr .b, .task').forEach(b => {
+    b.disabled = true; b.style.opacity = '.5'; b.style.pointerEvents = 'none';
+  });
+}
+
+async function boot() {
+  OFN.shell();
+  const connected = await OFN.connect();
+  if (!connected) { showState(OFN.why); return; }
+
+  const badge = document.querySelector('.demo');
+  if (badge) { badge.textContent = 'زنده'; badge.classList.add('livebadge'); }
+
+  let st, qs;
+  try {
+    [st, qs] = await Promise.all([
+      OFN.get('/api/v1/status'), OFN.get('/api/v1/questions'),
+    ]);
+  } catch (_) { showState('unreachable'); return; }
+
+  /* The drafts and the calendar are hand-drawn samples; there is no content
+     pipeline on the node yet. They come off rather than sit beside live data
+     pretending to be the same kind of thing. */
+  document.querySelectorAll('.app > .sec, .cal').forEach(s => s.remove());
+  LIVE.hidden = false;
+  queue = qs.questions || [];
+  at = 0;
+  draw();
+
+  const gate = document.querySelector('.gate');
+  if (gate) {
+    gate.textContent = '';
+    const lock = st.safe_mode
+      ? '🔒 دستگاه در حالت امن است. جواب‌ها ثبت می‌شوند ولی هیچ چیزی بیرون نمی‌رود.'
+      : '🔒 هیچ چیزی از استودیو بدون تأیید آری منتشر نمی‌شود.';
+    gate.append(mk('span', null, lock));
+  }
+  const sub = document.querySelector('.hs');
+  if (sub) {
+    sub.textContent = `استودیو محتوا · آماده‌سازی ${fa(st.readiness.done)} از ${fa(st.readiness.total)}`;
+  }
+}
+document.addEventListener('DOMContentLoaded', boot);
+</script>
+</body>
+</html>

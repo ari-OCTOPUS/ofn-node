@@ -1,0 +1,25 @@
+# /etc/systemd/system/ofn-boot.service
+# Pre-flight gate. Runs the boot supervisor before the node may act.
+# A failure here does not stop the node — it drops it into SAFE MODE, which is
+# diagnosable. A node that refuses to boot is not.
+[Unit]
+Description=OFN pre-flight checks
+After=local-fs.target time-sync.target
+Wants=time-sync.target
+RequiresMountsFor=/home/ari/.local/share/ofn
+Before=ofn.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=ari
+Group=ari
+WorkingDirectory=/home/ari/ofn
+EnvironmentFile=-/home/ari/.config/ofn/node.env
+ExecStart=/usr/bin/python3 -m ofn.preflight
+TimeoutStartSec=120s
+# Exit non-zero means SAFE MODE was recorded, not that boot failed.
+SuccessExitStatus=0 2
+
+[Install]
+WantedBy=multi-user.target

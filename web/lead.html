@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>لید نقاشی — عباس</title>
+<!-- Font is an enhancement, not a gate: loaded as print media and promoted on
+     load so a blocked font host never holds up the first paint. -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap"
+      rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+:root{
+  --bg:#f4f6f9; --card:#fff; --ink:#0f1a2b; --ink2:#54637a; --ink3:#8d9bb0;
+  --blue:#1257d2; --blue-d:#0b3f9e; --blue-soft:#e6eefc;
+  --green:#0e8a4f; --green-soft:#e2f5eb;
+  --amber:#b26a00; --amber-soft:#fdf0dc;
+  --red:#c4342a; --red-soft:#fce8e6;
+  --line:#dde4ee; --r:16px;
+  /* Ordered by what is actually installed on these phones; ending at a
+     Latin-first sans is what makes Persian look "broken". */
+  --fa:'Vazirmatn','Vazir','IRANSans','IRANYekan','Sahel','Noto Naskh Arabic',
+       'Noto Sans Arabic','Segoe UI',Tahoma,system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--fa);background:var(--bg);color:var(--ink);
+  min-height:100vh;line-height:1.7;display:flex;justify-content:center;padding-bottom:34px;
+  -webkit-font-smoothing:antialiased}
+.num{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.app{inline-size:100%;max-inline-size:460px}
+
+/* header */
+header{background:linear-gradient(160deg,var(--blue-d),#1257d2 65%,#1c6ae8);
+  color:#fff;padding:22px 20px 30px;border-end-start-radius:26px;border-end-end-radius:26px;
+  box-shadow:0 6px 24px rgba(18,87,210,.22)}
+.hrow{display:flex;align-items:center;gap:12px}
+.av{inline-size:44px;block-size:44px;border-radius:13px;background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.24);display:grid;place-items:center;font-size:21px;flex:none}
+.hnm{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.hsub{font-size:12.5px;opacity:.82}
+.live{margin-inline-start:auto;font-size:11.5px;background:rgba(255,255,255,.15);
+  padding:5px 11px;border-radius:99px;display:flex;align-items:center;gap:6px}
+.ld{inline-size:6px;block-size:6px;border-radius:50%;background:#7ef0a8;animation:p 2s infinite}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.4}}
+
+.kpi{display:flex;gap:9px;margin-top:20px}
+.k{flex:1;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.17);
+  border-radius:13px;padding:12px 10px;text-align:center}
+.kv{font-size:26px;font-weight:800;line-height:1.2}
+.kl{font-size:11px;opacity:.8;margin-top:-1px}
+
+.body{padding:20px}
+
+/* section */
+.sec{margin-bottom:22px}
+.sh{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+.sh h2{font-size:15.5px;font-weight:700}
+.cnt{background:var(--blue);color:#fff;font-size:11.5px;font-weight:700;
+  padding:2px 9px;border-radius:99px}
+.cnt.a{background:var(--amber)}
+
+/* job card */
+.job{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:15px;margin-bottom:11px;box-shadow:0 2px 8px rgba(15,26,43,.045);transition:.2s}
+.job.gone{opacity:.4}
+.jtop{display:flex;align-items:flex-start;gap:10px;margin-bottom:9px}
+.jt{font-size:16px;font-weight:700;line-height:1.5;flex:1}
+.badge{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:6px;flex:none}
+.badge.hot{background:var(--red-soft);color:var(--red)}
+.badge.new{background:var(--green-soft);color:var(--green)}
+.badge.wait{background:var(--amber-soft);color:var(--amber)}
+.meta{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2);margin-bottom:11px}
+.meta span{display:flex;align-items:center;gap:5px}
+.price{background:var(--blue-soft);border:1px solid #c9dcfa;border-radius:11px;
+  padding:11px 13px;margin-bottom:11px;display:flex;align-items:center;gap:11px}
+.pv{font-size:22px;font-weight:800;color:var(--blue-d)}
+.pl{font-size:12px;color:var(--ink2);line-height:1.6}
+.warn{font-size:12px;background:var(--amber-soft);border:1px solid #f0dcb8;color:#7a4a00;
+  border-radius:10px;padding:9px 11px;margin-bottom:11px;line-height:1.7}
+.acts{display:flex;gap:8px}
+.b{flex:1;padding:13px;border-radius:11px;border:1.5px solid var(--line);background:#fff;
+  font-family:inherit;font-size:14.5px;font-weight:700;color:var(--ink2);cursor:pointer;transition:.15s}
+.b:active{transform:scale(.97)}
+.b.go{background:var(--blue);border-color:var(--blue);color:#fff;
+  box-shadow:0 3px 12px rgba(18,87,210,.26)}
+.b.no{color:var(--ink3)}
+.b.call{background:var(--green);border-color:var(--green);color:#fff}
+.res{padding:12px;border-radius:11px;font-size:13.5px;font-weight:600;text-align:center}
+.res.ok{background:var(--green-soft);color:var(--green)}
+.res.no{background:#eef1f6;color:var(--ink3)}
+
+/* week strip */
+.week{display:flex;gap:6px;overflow-x:auto;padding-bottom:5px;margin-bottom:12px}
+.day{flex:none;inline-size:56px;background:var(--card);border:1px solid var(--line);
+  border-radius:13px;padding:10px 6px;text-align:center}
+.day.busy{background:var(--blue-soft);border-color:#c1d6f8}
+.day.full{background:var(--red-soft);border-color:#f3ccc8}
+.dn{font-size:11.5px;color:var(--ink3)}
+.dd{font-size:18px;font-weight:800;line-height:1.4}
+.dj{font-size:10.5px;color:var(--ink2);margin-top:1px}
+
+footer{text-align:center;font-size:11.5px;color:var(--ink3);padding:0 20px;line-height:1.9}
+.demo{display:inline-block;background:#e8ecf3;color:var(--ink2);padding:3px 11px;
+  border-radius:8px;font-size:11px;font-weight:600;margin-bottom:7px}
+.demo.offline{background:var(--red-soft);color:var(--red)}
+.demo.livebadge{background:var(--green-soft);color:var(--green)}
+.live.off{background:rgba(255,255,255,.1)}
+.live.off .ld{background:#ffcf8a;animation:none}
+
+/* connection state */
+.state{border-radius:13px;padding:13px 15px;font-size:13.5px;line-height:1.8;
+  margin-bottom:16px;border:1px solid var(--line);background:var(--card);color:var(--ink2)}
+.state.warn{background:var(--amber-soft);border-color:#f0dcb8;color:#7a4a00}
+.state b{color:var(--ink);font-weight:700}
+.state button{font-family:inherit;font-size:13.5px;font-weight:700;margin-top:10px;
+  padding:10px 16px;border-radius:10px;border:1.5px solid var(--line);
+  background:#fff;color:var(--ink);cursor:pointer}
+
+/* question card */
+.qc{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:17px;margin-bottom:11px;box-shadow:0 2px 8px rgba(15,26,43,.045)}
+.qq{font-size:17px;font-weight:700;line-height:1.55;margin-bottom:7px}
+.qh{font-size:13px;color:var(--ink2);line-height:1.8;margin-bottom:14px}
+.qnum{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:6px}
+.qv{font-size:42px;font-weight:800;min-inline-size:88px;text-align:center;
+  font-variant-numeric:tabular-nums;color:var(--blue-d)}
+.qu{text-align:center;font-size:12.5px;color:var(--ink3);margin-bottom:12px}
+.qb{inline-size:46px;block-size:46px;border-radius:50%;border:1.5px solid var(--line);
+  background:#fff;font-size:24px;color:var(--blue-d);cursor:pointer;font-family:inherit;
+  display:grid;place-items:center}
+.qb:active{transform:scale(.93)}
+.qopt{display:flex;flex-direction:column;gap:9px;margin-bottom:6px}
+.qo{inline-size:100%;text-align:start;font-family:inherit;font-size:15.5px;font-weight:600;
+  padding:15px 16px;border-radius:12px;border:1.5px solid var(--line);background:#fff;
+  color:var(--ink);cursor:pointer}
+.qo.pick{border-color:var(--blue);background:var(--blue-soft);color:var(--blue-d)}
+.qta{inline-size:100%;font-family:inherit;font-size:15.5px;line-height:1.8;color:var(--ink);
+  padding:13px 14px;border-radius:12px;border:1.5px solid var(--line);background:#fff;
+  resize:vertical;min-block-size:100px}
+.qerr{font-size:13px;color:var(--red);margin-top:9px}
+.b:focus-visible,.qb:focus-visible,.qo:focus-visible,.qta:focus{outline:2px solid var(--blue);outline-offset:2px}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;scroll-behavior:auto !important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <div class="hrow">
+    <div class="av">🎨</div>
+    <div>
+      <div class="hnm">عباس اسدی</div>
+      <div class="hsub">دوشنبه ۱۲ مرداد</div>
+    </div>
+    <div class="live"><span class="ld"></span>فعال</div>
+  </div>
+  <div class="kpi">
+    <div class="k"><div class="kv num">۱۲</div><div class="kl">لید امروز</div></div>
+    <div class="k"><div class="kv num">۵</div><div class="kl">منتظر تو</div></div>
+    <div class="k"><div class="kv num">۳</div><div class="kl">کار این هفته</div></div>
+  </div>
+</header>
+
+<div class="body">
+
+  <div class="state" id="state" hidden role="status" aria-live="polite"></div>
+  <div id="live" hidden></div>
+
+  <div class="sec" id="sample">
+    <div class="sh"><h2>منتظر تأیید تو</h2><span class="cnt a">۲</span></div>
+
+    <div class="job">
+      <div class="jtop">
+        <div class="jt">بازسازی آپارتمان — Marrickville</div>
+        <span class="badge hot">داغ</span>
+      </div>
+      <div class="meta">
+        <span>📍 <bdi>Marrickville</bdi> · <bdi class="num">۸ km</bdi></span>
+        <span>🏠 ۳ خوابه</span>
+        <span>🕐 ۳۴ دقیقه پیش</span>
+      </div>
+      <div class="price">
+        <div class="pv num">$۴٬۲۰۰</div>
+        <div class="pl">تخمین<br>قیمت نهایی با خودت</div>
+      </div>
+      <div class="warn">ایمیل قیمت ندارد — فقط قرار بازدید.</div>
+      <div class="acts">
+        <button class="b go" onclick="ok(this,'✓ ایمیل رفت — منتظر جواب')">ایمیل بفرست</button>
+        <button class="b call">📞 زنگ می‌زنم</button>
+        <button class="b no" onclick="ok(this,'رد شد',1)">رد</button>
+      </div>
+    </div>
+
+    <div class="job">
+      <div class="jtop">
+        <div class="jt">رنگ نمای بیرونی — Ashfield</div>
+        <span class="badge wait">منتظر</span>
+      </div>
+      <div class="meta">
+        <span>📍 <bdi>Ashfield</bdi> · <bdi class="num">۵ km</bdi></span>
+        <span>🏢 دو طبقه</span>
+        <span>🕐 ۲ ساعت پیش</span>
+      </div>
+      <div class="price">
+        <div class="pv num">$۶٬۸۰۰</div>
+        <div class="pl">تخمین<br>داربست لازم دارد</div>
+      </div>
+      <div class="acts">
+        <button class="b go" onclick="ok(this,'✓ ایمیل رفت — منتظر جواب')">ایمیل بفرست</button>
+        <button class="b call">📞 زنگ می‌زنم</button>
+        <button class="b no" onclick="ok(this,'رد شد',1)">رد</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sh"><h2>برنامهٔ هفته</h2></div>
+    <div class="week">
+      <div class="day busy"><div class="dn">دوشنبه</div><div class="dd num">۱۲</div><div class="dj">۱ کار</div></div>
+      <div class="day busy"><div class="dn">سه‌شنبه</div><div class="dd num">۱۳</div><div class="dj">۱ کار</div></div>
+      <div class="day full"><div class="dn">چهارشنبه</div><div class="dd num">۱۴</div><div class="dj">پر</div></div>
+      <div class="day"><div class="dn">پنجشنبه</div><div class="dd num">۱۵</div><div class="dj">آزاد</div></div>
+      <div class="day"><div class="dn">جمعه</div><div class="dd num">۱۶</div><div class="dj">آزاد</div></div>
+      <div class="day"><div class="dn">شنبه</div><div class="dd num">۱۷</div><div class="dj">آزاد</div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sh"><h2>لیدهای تازه</h2><span class="cnt">۳</span></div>
+
+    <div class="job">
+      <div class="jtop">
+        <div class="jt">اتاق خواب — Newtown</div>
+        <span class="badge new">جدید</span>
+      </div>
+      <div class="meta">
+        <span>📍 <bdi>Newtown</bdi> · <bdi class="num">۶ km</bdi></span>
+        <span>🕐 ۱۱ دقیقه پیش</span>
+      </div>
+      <div class="acts">
+        <button class="b go" onclick="ok(this,'✓ به صف پاسخ رفت')">جواب بده</button>
+        <button class="b no" onclick="ok(this,'رد شد',1)">دور است</button>
+      </div>
+    </div>
+
+    <div class="job">
+      <div class="jtop">
+        <div class="jt">کل واحد تجاری — Chatswood</div>
+        <span class="badge new">جدید</span>
+      </div>
+      <div class="meta">
+        <span>📍 <bdi>Chatswood</bdi> · <bdi class="num">۱۹ km</bdi></span>
+        <span>🕐 ۴۰ دقیقه پیش</span>
+      </div>
+      <div class="warn">📏 دورتر از حد معمول، ولی کار بزرگی است.</div>
+      <div class="acts">
+        <button class="b go" onclick="ok(this,'✓ به صف پاسخ رفت')">می‌ارزد</button>
+        <button class="b no" onclick="ok(this,'رد شد',1)">دور است</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <span class="demo">نمونه</span><br>
+  بدون دکمهٔ تو هیچ ایمیلی نمی‌رود
+</footer>
+
+</div>
+
+<script>
+/* ── OFN connector ────────────────────────────────────────────────────────
+   Tries the real API. If it is not there — opened as a plain file, or the
+   node is down — the page keeps working on its sample data instead of
+   showing an error. A design preview and the live app are the same file.   */
+const OFN = (() => {
+  let session = null, live = false, why = '';
+  const tg = window.Telegram && window.Telegram.WebApp;
+
+  async function req(path, opts = {}) {
+    const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+    if (session) headers['Authorization'] = 'Bearer ' + session;
+    const r = await fetch(path, { ...opts, headers });
+    if (!r.ok) {
+      const err = new Error('http ' + r.status);
+      err.status = r.status;
+      throw err;
+    }
+    return r.json();
+  }
+
+  return {
+    get live() { return live; },
+    /* Why this page is not live, specifically. A node that is down and a page
+       merely being previewed used to look identical from the footer. */
+    get why() { return why; },
+    async connect() {
+      if (!tg || !tg.initData) { why = 'no-shell'; return false; }
+      try {
+        const out = await req('/api/v1/auth/session', {
+          method: 'POST',
+          body: JSON.stringify({ init_data: tg.initData }),
+        });
+        session = out.session; live = true; why = '';
+        return true;
+      } catch (e) {
+        why = (e && e.status === 401) ? 'rejected'
+            : (e && e.status) ? 'error' : 'unreachable';
+        return false;
+      }
+    },
+    get(path) { return req(path); },
+    post(path, body) {
+      return req(path, { method: 'POST', body: JSON.stringify(body) });
+    },
+    /* Telegram chrome: theme, buttons, haptics. All optional — every call is
+       guarded so the page also runs in a plain browser tab. */
+    shell() {
+      if (!tg) return;
+      tg.ready();
+      tg.expand && tg.expand();
+      const apply = () => {
+        const p = tg.themeParams || {};
+        if (p.bg_color) document.documentElement.style.setProperty('--tg-bg', p.bg_color);
+      };
+      apply();
+      tg.onEvent && tg.onEvent('themeChanged', apply);
+    },
+    tap(style = 'light') {
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(style);
+      else if (navigator.vibrate) navigator.vibrate(8);
+    },
+    done(kind = 'success') {
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred(kind);
+      else if (navigator.vibrate) navigator.vibrate([10, 40, 10]);
+    },
+  };
+})();
+
+const fa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+const el = (tag, cls, txt) => {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (txt != null) n.textContent = txt;   // never innerHTML for node data
+  return n;
+};
+
+/* Sample-card handler. Preview only — it posts nothing, and when the page is
+   not live these buttons are disabled outright rather than left to report a
+   send that never happened. */
+function ok(btn,msg,neg){
+  const j=btn.closest('.job');
+  const res=el('div','res '+(neg?'no':'ok'),msg);
+  j.querySelector('.acts').replaceWith(res);
+  if(neg)j.classList.add('gone');
+  OFN.done(neg?'warning':'success');
+}
+
+/* ── live questions ──────────────────────────────────────────────────────
+   Same contract as the other shells: the node ranks them, the pack words
+   them, this renders them. Abbas answers outdoors, so the controls are big
+   and there is exactly one card on screen at a time.                      */
+const LIVE = document.getElementById('live');
+let queue = [], at = 0;
+
+function card(q) {
+  const wrap = el('div', 'qc');
+  wrap.append(el('div', 'qq', q.label));
+  if (q.hint) wrap.append(el('div', 'qh', q.hint));
+  if (!q.has_label) wrap.append(el('div', 'qh', 'متن این سؤال هنوز در پک نوشته نشده.'));
+
+  const err = el('div', 'qerr');
+  err.hidden = true;
+  let read = () => null;
+
+  if (q.kind === 'number') {
+    const lo = q.min != null ? q.min : 0;
+    const hi = q.max != null ? q.max : 1e9;
+    const stepBy = hi - lo > 200 ? 10 : 1;
+    let val = q.default != null ? q.default : Math.max(lo, 1);
+    const out = el('div', 'qv', fa(val));
+    out.setAttribute('aria-live', 'polite');
+    const row = el('div', 'qnum');
+    const move = d => { val = Math.max(lo, Math.min(hi, val + d)); out.textContent = fa(val); OFN.tap(); };
+    const minus = el('button', 'qb', '−');
+    minus.type = 'button'; minus.setAttribute('aria-label', 'کمتر');
+    minus.onclick = () => move(-stepBy);
+    const plus = el('button', 'qb', '+');
+    plus.type = 'button'; plus.setAttribute('aria-label', 'بیشتر');
+    plus.onclick = () => move(stepBy);
+    row.append(minus, out, plus);
+    wrap.append(row);
+    if (q.unit) wrap.append(el('div', 'qu', q.unit));
+    read = () => val;
+
+  } else if (q.kind === 'choice' || q.kind === 'confirm') {
+    const opts = q.kind === 'confirm' ? ['بله', 'نه'] : (q.options || []);
+    const box = el('div', 'qopt');
+    let chosen = null;
+    opts.forEach(opt => {
+      const b = el('button', 'qo', opt);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', 'false');
+      b.onclick = () => {
+        box.querySelectorAll('.qo').forEach(x => {
+          x.classList.remove('pick'); x.setAttribute('aria-pressed', 'false');
+        });
+        b.classList.add('pick'); b.setAttribute('aria-pressed', 'true');
+        chosen = q.kind === 'confirm' ? (opt === 'بله') : opt;
+        OFN.tap();
+      };
+      box.append(b);
+    });
+    wrap.append(box);
+    read = () => chosen;
+
+  } else {
+    const ta = el('textarea', 'qta');
+    ta.placeholder = q.placeholder || '';
+    ta.setAttribute('aria-label', q.label);
+    wrap.append(ta);
+    read = () => ta.value.trim() || null;
+  }
+
+  const go = el('button', 'b go', 'ثبت کن');
+  go.type = 'button';
+  go.style.marginTop = '14px';
+  go.onclick = async () => {
+    const value = read();
+    if (value === null || value === '') {
+      err.textContent = 'اول جواب را انتخاب کن.'; err.hidden = false; return;
+    }
+    err.hidden = true; go.disabled = true; go.textContent = 'در حال ثبت…';
+    try {
+      const out = await OFN.post('/api/v1/answers', { key: q.key, value });
+      if (!out.ok) {
+        err.textContent = out.error || 'ثبت نشد.'; err.hidden = false;
+        go.disabled = false; go.textContent = 'دوباره'; return;
+      }
+      OFN.done();
+      queue = out.remaining || []; at = 0;
+      draw();
+      refreshKpis();
+    } catch (e) {
+      /* A session lasts an hour; that is not a network fault and must not be
+         reported as one. */
+      err.textContent = e && e.status === 401
+        ? 'وقت این صفحه تمام شد. جواب ثبت نشده — برنامه را ببند و دوباره باز کن.'
+        : 'به دستگاه وصل نشد. جواب ثبت نشده — دوباره بزن.';
+      err.hidden = false; go.disabled = false; go.textContent = 'دوباره';
+    }
+  };
+  const later = el('button', 'b', 'بعداً');
+  later.type = 'button';
+  later.style.marginTop = '8px';
+  later.onclick = () => { at += 1; draw(); };
+
+  wrap.append(go, later, err);
+  return wrap;
+}
+
+function draw() {
+  LIVE.textContent = '';
+  const head = el('div', 'sh');
+  if (at < queue.length) {
+    head.append(el('h2', null, 'دستگاه از تو می‌پرسد'),
+                el('span', 'cnt a', fa(queue.length - at)));
+    LIVE.append(head, card(queue[at]));
+  } else {
+    head.append(el('h2', null, 'سؤالی نمانده'));
+    const note = el('div', 'qc');
+    note.append(el('div', 'qq', 'همه چیز ثبت شده'),
+                el('div', 'qh', 'وقتی چیز تازه‌ای لازم باشد، همین‌جا ظاهر می‌شود.'));
+    LIVE.append(head, note);
+  }
+}
+
+async function refreshKpis() {
+  try {
+    const st = await OFN.get('/api/v1/status');
+    const kv = document.querySelectorAll('.kv');
+    const kl = document.querySelectorAll('.kl');
+    if (kv[0]) { kv[0].textContent = `${fa(st.readiness.done)}/${fa(st.readiness.total)}`; kl[0].textContent = 'آماده‌سازی'; }
+    if (kv[1]) { kv[1].textContent = fa(st.pending_decisions || 0); kl[1].textContent = 'منتظر آری'; }
+    if (kv[2]) { kv[2].textContent = fa(st.capacity_per_week || 0); kl[2].textContent = 'ظرفیت هفته'; }
+    return st;
+  } catch (_) { return null; }
+}
+
+/* ── boot ──────────────────────────────────────────────────────────────── */
+const REASONS = {
+  'no-shell': ['نمونه', 'این صفحه <b>نمونه</b> است. کارهایی که اینجا می‌زنی هیچ‌جا ثبت نمی‌شود — نسخهٔ زنده از داخل تلگرام باز می‌شود.'],
+  'unreachable': ['قطع', 'به دستگاه وصل نشد. کارت‌های زیر <b>نمونه</b>اند، نه لید واقعی.'],
+  'rejected': ['ورود نشد', 'دستگاه این ورود را نپذیرفت. به آری بگو — کارت‌های زیر <b>نمونه</b>اند.'],
+  'error': ['خطا', 'دستگاه با خطا جواب داد. کارت‌های زیر <b>نمونه</b>اند.'],
+};
+
+function showState(kind) {
+  const [tag, text] = REASONS[kind] || REASONS['error'];
+  const badge = document.querySelector('.demo');
+  if (badge) { badge.textContent = tag; badge.classList.add('offline'); }
+  const pill = document.querySelector('.live');
+  if (pill) { pill.classList.add('off'); pill.lastChild.textContent = tag; }
+  const box = document.getElementById('state');
+  box.hidden = false;
+  box.className = 'state warn';
+  box.textContent = '';
+  const p = el('div');
+  p.innerHTML = text;              // fixed strings above; no data interpolated
+  box.append(p);
+  if (kind !== 'no-shell') {
+    const retry = el('button', null, 'دوباره تلاش کن');
+    retry.type = 'button';
+    retry.onclick = () => location.reload();
+    box.append(retry);
+  }
+  /* Nothing in a preview may look operable: "ایمیل بفرست" reporting success
+     against a node that never saw the request is the worst screen in the app. */
+  document.querySelectorAll('.body .b').forEach(b => {
+    b.disabled = true; b.style.opacity = '.5'; b.style.pointerEvents = 'none';
+  });
+}
+
+async function boot() {
+  OFN.shell();
+  const connected = await OFN.connect();
+  if (!connected) { showState(OFN.why); return; }
+
+  const badge = document.querySelector('.demo');
+  if (badge) { badge.textContent = 'زنده'; badge.classList.add('livebadge'); }
+
+  let qs;
+  try {
+    qs = await OFN.get('/api/v1/questions');
+  } catch (_) { showState('unreachable'); return; }
+  const st = await refreshKpis();
+
+  /* The sample job cards are not real leads and there is no lead feed on the
+     node yet. Showing them beside live data would be the same lie in a nicer
+     font, so they come off the screen entirely. */
+  document.querySelectorAll('.body > .sec').forEach(s => s.remove());
+  LIVE.hidden = false;
+  queue = qs.questions || [];
+  at = 0;
+  draw();
+
+  if (st && st.safe_mode) {
+    const box = document.getElementById('state');
+    box.hidden = false;
+    box.className = 'state warn';
+    box.textContent = 'دستگاه در حالت ایمن است. جواب‌ها ثبت می‌شوند ولی هیچ کاری بیرون نمی‌رود.';
+  }
+}
+document.addEventListener('DOMContentLoaded', boot);
+</script>
+</body>
+</html>

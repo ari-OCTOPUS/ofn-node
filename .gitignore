@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.log
+.env
+.env.*
+secrets.env
+node.env
+*.key
+*.pem
+backups/
+.probe-state/

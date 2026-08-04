@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ارگانیسم — کنترل پنل آری</title>
+<!-- The owner's panel is the one screen that must load on a bad connection at
+     2am. Font is non-blocking; the page paints in the local stack. -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap"
+      rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+:root{
+  --void:#120e1a; --deep:#1a1426; --shell:#231a33; --shell2:#2b2040;
+  --glass:rgba(255,255,255,.045); --glass2:rgba(255,255,255,.075);
+  --edge:rgba(255,255,255,.09); --edge2:rgba(255,255,255,.15);
+  --tx:#f2edf7; --tx2:#b6a9c9; --tx3:#7d6f92;
+  --gold:#f0b95c; --teal:#4fd8c8; --coral:#ff8f7a; --violet:#a78bfa;
+  --ok:#5fd99a; --warn:#f5c451; --bad:#ff7a7a;
+  --r:20px;
+  --fa:'Vazirmatn','Vazir','IRANSans','IRANYekan','Sahel','Noto Naskh Arabic',
+       'Noto Sans Arabic','Segoe UI',Tahoma,system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:var(--fa); color:var(--tx); line-height:1.7;
+  min-height:100vh; padding:24px 20px 40px; -webkit-font-smoothing:antialiased;
+  background:
+    radial-gradient(900px 560px at 78% -8%, #3a2450 0%, transparent 60%),
+    radial-gradient(760px 500px at 8% 6%, #1e3546 0%, transparent 58%),
+    radial-gradient(680px 460px at 50% 108%, #3d2038 0%, transparent 62%),
+    var(--void);
+}
+.num{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.wrap{max-width:1360px;margin:0 auto}
+.stage{perspective:1500px}
+
+/* ═══ HEADER ═══ */
+header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:30px}
+.core{
+  inline-size:56px;block-size:56px;border-radius:19px;flex:none;position:relative;
+  background:linear-gradient(150deg,#3d2a55,#1d1429);
+  border:1px solid var(--edge2);display:grid;place-items:center;font-size:26px;
+  box-shadow:0 12px 34px rgba(167,139,250,.28), inset 0 1px 0 rgba(255,255,255,.16);
+  animation:breathe 4.5s ease-in-out infinite;
+}
+@keyframes breathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.03)}}
+.core::after{content:'';position:absolute;inset:-8px;border-radius:26px;
+  border:1px solid rgba(167,139,250,.22);animation:ring 4.5s ease-out infinite}
+@keyframes ring{0%{transform:scale(.9);opacity:.7}100%{transform:scale(1.25);opacity:0}}
+h1{font-size:21px;font-weight:600;letter-spacing:-.015em}
+.sub{font-size:13px;color:var(--tx3)}
+.hsp{flex:1}
+.vital{display:flex;align-items:center;gap:9px;padding:9px 16px;border-radius:99px;
+  background:var(--glass);border:1px solid var(--edge);font-size:12.5px;color:var(--tx2);
+  backdrop-filter:blur(14px);box-shadow:0 6px 20px rgba(0,0,0,.28)}
+.hb{inline-size:9px;block-size:9px;border-radius:50%;background:var(--ok);flex:none;
+  box-shadow:0 0 12px var(--ok);animation:beat 1.6s ease-in-out infinite}
+/* A heartbeat that keeps beating while the page is disconnected is the exact
+   signal this panel must never send. */
+.vital.off .hb{background:var(--bad);box-shadow:0 0 12px var(--bad);animation:none}
+@keyframes beat{0%,100%{transform:scale(1);opacity:1}25%{transform:scale(1.5);opacity:.65}40%{transform:scale(1)}}
+
+/* ═══ TENTACLES (three legs) ═══ */
+.legs{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:20px}
+@media(max-width:1000px){.legs{grid-template-columns:1fr}}
+
+.leg{
+  position:relative;border-radius:var(--r);padding:22px;cursor:pointer;
+  transform-style:preserve-3d;transition:transform .45s cubic-bezier(.2,.7,.3,1), box-shadow .45s;
+  border:1px solid var(--edge);
+  background:linear-gradient(158deg, var(--glass2) 0%, rgba(255,255,255,.02) 42%, rgba(0,0,0,.16) 100%);
+  backdrop-filter:blur(18px);
+  box-shadow:0 18px 44px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.13);
+}
+.leg:hover{transform:translateY(-8px) rotateX(5deg) rotateY(-4deg) scale(1.015);
+  box-shadow:0 30px 62px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.2)}
+.leg::before{content:'';position:absolute;inset-block-start:0;inset-inline:16px;block-size:2px;border-radius:99px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.75}
+.leg.gold{--accent:var(--gold)} .leg.teal{--accent:var(--teal)} .leg.coral{--accent:var(--coral)}
+
+.orb{inline-size:52px;block-size:52px;border-radius:17px;display:grid;place-items:center;
+  font-size:25px;flex:none;transform:translateZ(28px);
+  background:radial-gradient(circle at 32% 26%, rgba(255,255,255,.24), transparent 58%),
+             linear-gradient(150deg,var(--shell2),var(--deep));
+  border:1px solid var(--edge2);
+  box-shadow:0 10px 24px rgba(0,0,0,.42), 0 0 26px -6px var(--accent), inset 0 1px 0 rgba(255,255,255,.18)}
+.lhead{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px}
+.lname{font-size:17px;font-weight:600;transform:translateZ(16px)}
+.lwho{font-size:12.5px;color:var(--tx3)}
+.pulse{margin-inline-start:auto;font-size:10.5px;font-weight:600;padding:4px 11px;border-radius:8px;
+  transform:translateZ(20px);background:rgba(95,217,154,.14);color:var(--ok);
+  border:1px solid rgba(95,217,154,.24)}
+.pulse.locked{background:rgba(255,122,122,.13);color:var(--bad);border-color:rgba(255,122,122,.24)}
+
+.vitals{display:flex;gap:11px;margin-bottom:16px;transform:translateZ(14px)}
+.vt{flex:1;border-radius:14px;padding:12px 13px;background:rgba(0,0,0,.24);
+  border:1px solid var(--edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.vv{font-size:23px;font-weight:600;line-height:1.25}
+.vl{font-size:11px;color:var(--tx3)}
+.wave{block-size:5px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:7px}
+.wave i{display:block;block-size:100%;border-radius:99px;
+  background:linear-gradient(90deg,var(--accent),rgba(255,255,255,.5));
+  box-shadow:0 0 10px -2px var(--accent);transition:inline-size .9s cubic-bezier(.3,.8,.3,1)}
+.lfoot{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--tx3);
+  padding-top:14px;border-top:1px solid var(--edge);transform:translateZ(8px)}
+
+/* ═══ LAYOUT ═══ */
+.split{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-bottom:20px}
+@media(max-width:1000px){.split{grid-template-columns:1fr}}
+
+.panel{border-radius:var(--r);padding:22px;border:1px solid var(--edge);
+  background:linear-gradient(165deg, var(--glass2), rgba(0,0,0,.2));
+  backdrop-filter:blur(18px);
+  box-shadow:0 16px 40px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.1)}
+.ph{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.ph h2{font-size:14.5px;font-weight:600}
+.ph .ic{font-size:17px}
+.chipx{margin-inline-start:auto;font-size:11px;padding:4px 11px;border-radius:8px;
+  background:rgba(0,0,0,.28);border:1px solid var(--edge);color:var(--tx3)}
+
+/* ═══ HEART (budget) ═══ */
+.heart{text-align:center;padding:14px 0 4px;position:relative}
+.hring{inline-size:172px;block-size:172px;margin:0 auto;position:relative;
+  display:grid;place-items:center}
+.hring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.hnum{font-size:38px;font-weight:600;line-height:1;text-shadow:0 0 28px rgba(79,216,200,.4)}
+.hunit{font-size:12px;color:var(--tx3);margin-top:5px}
+.hcap{font-size:12px;color:var(--tx2);margin-top:14px}
+
+.flow{display:flex;align-items:center;gap:11px;padding:10px 0;border-top:1px solid var(--edge)}
+.fnm{font-size:12.5px;inline-size:78px;flex:none}
+.fbar{flex:1;block-size:7px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+.fbar i{display:block;block-size:100%;border-radius:99px;box-shadow:0 0 10px -2px currentColor}
+.fv{font-size:12px;color:var(--tx2);inline-size:56px;text-align:end;flex:none}
+
+.memo{font-size:11.5px;color:var(--tx2);line-height:1.85;padding:13px 15px;border-radius:14px;
+  background:linear-gradient(150deg,rgba(240,185,92,.09),rgba(240,185,92,.03));
+  border:1px solid rgba(240,185,92,.2);margin-top:16px}
+.memo b{color:var(--gold);font-weight:600}
+
+/* ═══ DECISIONS ═══ */
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tab{padding:8px 15px;border-radius:11px;font-size:12.5px;cursor:pointer;font-family:inherit;
+  background:rgba(0,0,0,.26);border:1px solid var(--edge);color:var(--tx2);transition:.2s}
+.tab:hover{border-color:var(--edge2);transform:translateY(-1px)}
+.tab.on{background:linear-gradient(150deg,rgba(167,139,250,.2),rgba(167,139,250,.07));
+  border-color:rgba(167,139,250,.42);color:#d6c8ff;box-shadow:0 6px 18px rgba(167,139,250,.2)}
+
+.dec{border-radius:16px;padding:17px;margin-bottom:12px;position:relative;overflow:hidden;
+  border:1px solid var(--edge);background:linear-gradient(160deg,rgba(255,255,255,.05),rgba(0,0,0,.2));
+  box-shadow:0 10px 26px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.07);
+  transition:transform .3s, box-shadow .3s}
+.dec:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.11)}
+.dec::before{content:'';position:absolute;inset-block:0;inset-inline-start:0;inline-size:3px;background:var(--sig);
+  box-shadow:0 0 18px var(--sig)}
+.dec.r{--sig:var(--bad)} .dec.y{--sig:var(--warn)} .dec.g{--sig:var(--ok)}
+.dec.done{opacity:.32;transform:none}
+.dtop{display:flex;align-items:center;gap:10px;margin-bottom:9px;flex-wrap:wrap}
+.sig{font-size:10px;font-weight:700;padding:3.5px 10px;border-radius:7px;letter-spacing:.04em}
+.dec.r .sig{background:rgba(255,122,122,.15);color:var(--bad)}
+.dec.y .sig{background:rgba(245,196,81,.15);color:var(--warn)}
+.dec.g .sig{background:rgba(95,217,154,.15);color:var(--ok)}
+.dfrom{font-size:11.5px;color:var(--tx3)}
+.dwhen{margin-inline-start:auto;font-size:11px;color:var(--tx3)}
+.dtxt{font-size:14px;line-height:1.75;margin-bottom:8px}
+.dwhy{font-size:12px;color:var(--tx2);padding:9px 12px;border-radius:11px;line-height:1.8;
+  background:rgba(0,0,0,.3);border:1px solid var(--edge);margin-bottom:13px}
+.dwhy b{color:var(--tx);font-weight:600}
+.row{display:flex;gap:9px;flex-wrap:wrap}
+.k{padding:9px 17px;border-radius:11px;font-size:13px;font-weight:600;font-family:inherit;
+  cursor:pointer;border:1px solid var(--edge2);color:var(--tx2);transition:.2s;
+  background:linear-gradient(165deg,rgba(255,255,255,.08),rgba(0,0,0,.14));
+  box-shadow:0 5px 14px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.12)}
+.k:hover{transform:translateY(-2px);color:var(--tx);box-shadow:0 9px 20px rgba(0,0,0,.36)}
+.k:active{transform:translateY(0)}
+.k.yes{background:linear-gradient(165deg,rgba(95,217,154,.24),rgba(95,217,154,.08));
+  border-color:rgba(95,217,154,.4);color:#9df0c2}
+.k.arm{background:linear-gradient(165deg,rgba(255,122,122,.2),rgba(255,122,122,.06));
+  border-color:rgba(255,122,122,.36);color:#ffb3b3}
+.out{font-size:12.5px;padding:10px 14px;border-radius:11px;font-weight:600}
+.out.ok{background:rgba(95,217,154,.13);color:var(--ok)}
+.out.no{background:rgba(0,0,0,.3);color:var(--tx3)}
+
+/* ═══ NERVES / GATES ═══ */
+.nerve{max-height:250px;overflow-y:auto;padding-inline-end:6px}
+.nerve::-webkit-scrollbar{width:5px}
+.nerve::-webkit-scrollbar-thumb{background:var(--shell2);border-radius:9px}
+.nr{display:flex;gap:11px;padding:9px 0;border-top:1px solid var(--edge);font-size:11.5px;align-items:flex-start}
+.nr:first-child{border-top:0}
+.nt{color:var(--tx3);flex:none;font-size:10.5px;padding-top:2px}
+.nk{flex:none;font-size:9.5px;font-weight:700;padding:2.5px 7px;border-radius:6px;
+  background:rgba(0,0,0,.32);border:1px solid var(--edge);color:var(--tx3)}
+.nx{flex:1;color:var(--tx2);line-height:1.65}
+.hx{color:rgba(79,216,200,.45);font-size:10px}
+
+.valve{display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:14px;
+  margin-bottom:9px;font-size:12.5px;border:1px solid var(--edge);
+  background:linear-gradient(160deg,rgba(255,255,255,.04),rgba(0,0,0,.16));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.valve.shut{background:linear-gradient(160deg,rgba(255,122,122,.11),rgba(0,0,0,.16));
+  border-color:rgba(255,122,122,.2)}
+.valve.open{background:linear-gradient(160deg,rgba(95,217,154,.09),rgba(0,0,0,.16));
+  border-color:rgba(95,217,154,.18)}
+.vn{flex:1}
+.vs{font-size:10.5px;font-weight:700}
+
+/* organ / vitals block */
+.organ{display:flex;align-items:center;gap:11px;padding:10px 0;border-top:1px solid var(--edge);font-size:12.5px}
+.organ:first-of-type{border-top:0}
+.ok_{color:var(--tx3);flex:1}
+.ov{font-weight:600}
+
+footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--edge);
+  font-size:11.5px;color:var(--tx3);display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+.badge{background:rgba(240,185,92,.11);border:1px solid rgba(240,185,92,.26);color:var(--gold);
+  padding:4px 12px;border-radius:9px;font-size:11px;font-weight:600}
+.badge.live{background:rgba(95,217,154,.12);border-color:rgba(95,217,154,.3);color:var(--ok)}
+.badge.dead{background:rgba(255,122,122,.12);border-color:rgba(255,122,122,.3);color:var(--bad)}
+
+/* ═══ CONNECTION STATE ═══
+   The panel is a control surface. When it cannot reach the node it says so
+   at full size, because the failure mode being designed against is an owner
+   approving something against a screen that is quietly three hours stale. */
+.conn{border-radius:var(--r);padding:20px 22px;margin-bottom:20px;font-size:13.5px;
+  line-height:1.9;border:1px solid rgba(255,122,122,.3);color:#ffd9d9;
+  background:linear-gradient(160deg,rgba(255,122,122,.14),rgba(0,0,0,.24))}
+.conn b{color:#fff;font-weight:600}
+.conn h3{font-size:16px;font-weight:600;color:#fff;margin-bottom:7px}
+.conn button{font-family:inherit;font-size:13px;font-weight:600;margin-top:12px;
+  padding:10px 18px;border-radius:11px;cursor:pointer;color:var(--tx);
+  border:1px solid var(--edge2);background:rgba(255,255,255,.08)}
+.stale{background:rgba(0,0,0,.3);border:1px solid var(--edge);border-radius:11px;
+  padding:9px 13px;font-size:11.5px;color:var(--tx3);margin-bottom:14px}
+.empty{padding:26px 18px;text-align:center;font-size:13px;color:var(--tx3);
+  border:1px dashed var(--edge);border-radius:14px}
+.k:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.k:focus-visible,.tab:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+.miss{font-size:11px;color:var(--tx3);margin-top:6px;line-height:1.7}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important;transition-duration:.001ms !important}
+  .leg:hover{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap stage">
+
+<header>
+  <div class="core">🐙</div>
+  <div>
+    <h1>ارگانیسم</h1>
+    <div class="sub">سه پا · یک قلب · یک دستگاه</div>
+  </div>
+  <div class="hsp"></div>
+  <div class="vital" id="vital"><span class="hb"></span><span id="vitaltx">در حال اتصال…</span></div>
+  <div class="vital">🌙 هیچ‌چیز بدون تو بیرون نمی‌رود</div>
+</header>
+
+<div class="conn" id="conn" hidden role="status" aria-live="polite"></div>
+
+<!-- سه پا -->
+<div class="legs" id="legs">
+
+  <!-- Filled from /api/v1/owner/status. Empty until the node answers: an
+       unreadable leg shows nothing rather than a plausible number. -->
+</div>
+
+<!-- تصمیم + قلب -->
+<div class="split">
+
+  <div class="panel">
+    <div class="ph"><span class="ic">⚖️</span><h2>صف تصمیم</h2><span class="chipx" id="cnt">…</span></div>
+
+    <div class="stale" id="stale" hidden></div>
+
+    <div class="tabs">
+      <button class="tab on" data-f="all">همه</button>
+      <button class="tab" data-f="r">🔴 قرمز <span data-c="r">۰</span></button>
+      <button class="tab" data-f="y">🟡 زرد <span data-c="y">۰</span></button>
+      <button class="tab" data-f="g">🟢 سبز <span data-c="g">۰</span></button>
+    </div>
+
+    <!-- Every card here is one row of the outbox. Nothing is drawn that the
+         node did not hand over, and every button posts to /api/v1/decide. -->
+    <div id="q"></div>
+  </div>
+
+  <div>
+    <div class="panel" style="margin-bottom:18px">
+      <div class="ph"><span class="ic">🫀</span><h2>قلب — انرژی Fugu</h2><span class="chipx">هفتگی</span></div>
+      <div class="heart">
+        <div class="hring">
+          <svg viewBox="0 0 172 172">
+            <circle cx="86" cy="86" r="74" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="11"/>
+            <circle cx="86" cy="86" r="74" fill="none" stroke="url(#g)" stroke-width="11"
+                    stroke-linecap="round" stroke-dasharray="465" stroke-dashoffset="128"/>
+            <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#4fd8c8"/><stop offset="1" stop-color="#a78bfa"/>
+            </linearGradient></defs>
+          </svg>
+          <div>
+            <div class="hnum num" id="hpc">…<span style="font-size:17px;color:var(--tx3)">٪</span></div>
+            <div class="hunit">از سهم این هفته</div>
+          </div>
+        </div>
+        <div class="hcap" id="hcap">—</div>
+      </div>
+
+      <div style="margin-top:18px" id="flows"></div>
+
+      <div class="memo" id="qmemo"></div>
+    </div>
+
+    <!-- Boot checks, not invented vitals. This panel used to report a
+         temperature, a RAM figure and a local model that this node has never
+         had; every line below is something the boot supervisor actually
+         measured on this device. -->
+    <div class="panel">
+      <div class="ph"><span class="ic">🖥️</span><h2>بوت — چه چیزی چک شد</h2><span class="chipx" id="bootchip">…</span></div>
+      <div id="organs"></div>
+    </div>
+  </div>
+</div>
+
+<!-- عصب + دریچه -->
+<div class="split">
+  <div class="panel">
+    <div class="ph"><span class="ic">🧬</span><h2>سیستم عصبی</h2><span class="chipx">فقط افزوده می‌شود</span></div>
+    <!-- The real ledger tail. Append-only, so this is the one panel that can
+         be trusted to disagree with everything else. -->
+    <div class="nerve" id="nerve"></div>
+  </div>
+
+  <div class="panel">
+    <div class="ph"><span class="ic">🚪</span><h2>دریچه‌ها</h2></div>
+    <div id="valves"></div>
+    <div class="memo" style="margin-top:14px">
+      <b>دریچهٔ بسته یعنی محافظت.</b> تا وقتی گیتی بسته است، پایی که به آن وصل است فقط پیشنهاد می‌دهد. این تصمیم خودِ سیستم است — این صفحه فقط گزارشش می‌کند.
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span class="badge" id="fbadge">در حال اتصال…</span>
+  <span id="fver">ارگانیسم · پنل مالک</span>
+  <span style="flex:1"></span>
+  <span>کرنل تصمیم می‌گیرد · مدل مشورت می‌دهد · تو حکم می‌کنی</span>
+</footer>
+
+</div>
+
+<script>
+/* ── OFN connector ────────────────────────────────────────────────────────
+   This panel had none. Every figure on it was a constant typed into the HTML,
+   including an approve button that reported "ثبت در لجر" without a request
+   ever leaving the page. A control surface that cannot reach its node must
+   look broken, not calm — so there is no sample mode here at all.          */
+const OFN = (() => {
+  let session = null, why = '';
+  const tg = window.Telegram && window.Telegram.WebApp;
+
+  async function req(path, opts = {}) {
+    const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+    if (session) headers['Authorization'] = 'Bearer ' + session;
+    const r = await fetch(path, { ...opts, headers });
+    if (!r.ok) {
+      const err = new Error('http ' + r.status);
+      err.status = r.status;
+      throw err;
+    }
+    return r.json();
+  }
+  return {
+    get why() { return why; },
+    async connect() {
+      if (!tg || !tg.initData) { why = 'no-shell'; return false; }
+      try {
+        const out = await req('/api/v1/auth/session', {
+          method: 'POST', body: JSON.stringify({ init_data: tg.initData }),
+        });
+        session = out.session; why = '';
+        return true;
+      } catch (e) {
+        why = e && e.status === 403 ? 'not-owner'
+            : e && e.status === 401 ? 'rejected'
+            : e && e.status ? 'error' : 'unreachable';
+        return false;
+      }
+    },
+    get(p) { return req(p); },
+    post(p, b) { return req(p, { method: 'POST', body: JSON.stringify(b) }); },
+    shell() {
+      if (!tg) return;
+      tg.ready();
+      tg.expand && tg.expand();
+    },
+    done(kind = 'success') {
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred(kind);
+      else if (navigator.vibrate) navigator.vibrate([10, 40, 10]);
+    },
+  };
+})();
+
+/* Persian digits, and the Persian decimal separator with them: "۲.۶" reads
+   as a version number to a Persian reader, "۲٫۶" reads as a number. */
+const fa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]).replace('.', '٫');
+const mk = (tag, cls, txt) => {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (txt != null) n.textContent = txt;   // node data never goes through innerHTML
+  return n;
+};
+const TIER = { red: 'r', yellow: 'y', green: 'g' };
+const TIER_FA = { red: 'قرمز', yellow: 'زرد', green: 'سبز' };
+const ACCENT = ['gold', 'teal', 'coral'];
+const ORB = { ziman: '🌸', lead: '🎨', studio: '🎬' };
+const WHO = { ziman: 'ملیحه', lead: 'عباس', studio: 'سبا' };
+const NAME = { ziman: 'زیمان', lead: 'لید نقاشی', studio: 'استودیو' };
+
+function millions(n) {
+  if (n >= 1e6) return fa((n / 1e6).toFixed(1)) + 'M';
+  if (n >= 1e3) return fa(Math.round(n / 1e3)) + 'k';
+  return fa(n);
+}
+
+function ago(iso) {
+  const t = Date.parse(iso);
+  if (!t) return '';
+  const s = Math.max(0, (Date.now() - t) / 1000);
+  if (s < 90) return 'همین حالا';
+  if (s < 5400) return fa(Math.round(s / 60)) + ' دقیقه';
+  if (s < 172800) return fa(Math.round(s / 3600)) + ' ساعت';
+  return fa(Math.round(s / 86400)) + ' روز';
+}
+
+/* ── legs ─────────────────────────────────────────────────────────────── */
+function drawLegs(status) {
+  const box = document.getElementById('legs');
+  box.textContent = '';
+  status.legs.forEach((leg, i) => {
+    const card = mk('div', 'leg ' + ACCENT[i % ACCENT.length]);
+    const head = mk('div', 'lhead');
+    head.append(mk('div', 'orb', ORB[leg.tenant] || '●'));
+    const who = mk('div');
+    who.append(mk('div', 'lname', NAME[leg.tenant] || leg.tenant),
+               mk('div', 'lwho', WHO[leg.tenant] || ''));
+    head.append(who);
+    const blocked = leg.blocked_gates.length > 0;
+    const pulse = mk('span', 'pulse' + (blocked ? ' locked' : ''),
+                     blocked ? 'گیت بسته' : 'باز');
+    head.append(pulse);
+    card.append(head);
+
+    const vit = mk('div', 'vitals');
+    const ready = mk('div', 'vt');
+    const rv = mk('div', 'vv num', fa(leg.readiness.done));
+    const of = mk('span', null, '/' + fa(leg.readiness.total));
+    of.style.cssText = 'font-size:13px;color:var(--tx3)';
+    rv.append(of);
+    const rwave = mk('div', 'wave');
+    const rbar = mk('i');
+    rbar.style.inlineSize = leg.readiness.total
+      ? Math.round(100 * leg.readiness.done / leg.readiness.total) + '%' : '0%';
+    rwave.append(rbar);
+    ready.append(rv, mk('div', 'vl', 'حقایق آماده'), rwave);
+
+    const wait = mk('div', 'vt');
+    wait.append(mk('div', 'vv num', fa(leg.pending + leg.held)),
+                mk('div', 'vl', 'منتظر تو'));
+    vit.append(ready, wait);
+    card.append(vit);
+
+    const foot = mk('div', 'lfoot');
+    foot.append(mk('span', null, blocked ? '🔴' : '🟢'));
+    foot.append(mk('span', null, blocked
+      ? 'بسته: ' + leg.blocked_gates.join('، ')
+      : 'هیچ گیتی بسته نیست'));
+    card.append(foot);
+    if (leg.missing_facts.length) {
+      card.append(mk('div', 'miss',
+        'حقایق ثبت‌نشده: ' + leg.missing_facts.join('، ')));
+    }
+    box.append(card);
+  });
+}
+
+/* ── decision queue ───────────────────────────────────────────────────── */
+let filter = 'all';
+
+function drawQueue(queue) {
+  const box = document.getElementById('q');
+  box.textContent = '';
+  const counts = { r: 0, y: 0, g: 0 };
+  queue.forEach(it => { counts[TIER[it.tier]] = (counts[TIER[it.tier]] || 0) + 1; });
+  Object.keys(counts).forEach(k => {
+    const s = document.querySelector(`.tab [data-c="${k}"]`);
+    if (s) s.textContent = fa(counts[k]);
+  });
+  document.getElementById('cnt').textContent = fa(queue.length) + ' باز';
+
+  const shown = queue.filter(it => filter === 'all' || TIER[it.tier] === filter);
+  if (!shown.length) {
+    box.append(mk('div', 'empty', queue.length
+      ? 'در این دسته چیزی نیست.'
+      : 'صف خالی است. هیچ چیزی منتظر تو نیست.'));
+    return;
+  }
+  shown.forEach(it => box.append(decision(it)));
+}
+
+function decision(it) {
+  const card = mk('div', 'dec ' + TIER[it.tier]);
+  const top = mk('div', 'dtop');
+  top.append(mk('span', 'sig', TIER_FA[it.tier] || it.tier),
+             mk('span', 'dfrom',
+                `${ORB[it.tenant] || '●'} ${NAME[it.tenant] || it.tenant} · ${it.kind}`),
+             mk('span', 'dwhen num', ago(it.created_at)));
+  card.append(top);
+
+  /* The payload is whatever the leg queued. Rendered as text, never markup —
+     some of it originates in a customer's message. */
+  const summary = it.payload && (it.payload.summary || it.payload.text);
+  card.append(mk('div', 'dtxt', summary || it.kind));
+  if (!summary && it.payload && Object.keys(it.payload).length) {
+    card.append(mk('div', 'dwhy', JSON.stringify(it.payload)));
+  }
+
+  const why = mk('div', 'dwhy');
+  why.append(mk('b', null, it.held ? 'نگه‌داشته شده: ' : 'چرا اینجاست: '));
+  why.append(mk('span', null, it.held
+    ? (it.note || 'یک ارسال ناتمام در بوت پیدا شد')
+    : it.needs_double_confirm
+      ? 'قرمز — برگشت‌ناپذیر یا پولی یا زیر گیت بسته. دو تأیید جدا لازم دارد.'
+      : 'زرد — از دستگاه خارج می‌شود ولی برگشت‌پذیر است.'));
+  card.append(why);
+
+  const row = mk('div', 'row');
+  const out = msg => {
+    const o = mk('div', 'out ' + (msg.ok ? 'ok' : 'no'), msg.text);
+    row.replaceWith(o);
+    card.classList.add('done');
+  };
+
+  const send = async (approve, twice, btn) => {
+    row.querySelectorAll('button').forEach(b => { b.disabled = true; });
+    try {
+      const res = await OFN.post('/api/v1/decide',
+        { id: it.id, approve, confirmed_twice: twice });
+      if (!res.ok) {
+        /* The kernel refused. Show its rule, not a friendlier paraphrase —
+           this is the one screen where the exact reason matters. */
+        out({ ok: false, text: '✕ ' + (res.error || 'رد شد') });
+        return;
+      }
+      OFN.done(approve ? 'success' : 'warning');
+      out({ ok: approve, text: approve ? '✓ تأیید شد — در لجر ثبت شد'
+                                       : '✕ رد شد — دلیل در لجر ثبت شد' });
+      /* Let the verdict stay on screen before the list is rebuilt. Refreshing
+         immediately made the card vanish the instant it was tapped, which
+         reads as "did that register?" — the one question an approval screen
+         must never leave open. */
+      setTimeout(refresh, 2500);
+    } catch (e) {
+      row.querySelectorAll('button').forEach(b => { b.disabled = false; });
+      card.append(mk('div', 'miss', e && e.status === 401
+        ? 'نشست تمام شد. هیچ چیزی ثبت نشد — پنل را دوباره از تلگرام باز کن.'
+        : 'به نود نرسید. هیچ چیزی ثبت نشد — دوباره بزن.'));
+    }
+  };
+
+  if (it.needs_double_confirm) {
+    const arm = mk('button', 'k arm', '🔓 تأیید دو مرحله‌ای');
+    arm.type = 'button';
+    let armed = false;
+    arm.onclick = () => {
+      if (armed) { armedCount -= 1; send(true, true, arm); return; }
+      armed = true;
+      armedCount += 1;         // holds the poll off; see refresh()
+      arm.textContent = '⚠️ مطمئنی؟ دوباره بزن';
+      setTimeout(() => {
+        if (!armed) return;
+        armed = false;
+        armedCount -= 1;
+        if (arm.isConnected) arm.textContent = '🔓 تأیید دو مرحله‌ای';
+      }, 5000);
+    };
+    row.append(arm);
+  } else {
+    const yes = mk('button', 'k yes', '✓ تأیید');
+    yes.type = 'button';
+    yes.onclick = () => send(true, false, yes);
+    row.append(yes);
+  }
+  const no = mk('button', 'k', 'رد');
+  no.type = 'button';
+  no.onclick = () => send(false, false, no);
+  row.append(no);
+  card.append(row);
+  return card;
+}
+
+/* ── quota, boot, gates, ledger ───────────────────────────────────────── */
+function drawQuota(q) {
+  const pct = q.node_ceiling ? Math.round(100 * q.node_spent / q.node_ceiling) : 0;
+  const hpc = document.getElementById('hpc');
+  hpc.textContent = fa(pct);
+  const unit = mk('span', null, '٪');
+  unit.style.cssText = 'font-size:17px;color:var(--tx3)';
+  hpc.append(unit);
+  document.getElementById('hcap').textContent =
+    `${millions(q.node_spent)} از ${millions(q.node_ceiling)} توکن`;
+  const ring = document.querySelector('.hring circle:last-of-type');
+  if (ring) ring.setAttribute('stroke-dashoffset', String(465 - 465 * pct / 100));
+
+  const flows = document.getElementById('flows');
+  flows.textContent = '';
+  const colours = { ziman: 'var(--gold)', lead: 'var(--teal)', studio: 'var(--coral)' };
+  Object.keys(q.tenants).forEach((name, i) => {
+    const t = q.tenants[name];
+    const row = mk('div', 'flow');
+    if (i === 0) row.style.border = '0';
+    row.append(mk('span', 'fnm', `${ORB[name] || '●'} ${NAME[name] || name}`));
+    const bar = mk('span', 'fbar');
+    const fill = mk('i');
+    const share = t.ceiling ? Math.round(100 * t.spent / t.ceiling) : 0;
+    fill.style.inlineSize = share + '%';
+    fill.style.background = colours[name] || 'var(--violet)';
+    bar.append(fill);
+    row.append(bar, mk('span', 'fv num', millions(t.spent)));
+    flows.append(row);
+  });
+
+  const memo = document.getElementById('qmemo');
+  memo.textContent = '';
+  memo.append(mk('b', null, `سقف روی ${fa(Math.round(q.utilisation * 100))}٪ ظرفیت تنظیم شده. `));
+  memo.append(mk('span', null,
+    `${q.capacity_is_estimate ? 'عدد ظرفیت هنوز تخمینی است و با مصرف واقعی اصلاح می‌شود. ' : 'عدد ظرفیت اندازه‌گیری شده است. '}` +
+    `هر فراخوان با ضریب ${fa(q.orchestration_multiplier)} ثبت می‌شود. ` +
+    `این هفته ${fa(q.calls)} فراخوان.`));
+}
+
+function drawBoot(boot) {
+  const chip = document.getElementById('bootchip');
+  const box = document.getElementById('organs');
+  box.textContent = '';
+  if (!boot) {
+    chip.textContent = 'گزارشی نیست';
+    box.append(mk('div', 'empty', 'این پروسه بدون گزارش بوت بالا آمده.'));
+    return;
+  }
+  chip.textContent = boot.ok ? 'سالم' : boot.mode;
+  boot.checks.forEach(c => {
+    const row = mk('div', 'organ');
+    row.append(mk('span', 'ok_', c.name));
+    const v = mk('span', 'ov', c.detail);
+    v.style.color = c.severity === 'ok' ? 'var(--ok)'
+      : c.severity === 'critical' ? 'var(--bad)' : 'var(--warn)';
+    row.append(v);
+    box.append(row);
+  });
+  if (boot.recovered_outbox) {
+    box.append(mk('div', 'miss',
+      `${fa(boot.recovered_outbox)} ارسال ناتمام در بوت بازیابی شد.`));
+  }
+}
+
+function drawValves(status) {
+  const box = document.getElementById('valves');
+  box.textContent = '';
+  const all = new Set();
+  status.legs.forEach(l => l.gates.forEach(g => all.add(g)));
+  status.closed_gates.forEach(g => all.add(g));
+  if (!all.size) { box.append(mk('div', 'empty', 'هیچ گیتی تعریف نشده.')); return; }
+  [...all].sort().forEach(g => {
+    const shut = status.closed_gates.includes(g);
+    const v = mk('div', 'valve ' + (shut ? 'shut' : 'open'));
+    v.append(mk('span', null, shut ? '🔴' : '🟢'), mk('span', 'vn', g));
+    const s = mk('span', 'vs', shut ? 'بسته' : 'باز');
+    s.style.color = shut ? 'var(--bad)' : 'var(--ok)';
+    v.append(s);
+    box.append(v);
+  });
+}
+
+function drawNerve(events) {
+  const box = document.getElementById('nerve');
+  box.textContent = '';
+  if (!events.length) {
+    box.append(mk('div', 'empty', 'لجر هنوز خالی است.'));
+    return;
+  }
+  events.forEach(e => {
+    const row = mk('div', 'nr');
+    row.append(mk('span', 'nt num', (e.ts || '').slice(11, 16)),
+               mk('span', 'nk', e.kind));
+    const body = mk('span', 'nx');
+    const p = e.payload || {};
+    const gist = p.summary || p.action || p.key || p.item || '';
+    body.append(mk('span', null, `${NAME[e.tenant] || e.tenant}${gist ? ' · ' + gist : ''}`));
+    const hx = mk('span', 'hx', ' ' + e.hash);
+    body.append(hx);
+    row.append(body);
+    box.append(row);
+  });
+}
+
+/* ── refresh ──────────────────────────────────────────────────────────── */
+let lastOk = null;
+let armedCount = 0;
+
+async function refresh() {
+  /* Never redraw the queue out from under a half-given confirmation: the
+     second tap would land on a freshly built button that was never armed. */
+  if (armedCount > 0) return true;
+  try {
+    const [status, queue, events] = await Promise.all([
+      OFN.get('/api/v1/owner/status'),
+      OFN.get('/api/v1/queue'),
+      OFN.get('/api/v1/owner/events'),
+    ]);
+    drawLegs(status);
+    drawQueue(queue.queue || []);
+    drawQuota(status.quota);
+    drawBoot(status.boot);
+    drawValves(status);
+    drawNerve(events.events || []);
+    lastOk = Date.now();
+    document.getElementById('stale').hidden = true;
+    document.getElementById('vitaltx').textContent =
+      status.killed ? 'کلید خاموشی زده شده' : 'وصل · دادهٔ زنده';
+    const badge = document.getElementById('fbadge');
+    badge.textContent = 'دادهٔ زنده';
+    badge.className = 'badge live';
+    return true;
+  } catch (e) {
+    if (e && e.status === 401) {
+      /* The session ran out — an hour by design. This is not a dead node, and
+         reporting it as one is how an owner ends up restarting a service that
+         was fine. The launch blob cannot be replayed, so the only cure is
+         reopening the app, and the screen says exactly that. */
+      const stale = document.getElementById('stale');
+      stale.hidden = false;
+      stale.textContent = '⚠ نشست تمام شد. پنل را ببند و دوباره از تلگرام باز کن — نود سالم است.';
+      document.querySelectorAll('#q .k').forEach(b => { b.disabled = true; });
+      const b = document.getElementById('fbadge');
+      b.textContent = 'نشست تمام شد';
+      b.className = 'badge dead';
+      return false;
+    }
+    /* Keep whatever is on screen — but stamp it, so nothing here is mistaken
+       for the current state of the business. */
+    const stale = document.getElementById('stale');
+    stale.hidden = false;
+    stale.textContent = lastOk
+      ? `⚠ ارتباط قطع شد. آخرین دادهٔ واقعی: ${ago(new Date(lastOk).toISOString())} پیش. تصمیم نگیر تا دوباره وصل شود.`
+      : '⚠ ارتباط قطع شد.';
+    const badge = document.getElementById('fbadge');
+    badge.textContent = 'قطع';
+    badge.className = 'badge dead';
+    document.querySelectorAll('#q .k').forEach(b => { b.disabled = true; });
+    return false;
+  }
+}
+
+/* ── boot ─────────────────────────────────────────────────────────────── */
+const REASONS = {
+  'no-shell': ['پنل از داخل تلگرام باز می‌شود',
+    'این صفحه در مرورگر معمولی نمی‌تواند وارد شود، چون ورود با امضای همان اپلیکیشن انجام می‌شود. <b>هیچ عددی روی این صفحه نشان داده نمی‌شود</b> تا وقتی ورود واقعی انجام شود — پنل کنترل با دادهٔ ساختگی از نبودنش بدتر است.'],
+  'not-owner': ['این حساب مالک نیست',
+    'ورود درست بود ولی این کاربر در فهرست مالکان نیست. <b>OFN_OWNER_USER_IDS</b> روی نود پر نشده یا این حساب در آن نیست.'],
+  'rejected': ['ورود پذیرفته نشد',
+    'نود امضا را نپذیرفت. معمولاً یعنی توکن بات مالک روی نود خالی است، یا ساعت دستگاه عقب/جلو است.'],
+  'unreachable': ['به نود نرسیدیم',
+    'صفحه بارگذاری شد ولی نود جواب نمی‌دهد. سرویس <b>ofn</b> را روی برد چک کن.'],
+  'error': ['نود با خطا جواب داد', 'درخواست ورود با خطا برگشت.'],
+};
+
+function showDead(kind) {
+  const [title, text] = REASONS[kind] || REASONS['error'];
+  const box = document.getElementById('conn');
+  box.hidden = false;
+  box.textContent = '';
+  box.append(mk('h3', null, '⚠ ' + title));
+  const p = mk('div');
+  p.innerHTML = text;                 // fixed strings above; no data in them
+  box.append(p);
+  if (kind !== 'no-shell') {
+    const retry = mk('button', null, 'دوباره تلاش کن');
+    retry.type = 'button';
+    retry.onclick = () => location.reload();
+    box.append(retry);
+  }
+  document.getElementById('vitaltx').textContent = 'وصل نیست';
+  document.getElementById('vital').classList.add('off');
+  const badge = document.getElementById('fbadge');
+  badge.textContent = 'بدون داده';
+  badge.className = 'badge dead';
+  document.getElementById('cnt').textContent = '—';
+  document.getElementById('q').append(
+    mk('div', 'empty', 'تا وقتی به نود وصل نشده‌ای، صفی نشان داده نمی‌شود.'));
+  ['legs', 'flows', 'organs', 'valves', 'nerve'].forEach(id => {
+    const n = document.getElementById(id);
+    if (n) { n.textContent = ''; n.append(mk('div', 'empty', 'دادهٔ زنده‌ای نیست.')); }
+  });
+  document.getElementById('hcap').textContent = '—';
+  document.getElementById('hpc').textContent = '—';
+}
+
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  filter = b.dataset.f;
+  OFN.get('/api/v1/queue').then(r => drawQueue(r.queue || [])).catch(() => {});
+});
+
+async function boot() {
+  OFN.shell();
+  if (!await OFN.connect()) { showDead(OFN.why); return; }
+  document.getElementById('conn').hidden = true;
+  await refresh();
+  /* Poll rather than push: the node has no socket layer, and a 30s window on
+     a queue a human works through by hand is well inside useful. */
+  setInterval(refresh, 30000);
+}
+document.addEventListener('DOMContentLoaded', boot);
+</script>
+</body>
+</html>

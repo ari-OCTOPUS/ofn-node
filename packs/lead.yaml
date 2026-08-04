@@ -1,0 +1,60 @@
+# ═══════════════════════════════════════════════════════════════════════
+# pack: lead — on-site services, crew-hour bound, highest inbound volume
+# partner-facing app: high-contrast, readable outdoors
+# ═══════════════════════════════════════════════════════════════════════
+tenant: lead
+
+# Units here are crew-days, not items. Six is a working assumption until the
+# partner confirms — it is deliberately conservative so the first correction
+# is upward. An optimistic default gets discovered by overbooking a customer.
+capacity_units_per_week: 6
+
+required_facts:
+  ops.service_radius_km: owner_confirmed
+  offer.price_per_service: owner_confirmed
+  ops.crew_hours_per_week: measured
+
+# Abbas answers these outdoors, on a phone, with paint on his hands. Short
+# sentences, big numbers, no jargon.
+questions:
+  ops.service_radius_km:
+    label: تا چند کیلومتری کار قبول می‌کنید؟
+    hint: دورتر از این، لید خودکار رد می‌شود.
+    unit: کیلومتر
+    min: 1
+    max: 100
+    default: 20
+  offer.price_per_service:
+    label: قیمت پایهٔ یک اتاق معمولی چقدر است؟
+    hint: عدد تقریبی کافی است. قیمت نهایی هر کار با خودتان است.
+    unit: دلار
+    min: 50
+    max: 5000
+    default: 450
+  ops.crew_hours_per_week:
+    label: این هفته چند ساعت کار می‌کنید؟
+    hint: ساعت واقعیِ در دسترس، نه ساعت ایده‌آل.
+    unit: ساعت در هفته
+    min: 1
+    max: 80
+    default: 38
+
+gates:
+  - capacity
+  - budget
+  - claim
+  - consent          # anti-spam law applies to every outbound message
+  - service_area
+  - secret_rotation
+
+risk_overrides:
+  publish_price: red
+  send_quote: red
+  confirm_booking: red
+  send_lead_reply: yellow     # no price in it; still leaves the node
+  ask_partner_question: yellow
+  classify_lead: green
+  score_lead: green
+  draft_reply: green
+
+quota_share: 0.40

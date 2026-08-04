@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>زیمان — ملیحه</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- The web font is an enhancement, never a gate. Loaded as print media and
+     switched to all on load, so a slow or blocked font host costs nothing:
+     the page paints immediately in the local Persian fallback below. As a
+     render-blocking stylesheet this was a white screen for as long as the
+     request took to time out — on the networks these partners are on, that
+     is the difference between an app and a broken link. -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+:root{
+  --cream:#faf6ef; --cream2:#f3ece0; --card:#fffdfa;
+  --ink:#2e2823; --ink2:#6b5f52; --ink3:#a2958a;
+  --gold:#c9a227; --gold-soft:#f0e4c2; --gold-deep:#8a6d16;
+  --rose:#c98a8a; --rose-soft:#f7e9e6;
+  --green:#5c8a5c; --green-soft:#e6f0e4;
+  --line:#e8ded0;
+  --r:22px;
+  /* Fallbacks that actually exist on the phones this runs on, in the order
+     they are likely to be present. Ending at plain sans-serif would hand
+     Persian to a Latin-first face and give the mojibake-adjacent look that
+     gets reported as "the font is broken". */
+  --fa:'Vazirmatn','Vazir','IRANSans','IRANYekan','Sahel','Noto Naskh Arabic',
+       'Noto Sans Arabic','Segoe UI',Tahoma,system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:var(--fa);
+  background:
+    radial-gradient(700px 400px at 80% -5%, #f7ecd8 0%, transparent 60%),
+    radial-gradient(600px 380px at 0% 100%, #f8eeea 0%, transparent 58%),
+    var(--cream);
+  color:var(--ink); min-height:100vh; line-height:1.85;
+  display:flex; justify-content:center; padding:0 0 40px;
+  -webkit-font-smoothing:antialiased;
+}
+.app{inline-size:100%;max-inline-size:440px;padding:0 20px}
+
+/* header */
+header{padding:28px 0 22px;text-align:center}
+.crest{inline-size:60px;block-size:60px;border-radius:50%;margin:0 auto 14px;
+  background:linear-gradient(150deg,#fdf6e4,#f0e0c0);
+  border:1px solid var(--gold-soft);display:grid;place-items:center;font-size:27px;
+  box-shadow:0 6px 22px rgba(201,162,39,.16)}
+.hi{font-size:24px;font-weight:600;letter-spacing:-.01em}
+.hi span{color:var(--gold-deep)}
+.date{font-size:13.5px;color:var(--ink3);margin-top:4px}
+
+/* progress dots */
+.dots{display:flex;gap:7px;justify-content:center;margin:20px 0 24px}
+.dots i{inline-size:8px;block-size:8px;border-radius:50%;background:var(--line);transition:.3s}
+.dots i.on{background:var(--gold);inline-size:24px;border-radius:99px}
+.dots i.done{background:var(--gold-soft)}
+
+/* card */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:28px 24px;box-shadow:0 4px 28px rgba(120,95,50,.07);margin-bottom:16px}
+.eyebrow{font-size:12.5px;color:var(--gold-deep);font-weight:500;letter-spacing:.03em;
+  display:flex;align-items:center;gap:7px;margin-bottom:12px}
+.q{font-size:22px;font-weight:600;line-height:1.6;margin-bottom:10px;letter-spacing:-.01em}
+.hint{font-size:14.5px;color:var(--ink2);line-height:1.85;margin-bottom:22px}
+
+/* choice buttons */
+.choices{display:flex;flex-direction:column;gap:11px}
+.choice{inline-size:100%;text-align:start;font-family:inherit;font-size:17px;font-weight:500;
+  padding:18px 20px;border-radius:16px;border:1.5px solid var(--line);
+  background:#fff;color:var(--ink);cursor:pointer;transition:.18s;
+  display:flex;align-items:center;gap:13px}
+.choice:hover{border-color:var(--gold);background:#fffdf6}
+.choice.pick{border-color:var(--gold);background:linear-gradient(180deg,#fffbee,#fdf6e2);
+  box-shadow:0 3px 14px rgba(201,162,39,.15)}
+.choice .mark{inline-size:24px;block-size:24px;border-radius:50%;border:1.5px solid var(--line);
+  flex:none;display:grid;place-items:center;font-size:13px;color:#fff;transition:.18s}
+.choice.pick .mark{background:var(--gold);border-color:var(--gold)}
+.choice .sub{font-size:12.5px;color:var(--ink3);font-weight:400;display:block;margin-top:-3px}
+
+/* number pad style */
+.numrow{display:flex;align-items:center;justify-content:center;gap:18px;margin:8px 0 22px}
+.nbtn{inline-size:52px;block-size:52px;border-radius:50%;border:1.5px solid var(--line);
+  background:#fff;font-size:26px;color:var(--gold-deep);cursor:pointer;font-family:inherit;
+  display:grid;place-items:center;transition:.15s}
+.nbtn:active{transform:scale(.92)}
+.nval{font-size:52px;font-weight:600;min-inline-size:90px;text-align:center;
+  font-variant-numeric:tabular-nums;color:var(--ink)}
+.nunit{font-size:14px;color:var(--ink3);text-align:center;margin-top:-14px;margin-bottom:6px}
+
+/* primary button */
+.go{inline-size:100%;padding:19px;border-radius:16px;border:0;font-family:inherit;
+  font-size:17.5px;font-weight:600;color:#fff;cursor:pointer;margin-top:20px;
+  background:linear-gradient(180deg,#d4ae35,#b8901c);
+  box-shadow:0 5px 18px rgba(184,144,28,.28);transition:.18s}
+.go:hover{transform:translateY(-1px);box-shadow:0 7px 22px rgba(184,144,28,.34)}
+.go:disabled{background:var(--line);color:var(--ink3);box-shadow:none;cursor:default;transform:none}
+.later{inline-size:100%;padding:14px;border:0;background:none;font-family:inherit;
+  font-size:14.5px;color:var(--ink3);cursor:pointer;margin-top:6px}
+
+/* photo confirm */
+.photos{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:6px}
+.ph{aspect-ratio:1;border-radius:15px;position:relative;overflow:hidden;cursor:pointer;
+  border:2px solid transparent;transition:.18s;display:grid;place-items:center;font-size:34px;
+  font-family:inherit;padding:0;inline-size:100%}
+.ph:nth-child(1){background:linear-gradient(140deg,#f6e3d0,#eccdb4)}
+.ph:nth-child(2){background:linear-gradient(140deg,#e8e2f0,#d3c9e4)}
+.ph:nth-child(3){background:linear-gradient(140deg,#dfeade,#c5d9c4)}
+.ph:nth-child(4){background:linear-gradient(140deg,#f7e0e2,#eec3c7)}
+.ph.pick{border-color:var(--gold);box-shadow:0 4px 16px rgba(201,162,39,.24)}
+.ph .tick{position:absolute;inset-block-start:8px;inset-inline-end:8px;inline-size:26px;block-size:26px;
+  border-radius:50%;background:rgba(255,255,255,.9);display:grid;place-items:center;
+  font-size:14px;color:var(--gold-deep);opacity:0;transition:.18s}
+.ph.pick .tick{opacity:1}
+.ph .nm{position:absolute;inset-block-end:0;inset-inline:0;padding:8px 10px;font-size:12px;
+  background:linear-gradient(0deg,rgba(0,0,0,.42),transparent);color:#fff;font-weight:500}
+
+/* summary strip */
+.strip{display:flex;gap:10px;margin-bottom:16px}
+.sbox{flex:1;background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:14px 12px;text-align:center}
+.sv{font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.3}
+.sl{font-size:11.5px;color:var(--ink3)}
+
+/* done state */
+.done-card{text-align:center;padding:38px 24px}
+.done-ic{font-size:52px;margin-bottom:14px}
+.done-t{font-size:21px;font-weight:600;margin-bottom:8px}
+.done-s{font-size:14.5px;color:var(--ink2);line-height:1.9}
+.thanks{background:var(--green-soft);border:1px solid #cfe0cc;border-radius:14px;
+  padding:14px 16px;font-size:13.5px;color:#3f6b3f;margin-top:20px;line-height:1.8}
+
+footer{text-align:center;font-size:11.5px;color:var(--ink3);margin-top:22px;line-height:1.9}
+.demo{display:inline-block;background:var(--gold-soft);color:var(--gold-deep);
+  padding:3px 11px;border-radius:8px;font-size:11px;font-weight:500;margin-bottom:7px}
+.demo.offline{background:var(--rose-soft);color:#8a4a4a}
+.demo.livebadge{background:var(--green-soft);color:#3f6b3f}
+
+/* connection state — never a silent fallback */
+.state{border-radius:14px;padding:13px 16px;font-size:13px;line-height:1.85;
+  margin-bottom:16px;border:1px solid var(--line);background:var(--card);color:var(--ink2)}
+.state.warn{background:var(--rose-soft);border-color:#e8cfc9;color:#7d4a44}
+.state b{color:var(--ink);font-weight:600}
+.state button{font-family:inherit;font-size:13px;margin-top:9px;padding:9px 16px;
+  border-radius:11px;border:1.5px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}
+
+/* free-text answer */
+.ta{inline-size:100%;font-family:inherit;font-size:16px;line-height:1.9;color:var(--ink);
+  padding:15px 16px;border-radius:16px;border:1.5px solid var(--line);background:#fff;
+  resize:vertical;min-block-size:110px}
+.ta:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold)}
+.choice:focus-visible,.nbtn:focus-visible,.go:focus-visible,.later:focus-visible,
+.ph:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}
+.err{font-size:13px;color:#a4423f;margin-top:10px}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;scroll-behavior:auto !important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <div class="crest">🌸</div>
+  <div class="hi">سلام <span>ملیحه جان</span></div>
+  <div class="date">امروز فقط ۲ سؤال</div>
+</header>
+
+<div class="dots" id="dots">
+  <i class="on"></i><i></i><i></i>
+</div>
+
+<!-- وضعیت اتصال — وقتی چیزی سر جایش نیست، پنهانش نمی‌کنیم -->
+<div class="state" id="state" hidden role="status" aria-live="polite"></div>
+
+<!-- محتوای زنده. تا وقتی نود جواب ندهد خالی می‌ماند و نمونهٔ زیر دیده می‌شود. -->
+<div id="live" hidden></div>
+
+<!-- مرحله ۱ -->
+<section id="s1">
+  <div class="card">
+    <div class="eyebrow">۱ از ۲</div>
+    <div class="q">این هفته چند تا می‌توانید بسازید؟</div>
+    <div class="hint">هر چه بگویید، همان می‌شود.</div>
+
+    <div class="nval" id="nv">۶</div>
+    <div class="nunit">باکس در هفته</div>
+    <div class="numrow">
+      <button class="nbtn" onclick="bump(-1)">−</button>
+      <button class="nbtn" onclick="bump(1)">+</button>
+    </div>
+
+    <button class="go" onclick="saveCapacity()">ثبت کن</button>
+    <button class="later" onclick="next(1)">بعداً می‌گویم</button>
+  </div>
+
+  <div class="strip">
+    <div class="sbox"><div class="sv">۴</div><div class="sl">آمادهٔ این هفته</div></div>
+    <div class="sbox"><div class="sv">۲</div><div class="sl">در دست ساخت</div></div>
+    <div class="sbox"><div class="sv">۱۹</div><div class="sl">کل موجودی</div></div>
+  </div>
+</section>
+
+<!-- مرحله ۲ -->
+<section id="s2" style="display:none">
+  <div class="card">
+    <div class="eyebrow">۲ از ۲</div>
+    <div class="q">کدام عکس‌ها خوب‌اند؟</div>
+    <div class="hint">هرکدام را پسندیدید بزنید.</div>
+
+    <div class="photos">
+      <button type="button" class="ph" onclick="pick(this)"><span>🎁</span><span class="tick">✓</span><span class="nm">باکس بهاری F1</span></button>
+      <button type="button" class="ph" onclick="pick(this)"><span>🕯️</span><span class="tick">✓</span><span class="nm">ست شمع F2</span></button>
+      <button type="button" class="ph" onclick="pick(this)"><span>🧺</span><span class="tick">✓</span><span class="nm">سبد دست‌بافت F3</span></button>
+      <button type="button" class="ph" onclick="pick(this)"><span>🌷</span><span class="tick">✓</span><span class="nm">باکس ویژه F4</span></button>
+    </div>
+
+    <button class="go" onclick="next(2)">تمام شد</button>
+    <button class="later" onclick="next(2)">بعداً نگاه می‌کنم</button>
+
+  </div>
+</section>
+
+<!-- پایان -->
+<section id="s3" style="display:none">
+  <div class="card done-card">
+    <div class="done-ic">🌿</div>
+    <div class="done-t">ثبت شد</div>
+    <div class="done-s">کار امروز تمام شد.</div>
+    <div class="thanks">
+      ✨ بیشتر از عددی که گفتید، سفارش گرفته نمی‌شود.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="demo">نمونه</span><br>
+  زیمان · برای ملیحه
+</footer>
+
+</div>
+
+<script>
+/* ── OFN connector ────────────────────────────────────────────────────────
+   Tries the real API. If it is not there — opened as a plain file, or the
+   node is down — the page keeps working on its sample data instead of
+   showing an error. A design preview and the live app are the same file.   */
+const OFN = (() => {
+  let session = null, live = false, why = '';
+  const tg = window.Telegram && window.Telegram.WebApp;
+
+  async function req(path, opts = {}) {
+    const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+    if (session) headers['Authorization'] = 'Bearer ' + session;
+    const r = await fetch(path, { ...opts, headers });
+    if (!r.ok) {
+      const err = new Error('http ' + r.status);
+      err.status = r.status;
+      throw err;
+    }
+    return r.json();
+  }
+
+  return {
+    get live() { return live; },
+    /* Why this page is not live, in words the person holding the phone can
+       act on. "نمونه" alone was the old answer, and it made a node that was
+       down look exactly like a node that was merely being previewed. */
+    get why() { return why; },
+    async connect() {
+      if (!tg || !tg.initData) { why = 'no-shell'; return false; }
+      try {
+        const out = await req('/api/v1/auth/session', {
+          method: 'POST',
+          body: JSON.stringify({ init_data: tg.initData }),
+        });
+        session = out.session; live = true; why = '';
+        return true;
+      } catch (e) {
+        why = (e && e.status === 401) ? 'rejected'
+            : (e && e.status) ? 'error' : 'unreachable';
+        return false;
+      }
+    },
+    get(path) { return req(path); },
+    post(path, body) {
+      return req(path, { method: 'POST', body: JSON.stringify(body) });
+    },
+    /* Telegram chrome: theme, buttons, haptics. All optional — every call is
+       guarded so the page also runs in a plain browser tab. */
+    shell() {
+      if (!tg) return;
+      tg.ready();
+      tg.expand && tg.expand();
+      const apply = () => {
+        const p = tg.themeParams || {};
+        if (p.bg_color) document.documentElement.style.setProperty('--tg-bg', p.bg_color);
+      };
+      apply();
+      tg.onEvent && tg.onEvent('themeChanged', apply);
+    },
+    tap(style = 'light') {
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(style);
+      else if (navigator.vibrate) navigator.vibrate(8);
+    },
+    done(kind = 'success') {
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred(kind);
+      else if (navigator.vibrate) navigator.vibrate([10, 40, 10]);
+    },
+  };
+})();
+
+
+const fa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+const el = (tag, cls, txt) => {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  /* textContent, never innerHTML: every string below arrives from the node,
+     and one of them is a partner's own previous answer. */
+  if (txt != null) n.textContent = txt;
+  return n;
+};
+
+/* ── sample-mode controls ────────────────────────────────────────────────
+   These drive the hard-coded preview cards only. They never post anything;
+   the live flow below is a separate path so that a preview click can never
+   be mistaken for a recorded answer.                                      */
+let cap = 6;
+function bump(d) {
+  cap = Math.max(1, Math.min(60, cap + d));
+  document.getElementById('nv').textContent = fa(cap);
+  OFN.tap();
+}
+function pick(elm) { elm.classList.toggle('pick'); OFN.tap(); }
+
+function next(step) {
+  const cur = document.getElementById('s' + step);
+  const nxt = document.getElementById('s' + (step + 1));
+  if (cur) cur.style.display = 'none';
+  if (nxt) nxt.style.display = '';
+  const dots = document.querySelectorAll('#dots i');
+  if (dots[step - 1]) { dots[step - 1].classList.remove('on'); dots[step - 1].classList.add('done'); }
+  if (dots[step]) dots[step].classList.add('on');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function saveCapacity() { OFN.done(); next(1); }
+
+/* ── live flow ───────────────────────────────────────────────────────────
+   One question per screen, in the order the kernel ranked them. The card is
+   built from what the node sent — the wording lives in the pack, so nothing
+   here needs editing when a business changes what it asks.                */
+const LIVE = document.getElementById('live');
+let queue = [], at = 0;
+
+function setDots(done, total) {
+  const box = document.getElementById('dots');
+  box.textContent = '';
+  for (let i = 0; i < Math.max(total, 1); i++) {
+    const d = el('i');
+    if (i < done) d.classList.add('done');
+    else if (i === done) d.classList.add('on');
+    box.appendChild(d);
+  }
+}
+
+function card(q) {
+  const wrap = el('div', 'card');
+  const eye = el('div', 'eyebrow', `${fa(at + 1)} از ${fa(queue.length)}`);
+  wrap.append(eye, el('div', 'q', q.label));
+  if (q.hint) wrap.append(el('div', 'hint', q.hint));
+  if (!q.has_label) {
+    /* The pack never said how to ask this. Better to admit it than to show a
+       fact key as though it were a sentence. */
+    wrap.append(el('div', 'hint', 'متن این سؤال هنوز در پک نوشته نشده.'));
+  }
+
+  const err = el('div', 'err');
+  err.hidden = true;
+  let read = () => null;
+
+  if (q.kind === 'number') {
+    const lo = q.min != null ? q.min : 0;
+    const hi = q.max != null ? q.max : 1e9;
+    let val = q.default != null ? q.default : Math.max(lo, 1);
+    const out = el('div', 'nval', fa(val));
+    out.setAttribute('aria-live', 'polite');
+    const row = el('div', 'numrow');
+    const step = (d) => {
+      val = Math.max(lo, Math.min(hi, val + d));
+      out.textContent = fa(val);
+      OFN.tap();
+    };
+    const minus = el('button', 'nbtn', '−');
+    minus.type = 'button';
+    minus.setAttribute('aria-label', 'کمتر');
+    minus.onclick = () => step(-1);
+    const plus = el('button', 'nbtn', '+');
+    plus.type = 'button';
+    plus.setAttribute('aria-label', 'بیشتر');
+    plus.onclick = () => step(1);
+    row.append(minus, plus);
+    wrap.append(out);
+    if (q.unit) wrap.append(el('div', 'nunit', q.unit));
+    wrap.append(row);
+    read = () => val;
+
+  } else if (q.kind === 'choice') {
+    const box = el('div', 'choices');
+    let chosen = null;
+    (q.options || []).forEach(opt => {
+      const b = el('button', 'choice');
+      b.type = 'button';
+      b.append(el('span', 'mark', '✓'), el('span', null, opt));
+      b.onclick = () => {
+        box.querySelectorAll('.choice').forEach(x => {
+          x.classList.remove('pick');
+          x.setAttribute('aria-pressed', 'false');
+        });
+        b.classList.add('pick');
+        b.setAttribute('aria-pressed', 'true');
+        chosen = opt;
+        OFN.tap();
+      };
+      b.setAttribute('aria-pressed', 'false');
+      box.append(b);
+    });
+    wrap.append(box);
+    read = () => chosen;
+
+  } else if (q.kind === 'confirm') {
+    const box = el('div', 'choices');
+    let chosen = null;
+    [['بله', true], ['نه', false]].forEach(([txt, v]) => {
+      const b = el('button', 'choice');
+      b.type = 'button';
+      b.append(el('span', 'mark', '✓'), el('span', null, txt));
+      b.onclick = () => {
+        box.querySelectorAll('.choice').forEach(x => x.classList.remove('pick'));
+        b.classList.add('pick');
+        chosen = v;
+        OFN.tap();
+      };
+      box.append(b);
+    });
+    wrap.append(box);
+    read = () => chosen;
+
+  } else {
+    const ta = el('textarea', 'ta');
+    ta.placeholder = q.placeholder || '';
+    ta.setAttribute('aria-label', q.label);
+    wrap.append(ta);
+    read = () => ta.value.trim() || null;
+  }
+
+  const go = el('button', 'go', 'ثبت کن');
+  go.type = 'button';
+  go.onclick = async () => {
+    const value = read();
+    if (value === null || value === '') {
+      err.textContent = 'اول یک جواب انتخاب کنید.';
+      err.hidden = false;
+      return;
+    }
+    err.hidden = true;
+    go.disabled = true;
+    go.textContent = 'در حال ثبت…';
+    try {
+      const out = await OFN.post('/api/v1/answers', { key: q.key, value });
+      if (!out.ok) {
+        /* The node rejected it — a value outside the range the pack declared,
+           or a question that is no longer being asked. Say which. */
+        err.textContent = out.error || 'ثبت نشد.';
+        err.hidden = false;
+        go.disabled = false;
+        go.textContent = 'دوباره';
+        return;
+      }
+      OFN.done();
+      queue = out.remaining || [];
+      at = 0;
+      if (out.readiness) setDots(out.readiness.done, out.readiness.total);
+      draw();
+    } catch (e) {
+      /* A session lasts an hour. Calling that "not connected" sends a partner
+         looking for a network problem that is not there. */
+      err.textContent = e && e.status === 401
+        ? 'وقت این صفحه تمام شد. جواب شما ثبت نشده — برنامه را ببندید و دوباره باز کنید.'
+        : 'به نود وصل نشد. جواب شما ثبت نشده — دوباره بزنید.';
+      err.hidden = false;
+      go.disabled = false;
+      go.textContent = 'دوباره';
+    }
+  };
+
+  const later = el('button', 'later', 'بعداً می‌گویم');
+  later.type = 'button';
+  later.onclick = () => { at += 1; draw(); };
+
+  wrap.append(go, later, err);
+  return wrap;
+}
+
+function draw() {
+  LIVE.textContent = '';
+  if (at >= queue.length) {
+    const done = el('div', 'card done-card');
+    done.append(el('div', 'done-ic', '🌿'),
+                el('div', 'done-t', queue.length ? 'برای امروز کافی است' : 'ثبت شد'),
+                el('div', 'done-s', 'کار امروز تمام شد.'),
+                el('div', 'thanks', '✨ بیشتر از عددی که گفتید، سفارش گرفته نمی‌شود.'));
+    LIVE.append(done);
+    return;
+  }
+  LIVE.append(card(queue[at]));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── boot ────────────────────────────────────────────────────────────────
+   Three outcomes, three different screens. The one thing that never happens
+   is sample data quietly standing in for real data.                       */
+const REASONS = {
+  'no-shell': ['نمونه', 'این صفحه <b>نمونه</b> است. جواب‌هایی که اینجا می‌زنید هیچ‌جا ثبت نمی‌شود — نسخهٔ زنده از داخل تلگرام باز می‌شود.'],
+  'unreachable': ['قطع', 'به دستگاه وصل نشد. چیزی که می‌بینید <b>نمونه</b> است، نه وضعیت واقعی کسب‌وکار شما.'],
+  'rejected': ['ورود نشد', 'دستگاه این ورود را نپذیرفت. به آری بگویید — چیزی که می‌بینید <b>نمونه</b> است.'],
+  'error': ['خطا', 'دستگاه جواب داد ولی با خطا. چیزی که می‌بینید <b>نمونه</b> است.'],
+};
+
+function showState(kind) {
+  const [tag, text] = REASONS[kind] || REASONS['error'];
+  const badge = document.querySelector('.demo');
+  if (badge) { badge.textContent = tag; badge.classList.add('offline'); }
+  const box = document.getElementById('state');
+  box.hidden = false;
+  box.className = 'state warn';
+  box.textContent = '';
+  const p = el('div');
+  p.innerHTML = text;   // fixed strings above, no data interpolated
+  box.append(p);
+  if (kind !== 'no-shell') {
+    const retry = el('button', null, 'دوباره تلاش کن');
+    retry.type = 'button';
+    retry.onclick = () => location.reload();
+    box.append(retry);
+  }
+  /* A preview must not look operable. Every control in the sample cards is
+     disabled, because a partner tapping "ثبت کن" and seeing it succeed is how
+     a business decision gets made against a number nobody recorded. */
+  document.querySelectorAll('#s1 button, #s2 button, .ph').forEach(b => {
+    b.disabled = true;
+    b.style.opacity = '.55';
+    b.style.pointerEvents = 'none';
+  });
+}
+
+async function boot() {
+  OFN.shell();
+  const connected = await OFN.connect();
+  if (!connected) { showState(OFN.why); return; }
+
+  const badge = document.querySelector('.demo');
+  if (badge) { badge.textContent = 'زنده'; badge.classList.add('livebadge'); }
+
+  let status, qs;
+  try {
+    [status, qs] = await Promise.all([
+      OFN.get('/api/v1/status'), OFN.get('/api/v1/questions'),
+    ]);
+  } catch (_) { showState('unreachable'); return; }
+
+  ['s1', 's2', 's3'].forEach(id => {
+    const s = document.getElementById(id);
+    if (s) s.style.display = 'none';
+  });
+  LIVE.hidden = false;
+
+  queue = qs.questions || [];
+  at = 0;
+  const head = document.querySelector('.date');
+  if (head) {
+    head.textContent = queue.length
+      ? `امروز فقط ${fa(queue.length)} سؤال` : 'امروز سؤالی نیست';
+  }
+  if (status.readiness) setDots(status.readiness.done, status.readiness.total);
+  if (status.safe_mode) {
+    const box = document.getElementById('state');
+    box.hidden = false;
+    box.className = 'state warn';
+    box.textContent = 'دستگاه در حالت ایمن است. جواب‌ها ثبت می‌شوند ولی هیچ کاری بیرون نمی‌رود.';
+  }
+  draw();
+}
+document.addEventListener('DOMContentLoaded', boot);
+</script>
+</body>
+</html>

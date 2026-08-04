@@ -1,0 +1,66 @@
+# ═══════════════════════════════════════════════════════════════════════
+# pack: ziman — gift gallery, handmade, capacity-bound
+# partner-facing app: warm, one question per screen
+# ═══════════════════════════════════════════════════════════════════════
+tenant: ziman
+
+# Owner-confirmed 2026-08-03 as a range of 6-10. The operational ceiling is
+# the FLOOR of that range, not the middle and certainly not the top: a system
+# that promises 10 and delivers 6 has manufactured a broken promise out of an
+# optimistic reading of its own config.
+capacity_units_per_week: 6
+
+# Definition of Ready. Until each of these exists at the stated confidence,
+# any action that leaves the node is forced to RED.
+required_facts:
+  offer.cogs_per_family: owner_confirmed
+  ops.delivery_model: owner_confirmed
+  ops.capacity_by_family: measured
+
+# How each fact is asked, in Maliheh's words. The kernel decides *which* of
+# these to ask and when; it has no business inventing the sentence. A fact
+# with no wording here still gets asked — the shell shows the bare key, which
+# is deliberately ugly so that a missing sentence gets noticed and written.
+questions:
+  ops.capacity_by_family:
+    label: این هفته چند تا می‌توانید بسازید؟
+    hint: هر چه بگویید، همان می‌شود. بیشتر از آن سفارش گرفته نمی‌شود.
+    unit: باکس در هفته
+    min: 1
+    max: 60
+    default: 6
+  offer.cogs_per_family:
+    label: ساخت هر باکس چقدر برایتان خرج برمی‌دارد؟
+    hint: فقط مواد و بسته‌بندی. وقتِ خودتان را حساب نکنید.
+    unit: دلار برای هر باکس
+    min: 1
+    max: 500
+    default: 25
+  ops.delivery_model:
+    label: تحویل را چطور انجام می‌دهید؟
+    hint: این تعیین می‌کند چه چیزی به مشتری قول داده شود.
+    options:
+      - پست
+      - تحویل حضوری
+      - هر دو
+
+gates:
+  - capacity
+  - budget
+  - claim
+  - consent
+  - asset
+  - publish
+  - secret_rotation
+
+# Overrides may only raise a tier, never lower it. Listed here for the
+# actions where the generic rules would land too low.
+risk_overrides:
+  publish_price: red
+  confirm_order: red
+  send_dm_reply: yellow
+  ask_partner_question: yellow
+  classify_inbound: green
+  draft_caption: green
+
+quota_share: 0.40

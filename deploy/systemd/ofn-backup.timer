@@ -1,0 +1,13 @@
+# /etc/systemd/system/ofn-backup.timer
+[Unit]
+Description=Nightly OFN backup
+
+[Timer]
+OnCalendar=*-*-* 03:17:00
+# If the board was off or rebooting at 03:17, run on the next boot. Without
+# this, an unreliable-power site silently stops taking backups.
+Persistent=true
+RandomizedDelaySec=600
+
+[Install]
+WantedBy=timers.target

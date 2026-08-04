@@ -1,0 +1,47 @@
+# ═══════════════════════════════════════════════════════════════════════
+# pack: studio — content production for a brand that is not yet public
+# partner-facing app: dark, calendar-led
+#
+# This pack is deliberately the most locked of the three. A precondition is
+# unresolved, so every outbound path is closed. That is not a bug being
+# worked around — the closed gate below is what keeps it closed, and the
+# gate is listed here precisely so the kernel can escalate on it.
+# ═══════════════════════════════════════════════════════════════════════
+tenant: studio
+
+capacity_units_per_week: 5
+
+required_facts:
+  ops.publication_precondition: owner_confirmed
+  brand.identity: owner_confirmed
+
+# Both of these are answered once and then rarely again. The publication
+# precondition is the one the closed gate is waiting on, so its wording says
+# plainly what it unlocks rather than hiding behind the fact name.
+questions:
+  ops.publication_precondition:
+    label: پیش‌شرط انتشار چیست و چه زمانی برطرف می‌شود؟
+    hint: تا این ثبت نشود، هیچ چیزی از استودیو بیرون نمی‌رود.
+    placeholder: مثلاً — بعد از تأیید نهایی در تاریخ ...
+  brand.identity:
+    label: برند در یک جمله چیست؟
+    hint: همان جمله‌ای که می‌خواهید مخاطب بعد از دیدن صفحه به یاد بیاورد.
+    placeholder: مثلاً — ...
+
+gates:
+  - budget
+  - claim
+  - consent
+  - publish
+  - partner_precondition     # currently CLOSED node-wide
+  - secret_rotation
+
+risk_overrides:
+  publish_post: red
+  publish_story: red
+  send_dm: red
+  ask_partner_question: yellow
+  draft_content: green
+  schedule_draft: green
+
+quota_share: 0.20
