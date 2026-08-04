@@ -124,6 +124,27 @@ SCHEMA = (
         last      INTEGER NOT NULL DEFAULT 0
     )
     """,
+    # Which photo slots a piece has. The paths are NOT stored: they are
+    # derived from (tenant, slug, position, edge) by `kernel/photos.py`, so
+    # there is one place that decides where a file lives. A stored path is a
+    # second copy of that decision, and the two disagree the first time the
+    # layout changes.
+    #
+    # `product_photos` above is left alone and unused. It was built for three
+    # sizes including an archived original, which D-A settled against: the
+    # original stays on her phone. Dropping it would rewrite the table for no
+    # gain, and an unread table costs nothing.
+    """
+    CREATE TABLE IF NOT EXISTS product_media (
+        sku       TEXT    NOT NULL,
+        tenant_id TEXT    NOT NULL,
+        position  INTEGER NOT NULL CHECK (position >= 0),
+        mime      TEXT    NOT NULL DEFAULT 'image/jpeg',
+        byte_size INTEGER NOT NULL DEFAULT 0,
+        added_at  TEXT    NOT NULL,
+        PRIMARY KEY (tenant_id, sku, position)
+    )
+    """,
     "CREATE UNIQUE INDEX IF NOT EXISTS products_sku "
     "ON products (tenant_id, sku)",
     "CREATE INDEX IF NOT EXISTS products_tenant ON products (tenant_id)",
@@ -177,6 +198,21 @@ def _seed_sku_high_water(conn) -> None:
             "INSERT INTO sku_high_water (tenant_id, last) VALUES (?, ?) "
             "ON CONFLICT(tenant_id) DO UPDATE SET last = MAX(last, excluded.last)",
             (tenant, last))
+
+
+def piece_slug(sku: str) -> str:
+    """A SKU as a path component.
+
+    `ZM-0001` is what she reads on the phone; `zm-0001` is what may be a
+    directory. The path validator refuses upper case on purpose — on a
+    case-insensitive filesystem `ZM-0001` and `zm-0001` are one directory,
+    so folding silently merges two pieces rather than rejecting one.
+
+    Converted here, once, rather than at each call site. A call site that
+    converts is a call site that can forget to, and this one would have
+    failed on the first real photo.
+    """
+    return str(sku or "").strip().lower()
 
 
 def _add_archive_column(conn) -> None:
@@ -521,6 +557,48 @@ class ProductStore:
         return self._conn.execute(
             "SELECT count(*) FROM product_photos WHERE product_id = ?",
             (product_id,)).fetchone()[0]
+
+    # ── photos ────────────────────────────────────────────────────────────
+    def attach_media(self, tenant: str, sku: str, position: int, *,
+                     mime: str, byte_size: int, now_iso: str) -> None:
+        """Record that a piece has a photo in this slot.
+
+        Refuses a piece that does not exist, because a media row pointing at
+        nothing is a file nothing will ever clean up — and for a photo of
+        somebody's work that is a file nobody knows they still have.
+        """
+        if isinstance(position, bool) or not isinstance(position, int):
+            raise ProductError(f"موقعیت باید عدد باشد: {position!r}")
+        if not 0 <= position < MAX_PHOTOS_PER_PRODUCT:
+            raise ProductError(
+                f"هر قطعه حداکثر {MAX_PHOTOS_PER_PRODUCT} عکس می‌گیرد")
+        if self.get(tenant, sku) is None:
+            raise ProductError(f"قطعه‌ای با کد «{sku}» پیدا نشد")
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            self._conn.execute(
+                "INSERT INTO product_media (sku, tenant_id, position, mime, "
+                "byte_size, added_at) VALUES (?, ?, ?, ?, ?, ?) "
+                "ON CONFLICT(tenant_id, sku, position) DO UPDATE SET "
+                "mime = excluded.mime, byte_size = excluded.byte_size, "
+                "added_at = excluded.added_at",
+                (sku, tenant, position, mime, int(byte_size), now_iso))
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+
+    def media_of(self, tenant: str, sku: str) -> list[int]:
+        """Which slots are filled, in order."""
+        return [int(r[0]) for r in self._conn.execute(
+            "SELECT position FROM product_media WHERE tenant_id = ? "
+            "AND sku = ? ORDER BY position", (tenant, sku))]
+
+    def media_counts(self, tenant: str) -> dict[str, int]:
+        """How many photos each piece has, for the list screen."""
+        return {str(r[0]): int(r[1]) for r in self._conn.execute(
+            "SELECT sku, COUNT(*) FROM product_media WHERE tenant_id = ? "
+            "GROUP BY sku", (tenant,))}
 
     def recompute_cogs(self, tenant: str, sku: str) -> float:
         """Cost as the formula says it should be, from the row's own inputs.

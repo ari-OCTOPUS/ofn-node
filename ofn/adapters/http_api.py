@@ -143,6 +143,7 @@ class ApiApp:
         products_for: Callable[[TenantScope], dict] | None = None,
         create_product: Callable[[TenantScope, str, dict], dict] | None = None,
         update_product: Callable[[TenantScope, str, str, dict], dict] | None = None,
+        attach_photo: Callable[[TenantScope, str, str, dict], dict] | None = None,
         studio_board: Callable[[TenantScope], dict] | None = None,
         create_draft: Callable[[TenantScope, str, dict], dict] | None = None,
         attach_media: Callable[[TenantScope, str, str, dict], dict] | None = None,
@@ -158,6 +159,7 @@ class ApiApp:
     ) -> None:
         self._registry = registry
         self._hosts = hosts
+        self._attach_photo = attach_photo
         self._brain_status = brain_status
         self._brain_probe = brain_probe
         self._owner_ask = owner_ask
@@ -331,6 +333,16 @@ class ApiApp:
             if data is None:
                 return Response(400, {"error": "bad request"})
             out = self._create_product(scope, p.user_id, data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path.startswith("/api/v1/products/") \
+                and path.endswith("/photos"):
+            sku = path[len("/api/v1/products/"):-len("/photos")]
+            if not sku or "/" in sku or self._attach_photo is None:
+                return Response(404, {"error": "not found"})
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            out = self._attach_photo(scope, p.user_id, sku, data)
             return Response(200 if out.get("ok") else 400, out)
         if method == "POST" and path.startswith("/api/v1/products/"):
             sku = path[len("/api/v1/products/"):]
@@ -532,7 +544,8 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
             # The photo route carries base64, which is one third larger than
             # the image. Raised here and only here: lifting the global limit
             # to fit a photo would lift it for every other endpoint too.
-            cap = (MAX_MEDIA_BODY_BYTES if path_now.endswith("/media")
+            cap = (MAX_MEDIA_BODY_BYTES
+                   if path_now.endswith(("/media", "/photos"))
                    else MAX_BODY_BYTES)
             if length > cap:
                 self._send(Response(413, {"error": "payload too large"}))

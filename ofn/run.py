@@ -141,6 +141,7 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         products_for=node.products_for,
         create_product=node.create_product,
         update_product=node.update_product,
+        attach_photo=node.attach_product_photo,
         studio_board=node.studio_board,
         create_draft=node.create_draft,
         attach_media=node.attach_media,

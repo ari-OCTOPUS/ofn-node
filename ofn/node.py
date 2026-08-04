@@ -23,7 +23,7 @@ from .adapters.facts import FactStore
 from .adapters.ledger import Ledger
 from .adapters.outbox import Outbox
 from .adapters.products import (ProductError, ProductStore, money_view,
-                                net_margin_aud, verdicts)
+                                net_margin_aud, piece_slug, verdicts)
 from .adapters.studio_store import StudioError
 from .kernel.consent import may_publish, subjects_needing_attention
 from .kernel.domain import (
@@ -581,6 +581,11 @@ class Node:
         # One computation, one answer. The screen, the export and the verdict
         # all read these, so they cannot drift apart.
         out.update(view)
+        # Which photo slots this piece has. Sent with the row rather than
+        # fetched separately, so the shell cannot render a piece whose photo
+        # count belongs to a different one.
+        out["photos"] = (self.products.media_of(p.tenant_id, p.sku)
+                         if self.products is not None else [])
         out["verdicts"] = list(verdicts(
             p, today, stale_after_days=stale_after,
             quick_sale_days=pack.quick_sale_days,
@@ -660,6 +665,52 @@ class Node:
                         for k in piece.__dataclass_fields__ if k != "id"},
         }, self.now_iso())
         return {"ok": True, "sku": piece.sku, "name": piece.name}
+
+    def attach_product_photo(self, scope: TenantScope, user_id: str, sku: str,
+                             body: Mapping[str, object]) -> dict:
+        """Store the two browser-made renditions of one photo of a piece.
+
+        The original is not kept — D-A settled that: it stays on her phone,
+        which is the one place it is already backed up and the one place a
+        theft of this board cannot reach.
+
+        The piece must exist first. A media row pointing at nothing is a file
+        nothing will ever clean up, and for a photo of somebody's work that
+        is a file nobody knows they still have.
+        """
+        if self.products is None or self.media is None:
+            raise ProductError("انبار محصولات در دسترس نیست")
+        tenant = scope.tenant.value
+        piece = self.products.get(tenant, sku)
+        if piece is None:
+            return {"ok": False, "error": f"قطعه‌ای با کد «{sku}» پیدا نشد"}
+        # `ZM-0001` is what she reads; `zm-0001` is what may be a directory.
+        slug = piece_slug(sku)
+        try:
+            position = body.get("position", 0)
+            renditions = body.get("renditions") or {}
+            if not isinstance(renditions, Mapping):
+                raise FailClosedError("renditions must be an object")
+            written = {}
+            for edge in ALLOWED_EDGES:
+                text = renditions.get(str(edge))
+                if not text:
+                    raise FailClosedError(f"اندازهٔ {edge} نیامده")
+                payload = photo_inspect(str(text))
+                written[edge] = self.media.write_rendition(
+                    tenant, slug, position, edge, payload)
+            biggest = photo_inspect(str(renditions[str(max(ALLOWED_EDGES))]))
+            self.products.attach_media(
+                tenant, sku, position, mime=biggest.media_type,
+                byte_size=biggest.max_decoded_bytes,
+                now_iso=self.now_iso())
+        except (FailClosedError, ProductError) as exc:
+            return {"ok": False, "error": str(exc)}
+        self.ledger.append(scope, "PRODUCT_PHOTO", {
+            "sku": sku, "position": position, "actor": f"partner:{user_id}",
+        }, self.now_iso())
+        return {"ok": True, "position": position,
+                "photos": self.products.media_of(tenant, sku)}
 
     def update_product(self, scope: TenantScope, user_id: str, sku: str,
                        body: Mapping[str, object]) -> dict:

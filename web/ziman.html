@@ -1007,6 +1007,59 @@ function pieceRow(p) {
   return box;
 }
 
+
+/* ── photos of a piece ───────────────────────────────────────────────────
+   The original stays on her phone (D-A). Two renditions are built here and
+   sent; nothing else leaves. A failed upload does not touch the piece —
+   it is already saved, which is the whole reason recording is one step. */
+const EDGES = [1600, 320];
+let uploading = false;
+
+async function renditionsOf(file) {
+  let bmp;
+  try {
+    /* Without `from-image` a portrait photo from a phone lands sideways —
+       and only real photos, because a synthetic file has no EXIF at all. */
+    bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+  } catch (_) {
+    bmp = await createImageBitmap(file);
+  }
+  const out = {};
+  for (const edge of EDGES) {
+    const scale = Math.min(1, edge / Math.max(bmp.width, bmp.height));
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(bmp.width * scale));
+    c.height = Math.max(1, Math.round(bmp.height * scale));
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    out[String(edge)] = c.toDataURL('image/jpeg', 0.82);
+  }
+  bmp.close && bmp.close();
+  return out;
+}
+
+async function addPhoto(piece, file, say) {
+  if (uploading || !file) return;
+  uploading = true;
+  /* Resizing a 12MP photo is not instant on this hardware, and a silent
+     wait is the failure that reads as a broken app. */
+  say('در حال آماده کردن عکس…');
+  try {
+    const renditions = await renditionsOf(file);
+    say('در حال فرستادن…');
+    const out = await OFN.post(
+      '/api/v1/products/' + encodeURIComponent(piece.sku) + '/photos',
+      { position: (piece.photos || []).length, renditions });
+    if (!out.ok) { say(out.error || 'عکس ذخیره نشد.'); uploading = false; return; }
+    OFN.done();
+    await load();
+  } catch (e) {
+    say(e && e.status === 401
+        ? 'وقت این صفحه تمام شد. ببندید و دوباره باز کنید.'
+        : 'به دستگاه وصل نشد. قطعه سر جایش است.');
+  }
+  uploading = false;
+}
+
 function openPiece(p) {
   PIECES.textContent = '';
   const box = el('div', 'step');
@@ -1036,6 +1089,27 @@ function openPiece(p) {
       'این عدد فقط مواد و بسته‌بندی را پوشش می‌دهد. وقتی که روی این قطعه '
       + 'گذاشته‌اید در آن حساب نشده.'));
   }
+  /* One action, on the piece it belongs to. The original is not asked for
+     and not sent — it stays on her phone, which is where it is already
+     backed up. */
+  const shot = el('div', 'guide');
+  const pick = el('input');
+  pick.type = 'file';
+  pick.accept = 'image/*';
+  pick.hidden = true;
+  pick.onchange = ev => {
+    const file = ev.target.files && ev.target.files[0];
+    ev.target.value = '';
+    addPhoto(p, file, t => { shot.textContent = t; });
+  };
+  const shotBtn = el('button', 'later',
+    (p.photos && p.photos.length)
+      ? 'عکس دیگر  ·  ' + fa(p.photos.length) + ' عکس دارد'
+      : '＋  عکس این قطعه');
+  shotBtn.type = 'button';
+  shotBtn.onclick = () => { OFN.tap(); pick.click(); };
+  box.append(shotBtn, pick, shot);
+
   if (p.net_margin_blocked) {
     box.append(el('div', 'guide',
       'سود خالص این فروش حساب نشد: کارمزد این کانال هنوز ثبت نشده.'));
