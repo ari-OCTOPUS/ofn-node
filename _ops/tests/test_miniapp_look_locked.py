@@ -183,12 +183,26 @@ def t_the_write_path_never_reports_optimistically():
     موتور شش وضعِ متفاوت برمی‌گرداند و DUPLICATE یعنی «قبلاً همین ثبت شده»
     نه «انجام شد». اگر همه یک شکل نشان داده شوند، همان کارتِ رسیدِ جعلی
     ساخته می‌شود که مالک را یک بار گمراه کرد.
+
+    ⚠️ نسخهٔ اولِ این assert دو جهش را زنده گذاشت و هر دو ضعفِ خودش بود:
+    `st in body` با `XDUPLICATE` هم پاس می‌شد (تلهٔ زیررشته‌ای — همان که این
+    مخزن بارها خورده)، و `'"bad"' in body` با عوض‌کردنِ لحنِ BLOCKED هم پاس
+    می‌ماند چون DENIED هنوز "bad" بود. حالا نگاشت واقعاً parse می‌شود و
+    ادعا **معنایی** است نه متنی.
     """
     m = re.search(r"var\s+ACT_TONE\s*=\s*\{([^}]*)\}", JS)
     assert m, "‏ACT_TONE پیدا نشد"
+    pairs = dict(re.findall(r'(\w+)\s*:\s*"(\w+)"', m.group(1)))
     for st in ("APPLIED", "DUPLICATE", "BLOCKED", "DENIED", "ERROR"):
-        assert st in m.group(1), f"وضعِ {st} در رسید نگاشت ندارد"
-    assert '"ok"' in m.group(1) and '"bad"' in m.group(1),         "همهٔ وضع‌ها یک لحن دارند — یعنی رسید تفکیک نمی‌کند"
+        assert st in pairs, f"وضعِ {st} در رسید نگاشت ندارد (کلیدها: {sorted(pairs)})"
+    # ادعای معناییِ باربر: «ثبت شد» و «قبلاً بود» و «رد شد» باید سه چیزِ
+    # متفاوت دیده شوند. اگر دوتایشان یکی شود، رسید دیگر تفکیک نمی‌کند.
+    assert pairs["DUPLICATE"] != pairs["APPLIED"], (
+        f"‏DUPLICATE مثلِ APPLIED رندر می‌شود ({pairs['APPLIED']}) — "
+        "«شد» و «قبلاً بود» یکی شدند")
+    for st in ("BLOCKED", "DENIED", "ERROR"):
+        assert pairs[st] != pairs["APPLIED"], (
+            f"وضعِ {st} با لحنِ موفقیت ({pairs['APPLIED']}) رندر می‌شود")
 
 
 if __name__ == "__main__":
