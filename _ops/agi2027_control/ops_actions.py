@@ -274,23 +274,46 @@ class OpsActionEngine:
         key = action_id or f"ops:{action}:{stable_hash(payload)}"
         begin = self.idem.begin(key, {"action": action, "payload": payload})
         if begin["state"] == "DUPLICATE":
-            return {"ok": True, "status": "DUPLICATE", "action": action, "action_id": key, "result": begin.get("result")}
+            # ⚠️ `ok` دیگر کوبیده نیست. تلاشِ قبلی ممکن است BLOCKED یا DENIED
+            # بوده باشد؛ اگر این‌جا همیشه True برگردانیم، یک شکستِ ثبت‌شده را
+            # به موفقیت **پول‌شویی** کرده‌ایم و UI رویش اقدام می‌کند.
+            prev = begin.get("result")
+            prev_ok = bool(prev.get("ok")) if isinstance(prev, dict) else True
+            return {"ok": prev_ok, "status": "DUPLICATE", "action": action,
+                    "action_id": key, "result": prev}
         if begin["state"] in {"CONFLICT", "BLOCKED"}:
             return {"ok": False, "status": begin["state"], "action": action, "idempotency": begin}
-        if action == "lead.create":
-            res = self.db.create_lead(payload)
-        elif action == "lead.add_note":
-            res = self.db.add_note(payload)
-        elif action == "lead.update_stage":
-            res = self.db.update_stage(payload)
-        elif action == "task.create":
-            res = self.db.create_task(payload)
-        elif action == "task.done":
-            res = self.db.task_done(payload)
-        elif action == "value.record_event":
-            res = self.db.record_value(payload)
-        else:
-            res = {"ok": False, "status": "BLOCKED", "reason": "unreachable_action"}
+        # RETRY = تلاشِ قبلی هرگز settle نشد ⇒ مثلِ NEW جلو می‌رویم (پایین).
+        try:
+            if action == "lead.create":
+                res = self.db.create_lead(payload)
+            elif action == "lead.add_note":
+                res = self.db.add_note(payload)
+            elif action == "lead.update_stage":
+                res = self.db.update_stage(payload)
+            elif action == "task.create":
+                res = self.db.create_task(payload)
+            elif action == "task.done":
+                res = self.db.task_done(payload)
+            elif action == "value.record_event":
+                res = self.db.record_value(payload)
+            else:
+                res = {"ok": False, "status": "BLOCKED", "reason": "unreachable_action"}
+        except Exception as exc:  # noqa: BLE001 — عمداً وسیع
+            # ⚠️ بدونِ این، هر استثنا ردیفِ idempotency را برای همیشه RUNNING
+            # می‌گذاشت. مسیرهای واقعیِ ترکیدن که سنجیده شدند:
+            # `float(output_score)` و `int(priority)` روی ورودیِ متنیِ کاربر،
+            # و قفلِ sqlite روی دیسکِ مکانیکیِ این دستگاه.
+            # حالا شکست **ثبت** می‌شود: ردیف settle می‌شود، ممیزی خط می‌گیرد،
+            # و تلاشِ بعدی واقعاً دوباره اجرا می‌شود.
+            res = {"ok": False, "status": "ERROR", "reason": type(exc).__name__,
+                   "detail": str(exc)[:200]}
+            self.idem.settle(key, "ERROR", res)
+            self.audit.append({"event": "ops_action", "action": action, "action_id": key,
+                               "ok": False, "status": "ERROR", "result": res})
+            res.setdefault("action", action)
+            res.setdefault("action_id", key)
+            return res
         res = dict(res)
         res.setdefault("action", action)
         res.setdefault("action_id", key)

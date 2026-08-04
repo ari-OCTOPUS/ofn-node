@@ -119,6 +119,30 @@ class IdempotencyStore:
                 return {"state": "BLOCKED", "reason": "idempotency_row_missing"}
             old_hash, status, result_json = row
             if old_hash == h:
+                # ⚠️ ۲۰۲۶-۰۸-۰۵ — ردیفِ مسمومِ RUNNING.
+                #
+                # `begin` ردیف را با status=RUNNING و result_json=NULL می‌سازد و
+                # `settle` فقط **بعد از** اجرای موفق صدا زده می‌شود. اگر بینِ این
+                # دو چیزی بترکد (ValueError روی ورودیِ کاربر، قفلِ sqlite، کشته‌شدنِ
+                # پروسه) ردیف تا ابد RUNNING/NULL می‌ماند.
+                #
+                # قبلاً همین حالت DUPLICATE برمی‌گشت، و صداکننده‌ها DUPLICATE را
+                # موفقیت می‌شمارند. نتیجه: کاری که **هرگز انجام نشد** برای همیشه
+                # «قبلاً ثبت شده» گزارش می‌شد — و چون کلیدِ مینی‌اپ قطعی است، از
+                # UI هیچ راهِ بازیابی نبود. راستی‌آزما این را روی یک پایگاهِ موقت
+                # اندازه گرفت: صفر ردیفِ داده، صفر خطِ ممیزی، و ok:true.
+                #
+                # ردیفِ RUNNING با نتیجهٔ تهی **شاهدِ نرسیدن** است، نه شاهدِ تکرار.
+                # «تمام‌شده» یعنی یک **تصمیم** گرفته شده — APPLIED/DONE (انجام شد)
+                # یا BLOCKED/DENIED (رد شد). این‌ها واقعاً تکراری‌اند.
+                # ولی RUNNING ِ بی‌نتیجه (کسی وسطِ کار مرد) و ERROR (تلاش
+                # ترکید) هیچ‌کدام تصمیم نیستند؛ تکرارشان باید **دوباره اجرا**
+                # شود. اگر شکست قطعی باشد، دوباره همان خطا را می‌گیرد — که
+                # از «قبلاً ثبت شده»ی دروغین بی‌نهایت بهتر است.
+                if (status == "RUNNING" and not result_json) or status == "ERROR":
+                    return {"state": "RETRY", "payload_hash": h, "status": status,
+                            "reason": ("previous_attempt_never_settled"
+                                       if status == "RUNNING" else "previous_attempt_errored")}
                 return {"state": "DUPLICATE", "payload_hash": h, "status": status,
                         "result": json.loads(result_json) if result_json else None}
             return {"state": "CONFLICT", "payload_hash": h, "existing_hash": old_hash, "status": status}

@@ -94,12 +94,39 @@ class TestG03WriteAhead(unittest.TestCase):
 
 class TestIdempotencyAndPolicy(unittest.TestCase):
     def test_duplicate_vs_conflict(self):
+        """⚠️ ۲۰۲۶-۰۸-۰۵: این تست رفتارِ **باگ‌دار** را pin کرده بود.
+
+        قبلاً `begin` را دو بار صدا می‌زد و DUPLICATE انتظار داشت — بدونِ
+        اینکه بینشان `settle` بزند. ولی ردیفی که settle نشده یعنی کارِ قبلی
+        هرگز تمام نشد؛ خواندنش به‌عنوان «تکراری» باعث می‌شد یک اقدامِ
+        ترکیده تا ابد «قبلاً ثبت شده» گزارش شود.
+
+        حالا هر دو حالت جدا سنجیده می‌شوند: settle‌شده ⇒ DUPLICATE، و
+        RUNNING ِ بی‌نتیجه ⇒ RETRY.
+        """
         with tempfile.TemporaryDirectory() as d:
             idem = IdempotencyStore(Path(d) / "idem.sqlite3")
             try:
                 self.assertEqual(idem.begin("act", {"x": 1})["state"], "NEW")
+                # هنوز settle نشده ⇒ قابلِ تلاشِ دوباره، نه تکراری
+                self.assertEqual(idem.begin("act", {"x": 1})["state"], "RETRY")
+                idem.settle("act", "APPLIED", {"ok": True})
+                # حالا که نتیجه دارد ⇒ واقعاً تکراری
                 self.assertEqual(idem.begin("act", {"x": 1})["state"], "DUPLICATE")
                 self.assertEqual(idem.begin("act", {"x": 2})["state"], "CONFLICT")
+            finally:
+                idem.close()
+
+    def test_settled_duplicate_returns_the_stored_result(self):
+        """‏DUPLICATE باید نتیجهٔ ذخیره‌شده را برگرداند نه تهی."""
+        with tempfile.TemporaryDirectory() as d:
+            idem = IdempotencyStore(Path(d) / "idem.sqlite3")
+            try:
+                idem.begin("a2", {"x": 1})
+                idem.settle("a2", "BLOCKED", {"ok": False, "reason": "invalid_task_kind"})
+                got = idem.begin("a2", {"x": 1})
+                self.assertEqual(got["state"], "DUPLICATE")
+                self.assertEqual(got["result"], {"ok": False, "reason": "invalid_task_kind"})
             finally:
                 idem.close()
 
