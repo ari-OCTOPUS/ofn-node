@@ -249,22 +249,48 @@ def get_approvals_state(root: "Path | None" = None) -> dict:
     db = STATE_DIR / "outcomes" / "outcomes.db"
     if not db.exists():
         return {"status": "no_outcomes_db", "pending": []}
+    # ⚠️ ۲۰۲۶-۰۸-۰۵ — این تابع **شش تصمیمِ واقعی را نامرئی کرده بود**.
+    #
+    # نسخهٔ قبلی از جدولی به نامِ `deliveries` می‌خواند که در این پایگاه
+    # **اصلاً وجود ندارد**؛ تنها جدول `outcomes` است. کوئری همیشه استثنا
+    # می‌داد، `except` آن را می‌بلعید، و `{"status":"unknown_schema",
+    # "pending":[]}` برمی‌گشت. کاکپیت هم فقط طولِ `pending` را می‌دید، پس
+    # می‌نوشت «صف خالی است» و خانه تیک می‌زد «✓ صفِ تأیید خالی است».
+    #
+    # یعنی یک `except` ِ بلعنده به مالک **اطمینانِ فعال** می‌داد. این از
+    # خطا بدتر است: خطا را می‌بینی، ولی این را نه.
+    #
+    # تعریفِ «منتظر» از خودِ داده می‌آید: پیشنهادی که آخرین رویدادش
+    # `delivered` است و هیچ `verdict` ی ندارد — تحویل داده شده، کسی تصمیم
+    # نگرفته. سنجیده روی داده‌ی زنده: ۶ مورد، قدیمی‌ترین ۲۰۲۶-۰۷-۲۳.
+    sql = """
+    WITH latest AS (
+      SELECT proposal_id, event_type, verdict, leg_id, value_aud_claimed, occurred_at,
+             ROW_NUMBER() OVER (PARTITION BY proposal_id ORDER BY occurred_at DESC) rn
+        FROM outcomes WHERE proposal_id IS NOT NULL)
+    SELECT proposal_id, leg_id, value_aud_claimed, occurred_at
+      FROM latest
+     WHERE rn = 1 AND event_type = 'delivered' AND verdict IS NULL
+     ORDER BY occurred_at ASC LIMIT 50"""
+    conn = None
     try:
         conn = sqlite3.connect(str(db))
-        # best-effort: count deliveries not resolved
-        try:
-            rows = conn.execute(
-                "SELECT proposal_id, kind, amount_aud FROM deliveries WHERE resolved=0 LIMIT 50"
-            ).fetchall()
-            pending = [{"proposal_id": r[0], "kind": r[1], "amount_aud": r[2]} for r in rows]
-        except Exception:  # noqa: BLE001 — schema ممکن است متفاوت باشد
-            pending = []
-            conn.close()
-            return {"status": "unknown_schema", "pending": []}
-        conn.close()
-        return {"status": "ok", "pending": _scrub_dict(pending), "count": len(pending)}
+        rows = conn.execute(sql).fetchall()
     except Exception as exc:  # noqa: BLE001
-        return {"status": "error", "reason": f"{type(exc).__name__}"}
+        # اسکیما عوض شده یا پایگاه قفل است. **هرگز** صفِ خالی برنگردان —
+        # «نمی‌دانم» و «هیچ نیست» دو چیزِ کاملاً متفاوت‌اند و UI باید
+        # بتواند فرقشان را بگذارد.
+        return {"status": "unknown_schema", "pending": None,
+                "reason": f"{type(exc).__name__}"}
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:  # noqa: BLE001
+                pass
+    pending = [{"proposal_id": r[0], "kind": r[1],
+                "amount_aud": r[2], "since": r[3]} for r in rows]
+    return {"status": "ok", "pending": _scrub_dict(pending), "count": len(pending)}
 
 
 def get_legs_state(root: "Path | None" = None) -> dict:

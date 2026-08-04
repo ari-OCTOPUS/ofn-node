@@ -523,3 +523,10 @@ code{direction:ltr}
 .tstage:hover{background:rgba(157,176,200,.14)}
 .tnote[data-busy],.tstage[data-busy]{opacity:.4;cursor:progress}
 @media (prefers-reduced-motion:reduce){ .tnote,.tstage{transition:none} }
+
+/* چشمِ «نمی‌دانم» — نه درخششِ سلامت، نه خاکستریِ توقف. حالتِ سوم لازم است
+   چون نبودِ داده حکم نیست: تا امروز undefined به «زنده» می‌افتاد. */
+.eye.unknown .ring{stroke:var(--steel-b);opacity:.35;stroke-dasharray:3 4}
+.eye.unknown .iris{fill:var(--steel-b)}
+.eye.unknown .halo{opacity:0}
+.eye.unknown .pupil{fill:var(--sunken)}

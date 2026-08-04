@@ -185,7 +185,12 @@
   // چشمِ اختاپوس = وضعِ هسته. درخشش یعنی زنده؛ خاکستری یعنی متوقف.
   // استعاره باید **حقیقت** بگوید، وگرنه فقط تزئین است.
   function setHalted(h){
-    if(eye) eye.setAttribute("class", "eye" + (h ? " halted" : ""));
+    // سه‌حالته: null یعنی «نمی‌دانم»، که نه درخشش است نه خاکستریِ توقف.
+    // قبلاً دوحالته بود و undefined به «زنده» می‌افتاد — یعنی نبودِ داده
+    // شبیهِ سلامت دیده می‌شد.
+    if(!eye) return;
+    eye.setAttribute("class", "eye" + (h === null || h === undefined ? " unknown"
+                                       : (h ? " halted" : "")));
   }
 
   function renderHome(el){
@@ -237,6 +242,18 @@
   function renderApprovals(el){
     el = el || content;
     api("/api/approvals").then(function(d){
+      d = d || {};
+      // ⚠️ `pending: null` یعنی «خوانده نشد»، `pending: []` یعنی «واقعاً هیچ».
+      // نسخهٔ قبلی هر دو را با `d.pending||[]` یکی می‌کرد و «صف خالی است»
+      // می‌نوشت — یک اطمینانِ فعال از دلِ یک except ِ بلعنده.
+      if(d.status !== "ok"){
+        el.innerHTML = '<div class="card">'+secHead("صفِ تأیید",
+            pill("نامعلوم","unk"))+
+          '<div class="err">صفِ تأیید خوانده نشد ('+esc(String(d.status||"?"))+
+          (d.reason?" — "+esc(String(d.reason)):"")+
+          '). عمداً «خالی» نمی‌نویسم: نبودِ داده با نبودِ کار یکی نیست.</div></div>';
+        return;
+      }
       var pend = d.pending||[], n = Number(d.count||pend.length||0);
       var body = n ? '<div class="list">'+pend.slice(0,8).map(function(p){
           return '<div class="li orbline"><span class="od hot"></span>'+
@@ -336,7 +353,7 @@
       // و دیگر لازم نیست اسم بخوانی.
       el.innerHTML = '<div class="card">'+
         secHead("پاها", pill(fa(up)+" از "+fa(ks.length), up===ks.length?"live":(down.length?"blocked":"staged")))+
-        '<div class="sysdial">'+dialSVG(legs, !!window.__octoHalted, up, ks.length||1, true)+'</div>'+
+        '<div class="sysdial">'+dialSVG(legs, window.__octoHalted, up, ks.length||1, true)+'</div>'+
         (down.length ? '<div class="muted" style="text-align:center">خاموش: '+
             down.slice(0,4).map(ltr).join(" · ")+'</div>' : '')+
         '<details class="det"><summary>فهرستِ کاملِ پاها</summary>'+
@@ -846,6 +863,22 @@
       .then(function(a){
         var st=a[0]||{}, ap=a[1]||{}, tk=a[2]||{}, gv=a[3]||{}, ob=a[4]||{}, lg=a[5]||{};
         if(st.status==="error"){ el.innerHTML='<div class="err">خطا: '+esc(st.reason)+'</div>'; return; }
+        // ⚠️ `unknown` جدا از `error` است و تا امروز اصلاً گرفته نمی‌شد.
+        // وقتی ORGANISM-STATE خوانده نشود، خواننده {status:"unknown"} می‌دهد
+        // و `st.halted` تعریف‌نشده است ⇒ falsy ⇒ چشم می‌درخشید و صفحه
+        // می‌نوشت «ارگانیسم زنده است». یعنی قاطع‌ترین جملهٔ اپ از **نبودِ
+        // داده** ساخته می‌شد. حالا «نمی‌دانم» می‌گوید و همان‌جا می‌ایستد.
+        if(st.status==="unknown"){
+          setHalted(null);
+          window.__octoHalted = null;
+          setCore("حالِ ارگانیسم نامعلوم است", esc(st.reason||"وضعیت خوانده نشد"));
+          el.innerHTML = '<div class="tri hot"><div class="in">'+
+            '<div class="verb">وضعیتِ ارگانیسم خوانده نشد</div>'+
+            '<div class="why">'+esc(st.reason||"")+' — تا وقتی این خوانده نشود، '+
+            'هیچ عددی روی این صفحه قابلِ اعتماد نیست، پس هیچ‌کدام را نشان نمی‌دهم.'+
+            '</div></div></div>';
+          return;
+        }
         setHalted(st.halted);
         // ⚠️ قرصِ تبِ سیستم halted را **جعلاً false** می‌گرفت، یعنی وقتی
         // ارگانیسم متوقف بود باز هم زنده رندر می‌شد. حالت را یک‌جا نگه
@@ -858,8 +891,14 @@
         function push(sev,verb,why,act){ need.push({sev:sev,verb:verb,why:why,act:act}); }
 
         if(st.halted) push("hot","ارگانیسم متوقف است","تا برداشتنِ ترمز هیچ کاری جلو نمی‌رود.",null);
+        // ⚠️ تیکِ «✓ صفِ تأیید خالی است» فقط وقتی مجاز است که خواننده
+        // واقعاً `ok` گفته باشد. وگرنه از نخواندن، اطمینان می‌سازیم.
         var apc = Number(ap.count||0);
-        if(apc>0) push("hot", fa(apc)+" تأیید منتظرِ توست",
+        if(ap.status !== "ok"){
+          push("warm","صفِ تأیید خوانده نشد",
+               "وضع: "+ltr(String(ap.status||"?"))+" — ممکن است چیزی منتظرت باشد و دیده نشود.",
+               {tab:"approvals",label:"دیدنِ صف"});
+        } else if(apc>0) push("hot", fa(apc)+" تأیید منتظرِ توست",
                        "تا تصمیم نگیری، این‌ها همان‌جا می‌مانند.", {tab:"approvals",label:"برو به تأییدها"});
         else calm.push("صفِ تأیید خالی است");
 
