@@ -330,6 +330,76 @@ def t_l_a_withheld_reply_is_not_counted_as_silence():
     assert d["counts"].get("SILENT", 0) == 0, d["counts"]
 
 
+# ── ۵. باتِ درونی — جایی که ترافیکِ واقعیِ DM ِ مالک می‌گذرد ─────────────────
+def t_m_the_inner_bot_binds_too_or_the_rig_lies():
+    """⚠️ اگر فقط مرکز مهر بزند، هر پیامی که باتِ **درونی** درست جواب داده در
+    گزارش ❌ SILENT دیده می‌شود — ابزاری که برای اثباتِ «دیده شدی» ساخته شد،
+    مدرکِ جعلیِ «دیده نشدی» تولید می‌کند. و گاردی که گرگ‌گرگ کند خاموش
+    می‌شود. همان اشتباهِ «چشم روی باتی که حرف نمی‌زند»، این‌بار در خروجی.
+
+    رفتاری و دقیق: برچسب را در **لحظهٔ ارسال** می‌خوانیم (از داخلِ transport ِ
+    تزریق‌شده)، نه بعدش."""
+    import os
+    import tempfile
+    import approval_channel as ac
+    import tg_send_log as t
+    os.environ["OCTOPUS_TG_SEND_LOG"] = "1"
+
+    d = Path(tempfile.mkdtemp(prefix="p0-inner-"))
+    assert str(harness.REAL_VAULT).lower() not in str(d).lower()
+
+    # ⚠️ `/queue` عمدی است، نه دلبخواه: زیرِ همین فیکسچر، `handle_command` برای
+    # `/help`، `/id`، فرمانِ ناشناخته و متنِ سادهٔ فارسی **None** برمی‌گرداند —
+    # یعنی صفر ارسال، یعنی تستی که هیچ نمی‌سنجد. (اینکه آن None ها آرتیفکتِ
+    # توکنِ ساختگی‌اند یا سکوتِ واقعیِ تولیدی، با تکِ زندهٔ مالک روشن می‌شود؛
+    # این‌جا فقط لنگرِ یک ارسالِ **واقعاً رخ‌داده** لازم است.)
+    seen = []
+    upd = {"ok": True, "result": [{
+        "update_id": 9201,
+        "message": {"chat": {"id": 4242}, "from": {"id": 4242},
+                    "text": "/queue"}}]}
+
+    def _post(url, body, timeout=10.0):
+        seen.append(t.current_update())     # ← برچسب **حینِ** ارسال
+        return {"ok": True, "result": {"message_id": 1}}
+
+    ch = ac.TelegramApprovalChannel(
+        token="test-token", owner_chat_id=4242,
+        http_get=lambda url, timeout: upd,
+        http_post=_post, state_dir=d / "state")
+
+    assert callable(getattr(ch, "_bind_send_correlation", None)), \
+        "باتِ درونی درِ مهرِ همبستگی را ندارد"
+    ch.poll_once()
+
+    assert seen, "هیچ ارسالی رخ نداد ⇒ این تست چیزی را نمی‌سنجد (گاردِ بی‌دندان)"
+    assert seen[0] == 9201, (
+        "پاسخِ باتِ درونی بی‌برچسب رفت ⇒ tg_receipts آن را ❌ SILENT می‌خواند", seen)
+    assert t.current_update() is None, (
+        "برچسب بعد از پایانِ دور آزاد نشد — ارسالِ خودجوشِ بعدی رسیدِ جعلی می‌گیرد")
+
+
+def t_n_a_stale_label_from_a_crashed_round_is_cleared_on_entry():
+    """اگر فراخوانِ قبلی وسطِ حلقه ترکیده باشد، برچسبش روی نخ می‌ماند. بدونِ
+    پاک‌سازیِ ورودی، **اولین** ارسالِ دورِ بعد به updateِ مرده نسبت داده
+    می‌شود — یک رسیدِ جعلی که هیچ‌کس به آن شک نمی‌کند."""
+    import tempfile
+    import approval_channel as ac
+    import tg_send_log as t
+
+    d = Path(tempfile.mkdtemp(prefix="p0-stale-"))
+    ch = ac.TelegramApprovalChannel(
+        token="test-token", owner_chat_id=4242,
+        http_get=lambda url, timeout: {"ok": True, "result": []},
+        http_post=lambda url, body, timeout=10.0: {"ok": True},
+        state_dir=d / "state")
+
+    t.bind_update(111111)                  # ← بازماندهٔ دورِ ترکیده
+    ch.poll_once()                         # دورِ خالی، صفر update
+    assert t.current_update() is None, (
+        "برچسبِ جامانده پاک نشد ⇒ اولین پاسخِ بعدی به updateِ مرده می‌چسبد")
+
+
 def main():
     tests = [v for k, v in sorted(globals().items())
              if k.startswith("t_") and callable(v)]

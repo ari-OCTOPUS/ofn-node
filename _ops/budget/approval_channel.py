@@ -522,6 +522,26 @@ class TelegramApprovalChannel(ApprovalChannel):
         except Exception:  # noqa: BLE001 — راست‌گوییِ کابین نباید حلقه را بکشد
             return False
 
+    def _bind_send_correlation(self, update_id) -> None:
+        """ارسال‌های این نخ را به این update بچسبان (یا با None رها کن).
+
+        ⚠️ چرا باتِ **درونی** هم باید این را داشته باشد — و چرا جاافتادنش یک
+        فاجعهٔ ساکت بود: ترافیکِ واقعیِ DM ِ مالک از همین poller می‌گذرد. اگر
+        فقط مرکز مهر بزند، هر پیامی که این بات **درست جواب داده** در گزارشِ
+        `tg_receipts` ❌ SILENT دیده می‌شود. یعنی ابزاری که برای اثباتِ
+        «دیده شدی» ساخته شد، مدرکِ جعلیِ «دیده نشدی» تولید می‌کرد — و بدتر:
+        گاردی که گرگ‌گرگ کند خاموش می‌شود ([[feedback-a-guard-that-cries-
+        wolf-gets-switched-off]]). همان اشتباهِ «چشم روی باتی که حرف نمی‌زند»،
+        این‌بار در لایهٔ خروجی."""
+        try:
+            import tg_send_log as _tsl_bind  # noqa: WPS433 — lazy، هم‌الگوی مرکز
+            if update_id is None:
+                _tsl_bind.clear_update()
+            else:
+                _tsl_bind.bind_update(update_id)
+        except Exception:  # noqa: BLE001 — برچسب هرگز مسیرِ اصلی را نمی‌کشد
+            pass
+
     def poll_once(self) -> int:
         """یک دورِ long-poll. خروجی = تعداد updateهای پردازش‌شده. وقتی not wired → 0 (no-opِ
         امن، بدونِ هیچ فراخوانیِ شبکه). خطای شبکه fail-soft: ۰ برمی‌گردد، حلقه کشته نمی‌شود.
@@ -530,6 +550,10 @@ class TelegramApprovalChannel(ApprovalChannel):
             return 0
         if self._killed():
             return 0
+        # پاک‌سازیِ برچسبِ جامانده: اگر فراخوانِ **قبلی** وسطِ حلقه با استثنا
+        # بیرون پریده باشد، برچسبِ آن update هنوز روی نخ است. بدونِ این خط،
+        # اولین ارسالِ این دور به updateِ مردهٔ قبلی نسبت داده می‌شود.
+        self._bind_send_correlation(None)
         # Cockpit v2 fix (2026-07-10): بدونِ allowed_updates صریح، تلگرام «آخرین تنظیم» را
         # نگه می‌دارد؛ چون این همان باتِ control-brain است و ممکن است جایی به فقط ["message"]
         # قفل شده باشد، دکمه‌ها (callback_query) هرگز نمی‌رسیدند. صریح هر دو نوع را می‌خواهیم.
@@ -570,6 +594,8 @@ class TelegramApprovalChannel(ApprovalChannel):
             if isinstance(uid, int) and uid + 1 > self._offset:
                 self._offset = uid + 1
                 offset_dirty = True
+            # هر پاسخی که از دلِ همین update برود، شناسه‌اش را حمل می‌کند.
+            self._bind_send_correlation(uid)
 
             # ── تشخیص نوع update: callback_query یا text message ──
             is_callback = "callback_query" in upd
@@ -692,6 +718,10 @@ class TelegramApprovalChannel(ApprovalChannel):
                 opslib.alert([f"telegram T-8 dispatch error: {type(e).__name__}: {e}"])
 
             processed += 1
+        # پایانِ دورِ پردازش: برچسب آزاد شود، وگرنه ارسالِ **خودجوشِ** بعدی روی
+        # همین نخ (نبض/تایمر) به آخرین updateِ پردازش‌شده چسبانده می‌شود و یک
+        # رسیدِ جعلی می‌سازد — دقیقاً همان چیزی که این رِیگ برای رفعش هست.
+        self._bind_send_correlation(None)
         # offset persistence: اگر offset جلو رفت و state_dir هست، در فایل ذخیره کن
         # (restart-safe). state_dir نباشد → همان رفتارِ حافظه‌ایِ T-1 (تست‌ها).
         if offset_dirty and self._state_dir:
