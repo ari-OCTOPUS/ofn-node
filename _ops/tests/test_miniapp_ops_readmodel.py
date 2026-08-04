@@ -395,13 +395,34 @@ def t_sub_endpoints_enforce_exactly_the_same_auth_as_their_parent():
     os.environ["TG_CENTER_BOT_TOKEN"] = TOKEN
     os.environ["TELEGRAM_OWNER_CHAT_ID"] = OWNER
     try:
-        # فلگِ خاموش (پیش‌فرض) = رفتارِ امروز؛ والد و زیرمسیر یکسان.
+        # ⚠️ ۲۰۲۶-۰۸-۰۴ — این بلوک برعکس شد، و **کد درست بود نه تست**.
+        #
+        # نسخهٔ قبلی می‌گفت «فلگِ غایب ⇒ گیت **باز** ⇒ ۲۰۰ بدونِ احراز» و
+        # assert می‌کرد `read_gate_enabled() is False`. ولی کامیتِ `87c3063`
+        # («برشِ ۳: ۱۱ مسیرِ خواندنی پیش‌فرض بسته شد») پیش‌فرضِ کد را عمداً
+        # از باز به **بسته** برد — چون آن ۱۱ مسیر روی یک تونلِ **عمومی** سرو
+        # می‌شوند و «غیاب = باز» یعنی هر کسی که URL را دارد می‌خواندشان.
+        # آن کامیت این فایل را به‌روز نکرد چون همان روز کلاً قرمز بود
+        # (‏۳/۲۸، به‌خاطرِ ۳۲۵ خطِ گم‌شده) و کسی این تکِ تست را ندید.
+        #
+        # پس این‌جا انتظار به وضعِ **امن** به‌روز شد. دندان کم نشد — بیشتر شد:
+        # حالا صراحتاً assert می‌کند که غیابِ فلگ یعنی **بسته**، یعنی اگر کسی
+        # روزی پیش‌فرض را به «باز» برگرداند این تست قرمز می‌شود.
         os.environ.pop(mg.READ_GATE_FLAG, None)
-        assert mg.read_gate_enabled() is False, "فلگِ تازه پیش‌فرض روشن است!"
+        assert mg.read_gate_enabled() is True, (
+            "پیش‌فرضِ گیتِ خواندن به **باز** برگشت — ۱۱ مسیرِ خواندنی روی تونلِ "
+            "عمومی بی‌احراز می‌شوند (رگرسیونِ 87c3063)")
         for p in ("/api/ops",) + SUB_PATHS:
             ms.cache_clear()
-            st, _, _ = mg.handle("GET", p, {}, now=NOW)
-            assert st == 200, (p, st)
+            st, body, _ = mg.handle("GET", p, {}, now=NOW)
+            assert st == 403, (p, st, "غیابِ فلگ باید ببندد نه باز کند")
+            assert b"owner_auth_required" in body, (p, body)
+        # و با initData ِ معتبر همان مسیرها باید باز شوند — وگرنه رفعِ امنیتی
+        # به «هیچ‌کس هرگز نمی‌تواند بخواند» تبدیل شده، که خودش یک باگ است.
+        for p in ("/api/ops",) + SUB_PATHS:
+            ms.cache_clear()
+            st, _, _ = mg.handle("GET", p, {"X-Tg-Init-Data": _init_data()}, now=NOW)
+            assert st == 200, (p, st, "مالکِ معتبر هم رد شد")
         # فلگِ روشن = همان دیوارِ HMAC روی **هر** مسیرِ خواندنی.
         os.environ[mg.READ_GATE_FLAG] = "1"
         for p in ("/api/ops",) + SUB_PATHS:
