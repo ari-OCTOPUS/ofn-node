@@ -487,6 +487,69 @@
   // مرتب‌شده بر اساسِ فوریت؛ هرچه سالم است در یک خطِ آرام جمع می‌شود.
   // شدت با **اندازه** کدگذاری می‌شود نه فقط رنگ، و فقط کارتِ اول دکمهٔ
   // پرشده دارد — یک انتخابِ آشکار در هر صفحه.
+  // ── قرصِ اختاپوس ──────────────────────────────────────────────────────
+  // ⚠️ استعاره باید **حساب** باشد نه تصویرسازی: هر بازو یک پای واقعی است و
+  // رنگش وضعِ همان پا؛ حلقهٔ بیرونی نسبتِ فلگ‌های فعال را می‌کشد؛ چشم وقتی
+  // ارگانیسم متوقف است فولادِ بی‌جان می‌شود. اگر عددی پشتش نباشد، فقط
+  // تزئین است — و مالک همان را «ساده و زشت» می‌نامد.
+  var ARM_A = [-90,-45,0,45,90,135,180,-135];   // هشت موضعِ ثابتِ ساعت
+  function dialSVG(legs, halted, flagsOn, flagsAll){
+    var names = Object.keys(legs||{}).slice(0,8);
+    var R=110, cx=R, cy=R, bez=62, lens=57, iris=43, pup=33;
+    var frac = flagsAll ? Math.max(0,Math.min(1, flagsOn/flagsAll)) : 0;
+    var C = 2*Math.PI*(bez+16);
+    var arms = "";
+    for(var i=0;i<8;i++){
+      var a = ARM_A[i]*Math.PI/180;
+      var x0 = cx+Math.cos(a)*(bez+2), y0 = cy+Math.sin(a)*(bez+2);
+      var x1 = cx+Math.cos(a)*(bez+26), y1 = cy+Math.sin(a)*(bez+26);
+      var nx = cx+Math.cos(a)*(bez+38), ny = cy+Math.sin(a)*(bez+38);
+      // انحنای بازو: نقطهٔ کنترل کمی عمود بر شعاع ⇒ حسِ پیچشِ لوگو
+      var px = cx+Math.cos(a+0.30)*(bez+16), py = cy+Math.sin(a+0.30)*(bez+16);
+      var nm = names[i];
+      var st = nm ? (legs[nm].live===false ? "down" : (legs[nm].live ? "up" : "unk")) : "none";
+      arms += '<g class="arm '+st+'">'+
+        '<path d="M'+x0.toFixed(1)+' '+y0.toFixed(1)+' Q'+px.toFixed(1)+' '+py.toFixed(1)+
+          ' '+x1.toFixed(1)+' '+y1.toFixed(1)+'" fill="none" stroke-width="5.5" stroke-linecap="round"/>'+
+        '<circle class="node" cx="'+nx.toFixed(1)+'" cy="'+ny.toFixed(1)+'" r="6.5"/>'+
+        '<circle class="core" cx="'+nx.toFixed(1)+'" cy="'+ny.toFixed(1)+'" r="2.4"/></g>';
+    }
+    // شکاف‌های سرخابیِ روی بدنه — مستقیم از لوگو
+    var slits = "";
+    [-62,-28,28,62,118,152,208,242].forEach(function(d){
+      var a=d*Math.PI/180;
+      slits += '<line class="slit" x1="'+(cx+Math.cos(a)*(bez-9)).toFixed(1)+'" y1="'+(cy+Math.sin(a)*(bez-9)).toFixed(1)+
+        '" x2="'+(cx+Math.cos(a)*(bez-2)).toFixed(1)+'" y2="'+(cy+Math.sin(a)*(bez-2)).toFixed(1)+'"/>';
+    });
+    return '<svg class="dial'+(halted?" halted":"")+'" viewBox="0 0 '+(R*2)+' '+(R*2)+'" aria-hidden="true">'+
+      '<defs>'+
+        '<linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">'+
+          '<stop offset="0" stop-color="#dbe6f5"/><stop offset=".5" stop-color="#7e91ad"/>'+
+          '<stop offset="1" stop-color="#c4d2e6"/></linearGradient>'+
+        '<radialGradient id="iris" cx="50%" cy="34%" r="72%">'+
+          '<stop offset="0" stop-color="#d6faff"/><stop offset=".42" stop-color="#22d3ee"/>'+
+          '<stop offset="1" stop-color="#0a4d63"/></radialGradient>'+
+        '<radialGradient id="glow" cx="50%" cy="50%" r="50%">'+
+          '<stop offset="0" stop-color="#a855f7" stop-opacity=".55"/>'+
+          '<stop offset="1" stop-color="#a855f7" stop-opacity="0"/></radialGradient>'+
+      '</defs>'+
+      '<circle class="aura" cx="'+cx+'" cy="'+cy+'" r="'+(bez+30)+'" fill="url(#glow)"/>'+
+      arms +
+      '<circle class="track" cx="'+cx+'" cy="'+cy+'" r="'+(bez+16)+'" fill="none" stroke-width="3.5"/>'+
+      '<circle class="prog" cx="'+cx+'" cy="'+cy+'" r="'+(bez+16)+'" fill="none" stroke-width="3.5"'+
+        ' stroke-linecap="round" stroke-dasharray="'+(C*frac).toFixed(1)+' '+(C*(1-frac)).toFixed(1)+'"'+
+        ' transform="rotate(-90 '+cx+' '+cy+')"/>'+
+      '<circle class="bezel" cx="'+cx+'" cy="'+cy+'" r="'+bez+'" fill="url(#steel)"/>'+
+      slits +
+      '<circle class="lens" cx="'+cx+'" cy="'+cy+'" r="'+lens+'"/>'+
+      '<circle class="irisring" cx="'+cx+'" cy="'+cy+'" r="'+iris+'" fill="none" stroke="url(#iris)" stroke-width="16"/>'+
+      '<circle cx="'+cx+'" cy="'+cy+'" r="'+iris+'" fill="none" stroke="#050914" stroke-opacity=".5" stroke-width="16" stroke-dasharray="2.3 10"/>'+
+      '<circle class="pupil" cx="'+cx+'" cy="'+cy+'" r="'+pup+'"/>'+
+      '<circle class="spark" cx="'+cx+'" cy="'+cy+'" r="9"/>'+
+      '<ellipse cx="'+(cx-24)+'" cy="'+(cy-34)+'" rx="20" ry="10" fill="#fff" opacity=".10" transform="rotate(-28 '+(cx-24)+' '+(cy-34)+')"/>'+
+      '</svg>';
+  }
+
   function triCard(sev, verb, why, act, small){
     return '<div class="tri '+sev+(small?" small":"")+'"><div class="band"></div>'+
       '<div class="in"><h3 class="verb">'+esc(verb)+'</h3>'+
@@ -537,7 +600,12 @@
         need.sort(function(x,y){ return (x.sev==="hot"?0:1)-(y.sev==="hot"?0:1); });
         var show = need.slice(0,3), rest = need.length-show.length;
 
-        var html = "";
+        // قرص بالای همه — چشمِ اختاپوس با هشت بازوی واقعی
+        var fl = st.active_flags||{};
+        var flOn = Object.keys(fl).filter(function(k){return fl[k];}).length;
+        var html = '<div class="dialwrap" id="dialWrap">'+
+          dialSVG(legs, st.halted, flOn, Object.keys(fl).length)+
+          '<div class="dialcap">'+fa(flOn)+' از '+fa(Object.keys(fl).length)+' فلگ فعال</div></div>';
         if(!show.length){
           html += '<div class="calm"><div class="big">هیچ کاری با تو نیست</div>'+
                   '<div class="sm">همه‌چیز سرِ جایش است.</div></div>';

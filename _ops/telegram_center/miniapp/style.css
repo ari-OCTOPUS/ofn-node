@@ -289,3 +289,33 @@ input:focus,select:focus{outline:2px solid var(--cyan);outline-offset:1px;border
 
 /* دکمهٔ سوییچِ پوسته */
 .skinbtn{font-size:13px}
+
+/* ── قرصِ اختاپوس ─────────────────────────────────────────────────────── */
+.dialwrap{display:flex;flex-direction:column;align-items:center;margin:2px 0 18px}
+.dial{width:min(78vw,300px);height:auto;overflow:visible}
+.dialcap{font-size:12.5px;color:var(--muted);margin-top:2px}
+.dial .aura{opacity:.75}
+.dial .track{stroke:var(--line)}
+.dial .prog{stroke:var(--cyan);filter:drop-shadow(0 0 6px rgba(34,211,238,.65))}
+.dial .lens{fill:#060d1c}
+.dial .pupil{fill:#040a16}
+.dial .spark{fill:#a855f7;opacity:.9;filter:drop-shadow(0 0 8px rgba(168,85,247,.9))}
+.dial .slit{stroke:var(--magenta);stroke-width:2.4;stroke-linecap:round;opacity:.85;
+  filter:drop-shadow(0 0 4px rgba(240,70,139,.8))}
+.dial .arm path{stroke:var(--violet);opacity:.85;filter:drop-shadow(0 0 5px rgba(168,85,247,.55))}
+.dial .arm .node{fill:#0b1324;stroke:var(--violet);stroke-width:2}
+.dial .arm .core{fill:var(--violet)}
+.dial .arm.up path{stroke:var(--cyan);filter:drop-shadow(0 0 6px rgba(34,211,238,.6))}
+.dial .arm.up .node{stroke:var(--cyan)} .dial .arm.up .core{fill:var(--cyan)}
+.dial .arm.down path{stroke:var(--magenta);filter:drop-shadow(0 0 7px rgba(240,70,139,.75))}
+.dial .arm.down .node{stroke:var(--magenta)} .dial .arm.down .core{fill:var(--magenta)}
+.dial .arm.unk path,.dial .arm.none path{stroke:var(--muted);opacity:.3;filter:none}
+.dial .arm.unk .node,.dial .arm.none .node{stroke:var(--muted);opacity:.45}
+.dial .arm.unk .core,.dial .arm.none .core{fill:var(--muted);opacity:.45}
+/* متوقف = فولادِ بی‌جان. استعاره باید حقیقت بگوید. */
+.dial.halted .aura{opacity:0}
+.dial.halted .prog{stroke:var(--muted);filter:none}
+.dial.halted .irisring{stroke:var(--muted);opacity:.5}
+.dial.halted .spark{fill:var(--muted);filter:none;opacity:.5}
+.dial.halted .slit{stroke:var(--muted);filter:none;opacity:.4}
+.dial.halted .arm path{stroke:var(--muted);opacity:.28;filter:none}
