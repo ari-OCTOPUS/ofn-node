@@ -23,10 +23,10 @@ def _default_data_path() -> Path:
 
 _DATA_PATH = _default_data_path()
 
-DECAY_RATE = 0.95     # per tick without co-occurrence
+DECAY_RATE = 0.995    # per tick without co-occurrence (0.995 = ~23 day half-life @ 60s/tick)
 LEARN_RATE = 0.1      # per co-occurrence
 MAX_STRENGTH = 1.0
-PRUNE_THRESHOLD = 0.01
+PRUNE_THRESHOLD = 0.005
 
 
 @dataclass
