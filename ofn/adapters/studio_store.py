@@ -124,6 +124,14 @@ SCHEMA = (
         PRIMARY KEY (tenant_id, key)
     )
     """,
+    """
+    CREATE TABLE IF NOT EXISTS draft_labels (
+        draft_id TEXT NOT NULL REFERENCES drafts (draft_id),
+        label    TEXT NOT NULL,
+        PRIMARY KEY (draft_id, label)
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS draft_labels_label ON draft_labels (label)",
     "CREATE INDEX IF NOT EXISTS drafts_tenant ON drafts (tenant_id, status)",
     "CREATE INDEX IF NOT EXISTS drafts_collection ON drafts (collection_id)",
     "CREATE INDEX IF NOT EXISTS collections_tenant ON collections (tenant_id)",
@@ -312,6 +320,66 @@ class StudioStore:
         return [(int(r[0]), str(r[1])) for r in self._conn.execute(
             "SELECT position, media_ref FROM draft_media WHERE draft_id = ? "
             "ORDER BY position", (draft_id,))]
+
+    # ── style labels ──────────────────────────────────────────────────────
+    def set_labels(self, draft_id: str, labels: Sequence[str], *,
+                   allowed: Sequence[str]) -> list[str]:
+        """Tag a post with what it is. Replaces the whole set.
+
+        Replacing rather than adding, because tagging is a description of one
+        post and a half-updated description is worse than either version —
+        she unticks `close` and ticks `wide`, and both surviving would make
+        the post count as evidence for both.
+
+        Anything outside the pack's vocabulary is refused rather than stored.
+        A label written once and never matched again looks exactly like a
+        style that never worked.
+        """
+        permitted = set(allowed)
+        chosen = []
+        for raw in labels:
+            text = str(raw)
+            if text not in permitted:
+                raise StudioError(f"برچسب ناشناخته: {text!r}")
+            if text not in chosen:
+                chosen.append(text)
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            self._conn.execute("DELETE FROM draft_labels WHERE draft_id = ?",
+                               (draft_id,))
+            for label in chosen:
+                self._conn.execute(
+                    "INSERT INTO draft_labels (draft_id, label) VALUES (?, ?)",
+                    (draft_id, label))
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+        return chosen
+
+    def labels_of(self, draft_id: str) -> list[str]:
+        return [str(r[0]) for r in self._conn.execute(
+            "SELECT label FROM draft_labels WHERE draft_id = ? ORDER BY label",
+            (draft_id,))]
+
+    def label_counts(self, tenant: str, *, statuses: Sequence[str] = ()
+                     ) -> dict[str, int]:
+        """How many posts carry each label.
+
+        Restricted to the statuses asked for, because "what have I tried" and
+        "what have I published" are different questions and answering the
+        first when the second was asked overstates what has actually been
+        tested in public.
+        """
+        sql = ("SELECT l.label, COUNT(*) FROM draft_labels l "
+               "JOIN drafts d ON d.draft_id = l.draft_id "
+               "WHERE d.tenant_id = ? ")
+        args: tuple = (tenant,)
+        if statuses:
+            sql += "AND d.status IN (" + ",".join("?" * len(statuses)) + ") "
+            args += tuple(statuses)
+        return {str(r[0]): int(r[1]) for r in
+                self._conn.execute(sql + "GROUP BY l.label", args)}
 
     # ── her reading, and the clock that guards it ─────────────────────────
     def record_felt_right(self, draft_id: str, rating: int, *,

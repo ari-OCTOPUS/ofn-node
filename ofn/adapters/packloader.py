@@ -23,6 +23,8 @@ block scalars, flow mappings, tabs for indentation.
 
 from __future__ import annotations
 
+import re
+
 import json
 import os
 from typing import Any, Mapping
@@ -261,6 +263,7 @@ def spec_from_mapping(data: Mapping[str, Any]) -> PackSpec:
             question_meta=meta,
             locale=locale,
             sku_prefix=str(data.get("sku_prefix", "") or ""),
+            content_labels=_labels(tenant, data.get("content_labels")),
             cost_fields=tuple(str(c) for c in cost_fields),
             labour_hours_field=str(labour.get("hours", "") or ""),
             labour_rate_field=str(labour.get("rate", "") or ""),
@@ -270,6 +273,31 @@ def spec_from_mapping(data: Mapping[str, Any]) -> PackSpec:
         )
     except ValueError as exc:
         raise PackError(f"{tenant}: {exc}") from None
+
+
+_LABEL_RE = re.compile(r"^[a-z0-9]([a-z0-9-]{0,30}[a-z0-9])?$")
+
+
+def _labels(tenant: str, raw: Any) -> tuple[str, ...]:
+    """The closed vocabulary a post may be tagged with.
+
+    Validated here so a typo is a boot failure rather than a label that can
+    be written once and never matched again — which would look exactly like
+    a style that never worked.
+    """
+    if raw is None:
+        return ()
+    if not isinstance(raw, (list, tuple)):
+        raise PackError(f"{tenant}: content_labels must be a list")
+    out = []
+    for item in raw:
+        text = str(item)
+        if not _LABEL_RE.match(text):
+            raise PackError(f"{tenant}: content label {text!r} is not a label")
+        if text in out:
+            raise PackError(f"{tenant}: content label {text!r} listed twice")
+        out.append(text)
+    return tuple(out)
 
 
 def _locale(tenant: TenantId, raw: Any) -> Locale:

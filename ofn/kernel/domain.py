@@ -296,6 +296,9 @@ class PackSpec:
     # shape is fixed in code, so a pack cannot smuggle in arithmetic.
     cost_fields: tuple[str, ...] = ()
     labour_hours_field: str = ""
+    # Closed vocabulary a post may be tagged with. Empty for a leg
+    # that does not produce content.
+    content_labels: tuple[str, ...] = ()
     labour_rate_field: str = ""
     # A piece still sitting there after this many days is worth mentioning;
     # one that left faster than this is worth repeating.

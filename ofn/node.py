@@ -25,7 +25,9 @@ from .adapters.outbox import Outbox
 from .adapters.products import (ProductError, ProductStore, money_view,
                                 net_margin_aud, piece_slug, verdicts)
 from .adapters.studio_store import StudioError
+from .kernel.audience import ownership_ratio, revenue_mix
 from .kernel.consent import may_publish, subjects_needing_attention
+from .kernel.outreach import drafts_for as outreach_drafts
 from .kernel.domain import (
     Action, Confidence, Decision, PackSpec, RiskTier, TenantId,
 )
@@ -580,6 +582,106 @@ class Node:
             "sample": measured["posts_counted"],
             "enough": measured["posts_counted"] >= ADVISOR_MIN_SAMPLE,
             "needed": ADVISOR_MIN_SAMPLE,
+        }
+
+    def set_draft_labels(self, scope: TenantScope, user_id: str,
+                         draft_id: str, body: Mapping[str, object]) -> dict:
+        """Tag a post with what it is, from the pack's closed vocabulary.
+
+        Recorded from the first post on purpose. The only moment a post's
+        style is known is when she makes it, and a vocabulary added in three
+        months leaves those three months uncomparable for ever — which are
+        exactly the months a new account spends finding out what works.
+        """
+        if self.studio is None:
+            return {"ok": False, "error": "استودیو در دسترس نیست"}
+        pack = self.registry.pack(scope.tenant)
+        raw = body.get("labels")
+        if not isinstance(raw, (list, tuple)):
+            return {"ok": False, "error": "برچسب‌ها باید فهرست باشند"}
+        try:
+            chosen = self.studio.set_labels(draft_id, raw,
+                                            allowed=pack.content_labels)
+        except StudioError as exc:
+            return {"ok": False, "error": str(exc)}
+        return {"ok": True, "labels": chosen}
+
+    def studio_overview(self, scope: TenantScope) -> dict:
+        """The third tab: how the work is going, for a creator not a marketer.
+
+        Counts and one comparison, no funnels and no projections. Everything
+        here is something she could count herself if she had the patience —
+        which is what makes it checkable, and what stops it becoming a
+        dashboard that says things nobody can verify.
+        """
+        tenant = scope.tenant.value
+        pack = self.registry.pack(scope.tenant)
+        drafts = self.studio.drafts(tenant) if self.studio else []
+        by_status: dict[str, int] = {}
+        for d in drafts:
+            by_status[d.status] = by_status.get(d.status, 0) + 1
+
+        tried = self.studio.label_counts(tenant) if self.studio else {}
+        out_there = (self.studio.label_counts(
+            tenant, statuses=("queued", "published")) if self.studio else {})
+
+        subs = self.audience.subscribers(tenant) if self.audience else []
+        totals = (self.audience.revenue_totals(tenant)
+                  if self.audience else {})
+        snap = self.audience.latest_snapshot(tenant) if self.audience else []
+
+        return {
+            "posts": by_status,
+            "labels_vocabulary": list(pack.content_labels),
+            "labels_tried": tried,
+            "labels_published": out_there,
+            "subscribers": len(subs),
+            # None rather than zero wherever nothing has been measured: a
+            # business with no audience does not have a bad ownership ratio,
+            # and an account that has earned nothing has no revenue mix.
+            "ownership_ratio": ownership_ratio(snap),
+            "revenue_mix": revenue_mix(totals) if totals else None,
+            "waiting_for_a_message": len(outreach_drafts(
+                subs, now_epoch_s=self.now_epoch_s())),
+        }
+
+    def studio_guidance(self, scope: TenantScope) -> dict:
+        """The second tab: what to try next, and what would be learned.
+
+        With an empty account there is no data to draw a conclusion from, and
+        inventing one is the single thing this advisor exists not to do. So
+        when the sample is too small it does not apologise and go blank — it
+        proposes the test instead.
+
+        That is a real answer rather than a placeholder: knowing which two
+        things to vary, and tagging both, is what makes the next month
+        comparable at all. A reading needs posts; an experiment needs only a
+        decision.
+        """
+        tenant = scope.tenant.value
+        pack = self.registry.pack(scope.tenant)
+        reading = self.studio_reading(scope)
+        if reading["enough"]:
+            return {"mode": "reading", **reading}
+
+        tried = self.studio.label_counts(tenant) if self.studio else {}
+        vocabulary = list(pack.content_labels)
+        # Pairs, in the order the pack lists them: each is one axis she can
+        # vary on purpose. The first axis she has not tried both sides of is
+        # the one worth proposing, because a comparison needs two sides.
+        pairs = [(vocabulary[i], vocabulary[i + 1])
+                 for i in range(0, len(vocabulary) - 1, 2)]
+        suggest = next((p for p in pairs
+                        if not (tried.get(p[0]) and tried.get(p[1]))), None)
+        return {
+            "mode": "experiment",
+            "sample": reading["sample"],
+            "needed": reading["needed"],
+            "vocabulary": vocabulary,
+            "tried": tried,
+            "suggested_axis": list(suggest) if suggest else [],
+            "why": ("برای مقایسه باید از هر دو طرف یک محور، چند تا ساخته "
+                    "باشید. تا آن وقت هر نتیجه‌ای حدس است."),
         }
 
     def request_studio_reading(self, scope: TenantScope) -> dict:

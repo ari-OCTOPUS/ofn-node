@@ -28,6 +28,27 @@ questions:
     hint: همان جمله‌ای که می‌خواهید مخاطب بعد از دیدن صفحه به یاد بیاورد.
     placeholder: مثلاً — ...
 
+# ── style labels ───────────────────────────────────────────────────────
+# A closed vocabulary she tags each post with, from the first post.
+#
+# This is the `draft_subjects` argument again: the only moment a post's style
+# is known is when she makes it. Added in three months, the first three months
+# are uncomparable for ever — and those are exactly the months a new account
+# is trying to find out what works.
+#
+# Deliberately small and in pairs. Eight tick-boxes is a decision; twenty is a
+# form she abandons. Each pair is an axis she can actually vary on purpose,
+# which is what makes a test a test rather than a guess.
+content_labels:
+  - single-subject
+  - group
+  - soft-light
+  - hard-light
+  - close
+  - wide
+  - styled
+  - candid
+
 gates:
   - budget
   - claim
