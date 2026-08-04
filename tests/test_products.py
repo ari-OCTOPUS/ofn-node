@@ -33,7 +33,7 @@ FULL = {
     "labour_hours": 1.5,
     "hourly_rate_aud": 25.0,
     "packaging_cost_aud": 3.0,
-    "price_aud": 120.0,
+    "price_primary_aud": 120.0,
 }
 
 FORMULA = dict(cost_fields=("materials_cost_aud", "packaging_cost_aud"),
@@ -97,13 +97,13 @@ class TestHistoricalTruth(Base):
 
 class TestPrice(Base):
     def test_a_price_under_cost_loses_money(self):
-        p = self.make(price_aud=50.0)
+        p = self.make(price_primary_aud=50.0)
         self.assertTrue(p.loses_money)
         self.assertIn(LOSES_MONEY, verdicts(p, MAY, stale_after_days=90,
                                             quick_sale_days=7))
 
     def test_an_unpriced_piece_is_not_losing_money(self):
-        p = self.make(price_aud=None)
+        p = self.make(price_primary_aud=None)
         self.assertIsNone(p.gross_margin_aud)
         self.assertFalse(p.loses_money)
         self.assertEqual(verdicts(p, MAY, stale_after_days=90,
@@ -253,7 +253,7 @@ class TestRefusals(Base):
 
     def test_text_where_a_number_belongs_is_refused(self):
         with self.assertRaises(ProductError):
-            self.make(price_aud="۱۲۰")
+            self.make(price_primary_aud="۱۲۰")
 
     def test_editing_a_missing_piece_says_so(self):
         with self.assertRaises(ProductError):

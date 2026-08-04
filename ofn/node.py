@@ -39,7 +39,9 @@ MAX_TEXT_ANSWER = 2000
 _DIGITS = str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789")
 
 _PRODUCT_NUMERIC = ("materials_cost_aud", "labour_hours", "hourly_rate_aud",
-                    "packaging_cost_aud", "price_aud")
+                    "packaging_cost_aud", "price_primary_aud",
+                    "price_secondary_aud")
+_PRODUCT_NULLABLE = {"price_primary_aud", "price_secondary_aud"}
 
 
 def _normalise_numbers(body: Mapping[str, object]) -> dict:
@@ -56,7 +58,7 @@ def _normalise_numbers(body: Mapping[str, object]) -> dict:
             continue
         text = raw.translate(_DIGITS).replace(",", "").replace("٬", "").strip()
         if not text:
-            out[key] = None if key == "price_aud" else 0.0
+            out[key] = None if key in _PRODUCT_NULLABLE else 0.0
             continue
         try:
             out[key] = float(text)
@@ -174,11 +176,12 @@ class Node:
             # it is a fact and pre-fills the form instead of being asked once
             # per item. Sent only if she has actually stated it — an absent
             # rate must leave the field empty, not put a zero in it.
-            "facts": {k: v for k, v in
-                      (("time.hourly_floor", self._fact_value(scope,
-                                                              "time",
-                                                              "hourly_floor")),)
-                      if v is not None},
+            "facts": {k: v for k, v in (
+                ("time.hourly_floor",
+                 self._fact_value(scope, "time", "hourly_floor")),
+                ("sales.days_before_worry",
+                 self._fact_value(scope, "sales", "days_before_worry")),
+            ) if v is not None},
         }
 
     def _fact_value(self, scope: TenantScope, subject: str, predicate: str):
@@ -191,7 +194,21 @@ class Node:
             raise ProductError("انبار محصولات در دسترس نیست")
         return self.products
 
-    def _decorated(self, pack: PackSpec, p, today: str) -> dict:
+    def _stale_after(self, scope: TenantScope) -> int | None:
+        """How long is too long — her answer, or nothing.
+
+        The pack no longer carries a number for this. Ninety days was a
+        guess, and a guess that paints a warning on her work is worse than
+        no warning: she learns the flag is noise and stops reading it.
+        """
+        raw = self._fact_value(scope, "sales", "days_before_worry")
+        try:
+            return int(raw) if raw is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    def _decorated(self, pack: PackSpec, p, today: str,
+                   stale_after: int | None) -> dict:
         """One piece as the shell reads it: the row, plus what it means.
 
         The verdicts are computed here rather than in the shell so that the
@@ -201,7 +218,7 @@ class Node:
         """
         out = p.as_dict(today)
         out["verdicts"] = list(verdicts(
-            p, today, stale_after_days=pack.stale_after_days,
+            p, today, stale_after_days=stale_after,
             quick_sale_days=pack.quick_sale_days))
         try:
             out["net_margin_aud"] = net_margin_aud(p, pack.channel_fees)
@@ -215,7 +232,8 @@ class Node:
     def products_for(self, scope: TenantScope) -> dict:
         pack = self.registry.pack(scope.tenant)
         today = self.now_iso()[:10]
-        rows = [self._decorated(pack, p, today)
+        stale_after = self._stale_after(scope)
+        rows = [self._decorated(pack, p, today, stale_after)
                 for p in self._pieces().list(scope.tenant.value)]
         return {"products": rows, "currency": pack.locale.currency.code,
                 "symbol": pack.locale.currency.symbol}
@@ -232,11 +250,14 @@ class Node:
             return {"ok": False, "error": str(exc)}
         self.ledger.append(scope, "PRODUCT_CREATED", {
             "sku": piece.sku, "name": piece.name,
-            "cogs_aud": piece.cogs_aud, "price_aud": piece.price_aud,
+            "cogs_aud": piece.cogs_aud,
+            "price_primary_aud": piece.price_primary_aud,
+            "price_secondary_aud": piece.price_secondary_aud,
             "actor": f"partner:{user_id}",
         }, self.now_iso())
         return {"ok": True,
-                "product": self._decorated(pack, piece, self.now_iso()[:10])}
+                "product": self._decorated(pack, piece, self.now_iso()[:10],
+                                           self._stale_after(scope))}
 
     def update_product(self, scope: TenantScope, user_id: str, sku: str,
                        body: Mapping[str, object]) -> dict:
@@ -257,7 +278,8 @@ class Node:
             "sku": sku, "changed": moved, "actor": f"partner:{user_id}",
         }, self.now_iso())
         return {"ok": True,
-                "product": self._decorated(pack, after, self.now_iso()[:10])}
+                "product": self._decorated(pack, after, self.now_iso()[:10],
+                                           self._stale_after(scope))}
 
     def submit_answer(self, scope: TenantScope, user_id: str,
                       body: Mapping[str, object]) -> dict:

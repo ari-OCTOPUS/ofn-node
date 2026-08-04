@@ -24,6 +24,12 @@ Three rules here, all of which are cheap now and expensive later:
   * A platform's cut is NOT part of cost. Cost is a property of the piece;
     a fee is a property of where it sold. Folding the fee into COGS would
     make the same piece cost different amounts depending on who bought it.
+
+  * There are two prices, and every profit judgement uses the LOWER one that
+    exists. Listed at $100, floor $60, cost $80: a warning that looks only at
+    the listed price says "healthy" while she sells at a stall for $60 and
+    loses $20 on every piece. A warning computed against the optimistic price
+    is a warning that reassures and is wrong.
 """
 
 from __future__ import annotations
@@ -53,9 +59,14 @@ SCHEMA = (
         -- Written by this module from the pack's formula. Never by a caller.
         cogs_aud            REAL    NOT NULL DEFAULT 0,
 
-        -- Nullable on purpose. Nobody, including this system, invents a
-        -- price for her.
-        price_aud           REAL,
+        -- Two prices, both nullable. Nobody, including this system, invents
+        -- either one.
+        --   primary   what it is listed at — Instagram, Etsy
+        --   secondary the floor she will actually take — a market stall, cash
+        -- Every judgement about profit uses the SECOND one where it exists.
+        -- See the module docstring.
+        price_primary_aud   REAL,
+        price_secondary_aud REAL,
 
         state               TEXT    NOT NULL DEFAULT 'in_progress'
                               CHECK (state IN ('in_progress', 'for_sale',
@@ -117,13 +128,14 @@ QUICK_SALE = "quick_sale"      # gone fast — make another like it
 EDITABLE: tuple[str, ...] = (
     "name", "category", "description",
     "materials_cost_aud", "labour_hours", "hourly_rate_aud",
-    "packaging_cost_aud", "price_aud",
+    "packaging_cost_aud", "price_primary_aud", "price_secondary_aud",
     "state", "channel", "listed_at", "sold_at",
     "marketing_status", "marketing_notes",
 )
 
 _NUMERIC = {"materials_cost_aud", "labour_hours", "hourly_rate_aud",
-            "packaging_cost_aud", "price_aud"}
+            "packaging_cost_aud", "price_primary_aud", "price_secondary_aud"}
+_NULLABLE = {"price_primary_aud", "price_secondary_aud"}
 
 
 class ProductError(Exception):
@@ -143,7 +155,8 @@ class Product:
     hourly_rate_aud: float
     packaging_cost_aud: float
     cogs_aud: float
-    price_aud: float | None
+    price_primary_aud: float | None
+    price_secondary_aud: float | None
     state: str
     channel: str | None
     listed_at: str | None
@@ -154,22 +167,37 @@ class Product:
     updated_at: str | None
 
     @property
+    def judged_price_aud(self) -> float | None:
+        """The price every profit judgement is made against.
+
+        The floor where she has set one, otherwise the listed price. Not the
+        average and not the higher: the number that matters is the one she
+        will actually accept, because that is the one the money arrives at.
+        """
+        if self.price_secondary_aud is not None:
+            return self.price_secondary_aud
+        return self.price_primary_aud
+
+    @property
     def gross_margin_aud(self) -> float | None:
-        """Price minus cost, before any platform takes its cut."""
-        return None if self.price_aud is None else self.price_aud - self.cogs_aud
+        """Judged price minus cost, before any platform takes its cut."""
+        p = self.judged_price_aud
+        return None if p is None else p - self.cogs_aud
 
     @property
     def gross_margin_pct(self) -> float | None:
-        if not self.price_aud:
+        p = self.judged_price_aud
+        if not p:
             return None
-        return (self.price_aud - self.cogs_aud) / self.price_aud
+        return (p - self.cogs_aud) / p
 
     @property
     def loses_money(self) -> bool:
         """True only when a price exists and is below cost. An unpriced piece
         is not losing money — it is unpriced, which is a different thing and
         must not wear a red warning."""
-        return self.price_aud is not None and self.price_aud < self.cogs_aud
+        p = self.judged_price_aud
+        return p is not None and p < self.cogs_aud
 
     def days_on_sale(self, today: str) -> int | None:
         """How long it has been available. For a sold piece this stops at the
@@ -182,6 +210,7 @@ class Product:
 
     def as_dict(self, today: str = "") -> dict[str, Any]:
         d = {f: getattr(self, f) for f in self.__dataclass_fields__}
+        d["judged_price_aud"] = self.judged_price_aud
         d["gross_margin_aud"] = self.gross_margin_aud
         d["gross_margin_pct"] = self.gross_margin_pct
         d["loses_money"] = self.loses_money
@@ -233,21 +262,29 @@ def channel_fee(price: float | None, channel: str | None,
 
 def net_margin_aud(p: Product,
                    fees: Mapping[str, Mapping[str, float]]) -> float | None:
-    """Margin after the channel's cut. None while unpriced."""
-    if p.price_aud is None:
+    """Margin after the channel's cut, against the judged price."""
+    price = p.judged_price_aud
+    if price is None:
         return None
-    return p.price_aud - channel_fee(p.price_aud, p.channel, fees) - p.cogs_aud
+    return price - channel_fee(price, p.channel, fees) - p.cogs_aud
 
 
-def verdicts(p: Product, today: str, *, stale_after_days: int,
+def verdicts(p: Product, today: str, *, stale_after_days: int | None,
              quick_sale_days: int) -> tuple[str, ...]:
-    """The short list of things worth saying about one piece."""
+    """The short list of things worth saying about one piece.
+
+    `stale_after_days` of None means she has not said yet how long is too
+    long — so nothing is called stale. Ninety days was somebody's guess, and
+    a guess wearing a warning label is still a guess. Same rule as an absent
+    fact: no answer, no number.
+    """
     out: list[str] = []
     if p.loses_money:
         out.append(LOSES_MONEY)
     age = p.days_on_sale(today)
     if age is not None:
-        if p.state == "for_sale" and age > stale_after_days:
+        if p.state == "for_sale" and stale_after_days is not None \
+                and age > stale_after_days:
             out.append(STALE)
         elif p.state == "sold" and age < quick_sale_days:
             out.append(QUICK_SALE)
@@ -256,7 +293,8 @@ def verdicts(p: Product, today: str, *, stale_after_days: int,
 
 _COLUMNS = ("id, tenant_id, sku, name, category, description, "
             "materials_cost_aud, labour_hours, hourly_rate_aud, "
-            "packaging_cost_aud, cogs_aud, price_aud, state, channel, "
+            "packaging_cost_aud, cogs_aud, price_primary_aud, "
+            "price_secondary_aud, state, channel, "
             "listed_at, sold_at, marketing_status, marketing_notes, "
             "created_at, updated_at")
 
@@ -403,7 +441,7 @@ def _validated(fields: Mapping[str, Any], required: Sequence[str]
     clean: dict[str, Any] = {}
     for key, value in fields.items():
         if key in _NUMERIC:
-            if value is None and key == "price_aud":
+            if value is None and key in _NULLABLE:
                 clean[key] = None       # unpriced is a legitimate state
                 continue
             if isinstance(value, bool) or not isinstance(value, (int, float)):

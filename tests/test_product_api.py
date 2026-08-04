@@ -34,7 +34,7 @@ HOST = {"host": "z.test"}
 
 PIECE = {"name": "گوشوارهٔ نقره", "materials_cost_aud": 40.0,
          "labour_hours": 1.5, "hourly_rate_aud": 25.0,
-         "packaging_cost_aud": 3.0, "price_aud": 120.0}
+         "packaging_cost_aud": 3.0, "price_primary_aud": 120.0}
 
 
 class Base(unittest.TestCase):
@@ -115,10 +115,10 @@ class TestPersianNumerals(Base):
     def test_persian_digits_are_a_number(self):
         r = self.add(materials_cost_aud="۴۰", labour_hours="۱.۵",
                      hourly_rate_aud="۲۵", packaging_cost_aud="۳",
-                     price_aud="۱۲۰")
+                     price_primary_aud="۱۲۰")
         self.assertEqual(r.status, 200)
         self.assertAlmostEqual(r.body["product"]["cogs_aud"], 80.5)
-        self.assertAlmostEqual(r.body["product"]["price_aud"], 120.0)
+        self.assertAlmostEqual(r.body["product"]["price_primary_aud"], 120.0)
 
     def test_arabic_indic_digits_too(self):
         r = self.add(materials_cost_aud="٤٠")
@@ -126,12 +126,12 @@ class TestPersianNumerals(Base):
         self.assertAlmostEqual(r.body["product"]["materials_cost_aud"], 40.0)
 
     def test_a_thousands_separator_is_not_a_decimal_point(self):
-        r = self.add(price_aud="1,200")
-        self.assertAlmostEqual(r.body["product"]["price_aud"], 1200.0)
+        r = self.add(price_primary_aud="1,200")
+        self.assertAlmostEqual(r.body["product"]["price_primary_aud"], 1200.0)
 
     def test_an_empty_price_stays_unpriced(self):
-        r = self.add(price_aud="")
-        self.assertIsNone(r.body["product"]["price_aud"])
+        r = self.add(price_primary_aud="")
+        self.assertIsNone(r.body["product"]["price_primary_aud"])
         self.assertFalse(r.body["product"]["loses_money"])
 
     def test_a_name_with_digits_is_left_alone(self):
@@ -139,22 +139,22 @@ class TestPersianNumerals(Base):
         self.assertEqual(r.body["product"]["name"], "سری ۲")
 
     def test_words_where_a_number_belongs_are_still_refused(self):
-        r = self.add(price_aud="خیلی")
+        r = self.add(price_primary_aud="خیلی")
         self.assertEqual(r.status, 400)
 
 
 class TestUpdateAndLedger(Base):
     def test_an_edit_records_only_what_moved(self):
         self.add()
-        r = self.call("POST", "/api/v1/products/ZM-0001", {"price_aud": 150.0})
+        r = self.call("POST", "/api/v1/products/ZM-0001", {"price_primary_aud": 150.0})
         self.assertEqual(r.status, 200)
-        self.assertAlmostEqual(r.body["product"]["price_aud"], 150.0)
+        self.assertAlmostEqual(r.body["product"]["price_primary_aud"], 150.0)
 
         entry = [e for e in self.events() if e.kind == "PRODUCT_UPDATED"][-1]
         changed = entry.payload["changed"]
-        self.assertIn("price_aud", changed)
-        self.assertEqual(changed["price_aud"]["before"], 120.0)
-        self.assertEqual(changed["price_aud"]["after"], 150.0)
+        self.assertIn("price_primary_aud", changed)
+        self.assertEqual(changed["price_primary_aud"]["before"], 120.0)
+        self.assertEqual(changed["price_primary_aud"]["after"], 150.0)
         # The other seventeen fields did not move and must not be restated.
         self.assertNotIn("name", changed)
         self.assertNotIn("cogs_aud", changed)
@@ -169,7 +169,7 @@ class TestUpdateAndLedger(Base):
 
     def test_the_ledger_chain_still_verifies_after_edits(self):
         self.add()
-        self.call("POST", "/api/v1/products/ZM-0001", {"price_aud": 150.0})
+        self.call("POST", "/api/v1/products/ZM-0001", {"price_primary_aud": 150.0})
         scope = self.node.registry.scope(self.pack.tenant)
         self.assertTrue(self.ledger.verify(scope))
 
@@ -179,7 +179,7 @@ class TestUpdateAndLedger(Base):
         self.assertEqual(entry.payload["actor"], f"partner:{MALIHEH}")
 
     def test_editing_a_missing_piece_is_a_clear_400(self):
-        r = self.call("POST", "/api/v1/products/ZM-9999", {"price_aud": 10.0})
+        r = self.call("POST", "/api/v1/products/ZM-9999", {"price_primary_aud": 10.0})
         self.assertEqual(r.status, 400)
         self.assertIn("ZM-9999", r.body["error"])
 
@@ -219,7 +219,7 @@ class TestTheDoorStillHolds(Base):
 
     def test_a_crafted_sku_does_not_invent_a_route(self):
         for sku in ("", "ZM-0001/extra", "../../etc"):
-            r = self.call("POST", f"/api/v1/products/{sku}", {"price_aud": 1.0})
+            r = self.call("POST", f"/api/v1/products/{sku}", {"price_primary_aud": 1.0})
             self.assertIn(r.status, (400, 404))
 
     def test_a_body_that_is_not_an_object_is_refused(self):

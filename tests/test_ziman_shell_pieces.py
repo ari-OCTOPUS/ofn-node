@@ -47,8 +47,15 @@ class TestPriceIsHers(unittest.TestCase):
         self.assertIn("برای مقایسه", SRC)
         self.assertIn("تصمیم با خودتان است", SRC)
 
-    def test_an_empty_price_is_allowed(self):
-        self.assertIn("می‌توانید خالی بگذارید", SRC)
+    def test_an_empty_floor_falls_back_to_the_listed_price(self):
+        self.assertIn("اگر خالی بماند، همان قیمت اصلی ملاک است", SRC)
+
+    def test_the_warning_is_computed_against_the_floor(self):
+        # The exact case: listed price fine, floor below cost. The message
+        # must name that situation rather than say "this price loses money"
+        # about a price that does not.
+        self.assertIn("قیمت اصلی خوب است، ولی با کمترین قیمتی که می‌پذیرید", SRC)
+        self.assertIn("floor != null ? floor : listed", SRC)
 
 
 class TestLossIsStatedInWords(unittest.TestCase):
@@ -62,7 +69,8 @@ class TestLossIsStatedInWords(unittest.TestCase):
 
 class TestNumbersComeFromTheNode(unittest.TestCase):
     def test_the_list_renders_node_fields(self):
-        for field in ("cogs_aud", "price_aud", "gross_margin_aud",
+        for field in ("cogs_aud", "price_primary_aud", "price_secondary_aud",
+                      "gross_margin_aud",
                       "verdicts", "days_on_sale", "net_margin_blocked"):
             with self.subTest(field=field):
                 self.assertIn(field, SRC)

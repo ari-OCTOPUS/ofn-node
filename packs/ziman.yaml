@@ -47,7 +47,14 @@ capacity_units_per_week: 6
 # COGS is now derived from the inputs below instead of asked for, so there is
 # no path by which an unpriced hour reaches a shelf price.
 required_facts:
+  sales.days_before_worry:
+    label: یک قطعه بعد از چند روز که نفروشد، نگرانتان می‌کند؟
+    hint: هر عددی که به ذهنتان می‌آید — بعداً می‌شود عوضش کرد.
+    unit: روز
+    min: 7
+    max: 730
   time.hourly_floor: owner_confirmed
+  sales.days_before_worry: owner_confirmed
   ops.delivery_model: owner_confirmed
   ops.capacity_by_family: measured
 
@@ -59,7 +66,6 @@ costing:
   labour:
     hours: labour_hours
     rate: hourly_rate_aud
-  stale_after_days: 90
   quick_sale_days: 7
 
 # کارمزد هر کانال. در *حاشیه* اعمال می‌شود، نه در COGS — هزینه خاصیت قطعه
@@ -80,6 +86,12 @@ questions:
     min: 1
     max: 60
     default: 6
+  sales.days_before_worry:
+    label: یک قطعه بعد از چند روز که نفروشد، نگرانتان می‌کند؟
+    hint: هر عددی که به ذهنتان می‌آید — بعداً می‌شود عوضش کرد.
+    unit: روز
+    min: 7
+    max: 730
   time.hourly_floor:
     label: ساعتی چند دلار، ارزش وقتتان است؟
     hint: پایین‌ترین عددی که با آن حاضرید کار کنید. ماهی یک بار می‌پرسیم.

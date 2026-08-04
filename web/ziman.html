@@ -621,8 +621,14 @@ function pieceCard(p) {
   const cost = el('span'); cost.append('هزینه ', el('b', null, aud(p.cogs_aud)));
   row.append(cost);
   const price = el('span');
-  price.append('قیمت ', el('b', null, p.price_aud == null ? 'هنوز نگذاشته‌اید' : aud(p.price_aud)));
+  price.append('قیمت ', el('b', null,
+    p.price_primary_aud == null ? 'هنوز نگذاشته‌اید' : aud(p.price_primary_aud)));
   row.append(price);
+  if (p.price_secondary_aud != null) {
+    const f = el('span');
+    f.append('کف ', el('b', null, aud(p.price_secondary_aud)));
+    row.append(f);
+  }
   if (p.gross_margin_aud != null) {
     const m = el('span');
     m.append('سود ', el('b', null, aud(p.gross_margin_aud) + ' (' + pct(p.gross_margin_pct) + ')'));
@@ -672,15 +678,20 @@ async function setState(p, changes) {
 }
 
 function askPrice(p) {
-  const raw = prompt('قیمت فروش ' + p.name + ' (هزینه‌اش ' + aud(p.cogs_aud) + ')',
-                     p.price_aud == null ? '' : String(p.price_aud));
-  if (raw === null) return;
-  const v = num(raw);
-  if (v === null) { alert('عدد وارد کنید.'); return; }
-  if (v < p.cogs_aud &&
-      !confirm('این قیمت از هزینه‌اش کمتر است — روی هر دانه ' +
-               aud(p.cogs_aud - v) + ' ضرر می‌کنید. مطمئنید؟')) return;
-  setState(p, { price_aud: v });
+  const one = prompt('قیمت اصلی ' + p.name + ' (هزینه‌اش ' + aud(p.cogs_aud) + ')',
+                     p.price_primary_aud == null ? '' : String(p.price_primary_aud));
+  if (one === null) return;
+  const two = prompt('کمترین قیمتی که می‌پذیرید — خالی یعنی همان قیمت اصلی',
+                     p.price_secondary_aud == null ? '' : String(p.price_secondary_aud));
+  if (two === null) return;
+  const a = num(one), b = num(two);
+  if (a === null && b === null) { alert('عدد وارد کنید.'); return; }
+  /* Judged against the floor, exactly as the node will. */
+  const judged = b != null ? b : a;
+  if (judged != null && judged < p.cogs_aud &&
+      !confirm('با ' + aud(judged) + ' روی هر دانه ' +
+               aud(p.cogs_aud - judged) + ' ضرر می‌کنید. مطمئنید؟')) return;
+  setState(p, { price_primary_aud: a, price_secondary_aud: b });
 }
 
 function askChannel(p) {
@@ -727,18 +738,25 @@ function formCard() {
     wrap.append(f);
   });
 
-  const pf = el('div', 'fld');
-  const pl = el('label', null, 'قیمت فروش');
-  pl.htmlFor = 'f_price_aud';
-  pf.append(pl, el('div', 'sub', 'می‌توانید خالی بگذارید و بعداً تصمیم بگیرید'));
-  const pin = el('input');
-  pin.id = 'f_price_aud';
-  pin.type = 'text';
-  pin.inputMode = 'decimal';
-  pin.value = draft.price_aud != null ? draft.price_aud : '';
-  pin.oninput = () => { refreshMoney(); saveDraft(); };
-  pf.append(pin);
-  wrap.append(pf);
+  /* Two prices. The second is the one every warning is computed against,
+     because it is the one the money actually arrives at. */
+  [['price_primary_aud', 'قیمت اصلی', 'قیمتی که در اینستاگرام یا Etsy می‌گذارید'],
+   ['price_secondary_aud', 'کمترین قیمتی که می‌پذیرید',
+    'کف چانه‌زنی — بازارچه، نقدی. اگر خالی بماند، همان قیمت اصلی ملاک است.']
+  ].forEach(([key, label, sub]) => {
+    const pf = el('div', 'fld');
+    const pl = el('label', null, label);
+    pl.htmlFor = 'f_' + key;
+    pf.append(pl, el('div', 'sub', sub));
+    const pin = el('input');
+    pin.id = 'f_' + key;
+    pin.type = 'text';
+    pin.inputMode = 'decimal';
+    pin.value = draft[key] != null ? draft[key] : '';
+    pin.oninput = () => { refreshMoney(); saveDraft(); };
+    pf.append(pin);
+    wrap.append(pf);
+  });
 
   wrap.append(el('div', 'money', ''));   /* filled by refreshMoney */
 
@@ -760,8 +778,10 @@ function formValues() {
     const e = document.getElementById('f_' + key);
     if (e) out[key] = e.value;
   });
-  const p = document.getElementById('f_price_aud');
-  if (p) out.price_aud = p.value;
+  ['price_primary_aud', 'price_secondary_aud'].forEach(k => {
+    const e = document.getElementById('f_' + k);
+    if (e) out[k] = e.value;
+  });
   return out;
 }
 
@@ -775,7 +795,11 @@ function refreshMoney() {
   const cogs = (num(v.materials_cost_aud) || 0)
              + (num(v.labour_hours) || 0) * (num(v.hourly_rate_aud) || 0)
              + (num(v.packaging_cost_aud) || 0);
-  const price = num(v.price_aud);
+  const listed = num(v.price_primary_aud);
+  const floor = num(v.price_secondary_aud);
+  /* The floor where she set one, otherwise the listed price. Never the
+     average, and never the higher of the two. */
+  const price = floor != null ? floor : listed;
   box.textContent = '';
   box.className = 'money';
 
@@ -785,13 +809,22 @@ function refreshMoney() {
     box.append(ln);
   };
   line('هزینهٔ این قطعه', aud(cogs));
+  if (listed != null) line('قیمت اصلی', aud(listed));
   if (price != null) {
-    line('قیمت', aud(price));
-    line('سود شما', aud(price - cogs) + ' (' + pct(cogs && price ? (price - cogs) / price : 0) + ')');
+    if (floor != null) line('کمترین قیمت شما', aud(floor));
+    line('سود شما', aud(price - cogs) + ' (' + pct(price ? (price - cogs) / price : 0) + ')');
+    if (floor != null && listed != null) {
+      box.append(el('div', 'guide',
+        'سود بالا روی کمترین قیمت حساب شده — چون همان چیزی است که واقعاً می‌گیرید.'));
+    }
     if (price < cogs) {
       box.className = 'money loss';
       box.append(el('div', 'warn-loss',
-        'این قیمت ضرر می‌دهد — روی هر دانه ' + aud(cogs - price) + ' از جیب خودتان می‌رود.'));
+        (floor != null && listed != null && listed >= cogs)
+          ? 'قیمت اصلی خوب است، ولی با کمترین قیمتی که می‌پذیرید روی هر دانه '
+            + aud(cogs - price) + ' ضرر می‌کنید.'
+          : 'این قیمت ضرر می‌دهد — روی هر دانه ' + aud(cogs - price)
+            + ' از جیب خودتان می‌رود.'));
     }
   }
   /* Two reference numbers, shown and never filled in. Deciding her price is
