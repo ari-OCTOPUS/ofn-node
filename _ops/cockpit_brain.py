@@ -185,12 +185,143 @@ def observe(state_dir: "Path | None" = None) -> dict:
 
 
 # ═════════════════════════════════════════════════════════════════════════
+# خودآگاهی — سه اندامِ موجود که هیچ‌کس صدایشان نمی‌زد
+# ═════════════════════════════════════════════════════════════════════════
+# ⚠️ این بخش هیچ اسکنرِ تازه‌ای نمی‌سازد. اختاپوس از قبل پنج اندامِ خودآگاهی
+# دارد — orphan_scan · dark_capabilities · capability_registry · flag_drift ·
+# self_scan — و **هیچ‌کدام صداکنندهٔ تولیدی نداشت**. تنها ارجاع‌ها یک فهرستِ
+# تست بود و ارجاعِ متقابل در docstring ِ همدیگر.
+#
+# یعنی ابزارهایی که ساخته شده بودند تا «قابلیتِ تاریک» را پیدا کنند، خودشان
+# تاریک بودند. این بازگشتی‌ترین شکلِ همان بیماری است، و رفعش ماژولِ ششم
+# نیست — وصل‌کردنِ همان حس‌ها به تنها صدایی است که حالا به مالک می‌رسد.
+#
+# ریتم از روی **هزینهٔ اندازه‌گیری‌شده** (روی همین لپ‌تاپ، دیسکِ ۵۴۰۰ دور):
+#     dark_capabilities   ۴.۵ ثانیه
+#     orphan_scan         ۷.۸ ثانیه
+#     self_scan          ۴۶.۲ ثانیه   ← گران، پس روزانه
+# بیداریِ ارزان هر ۵ دقیقه است (~۰.۳ث)، پس این‌ها روی همان ریتم نمی‌نشینند.
+_TIERS = {
+    # نام: (ماژول، فاصلهٔ ثانیه، آرگومان)
+    "dark":   ("dark_capabilities", 3600.0),
+    "orphan": ("orphan_scan", 3600.0),
+    "self":   ("self_scan", 86400.0),
+}
+
+
+def _run_scan(mod: str, timeout_s: float = 120.0) -> "dict | None":
+    """اسکنر را در **زیرپروسه** می‌دواند، نه با import.
+
+    دو دلیل: (۱) این ماژول‌ها در سطحِ ماژول کار می‌کنند و import کردنشان
+    داخلِ مغز می‌تواند حالت را آلوده کند؛ (۲) اسکنی که ۴۶ ثانیه طول می‌کشد
+    اگر هنگ کند نباید مغز را با خودش ببرد — زیرپروسه timeout دارد.
+    """
+    import subprocess
+    try:
+        r = subprocess.run(
+            [sys.executable, "-X", "utf8", str(_HERE / f"{mod}.py"), "--json"],
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
+            timeout=timeout_s, cwd=str(_HERE.parent),
+            env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1",
+                 "PYTHONIOENCODING": "utf-8"})
+    except Exception:  # noqa: BLE001 — اسکن هرگز بیداری را نمی‌کشد
+        return None
+    txt = (r.stdout or "").strip()
+    i = txt.find("{")
+    if i < 0:
+        return None
+    # ⚠️ `orphan_scan` بعد از خطِ JSON، فهرستِ خوانا هم چاپ می‌کند، پس
+    # `json.loads` روی کلِ خروجی «Extra data» می‌دهد. `raw_decode` فقط
+    # اولین شیء را می‌خواند و بقیه را نادیده می‌گیرد — پس هر سه اسکنر با
+    # یک مسیر کار می‌کنند، بی‌آنکه لازم باشد خروجیِ آن‌ها را عوض کنم.
+    try:
+        return json.JSONDecoder().raw_decode(txt, i)[0]
+    except (ValueError, TypeError):
+        return None
+
+
+def _summarise(name: str, d: dict) -> dict:
+    """از خروجیِ پرحجمِ اسکن فقط چند **عدد** نگه می‌دارد.
+
+    عمداً نه فهرستِ نام‌ها: حافظهٔ مغز باید کوچک بماند و diff باید روی عدد
+    باشد. نامِ چیزِ تازه را وقتی لازم شد از خودِ اسکن می‌شود گرفت.
+    """
+    # ⚠️ کلیدها **خوانده** شدند نه حدس زده. نسخهٔ اولِ این تابع کلیدهای
+    # حدسی داشت (`summary`، `dark`، `total`) و نتیجه‌اش این شد که فهرستِ
+    # خامِ ۱۲۸ دیکشنری داخلِ حافظهٔ مغز نشست — چند صد کیلوبایت به‌جای یک
+    # عدد، و diff روی فهرست بی‌معنا. شکلِ واقعی با `--json` گرفته شد.
+    def _num(v):
+        """فقط عدد. اگر فهرست بود، طولش. وگرنه None — نه صفرِ جعلی."""
+        if isinstance(v, bool):
+            return None
+        if isinstance(v, (int, float)):
+            return v
+        if isinstance(v, (list, tuple, dict)):
+            return len(v)
+        return None
+
+    if name == "orphan":
+        return {"orphans": _num(d.get("total")),
+                "weighty": _num(d.get("weighty")),
+                "modules_checked": _num(d.get("checked"))}
+    if name == "dark":
+        # شکلِ واقعی: n_dark / n_partial / n_flags / n_live_on (سطحِ بالا)
+        return {"dark_gates": _num(d.get("n_dark")),
+                "partial_gates": _num(d.get("n_partial")),
+                "flags_seen": _num(d.get("n_flags")),
+                "flags_live_on": _num(d.get("n_live_on"))}
+    # self_scan: همهٔ اعداد در `headline` نشسته‌اند
+    h = d.get("headline") if isinstance(d.get("headline"), dict) else {}
+    return {"read_undefined": _num(h.get("dark_flags_read_unarmed")),
+            "orphan_state": _num(h.get("orphan_state")),
+            "untested": _num(h.get("untested_modules")),
+            "dead_symbols": _num(h.get("dead_symbols")),
+            "unfinished": _num(h.get("unfinished_markers")),
+            "checks_failed": _num(h.get("checks_failed"))}
+
+
+def self_awareness(mem: dict, now: "float | None" = None,
+                   force: str = "") -> dict:
+    """هر اندام را فقط وقتی می‌دواند که فاصله‌اش گذشته باشد.
+
+    خروجی فقط چند عدد است؛ `diff()` روی همان‌ها کار می‌کند و اگر چیزی عوض
+    نشد، مالک هیچ نمی‌شنود.
+    """
+    t = time.time() if now is None else now
+    out, ran = {}, []
+    for key, (mod, every) in _TIERS.items():
+        last = mem.get(f"_scan_{key}_ts")
+        due = force == key or not isinstance(last, (int, float)) or (t - last) >= every
+        if not due:
+            # مقدارِ قبلی را نگه دار تا diff آن را «ناپدید شد» نخواند.
+            for k, v in (mem.get(f"_scan_{key}") or {}).items():
+                out[k] = v
+            continue
+        d = _run_scan(mod, timeout_s=150.0 if key == "self" else 60.0)
+        if d is None:
+            ran.append(f"{key}:failed")
+            continue
+        s = _summarise(key, d)
+        out.update(s)
+        out[f"_scan_{key}"] = s
+        out[f"_scan_{key}_ts"] = t
+        ran.append(key)
+    out["_scans_ran"] = ran
+    return out
+
+
+# ═════════════════════════════════════════════════════════════════════════
 # diff — چه چیزِ **مهمی** عوض شد؟ $۰ و قطعی
 # ═════════════════════════════════════════════════════════════════════════
 #: آستانه‌ها. عددِ کوچک‌تر از این «نوسان» است نه «تغییر» — و مغزی که هر
 #: نوسان را حادثه بخواند، همان گاردِ گرگ‌گرگی است که خاموشش می‌کنی.
 _THRESH = {"approvals": 1, "stalled_cards": 3, "paid_calls_today": 40,
-           "month_aud": 5.0, "beats_spent": 200}
+           "month_aud": 5.0, "beats_spent": 200,
+           # خودآگاهی: یک یتیمِ تازه یا یک دروازهٔ تاریکِ تازه خبر است.
+           # آستانهٔ ۱ عمدی است — این اعداد آرام حرکت می‌کنند، پس هر
+           # حرکتی معنا دارد و رگبار نمی‌سازد.
+           "orphans": 1, "weighty": 1, "dark_gates": 1,
+           "read_undefined": 5, "dead_symbols": 10, "unfinished": 2}
 #: تغییرِ این‌ها همیشه مهم است، هر قدر کوچک.
 _ALWAYS = ("halted", "germline_alert", "approvals_status")
 
@@ -342,6 +473,14 @@ def tick(state_dir: "Path | None" = None, speak_fn=None,
     """
     snap = observe(state_dir)
     mem = recall()
+    # اندام‌های خودآگاهی: هرکدام فقط وقتی فاصله‌اش گذشته باشد می‌دود.
+    # روی درختِ تست (state_dir تزریقی) اصلاً نمی‌دود — وگرنه هر تست
+    # ۴۶ ثانیه اسکنِ کلِ مخزن می‌شود.
+    if state_dir is None:
+        try:
+            snap.update(self_awareness(mem))
+        except Exception as exc:  # noqa: BLE001
+            snap["_scans_ran"] = [f"error:{type(exc).__name__}"]
     before = {k: v for k, v in mem.items() if not k.startswith("_")}
     changes = diff(snap, before or None)
 
@@ -386,7 +525,10 @@ def tick(state_dir: "Path | None" = None, speak_fn=None,
     return report
 
 
-_FA = {"halted": "توقفِ ارگانیسم", "approvals": "صفِ تأیید",
+_FA = {"orphans": "ماژولِ یتیم", "weighty": "یتیمِ سنگین",
+       "dark_gates": "دروازهٔ تاریک", "read_undefined": "فلگِ تعریف‌نشده",
+       "dead_symbols": "نمادِ مرده", "unfinished": "کارِ ناتمام",
+       "halted": "توقفِ ارگانیسم", "approvals": "صفِ تأیید",
        "approvals_status": "خوانایی صفِ تأیید", "stalled_cards": "کارتِ راکد",
        "paid_calls_today": "تماسِ پولیِ امروز", "month_aud": "خرجِ ماه",
        "beats_spent": "ضربانِ خرج‌شده", "germline_alert": "هشدارِ ژرم‌لاین",
