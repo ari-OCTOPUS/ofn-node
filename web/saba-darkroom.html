@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>تاریک‌خانه — استودیوی سبا</title>
+<style>
+/* ══════════════════════════════════════════════════════════════
+   «تاریک‌خانه» — زبان بصری از خودِ کار می‌آید، نه از داشبورد
+   ──────────────────────────────────────────────────────────────
+   او عکاس است. پس واحدهای این رابط واحدهای عکاسی‌اند:
+     صف        →  کنتاکت‌شیت (همان‌جایی که عکاس کارش را مرور می‌کند)
+     عملکرد    →  نورسنج، نه درصد
+     هفته      →  نوار فیلم، هر فریم یک روز
+     انتشار    →  کلاکت
+   عدد کم، فرم زیاد. «دایرهٔ ساده» هیچ‌جا نیست.
+   ══════════════════════════════════════════════════════════════ */
+
+@property --sweep{syntax:"<angle>";initial-value:-90deg;inherits:false}
+@property --dev{syntax:"<percentage>";initial-value:0%;inherits:false}
+
+:root{
+  color-scheme:dark;
+  interpolate-size:allow-keywords;
+
+  --obsidian:#0B0B0C;
+  --charcoal:#141416;
+  --ash:#1F1F23;
+  --ash-hi:#2B2B30;
+
+  --ivory:#E9DCC8;      /* fill — برچسب تیره · ممیزی‌شده */
+  --rose:#CB969F;       /* text — 5.64:1 */
+  --wine:#5A1A26;
+  --ember:#F4B73F;      /* فقط تأکید نادر */
+
+  --t-hi:#F2EFEA; --t-mid:#C4BEB6; --t-lo:#A9A39C;
+  --on-ivory:#0B0B0C;
+
+  --line:color-mix(in oklab,var(--ivory) 8%,transparent);
+  --line-hi:color-mix(in oklab,var(--ivory) 17%,transparent);
+
+  --fa:"Vazirmatn","IRANSans",Tahoma,"Noto Naskh Arabic UI",system-ui,sans-serif;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --ease:cubic-bezier(.19,.68,.32,1);
+  --slow:520ms;         /* «۲۰۰ تا ۳۰۰» برای ریز، این برای صحنه. بدون jump. */
+  --blur:16px;
+}
+@supports (color:oklch(0 0 0)){
+  :root{
+    --rose-air:oklch(from var(--rose) l c h / .13);
+    --ivory-air:oklch(from var(--ivory) l c h / .10);
+    --wine-air:oklch(from var(--wine) calc(l + .06) c h / .34);
+  }
+}
+@supports not (color:oklch(0 0 0)){
+  :root{--rose-air:rgb(203 150 159/.13);--ivory-air:rgb(233 220 200/.10);
+        --wine-air:rgb(90 26 38/.34)}
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:var(--fa);background:var(--obsidian);color:var(--t-hi);
+  line-height:1.85;letter-spacing:normal;min-height:100dvh;
+  padding-bottom:calc(104px + env(safe-area-inset-bottom));
+  overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+
+/* ── اتاق: مه، نه نئون ─────────────────────────────────── */
+.room{position:fixed;inset:-30%;z-index:-3;pointer-events:none;
+  background:
+    radial-gradient(38% 26% at 76% 2%, var(--wine-air),transparent 66%),
+    radial-gradient(30% 22% at 10% 20%, var(--rose-air),transparent 68%),
+    radial-gradient(64% 40% at 50% 104%,var(--ivory-air),transparent 66%);
+  filter:blur(2px);animation:fog 52s var(--ease) infinite alternate}
+@keyframes fog{to{transform:translate3d(-4%,2.5%,0) scale(1.1)}}
+
+/* نور کرکره — نوآر، ولی نرم. اسپک می‌گوید هیچ کنتراست تندی نیست. */
+.blinds{position:fixed;inset:0;z-index:-2;pointer-events:none;opacity:.16;
+  background:repeating-linear-gradient(172deg,
+    transparent 0 46px, rgb(233 220 200/.055) 46px 50px);
+  mask-image:radial-gradient(70% 46% at 82% 0%,#000,transparent 72%)}
+.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(rgb(255 255 255/.028) .6px,transparent .6px);
+  background-size:3px 3px}
+
+.wrap{max-width:436px;margin-inline:auto;padding-inline:17px;container-type:inline-size}
+
+/* ── کلاکت سربرگ ────────────────────────────────────────── */
+.slate{display:flex;align-items:stretch;gap:0;margin:22px 0 26px;
+  border:1px solid var(--line-hi);border-radius:14px;overflow:hidden;
+  background:linear-gradient(170deg,var(--ash-hi),var(--charcoal))}
+.slate .stripes{width:74px;flex:none;
+  background:repeating-linear-gradient(115deg,
+    var(--ivory) 0 13px, var(--obsidian) 13px 26px);opacity:.9}
+.slate .info{padding:13px 15px;flex:1}
+.slate .k{font-size:11.5px;color:var(--t-lo);letter-spacing:normal}
+.slate .v{font-size:19px;font-weight:600;margin-top:1px}
+.slate .r{padding:13px 15px;display:grid;place-items:center;
+  border-inline-start:1px solid var(--line)}
+.slate .r span{font-family:var(--serif);font-size:26px;color:var(--rose);font-style:italic}
+
+/* ── سرلوحه: نقل‌قول به‌جای عنوان بخش ────────────────────── */
+.epi{margin:30px 0 16px;padding-inline-start:15px;
+  border-inline-start:2px solid var(--rose)}
+.epi p{font-family:var(--serif);font-size:16px;font-style:italic;
+  color:var(--t-mid);line-height:1.7;text-wrap:pretty}
+.epi cite{display:block;font-family:var(--fa);font-size:12px;
+  color:var(--t-lo);font-style:normal;margin-top:5px}
+
+/* ── فریم در حال ظهور ───────────────────────────────────── */
+.develop{position:relative;border-radius:20px;overflow:hidden;
+  aspect-ratio:16/10;border:1px solid var(--line-hi);
+  box-shadow:0 40px 70px -34px rgb(0 0 0/.95);
+  background:
+    radial-gradient(58% 74% at 62% 22%,#3A2A2C,transparent 70%),
+    radial-gradient(80% 60% at 22% 88%,#241A1C,transparent 70%),
+    linear-gradient(168deg,#1A1618,#0C0B0C)}
+.develop::before{ /* لبهٔ سیال ظهور */
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(100deg,transparent var(--dev),
+    rgb(11 11 12/.88) calc(var(--dev) + 16%));
+  animation:develop 7s var(--ease) infinite alternate}
+@keyframes develop{from{--dev:8%}to{--dev:92%}}
+.develop .cap{position:absolute;inset-inline:0;bottom:0;padding:20px 18px;
+  background:linear-gradient(to top,rgb(6 6 7/.92),transparent);}
+.develop h2{font-size:20px;font-weight:600;text-wrap:balance;margin-bottom:4px}
+.develop p{font-size:13px;color:var(--t-mid)}
+.bars{position:absolute;inset-inline:0;height:26px;background:var(--obsidian);
+  opacity:.92}                                   /* لتربکس سینمایی */
+.bars.t{top:0}.bars.b{bottom:0}
+
+/* ── نورسنج: عملکرد به‌شکل نوردهی، نه درصد ─────────────── */
+.meter{margin-top:16px;background:linear-gradient(168deg,var(--ash-hi),var(--charcoal));
+  border:1px solid var(--line);border-radius:22px;padding:18px 18px 14px;
+  display:flex;align-items:center;gap:16px}
+.dial{width:104px;height:60px;flex:none;position:relative}
+.dial svg{width:100%;height:100%;overflow:visible}
+.dial .trk{stroke:var(--line-hi);stroke-width:7;fill:none;stroke-linecap:round}
+.dial .val{stroke:url(#g);stroke-width:7;fill:none;stroke-linecap:round;
+  stroke-dasharray:126;stroke-dashoffset:126;animation:expose 1.6s var(--ease) .3s forwards}
+@keyframes expose{to{stroke-dashoffset:34}}
+.dial .ndl{stroke:var(--ivory);stroke-width:1.6;stroke-linecap:round;
+  transform-origin:52px 52px;transform:rotate(-84deg);
+  animation:swing 1.6s var(--ease) .3s forwards}
+@keyframes swing{to{transform:rotate(38deg)}}
+.meter .lab{font-size:12.5px;color:var(--t-lo)}
+.meter .big{font-family:var(--serif);font-size:21px;color:var(--t-hi);
+  font-style:italic;line-height:1.4;text-wrap:balance}
+.stops{display:flex;justify-content:space-between;font-size:10.5px;
+  color:var(--t-lo);margin-top:6px;font-variant-numeric:tabular-nums}
+
+/* ── نوار فیلم: هفته ─────────────────────────────────────── */
+.strip{margin-top:14px;border-radius:16px;overflow:hidden;
+  background:var(--charcoal);border:1px solid var(--line);
+  padding-block:9px}
+.holes{height:9px;display:flex;gap:10px;justify-content:center;padding-inline:12px}
+.holes i{flex:1;max-width:15px;height:100%;border-radius:2.5px;background:var(--obsidian);
+  box-shadow:inset 0 0 0 1px var(--line)}
+.frames{display:flex;gap:4px;padding:8px 12px}
+.frames b{flex:1;aspect-ratio:3/4;border-radius:4px;display:grid;
+  place-items:end center;padding-bottom:4px;font-size:10px;font-weight:400;
+  color:rgb(11 11 12/.75);
+  background:linear-gradient(180deg,var(--ivory),color-mix(in oklab,var(--ivory) 40%,var(--wine)));
+  transition:transform .3s var(--ease)}
+.frames b.dim{background:linear-gradient(180deg,#3A363A,#232025);color:var(--t-lo)}
+.frames b.now{outline:1.6px solid var(--ember);outline-offset:1.6px}
+
+/* ── کنتاکت‌شیت ─────────────────────────────────────────── */
+.sheet-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+@container (max-width:330px){.sheet-grid{grid-template-columns:1fr}}
+.neg{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:4/5;
+  border:1px solid var(--line);cursor:pointer;
+  background:linear-gradient(158deg,#332A2C,#151214);
+  transition:transform .35s var(--ease),border-color .35s var(--ease)}
+.neg:nth-child(2){background:linear-gradient(158deg,#2A2D31,#131416)}
+.neg:nth-child(3){background:linear-gradient(158deg,#37302A,#161311)}
+.neg:nth-child(4){background:linear-gradient(158deg,#2C262E,#141215)}
+.neg::after{content:"";position:absolute;inset:0;
+  background:radial-gradient(58% 44% at 34% 24%,rgb(233 220 200/.13),transparent 68%)}
+.neg:active{transform:scale(.975)}
+.neg .idx{position:absolute;top:8px;inset-inline-start:9px;font-size:10px;
+  color:rgb(233 220 200/.55);font-family:var(--serif);z-index:2}
+.neg .foot{position:absolute;inset-inline:0;bottom:0;padding:11px 11px 10px;z-index:2;
+  background:linear-gradient(to top,rgb(6 6 7/.93),transparent)}
+.neg .foot h4{font-size:13px;font-weight:600;text-wrap:balance;line-height:1.55}
+.neg .foot small{font-size:11px;color:var(--t-lo)}
+.tag{position:absolute;top:8px;inset-inline-end:8px;z-index:2;
+  width:22px;height:22px;border-radius:7px;display:grid;place-items:center;
+  backdrop-filter:blur(6px);background:rgb(11 11 12/.5)}
+.tag svg{width:12px;height:12px}
+.tag.rev{color:var(--ember)} .tag.sch{color:var(--rose)} .tag.pub{color:#7BCF9D}
+
+/* ── رضایت — دروازه با :has()، بدون JS ─────────────────── */
+.consent{display:flex;gap:13px;align-items:flex-start;margin:16px 0;padding:15px;
+  border-radius:16px;background:var(--wine-air);
+  border:1px solid color-mix(in oklab,var(--rose) 26%,transparent)}
+.consent input{position:absolute;opacity:0;width:44px;height:44px;cursor:pointer}
+.tick{width:44px;height:44px;flex:none;display:grid;place-items:center;margin:-10px -10px -10px 0}
+.tick i{width:23px;height:23px;border-radius:8px;display:grid;place-items:center;
+  border:2px solid var(--line-hi);transition:.25s var(--ease)}
+.tick svg{width:13px;height:13px;opacity:0;transform:scale(.5);transition:.25s var(--ease)}
+.consent:has(input:checked) .tick i{background:var(--ivory);border-color:var(--ivory)}
+.consent:has(input:checked) .tick svg{opacity:1;transform:none}
+.consent:has(input:focus-visible) .tick i{outline:2px solid var(--ivory);outline-offset:3px}
+.consent b{display:block;font-size:13.5px;margin-bottom:2px}
+.consent small{font-size:12.5px;color:var(--t-mid);line-height:1.7;display:block}
+.gate:has(input:not(:checked)) .cta-main{filter:grayscale(.8) brightness(.55);pointer-events:none}
+
+/* ── دکمه ───────────────────────────────────────────────── */
+.cta{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
+  border:0;cursor:pointer;font-family:inherit;font-size:16px;font-weight:600;
+  padding:15px;border-radius:16px;background:var(--ivory);color:var(--on-ivory);
+  box-shadow:0 16px 32px -14px rgb(233 220 200/.35);
+  transition:transform .18s var(--ease),filter var(--slow) var(--ease)}
+.cta:active{transform:translateY(1px) scale(.994)}
+.cta svg{width:18px;height:18px}
+.cta.ghost{background:transparent;color:var(--t-mid);box-shadow:none;
+  border:1px solid var(--line-hi);margin-top:9px}
+
+/* ── ورقهٔ کلاکت: popover در top layer ──────────────────── */
+[popover]{border:0;padding:0;background:transparent;color:var(--t-hi);
+  inset:auto 0 0 0;width:100%;max-width:436px;margin-inline:auto;
+  opacity:0;translate:0 26px;
+  transition:opacity var(--slow) var(--ease),translate var(--slow) var(--ease),
+             overlay var(--slow) allow-discrete,display var(--slow) allow-discrete}
+[popover]:popover-open{opacity:1;translate:0 0}
+@starting-style{[popover]:popover-open{opacity:0;translate:0 26px}}
+[popover]::backdrop{background:rgb(5 5 6/.76);backdrop-filter:blur(7px);opacity:0;
+  transition:opacity var(--slow) var(--ease),display var(--slow) allow-discrete,
+             overlay var(--slow) allow-discrete}
+[popover]:popover-open::backdrop{opacity:1}
+@starting-style{[popover]:popover-open::backdrop{opacity:0}}
+.card-sheet{background:linear-gradient(178deg,var(--ash-hi),var(--charcoal));
+  border:1px solid var(--line-hi);border-radius:24px 24px 0 0;
+  padding:22px 19px calc(22px + env(safe-area-inset-bottom))}
+.card-sheet .stripes{height:16px;border-radius:6px;margin-bottom:18px;
+  background:repeating-linear-gradient(115deg,var(--ivory) 0 11px,var(--obsidian) 11px 22px);
+  opacity:.85}
+.card-sheet h4{font-size:18px;font-weight:600;margin-bottom:7px}
+.card-sheet p{font-size:13.5px;color:var(--t-mid);margin-bottom:19px;text-wrap:pretty}
+.warn{color:var(--rose)}
+
+/* ── مشاور — پیشنهاد از دادهٔ خودش، نه از حدس ──────────── */
+.advice{background:linear-gradient(168deg,#241E20,var(--charcoal));
+  border:1px solid color-mix(in oklab,var(--rose) 20%,transparent);
+  border-radius:20px;padding:17px;margin-top:13px;position:relative;overflow:hidden}
+.advice::before{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:2px;
+  background:linear-gradient(var(--rose),transparent)}
+.advice .h{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--rose);
+  margin-bottom:8px}
+.advice .h svg{width:14px;height:14px}
+.advice p{font-size:13.5px;color:var(--t-mid);text-wrap:pretty}
+.advice .src{font-size:11.5px;color:var(--t-lo);margin-top:9px;
+  padding-top:9px;border-top:1px solid var(--line)}
+
+/* ── ناوبری ─────────────────────────────────────────────── */
+nav{position:fixed;inset-inline:0;bottom:0;z-index:5;display:flex;
+  justify-content:space-around;max-width:436px;margin-inline:auto;
+  padding:10px 0 calc(10px + env(safe-area-inset-bottom));
+  background:color-mix(in oklab,var(--obsidian) 82%,transparent);
+  backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));
+  border-top:1px solid var(--line)}
+@supports not (backdrop-filter:blur(1px)){nav{background:var(--ash)}}
+nav button{background:none;border:0;cursor:pointer;font-family:inherit;
+  display:grid;justify-items:center;gap:3px;font-size:11.5px;color:var(--t-lo);
+  padding:5px 20px;border-radius:14px;transition:.3s var(--ease)}
+nav button[aria-current="page"]{color:var(--ivory);background:var(--ivory-air)}
+nav svg{width:21px;height:21px}
+
+:where(button,a,input):focus-visible{outline:2px solid var(--ivory);outline-offset:3px}
+
+@supports (animation-timeline:view()){
+  @media (prefers-reduced-motion:no-preference){
+    .neg,.meter,.strip,.advice{animation:rise linear both;animation-timeline:view();
+      animation-range:entry 0% entry 40%}
+    @keyframes rise{from{opacity:0;transform:translateY(20px) scale(.975);filter:blur(3px)}}
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
+}
+@media (forced-colors:active){.neg,.meter,.strip,.card-sheet{border:1px solid CanvasText}}
+</style>
+</head>
+<body>
+<div class="room"></div><div class="blinds"></div><div class="grain"></div>
+
+<div class="wrap">
+
+  <div class="slate">
+    <div class="stripes"></div>
+    <div class="info">
+      <div class="k">سه‌شنبه ۱۳ مرداد · صحنهٔ امروز</div>
+      <div class="v">تاریک‌خانه</div>
+    </div>
+    <div class="r"><span>۵</span></div>
+  </div>
+
+  <div class="develop">
+    <div class="bars t"></div>
+    <div class="bars b"></div>
+    <div class="cap">
+      <h2>سه فریم هنوز در ظهورند</h2>
+      <p>یکی منتظر تأیید توست.</p>
+    </div>
+  </div>
+
+  <div class="meter">
+    <div class="dial">
+      <svg viewBox="0 0 104 60">
+        <defs><linearGradient id="g" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0" stop-color="#5A1A26"/><stop offset=".55" stop-color="#CB969F"/>
+          <stop offset="1" stop-color="#E9DCC8"/></linearGradient></defs>
+        <path class="trk" d="M10 52a42 42 0 0 1 84 0"/>
+        <path class="val" d="M10 52a42 42 0 0 1 84 0"/>
+        <line class="ndl" x1="52" y1="52" x2="52" y2="18"/>
+        <circle cx="52" cy="52" r="3.2" fill="#E9DCC8"/>
+      </svg>
+    </div>
+    <div>
+      <div class="lab">نوردهی این هفته</div>
+      <div class="big">کمی بیش از حد باز</div>
+      <div class="stops"><span>−۲</span><span>۰</span><span>+۲</span></div>
+    </div>
+  </div>
+
+  <div class="strip">
+    <div class="holes"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="frames">
+      <b>ش</b><b>ی</b><b class="dim">د</b><b>س</b><b class="dim">چ</b>
+      <b class="now">پ</b><b class="dim">ج</b>
+    </div>
+    <div class="holes"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
+
+  <div class="epi">
+    <p>«آنچه پنهان می‌ماند، همان است که دیده می‌شود.»</p>
+    <cite>یادداشت خودت · ۹ مرداد</cite>
+  </div>
+
+  <div class="sheet-grid">
+    <div class="neg">
+      <span class="idx">۰۱</span>
+      <span class="tag rev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/>
+        <path d="M12 7.5v5"/><path d="M12 16.3v.01"/></svg></span>
+      <div class="foot"><h4>پشت صحنه‌ی عصر</h4><small>۳ فریم · ۱۹:۳۰</small></div>
+    </div>
+    <div class="neg">
+      <span class="idx">۰۲</span>
+      <span class="tag sch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/>
+        <path d="M12 7.5V12l3.2 2"/></svg></span>
+      <div class="foot"><h4>یادداشت شب</h4><small>۱ فریم · فردا ۲۱:۰۰</small></div>
+    </div>
+    <div class="neg">
+      <span class="idx">۰۳</span>
+      <span class="tag sch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.4" stroke-linecap="round"><path d="M5 19h14"/>
+        <path d="M15.5 5.5l3 3L9 18l-4 1 1-4z"/></svg></span>
+      <div class="foot"><h4>سیاه‌وسفید — ۲</h4><small>۴ فریم · بی‌زمان</small></div>
+    </div>
+    <div class="neg">
+      <span class="idx">۰۴</span>
+      <span class="tag pub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12.5l4.5 4.5L19 7"/></svg></span>
+      <div class="foot"><h4>بالکن، تیر</h4><small>۲ فریم · منتشر شد</small></div>
+    </div>
+  </div>
+
+  <div class="advice">
+    <div class="h">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v2"/><path d="M12 19v2"/>
+        <path d="M5 12H3"/><path d="M21 12h-2"/><circle cx="12" cy="12" r="4.5"/></svg>
+      خواندهٔ این هفته
+    </div>
+    <p>فریم‌های تک‌سوژه با نور پخش، دو برابر بیشتر از قاب‌های شلوغ نگه می‌دارند.
+       سه‌تا از پنج پیش‌نویس امروز پس‌زمینهٔ شلوغ دارند.</p>
+    <div class="src">از ۳۸ پست خودت در ۹۰ روز · هیچ تصویری از دستگاه خارج نشد</div>
+  </div>
+
+  <form class="gate" onsubmit="return false" style="margin-top:22px">
+    <label class="consent">
+      <span class="tick"><input type="checkbox" id="c1">
+        <i><svg viewBox="0 0 24 24" fill="none" stroke="#0B0B0C" stroke-width="3.6"
+          stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg></i>
+      </span>
+      <span><b>رضایت تصویر ثبت شده است</b>
+      <small>سند امضاشده · معتبر تا ۱۴۰۵/۱۲/۲۹ · REL‑0007</small></span>
+    </label>
+    <button class="cta cta-main" popovertarget="sheet">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+        stroke-linecap="round" stroke-linejoin="round"><path d="M21 3L10.5 13.5"/>
+        <path d="M21 3l-6.5 18-4-8-8-4z"/></svg>انتشار
+    </button>
+    <button class="cta ghost">نگه‌دار در تاریک‌خانه</button>
+  </form>
+
+</div>
+
+<div id="sheet" popover>
+  <div class="card-sheet">
+    <div class="stripes"></div>
+    <h4>تأیید انتشار</h4>
+    <p>«پشت صحنه‌ی عصر» در <b>کانال اصلی</b> منتشر می‌شود.
+      <span class="warn">این کار برگشت‌پذیر نیست.</span></p>
+    <button class="cta" popovertarget="sheet" popovertargetaction="hide">انتشار کن</button>
+    <button class="cta ghost" popovertarget="sheet" popovertargetaction="hide">انصراف</button>
+  </div>
+</div>
+
+<nav>
+  <button aria-current="page" onclick="go(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+      stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l18-3v13L3 20z"/>
+      <path d="M3 11l18-3"/></svg>تاریک‌خانه
+  </button>
+  <button onclick="go(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+      stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/>
+      <path d="M9 4v16"/><path d="M15 4v16"/><path d="M3 12h18"/></svg>کنتاکت
+  </button>
+  <button onclick="go(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+      stroke-linecap="round" stroke-linejoin="round"><path d="M21 3L10.5 13.5"/>
+      <path d="M21 3l-6.5 18-4-8-8-4z"/></svg>انتشار
+  </button>
+</nav>
+
+<script>
+const swap = fn => document.startViewTransition ? document.startViewTransition(fn) : fn();
+function go(b){swap(()=>{document.querySelectorAll('nav button')
+  .forEach(x=>x.removeAttribute('aria-current'));b.setAttribute('aria-current','page')})}
+</script>
+</body>
+</html>

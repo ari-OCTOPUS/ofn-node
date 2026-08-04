@@ -73,6 +73,20 @@ class Config:
             self.state_dir, "products.sqlite")
 
     @property
+    def consent_path(self) -> str:
+        """Who agreed to appear in content, and where it ended up.
+
+        In the state directory with every other database, not in the repo.
+        The studio brief writes it as `~/ofn/consent.sqlite`; that would put
+        consent records inside a git working tree, one `git add -A` away from
+        being committed. It also keeps it out of the nightly backup and out
+        of the boot integrity check, which are the two things this file most
+        needs to be inside.
+        """
+        return os.environ.get("OFN_CONSENT_DB") or os.path.join(
+            self.state_dir, "consent.sqlite")
+
+    @property
     def photos_root(self) -> str:
         """Where photo bytes live — beside the database, not inside it.
 
@@ -94,7 +108,8 @@ class Config:
         # A database that is not in this map is one nobody notices has gone
         # bad until somebody opens it looking for a year of work.
         return {"ledger": self.ledger_path, "facts": self.facts_path,
-                "outbox": self.outbox_path, "products": self.products_path}
+                "outbox": self.outbox_path, "products": self.products_path,
+                "consent": self.consent_path}
 
 
 def load() -> Config:
