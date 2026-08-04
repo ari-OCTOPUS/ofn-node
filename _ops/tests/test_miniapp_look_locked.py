@@ -205,6 +205,26 @@ def t_the_write_path_never_reports_optimistically():
             f"وضعِ {st} با لحنِ موفقیت ({pairs['APPLIED']}) رندر می‌شود")
 
 
+def t_every_read_endpoint_has_a_ui_consumer():
+    """هر مسیرِ خواندنیِ allowlist‌شده باید یک مصرف‌کننده در UI داشته باشد.
+
+    ⚠️ `/api/lifecycle` ساخته و تست‌شده بود (۱۶ ادعا) و **صفر مصرف‌کننده**
+    داشت. نتیجه: صفِ تأیید به مالک «۰» نشان می‌داد در حالی که ۲۷ کارت راکد
+    بود. همان الگویی که این مخزن بارها خورده — قابلیت هست، صداکننده نیست.
+
+    فهرست از خودِ gateway خوانده می‌شود، پس مسیرِ بعدی هم نمی‌تواند بی‌مصرف
+    بماند. مسیرهای proxy (`/api/pf/*`) این‌جا نیستند چون در allowlist نیستند؛
+    آن‌ها را صداکننده‌های renderPF پوشش می‌دهند.
+    """
+    gw = (_OPS / "telegram_center" / "miniapp_gateway.py").read_text(encoding="utf-8")
+    m = re.search(r"READ_API_PATHS\s*=\s*\{(.*?)\}", gw, re.S)
+    assert m, "‏READ_API_PATHS پیدا نشد"
+    paths = sorted(set(re.findall(r'"(/api/[a-z/\-]+)"', m.group(1))))
+    assert len(paths) >= 8, f"فهرستِ مسیرها مشکوکانه کوتاه است: {paths}"
+    orphan = [p for p in paths if ('api("%s")' % p) not in JS]
+    assert not orphan, f"مسیرِ خواندنی بدونِ مصرف‌کننده در UI: {orphan}"
+
+
 if __name__ == "__main__":
     CHECKS = [(n, f) for n, f in sorted(globals().items())
               if n.startswith("t_") and callable(f)]

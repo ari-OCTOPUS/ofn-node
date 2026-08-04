@@ -245,9 +245,83 @@
             (p.amount_aud!==undefined?'<span class="amt">'+fa(p.amount_aud)+'</span>':'')+'</div>';
         }).join("")+'</div>'
         : '<div class="muted" style="text-align:center">صف خالی است</div>';
+      // ⚠️ مخرجِ `Math.max(n,5)` ساختگی بود: کمانِ حلقه هیچ چیزِ واقعی را
+      // کد نمی‌کرد. صف سقفِ طبیعی ندارد، پس وقتی عددی برای مقایسه نیست،
+      // گره می‌کشم نه حلقه — همان قاعده‌ای که در علائمِ حیاتی گذاشتم.
       el.innerHTML = '<div class="card">'+secHead("صفِ تأیید")+
-        '<div class="ringrow">'+ring(n, Math.max(n,5), "منتظرِ تو", n?"hot":"cyan")+'</div>'+
+        '<div class="vitals">'+orbs([{name:"منتظرِ تو", short:"منتظرِ تو",
+                                      n:n, tone:(n?"hot":"ok")}])+'</div>'+
         body+'</div>';
+    });
+  }
+
+  // ── چرخهٔ عمرِ کارت‌ها ─────────────────────────────────────────────────────
+  // ⚠️ چرا این‌جا و چرا مهم است: `/api/lifecycle` ساخته و تست‌شده بود و
+  // **هیچ مصرف‌کننده‌ای نداشت**. یعنی صفِ تأیید به مالک «۰» نشان می‌داد در
+  // حالی که ۲۷ کارت راکد بود و قدیمی‌ترینشان روزها عمر داشت. دقیقاً همان
+  // الگوی «قابلیت هست، صداکننده نیست».
+  //
+  // این نما عمداً فقط **شمارش و مهرِ زمان** می‌دهد: متنِ کارت‌ها مادهٔ
+  // اعتبارنامه دارد و تنها مقصدِ تونل همین گیت‌وی است. سنجیده شد روی پاسخِ
+  // زنده: از ۱۹۳ رشتهٔ واقعیِ کارت‌ها صفر نشتی.
+  var STAGE_ORDER = ["PROPOSED","DELIVERED","DECIDED","EFFECTED","MEASURED",
+                     "STALLED","UNKNOWN"];
+  var STAGE_LC_FA = {PROPOSED:"پیشنهاد", DELIVERED:"رسیده", DECIDED:"تصمیم‌گرفته",
+                     EFFECTED:"اعمال‌شده", MEASURED:"سنجیده", STALLED:"راکد",
+                     UNKNOWN:"نامعلوم"};
+
+  function renderLifecycle(el){
+    el.innerHTML = "";
+    api("/api/lifecycle").then(function(d){
+      d = d || {};
+      if(d.status === "error"){
+        // ۴۰۴ این‌جا یعنی فلگ خاموش است — و آن یک تصمیم است نه خرابی.
+        el.innerHTML = '<div class="card">'+secHead("چرخهٔ عمر")+
+          '<div class="muted">نمای چرخهٔ عمر خاموش است ('+
+          esc(String(d.reason||""))+').</div></div>';
+        return;
+      }
+      function v(x){ return (x && typeof x === "object") ? x.value : x; }
+      var stages = v(d.by_stage) || {};
+      var total = v(d.total_cards);
+      var stalled = Number(stages.STALLED || 0);
+
+      var segs = STAGE_ORDER.filter(function(s){ return stages[s]; })
+        .map(function(s){
+          return {n:stages[s], name:STAGE_LC_FA[s]||s,
+                  tone:(s==="STALLED"?"hot":s==="UNKNOWN"?"unk":
+                        s==="EFFECTED"?"ok":"warm")};
+        });
+
+      var h = secHead("چرخهٔ عمرِ کارت‌ها",
+                      pill(stalled?fa(stalled)+" راکد":"بی‌رکود",
+                           stalled?"hot":"ok"));
+      h += '<div class="vitals">'+
+           (segs.length ? arcs(segs) : "")+
+           orbs(segs.map(function(s){ return {name:s.name, short:s.name,
+                                              n:s.n, tone:s.tone}; }))+
+           '</div>';
+
+      // قدیمی‌ترین راکد: عدد به‌تنهایی معنا ندارد، سن دارد.
+      var oldest = v(d.oldest_stalled_ts);
+      if(stalled && oldest){
+        var days = Math.floor((Date.now()/1000 - Number(oldest)) / 86400);
+        h += '<div class="tri '+(days>=3?"hot":"warm")+'"><div class="in">'+
+          '<div class="verb">قدیمی‌ترین کارتِ راکد '+fa(days)+' روز مانده</div>'+
+          '<div class="why">کارتِ راکد یعنی پیشنهادی که نه رد شد نه اعمال — '+
+          'تا تصمیم نگیری همان‌جا می‌ماند.</div></div></div>';
+      }
+
+      h += '<details class="det"><summary>عددهایش</summary><div class="inner">'+
+        row("کلِ کارت‌ها", total)+
+        STAGE_ORDER.map(function(s){
+          return stages[s] === undefined ? "" : row(STAGE_LC_FA[s]||s, stages[s]);
+        }).join("")+
+        // منبع را نشان می‌دهم چون قاعدهٔ این پروژه است: هر عدد باید
+        // مسیرِ روی دیسکِ خودش را لو بدهد، وگرنه ادعاست.
+        row("منبع", (d.sources||[]).length ? ltr((d.sources||[]).join(" · ")) : "—")+
+      '</div></details>';
+      el.innerHTML = h;
     });
   }
 
@@ -1184,7 +1258,7 @@
     t.classList.add("active");
     render(name);
   }
-  function viewApprovals(el){ stack(el||content, [renderApprovals]); }
+  function viewApprovals(el){ stack(el||content, [renderApprovals, renderLifecycle]); }
   function viewMoney(el){ stack(el||content, [renderValue, renderValueEntry, renderOutbound]); }
   function viewLeads(el){ stack(el||content, [renderLeadOps, renderPF]); }
   // ⚠️ renderStudio از این‌جا برداشته شد: کارتی کاملاً انگلیسی وسطِ صفحهٔ
