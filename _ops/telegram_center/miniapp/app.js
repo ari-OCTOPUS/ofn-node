@@ -215,14 +215,22 @@
     api("/api/legs").then(function(d){
       var legs = d.legs||{}, ks = Object.keys(legs);
       var up = ks.filter(function(k){ return legs[k].live===true; }).length;
+      var down = ks.filter(function(k){ return legs[k].live===false; });
+      // رأیِ مالک: صفحهٔ سیستم خودش یک **اختاپوسِ کامل** شود. تشخیصِ مکانی —
+      // هر پا همیشه در همان موضعِ ساعت است، پس با تکرار جایش را حفظ می‌کنی
+      // و دیگر لازم نیست اسم بخوانی.
       el.innerHTML = '<div class="card">'+
-        secHead("پاها", pill(fa(up)+" از "+fa(ks.length), up===ks.length?"live":"staged"))+
+        secHead("پاها", pill(fa(up)+" از "+fa(ks.length), up===ks.length?"live":(down.length?"blocked":"staged")))+
+        '<div class="sysdial">'+dialSVG(legs, false, up, ks.length||1, true)+'</div>'+
+        (down.length ? '<div class="muted" style="text-align:center">خاموش: '+
+            down.slice(0,4).map(ltr).join(" · ")+'</div>' : '')+
+        '<details class="det"><summary>فهرستِ کاملِ پاها</summary>'+
         (ks.length ? orbs(ks.map(function(k){
             var l = legs[k];
             return {name:k, short:k.slice(0,10),
                     tone: l.live===false?"hot":(l.live?"up":"unk")};
           })) : '<div class="muted">'+esc(d.status||"نامعلوم")+'</div>')+
-        '</div>';
+        '</details></div>';
     });
   }
 
@@ -617,9 +625,12 @@
       for(var k=0;k<STEPS;k++){
         var P=pts[k], Q=pts[k+1];
         var w = w0*(1 - 0.74*P[3]);
-        seg += '<line x1="'+P[0].toFixed(1)+'" y1="'+P[1].toFixed(1)+
-               '" x2="'+Q[0].toFixed(1)+'" y2="'+Q[1].toFixed(1)+
-               '" stroke-width="'+w.toFixed(2)+'" stroke-linecap="round"/>';
+        var ln = ' x1="'+P[0].toFixed(1)+'" y1="'+P[1].toFixed(1)+
+                 '" x2="'+Q[0].toFixed(1)+'" y2="'+Q[1].toFixed(1)+'"';
+        // «استخوان» = بدنهٔ پیوستهٔ بازو؛ روی آن مهره‌های انرژی می‌دوند.
+        // بدونِ استخوان، انیمیشن بازو را تکه‌تکه نشان می‌دهد.
+        seg += '<line class="bone"'+ln+' stroke-width="'+w.toFixed(2)+'" stroke-linecap="round"/>'+
+               '<line'+ln+' stroke-width="'+w.toFixed(2)+'" stroke-linecap="round"/>';
         // مفصلِ رباتیک: حلقهٔ کوچک روی هر بند
         if(k%2===0 && k<STEPS-1){
           joints += '<circle class="jt" cx="'+Q[0].toFixed(1)+'" cy="'+Q[1].toFixed(1)+
@@ -674,8 +685,8 @@
       '</svg>';
   }
 
-  function triCard(sev, verb, why, act, small){
-    return '<div class="tri '+sev+(small?" small":"")+'"><div class="band"></div>'+
+  function triCard(sev, verb, why, act, small, z){
+    return '<div class="tri '+sev+(small?" small":"")+(z?" "+z:"")+'"><div class="band"></div>'+
       '<div class="in"><h3 class="verb">'+esc(verb)+'</h3>'+
       '<div class="why">'+why+'</div>'+
       (act?'<button class="act" data-go="'+esc(act.tab)+'">'+esc(act.label)+'</button>':'')+
@@ -735,7 +746,8 @@
                   '<div class="sm">همه‌چیز سرِ جایش است.</div></div>';
         } else {
           html += show.map(function(c,i){
-            return triCard(c.sev, c.verb, c.why, i===0?c.act:null, i>0);
+            // کلاسِ عمق: فوری جلو، بعدی‌ها عقب‌تر و نرم‌تر. فاصله خودش پیام است.
+            return triCard(c.sev, c.verb, c.why, i===0?c.act:null, i>0, "z"+i);
           }).join("");
           if(rest>0) calm.unshift(fa(rest)+" موردِ کم‌فوریت‌ترِ دیگر");
         }

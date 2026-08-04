@@ -371,3 +371,77 @@ input:focus,select:focus{outline:2px solid var(--cyan);outline-offset:1px;border
 .minieye .mr{stroke:var(--cyan);opacity:.55}
 .minieye .mi{fill:var(--violet);opacity:.9}
 .minieye .mp{fill:var(--sunken)}
+
+/* ═══ ترکیبِ «فضایی» با قرصِ اختاپوس ═══════════════════════════════════
+   چهار رأیِ مالک: عمق در **هر دو** (پس‌زمینه و کارت‌ها) · مهره‌های انرژی
+   ولی **خیلی آرام** · صفحهٔ سیستم یک **اختاپوسِ کامل** · و شکل بالا با
+   متن **پشتِ تاشو**. ═════════════════════════════════════════════════ */
+
+/* ── ۱. آسمانِ پارالاکس: پنج لایه، بدونِ WebGL و بدونِ منبعِ بیرونی ──── */
+.sky{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.sky i{position:absolute;inset:-20% -20% -20% -20%;display:block}
+/* ستاره‌ها: گرادیانِ نقطه‌ایِ تکرارشونده — سبک‌تر از هر تصویری */
+.sky .s1{
+  background-image:
+    radial-gradient(1.2px 1.2px at 18% 22%, rgba(201,216,238,.55), transparent),
+    radial-gradient(1px 1px at 62% 14%, rgba(34,211,238,.45), transparent),
+    radial-gradient(1.4px 1.4px at 82% 61%, rgba(201,216,238,.40), transparent),
+    radial-gradient(1px 1px at 33% 74%, rgba(168,85,247,.40), transparent),
+    radial-gradient(1.1px 1.1px at 8% 55%, rgba(201,216,238,.35), transparent),
+    radial-gradient(1px 1px at 71% 88%, rgba(201,216,238,.30), transparent);
+  background-size:100% 100%;animation:drift1 190s linear infinite}
+.sky .s2{
+  background-image:
+    radial-gradient(1.8px 1.8px at 44% 36%, rgba(201,216,238,.30), transparent),
+    radial-gradient(2px 2px at 12% 82%, rgba(34,211,238,.26), transparent),
+    radial-gradient(1.6px 1.6px at 90% 30%, rgba(168,85,247,.28), transparent);
+  background-size:100% 100%;animation:drift2 120s linear infinite}
+/* سحابی: دو هالهٔ بزرگ، همان دو رنگِ لوگو */
+.sky .neb{
+  background:
+    radial-gradient(60% 40% at 15% 8%, rgba(168,85,247,.14), transparent 65%),
+    radial-gradient(55% 38% at 92% 26%, rgba(34,211,238,.13), transparent 65%),
+    radial-gradient(50% 34% at 50% 104%, rgba(240,70,139,.07), transparent 62%);
+  animation:drift3 240s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate3d(-3%,-2%,0)}}
+@keyframes drift2{to{transform:translate3d(4%,3%,0)}}
+@keyframes drift3{to{transform:translate3d(-2%,1.5%,0) scale(1.05)}}
+
+/* ── ۲. صفحه‌های عمق: فاصله خودش پیام است ────────────────────────────
+   «مهم نیست» را از **دوری** بفهم، نه از خواندن. */
+#content{perspective:1400px;perspective-origin:50% 30%}
+.tri,.calm,details.quiet{transform-style:preserve-3d;
+  transition:transform .35s cubic-bezier(.2,.7,.3,1), opacity .35s, filter .35s}
+.tri.z0{transform:translateZ(26px)}
+.tri.z1{transform:translateZ(-26px) rotateX(3.2deg);opacity:.94}
+.tri.z2{transform:translateZ(-64px) rotateX(5.6deg);opacity:.86;filter:blur(.35px)}
+details.quiet{transform:translateZ(-96px) rotateX(7deg);opacity:.74}
+details.quiet[open]{transform:none;opacity:1}
+@media (prefers-reduced-motion: reduce){
+  .tri.z0,.tri.z1,.tri.z2,details.quiet{transform:none;opacity:1;filter:none}
+}
+
+/* ── ۳. مهره‌های انرژی: فقط پاهای زنده، خیلی آرام ────────────────────
+   حرکت خودش داده است نه تزئین — اگر پا مرده باشد، هیچ مهره‌ای نمی‌رود. */
+.dial .arm.up line{stroke-dasharray:0.1 13;stroke-linecap:round;
+  animation:flow 9s linear infinite}
+.dial .arm.up line:nth-child(2n){animation-duration:11s}
+@keyframes flow{to{stroke-dashoffset:-26}}
+/* بندهای اصلی زیرِ مهره‌ها می‌مانند تا بازو تکه‌تکه دیده نشود */
+.dial .arm .bone{stroke-dasharray:none!important;animation:none!important;opacity:.42}
+.dial.halted .arm.up line{animation:none;stroke-dasharray:none}
+@media (prefers-reduced-motion: reduce){ .dial .arm.up line{animation:none;stroke-dasharray:none} }
+
+/* ── ۴. تاشوی جزئیات داخلِ کارت: شکل بالا، متن پشتش ─────────────────── */
+details.det{margin-top:10px;border-top:1px solid var(--line);padding-top:4px}
+details.det>summary{list-style:none;cursor:pointer;padding:9px 0;font-size:13px;
+  color:var(--muted);min-height:42px;display:flex;align-items:center;gap:7px}
+details.det>summary::-webkit-details-marker{display:none}
+details.det>summary::after{content:"▾";margin-inline-start:auto;opacity:.6}
+details.det[open]>summary::after{content:"▴"}
+
+/* ── ۵. اختاپوسِ کاملِ صفحهٔ سیستم ───────────────────────────────────── */
+.sysdial{display:flex;flex-direction:column;align-items:center;margin:2px 0 10px}
+.sysdial .dial{width:min(84vw,330px)}
+.armlbl{font-size:9.5px;fill:var(--muted)}
+.armlbl.up{fill:var(--cyan-ink)} .armlbl.down{fill:var(--magenta-ink)}
