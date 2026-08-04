@@ -168,6 +168,90 @@ class TokenSpend:
         return self.visible + self.orchestration
 
 
+UNRESOLVED = "unresolved"
+"""A locale field the owner has not answered yet.
+
+Not a default and not a blank. Anything that needs the value raises rather
+than proceeding, so an unanswered question can never quietly become a number
+on a partner's screen. Same principle as an absent fact.
+"""
+
+
+class LocaleError(Exception):
+    """A locale is unsupported, or a needed field of it is unresolved."""
+
+
+@dataclass(frozen=True)
+class Currency:
+    code: str
+    symbol: str
+    decimals: int
+
+    def __post_init__(self) -> None:
+        if not self.code or len(self.code) != 3 or not self.code.isupper():
+            raise ValueError(f"currency code must be 3 upper-case letters: {self.code!r}")
+        if not 0 <= self.decimals <= 4:
+            raise ValueError(f"implausible currency decimals: {self.decimals}")
+
+    def format(self, amount: float) -> str:
+        return f"{self.symbol}{amount:,.{self.decimals}f}"
+
+
+@dataclass(frozen=True)
+class Locale:
+    """Everything that changes when the market changes — in one object.
+
+    Currency is not a display parameter. A number shown to a partner is only
+    meaningful together with the tax treatment that produced it, the timezone
+    the week was counted in, and the law the claim has to survive. Splitting
+    those apart is how a system ends up "parameterised" while still being
+    hard-wired to one market, so they travel together or not at all.
+
+    Exactly one locale is implemented. Any other id is refused at load time —
+    a half-supported market is worse than a refused one, because it fails at
+    the point where money is involved rather than at boot.
+    """
+
+    id: str
+    currency: Currency
+    # IANA zone id, or UNRESOLVED. "AEST" is not enough: it does not say
+    # whether the clock moves in October, and a week boundary that shifts by
+    # an hour twice a year silently mis-buckets capacity.
+    timezone: str = UNRESOLVED
+    # Whether this business is registered for the market's sales tax at all.
+    # The rate is a fact about the country; whether it applies is a fact about
+    # the business, and only the owner knows it.
+    tax_status: str = UNRESOLVED
+    tax_rate: float = 0.0
+    tax_pricing: str = "inclusive"
+    # Not chosen yet is a real state, distinct from none. Empty means the
+    # decision has not been made — nothing may assume a rail or a platform.
+    payment_rails: tuple[str, ...] = ()
+    platforms: tuple[str, ...] = ()
+    legal: tuple[str, ...] = ()
+
+    def require_timezone(self) -> str:
+        if self.timezone == UNRESOLVED:
+            raise LocaleError(
+                f"{self.id}: timezone is unresolved — ask the owner which "
+                f"IANA zone this business operates in before bucketing a week")
+        return self.timezone
+
+    def require_tax(self) -> tuple[float, str]:
+        """The rate that actually applies, or a refusal.
+
+        Returns 0.0 for a business that is not registered: that is an answer,
+        not an absence. UNRESOLVED is the absence, and it raises.
+        """
+        if self.tax_status == UNRESOLVED:
+            raise LocaleError(
+                f"{self.id}: tax status is unresolved — ask the owner whether "
+                f"this business is registered before pricing anything")
+        if self.tax_status == "not_registered":
+            return 0.0, self.tax_pricing
+        return self.tax_rate, self.tax_pricing
+
+
 @dataclass(frozen=True)
 class PackSpec:
     """The whole of a business's configuration, as the kernel sees it.
@@ -191,6 +275,10 @@ class PackSpec:
     # ugly but honest, and the ugliness is what gets the pack filled in.
     question_meta: Mapping[str, Mapping[str, object]] = field(
         default_factory=dict)
+    # The market this business actually sells into. One object, because every
+    # field in it only means anything in the presence of the others.
+    locale: Locale = field(
+        default_factory=lambda: Locale("en-AU", Currency("AUD", "$", 2)))
 
     def __post_init__(self) -> None:
         if self.capacity_units_per_week < 0:

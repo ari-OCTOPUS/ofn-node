@@ -4,6 +4,26 @@
 # ═══════════════════════════════════════════════════════════════════════
 tenant: ziman
 
+# ── locale ─────────────────────────────────────────────────────────────
+# The market this business sells into. One object, because currency alone is
+# a display parameter and a display parameter is not a market: a price is only
+# meaningful together with the tax treatment behind it, the timezone the week
+# was counted in, and the law the claim has to survive.
+#
+# en-AU is the only implemented locale. Any other id is refused at load time
+# (`unsupported_locale`) rather than falling back — see packloader.
+#
+# Ziman is in AUD because its paying customer is Australian. That is the whole
+# reason; it is not inherited from any other project on this node.
+locale:
+  id: en-AU
+  timezone: unresolved      # ⬜ کدام ایالت؟ Sydney و Brisbane در DST فرق دارند
+  tax:
+    status: unresolved      # ⬜ آیا برای GST ثبت شده؟ زیر ۷۵هزار دلار الزامی نیست
+    pricing: inclusive
+  payment_rails: []         # کانال فروش هنوز انتخاب نشده — خالی یعنی «تصمیم نگرفته»
+  platforms: []             # هنوز هیچ‌جا نمی‌فروشد. تازه شروع می‌کند.
+
 # Owner-confirmed 2026-08-03 as a range of 6-10. The operational ceiling is
 # the FLOOR of that range, not the middle and certainly not the top: a system
 # that promises 10 and delivers 6 has manufactured a broken promise out of an

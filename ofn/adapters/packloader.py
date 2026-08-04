@@ -27,8 +27,29 @@ import json
 import os
 from typing import Any, Mapping
 
-from ..kernel.domain import Confidence, PackSpec, RiskTier, TenantId
+from ..kernel.domain import (UNRESOLVED, Confidence, Currency, Locale,
+                             PackSpec, RiskTier, TenantId)
 from ..kernel.errors import PackError
+
+# Exactly one market is implemented end to end. The registry is the single
+# place that says so, and `spec_from_mapping` refuses anything absent from it
+# rather than falling back — a silent fallback to AUD would put an Australian
+# price in front of a partner selling somewhere else, which is the precise
+# failure this whole object exists to prevent.
+SUPPORTED_LOCALES: Mapping[str, Mapping[str, Any]] = {
+    "en-AU": {
+        "currency": {"code": "AUD", "symbol": "$", "decimals": 2},
+        # 10% is a fact about the country. Whether this business charges it is
+        # a fact about the business, so `tax_status` stays unresolved until
+        # the owner answers.
+        "tax_rate": 0.10,
+        "tax_pricing": "inclusive",
+        "legal": ("australian_consumer_law",),
+    },
+}
+
+_TAX_STATUS = {"registered", "not_registered", UNRESOLVED}
+_TAX_PRICING = {"inclusive", "exclusive"}
 
 _TRUE = {"true", "yes", "on"}
 _FALSE = {"false", "no", "off"}
@@ -188,6 +209,7 @@ def spec_from_mapping(data: Mapping[str, Any]) -> PackSpec:
         raise PackError(f"{tenant}: quota_share must be a number")
 
     meta = _question_meta(tenant, data.get("questions") or {}, facts)
+    locale = _locale(tenant, data.get("locale"))
 
     try:
         return PackSpec(
@@ -198,9 +220,78 @@ def spec_from_mapping(data: Mapping[str, Any]) -> PackSpec:
             risk_overrides=overrides,
             quota_share=float(share),
             question_meta=meta,
+            locale=locale,
         )
     except ValueError as exc:
         raise PackError(f"{tenant}: {exc}") from None
+
+
+def _locale(tenant: TenantId, raw: Any) -> Locale:
+    """Build the locale, refusing any market that is not fully implemented.
+
+    A pack with no `locale:` block gets the default one — but the default is
+    still a real, named locale that had to be in `SUPPORTED_LOCALES`, not an
+    implicit set of assumptions scattered through the code.
+    """
+    if raw is None:
+        raw = {}
+    if not isinstance(raw, Mapping):
+        raise PackError(f"{tenant}: locale must be a mapping")
+
+    loc_id = str(raw.get("id", "en-AU"))
+    base = SUPPORTED_LOCALES.get(loc_id)
+    if base is None:
+        raise PackError(
+            f"{tenant}: unsupported_locale {loc_id!r}; implemented locales are "
+            f"{sorted(SUPPORTED_LOCALES)}. Add one deliberately — currency, "
+            f"tax, timezone, rails and law all have to be answered together.")
+
+    cur = dict(base["currency"])
+    cur_raw = raw.get("currency") or {}
+    if not isinstance(cur_raw, Mapping):
+        raise PackError(f"{tenant}: locale.currency must be a mapping")
+    if cur_raw.get("code") and str(cur_raw["code"]) != cur["code"]:
+        # The currency is a property of the locale, not a free choice beside
+        # it. Letting a pack say en-AU with EUR would rebuild the exact
+        # inconsistency the locale object removes.
+        raise PackError(
+            f"{tenant}: locale {loc_id} is {cur['code']}, pack says "
+            f"{cur_raw['code']!r}; currency follows the locale")
+
+    tax_raw = raw.get("tax") or {}
+    if not isinstance(tax_raw, Mapping):
+        raise PackError(f"{tenant}: locale.tax must be a mapping")
+    status = str(tax_raw.get("status", UNRESOLVED))
+    if status not in _TAX_STATUS:
+        raise PackError(
+            f"{tenant}: locale.tax.status must be one of {sorted(_TAX_STATUS)}, "
+            f"got {status!r}")
+    pricing = str(tax_raw.get("pricing", base["tax_pricing"]))
+    if pricing not in _TAX_PRICING:
+        raise PackError(
+            f"{tenant}: locale.tax.pricing must be one of {sorted(_TAX_PRICING)}, "
+            f"got {pricing!r}")
+
+    def _seq(key: str) -> tuple[str, ...]:
+        v = raw.get(key) or ()
+        if isinstance(v, str) or not isinstance(v, (list, tuple)):
+            raise PackError(f"{tenant}: locale.{key} must be a list")
+        return tuple(str(x) for x in v)
+
+    try:
+        return Locale(
+            id=loc_id,
+            currency=Currency(cur["code"], cur["symbol"], int(cur["decimals"])),
+            timezone=str(raw.get("timezone", UNRESOLVED)),
+            tax_status=status,
+            tax_rate=float(base["tax_rate"]),
+            tax_pricing=pricing,
+            payment_rails=_seq("payment_rails"),
+            platforms=_seq("platforms"),
+            legal=tuple(base["legal"]),
+        )
+    except ValueError as exc:
+        raise PackError(f"{tenant}: locale: {exc}") from None
 
 
 _META_FIELDS = {"label", "hint", "unit", "options", "min", "max", "default",
