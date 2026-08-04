@@ -105,6 +105,18 @@ SCHEMA = (
         created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
     )
     """,
+    # The highest piece number ever issued, per business — which is not the
+    # same as the highest one currently on the shelf. Deriving the next code
+    # from the rows that exist means deleting a piece hands its code to the
+    # next one, and the ledger then holds two different pieces called
+    # ZM-0001. A number that has been spoken out loud on a phone call is
+    # spent for ever, whatever happens to the row.
+    """
+    CREATE TABLE IF NOT EXISTS sku_high_water (
+        tenant_id TEXT    PRIMARY KEY,
+        last      INTEGER NOT NULL DEFAULT 0
+    )
+    """,
     "CREATE UNIQUE INDEX IF NOT EXISTS products_sku "
     "ON products (tenant_id, sku)",
     "CREATE INDEX IF NOT EXISTS products_tenant ON products (tenant_id)",
@@ -140,7 +152,27 @@ def _split_price_into_two(conn) -> None:
                      "WHERE price_primary_aud IS NULL AND price_aud IS NOT NULL")
 
 
-MIGRATIONS = (_split_price_into_two,)
+def _seed_sku_high_water(conn) -> None:
+    """Start the high-water mark at whatever the file has already used.
+
+    Without this, a database written before the table existed would begin at
+    zero and reissue every code still sitting in it. Runs once: after the
+    first pass the row exists and `INSERT OR IGNORE` does nothing.
+    """
+    rows = conn.execute("SELECT tenant_id, sku FROM products").fetchall()
+    top: dict[str, int] = {}
+    for tenant, sku in rows:
+        tail = str(sku).rsplit("-", 1)[-1]
+        if tail.isdigit():
+            top[tenant] = max(top.get(tenant, 0), int(tail))
+    for tenant, last in top.items():
+        conn.execute(
+            "INSERT INTO sku_high_water (tenant_id, last) VALUES (?, ?) "
+            "ON CONFLICT(tenant_id) DO UPDATE SET last = MAX(last, excluded.last)",
+            (tenant, last))
+
+
+MIGRATIONS = (_split_price_into_two, _seed_sku_high_water)
 
 MAX_PHOTOS_PER_PRODUCT = 5
 STATES = ("in_progress", "for_sale", "sold", "gifted")
@@ -425,18 +457,62 @@ class ProductStore:
     def next_sku(self, tenant: str, prefix: str) -> str:
         """Next free code for this business, as `ZM-0001`.
 
-        Derived from the highest number already used rather than a count, so
-        retiring a row never hands its code to a different piece.
+        Taken from the high-water mark, not from the rows present. This used
+        to read `MAX(sku)` over the table and claimed in its own docstring
+        that "retiring a row never hands its code to a different piece" — a
+        promise the query could not keep, because a deleted row is exactly
+        the one it can no longer see. The first deletion would have reissued
+        ZM-0001 while the ledger still described a different ZM-0001 under
+        that name.
+
+        The rows are still consulted, as a floor: a file whose high-water
+        table was somehow lost or reset must not start handing out codes
+        that are visibly in use.
         """
-        rows = self._conn.execute(
-            "SELECT sku FROM products WHERE tenant_id = ? AND sku LIKE ?",
-            (tenant, f"{prefix}-%")).fetchall()
-        top = 0
-        for (sku,) in rows:
-            tail = sku.rsplit("-", 1)[-1]
+        row = self._conn.execute(
+            "SELECT last FROM sku_high_water WHERE tenant_id = ?",
+            (tenant,)).fetchone()
+        top = int(row[0]) if row else 0
+        for (sku,) in self._conn.execute(
+                "SELECT sku FROM products WHERE tenant_id = ? AND sku LIKE ?",
+                (tenant, f"{prefix}-%")).fetchall():
+            tail = str(sku).rsplit("-", 1)[-1]
             if tail.isdigit():
                 top = max(top, int(tail))
         return f"{prefix}-{top + 1:04d}"
+
+    def _claim_sku(self, tenant: str, number: int) -> None:
+        """Spend a number, so nothing can ever issue it again."""
+        self._conn.execute(
+            "INSERT INTO sku_high_water (tenant_id, last) VALUES (?, ?) "
+            "ON CONFLICT(tenant_id) DO UPDATE SET last = MAX(last, excluded.last)",
+            (tenant, number))
+
+    def delete(self, tenant: str, sku: str) -> Product:
+        """Remove a piece, and return what was removed.
+
+        Returns the row rather than a bare acknowledgement so the caller can
+        write down what disappeared. A deletion that leaves no description of
+        what it deleted is the one operation this node must not have.
+
+        The code is not freed. `sku_high_water` already holds it, and the
+        ledger still describes it.
+        """
+        piece = self.get(tenant, sku)
+        if piece is None:
+            raise ProductError(f"قطعه‌ای با کد «{sku}» پیدا نشد")
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            self._conn.execute(
+                "DELETE FROM product_photos WHERE product_id = ?", (piece.id,))
+            self._conn.execute(
+                "DELETE FROM products WHERE tenant_id = ? AND sku = ?",
+                (tenant, sku))
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+        return piece
 
     def create(self, tenant: str, prefix: str, fields: Mapping[str, Any],
                *, now_iso: str) -> Product:
@@ -446,6 +522,7 @@ class ProductStore:
         clean["cogs_aud"] = self._cogs(clean, prior=None)
 
         sku = self.next_sku(tenant, prefix)
+        number = int(sku.rsplit("-", 1)[-1])
         cols = ["tenant_id", "sku", "created_at"] + list(clean)
         vals = [tenant, sku, now_iso] + [clean[c] for c in clean]
         self._conn.execute("BEGIN IMMEDIATE")
@@ -453,6 +530,9 @@ class ProductStore:
             self._conn.execute(
                 f"INSERT INTO products ({', '.join(cols)}) "
                 f"VALUES ({', '.join('?' for _ in cols)})", vals)
+            # Spent in the same transaction as the row, so a crash between
+            # the two cannot leave a code issued but not recorded.
+            self._claim_sku(tenant, number)
             self._conn.execute("COMMIT")
         except Exception as exc:        # constraint text is not for partners
             self._conn.execute("ROLLBACK")

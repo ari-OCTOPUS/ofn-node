@@ -281,6 +281,34 @@ class Node:
                                            self._stale_after(scope),
                                            self._gst(scope, pack))}
 
+    def delete_product(self, scope: TenantScope, actor: str, sku: str,
+                       *, reason: str) -> dict:
+        """Remove a piece and write down that it was removed.
+
+        Deliberately not reachable over HTTP. Nothing in the partner shells
+        deletes anything, and a delete button is not a small feature: it is
+        the one action where a mistap costs work that cannot be re-derived.
+        This exists for the operator, called deliberately, with a reason that
+        goes into the ledger beside the piece it removed.
+
+        The ledger entry carries the whole row, not a reference to it. A
+        deletion recorded as "ZM-0001 was deleted" is a note that something
+        used to be somewhere; the row itself is what lets somebody put it
+        back.
+        """
+        try:
+            piece = self._pieces().delete(scope.tenant.value, sku)
+        except ProductError as exc:
+            return {"ok": False, "error": str(exc)}
+        self.ledger.append(scope, "PRODUCT_DELETED", {
+            "sku": piece.sku,
+            "reason": reason,
+            "actor": actor,
+            "removed": {k: getattr(piece, k)
+                        for k in piece.__dataclass_fields__ if k != "id"},
+        }, self.now_iso())
+        return {"ok": True, "sku": piece.sku, "name": piece.name}
+
     def update_product(self, scope: TenantScope, user_id: str, sku: str,
                        body: Mapping[str, object]) -> dict:
         pack = self.registry.pack(scope.tenant)

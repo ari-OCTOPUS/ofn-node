@@ -240,3 +240,72 @@ class TestTheDoorStillHolds(Base):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestDeletionIsRecorded(Base):
+    """Deleting is not reachable over HTTP — no shell has a delete button and
+    a mistap there costs work that cannot be re-derived. It is an operator
+    action on the node, and the ledger is what makes it survivable."""
+
+    def scope(self):
+        return self.node.registry.scope(
+            self.node.registry.pack("ziman").tenant)
+
+    def test_it_is_not_an_http_route(self):
+        self.add()
+        for method in ("DELETE", "POST"):
+            r = self.call(method, "/api/v1/products/ZM-0001/delete")
+            self.assertNotEqual(r.status, 200)
+        self.assertIsNotNone(self.node.products.get("ziman", "ZM-0001"))
+
+    def test_the_ledger_gains_an_entry_naming_the_piece(self):
+        self.add()
+        out = self.node.delete_product(self.scope(), "operator:ari", "ZM-0001",
+                                       reason="اعداد تست بودند")
+        self.assertTrue(out["ok"])
+        # `read` is newest-first — it feeds a screen, not a replay.
+        last = self.events()[0]
+        self.assertEqual(last.kind, "PRODUCT_DELETED")
+        self.assertEqual(last.payload["sku"], "ZM-0001")
+        self.assertEqual(last.payload["reason"], "اعداد تست بودند")
+
+    def test_the_entry_carries_the_whole_row_not_a_reference_to_it(self):
+        """"ZM-0001 was deleted" says something used to exist. The row is
+        what lets somebody put it back."""
+        self.add()
+        self.node.delete_product(self.scope(), "operator:ari", "ZM-0001",
+                                 reason="تست")
+        removed = self.events()[0].payload["removed"]
+        self.assertEqual(removed["name"], PIECE["name"])
+        self.assertAlmostEqual(removed["materials_cost_aud"],
+                               PIECE["materials_cost_aud"])
+        self.assertAlmostEqual(removed["cogs_aud"], 80.5)
+
+    def test_the_creation_entry_is_left_alone(self):
+        """History is not edited. The piece was created; that stays true."""
+        self.add()
+        self.node.delete_product(self.scope(), "operator:ari", "ZM-0001",
+                                 reason="تست")
+        kinds = [e.kind for e in reversed(self.events())]
+        self.assertEqual(kinds, ["PRODUCT_CREATED", "PRODUCT_DELETED"])
+
+    def test_the_chain_still_verifies(self):
+        self.add()
+        self.node.delete_product(self.scope(), "operator:ari", "ZM-0001",
+                                 reason="تست")
+        ok, _ = self.ledger.verify(self.scope())
+        self.assertTrue(ok)
+
+    def test_deleting_something_absent_fails_without_touching_the_ledger(self):
+        self.add()
+        before = len(self.events())
+        out = self.node.delete_product(self.scope(), "operator:ari", "ZM-9999",
+                                       reason="تست")
+        self.assertFalse(out["ok"])
+        self.assertEqual(len(self.events()), before)
+
+    def test_the_next_piece_does_not_inherit_the_code(self):
+        self.add()
+        self.node.delete_product(self.scope(), "operator:ari", "ZM-0001",
+                                 reason="تست")
+        self.assertEqual(self.add().body["product"]["sku"], "ZM-0002")
