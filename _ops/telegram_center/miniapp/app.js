@@ -77,8 +77,17 @@
       var lbl = (SKINS.filter(function(x){return x[0]===id;})[0]||SKINS[0])[1];
       if(b) b.textContent = lbl;
     }
+    // رأیِ مالک: «سبکِ نئون عالی بود». پس نئون فقط پیش‌فرض نیست — انتخابِ
+    // ذخیره‌شدهٔ قدیمی هم یک‌بار به آن ریست می‌شود، وگرنه کسی که قبلاً
+    // «شیشه‌ای» را امتحان کرده روی همان گیر می‌ماند و رأیش اعمال نمی‌شود.
     var saved;
-    try{ saved = localStorage.getItem("octo-skin"); }catch(e){}
+    try{
+      if(localStorage.getItem("octo-skin-v2") !== "1"){
+        localStorage.setItem("octo-skin", "neon");
+        localStorage.setItem("octo-skin-v2", "1");
+      }
+      saved = localStorage.getItem("octo-skin");
+    }catch(e){}
     var cur = SKINS.map(function(x){return x[0];}).indexOf(saved);
     if(cur < 0) cur = 0;
     var sb = document.createElement("button");
@@ -584,21 +593,50 @@
     var R=110, cx=R, cy=R, bez=62, lens=57, iris=43, pup=33;
     var frac = flagsAll ? Math.max(0,Math.min(1, flagsOn/flagsAll)) : 0;
     var C = 2*Math.PI*(bez+16);
+    // ── بازوی رباتیکِ اختاپوس ────────────────────────────────────────
+    // خطِ خمیدهٔ ساده «پا» نبود. بازوی واقعی سه چیز دارد که در لوگو هست و
+    // باید ساخته شود: **باریک‌شوندگی** از بُن به نوک · **پیچش** فزاینده ·
+    // و **بندبندی** (حلقهٔ مفصل + بادکش). با چند قطعهٔ متوالی که پهنایشان
+    // کم می‌شود ساخته می‌شود — چون stroke-width در SVG در طولِ یک path
+    // تغییر نمی‌کند.
     var arms = "";
+    var STEPS = 9;
     for(var i=0;i<8;i++){
-      var a = ARM_A[i]*Math.PI/180;
-      var x0 = cx+Math.cos(a)*(bez+2), y0 = cy+Math.sin(a)*(bez+2);
-      var x1 = cx+Math.cos(a)*(bez+26), y1 = cy+Math.sin(a)*(bez+26);
-      var nx = cx+Math.cos(a)*(bez+38), ny = cy+Math.sin(a)*(bez+38);
-      // انحنای بازو: نقطهٔ کنترل کمی عمود بر شعاع ⇒ حسِ پیچشِ لوگو
-      var px = cx+Math.cos(a+0.30)*(bez+16), py = cy+Math.sin(a+0.30)*(bez+16);
+      var a0 = ARM_A[i]*Math.PI/180;
+      var curl = (i%2 ? 1 : -1) * 1.15;      // یکی‌درمیان خلافِ جهت ⇒ حسِ زنده
+      var reach = 46, w0 = 9.5;
       var nm = names[i];
       var st = nm ? (legs[nm].live===false ? "down" : (legs[nm].live ? "up" : "unk")) : "none";
-      arms += '<g class="arm '+st+'">'+
-        '<path d="M'+x0.toFixed(1)+' '+y0.toFixed(1)+' Q'+px.toFixed(1)+' '+py.toFixed(1)+
-          ' '+x1.toFixed(1)+' '+y1.toFixed(1)+'" fill="none" stroke-width="5.5" stroke-linecap="round"/>'+
-        '<circle class="node" cx="'+nx.toFixed(1)+'" cy="'+ny.toFixed(1)+'" r="6.5"/>'+
-        '<circle class="core" cx="'+nx.toFixed(1)+'" cy="'+ny.toFixed(1)+'" r="2.4"/></g>';
+      var seg = "", joints = "", suck = "", pts = [];
+      for(var k=0;k<=STEPS;k++){
+        var t = k/STEPS;
+        var a = a0 + curl*Math.pow(t,1.35);
+        var r = bez + 1 + reach*t;
+        pts.push([cx+Math.cos(a)*r, cy+Math.sin(a)*r, a, t]);
+      }
+      for(var k=0;k<STEPS;k++){
+        var P=pts[k], Q=pts[k+1];
+        var w = w0*(1 - 0.74*P[3]);
+        seg += '<line x1="'+P[0].toFixed(1)+'" y1="'+P[1].toFixed(1)+
+               '" x2="'+Q[0].toFixed(1)+'" y2="'+Q[1].toFixed(1)+
+               '" stroke-width="'+w.toFixed(2)+'" stroke-linecap="round"/>';
+        // مفصلِ رباتیک: حلقهٔ کوچک روی هر بند
+        if(k%2===0 && k<STEPS-1){
+          joints += '<circle class="jt" cx="'+Q[0].toFixed(1)+'" cy="'+Q[1].toFixed(1)+
+                    '" r="'+(w*0.42).toFixed(2)+'"/>';
+        }
+        // بادکشِ لبهٔ داخلی
+        if(k>1){
+          var perp = P[2] + Math.PI/2*(curl>0?-1:1);
+          var sx = P[0]+Math.cos(perp)*(w*0.52), sy = P[1]+Math.sin(perp)*(w*0.52);
+          suck += '<circle class="sk" cx="'+sx.toFixed(1)+'" cy="'+sy.toFixed(1)+
+                  '" r="'+Math.max(0.9,(w*0.20)).toFixed(2)+'"/>';
+        }
+      }
+      var tip = pts[STEPS];
+      arms += '<g class="arm '+st+'">'+seg+joints+suck+
+        '<circle class="node" cx="'+tip[0].toFixed(1)+'" cy="'+tip[1].toFixed(1)+'" r="5.2"/>'+
+        '<circle class="core" cx="'+tip[0].toFixed(1)+'" cy="'+tip[1].toFixed(1)+'" r="1.9"/></g>';
     }
     // شکاف‌های سرخابیِ روی بدنه — مستقیم از لوگو
     var slits = "";
@@ -610,8 +648,8 @@
     return '<svg class="dial'+(halted?" halted":"")+'" viewBox="0 0 '+(R*2)+' '+(R*2)+'" aria-hidden="true">'+
       '<defs>'+
         '<linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">'+
-          '<stop offset="0" stop-color="#dbe6f5"/><stop offset=".5" stop-color="#7e91ad"/>'+
-          '<stop offset="1" stop-color="#c4d2e6"/></linearGradient>'+
+          '<stop offset="0" stop-color="#9db0c8"/><stop offset=".5" stop-color="#4e5f78"/>'+
+          '<stop offset="1" stop-color="#7d90a8"/></linearGradient>'+
         '<radialGradient id="iris" cx="50%" cy="34%" r="72%">'+
           '<stop offset="0" stop-color="#d6faff"/><stop offset=".42" stop-color="#22d3ee"/>'+
           '<stop offset="1" stop-color="#0a4d63"/></radialGradient>'+

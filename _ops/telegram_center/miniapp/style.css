@@ -9,8 +9,12 @@
    هویت از لوگو: چشمِ فیروزه‌ای = هسته، بازوهای بنفش = پاها، صورتی = «با تو کار
    دارد». سه کلمه رنگ، نه بیشتر — تا یک‌بار یاد گرفته شود. */
 :root{
-  --bg:#050914; --surface:#0b1324; --surface-2:#111c33; --sunken:#070e1c;
-  --line:#1b2c4d; --ink:#e6efff; --muted:#7f92b8;
+  /* تمِ توسی-آبی (رأیِ مالک): «هنوز سفیده همه چی · توسی آبی تم».
+     متن از سفیدِ نزدیک (#e6efff) به آبیِ-خاکستریِ نرم آمد، و کرومِ قرص از
+     نقره‌ایِ روشن به فولادِ توسی — همان حسِ بدنهٔ لوگو، نه سفیدیِ کاغذ. */
+  --bg:#050b16; --surface:#0a1120; --surface-2:#0f1829; --sunken:#060b15;
+  --line:#1d2c44; --ink:#c9d8ee; --muted:#75879f;
+  --steel-a:#9db0c8; --steel-b:#4e5f78; --steel-c:#7d90a8;
   --cyan:#22d3ee;   --cyan-ink:#22d3ee;
   --violet:#a855f7; --violet-ink:#c48bfb;
   --magenta:#f0468b;--magenta-ink:#ff7cb0;
@@ -302,14 +306,21 @@ input:focus,select:focus{outline:2px solid var(--cyan);outline-offset:1px;border
 .dial .spark{fill:#a855f7;opacity:.9;filter:drop-shadow(0 0 8px rgba(168,85,247,.9))}
 .dial .slit{stroke:var(--magenta);stroke-width:2.4;stroke-linecap:round;opacity:.85;
   filter:drop-shadow(0 0 4px rgba(240,70,139,.8))}
-.dial .arm path{stroke:var(--violet);opacity:.85;filter:drop-shadow(0 0 5px rgba(168,85,247,.55))}
+/* بازو: بندهای باریک‌شونده + مفصل + بادکش. رنگِ هر بازو = وضعِ همان پا. */
+.dial .arm line{stroke:var(--violet);opacity:.9;filter:drop-shadow(0 0 5px rgba(168,85,247,.55))}
+.dial .arm .jt{fill:#0a1120;stroke:var(--violet);stroke-width:1.1;opacity:.95}
+.dial .arm .sk{fill:var(--violet);opacity:.55}
 .dial .arm .node{fill:#0b1324;stroke:var(--violet);stroke-width:2}
 .dial .arm .core{fill:var(--violet)}
-.dial .arm.up path{stroke:var(--cyan);filter:drop-shadow(0 0 6px rgba(34,211,238,.6))}
+.dial .arm.up line{stroke:var(--cyan);filter:drop-shadow(0 0 6px rgba(34,211,238,.6))}
+.dial .arm.up .jt{stroke:var(--cyan)} .dial .arm.up .sk{fill:var(--cyan)}
 .dial .arm.up .node{stroke:var(--cyan)} .dial .arm.up .core{fill:var(--cyan)}
-.dial .arm.down path{stroke:var(--magenta);filter:drop-shadow(0 0 7px rgba(240,70,139,.75))}
+.dial .arm.down line{stroke:var(--magenta);filter:drop-shadow(0 0 7px rgba(240,70,139,.75))}
+.dial .arm.down .jt{stroke:var(--magenta)} .dial .arm.down .sk{fill:var(--magenta)}
 .dial .arm.down .node{stroke:var(--magenta)} .dial .arm.down .core{fill:var(--magenta)}
-.dial .arm.unk path,.dial .arm.none path{stroke:var(--muted);opacity:.3;filter:none}
+.dial .arm.unk line,.dial .arm.none line{stroke:var(--muted);opacity:.28;filter:none}
+.dial .arm.unk .jt,.dial .arm.none .jt{stroke:var(--muted);opacity:.4}
+.dial .arm.unk .sk,.dial .arm.none .sk{fill:var(--muted);opacity:.3}
 .dial .arm.unk .node,.dial .arm.none .node{stroke:var(--muted);opacity:.45}
 .dial .arm.unk .core,.dial .arm.none .core{fill:var(--muted);opacity:.45}
 /* متوقف = فولادِ بی‌جان. استعاره باید حقیقت بگوید. */
@@ -318,7 +329,9 @@ input:focus,select:focus{outline:2px solid var(--cyan);outline-offset:1px;border
 .dial.halted .irisring{stroke:var(--muted);opacity:.5}
 .dial.halted .spark{fill:var(--muted);filter:none;opacity:.5}
 .dial.halted .slit{stroke:var(--muted);filter:none;opacity:.4}
-.dial.halted .arm path{stroke:var(--muted);opacity:.28;filter:none}
+.dial.halted .arm line{stroke:var(--muted);opacity:.26;filter:none}
+.dial.halted .arm .jt{stroke:var(--muted);opacity:.35}
+.dial.halted .arm .sk{fill:var(--muted);opacity:.25}
 
 /* ── زبانِ دایره در همهٔ تب‌ها ────────────────────────────────────────── */
 .ringrow{display:flex;justify-content:center;gap:14px;margin:4px 0 14px;flex-wrap:wrap}
