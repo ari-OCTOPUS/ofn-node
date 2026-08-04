@@ -266,7 +266,27 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
             # a flash-backed board is a wear source, not a feature.
             pass
 
+        def _audit(self, method: str, path: str, status: int) -> None:
+            """One line for the events worth diagnosing, and nothing else.
+
+            Narrow on purpose. Three things are worth a line: a shell being
+            opened, a launch blob being exchanged, and any API failure. Full
+            access logging would be the wear source `log_message` avoids.
+
+            Never a user id, a username, or any part of the launch blob. A
+            partner's identity does not belong in the journal, and the leg
+            name is enough to tell whose shell it was.
+            """
+            page = path == "/"
+            auth = path.endswith("/auth/session")
+            if not (page or auth or (path.startswith("/api/") and status >= 400)):
+                return
+            leg = (self.headers.get("Host") or "?").split(":")[0].split(".")[0]
+            print(f"http {leg} {method} {path} -> {status}", flush=True)
+
         def _send(self, resp: Response) -> None:
+            self._audit(self.command,
+                        urllib.parse.urlparse(self.path).path, resp.status)
             payload = (b"" if resp.body is None
                        else json.dumps(resp.body, ensure_ascii=False).encode())
             self.send_response(resp.status)
@@ -295,6 +315,7 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
                 self.send_header("X-Content-Type-Options", "nosniff")
                 self.end_headers()
                 self.wfile.write(data)
+                self._audit("GET", path, 200)
                 return
             self._send(app.handle("GET", path, self._headers(), b""))
 
