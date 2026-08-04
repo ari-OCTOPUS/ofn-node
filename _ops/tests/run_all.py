@@ -363,6 +363,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # offset از رویش رد می‌شد ⇒ پیامِ مالک برای همیشه گم. شکایتِ زیسته:
          # «انگار هرکاری می‌کنم دیده نمی‌شود».
          "test_no_silent_message_drop.py",
+         # ۰۸-۰۴ ← دو دروغ و یک چرخنده روی سطحِ تلگرام: سنتینلِ «نامعلوم» که
+         # ۱۱٫۶ روز رندر می‌شد · ادعای بی‌پایهٔ «پیامت را ندیدم» · و کارتی که
+         # با هر hold دوباره می‌رفت (۱۰۴ ارسالِ یکسان در ۸۰ دقیقه).
+         "test_telegram_truthful_receipts.py",
          "test_sync_health_unknown.py",
          "test_arbiter_consensus_rule.py",
          "test_state_write_monopoly.py",
