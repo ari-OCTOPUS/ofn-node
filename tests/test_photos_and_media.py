@@ -283,3 +283,41 @@ class TestTheBackupTakesTheFilesToo(Disk):
         result = self.backup({}, self.dest, stamp="s1")
         self.assertTrue(result.ok)
         self.assertEqual(result.media_files, 0)
+
+
+class TestTheThreeCasesTheBriefFlagged(Disk):
+    """`test_photos.py` (40 tests, written independently) never reached this
+    board. The three cases it was said to contain did arrive, in prose, so
+    they are pinned here against this implementation rather than taken on
+    trust — the same reason the module itself had to be written twice.
+    """
+
+    def test_svg_is_refused(self):
+        """An SVG is a script container. Serving one from our own origin is
+        stored XSS wearing a picture's clothes."""
+        with self.assertRaises(FailClosedError):
+            accept("studio", "d1", "p1", mime="image/svg+xml", b64_text=PNG)
+        from ofn.kernel.photos import ALLOWED_MIME as allowed
+        self.assertNotIn("image/svg+xml", allowed)
+
+    def test_one_owner_prefix_does_not_swallow_another(self):
+        """`piece-1` must not take `piece-10` with it. Deleting by string
+        prefix is how that happens; this deletes a directory, and `piece-1`
+        and `piece-10` are two directories."""
+        self.m.write(up(owner="piece-1", photo="a"), Size.ORIGINAL, PNG)
+        self.m.write(up(owner="piece-10", photo="b"), Size.ORIGINAL, PNG)
+        self.m.write(up(owner="piece-100", photo="c"), Size.ORIGINAL, PNG)
+        self.assertEqual(self.m.remove_owner("studio", "piece-1"), 1)
+        left = sorted(f for _, _, fs in os.walk(self.m.root) for f in fs)
+        self.assertEqual(left, ["b.jpg", "c.jpg"])
+
+    def test_a_bool_is_not_an_id(self):
+        """`True == 1` in Python, so a bool sails through an integer check
+        and becomes position 1. There is no `position` field in this module
+        yet — `draft_media` is not built — so this pins the gate that does
+        exist: a bool is not a valid id either, and `_ID.match` would raise
+        TypeError rather than refuse if it were handed one.
+        """
+        for bad in (True, False, 1, None):
+            with self.assertRaises((FailClosedError, TypeError)):
+                accept("studio", "d1", bad, mime="image/jpeg", b64_text=PNG)

@@ -135,15 +135,21 @@ class TestShellsDoNotLie(unittest.TestCase):
 class TestShellsSurviveABadNetwork(unittest.TestCase):
     def test_font_is_not_render_blocking(self):
         """A blocking font request on a slow or filtered network is a white
-        screen for as long as it takes to time out."""
+        screen for as long as it takes to time out.
+
+        Asserted as the property, not as one implementation of it. This used
+        to require `media="print"` outright, which failed the studio shell
+        for doing something strictly better — fetching no external font at
+        all. `fonts.gstatic.com` does not open from Iran, so a shell that
+        ships nothing to fetch has nothing to block on.
+        """
         for name in ALL_SHELLS:
             src = read(name)
             with self.subTest(shell=name):
-                for line in src.splitlines():
-                    if "fonts.googleapis.com" in line and "<link" in line:
-                        continue
-                    if "fonts.googleapis.com" in line:
-                        continue
+                remote = [ln for ln in src.splitlines()
+                          if "<link" in ln and "fonts.googleapis.com" in ln]
+                if not remote:
+                    continue            # nothing to fetch, nothing to block
                 self.assertIn('media="print"', src,
                               f"{name} loads its font as a blocking stylesheet")
 

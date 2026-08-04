@@ -2,9 +2,8 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>چیدمان</title>
+<title>چیدمان — استودیوی سبا</title>
 <style>
 /* ══════════════════════════════════════════════════════════════
    «چیدمان» · نسخهٔ سوم — و این یکی روی شواهد ساخته شده
@@ -24,6 +23,8 @@
    نیست — ولی روشنایی از *بلند کردن سطحِ زیر متن* نیامده (که
    بی‌صدا ممیزی کنتراست را می‌شکست)، از جرمِ کِرِمِ کارتِ فعال آمده.
    ══════════════════════════════════════════════════════════════ */
+
+@property --lift{syntax:"<number>";initial-value:0;inherits:false}
 
 :root{
   color-scheme:dark;
@@ -63,7 +64,7 @@
 
 body{
   font-family:var(--fa);background:var(--bg);color:var(--t-hi);
-  line-height:1.85;letter-spacing:0;min-height:100dvh;
+  line-height:1.85;letter-spacing:normal;min-height:100dvh;
   padding-bottom:calc(100px + env(safe-area-inset-bottom));
   overflow-x:hidden;-webkit-font-smoothing:antialiased}
 
@@ -119,7 +120,7 @@ h1{font-size:22px;font-weight:600;text-wrap:balance;margin-top:1px}
 .spine{position:absolute;inset-block:22px;inset-inline-start:0;width:4px;
   border-radius:0 4px 4px 0;background:var(--wine)}
 
-.kicker{font-size:13px;color:var(--c-lo);display:flex;align-items:center;gap:7px}
+.kicker{font-size:12px;color:var(--c-lo);display:flex;align-items:center;gap:7px}
 .kicker svg{width:13px;height:13px}
 .sheet.front h2{font-size:21px;font-weight:600;margin:6px 0 8px;text-wrap:balance;
   line-height:1.5}
@@ -134,7 +135,7 @@ h1{font-size:22px;font-weight:600;text-wrap:balance;margin-top:1px}
 .strip i:nth-child(3){background:linear-gradient(158deg,#5E5647,#2E2A22)}
 
 .behind{display:flex;align-items:center;justify-content:center;gap:8px;
-  font-size:13px;color:var(--t-lo);margin-top:14px}
+  font-size:12.5px;color:var(--t-lo);margin-top:14px}
 .behind b{font-weight:600;color:var(--t-mid)}
 
 /* ── یک کنش اصلی، همیشه در دسترس شست ─────────────────────
@@ -149,17 +150,6 @@ h1{font-size:22px;font-weight:600;text-wrap:balance;margin-top:1px}
 .cta svg{width:18px;height:18px}
 .cta.quiet{background:transparent;color:var(--t-mid);box-shadow:none;
   border:1px solid var(--line-hi)}
-
-/* ── پاسخ به سؤال کرنل ─────────────────────────────────── */
-.ans{display:flex;flex-direction:column;gap:9px;margin-top:14px}
-.opt{font-family:inherit;font-size:16px;font-weight:600;text-align:start;
-  padding:14px 15px;border-radius:14px;border:1.5px solid rgb(90 26 38/.20);
-  background:rgb(255 255 255/.45);color:var(--on-cream);cursor:pointer}
-.opt.pick{border-color:var(--wine);background:rgb(90 26 38/.10)}
-.field{font-family:inherit;font-size:16px;width:100%;padding:13px 14px;
-  border-radius:14px;border:1.5px solid rgb(90 26 38/.20);
-  background:rgb(255 255 255/.55);color:var(--on-cream);resize:vertical}
-.err{font-size:13px;color:var(--wine);margin-top:8px}
 
 /* ── نورسنج: یک شکل، یک جمله، بدون درصد ─────────────────── */
 .gauge{margin-top:26px;background:linear-gradient(168deg,var(--surf-hi),var(--sunk));
@@ -180,7 +170,7 @@ h1{font-size:22px;font-weight:600;text-wrap:balance;margin-top:1px}
   @keyframes fill{to{stroke-dashoffset:36}}
   @keyframes point{to{transform:rotate(34deg)}}
 }
-.gauge .lab{font-size:13px;color:var(--t-lo)}
+.gauge .lab{font-size:12.5px;color:var(--t-lo)}
 .gauge .say{font-family:var(--serif);font-size:19px;font-style:italic;
   color:var(--t-hi);line-height:1.45;text-wrap:balance;margin-top:1px}
 
@@ -188,11 +178,11 @@ h1{font-size:22px;font-weight:600;text-wrap:balance;margin-top:1px}
 .note{margin-top:12px;padding:16px;border-radius:20px;
   background:linear-gradient(168deg,#241D1F,var(--sunk));
   border:1px solid color-mix(in oklab,var(--t-rose) 18%,transparent)}
-.note .h{font-size:13px;color:var(--t-rose);display:flex;align-items:center;gap:7px;
+.note .h{font-size:12px;color:var(--t-rose);display:flex;align-items:center;gap:7px;
   margin-bottom:7px}
 .note .h svg{width:14px;height:14px}
 .note p{font-size:13.5px;color:var(--t-mid);text-wrap:pretty}
-.note .src{font-size:13px;color:var(--t-lo);margin-top:9px;padding-top:9px;
+.note .src{font-size:11.5px;color:var(--t-lo);margin-top:9px;padding-top:9px;
   border-top:1px solid var(--line)}
 
 /* ── رضایت — دروازه با :has()، بدون JS ─────────────────── */
@@ -208,7 +198,7 @@ h1{font-size:22px;font-weight:600;text-wrap:balance;margin-top:1px}
 .consent:has(input:checked) .tick svg{opacity:1;transform:none}
 .consent:has(input:focus-visible) .tick i{outline:2px solid var(--gold);outline-offset:3px}
 .consent b{display:block;font-size:13.5px;margin-bottom:2px}
-.consent small{font-size:13px;color:var(--t-mid);line-height:1.7;display:block}
+.consent small{font-size:12.5px;color:var(--t-mid);line-height:1.7;display:block}
 .gate:has(input:not(:checked)) .cta-main{filter:grayscale(.8) brightness(.55);pointer-events:none}
 
 /* ── ورقهٔ تأیید ─────────────────────────────────────────── */
@@ -217,9 +207,7 @@ h1{font-size:22px;font-weight:600;text-wrap:balance;margin-top:1px}
   opacity:0;translate:0 22px;
   transition:opacity var(--t) var(--ease),translate var(--t) var(--ease),
              overlay var(--t) allow-discrete,display var(--t) allow-discrete}
-[popover]:popover-open{opacity:1;translate:0 0;display:block}
-/* مسیر جایگزین: بدون popover، سینی یک لایهٔ ثابت است. */
-[popover][data-open]{position:fixed;z-index:20;opacity:1;translate:0 0}
+[popover]:popover-open{opacity:1;translate:0 0}
 @starting-style{[popover]:popover-open{opacity:0;translate:0 22px}}
 [popover]::backdrop{background:rgb(8 6 8/.74);backdrop-filter:blur(7px);opacity:0;
   transition:opacity var(--t) var(--ease),display var(--t) allow-discrete,
@@ -243,7 +231,7 @@ nav{position:fixed;inset-inline:0;bottom:0;z-index:5;display:flex;
   border-top:1px solid var(--line)}
 @supports not (backdrop-filter:blur(1px)){nav{background:var(--surf)}}
 nav button{background:none;border:0;cursor:pointer;font-family:inherit;
-  display:grid;justify-items:center;gap:3px;font-size:13px;color:var(--t-lo);
+  display:grid;justify-items:center;gap:3px;font-size:11.5px;color:var(--t-lo);
   padding:5px 22px;border-radius:14px;transition:var(--t) var(--ease)}
 nav button[aria-current="page"]{color:var(--gold);background:var(--gold-air)}
 nav svg{width:21px;height:21px}
@@ -256,31 +244,7 @@ nav svg{width:21px;height:21px}
     position:static;margin-bottom:10px}
   .stack{height:auto;perspective:none}
 }
-/* سند: سه شاخه اختیاری نیستند. این یکی در مرجع نبود.
-   شیشه → سطح توپر، نه فقط کم‌رنگ‌تر. */
-@media (prefers-reduced-transparency:reduce){
-  nav{background:var(--surf);backdrop-filter:none;-webkit-backdrop-filter:none}
-  [popover]::backdrop{background:rgb(8 6 8/.96);backdrop-filter:none}
-  .consent{background:var(--sunk)}
-}
 @media (forced-colors:active){.sheet,.gauge,.note,.tray{border:1px solid CanvasText}}
-
-/* دروازه‌ها باید روی کف کار کنند. وقتی :has() نباشد، این کلاس همان کار
-   را با جاوااسکریپت می‌کند — بدون آن، دکمهٔ انتشار بدون رضایت زنده است،
-   یعنی دروازه‌ای که باز شکست می‌خورد. */
-.gate.locked .cta-main{filter:grayscale(.8) brightness(.55);pointer-events:none}
-
-/* حالت اتصال — وقتی چیزی سر جایش نیست، پنهانش نمی‌کنیم. */
-.state{margin:18px 0;padding:15px 17px;border-radius:18px;font-size:14px;
-  line-height:1.85;background:var(--sunk);border:1px solid var(--line);
-  color:var(--t-mid)}
-.state b{color:var(--t-hi);font-weight:600}
-.state button{font-family:inherit;font-size:14px;font-weight:600;margin-top:12px;
-  padding:11px 18px;border-radius:13px;border:1px solid var(--line-hi);
-  background:transparent;color:var(--t-hi);cursor:pointer}
-.demo{display:inline-block;font-size:13px;padding:3px 11px;border-radius:9px;
-  background:var(--sunk);border:1px solid var(--line);color:var(--t-lo)}
-[hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -288,42 +252,38 @@ nav svg{width:21px;height:21px}
 
 <div class="wrap">
 
-  <!-- تا وقتی نشست نگوید این صفحه مال کیست، اینجا اسمی نیست. عنوان صفحه
-       هم همین‌طور — نشت اسم در زیمان دقیقاً از یک <title> شروع شد. -->
   <header>
-    <div class="eyebrow" id="eyebrow">&nbsp;</div>
-    <h1 id="hello">چیدمان</h1>
+    <div class="eyebrow">سه‌شنبه ۱۳ مرداد</div>
+    <h1>یک تصمیم مانده</h1>
   </header>
-
-  <div class="state" id="state" hidden></div>
 
   <div class="stack">
     <div class="sheet back b3"></div>
     <div class="sheet back b2"></div>
-    <div class="sheet front" id="front">
+    <div class="sheet front">
       <span class="spine"></span>
       <div class="kicker">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
           stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5"/>
           <path d="M12 16.3v.01"/></svg>
-        <span id="d-when">—</span>
+        منتظر توست · امروز ۱۹:۳۰
       </div>
-      <h2 id="d-title">چیزی برای تصمیم نیست</h2>
-      <p id="d-note">وقتی پیش‌نویسی آماده شود، همین‌جا می‌آید.</p>
-      <div class="strip" id="d-strip"></div>
+      <h2>پشت صحنه‌ی عصر امروز</h2>
+      <p>سه فریم از نور بعدازظهر، بدون فیلتر. کپشن کوتاه بماند.</p>
+      <div class="strip"><i></i><i></i><i></i></div>
     </div>
   </div>
 
-  <div class="behind" id="behind" hidden></div>
+  <div class="behind">پشت این، <b>۴ مورد</b> دیگر هست — بعد از این می‌آیند</div>
 
-  <form class="gate" id="gate" onsubmit="return false" hidden>
+  <form class="gate" onsubmit="return false">
     <label class="consent">
       <span class="tick"><input type="checkbox" id="c1">
         <i><svg viewBox="0 0 24 24" fill="none" stroke="#0F0F10" stroke-width="3.6"
           stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg></i>
       </span>
       <span><b>رضایت تصویر ثبت شده است</b>
-      <small id="c-detail">تا سندی ثبت نشود، انتشار باز نمی‌شود.</small></span>
+      <small>سند امضاشده · معتبر تا ۱۴۰۵/۱۲/۲۹ · REL‑0007</small></span>
     </label>
 
     <div class="act">
@@ -349,7 +309,7 @@ nav svg{width:21px;height:21px}
     </svg>
     <div>
       <div class="lab">نوردهی این هفته</div>
-      <div class="say" id="g-say">هنوز چیزی اندازه گرفته نشده</div>
+      <div class="say">کمی بیش از حد باز</div>
     </div>
   </div>
 
@@ -360,20 +320,18 @@ nav svg{width:21px;height:21px}
         <path d="M5 12H3"/><path d="M21 12h-2"/><circle cx="12" cy="12" r="4.5"/></svg>
       خواندهٔ این هفته
     </div>
-    <p id="n-body">وقتی به‌اندازهٔ کافی پست باشد، اولین خوانده اینجا می‌آید.</p>
-    <div class="src" id="n-src">هیچ تصویری از دستگاه خارج نمی‌شود.</div>
+    <p>تک‌سوژه با نور پخش، دو برابر بیشتر از قاب شلوغ نگه می‌دارد.</p>
+    <div class="src">از ۳۸ پست خودت در ۹۰ روز · هیچ تصویری از دستگاه خارج نشد</div>
   </div>
 
 </div>
 
-<!-- `display` توسط fallback کنترل می‌شود وقتی popover نیست -->
-<div id="tray" popover style="display:none">
+<div id="tray" popover>
   <div class="tray">
     <div class="grab"></div>
     <h4>منتشر شود؟</h4>
-    <p><span id="t-what">این پیش‌نویس</span> به <b>صف خروج</b> می‌رود و تا
-      تأیید آری هیچ‌جا نمی‌رود.
-      <span class="warn">بعد از تأیید او برگشتی نیست.</span></p>
+    <p>«پشت صحنه‌ی عصر امروز» در <b>کانال اصلی</b> می‌رود.
+      <span class="warn">بعدش نمی‌شود برش گرداند.</span></p>
     <div class="act">
       <button class="cta" popovertarget="tray" popovertargetaction="hide">بله، منتشر کن</button>
       <button class="cta quiet" popovertarget="tray" popovertargetaction="hide">نه، برگرد</button>
@@ -403,333 +361,6 @@ nav svg{width:21px;height:21px}
 const swap = f => document.startViewTransition ? document.startViewTransition(f) : f();
 function go(b){swap(()=>{document.querySelectorAll('nav button')
   .forEach(x=>x.removeAttribute('aria-current'));b.setAttribute('aria-current','page')})}
-</script>
-<script>
-/* ── OFN connector ────────────────────────────────────────────────────────
-   Same shape as the other three shells. There is no sample mode here: a
-   studio screen that looks alive while disconnected would show a publish
-   button that does nothing, and the one thing this leg must never do is
-   look like it published something it did not.                            */
-const OFN = (() => {
-  let session = null, live = false, why = '', who = '';
-  const tg = window.Telegram && window.Telegram.WebApp;
-
-  async function req(path, opts = {}) {
-    const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
-    if (session) headers['Authorization'] = 'Bearer ' + session;
-    const r = await fetch(path, { ...opts, headers });
-    if (!r.ok) { const e = new Error('http ' + r.status); e.status = r.status; throw e; }
-    return r.json();
-  }
-
-  return {
-    get live() { return live; },
-    get why() { return why; },
-    /* The given name, from the verified session. Empty until then — this
-       page has no name of its own to fall back on, deliberately. */
-    get who() { return who; },
-    async connect() {
-      if (!tg || !tg.initData) { why = 'no-shell'; return false; }
-      try {
-        const out = await req('/api/v1/auth/session', {
-          method: 'POST', body: JSON.stringify({ init_data: tg.initData }),
-        });
-        session = out.session; who = out.first_name || ''; live = true; why = '';
-        return true;
-      } catch (e) {
-        why = (e && e.status === 401) ? 'rejected'
-            : (e && e.status === 403) ? 'not-allowed'
-            : (e && e.status) ? 'error' : 'unreachable';
-        return false;
-      }
-    },
-    get(p) { return req(p); },
-    post(p, b) { return req(p, { method: 'POST', body: JSON.stringify(b) }); },
-    shell() {
-      if (!tg) return;
-      tg.ready(); tg.expand && tg.expand();
-    },
-    tap(style = 'light') {
-      if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(style);
-      else if (navigator.vibrate) navigator.vibrate(8);
-    },
-  };
-})();
-
-const $ = id => document.getElementById(id);
-/* ── the kernel's questions ──────────────────────────────────────────────
-   A question IS a decision, so it takes the front card rather than a panel
-   of its own. One at a time, which is the directive's rule and also the
-   only honest way to ask: a screen of four inputs is four decisions wearing
-   one heading.
-
-   `REASONS` names every way this page can fail to be live. "نمونه" alone
-   used to be the whole answer, and it made a node that was down look
-   exactly like a page being previewed. */
-const REASONS = {
-  'no-shell': 'این را از داخل تلگرام باز کنید. اینجا فقط پیش‌نمایش است و '
-            + 'چیزی ثبت نمی‌شود.',
-  'rejected': 'این حساب اجازهٔ ورود ندارد.',
-  'not-allowed': 'این حساب در فهرست این استودیو نیست.',
-  'unreachable': 'به دستگاه وصل نشد. چیزی ثبت نشده.',
-  'error': 'دستگاه جواب داد ولی چیزی که فرستاد را نفهمیدم.',
-};
-
-let queue = [], at = 0;
-
-function askCard(q) {
-  const card = $('front');
-  card.textContent = '';
-  const spine = document.createElement('span');
-  spine.className = 'spine';
-  card.append(spine);
-
-  const kicker = document.createElement('div');
-  kicker.className = 'kicker';
-  kicker.textContent = 'دستگاه می‌پرسد · ' + fa(queue.length - at) + ' مانده';
-  card.append(kicker);
-
-  const h = document.createElement('h2');
-  h.textContent = q.label || q.key;
-  card.append(h);
-  if (q.hint) {
-    const p = document.createElement('p');
-    p.textContent = q.hint;
-    card.append(p);
-  }
-
-  const wrap = document.createElement('div');
-  wrap.className = 'ans';
-  let read = () => null;
-
-  if (q.kind === 'choice' && (q.options || []).length) {
-    let picked = null;
-    q.options.forEach(opt => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'opt';
-      b.textContent = opt;
-      b.onclick = () => {
-        OFN.tap(); picked = opt;
-        wrap.querySelectorAll('.opt').forEach(x => x.classList.remove('pick'));
-        b.classList.add('pick');
-      };
-      wrap.append(b);
-    });
-    read = () => picked;
-  } else if (q.kind === 'confirm') {
-    let picked = null;
-    [['بله', true], ['خیر', false]].forEach(([label, value]) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'opt';
-      b.textContent = label;
-      b.onclick = () => {
-        OFN.tap(); picked = value;
-        wrap.querySelectorAll('.opt').forEach(x => x.classList.remove('pick'));
-        b.classList.add('pick');
-      };
-      wrap.append(b);
-    });
-    read = () => picked;
-  } else if (q.kind === 'number') {
-    const inp = document.createElement('input');
-    /* Not `type=number`: on a Persian keyboard it returns an empty string
-       for ۱۲۵ and blames her for using her own language. The API converts
-       the digits at its boundary. */
-    inp.type = 'text';
-    inp.inputMode = 'decimal';
-    inp.className = 'field';
-    if (q.default != null) inp.value = String(q.default);
-    wrap.append(inp);
-    read = () => inp.value.trim() === '' ? null : inp.value.trim();
-  } else {
-    const ta = document.createElement('textarea');
-    ta.className = 'field';
-    ta.rows = 3;
-    wrap.append(ta);
-    read = () => ta.value.trim() === '' ? null : ta.value.trim();
-  }
-  card.append(wrap);
-
-  const err = document.createElement('div');
-  err.className = 'err';
-  err.hidden = true;
-  card.append(err);
-
-  const bar = document.createElement('div');
-  bar.className = 'act';
-  const send = document.createElement('button');
-  send.type = 'button';
-  send.className = 'cta';
-  send.textContent = 'ثبت کن';
-  send.onclick = async () => {
-    const value = read();
-    if (value === null || value === '') {
-      err.hidden = false; err.textContent = 'اول جواب را بنویسید.'; return;
-    }
-    err.hidden = true; send.disabled = true; send.textContent = 'در حال ثبت…';
-    try {
-      const out = await OFN.post('/api/v1/answers', { key: q.key, value });
-      if (!out.ok) {
-        err.hidden = false; err.textContent = out.error || 'ثبت نشد.';
-        send.disabled = false; send.textContent = 'دوباره'; return;
-      }
-      queue = out.remaining || []; at = 0;
-      drawFront();
-    } catch (e) {
-      err.hidden = false;
-      err.textContent = e && e.status === 401
-        ? 'وقت این صفحه تمام شد. جواب ثبت نشده — ببندید و دوباره باز کنید.'
-        : 'به دستگاه وصل نشد. جواب ثبت نشده.';
-      send.disabled = false; send.textContent = 'دوباره';
-    }
-  };
-  bar.append(send);
-
-  const later = document.createElement('button');
-  later.type = 'button';
-  later.className = 'cta quiet';
-  later.textContent = 'بعداً';
-  later.onclick = () => { OFN.tap(); at += 1; drawFront(); };
-  bar.append(later);
-
-  /* Deferring used to be one way. A question skipped by accident was then
-     unreachable until the queue was rebuilt. */
-  if (at > 0) {
-    const back = document.createElement('button');
-    back.type = 'button';
-    back.className = 'cta quiet';
-    back.textContent = 'سؤال قبلی';
-    back.onclick = () => { OFN.tap(); at -= 1; drawFront(); };
-    bar.append(back);
-  }
-  card.append(bar);
-}
-
-function drawFront() {
-  if (at < queue.length) { askCard(queue[at]); $('gate').hidden = true; return; }
-  const card = $('front');
-  card.textContent = '';
-  const spine = document.createElement('span');
-  spine.className = 'spine';
-  const k = document.createElement('div');
-  k.className = 'kicker';
-  k.textContent = '—';
-  const h = document.createElement('h2');
-  h.textContent = 'چیزی برای تصمیم نیست';
-  const p = document.createElement('p');
-  p.textContent = 'وقتی پیش‌نویسی آماده شود، همین‌جا می‌آید.';
-  card.append(spine, k, h, p);
-  $('gate').hidden = true;
-}
-
-const fa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
-
-/* ── the two gates ───────────────────────────────────────────────────────
-   The directive is explicit: beauty may improve on a newer browser, a gate
-   must work on the oldest. Both of these are gates. */
-
-/* `:has()` styles the consent lock. Where it is missing the button would be
-   live without consent — a gate that fails OPEN, which is the only kind
-   that matters. This mirrors it in script. */
-const HAS = (() => {
-  try { return CSS.supports('selector(:has(*))'); } catch (_) { return false; }
-})();
-
-function syncConsentGate() {
-  const box = $('c1'), gate = document.querySelector('.gate');
-  if (!gate || !box) return;
-  gate.classList.toggle('locked', !box.checked);
-}
-
-/* `popover` is Chrome 114+; the Telegram WebView floor is lower. Without
-   this the confirm sheet never opens and the publish path is unreachable —
-   which fails closed, but silently, and silent is its own failure. */
-const POPOVER = HTMLElement.prototype.hasOwnProperty('popover');
-
-function openTray() {
-  const tray = $('tray');
-  if (POPOVER) { tray.showPopover(); return; }
-  tray.setAttribute('data-open', '1');
-  tray.style.display = 'block';
-}
-function closeTray() {
-  const tray = $('tray');
-  if (POPOVER) { tray.hidePopover(); return; }
-  tray.removeAttribute('data-open');
-  tray.style.display = 'none';
-}
-
-function showState(kind) {
-  const box = $('state');
-  const say = REASONS[kind] || 'چیزی سر جایش نیست.';
-  box.hidden = false;
-  box.textContent = '';
-  box.append(Object.assign(document.createElement('div'), { textContent: say }));
-  if (kind !== 'no-shell') {
-    const again = document.createElement('button');
-    again.type = 'button';
-    again.textContent = 'دوباره تلاش کن';
-    again.onclick = () => location.reload();
-    box.append(again);
-  }
-  /* Nothing may look operable while disconnected. */
-  document.querySelectorAll('.cta').forEach(b => {
-    b.disabled = true; b.style.opacity = '.45'; b.style.pointerEvents = 'none';
-  });
-}
-
-/* The header ships with no name in it. This is the only thing that ever puts
-   one there, and it runs after the session exists — via textContent. */
-function greet(name) {
-  const h = $('hello');
-  if (h) h.textContent = name ? `سلام ${name}` : 'چیدمان';
-}
-
-async function boot() {
-  OFN.shell();
-  syncConsentGate();
-  const box = $('c1');
-  if (box) box.addEventListener('change', syncConsentGate);
-
-  document.querySelectorAll('[popovertarget="tray"]').forEach(b => {
-    b.addEventListener('click', ev => {
-      if (POPOVER) return;              // the attribute already handles it
-      ev.preventDefault();
-      (b.getAttribute('popovertargetaction') === 'hide') ? closeTray() : openTray();
-    });
-  });
-
-  if (!await OFN.connect()) { showState(OFN.why); return; }
-  greet(OFN.who);
-
-  let status, qs;
-  try {
-    [status, qs] = await Promise.all([
-      OFN.get('/api/v1/status'), OFN.get('/api/v1/questions'),
-    ]);
-  } catch (_) { showState('unreachable'); return; }
-
-  queue = (qs && qs.questions) || [];
-  at = 0;
-  drawFront();
-
-  /* Nothing here invents a number. Until the studio surface exists, the card
-     says there is nothing to decide, which is true. */
-  const behind = $('behind');
-  const pending = (status && status.pending_decisions) || 0;
-  if (pending > 0) {
-    behind.hidden = false;
-    behind.textContent = '';
-    behind.append(document.createTextNode('پشت این، '));
-    const b = document.createElement('b');
-    b.textContent = fa(pending) + ' مورد';
-    behind.append(b, document.createTextNode(' دیگر هست'));
-  }
-}
-
-boot();
 </script>
 </body>
 </html>
