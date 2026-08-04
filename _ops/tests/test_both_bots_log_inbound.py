@@ -116,6 +116,47 @@ def t_g_this_test_only_reads():
     assert not hits, hits
 
 
+def t_h_a_silenced_update_records_why():
+    """VQ-ARRIVED-BUT-WHY-001 (۲۰۲۶-۰۸-۰۴، از مشاهدهٔ خودِ مالک).
+
+    لاگِ ورودی می‌گفت «رسید» و بس. رسیدِ ردِ سیاستِ ورودی وجود داشت ولی در
+    لاگِ **خروجی** با مهرِ زمانیِ اپاک — یعنی برای فهمیدنِ «رسید ولی چرا
+    هیچ نشد؟» باید دو فایل با دو فرمتِ زمانی دستی جوین می‌شد.
+
+    هر مسیری که update را **بی‌جواب** برمی‌گرداند باید دلیلش را کنارِ همان
+    ردیفِ رسید بگذارد، با همان `update_id` تا جوین‌شدنی باشد. (همان درسِ
+    `_context`: دو فهرستِ درست که به‌هم وصل نمی‌شوند، عملاً هیچ‌اند.)"""
+    center = harness.REAL_VAULT / "_ops" / "telegram_center" / "center.py"
+    src = center.read_text("utf-8", errors="replace")
+    tree = ast.parse(src)
+    fn = next((n for n in ast.walk(tree)
+               if isinstance(n, ast.FunctionDef) and n.name == "_log_disposition"), None)
+    assert fn is not None, "‏_log_disposition تعریف نشده"
+    seg = ast.get_source_segment(src, fn) or ""
+    assert '"update_id"' in seg, "بدونِ update_id ردیف جوین‌شدنی نیست"
+    assert LOG_NAME in seg, "دلیل باید در **همان** فایلِ رسید بنشیند نه فایلِ سوم"
+    assert '"reason"' in seg and '"outcome"' in seg
+
+    # و باید واقعاً از مسیرهای سکوت صدا زده شود — نه فقط تعریف شده باشد.
+    hu = next(n for n in ast.walk(tree)
+              if isinstance(n, ast.FunctionDef) and n.name == "handle_update")
+    hseg = ast.get_source_segment(src, hu) or ""
+    assert hseg.count("_log_disposition") >= 2, (
+        "کمتر از دو مسیرِ سکوت دلیل ثبت می‌کنند — «غیرمالک» و «ردِ سیاستِ "
+        "ورودی» هر دو باید بنویسند")
+
+
+def t_i_the_disposition_row_stores_no_message_text():
+    """§۱۰ برای این ردیف هم برقرار است — دلیلِ ساختاری، نه متنِ پیام."""
+    center = harness.REAL_VAULT / "_ops" / "telegram_center" / "center.py"
+    src = center.read_text("utf-8", errors="replace")
+    fn = next(n for n in ast.walk(ast.parse(src))
+              if isinstance(n, ast.FunctionDef) and n.name == "_log_disposition")
+    seg = ast.get_source_segment(src, fn) or ""
+    for leak in ('"text"', "msg.get(\"text\")", '"chars"'):
+        assert leak not in seg, (leak, "متن/محتوا در ردیفِ دلیل")
+
+
 def main():
     tests = [v for k, v in sorted(globals().items())
              if k.startswith("t_") and callable(v)]

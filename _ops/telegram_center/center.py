@@ -2450,6 +2450,13 @@ class Center:
         if not self._is_owner(u):
             # غیرمالک عمداً حتی answer_callback هم نمی‌گیرد (fail-closed:
             # هر پاسخی وجودِ بات/مالک را لو می‌دهد) — spinner ِ غریبه مشکلِ ما نیست.
+            #
+            # ⚠️ سکوت **به بیرون** می‌ماند؛ ولی به **دفتر** نه. اگر مالک روزی
+            # از یک اکانتِ دوم بنویسد و جواب نگیرد، باید بتواند بفهمد چرا —
+            # وگرنه دقیقاً همان «هرکاری می‌کنم دیده نمی‌شود» می‌شود، این‌بار
+            # با یک علتِ کاملاً درست که هیچ‌جا نوشته نشده.
+            self._log_disposition(u, outcome="not-owner",
+                                  reason="allowlist — فرستنده مالک نیست")
             return None                              # سکوتِ کامل برای غیرمالک
         # ── سیاستِ ورودی (VQ-TG-GAP-INPUT-001، رأیِ مالک ۲۰۲۶-۰۷-۳۰ گزینهٔ A) ──
         # تا امروز فقط **خروجی** سیاست داشت، پس گروه فرمانِ هسته‌ای می‌گرفت حتی
@@ -2505,6 +2512,10 @@ class Center:
                                     state="blocked")
                 except Exception:  # noqa: BLE001
                     pass
+                # و ردیفِ «چرا» کنارِ ردیفِ «رسید» — یک فایل، یک `update_id`.
+                self._log_disposition(u, outcome="denied-by-input-policy",
+                                      reason=str(_d.get("reason") or ""),
+                                      detail=f"mode={_d.get('mode')}")
                 return {"kind": "input-policy", "mode": _d.get("mode"),
                         "reason": _d.get("reason")}
             # ── جوابِ گزینهٔ ② پنل (قرارداد ORPHANS A2) ──────────────────────
@@ -5230,6 +5241,40 @@ class Center:
             except OSError:
                 pass
         except Exception:  # noqa: BLE001 — لاگ هرگز حلقه را نمی‌کشد
+            pass
+
+    def _log_disposition(self, u: dict, *, outcome: str, reason: str = "",
+                         detail: str = "") -> None:
+        """چرا این update به جایی نرسید — کنارِ همان ردیفِ «رسید».
+
+        VQ-ARRIVED-BUT-WHY-001 (۲۰۲۶-۰۸-۰۴، از مشاهدهٔ خودِ مالک). لاگِ ورودی
+        می‌گفت «رسید» و بس. رسیدِ ردِ سیاستِ ورودی وجود داشت ولی در لاگِ
+        **خروجی** (`tg_send_log`, `state="blocked"`) با مهرِ زمانیِ اپاک —
+        یعنی مالک برای فهمیدنِ «رسید ولی چرا هیچ نشد؟» باید دو فایل با دو
+        فرمتِ زمانی را دستی جوین می‌کرد.
+
+        حالا هر دو ردیف در **یک** فایل و با همان `update_id` می‌نشینند، پس
+        جوین‌شدنی‌اند. همان درسِ امروز از `_context`: دو فهرستِ درست که
+        به‌هم وصل نمی‌شوند، عملاً هیچ‌اند.
+
+        ⚠️ متن ذخیره نمی‌شود (§۱۰) — فقط دلیلِ ساختاری.
+        """
+        try:
+            msg = u.get("message") or (u.get("callback_query") or {}).get("message") or {}
+            p = opslib.STATE_DIR / "telegram" / "inbound-log.jsonl"
+            p.parent.mkdir(parents=True, exist_ok=True)
+            with open(p, "a", encoding="utf-8", newline="\n") as fh:
+                fh.write(json.dumps({
+                    "ts": opslib.now_iso(),
+                    "bot": "center",
+                    "update_id": u.get("update_id"),
+                    "kind": "disposition",
+                    "outcome": str(outcome)[:32],
+                    "reason": str(reason)[:80],
+                    "detail": str(detail)[:120],
+                    "chat_kind": str((msg.get("chat") or {}).get("type") or ""),
+                }, ensure_ascii=False) + "\n")
+        except Exception:  # noqa: BLE001 — ثبت هرگز مرکز را نمی‌کشد
             pass
 
     #: چند شکستِ **پیاپیِ** poll تا صدا در بیاید. یک قطعیِ گذرا باید ساکت باشد،
