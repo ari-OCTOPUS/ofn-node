@@ -32,6 +32,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import re
+import urllib.parse
 from dataclasses import dataclass
 from typing import Mapping
 
@@ -70,30 +71,82 @@ class VerifiedUser:
 
 
 def _parse_qs(raw: str) -> dict[str, str]:
-    """Minimal query-string parse. Percent-decoding is left to the adapter —
-    the signature covers the decoded values, so decoding must happen before
-    this function, and doing it twice would corrupt the check string."""
+    """Split first, then decode each value — the order `URLSearchParams` uses.
+
+    Decoding the whole string before splitting is the classic mistake: a value
+    that decodes to contain `&` or `=` then gets torn into extra fields, and
+    the check string is wrong forever for that one user. A surname with an
+    ampersand is enough to do it.
+    """
     out: dict[str, str] = {}
     for pair in raw.split("&"):
         if not pair:
             continue
         key, sep, value = pair.partition("=")
         if not sep:
-            raise AuthError("malformed init data")
-        out[key] = value
+            raise AuthError("malformed init data", "malformed")
+        out[urllib.parse.unquote_plus(key)] = urllib.parse.unquote_plus(value)
     return out
 
 
-def data_check_string(fields: Mapping[str, str]) -> str:
-    """Canonical string the signature is computed over.
+def data_check_string(fields: Mapping[str, str],
+                      *, drop: tuple[str, ...] = ("hash",)) -> str:
+    """Canonical string the bot-token HMAC is computed over.
 
-    Both `hash` and `signature` are excluded: `hash` is the value being
-    checked, and `signature` belongs to a separate third-party verification
-    scheme whose presence must not change this computation.
+    Only `hash` comes out. `signature` — the field that carries the separate
+    Ed25519 attestation for third parties — stays in, because the platform
+    computes `hash` over the fields it is sending, and by then `signature` is
+    one of them. Dropping it here was silently fatal for every real launch
+    from a client new enough to send it, while every test passed: the tests
+    never produced a `signature`, so they could not see it.
+
+    `drop` exists for the Ed25519 path, which removes both.
     """
-    items = sorted((k, v) for k, v in fields.items()
-                   if k not in ("hash", "signature"))
+    items = sorted((k, v) for k, v in fields.items() if k not in drop)
     return "\n".join(f"{k}={v}" for k, v in items)
+
+
+def hmac_variants(raw: str, bot_token: str) -> dict[str, bool]:
+    """Which decode/exclude combination the platform actually signed.
+
+    A diagnostic, not a fallback: exactly one of these is correct and the
+    others are bugs. It exists so the answer comes from one tap on a real
+    phone instead of from another round of reasoning. Returns booleans only —
+    no field values, ever.
+    """
+    if not bot_token:
+        return {}
+    secret = hmac.new(b"WebAppData", bot_token.encode("utf-8"),
+                      hashlib.sha256).digest()
+
+    def whole(text: str) -> dict[str, str]:
+        out = {}
+        for pair in urllib.parse.unquote(text).split("&"):
+            k, sep, v = pair.partition("=")
+            if sep:
+                out[k] = v
+        return out
+
+    out: dict[str, bool] = {}
+    for parse_name, fields in (("pairs", _safe(_parse_qs, raw)),
+                               ("whole", _safe(whole, raw))):
+        if fields is None:
+            continue
+        got = fields.get("hash", "")
+        for drop_name, drop in (("hash_only", ("hash",)),
+                                ("hash_and_sig", ("hash", "signature"))):
+            want = hmac.new(secret,
+                            data_check_string(fields, drop=drop).encode("utf-8"),
+                            hashlib.sha256).hexdigest()
+            out[f"{parse_name}/{drop_name}"] = hmac.compare_digest(want, got)
+    return out
+
+
+def _safe(fn, raw):
+    try:
+        return fn(raw)
+    except Exception:
+        return None
 
 
 def verify_init_data(

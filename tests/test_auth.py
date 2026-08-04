@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import urllib.parse
 import unittest
 
 from ofn.kernel.auth import (
@@ -83,12 +84,31 @@ class TestInitDataVerification(unittest.TestCase):
         with self.assertRaises(AuthError):
             verify_init_data(sign(good_fields()), "", now_epoch_s=NOW)
 
-    def test_signature_field_is_excluded_from_the_check_string(self):
-        """A third-party verification field must not change our computation."""
+    def test_signature_field_is_part_of_the_check_string(self):
+        """Inverted 2026-08-04, after a real launch proved it backwards.
+
+        This test used to assert that `signature` was excluded, and it
+        passed — because it built its own launch blob and signed it with the
+        same helper it was testing. Self-consistent, and wrong about the one
+        party that matters.
+
+        The platform computes `hash` over the fields it is about to send, and
+        by then `signature` is one of them. Excluding it here made every
+        launch from a client new enough to send that field fail with a
+        mismatch, invisibly, forever.
+        """
         base = good_fields()
-        signed = sign(base)
-        signed["signature"] = "unrelated-ed25519-value"
+        base["signature"] = "unrelated-ed25519-value"
+        signed = sign(base)          # signed WITH the signature field present
         self.assertTrue(verify_init_data(signed, BOT_TOKEN, now_epoch_s=NOW))
+
+    def test_a_blob_signed_without_signature_fails_once_one_is_added(self):
+        # The other direction of the same rule: adding a field after signing
+        # must break the hash, exactly as tampering should.
+        signed = sign(good_fields())
+        signed["signature"] = "added-afterwards"
+        with self.assertRaises(AuthError):
+            verify_init_data(signed, BOT_TOKEN, now_epoch_s=NOW)
 
     def test_error_message_does_not_leak_which_check_failed(self):
         forged = sign(good_fields()); forged["hash"] = "0" * 64
@@ -199,3 +219,60 @@ class TestReplayGuard(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRealLaunchShape(unittest.TestCase):
+    """A blob shaped the way the platform actually sends one.
+
+    Built without the helper that verification uses, so it can disagree with
+    it. The previous tests could not: they signed with the same function they
+    were checking, which is self-consistency wearing the costume of a test.
+    """
+
+    TOKEN = "8978354269:not-a-real-token-only-for-this-test"
+
+    def blob(self, **extra):
+        import json
+        fields = {
+            "user": json.dumps(
+                {"id": 227957900, "first_name": "ملیحه",
+                 "username": "Parvaz131", "language_code": "en"},
+                ensure_ascii=False, separators=(",", ":")),
+            "chat_instance": "-1234567890123456789",
+            "chat_type": "sender",
+            "auth_date": str(NOW),
+        }
+        fields.update(extra)
+        check = "\n".join(f"{k}={fields[k]}" for k in sorted(fields))
+        secret = hmac.new(b"WebAppData", self.TOKEN.encode(),
+                          hashlib.sha256).digest()
+        fields["hash"] = hmac.new(secret, check.encode(),
+                                  hashlib.sha256).hexdigest()
+        return "&".join(f"{k}={urllib.parse.quote(v, safe='')}"
+                        for k, v in fields.items())
+
+    def test_a_launch_carrying_signature_verifies(self):
+        raw = self.blob(signature="AbCdEf_ed25519_style_value-123")
+        user = parse_and_verify(raw, self.TOKEN, now_epoch_s=NOW)
+        self.assertEqual(user.user_id, "227957900")
+
+    def test_a_launch_without_signature_still_verifies(self):
+        user = parse_and_verify(self.blob(), self.TOKEN, now_epoch_s=NOW)
+        self.assertEqual(user.username, "Parvaz131")
+
+    def test_a_value_containing_an_ampersand_survives(self):
+        # Decoding the whole string before splitting tears this into extra
+        # fields. A surname is enough to trigger it, and it would fail for
+        # that one person forever.
+        import json
+        raw = self.blob(user=json.dumps(
+            {"id": 5, "first_name": "A&B", "last_name": "C=D"},
+            ensure_ascii=False, separators=(",", ":")))
+        user = parse_and_verify(raw, self.TOKEN, now_epoch_s=NOW)
+        self.assertEqual(user.user_id, "5")
+
+    def test_the_probe_names_the_working_combination(self):
+        from ofn.kernel.auth import hmac_variants
+        got = hmac_variants(self.blob(signature="x-y-z"), self.TOKEN)
+        self.assertTrue(got["pairs/hash_only"])
+        self.assertFalse(got["pairs/hash_and_sig"])

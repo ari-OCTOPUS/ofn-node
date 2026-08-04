@@ -17,12 +17,21 @@ KERNEL_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file
 
 # Modules the kernel may import. Everything else is either I/O, non-determinism,
 # or a third-party dependency — all three are disqualifying.
-ALLOWED_IMPORTS = {"__future__", "enum", "dataclasses", "typing", "abc", "re", "hmac", "hashlib"}
+ALLOWED_IMPORTS = {"__future__", "enum", "dataclasses", "typing", "abc", "re",
+                   "hmac", "hashlib", "urllib"}
 # `re`, `hmac` and `hashlib` are admitted deliberately: all three are pure,
 # deterministic, and do no I/O. They are here so redaction and signature
 # verification live in the kernel rather than in an adapter a caller could
 # forget to route through. Nothing else gets added to this set without the
 # same argument holding.
+#
+# `urllib.parse` joined them 2026-08-04, and the argument is the same one —
+# plus a scar. Percent-decoding is not a step *before* verification, it is
+# part of it: the check string is built from decoded values, so whoever
+# decodes decides what is signed. Leaving it to the adapter is exactly how
+# this project shipped a decoder that unquoted the whole query string before
+# splitting it, which every test agreed with and no real launch did.
+# `unquote_plus` reads no clock, no file and no environment.
 
 # Names that belong to a specific business, partner, or product. The kernel is
 # industry-independent; if one of these appears, generalisation has failed and

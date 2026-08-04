@@ -34,8 +34,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Callable, Mapping, Sequence
 
 from ..kernel.auth import (
-    AuthError, ReplayGuard, Session, issue_session, parse_and_verify,
-    verify_session,
+    AuthError, ReplayGuard, Session, hmac_variants, issue_session,
+    parse_and_verify, verify_session,
 )
 from ..kernel.domain import RiskTier, TenantId
 from ..kernel.tenancy import TenantRegistry, TenantScope
@@ -204,14 +204,22 @@ class ApiApp:
         token = self._bot_tokens.get(key, "")
         now = self._now()
         try:
-            user = parse_and_verify(urllib.parse.unquote(raw), token,
-                                    now_epoch_s=now)
+            # Raw, not pre-decoded: `_parse_qs` splits first and decodes each
+            # value, which is the order the platform signed.
+            user = parse_and_verify(raw, token, now_epoch_s=now)
             self._replay.check_and_remember(
                 payload.get("init_data", "")[-64:], now)
         except AuthError as exc:
+            reason = getattr(exc, "reason", "")
+            if reason == "signature_mismatch":
+                # Say which combination the platform actually signed, so the
+                # answer costs one tap rather than another round of theory.
+                probe = hmac_variants(raw, token)
+                hit = [k for k, ok in probe.items() if ok]
+                reason += f" probe={','.join(hit) if hit else 'none'}"
             # Same body to the caller, a named reason in the journal.
             return Response(401, {"error": "unauthorised"},
-                            {"X-OFN-Auth-Reason": getattr(exc, "reason", "")})
+                            {"X-OFN-Auth-Reason": reason})
 
         # Signature first, identity second — always in that order, so an
         # unsigned request is told 401 and never learns whether the id it

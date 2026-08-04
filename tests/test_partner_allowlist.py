@@ -148,8 +148,10 @@ class TestFailureReasonIsForTheOperatorOnly(unittest.TestCase):
                      json.dumps({"init_data": init_data("222:other-bot",
                                                         MALIHEH)}).encode())
         self.assertEqual(r.status, 401)
-        self.assertEqual(r.headers.get("X-OFN-Auth-Reason"),
-                         "signature_mismatch")
+        # The reason may carry a probe suffix naming which decode/exclude
+        # combination the platform actually signed.
+        self.assertTrue(r.headers.get("X-OFN-Auth-Reason", "")
+                        .startswith("signature_mismatch"))
 
     def test_the_body_says_nothing_beyond_unauthorised(self):
         a = app({"ziman": [MALIHEH]})
