@@ -207,6 +207,41 @@ class Node:
             raise ProductError("استودیو در دسترس نیست")
         return self.studio
 
+
+    def _next_draft_id(self, tenant: str) -> str:
+        """A new id, derived from what already exists rather than from a clock.
+
+        Sequential and readable, because it becomes a directory name under
+        the media root and appears in the ledger. Derived from the highest
+        number already used, so a deleted draft never hands its id — and its
+        media directory — to a different post.
+        """
+        top = 0
+        for d in self.studio.drafts(tenant):
+            tail = d.draft_id.rsplit("-", 1)[-1]
+            if tail.isdigit():
+                top = max(top, int(tail))
+        return f"post-{top + 1:04d}"
+
+    def _self_subject(self, tenant: str) -> str:
+        """The partner herself, as a consent subject.
+
+        Created on first use rather than by hand, because the alternative is
+        that `draft_subjects` stays empty until somebody remembers — and the
+        whole point of that table is that it cannot be reconstructed later.
+
+        A subject is not a release. This makes her *declared*; whether she
+        has agreed to a platform is still a document the owner records, and
+        the gate still refuses until it exists.
+        """
+        sid = "self"
+        try:
+            self.consent.add_subject(tenant, sid, "خودم",
+                                     now_epoch_s=self.now_epoch_s())
+        except Exception:
+            pass          # already there, which is the normal case
+        return sid
+
     def studio_board(self, scope: TenantScope) -> dict:
         """Everything one screen needs, in one request.
 
@@ -253,9 +288,10 @@ class Node:
                      body: Mapping[str, object]) -> dict:
         store = self._studio()
         tenant = scope.tenant.value
-        draft_id = str(body.get("draft_id") or "").strip()
-        if not draft_id:
-            return {"ok": False, "error": "شناسهٔ پیش‌نویس لازم است"}
+        # Minted here, not sent by the shell. A client-chosen id is a client
+        # -chosen filesystem path once media lands under it, and two phones
+        # would eventually pick the same one.
+        draft_id = self._next_draft_id(tenant)
         try:
             store.add_draft(
                 tenant, draft_id,
@@ -266,11 +302,12 @@ class Node:
         except StudioError as exc:
             return {"ok": False, "error": str(exc)}
 
-        # Every draft records who is in it, from the first one, even while the
-        # answer is always the same person. The day a second person appears,
-        # a table that exists gains a row; a table that does not exist cannot
-        # reconstruct the history built until then.
-        for sid in (body.get("subjects") or []):
+        # Every draft records who is in it, from the first one, even while
+        # the answer is always the same person. The day a second person
+        # appears, a table that exists gains a row; a table that does not
+        # exist cannot reconstruct the history built until then.
+        people = list(body.get("subjects") or []) or [self._self_subject(tenant)]
+        for sid in people:
             try:
                 self.consent.add_to_draft(draft_id, str(sid),
                                           added_by=f"partner:{user_id}",

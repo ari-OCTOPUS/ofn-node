@@ -94,12 +94,16 @@ class Base(unittest.TestCase):
             document_ref="safe/1", document_sha256=SHA,
             recorded_by="operator:ari")
 
-    def draft(self, did="d1", subjects=("saba",)):
-        return self.call("POST", "/api/v1/studio/drafts",
-                         {"draft_id": did, "caption": "متن",
-                          "subjects": list(subjects)})
+    def draft(self, subjects=("saba",)):
+        """The id is minted by the node, not chosen here — a client-chosen id
+        becomes a filesystem path once media lands under it."""
+        r = self.call("POST", "/api/v1/studio/drafts",
+                      {"caption": "متن", "subjects": list(subjects)})
+        self.did = r.body.get("draft_id")
+        return r
 
-    def attach(self, did="d1", position=0):
+    def attach(self, did=None, position=0):
+        did = did or self.did
         return self.call("POST", f"/api/v1/studio/drafts/{did}/media",
                          {"position": position, "renditions": RENDITIONS})
 
@@ -111,11 +115,11 @@ class TestAuth(Base):
 
     def test_an_unknown_verb_is_not_a_route(self):
         self.person(); self.draft()
-        self.assertEqual(
-            self.call("POST", "/api/v1/studio/drafts/d1/delete").status, 404)
+        self.assertEqual(self.call(
+            "POST", f"/api/v1/studio/drafts/{self.did}/delete").status, 404)
 
     def test_a_crafted_id_cannot_reach_another_route(self):
-        for bad in ("d1/publish/extra", "d1", "/publish", "d1//publish"):
+        for bad in ("x/publish/extra", "x", "/publish", "x//publish"):
             self.assertEqual(
                 self.call("POST", f"/api/v1/studio/drafts/{bad}").status, 404,
                 bad)
@@ -130,7 +134,7 @@ class TestTheBoard(Base):
         self.person(); self.paper()
         self.draft()
         row = self.call("GET", "/api/v1/studio/board").body["drafts"][0]
-        self.assertEqual(row["draft_id"], "d1")
+        self.assertEqual(row["draft_id"], self.did)
         self.assertTrue(row["consent_ok"])
 
     def test_the_board_reports_the_gates_answer_not_its_ingredients(self):
@@ -166,13 +170,13 @@ class TestMedia(Base):
     def test_an_oversized_payload_is_refused(self):
         self.person(); self.draft()
         huge = "data:image/jpeg;base64," + "A" * (24 * 1024 * 1024)
-        r = self.call("POST", "/api/v1/studio/drafts/d1/media",
+        r = self.call("POST", f"/api/v1/studio/drafts/{self.did}/media",
                       {"position": 0, "renditions": {"1600": huge, "320": IMG}})
         self.assertEqual(r.status, 400)
 
     def test_an_svg_is_refused(self):
         self.person(); self.draft()
-        r = self.call("POST", "/api/v1/studio/drafts/d1/media",
+        r = self.call("POST", f"/api/v1/studio/drafts/{self.did}/media",
                       {"position": 0, "renditions": {
                           "1600": "data:image/svg+xml;base64," + IMG,
                           "320": IMG}})
@@ -180,7 +184,7 @@ class TestMedia(Base):
 
     def test_a_missing_rendition_is_refused_rather_than_half_stored(self):
         self.person(); self.draft()
-        r = self.call("POST", "/api/v1/studio/drafts/d1/media",
+        r = self.call("POST", f"/api/v1/studio/drafts/{self.did}/media",
                       {"position": 0, "renditions": {"1600": IMG}})
         self.assertEqual(r.status, 400)
 
@@ -191,7 +195,7 @@ class TestPublishStopsAtTheOutbox(Base):
 
     def test_a_cleared_draft_is_queued(self):
         self.ready()
-        r = self.call("POST", "/api/v1/studio/drafts/d1/publish")
+        r = self.call("POST", f"/api/v1/studio/drafts/{self.did}/publish")
         self.assertEqual(r.status, 200)
         self.assertEqual(r.body["status"], "queued")
 
@@ -199,28 +203,28 @@ class TestPublishStopsAtTheOutbox(Base):
         """Publishing a picture of a person is irreversible, leaves the
         device, and is a person. No configuration makes it anything else."""
         self.ready()
-        self.call("POST", "/api/v1/studio/drafts/d1/publish")
+        self.call("POST", f"/api/v1/studio/drafts/{self.did}/publish")
         items = self.outbox.pending(self.scope())
         self.assertEqual(len(items), 1)
         self.assertIs(items[0].tier, RiskTier.RED)
 
     def test_nothing_is_sent(self):
         self.ready()
-        self.call("POST", "/api/v1/studio/drafts/d1/publish")
+        self.call("POST", f"/api/v1/studio/drafts/{self.did}/publish")
         self.assertEqual(self.outbox.counts(self.scope()).get("sent", 0), 0)
 
     def test_publishing_twice_does_not_make_two_posts(self):
         """A network timeout that actually succeeded, retried, is the most
         common way an agentic system posts twice."""
         self.ready()
-        self.call("POST", "/api/v1/studio/drafts/d1/publish")
-        again = self.call("POST", "/api/v1/studio/drafts/d1/publish")
+        self.call("POST", f"/api/v1/studio/drafts/{self.did}/publish")
+        again = self.call("POST", f"/api/v1/studio/drafts/{self.did}/publish")
         self.assertFalse(again.body["queued"])
         self.assertEqual(len(self.outbox.pending(self.scope())), 1)
 
     def test_a_draft_without_consent_is_refused(self):
         self.person(); self.draft(); self.attach()      # no release
-        r = self.call("POST", "/api/v1/studio/drafts/d1/publish")
+        r = self.call("POST", f"/api/v1/studio/drafts/{self.did}/publish")
         self.assertEqual(r.status, 400)
         self.assertEqual(r.body["blocked"], ["saba"])
         self.assertEqual(self.outbox.pending(self.scope()), [])
@@ -229,31 +233,31 @@ class TestPublishStopsAtTheOutbox(Base):
         """So that "why did nothing publish" is answerable from the ledger
         rather than guessed at."""
         self.person(); self.draft(); self.attach()
-        self.call("POST", "/api/v1/studio/drafts/d1/publish")
+        self.call("POST", f"/api/v1/studio/drafts/{self.did}/publish")
         kinds = [e.kind for e in self.ledger.read(self.scope())]
         self.assertIn("PUBLISH_REFUSED", kinds)
 
     def test_a_withdrawn_release_stops_it(self):
         self.ready()
         self.consent.revoke("r1", now_epoch_s=NOW_S)
-        r = self.call("POST", "/api/v1/studio/drafts/d1/publish")
+        r = self.call("POST", f"/api/v1/studio/drafts/{self.did}/publish")
         self.assertEqual(r.status, 400)
 
     def test_a_release_for_another_platform_stops_it(self):
         self.person(); self.paper(scope="telegram")
         self.draft(); self.attach()
-        r = self.call("POST", "/api/v1/studio/drafts/d1/publish")
+        r = self.call("POST", f"/api/v1/studio/drafts/{self.did}/publish")
         self.assertEqual(r.status, 400)
 
     def test_a_draft_with_no_media_is_refused(self):
         self.person(); self.paper(); self.draft()
-        r = self.call("POST", "/api/v1/studio/drafts/d1/publish")
+        r = self.call("POST", f"/api/v1/studio/drafts/{self.did}/publish")
         self.assertEqual(r.status, 400)
 
     def test_the_gate_is_evaluated_here_not_taken_from_the_caller(self):
         """The shell cannot assert its way past consent."""
         self.person(); self.draft(); self.attach()
-        r = self.call("POST", "/api/v1/studio/drafts/d1/publish",
+        r = self.call("POST", f"/api/v1/studio/drafts/{self.did}/publish",
                       {"consent_ok": True, "force": True})
         self.assertEqual(r.status, 400)
 
@@ -261,13 +265,13 @@ class TestPublishStopsAtTheOutbox(Base):
 class TestHerReading(Base):
     def test_a_rating_before_any_number_is_trustworthy(self):
         self.person(); self.draft()
-        r = self.call("POST", "/api/v1/studio/drafts/d1/felt", {"rating": 4})
+        r = self.call("POST", f"/api/v1/studio/drafts/{self.did}/felt", {"rating": 4})
         self.assertTrue(r.body["trustworthy"])
 
     def test_a_rating_after_a_number_is_kept_but_marked(self):
         self.person(); self.draft()
-        self.studio.record_first_metric("d1", now_epoch_s=NOW_S - 10)
-        r = self.call("POST", "/api/v1/studio/drafts/d1/felt", {"rating": 4})
+        self.studio.record_first_metric(self.did, now_epoch_s=NOW_S - 10)
+        r = self.call("POST", f"/api/v1/studio/drafts/{self.did}/felt", {"rating": 4})
         self.assertTrue(r.body["ok"])
         self.assertFalse(r.body["trustworthy"])
 
@@ -275,7 +279,7 @@ class TestHerReading(Base):
         self.person(); self.draft()
         for bad in (0, 6, "3", True):
             self.assertEqual(
-                self.call("POST", "/api/v1/studio/drafts/d1/felt",
+                self.call("POST", f"/api/v1/studio/drafts/{self.did}/felt",
                           {"rating": bad}).status, 400, bad)
 
 

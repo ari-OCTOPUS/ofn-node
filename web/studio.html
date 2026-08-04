@@ -316,6 +316,19 @@ nav svg{width:21px;height:21px}
 
   <div class="behind" id="behind" hidden></div>
 
+  <!-- One action, and it is the first one. Everything else about a post is
+       optional and comes later. -->
+  <div class="act">
+    <label class="cta" id="addbtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+        stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18"
+        height="14" rx="3"/><circle cx="12" cy="13" r="3.4"/><path d="M8 6l1.5-2h5L16 6"/></svg>
+      عکس تازه
+      <input type="file" accept="image/*" id="pick" hidden>
+    </label>
+  </div>
+  <div class="state" id="addnote" hidden></div>
+
   <form class="gate" id="gate" onsubmit="return false" hidden>
     <label class="consent">
       <span class="tick"><input type="checkbox" id="c1">
@@ -794,11 +807,98 @@ async function publishCurrent() {
   if (say) say.textContent = 'این پیش‌نویس';
 }
 
+
+/* ── adding a photo ──────────────────────────────────────────────────────
+   The draft exists after the FIRST action, not the last. Picking a photo
+   creates it; caption, collection and schedule are all later and optional.
+
+   The natural shape of an upload form is six decisions at once — photos,
+   caption, collection, genre, sensitivity, time — and six decisions at once
+   is the thing the whole design directive is against.
+
+   `sensitivity` is not asked at all. It is `restricted` and stays that way;
+   making a collection public is a separate, deliberate act, not a field on
+   the screen where she is trying to put a picture down. */
+
+const EDGES = [1600, 320];
+
+/* `imageOrientation: 'from-image'` is the whole reason this uses
+   `createImageBitmap` rather than an <img>. Without it a portrait photo from
+   a phone lands sideways — and it lands sideways only on real photos, because
+   a synthetic test file has no EXIF at all. */
+async function renditionsOf(file) {
+  let bmp;
+  try {
+    bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+  } catch (_) {
+    bmp = await createImageBitmap(file);     // older WebView: no orientation
+  }
+  const out = {};
+  for (const edge of EDGES) {
+    const scale = Math.min(1, edge / Math.max(bmp.width, bmp.height));
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(bmp.width * scale));
+    c.height = Math.max(1, Math.round(bmp.height * scale));
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    out[String(edge)] = c.toDataURL('image/jpeg', 0.82);
+  }
+  bmp.close && bmp.close();
+  return out;
+}
+
+let busy = false;
+
+async function addPhoto(file) {
+  if (busy || !file) return;
+  busy = true;
+  const note = $('addnote');
+  const say = t => { if (note) { note.hidden = false; note.textContent = t; } };
+  /* Under 100ms, something has to move. A silent wait is on the anxiety
+     list, and resizing a 12MP photo is not instant on this hardware. */
+  say('در حال آماده کردن…');
+  try {
+    const renditions = await renditionsOf(file);
+    say('در حال فرستادن…');
+
+    /* Draft first, then media. If the upload fails the draft survives with
+       nothing in it, which she can see and retry — the alternative is a
+       failed upload that takes the whole post with it. */
+    const made = await OFN.post('/api/v1/studio/drafts', {});
+    if (!made.ok) { say(made.error || 'ساخته نشد.'); busy = false; return; }
+
+    const sent = await OFN.post(
+      '/api/v1/studio/drafts/' + encodeURIComponent(made.draft_id) + '/media',
+      { position: 0, renditions });
+    if (!sent.ok) {
+      say('عکس ذخیره نشد: ' + (sent.error || '') + ' — پیش‌نویس ساخته شد و '
+          + 'می‌توانید دوباره عکس بگذارید.');
+      await loadBoard();
+      busy = false;
+      return;
+    }
+    if (note) note.hidden = true;
+    OFN.tap('medium');
+    await loadBoard();
+  } catch (e) {
+    say(e && e.status === 401
+        ? 'وقت این صفحه تمام شد. ببندید و دوباره باز کنید.'
+        : 'به دستگاه وصل نشد. چیزی ثبت نشد.');
+  }
+  busy = false;
+}
+
 async function boot() {
   OFN.shell();
   syncConsentGate();
   const box = $('c1');
   if (box) box.addEventListener('change', syncConsentGate);
+
+  const pick = $('pick');
+  if (pick) pick.addEventListener('change', ev => {
+    const file = ev.target.files && ev.target.files[0];
+    ev.target.value = '';        /* so the same file can be picked again */
+    addPhoto(file);
+  });
 
   const later = $('later');
   if (later) later.addEventListener('click', ev => {

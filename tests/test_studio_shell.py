@@ -278,3 +278,59 @@ class TestTheShellIsWiredToTheNode(unittest.TestCase):
         self.assertIsNotNone(body)
         self.assertLess(body.group(1).index("at < queue.length"),
                         body.group(1).index("currentDraft()"))
+
+
+class TestTheUploadFormIsOneDecision(unittest.TestCase):
+    """The natural shape of an upload form is six decisions at once — photos,
+    caption, collection, genre, sensitivity, time. Six at once is the thing
+    the directive exists against."""
+
+    def test_the_draft_exists_after_the_first_action(self):
+        """Picking a photo creates it. Everything else is later and
+        optional — and a failed upload does not take the post with it."""
+        body = re.search(r"async function addPhoto\(file\)\s*\{(.*?)\n\}",
+                         JS, re.S).group(1)
+        self.assertLess(body.index("/api/v1/studio/drafts'"),
+                        body.index("/media'"))
+
+    def test_a_failed_upload_leaves_the_draft_alive(self):
+        body = re.search(r"async function addPhoto\(file\)\s*\{(.*?)\n\}",
+                         JS, re.S).group(1)
+        self.assertIn("پیش‌نویس ساخته شد", body)
+
+    def test_sensitivity_is_never_asked(self):
+        """It is restricted and stays that way. Making a collection public is
+        a separate deliberate act, not a field on the screen where she is
+        trying to put a picture down."""
+        self.assertNotIn("sensitivity", JS)
+        self.assertNotIn("restricted", JS)
+
+    def test_the_form_asks_for_nothing_but_the_photo(self):
+        made = re.search(r"OFN\.post\('/api/v1/studio/drafts', (\{[^}]*\})", JS)
+        self.assertIsNotNone(made)
+        self.assertEqual(made.group(1).strip(), "{}")
+
+    def test_exif_orientation_is_requested(self):
+        """Without it a portrait photo lands sideways — and only on real
+        photos, because a synthetic test file has no EXIF at all."""
+        self.assertIn("imageOrientation: 'from-image'", JS)
+
+    def test_there_is_a_fallback_for_a_webview_without_it(self):
+        body = re.search(r"async function renditionsOf\(file\)\s*\{(.*?)\n\}",
+                         JS, re.S).group(1)
+        self.assertIn("createImageBitmap(file)", body)
+
+    def test_both_edges_are_produced_in_the_browser(self):
+        self.assertIn("const EDGES = [1600, 320]", JS)
+        self.assertIn("toDataURL('image/jpeg'", JS)
+
+    def test_something_moves_before_a_hundred_milliseconds(self):
+        """Resizing a 12MP photo is not instant on this hardware, and a
+        silent wait is on the anxiety list."""
+        self.assertIn("در حال آماده کردن", JS)
+
+    def test_a_second_tap_cannot_start_a_second_upload(self):
+        self.assertIn("if (busy || !file) return", JS)
+
+    def test_the_same_file_can_be_chosen_again_after_a_failure(self):
+        self.assertIn("ev.target.value = ''", JS)
