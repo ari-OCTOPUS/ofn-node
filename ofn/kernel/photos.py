@@ -1,151 +1,190 @@
-"""Rules for accepting an image, decided before any bytes are touched.
+"""Photo intake. Every rule here answers the same question:
 
-This module holds the parts of image handling that are decisions rather than
-I/O: how big is too big, which formats are allowed, and — the one that
-matters most — what a stored file is called.
+    can a phone, or something pretending to be one, make this node write
+    somewhere it should not, or allocate memory it should not?
 
-    a stored path is built from ids this system generated,
-    never from anything the sender chose
+Two properties carry most of the weight.
 
-That is the whole defence. A filename that arrives with an upload is
-attacker-controlled text; every traversal bug in this class comes from
-treating it as a name instead of as data. Here it is not used at all: the
-sender's filename is not a parameter of any function in this file.
+**Size is judged before decoding.** Base64 carries three bytes in every four
+characters, so the length of the text bounds the size of the image. Decoding
+first and measuring afterwards means a 200 MB payload is already resident on
+a 4 GB board that is also running three other businesses. The bound rounds
+*up*: it is used to refuse, and refusing early is the safe direction.
 
-The size cap is checked against the *encoded* length, before decoding.
-Decoding first and measuring afterwards means a 200 MB payload is already in
-memory on a board with 4 GB and three other businesses running on it. Base64
-expands by a known ratio, so the encoded length is enough to refuse early.
+**Paths are built, never accepted.** Nothing a sender chose reaches the
+filesystem — not a filename, not a media type, not an extension. Every
+component of a stored path comes from an id this system validated. That is
+why there is no traversal check inside `relative_path`: nothing that could
+traverse ever reaches it.
 
-Kernel purity: no filesystem, no clock, no decoding. `media.py` does those,
-using the answers from here.
+Kernel purity: no filesystem, no clock, no decoding. `adapters/media.py` does
+those, using the answers from here.
 """
 
 from __future__ import annotations
 
-import enum
 import re
 from dataclasses import dataclass
-from typing import Mapping
+from typing import Any
 
 from .errors import FailClosedError
 
+# Lower case only, and no dots or slashes. Case matters: on a
+# case-insensitive filesystem `Piece` and `piece` are one directory, so
+# folding would silently merge two pieces rather than rejecting one.
 _ID = re.compile(r"^[a-z0-9]([a-z0-9_-]{0,62}[a-z0-9])?$")
 
-# What a phone actually produces, plus the one the web hands back from a
-# canvas. Deliberately a fixed set: "whatever the browser said it is" is a
-# content-type header, and a content-type header is a claim by the sender.
-ALLOWED_MIME: Mapping[str, str] = {
-    "image/jpeg": "jpg",
-    "image/png": "png",
-    "image/webp": "webp",
-}
+# The base64 alphabet, with padding only at the end.
+_B64 = re.compile(r"^[A-Za-z0-9+/]+={0,2}$")
 
-# The cap on one upload. Applies to this route only — the rest of the API has
-# a much smaller body limit, and raising that one to fit a photo would raise
-# it for every other endpoint too.
-MAX_UPLOAD_BYTES = 16 * 1024 * 1024
+_DATA_URL = re.compile(r"^data:([a-z]+/[a-z0-9.+-]+);base64,(.*)$", re.S)
 
-# Base64 carries 3 bytes in every 4 characters. Used to refuse an oversized
-# payload from its length alone, before anything is decoded.
-_B64_RATIO = 3 / 4
+# What a canvas can actually produce. `toDataURL` gives jpeg or falls back to
+# png; nothing else is a thing this node will ever be handed by its own shell,
+# and anything else is a claim by the sender.
+ALLOWED_MEDIA_TYPES = ("image/jpeg", "image/png")
 
+# One upload, on this route only. The rest of the API has a much smaller body
+# limit; raising that to fit a photo would raise it for every endpoint.
+MAX_DECODED_BYTES = 16 * 1024 * 1024
 
-class Size(enum.Enum):
-    """Three sizes because the same photo has three jobs.
+# The two renditions the browser sends. The archive copy is handled by
+# `original_path` — it keeps the bytes exactly as they arrived, which is a
+# different promise from these.
+ALLOWED_EDGES = (1600, 320)
 
-    ORIGINAL is kept for this leg specifically: anything that was published
-    has to be archivable at the quality it was published at, or afterwards
-    nobody can say what actually went out.
-    """
+# More photos than this on one piece is a mistake, not a gallery.
+MAX_POSITION = 9
 
-    ORIGINAL = "original"
-    DISPLAY = "display"      # long edge 1600 — what a preview shows
-    THUMB = "thumb"          # long edge 320 — what a contact sheet scrolls
-
-
-LONG_EDGE = {Size.DISPLAY: 1600, Size.THUMB: 320}
+_RATIO = 3 / 4
 
 
 @dataclass(frozen=True)
-class Upload:
-    """An accepted upload, described. No bytes here."""
+class Payload:
+    """An upload that has passed inspection. No bytes here."""
 
-    tenant: str
-    owner_id: str            # the draft or product this belongs to
-    photo_id: str
-    mime: str
-    declared_bytes: int
-
-    @property
-    def extension(self) -> str:
-        return ALLOWED_MIME[self.mime]
+    body: str                  # base64, header stripped
+    media_type: str
+    max_decoded_bytes: int
 
 
-def decoded_length(b64_len: int) -> int:
-    """How many bytes a base64 string of this length will become.
+def _limit(limit: int | None) -> int:
+    if limit is None:
+        return MAX_DECODED_BYTES
+    if not isinstance(limit, int) or isinstance(limit, bool) or limit <= 0:
+        raise FailClosedError(f"invalid size limit: {limit!r}")
+    return limit
 
-    An estimate, and deliberately one that rounds *up*: it is used to refuse
-    things, so erring towards refusing is the safe direction.
+
+def inspect(payload: Any, *, limit: int | None = None) -> Payload:
+    """Judge an upload from its text alone, before anything is decoded.
+
+    Accepts either a bare base64 string or the `data:` URL a canvas produces.
+    The header is matched rather than split on the last comma: splitting would
+    let the payload choose where the header ends, and a payload that can move
+    that boundary can make the size estimate be computed over something that
+    is not the image.
     """
-    return int(b64_len * _B64_RATIO) + 3
+    cap = _limit(limit)
+    if not isinstance(payload, str):
+        raise FailClosedError(f"payload must be text, got {type(payload).__name__}")
+    if not payload:
+        raise FailClosedError("payload is empty")
 
+    media_type = "image/jpeg"
+    body = payload
+    if payload.startswith("data:"):
+        m = _DATA_URL.match(payload)
+        if m is None:
+            # Falling through here would leave the header inside `body`, so
+            # the size would be measured over a string that is not the image.
+            raise FailClosedError("malformed data URL")
+        media_type, body = m.group(1), m.group(2)
 
-def check_size(b64_text: str, *, max_bytes: int = MAX_UPLOAD_BYTES) -> int:
-    """Refuse an oversized upload from its length, before decoding it.
+    if media_type not in ALLOWED_MEDIA_TYPES:
+        raise FailClosedError(f"media type not served here: {media_type}")
 
-    Returns the estimated decoded size so a caller can record it.
-    """
-    size = decoded_length(len(b64_text or ""))
-    if size > max_bytes:
+    if not body:
+        raise FailClosedError("payload is empty")
+    if len(body) % 4 != 0:
+        raise FailClosedError("payload length is not a multiple of four")
+    if not _B64.match(body):
+        # Whitespace lands here too, and deliberately: a canvas never wraps
+        # its output, so newlines mean the payload did not come from where it
+        # claims to — and they make the length estimate meaningless.
+        raise FailClosedError("payload is not base64")
+
+    size = int(len(body) * _RATIO)
+    if size > cap:
         raise FailClosedError(
-            f"تصویر بزرگ‌تر از حد مجاز است "
-            f"({size // 1024 // 1024}MB > {max_bytes // 1024 // 1024}MB)")
-    if not b64_text:
-        raise FailClosedError("تصویر خالی است")
-    return size
+            f"image too large ({size // 1024 // 1024}MB > "
+            f"{cap // 1024 // 1024}MB)")
+    return Payload(body=body, media_type=media_type, max_decoded_bytes=size)
 
 
-def accept(tenant: str, owner_id: str, photo_id: str, *, mime: str,
-           b64_text: str, max_bytes: int = MAX_UPLOAD_BYTES) -> Upload:
-    """Decide whether this upload may be stored, and under what name.
-
-    Every id is validated here rather than at the call site, because a call
-    site that validates is a call site that can forget to.
-    """
-    for name, value in (("tenant", tenant), ("owner", owner_id),
-                        ("photo", photo_id)):
-        if not _ID.match(value or ""):
-            raise FailClosedError(f"invalid {name} id: {value!r}")
-    if mime not in ALLOWED_MIME:
-        raise FailClosedError(f"نوع تصویر پشتیبانی نمی‌شود: {mime!r}")
-    size = check_size(b64_text, max_bytes=max_bytes)
-    return Upload(tenant, owner_id, photo_id, mime, size)
+def _check_id(name: str, value: Any) -> str:
+    if not isinstance(value, str) or not _ID.match(value):
+        raise FailClosedError(f"invalid {name}: {value!r}")
+    return value
 
 
-def relative_path(upload: Upload, size: Size) -> str:
-    """Where this image lives, relative to the media root.
+def _check_position(position: Any) -> int:
+    # `True == 1` in Python, so a bool passes an `isinstance(int)` check and
+    # silently becomes position 1. Checked before the range, because the
+    # range would accept it.
+    if isinstance(position, bool) or not isinstance(position, int):
+        raise FailClosedError(f"position must be a whole number: {position!r}")
+    if not 0 <= position <= MAX_POSITION:
+        raise FailClosedError(f"position out of range: {position}")
+    return position
 
-    Built entirely from validated ids. There is no parameter here that the
-    sender controls, which is why there is no traversal check: nothing that
-    could traverse ever reaches this function.
 
-    The tenant is the first path component so that one business's media is a
-    subtree. That makes "did anything leak between legs" a question about
+def relative_path(tenant: str, piece_id: str, position: int, edge: int) -> str:
+    """Where one rendition lives, relative to the media root.
+
+    Built entirely from validated inputs. The sender's filename is not a
+    parameter of this function, or of any function in this module.
+
+    The tenant is the first component so one business's media is a subtree,
+    which makes "did anything cross between businesses" a question about
     directories rather than about every row in a table.
     """
-    if size is Size.ORIGINAL:
-        leaf = f"{upload.photo_id}.{upload.extension}"
-    else:
-        # Derived sizes are always jpeg — they are made by a canvas, and a
-        # PNG screenshot re-encoded at 1600px is several megabytes for no
-        # gain on a board with this much disk.
-        leaf = f"{upload.photo_id}.{size.value}.jpg"
-    return f"{upload.tenant}/{upload.owner_id}/{leaf}"
+    _check_id("tenant", tenant)
+    _check_id("piece id", piece_id)
+    _check_position(position)
+    if isinstance(edge, bool) or not isinstance(edge, int) or edge not in ALLOWED_EDGES:
+        raise FailClosedError(f"unknown edge: {edge!r}")
+    return f"{tenant}/{piece_id}/{position}-{edge}.jpg"
 
 
-def all_paths(upload: Upload) -> Mapping[Size, str]:
-    return {s: relative_path(upload, s) for s in Size}
+def original_path(tenant: str, piece_id: str, position: int,
+                  media_type: str) -> str:
+    """Where the untouched upload is archived.
+
+    Separate from `relative_path` because it is a different promise. The
+    renditions are always jpeg — a canvas made them. This one keeps whatever
+    arrived, because anything published has to be archivable at the quality
+    it was published at, or afterwards nobody can say what actually went out.
+    """
+    _check_id("tenant", tenant)
+    _check_id("piece id", piece_id)
+    _check_position(position)
+    if media_type not in ALLOWED_MEDIA_TYPES:
+        raise FailClosedError(f"media type not served here: {media_type}")
+    ext = "png" if media_type == "image/png" else "jpg"
+    return f"{tenant}/{piece_id}/{position}-original.{ext}"
+
+
+def piece_prefix(tenant: str, piece_id: str) -> str:
+    """Everything belonging to one piece, as a path prefix.
+
+    The trailing slash is the whole point. Without it `piece-1/` is a prefix
+    of `piece-10/...`, and a cascade delete takes a piece nobody asked it to
+    take.
+    """
+    _check_id("tenant", tenant)
+    _check_id("piece id", piece_id)
+    return f"{tenant}/{piece_id}/"
 
 
 def is_inside(root: str, candidate: str) -> bool:

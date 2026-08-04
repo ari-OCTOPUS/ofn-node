@@ -1,17 +1,17 @@
 """Writing image bytes to disk, and the one place that is allowed to.
 
-Everything that decides — what is too big, which formats, what a file is
+Everything that decides — what is too big, which media types, what a file is
 called — lives in `kernel/photos.py`. This module only carries out those
-decisions, so that the rules can be tested without a filesystem and so there
-is exactly one function in the project that turns a request into a file.
+decisions, so the rules can be tested without a filesystem and there is
+exactly one function in the project that turns a request into a file.
 
 Two properties are enforced here rather than assumed:
 
-    the decoded size is checked again after decoding
+    the decoded size is checked again, after decoding
     the resolved path is checked to be inside the media root
 
-Both are already guaranteed by the kernel. They are re-checked because they
-are the two failures that cannot be undone by a later fix: bytes on disk that
+Both are already guaranteed upstream. They are re-checked because they are
+the two failures that cannot be undone by a later fix: bytes on disk that
 should not be there, and bytes on disk somewhere they should not be.
 """
 
@@ -23,7 +23,9 @@ import os
 import shutil
 
 from ..kernel.errors import FailClosedError
-from ..kernel.photos import Size, Upload, all_paths, is_inside
+from ..kernel.photos import (
+    Payload, is_inside, original_path, piece_prefix, relative_path,
+)
 
 
 class MediaStore:
@@ -40,33 +42,27 @@ class MediaStore:
     def absolute(self, relative: str) -> str:
         full = os.path.abspath(os.path.join(self._root, relative))
         if not is_inside(self._root, full):
-            # Unreachable through `relative_path`, which builds from validated
-            # ids only. Kept because "unreachable" is a property of today's
-            # call sites, not of the function.
+            # Unreachable through `relative_path`, which builds from
+            # validated ids only. Kept because "unreachable" is a property of
+            # today's call sites, not of the function.
             raise FailClosedError(f"path escapes the media root: {relative!r}")
         return full
 
-    def write(self, upload: Upload, size: Size, b64_text: str) -> str:
-        """Decode and store one rendition. Returns the relative path.
-
-        The write is to a temporary name in the same directory and then
-        renamed, so a power cut leaves either nothing or a whole file. A
-        half-written JPEG that still has a database row pointing at it is
-        worse than a missing one: it looks like data.
-        """
-        rel = all_paths(upload)[size]
+    def _put(self, rel: str, payload: Payload) -> str:
         full = self.absolute(rel)
         os.makedirs(os.path.dirname(full), exist_ok=True)
-
         try:
-            raw = base64.b64decode(b64_text, validate=True)
+            raw = base64.b64decode(payload.body, validate=True)
         except (binascii.Error, ValueError):
             raise FailClosedError("تصویر خراب است — base64 معتبر نیست") from None
-        if len(raw) > upload.declared_bytes:
-            # The estimate rounds up, so real bytes exceeding it means the
-            # text was not what was measured.
-            raise FailClosedError("اندازهٔ تصویر با آنچه اعلام شد نمی‌خواند")
+        if len(raw) > payload.max_decoded_bytes:
+            # The bound rounds up, so real bytes exceeding it means the text
+            # was not what was measured.
+            raise FailClosedError("اندازهٔ تصویر با آنچه سنجیده شد نمی‌خواند")
 
+        # Written to a temporary name and renamed, so a power cut leaves
+        # either nothing or a whole file. A half-written JPEG with a database
+        # row pointing at it is worse than a missing one — it looks like data.
         tmp = full + ".part"
         with open(tmp, "wb") as fh:
             fh.write(raw)
@@ -74,6 +70,23 @@ class MediaStore:
             os.fsync(fh.fileno())
         os.replace(tmp, full)
         return rel
+
+    def write_rendition(self, tenant: str, piece_id: str, position: int,
+                        edge: int, payload: Payload) -> str:
+        """One of the two browser-made sizes. Always jpeg."""
+        return self._put(relative_path(tenant, piece_id, position, edge),
+                         payload)
+
+    def write_original(self, tenant: str, piece_id: str, position: int,
+                       payload: Payload) -> str:
+        """The archive copy, in whatever arrived.
+
+        Anything published has to be archivable at the quality it was
+        published at, or afterwards nobody can say what actually went out.
+        """
+        return self._put(
+            original_path(tenant, piece_id, position, payload.media_type),
+            payload)
 
     def exists(self, relative: str) -> bool:
         return os.path.isfile(self.absolute(relative))
@@ -85,14 +98,17 @@ class MediaStore:
         with open(self.absolute(relative), "rb") as fh:
             return fh.read()
 
-    def remove_owner(self, tenant: str, owner_id: str) -> int:
-        """Delete every rendition belonging to one draft or product.
+    def remove_piece(self, tenant: str, piece_id: str) -> int:
+        """Delete every rendition belonging to one piece.
 
         The cascade half of a cascade delete. A database row removed without
-        this leaves files that nothing references and nothing will ever
-        clean up — and for this leg those files are pictures of a person.
+        this leaves files nothing references and nothing will ever clean up —
+        and for the studio leg those files are pictures of a person.
+
+        Deletes the directory named by `piece_prefix`, not everything whose
+        path starts with the piece id: `piece-1` must not take `piece-10`.
         """
-        target = self.absolute(f"{tenant}/{owner_id}")
+        target = self.absolute(piece_prefix(tenant, piece_id).rstrip("/"))
         if not os.path.isdir(target):
             return 0
         count = sum(len(files) for _, _, files in os.walk(target))
