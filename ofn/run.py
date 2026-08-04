@@ -25,6 +25,7 @@ from .adapters.http_api import ApiApp, HostMap, serve
 from .adapters.ledger import Ledger
 from .adapters.outbox import Outbox
 from .adapters.packloader import load_dir
+from .adapters.products import ProductStore
 from .adapters.watchdog import HealthGate, Notifier, beat, watchdog_interval_s
 from .adapters.remote_brain import RemoteBrain
 from .adapters.router import ModelRouter, RulesBrain
@@ -59,7 +60,16 @@ def build_node(cfg: config.Config) -> Node:
         now_epoch_s=config.epoch_seconds, state_dir=cfg.state_dir,
     ).run(ledger=ledger, outbox=outbox, now_iso=config.now_iso())
 
-    return Node(registry=registry, quota=quota, ledger=ledger, facts=facts,
+    # One store for every leg: the rows carry `tenant_id`, and the pack of
+    # each leg supplies its own cost formula.
+    ziman = packs["ziman"]
+    products = ProductStore(cfg.products_path,
+                            cost_fields=ziman.cost_fields,
+                            labour_hours_field=ziman.labour_hours_field,
+                            labour_rate_field=ziman.labour_rate_field)
+
+    return Node(products=products,
+                registry=registry, quota=quota, ledger=ledger, facts=facts,
                 outbox=outbox, now_epoch_s=config.epoch_seconds,
                 now_iso=config.now_iso,
                 base_closed_gates=cfg.base_closed_gates, boot=report)
@@ -104,6 +114,9 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         questions_for=node.questions_for,
         submit_answer=node.submit_answer,
         status_for=node.status_for,
+        products_for=node.products_for,
+        create_product=node.create_product,
+        update_product=node.update_product,
         owner_queue=node.owner_queue,
         owner_decide=node.owner_decide,
         owner_status=node.owner_status,

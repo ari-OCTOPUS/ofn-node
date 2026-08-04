@@ -20,6 +20,8 @@ from .adapters.boot import BootReport, closed_gates_for
 from .adapters.facts import FactStore
 from .adapters.ledger import Ledger
 from .adapters.outbox import Outbox
+from .adapters.products import (ProductError, ProductStore, net_margin_aud,
+                                verdicts)
 from .kernel.domain import (
     Action, Confidence, Decision, PackSpec, RiskTier, TenantId,
 )
@@ -30,6 +32,37 @@ from .kernel.tenancy import TenantRegistry, TenantScope
 
 
 MAX_TEXT_ANSWER = 2000
+
+# Persian and Arabic-Indic digits, in the order 0-9. A phone keyboard set to
+# Persian produces ۱۲۵, and a form that silently refuses it is a form that
+# blames the partner for using her own language.
+_DIGITS = str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789")
+
+_PRODUCT_NUMERIC = ("materials_cost_aud", "labour_hours", "hourly_rate_aud",
+                    "packaging_cost_aud", "price_aud")
+
+
+def _normalise_numbers(body: Mapping[str, object]) -> dict:
+    """Accept ۱۲۵ and 125 and "125" as the same number.
+
+    Done at the boundary rather than in the shell so that the rule holds for
+    every caller, and only for fields that are numbers anyway — a name
+    containing digits is left exactly as she typed it.
+    """
+    out = dict(body)
+    for key in _PRODUCT_NUMERIC:
+        raw = out.get(key)
+        if not isinstance(raw, str):
+            continue
+        text = raw.translate(_DIGITS).replace(",", "").replace("٬", "").strip()
+        if not text:
+            out[key] = None if key == "price_aud" else 0.0
+            continue
+        try:
+            out[key] = float(text)
+        except ValueError:
+            pass          # leave it; the store refuses it with a clear message
+    return out
 
 
 def _rejects(meta: Mapping[str, object], value: object) -> str | None:
@@ -74,6 +107,7 @@ class Node:
     base_closed_gates: tuple[str, ...] = ()
     boot: BootReport | None = None
     killed: bool = False
+    products: ProductStore | None = None
 
     # ── gates ─────────────────────────────────────────────────────────────
     @property
@@ -137,6 +171,80 @@ class Node:
             "held": counts.get("held", 0),
             "safe_mode": "safe_mode" in self.closed_gates,
         }
+
+    # ── products ──────────────────────────────────────────────────────────
+    def _pieces(self) -> ProductStore:
+        if self.products is None:
+            raise ProductError("انبار محصولات در دسترس نیست")
+        return self.products
+
+    def _decorated(self, pack: PackSpec, p, today: str) -> dict:
+        """One piece as the shell reads it: the row, plus what it means.
+
+        The verdicts are computed here rather than in the shell so that the
+        panel, the list and any export all say the same thing about the same
+        piece. A rule duplicated in a template is a rule that will disagree
+        with itself.
+        """
+        out = p.as_dict(today)
+        out["verdicts"] = list(verdicts(
+            p, today, stale_after_days=pack.stale_after_days,
+            quick_sale_days=pack.quick_sale_days))
+        try:
+            out["net_margin_aud"] = net_margin_aud(p, pack.channel_fees)
+        except ProductError as exc:
+            # A sold piece on a channel whose fee nobody has configured. Say
+            # so instead of printing a margin the business does not keep.
+            out["net_margin_aud"] = None
+            out["net_margin_blocked"] = str(exc)
+        return out
+
+    def products_for(self, scope: TenantScope) -> dict:
+        pack = self.registry.pack(scope.tenant)
+        today = self.now_iso()[:10]
+        rows = [self._decorated(pack, p, today)
+                for p in self._pieces().list(scope.tenant.value)]
+        return {"products": rows, "currency": pack.locale.currency.code,
+                "symbol": pack.locale.currency.symbol}
+
+    def create_product(self, scope: TenantScope, user_id: str,
+                       body: Mapping[str, object]) -> dict:
+        pack = self.registry.pack(scope.tenant)
+        fields = _normalise_numbers(body)
+        try:
+            piece = self._pieces().create(
+                scope.tenant.value, pack.sku_prefix, fields,
+                now_iso=self.now_iso())
+        except ProductError as exc:
+            return {"ok": False, "error": str(exc)}
+        self.ledger.append(scope, "PRODUCT_CREATED", {
+            "sku": piece.sku, "name": piece.name,
+            "cogs_aud": piece.cogs_aud, "price_aud": piece.price_aud,
+            "actor": f"partner:{user_id}",
+        }, self.now_iso())
+        return {"ok": True,
+                "product": self._decorated(pack, piece, self.now_iso()[:10])}
+
+    def update_product(self, scope: TenantScope, user_id: str, sku: str,
+                       body: Mapping[str, object]) -> dict:
+        pack = self.registry.pack(scope.tenant)
+        changes = _normalise_numbers(body)
+        try:
+            before, after = self._pieces().update(
+                scope.tenant.value, sku, changes, now_iso=self.now_iso())
+        except ProductError as exc:
+            return {"ok": False, "error": str(exc)}
+
+        # Only what actually moved. A ledger entry restating twenty unchanged
+        # fields buries the one that changed.
+        moved = {k: {"before": getattr(before, k), "after": getattr(after, k)}
+                 for k in after.__dataclass_fields__
+                 if getattr(before, k) != getattr(after, k) and k != "updated_at"}
+        self.ledger.append(scope, "PRODUCT_UPDATED", {
+            "sku": sku, "changed": moved, "actor": f"partner:{user_id}",
+        }, self.now_iso())
+        return {"ok": True,
+                "product": self._decorated(pack, after, self.now_iso()[:10])}
 
     def submit_answer(self, scope: TenantScope, user_id: str,
                       body: Mapping[str, object]) -> dict:

@@ -89,8 +89,12 @@ class Config:
 
     @property
     def db_paths(self) -> Mapping[str, str]:
+        # products belongs here for the same reason the other three do: this
+        # is the set the boot probe integrity-checks and the backup copies.
+        # A database that is not in this map is one nobody notices has gone
+        # bad until somebody opens it looking for a year of work.
         return {"ledger": self.ledger_path, "facts": self.facts_path,
-                "outbox": self.outbox_path}
+                "outbox": self.outbox_path, "products": self.products_path}
 
 
 def load() -> Config:

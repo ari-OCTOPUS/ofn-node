@@ -92,6 +92,16 @@ class HostMap:
         return self.tenants.get(host), False
 
 
+def _json_object(body: bytes) -> dict | None:
+    """Parse a JSON object, or None. Anything that is not an object — a list,
+    a bare number — is treated as malformed rather than coerced."""
+    try:
+        data = json.loads(body or b"{}")
+    except json.JSONDecodeError:
+        return None
+    return data if isinstance(data, dict) else None
+
+
 class ApiApp:
     """Request routing and handlers. Transport-agnostic and directly testable.
 
@@ -114,6 +124,9 @@ class ApiApp:
         questions_for: Callable[[TenantScope, str], list] | None = None,
         submit_answer: Callable[[TenantScope, str, dict], dict] | None = None,
         status_for: Callable[[TenantScope], dict] | None = None,
+        products_for: Callable[[TenantScope], dict] | None = None,
+        create_product: Callable[[TenantScope, str, dict], dict] | None = None,
+        update_product: Callable[[TenantScope, str, str, dict], dict] | None = None,
         owner_queue: Callable[[], list] | None = None,
         owner_decide: Callable[[str, bool, bool], dict] | None = None,
         owner_status: Callable[[], dict] | None = None,
@@ -139,6 +152,11 @@ class ApiApp:
         self._questions_for = questions_for or (lambda s, u: [])
         self._submit_answer = submit_answer or (lambda s, u, b: {"ok": True})
         self._status_for = status_for or (lambda s: {})
+        self._products_for = products_for or (lambda s: {"products": []})
+        self._create_product = create_product or (
+            lambda s, u, b: {"ok": False, "error": "products are not wired"})
+        self._update_product = update_product or (
+            lambda s, u, k, b: {"ok": False, "error": "products are not wired"})
         self._owner_queue = owner_queue or (lambda: [])
         self._owner_decide = owner_decide or (lambda i, a, c: {"ok": True})
         self._owner_status = owner_status or (lambda: {})
@@ -258,6 +276,27 @@ class ApiApp:
             if not isinstance(data, dict):
                 return Response(400, {"error": "bad request"})
             return Response(200, self._submit_answer(scope, p.user_id, data))
+
+        # ── pieces ───────────────────────────────────────────────────────
+        if method == "GET" and path == "/api/v1/products":
+            return Response(200, self._products_for(scope))
+        if method == "POST" and path == "/api/v1/products":
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            out = self._create_product(scope, p.user_id, data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path.startswith("/api/v1/products/"):
+            sku = path[len("/api/v1/products/"):]
+            # One path segment only. Without this, a crafted sku turns a
+            # product edit into a route nobody wrote.
+            if not sku or "/" in sku:
+                return Response(404, {"error": "not found"})
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            out = self._update_product(scope, p.user_id, sku, data)
+            return Response(200 if out.get("ok") else 400, out)
         return Response(404, {"error": "not found"})
 
     # ── owner surface ─────────────────────────────────────────────────────
