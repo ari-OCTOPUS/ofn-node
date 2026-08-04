@@ -508,3 +508,18 @@ code{direction:ltr}
 
 /* «نامعلوم» نباید مثلِ «رد شد» دیده شود — نبودِ داده حکم نیست */
 .badge.unknown{color:var(--steel-a);border-color:var(--steel-b);background:transparent}
+
+/* فرمِ یادداشتِ لید — روی همان کارت باز می‌شود، نه در صفحه‌ای جدا */
+.noteform{margin-top:9px;display:flex;flex-direction:column;gap:7px}
+.noteform .fin{margin-bottom:0}
+.noteform .go{padding:11px;font-size:14px}
+.tnote{flex:none;width:44px;height:44px;border-radius:50%;cursor:pointer;
+  border:1.5px solid rgba(168,85,247,.38);background:rgba(168,85,247,.08);
+  color:var(--violet-ink);font-size:17px;line-height:1;transition:.16s}
+.tnote:hover{background:rgba(168,85,247,.2)}
+.tstage{flex:none;width:44px;height:44px;border-radius:50%;cursor:pointer;
+  border:1.5px solid rgba(157,176,200,.3);background:transparent;
+  color:var(--steel-a);font-size:20px;line-height:1;transition:.16s}
+.tstage:hover{background:rgba(157,176,200,.14)}
+.tnote[data-busy],.tstage[data-busy]{opacity:.4;cursor:progress}
+@media (prefers-reduced-motion:reduce){ .tnote,.tstage{transition:none} }

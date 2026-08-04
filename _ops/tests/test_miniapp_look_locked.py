@@ -160,6 +160,37 @@ def t_the_sky_actually_tiles():
         assert "%" not in s, f"لایهٔ آسمان tile نمی‌شود (background-size:{s.strip()})"
 
 
+def t_every_allowlisted_action_has_a_ui_caller():
+    """هر اقدامِ مجاز باید از UI قابلِ صدا زدن باشد.
+
+    ⚠️ تا امروز `lead.add_note` و `value.record_event` **صفر صداکننده** داشتند:
+    در رجیستری بودند، تست داشتند، و از دسترسِ مالک بیرون. الگویی که این مخزن
+    بارها خورده — «قابلیت هست، صداکننده نیست». فهرست از خودِ موتور خوانده
+    می‌شود، پس اقدامِ هفتمی که فردا اضافه شود هم بی‌UI نمی‌ماند.
+    """
+    src = (_OPS / "agi2027_control" / "ops_actions.py").read_text(encoding="utf-8")
+    m = re.search(r"ALLOWED_ACTIONS\s*=\s*\{([^}]*)\}", src)
+    assert m, "‏ALLOWED_ACTIONS پیدا نشد"
+    actions = re.findall(r'"([a-z_]+\.[a-z_]+)"', m.group(1))
+    assert len(actions) >= 5, f"فهرستِ اقدام‌ها مشکوکانه کوتاه است: {actions}"
+    missing = [a for a in actions if ('"%s"' % a) not in JS]
+    assert not missing, f"اقدامِ بی‌صداکننده در UI: {missing}"
+
+
+def t_the_write_path_never_reports_optimistically():
+    """رسید باید وضعِ **واقعیِ** برگشتی را بگوید، نه «✅ شد».
+
+    موتور شش وضعِ متفاوت برمی‌گرداند و DUPLICATE یعنی «قبلاً همین ثبت شده»
+    نه «انجام شد». اگر همه یک شکل نشان داده شوند، همان کارتِ رسیدِ جعلی
+    ساخته می‌شود که مالک را یک بار گمراه کرد.
+    """
+    m = re.search(r"var\s+ACT_TONE\s*=\s*\{([^}]*)\}", JS)
+    assert m, "‏ACT_TONE پیدا نشد"
+    for st in ("APPLIED", "DUPLICATE", "BLOCKED", "DENIED", "ERROR"):
+        assert st in m.group(1), f"وضعِ {st} در رسید نگاشت ندارد"
+    assert '"ok"' in m.group(1) and '"bad"' in m.group(1),         "همهٔ وضع‌ها یک لحن دارند — یعنی رسید تفکیک نمی‌کند"
+
+
 if __name__ == "__main__":
     CHECKS = [(n, f) for n, f in sorted(globals().items())
               if n.startswith("t_") and callable(f)]

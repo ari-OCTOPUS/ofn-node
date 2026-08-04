@@ -930,6 +930,66 @@
     });
   }
 
+  // ── ثبتِ رویدادِ ارزش ──────────────────────────────────────────────────────
+  // ⚠️ `record_value` در موتور **هیچ اعتبارسنجی‌ای ندارد**: هر leg/event/
+  // value_type را می‌پذیرد و پیش‌فرضِ ops_studio/manual_value_event/production
+  // می‌گذارد. یعنی یک ورودیِ متنیِ آزاد، دفترِ ارزش را با تایپو آلوده می‌کند و
+  // بعد گروه‌بندیِ `value_events_per_leg` بی‌معنا می‌شود. پس UI واژگانِ **بسته**
+  // می‌دهد. اعتبارسنجیِ سمتِ سرور کارِ این لِین نیست، ولی این‌جا ثبت می‌شود
+  // که چرا چیپ است نه input.
+  var VALUE_TYPES = [["production","تولید"],["learning","یادگیری"],
+                     ["maintenance","نگهداری"],["risk_reduction","کاهشِ ریسک"]];
+  //: نامِ پاها از /api/legs می‌آید — این‌جا هاردکد نمی‌شود، چون مالک گفت
+  //: چهار پای بیزنسی بعداً ماژولار عوض می‌شوند.
+  function renderValueEntry(el){
+    el.innerHTML = "";
+    api("/api/legs").then(function(d){
+      var legs = Object.keys((d && d.legs) || {});
+      if(!legs.length){
+        el.innerHTML = '<div class="err">فهرستِ پاها خوانده نشد — بدونِ آن '+
+          'رویدادِ ارزش به پای نامعلوم می‌خورد، پس فرم را باز نمی‌کنم.</div>';
+        return;
+      }
+      el.innerHTML = secHead("ثبتِ ارزش")+
+        '<details class="det"><summary>رویدادِ تازه</summary><div class="inner">'+
+        '<input class="fin" id="veName" type="text" placeholder="چه اتفاقی افتاد؟" maxlength="120">'+
+        '<div class="chips" id="veLeg">'+legs.map(function(l,i){
+          return '<button class="chip'+(i===0?" on":"")+'" data-v="'+esc(l)+'">'+
+                 '<span dir="ltr" class="iso">'+esc(l)+'</span></button>';
+        }).join("")+'</div>'+
+        '<div class="chips" id="veType">'+VALUE_TYPES.map(function(t,i){
+          return '<button class="chip'+(i===0?" on":"")+'" data-v="'+t[0]+'">'+esc(t[1])+'</button>';
+        }).join("")+'</div>'+
+        '<div class="chips" id="veOut">'+[1,2,3,5,8].map(function(n,i){
+          return '<button class="chip'+(i===2?" on":"")+'" data-v="'+n+'">'+
+                 'ارزش '+fa(n)+'</button>';
+        }).join("")+'</div>'+
+        '<button class="go" id="veGo">ثبت کن</button>'+
+      '</div></details>';
+      [].forEach.call(el.querySelectorAll(".chips"), function(g){
+        g.addEventListener("click", function(e){
+          var c = e.target.closest(".chip"); if(!c) return;
+          [].forEach.call(g.children, function(x){ x.classList.remove("on"); });
+          c.classList.add("on");
+        });
+      });
+      var go = el.querySelector("#veGo");
+      if(go) go.addEventListener("click", function(){
+        var name = (el.querySelector("#veName")||{}).value || "";
+        if(!name.trim()){ toast("توضیحِ رویداد خالی است", "bad"); return; }
+        function pick(id){ var c = el.querySelector(id+" .chip.on");
+                           return c ? c.getAttribute("data-v") : null; }
+        act("value.record_event", {
+          leg: pick("#veLeg"), event: name.trim(),
+          value_type: pick("#veType"),
+          output_score: Number(pick("#veOut") || 3)
+        }, go).then(function(r){
+          if(r && r.ok){ el.querySelector("#veName").value = ""; render("money"); }
+        });
+      });
+    });
+  }
+
   // ── اقدام‌های لید ─────────────────────────────────────────────────────────
   // جانشینِ `renderStudio` که کاملاً انگلیسی بود، دو کلاسِ ناموجود
   // (`.formgrid`/`.kv`) داشت، JSON ِ خام چاپ می‌کرد و `platform:"onlyfans"` را
@@ -955,10 +1015,16 @@
       } else if(items.length){
         h += '<details class="det"><summary>'+fa(items.length)+' لید</summary><div class="inner">'+
           items.map(function(it){
+            var id = esc(it.id);
             return '<div class="titem p3"><div class="tbody">'+
               '<div class="tt">'+esc(it.handle||"—")+'</div>'+
-              '<div class="tm">'+esc(STAGE_FA[it.stage]||String(it.stage||""))+'</div></div>'+
-              '<button class="tstage" data-id="'+esc(it.id)+'" aria-label="مرحلهٔ بعد">›</button>'+
+              '<div class="tm">'+esc(STAGE_FA[it.stage]||String(it.stage||""))+'</div>'+
+              '<div class="noteform" hidden>'+
+                '<input class="fin" type="text" placeholder="یادداشت" maxlength="1000">'+
+                '<button class="go notego" data-id="'+id+'">ثبتِ یادداشت</button>'+
+              '</div></div>'+
+              '<button class="tnote" data-id="'+id+'" aria-label="یادداشت">✎</button>'+
+              '<button class="tstage" data-id="'+id+'" aria-label="مرحلهٔ بعد">›</button>'+
               '</div>';
           }).join("")+'</div></details>';
       }
@@ -988,6 +1054,27 @@
           c.classList.add("on");
         });
       });
+      // یادداشتِ لید — ششمین اقدام که تا امروز هیچ صداکننده‌ای نداشت.
+      // عمداً روی همان کارتِ لید می‌نشیند نه در فرمی جدا: یادداشت همیشه
+      // دربارهٔ یک لیدِ مشخص است، پس انتخابِ لید نباید یک گامِ اضافه باشد.
+      [].forEach.call(el.querySelectorAll(".tnote"), function(b){
+        b.addEventListener("click", function(){
+          var box = b.closest(".titem").querySelector(".noteform");
+          if(!box) return;
+          box.hidden = !box.hidden;
+          if(!box.hidden){ var i = box.querySelector("input"); if(i) i.focus(); }
+        });
+      });
+      [].forEach.call(el.querySelectorAll(".notego"), function(b){
+        b.addEventListener("click", function(){
+          var box = b.closest(".noteform"), inp = box.querySelector("input");
+          var txt = (inp||{}).value || "";
+          if(!txt.trim()){ toast("یادداشت خالی است", "bad"); return; }
+          act("lead.add_note", {lead_id:b.getAttribute("data-id"), note:txt.trim()}, b)
+            .then(function(r){ if(r && r.ok){ inp.value=""; box.hidden=true; } });
+        });
+      });
+
       // «مرحلهٔ بعد» — لید را یک پله در قیف جلو می‌برد. متنِ آزاد نمی‌خواهد،
       // پس یک تپ کافی است (ADHD: کمترین اصطکاک برای پرتکرارترین کار).
       [].forEach.call(el.querySelectorAll(".tstage"), function(b){
@@ -1098,7 +1185,7 @@
     render(name);
   }
   function viewApprovals(el){ stack(el||content, [renderApprovals]); }
-  function viewMoney(el){ stack(el||content, [renderValue, renderOutbound]); }
+  function viewMoney(el){ stack(el||content, [renderValue, renderValueEntry, renderOutbound]); }
   function viewLeads(el){ stack(el||content, [renderLeadOps, renderPF]); }
   // ⚠️ renderStudio از این‌جا برداشته شد: کارتی کاملاً انگلیسی وسطِ صفحهٔ
   // فارسی، با دو کلاسِ ناموجود در CSS، JSON ِ خام به‌جای رسید، و پای
