@@ -14,7 +14,7 @@ import tempfile
 import unittest
 
 from ofn.adapters.products import (LOSES_MONEY, STALE, ProductStore,
-                                   net_margin_aud, verdicts)
+                                   money_view, net_margin_aud, verdicts)
 
 JAN = "2026-01-10T09:00:00Z"
 FORMULA = dict(cost_fields=("materials_cost_aud", "packaging_cost_aud"),
@@ -139,6 +139,63 @@ class TestPackAsksForIt(unittest.TestCase):
         # No default: offering one is offering a guess.
         self.assertNotIn("default", meta)
 
+
+
+class TestGstMovesTheVerdict(unittest.TestCase):
+    """The tax question is not paperwork — it is the width of the band
+    between "healthy" and "losing money"."""
+
+    def setUp(self):
+        self.s = ProductStore(os.path.join(tempfile.mkdtemp(), "p.db"),
+                              **FORMULA)
+        self.addCleanup(self.s.close)
+        # cost $80, listed $86
+        self.p = self.s.create("ziman", "ZM",
+                               dict(COST80, price_primary_aud=86.0),
+                               now_iso=JAN)
+
+    def test_registered_turns_a_healthy_piece_into_a_loss(self):
+        healthy = money_view(self.p, gst_rate=0.0, gst_known=True)
+        taxed = money_view(self.p, gst_rate=0.10, gst_known=True)
+        self.assertFalse(healthy["loses_money"])
+        self.assertTrue(taxed["loses_money"])
+        self.assertAlmostEqual(taxed["price_ex_tax_aud"], 86.0 / 1.1)
+
+    def test_an_unanswered_question_is_marked_not_guessed(self):
+        v = money_view(self.p, gst_rate=0.10, gst_known=False)
+        self.assertFalse(v["gst_known"])
+        # No rate applied while unknown — but the caller is told, so the
+        # screen can say the figure is not final.
+        self.assertAlmostEqual(v["price_ex_tax_aud"], 86.0)
+
+    def test_the_verdict_follows_the_same_computation(self):
+        v = money_view(self.p, gst_rate=0.10, gst_known=True)
+        got = verdicts(self.p, "2026-02-01", stale_after_days=None,
+                       quick_sale_days=7, loses_money=v["loses_money"])
+        self.assertIn(LOSES_MONEY, got)
+        # …and the un-taxed view does not raise the flag.
+        clean = money_view(self.p, gst_rate=0.0, gst_known=True)
+        self.assertNotIn(LOSES_MONEY,
+                         verdicts(self.p, "2026-02-01", stale_after_days=None,
+                                  quick_sale_days=7,
+                                  loses_money=clean["loses_money"]))
+
+    def test_zero_rate_agrees_with_the_plain_property(self):
+        # One computation, two doors. They must not drift.
+        v = money_view(self.p, gst_rate=0.0, gst_known=True)
+        self.assertEqual(v["loses_money"], self.p.loses_money)
+        self.assertAlmostEqual(v["margin_aud"], self.p.gross_margin_aud)
+
+
+class TestPackAsksAboutGst(unittest.TestCase):
+    def test_the_pack_asks_and_offers_no_default(self):
+        from ofn.adapters.packloader import load_pack
+        pack = load_pack("packs/ziman.yaml")
+        self.assertIn("business.gst_registered", pack.required_facts)
+        meta = pack.question_meta["business.gst_registered"]
+        self.assertEqual(list(meta["options"]), ["\u0628\u0644\u0647", "\u062e\u06cc\u0631"])
+        self.assertNotIn("default", meta)
+        self.assertIn("\u062d\u0633\u0627\u0628\u062f\u0627\u0631", meta["hint"])
 
 if __name__ == "__main__":
     unittest.main()

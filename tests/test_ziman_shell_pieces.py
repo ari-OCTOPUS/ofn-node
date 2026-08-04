@@ -21,16 +21,37 @@ SRC = open(os.path.join(WEB, "ziman.html"), encoding="utf-8").read()
 
 
 class TestNoTaxAnywhere(unittest.TestCase):
-    def test_the_shell_never_says_gst(self):
-        # The business is not registered, so implying a tax would be both
-        # wrong and, in this market, not allowed.
-        #
-        # Whole words only: the font host is `fonts.gstatic.com`, and a
-        # substring match there would be a test that cries wolf until
-        # somebody stops listening to it.
-        for word in ("gst", "vat", "tax", "مالیات"):
+    def test_no_tax_line_no_tax_column_no_tax_arithmetic(self):
+        # Unchanged rule: a business that is not registered may not charge or
+        # imply GST, so there is no tax line, no tax column, and no rate
+        # multiplied into anything in this file.
+        for word in ("vat", "مالیات"):
             with self.subTest(word=word):
                 self.assertIsNone(re.search(rf"\b{word}\b", SRC, re.I))
+        self.assertNotIn("1.1", SRC)     # no tax arithmetic in the shell
+
+    def test_gst_is_named_only_to_admit_it_is_unanswered(self):
+        """Rule narrowed 2026-08-04, deliberately.
+
+        It used to be "the shell never says GST". That was right while the
+        answer was assumed. It is wrong now: whether this business is
+        registered became a question, and an unanswered question must be
+        visible rather than hidden behind a number that looks settled.
+
+        So GST may appear here in exactly one situation — saying that the
+        figures are not final because nobody has answered yet. Every mention
+        has to sit behind that guard, and nothing may print a tax amount.
+        """
+        mentions = [m.start() for m in re.finditer(r"\bGST\b", SRC)]
+        self.assertTrue(mentions, "the unanswered-state label should exist")
+        for at in mentions:
+            window = SRC[max(0, at - 400):at]
+            self.assertIn("gstKnown", window,
+                          "a GST mention that is not guarded by gstKnown")
+            self.assertIn("بدون احتساب", SRC[max(0, at - 120):at + 40])
+
+    def test_the_unanswered_state_says_the_number_is_not_final(self):
+        self.assertIn("این سود نهایی نیست", SRC)
 
 
 class TestPriceIsHers(unittest.TestCase):

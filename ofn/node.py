@@ -20,8 +20,8 @@ from .adapters.boot import BootReport, closed_gates_for
 from .adapters.facts import FactStore
 from .adapters.ledger import Ledger
 from .adapters.outbox import Outbox
-from .adapters.products import (ProductError, ProductStore, net_margin_aud,
-                                verdicts)
+from .adapters.products import (ProductError, ProductStore, money_view,
+                                net_margin_aud, verdicts)
 from .kernel.domain import (
     Action, Confidence, Decision, PackSpec, RiskTier, TenantId,
 )
@@ -207,8 +207,22 @@ class Node:
         except (TypeError, ValueError):
             return None
 
+    def _gst(self, scope: TenantScope, pack: PackSpec) -> tuple[bool, float]:
+        """(known, rate) for this business — from her answer, not a setting.
+
+        The market's rate lives in the locale. Whether this business charges
+        it is asked, because getting it wrong moves every margin by about the
+        width of the band between healthy and losing money.
+        """
+        raw = self._fact_value(scope, "business", "gst_registered")
+        if raw is None:
+            return False, 0.0
+        registered = str(raw).strip() in ("بله", "yes", "true", "True", "1")
+        return True, (pack.locale.tax_rate if registered else 0.0)
+
     def _decorated(self, pack: PackSpec, p, today: str,
-                   stale_after: int | None) -> dict:
+                   stale_after: int | None,
+                   gst: tuple[bool, float] = (False, 0.0)) -> dict:
         """One piece as the shell reads it: the row, plus what it means.
 
         The verdicts are computed here rather than in the shell so that the
@@ -217,9 +231,15 @@ class Node:
         with itself.
         """
         out = p.as_dict(today)
+        known, rate = gst
+        view = money_view(p, gst_rate=rate, gst_known=known)
+        # One computation, one answer. The screen, the export and the verdict
+        # all read these, so they cannot drift apart.
+        out.update(view)
         out["verdicts"] = list(verdicts(
             p, today, stale_after_days=stale_after,
-            quick_sale_days=pack.quick_sale_days))
+            quick_sale_days=pack.quick_sale_days,
+            loses_money=view["loses_money"]))
         try:
             out["net_margin_aud"] = net_margin_aud(p, pack.channel_fees)
         except ProductError as exc:
@@ -233,10 +253,12 @@ class Node:
         pack = self.registry.pack(scope.tenant)
         today = self.now_iso()[:10]
         stale_after = self._stale_after(scope)
-        rows = [self._decorated(pack, p, today, stale_after)
+        gst = self._gst(scope, pack)
+        rows = [self._decorated(pack, p, today, stale_after, gst)
                 for p in self._pieces().list(scope.tenant.value)]
         return {"products": rows, "currency": pack.locale.currency.code,
-                "symbol": pack.locale.currency.symbol}
+                "symbol": pack.locale.currency.symbol,
+                "gst_known": gst[0], "gst_rate": gst[1]}
 
     def create_product(self, scope: TenantScope, user_id: str,
                        body: Mapping[str, object]) -> dict:
@@ -257,7 +279,8 @@ class Node:
         }, self.now_iso())
         return {"ok": True,
                 "product": self._decorated(pack, piece, self.now_iso()[:10],
-                                           self._stale_after(scope))}
+                                           self._stale_after(scope),
+                                           self._gst(scope, pack))}
 
     def update_product(self, scope: TenantScope, user_id: str, sku: str,
                        body: Mapping[str, object]) -> dict:
@@ -279,7 +302,8 @@ class Node:
         }, self.now_iso())
         return {"ok": True,
                 "product": self._decorated(pack, after, self.now_iso()[:10],
-                                           self._stale_after(scope))}
+                                           self._stale_after(scope),
+                                           self._gst(scope, pack))}
 
     def submit_answer(self, scope: TenantScope, user_id: str,
                       body: Mapping[str, object]) -> dict:

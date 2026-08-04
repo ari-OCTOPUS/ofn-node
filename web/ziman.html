@@ -584,6 +584,7 @@ const PIECES = document.getElementById('pieces');
 const TABS = document.getElementById('tabs');
 const DRAFT_KEY = 'ziman.draft.v1';
 let pieces = [], money = { currency: 'AUD', symbol: '$' }, hourlyDefault = null;
+let gstKnown = true;   /* until the node says otherwise */
 
 const aud = n => (n == null || isNaN(n)) ? '—'
   : money.symbol + fa(Number(n).toFixed(2));
@@ -829,6 +830,10 @@ function refreshMoney() {
   }
   /* Two reference numbers, shown and never filled in. Deciding her price is
      not this system's job; showing her what the numbers imply is.          */
+  if (!gstKnown) {
+    box.append(el('div', 'guide',
+      'بدون احتساب GST — تا وقتی نگفته‌اید ثبت‌نام کرده‌اید یا نه، این سود نهایی نیست.'));
+  }
   if (cogs > 0) {
     box.append(el('div', 'guide',
       'برای مقایسه: دو برابر هزینه ' + aud(cogs * 2) +
@@ -876,6 +881,12 @@ function showPieces() {
     const r = el('div', 'saved', 'یک قطعهٔ نیمه‌تمام دارید — «قطعهٔ تازه» را بزنید تا ادامه دهید.');
     PIECES.append(r);
   }
+  /* An unanswered tax question does not get to hide behind a tidy number.
+     Nothing here is final until she says whether the business is registered. */
+  if (!gstKnown) {
+    PIECES.append(el('div', 'saved',
+      'این عددها بدون احتساب GST هستند — تا وقتی نگفته‌اید کسب‌وکار برای GST ثبت‌نام کرده یا نه.'));
+  }
   if (!pieces.length) {
     PIECES.append(el('div', 'empty', 'هنوز قطعه‌ای ثبت نشده.'));
     return;
@@ -894,6 +905,7 @@ async function loadPieces() {
   const data = await OFN.get('/api/v1/products');
   pieces = data.products || [];
   money = { currency: data.currency || 'AUD', symbol: data.symbol || '$' };
+  gstKnown = data.gst_known !== false;
   showPieces();
 }
 

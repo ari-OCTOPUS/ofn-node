@@ -22,11 +22,15 @@ sku_prefix: ZM
 locale:
   id: en-AU
   timezone: Australia/Sydney
-  # ABN دارد، GST ثبت نشده — انتخاب مالک، ۲۰۲۶-۰۸-۰۴. زیر آستانهٔ گردش
-  # سالانه این یک انتخاب قانونی است؛ بالای آن دیگر انتخاب نیست، پس آستانه
-  # در locale نگه داشته می‌شود و پایش می‌شود نه اینکه کسی یادش بماند.
+  # نرخ و آستانه خاصیت *بازار*اند و اینجا می‌مانند. ولی اینکه *این کسب‌وکار*
+  # ثبت‌نام کرده یا نه، خاصیت خودِ کسب‌وکار است و حالا یک fact است
+  # (`business.gst_registered`) که فصلی پرسیده می‌شود.
+  #
+  # چرا fact و نه یک مقدار ثابت: ثبت‌نام دیرهنگام یعنی بدهکار GST همهٔ فروش‌ها
+  # از تاریخی که باید ثبت می‌کردی — حتی اگر از مشتری نگرفته باشی. جوابی که
+  # یک بار داده شود و دیگر پرسیده نشود، جوابی است که بی‌صدا کهنه می‌شود.
   tax:
-    status: not_registered
+    status: unresolved
     pricing: inclusive
   payment_rails: []         # کانال فروش هنوز انتخاب نشده — خالی یعنی «تصمیم نگرفته»
   platforms: []             # هنوز هیچ‌جا نمی‌فروشد. تازه شروع می‌کند.
@@ -47,6 +51,12 @@ capacity_units_per_week: 6
 # COGS is now derived from the inputs below instead of asked for, so there is
 # no path by which an unpriced hour reaches a shelf price.
 required_facts:
+  business.gst_registered:
+    label: این کسب‌وکار برای GST ثبت‌نام کرده است؟
+    hint: اگر مطمئن نیستید، حسابدارتان می‌داند. تا جواب ندهید هیچ عدد نهاییِ سود نشان نمی‌دهیم.
+    options:
+      - بله
+      - خیر
   sales.days_before_worry:
     label: یک قطعه بعد از چند روز که نفروشد، نگرانتان می‌کند؟
     hint: هر عددی که به ذهنتان می‌آید — بعداً می‌شود عوضش کرد.
@@ -54,7 +64,14 @@ required_facts:
     min: 7
     max: 730
   time.hourly_floor: owner_confirmed
+  business.gst_registered:
+    label: این کسب‌وکار برای GST ثبت‌نام کرده است؟
+    hint: اگر مطمئن نیستید، حسابدارتان می‌داند. تا جواب ندهید هیچ عدد نهاییِ سود نشان نمی‌دهیم.
+    options:
+      - بله
+      - خیر
   sales.days_before_worry: owner_confirmed
+  business.gst_registered: owner_confirmed
   ops.delivery_model: owner_confirmed
   ops.capacity_by_family: measured
 
@@ -86,6 +103,12 @@ questions:
     min: 1
     max: 60
     default: 6
+  business.gst_registered:
+    label: این کسب‌وکار برای GST ثبت‌نام کرده است؟
+    hint: اگر مطمئن نیستید، حسابدارتان می‌داند. تا جواب ندهید هیچ عدد نهاییِ سود نشان نمی‌دهیم.
+    options:
+      - بله
+      - خیر
   sales.days_before_worry:
     label: یک قطعه بعد از چند روز که نفروشد، نگرانتان می‌کند؟
     hint: هر عددی که به ذهنتان می‌آید — بعداً می‌شود عوضش کرد.

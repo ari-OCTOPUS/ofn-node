@@ -109,24 +109,33 @@ class TestLoaderRefusesUnsupported(unittest.TestCase):
 
 
 class TestZimanPack(unittest.TestCase):
-    def test_ziman_is_en_au_and_fully_answered(self):
-        # Both owner answers landed 2026-08-04. Nothing here may be UNRESOLVED
-        # any more: an unresolved field would now be a regression, not a
-        # pending question.
+    def test_ziman_is_en_au_with_the_market_facts_settled(self):
         spec = load_pack("packs/ziman.yaml")
         self.assertEqual(spec.locale.id, "en-AU")
         self.assertEqual(spec.locale.currency.code, "AUD")
         self.assertEqual(spec.locale.timezone, "Australia/Sydney")
-        self.assertEqual(spec.locale.tax_status, "not_registered")
-        self.assertNotIn(UNRESOLVED,
-                         (spec.locale.timezone, spec.locale.tax_status))
+        # The market's rate and threshold are known facts about Australia.
+        self.assertEqual(spec.locale.tax_rate, 0.10)
+        self.assertEqual(spec.locale.tax_registration_threshold, 75_000.0)
 
-    def test_ziman_charges_no_gst_but_the_threshold_is_watched(self):
+    def test_whether_this_business_is_registered_is_a_fact_not_a_setting(self):
+        # Two sources of truth for one answer is how they end up disagreeing.
+        # The locale carries what is true of the market; whether THIS business
+        # registered is asked, quarterly, because late registration makes you
+        # liable for GST on every sale back to the day you crossed the line —
+        # so an answer given once and never asked again goes quietly stale.
         spec = load_pack("packs/ziman.yaml")
-        self.assertEqual(spec.locale.require_tax(), (0.0, "inclusive"))
-        # Not registering is a decision that expires.
+        self.assertEqual(spec.locale.tax_status, UNRESOLVED)
+        self.assertIn("business.gst_registered", spec.required_facts)
+        with self.assertRaises(LocaleError):
+            spec.locale.require_tax()
+
+    def test_the_threshold_is_still_watched(self):
+        spec = load_pack("packs/ziman.yaml")
         self.assertFalse(spec.locale.must_register_at(40_000))
-        self.assertTrue(spec.locale.must_register_at(75_000))
+        # must_register_at only fires for a business that says it is not
+        # registered; unresolved is not an answer.
+        self.assertFalse(spec.locale.must_register_at(75_000))
 
     def test_ziman_claims_no_sales_channel_yet(self):
         # She is not selling anywhere yet. An empty list is the honest state;

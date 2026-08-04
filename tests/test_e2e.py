@@ -149,10 +149,16 @@ class TestPartnerJourney(unittest.TestCase):
     def test_04_answer_becomes_a_verifiable_fact(self):
         session = self.login()
         _, before, _ = self.call("/api/v1/questions", session=session)
-        key = before["questions"][0]["key"]
+        first = before["questions"][0]
+        key = first["key"]
+        # Answer whatever the pack actually asks first rather than assuming a
+        # number: the pack decides the order, and a test that hard-codes 42
+        # breaks every time a choice question moves to the top.
+        answer = (first["options"][0] if first.get("options")
+                  else first.get("min", 42))
 
         code, out, _ = self.call("/api/v1/answers", "POST",
-                                 {"key": key, "value": 42}, session=session)
+                                 {"key": key, "value": answer}, session=session)
         self.assertEqual(code, 200, out)
         self.assertTrue(out["ok"])
         self.assertEqual(out["readiness"]["done"], 1)
@@ -160,7 +166,7 @@ class TestPartnerJourney(unittest.TestCase):
         scope = self.node.registry.scope("ziman")
         subject, _, predicate = key.partition(".")
         fact = self.node.facts.current(scope, subject, predicate)
-        self.assertEqual(fact.value, 42)
+        self.assertEqual(fact.value, answer)
         self.assertIs(fact.confidence, Confidence.OWNER_CONFIRMED)
 
         ok, why = self.node.ledger.verify(scope)

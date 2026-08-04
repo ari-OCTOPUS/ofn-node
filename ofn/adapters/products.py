@@ -269,8 +269,40 @@ def net_margin_aud(p: Product,
     return price - channel_fee(price, p.channel, fees) - p.cogs_aud
 
 
+def money_view(p: Product, *, gst_rate: float,
+               gst_known: bool) -> dict[str, Any]:
+    """The money numbers as they may be shown, given what we know about tax.
+
+    Single source for anything a screen or an export prints, because the one
+    way to get this wrong is to have two places compute it and disagree.
+
+    A registered business never keeps the tax it collects. Counting it as
+    income overstates every margin by the rate — roughly nine percent here,
+    which is exactly the width of the band between "healthy" and "losing
+    money". So when she is registered, profit is judged on the price net of
+    tax.
+
+    When nobody has said yet, no final figure is claimed: the numbers are
+    returned with `gst_known` false so the screen can label them, rather
+    than a number that looks settled and is not.
+    """
+    price = p.judged_price_aud
+    rate = gst_rate if gst_known else 0.0
+    net = None if price is None else price / (1.0 + rate)
+    return {
+        "judged_price_aud": price,
+        "price_ex_tax_aud": net,
+        "margin_aud": None if net is None else net - p.cogs_aud,
+        "margin_pct": None if not net else (net - p.cogs_aud) / net,
+        "loses_money": net is not None and net < p.cogs_aud,
+        "gst_known": gst_known,
+        "gst_rate": rate,
+    }
+
+
 def verdicts(p: Product, today: str, *, stale_after_days: int | None,
-             quick_sale_days: int) -> tuple[str, ...]:
+             quick_sale_days: int,
+             loses_money: bool | None = None) -> tuple[str, ...]:
     """The short list of things worth saying about one piece.
 
     `stale_after_days` of None means she has not said yet how long is too
@@ -279,7 +311,7 @@ def verdicts(p: Product, today: str, *, stale_after_days: int | None,
     fact: no answer, no number.
     """
     out: list[str] = []
-    if p.loses_money:
+    if loses_money if loses_money is not None else p.loses_money:
         out.append(LOSES_MONEY)
     age = p.days_on_sale(today)
     if age is not None:
