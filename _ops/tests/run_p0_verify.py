@@ -36,6 +36,8 @@ SUITE = [
     ("intel_spine (L0-L8 + redaction + no-outbound)", "test_intel_spine.py"),
     ("adapters (telegram/webapp/obsidian)", "test_adapters_obsidian.py"),
     ("self_patch (DR-001 arm_gate wiring, gate #8)", "test_self_patch.py"),
+    ("auto_approve (DR-001 self_improve_auto wiring)", "test_auto_approve.py"),
+    ("vault_updater_apply (DR-001 self_improve_auto wiring, defense-in-depth)", "test_vault_updater_apply.py"),
 ]
 
 

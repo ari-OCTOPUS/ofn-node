@@ -1,5 +1,14 @@
 # 30 — Final summary
 
+> **UPDATE (same session, two later instructions):** "wire arm_gate into self_patch.py per
+> DR-001" and then "wire self_improve_auto and replicate too" both landed after this file
+> was first written. `code_autonomy` and `self_improve_auto` (at both of its real write
+> sites) are now wired and tested (140/140 in the full P0 harness). `replicate` was
+> deliberately left unwired because no real execution path exists for it yet. Full record:
+> `31-ARM-GATE-WIRING-VERIFY.md`, `32-SELF-IMPROVE-AND-REPLICATE-WIRING.md`, `DR-001`. The
+> "PARTIAL" verdict on arm_gate_enforcing below describes this run's state *before* those
+> instructions — kept as-written for the accurate history of how the finding led to the fix.
+
 ## What was actually true going in vs. what this run found
 
 The P0 code fixes (latent_space fail-closed, arm_gate module improvements, intel_spine

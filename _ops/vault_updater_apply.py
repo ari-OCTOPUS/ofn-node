@@ -13,6 +13,9 @@
      نوتِ dedup-matchedِ موجود. نوتِ دامنهٔ نو بدونِ match ساخته نمی‌شود.
   ۶) kill-switch/FREEZE اول.
   ۷) idempotent: اگر متن از قبل در نوت باشد → no-op (بدونِ تکرار).
+  ۸) arm_gate.guard('self_improve_auto') (۲۰۲۶-۰۸-۰۴، DR-001) — اگر مالک
+     OCTOPUS_ARM_SENSITIVE_DEFAULT=1 کرد، یک arm-token تازهٔ دوکلیدی لازم است؛
+     پیش‌فرض بدونِ اثر.
 هرگز delete/overwrite. پیش‌فرض **خاموش** (پرچم نباشد → آماده ولی ساکت). $0 · stdlib.
 """
 from __future__ import annotations
@@ -28,6 +31,9 @@ if str(_HERE / "budget") not in sys.path:
     sys.path.insert(0, str(_HERE / "budget"))
 import opslib               # noqa: E402
 import vault_updater_gate as gate  # noqa: E402
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE))
+import arm_gate              # noqa: E402
 
 ACT_AUTO = opslib.OPS / "ACTIVATION-SELF-IMPROVE-AUTO.flag"
 FLAG_ENV = "OCTOPUS_WIRE_VAULT_AUTO_WRITE"
@@ -101,6 +107,13 @@ def apply(proposal: dict) -> dict:
         if content in prev:
             return {"ok": True, "applied": False, "reason": "idempotent-noop",
                     "path": rel}
+        # گیتِ اضافیِ arm_gate (۲۰۲۶-۰۸-۰۴، DR-001): defense-in-depth روی همین
+        # capabilityِ self_improve_auto که arm_gate.DANGEROUS از قبل تعریف کرده
+        # بود — فقط سخت‌تر می‌کند، هرگز شل‌تر؛ پیش‌فرض بدونِ اثر. بعدِ چکِ
+        # idempotent عمداً است: یک no-op که چیزی عوض نمی‌کند نیازِ arm-token ندارد.
+        _arm_ok, _arm_why = arm_gate.guard("self_improve_auto")
+        if not _arm_ok:
+            return _refuse(f"arm-gate-denied:{_arm_why}")
         block = (prev + ("\n\n" if prev.strip() else "")
                  + f"<!-- auto {opslib.now_iso()} (vault-updater) -->\n" + content + "\n")
         tmp = dest.with_suffix(".md.tmp")

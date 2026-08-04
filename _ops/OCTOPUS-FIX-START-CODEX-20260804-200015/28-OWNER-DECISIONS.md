@@ -1,13 +1,15 @@
 # 28 — Owner decisions still needed
 
-1. **arm_gate wiring — DONE for `code_autonomy`** (owner instructed this in chat later the
-   same day: "wire arm_gate into self_patch.py per DR-001"). `_offer_patch_to_owner` now
-   calls `arm_gate.guard('code_autonomy')` as gate #8; 39/39 tests pass including 4 new
-   ones proving no regression. See `31-ARM-GATE-WIRING-VERIFY.md`. **Still open:**
-   `self_improve_auto` and `replicate` would need
-   their own call-site audits (not done this session — `_ops/cortex/auto_approve.py` /
-   `_ops/cortex/improve.py` / `_ops/budget/replication.py` are where those capabilities
-   actually live, per grep, but exact insertion points were not traced).
+1. **arm_gate wiring — DONE for all wireable capabilities.** `code_autonomy` (self_patch.py,
+   gate #8, 39/39 tests) and `self_improve_auto` (two real write sites — `auto_approve.py`
+   `run()`, live/mandatory, and `vault_updater_apply.py` `apply()`, defense-in-depth on a
+   currently orphaned path — 22 new tests, 140/140 total in the P0 harness) are both wired,
+   owner-instructed in chat, same session. See `31-ARM-GATE-WIRING-VERIFY.md` and
+   `32-SELF-IMPROVE-AND-REPLICATE-WIRING.md`. **`replicate` deliberately left unwired** —
+   `budget/replication.py` only ever writes a proposal note; there is no real spawn/execute
+   function anywhere in the codebase yet to protect. Wiring it today would be theater, not
+   hardening. Owner decision needed only if/when a real spawn function gets written — that
+   is where the guard belongs.
 2. **Full `OCTOPUS_REQUIRE_ARM=1` enforcement** — separate, broader decision from #1; not
    requested by the owner's 7-flag list and not recommended by this run without more
    analysis of every one of the 5 `DANGEROUS` capabilities' current call sites.
