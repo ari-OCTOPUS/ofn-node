@@ -27,13 +27,17 @@ from .kernel.consent import may_publish, subjects_needing_attention
 from .kernel.domain import (
     Action, Confidence, Decision, PackSpec, RiskTier, TenantId,
 )
+from .kernel.callbudget import CallBudget
 from .kernel.errors import FailClosedError
+from .kernel.probe import QUESTIONS as PROBE_QUESTIONS
+from .kernel.routing import Rung
 from .kernel.photos import ALLOWED_EDGES
 from .kernel.photos import inspect as photo_inspect
 from .kernel.gates import admit, executable
 from .kernel.questions import Question, plan, readiness
 from .kernel.quota import NodeQuota
 from .kernel.tenancy import TenantRegistry, TenantScope
+from .worker import Job
 
 
 MAX_TEXT_ANSWER = 2000
@@ -127,6 +131,12 @@ class Node:
     consent: object | None = None     # ConsentStore
     media: object | None = None       # MediaStore
     audience: object | None = None    # AudienceStore
+    # Phase A of the brain wiring: the owner's own surface only. No partner
+    # data reaches this, and the studio path is deliberately NOT connected
+    # until the extraction layer exists — "we will add the guard later" is
+    # the sentence guards do not get added after.
+    worker: object | None = None      # Worker
+    call_budget: object | None = None # CallBudget
 
     # ── gates ─────────────────────────────────────────────────────────────
     @property
@@ -201,6 +211,71 @@ class Node:
         fact = self.facts.current(scope, subject, predicate)
         return None if fact is None else fact.value
 
+
+
+    # ── brain, phase A: the owner's surface only ──────────────────────────
+    def brain_status(self) -> dict:
+        """What the thinking layer is, right now. Owner-only.
+
+        Reports absence as absence. A panel that shows a healthy brain
+        because nobody checked is worse than one that shows nothing.
+        """
+        if self.worker is None:
+            return {"wired": False, "why": "worker not attached"}
+        out = {"wired": True, **dict(self.worker.status())}
+        if self.call_budget is not None:
+            out["budget"] = self.call_budget.report(self.now_epoch_s())
+        return out
+
+    def run_brain_probe(self, scope: TenantScope) -> dict:
+        """Ask the questions this node already knows the answers to.
+
+        The first thing put in front of a model must not be something with no
+        way of checking it — that is how a pipeline gets declared working on
+        the strength of an answer nobody could grade. Every outcome here
+        teaches: agreement means the pipe and the model are both worth
+        something, disagreement is a broken pipe or a substituted model, and
+        either is a finding.
+        """
+        if self.worker is None:
+            return {"ok": False, "error": "مغز وصل نیست"}
+        now = self.now_epoch_s()
+        queued = []
+        for question in PROBE_QUESTIONS:
+            job = Job(tenant=scope.tenant.value, task=f"probe:{question.key}",
+                      prompt=question.prompt,
+                      # One per day per question. A probe that can be spammed
+                      # is a way to spend the budget on nothing.
+                      idem_key=f"probe:{question.key}:{now // 86_400}",
+                      max_rung=Rung.REMOTE, estimated_tokens=200)
+            if self.worker.submit(scope, job):
+                queued.append(question.key)
+        return {"ok": True, "queued": queued,
+                "note": "پاسخ‌ها در لجر می‌نشینند؛ نتیجه را از brain_status بخوان"}
+
+    def ask_owner_question(self, scope: TenantScope, prompt: str) -> dict:
+        """One question from the owner's panel, in the owner's own words.
+
+        Phase A on purpose: this carries the owner's data and nobody else's.
+        The partner surfaces stay disconnected from the brain until the
+        extraction layer exists, because the window in which the pipe is
+        connected and the guard is not is exactly the window a bug needs.
+        """
+        if self.worker is None:
+            return {"ok": False, "error": "مغز وصل نیست"}
+        text = str(prompt or "").strip()
+        if not text:
+            return {"ok": False, "error": "سؤال خالی است"}
+        if len(text) > MAX_TEXT_ANSWER:
+            return {"ok": False, "error": "سؤال بلندتر از حد مجاز است"}
+        now = self.now_epoch_s()
+        if self.call_budget is not None and not self.call_budget.allows(
+                Rung.REMOTE, now):
+            return {"ok": False, "error": "سقف تماس امروز پر شده"}
+        job = Job(tenant=scope.tenant.value, task="owner:ask", prompt=text,
+                  idem_key=f"owner:{now}:{abs(hash(text)) % 10**8}",
+                  max_rung=Rung.REMOTE)
+        return {"ok": bool(self.worker.submit(scope, job))}
 
     # ── studio surface ────────────────────────────────────────────────────
     def _studio(self):

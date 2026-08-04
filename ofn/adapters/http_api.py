@@ -97,6 +97,17 @@ class HostMap:
         return self.tenants.get(host), False
 
 
+def _first_tenant(registry):
+    """A tenant to bill the owner's own thinking against.
+
+    The owner is not a tenant and the quota is per-tenant, so one has to be
+    chosen. Sorted rather than "whichever came first", because a spend that
+    lands on a different leg depending on dict ordering is a spend nobody can
+    account for later.
+    """
+    return sorted(registry, key=lambda t: t.value)[0]
+
+
 def _json_object(body: bytes) -> dict | None:
     """Parse a JSON object, or None. Anything that is not an object — a list,
     a bare number — is treated as malformed rather than coerced."""
@@ -141,9 +152,15 @@ class ApiApp:
         owner_decide: Callable[[str, bool, bool], dict] | None = None,
         owner_status: Callable[[], dict] | None = None,
         owner_events: Callable[[int], list] | None = None,
+        brain_status: Callable[[], dict] | None = None,
+        brain_probe: Callable[[TenantScope], dict] | None = None,
+        owner_ask: Callable[[TenantScope, str], dict] | None = None,
     ) -> None:
         self._registry = registry
         self._hosts = hosts
+        self._brain_status = brain_status
+        self._brain_probe = brain_probe
+        self._owner_ask = owner_ask
         self._studio_board = studio_board
         self._create_draft = create_draft
         self._attach_media = attach_media
@@ -369,6 +386,27 @@ class ApiApp:
             return Response(200, self._owner_status())
         if method == "GET" and path == "/api/v1/owner/events":
             return Response(200, {"events": self._owner_events(EVENT_TAIL)})
+        # ── brain, owner-only (phase A) ──────────────────────────────────
+        if method == "GET" and path == "/api/v1/owner/brain":
+            if self._brain_status is None:
+                return Response(200, {"wired": False, "why": "not attached"})
+            return Response(200, self._brain_status())
+        if method == "POST" and path == "/api/v1/owner/brain/probe":
+            if self._brain_probe is None:
+                return Response(404, {"error": "not found"})
+            scope = self._registry.scope(_first_tenant(self._registry))
+            out = self._brain_probe(scope)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path == "/api/v1/owner/ask":
+            if self._owner_ask is None:
+                return Response(404, {"error": "not found"})
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            scope = self._registry.scope(_first_tenant(self._registry))
+            out = self._owner_ask(scope, str(data.get("prompt", "")))
+            return Response(200 if out.get("ok") else 400, out)
+
         if method == "POST" and path == "/api/v1/decide":
             try:
                 data = json.loads(body or b"{}")

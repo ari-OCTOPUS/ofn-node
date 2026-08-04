@@ -21,6 +21,7 @@ import time
 from . import config
 from .adapters.audience_store import AudienceStore
 from .adapters.boot import BootSupervisor
+from .kernel.callbudget import CallBudget
 from .adapters.consent_store import ConsentStore
 from .adapters.facts import FactStore
 from .adapters.http_api import ApiApp, HostMap, serve
@@ -145,6 +146,9 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         attach_media=node.attach_media,
         publish_draft=node.publish_draft,
         record_felt=node.record_felt,
+        brain_status=node.brain_status,
+        brain_probe=node.run_brain_probe,
+        owner_ask=node.ask_owner_question,
         owner_queue=node.owner_queue,
         owner_decide=node.owner_decide,
         owner_status=node.owner_status,
@@ -231,6 +235,14 @@ def main() -> int:
                       f"OFN_PARTNER_USER_IDS_{leg.upper()})"))
 
     worker = build_worker(cfg, node)
+    # Phase A: the owner's panel can now reach the brain. The partner
+    # surfaces cannot, and will not until the extraction layer exists.
+    # Attached after `build_api`, and that is safe rather than lucky: the
+    # API holds `node.brain_status` as a bound method, which reads
+    # `self.worker` when it is called. Passing `node.worker` directly would
+    # capture the None and look identical until the first request.
+    node.worker = worker
+    node.call_budget = CallBudget()
     threading.Thread(target=worker_loop, args=(worker, _stop),
                      daemon=True).start()
     print(f"worker running — {worker.status()}")
