@@ -41,6 +41,7 @@ from ..kernel.auth import (
 from ..kernel.domain import RiskTier, TenantId
 from ..kernel.tenancy import TenantRegistry, TenantScope
 
+MAX_MEDIA_BODY_BYTES = 24 * 1024 * 1024
 MAX_BODY_BYTES = 64 * 1024
 
 # How much of the ledger the owner's panel gets in one read. Fixed here rather
@@ -128,6 +129,11 @@ class ApiApp:
         products_for: Callable[[TenantScope], dict] | None = None,
         create_product: Callable[[TenantScope, str, dict], dict] | None = None,
         update_product: Callable[[TenantScope, str, str, dict], dict] | None = None,
+        studio_board: Callable[[TenantScope], dict] | None = None,
+        create_draft: Callable[[TenantScope, str, dict], dict] | None = None,
+        attach_media: Callable[[TenantScope, str, str, dict], dict] | None = None,
+        publish_draft: Callable[[TenantScope, str, str, dict], dict] | None = None,
+        record_felt: Callable[[TenantScope, str, str, dict], dict] | None = None,
         owner_queue: Callable[[], list] | None = None,
         owner_decide: Callable[[str, bool, bool], dict] | None = None,
         owner_status: Callable[[], dict] | None = None,
@@ -135,6 +141,11 @@ class ApiApp:
     ) -> None:
         self._registry = registry
         self._hosts = hosts
+        self._studio_board = studio_board
+        self._create_draft = create_draft
+        self._attach_media = attach_media
+        self._publish_draft = publish_draft
+        self._record_felt = record_felt
         self._bot_tokens = dict(bot_tokens)
         self._secret = session_secret
         self._owners = set(owner_user_ids)
@@ -312,6 +323,36 @@ class ApiApp:
                 return Response(400, {"error": "bad request"})
             out = self._update_product(scope, p.user_id, sku, data)
             return Response(200 if out.get("ok") else 400, out)
+
+        # ── studio ───────────────────────────────────────────────────────
+        if method == "GET" and path == "/api/v1/studio/board":
+            if self._studio_board is None:
+                return Response(404, {"error": "not found"})
+            return Response(200, self._studio_board(scope))
+        if method == "POST" and path == "/api/v1/studio/drafts":
+            data = _json_object(body)
+            if data is None or self._create_draft is None:
+                return Response(400, {"error": "bad request"})
+            out = self._create_draft(scope, p.user_id, data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path.startswith("/api/v1/studio/drafts/"):
+            rest = path[len("/api/v1/studio/drafts/"):]
+            # Exactly `<id>/<verb>`. Anything else is a route nobody wrote,
+            # and a crafted id must not be able to reach one.
+            parts = rest.split("/")
+            if len(parts) != 2 or not parts[0] or not parts[1]:
+                return Response(404, {"error": "not found"})
+            draft_id, verb = parts
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            handler = {"media": self._attach_media,
+                       "publish": self._publish_draft,
+                       "felt": self._record_felt}.get(verb)
+            if handler is None:
+                return Response(404, {"error": "not found"})
+            out = handler(scope, p.user_id, draft_id, data)
+            return Response(200 if out.get("ok") else 400, out)
         return Response(404, {"error": "not found"})
 
     # ── owner surface ─────────────────────────────────────────────────────
@@ -424,7 +465,13 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
                 key = "/index.html" if path == "/" else path
                 data = files[key]
                 self.send_response(200)
-                ctype = ("text/html; charset=utf-8" if key.endswith(".html")
+                # Decided from the bytes, not the name: the studio shell is
+                # also served at `/sabaapp`, which has no extension, and
+                # handing a partner `application/octet-stream` makes the
+                # phone offer to download the page instead of open it.
+                ctype = ("text/html; charset=utf-8"
+                         if key.endswith(".html")
+                         or data[:15].lstrip().lower().startswith(b"<!doctype")
                          else "application/octet-stream")
                 self.send_header("Content-Type", ctype)
                 self.send_header("Content-Length", str(len(data)))
@@ -437,7 +484,13 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
 
         def do_POST(self):  # noqa: N802
             length = int(self.headers.get("Content-Length") or 0)
-            if length > MAX_BODY_BYTES:
+            path_now = urllib.parse.urlparse(self.path).path
+            # The photo route carries base64, which is one third larger than
+            # the image. Raised here and only here: lifting the global limit
+            # to fit a photo would lift it for every other endpoint too.
+            cap = (MAX_MEDIA_BODY_BYTES if path_now.endswith("/media")
+                   else MAX_BODY_BYTES)
+            if length > cap:
                 self._send(Response(413, {"error": "payload too large"}))
                 return
             body = self.rfile.read(length) if length else b""

@@ -333,7 +333,7 @@ nav svg{width:21px;height:21px}
           <path d="M21 3l-6.5 18-4-8-8-4z"/></svg>
         همین را منتشر کن
       </button>
-      <button class="cta quiet">فعلاً بماند</button>
+      <button class="cta quiet" id="later">فعلاً بماند</button>
     </div>
   </form>
 
@@ -375,7 +375,7 @@ nav svg{width:21px;height:21px}
       تأیید آری هیچ‌جا نمی‌رود.
       <span class="warn">بعد از تأیید او برگشتی نیست.</span></p>
     <div class="act">
-      <button class="cta" popovertarget="tray" popovertargetaction="hide">بله، منتشر کن</button>
+      <button class="cta" id="go-publish">بله، منتشر کن</button>
       <button class="cta quiet" popovertarget="tray" popovertargetaction="hide">نه، برگرد</button>
     </div>
   </div>
@@ -608,7 +608,12 @@ function askCard(q) {
 }
 
 function drawFront() {
+  /* The kernel's questions come first: they are what the node needs before
+     it can judge anything, and a decision made on a stale fact is worse than
+     a decision deferred. */
   if (at < queue.length) { askCard(queue[at]); $('gate').hidden = true; return; }
+  const d = currentDraft();
+  if (d) { drawDraft(d); return; }
   const card = $('front');
   card.textContent = '';
   const spine = document.createElement('span');
@@ -661,9 +666,9 @@ function closeTray() {
   tray.style.display = 'none';
 }
 
-function showState(kind) {
+function showState(kind, detail) {
   const box = $('state');
-  const say = REASONS[kind] || 'چیزی سر جایش نیست.';
+  const say = (detail || '') || REASONS[kind] || 'چیزی سر جایش نیست.';
   box.hidden = false;
   box.textContent = '';
   box.append(Object.assign(document.createElement('div'), { textContent: say }));
@@ -687,11 +692,125 @@ function greet(name) {
   if (h) h.textContent = name ? `سلام ${name}` : 'چیدمان';
 }
 
+
+/* ── the board ───────────────────────────────────────────────────────────
+   One request, not four. The screen shows a single decision, and four
+   requests would let the parts arrive out of order and render a card whose
+   consent state belongs to a different draft.
+
+   `consent_ok` is the node's answer, not ingredients this page re-derives.
+   Rebuilding the rule here would make two implementations of it, and two
+   implementations of a consent rule disagree eventually. */
+let board = { drafts: [], collections: [], platform: '' };
+let cursor = 0;
+
+function currentDraft() {
+  return board.drafts.length ? board.drafts[Math.min(cursor, board.drafts.length - 1)]
+                             : null;
+}
+
+async function loadBoard() {
+  board = await OFN.get('/api/v1/studio/board');
+  cursor = 0;
+  drawFront();
+}
+
+function drawDraft(d) {
+  const card = $('front');
+  card.textContent = '';
+  const spine = document.createElement('span');
+  spine.className = 'spine';
+  card.append(spine);
+
+  const k = document.createElement('div');
+  k.className = 'kicker';
+  k.textContent = d.consent_ok ? 'آمادهٔ تصمیم' : 'رضایت کامل نیست';
+  card.append(k);
+
+  const h = document.createElement('h2');
+  h.textContent = d.caption || 'بی‌عنوان';
+  card.append(h);
+
+  if (!d.consent_ok) {
+    const p = document.createElement('p');
+    /* Says which person and why, because "consent missing" sends her looking
+       through a folder rather than at one name. */
+    p.textContent = d.subjects.length
+      ? d.subjects.map(s => s.label + ': ' + (GAPS[d.consent_gaps[s.id]]
+          || 'رضایت ندارد')).join(' · ')
+      : 'هیچ‌کس برای این پست اعلام نشده. تا کسی اعلام نشود، منتشر نمی‌شود.';
+    card.append(p);
+  }
+
+  const strip = document.createElement('div');
+  strip.className = 'strip';
+  (d.media || []).slice(0, 4).forEach(() => strip.append(document.createElement('i')));
+  card.append(strip);
+
+  $('gate').hidden = false;
+  const box = $('c1');
+  box.checked = !!d.consent_ok;
+  box.disabled = true;      /* the node decides this, not a tick on a screen */
+  $('c-detail').textContent = d.consent_ok
+    ? 'رضایت این افراد برای ' + board.platform + ' ثبت شده است.'
+    : 'تا رضایت ثبت نشود، انتشار باز نمی‌شود.';
+  syncConsentGate();
+
+  const behind = $('behind');
+  const rest = board.drafts.length - 1;
+  behind.hidden = rest <= 0;
+  if (rest > 0) {
+    behind.textContent = '';
+    const b = document.createElement('b');
+    b.textContent = fa(rest) + ' مورد';
+    behind.append(document.createTextNode('پشت این، '), b,
+                  document.createTextNode(' دیگر هست'));
+  }
+}
+
+const GAPS = {
+  no_release: 'رضایت‌نامه ندارد',
+  expired: 'رضایت‌نامه منقضی شده',
+  revoked: 'رضایت پس گرفته شده',
+  out_of_scope: 'رضایت‌نامه این پلتفرم را نمی‌گیرد',
+  not_yet_in_force: 'رضایت‌نامه هنوز اعتبار ندارد',
+};
+
+async function publishCurrent() {
+  const d = currentDraft();
+  if (!d) return;
+  const say = $('t-what');
+  try {
+    const out = await OFN.post(
+      '/api/v1/studio/drafts/' + encodeURIComponent(d.draft_id) + '/publish',
+      { platform: board.platform });
+    closeTray();
+    if (!out.ok) { showState('refused', out.error); return; }
+    await loadBoard();
+  } catch (e) {
+    closeTray();
+    showState(e && e.status === 401 ? 'rejected' : 'unreachable');
+  }
+  if (say) say.textContent = 'این پیش‌نویس';
+}
+
 async function boot() {
   OFN.shell();
   syncConsentGate();
   const box = $('c1');
   if (box) box.addEventListener('change', syncConsentGate);
+
+  const later = $('later');
+  if (later) later.addEventListener('click', ev => {
+    ev.preventDefault(); OFN.tap();
+    /* Moves to the next draft rather than doing nothing. A safe option that
+       has no effect teaches that buttons sometimes have no effect. */
+    if (board.drafts.length > 1) { cursor = (cursor + 1) % board.drafts.length; }
+    drawFront();
+  });
+
+  const go = $('go-publish');
+  if (go) go.addEventListener('click', ev => { ev.preventDefault(); publishCurrent(); });
 
   document.querySelectorAll('[popovertarget="tray"]').forEach(b => {
     b.addEventListener('click', ev => {
@@ -713,7 +832,8 @@ async function boot() {
 
   queue = (qs && qs.questions) || [];
   at = 0;
-  drawFront();
+  try { await loadBoard(); }
+  catch (_) { showState('unreachable'); return; }
 
   /* Nothing here invents a number. Until the studio surface exists, the card
      says there is nothing to decide, which is true. */

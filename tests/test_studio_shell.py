@@ -206,7 +206,7 @@ class TestNothingIsInvented(unittest.TestCase):
         self.assertNotIn("نمونه", JS)
 
     def test_the_disconnected_state_disables_every_action(self):
-        block = re.search(r"function showState\(kind\)\s*\{(.*?)\n\}", JS, re.S)
+        block = re.search(r"function showState\([^)]*\)\s*\{(.*?)\n\}", JS, re.S)
         self.assertIsNotNone(block)
         self.assertIn("pointerEvents = 'none'", block.group(1))
 
@@ -224,3 +224,57 @@ class TestNothingIsInvented(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestTheShellIsWiredToTheNode(unittest.TestCase):
+    """The mini app has to actually do something. Every route it needs, and
+    the two places where it must not decide for itself."""
+
+    def test_it_reads_the_board_in_one_request(self):
+        """Four requests would let the parts arrive out of order and render a
+        card whose consent state belongs to a different draft."""
+        self.assertIn("/api/v1/studio/board", JS)
+
+    def test_it_publishes_through_the_node(self):
+        self.assertIn("/publish", JS)
+        self.assertIn("function publishCurrent", JS)
+
+    def test_the_consent_tick_is_not_an_input_she_can_assert(self):
+        """The node decides consent. A tick that could be checked here would
+        be a second implementation of the rule, and the screen's copy would
+        be the one that is wrong."""
+        self.assertIn("box.disabled = true", JS)
+        self.assertIn("d.consent_ok", JS)
+
+    def test_the_page_does_not_rebuild_the_consent_rule(self):
+        """It reads the verdict. It does not look at releases, dates or
+        scopes — those are ingredients, and re-deriving from them is how two
+        implementations drift."""
+        # Field reads, not substrings: `out_of_scope` is a refusal *name* the
+        # page is supposed to have words for, and matching it as "scope"
+        # failed a page that was doing the right thing.
+        for ingredient in ("expires_at", "revoked_at", "signed_at",
+                           "releases", "document_sha256"):
+            self.assertNotRegex(JS, rf"[.\[]\s*['\"]?{ingredient}\b",
+                                f"the shell reads {ingredient}")
+
+    def test_every_refusal_reason_has_words(self):
+        """A gap shown as `out_of_scope` sends her looking through a folder
+        instead of at one name."""
+        for reason in ("no_release", "expired", "revoked", "out_of_scope",
+                       "not_yet_in_force"):
+            self.assertIn(reason, JS)
+
+    def test_the_safe_option_actually_does_something(self):
+        """A safe option with no effect teaches that buttons sometimes have
+        no effect."""
+        self.assertIn("id=\"later\"", SRC)
+        self.assertIn("cursor = (cursor + 1)", JS)
+
+    def test_questions_come_before_decisions(self):
+        """A decision made on a stale fact is worse than a decision
+        deferred."""
+        body = re.search(r"function drawFront\(\)\s*\{(.*?)\n\}", JS, re.S)
+        self.assertIsNotNone(body)
+        self.assertLess(body.group(1).index("at < queue.length"),
+                        body.group(1).index("currentDraft()"))

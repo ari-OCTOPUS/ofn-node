@@ -22,9 +22,14 @@ from .adapters.ledger import Ledger
 from .adapters.outbox import Outbox
 from .adapters.products import (ProductError, ProductStore, money_view,
                                 net_margin_aud, verdicts)
+from .adapters.studio_store import StudioError
+from .kernel.consent import may_publish, subjects_needing_attention
 from .kernel.domain import (
     Action, Confidence, Decision, PackSpec, RiskTier, TenantId,
 )
+from .kernel.errors import FailClosedError
+from .kernel.photos import ALLOWED_EDGES
+from .kernel.photos import inspect as photo_inspect
 from .kernel.gates import admit, executable
 from .kernel.questions import Question, plan, readiness
 from .kernel.quota import NodeQuota
@@ -32,6 +37,11 @@ from .kernel.tenancy import TenantRegistry, TenantScope
 
 
 MAX_TEXT_ANSWER = 2000
+
+# Where a studio post is judged to be going. One value today because one
+# platform is configured; it is a constant here rather than a literal at each
+# call site so that adding a second is one edit, not a search.
+DEFAULT_PLATFORM = "instagram"
 
 # Persian and Arabic-Indic digits, in the order 0-9. A phone keyboard set to
 # Persian produces ۱۲۵, and a form that silently refuses it is a form that
@@ -113,6 +123,9 @@ class Node:
     boot: BootReport | None = None
     killed: bool = False
     products: ProductStore | None = None
+    studio: object | None = None      # StudioStore
+    consent: object | None = None     # ConsentStore
+    media: object | None = None       # MediaStore
 
     # ── gates ─────────────────────────────────────────────────────────────
     @property
@@ -186,6 +199,184 @@ class Node:
     def _fact_value(self, scope: TenantScope, subject: str, predicate: str):
         fact = self.facts.current(scope, subject, predicate)
         return None if fact is None else fact.value
+
+
+    # ── studio surface ────────────────────────────────────────────────────
+    def _studio(self):
+        if self.studio is None or self.consent is None or self.media is None:
+            raise ProductError("استودیو در دسترس نیست")
+        return self.studio
+
+    def studio_board(self, scope: TenantScope) -> dict:
+        """Everything one screen needs, in one request.
+
+        One call rather than four because the shell shows a single decision:
+        four requests would let the parts arrive out of order and render a
+        card whose consent state belongs to a different draft.
+        """
+        tenant = scope.tenant.value
+        store = self._studio()
+        now = self.now_epoch_s()
+        drafts = []
+        for d in store.drafts(tenant):
+            if d.status in ("published", "abandoned"):
+                continue
+            people = self.consent.subjects_in_draft(d.draft_id)
+            docs = self.consent.releases_for([s.subject_id for s in people])
+            gaps = subjects_needing_attention(
+                people, docs, platform=DEFAULT_PLATFORM, now_epoch_s=now)
+            drafts.append({
+                "draft_id": d.draft_id,
+                "collection_id": d.collection_id,
+                "caption": d.caption,
+                "status": d.status,
+                "media": [{"position": pos, "ref": ref}
+                          for pos, ref in store.media_of(d.draft_id)],
+                "subjects": [{"id": s.subject_id, "label": s.display_label}
+                             for s in people],
+                # The gate's answer, not the ingredients of it. A shell that
+                # rebuilt this from the parts would be a second implementation
+                # of the rule, and the two would disagree eventually.
+                "consent_ok": not gaps and bool(people),
+                "consent_gaps": {k: v.value for k, v in gaps.items()},
+            })
+        return {
+            "drafts": drafts,
+            "collections": [{"id": c.collection_id, "label": c.label,
+                             "genre": c.genre,
+                             "sensitivity": c.sensitivity.value}
+                            for c in store.collections(tenant)],
+            "platform": DEFAULT_PLATFORM,
+        }
+
+    def create_draft(self, scope: TenantScope, user_id: str,
+                     body: Mapping[str, object]) -> dict:
+        store = self._studio()
+        tenant = scope.tenant.value
+        draft_id = str(body.get("draft_id") or "").strip()
+        if not draft_id:
+            return {"ok": False, "error": "شناسهٔ پیش‌نویس لازم است"}
+        try:
+            store.add_draft(
+                tenant, draft_id,
+                collection_id=(str(body["collection_id"])
+                               if body.get("collection_id") else None),
+                caption=(str(body["caption"]) if body.get("caption") else None),
+                now_epoch_s=self.now_epoch_s())
+        except StudioError as exc:
+            return {"ok": False, "error": str(exc)}
+
+        # Every draft records who is in it, from the first one, even while the
+        # answer is always the same person. The day a second person appears,
+        # a table that exists gains a row; a table that does not exist cannot
+        # reconstruct the history built until then.
+        for sid in (body.get("subjects") or []):
+            try:
+                self.consent.add_to_draft(draft_id, str(sid),
+                                          added_by=f"partner:{user_id}",
+                                          now_epoch_s=self.now_epoch_s())
+            except Exception as exc:
+                return {"ok": False, "error": str(exc)}
+        self.ledger.append(scope, "DRAFT_CREATED", {
+            "draft_id": draft_id, "actor": f"partner:{user_id}",
+        }, self.now_iso())
+        return {"ok": True, "draft_id": draft_id}
+
+    def attach_media(self, scope: TenantScope, user_id: str, draft_id: str,
+                     body: Mapping[str, object]) -> dict:
+        """Store the two renditions the browser made.
+
+        The original is not kept. Archiving it was meant to prove what was
+        published and does not: if a 1600px rendition is what goes out, the
+        original never went. `media_sent` records the hash of what actually
+        left, and every original kept would be one more sensitive file at
+        rest on a disk that is not encrypted.
+        """
+        store = self._studio()
+        tenant = scope.tenant.value
+        try:
+            position = body.get("position", 0)
+            renditions = body.get("renditions") or {}
+            if not isinstance(renditions, Mapping):
+                raise FailClosedError("renditions must be an object")
+            written = {}
+            for edge in ALLOWED_EDGES:
+                text = renditions.get(str(edge))
+                if not text:
+                    raise FailClosedError(f"رساله‌ی {edge} نیامده")
+                payload = photo_inspect(str(text))
+                written[edge] = self.media.write_rendition(
+                    tenant, draft_id, position, edge, payload)
+            store.attach_media(draft_id, position, written[max(ALLOWED_EDGES)])
+        except (FailClosedError, StudioError) as exc:
+            return {"ok": False, "error": str(exc)}
+        return {"ok": True, "position": position,
+                "refs": {str(k): v for k, v in written.items()}}
+
+    def publish_draft(self, scope: TenantScope, user_id: str, draft_id: str,
+                      body: Mapping[str, object]) -> dict:
+        """Queue a post for the owner. Nothing leaves the board here.
+
+        The consent gate is evaluated in this method rather than trusted from
+        the shell. A screen can be stale, edited, or replayed; the ledger
+        entry that follows has to be true about the moment it was written.
+        """
+        store = self._studio()
+        platform = str(body.get("platform") or DEFAULT_PLATFORM)
+        try:
+            draft = store.draft(draft_id)
+        except StudioError as exc:
+            return {"ok": False, "error": str(exc)}
+
+        people = self.consent.subjects_in_draft(draft_id)
+        docs = self.consent.releases_for([s.subject_id for s in people])
+        verdict = may_publish(people, docs, platform=platform,
+                              now_epoch_s=self.now_epoch_s())
+        if not verdict.allowed:
+            self.ledger.append(scope, "PUBLISH_REFUSED", {
+                "draft_id": draft_id, "platform": platform,
+                "why": verdict.why,
+                "blocked": [b.subject_id for b in verdict.blocks],
+                "actor": f"partner:{user_id}",
+            }, self.now_iso())
+            return {"ok": False, "error": verdict.why,
+                    "blocked": [b.subject_id for b in verdict.blocks]}
+
+        if not store.media_of(draft_id):
+            return {"ok": False, "error": "این پیش‌نویس هیچ رسانه‌ای ندارد"}
+
+        # Publishing a picture of a person is irreversible and leaves the
+        # device. There is no configuration that makes this anything but red.
+        queued = self.outbox.enqueue(
+            scope, f"draft:{draft_id}:{platform}", "PUBLISH_POST",
+            {"draft_id": draft_id, "platform": platform,
+             "caption": draft.caption,
+             "media": [ref for _, ref in store.media_of(draft_id)]},
+            RiskTier.RED, self.now_iso())
+        store.set_status(draft_id, "queued")
+        self.ledger.append(scope, "PUBLISH_QUEUED", {
+            "draft_id": draft_id, "platform": platform,
+            "duplicate": not queued, "actor": f"partner:{user_id}",
+        }, self.now_iso())
+        return {"ok": True, "queued": queued, "status": "queued"}
+
+    def record_felt(self, scope: TenantScope, user_id: str, draft_id: str,
+                    body: Mapping[str, object]) -> dict:
+        """Her own reading of a post, before any platform figure.
+
+        Stored with its timestamp whether or not a number has already
+        arrived. Refusing would lose the answer; the stamp is what lets an
+        analysis decide later whether it may use it.
+        """
+        store = self._studio()
+        try:
+            rating = body.get("rating")
+            draft = store.record_felt_right(
+                draft_id, rating if isinstance(rating, int) else -1,
+                now_epoch_s=self.now_epoch_s())
+        except StudioError as exc:
+            return {"ok": False, "error": str(exc)}
+        return {"ok": True, "trustworthy": draft.rating_is_trustworthy}
 
     # ── products ──────────────────────────────────────────────────────────
     def _pieces(self) -> ProductStore:

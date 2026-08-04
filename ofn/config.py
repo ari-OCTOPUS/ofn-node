@@ -168,7 +168,13 @@ def load() -> Config:
                                        remote_brain.DEFAULT_BASE_URL),
         ports={"ziman": 8791, "lead": 8792, "studio": 8793, "owner": 8794},
         hosts={f"ziman.{domain}": "ziman", f"lead.{domain}": "lead",
-               f"studio.{domain}": "studio"},
+               f"studio.{domain}": "studio",
+               # Saba's mini app is reached at `app.<domain>/sabaapp`. Both
+               # hostnames resolve to the same leg on the same port; the
+               # second exists because that is the URL the bot's menu button
+               # points at, and a Telegram Web App URL is not something a
+               # partner can be asked to change later.
+               f"app.{domain}": "studio"},
         owner_host=f"panel.{domain}",
         wire_outbound=_flag("OFN_WIRE_OUTBOUND"),
         base_closed_gates=tuple(gates),

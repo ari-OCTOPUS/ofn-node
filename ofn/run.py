@@ -20,12 +20,15 @@ import time
 
 from . import config
 from .adapters.boot import BootSupervisor
+from .adapters.consent_store import ConsentStore
 from .adapters.facts import FactStore
 from .adapters.http_api import ApiApp, HostMap, serve
 from .adapters.ledger import Ledger
+from .adapters.media import MediaStore
 from .adapters.outbox import Outbox
 from .adapters.packloader import load_dir
 from .adapters.products import ProductStore
+from .adapters.studio_store import StudioStore
 from .adapters.watchdog import HealthGate, Notifier, beat, watchdog_interval_s
 from .adapters.remote_brain import RemoteBrain
 from .adapters.router import ModelRouter, RulesBrain
@@ -68,7 +71,14 @@ def build_node(cfg: config.Config) -> Node:
                             labour_hours_field=ziman.labour_hours_field,
                             labour_rate_field=ziman.labour_rate_field)
 
-    return Node(products=products,
+    # The studio leg's three: what is being made, who agreed to be in it,
+    # and where the bytes live. Opened here so their schemas exist from the
+    # first boot rather than the first upload.
+    studio = StudioStore(cfg.studio_path)
+    consent = ConsentStore(cfg.consent_path)
+    media = MediaStore(cfg.photos_root)
+
+    return Node(products=products, studio=studio, consent=consent, media=media,
                 registry=registry, quota=quota, ledger=ledger, facts=facts,
                 outbox=outbox, now_epoch_s=config.epoch_seconds,
                 now_iso=config.now_iso,
@@ -90,12 +100,22 @@ def load_web(cfg: config.Config) -> dict[str, dict[str, bytes]]:
                cfg.ports["lead"]: "lead.html",
                cfg.ports["studio"]: "studio.html",
                cfg.ports["owner"]: "panel.html"}
+    # Extra paths the same file answers on. Saba's mini app lives at
+    # `app.<domain>/sabaapp`, so the studio port has to serve its shell there
+    # as well as at the root — a Telegram Web App URL is fixed in the bot's
+    # menu button and is not something a partner can be asked to change.
+    aliases = {cfg.ports["studio"]: ("/sabaapp", "/sabaapp/")}
+
     out: dict[str, dict[str, bytes]] = {}
     for port, name in mapping.items():
         path = os.path.join(root, name)
         try:
             with open(path, "rb") as fh:
-                out[port] = {"/index.html": fh.read()}
+                data = fh.read()
+            served = {"/index.html": data}
+            for alias in aliases.get(port, ()):
+                served[alias] = data
+            out[port] = served
         except OSError:
             print(f"  ⚠ {name} missing — port {port} serves API only")
             out[port] = {}
@@ -117,6 +137,11 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         products_for=node.products_for,
         create_product=node.create_product,
         update_product=node.update_product,
+        studio_board=node.studio_board,
+        create_draft=node.create_draft,
+        attach_media=node.attach_media,
+        publish_draft=node.publish_draft,
+        record_felt=node.record_felt,
         owner_queue=node.owner_queue,
         owner_decide=node.owner_decide,
         owner_status=node.owner_status,
