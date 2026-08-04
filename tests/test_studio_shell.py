@@ -104,6 +104,63 @@ class TestDepthMeansOneThing(unittest.TestCase):
         self.assertIn("position:static", block.group(1))
 
 
+class TestPhotosArriveThroughTheSession(unittest.TestCase):
+    """No photo in this app had ever been displayed.
+
+    Every rendition is served from `/api/v1/studio/media/…`, which is behind
+    `_principal` and reads exactly one thing: an `Authorization: Bearer`
+    header. A browser issuing `<img src>` cannot attach one — the request is
+    the browser's, not the script's — so every photo answered 401 and drew
+    the broken-image mark. In the archive card that was a question mark in
+    the middle of the frame; in the gallery it was an empty outline that read
+    as "no photos yet".
+
+    Invisible until the shell could get far enough to draw one, which it
+    could not until the SDK ordering was fixed. The third failure that one
+    bug was hiding.
+
+    The rule is that the bytes come through the same session header as every
+    other call. Not a cookie, which would be a second way to authenticate one
+    API, and not a token in the query string — the journal logs request
+    paths, so that writes a live session into a log file.
+    """
+
+    def test_no_image_source_points_straight_at_the_authenticated_api(self):
+        for hit in re.findall(r"\.src\s*=\s*'(/api/v1/[^']*)'", JS):
+            self.fail(f"an <img> is pointed at {hit}, which needs a header "
+                      f"the browser will not send")
+        self.assertNotRegex(SRC, r"<img[^>]*src=[\"']/api/v1")
+
+    def test_the_bytes_are_fetched_with_the_session(self):
+        fn = re.search(r"async bytes\(path\)\s*\{(.*?)\n    \},", JS, re.S)
+        self.assertIsNotNone(fn, "no authenticated byte fetch exists")
+        self.assertIn("'Bearer ' + session", fn.group(1))
+
+    def test_the_session_never_travels_in_a_url(self):
+        """A query-string token would land in the journal, which logs paths."""
+        self.assertNotRegex(JS, r"[?&](token|t|session|auth)=")
+
+    def test_object_urls_are_released(self):
+        """They outlive the elements that hold them, so a gallery redraw that
+        does not revoke leaks one photo per redraw."""
+        self.assertIn("URL.revokeObjectURL", JS)
+        grid = re.search(r"function drawGrid\(\)\s*\{(.*?)\n\}", JS, re.S)
+        self.assertIsNotNone(grid)
+        self.assertIn("releasePhoto", grid.group(1))
+
+    def test_the_deciding_screen_gets_the_large_rendition(self):
+        """The archive card is where she decides what a photo is. Deciding
+        that from a 320px thumbnail is deciding it from something else."""
+        self.assertIn("paintPhoto(shot, p.media_id, 1600)", JS)
+
+    def test_a_photo_that_fails_says_so(self):
+        """Rather than leaving the browser's own broken-image mark, which is
+        indistinguishable from a photo that was never there."""
+        fn = re.search(r"async function paintPhoto\(.*?\n\}", JS, re.S)
+        self.assertIsNotNone(fn)
+        self.assertIn("img.alt", fn.group(0))
+
+
 class TestAContainerJavaScriptFillsCanGrow(unittest.TestCase):
     """The front sheet holds two different things and was sized for one.
 

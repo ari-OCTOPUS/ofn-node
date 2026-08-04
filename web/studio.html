@@ -710,6 +710,24 @@ const OFN = (() => {
     },
     get(p) { return req(p); },
     post(p, b) { return req(p, { method: 'POST', body: JSON.stringify(b) }); },
+    /* Bytes rather than JSON, through the same session header as everything
+       else. This exists because `<img src>` cannot carry one: the browser
+       issues that request itself, with no way to attach `Authorization`, so
+       every photo URL answered 401 and every photo in this app was a broken
+       image. Nobody saw it until the shell could get far enough to draw one.
+
+       The two alternatives were both worse. A token in the query string ends
+       up in the journal, which logs request paths — a session written into a
+       log file. A cookie would work, but it is a SECOND way to authenticate
+       the same API, and two carriers for one rule is two things to keep in
+       agreement and two things that can leak. */
+    async bytes(path) {
+      const headers = {};
+      if (session) headers['Authorization'] = 'Bearer ' + session;
+      const r = await fetch(path, { headers });
+      if (!r.ok) { const e = new Error('http ' + r.status); e.status = r.status; throw e; }
+      return r.blob();
+    },
     shell() {
       const t = tg();
       if (!t) return;
@@ -1129,6 +1147,63 @@ async function publishCurrent() {
 
 const EDGES = [1600, 320];
 
+/* ── showing a photo she is allowed to see ───────────────────────────────
+   Every rendition lives behind the session, so it arrives as bytes and is
+   handed to the <img> as an object URL.
+
+   Those URLs are held by the document until revoked, so each one is tracked
+   and released when the element is replaced. Forgetting that is a leak that
+   grows with every gallery redraw and looks like nothing until the tab dies.
+
+   Loading is deferred until the thumbnail is near the screen. `loading=lazy`
+   did that for free and does not apply to a fetch, so an observer does it —
+   without it, opening a gallery of two hundred is two hundred simultaneous
+   requests on a phone network. */
+function releasePhoto(img) {
+  if (img.dataset.blobUrl) {
+    URL.revokeObjectURL(img.dataset.blobUrl);
+    delete img.dataset.blobUrl;
+  }
+}
+
+async function paintPhoto(img, mediaId, edge) {
+  if (img.dataset.painting === mediaId) return;
+  img.dataset.painting = mediaId;
+  try {
+    const blob = await OFN.bytes(
+      '/api/v1/studio/media/' + encodeURIComponent(mediaId) + '/' + edge);
+    /* She may have moved on while this was in flight. Painting it now would
+       put one photo's bytes under another photo's card. */
+    if (img.dataset.painting !== mediaId) return;
+    releasePhoto(img);
+    const url = URL.createObjectURL(blob);
+    img.dataset.blobUrl = url;
+    img.src = url;
+  } catch (e) {
+    /* Says so, rather than leaving the browser's own broken-image mark —
+       which is what a question mark in the middle of the frame was. */
+    img.removeAttribute('src');
+    img.alt = 'این عکس باز نشد';
+  }
+}
+
+const nearScreen = ('IntersectionObserver' in window)
+  ? new IntersectionObserver((entries, obs) => {
+      entries.forEach(en => {
+        if (!en.isIntersecting) return;
+        obs.unobserve(en.target);
+        guard(paintPhoto(en.target, en.target.dataset.mediaId, 320),
+              'عکس‌ها بارگذاری نشدند.');
+      });
+    }, { rootMargin: '300px' })
+  : null;
+
+function lazyPhoto(img, mediaId) {
+  img.dataset.mediaId = mediaId;
+  if (nearScreen) nearScreen.observe(img);
+  else guard(paintPhoto(img, mediaId, 320), 'عکس‌ها بارگذاری نشدند.');
+}
+
 /* `imageOrientation: 'from-image'` is the whole reason this uses
    `createImageBitmap` rather than an <img>. Without it a portrait photo from
    a phone lands sideways — and it lands sideways only on real photos, because
@@ -1295,6 +1370,11 @@ function drawAlbums() {
 
 function drawGrid() {
   const box = $('grid');
+  /* Released before the elements holding them are thrown away. `textContent
+     = ''` drops the nodes but not the object URLs they point at, and those
+     stay alive in the document until revoked — a leak that grows by one
+     photo per redraw and shows up as a tab that dies after a while. */
+  box.querySelectorAll('img').forEach(releasePhoto);
   box.textContent = '';
   const shown = gallery.photos.filter(
     p => album === null || p.collection_id === album);
@@ -1326,11 +1406,11 @@ function drawGrid() {
     b.type = 'button';
     b.className = 'shot' + (picked === p.media_id ? ' pick' : '');
     const img = document.createElement('img');
-    /* Fetched one at a time. Inlining fifty thumbnails as base64 would be a
-       two-megabyte response on a phone network, re-sent on every refresh. */
-    img.src = '/api/v1/studio/media/' + encodeURIComponent(p.media_id) + '/320';
+    /* Fetched one at a time, and only once it is near the screen. Inlining
+       fifty thumbnails as base64 would be a two-megabyte response on a phone
+       network, re-sent on every refresh. */
     img.alt = '';
-    img.loading = 'lazy';
+    lazyPhoto(img, p.media_id);
     b.append(img);
     if ((p.labels || []).length) {
       const t = document.createElement('span');
@@ -1483,8 +1563,14 @@ function drawArc() {
   drawStars();
   arcNote('');
   $('arc-count').textContent = fa(arc.i + 1) + ' از ' + fa(arc.list.length);
-  $('arc-img').src =
-    '/api/v1/studio/media/' + encodeURIComponent(p.media_id) + '/320';
+  /* 1600, not 320. This is the card where she decides what a photo IS —
+     which album, which axis, whether it is worth keeping — and deciding that
+     from a thumbnail is deciding it from something other than the thing. The
+     grid can have the small one; this screen is the reason the big one is
+     kept. */
+  const shot = $('arc-img');
+  shot.alt = '';
+  guard(paintPhoto(shot, p.media_id, 1600), 'عکس باز نشد.');
   $('arc-new').hidden = true;
   $('arc-sub').textContent = gallery.albums.length
     ? 'یکی را بزنید، یا آلبوم تازه بسازید.'
