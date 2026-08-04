@@ -29,9 +29,19 @@ from ..kernel.photos import Payload, is_inside, piece_prefix, relative_path
 class MediaStore:
     """Files under one root, one subtree per business."""
 
+    # Owner-only. For this leg the files are pictures of a person on a disk
+    # that is not encrypted, so the cheapest useful control is that no other
+    # account on the board can read them. It does not survive theft of the
+    # board — nothing here does — but it is one fewer way to lose them.
+    DIR_MODE = 0o700
+
     def __init__(self, root: str) -> None:
         self._root = os.path.abspath(root)
-        os.makedirs(self._root, exist_ok=True)
+        os.makedirs(self._root, mode=self.DIR_MODE, exist_ok=True)
+        try:
+            os.chmod(self._root, self.DIR_MODE)   # an existing tree, too
+        except OSError:
+            pass
 
     @property
     def root(self) -> str:
@@ -48,7 +58,8 @@ class MediaStore:
 
     def _put(self, rel: str, payload: Payload) -> str:
         full = self.absolute(rel)
-        os.makedirs(os.path.dirname(full), exist_ok=True)
+        os.makedirs(os.path.dirname(full), mode=self.DIR_MODE,
+                    exist_ok=True)
         try:
             raw = base64.b64decode(payload.body, validate=True)
         except (binascii.Error, ValueError):
@@ -66,6 +77,10 @@ class MediaStore:
             fh.write(raw)
             fh.flush()
             os.fsync(fh.fileno())
+        # Before the rename, not after: the file must never exist at the
+        # final name in a readable mode, not even for the instant between
+        # the two calls.
+        os.chmod(tmp, 0o600)
         os.replace(tmp, full)
         return rel
 

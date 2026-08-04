@@ -217,3 +217,22 @@ class TestTheBackupTakesTheFilesToo(Disk):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestFilesAreNotWorldReadable(Disk):
+    """The files are pictures of a person, on a disk that is not encrypted.
+    This does not survive theft of the board — nothing here does — but it is
+    one fewer account that can read them."""
+
+    def test_the_media_root_is_owner_only(self):
+        self.assertEqual(os.stat(self.m.root).st_mode & 0o777, 0o700)
+
+    def test_a_stored_file_is_owner_only(self):
+        rel = self.put()
+        self.assertEqual(
+            os.stat(self.m.absolute(rel)).st_mode & 0o777, 0o600)
+
+    def test_the_directory_it_lands_in_is_owner_only(self):
+        rel = self.put()
+        folder = os.path.dirname(self.m.absolute(rel))
+        self.assertEqual(os.stat(folder).st_mode & 0o777, 0o700)
