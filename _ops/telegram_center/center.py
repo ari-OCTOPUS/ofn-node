@@ -925,12 +925,36 @@ class Center:
                           if _k.startswith("OCTOPUS_") and
                           str(_v).strip().lower() in ("1", "true", "yes", "on"))
                 _ver = f"⁦{_head}⁩" if _head else "نامعلوم"
+                # ── فاز ۱: رسیدِ بوت → کارتِ زنده ─────────────────────────
+                # اندازه‌گیریِ ۰۸-۰۴: از ۲۴ پیامِ خودجوشِ DM در ۲۴ ساعت،
+                # **۱۶ تا** همین رسید بود (هر کدام sha ِ یکتا، چون PID فرق
+                # می‌کند) — یعنی دو-سومِ کلِ شلوغیِ DM یک پیام بود که
+                # ۱۶ بار تکرار شد. این بزرگ‌ترین منبعِ «نامرتب» است.
+                #
+                # و شمارنده کارت را از پیامی که جایش را می‌گیرد **پرمعناتر**
+                # می‌کند: «۱۶ ری‌استارت امروز» یک هشدار است؛ ۱۶ پیامِ جدا
+                # فقط شلوغی است. (شبِ ۰۸-۰۳ پنج ری‌استارت بین ۲۲:۴۹ و ۰۲:۲۵
+                # افتاد و هیچ‌کس نفهمید، چون هر کدام فقط یک کارتِ دیگر بود.)
+                _bday = str(opslib.now_iso())[:10]
+                if str(cfg.get("boot_count_date") or "") != _bday:
+                    cfg["boot_count_date"], cfg["boot_count"] = _bday, 0
+                cfg["boot_count"] = int(cfg.get("boot_count") or 0) + 1
+                dirty = True
                 _bl = (f"🟢 بیدار شدم — PID ⁦{_pid}⁩ · نسخه: {_ver}"
-                       f" · فلگِ فعال: {_fa_num(_nf)}")
+                       f" · فلگِ فعال: {_fa_num(_nf)}"
+                       f"\n↻ ری‌استارتِ امروز: {_fa_num(cfg['boot_count'])}"
+                       f" · آخرین: ⁦{str(opslib.now_iso())[11:16]}⁩")
                 _bs = None
                 try:
-                    _bs = self._client.send(_scrub(_bl), chat_id=_own3,
-                                            topic_id=self._dm_topic())
+                    # فلگ خاموش ⇒ `action == "off"` ⇒ همان مسیرِ دیروز،
+                    # بیت‌به‌بیت. دکمهٔ برگشتِ فاز ۱ همین است.
+                    import living_card as _lcard  # noqa: PLC0415
+                    _lr = _lcard.put(self._client, name="boot",
+                                     text=_scrub(_bl), chat_id=_own3,
+                                     topic_id=self._dm_topic())
+                    _bs = (_lr.get("message_id") if _lr.get("action") != "off"
+                           else self._client.send(_scrub(_bl), chat_id=_own3,
+                                                  topic_id=self._dm_topic()))
                 except Exception:  # noqa: BLE001
                     _bs = None
                 if _bs is not None:

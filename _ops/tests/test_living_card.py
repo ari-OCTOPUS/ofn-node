@@ -218,6 +218,126 @@ def t_m_the_module_has_no_side_effects_at_import():
             f"دستورِ سطحِ ماژول در خطِ {n.lineno} — اثرِ جانبیِ import")
 
 
+# ── ۵. سیم‌کشیِ واقعی: رسیدِ بوت ─────────────────────────────────────────────
+# ⚠️ چرا این بخش وجود دارد: ماژولی که هیچ‌کس صدایش نمی‌زند یک «قابلیتِ تاریک»
+# است — همان چیزی که کلِ ۰۸-۰۴ صرفِ رفعش شد. تست‌های بالا خودِ ابزار را
+# می‌سنجند؛ این‌ها می‌سنجند که ابزار **واقعاً در مسیرِ تولید** است.
+#
+# هدف با اندازه‌گیری انتخاب شد، نه با حدس: از ۲۴ پیامِ خودجوشِ DM در ۲۴ ساعت،
+# **۱۶ تا** رسیدِ بوت بود (هر کدام sha ِ یکتا چون PID فرق می‌کند) — دو-سومِ
+# کلِ شلوغیِ DM.
+def _boot_center():
+    import importlib.util
+    center = harness.REAL_VAULT / "_ops" / "telegram_center" / "center.py"
+    spec = importlib.util.spec_from_file_location("cp_boot_card", center)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+
+    class _C(FakeClient):
+        owner_chat_id = 555
+        center_chat_id = -100
+
+        def wired(self):
+            return True
+
+        def set_commands(self, *a, **k):
+            return True
+
+        def delete_commands(self, *a, **k):
+            return True
+
+        def create_topic(self, *a, **k):
+            return None
+
+        def edit_topic(self, *a, **k):
+            return True
+
+    return m, _C
+
+
+def _boot_once(m, client):
+    """یک «راه‌اندازی» — با پاک‌کردنِ اثرِ PID، انگار پروسه نو است."""
+    c = m.Center(client=client)
+    c.stopped = lambda: False
+    c._wired = lambda: True
+    cfg = m._load_config()
+    cfg.pop("boot_receipt_pid", None)
+    m._save_config(cfg)
+    c.ensure_setup()
+    return c
+
+
+def t_n_with_the_flag_off_the_boot_receipt_is_an_ordinary_message():
+    """دکمهٔ برگشت، روی مسیرِ **واقعی** نه روی ابزار: خاموش ⇒ رفتارِ دیروز."""
+    _fresh(monkey_on=False)
+    m, C = _boot_center()
+    cl = C()
+    _boot_once(m, cl)
+    boots = [t for t in cl.sends if "بیدار" in t["text"]]
+    assert boots, "رسیدِ بوت اصلاً نرفت"
+    assert not cl.edits, ("با فلگِ خاموش ویرایش زد", cl.edits)
+    assert not lc._state_path().exists(), "با فلگِ خاموش state ساخت"
+
+
+def t_o_with_the_flag_on_every_later_boot_edits_the_same_message():
+    """قلبِ فاز ۱ روی بزرگ‌ترین منبعِ شلوغی: ۱۶ پیام در روز ⇒ ۱ پیام + ویرایش."""
+    _fresh(monkey_on=True)
+    m, C = _boot_center()
+    cl = C()
+    _boot_once(m, cl)
+    first = [t for t in cl.sends if "بیدار" in t["text"]]
+    assert len(first) == 1, ("بوتِ اول باید یک پیام بسازد", cl.sends)
+    mid = lc.get("boot").get("message_id")
+
+    for _ in range(3):
+        _boot_once(m, cl)
+    later = [t for t in cl.sends if "بیدار" in t["text"]]
+    assert len(later) == 1, (
+        "بوت‌های بعدی پیامِ نو ساختند ⇒ فاز ۱ روی این مسیر کار نمی‌کند", later)
+    edits = [e for e in cl.edits if "بیدار" in e["text"]]
+    assert len(edits) == 3, (edits,)
+    assert all(e["message_id"] == mid for e in edits), (
+        "ویرایش روی پیام‌های مختلف رفت", mid, edits)
+
+
+def t_p_the_card_carries_a_restart_counter():
+    """کارت باید از پیامی که جایش را می‌گیرد **پرمعناتر** باشد، وگرنه فقط
+    اطلاعات را پنهان کرده‌ایم. «۱۶ ری‌استارت امروز» یک هشدار است؛ ۱۶ پیامِ
+    جدا فقط شلوغی."""
+    _fresh(monkey_on=True)
+    m, C = _boot_center()
+    cl = C()
+    _boot_once(m, cl)
+    # ⚠️ عددِ مطلق را assert نکن: شمارنده در `center-config` می‌ماند و
+    # تست‌های قبلیِ همین اجرا بالا برده‌اندش. یک assert ِ وابسته به ترتیب،
+    # روزی به‌خاطرِ همسایه‌اش قرمز می‌شود نه به‌خاطرِ کد. **افزایش** را بسنج.
+    before = int(m._load_config().get("boot_count") or 0)
+    _boot_once(m, cl)
+    _boot_once(m, cl)
+    after = int(m._load_config().get("boot_count") or 0)
+    assert after == before + 2, ("شمارنده بالا نرفت", before, after)
+
+    txt = ([e["text"] for e in cl.edits if "بیدار" in e["text"]] or [""])[-1]
+    assert "ری‌استارتِ امروز" in txt, ("شمارنده در کارت نیست", txt)
+    _fa = str(after).translate(str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹"))
+    assert _fa in txt, ("عددِ کارت با شمارندهٔ واقعی نمی‌خواند", _fa, txt)
+
+
+def t_q_the_counter_resets_on_a_new_day():
+    """شمارنده‌ای که ریست نشود، بعد از یک هفته یک عددِ بی‌معنی است."""
+    _fresh(monkey_on=True)
+    m, C = _boot_center()
+    cl = C()
+    _boot_once(m, cl)
+    cfg = m._load_config()
+    cfg["boot_count_date"] = "2020-01-01"       # دیروزِ خیلی دور
+    cfg["boot_count"] = 99
+    m._save_config(cfg)
+    _boot_once(m, cl)
+    assert int(m._load_config().get("boot_count")) == 1, (
+        "شمارنده در روزِ نو ریست نشد", m._load_config().get("boot_count"))
+
+
 def main():
     tests = [v for k, v in sorted(globals().items())
              if k.startswith("t_") and callable(v)]
