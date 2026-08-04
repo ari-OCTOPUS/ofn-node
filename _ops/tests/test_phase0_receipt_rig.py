@@ -435,6 +435,18 @@ def t_o_a_message_with_no_text_body_is_explained():
     assert disp[-1]["detail"] == "sticker", (
         "نوعِ پیام ثبت نشد ⇒ نمی‌شود فهمید کدام دسته گم می‌شود", disp[-1])
 
+    # و شاخهٔ fallback: نوعی که در فهرست نیست باید «other» شود، نه خالی.
+    # (بدونِ این مورد، جهشِ متناظر زنده می‌ماند — موردِ استیکر هرگز به fallback
+    # نمی‌رسد، پس آن شاخه **دیده‌نشده** بود.)
+    _drive(c, [{"update_id": 9303,
+                "message": {"game": {"title": "x"},
+                            "chat": {"id": 555, "type": "private"},
+                            "from": {"id": 555}}}])
+    d2 = [r for r in _rows(state / "telegram" / "inbound-log.jsonl")
+          if r.get("kind") == "disposition" and r.get("update_id") == 9303]
+    assert d2 and d2[-1]["detail"] == "other", (
+        "نوعِ ناشناخته دستهٔ fallback نگرفت", d2)
+
 
 def t_p_the_free_text_terminus_no_longer_swallows_in_silence():
     """⚠️ بدترینِ پنج سکوت: پایانهٔ **همهٔ** متنِ آزادِ فارسیِ مالک. چون استثنا
