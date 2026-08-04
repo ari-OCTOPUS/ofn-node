@@ -65,7 +65,10 @@ body.fullscreen{padding-top:calc(14px + var(--tg-safe-top, 0px))}
 .mono{
   font-family:ui-monospace,SFMono-Regular,"SF Mono","Cascadia Mono","Segoe UI Mono","Roboto Mono",Menlo,Consolas,monospace;
   direction:ltr;unicode-bidi:isolate;text-align:left;
-  font-size:.82em;letter-spacing:-.01em;overflow-wrap:anywhere;
+  /* ⚠️ letter-spacing:-.01em این‌جا بود. حتی روی .mono برداشته شد: کلاس
+     روی رشته‌هایی می‌نشیند که ممکن است فارسی قاطی داشته باشند، و tracking
+     ِ منفی اتصالِ خطِ فارسی را می‌شکند. صفر، بی‌استثنا. */
+  font-size:.82em;letter-spacing:0;overflow-wrap:anywhere;
 }
 
 /* ── سرصفحه: چشم + یک خط. هرگز جابه‌جا نمی‌شود. ───────────────────────── */
@@ -87,7 +90,11 @@ body.fullscreen{padding-top:calc(14px + var(--tg-safe-top, 0px))}
 .palbtn:active{transform:scale(.96)}
 
 /* ── پنج بازو ─────────────────────────────────────────────────────────── */
-.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin-bottom:16px}
+/* ⚠️ repeat(5) بود در حالی که index.html شش تب دارد — تبِ ششم به خطِ
+   دوم می‌افتاد و یک‌پنجمِ عرض می‌گرفت (همان چیزی که مالک در عکس دید).
+   auto-fit یعنی دیگر با اضافه‌شدنِ تبِ بعدی هم نمی‌شکند. */
+.tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));
+  gap:5px;margin-bottom:16px}
 .tab{padding:11px 2px;border-radius:11px;background:var(--surface);
   border:1px solid var(--line);color:var(--muted);cursor:pointer;
   font-size:13px;text-align:center;min-height:44px;
@@ -181,109 +188,49 @@ input:focus,select:focus{outline:2px solid var(--cyan);outline-offset:1px;border
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   سه پوستهٔ بصری — ساختار یکی است، حسِ گرافیکی سه‌تا.
-   مالک روی گوشیِ خودش سوییچ می‌کند و انتخاب می‌کند؛ من نمی‌توانم ببینمش.
-   هر سه قواعدِ باربر را نگه می‌دارند: صفر letter-spacing روی فارسی، ایزولهٔ
-   bidi، صفر منبعِ بیرونی (CSP)، تیره به‌عنوان پیش‌فرض.
+   ظاهرِ **ثابت** — ۲۰۲۶-۰۸-۰۴.
+   قبلاً سه پوسته بود و یک دکمه که بینشان می‌چرخید. رأیِ مالک: «نمی‌خواهم
+   تغییرپذیر باشد». پس گزینش حذف شد و یک ظاهر ماند: پایهٔ **نئون** (نزدیک‌ترین
+   به لوگو — کرومِ تیره با لبهٔ نورانی، عمق از درخشش) به‌علاوهٔ دو چیزی که
+   فقط پوستهٔ «عمق» داشت و ارزش داشت: نوارِ شدت به‌شکلِ میلهٔ کناریِ گرد
+   (به‌جای نوارِ افقی) و سایهٔ شناورِ عمیق‌تر.
+   ⚠️ هیچ selector ِ [data-skin] باقی نمانده — قاعده باید بسته شود نه صرفاً
+   انتخاب‌نشده، وگرنه یک شاخهٔ خاموشِ در دسترس می‌ماند.
    ═══════════════════════════════════════════════════════════════════════ */
-
-/* ── پوستهٔ ۱: نئون — نزدیک‌ترین به لوگو ──────────────────────────────
-   کرومِ تیره با لبهٔ نورانی. عمق از **درخشش** می‌آید نه از سایه. */
-:root[data-skin="neon"]{ --r:20px; }
-[data-skin="neon"] body{
+:root{ --r:22px; }
+body{
   background:
     radial-gradient(120% 80% at 50% -10%, rgba(34,211,238,.10), transparent 60%),
     radial-gradient(90% 60% at 110% 20%, rgba(168,85,247,.10), transparent 60%),
-    var(--bg);
+    linear-gradient(180deg, #0a1226 0%, var(--bg) 45%);
   background-attachment:fixed;
 }
-[data-skin="neon"] .tri,[data-skin="neon"] .card,[data-skin="neon"] .calm{
+.tri,.card,.calm{
   border-radius:var(--r);
-  background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.012)), var(--surface);
+  background:linear-gradient(158deg, rgba(255,255,255,.045), rgba(255,255,255,.012)), var(--surface);
   border:1px solid rgba(34,211,238,.16);
-  box-shadow:0 0 0 1px rgba(255,255,255,.03) inset, 0 10px 30px rgba(0,0,0,.45);
+  box-shadow:0 0 0 1px rgba(255,255,255,.03) inset, 0 14px 36px rgba(0,0,0,.48);
 }
-[data-skin="neon"] .tri.hot{border-color:rgba(240,70,139,.40);box-shadow:0 0 26px rgba(240,70,139,.16),0 10px 30px rgba(0,0,0,.45)}
-[data-skin="neon"] .tri.warm{border-color:rgba(168,85,247,.34);box-shadow:0 0 22px rgba(168,85,247,.13),0 10px 30px rgba(0,0,0,.45)}
-[data-skin="neon"] .tri .band{height:3px;filter:saturate(1.5)}
-[data-skin="neon"] .tab{border-radius:16px;background:linear-gradient(180deg, rgba(255,255,255,.05), transparent), var(--surface)}
-[data-skin="neon"] .tab.active{
+/* نوارِ شدت: میلهٔ کناریِ گرد به‌جای نوارِ افقی — گردتر، آرام‌تر، و در RTL
+   سمتِ درست می‌نشیند چون inset-inline-start است نه left. */
+.tri{position:relative;overflow:hidden}
+.tri .band{height:0}
+.tri::before{
+  content:"";position:absolute;inset-inline-start:0;top:14px;bottom:14px;width:5px;
+  border-radius:0 6px 6px 0;background:var(--steel-a);opacity:.5}
+.tri.hot::before{background:var(--magenta);opacity:1;box-shadow:0 0 18px rgba(240,70,139,.5)}
+.tri.warm::before{background:var(--violet);opacity:1;box-shadow:0 0 18px rgba(168,85,247,.45)}
+.tri.cool::before{background:var(--cyan);opacity:1}
+.tri .in{padding-inline-start:20px}
+.tab{border-radius:16px;
+  background:linear-gradient(180deg, rgba(255,255,255,.05), transparent), var(--surface)}
+.tab.active{
   background:linear-gradient(180deg,#5ee7f7,var(--cyan));
   box-shadow:0 0 20px rgba(34,211,238,.45), 0 2px 10px rgba(0,0,0,.4)}
-[data-skin="neon"] .act{
+.act{
   background:linear-gradient(180deg,#5ee7f7,var(--cyan));border-radius:16px;
   box-shadow:0 0 24px rgba(34,211,238,.35), 0 4px 14px rgba(0,0,0,.4)}
-[data-skin="neon"] .eye .halo{opacity:.30}
-[data-skin="neon"] details.quiet{border-radius:16px;border:1px solid rgba(255,255,255,.05)}
-
-/* ── پوستهٔ ۲: شیشه‌ای — سطحِ نیمه‌شفاف با محوِ پس‌زمینه ─────────────── */
-:root[data-skin="glass"]{ --r:24px; }
-[data-skin="glass"] body{
-  background:
-    radial-gradient(80% 50% at 10% 0%, rgba(168,85,247,.20), transparent 62%),
-    radial-gradient(80% 50% at 95% 12%, rgba(34,211,238,.18), transparent 62%),
-    radial-gradient(70% 45% at 50% 100%, rgba(240,70,139,.10), transparent 60%),
-    var(--bg);
-  background-attachment:fixed;
-}
-[data-skin="glass"] .tri,[data-skin="glass"] .card,[data-skin="glass"] .calm,
-[data-skin="glass"] details.quiet{
-  border-radius:var(--r);
-  background:rgba(255,255,255,.055);
-  -webkit-backdrop-filter:blur(18px) saturate(1.5);
-  backdrop-filter:blur(18px) saturate(1.5);
-  border:1px solid rgba(255,255,255,.13);
-  box-shadow:0 1px 0 rgba(255,255,255,.12) inset, 0 12px 34px rgba(0,0,0,.35);
-}
-[data-skin="glass"] .tab{
-  border-radius:18px;background:rgba(255,255,255,.06);
-  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
-  border:1px solid rgba(255,255,255,.11)}
-[data-skin="glass"] .tab.active{background:rgba(34,211,238,.85);border-color:transparent}
-[data-skin="glass"] .act{border-radius:18px;background:rgba(34,211,238,.92);
-  box-shadow:0 8px 24px rgba(34,211,238,.28)}
-[data-skin="glass"] .tri .band{height:4px;opacity:.9}
-[data-skin="glass"] .li{background:rgba(255,255,255,.06);border-radius:14px}
-:root[data-theme="light"][data-skin="glass"] .tri,
-:root[data-theme="light"][data-skin="glass"] .card,
-:root[data-theme="light"][data-skin="glass"] .calm,
-:root[data-theme="light"][data-skin="glass"] details.quiet{
-  background:rgba(255,255,255,.72);border-color:rgba(10,20,36,.10)}
-
-/* ── پوستهٔ ۳: عمق — کارت‌های شناور با سایهٔ نرم و گردیِ زیاد ────────── */
-:root[data-skin="depth"]{ --r:26px; }
-[data-skin="depth"] body{
-  background:linear-gradient(180deg, #0a1226 0%, var(--bg) 45%);
-  background-attachment:fixed;
-}
-[data-skin="depth"] .tri,[data-skin="depth"] .card,[data-skin="depth"] .calm{
-  border-radius:var(--r);border:0;
-  background:linear-gradient(158deg, var(--surface-2), var(--surface));
-  box-shadow:0 18px 40px rgba(0,0,0,.50), 0 2px 0 rgba(255,255,255,.06) inset;
-}
-[data-skin="depth"] .tri .band{height:0}
-/* نوارِ شدت به یک نوارِ کناریِ ضخیم تبدیل می‌شود — گردتر و آرام‌تر */
-[data-skin="depth"] .tri{position:relative;overflow:hidden}
-[data-skin="depth"] .tri::before{
-  content:"";position:absolute;inset-inline-start:0;top:14px;bottom:14px;width:5px;
-  border-radius:0 6px 6px 0}
-[data-skin="depth"] .tri.hot::before{background:var(--magenta);box-shadow:0 0 18px rgba(240,70,139,.5)}
-[data-skin="depth"] .tri.warm::before{background:var(--violet);box-shadow:0 0 18px rgba(168,85,247,.45)}
-[data-skin="depth"] .tri.cool::before{background:var(--cyan)}
-[data-skin="depth"] .tri .in{padding-inline-start:20px}
-[data-skin="depth"] .tab{border-radius:18px;border:0;
-  background:linear-gradient(158deg, var(--surface-2), var(--surface));
-  box-shadow:0 6px 16px rgba(0,0,0,.35)}
-[data-skin="depth"] .tab.active{background:linear-gradient(158deg,#5ee7f7,var(--cyan));
-  box-shadow:0 8px 22px rgba(34,211,238,.40)}
-[data-skin="depth"] .act{border-radius:20px;
-  background:linear-gradient(158deg,#5ee7f7,var(--cyan));
-  box-shadow:0 12px 28px rgba(34,211,238,.35)}
-[data-skin="depth"] details.quiet{border-radius:22px;border:0;
-  box-shadow:0 8px 22px rgba(0,0,0,.28)}
-
-/* دکمهٔ سوییچِ پوسته */
-.skinbtn{font-size:13px}
+details.quiet{border-radius:22px;box-shadow:0 8px 22px rgba(0,0,0,.28)}
 
 /* ── قرصِ اختاپوس ─────────────────────────────────────────────────────── */
 .dialwrap{display:flex;flex-direction:column;align-items:center;margin:2px 0 18px}
@@ -371,22 +318,29 @@ input:focus,select:focus{outline:2px solid var(--cyan);outline-offset:1px;border
 /* ── ۱. آسمانِ پارالاکس: پنج لایه، بدونِ WebGL و بدونِ منبعِ بیرونی ──── */
 .sky{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
 .sky i{position:absolute;inset:-20% -20% -20% -20%;display:block}
-/* ستاره‌ها: گرادیانِ نقطه‌ایِ تکرارشونده — سبک‌تر از هر تصویری */
+/* ستاره‌ها: گرادیانِ نقطه‌ایِ **تکرارشونده**.
+   ⚠️ باگِ ۰۸-۰۴: `background-size:100% 100%` بود، یعنی کلِ مجموعه فقط
+   **یک بار** روی تمامِ لایه کشیده می‌شد — شش نقطه برای s1 و سه برای s2،
+   جمعاً ۹ نقطهٔ ۱–۲ پیکسلی در کلِ آسمان. عملاً نامرئی. به همین دلیل مالک
+   می‌گفت عمق دیده نمی‌شود.
+   حالا هر لایه یک کاشیِ پیکسلی دارد و موقعیت‌ها **داخلِ همان کاشی** به px
+   بیان شده‌اند، پس واقعاً تکرار می‌شود. دو اندازهٔ متفاوت (۱۷۰ و ۲۴۰) تا
+   الگو خودش را لو ندهد و پارالاکس واقعی حس شود. */
 .sky .s1{
   background-image:
-    radial-gradient(1.2px 1.2px at 18% 22%, rgba(201,216,238,.55), transparent),
-    radial-gradient(1px 1px at 62% 14%, rgba(34,211,238,.45), transparent),
-    radial-gradient(1.4px 1.4px at 82% 61%, rgba(201,216,238,.40), transparent),
-    radial-gradient(1px 1px at 33% 74%, rgba(168,85,247,.40), transparent),
-    radial-gradient(1.1px 1.1px at 8% 55%, rgba(201,216,238,.35), transparent),
-    radial-gradient(1px 1px at 71% 88%, rgba(201,216,238,.30), transparent);
-  background-size:100% 100%;animation:drift1 190s linear infinite}
+    radial-gradient(1.2px 1.2px at 30px 38px, rgba(201,216,238,.55), transparent),
+    radial-gradient(1px 1px at 106px 24px, rgba(34,211,238,.45), transparent),
+    radial-gradient(1.4px 1.4px at 139px 104px, rgba(201,216,238,.40), transparent),
+    radial-gradient(1px 1px at 56px 126px, rgba(168,85,247,.40), transparent),
+    radial-gradient(1.1px 1.1px at 14px 94px, rgba(201,216,238,.35), transparent),
+    radial-gradient(1px 1px at 121px 150px, rgba(201,216,238,.30), transparent);
+  background-size:170px 170px;animation:drift1 14s ease-in-out infinite alternate}
 .sky .s2{
   background-image:
-    radial-gradient(1.8px 1.8px at 44% 36%, rgba(201,216,238,.30), transparent),
-    radial-gradient(2px 2px at 12% 82%, rgba(34,211,238,.26), transparent),
-    radial-gradient(1.6px 1.6px at 90% 30%, rgba(168,85,247,.28), transparent);
-  background-size:100% 100%;animation:drift2 120s linear infinite}
+    radial-gradient(1.8px 1.8px at 106px 86px, rgba(201,216,238,.30), transparent),
+    radial-gradient(2px 2px at 29px 197px, rgba(34,211,238,.26), transparent),
+    radial-gradient(1.6px 1.6px at 216px 72px, rgba(168,85,247,.28), transparent);
+  background-size:240px 240px;animation:drift2 9s ease-in-out infinite alternate}
 /* سحابی: دو هالهٔ بزرگ، همان دو رنگِ لوگو */
 .sky .neb{
   background:
@@ -394,8 +348,10 @@ input:focus,select:focus{outline:2px solid var(--cyan);outline-offset:1px;border
     radial-gradient(55% 38% at 92% 26%, rgba(34,211,238,.13), transparent 65%),
     radial-gradient(50% 34% at 50% 104%, rgba(240,70,139,.07), transparent 62%);
   animation:drift3 240s ease-in-out infinite alternate}
-@keyframes drift1{to{transform:translate3d(-3%,-2%,0)}}
-@keyframes drift2{to{transform:translate3d(4%,3%,0)}}
+/* ⚠️ قبلاً ۱۹۰ث و ۱۲۰ث بدونِ `alternate` بود: حرکت زیرِ آستانهٔ ادراک و
+   تنها چیزِ دیدنی، پرشِ برگشت در پایانِ هر دور. حالا رفت‌وبرگشتِ آرام. */
+@keyframes drift1{to{transform:translate3d(-14%,-9%,0)}}
+@keyframes drift2{to{transform:translate3d(16%,11%,0)}}
 @keyframes drift3{to{transform:translate3d(-2%,1.5%,0) scale(1.05)}}
 
 /* ── ۲. صفحه‌های عمق: فاصله خودش پیام است ────────────────────────────
@@ -408,8 +364,14 @@ input:focus,select:focus{outline:2px solid var(--cyan);outline-offset:1px;border
 .tri.z2{transform:translateZ(-64px) rotateX(5.6deg);opacity:.86;filter:blur(.35px)}
 details.quiet{transform:translateZ(-96px) rotateX(7deg);opacity:.74}
 details.quiet[open]{transform:none;opacity:1}
+/* ⚠️ قبلاً این‌جا `transform:none` بود، یعنی «کاهشِ حرکت» کلِ عمقِ **ثابت**
+   را هم صاف می‌کرد. ولی translateZ ِ ثابت حرکت نیست — تصویر است. اگر
+   مالک Reduce Motion را روشن داشته باشد، همهٔ صفحه‌های z با هم فرو
+   می‌ریختند و او فقط می‌دید «باز هم تخت است». حالا فقط چیزی که واقعاً
+   حرکت می‌کند خاموش می‌شود؛ ترنزیشن را همان قاعدهٔ سراسریِ بالا می‌بندد.
+   بلور و کم‌رنگی هم می‌مانند چون سیگنالِ اولویت‌اند نه انیمیشن. */
 @media (prefers-reduced-motion: reduce){
-  .tri.z0,.tri.z1,.tri.z2,details.quiet{transform:none;opacity:1;filter:none}
+  .sky i{animation:none}
 }
 
 /* ── ۳. مهره‌های انرژی: فقط پاهای زنده، خیلی آرام ────────────────────
@@ -498,3 +460,51 @@ details.det[open]>summary::after{content:"▴"}
   .toast{transition:none}
   .tdone,.chip,.go{transition:none}
 }
+
+/* ── واژگانِ رنگِ حالت — ۲۰۲۶-۰۸-۰۴ ────────────────────────────────────
+   ⚠️ ممیزی نشان داد نیمی از tone هایی که app.js به ring()/orbs() می‌داد
+   **هیچ قاعده‌ای در CSS نداشتند** (ok · amber · bad · done · up · unk روی
+   ring، و ok/done روی orb). یعنی یک حلقهٔ «bad» دقیقاً مثل حالتِ سالم
+   رندر می‌شد — بدترین شکلِ شکست: هشدار به رنگِ آرامش.
+
+   واژگان به سه رنگِ لوگو نگاشته می‌شود، نه رنگ‌های تازه:
+     سالم/انجام‌شده/زنده → فیروزه‌ای
+     توجه/کهنه           → بنفش
+     فوری/خطا            → صورتی
+     نامعلوم             → فولادِ توسی (نه سبز، نه قرمز — «نمی‌دانم») */
+.ring.ok .rp,.ring.up .rp,.ring.done .rp,.ring.live .rp,.ring.cyan .rp{
+  stroke:var(--cyan);filter:drop-shadow(0 0 6px rgba(34,211,238,.55))}
+.ring.warm .rp,.ring.amber .rp,.ring.warn .rp,.ring.staged .rp{
+  stroke:var(--violet);filter:drop-shadow(0 0 6px rgba(168,85,247,.55))}
+.ring.hot .rp,.ring.bad .rp,.ring.error .rp{
+  stroke:var(--magenta);filter:drop-shadow(0 0 7px rgba(240,70,139,.6))}
+.ring.unk .rp{stroke:var(--steel-b);filter:none}
+
+.orb.ok .od,.orb.up .od,.orb.done .od,.orb.live .od,.orb.cyan .od{
+  background:var(--cyan);box-shadow:0 0 10px rgba(34,211,238,.6)}
+.orb.warm .od,.orb.amber .od,.orb.warn .od,.orb.staged .od{
+  background:var(--violet);box-shadow:0 0 10px rgba(168,85,247,.55)}
+.orb.hot .od,.orb.bad .od,.orb.error .od{
+  background:var(--magenta);box-shadow:0 0 11px rgba(240,70,139,.6)}
+.orb.unk .od{background:var(--steel-b);box-shadow:none}
+
+/* ایزولهٔ لاتین داخلِ گره‌ها — بدونش «(ask» به‌جای «ask()» دیده می‌شود */
+.iso{unicode-bidi:isolate}
+/* پشتیبانِ سراسری: هر لاتینی که از قلم افتاد هم ایزوله شود */
+code,th,td{unicode-bidi:isolate}
+code{direction:ltr}
+
+/* اولویتِ کار با رنگِ **خودِ پالت** حرف می‌زند، نه سه رنگِ تازه.
+   ⚠️ نسخهٔ قبلی #ff6b6b/#ffb020/#7ddcbe داشت که در هیچ متغیری نبودند. */
+.titem.p1{border-inline-start-color:var(--magenta)}
+.titem.p2{border-inline-start-color:var(--violet)}
+.titem.p3{border-inline-start-color:var(--steel-a)}
+.titem.p4,.titem.p5{border-inline-start-color:var(--steel-b)}
+.tdone{border-color:rgba(34,211,238,.42);background:rgba(34,211,238,.09);color:var(--cyan)}
+.tdone:hover{background:rgba(34,211,238,.2)}
+.toast.ok{border-color:rgba(34,211,238,.5)}
+.toast.warn{border-color:rgba(168,85,247,.5)}
+.toast.bad{border-color:rgba(240,70,139,.55)}
+
+/* «نامعلوم» نباید مثلِ «رد شد» دیده شود — نبودِ داده حکم نیست */
+.badge.unknown{color:var(--steel-a);border-color:var(--steel-b);background:transparent}

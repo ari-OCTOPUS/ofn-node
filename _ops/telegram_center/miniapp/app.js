@@ -70,41 +70,26 @@
     if (shellReport.caps && shellReport.caps.homeScreen) {
       addBtn("افزودن به صفحهٔ اصلی", "📌", function(){ shell.addToHomeScreen(tg); });
     }
-    // ── سوییچِ پوستهٔ بصری ────────────────────────────────────────────
-    // من نمی‌توانم این اپ را روی گوشیِ مالک ببینم (مرورگرم به آن دامنه
-    // دسترسی ندارد)، پس به‌جای حدس‌زدن، سه پوسته را می‌سازم و **خودش**
-    // بینشان سوییچ می‌کند. انتخابش می‌ماند.
-    var SKINS = [["neon","نئون"],["glass","شیشه‌ای"],["depth","عمق"]];
-    function applySkin(id){
-      try{
-        document.documentElement.setAttribute("data-skin", id);
-        localStorage.setItem("octo-skin", id);
-      }catch(e){}
-      var b = document.getElementById("skinBtn");
-      var lbl = (SKINS.filter(function(x){return x[0]===id;})[0]||SKINS[0])[1];
-      if(b) b.textContent = lbl;
-    }
-    // رأیِ مالک: «سبکِ نئون عالی بود». پس نئون فقط پیش‌فرض نیست — انتخابِ
-    // ذخیره‌شدهٔ قدیمی هم یک‌بار به آن ریست می‌شود، وگرنه کسی که قبلاً
-    // «شیشه‌ای» را امتحان کرده روی همان گیر می‌ماند و رأیش اعمال نمی‌شود.
-    var saved;
-    try{
-      if(localStorage.getItem("octo-skin-v2") !== "1"){
-        localStorage.setItem("octo-skin", "neon");
-        localStorage.setItem("octo-skin-v2", "1");
-      }
-      saved = localStorage.getItem("octo-skin");
-    }catch(e){}
-    var cur = SKINS.map(function(x){return x[0];}).indexOf(saved);
-    if(cur < 0) cur = 0;
-    var sb = document.createElement("button");
-    sb.className = "palbtn skinbtn"; sb.id = "skinBtn";
-    sb.title = "تعویضِ پوستهٔ بصری";
-    sb.addEventListener("click", function(){
-      cur = (cur + 1) % SKINS.length; applySkin(SKINS[cur][0]);
-    });
-    host.appendChild(sb);
-    applySkin(SKINS[cur][0]);
+    /* ⚠️ سوییچِ پوستهٔ بصری **حذف شد** — ۲۰۲۶-۰۸-۰۴. برنگردانش.
+     *
+     * این‌جا یک دکمه بود که بین سه پوسته (نئون/شیشه‌ای/عمق) می‌چرخید و
+     * انتخاب را در `localStorage` نگه می‌داشت. رأیِ صریحِ مالک: «گزینش را
+     * پاک کن، نمی‌خواهم تغییرپذیر باشد».
+     *
+     * دو نکته که هنگامِ حذف پیدا شد و ارزشِ نوشتن دارند:
+     *   ۱. برخلافِ دو دکمهٔ بالا، این یکی به هیچ capability گیت نشده بود —
+     *      یعنی حتی در حالتِ dev و روی کلاینتِ بی‌قابلیت هم ظاهر می‌شد.
+     *   ۲. «ریستِ یک‌بارهٔ نئون» فقط **یک بار در عمرِ دستگاه** اجرا می‌شد
+     *      (سنتینلِ octo-skin-v2). پس هر کس یک بار روی «شیشه‌ای» چرخانده
+     *      بود، برای همیشه روی همان بالا می‌آمد و رأیِ بعدیِ مالک هیچ اثری
+     *      نداشت. یعنی ظاهرِ اپ به یک حالتِ ماندگارِ نامرئیِ per-device
+     *      گره خورده بود.
+     *
+     * هیچ removeItem ِ پاک‌سازی هم اضافه نمی‌شود: وقتی خواننده‌ای نمانده،
+     * کلیدها بی‌اثرند، و کدی که برای پاک‌کردن می‌نویسد خودش دوباره ظاهر را
+     * به storage وابسته می‌کند. پوسته حالا در CSS ثابت است، بدونِ هیچ
+     * selector ِ [data-skin].
+     */
   })();
 
   // tabs
@@ -186,7 +171,9 @@
   }
   // سه‌حالتی: null یعنی «نمی‌دانم»، نه «امن»
   function tri(v, yes, no){
-    if(v===null||v===undefined) return '<span class="badge blocked">نامعلوم</span>';
+    // نبودِ داده حکم نیست: نشانِ «مسدود» صورتی است و شبیهِ ردِ فعال دیده
+    // می‌شود. «نمی‌دانم» رنگِ خودش را دارد — فولادِ خنثی.
+    if(v===null||v===undefined) return '<span class="badge unknown">نامعلوم</span>';
     return v ? esc(yes) : esc(no);
   }
 
@@ -275,7 +262,7 @@
       // و دیگر لازم نیست اسم بخوانی.
       el.innerHTML = '<div class="card">'+
         secHead("پاها", pill(fa(up)+" از "+fa(ks.length), up===ks.length?"live":(down.length?"blocked":"staged")))+
-        '<div class="sysdial">'+dialSVG(legs, false, up, ks.length||1, true)+'</div>'+
+        '<div class="sysdial">'+dialSVG(legs, !!window.__octoHalted, up, ks.length||1, true)+'</div>'+
         (down.length ? '<div class="muted" style="text-align:center">خاموش: '+
             down.slice(0,4).map(ltr).join(" · ")+'</div>' : '')+
         '<details class="det"><summary>فهرستِ کاملِ پاها</summary>'+
@@ -609,16 +596,30 @@
 
   // ردیفِ گرهٔ گرد — برای مجموعه‌های کوچک (وضعِ پاها، مراحلِ قیف)
   function orbs(items){
+    // ⚠️ `short` از `esc()` رد می‌شود، پس **باید متنِ ساده باشد**. چند صداکننده
+    // خروجیِ `ltr()` را این‌جا می‌دادند و چون ltr خودش `<span dir=ltr>` می‌سازد،
+    // esc آن را escape می‌کرد و کاربر رشتهٔ `<span dir="ltr">…` را به‌صورتِ
+    // متنِ خام روی صفحه می‌دید. راهِ درست: متنِ خام بده و بگذار خودِ orbs
+    // ایزولهٔ bidi را بزند — یک جا، نه در هر صداکننده.
     return '<div class="orbs">'+items.map(function(it){
+      var s = String(it.short==null ? (it.name==null?"":it.name) : it.short);
+      var body = /[؀-ۿ]/.test(s)
+        ? esc(s)                                        // فارسی: همان‌طور
+        : '<span dir="ltr" class="iso">'+esc(s)+'</span>';  // لاتین/عدد: ایزوله
       return '<div class="orb '+(it.tone||"unk")+'" title="'+esc(it.name)+'">'+
-        '<span class="od"></span><span class="on">'+esc(it.short||it.name)+'</span>'+
+        '<span class="od"></span><span class="on">'+body+'</span>'+
         (it.n!==undefined?'<span class="ov">'+fa(it.n)+'</span>':'')+'</div>';
     }).join("")+'</div>';
   }
 
   // کمانِ بخش‌بندی‌شده — برای توزیع (حالت‌های ارسال، مراحل)
   function arcs(segs){
-    var tot = segs.reduce(function(a,b){return a+(b.n||0);},0) || 1;
+    // ⚠️ قبلاً `|| 1` روی خودِ tot بود و همان tot هم وسطِ حلقه چاپ می‌شد،
+    // پس وقتی هیچ رویدادی نبود، عددِ **۱** نمایش داده می‌شد — یک رقمِ
+    // ساخته‌شده که از هیچ داده‌ای نمی‌آمد. گاردِ تقسیم‌بر‌صفر باید فقط
+    // مخرج را نجات دهد، نه برچسب را عوض کند.
+    var real = segs.reduce(function(a,b){return a+(b.n||0);},0);
+    var tot = real || 1;
     var r=44, C=2*Math.PI*r, off=0, out="";
     segs.forEach(function(sg){
       var f=(sg.n||0)/tot;
@@ -630,7 +631,7 @@
     return '<div class="ringwrap" style="width:126px"><svg class="ring" viewBox="0 0 110 110">'+
       '<circle class="rt" cx="55" cy="55" r="'+r+'" fill="none" stroke-width="11"/>'+out+
       '<circle class="rc" cx="55" cy="55" r="28"/></svg>'+
-      '<div class="ringnum">'+fa(tot)+'</div></div>';
+      '<div class="ringnum">'+fa(real)+'</div></div>';
   }
 
   // نشانِ کوچکِ اختاپوس برای سرِ هر بخش — همان چشم، در ابعادِ ریز
@@ -755,6 +756,10 @@
         var st=a[0]||{}, ap=a[1]||{}, tk=a[2]||{}, gv=a[3]||{}, ob=a[4]||{}, lg=a[5]||{};
         if(st.status==="error"){ el.innerHTML='<div class="err">خطا: '+esc(st.reason)+'</div>'; return; }
         setHalted(st.halted);
+        // ⚠️ قرصِ تبِ سیستم halted را **جعلاً false** می‌گرفت، یعنی وقتی
+        // ارگانیسم متوقف بود باز هم زنده رندر می‌شد. حالت را یک‌جا نگه
+        // می‌دارم تا هر دو قرص یک حقیقت بگویند.
+        window.__octoHalted = !!st.halted;
         setCore(st.halted?"ارگانیسم متوقف است":"ارگانیسم زنده است",
                 (devMode?"حالتِ dev · ":"")+"ضربان "+fa(st.beat)+" · "+esc(st.epoch_mode||""));
 
@@ -875,7 +880,7 @@
       // ۲) تأخیرِ ژرم‌لاین — ساعت، نه درصد. مخرج ندارد پس گره است نه حلقه.
       var gl = st.germline_lag_h;
       body += orbs([{name:"ژرم‌لاین",
-                     short: gl===null||gl===undefined ? "نامعلوم" : ltr(Number(gl).toFixed(2))+" ساعت",
+                     short: gl===null||gl===undefined ? "نامعلوم" : Number(gl).toFixed(2)+" ساعت",
                      tone: st.germline_alert==="ok" ? "ok" :
                            (gl===null||gl===undefined ? "unk" : "warn")}]);
 
@@ -908,6 +913,79 @@
     });
   }
 
+  // ── اقدام‌های لید ─────────────────────────────────────────────────────────
+  // جانشینِ `renderStudio` که کاملاً انگلیسی بود، دو کلاسِ ناموجود
+  // (`.formgrid`/`.kv`) داشت، JSON ِ خام چاپ می‌کرد و `platform:"onlyfans"` را
+  // هاردکد کرده بود — یعنی یکی از همان چهار پایی که مالک گفت دیفالت بماند.
+  // این‌جا هیچ پای بیزنسی پیش‌فرض نمی‌شود؛ خودِ موتور بدونش هم لید می‌سازد.
+  var STAGES = ["new","warm","hot","subscribed","vip","churn_risk","lost","blocked"];
+  var STAGE_FA = {new:"تازه", warm:"گرم", hot:"داغ", subscribed:"مشترک",
+                  vip:"ویژه", churn_risk:"در خطرِ ریزش", lost:"از‌دست‌رفته",
+                  blocked:"مسدود"};
+
+  function renderLeadOps(el){
+    el.innerHTML = "";
+    api("/api/ops/leads").then(function(d){
+      d = d || {};
+      var items = d.items, stages = d.lead_stages || {};
+      var h = secHead("لیدها", pill(fa(d.leads_total||0)+" لید", (d.leads_total?"ok":"unk")));
+      h += '<div class="vitals">'+orbs(STAGES.filter(function(s){ return stages[s]; })
+             .map(function(s){ return {name:s, short:STAGE_FA[s]||s, n:stages[s],
+                                       tone:(s==="hot"?"hot":s==="churn_risk"?"warm":"ok")}; }))+'</div>';
+
+      if(items === null || items === undefined){
+        h += '<div class="err">فهرستِ لیدها خوانده نشد — پایگاهِ ops در دسترس نیست.</div>';
+      } else if(items.length){
+        h += '<details class="det"><summary>'+fa(items.length)+' لید</summary><div class="inner">'+
+          items.map(function(it){
+            return '<div class="titem p3"><div class="tbody">'+
+              '<div class="tt">'+esc(it.handle||"—")+'</div>'+
+              '<div class="tm">'+esc(STAGE_FA[it.stage]||String(it.stage||""))+'</div></div>'+
+              '<button class="tstage" data-id="'+esc(it.id)+'" aria-label="مرحلهٔ بعد">›</button>'+
+              '</div>';
+          }).join("")+'</div></details>';
+      }
+
+      h += '<details class="det"><summary>لیدِ تازه</summary><div class="inner">'+
+        '<input class="fin" id="nlHandle" type="text" placeholder="نشانی یا نامِ لید" maxlength="120">'+
+        '<div class="chips" id="nlStage">'+STAGES.slice(0,5).map(function(s,i){
+          return '<button class="chip'+(i===0?" on":"")+'" data-v="'+s+'">'+esc(STAGE_FA[s])+'</button>';
+        }).join("")+'</div>'+
+        '<button class="go" id="nlGo">بساز</button>'+
+      '</div></details>';
+      el.innerHTML = h;
+
+      var go = el.querySelector("#nlGo");
+      if(go) go.addEventListener("click", function(){
+        var handle = (el.querySelector("#nlHandle")||{}).value || "";
+        if(!handle.trim()){ toast("نشانیِ لید خالی است", "bad"); return; }
+        var st = el.querySelector("#nlStage .chip.on");
+        act("lead.create", {handle:handle.trim(),
+                            stage:(st?st.getAttribute("data-v"):"new")}, go)
+          .then(function(r){ if(r && r.ok) renderLeadOps(el); });
+      });
+      [].forEach.call(el.querySelectorAll(".chips"), function(g){
+        g.addEventListener("click", function(e){
+          var c = e.target.closest(".chip"); if(!c) return;
+          [].forEach.call(g.children, function(x){ x.classList.remove("on"); });
+          c.classList.add("on");
+        });
+      });
+      // «مرحلهٔ بعد» — لید را یک پله در قیف جلو می‌برد. متنِ آزاد نمی‌خواهد،
+      // پس یک تپ کافی است (ADHD: کمترین اصطکاک برای پرتکرارترین کار).
+      [].forEach.call(el.querySelectorAll(".tstage"), function(b){
+        b.addEventListener("click", function(){
+          var id = b.getAttribute("data-id");
+          var cur = (items.filter(function(x){ return x.id===id; })[0]||{}).stage;
+          var nx = STAGES[Math.min(STAGES.indexOf(cur)+1, STAGES.length-1)];
+          if(!nx || nx===cur){ toast("مرحلهٔ آخر است", "warn"); return; }
+          act("lead.update_stage", {lead_id:id, stage:nx}, b)
+            .then(function(r){ if(r && r.ok) renderLeadOps(el); });
+        });
+      });
+    });
+  }
+
   // ── تبِ کارها ─────────────────────────────────────────────────────────────
   // چرا این تبِ ششم است: `task.create` و `task.done` دو تا از شش اقدامِ
   // allowlist‌شده‌اند و هیچ خانه‌ای نداشتند (لیدها و پول خانه دارند). بدونِ
@@ -933,7 +1011,7 @@
       html += '<div class="vitals">'+
         ring(open, Math.max(Number(t.tasks_total||0),1), "باز", open>0?"amber":"cyan", 112)+
         orbs(Object.keys(stat).map(function(k){
-          return {name:k, short:(k==="done"?"انجام":k==="open"?"باز":ltr(k)), n:stat[k],
+          return {name:k, short:(k==="done"?"انجام":k==="open"?"باز":k), n:stat[k],
                   tone:(k==="done"?"ok":"warn")};
         }))+'</div>';
 
@@ -1004,8 +1082,12 @@
   }
   function viewApprovals(el){ stack(el||content, [renderApprovals]); }
   function viewMoney(el){ stack(el||content, [renderValue, renderOutbound]); }
-  function viewLeads(el){ stack(el||content, [renderPF]); }
-  function viewSystem(el){ stack(el||content, [renderLegs, renderVitals, renderBrain, renderGovernor, renderObsidian, renderTruth, renderRegistry, renderStudio]); }
+  function viewLeads(el){ stack(el||content, [renderLeadOps, renderPF]); }
+  // ⚠️ renderStudio از این‌جا برداشته شد: کارتی کاملاً انگلیسی وسطِ صفحهٔ
+  // فارسی، با دو کلاسِ ناموجود در CSS، JSON ِ خام به‌جای رسید، و پای
+  // بیزنسیِ هاردکدشده. هر سه اقدامش حالا جای درستِ خودش را دارد:
+  // lead.create/update_stage در تبِ لیدها، task.create در تبِ کارها.
+  function viewSystem(el){ stack(el||content, [renderLegs, renderVitals, renderBrain, renderGovernor, renderObsidian, renderTruth, renderRegistry]); }
 
   function viewTasks(el){ stack(el||content, [renderTasks]); }
 
