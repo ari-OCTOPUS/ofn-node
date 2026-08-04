@@ -1,15 +1,21 @@
+/* Octopus Cockpit — هویتِ بصری از لوگو (۲۰۲۶-۰۸-۰۴).
+   کروم و نئون روی فضای تیره: چشمِ فیروزه‌ای در مرکز، بازوهای بنفش.
+   استعاره باید **معماری را درست** نشان دهد، نه تزئین باشد:
+     چشم  = هسته (وضعِ زنده)      بازو = پا/ایجنت
+     درخشش = زنده                  خاموش = متوقف
+   ⚠️ رنگِ برند (--accent / --accent-2) از تمِ تلگرام اثر نمی‌گیرد — هویت
+   است نه سلیقه. تم فقط زمینه/متن را عوض می‌کند (خوانایی). */
 :root{
-  --bg:#0f1117; --card:#1a1d27; --border:#2a2e3a; --text:#e4e6eb; --muted:#8b8f9b;
-  --accent:#4a9eff; --green:#3ddc84; --amber:#ffb547; --red:#ff5c5c;
-  font-family: -apple-system, system-ui, "Segoe UI", Tahoma, sans-serif;
+  --bg:#050914; --card:#0b1324; --card-2:#111c33; --border:#1b2c4d;
+  --text:#e6efff; --muted:#7f92b8;
+  --accent:#22d3ee;        /* فیروزه‌ایِ چشم */
+  --accent-2:#a855f7;      /* بنفشِ بازوها */
+  --green:#22d3ee; --amber:#a855f7; --red:#f0468b; --steel:#8fa3c4;
+  font-family:-apple-system,system-ui,"Segoe UI",Tahoma,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-/* ── safe-area (فاز ۳، ۲۰۲۶-۰۸-۰۴) ─────────────────────────────────────
-   بدونِ این، روی هر گوشیِ نُچ‌دار سرِ کارت زیرِ دوربین می‌رفت و در حالتِ
-   تمام‌صفحه بدتر. دو مجموعهٔ جدا لازم است: `--tg-content-safe-*` مالِ کرومِ
-   خودِ تلگرام (هدر/دکمه‌ها) و `--tg-safe-*` مالِ دستگاه.
-   مقادیر را `tg_shell.js` روی :root می‌نشاند و روی هر چرخشِ گوشی تازه
-   می‌کند؛ `0px` ِ پیش‌فرض یعنی روی دسکتاپ/dev دقیقاً رفتارِ قبلی. */
+
+/* safe-area — بدونِ این، سرِ کارت زیرِ نُچ می‌رود */
 body{
   background:var(--bg);color:var(--text);max-width:760px;margin:0 auto;font-size:14px;
   padding:12px;
@@ -18,82 +24,77 @@ body{
   padding-inline-start:calc(12px + var(--tg-safe-left, 0px));
   padding-inline-end:calc(12px + var(--tg-safe-right, 0px));
 }
-/* تمام‌صفحه: کرومِ تلگرام می‌رود، پس فقط inset ِ دستگاه می‌ماند */
 body.fullscreen{padding-top:calc(12px + var(--tg-safe-top, 0px))}
-h1{font-size:18px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-h1 .dot{width:10px;height:10px;border-radius:50%;background:var(--green);display:inline-block}
-h1 .dot.halted{background:var(--red)}
-.palbtn{margin-inline-start:auto;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:15px;line-height:1}
-.palbtn:hover{border-color:var(--accent)}
-.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px}
-.card h2{font-size:14px;color:var(--accent);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-.badge{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--border);color:var(--muted)}
-.badge.live{background:rgba(61,220,132,.15);color:var(--green)}
-.badge.staged{background:rgba(255,181,71,.15);color:var(--amber)}
-.badge.blocked{background:rgba(255,92,92,.15);color:var(--red)}
-/* «نامعلوم» عمداً نه سبز است نه کهربایی: خاکستریِ خط‌چین تا با یک نگاه از
-   «سالم» جدا باشد. سبزِ روی دادهٔ غایب همان حالتِ شکستی است که این سطح
+
+/* ── سرصفحه: چشمِ اختاپوس ─────────────────────────────────────────────── */
+h1{font-size:16px;font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:9px}
+.eye{width:26px;height:26px;flex:0 0 26px}
+.eye .ring{fill:none;stroke:var(--accent);opacity:.55}
+.eye .iris{fill:var(--accent-2)}
+.eye .pupil{fill:#05070f}
+.eye.halted .ring{stroke:var(--steel);opacity:.3}
+.eye.halted .iris{fill:var(--steel)}
+h1 .sp{margin-inline-start:auto;display:flex;gap:6px}
+.palbtn{background:var(--card-2);border:1px solid var(--border);color:var(--text);
+  border-radius:9px;padding:4px 9px;cursor:pointer;font-size:14px;line-height:1.2}
+.palbtn:active{transform:scale(.96)}
+.palbtn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── پنج بازو: نوارِ تب ────────────────────────────────────────────────── */
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:11px}
+.tab{padding:8px 4px;border-radius:10px;background:var(--card);
+  border:1px solid var(--border);color:var(--muted);cursor:pointer;
+  font-size:12px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tab:active{transform:scale(.97)}
+.tab.active{color:var(--bg);background:var(--accent);border-color:var(--accent);font-weight:500}
+
+/* ── کارت ─────────────────────────────────────────────────────────────── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:13px;
+  padding:12px 13px;margin-bottom:9px}
+.ch{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.card h2{font-size:13px;font-weight:500;color:var(--accent);letter-spacing:.2px}
+.ch .badge{margin-inline-start:auto}
+
+/* ردیف: برچسبِ کم‌رنگ + مقدارِ برجسته. جای <table> ِ خام. */
+.row{display:flex;align-items:baseline;gap:10px;padding:6px 0;
+  border-bottom:1px solid rgba(27,44,77,.5);font-size:13px}
+.row:last-child{border-bottom:0}
+.row .k{color:var(--muted);font-size:12px;flex:0 0 auto;min-width:92px}
+.row .v{margin-inline-start:auto;text-align:end;word-break:break-word;color:var(--text)}
+.ok{color:var(--accent)}
+.list{display:flex;flex-direction:column;gap:5px;margin:2px 0 8px}
+.li{background:var(--card-2);border-radius:8px;padding:6px 9px;font-size:12px;color:var(--steel)}
+
+/* ── نشان‌ها ───────────────────────────────────────────────────────────── */
+.badge{font-size:11px;padding:3px 9px;border-radius:20px;background:var(--card-2);
+  color:var(--muted);border:1px solid var(--border);white-space:nowrap}
+.badge.live{background:rgba(34,211,238,.13);color:var(--accent);border-color:rgba(34,211,238,.4)}
+.badge.staged{background:rgba(168,85,247,.13);color:var(--accent-2);border-color:rgba(168,85,247,.4)}
+.badge.blocked{background:rgba(240,70,139,.13);color:var(--red);border-color:rgba(240,70,139,.4)}
+/* «نامعلوم» عمداً نه فیروزه‌ای است نه بنفش: خط‌چینِ خاکستری، تا با یک نگاه
+   از «سالم» جدا باشد. سبزِ روی دادهٔ غایب همان حالتِ شکستی است که این سطح
    قرار است حذفش کند. */
 .badge.unknown{background:transparent;color:var(--muted);border:1px dashed var(--border)}
-.tabs{display:flex;gap:4px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px}
-.tab{padding:7px 12px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;white-space:nowrap;font-size:13px}
-.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px}
-.kv .k{color:var(--muted)}
-.flag{display:inline-block;margin:2px 4px 2px 0;padding:2px 6px;border-radius:6px;background:var(--border);font-size:11px}
-.flag.on{background:rgba(61,220,132,.15);color:var(--green)}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th,td{text-align:right;padding:4px 6px;border-bottom:1px solid var(--border)}
-th{color:var(--muted);font-weight:600}
-.warn{background:rgba(255,181,71,.1);border:1px solid var(--amber);color:var(--amber);padding:8px;border-radius:8px;font-size:12px;margin-bottom:8px}
-.warn.readonly{border-style:dashed}
-.warn .muted{color:var(--muted)}
+
 .muted{color:var(--muted);font-size:12px}
-pre{white-space:pre-wrap;word-break:break-word;font-size:11px;color:var(--muted);background:var(--bg);padding:8px;border-radius:6px;max-height:240px;overflow:auto}
-.btn:disabled{opacity:.4;cursor:not-allowed}
-.err{color:var(--red);font-size:12px}
-.loading{color:var(--muted);font-style:italic}
+.err{background:rgba(240,70,139,.1);border:1px solid rgba(240,70,139,.4);
+  color:var(--red);border-radius:10px;padding:9px 11px;font-size:12px}
+.warn{background:rgba(168,85,247,.09);border:1px solid rgba(168,85,247,.32);
+  color:var(--accent-2);border-radius:10px;padding:7px 10px;font-size:11.5px;margin-bottom:8px}
+.flag{display:inline-block;background:var(--card-2);border:1px solid var(--border);
+  color:var(--muted);border-radius:7px;padding:2px 7px;font-size:11px;margin:0 0 4px 4px}
+.flag.on{color:var(--accent);border-color:rgba(34,211,238,.4)}
 
-/* بردِ وضعیت — سه حالت */
-.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:10px}
-.tile{border:1px solid var(--border);border-radius:8px;padding:8px;background:#151823}
-.tile .tl{font-size:12px;color:var(--text);margin-bottom:4px}
-.tile .td{font-size:11px;color:var(--muted);margin-top:4px;word-break:break-word}
-/* کلاسِ واقعیِ ساخته‌شده در boardHtml() پیشوندِ st- دارد؛ بدونِ آن این سه قاعده مرده بودند. */
-.tile.st-live{border-color:rgba(61,220,132,.45)}
-.tile.st-staged{border-color:rgba(255,181,71,.45)}
-.tile.st-unknown{border-style:dashed}
-
-/* Next Best Action */
-.nba-head{font-size:13px;margin-bottom:8px}
-.nba-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px}
-.nba-row:last-child{border-bottom:none}
-.nba-k{flex:1;color:var(--muted)}
-.nba-v{min-width:60px}
-
-/* کهنگیِ داده — عددِ کهنه فقط با برچسبِ کهنه نشان داده می‌شود */
-.stale{background:rgba(255,181,71,.08);border:1px dashed var(--amber);color:var(--amber);padding:6px 8px;border-radius:8px;font-size:11px;margin-bottom:8px}
-
-/* skeleton */
-.skeleton .sk-head{height:14px;width:40%;background:var(--border);border-radius:6px;margin-bottom:10px;opacity:.6}
-.skeleton .sk-row{height:11px;background:var(--border);border-radius:6px;margin-bottom:7px;opacity:.35}
-.skeleton .sk-row:nth-child(odd){width:85%}
-
-/* پالتِ فرمان */
-.palette{display:none}
-.palette.open{display:block;position:fixed;inset:0;background:rgba(9,11,16,.72);z-index:50;padding:40px 12px}
-.pal-box{max-width:520px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px}
-.pal-box input{width:100%}
-.pal-list{margin:8px 0;max-height:60vh;overflow:auto}
-.pal-item{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;cursor:pointer;font-size:12px}
-.pal-item:hover{background:#212636}
-.pal-item .pal-l{flex:1}
-.pal-item .pal-fa{color:var(--muted)}
-.pal-item.blocked{opacity:.5;cursor:not-allowed}
-
-.formgrid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
-input,select,textarea,button{background:#0f1117;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px;font:inherit}
-button{background:var(--accent);border-color:var(--accent);cursor:pointer}
-button:disabled{background:var(--border);border-color:var(--border);color:var(--muted);opacity:.55;cursor:not-allowed}
-input:disabled,select:disabled,textarea:disabled{opacity:.5;cursor:not-allowed}
-.result{margin-top:8px;padding:8px;border-radius:8px;background:#10131b;color:var(--muted);font-size:12px;white-space:pre-wrap}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:start;color:var(--muted);font-weight:400;font-size:11px;
+  padding:5px 0;border-bottom:1px solid var(--border)}
+td{padding:5px 0;border-bottom:1px solid rgba(27,44,77,.5)}
+tr:last-child td{border-bottom:0}
+pre{background:var(--card-2);border-radius:9px;padding:9px;font-size:11px;
+  overflow-x:auto;color:var(--steel);direction:ltr;text-align:left}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;font-size:13px}
+.kv .k{color:var(--muted);font-size:12px}
+.loading{color:var(--muted);font-size:12px;padding:14px 0;text-align:center}
+input,select{background:var(--card-2);border:1px solid var(--border);color:var(--text);
+  border-radius:9px;padding:7px 9px;font-size:13px;width:100%}
+input:focus,select:focus{outline:none;border-color:var(--accent)}

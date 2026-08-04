@@ -10,14 +10,14 @@
   var content = document.getElementById("content");
   var warn = document.getElementById("warn");
   var authBadge = document.getElementById("authBadge");
-  var statusDot = document.getElementById("statusDot");
+  var eye = document.getElementById("eye");
 
   // ── پوستهٔ Mini Apps 2.0 (فاز ۳، ۲۰۲۶-۰۸-۰۴) ─────────────────────────
   // تا امروز کلِ یکپارچگیِ تلگرام یک خط بود: expand + setHeaderColor. یعنی
   // روی گوشی محتوا **زیرِ نُچ** می‌رفت، تمام‌صفحه نبود، و در پس‌زمینه هم
   // poll می‌کرد. منطقش عمداً در `tg_shell.js` است تا در node واقعاً تست شود
   // (۱۳ تست) — نه با assert ِ متنی روی همین فایل.
-  if (tg) { try { tg.setHeaderColor("#0f1117"); } catch(e){} }
+  if (tg) { try { tg.setHeaderColor("#050914"); } catch(e){} }
   var shell = (window.OctopusShell || {});
   var appActive = true;
   var shellReport = shell.initShell ? shell.initShell(tg, {
@@ -45,7 +45,7 @@
   // دکمه‌ها فقط وقتی ساخته می‌شوند که کلاینت واقعاً پشتیبانی کند — دکمه‌ای
   // که کار نکند بدتر از نبودنش است.
   (function(){
-    var host = document.querySelector("h1");
+    var host = document.getElementById("hdrBtns") || document.querySelector("h1");
     if (!host) { return; }
     function addBtn(title, label, fn){
       var b = document.createElement("button");
@@ -101,13 +101,16 @@
     authBadge.textContent = state;
     authBadge.className = "badge " + (state==="configured"||state==="live" ? "live" : (state==="dev-mode"?"staged":"blocked"));
   }
+  // چشمِ اختاپوس = وضعِ هسته. درخشش یعنی زنده؛ خاکستری یعنی متوقف.
+  // استعاره باید **حقیقت** بگوید، وگرنه فقط تزئین است.
   function setHalted(h){
-    statusDot.className = "dot" + (h ? " halted" : "");
+    if(eye) eye.setAttribute("class", "eye" + (h ? " halted" : ""));
   }
 
-  function renderHome(){
+  function renderHome(el){
+    el = el || content;
     api("/api/state").then(function(d){
-      if(d.status==="error"){ content.innerHTML = '<div class="err">خطا: '+esc(d.reason)+'</div>'; return; }
+      if(d.status==="error"){ el.innerHTML = '<div class="err">خطا: '+esc(d.reason)+'</div>'; return; }
       setHalted(d.halted);
       setAuth(devMode ? "dev-mode" : (d.auth_status||"unknown"));
       var flags = Object.keys(d.active_flags||{}).map(function(k){
@@ -117,7 +120,7 @@
       if(d.auth_status==="CONFIG_NEEDED") w += '<div class="warn">Auth config ناقص — TG_CENTER_BOT_TOKEN / TELEGRAM_OWNER_CHAT_ID</div>';
       if(d.projectf_status && d.projectf_status.indexOf("BLOCKED")>=0) w += '<div class="warn">Project-F: بدون credential — BLOCKED</div>';
       warn.innerHTML = w;
-      content.innerHTML =
+      el.innerHTML =
         '<div class="card"><h2>Cockpit <span class="badge live">commit '+esc(d.commit||"?")+'</span></h2>'+
         '<div class="kv">'+
         '<span class="k">halted</span><span>'+(d.halted?"بله":"خیر")+'</span>'+
@@ -132,61 +135,67 @@
     });
   }
 
-  function renderOutbound(){
+  function renderOutbound(el){
+    el = el || content;
     api("/api/outbound").then(function(d){
       if(d.status==="error"||d.status==="no_wal_db"){
-        content.innerHTML = '<div class="card"><h2>Outbound / G-03</h2><div class="muted">'+esc(d.status)+(d.note?": "+esc(d.note):"")+'</div></div>'; return;
+        el.innerHTML = '<div class="card"><h2>Outbound / G-03</h2><div class="muted">'+esc(d.status)+(d.note?": "+esc(d.note):"")+'</div></div>'; return;
       }
       var rows = Object.keys(d.counts||{}).map(function(k){ return "<tr><td>"+esc(k)+"</td><td>"+d.counts[k]+"</td></tr>"; }).join("");
-      content.innerHTML = '<div class="card"><h2>Outbound / G-03 <span class="badge">total '+esc(d.total)+'</span></h2>'+
+      el.innerHTML = '<div class="card"><h2>Outbound / G-03 <span class="badge">total '+esc(d.total)+'</span></h2>'+
         '<table><tr><th>state</th><th>count</th></tr>'+rows+'</table>'+
         '<div class="muted" style="margin-top:8px">actions: owner-gated (Phase 7) — در این نسخه disabled.</div></div>';
     });
   }
 
-  function renderApprovals(){
+  function renderApprovals(el){
+    el = el || content;
     api("/api/approvals").then(function(d){
       var rows = (d.pending||[]).map(function(p){ return "<tr><td>"+esc(p.proposal_id)+"</td><td>"+esc(p.kind)+"</td><td>"+esc(p.amount_aud)+"</td></tr>"; }).join("");
-      content.innerHTML = '<div class="card"><h2>Approvals <span class="badge">'+esc(d.count||0)+'</span></h2>'+
+      el.innerHTML = '<div class="card"><h2>Approvals <span class="badge">'+esc(d.count||0)+'</span></h2>'+
         (rows ? '<table><tr><th>proposal</th><th>kind</th><th>amount</th></tr>'+rows+'</table>' : '<div class="muted">'+esc(d.status)+(d.note?": "+esc(d.note):"")+'</div>')+
         '<div class="muted" style="margin-top:8px">approve/reject: owner-gated (disabled)</div></div>';
     });
   }
 
-  function renderLegs(){
+  function renderLegs(el){
+    el = el || content;
     api("/api/legs").then(function(d){
       var legs = d.legs||{};
       var rows = Object.keys(legs).map(function(k){
         var l=legs[k]; return "<tr><td>"+esc(k)+"</td><td>"+esc(l.live)+'</td><td>'+(l.signal?esc(l.signal):"—")+'</td><td>'+(l.note?esc(l.note).slice(0,40):"—")+"</td></tr>";
       }).join("");
-      content.innerHTML = '<div class="card"><h2>Legs / Agents</h2>'+
+      el.innerHTML = '<div class="card"><h2>Legs / Agents</h2>'+
         (rows?'<table><tr><th>leg</th><th>live</th><th>signal</th><th>note</th></tr>'+rows+'</table>':'<div class="muted">'+esc(d.status||"unknown")+'</div>')+'</div>';
     });
   }
 
-  function renderValue(){
+  function renderValue(el){
+    el = el || content;
     api("/api/value").then(function(d){
       var rows = Object.keys(d.events_per_leg||{}).map(function(k){ return "<tr><td>"+esc(k)+"</td><td>"+d.events_per_leg[k]+"</td></tr>"; }).join("");
-      content.innerHTML = '<div class="card"><h2>Value Ledger <span class="badge">total '+esc(d.total||0)+'</span></h2>'+
+      el.innerHTML = '<div class="card"><h2>Value Ledger <span class="badge">total '+esc(d.total||0)+'</span></h2>'+
         (rows?'<table><tr><th>leg</th><th>events</th></tr>'+rows+'</table>':'<div class="muted">'+esc(d.status)+(d.note?": "+esc(d.note):"")+'</div>')+
         '<div class="muted" style="margin-top:8px">auto-delete: '+esc(d.auto_delete===false?"off":"?")+'</div></div>';
     });
   }
 
-  function renderRegistry(){
+  function renderRegistry(el){
+    el = el || content;
     api("/api/ui-registry").then(function(d){
       var items = d.items||[];
       var rows = items.map(function(it){
         return "<tr><td>"+esc(it.id)+"</td><td>"+esc(it.type)+'</td><td><span class="badge '+esc(it.status)+'">'+esc(it.status)+"</span></td><td>"+esc(it.command||it.path||it.endpoint||"—")+"</td></tr>";
       }).join("");
-      content.innerHTML = '<div class="card"><h2>UI Registry <span class="badge">'+items.length+' items</span></h2>'+
+      el.innerHTML = '<div class="card"><h2>UI Registry <span class="badge">'+items.length+' items</span></h2>'+
         '<table><tr><th>id</th><th>type</th><th>status</th><th>cmd/path</th></tr>'+rows+'</table></div>';
     });
   }
 
-  function renderTruth(){
+  function renderTruth(el){
+    el = el || content;
     api("/api/current-truth").then(function(d){
-      content.innerHTML = '<div class="card"><h2>Current Truth</h2>'+
+      el.innerHTML = '<div class="card"><h2>Current Truth</h2>'+
         (d.preview?'<pre>'+esc(d.preview)+'</pre>':'<div class="muted">'+esc(d.status)+(d.reason?": "+esc(d.reason):"")+'</div>')+
         '<div class="muted" style="margin-top:8px">read-only — '+esc(d.path||"")+'</div></div>';
     });
@@ -200,8 +209,9 @@
   }
   function pfStale(f){ return (f && f.stale) ? ' <span class="badge blocked">کهنه</span>' : ''; }
 
-  function renderPF(){
-    content.innerHTML = '<div class="loading">در حال بارگذاری Project-F…</div>';
+  function renderPF(el){
+    el = el || content;
+    el.innerHTML = '<div class="loading">در حال بارگذاری Project-F…</div>';
     Promise.all([api("/api/pf/status"), api("/api/pf/gates"), api("/api/pf/queue"),
                  api("/api/pf/kpi"), api("/api/pf/guards"), api("/api/pf/capabilities")])
     .then(function(all){
@@ -226,7 +236,7 @@
           msg = "gateway جواب نداد: " + esc(r);
           hint = "سرویسِ 8774 و تونل را بررسی کن.";
         }
-        content.innerHTML = '<div class="card"><h2>Project-F</h2>'+
+        el.innerHTML = '<div class="card"><h2>Project-F</h2>'+
           '<div class="warn">'+esc(msg)+'</div><div class="muted">'+hint+'</div>'+
           '<div class="muted" style="margin-top:8px">عمداً هیچ کارتِ نیمه‌خالی رندر نشد — دادهٔ نداشته را جعل نمی‌کنیم.</div></div>';
         return;
@@ -316,16 +326,17 @@
         (caps?'<table><tr><th>قابلیت</th><th>سطح</th><th>اجرا</th><th>چرا</th></tr>'+caps+'</table>':'<div class="muted">—</div>')+
         '<div class="muted" style="margin-top:8px">منبع: '+esc(cap.source||"?")+' — هیچ دکمهٔ مرده‌ای رندر نمی‌شود.</div></div>';
 
-      content.innerHTML = html;
+      el.innerHTML = html;
     });
   }
 
-  function renderStudio(){
+  function renderStudio(el){
+    el = el || content;
     Promise.all([api("/api/state"), api("/api/ops")]).then(function(all){
       var st = all[0] || {}; var ops = all[1] || {};
       var enabled = (!devMode && st.auth_status === "configured");
       setAuth(devMode ? "dev-mode" : (st.auth_status||"unknown"));
-      content.innerHTML = '<div class="card"><h2>Ops Studio <span class="badge '+(enabled?'live':'blocked')+'">'+(enabled?'owner-actions':'read-only')+'</span></h2>'+
+      el.innerHTML = '<div class="card"><h2>Ops Studio <span class="badge '+(enabled?'live':'blocked')+'">'+(enabled?'owner-actions':'read-only')+'</span></h2>'+
         '<div class="kv"><div class="k">leads</div><div>'+esc(ops.leads_total||0)+'</div><div class="k">tasks</div><div>'+esc(ops.tasks_total||0)+'</div><div class="k">value events</div><div>'+esc(ops.value_events_total||0)+'</div></div>'+
         '<div class="muted" style="margin-top:8px">OnlyFans/Fansly automation is blocked. This is local CRM/task workflow.</div></div>'+
         '<div class="card"><h2>Create Lead</h2><div class="formgrid"><input id="leadHandle" placeholder="handle مثل @name"><select id="leadStage"><option>new</option><option>warm</option><option>hot</option><option>subscribed</option><option>vip</option><option>churn_risk</option></select><input id="leadTags" placeholder="tags comma separated"><button id="leadCreate" '+(enabled?'':'disabled')+'>Create local lead</button><div class="result" id="leadResult">'+(enabled?'ready':'owner-auth required')+'</div></div></div>'+
@@ -347,62 +358,113 @@
   // تپ روی Brain/Governor/Obsidian/Next محتوای **Cockpit** را نشان می‌داد و
   // تب هم فعال می‌شد: نه خطا، نه پیام. یعنی مالک فکر می‌کرد Brain همین است.
   // داده‌ها سمتِ سرور از قبل بودند؛ فقط صدا زده نمی‌شدند.
-  function kv(obj, keys){
-    return (keys||Object.keys(obj||{})).map(function(k){
-      var v = (obj||{})[k];
-      if(v && typeof v === "object") v = JSON.stringify(v).slice(0,120);
-      return "<tr><td>"+esc(k)+"</td><td>"+esc(v===null||v===undefined?"—":v)+"</td></tr>";
-    }).join("");
+  // ── ایزولهٔ bidi ────────────────────────────────────────────────────
+  // ⚠️ باگِ دیده‌شده روی گوشیِ مالک: `ask()` به‌صورت `()ask` و
+  // `_ops/cortex/model_router.py` به‌صورت `ops/cortex/model_router.py_`
+  // رندر می‌شد. در متنِ RTL، پرانتز و آندرلاینِ ابتدای رشتهٔ لاتین به
+  // انتهایش پرتاب می‌شوند. تنها رفعِ درست، ایزوله‌کردنِ خودِ تکه است.
+  function ltr(v){
+    var t = String(v==null?"":v);
+    if(!t) return "—";
+    return '<span dir="ltr" style="unicode-bidi:isolate;display:inline-block">'+esc(t)+'</span>';
   }
-  function renderBrain(){
+  // مقدار: لاتین/مسیر/کد ⇒ ایزوله؛ فارسی ⇒ همان‌طور
+  function val(v){
+    if(v===null||v===undefined||v==="") return '<span class="muted">—</span>';
+    if(v===true) return '<span class="ok">بله</span>';
+    if(v===false) return '<span class="muted">خیر</span>';
+    var t = String(v);
+    if(typeof v === "object"){ t = JSON.stringify(v); if(t==="{}"||t==="[]") return '<span class="muted">—</span>'; }
+    return /[؀-ۿ]/.test(t) ? esc(t.slice(0,140)) : ltr(t.slice(0,140));
+  }
+  // برچسب‌های فنی → فارسیِ خوانا. کلیدِ ترجمه‌نشده خودش را نشان می‌دهد
+  // (به‌جای اینکه بی‌صدا انگلیسی بماند و کسی متوجهِ جاافتادنش نشود).
+  var LBL = {
+    reachable:"در دسترس", reason:"دلیل", source:"منبع", ticks:"تیک",
+    errors:"خطا", last_tick:"آخرین تیک", generation:"نسل",
+    missing_fields:"فیلدهای غایب", available:"در دسترس",
+    policy_doc:"سندِ سیاست", canonical_provider:"ارائه‌دهندهٔ مرجع",
+    canonical_choke_point:"گلوگاهِ مرجع", drift_status:"وضعِ رانش",
+    checked:"بررسی‌شده", missing_count:"شمارِ گمشده",
+    vault_config_dir:"پوشهٔ پیکربندی", tasks_total:"کلِ کارها"
+  };
+  function lbl(k){ return LBL[k] || String(k).replace(/_/g," "); }
+  // یک ردیف: برچسبِ کم‌رنگ + مقدارِ برجسته. جای <table> ِ خام.
+  function row(k, v){
+    return '<div class="row"><span class="k">'+esc(lbl(k))+'</span>'+
+           '<span class="v">'+val(v)+'</span></div>';
+  }
+  function rows(obj, keys){
+    obj = obj || {};
+    return (keys||Object.keys(obj)).map(function(k){ return row(k, obj[k]); }).join("");
+  }
+  function card(title, pill, body){
+    return '<div class="card"><div class="ch"><h2>'+esc(title)+'</h2>'+(pill||"")+'</div>'+body+'</div>';
+  }
+  function pill(text, kind){
+    return '<span class="badge '+(kind||"")+'">'+esc(text)+'</span>';
+  }
+
+  function renderBrain(el){
+    el = el || content;
     api("/api/ops/brain").then(function(d){
-      var b = d.brain||{};
-      content.innerHTML = '<div class="card"><h2>مغز <span class="badge '+(b.available?"live":"blocked")+'">'+
-        esc(b.available?"در دسترس":"در دسترس نیست")+'</span></h2>'+
+      var b = d.brain||{}, dm = b.daemon||{};
+      el.innerHTML = card("مغز", pill(b.available?"در دسترس":"در دسترس نیست", b.available?"live":"blocked"),
         (b.reason?'<div class="muted">'+esc(b.reason)+'</div>':'')+
-        '<table>'+kv(b.daemon||{})+'</table></div>';
+        rows(dm, ["reachable","source","ticks","errors","last_tick","generation"]));
     });
   }
-  function renderGovernor(){
+  function renderGovernor(el){
+    el = el || content;
     api("/api/governor").then(function(d){
-      var drift = (d.drift_status||{}).status;
-      content.innerHTML = '<div class="card"><h2>ناظر <span class="badge '+
-        (drift==="ok"?"live":(drift?"staged":"unknown"))+'">'+esc(drift||"نامعلوم")+'</span></h2>'+
-        '<table>'+kv(d, ["policy_doc","canonical_provider","canonical_choke_point"])+'</table>'+
-        '<div class="muted" style="margin-top:8px">مسیرهای اعلام‌شده: '+
-        esc(((d.drift_status||{}).declared_paths||[]).length)+'</div></div>';
+      var ds = d.drift_status||{}, st = ds.status;
+      el.innerHTML = card("ناظر", pill(st||"نامعلوم", st==="ok"?"live":(st?"staged":"unknown")),
+        rows(d, ["policy_doc","canonical_provider","canonical_choke_point"])+
+        row("مسیرهای اعلام‌شده", (ds.declared_paths||[]).length));
     });
   }
-  function renderObsidian(){
+  function renderObsidian(el){
+    el = el || content;
     api("/api/obsidian").then(function(d){
       var miss = d.missing||[];
-      content.innerHTML = '<div class="card"><h2>ابسیدین <span class="badge '+
-        (miss.length?"staged":"live")+'">'+esc(miss.length)+' گمشده</span></h2>'+
-        (miss.length?'<ul>'+miss.map(function(m){return "<li>"+esc(m)+"</li>";}).join("")+'</ul>'
+      el.innerHTML = card("ابسیدین", pill(miss.length?miss.length+" گمشده":"کامل", miss.length?"staged":"live"),
+        (miss.length?'<div class="list">'+miss.map(function(m){
+            return '<div class="li">'+ltr(m)+'</div>'; }).join("")+'</div>'
                     :'<div class="muted">همهٔ سندهای مرجع سرِ جایشان‌اند</div>')+
-        '<div class="muted" style="margin-top:8px">بررسی‌شده: '+esc(d.checked||0)+'</div></div>';
+        row("checked", d.checked));
     });
   }
-  function renderNext(){
+  function renderNext(el){
+    el = el || content;
     api("/api/ops/tasks").then(function(d){
-      var st = d.task_status||{};
-      var rows = Object.keys(st).map(function(k){
-        return "<tr><td>"+esc(k)+"</td><td>"+esc(st[k])+"</td></tr>"; }).join("");
-      content.innerHTML = '<div class="card"><h2>قدمِ بعدی <span class="badge">'+
-        esc(d.tasks_total||0)+'</span></h2>'+
-        (rows?'<table><tr><th>وضعیت</th><th>شمار</th></tr>'+rows+'</table>'
-             :'<div class="muted">هیچ کارِ بازی نیست</div>')+'</div>';
+      var st = d.task_status||{}, ks = Object.keys(st);
+      el.innerHTML = card("قدمِ بعدی", pill(d.tasks_total||0, ks.length?"staged":"live"),
+        ks.length ? rows(st) : '<div class="muted">هیچ کارِ بازی نیست</div>');
     });
   }
 
-  var renderers = {home:renderHome,studio:renderStudio,outbound:renderOutbound,approvals:renderApprovals,legs:renderLegs,value:renderValue,registry:renderRegistry,truth:renderTruth,pf:renderPF,brain:renderBrain,governor:renderGovernor,obsidian:renderObsidian,next:renderNext};
+  // ── پنج نمای مرکب (۲۰۲۶-۰۸-۰۴) ───────────────────────────────────────
+  // سیزده تب روی گوشی یعنی هشت‌تایش بیرونِ صفحه. و بدتر: تب‌ها بر اساسِ
+  // **جایی که داده از آن می‌آید** چیده شده بودند، نه تصمیمی که مالک می‌گیرد.
+  // «Truth» و «UI Registry» و «Legs» سه پنجرهٔ تشخیصی‌اند، نه سه تصمیم.
+  function stack(el, fns){
+    el.innerHTML = fns.map(function(_,i){ return '<div id="sec'+i+'"></div>'; }).join("");
+    fns.forEach(function(fn,i){ try{ fn(document.getElementById("sec"+i)); }catch(e){} });
+  }
+  function viewHome(el){ stack(el||content, [renderHome, renderNext]); }
+  function viewApprovals(el){ stack(el||content, [renderApprovals]); }
+  function viewMoney(el){ stack(el||content, [renderValue, renderOutbound]); }
+  function viewLeads(el){ stack(el||content, [renderPF]); }
+  function viewSystem(el){ stack(el||content, [renderLegs, renderBrain, renderGovernor, renderObsidian, renderTruth, renderRegistry, renderStudio]); }
+
+  var renderers = {home:viewHome,approvals:viewApprovals,money:viewMoney,leads:viewLeads,system:viewSystem};
   // ⚠️ سکوت را بلند کن. نسخهٔ قبلی `renderers[name]||renderHome` بود، پس یک تبِ
   // بی‌رندرکننده **بی‌صدا** محتوای خانه را نشان می‌داد — کلاسِ باگی که کلِ امروز
   // دنبالش بودیم، این‌بار در UI. حالا تبِ ناشناخته خودش را اعلام می‌کند.
   function render(name){
     var fn = renderers[name];
     if(!fn){
-      content.innerHTML = '<div class="card"><h2>این تب هنوز رندرکننده ندارد</h2>'+
+      el.innerHTML = '<div class="card"><h2>این تب هنوز رندرکننده ندارد</h2>'+
         '<div class="muted">تبِ «'+esc(name)+'» در HTML هست ولی هیچ تابعی آن را نمی‌سازد. '+
         'این پیام عمدی است: قبلاً بی‌صدا صفحهٔ خانه نشان داده می‌شد.</div></div>';
       return;

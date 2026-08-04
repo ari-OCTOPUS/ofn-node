@@ -129,9 +129,21 @@ t("کلیدِ غایب هرگز نوشته نمی‌شود (پالتِ فعلی 
 t("مقدارِ نامعتبر رد می‌شود، نه اینکه داخلِ CSS برود", () => {
   const tg = fakeTg();
   tg.themeParams = { bg_color: "خراب", text_color: "", hint_color: null,
-                     link_color: "#1a8cff" };
+                     secondary_bg_color: "#f4f4f5" };
   const v = S.themeVars(tg);
-  eq(Object.keys(v), ["--accent"], "مقدارِ بی‌اعتبار وارد شد");
+  eq(Object.keys(v), ["--card"], "مقدارِ بی‌اعتبار وارد شد");
+});
+
+t("رنگِ برند از تم اثر نمی‌گیرد", () => {
+  // ⚠️ فیروزه‌ای/بنفشِ لوگو هویت است، نه سلیقهٔ تم. اگر تلگرام بتواند
+  // عوضشان کند، اپ دیگر شبیهِ اختاپوس نیست. تم فقط زمینه/متن را می‌گیرد.
+  const tg = fakeTg();
+  tg.themeParams = { link_color: "#ff0000", accent_text_color: "#00ff00",
+                     button_color: "#0000ff", bg_color: "#101010" };
+  const v = S.themeVars(tg);
+  ok(!("--accent" in v), "تم رنگِ برند را دزدید");
+  ok(!("--accent-2" in v), "تم رنگِ دومِ برند را دزدید");
+  eq(v["--bg"], "#101010", "زمینه باید همچنان از تم بیاید");
 });
 
 t("بدونِ تلگرام هیچ رنگی عوض نمی‌شود", () => {

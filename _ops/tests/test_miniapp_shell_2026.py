@@ -79,6 +79,43 @@ def t_d_index_html_loads_the_shell_before_the_app():
         srcs.index("/miniapp/tg_shell.js"), srcs
 
 
+def t_h_every_tab_has_a_renderer_and_the_fallback_is_loud():
+    """⚠️ باگی که مالک روی گوشی‌اش دید: `index.html` سیزده تب داشت و
+    `renderers` نُه تابع، و `renderers[name] || renderHome` یعنی چهار تب
+    **بی‌صدا** محتوای خانه را نشان می‌دادند. تب فعال می‌شد، پس از بیرون
+    شبیهِ کارکردن بود.
+
+    دو ناوردی: هر تب رندرکننده داشته باشد، و fallback **بلند** باشد — تا
+    اگر روزی تبی اضافه شد و رندرکننده‌اش جا افتاد، خودش را اعلام کند."""
+    import re
+    html = (MINI / "index.html").read_text("utf-8", errors="replace")
+    app = (MINI / "app.js").read_text("utf-8", errors="replace")
+    tabs = re.findall(r'data-tab="([a-z-]+)"', html)
+    m = re.search(r"var renderers = \{(.+?)\};", app, re.S)
+    assert m, "جدولِ renderers پیدا نشد — این گارد کور شده"
+    have = set(re.findall(r"(\w+)\s*:", m.group(1)))
+    dead = [t for t in tabs if t not in have]
+    assert not dead, ("تب‌های بی‌رندرکننده", dead)
+    assert tabs, "هیچ تبی نیست"
+
+    # ⚠️ کامنت‌ها حذف می‌شوند وگرنه assert به **توضیحِ** الگو می‌خورد نه به
+    # کد — همان ضدالگویی که امروز شش بار زد، یک‌بارش در همین چک.
+    code = re.sub(r"/\*[\s\S]*?\*/", "", app)
+    code = re.sub(r"^\s*//.*$", "", code, flags=re.M)
+    assert not re.search(r"renderers\[\s*name\s*\]\s*\|\|", code), (
+        "fallback ِ بی‌صدا برگشت — تبِ بی‌رندرکننده دوباره خانه را نشان می‌دهد")
+    assert "رندرکننده ندارد" in app, "پیامِ صریحِ تبِ ناشناخته حذف شده"
+
+
+def t_i_latin_values_are_bidi_isolated():
+    """باگِ دیده‌شده روی گوشی: `ask()` به‌صورت `()ask` و `_ops/…/x.py` به‌صورت
+    `ops/…/x.py_`. در متنِ RTL، پرانتز و آندرلاینِ ابتدای رشتهٔ لاتین به
+    انتهایش پرتاب می‌شوند."""
+    app = (MINI / "app.js").read_text("utf-8", errors="replace")
+    assert 'dir="ltr"' in app and "unicode-bidi:isolate" in app, (
+        "ایزولهٔ bidi برای مقادیرِ لاتین نیست ⇒ مسیر و کد وارونه رندر می‌شوند")
+
+
 def t_e_the_css_actually_consumes_the_insets():
     """متغیرهایی که هیچ قاعده‌ای مصرفشان نکند، فقط تزئین‌اند — و محتوا
     همچنان زیرِ نُچ می‌ماند."""

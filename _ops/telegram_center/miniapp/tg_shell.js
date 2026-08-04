@@ -66,8 +66,9 @@
     section_bg_color: "--card",
     text_color: "--text",
     hint_color: "--muted",
-    link_color: "--accent",
-    accent_text_color: "--accent",
+    // ⚠️ `--accent` و `--accent-2` عمداً **از تم نمی‌آیند**: فیروزه‌ای و بنفشِ
+    // لوگو هویت‌اند نه سلیقهٔ تم. اگر تلگرام رنگشان را عوض کند، اپ دیگر
+    // شبیهِ اختاپوس نیست. تم فقط زمینه و متن را می‌گیرد (خوانایی)، برند را نه.
     destructive_text_color: "--red"
   };
 

@@ -2,36 +2,42 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Octopus Cockpit</title>
 <link rel="stylesheet" href="/miniapp/style.css">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-<h1><span class="dot" id="statusDot"></span> Octopus Cockpit <span class="badge" id="authBadge">…</span>
-  <button id="paletteBtn" class="palbtn" title="پالتِ فرمان — Ctrl/Cmd+K">⚡</button></h1>
 
+<h1>
+  <svg class="eye" id="eye" viewBox="0 0 40 40" aria-hidden="true">
+    <circle class="ring" cx="20" cy="20" r="18" stroke-width="1.4"></circle>
+    <circle class="ring" cx="20" cy="20" r="13" stroke-width="1"></circle>
+    <circle class="iris" cx="20" cy="20" r="8.5"></circle>
+    <circle class="pupil" cx="20" cy="20" r="3.4"></circle>
+  </svg>
+  <span>اختاپوس</span>
+  <span class="badge" id="authBadge">…</span>
+  <span class="sp" id="hdrBtns">
+    <button id="paletteBtn" class="palbtn" title="پالتِ فرمان">⚡</button>
+  </span>
+</h1>
+
+<!-- پنج بازو، نه سیزده. تب‌ها بر اساسِ **تصمیمی که مالک می‌گیرد** چیده شده‌اند،
+     نه بر اساسِ جایی که داده از آن می‌آید. -->
 <div class="tabs" id="tabs">
-  <div class="tab active" data-tab="home">Cockpit</div>
-  <div class="tab" data-tab="studio">Ops</div>
-  <div class="tab" data-tab="brain">Brain</div>
-  <div class="tab" data-tab="governor">Governor</div>
-  <div class="tab" data-tab="obsidian">Obsidian</div>
-  <div class="tab" data-tab="next">Next</div>
-  <div class="tab" data-tab="outbound">Outbound</div>
-  <div class="tab" data-tab="approvals">Approvals</div>
-  <div class="tab" data-tab="legs">Legs</div>
-  <div class="tab" data-tab="value">Value</div>
-  <div class="tab" data-tab="registry">UI Registry</div>
-  <div class="tab" data-tab="truth">Truth</div>
-  <div class="tab" data-tab="pf">Project-F</div>
+  <div class="tab active" data-tab="home">خانه</div>
+  <div class="tab" data-tab="approvals">تأییدها</div>
+  <div class="tab" data-tab="money">پول</div>
+  <div class="tab" data-tab="leads">لیدها</div>
+  <div class="tab" data-tab="system">سیستم</div>
 </div>
 
 <div id="warn"></div>
 <div id="content"><div class="loading">در حال بارگذاری…</div></div>
 <div id="palette" class="palette"></div>
 
-<div class="muted" style="margin-top:14px">owner-gated actions · no secret stored in frontend</div>
+<div class="muted" style="margin-top:14px">اقدام‌ها فقط با تأییدِ مالک · هیچ رازی در فرانت‌اند نیست</div>
 <script src="/miniapp/tg_shell.js"></script>
 <script src="/miniapp/app.js"></script>
 </body>
