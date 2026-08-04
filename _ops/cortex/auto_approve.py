@@ -15,7 +15,9 @@ secret/کلید، ژنوم/ledger، schema، human-append، kill-switch، σ، m
   (۲) مشاهده زنده باشد (ORGANISM-STATE تازه)،
   (۳) بیرونِ دورهٔ refractory (۲۴h)،
   (۴) پرچمِ مجوزِ مالک (ACTIVATION-SELF-IMPROVE-AUTO) باشد،
-  (۵) مقدار درونِ کرانِ امن باشد.
+  (۵) مقدار درونِ کرانِ امن باشد،
+  (۶) اگر مالک OCTOPUS_ARM_SENSITIVE_DEFAULT=1 کرد (۲۰۲۶-۰۸-۰۴، DR-001)، یک
+      arm-token تازهٔ دوکلیدی برای self_improve_auto لازم است (arm_gate.py).
 هر اعمال در ledger ثبت می‌شود (رد‌گیریِ کامل). حذفِ پرچم = لغوِ فوریِ مجوز.
 $0 · stdlib · fail-soft.
 """
@@ -33,6 +35,7 @@ sys.path.insert(0, str(_HERE.parent / "budget"))
 sys.path.insert(0, str(_HERE.parent))          # _ops — برای decision_gate/trajectory_log
 import opslib      # noqa: E402
 import improve     # noqa: E402 — AUTO_KNOBS + observability_ok + refractory_open
+import arm_gate    # noqa: E402
 
 STATE = opslib.STATE_DIR
 KNOBS_PATH = STATE / "cortex" / "auto-knobs.json"
@@ -337,6 +340,21 @@ def run(proposals: list[dict]) -> dict:
                 pass
             continue
         if d["action"] == "auto" and has_permission and not applied:
+            # گیتِ اضافیِ arm_gate (۲۰۲۶-۰۸-۰۴، DR-001): defense-in-depth، فقط
+            # سخت‌تر می‌کند هرگز شل‌تر — پیش‌فرض بدونِ اثر (byte-identical) تا
+            # مالک OCTOPUS_ARM_SENSITIVE_DEFAULT=1 نکرده (که already روشن است).
+            # این‌جا و نه داخلِ apply_knob خودش: apply_knob یک صداکنندهٔ دومِ
+            # کاملاً جدا دارد — doctor.py:apply_merge، که فقط بعدِ تپِ تلگرامِ
+            # مالک اجرا می‌شود (OCTOPUS_WIRE_MERGE_APPLIES_KNOB جداگانه). گیتِ
+            # اینجا آن مسیرِ already-owner-approved را دست‌نخورده می‌گذارد و فقط
+            # مسیرِ خودکار (بدونِ تپِ مالک) را arm-token می‌خواهد.
+            _arm_ok, _arm_why = arm_gate.guard("self_improve_auto")
+            if not _arm_ok:
+                reason = f"arm-gate-denied:{_arm_why}"
+                escalated.append({"title": p.get("title"), "risk": d["risk"], "why": reason})
+                _log({"decision": "escalated", "risk": d["risk"], "title": p.get("title"),
+                      "why": reason})
+                continue
             # فقط یک اعمالِ خودکار در هر run (گامِ کوچک، ضدِ نوسان) + ثبتِ refractory
             r = apply_knob(d["knob"], d["bounds"])
             if r.get("ok"):

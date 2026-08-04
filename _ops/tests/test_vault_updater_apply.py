@@ -6,6 +6,7 @@ create فقط inbox؛ append-only + idempotent؛ ضدِ traversal؛ kill-switch 
 import json
 import os
 import sys
+import time
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
@@ -136,6 +137,117 @@ def t_g_domain_create_without_match_refused():
             assert r["applied"] is False and "create فقط" in r["reason"]
     finally:
         _disable()
+
+
+# ═══ arm_gate wiring (۲۰۲۶-۰۸-۰۴، DR-001) — گیتِ هشتم داخلِ apply()، بعدِ idempotent ═══
+# این مسیر امروز orphan است (هیچ صداکنندهٔ تولیدی ندارد — رجوع ۳۲-گزارش)، ولی
+# capability=self_improve_auto را با arm_gate.DANGEROUS به‌اشتراک می‌گذارد؛
+# سیم‌کشی defense-in-depth است برای وقتی این مسیر روزی wired شود.
+
+
+def _arm_env(on):
+    if on:
+        os.environ["OCTOPUS_ARM_SENSITIVE_DEFAULT"] = "1"
+    else:
+        os.environ.pop("OCTOPUS_ARM_SENSITIVE_DEFAULT", None)
+    os.environ.pop("OCTOPUS_REQUIRE_ARM", None)
+
+
+def _write_arm_token(cap, suffix):
+    d = opslib.STATE_DIR / "arm"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / f"{cap}.{suffix}.json").write_text(
+        json.dumps({"capability": cap, "armed_at": time.time()}), encoding="utf-8")
+
+
+def _clear_arm_tokens():
+    import shutil
+    shutil.rmtree(opslib.STATE_DIR / "arm", ignore_errors=True)
+
+
+def _unique_proposal(tag):
+    """proposalِ inbox با پیام و مسیرِ یکتا — _auto_proposal() مسیرِ ثابتِ
+    2026-07-11 را استفاده می‌کند که تستِ t_b قبلاً نوشته، پس هر تستِ arm_gate
+    باید مسیر/محتوای خودش را داشته باشد وگرنه idempotent-noop زودتر برمی‌گردد."""
+    return vu.propose(f"یادداشتِ تستیِ arm-gate-{tag} — محتوایِ یکتا", provenance="telegram",
+                      target_path=f"00 - Inbox/arm-gate-{tag}.md",
+                      candidates=[{"path": "00 - Inbox/other.md", "summary": "نامرتبط"}],
+                      autonomy_envelope=ENV_OK)
+
+
+def t_h_arm_gate_default_off_is_byte_identical():
+    """هر دو knobِ arm_gate خاموش (پیش‌فرضِ امروز) → apply() دقیقاً مثلِ قبل از
+    سیم‌کشی می‌نویسد (رگرسیونِ t_b)."""
+    _arm_env(False)
+    _clear_arm_tokens()
+    _enable()
+    try:
+        p = _unique_proposal("h")
+        r = ap.apply(p)
+        assert r["ok"] and r["applied"], r
+        assert not str(r.get("reason", "")).startswith("arm-gate-denied"), r
+    finally:
+        _disable()
+        _arm_env(False)
+        _clear_arm_tokens()
+
+
+def t_i_arm_gate_sensitive_default_denies_without_a_fresh_token():
+    """OCTOPUS_ARM_SENSITIVE_DEFAULT=1 + بدونِ arm-token → نوشته نمی‌شود، دلیل
+    arm-gate-denied؛ فایل روی دیسک ساخته نمی‌شود."""
+    _arm_env(True)
+    _clear_arm_tokens()
+    _enable()
+    try:
+        p = _unique_proposal("i")
+        dest = _VROOT / p["target_path"]
+        r = ap.apply(p)
+        assert r["ok"] is False and r["applied"] is False, r
+        assert str(r.get("reason", "")).startswith("arm-gate-denied"), r
+        assert not dest.exists(), "گیت رد کرد ولی فایل نوشته شد"
+    finally:
+        _disable()
+        _arm_env(False)
+        _clear_arm_tokens()
+
+
+def t_j_arm_gate_sensitive_default_allows_with_a_fresh_two_key_token():
+    """همان + هر دو arm-token تازه → مثلِ قبل می‌نویسد."""
+    _arm_env(True)
+    _clear_arm_tokens()
+    _enable()
+    _write_arm_token("self_improve_auto", "arm")
+    _write_arm_token("self_improve_auto", "arm2")
+    try:
+        p = _unique_proposal("j")
+        r = ap.apply(p)
+        assert r["ok"] and r["applied"], r
+    finally:
+        _disable()
+        _arm_env(False)
+        _clear_arm_tokens()
+
+
+def t_k_arm_gate_does_not_block_the_idempotent_noop():
+    """no-opِ idempotent (چیزی تغییر نمی‌کند) نباید نیازِ arm-token داشته باشد —
+    گیت بعدِ چکِ idempotent است، نه قبلش."""
+    _arm_env(True)
+    _clear_arm_tokens()
+    _enable()
+    _write_arm_token("self_improve_auto", "arm")
+    _write_arm_token("self_improve_auto", "arm2")
+    try:
+        p = _unique_proposal("k")
+        r1 = ap.apply(p)
+        assert r1["ok"] and r1["applied"], r1
+        _clear_arm_tokens()   # توکن‌ها را پاک کن — نوشتنِ واقعیِ دوم باید رد شود
+        r2 = ap.apply(p)      # همان محتوا → باید idempotent-noop بماند، نه arm-gate-denied
+        assert r2["ok"] is True and r2["applied"] is False, r2
+        assert r2["reason"] == "idempotent-noop", r2
+    finally:
+        _disable()
+        _arm_env(False)
+        _clear_arm_tokens()
 
 
 if __name__ == "__main__":

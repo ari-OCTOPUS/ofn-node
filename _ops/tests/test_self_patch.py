@@ -14,6 +14,7 @@
 import json
 import os
 import sys
+import time
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
@@ -648,6 +649,127 @@ def t_audit_a_failed_defect_reaches_the_owner():
         opslib.alert = real
         _off()
         _reset_loop_state()
+
+
+# ═══ arm_gate wiring (۲۰۲۶-۰۸-۰۴، DR-001) — گیتِ هشتم در _offer_patch_to_owner ═══
+# سه چیز باید ثابت شود:
+#   ۱. هر دو knobِ arm_gate خاموش (پیش‌فرضِ امروز) → رفتار بایت‌به‌بایت قبلی
+#   ۲. OCTOPUS_ARM_SENSITIVE_DEFAULT=1 + بدونِ arm-token تازه → اینجا متوقف
+#   ۳. OCTOPUS_ARM_SENSITIVE_DEFAULT=1 + arm-token دوکلیدیِ معتبر → رد می‌شود
+# منطقِ داخلیِ arm_gate خودش قبلاً در test_arm_gate.py / test_arm_gate_p0.py
+# تست شده — اینجا فقط سیم‌کشی (این تابع واقعاً guard() را صدا می‌زند و به
+# نتیجه‌اش احترام می‌گذارد) تحتِ آزمون است، نه خودِ arm_gate.
+
+import arm_gate as _ag  # noqa: E402
+
+_ARM_DIR = sp.opslib.STATE_DIR / "arm"
+_ACTIVATION_FLAG = sp.opslib.OPS / "ACTIVATION-CODE-AUTONOMY.flag"
+
+
+def _arm_env(on):
+    if on:
+        os.environ["OCTOPUS_ARM_SENSITIVE_DEFAULT"] = "1"
+    else:
+        os.environ.pop("OCTOPUS_ARM_SENSITIVE_DEFAULT", None)
+    os.environ.pop("OCTOPUS_REQUIRE_ARM", None)
+
+
+def _write_arm_token(cap, suffix):
+    _ARM_DIR.mkdir(parents=True, exist_ok=True)
+    (_ARM_DIR / f"{cap}.{suffix}.json").write_text(
+        json.dumps({"capability": cap, "armed_at": time.time()}), encoding="utf-8")
+
+
+def _clear_arm_state():
+    import shutil
+    shutil.rmtree(_ARM_DIR, ignore_errors=True)
+    try:
+        _ACTIVATION_FLAG.unlink()
+    except OSError:
+        pass
+
+
+def _offerable_patch(id_):
+    return {"ok": True, "shadow_green": True, "content": "print(1)\n",
+            "target": ALLOWED, "id": id_, "defect": "d"}
+
+
+def t_arm_gate_default_off_is_byte_identical():
+    """هر دو knob خاموش → گیتِ هشتم نباید هیچ چیزِ رفتاری را عوض کند
+    (نتیجه باید همان چیزی باشد که قبل از سیم‌کشیِ arm_gate بود: not-offerable
+    یا موفقیتِ pending-write، هرگز arm-gate-denied)."""
+    _arm_env(False)
+    _clear_arm_state()
+    os.environ["OCTOPUS_WIRE_PATCH_CARD"] = "1"
+    try:
+        r = sp._offer_patch_to_owner(_offerable_patch("sp-arm0"))
+        assert not str(r.get("reason", "")).startswith("arm-gate-denied"), r
+        assert r.get("ok") is True, r  # پیشنهاد به مالک باید موفق شود (بدونِ arm_gate)
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_PATCH_CARD", None)
+        _arm_env(False)
+        _clear_arm_state()
+
+
+def t_arm_gate_sensitive_default_denies_without_a_fresh_token():
+    """OCTOPUS_ARM_SENSITIVE_DEFAULT=1 + بدونِ arm-token → متوقف قبل از
+    authorization_shadow و پیشنهادِ مالک (هیچ pending-patch نباید ساخته شود)."""
+    _arm_env(True)
+    _clear_arm_state()
+    os.environ["OCTOPUS_WIRE_PATCH_CARD"] = "1"
+    pend = sp.opslib.STATE_DIR / "cortex" / "pending-patches"
+    before = set(pend.glob("*.json")) if pend.exists() else set()
+    try:
+        r = sp._offer_patch_to_owner(_offerable_patch("sp-arm1"))
+        assert r.get("ok") is False, r
+        assert str(r.get("reason", "")).startswith("arm-gate-denied"), r
+        after = set(pend.glob("*.json")) if pend.exists() else set()
+        assert after == before, "gate رد کرد ولی pending-patch نوشته شد"
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_PATCH_CARD", None)
+        _arm_env(False)
+        _clear_arm_state()
+
+
+def t_arm_gate_sensitive_default_allows_with_a_fresh_two_key_token():
+    """OCTOPUS_ARM_SENSITIVE_DEFAULT=1 + ACTIVATION flag + هر دو arm-token
+    تازه → گیتِ هشتم رد می‌کند و جریان مثلِ قبل ادامه پیدا می‌کند."""
+    _arm_env(True)
+    _clear_arm_state()
+    _ACTIVATION_FLAG.parent.mkdir(parents=True, exist_ok=True)
+    _ACTIVATION_FLAG.write_text("armed", encoding="utf-8")
+    _write_arm_token("code_autonomy", "arm")
+    _write_arm_token("code_autonomy", "arm2")
+    os.environ["OCTOPUS_WIRE_PATCH_CARD"] = "1"
+    try:
+        r = sp._offer_patch_to_owner(_offerable_patch("sp-arm2"))
+        assert not str(r.get("reason", "")).startswith("arm-gate-denied"), r
+        assert r.get("ok") is True, r
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_PATCH_CARD", None)
+        _arm_env(False)
+        _clear_arm_state()
+
+
+def t_arm_gate_only_narrows_never_widens():
+    """arm_gate نباید هیچ‌وقت چیزی را که هفت گیتِ قبلی رد کرده‌اند اجازه بدهد —
+    حتی با arm-token معتبر، پچِ shadow_red همچنان not-offerable می‌ماند."""
+    _arm_env(True)
+    _clear_arm_state()
+    _ACTIVATION_FLAG.parent.mkdir(parents=True, exist_ok=True)
+    _ACTIVATION_FLAG.write_text("armed", encoding="utf-8")
+    _write_arm_token("code_autonomy", "arm")
+    _write_arm_token("code_autonomy", "arm2")
+    os.environ["OCTOPUS_WIRE_PATCH_CARD"] = "1"
+    try:
+        red = {"ok": False, "shadow_green": False, "content": "x",
+               "target": ALLOWED, "id": "sp-arm3", "defect": "d"}
+        r = sp._offer_patch_to_owner(red)
+        assert r == {"ok": False, "reason": "not-offerable"}, r
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_PATCH_CARD", None)
+        _arm_env(False)
+        _clear_arm_state()
 
 
 if __name__ == "__main__":
