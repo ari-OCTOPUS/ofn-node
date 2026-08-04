@@ -17,13 +17,16 @@ from ofn.adapters.products import (LOSES_MONEY, STALE, ProductStore,
                                    money_view, net_margin_aud, verdicts)
 
 JAN = "2026-01-10T09:00:00Z"
+# No labour term: the two time questions were removed, so a piece costs what
+# was bought for it. The fixture still totals $80 exactly, because what these
+# tests are about is *which price the warning is computed against* — that
+# argument does not care how the cost was assembled.
 FORMULA = dict(cost_fields=("materials_cost_aud", "packaging_cost_aud"),
-               labour_hours_field="labour_hours",
-               labour_rate_field="hourly_rate_aud")
+               labour_hours_field="", labour_rate_field="")
 
-# materials 40 + 1.5h × 25 + packaging 2.5 = $80.00 exactly
-COST80 = {"name": "گوشواره", "materials_cost_aud": 40.0, "labour_hours": 1.5,
-          "hourly_rate_aud": 25.0, "packaging_cost_aud": 2.5}
+# materials 77.5 + packaging 2.5 = $80.00 exactly
+COST80 = {"name": "گوشواره", "materials_cost_aud": 77.5,
+          "packaging_cost_aud": 2.5}
 
 
 class Base(unittest.TestCase):

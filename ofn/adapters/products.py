@@ -151,15 +151,19 @@ LOSES_MONEY = "loses_money"    # priced under cost
 STALE = "stale"                # listed a long time ago and still here
 QUICK_SALE = "quick_sale"      # gone fast — make another like it
 
+# `labour_hours` and `hourly_rate_aud` are no longer editable. The questions
+# that produced them were removed, so admitting them here would mean the only
+# way to set them is a hand-written request — a field nobody can reach through
+# the app but everybody can reach through the API.
 EDITABLE: tuple[str, ...] = (
     "name", "category", "description",
-    "materials_cost_aud", "labour_hours", "hourly_rate_aud",
+    "materials_cost_aud",
     "packaging_cost_aud", "price_primary_aud", "price_secondary_aud",
     "state", "channel", "listed_at", "sold_at",
     "marketing_status", "marketing_notes",
 )
 
-_NUMERIC = {"materials_cost_aud", "labour_hours", "hourly_rate_aud",
+_NUMERIC = {"materials_cost_aud",
             "packaging_cost_aud", "price_primary_aud", "price_secondary_aud"}
 _NULLABLE = {"price_primary_aud", "price_secondary_aud"}
 
@@ -254,16 +258,24 @@ def cogs_for(fields: Mapping[str, Any], *, cost_fields: Sequence[str],
              labour_hours_field: str, labour_rate_field: str) -> float:
     """Cost of one piece: the declared cost components, plus paid time.
 
-    The shape is fixed — a sum of costs and one hours×rate term — and the
-    *names* come from the pack. That covers a business whose costs are
+    The shape is fixed — a sum of costs and at most one hours×rate term — and
+    the *names* come from the pack. That covers a business whose costs are
     materials and packaging and one whose costs are materials and travel,
     without this module knowing what either sells. It is not an expression
     evaluator, and it should not become one: a formula language in a config
     file is a way to run arbitrary arithmetic nobody reviewed.
+
+    A pack that declares no labour block leaves both names empty, which means
+    *no labour term* — checked explicitly rather than left to `get("")`
+    returning nothing. Those are the same answer only for as long as no field
+    is ever called `""`, and a rule that holds by coincidence is a rule that
+    stops holding without anybody editing it.
     """
     total = 0.0
     for name in cost_fields:
         total += float(fields.get(name) or 0.0)
+    if not labour_hours_field or not labour_rate_field:
+        return total
     hours = float(fields.get(labour_hours_field) or 0.0)
     rate = float(fields.get(labour_rate_field) or 0.0)
     return total + hours * rate

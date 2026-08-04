@@ -191,9 +191,18 @@ footer{text-align:center;font-size:11.5px;color:var(--ink3);margin-top:22px;line
 
 /* چقدر مانده، بدون شمردن */
 .pips{display:flex;gap:6px;justify-content:center;margin:2px 0 20px}
-.pips i{block-size:6px;flex:1;max-inline-size:44px;border-radius:99px;background:var(--line)}
-.pips i.done{background:var(--gold-soft)}
-.pips i.on{background:var(--gold)}
+/* Each pip is a button, so the tap target is the 22px row and not the 6px
+   line it draws. A progress bar you can steer with is worth more than one
+   you can only read. */
+.pips button{block-size:22px;flex:1;max-inline-size:44px;border:0;padding:0;
+  background:none;cursor:default;position:relative;font-family:inherit}
+.pips button::after{content:'';position:absolute;inset-inline:0;inset-block-start:8px;
+  block-size:6px;border-radius:99px;background:var(--line);transition:.2s}
+.pips button.done::after{background:var(--gold-soft)}
+.pips button.on::after{background:var(--gold)}
+.pips button.go{cursor:pointer}
+.pips button.go:hover::after{background:var(--gold-deep)}
+.pips button:disabled{cursor:default}
 
 /* نوار هزینه — همیشه بالای صفحه، هرگز باید دنبالش گشت */
 .cost{position:sticky;inset-block-start:0;z-index:5;background:var(--cream2);
@@ -591,7 +600,19 @@ function card(q) {
   later.type = 'button';
   later.onclick = () => { at += 1; draw(); };
 
+
   wrap.append(go, later, err);
+
+  /* Deferring a question used to be one-way: "بعداً" moved forward and
+     nothing came back. A question skipped by accident was then unreachable
+     until the queue was rebuilt, which is the same shape of trap the piece
+     form had. */
+  if (at > 0) {
+    const back = el('button', 'later', 'سؤال قبلی');
+    back.type = 'button';
+    back.onclick = () => { OFN.tap(); at -= 1; draw(); };
+    wrap.append(back);
+  }
   return wrap;
 }
 
@@ -625,9 +646,12 @@ function draw() {
      progress is visible          "how many left" without counting            */
 const PIECES = document.getElementById('pieces');
 const DRAFT_KEY = 'ziman.draft.v1';
-let pieces = [], money = { currency: 'AUD', symbol: '$' }, hourlyDefault = null;
+let pieces = [], money = { currency: 'AUD', symbol: '$' };
 let gstKnown = true;
-let step = 0, draft = {};
+/* `step` is where she is; `reached` is the furthest she has been. Two
+   numbers, because going back must not un-answer what is already
+   answered. */
+let step = 0, reached = 0, draft = {};
 
 const aud = n => (n == null || isNaN(n)) ? '—'
   : money.symbol + fa(Number(n).toFixed(2));
@@ -655,11 +679,10 @@ const STEPS = [
     why: 'هر چه خودتان صدایش می‌کنید.', ph: 'گوشوارهٔ نقره', kind: 'text' },
   { key: 'materials_cost_aud', ask: 'مواد چقدر شد؟',
     why: 'هر چه برای همین یک قطعه خریدید.', unit: 'دلار استرالیا' },
-  { key: 'labour_hours', ask: 'چند ساعت وقت برد؟',
-    why: 'از شروع تا آمادهٔ تحویل. تخمین کافی است.', unit: 'ساعت' },
-  { key: 'hourly_rate_aud', ask: 'ساعتی چند؟',
-    why: 'ارزش وقت خودتان. پایین‌ترین عددی که راضی‌تان می‌کند.',
-    unit: 'دلار استرالیا در ساعت' },
+  /* The two time questions used to sit here: "how many hours did it take"
+     and "what is your hourly rate". They are gone at the owner's decision,
+     after watching the first real session. Cost is now materials plus
+     packaging — see `costNow`. */
   { key: 'packaging_cost_aud', ask: 'بسته‌بندی چقدر شد؟',
     why: 'جعبه، روبان، کارت. اگر چیزی نبود صفر بگذارید.',
     unit: 'دلار استرالیا', skip: true },
@@ -671,9 +694,13 @@ const STEPS = [
     unit: 'دلار استرالیا', skip: true },
 ];
 
+/* What a piece costs: what she bought for it. Her time is deliberately not
+   in here — the two questions that priced it were removed. The consequence is
+   worth stating plainly rather than discovering later: a piece whose materials
+   are cheap will now read as profitable no matter how many evenings it took,
+   and the loss warning below will almost never fire. */
 function costNow() {
   return (num(draft.materials_cost_aud) || 0)
-       + (num(draft.labour_hours) || 0) * (num(draft.hourly_rate_aud) || 0)
        + (num(draft.packaging_cost_aud) || 0);
 }
 function judgedPrice() {
@@ -713,11 +740,24 @@ function drawStep() {
   const bar = costBar();
   if (bar) PIECES.append(bar);
 
+  /* The pips were decoration. They are now the fastest way back: any step
+     already reached can be tapped. Steps not yet reached stay inert rather
+     than disappearing, so the row still says how long this is. */
   const pips = el('div', 'pips');
   for (let i = 0; i < STEPS.length; i++) {
-    const d = el('i');
+    const d = el('button', null, '');
+    d.type = 'button';
     if (i < step) d.classList.add('done');
     else if (i === step) d.classList.add('on');
+    const label = STEPS[i].ask;
+    d.setAttribute('aria-label', label);
+    d.title = label;
+    if (i <= reached) {
+      d.classList.add('go');
+      d.onclick = () => { OFN.tap(); step = i; drawStep(); };
+    } else {
+      d.disabled = true;
+    }
     pips.append(d);
   }
   PIECES.append(pips);
@@ -733,10 +773,6 @@ function drawStep() {
   inp.inputMode = q.kind === 'text' ? 'text' : 'decimal';
   inp.placeholder = q.ph || '';
   inp.value = draft[q.key] != null ? draft[q.key] : '';
-  if (q.key === 'hourly_rate_aud' && !inp.value && hourlyDefault != null) {
-    inp.value = String(hourlyDefault);
-    draft[q.key] = inp.value;
-  }
   inp.oninput = () => { draft[q.key] = inp.value; saveDraft(); refreshCost(); priceNote(); };
   inp.onkeydown = e => { if (e.key === 'Enter') forward(); };
   box.append(inp);
@@ -746,22 +782,41 @@ function drawStep() {
   box.append(note);
   PIECES.append(box);
 
+  /* One button, one job. This used to be a single "back" whose meaning
+     changed per step: on the optional ones it read "ندارم، رد کن" and moved
+     *forward*, which meant half the form had no way back at all. Somebody
+     who mistyped the materials cost had to abandon the piece and start it
+     again. Skipping is a different intention from going back and now has its
+     own control. */
   const bottom = el('div', 'bar');
   const go = el('button', 'next', step === STEPS.length - 1 ? 'ببینمش' : 'بعدی');
   go.type = 'button';
   go.onclick = forward;
   bottom.append(go);
-  const back = el('button', 'back',
-    step === 0 ? 'بی‌خیال' : (q.skip ? 'ندارم، رد کن' : 'برگرد'));
+
+  const back = el('button', 'back', step === 0 ? 'بی‌خیال' : 'قبلی');
   back.type = 'button';
   back.onclick = () => {
     OFN.tap();
     if (step === 0) { clearDraft(); draft = {}; home(); return; }
-    if (q.skip) { draft[q.key] = ''; step++; saveDraft(); drawStep(); return; }
     step--; drawStep();
   };
   bottom.append(back);
   PIECES.append(bottom);
+
+  if (q.skip) {
+    const skip = el('button', 'later', 'ندارم، رد کن');
+    skip.type = 'button';
+    skip.onclick = () => {
+      OFN.tap();
+      draft[q.key] = '';
+      step++;
+      if (step > reached) reached = step;
+      saveDraft();
+      drawStep();
+    };
+    PIECES.append(skip);
+  }
   priceNote();
   window.scrollTo({ top: 0 });
   setTimeout(() => { try { inp.focus(); } catch (_) {} }, 60);
@@ -773,6 +828,10 @@ function forward() {
   if (q.key === 'name' && !v) { OFN.tap('rigid'); return; }
   OFN.tap();
   step++;
+  /* How far she has been, which is not the same as where she is. Going back
+     to fix the materials cost must not lock the five steps she already
+     answered — otherwise "back" costs more than it gives. */
+  if (step > reached) reached = step;
   saveDraft();
   drawStep();
 }
@@ -819,8 +878,6 @@ function drawSummary() {
     t.append(ln);
   };
   line('مواد', aud(num(draft.materials_cost_aud) || 0));
-  line('وقت شما', fa(num(draft.labour_hours) || 0) + ' ساعت × '
-                 + aud(num(draft.hourly_rate_aud) || 0));
   line('بسته‌بندی', aud(num(draft.packaging_cost_aud) || 0));
   line('خرج کل', aud(costNow()));
   line('قیمت', num(draft.price_primary_aud) != null
@@ -838,7 +895,10 @@ function drawSummary() {
   bottom.append(save);
   const back = el('button', 'back', 'برگرد و عوض کن');
   back.type = 'button';
-  back.onclick = () => { OFN.tap(); step = STEPS.length - 1; drawStep(); };
+  /* From the summary every step is behind her, so all of them are open. */
+  back.onclick = () => {
+    OFN.tap(); reached = STEPS.length; step = STEPS.length - 1; drawStep();
+  };
   bottom.append(back);
   PIECES.append(bottom);
   window.scrollTo({ top: 0 });
@@ -855,7 +915,7 @@ async function submitPiece() {
     if (!out.ok) { blocked('🌾', 'ذخیره نشد', out.error, 'برگرد', drawSummary); return; }
     OFN.done();
     clearDraft();
-    draft = {}; step = 0;
+    draft = {}; step = 0; reached = 0;
     await load();
   } catch (_) {
     blocked('🌾', 'نرسید', 'به دستگاه وصل نشد. چیزی از دست نرفت.',
@@ -869,7 +929,9 @@ function home() {
   PIECES.textContent = '';
   const go = el('button', 'next', '＋  قطعهٔ تازه');
   go.type = 'button';
-  go.onclick = () => { OFN.tap(); draft = {}; step = 0; clearDraft(); drawStep(); };
+  go.onclick = () => {
+    OFN.tap(); draft = {}; step = 0; reached = 0; clearDraft(); drawStep();
+  };
   PIECES.append(go);
 
   if (hasDraft()) {
@@ -979,14 +1041,16 @@ function editPrice(p) {
   draft = {
     name: p.name,
     materials_cost_aud: String(p.materials_cost_aud),
-    labour_hours: String(p.labour_hours),
-    hourly_rate_aud: String(p.hourly_rate_aud),
     packaging_cost_aud: String(p.packaging_cost_aud),
     price_primary_aud: p.price_primary_aud == null ? '' : String(p.price_primary_aud),
     price_secondary_aud: p.price_secondary_aud == null ? '' : String(p.price_secondary_aud),
     __sku: p.sku,
   };
-  step = 5;
+  /* Found by key, not by counting. This was `step = 5` and would have opened
+     the wrong question the moment a step was added or removed — which then
+     happened. */
+  step = STEPS.findIndex(q => q.key === 'price_primary_aud');
+  reached = STEPS.length;      // everything is already answered; let her roam
   drawStep();
 }
 
@@ -1023,7 +1087,8 @@ function blocked(ic, title, detail, label, fn) {
 }
 
 function saveDraft() {
-  try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ step, draft })); } catch (_) {}
+  try { localStorage.setItem(DRAFT_KEY,
+    JSON.stringify({ step, reached, draft })); } catch (_) {}
 }
 function readDraft() {
   try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}') || {}; }
@@ -1118,15 +1183,14 @@ async function boot() {
   queue = qs.questions || [];
   at = 0;
 
-  /* Her hourly rate is a property of her, not of a piece — so it arrives as
-     a fact and pre-fills the field rather than being asked once per item. */
-  hourlyDefault = (status.facts && status.facts['time.hourly_floor']) ?? null;
-
   /* Her work first. The questions are the kernel's need, not hers, so they
      get one line on the home screen instead of half the navigation. */
   const saved = readDraft();
   if (saved.draft && Object.keys(saved.draft).length) {
-    draft = saved.draft; step = saved.step || 0;
+    draft = saved.draft;
+    step = saved.step || 0;
+    // An older draft has no `reached`; trust where it left off.
+    reached = Math.max(saved.reached || 0, step);
   }
   try { await load(); } catch (_) { showState('unreachable'); return; }
   return;

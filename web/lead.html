@@ -467,7 +467,19 @@ function card(q) {
   later.style.marginTop = '8px';
   later.onclick = () => { at += 1; draw(); };
 
+
   wrap.append(go, later, err);
+
+  /* Deferring a question used to be one-way: "بعداً" moved forward and
+     nothing came back. A question skipped by accident was then unreachable
+     until the queue was rebuilt, which is the same shape of trap the piece
+     form had. */
+  if (at > 0) {
+    const back = el('button', 'b', 'سؤال قبلی');
+    back.type = 'button';
+    back.onclick = () => { OFN.tap(); at -= 1; draw(); };
+    wrap.append(back);
+  }
   return wrap;
 }
 

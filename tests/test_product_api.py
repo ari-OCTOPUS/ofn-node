@@ -32,8 +32,9 @@ SECRET = "s"
 MALIHEH = "424242"
 HOST = {"host": "z.test"}
 
-PIECE = {"name": "گوشوارهٔ نقره", "materials_cost_aud": 40.0,
-         "labour_hours": 1.5, "hourly_rate_aud": 25.0,
+# $77.50 + $3 = $80.50. No labour term — the two time questions were removed
+# — so the total is assembled from what was bought.
+PIECE = {"name": "گوشوارهٔ نقره", "materials_cost_aud": 77.5,
          "packaging_cost_aud": 3.0, "price_primary_aud": 120.0}
 
 
@@ -113,8 +114,7 @@ class TestCreate(Base):
 
 class TestPersianNumerals(Base):
     def test_persian_digits_are_a_number(self):
-        r = self.add(materials_cost_aud="۴۰", labour_hours="۱.۵",
-                     hourly_rate_aud="۲۵", packaging_cost_aud="۳",
+        r = self.add(materials_cost_aud="۷۷.۵", packaging_cost_aud="۳",
                      price_primary_aud="۱۲۰")
         self.assertEqual(r.status, 200)
         self.assertAlmostEqual(r.body["product"]["cogs_aud"], 80.5)
@@ -161,11 +161,21 @@ class TestUpdateAndLedger(Base):
 
     def test_editing_an_input_moves_the_cost_and_says_so(self):
         self.add()
-        self.call("POST", "/api/v1/products/ZM-0001", {"labour_hours": 2.5})
+        self.call("POST", "/api/v1/products/ZM-0001",
+                  {"materials_cost_aud": 102.5})
         changed = [e for e in self.events()
                    if e.kind == "PRODUCT_UPDATED"][-1].payload["changed"]
         self.assertIn("cogs_aud", changed)
         self.assertAlmostEqual(changed["cogs_aud"]["after"], 105.5)
+
+    def test_a_removed_time_field_is_refused_rather_than_ignored(self):
+        """The columns still exist in the file. If the API quietly accepted
+        them, the only way to set a piece's labour would be a hand-written
+        request — reachable by anyone with a session, reachable by nobody
+        using the app."""
+        self.add()
+        r = self.call("POST", "/api/v1/products/ZM-0001", {"labour_hours": 2.5})
+        self.assertEqual(r.status, 400)
 
     def test_the_ledger_chain_still_verifies_after_edits(self):
         self.add()

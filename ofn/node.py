@@ -38,9 +38,12 @@ MAX_TEXT_ANSWER = 2000
 # blames the partner for using her own language.
 _DIGITS = str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789")
 
-_PRODUCT_NUMERIC = ("materials_cost_aud", "labour_hours", "hourly_rate_aud",
-                    "packaging_cost_aud", "price_primary_aud",
-                    "price_secondary_aud")
+# `labour_hours` and `hourly_rate_aud` are deliberately absent: the two
+# questions behind them were removed, so the API no longer accepts them. The
+# columns stay in the file — dropping one rewrites the table, and an unread
+# column costs nothing — but nothing writes them again.
+_PRODUCT_NUMERIC = ("materials_cost_aud", "packaging_cost_aud",
+                    "price_primary_aud", "price_secondary_aud")
 _PRODUCT_NULLABLE = {"price_primary_aud", "price_secondary_aud"}
 
 
@@ -172,13 +175,9 @@ class Node:
             "pending_decisions": counts.get("pending", 0),
             "held": counts.get("held", 0),
             "safe_mode": "safe_mode" in self.closed_gates,
-            # Her hourly rate is a property of her, not of any one piece, so
-            # it is a fact and pre-fills the form instead of being asked once
-            # per item. Sent only if she has actually stated it — an absent
-            # rate must leave the field empty, not put a zero in it.
+            # `time.hourly_floor` used to travel here to pre-fill the hourly
+            # rate field. That question is gone, and so is this.
             "facts": {k: v for k, v in (
-                ("time.hourly_floor",
-                 self._fact_value(scope, "time", "hourly_floor")),
                 ("sales.days_before_worry",
                  self._fact_value(scope, "sales", "days_before_worry")),
             ) if v is not None},

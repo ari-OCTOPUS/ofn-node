@@ -26,19 +26,18 @@ JAN = "2026-01-10T09:00:00Z"
 FEB = "2026-02-10T09:00:00Z"
 MAY = "2026-05-20T09:00:00Z"
 
-# $40 materials + 1.5h × $25 + $3 packaging = $80.50
+# $77.50 materials + $3 packaging = $80.50. The labour term is gone — the
+# two time questions were removed — so the same total is now assembled from
+# what was actually bought.
 FULL = {
     "name": "گوشوارهٔ نقره",
-    "materials_cost_aud": 40.0,
-    "labour_hours": 1.5,
-    "hourly_rate_aud": 25.0,
+    "materials_cost_aud": 77.5,
     "packaging_cost_aud": 3.0,
     "price_primary_aud": 120.0,
 }
 
 FORMULA = dict(cost_fields=("materials_cost_aud", "packaging_cost_aud"),
-               labour_hours_field="labour_hours",
-               labour_rate_field="hourly_rate_aud")
+               labour_hours_field="", labour_rate_field="")
 
 
 class Base(unittest.TestCase):
@@ -60,9 +59,9 @@ class TestCost(Base):
 
     def test_cogs_follows_an_edit_of_its_inputs(self):
         p = self.make()
-        _, after = self.s.update("ziman", p.sku, {"labour_hours": 2.5},
-                                 now_iso=FEB)
-        self.assertAlmostEqual(after.cogs_aud, 40.0 + 62.5 + 3.0)
+        _, after = self.s.update("ziman", p.sku,
+                                 {"materials_cost_aud": 100.0}, now_iso=FEB)
+        self.assertAlmostEqual(after.cogs_aud, 100.0 + 3.0)
 
     def test_the_stored_cost_agrees_with_the_formula(self):
         # `cogs_aud` is a plain column now, so this is the check that used to
@@ -76,23 +75,28 @@ class TestCost(Base):
             self.make(cogs_aud=1.0)
 
     def test_formula_ignores_a_field_the_pack_did_not_name(self):
+        """Including the two labour columns, which still exist in the file
+        and are now named by nothing."""
         self.assertAlmostEqual(
             cogs_for({"materials_cost_aud": 10.0, "shipping_cost_aud": 999.0,
                       "labour_hours": 1.0, "hourly_rate_aud": 20.0}, **FORMULA),
-            30.0)
+            10.0)
 
 
 class TestHistoricalTruth(Base):
-    def test_raising_the_rate_later_does_not_rewrite_an_old_piece(self):
+    def test_a_later_cost_does_not_rewrite_an_older_piece(self):
+        """Costs are copied onto the piece at save time, not looked up. When
+        silver gets dearer in May, what January cost stays what January cost —
+        otherwise every past margin silently rewrites itself."""
         old = self.make()
         self.assertAlmostEqual(old.cogs_aud, 80.5)
 
-        new = self.make(when=MAY, name="دومی", hourly_rate_aud=35.0)
-        self.assertAlmostEqual(new.cogs_aud, 40.0 + 52.5 + 3.0)
+        new = self.make(when=MAY, name="دومی", materials_cost_aud=95.0)
+        self.assertAlmostEqual(new.cogs_aud, 95.0 + 3.0)
 
         again = self.s.get("ziman", old.sku)
         self.assertAlmostEqual(again.cogs_aud, 80.5)
-        self.assertAlmostEqual(again.hourly_rate_aud, 25.0)
+        self.assertAlmostEqual(again.materials_cost_aud, 77.5)
 
 
 class TestPrice(Base):
@@ -241,7 +245,7 @@ class TestNoStockAnywhere(unittest.TestCase):
 class TestRefusals(Base):
     def test_negative_numbers_are_refused(self):
         with self.assertRaises(ProductError):
-            self.make(labour_hours=-1)
+            self.make(materials_cost_aud=-1)
 
     def test_a_name_is_required(self):
         with self.assertRaises(ProductError):
@@ -312,8 +316,9 @@ class TestPackDrivesIt(unittest.TestCase):
         p = load_pack("packs/ziman.yaml")
         self.assertEqual(p.cost_fields,
                          ("materials_cost_aud", "packaging_cost_aud"))
-        self.assertEqual(p.labour_hours_field, "labour_hours")
-        self.assertEqual(p.labour_rate_field, "hourly_rate_aud")
+        # The pack no longer declares a labour term at all.
+        self.assertEqual(p.labour_hours_field, "")
+        self.assertEqual(p.labour_rate_field, "")
         self.assertEqual(p.sku_prefix, "ZM")
 
     def test_the_pack_no_longer_asks_per_product_questions(self):
@@ -324,8 +329,10 @@ class TestPackDrivesIt(unittest.TestCase):
                      "stock.units_left", "sales.units_last_7d",
                      "offer.price_current"):
             self.assertNotIn(gone, p.required_facts)
-        # Her hourly rate is still a property of her, not of a piece.
-        self.assertIn("time.hourly_floor", p.required_facts)
+        # Her hourly rate is not asked anywhere any more — not per piece,
+        # and not once per business either. Removed by the owner after
+        # watching the first real session.
+        self.assertNotIn("time.hourly_floor", p.required_facts)
 
     def test_states_and_channels_are_the_agreed_four(self):
         self.assertEqual(STATES,
