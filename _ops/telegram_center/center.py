@@ -634,6 +634,54 @@ class Center:
         except Exception:  # noqa: BLE001
             return ""
 
+    def _shell_cmd(self, text: str) -> str:
+        """`/sh <فرمان>` — درِ شلِ خام. رأیِ صریحِ مالک ۲۰۲۶-۰۸-۰۴.
+
+        این‌جا **هیچ گیتی پیاده نمی‌شود** و این عمدی است: فعال‌سازی، کیل‌سوییچ،
+        deny-list و رسید همه در `shell_capability` هستند. یک کپیِ دومِ گیت در
+        این‌جا یعنی دو تعریف از «مجاز» — و همان چیزی است که این مخزن مکرر
+        گرفتارش شده. تنها کارِ این تابع: متن → `run()` → متنِ خوانا.
+
+        مالکیت از قبل بالادست (`handle_update → _is_owner`) گیت شده.
+        """
+        cmd = str(text or "").split(None, 1)
+        cmd = cmd[1].strip() if len(cmd) > 1 else ""
+        try:
+            import sys as _s
+            _p = str(_HERE.parent)
+            if _p not in _s.path:
+                _s.path.insert(0, _p)
+            import shell_capability as _sh  # noqa: WPS433
+        except Exception as e:  # noqa: BLE001
+            return f"🖥 ماژولِ شل در دسترس نیست ({type(e).__name__})."
+
+        if not cmd:
+            ok, why = _sh.active()
+            tail = _sh.audit_tail(5)
+            lim = _sh.limits()          # مرزها را **ماژول** اعلام می‌کند، نه در
+            lines = [f"🖥 <b>شلِ خام</b> — {'🟢 فعال' if ok else '🔴 ' + why}",
+                     f"ریشه: <code>{lim['cwd']}</code>",
+                     f"سقف: {int(lim['timeout_s'])}s · {lim['max_output'] // 1000}KB · "
+                     f"{lim['deny_rules']} قاعدهٔ ممنوعه (§۰ منشور)",
+                     "مصرف: <code>/sh git status</code>"]
+            if tail:
+                lines.append("──────────")
+                for r in tail[-5:]:
+                    lines.append(f"· {str(r.get('ts'))[11:19]} "
+                                 f"{r.get('phase')} — {_scrub(str(r.get('cmd'))[:44])}")
+            return "\n".join(lines)
+
+        r = _sh.run(cmd, reason="/sh از تلگرام")
+        if not r.get("ran"):
+            return f"🛑 اجرا نشد.\n▸ {_scrub(str(r.get('reason')))}"
+        head = ("✅" if r.get("ok") else "⚠️") + f" کد={r.get('code')} · {r.get('ms')}ms"
+        body = (r.get("stdout") or "") + (("\n[stderr]\n" + r["stderr"]) if r.get("stderr") else "")
+        body = body.strip() or "(بدونِ خروجی)"
+        # سقفِ تلگرام ۴۰۹۶ — بریدنِ وسطِ تگ یک‌بار هر دایجست را ۴۰۰ کرد.
+        if len(body) > 3300:
+            body = body[:3300] + "\n…(بریده شد)"
+        return f"{head}\n<pre>{_scrub(body)}</pre>"
+
     def _live_cmd(self, text: str) -> str:
         """مسیرِ زنده‌سازی 2026-07-25: /id /box /code /live — fail-soft، read/propose-only."""
         try:
@@ -2879,6 +2927,12 @@ class Center:
             "/funnel": lambda: self._funnel_cmd(""),
             "/رفتار": lambda: self._live_cmd(text),
             "/کد": lambda: self._live_cmd(text),
+            # ۲۰۲۶-۰۸-۰۴ — درِ شلِ خام (رأیِ صریحِ مالک). بدونِ این، ماژول
+            # ساخته و مسلح بود ولی **صفر صداکننده** داشت — همان «قابلیتِ
+            # تاریک» که کلِ امروز رفعش شد. مالکیت را `handle_update → _is_owner`
+            # از قبل گیت کرده؛ گیتِ فعال‌سازی/کیل/deny مالِ خودِ ماژول است.
+            "/sh": lambda: self._shell_cmd(text),
+            "/شل": lambda: self._shell_cmd(text),
             # ۲۰۲۶-۰۷-۲۸ — خودنگری. منطق عمداً در `introspect_cmd.py`
             # است نه این‌جا: این فایل ۱۳۰ کیلوبایت و پرترافیک است، و
             # کوچک‌ترین دیف کم‌ریسک‌ترین دیف است. هر چهار فقط‌خواندنی‌اند.

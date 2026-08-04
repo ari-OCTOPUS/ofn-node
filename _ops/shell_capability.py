@@ -115,6 +115,13 @@ def active() -> tuple:
     return True, "فعال"
 
 
+def limits() -> dict:
+    """خلاصهٔ مرزها برای نمایش. صداکننده نباید `_DENY_C` را مستقیم بخواند —
+    آن‌وقت دو جا از یک حقیقت حرف می‌زنند و یکی روزی عقب می‌افتد."""
+    return {"timeout_s": TIMEOUT_S, "max_output": MAX_OUTPUT,
+            "deny_rules": len(_DENY_C), "cwd": str(CWD)}
+
+
 def check(cmd: str) -> tuple:
     """(مجاز؟، دلیل). **تابعِ خالص** — صفر I/O، صفر اجرا. قابلِ تست بدونِ خطر."""
     c = str(cmd or "").strip()

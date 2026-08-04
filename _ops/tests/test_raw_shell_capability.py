@@ -136,6 +136,53 @@ def t_i_run_is_a_noop_while_disarmed():
     assert "ACTIVATION" in r["reason"] or "STOP" in r["reason"], r
 
 
+def t_j_the_shell_has_a_real_caller():
+    """⚠️ ماژولی که هیچ‌کس صدایش نمی‌زند یک «قابلیتِ تاریک» است — همان چیزی
+    که کلِ ۰۸-۰۴ رفعش شد. اولین نسخهٔ شل دقیقاً همین بود: ساخته، مسلح، و
+    **صفر صداکننده**. این تست درِ ورودی را قفل می‌کند."""
+    center = harness.REAL_VAULT / "_ops" / "telegram_center" / "center.py"
+    src = center.read_text("utf-8", errors="replace")
+    tree = ast.parse(src)
+    fn = next((n for n in ast.walk(tree)
+               if isinstance(n, ast.FunctionDef) and n.name == "_shell_cmd"), None)
+    assert fn is not None, "‏center هیچ درِ /sh ندارد ⇒ شل قابلِ فراخوانی نیست"
+    seg = ast.get_source_segment(src, fn) or ""
+    assert "shell_capability" in seg and "run(" in seg, "در، شل را صدا نمی‌زند"
+    assert '"/sh"' in src, "فرمانِ /sh در جدولِ handlerها ثبت نشده"
+
+
+def t_k_the_door_does_not_reimplement_the_gate():
+    """دو تعریف از «مجاز» یعنی یکی‌شان روزی از دیگری عقب می‌افتد. در باید
+    **تفویض** کند، نه کپی: هیچ deny/activation ِ دومی در `_shell_cmd`."""
+    center = harness.REAL_VAULT / "_ops" / "telegram_center" / "center.py"
+    src = center.read_text("utf-8", errors="replace")
+    fn = next(n for n in ast.walk(ast.parse(src))
+              if isinstance(n, ast.FunctionDef) and n.name == "_shell_cmd")
+    seg = ast.get_source_segment(src, fn) or ""
+    for copycat in ("rm -rf", "ACTIVATION-RAW-SHELL.flag", "_DENY", "re.compile"):
+        assert copycat not in seg, (
+            copycat, "در، گیت را دوباره پیاده کرده — گیت فقط در ماژول")
+
+    # ⚠️⚠️ و حفرهٔ اصلی که نسخهٔ اولِ این تست **ندید**: تفویض‌نکردن بدتر از
+    # کپی‌کردن است. اگر در، مستقیم `subprocess` بزند، کلِ فعال‌سازی/کیل/deny/
+    # رسید دور زده می‌شود و هیچ‌کدام از assertهای بالا قرمز نمی‌شوند.
+    # جهشِ متناظر یک بار زنده ماند؛ این بند کشتش.
+    for n in ast.walk(fn):
+        if isinstance(n, ast.Call):
+            nm = getattr(n.func, "attr", getattr(n.func, "id", ""))
+            assert nm not in ("run", "Popen", "call", "check_output", "system",
+                              "spawn", "exec", "eval") or (
+                isinstance(n.func, ast.Attribute)
+                and getattr(n.func.value, "id", "") == "_sh"), (
+                f"«{nm}» مستقیم در `_shell_cmd` — در باید **فقط** از "
+                "`_sh.run()` بگذرد، وگرنه فعال‌سازی/کیل/deny/رسید همه دور "
+                "زده می‌شوند")
+        if isinstance(n, (ast.Import, ast.ImportFrom)):
+            names = [a.name for a in getattr(n, "names", [])] + [getattr(n, "module", "") or ""]
+            assert not any("subprocess" in str(x) or "os" == str(x) for x in names), (
+                "در نباید subprocess/os را import کند", names)
+
+
 def main():
     tests = [v for k, v in sorted(globals().items())
              if k.startswith("t_") and callable(v)]
