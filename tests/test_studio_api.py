@@ -76,7 +76,8 @@ class Base(unittest.TestCase):
             studio_gallery=self.node.studio_gallery,
             set_media_labels=self.node.set_media_labels,
             create_album=self.node.create_album,
-            file_media=self.node.file_media)
+            file_media=self.node.file_media,
+            describe_media=self.node.describe_media)
         self.session = issue_session(self.tenant, SABA, SECRET,
                                      now_epoch_s=NOW_S)
 
@@ -88,6 +89,26 @@ class Base(unittest.TestCase):
     def scope(self):
         return self.node.registry.scope(
             self.node.registry.pack(self.tenant).tenant)
+
+    def shot(self, album=None):
+        body = {"renditions": RENDITIONS}
+        if album:
+            body["album"] = album
+        r = self.call("POST", "/api/v1/studio/media", body)
+        self.assertEqual(r.status, 200, r.body)
+        return r.body["media_id"]
+
+    def album(self, label="پرتره"):
+        r = self.call("POST", "/api/v1/studio/albums", {"label": label})
+        self.assertEqual(r.status, 200, r.body)
+        return r.body["album"]["id"]
+
+    def gallery(self):
+        return self.node.studio_gallery(self.scope())
+
+    def photo(self, media_id):
+        return next(p for p in self.gallery()["photos"]
+                    if p["media_id"] == media_id)
 
     def person(self, sid="saba"):
         self.consent.add_subject(self.tenant, sid, "خودم", now_epoch_s=NOW_S)
@@ -302,26 +323,6 @@ class TestArchiving(Base):
     the photo, and the album it belongs in usually does not exist yet.
     """
 
-    def shot(self, album=None):
-        body = {"renditions": RENDITIONS}
-        if album:
-            body["album"] = album
-        r = self.call("POST", "/api/v1/studio/media", body)
-        self.assertEqual(r.status, 200, r.body)
-        return r.body["media_id"]
-
-    def album(self, label="پرتره"):
-        r = self.call("POST", "/api/v1/studio/albums", {"label": label})
-        self.assertEqual(r.status, 200, r.body)
-        return r.body["album"]["id"]
-
-    def gallery(self):
-        return self.node.studio_gallery(self.scope())
-
-    def photo(self, media_id):
-        return next(p for p in self.gallery()["photos"]
-                    if p["media_id"] == media_id)
-
     # ── albums ────────────────────────────────────────────────────────
     def test_she_can_make_an_album_from_her_phone(self):
         aid = self.album("سفر")
@@ -416,3 +417,56 @@ class TestArchiving(Base):
                       {"album": "album-0777"})
         self.assertEqual(r.status, 400)
         self.assertIsNone(self.photo(mid)["collection_id"])
+
+
+class TestDescribingAPhoto(Base):
+    """The route, end to end, with a real session.
+
+    Worth its own class because the obvious check from outside does not work:
+    an unauthenticated POST to this path answers 401, and so does a POST to a
+    path that does not exist — the session is verified before anything is
+    routed. So 401 proves nothing about wiring, and only a call that gets
+    past auth can tell a live route from a typo.
+    """
+
+    def test_a_note_and_a_rating_reach_the_store(self):
+        mid = self.shot()
+        r = self.call("POST", f"/api/v1/studio/media/{mid}/describe",
+                      {"note": "نور از پنجره", "rating": 4})
+        self.assertEqual(r.status, 200, r.body)
+        self.assertTrue(r.body.get("ok"), r.body)
+        self.assertEqual(self.photo(mid)["note"], "نور از پنجره")
+        self.assertEqual(self.photo(mid)["rating"], 4)
+
+    def test_a_rating_out_of_range_is_refused_by_the_route(self):
+        mid = self.shot()
+        r = self.call("POST", f"/api/v1/studio/media/{mid}/describe",
+                      {"rating": 9})
+        self.assertEqual(r.status, 400)
+        self.assertEqual(self.photo(mid)["rating"], 0)
+
+    def test_an_empty_request_changes_nothing(self):
+        """"Nothing to record" is refused rather than treated as "clear it" —
+        a body that lost its fields in transit must not wipe her sentence."""
+        mid = self.shot()
+        self.call("POST", f"/api/v1/studio/media/{mid}/describe",
+                  {"note": "بماند"})
+        r = self.call("POST", f"/api/v1/studio/media/{mid}/describe", {})
+        self.assertEqual(r.status, 400)
+        self.assertEqual(self.photo(mid)["note"], "بماند")
+
+    def test_another_business_cannot_describe_this_photo(self):
+        """Media ids are short and guessable, the same way album ids are."""
+        mid = self.shot()
+        self.studio.add_media("someone-else", "shot-9999", mime="image/jpeg",
+                              byte_size=1, has_original=False,
+                              now_epoch_s=NOW_S)
+        r = self.call("POST", "/api/v1/studio/media/shot-9999/describe",
+                      {"note": "مال دیگری"})
+        self.assertEqual(r.status, 400)
+        self.assertIsNone(self.studio.media_in(self.tenant, "shot-9999"))
+
+    def test_the_photo_is_unrated_and_unwritten_until_she_says_so(self):
+        mid = self.shot()
+        self.assertEqual(self.photo(mid)["rating"], 0)
+        self.assertEqual(self.photo(mid)["note"], "")

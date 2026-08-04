@@ -232,6 +232,13 @@ h1{font-size:22px;font-weight:600;text-wrap:balance;margin-top:1px}
   font-size:13px;padding:4px 6px;color:var(--t-hi);
   background:linear-gradient(0deg,rgb(0 0 0/.62),transparent)}
 .albums{display:flex;gap:7px;overflow-x:auto;padding-block:4px;margin-top:12px}
+/* 44px each, the same touch floor as every other control here — a star small
+   enough to look elegant is a star she taps twice. */
+.stars{display:flex;gap:4px;margin-top:10px}
+.stars button{width:44px;height:44px;flex:none;display:grid;place-items:center;
+  background:none;border:0;cursor:pointer;color:var(--t-lo);padding:0}
+.stars button[aria-checked="true"]{color:var(--gold)}
+.stars svg{width:26px;height:26px}
 .album{flex:none;font-family:inherit;font-size:13px;padding:8px 13px;
   border-radius:99px;border:1px solid var(--line);background:transparent;
   color:var(--t-mid);cursor:pointer;white-space:nowrap}
@@ -522,6 +529,19 @@ nav svg{width:21px;height:21px}
     <div class="arc-q">چه چیزی را نشان می‌دهد؟</div>
     <div class="arc-sub">اختیاری — ولی بدون برچسب هیچ مقایسه‌ای بعداً ممکن نیست.</div>
     <div class="tags" id="arc-tags"></div>
+
+    <!-- Her own mark. Zero stars is "not rated" and is where every photo
+         starts — an unrated library must not read as a library of ones. -->
+    <div class="arc-q">این یکی چقدر خوب است؟</div>
+    <div class="arc-sub">اختیاری. فقط نظر خودت — هیچ عددی از بیرون اینجا نمی‌آید.</div>
+    <div class="stars" id="arc-stars" role="radiogroup" aria-label="امتیاز"></div>
+
+    <!-- The one field the closed vocabulary cannot replace. Eight tick-boxes
+         say which axis; they cannot say "the light came through the blind". -->
+    <div class="arc-q">چیزی دربارهٔ این عکس بنویس</div>
+    <div class="arc-sub">اختیاری — برای وقتی که چند ماه بعد نگاهش می‌کنی.</div>
+    <textarea class="field" id="arc-text" rows="2" maxlength="500"
+      placeholder="مثلاً — نور از پنجره، همین ساعت دوباره امتحان شود"></textarea>
 
     <div class="act">
       <button class="cta" type="button" id="arc-next">ثبت و بعدی</button>
@@ -1168,8 +1188,25 @@ async function addPhoto(file, progress) {
     /* Into the library, not into a post. A picture taken today and used
        next month needs somewhere to be in between, and making every shot a
        post decides something she has not decided. */
-    const sent = await OFN.post('/api/v1/studio/media',
-                                { renditions, original: await asDataUrl(file) });
+    /* When it was taken, as well as we can know it here.
+
+       `file.lastModified` and not EXIF: the renditions are drawn through a
+       canvas, which strips EXIF entirely, and parsing the kept original
+       needs a real camera photo to test the parser against — the golden
+       vector this node is still waiting for. So the number is the file's own
+       timestamp, which for a camera roll is usually the moment of capture
+       and is sometimes the moment it was copied off a card.
+
+       It travels with `taken_source` saying exactly that. A date with no
+       provenance is a date that gets trusted for more than it is worth, and
+       the day EXIF does land the two can be compared instead of one quietly
+       overwriting the other. */
+    const takenMs = Number(file.lastModified) || 0;
+    const sent = await OFN.post('/api/v1/studio/media', {
+      renditions, original: await asDataUrl(file),
+      taken_at: takenMs ? Math.floor(takenMs / 1000) : null,
+      taken_source: takenMs ? 'file' : '',
+    });
     if (!sent.ok) { say(sent.error || 'عکس ذخیره نشد.'); return false; }
     OFN.tap('medium');
     return true;
@@ -1379,7 +1416,40 @@ function buildTwins(vocab) {
 
    Nothing is batched. Each photo is committed as she leaves it, so putting
    the phone down after nine of fifty loses nothing. */
-let arc = { list: [], i: 0, album: null, labels: [] };
+let arc = { list: [], i: 0, album: null, labels: [], rating: 0, note: '' };
+
+/* Zero is "not rated" and is a real state, so the control has to be able to
+   return to it: tapping the star you already chose clears it. Without that a
+   mis-tap on the first photo is permanent, which is the same rule the album
+   chips already follow. */
+function drawStars() {
+  const box = $('arc-stars');
+  box.textContent = '';
+  for (let n = 1; n <= 5; n += 1) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('role', 'radio');
+    b.setAttribute('aria-checked', String(n <= arc.rating));
+    b.setAttribute('aria-label', fa(n));
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', n <= arc.rating ? 'currentColor' : 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '1.8');
+    svg.setAttribute('stroke-linejoin', 'round');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7'
+                         + '-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z');
+    svg.append(path);
+    b.append(svg);
+    b.onclick = () => {
+      OFN.tap();
+      arc.rating = (arc.rating === n) ? 0 : n;
+      drawStars();
+    };
+    box.append(b);
+  }
+}
 
 const unfiled = () => (gallery.photos || []).filter(p => !p.collection_id);
 
@@ -1405,6 +1475,12 @@ function drawArc() {
      photo ends up somewhere nobody chose. */
   arc.album = p.collection_id || null;
   arc.labels = [...(p.labels || [])];
+  /* Same rule as the album: read from THIS photo, never carried over. A
+     rating that persists across cards is a rating she did not give. */
+  arc.rating = p.rating || 0;
+  arc.note = p.note || '';
+  $('arc-text').value = arc.note;
+  drawStars();
   arcNote('');
   $('arc-count').textContent = fa(arc.i + 1) + ' از ' + fa(arc.list.length);
   $('arc-img').src =
@@ -1480,6 +1556,21 @@ async function saveArc() {
     { labels: arc.labels });
   if (!tagged.ok) { arcNote(tagged.error || 'برچسب ثبت نشد.'); return; }
   p.labels = tagged.labels;
+  /* Last, and only when there is something to say. The two calls above are
+     what empty the backlog; a note that fails must not cost her the filing
+     she already did, so this one reports and moves on rather than returning. */
+  const text = $('arc-text').value.trim();
+  if (text !== arc.note || arc.rating !== (p.rating || 0)) {
+    const said = await OFN.post(
+      '/api/v1/studio/media/' + encodeURIComponent(p.media_id) + '/describe',
+      { note: text, rating: arc.rating });
+    if (said.ok) {
+      p.note = said.media.note;
+      p.rating = said.media.rating;
+    } else {
+      arcNote(said.error || 'یادداشت ثبت نشد — ولی آلبوم و برچسب ثبت شد.');
+    }
+  }
   OFN.tap('medium');
   arc.i += 1;
   drawArc();

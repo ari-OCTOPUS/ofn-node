@@ -24,7 +24,7 @@ from .adapters.ledger import Ledger
 from .adapters.outbox import Outbox
 from .adapters.products import (ProductError, ProductStore, money_view,
                                 net_margin_aud, piece_slug, verdicts)
-from .adapters.studio_store import StudioError
+from .adapters.studio_store import EARLIEST_PLAUSIBLE_EPOCH_S, StudioError
 from .kernel.audience import ownership_ratio, revenue_mix
 from .kernel.consent import may_publish, subjects_needing_attention
 from .kernel.outreach import drafts_for as outreach_drafts
@@ -636,10 +636,21 @@ class Node:
                 self.media.write_original(tenant, media_id, 0,
                                           photo_inspect(str(original)))
                 kept = True
+            # Clamped rather than trusted. The value is a clock on somebody
+            # else's phone, and a photo dated in 2087 sorts above everything
+            # she owns for ever. Out of range means unknown, which the column
+            # can say; there is no repair that would be honest here.
+            taken = body.get("taken_at")
+            now = self.now_epoch_s()
+            if not isinstance(taken, int) or isinstance(taken, bool) \
+                    or not EARLIEST_PLAUSIBLE_EPOCH_S <= taken <= now:
+                taken, source = None, ""
+            else:
+                source = str(body.get("taken_source") or "")
             self.studio.add_media(
                 tenant, media_id, mime=biggest.media_type,
                 byte_size=biggest.max_decoded_bytes, has_original=kept,
-                now_epoch_s=self.now_epoch_s(),
+                now_epoch_s=now, taken_at=taken, taken_source=source,
                 collection_id=(str(body["album"]) if body.get("album") else None))
         except (FailClosedError, StudioError, KeyError) as exc:
             # Nothing half-written survives: the row is the last thing
@@ -674,6 +685,32 @@ class Node:
         except StudioError as exc:
             return {"ok": False, "error": str(exc)}
         return {"ok": True, "labels": chosen}
+
+    def describe_media(self, scope: TenantScope, media_id: str,
+                       body: Mapping[str, object]) -> dict:
+        """Her sentence and her mark on one shot.
+
+        Separate from `set_media_labels` on purpose. The vocabulary is closed
+        and answers "which side of which axis is this"; a note is open and
+        answers "why I want the next one like this". Folding them into one
+        call would mean saving a rating had to restate every label, and a
+        request that restates everything is a request that can silently undo
+        something it was never shown.
+        """
+        if self.studio is None:
+            return {"ok": False, "error": "استودیو در دسترس نیست"}
+        note = body.get("note")
+        rating = body.get("rating")
+        if note is None and rating is None:
+            return {"ok": False, "error": "چیزی برای ثبت نیست"}
+        try:
+            item = self.studio.describe_media(
+                scope.tenant.value, media_id,
+                note=None if note is None else str(note),
+                rating=None if rating is None else rating)
+        except StudioError as exc:
+            return {"ok": False, "error": str(exc)}
+        return {"ok": True, "media": item}
 
     def create_album(self, scope: TenantScope, user_id: str,
                      body: Mapping[str, object]) -> dict:

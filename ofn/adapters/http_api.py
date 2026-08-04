@@ -158,6 +158,7 @@ class ApiApp:
         studio_guidance: Callable[[TenantScope], dict] | None = None,
         set_labels: Callable[[TenantScope, str, str, dict], dict] | None = None,
         set_media_labels: Callable | None = None,
+        describe_media: Callable | None = None,
         add_media: Callable | None = None,
         create_album: Callable | None = None,
         file_media: Callable | None = None,
@@ -190,6 +191,7 @@ class ApiApp:
         self._studio_guidance = studio_guidance
         self._set_labels = set_labels
         self._set_media_labels = set_media_labels
+        self._describe_media = describe_media
         self._add_media = add_media
         self._create_album = create_album
         self._file_media = file_media
@@ -507,6 +509,16 @@ class ApiApp:
             if data is None:
                 return Response(400, {"error": "bad request"})
             out = self._set_media_labels(scope, mid, data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path.startswith("/api/v1/studio/media/") \
+                and path.endswith("/describe"):
+            mid = path[len("/api/v1/studio/media/"):-len("/describe")]
+            if not mid or "/" in mid or self._describe_media is None:
+                return Response(404, {"error": "not found"})
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            out = self._describe_media(scope, mid, data)
             return Response(200 if out.get("ok") else 400, out)
         if method == "GET" and path.startswith("/api/v1/studio/media/"):
             rest = path[len("/api/v1/studio/media/"):]

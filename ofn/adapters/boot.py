@@ -54,6 +54,7 @@ SCHEMAS: Mapping[str, Sequence[str]] = {
 
 MIGRATIONS: Mapping[str, Sequence] = {
     "products": _products.MIGRATIONS,
+    "studio": _studio.MIGRATIONS,
 }
 
 # A board with no battery-backed clock reports something near the epoch until

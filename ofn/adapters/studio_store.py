@@ -40,7 +40,7 @@ from typing import Sequence
 
 from ..kernel.advisor_gate import Collection, Sensitivity
 from ..kernel.photos import MAX_POSITION
-from .sqlite_base import Pool, apply_schema
+from .sqlite_base import Pool, add_column_if_absent, apply_schema
 
 SCHEMA = (
     """
@@ -105,7 +105,31 @@ SCHEMA = (
         added_at      INTEGER NOT NULL,
         -- Archived photos leave the gallery and stay on disk. Deleting is a
         -- separate, louder act.
-        archived_at   INTEGER
+        archived_at   INTEGER,
+        -- What she says about this shot, in her words. The closed vocabulary
+        -- answers "which axis is this" and cannot answer "the light was
+        -- coming through the blind and I want the next one like that". A
+        -- library with no room for a sentence is an inventory.
+        note          TEXT,
+        -- Her own mark, 0 means unrated. Not a score the node computes: the
+        -- only person who knows a shot is worth keeping is the one who took
+        -- it, and that judgement is made once, while looking at it.
+        rating        INTEGER NOT NULL DEFAULT 0
+                      CHECK (rating BETWEEN 0 AND 5),
+        -- When the photo was TAKEN, which is not when it was uploaded. Fifty
+        -- photos filed on a Sunday all share one `added_at`, so ordering by
+        -- it puts a shoot in whatever order the picker happened to hand them
+        -- over. Nullable: unknown is a real answer and is not zero.
+        taken_at      INTEGER,
+        -- And where that number came from, recorded beside it rather than
+        -- assumed. `file` is the picked file's own timestamp, which for a
+        -- camera roll is usually the capture time and is occasionally the
+        -- time it was copied off a card. `exif` would be authoritative and
+        -- is not implemented — the renditions go through a canvas, which
+        -- strips EXIF, and parsing the kept original needs a real camera
+        -- photo to test against that this node does not have yet. Writing
+        -- `exif` here without that would be a claim with no record behind it.
+        taken_source  TEXT
     )
     """,
     # The highest number ever issued, per kind. Third time this shape has
@@ -189,7 +213,43 @@ SCHEMA = (
     "CREATE INDEX IF NOT EXISTS collections_tenant ON collections (tenant_id)",
 )
 
+
+def _add_media_description_columns(conn) -> None:
+    """Note, rating and capture time, added after media rows existed.
+
+    `CREATE TABLE IF NOT EXISTS` never revisits a table it finds, so a file
+    written before this change keeps the old shape and pre-flight reports the
+    drift as CRITICAL. See `apply_schema` and `boot.MIGRATIONS`.
+    """
+    add_column_if_absent(conn, "media_items", "note", "TEXT")
+    add_column_if_absent(conn, "media_items", "rating",
+                         "INTEGER NOT NULL DEFAULT 0")
+    add_column_if_absent(conn, "media_items", "taken_at", "INTEGER")
+    add_column_if_absent(conn, "media_items", "taken_source", "TEXT")
+
+
+MIGRATIONS = (_add_media_description_columns,)
+
 STATUSES = ("draft", "ready", "queued", "published", "abandoned")
+
+# Her own mark on a shot. Zero is "not rated", which is different from bad —
+# an unrated library must not read as a library of ones.
+MAX_RATING = 5
+MAX_NOTE = 500
+
+# Where `taken_at` came from. Recorded rather than assumed, so that the day
+# EXIF parsing lands the two can be compared instead of one silently
+# replacing the other and nobody knowing which rows are which.
+TAKEN_SOURCES = ("file", "exif", "manual")
+
+# The floor for a capture time. Deliberately NOT `boot.MIN_PLAUSIBLE_EPOCH`,
+# which is 2026-01-01 and answers a different question: that one asks whether
+# THIS BOARD's clock has heard from NTP yet, and a board reporting 1970 is
+# broken. A photograph taken in 2025 is not broken, it is last year. What is
+# not credible is a phone photo from before digital cameras existed, so the
+# floor is set there and the ceiling is now — a file dated in the future sorts
+# above everything she owns, for ever.
+EARLIEST_PLAUSIBLE_EPOCH_S = 946_684_800     # 2000-01-01
 
 
 class StudioError(Exception):
@@ -229,7 +289,7 @@ class Draft:
 class StudioStore:
     def __init__(self, path: str) -> None:
         self._pool = Pool(path)
-        apply_schema(self._conn, SCHEMA)
+        apply_schema(self._conn, SCHEMA, MIGRATIONS)
 
     def close(self) -> None:
         self._pool.close()
@@ -415,8 +475,71 @@ class StudioStore:
             r[0] for r in self._conn.execute(
                 "SELECT draft_id FROM drafts WHERE tenant_id = ?", (tenant,))])
 
+    def describe_media(self, tenant: str, media_id: str, *,
+                       note: str | None = None,
+                       rating: int | None = None) -> dict:
+        """Her words and her mark on one shot. Either, both, or neither.
+
+        `None` means "leave this alone" and is not the same as clearing it —
+        a screen that saves a rating must not wipe a note it never showed.
+        Clearing is an empty string and a zero, both of which are explicit.
+
+        The range is enforced here and not only in the schema. SQLite cannot
+        attach a CHECK to a column added by ALTER TABLE, so the constraint in
+        `SCHEMA` protects a file created after this change and does nothing
+        for one migrated into it. Two files, one rule, and the rule has to
+        live where both of them pass through.
+        """
+        if self.media_in(tenant, media_id) is None:
+            raise StudioError("این عکس پیدا نشد")
+        sets, args = [], []
+        if note is not None:
+            text = str(note).strip()
+            if len(text) > MAX_NOTE:
+                raise StudioError(f"یادداشت از {MAX_NOTE} نویسه بلندتر است")
+            sets.append("note = ?")
+            args.append(text or None)
+        if rating is not None:
+            if isinstance(rating, bool) or not isinstance(rating, int):
+                raise StudioError("امتیاز باید عدد باشد")
+            if not 0 <= rating <= MAX_RATING:
+                raise StudioError(f"امتیاز باید بین ۰ و {MAX_RATING} باشد")
+            sets.append("rating = ?")
+            args.append(rating)
+        if not sets:
+            return self.media_in(tenant, media_id)
+        args += [tenant, media_id]
+        self._conn.execute(
+            f"UPDATE media_items SET {', '.join(sets)} "
+            f"WHERE tenant_id = ? AND media_id = ?", tuple(args))
+        return self.media_in(tenant, media_id)
+
+    def media_in(self, tenant: str, media_id: str) -> dict | None:
+        """One photo, scoped to its tenant.
+
+        Scoped because an id alone is not authorisation — the same shape of
+        leak that had to be closed once already when an album id was looked
+        up without asking whose album it was.
+        """
+        row = self._conn.execute(
+            "SELECT media_id, collection_id, mime, byte_size, has_original, "
+            "added_at, archived_at, note, rating, taken_at, taken_source "
+            "FROM media_items WHERE tenant_id = ? AND media_id = ?",
+            (tenant, media_id)).fetchone()
+        if row is None:
+            return None
+        return {"media_id": row[0], "collection_id": row[1], "mime": row[2],
+                "byte_size": int(row[3]), "has_original": bool(row[4]),
+                "added_at": int(row[5]), "archived_at": row[6],
+                "note": row[7] or "", "rating": int(row[8] or 0),
+                "taken_at": row[9], "taken_source": row[10] or "",
+                "labels": [r[0] for r in self._conn.execute(
+                    "SELECT label FROM media_labels WHERE media_id = ? "
+                    "ORDER BY label", (media_id,))]}
+
     def add_media(self, tenant: str, media_id: str, *, mime: str,
                   byte_size: int, has_original: bool, now_epoch_s: int,
+                  taken_at: int | None = None, taken_source: str = "",
                   collection_id: str | None = None) -> None:
         # Scoped: an album id arriving in a request must be one of this
         # tenant's own, not merely one that exists somewhere.
@@ -425,12 +548,18 @@ class StudioStore:
             raise StudioError(f"آلبومی به نام «{collection_id}» نیست")
         self._conn.execute("BEGIN IMMEDIATE")
         try:
+            # An unrecognised source is stored as unknown rather than as
+            # itself: the column exists to say what the number is worth, so a
+            # value nobody defined would defeat the only thing it is for.
+            source = taken_source if taken_source in TAKEN_SOURCES else ""
             self._conn.execute(
                 "INSERT INTO media_items (media_id, tenant_id, collection_id, "
-                "mime, byte_size, has_original, added_at) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                "mime, byte_size, has_original, added_at, "
+                "taken_at, taken_source) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (media_id, tenant, collection_id, mime, int(byte_size),
-                 1 if has_original else 0, now_epoch_s))
+                 1 if has_original else 0, now_epoch_s,
+                 int(taken_at) if taken_at else None, source or None))
             tail = media_id.rsplit("-", 1)[-1]
             if tail.isdigit():
                 # In the same transaction as the row: a crash between the two
@@ -451,7 +580,8 @@ class StudioStore:
         overloading this one.
         """
         sql = ("SELECT media_id, collection_id, mime, byte_size, "
-               "has_original, added_at, archived_at FROM media_items "
+               "has_original, added_at, archived_at, note, rating, "
+               "taken_at, taken_source FROM media_items "
                "WHERE tenant_id = ? ")
         args: tuple = (tenant,)
         if collection_id is not None:
@@ -459,10 +589,18 @@ class StudioStore:
             args += (collection_id,)
         if not include_archived:
             sql += "AND archived_at IS NULL "
+        # Ordered by when it was TAKEN where that is known, falling back to
+        # when it arrived. Fifty photos uploaded in one sitting share a single
+        # `added_at`, so ordering by that alone hands a shoot back in whatever
+        # order the picker happened to iterate — which is not an order at all.
         rows = [{"media_id": r[0], "collection_id": r[1], "mime": r[2],
                  "byte_size": int(r[3]), "has_original": bool(r[4]),
-                 "added_at": int(r[5]), "archived_at": r[6], "labels": []}
-                for r in self._conn.execute(sql + "ORDER BY added_at DESC", args)]
+                 "added_at": int(r[5]), "archived_at": r[6],
+                 "note": r[7] or "", "rating": int(r[8] or 0),
+                 "taken_at": r[9], "taken_source": r[10] or "", "labels": []}
+                for r in self._conn.execute(
+                    sql + "ORDER BY COALESCE(taken_at, added_at) DESC, "
+                          "media_id DESC", args)]
         # Labels fetched in one query rather than per row: a gallery of two
         # hundred photos would otherwise be two hundred round trips to the
         # same file.

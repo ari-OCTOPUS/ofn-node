@@ -165,6 +165,7 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         studio_guidance=node.studio_guidance,
         set_labels=node.set_draft_labels,
         set_media_labels=node.set_media_labels,
+        describe_media=node.describe_media,
         add_media=node.add_to_library,
         create_album=node.create_album,
         file_media=node.file_media,
