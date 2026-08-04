@@ -635,8 +635,14 @@ const $ = id => document.getElementById(id);
    used to be the whole answer, and it made a node that was down look
    exactly like a page being previewed. */
 const REASONS = {
-  'no-shell': 'این را از داخل تلگرام باز کنید. اینجا فقط پیش‌نمایش است و '
-            + 'چیزی ثبت نمی‌شود.',
+  /* Said as an instruction, not as a status. "This is a preview" describes
+     the page; it does not tell anybody what to do, and the difference
+     matters because the fix is one tap away and not guessable — a link
+     opened in a browser looks identical to the real thing and can never
+     work, since the launch blob only exists inside the client. */
+  'no-shell': 'این صفحه از داخل تلگرام باز نشده، برای همین هیچ‌چیزش کار '
+            + 'نمی‌کند. ربات را در تلگرام باز کنید و دکمهٔ منو — کنار کادر '
+            + 'پیام — را بزنید. باز کردن لینک در مرورگر جواب نمی‌دهد.',
   'rejected': 'این حساب اجازهٔ ورود ندارد.',
   'not-allowed': 'این حساب در فهرست این استودیو نیست.',
   'unreachable': 'به دستگاه وصل نشد. چیزی ثبت نشده.',

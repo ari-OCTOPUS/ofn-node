@@ -150,6 +150,19 @@ class TestServedOverHttp(unittest.TestCase):
         _, _, headers = self.get("/")
         self.assertEqual(headers.get("X-Content-Type-Options"), "nosniff")
 
+    def test_the_shell_is_never_cached(self):
+        """No ETag and no Last-Modified go out with it, so a client caching
+        it heuristically has no way to discover it changed — and the shell
+        is not fingerprinted, so its URL never changes either.
+
+        The symptom is a partner saying "I restarted it and nothing is
+        different" while the node serves the new file to everyone else. That
+        is an expensive thing to debug from the node's side, because from
+        the node's side everything is correct.
+        """
+        _, _, headers = self.get("/")
+        self.assertEqual(headers.get("Cache-Control"), "no-store")
+
 
 class TestPortMapping(unittest.TestCase):
     def test_each_shell_has_its_own_port(self):

@@ -716,6 +716,15 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
                     # stop refetching it on every open, short enough that
                     # replacing it does not need a cache-busting name.
                     self.send_header("Cache-Control", "public, max-age=86400")
+                elif ctype.startswith("text/html"):
+                    # No validator was sent with these — no ETag, no
+                    # Last-Modified — so a client caching them heuristically
+                    # has no way to find out they changed, and the shell is
+                    # not fingerprinted either. The visible symptom is a
+                    # partner reporting "I restarted it and saw no change"
+                    # while the node serves the new file to every other
+                    # caller, which is a very expensive thing to debug.
+                    self.send_header("Cache-Control", "no-store")
                 self.end_headers()
                 self.wfile.write(data)
                 self._audit("GET", path, 200)
