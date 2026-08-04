@@ -189,12 +189,41 @@ def _miniapp_static_response(path: str) -> tuple:
     except OSError:
         return 404, b"", "text/plain; charset=utf-8"
     if rel == "index.html":
+        # ── ضدِکشِ تلگرام (۲۰۲۶-۰۸-۰۴) ────────────────────────────────────
+        # مالک گزارش داد «هر تغییری می‌دهی هیچی نمی‌شود» در حالی که سرور
+        # اثباتاً فایلِ نو را با `Cache-Control: no-store` سرو می‌کرد.
+        # وب‌ویوِ مینی‌اپِ تلگرام دارایی‌ها را بر اساسِ **URL** کش می‌کند و
+        # آن هدر را همیشه رعایت نمی‌کند. تنها اهرمی که قطعی است، عوض‌کردنِ
+        # خودِ URL است. پس نسخهٔ محتوا داخلِ query تزریق می‌شود:
+        # فایل که عوض شد ⇒ آدرس عوض می‌شود ⇒ کش ساختاراً بی‌اثر است.
+        # (اگر این را برندارم، هر بازطراحیِ آینده هم «دیده نمی‌شود».)
+        body = _version_assets(body)
         snippet = _INJECT.encode("utf-8")
         if b"</body>" in body:
             body = body.replace(b"</body>", snippet + b"</body>", 1)
         else:
             body = body + snippet
     return 200, body, ctype
+
+
+def assets_version() -> str:
+    """اثرِ انگشتِ محتوای دارایی‌ها. هر بایتِ عوض‌شده = نسخهٔ نو."""
+    h = hashlib.sha256()
+    for name in ("index.html", "app.js", "tg_shell.js", "style.css"):
+        try:
+            h.update((_MINIAPP_DIR / name).read_bytes())
+        except OSError:
+            h.update(b"?")
+    return h.hexdigest()[:10]
+
+
+def _version_assets(body: bytes) -> bytes:
+    """`/miniapp/app.js` → `/miniapp/app.js?v=<hash>` در خودِ HTML."""
+    v = assets_version().encode("ascii")
+    for name in (b"app.js", b"tg_shell.js", b"style.css"):
+        body = body.replace(b'"/miniapp/' + name + b'"',
+                            b'"/miniapp/' + name + b'?v=' + v + b'"')
+    return body
 
 def _default_fetch(path: str) -> tuple:
     """proxy ِ loopback به 8773 — فقط GET، فقط دو مسیرِ سفید. (status, body, ctype)."""
