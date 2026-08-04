@@ -172,9 +172,66 @@ def t_f_the_offset_still_advances_so_a_poison_message_cannot_wedge_the_loop():
         "وسطِ دسته بقیهٔ پیام‌ها را می‌بلعد")
 
 
-def t_g_this_test_only_reads():
+def t_g_behavioural_a_raising_handler_really_lands_in_the_dead_letter_file():
+    """⚠️ نقطهٔ کورِ همین فایل، که ممیزیِ مستقلِ ۰۸-۰۴ پیدایش کرد و درست بود:
+
+    هر assert ِ بالا **شکلِ سورس** را می‌سنجد. یعنی اگر `_dead_letter` وجود
+    داشته باشد، صدا زده شود، و بعد روی یک استثنای واقعی زود return کند —
+    مثلاً چون مسیر ساخته نمی‌شود — هر شش تست سبز می‌مانند و پیام باز هم گم
+    می‌شود. «کد درست به‌نظر می‌رسد» با «کد کار می‌کند» یکی نیست.
+
+    این مورد رفتار را می‌سنجد: یک update که handlerش استثنا می‌دهد، باید
+    **یک ردیف** در `dead-letters.jsonl` بگذارد و offset **باید** جلو برود.
+    هر دو با هم — چون فقط اولی یعنی ممکن است حلقه گیر کرده باشد، و فقط
+    دومی یعنی همان باگِ اصلی."""
+    import importlib.util
+    import json as _j
+    import types
+
+    spec = importlib.util.spec_from_file_location("center_probe", CENTER)
+    mod = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(mod)
+    except Exception as e:  # noqa: BLE001
+        raise AssertionError(f"center.py قابلِ import نیست: {type(e).__name__}: {e}")
+
+    cls = getattr(mod, "Center", None)
+    assert cls is not None, "کلاسِ Center پیدا نشد — این گارد کور شده"
+
+    # نمونهٔ بدونِ __init__ — هیچ اتصالی به تلگرام یا دیسکِ زنده باز نمی‌شود.
+    inst = cls.__new__(cls)
+    # ⚠️ مسیر از خودِ `opslib.STATE_DIR` ِ همین پروسه گرفته می‌شود، نه دست‌ساز:
+    # harness آن را به درختِ **موقت** pin کرده. اگر روزی pin بشکند، این تست
+    # داخلِ state ِ **زنده** می‌نوشت — همان درسِ «ایزوله را برای مسیرِ واقعی
+    # بگذار». پس صریح می‌سنجیم که مقصد بیرونِ درختِ زنده است.
+    _ops_mod = getattr(mod, "opslib", None)
+    assert _ops_mod is not None, "opslib از center در دسترس نیست"
+    dl = Path(_ops_mod.STATE_DIR) / "telegram" / "dead-letters.jsonl"
+    assert str(harness.REAL_VAULT).lower() not in str(dl).lower(), (
+        "مقصدِ تست داخلِ درختِ زنده افتاد — harness ایزوله نکرده", str(dl))
+    dl.parent.mkdir(parents=True, exist_ok=True)
+    before = dl.read_text("utf-8").count("\n") if dl.exists() else 0
+
+    inst._dead_letter({"update_id": 42, "message": {"text": "سلام"}},
+                      RuntimeError("boom"))
+
+    assert dl.exists(), (
+        "‏_dead_letter هیچ فایلی ننوشت — گاردهای AST سبزند ولی پیام واقعاً "
+        f"گم می‌شود. مسیرِ منتظره: {dl}")
+    lines = [x for x in dl.read_text("utf-8").splitlines() if x.strip()]
+    assert len(lines) == before + 1, (before, len(lines))
+    row = _j.loads(lines[-1])
+    assert row.get("update_id") == 42, row
+    assert row.get("error") == "RuntimeError", row
+    assert (row.get("update") or {}).get("message", {}).get("text") == "سلام", (
+        "متنِ پیام ذخیره نشد — مالک نمی‌تواند بفهمد چه چیزی گم شده", row)
+
+
+def t_h_this_test_only_reads_the_live_tree():
     import ast as _a
-    banned = {"write_text", "write_bytes", "unlink", "mkdir", "rename"}
+    # `mkdir` عمداً مجاز است: موردِ رفتاری باید پوشهٔ **sandbox** را بسازد،
+    # و خودِ آن مورد صریح assert می‌کند که مقصد بیرونِ درختِ زنده است.
+    banned = {"write_text", "write_bytes", "unlink", "rename"}
     hits = [n.func.attr for n in _a.walk(_a.parse(Path(__file__).read_text("utf-8")))
             if isinstance(n, _a.Call) and isinstance(n.func, _a.Attribute)
             and n.func.attr in banned]
