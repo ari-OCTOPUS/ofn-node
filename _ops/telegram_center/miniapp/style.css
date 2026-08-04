@@ -184,3 +184,108 @@ input,select{background:var(--surface-2);border:1px solid var(--line);color:var(
   border-radius:11px;padding:11px;font-size:15px;width:100%;min-height:46px}
 input:focus,select:focus{outline:2px solid var(--cyan);outline-offset:1px;border-color:var(--cyan)}
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   سه پوستهٔ بصری — ساختار یکی است، حسِ گرافیکی سه‌تا.
+   مالک روی گوشیِ خودش سوییچ می‌کند و انتخاب می‌کند؛ من نمی‌توانم ببینمش.
+   هر سه قواعدِ باربر را نگه می‌دارند: صفر letter-spacing روی فارسی، ایزولهٔ
+   bidi، صفر منبعِ بیرونی (CSP)، تیره به‌عنوان پیش‌فرض.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── پوستهٔ ۱: نئون — نزدیک‌ترین به لوگو ──────────────────────────────
+   کرومِ تیره با لبهٔ نورانی. عمق از **درخشش** می‌آید نه از سایه. */
+:root[data-skin="neon"]{ --r:20px; }
+[data-skin="neon"] body{
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(34,211,238,.10), transparent 60%),
+    radial-gradient(90% 60% at 110% 20%, rgba(168,85,247,.10), transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
+}
+[data-skin="neon"] .tri,[data-skin="neon"] .card,[data-skin="neon"] .calm{
+  border-radius:var(--r);
+  background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.012)), var(--surface);
+  border:1px solid rgba(34,211,238,.16);
+  box-shadow:0 0 0 1px rgba(255,255,255,.03) inset, 0 10px 30px rgba(0,0,0,.45);
+}
+[data-skin="neon"] .tri.hot{border-color:rgba(240,70,139,.40);box-shadow:0 0 26px rgba(240,70,139,.16),0 10px 30px rgba(0,0,0,.45)}
+[data-skin="neon"] .tri.warm{border-color:rgba(168,85,247,.34);box-shadow:0 0 22px rgba(168,85,247,.13),0 10px 30px rgba(0,0,0,.45)}
+[data-skin="neon"] .tri .band{height:3px;filter:saturate(1.5)}
+[data-skin="neon"] .tab{border-radius:16px;background:linear-gradient(180deg, rgba(255,255,255,.05), transparent), var(--surface)}
+[data-skin="neon"] .tab.active{
+  background:linear-gradient(180deg,#5ee7f7,var(--cyan));
+  box-shadow:0 0 20px rgba(34,211,238,.45), 0 2px 10px rgba(0,0,0,.4)}
+[data-skin="neon"] .act{
+  background:linear-gradient(180deg,#5ee7f7,var(--cyan));border-radius:16px;
+  box-shadow:0 0 24px rgba(34,211,238,.35), 0 4px 14px rgba(0,0,0,.4)}
+[data-skin="neon"] .eye .halo{opacity:.30}
+[data-skin="neon"] details.quiet{border-radius:16px;border:1px solid rgba(255,255,255,.05)}
+
+/* ── پوستهٔ ۲: شیشه‌ای — سطحِ نیمه‌شفاف با محوِ پس‌زمینه ─────────────── */
+:root[data-skin="glass"]{ --r:24px; }
+[data-skin="glass"] body{
+  background:
+    radial-gradient(80% 50% at 10% 0%, rgba(168,85,247,.20), transparent 62%),
+    radial-gradient(80% 50% at 95% 12%, rgba(34,211,238,.18), transparent 62%),
+    radial-gradient(70% 45% at 50% 100%, rgba(240,70,139,.10), transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
+}
+[data-skin="glass"] .tri,[data-skin="glass"] .card,[data-skin="glass"] .calm,
+[data-skin="glass"] details.quiet{
+  border-radius:var(--r);
+  background:rgba(255,255,255,.055);
+  -webkit-backdrop-filter:blur(18px) saturate(1.5);
+  backdrop-filter:blur(18px) saturate(1.5);
+  border:1px solid rgba(255,255,255,.13);
+  box-shadow:0 1px 0 rgba(255,255,255,.12) inset, 0 12px 34px rgba(0,0,0,.35);
+}
+[data-skin="glass"] .tab{
+  border-radius:18px;background:rgba(255,255,255,.06);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.11)}
+[data-skin="glass"] .tab.active{background:rgba(34,211,238,.85);border-color:transparent}
+[data-skin="glass"] .act{border-radius:18px;background:rgba(34,211,238,.92);
+  box-shadow:0 8px 24px rgba(34,211,238,.28)}
+[data-skin="glass"] .tri .band{height:4px;opacity:.9}
+[data-skin="glass"] .li{background:rgba(255,255,255,.06);border-radius:14px}
+:root[data-theme="light"][data-skin="glass"] .tri,
+:root[data-theme="light"][data-skin="glass"] .card,
+:root[data-theme="light"][data-skin="glass"] .calm,
+:root[data-theme="light"][data-skin="glass"] details.quiet{
+  background:rgba(255,255,255,.72);border-color:rgba(10,20,36,.10)}
+
+/* ── پوستهٔ ۳: عمق — کارت‌های شناور با سایهٔ نرم و گردیِ زیاد ────────── */
+:root[data-skin="depth"]{ --r:26px; }
+[data-skin="depth"] body{
+  background:linear-gradient(180deg, #0a1226 0%, var(--bg) 45%);
+  background-attachment:fixed;
+}
+[data-skin="depth"] .tri,[data-skin="depth"] .card,[data-skin="depth"] .calm{
+  border-radius:var(--r);border:0;
+  background:linear-gradient(158deg, var(--surface-2), var(--surface));
+  box-shadow:0 18px 40px rgba(0,0,0,.50), 0 2px 0 rgba(255,255,255,.06) inset;
+}
+[data-skin="depth"] .tri .band{height:0}
+/* نوارِ شدت به یک نوارِ کناریِ ضخیم تبدیل می‌شود — گردتر و آرام‌تر */
+[data-skin="depth"] .tri{position:relative;overflow:hidden}
+[data-skin="depth"] .tri::before{
+  content:"";position:absolute;inset-inline-start:0;top:14px;bottom:14px;width:5px;
+  border-radius:0 6px 6px 0}
+[data-skin="depth"] .tri.hot::before{background:var(--magenta);box-shadow:0 0 18px rgba(240,70,139,.5)}
+[data-skin="depth"] .tri.warm::before{background:var(--violet);box-shadow:0 0 18px rgba(168,85,247,.45)}
+[data-skin="depth"] .tri.cool::before{background:var(--cyan)}
+[data-skin="depth"] .tri .in{padding-inline-start:20px}
+[data-skin="depth"] .tab{border-radius:18px;border:0;
+  background:linear-gradient(158deg, var(--surface-2), var(--surface));
+  box-shadow:0 6px 16px rgba(0,0,0,.35)}
+[data-skin="depth"] .tab.active{background:linear-gradient(158deg,#5ee7f7,var(--cyan));
+  box-shadow:0 8px 22px rgba(34,211,238,.40)}
+[data-skin="depth"] .act{border-radius:20px;
+  background:linear-gradient(158deg,#5ee7f7,var(--cyan));
+  box-shadow:0 12px 28px rgba(34,211,238,.35)}
+[data-skin="depth"] details.quiet{border-radius:22px;border:0;
+  box-shadow:0 8px 22px rgba(0,0,0,.28)}
+
+/* دکمهٔ سوییچِ پوسته */
+.skinbtn{font-size:13px}

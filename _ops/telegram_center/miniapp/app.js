@@ -63,6 +63,32 @@
     if (shellReport.caps && shellReport.caps.homeScreen) {
       addBtn("افزودن به صفحهٔ اصلی", "📌", function(){ shell.addToHomeScreen(tg); });
     }
+    // ── سوییچِ پوستهٔ بصری ────────────────────────────────────────────
+    // من نمی‌توانم این اپ را روی گوشیِ مالک ببینم (مرورگرم به آن دامنه
+    // دسترسی ندارد)، پس به‌جای حدس‌زدن، سه پوسته را می‌سازم و **خودش**
+    // بینشان سوییچ می‌کند. انتخابش می‌ماند.
+    var SKINS = [["neon","نئون"],["glass","شیشه‌ای"],["depth","عمق"]];
+    function applySkin(id){
+      try{
+        document.documentElement.setAttribute("data-skin", id);
+        localStorage.setItem("octo-skin", id);
+      }catch(e){}
+      var b = document.getElementById("skinBtn");
+      var lbl = (SKINS.filter(function(x){return x[0]===id;})[0]||SKINS[0])[1];
+      if(b) b.textContent = lbl;
+    }
+    var saved;
+    try{ saved = localStorage.getItem("octo-skin"); }catch(e){}
+    var cur = SKINS.map(function(x){return x[0];}).indexOf(saved);
+    if(cur < 0) cur = 0;
+    var sb = document.createElement("button");
+    sb.className = "palbtn skinbtn"; sb.id = "skinBtn";
+    sb.title = "تعویضِ پوستهٔ بصری";
+    sb.addEventListener("click", function(){
+      cur = (cur + 1) % SKINS.length; applySkin(SKINS[cur][0]);
+    });
+    host.appendChild(sb);
+    applySkin(SKINS[cur][0]);
   })();
 
   // tabs
