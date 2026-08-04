@@ -1,4 +1,12 @@
+---
+tags: [ofn, status, gates]
+aliases: [چک‌پوینت, Checkpoint]
+updated: 2026-08-04
+---
+
 # CHECKPOINT — دروازهٔ A بسته · دروازهٔ B تقریباً بسته
+
+**پیوندها:** [[INDEX]] · [[HANDOFF]] · [[DECISIONS]]
 
 **تاریخ:** ۲۰۲۶-۰۸-۰۴ · **کد:** v0.8.0 + پچ پوسته‌ها · **کامیت پایه:** 08c47cd
 

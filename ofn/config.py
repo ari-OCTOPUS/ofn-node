@@ -82,7 +82,11 @@ def load() -> Config:
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "packs")
     domain = os.environ.get("OFN_DOMAIN", "master-painting.com")
 
-    gates: list[str] = ["secret_rotation"]
+    # miner_isolation stays shut until D-8's items 1-3 are done and the owner
+    # says so. It only bites once a pack declares it — no mining pack exists
+    # yet, so arming it here costs nothing and means the wiring is already in
+    # place the day one does.
+    gates: list[str] = ["secret_rotation", "miner_isolation"]
     extra = os.environ.get("OFN_EXTRA_CLOSED_GATES", "")
     gates += [g.strip() for g in extra.split(",") if g.strip()]
 

@@ -1,0 +1,92 @@
+#!/usr/sbin/nft -f
+#
+# OFN — لایهٔ ۲ از D-8: default-deny ورودی از LAN
+#
+# ⚠️  این فایل نوشته شده ولی هرگز اجرا نشده است.
+#     مراحل اعمال (با dead-man switch) در APPLY.md است. آری خودش اعمال می‌کند.
+#     یک قاعدهٔ بد روی ۲۲ = قفل شدنِ تنها راه ورود به این برد.
+#
+# پیش‌نیاز: nftables روی این برد نصب نیست →  sudo apt install nftables
+#
+# چه چیزی را نمی‌شکند:
+#   · cloudflared — اتصالش خروجی است، با ct established برمی‌گردد
+#   · پورت‌های ۸۷۹۱–۸۷۹۴ — روی loopback‌اند، این جدول به lo دست نمی‌زند
+#   · apt / NTP / API — همه خروجی‌اند، chain output روی accept است
+
+# ── متغیرها — قبل از اعمال بازبینی کن ──────────────────────────────────────
+
+define LAN            = 192.168.0.0/24
+define TELEMETRY_PORT = 8796
+
+# ADMIN = از کجا اجازهٔ SSH هست.
+#
+# پیش‌فرض کل LAN است چون آدرس این برد DHCP است (192.168.0.138 امروز، فردا
+# شاید نه) و باریک‌تر کردنش بدون IP ثابتِ لپ‌تاپ، ریسک قفل شدن دارد.
+#
+# سخت‌تر کردن — بعد از اینکه آدرس ثابت لپ‌تاپ را داشتی، این را جا بگذار:
+#   define ADMIN = { 192.168.0.50 }
+define ADMIN = $LAN
+
+# ── جدول ──────────────────────────────────────────────────────────────────
+#
+# جدولِ اختصاصی، نه flush ruleset: اگر بعداً چیز دیگری قاعده گذاشت، این فایل
+# پاکش نمی‌کند. دو خط اول اصطلاح استاندارد «اگر بود حذف کن» است تا اعمال
+# دوباره خطا ندهد.
+
+table inet ofn_fw
+delete table inet ofn_fw
+
+table inet ofn_fw {
+
+    chain input {
+        type filter hook input priority filter; policy drop;
+
+        # ۱) ترافیک برگشتیِ اتصال‌هایی که خودمان باز کردیم
+        ct state established,related accept
+        ct state invalid drop
+
+        # ۲) loopback — پوسته‌ها و پنل اینجا زندگی می‌کنند
+        iif lo accept
+
+        # ۳) ICMP — بدون این، عیب‌یابی شبکه کور می‌شود و Path MTU می‌شکند
+        ip  protocol icmp icmp type {
+                echo-request, echo-reply, destination-unreachable,
+                time-exceeded, parameter-problem } accept
+        ip6 nexthdr ipv6-icmp accept
+
+        # ۴) پاسخ DHCP — این برد آدرسش را DHCP می‌گیرد. بدون این، بعد از
+        #    انقضای lease شبکه بی‌صدا می‌میرد (۷۷۰۰۰ ثانیه بعد، نه همان لحظه —
+        #    که بدترین جور شکست است).
+        udp dport 68 udp sport 67 accept
+
+        # ۵) SSH — تنها درِ ورود. اگر این خط خراب باشد، برد از دست می‌رود.
+        tcp dport 22 ip saddr $ADMIN ct state new accept
+
+        # ۶) تله‌متری ناوگان — ۱۶ ماینر گزارششان را به اینجا می‌دهند.
+        #
+        #    ⚠️ هنوز هیچ چیزی روی ۸۷۹۶ گوش نمی‌دهد. این سوراخ عمداً از قبل
+        #    باز است تا وقتی listener ساخته شد، تغییر فایروال لازم نباشد.
+        #    وقتی ساختیش: باید روی $LAN یا 0.0.0.0 bind شود، نه 127.0.0.1 —
+        #    وگرنه این قاعده بی‌معنی است.
+        tcp dport $TELEMETRY_PORT ip saddr $LAN ct state new accept
+
+        # ۷) بقیه — بیفت، ولی صدادار. نرخ محدود است تا لاگ ژورنال را نخورد.
+        limit rate 10/minute burst 5 packets \
+            log prefix "ofn_fw drop-in: " level info
+        counter drop
+    }
+
+    chain forward {
+        type filter hook forward priority filter; policy drop;
+        # این برد روتر نیست و نباید بشود.
+    }
+
+    chain output {
+        type filter hook output priority filter; policy accept;
+        # خروجی عمداً باز است: cloudflared، apt، NTP، و API همه لازمش دارند.
+        #
+        # این یعنی لایهٔ ۲ از *این نود* دفاع می‌کند، نه از LAN. ماینرِ
+        # تسخیرشده همچنان به روتر و اینترنت می‌رسد. تنها لایهٔ ۴ (VLAN)
+        # آن را می‌بندد — ریسک باقی‌مانده در D-8 نوشته شده.
+    }
+}

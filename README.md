@@ -1,4 +1,12 @@
+---
+tags: [ofn, architecture]
+aliases: [معماری, README]
+updated: 2026-08-04
+---
+
 # OFN — Octopus Field Node · v0.8.0
+
+**پیوندها:** [[INDEX]] · [[CLAUDE]] · [[DECISIONS]] · [[HANDOFF]]
 
 سه بیزنس، یک دستگاه، یک کرنل. تحویل **فاز ۱ تا ۷**:
 کرنل + ماندگاری + Router + API + بقا + اتصال واقعی + مغز پس‌زمینه.
