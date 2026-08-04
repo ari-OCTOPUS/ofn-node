@@ -383,6 +383,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # _context. ۷۲ درخواستِ pending، ۸ رأیِ granted — و همان نیاز شش بار
          # در یک روز تکرار شد.
          "test_tool_request_sees_its_answers.py",
+         # ۰۸-۰۴ ← پلِ «رأیِ مالک → قابلیتِ واقعی». ۳۶ درخواست همه pending و
+         # ۴ رأیِ granted که هیچ کدی مصرفشان نمی‌کرد — در حالی که قابلیتِ
+         # درخواستی از قبل وجود داشت و **روشن** بود.
+         "test_capability_bridge.py",
          "test_sync_health_unknown.py",
          "test_arbiter_consensus_rule.py",
          "test_state_write_monopoly.py",
