@@ -55,11 +55,33 @@ def t_a_only_read_only_methods_are_called():
 
     mr.status(f, url=QUICK)
     assert set(seen) <= {"getMe", "getChatMenuButton"}, seen
+
+    # ⚠️ نسخهٔ اولِ این گارد زیررشته‌ای بود و روی **docstring ِ خودم** افتاد —
+    # جایی که `setChatMenuButton` را فقط **توضیح** داده بودم. پنجمین باری
+    # است که همین ضدالگو در این ریپو می‌زند. AST، و صریحاً بدونِ docstring:
+    # کدِ خوب دربارهٔ خودش حرف می‌زند، پس assert ِ متنی به توضیح می‌خورد نه
+    # به کد.
+    import ast
     src = (harness.REAL_VAULT / "_ops" / "telegram_center"
            / "miniapp_registration.py").read_text("utf-8", errors="replace")
-    for bad in ("setChatMenuButton", "sendMessage", "editMessage",
-                "deleteMessage", "setMyCommands"):
-        assert bad not in src, (bad, "متدِ تغییردهنده در ماژولِ فقط‌خواندنی")
+    tree = ast.parse(src)
+    docstrings = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef,
+                             ast.ClassDef)):
+            d = ast.get_docstring(node, clean=False)
+            if d is not None:
+                docstrings.add(d)
+    MUTATING = {"setChatMenuButton", "sendMessage", "editMessageText",
+                "deleteMessage", "setMyCommands", "answerCallbackQuery",
+                "setWebhook", "editMessageReplyMarkup"}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Constant) and isinstance(node.value, str):
+            if node.value in docstrings:
+                continue
+            assert node.value not in MUTATING, (
+                node.value, f"متدِ تغییردهنده در کدِ ماژولِ فقط‌خواندنی "
+                            f"(خطِ {node.lineno})")
 
 
 def t_b_the_live_state_is_reported_as_unregistered():
