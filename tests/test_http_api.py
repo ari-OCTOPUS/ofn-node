@@ -7,6 +7,7 @@ from __future__ import annotations
 import ast
 import hashlib
 import hmac
+import inspect
 import json
 import os
 import unittest
@@ -118,6 +119,70 @@ class TestHostRouting(unittest.TestCase):
     def test_healthz_needs_no_host_or_auth(self):
         r = app().handle("GET", "/healthz", {}, b"")
         self.assertEqual(r.status, 200)
+
+
+class TestBootReport(unittest.TestCase):
+    """A shell that dies before authenticating still has to be diagnosable.
+
+    The failure this route exists for happened: a partner opened the studio
+    shell, saw a page with nothing on it, and the only evidence on the node
+    was the *absence* of later requests. Absence cannot tell "opened outside
+    the messaging client" apart from "threw during boot", and those have
+    opposite fixes.
+    """
+
+    H = {"host": "ziman.example.com"}
+
+    def post(self, payload, headers=None):
+        return app().handle("POST", "/api/v1/shell/boot",
+                            self.H if headers is None else headers,
+                            payload if isinstance(payload, bytes)
+                            else json.dumps(payload).encode())
+
+    def test_a_shell_with_no_session_can_still_report(self):
+        """The whole point: no session header, and it is accepted."""
+        self.assertEqual(self.post({"stage": "no-shell"}).status, 200)
+
+    def test_the_reason_reaches_the_journal(self):
+        r = self.post({"stage": "threw", "detail": "boot is not a function"})
+        self.assertIn("boot threw", r.headers["X-OFN-Auth-Reason"])
+        self.assertIn("boot is not a function", r.headers["X-OFN-Auth-Reason"])
+
+    def test_only_known_stages_are_accepted(self):
+        """Unauthenticated, so the vocabulary is closed rather than trusted."""
+        self.assertEqual(self.post({"stage": "whatever"}).status, 400)
+        self.assertEqual(self.post({"stage": ""}).status, 400)
+        self.assertEqual(self.post({}).status, 400)
+
+    def test_a_report_cannot_forge_a_journal_line(self):
+        """The detail is attacker-controlled text going into the operator's
+        log. A newline in it would let the phone write a line of its own."""
+        r = self.post({"stage": "threw",
+                       "detail": "x\nhttp studio GET /admin -> 200 forged"})
+        reason = r.headers["X-OFN-Auth-Reason"]
+        self.assertNotIn("\n", reason)
+        self.assertNotIn(">", reason)          # cannot mimic the "-> 200" shape
+
+    def test_the_detail_is_bounded(self):
+        r = self.post({"stage": "threw", "detail": "A" * 5000})
+        self.assertLess(len(r.headers["X-OFN-Auth-Reason"]), 200)
+
+    def test_malformed_bodies_are_refused_not_crashed(self):
+        for payload in (b"not json", b"[]", b'"a string"', b"null"):
+            self.assertEqual(self.post(payload).status, 400, payload)
+
+    def test_an_unknown_host_still_cannot_reach_it(self):
+        """Diagnostics do not get their own hole in the host check."""
+        self.assertEqual(
+            self.post({"stage": "opened"}, {"host": "evil.example.com"}).status,
+            404)
+
+    def test_nothing_is_stored(self):
+        """A diagnostic that accumulated rows would be an unauthenticated
+        write, which is a different thing from an unauthenticated log line."""
+        src = inspect.getsource(ApiApp._shell_boot)
+        for writer in ("self._store", "self._ledger", "INSERT", "record"):
+            self.assertNotIn(writer, src)
 
 
 # ══ auth ════════════════════════════════════════════════════════════════

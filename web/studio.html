@@ -332,6 +332,11 @@ nav svg{width:21px;height:21px}
 .state button{font-family:inherit;font-size:14px;font-weight:600;margin-top:12px;
   padding:11px 18px;border-radius:13px;border:1px solid var(--line-hi);
   background:transparent;color:var(--t-hi);cursor:pointer}
+/* یک کنش اصلی داخل حالت خالی، هنوز کنش اصلی است — این قاعده بعد از
+   `.state button` می‌آید چون آن یکی خنثی‌اش می‌کرد. جفت رنگ همان جفت
+   ممیزی‌شده است. */
+.state .cta{background:var(--gold);color:var(--on-gold);border:0;
+  padding:15px;border-radius:17px;font-size:16px;margin-top:14px}
 .demo{display:inline-block;font-size:13px;padding:3px 11px;border-radius:9px;
   background:var(--sunk);border:1px solid var(--line);color:var(--t-lo)}
 [hidden]{display:none!important}
@@ -712,17 +717,36 @@ function drawFront() {
   if (at < queue.length) { askCard(queue[at]); $('gate').hidden = true; return; }
   const d = currentDraft();
   if (d) { drawDraft(d); return; }
+  /* Nothing to decide. That is two different situations and they used to
+     get the same sentence — "when a draft is ready it will appear here",
+     which describes a future and names nothing she can do to reach it. On a
+     new account it is the FIRST thing she sees, and it is a dead end: the
+     card is empty, the gallery says go to this tab, and this tab says wait.
+
+     So the empty archive gets an invitation and the stocked one gets a
+     count of what is really there. */
   const card = $('front');
   card.textContent = '';
   const spine = document.createElement('span');
   spine.className = 'spine';
   const k = document.createElement('div');
   k.className = 'kicker';
-  k.textContent = '—';
   const h = document.createElement('h2');
-  h.textContent = 'چیزی برای تصمیم نیست';
   const p = document.createElement('p');
-  p.textContent = 'وقتی پیش‌نویسی آماده شود، همین‌جا می‌آید.';
+  const have = (gallery.photos || []).length;
+  if (!have) {
+    k.textContent = 'شروع';
+    h.textContent = 'بیایید اولین عکس را بگذاریم';
+    /* Both halves matter on the first screen: where the photo goes, and
+       what will not happen to it. */
+    p.textContent = 'عکس روی همین دستگاه می‌ماند. تا خودتان نگویید، '
+                  + 'هیچ چیز جایی منتشر نمی‌شود.';
+  } else {
+    k.textContent = 'آرشیو';
+    h.textContent = 'چیزی برای تصمیم نیست';
+    p.textContent = fa(have) + ' عکس در آرشیو دارید — در تب «گالری» '
+                  + 'می‌توانید برچسب بزنید یا آلبوم بسازید.';
+  }
   card.append(spine, k, h, p);
   $('gate').hidden = true;
 }
@@ -991,8 +1015,8 @@ function show(which) {
   if (note) note.hidden = which !== 'view-today';
   const gate = $('gate');
   if (gate && which !== 'view-today') gate.hidden = true;
-  if (which === 'view-gallery') loadGallery();
-  if (which === 'view-business') loadBusiness();
+  if (which === 'view-gallery') guard(loadGallery(), 'گالری باز نشد.');
+  if (which === 'view-business') guard(loadBusiness(), 'این بخش باز نشد.');
 }
 
 /* ── gallery ───────────────────────────────────────────────────────────── */
@@ -1025,8 +1049,24 @@ function drawGrid() {
     p => album === null || p.collection_id === album);
   $('gallery-empty').hidden = shown.length > 0;
   if (!shown.length) {
-    $('gallery-empty').textContent =
-      'اینجا خالی است. از تب «امروز» عکس اضافه کنید.';
+    /* Used to read "this is empty, add a photo from the امروز tab" — an
+       empty screen whose only instruction is to go and use a different
+       screen. The picker lives over there, but a button can reach it, so
+       the tab that is empty is the tab that can fix it. */
+    const box2 = $('gallery-empty');
+    box2.hidden = false;
+    box2.textContent = '';
+    box2.append(Object.assign(document.createElement('div'), {
+      textContent: album === null
+        ? 'هنوز عکسی اینجا نیست. هر عکسی که اضافه کنید همین‌جا می‌ماند — این آرشیو خودتان است.'
+        : 'این آلبوم هنوز خالی است.',
+    }));
+    const add = document.createElement('button');
+    add.type = 'button';
+    add.className = 'cta';
+    add.textContent = 'عکس تازه';
+    add.onclick = () => { OFN.tap(); $('pick').click(); };
+    box2.append(add);
     $('tagpanel').hidden = true;
     return;
   }
@@ -1180,7 +1220,7 @@ async function boot() {
   if (pick) pick.addEventListener('change', ev => {
     const file = ev.target.files && ev.target.files[0];
     ev.target.value = '';        /* so the same file can be picked again */
-    addPhoto(file);
+    guard(addPhoto(file), 'عکس اضافه نشد.');
   });
 
   const later = $('later');
@@ -1193,7 +1233,7 @@ async function boot() {
   });
 
   const go = $('go-publish');
-  if (go) go.addEventListener('click', ev => { ev.preventDefault(); publishCurrent(); });
+  if (go) go.addEventListener('click', ev => { ev.preventDefault(); guard(publishCurrent(), 'انتشار انجام نشد.'); });
 
   document.querySelectorAll('[popovertarget="tray"]').forEach(b => {
     b.addEventListener('click', ev => {
@@ -1203,7 +1243,7 @@ async function boot() {
     });
   });
 
-  if (!await OFN.connect()) { showState(OFN.why); return; }
+  if (!await OFN.connect()) { tell(OFN.why); showState(OFN.why); return; }
   greet(OFN.who);
 
   let status, qs;
@@ -1215,7 +1255,15 @@ async function boot() {
 
   queue = (qs && qs.questions) || [];
   at = 0;
-  buildTwins((await OFN.get('/api/v1/studio/gallery')).vocabulary || []);
+  /* Was the one await in this function with nothing around it, and it threw
+     the rest of the response away to keep one field. The whole thing is
+     kept now for two reasons: the front card has to know whether the
+     archive is empty before it can say anything useful about it, and the
+     gallery tab then opens from memory instead of after a round trip. */
+  try {
+    gallery = await OFN.get('/api/v1/studio/gallery');
+    buildTwins(gallery.vocabulary || []);
+  } catch (_) { buildTwins([]); }
   try { await loadBoard(); }
   catch (_) { showState('unreachable'); return; }
 
@@ -1231,6 +1279,7 @@ async function boot() {
     b.textContent = fa(pending) + ' مورد';
     behind.append(b, document.createTextNode(' دیگر هست'));
   }
+  tell('live');
 }
 
 /* Ordering: a bare `boot()` here would run while the document is still
@@ -1241,17 +1290,73 @@ async function boot() {
    And it is wrapped: a blank screen is the worst failure this app can have,
    because it says nothing at all. Anything that goes wrong during boot now
    becomes a sentence on the page instead of silence. */
-function start() {
+/* Say what happened, to the node, whether or not there is a session.
+
+   This phone has no console, no devtools and no way to report anything back,
+   so when a partner says "it opens and there is nothing there" the only
+   evidence used to be the ABSENCE of later requests — and absence cannot
+   tell "opened outside the client" apart from "threw on the fourth line",
+   which have opposite fixes. One line in the journal ends that guessing.
+
+   Fire-and-forget by construction: a diagnostic whose own failure needs
+   diagnosing is worse than none, so nothing waits on it and nothing reads
+   the answer. `keepalive` so a report sent while the view is closing still
+   goes out. */
+function tell(stage, detail) {
   try {
-    boot();
-  } catch (err) {
+    fetch('/api/v1/shell/boot', {
+      method: 'POST', keepalive: true,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stage: stage, detail: String(detail || '').slice(0, 120) }),
+    }).catch(() => {});
+  } catch (_) { /* never let the report break the page it reports on */ }
+}
+
+function died(err) {
+  const msg = (err && err.message) ? err.message : String(err);
+  tell('threw', msg);
+  /* Through `showState`, not by writing to the box directly: that is what
+     also disables every control. A screen that failed to come up but still
+     shows an operable publish button is the worst of both. */
+  try { showState('broken', 'این صفحه بالا نیامد: ' + msg); }
+  catch (_) {
     const box = document.getElementById('state');
-    if (box) {
-      box.hidden = false;
-      box.textContent = 'این صفحه بالا نیامد: ' + (err && err.message ? err.message : err);
-    }
+    if (box) { box.hidden = false; box.textContent = 'این صفحه بالا نیامد: ' + msg; }
   }
 }
+
+/* Every async call started from an event handler goes through here.
+
+   A promise created inside a click handler has nobody to reject to. The
+   browser reports it to a console this phone does not have, and the screen
+   simply does not change — so a failed tap is indistinguishable from a
+   button that was never wired up. Both of the tab loaders and both of the
+   two actions were in that state.
+
+   Returns the promise so a caller may still chain; callers that do not are
+   now safe rather than silent. */
+function guard(p, sentence) {
+  return Promise.resolve(p).catch(err => {
+    const msg = (err && err.message) ? err.message : String(err);
+    tell('threw', msg);
+    showState('broken', sentence);
+  });
+}
+
+/* `boot` is async, so a synchronous try/catch around it catches NOTHING —
+   the call returns a promise immediately and any failure inside becomes an
+   unhandled rejection. That is precisely the bug this wrapper was written to
+   prevent, and it had it: every throw during boot left the static markup on
+   screen, which reads as "the app opened and is empty" rather than as an
+   error. Caught on the promise, and again globally, because the two catch
+   different things — a rejection here, a listener error later. */
+function start() {
+  tell('opened');
+  try { boot().catch(died); } catch (err) { died(err); }
+}
+window.addEventListener('error', ev => died(ev.error || ev.message));
+window.addEventListener('unhandledrejection', ev => died(ev.reason));
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', start);
 } else {

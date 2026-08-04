@@ -387,12 +387,105 @@ class TestABlankScreenIsNotAPossibleOutcome(unittest.TestCase):
         self.assertNotRegex(JS, r"\n\s*boot\(\);\s*\n\s*(?:function start|$)")
 
     def test_a_boot_failure_becomes_a_sentence_not_silence(self):
+        """The sentence has to be reachable, not merely present.
+
+        This test used to look for the sentence *inside* `start()` and was
+        satisfied by:
+
+            function start() { try { boot(); } catch (err) { ...sentence... } }
+
+        which catches nothing at all — `boot` is async, so the call returns
+        a promise before anything inside it can throw, and every failure
+        during boot became an unhandled rejection. The screen kept its
+        static markup, which reads as "the app opened and is empty" rather
+        than as an error, and that is what a partner reported.
+
+        So the assertion is now the property that was actually wanted: the
+        failure path is attached to the promise, and to the two global
+        events that catch what a promise cannot.
+        """
         body = re.search(r"function start\(\)\s*\{(.*?)\n\}", JS, re.S)
         self.assertIsNotNone(body)
-        self.assertIn("catch", body.group(1))
-        self.assertIn("این صفحه بالا نیامد", body.group(1))
+        # Attached to the promise — not a bare `boot();` with a sync catch.
+        self.assertRegex(body.group(1), r"boot\(\)\s*\.\s*(catch|then)\b")
+        self.assertIn("این صفحه بالا نیامد", JS)
+        for event in ("'error'", "'unhandledrejection'"):
+            self.assertIn(event, JS)
+
+    def test_a_synchronous_catch_never_guards_an_async_call(self):
+        """Generalised, because the shape is easy to reintroduce and reads
+        as correct: no `try` in this file may wrap a bare call to an async
+        function as its only protection."""
+        async_fns = set(re.findall(r"async function (\w+)", JS))
+        self.assertIn("boot", async_fns)          # the guard has a subject
+        # A call whose promise is dropped on the floor: not awaited, not
+        # returned, not assigned, and not handed to `guard`.
+        for m in re.finditer(r"(?<![.\w])(\w+)\(([^;()]*)\)\s*;", JS):
+            if m.group(1) not in async_fns:
+                continue
+            before = JS[max(0, m.start() - 14):m.start()]
+            self.assertRegex(
+                before, r"(await|return|guard\(|=)\s*$",
+                f"{m.group(1)}(…) is async and its promise is dropped: it "
+                f"can only reject to a console no phone has, so a failure "
+                f"leaves the screen unchanged and the tap looks ignored")
+
+    def test_the_node_is_told_how_the_boot_ended(self):
+        """The phone has no console. If the screen cannot say what went
+        wrong, the journal has to, or the next report is again "it opens and
+        there is nothing there" with no way to act on it."""
+        self.assertIn("/api/v1/shell/boot", JS)
+        for stage in ("'opened'", "'threw'", "'live'"):
+            self.assertIn(stage, JS)
+        # The report must never be something the page waits on or depends on.
+        tell = re.search(r"function tell\(.*?\n\}", JS, re.S).group(0)
+        self.assertNotIn("await", tell)
+        self.assertIn("catch", tell)
 
     def test_it_also_works_if_the_document_is_already_parsed(self):
         """`DOMContentLoaded` has already fired by the time a cached page
         runs its script; listening for it alone would never boot."""
         self.assertIn("document.readyState === 'loading'", JS)
+
+
+class TestAnEmptyAccountIsNotADeadEnd(unittest.TestCase):
+    """What a new account sees is the whole product until she adds something.
+
+    The first version of this screen was, on an empty account: a card saying
+    "there is nothing to decide — when a draft is ready it will appear here",
+    a gallery saying "this is empty, add a photo from the امروز tab", and a
+    business tab of zeros. Every one of those describes a state; none of them
+    offers the action that would change it, and the gallery's instruction
+    pointed at the tab that was itself telling her to wait. That is what "we
+    opened it and there is nothing in it" meant.
+    """
+
+    def test_the_empty_gallery_offers_the_action_instead_of_naming_a_tab(self):
+        # The picker lives on another view, but a button can reach it.
+        self.assertIn("$('pick').click()", JS)
+        self.assertNotIn("از تب «امروز» عکس اضافه کنید", JS)
+
+    def test_the_first_run_card_names_a_next_step(self):
+        """An empty archive gets an invitation, not a description of the
+        future. The two situations — nothing yet, and nothing pending — are
+        different and must not share a sentence."""
+        front = re.search(r"function drawFront\(\).*?\n\}", JS, re.S).group(0)
+        self.assertIn("اولین عکس", front)
+        # And the other branch still tells the truth about what is there.
+        self.assertIn("چیزی برای تصمیم نیست", front)
+        self.assertIn("gallery.photos", front)
+
+    def test_the_first_screen_says_where_the_photo_goes(self):
+        """The first thing asked of her is a photo of herself. What the node
+        will and will not do with it belongs on that screen, not in a
+        settings page she has no reason to open."""
+        front = re.search(r"function drawFront\(\).*?\n\}", JS, re.S).group(0)
+        self.assertIn("روی همین دستگاه می‌ماند", front)
+        self.assertIn("منتشر نمی‌شود", front)
+
+    def test_the_count_it_shows_is_a_real_one(self):
+        """No invented numbers on an empty account: the archive line is
+        driven by the loaded photo list, not by a placeholder."""
+        front = re.search(r"function drawFront\(\).*?\n\}", JS, re.S).group(0)
+        self.assertRegex(front, r"const have = \(gallery\.photos \|\| \[\]\)\.length")
+        self.assertIn("fa(have)", front)

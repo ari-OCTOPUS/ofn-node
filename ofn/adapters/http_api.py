@@ -236,6 +236,9 @@ class ApiApp:
         if method == "POST" and path == "/api/v1/auth/session":
             return self._auth(tenant_name, is_owner_host, body)
 
+        if method == "POST" and path == "/api/v1/shell/boot":
+            return self._shell_boot(body)
+
         try:
             principal = self._principal(headers, tenant_name, is_owner_host)
         except AuthError:
@@ -244,6 +247,54 @@ class ApiApp:
         if is_owner_host:
             return self._owner_route(method, path, principal, body)
         return self._partner_route(method, path, principal, body)
+
+    # ── boot report ───────────────────────────────────────────────────────
+    # Every way a shell can fail to come up. Closed on purpose: this route is
+    # unauthenticated — it has to be, since the failure it exists to report is
+    # "could not authenticate" — so nothing the page sends may reach the
+    # journal as free text.
+    _BOOT_STAGES = frozenset({
+        "opened",       # script ran at all
+        "no-shell",     # no launch blob: opened outside the messaging client
+        "rejected", "not-allowed", "unreachable", "error",
+        "threw",        # an exception during boot
+        "live",         # session established, screen drawn
+    })
+
+    # JavaScript error messages are ASCII and short. Anything else is either
+    # not an error message or not one worth a journal line.
+    _BOOT_DETAIL = re.compile(r"[^A-Za-z0-9 ._:'()\[\]/-]")
+
+    def _shell_boot(self, body: bytes) -> Response:
+        """Record why a shell did or did not come up.
+
+        A partner reporting "it opens and there is nothing there" is the
+        hardest thing to diagnose on this node, because the failure is on a
+        phone, in a client that has no console, over a tunnel. Without this
+        route the only evidence is the absence of later requests, and absence
+        cannot distinguish "opened outside the client" from "threw on line
+        four" — which have opposite fixes.
+
+        Deliberately not authenticated, deliberately not stored, and it
+        answers 200 to anything well-formed: a diagnostic that can itself
+        fail loudly would be one more thing to diagnose.
+        """
+        try:
+            sent = json.loads(body or b"{}")
+        except ValueError:
+            return Response(400, {"error": "bad json"})
+        if not isinstance(sent, dict):
+            return Response(400, {"error": "bad body"})
+        stage = sent.get("stage")
+        if stage not in self._BOOT_STAGES:
+            return Response(400, {"error": "unknown stage"})
+        detail = self._BOOT_DETAIL.sub("", str(sent.get("detail", ""))[:120])
+        # Through the reason header, which `_send` strips before the response
+        # leaves and appends to the journal line — the same path auth
+        # failures already take, so there is one format to read, not two.
+        return Response(200, {"ok": True}, headers={
+            "X-OFN-Auth-Reason": f"boot {stage}"
+                                 + (f" · {detail}" if detail else "")})
 
     # ── auth ──────────────────────────────────────────────────────────────
     def _auth(self, tenant_name: str | None, is_owner_host: bool,
@@ -550,7 +601,12 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
             # when a partner reports a blank screen was the one not recorded.
             page = path == "/" or path.rstrip("/") in _SHELL_ALIASES
             auth = path.endswith("/auth/session")
-            if not (page or auth or (path.startswith("/api/") and status >= 400)):
+            # A boot report is only ever sent when something is worth
+            # knowing, so it is always worth a line — including at 200,
+            # which is the whole point of it.
+            boot = path.endswith("/shell/boot")
+            if not (page or auth or boot
+                    or (path.startswith("/api/") and status >= 400)):
                 return
             leg = (self.headers.get("Host") or "?").split(":")[0].split(".")[0]
             print(f"http {leg} {method} {path} -> {status}{extra}", flush=True)
