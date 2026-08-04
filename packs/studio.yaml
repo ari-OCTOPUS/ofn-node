@@ -39,15 +39,26 @@ questions:
 # Deliberately small and in pairs. Eight tick-boxes is a decision; twenty is a
 # form she abandons. Each pair is an axis she can actually vary on purpose,
 # which is what makes a test a test rather than a guess.
+# The axes are the ones this account can actually vary on purpose. The first
+# set was generic studio-photography vocabulary — subject count, lighting,
+# staging — which describes any photograph and therefore separates none of
+# these. An axis earns its place by answering "if I shot the next ten the
+# other way, would the numbers move?", and for a feet-only account with no
+# face in frame, coverage, angle and nail state are that and lighting is not.
+#
+# Changed while the library held one photo and zero labels, which is the only
+# cheap moment: the comment above is not decoration — a vocabulary swapped
+# after tagging has begun makes everything tagged before it uncomparable, for
+# ever, and those are the months an account is trying to find out what works.
 content_labels:
-  - single-subject
-  - group
-  - soft-light
-  - hard-light
+  - bare
+  - covered
+  - soles
+  - top
+  - polished
+  - natural
   - close
   - wide
-  - styled
-  - candid
 
 gates:
   - budget

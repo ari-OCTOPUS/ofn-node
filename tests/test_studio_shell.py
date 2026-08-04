@@ -639,3 +639,30 @@ class TestArchivingIsTheJob(unittest.TestCase):
         """Two copies of the twin rule is two places for it to drift."""
         self.assertEqual(len(re.findall(r"function drawTags\(", JS)), 1)
         self.assertIn("drawTags(arc, 'arc-tags')", JS)
+
+    def test_every_label_shown_goes_through_the_same_map(self):
+        """The grid badge printed raw tokens — `bare · soles` — beside buttons
+        that said «بدون پوشش». One vocabulary said two ways is the drift the
+        test above exists to prevent, one layer down: the tokens are an
+        implementation detail of the pack and are not her language."""
+        for shown in re.findall(r"\.labels\s*(?:\|\|\s*\[\])?\s*\.join\(", JS):
+            self.fail("a label list is joined without LABEL_FA")
+        self.assertIn("p.labels.map(l => LABEL_FA[l] || l)", JS)
+
+    def test_the_pack_vocabulary_and_the_shell_map_agree(self):
+        """A token with no entry falls back to itself, so a missing
+        translation does not vanish — it shows up in English, in her app,
+        which is exactly what this catches instead."""
+        pack = open(os.path.join(ROOT, "packs", "studio.yaml"),
+                    encoding="utf-8").read()
+        block = re.search(r"^content_labels:\n((?:\s*-\s*\S+\n)+)", pack, re.M)
+        self.assertIsNotNone(block, "the pack lists no content_labels")
+        tokens = re.findall(r"-\s*(\S+)", block.group(1))
+        self.assertEqual(len(tokens) % 2, 0,
+                         "labels are read in consecutive pairs, so an odd "
+                         "count silently drops the last one")
+        said = re.search(r"const LABEL_FA = \{(.*?)\};", JS, re.S).group(1)
+        for token in tokens:
+            self.assertIn(f"'{token}'", said,
+                          f"{token} has no Persian form and would be shown "
+                          f"to her as an English token")
