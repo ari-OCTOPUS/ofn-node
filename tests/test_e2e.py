@@ -35,6 +35,9 @@ PACKS_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "packs")
 
 NOW_S = 1_785_000_000
+# Every partner shell now has a door list. These are the accounts the
+# tests speak as; anybody else is a stranger, which is the point.
+PARTNERS = {"ziman": ["777"], "lead": ["777"], "studio": ["777"]}
 NOW_ISO = "2026-08-03T10:00:00Z"
 TOKEN = "111:test-bot-token"
 HOST = "ziman.test"
@@ -71,6 +74,7 @@ class TestPartnerJourney(unittest.TestCase):
             registry, HostMap(tenants={HOST: "ziman"}, owner_host="panel.test"),
             bot_tokens={"ziman": TOKEN, "__owner__": TOKEN},
             session_secret="e2e-secret", owner_user_ids=["5001"],
+            partner_user_ids=PARTNERS,
             now=lambda: NOW_S,
             questions_for=cls.node.questions_for,
             submit_answer=cls.node.submit_answer,

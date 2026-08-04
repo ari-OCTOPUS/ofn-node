@@ -42,6 +42,9 @@ PARTNER_SHELLS = ("ziman.html", "lead.html", "studio.html")
 ALL_SHELLS = PARTNER_SHELLS + ("panel.html",)
 
 NOW_S = 1_785_000_000
+# Every partner shell now has a door list. These are the accounts the
+# tests speak as; anybody else is a stranger, which is the point.
+PARTNERS = {"ziman": ["1"], "lead": ["1"], "studio": ["1"]}
 NOW_ISO = "2026-08-03T10:00:00Z"
 
 
@@ -280,7 +283,8 @@ class WiredCase(unittest.TestCase):
                     owner_host="panel.test"),
             bot_tokens={"ziman": "t", "lead": "t", "studio": "t",
                         "__owner__": "t"},
-            session_secret="s", owner_user_ids=("7",), now=lambda: NOW_S,
+            session_secret="s", owner_user_ids=("7",),
+            partner_user_ids=PARTNERS, now=lambda: NOW_S,
             questions_for=self.node.questions_for,
             submit_answer=self.node.submit_answer,
             status_for=self.node.status_for,

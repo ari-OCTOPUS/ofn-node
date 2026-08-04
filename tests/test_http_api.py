@@ -22,6 +22,9 @@ TOK_Z = "111:token-ziman"
 TOK_L = "222:token-lead"
 TOK_O = "333:token-owner"
 OWNER_ID = "5001"
+# Every shell now has a door list. "777" is the partner these tests speak as;
+# anyone else is a stranger, which is the behaviour under test.
+PARTNERS = {"ziman": ["777"], "lead": ["777"], "studio": ["777"]}
 
 HOSTS = HostMap(
     tenants={"ziman.example.com": "ziman", "lead.example.com": "lead"},
@@ -53,6 +56,7 @@ def app(**kw) -> ApiApp:
         registry(), HOSTS,
         bot_tokens={"ziman": TOK_Z, "lead": TOK_L, "__owner__": TOK_O},
         session_secret=SECRET, owner_user_ids=[OWNER_ID],
+        partner_user_ids=PARTNERS,
         now=lambda: NOW, **kw)
 
 

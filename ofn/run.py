@@ -99,6 +99,7 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         bot_tokens=cfg.bot_tokens,
         session_secret=cfg.session_secret,
         owner_user_ids=cfg.owner_user_ids,
+        partner_user_ids=cfg.partner_user_ids,
         now=config.epoch_seconds,
         questions_for=node.questions_for,
         submit_answer=node.submit_answer,
@@ -179,6 +180,14 @@ def main() -> int:
         threading.Thread(target=srv.serve_forever, daemon=True).start()
         servers.append(srv)
     print(f"listening on 127.0.0.1: {sorted(set(cfg.ports.values()))}")
+    # Say out loud who can get in. An empty allowlist is the correct default
+    # and a locked door, but a door nobody knows is locked wastes an evening
+    # on "the login is broken" when the login is working exactly as told.
+    for leg, ids in sorted(cfg.partner_user_ids.items()):
+        print(f"  allowlist {leg}: "
+              + (f"{len(ids)} account(s)" if ids
+                 else "EMPTY — nobody can enter this shell (set "
+                      f"OFN_PARTNER_USER_IDS_{leg.upper()})"))
 
     worker = build_worker(cfg, node)
     threading.Thread(target=worker_loop, args=(worker, _stop),

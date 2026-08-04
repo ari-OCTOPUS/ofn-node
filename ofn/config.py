@@ -44,6 +44,9 @@ class Config:
     session_secret: str
     bot_tokens: Mapping[str, str]
     owner_user_ids: tuple[str, ...]
+    # tenant -> the Telegram accounts allowed to open that partner's shell.
+    # A tenant absent from this map has no partners, which means no entry.
+    partner_user_ids: Mapping[str, tuple[str, ...]]
     remote_api_key: str
     remote_base_url: str
     ports: Mapping[str, int]
@@ -102,6 +105,13 @@ def load() -> Config:
             "lead": os.environ.get("OFN_BOT_TOKEN_LEAD", ""),
             "studio": os.environ.get("OFN_BOT_TOKEN_STUDIO", ""),
             "__owner__": os.environ.get("OFN_BOT_TOKEN_OWNER", ""),
+        },
+        partner_user_ids={
+            leg: tuple(
+                u.strip() for u in
+                os.environ.get(f"OFN_PARTNER_USER_IDS_{leg.upper()}", "").split(",")
+                if u.strip())
+            for leg in ("ziman", "lead", "studio")
         },
         owner_user_ids=tuple(
             u.strip() for u in os.environ.get("OFN_OWNER_USER_IDS", "").split(",")

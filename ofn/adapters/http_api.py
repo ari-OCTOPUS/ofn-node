@@ -57,6 +57,13 @@ class Principal:
     user_id: str
     is_owner: bool = False
 
+    @property
+    def role(self) -> str:
+        """`owner` or `partner`. A partner may work on their own business's
+        records and nothing else — no settings, no locale, no ledger, no
+        allowlist. Those live behind the owner host, which this never is."""
+        return "owner" if self.is_owner else "partner"
+
 
 @dataclass
 class Response:
@@ -102,6 +109,7 @@ class ApiApp:
         bot_tokens: Mapping[str, str],
         session_secret: str,
         owner_user_ids: Sequence[str] = (),
+        partner_user_ids: Mapping[str, Sequence[str]] | None = None,
         now: Callable[[], int],
         questions_for: Callable[[TenantScope, str], list] | None = None,
         submit_answer: Callable[[TenantScope, str, dict], dict] | None = None,
@@ -116,6 +124,16 @@ class ApiApp:
         self._bot_tokens = dict(bot_tokens)
         self._secret = session_secret
         self._owners = set(owner_user_ids)
+        # Who may open each partner shell. A verified Telegram signature only
+        # proves *a* Telegram account opened the app — the platform signs for
+        # every user, not just the one this business belongs to. Without this
+        # map, anyone who finds the bot is a partner.
+        #
+        # An absent or empty entry means nobody, never everybody. That is the
+        # whole point: the failure mode of a misconfigured allowlist has to be
+        # a locked door, not an open one.
+        self._partners = {str(k): set(v)
+                          for k, v in (partner_user_ids or {}).items()}
         self._now = now
         self._replay = ReplayGuard()
         self._questions_for = questions_for or (lambda s, u: [])
@@ -175,7 +193,10 @@ class ApiApp:
         except AuthError:
             return Response(401, {"error": "unauthorised"})
 
-        if is_owner_host and user.user_id not in self._owners:
+        # Signature first, identity second — always in that order, so an
+        # unsigned request is told 401 and never learns whether the id it
+        # guessed is on a list.
+        if not self._admitted(tenant_name, is_owner_host, user.user_id):
             return Response(403, {"error": "forbidden"})
 
         subject = "__owner__" if is_owner_host else str(tenant_name)
@@ -185,6 +206,13 @@ class ApiApp:
         return Response(200, {"session": session, "user_id": user.user_id,
                               "username": user.username})
 
+    def _admitted(self, tenant_name: str | None, is_owner_host: bool,
+                  user_id: str) -> bool:
+        """Is this verified account allowed on this host at all?"""
+        if is_owner_host:
+            return user_id in self._owners
+        return user_id in self._partners.get(str(tenant_name), set())
+
     def _principal(self, headers: Mapping[str, str], tenant_name: str | None,
                    is_owner_host: bool) -> Principal:
         raw = headers.get("authorization", "")
@@ -192,6 +220,12 @@ class ApiApp:
             raise AuthError("missing session")
         sess: Session = verify_session(raw[7:].strip(), self._secret,
                                        now_epoch_s=self._now())
+        # Re-checked on every request, not just at the launch exchange.
+        # Otherwise removing somebody from the allowlist would leave them
+        # working until their session happened to expire, and revocation that
+        # takes effect "eventually" is not revocation.
+        if not self._admitted(tenant_name, is_owner_host, sess.user_id):
+            raise AuthError("no longer admitted")
         if is_owner_host:
             if sess.tenant != "owner" or sess.user_id not in self._owners:
                 raise AuthError("not an owner session")
