@@ -113,19 +113,43 @@ def t_tab_grid_matches_the_tab_count():
             f"نوارِ تب {spec} ستون دارد ولی {tabs} تب هست"
 
 
-def t_every_tone_has_a_css_rule():
-    """‏tone ِ بی‌قاعده یعنی حالتِ خطر به رنگِ حالتِ سالم — بدترین شکلِ شکست."""
-    tones = set()
-    for pat in (r'tone\s*:\s*(?:[^,\n{}]*?\?\s*)?"(\w+)"',
-                r'tone\s*:\s*[^,\n{}]*?:\s*"(\w+)"',
-                r'ring\((?:[^()]|\([^()]*\))*?,\s*"(\w+)"\s*[,)]'):
-        tones |= set(re.findall(pat, JS))
-    # فقط واژه‌های کوتاهِ لاتین tone هستند؛ برچسبِ فارسی و عدد نه
-    tones = {t for t in tones if t.isascii() and t.isalpha() and len(t) <= 6}
-    assert len(tones) >= 4, f"جاروی tone خیلی کم گرفت ({tones}) — گرپ کور است"
-    missing = [t for t in sorted(tones)
-               if not re.search(r"\.(?:ring|orb)\." + t + r"\b", CSS)]
-    assert not missing, f"‏tone بدونِ هیچ قاعدهٔ CSS: {missing}"
+def t_every_declared_tone_has_a_css_rule():
+    """هر رنگ‌واژهٔ اعلام‌شده باید در CSS قاعده داشته باشد.
+
+    ⚠️ نسخهٔ اولِ این تست با regex دنبالِ رشته‌های ساده می‌گشت و **کور بود**:
+    صداکننده‌ای که tone را با ternary می‌دهد (`c.depleted ? "bad" : …`) اصلاً
+    دیده نمی‌شد، و جهشِ «یک tone ِ بی‌قاعده اضافه کن» زنده ماند. سنجهٔ
+    `len(tones) >= 4` هم پاس می‌شد و اعتمادِ کاذب می‌داد.
+
+    پس به‌جای دقیق‌ترکردنِ جارو، قاعده بسته شد: `TONES` در app.js اعلام
+    می‌شود و همین‌جا خوانده. تحلیلِ ایستا دیگر لازم نیست حدس بزند.
+    """
+    m = re.search(r"var\s+TONES\s*=\s*\[([^\]]*)\]", JS)
+    assert m, "‏TONES در app.js اعلام نشده"
+    tones = re.findall(r'"(\w+)"', m.group(1))
+    assert len(tones) >= 6, f"فهرستِ TONES مشکوکانه کوتاه است: {tones}"
+    missing = [t for t in tones
+               if not re.search(r"\.(?:ring|orb|ap)\." + t + r"\b", CSS)]
+    assert not missing, f"‏tone ِ اعلام‌شده بدونِ قاعدهٔ CSS: {missing}"
+
+
+def t_unknown_tone_falls_back_to_unknown_not_healthy():
+    """‏tone ِ خارج از فهرست باید «نامعلوم» شود، نه سبزِ آرام‌بخش.
+
+    این نیمهٔ دومِ قاعده است: فهرست جلوی اشتباهِ امروز را می‌گیرد، این یکی
+    جلوی اشتباهِ فردا. هر سه شکلِ گرد (ring/orb/arc) باید از همان دروازه
+    رد شوند وگرنه یکی‌شان درزِ باز می‌ماند.
+    """
+    m = re.search(r"function\s+toneOf\s*\(([^)]*)\)\s*\{([^}]*)\}", JS)
+    assert m, "‏toneOf تعریف نشده"
+    body = m.group(2)
+    assert "TONES" in body, "‏toneOf فهرست را نمی‌خواند"
+    assert '"unk"' in body, "‏toneOf به «نامعلوم» برنمی‌گردد"
+    for shape in ('class="ring ', 'class="orb ', 'class="ap '):
+        idx = JS.find(shape)
+        assert idx >= 0, f"شکلِ {shape!r} پیدا نشد"
+        seg = JS[idx:idx + 120]
+        assert "toneOf(" in seg, f"شکلِ {shape!r} از دروازهٔ toneOf رد نمی‌شود: {seg[:80]}"
 
 
 def t_the_sky_actually_tiles():

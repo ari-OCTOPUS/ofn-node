@@ -578,12 +578,29 @@
   // هر جزء داده‌محور است: اگر عددی پشتش نباشد ساخته نمی‌شود.
 
   // حلقهٔ درصدی با عددِ وسط — برای «چقدر از چقدر»
-  function ring(val, max, label, tone, size){
+  /* واژگانِ رسمیِ رنگِ حالت. ۲۰۲۶-۰۸-۰۴.
+   *
+   * چرا اعلامِ صریح به‌جای «هر رشته‌ای که برسد»: ممیزی نشان داد نیمی از
+   * tone هایی که این فایل می‌فرستاد **هیچ قاعده‌ای در CSS نداشتند**، یعنی
+   * یک حلقهٔ خطر دقیقاً مثلِ حالتِ سالم رندر می‌شد. بدترین شکلِ شکست: هشدار
+   * به رنگِ آرامش.
+   *
+   * و اولین گاردی که برایش نوشتم **کور بود** — با regex دنبالِ رشتهٔ ساده
+   * می‌گشت و صداکننده‌هایی را که tone را با ternary می‌دهند نمی‌دید. پس
+   * به‌جای دقیق‌ترکردنِ جارو، قاعده بسته شد: فهرست این‌جاست، و هر چیزِ
+   * خارج از آن در **زمانِ اجرا** به `unk` می‌افتد — یعنی «نمی‌دانم»، نه
+   * سبزِ آرام‌بخش. اشتباهِ آینده هم دیده می‌شود هم بی‌خطر است.
+   */
+  var TONES = ["ok","up","done","live","cyan","warm","amber","warn","staged",
+               "hot","bad","error","unk"];
+  function toneOf(t){ return TONES.indexOf(String(t)) >= 0 ? String(t) : "unk"; }
+
+  function ring(val, max, label, t, size){
     size = size || 118;
     var r = 44, C = 2*Math.PI*r;
     var f = max ? Math.max(0, Math.min(1, val/max)) : 0;
     return '<div class="ringwrap" style="width:'+size+'px">'+
-      '<svg class="ring '+(tone||"cyan")+'" viewBox="0 0 110 110">'+
+      '<svg class="ring '+toneOf(t)+'" viewBox="0 0 110 110">'+
         '<circle class="rt" cx="55" cy="55" r="'+r+'" fill="none" stroke-width="9"/>'+
         '<circle class="rp" cx="55" cy="55" r="'+r+'" fill="none" stroke-width="9"'+
           ' stroke-linecap="round" stroke-dasharray="'+(C*f).toFixed(1)+' '+(C*(1-f)).toFixed(1)+'"'+
@@ -606,7 +623,7 @@
       var body = /[؀-ۿ]/.test(s)
         ? esc(s)                                        // فارسی: همان‌طور
         : '<span dir="ltr" class="iso">'+esc(s)+'</span>';  // لاتین/عدد: ایزوله
-      return '<div class="orb '+(it.tone||"unk")+'" title="'+esc(it.name)+'">'+
+      return '<div class="orb '+toneOf(it.tone)+'" title="'+esc(it.name)+'">'+
         '<span class="od"></span><span class="on">'+body+'</span>'+
         (it.n!==undefined?'<span class="ov">'+fa(it.n)+'</span>':'')+'</div>';
     }).join("")+'</div>';
@@ -623,7 +640,7 @@
     var r=44, C=2*Math.PI*r, off=0, out="";
     segs.forEach(function(sg){
       var f=(sg.n||0)/tot;
-      out += '<circle class="ap '+(sg.tone||"cyan")+'" cx="55" cy="55" r="'+r+'" fill="none"'+
+      out += '<circle class="ap '+toneOf(sg.tone)+'" cx="55" cy="55" r="'+r+'" fill="none"'+
         ' stroke-width="11" stroke-dasharray="'+(C*f-1.5).toFixed(1)+' '+(C*(1-f)+1.5).toFixed(1)+'"'+
         ' stroke-dashoffset="'+(-C*off).toFixed(1)+'" transform="rotate(-90 55 55)"/>';
       off += f;
