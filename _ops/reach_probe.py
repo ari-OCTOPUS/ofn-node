@@ -133,7 +133,39 @@ def install() -> dict:
            "py": sys.version.split()[0], "probe": "reach.v1", "root": str(_HERE)}
     _append(PROVENANCE, rec)
     atexit.register(flush)
+    _start_flusher()
     return {"ok": True, **rec}
+
+
+#: فاصلهٔ flush ِ دوره‌ای. بعد از گرم‌شدن تقریباً همیشه صفر ردیف دارد، پس
+#: روی دیسکِ ۵۴۰۰ دور هم ارزان است.
+FLUSH_EVERY_S = 60.0
+
+
+def _start_flusher() -> None:
+    """نخِ پس‌زمینه که دفتر را دوره‌ای می‌نویسد.
+
+    ⚠️ چرا لازم شد: نسخهٔ اول فقط `atexit` داشت، پس داده تا **خروجِ پروسه**
+    در RAM حبس می‌ماند — و این پنج پروسه بلندعمرند و بعضی‌شان با kill
+    بسته می‌شوند، یعنی atexit اصلاً نمی‌دود. نتیجه: دفتر همیشه خالی، و
+    پروبی که کار می‌کند ولی چیزی نشان نمی‌دهد.
+
+    باز هم همان بیماری در کدِ خودم: قابلیت ساخته شده بود، صداکننده نداشت.
+
+    `daemon=True` تا نخ هرگز جلوی خروجِ پروسه را نگیرد.
+    """
+    def _loop():
+        while True:
+            time.sleep(FLUSH_EVERY_S)
+            try:
+                flush()
+            except Exception:  # noqa: BLE001 — نخ هرگز پروسه را نمی‌کشد
+                pass
+    try:
+        t = threading.Thread(target=_loop, name="reach-flush", daemon=True)
+        t.start()
+    except Exception:  # noqa: BLE001
+        pass
 
 
 def _append(path: Path, rec: dict) -> None:

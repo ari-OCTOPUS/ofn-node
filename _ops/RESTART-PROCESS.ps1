@@ -166,6 +166,26 @@ if ($Target -eq "gateway") {
             }
         }
     }
+    # ⚠️ ۲۰۲۶-۰۸-۰۵ — گیت‌وی OCTOPUS.env را می‌گرفت ولی OCTOPUS-flags.cmd را نه.
+    #
+    # سنجهٔ زنده: center و cortex هرکدام **۱۶۵** فلگ داشتند و گیت‌وی **۷**.
+    # یعنی پروسه‌ای که رابطِ اصلیِ مالک را سرو می‌کند تقریباً بی‌فلگ بالا
+    # می‌آمد، و هر قابلیتی که پشتِ یک فلگ است در آن limb خاموش بود — بی‌آنکه
+    # کسی بفهمد، چون از بیرون سالم به‌نظر می‌رسید.
+    #
+    # این‌طور کشف شد: OCTOPUS_REACH را ست کردم، center و cortex ردیفِ پروب
+    # نوشتند و گیت‌وی ننوشت. خودِ پروب اولین چیزی را که پیدا کرد، همین
+    # نابرابری بود.
+    #
+    # همان تجزیه‌ای که خطِ ۱۶۵ برای بقیهٔ limbها می‌کند — نه کپیِ منطق، همان الگو.
+    $flagsFile = Join-Path $ops "OCTOPUS-flags.cmd"
+    if (Test-Path $flagsFile) {
+        foreach ($ln in (Get-Content $flagsFile -Encoding utf8)) {
+            if ($ln -match '^\s*set\s+([A-Za-z_][A-Za-z0-9_]*)=(.*)$') {
+                [Environment]::SetEnvironmentVariable($Matches[1], $Matches[2].Trim(), "Process")
+            }
+        }
+    }
     $env:OCTOPUS_TG_MINIAPP = "1"
     Write-Host "Launching..."
     Start-Process -FilePath "python" `

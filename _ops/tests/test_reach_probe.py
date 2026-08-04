@@ -249,6 +249,33 @@ def t_reachability_readers_agree_with_the_ledger():
     assert procs, "خوانندهٔ provenance هیچ پروسه‌ای نداد"
 
 
+def t_the_ledger_is_flushed_without_process_exit():
+    """دفتر باید **بدونِ** خروجِ پروسه هم نوشته شود.
+
+    ⚠️ نسخهٔ اول فقط `atexit` داشت، پس داده تا خروجِ پروسه در RAM می‌ماند —
+    و این پنج پروسه بلندعمرند و بعضی با kill بسته می‌شوند، یعنی atexit
+    اصلاً نمی‌دود. نتیجه: پروبی که کار می‌کند و دفترش همیشه خالی است.
+    باز هم «قابلیت هست، صداکننده نیست»، این بار در کدِ خودم.
+
+    سنجه: نخِ flusher باید وجود داشته باشد و daemon باشد (وگرنه جلوی خروجِ
+    پروسه را می‌گیرد).
+    """
+    mod = "\n".join([
+        "import threading, json",
+        "_names = [t.name for t in threading.enumerate()]",
+        "_dae = {t.name: t.daemon for t in threading.enumerate()}",
+        'print("THREADS=" + json.dumps({"names": _names, "daemon": _dae}))',
+        "",
+    ])
+    r = _child(mod)
+    line = [x for x in (r["stdout"] or "").splitlines() if x.startswith("THREADS=")]
+    assert line, f"نخ‌ها چاپ نشد · {r['stderr'][:200]}"
+    info = json.loads(line[0].split("=", 1)[1])
+    assert "reach-flush" in info["names"], \
+        f"نخِ flusher وجود ندارد — دفتر تا خروجِ پروسه خالی می‌ماند: {info['names']}"
+    assert info["daemon"].get("reach-flush") is True,         "نخِ flusher daemon نیست — جلوی خروجِ پروسه را می‌گیرد"
+
+
 if __name__ == "__main__":
     CHECKS = [(n, f) for n, f in sorted(globals().items())
               if n.startswith("t_") and callable(f)]
