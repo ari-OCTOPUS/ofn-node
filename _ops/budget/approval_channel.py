@@ -597,6 +597,48 @@ class TelegramApprovalChannel(ApprovalChannel):
                        or msg.get("from") or {}).get("id")
             cbq_id = cbq.get("id")  # callback_query ID برای answerCallbackQuery
 
+            # ── لاگِ ورودی (VQ-NO-INBOUND-LOG-002، ۲۰۲۶-۰۸-۰۴) ────────────────
+            #
+            # ⚠️ اشتباهِ من در نسخهٔ اول: لاگِ ورودی را فقط روی `center.py`
+            # (باتِ **بیرونی**) گذاشتم. ولی cursorها نشان دادند ترافیکِ واقعیِ
+            # مالک از **همین** poller می‌گذرد:
+            #     center-config.last_offset      = 223883195  (ساکت)
+            #     telegram_offset.json (این‌جا)  = 732409511  (حرکت می‌کند)
+            # پس چشم روی باتی بود که حرف نمی‌زند. مالک گفت «حس می‌کنم هنوز
+            # کور است» و درست گفت.
+            #
+            # همان فایل و همان قرارداد، تا «پیامم رسید؟» **یک** جای جواب داشته
+            # باشد نه دو تا. §۱۰: متنِ پیام ذخیره نمی‌شود — فقط شکل و اندازه.
+            try:
+                _il = opslib.STATE_DIR / "telegram" / "inbound-log.jsonl"
+                _il.parent.mkdir(parents=True, exist_ok=True)
+                _t = str(text or "")
+                with open(_il, "a", encoding="utf-8", newline="\n") as _fh:
+                    _fh.write(json.dumps({
+                        "ts": opslib.now_iso(),
+                        "bot": "inner",          # کدام poller دیدش
+                        "update_id": uid,
+                        "kind": "callback_query" if is_callback else (
+                            "voice" if "voice" in msg else
+                            "photo" if "photo" in msg else
+                            "document" if "document" in msg else
+                            "text" if "text" in msg else "other"),
+                        "chars": len(_t),
+                        "is_command": _t.startswith("/"),
+                        "cmd": (_t.split() or [""])[0][:32] if _t.startswith("/") else "",
+                        "chat_kind": str((msg.get("chat") or {}).get("type") or ""),
+                        # ⚠️ `self._owner` است نه `owner_id`. نسخهٔ اول نامِ غلط
+                        # را نوشت؛ `AttributeError` داخلِ همین `except` بلعیده
+                        # می‌شد و **کلِ ردیف** بی‌صدا نوشته نمی‌شد — یعنی لاگی
+                        # که برای رفعِ سکوت ساخته شده، خودش ساکت می‌مرد.
+                        "from_owner": bool(str(from_id or "") == str(getattr(self, "_owner", "") or "")),
+                    }, ensure_ascii=False) + "\n")
+                if _il.stat().st_size > 4_000_000:
+                    _keep = _il.read_text("utf-8", errors="replace").splitlines()[-5000:]
+                    _il.write_text("\n".join(_keep) + "\n", encoding="utf-8", newline="\n")
+            except Exception:  # noqa: BLE001 — لاگ هرگز حلقه را نمی‌کشد
+                pass
+
             # allowlist: chat_idهای مجاز (owner + گروه‌های TELEGRAM_ALLOWED_CHAT_IDS).
             # گروه‌پذیریِ کاکپیت (رأی مالک 2026-07-17). نبود = فقط owner (byte-identical).
             if chat_id not in self._allowed:

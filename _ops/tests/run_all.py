@@ -375,6 +375,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # نمی‌افتاد. گاردِ **رفتاری** لازم بود چون test_callback_routing سورس
          # را می‌خواند و ۶/۶ می‌داد در حالی که کد در اجرا می‌ترکید.
          "test_lead_card_buttons_live.py",
+         # ۰۸-۰۴ ← این ریپو **دو** poller دارد. لاگِ ورودی اول فقط روی باتِ
+         # بیرونی رفت — که ساکت است — و ترافیکِ واقعیِ مالک از باتِ درونی
+         # می‌گذشت. هر ابزارِ رصدی باید هر دو را بپوشاند.
+         "test_both_bots_log_inbound.py",
          "test_sync_health_unknown.py",
          "test_arbiter_consensus_rule.py",
          "test_state_write_monopoly.py",
