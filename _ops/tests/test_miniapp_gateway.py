@@ -13,6 +13,7 @@ import hashlib
 import hmac
 import json
 import os
+import re
 import sys
 import tempfile
 import urllib.parse
@@ -27,7 +28,9 @@ _TC = str(_OPS / "telegram_center")
 if _TC not in sys.path:
     sys.path.insert(0, _TC)
 
-import miniapp_gateway as mg  # noqa: E402
+import miniapp_gateway as mg
+
+_MINI = harness.REAL_VAULT / "_ops" / "telegram_center" / "miniapp"  # noqa: E402
 
 NOW = 1_785_400_000.0
 # ØªÙˆÚ©Ù†Ù **ØªØ³ØªÛŒ/Ø¬Ø¹Ù„ÛŒ** â€” Ø¹Ù…Ø¯Ø§Ù‹ Ù‡Ù…â€ŒØ´Ú©Ù„Ù ØªÙˆÚ©Ù†Ù ÙˆØ§Ù‚Ø¹ÛŒ ØªØ§ Ø§Ù„Ú¯ÙˆÛŒ redaction Ø¨Ú¯ÛŒØ±Ø¯Ø´.
@@ -292,8 +295,16 @@ def t_the_page_serves_without_initdata_and_injects_the_header_snippet():
     st, body, ctype = mg.handle("GET", "/miniapp", {}, fetch_fn=fn, now=NOW)
     assert st == 200, (st, body[:80])
     assert b"Octopus Cockpit" in body, body[:160]
-    for tab in (b"Outbound", b"Approvals", b"Legs", b"Value", b"UI Registry", b"Truth"):
-        assert tab in body, tab
+    # ⚠️ ۲۰۲۶-۰۸-۰۴: این‌جا فهرستِ ثابتِ نامِ انگلیسیِ تب‌ها بود
+    # (Outbound/Approvals/Legs/…). بازطراحی همه را فارسی کرد و تست از آن روز
+    # قرمز ماند — نه به این دلیل که چیزی خراب شده، بلکه چون یک رشتهٔ مرده را
+    # pin کرده بود. حالا از خودِ index.html می‌خواند، پس با تبِ بعدی هم
+    # نمی‌پوسد. ادعای واقعی این است: هر تبی که HTML اعلام می‌کند، سرو شود.
+    _tabs = re.findall(r'data-tab="([a-z]+)"',
+                       (_MINI / "index.html").read_text(encoding="utf-8"))
+    assert len(_tabs) >= 5, f"شمارِ تب مشکوک است: {_tabs}"
+    for tab in _tabs:
+        assert ('data-tab="%s"' % tab).encode("utf-8") in body, tab
     assert b"legacy-shell" not in body, "legacy placeholder was served instead of cockpit"
     assert b"X-Tg-Init-Data" in body, "initData injection snippet missing"
     assert body.index(b"X-Tg-Init-Data") < body.index(b"</body>")
