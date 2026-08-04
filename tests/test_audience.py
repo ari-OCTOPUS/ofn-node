@@ -341,3 +341,60 @@ class TestItWorksWithNobodyAtAll(Store):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestDistributionNotAverage(unittest.TestCase):
+    """The cohort trap, moved onto money.
+
+    A handful of people are most of the income in this business. "Average
+    subscriber value is $40" describes nobody when three people are half the
+    month — and it is exactly the number that gets used to decide what a
+    subscriber is worth acquiring.
+    """
+
+    def test_a_skewed_month_refuses_to_offer_a_mean(self):
+        """A number that is available gets used."""
+        from ofn.kernel.audience import concentration
+        subs = [sub("whale", lifetime=100_000)] + \
+            [sub(f"s{i}", lifetime=1_000) for i in range(10)]
+        c = concentration(subs)
+        self.assertTrue(c.is_skewed)
+        self.assertIsNone(c.mean_minor)
+
+    def test_an_even_month_does_offer_one(self):
+        from ofn.kernel.audience import concentration
+        c = concentration([sub(f"s{i}", lifetime=1_000) for i in range(20)])
+        self.assertFalse(c.is_skewed)
+        self.assertEqual(c.mean_minor, 1_000)
+
+    def test_the_top_share_is_the_number_worth_saying(self):
+        from ofn.kernel.audience import concentration
+        subs = [sub("a", lifetime=5_000), sub("b", lifetime=4_000),
+                sub("c", lifetime=1_000)] + \
+            [sub(f"s{i}", lifetime=100) for i in range(10)]
+        c = concentration(subs, top_n=3)
+        self.assertAlmostEqual(c.top_share, 10_000 / 11_000, places=4)
+
+    def test_people_who_never_paid_are_counted_not_averaged_away(self):
+        """"Forty people have never bought anything" is an action. Averaging
+        them into the value of a subscriber is how that action disappears."""
+        from ofn.kernel.audience import concentration
+        c = concentration([sub("a", lifetime=1_000)] +
+                          [sub(f"s{i}") for i in range(40)])
+        self.assertEqual(c.payers, 1)
+        self.assertEqual(c.silent, 40)
+
+    def test_nobody_paying_has_no_share(self):
+        from ofn.kernel.audience import concentration
+        c = concentration([sub(f"s{i}") for i in range(5)])
+        self.assertIsNone(c.top_share)
+        self.assertIsNone(c.mean_minor)
+        self.assertFalse(c.is_skewed)
+
+    def test_fewer_payers_than_the_top_n_is_reported_honestly(self):
+        """`top_n` of 3 with two payers is a share of two, and says so."""
+        from ofn.kernel.audience import concentration
+        c = concentration([sub("a", lifetime=10), sub("b", lifetime=10)],
+                          top_n=3)
+        self.assertEqual(c.top_n, 2)
+        self.assertEqual(c.top_share, 1.0)

@@ -271,6 +271,70 @@ def value_by_channel(
     }
 
 
+@dataclass(frozen=True)
+class Concentration:
+    """How much of the money comes from how few people.
+
+    An average hides this completely, and for this business the distribution
+    is the whole story: a handful of people are most of the income. "Average
+    subscriber value is $40" describes nobody when three people are half the
+    month — and it is the number that gets used to decide what a subscriber
+    is worth, and therefore what one is worth acquiring.
+
+    Same shape as the cohort trap, moved onto money: a figure computed over
+    everybody, reported as if it described anybody.
+    """
+
+    total_minor: int
+    payers: int
+    silent: int                 # counted, never averaged away
+    top_share: float | None     # what the biggest few are, of everything
+    top_n: int
+
+    @property
+    def is_skewed(self) -> bool:
+        """Whether the average is safe to say out loud.
+
+        The threshold is deliberate rather than tuned: when a minority is
+        more than half the money, the mean is describing a person who does
+        not exist.
+        """
+        return self.top_share is not None and self.top_share > 0.5
+
+    @property
+    def mean_minor(self) -> int | None:
+        """Only offered when it is not misleading.
+
+        Refusing to compute it when the distribution is skewed is the point.
+        A number that is available gets used, and a caller who has to reach
+        for `top_share` instead has been told something true.
+        """
+        if self.payers == 0 or self.is_skewed:
+            return None
+        return self.total_minor // self.payers
+
+
+def concentration(subscribers: Iterable[Subscriber], *,
+                  top_n: int = 3) -> Concentration:
+    """The distribution, as the shape that actually drives a decision.
+
+    People who have never paid are counted separately rather than folded in
+    as zeroes. Both facts matter and they are different facts: "forty people
+    have never bought anything" is an action, and averaging them into the
+    value of a subscriber is how that action disappears.
+    """
+    amounts = sorted((s.lifetime_minor for s in subscribers), reverse=True)
+    paying = [a for a in amounts if a > 0]
+    total = sum(paying)
+    top = sum(paying[:top_n])
+    return Concentration(
+        total_minor=total,
+        payers=len(paying),
+        silent=len(amounts) - len(paying),
+        top_share=None if total == 0 else top / total,
+        top_n=min(top_n, len(paying)))
+
+
 def revenue_mix(totals: Mapping[RevenueKind, int]) -> Mapping[str, float] | None:
     """What share each kind of income is, once there is any.
 
