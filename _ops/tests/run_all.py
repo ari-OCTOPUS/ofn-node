@@ -367,6 +367,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # ۱۱٫۶ روز رندر می‌شد · ادعای بی‌پایهٔ «پیامت را ندیدم» · و کارتی که
          # با هر hold دوباره می‌رفت (۱۰۴ ارسالِ یکسان در ۸۰ دقیقه).
          "test_telegram_truthful_receipts.py",
+         # ۰۸-۰۴ ← دو شکافِ ساختاری: هیچ لاگِ ورودی نبود (پس «پیامم رسید؟»
+         # جواب نداشت)، و واچ‌داگ زنده‌بودن را از **وجود** استنتاج می‌کرد،
+         # پس یک مرکزِ هنگ‌کرده ۲س۳۴د نامرئی ماند.
+         "test_inbound_log_and_hang_detection.py",
          "test_sync_health_unknown.py",
          "test_arbiter_consensus_rule.py",
          "test_state_write_monopoly.py",

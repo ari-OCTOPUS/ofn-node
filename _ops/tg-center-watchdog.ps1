@@ -33,10 +33,49 @@ if (Test-Path (Join-Path $ops 'STOP-TG-CENTER')) {
     exit 0
 }
 
-# 2) centre alive -> nothing to do. This is the only silent-and-correct exit.
+# 2) centre alive -> nothing to do?  NOT SUFFICIENT.  (VQ-HUNG-CENTRE-001, 2026-08-04)
+#
+#    The old rule was `if ($center) { exit 0 }` — process exists, therefore healthy.
+#    That is the exact mistake this script already fixed for the *loop* in step 3
+#    ("A live loop that has stopped respawning looks exactly like a healthy centre").
+#    The lesson was applied to the sibling and never to the primary.
+#
+#    Measured on 2026-08-04: the pulse stopped at ~07:18, the watchdog logged nothing
+#    until 09:52, and the task ran every 5 minutes with result=0 the whole time. It
+#    can only have taken the `exit 0` above ~30 times, so the process WAS there.
+#    Proof it was not merely a broken pulse writer, from tg-send-log.jsonl:
+#        05:00-07:18  144 sends
+#        07:18-09:52    0 sends   <- alive, and doing nothing at all
+#        09:52-11:00   31 sends
+#    So the centre hangs, and a hang was structurally invisible: liveness was being
+#    inferred from existence. Two silent hours on the owner's phone, every time.
+#
+#    Now the pulse is authoritative for BOTH branches. A process that exists but has
+#    not pulsed within the grace window is treated as down and restarted.
+$pulse = Join-Path $ops 'state\pulse\tg-center.json'
+$silent = 999999                       # sentinel: "unknown", never a duration
+if (Test-Path $pulse) {
+    try {
+        $ts = (Get-Content $pulse -Raw | ConvertFrom-Json).ts
+        $silent = [int]((Get-Date) - [datetime]$ts).TotalSeconds
+    } catch { $silent = 999999 }       # پالسِ خراب = بی‌خبری، نه سلامت
+}
+#    Grace: a healthy iteration is well under 30s (long-poll timeout is 25s), so 300s
+#    is 10x headroom. Deliberately wider than step 3's 180s: killing a *live* process
+#    is more destructive than waiting one extra cycle for a *dead* one to respawn.
+$HUNG_AFTER_S = 300
+
 $center = Get-CimInstance Win32_Process -Filter "Name='python.exe'" -ErrorAction SilentlyContinue |
           Where-Object { $_.CommandLine -match 'center\.py' }
-if ($center) { exit 0 }
+if ($center -and $silent -lt $HUNG_AFTER_S) { exit 0 }   # alive AND pulsing -> healthy
+
+if ($center) {
+    #    Alive but not pulsing. Kill it first — otherwise the relaunch below creates a
+    #    second poller on one token, which is the 409 this script has always feared.
+    Add-Content -Path $log -Value "$(Get-Date -Format s) centre HUNG (alive, silent $($silent)s) - killing pid $($center.ProcessId) then relaunching"
+    foreach ($p in $center) { Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue }
+    Start-Sleep -Seconds 3
+}
 
 # 3) centre is DOWN. The old rule stopped here whenever a loop process existed, on the
 #    theory that RUN-TG-CENTER.bat would respawn it within ~10s. On 2026-07-29 that
@@ -50,14 +89,10 @@ if ($center) { exit 0 }
 #    leaves the loop's own respawn untouched in the normal case.
 $loop = Get-CimInstance Win32_Process -Filter "Name='cmd.exe'" -ErrorAction SilentlyContinue |
         Where-Object { $_.CommandLine -match 'RUN-TG-CENTER' }
-$pulse = Join-Path $ops 'state\pulse\tg-center.json'
-$silent = 999999
-if (Test-Path $pulse) {
-    try {
-        $ts = (Get-Content $pulse -Raw | ConvertFrom-Json).ts
-        $silent = [int]((Get-Date) - [datetime]$ts).TotalSeconds
-    } catch { $silent = 999999 }   # پالسِ خراب = بی‌خبری، نه سلامت
-}
+#    NOTE (2026-08-04): $pulse/$silent are now read once, up in step 2, because the
+#    hung-but-alive branch needs them too. Re-reading here would be a second sample a
+#    few milliseconds later — harmless, but two sources for one fact is how this repo
+#    gets bitten. One read, one truth.
 
 if ($loop -and $silent -lt 180) {
     # loop alive and the centre pulsed recently -> it is mid-respawn. Leave it alone;

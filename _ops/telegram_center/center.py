@@ -5048,6 +5048,79 @@ class Center:
         except Exception:  # noqa: BLE001
             pass
 
+    # ── لاگِ ورودی ────────────────────────────────────────────────────────────
+    #
+    # VQ-NO-INBOUND-LOG-001 (۲۰۲۶-۰۸-۰۴). ممیزیِ ۱۶-ایجنته این را علتِ
+    # **ساختاریِ** حسِ «دیده نمی‌شوم» نامید، و درست گفت:
+    #
+    #   `tg-send-log.jsonl` فقط **خروجی** را ثبت می‌کند. هیچ جای سیستم
+    #   نمی‌نویسد «آپدیتِ N رسید، از نوعِ X، ساعتِ T». پس سؤالِ «پیامی که
+    #   فرستادم رسید؟» بعد از وقوع **جواب‌ناپذیر** بود — نه برای مالک، نه
+    #   برای ایجنتِ بعدی، نه برای خودِ ارگانیسم.
+    #
+    # حالا هر update ِ رسیده یک ردیف می‌گذارد، **قبل** از dispatch. اگر
+    # پردازش بترکد، ردیفِ ورودی از قبل نشسته و کنارِ نامهٔ مرده می‌نشیند:
+    # یکی می‌گوید «رسید»، دیگری می‌گوید «پردازش نشد». با هم، تصویرِ کامل.
+    #
+    # ⚠️ §۱۰ منشور: متنِ پیام **ذخیره نمی‌شود** — فقط شکل و اندازه. متن اگر
+    # لازم شد در نامهٔ مرده هست (فقط برای پیامی که شکست خورد). این‌جا هدف
+    # «آیا رسید؟» است نه بایگانیِ مکالمه، و ذخیرهٔ همهٔ متن‌ها یک نشتیِ
+    # PII ِ دائمی می‌ساخت که هیچ‌کس نخواسته بود.
+    #
+    # ⚠️ و هرگز alert نمی‌دهد: این لاگ **ساکت** است. مالک از شلوغی شکایت
+    # داشت؛ یک ردیفِ روزمره خبر نیست.
+    _INBOUND_KEEP = 5000            # سقفِ ردیف — لاگِ بی‌سقف خودش یک باگ است
+
+    def _log_inbound(self, u: dict) -> None:
+        """یک ردیفِ ساکت به ازای هر update ِ رسیده. هرگز استثنا نمی‌دهد."""
+        try:
+            msg = u.get("message") or u.get("edited_message") or {}
+            cq = u.get("callback_query") or {}
+            if cq:
+                kind, text = "callback_query", str(cq.get("data") or "")
+            # ⚠️ `in` نه `.get()`: یک آبجکتِ **خالی** falsy است و یک ویسِ
+            # ناقص به‌جای «voice» به‌عنوان چیزِ دیگری برچسب می‌خورد. دقیقاً
+            # همان موردی است که اولین اجرای گاردِ متناظر گرفت. حضورِ کلید
+            # جواب می‌دهد، نه صدقِ مقدارش.
+            elif "voice" in msg:
+                kind, text = "voice", ""
+            elif "photo" in msg:
+                kind, text = "photo", ""
+            elif "document" in msg:
+                kind, text = "document", ""
+            elif "text" in msg:
+                kind, text = "text", str(msg.get("text") or "")
+            else:
+                kind, text = (sorted(k for k in u if k != "update_id") or ["?"])[0], ""
+            chat = (msg.get("chat") or (cq.get("message") or {}).get("chat") or {})
+            row = {
+                "ts": opslib.now_iso(),
+                "update_id": u.get("update_id"),
+                "kind": kind,
+                # نه متن، نه chat_id: فقط چیزی که به «رسید یا نه» جواب می‌دهد.
+                "chars": len(text),
+                "is_command": text.startswith("/"),
+                # اولین توکن یک فرمان محتوا نیست و برای عیب‌یابی حیاتی است.
+                "cmd": (text.split() or [""])[0][:32] if text.startswith("/") else "",
+                "chat_kind": str(chat.get("type") or ""),
+                "from_owner": bool(
+                    str((msg.get("from") or cq.get("from") or {}).get("id") or "")
+                    == str(getattr(self._client, "owner_chat_id", "") or "")),
+            }
+            p = opslib.STATE_DIR / "telegram" / "inbound-log.jsonl"
+            p.parent.mkdir(parents=True, exist_ok=True)
+            with open(p, "a", encoding="utf-8", newline="\n") as fh:
+                fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+            # چرخش: بی‌سقف یعنی یک فایلِ چندصدمگابایتی روی دیسکِ مکانیکی.
+            try:
+                if p.stat().st_size > 4_000_000:
+                    keep = p.read_text("utf-8", errors="replace").splitlines()[-self._INBOUND_KEEP:]
+                    p.write_text("\n".join(keep) + "\n", encoding="utf-8", newline="\n")
+            except OSError:
+                pass
+        except Exception:  # noqa: BLE001 — لاگ هرگز حلقه را نمی‌کشد
+            pass
+
     #: چند شکستِ **پیاپیِ** poll تا صدا در بیاید. یک قطعیِ گذرا باید ساکت باشد،
     #: وگرنه گاردِ گرگ‌گرگ می‌شود؛ ولی یک قطعیِ طولانی از «پیامی نیست» غیرقابلِ
     #: تفکیک است و دقیقاً همان چیزی است که یک‌بار ۳۱ ساعت قحطیِ دایجست ساخت.
@@ -5099,6 +5172,9 @@ class Center:
             uid = u.get("update_id")
             if isinstance(uid, int) and uid > max_id:
                 max_id = uid
+            # **قبل** از dispatch: اگر پردازش بترکد، ردیفِ «رسید» از قبل نشسته
+            # و کنارِ نامهٔ مرده تصویرِ کامل می‌دهد.
+            self._log_inbound(u)
             try:
                 self.handle_update(u)
             except Exception as exc:  # noqa: BLE001 — یک updateِ خراب حلقه را نمی‌کشد
