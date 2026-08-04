@@ -530,6 +530,18 @@ def _offer_patch_to_owner(res: dict) -> dict:
     # بالا رد کرده‌اند اجازه بدهد؛ فقط می‌تواند یک عبورِ موفق را رد کند.
     _arm_ok, _arm_why = arm_gate.guard("code_autonomy")
     if not _arm_ok:
+        # ۲۰۲۶-۰۸-۰۴ — drive() قبلِ اینجا یک کارتِ متنِ‌سادهٔ قدیمی می‌فرستد
+        # (channel.send_text(card_text(res)))، ولی آن کارت دکمه ندارد و
+        # نمی‌گوید چرا رد شد. بدونِ این آلارم، مالک فقط «چیزی خودکار اعمال
+        # نمی‌شود» می‌بیند و نمی‌فهمد یک arm-token لازم است. opslib.alert خودش
+        # dedupِ ۶ساعته دارد، پس تکرار spam نمی‌شود.
+        try:
+            opslib.alert([
+                f"self_patch: پچِ سبز برای «{(res or {}).get('target')}» آماده بود "
+                f"ولی arm_gate رد کرد ({_arm_why}) — یک arm-token تازهٔ دوکلیدی "
+                f"برای code_autonomy لازم است."])
+        except Exception:  # noqa: BLE001 — آلارم هرگز پیشنهاد را نمی‌کشد
+            pass
         return {"ok": False, "reason": f"arm-gate-denied:{_arm_why}"}
     # سایهٔ مجوز (قدمِ ۴): می‌سنجد و ثبت می‌کند، هیچ‌چیز را گیت نمی‌کند.
     # عمداً **بعد از** گاردهای موجود است تا ترتیبِ تصمیم‌ها عوض نشود.
