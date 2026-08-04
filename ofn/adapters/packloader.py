@@ -30,6 +30,7 @@ from typing import Any, Mapping
 from ..kernel.domain import (UNRESOLVED, Confidence, Currency, Locale,
                              PackSpec, RiskTier, TenantId)
 from ..kernel.errors import PackError
+from ..kernel.questions import ASK_EVERY_SECONDS
 
 # Exactly one market is implemented end to end. The registry is the single
 # place that says so, and `spec_from_mapping` refuses anything absent from it
@@ -341,6 +342,10 @@ def _locale(tenant: TenantId, raw: Any) -> Locale:
 
 
 _META_FIELDS = {"label", "hint", "unit", "options", "min", "max", "default",
+                # How often the answer goes out of date. Validated below
+                # against the periods the kernel understands, so a typo
+                # fails at boot rather than silently never re-asking.
+                "ask_every",
                 "placeholder"}
 
 
@@ -374,8 +379,17 @@ def _question_meta(
             raise PackError(
                 f"{tenant}: questions.{key} has unknown field(s) "
                 f"{sorted(unknown)}; allowed are {sorted(_META_FIELDS)}")
+        period = spec.get("ask_every")
+        if period is not None and period not in ASK_EVERY_SECONDS:
+            # A period nobody can read is a re-ask that never happens, and it
+            # would look exactly like one that does.
+            raise PackError(
+                f"{tenant}: questions.{key}.ask_every is {period!r}; "
+                f"allowed are {sorted(ASK_EVERY_SECONDS)}")
 
         entry: dict[str, Any] = {}
+        if period is not None:
+            entry["ask_every"] = str(period)
         for field_name in ("label", "hint", "unit", "placeholder"):
             if spec.get(field_name) is not None:
                 entry[field_name] = str(spec[field_name])

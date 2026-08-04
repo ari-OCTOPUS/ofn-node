@@ -86,8 +86,12 @@ class TestDriftIsDetected(Tmp):
             gap = missing_columns(conn, P.SCHEMA)
         finally:
             conn.close()
+        # Grows as columns are added. That is the point: the fixture is the
+        # schema as it stood before, frozen, and every later addition shows
+        # up here — which is exactly what a drift detector is for.
         self.assertEqual(sorted(gap["products"]),
-                         ["price_primary_aud", "price_secondary_aud"])
+                         ["archived_at", "price_primary_aud",
+                          "price_secondary_aud"])
 
     def test_a_current_file_reports_nothing(self):
         store = P.ProductStore(self.path, cost_fields=("materials_cost_aud",),

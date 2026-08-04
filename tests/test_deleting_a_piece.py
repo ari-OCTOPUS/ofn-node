@@ -151,3 +151,69 @@ class TestOlderFilesAreSeeded(Base):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestArchiving(Base):
+    """A mistyped piece is going to happen. The answer to it must not be an
+    operation that also destroys a real one."""
+
+    def test_an_archived_piece_leaves_her_list(self):
+        p = self.add(name="اشتباه")
+        self.s.archive("ziman", p.sku, now_iso=JAN)
+        self.assertEqual(self.s.list("ziman"), [])
+
+    def test_but_it_is_still_there_when_asked_for(self):
+        p = self.add()
+        self.s.archive("ziman", p.sku, now_iso=JAN)
+        self.assertEqual([x.sku for x in self.s.list("ziman",
+                                                     include_archived=True)],
+                         [p.sku])
+
+    def test_the_default_is_the_list_she_sees(self):
+        """The common call must be right without anybody remembering a
+        flag."""
+        p = self.add()
+        self.s.archive("ziman", p.sku, now_iso=JAN)
+        self.assertEqual(self.s.list("ziman"), [])
+
+    def test_the_code_is_not_freed(self):
+        """A code read out on a phone call is spent."""
+        first = self.add()
+        self.s.archive("ziman", first.sku, now_iso=JAN)
+        self.assertEqual(self.add(name="بعدی").sku, "ZM-0002")
+
+    def test_archiving_is_reversible(self):
+        """That is why it exists rather than delete."""
+        p = self.add()
+        self.s.archive("ziman", p.sku, now_iso=JAN)
+        self.s.unarchive("ziman", p.sku)
+        self.assertEqual(len(self.s.list("ziman")), 1)
+
+    def test_state_is_untouched(self):
+        """Archiving is a separate axis. A piece put away was still `sold`
+        or `in_progress` when it happened, and folding the two loses that."""
+        # A sold piece must say where it sold — the store enforces that, and
+        # the first version of this fixture did not know it.
+        p = self.s.create("ziman", "ZM", {"name": "x", "state": "sold",
+                                          "channel": "market",
+                                          "sold_at": "2026-01-10"},
+                          now_iso=JAN)
+        after = self.s.archive("ziman", p.sku, now_iso=JAN)
+        self.assertEqual(after.state, "sold")
+        self.assertIsNotNone(after.archived_at)
+
+    def test_archiving_twice_is_refused(self):
+        p = self.add()
+        self.s.archive("ziman", p.sku, now_iso=JAN)
+        with self.assertRaises(ProductError):
+            self.s.archive("ziman", p.sku, now_iso=JAN)
+
+    def test_archiving_something_absent_is_refused(self):
+        with self.assertRaises(ProductError):
+            self.s.archive("ziman", "ZM-9999", now_iso=JAN)
+
+    def test_a_sibling_business_cannot_archive_it(self):
+        p = self.add()
+        with self.assertRaises(ProductError):
+            self.s.archive("lead", p.sku, now_iso=JAN)
+        self.assertEqual(len(self.s.list("ziman")), 1)

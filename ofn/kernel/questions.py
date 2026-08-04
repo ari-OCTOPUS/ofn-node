@@ -86,6 +86,38 @@ def gated_actions(pack: PackSpec) -> tuple[str, ...]:
         if tier.at_least(RiskTier.YELLOW)))
 
 
+# How often a fact must be re-asked, when the pack says so. Named periods
+# rather than numbers, because "quarter" is a thing a person means and
+# "7776000" is a thing somebody typed.
+ASK_EVERY_SECONDS: Mapping[str, int] = {
+    "day": 86_400,
+    "week": 7 * 86_400,
+    "month": 30 * 86_400,
+    "quarter": 90 * 86_400,
+    "year": 365 * 86_400,
+}
+
+
+def is_stale(period: object, age_seconds: int) -> bool:
+    """Whether an answer given this long ago has to be asked again.
+
+    An unknown period returns False rather than raising: a typo in a pack
+    must not stop the node, and the safe direction here is *not* re-asking —
+    a question that reappears every screen is how a partner learns to dismiss
+    questions without reading them. The typo is caught by the pack loader.
+
+    A negative age is treated as fresh. The clock on this board has no
+    battery, and an answer that appears to come from the future is a clock
+    problem, not a reason to interrogate somebody.
+    """
+    if not isinstance(period, str):
+        return False
+    limit = ASK_EVERY_SECONDS.get(period)
+    if limit is None:
+        return False
+    return age_seconds > limit
+
+
 def plan(
     pack: PackSpec,
     evidence: Mapping[str, Confidence],

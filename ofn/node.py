@@ -13,6 +13,8 @@ ledger that disagrees with the state.
 
 from __future__ import annotations
 
+import calendar
+import time
 from dataclasses import dataclass
 from typing import Callable, Mapping, Sequence
 
@@ -34,7 +36,7 @@ from .kernel.routing import Rung
 from .kernel.photos import ALLOWED_EDGES
 from .kernel.photos import inspect as photo_inspect
 from .kernel.gates import admit, executable
-from .kernel.questions import Question, plan, readiness
+from .kernel.questions import Question, is_stale, plan, readiness
 from .kernel.quota import NodeQuota
 from .kernel.tenancy import TenantRegistry, TenantScope
 from .worker import Job
@@ -147,8 +149,43 @@ class Node:
         return closed_gates_for(self.boot, self.base_closed_gates)
 
     def evidence_for(self, scope: TenantScope) -> Mapping[str, Confidence]:
+        """What is known, with anything past its re-ask date treated as
+        unknown.
+
+        Staleness is applied here rather than in the kernel because deciding
+        it needs a clock, and the kernel has none. `plan` then re-asks with
+        no change to it at all.
+
+        Some answers go quietly out of date. Late GST registration means
+        owing tax on every sale since the day registration was due — even on
+        money never collected for it. An answer given once and never asked
+        again is an answer that ages without anybody noticing.
+        """
         pack = self.registry.pack(scope.tenant)
-        return self.facts.evidence(scope, list(pack.required_facts))
+        known = dict(self.facts.evidence(scope, list(pack.required_facts)))
+        now = self.now_epoch_s()
+        for key in list(known):
+            period = (pack.question_meta.get(key) or {}).get("ask_every")
+            if period is None:
+                continue
+            age = self._fact_age_seconds(scope, key, now)
+            if age is not None and is_stale(period, age):
+                del known[key]
+        return known
+
+    def _fact_age_seconds(self, scope: TenantScope, key: str,
+                          now_epoch_s: int) -> int | None:
+        """How long ago this was last observed, or None if never."""
+        subject, _, predicate = key.partition(".")
+        fact = self.facts.current(scope, subject, predicate)
+        seen = getattr(fact, "observed_at", None) if fact else None
+        if not seen:
+            return None
+        try:
+            stamp = time.strptime(str(seen)[:19], "%Y-%m-%dT%H:%M:%S")
+        except ValueError:
+            return None
+        return max(0, now_epoch_s - int(calendar.timegm(stamp)))
 
     # ── partner surface ───────────────────────────────────────────────────
     def questions_for(self, scope: TenantScope, user_id: str) -> list[dict]:

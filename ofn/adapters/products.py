@@ -84,7 +84,14 @@ SCHEMA = (
         marketing_notes     TEXT,
 
         created_at          TEXT    NOT NULL DEFAULT (datetime('now')),
-        updated_at          TEXT
+        updated_at          TEXT,
+
+        -- Archiving is a separate axis from state, not a fifth value of it.
+        -- A piece that is archived was still `sold` or `in_progress` when it
+        -- was put away, and folding the two would lose that. It is also the
+        -- only shape SQLite allows without rewriting the table: `state` has
+        -- a CHECK constraint, and a CHECK cannot be altered in place.
+        archived_at         TEXT
     )
     """,
     # Photos land tomorrow, but the table is created tonight so that evening
@@ -172,7 +179,13 @@ def _seed_sku_high_water(conn) -> None:
             (tenant, last))
 
 
-MIGRATIONS = (_split_price_into_two, _seed_sku_high_water)
+def _add_archive_column(conn) -> None:
+    """Archiving, added after files existed. See `apply_schema`."""
+    add_column_if_absent(conn, "products", "archived_at", "TEXT")
+
+
+MIGRATIONS = (_split_price_into_two, _seed_sku_high_water,
+              _add_archive_column)
 
 MAX_PHOTOS_PER_PRODUCT = 5
 STATES = ("in_progress", "for_sale", "sold", "gifted")
@@ -227,6 +240,8 @@ class Product:
     marketing_notes: str | None
     created_at: str
     updated_at: str | None
+    # Set when she puts it away. Orthogonal to `state`.
+    archived_at: str | None = None
 
     @property
     def judged_price_aud(self) -> float | None:
@@ -416,7 +431,7 @@ _COLUMNS = ("id, tenant_id, sku, name, category, description, "
             "packaging_cost_aud, cogs_aud, price_primary_aud, "
             "price_secondary_aud, state, channel, "
             "listed_at, sold_at, marketing_status, marketing_notes, "
-            "created_at, updated_at")
+            "created_at, updated_at, archived_at")
 
 
 class ProductStore:
@@ -445,10 +460,62 @@ class ProductStore:
             "WHERE tenant_id = ? AND sku = ?", (tenant, sku)).fetchone()
         return Product(*row) if row else None
 
-    def list(self, tenant: str) -> list[Product]:
+    def list(self, tenant: str, *, include_archived: bool = False
+             ) -> list[Product]:
+        """Her shelf. Archived pieces are absent unless asked for.
+
+        The default is the one she sees, because the common call is the one
+        that must be right without anybody remembering a flag.
+        """
+        sql = (f"SELECT {_COLUMNS} FROM products WHERE tenant_id = ? ")
+        if not include_archived:
+            sql += "AND archived_at IS NULL "
         return [Product(*r) for r in self._conn.execute(
-            f"SELECT {_COLUMNS} FROM products WHERE tenant_id = ? "
-            "ORDER BY id", (tenant,))]
+            sql + "ORDER BY id", (tenant,))]
+
+    def archive(self, tenant: str, sku: str, *, now_iso: str) -> Product:
+        """Put a piece away. It leaves her list and stays in the history.
+
+        Not a delete, and the difference is the whole feature: a mistyped
+        piece is going to happen, and the answer to it must not be an
+        operation that also destroys a real one. The SKU is not freed —
+        `sku_high_water` already holds it, and a code read out on a phone
+        call is spent.
+        """
+        piece = self.get(tenant, sku)
+        if piece is None:
+            raise ProductError(f"قطعه‌ای با کد «{sku}» پیدا نشد")
+        if piece.archived_at:
+            raise ProductError(f"«{sku}» از قبل بایگانی شده")
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            self._conn.execute(
+                "UPDATE products SET archived_at = ? "
+                "WHERE tenant_id = ? AND sku = ? AND archived_at IS NULL",
+                (now_iso, tenant, sku))
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+        out = self.get(tenant, sku)
+        assert out is not None
+        return out
+
+    def unarchive(self, tenant: str, sku: str) -> Product:
+        """Bring it back. Archiving is reversible; that is why it exists."""
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            self._conn.execute(
+                "UPDATE products SET archived_at = NULL "
+                "WHERE tenant_id = ? AND sku = ?", (tenant, sku))
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+        out = self.get(tenant, sku)
+        if out is None:
+            raise ProductError(f"قطعه‌ای با کد «{sku}» پیدا نشد")
+        return out
 
     def photo_count(self, product_id: int) -> int:
         return self._conn.execute(
