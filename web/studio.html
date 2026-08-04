@@ -96,6 +96,13 @@
 body{
   font-family:var(--fa);background:var(--bg);color:var(--t-hi);
   line-height:1.85;letter-spacing:0;min-height:100dvh;
+  /* `viewport-fit=cover` means the page owns the whole screen, notch and
+     status bar included, so every edge it writes to needs its own inset. The
+     bottom had one and the top did not — invisible until now, because the
+     shell only fills the screen once `expand()` runs and `expand()` had never
+     run: `tg` was undefined, so `OFN.shell()` returned early every time. The
+     bug that hid the empty screen was hiding this too. */
+  padding-top:env(safe-area-inset-top);
   padding-bottom:calc(100px + env(safe-area-inset-bottom));
   overflow-x:hidden;-webkit-font-smoothing:antialiased}
 
