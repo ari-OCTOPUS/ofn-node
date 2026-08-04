@@ -154,7 +154,17 @@ def t_the_eye_has_a_real_unknown_face():
     body = m.group(1)
     assert "unknown" in body, "‏setHalted حالتِ سوم ندارد"
     assert "null" in body or "undefined" in body, "‏setHalted نبودِ داده را تشخیص نمی‌دهد"
-    assert re.search(r"\.eye\.unknown\b", CSS), "کلاسِ .eye.unknown در CSS نیست"
+    # ⚠️ صرفِ وجودِ کلاس کافی نیست — جهشِ «یکی از چهار قاعده را بردار» زنده
+    # ماند. ادعای باربر این است که چشمِ نامعلوم **نمی‌درخشد**: هالهٔ درخشان
+    # همان چیزی است که مالک به‌عنوان «زنده» می‌خواند.
+    halo = re.search(r"\.eye\.unknown\s+\.halo\s*\{([^}]*)\}", CSS)
+    assert halo, "قاعدهٔ هالهٔ چشمِ نامعلوم در CSS نیست"
+    assert re.search(r"opacity\s*:\s*0\b", halo.group(1)), \
+        f"چشمِ نامعلوم هنوز هاله دارد ⇒ شبیهِ زنده دیده می‌شود: {halo.group(1)}"
+    ring = re.search(r"\.eye\.unknown\s+\.ring\s*\{([^}]*)\}", CSS)
+    assert ring, "قاعدهٔ حلقهٔ چشمِ نامعلوم در CSS نیست"
+    assert "var(--cyan)" not in ring.group(1), \
+        "حلقهٔ چشمِ نامعلوم هنوز فیروزه‌ایِ سلامت است"
 
 
 if __name__ == "__main__":
