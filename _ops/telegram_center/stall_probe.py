@@ -127,6 +127,66 @@ def write_dump(reason: str, *, age: "float | None" = None) -> bool:
         return False
 
 
+#: هندلِ بازِ فایلِ کرش. `faulthandler.enable` یک fd ِ **زنده** می‌خواهد؛ اگر
+#: فایل بسته شود، کرشِ سخت دوباره بی‌رد می‌شود.
+_crash_fh = None
+
+
+def crash_path() -> Path:
+    return opslib.STATE_DIR / "telegram" / "center-crash.log"
+
+
+def install_crash_log() -> bool:
+    """هر استثنای نگرفته، هر کرشِ نخ، و هر کرشِ سخت → فایل.
+
+    چرا لازم است (۲۰۲۶-۰۸-۰۴): `RUN-TG-CENTER.bat` مرکز را با
+    `Start-Process -WindowStyle Hidden` بالا می‌آورد و هیچ ریدایرکتی ندارد،
+    پس stdout/stderr به **هیچ‌جا** نمی‌رود. تاریخچهٔ واچ‌داگ چند بار
+    «centre+loop both down» دارد — یعنی کرش رخ داده و traceback ِ آن برای
+    همیشه گم شده.
+
+    عمداً در پایتون و نه در .bat: آن فایل باربر است و اگر نحوش بشکند مرکز
+    اصلاً بالا نمی‌آید — بدترین نتیجهٔ ممکن برای مشکلی که «دیده نمی‌شوم» است.
+
+    سه لایه، چون سه راهِ متفاوتِ مردن وجود دارد:
+      · `sys.excepthook`        — استثنای نگرفته در نخِ اصلی
+      · `threading.excepthook`  — استثنا در لِن‌های پس‌زمینه (وگرنه فقط روی
+                                  stderr ِ گم‌شده چاپ می‌شود)
+      · `faulthandler.enable`   — کرشِ سخت (segfault و امثالش)
+    """
+    global _crash_fh
+    try:
+        p = crash_path()
+        p.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            if p.exists() and p.stat().st_size > MAX_BYTES:
+                p.write_text("", encoding="utf-8")
+        except OSError:
+            pass
+        _crash_fh = open(p, "a", encoding="utf-8", newline="\n")
+        faulthandler.enable(file=_crash_fh, all_threads=True)
+
+        def _hook(exc_type, exc, tb, _thread=None):
+            try:
+                import traceback as _tb
+                _crash_fh.write(
+                    f"\n{'=' * 68}\n{opslib.now_iso()}  pid={os.getpid()}  "
+                    f"{'thread=' + str(_thread) + '  ' if _thread else ''}"
+                    f"UNCAUGHT {exc_type.__name__}\n{'=' * 68}\n")
+                _tb.print_exception(exc_type, exc, tb, file=_crash_fh)
+                _crash_fh.flush()
+            except Exception:  # noqa: BLE001
+                pass
+
+        sys.excepthook = _hook
+        threading.excepthook = lambda a: _hook(
+            a.exc_type, a.exc_value, a.exc_traceback,
+            getattr(a.thread, "name", "?"))
+        return True
+    except Exception:  # noqa: BLE001 — ثبت هرگز مرکز را نمی‌کشد
+        return False
+
+
 def _loop(stop_evt: "threading.Event", *, stall_after_s: float,
           poll_s: float, redump_every_s: float) -> None:
     last_dump = 0.0

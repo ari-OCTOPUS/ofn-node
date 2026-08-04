@@ -177,6 +177,58 @@ def t_i_a_healthy_pulse_produces_no_dump():
     assert not d.exists(), "روی نبضِ سالم پشته نوشت"
 
 
+def t_l_an_uncaught_exception_lands_in_the_crash_log():
+    """نیمهٔ دومِ همان کوری. تاریخچهٔ واچ‌داگ چند «centre+loop both down» دارد
+    — یعنی کرش رخ داده و traceback ِ آن گم شده، چون مرکز با
+    `Start-Process -WindowStyle Hidden` و بدونِ ریدایرکت بالا می‌آید."""
+    c = sp.crash_path()
+    try:
+        if c.exists():
+            c.unlink()
+    except OSError:
+        pass
+    assert sp.install_crash_log() is True
+    try:
+        raise ValueError("خطای-ساختگیِ-فاز-تشخیص")
+    except ValueError:
+        sys.excepthook(*sys.exc_info())
+    txt = c.read_text("utf-8", errors="replace")
+    assert "UNCAUGHT ValueError" in txt, txt[:300]
+    assert "خطای-ساختگیِ-فاز-تشخیص" in txt, ("متنِ استثنا ثبت نشد", txt[:300])
+
+
+def t_m_a_background_thread_crash_is_not_lost():
+    """⚠️ لِن‌های پس‌زمینه (brain/voice) استثنایشان را فقط روی stderr چاپ
+    می‌کنند — و stderr این پروسه هیچ‌جا نمی‌رود. بدونِ `threading.excepthook`
+    مرگِ یک لِن کاملاً نامرئی است."""
+    import threading
+    c = sp.crash_path()
+    try:
+        if c.exists():
+            c.unlink()
+    except OSError:
+        pass
+    sp.install_crash_log()
+
+    def _boom():
+        raise RuntimeError("کرشِ-لِنِ-پس‌زمینه")
+
+    th = threading.Thread(target=_boom, name="doomed-lane", daemon=True)
+    th.start()
+    th.join(5)
+    txt = c.read_text("utf-8", errors="replace") if c.exists() else ""
+    assert "RuntimeError" in txt and "doomed-lane" in txt, (
+        "کرشِ نخِ پس‌زمینه ثبت نشد ⇒ مرگِ یک لِن نامرئی می‌ماند", txt[:400])
+
+
+def t_n_the_center_installs_the_crash_log_too():
+    src = CENTER.read_text("utf-8", errors="replace")
+    fn = next((n for n in ast.walk(ast.parse(src))
+               if isinstance(n, ast.FunctionDef) and n.name == "run_forever"), None)
+    seg = ast.get_source_segment(src, fn) or ""
+    assert "install_crash_log" in seg, "مرکز لاگِ کرش را نصب نمی‌کند"
+
+
 def t_j_the_center_actually_starts_the_probe():
     """⚠️ ماژولی که هیچ‌کس صدایش نمی‌زند یک «قابلیتِ تاریک» است."""
     src = CENTER.read_text("utf-8", errors="replace")
