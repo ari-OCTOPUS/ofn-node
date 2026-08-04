@@ -140,12 +140,29 @@ def t_a_wrong_token_key_direction_would_fail():
 # را ببیند؛ gateway تنها limb ِ بدونش بود. main() سرور را بلاک می‌کند (serve_
 # forever)، پس اینجا فقط سازه سنجیده می‌شود -- همان الگویِ compare_digest پایین.
 def t_main_snapshots_boot_flags_like_every_other_limb():
-    src = Path(mg.__file__).read_text("utf-8")
-    i = src.find("def main(")
-    assert i >= 0
-    seg = src[i:i + 2000]
-    assert "flag_drift.snapshot_boot(" in seg, \
-        "main() باید flag_drift.snapshot_boot('miniapp-gateway') را صدا بزند"
+    """⚠️ ۲۰۲۶-۰۸-۰۴ — این گارد **مثبتِ کاذب** می‌داد و ۲۴/۲۵ را می‌ساخت.
+
+    نسخهٔ قبلی یک پنجرهٔ ثابتِ ۲۰۰۰ کاراکتری از `def main(` برمی‌داشت و داخلش
+    دنبالِ رشته می‌گشت. `main()` بلندتر شد (کامنتِ VQ-PORT-COLLISION و بعد
+    بلوکِ VQ-GATEWAY-NO-CREDS) و صدازدنِ **واقعی** از پنجره بیرون افتاد — پس
+    گارد قرمز می‌داد در حالی که کد کاملاً درست بود. یک گاردِ گرگ‌گرگ.
+
+    رفع با AST: بدنهٔ خودِ تابع پیمایش می‌شود، پس طولِ کامنت‌ها بی‌ربط است.
+    این همان درسِ «با نامِ نماد لنگر بینداز، نه شماره‌خط» است — پنجرهٔ
+    کاراکتری هم دقیقاً همان شکنندگی را دارد."""
+    import ast
+    tree = ast.parse(Path(mg.__file__).read_text("utf-8"))
+    fn = next((n for n in ast.walk(tree)
+               if isinstance(n, ast.FunctionDef) and n.name == "main"), None)
+    assert fn is not None, "تابعِ main پیدا نشد — گارد کور شده"
+    calls = [n for n in ast.walk(fn)
+             if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+             and n.func.attr == "snapshot_boot"]
+    assert calls, "main() باید flag_drift.snapshot_boot('miniapp-gateway') را صدا بزند"
+    args = [a.value for c in calls for a in c.args if isinstance(a, ast.Constant)]
+    assert "miniapp-gateway" in args, (
+        "snapshot_boot با نامِ اشتباه صدا زده می‌شود — رانشِ فلگ زیرِ نامِ "
+        f"دیگری ثبت می‌شود: {args}")
 
 
 def t_compare_digest_is_used_no_timing_leak():
