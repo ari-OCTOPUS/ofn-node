@@ -279,6 +279,31 @@
       // ⚠️ مخرجِ `Math.max(n,5)` ساختگی بود: کمانِ حلقه هیچ چیزِ واقعی را
       // کد نمی‌کرد. صف سقفِ طبیعی ندارد، پس وقتی عددی برای مقایسه نیست،
       // گره می‌کشم نه حلقه — همان قاعده‌ای که در علائمِ حیاتی گذاشتم.
+      // ⚠️ ۲۰۲۶-۰۸-۰۵ — سؤالِ مالک: «تأیید کردم؛ کار کرد و تأثیر داشت؟»
+      // تا امروز صفحه بعد از تأیید فقط کارت را ناپدید می‌کرد و هیچ‌وقت
+      // نمی‌گفت بعدش چه شد. این بخش همان شکاف را مرئی می‌کند: حکم ثبت شده،
+      // ولی `owner-decision` **صفر خواننده** دارد، پس تا وقتی اثرگری نباشد
+      // «ثبت شد» تمامِ حقیقت است — و صفحه دقیقاً همین را می‌گوید نه بیشتر.
+      var dec = d.decisions||[];
+      if(dec.length){
+        body += '<div class="secsub">تصمیم‌های اخیرِ تو — و بعدش چه شد</div>';
+        body += dec.map(function(x){
+          var done = Number(x.effects_after||0) > 0;
+          var vfa = x.verdict==="approved" ? "تأیید" :
+                    x.verdict==="rejected" ? "رد" : ltr(String(x.verdict||"?"));
+          return '<div class="titem '+(done?"ok":"warm")+'">'+
+            '<div class="tmain">'+
+              '<div class="tid">'+ltr(esc(String(x.proposal_id)))+' · '+vfa+'</div>'+
+              '<div class="tage">'+(done
+                ? 'اثر ثبت شد — '+ltr(esc(String(x.next_event||"")))
+                : 'ثبت شد؛ هنوز هیچ اثری پشتِ آن ثبت نشده')+'</div>'+
+            '</div></div>';
+        }).join("");
+        if(dec.some(function(x){ return !Number(x.effects_after||0); })){
+          body += '<div class="cdnote">«اثری ثبت نشده» یعنی حکمِ تو ماندگار است '+
+            'ولی هیچ اثرگری هنوز برش نداشته — نه اینکه رد شده باشد.</div>';
+        }
+      }
       el.innerHTML = '<div class="card">'+secHead("صفِ تأیید")+
         '<div class="vitals">'+orbs([{name:"منتظرِ تو", short:"منتظرِ تو",
                                       n:n, tone:(n?"hot":"ok")}])+'</div>'+
@@ -301,7 +326,18 @@
   var DECIDE_DELAY_S = 10;
   var _timers = {};
 
-  function wireDecisions(root){
+  // دو خانوادهٔ تصمیم، یک مکانیزم. کارتِ RFC ِ راکد دقیقاً همان پنجرهٔ لغوِ
+  // ۱۰ثانیه‌ای را می‌خواهد؛ کپی‌کردنِ arm() یعنی روزی یکی‌شان اصلاح می‌شود و
+  // دیگری نه. فقط فعل و کلیدِ payload فرق می‌کنند.
+  var DECIDE_SPECS = {
+    proposal: {yes:"proposal.approve", no:"proposal.reject", key:"proposal_id",
+               yesFa:"تأیید", noFa:"رد", yesSel:".pyes", noSel:".pno"},
+    rfc:      {yes:"rfc.approve",      no:"rfc.deny",       key:"rfc_id",
+               yesFa:"پذیرش", noFa:"رد", yesSel:".ryes", noSel:".rno"}
+  };
+
+  function wireDecisions(root, kind){
+    var sp = DECIDE_SPECS[kind || "proposal"];
     function arm(btn, verb, faVerb, tone){
       btn.addEventListener("click", function(){
         var pid = btn.getAttribute("data-pid");
@@ -327,7 +363,8 @@
           if(left > 0){ paint(); return; }
           clearInterval(_timers[pid]); delete _timers[pid];
           slot.innerHTML = '<span class="cd">در حال ثبت…</span>';
-          act(verb, {proposal_id: pid}, btn).then(function(r){
+          var payload = {}; payload[sp.key] = pid;
+          act(verb, payload, btn).then(function(r){
             if(r && r.ok){ render("approvals"); }
             else { slot.hidden = true; card.classList.remove("armed"); }
           });
@@ -340,11 +377,11 @@
       card.classList.remove("armed");
       toast("لغو شد — هیچ چیزی ثبت نشد", "warn");
     }
-    [].forEach.call(root.querySelectorAll(".pyes"), function(b){
-      arm(b, "proposal.approve", "تأیید", "ok");
+    [].forEach.call(root.querySelectorAll(sp.yesSel), function(b){
+      arm(b, sp.yes, sp.yesFa, "ok");
     });
-    [].forEach.call(root.querySelectorAll(".pno"), function(b){
-      arm(b, "proposal.reject", "رد", "bad");
+    [].forEach.call(root.querySelectorAll(sp.noSel), function(b){
+      arm(b, sp.no, sp.noFa, "bad");
     });
   }
 
@@ -405,6 +442,45 @@
           'تا تصمیم نگیری همان‌جا می‌ماند.</div></div></div>';
       }
 
+      // ⚠️ ۲۰۲۶-۰۸-۰۵ — تا امروز این نما فقط **عدد** می‌داد. «۲۹ راکد» را
+      // می‌دیدی و هیچ‌جا نمی‌شد تصمیم گرفت: تنها سطحِ تصمیم دکمهٔ اینلاینِ
+      // تلگرام بود و تحویلِ کارت خاموش است. حالا هر کارت یک ردیفِ قابلِ
+      // اقدام است، با همان پنجرهٔ لغوِ ۱۰ثانیه‌ایِ صفِ تأیید.
+      // بی‌متن می‌ماند: رکوردِ کارت nonce و token دارد و سرور فقط
+      // rfc_id/سن را رد می‌کند.
+      var sl = d.stalled_list || [], cut = Number(d.stalled_list_truncated||0);
+      if(sl.length){
+        h += '<div class="secsub">کارت‌های راکد — تصمیمِ توست</div>';
+        h += sl.map(function(c){
+          var ag = (c.age_days===null||c.age_days===undefined) ? null : Number(c.age_days);
+          var tone = ag===null ? "unk" : (ag>=7 ? "hot" : ag>=3 ? "warm" : "ok");
+          return '<div class="titem '+tone+'">'+
+            '<div class="tmain">'+
+              '<div class="tid">'+ltr(esc(String(c.rfc_id)))+'</div>'+
+              '<div class="tage">'+(ag===null ? "سنّ نامعلوم"
+                                              : fa(ag)+' روز راکد')+'</div>'+
+            '</div>'+
+            '<div class="tbtns">'+
+              '<button class="ryes" type="button" data-pid="'+esc(String(c.rfc_id))+'">پذیرش</button>'+
+              '<button class="rno"  type="button" data-pid="'+esc(String(c.rfc_id))+'">رد</button>'+
+            '</div>'+
+            '<div class="pend" hidden></div></div>';
+        }).join("");
+        if(cut>0){
+          // سقفِ بی‌صدا از «همه را دیدی» غیرقابل‌تشخیص است.
+          h += '<div class="muted">'+fa(cut)+' کارتِ راکدِ دیگر نشان داده نشد '+
+               '(سقفِ فهرست).</div>';
+        }
+        h += '<div class="cdnote">پذیرش یعنی «اعمال کن» — دکترِ روزانه '+
+             'برش می‌دارد و اثرش با رسید برمی‌گردد. رد یعنی بسته شود.</div>';
+      } else if(stalled){
+        // عدد می‌گوید راکد هست ولی فهرست خالی است: تناقض را بلند بگو.
+        h += '<div class="tri unk"><div class="in">'+
+          '<div class="verb">فهرستِ کارت‌های راکد نیامد</div>'+
+          '<div class="why">شمارش '+fa(stalled)+' می‌گوید ولی سرور هویتی نداد — '+
+          'تا این حل نشود از این‌جا نمی‌شود تصمیم گرفت.</div></div></div>';
+      }
+
       h += '<details class="det"><summary>عددهایش</summary><div class="inner">'+
         row("کلِ کارت‌ها", total)+
         STAGE_ORDER.map(function(s){
@@ -415,6 +491,9 @@
         row("منبع", (d.sources||[]).length ? ltr((d.sources||[]).join(" · ")) : "—")+
       '</div></details>';
       el.innerHTML = h;
+      // بدونِ این خط، دکمه‌ها رسم می‌شوند و هیچ‌کاری نمی‌کنند — همان
+      // «گزینش هست کار نمی‌کند» که مالک گزارش داد.
+      wireDecisions(el, "rfc");
     });
   }
 
@@ -461,12 +540,20 @@
   function renderRegistry(el){
     el = el || content;
     api("/api/ui-registry").then(function(d){
-      var items = d.items||[];
+      var g = panelGuard("UI Registry", d); if(g){ el.innerHTML = g; return; }
+      var items = Array.isArray(d.items) ? d.items : [];
+      // ⚠️ این جدول از `ui-registry.json` می‌آید — فایلی **دست‌نویس**، نه
+      // اسکنِ واقعیِ رابط. پس «status» ِ هر ردیف ادعای نویسندهٔ فایل است نه
+      // سنجهٔ زنده. تا وقتی مولدِ واقعی ندارد، همین را صریح می‌گوییم.
+      var stale = '<div class="cdnote">این فهرست از یک فایلِ دست‌نویس '+
+        'خوانده می‌شود، نه از اسکنِ زندهٔ رابط — وضعیتِ هر ردیف ادعاست، '+
+        'نه سنجه.</div>';
       var rows = items.map(function(it){
         return "<tr><td>"+esc(it.id)+"</td><td>"+esc(it.type)+'</td><td><span class="badge '+esc(it.status)+'">'+esc(it.status)+"</span></td><td>"+esc(it.command||it.path||it.endpoint||"—")+"</td></tr>";
       }).join("");
-      el.innerHTML = '<div class="card"><h2>UI Registry <span class="badge">'+items.length+' items</span></h2>'+
-        '<table><tr><th>id</th><th>type</th><th>status</th><th>cmd/path</th></tr>'+rows+'</table></div>';
+      el.innerHTML = card2("UI Registry", pill(fa(items.length)+" ردیف", "unk"),
+        '<div class="tblwrap"><table><tr><th>id</th><th>type</th><th>status</th>'+
+        '<th>cmd/path</th></tr>'+rows+'</table></div>'+stale);
     });
   }
 
@@ -680,6 +767,39 @@
   function card2(title, pill, body){
     return '<div class="card">'+secHead(title, pill)+body+'</div>';
   }
+
+  // ⚠️ ۲۰۲۶-۰۸-۰۵ — کلاسِ باگی که کلِ تبِ سیستم را بی‌اعتبار می‌کرد:
+  // `api()` روی هر شکست `{status:"error"}` برمی‌گرداند، ولی چهار پنل از هشت
+  // مستقیم می‌رفتند سراغِ `d.missing||[]` یا `d.dead||[]`. یعنی یک ۵۰۰ به
+  // آرایهٔ خالی و آرایهٔ خالی به **قرصِ سبز** ترجمه می‌شد. زندهٔ همین امروز:
+  // `/api/obsidian` ‏NameError می‌داد و پنل می‌نوشت «کامل — همهٔ سندهای
+  // مرجع سرِ جایشان‌اند».
+  //
+  // یک گاردِ واحد به‌جای هشت وصلهٔ موردی: قاعده را می‌بندد، نه شکاف را.
+  // خروجی رشته = پنل نباید ادامه بدهد.
+  function panelGuard(title, d){
+    d = d || {};
+    var s = String(d.status||"");
+    if(s === "error" || s === "unknown_schema"){
+      return card2(title, pill("خوانده نشد", "hot"),
+        '<div class="tri hot"><div class="in">'+
+        '<div class="verb">این بخش خوانده نشد</div>'+
+        '<div class="why">'+ltr(esc(String(d.reason||s)))+' — تا این حل نشود '+
+        'هیچ عددی این‌جا قابلِ اعتماد نیست، پس هیچ‌کدام را نشان نمی‌دهم.'+
+        '</div></div></div>');
+    }
+    if(s === "unknown"){
+      // «نمی‌دانم» رنگِ خودش را دارد — نه سبز، نه قرمز.
+      return card2(title, pill("نامعلوم", "unk"),
+        '<div class="muted">'+esc(String(d.reason||"منبع خوانده نشد"))+'</div>');
+    }
+    if(s === "disabled" || s === "not_found"){
+      return card2(title, pill("خاموش", "unk"),
+        '<div class="muted">'+esc(String(d.reason||"این نما فعال نیست"))+
+        ' — یک تصمیم است، نه خرابی.</div>');
+    }
+    return null;
+  }
   function card(title, pill, body){
     return '<div class="card"><div class="ch"><h2>'+esc(title)+'</h2>'+(pill||"")+'</div>'+body+'</div>';
   }
@@ -690,6 +810,7 @@
   function renderBrain(el){
     el = el || content;
     api("/api/ops/brain").then(function(d){
+      var g = panelGuard("مغز", d); if(g){ el.innerHTML = g; return; }
       var b = d.brain||{}, dm = b.daemon||{};
       el.innerHTML = card2("مغز", pill(b.available?"در دسترس":"در دسترس نیست", b.available?"live":"blocked"),
         (b.reason?'<div class="muted">'+esc(b.reason)+'</div>':'')+
@@ -699,8 +820,14 @@
   function renderGovernor(el){
     el = el || content;
     api("/api/governor").then(function(d){
+      var g = panelGuard("ناظر", d); if(g){ el.innerHTML = g; return; }
       var ds = d.drift_status||{}, st = ds.status;
-      el.innerHTML = card2("ناظر", pill(st||"نامعلوم", st==="ok"?"live":(st?"staged":"unknown")),
+      // ⚠️ واژگانِ نویسنده و خواننده نمی‌خواندند: `_governor_drift` فقط
+      // `unknown` / `drift` / **`aligned`** می‌دهد و هرگز `"ok"`. پس قرص
+      // ساختاراً نمی‌توانست سبز شود — حالتِ سالم اصلاً قابلِ نمایش نبود.
+      // (`ok` هم پذیرفته می‌ماند تا اگر روزی نویسنده عوض شد، این نشکند.)
+      var clean = (st==="aligned" || st==="ok");
+      el.innerHTML = card2("ناظر", pill(st||"نامعلوم", clean?"live":(st?"staged":"unknown")),
         rows(d, ["policy_doc","canonical_provider","canonical_choke_point"])+
         row("مسیرهای اعلام‌شده", (ds.declared_paths||[]).length));
     });
@@ -708,7 +835,17 @@
   function renderObsidian(el){
     el = el || content;
     api("/api/obsidian").then(function(d){
-      var miss = d.missing||[];
+      // ⚠️ زندهٔ ۰۸-۰۵: این مسیر NameError می‌داد و همین پنل «کامل» رنگ
+      // می‌زد، چون `d.missing||[]` یک ۵۰۰ را به آرایهٔ خالی و آرایهٔ خالی را
+      // به اطمینانِ سبز ترجمه می‌کرد.
+      var g = panelGuard("ابسیدین", d); if(g){ el.innerHTML = g; return; }
+      // نبودِ کلید ≠ صفرِ گمشده. اگر سرور `missing` نداد، «نمی‌دانم».
+      if(!Array.isArray(d.missing)){
+        el.innerHTML = card2("ابسیدین", pill("نامعلوم","unk"),
+          '<div class="muted">پاسخ فهرستِ گمشده‌ها را نداشت.</div>');
+        return;
+      }
+      var miss = d.missing;
       el.innerHTML = card2("ابسیدین", pill(miss.length?miss.length+" گمشده":"کامل", miss.length?"staged":"live"),
         (miss.length?'<div class="list">'+miss.map(function(m){
             return '<div class="li">'+ltr(m)+'</div>'; }).join("")+'</div>'
@@ -1485,7 +1622,59 @@
   // فارسی، با دو کلاسِ ناموجود در CSS، JSON ِ خام به‌جای رسید، و پای
   // بیزنسیِ هاردکدشده. هر سه اقدامش حالا جای درستِ خودش را دارد:
   // lead.create/update_stage در تبِ لیدها، task.create در تبِ کارها.
-  function viewSystem(el){ stack(el||content, [renderLegs, renderVitals, renderSelfmap, renderBrain, renderGovernor, renderObsidian, renderTruth, renderRegistry]); }
+  // ⚠️ ۲۰۲۶-۰۸-۰۵ — رأیِ مالک: «تبِ سیستم پر از اطلاعات است ولی هیچ‌کدام
+  // کار نمی‌کند؛ اول UI ِ آن را مثلِ بقیهٔ صفحات کن.»
+  //
+  // مشکل معماری بود نه زیبایی: هشت پنلِ خام پشتِ سرِ هم ریخته می‌شدند و
+  // خواندنِ صفحه یعنی خواندنِ **همه‌شان**. صفحهٔ خانه دقیقاً همین داده را
+  // دارد ولی اول می‌گوید «چه چیزی با توست»، بعد بقیه را می‌خواباند.
+  // این‌جا همان قاعده: یک سرِ تریاژ که فقط چیزهای **خوانده‌نشده یا بد** را
+  // بالا می‌آورد، بعد پنل‌های تفصیلی سرِ جای همیشگی‌شان.
+  function renderSystemHead(el){
+    el.innerHTML = '<div class="loading">در حال بارگذاری…</div>';
+    var EPS = [["/api/legs","پاها"], ["/api/state","علائمِ حیاتی"],
+               ["/api/selfmap","نقشهٔ خودآگاهی"], ["/api/ops/brain","مغز"],
+               ["/api/governor","ناظر"], ["/api/obsidian","ابسیدین"],
+               ["/api/current-truth","حقیقتِ جاری"], ["/api/ui-registry","رجیستری"]];
+    Promise.all(EPS.map(function(e){ return api(e[0]); })).then(function(rs){
+      var bad = [], unk = [], fine = 0;
+      rs.forEach(function(d, i){
+        var s = String(((d||{}).status)||"ok"), name = EPS[i][1];
+        if(s==="error" || s==="unknown_schema") bad.push([name, (d||{}).reason||s]);
+        else if(s==="unknown") unk.push([name, (d||{}).reason||""]);
+        else fine += 1;
+      });
+      var h = '<div class="card">'+secHead("سلامتِ خودِ صفحه",
+        pill(bad.length ? fa(bad.length)+" خوانده نشد"
+                        : unk.length ? fa(unk.length)+" نامعلوم" : "هر ۸ خوانده شد",
+             bad.length ? "hot" : unk.length ? "unk" : "ok"));
+      // چرا این بالاست: تا امروز یک بخشِ ۵۰۰ می‌داد و پنلش **سبز** رنگ
+      // می‌زد. حالا اول از همه می‌گوییم کدام بخشِ این صفحه اصلاً خوانده شد.
+      if(bad.length){
+        h += bad.map(function(b){
+          return '<div class="tri hot"><div class="in">'+
+            '<div class="verb">«'+esc(b[0])+'» خوانده نشد</div>'+
+            '<div class="why">'+ltr(esc(String(b[1])))+' — عددهای این بخش '+
+            'پایین‌تر نشان داده نمی‌شوند.</div></div></div>'; }).join("");
+      }
+      if(unk.length){
+        h += '<details class="quiet"><summary>'+fa(unk.length)+
+             ' بخش «نمی‌دانم» می‌گوید</summary><div class="inner">'+
+             unk.map(function(u){
+               return '<div class="row"><span class="k">'+esc(u[0])+
+                 '</span><span class="v">'+ltr(esc(String(u[1])))+'</span></div>';
+             }).join("")+'</div></details>';
+      }
+      if(!bad.length && !unk.length){
+        h += '<div class="muted">هر هشت بخشِ این صفحه خوانده شد.</div>';
+      }
+      el.innerHTML = h + '</div>';
+    });
+  }
+
+  function viewSystem(el){ stack(el||content, [renderSystemHead, renderLegs, renderVitals,
+                                               renderSelfmap, renderBrain, renderGovernor,
+                                               renderObsidian, renderTruth, renderRegistry]); }
 
   function viewTasks(el){ stack(el||content, [renderTasks]); }
 

@@ -555,5 +555,38 @@ code{direction:ltr}
   font-size:13.5px;color:var(--bg);background:var(--steel-a);border:0}
 .pend .cdnote{flex-basis:100%;font-size:12px;color:var(--muted);line-height:1.7}
 
+/* ── کارت‌های راکد: همان زبانِ بصری، فقط دو دکمهٔ متنی ─────────────────
+   ۲۰۲۶-۰۸-۰۵ — هیچ رنگ یا متغیرِ تازه‌ای اضافه نشد؛ تمِ تأییدشدهٔ مالک
+   دست‌نخورده است. تنها تفاوت با .pyes/.pno این است که این‌ها متن دارند
+   نه آیکن، چون «پذیرش»/«رد» برای یک RFC از ✓/✗ روشن‌تر است. */
+.secsub{font-size:13px;color:var(--muted);margin:14px 2px 8px;letter-spacing:0}
+.titem .tmain{flex:1;min-width:0}
+.titem .tid{font-size:14.5px;color:var(--ink);unicode-bidi:isolate;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.titem .tage{font-size:12.5px;color:var(--muted);margin-top:3px}
+.titem .tbtns{flex:none;display:flex;gap:8px}
+.ryes,.rno{padding:9px 15px;border-radius:999px;cursor:pointer;font:inherit;
+  font-size:13.5px;line-height:1;border:1.5px solid;background:transparent;transition:.16s}
+.ryes{border-color:rgba(34,211,238,.42);background:rgba(34,211,238,.08);color:var(--cyan)}
+.ryes:hover{background:rgba(34,211,238,.2)}
+.rno{border-color:rgba(240,70,139,.38);background:rgba(240,70,139,.07);color:var(--magenta-ink)}
+.rno:hover{background:rgba(240,70,139,.18)}
+.ryes[data-busy],.rno[data-busy]{opacity:.4;cursor:progress}
+/* سن = فوریت. لبه همان قاعدهٔ hot/warm/ok ِ بقیهٔ اپ را می‌گوید. */
+.titem.hot{border-inline-start:3px solid var(--magenta)}
+.titem.warm{border-inline-start:3px solid var(--violet)}
+.titem.ok{border-inline-start:3px solid var(--steel-a)}
+.titem.unk{border-inline-start:3px solid var(--steel-b)}
+/* روی موبایل دو دکمه کنارِ شناسه جا نمی‌شوند — می‌روند خطِ بعد */
+@media (max-width:380px){
+  .titem{flex-wrap:wrap}
+  .titem .tbtns{width:100%;justify-content:flex-end}
+}
+
+/* جدولِ رجیستری روی موبایل سرریز می‌کرد و کلِ صفحه را افقی می‌کشید.
+   سرریز باید **داخلِ** خودش اسکرول شود، نه بدنهٔ صفحه. */
+.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tblwrap table{min-width:100%}
+
 /* آینه: نامِ فایل‌ها لاتین‌اند و باید ایزوله بمانند */
 .iso{unicode-bidi:isolate}

@@ -316,7 +316,61 @@ def get_approvals_state(root: "Path | None" = None) -> dict:
         pending.append({"proposal_id": r[0], "kind": r[1],
                         "amount_aud": r[2], "since": r[3]})
     return {"status": "ok", "pending": _scrub_dict(pending), "count": len(pending),
-            "sandbox_hidden": hidden}
+            "sandbox_hidden": hidden,
+            # ۲۰۲۶-۰۸-۰۵ — سؤالِ مالک: «دوتا را تأیید کردم؛ عملی از سمتِ تو
+            # کار کرد و تأثیر داشت؟» تا امروز پاسخ فقط در چتِ من بود، یعنی
+            # فردا دوباره همان سؤال. حالا خودِ صفحه جواب می‌دهد.
+            "decisions": _recent_decisions(db)}
+
+
+def _recent_decisions(db: "Path", limit: int = 8) -> list:
+    """تصمیم‌های اخیرِ مالک و اینکه بعدش **واقعاً** چه شد.
+
+    ⚠️ این‌جا هیچ چیزی حدس زده نمی‌شود. تنها چیزی که گزارش می‌شود یک واقعیتِ
+    قابلِ مشاهده است: بعد از ثبتِ حکم، رویدادِ دیگری برای همان پیشنهاد آمد
+    یا نه. «اثری ثبت نشده» با «اثر ندارد» یکی نیست و UI هم همین را می‌گوید.
+
+    چرا اصلاً لازم است: `owner-decision` **یک نویسنده دارد و صفر خواننده**
+    (گرپ روی کلِ `_ops` تأیید کرد). پس تأییدِ مالک ردیف می‌سازد و پیشنهاد را
+    از صف بیرون می‌برد، ولی هیچ اثرگری آن را برنمی‌دارد. این نما همان شکاف
+    را **مرئی** می‌کند به‌جای اینکه بپوشاندش.
+    """
+    sql = """
+    SELECT d.proposal_id, d.verdict, d.occurred_at, d.leg_id,
+           (SELECT COUNT(*) FROM outcomes n
+             WHERE n.proposal_id = d.proposal_id
+               AND n.occurred_at > d.occurred_at) AS after_n,
+           (SELECT n2.event_type FROM outcomes n2
+             WHERE n2.proposal_id = d.proposal_id
+               AND n2.occurred_at > d.occurred_at
+             ORDER BY n2.occurred_at ASC LIMIT 1) AS after_type
+      FROM outcomes d
+     WHERE d.event_type = 'owner-decision'
+     ORDER BY d.occurred_at DESC LIMIT ?"""
+    conn = None
+    try:
+        conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+        rows = conn.execute(sql, (int(limit),)).fetchall()
+    except Exception:  # noqa: BLE001
+        return []      # نبودِ نما نباید کلِ صف را بکشد
+    finally:
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:  # noqa: BLE001
+                pass
+    out = []
+    for pid, verdict, ts, leg, after_n, after_type in rows:
+        out.append({
+            "proposal_id": str(pid or "")[:64],
+            "verdict": str(verdict or "")[:32],
+            "decided_at": str(ts or "")[:32],
+            "leg": str(leg or "")[:48],
+            "effects_after": int(after_n or 0),
+            # نامِ رویدادِ بعدی — اگر بود. `None` یعنی «هنوز هیچ»، نه «هرگز».
+            "next_event": (str(after_type)[:32] if after_type else None),
+        })
+    return _scrub_dict(out)
 
 
 def get_legs_state(root: "Path | None" = None) -> dict:
@@ -511,6 +565,21 @@ LIFECYCLE_STAMP_KEYS = ("value", "mode", "reason", "source",
 #: قاعدهٔ #۷ منشور: بیرون از مرزِ پروژه فقط aggregate ِ بی‌محتوا.
 LIFECYCLE_FORBIDDEN = ("token", "nonce", "summary", "owner", "chat",
                        "user", "secret", "rfc_id", "expires", "verdict")
+#: استثنای **دقیق** (نه زیررشته‌ای) روی نامِ کلید — ۲۰۲۶-۰۸-۰۵.
+#:
+#: چرا اصلاً استثنا: طرحِ اولیه «فقط شمارش، صفر هویت» بود و آن روز درست بود.
+#: ولی نتیجه‌اش این شد که مالک عددِ «۲۹ کارتِ راکد» را می‌دید و **هیچ‌جا**
+#: نمی‌توانست تصمیم بگیرد — یک دکمه به چیزی باید بچسبد. رأیِ صریحِ مالک
+#: (۲۰۲۶-۰۸-۰۵): «کارت‌های راکد … آدم ببیند از راکدی درش بیاورد.»
+#:
+#: چرا این استثنا امن است: `rfc_id` یک شناسهٔ مبهمِ hash-مانند است
+#: (`RFC-aa01e8ff`) — نه محتوای کارت، نه اعتبارنامه، نه دادهٔ مشتری. مقصدِ
+#: این تونل فقط دستگاهِ خودِ مالک پشتِ HMAC ِ init-data است.
+#:
+#: چرا **دقیق** و نه زیررشته‌ای: با تطابقِ دقیق، کلیدی مثلِ `rfc_id_summary`
+#: یا `owner_rfc_id` همچنان می‌افتد. قاعده باریک شد، نه سست. و مقادیر اصلاً
+#: از این در رد نمی‌شوند — اسکنِ زیررشته‌ای روی رشته‌ها دست‌نخورده ماند.
+LIFECYCLE_KEY_EXCEPTIONS = frozenset({"rfc_id"})
 #: مسیرهای اعلام‌شدهٔ منبع. عمداً یک allowlist ِ **دقیق** است نه یک اسکنِ
 #: زیررشته‌ای: نامِ فایلِ دفترِ حکم‌ها خودش شاملِ «verdict» است، ولی یک مسیرِ
 #: ثابتِ کدنویسی‌شده هرگز محتوای کارت نیست. هر رشتهٔ دیگری که ادعای منبع کند
@@ -554,9 +623,13 @@ def _lifecycle_enforce(node: Any, where: str = "$") -> Any:
     """
     if isinstance(node, dict):
         for k, v in node.items():
-            hit = _lifecycle_forbidden_hit(k)
-            if hit:
-                raise ValueError(f"lifecycle projection leaked key {where}.{k} (~{hit})")
+            # استثنا فقط روی **نامِ کلید** و فقط با تطابقِ دقیق. مقادیر هرگز
+            # از این‌جا معاف نمی‌شوند — یک کلیدِ مجاز با مقدارِ آلوده باز هم
+            # پایین‌تر توسطِ اسکنِ رشته گرفته می‌شود.
+            if str(k) not in LIFECYCLE_KEY_EXCEPTIONS:
+                hit = _lifecycle_forbidden_hit(k)
+                if hit:
+                    raise ValueError(f"lifecycle projection leaked key {where}.{k} (~{hit})")
             _lifecycle_enforce(v, f"{where}.{k}")
         return node
     if isinstance(node, (list, tuple)):
@@ -571,6 +644,43 @@ def _lifecycle_enforce(node: Any, where: str = "$") -> Any:
     if node is None or isinstance(node, (int, float, bool)):
         return node
     raise ValueError(f"lifecycle projection carries {type(node).__name__} at {where}")
+
+
+def _lifecycle_stalled_rows(folded: Any, ts_now: float) -> list:
+    """هویتِ کارت‌های راکد — allowlist ِ صریح، نه پاک‌کردنِ چند فیلدِ بد.
+
+    ⚠️ چرا allowlist: رکوردِ خامِ کارت `nonce` و `token_sha256` دارد. یک
+    denylist با افزودنِ فیلدِ تازه به تولیدکننده **بی‌صدا** می‌شکند و آن روز
+    اعتبارنامه از این مرز رد می‌شود. این‌جا فقط سه فیلد ساخته می‌شود و هیچ
+    چیزی از رکوردِ ورودی کپی نمی‌شود.
+
+    مرتب‌سازی: قدیمی‌ترین اول. کارتی که ۱۰ روز مانده فوری‌تر از دیروزی است و
+    ترتیبِ فهرست خودش پیام است.
+    """
+    rows = folded.get("stalled_list") if isinstance(folded, dict) else None
+    if not isinstance(rows, list):
+        return []
+    out = []
+    for rec in rows:
+        if not isinstance(rec, dict):
+            continue
+        rid = rec.get("rfc_id")
+        if not rid:
+            continue                      # بی‌شناسه = بی‌دکمه؛ ردیفِ بی‌اقدام نساز
+        created = rec.get("created_ts")
+        try:
+            age_d = (float(ts_now) - float(created)) / 86400.0 if created else None
+        except (TypeError, ValueError):
+            age_d = None
+        out.append({
+            "rfc_id": str(rid)[:64],
+            "created_ts": float(created) if created else None,
+            # سن را همین‌جا حساب می‌کنم نه در JS: مرورگرِ تلگرام ساعتِ خودش را
+            # دارد و یک انحرافِ ساعتِ دستگاه، «۱۰ روز» را «۹ روز» نشان می‌داد.
+            "age_days": None if age_d is None else round(age_d, 1),
+        })
+    out.sort(key=lambda r: (r["created_ts"] is None, r["created_ts"] or 0.0))
+    return out
 
 
 def _lifecycle_safe_sources(sources: Any) -> list:
@@ -672,6 +782,12 @@ def get_lifecycle_state(root: "Path | None" = None,
         "total_cards": _lifecycle_stamp_view(
             _lifecycle_count_stamp(total if n_stalled is not None and int(n_stalled) >= 0
                                    else None, src0, ts_now)),
+        # ۲۰۲۶-۰۸-۰۵ — رأیِ مالک: «کارت‌های راکد گزینش هست کار نمی‌کند؛ آدم
+        # ببیند و از راکدی درش بیاورد.» تا امروز این نما فقط **عدد** می‌داد،
+        # پس ۲۹ کارتِ راکد (قدیمی‌ترین ~۱۰ روز) هیچ سطحی برای تصمیم نداشتند.
+        # حالا هویتِ بی‌متن‌شان می‌آید تا دکمه بتواند به یک `rfc_id` بچسبد.
+        "stalled_list": _lifecycle_stalled_rows(folded, ts_now),
+        "stalled_list_truncated": int(folded.get("stalled_list_truncated") or 0),
     }
     _lifecycle_enforce(out)
     # `sources` پس از دیوار سوار می‌شود چون allowlist ِ دقیقِ خودش را دارد
@@ -1108,8 +1224,18 @@ def get_obsidian_state(root: "Path | None" = None) -> dict:
         except (OSError, ValueError):
             ref_ok = False
     docs = {}
-    for rel in _OBSIDIAN_DOCS + (_TRUTH.name,):
+    # ⚠️ رگرسیونِ ۲۰۲۶-۰۸-۰۵ (خودساخته): وقتی ثابتِ تاریخ‌دارِ `_TRUTH` حذف شد
+    # تا تبِ حقیقت درست شود، این مصرف‌کننده جا ماند ⇒ هر فراخوانِ
+    # `/api/obsidian` یک `NameError` می‌داد. و بدتر: `renderObsidian` خطا را
+    # به «کامل — همهٔ سندهای مرجع سرِ جایشان‌اند» ترجمه می‌کرد، یعنی یک
+    # ۵۰۰ ِ خاموش به **اطمینانِ سبز** تبدیل می‌شد.
+    # حالا از همان یابنده استفاده می‌شود؛ نبودِ فایل هم یک ردیفِ صادق است نه crash.
+    _t = _find_truth()
+    truth_names = (_t.name,) if _t is not None else ()
+    for rel in _OBSIDIAN_DOCS + truth_names:
         docs[rel] = {"exists": _exists(r / rel)}
+    if _t is None:
+        docs["OCTOPUS/CURRENT-TRUTH.md"] = {"exists": False}
     missing = sorted(k for k, v in docs.items() if not v["exists"])
     return {
         "reference_dir_configured": bool(raw and ref_ok),

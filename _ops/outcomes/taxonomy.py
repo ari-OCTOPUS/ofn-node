@@ -35,9 +35,25 @@ EVENT_TYPES = ("delivered", "deferred", "accepted-measurement", "rejected", "fai
                "owner-verdict-recorded", "outcome-recorded",
                "system.booted",   # C2-E: شناسنامهٔ تولد (RESURRECTION §birth-certificate)
                "system.beat",     # C5: ضربانِ واحد (one-heartbeat scheduler)
-               "hebb.observation")  # W2 (۲۰۲۶-۰۷-۳۱): مشاهدهٔ Hebbian واقعی — «پلِ به EFE».
+               "hebb.observation",  # W2 (۲۰۲۶-۰۷-۳۱): مشاهدهٔ Hebbian واقعی — «پلِ به EFE».
                                     # additive: نام‌های قدیمی معتبر می‌مانند (همان قراردادِ ۰۷-۲۱).
                                     # domain=neural؛ Advisory؛ پشتِ OCTOPUS_HEBBIAN_LEDGER.
+               "owner-decision")    # ۲۰۲۶-۰۸-۰۵: تصمیمِ مالک از **وب‌اپ**.
+                                    # این نام از قبل روی دیسک بود (۲ ردیفِ واقعی) ولی در
+                                    # هیچ فهرستی نبود، چون `decide_proposal` با sqlite3 ِ
+                                    # خام می‌نویسد و از `OutcomeStore.record` رد نمی‌شود.
+                                    # اعلامش می‌کنیم تا اگر روزی از مسیرِ معتبر بیاید رد نشود.
+
+# ── کدام رویداد یعنی «مالک تصمیمش را گرفت» ──────────────────────────────────
+# ⚠️ ۲۰۲۶-۰۸-۰۵ — سومین بارِ همان تلهٔ املایی. دو مسیر برای یک کارِ واحد دو
+# نامِ متفاوت می‌نویسند: دکمهٔ تلگرام `accepted-measurement` و وب‌اپ
+# `owner-decision`. هر خواننده‌ای که فهرستِ خودش را دستی نگه می‌داشت، مسیرِ
+# دوم را **نمی‌دید** — یعنی پیشنهادی که در وب‌اپ تأیید شده بود از تلگرام
+# دوباره قابلِ تأیید بود.
+#
+# پس فهرست یک‌جا تعریف می‌شود و خواننده‌ها از این‌جا می‌خوانند. افزودنِ
+# مسیرِ سوم در آینده یعنی **یک** ویرایش، نه سه.
+DECIDED_EVENT_TYPES = ("accepted-measurement", "rejected", "owner-decision")
 
 # ── privacy ──────────────────────────────────────────────────────────────────
 PRIVACY_CLASSES = ("public", "scrubbed", "owner_only")

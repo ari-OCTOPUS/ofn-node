@@ -40,6 +40,23 @@ ALLOWED_ACTIONS = {
     "task.create",
     "task.done",
     "value.record_event",
+    # ── بیرون‌آوردنِ کارت از رکود — ۲۰۲۶-۰۸-۰۵، رأیِ صریحِ مالک ────────────
+    # ۲۹ کارتِ RFC در `pending-cards.json` راکد بودند (قدیمی‌ترین ~۱۰ روز):
+    # `delivery=SENT` ولی `decision != DECIDED`. تنها سطحِ تصمیم، دکمهٔ
+    # اینلاینِ تلگرام بود که با توکنِ امضاشده کار می‌کند — و تحویلِ کارت
+    # خاموش است (`card_delivery_ready = (False, 'no-secret')`). یعنی مالک
+    # عدد «۲۹ راکد» را می‌دید و **هیچ‌جا** نمی‌توانست تصمیم بگیرد.
+    #
+    # ⚠️ چرا توکن این‌جا لازم نیست: توکن احرازِ **حاملِ** callback ِ تلگرام
+    # است. مینی‌اپ احرازِ خودش را دارد (HMAC ِ init-data، سنجیده: بی‌امضا/
+    # دستکاری‌شده/غیرمالک/کهنه هر چهار ۴۰۳). دو حامل، یک مالک.
+    #
+    # پایین‌دست واقعاً وجود دارد: `persist_rfc_verdict` هم دفتر را DECIDED
+    # می‌کند هم پروجکشنِ کارت را، و تسکِ روزانهٔ `OCTOPUS-doctor-day` با
+    # `claim_rfc_verdicts` برشان می‌دارد و اعمال می‌کند. همان مسیری که ۲۱
+    # کارتِ APPLIED از آن آمدند.
+    "rfc.approve",
+    "rfc.deny",
 }
 BLOCKED_PREFIXES = (
     "onlyfans.",
@@ -279,6 +296,61 @@ class OctopusOpsDB:
             except Exception:  # noqa: BLE001
                 pass
 
+    def decide_rfc(self, p: Dict[str, Any], verdict: str) -> Dict[str, Any]:
+        """حکمِ مالک روی یک کارتِ RFC ِ راکد، از سطحِ وب‌اپ.
+
+        سیمِ واقعی به `pending_card_recovery.persist_rfc_verdict` — که هم
+        ردیفِ `rfc_decision` را DECIDED می‌کند و هم `decision` ِ خودِ کارت
+        را، پس کارت **درجا** از STALLED بیرون می‌آید و نمای چرخهٔ عمر همان
+        تیک تغییر را نشان می‌دهد.
+
+        ⚠️ `persist_rfc_verdict` روی خطا `False` برمی‌گرداند و استثنا را
+        می‌بلعد. یک `False` را نباید APPLIED گزارش کرد — همان «✅ ِ تو هیچ
+        نکرد» که کلِ این چند روز دنبالش بودیم. پس False ⇒ ERROR.
+        """
+        rid = clean(p.get("rfc_id"), 64)
+        if not rid:
+            return {"ok": False, "status": "BLOCKED", "reason": "missing_rfc_id"}
+        try:
+            import outcomes.pending_card_recovery as _pcr  # noqa: WPS433
+        except Exception as exc:  # noqa: BLE001
+            return {"ok": False, "status": "BLOCKED",
+                    "reason": "pcr_unavailable", "detail": type(exc).__name__}
+        # ⚠️ `self.root` این‌جا وجود ندارد — آن صفتِ `OpsActionEngine` است، نه
+        # `OctopusOpsDB` (که فقط conn/db_path/init_schema دارد). همین اشتباه
+        # را یک‌بار کردم و شش تست AttributeError دادند.
+        # قابلِ override با env تا تست هرگز به ذخیرهٔ زنده نخورد.
+        state_dir = Path(os.environ.get("OCTOPUS_STATE_DIR",
+                                        str(ROOT / "_ops" / "state")))
+        if not state_dir.is_dir():
+            return {"ok": False, "status": "BLOCKED", "reason": "state_dir_missing"}
+        # کارت باید واقعاً وجود داشته باشد و واقعاً راکد باشد. بدونِ این چک،
+        # یک `rfc_id` ِ تایپی یک ردیفِ حکم برای کارتی می‌سازد که نیست.
+        try:
+            store = _pcr._load_store(str(state_dir)) or {}
+        except Exception:  # noqa: BLE001
+            store = {}
+        rec = store.get(f"rfc:{rid}")
+        if not isinstance(rec, dict):
+            return {"ok": False, "status": "BLOCKED",
+                    "reason": "rfc_card_not_found", "rfc_id": rid}
+        if str(rec.get("decision") or "").upper() == "DECIDED":
+            return {"ok": False, "status": "BLOCKED",
+                    "reason": "already_decided", "rfc_id": rid}
+        ok = False
+        try:
+            ok = bool(_pcr.persist_rfc_verdict(state_dir=str(state_dir),
+                                               rfc_id=rid, verdict=verdict))
+        except Exception as exc:  # noqa: BLE001
+            return {"ok": False, "status": "ERROR",
+                    "reason": type(exc).__name__, "rfc_id": rid}
+        if not ok:
+            return {"ok": False, "status": "ERROR",
+                    "reason": "persist_returned_false", "rfc_id": rid}
+        return {"ok": True, "status": "APPLIED", "rfc_id": rid, "verdict": verdict,
+                # مالک باید بداند اثر **کِی** می‌رسد، نه فقط اینکه ثبت شد.
+                "next_effect": "OCTOPUS-doctor-day"}
+
     def record_value(self, p: Dict[str, Any]) -> Dict[str, Any]:
         leg = clean(p.get("leg") or "ops_studio", 120)
         event = clean(p.get("event") or "manual_value_event", 120)
@@ -374,6 +446,10 @@ class OpsActionEngine:
                 res = self.db.task_done(payload)
             elif action == "value.record_event":
                 res = self.db.record_value(payload)
+            elif action == "rfc.approve":
+                res = self.db.decide_rfc(payload, "merge-approved")
+            elif action == "rfc.deny":
+                res = self.db.decide_rfc(payload, "denied")
             else:
                 res = {"ok": False, "status": "BLOCKED", "reason": "unreachable_action"}
         except Exception as exc:  # noqa: BLE001 — عمداً وسیع

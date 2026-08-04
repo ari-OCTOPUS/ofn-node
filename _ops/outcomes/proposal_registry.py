@@ -117,10 +117,19 @@ def _find_delivery(store, want_pid12: str) -> "dict | None":
 
 
 def _already_decided(store, proposal_id: str) -> bool:
+    # ⚠️ ۲۰۲۶-۰۸-۰۵: این تاپل قبلاً **درجا نوشته شده** بود و `owner-decision`
+    # را نمی‌شناخت، پس پیشنهادی که مالک در وب‌اپ تأیید کرده بود از دکمهٔ
+    # تلگرام دوباره «تصمیم‌گیری‌نشده» دیده می‌شد — یک سوراخِ تصمیمِ دوگانهٔ
+    # واقعی روی دادهٔ زنده. حالا از تعریفِ واحدِ taxonomy می‌خواند.
+    try:
+        from .taxonomy import DECIDED_EVENT_TYPES  # noqa: WPS433
+    except ImportError:  # pragma: no cover — اجرای مسطح (بدونِ بسته)
+        from taxonomy import DECIDED_EVENT_TYPES   # type: ignore  # noqa: WPS433
+    marks = ",".join("?" for _ in DECIDED_EVENT_TYPES)
     row = store._conn.execute(   # noqa: SLF001
-        "SELECT 1 FROM outcomes WHERE proposal_id=? "
-        "AND event_type IN ('accepted-measurement','rejected') LIMIT 1",
-        (str(proposal_id),)).fetchone()
+        f"SELECT 1 FROM outcomes WHERE proposal_id=? "
+        f"AND event_type IN ({marks}) LIMIT 1",
+        (str(proposal_id), *DECIDED_EVENT_TYPES)).fetchone()
     return row is not None
 
 

@@ -52,6 +52,11 @@ __all__ = ["Stage", "fold", "stalled_cards", "SOURCES"]
 #: می‌گوید نویسنده تقریباً هر ۶ ساعت می‌نویسد، پس ۲۱۶۰۰ ثانیه.
 CADENCE_S = 6 * 3600.0
 
+# سقفِ فهرستِ راکدها. کارت‌ها ماه‌ها انباشته می‌شوند و یک فهرستِ بی‌سقف هم
+# پاسخ را باد می‌کند هم صفحهٔ مالک را غیرقابلِ استفاده. بریده‌شدن در
+# `stalled_list_truncated` **اعلام** می‌شود، نه بی‌صدا.
+STALLED_LIST_CAP = 40
+
 SOURCES = (
     "_ops/state/pulse/pending-cards.json",
     "_ops/state/doctor/rfc-verdicts.db::rfc_decision",
@@ -206,6 +211,16 @@ def fold(state_dir, now=None, _pcr=None):
         "reconcile_required": num(reconcile_required),
         "oldest_stalled_ts": oldest_stalled,
         "by_stage": dict(counts),
+        # ⚠️ ۲۰۲۶-۰۸-۰۵: این فهرست از همان اول **ساخته می‌شد و برنمی‌گشت** —
+        # روی زمین ریخته می‌شد. یعنی دقیقاً هویتی که مالک برای بیرون‌آوردنِ
+        # کارت از رکود لازم دارد، محاسبه شده بود و دور ریخته می‌شد. حالا
+        # برمی‌گردد و همچنان **بی‌متن** است (`summary` عمداً خالی، قاعدهٔ #۷):
+        # رکوردِ کارت `nonce` و `token_sha256` دارد و هیچ‌کدام هرگز از این
+        # مرز رد نمی‌شوند.
+        # سقف صریح است و بریدنِ آن **اعلام** می‌شود؛ سقفِ بی‌صدا از «همه را
+        # دیدی» غیرقابل‌تشخیص است.
+        "stalled_list": stalled[:STALLED_LIST_CAP],
+        "stalled_list_truncated": max(0, len(stalled) - STALLED_LIST_CAP),
     }
 
 
