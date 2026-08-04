@@ -263,12 +263,23 @@ def get_approvals_state(root: "Path | None" = None) -> dict:
     # تعریفِ «منتظر» از خودِ داده می‌آید: پیشنهادی که آخرین رویدادش
     # `delivered` است و هیچ `verdict` ی ندارد — تحویل داده شده، کسی تصمیم
     # نگرفته. سنجیده روی داده‌ی زنده: ۶ مورد، قدیمی‌ترین ۲۰۲۶-۰۷-۲۳.
+    # ⚠️ کارت‌های sandbox از صف بیرون می‌مانند — رأیِ مالک ۲۰۲۶-۰۸-۰۵.
+    #
+    # سنجش نشان داد **چهار از شش** پیشنهادِ «منتظر» در واقع canary/آزمایشی
+    # بودند (`payload_json.channel == "sandbox"`)، پس عددِ صف هر روز چهار
+    # واحد تورم داشت و توجهِ مالک را می‌خورد.
+    #
+    # ⚠️ «حذف از صف» یعنی **فیلترِ نما**، نه حذفِ ردیف: منشور §۰.۱ می‌گوید
+    # هرگز حذف نکن. ردیف‌ها سرِ جایشان‌اند و `sandbox_hidden` می‌گوید چندتا
+    # پنهان شد — وگرنه اگر روزی کارِ واقعی اشتباهاً برچسبِ sandbox بخورد،
+    # بی‌صدا نامرئی می‌شود و کسی نمی‌فهمد.
     sql = """
     WITH latest AS (
-      SELECT proposal_id, event_type, verdict, leg_id, value_aud_claimed, occurred_at,
+      SELECT proposal_id, event_type, verdict, leg_id, value_aud_claimed,
+             occurred_at, payload_json,
              ROW_NUMBER() OVER (PARTITION BY proposal_id ORDER BY occurred_at DESC) rn
         FROM outcomes WHERE proposal_id IS NOT NULL)
-    SELECT proposal_id, leg_id, value_aud_claimed, occurred_at
+    SELECT proposal_id, leg_id, value_aud_claimed, occurred_at, payload_json
       FROM latest
      WHERE rn = 1 AND event_type = 'delivered' AND verdict IS NULL
      ORDER BY occurred_at ASC LIMIT 50"""
@@ -288,9 +299,20 @@ def get_approvals_state(root: "Path | None" = None) -> dict:
                 conn.close()
             except Exception:  # noqa: BLE001
                 pass
-    pending = [{"proposal_id": r[0], "kind": r[1],
-                "amount_aud": r[2], "since": r[3]} for r in rows]
-    return {"status": "ok", "pending": _scrub_dict(pending), "count": len(pending)}
+    pending, hidden = [], 0
+    for r in rows:
+        chan = ""
+        try:
+            chan = str((json.loads(r[4] or "{}") or {}).get("channel") or "")
+        except (TypeError, ValueError):
+            chan = ""
+        if chan.lower() == "sandbox":
+            hidden += 1
+            continue
+        pending.append({"proposal_id": r[0], "kind": r[1],
+                        "amount_aud": r[2], "since": r[3]})
+    return {"status": "ok", "pending": _scrub_dict(pending), "count": len(pending),
+            "sandbox_hidden": hidden}
 
 
 def get_legs_state(root: "Path | None" = None) -> dict:
