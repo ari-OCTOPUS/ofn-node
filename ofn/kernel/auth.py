@@ -93,12 +93,21 @@ def data_check_string(fields: Mapping[str, str],
                       *, drop: tuple[str, ...] = ("hash",)) -> str:
     """Canonical string the bot-token HMAC is computed over.
 
-    Only `hash` comes out. `signature` — the field that carries the separate
-    Ed25519 attestation for third parties — stays in, because the platform
-    computes `hash` over the fields it is sending, and by then `signature` is
-    one of them. Dropping it here was silently fatal for every real launch
-    from a client new enough to send it, while every test passed: the tests
-    never produced a `signature`, so they could not see it.
+    Only `hash` comes out — per the platform's own documentation for the
+    bot-token path. Its third-party path, verified with an Ed25519 public
+    key, removes `hash` AND `signature`; that is a different procedure with a
+    different rule, and this project uses the first one.
+
+    Conflating the two shipped a check that failed every real launch from a
+    client new enough to send `signature`, while every test passed, because
+    no test ever produced that field.
+
+    The sentence that made it survive review was the one that used to be
+    here: "signature belongs to a separate verification scheme whose
+    presence must not change this computation." True of the Ed25519 path,
+    false of this one, and agreeable enough that nobody checked. Hence the
+    citation above: an explanation that names its source can be checked, one
+    that only sounds right can only be agreed with.
 
     `drop` exists for the Ed25519 path, which removes both.
     """

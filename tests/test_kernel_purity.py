@@ -18,7 +18,19 @@ KERNEL_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file
 # Modules the kernel may import. Everything else is either I/O, non-determinism,
 # or a third-party dependency — all three are disqualifying.
 ALLOWED_IMPORTS = {"__future__", "enum", "dataclasses", "typing", "abc", "re",
-                   "hmac", "hashlib", "urllib"}
+                   "hmac", "hashlib"}
+
+# Exact module names, not package roots. `urllib` as a root would have let
+# `urllib.request` through — a package whose whole purpose is network I/O,
+# admitted by accident while the wall still looked like it was standing.
+# A permission that is wider than its argument is how a rule turns into a
+# custom nobody notices was dropped until the day it was needed.
+ALLOWED_MODULES = {"urllib.parse"}
+
+
+def permitted(name: str) -> bool:
+    """Is this import allowed inside the kernel?"""
+    return name in ALLOWED_MODULES or name.split(".")[0] in ALLOWED_IMPORTS
 # `re`, `hmac` and `hashlib` are admitted deliberately: all three are pure,
 # deterministic, and do no I/O. They are here so redaction and signature
 # verification live in the kernel rather than in an adapter a caller could
@@ -51,6 +63,35 @@ def kernel_files() -> list[str]:
     )
 
 
+class TestTheWallIsStillNarrow(unittest.TestCase):
+    """The permission granted must be no wider than the argument for it.
+
+    `urllib.parse` was admitted because percent-decoding is part of signature
+    verification and is a pure computation. That argument says nothing about
+    `urllib.request`, so the door has to be exactly one module wide.
+    """
+
+    def test_urllib_parse_is_allowed(self):
+        self.assertTrue(permitted("urllib.parse"))
+
+    def test_urllib_request_is_not(self):
+        self.assertFalse(permitted("urllib.request"))
+
+    def test_the_urllib_package_itself_is_not(self):
+        self.assertFalse(permitted("urllib"))
+
+    def test_nothing_else_sneaks_in_under_a_root(self):
+        for name in ("urllib.error", "http.client", "socket", "os",
+                     "requests", "sqlite3", "time", "random"):
+            with self.subTest(module=name):
+                self.assertFalse(permitted(name))
+
+    def test_the_allowed_roots_still_work(self):
+        for name in ("hmac", "hashlib", "re", "dataclasses"):
+            with self.subTest(module=name):
+                self.assertTrue(permitted(name))
+
+
 class TestKernelIsStdlibOnly(unittest.TestCase):
     def test_no_disallowed_imports(self):
         for path in kernel_files():
@@ -59,18 +100,17 @@ class TestKernelIsStdlibOnly(unittest.TestCase):
                 for node in ast.walk(tree):
                     if isinstance(node, ast.Import):
                         for alias in node.names:
-                            root = alias.name.split(".")[0]
-                            self.assertIn(
-                                root, ALLOWED_IMPORTS,
+                            self.assertTrue(
+                                permitted(alias.name),
                                 f"{os.path.basename(path)} imports {alias.name!r}; "
-                                f"the kernel may only use {sorted(ALLOWED_IMPORTS)}",
+                                f"the kernel may only use "
+                                f"{sorted(ALLOWED_IMPORTS | ALLOWED_MODULES)}",
                             )
                     elif isinstance(node, ast.ImportFrom):
                         if node.level and node.level > 0:
                             continue  # relative import inside the kernel: fine
-                        root = (node.module or "").split(".")[0]
-                        self.assertIn(
-                            root, ALLOWED_IMPORTS,
+                        self.assertTrue(
+                            permitted(node.module or ""),
                             f"{os.path.basename(path)} imports from {node.module!r}",
                         )
 
