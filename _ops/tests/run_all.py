@@ -359,6 +359,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # توکن بالا می‌آمد و ۱۰۰٪ درخواست‌ها را ۴۰۳ می‌کرد. از بیرون دقیقاً
          # شبیهِ «احراز سالم» بود.
          "test_every_limb_loads_its_credentials.py",
+         # ۰۸-۰۴ ← حلقهٔ poll ِ مرکز شکستِ handle_update را بی‌صدا می‌بلعید و
+         # offset از رویش رد می‌شد ⇒ پیامِ مالک برای همیشه گم. شکایتِ زیسته:
+         # «انگار هرکاری می‌کنم دیده نمی‌شود».
+         "test_no_silent_message_drop.py",
          "test_sync_health_unknown.py",
          "test_arbiter_consensus_rule.py",
          "test_state_write_monopoly.py",

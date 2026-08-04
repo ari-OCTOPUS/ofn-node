@@ -4948,6 +4948,80 @@ class Center:
         lines.append("▸ این کارت هیچ تماسی با مغز نمی‌گیرد — $۰.")
         return "\n".join(lines)
 
+    # ── نامه‌های مرده: updateهایی که پردازششان شکست خورد ──────────────────────
+    #
+    # VQ-SILENT-DROP-001 (۲۰۲۶-۰۸-۰۴، از شکایتِ مالک «انگار هرکاری می‌کنم دیده
+    # نمی‌شود»). حلقهٔ poll این شکل بود:
+    #
+    #     if isinstance(uid, int) and uid > max_id:
+    #         max_id = uid            ← offset همین‌جا جلو می‌رفت
+    #     try:
+    #         self.handle_update(u)
+    #     except Exception:
+    #         pass                    ← شکست بی‌صدا بلعیده می‌شد
+    #
+    # یعنی **هر** استثنا وسطِ پردازشِ یک پیام، آن پیام را برای همیشه می‌بلعید:
+    # ‏`max_id` از قبل جلو رفته بود، آخرِ حلقه در config ذخیره می‌شد، و تلگرام
+    # دیگر هرگز تحویلش نمی‌داد. صفر لاگ، صفر شمارنده، صفر هشدار.
+    #
+    # چرا offset را روی شکست **عقب نمی‌بریم**: یک پیامِ سمی آن‌وقت تا ابد
+    # بازپخش می‌شود و حلقه را گیر می‌اندازد — بدتر از گم‌شدن. پس الگوی
+    # dead-letter: offset جلو می‌رود (حلقه سالم می‌ماند)، ولی خودِ update
+    # **ماندگار** ذخیره می‌شود و مالک خبردار می‌شود. هیچ‌چیز بی‌صدا گم نمی‌شود.
+    #
+    # ⚠️ و هشدار خودش نباید منبعِ اسپمِ نو شود (شکایتِ دومِ مالک شلوغی بود):
+    # همان نوعِ خطا در پنجرهٔ `_DL_ALERT_COOLDOWN_S` فقط **یک‌بار** هشدار
+    # می‌دهد؛ بقیه فقط در فایل می‌نشینند.
+    _DL_ALERT_COOLDOWN_S = 900.0
+
+    def _dead_letter(self, update: dict, exc: BaseException) -> None:
+        """updateِ شکست‌خورده را ماندگار کن و (با cooldown) مالک را خبر کن.
+
+        خودش هرگز استثنا نمی‌دهد: گاردی که حلقه را بکشد بدتر از گاردِ نبوده."""
+        kind = type(exc).__name__
+        try:
+            d = opslib.STATE_DIR / "telegram" / "dead-letters.jsonl"
+            d.parent.mkdir(parents=True, exist_ok=True)
+            with open(d, "a", encoding="utf-8", newline="\n") as fh:
+                fh.write(json.dumps({
+                    "ts": opslib.now_iso(),
+                    "error": kind,
+                    "detail": str(exc)[:300],
+                    "update_id": update.get("update_id"),
+                    "update": update,      # کاملِ update — همین‌جا در state، نه در چت
+                }, ensure_ascii=False) + "\n")
+        except Exception:  # noqa: BLE001
+            pass
+        try:
+            last = getattr(self, "_dl_last", {})
+            now = time.time()
+            if now - float(last.get(kind, 0.0)) >= self._DL_ALERT_COOLDOWN_S:
+                last[kind] = now
+                self._dl_last = last
+                opslib.alert([
+                    f"⚠️ یک پیامِ تلگرام پردازش نشد و رد شد ({kind}). "
+                    f"متنش در state/telegram/dead-letters.jsonl هست — گم نشده. "
+                    f"اگر چیزی فرستادی و جواب نگرفتی، همین است."])
+        except Exception:  # noqa: BLE001
+            pass
+
+    #: چند شکستِ **پیاپیِ** poll تا صدا در بیاید. یک قطعیِ گذرا باید ساکت باشد،
+    #: وگرنه گاردِ گرگ‌گرگ می‌شود؛ ولی یک قطعیِ طولانی از «پیامی نیست» غیرقابلِ
+    #: تفکیک است و دقیقاً همان چیزی است که یک‌بار ۳۱ ساعت قحطیِ دایجست ساخت.
+    _POLL_FAIL_LOUD_AFTER = 5
+
+    def _poll_failed(self, exc: BaseException) -> None:
+        n = int(getattr(self, "_poll_fails", 0)) + 1
+        self._poll_fails = n
+        if n == self._POLL_FAIL_LOUD_AFTER:
+            try:
+                opslib.alert([
+                    f"⚠️ {n} بارِ پیاپی poll ِ تلگرام شکست خورد "
+                    f"({type(exc).__name__}). تا رفع نشود هیچ پیامی نمی‌رسد — "
+                    "و این از «پیامی نیست» قابلِ تفکیک نبود."])
+            except Exception:  # noqa: BLE001
+                pass
+
     # ── run: یک دورِ poll+dispatch / حلقه با STOP ────────────────────────────────
     def run_once(self) -> int:
         """یک دورِ poll + dispatch. خروجی = تعدادِ updateهای پردازش‌شده.
@@ -4957,12 +5031,23 @@ class Center:
         cfg = _load_config()
         try:
             offset = int(cfg.get("last_offset", 0) or 0)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError) as exc:
+            # ‏offset ِ خراب = `0` = «هرچه در صف داری بده» ⇒ تلگرام تا ۲۴ ساعت
+            # آپدیت را دوباره تحویل می‌دهد و همه‌چیز بازپخش می‌شود. سکوت این‌جا
+            # یعنی مالک یک رگبارِ تکراری می‌بیند و علتش را نمی‌فهمد.
             offset = 0
+            try:
+                opslib.alert([f"⚠️ last_offset ِ تلگرام خوانا نبود "
+                              f"({type(exc).__name__}) — از صفر شروع شد؛ ممکن "
+                              "است پیام‌های قدیمی دوباره پردازش شوند."])
+            except Exception:  # noqa: BLE001
+                pass
         try:
             ups = self._client.poll_updates(offset=offset, timeout_s=POLL_TIMEOUT_S) or []
-        except Exception:  # noqa: BLE001 — خطای شبکه = دورِ خالی، حلقه زنده می‌ماند
+        except Exception as exc:  # noqa: BLE001 — خطای شبکه = دورِ خالی، حلقه زنده می‌ماند
+            self._poll_failed(exc)          # ساکت تا N ِ پیاپی، بعد بلند
             return 0
+        self._poll_fails = 0                # موفقیت = ریستِ شمارنده
         n = 0
         max_id = offset - 1
         for u in ups:
@@ -4973,8 +5058,8 @@ class Center:
                 max_id = uid
             try:
                 self.handle_update(u)
-            except Exception:  # noqa: BLE001 — یک updateِ خراب حلقه را نمی‌کشد
-                pass
+            except Exception as exc:  # noqa: BLE001 — یک updateِ خراب حلقه را نمی‌کشد
+                self._dead_letter(u, exc)   # ماندگار + هشدارِ cooldown‌دار
             n += 1
         if max_id + 1 > offset:
             cfg["last_offset"] = max_id + 1
