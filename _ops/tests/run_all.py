@@ -901,6 +901,84 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_proposal_decision.py",              # تأیید/ردِ مالک از وب‌اپ، بی‌بازنویسی
     "test_reach_probe.py",                    # دفترِ دسترسیِ PEP 669
     "test_write_invalidates_read_cache.py",   # «زدم و هیچ نشد»: کشِ ۳ث بعدِ نوشتن
+    "test_stalled_card_decision.py",          # کارتِ راکد: هویت + allowlist + تصمیمِ واقعی
+    # ── 2026-08-05: ۵۱ فایلِ ثبت‌نشده، رأیِ مالک «فعالشان کن و تست کن» ──────
+    #
+    # هر ۵۱ تا با **همان محیطِ runner** اجرا شدند (`_isolation_boot` روی
+    # PYTHONPATH + `OCTOPUS_TEST_LIVE_STATE_GUARD=block`) — نه با محیطِ
+    # دلخواه، چون یک پروبِ بی‌فلگ دربارهٔ خودش حرف می‌زند نه دربارهٔ تولید.
+    # نتیجه: ۴۱ سبز · ۸ قرمز · ۲ قرنطینه.
+    #
+    # ⚠️ چرا فقط سبزها ثبت می‌شوند: `run_all.__main__` روی **هر** شکست
+    # `capability_gate.revoke_capability()` می‌زند و آن مارکر را از
+    # `_ops/state/CAPABILITY-OK.flag` پاک می‌کند. یعنی ثبتِ یک تستِ قرمز
+    # قابلیتِ کلِ ارگانیسم را باطل می‌کند — نه فقط یک خطِ قرمز در گزارش.
+    #
+    # ۸ قرمز (ثبت نشد، دلیل ثبت شد):
+    #   test_drawdown_enforcer      AttributeError روی budget_gate — API عوض شده
+    #   test_hebbian_decay          ۶ پاس / ۲ شکست
+    #   test_memory_read_seam       ۰ از ۵
+    #   test_mining_leg             ImportError: MiningLeg در mining_leg نیست
+    #   test_mission_card_seam      ۰ از ۷
+    #   test_producer_migration     گیتِ flag-off باید False می‌داد
+    #   test_run_all_scoring        نسبت به run_all ِ زنده کهنه است
+    #   test_truth_by_cycle         لنگرِ `before <= 12` وقتی دفتر ۸۱۲ ردیف بود
+    #                               بسته شده؛ امروز ۱۴ است
+    #
+    # ۲ قرنطینه — **اجرا هم نشدند**:
+    #   test_outbound_owner_transport  می‌تواند ایمیلِ واقعی از جیمیلِ مالک
+    #       بفرستد: mock ِ urlopen به ترنسپورتی نشانه رفته که در این درخت
+    #       **وجود ندارد**، و گاردِ شبکه در runner عمداً مسلح نیست.
+    #   test_live_state_guard          خودِ گاردِ حالتِ زنده را پیاده می‌کند و
+    #       بعد تماسِ واقعیِ شبکه می‌زند.
+    #
+    # از این ۴۱، چهارتا (`agentignore_settings_parity`، `dual_brain`،
+    # `langar_route_parity`، `studio_telegram`) به **درختِ زنده** assert
+    # می‌زنند نه به فیکسچر، پس یک ویرایشِ مالک می‌تواند قرمزشان کند. ثبت
+    # شدند چون این هنجارِ موجود است نه استثنا: ۸۲ از ۵۳۴ تستِ از قبل
+    # ثبت‌شده همین کار را می‌کنند. اگر روزی یکی‌شان بی‌دلیل قرمز شد، اول
+    # این خط را بخوان.
+    "test_adapters_obsidian.py",
+    "test_agentignore_settings_parity.py",
+    "test_agi2027_control_url_redaction.py",
+    "test_alert_escalation.py",
+    "test_arm_gate_p0.py",
+    "test_audit.py",
+    "test_brain_lane_async.py",
+    "test_code_brain.py",
+    "test_code_brain_local.py",
+    "test_deep_gate_authoritative.py",
+    "test_dual_brain.py",
+    "test_goal_action_bridge.py",
+    "test_initiative_worth_it.py",
+    "test_intel_spine.py",
+    "test_langar_bridge_scrub.py",
+    "test_langar_route_parity.py",
+    "test_latent_space_fail_closed.py",
+    "test_lead_gate_handshake.py",
+    "test_lead_processed_fallback.py",
+    "test_lead_quote_area_key.py",
+    "test_lockedjson_write.py",
+    "test_lowrisk_and_brier.py",
+    "test_manifest_truth.py",
+    "test_mining_age_fix.py",
+    "test_mining_card.py",
+    "test_mining_digest_wire.py",
+    "test_mining_mo_group_verb.py",
+    "test_mining_stop_intent.py",
+    "test_mining_swap_card.py",
+    "test_mining_switch_receipt.py",
+    "test_mirror_rooms_memory.py",
+    "test_pain_input_census.py",
+    "test_studio_telegram.py",
+    "test_token_meter.py",
+    "test_world_discovery_action_boundary.py",
+    "test_world_discovery_competitors.py",
+    "test_world_discovery_contracts.py",
+    "test_world_discovery_contradictions.py",
+    "test_world_discovery_e2e.py",
+    "test_world_discovery_novelty.py",
+    "test_world_discovery_sources.py",
          ]
 # ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Ø®Ø§Ø±Ø¬ Ø§Ø² _ops/tests/ (path tuyá»‡tÙ‚)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",
