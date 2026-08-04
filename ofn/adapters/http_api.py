@@ -159,6 +159,8 @@ class ApiApp:
         set_labels: Callable[[TenantScope, str, str, dict], dict] | None = None,
         set_media_labels: Callable | None = None,
         add_media: Callable | None = None,
+        create_album: Callable | None = None,
+        file_media: Callable | None = None,
         request_reading: Callable[[TenantScope], dict] | None = None,
         judge_reading: Callable[[TenantScope, str, str], dict] | None = None,
         create_draft: Callable[[TenantScope, str, dict], dict] | None = None,
@@ -189,6 +191,8 @@ class ApiApp:
         self._set_labels = set_labels
         self._set_media_labels = set_media_labels
         self._add_media = add_media
+        self._create_album = create_album
+        self._file_media = file_media
         self._request_reading = request_reading
         self._judge_reading = judge_reading
         self._create_draft = create_draft
@@ -470,6 +474,22 @@ class ApiApp:
             if data is None or self._add_media is None:
                 return Response(400, {"error": "bad request"})
             out = self._add_media(scope, p.user_id, data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path == "/api/v1/studio/albums":
+            data = _json_object(body)
+            if data is None or self._create_album is None:
+                return Response(400, {"error": "bad request"})
+            out = self._create_album(scope, p.user_id, data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path.startswith("/api/v1/studio/media/") \
+                and path.endswith("/album"):
+            mid = path[len("/api/v1/studio/media/"):-len("/album")]
+            if not mid or "/" in mid or self._file_media is None:
+                return Response(404, {"error": "not found"})
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            out = self._file_media(scope, mid, data)
             return Response(200 if out.get("ok") else 400, out)
         if method == "POST" and path.startswith("/api/v1/studio/media/") \
                 and path.endswith("/labels"):

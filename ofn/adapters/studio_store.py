@@ -258,6 +258,11 @@ class StudioStore:
                 "genre, sensitivity, created_at) VALUES (?, ?, ?, ?, ?, ?)",
                 (collection_id, tenant, label.strip(), genre, sensitivity,
                  now_epoch_s))
+            tail = collection_id.rsplit("-", 1)[-1]
+            if tail.isdigit():
+                # In the same transaction as the row, for the same reason as
+                # media: a deleted album must not hand its id to the next one.
+                self._claim_id(tenant, "collection", int(tail))
             self._conn.execute("COMMIT")
         except Exception:
             self._conn.execute("ROLLBACK")
@@ -268,6 +273,23 @@ class StudioStore:
         row = self._conn.execute(
             "SELECT collection_id, label, genre, sensitivity FROM collections "
             "WHERE collection_id = ?", (collection_id,)).fetchone()
+        if row is None:
+            return None
+        return Collection(row[0], row[1], row[2], Sensitivity.of(row[3]))
+
+    def collection_in(self, tenant: str, collection_id: str) -> Collection | None:
+        """The same lookup, but scoped to one business.
+
+        `collection` matches on the id alone, which is fine where the id came
+        from this tenant's own listing and wrong anywhere the id came from a
+        request. An album id is short and guessable, so an unscoped check is
+        how one leg's photo ends up filed under another leg's album — and
+        separating the three legs is the point of the tenant column.
+        """
+        row = self._conn.execute(
+            "SELECT collection_id, label, genre, sensitivity FROM collections "
+            "WHERE collection_id = ? AND tenant_id = ?",
+            (collection_id, tenant)).fetchone()
         if row is None:
             return None
         return Collection(row[0], row[1], row[2], Sensitivity.of(row[3]))
@@ -382,6 +404,12 @@ class StudioStore:
                 "SELECT media_id FROM media_items WHERE tenant_id = ?",
                 (tenant,))])
 
+    def next_collection_id(self, tenant: str) -> str:
+        return self._next_id(tenant, "collection", "album", [
+            r[0] for r in self._conn.execute(
+                "SELECT collection_id FROM collections WHERE tenant_id = ?",
+                (tenant,))])
+
     def next_draft_id(self, tenant: str) -> str:
         return self._next_id(tenant, "draft", "post", [
             r[0] for r in self._conn.execute(
@@ -390,7 +418,10 @@ class StudioStore:
     def add_media(self, tenant: str, media_id: str, *, mime: str,
                   byte_size: int, has_original: bool, now_epoch_s: int,
                   collection_id: str | None = None) -> None:
-        if collection_id is not None and self.collection(collection_id) is None:
+        # Scoped: an album id arriving in a request must be one of this
+        # tenant's own, not merely one that exists somewhere.
+        if collection_id is not None \
+                and self.collection_in(tenant, collection_id) is None:
             raise StudioError(f"آلبومی به نام «{collection_id}» نیست")
         self._conn.execute("BEGIN IMMEDIATE")
         try:
@@ -444,6 +475,33 @@ class StudioStore:
                     tuple(by_id)):
                 by_id[mid]["labels"].append(label)
         return rows
+
+    def set_media_collection(self, tenant: str, media_id: str,
+                             collection_id: str | None) -> str | None:
+        """Move a photo into an album, or out of every album.
+
+        Filing was only possible at upload time, which assumed she knows
+        where a photo belongs at the moment she picks it. She does not — that
+        is what an archiving session is *for*, and a photo already on the
+        board had no way to be moved.
+
+        `None` is a real value here, not a missing one: taking a photo out of
+        an album has to be as available as putting it in, or the first
+        mistake is permanent.
+        """
+        if collection_id is not None \
+                and self.collection_in(tenant, collection_id) is None:
+            raise StudioError(f"آلبومی به نام «{collection_id}» نیست")
+        # Scoped by tenant in the UPDATE itself rather than checked first:
+        # a check followed by a write is two statements that can disagree.
+        changed = self._conn.execute(
+            "UPDATE media_items SET collection_id = ? "
+            "WHERE media_id = ? AND tenant_id = ?",
+            (collection_id, media_id, tenant)).rowcount
+        if not changed:
+            raise StudioError(f"عکسی با شناسهٔ «{media_id}» نیست")
+        self._conn.commit()
+        return collection_id
 
     def set_media_labels(self, tenant: str, media_id: str,
                          labels: Sequence[str], *,

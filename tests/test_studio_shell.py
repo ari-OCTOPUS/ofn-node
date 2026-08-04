@@ -301,7 +301,7 @@ class TestTheUploadFormIsOneDecision(unittest.TestCase):
         between, and making every shot a post decides something she has not
         decided.
         """
-        body = re.search(r"async function addPhoto\(file\)\s*\{(.*?)\n\}",
+        body = re.search(r"async function addPhoto\([^)]*\)\s*\{(.*?)\n\}",
                          JS, re.S).group(1)
         self.assertIn("'/api/v1/studio/media'", body)
         self.assertNotIn("/api/v1/studio/drafts", body)
@@ -489,3 +489,100 @@ class TestAnEmptyAccountIsNotADeadEnd(unittest.TestCase):
         front = re.search(r"function drawFront\(\).*?\n\}", JS, re.S).group(0)
         self.assertRegex(front, r"const have = \(gallery\.photos \|\| \[\]\)\.length")
         self.assertIn("fa(have)", front)
+
+
+class TestArchivingIsTheJob(unittest.TestCase):
+    """The loop the app is opened for: one photo, one album, next.
+
+    Everything before this was built around a publish decision, so an
+    evening spent filing photos had no screen at all — the card said "nothing
+    to decide" while fifty unfiled photos sat in the library, which was true
+    only about publishing and false about the work in front of her.
+    """
+
+    def test_the_archive_view_exists_and_is_not_a_fourth_tab(self):
+        """It is a mode, entered and left deliberately. A tab would let her
+        walk away mid-photo into a view that no longer holds her place."""
+        self.assertIn('id="view-archive"', SRC)
+        self.assertIn("'view-archive'", JS)
+        nav = re.search(r"<nav>(.*?)</nav>", SRC, re.S).group(1)
+        self.assertEqual(len(re.findall(r"<button", nav)), 3)
+        self.assertNotIn("view-archive", nav)
+
+    def test_the_backlog_is_photos_without_an_album(self):
+        """One definition, in one place. A count that means something else
+        on the card than in the loop is a count nobody can trust."""
+        self.assertRegex(
+            JS, r"const unfiled = \(\) =>[^;]*filter\(p => !p\.collection_id\)")
+
+    def test_one_photo_at_a_time_with_its_place_in_the_run(self):
+        """"دونه دونه" — and a counter, because a job with no visible end is
+        one nobody starts."""
+        arc = re.search(r"function drawArc\(\).*?\n\}", JS, re.S).group(0)
+        self.assertIn("arc.list[arc.i]", arc)
+        self.assertIn("' از '", arc)
+
+    def test_an_album_can_be_made_without_leaving_the_photo(self):
+        """Where a photo belongs is decided while looking at it, and the
+        album it belongs in usually does not exist yet."""
+        self.assertIn("/api/v1/studio/albums", JS)
+        self.assertIn('id="arc-new"', SRC)
+
+    def test_each_photo_is_committed_as_she_leaves_it(self):
+        """Nothing batched: putting the phone down after nine of fifty must
+        lose nothing."""
+        save = re.search(r"async function saveArc\(\).*?\n\}", JS, re.S).group(0)
+        self.assertIn("/album", save)
+        self.assertIn("/labels", save)
+        self.assertIn("arc.i += 1", save)
+
+    def test_a_refused_save_does_not_advance(self):
+        """Advancing past a photo that was not stored is how a run of fifty
+        ends with gaps nobody can find afterwards."""
+        save = re.search(r"async function saveArc\(\).*?\n\}", JS, re.S).group(0)
+        step = save.index("arc.i += 1")
+        for guard in re.finditer(r"if \(!\w+\.ok\) \{[^}]*return; \}", save):
+            self.assertLess(guard.start(), step,
+                            "a failure path continues past the increment")
+
+    def test_the_finished_count_is_counted_not_assumed(self):
+        """Skipped photos are still unfiled. Saying "12 archived" when nine
+        were skipped is exactly the shape of claim this project keeps
+        finding in its own bugs."""
+        done = re.search(r"function finishArchive\(\).*?\n\}", JS, re.S).group(0)
+        self.assertIn("arc.list.filter(p => p.collection_id).length", done)
+
+    def test_a_selection_is_uploaded_one_request_at_a_time(self):
+        """Fifty multi-megabyte bodies at once on a phone network is how a
+        batch fails entirely instead of partly."""
+        self.assertIn("multiple", SRC)
+        add = re.search(r"async function addPhotos\(files\).*?\n\}",
+                        JS, re.S).group(0)
+        self.assertIn("await addPhoto(", add)
+
+    def test_the_library_is_refreshed_after_an_upload(self):
+        """The front card counts this list and the archive loop walks it.
+        Refreshing only the board left both describing the state from before
+        the upload."""
+        add = re.search(r"async function addPhotos\(files\).*?\n\}",
+                        JS, re.S).group(0)
+        self.assertIn("/api/v1/studio/gallery", add)
+
+    def test_the_upload_flag_is_released_on_every_path(self):
+        """`busy` left set locks the picker for the rest of the session, and
+        the symptom is "the button stopped working" with nothing else."""
+        body = re.search(r"async function addPhoto\([^)]*\)\s*\{(.*?)\n\}",
+                         JS, re.S).group(1)
+        self.assertIn("finally", body)
+
+    def test_filing_can_be_undone(self):
+        """Tapping the chosen album again clears it. Without that, a mis-tap
+        on the first photo is unrecoverable without leaving the screen."""
+        albums = re.search(r"function drawArcAlbums\(\).*?\n\}",
+                           JS, re.S).group(0)
+        self.assertIn("(arc.album === a.id) ? null : a.id", albums)
+
+    def test_the_tag_vocabulary_has_one_implementation(self):
+        """Two copies of the twin rule is two places for it to drift."""
+        self.assertEqual(len(re.findall(r"function drawTags\(", JS)), 1)
+        self.assertIn("drawTags(arc, 'arc-tags')", JS)

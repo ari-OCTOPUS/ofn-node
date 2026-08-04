@@ -166,6 +166,8 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         set_labels=node.set_draft_labels,
         set_media_labels=node.set_media_labels,
         add_media=node.add_to_library,
+        create_album=node.create_album,
+        file_media=node.file_media,
         request_reading=node.request_studio_reading,
         judge_reading=node.judge_studio_finding,
         create_draft=node.create_draft,

@@ -71,7 +71,12 @@ class Base(unittest.TestCase):
             create_draft=self.node.create_draft,
             attach_media=self.node.attach_media,
             publish_draft=self.node.publish_draft,
-            record_felt=self.node.record_felt)
+            record_felt=self.node.record_felt,
+            add_media=self.node.add_to_library,
+            studio_gallery=self.node.studio_gallery,
+            set_media_labels=self.node.set_media_labels,
+            create_album=self.node.create_album,
+            file_media=self.node.file_media)
         self.session = issue_session(self.tenant, SABA, SECRET,
                                      now_epoch_s=NOW_S)
 
@@ -285,3 +290,129 @@ class TestHerReading(Base):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestArchiving(Base):
+    """Filing photos into albums, which is what an evening with the phone
+    actually consists of.
+
+    Before this, an album could only be chosen at the moment of upload and
+    could only exist if somebody had seeded the database with it. Both are
+    the wrong way round: where a photo belongs is decided while looking at
+    the photo, and the album it belongs in usually does not exist yet.
+    """
+
+    def shot(self, album=None):
+        body = {"renditions": RENDITIONS}
+        if album:
+            body["album"] = album
+        r = self.call("POST", "/api/v1/studio/media", body)
+        self.assertEqual(r.status, 200, r.body)
+        return r.body["media_id"]
+
+    def album(self, label="پرتره"):
+        r = self.call("POST", "/api/v1/studio/albums", {"label": label})
+        self.assertEqual(r.status, 200, r.body)
+        return r.body["album"]["id"]
+
+    def gallery(self):
+        return self.node.studio_gallery(self.scope())
+
+    def photo(self, media_id):
+        return next(p for p in self.gallery()["photos"]
+                    if p["media_id"] == media_id)
+
+    # ── albums ────────────────────────────────────────────────────────
+    def test_she_can_make_an_album_from_her_phone(self):
+        aid = self.album("سفر")
+        self.assertIn(aid, [a["id"] for a in self.gallery()["albums"]])
+
+    def test_a_new_album_is_restricted(self):
+        """D-15: sensitivity is a machine gate, and nothing on this screen
+        may open it. Making an album general is a separate, deliberate act."""
+        self.album("سفر")
+        self.assertTrue(all(a["sensitivity"] == "restricted"
+                            for a in self.gallery()["albums"]))
+
+    def test_an_album_needs_a_name(self):
+        for label in ("", "   "):
+            r = self.call("POST", "/api/v1/studio/albums", {"label": label})
+            self.assertEqual(r.status, 400, label)
+
+    def test_making_an_album_is_recorded(self):
+        self.album("سفر")
+        kinds = [e.kind for e in self.ledger.read(self.scope(), 20)]
+        self.assertIn("ALBUM_CREATED", kinds)
+
+    def test_two_albums_never_share_an_id(self):
+        self.assertNotEqual(self.album("یک"), self.album("دو"))
+
+    # ── filing ────────────────────────────────────────────────────────
+    def test_a_photo_already_on_the_board_can_be_moved_into_an_album(self):
+        """The whole point. Filing at upload time assumed she knows where a
+        photo goes at the moment she picks it, which is what the archiving
+        session exists to work out."""
+        mid, aid = self.shot(), self.album()
+        self.assertIsNone(self.photo(mid)["collection_id"])
+        r = self.call("POST", f"/api/v1/studio/media/{mid}/album",
+                      {"album": aid})
+        self.assertEqual(r.status, 200, r.body)
+        self.assertEqual(self.photo(mid)["collection_id"], aid)
+
+    def test_it_can_be_taken_back_out(self):
+        """Undo has to be as available as do, or the first mistake is
+        permanent and she stops trusting the button."""
+        mid, aid = self.shot(), self.album()
+        self.call("POST", f"/api/v1/studio/media/{mid}/album", {"album": aid})
+        r = self.call("POST", f"/api/v1/studio/media/{mid}/album",
+                      {"album": None})
+        self.assertEqual(r.status, 200, r.body)
+        self.assertIsNone(self.photo(mid)["collection_id"])
+
+    def test_moving_it_again_replaces_rather_than_accumulates(self):
+        mid = self.shot()
+        first, second = self.album("یک"), self.album("دو")
+        for aid in (first, second):
+            self.call("POST", f"/api/v1/studio/media/{mid}/album",
+                      {"album": aid})
+        self.assertEqual(self.photo(mid)["collection_id"], second)
+
+    def test_an_unknown_album_is_refused(self):
+        mid = self.shot()
+        r = self.call("POST", f"/api/v1/studio/media/{mid}/album",
+                      {"album": "album-9999"})
+        self.assertEqual(r.status, 400)
+
+    def test_an_unknown_photo_is_refused(self):
+        aid = self.album()
+        r = self.call("POST", "/api/v1/studio/media/shot-9999/album",
+                      {"album": aid})
+        self.assertEqual(r.status, 400)
+
+    def test_filing_needs_a_session(self):
+        mid, aid = self.shot(), self.album()
+        r = self.app.handle("POST", f"/api/v1/studio/media/{mid}/album",
+                            dict(HOST), json.dumps({"album": aid}).encode())
+        self.assertEqual(r.status, 401)
+
+    # ── what the shell counts ─────────────────────────────────────────
+    def test_the_backlog_is_what_has_no_album(self):
+        """The screen counts unfiled photos, so the field it counts has to
+        mean that and nothing else — `None` until she says otherwise."""
+        filed_into = self.album()
+        unfiled, filed = self.shot(), self.shot(album=filed_into)
+        by_id = {p["media_id"]: p for p in self.gallery()["photos"]}
+        self.assertIsNone(by_id[unfiled]["collection_id"])
+        self.assertEqual(by_id[filed]["collection_id"], filed_into)
+
+    def test_an_album_from_another_business_is_not_reachable(self):
+        """Album ids are short and guessable. Separating the three legs is
+        what the tenant column is for, and an existence check that ignores
+        it is how one leg's photo lands under another's album."""
+        self.studio.add_collection("someone-else", "album-0777", "مال دیگری",
+                                   now_epoch_s=NOW_S)
+        mid = self.shot()
+        r = self.call("POST", f"/api/v1/studio/media/{mid}/album",
+                      {"album": "album-0777"})
+        self.assertEqual(r.status, 400)
+        self.assertIsNone(self.photo(mid)["collection_id"])

@@ -675,6 +675,64 @@ class Node:
             return {"ok": False, "error": str(exc)}
         return {"ok": True, "labels": chosen}
 
+    def create_album(self, scope: TenantScope, user_id: str,
+                     body: Mapping[str, object]) -> dict:
+        """A new album, named by her, during the session that needs it.
+
+        Albums could only be created by whoever seeded the database, which
+        meant an archiving session could file photos into categories nobody
+        had thought of yet — and "where does this go?" is answered while
+        looking at the photo, not the week before.
+
+        `sensitivity` is not a field here. It is `restricted`, the same way
+        it is for a collection made anywhere else (D-15); making an album
+        general is a separate, deliberate act.
+        """
+        if self.studio is None:
+            return {"ok": False, "error": "استودیو در دسترس نیست"}
+        label = str(body.get("label") or "").strip()
+        if not label:
+            return {"ok": False, "error": "نام آلبوم خالی است"}
+        if len(label) > 60:
+            return {"ok": False, "error": "نام آلبوم خیلی بلند است"}
+        tenant = scope.tenant.value
+        try:
+            album = self.studio.add_collection(
+                tenant, self.studio.next_collection_id(tenant), label,
+                genre=str(body.get("genre") or ""),
+                now_epoch_s=self.now_epoch_s())
+        except StudioError as exc:
+            return {"ok": False, "error": str(exc)}
+        self.ledger.append(scope, "ALBUM_CREATED", {
+            "album": album.collection_id, "actor": f"partner:{user_id}",
+        }, self.now_iso())
+        return {"ok": True, "album": {"id": album.collection_id,
+                                      "label": album.label,
+                                      "genre": album.genre,
+                                      "sensitivity": album.sensitivity.value}}
+
+    def file_media(self, scope: TenantScope, media_id: str,
+                   body: Mapping[str, object]) -> dict:
+        """Put a photo in an album, or take it out of one.
+
+        Separate from `set_media_labels` even though an archiving screen
+        changes both at once: an album is where a photo lives and a label is
+        what it shows, and one failing must not silently undo the other.
+        """
+        if self.studio is None:
+            return {"ok": False, "error": "استودیو در دسترس نیست"}
+        raw = body.get("album")
+        # An absent key and an explicit null both mean "no album". A screen
+        # that omits the field to mean "leave it alone" would need a third
+        # value, and there is no such request.
+        album = None if raw in (None, "", False) else str(raw)
+        try:
+            filed = self.studio.set_media_collection(
+                scope.tenant.value, media_id, album)
+        except StudioError as exc:
+            return {"ok": False, "error": str(exc)}
+        return {"ok": True, "album": filed}
+
     def studio_gallery(self, scope: TenantScope) -> dict:
         """Her library: albums, and what is in them.
 

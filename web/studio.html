@@ -332,6 +332,31 @@ nav svg{width:21px;height:21px}
 .state button{font-family:inherit;font-size:14px;font-weight:600;margin-top:12px;
   padding:11px 18px;border-radius:13px;border:1px solid var(--line-hi);
   background:transparent;color:var(--t-hi);cursor:pointer}
+/* ── حالت آرشیو ────────────────────────────────────────────────────
+   کاری که این اپ امشب برایش باز می‌شود: یک عکس، یک آلبوم، چند برچسب،
+   بعدی. عمق اینجا معنا ندارد چون فقط یک چیز روی صفحه است — خودِ عکس. */
+.arc-head{display:flex;align-items:center;justify-content:space-between;
+  gap:12px;margin-top:18px}
+.arc-count{font-size:13px;color:var(--t-lo);font-variant-numeric:tabular-nums}
+.ghost{font-family:inherit;font-size:14px;font-weight:600;padding:10px 16px;
+  min-height:44px;border-radius:13px;border:1px solid var(--line-hi);
+  background:transparent;color:var(--t-hi);cursor:pointer}
+.arc-photo{margin-top:12px;border-radius:20px;overflow:hidden;
+  background:var(--sunk);border:1px solid var(--line);
+  aspect-ratio:3/4;max-height:44dvh;display:flex;align-items:center;
+  justify-content:center}
+/* `contain`، نه `cover`: این صفحه برای *دیدنِ* عکس است، نه برای چیدمان.
+   بریدن لبه‌ها همان جایی است که ممکن است تصمیم را عوض کند. */
+.arc-photo img{width:100%;height:100%;object-fit:contain;display:block}
+.arc-q{font-size:16px;font-weight:600;margin-top:18px}
+.arc-sub{font-size:13px;color:var(--t-lo);margin-top:2px}
+.newalbum{display:flex;gap:8px;margin-top:10px}
+/* ۱۶px حداقلی است که سافاری روی آن zoom نمی‌کند. کوچک‌تر یعنی صفحه هر بار
+   که او شروع به تایپ می‌کند می‌پرد. */
+.newalbum input{flex:1;min-width:0;font-family:inherit;font-size:16px;
+  padding:12px 14px;min-height:44px;border-radius:13px;
+  border:1px solid var(--line-hi);background:var(--sunk);color:var(--t-hi)}
+
 /* یک کنش اصلی داخل حالت خالی، هنوز کنش اصلی است — این قاعده بعد از
    `.state button` می‌آید چون آن یکی خنثی‌اش می‌کرد. جفت رنگ همان جفت
    ممیزی‌شده است. */
@@ -379,12 +404,21 @@ nav svg{width:21px;height:21px}
   <!-- One action, and it is the first one. Everything else about a post is
        optional and comes later. -->
   <div class="act">
+    <!-- وقتی عکسِ بی‌آلبوم هست، کنش اصلی همین است و نه افزودن عکس تازه:
+         انباشتن عکس روی عکس، کاری است که خودش را تمام‌نشدنی می‌کند. -->
+    <button class="cta" type="button" id="startarc" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+        stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18"
+        height="16" rx="2.5"/><path d="M3 10h18"/><path d="M10 15h4"/></svg>
+      آرشیو کنیم
+    </button>
     <label class="cta" id="addbtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
         stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18"
         height="14" rx="3"/><circle cx="12" cy="13" r="3.4"/><path d="M8 6l1.5-2h5L16 6"/></svg>
       عکس تازه
-      <input type="file" accept="image/*" id="pick" hidden>
+      <!-- `multiple`: یک جلسهٔ آرشیو با انتخاب تک‌تکِ پنجاه عکس شروع نمی‌شود. -->
+      <input type="file" accept="image/*" id="pick" multiple hidden>
     </label>
   </div>
   <div class="state" id="addnote" hidden></div>
@@ -430,6 +464,37 @@ nav svg{width:21px;height:21px}
 
   <!-- Gallery: her archive. Albums, photos, and the tags that make the next
        month comparable at all. -->
+  <!-- آرشیو: یک عکس در هر لحظه.
+       این تب نیست و عمداً هم نیست — یک *حالت* است که وارد می‌شوی، تا
+       تمام شدنش می‌مانی، و بیرون می‌آیی. نوار پایین سه کار دارد؛ این
+       کارِ چهارم نیست، همان کارِ «امروز» است وقتی عکس منتظر باشد. -->
+  <div id="view-archive" hidden>
+    <div class="arc-head">
+      <button class="ghost" type="button" id="arc-done">تمام</button>
+      <div class="arc-count" id="arc-count"></div>
+    </div>
+    <div class="arc-photo"><img id="arc-img" alt=""></div>
+
+    <div class="arc-q">این عکس کجا برود؟</div>
+    <div class="arc-sub" id="arc-sub"></div>
+    <div class="albums" id="arc-albums"></div>
+    <div class="newalbum" id="arc-new" hidden>
+      <input type="text" id="arc-name" maxlength="60" placeholder="نام آلبوم"
+        autocomplete="off" enterkeyhint="done">
+      <button class="ghost" type="button" id="arc-make">بساز</button>
+    </div>
+
+    <div class="arc-q">چه چیزی را نشان می‌دهد؟</div>
+    <div class="arc-sub">اختیاری — ولی بدون برچسب هیچ مقایسه‌ای بعداً ممکن نیست.</div>
+    <div class="tags" id="arc-tags"></div>
+
+    <div class="act">
+      <button class="cta" type="button" id="arc-next">ثبت و بعدی</button>
+      <button class="cta quiet" type="button" id="arc-skip">فعلاً رد کن</button>
+    </div>
+    <div class="state" id="arc-note" hidden></div>
+  </div>
+
   <div id="view-gallery" hidden>
     <div class="albums" id="albums"></div>
     <div class="sheetgrid" id="grid"></div>
@@ -714,6 +779,16 @@ function drawFront() {
   /* The kernel's questions come first: they are what the node needs before
      it can judge anything, and a decision made on a stale fact is worse than
      a decision deferred. */
+  /* The backlog decides which action is primary, and it does so in every
+     branch below — so it is settled before the early returns rather than
+     inside the last one. */
+  const waiting = unfiled().length;
+  $('startarc').hidden = !waiting;
+  /* Two gold buttons would be two primary actions. Adding more photos stays
+     available and stops shouting, because a pile that only grows is the
+     failure mode of every archive. */
+  $('addbtn').classList.toggle('quiet', waiting > 0);
+
   if (at < queue.length) { askCard(queue[at]); $('gate').hidden = true; return; }
   const d = currentDraft();
   if (d) { drawDraft(d); return; }
@@ -741,11 +816,16 @@ function drawFront() {
        what will not happen to it. */
     p.textContent = 'عکس روی همین دستگاه می‌ماند. تا خودتان نگویید، '
                   + 'هیچ چیز جایی منتشر نمی‌شود.';
+  } else if (waiting) {
+    k.textContent = 'آرشیو';
+    h.textContent = fa(waiting) + ' عکس منتظر شماست';
+    p.textContent = 'یکی‌یکی: آلبومش را بزنید و بگویید چه چیزی است. '
+                  + 'هر وقت خواستید بایستید — بقیه می‌ماند.';
   } else {
     k.textContent = 'آرشیو';
     h.textContent = 'چیزی برای تصمیم نیست';
-    p.textContent = fa(have) + ' عکس در آرشیو دارید — در تب «گالری» '
-                  + 'می‌توانید برچسب بزنید یا آلبوم بسازید.';
+    p.textContent = fa(have) + ' عکس، همه آلبوم دارند. '
+                  + 'در تب «گالری» می‌توانید ببینید یا آلبومی را بگیرید.';
   }
   card.append(spine, k, h, p);
   $('gate').hidden = true;
@@ -968,37 +1048,73 @@ function asDataUrl(file) {
   });
 }
 
-async function addPhoto(file) {
-  if (busy || !file) return;
+/* One photo, start to finish. Returns whether it landed, because the
+   caller sending fifty of them has to know which ones did.
+
+   `busy` is released in `finally`: an earlier version returned from inside
+   the try after a success and left the flag set, which locks the picker for
+   the rest of the session — the failure would have looked like "the button
+   stopped working" and nothing else. */
+async function addPhoto(file, progress) {
+  if (busy || !file) return false;
   busy = true;
   const note = $('addnote');
   const say = t => { if (note) { note.hidden = false; note.textContent = t; } };
-  /* Under 100ms, something has to move. A silent wait is on the anxiety
-     list, and resizing a 12MP photo is not instant on this hardware. */
-  say('در حال آماده کردن…');
+  const step = progress ? progress + ' · ' : '';
   try {
+    /* Under 100ms, something has to move. A silent wait is on the anxiety
+       list, and resizing a 12MP photo is not instant on this hardware. */
+    say(step + 'در حال آماده کردن…');
     const renditions = await renditionsOf(file);
-    say('در حال فرستادن…');
-
-    /* Draft first, then media. If the upload fails the draft survives with
-       nothing in it, which she can see and retry — the alternative is a
-       failed upload that takes the whole post with it. */
+    say(step + 'در حال فرستادن…');
     /* Into the library, not into a post. A picture taken today and used
        next month needs somewhere to be in between, and making every shot a
        post decides something she has not decided. */
     const sent = await OFN.post('/api/v1/studio/media',
                                 { renditions, original: await asDataUrl(file) });
-    if (!sent.ok) { say(sent.error || 'عکس ذخیره نشد.'); busy = false; return; }
-    if (note) note.hidden = true;
+    if (!sent.ok) { say(sent.error || 'عکس ذخیره نشد.'); return false; }
     OFN.tap('medium');
-    say('عکس در گالری ذخیره شد — برچسبش را آنجا بزنید.');
-    await loadBoard();
+    return true;
   } catch (e) {
     say(e && e.status === 401
         ? 'وقت این صفحه تمام شد. ببندید و دوباره باز کنید.'
         : 'به دستگاه وصل نشد. چیزی ثبت نشد.');
+    return false;
+  } finally {
+    busy = false;
   }
-  busy = false;
+}
+
+/* A whole selection, one request at a time.
+
+   Sequential rather than parallel on purpose: each photo is its own
+   multi-megabyte body, and fifty at once on a phone network is how a batch
+   fails entirely instead of partly. It also means the count on screen is
+   true while it runs.
+
+   The list is refreshed ONCE at the end rather than per photo — that is the
+   part every other screen reads, and re-fetching it fifty times would be
+   fifty round trips to say the same thing. */
+async function addPhotos(files) {
+  const list = Array.from(files || []);
+  if (!list.length) return;
+  const note = $('addnote');
+  let done = 0;
+  for (let n = 0; n < list.length; n += 1) {
+    const label = list.length > 1 ? fa(n + 1) + ' از ' + fa(list.length) : '';
+    if (await addPhoto(list[n], label)) { done += 1; }
+    else if (list.length > 1) { break; }   /* stop at the first refusal */
+  }
+  if (!done) return;
+  try {
+    gallery = await OFN.get('/api/v1/studio/gallery');
+    await loadBoard();
+  } catch (_) { /* the photos are in; the screen catches up on reopen */ }
+  if (note) {
+    note.hidden = false;
+    note.textContent = fa(done) + ' عکس اضافه شد — حالا آرشیوشان کنیم.';
+  }
+  drawFront();
 }
 
 
@@ -1006,7 +1122,7 @@ async function addPhoto(file) {
    One page, three jobs: decide what goes out, keep the archive, see how it
    is going. Switching hides rather than reloads, so a half-typed caption
    survives a glance at the gallery. */
-const VIEWS = ['view-today', 'view-gallery', 'view-business'];
+const VIEWS = ['view-today', 'view-archive', 'view-gallery', 'view-business'];
 let album = null, picked = null, gallery = { albums: [], photos: [], vocabulary: [] };
 
 function show(which) {
@@ -1092,11 +1208,16 @@ function drawGrid() {
   });
 }
 
-function drawTags(photo) {
-  const panel = $('tagpanel');
-  panel.hidden = false;
-  $('tagtitle').textContent = 'این عکس چه چیزی است؟';
-  const box = $('tags');
+/* Two callers: the gallery's tag panel, and the archive card. The
+   vocabulary, the twin rule and the "one side of each axis" logic are the
+   same in both, so they share this — a second copy is a second place for
+   the pairing rule to drift out of agreement with the first. */
+function drawTags(photo, into) {
+  if (!into) {
+    $('tagpanel').hidden = false;
+    $('tagtitle').textContent = 'این عکس چه چیزی است؟';
+  }
+  const box = $(into || 'tags');
   box.textContent = '';
   const chosen = new Set(photo.labels || []);
   gallery.vocabulary.forEach(label => {
@@ -1114,12 +1235,14 @@ function drawTags(photo) {
       if (chosen.has(label)) { chosen.delete(label); }
       else { chosen.add(label); if (twin) chosen.delete(twin); }
       photo.labels = [...chosen];
-      drawTags(photo);
+      drawTags(photo, into);
     };
     box.append(b);
   });
-  $('pairnote').textContent =
-    'هر جفت یک محور است. برای مقایسه باید از هر دو طرف چند تا داشته باشید.';
+  if (!into) {
+    $('pairnote').textContent =
+      'هر جفت یک محور است. برای مقایسه باید از هر دو طرف چند تا داشته باشید.';
+  }
 }
 
 /* Pairs, in the order the pack lists them. Built once from the vocabulary
@@ -1140,6 +1263,139 @@ function buildTwins(vocab) {
 }
 
 /* ── business ──────────────────────────────────────────────────────────── */
+/* ── آرشیو ────────────────────────────────────────────────────────────
+   The loop this app is opened for: one photo, one album, some labels, next.
+
+   "Unfiled" is the whole definition of the backlog — a photo with no album
+   is one nobody has decided anything about, and it is a count that goes
+   down as she works. Labels are offered on the same card but are not part
+   of the count: a backlog that only empties when every photo is perfectly
+   described is a backlog that never empties.
+
+   Nothing is batched. Each photo is committed as she leaves it, so putting
+   the phone down after nine of fifty loses nothing. */
+let arc = { list: [], i: 0, album: null, labels: [] };
+
+const unfiled = () => (gallery.photos || []).filter(p => !p.collection_id);
+
+function arcNote(text) {
+  const box = $('arc-note');
+  box.hidden = !text;
+  box.textContent = text || '';
+}
+
+function startArchive() {
+  arc.list = unfiled();
+  arc.i = 0;
+  if (!arc.list.length) return;
+  show('view-archive');
+  drawArc();
+}
+
+function drawArc() {
+  if (arc.i >= arc.list.length) { finishArchive(); return; }
+  const p = arc.list[arc.i];
+  /* Read from the photo, not carried over from the last one: two shots in a
+     row usually belong in the same album, but "usually" is how the fiftieth
+     photo ends up somewhere nobody chose. */
+  arc.album = p.collection_id || null;
+  arc.labels = [...(p.labels || [])];
+  arcNote('');
+  $('arc-count').textContent = fa(arc.i + 1) + ' از ' + fa(arc.list.length);
+  $('arc-img').src =
+    '/api/v1/studio/media/' + encodeURIComponent(p.media_id) + '/320';
+  $('arc-new').hidden = true;
+  $('arc-sub').textContent = gallery.albums.length
+    ? 'یکی را بزنید، یا آلبوم تازه بسازید.'
+    : 'هنوز آلبومی ندارید — اولی را همین‌جا بسازید.';
+  drawArcAlbums();
+  drawTags(arc, 'arc-tags');
+}
+
+function drawArcAlbums() {
+  const box = $('arc-albums');
+  box.textContent = '';
+  (gallery.albums || []).forEach(a => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'album';
+    b.textContent = a.label;
+    b.setAttribute('aria-pressed', String(arc.album === a.id));
+    /* Tapping the chosen one again clears it. Without that, a mis-tap on
+       the first album is unrecoverable without leaving the screen. */
+    b.onclick = () => {
+      OFN.tap();
+      arc.album = (arc.album === a.id) ? null : a.id;
+      drawArcAlbums();
+    };
+    box.append(b);
+  });
+  const add = document.createElement('button');
+  add.type = 'button';
+  add.className = 'album';
+  add.textContent = '+ آلبوم تازه';
+  add.onclick = () => {
+    OFN.tap();
+    $('arc-new').hidden = false;
+    $('arc-name').focus();
+  };
+  box.append(add);
+}
+
+async function makeAlbum() {
+  const field = $('arc-name');
+  const label = field.value.trim();
+  if (!label) { arcNote('نام آلبوم خالی است.'); return; }
+  const out = await OFN.post('/api/v1/studio/albums', { label });
+  if (!out.ok) { arcNote(out.error || 'آلبوم ساخته نشد.'); return; }
+  gallery.albums.push(out.album);
+  arc.album = out.album.id;          /* made for this photo, so selected */
+  field.value = '';
+  $('arc-new').hidden = true;
+  arcNote('');
+  OFN.tap('medium');
+  drawArcAlbums();
+  $('arc-sub').textContent = 'یکی را بزنید، یا آلبوم تازه بسازید.';
+}
+
+async function saveArc() {
+  const p = arc.list[arc.i];
+  if (!p) return;
+  if (!arc.album) { arcNote('اول آلبومش را انتخاب کنید.'); return; }
+  /* Album first. It is the one that empties the backlog, so if the second
+     call fails she has still made progress rather than none — and the photo
+     is never left filed under a label set that was refused. */
+  const filed = await OFN.post(
+    '/api/v1/studio/media/' + encodeURIComponent(p.media_id) + '/album',
+    { album: arc.album });
+  if (!filed.ok) { arcNote(filed.error || 'ثبت نشد.'); return; }
+  p.collection_id = filed.album;
+  const tagged = await OFN.post(
+    '/api/v1/studio/media/' + encodeURIComponent(p.media_id) + '/labels',
+    { labels: arc.labels });
+  if (!tagged.ok) { arcNote(tagged.error || 'برچسب ثبت نشد.'); return; }
+  p.labels = tagged.labels;
+  OFN.tap('medium');
+  arc.i += 1;
+  drawArc();
+}
+
+function finishArchive() {
+  /* The number is counted, not assumed: skipped photos are still unfiled
+     and saying "12 archived" when nine were skipped would be the kind of
+     claim this project keeps finding in its own bugs. */
+  const filed = arc.list.filter(p => p.collection_id).length;
+  const left = arc.list.length - filed;
+  show('view-today');
+  drawFront();
+  const note = $('addnote');
+  note.hidden = false;
+  note.textContent = filed
+    ? fa(filed) + ' عکس آرشیو شد.'
+      + (left ? ' ' + fa(left) + ' تا ماند — هر وقت خواستید ادامه.' : '')
+    : 'چیزی ثبت نشد.';
+}
+
 async function loadBusiness() {
   let over, guide;
   try {
@@ -1218,9 +1474,40 @@ async function boot() {
 
   const pick = $('pick');
   if (pick) pick.addEventListener('change', ev => {
-    const file = ev.target.files && ev.target.files[0];
+    const files = Array.from(ev.target.files || []);
     ev.target.value = '';        /* so the same file can be picked again */
-    guard(addPhoto(file), 'عکس اضافه نشد.');
+    guard(addPhotos(files), 'عکس اضافه نشد.');
+  });
+
+  /* Archive mode. Entered from the card that counts the backlog, left by
+     the button that says so — never by a tab, because a half-finished
+     photo would be left in a view that no longer exists on screen. */
+  const arcStart = $('startarc');
+  if (arcStart) arcStart.addEventListener('click', ev => {
+    ev.preventDefault(); OFN.tap(); startArchive();
+  });
+  const arcNext = $('arc-next');
+  if (arcNext) arcNext.addEventListener('click', ev => {
+    ev.preventDefault(); guard(saveArc(), 'ثبت نشد.');
+  });
+  const arcSkip = $('arc-skip');
+  if (arcSkip) arcSkip.addEventListener('click', ev => {
+    ev.preventDefault(); OFN.tap();
+    arc.i += 1; drawArc();
+  });
+  const arcDone = $('arc-done');
+  if (arcDone) arcDone.addEventListener('click', ev => {
+    ev.preventDefault(); OFN.tap(); finishArchive();
+  });
+  const arcMake = $('arc-make');
+  if (arcMake) arcMake.addEventListener('click', ev => {
+    ev.preventDefault(); guard(makeAlbum(), 'آلبوم ساخته نشد.');
+  });
+  const arcName = $('arc-name');
+  if (arcName) arcName.addEventListener('keydown', ev => {
+    /* Enter on a phone keyboard is the natural way to finish a short name;
+       without this it submits nothing and looks broken. */
+    if (ev.key === 'Enter') { ev.preventDefault(); guard(makeAlbum(), 'آلبوم ساخته نشد.'); }
   });
 
   const later = $('later');
