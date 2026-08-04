@@ -198,6 +198,42 @@ def t_flush_is_incremental_not_repeating():
     assert n2 == 0, f"‏flush دوم {n2} ردیف نوشت — تکراری است"
 
 
+def t_each_function_costs_exactly_one_callback():
+    """‏callback باید `DISABLE` برگرداند — وگرنه هزینه از ~۵٪ به ~۲۰۰۰٪ می‌رود.
+
+    ⚠️ چرا این تست وجود دارد: جهشِ «`DISABLE` برنگردان» **زنده ماند** و
+    درست هم بود — رفتار عوض نمی‌شود، فقط هزینه. آن یک جهشِ کارایی است و
+    شش تستِ دیگر که همه دربارهٔ درستی‌اند، نمی‌توانند بگیرندش.
+
+    سنجهٔ رفتاری به‌جای زمان‌سنجی: زمان روی دیسکِ ۵۴۰۰ دور ±۴۴۱٪ پراکندگی
+    دارد و بی‌فایده است. ولی شمارِ **فراخوانِ callback** قطعی است: یک تابع
+    که هزار بار صدا زده شود باید دقیقاً **یک** callback بگیرد.
+    """
+    mod = ("import reach_probe as _rp\n"
+           "_hits = []\n"
+           "_real = _rp._cb\n"
+           "def _counting(code, offset):\n"
+           "    _hits.append(code.co_qualname)\n"
+           "    return _real(code, offset)\n"
+           "_rp._cb = _counting\n"
+           "import sys as _s\n"
+           "_s.monitoring.register_callback(_rp.TOOL_ID, _s.monitoring.events.PY_START, _counting)\n"
+           "\n"
+           "def hot(x):\n"
+           "    return x + 1\n"
+           "\n"
+           "for _i in range(1000):\n"
+           "    hot(_i)\n"
+           "import json as _j\n"
+           'print("HOTCOUNT=" + str(_hits.count("hot")))\n')
+    r = _child(mod)
+    line = [x for x in (r["stdout"] or "").splitlines() if x.startswith("HOTCOUNT=")]
+    assert line, f"شمارنده چاپ نشد · rc={r['rc']} · {r['stderr'][:200]}"
+    n = int(line[0].split("=")[1])
+    assert n == 1, (f"تابعی که ۱۰۰۰ بار صدا شد {n} بار callback گرفت — "
+                    "‏DISABLE برنگشته و هزینه خطی است")
+
+
 def t_reachability_readers_agree_with_the_ledger():
     """`reached()` همان چیزی را برمی‌گرداند که در دفتر است."""
     r = _child(_MOD)
