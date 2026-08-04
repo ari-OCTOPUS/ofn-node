@@ -20,11 +20,14 @@
 """
 import ast
 import hashlib
+import hmac
 import json
 import os
 import sqlite3
 import sys
 import tempfile
+import time
+import urllib.parse
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
@@ -126,6 +129,45 @@ def _armed(fn):
             os.environ.pop(ms.LIFECYCLE_FLAG, None)
         else:
             os.environ[ms.LIFECYCLE_FLAG] = saved
+
+
+#: توکنِ **جعلیِ** تستی — تست هرگز به اعتبارنامهٔ واقعی وابسته نمی‌شود، و
+#: هرگز آن را در خروجی نمی‌گذارد. شکلش واقعی است تا اعتبارسنج راضی شود.
+FAKE_TOKEN = "123456789:AA" + "y" * 32
+FAKE_OWNER = "777"
+
+
+def _owner_initdata() -> str:
+    """initData ِ امضاشدهٔ مالک — همان چیزی که وب‌ویوِ تلگرام می‌فرستد."""
+    d = {"auth_date": str(int(time.time()) - 10),
+         "user": json.dumps({"id": int(FAKE_OWNER), "first_name": "ari"},
+                            ensure_ascii=False)}
+    dcs = "\n".join(f"{k}={v}" for k, v in sorted(d.items()))
+    sec = hmac.new(b"WebAppData", FAKE_TOKEN.encode("utf-8"), hashlib.sha256).digest()
+    d["hash"] = hmac.new(sec, dcs.encode("utf-8"), hashlib.sha256).hexdigest()
+    return urllib.parse.urlencode(d)
+
+
+def _handle(path: str, *, signed: bool):
+    """فراخوانِ gateway با گیتِ خواندنی **روشن** و توکنِ جعلیِ پین‌شده.
+
+    گیت باید صریحاً روشن شود، وگرنه اگر روزی پیش‌فرضش خاموش برگردد این
+    تست بی‌صدا «۲۰۰ برای همه» را پاس می‌کند و فکر می‌کنیم گیت را سنجیده‌ایم.
+    """
+    saved = {k: os.environ.get(k) for k in
+             ("TG_CENTER_BOT_TOKEN", "TELEGRAM_OWNER_CHAT_ID", mg.READ_GATE_FLAG)}
+    os.environ["TG_CENTER_BOT_TOKEN"] = FAKE_TOKEN
+    os.environ["TELEGRAM_OWNER_CHAT_ID"] = FAKE_OWNER
+    os.environ[mg.READ_GATE_FLAG] = "1"
+    try:
+        headers = {"X-Tg-Init-Data": _owner_initdata()} if signed else {}
+        return mg._handle_core("GET", path, headers)
+    finally:
+        for k, v in saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
 
 
 def _sha(p: Path) -> str:
@@ -272,20 +314,41 @@ def t_write_verbs_on_the_view_are_405_and_the_store_is_byte_identical():
     assert _sha(store) == before, "ذخیرهٔ کارت‌ها پس از تلاشِ نوشتن عوض شد"
 
 
-def t_the_view_stays_dark_at_the_gateway_even_when_armed():
-    """صداقتِ ساختاری: whitelist ِ مسیرهای gateway مسیرِ نو را ندارد ⇒ ۴۰۴.
+def t_the_flag_is_the_only_gate_and_it_holds_in_all_three_directions():
+    """گیتِ نما — هر سه جهت، چون یک جهت هیچ چیزی ثابت نمی‌کند.
 
-    یعنی مسلح‌کردنِ فلگ به‌تنهایی این نما را روی تونل زنده **نمی‌کند** —
-    یک ردیفِ whitelist در `miniapp_gateway._handle_core` هم لازم است که
-    فایلِ این لِین نیست. «۴۰۴ ِ صادق» بهتر از «سطحِ عمومیِ ناخواسته» است.
+    ⚠️ بازنویسیِ ۰۸-۰۴. نسخهٔ قبلی ادعا می‌کرد whitelist ِ gateway دیوارِ
+    **دوم** است و «مسلح‌کردنِ فلگ به‌تنهایی نما را زنده نمی‌کند». آن premise
+    دیگر درست نیست: برشِ ۳ عمداً `/api/lifecycle` را به `READ_API_PATHS`
+    اضافه کرد (handler وجود داشت ولی هرگز dispatch نمی‌شد). پس امروز
+    **فلگ تنها گیت است** و تست باید همین را بگوید، نه چیزی که دیگر نیست.
+
+    و آن تست بی‌امضا صدا می‌زد، پس ۴۰۳ ِ `owner_auth_required` می‌گرفت و
+    آن را «تاریکی» می‌خواند — دقیقاً همان خطای «۴۰۳ اثباتِ احراز نیست».
+    یک ردِ بی‌امضا هم با «مسیر وجود ندارد» سازگار است هم با «مسیر هست ولی
+    در بسته است»؛ فرقشان فقط با امضای **درست** معلوم می‌شود.
+
+    سه جهت:
+      ۱. بی‌امضا  ⇒ ۴۰۳ (در بسته است)
+      ۲. امضادار + فلگِ خاموش ⇒ ۴۰۴ (تاریکِ واقعی — نه صرفاً ردشده)
+      ۳. امضادار + فلگِ روشن ⇒ ۲۰۰ (پس گیت مرده نیست؛ یعنی جهتِ ۲ معنا دارد)
     """
     saved_stop = mg._stopped
     mg._stopped = lambda: False
     try:
-        st, _, _ = _armed(lambda: mg._handle_core("GET", ms.LIFECYCLE_PATH, {}))
+        unsigned, _, _ = _handle(ms.LIFECYCLE_PATH, signed=False)
+        assert unsigned == 403, f"بی‌امضا {unsigned} داد، انتظار ۴۰۳"
+
+        dark, _, _ = _handle(ms.LIFECYCLE_PATH, signed=True)
+        assert dark == 404, f"با امضای درست و فلگِ خاموش {dark} داد — تاریکی شکست"
+
+        lit, body, _ = _armed(lambda: _handle(ms.LIFECYCLE_PATH, signed=True))
+        assert lit == 200, (
+            f"با امضای درست و فلگِ روشن {lit} داد — یعنی جهتِ ۲ بی‌معنا بود "
+            f"و این تست هر رفتاری را پاس می‌کرد")
+        assert b"counts" in body, f"بدنهٔ روشن شمارش ندارد: {body[:120]!r}"
     finally:
         mg._stopped = saved_stop
-    assert st == 404, f"مسیرِ نو از gateway {st} داد — تاریکی شکست"
 
 
 # ─── ۳: whitelist ِ بدنه (byte-grep) ───────────────────────────────────────
