@@ -48,12 +48,7 @@ ALLOWED_MEDIA_TYPES = ("image/jpeg", "image/png")
 # limit; raising that to fit a photo would raise it for every endpoint.
 MAX_DECODED_BYTES = 16 * 1024 * 1024
 
-# The two renditions the browser sends. There is no third for "the
-# original": archiving it was meant to prove what was published, and it does
-# not — if a 1600px rendition is what goes to a platform, the original was
-# never sent. What proves it is a hash of the bytes that actually went, which
-# `studio_store.media_sent` records. Every original kept would be one more
-# sensitive file at rest on an unencrypted disk.
+# The two renditions the browser sends.
 ALLOWED_EDGES = (1600, 320)
 
 # More photos than this on one piece is a mistake, not a gallery.
@@ -158,6 +153,34 @@ def relative_path(tenant: str, piece_id: str, position: int, edge: int) -> str:
     if isinstance(edge, bool) or not isinstance(edge, int) or edge not in ALLOWED_EDGES:
         raise FailClosedError(f"unknown edge: {edge!r}")
     return f"{tenant}/{piece_id}/{position}-{edge}.jpg"
+
+
+def original_path(tenant: str, piece_id: str, position: int,
+                  media_type: str) -> str:
+    """Where the untouched upload is kept.
+
+    This was removed once, for a reason that was right about the question it
+    was asked: archiving an original proves nothing about what was
+    *published*, because a 1600px rendition is what goes to a platform. That
+    job belongs to `media_sent`, which hashes the bytes that actually left,
+    and it still does.
+
+    It is back because the leg turned out to have a second job. This is her
+    archive — the place her work lives so she can take it anywhere — and for
+    that job a 1600px copy is not her work, it is a copy of her work.
+
+    The cost is real and is not hidden: every original is one more sensitive
+    file at rest on a disk that is not encrypted. It is written 0600, it is
+    purged from the backups when she deletes it, and neither of those makes
+    the disk encrypted.
+    """
+    _check_id("tenant", tenant)
+    _check_id("piece id", piece_id)
+    _check_position(position)
+    if media_type not in ALLOWED_MEDIA_TYPES:
+        raise FailClosedError(f"media type not served here: {media_type}")
+    ext = "png" if media_type == "image/png" else "jpg"
+    return f"{tenant}/{piece_id}/{position}-original.{ext}"
 
 
 def piece_prefix(tenant: str, piece_id: str) -> str:

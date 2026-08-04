@@ -331,19 +331,15 @@ class Node:
 
 
     def _next_draft_id(self, tenant: str) -> str:
-        """A new id, derived from what already exists rather than from a clock.
+        """A new id, from the store's high-water mark.
 
         Sequential and readable, because it becomes a directory name under
-        the media root and appears in the ledger. Derived from the highest
-        number already used, so a deleted draft never hands its id — and its
-        media directory — to a different post.
+        the media root and appears in the ledger. It used to be derived from
+        the drafts that exist, which is the `next_sku` bug for the third
+        time: a deleted row is exactly the one that derivation can no longer
+        see, so it hands its id — and its media directory — to a new post.
         """
-        top = 0
-        for d in self.studio.drafts(tenant):
-            tail = d.draft_id.rsplit("-", 1)[-1]
-            if tail.isdigit():
-                top = max(top, int(tail))
-        return f"post-{top + 1:04d}"
+        return self.studio.next_draft_id(tenant)
 
     def _self_subject(self, tenant: str) -> str:
         """The partner herself, as a consent subject.

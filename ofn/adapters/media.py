@@ -23,7 +23,9 @@ import os
 import shutil
 
 from ..kernel.errors import FailClosedError
-from ..kernel.photos import Payload, is_inside, piece_prefix, relative_path
+from ..kernel.photos import (
+    Payload, is_inside, original_path, piece_prefix, relative_path,
+)
 
 
 class MediaStore:
@@ -90,6 +92,18 @@ class MediaStore:
         return self._put(relative_path(tenant, piece_id, position, edge),
                          payload)
 
+    def write_original(self, tenant: str, piece_id: str, position: int,
+                       payload: Payload) -> str:
+        """The upload exactly as it arrived.
+
+        Kept because this is her archive, not only a control panel. The
+        renditions are what a screen shows and what a platform gets; the
+        original is the work.
+        """
+        return self._put(
+            original_path(tenant, piece_id, position, payload.media_type),
+            payload)
+
     def exists(self, relative: str) -> bool:
         return os.path.isfile(self.absolute(relative))
 
@@ -116,6 +130,36 @@ class MediaStore:
         count = sum(len(files) for _, _, files in os.walk(target))
         shutil.rmtree(target)
         return count
+
+    def purge_from_backups(self, backup_root: str, tenant: str,
+                           piece_id: str) -> int:
+        """Remove a piece's files from every backup copy as well.
+
+        Without this, "delete" means "in fourteen days" — the nightly backup
+        keeps fourteen generations, so a photo she removed is still on the
+        disk in fourteen places. For a control panel that would be a
+        reasonable trade. For somebody's archive of their own body it is the
+        wrong default, and it is the kind of wrong that is only discovered by
+        someone who trusted the button.
+
+        Backups themselves are not otherwise touched: only this subtree, only
+        in each generation's `media` mirror.
+        """
+        removed = 0
+        if not os.path.isdir(backup_root):
+            return 0
+        prefix = piece_prefix(tenant, piece_id).rstrip("/")
+        for generation in sorted(os.listdir(backup_root)):
+            target = os.path.join(backup_root, generation, "media", prefix)
+            # Confined to the backup root by construction, and checked
+            # anyway: this is a recursive delete driven by an id.
+            full = os.path.abspath(target)
+            if not is_inside(os.path.abspath(backup_root), full):
+                raise FailClosedError(f"refusing to delete outside backups: {target}")
+            if os.path.isdir(full):
+                removed += sum(len(f) for _, _, f in os.walk(full))
+                shutil.rmtree(full)
+        return removed
 
     def tenant_bytes(self, tenant: str) -> int:
         """Total bytes under one business. Used by the backup report."""

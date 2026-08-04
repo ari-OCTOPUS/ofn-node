@@ -322,3 +322,89 @@ class TestDurability(Store):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestTheLibrary(Store):
+    """A photo exists on its own, before and after any post.
+
+    It used to exist only inside a draft, which meant a picture shot today
+    and used next month had nowhere to be in between — and a picture used
+    twice was two rows describing one file. An archive somebody can take
+    anywhere cannot be a by-product of posting.
+    """
+
+    def shot(self, mid=None, album=None):
+        mid = mid or self.s.next_media_id("studio")
+        self.s.add_media("studio", mid, mime="image/jpeg", byte_size=1000,
+                         has_original=True, now_epoch_s=NOW,
+                         collection_id=album)
+        return mid
+
+    def test_a_photo_can_exist_with_no_album(self):
+        """Forcing a choice at upload makes her invent a category before she
+        knows what it is."""
+        mid = self.shot()
+        self.assertIsNone(self.s.gallery("studio")[0]["collection_id"])
+
+    def test_ids_are_never_reissued(self):
+        first = self.shot()
+        self.s.drop_media("studio", first)
+        self.assertNotEqual(self.shot(), first)
+
+    def test_a_photo_can_be_filed_later(self):
+        self.coll("album1")
+        mid = self.shot()
+        self.s.file_media("studio", mid, "album1")
+        self.assertEqual(self.s.gallery("studio", collection_id="album1")
+                         [0]["media_id"], mid)
+
+    def test_and_taken_back_out(self):
+        self.coll("album1")
+        mid = self.shot(album="album1")
+        self.s.file_media("studio", mid, None)
+        self.assertEqual(self.s.gallery("studio", collection_id="album1"), [])
+        self.assertEqual(len(self.s.gallery("studio")), 1)
+
+    def test_an_unknown_album_is_refused(self):
+        with self.assertRaises(StudioError):
+            self.shot(album="ghost")
+
+    def test_the_gallery_opens_on_everything(self):
+        self.coll("album1")
+        self.shot(album="album1")
+        self.shot()
+        self.assertEqual(len(self.s.gallery("studio")), 2)
+
+    def test_archiving_takes_it_out_of_the_gallery_not_off_the_disk(self):
+        mid = self.shot()
+        self.s.archive_media("studio", mid, now_epoch_s=NOW)
+        self.assertEqual(self.s.gallery("studio"), [])
+        self.assertEqual(len(self.s.gallery("studio", include_archived=True)), 1)
+
+    def test_a_photo_in_use_cannot_be_dropped(self):
+        """A post pointing at a photo that no longer exists renders as a gap,
+        and she would have no way to tell that from one that failed to
+        load."""
+        mid = self.shot()
+        self.draft()
+        self.s.attach_media("d1", 0, mid)
+        with self.assertRaises(StudioError):
+            self.s.drop_media("studio", mid)
+
+    def test_dropping_says_what_it_removed(self):
+        """So the caller can purge the files it named — including from the
+        backups."""
+        mid = self.shot()
+        gone = self.s.drop_media("studio", mid)
+        self.assertEqual(gone["media_id"], mid)
+        self.assertTrue(gone["has_original"])
+
+    def test_dropping_something_absent_is_none_not_an_error(self):
+        self.assertIsNone(self.s.drop_media("studio", "shot-9999"))
+
+    def test_whether_the_original_is_there_is_recorded(self):
+        """The gallery has to know, because "download the original" must not
+        be offered for a photo that has none."""
+        self.s.add_media("studio", "shot-0001", mime="image/jpeg",
+                         byte_size=1, has_original=False, now_epoch_s=NOW)
+        self.assertFalse(self.s.gallery("studio")[0]["has_original"])

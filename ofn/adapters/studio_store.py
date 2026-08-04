@@ -84,6 +84,44 @@ SCHEMA = (
         first_metric_at INTEGER
     )
     """,
+    # The library. A photo exists on its own, before and after any post.
+    #
+    # It used to exist only inside a draft, which meant a picture shot today
+    # and used next month had nowhere to be in between — and a picture used
+    # twice was two rows describing one file. An archive she can take
+    # anywhere cannot be a by-product of posting.
+    """
+    CREATE TABLE IF NOT EXISTS media_items (
+        media_id      TEXT    PRIMARY KEY,
+        tenant_id     TEXT    NOT NULL,
+        -- The album. NULL is a real answer: a photo she has not filed yet is
+        -- a normal thing, and forcing a choice at upload makes her invent a
+        -- category before she knows what it is.
+        collection_id TEXT    REFERENCES collections (collection_id),
+        mime          TEXT    NOT NULL DEFAULT 'image/jpeg',
+        byte_size     INTEGER NOT NULL DEFAULT 0,
+        -- Whether the untouched upload is on disk beside the renditions.
+        has_original  INTEGER NOT NULL DEFAULT 0 CHECK (has_original IN (0, 1)),
+        added_at      INTEGER NOT NULL,
+        -- Archived photos leave the gallery and stay on disk. Deleting is a
+        -- separate, louder act.
+        archived_at   INTEGER
+    )
+    """,
+    # The highest number ever issued, per kind. Third time this shape has
+    # been needed — `sku_high_water` in products was the first, and each time
+    # the bug is identical: derive the next id from the rows that exist, and
+    # a deleted row hands its id, and therefore its media directory, to a
+    # different thing.
+    """
+    CREATE TABLE IF NOT EXISTS id_high_water (
+        tenant_id TEXT    NOT NULL,
+        kind      TEXT    NOT NULL,
+        last      INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (tenant_id, kind)
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS media_album ON media_items (tenant_id, collection_id)",
     """
     CREATE TABLE IF NOT EXISTS draft_media (
         draft_id  TEXT    NOT NULL REFERENCES drafts (draft_id),
@@ -253,6 +291,9 @@ class StudioStore:
                 "INSERT INTO drafts (draft_id, tenant_id, collection_id, "
                 "caption, created_at) VALUES (?, ?, ?, ?, ?)",
                 (draft_id, tenant, collection_id, caption, now_epoch_s))
+            tail = draft_id.rsplit("-", 1)[-1]
+            if tail.isdigit():
+                self._claim_id(tenant, "draft", int(tail))
             self._conn.execute("COMMIT")
         except Exception:
             self._conn.execute("ROLLBACK")
@@ -293,6 +334,150 @@ class StudioStore:
         return self.draft(draft_id)
 
     # ── media inside a draft ──────────────────────────────────────────────
+    # ── the library ───────────────────────────────────────────────────────
+    def _next_id(self, tenant: str, kind: str, prefix: str,
+                 present: Sequence[str]) -> str:
+        """The next id of a kind, from the high-water mark.
+
+        The rows still act as a floor: if the high-water row were ever lost,
+        ids plainly in use must not be handed out again. But the mark is what
+        makes deletion safe, because a deleted row is exactly the one the
+        rows can no longer show.
+        """
+        row = self._conn.execute(
+            "SELECT last FROM id_high_water WHERE tenant_id = ? AND kind = ?",
+            (tenant, kind)).fetchone()
+        top = int(row[0]) if row else 0
+        for value in present:
+            tail = str(value).rsplit("-", 1)[-1]
+            if tail.isdigit():
+                top = max(top, int(tail))
+        return f"{prefix}-{top + 1:04d}"
+
+    def _claim_id(self, tenant: str, kind: str, number: int) -> None:
+        """Spend a number so nothing can ever issue it again."""
+        self._conn.execute(
+            "INSERT INTO id_high_water (tenant_id, kind, last) "
+            "VALUES (?, ?, ?) ON CONFLICT(tenant_id, kind) "
+            "DO UPDATE SET last = MAX(last, excluded.last)",
+            (tenant, kind, number))
+
+    def next_media_id(self, tenant: str) -> str:
+        return self._next_id(tenant, "media", "shot", [
+            r[0] for r in self._conn.execute(
+                "SELECT media_id FROM media_items WHERE tenant_id = ?",
+                (tenant,))])
+
+    def next_draft_id(self, tenant: str) -> str:
+        return self._next_id(tenant, "draft", "post", [
+            r[0] for r in self._conn.execute(
+                "SELECT draft_id FROM drafts WHERE tenant_id = ?", (tenant,))])
+
+    def add_media(self, tenant: str, media_id: str, *, mime: str,
+                  byte_size: int, has_original: bool, now_epoch_s: int,
+                  collection_id: str | None = None) -> None:
+        if collection_id is not None and self.collection(collection_id) is None:
+            raise StudioError(f"آلبومی به نام «{collection_id}» نیست")
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            self._conn.execute(
+                "INSERT INTO media_items (media_id, tenant_id, collection_id, "
+                "mime, byte_size, has_original, added_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (media_id, tenant, collection_id, mime, int(byte_size),
+                 1 if has_original else 0, now_epoch_s))
+            tail = media_id.rsplit("-", 1)[-1]
+            if tail.isdigit():
+                # In the same transaction as the row: a crash between the two
+                # would leave an id issued but not recorded.
+                self._claim_id(tenant, "media", int(tail))
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise StudioError(f"عکسی با شناسهٔ «{media_id}» از قبل هست")
+
+    def gallery(self, tenant: str, *, collection_id: str | None = None,
+                include_archived: bool = False) -> list[dict]:
+        """What is in the library, newest first.
+
+        `collection_id=None` means every album *and* the unfiled ones —
+        which is what a gallery opens on. Filtering to unfiled only is a
+        different question and would need its own argument rather than
+        overloading this one.
+        """
+        sql = ("SELECT media_id, collection_id, mime, byte_size, "
+               "has_original, added_at, archived_at FROM media_items "
+               "WHERE tenant_id = ? ")
+        args: tuple = (tenant,)
+        if collection_id is not None:
+            sql += "AND collection_id = ? "
+            args += (collection_id,)
+        if not include_archived:
+            sql += "AND archived_at IS NULL "
+        return [{"media_id": r[0], "collection_id": r[1], "mime": r[2],
+                 "byte_size": int(r[3]), "has_original": bool(r[4]),
+                 "added_at": int(r[5]), "archived_at": r[6]}
+                for r in self._conn.execute(sql + "ORDER BY added_at DESC", args)]
+
+    def file_media(self, tenant: str, media_id: str,
+                   collection_id: str | None) -> None:
+        """Move a photo into an album, or out of every album."""
+        if collection_id is not None and self.collection(collection_id) is None:
+            raise StudioError(f"آلبومی به نام «{collection_id}» نیست")
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            self._conn.execute(
+                "UPDATE media_items SET collection_id = ? "
+                "WHERE tenant_id = ? AND media_id = ?",
+                (collection_id, tenant, media_id))
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+
+    def archive_media(self, tenant: str, media_id: str, *,
+                      now_epoch_s: int) -> None:
+        """Out of the gallery, still on disk. Deleting is louder."""
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            self._conn.execute(
+                "UPDATE media_items SET archived_at = ? WHERE tenant_id = ? "
+                "AND media_id = ? AND archived_at IS NULL",
+                (now_epoch_s, tenant, media_id))
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+
+    def drop_media(self, tenant: str, media_id: str) -> dict | None:
+        """Remove the record and say what it was.
+
+        Refused while any draft still uses it: a post pointing at a photo
+        that no longer exists is a post that renders as a gap, and she would
+        have no way to tell that from a photo that failed to load.
+        """
+        used = self._conn.execute(
+            "SELECT COUNT(*) FROM draft_media WHERE media_ref = ?",
+            (media_id,)).fetchone()
+        if used and int(used[0]) > 0:
+            raise StudioError(
+                f"«{media_id}» در {int(used[0])} پست استفاده شده — "
+                f"اول از آن پست‌ها بردارش")
+        rows = self.gallery(tenant, include_archived=True)
+        found = next((r for r in rows if r["media_id"] == media_id), None)
+        if found is None:
+            return None
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            self._conn.execute(
+                "DELETE FROM media_items WHERE tenant_id = ? AND media_id = ?",
+                (tenant, media_id))
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+        return found
+
     def attach_media(self, draft_id: str, position: int, media_ref: str) -> None:
         """Put one rendition at one position in a post.
 

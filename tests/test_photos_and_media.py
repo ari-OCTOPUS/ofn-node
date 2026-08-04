@@ -47,15 +47,38 @@ class TestWriting(Disk):
         for edge in ALLOWED_EDGES:
             self.assertTrue(self.m.exists(self.put(edge=edge)))
 
-    def test_there_is_no_way_to_archive_an_original(self):
-        """Archiving the original was meant to prove what was published, and
-        it does not: if a 1600px rendition is what goes to a platform, the
-        original was never sent. `studio_store.media_sent` holds the hash of
-        the bytes that actually went. Every original kept would be one more
-        sensitive file at rest on an unencrypted disk."""
-        self.assertFalse(hasattr(self.m, "write_original"))
-        from ofn.kernel import photos
-        self.assertFalse(hasattr(photos, "original_path"))
+    def test_the_original_is_kept(self):
+        """This was once asserted the other way round, and both versions were
+        right about the question they were asked.
+
+        Archiving an original proves nothing about what was *published* — a
+        1600px rendition is what goes to a platform, and `media_sent` hashes
+        what actually left. That is unchanged.
+
+        It is kept because the leg turned out to have a second job: this is
+        her archive, and for that job a 1600px copy is not her work, it is a
+        copy of her work.
+        """
+        rel = self.m.write_original("studio", "d1", 0, PAY)
+        self.assertTrue(self.m.exists(rel))
+        self.assertTrue(rel.endswith("0-original.jpg"))
+
+    def test_the_original_keeps_the_type_it_arrived_as(self):
+        png = inspect("data:image/png;base64," + PNG)
+        self.assertTrue(self.m.write_original("studio", "d1", 0, png)
+                        .endswith("0-original.png"))
+
+    def test_evidence_and_archive_stay_separate(self):
+        """`media_sent` still hashes what went out. The original is the work;
+        the hash is the proof. Neither substitutes for the other."""
+        from ofn.adapters import studio_store
+        self.assertIn("media_sent", "".join(studio_store.SCHEMA))
+        self.assertIn("sha256", "".join(studio_store.SCHEMA))
+
+    def test_the_original_is_owner_only_too(self):
+        rel = self.m.write_original("studio", "d1", 0, PAY)
+        self.assertEqual(
+            os.stat(self.m.absolute(rel)).st_mode & 0o777, 0o600)
 
     def test_the_bytes_come_back_unchanged(self):
         rel = self.put()
@@ -236,3 +259,69 @@ class TestFilesAreNotWorldReadable(Disk):
         rel = self.put()
         folder = os.path.dirname(self.m.absolute(rel))
         self.assertEqual(os.stat(folder).st_mode & 0o777, 0o700)
+
+
+class TestDeleteMeansDelete(Disk):
+    """Without purging the backups, "delete" means "in fourteen days" — the
+    nightly job keeps fourteen generations, so a photo she removed is still
+    on the disk in fourteen places.
+
+    For a control panel that is a reasonable trade. For somebody's archive of
+    their own body it is the wrong default, and it is the kind of wrong that
+    is only discovered by somebody who trusted the button.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.backups = os.path.join(self.dir, "backups")
+        for gen in ("20260801-000000", "20260802-000000"):
+            folder = os.path.join(self.backups, gen, "media", "studio", "d1")
+            os.makedirs(folder, exist_ok=True)
+            with open(os.path.join(folder, "0-1600.jpg"), "wb") as fh:
+                fh.write(b"old copy")
+
+    def test_every_generation_is_purged(self):
+        self.assertEqual(
+            self.m.purge_from_backups(self.backups, "studio", "d1"), 2)
+        left = [f for _, _, fs in os.walk(self.backups) for f in fs]
+        self.assertEqual(left, [])
+
+    def test_another_piece_in_the_backups_survives(self):
+        keep = os.path.join(self.backups, "20260801-000000", "media",
+                            "studio", "d2")
+        os.makedirs(keep, exist_ok=True)
+        with open(os.path.join(keep, "0-1600.jpg"), "wb") as fh:
+            fh.write(b"keep")
+        self.m.purge_from_backups(self.backups, "studio", "d1")
+        self.assertTrue(os.path.isfile(os.path.join(keep, "0-1600.jpg")))
+
+    def test_one_prefix_does_not_take_another(self):
+        """`d1` must not take `d10` out of the backups either."""
+        other = os.path.join(self.backups, "20260801-000000", "media",
+                             "studio", "d10")
+        os.makedirs(other, exist_ok=True)
+        with open(os.path.join(other, "0-1600.jpg"), "wb") as fh:
+            fh.write(b"keep")
+        self.m.purge_from_backups(self.backups, "studio", "d1")
+        self.assertTrue(os.path.isfile(os.path.join(other, "0-1600.jpg")))
+
+    def test_nothing_outside_the_backup_root_can_be_reached(self):
+        """A recursive delete driven by an id gets a check even though the
+        id is validated upstream."""
+        with self.assertRaises(FailClosedError):
+            self.m.purge_from_backups(self.backups, "studio", "../../etc")
+
+    def test_no_backups_is_not_an_error(self):
+        self.assertEqual(
+            self.m.purge_from_backups(os.path.join(self.dir, "none"),
+                                      "studio", "d1"), 0)
+
+    def test_the_rest_of_the_backup_is_untouched(self):
+        """Only the media mirror, only this subtree. Databases are not
+        touched: losing a backup of the ledger to delete a photo would be a
+        far worse trade."""
+        db = os.path.join(self.backups, "20260801-000000", "ledger.sqlite")
+        with open(db, "wb") as fh:
+            fh.write(b"database")
+        self.m.purge_from_backups(self.backups, "studio", "d1")
+        self.assertTrue(os.path.isfile(db))
