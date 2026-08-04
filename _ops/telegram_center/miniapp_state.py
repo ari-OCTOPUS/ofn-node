@@ -152,6 +152,38 @@ def _cardiac_vitals() -> dict:
     }
 
 
+def _arbiter_vitals() -> dict:
+    """رنگِ داورِ نبض — سه قلبِ موازی که به یک period می‌رسند.
+
+    ⚠️ نکتهٔ باربر: `state/pulse/arbiter-latest.json` **وجود ندارد**، چون
+    `pulse_arbiter.persist()` پشتِ `OCTOPUS_WIRE_PULSE_ARBITER` است و آن
+    فلگ خاموش است. پس خواندنِ فایل همیشه UNKNOWN می‌داد.
+
+    ولی `arbiter_snapshot()` قبل از آن گیت اجرا می‌شود و **خالص** است —
+    سنجیدمش: هیچ فایلی نمی‌سازد، ۰.۳۶ms. پس این‌جا خودِ محاسبه را صدا
+    می‌زنم نه فایل را. هیچ فلگی باز نمی‌شود و هیچ periodی رانده نمی‌شود؛
+    `wire_open` را عیناً پاس می‌دهم تا UI بتواند «سایه» را از «زنده»
+    جدا نشان دهد — وگرنه رنگ شبیهِ فرمانِ نافذ دیده می‌شود.
+    """
+    try:
+        from heart import pulse_arbiter as _pa  # noqa: WPS433 — تنبل و اختیاری
+    except Exception:  # noqa: BLE001
+        return {"status": "unknown", "reason": "pulse_arbiter unavailable"}
+    try:
+        s = _pa.arbiter_snapshot(beat=0)
+    except Exception as exc:  # noqa: BLE001
+        return {"status": "unknown", "reason": f"{type(exc).__name__}"}
+    return {
+        "status": "ok",
+        "color": s.get("color"),
+        "effective_period_s": s.get("effective_period_s"),
+        "driver": s.get("driver"),
+        "wire_open": bool(s.get("wire_open")),
+        "n_present": s.get("n_present"),
+        "n_braking": s.get("n_braking"),
+    }
+
+
 def get_miniapp_state(root: "Path | None" = None) -> dict:
     """Home/Cockpit: system status، flags، pending، risk، Project-F، auth."""
     st = _read_json_safe(STATE_DIR / "ORGANISM-STATE.json")
@@ -186,6 +218,7 @@ def get_miniapp_state(root: "Path | None" = None) -> dict:
         "germline_alert": st.get("germline_alert"),
         "recall_reach": st.get("recall_reach"),
         "cardiac": _cardiac_vitals(),
+        "arbiter": _arbiter_vitals(),
         "active_flags": flags,
         "auth_status": "configured" if auth_configured else "CONFIG_NEEDED",
         "projectf_status": "BLOCKED_NEEDS_CREDENTIALS",

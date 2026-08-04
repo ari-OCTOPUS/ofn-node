@@ -130,6 +130,59 @@ def t_state_carries_cardiac_block():
     assert c.get("pct") == 10.0, f"cardiac.pct غلط: {c.get('pct')!r}"
 
 
+def t_arbiter_reads_without_writing_anything():
+    """ادعای ایمنیِ اصلی: گرفتنِ رنگ **هیچ فایلی نمی‌سازد**.
+
+    چرا این مهم است: `persist()` پشتِ OCTOPUS_WIRE_PULSE_ARBITER است و آن
+    فلگ عمداً خاموش است. اگر روزی کسی `_arbiter_vitals` را به `persist`
+    وصل کند، مینی‌اپ بی‌سروصدا یک سینکِ سایه را مسلح می‌کند. این تست
+    همان لحظه می‌میرد.
+    """
+    import opslib
+    pulse = Path(opslib.STATE_DIR) / "pulse"
+    before = {f.name for f in pulse.iterdir()} if pulse.exists() else set()
+    ms._arbiter_vitals()
+    after = {f.name for f in pulse.iterdir()} if pulse.exists() else set()
+    assert after == before, f"خواندنِ داور فایل ساخت: {after - before}"
+
+
+def t_arbiter_never_claims_the_wire_is_open():
+    """`wire_open` عیناً پاس می‌شود و پیش‌فرضش «باز» نیست.
+
+    رنگِ AMBER اگر شبیهِ فرمانِ نافذ دیده شود، مالک فکر می‌کند داور دارد
+    نبضِ زنده را می‌راند — در حالی که سایه است.
+    """
+    v = ms._arbiter_vitals()
+    assert v.get("status") == "ok", f"داور خوانده نشد: {v!r}"
+    assert v.get("wire_open") is False, (
+        f"ادعا کرد سیم باز است در حالی که فلگ خاموش است: {v.get('wire_open')!r}")
+    assert v.get("color") in {"GREEN", "AMBER", "RED"}, f"رنگِ نامعتبر: {v.get('color')!r}"
+
+
+def t_arbiter_failure_is_unknown_not_green():
+    """اگر محاسبه بترکد، UNKNOWN — نه سبزِ آرام‌بخش."""
+    from heart import pulse_arbiter as pa
+    real = pa.arbiter_snapshot
+
+    def boom(*a, **k):
+        raise RuntimeError("محاسبه شکست")
+
+    pa.arbiter_snapshot = boom
+    try:
+        v = ms._arbiter_vitals()
+    finally:
+        pa.arbiter_snapshot = real
+    assert v["status"] == "unknown", f"شکست را ok گزارش کرد: {v!r}"
+    assert v.get("color") is None, f"برای شکست رنگ ساخت: {v.get('color')!r}"
+
+
+def t_state_carries_arbiter_block():
+    """بلوکِ arbiter به `/api/state` می‌رسد."""
+    _pin({"date": TODAY, "spent": 1, "resting": 0}, cap=10, organism={"beat": 1})
+    a = ms.get_miniapp_state().get("arbiter")
+    assert isinstance(a, dict) and a.get("status") == "ok", f"arbiter در خروجی نیست: {a!r}"
+
+
 CHECKS = [(n, f) for n, f in sorted(globals().items())
           if n.startswith("t_") and callable(f)]
 
