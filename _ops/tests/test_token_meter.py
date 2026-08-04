@@ -161,6 +161,50 @@ def t_j_the_module_writes_nothing():
         assert bad not in src, f"مسیرِ نوشتن در مترِ فقط‌خواندنی: {bad}"
 
 
+def t_only_fugu_roles_count_against_the_fugu_budget():
+    """۲۰۲۶-۰۸-۰۴ — `paid-calls.jsonl` **دو** مغزِ پولی را در یک فایل می‌ریزد.
+
+    اندازه‌گیریِ زنده روی ۵۱۲ ردیف: role=orchestr (‏model `fugu`) ‏۴۱۳ تماس و
+    role=glm (‏`glm-4.6`) ‏۹۹ تماس. GLM اشتراکِ **جدا**ست — پلنِ MAX ِ خودش و
+    `system_share` ِ خودش در budgets.yaml. نسخهٔ اولِ این متر فیلتری نداشت، پس
+    ۱۹٪ از تماس‌ها و ~۱۲٪ از توکن‌ها بی‌جا به سقفِ Fugu نسبت داده می‌شد و گیت
+    زودتر از موعد می‌بست.
+
+    ردیف‌های کنارگذاشته **شمرده** می‌شوند، پنهان نمی‌شوند: فیلترِ خاموش دقیقاً
+    همان چیزی است که این ریپو را مکرر گزیده."""
+    import tempfile, json as _j
+    with tempfile.TemporaryDirectory() as td:
+        p = Path(td) / "paid-calls.jsonl"
+        ts = (NOW - timedelta(hours=1)).isoformat()
+        rows = [
+            {"ts": ts, "role": "orchestr", "model": "fugu", "ok": True,
+             "tokens_in": 1000, "tokens_out": 500},
+            {"ts": ts, "role": "glm", "model": "glm-4.6", "ok": True,
+             "tokens_in": 7000, "tokens_out": 3000},
+            {"ts": ts, "role": "premium", "model": "fugu-ultra-20260615",
+             "ok": True, "tokens_in": 99000, "tokens_out": 99000},
+        ]
+        body = "\n".join(_j.dumps(r) for r in rows) + "\n"
+        p.write_text(body, encoding="utf-8")
+        d = tm.read_window(window_h=48, state_dir=td)
+
+    assert d["calls"] == 1, ("فقط ردیفِ orchestr باید Fugu شمرده شود", d["calls"])
+    assert d["visible_in"] + d["visible_out"] == 1500, d
+    assert d["other_brain_calls"] == 2, ("GLM و ultra باید شمرده شوند نه پنهان",
+                                         d["other_brain_calls"])
+    assert d["other_brain_tokens"] == 10000 + 198000, d["other_brain_tokens"]
+
+
+def t_fugu_ultra_is_not_on_the_subscription_meter():
+    """`premium` = `fugu-ultra-20260615` با نرخِ $۵/$۳۰ **متری** است، نه
+    اشتراکی، و `human_gated: true` — پس زیرِ سقفِ هفتگیِ اشتراک جا نمی‌گیرد.
+    اگر روزی به FUGU_ROLES اضافه شود، بودجهٔ اشتراک بی‌صدا با هزینهٔ متری
+    مخلوط می‌شود."""
+    assert "premium" not in tm.FUGU_ROLES, (
+        "fugu-ultra متری است نه اشتراکی — متری جدا می‌خواهد")
+    assert tm.FUGU_ROLES == ("orchestr",), tm.FUGU_ROLES
+
+
 def main():
     tests = [v for k, v in sorted(globals().items()) if k.startswith("t_") and callable(v)]
     passed, failed = 0, []

@@ -70,6 +70,15 @@ DEFAULT_CAPACITY = 180_000_000
 SHARE_ENV = "OCTOPUS_FUGU_WEEKLY_SHARE_PCT"
 DEFAULT_SHARE_PCT = 40.0
 
+#: نقش‌هایی که **Fugu** حساب می‌شوند. از `budgets.yaml` می‌آید:
+#: `orchestr` → provider sakana، model `fugu`، `subscription: max`.
+#: `premium` (‏`fugu-ultra-20260615`) عمداً این‌جا **نیست**: `human_gated: true`
+#: است، هیچ tier ای بهش نگاشت ندارد (`_TIER_ROLE` فقط secondary→glm و
+#: primary→orchestr را می‌شناسد) و در ۵۱۲ ردیفِ لاگ **صفر بار** ظاهر شده.
+#: اگر روزی مسلح شد، متری جدا می‌خواهد: ultra با نرخِ $۵/$۳۰ **متری** است نه
+#: اشتراکی، پس زیرِ سقفِ هفتگیِ اشتراک جا نمی‌گیرد.
+FUGU_ROLES = ("orchestr",)
+
 #: نگاشتِ task → پا. `task` از ۲۰۲۶-۰۸-۰۴ در paid-calls.jsonl ثبت می‌شود؛
 #: ردیف‌های قدیمی‌تر آن را ندارند و صادقانه `unattributed` می‌شوند.
 LEG_BY_TASK = {
@@ -153,6 +162,7 @@ def read_window(window_h: float = WINDOW_H, now=None, state_dir=None) -> dict:
     out = {"schema": SCHEMA, "readable": False, "calls": 0, "failed": 0,
            "visible_in": 0, "visible_out": 0, "visible_total": 0,
            "by_leg": {}, "unattributed_calls": 0, "window_h": float(window_h),
+           "other_brain_calls": 0, "other_brain_tokens": 0,
            "oldest_ts": None, "newest_ts": None, "path": str(p)}
     if not p.exists():
         return out
@@ -181,6 +191,21 @@ def read_window(window_h: float = WINDOW_H, now=None, state_dir=None) -> dict:
             out["oldest_ts"] = ts
         if out["newest_ts"] is None or ts > out["newest_ts"]:
             out["newest_ts"] = ts
+        # ⚠️ ۲۰۲۶-۰۸-۰۴ — این متر سهمیهٔ **Fugu** را می‌سنجد، و `paid-calls.jsonl`
+        # دو مغزِ پولی را در یک فایل می‌ریزد. اندازه‌گیریِ زنده روی ۵۱۲ ردیف:
+        #   role=orchestr → model=fugu     ۴۱۳ تماس · ۲٬۰۵۰٬۶۳۳ توکن
+        #   role=glm      → model=glm-4.6   ۹۹ تماس ·   ۲۸۷٬۰۰۳ توکن
+        # GLM اشتراکِ **جدا**ست (پلنِ MAX ِ خودش، `system_share` ِ خودش در
+        # budgets.yaml)، پس شمردنش زیرِ سقفِ Fugu یعنی ۱۹٪ از ردیف‌ها و ~۱۲٪ از
+        # توکن‌ها بی‌جا به Fugu نسبت داده می‌شود و گیت زودتر از موعد می‌بندد.
+        # نسخهٔ اولِ این فایل فیلتر نداشت. ردیف‌های کنارگذاشته **شمرده** می‌شوند
+        # (`other_brain_*`) نه پنهان — سکوت همان چیزی است که این ریپو را می‌گزد.
+        if str(r.get("role") or "") not in FUGU_ROLES:
+            out["other_brain_calls"] += 1
+            if r.get("ok", True):
+                out["other_brain_tokens"] += (int(r.get("tokens_in") or 0)
+                                              + int(r.get("tokens_out") or 0))
+            continue
         out["calls"] += 1
         if not r.get("ok", True):
             out["failed"] += 1
