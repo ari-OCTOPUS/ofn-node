@@ -2985,6 +2985,17 @@ class Center:
         if fn is None and cmd.startswith("/") and cmd not in _CENTRE_GATED:
             _bridged = self._bridge_to_organism(text, chat_id, msg)
             if _bridged is not None:
+                # ⚠️ سکوتِ **خودنمایان‌گر** (کشفِ پروبِ فاز ۰): پل همیشه یک
+                # dict برمی‌گرداند — حتی وقتی `self._client.send` استثنا داده
+                # و `mid=None` شده. آن dict از بالادست «رسیدگی شد» به‌نظر
+                # می‌رسد، پس هیچ‌کس پایین‌دست دنبالِ دلیل نمی‌گردد؛ ولی مالک
+                # هیچ ندیده. این بدترین شکلِ سکوت است، چون **موفق ظاهر
+                # می‌شود** — و دقیقاً همان چیزی که «رسید را گیت نکن» می‌گوید.
+                if isinstance(_bridged, dict) and not _bridged.get("sent", True):
+                    self._log_disposition(
+                        None, outcome="bridge-send-failed",
+                        reason="پلِ ارگانیسم جواب ساخت ولی ارسالش بیرون نرفت",
+                        detail=cmd)
                 return _bridged
         if fn is None:
             # پیامِ آزادِ مالک = پرسش/دستورِ نرم. اجرای مستقیمِ مخرب هرگز؛ فقط
@@ -2996,6 +3007,27 @@ class Center:
                 if _room is not None:
                     return _room
                 return self._handle_ask(msg, text)
+            # ── سکوتِ سوم (فاز ۰، ۰۸-۰۴) ──────────────────────────────────
+            # این `return None` تا امروز کامنتش می‌گفت «command ناشناس
+            # نادیده» — و دقیقاً همان «نادیده» شکایتِ مالک بود. رسیدِ زندهٔ
+            # همین امروز نشانش داد: یک پیام رسید، ورودش ثبت شد، جواب نیامد،
+            # و **دلیلی هم ثبت نشد**. رفتار عوض نمی‌شود (هنوز جواب نمی‌دهد،
+            # چون پاسخ‌دادن به هر تایپوی اسلش خودش نویز است) — ولی از این
+            # پس **قابلِ فهم** است.
+            #
+            # و دو سکوت که یکی به‌نظر می‌آمدند، حالا از هم جدا می‌شوند:
+            #   unknown-command — هیچ روتری نمی‌شناسدش (تایپو، فرمانِ خیالی)
+            #   gated-command   — مرکز می‌شناسدش ولی فلگش خاموش است
+            # دومی درسِ ثبت‌شدهٔ «مسیریابی به فلگِ خاموش» است: مسیرِ درست به
+            # فرمانِ خاموش، از بیرون عیناً شبیهِ خرابی است. حالا رسید می‌گوید
+            # کدام‌یک، و مالک می‌داند فلگ را روشن کند یا املا را.
+            self._log_disposition(
+                None,
+                outcome=("gated-command" if cmd in _CENTRE_GATED
+                         else "unknown-command"),
+                reason=(_CENTRE_GATED.get(cmd, "") if cmd in _CENTRE_GATED
+                        else "در جدولِ مرکز نیست و پلِ ارگانیسم هم نشناخت"),
+                detail=cmd)
             return None                    # قراردادها: command ناشناس نادیده
         try:
             out = fn()
@@ -5193,6 +5225,25 @@ class Center:
     # داشت؛ یک ردیفِ روزمره خبر نیست.
     _INBOUND_KEEP = 5000            # سقفِ ردیف — لاگِ بی‌سقف خودش یک باگ است
 
+    def _bind_send_correlation(self, update_id) -> None:
+        """ارسال‌های این نخ را به این update بچسبان (یا با None رها کن).
+
+        چرا لازم شد: `inbound-log` می‌گفت «رسید» و `tg-send-log` می‌گفت
+        «فرستادم» — ولی هیچ کلیدِ مشترکی نداشتند (ISO در برابر اپاک). پس
+        «آیا آن پیامِ من جواب گرفت؟» فقط با **همسایگیِ زمانی** حدس زده
+        می‌شد، و وقتی دو بات به یک چت می‌فرستند آن حدس ابطال‌ناپذیر است.
+
+        fail-soft مطلق: خودِ برچسب هرگز نباید پردازشِ update را بکشد — یک
+        رسیدِ گم‌شده بد است، یک updateِ ازدست‌رفته بدتر."""
+        try:
+            import tg_send_log as _tsl_bind  # noqa: WPS433 — lazy، هم‌الگوی بقیه
+            if update_id is None:
+                _tsl_bind.clear_update()
+            else:
+                _tsl_bind.bind_update(update_id)
+        except Exception:  # noqa: BLE001 — برچسب هرگز مسیرِ اصلی را نمی‌کشد
+            pass
+
     def _log_inbound(self, u: dict) -> None:
         """یک ردیفِ ساکت به ازای هر update ِ رسیده. هرگز استثنا نمی‌دهد."""
         try:
@@ -5260,14 +5311,26 @@ class Center:
         ⚠️ متن ذخیره نمی‌شود (§۱۰) — فقط دلیلِ ساختاری.
         """
         try:
+            u = u if isinstance(u, dict) else {}
             msg = u.get("message") or (u.get("callback_query") or {}).get("message") or {}
+            # مسیرهای عمیق (مثلِ dispatchِ فرمان) خودِ `u` را ندارند — فقط `msg`.
+            # پس `update_id` از همان برچسبِ نخ می‌آید که `run_once` بسته است.
+            # بدونِ این fallback، ردیفِ «چرا» یک `update_id: null` می‌گرفت و
+            # **دقیقاً همان چیزی که قرار بود جوین‌شدنی باشد جوین‌ناپذیر می‌شد**.
+            uid = u.get("update_id")
+            if uid is None:
+                try:
+                    import tg_send_log as _tsl_uid  # noqa: WPS433 — lazy
+                    uid = _tsl_uid.current_update()
+                except Exception:  # noqa: BLE001
+                    uid = None
             p = opslib.STATE_DIR / "telegram" / "inbound-log.jsonl"
             p.parent.mkdir(parents=True, exist_ok=True)
             with open(p, "a", encoding="utf-8", newline="\n") as fh:
                 fh.write(json.dumps({
                     "ts": opslib.now_iso(),
                     "bot": "center",
-                    "update_id": u.get("update_id"),
+                    "update_id": uid,
                     "kind": "disposition",
                     "outcome": str(outcome)[:32],
                     "reason": str(reason)[:80],
@@ -5331,10 +5394,17 @@ class Center:
             # **قبل** از dispatch: اگر پردازش بترکد، ردیفِ «رسید» از قبل نشسته
             # و کنارِ نامهٔ مرده تصویرِ کامل می‌دهد.
             self._log_inbound(u)
+            # فاز ۰ (۰۸-۰۴): هر ارسالی که از دلِ همین update بیرون بیاید،
+            # `update_id` ِ او را حمل می‌کند ⇒ «جواب گرفت؟» یک join می‌شود نه
+            # یک حدسِ زمانی. `finally` باربر است: بدونِ آن یک استثنا برچسب را
+            # روی نخ جا می‌گذارد و **ارسالِ بعدی** به updateِ مرده می‌چسبد.
+            self._bind_send_correlation(uid)
             try:
                 self.handle_update(u)
             except Exception as exc:  # noqa: BLE001 — یک updateِ خراب حلقه را نمی‌کشد
                 self._dead_letter(u, exc)   # ماندگار + هشدارِ cooldown‌دار
+            finally:
+                self._bind_send_correlation(None)
             n += 1
         if max_id + 1 > offset:
             cfg["last_offset"] = max_id + 1

@@ -19,6 +19,7 @@ import hashlib
 import json
 import os
 import sys
+import threading
 import time
 from pathlib import Path
 
@@ -83,6 +84,41 @@ def digest(text: str) -> str:
 STATES = frozenset({"sent", "held", "blocked"})
 
 
+# ── پیوندِ پاسخ به ورودی (فاز ۰، ۲۰۲۶-۰۸-۰۴) ────────────────────────────────
+# مسئله‌ای که می‌بندد: این لاگ **خروجی** را می‌شمرد و `inbound-log.jsonl`
+# **ورود** را، ولی هیچ کلیدِ مشترکی نداشتند — `ts` این‌جا اپاکِ اعشاری است و
+# آن‌جا ISO. پس «آیا آن پیامِ من جواب گرفت؟» یک **حدسِ زمانی** بود، نه یک
+# join. حدسِ زمانی وقتی دو بات به یک چت می‌فرستند، ابطال‌ناپذیر است.
+#
+# ⚠️ چرا thread-local و نه یک متغیرِ ساده: مرکز از نخِ poll جواب می‌دهد ولی
+# beat/تایمر از نخ‌های دیگر می‌فرستند. یک متغیرِ سراسری، ارسالِ یک تایمر را
+# به‌غلط به updateِ در حالِ پردازش می‌چسباند — و **برچسبِ دروغ از نبودِ برچسب
+# بدتر است**، چون رسیدِ جعلی دقیقاً همان چیزی است که کلِ این فاز می‌خواهد
+# ریشه‌کن کند. نخِ دیگر ⇒ None ⇒ ردیفِ بی‌برچسب، که پاسخِ درست است.
+_ctx = threading.local()
+
+
+def bind_update(update_id) -> None:
+    """ارسال‌های **همین نخ** از این پس به این update نسبت داده می‌شوند.
+
+    ورودیِ نامعتبر → پاک‌کردنِ برچسب (نه نگه‌داشتنِ برچسبِ قبلی): چسباندنِ
+    پاسخ به updateِ **قبلی** بدترین حالتِ ممکن است."""
+    try:
+        _ctx.update_id = int(update_id)
+    except (TypeError, ValueError):
+        _ctx.update_id = None
+
+
+def clear_update() -> None:
+    """پایانِ پردازشِ یک update. صداکننده باید این را در `finally` بگذارد."""
+    _ctx.update_id = None
+
+
+def current_update():
+    """`int` یا None. هرگز استثنا — در مسیرِ داغِ ارسال است."""
+    return getattr(_ctx, "update_id", None)
+
+
 def record(*, chat_id=None, topic_id=None, text: str = "", stream=None,
            ok: bool = True, bot_role: str | None = None,
            surface: str | None = None,
@@ -116,6 +152,13 @@ def record(*, chat_id=None, topic_id=None, text: str = "", stream=None,
             row["bot_role"] = str(bot_role)
         if surface:
             row["surface"] = str(surface)
+        # مهرِ همبستگی — فقط وقتی نخِ جاری در حالِ پردازشِ یک update است.
+        # غیابِ این کلید یعنی «ارسالِ خودجوش» (beat/تایمر/کارتِ دوره‌ای)، که
+        # یک دستهٔ واقعی است نه یک نقص: پاسخ‌های خودجوش نباید به هیچ ورودی
+        # نسبت داده شوند.
+        _uid = current_update()
+        if _uid is not None:
+            row["update_id"] = _uid
         p = _path()
         p.parent.mkdir(parents=True, exist_ok=True)
         with p.open("a", encoding="utf-8") as f:
