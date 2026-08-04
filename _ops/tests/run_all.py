@@ -888,6 +888,19 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_lead_scorer_farsi.py",             # Ø§Ø³ØªØ¹Ù„Ø§Ù…Ù ÙØ§Ø±Ø³ÛŒ Ø¯ÛŒÚ¯Ø± ØµÙØ± Ù†Ù…ÛŒâ€ŒÚ¯ÛŒØ±Ø¯
     "test_lead_card.py",                     # Ú©Ø§Ø±ØªÙ Ù‚Ø§Ø¨Ù„Ùâ€ŒÙ„Ù…Ø³: tel: Ùˆ Ù†Ø§Ù…Ù Ù…Ø´ØªØ±ÛŒ
     "test_new_capability_cards.py",            # Ú©Ø§Ø±Øªâ€ŒÙ‡Ø§ÛŒ ØªØ§Ø²Ù‡ â€” Ù‚Ø§Ø¨Ù„ÛŒØªÛŒ Ú©Ù‡ Ø¯ÛŒØ¯Ù‡ Ù†Ø´ÙˆØ¯ ÙˆØ¬ÙˆØ¯ Ù†Ø¯Ø§Ø±Ø¯
+    # 2026-08-05 — هفت سوییتِ موجِ «مغزِ کابین». همان تلهٔ مستندِ بالا دوباره:
+    # ساخته شدند، سبز بودند، و در هیچ لیستی نبودند ⇒ هرگز نمی‌دویدند. شش‌تای
+    # اول plain-asserts اند (هارنسِ خودشان + خروجیِ n/n) و هفتمی unittest؛
+    # هر دو سبک با `python <file>` درست exit code می‌دهند، پس هر هفت در TESTS
+    # می‌آیند نه PYTEST_TESTS. هر هفت قبل از ثبت جدا اجرا و سبز شدند
+    # (9/9 · 14/14 · 12/12 · 6/6 · 7/7 · 9/9 · 6/6).
+    "test_absence_is_not_emptiness.py",       # نبودِ داده = UNKNOWN، نه صفرِ جعلی
+    "test_miniapp_vitals.py",                 # سه سنجهٔ ارزان + حلقه‌های کابین
+    "test_miniapp_look_locked.py",            # قفلِ ظاهرِ دارک — رأیِ مالک، نه سلیقه
+    "test_ops_action_crash_recovery.py",      # کلیدِ مسمومِ idempotency بعدِ کرش
+    "test_proposal_decision.py",              # تأیید/ردِ مالک از وب‌اپ، بی‌بازنویسی
+    "test_reach_probe.py",                    # دفترِ دسترسیِ PEP 669
+    "test_write_invalidates_read_cache.py",   # «زدم و هیچ نشد»: کشِ ۳ث بعدِ نوشتن
          ]
 # ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Ø®Ø§Ø±Ø¬ Ø§Ø² _ops/tests/ (path tuyá»‡tÙ‚)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",

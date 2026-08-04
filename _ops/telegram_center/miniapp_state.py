@@ -40,7 +40,11 @@ except Exception:  # noqa: BLE001
 
 _ROOT = _OPS.parent
 _RUNTIME = _OPS / "agi2027_runtime"
-_TRUTH = _ROOT / "OCTOPUS-CURRENT-TRUTH-2026-08-02.md"
+# ⚠️ ثابتِ تاریخ‌دار حذف شد (۲۰۲۶-۰۸-۰۵). قبلاً این‌جا نامِ کوبیدهٔ یک
+# پروندهٔ تاریخ‌دار بود که مدت‌ها پیش جابه‌جا شده. مسیر را `_find_truth()`
+# پیدا می‌کند، نه حدس. نامِ تاریخ‌دار در کد بمبِ ساعتی است: روزِ نوشتن
+# درست است و بعد بی‌صدا می‌پوسد — و «missing» شبیهِ حالتِ عادی دیده
+# می‌شود نه شبیهِ خرابی، پس کسی دنبالش نمی‌گردد.
 
 # الگوی scrub — عبارت‌های حساس را پاک می‌کند
 _SECRET_RE = re.compile(
@@ -405,10 +409,51 @@ def get_ops_state(root: "Path | None" = None) -> dict:
     out["next_steps"] = _section(get_next_steps, root, "next_steps", [])
     return _scrub_dict(out)
 
+def _find_truth() -> "Path | None":
+    """پروندهٔ «حقیقتِ جاری» را **پیدا** کن، نه اینکه نامش را حدس بزن.
+
+    ⚠️ باگی که دیباگِ ۰۸-۰۵ گرفت: `_TRUTH` روی نامِ **تاریخ‌دارِ** ثابتِ
+    `OCTOPUS-CURRENT-TRUTH-2026-08-02.md` کوبیده بود. آن فایل دیگر آن‌جا
+    نیست (حالا `OCTOPUS/CURRENT-TRUTH.md`)، پس تبِ حقیقت از روزی که فایل
+    جابه‌جا شد **مرده** بود و هیچ‌کس نفهمید — چون «missing» شبیهِ یک حالتِ
+    عادی دیده می‌شد نه شبیهِ خرابی.
+
+    نامِ تاریخ‌دار در کد یعنی بمبِ ساعتی: روزِ نوشته‌شدن درست است و بعد
+    بی‌صدا می‌پوسد. ترتیب: مسیرِ صریحِ env → نامِ بی‌تاریخ → تازه‌ترین
+    نسخهٔ تاریخ‌دار.
+    """
+    cands = []
+    envp = os.environ.get("OCTOPUS_CURRENT_TRUTH", "").strip()
+    if envp:
+        cands.append(Path(envp))
+    cands.append(_ROOT / "OCTOPUS" / "CURRENT-TRUTH.md")
+    cands.append(_ROOT / "OCTOPUS-CURRENT-TRUTH.md")
+    for p in cands:
+        try:
+            if p.is_file():
+                return p
+        except OSError:
+            continue
+    # تازه‌ترین نسخهٔ تاریخ‌دار، اگر هنوز از آن الگو استفاده می‌شود
+    try:
+        dated = sorted(_ROOT.glob("OCTOPUS-CURRENT-TRUTH-*.md"))
+        if dated:
+            return dated[-1]
+    except OSError:
+        pass
+    return None
+
+
 def get_current_truth(root: "Path | None" = None) -> dict:
-    """Current Truth: خلاصهٔ OCTOPUS-CURRENT-TRUTH markdown."""
-    if not _TRUTH.exists():
-        return {"status": "missing", "reason": "OCTOPUS-CURRENT-TRUTH file not found"}
+    """Current Truth: خلاصهٔ پروندهٔ «حقیقتِ جاری»."""
+    truth = _find_truth()
+    if truth is None:
+        return {"status": "missing",
+                "reason": "OCTOPUS-CURRENT-TRUTH file not found",
+                "looked_in": ["OCTOPUS/CURRENT-TRUTH.md",
+                              "OCTOPUS-CURRENT-TRUTH.md",
+                              "OCTOPUS-CURRENT-TRUTH-*.md"]}
+    _TRUTH = truth
     try:
         text = _TRUTH.read_text("utf-8", errors="replace")
         # اولین ~۲۰ خطِ غیر-frontmatter را بگیر

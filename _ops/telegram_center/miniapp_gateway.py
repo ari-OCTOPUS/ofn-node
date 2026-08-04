@@ -375,6 +375,21 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
             eng = OpsActionEngine(_OPS.parent)
             try:
                 res = eng.execute(action, action_payload, {"is_owner": True}, action_id=action_id)
+                # ⚠️ باگِ «زدم و هیچ نشد» (۲۰۲۶-۰۸-۰۵): کشِ خواندن ۳ ثانیه TTL
+                # دارد و UI بلافاصله بعد از اقدامِ موفق همان بخش را دوباره
+                # می‌خواند ⇒ حالتِ **قبل از نوشتن** سرو می‌شد. مالک تُستِ سبز
+                # می‌دید و ردیف سرِ جایش می‌ماند. `cache_clear()` از قبل وجود
+                # داشت و صفر صداکننده داشت.
+                # فقط APPLIED و ERROR می‌توانند حالت را عوض کرده باشند:
+                # BLOCKED/DENIED هر دو قبل از هر نوشتنی return می‌کنند و
+                # DUPLICATE یعنی نوشتنِ قبلی — که خودش همین‌جا کش را پاک کرد.
+                # ERROR هم پاک می‌شود چون کرشِ وسطِ اجرا می‌تواند نیمه‌نوشته باشد.
+                if str(res.get("status") or "").upper() in ("APPLIED", "ERROR"):
+                    try:
+                        import miniapp_state  # noqa: WPS433 — هم‌پوشه
+                        miniapp_state.cache_clear()
+                    except Exception:  # noqa: BLE001 — باطل‌سازی هرگز اقدام را نمی‌شکند
+                        pass
                 body = json.dumps(res, ensure_ascii=False, sort_keys=True).encode("utf-8")
                 return 200, body, "application/json; charset=utf-8"
             finally:

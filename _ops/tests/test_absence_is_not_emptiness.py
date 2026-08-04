@@ -167,6 +167,48 @@ def t_the_eye_has_a_real_unknown_face():
         "حلقهٔ چشمِ نامعلوم هنوز فیروزه‌ایِ سلامت است"
 
 
+def t_current_truth_is_found_not_guessed_by_date():
+    """نامِ تاریخ‌دار در کد = بمبِ ساعتی.
+
+    ⚠️ `_TRUTH` روی `OCTOPUS-CURRENT-TRUTH-2026-08-02.md` کوبیده بود و آن
+    فایل جابه‌جا شده بود، پس تبِ حقیقت **مرده** بود و کسی نفهمید — چون
+    «missing» شبیهِ حالتِ عادی دیده می‌شد نه شبیهِ خرابی.
+    """
+    src = (_OPS / "telegram_center" / "miniapp_state.py").read_text(encoding="utf-8")
+    # کامنت و docstring را بردار — وگرنه assert به توضیحِ خودِ فایل می‌خورد
+    code = re.sub(r"#[^\n]*", "", re.sub(r'"""[\s\S]*?"""', "", src))
+    dated = re.findall(r"OCTOPUS-CURRENT-TRUTH-\d{4}-\d{2}-\d{2}", code)
+    assert not dated, f"نامِ تاریخ‌دارِ هاردکد هنوز در کد است: {set(dated)}"
+    assert "_find_truth" in code, "تابعِ یابنده وجود ندارد"
+    got = ms.get_current_truth()
+    assert got.get("status") in ("ok", "missing"), got
+    if got.get("status") == "missing":
+        assert got.get("looked_in"), "غیبت بدونِ گفتنِ اینکه کجا گشت"
+
+
+def t_brain_keeps_scan_bookkeeping_when_a_tier_is_not_due():
+    """حافظه‌ای که خودش را پاک کند از نداشتنِ حافظه بدتر است.
+
+    ⚠️ باگ: وقتی نوبتِ یک اسکن نبود، فقط **مقادیرش** کپی می‌شد و کلیدهای
+    `_scan_<key>`/`_scan_<key>_ts` نه. نتیجه: `/api/selfmap` آن اسکن را
+    همیشه **خالی** نشان می‌داد در حالی که واقعاً دویده بود، و اسکن
+    بی‌دلیل زودتر از فاصله‌اش دوباره می‌دوید.
+    """
+    import time as _t
+    sys.path.insert(0, str(_OPS)) if str(_OPS) not in sys.path else None
+    import cockpit_brain as cb
+    now = _t.time()
+    mem = {"_scan_dark": {"dark_gates": 128}, "_scan_dark_ts": now,
+           "_scan_orphan": {"orphans": 60}, "_scan_orphan_ts": now,
+           "_scan_self": {"dead_symbols": 217}, "_scan_self_ts": now}
+    out = cb.self_awareness(mem, now=now)
+    assert out.get("_scans_ran") == [], f"اسکنی دوید که نوبتش نبود: {out.get('_scans_ran')}"
+    for k in ("dark", "orphan", "self"):
+        assert f"_scan_{k}_ts" in out, f"مهرِ زمانِ {k} گم شد ⇒ selfmap خالی می‌شود"
+        assert out.get(f"_scan_{k}") == mem[f"_scan_{k}"], f"مقادیرِ {k} گم شد"
+    assert out.get("dark_gates") == 128 and out.get("orphans") == 60
+
+
 if __name__ == "__main__":
     CHECKS = [(n, f) for n, f in sorted(globals().items())
               if n.startswith("t_") and callable(f)]

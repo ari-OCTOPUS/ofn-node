@@ -284,8 +284,21 @@ def self_awareness(mem: dict, now: "float | None" = None,
         due = force == key or not isinstance(last, (int, float)) or (t - last) >= every
         if not due:
             # مقدارِ قبلی را نگه دار تا diff آن را «ناپدید شد» نخواند.
-            for k, v in (mem.get(f"_scan_{key}") or {}).items():
+            prev = mem.get(f"_scan_{key}") or {}
+            for k, v in prev.items():
                 out[k] = v
+            # ⚠️ باگی که دیباگِ ۰۸-۰۵ گرفت: فقط **مقادیر** کپی می‌شد و
+            # کلیدهای دفترداری (`_scan_<key>` و `_scan_<key>_ts`) نه. پس
+            # `remember()` حافظه‌ای بی‌آن‌ها می‌نوشت، و از آن به بعد:
+            #   · `/api/selfmap` این اسکن را **خالی** نشان می‌داد،
+            #   · و `last` ِ دفعهٔ بعد `None` می‌شد ⇒ اسکن بی‌دلیل زودتر
+            #     از فاصله‌اش دوباره می‌دوید.
+            # نتیجه در عمل: `dark` و `orphan` در کاکپیت همیشه خالی بودند
+            # در حالی که واقعاً دویده بودند. حافظه‌ای که خودش را پاک کند،
+            # از نداشتنِ حافظه بدتر است — چون شبیهِ «هرگز نبود» دیده می‌شود.
+            if prev:
+                out[f"_scan_{key}"] = prev
+                out[f"_scan_{key}_ts"] = last
             continue
         d = _run_scan(mod, timeout_s=150.0 if key == "self" else 60.0)
         if d is None:
