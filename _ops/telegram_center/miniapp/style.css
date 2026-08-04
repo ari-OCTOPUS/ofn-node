@@ -24,31 +24,21 @@
   --band-quiet:rgba(127,146,184,.10);
   --btn-ink:#03121a;
 }
-/* تمِ روشن — رنگِ برند ثابت می‌ماند ولی نسخهٔ «ink» ِ تیره‌تر برای کنتراست */
-/* ⚠️ فقط وقتی تلگرام حرفی نزده. `data-theme` که ست شد، سیگنالِ صریح
-   برنده است — چون در وب‌ویوِ تلگرام مدیا-کوئری دروغ می‌گوید. */
-@media (prefers-color-scheme: light){
-  :root:not([data-theme]){
-    --bg:#e9eef8; --surface:#fff; --surface-2:#f3f7fe; --sunken:#eef3fc;
-    --line:#ccd8ee; --ink:#0a1424; --muted:#4d5f84;
-    --cyan-ink:#0a7f95; --violet-ink:#6d21c0; --magenta-ink:#c00f62;
-    --band-magenta:rgba(240,70,139,.11);
-    --band-violet:rgba(168,85,247,.11);
-    --band-cyan:rgba(34,211,238,.16);
-    --band-quiet:rgba(77,95,132,.09);
-  }
-}
-:root[data-theme="light"]{
-    --bg:#e9eef8; --surface:#fff; --surface-2:#f3f7fe; --sunken:#eef3fc;
-    --line:#ccd8ee; --ink:#0a1424; --muted:#4d5f84;
-    --cyan-ink:#0a7f95; --violet-ink:#6d21c0; --magenta-ink:#c00f62;
-    --band-magenta:rgba(240,70,139,.11);
-    --band-violet:rgba(168,85,247,.11);
-    --band-cyan:rgba(34,211,238,.16);
-    --band-quiet:rgba(77,95,132,.09);
-  }
-:root[data-theme="dark"]{color-scheme:dark}
-:root[data-theme="light"]{color-scheme:light}
+/* ⚠️⚠️ شاخهٔ روشن **حذف شد** — ۲۰۲۶-۰۸-۰۴. عمدی، و برنگردانش.
+ *
+ * این‌جا دو بلوکِ روشن بود: یکی زیرِ `@media (prefers-color-scheme: light)`
+ * و یکی زیرِ `:root[data-theme="light"]`. هیچ‌کدام علتِ سفیدشدنِ اپ نبودند
+ * (علت، متغیرهای inline از themeParams بود) ولی هر دو یک **مسیرِ زندهٔ
+ * روشن** باقی می‌گذاشتند: کافی بود چیزی `data-theme` را به light ببرد.
+ *
+ * رأیِ مالک: «دارک می‌خواهم · نمی‌خواهم تغییرپذیر باشد». پس راهِ روشن
+ * حذف می‌شود، نه اینکه صرفاً انتخاب نشود. یک شاخهٔ خاموشِ در دسترس، همان
+ * باگ است که منتظرِ فردا نشسته.
+ *
+ * `color-scheme:dark` بی‌قید ست می‌شود تا اسکرول‌بار/فرم‌های خودِ مرورگر و
+ * فلاشِ سفیدِ اولِ بارگذاری هم تیره باشند.
+ */
+:root{color-scheme:dark}
 
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;padding:0;max-width:100%;overflow-x:hidden}
@@ -104,7 +94,8 @@ body.fullscreen{padding-top:calc(14px + var(--tg-safe-top, 0px))}
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tab:active{transform:scale(.97)}
 .tab.active{color:var(--btn-ink);background:var(--cyan);border-color:var(--cyan);font-weight:500}
-@media (prefers-color-scheme: light){ .tab.active{color:#03121a} }
+/* (بازماندهٔ شاخهٔ روشن حذف شد — `--btn-ink` خودش برای پالتِ ثابتِ تیره
+   تنظیم شده و مدیا-کوئری در وب‌ویوِ تلگرام به‌هرحال دروغ می‌گوید.) */
 
 /* ── کارتِ تریاژ ──────────────────────────────────────────────────────── */
 /* شدت با **اندازه** کدگذاری می‌شود نه فقط رنگ: کارتِ اول تقریباً دوبرابرِ

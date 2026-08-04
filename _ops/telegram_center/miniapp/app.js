@@ -18,7 +18,14 @@
   // روی گوشی محتوا **زیرِ نُچ** می‌رفت، تمام‌صفحه نبود، و در پس‌زمینه هم
   // poll می‌کرد. منطقش عمداً در `tg_shell.js` است تا در node واقعاً تست شود
   // (۱۳ تست) — نه با assert ِ متنی روی همین فایل.
-  if (tg) { try { tg.setHeaderColor("#050914"); } catch(e){} }
+  // چرومِ خودِ تلگرام هم باید تیره شود — وگرنه هنگامِ باز شدن یک فلاشِ سفید
+  // می‌بینی و نوارِ پایین با اپ نمی‌خواند. هر سه اختیاری‌اند (کلاینتِ قدیمی
+  // ندارد)، پس هرکدام جدا try می‌شود؛ یک شکست نباید بقیه را بکشد.
+  if (tg) {
+    try { tg.setHeaderColor("#050914"); } catch(e){}
+    try { tg.setBackgroundColor("#050b16"); } catch(e){}
+    try { tg.setBottomBarColor("#0a1120"); } catch(e){}
+  }
   var shell = (window.OctopusShell || {});
   var appActive = true;
   var shellReport = shell.initShell ? shell.initShell(tg, {

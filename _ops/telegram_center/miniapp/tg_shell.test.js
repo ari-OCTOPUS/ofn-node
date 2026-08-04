@@ -104,46 +104,67 @@ t("رویدادِ safeAreaChanged دوباره اعمال می‌کند", () => 
   eq(vars["--tg-safe-top"], "99px", "چرخشِ گوشی inset را به‌روز نکرد");
 });
 
-/* ── ۲.۵ تمِ تلگرام ──────────────────────────────────────────────────── */
-t("رنگ‌های تم به متغیرهای CSS نگاشت می‌شوند", () => {
+/* ── ۲.۵ تمِ تلگرام — قفلِ تیرگی ───────────────────────────────────────
+ * ⚠️⚠️ این بخش در ۲۰۲۶-۰۸-۰۴ **برعکس** شد، و دلیلش را بخوان قبل از اینکه
+ * دوباره برش گردانی:
+ *
+ * نسخهٔ قبلی این تست‌ها صریحاً `eq(v["--bg"], "#ffffff")` می‌گفت و یکی‌شان
+ * پیامِ شکستش «سوییچِ لایت/دارک اعمال نشد» بود. یعنی سوییت **خودِ باگ را
+ * قفل کرده بود**: هر بار ۲۲/۲۲ سبز می‌شد در حالی که مالک داشت می‌گفت «اپ
+ * سفید است». سبزیِ کامل روی قراردادِ غلط، از قرمزی بدتر است — چون اعتماد
+ * می‌سازد.
+ *
+ * قراردادِ امروز: تمِ تلگرام **هیچ** متغیرِ رنگی نمی‌دهد. تیرگی ثابت است.
+ */
+t("تمِ تلگرام هیچ رنگی به پالت نمی‌دهد — حتی وقتی معتبر است", () => {
   const tg = fakeTg();
   tg.themeParams = { bg_color: "#ffffff", text_color: "#000000",
-                     hint_color: "#707579", secondary_bg_color: "#f4f4f5" };
+                     hint_color: "#707579", secondary_bg_color: "#f4f4f5",
+                     section_bg_color: "#eeeeee" };
   const v = S.themeVars(tg);
-  eq(v["--bg"], "#ffffff");
-  eq(v["--ink"], "#000000");
-  eq(v["--muted"], "#707579");
-  eq(v["--surface"], "#f4f4f5");
+  eq(Object.keys(v), [], "تم رنگ داد: " + JSON.stringify(v));
 });
 
-t("کلیدِ غایب هرگز نوشته نمی‌شود (پالتِ فعلی می‌ماند)", () => {
-  // ⚠️ ناوردیِ باربر: نوشتنِ مقدارِ خالی = متنِ سفید روی زمینهٔ سفید =
-  // صفحهٔ عملاً نامرئی. بدترین شکلِ «دیده نمی‌شود».
+t("هیچ کلیدِ پالتی از هیچ ترکیبی از themeParams بیرون نمی‌آید", () => {
+  // جاروی کور: هر کلیدی که تلگرام ممکن است بفرستد را با هم می‌دهیم و
+  // می‌خواهیم خروجی خالی بماند. اگر کسی فردا «فقط یک کلیدِ کوچک» اضافه کند،
+  // همین‌جا می‌میرد.
   const tg = fakeTg();
-  tg.themeParams = { bg_color: "#ffffff" };
-  const v = S.themeVars(tg);
-  eq(Object.keys(v), ["--bg"], "کلیدهای غایب هم نوشته شدند");
-  ok(!("--ink" in v) && !("--muted" in v));
+  tg.themeParams = {
+    bg_color: "#fff", secondary_bg_color: "#eee", section_bg_color: "#ddd",
+    header_bg_color: "#ccc", bottom_bar_bg_color: "#bbb", text_color: "#000",
+    hint_color: "#888", link_color: "#00f", button_color: "#0f0",
+    button_text_color: "#f00", accent_text_color: "#0ff",
+    destructive_text_color: "#f0f", subtitle_text_color: "#333",
+    section_header_text_color: "#444", section_separator_color: "#555"
+  };
+  eq(Object.keys(S.themeVars(tg)), [], "یک کلیدِ پالت از تم رد شد");
 });
 
-t("مقدارِ نامعتبر رد می‌شود، نه اینکه داخلِ CSS برود", () => {
+t("‏initShell زیرِ تمِ روشن هیچ متغیرِ رنگی نمی‌نویسد", () => {
+  // ⚠️ ناوردیِ اصلی. `setVar` در app.js روی documentElement استایلِ **inline**
+  // می‌نویسد، که از `:root{}` در cascade بالاتر است. پس یک نوشتنِ رنگی، پالتِ
+  // تیرهٔ CSS را بی‌صدا می‌کشد — همان چیزی که مالک سه بار دید.
   const tg = fakeTg();
-  tg.themeParams = { bg_color: "خراب", text_color: "", hint_color: null,
+  tg.colorScheme = "light";
+  tg.themeParams = { bg_color: "#ffffff", text_color: "#000000",
                      secondary_bg_color: "#f4f4f5" };
-  const v = S.themeVars(tg);
-  eq(Object.keys(v), ["--surface"], "مقدارِ بی‌اعتبار وارد شد");
+  const written = {};
+  S.initShell(tg, { setVar: (k, val) => { written[k] = val; } });
+  const colorKeys = Object.keys(written).filter(k => !k.startsWith("--tg-"));
+  eq(colorKeys, [], "زیرِ تمِ روشن رنگ نوشت: " + JSON.stringify(written));
 });
 
 t("رنگِ برند از تم اثر نمی‌گیرد", () => {
-  // ⚠️ فیروزه‌ای/بنفشِ لوگو هویت است، نه سلیقهٔ تم. اگر تلگرام بتواند
-  // عوضشان کند، اپ دیگر شبیهِ اختاپوس نیست. تم فقط زمینه/متن را می‌گیرد.
+  // فیروزه‌ای/بنفشِ لوگو هویت است. حالا که هیچ رنگی از تم نمی‌آید این
+  // بدیهی است، ولی تست می‌ماند: اگر روزی نگاشت برگردد، اول این می‌میرد.
   const tg = fakeTg();
   tg.themeParams = { link_color: "#ff0000", accent_text_color: "#00ff00",
                      button_color: "#0000ff", bg_color: "#101010" };
   const v = S.themeVars(tg);
   ok(!("--accent" in v), "تم رنگِ برند را دزدید");
   ok(!("--accent-2" in v), "تم رنگِ دومِ برند را دزدید");
-  eq(v["--bg"], "#101010", "زمینه باید همچنان از تم بیاید");
+  ok(!("--bg" in v), "تم زمینه را دزدید");
 });
 
 t("بدونِ تلگرام هیچ رنگی عوض نمی‌شود", () => {
@@ -153,15 +174,17 @@ t("بدونِ تلگرام هیچ رنگی عوض نمی‌شود", () => {
   eq(colorKeys, [], "حالتِ dev رنگ نوشت");
 });
 
-t("رویدادِ themeChanged دوباره اعمال می‌کند", () => {
+t("رویدادِ themeChanged هم نمی‌تواند اپ را روشن کند", () => {
+  // قرینهٔ زنده: تلگرام وسطِ کار از دارک به لایت سوییچ می‌کند. قبلاً همین‌جا
+  // `--bg` به #ffffff می‌رفت. حالا هیچ اتفاقی نباید بیفتد.
   const tg = fakeTg();
   tg.themeParams = { bg_color: "#000000" };
   const written = {};
   S.initShell(tg, { setVar: (k, val) => { written[k] = val; } });
-  eq(written["--bg"], "#000000");
   tg.themeParams = { bg_color: "#ffffff" };
   fire(tg, "themeChanged");
-  eq(written["--bg"], "#ffffff", "سوییچِ لایت/دارک اعمال نشد");
+  const colorKeys = Object.keys(written).filter(k => !k.startsWith("--tg-"));
+  eq(colorKeys, [], "سوییچِ تم رنگ نوشت: " + JSON.stringify(written));
 });
 
 t("‏colorScheme ِ تلگرام بر مدیا-کوئری غلبه می‌کند", () => {
@@ -187,19 +210,42 @@ t("‏colorScheme ِ نامعلوم به تیره می‌افتد، نه روش�
   tg.colorScheme = "zzz"; eq(S.scheme(tg), "dark");
 });
 
-t("نگاشتِ تم به همان متغیرهایی می‌نویسد که CSS می‌خواند", () => {
-  // ⚠️ باگِ واقعی: به --card و --text می‌نوشت ولی CSS ِ نو --surface و
-  // --ink می‌خواند. نوشتنی که خواننده ندارد، با ننوشتن یکی است.
+t("‏CSS هیچ راهِ روشنی ندارد و پالتِ پایه واقعاً تیره است", () => {
+  /* جانشینِ تستِ «نگاشت به متغیرهای درست می‌نویسد». آن ناوردی وقتی معنا
+   * داشت که تم رنگ می‌داد؛ حالا که نمی‌دهد، ادعای درست این است:
+   * تنها منبعِ پالت خودِ CSS است، و آن منبع هیچ شاخهٔ روشنی ندارد.
+   *
+   * ⚠️ تیرگی را **حساب** می‌کنم نه grep: روشناییِ نسبیِ `--bg` باید پایین
+   * باشد. یک assert ِ رشته‌ای («#050b16 هست؟») با اولین تنظیمِ سایه می‌میرد،
+   * و بدتر — به کامنتی که دربارهٔ رنگ حرف می‌زند هم می‌خورد.
+   */
   const fs = require("fs");
-  const css = fs.readFileSync(__dirname + "/style.css", "utf8");
-  const tg = fakeTg();
-  tg.themeParams = { bg_color:"#111", secondary_bg_color:"#222",
-                     section_bg_color:"#333", text_color:"#eee", hint_color:"#999" };
-  const v = S.themeVars(tg);
-  Object.keys(v).forEach((k) => {
-    ok(css.indexOf("var(" + k + ")") >= 0, "‏CSS هرگز " + k + " را نمی‌خواند");
+  const raw = fs.readFileSync(__dirname + "/style.css", "utf8");
+  // کامنت‌ها را بردار وگرنه توضیحاتِ خودِ فایل به‌عنوان قاعده شمرده می‌شوند
+  const css = raw.replace(/\/\*[\s\S]*?\*\//g, "");
+
+  function lum(hex) {
+    const h = hex.replace("#", "").trim();
+    const f = h.length === 3 ? h.split("").map(c => c + c).join("") : h.slice(0, 6);
+    const n = parseInt(f, 16);
+    // روشناییِ ادراکی (ITU-R BT.601) — کافی برای «تیره است؟»
+    return (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
+  }
+
+  const m = css.match(/--bg\s*:\s*(#[0-9a-fA-F]{3,8})/);
+  ok(m, "‏--bg در CSS تعریف نشده");
+  ok(lum(m[1]) < 0.2, "پالتِ پایه تیره نیست: " + m[1] + " روشنایی=" + lum(m[1]).toFixed(2));
+
+  // هیچ شاخهٔ روشنی نباید وجود داشته باشد — نه با data-theme، نه با مدیا-کوئری
+  ok(!/\[data-theme\s*=\s*["']light["']\]\s*\{[^}]*--bg\s*:/.test(css),
+     "شاخهٔ data-theme=light هنوز پالت را عوض می‌کند");
+  ok(!/@media[^{]*prefers-color-scheme\s*:\s*light[^{]*\{[\s\S]{0,400}?--bg\s*:/.test(css),
+     "مدیا-کوئریِ روشن هنوز پالت را عوض می‌کند");
+
+  // و هر متغیرِ پالت که CSS می‌خواند باید در همان CSS تعریف شده باشد
+  ["--bg", "--surface", "--ink", "--muted"].forEach(k => {
+    ok(new RegExp(k + "\\s*:").test(css), "‏CSS متغیرِ " + k + " را تعریف نمی‌کند");
   });
-  ok(Object.keys(v).length >= 5, "نگاشت خیلی کم شد");
 });
 
 /* ── ۳. فعال/غیرفعال — ارزشِ عملیاتی ─────────────────────────────────── */
