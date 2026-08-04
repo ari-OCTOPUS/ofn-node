@@ -10,6 +10,7 @@ Wave 1 scope:
 """
 from __future__ import annotations
 
+import datetime as _dt
 import json
 import os
 import re
@@ -24,6 +25,15 @@ ROOT = Path(__file__).resolve().parents[2]
 RUNTIME = ROOT / "_ops" / "agi2027_runtime"
 DB_PATH = Path(os.environ.get("OCTOPUS_OPS_DB_PATH", str(RUNTIME / "octopus_ops.sqlite3")))
 ALLOWED_ACTIONS = {
+    # ── تصمیم روی پیشنهادها — ۲۰۲۶-۰۸-۰۵، GO ِ صریحِ مالک ────────────────
+    # تا امروز کاکپیت شش پیشنهادِ منتظر را **نشان می‌داد** ولی در کلِ سیستم
+    # هیچ اقدامِ تأیید/ردی وجود نداشت؛ فقط از بات. پس صفحه ساختاراً تماشا
+    # بود، و مالک درست می‌گفت «عملگرا نیست».
+    #
+    # ⚠️ این‌ها به `outcomes.db` می‌نویسند نه به پایگاهِ ops — چون همان‌جا
+    # صفِ تصمیم زندگی می‌کند و دو نسخهٔ حقیقت نمی‌سازیم.
+    "proposal.approve",
+    "proposal.reject",
     "lead.create",
     "lead.add_note",
     "lead.update_stage",
@@ -206,6 +216,69 @@ class OctopusOpsDB:
         self.conn.commit()
         return {"ok": True, "status": "APPLIED", "task_id": task_id, "previous_status": row[0], "new_status": "done"}
 
+    # ── تصمیمِ مالک روی یک پیشنهاد ────────────────────────────────────────
+    #: پایگاهِ صفِ تصمیم. **جدا** از پایگاهِ ops است و عمداً همان‌جایی که
+    #: `miniapp_state.get_approvals_state` می‌خواند — یک منبع، یک حقیقت.
+    def _outcomes_conn(self):
+        import sqlite3 as _sq
+        # ⚠️ `self.root` این‌جا وجود ندارد — آن صفتِ `OpsActionEngine` است نه
+        # `OctopusOpsDB`. اولین نسخه همان را صدا زد و هر شش تست AttributeError
+        # داد. `ROOT` ثابتِ ماژول است و env همیشه برنده (برای تست/ایزوله).
+        p = Path(os.environ.get("OCTOPUS_OUTCOMES_DB",
+                                str(ROOT / "_ops" / "state" / "outcomes" / "outcomes.db")))
+        if not p.exists():
+            return None
+        return _sq.connect(str(p))
+
+    def decide_proposal(self, p: Dict[str, Any], verdict: str) -> Dict[str, Any]:
+        """حکمِ مالک روی یک پیشنهاد را **اضافه** می‌کند، نه اینکه ردیفی را عوض کند.
+
+        چرا append و نه UPDATE: منشور §۰.۱ — «هرگز حذف نکن». تاریخچهٔ یک
+        تصمیم خودش داده است؛ اگر ردیفِ delivered را بازنویسی کنیم، دیگر
+        نمی‌شود گفت چقدر طول کشید تا مالک تصمیم بگیرد.
+
+        `get_approvals_state` آخرین رویدادِ هر پیشنهاد را می‌گیرد، پس یک
+        ردیفِ تازه با حکم، خودبه‌خود آن را از صف بیرون می‌برد.
+        """
+        pid = clean(p.get("proposal_id"), 120)
+        if not pid:
+            return {"ok": False, "status": "BLOCKED", "reason": "missing_proposal_id"}
+        conn = self._outcomes_conn()
+        if conn is None:
+            return {"ok": False, "status": "BLOCKED", "reason": "outcomes_db_missing"}
+        try:
+            row = conn.execute(
+                "SELECT leg_id, lead_id, correlation_id, mission_id, event_type, verdict "
+                "FROM outcomes WHERE proposal_id=? ORDER BY occurred_at DESC LIMIT 1",
+                (pid,)).fetchone()
+            if not row:
+                return {"ok": False, "status": "BLOCKED",
+                        "reason": "proposal_not_found", "proposal_id": pid}
+            leg, lead, corr, mission, last_type, last_verdict = row
+            # ⚠️ تصمیمِ دوباره روی چیزی که قبلاً تصمیم گرفته شده = BLOCKED،
+            # نه یک ردیفِ دومِ متناقض. صف باید یک حکم داشته باشد.
+            if last_verdict:
+                return {"ok": False, "status": "BLOCKED", "reason": "already_decided",
+                        "proposal_id": pid, "existing_verdict": last_verdict}
+            ts = _dt.datetime.now(_dt.timezone.utc).isoformat()
+            eid = make_id("evt", {"p": pid, "v": verdict, "ts": ts})
+            conn.execute(
+                "INSERT INTO outcomes(event_id,idempotency_key,correlation_id,mission_id,"
+                "proposal_id,leg_id,lead_id,event_type,verdict,value_aud_claimed,"
+                "occurred_at,recorded_at,schema_version,payload_json) "
+                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (eid, f"{pid}|owner-{verdict}", corr, mission, pid, leg, lead,
+                 "owner-decision", verdict, 0.0, ts, ts, "1",
+                 json.dumps({"by": "owner", "surface": "cockpit"}, ensure_ascii=False)))
+            conn.commit()
+            return {"ok": True, "status": "APPLIED", "proposal_id": pid,
+                    "verdict": verdict, "event_id": eid, "previous_event": last_type}
+        finally:
+            try:
+                conn.close()
+            except Exception:  # noqa: BLE001
+                pass
+
     def record_value(self, p: Dict[str, Any]) -> Dict[str, Any]:
         leg = clean(p.get("leg") or "ops_studio", 120)
         event = clean(p.get("event") or "manual_value_event", 120)
@@ -285,7 +358,11 @@ class OpsActionEngine:
             return {"ok": False, "status": begin["state"], "action": action, "idempotency": begin}
         # RETRY = تلاشِ قبلی هرگز settle نشد ⇒ مثلِ NEW جلو می‌رویم (پایین).
         try:
-            if action == "lead.create":
+            if action == "proposal.approve":
+                res = self.db.decide_proposal(payload, "approved")
+            elif action == "proposal.reject":
+                res = self.db.decide_proposal(payload, "rejected")
+            elif action == "lead.create":
                 res = self.db.create_lead(payload)
             elif action == "lead.add_note":
                 res = self.db.add_note(payload)
