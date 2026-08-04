@@ -1,109 +1,244 @@
-"""Product records.
+"""Product records — one unique piece per row.
 
-The tests that matter most here are two:
+The tests that matter most:
 
-  * the cost of a product made last month does not move when this month's
-    hourly rate changes, and
-  * a product with no price is not "losing money" — it is unpriced.
+  * a piece made last month does not change cost when this month's rate does,
+  * a piece with no price is not "losing money", it is unpriced,
+  * a sold piece's age stops at the sale, and
+  * the platform's cut never touches cost.
 
-Both are ways a record can quietly start lying about the past, and both are
-the kind of lie somebody re-prices a product because of.
+Each of those is a way a record can quietly start lying, and each is the kind
+of lie somebody re-prices a piece because of.
 """
 
 import os
 import tempfile
 import unittest
 
-from ofn.adapters.products import (EDITABLE, MAX_PHOTOS_PER_PRODUCT,
-                                   ProductError, ProductStore)
+from ofn.adapters.packloader import load_pack
+from ofn.adapters.products import (CHANNELS, LOSES_MONEY,
+                                   MAX_PHOTOS_PER_PRODUCT, QUICK_SALE, STALE,
+                                   STATES, ProductError, ProductStore,
+                                   channel_fee, cogs_for, net_margin_aud,
+                                   verdicts)
 
-NOW = "2026-08-04T16:00:00Z"
-LATER = "2026-09-04T16:00:00Z"
+JAN = "2026-01-10T09:00:00Z"
+FEB = "2026-02-10T09:00:00Z"
+MAY = "2026-05-20T09:00:00Z"
 
-# 120/10 materials + 1.5h × $25 + $3 packaging = $52.50
+# $40 materials + 1.5h × $25 + $3 packaging = $80.50
 FULL = {
-    "name": "شمع دست‌ساز",
-    "batch_materials_cost_aud": 120.0,
-    "batch_size": 10,
+    "name": "گوشوارهٔ نقره",
+    "materials_cost_aud": 40.0,
     "labour_hours": 1.5,
     "hourly_rate_aud": 25.0,
     "packaging_cost_aud": 3.0,
-    "price_aud": 80.0,
-    "stock_qty": 4,
+    "price_aud": 120.0,
 }
+
+FORMULA = dict(cost_fields=("materials_cost_aud", "packaging_cost_aud"),
+               labour_hours_field="labour_hours",
+               labour_rate_field="hourly_rate_aud")
 
 
 class Base(unittest.TestCase):
     def setUp(self):
         self.dir = tempfile.mkdtemp()
         self.path = os.path.join(self.dir, "products.db")
-        self.s = ProductStore(self.path)
+        self.s = ProductStore(self.path, **FORMULA)
         self.addCleanup(self.s.close)
 
-    def make(self, **over):
+    def make(self, when=JAN, **over):
         f = dict(FULL)
         f.update(over)
-        return self.s.create("ziman", "ZM", f, now_iso=NOW)
+        return self.s.create("ziman", "ZM", f, now_iso=when)
 
 
 class TestCost(Base):
-    def test_cogs_is_the_pack_formula(self):
-        self.assertAlmostEqual(self.make().cogs_aud, 52.5)
+    def test_cogs_is_the_packs_formula_with_no_division(self):
+        self.assertAlmostEqual(self.make().cogs_aud, 80.5)
 
     def test_cogs_follows_an_edit_of_its_inputs(self):
         p = self.make()
-        _, after = self.s.update("ziman", p.sku,
-                                 {"labour_hours": 2.5}, now_iso=LATER)
-        self.assertAlmostEqual(after.cogs_aud, 12.0 + 62.5 + 3.0)
+        _, after = self.s.update("ziman", p.sku, {"labour_hours": 2.5},
+                                 now_iso=FEB)
+        self.assertAlmostEqual(after.cogs_aud, 40.0 + 62.5 + 3.0)
 
-    def test_margin_and_percent(self):
+    def test_the_stored_cost_agrees_with_the_formula(self):
+        # `cogs_aud` is a plain column now, so this is the check that used to
+        # be free when SQLite computed it.
         p = self.make()
-        self.assertAlmostEqual(p.margin_aud, 27.5)
-        self.assertAlmostEqual(p.margin_pct, 27.5 / 80.0)
-        self.assertFalse(p.loses_money)
+        self.assertAlmostEqual(self.s.recompute_cogs("ziman", p.sku),
+                               p.cogs_aud)
 
-    def test_a_price_under_cost_loses_money(self):
-        p = self.make(price_aud=40.0)
-        self.assertTrue(p.loses_money)
-        self.assertLess(p.margin_aud, 0)
+    def test_cogs_cannot_be_set_by_hand(self):
+        with self.assertRaises(ProductError):
+            self.make(cogs_aud=1.0)
 
-    def test_an_unpriced_product_is_not_losing_money(self):
-        # It is unpriced. Painting that red would train her to ignore red.
-        p = self.make(price_aud=None)
-        self.assertIsNone(p.price_aud)
-        self.assertIsNone(p.margin_aud)
-        self.assertIsNone(p.margin_pct)
-        self.assertFalse(p.loses_money)
+    def test_formula_ignores_a_field_the_pack_did_not_name(self):
+        self.assertAlmostEqual(
+            cogs_for({"materials_cost_aud": 10.0, "shipping_cost_aud": 999.0,
+                      "labour_hours": 1.0, "hourly_rate_aud": 20.0}, **FORMULA),
+            30.0)
 
 
 class TestHistoricalTruth(Base):
-    def test_raising_the_rate_later_does_not_rewrite_an_old_product(self):
-        old = self.make()                      # made at $25/hour
-        self.assertAlmostEqual(old.cogs_aud, 52.5)
+    def test_raising_the_rate_later_does_not_rewrite_an_old_piece(self):
+        old = self.make()
+        self.assertAlmostEqual(old.cogs_aud, 80.5)
 
-        # A month later she values her time at $35 and makes something new.
-        new = self.make(name="دومی", hourly_rate_aud=35.0)
-        self.assertAlmostEqual(new.cogs_aud, 12.0 + 52.5 + 3.0)
+        new = self.make(when=MAY, name="دومی", hourly_rate_aud=35.0)
+        self.assertAlmostEqual(new.cogs_aud, 40.0 + 52.5 + 3.0)
 
-        # The old product is untouched. It was profitable at the rate that
-        # applied then, and it still says so.
         again = self.s.get("ziman", old.sku)
-        self.assertAlmostEqual(again.cogs_aud, 52.5)
+        self.assertAlmostEqual(again.cogs_aud, 80.5)
         self.assertAlmostEqual(again.hourly_rate_aud, 25.0)
 
-    def test_the_rate_is_stored_on_the_row_not_looked_up(self):
+
+class TestPrice(Base):
+    def test_a_price_under_cost_loses_money(self):
+        p = self.make(price_aud=50.0)
+        self.assertTrue(p.loses_money)
+        self.assertIn(LOSES_MONEY, verdicts(p, MAY, stale_after_days=90,
+                                            quick_sale_days=7))
+
+    def test_an_unpriced_piece_is_not_losing_money(self):
+        p = self.make(price_aud=None)
+        self.assertIsNone(p.gross_margin_aud)
+        self.assertFalse(p.loses_money)
+        self.assertEqual(verdicts(p, MAY, stale_after_days=90,
+                                  quick_sale_days=7), ())
+
+    def test_gross_margin(self):
         p = self.make()
-        self.assertIn("hourly_rate_aud", p.as_dict())
-        self.assertAlmostEqual(p.hourly_rate_aud, 25.0)
+        self.assertAlmostEqual(p.gross_margin_aud, 39.5)
+        self.assertAlmostEqual(p.gross_margin_pct, 39.5 / 120.0)
+
+
+class TestChannelFeeIsNotCost(Base):
+    FEES = {"etsy": {"percent": 0.065, "fixed": 0.30},
+            "direct": {"percent": 0.0, "fixed": 0.0}}
+
+    def test_the_fee_never_enters_cost(self):
+        p = self.make()
+        _, sold = self.s.update("ziman", p.sku,
+                                {"state": "sold", "channel": "etsy"},
+                                now_iso=FEB)
+        # Same piece, same cost, regardless of who bought it.
+        self.assertAlmostEqual(sold.cogs_aud, 80.5)
+
+    def test_the_fee_comes_off_the_margin(self):
+        p = self.make()
+        _, sold = self.s.update("ziman", p.sku,
+                                {"state": "sold", "channel": "etsy"},
+                                now_iso=FEB)
+        expected = 120.0 - (120.0 * 0.065 + 0.30) - 80.5
+        self.assertAlmostEqual(net_margin_aud(sold, self.FEES), expected)
+
+    def test_an_unconfigured_channel_refuses_rather_than_assuming_zero(self):
+        # A silent zero would report a margin the business does not keep.
+        p = self.make()
+        _, sold = self.s.update("ziman", p.sku,
+                                {"state": "sold", "channel": "market"},
+                                now_iso=FEB)
+        with self.assertRaises(ProductError):
+            net_margin_aud(sold, self.FEES)
+
+    def test_nothing_sold_means_no_fee(self):
+        self.assertEqual(channel_fee(120.0, None, self.FEES), 0.0)
+
+    def test_selling_without_naming_a_channel_is_refused(self):
+        p = self.make()
+        with self.assertRaises(ProductError):
+            self.s.update("ziman", p.sku, {"state": "sold"}, now_iso=FEB)
+
+
+class TestStateAndAge(Base):
+    def test_listing_stamps_the_date(self):
+        p = self.make()
+        self.assertIsNone(p.listed_at)
+        _, listed = self.s.update("ziman", p.sku, {"state": "for_sale"},
+                                  now_iso=JAN)
+        self.assertTrue(listed.listed_at.startswith("2026-01-10"))
+
+    def test_a_piece_sitting_too_long_is_stale(self):
+        p = self.make()
+        _, listed = self.s.update("ziman", p.sku, {"state": "for_sale"},
+                                  now_iso=JAN)
+        self.assertEqual(listed.days_on_sale("2026-05-20"), 130)
+        self.assertIn(STALE, verdicts(listed, "2026-05-20",
+                                      stale_after_days=90, quick_sale_days=7))
+
+    def test_a_fresh_listing_is_not_stale(self):
+        p = self.make()
+        _, listed = self.s.update("ziman", p.sku, {"state": "for_sale"},
+                                  now_iso=JAN)
+        self.assertEqual(verdicts(listed, "2026-02-01", stale_after_days=90,
+                                  quick_sale_days=7), ())
+
+    def test_a_sold_pieces_age_stops_at_the_sale(self):
+        # Otherwise nothing would ever count as having sold fast, because the
+        # number keeps growing long after the event.
+        p = self.make()
+        self.s.update("ziman", p.sku, {"state": "for_sale"}, now_iso=JAN)
+        _, sold = self.s.update("ziman", p.sku,
+                                {"state": "sold", "channel": "direct"},
+                                now_iso="2026-01-13T09:00:00Z")
+        self.assertEqual(sold.days_on_sale("2026-12-31"), 3)
+        self.assertIn(QUICK_SALE, verdicts(sold, "2026-12-31",
+                                           stale_after_days=90,
+                                           quick_sale_days=7))
+
+    def test_a_slow_sale_is_not_a_quick_one(self):
+        p = self.make()
+        self.s.update("ziman", p.sku, {"state": "for_sale"}, now_iso=JAN)
+        _, sold = self.s.update("ziman", p.sku,
+                                {"state": "sold", "channel": "direct"},
+                                now_iso=MAY)
+        self.assertEqual(verdicts(sold, MAY, stale_after_days=90,
+                                  quick_sale_days=7), ())
+
+    def test_sold_without_ever_being_listed_has_age_zero(self):
+        p = self.make()
+        _, sold = self.s.update("ziman", p.sku,
+                                {"state": "sold", "channel": "direct"},
+                                now_iso=FEB)
+        self.assertEqual(sold.days_on_sale(MAY), 0)
+
+    def test_an_unlisted_piece_has_no_age(self):
+        self.assertIsNone(self.make().days_on_sale(MAY))
+
+    def test_gifted_is_a_real_ending(self):
+        p = self.make()
+        _, gifted = self.s.update("ziman", p.sku, {"state": "gifted"},
+                                  now_iso=FEB)
+        self.assertEqual(gifted.state, "gifted")
+        self.assertIsNone(gifted.channel)
+
+    def test_bad_state_and_channel_are_refused(self):
+        p = self.make()
+        with self.assertRaises(ProductError):
+            self.s.update("ziman", p.sku, {"state": "sold_out"}, now_iso=FEB)
+        with self.assertRaises(ProductError):
+            self.s.update("ziman", p.sku, {"channel": "ebay"}, now_iso=FEB)
+
+
+class TestNoStockAnywhere(unittest.TestCase):
+    def test_the_unique_piece_model_has_no_counts(self):
+        from ofn.adapters.products import EDITABLE, SCHEMA
+        blob = " ".join(SCHEMA).lower()
+        for word in ("stock", "quantity", "qty", "batch", "runway"):
+            self.assertNotIn(word, blob)
+            self.assertNotIn(word, " ".join(EDITABLE).lower())
+
+    def test_no_column_mentions_tax(self):
+        from ofn.adapters.products import SCHEMA
+        blob = " ".join(SCHEMA).lower()
+        for word in ("gst", "tax", "vat"):
+            self.assertNotIn(word, blob)
 
 
 class TestRefusals(Base):
-    def test_zero_batch_is_refused_rather_than_storing_a_null_cost(self):
-        # SQLite returns NULL for x/0 instead of raising, so without the
-        # guard this would store a product whose cost is simply missing.
-        with self.assertRaises(ProductError):
-            self.make(batch_size=0)
-
     def test_negative_numbers_are_refused(self):
         with self.assertRaises(ProductError):
             self.make(labour_hours=-1)
@@ -116,108 +251,86 @@ class TestRefusals(Base):
         with self.assertRaises(ProductError):
             self.make(gst_amount=8.0)
 
-    def test_cogs_cannot_be_set_by_hand(self):
-        self.assertNotIn("cogs_aud", EDITABLE)
-        with self.assertRaises(ProductError):
-            self.make(cogs_aud=1.0)
-
-    def test_a_bad_status_is_refused(self):
-        with self.assertRaises(ProductError):
-            self.make(status="on_sale")
-
     def test_text_where_a_number_belongs_is_refused(self):
         with self.assertRaises(ProductError):
-            self.make(price_aud="۸۰")
+            self.make(price_aud="۱۲۰")
 
-    def test_editing_a_missing_product_says_so(self):
+    def test_editing_a_missing_piece_says_so(self):
         with self.assertRaises(ProductError):
-            self.s.update("ziman", "ZM-9999", {"stock_qty": 1}, now_iso=NOW)
+            self.s.update("ziman", "ZM-9999", {"name": "x"}, now_iso=FEB)
 
 
-class TestSku(Base):
+class TestSkuAndTenants(Base):
     def test_codes_run_in_sequence(self):
         self.assertEqual(self.make().sku, "ZM-0001")
         self.assertEqual(self.make(name="ب").sku, "ZM-0002")
-        self.assertEqual(self.make(name="پ").sku, "ZM-0003")
 
-    def test_next_code_comes_from_the_highest_used_not_the_count(self):
+    def test_one_business_does_not_see_anothers_pieces(self):
         self.make()
-        self.make(name="ب")
-        self.s.update("ziman", "ZM-0001", {"status": "archived"}, now_iso=NOW)
-        # Archiving must not hand ZM-0002's number to something new.
-        self.assertEqual(self.s.next_sku("ziman", "ZM"), "ZM-0003")
-
-
-class TestTenantIsolation(Base):
-    def test_one_business_does_not_see_anothers_products(self):
-        self.make()
-        self.s.create("lead", "LD", {"name": "رنگ‌آمیزی"}, now_iso=NOW)
+        self.s.create("lead", "LD", {"name": "رنگ‌آمیزی"}, now_iso=JAN)
         self.assertEqual([p.sku for p in self.s.list("ziman")], ["ZM-0001"])
         self.assertEqual([p.sku for p in self.s.list("lead")], ["LD-0001"])
 
     def test_editing_is_scoped_to_the_business(self):
         self.make()
         with self.assertRaises(ProductError):
-            self.s.update("lead", "ZM-0001", {"stock_qty": 9}, now_iso=NOW)
-
-
-class TestListing(Base):
-    def test_archived_products_are_hidden_by_default(self):
-        self.make()
-        self.make(name="ب")
-        self.s.update("ziman", "ZM-0001", {"status": "archived"}, now_iso=NOW)
-        self.assertEqual([p.sku for p in self.s.list("ziman")], ["ZM-0002"])
-        self.assertEqual(len(self.s.list("ziman", include_archived=True)), 2)
+            self.s.update("lead", "ZM-0001", {"name": "x"}, now_iso=FEB)
 
 
 class TestSurvivesRestart(Base):
-    def test_three_products_are_still_there_after_reopening(self):
+    def test_three_pieces_are_still_there_after_reopening(self):
         for n in ("یک", "دو", "سه"):
             self.make(name=n)
         self.s.close()
 
-        # Same file, new process would do exactly this.
-        again = ProductStore(self.path)
+        again = ProductStore(self.path, **FORMULA)
         self.addCleanup(again.close)
         rows = again.list("ziman")
         self.assertEqual([p.name for p in rows], ["یک", "دو", "سه"])
         self.assertEqual([p.sku for p in rows],
                          ["ZM-0001", "ZM-0002", "ZM-0003"])
-        self.assertAlmostEqual(rows[0].cogs_aud, 52.5)
+        self.assertAlmostEqual(rows[0].cogs_aud, 80.5)
         self.assertEqual(again.next_sku("ziman", "ZM"), "ZM-0004")
 
 
-class TestPhotoTableIsReadyForTomorrow(Base):
-    def test_the_table_exists_tonight_so_tomorrow_is_not_a_migration(self):
-        self.assertEqual(self.s.photo_count(1), 0)
-        self.assertEqual(MAX_PHOTOS_PER_PRODUCT, 5)
-
-    def test_photos_disappear_with_their_product(self):
+class TestPhotosReadyForTomorrow(Base):
+    def test_three_sizes_exist_tonight_so_tomorrow_is_not_a_migration(self):
         p = self.make()
         conn = self.s._conn
         conn.execute("BEGIN IMMEDIATE")
         conn.execute(
             "INSERT INTO product_photos (product_id, original_path, "
-            "display_path, position) VALUES (?, ?, ?, 0)",
-            (p.id, "/o/1.jpg", "/d/1.jpg"))
+            "display_path, thumb_path, position) VALUES (?, ?, ?, ?, 0)",
+            (p.id, "/o/1.jpg", "/d/1.jpg", "/t/1.jpg"))
         conn.execute("COMMIT")
         self.assertEqual(self.s.photo_count(p.id), 1)
-
-        conn.execute("BEGIN IMMEDIATE")
-        conn.execute("DELETE FROM products WHERE id = ?", (p.id,))
-        conn.execute("COMMIT")
-        self.assertEqual(self.s.photo_count(p.id), 0)
+        self.assertEqual(MAX_PHOTOS_PER_PRODUCT, 5)
 
 
-class TestNoTaxAnywhere(unittest.TestCase):
-    def test_no_column_mentions_tax(self):
-        # The business is not registered for GST, so no page, receipt or
-        # export may imply one. Easiest way to keep that true is to have
-        # nowhere to put it.
-        from ofn.adapters.products import SCHEMA
-        blob = " ".join(SCHEMA).lower()
-        for word in ("gst", "tax", "vat"):
-            self.assertNotIn(word, blob)
+class TestPackDrivesIt(unittest.TestCase):
+    def test_the_ziman_pack_declares_the_formula_not_the_code(self):
+        p = load_pack("packs/ziman.yaml")
+        self.assertEqual(p.cost_fields,
+                         ("materials_cost_aud", "packaging_cost_aud"))
+        self.assertEqual(p.labour_hours_field, "labour_hours")
+        self.assertEqual(p.labour_rate_field, "hourly_rate_aud")
+        self.assertEqual(p.sku_prefix, "ZM")
+
+    def test_the_pack_no_longer_asks_per_product_questions(self):
+        # Those numbers live on the piece now. Asking them once per business
+        # would price every piece the same.
+        p = load_pack("packs/ziman.yaml")
+        for gone in ("materials.cost_per_batch", "production.batch_size",
+                     "stock.units_left", "sales.units_last_7d",
+                     "offer.price_current"):
+            self.assertNotIn(gone, p.required_facts)
+        # Her hourly rate is still a property of her, not of a piece.
+        self.assertIn("time.hourly_floor", p.required_facts)
+
+    def test_states_and_channels_are_the_agreed_four(self):
+        self.assertEqual(STATES,
+                         ("in_progress", "for_sale", "sold", "gifted"))
+        self.assertEqual(CHANNELS, ("instagram", "market", "etsy", "direct"))
 
 
 if __name__ == "__main__":

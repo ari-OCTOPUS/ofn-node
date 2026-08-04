@@ -218,15 +218,36 @@ def spec_from_mapping(data: Mapping[str, Any]) -> PackSpec:
     costing = data.get("costing") or {}
     if not isinstance(costing, Mapping):
         raise PackError(f"{tenant}: costing must be a mapping")
-    unknown = set(costing) - {"margin_floor", "runway_warn_days"}
+    unknown = set(costing) - {"cost_fields", "labour", "stale_after_days",
+                              "quick_sale_days"}
     if unknown:
         # A misspelled threshold that silently keeps the default is a price
         # floor nobody is enforcing while the pack says otherwise.
         raise PackError(f"{tenant}: unknown costing keys: {sorted(unknown)}")
-    for key in ("margin_floor", "runway_warn_days"):
+    for key in ("stale_after_days", "quick_sale_days"):
         if key in costing and (isinstance(costing[key], bool)
                                or not isinstance(costing[key], (int, float))):
             raise PackError(f"{tenant}: costing.{key} must be a number")
+    cost_fields = costing.get("cost_fields") or []
+    if not isinstance(cost_fields, list):
+        raise PackError(f"{tenant}: costing.cost_fields must be a list")
+    labour = costing.get("labour") or {}
+    if not isinstance(labour, Mapping):
+        raise PackError(f"{tenant}: costing.labour must be a mapping")
+    if bool(labour.get("hours")) != bool(labour.get("rate")):
+        # Hours without a rate prices her time at zero, which is the single
+        # mistake this whole costing path exists to prevent.
+        raise PackError(f"{tenant}: costing.labour needs both hours and rate")
+
+    fees_raw = data.get("channels") or {}
+    if not isinstance(fees_raw, Mapping):
+        raise PackError(f"{tenant}: channels must be a mapping")
+    fees: dict[str, dict[str, float]] = {}
+    for name, row in fees_raw.items():
+        if not isinstance(row, Mapping):
+            raise PackError(f"{tenant}: channels.{name} must be a mapping")
+        fees[str(name)] = {"percent": float(row.get("percent", 0.0)),
+                           "fixed": float(row.get("fixed", 0.0))}
 
     try:
         return PackSpec(
@@ -239,8 +260,12 @@ def spec_from_mapping(data: Mapping[str, Any]) -> PackSpec:
             question_meta=meta,
             locale=locale,
             sku_prefix=str(data.get("sku_prefix", "") or ""),
-            margin_floor=float(costing.get("margin_floor", 0.30)),
-            runway_warn_days=int(costing.get("runway_warn_days", 7)),
+            cost_fields=tuple(str(c) for c in cost_fields),
+            labour_hours_field=str(labour.get("hours", "") or ""),
+            labour_rate_field=str(labour.get("rate", "") or ""),
+            stale_after_days=int(costing.get("stale_after_days", 90)),
+            quick_sale_days=int(costing.get("quick_sale_days", 7)),
+            channel_fees=fees,
         )
     except ValueError as exc:
         raise PackError(f"{tenant}: {exc}") from None

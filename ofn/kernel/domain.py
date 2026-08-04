@@ -291,12 +291,20 @@ class PackSpec:
     # field in it only means anything in the presence of the others.
     locale: Locale = field(
         default_factory=lambda: Locale("en-AU", Currency("AUD", "$", 2)))
-    # The line under which a price is not worth making, and how little stock
-    # counts as running out. Parameters rather than constants because the
-    # honest floor for a handmade box is not the honest floor for a day's
-    # labour, and both are the owner's call.
-    margin_floor: float = 0.30
-    runway_warn_days: int = 7
+    # How this business's cost of one piece is put together: which columns
+    # are simply added, and which pair is hours × rate. Names only — the
+    # shape is fixed in code, so a pack cannot smuggle in arithmetic.
+    cost_fields: tuple[str, ...] = ()
+    labour_hours_field: str = ""
+    labour_rate_field: str = ""
+    # A piece still sitting there after this many days is worth mentioning;
+    # one that left faster than this is worth repeating.
+    stale_after_days: int = 90
+    quick_sale_days: int = 7
+    # What each place of sale takes. Applied to the margin, never to the
+    # cost: the same piece must not cost more because of who bought it.
+    channel_fees: Mapping[str, Mapping[str, float]] = field(
+        default_factory=dict)
     # Short code stamped on this business's product numbers (ZM-0001). Kept
     # in the pack because it is a thing the owner reads aloud on the phone,
     # not a thing the code should invent from a tenant name.
@@ -307,10 +315,13 @@ class PackSpec:
             raise ValueError("capacity must be non-negative")
         if not 0.0 <= self.quota_share <= 1.0:
             raise ValueError("quota_share must be within 0..1")
-        if not 0.0 <= self.margin_floor < 1.0:
-            raise ValueError("margin_floor must be within 0..1")
-        if self.runway_warn_days < 0:
-            raise ValueError("runway_warn_days must be non-negative")
+        if self.stale_after_days < 0 or self.quick_sale_days < 0:
+            raise ValueError("day thresholds must be non-negative")
+        for name, row in self.channel_fees.items():
+            pct = float(row.get("percent", 0.0))
+            if not 0.0 <= pct < 1.0:
+                raise ValueError(
+                    f"channel {name}: percent must be a fraction within 0..1")
         unknown = set(self.question_meta) - set(self.required_facts)
         if unknown:
             # Wording for a fact nobody asks for is dead weight that reads as

@@ -1,25 +1,35 @@
-"""Product records — one row per thing Maliheh makes.
+"""Product records — one row per piece Maliheh makes.
+
+Every piece is unique. There is no batch, no stock count, and no runway: a
+one-off either exists, is for sale, has sold, or was given away. Counting
+"units left" on a thing there is exactly one of produces a number that is
+always 1 or 0 and never tells anybody anything.
 
 Separate database file from facts/ledger/outbox, same durability policy. A
 product is not a fact: facts are what the business knows about itself and
-carry validity over time, while a product is a row that gets edited. Mixing
-them would put a shape with a lifecycle into a store built for statements.
+carry validity over time, while a piece is a row with a life.
 
-Two rules here are worth stating because both are easy to get wrong and
-expensive to discover later:
+Three rules here, all of which are cheap now and expensive later:
 
   * `hourly_rate_aud` is COPIED into the row at save time, never read live
     from the business's current rate. When she raises her rate from $25 to
-    $35, last month's product must not silently become loss-making. It was
+    $35, last month's piece must not silently become loss-making. It was
     profitable at the rate that applied, and the record has to keep saying so.
 
-  * `cogs_aud` is computed by SQLite from the row's own columns, so there is
-    no way to store a cost that disagrees with the inputs beside it.
+  * `cogs_aud` is written by this module from the formula the pack declares,
+    and callers may never set it. It used to be a SQLite generated column,
+    which made disagreement impossible — moving the formula into the pack
+    costs that guarantee, so `recompute_cogs` exists to prove it back.
+
+  * A platform's cut is NOT part of cost. Cost is a property of the piece;
+    a fee is a property of where it sold. Folding the fee into COGS would
+    make the same piece cost different amounts depending on who bought it.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 from typing import Any, Mapping, Sequence
 
 from .sqlite_base import Pool, apply_schema
@@ -27,59 +37,57 @@ from .sqlite_base import Pool, apply_schema
 SCHEMA = (
     """
     CREATE TABLE IF NOT EXISTS products (
-        id                       INTEGER PRIMARY KEY,
-        tenant_id                TEXT    NOT NULL DEFAULT 'ziman',
-        sku                      TEXT    NOT NULL,
-        name                     TEXT    NOT NULL,
-        category                 TEXT,
-        description              TEXT,
+        id                  INTEGER PRIMARY KEY,
+        tenant_id           TEXT    NOT NULL DEFAULT 'ziman',
+        sku                 TEXT    NOT NULL,
+        name                TEXT    NOT NULL,
+        category            TEXT,
+        description         TEXT,
 
-        batch_materials_cost_aud REAL    NOT NULL DEFAULT 0,
-        batch_size               INTEGER NOT NULL DEFAULT 1
-                                   CHECK (batch_size > 0),
-        labour_hours             REAL    NOT NULL DEFAULT 0,
-        -- Copied from the business's rate at save time. Deliberately not a
-        -- lookup: see the module docstring.
-        hourly_rate_aud          REAL    NOT NULL DEFAULT 0,
-        packaging_cost_aud       REAL    NOT NULL DEFAULT 0,
-
-        cogs_aud                 REAL GENERATED ALWAYS AS (
-                                   batch_materials_cost_aud / batch_size
-                                   + (labour_hours * hourly_rate_aud)
-                                   + packaging_cost_aud
-                                 ) STORED,
+        materials_cost_aud  REAL    NOT NULL DEFAULT 0,
+        labour_hours        REAL    NOT NULL DEFAULT 0,
+        -- Copied from the business's rate at save time, deliberately not a
+        -- lookup. See the module docstring.
+        hourly_rate_aud     REAL    NOT NULL DEFAULT 0,
+        packaging_cost_aud  REAL    NOT NULL DEFAULT 0,
+        -- Written by this module from the pack's formula. Never by a caller.
+        cogs_aud            REAL    NOT NULL DEFAULT 0,
 
         -- Nullable on purpose. Nobody, including this system, invents a
         -- price for her.
-        price_aud                REAL,
-        stock_qty                INTEGER NOT NULL DEFAULT 0,
+        price_aud           REAL,
 
-        status                   TEXT    NOT NULL DEFAULT 'draft'
-                                   CHECK (status IN ('draft', 'ready',
-                                          'listed', 'sold_out', 'archived')),
-        marketing_status         TEXT    NOT NULL DEFAULT 'not_started'
-                                   CHECK (marketing_status IN ('not_started',
-                                          'photo_done', 'caption_done',
-                                          'posted')),
-        marketing_notes          TEXT,
+        state               TEXT    NOT NULL DEFAULT 'in_progress'
+                              CHECK (state IN ('in_progress', 'for_sale',
+                                     'sold', 'gifted')),
+        -- Where it sold. Null until it does.
+        channel             TEXT
+                              CHECK (channel IS NULL OR channel IN
+                                     ('instagram', 'market', 'etsy', 'direct')),
+        listed_at           TEXT,
+        sold_at             TEXT,
 
-        created_at               TEXT    NOT NULL DEFAULT (datetime('now')),
-        updated_at               TEXT
+        marketing_status    TEXT    NOT NULL DEFAULT 'not_started'
+                              CHECK (marketing_status IN ('not_started',
+                                     'photo_done', 'caption_done', 'posted')),
+        marketing_notes     TEXT,
+
+        created_at          TEXT    NOT NULL DEFAULT (datetime('now')),
+        updated_at          TEXT
     )
     """,
     # Photos land tomorrow, but the table is created tonight so that evening
-    # is a feature and not a migration.
+    # is a feature and not a migration. Three sizes because the same photo
+    # has three jobs: the archive copy that can never be retaken, the one
+    # Instagram gets, and the small one a list of forty pieces scrolls with.
     """
     CREATE TABLE IF NOT EXISTS product_photos (
         id            INTEGER PRIMARY KEY,
         product_id    INTEGER NOT NULL
                         REFERENCES products (id) ON DELETE CASCADE,
-        -- The bytes as her phone produced them. Never deleted, never
-        -- re-encoded: a handmade item that has been sold cannot be
-        -- photographed again.
-        original_path TEXT    NOT NULL,
-        -- A long-edge-1600 copy for display, made on the phone.
-        display_path  TEXT    NOT NULL,
+        original_path TEXT    NOT NULL,   -- exactly as her phone produced it
+        display_path  TEXT    NOT NULL,   -- long edge 1600
+        thumb_path    TEXT    NOT NULL,   -- long edge 320
         mime          TEXT    NOT NULL DEFAULT 'image/jpeg',
         byte_size     INTEGER NOT NULL DEFAULT 0,
         position      INTEGER NOT NULL DEFAULT 0,
@@ -89,8 +97,8 @@ SCHEMA = (
     "CREATE UNIQUE INDEX IF NOT EXISTS products_sku "
     "ON products (tenant_id, sku)",
     "CREATE INDEX IF NOT EXISTS products_tenant ON products (tenant_id)",
-    "CREATE INDEX IF NOT EXISTS products_tenant_status "
-    "ON products (tenant_id, status)",
+    "CREATE INDEX IF NOT EXISTS products_tenant_state "
+    "ON products (tenant_id, state)",
     "CREATE UNIQUE INDEX IF NOT EXISTS product_photos_slot "
     "ON product_photos (product_id, position)",
     "CREATE INDEX IF NOT EXISTS product_photos_product "
@@ -98,19 +106,24 @@ SCHEMA = (
 )
 
 MAX_PHOTOS_PER_PRODUCT = 5
+STATES = ("in_progress", "for_sale", "sold", "gifted")
+CHANNELS = ("instagram", "market", "etsy", "direct")
 
-# Columns a partner may set. Everything outside this set is either computed
-# (`cogs_aud`), assigned (`sku`, `id`), or timekeeping.
+# Verdict names. Deliberately three, matching the three things worth saying.
+LOSES_MONEY = "loses_money"    # priced under cost
+STALE = "stale"                # listed a long time ago and still here
+QUICK_SALE = "quick_sale"      # gone fast — make another like it
+
 EDITABLE: tuple[str, ...] = (
     "name", "category", "description",
-    "batch_materials_cost_aud", "batch_size", "labour_hours",
-    "hourly_rate_aud", "packaging_cost_aud",
-    "price_aud", "stock_qty",
-    "status", "marketing_status", "marketing_notes",
+    "materials_cost_aud", "labour_hours", "hourly_rate_aud",
+    "packaging_cost_aud", "price_aud",
+    "state", "channel", "listed_at", "sold_at",
+    "marketing_status", "marketing_notes",
 )
 
-_NUMERIC = {"batch_materials_cost_aud", "batch_size", "labour_hours",
-            "hourly_rate_aud", "packaging_cost_aud", "price_aud", "stock_qty"}
+_NUMERIC = {"materials_cost_aud", "labour_hours", "hourly_rate_aud",
+            "packaging_cost_aud", "price_aud"}
 
 
 class ProductError(Exception):
@@ -125,59 +138,137 @@ class Product:
     name: str
     category: str | None
     description: str | None
-    batch_materials_cost_aud: float
-    batch_size: int
+    materials_cost_aud: float
     labour_hours: float
     hourly_rate_aud: float
     packaging_cost_aud: float
     cogs_aud: float
     price_aud: float | None
-    stock_qty: int
-    status: str
+    state: str
+    channel: str | None
+    listed_at: str | None
+    sold_at: str | None
     marketing_status: str
     marketing_notes: str | None
     created_at: str
     updated_at: str | None
 
-    # ── the three numbers the shell shows under the price field ──────────
     @property
-    def margin_aud(self) -> float | None:
+    def gross_margin_aud(self) -> float | None:
+        """Price minus cost, before any platform takes its cut."""
         return None if self.price_aud is None else self.price_aud - self.cogs_aud
 
     @property
-    def margin_pct(self) -> float | None:
+    def gross_margin_pct(self) -> float | None:
         if not self.price_aud:
             return None
         return (self.price_aud - self.cogs_aud) / self.price_aud
 
     @property
     def loses_money(self) -> bool:
-        """True only when a price exists and is below cost. An unpriced
-        product is not losing money — it is unpriced, which is a different
-        thing and must not wear a red warning."""
+        """True only when a price exists and is below cost. An unpriced piece
+        is not losing money — it is unpriced, which is a different thing and
+        must not wear a red warning."""
         return self.price_aud is not None and self.price_aud < self.cogs_aud
 
-    def as_dict(self) -> dict[str, Any]:
+    def days_on_sale(self, today: str) -> int | None:
+        """How long it has been available. For a sold piece this stops at the
+        sale — otherwise nothing sold would ever count as having sold fast,
+        because the number would keep growing after the event."""
+        if not self.listed_at:
+            return None
+        end = self.sold_at or today
+        return max(0, (_day(end) - _day(self.listed_at)).days)
+
+    def as_dict(self, today: str = "") -> dict[str, Any]:
         d = {f: getattr(self, f) for f in self.__dataclass_fields__}
-        d["margin_aud"] = self.margin_aud
-        d["margin_pct"] = self.margin_pct
+        d["gross_margin_aud"] = self.gross_margin_aud
+        d["gross_margin_pct"] = self.gross_margin_pct
         d["loses_money"] = self.loses_money
+        if today:
+            d["days_on_sale"] = self.days_on_sale(today)
         return d
 
 
-def _to_product(row) -> Product:
-    return Product(*row)
+def _day(iso: str) -> date:
+    return date.fromisoformat(iso[:10])
+
+
+# ── the pack's formula, applied ──────────────────────────────────────────
+def cogs_for(fields: Mapping[str, Any], *, cost_fields: Sequence[str],
+             labour_hours_field: str, labour_rate_field: str) -> float:
+    """Cost of one piece: the declared cost components, plus paid time.
+
+    The shape is fixed — a sum of costs and one hours×rate term — and the
+    *names* come from the pack. That covers a business whose costs are
+    materials and packaging and one whose costs are materials and travel,
+    without this module knowing what either sells. It is not an expression
+    evaluator, and it should not become one: a formula language in a config
+    file is a way to run arbitrary arithmetic nobody reviewed.
+    """
+    total = 0.0
+    for name in cost_fields:
+        total += float(fields.get(name) or 0.0)
+    hours = float(fields.get(labour_hours_field) or 0.0)
+    rate = float(fields.get(labour_rate_field) or 0.0)
+    return total + hours * rate
+
+
+def channel_fee(price: float | None, channel: str | None,
+                fees: Mapping[str, Mapping[str, float]]) -> float:
+    """What the place of sale takes. Zero when nothing has sold yet.
+
+    Refuses rather than assuming for a channel with no configured fee: a
+    silent zero would report a margin the business does not actually keep.
+    """
+    if channel is None or price is None:
+        return 0.0
+    row = fees.get(channel)
+    if row is None:
+        raise ProductError(
+            f"کارمزد کانال «{channel}» در پک تعریف نشده — تا تعریف نشود "
+            f"حاشیهٔ این فروش محاسبه نمی‌شود")
+    return price * float(row.get("percent", 0.0)) + float(row.get("fixed", 0.0))
+
+
+def net_margin_aud(p: Product,
+                   fees: Mapping[str, Mapping[str, float]]) -> float | None:
+    """Margin after the channel's cut. None while unpriced."""
+    if p.price_aud is None:
+        return None
+    return p.price_aud - channel_fee(p.price_aud, p.channel, fees) - p.cogs_aud
+
+
+def verdicts(p: Product, today: str, *, stale_after_days: int,
+             quick_sale_days: int) -> tuple[str, ...]:
+    """The short list of things worth saying about one piece."""
+    out: list[str] = []
+    if p.loses_money:
+        out.append(LOSES_MONEY)
+    age = p.days_on_sale(today)
+    if age is not None:
+        if p.state == "for_sale" and age > stale_after_days:
+            out.append(STALE)
+        elif p.state == "sold" and age < quick_sale_days:
+            out.append(QUICK_SALE)
+    return tuple(out)
 
 
 _COLUMNS = ("id, tenant_id, sku, name, category, description, "
-            "batch_materials_cost_aud, batch_size, labour_hours, "
-            "hourly_rate_aud, packaging_cost_aud, cogs_aud, price_aud, "
-            "stock_qty, status, marketing_status, marketing_notes, "
+            "materials_cost_aud, labour_hours, hourly_rate_aud, "
+            "packaging_cost_aud, cogs_aud, price_aud, state, channel, "
+            "listed_at, sold_at, marketing_status, marketing_notes, "
             "created_at, updated_at")
 
 
 class ProductStore:
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, *, cost_fields: Sequence[str],
+                 labour_hours_field: str, labour_rate_field: str) -> None:
+        # The formula's field names arrive from the pack and are held here so
+        # every write goes through the same one.
+        self._cost_fields = tuple(cost_fields)
+        self._hours_field = labour_hours_field
+        self._rate_field = labour_rate_field
         self._pool = Pool(path)
         apply_schema(self._conn, SCHEMA)
 
@@ -194,27 +285,40 @@ class ProductStore:
         row = self._conn.execute(
             f"SELECT {_COLUMNS} FROM products "
             "WHERE tenant_id = ? AND sku = ?", (tenant, sku)).fetchone()
-        return _to_product(row) if row else None
+        return Product(*row) if row else None
 
-    def list(self, tenant: str, *, include_archived: bool = False
-             ) -> list[Product]:
-        sql = f"SELECT {_COLUMNS} FROM products WHERE tenant_id = ?"
-        if not include_archived:
-            sql += " AND status != 'archived'"
-        sql += " ORDER BY id"
-        return [_to_product(r) for r in self._conn.execute(sql, (tenant,))]
+    def list(self, tenant: str) -> list[Product]:
+        return [Product(*r) for r in self._conn.execute(
+            f"SELECT {_COLUMNS} FROM products WHERE tenant_id = ? "
+            "ORDER BY id", (tenant,))]
 
     def photo_count(self, product_id: int) -> int:
         return self._conn.execute(
             "SELECT count(*) FROM product_photos WHERE product_id = ?",
             (product_id,)).fetchone()[0]
 
+    def recompute_cogs(self, tenant: str, sku: str) -> float:
+        """Cost as the formula says it should be, from the row's own inputs.
+
+        Exists because `cogs_aud` is a stored column rather than a generated
+        one: this is how a test, or a suspicious owner, checks that what is
+        filed agrees with what is beside it.
+        """
+        p = self.get(tenant, sku)
+        if p is None:
+            raise ProductError(f"محصولی با کد {sku} پیدا نشد")
+        return cogs_for(
+            {f: getattr(p, f) for f in EDITABLE if hasattr(p, f)},
+            cost_fields=self._cost_fields,
+            labour_hours_field=self._hours_field,
+            labour_rate_field=self._rate_field)
+
     # ── writes ───────────────────────────────────────────────────────────
     def next_sku(self, tenant: str, prefix: str) -> str:
         """Next free code for this business, as `ZM-0001`.
 
         Derived from the highest number already used rather than a count, so
-        deleting a row never hands its code to a different product.
+        retiring a row never hands its code to a different piece.
         """
         rows = self._conn.execute(
             "SELECT sku FROM products WHERE tenant_id = ? AND sku LIKE ?",
@@ -229,15 +333,18 @@ class ProductStore:
     def create(self, tenant: str, prefix: str, fields: Mapping[str, Any],
                *, now_iso: str) -> Product:
         clean = _validated(fields, required=("name",))
+        _check_state(clean, prior=None)
+        _stamp_dates(clean, prior=None, now_iso=now_iso)
+        clean["cogs_aud"] = self._cogs(clean, prior=None)
+
         sku = self.next_sku(tenant, prefix)
         cols = ["tenant_id", "sku", "created_at"] + list(clean)
         vals = [tenant, sku, now_iso] + [clean[c] for c in clean]
-        placeholders = ", ".join("?" for _ in cols)
         self._conn.execute("BEGIN IMMEDIATE")
         try:
             self._conn.execute(
                 f"INSERT INTO products ({', '.join(cols)}) "
-                f"VALUES ({placeholders})", vals)
+                f"VALUES ({', '.join('?' for _ in cols)})", vals)
             self._conn.execute("COMMIT")
         except Exception as exc:        # constraint text is not for partners
             self._conn.execute("ROLLBACK")
@@ -255,6 +362,10 @@ class ProductStore:
         clean = _validated(changes, required=())
         if not clean:
             raise ProductError("چیزی برای تغییر نیست")
+        _check_state(clean, prior=before)
+        _stamp_dates(clean, prior=before, now_iso=now_iso)
+        clean["cogs_aud"] = self._cogs(clean, prior=before)
+
         sets = ", ".join(f"{c} = ?" for c in clean) + ", updated_at = ?"
         vals = [clean[c] for c in clean] + [now_iso, tenant, sku]
         self._conn.execute("BEGIN IMMEDIATE")
@@ -268,6 +379,16 @@ class ProductStore:
         after = self.get(tenant, sku)
         assert after is not None
         return before, after
+
+    def _cogs(self, clean: Mapping[str, Any], prior: Product | None) -> float:
+        merged: dict[str, Any] = {}
+        if prior is not None:
+            merged.update({f: getattr(prior, f) for f in EDITABLE
+                           if hasattr(prior, f)})
+        merged.update(clean)
+        return cogs_for(merged, cost_fields=self._cost_fields,
+                        labour_hours_field=self._hours_field,
+                        labour_rate_field=self._rate_field)
 
 
 def _validated(fields: Mapping[str, Any], required: Sequence[str]
@@ -289,23 +410,50 @@ def _validated(fields: Mapping[str, Any], required: Sequence[str]
                 raise ProductError(f"«{key}» باید عدد باشد")
             if value < 0:
                 raise ProductError(f"«{key}» نمی‌تواند منفی باشد")
-            clean[key] = int(value) if key in ("batch_size", "stock_qty") \
-                else float(value)
+            clean[key] = float(value)
         else:
-            clean[key] = None if value is None else str(value).strip()
-    if clean.get("batch_size") == 0:
-        # SQLite returns NULL for x/0 rather than raising, so without this a
-        # zero batch would store a product whose cost is simply missing.
-        raise ProductError("اندازهٔ دسته باید حداقل ۱ باشد")
+            clean[key] = None if value is None else str(value).strip() or None
     return clean
+
+
+def _check_state(clean: Mapping[str, Any], prior: Product | None) -> None:
+    state = clean.get("state") or (prior.state if prior else "in_progress")
+    if state not in STATES:
+        raise ProductError(f"وضعیت نامعتبر: {state}")
+    channel = clean.get("channel", prior.channel if prior else None)
+    if channel is not None and channel not in CHANNELS:
+        raise ProductError(f"کانال نامعتبر: {channel}")
+    if state == "sold" and not channel:
+        # Without this the fee is unknowable, so the margin on the one event
+        # that actually earned money would be the one number nobody has.
+        raise ProductError("برای «فروخته شد» باید کانال فروش را بگویید")
+
+
+def _stamp_dates(clean: dict[str, Any], prior: Product | None,
+                 *, now_iso: str) -> None:
+    """Set the two dates from the state change, so nobody has to remember to."""
+    state = clean.get("state")
+    if state is None:
+        return
+    was = prior.state if prior else None
+    if state == "for_sale" and not (prior and prior.listed_at):
+        clean.setdefault("listed_at", now_iso)
+    if state == "sold" and not (prior and prior.sold_at):
+        clean.setdefault("sold_at", now_iso)
+        # Sold without ever having been listed: treat the sale day as the
+        # listing day so "how long was it available" is 0 rather than absent.
+        if not (prior and prior.listed_at):
+            clean.setdefault("listed_at", now_iso)
+    if was == state:
+        return
 
 
 def _friendly(exc: Exception) -> str:
     text = str(exc).lower()
     if "unique" in text and "sku" in text:
         return "این کد محصول قبلاً استفاده شده"
-    if "batch_size" in text:
-        return "اندازهٔ دسته باید حداقل ۱ باشد"
-    if "status" in text:
+    if "state" in text:
         return "وضعیت نامعتبر است"
+    if "channel" in text:
+        return "کانال فروش نامعتبر است"
     return "ذخیره نشد — مقادیر را بررسی کنید"
