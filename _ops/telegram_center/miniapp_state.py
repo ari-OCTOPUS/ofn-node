@@ -111,6 +111,47 @@ def _miniapp_url_configured() -> bool:
         return False
 
 
+def _cardiac_vitals() -> dict:
+    """بودجهٔ ضربانِ روزانه: خرج، سقف، درصد.
+
+    سقف را **حساب نمی‌کنم** — از خودِ `cardiac.BeatBudget._cap()` می‌پرسم.
+    دلیل: سقفِ مؤثر سه منبع دارد (setpointِ مالک → env → پیش‌فرض) و اگر
+    این‌جا کپی‌اش کنم، روزی که مالک `/heart set cap` بزند این عدد بی‌صدا
+    از واقعیت جدا می‌شود — همان «قانون از کدش عقب می‌افتد».
+
+    گاردِ کهنگی: پرونده `date` دارد. اگر مالِ امروز نباشد، عدد **دیروز**
+    است و حلقه‌ای که ۷۰٪ نشان دهد دروغ می‌گوید. در آن حالت
+    `stale=True` و درصد `None` — نبودِ رقم بهتر از رقمِ غلط است.
+    """
+    p = STATE_DIR / "cardiac-budget.json"
+    d = _read_json_safe(p)
+    if not isinstance(d, dict):
+        return {"status": "unknown", "reason": "cardiac-budget missing/unreadable"}
+    cap = None
+    try:
+        import cardiac  # noqa: WPS433 — تنبل: gateway نباید به بوتِ قلب گره بخورد
+        cap = int(cardiac.BeatBudget(path=p)._cap())
+    except Exception:  # noqa: BLE001
+        cap = None
+    today = time.strftime("%Y-%m-%d")
+    stale = str(d.get("date") or "") != today
+    spent = d.get("spent")
+    pct = None
+    if not stale and isinstance(spent, int) and isinstance(cap, int) and cap > 0:
+        pct = round(min(spent / cap, 1.0) * 100, 1)
+    return {
+        "status": "ok",
+        "spent": spent,
+        "resting": d.get("resting"),
+        "cap": cap,
+        "pct": pct,
+        "date": d.get("date"),
+        "stale": stale,
+        "depleted": bool(isinstance(spent, int) and isinstance(cap, int) and cap > 0
+                         and spent >= cap and not stale),
+    }
+
+
 def get_miniapp_state(root: "Path | None" = None) -> dict:
     """Home/Cockpit: system status، flags، pending، risk، Project-F، auth."""
     st = _read_json_safe(STATE_DIR / "ORGANISM-STATE.json")
@@ -139,6 +180,12 @@ def get_miniapp_state(root: "Path | None" = None) -> dict:
         "today": st.get("today"),
         "conflicts": st.get("conflicts"),
         "suspect_zero_total": st.get("suspect_zero_total"),
+        # این سه، از قبل در ORGANISM-STATE بودند و همین allowlist دورشان
+        # می‌ریخت — پس مینی‌اپ کورشان بود. حالا عبور می‌کنند.
+        "germline_lag_h": st.get("germline_lag_h"),
+        "germline_alert": st.get("germline_alert"),
+        "recall_reach": st.get("recall_reach"),
+        "cardiac": _cardiac_vitals(),
         "active_flags": flags,
         "auth_status": "configured" if auth_configured else "CONFIG_NEEDED",
         "projectf_status": "BLOCKED_NEEDS_CREDENTIALS",
