@@ -60,11 +60,15 @@
    * مقدارِ خالی یعنی متنِ سفید روی زمینهٔ سفید — یعنی صفحهٔ عملاً نامرئی،
    * که بدترین شکلِ «دیده نمی‌شود» است.
    */
+  // ⚠️ نام‌ها باید با همان متغیرهایی بخوانند که CSS **واقعاً می‌خواند**.
+  // نسخهٔ قبلی به `--card` و `--text` می‌نوشت در حالی که استایل `--surface`
+  // و `--ink` را می‌خواند ⇒ رنگ‌های تم داخلِ متغیرهای مرده می‌رفتند و هیچ
+  // اثری نداشتند. نوشتنی که خواننده ندارد، با ننوشتن یکی است.
   var THEME_MAP = {
     bg_color: "--bg",
-    secondary_bg_color: "--card",
-    section_bg_color: "--card",
-    text_color: "--text",
+    secondary_bg_color: "--surface",
+    section_bg_color: "--surface-2",
+    text_color: "--ink",
     hint_color: "--muted",
     // ⚠️ `--accent` و `--accent-2` عمداً **از تم نمی‌آیند**: فیروزه‌ای و بنفشِ
     // لوگو هویت‌اند نه سلیقهٔ تم. اگر تلگرام رنگشان را عوض کند، اپ دیگر
@@ -83,6 +87,21 @@
       if (_isColor(tp[k])) { out[THEME_MAP[k]] = tp[k].trim(); }
     });
     return out;
+  }
+
+  /* ⚠️ در مینی‌اپِ تلگرام، `prefers-color-scheme` **معتبر نیست** — وب‌ویو
+   * اغلب «روشن» گزارش می‌دهد حتی وقتی تلگرام دارک است. سیگنالِ معتبر
+   * `tg.colorScheme` است. مالک دارک داشت و اپ روشن رندر می‌شد، چون فقط
+   * مدیا-کوئری خوانده می‌شد. پیش‌فرض تیره است (هویتِ لوگو). */
+  function scheme(tg) {
+    var s = tg && tg.colorScheme;
+    return (s === "light" || s === "dark") ? s : "dark";
+  }
+
+  function applyScheme(tg, setTheme) {
+    var s = scheme(tg);
+    if (typeof setTheme === "function") { try { setTheme(s); } catch (e) {} }
+    return s;
   }
 
   function applyTheme(tg, setVar) {
@@ -138,13 +157,16 @@
     applyInsets(tg, setVar);
     wired.push("insets");
     applyTheme(tg, setVar);
+    applyScheme(tg, hooks.setTheme);
     wired.push("theme");
 
     if (caps.events) {
       var sub = function (name, fn) {
         try { tg.onEvent(name, fn); wired.push(name); } catch (e) {}
       };
-      sub("themeChanged", function () { applyTheme(tg, setVar); });
+      sub("themeChanged", function () {
+        applyTheme(tg, setVar); applyScheme(tg, hooks.setTheme);
+      });
       sub("safeAreaChanged", function () { applyInsets(tg, setVar); });
       sub("contentSafeAreaChanged", function () { applyInsets(tg, setVar); });
       sub("fullscreenChanged", function () { onFullscreen(!!tg.isFullscreen); });
@@ -179,6 +201,8 @@
     applyInsets: applyInsets,
     themeVars: themeVars,
     applyTheme: applyTheme,
+    scheme: scheme,
+    applyScheme: applyScheme,
     capabilities: capabilities,
     initShell: initShell,
     toggleFullscreen: toggleFullscreen,

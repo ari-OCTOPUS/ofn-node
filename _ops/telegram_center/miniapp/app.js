@@ -25,6 +25,9 @@
     setVar: function(k, v){
       try { document.documentElement.style.setProperty(k, v); } catch(e){}
     },
+    setTheme: function(name){
+      try { document.documentElement.setAttribute("data-theme", name); } catch(e){}
+    },
     onActive: function(on){
       appActive = !!on;
       // ⚠️ این‌جا اولش «در پس‌زمینه poll نکن» نوشته بودم — ولی این اپ اصلاً

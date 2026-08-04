@@ -111,9 +111,9 @@ t("رنگ‌های تم به متغیرهای CSS نگاشت می‌شوند", (
                      hint_color: "#707579", secondary_bg_color: "#f4f4f5" };
   const v = S.themeVars(tg);
   eq(v["--bg"], "#ffffff");
-  eq(v["--text"], "#000000");
+  eq(v["--ink"], "#000000");
   eq(v["--muted"], "#707579");
-  eq(v["--card"], "#f4f4f5");
+  eq(v["--surface"], "#f4f4f5");
 });
 
 t("کلیدِ غایب هرگز نوشته نمی‌شود (پالتِ فعلی می‌ماند)", () => {
@@ -123,7 +123,7 @@ t("کلیدِ غایب هرگز نوشته نمی‌شود (پالتِ فعلی 
   tg.themeParams = { bg_color: "#ffffff" };
   const v = S.themeVars(tg);
   eq(Object.keys(v), ["--bg"], "کلیدهای غایب هم نوشته شدند");
-  ok(!("--text" in v) && !("--muted" in v));
+  ok(!("--ink" in v) && !("--muted" in v));
 });
 
 t("مقدارِ نامعتبر رد می‌شود، نه اینکه داخلِ CSS برود", () => {
@@ -131,7 +131,7 @@ t("مقدارِ نامعتبر رد می‌شود، نه اینکه داخلِ C
   tg.themeParams = { bg_color: "خراب", text_color: "", hint_color: null,
                      secondary_bg_color: "#f4f4f5" };
   const v = S.themeVars(tg);
-  eq(Object.keys(v), ["--card"], "مقدارِ بی‌اعتبار وارد شد");
+  eq(Object.keys(v), ["--surface"], "مقدارِ بی‌اعتبار وارد شد");
 });
 
 t("رنگِ برند از تم اثر نمی‌گیرد", () => {
@@ -162,6 +162,42 @@ t("رویدادِ themeChanged دوباره اعمال می‌کند", () => {
   tg.themeParams = { bg_color: "#ffffff" };
   fire(tg, "themeChanged");
   eq(written["--bg"], "#ffffff", "سوییچِ لایت/دارک اعمال نشد");
+});
+
+t("‏colorScheme ِ تلگرام بر مدیا-کوئری غلبه می‌کند", () => {
+  // ⚠️ باگی که مالک دید: تلگرامش دارک بود و اپ روشن رندر شد. در وب‌ویوِ
+  // مینی‌اپ، prefers-color-scheme اغلب «روشن» گزارش می‌دهد. سیگنالِ معتبر
+  // tg.colorScheme است.
+  const tg = fakeTg(); tg.colorScheme = "dark";
+  let theme = null;
+  S.initShell(tg, { setTheme: (t) => { theme = t; } });
+  eq(theme, "dark");
+  const tg2 = fakeTg(); tg2.colorScheme = "light";
+  S.initShell(tg2, { setTheme: (t) => { theme = t; } });
+  eq(theme, "light");
+});
+
+t("‏colorScheme ِ نامعلوم به تیره می‌افتد، نه روشن", () => {
+  // پیش‌فرض باید هویتِ لوگو باشد. روشنِ ناخواسته یعنی اپ شسته و بی‌شکل.
+  const tg = fakeTg(); delete tg.colorScheme;
+  eq(S.scheme(tg), "dark");
+  eq(S.scheme(null), "dark");
+  tg.colorScheme = "zzz"; eq(S.scheme(tg), "dark");
+});
+
+t("نگاشتِ تم به همان متغیرهایی می‌نویسد که CSS می‌خواند", () => {
+  // ⚠️ باگِ واقعی: به --card و --text می‌نوشت ولی CSS ِ نو --surface و
+  // --ink می‌خواند. نوشتنی که خواننده ندارد، با ننوشتن یکی است.
+  const fs = require("fs");
+  const css = fs.readFileSync(__dirname + "/style.css", "utf8");
+  const tg = fakeTg();
+  tg.themeParams = { bg_color:"#111", secondary_bg_color:"#222",
+                     section_bg_color:"#333", text_color:"#eee", hint_color:"#999" };
+  const v = S.themeVars(tg);
+  Object.keys(v).forEach((k) => {
+    ok(css.indexOf("var(" + k + ")") >= 0, "‏CSS هرگز " + k + " را نمی‌خواند");
+  });
+  ok(Object.keys(v).length >= 5, "نگاشت خیلی کم شد");
 });
 
 /* ── ۳. فعال/غیرفعال — ارزشِ عملیاتی ─────────────────────────────────── */
