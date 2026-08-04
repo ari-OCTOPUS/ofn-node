@@ -238,6 +238,7 @@ def spec_from_mapping(data: Mapping[str, Any]) -> PackSpec:
             quota_share=float(share),
             question_meta=meta,
             locale=locale,
+            sku_prefix=str(data.get("sku_prefix", "") or ""),
             margin_floor=float(costing.get("margin_floor", 0.30)),
             runway_warn_days=int(costing.get("runway_warn_days", 7)),
         )

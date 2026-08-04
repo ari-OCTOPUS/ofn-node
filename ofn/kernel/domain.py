@@ -297,6 +297,10 @@ class PackSpec:
     # labour, and both are the owner's call.
     margin_floor: float = 0.30
     runway_warn_days: int = 7
+    # Short code stamped on this business's product numbers (ZM-0001). Kept
+    # in the pack because it is a thing the owner reads aloud on the phone,
+    # not a thing the code should invent from a tenant name.
+    sku_prefix: str = ""
 
     def __post_init__(self) -> None:
         if self.capacity_units_per_week < 0:

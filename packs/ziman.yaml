@@ -4,6 +4,10 @@
 # ═══════════════════════════════════════════════════════════════════════
 tenant: ziman
 
+# کد محصول: ZM-0001. اینجاست چون چیزی است که مالک پای تلفن بلند می‌خواند،
+# نه چیزی که کد از نام tenant بسازد.
+sku_prefix: ZM
+
 # ── locale ─────────────────────────────────────────────────────────────
 # The market this business sells into. One object, because currency alone is
 # a display parameter and a display parameter is not a market: a price is only

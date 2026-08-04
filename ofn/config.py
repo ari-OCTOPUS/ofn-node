@@ -68,6 +68,22 @@ class Config:
         return os.path.join(self.state_dir, "outbox.sqlite")
 
     @property
+    def products_path(self) -> str:
+        return os.environ.get("OFN_PRODUCTS_DB") or os.path.join(
+            self.state_dir, "products.sqlite")
+
+    @property
+    def photos_root(self) -> str:
+        """Where photo bytes live — beside the database, not inside it.
+
+        Kept out of SQLite so a 40 MB product does not turn every read of the
+        row into a 40 MB read, and so a backup can copy the small file often
+        and the large directory rarely.
+        """
+        return os.environ.get("OFN_PHOTOS_DIR") or os.path.join(
+            self.state_dir, "photos")
+
+    @property
     def backup_root(self) -> str:
         return os.path.join(self.state_dir, "backups")
 
