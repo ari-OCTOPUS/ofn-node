@@ -713,19 +713,48 @@ def t_arm_gate_default_off_is_byte_identical():
 
 def t_arm_gate_sensitive_default_denies_without_a_fresh_token():
     """OCTOPUS_ARM_SENSITIVE_DEFAULT=1 + بدونِ arm-token → متوقف قبل از
-    authorization_shadow و پیشنهادِ مالک (هیچ pending-patch نباید ساخته شود)."""
+    authorization_shadow و پیشنهادِ مالک (هیچ pending-patch نباید ساخته شود)
+    و مالک باید یک opslib.alert ببیند — قبل از این فیکس این رد کاملاً بی‌صدا بود."""
     _arm_env(True)
     _clear_arm_state()
     os.environ["OCTOPUS_WIRE_PATCH_CARD"] = "1"
     pend = sp.opslib.STATE_DIR / "cortex" / "pending-patches"
     before = set(pend.glob("*.json")) if pend.exists() else set()
+    sent, real_alert = [], sp.opslib.alert
+    sp.opslib.alert = lambda msgs, **k: sent.extend(msgs)
     try:
         r = sp._offer_patch_to_owner(_offerable_patch("sp-arm1"))
         assert r.get("ok") is False, r
         assert str(r.get("reason", "")).startswith("arm-gate-denied"), r
         after = set(pend.glob("*.json")) if pend.exists() else set()
         assert after == before, "gate رد کرد ولی pending-patch نوشته شد"
+        blob = " ".join(sent)
+        assert "arm_gate" in blob and ALLOWED in blob, f"رد به مالک نرسید: {blob[:200]}"
     finally:
+        sp.opslib.alert = real_alert
+        os.environ.pop("OCTOPUS_WIRE_PATCH_CARD", None)
+        _arm_env(False)
+        _clear_arm_state()
+
+
+def t_arm_gate_allow_does_not_spam_an_alert():
+    """وقتی arm_gate عبور می‌دهد نباید هیچ آلارمی برای آن ساخته شود — آلارم فقط
+    مالِ ردشدن است، نه هر عبورِ موفق."""
+    _arm_env(True)
+    _clear_arm_state()
+    _ACTIVATION_FLAG.parent.mkdir(parents=True, exist_ok=True)
+    _ACTIVATION_FLAG.write_text("armed", encoding="utf-8")
+    _write_arm_token("code_autonomy", "arm")
+    _write_arm_token("code_autonomy", "arm2")
+    os.environ["OCTOPUS_WIRE_PATCH_CARD"] = "1"
+    sent, real_alert = [], sp.opslib.alert
+    sp.opslib.alert = lambda msgs, **k: sent.extend(msgs)
+    try:
+        r = sp._offer_patch_to_owner(_offerable_patch("sp-arm4"))
+        assert not str(r.get("reason", "")).startswith("arm-gate-denied"), r
+        assert sent == [], f"عبورِ موفق آلارمِ اضافه ساخت: {sent}"
+    finally:
+        sp.opslib.alert = real_alert
         os.environ.pop("OCTOPUS_WIRE_PATCH_CARD", None)
         _arm_env(False)
         _clear_arm_state()

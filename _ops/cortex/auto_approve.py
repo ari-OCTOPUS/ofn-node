@@ -354,6 +354,20 @@ def run(proposals: list[dict]) -> dict:
                 escalated.append({"title": p.get("title"), "risk": d["risk"], "why": reason})
                 _log({"decision": "escalated", "risk": d["risk"], "title": p.get("title"),
                       "why": reason})
+                # ۲۰۲۶-۰۸-۰۴ — این شاخه قبلاً کاملاً بی‌صدا بود: escalated فقط در
+                # این return و در لاگِ محلی می‌نشست، هیچ صداکننده‌ای آن را
+                # نمی‌خواند و هیچ کارت/آلارمی به مالک نمی‌رفت (drive() ِ self_patch
+                # کارتِ قدیمی دارد، اینجا معادلش نبود). opslib.alert خودش
+                # dedupِ امضامحورِ ۶ساعته دارد، پس تکرارِ همین رد در چرخه‌های
+                # بعدی spam نمی‌شود.
+                try:
+                    opslib.alert([
+                        f"auto_approve: knobِ {d.get('knob')} برای «{p.get('title')}» "
+                        f"آماده بود (کم‌خطر + هم‌راستا + سوییتِ سبز) ولی arm_gate رد کرد "
+                        f"({_arm_why}) — یک arm-token تازهٔ دوکلیدی برای "
+                        f"self_improve_auto لازم است."])
+                except Exception:  # noqa: BLE001 — آلارم هرگز حلقه را نمی‌کشد
+                    pass
                 continue
             # فقط یک اعمالِ خودکار در هر run (گامِ کوچک، ضدِ نوسان) + ثبتِ refractory
             r = apply_knob(d["knob"], d["bounds"])

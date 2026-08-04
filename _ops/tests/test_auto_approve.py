@@ -181,11 +181,15 @@ def t_h_arm_gate_default_off_is_byte_identical():
 
 def t_i_arm_gate_sensitive_default_denies_without_a_fresh_token():
     """OCTOPUS_ARM_SENSITIVE_DEFAULT=1 + بدونِ arm-token → apply_knob هرگز صدا
-    زده نمی‌شود؛ پیشنهاد escalated می‌شود با دلیلِ arm-gate-denied، نه اعمال."""
+    زده نمی‌شود؛ پیشنهاد escalated می‌شود با دلیلِ arm-gate-denied، نه اعمال؛
+    و مالک باید یک opslib.alert ببیند — قبل از این فیکس escalated کاملاً
+    بی‌صدا بود (هیچ صداکننده‌ای maybe_auto_apply آن را نمی‌خواند)."""
     _arm_env(True)
     _clear_arm_tokens()
     _green_setup()
     before = json.loads(aa.KNOBS_PATH.read_text("utf-8")) if aa.KNOBS_PATH.exists() else {}
+    sent, real_alert = [], aa.opslib.alert
+    aa.opslib.alert = lambda msgs, **k: sent.extend(msgs)
     try:
         res = aa.run([_p("کادنسِ نمونه", "HEART_SAMPLE_INTERVAL_S را به میانه ببر")])
         assert res["applied"] == [], res
@@ -193,7 +197,31 @@ def t_i_arm_gate_sensitive_default_denies_without_a_fresh_token():
                    for e in res["escalated"]), res
         after = json.loads(aa.KNOBS_PATH.read_text("utf-8")) if aa.KNOBS_PATH.exists() else {}
         assert after == before, "گیت رد کرد ولی auto-knobs.json نوشته شد"
+        blob = " ".join(sent)
+        assert "arm_gate" in blob and "HEART_SAMPLE_INTERVAL_S" in blob, \
+            f"رد به مالک نرسید: {blob[:200]}"
     finally:
+        aa.opslib.alert = real_alert
+        improve.ACT_AUTO.unlink()
+        _arm_env(False)
+        _clear_arm_tokens()
+
+
+def t_l_arm_gate_allow_does_not_spam_an_alert():
+    """وقتی arm_gate عبور می‌دهد نباید هیچ آلارمی برایش ساخته شود."""
+    _arm_env(True)
+    _clear_arm_tokens()
+    _green_setup()
+    _write_arm_token("self_improve_auto", "arm")
+    _write_arm_token("self_improve_auto", "arm2")
+    sent, real_alert = [], aa.opslib.alert
+    aa.opslib.alert = lambda msgs, **k: sent.extend(msgs)
+    try:
+        res = aa.run([_p("کادنسِ نمونه", "HEART_SAMPLE_INTERVAL_S را به میانه ببر")])
+        assert len(res["applied"]) == 1, res
+        assert sent == [], f"عبورِ موفق آلارمِ اضافه ساخت: {sent}"
+    finally:
+        aa.opslib.alert = real_alert
         improve.ACT_AUTO.unlink()
         _arm_env(False)
         _clear_arm_tokens()
