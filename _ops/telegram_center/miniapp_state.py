@@ -567,6 +567,13 @@ def dispatch_api(path: str, root: "Path | None" = None) -> "tuple[int, bytes, st
         "/api/ops/brain": get_ops_brain,
         "/api/ops/leads": get_ops_leads,
         "/api/ops/tasks": get_ops_tasks,
+        # ۲۰۲۶-۰۸-۰۴ — دو تابعِ **یتیم**: `get_governor_state` و
+        # `get_obsidian_state` نوشته شده بودند و هیچ مسیری نداشتند، پس تبِ
+        # متناظرشان در مینی‌اپ هیچ‌وقت داده‌ای برای نشان‌دادن نداشت. سمتِ
+        # سرور چیزی ساخته نشد؛ فقط چیزی که از قبل کار می‌کرد **قابلِ صدا
+        # زدن** شد.
+        "/api/governor": get_governor_state,
+        "/api/obsidian": get_obsidian_state,
         LIFECYCLE_PATH: get_lifecycle_state,
     }
     fn = handlers.get(p)

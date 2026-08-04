@@ -343,8 +343,72 @@
     });
   }
 
-  var renderers = {home:renderHome,studio:renderStudio,outbound:renderOutbound,approvals:renderApprovals,legs:renderLegs,value:renderValue,registry:renderRegistry,truth:renderTruth,pf:renderPF};
-  function render(name){ (renderers[name]||renderHome)(); }
+  // ── چهار تبی که تا امروز رندرکننده نداشتند (۲۰۲۶-۰۸-۰۴) ──────────────
+  // تپ روی Brain/Governor/Obsidian/Next محتوای **Cockpit** را نشان می‌داد و
+  // تب هم فعال می‌شد: نه خطا، نه پیام. یعنی مالک فکر می‌کرد Brain همین است.
+  // داده‌ها سمتِ سرور از قبل بودند؛ فقط صدا زده نمی‌شدند.
+  function kv(obj, keys){
+    return (keys||Object.keys(obj||{})).map(function(k){
+      var v = (obj||{})[k];
+      if(v && typeof v === "object") v = JSON.stringify(v).slice(0,120);
+      return "<tr><td>"+esc(k)+"</td><td>"+esc(v===null||v===undefined?"—":v)+"</td></tr>";
+    }).join("");
+  }
+  function renderBrain(){
+    api("/api/ops/brain").then(function(d){
+      var b = d.brain||{};
+      content.innerHTML = '<div class="card"><h2>مغز <span class="badge '+(b.available?"live":"blocked")+'">'+
+        esc(b.available?"در دسترس":"در دسترس نیست")+'</span></h2>'+
+        (b.reason?'<div class="muted">'+esc(b.reason)+'</div>':'')+
+        '<table>'+kv(b.daemon||{})+'</table></div>';
+    });
+  }
+  function renderGovernor(){
+    api("/api/governor").then(function(d){
+      var drift = (d.drift_status||{}).status;
+      content.innerHTML = '<div class="card"><h2>ناظر <span class="badge '+
+        (drift==="ok"?"live":(drift?"staged":"unknown"))+'">'+esc(drift||"نامعلوم")+'</span></h2>'+
+        '<table>'+kv(d, ["policy_doc","canonical_provider","canonical_choke_point"])+'</table>'+
+        '<div class="muted" style="margin-top:8px">مسیرهای اعلام‌شده: '+
+        esc(((d.drift_status||{}).declared_paths||[]).length)+'</div></div>';
+    });
+  }
+  function renderObsidian(){
+    api("/api/obsidian").then(function(d){
+      var miss = d.missing||[];
+      content.innerHTML = '<div class="card"><h2>ابسیدین <span class="badge '+
+        (miss.length?"staged":"live")+'">'+esc(miss.length)+' گمشده</span></h2>'+
+        (miss.length?'<ul>'+miss.map(function(m){return "<li>"+esc(m)+"</li>";}).join("")+'</ul>'
+                    :'<div class="muted">همهٔ سندهای مرجع سرِ جایشان‌اند</div>')+
+        '<div class="muted" style="margin-top:8px">بررسی‌شده: '+esc(d.checked||0)+'</div></div>';
+    });
+  }
+  function renderNext(){
+    api("/api/ops/tasks").then(function(d){
+      var st = d.task_status||{};
+      var rows = Object.keys(st).map(function(k){
+        return "<tr><td>"+esc(k)+"</td><td>"+esc(st[k])+"</td></tr>"; }).join("");
+      content.innerHTML = '<div class="card"><h2>قدمِ بعدی <span class="badge">'+
+        esc(d.tasks_total||0)+'</span></h2>'+
+        (rows?'<table><tr><th>وضعیت</th><th>شمار</th></tr>'+rows+'</table>'
+             :'<div class="muted">هیچ کارِ بازی نیست</div>')+'</div>';
+    });
+  }
+
+  var renderers = {home:renderHome,studio:renderStudio,outbound:renderOutbound,approvals:renderApprovals,legs:renderLegs,value:renderValue,registry:renderRegistry,truth:renderTruth,pf:renderPF,brain:renderBrain,governor:renderGovernor,obsidian:renderObsidian,next:renderNext};
+  // ⚠️ سکوت را بلند کن. نسخهٔ قبلی `renderers[name]||renderHome` بود، پس یک تبِ
+  // بی‌رندرکننده **بی‌صدا** محتوای خانه را نشان می‌داد — کلاسِ باگی که کلِ امروز
+  // دنبالش بودیم، این‌بار در UI. حالا تبِ ناشناخته خودش را اعلام می‌کند.
+  function render(name){
+    var fn = renderers[name];
+    if(!fn){
+      content.innerHTML = '<div class="card"><h2>این تب هنوز رندرکننده ندارد</h2>'+
+        '<div class="muted">تبِ «'+esc(name)+'» در HTML هست ولی هیچ تابعی آن را نمی‌سازد. '+
+        'این پیام عمدی است: قبلاً بی‌صدا صفحهٔ خانه نشان داده می‌شد.</div></div>';
+      return;
+    }
+    fn();
+  }
 
   // boot
   setAuth(devMode ? "dev-mode" : "…");

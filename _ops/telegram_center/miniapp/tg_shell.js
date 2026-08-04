@@ -51,6 +51,45 @@
     return vars;
   }
 
+  /* ─── تمِ تلگرام ───────────────────────────────────────────────────────
+   * تا امروز رنگ‌ها هاردکد بودند (`#0f1117`)، پس اگر تلگرامِ مالک لایت باشد
+   * اپ مثلِ یک وصلهٔ تیره وسطش می‌نشیند.
+   *
+   * ⚠️ ناوردیِ باربر: **کلیدِ غایب هرگز نوشته نمی‌شود.** اگر `themeParams`
+   * نباشد یا ناقص باشد، پالتِ فعلی بایت‌به‌بایت سرِ جایش می‌ماند. نوشتنِ
+   * مقدارِ خالی یعنی متنِ سفید روی زمینهٔ سفید — یعنی صفحهٔ عملاً نامرئی،
+   * که بدترین شکلِ «دیده نمی‌شود» است.
+   */
+  var THEME_MAP = {
+    bg_color: "--bg",
+    secondary_bg_color: "--card",
+    section_bg_color: "--card",
+    text_color: "--text",
+    hint_color: "--muted",
+    link_color: "--accent",
+    accent_text_color: "--accent",
+    destructive_text_color: "--red"
+  };
+
+  function _isColor(v) {
+    return typeof v === "string" && /^#[0-9a-fA-F]{3,8}$/.test(v.trim());
+  }
+
+  function themeVars(tg) {
+    var tp = (tg && tg.themeParams) || {};
+    var out = {};
+    Object.keys(THEME_MAP).forEach(function (k) {
+      if (_isColor(tp[k])) { out[THEME_MAP[k]] = tp[k].trim(); }
+    });
+    return out;
+  }
+
+  function applyTheme(tg, setVar) {
+    var vars = themeVars(tg);
+    Object.keys(vars).forEach(function (k) { setVar(k, vars[k]); });
+    return vars;
+  }
+
   /* ─── شناساییِ قابلیت ──────────────────────────────────────────────────
    * هرگز «نسخه» را نمی‌خوانیم؛ خودِ تابع را می‌سنجیم. نسخه‌سنجی روی
    * کلاینت‌های میانی دروغ می‌گوید، وجودِ تابع نه.
@@ -83,6 +122,7 @@
     if (!caps.present) {
       // حالتِ dev — بدونِ تلگرام. هیچ استثنایی، صفحه باید کار کند.
       applyInsets(null, setVar);
+      // عمداً applyTheme صدا زده نمی‌شود: بی‌تلگرام هیچ رنگی نباید عوض شود.
       return { caps: caps, wired: wired, mode: "dev" };
     }
 
@@ -96,11 +136,14 @@
 
     applyInsets(tg, setVar);
     wired.push("insets");
+    applyTheme(tg, setVar);
+    wired.push("theme");
 
     if (caps.events) {
       var sub = function (name, fn) {
         try { tg.onEvent(name, fn); wired.push(name); } catch (e) {}
       };
+      sub("themeChanged", function () { applyTheme(tg, setVar); });
       sub("safeAreaChanged", function () { applyInsets(tg, setVar); });
       sub("contentSafeAreaChanged", function () { applyInsets(tg, setVar); });
       sub("fullscreenChanged", function () { onFullscreen(!!tg.isFullscreen); });
@@ -133,6 +176,8 @@
   return {
     insetVars: insetVars,
     applyInsets: applyInsets,
+    themeVars: themeVars,
+    applyTheme: applyTheme,
     capabilities: capabilities,
     initShell: initShell,
     toggleFullscreen: toggleFullscreen,

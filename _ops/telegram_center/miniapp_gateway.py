@@ -58,6 +58,9 @@ READ_API_PATHS = {
     "/api/state", "/api/outbound", "/api/approvals", "/api/legs",
     "/api/value", "/api/ui-registry", "/api/current-truth",
     "/api/ops", "/api/ops/brain", "/api/ops/leads", "/api/ops/tasks",
+    # ۲۰۲۶-۰۸-۰۴: دو تابعِ یتیمِ `miniapp_state` که مسیر نداشتند و تبِ
+    # متناظرشان بی‌داده مانده بود. همان درِ owner-auth، بدونِ استثنا.
+    "/api/governor", "/api/obsidian",
     # نمایِ lifecycle (miniapp_state.get_lifecycle_state، پشتِ OCTOPUS_PF_MINIAPP).
     # برشِ ۳ این مسیر را هنگامِ بستنِ route های read جا انداخته بود: handler در
     # miniapp_state.py هست ولی هرگز dispatch نمی‌شد → 404 حتی با فلگِ روشن.

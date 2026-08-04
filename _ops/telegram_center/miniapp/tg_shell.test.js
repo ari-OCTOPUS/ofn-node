@@ -104,6 +104,54 @@ t("رویدادِ safeAreaChanged دوباره اعمال می‌کند", () => 
   eq(vars["--tg-safe-top"], "99px", "چرخشِ گوشی inset را به‌روز نکرد");
 });
 
+/* ── ۲.۵ تمِ تلگرام ──────────────────────────────────────────────────── */
+t("رنگ‌های تم به متغیرهای CSS نگاشت می‌شوند", () => {
+  const tg = fakeTg();
+  tg.themeParams = { bg_color: "#ffffff", text_color: "#000000",
+                     hint_color: "#707579", secondary_bg_color: "#f4f4f5" };
+  const v = S.themeVars(tg);
+  eq(v["--bg"], "#ffffff");
+  eq(v["--text"], "#000000");
+  eq(v["--muted"], "#707579");
+  eq(v["--card"], "#f4f4f5");
+});
+
+t("کلیدِ غایب هرگز نوشته نمی‌شود (پالتِ فعلی می‌ماند)", () => {
+  // ⚠️ ناوردیِ باربر: نوشتنِ مقدارِ خالی = متنِ سفید روی زمینهٔ سفید =
+  // صفحهٔ عملاً نامرئی. بدترین شکلِ «دیده نمی‌شود».
+  const tg = fakeTg();
+  tg.themeParams = { bg_color: "#ffffff" };
+  const v = S.themeVars(tg);
+  eq(Object.keys(v), ["--bg"], "کلیدهای غایب هم نوشته شدند");
+  ok(!("--text" in v) && !("--muted" in v));
+});
+
+t("مقدارِ نامعتبر رد می‌شود، نه اینکه داخلِ CSS برود", () => {
+  const tg = fakeTg();
+  tg.themeParams = { bg_color: "خراب", text_color: "", hint_color: null,
+                     link_color: "#1a8cff" };
+  const v = S.themeVars(tg);
+  eq(Object.keys(v), ["--accent"], "مقدارِ بی‌اعتبار وارد شد");
+});
+
+t("بدونِ تلگرام هیچ رنگی عوض نمی‌شود", () => {
+  const written = {};
+  S.initShell(null, { setVar: (k, val) => { written[k] = val; } });
+  const colorKeys = Object.keys(written).filter(k => !k.startsWith("--tg-"));
+  eq(colorKeys, [], "حالتِ dev رنگ نوشت");
+});
+
+t("رویدادِ themeChanged دوباره اعمال می‌کند", () => {
+  const tg = fakeTg();
+  tg.themeParams = { bg_color: "#000000" };
+  const written = {};
+  S.initShell(tg, { setVar: (k, val) => { written[k] = val; } });
+  eq(written["--bg"], "#000000");
+  tg.themeParams = { bg_color: "#ffffff" };
+  fire(tg, "themeChanged");
+  eq(written["--bg"], "#ffffff", "سوییچِ لایت/دارک اعمال نشد");
+});
+
 /* ── ۳. فعال/غیرفعال — ارزشِ عملیاتی ─────────────────────────────────── */
 t("‏deactivated باعثِ توقف و activated باعثِ ادامه می‌شود", () => {
   const tg = fakeTg({ isActive: true });
