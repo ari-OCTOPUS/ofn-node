@@ -647,6 +647,8 @@ function draw() {
 const PIECES = document.getElementById('pieces');
 const DRAFT_KEY = 'ziman.draft.v1';
 let pieces = [], money = { currency: 'AUD', symbol: '$' };
+// Whether her hours are inside the cost at all. See `money_view`.
+let timeCounted = true;
 let gstKnown = true;
 /* `step` is where she is; `reached` is the furthest she has been. Two
    numbers, because going back must not un-answer what is already
@@ -719,9 +721,20 @@ function costBar() {
     return bar;
   }
   const gain = price - cogs;
-  bar.className = 'cost ' + (gain < 0 ? 'loss' : 'good');
-  bar.append(el('span', null, gain < 0 ? 'ضرر روی هر دانه' : 'سود شما'),
-             el('b', null, aud(Math.abs(gain))));
+  /* When her hours are not in `cogs`, this number is still arithmetic — but
+     calling it "your profit" would be the system stating, with the same
+     confidence as every other figure on the screen, something it has no
+     basis for. It says what it actually knows instead: the money spent came
+     back. The green class is withheld for the same reason; a green mark
+     means "you are fine", and nobody has counted the evenings. */
+  bar.className = 'cost ' + (gain < 0 ? 'loss' : (timeCounted ? 'good' : ''));
+  bar.append(
+    el('span', null, gain < 0 ? 'ضرر روی هر دانه'
+                   : (timeCounted ? 'سود شما' : 'بیشتر از خرج مواد')),
+    el('b', null, aud(Math.abs(gain))));
+  if (gain >= 0 && !timeCounted) {
+    bar.append(el('div', 'guide', 'وقت شما در این عدد نیست.'));
+  }
   return bar;
 }
 
@@ -855,9 +868,14 @@ function priceNote() {
         : 'این قیمت ضرر می‌دهد — روی هر دانه ' + aud(cogs - price)
           + ' از جیب خودتان می‌رود.'));
   }
+  /* The 2x/2.5x rule of thumb assumes the cost it multiplies includes
+     labour. Against materials alone it is a much weaker guide, and offering
+     it unqualified would turn a missing input into a recommendation. */
   slot.append(el('div', 'guide',
     'برای مقایسه: ' + aud(cogs * 2) + ' یا ' + aud(cogs * 2.5)
-    + '. تصمیم با خودتان است.'));
+    + '. تصمیم با خودتان است.'
+    + (timeCounted ? '' : ' این نسبت‌ها وقتی معنی دارند که وقت هم در خرج'
+                        + ' حساب شده باشد — اینجا نشده.')));
   if (!gstKnown) {
     slot.append(el('div', 'guide',
       'بدون احتساب GST — تا وقتی نگفته‌اید ثبت‌نام کرده‌اید یا نه، این سود نهایی نیست.'));
@@ -977,8 +995,14 @@ function pieceRow(p) {
   if (p.verdicts && p.verdicts.indexOf('quick_sale') >= 0) bits.push('⚡ زود فروخت');
   l.append(el('div', 's', bits.join(' · ')));
   box.append(l);
-  box.append(el('div', 'r', p.loses_money ? '🔴 ضررده'
-    : (p.gross_margin_aud != null ? aud(p.gross_margin_aud) : STATE_FA[p.state])));
+  /* A bare number in this column is read as profit — it sits where profit
+     has always sat. With her hours outside `cogs_aud` it is not profit, so
+     it carries a mark that the detail screen explains. */
+  const marginCell = p.loses_money ? '🔴 ضررده'
+    : (p.gross_margin_aud != null
+        ? aud(p.gross_margin_aud) + (p.time_counted === false ? '*' : '')
+        : STATE_FA[p.state]);
+  box.append(el('div', 'r', marginCell));
   box.onclick = () => { OFN.tap(); openPiece(p); };
   return box;
 }
@@ -996,13 +1020,21 @@ function openPiece(p) {
   line('خرجش', aud(p.cogs_aud));
   line('قیمت', p.price_primary_aud == null ? 'نگذاشتید' : aud(p.price_primary_aud));
   if (p.price_secondary_aud != null) line('کمترین قیمت', aud(p.price_secondary_aud));
-  if (p.gross_margin_aud != null) line('سود', aud(p.gross_margin_aud));
+  if (p.gross_margin_aud != null) {
+    line(p.time_counted === false ? 'بیشتر از خرج مواد' : 'سود',
+         aud(p.gross_margin_aud));
+  }
   line('حالا', STATE_FA[p.state] + (p.channel ? ' · ' + CHANNEL_FA[p.channel] : ''));
   box.append(t);
   if (p.loses_money && p.judged_price_aud != null) {
     box.append(el('div', 'warn-loss',
       'این قیمت ضرر می‌دهد — روی هر دانه ' + aud(p.cogs_aud - p.judged_price_aud)
       + ' از جیب خودتان می‌رود.'));
+  }
+  if (p.time_counted === false && p.gross_margin_aud != null) {
+    box.append(el('div', 'guide',
+      'این عدد فقط مواد و بسته‌بندی را پوشش می‌دهد. وقتی که روی این قطعه '
+      + 'گذاشته‌اید در آن حساب نشده.'));
   }
   if (p.net_margin_blocked) {
     box.append(el('div', 'guide',
@@ -1105,6 +1137,10 @@ async function load() {
   pieces = data.products || [];
   money = { currency: data.currency || 'AUD', symbol: data.symbol || '$' };
   gstKnown = data.gst_known !== false;
+  /* Same shape as `gstKnown`: a gap the screen labels rather than papers
+     over. Absent means the node is old, and the safe reading of an absent
+     answer is the one that claims less. */
+  timeCounted = data.time_counted !== false;
   home();
 }
 

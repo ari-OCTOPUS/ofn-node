@@ -339,9 +339,9 @@ def net_margin_aud(p: Product,
     return price - channel_fee(price, p.channel, fees) - p.cogs_aud
 
 
-def money_view(p: Product, *, gst_rate: float,
-               gst_known: bool) -> dict[str, Any]:
-    """The money numbers as they may be shown, given what we know about tax.
+def money_view(p: Product, *, gst_rate: float, gst_known: bool,
+               time_counted: bool = True) -> dict[str, Any]:
+    """The money numbers as they may be shown, given what we know.
 
     Single source for anything a screen or an export prints, because the one
     way to get this wrong is to have two places compute it and disagree.
@@ -355,18 +355,36 @@ def money_view(p: Product, *, gst_rate: float,
     When nobody has said yet, no final figure is claimed: the numbers are
     returned with `gst_known` false so the screen can label them, rather
     than a number that looks settled and is not.
+
+    `time_counted` is the same rule applied to a second gap. When the pack
+    declares no labour term, `cogs_aud` is what was *bought* and none of the
+    hours are in it. The subtraction below is still arithmetic — but calling
+    its result "profit" would be the system stating, with the same confidence
+    as every other number on the screen, something it has no basis for.
+
+    So the figure travels with a flag rather than being suppressed. Hiding it
+    would be its own lie: materials really are covered, and that is worth
+    knowing. What must not happen is a green mark that means "you are fine"
+    when nobody has counted the evenings.
     """
     price = p.judged_price_aud
     rate = gst_rate if gst_known else 0.0
     net = None if price is None else price / (1.0 + rate)
+    over_cost = None if net is None else net - p.cogs_aud
     return {
         "judged_price_aud": price,
         "price_ex_tax_aud": net,
-        "margin_aud": None if net is None else net - p.cogs_aud,
+        # Named `margin` for every caller that already reads it. What it
+        # *means* is now qualified by the two flags below, not by its name.
+        "margin_aud": over_cost,
         "margin_pct": None if not net else (net - p.cogs_aud) / net,
+        # Still exactly true when it fires: below this price the money spent
+        # on materials does not come back. Its being false is what changes
+        # meaning — that is now "costs covered", not "profitable".
         "loses_money": net is not None and net < p.cogs_aud,
         "gst_known": gst_known,
         "gst_rate": rate,
+        "time_counted": time_counted,
     }
 
 

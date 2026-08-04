@@ -84,7 +84,19 @@ class TestLossIsStatedInWords(unittest.TestCase):
         self.assertIn("این قیمت ضرر می‌دهد", SRC)
         # The pinned bar turns red rather than printing a bare minus sign.
         self.assertIn(".cost.loss{", SRC)                    # the style exists
-        self.assertIn("(gain < 0 ? 'loss' : 'good')", SRC)   # and is applied
+        # ...and is applied. Asserted as the loss branch rather than as the
+        # whole expression: this used to pin the literal
+        # `(gain < 0 ? 'loss' : 'good')`, which made it fail when the *other*
+        # branch changed — the non-loss case stopped being unconditionally
+        # "good" once her hours left the cost. Pinning a whole expression to
+        # test one of its branches is a test that reports edits, not faults.
+        self.assertRegex(SRC, r"gain < 0 \? 'loss'")
+
+    def test_the_non_loss_branch_is_not_unconditionally_green(self):
+        """Green means "you are fine". With labour outside `cogs_aud` nobody
+        has counted the evenings, so the mark is withheld — see
+        `test_time_is_not_claimed.py`."""
+        self.assertRegex(SRC, r"timeCounted \? 'good' : ''")
 
     def test_the_loss_is_visible_while_she_types_not_after(self):
         """Rewritten 2026-08-04 with the one-question-per-screen layout.

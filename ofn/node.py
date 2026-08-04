@@ -231,7 +231,12 @@ class Node:
         """
         out = p.as_dict(today)
         known, rate = gst
-        view = money_view(p, gst_rate=rate, gst_known=known)
+        # Whether her hours are inside `cogs_aud` at all. Read from the pack
+        # rather than hardcoded, so that the day a labour term is declared
+        # again the screens go back to saying "profit" without an edit here.
+        time_counted = bool(pack.labour_hours_field and pack.labour_rate_field)
+        view = money_view(p, gst_rate=rate, gst_known=known,
+                          time_counted=time_counted)
         # One computation, one answer. The screen, the export and the verdict
         # all read these, so they cannot drift apart.
         out.update(view)
@@ -257,7 +262,13 @@ class Node:
                 for p in self._pieces().list(scope.tenant.value)]
         return {"products": rows, "currency": pack.locale.currency.code,
                 "symbol": pack.locale.currency.symbol,
-                "gst_known": gst[0], "gst_rate": gst[1]}
+                "gst_known": gst[0], "gst_rate": gst[1],
+                # Beside `gst_known` because it is the same kind of fact: a
+                # gap the screen must label rather than paper over. The form
+                # reads it while a piece is still being typed, before any row
+                # exists to carry it.
+                "time_counted": bool(pack.labour_hours_field
+                                     and pack.labour_rate_field)}
 
     def create_product(self, scope: TenantScope, user_id: str,
                        body: Mapping[str, object]) -> dict:
