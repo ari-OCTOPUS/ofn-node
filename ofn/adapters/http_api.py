@@ -145,6 +145,9 @@ class ApiApp:
         update_product: Callable[[TenantScope, str, str, dict], dict] | None = None,
         attach_photo: Callable[[TenantScope, str, str, dict], dict] | None = None,
         studio_board: Callable[[TenantScope], dict] | None = None,
+        studio_reading: Callable[[TenantScope], dict] | None = None,
+        request_reading: Callable[[TenantScope], dict] | None = None,
+        judge_reading: Callable[[TenantScope, str, str], dict] | None = None,
         create_draft: Callable[[TenantScope, str, dict], dict] | None = None,
         attach_media: Callable[[TenantScope, str, str, dict], dict] | None = None,
         publish_draft: Callable[[TenantScope, str, str, dict], dict] | None = None,
@@ -164,6 +167,9 @@ class ApiApp:
         self._brain_probe = brain_probe
         self._owner_ask = owner_ask
         self._studio_board = studio_board
+        self._studio_reading = studio_reading
+        self._request_reading = request_reading
+        self._judge_reading = judge_reading
         self._create_draft = create_draft
         self._attach_media = attach_media
         self._publish_draft = publish_draft
@@ -357,6 +363,24 @@ class ApiApp:
             return Response(200 if out.get("ok") else 400, out)
 
         # ── studio ───────────────────────────────────────────────────────
+        if method == "GET" and path == "/api/v1/studio/reading":
+            if self._studio_reading is None:
+                return Response(404, {"error": "not found"})
+            return Response(200, self._studio_reading(scope))
+        if method == "POST" and path == "/api/v1/studio/reading":
+            # Asking costs money; reading is free. Two verbs on one path so a
+            # screen that merely opens cannot spend.
+            if self._request_reading is None:
+                return Response(404, {"error": "not found"})
+            out = self._request_reading(scope)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path == "/api/v1/studio/reading/judge":
+            data = _json_object(body)
+            if data is None or self._judge_reading is None:
+                return Response(400, {"error": "bad request"})
+            out = self._judge_reading(scope, str(data.get("key", "")),
+                                      str(data.get("disposition", "")))
+            return Response(200 if out.get("ok") else 400, out)
         if method == "GET" and path == "/api/v1/studio/board":
             if self._studio_board is None:
                 return Response(404, {"error": "not found"})

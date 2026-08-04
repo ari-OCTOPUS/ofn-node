@@ -29,10 +29,12 @@ from .kernel.consent import may_publish, subjects_needing_attention
 from .kernel.domain import (
     Action, Confidence, Decision, PackSpec, RiskTier, TenantId,
 )
+from .adapters.advisor import MIN_SAMPLE as ADVISOR_MIN_SAMPLE
+from .adapters.advisor import Advisor, render_for_screen
 from .kernel.callbudget import CallBudget
 from .kernel.errors import FailClosedError
 from .kernel.probe import QUESTIONS as PROBE_QUESTIONS
-from .kernel.routing import Rung
+from .kernel.routing import RouteRequest, Rung
 from .kernel.photos import ALLOWED_EDGES
 from .kernel.photos import inspect as photo_inspect
 from .kernel.gates import admit, executable
@@ -139,6 +141,11 @@ class Node:
     # the sentence guards do not get added after.
     worker: object | None = None      # Worker
     call_budget: object | None = None # CallBudget
+    # Phase C: the studio surface may now ask, because the
+    # extraction layer exists. Synchronous rather than queued —
+    # one short question, and the queue is for background work.
+    router: object | None = None      # ModelRouter
+    advisor: object | None = None     # Advisor
 
     # ── gates ─────────────────────────────────────────────────────────────
     @property
@@ -527,6 +534,111 @@ class Node:
         except StudioError as exc:
             return {"ok": False, "error": str(exc)}
         return {"ok": True, "trustworthy": draft.rating_is_trustworthy}
+
+
+    # ── studio reading, tier 0 ────────────────────────────────────────────
+    def studio_measurements(self, scope: TenantScope) -> dict:
+        """Numbers about her work. Nothing that is not a number.
+
+        Built here rather than inside the advisor so the advisor keeps one
+        job — refusing anything that is not evidence — and cannot also be the
+        thing that decides what counts as evidence.
+        """
+        tenant = scope.tenant.value
+        drafts = self.studio.drafts(tenant) if self.studio else []
+        posted = [d for d in drafts if d.status in ("queued", "published")]
+        media = [len(self.studio.media_of(d.draft_id)) for d in posted] \
+            if self.studio else []
+        rated = [d.felt_right for d in drafts
+                 if d.rating_is_trustworthy and d.felt_right is not None]
+        captions = [len(d.caption or "") for d in posted if d.caption]
+        return {
+            "posts_counted": len(posted),
+            "window_days": 90,
+            "media_per_post": (sum(media) / len(media)) if media else 0,
+            "median_caption_chars": (sorted(captions)[len(captions) // 2]
+                                     if captions else 0),
+            # Only ratings given before any platform figure arrived. The rest
+            # are reflections of the number and would make any correlation
+            # look stronger than it is.
+            "felt_right_mean": (sum(rated) / len(rated)) if rated else 0,
+            "felt_right_counted": len(rated),
+        }
+
+    def studio_reading(self, scope: TenantScope) -> dict:
+        """What has been said, and whether anything new can be asked.
+
+        Reading is free and always answers. Asking costs money and is a
+        separate call — a screen that spends on every open is a screen
+        nobody can afford to leave open.
+        """
+        tenant = scope.tenant.value
+        found = self.studio.findings(tenant) if self.studio else []
+        measured = self.studio_measurements(scope)
+        return {
+            "findings": found,
+            "sample": measured["posts_counted"],
+            "enough": measured["posts_counted"] >= ADVISOR_MIN_SAMPLE,
+            "needed": ADVISOR_MIN_SAMPLE,
+        }
+
+    def request_studio_reading(self, scope: TenantScope) -> dict:
+        """Ask for one reading. Tier 0: numbers and labels, never a pixel.
+
+        Every refusal below is a real answer rather than an error to be
+        smoothed over. "Not enough posts yet" is the true state of a business
+        that has just started, and inventing a reading for it would be the
+        one thing this whole advisor exists not to do.
+        """
+        if self.router is None or self.advisor is None:
+            return {"ok": False, "error": "مشاور وصل نیست"}
+        now = self.now_epoch_s()
+        if self.call_budget is not None and not self.call_budget.allows(
+                Rung.REMOTE, now):
+            return {"ok": False, "error": "سقف تماس امروز پر شده"}
+
+        measured = self.studio_measurements(scope)
+        try:
+            request = self.advisor.prepare(
+                measured, sample=measured["posts_counted"],
+                window_days=measured["window_days"])
+        except FailClosedError as exc:
+            return {"ok": False, "error": str(exc)}
+
+        if self.call_budget is not None:
+            self.call_budget.record(Rung.REMOTE, now)
+        result = self.router.ask(
+            scope.tenant, RouteRequest(task="studio:reading",
+                                       max_rung=Advisor.rung_for(request)),
+            request.render(), now_epoch_s=now)
+        if getattr(result, "refused", None):
+            return {"ok": False, "error": "مشاور جواب نداد"}
+
+        finding = self.advisor.interpret(request, getattr(result, "text", ""),
+                                         key="weekly")
+        if finding is None:
+            # Declining is not failing. A model that says the numbers are not
+            # enough has done the right thing, and recording that as advice
+            # would make it look like a suggestion with no content.
+            return {"ok": True, "finding": None,
+                    "note": "مشاور گفت این اعداد برای نتیجه‌گیری کافی نیستند"}
+
+        self.studio.record_finding(
+            scope.tenant.value, key=finding.key, claim=finding.claim,
+            sample=finding.provenance.sample,
+            window_days=finding.provenance.window_days, now_epoch_s=now)
+        return {"ok": True, "finding": render_for_screen(finding)}
+
+    def judge_studio_finding(self, scope: TenantScope, key: str,
+                             disposition: str) -> dict:
+        """Her verdict on a suggestion. A hard rejection is final."""
+        if self.studio is None:
+            return {"ok": False, "error": "استودیو در دسترس نیست"}
+        try:
+            self.studio.judge_finding(scope.tenant.value, key, disposition)
+        except StudioError as exc:
+            return {"ok": False, "error": str(exc)}
+        return {"ok": True}
 
     # ── products ──────────────────────────────────────────────────────────
     def _pieces(self) -> ProductStore:

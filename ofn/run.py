@@ -19,6 +19,7 @@ import threading
 import time
 
 from . import config
+from .adapters.advisor import Advisor
 from .adapters.audience_store import AudienceStore
 from .adapters.boot import BootSupervisor
 from .kernel.callbudget import CallBudget
@@ -156,6 +157,9 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         update_product=node.update_product,
         attach_photo=node.attach_product_photo,
         studio_board=node.studio_board,
+        studio_reading=node.studio_reading,
+        request_reading=node.request_studio_reading,
+        judge_reading=node.judge_studio_finding,
         create_draft=node.create_draft,
         attach_media=node.attach_media,
         publish_draft=node.publish_draft,
@@ -257,6 +261,11 @@ def main() -> int:
     # capture the None and look identical until the first request.
     node.worker = worker
     node.call_budget = CallBudget()
+    # Phase C: the studio surface may ask now, because the
+    # extraction layer exists. Same router the worker uses, so
+    # there is one place that spends and one budget that counts.
+    node.router = worker._router
+    node.advisor = Advisor()
     threading.Thread(target=worker_loop, args=(worker, _stop),
                      daemon=True).start()
     print(f"worker running — {worker.status()}")

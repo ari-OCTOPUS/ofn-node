@@ -166,19 +166,70 @@ class TestCallBudgetIsPerRung(unittest.TestCase):
         self.assertEqual(day_index(NOW) + 1, day_index(NOW + DAY))
 
 
-class TestThePartnerSurfacesAreStillDisconnected(unittest.TestCase):
-    """Phase A is the owner only. The extraction layer that stops a pixel
-    reaching a model does not exist yet, and "we will add the guard later"
-    is the sentence guards do not get added after."""
+class TestThePartnerSurfaceReachesTheBrainOnlyThroughTheGuard(unittest.TestCase):
+    """Phase A was the owner only, and this class asserted that no partner
+    route touched the brain at all. That assertion did its job — it held the
+    door shut until the extraction layer existed — and then phase C opened
+    it deliberately.
 
-    def test_no_partner_route_reaches_the_brain(self):
+    So it is rewritten rather than deleted, into the guarantee that now
+    matters: the partner path reaches a model only through something that
+    cannot carry a pixel.
+    """
+
+    def test_the_partner_surface_never_touches_the_worker_or_the_router(self):
+        """Reaching either directly would be a path with no extraction layer
+        on it, which is exactly what phase B exists to prevent."""
         import inspect
 
         from ofn.adapters import http_api
         src = inspect.getsource(http_api.ApiApp._partner_route)
-        for word in ("brain", "worker", "ask", "probe"):
-            self.assertNotIn(word, src.lower(),
-                             f"the partner surface mentions {word}")
+        # Attribute names, not words. The first version banned "submit" and
+        # tripped on `_submit_answer`, which is the kernel's question path
+        # and has nothing to do with a model — matching prose again.
+        for attr in ("self._worker", "self._router", "self._brain_probe",
+                     "self._owner_ask"):
+            self.assertNotIn(attr, src,
+                             f"the partner surface reaches {attr}")
+
+    def test_the_only_partner_path_to_a_model_goes_via_the_advisor(self):
+        import inspect
+
+        from ofn.node import Node
+        src = inspect.getsource(Node.request_studio_reading)
+        # Prepared by the advisor, which refuses anything that is not
+        # evidence, before anything is asked.
+        self.assertLess(src.index("self.advisor.prepare"),
+                        src.index("self.router.ask"))
+
+    def test_nothing_but_the_rendered_request_is_sent(self):
+        """Not the raw measurements, and not anything a caller appended."""
+        import inspect
+
+        from ofn.node import Node
+        src = inspect.getsource(Node.request_studio_reading)
+        self.assertIn("request.render()", src)
+        self.assertNotIn("measured,", src.split("self.router.ask")[1])
+
+    def test_the_studio_write_paths_still_reach_no_model(self):
+        import inspect
+
+        from ofn.node import Node
+        for name in ("studio_board", "create_draft", "attach_media",
+                     "publish_draft", "record_felt"):
+            src = inspect.getsource(getattr(Node, name))
+            for word in ("router", "worker", "advisor"):
+                self.assertNotIn(word, src, f"{name} reaches {word}")
+
+    def test_reading_is_free_and_asking_is_not(self):
+        """A screen that spends on every open is one nobody can afford to
+        leave open."""
+        import inspect
+
+        from ofn.node import Node
+        self.assertNotIn("router", inspect.getsource(Node.studio_reading))
+        self.assertIn("call_budget",
+                      inspect.getsource(Node.request_studio_reading))
 
     def test_the_brain_routes_are_owner_only(self):
         import inspect

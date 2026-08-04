@@ -106,6 +106,24 @@ SCHEMA = (
         PRIMARY KEY (draft_id, position, platform)
     )
     """,
+    """
+    CREATE TABLE IF NOT EXISTS advisor_findings (
+        key         TEXT    NOT NULL,
+        tenant_id   TEXT    NOT NULL,
+        claim       TEXT    NOT NULL,
+        -- Both required. A claim whose source is not recorded cannot be
+        -- argued with, and one that cannot be rejected is not advice.
+        sample      INTEGER NOT NULL CHECK (sample > 0),
+        window_days INTEGER NOT NULL CHECK (window_days > 0),
+        created_at  INTEGER NOT NULL,
+        -- The ratchet. `rejected_hard` is never overwritten, so a suggestion
+        -- she has said "never" to does not come back after a restart.
+        disposition TEXT    NOT NULL DEFAULT 'offered'
+                      CHECK (disposition IN ('offered', 'accepted',
+                                             'rejected_soft', 'rejected_hard')),
+        PRIMARY KEY (tenant_id, key)
+    )
+    """,
     "CREATE INDEX IF NOT EXISTS drafts_tenant ON drafts (tenant_id, status)",
     "CREATE INDEX IF NOT EXISTS drafts_collection ON drafts (collection_id)",
     "CREATE INDEX IF NOT EXISTS collections_tenant ON collections (tenant_id)",
@@ -379,6 +397,62 @@ class StudioStore:
             self._conn.execute("ROLLBACK")
             raise StudioError(
                 f"«{draft_id}» موقعیت {position} روی {platform} از قبل ثبت شده")
+
+    # ── advisor findings ──────────────────────────────────────────────────
+    def record_finding(self, tenant: str, *, key: str, claim: str,
+                       sample: int, window_days: int, now_epoch_s: int) -> None:
+        """Keep a finding, unless she has already said never to it.
+
+        The ratchet lives in the WHERE clause rather than in a check above
+        it: two callers racing would both pass a read-then-write check, and
+        the one that loses would still overwrite a hard rejection.
+        """
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            self._conn.execute(
+                "INSERT INTO advisor_findings (key, tenant_id, claim, sample, "
+                "window_days, created_at) VALUES (?, ?, ?, ?, ?, ?) "
+                "ON CONFLICT(tenant_id, key) DO UPDATE SET "
+                "claim = excluded.claim, sample = excluded.sample, "
+                "window_days = excluded.window_days, "
+                "created_at = excluded.created_at "
+                "WHERE advisor_findings.disposition != 'rejected_hard'",
+                (key, tenant, claim, sample, window_days, now_epoch_s))
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+
+    def judge_finding(self, tenant: str, key: str, disposition: str) -> None:
+        """Opinions harden. A hard rejection is final."""
+        if disposition not in ("accepted", "rejected_soft", "rejected_hard"):
+            raise StudioError(f"داوری نامعتبر: {disposition!r}")
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            self._conn.execute(
+                "UPDATE advisor_findings SET disposition = ? "
+                "WHERE tenant_id = ? AND key = ? "
+                "AND disposition != 'rejected_hard'",
+                (disposition, tenant, key))
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+
+    def findings(self, tenant: str) -> list[dict]:
+        """What may still be shown. Hard rejections never appear again."""
+        return [{"key": r[0], "claim": r[1], "sample": int(r[2]),
+                 "window_days": int(r[3]), "disposition": r[4]}
+                for r in self._conn.execute(
+                    "SELECT key, claim, sample, window_days, disposition "
+                    "FROM advisor_findings WHERE tenant_id = ? "
+                    "AND disposition != 'rejected_hard' "
+                    "ORDER BY created_at DESC", (tenant,))]
+
+    def dispositions(self, tenant: str) -> dict:
+        return {r[0]: r[1] for r in self._conn.execute(
+            "SELECT key, disposition FROM advisor_findings WHERE tenant_id = ?",
+            (tenant,))}
 
     def sent_for(self, draft_id: str) -> list[tuple[int, str, str, int]]:
         return [(int(r[0]), str(r[1]), str(r[2]), int(r[3]))
