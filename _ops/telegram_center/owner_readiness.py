@@ -590,6 +590,36 @@ def _check_miniapp(P: dict, now: float, live: bool) -> list:
             rows.append(_row("miniapp.url", OK,
                              f"آدرسِ https ِ تازه ({_fa_age(age)} پیش) — "
                              f"PID تونل {data.get('pid')}", ""))
+    # ── ثبت، نه فقط دسترس‌پذیری (فاز ۲، ۲۰۲۶-۰۸-۰۴) ───────────────────────
+    # هر ردیفِ بالا **دسترس‌پذیری** را می‌سنجد: آدرس https است، پورت جواب
+    # می‌دهد. هیچ‌کدام نمی‌پرسد «تلگرام اصلاً این اپ را می‌شناسد؟» — و جوابِ
+    # زندهٔ امروز `has_main_web_app=False` و منویِ `commands` بود، یعنی این
+    # گزارش سبز می‌داد در حالی که هیچ مینی‌اپی ثبت نشده بود. شاهدِ رفتاری هم
+    # همین را گفت: در ۸۸ ساعت لاگِ ضربه، **یک** نشستِ احرازشده.
+    if not live:
+        rows.append(_row("miniapp.registration", WARN,
+                         "ثبتِ مینی‌اپ بررسی نشد (live=False)",
+                         "با check(live=True) بسنج"))
+    else:
+        _mreg = None
+        try:
+            import miniapp_registration as _mreg  # noqa: PLC0415
+            _st = _mreg.status()
+        except Exception as e:  # noqa: BLE001
+            _st = {"state": "unknown", "ok": False,
+                   "why": f"ماژولِ ثبت در دسترس نیست ({type(e).__name__})"}
+        # ⚠️ `unknown` عمداً WARN است نه OK: نبودِ داده حکم نیست، و همین
+        # ترجمهٔ غلط اجازه داد چهار روز سبز ببینیم.
+        _lvl = OK if _st.get("ok") else (
+            WARN if _st.get("state") == "unknown" else BLOCKER)
+        _msg = (_mreg.summary_line(_st) if _mreg is not None
+                else f"ثبتِ مینی‌اپ: {_st.get('state')} — {_st.get('why')}")
+        rows.append(_row(
+            "miniapp.registration", _lvl, _msg,
+            "" if _st.get("ok") else
+            "اول آدرسِ پایدار (تونلِ نام‌دار)، بعد BotFather ‏/newapp یا "
+            "setChatMenuButton — ثبت روی میزبانِ گذرا بی‌معنی است"))
+
     if not live:
         rows.append(_row("miniapp.gateway", WARN,
                          "پورتِ ۸۷۷۴ بررسی نشد (live=False)",

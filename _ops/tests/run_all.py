@@ -419,6 +419,13 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # بعد از مرگ می‌رسد. و راهنمای نامِ نخ‌ها، چون faulthandler فقط
          # شناسهٔ هگز می‌نویسد و «کدام لِن گیر کرده؟» بی‌جواب می‌ماند.
          "test_stall_probe.py",
+         # ۰۸-۰۴ فاز ۲ ← سبزی که چهار روز دروغ گفت. گزارشِ آمادگی فقط
+         # **دسترس‌پذیری** را می‌سنجید (آدرس https است، پورت جواب می‌دهد) و
+         # هرگز نمی‌پرسید «تلگرام اصلاً این اپ را می‌شناسد؟». جوابِ زنده:
+         # has_main_web_app=False و منویِ commands — یعنی هیچ مینی‌اپی ثبت
+         # نشده بود. شاهدِ رفتاری: در ۸۸ ساعت لاگ، **یک** نشستِ احرازشده.
+         # ناوردیِ مرکزی: `unknown` هرگز `ok` نمی‌شود.
+         "test_miniapp_registration.py",
          "test_sync_health_unknown.py",
          "test_arbiter_consensus_rule.py",
          "test_state_write_monopoly.py",
