@@ -191,6 +191,23 @@ def t_e_a_flag_gated_command_is_explained_not_silent():
     assert disp[-1]["reason"], "دلیل باید نامِ فلگ را ببرد وگرنه مالک نمی‌داند چه کند"
 
 
+def t_q_every_row_names_the_bot_that_saw_it():
+    """این ریپو **دو** poller دارد. رسیدِ زندهٔ ۱۵:۵۷ نشان داد ردیفِ ورودِ مرکز
+    بی‌برچسب می‌رفت، در حالی که باتِ درونی و ردیفِ «چرا» هر دو برچسب داشتند —
+    پس «کدام بات دیدش؟» فقط با حدس‌زدن از بازهٔ update_id جواب داشت، یعنی
+    همان سؤالی که کلِ این لاگ برای جواب‌دادنش ساخته شد."""
+    m, c, state = _center()
+    _drive(c, [{"update_id": 9401,
+                "message": {"text": "/panel", "chat": {"id": 555, "type": "private"},
+                            "from": {"id": 555}}}])
+    rows = [r for r in _rows(state / "telegram" / "inbound-log.jsonl")
+            if r.get("update_id") == 9401]
+    assert rows, "هیچ ردیفی نوشته نشد"
+    unlabelled = [r for r in rows if not r.get("bot")]
+    assert not unlabelled, ("ردیفِ بی‌برچسبِ بات", unlabelled)
+    assert all(r["bot"] == "center" for r in rows), rows
+
+
 def t_f_arrival_and_disposition_share_one_update_id():
     """قلبِ رِیگ. دو ردیفِ درست که به‌هم وصل نمی‌شوند، عملاً هیچ‌اند."""
     m, c, state = _center()
