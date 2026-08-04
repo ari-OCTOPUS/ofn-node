@@ -2780,6 +2780,26 @@ class Center:
     def _handle_message(self, msg: dict) -> "dict | None":
         text = str(msg.get("text") or "").strip()
         if not text:
+            # ── سکوتِ چهارم (ممیزیِ ۱۱-ایجنتهٔ فاز ۰) ─────────────────────
+            # این return برای **همهٔ** پیام‌هایی می‌افتد که نه متن دارند نه
+            # کپشن. عکس/ویس/سند/ویدئوی DM این‌جا نمی‌رسند — قلابِ capture
+            # بالاتر (خطِ ۲۵۹۷) جوابشان را داده و برگشته، و فلگش هم روی
+            # پروسهٔ زنده روشن است. ولی این‌ها می‌رسند و بی‌صدا می‌میرند:
+            #     استیکر · لوکیشن · video_note · مخاطب · نظرسنجی · تاس ·
+            #     صوتِ بی‌کپشن · animation/GIF · ونیو · پیام‌های سرویس
+            # و مهم‌تر: **هر مدیایی در تاپیک‌های سیستمی/آینهٔ گروه**، چون گیتِ
+            # قلابِ capture چتِ خصوصی می‌خواهد.
+            #
+            # رفتار عمداً عوض نمی‌شود (جوابِ خودکار به استیکر نویز است) — ولی
+            # از این پس مالک می‌تواند بفهمد چرا هیچ نشد.
+            self._log_disposition(
+                None, outcome="no-text-body",
+                reason="پیام نه متن دارد نه کپشن — هیچ روتری ورودی ندارد",
+                detail=next((k for k in ("sticker", "animation", "location",
+                                         "video_note", "contact", "poll", "dice",
+                                         "audio", "venue", "photo", "voice",
+                                         "document", "video")
+                             if k in msg), "other"))
             return None
         cmd = text.split()[0].split("@")[0].lower()
         chat_id = (msg.get("chat") or {}).get("id")  # پاسخ به همان‌جا که پرسید
@@ -3577,8 +3597,21 @@ class Center:
             txt, kb = out if isinstance(out, tuple) else (str(out or ""), None)
             mid = self._client.send(_scrub(txt), chat_id=chat_id, keyboard=kb,
                                     topic_id=self._reply_thread(msg))
-        except Exception:  # noqa: BLE001
+        except Exception as _ask_exc:  # noqa: BLE001
             mid, kind = None, "ask_error"
+            # ── سکوتِ پنجم، و بدترینشان ───────────────────────────────────
+            # این `except` پایانهٔ **همهٔ** متنِ آزادِ مسیریابی‌نشده است — یعنی
+            # حرفِ عادیِ فارسیِ مالک. و چون استثنا این‌جا **گرفته** می‌شود،
+            # هرگز به `run_once` و نامهٔ مرده نمی‌رسد: نه جواب، نه نامهٔ مرده،
+            # نه هشدار. تنها تابعی که کارش «هرگز ساکت نباش» است، ساکت‌ترین
+            # مسیرِ کلِ مرکز بود.
+            #
+            # ⚠️ فقط **نامِ نوعِ** استثنا ثبت می‌شود، نه متنش: پیامِ استثنا
+            # می‌تواند خودِ حرفِ مالک را داخلش داشته باشد (§۱۰).
+            self._log_disposition(
+                None, outcome="ask-error",
+                reason="مسیرِ پرسشِ آزاد استثنا داد و آن را بلعید",
+                detail=type(_ask_exc).__name__)
         return {"kind": kind, "sent": mid is not None}
 
     @staticmethod

@@ -399,6 +399,68 @@ def t_n_a_stale_label_from_a_crashed_round_is_cleared_on_entry():
     assert t.current_update() is None, (
         "برچسبِ جامانده پاک نشد ⇒ اولین پاسخِ بعدی به updateِ مرده می‌چسبد")
 
+    # ⚠️ و حالتی که **فقط** پاک‌سازیِ ورودی می‌تواند بگیرد: خروجِ زودهنگام،
+    # قبل از رسیدن به آزادسازیِ پس‌از‌حلقه. نسخهٔ اولِ این تست این را نداشت و
+    # جهشِ متناظر زنده ماند — چون دورِ خالی هم به آزادسازیِ پس‌از‌حلقه می‌رسید
+    # و هر دو مکانیزم یک نتیجه می‌دادند. یک assert که دو علت را از هم جدا
+    # نکند، هیچ‌کدام را نمی‌سنجد.
+    def _boom(url, timeout):
+        raise OSError("شبکه قطع")
+
+    ch2 = ac.TelegramApprovalChannel(
+        token="test-token", owner_chat_id=4242, http_get=_boom,
+        http_post=lambda url, body, timeout=10.0: {"ok": True},
+        state_dir=d / "state2")
+    t.bind_update(222222)
+    ch2.poll_once()                        # خطای شبکه ⇒ return زودهنگام
+    assert t.current_update() is None, (
+        "خروجِ زودهنگام برچسب را جا گذاشت — آزادسازیِ پس‌از‌حلقه اصلاً اجرا "
+        "نمی‌شود، پس فقط پاک‌سازیِ **ورودی** این را می‌بندد")
+
+
+# ── ۶. دو سکوتی که ممیزیِ ۱۱-ایجنته تأیید کرد ───────────────────────────────
+def t_o_a_message_with_no_text_body_is_explained():
+    """استیکر/لوکیشن/مخاطب/نظرسنجی… می‌رسند و بی‌صدا می‌میرند. عکس و ویسِ DM
+    این‌جا **نمی‌رسند** (قلابِ capture بالاتر جوابشان را می‌دهد و برمی‌گردد)،
+    پس این ردیف مثبتِ کاذب نمی‌سازد."""
+    m, c, state = _center()
+    _drive(c, [{"update_id": 9301,
+                "message": {"sticker": {"file_id": "x"},
+                            "chat": {"id": 555, "type": "private"},
+                            "from": {"id": 555}}}])
+    disp = [r for r in _rows(state / "telegram" / "inbound-log.jsonl")
+            if r.get("kind") == "disposition" and r.get("update_id") == 9301]
+    assert disp, "پیامِ بی‌متن هنوز بی‌دلیل ساکت است"
+    assert disp[-1]["outcome"] == "no-text-body", disp[-1]
+    assert disp[-1]["detail"] == "sticker", (
+        "نوعِ پیام ثبت نشد ⇒ نمی‌شود فهمید کدام دسته گم می‌شود", disp[-1])
+
+
+def t_p_the_free_text_terminus_no_longer_swallows_in_silence():
+    """⚠️ بدترینِ پنج سکوت: پایانهٔ **همهٔ** متنِ آزادِ فارسیِ مالک. چون استثنا
+    این‌جا گرفته می‌شود، هرگز به `run_once` و نامهٔ مرده نمی‌رسد — نه جواب، نه
+    نامهٔ مرده، نه هشدار. تنها تابعی که کارش «هرگز ساکت نباش» است."""
+    m, c, state = _center()
+    c._chat_room = lambda msg, text: None      # مسیر را به پایانه هدایت کن
+
+    def _boom(*a, **k):
+        raise RuntimeError("متنِ محرمانهٔ مالک نباید این‌جا نشت کند")
+
+    c._client.send = _boom
+    _drive(c, [{"update_id": 9302,
+                "message": {"text": "سلامِ ساده",
+                            "chat": {"id": 555, "type": "private"},
+                            "from": {"id": 555}}}])
+    raw = (state / "telegram" / "inbound-log.jsonl").read_text("utf-8")
+    disp = [r for r in _rows(state / "telegram" / "inbound-log.jsonl")
+            if r.get("kind") == "disposition" and r.get("update_id") == 9302]
+    assert disp, "پایانهٔ متنِ آزاد هنوز بی‌صدا می‌بلعد"
+    assert disp[-1]["outcome"] == "ask-error", disp[-1]
+    assert disp[-1]["detail"] == "RuntimeError", (
+        "نوعِ استثنا ثبت نشد", disp[-1])
+    # §۱۰ — پیامِ استثنا می‌تواند حرفِ خودِ مالک را داخلش داشته باشد
+    assert "محرمانه" not in raw, "متنِ استثنا در لاگ نشت کرد — نشتیِ PII"
+
 
 def main():
     tests = [v for k, v in sorted(globals().items())
