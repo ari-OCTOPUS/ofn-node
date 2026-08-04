@@ -208,8 +208,10 @@ class ApiApp:
                                     now_epoch_s=now)
             self._replay.check_and_remember(
                 payload.get("init_data", "")[-64:], now)
-        except AuthError:
-            return Response(401, {"error": "unauthorised"})
+        except AuthError as exc:
+            # Same body to the caller, a named reason in the journal.
+            return Response(401, {"error": "unauthorised"},
+                            {"X-OFN-Auth-Reason": getattr(exc, "reason", "")})
 
         # Signature first, identity second — always in that order, so an
         # unsigned request is told 401 and never learns whether the id it
@@ -339,7 +341,8 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
             # a flash-backed board is a wear source, not a feature.
             pass
 
-        def _audit(self, method: str, path: str, status: int) -> None:
+        def _audit(self, method: str, path: str, status: int,
+                   extra: str = "") -> None:
             """One line for the events worth diagnosing, and nothing else.
 
             Narrow on purpose. Three things are worth a line: a shell being
@@ -355,11 +358,18 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
             if not (page or auth or (path.startswith("/api/") and status >= 400)):
                 return
             leg = (self.headers.get("Host") or "?").split(":")[0].split(".")[0]
-            print(f"http {leg} {method} {path} -> {status}", flush=True)
+            print(f"http {leg} {method} {path} -> {status}{extra}", flush=True)
 
         def _send(self, resp: Response) -> None:
+            # The reason header is for the journal only and is stripped
+            # before the response goes out.
+            reason = resp.headers.get("X-OFN-Auth-Reason", "")
+            if reason:
+                resp.headers = {k: v for k, v in resp.headers.items()
+                                if k != "X-OFN-Auth-Reason"}
             self._audit(self.command,
-                        urllib.parse.urlparse(self.path).path, resp.status)
+                        urllib.parse.urlparse(self.path).path, resp.status,
+                        f"  ({reason})" if reason else "")
             payload = (b"" if resp.body is None
                        else json.dumps(resp.body, ensure_ascii=False).encode())
             self.send_response(resp.status)

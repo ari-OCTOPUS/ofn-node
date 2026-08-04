@@ -132,3 +132,38 @@ class TestRoles(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestFailureReasonIsForTheOperatorOnly(unittest.TestCase):
+    """"Login does not work" should be answerable from the journal.
+
+    The uniform 401 body stays uniform — an attacker learning that the
+    signature was fine but the clock was off is a free oracle. The operator
+    gets a named reason, and it never rides along in the response.
+    """
+
+    def test_a_reason_is_attached_for_the_journal(self):
+        a = app({"ziman": [MALIHEH]})
+        r = a.handle("POST", "/api/v1/auth/session", {"host": "z.test"},
+                     json.dumps({"init_data": init_data("222:other-bot",
+                                                        MALIHEH)}).encode())
+        self.assertEqual(r.status, 401)
+        self.assertEqual(r.headers.get("X-OFN-Auth-Reason"),
+                         "signature_mismatch")
+
+    def test_the_body_says_nothing_beyond_unauthorised(self):
+        a = app({"ziman": [MALIHEH]})
+        r = a.handle("POST", "/api/v1/auth/session", {"host": "z.test"},
+                     json.dumps({"init_data": init_data("222:other-bot",
+                                                        MALIHEH)}).encode())
+        self.assertEqual(r.body, {"error": "unauthorised"})
+
+    def test_reasons_carry_no_identity(self):
+        from ofn.kernel.auth import AuthError, verify_init_data
+        for fields in ({}, {"hash": "x", "auth_date": "0",
+                            "user": '{"id":1}'}):
+            try:
+                verify_init_data(fields, "111:t", now_epoch_s=NOW)
+            except AuthError as exc:
+                self.assertNotIn(MALIHEH, exc.reason)
+                self.assertRegex(exc.reason, r"^[a-z_]+$")

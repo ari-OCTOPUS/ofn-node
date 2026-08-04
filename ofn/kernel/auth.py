@@ -48,7 +48,17 @@ _SAFE = re.compile(r"^[A-Za-z0-9_\-]{1,64}$")
 class AuthError(Exception):
     """Verification failed. Deliberately carries no detail about *which*
     check failed when returned to a client — an attacker learning that the
-    signature was fine but the timestamp was stale is a free oracle."""
+    signature was fine but the timestamp was stale is a free oracle.
+
+    `reason` is for the operator, not the caller. It never reaches a
+    response body; it exists so that "login does not work" can be answered
+    from the journal instead of guessed at. Every value is a fixed word from
+    the set below — never a user id, a name, or any part of the blob.
+    """
+
+    def __init__(self, message: str, reason: str = "") -> None:
+        super().__init__(message)
+        self.reason = reason or message
 
 
 @dataclass(frozen=True)
@@ -100,32 +110,35 @@ def verify_init_data(
     authorisation decision.
     """
     if not bot_token:
-        raise AuthError("verification unavailable")
+        raise AuthError("verification unavailable", "no_bot_token")
 
     received = fields.get("hash", "")
     if not received:
-        raise AuthError("invalid credentials")
+        raise AuthError("invalid credentials", "no_hash")
 
     secret = hmac.new(b"WebAppData", bot_token.encode("utf-8"),
                       hashlib.sha256).digest()
     expected = hmac.new(secret, data_check_string(fields).encode("utf-8"),
                         hashlib.sha256).hexdigest()
     if not hmac.compare_digest(expected, received):
-        raise AuthError("invalid credentials")
+        # The single most common cause is the token in the config not being
+        # the token of the bot the button was configured on — a rotation
+        # that landed in one place and not the other.
+        raise AuthError("invalid credentials", "signature_mismatch")
 
     try:
         auth_date = int(fields.get("auth_date", ""))
     except ValueError:
-        raise AuthError("invalid credentials") from None
+        raise AuthError("invalid credentials", "bad_auth_date") from None
 
     age = now_epoch_s - auth_date
     if age > max_age_s:
-        raise AuthError("invalid credentials")
+        raise AuthError("invalid credentials", "blob_too_old")
     if age < -60:
         # Issued in the future by more than clock skew allows. On a board with
         # no battery-backed clock this is as likely to be our fault as theirs,
         # but accepting it would let a forged future timestamp live forever.
-        raise AuthError("invalid credentials")
+        raise AuthError("invalid credentials", "clock_skew")
 
     user_id, username = _extract_user(fields.get("user", ""))
     return VerifiedUser(user_id=user_id, username=username,
