@@ -104,6 +104,55 @@ class TestDepthMeansOneThing(unittest.TestCase):
         self.assertIn("position:static", block.group(1))
 
 
+class TestAContainerJavaScriptFillsCanGrow(unittest.TestCase):
+    """The front sheet holds two different things and was sized for one.
+
+    Resting, it shows a decision: title, note, strip. That fits 320px, which
+    is where the number came from. But `askCard()` writes a kernel question
+    into the same element — title, note, a textarea, an error line, and two or
+    three 52px buttons — and that does not fit. The sheet was
+    `position:absolute` with `height:320px`, so the excess was painted outside
+    the stack, over the buttons that follow in normal flow. «بعداً» landed on
+    top of «عکس تازه».
+
+    It stayed invisible because `askCard()` only runs when the node answers
+    with questions, and until the SDK ordering was fixed the shell never got
+    that far. See tests/test_shell_boot_order.py.
+
+    What is asserted is the CSS invariant, not the rendered geometry — there
+    is no browser on this board, so this cannot measure that nothing overlaps.
+    It measures the thing that made overlap possible: a box that JavaScript
+    fills, pinned to a height chosen for its emptiest state.
+    """
+
+    def _rule(self, selector):
+        m = re.search(re.escape(selector) + r"\{(.*?)\}", CSS, re.S)
+        self.assertIsNotNone(m, f"{selector} has no rule")
+        return m.group(1)
+
+    def test_the_front_sheet_is_not_pinned_to_a_height(self):
+        body = self._rule(".sheet.front")
+        self.assertNotRegex(
+            body, r"(?<!min-)height:\s*\d",
+            "the front sheet has a fixed height; a question does not fit in "
+            "the height a decision was measured at")
+        self.assertRegex(body, r"min-height:\s*\d")
+
+    def test_the_front_sheet_is_in_flow_so_the_deck_is_sized_by_it(self):
+        """`.sheet` sets position:absolute for the two decorative layers. The
+        one that carries content has to opt out, or its overflow is painted
+        over whatever follows instead of pushing it down."""
+        self.assertRegex(self._rule(".sheet.front"),
+                         r"position:\s*(relative|static)")
+
+    def test_the_deck_is_not_pinned_to_a_height(self):
+        body = self._rule(".stack")
+        self.assertNotRegex(
+            body, r"(?<!min-)height:\s*\d",
+            "the deck cannot grow, so a taller front sheet overflows it")
+        self.assertRegex(body, r"min-height:\s*\d")
+
+
 class TestTheThreeBranchesThatAreNotOptional(unittest.TestCase):
     def test_reduced_motion(self):
         self.assertIn("@media (prefers-reduced-motion:reduce)", CSS)

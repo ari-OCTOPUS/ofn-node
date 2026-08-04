@@ -127,8 +127,13 @@ h1{font-size:22px;font-weight:600;text-wrap:balance;margin-top:1px}
 /* ── یک تصمیم، در جلو ────────────────────────────────────
    عمق = اولویت. کارت فعال جلوتر، روشن، کِرِم.
    بقیه عقب، تیره، و عمداً کم‌جزئیات — تا رقابت نکنند.     */
+/* `min-height`, not `height`. The deck reserves room for the resting state
+   and must still grow, because the front sheet holds two different things:
+   a decision (title + note + strip, which fits) and a kernel question
+   (title + note + textarea + error + two or three buttons, which does not).
+   A fixed height sized to the first silently overflowed on the second. */
 .stack{position:relative;perspective:1400px;perspective-origin:50% 34%;
-  margin:20px 0 8px;height:352px}
+  margin:20px 0 8px;min-height:352px}
 .sheet{position:absolute;inset-inline:0;top:0;border-radius:24px;
   transform-style:preserve-3d;
   transition:transform var(--t) var(--ease),opacity var(--t) var(--ease),
@@ -143,8 +148,14 @@ h1{font-size:22px;font-weight:600;text-wrap:balance;margin-top:1px}
   filter:blur(1px)}
 
 /* لایهٔ جلو — کِرِم. اینجاست که «خیلی تیره نباشد» اتفاق می‌افتد. */
+/* The one sheet that carries content is the one sheet in normal flow, so the
+   deck is sized BY it instead of guessing at it. While it was `absolute` its
+   overflow was painted outside the stack entirely and landed on the buttons
+   below — «بعداً» sitting on top of «عکس تازه». The back two stay absolute:
+   they are decoration and have nothing to size. */
 .sheet.front{
-  height:320px;padding:22px;display:flex;flex-direction:column;
+  position:relative;
+  min-height:320px;padding:22px;display:flex;flex-direction:column;
   background:linear-gradient(166deg,#F3EADC,var(--cream));
   color:var(--on-cream);
   border:1px solid rgb(90 26 38/.14);
