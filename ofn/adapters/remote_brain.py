@@ -58,7 +58,9 @@ class RemoteBrain:
         if not self.api_key:
             # Missing credential is not an outage — it is a configuration
             # state, and it must not be mistaken for a model that declined.
-            return BrainReply("", insufficient=True, model=f"{self.model}:not-armed")
+            return BrainReply("", insufficient=True,
+                              model=f"{self.model}:not-armed",
+                              requested=self.model)
 
         messages: list[dict[str, str]] = []
         if self.system_prompt:
@@ -88,11 +90,16 @@ class RemoteBrain:
                 payload = json.loads(resp.read().decode("utf-8"))
         except urllib.error.HTTPError as exc:
             return BrainReply("", insufficient=True,
-                              model=f"{self.model}:http-{exc.code}")
+                              model=f"{self.model}:http-{exc.code}",
+                              requested=self.model)
         except (urllib.error.URLError, TimeoutError, OSError):
-            return BrainReply("", insufficient=True, model=f"{self.model}:unreachable")
+            return BrainReply("", insufficient=True,
+                              model=f"{self.model}:unreachable",
+                              requested=self.model)
         except json.JSONDecodeError:
-            return BrainReply("", insufficient=True, model=f"{self.model}:bad-body")
+            return BrainReply("", insufficient=True,
+                              model=f"{self.model}:bad-body",
+                              requested=self.model)
 
         return self._parse(payload)
 
@@ -101,7 +108,9 @@ class RemoteBrain:
             choices = payload["choices"]            # type: ignore[index]
             text = choices[0]["message"]["content"] or ""   # type: ignore[index]
         except (KeyError, IndexError, TypeError):
-            return BrainReply("", insufficient=True, model=f"{self.model}:no-choice")
+            return BrainReply("", insufficient=True,
+                              model=f"{self.model}:no-choice",
+                              requested=self.model)
 
         usage = payload.get("usage") or {}
         if not isinstance(usage, Mapping):
@@ -121,10 +130,22 @@ class RemoteBrain:
                 orchestration = val
                 break
 
+        # The name the provider says answered. An OpenAI-compatible response
+        # carries it, and reading it is the difference between a provenance
+        # record and a note of what we intended. A gateway that remaps names,
+        # or serves a substitute when a model is busy, is otherwise invisible
+        # — and every "which model said this" in the ledger would be wrong
+        # without anything ever disagreeing.
+        served = payload.get("model")
+        name = str(served).strip() if isinstance(served, str) else ""
         return BrainReply(
             text=str(text), insufficient=not str(text).strip(),
             visible_tokens=visible, orchestration_tokens=orchestration,
-            model=self.model,
+            # Falls back to what we asked only when the provider is silent.
+            # `requested` beside it keeps that fallback visible rather than
+            # letting it look like confirmation.
+            model=name or self.model,
+            requested=self.model,
         )
 
 

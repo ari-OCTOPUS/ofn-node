@@ -46,7 +46,21 @@ class BrainReply:
     insufficient: bool = False
     visible_tokens: int = 0
     orchestration_tokens: int = 0
+    # What actually answered, taken from the provider's own response where it
+    # says so. NOT the name we asked for — see `requested`.
     model: str = ""
+    # What we asked for. Kept beside the answer so the two can be compared:
+    # an endpoint that remaps, substitutes or silently serves something else
+    # is otherwise invisible, and every provenance claim in this project
+    # rests on the recorded name being the one that replied.
+    requested: str = ""
+
+    @property
+    def model_matched_request(self) -> bool | None:
+        """None when the provider did not say. Unknown is not agreement."""
+        if not self.model or not self.requested:
+            return None
+        return self.model.split(":")[0] == self.requested
 
 
 class Brain(Protocol):
@@ -170,6 +184,11 @@ class ModelRouter:
         cost = self._quota.record(tenant, spend, now_epoch_s)
         self._emit("SPEND", {
             "tenant": tenant.value, "rung": rung.value, "model": reply.model,
+            # Recorded whenever the provider named something other than what
+            # was asked for. Absent means they agreed; it is never absent
+            # because nobody looked.
+            **({"requested_model": reply.requested}
+               if reply.model_matched_request is False else {}),
             "visible": reply.visible_tokens,
             "orchestration_reported": reply.orchestration_tokens,
             "billed": cost,
