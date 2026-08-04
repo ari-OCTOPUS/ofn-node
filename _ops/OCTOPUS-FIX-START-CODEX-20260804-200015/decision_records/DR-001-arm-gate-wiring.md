@@ -1,8 +1,12 @@
 # DR-001 — arm_gate wiring decision needed
 
-**Status:** open, awaiting owner decision.
-**Raised:** 2026-08-04, this run.
-**Related:** blindspot #30, `12-ARM-GATE-CURRENT-TRUTH.md`, `14-ARM-GATE-PATCH-REPORT.md`.
+**Status:** ✅ **Option 1 applied** (2026-08-04, this session, owner said "wire arm_gate
+into self_patch.py per DR-001" in chat). `code_autonomy` is wired. `self_improve_auto` /
+`replicate` remain unwired — separate follow-up, not requested yet, see
+`31-ARM-GATE-WIRING-VERIFY.md` §"What's still open".
+**Raised:** 2026-08-04, verification run.
+**Related:** blindspot #30, `12-ARM-GATE-CURRENT-TRUTH.md`, `14-ARM-GATE-PATCH-REPORT.md`,
+`31-ARM-GATE-WIRING-VERIFY.md`.
 
 ## The decision
 

@@ -1,9 +1,10 @@
 # 28 — Owner decisions still needed
 
-1. **arm_gate wiring** (the big one). `OCTOPUS_ARM_SENSITIVE_DEFAULT=1` is already armed but
-   currently a no-op. Wiring `arm_gate.guard('code_autonomy')` into `self_patch.py`'s
-   `_offer_patch_to_owner` (proposal in `14-ARM-GATE-PATCH-REPORT.md`) is the only remaining
-   step to make it real for `code_autonomy`; `self_improve_auto` and `replicate` would need
+1. **arm_gate wiring — DONE for `code_autonomy`** (owner instructed this in chat later the
+   same day: "wire arm_gate into self_patch.py per DR-001"). `_offer_patch_to_owner` now
+   calls `arm_gate.guard('code_autonomy')` as gate #8; 39/39 tests pass including 4 new
+   ones proving no regression. See `31-ARM-GATE-WIRING-VERIFY.md`. **Still open:**
+   `self_improve_auto` and `replicate` would need
    their own call-site audits (not done this session — `_ops/cortex/auto_approve.py` /
    `_ops/cortex/improve.py` / `_ops/budget/replication.py` are where those capabilities
    actually live, per grep, but exact insertion points were not traced).

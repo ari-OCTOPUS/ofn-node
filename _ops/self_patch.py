@@ -44,6 +44,7 @@ for _p in (_HERE, _HERE / "budget", _HERE / "cortex"):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 import opslib  # noqa: E402
+import arm_gate  # noqa: E402
 
 FLAG = "OCTOPUS_WIRE_SELF_PATCH"
 PATCH_MAX_TOKENS = 4000       # سقفِ خروجیِ نوشتنِ پچ
@@ -510,14 +511,26 @@ def _offer_patch_to_owner(res: dict) -> dict:
     `code_autonomy.propose_to_owner` نوشته شده بود و هیچ‌کس صدایش نمی‌زد.
 
     چرا فلگ‌دار و خاموش: این تنها مسیری است که به نوشتنِ **کد روی درختِ زنده**
-    ختم می‌شود. هفت گیت پایین‌دستش هست (فعال‌سازی، قلب، refractory، سایه، deny،
-    dedup، و از امروز سقفِ کهنگیِ ۴۸ ساعته) — ولی مسلح‌کردنِ ورودیِ آن زنجیره
-    تصمیمِ استقرار است، نه تصمیمِ من."""
+    ختم می‌شود. هشت گیت پایین‌دستش هست (فعال‌سازی، قلب، refractory، سایه، deny،
+    dedup، سقفِ کهنگیِ ۴۸ ساعته، و از ۲۰۲۶-۰۸-۰۴ arm_gate) — ولی مسلح‌کردنِ
+    ورودیِ آن زنجیره تصمیمِ استقرار است، نه تصمیمِ من.
+
+    گیتِ هشتم (DR-001، ۲۰۲۶-۰۸-۰۴): arm_gate.guard('code_autonomy') — defense-
+    in-depth اضافی، فقط سخت‌تر می‌کند، هرگز شل‌تر (arm_gate.py:12-16). پیش‌فرض
+    بدونِ اثر (هر دو knobِ arm_gate خاموش‌اند)؛ وقتی مالک
+    OCTOPUS_ARM_SENSITIVE_DEFAULT=1 کرد (که already روشن است)، این نقطه یک
+    arm-token تازهٔ دوکلیدی برای code_autonomy می‌خواهد وگرنه همین‌جا، قبل از
+    authorization_shadow و پیشنهاد به مالک، متوقف می‌شود."""
     import os as _os
     if str(_os.environ.get("OCTOPUS_WIRE_PATCH_CARD", "")).strip().lower()             not in ("1", "true", "yes", "on"):
         return {"ok": False, "reason": "flag-off"}
     if not (res or {}).get("shadow_green") or not (res or {}).get("content"):
         return {"ok": False, "reason": "not-offerable"}
+    # گیتِ هشتم — بالا را ببین. arm_gate هرگز نمی‌تواند چیزی را که هفت گیتِ
+    # بالا رد کرده‌اند اجازه بدهد؛ فقط می‌تواند یک عبورِ موفق را رد کند.
+    _arm_ok, _arm_why = arm_gate.guard("code_autonomy")
+    if not _arm_ok:
+        return {"ok": False, "reason": f"arm-gate-denied:{_arm_why}"}
     # سایهٔ مجوز (قدمِ ۴): می‌سنجد و ثبت می‌کند، هیچ‌چیز را گیت نمی‌کند.
     # عمداً **بعد از** گاردهای موجود است تا ترتیبِ تصمیم‌ها عوض نشود.
     _authorization_shadow(res)

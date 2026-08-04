@@ -35,6 +35,7 @@ SUITE = [
     ("latent_space (#53 P0 fail-closed)", "test_latent_space_fail_closed.py"),
     ("intel_spine (L0-L8 + redaction + no-outbound)", "test_intel_spine.py"),
     ("adapters (telegram/webapp/obsidian)", "test_adapters_obsidian.py"),
+    ("self_patch (DR-001 arm_gate wiring, gate #8)", "test_self_patch.py"),
 ]
 
 

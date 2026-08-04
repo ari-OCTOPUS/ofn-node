@@ -1,6 +1,13 @@
-# 14 — arm_gate patch report (PROPOSAL ONLY — not applied, not committed)
+# 14 — arm_gate patch report
 
-## Why this stays a proposal
+> **UPDATE 2026-08-04 (same day, later in the session):** the owner explicitly instructed
+> "wire arm_gate into self_patch.py per DR-001" in chat. The `code_autonomy` half of this
+> proposal below was implemented exactly as scoped, tested (4 new + 35 regression, 39/39),
+> and committed. See `31-ARM-GATE-WIRING-VERIFY.md` for the verification record and
+> `DR-001` for the updated decision-record status. The `self_improve_auto`/`replicate`
+> half described below is **still** just a proposal — not requested, not applied.
+
+## Why this stayed a proposal until the owner's explicit go-ahead
 
 Wiring `arm_gate.guard()` into the actual `code_autonomy` write path means touching code
 that governs self-modification of the live tree — a D5/D6-adjacent capability. The master

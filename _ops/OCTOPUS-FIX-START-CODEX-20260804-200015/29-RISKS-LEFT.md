@@ -2,7 +2,8 @@
 
 | Risk | Severity | Status after this run |
 |---|---|---|
-| arm_gate not wired to any production call site | was P0 | Downgraded from "P0, live gap" to "module fixed + tested, wiring is the one remaining step" — proposal written, not applied (§14) |
+| arm_gate not wired to `code_autonomy` (self_patch.py) | was P0 | **Closed** — wired same day on owner's explicit instruction, 4 new + 35 regression tests pass (§31, DR-001) |
+| arm_gate not wired to `self_improve_auto` / `replicate` | new, narrower | Open — not yet requested; call sites unaudited (§28) |
 | latent_space silent wipe | was P0 | **Closed** — verified fixed and tested from source, independently confirmed |
 | `store()` bare `except OSError: pass` on the persist/write path | new, minor | Not a wipe risk (doesn't touch already-loaded data); flagged for awareness only, not actioned |
 | 249 dirty files in `F:\backup` main root | pre-existing, operational | Out of scope for this worktree-isolated run; not touched, not worsened |

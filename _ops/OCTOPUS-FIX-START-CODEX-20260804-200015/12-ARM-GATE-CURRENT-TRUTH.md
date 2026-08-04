@@ -1,5 +1,11 @@
 # 12 — arm_gate: current truth
 
+> **UPDATE (same session, later):** the `code_autonomy` wiring gap described below was
+> closed the same day on the owner's explicit instruction. See `31-ARM-GATE-WIRING-
+> VERIFY.md`. This file is kept as-written below because it is the accurate record of what
+> was true *before* that instruction, and the reasoning that led to `14-ARM-GATE-PATCH-
+> REPORT.md`'s proposal — which is exactly what got applied.
+
 ## The headline finding of this run
 
 **The arm_gate P0 is code-complete and tested, but structurally unenforced.** Commit
