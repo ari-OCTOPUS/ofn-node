@@ -222,13 +222,33 @@ def t_g_a_bridge_that_reports_an_unsent_reply_is_recorded():
 
 
 def t_h_the_disposition_row_stores_no_message_text():
-    """§۱۰. رسید باید بگوید «چرا»، نه اینکه بایگانیِ دومِ مکالمه بسازد."""
+    """§۱۰. رسید باید بگوید «چرا»، نه اینکه بایگانیِ دومِ مکالمه بسازد.
+
+    ⚠️ نسخهٔ اولِ این تست **بی‌دندان** بود و جهشِ نشتی از کنارش رد شد. علت:
+    فقط مسیرِ `u=None` را می‌راند (فرمانِ گیت‌شده)، و آن‌جا `msg` خالی است پس
+    هیچ متنی برای نشت‌کردن وجود ندارد — گاردی که ساختاراً نمی‌توانست قرمز
+    شود. مسیرِ **واقعاً خطرناک** آن است که `u` ِ کامل را پاس می‌دهد
+    (`not-owner`، خطِ ۲۴۵۸)، چون آن‌جا `msg.get("text")` پیامِ زنده است.
+    حالا هر دو شکل رانده می‌شوند."""
     m, c, state = _center()
     secret_ish = "خصوصی-۹۹۷۷-متنِ-پیام"
-    _drive(c, [{"update_id": 9104,
-                "message": {"text": f"/panel {secret_ish}",
-                            "chat": {"id": 555, "type": "private"},
-                            "from": {"id": 555}}}])
+    _drive(c, [
+        # (الف) مسیرِ u=None — فرمانِ گیت‌شده
+        {"update_id": 9104,
+         "message": {"text": f"/panel {secret_ish}",
+                     "chat": {"id": 555, "type": "private"},
+                     "from": {"id": 555}}},
+        # (ب) مسیرِ u ِ کامل — غیرمالک؛ این‌جاست که متن در دسترسِ نشت است
+        {"update_id": 9105,
+         "message": {"text": f"سلام {secret_ish}",
+                     "chat": {"id": 777, "type": "private"},
+                     "from": {"id": 999}}},
+    ])
+    rows = _rows(state / "telegram" / "inbound-log.jsonl")
+    disp = [r for r in rows if r.get("kind") == "disposition"]
+    outs = {r.get("outcome") for r in disp}
+    assert "not-owner" in outs, (
+        "مسیرِ غیرمالک رانده نشد ⇒ این گارد دوباره بی‌دندان است", outs)
     raw = (state / "telegram" / "inbound-log.jsonl").read_text("utf-8")
     assert secret_ish not in raw, "متنِ پیام در لاگ نشت کرد — نشتیِ PII"
 
