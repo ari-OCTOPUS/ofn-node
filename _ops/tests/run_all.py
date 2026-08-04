@@ -371,6 +371,10 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # جواب نداشت)، و واچ‌داگ زنده‌بودن را از **وجود** استنتاج می‌کرد،
          # پس یک مرکزِ هنگ‌کرده ۲س۳۴د نامرئی ماند.
          "test_inbound_log_and_hang_detection.py",
+         # ۰۸-۰۴ ← دو دکمهٔ کارتِ لید روت نداشتند: کلیک می‌شدند و هیچ اتفاقی
+         # نمی‌افتاد. گاردِ **رفتاری** لازم بود چون test_callback_routing سورس
+         # را می‌خواند و ۶/۶ می‌داد در حالی که کد در اجرا می‌ترکید.
+         "test_lead_card_buttons_live.py",
          "test_sync_health_unknown.py",
          "test_arbiter_consensus_rule.py",
          "test_state_write_monopoly.py",

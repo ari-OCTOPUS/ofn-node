@@ -3777,6 +3777,7 @@ class Center:
             self._answer(cbq)
             return {"kind": "center", "page": parts[1]}
 
+
         # اتاقِ آینه (۲۰۲۶-۰۷-۲۷): دو دکمهٔ فقط‌خواندنی و $۰ — «چه می‌دانم» و
         # «تصحیح‌ها». هیچ‌کدام مغز صدا نمی‌زند و هیچ state ای عوض نمی‌کند؛ فقط
         # همان چیزی را نشان می‌دهد که در contextِ گفتگو هم می‌رود.
@@ -4425,6 +4426,62 @@ class Center:
         # جدا و بالاتر از جدولِ مرکز، تا با هانکِ کامیت‌نشدهٔ جلسهٔ موازی روی همان
         # جدول تصادم نکند (§ درختِ مشترک). read-only اند و مالکیت را لایهٔ
         # بالادست (handle_update → _is_owner) از قبل گیت کرده.
+        # ── دو دکمهٔ مردهٔ کارتِ لید (VQ-DEAD-LEAD-BUTTONS-001، ۲۰۲۶-۰۸-۰۴) ──
+        #
+        # `lead_card.keyboard` دو دکمه می‌سازد — «📞 زنگ بزن» (`lcall`) و
+        # «📤 پیش‌نویس» (`ldraft`) — و **هیچ‌کدام روت نداشتند**. مالک کلیک
+        # می‌کرد و هیچ اتفاقی نمی‌افتاد؛ حتی spinner ِ تلگرام هم بی‌جواب
+        # می‌ماند. دقیقاً همان «هرکاری می‌کنم دیده نمی‌شود».
+        # `test_callback_routing` این را می‌دید و ۵/۶ بود، ولی قرمزش «همیشگی»
+        # شمرده می‌شد نه رگرسیون.
+        #
+        # ⚠️ هر دو **فقط‌نمایش**اند و ماژول خودش این را تضمین می‌کند:
+        # `SAFE_VERBS = {"lcall","ldraft"}` و `has_send_button()` گاردِ آن.
+        # این‌جا هیچ transport ای صدا زده نمی‌شود، هیچ state ای عوض نمی‌شود،
+        # و هیچ مغزی (پولی یا محلی) لمس نمی‌شود. صفر دلار، صفر اثرِ بیرونی.
+        # ⚠️ `parts` در این متد وجود ندارد (مالِ `_handle_center_callback` است).
+        # نسخهٔ اول از آن استفاده کرد و در زمانِ اجرا `UnboundLocalError` داد —
+        # در حالی که `test_callback_routing` **۶/۶ سبز** بود، چون فقط سورس را
+        # با regex می‌خواند و «روت شده» را از وجودِ `verb ==` نتیجه می‌گیرد.
+        # سبزیِ آن تست دربارهٔ اجرا هیچ نمی‌گوید؛ فقط پروبِ رفتاری گرفتش.
+        _lp = data.split(":")
+        if verb in ("lcall", "ldraft") and len(_lp) == 2:
+            lid = _lp[1]
+            body = None
+            try:
+                import lead_card as _lc          # noqa: WPS433
+                import lead_sense as _ls         # noqa: WPS433
+                p = _ls.resolve_lead_path(lid)
+                lead = json.loads(p.read_text("utf-8")) if p else None
+                if lead is None:
+                    body = "این لید دیگر پیدا نشد."
+                elif verb == "lcall":
+                    # `_contact_block` سه‌تاییِ (lines, missing, uri) می‌دهد.
+                    # هدفِ این دکمه طبقِ سندِ خودِ ماژول: «شماره در گوشی قابلِ
+                    # لمس شود» — پس بلوک به‌صورتِ **پیامِ نو** می‌رود، نه ویرایش.
+                    lines, missing, _uri = _lc._contact_block(_lc.contact_of(lead))
+                    head = [f"📞 <b>تماسِ لید</b> — <code>{lid}</code>"]
+                    body = "\n".join(head + (list(lines) or ["—"]) + (
+                        [f"<i>ناموجود: {'، '.join(missing)}</i>"] if missing else []))
+                else:
+                    body = _lc.draft_review_text(
+                        (lead.get("first_reply") if isinstance(lead, dict) else None),
+                        lead_id=lid)
+            except Exception as _e:  # noqa: BLE001
+                # ساکت نمی‌مانیم: یک دکمهٔ بی‌جواب همان باگی است که این بند
+                # دارد رفعش می‌کند. پیامِ خطا به خودِ مالک می‌رود.
+                body = f"نتوانستم این لید را باز کنم ({type(_e).__name__})."
+            msg0 = cbq.get("message") or {}
+            try:
+                self._client.send(_scrub(str(body)),
+                                  chat_id=(msg0.get("chat") or {}).get("id"),
+                                  topic_id=self._reply_thread(msg0),
+                                  stream=f"lead-{verb}")
+            except Exception:  # noqa: BLE001
+                pass
+            self._answer(cbq)          # spinner ِ تلگرام حتماً بسته می‌شود
+            return {"kind": "lead-card", "verb": verb, "lead_id": lid}
+
         if verb == "hm":
             return self._handle_home_callback(cbq, data)
         if verb == "tk":
