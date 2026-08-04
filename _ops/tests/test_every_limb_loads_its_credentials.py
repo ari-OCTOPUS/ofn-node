@@ -126,16 +126,54 @@ def t_d_the_gateway_loads_before_it_accepts_a_request():
 
 def t_e_validate_init_data_still_fails_closed_without_a_token():
     """ناوردیِ ایمنی که این باگ را از «فاجعه» به «مرده» تنزل داد.
-    اگر روزی fail-open شود، همین شکاف تونلِ عمومی را باز می‌کند."""
+    اگر روزی fail-open شود، همین شکاف تونلِ عمومی را باز می‌کند.
+
+    ⚠️ نسخهٔ اولِ این تست **بی‌دندان بود**. جهشِ «`not bot_token` را از گارد
+    بردار» زنده ماند، چون همهٔ موردهایش هشِ آشغال داشتند: با حذفِ گارد، کد جلو
+    می‌رفت، HMAC را با توکنِ خالی حساب می‌کرد، و **به‌هرحال** نامنطبق می‌شد و
+    `None` می‌داد. تست سبز می‌ماند به دلیلِ غلط — دقیقاً همان «جهشِ سبز = خطِ
+    نادیده».
+
+    موردِ باربر پایین ساخته می‌شود: یک initData که **با توکنِ خالی درست امضا
+    شده** و user id ِ درستی دارد. تنها چیزی که جلویش را می‌گیرد همان گاردِ
+    `not bot_token` است. با گارد ⇒ None. بدونِ گارد ⇒ رد می‌شد."""
+    import hashlib
+    import hmac as _hmac
     import importlib.util
+    import json as _json
+    import time as _time
+    from urllib.parse import urlencode
+
     spec = importlib.util.spec_from_file_location("mg_probe", LIMBS["gateway"])
     m = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(m)
+
+    # موردهای ساده (هنوز مفیدند: مسیرهای دیگرِ رد را می‌پوشانند)
     assert m.validate_init_data("user=x&hash=y", bot_token="", owner_id=1) is None
     assert m.validate_init_data("user=x&hash=y", bot_token=None, owner_id=1) is None
     assert m.validate_init_data("", bot_token="t", owner_id=1) is None
     assert m.validate_init_data("user=x&hash=y", bot_token="t", owner_id=None) is None
     assert m.validate_init_data("user=x&hash=y", bot_token="t", owner_id="") is None
+
+    # ── موردِ باربر: امضای معتبر **زیرِ توکنِ خالی** ───────────────────────
+    owner = 987654321
+    fields = {"auth_date": str(int(_time.time())),
+              "user": _json.dumps({"id": owner}, separators=(",", ":"))}
+    check = "\n".join(f"{k}={v}" for k, v in sorted(fields.items()))
+    for empty in ("", None):
+        secret = _hmac.new(b"WebAppData", str(empty or "").encode("utf-8"),
+                           hashlib.sha256).digest()
+        sig = _hmac.new(secret, check.encode("utf-8"), hashlib.sha256).hexdigest()
+        init = urlencode(dict(fields, hash=sig))
+        assert m.validate_init_data(init, bot_token=empty, owner_id=owner) is None, (
+            "fail-open! ‏initData ِ امضاشده با توکنِ خالی پذیرفته شد — گاردِ "
+            "`not bot_token` برداشته شده و تونلِ عمومی باز است")
+
+    # و همان امضا با توکنِ **واقعی** هم باید رد شود (کلید فرق دارد)
+    secret = _hmac.new(b"WebAppData", b"", hashlib.sha256).digest()
+    sig = _hmac.new(secret, check.encode("utf-8"), hashlib.sha256).hexdigest()
+    init = urlencode(dict(fields, hash=sig))
+    assert m.validate_init_data(init, bot_token="a-real-token", owner_id=owner) is None
 
 
 def t_f_this_test_never_reads_a_secret_value():
