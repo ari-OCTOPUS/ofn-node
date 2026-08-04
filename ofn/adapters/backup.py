@@ -46,6 +46,11 @@ class BackupResult:
     entries: tuple[BackupEntry, ...]
     ok: bool
     detail: str
+    # Media is counted rather than listed: hashing every image on an SBC
+    # turns a nightly job into a long one, and a count is enough to notice a
+    # tree that has silently stopped being copied.
+    media_files: int = 0
+    media_bytes: int = 0
 
     @property
     def total_bytes(self) -> int:
@@ -63,13 +68,51 @@ def sha256_file(path: str, chunk: int = 1 << 20) -> str:
     return h.hexdigest()
 
 
+def mirror_media(root: str, dest_dir: str) -> tuple[int, int]:
+    """Copy the media tree beside the database copies.
+
+    Photos live outside SQLite so that a 40 MB image does not turn every read
+    of a row into a 40 MB read. The cost of that choice is this function: a
+    backup of the databases alone restores a set of rows pointing at files
+    that are not there, and for the studio leg those files *are* the content.
+
+    Copies rather than links, and copies unconditionally. A cleverer
+    incremental scheme is the right answer once there is enough media for it
+    to matter; today there is none, and a backup whose correctness depends on
+    change detection is a backup with a way to silently skip a file.
+
+    Returns (files, bytes) so the caller can report what was taken.
+    """
+    if not os.path.isdir(root):
+        return (0, 0)
+    target = os.path.join(dest_dir, "media")
+    files = written = 0
+    for here, _, names in os.walk(root):
+        rel = os.path.relpath(here, root)
+        out_dir = target if rel == "." else os.path.join(target, rel)
+        os.makedirs(out_dir, exist_ok=True)
+        for name in names:
+            if name.endswith(".part"):
+                continue          # a write that was interrupted; not content
+            src = os.path.join(here, name)
+            shutil.copy2(src, os.path.join(out_dir, name))
+            files += 1
+            written += os.path.getsize(src)
+    return (files, written)
+
+
 def backup(databases: Mapping[str, str], dest_dir: str, *,
-           stamp: str) -> BackupResult:
+           stamp: str, media_root: str | None = None) -> BackupResult:
     """Snapshot every database into `dest_dir`, then prove each copy is usable.
 
     `stamp` is passed in rather than read from a clock: this module does no
     time reading, so a caller can produce a deterministic backup in tests and
     a timestamped one in production without the code branching.
+
+    `media_root` is optional only so that existing callers keep working. When
+    it is given, the media tree is copied too and counted in the manifest —
+    databases without their files restore to rows describing pictures that
+    are gone.
     """
     os.makedirs(dest_dir, exist_ok=True)
     entries: list[BackupEntry] = []
@@ -109,6 +152,13 @@ def backup(databases: Mapping[str, str], dest_dir: str, *,
             name=name, path=out, bytes=os.path.getsize(out),
             sha256=sha256_file(out), verified=verified))
 
+    media_files = media_bytes = 0
+    if media_root:
+        try:
+            media_files, media_bytes = mirror_media(media_root, dest_dir)
+        except OSError as exc:
+            problems.append(f"media: copy failed ({exc})")
+
     manifest = {
         "stamp": stamp,
         "entries": [
@@ -116,6 +166,11 @@ def backup(databases: Mapping[str, str], dest_dir: str, *,
              "sha256": e.sha256, "verified": e.verified}
             for e in entries
         ],
+        # Counted, not hashed. Hashing every image on an SBC turns a nightly
+        # job into a long one; the count is enough to notice a tree that
+        # silently stopped being copied, which is the failure that matters.
+        "media": {"files": media_files, "bytes": media_bytes,
+                  "root": media_root or ""},
         "ok": not problems,
         "problems": problems,
     }
@@ -123,7 +178,8 @@ def backup(databases: Mapping[str, str], dest_dir: str, *,
         json.dump(manifest, fh, indent=2, ensure_ascii=False)
 
     detail = "all copies verified" if not problems else "; ".join(problems)
-    return BackupResult(dest_dir, tuple(entries), not problems, detail)
+    return BackupResult(dest_dir, tuple(entries), not problems, detail,
+                        media_files=media_files, media_bytes=media_bytes)
 
 
 def verify_backup(dest_dir: str) -> tuple[bool, str]:
