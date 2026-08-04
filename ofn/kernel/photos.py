@@ -48,9 +48,12 @@ ALLOWED_MEDIA_TYPES = ("image/jpeg", "image/png")
 # limit; raising that to fit a photo would raise it for every endpoint.
 MAX_DECODED_BYTES = 16 * 1024 * 1024
 
-# The two renditions the browser sends. The archive copy is handled by
-# `original_path` — it keeps the bytes exactly as they arrived, which is a
-# different promise from these.
+# The two renditions the browser sends. There is no third for "the
+# original": archiving it was meant to prove what was published, and it does
+# not — if a 1600px rendition is what goes to a platform, the original was
+# never sent. What proves it is a hash of the bytes that actually went, which
+# `studio_store.media_sent` records. Every original kept would be one more
+# sensitive file at rest on an unencrypted disk.
 ALLOWED_EDGES = (1600, 320)
 
 # More photos than this on one piece is a mistake, not a gallery.
@@ -155,24 +158,6 @@ def relative_path(tenant: str, piece_id: str, position: int, edge: int) -> str:
     if isinstance(edge, bool) or not isinstance(edge, int) or edge not in ALLOWED_EDGES:
         raise FailClosedError(f"unknown edge: {edge!r}")
     return f"{tenant}/{piece_id}/{position}-{edge}.jpg"
-
-
-def original_path(tenant: str, piece_id: str, position: int,
-                  media_type: str) -> str:
-    """Where the untouched upload is archived.
-
-    Separate from `relative_path` because it is a different promise. The
-    renditions are always jpeg — a canvas made them. This one keeps whatever
-    arrived, because anything published has to be archivable at the quality
-    it was published at, or afterwards nobody can say what actually went out.
-    """
-    _check_id("tenant", tenant)
-    _check_id("piece id", piece_id)
-    _check_position(position)
-    if media_type not in ALLOWED_MEDIA_TYPES:
-        raise FailClosedError(f"media type not served here: {media_type}")
-    ext = "png" if media_type == "image/png" else "jpg"
-    return f"{tenant}/{piece_id}/{position}-original.{ext}"
 
 
 def piece_prefix(tenant: str, piece_id: str) -> str:

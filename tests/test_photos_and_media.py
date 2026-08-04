@@ -24,8 +24,7 @@ import unittest
 from ofn.adapters.media import MediaStore
 from ofn.kernel.errors import FailClosedError
 from ofn.kernel.photos import (
-    ALLOWED_EDGES, MAX_DECODED_BYTES, inspect, original_path, piece_prefix,
-    relative_path,
+    ALLOWED_EDGES, MAX_DECODED_BYTES, inspect, piece_prefix, relative_path,
 )
 
 PNG = base64.b64encode(b"\x89PNG\r\n\x1a\n" + b"x" * 64).decode()
@@ -44,23 +43,23 @@ class Disk(unittest.TestCase):
 
 
 class TestWriting(Disk):
-    def test_both_renditions_and_the_original_land(self):
+    def test_both_renditions_land(self):
         for edge in ALLOWED_EDGES:
             self.assertTrue(self.m.exists(self.put(edge=edge)))
-        rel = self.m.write_original("studio", "d1", 0, PAY)
-        self.assertTrue(self.m.exists(rel))
+
+    def test_there_is_no_way_to_archive_an_original(self):
+        """Archiving the original was meant to prove what was published, and
+        it does not: if a 1600px rendition is what goes to a platform, the
+        original was never sent. `studio_store.media_sent` holds the hash of
+        the bytes that actually went. Every original kept would be one more
+        sensitive file at rest on an unencrypted disk."""
+        self.assertFalse(hasattr(self.m, "write_original"))
+        from ofn.kernel import photos
+        self.assertFalse(hasattr(photos, "original_path"))
 
     def test_the_bytes_come_back_unchanged(self):
         rel = self.put()
         self.assertEqual(self.m.read(rel), base64.b64decode(PNG))
-
-    def test_the_archive_copy_keeps_the_type_it_arrived_as(self):
-        """The renditions are always jpeg — a canvas made them. This one is
-        whatever the phone sent, because "what actually went out" has to stay
-        answerable."""
-        png = inspect("data:image/png;base64," + PNG)
-        self.assertTrue(self.m.write_original("studio", "d1", 0, png)
-                        .endswith("0-original.png"))
 
     def test_corrupt_base64_is_refused_and_nothing_is_written(self):
         from ofn.kernel.photos import Payload
@@ -121,8 +120,7 @@ class TestCascadeDelete(Disk):
     def test_every_rendition_of_a_piece_goes(self):
         for edge in ALLOWED_EDGES:
             self.put(edge=edge)
-        self.m.write_original("studio", "d1", 0, PAY)
-        self.assertEqual(self.m.remove_piece("studio", "d1"), 3)
+        self.assertEqual(self.m.remove_piece("studio", "d1"), 2)
 
     def test_a_sibling_piece_survives(self):
         self.put(piece="d1")

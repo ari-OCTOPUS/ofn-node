@@ -31,6 +31,7 @@ from . import facts as _facts
 from . import ledger as _ledger
 from . import outbox as _outbox
 from . import products as _products
+from . import studio_store as _studio
 from .sqlite_base import (
     apply_schema, checkpoint, connect, integrity_ok, missing_columns,
 )
@@ -46,6 +47,7 @@ SCHEMAS: Mapping[str, Sequence[str]] = {
     "outbox": _outbox.SCHEMA,
     "products": _products.SCHEMA,
     "consent": _consent.SCHEMA,
+    "studio": _studio.SCHEMA,
 }
 
 MIGRATIONS: Mapping[str, Sequence] = {

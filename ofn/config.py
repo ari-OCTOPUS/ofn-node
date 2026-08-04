@@ -73,6 +73,12 @@ class Config:
             self.state_dir, "products.sqlite")
 
     @property
+    def studio_path(self) -> str:
+        """Collections, drafts, media order, and what actually went out."""
+        return os.environ.get("OFN_STUDIO_DB") or os.path.join(
+            self.state_dir, "studio.sqlite")
+
+    @property
     def consent_path(self) -> str:
         """Who agreed to appear in content, and where it ended up.
 
@@ -109,7 +115,8 @@ class Config:
         # bad until somebody opens it looking for a year of work.
         return {"ledger": self.ledger_path, "facts": self.facts_path,
                 "outbox": self.outbox_path, "products": self.products_path,
-                "consent": self.consent_path}
+                "consent": self.consent_path,
+                "studio": self.studio_path}
 
 
 def load() -> Config:

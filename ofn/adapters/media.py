@@ -23,9 +23,7 @@ import os
 import shutil
 
 from ..kernel.errors import FailClosedError
-from ..kernel.photos import (
-    Payload, is_inside, original_path, piece_prefix, relative_path,
-)
+from ..kernel.photos import Payload, is_inside, piece_prefix, relative_path
 
 
 class MediaStore:
@@ -76,17 +74,6 @@ class MediaStore:
         """One of the two browser-made sizes. Always jpeg."""
         return self._put(relative_path(tenant, piece_id, position, edge),
                          payload)
-
-    def write_original(self, tenant: str, piece_id: str, position: int,
-                       payload: Payload) -> str:
-        """The archive copy, in whatever arrived.
-
-        Anything published has to be archivable at the quality it was
-        published at, or afterwards nobody can say what actually went out.
-        """
-        return self._put(
-            original_path(tenant, piece_id, position, payload.media_type),
-            payload)
 
     def exists(self, relative: str) -> bool:
         return os.path.isfile(self.absolute(relative))
