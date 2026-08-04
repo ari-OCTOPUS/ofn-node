@@ -170,44 +170,66 @@
     el = el || content;
     api("/api/outbound").then(function(d){
       if(d.status==="error"||d.status==="no_wal_db"){
-        el.innerHTML = '<div class="card"><h2>Outbound / G-03</h2><div class="muted">'+esc(d.status)+(d.note?": "+esc(d.note):"")+'</div></div>'; return;
+        el.innerHTML = '<div class="card">'+secHead("ارسالِ بیرونی")+
+          '<div class="muted">'+esc(d.status)+(d.note?": "+esc(d.note):"")+'</div></div>'; return;
       }
-      var rows = Object.keys(d.counts||{}).map(function(k){ return "<tr><td>"+esc(k)+"</td><td>"+d.counts[k]+"</td></tr>"; }).join("");
-      el.innerHTML = '<div class="card"><h2>Outbound / G-03 <span class="badge">total '+esc(d.total)+'</span></h2>'+
-        '<table><tr><th>state</th><th>count</th></tr>'+rows+'</table>'+
-        '<div class="muted" style="margin-top:8px">actions: owner-gated (Phase 7) — در این نسخه disabled.</div></div>';
+      var c = d.counts||{}, ks = Object.keys(c);
+      var TONE = {sent:"cyan", queued:"warm", failed:"hot", cancelled:"unk"};
+      el.innerHTML = '<div class="card">'+secHead("ارسالِ بیرونی")+
+        '<div class="ringrow">'+arcs(ks.map(function(k){
+          return {n:c[k], tone:TONE[k]||"warm"}; }))+'</div>'+
+        (ks.length?orbs(ks.map(function(k){
+          return {name:k, short:k, n:c[k], tone:TONE[k]||"warm"}; })):'')+
+        '</div>';
     });
   }
 
   function renderApprovals(el){
     el = el || content;
     api("/api/approvals").then(function(d){
-      var rows = (d.pending||[]).map(function(p){ return "<tr><td>"+esc(p.proposal_id)+"</td><td>"+esc(p.kind)+"</td><td>"+esc(p.amount_aud)+"</td></tr>"; }).join("");
-      el.innerHTML = '<div class="card"><h2>Approvals <span class="badge">'+esc(d.count||0)+'</span></h2>'+
-        (rows ? '<table><tr><th>proposal</th><th>kind</th><th>amount</th></tr>'+rows+'</table>' : '<div class="muted">'+esc(d.status)+(d.note?": "+esc(d.note):"")+'</div>')+
-        '<div class="muted" style="margin-top:8px">approve/reject: owner-gated (disabled)</div></div>';
+      var pend = d.pending||[], n = Number(d.count||pend.length||0);
+      var body = n ? '<div class="list">'+pend.slice(0,8).map(function(p){
+          return '<div class="li orbline"><span class="od hot"></span>'+
+            '<span class="grow">'+ltr(p.proposal_id)+'</span>'+
+            '<span class="muted">'+esc(p.kind||"")+'</span>'+
+            (p.amount_aud!==undefined?'<span class="amt">'+fa(p.amount_aud)+'</span>':'')+'</div>';
+        }).join("")+'</div>'
+        : '<div class="muted" style="text-align:center">صف خالی است</div>';
+      el.innerHTML = '<div class="card">'+secHead("صفِ تأیید")+
+        '<div class="ringrow">'+ring(n, Math.max(n,5), "منتظرِ تو", n?"hot":"cyan")+'</div>'+
+        body+'</div>';
     });
   }
 
   function renderLegs(el){
     el = el || content;
     api("/api/legs").then(function(d){
-      var legs = d.legs||{};
-      var rows = Object.keys(legs).map(function(k){
-        var l=legs[k]; return "<tr><td>"+esc(k)+"</td><td>"+esc(l.live)+'</td><td>'+(l.signal?esc(l.signal):"—")+'</td><td>'+(l.note?esc(l.note).slice(0,40):"—")+"</td></tr>";
-      }).join("");
-      el.innerHTML = '<div class="card"><h2>Legs / Agents</h2>'+
-        (rows?'<table><tr><th>leg</th><th>live</th><th>signal</th><th>note</th></tr>'+rows+'</table>':'<div class="muted">'+esc(d.status||"unknown")+'</div>')+'</div>';
+      var legs = d.legs||{}, ks = Object.keys(legs);
+      var up = ks.filter(function(k){ return legs[k].live===true; }).length;
+      el.innerHTML = '<div class="card">'+
+        secHead("پاها", pill(fa(up)+" از "+fa(ks.length), up===ks.length?"live":"staged"))+
+        (ks.length ? orbs(ks.map(function(k){
+            var l = legs[k];
+            return {name:k, short:k.slice(0,10),
+                    tone: l.live===false?"hot":(l.live?"up":"unk")};
+          })) : '<div class="muted">'+esc(d.status||"نامعلوم")+'</div>')+
+        '</div>';
     });
   }
 
   function renderValue(el){
     el = el || content;
     api("/api/value").then(function(d){
-      var rows = Object.keys(d.events_per_leg||{}).map(function(k){ return "<tr><td>"+esc(k)+"</td><td>"+d.events_per_leg[k]+"</td></tr>"; }).join("");
-      el.innerHTML = '<div class="card"><h2>Value Ledger <span class="badge">total '+esc(d.total||0)+'</span></h2>'+
-        (rows?'<table><tr><th>leg</th><th>events</th></tr>'+rows+'</table>':'<div class="muted">'+esc(d.status)+(d.note?": "+esc(d.note):"")+'</div>')+
-        '<div class="muted" style="margin-top:8px">auto-delete: '+esc(d.auto_delete===false?"off":"?")+'</div></div>';
+      var per = d.events_per_leg||{}, tot = Number(d.total||0);
+      var ks = Object.keys(per);
+      var mx = ks.reduce(function(a,k){ return Math.max(a, per[k]); }, 1);
+      el.innerHTML = '<div class="card">'+secHead("دفترِ ارزش")+
+        '<div class="ringrow">'+ring(tot, Math.max(tot,10), "رویداد", "cyan")+'</div>'+
+        (ks.length ? orbs(ks.map(function(k){
+            return {name:k, short:k.slice(0,9), n:per[k],
+                    tone: per[k]>=mx*0.6?"up":(per[k]>0?"warm":"unk")};
+          })) : '<div class="muted" style="text-align:center">هنوز رویدادی ثبت نشده</div>')+
+        '</div>';
     });
   }
 
@@ -429,6 +451,10 @@
     obj = obj || {};
     return (keys||Object.keys(obj)).map(function(k){ return row(k, obj[k]); }).join("");
   }
+  // نسخهٔ گردِ کارت — سرِ بخش نشانِ چشمِ اختاپوس می‌گیرد
+  function card2(title, pill, body){
+    return '<div class="card">'+secHead(title, pill)+body+'</div>';
+  }
   function card(title, pill, body){
     return '<div class="card"><div class="ch"><h2>'+esc(title)+'</h2>'+(pill||"")+'</div>'+body+'</div>';
   }
@@ -440,7 +466,7 @@
     el = el || content;
     api("/api/ops/brain").then(function(d){
       var b = d.brain||{}, dm = b.daemon||{};
-      el.innerHTML = card("مغز", pill(b.available?"در دسترس":"در دسترس نیست", b.available?"live":"blocked"),
+      el.innerHTML = card2("مغز", pill(b.available?"در دسترس":"در دسترس نیست", b.available?"live":"blocked"),
         (b.reason?'<div class="muted">'+esc(b.reason)+'</div>':'')+
         rows(dm, ["reachable","source","ticks","errors","last_tick","generation"]));
     });
@@ -449,7 +475,7 @@
     el = el || content;
     api("/api/governor").then(function(d){
       var ds = d.drift_status||{}, st = ds.status;
-      el.innerHTML = card("ناظر", pill(st||"نامعلوم", st==="ok"?"live":(st?"staged":"unknown")),
+      el.innerHTML = card2("ناظر", pill(st||"نامعلوم", st==="ok"?"live":(st?"staged":"unknown")),
         rows(d, ["policy_doc","canonical_provider","canonical_choke_point"])+
         row("مسیرهای اعلام‌شده", (ds.declared_paths||[]).length));
     });
@@ -458,7 +484,7 @@
     el = el || content;
     api("/api/obsidian").then(function(d){
       var miss = d.missing||[];
-      el.innerHTML = card("ابسیدین", pill(miss.length?miss.length+" گمشده":"کامل", miss.length?"staged":"live"),
+      el.innerHTML = card2("ابسیدین", pill(miss.length?miss.length+" گمشده":"کامل", miss.length?"staged":"live"),
         (miss.length?'<div class="list">'+miss.map(function(m){
             return '<div class="li">'+ltr(m)+'</div>'; }).join("")+'</div>'
                     :'<div class="muted">همهٔ سندهای مرجع سرِ جایشان‌اند</div>')+
@@ -469,7 +495,7 @@
     el = el || content;
     api("/api/ops/tasks").then(function(d){
       var st = d.task_status||{}, ks = Object.keys(st);
-      el.innerHTML = card("قدمِ بعدی", pill(d.tasks_total||0, ks.length?"staged":"live"),
+      el.innerHTML = card2("قدمِ بعدی", pill(d.tasks_total||0, ks.length?"staged":"live"),
         ks.length ? rows(st) : '<div class="muted">هیچ کارِ بازی نیست</div>');
     });
   }
@@ -487,6 +513,66 @@
   // مرتب‌شده بر اساسِ فوریت؛ هرچه سالم است در یک خطِ آرام جمع می‌شود.
   // شدت با **اندازه** کدگذاری می‌شود نه فقط رنگ، و فقط کارتِ اول دکمهٔ
   // پرشده دارد — یک انتخابِ آشکار در هر صفحه.
+  // ── زبانِ دایره: اجزای گردِ مشترکِ همهٔ تب‌ها ─────────────────────────
+  // رأیِ مالک: «پاهای اختاپوس و ساختارهای گرد همه‌جای کنترل‌پنل باشند، هر جا
+  // خلاقیتی متفاوت ولی همه حولِ اختاپوس» — چون ذهنش **شکلِ هندسی و الگوی
+  // حسی** را از تصویر می‌گیرد، نه از جدول. پس عدد باید **شکل** شود.
+  // هر جزء داده‌محور است: اگر عددی پشتش نباشد ساخته نمی‌شود.
+
+  // حلقهٔ درصدی با عددِ وسط — برای «چقدر از چقدر»
+  function ring(val, max, label, tone, size){
+    size = size || 118;
+    var r = 44, C = 2*Math.PI*r;
+    var f = max ? Math.max(0, Math.min(1, val/max)) : 0;
+    return '<div class="ringwrap" style="width:'+size+'px">'+
+      '<svg class="ring '+(tone||"cyan")+'" viewBox="0 0 110 110">'+
+        '<circle class="rt" cx="55" cy="55" r="'+r+'" fill="none" stroke-width="9"/>'+
+        '<circle class="rp" cx="55" cy="55" r="'+r+'" fill="none" stroke-width="9"'+
+          ' stroke-linecap="round" stroke-dasharray="'+(C*f).toFixed(1)+' '+(C*(1-f)).toFixed(1)+'"'+
+          ' transform="rotate(-90 55 55)"/>'+
+        '<circle class="rc" cx="55" cy="55" r="30"/>'+
+      '</svg>'+
+      '<div class="ringnum">'+fa(val)+'</div>'+
+      '<div class="ringlbl">'+esc(label)+'</div></div>';
+  }
+
+  // ردیفِ گرهٔ گرد — برای مجموعه‌های کوچک (وضعِ پاها، مراحلِ قیف)
+  function orbs(items){
+    return '<div class="orbs">'+items.map(function(it){
+      return '<div class="orb '+(it.tone||"unk")+'" title="'+esc(it.name)+'">'+
+        '<span class="od"></span><span class="on">'+esc(it.short||it.name)+'</span>'+
+        (it.n!==undefined?'<span class="ov">'+fa(it.n)+'</span>':'')+'</div>';
+    }).join("")+'</div>';
+  }
+
+  // کمانِ بخش‌بندی‌شده — برای توزیع (حالت‌های ارسال، مراحل)
+  function arcs(segs){
+    var tot = segs.reduce(function(a,b){return a+(b.n||0);},0) || 1;
+    var r=44, C=2*Math.PI*r, off=0, out="";
+    segs.forEach(function(sg){
+      var f=(sg.n||0)/tot;
+      out += '<circle class="ap '+(sg.tone||"cyan")+'" cx="55" cy="55" r="'+r+'" fill="none"'+
+        ' stroke-width="11" stroke-dasharray="'+(C*f-1.5).toFixed(1)+' '+(C*(1-f)+1.5).toFixed(1)+'"'+
+        ' stroke-dashoffset="'+(-C*off).toFixed(1)+'" transform="rotate(-90 55 55)"/>';
+      off += f;
+    });
+    return '<div class="ringwrap" style="width:126px"><svg class="ring" viewBox="0 0 110 110">'+
+      '<circle class="rt" cx="55" cy="55" r="'+r+'" fill="none" stroke-width="11"/>'+out+
+      '<circle class="rc" cx="55" cy="55" r="28"/></svg>'+
+      '<div class="ringnum">'+fa(tot)+'</div></div>';
+  }
+
+  // نشانِ کوچکِ اختاپوس برای سرِ هر بخش — همان چشم، در ابعادِ ریز
+  function mini(tone){
+    return '<svg class="minieye '+(tone||"cyan")+'" viewBox="0 0 24 24" aria-hidden="true">'+
+      '<circle class="mr" cx="12" cy="12" r="10.5" fill="none" stroke-width="1.4"/>'+
+      '<circle class="mi" cx="12" cy="12" r="5.4"/>'+
+      '<circle class="mp" cx="12" cy="12" r="2.1"/></svg>';
+  }
+  function secHead(title, pill){
+    return '<div class="ch">'+mini()+'<h2>'+esc(title)+'</h2>'+(pill||"")+'</div>';
+  }
+
   // ── قرصِ اختاپوس ──────────────────────────────────────────────────────
   // ⚠️ استعاره باید **حساب** باشد نه تصویرسازی: هر بازو یک پای واقعی است و
   // رنگش وضعِ همان پا؛ حلقهٔ بیرونی نسبتِ فلگ‌های فعال را می‌کشد؛ چشم وقتی

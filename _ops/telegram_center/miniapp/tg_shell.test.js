@@ -168,13 +168,15 @@ t("‏colorScheme ِ تلگرام بر مدیا-کوئری غلبه می‌کن�
   // ⚠️ باگی که مالک دید: تلگرامش دارک بود و اپ روشن رندر شد. در وب‌ویوِ
   // مینی‌اپ، prefers-color-scheme اغلب «روشن» گزارش می‌دهد. سیگنالِ معتبر
   // tg.colorScheme است.
+  // رأیِ صریحِ مالک: همیشه تیره — حتی وقتی تلگرام روشن است. تیرگی هویتِ
+  // لوگوست نه سلیقهٔ لحظه‌ای.
   const tg = fakeTg(); tg.colorScheme = "dark";
   let theme = null;
   S.initShell(tg, { setTheme: (t) => { theme = t; } });
   eq(theme, "dark");
   const tg2 = fakeTg(); tg2.colorScheme = "light";
   S.initShell(tg2, { setTheme: (t) => { theme = t; } });
-  eq(theme, "light");
+  eq(theme, "dark", "تمِ روشنِ تلگرام نباید اپ را روشن کند");
 });
 
 t("‏colorScheme ِ نامعلوم به تیره می‌افتد، نه روشن", () => {

@@ -319,3 +319,42 @@ input:focus,select:focus{outline:2px solid var(--cyan);outline-offset:1px;border
 .dial.halted .spark{fill:var(--muted);filter:none;opacity:.5}
 .dial.halted .slit{stroke:var(--muted);filter:none;opacity:.4}
 .dial.halted .arm path{stroke:var(--muted);opacity:.28;filter:none}
+
+/* ── زبانِ دایره در همهٔ تب‌ها ────────────────────────────────────────── */
+.ringrow{display:flex;justify-content:center;gap:14px;margin:4px 0 14px;flex-wrap:wrap}
+.ringwrap{position:relative;display:flex;flex-direction:column;align-items:center}
+.ring{width:100%;height:auto;display:block;overflow:visible}
+.ring .rt{stroke:var(--line)}
+.ring .rc{fill:var(--sunken)}
+.ring .rp{stroke:var(--cyan);filter:drop-shadow(0 0 7px rgba(34,211,238,.6))}
+.ring.hot .rp{stroke:var(--magenta);filter:drop-shadow(0 0 8px rgba(240,70,139,.7))}
+.ring.warm .rp{stroke:var(--violet);filter:drop-shadow(0 0 7px rgba(168,85,247,.6))}
+.ring .ap.cyan{stroke:var(--cyan);filter:drop-shadow(0 0 5px rgba(34,211,238,.5))}
+.ring .ap.warm{stroke:var(--violet);filter:drop-shadow(0 0 5px rgba(168,85,247,.5))}
+.ring .ap.hot{stroke:var(--magenta);filter:drop-shadow(0 0 5px rgba(240,70,139,.6))}
+.ring .ap.unk{stroke:var(--muted);opacity:.45}
+.ringnum{position:absolute;top:34%;font-size:26px;font-weight:500;line-height:1}
+.ringlbl{font-size:12.5px;color:var(--muted);margin-top:2px}
+
+/* گوی‌ها — مجموعه‌های کوچک به شکلِ گرد، نه ردیفِ جدول */
+.orbs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.orb{display:flex;align-items:center;gap:7px;background:var(--surface-2);
+  border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:13px;min-height:40px}
+.od{width:9px;height:9px;border-radius:50%;background:var(--muted);flex:0 0 9px}
+.orb.up .od{background:var(--cyan);box-shadow:0 0 9px rgba(34,211,238,.85)}
+.orb.warm .od{background:var(--violet);box-shadow:0 0 9px rgba(168,85,247,.75)}
+.orb.hot .od,.od.hot{background:var(--magenta);box-shadow:0 0 10px rgba(240,70,139,.9)}
+.orb.unk .od{background:var(--muted);opacity:.55}
+.orb.up{border-color:rgba(34,211,238,.34)}
+.orb.hot{border-color:rgba(240,70,139,.40)}
+.orb.warm{border-color:rgba(168,85,247,.34)}
+.orb .on{color:var(--ink)} .orb .ov{color:var(--muted);font-size:12px}
+.orbline{display:flex;align-items:center;gap:9px;border-radius:999px}
+.orbline .grow{flex:1;min-width:0}
+.orbline .amt{color:var(--cyan-ink)}
+
+/* نشانِ چشم در سرِ هر بخش — همان استعاره، در ابعادِ ریز */
+.minieye{width:19px;height:19px;flex:0 0 19px}
+.minieye .mr{stroke:var(--cyan);opacity:.55}
+.minieye .mi{fill:var(--violet);opacity:.9}
+.minieye .mp{fill:var(--sunken)}
