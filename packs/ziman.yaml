@@ -17,9 +17,12 @@ tenant: ziman
 # reason; it is not inherited from any other project on this node.
 locale:
   id: en-AU
-  timezone: unresolved      # ⬜ کدام ایالت؟ Sydney و Brisbane در DST فرق دارند
+  timezone: Australia/Sydney
+  # ABN دارد، GST ثبت نشده — انتخاب مالک، ۲۰۲۶-۰۸-۰۴. زیر آستانهٔ گردش
+  # سالانه این یک انتخاب قانونی است؛ بالای آن دیگر انتخاب نیست، پس آستانه
+  # در locale نگه داشته می‌شود و پایش می‌شود نه اینکه کسی یادش بماند.
   tax:
-    status: unresolved      # ⬜ آیا برای GST ثبت شده؟ زیر ۷۵هزار دلار الزامی نیست
+    status: not_registered
     pricing: inclusive
   payment_rails: []         # کانال فروش هنوز انتخاب نشده — خالی یعنی «تصمیم نگرفته»
   platforms: []             # هنوز هیچ‌جا نمی‌فروشد. تازه شروع می‌کند.
@@ -32,10 +35,29 @@ capacity_units_per_week: 6
 
 # Definition of Ready. Until each of these exists at the stated confidence,
 # any action that leaves the node is forced to RED.
+#
+# `offer.cogs_per_family` used to be asked directly, with wording that told
+# her not to count her own time. That was the industry's default mistake
+# written into the pack it was supposed to cure: an item priced against
+# materials alone looks profitable at exactly the price that loses money.
+# COGS is now derived from the inputs below instead of asked for, so there is
+# no path by which an unpriced hour reaches a shelf price.
 required_facts:
-  offer.cogs_per_family: owner_confirmed
+  materials.cost_per_batch: measured
+  production.batch_size: measured
+  time.hours_per_item: measured
+  time.hourly_floor: owner_confirmed
+  offer.price_current: owner_confirmed
+  stock.units_left: measured
+  sales.units_last_7d: measured
   ops.delivery_model: owner_confirmed
   ops.capacity_by_family: measured
+
+# Under this margin an item is not worth making; under this many days of
+# stock she is about to run out. Both are the owner's call, so both are here.
+costing:
+  margin_floor: 0.30
+  runway_warn_days: 7
 
 # How each fact is asked, in Maliheh's words. The kernel decides *which* of
 # these to ask and when; it has no business inventing the sentence. A fact
@@ -49,13 +71,55 @@ questions:
     min: 1
     max: 60
     default: 6
-  offer.cogs_per_family:
-    label: ساخت هر باکس چقدر برایتان خرج برمی‌دارد؟
-    hint: فقط مواد و بسته‌بندی. وقتِ خودتان را حساب نکنید.
-    unit: دلار برای هر باکس
+  materials.cost_per_batch:
+    label: برای آخرین دسته‌ای که ساختید، مواد چقدر شد؟
+    hint: مواد و بسته‌بندی همان دسته. وقتِ خودتان را اینجا حساب نکنید — جدا می‌پرسیم.
+    unit: دلار استرالیا
+    min: 1
+    max: 5000
+    default: 120
+  production.batch_size:
+    label: از آن مواد، چند تا درآمد؟
+    hint: تعداد باکس‌های سالم همان دسته.
+    unit: عدد
+    min: 1
+    max: 500
+    default: 10
+  time.hours_per_item:
+    label: هر باکس تقریباً چند ساعت وقت می‌برد؟
+    hint: از شروع تا آمادهٔ ارسال. تخمین کافی است.
+    unit: ساعت
+    min: 0.1
+    max: 40
+    default: 1.5
+  time.hourly_floor:
+    label: ساعتی چند دلار، ارزش وقتتان است؟
+    hint: پایین‌ترین عددی که با آن حاضرید کار کنید. ماهی یک بار می‌پرسیم.
+    unit: دلار استرالیا در ساعت
     min: 1
     max: 500
     default: 25
+  offer.price_current:
+    label: الان هر باکس را چند می‌فروشید؟
+    hint: قیمتی که مشتری می‌پردازد.
+    unit: دلار استرالیا
+    min: 1
+    max: 5000
+    default: 80
+  stock.units_left:
+    label: الان چند تا آماده دارید؟
+    hint: چیزی که همین حالا می‌شود فرستاد.
+    unit: عدد
+    min: 0
+    max: 1000
+    default: 0
+  sales.units_last_7d:
+    label: این هفته چند تا فروختید؟
+    hint: هفت روز گذشته. صفر هم یک جواب است.
+    unit: عدد
+    min: 0
+    max: 1000
+    default: 0
   ops.delivery_model:
     label: تحویل را چطور انجام می‌دهید؟
     hint: این تعیین می‌کند چه چیزی به مشتری قول داده شود.

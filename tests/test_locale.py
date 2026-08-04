@@ -109,12 +109,24 @@ class TestLoaderRefusesUnsupported(unittest.TestCase):
 
 
 class TestZimanPack(unittest.TestCase):
-    def test_ziman_is_en_au_with_both_questions_still_open(self):
+    def test_ziman_is_en_au_and_fully_answered(self):
+        # Both owner answers landed 2026-08-04. Nothing here may be UNRESOLVED
+        # any more: an unresolved field would now be a regression, not a
+        # pending question.
         spec = load_pack("packs/ziman.yaml")
         self.assertEqual(spec.locale.id, "en-AU")
         self.assertEqual(spec.locale.currency.code, "AUD")
-        self.assertEqual(spec.locale.timezone, UNRESOLVED)
-        self.assertEqual(spec.locale.tax_status, UNRESOLVED)
+        self.assertEqual(spec.locale.timezone, "Australia/Sydney")
+        self.assertEqual(spec.locale.tax_status, "not_registered")
+        self.assertNotIn(UNRESOLVED,
+                         (spec.locale.timezone, spec.locale.tax_status))
+
+    def test_ziman_charges_no_gst_but_the_threshold_is_watched(self):
+        spec = load_pack("packs/ziman.yaml")
+        self.assertEqual(spec.locale.require_tax(), (0.0, "inclusive"))
+        # Not registering is a decision that expires.
+        self.assertFalse(spec.locale.must_register_at(40_000))
+        self.assertTrue(spec.locale.must_register_at(75_000))
 
     def test_ziman_claims_no_sales_channel_yet(self):
         # She is not selling anywhere yet. An empty list is the honest state;

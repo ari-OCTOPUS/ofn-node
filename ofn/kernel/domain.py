@@ -224,6 +224,11 @@ class Locale:
     tax_status: str = UNRESOLVED
     tax_rate: float = 0.0
     tax_pricing: str = "inclusive"
+    # Turnover at which registering stops being a choice. Not registering is
+    # a decision that expires: the business grows into the obligation without
+    # anyone deciding to, which is why the number lives here and gets watched
+    # rather than living in somebody's memory.
+    tax_registration_threshold: float = 0.0
     # Not chosen yet is a real state, distinct from none. Empty means the
     # decision has not been made — nothing may assume a rail or a platform.
     payment_rails: tuple[str, ...] = ()
@@ -250,6 +255,13 @@ class Locale:
         if self.tax_status == "not_registered":
             return 0.0, self.tax_pricing
         return self.tax_rate, self.tax_pricing
+
+    def must_register_at(self, annual_turnover: float) -> bool:
+        """True once not-registering has stopped being an available choice."""
+        if self.tax_status != "not_registered":
+            return False
+        t = self.tax_registration_threshold
+        return bool(t) and annual_turnover >= t
 
 
 @dataclass(frozen=True)
@@ -279,12 +291,22 @@ class PackSpec:
     # field in it only means anything in the presence of the others.
     locale: Locale = field(
         default_factory=lambda: Locale("en-AU", Currency("AUD", "$", 2)))
+    # The line under which a price is not worth making, and how little stock
+    # counts as running out. Parameters rather than constants because the
+    # honest floor for a handmade box is not the honest floor for a day's
+    # labour, and both are the owner's call.
+    margin_floor: float = 0.30
+    runway_warn_days: int = 7
 
     def __post_init__(self) -> None:
         if self.capacity_units_per_week < 0:
             raise ValueError("capacity must be non-negative")
         if not 0.0 <= self.quota_share <= 1.0:
             raise ValueError("quota_share must be within 0..1")
+        if not 0.0 <= self.margin_floor < 1.0:
+            raise ValueError("margin_floor must be within 0..1")
+        if self.runway_warn_days < 0:
+            raise ValueError("runway_warn_days must be non-negative")
         unknown = set(self.question_meta) - set(self.required_facts)
         if unknown:
             # Wording for a fact nobody asks for is dead weight that reads as

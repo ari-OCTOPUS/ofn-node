@@ -44,6 +44,10 @@ SUPPORTED_LOCALES: Mapping[str, Mapping[str, Any]] = {
         # the owner answers.
         "tax_rate": 0.10,
         "tax_pricing": "inclusive",
+        # Registration becomes compulsory at this annual turnover. Below it,
+        # not registering is a legitimate choice; above it, it is not a choice
+        # at all — so the number is watched rather than remembered.
+        "tax_registration_threshold": 75_000.0,
         "legal": ("australian_consumer_law",),
     },
 }
@@ -211,6 +215,19 @@ def spec_from_mapping(data: Mapping[str, Any]) -> PackSpec:
     meta = _question_meta(tenant, data.get("questions") or {}, facts)
     locale = _locale(tenant, data.get("locale"))
 
+    costing = data.get("costing") or {}
+    if not isinstance(costing, Mapping):
+        raise PackError(f"{tenant}: costing must be a mapping")
+    unknown = set(costing) - {"margin_floor", "runway_warn_days"}
+    if unknown:
+        # A misspelled threshold that silently keeps the default is a price
+        # floor nobody is enforcing while the pack says otherwise.
+        raise PackError(f"{tenant}: unknown costing keys: {sorted(unknown)}")
+    for key in ("margin_floor", "runway_warn_days"):
+        if key in costing and (isinstance(costing[key], bool)
+                               or not isinstance(costing[key], (int, float))):
+            raise PackError(f"{tenant}: costing.{key} must be a number")
+
     try:
         return PackSpec(
             tenant=tenant,
@@ -221,6 +238,8 @@ def spec_from_mapping(data: Mapping[str, Any]) -> PackSpec:
             quota_share=float(share),
             question_meta=meta,
             locale=locale,
+            margin_floor=float(costing.get("margin_floor", 0.30)),
+            runway_warn_days=int(costing.get("runway_warn_days", 7)),
         )
     except ValueError as exc:
         raise PackError(f"{tenant}: {exc}") from None
@@ -286,6 +305,7 @@ def _locale(tenant: TenantId, raw: Any) -> Locale:
             tax_status=status,
             tax_rate=float(base["tax_rate"]),
             tax_pricing=pricing,
+            tax_registration_threshold=float(base["tax_registration_threshold"]),
             payment_rails=_seq("payment_rails"),
             platforms=_seq("platforms"),
             legal=tuple(base["legal"]),
