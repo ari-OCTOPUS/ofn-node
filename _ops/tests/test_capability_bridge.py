@@ -100,15 +100,38 @@ def t_c_a_broken_gate_fails_closed():
         spec["gate_fn"] = old
 
 
-def t_d_raw_shell_is_not_a_registered_capability():
-    """⚠️ shell ِ خام روی این ماشین یعنی اجرای کدِ دلخواه کنارِ `.env` و
-    دادهٔ مالی. عمداً ثبت نشده، و استدلالش در خودِ ماژول است تا هیچ ایجنتی
-    دوباره بی‌خبر پیشنهادش ندهد."""
-    for n in cap.REGISTRY:
-        assert "shell" not in n.lower(), (n, "shell ِ خام ثبت شد")
-    assert cap._WHY_NO_SHELL.strip(), "استدلالِ ردِ shell حذف شده"
-    for token in ("env", "کد", "گیت"):
-        assert token in cap._WHY_NO_SHELL, token
+def t_d_raw_shell_is_registered_but_only_through_its_own_gate():
+    """⚠️ این ادعا در ۰۸-۰۴ **عوض شد** و باید بدانیم چرا.
+
+    نسخهٔ قبلی assert می‌کرد shell ِ خام **ثبت نشود**. مالک بعد از طرحِ
+    نگرانی دوباره تأیید کرد («shell خام رو هم بازش کن»)، پس ثبت شد. تغییرِ
+    یک ادعا به‌خاطرِ رأیِ مالک درست است؛ **کندکردنِ** آن نه.
+
+    پس دندان جابه‌جا شد نه کم: به‌جای «نباید باشد»، حالا سنجیده می‌شود که
+    اگر هست، **از گیتِ خودش** بیاید و نه از رأی. و گیتش باید همان تابعِ
+    واقعیِ ماژول باشد، نه یک کپیِ خوش‌بین."""
+    assert "shell.raw" in cap.REGISTRY, "shell ِ ثبت‌شده ناپدید شد"
+    spec = cap.REGISTRY["shell.raw"]
+
+    # گیت باید به خودِ ماژول تفویض شود، نه یک `lambda: (True, ...)` ِ راحت.
+    import shell_capability as sc
+    assert spec["gate_fn"]() == sc.active(), (
+        "گیتِ ثبت‌شده با گیتِ واقعیِ ماژول یکی نیست — یک کپیِ خوش‌بین می‌تواند "
+        "وقتی کیل‌سوییچ خورده هم «در دسترس» بگوید")
+
+    # و با کیل‌سوییچ باید بسته شود — رفتاری، نه متنی.
+    sc.KILL.write_text("guard", "utf-8")
+    try:
+        ok, why = spec["gate_fn"]()
+        assert ok is False, ("با STOP-RAW-SHELL هنوز باز است", why)
+        assert "shell.raw" not in cap.available()
+    finally:
+        sc.KILL.unlink(missing_ok=True)
+
+    # هشدارِ اصلی باید بماند — «باز شد» یعنی مهارشده، نه بی‌خطر.
+    assert cap._WHY_NO_SHELL.strip(), "متنِ هشدار حذف شده"
+    for token in ("env", "deny-list", "§۰"):
+        assert token in cap._WHY_NO_SHELL, (token, "هشدار رقیق شد")
 
 
 def t_e_the_module_never_executes_anything():

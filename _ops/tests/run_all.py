@@ -387,6 +387,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # ۴ رأیِ granted که هیچ کدی مصرفشان نمی‌کرد — در حالی که قابلیتِ
          # درخواستی از قبل وجود داشت و **روشن** بود.
          "test_capability_bridge.py",
+         # ۰۸-۰۴ ← شلِ خام، به رأیِ صریحِ مالک. "باز" یعنی مهارشده: دو
+         # کیل‌سوییچ، رسیدِ قبل‌از‌اجرا، و deny-list ای که §۰ ِ منشور است.
+         "test_raw_shell_capability.py",
          "test_sync_health_unknown.py",
          "test_arbiter_consensus_rule.py",
          "test_state_write_monopoly.py",
