@@ -19,6 +19,7 @@ import threading
 import time
 
 from . import config
+from .adapters.audience_store import AudienceStore
 from .adapters.boot import BootSupervisor
 from .adapters.consent_store import ConsentStore
 from .adapters.facts import FactStore
@@ -75,10 +76,12 @@ def build_node(cfg: config.Config) -> Node:
     # and where the bytes live. Opened here so their schemas exist from the
     # first boot rather than the first upload.
     studio = StudioStore(cfg.studio_path)
+    audience = AudienceStore(cfg.audience_path)
     consent = ConsentStore(cfg.consent_path)
     media = MediaStore(cfg.photos_root)
 
     return Node(products=products, studio=studio, consent=consent, media=media,
+                audience=audience,
                 registry=registry, quota=quota, ledger=ledger, facts=facts,
                 outbox=outbox, now_epoch_s=config.epoch_seconds,
                 now_iso=config.now_iso,

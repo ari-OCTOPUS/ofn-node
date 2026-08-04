@@ -126,6 +126,7 @@ class Node:
     studio: object | None = None      # StudioStore
     consent: object | None = None     # ConsentStore
     media: object | None = None       # MediaStore
+    audience: object | None = None    # AudienceStore
 
     # ── gates ─────────────────────────────────────────────────────────────
     @property

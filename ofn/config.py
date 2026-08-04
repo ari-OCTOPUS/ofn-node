@@ -79,6 +79,17 @@ class Config:
             self.state_dir, "studio.sqlite")
 
     @property
+    def audience_path(self) -> str:
+        """Subscribers, money, and how much of the audience she owns.
+
+        Created before there is a single subscriber. The month a business
+        starts is the month churn is decided, and a table added afterwards
+        cannot describe it.
+        """
+        return os.environ.get("OFN_AUDIENCE_DB") or os.path.join(
+            self.state_dir, "audience.sqlite")
+
+    @property
     def consent_path(self) -> str:
         """Who agreed to appear in content, and where it ended up.
 
@@ -116,7 +127,8 @@ class Config:
         return {"ledger": self.ledger_path, "facts": self.facts_path,
                 "outbox": self.outbox_path, "products": self.products_path,
                 "consent": self.consent_path,
-                "studio": self.studio_path}
+                "studio": self.studio_path,
+                "audience": self.audience_path}
 
 
 def load() -> Config:

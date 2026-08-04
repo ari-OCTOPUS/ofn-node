@@ -26,6 +26,7 @@ from typing import Callable, Mapping, Sequence
 
 from ..kernel.domain import TenantId
 from ..kernel.tenancy import TenantScope
+from . import audience_store as _audience
 from . import consent_store as _consent
 from . import facts as _facts
 from . import ledger as _ledger
@@ -48,6 +49,7 @@ SCHEMAS: Mapping[str, Sequence[str]] = {
     "products": _products.SCHEMA,
     "consent": _consent.SCHEMA,
     "studio": _studio.SCHEMA,
+    "audience": _audience.SCHEMA,
 }
 
 MIGRATIONS: Mapping[str, Sequence] = {
