@@ -82,10 +82,25 @@ class TestPriceIsHers(unittest.TestCase):
 class TestLossIsStatedInWords(unittest.TestCase):
     def test_a_loss_says_so_rather_than_showing_a_negative(self):
         self.assertIn("این قیمت ضرر می‌دهد", SRC)
-        self.assertIn("money loss", SRC)
+        # The pinned bar turns red rather than printing a bare minus sign.
+        self.assertIn(".cost.loss{", SRC)                    # the style exists
+        self.assertIn("(gain < 0 ? 'loss' : 'good')", SRC)   # and is applied
 
-    def test_pricing_under_cost_asks_for_confirmation(self):
-        self.assertIn("مطمئنید؟", SRC)
+    def test_the_loss_is_visible_while_she_types_not_after(self):
+        """Rewritten 2026-08-04 with the one-question-per-screen layout.
+
+        This used to assert a `confirm()` dialog on a below-cost price. The
+        new flow says it earlier and twice: the pinned bar at the top of the
+        screen flips to "ضرر روی هر دانه" as the digits go in, and the
+        summary screen shows the same bar before anything is saved.
+
+        A modal asking "are you sure?" arrives after the decision and gets
+        dismissed reflexively. A number that changes under her thumb is the
+        same information delivered while it can still change her mind.
+        """
+        self.assertIn("ضرر روی هر دانه", SRC)
+        self.assertIn("refreshCost()", SRC)      # updates on every keystroke
+        self.assertIn("drawSummary", SRC)        # and again before saving
 
 
 class TestNumbersComeFromTheNode(unittest.TestCase):

@@ -118,6 +118,13 @@ def data_check_string(fields: Mapping[str, str],
 def hmac_variants(raw: str, bot_token: str) -> dict[str, bool]:
     """Which decode/exclude combination the platform actually signed.
 
+    TEMPORARY — delete once a golden vector from a real launch exists.
+
+    This function keeps *wrong* implementations alive and callable. Left in
+    place it becomes scaffolding nobody dares remove, and one day somebody
+    "simplifies" by picking whichever variant reads best — and the bug walks
+    back in through the door built to diagnose it.
+
     A diagnostic, not a fallback: exactly one of these is correct and the
     others are bugs. It exists so the answer comes from one tap on a real
     phone instead of from another round of reasoning. Returns booleans only —
