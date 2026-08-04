@@ -444,6 +444,25 @@ class _Handler(BaseHTTPRequestHandler):
 
 
 def main() -> int:
+    # VQ-GATEWAY-NO-CREDS-001 (۲۰۲۶-۰۸-۰۴): این پروسه **تنها** پایی بود که
+    # `env_loader` را صدا نمی‌زد. organism/center/cortex/live هر چهار می‌زنند؛
+    # gateway کاملاً به env ِ ارثی تکیه داشت و واچداگش فقط `_ops/OCTOPUS.env`
+    # را می‌خواند که هیچ‌کدام از سه نامِ اعتبارنامه را تعریف نمی‌کند.
+    #
+    # نتیجهٔ سنجیده‌شده: `TG_CENTER_BOT_TOKEN` و `TELEGRAM_OWNER_CHAT_ID` هر دو
+    # غایب ⇒ `validate_init_data` سرِ **اولین** گارد `None` می‌دهد ⇒ gateway
+    # صددرصدِ درخواست‌ها را ۴۰۳ می‌کرد. ناامن نبود — **مرده** بود، و از بیرون
+    # دقیقاً شبیهِ «احراز درست کار می‌کند» به‌نظر می‌رسید. (۴۰۳ ِ زنده‌ای که
+    # ۰۸-۰۳ به‌عنوان شاهدِ سلامتِ احراز ثبت شد، همین بود: ردِ درست به دلیلِ غلط.)
+    #
+    # اثباتِ بولینی، بدونِ لمسِ هیچ مقداری: قبل از `load_env` هر سه کلید False،
+    # بعدش هر سه True. `load_env` خودش idempotent و fail-soft است و هرگز مقدار
+    # را چاپ نمی‌کند؛ اگر `.env` نباشد no-op می‌شود و رفتار همان قبل می‌ماند.
+    try:
+        import env_loader
+        env_loader.load_env()
+    except Exception:  # noqa: BLE001 — نبودِ .env نباید دیوار را بکشد
+        pass
     if not enabled():
         print(f"miniapp_gateway: {FLAG} خاموش است — هیچ پورتی باز نشد (خروجِ تمیز).")
         return 0
