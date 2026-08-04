@@ -172,5 +172,22 @@ class SharedLatentSpace:
                     "ts": rec.get("ts", 0),
                     "source": rec.get("source", ""),
                 }
-        except (json.JSONDecodeError, OSError, ValueError):
-            pass  # corrupt file → start fresh (fail-soft)
+        except (json.JSONDecodeError, OSError, ValueError) as _exc:
+            # FIX (blindspot #53, 2026-08-04): silent wipe → fail-safe.
+            # قبلاً فایلِ خراب = start fresh = پاک‌شدنِ خامِ همهٔ vectors.
+            # اکنون: دادهٔ موجود حفظ می‌شود، خطا ثبت می‌شود، corrupt path rename
+            # می‌شود تا data loss نباشد و دیباگ ممکن باشد.
+            import time as _t, os as _os
+            _corrupt = self._persist_path
+            _quarantine = _corrupt.with_suffix(
+                f".corrupt.{int(_t.time())}.json")
+            try:
+                _os.replace(str(_corrupt), str(_quarantine))
+            except OSError:
+                pass  # rename خودش شکست خورد — حداقل crash نکن
+            # existing _vectors/_metadata دست‌نخورده باقی می‌مانند (no wipe)
+            self._corrupt_load_error = {
+                "ts": _t.time(),
+                "error": f"{type(_exc).__name__}: {_exc}",
+                "quarantine_path": str(_quarantine),
+            }

@@ -125,10 +125,38 @@ def arm_open(capability: str, *, arm_dir=None, ops_dir=None, now: "float | None"
         return False, f"failsafe-deny:{type(e).__name__}"
 
 
+def sensitive_enforced() -> bool:
+    """P0 fix (2026-08-04, blindspot #30): even without full OCTOPUS_REQUIRE_ARM,
+    the most dangerous capabilities (code_autonomy, self_improve_auto, replicate)
+    should require a fresh arm-token. This is a STRICTLY-TIGHTENING gate — it never
+    relaxes anything. When this flag is OFF (default), behavior is byte-identical.
+
+    Rationale: arm_gate_enforcing:false in ORGANISM-STATE means guard() passes
+    through for ALL capabilities. But code_autonomy (self-patching code) and
+    self_improve_auto (autonomous self-improvement) are D5/D6 actions that
+    should not pass through even when the owner has not opted into full arm
+    enforcement. This closes that gap behind a separate, default-off flag."""
+    return os.environ.get("OCTOPUS_ARM_SENSITIVE_DEFAULT", "").strip().lower() in ("1", "true", "yes", "on")
+
+
+# Capabilities that require arm even without full OCTOPUS_REQUIRE_ARM
+# (when OCTOPUS_ARM_SENSITIVE_DEFAULT=1). These are the highest-risk D5/D6 caps.
+_ALWAYS_SENSITIVE = frozenset({"code_autonomy", "self_improve_auto", "replicate"})
+
+
 def guard(capability: str, **kw) -> "tuple[bool, str]":
     """Caller helper. When enforced() -> require arm_open; else pass-through (byte-identical).
+
+    P0 fix (2026-08-04): even when enforced() is False, if
+    OCTOPUS_ARM_SENSITIVE_DEFAULT=1 and capability is in _ALWAYS_SENSITIVE,
+    arm_open is still required. This prevents code_autonomy/self_improve from
+    being ambient capabilities even when full arm enforcement is off.
+
     Wire as:  ok, why = arm_gate.guard('code_autonomy');  if not ok: <deny/skip>."""
     if not enforced():
+        # Full arm enforcement is OFF. But check sensitive default.
+        if sensitive_enforced() and capability in _ALWAYS_SENSITIVE:
+            return arm_open(capability, **kw)
         return True, "arm-gate-not-enforced"
     return arm_open(capability, **kw)
 
