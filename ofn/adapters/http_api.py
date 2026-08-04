@@ -525,13 +525,25 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
                 # also served at `/sabaapp`, which has no extension, and
                 # handing a partner `application/octet-stream` makes the
                 # phone offer to download the page instead of open it.
-                ctype = ("text/html; charset=utf-8"
-                         if key.endswith(".html")
-                         or data[:15].lstrip().lower().startswith(b"<!doctype")
-                         else "application/octet-stream")
+                if key.endswith(".woff2"):
+                    ctype = "font/woff2"
+                elif (key.endswith(".html")
+                      or data[:15].lstrip().lower().startswith(b"<!doctype")):
+                    # Decided from the bytes, not the name: the studio shell
+                    # is also served at `/sabaapp`, which has no extension.
+                    ctype = "text/html; charset=utf-8"
+                else:
+                    ctype = "application/octet-stream"
                 self.send_header("Content-Type", ctype)
                 self.send_header("Content-Length", str(len(data)))
                 self.send_header("X-Content-Type-Options", "nosniff")
+                if key.endswith(".woff2"):
+                    # The font changes when the file changes, which is never
+                    # during a run. A year is what a fingerprinted asset gets;
+                    # this one is not fingerprinted, so a day — long enough to
+                    # stop refetching it on every open, short enough that
+                    # replacing it does not need a cache-busting name.
+                    self.send_header("Cache-Control", "public, max-age=86400")
                 self.end_headers()
                 self.wfile.write(data)
                 self._audit("GET", path, 200)

@@ -174,9 +174,16 @@ class TestPersianAndRtl(unittest.TestCase):
         self.assertNotRegex(CSS, r"\bmargin-left:|\bpadding-right:")
 
     def test_no_external_font_is_fetched(self):
-        """fonts.gstatic.com does not open from Iran."""
-        self.assertNotIn("fonts.googleapis.com", SRC)
-        self.assertNotIn("fonts.gstatic.com", SRC)
+        """fonts.gstatic.com does not open from Iran.
+
+        Checked against the live CSS rather than the whole file: the
+        `@font-face` comment names the host it exists to avoid, and a test
+        that matches comments finds explanations rather than requests.
+        """
+        live = re.sub(r"/\*.*?\*/|<!--.*?-->", "", SRC, flags=re.S)
+        self.assertNotIn("fonts.googleapis.com", live)
+        self.assertNotIn("fonts.gstatic.com", live)
+        self.assertIn("/font/vazirmatn.woff2", live)
 
 
 class TestHardBudgets(unittest.TestCase):

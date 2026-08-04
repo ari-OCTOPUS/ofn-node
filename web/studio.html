@@ -13,6 +13,20 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>چیدمان</title>
 <style>
+/* Self-hosted. `fonts.gstatic.com` does not open reliably from Iran, and a
+   font request that never completes is a wasted connection on exactly the
+   network that can least afford one — as a render-blocking stylesheet it was
+   a white screen for as long as the timeout took.
+   One file: Vazirmatn is a variable font, so the whole 100-900 range comes
+   from the same bytes. Downloading 400 and 600 separately gave two identical
+   45 KB files, which is what the first attempt shipped.
+   `swap` so text is readable immediately and simply improves when it lands. */
+@font-face{
+  font-family:'Vazirmatn';
+  src:url('/font/vazirmatn.woff2') format('woff2');
+  font-weight:100 900;
+  font-display:swap;
+}
 /* ══════════════════════════════════════════════════════════════
    «چیدمان» · نسخهٔ سوم — و این یکی روی شواهد ساخته شده
    ──────────────────────────────────────────────────────────────

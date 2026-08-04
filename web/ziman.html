@@ -11,10 +11,21 @@
      render-blocking stylesheet this was a white screen for as long as the
      request took to time out — on the networks these partners are on, that
      is the difference between an app and a broken link. -->
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet" media="print" onload="this.media='all'">
 <style>
+/* Self-hosted. `fonts.gstatic.com` does not open reliably from Iran, and a
+   font request that never completes is a wasted connection on exactly the
+   network that can least afford one — as a render-blocking stylesheet it was
+   a white screen for as long as the timeout took.
+   One file: Vazirmatn is a variable font, so the whole 100-900 range comes
+   from the same bytes. Downloading 400 and 600 separately gave two identical
+   45 KB files, which is what the first attempt shipped.
+   `swap` so text is readable immediately and simply improves when it lands. */
+@font-face{
+  font-family:'Vazirmatn';
+  src:url('/font/vazirmatn.woff2') format('woff2');
+  font-weight:100 900;
+  font-display:swap;
+}
 :root{
   --cream:#faf6ef; --cream2:#f3ece0; --card:#fffdfa;
   --ink:#2e2823; --ink2:#6b5f52; --ink3:#a2958a;

@@ -110,6 +110,17 @@ def load_web(cfg: config.Config) -> dict[str, dict[str, bytes]]:
     # menu button and is not something a partner can be asked to change.
     aliases = {cfg.ports["studio"]: ("/sabaapp", "/sabaapp/")}
 
+    # The font, served from this node rather than a CDN. Every shell gets it
+    # on its own port: the platform ties each app to one origin, so a shared
+    # font host would be a fourth origin and a fourth thing to be blocked.
+    font_path = os.path.join(root, "font", "vazirmatn.woff2")
+    try:
+        with open(font_path, "rb") as fh:
+            font = fh.read()
+    except OSError:
+        font = b""
+        print("  ⚠ font missing — shells fall back to whatever the phone has")
+
     out: dict[str, dict[str, bytes]] = {}
     for port, name in mapping.items():
         path = os.path.join(root, name)
@@ -117,6 +128,8 @@ def load_web(cfg: config.Config) -> dict[str, dict[str, bytes]]:
             with open(path, "rb") as fh:
                 data = fh.read()
             served = {"/index.html": data}
+            if font:
+                served["/font/vazirmatn.woff2"] = font
             for alias in aliases.get(port, ()):
                 served[alias] = data
             out[port] = served

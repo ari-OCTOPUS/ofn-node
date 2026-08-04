@@ -6,11 +6,22 @@
 <title>ارگانیسم — کنترل پنل آری</title>
 <!-- The owner's panel is the one screen that must load on a bad connection at
      2am. Font is non-blocking; the page paints in the local stack. -->
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap"
-      rel="stylesheet" media="print" onload="this.media='all'">
 <style>
+/* Self-hosted. `fonts.gstatic.com` does not open reliably from Iran, and a
+   font request that never completes is a wasted connection on exactly the
+   network that can least afford one — as a render-blocking stylesheet it was
+   a white screen for as long as the timeout took.
+   One file: Vazirmatn is a variable font, so the whole 100-900 range comes
+   from the same bytes. Downloading 400 and 600 separately gave two identical
+   45 KB files, which is what the first attempt shipped.
+   `swap` so text is readable immediately and simply improves when it lands. */
+@font-face{
+  font-family:'Vazirmatn';
+  src:url('/font/vazirmatn.woff2') format('woff2');
+  font-weight:100 900;
+  font-display:swap;
+}
 :root{
   --void:#120e1a; --deep:#1a1426; --shell:#231a33; --shell2:#2b2040;
   --glass:rgba(255,255,255,.045); --glass2:rgba(255,255,255,.075);

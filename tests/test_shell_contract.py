@@ -498,3 +498,59 @@ class TestEveryQuestionHasWording(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestTheFontIsSelfHosted(unittest.TestCase):
+    """`fonts.gstatic.com` does not open reliably from Iran, which is where
+    the partners are. A font request that never completes is a wasted
+    connection on exactly the network that can least afford one — and as a
+    render-blocking stylesheet it was a white screen for as long as the
+    timeout took."""
+
+    def test_no_shell_fetches_a_font_from_a_cdn(self):
+        for name in ALL_SHELLS:
+            src = read(name)
+            live = re.sub(r"/\*.*?\*/|<!--.*?-->", "", src, flags=re.S)
+            with self.subTest(shell=name):
+                self.assertNotIn("fonts.googleapis.com", live)
+                self.assertNotIn("fonts.gstatic.com", live)
+
+    def test_every_shell_declares_the_local_face(self):
+        for name in ALL_SHELLS:
+            with self.subTest(shell=name):
+                self.assertIn("/font/vazirmatn.woff2", read(name))
+
+    def test_the_file_is_actually_in_the_repository(self):
+        """A `@font-face` pointing at a file nobody shipped is worse than no
+        font at all: it looks self-hosted and 404s."""
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        path = os.path.join(root, "web", "font", "vazirmatn.woff2")
+        self.assertTrue(os.path.isfile(path))
+        with open(path, "rb") as fh:
+            self.assertEqual(fh.read(4), b"wOF2")
+
+    def test_one_file_covers_every_weight(self):
+        """Vazirmatn is a variable font, so 400 and 600 come from the same
+        bytes. The first attempt downloaded both and shipped two identical
+        45 KB files — double the payload for nothing."""
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        files = os.listdir(os.path.join(root, "web", "font"))
+        self.assertEqual([f for f in files if f.endswith(".woff2")],
+                         ["vazirmatn.woff2"])
+        for name in ALL_SHELLS:
+            with self.subTest(shell=name):
+                self.assertRegex(read(name), r"font-weight:\s*100 900")
+
+    def test_text_is_readable_before_the_font_arrives(self):
+        """`swap`, so a slow font is a font change rather than a blank
+        page — the failure this whole item is about."""
+        for name in ALL_SHELLS:
+            with self.subTest(shell=name):
+                self.assertIn("font-display:swap", read(name))
+
+    def test_the_licence_travels_with_it(self):
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        licence = os.path.join(root, "web", "font", "LICENSE.txt")
+        self.assertTrue(os.path.isfile(licence))
+        with open(licence, encoding="utf-8") as fh:
+            self.assertIn("SIL Open Font License", fh.read())
