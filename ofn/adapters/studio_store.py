@@ -121,6 +121,20 @@ SCHEMA = (
         PRIMARY KEY (tenant_id, kind)
     )
     """,
+    # Labels belong to the photo, not the post.
+    #
+    # They were on the draft first, which was wrong in a way that only shows
+    # up in her workflow: she tags a shot in the gallery weeks before it
+    # becomes a post, and one photo used in two posts would have had two
+    # separate sets of tags describing one image.
+    """
+    CREATE TABLE IF NOT EXISTS media_labels (
+        media_id TEXT NOT NULL REFERENCES media_items (media_id),
+        label    TEXT NOT NULL,
+        PRIMARY KEY (media_id, label)
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS media_labels_label ON media_labels (label)",
     "CREATE INDEX IF NOT EXISTS media_album ON media_items (tenant_id, collection_id)",
     """
     CREATE TABLE IF NOT EXISTS draft_media (
@@ -414,10 +428,64 @@ class StudioStore:
             args += (collection_id,)
         if not include_archived:
             sql += "AND archived_at IS NULL "
-        return [{"media_id": r[0], "collection_id": r[1], "mime": r[2],
+        rows = [{"media_id": r[0], "collection_id": r[1], "mime": r[2],
                  "byte_size": int(r[3]), "has_original": bool(r[4]),
-                 "added_at": int(r[5]), "archived_at": r[6]}
+                 "added_at": int(r[5]), "archived_at": r[6], "labels": []}
                 for r in self._conn.execute(sql + "ORDER BY added_at DESC", args)]
+        # Labels fetched in one query rather than per row: a gallery of two
+        # hundred photos would otherwise be two hundred round trips to the
+        # same file.
+        if rows:
+            marks = ", ".join("?" for _ in rows)
+            by_id = {r["media_id"]: r for r in rows}
+            for mid, label in self._conn.execute(
+                    f"SELECT media_id, label FROM media_labels "
+                    f"WHERE media_id IN ({marks}) ORDER BY label",
+                    tuple(by_id)):
+                by_id[mid]["labels"].append(label)
+        return rows
+
+    def set_media_labels(self, tenant: str, media_id: str,
+                         labels: Sequence[str], *,
+                         allowed: Sequence[str]) -> list[str]:
+        """Tag a photo. Replaces the whole set.
+
+        Replacing rather than adding: a tag set describes one photo, and a
+        half-updated description is worse than either version — she unticks
+        `close` and ticks `wide`, and both surviving would make that photo
+        evidence for both sides of the same axis.
+        """
+        known = {r["media_id"] for r in self.gallery(tenant,
+                                                     include_archived=True)}
+        if media_id not in known:
+            raise StudioError(f"عکسی با شناسهٔ «{media_id}» نیست")
+        permitted = set(allowed)
+        chosen: list[str] = []
+        for raw in labels:
+            text = str(raw)
+            if text not in permitted:
+                raise StudioError(f"برچسب ناشناخته: {text!r}")
+            if text not in chosen:
+                chosen.append(text)
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            self._conn.execute("DELETE FROM media_labels WHERE media_id = ?",
+                               (media_id,))
+            for label in chosen:
+                self._conn.execute(
+                    "INSERT INTO media_labels (media_id, label) VALUES (?, ?)",
+                    (media_id, label))
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK")
+            raise
+        return chosen
+
+    def media_label_counts(self, tenant: str) -> dict[str, int]:
+        return {str(r[0]): int(r[1]) for r in self._conn.execute(
+            "SELECT l.label, COUNT(*) FROM media_labels l "
+            "JOIN media_items m ON m.media_id = l.media_id "
+            "WHERE m.tenant_id = ? GROUP BY l.label", (tenant,))}
 
     def file_media(self, tenant: str, media_id: str,
                    collection_id: str | None) -> None:

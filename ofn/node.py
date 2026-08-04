@@ -38,6 +38,8 @@ from .kernel.errors import FailClosedError
 from .kernel.probe import QUESTIONS as PROBE_QUESTIONS
 from .kernel.routing import RouteRequest, Rung
 from .kernel.photos import ALLOWED_EDGES
+from .kernel.photos import original_path as original_photo_path
+from .kernel.photos import relative_path as photo_path
 from .kernel.photos import inspect as photo_inspect
 from .kernel.gates import admit, executable
 from .kernel.questions import Question, is_stale, plan, readiness
@@ -601,6 +603,180 @@ class Node:
         except StudioError as exc:
             return {"ok": False, "error": str(exc)}
         return {"ok": True, "labels": chosen}
+
+    def add_to_library(self, scope: TenantScope, user_id: str,
+                       body: Mapping[str, object]) -> dict:
+        """A photo arrives and goes into her library, not into a post.
+
+        This used to create a draft and hang the photo off it, which made
+        every shot a post before she had decided anything. A picture taken
+        today and used next month had nowhere to be in between.
+
+        The original is kept — this is her archive (D-14 revisited). The two
+        renditions are what a screen and a platform get.
+        """
+        if self.studio is None or self.media is None:
+            return {"ok": False, "error": "استودیو در دسترس نیست"}
+        tenant = scope.tenant.value
+        media_id = self.studio.next_media_id(tenant)
+        try:
+            renditions = body.get("renditions") or {}
+            if not isinstance(renditions, Mapping):
+                raise FailClosedError("renditions must be an object")
+            biggest = photo_inspect(str(renditions[str(max(ALLOWED_EDGES))]))
+            for edge in ALLOWED_EDGES:
+                text = renditions.get(str(edge))
+                if not text:
+                    raise FailClosedError(f"اندازهٔ {edge} نیامده")
+                self.media.write_rendition(
+                    tenant, media_id, 0, edge, photo_inspect(str(text)))
+            original = body.get("original")
+            kept = False
+            if original:
+                self.media.write_original(tenant, media_id, 0,
+                                          photo_inspect(str(original)))
+                kept = True
+            self.studio.add_media(
+                tenant, media_id, mime=biggest.media_type,
+                byte_size=biggest.max_decoded_bytes, has_original=kept,
+                now_epoch_s=self.now_epoch_s(),
+                collection_id=(str(body["album"]) if body.get("album") else None))
+        except (FailClosedError, StudioError, KeyError) as exc:
+            # Nothing half-written survives: the row is the last thing
+            # written, so a failure leaves files with no record and the id
+            # unspent rather than a record pointing at nothing.
+            self.media.remove_piece(tenant, media_id)
+            return {"ok": False, "error": str(exc) or "عکس ذخیره نشد"}
+        self.ledger.append(scope, "MEDIA_ADDED", {
+            "media_id": media_id, "original_kept": kept,
+            "actor": f"partner:{user_id}",
+        }, self.now_iso())
+        return {"ok": True, "media_id": media_id, "original_kept": kept}
+
+    def set_media_labels(self, scope: TenantScope, media_id: str,
+                         body: Mapping[str, object]) -> dict:
+        """Tag a photo from the pack's closed vocabulary.
+
+        On the photo rather than the post: she tags a shot in the gallery
+        weeks before it becomes anything, and one photo used twice would
+        otherwise carry two separate descriptions of one image.
+        """
+        if self.studio is None:
+            return {"ok": False, "error": "استودیو در دسترس نیست"}
+        raw = body.get("labels")
+        if not isinstance(raw, (list, tuple)):
+            return {"ok": False, "error": "برچسب‌ها باید فهرست باشند"}
+        pack = self.registry.pack(scope.tenant)
+        try:
+            chosen = self.studio.set_media_labels(
+                scope.tenant.value, media_id, raw,
+                allowed=pack.content_labels)
+        except StudioError as exc:
+            return {"ok": False, "error": str(exc)}
+        return {"ok": True, "labels": chosen}
+
+    def studio_gallery(self, scope: TenantScope) -> dict:
+        """Her library: albums, and what is in them.
+
+        Photo bytes are not in here. The list carries ids and a size, and a
+        screen fetches each thumbnail on its own — a gallery of fifty photos
+        inlined as base64 would be a two-megabyte JSON response on a phone
+        network, and every one of those bytes would be re-sent on every
+        refresh.
+        """
+        tenant = scope.tenant.value
+        if self.studio is None:
+            return {"albums": [], "photos": []}
+        return {
+            "albums": [{"id": c.collection_id, "label": c.label,
+                        "genre": c.genre, "sensitivity": c.sensitivity.value}
+                       for c in self.studio.collections(tenant)],
+            "photos": self.studio.gallery(tenant),
+            "vocabulary": list(self.registry.pack(scope.tenant).content_labels),
+        }
+
+    def studio_media(self, scope: TenantScope, media_id: str, size: str):
+        """One rendition of one photo, to her, over an authenticated request.
+
+        Only the two browser-made sizes are reachable. The original is on
+        disk and is hers, but it is not on a URL: a link that serves a full
+        original is one that can be opened by anything holding a session, and
+        the export path is the deliberate way to take originals off the node.
+        """
+        from .adapters.http_api import Response
+        if self.studio is None or self.media is None:
+            return Response(404, {"error": "not found"})
+        try:
+            edge = int(size)
+        except (TypeError, ValueError):
+            return Response(400, {"error": "bad size"})
+        if edge not in ALLOWED_EDGES:
+            return Response(404, {"error": "not found"})
+        tenant = scope.tenant.value
+        known = {p["media_id"] for p in self.studio.gallery(
+            tenant, include_archived=True)}
+        if media_id not in known:
+            # Checked against her own library rather than against the
+            # filesystem: a path that exists is not the same question as a
+            # photo that is hers.
+            return Response(404, {"error": "not found"})
+        try:
+            rel = photo_path(tenant, media_id, 0, edge)
+            data = self.media.read(rel)
+        except (FailClosedError, OSError):
+            return Response(404, {"error": "not found"})
+        return Response(200, raw=data, content_type="image/jpeg")
+
+    def export_album(self, scope: TenantScope, collection_id: str):
+        """One album, as a zip she can take anywhere.
+
+        Per album rather than the whole archive: a whole-archive zip on this
+        hardware is a long request that holds a connection open and builds a
+        file bigger than the free memory, and it is not the thing she would
+        actually reach for. An album is a job that finishes.
+
+        Originals where they exist, because that is the point of an export.
+        """
+        import io
+        import zipfile
+
+        from .adapters.http_api import Response
+        if self.studio is None or self.media is None:
+            return Response(404, {"error": "not found"})
+        tenant = scope.tenant.value
+        if self.studio.collection(collection_id) is None:
+            return Response(404, {"error": "not found"})
+        photos = self.studio.gallery(tenant, collection_id=collection_id,
+                                     include_archived=True)
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w", zipfile.ZIP_STORED) as zf:
+            for item in photos:
+                mid = item["media_id"]
+                for rel, name in self._export_members(tenant, mid, item):
+                    try:
+                        zf.writestr(name, self.media.read(rel))
+                    except OSError:
+                        continue      # a row without its file is not fatal
+        return Response(200, raw=buf.getvalue(),
+                        content_type="application/zip",
+                        headers={"Content-Disposition":
+                                 f'attachment; filename="{collection_id}.zip"'})
+
+    def _export_members(self, tenant: str, media_id: str, item: Mapping):
+        """What goes in the zip for one photo, and under what name.
+
+        JPEGs are stored uncompressed in the archive: they are already
+        compressed, and re-compressing them costs CPU on a board with four
+        cores and buys almost nothing.
+        """
+        if item.get("has_original"):
+            ext = "png" if item.get("mime") == "image/png" else "jpg"
+            yield (original_photo_path(tenant, media_id, 0,
+                                       str(item.get("mime") or "image/jpeg")),
+                   f"{media_id}/original.{ext}")
+        for edge in ALLOWED_EDGES:
+            yield (photo_path(tenant, media_id, 0, edge),
+                   f"{media_id}/{edge}.jpg")
 
     def studio_overview(self, scope: TenantScope) -> dict:
         """The third tab: how the work is going, for a creator not a marketer.

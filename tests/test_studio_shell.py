@@ -292,18 +292,32 @@ class TestTheUploadFormIsOneDecision(unittest.TestCase):
     caption, collection, genre, sensitivity, time. Six at once is the thing
     the directive exists against."""
 
-    def test_the_draft_exists_after_the_first_action(self):
-        """Picking a photo creates it. Everything else is later and
-        optional — and a failed upload does not take the post with it."""
-        body = re.search(r"async function addPhoto\(file\)\s*\{(.*?)\n\}",
-                         JS, re.S).group(1)
-        self.assertLess(body.index("/api/v1/studio/drafts'"),
-                        body.index("/media'"))
+    def test_the_photo_lands_in_the_library_not_in_a_post(self):
+        """This asserted the opposite once, and the opposite was right for
+        the model it was written against: picking a photo created a draft.
 
-    def test_a_failed_upload_leaves_the_draft_alive(self):
+        The model changed when the leg turned out to be her archive. A
+        picture taken today and used next month needs somewhere to be in
+        between, and making every shot a post decides something she has not
+        decided.
+        """
         body = re.search(r"async function addPhoto\(file\)\s*\{(.*?)\n\}",
                          JS, re.S).group(1)
-        self.assertIn("پیش‌نویس ساخته شد", body)
+        self.assertIn("'/api/v1/studio/media'", body)
+        self.assertNotIn("/api/v1/studio/drafts", body)
+
+    def test_the_original_is_sent_with_it(self):
+        """A 1600px copy is not her work, it is a copy of her work."""
+        self.assertIn("asDataUrl(file)", JS)
+        self.assertIn("readAsDataURL", JS)
+
+    def test_a_failed_original_does_not_lose_the_photo(self):
+        """The renditions are what a screen and a platform need. Losing all
+        three because the largest read failed would be the worst trade in
+        the file."""
+        body = re.search(r"function asDataUrl\(file\)\s*\{(.*?)\n\}",
+                         JS, re.S).group(1)
+        self.assertIn("resolve(null)", body)
 
     def test_sensitivity_is_never_asked(self):
         """It is restricted and stays that way. Making a collection public is
@@ -313,9 +327,15 @@ class TestTheUploadFormIsOneDecision(unittest.TestCase):
         self.assertNotIn("restricted", JS)
 
     def test_the_form_asks_for_nothing_but_the_photo(self):
-        made = re.search(r"OFN\.post\('/api/v1/studio/drafts', (\{[^}]*\})", JS)
-        self.assertIsNotNone(made)
-        self.assertEqual(made.group(1).strip(), "{}")
+        """No album, no caption, no tags at upload. Tagging happens in the
+        gallery, where she can see the picture — asking for a label while
+        the photo is still a file on her phone is asking her to describe
+        something she is not looking at."""
+        sent = re.search(r"OFN\.post\('/api/v1/studio/media',\s*(\{[^}]*\})",
+                         JS, re.S)
+        self.assertIsNotNone(sent)
+        for asked in ("album", "caption", "labels"):
+            self.assertNotIn(asked, sent.group(1))
 
     def test_exif_orientation_is_requested(self):
         """Without it a portrait photo lands sideways — and only on real

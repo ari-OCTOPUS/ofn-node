@@ -75,6 +75,11 @@ class Response:
     status: int
     body: object = None
     headers: Mapping[str, str] = field(default_factory=dict)
+    # Raw bytes instead of JSON. Only for her own photos and her own export
+    # — everything else on this API is JSON, and a second body type is a
+    # second thing that can leak, so it is opt-in and named.
+    raw: bytes | None = None
+    content_type: str = ""
 
 
 @dataclass
@@ -146,6 +151,14 @@ class ApiApp:
         attach_photo: Callable[[TenantScope, str, str, dict], dict] | None = None,
         studio_board: Callable[[TenantScope], dict] | None = None,
         studio_reading: Callable[[TenantScope], dict] | None = None,
+        studio_media: Callable | None = None,
+        export_album: Callable | None = None,
+        studio_gallery: Callable[[TenantScope], dict] | None = None,
+        studio_overview: Callable[[TenantScope], dict] | None = None,
+        studio_guidance: Callable[[TenantScope], dict] | None = None,
+        set_labels: Callable[[TenantScope, str, str, dict], dict] | None = None,
+        set_media_labels: Callable | None = None,
+        add_media: Callable | None = None,
         request_reading: Callable[[TenantScope], dict] | None = None,
         judge_reading: Callable[[TenantScope, str, str], dict] | None = None,
         create_draft: Callable[[TenantScope, str, dict], dict] | None = None,
@@ -168,6 +181,14 @@ class ApiApp:
         self._owner_ask = owner_ask
         self._studio_board = studio_board
         self._studio_reading = studio_reading
+        self._studio_media = studio_media
+        self._export_album = export_album
+        self._studio_gallery = studio_gallery
+        self._studio_overview = studio_overview
+        self._studio_guidance = studio_guidance
+        self._set_labels = set_labels
+        self._set_media_labels = set_media_labels
+        self._add_media = add_media
         self._request_reading = request_reading
         self._judge_reading = judge_reading
         self._create_draft = create_draft
@@ -363,6 +384,18 @@ class ApiApp:
             return Response(200 if out.get("ok") else 400, out)
 
         # ── studio ───────────────────────────────────────────────────────
+        if method == "GET" and path == "/api/v1/studio/gallery":
+            if self._studio_gallery is None:
+                return Response(404, {"error": "not found"})
+            return Response(200, self._studio_gallery(scope))
+        if method == "GET" and path == "/api/v1/studio/overview":
+            if self._studio_overview is None:
+                return Response(404, {"error": "not found"})
+            return Response(200, self._studio_overview(scope))
+        if method == "GET" and path == "/api/v1/studio/guidance":
+            if self._studio_guidance is None:
+                return Response(404, {"error": "not found"})
+            return Response(200, self._studio_guidance(scope))
         if method == "GET" and path == "/api/v1/studio/reading":
             if self._studio_reading is None:
                 return Response(404, {"error": "not found"})
@@ -381,6 +414,34 @@ class ApiApp:
             out = self._judge_reading(scope, str(data.get("key", "")),
                                       str(data.get("disposition", "")))
             return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path == "/api/v1/studio/media":
+            data = _json_object(body)
+            if data is None or self._add_media is None:
+                return Response(400, {"error": "bad request"})
+            out = self._add_media(scope, p.user_id, data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path.startswith("/api/v1/studio/media/") \
+                and path.endswith("/labels"):
+            mid = path[len("/api/v1/studio/media/"):-len("/labels")]
+            if not mid or "/" in mid or self._set_media_labels is None:
+                return Response(404, {"error": "not found"})
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            out = self._set_media_labels(scope, mid, data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "GET" and path.startswith("/api/v1/studio/media/"):
+            rest = path[len("/api/v1/studio/media/"):]
+            parts = rest.split("/")
+            if len(parts) != 2 or self._studio_media is None:
+                return Response(404, {"error": "not found"})
+            return self._studio_media(scope, parts[0], parts[1])
+        if method == "GET" and path.startswith("/api/v1/studio/album/") \
+                and path.endswith("/export"):
+            album = path[len("/api/v1/studio/album/"):-len("/export")]
+            if not album or "/" in album or self._export_album is None:
+                return Response(404, {"error": "not found"})
+            return self._export_album(scope, album)
         if method == "GET" and path == "/api/v1/studio/board":
             if self._studio_board is None:
                 return Response(404, {"error": "not found"})
@@ -504,13 +565,24 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
             self._audit(self.command,
                         urllib.parse.urlparse(self.path).path, resp.status,
                         f"  ({reason})" if reason else "")
-            payload = (b"" if resp.body is None
-                       else json.dumps(resp.body, ensure_ascii=False).encode())
+            binary = resp.raw is not None
+            payload = resp.raw if binary else (
+                b"" if resp.body is None
+                else json.dumps(resp.body, ensure_ascii=False).encode())
             self.send_response(resp.status)
-            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header(
+                "Content-Type",
+                resp.content_type or ("application/octet-stream" if binary
+                                      else "application/json; charset=utf-8"))
             self.send_header("Content-Length", str(len(payload)))
             self.send_header("X-Content-Type-Options", "nosniff")
             self.send_header("Referrer-Policy", "no-referrer")
+            if binary:
+                # Her own photos, over an authenticated request. Never cached
+                # by anything in between: `private` keeps them out of a proxy,
+                # `no-store` keeps them off disk in the browser. The tunnel is
+                # a proxy she does not control.
+                self.send_header("Cache-Control", "private, no-store")
             for k, v in resp.headers.items():
                 self.send_header(k, v)
             self.end_headers()
