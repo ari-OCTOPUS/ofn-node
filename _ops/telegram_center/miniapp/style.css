@@ -4,7 +4,22 @@
   font-family: -apple-system, system-ui, "Segoe UI", Tahoma, sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);padding:12px;max-width:760px;margin:0 auto;font-size:14px}
+/* ── safe-area (فاز ۳، ۲۰۲۶-۰۸-۰۴) ─────────────────────────────────────
+   بدونِ این، روی هر گوشیِ نُچ‌دار سرِ کارت زیرِ دوربین می‌رفت و در حالتِ
+   تمام‌صفحه بدتر. دو مجموعهٔ جدا لازم است: `--tg-content-safe-*` مالِ کرومِ
+   خودِ تلگرام (هدر/دکمه‌ها) و `--tg-safe-*` مالِ دستگاه.
+   مقادیر را `tg_shell.js` روی :root می‌نشاند و روی هر چرخشِ گوشی تازه
+   می‌کند؛ `0px` ِ پیش‌فرض یعنی روی دسکتاپ/dev دقیقاً رفتارِ قبلی. */
+body{
+  background:var(--bg);color:var(--text);max-width:760px;margin:0 auto;font-size:14px;
+  padding:12px;
+  padding-top:calc(12px + var(--tg-content-safe-top, 0px));
+  padding-bottom:calc(12px + var(--tg-safe-bottom, 0px));
+  padding-inline-start:calc(12px + var(--tg-safe-left, 0px));
+  padding-inline-end:calc(12px + var(--tg-safe-right, 0px));
+}
+/* تمام‌صفحه: کرومِ تلگرام می‌رود، پس فقط inset ِ دستگاه می‌ماند */
+body.fullscreen{padding-top:calc(12px + var(--tg-safe-top, 0px))}
 h1{font-size:18px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
 h1 .dot{width:10px;height:10px;border-radius:50%;background:var(--green);display:inline-block}
 h1 .dot.halted{background:var(--red)}

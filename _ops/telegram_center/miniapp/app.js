@@ -12,7 +12,54 @@
   var authBadge = document.getElementById("authBadge");
   var statusDot = document.getElementById("statusDot");
 
-  if (tg) { try { tg.expand(); tg.setHeaderColor("#0f1117"); } catch(e){} }
+  // ── پوستهٔ Mini Apps 2.0 (فاز ۳، ۲۰۲۶-۰۸-۰۴) ─────────────────────────
+  // تا امروز کلِ یکپارچگیِ تلگرام یک خط بود: expand + setHeaderColor. یعنی
+  // روی گوشی محتوا **زیرِ نُچ** می‌رفت، تمام‌صفحه نبود، و در پس‌زمینه هم
+  // poll می‌کرد. منطقش عمداً در `tg_shell.js` است تا در node واقعاً تست شود
+  // (۱۳ تست) — نه با assert ِ متنی روی همین فایل.
+  if (tg) { try { tg.setHeaderColor("#0f1117"); } catch(e){} }
+  var shell = (window.OctopusShell || {});
+  var appActive = true;
+  var shellReport = shell.initShell ? shell.initShell(tg, {
+    setVar: function(k, v){
+      try { document.documentElement.style.setProperty(k, v); } catch(e){}
+    },
+    onActive: function(on){
+      appActive = !!on;
+      // ⚠️ این‌جا اولش «در پس‌زمینه poll نکن» نوشته بودم — ولی این اپ اصلاً
+      // تایمرِ poll ندارد (فقط روی کلیکِ تب render می‌کند). قلابی که وانمود
+      // کند کاری می‌کند، خودش یک دروغِ آینده است. کارِ **واقعاً** مفید این
+      // است: وقتی مالک برمی‌گردد، دادهٔ روی صفحه کهنه است ⇒ همان تبِ فعال
+      // دوباره رندر شود.
+      if (!on) { return; }
+      try {
+        var act = document.querySelector("#tabs .tab.active");
+        if (act) { render(act.getAttribute("data-tab")); }
+      } catch(e){}
+    },
+    onFullscreen: function(on){
+      try { document.body.classList.toggle("fullscreen", !!on); } catch(e){}
+    }
+  }) : {caps:{}, wired:[], mode:"none"};
+
+  // دکمه‌ها فقط وقتی ساخته می‌شوند که کلاینت واقعاً پشتیبانی کند — دکمه‌ای
+  // که کار نکند بدتر از نبودنش است.
+  (function(){
+    var host = document.querySelector("h1");
+    if (!host) { return; }
+    function addBtn(title, label, fn){
+      var b = document.createElement("button");
+      b.className = "palbtn"; b.title = title; b.textContent = label;
+      b.addEventListener("click", fn);
+      host.appendChild(b);
+    }
+    if (shellReport.caps && shellReport.caps.fullscreen) {
+      addBtn("تمام‌صفحه", "⛶", function(){ shell.toggleFullscreen(tg); });
+    }
+    if (shellReport.caps && shellReport.caps.homeScreen) {
+      addBtn("افزودن به صفحهٔ اصلی", "📌", function(){ shell.addToHomeScreen(tg); });
+    }
+  })();
 
   // tabs
   var tabs = document.getElementById("tabs");

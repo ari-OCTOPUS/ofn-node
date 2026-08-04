@@ -426,6 +426,13 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          # نشده بود. شاهدِ رفتاری: در ۸۸ ساعت لاگ، **یک** نشستِ احرازشده.
          # ناوردیِ مرکزی: `unknown` هرگز `ok` نمی‌شود.
          "test_miniapp_registration.py",
+         # ۰۸-۰۴ فاز ۳ (فرانت) ← پوستهٔ Mini Apps 2.0. کلِ یکپارچگیِ تلگرامِ
+         # این اپ یک خط بود (expand + setHeaderColor)، پس روی گوشی محتوا زیرِ
+         # نُچ می‌رفت. دو تلهٔ ثبت‌شده هم بسته شد: فایلِ تاریک (اگر allowlist ِ
+         # گیت‌وی tg_shell.js را نداشته باشد، ۴۰۴ بی‌صدا همهٔ قابلیت‌ها را
+         # می‌برد) و تستِ تاریک (۱۳ تستِ JS که run_all پایتونی هرگز صدایشان
+         # نمی‌زد — این فایل با node اجرایشان می‌کند و شمار را می‌سنجد).
+         "test_miniapp_shell_2026.py",
          "test_sync_health_unknown.py",
          "test_arbiter_consensus_rule.py",
          "test_state_write_monopoly.py",

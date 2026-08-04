@@ -168,6 +168,13 @@ def _miniapp_static_response(path: str) -> tuple:
     elif p in ("/miniapp/app.js", "/app.js"):
         rel = "app.js"
         ctype = "application/javascript; charset=utf-8"
+    elif p in ("/miniapp/tg_shell.js", "/tg_shell.js"):
+        # پوستهٔ Mini Apps 2.0 (فاز ۳). فایلِ جدا چون در node تست می‌شود؛
+        # بدونِ این مدخل، `index.html` صدایش می‌زند و ۴۰۴ می‌گیرد — یعنی
+        # هیچ‌کدام از قابلیت‌های ۲۰۲۶ روی گوشی بالا نمی‌آید و هیچ خطایی هم
+        # دیده نمی‌شود جز یک تگِ script ِ شکست‌خورده در کنسول.
+        rel = "tg_shell.js"
+        ctype = "application/javascript; charset=utf-8"
     elif p in ("/miniapp/style.css", "/style.css"):
         rel = "style.css"
         ctype = "text/css; charset=utf-8"
@@ -303,7 +310,7 @@ def _handle_core(method: str, path: str, headers, *, fetch_fn=None,
     if method_u == "POST" and p != "/api/actions":
         return 405, b"", "text/plain; charset=utf-8"
     if p in ("/miniapp", "/miniapp/", "/miniapp/app.js", "/miniapp/style.css",
-             "/app.js", "/style.css"):
+             "/miniapp/tg_shell.js", "/tg_shell.js", "/app.js", "/style.css"):
         return _miniapp_static_response(p)
     if p == "/api/actions":
         if method_u != "POST":
