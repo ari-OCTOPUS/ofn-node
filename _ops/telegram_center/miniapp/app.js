@@ -125,6 +125,53 @@
   }
   function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
 
+  // ── لایهٔ اقدام ───────────────────────────────────────────────────────────
+  // ⚠️ هرگز خوش‌بینانه نیست. موتور شش وضع برمی‌گرداند (APPLIED / DUPLICATE /
+  // BLOCKED / CONFLICT / DENIED / ERROR) و هر کدام معنای متفاوتی دارد؛ اگر
+  // همه را «✅ شد» نشان دهم، همان کارتِ رسیدِ جعلیِ ۰۸-۰۴ را دوباره ساخته‌ام.
+  // BLOCKED معمولاً `allowed` هم دارد — همان را نشان می‌دهم تا مالک بداند
+  // چه چیزی مجاز بود، نه فقط اینکه رد شد.
+  var ACT_TONE = {APPLIED:"ok", DONE:"ok", DUPLICATE:"warn", BLOCKED:"bad",
+                  CONFLICT:"warn", DENIED:"bad", ERROR:"bad"};
+  var ACT_FA = {APPLIED:"ثبت شد", DONE:"انجام شد", DUPLICATE:"قبلاً همین ثبت شده بود",
+                BLOCKED:"رد شد", CONFLICT:"تداخل", DENIED:"اجازه نداری", ERROR:"خطا"};
+  function actionIdOf(action, payload){
+    // idempotency key ِ صریح: دو تپِ سریعِ ADHD نباید دو ردیف بسازد.
+    // بدونِ این، موتور از hash ِ payload می‌سازد که برای «همان کار، دوباره»
+    // درست است ولی برای «انگشتم لرزید» هم همان — که همان‌جا می‌خواهیمش.
+    return "mini:" + action + ":" + JSON.stringify(payload||{});
+  }
+  function act(action, payload, btn){
+    if(btn){ btn.disabled = true; btn.setAttribute("data-busy","1"); }
+    if(tg && tg.HapticFeedback){ try{ tg.HapticFeedback.impactOccurred("light"); }catch(e){} }
+    return apiPost("/api/actions", {action:action, payload:payload||{},
+                                    action_id: actionIdOf(action, payload)})
+      .then(function(r){
+        var st = String((r&&r.status)||"ERROR").toUpperCase();
+        var tone = ACT_TONE[st] || "warn";
+        var msg = ACT_FA[st] || st;
+        if(st==="BLOCKED" && r && r.reason){
+          msg += " — " + ltr(String(r.reason));
+          if(r.allowed && r.allowed.length) msg += " · مجاز: " + r.allowed.map(ltr).join(" ");
+        }
+        toast(msg, tone);
+        if(tg && tg.HapticFeedback){
+          try{ tg.HapticFeedback.notificationOccurred(tone==="ok"?"success":"error"); }catch(e){}
+        }
+        return r;
+      })
+      .then(function(r){ if(btn){ btn.disabled=false; btn.removeAttribute("data-busy"); } return r; });
+  }
+  var _toastT = null;
+  function toast(msg, tone){
+    var w = document.getElementById("toast");
+    if(!w){ w = document.createElement("div"); w.id = "toast"; document.body.appendChild(w); }
+    w.className = "toast " + (tone||"warn") + " show";
+    w.innerHTML = /[؀-ۿ]/.test(msg) ? msg : esc(msg);
+    if(_toastT) clearTimeout(_toastT);
+    _toastT = setTimeout(function(){ w.className = "toast " + (tone||"warn"); }, 4200);
+  }
+
   // عدد/شناسه داخل متنِ راست‌به‌چپ باید ایزولهٔ bidi بگیرد وگرنه جای ارقام می‌پرد
   function fa(n){
     if(n===null||n===undefined) return "—";
@@ -713,9 +760,31 @@
                        "تا تصمیم نگیری، این‌ها همان‌جا می‌مانند.", {tab:"approvals",label:"برو به تأییدها"});
         else calm.push("صفِ تأیید خالی است");
 
-        var tks = Number(tk.tasks_total||0);
-        if(tks>0) push("warm", fa(tks)+" کارِ باز", "در صفِ پاها منتظرند.", {tab:"system",label:"دیدنِ پاها"});
+        var tstat = tk.task_status||{};
+        var tks = Number(tk.tasks_total||0) - Number(tstat.done||0);
+        if(tks>0) push("warm", fa(tks)+" کارِ باز", "منتظرِ توست.", {tab:"tasks",label:"دیدنِ کارها"});
         else calm.push("هیچ کارِ بازی نیست");
+
+        // علائمِ حیاتی فقط وقتی **بحرانی** باشند به خانه می‌آیند — وگرنه
+        // جای‌شان تبِ سیستم است. خانه صفِ تریاژ است، نه داشبورد.
+        var cd = st.cardiac||{};
+        if(cd.depleted) push("hot","بودجهٔ ضربانِ امروز تمام شد",
+          "ارگانیسم فقط ضربانِ پایه می‌زند — کارِ ارزشمند جلو نمی‌رود.",
+          {tab:"system",label:"دیدنِ علائمِ حیاتی"});
+        else if(cd.status==="ok" && cd.pct!==null && cd.pct>85)
+          push("warm","بودجهٔ ضربان "+fa(cd.pct)+"٪ خرج شده",
+            "تا آخرِ روز چیزِ زیادی نمانده.", {tab:"system",label:"دیدنِ علائمِ حیاتی"});
+        else if(cd.stale) calm.push("بودجهٔ ضربان امروز به‌روز نشده");
+
+        var arb = st.arbiter||{};
+        if(arb.color==="RED") push("warm","سه قلب واگرا شده‌اند",
+          "داورِ نبض RED است — ولی سایه است و هنوز هیچ اثری بر نبض ندارد.",
+          {tab:"system",label:"دیدنِ داور"});
+        else if(arb.color) calm.push("داورِ نبض: "+(ARB_FA[arb.color]||arb.color));
+
+        if(st.germline_alert && st.germline_alert!=="ok")
+          push("warm","ژرم‌لاین عقب افتاده",
+            "تأخیر: "+fa(st.germline_lag_h)+" ساعت.", {tab:"system",label:"دیدنِ علائمِ حیاتی"});
 
         var dr=(gv.drift_status||{}).status;
         if(dr && dr!=="ok") push("warm","ناظر انحراف می‌بیند",
@@ -768,6 +837,157 @@
         });
       });
   }
+  // ── علائمِ حیاتی ───────────────────────────────────────────────────────────
+  // این سه از قبل روی دیسک بودند و allowlist ِ /api/state دورشان می‌ریخت، و
+  // رنگِ داور اصلاً هیچ‌جا ثبت نمی‌شد. جای‌شان این‌جاست نه خانه: خانه یعنی
+  // «چه چیزی با توست»، بدن یعنی «حالِ ارگانیسم». فقط وقتی یکی‌شان بحرانی
+  // شود، به‌صورتِ کارتِ تریاژ به خانه می‌آید.
+  var ARB_FA = {GREEN:"هماهنگ", AMBER:"کشمکش", RED:"واگرا"};
+  var ARB_TONE = {GREEN:"ok", AMBER:"amber", RED:"bad"};
+  function renderVitals(el){
+    el.innerHTML = "";
+    api("/api/state").then(function(st){
+      st = st || {};
+      var c = st.cardiac || {}, ar = st.arbiter || {}, rr = st.recall_reach || {};
+      var h = secHead("علائمِ حیاتی");
+      var body = "";
+
+      // ۱) بودجهٔ ضربان — تنها حلقه‌ای که مخرجِ واقعی دارد
+      if(c.status === "ok" && c.pct !== null && c.pct !== undefined){
+        body += ring(c.spent, c.cap, "ضربان از "+fa(c.cap),
+                     c.depleted ? "bad" : (c.pct > 80 ? "amber" : "cyan"), 118);
+      } else {
+        // کهنه یا غایب ⇒ حلقه نمی‌کشم. حلقهٔ بی‌مخرج تزئین است، و حلقهٔ
+        // دیروز از حلقه‌نداشتن بدتر — چون شبیهِ امروز دیده می‌شود.
+        body += '<div class="ringwrap dim" style="width:118px">'+
+          '<div class="ringnum">—</div><div class="ringlbl">بودجهٔ ضربان<br>'+
+          (c.stale ? "دادهٔ "+ltr(String(c.date||"?"))+"، نه امروز" : "خوانده نشد")+
+          '</div></div>';
+      }
+
+      // ۲) تأخیرِ ژرم‌لاین — ساعت، نه درصد. مخرج ندارد پس گره است نه حلقه.
+      var gl = st.germline_lag_h;
+      body += orbs([{name:"ژرم‌لاین",
+                     short: gl===null||gl===undefined ? "نامعلوم" : ltr(Number(gl).toFixed(2))+" ساعت",
+                     tone: st.germline_alert==="ok" ? "ok" :
+                           (gl===null||gl===undefined ? "unk" : "warn")}]);
+
+      // ۳) دسترسیِ حافظه + رنگِ داور
+      body += orbs([
+        {name:"رویدادهای حافظه", short:"حافظه", n: rr.events,
+         tone: rr.events ? "ok" : "unk"},
+        {name:"داورِ نبض", short: ARB_FA[ar.color] || "نامعلوم",
+         tone: ARB_TONE[ar.color] || "unk"}
+      ]);
+      h += '<div class="vitals">'+body+'</div>';
+
+      // متن پشتِ تاشو — شکل بالا، عدد پایین
+      h += '<details class="det"><summary>عددهایش</summary><div class="inner">'+
+        row("بودجه", c.status==="ok" ? fa(c.spent)+" از "+fa(c.cap)+
+            (c.stale?" (کهنه)":"") : "خوانده نشد")+
+        row("استراحت", c.resting)+
+        row("تأخیرِ ژرم‌لاین (ساعت)", gl)+
+        row("هشدارِ ژرم‌لاین", st.germline_alert)+
+        row("میانهٔ دسترسیِ حافظه", rr.reach_median)+
+        row("دورهٔ مؤثرِ داور (ثانیه)", ar.effective_period_s)+
+        row("رانندهٔ داور", ar.driver)+
+        row("قلب‌های حاضر", ar.n_present)+
+        // ⚠️ این خط باربر است: رنگِ داور امروز **سایه** است. اگر مالک فکر کند
+        // نبضِ زنده را می‌راند، یک تصمیمِ غلط روی یک عددِ بی‌اثر می‌گیرد.
+        row("سیمِ داور", ar.wire_open ? "زنده — نبض را می‌راند" :
+                                        "سایه — فقط مشاهده، هیچ اثری بر نبض ندارد")+
+      '</div></details>';
+      el.innerHTML = h;
+    });
+  }
+
+  // ── تبِ کارها ─────────────────────────────────────────────────────────────
+  // چرا این تبِ ششم است: `task.create` و `task.done` دو تا از شش اقدامِ
+  // allowlist‌شده‌اند و هیچ خانه‌ای نداشتند (لیدها و پول خانه دارند). بدونِ
+  // این تب، آن دو اقدام فقط در رجیستری وجود داشتند نه در دسترسِ مالک.
+  var TASK_KINDS = ["general","followup","manual_send","content_prepare",
+                    "content_post","check_payment","review_campaign"];
+  var KIND_FA = {general:"عمومی", followup:"پیگیری", manual_send:"ارسالِ دستی",
+                 content_prepare:"آماده‌سازیِ محتوا", content_post:"انتشارِ محتوا",
+                 check_payment:"چکِ پرداخت", review_campaign:"مرورِ کمپین"};
+  var PRIO_FA = {1:"فوری", 2:"مهم", 3:"عادی", 4:"وقتی شد", 5:"روزی"};
+
+  function renderTasks(el){
+    el.innerHTML = '<div class="loading">در حال بارگذاری…</div>';
+    api("/api/ops/tasks").then(function(t){
+      t = t || {};
+      if(t.status==="error"){ el.innerHTML='<div class="err">خطا: '+esc(t.reason)+'</div>'; return; }
+      var items = t.items;                      // ⚠️ null ≠ [] — پایین جدا می‌شوند
+      var stat = t.task_status || {};
+      var open = Number(t.tasks_total||0) - Number(stat.done||0);
+
+      // شکل‌ها بالا: یک حلقهٔ «باز از کل» و گره‌های وضع
+      var html = secHead("کارها", pill(fa(open)+" باز", open>0?"warn":"ok"));
+      html += '<div class="vitals">'+
+        ring(open, Math.max(Number(t.tasks_total||0),1), "باز", open>0?"amber":"cyan", 112)+
+        orbs(Object.keys(stat).map(function(k){
+          return {name:k, short:(k==="done"?"انجام":k==="open"?"باز":ltr(k)), n:stat[k],
+                  tone:(k==="done"?"ok":"warn")};
+        }))+'</div>';
+
+      if(items === null || items === undefined){
+        html += '<div class="err">فهرستِ کارها خوانده نشد — پایگاهِ ops در دسترس نیست. '+
+                'شمارشِ بالا از منبعِ دیگری است، پس ممکن است با فهرست نخواند.</div>';
+      } else if(!items.length){
+        html += '<div class="calm"><div class="big">هیچ کارِ بازی نیست</div>'+
+                '<div class="sm">پایین یکی بساز.</div></div>';
+      } else {
+        html += '<div class="tasklist">'+items.map(function(it){
+          var p = Number(it.priority||3);
+          return '<div class="titem p'+p+'">'+
+            '<button class="tdone" data-id="'+esc(it.id)+'" aria-label="انجام شد">✓</button>'+
+            '<div class="tbody"><div class="tt">'+esc(it.title||"—")+'</div>'+
+            '<div class="tm">'+esc(KIND_FA[it.kind]||ltr(String(it.kind||"")))+
+            ' · '+esc(PRIO_FA[p]||fa(p))+
+            (it.due_at?' · تا '+ltr(String(it.due_at)):'')+'</div></div></div>';
+        }).join("")+'</div>';
+      }
+
+      // فرمِ ساخت پشتِ تاشو — شکل بالا، متن پایین (رأیِ مالک)
+      html += '<details class="det"><summary>کارِ تازه بساز</summary><div class="inner">'+
+        '<input class="fin" id="ntTitle" type="text" placeholder="عنوانِ کار" maxlength="240">'+
+        '<div class="chips" id="ntKind">'+TASK_KINDS.map(function(k,i){
+          return '<button class="chip'+(i===0?" on":"")+'" data-v="'+k+'">'+esc(KIND_FA[k])+'</button>';
+        }).join("")+'</div>'+
+        '<div class="chips" id="ntPrio">'+[1,2,3,4,5].map(function(p){
+          return '<button class="chip'+(p===3?" on":"")+'" data-v="'+p+'">'+esc(PRIO_FA[p])+'</button>';
+        }).join("")+'</div>'+
+        '<button class="go" id="ntGo">بساز</button>'+
+      '</div></details>';
+      el.innerHTML = html;
+
+      [].forEach.call(el.querySelectorAll(".tdone"), function(b){
+        b.addEventListener("click", function(){
+          act("task.done", {task_id:b.getAttribute("data-id")}, b).then(function(r){
+            if(r && r.ok) renderTasks(el);          // فقط وقتی واقعاً شد
+          });
+        });
+      });
+      [].forEach.call(el.querySelectorAll(".chips"), function(g){
+        g.addEventListener("click", function(e){
+          var c = e.target.closest(".chip"); if(!c) return;
+          [].forEach.call(g.children, function(x){ x.classList.remove("on"); });
+          c.classList.add("on");
+        });
+      });
+      var go = el.querySelector("#ntGo");
+      if(go) go.addEventListener("click", function(){
+        var title = (el.querySelector("#ntTitle")||{}).value || "";
+        if(!title.trim()){ toast("عنوان خالی است", "bad"); return; }
+        var k = el.querySelector("#ntKind .chip.on"), p = el.querySelector("#ntPrio .chip.on");
+        act("task.create", {title:title.trim(),
+                            kind:(k?k.getAttribute("data-v"):"general"),
+                            priority:Number(p?p.getAttribute("data-v"):3)}, go)
+          .then(function(r){ if(r && r.ok) renderTasks(el); });
+      });
+    });
+  }
+
   function goTab(name){
     var t = document.querySelector('#tabs .tab[data-tab="'+name+'"]');
     if(!t) return;
@@ -778,9 +998,12 @@
   function viewApprovals(el){ stack(el||content, [renderApprovals]); }
   function viewMoney(el){ stack(el||content, [renderValue, renderOutbound]); }
   function viewLeads(el){ stack(el||content, [renderPF]); }
-  function viewSystem(el){ stack(el||content, [renderLegs, renderBrain, renderGovernor, renderObsidian, renderTruth, renderRegistry, renderStudio]); }
+  function viewSystem(el){ stack(el||content, [renderLegs, renderVitals, renderBrain, renderGovernor, renderObsidian, renderTruth, renderRegistry, renderStudio]); }
 
-  var renderers = {home:viewHome,approvals:viewApprovals,money:viewMoney,leads:viewLeads,system:viewSystem};
+  function viewTasks(el){ stack(el||content, [renderTasks]); }
+
+  var renderers = {home:viewHome,approvals:viewApprovals,money:viewMoney,
+                   leads:viewLeads,tasks:viewTasks,system:viewSystem};
   // ⚠️ سکوت را بلند کن. نسخهٔ قبلی `renderers[name]||renderHome` بود، پس یک تبِ
   // بی‌رندرکننده **بی‌صدا** محتوای خانه را نشان می‌داد — کلاسِ باگی که کلِ امروز
   // دنبالش بودیم، این‌بار در UI. حالا تبِ ناشناخته خودش را اعلام می‌کند.

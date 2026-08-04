@@ -20,6 +20,7 @@
     سبکِ main-style: harness.setup اول، توابعِ t_*، harness.run، sys.exit.
 """
 import json
+import os
 import sys
 import tempfile
 import time
@@ -181,6 +182,62 @@ def t_state_carries_arbiter_block():
     _pin({"date": TODAY, "spent": 1, "resting": 0}, cap=10, organism={"beat": 1})
     a = ms.get_miniapp_state().get("arbiter")
     assert isinstance(a, dict) and a.get("status") == "ok", f"arbiter در خروجی نیست: {a!r}"
+
+
+# ─── فهرستِ آیتم‌ها: سطحِ خواندنی‌ای که `task.done` بدونش هدف ندارد ────────
+def _ops_sandbox():
+    """پایگاهِ ops را به یک پوشهٔ تازه پین کن — تست هرگز در انبارِ زنده ننویسد."""
+    rt = tempfile.mkdtemp(prefix="vitals-ops-")
+    for k, v in (("OCTOPUS_OPS_RUNTIME_DIR", rt),
+                 ("OCTOPUS_OPS_DB_PATH", str(Path(rt) / "o.sqlite3")),
+                 ("OCTOPUS_OPS_AUDIT_PATH", str(Path(rt) / "a.jsonl")),
+                 ("OCTOPUS_OPS_IDEMPOTENCY_PATH", str(Path(rt) / "i.sqlite3"))):
+        os.environ[k] = v
+    from agi2027_control.ops_actions import OpsActionEngine
+    return OpsActionEngine()
+
+
+def t_items_expose_only_allowlisted_columns():
+    """`notes` ِ متنِ آزاد هرگز از تونل بیرون نمی‌رود.
+
+    ستون‌ها allowlist‌اند، پس ستونِ تازه‌ای که فردا اضافه شود هم خودبه‌خود
+    بیرون نمی‌رود. این تست با یک یادداشتِ نشان‌دار می‌سنجدش، نه با بازرسیِ کد.
+    """
+    eng = _ops_sandbox()
+    MARK = "NOTEMARKER-محرمانه-9911"
+    r = eng.execute("task.create", {"title": "زنگ به مشتری", "kind": "followup",
+                                    "notes": MARK}, {"is_owner": True})
+    eng.close()
+    assert r.get("ok"), f"ساختِ کار شکست: {r!r}"
+    ms.cache_clear()
+    items = json.loads(ms.dispatch_api("/api/ops/tasks")[1]).get("items") or []
+    assert items, "فهرست خالی برگشت، پس گرپ کور است"
+    blob = json.dumps(items, ensure_ascii=False)
+    assert MARK not in blob, "یادداشتِ متنِ آزاد نشت کرد"
+    assert set(items[0]) == set(ms._TASK_COLS), (
+        f"ستونِ خارج از allowlist بیرون آمد: {set(items[0]) - set(ms._TASK_COLS)}")
+
+
+def t_done_tasks_leave_the_open_list():
+    """کارِ بسته‌شده از فهرست بیرون می‌رود — وگرنه فهرست بی‌نهایت رشد می‌کند."""
+    eng = _ops_sandbox()
+    r = eng.execute("task.create", {"title": "فاکتور", "kind": "check_payment"},
+                    {"is_owner": True})
+    tid = r.get("task_id")
+    ms.cache_clear()
+    before = json.loads(ms.dispatch_api("/api/ops/tasks")[1]).get("items") or []
+    assert any(i["id"] == tid for i in before), "کارِ تازه در فهرست نیست"
+    eng.execute("task.done", {"task_id": tid}, {"is_owner": True})
+    eng.close()
+    ms.cache_clear()
+    after = json.loads(ms.dispatch_api("/api/ops/tasks")[1]).get("items") or []
+    assert not any(i["id"] == tid for i in after), "کارِ انجام‌شده هنوز در فهرستِ باز است"
+
+
+def t_unreadable_store_is_none_not_empty_list():
+    """پایگاهِ نخواندنی ⇒ None. `[]` یعنی «هیچ کاری نیست» که دروغِ دیگری است."""
+    items = ms._ops_items("no_such_table", ("id",), "", "id")
+    assert items is None, f"جدولِ غایب {items!r} داد، انتظار None"
 
 
 CHECKS = [(n, f) for n, f in sorted(globals().items())

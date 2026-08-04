@@ -1116,6 +1116,48 @@ def get_ops_brain(root: "Path | None" = None) -> dict:
                                           {"available": False, "daemon": {},
                                            "consolidation": {}})})
 
+#: تنها ستون‌هایی که از هر ردیف بیرون می‌آیند. **allowlist**، نه حذفِ چندتا
+#: ستونِ بد: ستونِ تازه‌ای که فردا اضافه شود باید عمداً این‌جا نوشته شود،
+#: وگرنه خودبه‌خود روی تونل نمی‌رود. عمداً `notes` و `tags_json` نیستند —
+#: متنِ آزادِ مالک می‌تواند هر چیزی داشته باشد.
+_TASK_COLS = ("id", "title", "kind", "status", "priority", "due_at")
+_LEAD_COLS = ("id", "handle", "stage", "value_estimate")
+#: سقفِ ردیف — مینی‌اپ فهرستِ کار است نه صادرکنندهٔ پایگاه‌داده.
+_ITEMS_MAX = 50
+
+
+def _ops_items(table: str, cols: "tuple[str, ...]", where: str,
+               order: str, root: "Path | None" = None) -> "list[dict] | None":
+    """چند ردیفِ اول از یک جدولِ ops — فقط ستون‌های allowlist‌شده.
+
+    چرا لازم شد: خواندنیِ قبلی فقط **شمارش** می‌داد. با شمارشِ تنها،
+    `task.done` هیچ هدفی برای انتخاب ندارد و دکمه‌اش می‌شود یک ورودیِ
+    متنیِ شناسه — یعنی عملاً بی‌استفاده.
+
+    غیبت ⇒ `None` (نه `[]`): «پایگاه‌داده نیست» و «هیچ کاری نیست» دو چیزِ
+    متفاوت‌اند و UI باید بتواند فرقشان را بگذارد.
+    """
+    try:
+        from agi2027_control.ops_actions import OpsActionEngine  # noqa: WPS433
+    except Exception:  # noqa: BLE001
+        return None
+    eng = None
+    try:
+        eng = OpsActionEngine(root=Path(root)) if root else OpsActionEngine()
+        sql = (f"SELECT {','.join(cols)} FROM {table} "  # noqa: S608 — cols ثابت‌اند
+               f"{where} ORDER BY {order} LIMIT {int(_ITEMS_MAX)}")
+        rows = eng.db.conn.execute(sql).fetchall()
+        return [dict(zip(cols, r)) for r in rows]
+    except Exception:  # noqa: BLE001
+        return None
+    finally:
+        if eng is not None:
+            try:
+                eng.close()
+            except Exception:  # noqa: BLE001
+                pass
+
+
 def get_ops_leads(root: "Path | None" = None) -> dict:
     """`/api/ops/leads` — برشِ لیدها با همان نام‌کلیدهای /api/ops."""
     s = _engine_summary(root)
@@ -1125,7 +1167,9 @@ def get_ops_leads(root: "Path | None" = None) -> dict:
                             "leads_total": None, "lead_stages": None})
     return _scrub_dict({"status": "ok", "section": "leads",
                         "leads_total": s.get("leads_total"),
-                        "lead_stages": s.get("lead_stages")})
+                        "lead_stages": s.get("lead_stages"),
+                        "items": _ops_items("leads", _LEAD_COLS, "",
+                                            "created_at DESC", root)})
 
 def get_ops_tasks(root: "Path | None" = None) -> dict:
     """`/api/ops/tasks` — برشِ کارها با همان نام‌کلیدهای /api/ops."""
@@ -1136,7 +1180,12 @@ def get_ops_tasks(root: "Path | None" = None) -> dict:
                             "tasks_total": None, "task_status": None})
     return _scrub_dict({"status": "ok", "section": "tasks",
                         "tasks_total": s.get("tasks_total"),
-                        "task_status": s.get("task_status")})
+                        "task_status": s.get("task_status"),
+                        # کارهای بسته‌شده بالای فهرست ننشینند — «باز» یعنی
+                        # هرچه done نیست، نه فقط یک وضعِ نام‌برده.
+                        "items": _ops_items("tasks", _TASK_COLS,
+                                            "WHERE status != 'done'",
+                                            "priority ASC, created_at DESC", root)})
 
 def _cached(key: str, fn, root) -> dict:
     ttl = _cache_ttl()
