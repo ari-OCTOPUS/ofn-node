@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import json
 import re
+import traceback
 import urllib.parse
 from dataclasses import dataclass, field
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -231,8 +232,12 @@ class ApiApp:
         session = issue_session(
             "owner" if is_owner_host else subject, user.user_id,
             self._secret, now_epoch_s=now)
+        # `first_name` travels only on this response, only after the signature
+        # and the allowlist have both passed. It is what the shell greets with;
+        # before this point the shell knows no name to show.
         return Response(200, {"session": session, "user_id": user.user_id,
-                              "username": user.username})
+                              "username": user.username,
+                              "first_name": user.first_name})
 
     def _admitted(self, tenant_name: str | None, is_owner_host: bool,
                   user_id: str) -> bool:
@@ -393,6 +398,26 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
         def _headers(self) -> dict[str, str]:
             return {k.lower(): v for k, v in self.headers.items()}
 
+        def _dispatch(self, method: str, path: str, body: bytes) -> None:
+            """Run a handler so that no outcome closes the socket silently.
+
+            Without this, an exception inside a handler propagates up to
+            `socketserver`, which logs a traceback and drops the connection
+            with no response written. The caller sees a network failure, so
+            the shell reports "unreachable" — the node looks *down* rather
+            than *broken*, and the two get diagnosed very differently.
+
+            The body says nothing beyond 500 on purpose: the traceback goes
+            to the journal, where the operator is, and never to the browser,
+            where it would name paths and columns to whoever is holding the
+            phone.
+            """
+            try:
+                self._send(app.handle(method, path, self._headers(), body))
+            except Exception:                      # noqa: BLE001 — last resort
+                traceback.print_exc()
+                self._send(Response(500, {"error": "internal error"}))
+
         def do_GET(self):  # noqa: N802
             path = urllib.parse.urlparse(self.path).path
             if path in files or (path == "/" and "/index.html" in files):
@@ -408,7 +433,7 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
                 self.wfile.write(data)
                 self._audit("GET", path, 200)
                 return
-            self._send(app.handle("GET", path, self._headers(), b""))
+            self._dispatch("GET", path, b"")
 
         def do_POST(self):  # noqa: N802
             length = int(self.headers.get("Content-Length") or 0)
@@ -417,7 +442,7 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
                 return
             body = self.rfile.read(length) if length else b""
             path = urllib.parse.urlparse(self.path).path
-            self._send(app.handle("POST", path, self._headers(), body))
+            self._dispatch("POST", path, body)
 
     return Handler
 

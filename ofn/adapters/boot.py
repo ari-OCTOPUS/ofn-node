@@ -26,7 +26,29 @@ from typing import Callable, Mapping, Sequence
 
 from ..kernel.domain import TenantId
 from ..kernel.tenancy import TenantScope
-from .sqlite_base import checkpoint, connect, integrity_ok
+from . import facts as _facts
+from . import ledger as _ledger
+from . import outbox as _outbox
+from . import products as _products
+from .sqlite_base import (
+    apply_schema, checkpoint, connect, integrity_ok, missing_columns,
+)
+
+# Keyed by the names `config.db_paths` uses: schema, then the migrations that
+# bring an older file up to it. A store absent from this map is neither
+# migrated nor checked, which is why the map lives next to the check rather
+# than inside each adapter — forgetting to add a new store is visible from
+# one screen.
+SCHEMAS: Mapping[str, Sequence[str]] = {
+    "ledger": _ledger.SCHEMA,
+    "facts": _facts.SCHEMA,
+    "outbox": _outbox.SCHEMA,
+    "products": _products.SCHEMA,
+}
+
+MIGRATIONS: Mapping[str, Sequence] = {
+    "products": _products.MIGRATIONS,
+}
 
 # A board with no battery-backed clock reports something near the epoch until
 # NTP lands. Anything before this is definitely wrong, not merely surprising.
@@ -177,8 +199,53 @@ class BootSupervisor:
                 else:
                     rep.add(f"db:{name}", Severity.CRITICAL,
                             "quick_check failed — restore from backup before use")
+                self._check_shape(rep, name, conn)
             finally:
                 conn.close()
+
+    def _check_shape(self, rep: BootReport, name: str, conn) -> None:
+        """Bring this file up to the current schema, then say whether it got
+        there.
+
+        `quick_check` above answers "is this file structurally sound", which
+        is a different question from "is this file the shape this build
+        expects". A file can be perfectly intact and still be one schema edit
+        behind, because `CREATE TABLE IF NOT EXISTS` never revisits a table it
+        finds.
+
+        This check writes, which a check normally should not. It does so
+        because of ordering: the stores migrate themselves when the node
+        opens them, and pre-flight runs in a separate process *before* that.
+        Checking first would report every pending migration as a fault and
+        drop a healthy node into SAFE MODE for a condition it was about to
+        fix by itself. So the migrations run here, and what is left over is
+        the real answer.
+
+        Residual drift is CRITICAL rather than a warning, and the reason is
+        who pays. The alternative to failing here is failing later, in a
+        partner's hand, as a request that dies with no response — which is
+        exactly how this check came to be written. SAFE MODE keeps the node
+        inspectable and closes the outbound paths, which is the correct
+        posture for a node whose store does not match its code.
+        """
+        schema = SCHEMAS.get(name)
+        if schema is None:
+            return
+        try:
+            apply_schema(conn, schema, MIGRATIONS.get(name, ()))
+            drift = missing_columns(conn, schema)
+        except Exception as exc:
+            rep.add(f"schema:{name}", Severity.CRITICAL,
+                    f"could not bring the file to the current schema: {exc}")
+            return
+        if drift:
+            gaps = "; ".join(f"{t} missing {', '.join(c)}"
+                             for t, c in sorted(drift.items()))
+            rep.add(f"schema:{name}", Severity.CRITICAL,
+                    f"{gaps} — the file predates a schema change and no "
+                    f"migration brings it forward")
+        else:
+            rep.add(f"schema:{name}", Severity.OK, "shape matches code")
 
     def _check_chains(self, rep: BootReport, ledger) -> None:
         """A broken chain means history was edited. Never act on it."""

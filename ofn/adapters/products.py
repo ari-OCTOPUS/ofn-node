@@ -38,7 +38,7 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Any, Mapping, Sequence
 
-from .sqlite_base import Pool, apply_schema
+from .sqlite_base import Pool, add_column_if_absent, apply_schema
 
 SCHEMA = (
     """
@@ -115,6 +115,32 @@ SCHEMA = (
     "CREATE INDEX IF NOT EXISTS product_photos_product "
     "ON product_photos (product_id)",
 )
+
+def _split_price_into_two(conn) -> None:
+    """One `price_aud` becomes `price_primary_aud` + `price_secondary_aud`.
+
+    The two-price model landed as an edit to `SCHEMA` alone. Files created
+    before it kept a single `price_aud`, and because every create is
+    `IF NOT EXISTS` nothing ever told us: the node booted clean, the tests
+    passed against fresh in-memory files, and the mismatch waited in the one
+    place no test looks — the real file on this board. It surfaced as a 500
+    on the partner's first list, seconds after her first successful login.
+
+    The old value carries to `primary`, which is what it meant: the listed
+    price. `secondary` — the floor she will actually take — stays NULL,
+    because nobody, including this migration, knows it. `price_aud` is left
+    in place; dropping a column rewrites the table, and an inert column costs
+    nothing.
+    """
+    add_column_if_absent(conn, "products", "price_primary_aud", "REAL")
+    add_column_if_absent(conn, "products", "price_secondary_aud", "REAL")
+    legacy = {r[1] for r in conn.execute("PRAGMA table_info(products)")}
+    if "price_aud" in legacy:
+        conn.execute("UPDATE products SET price_primary_aud = price_aud "
+                     "WHERE price_primary_aud IS NULL AND price_aud IS NOT NULL")
+
+
+MIGRATIONS = (_split_price_into_two,)
 
 MAX_PHOTOS_PER_PRODUCT = 5
 STATES = ("in_progress", "for_sale", "sold", "gifted")
@@ -340,7 +366,7 @@ class ProductStore:
         self._hours_field = labour_hours_field
         self._rate_field = labour_rate_field
         self._pool = Pool(path)
-        apply_schema(self._conn, SCHEMA)
+        apply_schema(self._conn, SCHEMA, MIGRATIONS)
 
     def close(self) -> None:
         self._pool.close()

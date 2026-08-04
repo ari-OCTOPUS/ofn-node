@@ -359,8 +359,9 @@ footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--edge);
    ever leaving the page. A control surface that cannot reach its node must
    look broken, not calm — so there is no sample mode here at all.          */
 const OFN = (() => {
-  let session = null, why = '';
+  let session = null, why = '', who = '';
   const tg = window.Telegram && window.Telegram.WebApp;
+
 
   async function req(path, opts = {}) {
     const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
@@ -375,13 +376,16 @@ const OFN = (() => {
   }
   return {
     get why() { return why; },
+    /* The given name, from the verified session. Empty until then. */
+    get who() { return who; },
     async connect() {
       if (!tg || !tg.initData) { why = 'no-shell'; return false; }
       try {
         const out = await req('/api/v1/auth/session', {
           method: 'POST', body: JSON.stringify({ init_data: tg.initData }),
         });
-        session = out.session; why = '';
+        session = out.session; who = out.first_name || '';
+        why = '';
         return true;
       } catch (e) {
         why = e && e.status === 403 ? 'not-owner'
@@ -417,7 +421,12 @@ const TIER = { red: 'r', yellow: 'y', green: 'g' };
 const TIER_FA = { red: 'قرمز', yellow: 'زرد', green: 'سبز' };
 const ACCENT = ['gold', 'teal', 'coral'];
 const ORB = { ziman: '🌸', lead: '🎨', studio: '🎬' };
-const WHO = { ziman: 'ملیحه', lead: 'عباس', studio: 'سبا' };
+/* What each leg does, not who runs it. This line used to carry the three
+   partners' names, which meant the panel's HTML — served before anyone has
+   authenticated — listed them to whoever loaded the URL. The owner knows
+   whose leg is whose; the page does not need to say it. */
+const WHAT = { ziman: 'گالری هدیه', lead: 'خدمات در محل',
+               studio: 'تولید محتوا' };
 const NAME = { ziman: 'زیمان', lead: 'لید نقاشی', studio: 'استودیو' };
 
 function millions(n) {
@@ -446,7 +455,7 @@ function drawLegs(status) {
     head.append(mk('div', 'orb', ORB[leg.tenant] || '●'));
     const who = mk('div');
     who.append(mk('div', 'lname', NAME[leg.tenant] || leg.tenant),
-               mk('div', 'lwho', WHO[leg.tenant] || ''));
+               mk('div', 'lwho', WHAT[leg.tenant] || ''));
     head.append(who);
     const blocked = leg.blocked_gates.length > 0;
     const pulse = mk('span', 'pulse' + (blocked ? ' locked' : ''),

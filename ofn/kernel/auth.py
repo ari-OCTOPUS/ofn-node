@@ -66,6 +66,10 @@ class AuthError(Exception):
 class VerifiedUser:
     user_id: str
     username: str
+    # Only the given name, and only from inside the signed payload. A shell
+    # greets with this instead of a name compiled into the page, which is how
+    # a partner's name came to be served to anyone who loaded the URL.
+    first_name: str
     auth_date: int
     raw_fields: Mapping[str, str]
 
@@ -209,19 +213,24 @@ def verify_init_data(
         # but accepting it would let a forged future timestamp live forever.
         raise AuthError("invalid credentials", "clock_skew")
 
-    user_id, username = _extract_user(fields.get("user", ""))
+    user_id, username, first_name = _extract_user(fields.get("user", ""))
     return VerifiedUser(user_id=user_id, username=username,
+                        first_name=first_name,
                         auth_date=auth_date, raw_fields=dict(fields))
 
 
-def _extract_user(blob: str) -> tuple[str, str]:
-    """Pull id and username out of the signed user object.
+def _extract_user(blob: str) -> tuple[str, str, str]:
+    """Pull id, username and given name out of the signed user object.
 
     Read with a regex rather than a JSON parser on purpose: this value is
     inside the signed payload, so it is trustworthy, but it arrives as a
-    string and we want exactly two scalar fields from it. Parsing the whole
-    object would invite a caller to start reading other fields from a shape
-    we do not control.
+    string and we want a few scalar fields from it. Parsing the whole object
+    would invite a caller to start reading other fields from a shape we do
+    not control.
+
+    `first_name` only. `last_name` is deliberately not read: a surname is the
+    part of a name that identifies a person outside their own circle, and no
+    screen here needs it to say hello.
     """
     if not blob:
         raise AuthError("invalid credentials")
@@ -229,7 +238,43 @@ def _extract_user(blob: str) -> tuple[str, str]:
     if not m_id:
         raise AuthError("invalid credentials")
     m_name = re.search(r'"username"\s*:\s*"([^"]*)"', blob)
-    return m_id.group(1), (m_name.group(1) if m_name else "")
+    m_first = re.search(r'"first_name"\s*:\s*"([^"]*)"', blob)
+    return (m_id.group(1),
+            (m_name.group(1) if m_name else ""),
+            (_unescape(m_first.group(1)) if m_first else ""))
+
+
+_ESCAPE = re.compile(r"\\u([0-9a-fA-F]{4})|\\(.)")
+_SHORT = {"n": "\n", "t": "\t", "r": "\r", "b": "\b", "f": "\f",
+          '"': '"', "\\": "\\", "/": "/"}
+
+
+def _unescape(value: str) -> str:
+    """Undo the string escapes a display name can actually contain.
+
+    Done by hand rather than with a JSON decoder because this file may import
+    only the standard library the kernel is allowed, and because the input is
+    one already-extracted string rather than an object. The regex that found
+    it stops at the first quote, so nothing reaching here has an embedded
+    one.
+
+    What it does have is `\\uXXXX`. The platform escapes every non-ASCII
+    character, which means every Persian name — left raw, the greeting on the
+    partner's screen would read `\\u0645\\u0644...`. Surrogate pairs are
+    rejoined so a name containing an emoji survives instead of becoming two
+    unpaired halves that cannot be encoded back out.
+    """
+    if "\\" not in value:
+        return value
+
+    def one(m: "re.Match[str]") -> str:
+        if m.group(1) is None:
+            return _SHORT.get(m.group(2), m.group(2))
+        return chr(int(m.group(1), 16))
+
+    out = _ESCAPE.sub(one, value)
+    # Rejoin the halves of any astral character the escapes split in two.
+    return out.encode("utf-16", "surrogatepass").decode("utf-16", "replace")
 
 
 def parse_and_verify(

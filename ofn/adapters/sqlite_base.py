@@ -27,7 +27,10 @@ from __future__ import annotations
 
 import sqlite3
 import threading
-from typing import Iterable
+from typing import Callable, Iterable
+
+# A schema step that may need to read the file before deciding what to do.
+Migration = Callable[[sqlite3.Connection], None]
 
 
 PRAGMAS: tuple[tuple[str, object], ...] = (
@@ -86,16 +89,88 @@ def checkpoint(conn: sqlite3.Connection) -> None:
     conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
 
 
-def apply_schema(conn: sqlite3.Connection, statements: Iterable[str]) -> None:
-    """Create tables idempotently, inside one transaction."""
+def apply_schema(conn: sqlite3.Connection, statements: Iterable[str],
+                 migrations: Iterable[Migration] = ()) -> None:
+    """Create tables idempotently, then bring an older file forward.
+
+    `CREATE TABLE IF NOT EXISTS` is idempotent about the table's *existence*
+    and says nothing about its *shape*. When a column is added to `SCHEMA`,
+    a file created before that edit keeps the old shape for ever, silently,
+    and the mismatch does not surface until somebody SELECTs the new column.
+    On this node that somebody was a partner, mid-request.
+
+    So every column added after a file could already exist needs an entry in
+    `migrations`. Each one runs on every boot and must therefore be safe
+    against an already-current file — they take the connection rather than
+    being plain SQL precisely so they can look before they leap. Creates and
+    migrations share one transaction: a file is either fully forward or
+    untouched.
+    """
     conn.execute("BEGIN IMMEDIATE")
     try:
         for stmt in statements:
             conn.execute(stmt)
+        for step in migrations:
+            step(conn)
         conn.execute("COMMIT")
     except Exception:
         conn.execute("ROLLBACK")
         raise
+
+
+def add_column_if_absent(conn: sqlite3.Connection, table: str, column: str,
+                         decl: str) -> None:
+    """`ALTER TABLE ADD COLUMN`, skipped when the column is already there.
+
+    SQLite has no `ADD COLUMN IF NOT EXISTS`, and catching the resulting
+    OperationalError would swallow the other reasons an ALTER fails. Asking
+    first is cheap and says what it means.
+    """
+    have = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+    if column not in have:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
+
+
+def declared_columns(statements: Iterable[str]) -> dict[str, set[str]]:
+    """The shape `statements` describes, per table.
+
+    Built by running the statements against an in-memory database and asking
+    SQLite, rather than by reading the CREATE TABLE text with a regex. The
+    text contains comments, CHECK constraints and generated-column
+    expressions; a parser for all of that would be a second SQLite, and the
+    first one is right here.
+    """
+    probe = sqlite3.connect(":memory:")
+    try:
+        for stmt in statements:
+            probe.execute(stmt)
+        names = [r[0] for r in probe.execute(
+            "SELECT name FROM sqlite_master WHERE type = 'table'")]
+        return {n: {r[1] for r in probe.execute(f"PRAGMA table_info({n})")}
+                for n in names}
+    finally:
+        probe.close()
+
+
+def missing_columns(conn: sqlite3.Connection,
+                    statements: Iterable[str]) -> dict[str, list[str]]:
+    """Columns the code expects that this file does not have.
+
+    Only the missing direction is reported. A column left behind by an older
+    schema is inert — nothing selects it — whereas a column the code selects
+    and the file lacks is a 500 waiting for whoever opens the page next.
+    """
+    have_tables = {r[0] for r in conn.execute(
+        "SELECT name FROM sqlite_master WHERE type = 'table'")}
+    drift: dict[str, list[str]] = {}
+    for table, want in declared_columns(statements).items():
+        if table not in have_tables:
+            continue                     # not created yet; apply_schema will
+        have = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+        gap = sorted(want - have)
+        if gap:
+            drift[table] = gap
+    return drift
 
 
 class Pool:

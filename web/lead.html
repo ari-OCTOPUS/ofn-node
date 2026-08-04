@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>لید نقاشی — عباس</title>
+<title>لید نقاشی</title>
 <!-- Font is an enhancement, not a gate: loaded as print media and promoted on
      load so a blocked font host never holds up the first paint. -->
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -154,7 +154,9 @@ footer{text-align:center;font-size:11.5px;color:var(--ink3);padding:0 20px;line-
   <div class="hrow">
     <div class="av">🎨</div>
     <div>
-      <div class="hnm">عباس اسدی</div>
+      <!-- Filled from the verified session. This carried a full name —
+           surname included — to every unauthenticated visitor. -->
+      <div class="hnm" id="hnm">&nbsp;</div>
       <div class="hsub">دوشنبه ۱۲ مرداد</div>
     </div>
     <div class="live"><span class="ld"></span>فعال</div>
@@ -280,8 +282,9 @@ footer{text-align:center;font-size:11.5px;color:var(--ink3);padding:0 20px;line-
    node is down — the page keeps working on its sample data instead of
    showing an error. A design preview and the live app are the same file.   */
 const OFN = (() => {
-  let session = null, live = false, why = '';
+  let session = null, live = false, why = '', who = '';
   const tg = window.Telegram && window.Telegram.WebApp;
+
 
   async function req(path, opts = {}) {
     const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
@@ -300,6 +303,8 @@ const OFN = (() => {
     /* Why this page is not live, specifically. A node that is down and a page
        merely being previewed used to look identical from the footer. */
     get why() { return why; },
+    /* The given name, from the verified session. Empty until then. */
+    get who() { return who; },
     async connect() {
       if (!tg || !tg.initData) { why = 'no-shell'; return false; }
       try {
@@ -307,7 +312,8 @@ const OFN = (() => {
           method: 'POST',
           body: JSON.stringify({ init_data: tg.initData }),
         });
-        session = out.session; live = true; why = '';
+        session = out.session; who = out.first_name || '';
+        live = true; why = '';
         return true;
       } catch (e) {
         why = (e && e.status === 401) ? 'rejected'
@@ -527,10 +533,19 @@ function showState(kind) {
   });
 }
 
+/* The header ships with no name in it. This is the only thing that ever puts
+   one there, and it runs after the session exists, via textContent —
+   signed or not, a display name is somebody's own text. */
+function greet(name) {
+  const nm = document.getElementById('hnm');
+  if (nm) nm.textContent = name || ' ';
+}
+
 async function boot() {
   OFN.shell();
   const connected = await OFN.connect();
   if (!connected) { showState(OFN.why); return; }
+  greet(OFN.who);
 
   const badge = document.querySelector('.demo');
   if (badge) { badge.textContent = 'زنده'; badge.classList.add('livebadge'); }

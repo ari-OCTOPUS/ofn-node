@@ -113,7 +113,28 @@ class TestServedOverHttp(unittest.TestCase):
         self.assertEqual(code, 200)
         self.assertIn("text/html", headers["Content-Type"])
         self.assertIn("charset=utf-8", headers["Content-Type"])
-        self.assertIn("ملیحه".encode(), body)
+        # Something recognisably the shell, chosen to contain no person.
+        self.assertIn("زیمان".encode(), body)
+
+    def test_no_partner_is_named_before_anyone_has_authenticated(self):
+        """The page is served to whoever asks. It must not say whose it is.
+
+        This assertion used to run the other way round — it required the
+        partner's name in the body, because the name was written into the
+        markup and that looked like the shell rendering correctly. Every
+        test passed while `ziman.master-painting.com` told anyone who
+        loaded it that it belonged to Maliheh, and `lead` gave a surname.
+
+        Nothing found it, because nothing here opens a page as a stranger.
+        It was found by opening the real URL in an ordinary browser and
+        reading what came back. The name now arrives on the auth response
+        and is written by script after the session exists, so a visitor who
+        never authenticates never learns of anybody.
+        """
+        _, body, _ = self.get("/")
+        for person in ("ملیحه", "عباس", "سبا", "اسدی"):
+            self.assertNotIn(person.encode(), body,
+                             f"a partner's name is served pre-auth: {person}")
 
     def test_persian_survives_the_wire(self):
         """Bytes in, bytes out — no re-encoding anywhere in the path."""
