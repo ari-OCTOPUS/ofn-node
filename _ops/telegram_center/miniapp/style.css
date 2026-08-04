@@ -1,100 +1,172 @@
-/* Octopus Cockpit — هویتِ بصری از لوگو (۲۰۲۶-۰۸-۰۴).
-   کروم و نئون روی فضای تیره: چشمِ فیروزه‌ای در مرکز، بازوهای بنفش.
-   استعاره باید **معماری را درست** نشان دهد، نه تزئین باشد:
-     چشم  = هسته (وضعِ زنده)      بازو = پا/ایجنت
-     درخشش = زنده                  خاموش = متوقف
-   ⚠️ رنگِ برند (--accent / --accent-2) از تمِ تلگرام اثر نمی‌گیرد — هویت
-   است نه سلیقه. تم فقط زمینه/متن را عوض می‌کند (خوانایی). */
+/* Octopus Cockpit — «تریاژ»: صفحه می‌گوید الان چه کار کن، نه چه چیزهایی هست.
+   ۲۰۲۶-۰۸-۰۴. بعد از دو ردِ مالک («شلوغ»، «هیچیش معلوم نیست») از نو نوشته شد.
+
+   ⚠️ قاعدهٔ باربر: letter-spacing روی متنِ فارسی باید **صفر** بماند. خطِ فارسی
+   پیوسته است و هر tracking — مثبت یا منفی — اتصالِ حروف را می‌شکند. نسخهٔ قبلی
+   روی تیترِ کارت‌ها `letter-spacing:.2px` داشت؛ همین احتمالاً بخشی از «ناخوانا»
+   بود. فقط `.mono` (لاتین) tracking می‌گیرد.
+
+   هویت از لوگو: چشمِ فیروزه‌ای = هسته، بازوهای بنفش = پاها، صورتی = «با تو کار
+   دارد». سه کلمه رنگ، نه بیشتر — تا یک‌بار یاد گرفته شود. */
 :root{
-  --bg:#050914; --card:#0b1324; --card-2:#111c33; --border:#1b2c4d;
-  --text:#e6efff; --muted:#7f92b8;
-  --accent:#22d3ee;        /* فیروزه‌ایِ چشم */
-  --accent-2:#a855f7;      /* بنفشِ بازوها */
-  --green:#22d3ee; --amber:#a855f7; --red:#f0468b; --steel:#8fa3c4;
-  font-family:-apple-system,system-ui,"Segoe UI",Tahoma,sans-serif;
+  --bg:#050914; --surface:#0b1324; --surface-2:#111c33; --sunken:#070e1c;
+  --line:#1b2c4d; --ink:#e6efff; --muted:#7f92b8;
+  --cyan:#22d3ee;   --cyan-ink:#22d3ee;
+  --violet:#a855f7; --violet-ink:#c48bfb;
+  --magenta:#f0468b;--magenta-ink:#ff7cb0;
+  --band-magenta:rgba(240,70,139,.16);
+  --band-violet:rgba(168,85,247,.15);
+  --band-cyan:rgba(34,211,238,.13);
+  --band-quiet:rgba(127,146,184,.10);
+  --btn-ink:#03121a;
 }
-*{box-sizing:border-box;margin:0;padding:0}
+/* تمِ روشن — رنگِ برند ثابت می‌ماند ولی نسخهٔ «ink» ِ تیره‌تر برای کنتراست */
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#e9eef8; --surface:#fff; --surface-2:#f3f7fe; --sunken:#eef3fc;
+    --line:#ccd8ee; --ink:#0a1424; --muted:#4d5f84;
+    --cyan-ink:#0a7f95; --violet-ink:#6d21c0; --magenta-ink:#c00f62;
+    --band-magenta:rgba(240,70,139,.11);
+    --band-violet:rgba(168,85,247,.11);
+    --band-cyan:rgba(34,211,238,.16);
+    --band-quiet:rgba(77,95,132,.09);
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;max-width:100%;overflow-x:hidden}
+button{font:inherit;color:inherit;background:none;border:0}
 
-/* safe-area — بدونِ این، سرِ کارت زیرِ نُچ می‌رود */
+/* فونتِ فارسی: اول خانواده‌های واقعیِ فارسی، بعد Tahoma که خواناترین چهرهٔ
+   فارسیِ ویندوز/اندروید در این اندازه‌هاست. پایه ۱۶ نه ۱۴، و line-height ِ ۱٫۹
+   برای صعود/نزولِ حروفِ فارسی. */
 body{
-  background:var(--bg);color:var(--text);max-width:760px;margin:0 auto;font-size:14px;
-  padding:12px;
-  padding-top:calc(12px + var(--tg-content-safe-top, 0px));
-  padding-bottom:calc(12px + var(--tg-safe-bottom, 0px));
-  padding-inline-start:calc(12px + var(--tg-safe-left, 0px));
-  padding-inline-end:calc(12px + var(--tg-safe-right, 0px));
+  background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Vazirmatn","IRANSans","IRANYekan",Tahoma,"Noto Naskh Arabic UI","Noto Sans Arabic","Segoe UI",system-ui,sans-serif;
+  font-size:16px; line-height:1.9; letter-spacing:0;
+  -webkit-text-size-adjust:100%;
+  max-width:760px;margin:0 auto;
+  padding:14px;
+  padding-top:calc(14px + var(--tg-content-safe-top, 0px));
+  padding-bottom:calc(28px + var(--tg-safe-bottom, 0px));
+  padding-inline-start:calc(14px + var(--tg-safe-left, 0px));
+  padding-inline-end:calc(14px + var(--tg-safe-right, 0px));
 }
-body.fullscreen{padding-top:calc(12px + var(--tg-safe-top, 0px))}
+body.fullscreen{padding-top:calc(14px + var(--tg-safe-top, 0px))}
 
-/* ── سرصفحه: چشمِ اختاپوس ─────────────────────────────────────────────── */
-h1{font-size:16px;font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:9px}
-.eye{width:26px;height:26px;flex:0 0 26px}
-.eye .ring{fill:none;stroke:var(--accent);opacity:.55}
-.eye .iris{fill:var(--accent-2)}
-.eye .pupil{fill:#05070f}
-.eye.halted .ring{stroke:var(--steel);opacity:.3}
-.eye.halted .iris{fill:var(--steel)}
-h1 .sp{margin-inline-start:auto;display:flex;gap:6px}
-.palbtn{background:var(--card-2);border:1px solid var(--border);color:var(--text);
-  border-radius:9px;padding:4px 9px;cursor:pointer;font-size:14px;line-height:1.2}
+/* لاتین: ایزولهٔ bidi + تک‌فاصله. تنها جایی که tracking مجاز است. */
+.mono{
+  font-family:ui-monospace,SFMono-Regular,"SF Mono","Cascadia Mono","Segoe UI Mono","Roboto Mono",Menlo,Consolas,monospace;
+  direction:ltr;unicode-bidi:isolate;text-align:left;
+  font-size:.82em;letter-spacing:-.01em;overflow-wrap:anywhere;
+}
+
+/* ── سرصفحه: چشم + یک خط. هرگز جابه‌جا نمی‌شود. ───────────────────────── */
+.core{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.eye{width:34px;height:34px;flex:0 0 34px}
+.eye .ring{fill:none;stroke:var(--cyan);opacity:.5}
+.eye .iris{fill:var(--violet)}
+.eye .pupil{fill:var(--sunken)}
+.eye .halo{fill:var(--cyan);opacity:.16}
+.eye.halted .ring{stroke:var(--muted);opacity:.28}
+.eye.halted .iris{fill:var(--muted)}
+.eye.halted .halo{opacity:0}
+.corestate{min-width:0;flex:1}
+.corestate .lead{font-size:17px;font-weight:500;line-height:1.5}
+.corestate .sub{font-size:13px;color:var(--muted);line-height:1.6}
+.hdrbtns{display:flex;gap:6px;flex:0 0 auto}
+.palbtn{background:var(--surface-2);border:1px solid var(--line);color:var(--ink);
+  border-radius:10px;min-width:38px;min-height:38px;cursor:pointer;font-size:15px}
 .palbtn:active{transform:scale(.96)}
-.palbtn:hover{border-color:var(--accent);color:var(--accent)}
 
-/* ── پنج بازو: نوارِ تب ────────────────────────────────────────────────── */
-.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:11px}
-.tab{padding:8px 4px;border-radius:10px;background:var(--card);
-  border:1px solid var(--border);color:var(--muted);cursor:pointer;
-  font-size:12px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* ── پنج بازو ─────────────────────────────────────────────────────────── */
+.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin-bottom:16px}
+.tab{padding:11px 2px;border-radius:11px;background:var(--surface);
+  border:1px solid var(--line);color:var(--muted);cursor:pointer;
+  font-size:13px;text-align:center;min-height:44px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tab:active{transform:scale(.97)}
-.tab.active{color:var(--bg);background:var(--accent);border-color:var(--accent);font-weight:500}
+.tab.active{color:var(--btn-ink);background:var(--cyan);border-color:var(--cyan);font-weight:500}
+@media (prefers-color-scheme: light){ .tab.active{color:#03121a} }
 
-/* ── کارت ─────────────────────────────────────────────────────────────── */
-.card{background:var(--card);border:1px solid var(--border);border-radius:13px;
-  padding:12px 13px;margin-bottom:9px}
-.ch{display:flex;align-items:center;gap:8px;margin-bottom:9px}
-.card h2{font-size:13px;font-weight:500;color:var(--accent);letter-spacing:.2px}
+/* ── کارتِ تریاژ ──────────────────────────────────────────────────────── */
+/* شدت با **اندازه** کدگذاری می‌شود نه فقط رنگ: کارتِ اول تقریباً دوبرابرِ
+   بقیه است، و فقط او دکمهٔ پرشده دارد. یک انتخابِ آشکار در هر صفحه. */
+.tri{background:var(--surface);border:1px solid var(--line);border-radius:15px;
+  overflow:hidden;margin-bottom:11px}
+.tri .band{height:5px}
+.tri.hot .band{background:var(--magenta)}
+.tri.warm .band{background:var(--violet)}
+.tri.cool .band{background:var(--cyan)}
+.tri .in{padding:15px 15px 16px}
+.tri .verb{font-size:20px;font-weight:500;line-height:1.5;margin:0 0 4px}
+.tri.small .verb{font-size:16px}
+.tri .why{font-size:14px;color:var(--muted);line-height:1.7}
+.tri.small .in{padding:12px 14px}
+.act{margin-top:13px;display:block;width:100%;min-height:52px;border-radius:12px;
+  background:var(--cyan);color:var(--btn-ink);font-size:16px;font-weight:500;cursor:pointer}
+.act:active{transform:scale(.985)}
+
+/* ── حالتِ آرام: وقتی کاری نیست، خودش یک صفحهٔ تمام‌شده است ───────────── */
+.calm{background:var(--surface);border:1px solid var(--line);border-radius:15px;
+  padding:34px 18px;text-align:center;margin-bottom:11px}
+.calm .big{font-size:19px;font-weight:500;line-height:1.6}
+.calm .sm{font-size:14px;color:var(--muted);margin-top:5px}
+
+/* ── تاشو: همه‌چیزِ سالم در یک خطِ آرام ──────────────────────────────── */
+details.quiet{background:var(--band-quiet);border-radius:13px;padding:2px 4px;margin-bottom:11px}
+details.quiet>summary{list-style:none;cursor:pointer;padding:12px 12px;
+  font-size:14px;color:var(--muted);min-height:44px;display:flex;align-items:center;gap:7px}
+details.quiet>summary::-webkit-details-marker{display:none}
+details.quiet>summary::after{content:"▾";margin-inline-start:auto;opacity:.6}
+details.quiet[open]>summary::after{content:"▴"}
+details.quiet .inner{padding:2px 12px 12px}
+
+/* ── ردیفِ داده ───────────────────────────────────────────────────────── */
+.row{display:flex;align-items:baseline;gap:12px;padding:9px 0;
+  border-bottom:1px solid var(--line);font-size:15px;min-width:0}
+.row:last-child{border-bottom:0}
+.row .k{color:var(--muted);font-size:13px;flex:0 0 auto}
+.row .v{margin-inline-start:auto;text-align:end;min-width:0;overflow-wrap:anywhere}
+.ok{color:var(--cyan-ink)}
+
+/* ── کارتِ ساده (صفحه‌های غیرِ خانه) ─────────────────────────────────── */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:15px;
+  padding:14px 15px;margin-bottom:11px}
+.ch{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.card h2{font-size:15px;font-weight:500;color:var(--cyan-ink);letter-spacing:0;margin:0}
 .ch .badge{margin-inline-start:auto}
 
-/* ردیف: برچسبِ کم‌رنگ + مقدارِ برجسته. جای <table> ِ خام. */
-.row{display:flex;align-items:baseline;gap:10px;padding:6px 0;
-  border-bottom:1px solid rgba(27,44,77,.5);font-size:13px}
-.row:last-child{border-bottom:0}
-.row .k{color:var(--muted);font-size:12px;flex:0 0 auto;min-width:92px}
-.row .v{margin-inline-start:auto;text-align:end;word-break:break-word;color:var(--text)}
-.ok{color:var(--accent)}
-.list{display:flex;flex-direction:column;gap:5px;margin:2px 0 8px}
-.li{background:var(--card-2);border-radius:8px;padding:6px 9px;font-size:12px;color:var(--steel)}
+.badge{font-size:12px;padding:4px 11px;border-radius:20px;background:var(--surface-2);
+  color:var(--muted);border:1px solid var(--line);white-space:nowrap}
+.badge.live{background:var(--band-cyan);color:var(--cyan-ink);border-color:rgba(34,211,238,.42)}
+.badge.staged{background:var(--band-violet);color:var(--violet-ink);border-color:rgba(168,85,247,.42)}
+.badge.blocked{background:var(--band-magenta);color:var(--magenta-ink);border-color:rgba(240,70,139,.42)}
+/* «نامعلوم» عمداً خط‌چینِ خاکستری است — نه فیروزه‌ای، نه بنفش. سبزِ روی دادهٔ
+   غایب همان حالتِ شکستی است که این سطح قرار است حذفش کند. */
+.badge.unknown{background:transparent;color:var(--muted);border:1px dashed var(--line)}
 
-/* ── نشان‌ها ───────────────────────────────────────────────────────────── */
-.badge{font-size:11px;padding:3px 9px;border-radius:20px;background:var(--card-2);
-  color:var(--muted);border:1px solid var(--border);white-space:nowrap}
-.badge.live{background:rgba(34,211,238,.13);color:var(--accent);border-color:rgba(34,211,238,.4)}
-.badge.staged{background:rgba(168,85,247,.13);color:var(--accent-2);border-color:rgba(168,85,247,.4)}
-.badge.blocked{background:rgba(240,70,139,.13);color:var(--red);border-color:rgba(240,70,139,.4)}
-/* «نامعلوم» عمداً نه فیروزه‌ای است نه بنفش: خط‌چینِ خاکستری، تا با یک نگاه
-   از «سالم» جدا باشد. سبزِ روی دادهٔ غایب همان حالتِ شکستی است که این سطح
-   قرار است حذفش کند. */
-.badge.unknown{background:transparent;color:var(--muted);border:1px dashed var(--border)}
+.muted{color:var(--muted);font-size:14px}
+.err{background:var(--band-magenta);border:1px solid rgba(240,70,139,.42);
+  color:var(--magenta-ink);border-radius:12px;padding:12px 13px;font-size:14px}
+.warn{background:var(--band-violet);border:1px solid rgba(168,85,247,.36);
+  color:var(--violet-ink);border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:10px}
+.flag{display:inline-block;background:var(--surface-2);border:1px solid var(--line);
+  color:var(--muted);border-radius:8px;padding:3px 9px;font-size:12px;margin:0 0 5px 5px}
+.flag.on{color:var(--cyan-ink);border-color:rgba(34,211,238,.42)}
+.list{display:flex;flex-direction:column;gap:6px;margin:4px 0 9px}
+.li{background:var(--surface-2);border-radius:9px;padding:9px 11px;font-size:13px;min-width:0}
 
-.muted{color:var(--muted);font-size:12px}
-.err{background:rgba(240,70,139,.1);border:1px solid rgba(240,70,139,.4);
-  color:var(--red);border-radius:10px;padding:9px 11px;font-size:12px}
-.warn{background:rgba(168,85,247,.09);border:1px solid rgba(168,85,247,.32);
-  color:var(--accent-2);border-radius:10px;padding:7px 10px;font-size:11.5px;margin-bottom:8px}
-.flag{display:inline-block;background:var(--card-2);border:1px solid var(--border);
-  color:var(--muted);border-radius:7px;padding:2px 7px;font-size:11px;margin:0 0 4px 4px}
-.flag.on{color:var(--accent);border-color:rgba(34,211,238,.4)}
-
-table{width:100%;border-collapse:collapse;font-size:12.5px}
-th{text-align:start;color:var(--muted);font-weight:400;font-size:11px;
-  padding:5px 0;border-bottom:1px solid var(--border)}
-td{padding:5px 0;border-bottom:1px solid rgba(27,44,77,.5)}
+table{width:100%;border-collapse:collapse;font-size:14px;table-layout:fixed}
+th{text-align:start;color:var(--muted);font-weight:400;font-size:12px;
+  padding:7px 0;border-bottom:1px solid var(--line)}
+td{padding:7px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
 tr:last-child td{border-bottom:0}
-pre{background:var(--card-2);border-radius:9px;padding:9px;font-size:11px;
-  overflow-x:auto;color:var(--steel);direction:ltr;text-align:left}
-.kv{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;font-size:13px}
-.kv .k{color:var(--muted);font-size:12px}
-.loading{color:var(--muted);font-size:12px;padding:14px 0;text-align:center}
-input,select{background:var(--card-2);border:1px solid var(--border);color:var(--text);
-  border-radius:9px;padding:7px 9px;font-size:13px;width:100%}
-input:focus,select:focus{outline:none;border-color:var(--accent)}
+pre{background:var(--sunken);border-radius:11px;padding:11px;font-size:12px;
+  overflow-x:auto;color:var(--muted);direction:ltr;text-align:left}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:7px 14px;font-size:15px}
+.kv .k{color:var(--muted);font-size:13px}
+.loading{color:var(--muted);font-size:14px;padding:26px 0;text-align:center}
+input,select{background:var(--surface-2);border:1px solid var(--line);color:var(--ink);
+  border-radius:11px;padding:11px;font-size:15px;width:100%;min-height:46px}
+input:focus,select:focus{outline:2px solid var(--cyan);outline-offset:1px;border-color:var(--cyan)}
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }

@@ -9,7 +9,8 @@
   var devMode = !tg || !tg.initData;
   var content = document.getElementById("content");
   var warn = document.getElementById("warn");
-  var authBadge = document.getElementById("authBadge");
+  var coreLead = document.getElementById("coreLead");
+  var coreSub = document.getElementById("coreSub");
   var eye = document.getElementById("eye");
 
   // ── پوستهٔ Mini Apps 2.0 (فاز ۳، ۲۰۲۶-۰۸-۰۴) ─────────────────────────
@@ -97,10 +98,11 @@
     return v ? esc(yes) : esc(no);
   }
 
-  function setAuth(state){
-    authBadge.textContent = state;
-    authBadge.className = "badge " + (state==="configured"||state==="live" ? "live" : (state==="dev-mode"?"staged":"blocked"));
+  function setCore(lead, sub){
+    if(coreLead) coreLead.textContent = lead;
+    if(coreSub) coreSub.textContent = sub || "";
   }
+  function setAuth(state){ /* وضع در خطِ هسته می‌نشیند، نه یک نشانِ جدا */ }
   // چشمِ اختاپوس = وضعِ هسته. درخشش یعنی زنده؛ خاکستری یعنی متوقف.
   // استعاره باید **حقیقت** بگوید، وگرنه فقط تزئین است.
   function setHalted(h){
@@ -366,7 +368,7 @@
   function ltr(v){
     var t = String(v==null?"":v);
     if(!t) return "—";
-    return '<span dir="ltr" style="unicode-bidi:isolate;display:inline-block">'+esc(t)+'</span>';
+    return '<span class="mono" dir="ltr">'+esc(t)+'</span>';
   }
   // مقدار: لاتین/مسیر/کد ⇒ ایزوله؛ فارسی ⇒ همان‌طور
   function val(v){
@@ -451,7 +453,95 @@
     el.innerHTML = fns.map(function(_,i){ return '<div id="sec'+i+'"></div>'; }).join("");
     fns.forEach(function(fn,i){ try{ fn(document.getElementById("sec"+i)); }catch(e){} });
   }
-  function viewHome(el){ stack(el||content, [renderHome, renderNext]); }
+  // ── تریاژ (۲۰۲۶-۰۸-۰۴) ─────────────────────────────────────────────────
+  // صفحه به‌جای «چه چیزهایی هست» می‌گوید «الان چه کار کن». حداکثر سه کارت،
+  // مرتب‌شده بر اساسِ فوریت؛ هرچه سالم است در یک خطِ آرام جمع می‌شود.
+  // شدت با **اندازه** کدگذاری می‌شود نه فقط رنگ، و فقط کارتِ اول دکمهٔ
+  // پرشده دارد — یک انتخابِ آشکار در هر صفحه.
+  function triCard(sev, verb, why, act, small){
+    return '<div class="tri '+sev+(small?" small":"")+'"><div class="band"></div>'+
+      '<div class="in"><h3 class="verb">'+esc(verb)+'</h3>'+
+      '<div class="why">'+why+'</div>'+
+      (act?'<button class="act" data-go="'+esc(act.tab)+'">'+esc(act.label)+'</button>':'')+
+      '</div></div>';
+  }
+  function viewHome(el){
+    el = el || content;
+    el.innerHTML = '<div class="loading">در حال بارگذاری…</div>';
+    Promise.all([api("/api/state"), api("/api/approvals"), api("/api/ops/tasks"),
+                 api("/api/governor"), api("/api/obsidian"), api("/api/legs")])
+      .then(function(a){
+        var st=a[0]||{}, ap=a[1]||{}, tk=a[2]||{}, gv=a[3]||{}, ob=a[4]||{}, lg=a[5]||{};
+        if(st.status==="error"){ el.innerHTML='<div class="err">خطا: '+esc(st.reason)+'</div>'; return; }
+        setHalted(st.halted);
+        setCore(st.halted?"ارگانیسم متوقف است":"ارگانیسم زنده است",
+                (devMode?"حالتِ dev · ":"")+"ضربان "+fa(st.beat)+" · "+esc(st.epoch_mode||""));
+
+        var need=[], calm=[];
+        function push(sev,verb,why,act){ need.push({sev:sev,verb:verb,why:why,act:act}); }
+
+        if(st.halted) push("hot","ارگانیسم متوقف است","تا برداشتنِ ترمز هیچ کاری جلو نمی‌رود.",null);
+        var apc = Number(ap.count||0);
+        if(apc>0) push("hot", fa(apc)+" تأیید منتظرِ توست",
+                       "تا تصمیم نگیری، این‌ها همان‌جا می‌مانند.", {tab:"approvals",label:"برو به تأییدها"});
+        else calm.push("صفِ تأیید خالی است");
+
+        var tks = Number(tk.tasks_total||0);
+        if(tks>0) push("warm", fa(tks)+" کارِ باز", "در صفِ پاها منتظرند.", {tab:"system",label:"دیدنِ پاها"});
+        else calm.push("هیچ کارِ بازی نیست");
+
+        var dr=(gv.drift_status||{}).status;
+        if(dr && dr!=="ok") push("warm","ناظر انحراف می‌بیند",
+          "سندِ سیاست با کد نمی‌خواند: "+ltr(String(dr)), {tab:"system",label:"دیدنِ ناظر"});
+        else if(dr) calm.push("ناظر بی‌انحراف");
+
+        var miss=(ob.missing||[]).length;
+        if(miss>0) push("warm", fa(miss)+" سندِ مرجع گم است",
+          "ابسیدین اینها را پیدا نکرد.", {tab:"system",label:"دیدنِ ابسیدین"});
+        else calm.push("سندهای مرجع کامل");
+
+        var legs=lg.legs||{}, dead=Object.keys(legs).filter(function(k){ return legs[k].live===false; });
+        if(dead.length) push("warm", fa(dead.length)+" پا خاموش است",
+          dead.slice(0,3).map(ltr).join(" · "), {tab:"system",label:"دیدنِ پاها"});
+        else if(Object.keys(legs).length) calm.push("همهٔ پاها زنده");
+
+        need.sort(function(x,y){ return (x.sev==="hot"?0:1)-(y.sev==="hot"?0:1); });
+        var show = need.slice(0,3), rest = need.length-show.length;
+
+        var html = "";
+        if(!show.length){
+          html += '<div class="calm"><div class="big">هیچ کاری با تو نیست</div>'+
+                  '<div class="sm">همه‌چیز سرِ جایش است.</div></div>';
+        } else {
+          html += show.map(function(c,i){
+            return triCard(c.sev, c.verb, c.why, i===0?c.act:null, i>0);
+          }).join("");
+          if(rest>0) calm.unshift(fa(rest)+" موردِ کم‌فوریت‌ترِ دیگر");
+        }
+        if(calm.length){
+          html += '<details class="quiet"><summary>'+fa(calm.length)+' چیزِ دیگر سالم است</summary>'+
+                  '<div class="inner">'+calm.map(function(c){
+                    return '<div class="row"><span class="k">✓</span><span class="v">'+
+                      (/[؀-ۿ]/.test(c)?esc(c):c)+'</span></div>'; }).join("")+
+                  '</div></details>';
+        }
+        html += '<details class="quiet"><summary>وضعِ فنی</summary><div class="inner">'+
+          row("commit", st.commit)+row("halted", st.halted)+row("frozen", st.frozen)+
+          row("epoch", st.epoch_mode)+row("ts", st.ts)+
+          '</div></details>';
+        el.innerHTML = html;
+        [].forEach.call(el.querySelectorAll(".act"), function(b){
+          b.addEventListener("click", function(){ goTab(b.getAttribute("data-go")); });
+        });
+      });
+  }
+  function goTab(name){
+    var t = document.querySelector('#tabs .tab[data-tab="'+name+'"]');
+    if(!t) return;
+    [].forEach.call(tabs.children, function(x){x.classList.remove("active");});
+    t.classList.add("active");
+    render(name);
+  }
   function viewApprovals(el){ stack(el||content, [renderApprovals]); }
   function viewMoney(el){ stack(el||content, [renderValue, renderOutbound]); }
   function viewLeads(el){ stack(el||content, [renderPF]); }

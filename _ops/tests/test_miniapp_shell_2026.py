@@ -19,6 +19,7 @@
    می‌سنجد.
 """
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -107,13 +108,63 @@ def t_h_every_tab_has_a_renderer_and_the_fallback_is_loud():
     assert "رندرکننده ندارد" in app, "پیامِ صریحِ تبِ ناشناخته حذف شده"
 
 
+def t_j_persian_text_never_gets_letter_spacing():
+    """⚠️ یافتهٔ دو طراحِ مستقل، و توضیحِ مستقیمِ «هیچیش معلوم نیست»:
+    خطِ فارسی **پیوسته** است و هر tracking — مثبت یا منفی — اتصالِ حروف را
+    می‌شکند. نسخهٔ قبلیِ من روی تیترِ کارت‌ها `letter-spacing:.2px` داشت.
+
+    فقط `.mono` (لاتینِ تک‌فاصله) حق دارد tracking بگیرد."""
+    import re
+    css = (MINI / "style.css").read_text("utf-8", errors="replace")
+    # هر قاعده‌ای که letter-spacing ِ غیرصفر دارد باید داخلِ .mono باشد
+    bad = []
+    for m in re.finditer(r"([^{}]+)\{([^}]*)\}", css):
+        sel, body = m.group(1).strip(), m.group(2)
+        ls = re.search(r"letter-spacing\s*:\s*([^;]+)", body)
+        if not ls:
+            continue
+        val = ls.group(1).strip()
+        if val in ("0", "0px", "0em", "normal"):
+            continue
+        if ".mono" not in sel:
+            bad.append((sel.splitlines()[-1].strip()[:60], val))
+    assert not bad, ("‏letter-spacing روی متنِ فارسی — اتصالِ حروف می‌شکند", bad)
+
+
+def t_k_the_persian_font_stack_is_real():
+    """‏`system-ui` روی اندروید به یک چهرهٔ عربیِ ضعیف می‌افتد. خانواده‌های
+    واقعیِ فارسی و بعد Tahoma باید **قبل** از آن بیایند."""
+    css = (MINI / "style.css").read_text("utf-8", errors="replace")
+    assert "Tahoma" in css, "‏Tahoma در فونت‌استک نیست"
+    i_fa = min([css.find(x) for x in ("Vazirmatn", "IRANSans", "Tahoma")
+                if css.find(x) >= 0] or [10**9])
+    i_sys = css.find("system-ui")
+    assert i_fa < i_sys or i_sys < 0, "فونتِ فارسی بعد از system-ui آمده"
+    assert "line-height:1.9" in css.replace(" ", ""), (
+        "‏line-height ِ فارسی کم است — صعود/نزولِ حروف جا نمی‌شود")
+
+
 def t_i_latin_values_are_bidi_isolated():
     """باگِ دیده‌شده روی گوشی: `ask()` به‌صورت `()ask` و `_ops/…/x.py` به‌صورت
     `ops/…/x.py_`. در متنِ RTL، پرانتز و آندرلاینِ ابتدای رشتهٔ لاتین به
     انتهایش پرتاب می‌شوند."""
+    # ⚠️ ناوردی را بسنج نه پیاده‌سازی را: مهم این است که مقدارِ لاتین
+    # **ایزوله شود**، نه اینکه ایزوله در اینلاین باشد یا در کلاسِ CSS.
+    # نسخهٔ اولِ این assert فقط app.js را می‌دید و وقتی قاعده به `.mono` در
+    # style.css منتقل شد، قرمزِ کاذب داد.
     app = (MINI / "app.js").read_text("utf-8", errors="replace")
-    assert 'dir="ltr"' in app and "unicode-bidi:isolate" in app, (
-        "ایزولهٔ bidi برای مقادیرِ لاتین نیست ⇒ مسیر و کد وارونه رندر می‌شوند")
+    css = (MINI / "style.css").read_text("utf-8", errors="replace")
+    assert 'dir="ltr"' in app, "مقدارِ لاتین علامتِ جهت نمی‌گیرد"
+    both = app + css
+    assert "unicode-bidi:isolate" in both.replace(" ", ""), (
+        "ایزولهٔ bidi هیچ‌جا نیست ⇒ مسیر و کد وارونه رندر می‌شوند")
+    # و کلاسی که جهت را حمل می‌کند باید واقعاً هر سه ویژگی را داشته باشد،
+    # وگرنه یک نیمه‌ایزوله است که فقط بعضی رشته‌ها را درست می‌کند.
+    m = re.search(r"\.mono\s*\{([^}]*)\}", css)
+    assert m, "کلاسِ .mono پیدا نشد"
+    body = m.group(1).replace(" ", "")
+    for prop in ("direction:ltr", "unicode-bidi:isolate"):
+        assert prop in body, (prop, "در .mono نیست")
 
 
 def t_e_the_css_actually_consumes_the_insets():

@@ -9,22 +9,23 @@
 </head>
 <body>
 
-<h1>
-  <svg class="eye" id="eye" viewBox="0 0 40 40" aria-hidden="true">
-    <circle class="ring" cx="20" cy="20" r="18" stroke-width="1.4"></circle>
-    <circle class="ring" cx="20" cy="20" r="13" stroke-width="1"></circle>
-    <circle class="iris" cx="20" cy="20" r="8.5"></circle>
-    <circle class="pupil" cx="20" cy="20" r="3.4"></circle>
+<!-- هستهٔ ثابت: چشم + یک خط. هرگز جابه‌جا نمی‌شود، پس چشم یاد می‌گیرد
+     کجا را نگاه کند. (ADHD: موقعیتِ پایدار.) -->
+<div class="core">
+  <svg class="eye" id="eye" viewBox="0 0 44 44" aria-hidden="true">
+    <circle class="halo" cx="22" cy="22" r="21"></circle>
+    <circle class="ring" cx="22" cy="22" r="19" stroke-width="1.5"></circle>
+    <circle class="ring" cx="22" cy="22" r="14" stroke-width="1"></circle>
+    <circle class="iris" cx="22" cy="22" r="9"></circle>
+    <circle class="pupil" cx="22" cy="22" r="3.6"></circle>
   </svg>
-  <span>اختاپوس</span>
-  <span class="badge" id="authBadge">…</span>
-  <span class="sp" id="hdrBtns">
-    <button id="paletteBtn" class="palbtn" title="پالتِ فرمان">⚡</button>
-  </span>
-</h1>
+  <div class="corestate">
+    <div class="lead" id="coreLead">در حال بارگذاری…</div>
+    <div class="sub" id="coreSub"></div>
+  </div>
+  <div class="hdrbtns" id="hdrBtns"></div>
+</div>
 
-<!-- پنج بازو، نه سیزده. تب‌ها بر اساسِ **تصمیمی که مالک می‌گیرد** چیده شده‌اند،
-     نه بر اساسِ جایی که داده از آن می‌آید. -->
 <div class="tabs" id="tabs">
   <div class="tab active" data-tab="home">خانه</div>
   <div class="tab" data-tab="approvals">تأییدها</div>
@@ -35,9 +36,7 @@
 
 <div id="warn"></div>
 <div id="content"><div class="loading">در حال بارگذاری…</div></div>
-<div id="palette" class="palette"></div>
 
-<div class="muted" style="margin-top:14px">اقدام‌ها فقط با تأییدِ مالک · هیچ رازی در فرانت‌اند نیست</div>
 <script src="/miniapp/tg_shell.js"></script>
 <script src="/miniapp/app.js"></script>
 </body>
