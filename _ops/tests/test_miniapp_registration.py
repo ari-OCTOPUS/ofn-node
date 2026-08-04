@@ -126,6 +126,26 @@ def t_i_the_url_is_never_returned_or_printed():
     assert "super-secret-host-4821" not in blob, ("آدرس نشت کرد", blob[:300])
 
 
+def t_k_the_menu_button_is_read_in_the_owners_chat_scope():
+    """⚠️ اندازه‌گیریِ زندهٔ ۰۸-۰۴: `setChatMenuButton` روی دامنهٔ **پیش‌فرض**
+    `ok:true` می‌دهد و **هیچ اثری ندارد** — خواندنِ بعدی هنوز `commands`
+    برمی‌گرداند. همان فراخوان با `chat_id` ِ صریح کار می‌کند.
+
+    پس اگر این ماژول دامنهٔ پیش‌فرض را بخواند، دکمه‌ای که واقعاً روی چتِ
+    مالک نشسته را نمی‌بیند و ❌ ِ کاذب می‌دهد — دقیقاً برعکسِ سبزِ دروغینی
+    که برای رفعش ساخته شد. یک گاردِ اندازه‌گیری که در جهتِ مخالف دروغ بگوید،
+    همان‌قدر بی‌فایده است."""
+    src = (harness.REAL_VAULT / "_ops" / "telegram_center"
+           / "miniapp_registration.py").read_text("utf-8", errors="replace")
+    import ast
+    fn = next(n for n in ast.walk(ast.parse(src))
+              if isinstance(n, ast.FunctionDef) and n.name == "_default_fetch")
+    seg = ast.get_source_segment(src, fn) or ""
+    assert "getChatMenuButton" in seg and "TELEGRAM_OWNER_CHAT_ID" in seg, (
+        "دکمهٔ منو در دامنهٔ پیش‌فرض خوانده می‌شود ⇒ منفیِ کاذب")
+    assert "chat_id" in seg, seg[:200]
+
+
 def t_j_the_readiness_report_consumes_this():
     """⚠️ ماژولی که هیچ‌کس صدایش نمی‌زند یک «قابلیتِ تاریک» است — و این یکی
     مخصوصاً، چون دقیقاً برای تصحیحِ یک گزارشِ دروغ ساخته شده."""

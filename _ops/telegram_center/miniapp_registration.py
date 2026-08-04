@@ -69,14 +69,30 @@ def live_url() -> str:
 
 
 def _default_fetch(method: str) -> dict:
-    """فقط دو متدِ **خواندنی**. هیچ چیزی تغییر نمی‌کند."""
+    """فقط دو متدِ **خواندنی**. هیچ چیزی تغییر نمی‌کند.
+
+    ⚠️ `getChatMenuButton` با `chat_id` ِ مالک پرسیده می‌شود، نه بی‌آرگومان.
+    اندازه‌گیریِ زندهٔ ۲۰۲۶-۰۸-۰۴: `setChatMenuButton` روی دامنهٔ **پیش‌فرض**
+    ‏`ok:true` برمی‌گرداند و **هیچ اثری ندارد** (خواندنِ بعدی هنوز
+    `commands` می‌دهد) — یک no-op ِ کاملاً بی‌صدا. ولی همان فراخوان با
+    `chat_id` ِ صریح کار می‌کند. پس تنها دامنه‌ای که «آیا دکمه هست؟» را
+    درست جواب می‌دهد، خودِ چتِ مالک است. خواندنِ دامنهٔ پیش‌فرض یک منفیِ
+    کاذب می‌سازد — دقیقاً برعکسِ سبزِ دروغینی که این ماژول برای رفعش ساخته شد.
+    """
     tok = os.environ.get("TG_CENTER_BOT_TOKEN", "")
     if not tok:
         raise RuntimeError("no-token")
     url = f"{_API}/bot{tok}/{method}"
     if not url.startswith(_API + "/"):
         raise ValueError("blocked host")
-    req = urllib.request.Request(url, data=b"", method="POST")
+    body = b""
+    if method == "getChatMenuButton":
+        owner = str(os.environ.get("TELEGRAM_OWNER_CHAT_ID", "") or "").strip()
+        if owner:
+            body = json.dumps({"chat_id": int(owner)}).encode("utf-8")
+    req = urllib.request.Request(
+        url, data=body, method="POST",
+        headers={"Content-Type": "application/json"} if body else {})
     with urllib.request.urlopen(req, timeout=TIMEOUT_S) as r:  # noqa: S310
         return json.loads(r.read().decode("utf-8"))
 
