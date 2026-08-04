@@ -255,13 +255,27 @@
         return;
       }
       var pend = d.pending||[], n = Number(d.count||pend.length||0);
-      var body = n ? '<div class="list">'+pend.slice(0,8).map(function(p){
-          return '<div class="li orbline"><span class="od hot"></span>'+
-            '<span class="grow">'+ltr(p.proposal_id)+'</span>'+
-            '<span class="muted">'+esc(p.kind||"")+'</span>'+
-            (p.amount_aud!==undefined?'<span class="amt">'+fa(p.amount_aud)+'</span>':'')+'</div>';
+      var body = n ? '<div class="tasklist">'+pend.slice(0,8).map(function(p){
+          var id = esc(p.proposal_id);
+          var days = p.since ? Math.floor((Date.now()-Date.parse(p.since))/86400000) : null;
+          return '<div class="titem p2" data-pid="'+id+'">'+
+            '<div class="tbody">'+
+              '<div class="tt"><span dir="ltr" class="iso">'+id+'</span></div>'+
+              '<div class="tm">'+esc(p.kind||"—")+
+                (days!==null?' · '+fa(days)+' روز منتظر':'')+
+                (p.amount_aud?' · '+fa(p.amount_aud)+' دلار':'')+'</div>'+
+              '<div class="pend" hidden></div>'+
+            '</div>'+
+            '<button class="pno" data-pid="'+id+'" aria-label="رد">✕</button>'+
+            '<button class="pyes" data-pid="'+id+'" aria-label="تأیید">✓</button>'+
+            '</div>';
         }).join("")+'</div>'
         : '<div class="muted" style="text-align:center">صف خالی است</div>';
+      if(d.sandbox_hidden){
+        body += '<div class="muted" style="text-align:center;margin-top:8px">'+
+          fa(d.sandbox_hidden)+' کارتِ آزمایشی (sandbox) پنهان شد — حذف نشده‌اند.'+
+          '</div>';
+      }
       // ⚠️ مخرجِ `Math.max(n,5)` ساختگی بود: کمانِ حلقه هیچ چیزِ واقعی را
       // کد نمی‌کرد. صف سقفِ طبیعی ندارد، پس وقتی عددی برای مقایسه نیست،
       // گره می‌کشم نه حلقه — همان قاعده‌ای که در علائمِ حیاتی گذاشتم.
@@ -269,6 +283,68 @@
         '<div class="vitals">'+orbs([{name:"منتظرِ تو", short:"منتظرِ تو",
                                       n:n, tone:(n?"hot":"ok")}])+'</div>'+
         body+'</div>';
+      wireDecisions(el);
+    });
+  }
+
+  // ── تصمیم با پنجرهٔ لغوِ ۱۰ ثانیه‌ای ─────────────────────────────────────
+  // رأیِ مالک (۰۸-۰۵): «تأخیرِ واقعی — ۱۰ ثانیه هیچ اتفاقی نمی‌افتد».
+  //
+  // یعنی تا ثانیهٔ دهم **هیچ چیزی نوشته نمی‌شود**؛ لغو هیچ ردی در دفتر
+  // نمی‌گذارد. جایگزینش این بود که فوری بنویسیم و لغو یک ردیفِ معکوس بزند
+  // — که دفتر را دو ردیفه می‌کرد. مالک اولی را انتخاب کرد.
+  //
+  // ⚠️ عارضه‌ای که باید صادق باشیم: اگر وسطِ شمارش اپ را ببندی یا اینترنت
+  // قطع شود، تصمیم **اصلاً ثبت نمی‌شود**. پس متنِ شمارش صریحاً می‌گوید
+  // «تا پایانِ شمارش نبند» — کاربر باید عارضه را بداند، نه اینکه بعداً
+  // کشفش کند.
+  var DECIDE_DELAY_S = 10;
+  var _timers = {};
+
+  function wireDecisions(root){
+    function arm(btn, verb, faVerb, tone){
+      btn.addEventListener("click", function(){
+        var pid = btn.getAttribute("data-pid");
+        var card = btn.closest(".titem");
+        var slot = card.querySelector(".pend");
+        // تپِ دوم روی همان دکمه = لغو. ساده‌ترین حرکتی که انگشت می‌شناسد.
+        if(_timers[pid]){ cancel(pid, slot, card); return; }
+        var left = DECIDE_DELAY_S;
+        card.classList.add("armed");
+        slot.hidden = false;
+        function paint(){
+          slot.innerHTML = '<span class="cd '+tone+'">'+faVerb+' تا '+fa(left)+
+            ' ثانیهٔ دیگر</span>'+
+            '<button class="undo" type="button">لغو</button>'+
+            '<div class="cdnote">تا پایانِ شمارش اپ را نبند — قبل از آن هیچ ثبتی نمی‌شود.</div>';
+          slot.querySelector(".undo").addEventListener("click", function(){
+            cancel(pid, slot, card);
+          });
+        }
+        paint();
+        _timers[pid] = setInterval(function(){
+          left -= 1;
+          if(left > 0){ paint(); return; }
+          clearInterval(_timers[pid]); delete _timers[pid];
+          slot.innerHTML = '<span class="cd">در حال ثبت…</span>';
+          act(verb, {proposal_id: pid}, btn).then(function(r){
+            if(r && r.ok){ render("approvals"); }
+            else { slot.hidden = true; card.classList.remove("armed"); }
+          });
+        }, 1000);
+      });
+    }
+    function cancel(pid, slot, card){
+      clearInterval(_timers[pid]); delete _timers[pid];
+      slot.hidden = true; slot.innerHTML = "";
+      card.classList.remove("armed");
+      toast("لغو شد — هیچ چیزی ثبت نشد", "warn");
+    }
+    [].forEach.call(root.querySelectorAll(".pyes"), function(b){
+      arm(b, "proposal.approve", "تأیید", "ok");
+    });
+    [].forEach.call(root.querySelectorAll(".pno"), function(b){
+      arm(b, "proposal.reject", "رد", "bad");
     });
   }
 
@@ -1002,6 +1078,88 @@
         });
       });
   }
+  // ── آینه: اختاپوس دربارهٔ خودش چه می‌داند ────────────────────────────────
+  // مالک (۰۸-۰۵): «مهم‌ها را بیاور داخلِ وب‌اپ، تعاملِ اصلی‌ام وب‌اپ است».
+  // این اعداد تا امروز فقط با تایپِ دستیِ سه اسکریپت دیده می‌شدند.
+  //
+  // ⚠️ قیدِ باربر: **غیاب ≠ «نپرید»**. دفترِ خالیِ یک پروسه دو معنی دارد —
+  // یا کدش اجرا نشد، یا پروب آن‌جا نصب نبود. اگر دومی را «یتیم» نشان دهم،
+  // همان صفرِ جعلی است با لباسِ تازه. پس تا وقتی پروسهٔ پروب‌دار نداریم،
+  // این بخش صریحاً می‌گوید «نمی‌دانم» و هیچ عددی از دسترسی نشان نمی‌دهد.
+  function renderSelfmap(el){
+    el.innerHTML = "";
+    api("/api/selfmap").then(function(d){
+      d = d || {};
+      if(d.status === "error"){
+        el.innerHTML = '<div class="err">نقشهٔ خودآگاهی خوانده نشد: '+
+                       esc(String(d.reason||""))+'</div>';
+        return;
+      }
+      var r = d.reach || {}, sc = d.scans || {};
+      var procs = r.probed_processes || {};
+      var nProc = Object.keys(procs).length;
+
+      var h = secHead("آینه", pill(nProc ? fa(nProc)+" پروسهٔ پروب‌دار" : "پروبی نیست",
+                                   nProc ? "ok" : "unk"));
+
+      // ── دسترسیِ زمانِ اجرا ──────────────────────────────────────────
+      if(!nProc){
+        h += '<div class="tri warm"><div class="in">'+
+          '<div class="verb">هنوز نمی‌دانم چه کدی واقعاً می‌دود</div>'+
+          '<div class="why">پروبِ دسترسی در هیچ پروسه‌ای ثبت نشده. '+
+          'تا وقتی پروسه‌ای ری‌استارت نشود، دفتر خالی است — و <b>خالی‌بودنِ '+
+          'دفتر یعنی «نمی‌دانم»، نه «هیچ کدی نمی‌دود»</b>.</div></div></div>';
+      } else {
+        var files = r.files || {};
+        var top = Object.keys(files).sort(function(a,b){ return files[b]-files[a]; });
+        h += '<div class="vitals">'+
+          orbs([{name:"توابعِ دیده‌شده", short:"دیده‌شده",
+                 n:r.functions_seen, tone:(r.functions_seen?"ok":"unk")}].concat(
+            Object.keys(procs).slice(0,4).map(function(p){
+              return {name:p, short:ltrSafe(p), n:procs[p].probes, tone:"up"};
+            })))+'</div>';
+        if(top.length){
+          h += '<details class="det"><summary>پرکارترین فایل‌ها</summary>'+
+            '<div class="inner">'+top.slice(0,12).map(function(f){
+              return row(f, files[f]);
+            }).join("")+'</div></details>';
+        }
+      }
+
+      // ── اسکن‌های ایستا، با سنِ صریح ─────────────────────────────────
+      var LBL = {orphans:"ماژولِ یتیم", weighty:"یتیمِ سنگین",
+                 dark_gates:"دروازهٔ تاریک", partial_gates:"دروازهٔ نیمه‌روشن",
+                 flags_seen:"کلِ فلگ", flags_live_on:"فلگِ زندهٔ روشن",
+                 read_undefined:"فلگِ خوانده‌ولی‌تعریف‌نشده",
+                 orphan_state:"فایلِ حالتِ یتیم", untested:"ماژولِ بی‌تست",
+                 dead_symbols:"نمادِ مرده", unfinished:"کارِ ناتمام",
+                 checks_failed:"چکِ شکست‌خورده", modules_checked:"ماژولِ بررسی‌شده"};
+      var any = false;
+      ["dark","orphan","self"].forEach(function(k){
+        var s = sc[k];
+        if(!s || !s.values) return;
+        any = true;
+        var age = s.age_s;
+        // سنِ صریح: عددِ کهنه نباید شبیهِ تازه دیده شود.
+        var aged = (age === null || age === undefined) ? "نامعلوم"
+                 : (age < 3600 ? fa(Math.round(age/60))+" دقیقه پیش"
+                               : fa(Math.round(age/3600))+" ساعت پیش");
+        h += '<details class="det"><summary>'+esc({dark:"دروازه‌های تاریک",
+              orphan:"یتیم‌ها", self:"خودشناسی"}[k])+' · '+esc(aged)+'</summary>'+
+          '<div class="inner">'+Object.keys(s.values).map(function(kk){
+            return row(LBL[kk] || kk, s.values[kk]);
+          }).join("")+'</div></details>';
+      });
+      if(!any){
+        h += '<div class="err">اسکن‌های ایستا هنوز نتیجه‌ای ندارند — '+
+             'مغزِ کاکپیت باید یک بار بدود. عمداً صفر نشان نمی‌دهم.</div>';
+      }
+      el.innerHTML = h;
+    });
+  }
+  // نامِ پروسه لاتین است و داخلِ متنِ راست‌به‌چپ می‌پرد
+  function ltrSafe(s){ return String(s); }
+
   // ── علائمِ حیاتی ───────────────────────────────────────────────────────────
   // این سه از قبل روی دیسک بودند و allowlist ِ /api/state دورشان می‌ریخت، و
   // رنگِ داور اصلاً هیچ‌جا ثبت نمی‌شد. جای‌شان این‌جاست نه خانه: خانه یعنی
@@ -1327,7 +1485,7 @@
   // فارسی، با دو کلاسِ ناموجود در CSS، JSON ِ خام به‌جای رسید، و پای
   // بیزنسیِ هاردکدشده. هر سه اقدامش حالا جای درستِ خودش را دارد:
   // lead.create/update_stage در تبِ لیدها، task.create در تبِ کارها.
-  function viewSystem(el){ stack(el||content, [renderLegs, renderVitals, renderBrain, renderGovernor, renderObsidian, renderTruth, renderRegistry]); }
+  function viewSystem(el){ stack(el||content, [renderLegs, renderVitals, renderSelfmap, renderBrain, renderGovernor, renderObsidian, renderTruth, renderRegistry]); }
 
   function viewTasks(el){ stack(el||content, [renderTasks]); }
 

@@ -702,6 +702,9 @@ def dispatch_api(path: str, root: "Path | None" = None) -> "tuple[int, bytes, st
         # زدن** شد.
         "/api/governor": get_governor_state,
         "/api/obsidian": get_obsidian_state,
+        # نقشهٔ خودآگاهی — مالک گفت تعاملِ اصلی‌اش وب‌اپ است، پس آنچه
+        # تا امروز فقط در خطِ فرمان دیده می‌شد باید این‌جا باشد.
+        "/api/selfmap": get_selfmap_state,
         LIFECYCLE_PATH: get_lifecycle_state,
     }
     fn = handlers.get(p)
@@ -1204,6 +1207,81 @@ def _ops_items(table: str, cols: "tuple[str, ...]", where: str,
                 eng.close()
             except Exception:  # noqa: BLE001
                 pass
+
+
+def get_selfmap_state(root: "Path | None" = None) -> dict:
+    """`/api/selfmap` — «اختاپوس دربارهٔ خودش چه می‌داند؟»
+
+    مالک گفت تعاملِ اصلی‌اش وب‌اپ است، پس چیزهایی که تا امروز فقط در خطِ
+    فرمان دیده می‌شدند باید این‌جا باشند. سه منبع، همه از قبل موجود:
+
+      · `reach_probe`      — چه چیزی **واقعاً دوید** (زمانِ اجرا، قطعی)
+      · `orphan_scan`      — چه چیزی به هیچ‌چیز وصل نیست (ایستا، محافظه‌کار)
+      · `dark_capabilities`— کدام فلگ کد دارد و در هیچ پروسه‌ای روشن نیست
+
+    ⚠️ اسکنِ ایستا این‌جا **دوباره اجرا نمی‌شود**: `orphan_scan` ۷.۸ ثانیه و
+    `self_scan` ۴۶ ثانیه طول می‌کشند و این مسیر باید در چند صد میلی‌ثانیه
+    جواب بدهد. مغزِ کاکپیت آن‌ها را ساعتی/روزانه می‌دواند و نتیجه را در
+    حافظه‌اش می‌گذارد؛ این‌جا فقط همان حافظه خوانده می‌شود، با سنِ صریح تا
+    عددِ کهنه شبیهِ تازه دیده نشود.
+
+    ⚠️⚠️ و قیدِ باربر: **غیاب ≠ «نپرید»**. اگر پروب در پروسه‌ای نصب نبوده،
+    دفترش خالی است — که هیچ چیزی دربارهٔ اجرا نمی‌گوید. پس فهرستِ
+    پروسه‌های پروب‌دار جدا برمی‌گردد و UI باید بدونِ آن UNKNOWN بگوید، نه
+    «یتیم». همان صفرِ جعلی است با لباسِ تازه.
+    """
+    out: dict = {"status": "ok"}
+
+    # ── ۱) دسترسیِ زمانِ اجرا ────────────────────────────────────────────
+    try:
+        sys.path.insert(0, str(_OPS)) if str(_OPS) not in sys.path else None
+        import reach_probe  # noqa: WPS433
+        procs = reach_probe.probed_processes()
+        hits = reach_probe.reached()
+        by_proc: dict = {}
+        for p, rows in procs.items():
+            by_proc[p] = {"probes": len(rows),
+                          "last_boot": max(float(r.get("ts") or 0) for r in rows)}
+        out["reach"] = {
+            "armed": reach_probe.enabled(),
+            "probed_processes": by_proc,
+            "functions_seen": len(hits),
+            # ⚠️ نامِ فایل‌ها آری، نامِ توابع نه — فهرستِ کامل چند هزار ردیف
+            # است و کارت را می‌کشد. شمارِ هر فایل کافی است تا بفهمی کدام
+            # ماژول زنده است.
+            "files": _reach_by_file(hits),
+        }
+    except Exception as exc:  # noqa: BLE001
+        out["reach"] = {"status": "unknown", "reason": f"{type(exc).__name__}"}
+
+    # ── ۲) حافظهٔ مغز: اسکن‌های ایستا با سنِ صریح ────────────────────────
+    mem = _read_json_safe(STATE_DIR / "cockpit_brain" / "latest.json")
+    if isinstance(mem, dict):
+        now = time.time()
+        scans = {}
+        for key in ("dark", "orphan", "self"):
+            ts = mem.get(f"_scan_{key}_ts")
+            scans[key] = {
+                "values": mem.get(f"_scan_{key}"),
+                "age_s": round(now - float(ts), 1) if isinstance(ts, (int, float)) else None,
+            }
+        out["scans"] = scans
+    else:
+        # مغز هنوز ندویده یا حافظه‌اش خوانده نشد. **صفر نمی‌سازم.**
+        out["scans"] = {"status": "unknown",
+                        "reason": "cockpit_brain memory missing/unreadable"}
+    return _scrub_dict(out)
+
+
+def _reach_by_file(hits) -> dict:
+    """`file::qual` → شمارِ توابعِ دیده‌شده در هر فایل. سقفِ ۴۰ فایلِ اول."""
+    from collections import Counter
+    c = Counter()
+    for h in hits:
+        f = str(h).split("::", 1)[0]
+        if f:
+            c[f] += 1
+    return dict(c.most_common(40))
 
 
 def get_ops_leads(root: "Path | None" = None) -> dict:

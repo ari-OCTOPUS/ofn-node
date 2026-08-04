@@ -364,6 +364,26 @@ def snapshot_boot(proc: str, flags_path=None, state_dir=None, env=None):
     مسیرِ بوتِ ارگانیسمِ زنده است و حق ندارد چیزی را بکشد — نبودِ پروب بدتر از
     ارگانیسمِ نبوت‌شده نیست.
     """
+    # ── پروبِ دسترسی، سوارِ همین نقطه — ۲۰۲۶-۰۸-۰۵ ────────────────────────
+    # چرا این‌جا و نه پنج نقطهٔ ورودیِ جدا: `snapshot_boot` دقیقاً «بوتِ هر
+    # پروسه» است و هر پنج پروسهٔ زنده (center · cortex · live · organism ·
+    # miniapp-gateway) از همین‌جا رد می‌شوند. یک تغییر به‌جای پنج ویرایشِ
+    # جداگانه‌ای که یکی‌شان حتماً جا می‌ماند — همان‌طور که gateway یک بار
+    # از خودِ snapshot_boot جا مانده بود.
+    #
+    # `sitecustomize.py` عمداً استفاده نشد: آن هر مفسرِ پایتونی را رصد
+    # می‌کند، از جمله سوییتِ ۵۶۰ تستی و زیرپروسه‌های ایجنت‌ها — یعنی دفتر
+    # پر از چیزی می‌شود که «کارِ زندهٔ ارگانیسم» نیست.
+    #
+    # fail-soft مثلِ بقیهٔ این تابع: پروب حق ندارد بوت را بکشد.
+    try:
+        import reach_probe as _reach
+        if _reach.enabled():
+            os.environ.setdefault("OCTOPUS_PROC_NAME", str(proc))
+            _reach.install()
+    except Exception:  # noqa: BLE001 — نبودِ پروب بدتر از پروسهٔ نبوت‌شده نیست
+        pass
+
     try:
         fp = Path(flags_path) if flags_path is not None else _default_paths()[0]
         out = snapshot_path_for(proc, state_dir)

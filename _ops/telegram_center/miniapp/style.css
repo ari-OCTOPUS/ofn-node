@@ -534,3 +534,26 @@ code{direction:ltr}
 /* پای نهم به بعد: قرص هشت بازو دارد، پس اضافه‌ها به‌صورتِ عدد گفته می‌شوند
    نه اینکه بی‌صدا ناپدید شوند. */
 .dial .ovf{fill:var(--steel-b);font-size:11px;opacity:.8}
+
+/* ── تصمیم روی پیشنهاد: پنجرهٔ لغوِ ۱۰ ثانیه‌ای ────────────────────────
+   رأیِ مالک: تأخیرِ **واقعی** — تا پایانِ شمارش هیچ چیزی ثبت نمی‌شود. */
+.pyes,.pno{flex:none;width:44px;height:44px;border-radius:50%;cursor:pointer;
+  font-size:18px;line-height:1;border:1.5px solid;background:transparent;transition:.16s}
+.pyes{border-color:rgba(34,211,238,.42);background:rgba(34,211,238,.08);color:var(--cyan)}
+.pyes:hover{background:rgba(34,211,238,.2)}
+.pno{border-color:rgba(240,70,139,.38);background:rgba(240,70,139,.07);color:var(--magenta-ink)}
+.pno:hover{background:rgba(240,70,139,.18)}
+.pyes[data-busy],.pno[data-busy]{opacity:.4;cursor:progress}
+/* کارتِ مسلح: لبه نبض می‌زند تا از دور معلوم باشد شمارش در جریان است */
+.titem.armed{border-inline-start-color:var(--violet)}
+.titem.armed .tt{opacity:.7}
+.pend{margin-top:9px;display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+.pend .cd{font-size:14px;color:var(--ink)}
+.pend .cd.ok{color:var(--cyan-ink)}
+.pend .cd.bad{color:var(--magenta-ink)}
+.pend .undo{padding:8px 16px;border-radius:999px;cursor:pointer;font:inherit;
+  font-size:13.5px;color:var(--bg);background:var(--steel-a);border:0}
+.pend .cdnote{flex-basis:100%;font-size:12px;color:var(--muted);line-height:1.7}
+
+/* آینه: نامِ فایل‌ها لاتین‌اند و باید ایزوله بمانند */
+.iso{unicode-bidi:isolate}
