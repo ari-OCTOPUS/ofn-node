@@ -170,7 +170,20 @@ class Node:
             "pending_decisions": counts.get("pending", 0),
             "held": counts.get("held", 0),
             "safe_mode": "safe_mode" in self.closed_gates,
+            # Her hourly rate is a property of her, not of any one piece, so
+            # it is a fact and pre-fills the form instead of being asked once
+            # per item. Sent only if she has actually stated it — an absent
+            # rate must leave the field empty, not put a zero in it.
+            "facts": {k: v for k, v in
+                      (("time.hourly_floor", self._fact_value(scope,
+                                                              "time",
+                                                              "hourly_floor")),)
+                      if v is not None},
         }
+
+    def _fact_value(self, scope: TenantScope, subject: str, predicate: str):
+        fact = self.facts.current(scope, subject, predicate)
+        return None if fact is None else fact.value
 
     # ── products ──────────────────────────────────────────────────────────
     def _pieces(self) -> ProductStore:

@@ -49,14 +49,37 @@ class TestWebAssets(unittest.TestCase):
                 self.assertIn("OFN.connect", src)
                 self.assertIn("telegram-web-app.js", src)
 
-    def test_shells_do_not_use_browser_storage(self):
+    def test_shells_do_not_keep_business_state_in_the_browser(self):
         """State lives in the ledger, not in a browser. A partner switching
-        phones must see the same thing."""
+        phones must see the same thing.
+
+        One narrow exception, added deliberately 2026-08-04: the half-typed
+        new-piece form autosaves to `localStorage` under a single key. That is
+        not business state — it is an unfinished sentence. It has never been
+        sent anywhere, no ledger entry describes it, and losing it by picking
+        up a different phone is the correct outcome rather than a bug.
+
+        The rule the exception must not weaken: anything that HAS been saved
+        is read back from the node, so two phones always agree. Hence the
+        allowance is one key, in one shell, and the session token is still
+        never written anywhere a page reload could find it.
+        """
+        allowed = {"ziman.html": {"ziman.draft.v1"}}
         for name in ("ziman.html", "lead.html", "studio.html", "panel.html"):
             with self.subTest(shell=name):
                 src = open(os.path.join(WEB_DIR, name), encoding="utf-8").read()
-                self.assertNotIn("localStorage", src)
                 self.assertNotIn("sessionStorage", src)
+                keys = allowed.get(name, set())
+                if not keys:
+                    self.assertNotIn("localStorage", src)
+                    continue
+                for key in keys:
+                    self.assertIn(key, src)
+                # Whatever is stored, it is not the session and not a record.
+                for forbidden in ("session", "token", "authorization",
+                                  "products", "sku"):
+                    self.assertNotIn(f"localStorage.setItem('{forbidden}",
+                                     src.lower())
 
 
 class TestServedOverHttp(unittest.TestCase):

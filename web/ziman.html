@@ -160,6 +160,51 @@ footer{text-align:center;font-size:11.5px;color:var(--ink3);margin-top:22px;line
   *{animation-duration:.001ms !important;animation-iteration-count:1 !important;
     transition-duration:.001ms !important;scroll-behavior:auto !important}
 }
+
+/* ── قطعه‌ها ─────────────────────────────────────────────────────────── */
+.tabs{display:flex;gap:8px;margin:0 0 20px}
+.tab{flex:1;padding:12px;border-radius:14px;border:1.5px solid var(--line);
+  background:var(--card);font-family:inherit;font-size:15px;font-weight:500;
+  color:var(--ink2);cursor:pointer}
+.tab.on{border-color:var(--gold);background:linear-gradient(180deg,#fffbee,#fdf6e2);
+  color:var(--gold-deep);font-weight:600}
+.piece{background:var(--card);border:1px solid var(--line);border-radius:18px;
+  padding:16px 18px;margin-bottom:11px}
+.piece .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.piece .nm{font-size:17px;font-weight:600}
+.piece .sku{font-size:12px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.piece .row{display:flex;gap:14px;margin-top:9px;font-size:13.5px;color:var(--ink2);
+  font-variant-numeric:tabular-nums;flex-wrap:wrap}
+.piece .row b{font-weight:600;color:var(--ink)}
+.flags{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}
+.flag{font-size:12.5px;padding:5px 11px;border-radius:99px;font-weight:500}
+.flag.bad{background:var(--rose-soft);color:#8a4a4a}
+.flag.slow{background:var(--gold-soft);color:var(--gold-deep)}
+.flag.fast{background:var(--green-soft);color:#3f6b3f}
+.flag.st{background:var(--cream2);color:var(--ink2)}
+.acts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.act{padding:9px 14px;border-radius:12px;border:1.5px solid var(--line);
+  background:var(--card);font-family:inherit;font-size:13.5px;color:var(--ink2);cursor:pointer}
+.act:active{transform:scale(.97)}
+.fld{margin-bottom:16px}
+.fld label{display:block;font-size:14.5px;font-weight:500;margin-bottom:7px}
+.fld .sub{font-size:12.5px;color:var(--ink3);font-weight:400;margin-bottom:7px}
+.fld input,.fld textarea,.fld select{inline-size:100%;padding:14px;border-radius:14px;
+  border:1.5px solid var(--line);background:#fffdf8;font-family:inherit;font-size:16px;
+  color:var(--ink)}
+.fld input:focus,.fld textarea:focus{outline:0;border-color:var(--gold)}
+.money{background:var(--cream2);border-radius:16px;padding:15px 17px;margin-bottom:16px}
+.money .ln{display:flex;justify-content:space-between;font-size:14.5px;margin-bottom:6px;
+  font-variant-numeric:tabular-nums}
+.money .ln:last-child{margin-bottom:0}
+.money .ln b{font-weight:600}
+.money.loss{background:var(--rose-soft);border:1px solid #e8c9c9}
+.warn-loss{font-size:14.5px;font-weight:600;color:#8a4a4a;margin-top:10px;
+  padding-top:10px;border-top:1px solid #e8c9c9}
+.guide{font-size:12.5px;color:var(--ink3);margin-top:10px;padding-top:10px;
+  border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.empty{text-align:center;padding:34px 20px;color:var(--ink3);font-size:14.5px}
+.saved{font-size:12px;color:var(--ink3);text-align:center;margin-top:-8px;margin-bottom:12px}
 </style>
 </head>
 <body>
@@ -180,6 +225,14 @@ footer{text-align:center;font-size:11.5px;color:var(--ink3);margin-top:22px;line
 
 <!-- محتوای زنده. تا وقتی نود جواب ندهد خالی می‌ماند و نمونهٔ زیر دیده می‌شود. -->
 <div id="live" hidden></div>
+
+<!-- دو نما: سؤال‌های امروز، و قطعه‌هایی که ساخته -->
+<div class="tabs" id="tabs" hidden>
+  <button class="tab on" type="button" id="tabq">سؤال‌ها</button>
+  <button class="tab" type="button" id="tabp">قطعه‌ها</button>
+</div>
+<div id="pieces" hidden></div>
+
 
 <!-- مرحله ۱ -->
 <section id="s1">
@@ -202,7 +255,7 @@ footer{text-align:center;font-size:11.5px;color:var(--ink3);margin-top:22px;line
   <div class="strip">
     <div class="sbox"><div class="sv">۴</div><div class="sl">آمادهٔ این هفته</div></div>
     <div class="sbox"><div class="sv">۲</div><div class="sl">در دست ساخت</div></div>
-    <div class="sbox"><div class="sv">۱۹</div><div class="sl">کل موجودی</div></div>
+    <div class="sbox"><div class="sv">۱۹</div><div class="sl">تا امروز ساخته</div></div>
   </div>
 </section>
 
@@ -521,6 +574,305 @@ function draw() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+
+/* ── قطعه‌ها ──────────────────────────────────────────────────────────────
+   Every number shown here comes from the node. The only arithmetic done in
+   this file is the live preview under the price field, which exists so she
+   can see the consequence of a price *before* saving it — and it is drawn
+   from the same formula the node uses, never a second opinion.            */
+const PIECES = document.getElementById('pieces');
+const TABS = document.getElementById('tabs');
+const DRAFT_KEY = 'ziman.draft.v1';
+let pieces = [], money = { currency: 'AUD', symbol: '$' }, hourlyDefault = null;
+
+const aud = n => (n == null || isNaN(n)) ? '—'
+  : money.symbol + fa(Number(n).toFixed(2));
+const pct = n => (n == null || isNaN(n)) ? '—' : fa(Math.round(n * 100)) + '٪';
+
+/* Persian digits in, plain number out. The node accepts either; doing it here
+   too keeps the live preview honest while she is still typing.            */
+function num(v) {
+  if (v == null) return null;
+  const t = String(v).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+                     .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+                     .replace(/[,٬]/g, '').trim();
+  if (!t) return null;
+  const n = Number(t);
+  return isNaN(n) ? null : n;
+}
+
+const STATE_FA = { in_progress: 'در دست ساخت', for_sale: 'برای فروش',
+                   sold: 'فروخته شد', gifted: 'هدیه داده شد' };
+const CHANNEL_FA = { instagram: 'اینستاگرام', market: 'بازارچه',
+                     etsy: 'Etsy', direct: 'مستقیم' };
+const FLAG_FA = {
+  loses_money: ['bad', '🔴 ضررده'],
+  stale: ['slow', '⏳ خواب‌رفته'],
+  quick_sale: ['fast', '⚡ زود فروخت'],
+};
+
+function pieceCard(p) {
+  const box = el('div', 'piece');
+  const top = el('div', 'top');
+  top.append(el('div', 'nm', p.name), el('div', 'sku', p.sku));
+  box.append(top);
+
+  const row = el('div', 'row');
+  const cost = el('span'); cost.append('هزینه ', el('b', null, aud(p.cogs_aud)));
+  row.append(cost);
+  const price = el('span');
+  price.append('قیمت ', el('b', null, p.price_aud == null ? 'هنوز نگذاشته‌اید' : aud(p.price_aud)));
+  row.append(price);
+  if (p.gross_margin_aud != null) {
+    const m = el('span');
+    m.append('سود ', el('b', null, aud(p.gross_margin_aud) + ' (' + pct(p.gross_margin_pct) + ')'));
+    row.append(m);
+  }
+  if (p.days_on_sale != null) row.append(el('span', null, fa(p.days_on_sale) + ' روز'));
+  box.append(row);
+
+  const flags = el('div', 'flags');
+  flags.append(el('span', 'flag st', STATE_FA[p.state] || p.state));
+  if (p.channel) flags.append(el('span', 'flag st', CHANNEL_FA[p.channel] || p.channel));
+  (p.verdicts || []).forEach(v => {
+    const f = FLAG_FA[v];
+    if (f) flags.append(el('span', 'flag ' + f[0], f[1]));
+  });
+  box.append(flags);
+
+  /* A margin the node refused to compute is said out loud, not left blank. */
+  if (p.net_margin_blocked) {
+    box.append(el('div', 'guide', 'سود خالص این فروش حساب نشد: کارمزد این کانال هنوز ثبت نشده.'));
+  }
+
+  const acts = el('div', 'acts');
+  const add = (label, fn) => {
+    const b = el('button', 'act', label);
+    b.type = 'button';
+    b.onclick = () => { OFN.tap(); fn(); };
+    acts.append(b);
+  };
+  add('قیمت', () => askPrice(p));
+  if (p.state === 'in_progress') add('آمادهٔ فروش', () => setState(p, { state: 'for_sale' }));
+  if (p.state === 'for_sale') {
+    add('فروختم', () => askChannel(p));
+    add('هدیه دادم', () => setState(p, { state: 'gifted' }));
+  }
+  box.append(acts);
+  return box;
+}
+
+async function setState(p, changes) {
+  try {
+    const out = await OFN.post('/api/v1/products/' + encodeURIComponent(p.sku), changes);
+    if (!out.ok) { alert(out.error); return; }
+    OFN.done();
+    await loadPieces();
+  } catch (_) { alert('ثبت نشد — دوباره تلاش کنید.'); }
+}
+
+function askPrice(p) {
+  const raw = prompt('قیمت فروش ' + p.name + ' (هزینه‌اش ' + aud(p.cogs_aud) + ')',
+                     p.price_aud == null ? '' : String(p.price_aud));
+  if (raw === null) return;
+  const v = num(raw);
+  if (v === null) { alert('عدد وارد کنید.'); return; }
+  if (v < p.cogs_aud &&
+      !confirm('این قیمت از هزینه‌اش کمتر است — روی هر دانه ' +
+               aud(p.cogs_aud - v) + ' ضرر می‌کنید. مطمئنید؟')) return;
+  setState(p, { price_aud: v });
+}
+
+function askChannel(p) {
+  const keys = Object.keys(CHANNEL_FA);
+  const list = keys.map((k, i) => fa(i + 1) + ') ' + CHANNEL_FA[k]).join('\n');
+  const pickRaw = prompt('کجا فروختید؟\n' + list, '');
+  if (pickRaw === null) return;
+  const i = (num(pickRaw) || 0) - 1;
+  if (!(i >= 0 && i < keys.length)) { alert('یکی از شماره‌ها را بزنید.'); return; }
+  setState(p, { state: 'sold', channel: keys[i] });
+}
+
+/* ── the form ─────────────────────────────────────────────────────────── */
+const FIELDS = [
+  ['name', 'اسم قطعه', 'مثلا: گوشوارهٔ نقره با سنگ فیروزه', 'text'],
+  ['category', 'دسته', 'مثلا: گوشواره — اختیاری', 'text'],
+  ['materials_cost_aud', 'مواد چقدر شد؟', 'هرچه برای همین یک قطعه خریدید', 'num'],
+  ['labour_hours', 'چند ساعت وقت برد؟', 'از شروع تا آمادهٔ تحویل', 'num'],
+  ['hourly_rate_aud', 'ساعتی چند؟', 'ارزش وقت خودتان — پایین‌ترین عددی که راضی‌تان می‌کند', 'num'],
+  ['packaging_cost_aud', 'بسته‌بندی چقدر شد؟', 'جعبه، روبان، کارت', 'num'],
+];
+
+function formCard() {
+  const wrap = el('div', 'card');
+  wrap.append(el('div', 'eyebrow', 'قطعهٔ تازه'));
+  const draft = readDraft();
+
+  FIELDS.forEach(([key, label, sub, kind]) => {
+    const f = el('div', 'fld');
+    const l = el('label', null, label);
+    l.htmlFor = 'f_' + key;
+    f.append(l);
+    if (sub) f.append(el('div', 'sub', sub));
+    const inp = el('input');
+    inp.id = 'f_' + key;
+    inp.type = 'text';                 /* text, not number: Persian digits */
+    inp.inputMode = kind === 'num' ? 'decimal' : 'text';
+    inp.value = draft[key] != null ? draft[key] : '';
+    if (key === 'hourly_rate_aud' && !inp.value && hourlyDefault != null) {
+      inp.value = String(hourlyDefault);
+    }
+    inp.oninput = () => { refreshMoney(); saveDraft(); };
+    f.append(inp);
+    wrap.append(f);
+  });
+
+  const pf = el('div', 'fld');
+  const pl = el('label', null, 'قیمت فروش');
+  pl.htmlFor = 'f_price_aud';
+  pf.append(pl, el('div', 'sub', 'می‌توانید خالی بگذارید و بعداً تصمیم بگیرید'));
+  const pin = el('input');
+  pin.id = 'f_price_aud';
+  pin.type = 'text';
+  pin.inputMode = 'decimal';
+  pin.value = draft.price_aud != null ? draft.price_aud : '';
+  pin.oninput = () => { refreshMoney(); saveDraft(); };
+  pf.append(pin);
+  wrap.append(pf);
+
+  wrap.append(el('div', 'money', ''));   /* filled by refreshMoney */
+
+  const save = el('button', 'go', 'ذخیره کن');
+  save.type = 'button';
+  save.onclick = submitPiece;
+  wrap.append(save);
+
+  const cancel = el('button', 'later', 'بی‌خیال');
+  cancel.type = 'button';
+  cancel.onclick = () => { clearDraft(); showPieces(); };
+  wrap.append(cancel);
+  return wrap;
+}
+
+function formValues() {
+  const out = {};
+  FIELDS.forEach(([key]) => {
+    const e = document.getElementById('f_' + key);
+    if (e) out[key] = e.value;
+  });
+  const p = document.getElementById('f_price_aud');
+  if (p) out.price_aud = p.value;
+  return out;
+}
+
+/* The live preview. Same shape as the node's formula — materials + hours ×
+   rate + packaging — because a preview that disagreed with what gets saved
+   would be worse than no preview at all.                                   */
+function refreshMoney() {
+  const box = document.querySelector('#pieces .money');
+  if (!box) return;
+  const v = formValues();
+  const cogs = (num(v.materials_cost_aud) || 0)
+             + (num(v.labour_hours) || 0) * (num(v.hourly_rate_aud) || 0)
+             + (num(v.packaging_cost_aud) || 0);
+  const price = num(v.price_aud);
+  box.textContent = '';
+  box.className = 'money';
+
+  const line = (label, value) => {
+    const ln = el('div', 'ln');
+    ln.append(el('span', null, label), el('b', null, value));
+    box.append(ln);
+  };
+  line('هزینهٔ این قطعه', aud(cogs));
+  if (price != null) {
+    line('قیمت', aud(price));
+    line('سود شما', aud(price - cogs) + ' (' + pct(cogs && price ? (price - cogs) / price : 0) + ')');
+    if (price < cogs) {
+      box.className = 'money loss';
+      box.append(el('div', 'warn-loss',
+        'این قیمت ضرر می‌دهد — روی هر دانه ' + aud(cogs - price) + ' از جیب خودتان می‌رود.'));
+    }
+  }
+  /* Two reference numbers, shown and never filled in. Deciding her price is
+     not this system's job; showing her what the numbers imply is.          */
+  if (cogs > 0) {
+    box.append(el('div', 'guide',
+      'برای مقایسه: دو برابر هزینه ' + aud(cogs * 2) +
+      ' · دو و نیم برابر ' + aud(cogs * 2.5) + '. تصمیم با خودتان است.'));
+  }
+}
+
+async function submitPiece() {
+  const v = formValues();
+  if (!String(v.name || '').trim()) { alert('اسم قطعه را بنویسید.'); return; }
+  try {
+    const out = await OFN.post('/api/v1/products', v);
+    if (!out.ok) { alert(out.error); return; }
+    OFN.done();
+    clearDraft();
+    await loadPieces();
+    alert('ثبت شد — کد این قطعه ' + out.product.sku + ' است.');
+  } catch (_) { alert('ذخیره نشد — دوباره تلاش کنید.'); }
+}
+
+/* Autosave lives on her phone, not in a table: it is a half-typed form, not
+   a business record, and it should not outlive the device that typed it.  */
+function saveDraft() {
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(formValues())); } catch (_) {}
+  const m = document.querySelector('#pieces .saved');
+  if (m) m.textContent = 'نوشته‌هایتان روی همین گوشی نگه داشته شد';
+}
+function readDraft() {
+  try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}') || {}; }
+  catch (_) { return {}; }
+}
+function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (_) {} }
+function hasDraft() {
+  const d = readDraft();
+  return Object.keys(d).some(k => String(d[k] || '').trim());
+}
+
+function showPieces() {
+  PIECES.textContent = '';
+  const top = el('button', 'go', 'قطعهٔ تازه ثبت کن');
+  top.type = 'button';
+  top.onclick = () => { OFN.tap(); showForm(); };
+  PIECES.append(top);
+  if (hasDraft()) {
+    const r = el('div', 'saved', 'یک قطعهٔ نیمه‌تمام دارید — «قطعهٔ تازه» را بزنید تا ادامه دهید.');
+    PIECES.append(r);
+  }
+  if (!pieces.length) {
+    PIECES.append(el('div', 'empty', 'هنوز قطعه‌ای ثبت نشده.'));
+    return;
+  }
+  pieces.forEach(p => PIECES.append(pieceCard(p)));
+}
+
+function showForm() {
+  PIECES.textContent = '';
+  PIECES.append(el('div', 'saved', ''), formCard());
+  refreshMoney();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function loadPieces() {
+  const data = await OFN.get('/api/v1/products');
+  pieces = data.products || [];
+  money = { currency: data.currency || 'AUD', symbol: data.symbol || '$' };
+  showPieces();
+}
+
+function tab(which) {
+  const q = which === 'q';
+  document.getElementById('tabq').classList.toggle('on', q);
+  document.getElementById('tabp').classList.toggle('on', !q);
+  LIVE.hidden = !q;
+  PIECES.hidden = q;
+  OFN.tap();
+}
+
 /* ── boot ────────────────────────────────────────────────────────────────
    Three outcomes, three different screens. The one thing that never happens
    is sample data quietly standing in for real data.                       */
@@ -581,6 +933,13 @@ async function boot() {
 
   queue = qs.questions || [];
   at = 0;
+
+  /* Her hourly rate is a property of her, not of a piece — so it arrives as
+     a fact and pre-fills the field rather than being asked once per item. */
+  hourlyDefault = (status.facts && status.facts['time.hourly_floor']) ?? null;
+  TABS.hidden = false;
+  document.getElementById('tabq').onclick = () => tab('q');
+  document.getElementById('tabp').onclick = () => { tab('p'); loadPieces(); };
   const head = document.querySelector('.date');
   if (head) {
     head.textContent = queue.length
