@@ -29,7 +29,7 @@ import datetime as _dt
 import sys
 
 from . import config
-from .run import build_node
+from .run import arm_node_brain, build_node
 
 
 def _iso_week(now: _dt.datetime) -> str:
@@ -50,6 +50,11 @@ def main(argv: list[str] | None = None) -> int:
 
     cfg = config.load()
     node = build_node(cfg)
+    # Arm the brain the same way the running service does — without this,
+    # the cycle's router is None and the model is never asked, even with a
+    # key present. This was a real bug: the cycle silently reported "brain
+    # not wired" because build_node does not arm the brain by itself.
+    arm_node_brain(cfg, node, run_worker_loop=False)
     now = int(_dt.datetime.now().timestamp())
     week_id = args.week or _iso_week(_dt.datetime.now())
 

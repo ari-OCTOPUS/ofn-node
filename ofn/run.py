@@ -239,6 +239,34 @@ def build_worker(cfg: config.Config, node: Node) -> Worker:
                   now_epoch_s=config.epoch_seconds, now_iso=config.now_iso)
 
 
+def arm_node_brain(cfg: config.Config, node: Node, *,
+                   run_worker_loop: bool = False) -> Worker | None:
+    """Wire the hosted brain onto a node, without starting the HTTP servers.
+
+    `main()` builds the node, arms the brain, then starts servers and the
+    worker loop. A one-shot script like `marketing_run` needs the same
+    armed node but not the loop: it calls the router directly. This function
+    is the shared wiring so the two paths cannot drift — a brain that the
+    script forgot to arm is exactly the bug this exists to prevent.
+
+    Returns the Worker (so `main` can start its loop), or None when
+    `run_worker_loop` is False (the script path, which does not loop).
+    """
+    worker = build_worker(cfg, node)
+    node.worker = worker
+    node.call_budget = CallBudget()
+    # Same router the worker uses, so there is one place that spends and
+    # one budget that counts — whether the call comes from the API, the
+    # worker loop, or a one-shot cycle run.
+    node.router = worker._router
+    node.advisor = Advisor()
+    if run_worker_loop:
+        threading.Thread(target=worker_loop, args=(worker, _stop),
+                         daemon=True).start()
+        return worker
+    return None
+
+
 def main() -> int:
     cfg = config.load()
     if not cfg.session_secret:
@@ -269,22 +297,13 @@ def main() -> int:
                  else "EMPTY — nobody can enter this shell (set "
                       f"OFN_PARTNER_USER_IDS_{leg.upper()})"))
 
-    worker = build_worker(cfg, node)
+    worker = arm_node_brain(cfg, node, run_worker_loop=True)
     # Phase A: the owner's panel can now reach the brain. The partner
     # surfaces cannot, and will not until the extraction layer exists.
     # Attached after `build_api`, and that is safe rather than lucky: the
     # API holds `node.brain_status` as a bound method, which reads
     # `self.worker` when it is called. Passing `node.worker` directly would
     # capture the None and look identical until the first request.
-    node.worker = worker
-    node.call_budget = CallBudget()
-    # Phase C: the studio surface may ask now, because the
-    # extraction layer exists. Same router the worker uses, so
-    # there is one place that spends and one budget that counts.
-    node.router = worker._router
-    node.advisor = Advisor()
-    threading.Thread(target=worker_loop, args=(worker, _stop),
-                     daemon=True).start()
     print(f"worker running — {worker.status()}")
 
     signal.signal(signal.SIGTERM, _shutdown)
