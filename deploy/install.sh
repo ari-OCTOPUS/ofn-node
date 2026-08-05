@@ -81,6 +81,11 @@ install -m 0644 systemd/ofn-backup.timer   /etc/systemd/system/
 # Named by ofn-backup.service's OnFailure=. Installing the two separately is
 # how the alert went missing in the first place.
 install -m 0644 systemd/ofn-backup-alert.service /etc/systemd/system/
+# Weekly marketing cycle. Installed but NOT enabled — the owner enables it
+# once the brain key is filled in. The service is here so that day is a
+# single `systemctl enable --now ofn-marketing.timer`, not a deploy step.
+install -m 0644 systemd/ofn-marketing.service /etc/systemd/system/
+install -m 0644 systemd/ofn-marketing.timer   /etc/systemd/system/
 
 if [[ -e /dev/watchdog ]]; then
   install -d -m 0755 /etc/systemd/system.conf.d

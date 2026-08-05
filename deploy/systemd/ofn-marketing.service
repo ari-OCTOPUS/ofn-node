@@ -1,0 +1,28 @@
+# /etc/systemd/system/ofn-marketing.service
+# The weekly marketing cycle for the studio leg. Runs the cycle once per
+# invocation; the timer below decides when. Owner-equivalent: it builds the
+# same node the running service builds, with the same secrets, and calls the
+# same method the owner endpoint does.
+#
+# Deliberately NOT wired to spend money yet: with no brain key, the cycle is
+# a no-op that opens the week with the focus derived from gaps. The service
+# is here so the day the key is filled in, the schedule is already running.
+[Unit]
+Description=OFN weekly marketing cycle (studio)
+Documentation=file:///home/ari/ofn/README.md
+Wants=network-online.target
+After=network-online.target ofn-backup.service
+
+[Service]
+Type=oneshot
+User=ari
+Group=ari
+WorkingDirectory=/home/ari/ofn
+EnvironmentFile=-/home/ari/.config/ofn/node.env
+EnvironmentFile=-/home/ari/.config/ofn/secrets.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 -m ofn.marketing_run
+TimeoutStartSec=300s
+
+# A cycle that hangs should not wedge the timer's next run.
+# No restart: a missed week is a missed week, not a crash loop.

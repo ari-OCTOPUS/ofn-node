@@ -151,6 +151,9 @@ class ApiApp:
         attach_photo: Callable[[TenantScope, str, str, dict], dict] | None = None,
         studio_board: Callable[[TenantScope], dict] | None = None,
         studio_marketing: Callable[[TenantScope], dict] | None = None,
+        run_marketing_cycle: Callable | None = None,
+        route_preview: Callable | None = None,
+        send_to_outbox: Callable | None = None,
         studio_reading: Callable[[TenantScope], dict] | None = None,
         studio_media: Callable | None = None,
         export_album: Callable | None = None,
@@ -185,6 +188,9 @@ class ApiApp:
         self._owner_ask = owner_ask
         self._studio_board = studio_board
         self._studio_marketing = studio_marketing
+        self._run_marketing_cycle = run_marketing_cycle
+        self._route_preview = route_preview
+        self._send_to_outbox = send_to_outbox
         self._studio_reading = studio_reading
         self._studio_media = studio_media
         self._export_album = export_album
@@ -542,6 +548,30 @@ class ApiApp:
             if self._studio_marketing is None:
                 return Response(404, {"error": "not found"})
             return Response(200, self._studio_marketing(scope))
+        if method == "POST" and path.startswith("/api/v1/studio/drafts/") \
+                and path.endswith("/route-preview"):
+            if self._route_preview is None:
+                return Response(404, {"error": "not found"})
+            did = path[len("/api/v1/studio/drafts/"):-len("/route-preview")]
+            data = _json_object(body) or {}
+            platforms = tuple(str(x) for x in (data.get("platforms") or ()))
+            out = self._route_preview(
+                scope, did, platforms,
+                framing=str(data.get("framing", "beauty")),
+                adult_label=bool(data.get("adult_label", False)))
+            return Response(200, out)
+        if method == "POST" and path.startswith("/api/v1/studio/drafts/") \
+                and path.endswith("/send-to-outbox"):
+            if self._send_to_outbox is None:
+                return Response(404, {"error": "not found"})
+            did = path[len("/api/v1/studio/drafts/"):-len("/send-to-outbox")]
+            data = _json_object(body) or {}
+            platforms = tuple(str(x) for x in (data.get("platforms") or ()))
+            out = self._send_to_outbox(
+                scope, p.user_id, did, platforms,
+                framing=str(data.get("framing", "beauty")),
+                adult_label=bool(data.get("adult_label", False)))
+            return Response(200 if out.get("ok") else 400, out)
         if method == "POST" and path == "/api/v1/studio/drafts":
             data = _json_object(body)
             if data is None or self._create_draft is None:
@@ -598,6 +628,24 @@ class ApiApp:
                 return Response(400, {"error": "bad request"})
             scope = self._registry.scope(_first_tenant(self._registry))
             out = self._owner_ask(scope, str(data.get("prompt", "")))
+            return Response(200 if out.get("ok") else 400, out)
+        # ── weekly marketing cycle, owner-only ─────────────────────────
+        # Owner-only because it spends brain budget. The partner sees the
+        # result via the read-only /api/v1/studio/marketing snapshot; she
+        # does not trigger a run. The cron/timer also calls this path.
+        if method == "POST" and path == "/api/v1/owner/marketing/run":
+            if self._run_marketing_cycle is None:
+                return Response(404, {"error": "not found"})
+            data = _json_object(body) or {}
+            scope = self._registry.scope(_first_tenant(self._registry))
+            now = self._now()
+            out = self._run_marketing_cycle(
+                scope,
+                week_id=str(data.get("week_id", "")),
+                starts_at=int(data.get("starts_at", now) or now),
+                style_id=str(data.get("style_id", "educational")),
+                terms=tuple(data.get("terms", ()) or ()),
+                now_epoch_s=now)
             return Response(200 if out.get("ok") else 400, out)
 
         if method == "POST" and path == "/api/v1/decide":

@@ -25,6 +25,7 @@ from .adapters.outbox import Outbox
 from .adapters.products import (ProductError, ProductStore, money_view,
                                 net_margin_aud, piece_slug, verdicts)
 from .adapters.studio_store import EARLIEST_PLAUSIBLE_EPOCH_S, StudioError
+from .adapters.cycle_parsing import json_dumps_safe, parse_candidates
 from .kernel.audience import ownership_ratio, revenue_mix
 from .kernel.consent import may_publish, subjects_needing_attention
 from .kernel.outreach import drafts_for as outreach_drafts
@@ -824,6 +825,260 @@ class Node:
             "brain_modules": brain,
             "marketing": marketing,
         }
+
+    def run_marketing_cycle(self, scope: TenantScope, *,
+                            week_id: str, starts_at: int, style_id: str,
+                            terms: tuple[str, ...] = (),
+                            now_epoch_s: int) -> dict:
+        """Run one weekly marketing cycle, wired to the hosted brain.
+
+        This is the entry point the weekly timer calls. It does three things:
+
+          1. Gathers observations from the configured trend sources (none
+             wired yet → empty harvest, which is an honest quiet week, not
+             an error).
+          2. Asks the model for candidate ideas, giving it the scout's brief
+             (the focus question + the rejection list). The brief carries
+             *no* Saba data — only keys and counts — so zero-class research
+             holds even with the model in the loop.
+          3. Runs the cycle: triage against persisted memory, persist fresh
+             as PROPOSED, open the week with the focus.
+
+        What it does NOT do, on purpose: it does not publish, route to
+        platforms, or touch the outbox. Surviving triage makes an idea a
+        proposal for the partner, not a post.
+
+        Fail-closed throughout: if the brain is absent (no API key), the
+        cycle records its observations and opens the week with the focus
+        derived from gaps, and notes that no candidates were produced. A
+        week without the model is a quiet week, not a dead node.
+        """
+        if self.marketing is None:
+            return {"ok": False, "error": "بازاریابی وصل نیست"}
+        tenant = scope.tenant.value
+
+        # Load the persisted memory to derive the research focus — *before*
+        # spending a token, so the question we ask the model comes from
+        # measured gaps rather than novelty.
+        memory = self.marketing.load_memory(tenant)
+
+        # The cycle object. Sources are wired later; today it is empty,
+        # which the cycle handles (a quiet harvest).
+        from .adapters.trend_sources import TrendAggregator, TrendQuery
+        from .adapters.weekly_cycle import WeeklyCycle
+        cycle = WeeklyCycle(self.marketing,
+                            getattr(self, "_marketing_sources", None)
+                            or TrendAggregator(()))
+
+        # Ask the model for candidate ideas. The brief is the only thing
+        # that goes out, and it carries keys and counts, never images or
+        # names. If the router or the key is absent, we get no candidates
+        # and the cycle still runs (focus derived, week opened).
+        candidates = ()
+        brain_note = ""
+        if self.router is not None:
+            from .kernel.marketing_scout import brief as scout_brief
+            focus_qs = []  # derived inside the cycle; here we hand the model
+            # the rejection list and the rule, which is what stops loops.
+            brief_text = json_dumps_safe(scout_brief(memory))
+            prompt = (
+                "You are researching observed beauty/foot-care trends for a "
+                "faceless content account. Return up to 3 candidate ideas as "
+                "a JSON array. Each candidate: "
+                '{"key","title","style_id","framing","observations":[...],'
+                '"confidence"}. Each observation MUST have observed_at and '
+                "either count_value or rank_value. No predictions. "
+                "Already-rejected ideas (do not re-propose): "
+                f"{brief_text}"
+            )
+            try:
+                result = self.router.ask(
+                    scope.tenant,
+                    RouteRequest(task="studio:marketing-research",
+                                 max_rung=Rung.REMOTE, estimated_tokens=600),
+                    prompt, now_epoch_s=now_epoch_s)
+                if not getattr(result, "refused", False):
+                    candidates = parse_candidates(
+                        getattr(result, "text", ""))
+                    brain_note = (f"مدل {len(candidates)} ایده پیشنهاد داد"
+                                  if candidates
+                                  else "مدل ایده‌ای نداد")
+                else:
+                    brain_note = "مغز جواب نداد (کلید غایب یا سهمیه پر)"
+            except Exception as exc:  # network, parse, anything
+                brain_note = f"مغز در دسترس نبود: {type(exc).__name__}"
+        else:
+            brain_note = "مغز وصل نیست"
+
+        # Run the cycle with whatever candidates we have (possibly none).
+        result = cycle.run(
+            tenant=tenant, week_id=week_id, starts_at=starts_at,
+            style_id=style_id,
+            query=TrendQuery(terms=terms),
+            candidates=candidates,
+            tried_styles=getattr(scope, "tried_styles", None) or {},
+            now_epoch_s=now_epoch_s,
+        )
+
+        return {
+            "ok": True,
+            "week_id": result.week_id,
+            "style_id": result.style_id,
+            "focus_text": result.focus_text,
+            "observations_kept": result.observations_kept,
+            "fresh_candidates": len(result.fresh_candidates),
+            "refused_count": result.refused_count,
+            "brain": brain_note,
+        }
+
+    def send_to_outbox(self, scope: TenantScope, user_id: str,
+                       draft_id: str, platforms: tuple[str, ...], *,
+                       framing: str = "beauty",
+                       adult_label: bool = False) -> dict:
+        """Route a draft into the outbox as one variant per platform.
+
+        This is the partner's "send" action — but it sends to the outbox,
+        never to a platform. Every variant is screened first; only the ones
+        that pass become outbox items, each as RED (publishing is always
+        irreversible, third-party, and out of the machine). The release
+        switch — not this method — decides whether anything ever leaves the
+        outbox, and it is off by default.
+
+        Idempotency: the outbox key is the content router's idempotency key,
+        so a double-send of the same draft to the same platform is a no-op
+        (returns False for that platform), not a double post.
+        """
+        from .adapters.platform_matrix_loader import (
+            default_matrix_path, load_matrix)
+        from .adapters.content_router import ContentRouter, DraftForRouting
+        from .kernel.domain import RiskTier
+        tenant = scope.tenant.value
+        store = self._studio()
+        try:
+            draft = store.draft(draft_id)
+        except Exception:
+            return {"ok": False, "error": "پیش‌نویس پیدا نشد"}
+        # Sensitivity from the collection, fail-closed to restricted.
+        sensitivity = "restricted"
+        if draft.collection_id and hasattr(store, "collection"):
+            coll = store.collection(draft.collection_id)
+            if coll is not None:
+                sensitivity = coll.sensitivity.value
+        if sensitivity == "restricted":
+            return {"ok": False,
+                    "error": "محتوای محدود هرگز از دستگاه خارج نمی‌شود"}
+        caption = (draft.caption or "").strip()
+        if not caption:
+            return {"ok": False, "error": "کپشن خالی است"}
+
+        matrix = load_matrix(default_matrix_path())
+        router = ContentRouter(matrix)
+        variants = router.route(
+            DraftForRouting(draft_id=draft_id, caption_seed=caption,
+                            sensitivity=sensitivity, style_id="publish",
+                            media_refs=()),
+            platforms, framing=framing, adult_label=adult_label)
+
+        sent: list[dict] = []
+        for v in variants:
+            if not v.screen.ok:
+                sent.append({"platform": v.platform, "queued": False,
+                             "rule": v.screen.rule})
+                continue
+            # The outbox payload carries everything a future publisher needs,
+            # and nothing it does not: no secrets, no other tenants.
+            payload = {"draft_id": draft_id, "platform": v.platform,
+                       "caption": v.caption,
+                       "hashtags": list(v.hashtags),
+                       "framing": v.framing,
+                       "adult_label": v.adult_label,
+                       "idempotency_key": v.idempotency_key,
+                       "requested_by": user_id}
+            queued = self.outbox.enqueue(
+                scope, v.idempotency_key, "studio:publish", payload,
+                RiskTier.RED, self.now_iso())
+            # Record the variant in the marketing store for the audit trail.
+            if self.marketing is not None:
+                import time as _t
+                self.marketing.record_variant(
+                    tenant, draft_id=draft_id, platform=v.platform,
+                    caption=v.caption, hashtags=v.hashtags,
+                    framing=v.framing, adult_label=v.adult_label,
+                    screen_ok=True, screen_rule=v.screen.rule,
+                    screen_reasons=v.screen.reasons, risk_color=v.screen.risk,
+                    idempotency_key=v.idempotency_key,
+                    variant_id=f"{tenant}:{v.idempotency_key[:16]}",
+                    now_epoch_s=self.now_epoch_s())
+            sent.append({"platform": v.platform, "queued": queued,
+                         "rule": v.screen.rule,
+                         "idempotency_key": v.idempotency_key[:12] + "…"})
+
+        queued_count = sum(1 for s in sent if s["queued"])
+        return {"ok": True, "draft_id": draft_id,
+                "queued": queued_count, "results": sent}
+
+    def route_preview(self, scope: TenantScope, draft_id: str,
+                      platforms: tuple[str, ...], *,
+                      framing: str = "beauty",
+                      adult_label: bool = False) -> dict:
+        """Show, for one draft, which platforms would accept or refuse it.
+
+        Read-only: nothing is written, nothing is queued. This is the
+        partner's preview before she decides — "if I send this, where does
+        it land and where does it get refused, and why?". The 'why' is the
+        point: a screen that said only 'blocked' would leave her guessing
+        whether to rewrite the caption, change the framing, or give up on
+        that platform for this content.
+
+        The variants are produced by the content router against the loaded
+        platform matrix, so the verdicts here are exactly the verdicts a
+        send-to-outbox would get — no separate 'would it really' path.
+        """
+        from .adapters.platform_matrix_loader import (
+            default_matrix_path, load_matrix)
+        from .adapters.content_router import ContentRouter, DraftForRouting
+        tenant = scope.tenant.value
+        store = self._studio()
+        # `draft(draft_id)` is keyed by id alone (tenant is implicit in the
+        # id space); it raises StudioError if missing, which we treat as
+        # "no draft yet" so the preview still works on an unsaved caption.
+        try:
+            draft = store.draft(draft_id) if hasattr(store, "draft") \
+                else None
+        except Exception:
+            draft = None
+        # Sensitivity lives on the draft's collection, not the draft itself.
+        # A draft with no collection, or a missing draft, is restricted by
+        # default — fail-closed is the whole point of sensitivity.
+        sensitivity = "restricted"
+        if draft is not None and draft.collection_id and \
+                hasattr(store, "collection"):
+            coll = store.collection(draft.collection_id)
+            if coll is not None:
+                sensitivity = coll.sensitivity.value
+        if sensitivity == "restricted":
+            # Restricted content can never leave; the preview says so for
+            # every platform rather than pretending each refused it for a
+            # different reason.
+            return {"platforms": {
+                p: {"ok": False,
+                    "rule": "advisor:restricted-never-leaves",
+                    "reasons": [], "risk": "RED"}
+                for p in platforms}}
+        caption = (draft.caption if draft is not None else None) or ""
+        caption = caption.strip() or "preview"
+        matrix = load_matrix(default_matrix_path())
+        router = ContentRouter(matrix)
+        variants = router.route(
+            DraftForRouting(draft_id=draft_id, caption_seed=caption,
+                            sensitivity=sensitivity, style_id="preview",
+                            media_refs=()),
+            platforms, framing=framing, adult_label=adult_label)
+        return {"platforms": {
+            v.platform: {"ok": v.screen.ok, "rule": v.screen.rule,
+                         "reasons": list(v.screen.reasons),
+                         "risk": v.screen.risk}
+            for v in variants}}
 
     def studio_gallery(self, scope: TenantScope) -> dict:
         """Her library: albums, and what is in them.
