@@ -1436,10 +1436,6 @@ function show(which) {
   if (which === 'view-marketing') guard(loadMarketing(), 'بازاریابی باز نشد.');
 }
 
-//_fa-digit helper — turn latin digits into Persian for display only.
-const FA = '۰۱۲۳۴۵۶۷۸۹';
-const fa = n => String(n).replace(/\d/g, d => FA[+d]);
-
 /* The marketing tab is the partner's steering wheel for one decision:
    which of her drafts goes where. It shows the weekly cycle's state
    (read-only) and lets her preview a draft against every platform, then
