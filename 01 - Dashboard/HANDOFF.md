@@ -36,6 +36,18 @@ updated: 2026-08-05
 
 ## وضعِ لحظه‌ای
 
+- 🧭 **2026-08-05 (شبِ دیرتر — «چرا بی‌مصرفه؟»: ممیزیِ کاربردی + شش فلگ مسلح + حافظه سطح گرفت).** کامیت `18e4811` + `OCTOPUS-flags.cmd` (untracked). پاسخ به سؤالِ مستقیمِ مالک، با workflow ِ ۷ایجنته.
+
+  **نتیجه:** مرده نیست، «تنگاتنگ و نامرئی» — دقیقاً حرفِ مالک. زنده: `cockpit_brain` (هر ۵د)، `self_patch` (باگِ واقعیِ آماده از ۱ اوت)، `doctor`، `memory.db` (۲۸ ردیف)، `ask_brain`/`mirror_room` (چتِ واقعیِ Fugu، ۴-۹ روز بی‌استفاده چون کسی تست نکرده).
+
+  **شش فلگِ بی‌خطر مسلح شد** (propose-only/annotation-only): `OCTOPUS_WIRE_ORGAN_DOCTOR`، `OCTOPUS_WIRE_CHORD_SHADOW`، `OCTOPUS_WIRE_DEBATE_VERDICT`، `OCTOPUS_WIRE_IMPROVE_LEARN`، `OCTOPUS_WIRE_MISSION_CARD`، `OCTOPUS_WIRE_MEMORY_READ`. ۱۶ فلگِ `PAPER_FULL_FLAGS` که بی‌صدا روشن بودند حالا صریح نوشته شدند — شفافیت، صفر تغییرِ رفتار. هر پنج پروسه ری‌استارت شد (`RESTART-ALL.ps1`، ۱۶۸→۱۸۸ فلگ). اثرِ حافظه زنده اثبات شد: `_recall_for_goal` دیگر stub نمی‌دهد.
+
+  **حافظهٔ بلندمدت بالأخره سطح گرفت:** `MemoryStore.metrics()` از قبل ساخته/تست‌شده بود، صفر صداکننده — وصل شد به `/api/selfmap`. سنجیده روی زنده: ۲۸ رکورد.
+
+  ⚠️ **دو تصمیمِ واقعیِ مالک عمداً دست‌نخورده ماند:** arm-token برای `code_autonomy` و `self_improve_auto` — `state/arm/` اصلاً وجود ندارد، هیچ ابزارِ تولیدی برای مینت‌کردنِ توکن نیست. این تنها مسیرِ واقعیِ «خودترمیمی»/«خودبهبودیِ خودکار» است. جزئیات: `project_octopus-usability-audit-2026-08-05` (حافظهٔ ایجنت).
+
+  چیزی که واقعاً وجود ندارد: `replicate` (قفل بی‌تابعِ spawn)، مصرف‌کنندهٔ عددهای خودآگاهی→تصمیم، چتِ درونِ مینی‌اپ، نوشتنِ دانش در vault.
+
 - 🐛 **2026-08-05 (شب — پنج باگِ زیرساختی رفع، یکی رد شد، ری‌استارتِ organism).** کامیت‌های `751a833`/`3693baf`/`ea359d0`. ادامهٔ «بیشتر فیکس کن بعد ریستارت» روی ۸ قرمزِ مانده از دیشب.
 
   **پنج رفع، هر کدام با ممیزیِ adversarial ِ مستقل** (نه فقط گزارشِ ایجنتِ رفع‌کننده): `test_hebbian_decay` (تستِ خودش `PF_BRAIN_DIR` به‌جای `OPS_DIR` می‌خواند و به فایلِ زندهٔ hebbian می‌نوشت) · `test_memory_read_seam` + `test_mission_card_seam` (دو seam در کامیتِ `830e38c` ساخته و در مرجِ `870a814` **تصادفاً** از `goal_action_bridge.py` گم شدند — تستِ فایل زنده ماند، کدش نه؛ بازیابی شد، هر دو فلگِ `OCTOPUS_WIRE_MISSION_CARD`/`OCTOPUS_WIRE_MEMORY_READ` هم اعلام هم پیش‌فرض خاموش) · `test_run_all_scoring` (دو فرضِ تست از run_all ِ واقعی جا مانده بود) · `test_truth_by_cycle` (لنگرِ `before<=12` روی دفترِ درحالِ‌رشد، به `<=300` باز شد).
