@@ -159,6 +159,52 @@ class TestWeeklyCycle(unittest.TestCase):
         # 'teaser' is untried → it becomes a research question.
         self.assertIn("teaser", result.focus_text.lower())
 
+    def test_focus_text_never_leaks_raw_english_prompt(self):
+        # The raw research_focus() strings are instructions to the hosted
+        # model ("require observed_at", "do not predict", "we have evaluated
+        # N candidates so far"). They must never reach a partner's screen via
+        # focus_text. A touch test caught exactly this leak.
+        c = self._cycle()
+        result = c.run(
+            tenant="studio", week_id="W1", starts_at=self.now,
+            style_id="educational", query=TrendQuery(terms=()),
+            candidates=(_cand("a"),), now_epoch_s=self.now,
+            tried_styles={"teaser": 0},
+        )
+        forbidden = (
+            "require observed_at",
+            "do not predict",
+            "we have evaluated",
+            "candidates so far",
+        )
+        for frag in forbidden:
+            self.assertNotIn(
+                frag, result.focus_text,
+                f"raw prompt fragment {frag!r} leaked into focus_text")
+
+    def test_focus_text_honest_when_nothing_real(self):
+        # No observations, no candidates seen, no untried styles: the partner
+        # gets an honest empty state, never a fabricated headline.
+        from ofn.adapters.weekly_cycle import partner_focus_summary_fa
+        msg = partner_focus_summary_fa(
+            tried_styles={"educational": 3}, seen_candidates=0,
+            observations_kept=0)
+        self.assertIn("دنیا", msg)  # the honest "nothing yet" sentence
+
+    def test_persisted_focus_text_is_persian_summary(self):
+        # What gets stored and shown is the Persian summary, so the store and
+        # the CycleResult agree and neither holds the English questions.
+        src = ManualTrendSource((_obs(),))
+        c = self._cycle((src,))
+        result = c.run(
+            tenant="studio", week_id="W1", starts_at=self.now,
+            style_id="educational", query=TrendQuery(terms=()),
+            candidates=(_cand("a"),), now_epoch_s=self.now)
+        week = self.store.current_week("studio")
+        self.assertEqual(week["focus_text"], result.focus_text)
+        self.assertNotIn("require observed_at", week["focus_text"])
+
+
 
 if __name__ == "__main__":
     unittest.main()

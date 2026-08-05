@@ -132,6 +132,54 @@ class TestShellsDoNotLie(unittest.TestCase):
                         f"fixed local string: {raw.strip()}")
 
 
+class TestNoFakeButtonsInStudio(unittest.TestCase):
+    """A real phone touch test surfaced three "buttons that do nothing":
+
+      1. the front sheet had `:active` press feedback but no click handler, so
+         a thumb pressing empty space saw it depress and release to nothing;
+      2. the marketing draft selector changed its value with no feedback, so
+         old platform-preview cards lingered and read as the new draft's verdict;
+      3. the archive start button could be tapped with an empty backlog and
+         did nothing silently.
+
+    None of these is executable here (no JS engine), but each leaves a mark in
+    the source, so these tests pin the fixes against regression.
+    """
+
+    def test_front_sheet_has_no_press_animation_without_a_handler(self):
+        src = read("studio.html")
+        # The `.sheet.front:active` rule was the press feedback on a container
+        # that has no click handler. Its absence is the contract: a tap on the
+        # sheet's empty space must not pretend to register.
+        self.assertNotRegex(
+            src, r"\.sheet\.front:active",
+            "studio.html: the front sheet has a press animation but no click "
+            "handler — a phone user tapping empty space sees it depress and "
+            "release to nothing")
+
+    def test_draft_selector_clears_stale_preview_on_change(self):
+        src = read("studio.html")
+        # Choosing a different draft must invalidate the preview on screen.
+        # The change handler is the honest response; its absence lets stale
+        # platform cards read as the new draft's verdict.
+        self.assertIn("sel.onchange", src,
+                      "studio.html: draft selector has no change handler, so a "
+                      "stale preview lingers under a newly-picked draft")
+
+    def test_archive_start_gives_feedback_when_backlog_is_empty(self):
+        src = read("studio.html")
+        # The button is hidden when the backlog is empty, but a race (a sync
+        # landing, another archive finishing) can empty it between the check
+        # and the tap. Returning silently there read as "the gold button does
+        # nothing", so the empty path must surface a visible note.
+        self.assertRegex(
+            src, r"if\s*\(\s*!\s*arc\.list\.length\s*\)",
+            "studio.html: startArchive must handle the empty-backlog race")
+        # The honest sentence for that race — if it disappears, the empty path
+        # may have gone silent again.
+        self.assertIn("عکس آرشیو‌نشده‌ای نمانده", src)
+
+
 class TestShellsSurviveABadNetwork(unittest.TestCase):
     def test_font_is_not_render_blocking(self):
         """A blocking font request on a slow or filtered network is a white

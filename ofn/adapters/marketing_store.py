@@ -389,4 +389,62 @@ class MarketingStore:
             "trend_observations": obs_count,
             "rejected_ideas_in_memory": rejected,
             "routed_variants": variants,
+            "inspiration_cards": self.inspiration_cards(tenant),
         }
+
+    def inspiration_cards(self, tenant: str, limit: int = 5) -> list[dict]:
+        """Real trend observations shaped as inspiration cards — or nothing.
+
+        This is the source the "الهام امروز" card reads. The hard rule: zero
+        observations means zero cards, never a fabricated one. A fake trend
+        on Saba's screen is worse than an honest empty state, because it
+        teaches her to trust invented evidence.
+
+        Each card is built from a real observation row: the term, the source,
+        when it was seen, the count or rank it carried. No model output, no
+        invented `why_now` — those are proposals a later step derives; the
+        card here is only the evidence, which is the only thing the store
+        actually has. Rejection status comes from joining against the
+        rejection memory so an idea already refused is shown as refused, not
+        re-surfaced as fresh.
+        """
+        rows = self._conn.execute(
+            "SELECT source_id, term, observed_at, region, count_value, "
+            "rank_value, source_url FROM trend_observations "
+            "WHERE tenant_id = ? ORDER BY observed_at DESC LIMIT ?",
+            (tenant, limit),
+        ).fetchall()
+        cards: list[dict] = []
+        for r in rows:
+            # Each observation is honest evidence; shape it without inventing.
+            # Persian digits, because a Latin number on a partner's screen is
+            # the same kind of defect the rest of the shell guards against.
+            if r["count_value"] is not None:
+                count_or_rank = f"شمار: {_fa_num(r['count_value'])}"
+            elif r["rank_value"] is not None:
+                count_or_rank = f"رتبه: {_fa_num(r['rank_value'])}"
+            else:
+                count_or_rank = None
+            cards.append({
+                "title_fa": r["term"],
+                "source_id": r["source_id"],
+                "observed_at": r["observed_at"],
+                "source_url": r["source_url"],
+                "count_or_rank_fa": count_or_rank,
+                "region": r["region"],
+                # Honest about what we don't yet derive: these are filled by
+                # a later proposal step, not invented here. None, not a guess.
+                "why_now_fa": None,
+                "why_saba_fa": None,
+                "rejection_status": "unknown",
+            })
+        return cards
+
+
+_FA_DIGITS = "۰۱۲۳۴۵۶۷۸۹"
+
+
+def _fa_num(value) -> str:
+    """Persian digits for a count/rank, so a partner never sees Latin numerals."""
+    return "".join(
+        _FA_DIGITS[int(d)] if d.isdigit() else d for d in str(value))

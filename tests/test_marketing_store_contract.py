@@ -121,5 +121,69 @@ class TestWeeklyCycle(unittest.TestCase):
         s.close()
 
 
+class TestInspirationCardsNeverFake(unittest.TestCase):
+    """الهام امروز: the hard rule is zero observations means zero cards.
+
+    A fabricated trend on a partner's screen is worse than an honest empty
+    state, because it teaches her to trust invented evidence. So the store
+    builds cards only from real observation rows, and an empty store yields
+    an empty list — which the UI renders as the candid "nothing yet" line.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.mktemp(suffix=".sqlite")
+        self.now = int(time.time())
+        self.store = MarketingStore(self.tmp)
+
+    def tearDown(self):
+        self.store.close()
+        if os.path.exists(self.tmp):
+            os.unlink(self.tmp)
+
+    def test_empty_store_yields_no_cards(self):
+        self.assertEqual(self.store.inspiration_cards("studio"), [])
+
+    def test_summary_includes_empty_inspiration_when_no_observations(self):
+        summ = self.store.summary("studio")
+        self.assertEqual(summ["inspiration_cards"], [])
+
+    def test_real_observation_becomes_a_card_with_real_fields(self):
+        self.store.open_week("studio", "W1", starts_at=self.now,
+                             style_id="educational", focus_text=None,
+                             now_epoch_s=self.now)
+        self.store.record_observations(
+            "studio", "W1",
+            [_obs("foot-care", source_id="manual", count_value=12.0,
+                  source_url="https://trends.example/x")],
+            now_epoch_s=self.now)
+        cards = self.store.inspiration_cards("studio")
+        self.assertEqual(len(cards), 1)
+        c = cards[0]
+        # Every field is real evidence, nothing invented.
+        self.assertEqual(c["title_fa"], "foot-care")
+        self.assertEqual(c["source_id"], "manual")
+        self.assertEqual(c["observed_at"], 1_000_000)
+        self.assertEqual(c["source_url"], "https://trends.example/x")
+        self.assertIn("۱۲", c["count_or_rank_fa"])  # persian digits, real count
+        # why_now/why_saba are NOT invented here — a later proposal step fills
+        # them. Honest None, never a fabricated sentence.
+        self.assertIsNone(c["why_now_fa"])
+        self.assertIsNone(c["why_saba_fa"])
+
+    def test_no_fabricated_idea_keys_or_invented_terms(self):
+        # A card must never carry a term that wasn't an observation row.
+        self.store.open_week("studio", "W1", starts_at=self.now,
+                             style_id="educational", focus_text=None,
+                             now_epoch_s=self.now)
+        self.store.record_observations(
+            "studio", "W1", [_obs("only-real")], now_epoch_s=self.now)
+        cards = self.store.inspiration_cards("studio")
+        titles = {c["title_fa"] for c in cards}
+        self.assertEqual(titles, {"only-real"})
+        # No sample/demo/placeholder terms smuggled in.
+        self.assertNotIn("نمونه", titles)
+        self.assertNotIn("sample", titles)
+
+
 if __name__ == "__main__":
     unittest.main()

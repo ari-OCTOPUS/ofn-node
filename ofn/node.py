@@ -824,9 +824,27 @@ class Node:
         try:
             from .adapters.platform_matrix_loader import (
                 default_matrix_path, load_matrix)
+            from .adapters.platforms import available_platforms
             m = load_matrix(default_matrix_path())
-            brain["platform_matrix"] = {"loaded": True,
-                                        "platform_count": len(m.rules)}
+            available = available_platforms()
+            # Three counts, because three different things are true at once:
+            #   policy_known  — how many platforms the policy matrix names.
+            #                   Eleven does not mean eleven live outputs; it
+            #                   means "we have a rule for each of these".
+            #   available     — how many have adapter *code* on this node.
+            #                   Code exists, could be armed, but isn't yet.
+            #   armed         — how many the node actually built and holds.
+            #                   Today this is zero: no adapter is instantiated
+            #                   until OwnerRelease is wired (M5). A partner
+            #                   reading "armed: 0" learns nothing leaves yet,
+            #                   which is the fact that matters.
+            brain["platform_matrix"] = {
+                "loaded": True,
+                "platform_count": len(m.rules),
+                "platform_policy_known_count": len(m.rules),
+                "platform_adapter_available_count": len(available),
+                "platform_adapter_armed_count": 0,
+            }
         except Exception:
             brain["platform_matrix"] = {"loaded": False}
         # Trend sources: none wired today, but the shape is honest about it.

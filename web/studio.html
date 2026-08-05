@@ -163,7 +163,13 @@ h1{font-size:22px;font-weight:600;text-wrap:balance;margin-top:1px}
              0 4px 12px rgb(0 0 0/.35),
              inset 0 1px 0 rgb(255 255 255/.6);
   transform:translateZ(24px)}
-.sheet.front:active{transform:translateZ(24px) scale(.988)}
+/* No `:active` press feedback here on purpose. The sheet holds the draft
+   card and the kernel-question card, both of which have their own real
+   buttons inside; tapping empty space on the sheet itself does nothing, and
+   a press animation on a non-target teaches the partner that taps sometimes
+   register and do nothing — exactly the "I tapped and it didn't work" report
+   from a real phone. If a press effect is wanted, it belongs on the actual
+   interactive controls, not their container. */
 
 /* نوار وضعیت = لبهٔ رنگی. یک رنگ به‌جای یک قرص با متن. */
 .spine{position:absolute;inset-block:22px;inset-inline-start:0;width:4px;
@@ -601,6 +607,12 @@ nav svg{width:21px;height:21px}
   </div>
 
   <div id="view-marketing" hidden>
+    <div class="rows" id="mkt-inspiration">
+      <div class="card">
+        <div class="h">الهام امروز</div>
+        <div id="mkt-insp-cards"></div>
+      </div>
+    </div>
     <div class="rows" id="mkt-week">
       <div class="card">
         <div class="h">هفتهٔ بازاریابی</div>
@@ -1111,6 +1123,12 @@ function showState(kind, detail) {
   document.querySelectorAll('.cta').forEach(b => {
     b.disabled = true; b.style.opacity = '.45'; b.style.pointerEvents = 'none';
   });
+  /* The state box lives in the today view. If the partner is on the gallery
+     or marketing tab when something breaks, the buttons silently die while
+     the explanation sits on a view she cannot see — which reads as "every
+     button is broken for no reason". Bring her to the only view that holds
+     the explanation before disabling the rest. */
+  if (typeof show === 'function') show('view-today');
 }
 
 /* The header ships with no name in it. This is the only thing that ever puts
@@ -1465,6 +1483,10 @@ async function loadMarketing() {
   $('mkt-obs').textContent = fa(m.trend_observations || 0);
   $('mkt-rej').textContent = fa(m.rejected_ideas_in_memory || 0);
   $('mkt-var').textContent = fa(m.routed_variants || 0);
+  // الهام امروز — only real observations, never fabricated. The hard rule:
+  // zero observations = the honest empty state, not a sample card. A fake
+  // trend on screen teaches the partner to trust invented evidence.
+  renderInspiration(m.inspiration_cards || []);
   const g = snap.gates || {};
   const lines = [
     'چرخش رازها: ' + (g.secret_rotation === 'open' ? '✅ باز' : '🔒 بسته'),
@@ -1490,8 +1512,21 @@ async function loadMarketing() {
 
 function renderBrain(brain) {
   const parts = [];
-  if (brain.platform_matrix && brain.platform_matrix.loaded)
-    parts.push('ماتریس پلتفرم: ' + brain.platform_matrix.platform_count + ' پلتفرم');
+  if (brain.platform_matrix && brain.platform_matrix.loaded) {
+    // Three counts, never one. "11 پلتفرم" alone is a false affordance — it
+    // reads as "eleven live outputs" when policy is the only thing loaded.
+    // policy = what the matrix has a rule for; available = adapter code
+    // exists; armed = actually built and able to send (today: zero).
+    const pm = brain.platform_matrix;
+    const policy = pm.platform_policy_known_count != null
+      ? pm.platform_policy_known_count : pm.platform_count;
+    const avail = pm.platform_adapter_available_count != null
+      ? pm.platform_adapter_available_count : 0;
+    const armed = pm.platform_adapter_armed_count != null
+      ? pm.platform_adapter_armed_count : 0;
+    parts.push('سیاست: ' + policy + ' پلتفرم · آداپتور موجود: '
+      + avail + ' · فعال: ' + armed);
+  }
   if (brain.marketing_cycle)
     parts.push('چرخه: ' + (brain.marketing_cycle.status === 'never_run' ? 'هنوز اجرا نشده' : brain.marketing_cycle.status));
   if (brain.hosted_brain)
@@ -1499,6 +1534,46 @@ function renderBrain(brain) {
   if (brain.trend_sources)
     parts.push('منابع ترند: ' + brain.trend_sources.enabled);
   return parts.join(' · ') || '—';
+}
+
+function renderInspiration(cards) {
+  const host = $('mkt-insp-cards');
+  host.replaceChildren();
+  // Empty observations = the honest sentence, not a fabricated sample card.
+  // The whole point of this widget is that an idea shown to Saba is real
+  // evidence, so an empty store must show itself rather than dress up.
+  if (!cards || cards.length === 0) {
+    const p = document.createElement('p');
+    p.className = 'src';
+    p.textContent = 'هنوز چیزی از دنیا نرسیده — چرخهٔ بعدی دوشنبه.';
+    host.appendChild(p);
+    return;
+  }
+  for (const c of cards) {
+    const card = document.createElement('div');
+    card.className = 'insp-card';
+    const t = document.createElement('div');
+    t.className = 'h';
+    t.textContent = c.title_fa || '—';
+    card.appendChild(t);
+    const meta = [];
+    if (c.count_or_rank_fa) meta.push(c.count_or_rank_fa);
+    if (c.source_id) meta.push('منبع: ' + c.source_id);
+    if (meta.length) {
+      const m = document.createElement('p');
+      m.className = 'src';
+      m.textContent = meta.join(' · ');
+      card.appendChild(m);
+    }
+    // Honest about what isn't derived yet: why_now/why_saba come from a
+    // later proposal step. Show them only when present, never invented.
+    if (c.why_saba_fa) {
+      const why = document.createElement('p');
+      why.textContent = c.why_saba_fa;
+      card.appendChild(why);
+    }
+    host.appendChild(card);
+  }
 }
 
 async function loadDraftSelector() {
@@ -1529,6 +1604,18 @@ async function loadDraftSelector() {
     opt.textContent = cap + ' — ' + d.status;
     sel.appendChild(opt);
   }
+  /* Choosing a different draft invalidates the preview that was on screen —
+     without this the old platform cards linger and read as the new draft's
+     verdict, which is the exact kind of stale-result bug a misread comes
+     from. The change listener is the only honest response: clear the stage
+     so the next "پیش‌نمایش مسیر" tap is unambiguously for the picked draft. */
+  sel.onchange = () => {
+    const grid = $('mkt-platforms');
+    if (grid) { grid.hidden = true; grid.replaceChildren(); }
+    const wrap = $('mkt-send-wrap'); if (wrap) wrap.hidden = true;
+    const res = $('mkt-send-result'); if (res) res.textContent = '';
+    mktLastPreview = null;
+  };
 }
 
 async function previewRoute() {
@@ -1803,7 +1890,18 @@ function arcNote(text) {
 function startArchive() {
   arc.list = unfiled();
   arc.i = 0;
-  if (!arc.list.length) return;
+  if (!arc.list.length) {
+    /* The button is hidden when the backlog is empty, but the photos it
+       counts can move between the visibility check and the tap — another
+       archive finishing, a sync landing — and then the tap finds an empty
+       list. Returning silently there read on a real phone as "the gold
+       button does nothing", so say it on the today view, where it is
+       visible, using the same note line finishArchive writes to. */
+    const note = $('addnote');
+    note.hidden = false;
+    note.textContent = 'عکس آرشیو‌نشده‌ای نمانده.';
+    return;
+  }
   show('view-archive');
   drawArc();
 }

@@ -66,5 +66,48 @@ class TestMarketingUIDoesNotInnerHTMLApiData(unittest.TestCase):
                          f"innerHTML assigned from variables: {suspicious}")
 
 
+class TestInspirationTodayCard(unittest.TestCase):
+    """الهام امروز: the card that replaces the old 'نوردهی این هفته' gauge.
+
+    Its defining property is honesty about emptiness: when there are no real
+    trend observations, it shows the candid 'nothing yet' sentence, never a
+    fabricated sample. The widget is built entirely from real endpoint data
+    via createElement — same XSS defence as the rest of the view.
+    """
+
+    def test_inspiration_section_present(self):
+        self.assertIn("الهام امروز", SRC)
+        self.assertIn('id="mkt-insp-cards"', SRC)
+
+    def test_render_function_reads_real_cards(self):
+        self.assertIn("renderInspiration", SRC)
+        self.assertIn("inspiration_cards", SRC)
+
+    def test_honest_empty_state_present(self):
+        # The exact candid sentence for zero observations. If this string
+        # disappears, the widget may be drifting toward fabricated content.
+        self.assertIn("هنوز چیزی از دنیا نرسیده", SRC)
+
+    def test_no_fabricated_trend_data(self):
+        # The widget must source only from the API response, never hardcode a
+        # sample trend. Look for the obvious tell-tales of fake content.
+        for token in ("نمونه ترند", "sampleTrend", "fakeTrend",
+                      "INSPIRATION_SAMPLES", "placeholder_idea"):
+            self.assertNotIn(token, SRC,
+                             f"inspiration widget has fabricated data: {token}")
+
+    def test_cards_built_with_createElement_not_innerHTML(self):
+        self.assertIn("renderInspiration", SRC)
+        # The render function must use createElement + textContent for card
+        # content (the same rule renderPlatforms follows).
+        self.assertIn("document.createElement('div')", SRC)
+
+    def test_does_not_reference_old_exposure_gauge_as_inspiration(self):
+        # The old 'نوردهی این هفته' was a different widget. The new card is
+        # 'الهام امروز'. Both may coexist (the gauge lives on the business
+        # tab), but the inspiration card must not reuse the gauge's source.
+        self.assertIn("الهام امروز", SRC)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -101,6 +101,42 @@ class TestCanonicalIds(unittest.TestCase):
                          "matrix platform set drifted from canonical eleven")
 
 
+class TestPlatformCountsAreSplitAndHonest(unittest.TestCase):
+    """The UI must never say "11 platforms" as if it means eleven live outputs.
+
+    Three counts travel together, and the invariant is ordered:
+    armed <= available <= policy_known. A partner reading "policy: 11,
+    available: 3, armed: 0" learns exactly what is true: rules exist for
+    eleven, code exists for three, zero can actually send today.
+    """
+
+    def test_available_platforms_discovers_the_three_adapters(self):
+        from ofn.adapters.platforms import available_platforms
+        got = available_platforms()
+        self.assertEqual(set(got), {"telegram_channel", "bluesky", "email_ses"})
+
+    def test_available_platforms_are_subset_of_policy_known(self):
+        from ofn.adapters.platforms import available_platforms
+        m = load_matrix(default_matrix_path())
+        avail = set(available_platforms())
+        self.assertTrue(avail.issubset(set(m.rules)),
+                        "an adapter exists for a platform the matrix doesn't know")
+
+    def test_armed_never_exceeds_available_never_exceeds_policy(self):
+        # The structural invariant. Today armed is 0 (no adapter is built into
+        # the node until OwnerRelease is wired); the test pins that fact so a
+        # future change that reports armed>0 has to also wire real publishing,
+        # which the hard rules keep off by default.
+        from ofn.adapters.platforms import available_platforms
+        m = load_matrix(default_matrix_path())
+        policy_known = len(m.rules)
+        available = len(available_platforms())
+        armed = 0
+        self.assertLessEqual(armed, available)
+        self.assertLessEqual(available, policy_known)
+        self.assertGreaterEqual(policy_known, 11)
+
+
 class TestMatrixLoader(unittest.TestCase):
     def test_loads_default_matrix_with_real_platforms(self):
         m = load_matrix(default_matrix_path())

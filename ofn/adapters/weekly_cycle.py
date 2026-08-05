@@ -45,6 +45,50 @@ from .marketing_store import MarketingStore
 from .trend_sources import TrendAggregator, TrendQuery
 
 
+def partner_focus_summary_fa(
+    *, tried_styles: Mapping[str, int], seen_candidates: int,
+    observations_kept: int,
+) -> str:
+    """What the partner reads in the marketing card this week, in Persian.
+
+    This is the partner-facing *summary* of the focus, never the raw English
+    research questions handed to the model. The raw questions name the model's
+    constraints ("require observed_at", "do not predict") and have no business
+    on a partner's screen. The summary says, in honest Persian, what the week
+    is looking into — and when there is nothing real to look at, it says that
+    rather than inventing a confident-sounding headline.
+
+    Kept deterministic and fact-derived: same inputs, same sentence, so a
+    re-run of a week does not churn the partner's view.
+    """
+    untried = sorted(s for s in tried_styles if tried_styles[s] == 0)
+    if observations_kept == 0 and seen_candidates == 0 and not untried:
+        return (
+            "هنوز چیزی از دنیا نرسیده — چرخهٔ بعدی دوشنبه.")
+    lines: list[str] = []
+    if observations_kept > 0:
+        lines.append(
+            f"این هفته {fa_num(observations_kept)} مشاهدهٔ ترند تازه ثبت شد.")
+    if untried:
+        styles = "، ".join(untried[:3])
+        more = "" if len(untried) <= 3 else " و بیشتر"
+        lines.append(f"سبک‌هایی که هنوز امتحان نشده‌اند: {styles}{more}.")
+    if seen_candidates > 0:
+        lines.append(
+            f"تا الان {fa_num(seen_candidates)} ایده بررسی شده — "
+            "دنبال چیزی تازه می‌گردیم.")
+    if not lines:
+        return "هنوز چیزی از دنیا نرسیده — چرخهٔ بعدی دوشنبه."
+    return " ".join(lines)
+
+
+def fa_num(n: int) -> str:
+    """Persian digits, because a Latin number on Saba's screen is a defect."""
+    fa = "۰۱۲۳۴۵۶۷۸۹"
+    return "".join(fa[int(d)] for d in str(n))
+
+
+
 @dataclass(frozen=True)
 class CycleResult:
     """What one weekly run produced. Returned so the caller (the dashboard,
@@ -118,9 +162,18 @@ class WeeklyCycle:
             last_week_style=last_week_style,
             tried_styles=tried_styles or {},
         )
-        # The focus text the partner sees is the joined questions; the
-        # dashboard may present them as a list instead.
-        focus_text = "\n".join(questions)
+        # The English research questions above are instructions to the hosted
+        # model — they are *not* a message for the partner. Storing them
+        # verbatim as focus_text leaks internal prompt scaffolding (the
+        # strings "require observed_at", "do not predict", "we have evaluated
+        # N candidates so far") straight onto Saba's screen, which a touch
+        # test caught. What the partner sees is an honest Persian summary of
+        # what the week is asking about, derived from the same facts.
+        focus_text = partner_focus_summary_fa(
+            tried_styles=tried_styles or {},
+            seen_candidates=len(memory.known_keys()),
+            observations_kept=len(observations),
+        )
 
         # 6) Open the week with that focus. Re-runnable: the same week_id
         # replaces its row, which is how a cycle resumes after a crash.

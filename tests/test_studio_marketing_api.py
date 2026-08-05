@@ -162,6 +162,23 @@ class TestBrainModulesAreReal(_Base):
         self.assertTrue(pm["loaded"])
         self.assertEqual(pm["platform_count"], 11)
 
+    def test_platform_matrix_reports_three_counts_not_one(self):
+        # "11 platforms" alone is a false affordance. The snapshot must carry
+        # the split so a partner isn't misled into thinking eleven live
+        # outputs exist when armed is zero. See test_platforms_contract for
+        # the ordered invariant armed <= available <= policy_known.
+        body = self.call("GET", "/api/v1/studio/marketing").body
+        pm = body["brain_modules"]["platform_matrix"]
+        self.assertTrue(pm["loaded"])
+        policy = pm["platform_policy_known_count"]
+        available = pm["platform_adapter_available_count"]
+        armed = pm["platform_adapter_armed_count"]
+        self.assertEqual(policy, 11)
+        self.assertEqual(available, 3)  # bluesky, email_ses, telegram_channel
+        self.assertEqual(armed, 0)      # nothing is built to send yet
+        self.assertLessEqual(armed, available)
+        self.assertLessEqual(available, policy)
+
     def test_marketing_cycle_reports_never_run_when_empty(self):
         body = self.call("GET", "/api/v1/studio/marketing").body
         cycle = body["brain_modules"]["marketing_cycle"]

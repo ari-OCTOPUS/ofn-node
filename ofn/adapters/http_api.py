@@ -795,7 +795,7 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
                         "script-src 'self' https://telegram.org 'unsafe-inline'; "
                         "style-src 'self' 'unsafe-inline'; "
                         "font-src 'self'; "
-                        "img-src 'self' data:; "
+                        "img-src 'self' data: blob:; "
                         "connect-src 'self'; "
                         "frame-ancestors 'none'")
                     self.send_header("X-Frame-Options", "DENY")
