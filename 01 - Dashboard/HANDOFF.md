@@ -36,6 +36,16 @@ updated: 2026-08-05
 
 ## وضعِ لحظه‌ای
 
+- 🔓🧠 **2026-08-05 (شبِ خیلی دیرتر — arm-renewal فعال شد، ۴۹ فلگِ امن مسلح، نقشهٔ مغز↔قلب↔پنل).** کامیت‌های `2464047`/`9802289`؛ DR-002 در `_ops/OCTOPUS-FIX-START-CODEX-20260804-200015/decision_records/`.
+
+  **arm-renewal فعال شد — رأیِ صریحِ دوم مالک بعد از تصویرِ کامل‌تر.** ممیزیِ خصمانه دو نکتهٔ تازه پیدا کرد: (۱) هر دو ACTIVATION-flag همان خطِ عمومیِ «resurrection» از ۲۲ ژوئیه دارند، رأیِ مشخصی درباره‌شان نیست؛ (۲) docstring ادعای «با ضربانِ قلب» می‌کند ولی کد هیچ حالتِ قلبی نمی‌خواند — آن عبارت در دستورِ اصلیِ مالک احتمالاً سهمِ Fugu ِ self_patch را توصیف می‌کرد نه این ماژول را. با `AskUserQuestion` تصویرِ کامل نشان داده شد؛ پاسخ: «هر دو مسلح شوند، همان طرحِ اول». `OCTOPUS_WIRE_ARM_RENEWAL=1`، RESTART-ALL، و **زنده تأیید شد**: هر دو توکن مینت شد، `arm_gate.arm_open()` هر دو ظرفیت را `True` می‌دهد. کیل‌سویچِ واقعی: `_ops/STOP-CODE-AUTONOMY` (فوری) برای code_autonomy؛ **حذفِ** `ACTIVATION-SELF-IMPROVE-AUTO.flag` (نه یک فایلِ STOP که وجود ندارد) برای self_improve_auto.
+
+  **۴۹ فلگِ امن مسلح شد.** ورک‌فلوی مستقل ۱۰۸ فلگِ خاموش را جمع کرد، هرکدام را در برابرِ پول/خروجی/secret/حذف/legs سنجید. ۴۹ تا propose-only/shadow-only/read-only بودند با citation؛ مسلح شدند. سرِجایشان ماند (رأیِ جداگانه لازم): `OCTOPUS_SMTP_*`، `CORTEX_IMPROVE_DEEP`، `OCTOPUS_ENFORCE_MONEY_FSM`، `OCTOPUS_WIRE_BARBELL`/`RECONCILE`، و هرچه زیرِ `_ops/legs/**`.
+
+  **نقشهٔ مغزها↔قلب‌ها↔کنترل‌پنل.** جزئیاتِ کامل: [[../07 - Knowledge/شناخت-اختاپوس/12-BRAIN-HEART-CONTROL-PANEL-MAP-2026-08-05|12-BRAIN-HEART-MAP]]. خلاصه: چهار «قلب» مستقل (cardiac/control_law/chrono_rhythm + arbiterِ آشتی‌دهنده، امشب زنده) و پنج «مغز» (organism/cortex دو پروسهٔ جدا + cockpit_brain + 4D که مینی‌اپ اشتباهی «مغز» صدایش می‌زند). ⚠️ **کنترل‌پنل به مغزِ غلط وصل است** (`/api/ops/brain`→4D، نه cortex ِ زنده) و **۷۳۶ کارتِ بی‌تخلیه** (۱۰۸ قلب+۵۴ دکتر) دقیقاً همان استرسی است که همین الان `code_autonomy` را heart-freeze کرده — یک باگ، دو علامت.
+
+  **ابسیدین بهینه شد.** `_archive-binaries/` (۲.۷GB، نامش با `_Archive/` فرق دارد پس فیلترِ قبلی نمی‌گرفتش) + `_build/`/`_portable-build/`/`node_modules/` به `userIgnoreFilters` اضافه شد. پوشه‌های واقعاً لینک‌شده (OCTOPUS-DOCTOR، `_memory/`) عمداً دست‌نخورده ماندند.
+
 - 🫀🔑 **2026-08-05 (شبِ دیرتر-ادامه — رأیِ «مجوزِ کامل» مالک: سه‌قلب سینک شد، سهمِ Fugu ِ self_patch رفت، arm-renewal رد شد).** کامیتِ `9903781` (self_patch quota + تستِ idea-graph) روی `master`؛ جزئیات: [[../07 - Knowledge/شناخت-اختاپوس/11-USABILITY-AUDIT-AND-ARMING-2026-08-05|11-USABILITY-AUDIT]] («پیگیریِ همان شب»).
 
   **گوچای عملیاتی:** worktree ِ جلسه (`claude/hybrid-control-plane-megaprompt-bd4b21`) و `master` قاطی شدند — سه لِینِ موازی بدونِ isolation صریح، بخشی روی هرکدام افتاد. حل شد per-lane، نه با merge ِ کور.

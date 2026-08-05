@@ -8,7 +8,11 @@
     "/(^|/)_code(/)/",
     "/(^|/)__pycache__(/)/",
     "/(^|/)\\.pytest_cache(/)/",
-    "/\\.(pyc|pyo|log|db|zip|npy|py|dll|bat|dart|js|ts|exe|ini|ps1|ahk|sh|bin|yml)$/"
+    "/\\.(pyc|pyo|log|db|zip|npy|py|dll|bat|dart|js|ts|exe|ini|ps1|ahk|sh|bin|yml)$/",
+    "_archive-binaries/",
+    "_build/",
+    "_portable-build/",
+    "/(^|/)node_modules(/)/"
   ],
   "showUnsupportedFiles": false,
   "alwaysUpdateLinks": true
