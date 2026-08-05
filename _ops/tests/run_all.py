@@ -902,6 +902,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_reach_probe.py",                    # دفترِ دسترسیِ PEP 669
     "test_write_invalidates_read_cache.py",   # «زدم و هیچ نشد»: کشِ ۳ث بعدِ نوشتن
     "test_stalled_card_decision.py",          # کارتِ راکد: هویت + allowlist + تصمیمِ واقعی
+    "test_selfmap_memory_surface.py",         # حافظهٔ بلندمدت — بالأخره یک سطح دارد
     # ── 2026-08-05: ۵۱ فایلِ ثبت‌نشده، رأیِ مالک «فعالشان کن و تست کن» ──────
     #
     # هر ۵۱ تا با **همان محیطِ runner** اجرا شدند (`_isolation_boot` روی

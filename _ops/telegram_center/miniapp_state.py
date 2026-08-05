@@ -1441,6 +1441,24 @@ def get_selfmap_state(root: "Path | None" = None) -> dict:
         # مغز هنوز ندویده یا حافظه‌اش خوانده نشد. **صفر نمی‌سازم.**
         out["scans"] = {"status": "unknown",
                         "reason": "cockpit_brain memory missing/unreadable"}
+
+    # ── ۳) حافظهٔ بلندمدت: چیزی که تا امشب هیچ سطحی نشانش نمی‌داد ─────────
+    # ⚠️ ۲۰۲۶-۰۸-۰۵ — یافتهٔ ممیزیِ «آیا اختاپوس داده ذخیره می‌کند؟»:
+    # `memory.db` واقعاً می‌نویسد (رفعِ امشب: قدیمی‌ترین ۱۰ روز، ۲۸ ردیفِ
+    # واقعی) ولی MemoryStore.metrics() — که از قبل ساخته و تست شده بود —
+    # هیچ صداکنندهٔ تولیدی نداشت. همان الگوی کلِ این چند روز، این‌بار
+    # روی خودِ حافظه.
+    try:
+        sys.path.insert(0, str(_OPS)) if str(_OPS) not in sys.path else None
+        import memory.memory_store as _mst  # noqa: WPS433
+        _store = _mst.MemoryStore()
+        try:
+            out["memory"] = _store.metrics()
+        finally:
+            _store.close()
+    except Exception as exc:  # noqa: BLE001
+        out["memory"] = {"status": "unknown", "reason": f"{type(exc).__name__}"}
+
     return _scrub_dict(out)
 
 

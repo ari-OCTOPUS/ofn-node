@@ -1291,6 +1291,25 @@
         h += '<div class="err">اسکن‌های ایستا هنوز نتیجه‌ای ندارند — '+
              'مغزِ کاکپیت باید یک بار بدود. عمداً صفر نشان نمی‌دهم.</div>';
       }
+
+      // ── حافظهٔ بلندمدت ────────────────────────────────────────────────
+      // ⚠️ ۲۰۲۶-۰۸-۰۵ — تا امشب هیچ سطحی این را نشان نمی‌داد؛ عکسِ درستِ
+      // «نه دیتا ذخیره می‌کند» است — ذخیره می‌کند، فقط نامرئی بود.
+      var m = d.memory;
+      if(m && m.status !== "unknown" && typeof m.total === "number"){
+        h += '<details class="det" open><summary>حافظهٔ بلندمدت · '+
+             fa(m.total)+' رکورد</summary><div class="inner">'+
+          row("فعال", m.active)+row("درانتظارِ تأیید", m.pending)+
+          row("پس‌گرفته‌شده", m.retracted)+
+          Object.keys(m.by_namespace||{}).map(function(ns){
+            return row("فضایِ "+ltr(ns), m.by_namespace[ns]);
+          }).join("")+
+        '</div></details>';
+      } else {
+        h += '<div class="tri unk"><div class="in">'+
+          '<div class="verb">حافظهٔ بلندمدت خوانده نشد</div>'+
+          '<div class="why">'+esc(String((m||{}).reason||""))+'</div></div></div>';
+      }
       el.innerHTML = h;
     });
   }
