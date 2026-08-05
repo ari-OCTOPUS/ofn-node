@@ -267,6 +267,20 @@ h1{font-size:22px;font-weight:600;text-wrap:balance;margin-top:1px}
 #mkt-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 @media (max-width:480px){#mkt-grid{grid-template-columns:1fr 1fr}}
 #mkt-gates-list div{padding:4px 0;font-size:13.5px;color:var(--t-mid)}
+.field{display:flex;flex-direction:column;gap:6px;margin-block-start:14px}
+.field span{font-size:13px;color:var(--t-lo)}
+.field select{font:inherit;font-size:15px;padding:10px 12px;border-radius:12px;
+  background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.act{margin-block-start:14px;display:flex;gap:10px;flex-wrap:wrap}
+.platform-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-block-start:14px}
+@media (max-width:480px){.platform-grid{grid-template-columns:1fr}}
+.pcard{padding:12px 14px;border-radius:14px;border:1px solid var(--line);
+  background:var(--surface);display:flex;flex-direction:column;gap:4px}
+.pcard.ok{border-color:#3a8b5a}
+.pcard.no{border-color:#8b3a3a;opacity:.85}
+.pcard .pname{font-size:14px;font-weight:600;color:var(--ink)}
+.pcard .pstat{font-size:13px;color:var(--t-mid)}
+.pcard .pwhy{font-size:13px;color:var(--t-lo)}
 
 /* ── نورسنج: یک شکل، یک جمله، بدون درصد ─────────────────── */
 .gauge{margin-top:26px;background:linear-gradient(168deg,var(--surf-hi),var(--sunk));
@@ -618,11 +632,31 @@ nav svg{width:21px;height:21px}
         <p class="src" id="mkt-brain"></p>
       </div>
     </div>
+
+    <div class="rows" id="mkt-action">
+      <div class="card">
+        <div class="h">آزمون مسیر یک پست</div>
+        <p class="src">یک پیش‌نویس را انتخاب کن تا ببینی کدام پلتفرم‌ها می‌پذیرند.</p>
+        <label class="field">
+          <span>پیش‌نویس</span>
+          <select id="mkt-draft"></select>
+        </label>
+        <div class="act">
+          <button class="cta" id="mkt-preview-btn" type="button">پیش‌نمایش مسیر</button>
+        </div>
+        <div id="mkt-platforms" class="platform-grid" hidden></div>
+        <div class="act" id="mkt-send-wrap" hidden>
+          <button class="cta" id="mkt-send-btn" type="button">برای پلتفرم‌های پذیرفته‌شده به صف بفرست</button>
+        </div>
+        <p class="src" id="mkt-send-result" hidden></p>
+      </div>
+    </div>
+
     <div class="note">
       <div class="h">راهنما</div>
       <p>چرخهٔ هفتگی هر دوشنبه بعد از پشتیبان اجرا می‌شود. تحقیق ترند چیزی
         از تو بیرون نمی‌برد — نه عکس، نه نام، نه آمار. فقط دنیا را می‌پرسد.</p>
-      <div class="src">هیچ چیز تا تأیید آری از این دستگاه خارج نمی‌شود.</div>
+      <div class="src">هیچ چیز تا تأیید آری از این دستگاه خارج نمی‌شود. «به صف بفرست» یعنی آمادهٔ انتشار، نه انتشار.</div>
     </div>
   </div>
 
@@ -1406,12 +1440,24 @@ function show(which) {
 const FA = '۰۱۲۳۴۵۶۷۸۹';
 const fa = n => String(n).replace(/\d/g, d => FA[+d]);
 
-/* The marketing tab is read-only and derived: the weekly cycle's focus, the
-   trend-observation count, the scout's memory size, and which gates are
-   closed. Nothing here is actionable for the partner — she sees the brain's
-   state, she does not drive it. That separation is the point: the cycle
-   runs on its own schedule, and her surface is a window, not a steering
-   wheel. */
+/* The marketing tab is the partner's steering wheel for one decision:
+   which of her drafts goes where. It shows the weekly cycle's state
+   (read-only) and lets her preview a draft against every platform, then
+   send the ones that pass to the outbox. Nothing here publishes — the
+   outbox is the door, and the release switch (off by default) is the lock.
+   felt-right is asked on the board, before any number; this view does not
+   touch metrics. */
+const PLATFORM_LABELS = {
+  telegram_channel: 'تلگرام', bluesky: 'بلوسکای', email_ses: 'ایمیل',
+  x_twitter: 'ایکس', youtube_shorts: 'یوتیوب', threads: 'تردز',
+  instagram: 'اینستاگرام', tiktok: 'تیک‌تاک', pinterest: 'پینترست',
+  facebook: 'فیسبوک', reddit: 'ردیت',
+};
+const ALL_PLATFORMS = ['telegram_channel','bluesky','email_ses','x_twitter',
+  'youtube_shorts','threads','instagram','tiktok','pinterest','facebook','reddit'];
+
+let mktLastPreview = null;  // {draft_id, platforms:{name:{ok,rule,reasons,risk}}}
+
 async function loadMarketing() {
   const snap = await OFN.get('/api/v1/studio/marketing');
   const m = snap.marketing || {};
@@ -1439,8 +1485,129 @@ async function loadMarketing() {
     list.appendChild(div);
   }
   const brain = snap.brain_modules || {};
-  const bw = Object.entries(brain).map(([k, v]) => k + ': ' + v).join(' · ');
+  const bw = renderBrain(brain);
   $('mkt-brain').textContent = bw;
+  // Load the draft selector from the board (the same source the today tab
+  // uses), so the partner picks from her real drafts, not a fake list.
+  await loadDraftSelector();
+}
+
+function renderBrain(brain) {
+  const parts = [];
+  if (brain.platform_matrix && brain.platform_matrix.loaded)
+    parts.push('ماتریس پلتفرم: ' + brain.platform_matrix.platform_count + ' پلتفرم');
+  if (brain.marketing_cycle)
+    parts.push('چرخه: ' + (brain.marketing_cycle.status === 'never_run' ? 'هنوز اجرا نشده' : brain.marketing_cycle.status));
+  if (brain.hosted_brain)
+    parts.push('مغز: ' + (brain.hosted_brain.armed ? 'وصل ✓' : 'خاموش'));
+  if (brain.trend_sources)
+    parts.push('منابع ترند: ' + brain.trend_sources.enabled);
+  return parts.join(' · ') || '—';
+}
+
+async function loadDraftSelector() {
+  const sel = $('mkt-draft');
+  if (!sel) return;
+  let drafts = [];
+  try {
+    const board = await OFN.get('/api/v1/studio/board');
+    drafts = (board && board.drafts) || [];
+  } catch (e) { drafts = []; }
+  sel.replaceChildren();
+  if (!drafts.length) {
+    const opt = document.createElement('option');
+    opt.textContent = 'هنوز پیش‌نویسی نیست';
+    opt.value = '';
+    sel.appendChild(opt);
+    sel.disabled = true;
+    const btn = $('mkt-preview-btn'); if (btn) btn.disabled = true;
+    return;
+  }
+  sel.disabled = false;
+  const btn = $('mkt-preview-btn'); if (btn) btn.disabled = false;
+  for (const d of drafts) {
+    const opt = document.createElement('option');
+    opt.value = d.draft_id;
+    // Caption truncated for the dropdown, no HTML.
+    const cap = (d.caption || '(بدون کپشن)').slice(0, 40);
+    opt.textContent = cap + ' — ' + d.status;
+    sel.appendChild(opt);
+  }
+}
+
+async function previewRoute() {
+  const sel = $('mkt-draft');
+  const did = sel && sel.value;
+  if (!did) return;
+  const grid = $('mkt-platforms');
+  grid.hidden = true;
+  $('mkt-send-wrap').hidden = true;
+  const out = await OFN.post(
+    '/api/v1/studio/drafts/' + encodeURIComponent(did) + '/route-preview',
+    { platforms: ALL_PLATFORMS });
+  mktLastPreview = { draft_id: did, platforms: out.platforms || {} };
+  renderPlatforms(grid, out.platforms || {});
+  const anyOk = Object.values(out.platforms || {}).some(p => p.ok);
+  $('mkt-send-wrap').hidden = !anyOk;
+  grid.hidden = false;
+}
+
+function renderPlatforms(grid, platforms) {
+  grid.replaceChildren();
+  for (const name of ALL_PLATFORMS) {
+    const p = platforms[name];
+    if (!p) continue;
+    const card = document.createElement('div');
+    card.className = 'pcard ' + (p.ok ? 'ok' : 'no');
+    const nm = document.createElement('div');
+    nm.className = 'pname';
+    nm.textContent = PLATFORM_LABELS[name] || name;
+    const st = document.createElement('div');
+    st.className = 'pstat';
+    st.textContent = p.ok ? '✓ پذیرفته' : '✗ رد شده';
+    if (!p.ok && p.reasons && p.reasons.length) {
+      const why = document.createElement('div');
+      why.className = 'pwhy';
+      why.textContent = p.reasons.join('، ');
+      card.append(nm, st, why);
+    } else if (!p.ok) {
+      const why = document.createElement('div');
+      why.className = 'pwhy';
+      why.textContent = p.rule || '';
+      card.append(nm, st, why);
+    } else {
+      card.append(nm, st);
+    }
+    grid.appendChild(card);
+  }
+}
+
+async function sendToOutbox() {
+  if (!mktLastPreview) return;
+  const did = mktLastPreview.draft_id;
+  const okPlatforms = Object.entries(mktLastPreview.platforms)
+    .filter(([_, p]) => p.ok).map(([name]) => name);
+  if (!okPlatforms.length) return;
+  const res = $('mkt-send-result');
+  res.hidden = true;
+  try {
+    const out = await OFN.post(
+      '/api/v1/studio/drafts/' + encodeURIComponent(did) + '/send-to-outbox',
+      { platforms: okPlatforms });
+    res.hidden = false;
+    if (out.ok) {
+      const queued = out.queued || 0;
+      const total = (out.results || []).length;
+      res.textContent = queued + ' از ' + total + ' به صف رفت' +
+        (queued < total ? ' (بقیه رد شدند — بالاتر ببین)' : '') +
+        '؛ انتشار واقعی تا تأیید آری نیست.';
+    } else {
+      res.textContent = 'رد شد: ' + (out.error || 'دلیل نامعلوم');
+    }
+  } catch (e) {
+    res.hidden = false;
+    res.textContent = 'خطا در ارسال';
+  }
 }
 
 /* ── gallery ───────────────────────────────────────────────────────────── */
@@ -1826,6 +1993,13 @@ async function boot() {
   syncConsentGate();
   const box = $('c1');
   if (box) box.addEventListener('change', syncConsentGate);
+
+  // Marketing action buttons — bound here, not inline, so a missing element
+  // never throws at parse time and the listeners share one place.
+  const pv = $('mkt-preview-btn');
+  if (pv) pv.addEventListener('click', () => guard(previewRoute(), 'پیش‌نمایش مسیر باز نشد.'));
+  const sd = $('mkt-send-btn');
+  if (sd) sd.addEventListener('click', () => guard(sendToOutbox(), 'ارسال به صف باز نشد.'));
 
   window.show = show;
 

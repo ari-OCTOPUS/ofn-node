@@ -916,14 +916,26 @@ class Node:
             # the rejection list and the rule, which is what stops loops.
             brief_text = json_dumps_safe(scout_brief(memory))
             prompt = (
-                "You are researching observed beauty/foot-care trends for a "
-                "faceless content account. Return up to 3 candidate ideas as "
-                "a JSON array. Each candidate: "
-                '{"key","title","style_id","framing","observations":[...],'
-                '"confidence"}. Each observation MUST have observed_at and '
-                "either count_value or rank_value. No predictions. "
-                "Already-rejected ideas (do not re-propose): "
-                f"{brief_text}"
+                "You are a content-strategy researcher for a faceless Persian "
+                "beauty and foot-care creator (wellness/beauty framing only; "
+                "no sexual solicitation, no explicit content, no direct adult "
+                "subscription links, no minors). The weekly style is "
+                f"'{style_id}'.\n\n"
+                "Return STRICT JSON ONLY — no prose, no markdown fences. "
+                "Schema:\n"
+                '{"candidates":[{"key":"stable_slug",'
+                '"title":"short english title",'
+                '"style_id":"' + style_id + '",'
+                '"framing":"beauty|wellness|educational|behind_the_scenes|community",'
+                '"confidence":0.0_to_1.0}]}\n\n'
+                "Rules:\n"
+                "- Up to 3 candidates, each a distinct idea.\n"
+                "- 'key' is a lowercase hyphenated slug, stable across weeks.\n"
+                "- Do NOT predict future trends. Propose only ideas grounded "
+                "in currently-observable beauty/foot-care/wellness practice.\n"
+                "- Do NOT re-propose anything in the rejected list below.\n"
+                f"- Rejected (skip): {brief_text}\n"
+                "Return only the JSON object."
             )
             try:
                 result = self.router.ask(
@@ -933,7 +945,8 @@ class Node:
                     prompt, now_epoch_s=now_epoch_s)
                 if not getattr(result, "refused", False):
                     candidates = parse_candidates(
-                        getattr(result, "text", ""))
+                        getattr(result, "text", ""),
+                        now_epoch_s=now_epoch_s)
                     brain_note = (f"مدل {len(candidates)} ایده پیشنهاد داد"
                                   if candidates
                                   else "مدل ایده‌ای نداد")

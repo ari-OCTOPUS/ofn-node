@@ -782,6 +782,23 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
                 self.send_header("Content-Type", ctype)
                 self.send_header("Content-Length", str(len(data)))
                 self.send_header("X-Content-Type-Options", "nosniff")
+                self.send_header("Referrer-Policy", "no-referrer")
+                if ctype.startswith("text/html"):
+                    # The shells load the Telegram WebApp SDK from
+                    # telegram.org, run inline scripts (the boot logic),
+                    # use an inline <style>, and self-host the font. The
+                    # policy allows exactly those origins and nothing else.
+                    # frame-ancestors 'none' is the clickjacking guard: a
+                    # partner shell must never be embeddable in an iframe.
+                    self.send_header("Content-Security-Policy",
+                        "default-src 'self'; "
+                        "script-src 'self' https://telegram.org 'unsafe-inline'; "
+                        "style-src 'self' 'unsafe-inline'; "
+                        "font-src 'self'; "
+                        "img-src 'self' data:; "
+                        "connect-src 'self'; "
+                        "frame-ancestors 'none'")
+                    self.send_header("X-Frame-Options", "DENY")
                 if key.endswith(".woff2"):
                     # The font changes when the file changes, which is never
                     # during a run. A year is what a fingerprinted asset gets;
