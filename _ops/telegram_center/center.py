@@ -147,6 +147,8 @@ _CENTER_SLASH = frozenset({
     "/stuck", "/x", "/توان", "/won", "/lost", "/paid", "/sent", "/replied",
     "/meeting", "/quote", "/funnel", "/رفتار", "/کد", "/flags", "/trace",
     "/scan", "/insight",
+    # 2026-08-05 — نقشهٔ G7: این سه در بات B (approval_channel) بودند، این‌جا هرگز.
+    "/heart", "/brain", "/doctor",
 })
 
 # دستورهایی که مرکز خودش پشتِ فلگ ثبت می‌کند — پل از آن‌ها رد می‌شود تا
@@ -681,6 +683,81 @@ class Center:
         if len(body) > 3300:
             body = body[:3300] + "\n…(بریده شد)"
         return f"{head}\n<pre>{_scrub(body)}</pre>"
+
+    def _heart_cmd(self) -> str:
+        """`/heart` — read-only. تا امشب فقط در باتِ B (`approval_channel`)
+        بود؛ باتِ زنده (این فایل) اصلاً این فرمان را نمی‌شناخت — نقشهٔ
+        ۱۲-BRAIN-HEART-CONTROL-PANEL-MAP-2026-08-05، یافتهٔ G7. منطقِ کامل
+        (تنظیمِ knob با `/heart set`) هنوز فقط در باتِ B است — این‌جا عمداً
+        فقط خواندن است تا دو مسیرِ نوشتنِ مستقل روی یک knob نداشته باشیم."""
+        try:
+            import miniapp_state as _msmod  # noqa: WPS433 — lazy، هم‌پوشه
+        except Exception as e:  # noqa: BLE001
+            return f"🫀 ماژول در دسترس نیست ({type(e).__name__})."
+        try:
+            arb = _msmod._arbiter_vitals()
+            card = _msmod._cardiac_vitals()
+        except Exception as e:  # noqa: BLE001
+            return f"🫀 خطا در خواندن: {type(e).__name__}"
+        lines = ["🫀 <b>قلب</b>"]
+        if arb.get("status") == "ok":
+            lines.append(f"داور: {arb.get('color') or '؟'} · period={arb.get('effective_period_s')}s"
+                        f" · driver={arb.get('driver')} · "
+                        f"{'زنده — نبض را می‌راند' if arb.get('wire_open') else 'سایه — فقط مشاهده'}")
+        else:
+            lines.append(f"داور: نامعلوم ({arb.get('reason')})")
+        if card.get("status") == "ok":
+            pct = card.get("pct")
+            lines.append(f"بودجهٔ روزانه: {card.get('spent')}/{card.get('cap')}"
+                        + (f" ({pct}%)" if pct is not None else "")
+                        + (" ⚠️ کهنه" if card.get("stale") else ""))
+        else:
+            lines.append(f"بودجه: نامعلوم ({card.get('reason')})")
+        return "\n".join(lines)
+
+    def _brain_cmd(self) -> str:
+        """`/brain` — read-only. مغزِ زندهٔ cortex (۸۷۷۲) را نشان می‌دهد،
+        نه فقط سیستمِ ۴D که تا امشب کلِ این کارت بود (نقشهٔ G1)."""
+        try:
+            import miniapp_state as _msmod  # noqa: WPS433
+        except Exception as e:  # noqa: BLE001
+            return f"🧠 ماژول در دسترس نیست ({type(e).__name__})."
+        try:
+            b = _msmod.get_brain_state()
+        except Exception as e:  # noqa: BLE001
+            return f"🧠 خطا در خواندن: {type(e).__name__}"
+        cx = b.get("cortex") or {}
+        stress = cx.get("stress") or {}
+        lines = ["🧠 <b>مغز</b> (cortex، پورتِ ۸۷۷۲)"]
+        if cx.get("reachable"):
+            lines.append(f"چرخه={cx.get('cycle')} · coherence={cx.get('coherence')} · {cx.get('ts')}")
+            if stress.get("level"):
+                fear = "، ".join(stress.get("in_fear") or []) or "—"
+                lines.append(f"{stress.get('level')} · in_fear: {fear}")
+            th = str(cx.get("thought") or "").strip()
+            if th:
+                lines.append(th[:200])
+        else:
+            lines.append(f"در دسترس نیست ({cx.get('reason')})")
+        return "\n".join(lines)
+
+    def _doctor_cmd(self) -> str:
+        """`/doctor` — read-only. تعدادِ RFC ِ معطل — همان عددی که استرسِ
+        `heart_mood()` را بالا نگه می‌دارد و code_autonomy را منجمد می‌کند
+        وقتی زیاد باشد (نقشهٔ G4، تصحیحِ ریشه‌یابیِ ۲۰۲۶-۰۸-۰۵)."""
+        try:
+            d = json.loads((opslib.STATE_DIR / "doctor" / "rfcs.json").read_text("utf-8"))
+        except Exception as e:  # noqa: BLE001
+            return f"🩺 خطا در خواندن ({type(e).__name__})."
+        rfcs = d.get("rfcs") or []
+        pending = [r for r in rfcs if r.get("status") in ("submitted", "drafted")]
+        lines = [f"🩺 <b>دکتر</b> — {len(pending)} RFC معطل از {len(rfcs)}"]
+        if len(pending) >= 6:
+            lines.append("⚠️ استرسِ دکتر روی سقف است — code_autonomy تا تصمیمِ چند تا از این‌ها منجمد می‌ماند.")
+        for r in pending[:6]:
+            lines.append(f"· {str(r.get('id') or '؟')[:16]} — {str(r.get('title') or '')[:60]}")
+        lines.append("تصمیم از تبِ «تأیید»ِ مینی‌اپ.")
+        return "\n".join(lines)
 
     def _live_cmd(self, text: str) -> str:
         """مسیرِ زنده‌سازی 2026-07-25: /id /box /code /live — fail-soft، read/propose-only."""
@@ -2995,6 +3072,10 @@ class Center:
             "/trace": lambda: _introspect("trace", text),
             "/scan": lambda: _introspect("scan"),
             "/insight": lambda: _introspect("insight"),
+            # 2026-08-05 — نقشهٔ G7: قبلاً فقط باتِ B این‌ها را می‌شناخت.
+            "/heart": lambda: self._heart_cmd(),
+            "/brain": lambda: self._brain_cmd(),
+            "/doctor": lambda: self._doctor_cmd(),
         }
         # Menu v2 (پشتِ OCTOPUS_WIRE_MENU_V2): فقط با فلگِ روشن /panel اضافه می‌شود.
         # flag خاموش → /panel در handlers نیست → مسیرِ «command ناشناس» امروز (return None). parity.

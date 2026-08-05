@@ -173,10 +173,16 @@ def t_the_four_new_sections_are_present_with_their_declared_shape():
 def t_an_unreadable_brain_is_available_false_with_a_reason_and_still_http_200():
     with tempfile.TemporaryDirectory() as d:
         empty = Path(d) / "gone"                      # عمداً ساخته نمی‌شود
-        old = (ms._4D_OUTPUTS, ms._4D_CONSOLIDATION_PY, ms._NEURAL_CONSOLIDATION)
+        old = (ms._4D_OUTPUTS, ms._4D_CONSOLIDATION_PY, ms._NEURAL_CONSOLIDATION,
+               ms._CORTEX_STATE_PATH)
         ms._4D_OUTPUTS = empty
         ms._4D_CONSOLIDATION_PY = empty / "consolidation.py"
         ms._NEURAL_CONSOLIDATION = empty / "consolidation.json"
+        # ۲۰۲۶-۰۸-۰۵ — نقشهٔ G1: مغز حالا دو منبع دارد (4D + cortex ِ زنده).
+        # «کلِ brain نخواندنی» یعنی هر دو، وگرنه این تست فقط 4D را می‌بست و
+        # cortex ِ واقعیِ زنده را می‌خواند (چون _OPS از OPS_DIR تبعیت نمی‌کند)
+        # — available همچنان True می‌ماند و ادعای تست دروغ می‌شد.
+        ms._CORTEX_STATE_PATH = empty / "cortex-state.json"
         try:
             ms.cache_clear()
             st, body, _ = ms.dispatch_api("/api/ops")
@@ -191,11 +197,12 @@ def t_an_unreadable_brain_is_available_false_with_a_reason_and_still_http_200():
             assert c["available"] is False and c["reason"], c
             for k in ("conclusions_count", "frontier_count", "last_verified"):
                 assert c[k] is None, (k, c[k])
+            assert b["cortex"]["reachable"] is False, b["cortex"]
             sub = _get("/api/ops/brain")               # زیرمسیر هم 200 می‌ماند
             assert sub["brain"]["available"] is False, sub
         finally:
             (ms._4D_OUTPUTS, ms._4D_CONSOLIDATION_PY,
-             ms._NEURAL_CONSOLIDATION) = old
+             ms._NEURAL_CONSOLIDATION, ms._CORTEX_STATE_PATH) = old
             ms.cache_clear()
 
 

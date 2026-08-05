@@ -463,6 +463,7 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
          "test_self_patch.py",        # Ø­Ù„Ù‚Ù‡Ù” Ù…Ø±ÙˆØ±â†’ØµÙâ†’Ù¾Ú† + Ù‚ÙÙ„Ù Û¶ ÛŒØ§ÙØªÙ‡Ù” Ù…Ù…ÛŒØ²ÛŒ
         "test_self_patch_quota.py",  # 2026-08-05: self_patch quota guard
         "test_arm_renewal.py",  # 2026-08-05: Lane 1 -- arm-token auto-renewal (flag-gated, off)
+        "test_center_heart_brain_doctor_cmds.py",  # 2026-08-05: G7 -- /heart /brain /doctor on live bot
          "test_improve_deep.py",      # Ù„Ø§ÛŒÙ‡Ù” Ø¹Ù…ÛŒÙ‚Ù improve + Ø³Ù‚ÙÙ Ø³Ø®ØªÙ Ø±ÙˆØ²Ø§Ù†Ù‡
          "test_governor_contract.py",  # Ù‚Ø±Ø§Ø±Ø¯Ø§Ø¯Ù ØªØ®ØµÛŒØµ + Ø¯ÛŒØ¯Ù‡â€ŒØ´Ø¯Ù†Ù Ø¨Ø±ÛŒØ¯Ú¯ÛŒ
          "test_hebbian_signals.py",   # ÙˆØ§Ú˜Ú¯Ø§Ù†Ù Ø³ÛŒÚ¯Ù†Ø§Ù„Ù Hebbian (Ø¶Ø¯Ù Ø³ÛŒÚ¯Ù†Ø§Ù„Ù Ù‡Ù…ÛŒØ´Ù‡â€ŒØ±ÙˆØ´Ù†)

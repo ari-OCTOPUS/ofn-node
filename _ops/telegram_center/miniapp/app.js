@@ -811,9 +811,15 @@
     el = el || content;
     api("/api/ops/brain").then(function(d){
       var g = panelGuard("مغز", d); if(g){ el.innerHTML = g; return; }
-      var b = d.brain||{}, dm = b.daemon||{};
+      var b = d.brain||{}, dm = b.daemon||{}, cx = b.cortex||{};
+      var stress = cx.stress||{};
       el.innerHTML = card2("مغز", pill(b.available?"در دسترس":"در دسترس نیست", b.available?"live":"blocked"),
         (b.reason?'<div class="muted">'+esc(b.reason)+'</div>':'')+
+        '<div class="muted" style="margin-top:6px">cortex (زنده، ۸۷۷۲)</div>'+
+        rows(cx, ["reachable","cycle","coherence","ts"])+
+        (stress.level?'<div class="muted">'+esc(stress.level)+' · in_fear: '+esc((stress.in_fear||[]).join("، ")||"—")+'</div>':'')+
+        (cx.thought?'<div class="muted" style="margin-top:4px">'+esc(String(cx.thought).slice(0,180))+'</div>':'')+
+        '<div class="muted" style="margin-top:10px">۴D (تثبیتِ جداگانه)</div>'+
         rows(dm, ["reachable","source","ticks","errors","last_tick","generation"]));
     });
   }

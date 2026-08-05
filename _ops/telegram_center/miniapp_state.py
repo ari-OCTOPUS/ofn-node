@@ -159,15 +159,17 @@ def _cardiac_vitals() -> dict:
 def _arbiter_vitals() -> dict:
     """رنگِ داورِ نبض — سه قلبِ موازی که به یک period می‌رسند.
 
-    ⚠️ نکتهٔ باربر: `state/pulse/arbiter-latest.json` **وجود ندارد**، چون
-    `pulse_arbiter.persist()` پشتِ `OCTOPUS_WIRE_PULSE_ARBITER` است و آن
-    فلگ خاموش است. پس خواندنِ فایل همیشه UNKNOWN می‌داد.
+    [اصلاح ۲۰۲۶-۰۸-۰۵: از امشب `OCTOPUS_WIRE_PULSE_ARBITER` مسلح است و
+    `state/pulse/arbiter-latest.json` واقعاً وجود دارد و هر ~۵۷ثانیه تازه
+    می‌شود — کامنتِ پایین برای پیش از آن است، به‌عنوانِ سابقه نگه داشته شد.]
 
-    ولی `arbiter_snapshot()` قبل از آن گیت اجرا می‌شود و **خالص** است —
-    سنجیدمش: هیچ فایلی نمی‌سازد، ۰.۳۶ms. پس این‌جا خودِ محاسبه را صدا
-    می‌زنم نه فایل را. هیچ فلگی باز نمی‌شود و هیچ periodی رانده نمی‌شود؛
-    `wire_open` را عیناً پاس می‌دهم تا UI بتواند «سایه» را از «زنده»
-    جدا نشان دهد — وگرنه رنگ شبیهِ فرمانِ نافذ دیده می‌شود.
+    نکتهٔ باربر (پیش از امشب): آن فایل وجود نداشت چون `pulse_arbiter.persist()`
+    پشتِ همان فلگ بود و خاموش بود. `arbiter_snapshot()` قبل از آن گیت اجرا
+    می‌شود و **خالص** است — سنجیدمش: هیچ فایلی نمی‌سازد، ۰.۳۶ms. پس این‌جا
+    خودِ محاسبه را صدا می‌زنم نه فایل را (این رفتار عمداً همان‌طور مانْد —
+    محاسبهٔ زنده از خواندنِ فایلِ چندثانیه‌کهنه دقیق‌تر است). `wire_open`
+    را عیناً پاس می‌دهم تا UI بتواند «سایه» را از «زنده» جدا نشان دهد —
+    وگرنه رنگ شبیهِ فرمانِ نافذ دیده می‌شود.
     """
     try:
         from heart import pulse_arbiter as _pa  # noqa: WPS433 — تنبل و اختیاری
@@ -913,6 +915,10 @@ _4D_CONSOLIDATION_PY = _4D_ROOT / "brain" / "consolidation.py"
 
 _NEURAL_CONSOLIDATION = _OPS / "neural" / "consolidation.json"
 
+# ۲۰۲۶-۰۸-۰۵ — نقشهٔ G1: مغزِ زندهٔ cortex (۸۷۷۲)، ثابتِ سطحِ‌ماژول مثلِ
+# `_4D_OUTPUTS` تا تست‌ها بتوانند مسیرش را monkey-patch کنند.
+_CORTEX_STATE_PATH = _OPS / "state" / "cortex" / "cortex-state.json"
+
 _BUDGETS_YAML = _OPS / "budget" / "budgets.yaml"
 
 _FUGU_POLICY_REL = "docs/fugu_usage_policy.md"
@@ -1044,17 +1050,41 @@ def _brain_consolidation() -> dict:
                     "engine": "4d_system/brain/consolidation.py"},
     }
 
+def _cortex_state() -> dict:
+    """مغزِ زندهٔ cortex (پورت ۸۷۷۲، پروسهٔ جدا از organism) — منبع:
+    `state/cortex/cortex-state.json`، نوشتهٔ خودِ دیمن هر چرخه (~هر ۱-۲ دقیقه).
+
+    ⚠️ ۲۰۲۶-۰۸-۰۵ — این فایل تا امروز اصلاً در ریدمدلِ brain نبود؛ `daemon`ِ
+    زیر همیشه سیستمِ ۴D را می‌خواند که مغزِ **دیگری** است (نقشهٔ کامل:
+    `07 - Knowledge/شناخت-اختاپوس/12-BRAIN-HEART-CONTROL-PANEL-MAP-2026-08-05.md`،
+    یافتهٔ G1). این تابع اضافه شد، `daemon`/`consolidation` دست‌نخورده ماندند —
+    UI ِ زنده نباید بشکند."""
+    p = _CORTEX_STATE_PATH
+    src = "_ops/state/cortex/cortex-state.json"
+    d = _read_json_safe(p)
+    if d is None:
+        return {"reachable": False, "reason": f"unreadable or absent: {src}", "source": src}
+    return {
+        "reachable": True, "reason": None, "source": src,
+        "ts": d.get("ts"), "cycle": _as_int(d.get("cycle")),
+        "coherence": d.get("coherence"),
+        "thought": d.get("thought"),
+        "stress": d.get("stress") if isinstance(d.get("stress"), dict) else None,
+        "schema": d.get("schema"),
+    }
+
 def get_brain_state(root: "Path | None" = None) -> dict:
     """بخشِ brain ِ /api/ops — fail-soft: نخواندن هرگز پاسخ را نمی‌کشد."""
     daemon = _brain_daemon()
     cons = _brain_consolidation()
-    available = bool(daemon.get("reachable") or cons.get("available"))
+    cortex = _cortex_state()
+    available = bool(daemon.get("reachable") or cons.get("available") or cortex.get("reachable"))
     reason = None
     if not available:
-        reason = "; ".join(x for x in (daemon.get("reason"), cons.get("reason")) if x) \
+        reason = "; ".join(x for x in (daemon.get("reason"), cons.get("reason"), cortex.get("reason")) if x) \
             or "brain sources unreadable"
     return {"available": available, "reason": reason,
-            "daemon": daemon, "consolidation": cons}
+            "cortex": cortex, "daemon": daemon, "consolidation": cons}
 
 def _resolve_declared(rel: str, r: Path) -> "str | None":
     """مسیرِ کوتاه‌نویسیِ سند را زیرِ ریشه‌های ممکن پیدا کن؛ نبود = None."""

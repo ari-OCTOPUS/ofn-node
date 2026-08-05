@@ -34,6 +34,11 @@ INTENTIONALLY_HIDDEN = {
     "insight": "دستورِ introspection/debug (_introspect) — پشتِ /menu، نه خودِ منو",
     "scan": "دستورِ introspection/debug (_introspect) — پشتِ /menu، نه خودِ منو",
     "trace": "دستورِ introspection/debug (_introspect) — پشتِ /menu، نه خودِ منو",
+    # ۲۰۲۶-۰۸-۰۵ — نقشهٔ G7: این سه فقط خواندنی‌اند (introspection)، مثلِ flags/insight/scan؛
+    # سقفِ منوی DM (§۶.۵) پر است، پس عمداً پشتِ /menu می‌مانند نه خودِ منو.
+    "heart": "دستورِ introspection/debug — read-only، پشتِ /menu، نه خودِ منو",
+    "brain": "دستورِ introspection/debug — read-only، پشتِ /menu، نه خودِ منو",
+    "doctor": "دستورِ introspection/debug — read-only، پشتِ /menu، نه خودِ منو",
     # ── رأیِ ۴ منشور TG-UI-CHARTER-2026-07-31 («بیزنس هرگز در DM») ───────────
     # این ۱۶ فرمان **کار می‌کنند** و عمداً از منوی DM برداشته شدند تا سقفِ ≤۱۰
     # ِ §۶.۵ رعایت شود. دفترِ حذف با دلیلِ تک‌تک:
@@ -118,7 +123,10 @@ def t_the_hidden_list_stays_small_and_justified():
     # سقف ۹ ← ۲۵: رأیِ ۴ منشور (۰۷-۳۱) ۱۶ فرمانِ کارکننده را از منوی DM برداشت
     # تا سقفِ ≤۱۰ ِ §۶.۵ برقرار شود. دندانِ گارد جای دیگری است: هر ورودی باید
     # دلیلِ واقعی داشته باشد (چکِ زیر) و هیچ فرمانِ **بی‌هندلر** نباید تبلیغ شود.
-    assert len(INTENTIONALLY_HIDDEN) <= 25, len(INTENTIONALLY_HIDDEN)
+    # سقف ۲۵ ← ۲۸: ۲۰۲۶-۰۸-۰۵ — نقشهٔ G7، سه فرمانِ introspection ِ نو
+    # (heart/brain/doctor) که فقط در باتِ B بودند، دقیقاً هم‌الگوی
+    # flags/insight/scan/trace ِ از قبل.
+    assert len(INTENTIONALLY_HIDDEN) <= 28, len(INTENTIONALLY_HIDDEN)
     for cmd, why in INTENTIONALLY_HIDDEN.items():
         assert len(why) >= 15, f"«{cmd}» بدونِ دلیلِ واقعی پنهان شده"
 
