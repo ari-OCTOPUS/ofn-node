@@ -61,6 +61,95 @@ def enabled() -> bool:
     return str(os.environ.get(FLAG, "")).strip().lower() in ("1", "true", "yes", "on")
 
 
+# ═══ سهمِ self_patch از سقفِ سراسریِ فوگو (۲۰۲۶-۰۸-۰۵) ══════════════════════
+# رأیِ مالک (اجازهٔ کاملِ امشب): «همیشه ... سهمِ توکنش رو بگیره». الگو **عیناً**
+# از cockpit_brain._brain_cap قرض گرفته می‌شود، نه از نو اختراع — آن‌جا با
+# شاهدِ زنده ثابت شد: سقفِ سراسریِ FUGU_DAILY_CALL_CAP در OCTOPUS-flags.cmd ِ
+# زنده امروز **۶۰** است (نه ۳۰۰ ِ پیش‌فرضِ fugu_quota._cap — عددِ کد، نه عددِ
+# تولید)، و model_router هر تماسِ پولیِ self_patch را هم از همان
+# fugu_quota.reserve رد می‌کند. یعنی وقتی بقیهٔ ارگانیسم آن ۶۰ تا را زودتر پر
+# کند، مرورِ روزانه یا پچ‌نویسیِ self_patch **بی‌صدا رد** می‌شود — دقیقاً همان
+# گرسنگی‌ای که DAILY_CAP بالا برایش طراحی نشده: DAILY_CAP فقط رکوردِ پیشنهاد
+# را می‌شمارد (بعد از شادو-تست، در `_dir()`)؛ مدلی که خالی یا بی‌تغییر جواب
+# بدهد (`brain-no-answer`/`no-change-proposed`) هیچ رکوردی نمی‌نویسد، پس
+# می‌تواند بارها تماسِ پولیِ واقعی بزند بی‌آنکه DAILY_CAP اصلاً بفهمد.
+#
+# پس این‌جا یک سهمِ **مستقل و محافظت‌شده** از همان سقفِ سراسری کنار گذاشته
+# می‌شود — دقیقاً همان‌طور که cockpit_brain سهمِ خودش را کنار می‌گذارد. یک
+# شمارندهٔ روزانهٔ خودِ self_patch (نه sp-*.json ِ رکوردها — قصداً در زیرپوشهٔ
+# جدا، چون `_today_count()` بالا با `glob("*.json")` هر فایلِ json ِ کنارش را
+# هم می‌شمرد و سقفِ DAILY_CAP را کاذب زودتر می‌بست).
+#
+# صداقتاً چه چیزی این گارد **نیست**: fugu_quota یک شمارندهٔ FIFO ِ مشترک است،
+# بدونِ صف‌بندیِ اولویت‌دار. این گارد self_patch را از گرسنه‌کردنِ بقیهٔ
+# ارگانیسم باز می‌دارد (سقفِ خودش بالا نمی‌رود) ولی رزروِ واقعیِ ضدِ‌گرسنگی —
+# self_patch همیشه جواب بگیرد حتی اگر ۶۰ تماسِ دیگر زودتر رسیده باشند —
+# نیازمندِ اولویت‌بندی در خودِ fugu_quota است، بیرون از دامنهٔ این پَس. عیناً
+# همان محدودیتی که cockpit_brain._brain_cap هم دارد.
+#
+# چرا سهمِ پیش‌فرض ۰.۱۲: self_patch روزی حداکثر ۱ مرور + DAILY_CAP=3 پیشنهاد
+# = ۴ تماسِ پولی می‌زند — در برابرِ حلقهٔ پیوستهٔ ۵دقیقه‌ایِ cockpit_brain
+# (سهمِ ۰.۲۵) این خیلی سبک‌تر است. ۰.۱۲ روی سقفِ زندهٔ ۶۰ یعنی سهمِ ۷تایی:
+# بیش از کافی برای ۴ تماسِ روزانه با حاشیهٔ امن، و آن‌قدر کوچک که خودش سهمِ
+# بقیهٔ ارگانیسم را نمی‌بلعد.
+SELF_PATCH_SHARE_ENV = "OCTOPUS_SELF_PATCH_CALL_SHARE"
+_SELF_PATCH_DEFAULT_SHARE = 0.12
+#: شمارندهٔ خودِ self_patch، جدا از سهمیهٔ سراسریِ ارگانیسم و جدا از
+#: رکوردهای propose() (که با `sp-*.json` در همین _dir() نشسته‌اند).
+SELF_PATCH_CALLS = opslib.STATE_DIR / "self-patch" / "quota" / "calls.json"
+
+
+def _self_patch_cap() -> int:
+    """سقفِ روزانهٔ تماسِ self_patch — مشتق از سقفِ واقعیِ مشترکِ فوگو، نه
+    عددِ مستقل. عیناً الگوی cockpit_brain._brain_cap (fail-closed: نمی‌دانم
+    ⇒ خرج نکن)."""
+    try:
+        import fugu_quota
+        shared = int(fugu_quota._cap())  # noqa: SLF001 — تکِ منبعِ حقیقت
+    except Exception:  # noqa: BLE001
+        return 0
+    try:
+        share = float(os.environ.get(SELF_PATCH_SHARE_ENV, "") or 0)
+    except (TypeError, ValueError):
+        share = 0
+    if not (0 < share <= 1):
+        share = _SELF_PATCH_DEFAULT_SHARE
+    return max(1, int(shared * share))
+
+
+def _self_patch_used(now: "float | None" = None) -> int:
+    try:
+        d = json.loads(SELF_PATCH_CALLS.read_text("utf-8")) or {}
+    except Exception:  # noqa: BLE001
+        d = {}
+    today = time.strftime("%Y-%m-%d", time.localtime(now) if now else time.localtime())
+    return int(d.get("n") or 0) if str(d.get("day") or "") == today else 0
+
+
+def _self_patch_count(now: "float | None" = None) -> None:
+    """شمارنده **قبل از** تماس بالا می‌رود — اندپوینتِ خراب هم باید بسوزاند،
+    وگرنه یک حلقهٔ شکستِ بی‌نهایت هرگز سقف را نمی‌بندد (همان اصلِ
+    attempt-counted ِ fugu_quota و cockpit_brain._brain_count)."""
+    try:
+        SELF_PATCH_CALLS.parent.mkdir(parents=True, exist_ok=True)
+        today = time.strftime("%Y-%m-%d", time.localtime(now) if now else time.localtime())
+        SELF_PATCH_CALLS.write_text(json.dumps(
+            {"day": today, "n": _self_patch_used(now) + 1}), encoding="utf-8")
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def _self_patch_may_spend(now: "float | None" = None) -> "tuple[bool, str]":
+    """(اجازه، دلیل). fail-closed: هر ابهامی ⇒ نه.
+    قبل از **هر دو** مسیرِ تماسِ پولیِ self_patch صدا زده می‌شود: مرور
+    (`review_and_queue`) و پچ‌نویسی (`propose`) — چون هر دو از همان سهمِ
+    مشترکِ روزانه می‌خورند."""
+    used, cap = _self_patch_used(now), _self_patch_cap()
+    if used >= cap:
+        return False, f"self-patch-quota:{used}/{cap}"
+    return True, f"{used}/{cap}"
+
+
 def _dir() -> Path:
     return opslib.STATE_DIR / "self-patch"
 
@@ -91,6 +180,9 @@ def _ask(prompt: str, ask_fn=None) -> str:
             ask_fn = model_router.ask
         except Exception:  # noqa: BLE001
             return ""
+    # شمارندهٔ سهمِ self_patch — قبل از تماس، عیناً اصلِ attempt-counted
+    # (خودِ گاردِ اجازه در propose() است؛ این‌جا فقط شمارشِ تلاشِ واقعی).
+    _self_patch_count()
     try:
         # tier=primary عمداً: نوشتنِ کد کارِ سنگین است و لایهٔ محلی روی آن
         # جوابِ طوطی‌وار می‌دهد. مغزِ پولی همان روز سنجیده شد: ۲.۳ ثانیه، پلنِ فلت.
@@ -140,6 +232,11 @@ def propose(*, target_rel: str, defect: str, fix_hint: str = "",
         return {"ok": False, "reason": "target-not-allowed", "target": target_rel}
     if _today_count() >= DAILY_CAP:
         return {"ok": False, "reason": "daily-cap", "cap": DAILY_CAP}
+    allow, why = _self_patch_may_spend()
+    if not allow:
+        # سهمِ self_patch از فوگو امروز تمام شده — گذرا است، نه شکستِ نقص
+        # (drive._TRANSIENT پایینِ فایل همین دلیل را می‌شناسد).
+        return {"ok": False, "reason": "self-patch-quota", "quota": why, "target": target_rel}
 
     root = _HERE.parent
     src = root / target_rel
@@ -332,6 +429,12 @@ def review_and_queue(*, ask_fn=None, targets=None) -> dict:
         return {"ok": False, "reason": "no-targets"}
     idx = int(st.get("idx", -1)) + 1
     target = files[idx % len(files)]
+    # گاردِ سهمِ self_patch **قبل از** سوزاندنِ روز: اگر سهمِ امروز تمام شده،
+    # روز نباید «مرورشده» ثبت شود — تلاشِ واقعی اصلاً نیفتاده که سوزاندنش
+    # توجیه داشته باشد (برخلافِ شکستِ مغز که بعد از تلاشِ واقعی می‌آید).
+    allow, why = _self_patch_may_spend()
+    if not allow:
+        return {"ok": False, "reason": "self-patch-quota", "quota": why, "target": target}
     # روز را **قبل از** تماس بسوزان — مغزِ خراب نباید هر تیک مرورِ گران بسوزاند.
     # fail-CLOSED: اگر سوزاندن روی دیسک ننشیند، تماسِ گران هم نباید انجام شود؛
     # وگرنه دیسکِ پر/فقط‌خواندنی یعنی یک مرورِ پولی در **هر تیک** (ممیزیِ ۰۷-۲۷).
@@ -382,6 +485,7 @@ def _review_ask(target: str, src: str, ask_fn=None) -> str:
         if ask_fn is None:
             import model_router
             ask_fn = model_router.ask
+        _self_patch_count()   # قبل از تماس — همان اصلِ attempt-counted
         r = ask_fn("deep", f"FILE: {target}\n--- BEGIN FILE ---\n{src}\n--- END FILE ---",
                    system=_REVIEW_SYSTEM, max_tokens=REVIEW_MAX_TOKENS,
                    tier="primary")
@@ -409,7 +513,7 @@ def drive(*, channel=None, ask_fn=None, shadow_fn=None) -> dict:
     # حرفی دربارهٔ خودِ نقص نمی‌زنند. فقط قضاوتِ واقعی (سوییت قرمز شد، یا مدل گفت
     # تغییری لازم نیست) نهایی است. `attempts` جلوی حلقهٔ بی‌پایان را می‌گیرد.
     _TRANSIENT = {"daily-cap", "brain-no-answer", "unreadable", "shadow-error",
-                  "worktree-add-failed", "code_autonomy-unavailable"}
+                  "worktree-add-failed", "code_autonomy-unavailable", "self-patch-quota"}
     reason = str(res.get("reason") or "")
     transient = any(reason.startswith(t) for t in _TRANSIENT)
     attempts = int(row.get("attempts", 0)) + 1

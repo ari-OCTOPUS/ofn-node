@@ -244,6 +244,32 @@ def t_idea_beat_flag_on_returns_analysis():
         os.environ.pop("OCTOPUS_WIRE_IDEAS", None)
 
 
+def t_idea_beat_persists_the_analysis_not_just_returns_it():
+    """۲۰۲۶-۰۸-۰۵ — این تحلیل هر روز محاسبه و دور ریخته می‌شد: organism.py
+    نتیجه را assign نمی‌کرد. تبِ کوکپیتِ brain/idea از قبل منتظرِ همین
+    فایل بود (`cockpit_readmodel.read_idea()` → state/idea-graph-latest.json)
+    و همیشه «هنوز تحلیلی ننوشته» نشان می‌داد. این تست قراردادِ نوشتن را قفل
+    می‌کند، نه فقط مقدارِ بازگشتی را.
+
+    ⚠️ beat=۲۸۸۰ (نه ۱۴۴۰): `_epoch_fire` حالتِ epoch را **درون‌حافظه‌ای و
+    سراسریِ ماژول** نگه می‌دارد؛ تستِ قبلی همین فایل (`flag on → تحلیل`)
+    beat=۱۴۴۰ را قبلاً شلیک کرده، پس همان beat این‌جا بی‌صدا None می‌داد —
+    نه باگِ این کد، قفلِ epoch ِ تستِ همسایه."""
+    import json
+    import opslib
+    os.environ["OCTOPUS_WIRE_IDEAS"] = "1"
+    try:
+        g = wiring.make_idea_graph()
+        r = wiring.idea_beat(g, vault_root=str(_fake_vault()), beat=2880)
+        assert r is not None, "idea_beat خالی برگشت — احتمالاً تصادمِ epoch با تستِ همسایه"
+        sp = opslib.STATE_DIR / "idea-graph-latest.json"
+        assert sp.exists(), "idea_beat نتیجه را روی دیسک نمی‌نویسد"
+        on_disk = json.loads(sp.read_text(encoding="utf-8"))
+        assert on_disk.get("n_nodes") == r.get("n_nodes"), "فایلِ نوشته‌شده با خروجی نمی‌خواند"
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_IDEAS", None)
+
+
 def t_idea_beat_non_multiple_noop():
     """beat غیرِ مضربِ N → no-op."""
     os.environ["OCTOPUS_WIRE_IDEAS"] = "1"
@@ -312,6 +338,7 @@ if __name__ == "__main__":
         # (و) flag
         ("flag off → no-op", t_idea_beat_flag_off_noop),
         ("flag on → تحلیل", t_idea_beat_flag_on_returns_analysis),
+        ("تحلیل نوشته می‌شود نه فقط برگردانده", t_idea_beat_persists_the_analysis_not_just_returns_it),
         ("beat غیرِ مضربِ N → no-op", t_idea_beat_non_multiple_noop),
         # structural
         ("organism idea_beat", t_organism_calls_idea_beat),
