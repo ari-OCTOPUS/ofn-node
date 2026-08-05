@@ -611,3 +611,27 @@ AttributeError: module 'wiring' has no attribute 'make_mining_leg'
 مرتبط: [[03 - Projects/Mining/DecisionLog|D-013 تا D-017]] ·
 [[03 - Projects/Mining/PROJECT|Mining PROJECT]]
 
+
+## 2026-08-05 (شب) -- ايجنت رفع تست ها (test_drawdown_enforcer)
+
+**سوال:** آستانه drawdown (spike_pct) واقعا چند درصد باشد، و آيا
+HH_DRAWDOWN_ENFORCE اصلا بايد روشن شود؟
+
+**زمينه:** _ops/tests/test_drawdown_enforcer.py از 2026-07-15 روي دیسک
+بود ولي هرگز اجرا نمي شد (ثبت نشده در run_all). امشب که فعالش کردم، يک
+ايجنت مکانيزم هالت واقعي مالي را در budget_gate.py ساخت و آستانه را خودش
+25 درصد گذاشت. شکاک مستقل رفعش را رد کرد چون DEPLOY-2026-07-21.md صريح
+مي گويد: «آستانه drawdown -- الان placeholder (spike_pct=25)؛ عددِ
+سياستِ مالي با مالک. enforcement اصلا ساخته نشد (فقط شادو)» و
+HH_DRAWDOWN_ENFORCE را زير «intentionally not turned on» فهرست کرده.
+
+برگرداندم (git checkout روي budget_gate.py و test_drawdown_shadow.py).
+test_drawdown_enforcer.py همچنان قرمز و ثبت نشده مانده.
+
+**دو سوال جدا:**
+1. آستانه spike_pct چند درصد بايد باشد؟ (تست فعلي و کدِ شادوي موجود هر
+   دو 25 فرض کرده اند -- فقط به عنوان placeholder، نه تصميم.)
+2. HH_DRAWDOWN_ENFORCE اصلا بايد ساخته و روشن شود، يا شادو-فقط کافي است؟
+
+مرتبط: 04 - Architect System/scripts/budget_gate.py ·
+_ops/deploy/DEPLOY-2026-07-21.md · _ops/tests/test_drawdown_enforcer.py
