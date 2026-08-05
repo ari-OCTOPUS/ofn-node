@@ -1,0 +1,15 @@
+{
+  "version": "0.3",
+  "styles": [
+    {"id":"teaser_promo","label":"Teaser / Promo","safe_default":false,"best_platforms":["telegram_channel","bluesky","x_twitter","email_ses"],"avoid":["instagram","tiktok","pinterest","facebook"],"guardrails":["label_if_adult","no_direct_adult_link_on_meta_tiktok_pinterest"]},
+    {"id":"educational_howto","label":"Educational / How-to","safe_default":true,"best_platforms":["instagram","tiktok","youtube_shorts","pinterest","threads"],"guardrails":["wellness_language_only"]},
+    {"id":"behind_the_scenes","label":"Behind the Scenes","safe_default":true,"best_platforms":["instagram","threads","youtube_shorts","telegram_channel"],"guardrails":["no_private_location","no_face_if_faceless"]},
+    {"id":"ugc_feedback","label":"UGC / Repost","safe_default":false,"best_platforms":["telegram_channel","email_ses","bluesky"],"guardrails":["customer_consent","scrub_pii"]},
+    {"id":"email_newsletter","label":"Email Newsletter","safe_default":true,"best_platforms":["email_ses"],"guardrails":["unsubscribe","adult_list_consent","ses_quota"]},
+    {"id":"paid_ads","label":"Paid Ads","safe_default":false,"best_platforms":[],"guardrails":["manual_legal_review"],"note":"Adult/feet paid ads are high risk; default disabled."},
+    {"id":"seo_blog","label":"SEO / Blog","safe_default":true,"best_platforms":["owned_site","pinterest","email_ses"],"guardrails":["no_adult_solicitation"]},
+    {"id":"affiliate","label":"Affiliate","safe_default":false,"best_platforms":["email_ses","telegram_channel","x_twitter","bluesky"],"guardrails":["disclosure","platform_allows_link"]},
+    {"id":"collab_duo","label":"Collaboration / Duo","safe_default":false,"best_platforms":["instagram","threads","telegram_channel"],"guardrails":["partner_release","cross_post_permission"]},
+    {"id":"community_building","label":"Community Building","safe_default":true,"best_platforms":["telegram_channel","bluesky","email_ses"],"guardrails":["anti_spam","age_gate_if_needed"]}
+  ]
+}

@@ -18,3 +18,6 @@ backups/
 .obsidian/workspace.json
 .obsidian/workspace-mobile.json
 .obsidian/cache
+
+# Senior-architect reference pack — archive, not project code
+_studio-marketing-architecture/
