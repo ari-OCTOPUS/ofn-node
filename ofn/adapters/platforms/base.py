@@ -39,7 +39,7 @@ class PublishResult:
 
 
 RULE_DRY_RUN = "adapter:dry-run"
-RULE_WIRE_CLOSED = "adapter:wire-closed-publish-not-allowed"
+RULE_WIRE_CLOSED = "wire:disabled"               # a closed gate, not a crash
 RULE_NOT_IMPLEMENTED = "adapter:real-publish-not-implemented"
 
 

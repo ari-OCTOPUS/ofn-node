@@ -14,14 +14,14 @@ from the secrets env at the moment of a real publish.
 from __future__ import annotations
 
 from ofn.adapters.platforms.base import (
-    PublishRequest, PublishResult, RULE_DRY_RUN,
+    PublishRequest, PublishResult, RULE_DRY_RUN, RULE_WIRE_CLOSED,
 )
 
 
 class BlueskyAdapter:
     """Dry-run now; real publish wired in M5 behind OwnerRelease."""
 
-    platform = "bsky"
+    platform = "bluesky"
 
     def __init__(self, handle: str):
         # The handle is public; the app password / session token is not,
@@ -32,6 +32,6 @@ class BlueskyAdapter:
         if req.dry_run:
             return PublishResult(True, self.platform, req.idempotency_key,
                                  rule=RULE_DRY_RUN)
-        raise NotImplementedError(
-            "real Bluesky publish is wired in M5 behind OwnerRelease; "
-            "the WIRE flag is off")
+        # A closed WIRE flag is a feature, not a crash.
+        return PublishResult(False, self.platform, req.idempotency_key,
+                             rule=RULE_WIRE_CLOSED)

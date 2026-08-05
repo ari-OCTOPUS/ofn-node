@@ -139,6 +139,7 @@ class Node:
     consent: object | None = None     # ConsentStore
     media: object | None = None       # MediaStore
     audience: object | None = None    # AudienceStore
+    marketing: object | None = None   # MarketingStore
     # Phase A of the brain wiring: the owner's own surface only. No partner
     # data reaches this, and the studio path is deliberately NOT connected
     # until the extraction layer exists — "we will add the guard later" is
@@ -769,6 +770,60 @@ class Node:
         except StudioError as exc:
             return {"ok": False, "error": str(exc)}
         return {"ok": True, "album": filed}
+
+    def studio_marketing(self, scope: TenantScope) -> dict:
+        """The marketing tab: what the weekly cycle sees, studio-scoped.
+
+        This is the snapshot the senior-architect review asked for, built
+        to one rule: it shows the studio brain and a *safe* global-health
+        summary, never the owner brain, never secrets, never another leg's
+        data. The partner is a partner, not an admin.
+
+        What is here is read-only and derived: the current week's focus,
+        observed trends, the scout's memory size (counts only — never the
+        ideas' titles, which belong to her), and which gates are closed.
+        """
+        tenant = scope.tenant.value
+        now = self.now_epoch_s()
+
+        # The marketing summary, if the store is wired. Before the first
+        # cycle this is empty, which is an honest answer — "nothing yet".
+        marketing = {}
+        if self.marketing is not None:
+            marketing = self.marketing.summary(tenant)
+
+        # Gates the studio leg cares about, as open/closed only. The raw
+        # gate set is node-wide config; here we surface only the ones that
+        # touch this leg, and only their state, never their internals.
+        closed = set(self.base_closed_gates)
+        gates = {
+            "secret_rotation": "closed" if "secret_rotation" in closed else "open",
+            "partner_precondition": "closed" if "partner_precondition" in closed else "open",
+        }
+        # The publish wire is always off until M5; saying so plainly is
+        # better than letting the UI guess.
+        gates["wire_publish"] = "off"
+        gates["owner_release"] = "off"
+
+        # Brain modules: presence only, not config. A partner seeing
+        # "marketing_scout: ok" learns the cycle is wired; she does not
+        # learn which model rung it uses.
+        brain = {
+            "release_switch": "ok",
+            "platform_matrix": "ok" if self.marketing is not None else "unwired",
+            "marketing_scout": "ok",
+            "content_router": "ok",
+            "consent": "ok" if self.consent is not None else "unwired",
+            "advisor_gate": "ok",
+        }
+
+        return {
+            "now": now,
+            "viewer": {"role": "partner", "scope": "studio"},
+            "gates": gates,
+            "brain_modules": brain,
+            "marketing": marketing,
+        }
 
     def studio_gallery(self, scope: TenantScope) -> dict:
         """Her library: albums, and what is in them.

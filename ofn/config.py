@@ -79,6 +79,19 @@ class Config:
             self.state_dir, "studio.sqlite")
 
     @property
+    def marketing_path(self) -> str:
+        """The marketing cycle's own record: weeks, observed trends, the
+        scout's persisted rejection memory, routed variants, felt-right, and
+        platform metrics.
+
+        Kept in its own file rather than inside studio.sqlite so that the
+        fast-changing marketing log does not inflate the nightly studio
+        snapshot. Backed up alongside the others because it is in db_paths.
+        """
+        return os.environ.get("OFN_MARKETING_DB") or os.path.join(
+            self.state_dir, "marketing.sqlite")
+
+    @property
     def audience_path(self) -> str:
         """Subscribers, money, and how much of the audience she owns.
 
@@ -128,6 +141,7 @@ class Config:
                 "outbox": self.outbox_path, "products": self.products_path,
                 "consent": self.consent_path,
                 "studio": self.studio_path,
+                "marketing": self.marketing_path,
                 "audience": self.audience_path}
 
 

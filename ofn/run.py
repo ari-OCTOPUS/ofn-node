@@ -27,6 +27,7 @@ from .adapters.consent_store import ConsentStore
 from .adapters.facts import FactStore
 from .adapters.http_api import ApiApp, HostMap, serve
 from .adapters.ledger import Ledger
+from .adapters.marketing_store import MarketingStore
 from .adapters.media import MediaStore
 from .adapters.outbox import Outbox
 from .adapters.packloader import load_dir
@@ -81,9 +82,10 @@ def build_node(cfg: config.Config) -> Node:
     audience = AudienceStore(cfg.audience_path)
     consent = ConsentStore(cfg.consent_path)
     media = MediaStore(cfg.photos_root)
+    marketing = MarketingStore(cfg.marketing_path)
 
     return Node(products=products, studio=studio, consent=consent, media=media,
-                audience=audience,
+                audience=audience, marketing=marketing,
                 registry=registry, quota=quota, ledger=ledger, facts=facts,
                 outbox=outbox, now_epoch_s=config.epoch_seconds,
                 now_iso=config.now_iso,
@@ -157,6 +159,7 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         update_product=node.update_product,
         attach_photo=node.attach_product_photo,
         studio_board=node.studio_board,
+        studio_marketing=node.studio_marketing,
         studio_reading=node.studio_reading,
         studio_media=node.studio_media,
         export_album=node.export_album,

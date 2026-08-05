@@ -30,6 +30,7 @@ from . import audience_store as _audience
 from . import consent_store as _consent
 from . import facts as _facts
 from . import ledger as _ledger
+from . import marketing_store as _marketing
 from . import outbox as _outbox
 from . import products as _products
 from . import studio_store as _studio
@@ -49,6 +50,7 @@ SCHEMAS: Mapping[str, Sequence[str]] = {
     "products": _products.SCHEMA,
     "consent": _consent.SCHEMA,
     "studio": _studio.SCHEMA,
+    "marketing": _marketing.SCHEMA,
     "audience": _audience.SCHEMA,
 }
 

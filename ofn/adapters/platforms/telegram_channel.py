@@ -16,14 +16,14 @@ the adapter, never logged.
 from __future__ import annotations
 
 from ofn.adapters.platforms.base import (
-    PublishRequest, PublishResult, RULE_DRY_RUN, RULE_NOT_IMPLEMENTED,
+    PublishRequest, PublishResult, RULE_DRY_RUN, RULE_WIRE_CLOSED,
 )
 
 
 class TelegramChannelAdapter:
     """Dry-run now; real publish wired in M5 behind OwnerRelease."""
 
-    platform = "tg_channel"
+    platform = "telegram_channel"
 
     def __init__(self, channel_id: str):
         # The channel id is not secret (it is in the channel's URL); the bot
@@ -35,8 +35,8 @@ class TelegramChannelAdapter:
         if req.dry_run:
             return PublishResult(True, self.platform, req.idempotency_key,
                                  rule=RULE_DRY_RUN)
-        # Real publish is M5. Calling it now is a wiring error, not a
-        # missing feature — raise so it is loud, not silent.
-        raise NotImplementedError(
-            "real Telegram publish is wired in M5 behind OwnerRelease; "
-            "the WIRE flag is off")
+        # A closed WIRE flag is a feature, not a crash. The outbox worker
+        # must stay up; a refused publish becomes a held item, not a dead
+        # process.
+        return PublishResult(False, self.platform, req.idempotency_key,
+                             rule=RULE_WIRE_CLOSED)

@@ -150,6 +150,7 @@ class ApiApp:
         update_product: Callable[[TenantScope, str, str, dict], dict] | None = None,
         attach_photo: Callable[[TenantScope, str, str, dict], dict] | None = None,
         studio_board: Callable[[TenantScope], dict] | None = None,
+        studio_marketing: Callable[[TenantScope], dict] | None = None,
         studio_reading: Callable[[TenantScope], dict] | None = None,
         studio_media: Callable | None = None,
         export_album: Callable | None = None,
@@ -183,6 +184,7 @@ class ApiApp:
         self._brain_probe = brain_probe
         self._owner_ask = owner_ask
         self._studio_board = studio_board
+        self._studio_marketing = studio_marketing
         self._studio_reading = studio_reading
         self._studio_media = studio_media
         self._export_album = export_album
@@ -536,6 +538,10 @@ class ApiApp:
             if self._studio_board is None:
                 return Response(404, {"error": "not found"})
             return Response(200, self._studio_board(scope))
+        if method == "GET" and path == "/api/v1/studio/marketing":
+            if self._studio_marketing is None:
+                return Response(404, {"error": "not found"})
+            return Response(200, self._studio_marketing(scope))
         if method == "POST" and path == "/api/v1/studio/drafts":
             data = _json_object(body)
             if data is None or self._create_draft is None:
