@@ -4433,9 +4433,26 @@ class TelegramApprovalChannel(ApprovalChannel):
                       f"شکسته: {len(i.get('broken_targets', []) or [])}\n"
                     + f"هاب‌ها: {', '.join(html.escape(str(h.get('title', h))) for h in (i.get('hubs') or [])[:4]) or '—'}")
         if (tab, key) == ("brain", "hebbian"):
-            h = rm.read_hebbian() if rm else {}
+            # ⚠️ ۲۰۲۶-۰۸-۰۵ — این شاخه با هر تپ کرش می‌کرد: `read_hebbian()`
+            # فایلِ خامِ hebbian.json را می‌خواند که یک **لیست** است
+            # (`[{signals,strength,co_occurrences,last_seen}, ...]`)، نه
+            # دیکشنری؛ `h.get('pairs', h)` روی لیست AttributeError می‌داد و
+            # کارت به «❌ خطای رندرِ کارت» می‌افتاد (fail-soft در
+            # `_dispatch_card`، پس هیچ‌وقت به‌عنوانِ کرش دیده نمی‌شد). حالا
+            # واقعاً جفت‌ها را می‌خواند: نامِ سیگنال + قدرت، نه فقط شمارش.
+            h = rm.read_hebbian() if rm else []
+            if not isinstance(h, list) or not h:
+                return "🔗 <b>Hebbian</b>" + self._DIV + "🟡 بی‌فایل"
+            pairs = sorted(
+                (r for r in h if isinstance(r, dict) and isinstance(r.get("signals"), list)
+                 and len(r["signals"]) == 2),
+                key=lambda r: float(r.get("strength") or 0.0), reverse=True)
+            lines = [f"{html.escape(' ↔ '.join(str(s) for s in r['signals']))} — "
+                     f"قدرت {float(r.get('strength') or 0.0):.2f} "
+                     f"({int(r.get('co_occurrences') or 0)}× هم‌رخداد)"
+                     for r in pairs[:8]]
             return ("🔗 <b>Hebbian</b>" + self._DIV
-                    + (f"{len(h.get('pairs', h))} جفتِ fire-together" if h else "🟡 بی‌فایل"))
+                    + f"{len(pairs)} جفتِ fire-together\n" + ("\n".join(lines) or "—"))
         if (tab, key) == ("brain", "sprint"):
             return ("🏃 <b>اسپرینت</b>" + self._DIV
                     + "🟡 stub — ساخته‌شده ولی هرگز tick نشده (شفاف، جعل نمی‌کنیم).")

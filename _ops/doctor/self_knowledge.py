@@ -760,6 +760,61 @@ def _persist_latest(rec: dict, *, append_history: bool) -> None:
             pass
 
 
+_VAULT_PROPOSE_FLAG = "OCTOPUS_WIRE_DOCTOR_VAULT_PROPOSE"
+_VAULT_PROPOSE_STABLE_CYCLES = 3   # تشخیصِ یک‌روزه = نویز؛ سه چرخهٔ پایدار = واقعاً همان مانده
+
+
+def _maybe_propose_to_vault(rec: dict) -> None:
+    """۲۰۲۶-۰۸-۰۵ — تشخیصِ سنتزشدهٔ self_knowledge (anatomy/pathology/prescription) واجدِ
+    شرایطِ «دانشِ بازمصرف» است (≥۲ منبع: خودِ سنجش + رکوردِ قبلی) ولی هیچ‌جا به
+    `vault_updater.propose()` نمی‌رسید — از قبل ساخته و تست شده، صفر صداکننده.
+
+    عمداً **فقط propose()**، هرگز `vault_updater_apply.apply()`: این تابع خودش هرگز
+    روی دیسک نمی‌نویسد (خودِ docstring ِ propose)، فقط یک patch-proposal ِ JSON
+    برمی‌گرداند که این‌جا append می‌شود. صفر بایت در vault، فقط یک لاگِ محلیِ تازه.
+
+    شرطِ شلیک: دقیقاً روی گذر از آستانه (نه هر چرخهٔ cached بعدش) تا صف اسپم نشود —
+    یک تشخیصِ سه‌چرخه‌پایدار یک‌بار propose می‌شود، نه صدبار."""
+    if not _on(_VAULT_PROPOSE_FLAG):
+        return
+    if int(rec.get("stable_cycles") or 0) != _VAULT_PROPOSE_STABLE_CYCLES:
+        return
+    u = rec.get("understanding") if isinstance(rec.get("understanding"), dict) else {}
+    if not u:
+        return
+    try:
+        vu_dir = str(_HERE.parent)
+        if vu_dir not in sys.path:
+            sys.path.insert(0, vu_dir)
+        import vault_updater  # noqa: WPS433 — lazy، fail-soft
+
+        anatomy = str(u.get("anatomy") or "")
+        top_path = (u.get("pathology") or [{}])[0]
+        top_rx = (u.get("prescription") or [{}])[0]
+        raw = (
+            f"anatomy: {anatomy}\n"
+            f"pathology: {top_path.get('root_cause', '—')} "
+            f"(symptom: {top_path.get('symptom', '—')}, severity: {top_path.get('severity', '—')})\n"
+            f"prescription: {top_rx.get('action', '—')} — {top_rx.get('why', '—')}"
+        ).strip()
+        provenance = (f"doctor self_knowledge v{rec.get('version')} "
+                     f"snapshot={str(rec.get('snapshot_hash'))[:12]} "
+                     f"stable_cycles={rec.get('stable_cycles')}")
+        proposal = vault_updater.propose(
+            raw_input=raw, provenance=provenance,
+            target_path="07 - Knowledge/شناخت-اختاپوس/DOCTOR-SELF-KNOWLEDGE.md")
+        log_path = _dir() / "vault-proposals.jsonl"
+        with log_path.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(
+                {"ts": opslib.now_iso(), "version": rec.get("version"),
+                 "proposal": proposal}, ensure_ascii=False) + "\n")
+    except Exception as e:  # noqa: BLE001 — propose-logging هرگز حلقهٔ خودشناسی را نمی‌کشد
+        try:
+            opslib.alert([f"doctor self-knowledge vault-propose failed: {type(e).__name__}"])
+        except Exception:  # noqa: BLE001
+            pass
+
+
 def _spine_outcome(rec: dict) -> None:
     """سایهٔ canonicalِ «outcome-recorded» به Event Spine (domain=doctor) — LIMITED shadow.
 
@@ -832,6 +887,7 @@ def run(persist: bool = True) -> dict:
             rec["self_accuracy"] = accuracy
         if persist:
             _persist_latest(rec, append_history=False)
+            _maybe_propose_to_vault(rec)   # flag-off → no-op؛ fail-soft
         return rec
 
     # ── CHANGED → تحلیل (مرحلهٔ۱ همیشه؛ مرحلهٔ۲ تطبیقی) ──

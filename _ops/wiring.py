@@ -2339,7 +2339,24 @@ def idea_beat(idea_graph, vault_root=None, beat: int = 0,
             idea_graph.build(root)
             idea_graph._last_built_beat = beat
         # تحلیل (propose-only)
-        return idea_graph.analyze()
+        report = idea_graph.analyze()
+        # ⚠️ ۲۰۲۶-۰۸-۰۵ — تا امروز این خروجی هر روز محاسبه و **دور ریخته**
+        # می‌شد: organism.py صدایش می‌زد بدونِ assign کردنِ نتیجه. تبِ
+        # کوکپیتِ «brain/idea» (approval_channel.py) از قبل منتظرِ همین
+        # فایل بود (`cockpit_readmodel.read_idea()` →
+        # `state/idea-graph-latest.json`) و همیشه «هنوز تحلیلی ننوشته»
+        # نشان می‌داد. نوشتن این‌جاست تا کنارِ نویسندهٔ تحلیل بماند، نه در
+        # organism.py که جای دیگری همین شب رویش کار می‌کند.
+        try:
+            import json as _json3  # noqa: WPS433 — این فایل import سطحِ ماژول ندارد
+            sp = opslib.STATE_DIR / "idea-graph-latest.json"
+            tmp = sp.with_suffix(".tmp")
+            tmp.write_text(_json3.dumps(report, ensure_ascii=False, indent=2,
+                                        default=str), encoding="utf-8")
+            os.replace(tmp, sp)
+        except Exception:  # noqa: BLE001 — نوشتنِ نمایشی هرگز idea_beat را نمی‌کشد
+            pass
+        return report
     except Exception as e:  # noqa: BLE001 — §۴: خطای خاموش ممنون، ولی idea نباید tick را بکشد
         opslib.alert([f"wiring: idea_beat خطا: {type(e).__name__}: {e}"])
         return None

@@ -903,6 +903,9 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_write_invalidates_read_cache.py",   # «زدم و هیچ نشد»: کشِ ۳ث بعدِ نوشتن
     "test_stalled_card_decision.py",          # کارتِ راکد: هویت + allowlist + تصمیمِ واقعی
     "test_selfmap_memory_surface.py",         # حافظهٔ بلندمدت — بالأخره یک سطح دارد
+    "test_hebbian_cockpit_tab.py",            # تبِ brain/hebbian با هر تپ کرش می‌کرد
+    "test_selfknow_vault_propose.py",         # تشخیصِ پایدار → propose ِ vault، هرگز apply
+    "test_pulse_arbiter_wire_readiness.py",   # آمادگیِ سیمِ داور — سه‌قلب واقعاً سینک شد
     # ── 2026-08-05: ۵۱ فایلِ ثبت‌نشده، رأیِ مالک «فعالشان کن و تست کن» ──────
     #
     # هر ۵۱ تا با **همان محیطِ runner** اجرا شدند (`_isolation_boot` روی
