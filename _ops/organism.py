@@ -685,6 +685,18 @@ def main() -> int:
                                                     ("review_pending", "queue_open")}
                 except Exception as _spe:  # noqa: BLE001
                     opslib.alert([f"self_patch error (non-fatal): {type(_spe).__name__}: {_spe}"])
+                # ── تجدیدِ خودکارِ arm-token (۲۰۲۶-۰۸-۰۵، رأیِ مالک بعدِ توضیحِ کاملِ
+                # ریسک): وقتی مالک قبلاً یک ظرفیتِ دوکلیدی را ACTIVATION کرده،
+                # هر ~۱۰ دقیقه توکنِ ۲۴ساعته را پیش از انقضا تازه می‌کند — هرگز
+                # چیزی را که arm_gate/ACTIVATION خودش رد کرده باز نمی‌کند.
+                # flag خاموش (پیش‌فرض) = no-op مطلق.
+                try:
+                    import arm_renewal as _ar  # noqa: WPS433 — lazy، خودش flag را چک می‌کند
+                    _arr = _ar.beat()
+                    if _arr.get("minted"):
+                        epoch_info["arm_renewal"] = {"minted": _arr.get("minted")}
+                except Exception as _are:  # noqa: BLE001
+                    opslib.alert([f"arm_renewal error (non-fatal): {type(_are).__name__}: {_are}"])
                 # ── صدای پاها (۲۰۲۶-۰۷-۲۸، رأیِ مالک «گروه بشه پایگاهِ پروژه‌ها
                 # و پاها»): هر پا وقتی **وضعیتش عوض شود** در اتاقِ خودش می‌گوید.
                 # کادنسِ epoch عمدی است — تغییرِ حالِ یک پا کُند است و گزارشِ
