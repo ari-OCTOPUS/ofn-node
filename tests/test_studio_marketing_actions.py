@@ -73,16 +73,44 @@ class _Base(unittest.TestCase):
         return self.app.handle(method, path, headers,
                                json.dumps(body or {}).encode())
 
-    def make_draft(self, sensitivity="general"):
-        cid = f"col-{sensitivity}"
+    def make_draft(self, sensitivity="general", subjects=()):
+        cid = f"col-{sensitivity}-{len(subjects)}"
         self.node.studio.add_collection(
             self.tenant, cid, "test", genre="g",
             sensitivity=sensitivity, now_epoch_s=NOW_S)
+        # Subjects must exist before they can be attached to a draft.
+        for sid in subjects:
+            try:
+                self.node.consent.add_subject(self.tenant, sid, sid,
+                                              now_epoch_s=NOW_S)
+            except Exception:
+                pass  # already exists — idempotent for the test's purpose
         r = self.node.create_draft(self.scope, SABA,
                                    {"caption": "foot care moment",
-                                    "subjects": [],
+                                    "subjects": list(subjects),
                                     "collection_id": cid})
         return r["draft_id"]
+
+    SHA = "a" * 64
+
+    def add_subject(self, sid="saba"):
+        try:
+            self.node.consent.add_subject(self.tenant, sid, "Saba",
+                                          now_epoch_s=NOW_S)
+        except Exception:
+            pass  # idempotent
+
+    def add_release(self, sid="saba", scope="telegram_channel", rid="r1",
+                    signed_at=NOW_S - 86400, expires_at=None, revoked=False):
+        kwargs = dict(
+            scope=scope, signed_at=signed_at,
+            document_ref="doc/1", document_sha256=self.SHA,
+            recorded_by="operator:ari")
+        if expires_at is not None:
+            kwargs["expires_at"] = expires_at
+        self.node.consent.record_release(rid, sid, **kwargs)
+        if revoked:
+            self.node.consent.revoke(rid, now_epoch_s=NOW_S)
 
 
 class TestRoutePreview(_Base):
@@ -119,15 +147,74 @@ class TestRoutePreview(_Base):
 
 
 class TestSendToOutbox(_Base):
-    def test_general_draft_queued_for_passing_platforms(self):
-        did = self.make_draft("general")
+    def test_general_with_valid_consent_queued(self):
+        """general + subject + valid release for the platform → queued."""
+        did = self.make_draft("general", subjects=["saba"])
+        self.add_subject("saba")
+        self.add_release("saba", scope="telegram_channel")
         r = self.call("POST", f"/api/v1/studio/drafts/{did}/send-to-outbox",
-                      {"platforms": ["telegram_channel", "bluesky"]})
+                      {"platforms": ["telegram_channel"]})
         self.assertEqual(r.status, 200)
-        self.assertEqual(r.body["queued"], 2)
+        self.assertEqual(r.body["queued"], 1)
+
+    def test_no_subject_is_refused(self):
+        """general but nobody declared → refused, not queued."""
+        did = self.make_draft("general", subjects=[])
+        r = self.call("POST", f"/api/v1/studio/drafts/{did}/send-to-outbox",
+                      {"platforms": ["telegram_channel"]})
+        self.assertEqual(r.body["queued"], 0)
+        self.assertTrue(r.body["results"][0]["rule"].startswith("consent:"))
+
+    def test_expired_release_is_refused(self):
+        """A release signed but already expired → refused."""
+        did = self.make_draft("general", subjects=["saba"])
+        self.add_subject("saba")
+        self.add_release("saba", scope="telegram_channel",
+                         expires_at=NOW_S - 100)  # expired
+        r = self.call("POST", f"/api/v1/studio/drafts/{did}/send-to-outbox",
+                      {"platforms": ["telegram_channel"]})
+        self.assertEqual(r.body["queued"], 0)
+        self.assertTrue(r.body["results"][0]["rule"].startswith("consent:"))
+
+    def test_revoked_release_is_refused(self):
+        """A release that was withdrawn → refused; no older doc undoes it."""
+        did = self.make_draft("general", subjects=["saba"])
+        self.add_subject("saba")
+        self.add_release("saba", scope="telegram_channel", revoked=True)
+        r = self.call("POST", f"/api/v1/studio/drafts/{did}/send-to-outbox",
+                      {"platforms": ["telegram_channel"]})
+        self.assertEqual(r.body["queued"], 0)
+        self.assertTrue(r.body["results"][0]["rule"].startswith("consent:"))
+
+    def test_missing_platform_scope_is_refused(self):
+        """A release valid for bluesky does not cover telegram_channel."""
+        did = self.make_draft("general", subjects=["saba"])
+        self.add_subject("saba")
+        # Release scoped to bluesky only.
+        self.add_release("saba", scope="bluesky")
+        r = self.call("POST", f"/api/v1/studio/drafts/{did}/send-to-outbox",
+                      {"platforms": ["telegram_channel"]})
+        self.assertEqual(r.body["queued"], 0)
+        # telegram_channel is refused; but bluesky (in scope) would pass.
+        tc = next(x for x in r.body["results"] if x["platform"] == "telegram_channel")
+        self.assertTrue(tc["rule"].startswith("consent:"))
+
+    def test_scope_per_platform_isolated(self):
+        """A release for bluesky queues bluesky but refuses telegram_channel."""
+        did = self.make_draft("general", subjects=["saba"])
+        self.add_subject("saba")
+        self.add_release("saba", scope="bluesky")
+        r = self.call("POST", f"/api/v1/studio/drafts/{did}/send-to-outbox",
+                      {"platforms": ["bluesky", "telegram_channel"]})
+        by_p = {x["platform"]: x for x in r.body["results"]}
+        self.assertTrue(by_p["bluesky"]["queued"])
+        self.assertFalse(by_p["telegram_channel"]["queued"])
+        self.assertTrue(by_p["telegram_channel"]["rule"].startswith("consent:"))
 
     def test_double_send_is_idempotent(self):
-        did = self.make_draft("general")
+        did = self.make_draft("general", subjects=["saba"])
+        self.add_subject("saba")
+        self.add_release("saba", scope="telegram_channel")
         self.call("POST", f"/api/v1/studio/drafts/{did}/send-to-outbox",
                   {"platforms": ["telegram_channel"]})
         r2 = self.call("POST",
@@ -137,13 +224,43 @@ class TestSendToOutbox(_Base):
         self.assertFalse(r2.body["results"][0]["queued"])
 
     def test_restricted_draft_refused_not_queued(self):
-        did = self.make_draft("restricted")
+        did = self.make_draft("restricted", subjects=["saba"])
+        self.add_subject("saba")
+        self.add_release("saba", scope="telegram_channel")
         r = self.call("POST", f"/api/v1/studio/drafts/{did}/send-to-outbox",
                       {"platforms": ["telegram_channel"]})
         self.assertFalse(r.body["ok"])
-        # And nothing landed in the outbox.
         items = list(self.outbox.pending(self.scope))
         self.assertEqual(len(items), 0)
+
+
+class TestRoutePreviewIsPure(_Base):
+    """route-preview must never touch the outbox."""
+
+    def test_route_preview_creates_no_outbox_item(self):
+        did = self.make_draft("general", subjects=["saba"])
+        before = len(list(self.outbox.pending(self.scope)))
+        r = self.call("POST", f"/api/v1/studio/drafts/{did}/route-preview",
+                      {"platforms": ["telegram_channel", "bluesky"]})
+        self.assertEqual(r.status, 200)
+        after = len(list(self.outbox.pending(self.scope)))
+        self.assertEqual(before, after,
+                         "route-preview wrote to the outbox — it must be pure")
+
+
+class TestOwnerEndpointIsPartnerForbidden(_Base):
+    """A partner (Saba) must not reach owner-only endpoints."""
+
+    def test_partner_cannot_trigger_marketing_run(self):
+        # The owner endpoint lives on the owner host; a partner session on
+        # the studio host should not even route there. We call it on the
+        # studio host and expect a refusal, not a run.
+        r = self.call("POST", "/api/v1/owner/marketing/run",
+                      {"week_id": "x", "style_id": "x"})
+        # Owner routes are behind is_owner_host; a partner on the studio host
+        # gets 404 (route unknown on this host) rather than 403, which is
+        # still a refusal and still safe.
+        self.assertIn(r.status, (403, 404, 405))
 
 
 if __name__ == "__main__":

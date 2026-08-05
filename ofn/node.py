@@ -806,17 +806,51 @@ class Node:
         gates["wire_publish"] = "off"
         gates["owner_release"] = "off"
 
-        # Brain modules: presence only, not config. A partner seeing
-        # "marketing_scout: ok" learns the cycle is wired; she does not
-        # learn which model rung it uses.
-        brain = {
-            "release_switch": "ok",
-            "platform_matrix": "ok" if self.marketing is not None else "unwired",
-            "marketing_scout": "ok",
-            "content_router": "ok",
-            "consent": "ok" if self.consent is not None else "unwired",
-            "advisor_gate": "ok",
+        # Brain modules: derived from real state, not a hardcoded 'ok'.
+        # A partner reading "marketing_scout: last_run=never" learns the
+        # cycle is wired but has not run; "platform_matrix: 11 platforms"
+        # confirms the policy is loaded. None of this leaks config — only
+        # presence and counts, the way a partner's surface should.
+        brain: dict[str, object] = {}
+        brain["marketing_store"] = ("loaded" if self.marketing is not None
+                                    else "unwired")
+        # The marketing cycle's last run, from the store's current week.
+        wk = (marketing or {}).get("current_week")
+        brain["marketing_cycle"] = {
+            "current_week": wk["week_id"] if wk else None,
+            "status": wk["status"] if wk else "never_run",
         }
+        # Platform matrix: loaded count, not the rules themselves.
+        try:
+            from .adapters.platform_matrix_loader import (
+                default_matrix_path, load_matrix)
+            m = load_matrix(default_matrix_path())
+            brain["platform_matrix"] = {"loaded": True,
+                                        "platform_count": len(m.rules)}
+        except Exception:
+            brain["platform_matrix"] = {"loaded": False}
+        # Trend sources: none wired today, but the shape is honest about it.
+        sources = getattr(self, "_marketing_sources", None)
+        if sources is not None and hasattr(sources, "sources"):
+            brain["trend_sources"] = {"enabled": len(sources.sources)}
+        else:
+            brain["trend_sources"] = {"enabled": 0}
+        # Consent store presence.
+        brain["consent"] = ("loaded" if self.consent is not None
+                            else "unwired")
+        # The hosted brain: configured (key present) or not. We do NOT report
+        # the key, the endpoint, or any token — only whether the rung is
+        # armed. This is the one piece a partner benefits from knowing:
+        # "the brain is not armed yet, so the weekly focus is manual".
+        router_armed = False
+        if self.router is not None:
+            try:
+                st = self.worker.status() if self.worker is not None else {}
+                router_armed = bool(st.get("remote", {}).get("present", False)) \
+                    if isinstance(st.get("remote"), dict) else False
+            except Exception:
+                router_armed = False
+        brain["hosted_brain"] = {"armed": router_armed}
 
         return {
             "now": now,
@@ -931,6 +965,33 @@ class Node:
             "brain": brain_note,
         }
 
+    def _consent_for_platform(self, draft_id: str, platform: str, *,
+                              now_epoch_s: int) -> str | None:
+        """Is everyone in this draft consented for this platform?
+
+        Returns None when consent is clear, or a refusal rule string when not.
+        Mirrors the studio_board consent computation but per-platform and as
+        a single verdict, because send_to_outbox needs one yes/no per variant
+        rather than a screen of gaps. The rule string names *why* it refused
+        so the partner sees the cause, not just "no".
+        """
+        if self.consent is None:
+            return "consent:no-consent-store"
+        people = self.consent.subjects_in_draft(draft_id)
+        if not people:
+            # "Nobody declared" is not "nobody in it" — the fleet.judge rule.
+            return "consent:no-subject-declared"
+        docs = self.consent.releases_for(
+            [s.subject_id for s in people])
+        verdict = may_publish(people, docs, platform=platform,
+                              now_epoch_s=now_epoch_s)
+        if not verdict.allowed:
+            # The verdict's `why` is human-readable prose; pull the first
+            # block's reason if there is one, else the summary.
+            return ("consent:" + (verdict.blocks[0].reason.value
+                    if verdict.blocks else "blocked"))
+        return None
+
     def send_to_outbox(self, scope: TenantScope, user_id: str,
                        draft_id: str, platforms: tuple[str, ...], *,
                        framing: str = "beauty",
@@ -984,6 +1045,18 @@ class Node:
             if not v.screen.ok:
                 sent.append({"platform": v.platform, "queued": False,
                              "rule": v.screen.rule})
+                continue
+            # Consent: every person in the draft must be covered by a live
+            # release for THIS platform. General-sensitivity is necessary
+            # but not sufficient — the senior-architect review's point.
+            # may_publish refuses: no subject, no release, expired, revoked,
+            # out-of-scope. Each variant is checked for its own platform,
+            # because a release that covers 'bluesky' does not cover 'instagram'.
+            consent_rule = self._consent_for_platform(
+                draft_id, v.platform, now_epoch_s=self.now_epoch_s())
+            if consent_rule is not None:
+                sent.append({"platform": v.platform, "queued": False,
+                             "rule": consent_rule})
                 continue
             # The outbox payload carries everything a future publisher needs,
             # and nothing it does not: no secrets, no other tenants.

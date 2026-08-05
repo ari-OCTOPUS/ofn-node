@@ -150,5 +150,38 @@ class TestSnapshotRedaction(_Base):
                              f"snapshot leaked {marker!r}")
 
 
+class TestBrainModulesAreReal(_Base):
+    """The senior-architect review's point: brain_modules must reflect real
+    state, not a hardcoded 'ok'. A partner reading the snapshot should learn
+    whether the cycle has run, whether the matrix is loaded, and whether the
+    hosted brain is armed — never a flat 'all good' that hides a missing key."""
+
+    def test_platform_matrix_reports_real_count(self):
+        body = self.call("GET", "/api/v1/studio/marketing").body
+        pm = body["brain_modules"]["platform_matrix"]
+        self.assertTrue(pm["loaded"])
+        self.assertEqual(pm["platform_count"], 11)
+
+    def test_marketing_cycle_reports_never_run_when_empty(self):
+        body = self.call("GET", "/api/v1/studio/marketing").body
+        cycle = body["brain_modules"]["marketing_cycle"]
+        self.assertEqual(cycle["status"], "never_run")
+        self.assertIsNone(cycle["current_week"])
+
+    def test_hosted_brain_reports_armed_false_without_key(self):
+        body = self.call("GET", "/api/v1/studio/marketing").body
+        brain = body["brain_modules"]["hosted_brain"]
+        self.assertFalse(brain["armed"])
+
+    def test_trend_sources_reports_zero_when_none_wired(self):
+        body = self.call("GET", "/api/v1/studio/marketing").body
+        ts = body["brain_modules"]["trend_sources"]
+        self.assertEqual(ts["enabled"], 0)
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
 if __name__ == "__main__":
     unittest.main()
