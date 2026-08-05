@@ -111,22 +111,35 @@ def t_retrieval_failure_is_fail_soft_with_reason():
 
 
 def t_memory_is_never_authority_over_the_plan():
-    """plan ِ pipeline با و بدونِ retrieval بایت‌به‌بایت یکسان تصمیم می‌گیرد."""
+    """plan ِ pipeline با و بدونِ retrieval بایت‌به‌بایت یکسان تصمیم می‌گیرد.
+
+    ⚠️ عمداً از **دو چرخهٔ مستقل** (نه یک چرخهٔ تکرارشده) استفاده می‌کند: دفترِ
+    idempotency (`feat(goal-action): idempotency ledger…`, صداکنندهٔ جدا و
+    بی‌خبر از این seam) هر replay ِ همان cycle_id را — صرف‌نظر از فلگِ حافظه —
+    NOOP می‌کند (تأییدشده با پروب: دو فراخوانیِ متوالیِ همان چرخه، حتی با فلگِ
+    حافظه‌ی ثابت، EXECUTED→NOOP می‌شود). اجرای دو چرخهٔ متفاوت با پیشنهادِ
+    یکسان همان مقایسهٔ on/off را می‌سنجد بدونِ قاطی‌شدن با آن دفتر."""
     import prereg
     _flag(gab.FLAG, True)
     try:
-        prop = {"goal": "رخدادِ بازیابی در تصمیم دیده شود", "goal_key": "krecall",
-                "goal_source": "self", "direction": "جهتِ آزمون",
-                "method": "روشِ آزمونِ ۱", "method_index": 0,
-                "metric_path": "state/neural/recall-trend.jsonl", "metric_key": "events",
-                "baseline": 0.0, "target": {"op": ">", "value": 0.0},
-                "candidate_key": "recall-events", "deadline_cycles": 2}
-        p = prereg.register(prop, cycle="2026-07-29#1", now=NOW)
-        assert p.get("ok"), p
+        def _prop():
+            return {"goal": "رخدادِ بازیابی در تصمیم دیده شود", "goal_key": "krecall",
+                    "goal_source": "self", "direction": "جهتِ آزمون",
+                    "method": "روشِ آزمونِ ۱", "method_index": 0,
+                    "metric_path": "state/neural/recall-trend.jsonl", "metric_key": "events",
+                    "baseline": 0.0, "target": {"op": ">", "value": 0.0},
+                    "candidate_key": "recall-events", "deadline_cycles": 2}
+
+        p_off = prereg.register(_prop(), cycle="2026-07-29#1", now=NOW)
+        assert p_off.get("ok"), p_off
         _flag(gab.MEMORY_FLAG, False)
         off = gab.run_for_cycle("2026-07-29#1", now=NOW)
+
+        p_on = prereg.register(_prop(), cycle="2026-07-29#2", now=NOW)
+        assert p_on.get("ok"), p_on
         _flag(gab.MEMORY_FLAG, True)
-        on = gab.run_for_cycle("2026-07-29#1", now=NOW)
+        on = gab.run_for_cycle("2026-07-29#2", now=NOW)
+
         for k in ("classification", "receipt_status", "ok"):
             assert off.get(k) == on.get(k), (k, off.get(k), on.get(k))
         assert (on.get("memory") or {}).get("ok") is True, on.get("memory")

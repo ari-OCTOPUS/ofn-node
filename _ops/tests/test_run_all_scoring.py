@@ -16,10 +16,13 @@
   ۱. مکانیزم — فرزندِ >۶۴KB با `exit 0` زیرِ capture سالم است؛ روی sinkِ مشترکِ
      شکسته همان فرزند غیرصفر می‌شود و فرزندِ بافرشده **دقیقاً ۱۲۰** می‌دهد.
   ۲. رانر واقعاً همان شکلِ صدا زدن را دارد (ASTِ خودِ run_all.py).
-  ۳. scoring — retryِ سبز بعد از کدِ **مفسر** ⇒ PASS و **بدونِ** revoke؛ ولی
-     لرزشِ واقعی (`1 → 0`) عمداً در `failed` می‌ماند و revoke می‌کند (fail-closed
-     دست‌نخورده). ناوردی ۳ با اجرای **حلقهٔ واقعیِ** run_all در درختِ موقت سنجیده
-     می‌شود، نه با بازنویسیِ منطق در تست.
+  ۳. scoring — همه‌ی شکست‌ها (چه artifactِ مشکوکِ کنسول، چه لرزشِ واقعیِ
+     `1 → 0`) در `failed` می‌مانند و revoke می‌کنند — fail-closedِ همیشگی،
+     رأیِ مالکِ ۲۰۲۶-۰۷-۳۰ (مستند در خودِ run_all.py: پاک‌کردنِ خودکارِ برچسب
+     برای ۱۲۰-سپس-سبز عمداً غیرفعال شد، چون ۱۲۰ می‌تواند حکمِ واقعیِ تست هم
+     باشد). فرق تنها در حاشیه‌نویسیِ رکوردِ `_flaky` است. ناوردی ۳ با اجرای
+     **حلقهٔ واقعیِ** run_all در درختِ موقت سنجیده می‌شود، نه با بازنویسیِ
+     منطق در تست.
 
 اجرا: python -X utf8 test_run_all_scoring.py
 """
@@ -244,16 +247,23 @@ class ScoringEndToEnd(unittest.TestCase):
         self.assertNotIn("REVOKE", w, "revokeِ بی‌دلیل روی تستِ سالم")
         self.assertIn("LOUD-OK", r.stdout, "والد خروجیِ فرزند را بازپخش نکرد")
 
-    def test_exit120_then_green_does_not_revoke(self):
-        """قرمزِ کاذبِ مستندشده: ۱۲۰ سپس سبز ⇒ PASS، بدونِ revoke."""
+    def test_exit120_then_green_is_still_revoked_but_annotated_as_infra_suspect(self):
+        """۲۰۲۶-۰۷-۳۰ (رأیِ مالک، مستند در خودِ run_all.py): پاک‌کردنِ برچسب برای
+        قرمزِ کاذبِ ۱۲۰-سپس-سبز عمداً غیرفعال شد — چون ۱۲۰ می‌تواند حکمِ واقعیِ
+        تست هم باشد (Py_FinalizeEx می‌تواند AssertionError را هم با ۱۲۰
+        بازنویسی کند)؛ پاک‌کردنِ خودکار یعنی fail-OPEN روی گیتِ پول. پس امروز:
+        قرمزِ کاذب هم مثلِ لرزشِ واقعی در failed می‌ماند و revoke می‌کند — تنها
+        فرق، حاشیه‌نویسیِ رکوردِ `_flaky` است که این مورد را «مشکوک به
+        artifactِ کنسول» و fail-closed علامت می‌زند تا دفعهٔ بعد حدس نزنیم."""
         r, w, tests = self._run({"test_flush120.py": _child_two_pass(120)})
-        self.assertEqual(r.returncode, 0,
-                         f"۱۲۰-سپس-سبز نباید سوییت را قرمز کند.\n{r.stdout[-3000:]}")
-        self.assertNotIn("REVOKE", w, "capability بی‌دلیل revoke شد (همان باگِ ۳۳ تست)")
-        self.assertIn("MARK", w)
+        self.assertEqual(r.returncode, 1,
+                         f"سیاستِ fail-closedِ همیشگی: قرمزِ کاذب هم باید سوییت را قرمز نگه دارد.\n{r.stdout[-3000:]}")
+        self.assertIn("REVOKE", w, "قرمزِ کاذب هم باید revoke کند (fail-closedِ عمدیِ ۲۰۲۶-۰۷-۳۰)")
+        self.assertNotIn("MARK", w)
         rec = (tests / "_flaky" / "test_flush120.py.txt").read_text(encoding="utf-8")
         self.assertIn("exit(1)=120 exit(2)=0", rec, "شواهدِ لرزش ثبت نشد")
-        self.assertIn("PASS", rec, "رکورد باید بگوید artifactِ محیط بود، نه شکست")
+        self.assertIn("fail-closed", rec,
+                      "رکورد باید موردِ مشکوک به artifactِ کنسول را fail-closed علامت بزند")
 
     def test_genuine_flake_still_revokes_contract_unchanged(self):
         """`1 → 0` لرزشِ واقعی است: در failed می‌ماند و revoke می‌کند (fail-closed)."""
@@ -277,7 +287,7 @@ class ScoringEndToEnd(unittest.TestCase):
         mutated = src.replace(
             'r = subprocess.run(cmd, cwd=str(p.parent), timeout=300,\n'
             '                           capture_output=True, text=True,\n'
-            '                           encoding="utf-8", errors="replace")',
+            '                           encoding="utf-8", errors="replace", env=_guarded_env())',
             'r = subprocess.run(cmd, cwd=str(p.parent), timeout=300)')
         self.assertNotEqual(src, mutated, "الگوی پاسِ اول پیدا نشد — مویتیشن اعمال نشد")
         runner.write_text(mutated, encoding="utf-8")

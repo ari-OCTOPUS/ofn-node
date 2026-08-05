@@ -914,16 +914,40 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     # `_ops/state/CAPABILITY-OK.flag` پاک می‌کند. یعنی ثبتِ یک تستِ قرمز
     # قابلیتِ کلِ ارگانیسم را باطل می‌کند — نه فقط یک خطِ قرمز در گزارش.
     #
-    # ۸ قرمز (ثبت نشد، دلیل ثبت شد):
-    #   test_drawdown_enforcer      AttributeError روی budget_gate — API عوض شده
-    #   test_hebbian_decay          ۶ پاس / ۲ شکست
-    #   test_memory_read_seam       ۰ از ۵
-    #   test_mining_leg             ImportError: MiningLeg در mining_leg نیست
-    #   test_mission_card_seam      ۰ از ۷
-    #   test_producer_migration     گیتِ flag-off باید False می‌داد
-    #   test_run_all_scoring        نسبت به run_all ِ زنده کهنه است
-    #   test_truth_by_cycle         لنگرِ `before <= 12` وقتی دفتر ۸۱۲ ردیف بود
-    #                               بسته شده؛ امروز ۱۴ است
+    # ۸ قرمز — ۲۰۲۶-۰۸-۰۵ (شب)، «بیشتر فیکس کن»: پنج‌تا رفع و سنجیده شد
+    # (هر کدام با ممیزیِ موازیِ مستقل: دیفِ واقعی خوانده شد، اجرای تازه —
+    # نه گزارشِ ایجنت — و در دو مورد `git log -S` روی نشانه). سه‌تا نه:
+    #
+    #   test_hebbian_decay          ✅ رفع شد — تستِ ۵ متغیرِ ایزولاسیونِ
+    #       غلط داشت (`PF_BRAIN_DIR` به‌جای `OPS_DIR`؛ hebbian.py فقط
+    #       دومی را می‌خواند)، پس به‌جای tmp روی hebbian.json ِ **زنده**
+    #       می‌نوشت. تست تصحیح شد، منطقِ تولید دست‌نخورده بود.
+    #   test_memory_read_seam       ✅ رفع شد — با test_mission_card_seam
+    #   test_mission_card_seam      ✅ رفع شد — هر دو seam در کامیتِ
+    #       830e38c ساخته شدند و در مرجِ 870a814 **تصادفاً** از
+    #       goal_action_bridge.py گم شدند (تستِ فایل‌ها زنده ماندند، کدشان
+    #       نه). بازیابی شد: CARD_FLAG/MEMORY_FLAG هر دو
+    #       RESTORED_NOT_ARMED — پیش‌فرض خاموش، در `OCTOPUS-flags.cmd` هم
+    #       اعلام شدند (=0). فایل: `_ops/goal_action_bridge.py`.
+    #   test_run_all_scoring        ✅ رفع شد — دو فرضِ خودِ تست از
+    #       run_all.py ِ واقعی جا مانده بود (لنگرِ مویتیشن، سیاستِ امتیازِ
+    #       exit-120). تست‌فقط؛ ۷۴e20dd خودش این تست را «کهنه» نامیده بود.
+    #   test_truth_by_cycle         ✅ رفع شد — لنگرِ `before <= 12` روی
+    #       دفترِ **درحالِ‌رشد** بسته شده بود (امروز ۱۴)؛ به `<= 300` باز
+    #       شد + توضیح. سنجه‌های نسبتیِ اصلی (`after>100`،
+    #       `after>before*5`) دست‌نخورده ماندند.
+    #
+    #   test_drawdown_enforcer      ⛔ رفع **رد شد** — اولین تلاش مکانیزمِ
+    #       هالتِ زندهٔ مالی ساخت و آستانه (۲۵٪) را خودش انتخاب کرد، در
+    #       حالی‌که `_ops/deploy/DEPLOY-2026-07-21.md` صریح می‌گوید
+    #       «آستانهٔ drawdown … عددِ سیاستِ مالی با مالک … enforcement
+    #       اصلاً ساخته نشد». دقیقاً همان مرزی که منشور §۰ می‌گوید توقف
+    #       کن. برگردانده شد (`git checkout`). سؤال در
+    #       [[00 - Inbox/AGENT_QUESTIONS]].
+    #   test_mining_leg             ⛔ دست نزده — `_ops/legs/mining_leg.py`
+    #       زیرِ قفلِ پاهای بیزنسی (رأیِ مالک ۰۸-۰۵) است.
+    #   test_producer_migration     ⛔ دست نزده — هدف `_ops/legs/
+    #       harvest_austender.py` است، همان قفل.
     #
     # ۲ قرنطینه — **اجرا هم نشدند**:
     #   test_outbound_owner_transport  می‌تواند ایمیلِ واقعی از جیمیلِ مالک
@@ -979,6 +1003,12 @@ TESTS = ["test_client.py", "test_telemetry.py", "test_organ_gate.py",
     "test_world_discovery_e2e.py",
     "test_world_discovery_novelty.py",
     "test_world_discovery_sources.py",
+    # ── 2026-08-05 (شب) — پنج‌تای رفع‌شده از هشتِ بالا ──────────────────────
+    "test_hebbian_decay.py",
+    "test_memory_read_seam.py",
+    "test_mission_card_seam.py",
+    "test_run_all_scoring.py",
+    "test_truth_by_cycle.py",
          ]
 # ØªØ³Øªâ€ŒÙ‡Ø§ÛŒ Ø®Ø§Ø±Ø¬ Ø§Ø² _ops/tests/ (path tuyá»‡tÙ‚)
 EXTRA_TESTS = [HERE.parents[1] / "07 - Knowledge" / "Time-Architecture" / "test_fusion_sim.py",

@@ -55,7 +55,14 @@ def main():
     # ─── Test 5: observe + decay cycle (real workflow) ───
     import tempfile, os
     with tempfile.TemporaryDirectory() as tmp:
-        os.environ["PF_BRAIN_DIR"] = tmp
+        # hebbian.py resolves its persist path from OPS_DIR (env-اول idiom shared
+        # with bcm/consolidation/latent_space/sparse_filter — 2026-07-11), not
+        # PF_BRAIN_DIR (that one is Project-F's own sandbox var, unrelated to
+        # _ops/neural). Setting the wrong var here silently missed the isolation:
+        # HebbianAssociator() fell through to "_ops/neural/hebbian.json" beside
+        # the module — the tracked live-tree file — so this block was reading/
+        # writing production state instead of the temp dir.
+        os.environ["OPS_DIR"] = tmp
         # reload to pick up new path
         import importlib
         importlib.reload(hebbian)

@@ -306,7 +306,11 @@ def run(*, goal: str, method: str, why: str = "", goal_source: str = "self",
                           "tool_requests_precise": _tro.get("precise"),
                           **({"action_receipt": _act.get("receipt_status"),
                               "action_mission": _act.get("mission_id"),
-                              "action_trace": _act.get("trace_id")}
+                              "action_trace": _act.get("trace_id"),
+                              # §۱۰.۴: retrieval باید در دفتر «دیده» شود، نه فقط
+                              # فراخوانی شود — وگرنه سنجهٔ مصرفِ حافظه دروغ می‌گوید.
+                              "action_memories_used":
+                                  (_act.get("memory") or {}).get("count", 0)}
                              if _act else {})})
     out["journal"] = rec
     # ── تعهدِ چرخه: fail-closed در هر دو پله ──────────────────────────────────
@@ -361,11 +365,30 @@ def beat(*, channel=None, now: "float | None" = None) -> dict:  # noqa: ARG001
                 out["memory_consolidated"] = _cm["consolidated"]
     except Exception:  # noqa: BLE001 — حافظه هرگز beat را نمی‌کشد
         pass
-    # ۱.۶) کارتِ A3 → صفِ تأییدِ مالک: **این‌جا نه.** پلِ تأیید
-    # (telegram_center/mission_approval_bridge) عمداً از beat ِ خودِ مرکز صدا
-    # زده می‌شود، نه از این‌جا — invariant ِ approval_store (S1-05 t_o):
-    # هر تماس با صفِ تأیید فقط در پروسهٔ مرکز؛ نویسندهٔ دومِ بین‌پروسه‌ای
-    # روی approvals.json همان race ی است که قفلِ درون‌پروسه‌ای نمی‌پوشاند.
+    # ۱.۶) کارتِ مالک برای missionهای منتظرِ رأی (VQ-MISSION-CARD-001).
+    # عمداً قبل از گیتِ اسلات: کارتِ رأی نباید تا اسلاتِ بعدی ۱۲ ساعت صبر کند.
+    # فلگِ خودش (CARD_FLAG=OCTOPUS_WIRE_MISSION_CARD)، پیش‌فرض خاموش = دقیقاً
+    # هیچ (غایب از flags.cmd؛ رجیستری: TESTED_NOT_ARMED).
+    #
+    # این درز از مسیرِ **دیگری** نسبت به OWNER_GATE ِ خودِ run_for_cycle می‌رود:
+    # آن یکی کارتِ دقیقِ planner را در owner_cards/ استیج می‌کند و مصرف‌کننده‌اش
+    # mission_approval_bridge است (از beat ِ خودِ telegram_center — همان
+    # invariant ِ approval_store، S1-05 t_o: مصرفِ verdict فقط در پروسهٔ مرکز).
+    # emit_mission_cards این‌جا یک ردیفِ کلی‌ترِ دیگر می‌بندد: هر mission با
+    # status=needs_approval در missions.jsonl (از هر منبعی)، با jid ِ جدا
+    # (mis-*) — یعنی هیچ کارتی را دوبار نمی‌سازد.
+    # ⚠️ هر دو مسیر نهایتاً روی همان approvals.json می‌نویسند. تا وقتی approval_store
+    # از RLock ِ درون‌پروسه به file-lock ارتقا نیابد، CARD_FLAG را هم‌زمان با
+    # OCTOPUS_WIRE_MISSION_APPROVAL مسلح نکن — نویسندهٔ دومِ بین‌پروسه‌ای دقیقاً
+    # همان راهی است که آن قفل نمی‌پوشاند.
+    try:
+        import goal_action_bridge as _gab
+        if _gab.card_enabled():
+            _mc = _gab.emit_mission_cards()
+            if _mc.get("emitted"):
+                out["mission_cards"] = _mc["emitted"]
+    except Exception:  # noqa: BLE001 — کارت هرگز beat را نمی‌کشد
+        pass
     # ۱.۷) منتقدِ رسید — ناوردی‌های اجراکننده را از دیسک قضاوت کن (فلگِ جدا).
     # رسیدِ بی‌منتقد همان «دفاعِ لایه‌ای بی‌سنجه» است که بی‌صدا می‌پوسد.
     try:

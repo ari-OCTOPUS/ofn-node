@@ -41,12 +41,22 @@ if str(_OPS) not in sys.path:
     sys.path.insert(0, str(_OPS))
 
 FLAG = "OCTOPUS_WIRE_ACTION_BRIDGE"
+CARD_FLAG = "OCTOPUS_WIRE_MISSION_CARD"
+MEMORY_FLAG = "OCTOPUS_WIRE_MEMORY_READ"
 SCHEMA = "octopus.goal-action.v1"
 
 
-def enabled() -> bool:
-    return str(os.environ.get(FLAG, "") or "").strip().lower() in (
+def _flag_on(name: str) -> bool:
+    return str(os.environ.get(name, "") or "").strip().lower() in (
         "1", "true", "yes", "on")
+
+
+def enabled() -> bool:
+    return _flag_on(FLAG)
+
+
+def card_enabled() -> bool:
+    return _flag_on(CARD_FLAG)
 
 
 def _state_dir() -> Path:
@@ -162,6 +172,88 @@ def _append_mission(env: dict) -> bool:
         return False
 
 
+# ── کارتِ مالک برای missionهای منتظرِ رأی (VQ-MISSION-CARD-001) ─────────────
+def _load_approval_store():
+    """approval_store ِ telegram_center را با importlib ِ مسیری لود می‌کند —
+    عمداً بدونِ افزودنِ telegram_center به sys.path (نام‌های عمومی‌اش مثل
+    render/actions ماژول‌های دیگر را shadow می‌کنند). approval_store خودش
+    stdlib-only است. اگر OCTOPUS_STATE_ROOT ست باشد، صف به همان‌جا pin
+    می‌شود (ایزوله‌سازیِ تست/worktree — همان قراردادِ owner_views).
+
+    ⚠️ این loader عمداً `import approval_store` را دور می‌زند (تستِ نگهبانِ
+    S1-05 t_o هر import ِ مستقیمِ approval_store بیرونِ telegram_center را
+    قرمز می‌کند) ولی همان محدودیتِ تک‌نویسنده هنوز معنا دارد: emit_mission_cards
+    فقط از پروسه‌ای صدا زده شود که تنها مصرف‌کنندهٔ همزمانِ این صف است. اگر روزی
+    CARD_FLAG هم‌زمان با OCTOPUS_WIRE_MISSION_APPROVAL (telegram_center) مسلح
+    شود، دو پروسه روی همین approvals.json می‌نویسند — همان raceی که RLock ِ
+    approval_store فقط درون‌پروسه می‌پوشاند؛ پیش از مسلح‌کردنِ هم‌زمان، صف باید
+    به file-lock ارتقا یابد (owner_gate ِ قبل از arm)."""
+    import importlib.util
+    p = _OPS / "telegram_center" / "approval_store.py"
+    spec = importlib.util.spec_from_file_location("_gab_approval_store", p)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    root = str(os.environ.get("OCTOPUS_STATE_ROOT", "") or "").strip()
+    if root:
+        base = Path(root)
+        mod._APPROVALS_JSON = base / "approvals.json"
+        mod._AUDIT_PATH = base.parent / "logs" / "audit.log"
+    return mod
+
+
+def emit_mission_cards(*, cap: int = 3, store=None) -> dict:
+    """mission ِ requires_approval → کارتِ pending در صفِ تأییدِ موجود (ap:).
+
+    شکافِ ثبت‌شدهٔ ۱۳-ARMED: ردیفِ needs_approval در دفتر می‌نشیند ولی مالک
+    فقط با خواندنِ فایل می‌بیندش. این درز صفِ **موجود** را پر می‌کند؛ کارت را
+    همان center ِ فعلی رندر می‌کند و رأی از همان `ap:ok/ap:no` می‌آید —
+    صفر poller/bot ِ نو، صفر send ِ مستقیم.
+
+    ناوردی‌ها: فلگ خاموش = دقیقاً هیچ · content-free (فقط action/target_leg/
+    risk — متنِ هدف هرگز) · idempotent: jid قطعی از mission_id و چکِ همهٔ
+    bucketها (کارتِ رأی‌خورده دوباره pending نمی‌شود) · آخرین وضعِ هر mission
+    ملاک است · هیچ خطایی صداکننده را نمی‌کشد."""
+    if not card_enabled():
+        return {"ok": False, "reason": "flag-off", "emitted": 0}
+    latest: dict = {}
+    try:
+        for line in _missions_path().read_text("utf-8").splitlines():
+            try:
+                d = json.loads(line)
+            except ValueError:
+                continue
+            if isinstance(d, dict) and d.get("mission_id"):
+                latest[str(d["mission_id"])] = d
+    except OSError:
+        return {"ok": True, "emitted": 0, "reason": "no-ledger"}
+    try:
+        aps = store if store is not None else _load_approval_store()
+    except Exception as e:  # noqa: BLE001
+        return {"ok": False, "reason": f"store:{type(e).__name__}", "emitted": 0}
+    n = 0
+    for mid, env in latest.items():
+        if n >= max(1, int(cap)):
+            break
+        if env.get("status") != "needs_approval" or not env.get("requires_approval"):
+            continue
+        jid = "mis-" + str(mid).replace(":", "-")
+        try:
+            if aps.get(jid) is not None:
+                continue                     # قبلاً کارت شده — در هر bucket
+            aps.add_pending({
+                "id": jid, "type": "mission_approval",
+                "title": (f"mission {env.get('action') or '?'} · "
+                          f"{env.get('target_leg') or '?'} · {env.get('risk') or '?'}"),
+                "risk": str(env.get("risk") or "high"),
+                "requires_confirmation": True,
+                "source": "goal_action_bridge",
+            })
+            n += 1
+        except Exception:  # noqa: BLE001 — یک کارتِ بد بقیه را نمی‌کشد
+            continue
+    return {"ok": True, "emitted": n}
+
+
 # ── حافظه در نقطهٔ تصمیم (فقط narrowing، پشتِ فلگِ خودِ router) ─────────────
 def _memory_decision(row: dict, *, now: float) -> dict:
     """retrieval router — شواهد + veto ِ مالک از حافظه. fail-soft: خطا/غیابِ
@@ -178,6 +270,65 @@ def _memory_decision(row: dict, *, now: float) -> dict:
     except Exception as e:  # noqa: BLE001
         return {"memories_used": [], "veto": False,
                 "mode": f"router-error:{type(e).__name__}"}
+
+
+# ── بازیابیِ حافظه پیش از برنامه‌ریزی (SGC-14 §۱۰.۴؛ مشورتی، هرگز مجوز) ───────
+def _recall_for_goal(row: dict, *, cap: int = 3) -> dict:
+    """retrieval ِ ساخت‌یافته از MemoryStore برای هدفِ همین چرخه.
+
+    خروجی فقط شناسه/اعتماد/تازگی/چرایی است — نه متنِ خام و نه هیچ authority.
+    مصرفِ تصمیمیِ واقعی پشتِ A/B ِ §۱۰.۵ می‌ماند؛ این تابع «خواندن + ثبتِ
+    مشاهده‌پذیر در journal» را می‌بندد (سنجه باید مشاهده کند، نه فراخوانی).
+    فلگ خاموش (پیش‌فرض) = دقیقاً هیچ. شکست = fail-soft ِ صریح.
+
+    ⚠️ این تابع مستقل از `_memory_decision`/`retrieval_router` است: آن یکی
+    veto ِ مالک را از مسیرِ گیت‌شدهٔ خودش می‌آورد (OCTOPUS_WIRE_MEMORY_DECISION،
+    بعد از prepare_records)، این یکی صرفاً مشورتی و پیش از prepare_records
+    است (OCTOPUS_WIRE_MEMORY_READ) — دو فلگِ جدا، دو مسیرِ جدا، بدونِ تداخل."""
+    if not _flag_on(MEMORY_FLAG):
+        return {"ok": False, "reason": "flag-off", "used": [], "count": 0}
+    try:
+        if str(_OPS / "memory") not in sys.path:
+            sys.path.insert(0, str(_OPS / "memory"))
+        import memory_store
+        st = memory_store.MemoryStore()
+        used, seen = [], set()
+        # goal_key عمداً جزو پرسش‌هاست: ردیف‌های consolidate ِ همین پل دقیقاً
+        # «goal=<goal_key>» را حمل می‌کنند — تجربهٔ چرخه‌های قبلیِ همین هدف.
+        queries = [("fts:goal", str(row.get("goal") or "")),
+                   ("fts:goal_key", str(row.get("goal_key") or "")),
+                   ("fts:candidate", str(row.get("candidate_key") or ""))]
+        for why, q in queries:
+            if not q.strip():
+                continue
+            for ns in ("episodic", "semantic"):
+                try:
+                    hits = st.search(q, namespace=ns, k=cap)
+                except Exception:  # noqa: BLE001 — یک namespace بقیه را نمی‌کشد
+                    continue
+                for h in hits:
+                    hid = str(h.get("memory_id") or h.get("id") or "")
+                    if not hid or hid in seen:
+                        continue
+                    seen.add(hid)
+                    used.append({"memory_id": hid, "namespace": ns,
+                                 "trust": h.get("trust") or h.get("trust_class"),
+                                 "created_at": h.get("created_at"),
+                                 "why": why})
+                    if len(used) >= max(1, int(cap)):
+                        break
+                if len(used) >= max(1, int(cap)):
+                    break
+            if len(used) >= max(1, int(cap)):
+                break
+        try:
+            st.close()
+        except Exception:  # noqa: BLE001
+            pass
+        return {"ok": True, "used": used, "count": len(used)}
+    except Exception as e:  # noqa: BLE001
+        return {"ok": False, "reason": f"recall:{type(e).__name__}",
+                "used": [], "count": 0}
 
 
 # ── stage ِ کارتِ مالک (OWNER_GATE → فایل، نه سکوت) ─────────────────────────
@@ -236,6 +387,12 @@ def run_for_cycle(cycle_id: str, *, now: "float | None" = None) -> dict:
     if not isinstance(row, dict):
         return {**out, "ok": False, "reason": "missing-prereg"}
     out["prereg_id"] = row.get("prereg_id")
+
+    # ۱.۵) بازیابیِ حافظه — مشورتی و مشاهده‌پذیر؛ بر plan هیچ اثری ندارد
+    # (memory مجوز نیست — قانونِ اساسی؛ مصرفِ تصمیمی = A/B ِ §۱۰.۵، owner-gated).
+    # عمداً پیش از prepare_records: تا plan/receipt با و بدونِ retrieval
+    # بایت‌به‌بایت یکسان بماند (سنجهٔ t_memory_is_never_authority_over_the_plan).
+    out["memory"] = _recall_for_goal(row)
 
     # ۲) آماده‌سازی از سیمِ موجود — ترجمه/envelope/نقشه، همه از اجزای تست‌شده.
     #    دفترِ idempotency و nonceها از دیسک — تا restart حفاظت را صفر نکند.
