@@ -617,6 +617,63 @@ def t_audit_a_silent_downgrade_never_writes_a_patch():
         _reset_loop_state()
 
 
+def t_audit_the_downgrade_alert_tells_the_daily_cap_from_a_real_failure():
+    """۲۰۲۶-۰۸-۰۶ زنده (اسکنِ سراسری): همان کلاسِ آلارمِ گمراه‌کنندهٔ
+    model_router/deep_think، سومین نمونهٔ فیکس‌نشده — self_patch's own
+    «به مغزِ گران نرسید ... رها شد» تفکیک نمی‌کرد سقفِ روزانهٔ عادی از
+    شکستِ واقعی. با سقف: باید ℹ️ و «سقفِ روزانه» بگوید. بدونِ سقف: متنِ
+    قدیمی (بدونِ ℹ️) بماند."""
+    import opslib
+    _on()
+    _reset_loop_state()
+    sent, real_alert = [], opslib.alert
+    opslib.alert = lambda msgs, **k: sent.extend(list(msgs))
+    real_fq = sys.modules.get("fugu_quota")
+    try:
+        # self_patch's OWN daily-share counter (_self_patch_may_spend) never
+        # gets cleared by _reset_loop_state() -- it accumulates across every
+        # earlier propose()/_ask() call in this whole file's run, so it must
+        # be zeroed here or this test silently gets denied before _ask() is
+        # ever reached (exactly the failure mode that first caught this).
+        try:
+            sp.SELF_PATCH_CALLS.unlink()
+        except OSError:
+            pass
+        import types
+
+        def ask(task, prompt, system="", max_tokens=4000, tier=None, **kw):
+            return {"ok": True, "text": "x", "tier": "local",
+                    "fallback_from": "primary: paid-call-failed"}
+
+        m = types.ModuleType("fugu_quota")
+        m.status = lambda: {"remaining": 0, "used_total": 60, "cap": 60}
+        m._cap = lambda: 60          # _self_patch_may_spend() reads this separately
+        sys.modules["fugu_quota"] = m
+        sp.propose(target_rel=ALLOWED, defect="d", ask_fn=ask,
+                  shadow_fn=lambda t, c: {"green": True})
+        assert sent, "آلارمی زده نشد"
+        msg = sent[-1]
+        assert msg.startswith("ℹ️"), msg
+        assert "سقفِ روزانه" in msg and "60/60" in msg, msg
+
+        sent.clear()
+        m.status = lambda: {"remaining": 57, "used_total": 3, "cap": 60}
+        sp.propose(target_rel=ALLOWED, defect="d", ask_fn=ask,
+                  shadow_fn=lambda t, c: {"green": True})
+        assert sent, "آلارمی زده نشد"
+        msg2 = sent[-1]
+        assert not msg2.startswith("ℹ️"), msg2
+        assert "paid-call-failed" in msg2, msg2
+    finally:
+        opslib.alert = real_alert
+        if real_fq is not None:
+            sys.modules["fugu_quota"] = real_fq
+        else:
+            sys.modules.pop("fugu_quota", None)
+        _off()
+        _reset_loop_state()
+
+
 def t_audit_the_input_cap_cannot_exceed_the_output_budget():
     """قرارداد «کلِ فایلِ اصلاح‌شده را برگردان» یعنی سقفِ ورودی نمی‌تواند از سقفِ
     خروجی بزرگ‌تر باشد. ۶۰KB پذیرفته می‌شد در حالی که ۴۰۰۰ توکن ~۱۲KB بیرون می‌دهد،

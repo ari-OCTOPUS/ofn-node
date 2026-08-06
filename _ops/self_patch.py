@@ -194,8 +194,26 @@ def _ask(prompt: str, ask_fn=None) -> str:
     # محلیِ ۱.۵B نوشته باشد نباید حتی وارد شادو-تست شود.
     if isinstance(r, dict) and (r.get("fallback_from") or
                                 (r.get("tier") and r.get("tier") != "primary")):
-        opslib.alert([f"self_patch: نوشتنِ پچ به مغزِ گران نرسید "
-                      f"({r.get('fallback_from') or r.get('tier')}) — رها شد"])
+        # ۲۰۲۶-۰۸-۰۶: همان کلاسِ آلارمِ گمراه‌کنندهٔ model_router/deep_think —
+        # `fallback_from` فقط رشتهٔ عامِ «paid-call-failed» را حمل می‌کند،
+        # بدونِ تفکیکِ سقفِ روزانهٔ عادی از شکستِ واقعی. self_patch سهمِ
+        # جداگانه‌ای دارد (SELF_PATCH_CALLS) ولی آن فقط تضمین می‌کند خودش
+        # از طرفِ بقیه گرسنه نماند — سقفِ سراسریِ فوگو هنوز می‌تواند از قبل
+        # پر شده باشد و همین آلارمِ گمراه‌کننده را بزند.
+        _fb_sp = r.get('fallback_from') or r.get('tier')
+        try:
+            import fugu_quota as _fq_sp
+            _fqs_sp = _fq_sp.status()
+            _capped_sp = int(_fqs_sp.get("remaining", 1) or 0) <= 0
+        except Exception:  # noqa: BLE001
+            _capped_sp = False
+        if _capped_sp:
+            opslib.alert([f"ℹ️ self_patch: نوشتنِ پچ امروز به مغزِ گران نرسید "
+                          f"— سقفِ روزانهٔ فوگو پر شد ({_fqs_sp.get('used_total')}/"
+                          f"{_fqs_sp.get('cap')}) — فردا خودکار ریست می‌شود، رها شد."])
+        else:
+            opslib.alert([f"self_patch: نوشتنِ پچ به مغزِ گران نرسید "
+                          f"({_fb_sp}) — رها شد"])
         return ""
     if not isinstance(r, dict) or not r.get("ok"):
         return ""
