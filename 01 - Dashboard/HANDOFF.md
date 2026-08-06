@@ -159,3 +159,19 @@ updated: 2026-08-06
   کلیدِ اعلام‌نشده است) — این تناقضِ واقعیه نه تستِ کهنه، نیازِ تصمیم/فیکس.
   **۲.۴/۲.۵/موردِ ۴** مالک انجام نداد (خارج از این جلسه). کدِ لمس‌شده:
   `_ops/{OCTOPUS-flags.cmd,wiring.py}`.
+
+- 🧩✅ **2026-08-06 (بامداد — پلِ RAG + پرورشِ سایه + نهایی‌سازیِ نشست).**
+  مالک: «خودشو پرورش بده با معادلات + وصل کن + RAG». **یافتهٔ کلیدی:** الگوریتم‌هایِ
+  پرورش **از قبل live بودند ولی در no-op می‌چرخیدند** — BCM (`φ=y(y-θ)`, ۱۶۴ step)،
+  Hebbian (۴ جفتِ اشباع)، consolidation (`salience=recency×importance×relevance`،
+  ۳۴۱ نوت از قبل ولی الان هر tick صفر). علتِ no-op: `memory.db` **خالی (۰ جدول!)**
+  و `CORTEX_CONSOLIDATE` در پروسهٔ زنده ست نشده.
+  **ساخته شد (همه در shadow، هیچ فلگی آرم نشد):** (۱) `vault_bridge.py` — پلِ RAGِ
+  fail-closed از ChromaDB به `retrieval_router` (فقط شاهدِ semantic، هرگز veto؛
+  ابسیدین canonical). پشتِ `OCTOPUS_WIRE_VAULT_RAG`. مسیرِ چهارم به `route()`.
+  (۲) `test_consolidate_shadow.py` — ثابت می‌کند وقتی فلگ روشن بشه تثبیت واقعاً
+  کار می‌کنه. ۷+۵ تست، mutation-test هردو سبز. بک‌لاگِ مرحلهٔ ۲ (تغذیهٔ BCM/Hebbian
+  + RAG-index کلِ vault، وابسته به memory.db) در AGENT_QUESTIONS. **هیچ‌چیز آرم
+  نشد** — روشن‌کردنِ فلگ رأیِ جداگانهٔ مالک است. کدِ لمس‌شده:
+  `_ops/memory/{vault_bridge,retrieval_router}.py`، ۲ تستِ نو، `00-README-START-HERE.md`.
+  **همه‌ی کارهای این نشست کامیت شد** (`9b221a4`, `0496509`, `999431a`, + این).

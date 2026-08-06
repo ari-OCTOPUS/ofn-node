@@ -67,6 +67,23 @@
 | **19-TELEGRAM-APPROVAL-RACE-AND-ALERT-AUDIT-2026-08-06** | «رأی ثبت نمی‌شود»: سه ریشهٔ مستقل (کارتِ بی‌دکمه، دکمهٔ cross-bot، **رِیسِ دو-پروسه روی approval_store** — احتمالاً اصلی‌ترین)؛ + سومین نمونهٔ آلارمِ گمراه‌کنندهٔ فوگو در `self_patch.py`؛ + یک موردِ legs-locked منتظرِ رأی؛ + نقشهٔ ریسکِ ری‌استارت؛ **اصلاحیه:** فیکسِ ریشهٔ ۲ (`b1a943a`) را مالک رد کرد، فیکسِ واقعی deep-link+delete در `38e9685` | ۲۰۲۶-۰۸-۰۶ |
 | **20-NEXT-AGENT-MEGAPROMPT-QUESTIONS-AND-CONTRADICTIONS-2026-08-06** | ⭐ **تازه‌ترین** — تمامِ سؤال‌های بازِ AGENT_QUESTIONS یک‌جا + ۵ تناقضِ واقعی (تصمیم در برابرِ تصمیم) با پیشنهادِ بازطراحی برای هرکدام، از‌جمله تلهٔ دو-باتی به‌عنوانِ الگوی تکرارشونده نه باگِ تکی | ۲۰۲۶-۰۸-۰۶ |
 
+### جلسهٔ ۲۰۲۶-۰۸-۰۶ (دیروقت/بامداد) — کارگرِ GLM (۳ کامیت)
+
+سه کامیتِ این نشست روی master، برایِ آگاهیِ ایجنتِ بعدی:
+
+| کامیت | کار | فایل‌های کلیدی |
+|---|---|---|
+| `9b221a4` | بهینه‌سازیِ ابسیدین — لایهٔ A (`userIgnoreFilters`) + لایهٔ B (untrackِ ۲۱۰۳ باینری از گیت، ~۲۵۰MB) | `.obsidian/app.json`, `.gitignore` |
+| `0496509` | اجرای سندِ ۲۰: مهاجرتِ Mining به factory-function (`make_mining_leg`/`mining_beat`) + `OCTOPUS_WIRE_MINING_OS=0` + تصمیم‌های مالک ثبت | `_ops/wiring.py` |
+| `999431a` | فیکسِ throttle برای آلارمِ گذرای `WinError 5` در pulse-arbiter (`alert`→`alert_throttled`) | `_ops/heart/pulse_arbiter.py` |
+| `(این کامیت)` | **پلِ RAGِ fail-closed** + تستِ سایهٔ consolidation — «پرورش با معادلات» آماده اما در shadow | `_ops/memory/vault_bridge.py`, `retrieval_router.py`, ۲ تست |
+
+**تشخیصِ کلیدی برای ایجنتِ بعدی:** «خودشو پرورش بده با معادلات» = الگوریتم **هست و live**
+(BCM `φ=y(y-θ)`, Hebbian `s+=0.1`, consolidation `salience=recency×importance×relevance`)
+ولی در no-op می‌چرخد چون: (۱) `memory.db` **خالی (۰ جدول!)**، (۲) `CORTEX_CONSOLIDATE`
+در پروسهٔ زنده ست نشده. پلِ RAG ساخته شد (`vault_bridge`) ولی نیاز به گسترشِ index
+به کلِ vault دارد. **فعال‌سازی هر فلگ = رأیِ مالک.** بک‌لاگ در `AGENT_QUESTIONS`.
+
 ---
 
 ## مرزهای نقض‌ناپذیر (خلاصه — تفصیل در `01`)
