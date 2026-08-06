@@ -81,10 +81,24 @@
 | `(این کامیت)` | **پلِ RAGِ fail-closed** + تستِ سایهٔ consolidation — «پرورش با معادلات» آماده اما در shadow | `_ops/memory/vault_bridge.py`, `retrieval_router.py`, ۲ تست |
 
 **تشخیصِ کلیدی برای ایجنتِ بعدی:** «خودشو پرورش بده با معادلات» = الگوریتم **هست و live**
-(BCM `φ=y(y-θ)`, Hebbian `s+=0.1`, consolidation `salience=recency×importance×relevance`)
-ولی در no-op می‌چرخد چون: (۱) `memory.db` **خالی (۰ جدول!)**، (۲) `CORTEX_CONSOLIDATE`
-در پروسهٔ زنده ست نشده. پلِ RAG ساخته شد (`vault_bridge`) ولی نیاز به گسترشِ index
-به کلِ vault دارد. **فعال‌سازی هر فلگ = رأیِ مالک.** بک‌لاگ در `AGENT_QUESTIONS`.
+(BCM `φ=y(y-θ)`, Hebbian `s+=0.1`, consolidation `salience=recency×importance×relevance`).
+
+**⚠️ اصلاحیهٔ ۲۰۲۶-۰۸-۰۶ (شب): ادعای «memory.db خالیه» و «CORTEX_CONSOLIDATE ست نشده» هر دو غلط بودند** —
+تحقیقِ عمیقِ ۶-جبهه‌ای هر دو را رد کرد:
+- `memory.db` **خالی نیست** — چک روی مسیرِ اشتباه بود (`_ops/state/memory.db`، استابِ ۰-بایتی).
+  دیتابیسِ واقعی `_ops/state/memory/memory.db` است — ۸۶KB، ۳۳ ردیف، همین امروز نوشته شده.
+  چهار استابِ گمراه‌کنندهٔ دیگر هم بودند (همان الگو، مسیرِ اشتباه) — همه به
+  `_Archive/decoy-db-stubs-2026-08-06/` منتقل شدند تا این آلارمِ کاذب تکرار نشود.
+- `CORTEX_CONSOLIDATE` **ست شده و در حالِ اجراست** — پروسهٔ زندهٔ `cortex.py`
+  همین الان با آن می‌دود؛ `n_in=0` نتیجهٔ قانونیِ «چیزِ نویی برای تثبیت نبود» بود، نه فلگِ خاموش.
+
+**گپِ واقعی، مستقل از این دو:** BCM/Hebbian گرسنه‌اند به دلیلِ خودشان (سیم‌کشیِ
+جدا، نه memory.db) — `organism.py:616-637` چند فیلدِ حیاتی را ساختاراً مرده hardcode
+کرده (`sigma_is_replication_ratio: True` همیشه، `afferent_ratio` قفل‌شده روی `۱.۰`).
+پلِ RAG (`vault_bridge`) فقط `4D-Vault` را index کرده (۶۳٪ محتوای canonical) —
+گسترش به کلِ vault یک کارِ کدنویسیِ کوچکِ واقعی است، نه صرفاً تغییرِ فلگ (فیلترِ
+`.agentignore`-آگاه لازم است، وگرنه `_Archive`/`_Duplicates` هم ingest می‌شود).
+جزئیاتِ کامل + پلنِ اجرا در `_ops/MEGAPROMPT-GLM-WORKER-2026-08-06.md` §۶.
 
 ---
 
