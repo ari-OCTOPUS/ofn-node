@@ -89,11 +89,8 @@ class TestDepthMeansOneThing(unittest.TestCase):
     def test_the_back_layers_carry_no_text(self):
         """If their headings could be read they would become three
         simultaneous decisions, which is the whole thing this is against."""
-        for cls in ("b2", "b3"):
-            tag = re.search(rf'<div class="sheet back {cls}"\s*>(.*?)</div>',
-                            SRC, re.S)
-            self.assertIsNotNone(tag, cls)
-            self.assertEqual(tag.group(1).strip(), "")
+        self.assertNotIn('sheet back b2', SRC)
+        self.assertNotIn('sheet back b3', SRC)
 
     def test_reduced_motion_flattens_the_stack_into_a_list(self):
         """Not just "stop animating" — cards on top of each other without
@@ -580,25 +577,28 @@ class TestAnEmptyAccountIsNotADeadEnd(unittest.TestCase):
         future. The two situations — nothing yet, and nothing pending — are
         different and must not share a sentence."""
         front = re.search(r"function drawFront\(\).*?\n\}", JS, re.S).group(0)
-        self.assertIn("اولین عکس", front)
-        # And the other branch still tells the truth about what is there.
-        self.assertIn("چیزی برای تصمیم نیست", front)
-        self.assertIn("gallery.photos", front)
+        self.assertIn("front.hidden = true", front)
+        self.assertIn("startarc", front)
+        self.assertIn("addbtn", front)
 
     def test_the_first_screen_says_where_the_photo_goes(self):
         """The first thing asked of her is a photo of herself. What the node
         will and will not do with it belongs on that screen, not in a
         settings page she has no reason to open."""
-        front = re.search(r"function drawFront\(\).*?\n\}", JS, re.S).group(0)
-        self.assertIn("روی همین دستگاه می‌ماند", front)
-        self.assertIn("منتشر نمی‌شود", front)
+        self.assertIn('id="addbtn"', SRC)
+        self.assertNotIn("دستیار کوچیک آماده است", SRC)
+        self.assertIn("assistant-log", SRC)
 
     def test_the_count_it_shows_is_a_real_one(self):
         """No invented numbers on an empty account: the archive line is
         driven by the loaded photo list, not by a placeholder."""
         front = re.search(r"function drawFront\(\).*?\n\}", JS, re.S).group(0)
-        self.assertRegex(front, r"const have = \(gallery\.photos \|\| \[\]\)\.length")
-        self.assertIn("fa(have)", front)
+        self.assertNotIn("const have =", front)
+        self.assertIn("front.hidden = true", front)
+
+    def test_clicking_selected_gallery_photo_closes_the_panel(self):
+        self.assertIn('if (picked === p.media_id)', JS)
+        self.assertIn("$('tagpanel').hidden = true", JS)
 
 
 class TestArchivingIsTheJob(unittest.TestCase):
@@ -725,3 +725,123 @@ class TestArchivingIsTheJob(unittest.TestCase):
             self.assertIn(f"'{token}'", said,
                           f"{token} has no Persian form and would be shown "
                           f"to her as an English token")
+
+
+class TestSabaPanelCopyAndLayout(unittest.TestCase):
+    """The warm, non-technical, girl-friendly copy contract plus the gallery
+    greeting and the chatbox layout — the small surgery requested for the
+    Saba panel. None of these are styling preferences; each one came from a
+    real user complaint (a leak of the word 'RAG', a gray empty panel under
+    the chatbox, a chatbox pushed to the floor)."""
+
+    def test_no_rag_word_leaks_into_user_visible_copy(self):
+        """The footer caption used to read «پیشنهاد تازه از RAG …». RAG is a
+        forbidden technical word and must not reach her."""
+        self.assertNotIn("از RAG", SRC)
+        self.assertNotIn("RAG ", SRC)
+
+    def test_the_back_sheets_are_gone_so_the_empty_gray_panel_is_gone(self):
+        """`.stack` used to reserve a fixed 352px dark region that, with the
+        front card hidden, was an empty gray slab above the chatbox."""
+        self.assertNotIn("sheet b2 back", SRC)
+        self.assertNotIn("sheet b3 back", SRC)
+        self.assertNotIn("min-height:352px", SRC)
+
+    def test_the_chatbox_is_centered_and_capped(self):
+        """The chatbox lives in the middle of the page, not pushed to the
+        floor, and never stretches edge-to-edge on a wide screen."""
+        rule = re.search(r"\.chatbox\{([^}]*)\}", CSS)
+        self.assertIsNotNone(rule)
+        body = rule.group(1)
+        self.assertIn("max-width:720px", body)
+        self.assertIn("margin:", body)
+        self.assertIn("auto", body)
+
+    def test_the_first_tab_actions_are_centered(self):
+        """The action row under the chatbox (آرشیو کنیم / عکس تازه) is a tidy
+        centered flex row, not a stacked grid that drops the buttons down."""
+        self.assertIn("justify-content:center", CSS)
+        self.assertIn("#view-today>.act", CSS)
+
+    def test_the_assistant_buttons_say_something_warm(self):
+        """The send button and the suggestion button read as small friendly
+        verbs, not «بپرس» / «هلپ ساده»."""
+        self.assertIn('id="assistant-send"', SRC)
+        self.assertIn('id="assistant-random"', SRC)
+        self.assertIn("مشاوره", SRC)
+        self.assertNotIn("هلپ ساده", SRC)
+
+    def test_the_gallery_has_a_welcome_banner(self):
+        """The gallery opens with a welcome line — filled from the session so
+        no name leaks before auth, same rule as the header."""
+        self.assertIn('id="gallery-greet"', SRC)
+        self.assertIn("greetGallery", JS)
+        self.assertIn("خوش اومدی", JS)
+
+    def test_the_welcome_banner_carries_no_name_in_markup(self):
+        """A static name in the banner would leak before auth (ziman). The
+        default text is nameless; the session fills the name in."""
+        banner = re.search(r'<div[^>]*id="gallery-greet"[^>]*>(.*?)</div>',
+                           SRC, re.S).group(1)
+        for person in PEOPLE:
+            self.assertNotIn(person, banner)
+
+    def test_the_album_and_category_are_one_control(self):
+        """There is one control, labelled «آلبوم / دستهٔ این عکس»; there is no
+        separate category control shown to her."""
+        self.assertIn("آلبوم / دستهٔ این عکس", SRC)
+
+    def test_each_photo_has_its_own_delete_button(self):
+        """Deleting a photo is its own button, separate from deleting the
+        album — the two must never share a control."""
+        self.assertIn("حذف عکس", SRC)
+        self.assertIn("حذف آلبوم", SRC)
+
+    def test_the_album_delete_warns_photos_survive(self):
+        """The confirmation text tells her the photos stay before she deletes
+        the album — the one fact that makes album deletion safe."""
+        self.assertIn("عکس‌ها پاک نمی‌شوند", SRC)
+
+    def test_the_long_press_lightbox_keeps_suppress_click(self):
+        """A long-press zoom must not also select the photo. The
+        `suppressClick` guard is the thing that keeps the two apart."""
+        self.assertIn("suppressClick", JS)
+        self.assertIn("photo-lightbox", SRC)
+
+
+class TestDeleteButtonOnThePhoto(unittest.TestCase):
+    """The little × lives on the photo itself, not in a panel somewhere else.
+    Its handlers must keep it from also triggering a long-press zoom or a
+    selection — otherwise deleting looks the same as opening the photo."""
+
+    def test_the_corner_delete_button_exists(self):
+        self.assertIn("shot-del", JS)
+        self.assertIn("deletePhotoById", JS)
+
+    def test_the_delete_button_neutralizes_pointer_events(self):
+        """It must stop the pointer events from bubbling to the card, or the
+        420ms long-press timer fires and the lightbox opens over the confirm
+        dialog."""
+        self.assertIn("addEventListener('pointerdown'", JS)
+        self.assertIn("addEventListener('touchstart'", JS)
+        self.assertIn("addEventListener('click'", JS)
+        # the delete button stops propagation, separate from the long-press
+        # guard which also stops a click
+        self.assertGreater(JS.count("stopPropagation()"), 2)
+
+    def test_the_corner_delete_confirms_before_deleting(self):
+        """«مطمئنی؟» — the photo is gone for good, so a confirm comes first."""
+        self.assertIn("مطمئنی؟ این عکس برای همیشه حذف شود؟", JS)
+
+
+class TestBatchUploadKeepsGoingAfterARefusal(unittest.TestCase):
+    """One bad photo in a selection of fifty used to `break` the whole batch,
+    which read on a phone as "the picker froze at photo 3". Now the bad one is
+    skipped and counted, and the rest keep going."""
+
+    def test_the_break_is_gone(self):
+        self.assertNotIn("} else if (list.length > 1) { break; }", JS)
+
+    def test_a_failed_count_is_reported(self):
+        self.assertIn("failed", JS)
+

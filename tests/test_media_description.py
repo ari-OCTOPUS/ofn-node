@@ -66,8 +66,8 @@ class TestTheOldShapeComesForward(unittest.TestCase):
         conn = self._old_file()
         apply_schema(conn, SCHEMA, MIGRATIONS)
         cols = {r[1] for r in conn.execute("PRAGMA table_info(media_items)")}
-        self.assertLessEqual({"note", "rating", "taken_at", "taken_source"},
-                             cols)
+        self.assertLessEqual({"note", "rating", "taken_at", "taken_source",
+                              "category"}, cols)
         self.assertEqual(
             conn.execute("SELECT COUNT(*) FROM media_items").fetchone()[0], 1)
 
@@ -82,12 +82,13 @@ class TestTheOldShapeComesForward(unittest.TestCase):
         is about to have them."""
         conn = self._old_file()
         apply_schema(conn, SCHEMA, MIGRATIONS)
-        row = conn.execute("SELECT rating, taken_at, taken_source, note "
-                           "FROM media_items").fetchone()
+        row = conn.execute("SELECT rating, taken_at, taken_source, note, "
+                           "category FROM media_items").fetchone()
         self.assertEqual(row[0], 0)
         self.assertIsNone(row[1])
         self.assertIsNone(row[2])
         self.assertIsNone(row[3])
+        self.assertEqual(row[4], "")
 
 
 class TestHerWordsAndHerMark(Store):
@@ -97,6 +98,19 @@ class TestHerWordsAndHerMark(Store):
         got = self.s.media_in("studio", mid)
         self.assertEqual(got["note"], "نور از پنجره")
         self.assertEqual(got["rating"], 4)
+
+    def test_a_category_is_kept_with_the_photo(self):
+        mid = self.shot()
+        self.s.describe_media("studio", mid, category="هنری")
+        got = self.s.media_in("studio", mid)
+        self.assertEqual(got["category"], "هنری")
+
+    def test_gallery_carries_the_category(self):
+        mid = self.shot()
+        self.s.describe_media("studio", mid, category="سکسی")
+        item = next(m for m in self.s.gallery("studio")
+                    if m["media_id"] == mid)
+        self.assertEqual(item["category"], "سکسی")
 
     def test_omitting_one_does_not_erase_the_other(self):
         """The reason `None` and "clear it" have to be different values. A

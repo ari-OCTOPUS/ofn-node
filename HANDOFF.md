@@ -1,7 +1,7 @@
 ---
 tags: [ofn, handoff, status]
 aliases: [وضعیت زنده, Handoff]
-updated: 2026-08-05
+updated: 2026-08-06
 ---
 
 # HANDOFF — برای جلسهٔ بعدی
@@ -9,15 +9,241 @@ updated: 2026-08-05
 **پیوندها:** [[INDEX]] · [[CLAUDE]] · [[DECISIONS]] · [[LESSONS-ZIMAN]] · [[LESSONS-STUDIO]]
 
 ```
-pytest      ۱۲۳۹ سبز + ۵ skip
+pytest      OFN ۱۵۱۶ + ۵ skip · hypno ۶۳ · fugu_core ۲۶ = ۱۶۰۵ سبز
 preflight   ۲۱/۲۱
+boot        OK — ۲۷/۲۷ (NORMAL؛ پرچم schema:painting رفع شد)
 گیت‌ها       secret_rotation 🔒 · partner_precondition 🔒 · miner_isolation 🔒
-WIRE        هیچ‌کدام روشن نیست
+WIRE        outbound خاموش · email/publish در env روشن ولی کد Python نمی‌خواندشان
+            (امنیت از outbox + store-layer status تأمین می‌شود، نه از این پرچم‌ها)
+بات‌ها       ziman ✅ · lead ✅ · studio/studio_partner ✅ · owner ✅ · hypno ✅
+            (هر بات مستقل؛ تضاد توکن hypno/lead رفع شد — hypno بات خودش را گرفت)
+allowlist   owner=۱ · lead=۱ · studio=۲ · ziman=۱
+سرویس‌ها     ofn · hypno-fugu-mini · cloudflared · dropbear  →  هر چهار active
+دامنه‌ها     panel/ziman/lead/studio/app/hypno → همه ۲۰۰
+UNIFY       fugu_core (auth/scrub/brain/memory) + memory.sqlite سه‌لایه
+            مغز مشترک Sakana (fugu) برای OFN + hypno · pack hypno (tenant ۴)
+            quota ۳۵/۳۵/۲۰/۱۰ = ۱.۰۰ · ۱۳۲ chunk shared knowledge
 ```
 
 ---
 
-## ✅ همین جلسه — حلقهٔ آرشیو ساخته شد
+## ✅ جلسهٔ ۲۰۲۶-۰۸-۰۷ (UNIFY FINALIZE) — چهار نقطهٔ کور بسته شد
+
+چهار نقطهٔ کور بازمانده از MEGAPROMPT-UNIFY بسته شد:
+
+- **B-۲ panel_note:** brain call پنهان از write path‌های hypno حذف شد. حالا
+  فقط log می‌نویسد، نه مغز.
+- **B-۳ consent rename:** `sessions.consent` → `safety_acknowledged` با
+  migration داده (دو ردیف حفظ شد). کد هر دو نام را می‌پذیرد.
+- **B-۸ thread safety:** `fugu_core.memory` با RLock thread-safe شد (تست ۸
+  thread همزمان سبز).
+- **فاز ۴ اتصال inline:** `StudioAssistantStore` از shared corpus fallback
+  می‌خواند؛ memory_path در config؛ run.py ایمن.
+
+فایل‌های تغییر:
+- `hypno/run.py` — panel_note + consent rename
+- `hypno/adapters/store.py` — schema + `_migrate_consent_rename`
+- `web/index.html` — payload `safety_acknowledged`
+- `~/shared/fugu_core/src/fugu_core/memory.py` — RLock
+- `ofn/config.py` — `memory_path`
+- `ofn/run.py` — `_shared_memory` helper
+- `ofn/adapters/studio_assistant.py` — `shared_memory` param + fallback
+- تست‌های جدید: panel_note, thread safety, shared memory fallback
+
+---
+
+## ✅ جلسهٔ ۲۰۲۶-۰۸-۰۷ (UNIFY) — مغز و حافظهٔ مشترک OFN + hypno
+
+UNIFY فاز ۰ تا ۴ انجام شد. دو پروژه حالا یک مغز (Sakana fugu) و یک
+حافظهٔ سه‌لایه (memory.sqlite) مشترک دارند، بدون اینکه کد زنده تغییر کند.
+
+- **`~/shared/fugu_core/`** — پکیج مشترک (auth/scrub/brain/memory)، خالص
+  stdlib، نصب با `.pth` (pip روی DietPi نیست). ۲۵ تست.
+- **`memory.sqlite` سه‌لایه** در `~/.local/share/fugu_core/`: turns/facts/
+  corpus+FTS5. قانون جداسازی tenant فقط در corpus می‌تواند `shared` باشد.
+- **`packs/hypno.yaml`** — tenant چهارم. quota: ۳۵/۳۵/۲۰/۱۰ = ۱.۰۰.
+- **مغز ریموت Sakana** برای hypno فعال شد (`HFM_REMOTE_API_KEY` از OFN).
+  تأیید زنده: `source: remote:fugu`.
+- **۱۳۲ chunk** از hypno research_docs به shared corpus منتقل شد.
+
+**آنچه دست‌نخورده ماند:** کد OFN و hypno تغییر نکرد؛ فقط pack‌ها و env.
+`assistant.sqlite` و `hypno.sqlite` بازنویسی نشدند. MEGAPROMPT-UNIFY.md
+باز است (نقاط کور B-2 panel_note، B-3 consent، B-8 worker async).
+
+---
+
+## ✅ جلسهٔ ۲۰۲۶-۰۸-۰۷ — جریان خروجی لید نقاشی + سینک تلگرام
+
+**۱) سینک کامل اورنج‌پای و بات‌های تلگرام.** تضاد توکن hypno/lead رفع شد:
+`@ssaabbaabot2725bot` فقط نقاشی/لید است؛ `@Sabaminiappbot` (دو p) شد
+«آرام‌جا» و فقط به hypno وصل. پنج بات OFN دکمهٔ «Open App» گرفتند. دامنهٔ
+`app` از تونل اشتباه (`f62ab442`) به تونل ما (`968b3e96`) وصل شد.
+
+**۲) شکاف خروجی لید نقاشی پر شد.** تا دیروز لید فقط ورودی داشت. حالا
+پارتنر می‌تواند جواب/قیمت بنویسد و لیدها را جستجو/فیلتر/تغییر وضعیت کند.
+الگوی `publish_draft` استودیو کپی شد: یادداشت سبز (بدون outbox)، SMS/ایمیل/
+قیمت RED (وارد outbox → owner_queue → double-confirm آری).
+
+فایل‌های تغییر:
+- `ofn/node.py` — `send_lead_reply` + `send_lead_quote` + `import hashlib`.
+- `ofn/adapters/http_api.py` — ۳ endpoint partner + `query` در signature.
+- `ofn/run.py` — تزریق دو callback جدید.
+- `web/lead.html` — نوار جستجو/فیلتر + کارت لید + sheet جواب/قیمت.
+- `tests/test_painting_outbox.py` — ۱۲ تست جدید (Node واقعی، نه lambda).
+- `tests/test_handler_failure.py` — signature `handle` به‌روز شد.
+
+---
+
+## ✅ جلسهٔ ۲۰۲۶-۰۸-۰۶ — شکاف #۱ لید بسته شد + پرچم بوت رفع شد
+
+امتیاز لید اشتباه وصل بود (شکاف #۱ همین فایل): `kernel/painting_math.py:
+lead_priority()` ساخته و تست شده بود ولی هیچ‌وقت صدا زده نمی‌شد؛ به‌جایش
+`lead_store.py:_score()` (یک heuristic کلمه‌کلیدی) اجرا می‌شد. B2B/مناقصه/
+منبع از مدل واقعی استفاده می‌کردند و `score_json` ذخیره می‌کردند، ولی لیدها
+نه.
+
+**چه changed:**
+- `lead_store.py`: ستون `score_json` به `painting_leads` اضافه شد + مهاجرت
+  (`_add_score_json` با `add_column_if_absent`). `_score()` حذف شد؛ به‌جایش
+  `lead_priority()` از یک پل مستند (`_lead_components`) تغذیه می‌شود که هفت
+  محور V/I/G/T/Q/R/C را از فیلدهای پراکندهٔ لید می‌سازد. هر محور بی‌داده
+  `None` می‌ماند تا مدل `incomplete` را علامت بزند (هرگز سکوت نکند). خروجی
+  همان شکل `score_json` است که B2B/مناقصه دارند. `update_lead` با تغییر
+  message/distance/... امتیاز را بازمحاسبه می‌کند؛ `score` دستیِ مالک اولویت
+  دارد. مسیر خواندن `score_json` ذخیره‌شده را ترجیح می‌دهد و برای ردیف‌های
+  قدیمی به `_lead_score_detail` برمی‌گردد.
+- `boot.py`: `painting` به `MIGRATIONS` اضافه شد. این مهم بود — سرپرست بوت
+  مهاجرت `lead_store` را نمی‌شناخت و `schema:painting(critical)` را بالا
+  می‌آورد و گره را در SAFE MODE نگه می‌داشت. حالا بوت `boot OK — ۲۷/۲۷`
+  و حالت NORMAL است.
+
+**امنیت:** هیچ خروجی بیرونی، هیچ outbox، هیچ کانال. `OFN_WIRE_OUTBOUND=0`.
+امتیاز صرفاً پیشنهاد/اولویت‌بندی است؛ اجازهٔ اقدام نمی‌دهد.
+
+**تست:** ۴ تست جدید در `test_painting_store.py` (مدل lead_priority، ماندگاری
+score_json، بازمحاسبهٔ update، مهاجرت فایل قدیمی). کل: ۱۵۰۰ سبز + ۵ skip.
+`schema:painting` در `test_schema_drift.py` هم سبز.
+
+**هشدار — وزن‌ها هنوز کالیبره نیستند.** `_lead_components` الفبای اولیه است،
+نه حقیقت بیزنسی. وقتی دادهٔ واقعی intake آرمین собр شد، وزن‌ها و این قرائت‌ها
+باید با آن تنظیم شوند. تا آن زمان امتیاز فقط یک پروکسی قابل‌اتکاتر از قبل است.
+
+**🟢 توکن‌های ورود گذاشته شد (همان جلسه).** آرمین `OFN_BOT_TOKEN_LEAD` و
+`OFN_BOT_TOKEN_OWNER` را از BotFather گرفت و در `~/.config/ofn/secrets.env`
+گذاشت. هر دو بات با `getMe` تلگرام تأیید شد (`ok=true`؛ usernameها بدون مقدار:
+lead=`ssaabbaabot2725bot`، owner=`Robo2725_bot`). سرویس ری‌استارت شد،
+`boot OK — 27/27`، allowlistها سر جاشان (owner=۱، lead=۱).
+
+**قدم بعدی (آزمایشگاهی، نه روی سیم):** تست ورود واقعی از گوشی آرمین هنوز
+انجام نشده — این تنها کسی است که می‌تواند آن را کند (نیاز به لانچ واقعی
+تلگرام از دستگاه خودش). ایجنت بعدی: منتظر نتیجهٔ تست گوشی بمان، یا اگر آرمین
+گفت «وارد شدم»، برو سراغ ساخت لید تستی و جریان intake.
+
+**drift بی‌ضرر (هنوز باز):** `OFN_WIRE_EMAIL`/`OFN_WIRE_PUBLISH` در `node.env`
+روشن‌اند ولی کد Python نمی‌خواندشان — امنیت از outbox + store-layer status
+تأمین می‌شود. بهتر است در `node.env` خاموش شوند تا با واقعیت یکی باشند.
+
+---
+
+## ✅ جلسهٔ ۲۰۲۶-۰۸-۰۶ — جراحی پنل سبا (دو مرحله)
+
+دو جراحی کوچک روی `web/studio.html` انجام شد؛ بک‌اند منطقی دست نخورد.
+
+**مرحلهٔ ۱ — چیدمان و متن:**
+- چت‌باکس وسط و بالاتر آمد (`max-width:720px; margin:auto`).
+- پنل خالی تیرهٔ بالای چت‌باکس حذف شد (دو لایهٔ تزئینی `.sheet.back` با
+  `min-height:352px` یک نوار خاکستری بلند می‌ساختند). حالا وقتی کارت تصمیم
+  نیست، فضا اشغال نمی‌شود.
+- دکمه‌های زیر چت‌باکس مرتب شدند (`justify-content:center; flex-wrap:wrap`).
+- نشت کلمهٔ فنی «RAG» در کپشن پیشنهاد حذف شد.
+- متن‌ها گرم، ساده، دخترانه و غیرفنی شدند: «چت باکس»→«بزن بریم برای امروز»،
+  «بپرس»→«بفرست»، «هلپ ساده»→«مشاوره»، placeholder، کپشن، و لیست پیشنهادها
+  در `studio_assistant.py` کاملاً بازنویسی شد.
+- گالری: بنر «خوش اومدی سبا جان…» بالای صفحه (اسم از session، نه static —
+  قانون نشت اسم قبل از احراز هویت) و empty-state گرم.
+
+**مرحلهٔ ۲ — آپلود و حذف:**
+- آپلود چندتایی مقاوم‌تر شد: یک عکس بد، batch را متوقف نمی‌کند (حذف `break`)،
+  شمارش واقعی خطاها، و آزادسازی بهتر حافظه (`bmp.close()` در `finally`،
+  renditions+original موازی). کیفیت حفظ شد (۱۶۰۰px + اصل فایل).
+- یک «×» کوچک بالای هر عکس (سمت چپ داخل عکس) با تأیید «مطمئنی؟» → فقط همان
+  عکس حذف می‌شود. `stopPropagation` روی pointer/touch/click جلوی long-press و
+  انتخاب را می‌گیرد.
+
+تست‌های جدید: ۲۱ تست (قراردادهای UI، متن گرم، نبود کلمات فنی، edge caseهای
+حذف آلبوم/عکس/توضیح/برچسب، ضربدر روی عکس، آپلود بدون break).
+
+**نکتهٔ مهم:** خیلی از چیزهایی که «خراب» به‌نظر می‌رسیدند از قبل سالم بودند:
+حذف آلبوم (عکس‌ها را فقط از آلبوم خارج می‌کند)، حذف عکس، پاک‌کردن توضیح/
+برچسب، یکی‌شدن آلبوم/دسته، long-press، random بودن پیشنهادها. جراحی فقط روی
+آنچه واقعاً ناقص بود متمرکز شد.
+
+---
+
+## ✅ جلسهٔ ۲۰۲۶-۰۸-۰۶ — پرورش عمیق مدل لبهٔ سیستم در hypno
+
+مدل «لبهٔ سیستم» (تفکیک بدن/خود/ابرموجود) که در جلسهٔ قبل فقط کد+RAG بود،
+حالا **کامل به مغز و endpoint و حافظهٔ روزانه وصل شد.** سه شکاف بسته شد:
+
+```
+کار ۱ · مغز     brain.py: _extract_scores (نمره از متن فارسی) +
+                _edge_reply_from_scores + EDGE_SYSTEM_PROMPT.
+                وقتی کاربر در chat نمره می‌دهد، مغز مدل را محاسبه و به
+                فارسی ساده جواب می‌دهد (source: «rules+مدل» / edge: True).
+کار ۲ · endpoint POST /api/edge/decision (۱۲ متغیر → تجزیهٔ تصمیم)؛
+                POST /api/edge/daily (B/C/X → حکم + streak + red_flag)؛
+                GET  /api/edge/history (آخرین N روز).
+کار ۳ · حافظه    store.py: جدول edge_daily (upsert یک‌ردیف‌درروز) +
+                log_edge_daily + edge_history. قانون سه‌روزه از روی آن می‌خواند.
+کار ۴ · پرامپت   EDGE_SYSTEM_PROMPT ساخته شد؛ مغز ریموت وقتی موضوع لبه است از
+                آن استفاده می‌کند (سه قطب، بدون کلمهٔ فنی، ارجاع به تجزیه).
+```
+
+تست‌های جدید: ۱۹ تست (نمره‌گیری، تجزیه، endpointها، upsert، chat wiring،
+بحران-قبل-از-مغز، idempotency اسکیما).
+
+**۶۲ تست سبز** (۴۳ + ۱۹). `hypno-fugu-mini.service` active. هیچ دیتای قدیمی
+دست‌نخورد (۱۳۲ پژوهش، پیام‌ها دست‌نخورده). جدول `edge_daily` با
+`CREATE TABLE IF NOT EXISTS` اضافه شد.
+
+نمونهٔ زنده: «کدنویسی تا ۳ صبح بعد از ترند» → سهم ابرموجود ۴۰٪ > خود ۲۶٪،
+حکم «ترکیبی». «نقاشی برای runway» → سهم خود ۵۸٪، حکم «بیشتر از خودت». روز سخت
+(B=۳,C=۲,X=۸) → زرد + «فردا گسترش ممنوع؛ فقط تثبیت.»
+
+بک‌آپ‌ها: `*.bak-deep-20260806-225712`. مگاپرامپت: [[MEGAPROMPT-EDGE-DEEP]].
+
+---
+
+## لید نقاشی — شکاف‌ها
+
+کاوش کامل کد لید نقاشی (تنانت `lead`، پورت ۸۷۹۲) نشان داد بیشتر از حد تصور
+ساخته شده، ولی چند جا وصل نیست. ترتیب اولویت:
+
+1. **امتیاز لید اشتباه وصل است.** `kernel/painting_math.py:lead_priority()`
+   (تست‌شده، وزنی، تفسیرپذیر) هرگز صدا زده نمی‌شود. به‌جایش
+   `lead_store.py:_score()` (یک heuristic کلمه‌کلیدی ساده) اجرا می‌شود. B2B/
+   مناقصه/منبع از مدل واقعی استفاده می‌کنند و `score_json` ذخیره می‌کنند،
+   ولی لیدها نه — یعنی یک ناهماهنگی درونی. **باید `lead_priority` در
+   `create_lead`/`update_lead` وصل شود (و `score_json` مثل بقیه ذخیره شود)،
+   یا تابع مرده حذف شود.**
+2. **✅ رفع شد (۲۰۲۶-۰۸-۰۷).** جریان خروجی ساخته شد: `send_lead_reply`
+   (یادداشت/SMS/ایمیل) و `send_lead_quote` در `node.py`. یادداشت سبز (interaction
+   + ledger، بدون outbox)؛ SMS/ایمیل/قیمت RED (وارد outbox → owner_queue →
+   double-confirm). وضعیت لید خودکار حرکت می‌کند (`new→contacted→quoted`).
+3. **✅ رفع شد (۲۰۲۶-۰۸-۰۷).** UI پارتنر کامل شد: نوار جستجو + فیلتر وضعیت
+   + dropdown تغییر وضعیت + sheet جواب/قیمت. سبک گرم/غیرفنی (D-22).
+4. **✅ رفع شد (۲۰۲۶-۰۸-۰۷).** `GET /api/v1/painting/leads` partner اضافه شد
+   با q/status. `ApiApp.handle` حالا query می‌گیرد (backward-compatible).
+5. **سورس‌رجیستری ساکت شکست می‌خورد.** `node.py` بارگذاری
+   `data/painting_source_registry.json` را در `except Exception: pass` پیچیده؛
+   اگر فایل غایب/خراب باشد، جدول منابع خالی می‌ماند بدون هیچ لاگی.
+6. **✅ رفع شد (۲۰۲۶-۰۸-۰۷).** `test_painting_outbox.py` ۱۲ تست با Node و
+   Outbox و Ledger واقعی اضافه شد: note بدون outbox، SMS/quote در RED،
+   idempotency، تغییر وضعیت خودکار، owner_queue.
+
+---
+
+## ✅ جلسهٔ قبلی — حلقهٔ آرشیو ساخته شد
 
 عکس‌ها اضافه می‌شدند ولی هیچ کاری نمی‌شد با آن‌ها کرد: کارت جلو می‌گفت
 «چیزی برای تصمیم نیست» چون اپ فقط دربارهٔ **انتشار** فکر می‌کرد، و کارِ

@@ -137,4 +137,4 @@ risk_overrides:
   classify_inbound: green
   draft_caption: green
 
-quota_share: 0.40
+quota_share: 0.35

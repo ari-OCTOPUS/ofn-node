@@ -27,10 +27,12 @@ from typing import Callable, Mapping, Sequence
 from ..kernel.domain import TenantId
 from ..kernel.tenancy import TenantScope
 from . import audience_store as _audience
+from . import studio_assistant as _assistant
 from . import consent_store as _consent
 from . import facts as _facts
 from . import ledger as _ledger
 from . import marketing_store as _marketing
+from . import lead_store as _painting
 from . import outbox as _outbox
 from . import products as _products
 from . import studio_store as _studio
@@ -51,12 +53,15 @@ SCHEMAS: Mapping[str, Sequence[str]] = {
     "consent": _consent.SCHEMA,
     "studio": _studio.SCHEMA,
     "marketing": _marketing.SCHEMA,
+    "painting": _painting.SCHEMA,
     "audience": _audience.SCHEMA,
+    "assistant": _assistant.SCHEMA,
 }
 
 MIGRATIONS: Mapping[str, Sequence] = {
     "products": _products.MIGRATIONS,
     "studio": _studio.MIGRATIONS,
+    "painting": _painting.MIGRATIONS,
 }
 
 # A board with no battery-backed clock reports something near the epoch until

@@ -152,6 +152,27 @@ footer{text-align:center;font-size:11.5px;color:var(--ink3);padding:0 20px;line-
 .qerr{font-size:13px;color:var(--red);margin-top:9px}
 .b:focus-visible,.qb:focus-visible,.qo:focus-visible,.qta:focus{outline:2px solid var(--blue);outline-offset:2px}
 
+
+
+.crm{margin-bottom:22px}.crmgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}.crmstat{background:#fff;border:1px solid var(--line);border-radius:13px;padding:11px;text-align:center}.crmv{font-size:24px;font-weight:800;color:var(--blue-d)}.crml{font-size:11px;color:var(--ink3)}.miniLead{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:10px}.miniLead .leadmsg{font-size:12.5px;color:var(--ink2);line-height:1.8;margin-top:6px}.miniForm{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:12px;display:grid;gap:8px}.miniForm input,.miniForm textarea{font-family:inherit;font-size:14px;border:1.5px solid var(--line);border-radius:11px;padding:11px;background:#fff;color:var(--ink)}.miniForm textarea{min-height:80px;resize:vertical}.miniForm .tw{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.crmbar{display:grid;grid-template-columns:1fr 140px;gap:8px;margin-bottom:12px}.crmbar input,.crmbar select{font-family:inherit;font-size:14px;border:1.5px solid var(--line);border-radius:11px;padding:11px;background:#fff;color:var(--ink)}
+.leadRow{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.leadRow .ltop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+.leadRow .ltitle{font-size:15px;font-weight:700;color:var(--ink)}
+.leadRow .lmeta{font-size:12px;color:var(--ink3);margin-bottom:8px;display:flex;flex-wrap:wrap;gap:6px 12px}
+.leadRow .lmsg{font-size:13px;color:var(--ink2);line-height:1.7;background:var(--bg);border-radius:9px;padding:9px 11px;margin:8px 0}
+.leadRow .lacts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.leadRow select.stsel{font-family:inherit;font-size:13px;border:1.5px solid var(--line);border-radius:9px;padding:8px 10px;background:#fff;color:var(--ink)}
+.badge.wait{background:#fef3c7;color:#92400e;border:1px solid #fde68a}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;z-index:50}
+.sheet .spanel{background:#fff;width:100%;border-radius:18px 18px 0 0;padding:18px 16px 22px;max-height:88vh;overflow-y:auto}
+.sheet .shdr{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:12px}
+.sheet textarea{width:100%;font-family:inherit;font-size:14px;border:1.5px solid var(--line);border-radius:11px;padding:11px;background:#fff;color:var(--ink);min-height:120px;resize:vertical;margin-bottom:10px}
+.sheet .schans{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.sheet .schans button{font-family:inherit;font-size:13px;padding:11px 6px;border-radius:10px;border:1.5px solid var(--line);background:#fff;color:var(--ink)}
+.sheet .schans button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.sheet input.amt{width:100%;font-family:inherit;font-size:18px;font-weight:700;border:1.5px solid var(--line);border-radius:11px;padding:12px;background:#fff;color:var(--ink);margin-bottom:10px;text-align:center}
+
 @media (prefers-reduced-motion: reduce){
   *{animation-duration:.001ms !important;animation-iteration-count:1 !important;
     transition-duration:.001ms !important;scroll-behavior:auto !important}
@@ -183,6 +204,7 @@ footer{text-align:center;font-size:11.5px;color:var(--ink3);padding:0 20px;line-
 
   <div class="state" id="state" hidden role="status" aria-live="polite"></div>
   <div id="live" hidden></div>
+  <div class="crm" id="leadcrm" hidden></div>
 
   <div class="sec" id="sample">
     <div class="sh"><h2>منتظر تأیید تو</h2><span class="cnt a">۲</span></div>
@@ -520,6 +542,147 @@ async function refreshKpis() {
     if (kv[2]) { kv[2].textContent = fa(st.capacity_per_week || 0); kl[2].textContent = 'ظرفیت هفته'; }
     return st;
   } catch (_) { return null; }
+}
+
+
+
+/* ── live lead CRM ───────────────────────────────────────────────────── */
+function miniStat(label, value){const n=el('div','crmstat');n.append(el('div','crmv num',fa(value||0)),el('div','crml',label));return n;}
+function miniInput(ph,name,type='text'){const i=document.createElement(type==='textarea'?'textarea':'input'); if(type!=='textarea')i.type=type; i.placeholder=ph; i.name=name; return i;}
+function miniFormData(f){const o={};[...f.elements].forEach(x=>{if(x.name)o[x.name]=x.value});return o;}
+async function refreshLeadCrm(){
+  const box=document.getElementById('leadcrm'); if(!box) return;
+  try{
+    const d=await OFN.get('/api/v1/painting/dashboard');
+    if(!d.ok) throw new Error(d.error||'');
+    box.hidden=false; box.textContent='';
+    const grid=el('div','crmgrid'); grid.append(miniStat('باز',d.open_leads),miniStat('داغ',d.hot_leads),miniStat('کانال',d.connected_channels)); box.append(grid);
+    const f=el('form','miniForm'); const tw=el('div','tw'); tw.append(miniInput('نام','customer_name'),miniInput('تلفن','phone')); f.append(tw,miniInput('محله','suburb'),miniInput('نوع کار','job_type'),miniInput('پیام','message','textarea'));
+    const b=el('button','b go','ثبت لید دستی'); b.type='submit'; f.append(b); f.onsubmit=async ev=>{ev.preventDefault();b.disabled=true;try{const out=await OFN.post('/api/v1/painting/leads',miniFormData(f));if(!out.ok)throw new Error(out.error||'ثبت نشد');f.reset();OFN.done();refreshLeadCrm();}catch(e){alert(e.message||'ثبت نشد')}finally{b.disabled=false;}}; box.append(f);
+    /* search + filter bar */
+    const bar=el('div','crmbar');
+    const si=el('input'); si.type='search'; si.placeholder='جستجوی نام، محله، نوع کار، پیام…'; si.value=LEAD.q;
+    const ss=el('select');
+    [{v:'',t:'همهٔ حالت‌ها'},{v:'new',t:'تازه'},{v:'review',t:'بازبینی'},{v:'contacted',t:'در تماس'},{v:'quoted',t:'قیمت داده'},{v:'won',t:'برد'},{v:'lost',t:'باخت'},{v:'spam',t:'هرز'},{v:'archived',t:'بایگانی'}].forEach(o=>{const op=el('option','',o.t); op.value=o.v; if(o.v===LEAD.status)op.selected=true; ss.append(op);});
+    bar.append(si,ss);
+    box.append(bar);
+    let to;
+    si.oninput=()=>{clearTimeout(to);to=setTimeout(()=>{LEAD.q=si.value.trim();LEAD.offset=0;drawList();},350);};
+    ss.onchange=()=>{LEAD.status=ss.value;LEAD.offset=0;drawList();};
+    /* list container */
+    const list=el('div'); list.id='leadlist'; box.append(list);
+    /* footer note: who approves outbound */
+    box.append(el('div','state','پیام و قیمت اول به آری می‌رسد؛ بعد از تأیید او خارج می‌شود.'));
+    drawList();
+    /* also keep the recent-mini cards below for at-a-glance */
+    (d.recent_leads||[]).slice(0,4).forEach(l=>{const c=el('div','miniLead'); const t=el('div','jt',l.job_type||l.customer_name||'لید'); c.append(t); const m=el('div','meta'); [l.customer_name,l.phone,l.suburb,l.source,l.score!=null?'امتیاز '+fa(l.score):''].filter(Boolean).forEach(x=>m.append(el('span',null,x))); c.append(m); if(l.message)c.append(el('div','leadmsg',l.message)); box.append(c);});
+  }catch(e){ box.hidden=false; box.textContent=''; box.append(el('div','state warn','داشبورد لید هنوز آماده نیست.')); }
+}
+
+/* ── lead list: search, filter, status change, reply/quote ────────────── */
+const LEAD={q:'',status:'',offset:0,busy:false};
+const STATUS_LABEL={new:'تازه',review:'بازبینی',contacted:'در تماس',quoted:'قیمت داده',won:'برد',lost:'باخت',spam:'هرز',archived:'بایگانی'};
+async function drawList(){
+  const list=document.getElementById('leadlist'); if(!list)return;
+  list.textContent='';
+  list.append(el('div','state','در حال آوردن لیدها…'));
+  try{
+    const params=new URLSearchParams();
+    if(LEAD.q)params.set('q',LEAD.q);
+    if(LEAD.status)params.set('status',LEAD.status);
+    const d=await OFN.get('/api/v1/painting/leads'+(params.toString()?'?'+params:''));
+    list.textContent='';
+    if(!d.ok||!(d.leads||[]).length){list.append(el('div','state','لیدی پیدا نشد.'));return;}
+    d.leads.forEach(l=>list.append(leadRow(l)));
+  }catch(e){ list.textContent=''; list.append(el('div','state warn','نمی‌توان لیدها را آورد.')); }
+}
+function leadRow(l){
+  const c=el('div','leadRow');
+  const top=el('div','ltop');
+  top.append(el('div','ltitle',l.job_type||l.customer_name||'لید'));
+  if(l.score!=null&&l.score>=70){top.append(el('span','badge hot','داغ'));}
+  else if(l.score!=null&&l.score>=40){top.append(el('span','badge','نرمال'));}
+  c.append(top);
+  const meta=el('div','lmeta');
+  [l.customer_name,l.phone,l.suburb,l.source,l.score!=null?'امتیاز '+fa(l.score):''].filter(Boolean).forEach(x=>meta.append(el('span',null,x)));
+  c.append(meta);
+  if(l.message)c.append(el('div','lmsg',l.message));
+  /* status dropdown */
+  const acts=el('div','lacts');
+  const sel=el('select','stsel');
+  ['new','review','contacted','quoted','won','lost','spam','archived'].forEach(s=>{const op=el('option','',STATUS_LABEL[s]||s); op.value=s; if(s===l.status)op.selected=true; sel.append(op);});
+  sel.onchange=async()=>{
+    try{const out=await OFN.post('/api/v1/painting/leads/'+encodeURIComponent(l.lead_id),{status:sel.value});if(!out.ok)throw new Error(out.error||'ذخیره نشد');OFN.done();}
+    catch(e){alert(e.message||'ذخیره نشد');drawList();}
+  };
+  acts.append(sel);
+  /* reply button */
+  const rb=el('button','b','جواب بنویس'); rb.type='button';
+  rb.onclick=()=>openReplySheet(l);
+  acts.append(rb);
+  /* quote button */
+  const qb=el('button','b go','قیمت بده'); qb.type='button';
+  qb.onclick=()=>openQuoteSheet(l);
+  acts.append(qb);
+  c.append(acts);
+  return c;
+}
+function closeSheet(){const s=document.querySelector('.sheet');if(s)s.remove();}
+function openReplySheet(l){
+  closeSheet();
+  const sheet=el('div','sheet');
+  const p=el('div','spanel');
+  p.append(el('div','shdr','جواب برای '+(l.customer_name||'این لید')));
+  const ta=el('textarea'); ta.placeholder='متن جواب…'; p.append(ta);
+  const chans=el('div','schans');
+  let chan='note';
+  const mkBtn=(v,t)=>{const b=el('button','',t); if(v==='note')b.classList.add('on'); b.onclick=()=>{chan=v;[...chans.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');}; return b;};
+  chans.append(mkBtn('note','یادداشت'),mkBtn('sms','پیامک'),mkBtn('email','ایمیل'));
+  p.append(chans);
+  const note=el('div','state','یادداشت فقط اینجا ثبت می‌شود. پیامک و ایمیل بعد از تأیید آری خارج می‌شوند.');
+  p.append(note);
+  const send=el('button','b go','آماده برای آری'); send.type='button';
+  send.onclick=async()=>{
+    const msg=ta.value.trim(); if(!msg){alert('متن خالی است');return;}
+    send.disabled=true;
+    try{
+      const out=await OFN.post('/api/v1/painting/leads/'+encodeURIComponent(l.lead_id)+'/reply',{channel:chan,message:msg});
+      if(!out.ok)throw new Error(out.error||'نشست');
+      OFN.done();closeSheet();
+      alert(out.queued?'به آری فرستاده شد — منتظر تأیید اوست.':'ثبت شد.');
+      drawList();
+    }catch(e){alert(e.message||'نشست');}finally{send.disabled=false;}
+  };
+  p.append(send);
+  sheet.append(p);
+  sheet.onclick=e=>{if(e.target===sheet)closeSheet();};
+  document.body.append(sheet);
+}
+function openQuoteSheet(l){
+  closeSheet();
+  const sheet=el('div','sheet');
+  const p=el('div','spanel');
+  p.append(el('div','shdr','قیمت برای '+(l.customer_name||'این لید')));
+  const amt=el('input','amt'); amt.type='number'; amt.inputMode='decimal'; amt.placeholder='قیمت (دلار)'; amt.min='0'; p.append(amt);
+  const ta=el('textarea'); ta.placeholder='توضیح قیمت (اختیاری)…'; p.append(ta);
+  const note=el('div','state','قیمت بعد از تأیید آری به مشتری می‌رسد.');
+  p.append(note);
+  const send=el('button','b go','آماده برای آری'); send.type='button';
+  send.onclick=async()=>{
+    const a=parseFloat(amt.value||'0'); if(!(a>0)){alert('قیمت درست نیست');return;}
+    send.disabled=true;
+    try{
+      const out=await OFN.post('/api/v1/painting/leads/'+encodeURIComponent(l.lead_id)+'/quote',{amount:a,note:ta.value.trim()});
+      if(!out.ok)throw new Error(out.error||'نشست');
+      OFN.done();closeSheet();
+      alert('قیمت به آری فرستاده شد — منتظر تأیید اوست.');
+      drawList();
+    }catch(e){alert(e.message||'نشست');}finally{send.disabled=false;}
+  };
+  p.append(send);
+  sheet.append(p);
+  sheet.onclick=e=>{if(e.target===sheet)closeSheet();};
+  document.body.append(sheet);
 }
 
 /* ── boot ──────────────────────────────────────────────────────────────── */

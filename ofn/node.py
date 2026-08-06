@@ -14,6 +14,8 @@ ledger that disagrees with the state.
 from __future__ import annotations
 
 import calendar
+import hashlib
+import json
 import time
 from dataclasses import dataclass
 from typing import Callable, Mapping, Sequence
@@ -50,6 +52,7 @@ from .worker import Job
 
 
 MAX_TEXT_ANSWER = 2000
+OWNER_RISK_ITEM_LIMIT = 100
 
 # Where a studio post is judged to be going. One value today because one
 # platform is configured; it is a constant here rather than a literal at each
@@ -141,6 +144,9 @@ class Node:
     media: object | None = None       # MediaStore
     audience: object | None = None    # AudienceStore
     marketing: object | None = None   # MarketingStore
+    painting: object | None = None    # LeadStore
+    assistant: object | None = None   # StudioAssistantStore
+    backup_root: str | None = None
     # Phase A of the brain wiring: the owner's own surface only. No partner
     # data reaches this, and the studio path is deliberately NOT connected
     # until the extraction layer exists — "we will add the guard later" is
@@ -703,13 +709,15 @@ class Node:
             return {"ok": False, "error": "استودیو در دسترس نیست"}
         note = body.get("note")
         rating = body.get("rating")
-        if note is None and rating is None:
+        category = body.get("category")
+        if note is None and rating is None and category is None:
             return {"ok": False, "error": "چیزی برای ثبت نیست"}
         try:
             item = self.studio.describe_media(
                 scope.tenant.value, media_id,
                 note=None if note is None else str(note),
-                rating=None if rating is None else rating)
+                rating=None if rating is None else rating,
+                category=None if category is None else str(category))
         except StudioError as exc:
             return {"ok": False, "error": str(exc)}
         return {"ok": True, "media": item}
@@ -749,6 +757,30 @@ class Node:
                                       "label": album.label,
                                       "genre": album.genre,
                                       "sensitivity": album.sensitivity.value}}
+
+    def delete_album(self, scope: TenantScope, user_id: str, album_id: str) -> dict:
+        if self.studio is None:
+            return {"ok": False, "error": "استودیو در دسترس نیست"}
+        try:
+            moved = self.studio.delete_collection(scope.tenant.value, album_id)
+        except StudioError as exc:
+            return {"ok": False, "error": str(exc)}
+        self.ledger.append(scope, "ALBUM_DELETED", {"album": album_id, "photos_unfiled": moved, "actor": f"partner:{user_id}"}, self.now_iso())
+        return {"ok": True, "album": album_id, "photos_unfiled": moved}
+
+    def delete_media(self, scope: TenantScope, user_id: str, media_id: str) -> dict:
+        if self.studio is None or self.media is None:
+            return {"ok": False, "error": "استودیو در دسترس نیست"}
+        try:
+            gone = self.studio.drop_media(scope.tenant.value, media_id)
+            if gone is None:
+                return {"ok": False, "error": "این عکس پیدا نشد"}
+            files = self.media.remove_piece(scope.tenant.value, media_id)
+            backups = self.media.purge_from_backups(self.backup_root, scope.tenant.value, media_id) if self.backup_root else 0
+        except (StudioError, FailClosedError) as exc:
+            return {"ok": False, "error": str(exc)}
+        self.ledger.append(scope, "MEDIA_DELETED", {"media_id": media_id, "files": files, "backups": backups, "actor": f"partner:{user_id}"}, self.now_iso())
+        return {"ok": True, "media_id": media_id, "files_deleted": files, "backups_deleted": backups}
 
     def file_media(self, scope: TenantScope, media_id: str,
                    body: Mapping[str, object]) -> dict:
@@ -1698,6 +1730,33 @@ class Node:
                                 d.tier, now)
         return d
 
+    def studio_assistant_chat(self, scope: TenantScope, body: Mapping[str, object]) -> dict:
+        if self.assistant is None:
+            return {"ok": False, "error": "حافظهٔ دستیار وصل نیست"}
+        q = str(body.get("message") or "").strip()[:800]
+        out = self.assistant.answer_local(scope.tenant.value, q)
+        turn = self.assistant.record_chat(scope.tenant.value, q, out.get("answer", ""), out.get("sources", []), now_epoch_s=self.now_epoch_s())
+        return {"ok": True, "turn_id": turn, **out}
+
+    def studio_assistant_suggest(self, scope: TenantScope) -> dict:
+        if self.assistant is None:
+            return {"ok": False, "error": "حافظهٔ دستیار وصل نیست"}
+        out = self.assistant.answer_local(scope.tenant.value, "")
+        return {"ok": True, **out}
+
+    def studio_assistant_history(self, scope: TenantScope) -> dict:
+        if self.assistant is None:
+            return {"ok": False, "error": "حافظهٔ دستیار وصل نیست"}
+        return {"ok": True, "turns": self.assistant.chat_history(scope.tenant.value, limit=30)}
+
+    def update_studio_assistant(self, scope: TenantScope) -> dict:
+        if self.assistant is None:
+            return {"ok": False, "error": "حافظهٔ دستیار وصل نیست"}
+        out = self.assistant.answer_local(scope.tenant.value, "نور ایده محتوا امنیت قیمت")
+        n = self.assistant.ingest_text(scope.tenant.value, "daily", "آپدیت روزانه", out.get("answer", ""), now_epoch_s=self.now_epoch_s())
+        self.assistant.record_run(scope.tenant.value, "daily", "ok", f"{n} chunks", now_epoch_s=self.now_epoch_s())
+        return {"ok": True, "chunks": n}
+
     def owner_queue(self) -> list[dict]:
         """Every leg's pending decisions, newest business first.
 
@@ -1727,6 +1786,289 @@ class Node:
                     "needs_double_confirm": True,
                 })
         return out
+
+    def _owner_business(self, tenant: TenantId | str, *,
+                        include_missing: bool = False) -> dict:
+        """One business as an explicit, owner-safe projection.
+
+        The registry knows a tenant's mechanical shape, not its public name or
+        whether the real-world business is active.  Those fields therefore stay
+        explicitly unresolved instead of being inferred from pack membership.
+        """
+        scope = self.registry.scope(tenant)
+        pack = self.registry.pack(scope.tenant)
+        evidence = self.evidence_for(scope)
+        done, total = readiness(pack, evidence)
+        counts = dict(self.outbox.counts(scope))
+        now = self.now_epoch_s()
+        row = {
+            "id": scope.tenant.value,
+            "identity": {"display_name": None, "status": "not_canonical"},
+            "operational_status": {"value": None, "status": "not_modeled"},
+            "capacity_units_per_week": pack.capacity_units_per_week,
+            "readiness": {"done": done, "total": total},
+            "missing_fact_count": total - done,
+            "decision_counts": {
+                name: int(counts.get(name, 0))
+                for name in ("pending", "in_flight", "held", "sent", "failed")
+            },
+            "audit_event_count": self.ledger.count(scope),
+            "gates": {
+                "declared": list(pack.gates),
+                "closed": [g for g in pack.gates if g in self.closed_gates],
+            },
+            "quota": {
+                "ceiling": self.quota.tenant_ceiling(scope.tenant),
+                "spent": self.quota.spent(now, scope.tenant),
+                "remaining": self.quota.remaining(now, scope.tenant),
+                "persistence": "process_memory",
+                "resets_on_restart": True,
+            },
+            "locale": {
+                "id": pack.locale.id,
+                "currency_code": pack.locale.currency.code,
+                "timezone": pack.locale.timezone,
+            },
+        }
+        if include_missing:
+            row["missing_fact_keys"] = [
+                key for key, need in sorted(pack.required_facts.items())
+                if not ((have := evidence.get(key)) is not None
+                        and have.meets(need))
+            ]
+        return row
+
+    def owner_businesses(self) -> dict:
+        """All registered businesses, sorted and measured from local state."""
+        return {
+            "observed_at": self.now_iso(),
+            "businesses": [self._owner_business(t) for t in self.registry],
+        }
+
+    def owner_business_snapshot(self, business_id: str) -> dict | None:
+        """Safe detail for one known business, or None for an unknown id."""
+        if business_id not in self.registry:
+            return None
+        scope = self.registry.scope(business_id)
+        head = self.ledger.head(scope)
+        return {
+            "observed_at": self.now_iso(),
+            "business": self._owner_business(
+                business_id, include_missing=True),
+            "ledger_head": None if head is None else {
+                "seq": head.seq,
+                "ts": head.ts,
+                "hash_prefix": head.hash[:16],
+            },
+        }
+
+    def owner_core_snapshot(self) -> dict:
+        """Live core state, with process-local and unmeasured facts labelled."""
+        now = self.now_epoch_s()
+        boot = None
+        if self.boot is not None:
+            severity = {"ok": 0, "warn": 0, "critical": 0}
+            failed_names = []
+            for check in self.boot.checks:
+                severity[check.severity.value] += 1
+                if check.severity.value != "ok":
+                    failed_names.append(check.name)
+            boot = {
+                "status": "startup_snapshot",
+                "ok": self.boot.ok,
+                "mode": self.boot.mode.value,
+                "check_counts": severity,
+                "failed_check_names": failed_names,
+                "recovered_outbox": self.boot.recovered_outbox,
+            }
+        worker_status = dict(self.worker.status()) if self.worker is not None else {}
+        return {
+            "observed_at": self.now_iso(),
+            "liveness": {
+                "status": "live" if self.healthy() else "failed",
+                "source": "live_ledger_read",
+            },
+            "boot": boot,
+            "killed": self.killed,
+            "closed_gates": list(self.closed_gates),
+            "quota": {
+                **dict(self.quota.snapshot(now)),
+                "persistence": "process_memory",
+                "resets_on_restart": True,
+            },
+            "worker": {
+                "attached": self.worker is not None,
+                "queued": int(worker_status.get("queued", 0)),
+                "parked": int(worker_status.get("parked", 0)),
+                "persistence": "process_memory",
+                "reconstructed_after_restart": False,
+            },
+            "watchdog": {"status": "unknown", "reason": "not_exposed"},
+            "brain": {
+                "attachment_status": ("attached" if self.worker is not None
+                                      else "not_attached"),
+                "provider_reachability": "unknown",
+            },
+        }
+
+    def owner_risks(self, limit: int = OWNER_RISK_ITEM_LIMIT) -> dict:
+        """Bounded, payload-free view of the actionable human queue.
+
+        This is deliberately labelled partial.  GREEN work does not enter the
+        outbox and denied proposals live in the audit ledger, so claiming this
+        is a complete risk register would be false.
+        """
+        limit = max(0, min(int(limit), OWNER_RISK_ITEM_LIMIT))
+        items: list[dict] = []
+        states = {"pending": 0, "held": 0}
+        tiers = {tier.value: 0 for tier in RiskTier}
+        for tenant in self.registry:
+            scope = self.registry.scope(tenant)
+            aggregate = self.outbox.actionable_counts(scope)
+            for state, count in aggregate["by_state"].items():
+                states[state] = states.get(state, 0) + int(count)
+            for tier, count in aggregate["by_tier"].items():
+                tiers[tier] = tiers.get(tier, 0) + int(count)
+            candidates = [
+                (item, "pending")
+                for item in self.outbox.pending(scope, limit=limit)
+            ] + [
+                (item, "held")
+                for item in self.outbox.held(scope, limit=limit)
+            ]
+            for item, state in candidates:
+                items.append({
+                    "id": item.idem_key,
+                    "business_id": item.tenant,
+                    "kind": item.kind,
+                    "tier": item.tier.value,
+                    "state": state,
+                    "created_at": item.created_at,
+                    "needs_second_confirmation": item.tier is RiskTier.RED,
+                })
+        items.sort(key=lambda item: (
+            item["created_at"], item["business_id"], item["id"]),
+            reverse=True)
+        visible_items = items[:limit]
+        total_actionable = states["pending"] + states["held"]
+        return {
+            "observed_at": self.now_iso(),
+            "coverage": "actionable_queue",
+            "completeness": "partial",
+            "counts": {**states, "by_tier": tiers},
+            "items": visible_items,
+            # The item reads above are bounded, while these counts cover the
+            # complete queue.  Comparing only with ``len(items)`` would report
+            # "not truncated" once every per-tenant read had hit its own cap.
+            "items_truncated": total_actionable > len(visible_items),
+        }
+
+    @staticmethod
+    def _ledger_reason_code(ok: bool, reason: str) -> str:
+        if ok:
+            return "verified"
+        text = reason.casefold()
+        if "sequence gap" in text:
+            return "sequence_gap"
+        if "prev_hash" in text or "broken link" in text:
+            return "broken_link"
+        if "content edited" in text or "hash" in text:
+            return "content_mismatch"
+        return "verification_failed"
+
+    def owner_ledger_summary(self) -> dict:
+        """Hash-chain health and counts; never event payloads or finance."""
+        rows = []
+        total = 0
+        all_ok = True
+        for tenant in self.registry:
+            scope = self.registry.scope(tenant)
+            count = self.ledger.count(scope)
+            head = self.ledger.head(scope)
+            ok, reason = self.ledger.verify(scope)
+            total += count
+            all_ok = all_ok and ok
+            rows.append({
+                "business_id": tenant.value,
+                "event_count": count,
+                "head": None if head is None else {
+                    "seq": head.seq, "ts": head.ts,
+                    "hash_prefix": head.hash[:16],
+                },
+                "verification": {
+                    "ok": ok,
+                    "reason_code": self._ledger_reason_code(ok, reason),
+                },
+            })
+        return {
+            "observed_at": self.now_iso(),
+            "kind": "audit_event_ledger",
+            "event_count": total,
+            "verification": {
+                "ok": all_ok,
+                "reason_code": "verified" if all_ok else "verification_failed",
+            },
+            "businesses": rows,
+        }
+
+    def owner_snapshot(self) -> dict:
+        """Compact home read model; detail stays behind dedicated endpoints."""
+        risks = self.owner_risks(limit=0)
+        ledger = self.owner_ledger_summary()
+        worker_status = dict(self.worker.status()) if self.worker is not None else {}
+        return {
+            "snapshot_version": "phase2-owner-v1",
+            "observed_at": self.now_iso(),
+            "availability": {
+                "status": "partial",
+                "reasons": [
+                    "partner_activity_not_measured",
+                    "mini_app_health_not_measured",
+                    "calibration_not_persisted",
+                ],
+            },
+            "business_count": len(self.registry),
+            "decision_counts": {
+                "pending": risks["counts"]["pending"],
+                "held": risks["counts"]["held"],
+            },
+            "core": {
+                "liveness_status": "live" if self.healthy() else "failed",
+                "liveness_source": "live_ledger_read",
+                "killed": self.killed,
+            },
+            "ledger": {
+                "kind": ledger["kind"],
+                "event_count": ledger["event_count"],
+                "verification_status": ledger["verification"]["reason_code"],
+            },
+            "automation": {
+                "thinking": {
+                    "attached": self.worker is not None,
+                    "queued": int(worker_status.get("queued", 0)),
+                    "parked": int(worker_status.get("parked", 0)),
+                    "persistence": "process_memory",
+                },
+                "state_machine": "not_implemented",
+            },
+            "calibration": {
+                "action_score": None,
+                "sample_count": None,
+                "persisted": False,
+                "status": "not_implemented",
+            },
+            "links": {
+                "businesses": "/api/v1/owner/businesses",
+                "partners": "/api/v1/owner/partners",
+                "mini_apps": "/api/v1/owner/mini-apps",
+                "core": "/api/v1/owner/core/snapshot",
+                "risks": "/api/v1/owner/risks",
+                "ledger": "/api/v1/owner/ledger/summary",
+                "painting": "/api/v1/owner/painting/dashboard",
+                "mini_webs": "/api/v1/owner/mini-webs",
+                "telegram": "/api/v1/owner/telegram",
+            },
+        }
 
     def owner_status(self) -> dict:
         """Everything the owner's panel shows, measured rather than assumed.
@@ -1837,6 +2179,304 @@ class Node:
         }, now)
         return {"ok": True, "status": "approved", "claimed": claimed}
 
+
+    # ── painting lead CRM ─────────────────────────────────────────────────
+    def _lead_scope(self) -> TenantScope | None:
+        if "lead" not in self.registry:
+            return None
+        return self.registry.scope("lead")
+
+    def painting_leads(self, *, status: str = "", q: str = "", limit: int = 50) -> dict:
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        return {"ok": True, "leads": self.painting.list_leads(scope.tenant.value, status=status, q=q, limit=limit)}
+
+    def painting_dashboard(self) -> dict:
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        self.painting.ensure_seed_channels(scope.tenant.value, self.now_iso())
+        if hasattr(self.painting, "ensure_seed_modules"):
+            self.painting.ensure_seed_modules(scope.tenant.value, self.now_iso())
+        if hasattr(self.painting, "ensure_source_registry"):
+            try:
+                import os
+                path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "painting_source_registry.json")
+                with open(path, "r", encoding="utf-8") as fh:
+                    self.painting.ensure_source_registry(scope.tenant.value, json.load(fh).get("sources", []), self.now_iso())
+            except Exception:
+                pass
+        return {"ok": True, **self.painting.dashboard(scope.tenant.value), "mini_webs": self.owner_mini_webs_summary(), "telegram": self.owner_telegram_summary()}
+
+    def create_painting_lead(self, body: Mapping[str, object], *, actor: str = "owner") -> dict:
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        out = self.painting.create_lead(scope.tenant.value, body, now_iso=self.now_iso())
+        if out.get("ok"):
+            lead = out.get("lead") or {}
+            self.ledger.append(scope, "LEAD_CAPTURED", {
+                "lead_id": lead.get("lead_id"),
+                "source": lead.get("source"),
+                "score": lead.get("score"),
+                "actor": actor,
+            }, self.now_iso())
+        return out
+
+    def update_painting_lead(self, lead_id: str, body: Mapping[str, object], *, actor: str = "owner") -> dict:
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        out = self.painting.update_lead(scope.tenant.value, lead_id, body, now_iso=self.now_iso())
+        if out.get("ok"):
+            self.ledger.append(scope, "LEAD_UPDATED", {
+                "lead_id": lead_id,
+                "status": (out.get("lead") or {}).get("status"),
+                "actor": actor,
+            }, self.now_iso())
+        return out
+
+    # ── lead outbound: reply / quote ─────────────────────────────────────
+    # Mirrors the studio publish path (`publish_draft`, node.py:480). A partner
+    # composes a reply or quote; it goes into the outbox as RED (it leaves the
+    # device and may carry PII) and lands in the owner's queue for approval.
+    # Nothing is sent until the owner double-confirms — same fail-closed door
+    # studio uses. A pure internal note never leaves the device, so it is
+    # captured as an interaction + ledger row and needs no approval.
+    _REPLY_CHANNELS = {"note", "sms", "email"}
+
+    def send_lead_reply(self, lead_id: str, body: Mapping[str, object],
+                        *, actor: str = "partner") -> dict:
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        lead = self.painting.get(scope.tenant.value, lead_id)
+        if not lead:
+            return {"ok": False, "error": "لید پیدا نشد"}
+        channel = str(body.get("channel") or "note").strip().lower()
+        if channel not in self._REPLY_CHANNELS:
+            return {"ok": False, "error": "کانال جواب درست نیست"}
+        message = str(body.get("message") or "").strip()
+        if not message:
+            return {"ok": False, "error": "متن جواب خالی است"}
+        if len(message) > 2000:
+            message = message[:2000]
+        now = self.now_iso()
+        actor_tag = f"{actor}"
+
+        # A note stays inside the node — reversible, no PII leaves. Capture it
+        # as an interaction on the lead and record a ledger row. No outbox.
+        if channel == "note":
+            self.painting.create_interaction(scope.tenant.value, {
+                "lead_id": lead_id,
+                "channel": "note",
+                "kind": "partner_note",
+                "person": lead.get("customer_name") or "",
+                "subject": "یادداشت پارتنر",
+                "body": message,
+                "status": "done",
+            }, now_iso=now)
+            self.ledger.append(scope, "LEAD_NOTE_CAPTURED", {
+                "lead_id": lead_id, "actor": actor_tag,
+            }, now)
+            return {"ok": True, "kind": "note"}
+
+        # SMS/email leave the device and may contain the customer's name,
+        # phone, or address — that is always RED (irreversible + PII), so it
+        # goes through the owner-approval gate like a studio publish.
+        digest = hashlib.sha1(
+            f"{channel}|{message}".encode("utf-8")).hexdigest()[:16]
+        idem = f"lead-reply:{lead_id}:{channel}:{digest}"
+        payload = {
+            "lead_id": lead_id,
+            "channel": channel,
+            "message": message,
+            "customer_name": lead.get("customer_name") or "",
+            "to": lead.get("phone") if channel == "sms" else lead.get("email"),
+        }
+        queued = self.outbox.enqueue(
+            scope, idem, "lead:reply", payload, RiskTier.RED, now)
+        self.ledger.append(scope, "LEAD_REPLY_QUEUED", {
+            "lead_id": lead_id, "channel": channel,
+            "duplicate": not queued, "actor": actor_tag,
+        }, now)
+        # If the lead was still untouched, mark it as contacted so the pipeline
+        # reflects reality. This mirrors studio's draft→queued transition.
+        if lead.get("status") == "new":
+            self.painting.update_lead(scope.tenant.value, lead_id,
+                                      {"status": "contacted"}, now_iso=now)
+        return {"ok": True, "queued": queued, "kind": channel}
+
+    def send_lead_quote(self, lead_id: str, body: Mapping[str, object],
+                        *, actor: str = "partner") -> dict:
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        lead = self.painting.get(scope.tenant.value, lead_id)
+        if not lead:
+            return {"ok": False, "error": "لید پیدا نشد"}
+        # A price is money and irreversible — there is no configuration that
+        # makes a quote anything but RED.
+        try:
+            amount = float(body.get("amount") or 0)
+        except (TypeError, ValueError):
+            amount = 0.0
+        if amount <= 0:
+            return {"ok": False, "error": "قیمت درست نیست"}
+        if amount > 1_000_000:
+            return {"ok": False, "error": "قیمت خیلی بزرگ است"}
+        note = str(body.get("note") or "").strip()[:800]
+        items = body.get("items") or []
+        now = self.now_iso()
+        actor_tag = f"{actor}"
+        digest = hashlib.sha1(
+            f"quote|{amount}|{note}".encode("utf-8")).hexdigest()[:16]
+        idem = f"lead-quote:{lead_id}:{digest}"
+        payload = {
+            "lead_id": lead_id,
+            "amount": amount,
+            "note": note,
+            "items": items if isinstance(items, list) else [],
+            "customer_name": lead.get("customer_name") or "",
+        }
+        queued = self.outbox.enqueue(
+            scope, idem, "lead:quote", payload, RiskTier.RED, now)
+        self.ledger.append(scope, "LEAD_QUOTE_QUEUED", {
+            "lead_id": lead_id, "amount": amount,
+            "duplicate": not queued, "actor": actor_tag,
+        }, now)
+        if lead.get("status") in ("new", "contacted", "review"):
+            self.painting.update_lead(scope.tenant.value, lead_id,
+                                      {"status": "quoted"}, now_iso=now)
+        return {"ok": True, "queued": queued}
+
+    def upsert_painting_channel(self, body: Mapping[str, object]) -> dict:
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        out = self.painting.upsert_channel(scope.tenant.value, body, now_iso=self.now_iso())
+        if out.get("ok"):
+            self.ledger.append(scope, "PAINTING_CHANNEL_UPSERT", {"channel": out.get("channel")}, self.now_iso())
+        return out
+
+    def upsert_painting_campaign(self, body: Mapping[str, object]) -> dict:
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        out = self.painting.upsert_campaign(scope.tenant.value, body, now_iso=self.now_iso())
+        if out.get("ok"):
+            self.ledger.append(scope, "PAINTING_CAMPAIGN_UPSERT", {"campaign": out.get("campaign")}, self.now_iso())
+        return out
+
+    def upsert_painting_module(self, body: Mapping[str, object]) -> dict:
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        out = self.painting.upsert_module(scope.tenant.value, body, now_iso=self.now_iso())
+        if out.get("ok"):
+            self.ledger.append(scope, "PAINTING_MODULE_UPSERT", {"module": out.get("module")}, self.now_iso())
+        return out
+
+    def create_painting_interaction(self, body: Mapping[str, object]) -> dict:
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        out = self.painting.create_interaction(scope.tenant.value, body, now_iso=self.now_iso())
+        if out.get("ok"):
+            self.ledger.append(scope, "PAINTING_INTERACTION_CAPTURED", {"interaction": out.get("interaction"), "channel": body.get("channel")}, self.now_iso())
+        return out
+
+    def update_painting_interaction(self, interaction_id: str, body: Mapping[str, object]) -> dict:
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        out = self.painting.update_interaction(scope.tenant.value, interaction_id, body, now_iso=self.now_iso())
+        if out.get("ok"):
+            self.ledger.append(scope, "PAINTING_INTERACTION_UPDATED", {"interaction": interaction_id}, self.now_iso())
+        return out
+
+    def create_painting_account(self, body: Mapping[str, object]) -> dict:
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        out = self.painting.create_account(scope.tenant.value, body, now_iso=self.now_iso())
+        if out.get("ok"):
+            self.ledger.append(scope, "PAINTING_B2B_ACCOUNT_UPSERT", {"account": out.get("account"), "recommendation": out.get("recommendation")}, self.now_iso())
+        return out
+
+    def create_painting_tender(self, body: Mapping[str, object]) -> dict:
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        out = self.painting.create_tender(scope.tenant.value, body, now_iso=self.now_iso())
+        if out.get("ok"):
+            self.ledger.append(scope, "PAINTING_TENDER_UPSERT", {"tender": out.get("tender"), "recommendation": out.get("recommendation")}, self.now_iso())
+        return out
+
+    def create_painting_vendor_application(self, body: Mapping[str, object]) -> dict:
+        if self.painting is None:
+            return {"ok": False, "error": "ذخیره‌ساز لید وصل نیست"}
+        scope = self._lead_scope()
+        if scope is None:
+            return {"ok": False, "error": "پک لید نقاشی روی این نود نیست"}
+        out = self.painting.create_vendor_application(scope.tenant.value, body, now_iso=self.now_iso())
+        if out.get("ok"):
+            self.ledger.append(scope, "PAINTING_VENDOR_APP_UPSERT", {"application": out.get("application"), "status": out.get("status")}, self.now_iso())
+        return out
+
+    def owner_mini_webs_summary(self) -> dict:
+        return {
+            "hosts": [
+                {"id": "owner", "host": "panel.master-painting.com", "port": 8794, "role": "owner", "purpose": "کنترل پنل"},
+                {"id": "lead", "host": "lead.master-painting.com", "port": 8792, "role": "partner", "purpose": "مینی‌وب لید نقاشی"},
+                {"id": "studio", "host": "studio.master-painting.com", "port": 8793, "role": "partner", "purpose": "استودیو"},
+                {"id": "app", "host": "app.master-painting.com", "port": 8793, "role": "partner", "purpose": "مسیر /sabaapp"},
+                {"id": "ziman", "host": "ziman.master-painting.com", "port": 8791, "role": "partner", "purpose": "زیمان"},
+                {"id": "hypno", "host": "hypno.master-painting.com", "port": 8895, "role": "external", "purpose": "سرویس جداگانه hypno"},
+            ],
+            "note": "سلامت host از کانفیگ تونل گزارش می‌شود؛ توکن‌ها و شناسه‌های حساب نمایش داده نمی‌شوند.",
+        }
+
+    def owner_telegram_summary(self) -> dict:
+        return {
+            "bots": [
+                {"id": "owner", "configured": True, "surface": "پنل مالک"},
+                {"id": "lead", "configured": True, "surface": "مینی‌اپ لید نقاشی"},
+                {"id": "studio", "configured": True, "surface": "استودیو"},
+                {"id": "studio_partner", "configured": True, "surface": "ورود شریک استودیو"},
+                {"id": "ziman", "configured": True, "surface": "زیمان"},
+            ],
+            "identifiers": "omitted",
+            "tokens": "omitted",
+        }
+
     # ── health ────────────────────────────────────────────────────────────
     def healthy(self) -> bool:
         """Liveness probe for the watchdog. Must touch real state, not a flag.
@@ -1853,7 +2493,7 @@ class Node:
             return False
 
     def close(self) -> None:
-        for store in (self.ledger, self.facts, self.outbox):
+        for store in (self.ledger, self.facts, self.outbox, self.painting):
             try:
                 store.close()
             except Exception:

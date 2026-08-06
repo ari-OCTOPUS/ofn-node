@@ -166,6 +166,12 @@ class ApiApp:
         add_media: Callable | None = None,
         create_album: Callable | None = None,
         file_media: Callable | None = None,
+        delete_album: Callable | None = None,
+        delete_media: Callable | None = None,
+        assistant_chat: Callable | None = None,
+        assistant_update: Callable | None = None,
+        assistant_history: Callable | None = None,
+        assistant_suggest: Callable | None = None,
         request_reading: Callable[[TenantScope], dict] | None = None,
         judge_reading: Callable[[TenantScope, str, str], dict] | None = None,
         create_draft: Callable[[TenantScope, str, dict], dict] | None = None,
@@ -176,6 +182,29 @@ class ApiApp:
         owner_decide: Callable[[str, bool, bool], dict] | None = None,
         owner_status: Callable[[], dict] | None = None,
         owner_events: Callable[[int], list] | None = None,
+        owner_snapshot: Callable[[], dict] | None = None,
+        owner_businesses: Callable[[], dict] | None = None,
+        owner_business_snapshot: Callable[[str], dict | None] | None = None,
+        owner_core_snapshot: Callable[[], dict] | None = None,
+        owner_risks: Callable[[], dict] | None = None,
+        owner_ledger_summary: Callable[[], dict] | None = None,
+        painting_dashboard: Callable[[], dict] | None = None,
+        painting_leads: Callable[..., dict] | None = None,
+        create_painting_lead: Callable[..., dict] | None = None,
+        update_painting_lead: Callable[..., dict] | None = None,
+        upsert_painting_channel: Callable[[dict], dict] | None = None,
+        upsert_painting_campaign: Callable[[dict], dict] | None = None,
+        upsert_painting_module: Callable[[dict], dict] | None = None,
+        create_painting_interaction: Callable[[dict], dict] | None = None,
+        update_painting_interaction: Callable[[str, dict], dict] | None = None,
+        create_painting_account: Callable[[dict], dict] | None = None,
+        create_painting_tender: Callable[[dict], dict] | None = None,
+        create_painting_vendor_application: Callable[[dict], dict] | None = None,
+        send_lead_reply: Callable[[str, dict], dict] | None = None,
+        send_lead_quote: Callable[[str, dict], dict] | None = None,
+        owner_mini_webs_summary: Callable[[], dict] | None = None,
+        owner_telegram_summary: Callable[[], dict] | None = None,
+        mini_apps: Sequence[Mapping[str, object]] = (),
         brain_status: Callable[[], dict] | None = None,
         brain_probe: Callable[[TenantScope], dict] | None = None,
         owner_ask: Callable[[TenantScope, str], dict] | None = None,
@@ -203,6 +232,12 @@ class ApiApp:
         self._add_media = add_media
         self._create_album = create_album
         self._file_media = file_media
+        self._delete_album = delete_album
+        self._delete_media = delete_media
+        self._assistant_chat = assistant_chat
+        self._assistant_update = assistant_update
+        self._assistant_history = assistant_history
+        self._assistant_suggest = assistant_suggest
         self._request_reading = request_reading
         self._judge_reading = judge_reading
         self._create_draft = create_draft
@@ -236,10 +271,36 @@ class ApiApp:
         self._owner_decide = owner_decide or (lambda i, a, c: {"ok": True})
         self._owner_status = owner_status or (lambda: {})
         self._owner_events = owner_events or (lambda n: [])
+        self._owner_snapshot = owner_snapshot
+        self._owner_businesses = owner_businesses
+        self._owner_business_snapshot = owner_business_snapshot
+        self._owner_core_snapshot = owner_core_snapshot
+        self._owner_risks = owner_risks
+        self._owner_ledger_summary = owner_ledger_summary
+        self._painting_dashboard = painting_dashboard
+        self._painting_leads = painting_leads
+        self._create_painting_lead = create_painting_lead
+        self._update_painting_lead = update_painting_lead
+        self._send_lead_reply = send_lead_reply
+        self._send_lead_quote = send_lead_quote
+        self._upsert_painting_channel = upsert_painting_channel
+        self._upsert_painting_campaign = upsert_painting_campaign
+        self._upsert_painting_module = upsert_painting_module
+        self._create_painting_interaction = create_painting_interaction
+        self._update_painting_interaction = update_painting_interaction
+        self._create_painting_account = create_painting_account
+        self._create_painting_tender = create_painting_tender
+        self._create_painting_vendor_application = create_painting_vendor_application
+        self._owner_mini_webs_summary = owner_mini_webs_summary
+        self._owner_telegram_summary = owner_telegram_summary
+        # Copy only the declared inventory.  Hostnames and bot configuration
+        # never enter this structure, so the owner projection cannot leak them
+        # later by accidentally serialising a config object wholesale.
+        self._mini_apps = tuple(dict(app) for app in mini_apps)
 
     # ── entry point ───────────────────────────────────────────────────────
     def handle(self, method: str, path: str, headers: Mapping[str, str],
-               body: bytes) -> Response:
+               body: bytes, *, query: str = "") -> Response:
         if path == "/healthz":
             return Response(200, {"ok": True})
 
@@ -260,7 +321,7 @@ class ApiApp:
 
         if is_owner_host:
             return self._owner_route(method, path, principal, body)
-        return self._partner_route(method, path, principal, body)
+        return self._partner_route(method, path, principal, body, query=query)
 
     # ── boot report ───────────────────────────────────────────────────────
     # Every way a shell can fail to come up. Closed on purpose: this route is
@@ -335,6 +396,10 @@ class ApiApp:
 
         key = "__owner__" if is_owner_host else (tenant_name or "")
         token = self._bot_tokens.get(key, "")
+        if key == "studio":
+            partner_token = self._bot_tokens.get("studio_partner", "")
+            if partner_token and any(hmac_variants(raw, partner_token).values()):
+                token = partner_token
         now = self._now()
         try:
             # Raw, not pre-decoded: `_parse_qs` splits first and decodes each
@@ -407,7 +472,7 @@ class ApiApp:
 
     # ── partner surface ───────────────────────────────────────────────────
     def _partner_route(self, method: str, path: str, p: Principal,
-                       body: bytes) -> Response:
+                       body: bytes, *, query: str = "") -> Response:
         scope = self._registry.scope(p.tenant)
         if method == "GET" and path == "/api/v1/me":
             return Response(200, {"tenant": p.tenant.value, "user_id": p.user_id})
@@ -468,6 +533,27 @@ class ApiApp:
             if self._studio_guidance is None:
                 return Response(404, {"error": "not found"})
             return Response(200, self._studio_guidance(scope))
+        if method == "GET" and path == "/api/v1/studio/assistant/suggest":
+            if self._assistant_suggest is None:
+                return Response(404, {"error": "not found"})
+            out = self._assistant_suggest(scope)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "GET" and path == "/api/v1/studio/assistant/history":
+            if self._assistant_history is None:
+                return Response(404, {"error": "not found"})
+            out = self._assistant_history(scope)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path == "/api/v1/studio/assistant/chat":
+            data = _json_object(body)
+            if data is None or self._assistant_chat is None:
+                return Response(400, {"error": "bad request"})
+            out = self._assistant_chat(scope, data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path == "/api/v1/studio/assistant/update":
+            if self._assistant_update is None:
+                return Response(404, {"error": "not found"})
+            out = self._assistant_update(scope)
+            return Response(200 if out.get("ok") else 400, out)
         if method == "GET" and path == "/api/v1/studio/reading":
             if self._studio_reading is None:
                 return Response(404, {"error": "not found"})
@@ -497,6 +583,18 @@ class ApiApp:
             if data is None or self._create_album is None:
                 return Response(400, {"error": "bad request"})
             out = self._create_album(scope, p.user_id, data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "DELETE" and path.startswith("/api/v1/studio/albums/"):
+            album = path[len("/api/v1/studio/albums/"):]
+            if not album or "/" in album or self._delete_album is None:
+                return Response(404, {"error": "not found"})
+            out = self._delete_album(scope, p.user_id, album)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "DELETE" and path.startswith("/api/v1/studio/media/"):
+            mid = path[len("/api/v1/studio/media/"):]
+            if not mid or "/" in mid or self._delete_media is None:
+                return Response(404, {"error": "not found"})
+            out = self._delete_media(scope, p.user_id, mid)
             return Response(200 if out.get("ok") else 400, out)
         if method == "POST" and path.startswith("/api/v1/studio/media/") \
                 and path.endswith("/album"):
@@ -578,6 +676,58 @@ class ApiApp:
                 return Response(400, {"error": "bad request"})
             out = self._create_draft(scope, p.user_id, data)
             return Response(200 if out.get("ok") else 400, out)
+
+        # ── painting lead CRM (lead partner only) ────────────────────────
+        if p.tenant.value == "lead" and method == "GET" and path == "/api/v1/painting/dashboard":
+            if self._painting_dashboard is None:
+                return Response(404, {"error": "not found"})
+            return Response(200, self._painting_dashboard())
+        # Partner list/search/filter — mirrors the owner read but without the
+        # no-store owner header, since a partner re-fetching their own queue
+        # is expected and not a caching hazard.
+        if p.tenant.value == "lead" and method == "GET" and path == "/api/v1/painting/leads":
+            if self._painting_leads is None:
+                return Response(404, {"error": "not found"})
+            qs = urllib.parse.parse_qs(query or "")
+            q = qs.get("q", [""])[0]
+            status = qs.get("status", [""])[0]
+            return Response(200, self._painting_leads(status=status, q=q))
+        if p.tenant.value == "lead" and method == "POST" and path == "/api/v1/painting/leads":
+            data = _json_object(body)
+            if data is None or self._create_painting_lead is None:
+                return Response(400, {"error": "bad request"})
+            out = self._create_painting_lead(data, actor="partner")
+            return Response(200 if out.get("ok") else 400, out)
+        lead_prefix = "/api/v1/painting/leads/"
+        if p.tenant.value == "lead" and method == "POST" and path.startswith(lead_prefix):
+            rest = path[len(lead_prefix):]
+            # Exactly `<id>` for update, or `<id>/<verb>` for reply/quote. A
+            # crafted id with extra slashes must not reach a verb route.
+            parts = rest.split("/")
+            if not parts or not parts[0]:
+                return Response(404, {"error": "not found"})
+            lead_id = urllib.parse.unquote(parts[0])
+            verb = parts[1] if len(parts) == 2 else None
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            if verb is None:
+                # plain update
+                if self._update_painting_lead is None:
+                    return Response(404, {"error": "not found"})
+                out = self._update_painting_lead(lead_id, data, actor="partner")
+            elif verb == "reply":
+                if self._send_lead_reply is None:
+                    return Response(404, {"error": "not found"})
+                out = self._send_lead_reply(lead_id, data, actor="partner")
+            elif verb == "quote":
+                if self._send_lead_quote is None:
+                    return Response(404, {"error": "not found"})
+                out = self._send_lead_quote(lead_id, data, actor="partner")
+            else:
+                return Response(404, {"error": "not found"})
+            return Response(200 if out.get("ok") else 400, out)
+
         if method == "POST" and path.startswith("/api/v1/studio/drafts/"):
             rest = path[len("/api/v1/studio/drafts/"):]
             # Exactly `<id>/<verb>`. Anything else is a route nobody wrote,
@@ -599,21 +749,217 @@ class ApiApp:
         return Response(404, {"error": "not found"})
 
     # ── owner surface ─────────────────────────────────────────────────────
+    @staticmethod
+    def _owner_read(body: object, status: int = 200) -> Response:
+        """An authenticated owner read that must not survive in any cache."""
+        return Response(status, body, {"Cache-Control": "private, no-store"})
+
+    def _owner_partners(self) -> dict:
+        """Allowlist configuration counts, never Telegram identifiers.
+
+        Absence and an explicitly empty list are distinct operational failures:
+        the first was not configured, while the second was configured to lock
+        the shell.  Neither is interpreted as public access.
+        """
+        businesses = []
+        for tenant in self._registry:
+            name = tenant.value
+            present = name in self._partners
+            count = len(self._partners.get(name, ()))
+            businesses.append({
+                "business_id": name,
+                "configuration_status": (
+                    "configured" if count else
+                    "locked_empty" if present else
+                    "missing"
+                ),
+                "configured_account_count": count,
+                "identifiers": "omitted",
+                "activity": {"status": "unknown", "reason": "not_measured"},
+            })
+        return {
+            "coverage": "configuration_only",
+            "businesses": businesses,
+        }
+
+    def _owner_mini_apps(self) -> dict:
+        """Safe static inventory; configured is never presented as healthy."""
+        apps = []
+        for raw in self._mini_apps:
+            app_id = str(raw.get("id") or "")
+            role = str(raw.get("role") or "")
+            business = raw.get("business_id")
+            port = raw.get("listen_port")
+            paths = raw.get("paths")
+            configured = bool(app_id and role and port and paths)
+            apps.append({
+                "id": app_id or None,
+                "business_id": (str(business) if business is not None else None),
+                "role": role or None,
+                "listen_port": (port if isinstance(port, int) else None),
+                "path_count": (len(paths) if isinstance(paths, (list, tuple))
+                               else 0),
+                "configuration_status": "configured" if configured else "partial",
+                "health": {"status": "unknown", "reason": "not_measured"},
+            })
+        return {
+            "coverage": "configuration_only",
+            "mini_apps": apps,
+        }
+
     def _owner_route(self, method: str, path: str, p: Principal,
                      body: bytes) -> Response:
         if not p.is_owner:
             return Response(403, {"error": "forbidden"})
         if method == "GET" and path == "/api/v1/queue":
-            return Response(200, {"queue": self._owner_queue()})
+            return self._owner_read({"queue": self._owner_queue()})
         if method == "GET" and path == "/api/v1/owner/status":
-            return Response(200, self._owner_status())
+            return self._owner_read(self._owner_status())
         if method == "GET" and path == "/api/v1/owner/events":
-            return Response(200, {"events": self._owner_events(EVENT_TAIL)})
+            return self._owner_read({"events": self._owner_events(EVENT_TAIL)})
+
+        # Phase-two projections are optional injections so the transport stays
+        # reusable in narrow tests.  A missing read model is absent (404), not
+        # an invented empty dashboard.
+        if method == "GET" and path == "/api/v1/owner/snapshot":
+            if self._owner_snapshot is None:
+                return self._owner_read({"error": "not found"}, 404)
+            return self._owner_read(self._owner_snapshot())
+        if method == "GET" and path == "/api/v1/owner/businesses":
+            if self._owner_businesses is None:
+                return self._owner_read({"error": "not found"}, 404)
+            return self._owner_read(self._owner_businesses())
+        prefix = "/api/v1/owner/businesses/"
+        suffix = "/snapshot"
+        if method == "GET" and path.startswith(prefix) and path.endswith(suffix):
+            business_id = path[len(prefix):-len(suffix)]
+            if (not business_id or "/" in business_id
+                    or self._owner_business_snapshot is None):
+                return self._owner_read({"error": "not found"}, 404)
+            snapshot = self._owner_business_snapshot(business_id)
+            if snapshot is None:
+                return self._owner_read({"error": "not found"}, 404)
+            return self._owner_read(snapshot)
+        if method == "GET" and path == "/api/v1/owner/partners":
+            return self._owner_read(self._owner_partners())
+        if method == "GET" and path == "/api/v1/owner/mini-apps":
+            return self._owner_read(self._owner_mini_apps())
+        if method == "GET" and path == "/api/v1/owner/core/snapshot":
+            if self._owner_core_snapshot is None:
+                return self._owner_read({"error": "not found"}, 404)
+            return self._owner_read(self._owner_core_snapshot())
+        if method == "GET" and path == "/api/v1/owner/risks":
+            if self._owner_risks is None:
+                return self._owner_read({"error": "not found"}, 404)
+            return self._owner_read(self._owner_risks())
+        if method == "GET" and path == "/api/v1/owner/ledger/summary":
+            if self._owner_ledger_summary is None:
+                return self._owner_read({"error": "not found"}, 404)
+            return self._owner_read(self._owner_ledger_summary())
+
+        # ── painting lead CRM and marketing control, owner-only ──────────
+        if method == "GET" and path == "/api/v1/owner/painting/dashboard":
+            if self._painting_dashboard is None:
+                return self._owner_read({"error": "not found"}, 404)
+            return self._owner_read(self._painting_dashboard())
+        if method == "GET" and path == "/api/v1/owner/painting/leads":
+            if self._painting_leads is None:
+                return self._owner_read({"error": "not found"}, 404)
+            return self._owner_read(self._painting_leads())
+        if method == "GET" and path in {
+            "/api/v1/owner/painting/sources",
+            "/api/v1/owner/painting/accounts",
+            "/api/v1/owner/painting/tenders",
+            "/api/v1/owner/painting/vendor-applications",
+        }:
+            if self._painting_dashboard is None:
+                return self._owner_read({"error": "not found"}, 404)
+            dash = self._painting_dashboard()
+            key = path.rsplit("/", 1)[-1].replace("-", "_")
+            return self._owner_read({key: dash.get(key, [])})
+        if method == "POST" and path == "/api/v1/owner/painting/leads":
+            data = _json_object(body)
+            if data is None or self._create_painting_lead is None:
+                return Response(400, {"error": "bad request"})
+            out = self._create_painting_lead(data, actor="owner")
+            return Response(200 if out.get("ok") else 400, out)
+        owner_lead_prefix = "/api/v1/owner/painting/leads/"
+        if method == "POST" and path.startswith(owner_lead_prefix):
+            lead_id = urllib.parse.unquote(path[len(owner_lead_prefix):])
+            if not lead_id or "/" in lead_id or self._update_painting_lead is None:
+                return Response(404, {"error": "not found"})
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            out = self._update_painting_lead(lead_id, data, actor="owner")
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path == "/api/v1/owner/painting/channels":
+            data = _json_object(body)
+            if data is None or self._upsert_painting_channel is None:
+                return Response(400, {"error": "bad request"})
+            out = self._upsert_painting_channel(data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path == "/api/v1/owner/painting/campaigns":
+            data = _json_object(body)
+            if data is None or self._upsert_painting_campaign is None:
+                return Response(400, {"error": "bad request"})
+            out = self._upsert_painting_campaign(data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path == "/api/v1/owner/painting/modules":
+            data = _json_object(body)
+            if data is None or self._upsert_painting_module is None:
+                return Response(400, {"error": "bad request"})
+            out = self._upsert_painting_module(data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path == "/api/v1/owner/painting/interactions":
+            data = _json_object(body)
+            if data is None or self._create_painting_interaction is None:
+                return Response(400, {"error": "bad request"})
+            out = self._create_painting_interaction(data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path == "/api/v1/owner/painting/accounts":
+            data = _json_object(body)
+            if data is None or self._create_painting_account is None:
+                return Response(400, {"error": "bad request"})
+            out = self._create_painting_account(data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path == "/api/v1/owner/painting/tenders":
+            data = _json_object(body)
+            if data is None or self._create_painting_tender is None:
+                return Response(400, {"error": "bad request"})
+            out = self._create_painting_tender(data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "POST" and path == "/api/v1/owner/painting/vendor-applications":
+            data = _json_object(body)
+            if data is None or self._create_painting_vendor_application is None:
+                return Response(400, {"error": "bad request"})
+            out = self._create_painting_vendor_application(data)
+            return Response(200 if out.get("ok") else 400, out)
+        interaction_prefix = "/api/v1/owner/painting/interactions/"
+        if method == "POST" and path.startswith(interaction_prefix):
+            interaction_id = urllib.parse.unquote(path[len(interaction_prefix):])
+            if not interaction_id or "/" in interaction_id or self._update_painting_interaction is None:
+                return Response(404, {"error": "not found"})
+            data = _json_object(body)
+            if data is None:
+                return Response(400, {"error": "bad request"})
+            out = self._update_painting_interaction(interaction_id, data)
+            return Response(200 if out.get("ok") else 400, out)
+        if method == "GET" and path == "/api/v1/owner/mini-webs":
+            if self._owner_mini_webs_summary is None:
+                return self._owner_read(self._owner_mini_apps())
+            return self._owner_read(self._owner_mini_webs_summary())
+        if method == "GET" and path == "/api/v1/owner/telegram":
+            if self._owner_telegram_summary is None:
+                return self._owner_read({"bots": [], "tokens": "omitted"})
+            return self._owner_read(self._owner_telegram_summary())
+
         # ── brain, owner-only (phase A) ──────────────────────────────────
         if method == "GET" and path == "/api/v1/owner/brain":
             if self._brain_status is None:
-                return Response(200, {"wired": False, "why": "not attached"})
-            return Response(200, self._brain_status())
+                return self._owner_read(
+                    {"wired": False, "why": "not attached"})
+            return self._owner_read(self._brain_status())
         if method == "POST" and path == "/api/v1/owner/brain/probe":
             if self._brain_probe is None:
                 return Response(404, {"error": "not found"})
@@ -649,15 +995,16 @@ class ApiApp:
             return Response(200 if out.get("ok") else 400, out)
 
         if method == "POST" and path == "/api/v1/decide":
-            try:
-                data = json.loads(body or b"{}")
-            except json.JSONDecodeError:
+            data = _json_object(body)
+            if data is None:
                 return Response(400, {"error": "bad request"})
-            item = str(data.get("id", ""))
-            if not item:
+            item = data.get("id", "")
+            approve = data.get("approve", False)
+            confirmed = data.get("confirmed_twice", False)
+            if (not isinstance(item, str) or not item
+                    or not isinstance(approve, bool)
+                    or not isinstance(confirmed, bool)):
                 return Response(400, {"error": "bad request"})
-            approve = bool(data.get("approve", False))
-            confirmed = bool(data.get("confirmed_twice", False))
             return Response(200, self._owner_decide(item, approve, confirmed))
         return Response(404, {"error": "not found"})
 
@@ -755,7 +1102,12 @@ def make_handler(app: ApiApp, static: Mapping[str, bytes] | None = None):
             phone.
             """
             try:
-                self._send(app.handle(method, path, self._headers(), body))
+                # The query string is part of self.path; _dispatch receives the
+                # path-only portion, so re-parse the raw request line for the
+                # query. Read-only partners use it for lead search/filter.
+                raw_qs = urllib.parse.urlparse(self.path).query
+                self._send(app.handle(method, path, self._headers(), body,
+                                      query=raw_qs))
             except Exception:                      # noqa: BLE001 — last resort
                 traceback.print_exc()
                 self._send(Response(500, {"error": "internal error"}))

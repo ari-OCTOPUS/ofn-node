@@ -86,6 +86,9 @@ install -m 0644 systemd/ofn-backup-alert.service /etc/systemd/system/
 # single `systemctl enable --now ofn-marketing.timer`, not a deploy step.
 install -m 0644 systemd/ofn-marketing.service /etc/systemd/system/
 install -m 0644 systemd/ofn-marketing.timer   /etc/systemd/system/
+# Daily local RAG refresh for the studio assistant. Installed and enabled by owner when wanted.
+install -m 0644 systemd/ofn-assistant-update.service /etc/systemd/system/
+install -m 0644 systemd/ofn-assistant-update.timer   /etc/systemd/system/
 
 if [[ -e /dev/watchdog ]]; then
   install -d -m 0755 /etc/systemd/system.conf.d

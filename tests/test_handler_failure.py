@@ -29,10 +29,10 @@ from ofn.kernel.tenancy import PackSpec, TenantRegistry
 class Exploding(ApiApp):
     """An app whose routing raises the way a drifted schema did."""
 
-    def handle(self, method, path, headers, body):      # noqa: D102
+    def handle(self, method, path, headers, body, *, query=""):      # noqa: D102
         if path == "/api/v1/boom":
             raise RuntimeError("no such column: price_primary_aud")
-        return super().handle(method, path, headers, body)
+        return super().handle(method, path, headers, body, query=query)
 
 
 class TestAHandlerThatRaisesStillAnswers(unittest.TestCase):

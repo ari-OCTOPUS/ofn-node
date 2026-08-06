@@ -129,7 +129,8 @@ SCHEMA = (
         -- strips EXIF, and parsing the kept original needs a real camera
         -- photo to test against that this node does not have yet. Writing
         -- `exif` here without that would be a claim with no record behind it.
-        taken_source  TEXT
+        taken_source  TEXT,
+        category      TEXT    NOT NULL DEFAULT ''
     )
     """,
     # The highest number ever issued, per kind. Third time this shape has
@@ -228,7 +229,12 @@ def _add_media_description_columns(conn) -> None:
     add_column_if_absent(conn, "media_items", "taken_source", "TEXT")
 
 
-MIGRATIONS = (_add_media_description_columns,)
+def _add_media_category_column(conn) -> None:
+    add_column_if_absent(conn, "media_items", "category",
+                         "TEXT NOT NULL DEFAULT ''")
+
+
+MIGRATIONS = (_add_media_description_columns, _add_media_category_column)
 
 STATUSES = ("draft", "ready", "queued", "published", "abandoned")
 
@@ -236,6 +242,7 @@ STATUSES = ("draft", "ready", "queued", "published", "abandoned")
 # an unrated library must not read as a library of ones.
 MAX_RATING = 5
 MAX_NOTE = 500
+MAX_CATEGORY = 40
 
 # Where `taken_at` came from. Recorded rather than assumed, so that the day
 # EXIF parsing lands the two can be compared instead of one silently
@@ -376,6 +383,19 @@ class StudioStore:
                     (tenant,))]
 
     # ── drafts ────────────────────────────────────────────────────────────
+    def delete_collection(self, tenant: str, collection_id: str) -> int:
+        if self.collection_in(tenant, collection_id) is None:
+            raise StudioError(f"آلبومی به نام «{collection_id}» نیست")
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            moved = self._conn.execute("UPDATE media_items SET collection_id = NULL WHERE tenant_id = ? AND collection_id = ?", (tenant, collection_id)).rowcount
+            self._conn.execute("UPDATE drafts SET collection_id = NULL WHERE tenant_id = ? AND collection_id = ?", (tenant, collection_id))
+            self._conn.execute("DELETE FROM collections WHERE tenant_id = ? AND collection_id = ?", (tenant, collection_id))
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._conn.execute("ROLLBACK"); raise
+        return int(moved)
+
     def add_draft(self, tenant: str, draft_id: str, *,
                   collection_id: str | None = None, caption: str | None = None,
                   now_epoch_s: int) -> Draft:
@@ -477,7 +497,8 @@ class StudioStore:
 
     def describe_media(self, tenant: str, media_id: str, *,
                        note: str | None = None,
-                       rating: int | None = None) -> dict:
+                       rating: int | None = None,
+                       category: str | None = None) -> dict:
         """Her words and her mark on one shot. Either, both, or neither.
 
         `None` means "leave this alone" and is not the same as clearing it —
@@ -506,6 +527,12 @@ class StudioStore:
                 raise StudioError(f"امتیاز باید بین ۰ و {MAX_RATING} باشد")
             sets.append("rating = ?")
             args.append(rating)
+        if category is not None:
+            cat = str(category).strip()
+            if len(cat) > MAX_CATEGORY:
+                raise StudioError(f"دسته‌بندی از {MAX_CATEGORY} نویسه بلندتر است")
+            sets.append("category = ?")
+            args.append(cat)
         if not sets:
             return self.media_in(tenant, media_id)
         args += [tenant, media_id]
@@ -523,7 +550,7 @@ class StudioStore:
         """
         row = self._conn.execute(
             "SELECT media_id, collection_id, mime, byte_size, has_original, "
-            "added_at, archived_at, note, rating, taken_at, taken_source "
+            "added_at, archived_at, note, rating, taken_at, taken_source, category "
             "FROM media_items WHERE tenant_id = ? AND media_id = ?",
             (tenant, media_id)).fetchone()
         if row is None:
@@ -533,6 +560,7 @@ class StudioStore:
                 "added_at": int(row[5]), "archived_at": row[6],
                 "note": row[7] or "", "rating": int(row[8] or 0),
                 "taken_at": row[9], "taken_source": row[10] or "",
+                "category": row[11] or "",
                 "labels": [r[0] for r in self._conn.execute(
                     "SELECT label FROM media_labels WHERE media_id = ? "
                     "ORDER BY label", (media_id,))]}
@@ -581,7 +609,7 @@ class StudioStore:
         """
         sql = ("SELECT media_id, collection_id, mime, byte_size, "
                "has_original, added_at, archived_at, note, rating, "
-               "taken_at, taken_source FROM media_items "
+               "taken_at, taken_source, category FROM media_items "
                "WHERE tenant_id = ? ")
         args: tuple = (tenant,)
         if collection_id is not None:
@@ -597,7 +625,8 @@ class StudioStore:
                  "byte_size": int(r[3]), "has_original": bool(r[4]),
                  "added_at": int(r[5]), "archived_at": r[6],
                  "note": r[7] or "", "rating": int(r[8] or 0),
-                 "taken_at": r[9], "taken_source": r[10] or "", "labels": []}
+                 "taken_at": r[9], "taken_source": r[10] or "",
+                 "category": r[11] or "", "labels": []}
                 for r in self._conn.execute(
                     sql + "ORDER BY COALESCE(taken_at, added_at) DESC, "
                           "media_id DESC", args)]

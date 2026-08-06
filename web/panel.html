@@ -250,6 +250,38 @@ footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--edge);
 .k:focus-visible,.tab:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
 .miss{font-size:11px;color:var(--tx3);margin-top:6px;line-height:1.7}
 
+
+
+/* ═══ PAINTING COMMAND DESK ═══ */
+.paintdesk{margin-bottom:20px}
+.ptabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.ptab{padding:8px 14px;border-radius:11px;font-size:12.5px;cursor:pointer;font-family:inherit;
+  background:rgba(0,0,0,.24);border:1px solid var(--edge);color:var(--tx2);transition:.2s}
+.ptab.on{background:linear-gradient(150deg,rgba(79,216,200,.22),rgba(79,216,200,.07));
+  border-color:rgba(79,216,200,.42);color:#b8fff6}
+.paintgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:1050px){.paintgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.paintgrid{grid-template-columns:1fr}}
+.pstat,.pcard,.leaditem{border-radius:16px;border:1px solid var(--edge);
+  background:linear-gradient(160deg,rgba(255,255,255,.055),rgba(0,0,0,.20));
+  box-shadow:0 10px 28px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.08)}
+.pstat{padding:14px}.pnum{font-size:26px;font-weight:700;line-height:1.2}.plab{font-size:11.5px;color:var(--tx3)}
+.pcols{display:grid;grid-template-columns:1fr 1fr;gap:14px}.pcard{padding:16px;margin-bottom:12px}.pcard h3{font-size:14px;margin-bottom:10px}
+@media(max-width:900px){.pcols{grid-template-columns:1fr}}
+.leaditem{padding:15px;margin-bottom:10px}.leadtop{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px}
+.leadtitle{font-weight:700;flex:1}.pill{font-size:10.5px;font-weight:700;border-radius:999px;padding:3px 9px;border:1px solid var(--edge)}
+.pill.hot{color:#ffb2a6;background:rgba(255,143,122,.14);border-color:rgba(255,143,122,.30)}
+.pill.warm{color:#ffe08a;background:rgba(245,196,81,.13);border-color:rgba(245,196,81,.28)}
+.pill.cold,.pill.new{color:#9eead0;background:rgba(79,216,200,.12);border-color:rgba(79,216,200,.25)}
+.leadmeta{font-size:12px;color:var(--tx3);display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}.leadmsg{font-size:12.5px;color:var(--tx2);line-height:1.8}
+.pform{display:grid;grid-template-columns:1fr 1fr;gap:9px}.pform .wide{grid-column:1/-1}
+.pform input,.pform textarea,.pform select{width:100%;font-family:inherit;color:var(--tx);background:rgba(0,0,0,.26);
+  border:1px solid var(--edge);border-radius:11px;padding:10px 11px;outline:none}.pform textarea{min-height:78px;resize:vertical}
+.pform label{font-size:11.5px;color:var(--tx3);display:flex;flex-direction:column;gap:5px}.pform button{grid-column:1/-1}
+.channel,.campaign,.linkrow{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--edge);font-size:12.5px}.channel:first-child,.campaign:first-child,.linkrow:first-child{border-top:0}
+.linkrow b,.channel b,.campaign b{color:var(--tx)}.muted{color:var(--tx3);font-size:11.5px}.grow{flex:1}
+.quickrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.quickrow select{font-family:inherit;background:rgba(0,0,0,.25);color:var(--tx);border:1px solid var(--edge);border-radius:10px;padding:8px}
+
 @media (prefers-reduced-motion: reduce){
   *{animation:none !important;transition-duration:.001ms !important}
   .leg:hover{transform:none}
@@ -271,6 +303,20 @@ footer{margin-top:26px;padding-top:20px;border-top:1px solid var(--edge);
 </header>
 
 <div class="conn" id="conn" hidden role="status" aria-live="polite"></div>
+
+
+<!-- نقاشی ساختمان: لید، مارکتینگ، اتصال‌ها -->
+<div class="panel paintdesk" id="paintDesk">
+  <div class="ph"><span class="ic">🎨</span><h2>نقاشی ساختمان — لید و مارکتینگ</h2><span class="chipx" id="paintSync">در حال خواندن…</span></div>
+  <div class="ptabs" id="paintTabs">
+    <button class="ptab on" data-p="leads">لیدها</button>
+    <button class="ptab" data-p="marketing">دیجیتال مارکتینگ</button>
+    <button class="ptab" data-p="links">مینی‌وب و تلگرام</button>
+    <button class="ptab" data-p="b2b">B2B و مناقصه</button>
+    <button class="ptab" data-p="sources">۴۴ منبع</button>
+  </div>
+  <div id="paintBody"></div>
+</div>
 
 <!-- سه پا -->
 <div class="legs" id="legs">
@@ -727,6 +773,207 @@ function drawNerve(events) {
   });
 }
 
+
+
+/* ── painting lead + marketing desk ───────────────────────────────────── */
+const STATUS_FA = {new:'تازه', review:'بررسی', contacted:'تماس شد', quoted:'قیمت دادیم', won:'برد', lost:'باخت', spam:'اسپم', archived:'آرشیو'};
+const TEMP_FA = {hot:'داغ', warm:'گرم', cold:'سرد', new:'تازه'};
+let paintView = 'leads';
+let lastPainting = null;
+
+function pstat(label, value) {
+  const n = mk('div', 'pstat');
+  n.append(mk('div', 'pnum num', fa(value || 0)), mk('div', 'plab', label));
+  return n;
+}
+function inputField(label, key, type='text', value='') {
+  const l = mk('label', null, label);
+  const i = document.createElement(type === 'textarea' ? 'textarea' : 'input');
+  if (type !== 'textarea') i.type = type;
+  i.name = key; i.value = value || '';
+  l.append(i); return l;
+}
+function selectField(label, key, opts, value='') {
+  const l = mk('label', null, label); const sel = document.createElement('select'); sel.name = key;
+  opts.forEach(([v,t]) => { const o = document.createElement('option'); o.value=v; o.textContent=t; if(v===value)o.selected=true; sel.append(o); });
+  l.append(sel); return l;
+}
+function formDataObj(form) {
+  const out = {}; [...form.elements].forEach(el => { if (el.name) out[el.name] = el.type === 'checkbox' ? el.checked : el.value; });
+  return out;
+}
+function setPaintTab(view) {
+  paintView = view;
+  document.querySelectorAll('#paintTabs .ptab').forEach(b => b.classList.toggle('on', b.dataset.p === view));
+  drawPainting(lastPainting);
+}
+
+document.querySelectorAll('#paintTabs .ptab').forEach(b => b.onclick = () => setPaintTab(b.dataset.p));
+
+function drawPainting(data) {
+  lastPainting = data || lastPainting;
+  const box = document.getElementById('paintBody'); if (!box) return;
+  box.textContent = '';
+  const chip = document.getElementById('paintSync');
+  if (!lastPainting || !lastPainting.ok) {
+    if (chip) chip.textContent = 'وصل نیست';
+    box.append(mk('div', 'empty', (lastPainting && lastPainting.error) || 'داشبورد نقاشی هنوز جواب نداده.'));
+    return;
+  }
+  if (chip) chip.textContent = 'زنده';
+  const grid = mk('div', 'paintgrid');
+  const c = lastPainting.lead_counts || {};
+  grid.append(pstat('لید باز', lastPainting.open_leads), pstat('لید داغ', lastPainting.hot_leads),
+              pstat('کانال وصل', lastPainting.connected_channels), pstat('کمپین', (lastPainting.campaigns || []).length));
+  box.append(grid);
+  if (paintView === 'marketing') drawPaintMarketing(box, lastPainting);
+  else if (paintView === 'links') drawPaintLinks(box, lastPainting);
+  else if (paintView === 'b2b') drawPaintB2B(box, lastPainting);
+  else if (paintView === 'sources') drawPaintSources(box, lastPainting);
+  else drawPaintLeads(box, lastPainting);
+}
+
+function drawPaintLeads(box, data) {
+  const cols = mk('div', 'pcols');
+  const left = mk('div'); const right = mk('div');
+  const formCard = mk('div', 'pcard');
+  formCard.append(mk('h3', null, 'ثبت دستی لید تازه'));
+  const f = mk('form', 'pform');
+  f.append(inputField('نام مشتری', 'customer_name'), inputField('تلفن', 'phone'),
+           inputField('ایمیل', 'email'), inputField('محله', 'suburb'),
+           inputField('نوع کار', 'job_type'), inputField('بودجه/متراژ', 'budget_text'),
+           inputField('فاصله km', 'distance_km', 'number'), inputField('منبع', 'source', 'text', 'manual'),
+           inputField('پیام', 'message', 'textarea'));
+  const b = mk('button', 'k yes', '＋ ثبت لید'); b.type = 'submit'; f.append(b);
+  f.onsubmit = async ev => { ev.preventDefault(); b.disabled = true; b.textContent = 'در حال ثبت…';
+    try { const out = await OFN.post('/api/v1/owner/painting/leads', formDataObj(f)); if (!out.ok) throw new Error(out.error || 'ثبت نشد'); f.reset(); OFN.done(); await refresh(); }
+    catch(e){ alert(e.message || 'ثبت نشد'); } finally { b.disabled = false; b.textContent = '＋ ثبت لید'; }
+  };
+  formCard.append(f); right.append(formCard);
+  const leads = data.recent_leads || [];
+  if (!leads.length) left.append(mk('div', 'empty', 'هنوز لید واقعی ثبت نشده. فرم سمت چپ را تست کن یا منبع‌های مارکتینگ را وصل کن.'));
+  leads.forEach(l => left.append(leadCard(l)));
+  cols.append(left, right); box.append(cols);
+}
+
+function leadCard(l) {
+  const card = mk('div', 'leaditem');
+  const top = mk('div', 'leadtop');
+  const title = l.job_type || l.customer_name || 'لید بدون عنوان';
+  top.append(mk('div', 'leadtitle', title), mk('span', 'pill ' + (l.temperature || 'new'), TEMP_FA[l.temperature] || l.temperature || 'تازه'), mk('span', 'pill', STATUS_FA[l.status] || l.status || '—'));
+  card.append(top);
+  const meta = mk('div', 'leadmeta');
+  [l.customer_name, l.phone, l.email, l.suburb, l.source, l.score != null ? 'امتیاز ' + fa(l.score) : ''].filter(Boolean).forEach(x => meta.append(mk('span', null, x)));
+  card.append(meta);
+  if (l.message) card.append(mk('div', 'leadmsg', l.message));
+  const row = mk('div', 'quickrow');
+  const sel = document.createElement('select');
+  Object.entries(STATUS_FA).forEach(([v,t]) => { const o=document.createElement('option'); o.value=v; o.textContent=t; if(v===l.status)o.selected=true; sel.append(o); });
+  const note = document.createElement('input'); note.placeholder = 'یادداشت/اکشن بعدی'; note.value = l.next_action || '';
+  const save = mk('button', 'k yes', 'ذخیره'); save.type = 'button';
+  save.onclick = async () => { save.disabled = true; try { const out = await OFN.post('/api/v1/owner/painting/leads/' + encodeURIComponent(l.lead_id), {status: sel.value, next_action: note.value}); if(!out.ok) throw new Error(out.error || 'نشد'); OFN.done(); await refresh(); } catch(e){ alert(e.message || 'نشد'); } finally { save.disabled=false; } };
+  row.append(sel, note, save); card.append(row); return card;
+}
+
+function drawPaintMarketing(box, data) {
+  const AREA_FA = {lead_finder:'لیدگیر', automation:'اتوماسیون', marketing:'مارکتینگ'};
+  const MOD_FA = {planned:'در برنامه', manual:'دستی/نیمه‌دستی', connected:'وصل', paused:'متوقف', blocked:'بسته'};
+  const INT_FA = {new:'تازه', needs_reply:'نیازمند پاسخ', converted:'تبدیل به لید', done:'تمام', archived:'آرشیو'};
+  const cols = mk('div', 'pcols'); const left = mk('div'); const right = mk('div');
+
+  const ch = mk('div', 'pcard'); ch.append(mk('h3', null, 'کانال‌ها و ماژول‌های ورودی/خروجی'));
+  (data.channels || []).forEach(c => { const r = mk('div', 'channel'); r.append(mk('span', null, c.connection === 'connected' ? '🟢' : c.connection === 'blocked' ? '🔴' : '🟡')); const g=mk('div','grow'); g.append(mk('b', null, c.title), mk('div','muted', `${c.kind} · ${c.connection} · ورودی:${c.inbound_enabled?'روشن':'خاموش'} · خروجی:${c.outbound_enabled?'روشن':'خاموش'}`)); if(c.notes) g.append(mk('div','leadmsg',c.notes)); r.append(g); ch.append(r); });
+  left.append(ch);
+
+  const modules = mk('div', 'pcard'); modules.append(mk('h3', null, 'ماژول‌های لازم برای پیدا کردن لید و رشد'));
+  (data.modules || []).forEach(m => { const r=mk('div','channel'); r.append(mk('span',null,m.status==='connected'?'🟢':m.status==='blocked'?'🔴':'🟡')); const g=mk('div','grow'); g.append(mk('b',null,m.title), mk('div','muted', `${AREA_FA[m.area] || m.area} · ${MOD_FA[m.status] || m.status} · خروجی: ${m.output || '—'}`)); if(m.next_step) g.append(mk('div','leadmsg','قدم بعدی: '+m.next_step)); if(m.notes) g.append(mk('div','muted',m.notes)); r.append(g); modules.append(r); });
+  left.append(modules);
+
+  const inbox = mk('div','pcard'); inbox.append(mk('h3', null, 'این‌باکس تعامل شبکه‌های اجتماعی'));
+  const interactions = data.interactions || [];
+  if (!interactions.length) inbox.append(mk('div','empty','هنوز تعاملی ثبت نشده. پیام/کامنت/DM را از فرم سمت چپ ثبت کن.'));
+  interactions.forEach(x => { const r=mk('div','leaditem'); const top=mk('div','leadtop'); top.append(mk('div','leadtitle',x.subject || x.person || 'تعامل'), mk('span','pill',INT_FA[x.status]||x.status), mk('span','pill',x.channel)); r.append(top); const meta=mk('div','leadmeta'); [x.person,x.kind,x.created_at && ago(x.created_at)].filter(Boolean).forEach(v=>meta.append(mk('span',null,v))); r.append(meta); if(x.body) r.append(mk('div','leadmsg',x.body)); const q=mk('div','quickrow'); const sel=document.createElement('select'); Object.entries(INT_FA).forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;if(v===x.status)o.selected=true;sel.append(o);}); const save=mk('button','k yes','ذخیره'); save.type='button'; save.onclick=async()=>{save.disabled=true;try{const out=await OFN.post('/api/v1/owner/painting/interactions/'+encodeURIComponent(x.interaction_id),{status:sel.value}); if(!out.ok) throw new Error(out.error||'نشد'); await refresh();}catch(e){alert(e.message||'نشد')}finally{save.disabled=false;}}; q.append(sel,save); r.append(q); inbox.append(r); });
+  left.append(inbox);
+
+  const cf = mk('div', 'pcard'); cf.append(mk('h3', null, 'افزودن/به‌روزرسانی کانال'));
+  const f = mk('form', 'pform');
+  f.append(inputField('عنوان', 'title'), selectField('نوع', 'kind', [['instagram','Instagram'],['facebook','Facebook'],['google','Google'],['telegram','Telegram'],['website','Website'],['email','Email'],['custom','Custom']]), selectField('وضعیت اتصال', 'connection', [['planned','planned'],['manual','manual'],['connected','connected'],['paused','paused'],['blocked','blocked']]), inputField('آدرس/هندل', 'url'), inputField('یادداشت', 'notes', 'textarea'));
+  const fb = mk('button','k yes','ذخیره کانال'); fb.type='submit'; f.append(fb);
+  f.onsubmit = async ev => { ev.preventDefault(); fb.disabled=true; try { const out=await OFN.post('/api/v1/owner/painting/channels', formDataObj(f)); if(!out.ok) throw new Error(out.error||'نشد'); f.reset(); await refresh(); } catch(e){ alert(e.message||'نشد'); } finally{ fb.disabled=false; } };
+  cf.append(f); right.append(cf);
+
+  const mf = mk('div','pcard'); mf.append(mk('h3', null, 'تعریف/تغییر ماژول'));
+  const mfForm = mk('form','pform'); mfForm.append(inputField('عنوان ماژول','title'), selectField('حوزه','area', [['lead_finder','لیدگیر'],['automation','اتوماسیون'],['marketing','مارکتینگ']]), selectField('وضعیت','status', [['planned','در برنامه'],['manual','دستی'],['connected','وصل'],['paused','متوقف'],['blocked','بسته']]), inputField('خروجی ماژول','output'), inputField('قدم بعدی','next_step'), inputField('یادداشت','notes','textarea'));
+  const mb=mk('button','k yes','ذخیره ماژول'); mb.type='submit'; mfForm.append(mb);
+  mfForm.onsubmit=async ev=>{ev.preventDefault(); mb.disabled=true; try{const out=await OFN.post('/api/v1/owner/painting/modules', formDataObj(mfForm)); if(!out.ok) throw new Error(out.error||'نشد'); mfForm.reset(); await refresh();}catch(e){alert(e.message||'نشد');}finally{mb.disabled=false;}};
+  mf.append(mfForm); right.append(mf);
+
+  const inf = mk('div','pcard'); inf.append(mk('h3', null, 'ثبت پیام/کامنت/DM'));
+  const iform=mk('form','pform'); iform.append(selectField('کانال','channel', [['instagram','Instagram'],['facebook','Facebook'],['google','Google'],['telegram','Telegram'],['website','Website'],['phone','Phone'],['manual','Manual']]), selectField('نوع','kind', [['message','پیام'],['comment','کامنت'],['review','ریویو'],['call','تماس']]), inputField('شخص/اکانت','person'), selectField('وضعیت','status', [['new','تازه'],['needs_reply','نیازمند پاسخ'],['converted','تبدیل به لید'],['done','تمام'],['archived','آرشیو']]), inputField('موضوع','subject'), inputField('متن پیام','body','textarea'));
+  const ib=mk('button','k yes','ثبت تعامل'); ib.type='submit'; iform.append(ib);
+  iform.onsubmit=async ev=>{ev.preventDefault(); ib.disabled=true; try{const out=await OFN.post('/api/v1/owner/painting/interactions', formDataObj(iform)); if(!out.ok) throw new Error(out.error||'نشد'); iform.reset(); await refresh();}catch(e){alert(e.message||'نشد');}finally{ib.disabled=false;}};
+  inf.append(iform); right.append(inf);
+
+  const camp = mk('div','pcard'); camp.append(mk('h3', null, 'کمپین‌ها'));
+  (data.campaigns || []).forEach(c => { const r=mk('div','campaign'); r.append(mk('span',null,'📣')); const g=mk('div','grow'); g.append(mk('b',null,c.title), mk('div','muted', `${c.status} · ${c.due_at || 'بدون تاریخ'}`)); if(c.objective) g.append(mk('div','leadmsg',c.objective)); r.append(g); camp.append(r); });
+  left.append(camp);
+  const kf = mk('div','pcard'); kf.append(mk('h3', null, 'ساخت کمپین'));
+  const ff = mk('form','pform'); ff.append(inputField('عنوان کمپین','title'), selectField('وضعیت','status', [['idea','ایده'],['draft','پیش‌نویس'],['scheduled','زمان‌بندی'],['running','در حال اجرا'],['paused','متوقف'],['done','تمام']]), inputField('هدف','objective','textarea'), inputField('قدم بعدی','next_step'));
+  const kb=mk('button','k yes','ثبت کمپین'); kb.type='submit'; ff.append(kb);
+  ff.onsubmit=async ev=>{ev.preventDefault(); kb.disabled=true; try{const out=await OFN.post('/api/v1/owner/painting/campaigns', formDataObj(ff)); if(!out.ok) throw new Error(out.error||'نشد'); ff.reset(); await refresh();}catch(e){alert(e.message||'نشد');}finally{kb.disabled=false;}};
+  kf.append(ff); right.append(kf);
+  cols.append(left,right); box.append(cols);
+}
+
+
+function drawPaintB2B(box, data) {
+  const cols = mk('div','pcols'); const left = mk('div'); const right = mk('div');
+  const accounts = mk('div','pcard'); accounts.append(mk('h3',null,'حساب‌های B2B — Strata / Property / Fit-out'));
+  if (!(data.accounts||[]).length) accounts.append(mk('div','empty','هنوز حساب B2B ثبت نشده.'));
+  (data.accounts||[]).forEach(a=>{const r=mk('div','leaditem'); const top=mk('div','leadtop'); top.append(mk('div','leadtitle',a.business_name), mk('span','pill',a.segment), mk('span','pill',Math.round((a.score||0)*100)+'/100')); r.append(top); const meta=mk('div','leadmeta'); [a.suburb,a.service_area,a.stage,a.recommendation,a.outreach_permission].filter(Boolean).forEach(x=>meta.append(mk('span',null,x))); r.append(meta); if(a.score_detail&&a.score_detail.explanation) r.append(mk('div','leadmsg',a.score_detail.explanation.join(' · '))); if(a.next_action) r.append(mk('div','leadmsg','اقدام بعدی: '+a.next_action)); accounts.append(r);});
+  left.append(accounts);
+
+  const tender = mk('div','pcard'); tender.append(mk('h3',null,'Tender Radar — فقط ingest/checklist، بدون submit'));
+  if(!(data.tenders||[]).length) tender.append(mk('div','empty','هنوز مناقصه‌ای ثبت نشده.'));
+  (data.tenders||[]).forEach(t=>{const r=mk('div','leaditem'); const top=mk('div','leadtop'); top.append(mk('div','leadtitle',t.title), mk('span','pill',t.recommendation||'—'), mk('span','pill',Math.round((t.score||0)*100)+'/100')); r.append(top); const meta=mk('div','leadmeta'); [t.source,t.location,t.closing_at,t.status].filter(Boolean).forEach(x=>meta.append(mk('span',null,x))); r.append(meta); if(t.score_detail&&t.score_detail.explanation) r.append(mk('div','leadmsg',t.score_detail.explanation.join(' · '))); tender.append(r);});
+  left.append(tender);
+
+  const vendors = mk('div','pcard'); vendors.append(mk('h3',null,'Vendor Onboarding — فقط checklist/ready-for-owner'));
+  if(!(data.vendor_applications||[]).length) vendors.append(mk('div','empty','هنوز vendor application ثبت نشده.'));
+  (data.vendor_applications||[]).forEach(v=>{const r=mk('div','leaditem'); const top=mk('div','leadtop'); top.append(mk('div','leadtitle',v.company_name), mk('span','pill',v.status)); r.append(top); const meta=mk('div','leadmeta'); [v.source_type,v.portal_url,v.next_action].filter(Boolean).forEach(x=>meta.append(mk('span',null,x))); r.append(meta); if((v.missing||[]).length) r.append(mk('div','leadmsg','ناقص: '+v.missing.join('، '))); vendors.append(r);});
+  left.append(vendors);
+
+  const af = mk('div','pcard'); af.append(mk('h3',null,'ثبت حساب B2B'));
+  const f=mk('form','pform'); f.append(inputField('نام شرکت','business_name'), selectField('Segment','segment', [['strata','Strata/Property'],['builder','Builder'],['fitout','Fit-out']]), inputField('Suburb/Area','suburb'), inputField('Website','website'), inputField('Evidence URL','evidence_url'), inputField('Next action','next_action'), inputField('Geo fit 0-1','geo_fit','number'), inputField('Evidence 0-1','evidence_quality','number'));
+  const ab=mk('button','k yes','ثبت حساب'); ab.type='submit'; f.append(ab); f.onsubmit=async ev=>{ev.preventDefault(); ab.disabled=true; try{const out=await OFN.post('/api/v1/owner/painting/accounts', formDataObj(f)); if(!out.ok) throw new Error(out.error||'نشد'); f.reset(); await refresh();}catch(e){alert(e.message||'نشد')}finally{ab.disabled=false;}}; af.append(f); right.append(af);
+
+  const tf = mk('div','pcard'); tf.append(mk('h3',null,'ثبت Tender / Alert'));
+  const ft=mk('form','pform'); ft.append(inputField('Title','title'), inputField('Source','source'), inputField('Source URL','source_url'), inputField('Location','location'), inputField('Closing at','closing_at'), inputField('Painting relevance 0-1','painting_relevance','number'), inputField('Evidence quality 0-1','evidence_quality','number'), inputField('Policy risk 0-1','policy_risk','number'));
+  const tb=mk('button','k yes','ثبت Tender'); tb.type='submit'; ft.append(tb); ft.onsubmit=async ev=>{ev.preventDefault(); tb.disabled=true; try{const out=await OFN.post('/api/v1/owner/painting/tenders', formDataObj(ft)); if(!out.ok) throw new Error(out.error||'نشد'); ft.reset(); await refresh();}catch(e){alert(e.message||'نشد')}finally{tb.disabled=false;}}; tf.append(ft); right.append(tf);
+
+  const vf = mk('div','pcard'); vf.append(mk('h3',null,'ثبت Vendor Application'));
+  const fv=mk('form','pform'); fv.append(inputField('نام شرکت','company_name'), inputField('Portal URL رسمی','portal_url'), selectField('نوع مسیر','source_type', [['supplier_portal','Supplier portal'],['EOI','EOI'],['referral','Referral'],['tender','Tender'],['manual','Manual']]), selectField('وضعیت','status', [['discovered','discovered'],['requirements_extracted','requirements_extracted'],['pack_incomplete','pack_incomplete'],['ready_for_owner','ready_for_owner'],['under_review','under_review'],['renewal_due','renewal_due'],['blocked','blocked']]), inputField('مدارک ناقص با کاما','missing'), inputField('ریسک/یادداشت','risk_note','textarea'));
+  const vb=mk('button','k yes','ثبت Vendor'); vb.type='submit'; fv.append(vb); fv.onsubmit=async ev=>{ev.preventDefault(); vb.disabled=true; try{const out=await OFN.post('/api/v1/owner/painting/vendor-applications', formDataObj(fv)); if(!out.ok) throw new Error(out.error||'نشد'); fv.reset(); await refresh();}catch(e){alert(e.message||'نشد')}finally{vb.disabled=false;}}; vf.append(fv); right.append(vf);
+
+  cols.append(left,right); box.append(cols);
+}
+
+function drawPaintSources(box, data) {
+  const card=mk('div','pcard'); card.append(mk('h3',null,'رجیستری ۴۴ منبع رشد — همه read-only/draft-first'));
+  (data.sources||[]).forEach(s=>{const r=mk('div','channel'); r.append(mk('span',null,s.status==='priority'?'⭐':s.status==='blocked'?'🔴':'🟡')); const g=mk('div','grow'); g.append(mk('b',null,s.name), mk('div','muted',`${s.category} · ${s.integration_path||'manual'} · ${s.recommendation||''} · ${Math.round((s.score||0)*100)}/100`)); if(s.notes) g.append(mk('div','leadmsg',s.notes)); r.append(g); card.append(r);});
+  box.append(card);
+}
+
+function drawPaintLinks(box, data) {
+  const cols = mk('div','pcols'); const web = mk('div','pcard'); const tg = mk('div','pcard');
+  web.append(mk('h3', null, 'مینی‌وب‌ها و تونل‌ها'));
+  (((data.mini_webs || {}).hosts) || []).forEach(h => { const r=mk('div','linkrow'); r.append(mk('span',null,'🌐')); const g=mk('div','grow'); g.append(mk('b',null,h.host), mk('div','muted', `${h.id} · پورت ${fa(h.port)} · ${h.purpose}`)); r.append(g); web.append(r); });
+  tg.append(mk('h3', null, 'تلگرام‌های وصل/تعریف‌شده'));
+  (((data.telegram || {}).bots) || []).forEach(b => { const r=mk('div','linkrow'); r.append(mk('span',null,b.configured?'🟢':'⚪')); const g=mk('div','grow'); g.append(mk('b',null,b.id), mk('div','muted', b.surface || '')); r.append(g); tg.append(r); });
+  tg.append(mk('div','memo','توکن‌ها و شناسه‌های حساب عمداً نمایش داده نمی‌شوند.'));
+  cols.append(web,tg); box.append(cols);
+}
+
 /* ── refresh ──────────────────────────────────────────────────────────── */
 let lastOk = null;
 let armedCount = 0;
@@ -736,10 +983,12 @@ async function refresh() {
      second tap would land on a freshly built button that was never armed. */
   if (armedCount > 0) return true;
   try {
-    const [status, queue, events] = await Promise.all([
+    const paintingP = OFN.get('/api/v1/owner/painting/dashboard').catch(e => ({ok:false, error:'داشبورد نقاشی در دسترس نیست'}));
+    const [status, queue, events, painting] = await Promise.all([
       OFN.get('/api/v1/owner/status'),
       OFN.get('/api/v1/queue'),
       OFN.get('/api/v1/owner/events'),
+      paintingP,
     ]);
     drawLegs(status);
     drawQueue(queue.queue || []);
@@ -747,6 +996,7 @@ async function refresh() {
     drawBoot(status.boot);
     drawValves(status);
     drawNerve(events.events || []);
+    drawPainting(painting);
     lastOk = Date.now();
     document.getElementById('stale').hidden = true;
     document.getElementById('vitaltx').textContent =

@@ -23,6 +23,7 @@ from ofn.adapters.media import MediaStore
 from ofn.adapters.outbox import Outbox
 from ofn.adapters.packloader import load_pack
 from ofn.adapters.studio_store import StudioStore
+from ofn.adapters.studio_assistant import StudioAssistantStore
 from ofn.kernel.auth import issue_session
 from ofn.kernel.domain import RiskTier
 from ofn.kernel.tenancy import TenantRegistry
@@ -50,17 +51,18 @@ class Base(unittest.TestCase):
         registry = TenantRegistry({self.tenant: pack})
         self.ledger = Ledger(os.path.join(d, "l.sqlite"))
         self.studio = StudioStore(os.path.join(d, "s.sqlite"))
+        self.assistant = StudioAssistantStore(os.path.join(d, "a.sqlite"))
         self.consent = ConsentStore(os.path.join(d, "c.sqlite"))
         self.media = MediaStore(os.path.join(d, "media"))
         self.outbox = Outbox(os.path.join(d, "o.sqlite"))
-        for store in (self.ledger, self.studio, self.consent, self.outbox):
+        for store in (self.ledger, self.studio, self.consent, self.outbox, self.assistant):
             self.addCleanup(store.close)
 
         self.node = Node(
             registry=registry, quota=None, ledger=self.ledger,
             facts=FactStore(os.path.join(d, "f.sqlite")), outbox=self.outbox,
             now_epoch_s=lambda: NOW_S, now_iso=lambda: NOW_ISO,
-            studio=self.studio, consent=self.consent, media=self.media)
+            studio=self.studio, consent=self.consent, media=self.media, assistant=self.assistant)
         self.app = ApiApp(
             registry, HostMap(tenants={"st.test": self.tenant},
                               owner_host="p.test"),
@@ -77,7 +79,13 @@ class Base(unittest.TestCase):
             set_media_labels=self.node.set_media_labels,
             create_album=self.node.create_album,
             file_media=self.node.file_media,
-            describe_media=self.node.describe_media)
+            delete_album=self.node.delete_album,
+            delete_media=self.node.delete_media,
+            describe_media=self.node.describe_media,
+            assistant_chat=self.node.studio_assistant_chat,
+            assistant_update=self.node.update_studio_assistant,
+            assistant_history=self.node.studio_assistant_history,
+            assistant_suggest=self.node.studio_assistant_suggest)
         self.session = issue_session(self.tenant, SABA, SECRET,
                                      now_epoch_s=NOW_S)
 
@@ -470,3 +478,140 @@ class TestDescribingAPhoto(Base):
         mid = self.shot()
         self.assertEqual(self.photo(mid)["rating"], 0)
         self.assertEqual(self.photo(mid)["note"], "")
+
+class TestAlbumDeletion(Base):
+    def test_deleting_an_album_unfiles_photos_not_the_photos(self):
+        aid = self.album("حذف‌شدنی")
+        mid = self.shot(album=aid)
+        r = self.call("DELETE", f"/api/v1/studio/albums/{aid}")
+        self.assertEqual(r.status, 200, r.body)
+        self.assertEqual(r.body["photos_unfiled"], 1)
+        g = self.call("GET", "/api/v1/studio/gallery").body
+        self.assertNotIn(aid, [a["id"] for a in g["albums"]])
+        photo = next(p for p in g["photos"] if p["media_id"] == mid)
+        self.assertIsNone(photo["collection_id"])
+
+    def test_deleting_an_empty_album_succeeds(self):
+        """An album with no photos still deletes cleanly; nothing is unfiled."""
+        aid = self.album("خالی")
+        r = self.call("DELETE", f"/api/v1/studio/albums/{aid}")
+        self.assertEqual(r.status, 200, r.body)
+        self.assertEqual(r.body["photos_unfiled"], 0)
+
+    def test_deleting_an_album_with_many_photos_keeps_every_photo(self):
+        """The directive's hard rule: deleting an album must never delete a
+        photo, a file, or a thumbnail. Every photo stays, only unfiled."""
+        aid = self.album("چندعکسی")
+        mids = [self.shot(album=aid) for _ in range(3)]
+        r = self.call("DELETE", f"/api/v1/studio/albums/{aid}")
+        self.assertEqual(r.status, 200, r.body)
+        self.assertEqual(r.body["photos_unfiled"], 3)
+        g = self.call("GET", "/api/v1/studio/gallery").body
+        # every photo is still in the gallery, just unfiled
+        for mid in mids:
+            self.assertIn(mid, [p["media_id"] for p in g["photos"]])
+            self.assertIsNone(self.photo(mid)["collection_id"])
+        # the album itself is gone, the others are untouched
+        self.assertNotIn(aid, [a["id"] for a in g["albums"]])
+        # a ledger event records it
+        self.assertEqual(self.ledger.head(self.scope()).kind, "ALBUM_DELETED")
+
+    def test_deleting_an_unknown_album_is_refused(self):
+        r = self.call("DELETE", "/api/v1/studio/albums/album-9999")
+        self.assertEqual(r.status, 400)
+
+
+class TestPhotoDescriptionAndLabelsAreClearable(Base):
+    """Each thing stored on a photo can be cleared without losing the photo:
+    the description, the labels, and the album link. These reuse the existing
+    /describe and /labels endpoints with empty values."""
+
+    def test_clearing_the_description_keeps_the_photo(self):
+        mid = self.shot()
+        self.call("POST", f"/api/v1/studio/media/{mid}/describe",
+                  {"note": "یه توضیح قشنگ"})
+        self.assertEqual(self.photo(mid)["note"], "یه توضیح قشنگ")
+        self.call("POST", f"/api/v1/studio/media/{mid}/describe", {"note": ""})
+        self.assertEqual(self.photo(mid)["note"], "")
+        self.assertIn(mid, [p["media_id"]
+                            for p in self.gallery()["photos"]])
+
+    def test_clearing_the_labels_keeps_the_photo(self):
+        mid = self.shot()
+        pack = self.node.registry.pack(self.tenant)
+        token = list(pack.content_labels)[0]
+        self.call("POST", f"/api/v1/studio/media/{mid}/labels",
+                  {"labels": [token]})
+        self.assertEqual(self.photo(mid)["labels"], [token])
+        self.call("POST", f"/api/v1/studio/media/{mid}/labels",
+                  {"labels": []})
+        self.assertEqual(self.photo(mid)["labels"], [])
+        self.assertIn(mid, [p["media_id"]
+                            for p in self.gallery()["photos"]])
+
+    def test_unfiling_a_photo_from_its_album_keeps_both(self):
+        """Removing one photo from an album leaves the photo in the gallery
+        and the album intact — the opposite of deleting the album."""
+        aid = self.album("مهمان‌نواز")
+        mid = self.shot(album=aid)
+        self.assertEqual(self.photo(mid)["collection_id"], aid)
+        # unfile just this one photo
+        self.call("POST", f"/api/v1/studio/media/{mid}/album", {"album": None})
+        self.assertIsNone(self.photo(mid)["collection_id"])
+        g = self.call("GET", "/api/v1/studio/gallery").body
+        self.assertIn(aid, [a["id"] for a in g["albums"]])
+        self.assertIn(mid, [p["media_id"] for p in g["photos"]])
+
+
+class TestDeletingOnePhotoLeavesTheRest(Base):
+    """The × on one photo deletes exactly that photo — its siblings and the
+    album it lived in all survive."""
+
+    def test_deleting_one_of_two_photos_keeps_the_other_and_the_album(self):
+        aid = self.album("دوتایی")
+        m1 = self.shot(album=aid)
+        m2 = self.shot(album=aid)
+        r = self.call("DELETE", f"/api/v1/studio/media/{m1}")
+        self.assertEqual(r.status, 200, r.body)
+        g = self.call("GET", "/api/v1/studio/gallery").body
+        self.assertNotIn(m1, [p["media_id"] for p in g["photos"]])
+        self.assertIn(m2, [p["media_id"] for p in g["photos"]])
+        self.assertIn(aid, [a["id"] for a in g["albums"]])
+        self.assertEqual(self.ledger.head(self.scope()).kind, "MEDIA_DELETED")
+
+
+
+class TestAssistantApi(Base):
+    def test_chat_answers_from_seeded_memory(self):
+        self.assistant.ingest_text(self.tenant, 'seed', 'راهنما', 'قیمت گذاری شروع ساده و امن باشد.', now_epoch_s=NOW_S)
+        r = self.call('POST', '/api/v1/studio/assistant/chat', {'message': 'قیمت گذاری؟'})
+        self.assertEqual(r.status, 200, r.body)
+        self.assertEqual(r.body['mode'], 'rag')
+        self.assertTrue(r.body['sources'])
+        self.assertTrue(r.body['turn_id'])
+        h = self.call('GET', '/api/v1/studio/assistant/history').body
+        self.assertEqual(len(h['turns']), 1)
+        self.assertEqual(h['turns'][0]['user'], 'قیمت گذاری؟')
+
+class TestMediaDeletion(Base):
+    def test_deleting_a_photo_removes_it_from_the_gallery(self):
+        mid = self.shot()
+        r = self.call("DELETE", f"/api/v1/studio/media/{mid}")
+        self.assertEqual(r.status, 200, r.body)
+        g = self.call("GET", "/api/v1/studio/gallery").body
+        self.assertNotIn(mid, [p["media_id"] for p in g["photos"]])
+        self.assertEqual(self.ledger.head(self.scope()).kind, "MEDIA_DELETED")
+
+    def test_deleting_an_unknown_photo_is_refused(self):
+        r = self.call("DELETE", "/api/v1/studio/media/shot-9999")
+        self.assertEqual(r.status, 400)
+
+class TestAssistantSuggestion(Base):
+    def test_opening_suggestion_reads_rag_without_storing_a_turn(self):
+        self.assistant.ingest_text(self.tenant, 'seed', 'ایده', 'برای عکس امروز نور نرم و پس‌زمینه خلوت خوب است.', now_epoch_s=NOW_S)
+        r = self.call('GET', '/api/v1/studio/assistant/suggest')
+        self.assertEqual(r.status, 200, r.body)
+        self.assertTrue(r.body['ok'])
+        self.assertTrue(r.body['sources'])
+        h = self.call('GET', '/api/v1/studio/assistant/history').body
+        self.assertEqual(h['turns'], [])

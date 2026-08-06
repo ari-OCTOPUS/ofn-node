@@ -21,6 +21,8 @@ NOW = 1_785_000_000
 SECRET = "session-secret"
 TOK_Z = "111:token-ziman"
 TOK_L = "222:token-lead"
+TOK_S = "444:token-studio"
+TOK_SP = "555:token-studio-partner"
 TOK_O = "333:token-owner"
 OWNER_ID = "5001"
 # Every shell now has a door list. "777" is the partner these tests speak as;
@@ -28,7 +30,7 @@ OWNER_ID = "5001"
 PARTNERS = {"ziman": ["777"], "lead": ["777"], "studio": ["777"]}
 
 HOSTS = HostMap(
-    tenants={"ziman.example.com": "ziman", "lead.example.com": "lead"},
+    tenants={"ziman.example.com": "ziman", "lead.example.com": "lead", "studio.example.com": "studio"},
     owner_host="panel.example.com",
 )
 
@@ -55,7 +57,7 @@ def init_data(token: str, uid: str, auth_date: int = NOW) -> str:
 def app(**kw) -> ApiApp:
     return ApiApp(
         registry(), HOSTS,
-        bot_tokens={"ziman": TOK_Z, "lead": TOK_L, "__owner__": TOK_O},
+        bot_tokens={"ziman": TOK_Z, "lead": TOK_L, "studio": TOK_S, "studio_partner": TOK_SP, "__owner__": TOK_O},
         session_secret=SECRET, owner_user_ids=[OWNER_ID],
         partner_user_ids=PARTNERS,
         now=lambda: NOW, **kw)
@@ -193,6 +195,13 @@ class TestAuthExchange(unittest.TestCase):
                      json.dumps({"init_data": init_data(TOK_Z, "777")}).encode())
         self.assertEqual(r.status, 200)
         self.assertIn("session", r.body)
+
+    def test_studio_accepts_partner_bot_token_for_same_shell(self):
+        a = app()
+        r = a.handle("POST", "/api/v1/auth/session", {"host": "studio.example.com"},
+                     json.dumps({"init_data": init_data(TOK_SP, "777")}).encode())
+        self.assertEqual(r.status, 200)
+
 
     def test_blob_signed_with_another_legs_token_is_refused(self):
         """Ziman's host must not accept a blob signed by the lead bot."""

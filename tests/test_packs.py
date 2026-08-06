@@ -156,13 +156,14 @@ class TestFileLoading(unittest.TestCase):
 
 
 class TestRealPacks(unittest.TestCase):
-    """The three packs that ship with this node."""
+    """The packs that ship with this node: three partner legs + hypno."""
 
     def setUp(self):
         self.packs = load_dir(PACKS_DIR)
 
-    def test_all_three_load(self):
-        self.assertEqual(sorted(self.packs), ["lead", "studio", "ziman"])
+    def test_all_four_load(self):
+        self.assertEqual(sorted(self.packs),
+                         ["hypno", "lead", "studio", "ziman"])
 
     def test_shares_sum_to_one(self):
         total = sum(p.quota_share for p in self.packs.values())
@@ -170,18 +171,19 @@ class TestRealPacks(unittest.TestCase):
 
     def test_registry_accepts_them(self):
         reg = TenantRegistry(self.packs)
-        self.assertEqual(len(reg), 3)
+        self.assertEqual(len(reg), 4)
 
     def test_quota_built_from_packs_matches_the_agreed_split(self):
-        """40% utilisation of the derived weekly capacity, split 40/40/20."""
+        """40% utilisation of the derived weekly capacity, split 35/35/20/10."""
         capacity = 180_000_000
         q = NodeQuota(
             estimated_capacity_tokens=capacity, utilisation=0.40,
             shares={k: v.quota_share for k, v in self.packs.items()})
         self.assertEqual(q.node_ceiling, 72_000_000)
-        self.assertEqual(q.tenant_ceiling("ziman"), 28_800_000)
-        self.assertEqual(q.tenant_ceiling("lead"), 28_800_000)
+        self.assertEqual(q.tenant_ceiling("ziman"), 25_200_000)
+        self.assertEqual(q.tenant_ceiling("lead"), 25_200_000)
         self.assertEqual(q.tenant_ceiling("studio"), 14_400_000)
+        self.assertEqual(q.tenant_ceiling("hypno"), 7_200_000)
         self.assertTrue(q.capacity_is_estimate)
 
     def test_every_pack_declares_capacity_and_gates(self):

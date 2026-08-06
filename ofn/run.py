@@ -27,12 +27,14 @@ from .adapters.consent_store import ConsentStore
 from .adapters.facts import FactStore
 from .adapters.http_api import ApiApp, HostMap, serve
 from .adapters.ledger import Ledger
+from .adapters.lead_store import LeadStore
 from .adapters.marketing_store import MarketingStore
 from .adapters.media import MediaStore
 from .adapters.outbox import Outbox
 from .adapters.packloader import load_dir
 from .adapters.products import ProductStore
 from .adapters.studio_store import StudioStore
+from .adapters.studio_assistant import StudioAssistantStore
 from .adapters.watchdog import HealthGate, Notifier, beat, watchdog_interval_s
 from .adapters.remote_brain import RemoteBrain
 from .adapters.router import ModelRouter, RulesBrain
@@ -43,6 +45,23 @@ from .node import Node
 from .worker import WorkQueue, Worker, loop as worker_loop
 
 _stop = threading.Event()
+
+
+def _shared_memory(cfg):
+    """Open the shared three-layer memory, or None if it is unavailable.
+
+    fugu_core is an optional dependency: the node boots and runs fully without
+    it, and every call site treats None as "no shared memory today". This way
+    a missing or corrupt memory file never breaks the partner shells.
+    """
+    try:
+        from fugu_core.memory import Memory
+    except Exception:
+        return None
+    try:
+        return Memory(cfg.memory_path)
+    except Exception:
+        return None
 
 
 def _shutdown(signum, frame):        # noqa: ARG001
@@ -83,9 +102,12 @@ def build_node(cfg: config.Config) -> Node:
     consent = ConsentStore(cfg.consent_path)
     media = MediaStore(cfg.photos_root)
     marketing = MarketingStore(cfg.marketing_path)
+    painting = LeadStore(cfg.painting_path)
+    painting.ensure_seed_channels("lead", config.now_iso())
+    assistant = StudioAssistantStore(cfg.assistant_path, shared_memory=_shared_memory(cfg))
 
     return Node(products=products, studio=studio, consent=consent, media=media,
-                audience=audience, marketing=marketing,
+                audience=audience, marketing=marketing, painting=painting, assistant=assistant, backup_root=cfg.backup_root,
                 registry=registry, quota=quota, ledger=ledger, facts=facts,
                 outbox=outbox, now_epoch_s=config.epoch_seconds,
                 now_iso=config.now_iso,
@@ -174,6 +196,12 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         add_media=node.add_to_library,
         create_album=node.create_album,
         file_media=node.file_media,
+        delete_album=node.delete_album,
+        delete_media=node.delete_media,
+        assistant_chat=node.studio_assistant_chat,
+        assistant_update=node.update_studio_assistant,
+        assistant_history=node.studio_assistant_history,
+        assistant_suggest=node.studio_assistant_suggest,
         request_reading=node.request_studio_reading,
         judge_reading=node.judge_studio_finding,
         create_draft=node.create_draft,
@@ -188,6 +216,36 @@ def build_api(cfg: config.Config, node: Node) -> ApiApp:
         owner_decide=node.owner_decide,
         owner_status=node.owner_status,
         owner_events=node.recent_events,
+        owner_snapshot=node.owner_snapshot,
+        owner_businesses=node.owner_businesses,
+        owner_business_snapshot=node.owner_business_snapshot,
+        owner_core_snapshot=node.owner_core_snapshot,
+        owner_risks=node.owner_risks,
+        owner_ledger_summary=node.owner_ledger_summary,
+        painting_dashboard=node.painting_dashboard,
+        painting_leads=node.painting_leads,
+        create_painting_lead=node.create_painting_lead,
+        update_painting_lead=node.update_painting_lead,
+        upsert_painting_channel=node.upsert_painting_channel,
+        upsert_painting_campaign=node.upsert_painting_campaign,
+        upsert_painting_module=node.upsert_painting_module,
+        create_painting_interaction=node.create_painting_interaction,
+        update_painting_interaction=node.update_painting_interaction,
+        create_painting_account=node.create_painting_account,
+        create_painting_tender=node.create_painting_tender,
+        create_painting_vendor_application=node.create_painting_vendor_application,
+        send_lead_reply=node.send_lead_reply,
+        send_lead_quote=node.send_lead_quote,
+        owner_mini_webs_summary=node.owner_mini_webs_summary,
+        owner_telegram_summary=node.owner_telegram_summary,
+        mini_apps=tuple({
+            "id": name,
+            "business_id": None if name == "owner" else name,
+            "role": "owner" if name == "owner" else "partner",
+            "listen_port": cfg.ports[name],
+            "paths": (("/", "/index.html", "/sabaapp", "/sabaapp/")
+                      if name == "studio" else ("/", "/index.html")),
+        } for name in ("lead", "studio", "ziman", "owner")),
     )
 
 

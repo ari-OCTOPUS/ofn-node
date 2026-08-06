@@ -1,0 +1,36 @@
+# ═══════════════════════════════════════════════════════════════════════
+# pack: hypno — single-user self-hypnosis mini app (the fourth tenant)
+# ═══════════════════════════════════════════════════════════════════════
+# This tenant exists so the hypno mini app can share the field node's
+# auth/brain/memory/rag without being folded into the multi-tenant OFN
+# process. It is synthetic in the quota sense: one user, one quiet purpose,
+# the smallest share of the brain. The safety gate is the only required
+# gate — a crisis is blocked before the brain ever sees it, the same way a
+# studio publish is blocked before any external call.
+tenant: hypno
+
+# One person. Sessions are short and rare compared to a partner CRM, so the
+# capacity number is symbolic — it exists so the closed-gate check has a
+# value to read, not because hypno is capacity-bound.
+capacity_units_per_week: 14
+
+required_facts: []
+
+# Hypno has no partner questionnaire. The owner (Saba) is the only user, and
+# her facts live in the memory layer, not in the intake form. (No `questions`
+# key here on purpose: the YAML subset parser turns an empty `{}` into a
+# string, and packloader's default empty-mapping is what we want anyway.)
+
+gates:
+  - safety          # crisis/unsafe-context/coercion blocked before the brain
+  - secret_rotation
+
+risk_overrides:
+  # Nothing in hypno publishes externally. The outbox is never used here;
+  # these overrides exist so the gate framework has a complete pack, not
+  # because any of these actions are reachable from the hypno shell.
+  session_script: green
+  daily_verdict: green
+
+# The agreed split: ziman=0.36, lead=0.36, studio=0.18, hypno=0.10. Sum=1.00.
+quota_share: 0.10

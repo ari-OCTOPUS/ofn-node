@@ -57,4 +57,4 @@ risk_overrides:
   score_lead: green
   draft_reply: green
 
-quota_share: 0.40
+quota_share: 0.35

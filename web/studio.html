@@ -70,6 +70,7 @@
   --on-gold:#0F0F10;    /* Lc 72.2 با ۱۶px نیم‌ضخیم */
 
   --t-hi:#F4F1EC;  --t-mid:#C9C3BB;  --t-lo:#A9A39C;
+  --surface:var(--surf);  --ink:var(--t-hi);
   --t-rose:#CB969F;  --t-ok:#7BCF9D;
 
   /* روی کِرِم، متن‌های ثانویه */
@@ -127,32 +128,24 @@ h1{font-size:22px;font-weight:600;text-wrap:balance;margin-top:1px}
 /* ── یک تصمیم، در جلو ────────────────────────────────────
    عمق = اولویت. کارت فعال جلوتر، روشن، کِرِم.
    بقیه عقب، تیره، و عمداً کم‌جزئیات — تا رقابت نکنند.     */
-/* `min-height`, not `height`. The deck reserves room for the resting state
-   and must still grow, because the front sheet holds two different things:
-   a decision (title + note + strip, which fits) and a kernel question
-   (title + note + textarea + error + two or three buttons, which does not).
-   A fixed height sized to the first silently overflowed on the second. */
+/* The deck is sized BY its one content sheet — the front card — instead of
+   reserving a fixed dark region. The decorative dark back-sheets were removed
+   so that when the front card is hidden (the resting state, no draft and no
+   question pending) nothing reserves a tall empty gray area above the chatbox.
+   A small `min-height` (not a `height`) keeps the deck able to grow: the
+   front sheet still holds its own shape because it carries its own
+   `min-height`, and the deck never pins it. */
 .stack{position:relative;perspective:1400px;perspective-origin:50% 34%;
-  margin:20px 0 8px;min-height:352px}
-.sheet{position:absolute;inset-inline:0;top:0;border-radius:24px;
-  transform-style:preserve-3d;
+  margin:20px 0 8px;min-height:1px}
+.sheet{
   transition:transform var(--t) var(--ease),opacity var(--t) var(--ease),
              filter var(--t) var(--ease)}
-
-/* لایه‌های عقب — فقط لبه‌شان دیده می‌شود، بدون متن، بدون رقابت */
-.sheet.back{height:320px;background:linear-gradient(168deg,var(--surf-hi),var(--surf));
-  border:1px solid var(--line);box-shadow:0 18px 34px -20px rgb(0 0 0/.9)}
-.sheet.b2{transform:translateY(16px) translateZ(-70px) scale(.955);opacity:.62;
-  filter:blur(.4px)}
-.sheet.b3{transform:translateY(30px) translateZ(-140px) scale(.915);opacity:.34;
-  filter:blur(1px)}
 
 /* لایهٔ جلو — کِرِم. اینجاست که «خیلی تیره نباشد» اتفاق می‌افتد. */
 /* The one sheet that carries content is the one sheet in normal flow, so the
    deck is sized BY it instead of guessing at it. While it was `absolute` its
    overflow was painted outside the stack entirely and landed on the buttons
-   below — «بعداً» sitting on top of «عکس تازه». The back two stay absolute:
-   they are decoration and have nothing to size. */
+   below — «بعداً» sitting on top of «عکس تازه». */
 .sheet.front{
   position:relative;
   min-height:320px;padding:22px;display:flex;flex-direction:column;
@@ -161,8 +154,7 @@ h1{font-size:22px;font-weight:600;text-wrap:balance;margin-top:1px}
   border:1px solid rgb(90 26 38/.14);
   box-shadow:0 34px 56px -26px rgb(0 0 0/.85),
              0 4px 12px rgb(0 0 0/.35),
-             inset 0 1px 0 rgb(255 255 255/.6);
-  transform:translateZ(24px)}
+             inset 0 1px 0 rgb(255 255 255/.6)}
 /* No `:active` press feedback here on purpose. The sheet holds the draft
    card and the kernel-question card, both of which have their own real
    buttons inside; tapping empty space on the sheet itself does nothing, and
@@ -234,6 +226,17 @@ h1{font-size:22px;font-weight:600;text-wrap:balance;margin-top:1px}
   border:1px solid var(--line);padding:0;cursor:pointer}
 .shot img{width:100%;height:100%;object-fit:cover;display:block}
 .shot.pick{outline:2px solid var(--gold);outline-offset:2px}
+/* The little × in the corner of each photo. A small red button on the photo
+   itself, so deletion is where the photo is — not in a panel somewhere else.
+   `stopPropagation` on pointerdown/click keeps it from also starting a long-
+   press zoom or selecting the photo underneath it. */
+.shot-del{position:absolute;inset-block-start:6px;inset-inline-end:6px;
+  width:28px;height:28px;flex:none;display:grid;place-items:center;
+  padding:0;border:0;border-radius:99px;cursor:pointer;
+  background:rgb(0 0 0/.55);color:#fff;font-size:18px;line-height:1}
+.shot-del:active{transform:scale(.92)}
+.shot .cat{position:absolute;inset-block-start:6px;inset-inline-start:6px;font-size:13px;padding:2px 7px;border-radius:99px;color:var(--on-gold);background:var(--gold)}
+.shot .note-mark{position:absolute;inset-block-start:6px;inset-inline-start:6px;font-size:13px;padding:2px 7px;border-radius:99px;color:var(--t-hi);background:rgb(0 0 0/.55)}
 .shot .tagged{position:absolute;inset-block-end:0;inset-inline:0;
   font-size:13px;padding:4px 6px;color:var(--t-hi);
   background:linear-gradient(0deg,rgb(0 0 0/.62),transparent)}
@@ -273,11 +276,14 @@ h1{font-size:22px;font-weight:600;text-wrap:balance;margin-top:1px}
 #mkt-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 @media (max-width:480px){#mkt-grid{grid-template-columns:1fr 1fr}}
 #mkt-gates-list div{padding:4px 0;font-size:13.5px;color:var(--t-mid)}
-.field{display:flex;flex-direction:column;gap:6px;margin-block-start:14px}
-.field span{font-size:13px;color:var(--t-lo)}
-.field select{font:inherit;font-size:15px;padding:10px 12px;border-radius:12px;
+.field-wrap{display:flex;flex-direction:column;gap:6px;margin-block-start:14px}
+.field-wrap span{font-size:13px;color:var(--t-lo)}
+.field-wrap select{font:inherit;font-size:15px;padding:10px 12px;border-radius:12px;
   background:var(--surface);color:var(--ink);border:1px solid var(--line)}
 .act{margin-block-start:14px;display:flex;gap:10px;flex-wrap:wrap}
+#view-today>.act{align-items:center;justify-content:center}
+#view-today>.act>.cta{flex:0 1 auto}
+@media (max-width:520px){#view-today>.act>.cta{flex:1 1 150px}}
 .platform-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-block-start:14px}
 @media (max-width:480px){.platform-grid{grid-template-columns:1fr}}
 .pcard{padding:12px 14px;border-radius:14px;border:1px solid var(--line);
@@ -438,10 +444,24 @@ nav svg{width:21px;height:21px}
 .demo{display:inline-block;font-size:13px;padding:3px 11px;border-radius:9px;
   background:var(--sunk);border:1px solid var(--line);color:var(--t-lo)}
 [hidden]{display:none!important}
+.lightbox{position:fixed;inset:0;z-index:35;display:grid;place-items:center;padding:22px;background:rgb(8 6 8/.82)}
+.lightbox img{max-width:min(96vw,720px);max-height:88vh;border-radius:18px;box-shadow:0 24px 70px rgb(0 0 0/.65)}
+.lightbox .src{position:fixed;inset-block-end:18px;inset-inline:18px;text-align:center}
+
+.greet-banner{max-width:720px;margin:6px auto 16px;padding:14px 16px;border-radius:16px;border:1px solid var(--line);background:rgb(244 183 63/.07);color:var(--t-hi);font-size:14px;line-height:1.7}
+.chatbox{width:100%;max-width:720px;margin:14px auto 18px;padding:12px;border-radius:16px;border:1px solid var(--line);background:rgb(255 255 255/.04)}
+.chatbox textarea{min-height:62px;max-height:120px}
+@media (max-width:520px){.chatbox{max-width:none;width:100%}}
+.chatlog{display:flex;flex-direction:column;gap:8px;max-height:190px;overflow:auto;margin-top:10px}
+.chatmsg{font-size:13.5px;line-height:1.55;padding:9px 10px;border-radius:12px;background:rgb(255 255 255/.05);white-space:pre-wrap}
+.chatmsg.me{color:var(--t-hi);background:rgb(244 183 63/.10)}
+.chatmsg.bot{color:var(--t-mid)}
 </style>
 </head>
 <body>
 <div class="warm"></div><div class="grain"></div>
+
+<div class="lightbox" id="photo-lightbox" hidden><img id="photo-lightbox-img" alt=""><div class="src">رها کنید یا لمس کنید تا بسته شود</div></div>
 
 <div class="wrap">
 
@@ -455,24 +475,13 @@ nav svg{width:21px;height:21px}
   <div class="state" id="state" hidden></div>
 
   <div id="view-today">
-  <div class="stack">
-    <div class="sheet back b3"></div>
-    <div class="sheet back b2"></div>
-    <div class="sheet front" id="front">
-      <span class="spine"></span>
-      <div class="kicker">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-          stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5"/>
-          <path d="M12 16.3v.01"/></svg>
-        <span id="d-when">—</span>
-      </div>
-      <h2 id="d-title">چیزی برای تصمیم نیست</h2>
-      <p id="d-note">وقتی پیش‌نویسی آماده شود، همین‌جا می‌آید.</p>
-      <div class="strip" id="d-strip"></div>
-    </div>
+  <div class="stack" id="stack">
+    <div class="sheet front" id="front" hidden></div>
   </div>
-
   <div class="behind" id="behind" hidden></div>
+
+  <div class="chatbox" id="assistant-card"><div class="h">بزن بریم برای امروز</div><textarea class="field" id="assistant-input" rows="2" maxlength="800" placeholder="مثلاً بنویس: برای این عکس یه کپشن قشنگ می‌خوام…"></textarea><div class="act"><button class="cta" type="button" id="assistant-send">بفرست</button><button class="cta quiet" type="button" id="assistant-random">مشاوره</button></div><div class="chatlog" id="assistant-log"></div><div class="src" id="assistant-src">هر چی بگی یادم می‌مونه.</div></div>
+
 
   <!-- One action, and it is the first one. Everything else about a post is
        optional and comes later. -->
@@ -496,6 +505,7 @@ nav svg{width:21px;height:21px}
   </div>
   <div class="state" id="addnote" hidden></div>
 
+
   <form class="gate" id="gate" onsubmit="return false" hidden>
     <label class="consent">
       <span class="tick"><input type="checkbox" id="c1">
@@ -507,13 +517,13 @@ nav svg{width:21px;height:21px}
     </label>
 
     <div class="act">
-      <button class="cta cta-main" popovertarget="tray">
+      <button class="cta cta-main" type="button" popovertarget="tray">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
           stroke-linecap="round" stroke-linejoin="round"><path d="M21 3L10.5 13.5"/>
           <path d="M21 3l-6.5 18-4-8-8-4z"/></svg>
         همین را منتشر کن
       </button>
-      <button class="cta quiet" id="later">فعلاً بماند</button>
+      <button class="cta quiet" type="button" id="later">فعلاً بماند</button>
     </div>
   </form>
 
@@ -582,6 +592,7 @@ nav svg{width:21px;height:21px}
   </div>
 
   <div id="view-gallery" hidden>
+    <div class="greet-banner" id="gallery-greet">خوش اومدی؛ اینجا می‌تونی عکس‌هاتو مرتب کنی، آلبوم بسازی و هر چیزی رو خواستی راحت پاک کنی.</div>
     <div class="albums" id="albums"></div>
     <div class="sheetgrid" id="grid"></div>
     <div class="state" id="gallery-empty" hidden></div>
@@ -589,9 +600,24 @@ nav svg{width:21px;height:21px}
       <h2 id="tagtitle" style="font-size:19px;font-weight:600;margin-top:18px"></h2>
       <div class="tags" id="tags"></div>
       <div class="pairnote" id="pairnote"></div>
+      <div class="arc-q">آلبوم / دستهٔ این عکس</div>
+      <select class="field" id="photo-album"></select>
+      <div class="newalbum">
+        <input type="text" id="new-photo-category" maxlength="60"
+          placeholder="مثلاً آلبوم کیوت" autocomplete="off" enterkeyhint="done">
+        <button class="ghost" type="button" id="add-photo-category">اضافه کن</button>
+      </div>
+      <div class="arc-q">توضیح برای این عکس</div>
+      <textarea class="field" id="photo-note" rows="3" maxlength="500"
+        placeholder="توضیحات این عکس اینجا بماند"></textarea>
       <div class="act">
-        <button class="cta" id="save-tags">همین برچسب‌ها را ذخیره کن</button>
-        <button class="cta quiet" id="export-album">این آلبوم را بگیر</button>
+        <button class="cta" type="button" id="save-tags">ذخیره کن</button>
+        <button class="cta quiet" type="button" id="clear-photo-album">حذف آلبوم این عکس</button>
+        <button class="cta quiet" type="button" id="clear-photo-note">حذف توضیح</button>
+        <button class="cta quiet" type="button" id="clear-photo-tags">حذف برچسب‌ها</button>
+        <button class="cta quiet" type="button" id="delete-photo">حذف عکس</button>
+        <button class="cta quiet" type="button" id="export-album">این آلبوم را بگیر</button>
+        <button class="cta quiet" type="button" id="delete-album">حذف آلبوم</button>
       </div>
     </div>
   </div>
@@ -649,7 +675,7 @@ nav svg{width:21px;height:21px}
       <div class="card">
         <div class="h">آزمون مسیر یک پست</div>
         <p class="src">یک پیش‌نویس را انتخاب کن تا ببینی کدام پلتفرم‌ها می‌پذیرند.</p>
-        <label class="field">
+        <label class="field-wrap">
           <span>پیش‌نویس</span>
           <select id="mkt-draft"></select>
         </label>
@@ -694,8 +720,8 @@ nav svg{width:21px;height:21px}
       تأیید آری هیچ‌جا نمی‌رود.
       <span class="warn">بعد از تأیید او برگشتی نیست.</span></p>
     <div class="act">
-      <button class="cta" id="go-publish">بله، منتشر کن</button>
-      <button class="cta quiet" popovertarget="tray" popovertargetaction="hide">نه، برگرد</button>
+      <button class="cta" type="button" id="go-publish">بله، منتشر کن</button>
+      <button class="cta quiet" type="button" popovertarget="tray" popovertargetaction="hide">نه، برگرد</button>
     </div>
   </div>
 </div>
@@ -812,6 +838,7 @@ const OFN = (() => {
     },
     get(p) { return req(p); },
     post(p, b) { return req(p, { method: 'POST', body: JSON.stringify(b) }); },
+    del(p) { return req(p, { method: 'DELETE' }); },
     /* Bytes rather than JSON, through the same session header as everything
        else. This exists because `<img src>` cannot carry one: the browser
        issues that request itself, with no way to attach `Authorization`, so
@@ -880,6 +907,8 @@ let queue = [], at = 0;
 
 function askCard(q) {
   const card = $('front');
+  if (!card) return;
+  card.hidden = false;
   card.textContent = '';
   const spine = document.createElement('span');
   spine.className = 'spine';
@@ -941,6 +970,8 @@ function askCard(q) {
     inp.type = 'text';
     inp.inputMode = 'decimal';
     inp.className = 'field';
+    if (q.placeholder) inp.placeholder = q.placeholder;
+    if (q.unit) inp.setAttribute('aria-label', q.label + ' (' + q.unit + ')');
     if (q.default != null) inp.value = String(q.default);
     wrap.append(inp);
     read = () => inp.value.trim() === '' ? null : inp.value.trim();
@@ -948,6 +979,9 @@ function askCard(q) {
     const ta = document.createElement('textarea');
     ta.className = 'field';
     ta.rows = 3;
+    ta.maxLength = 800;
+    ta.enterKeyHint = 'done';
+    if (q.placeholder) ta.placeholder = q.placeholder;
     wrap.append(ta);
     read = () => ta.value.trim() === '' ? null : ta.value.trim();
   }
@@ -1009,58 +1043,14 @@ function askCard(q) {
 }
 
 function drawFront() {
-  /* The kernel's questions come first: they are what the node needs before
-     it can judge anything, and a decision made on a stale fact is worse than
-     a decision deferred. */
-  /* The backlog decides which action is primary, and it does so in every
-     branch below — so it is settled before the early returns rather than
-     inside the last one. */
   const waiting = unfiled().length;
   $('startarc').hidden = !waiting;
-  /* Two gold buttons would be two primary actions. Adding more photos stays
-     available and stops shouting, because a pile that only grows is the
-     failure mode of every archive. */
   $('addbtn').classList.toggle('quiet', waiting > 0);
-
   if (at < queue.length) { askCard(queue[at]); $('gate').hidden = true; return; }
   const d = currentDraft();
   if (d) { drawDraft(d); return; }
-  /* Nothing to decide. That is two different situations and they used to
-     get the same sentence — "when a draft is ready it will appear here",
-     which describes a future and names nothing she can do to reach it. On a
-     new account it is the FIRST thing she sees, and it is a dead end: the
-     card is empty, the gallery says go to this tab, and this tab says wait.
-
-     So the empty archive gets an invitation and the stocked one gets a
-     count of what is really there. */
-  const card = $('front');
-  card.textContent = '';
-  const spine = document.createElement('span');
-  spine.className = 'spine';
-  const k = document.createElement('div');
-  k.className = 'kicker';
-  const h = document.createElement('h2');
-  const p = document.createElement('p');
-  const have = (gallery.photos || []).length;
-  if (!have) {
-    k.textContent = 'شروع';
-    h.textContent = 'بیایید اولین عکس را بگذاریم';
-    /* Both halves matter on the first screen: where the photo goes, and
-       what will not happen to it. */
-    p.textContent = 'عکس روی همین دستگاه می‌ماند. تا خودتان نگویید، '
-                  + 'هیچ چیز جایی منتشر نمی‌شود.';
-  } else if (waiting) {
-    k.textContent = 'آرشیو';
-    h.textContent = fa(waiting) + ' عکس منتظر شماست';
-    p.textContent = 'یکی‌یکی: آلبومش را بزنید و بگویید چه چیزی است. '
-                  + 'هر وقت خواستید بایستید — بقیه می‌ماند.';
-  } else {
-    k.textContent = 'آرشیو';
-    h.textContent = 'چیزی برای تصمیم نیست';
-    p.textContent = fa(have) + ' عکس، همه آلبوم دارند. '
-                  + 'در تب «گالری» می‌توانید ببینید یا آلبومی را بگیرید.';
-  }
-  card.append(spine, k, h, p);
+  const front = $('front');
+  if (front) { front.hidden = true; front.textContent = ''; }
   $('gate').hidden = true;
 }
 
@@ -1090,29 +1080,36 @@ const POPOVER = HTMLElement.prototype.hasOwnProperty('popover');
 
 function openTray() {
   const tray = $('tray');
-  if (POPOVER) { tray.showPopover(); return; }
+  if (POPOVER) { tray.style.display = ''; tray.showPopover(); return; }
   tray.setAttribute('data-open', '1');
   tray.style.display = 'block';
 }
 function closeTray() {
   const tray = $('tray');
-  if (POPOVER) { tray.hidePopover(); return; }
+  if (POPOVER) { tray.hidePopover(); tray.style.display = 'none'; return; }
   tray.removeAttribute('data-open');
   tray.style.display = 'none';
+}
+
+function notice(detail, target = 'state') {
+  const box = $(target) || $('state');
+  if (!box) return;
+  box.hidden = false;
+  box.textContent = '';
+  box.append(Object.assign(document.createElement('div'), { textContent: detail || 'انجام نشد.' }));
 }
 
 function showState(kind, detail) {
   const box = $('state');
   const say = (detail || '') || REASONS[kind] || 'چیزی سر جایش نیست.';
-  box.hidden = false;
-  box.textContent = '';
-  box.append(Object.assign(document.createElement('div'), { textContent: say }));
+  notice(say);
+  const fatal = kind !== 'refused';
   /* Offered whenever reloading could plausibly change the answer. It cannot
      for `no-initdata` — the launch blob is absent because of HOW the page was
      opened, so the same route will produce the same nothing, and a button
      that always fails teaches people to distrust the ones that work. It very
      much can for `no-sdk`, which is usually one failed fetch. */
-  if (kind !== 'no-initdata') {
+  if (fatal && kind !== 'no-initdata') {
     const again = document.createElement('button');
     again.type = 'button';
     again.textContent = 'دوباره تلاش کن';
@@ -1120,7 +1117,7 @@ function showState(kind, detail) {
     box.append(again);
   }
   /* Nothing may look operable while disconnected. */
-  document.querySelectorAll('.cta').forEach(b => {
+  if (fatal) document.querySelectorAll('.cta').forEach(b => {
     b.disabled = true; b.style.opacity = '.45'; b.style.pointerEvents = 'none';
   });
   /* The state box lives in the today view. If the partner is on the gallery
@@ -1128,7 +1125,7 @@ function showState(kind, detail) {
      the explanation sits on a view she cannot see — which reads as "every
      button is broken for no reason". Bring her to the only view that holds
      the explanation before disabling the rest. */
-  if (typeof show === 'function') show('view-today');
+  if (fatal && typeof show === 'function') show('view-today');
 }
 
 /* The header ships with no name in it. This is the only thing that ever puts
@@ -1136,6 +1133,16 @@ function showState(kind, detail) {
 function greet(name) {
   const h = $('hello');
   if (h) h.textContent = name ? `سلام ${name}` : 'چیدمان';
+  greetGallery(name);
+}
+/* The gallery welcome banner. No name is written into the markup (the same
+   no-leak-before-auth rule as the header); this fills it from the session. */
+function greetGallery(name) {
+  const b = $('gallery-greet');
+  if (!b) return;
+  b.textContent = name
+    ? `خوش اومدی ${name} جان؛ اینجا می‌تونی عکس‌هاتو مرتب کنی، آلبوم بسازی و هر چیزی رو خواستی راحت پاک کنی.`
+    : 'خوش اومدی؛ اینجا می‌تونی عکس‌هاتو مرتب کنی، آلبوم بسازی و هر چیزی رو خواستی راحت پاک کنی.';
 }
 
 
@@ -1163,6 +1170,8 @@ async function loadBoard() {
 
 function drawDraft(d) {
   const card = $('front');
+  if (!card) return;
+  card.hidden = false;
   card.textContent = '';
   const spine = document.createElement('span');
   spine.className = 'spine';
@@ -1197,6 +1206,8 @@ function drawDraft(d) {
   const box = $('c1');
   box.checked = !!d.consent_ok;
   box.disabled = true;      /* the node decides this, not a tick on a screen */
+  const pub = document.querySelector('.cta-main');
+  if (pub) pub.disabled = !d.consent_ok;
   $('c-detail').textContent = d.consent_ok
     ? 'رضایت این افراد برای ' + board.platform + ' ثبت شده است.'
     : 'تا رضایت ثبت نشود، انتشار باز نمی‌شود.';
@@ -1274,12 +1285,32 @@ function releasePhoto(img) {
   }
 }
 
+const PHOTO_FETCH_LIMIT = 3;
+let photoFetchActive = 0, photoFetchQueue = [];
+function withPhotoSlot(work) {
+  return new Promise((resolve, reject) => {
+    const run = () => {
+      photoFetchActive += 1;
+      Promise.resolve().then(work).then(resolve, reject).finally(() => {
+        photoFetchActive -= 1;
+        const next = photoFetchQueue.shift();
+        if (next) next.run();
+      });
+    };
+    if (photoFetchActive < PHOTO_FETCH_LIMIT) run();
+    else photoFetchQueue.push({ run, resolve });
+  });
+}
+
 async function paintPhoto(img, mediaId, edge) {
   if (img.dataset.painting === mediaId) return;
   img.dataset.painting = mediaId;
   try {
-    const blob = await OFN.bytes(
-      '/api/v1/studio/media/' + encodeURIComponent(mediaId) + '/' + edge);
+    const blob = await withPhotoSlot(() => {
+      if (img.dataset.painting !== mediaId) return null;
+      return OFN.bytes('/api/v1/studio/media/' + encodeURIComponent(mediaId) + '/' + edge);
+    });
+    if (!blob) return;
     /* She may have moved on while this was in flight. Painting it now would
        put one photo's bytes under another photo's card. */
     if (img.dataset.painting !== mediaId) return;
@@ -1323,17 +1354,24 @@ async function renditionsOf(file) {
   } catch (_) {
     bmp = await createImageBitmap(file);     // older WebView: no orientation
   }
-  const out = {};
-  for (const edge of EDGES) {
-    const scale = Math.min(1, edge / Math.max(bmp.width, bmp.height));
-    const c = document.createElement('canvas');
-    c.width = Math.max(1, Math.round(bmp.width * scale));
-    c.height = Math.max(1, Math.round(bmp.height * scale));
-    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
-    out[String(edge)] = c.toDataURL('image/jpeg', 0.82);
+  /* `bmp.close()` in `finally`: the bitmap is megabytes of decoded pixels and
+     the loop below can throw on a huge photo, which on this memory-tight
+     hardware is exactly when leaking it hurts most — the next photo in a batch
+     then has nowhere to allocate and the whole upload freezes. */
+  try {
+    const out = {};
+    for (const edge of EDGES) {
+      const scale = Math.min(1, edge / Math.max(bmp.width, bmp.height));
+      const c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(bmp.width * scale));
+      c.height = Math.max(1, Math.round(bmp.height * scale));
+      c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+      out[String(edge)] = c.toDataURL('image/jpeg', 0.82);
+    }
+    return out;
+  } finally {
+    bmp.close && bmp.close();
   }
-  bmp.close && bmp.close();
-  return out;
 }
 
 let busy = false;
@@ -1366,7 +1404,13 @@ async function addPhoto(file, progress) {
     /* Under 100ms, something has to move. A silent wait is on the anxiety
        list, and resizing a 12MP photo is not instant on this hardware. */
     say(step + 'در حال آماده کردن…');
-    const renditions = await renditionsOf(file);
+    /* Renditions and the original are independent, so they run together — on
+       this hardware the two large base64 buffers done one-after-the-other was
+       most of the wall time of each upload, and in a batch that is what made
+       the picker feel frozen. */
+    const [renditions, original] = await Promise.all([
+      renditionsOf(file), asDataUrl(file),
+    ]);
     say(step + 'در حال فرستادن…');
     /* Into the library, not into a post. A picture taken today and used
        next month needs somewhere to be in between, and making every shot a
@@ -1386,7 +1430,7 @@ async function addPhoto(file, progress) {
        overwriting the other. */
     const takenMs = Number(file.lastModified) || 0;
     const sent = await OFN.post('/api/v1/studio/media', {
-      renditions, original: await asDataUrl(file),
+      renditions, original,
       taken_at: takenMs ? Math.floor(takenMs / 1000) : null,
       taken_source: takenMs ? 'file' : '',
     });
@@ -1410,6 +1454,12 @@ async function addPhoto(file, progress) {
    fails entirely instead of partly. It also means the count on screen is
    true while it runs.
 
+   One bad photo no longer aborts the rest: the original `break` stopped the
+   whole batch at the first refusal, so a single oversized or unreadable file
+   in the middle of fifty made the picker look like it froze at photo 3. Now
+   the bad one is skipped and counted, and the rest keep going — exactly what
+   "it only takes one" should not mean.
+
    The list is refreshed ONCE at the end rather than per photo — that is the
    part every other screen reads, and re-fetching it fifty times would be
    fifty round trips to say the same thing. */
@@ -1417,20 +1467,28 @@ async function addPhotos(files) {
   const list = Array.from(files || []);
   if (!list.length) return;
   const note = $('addnote');
-  let done = 0;
+  let done = 0, failed = 0;
   for (let n = 0; n < list.length; n += 1) {
     const label = list.length > 1 ? fa(n + 1) + ' از ' + fa(list.length) : '';
     if (await addPhoto(list[n], label)) { done += 1; }
-    else if (list.length > 1) { break; }   /* stop at the first refusal */
+    else { failed += 1; }   /* keep going — one bad photo does not cancel the rest */
   }
-  if (!done) return;
+  if (!done) {
+    if (note) {
+      note.hidden = false;
+      note.textContent = 'هیچ عکسی اضافه نشد. دوباره امتحان کن.';
+    }
+    return;
+  }
   try {
     gallery = await OFN.get('/api/v1/studio/gallery');
     await loadBoard();
   } catch (_) { /* the photos are in; the screen catches up on reopen */ }
   if (note) {
     note.hidden = false;
-    note.textContent = fa(done) + ' عکس اضافه شد — حالا آرشیوشان کنیم.';
+    note.textContent = failed
+      ? fa(done) + ' عکس اضافه شد، ' + fa(failed) + ' تا نرفت — دوباره امتحان کن.'
+      : fa(done) + ' عکس اضافه شد — حالا آرشیوشان کنیم.';
   }
   drawFront();
 }
@@ -1441,7 +1499,8 @@ async function addPhotos(files) {
    is going. Switching hides rather than reloads, so a half-typed caption
    survives a glance at the gallery. */
 const VIEWS = ['view-today', 'view-archive', 'view-gallery', 'view-business', 'view-marketing'];
-let album = null, picked = null, gallery = { albums: [], photos: [], vocabulary: [] };
+let album = null, picked = null;
+let gallery = { albums: [], photos: [], vocabulary: [] };
 
 function show(which) {
   VIEWS.forEach(id => { const el = $(id); if (el) el.hidden = id !== which; });
@@ -1623,16 +1682,22 @@ async function previewRoute() {
   const did = sel && sel.value;
   if (!did) return;
   const grid = $('mkt-platforms');
-  grid.hidden = true;
+  const btn = $('mkt-preview-btn'), res = $('mkt-send-result');
+  grid.hidden = true; grid.replaceChildren(); mktLastPreview = null;
+  if (res) { res.hidden = false; res.textContent = 'دارم مسیرها را می‌سنجم…'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'در حال سنجش…'; }
   $('mkt-send-wrap').hidden = true;
   const out = await OFN.post(
     '/api/v1/studio/drafts/' + encodeURIComponent(did) + '/route-preview',
     { platforms: ALL_PLATFORMS });
+  if (!out.ok) { if (res) res.textContent = 'رد شد: ' + (out.error || 'دلیل نامعلوم'); if (btn) { btn.disabled = false; btn.textContent = 'پیش‌نمایش مسیر'; } return; }
   mktLastPreview = { draft_id: did, platforms: out.platforms || {} };
   renderPlatforms(grid, out.platforms || {});
   const anyOk = Object.values(out.platforms || {}).some(p => p.ok);
   $('mkt-send-wrap').hidden = !anyOk;
   grid.hidden = false;
+  if (res) res.textContent = anyOk ? 'پیش‌نمایش آماده است.' : 'هیچ پلتفرمی این پیش‌نویس را نپذیرفت.';
+  if (btn) { btn.disabled = false; btn.textContent = 'پیش‌نمایش مسیر'; }
 }
 
 function renderPlatforms(grid, platforms) {
@@ -1672,7 +1737,10 @@ async function sendToOutbox() {
     .filter(([_, p]) => p.ok).map(([name]) => name);
   if (!okPlatforms.length) return;
   const res = $('mkt-send-result');
-  res.hidden = true;
+  res.hidden = false;
+  res.textContent = "دارم به صف خروج می‌فرستم…";
+  const btn = $('mkt-send-btn');
+  if (btn) { btn.disabled = true; btn.textContent = "در حال ارسال…"; }
   try {
     const out = await OFN.post(
       '/api/v1/studio/drafts/' + encodeURIComponent(did) + '/send-to-outbox',
@@ -1681,7 +1749,7 @@ async function sendToOutbox() {
     if (out.ok) {
       const queued = out.queued || 0;
       const total = (out.results || []).length;
-      res.textContent = queued + ' از ' + total + ' به صف رفت' +
+      res.textContent = fa(queued) + ' از ' + fa(total) + ' به صف رفت' +
         (queued < total ? ' (بقیه رد شدند — بالاتر ببین)' : '') +
         '؛ انتشار واقعی تا تأیید آری نیست.';
     } else {
@@ -1689,22 +1757,100 @@ async function sendToOutbox() {
     }
   } catch (e) {
     res.hidden = false;
-    res.textContent = 'خطا در ارسال';
+    res.textContent = 'خطا در ارسال: به دستگاه وصل نشد.';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'برای پلتفرم‌های پذیرفته‌شده به صف بفرست'; }
   }
 }
 
+async function exportAlbumNow(){if(!album){showState('refused','اول یک آلبوم را انتخاب کنید.');return;}const b=await OFN.bytes('/api/v1/studio/album/'+encodeURIComponent(album)+'/export');const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=album+'.zip';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),30000);}
+
 /* ── gallery ───────────────────────────────────────────────────────────── */
+async function ensureAlbumByLabel(label) {
+  const name = (label || '').trim();
+  if (!name) return null;
+  let a = (gallery.albums || []).find(x => x.label === name);
+  if (a) return a;
+  const out = await OFN.post('/api/v1/studio/albums', { label: name });
+  if (!out.ok) { showState('refused', out.error || 'آلبوم ساخته نشد.'); return null; }
+  gallery.albums.push(out.album); return out.album;
+}
+
+async function savePickedPhoto() {
+  if (!picked) return;
+  const photo = gallery.photos.find(p => p.media_id === picked);
+  if (!photo) return;
+  const out = await OFN.post('/api/v1/studio/media/' + encodeURIComponent(picked) + '/labels', { labels: photo.labels || [] });
+  if (!out.ok) { showState('refused', out.error); return; }
+  const sel = document.getElementById('photo-album');
+  const chosen = sel ? sel.value : (photo.collection_id || '');
+  const u = '/api/v1/studio/media/' + encodeURIComponent(picked);
+  const filed = await OFN.post(u + '/album', { album: chosen || null });
+  if (!filed.ok) { showState('refused', filed.error); return; }
+  const note = document.getElementById('photo-note');
+  const text = note ? note.value.trim() : '';
+  const said = await OFN.post(u + '/describe', { note: text, category: '' });
+  if (!said.ok) { showState('refused', said.error); return; }
+  picked = null; document.getElementById('tagpanel').hidden = true;
+  OFN.tap('medium');
+  await loadGallery(); drawFront();
+}
+
+async function deletePhotoNow() {
+  if (!picked) return;
+  return deletePhotoById(picked);
+}
+
+/* The same deletion as `deletePhotoNow`, but the id comes straight from the
+   little × on the photo it deletes — so it does not depend on which photo is
+   "picked". Used by both the corner × and the panel's «حذف عکس» button. */
+async function deletePhotoById(mediaId) {
+  if (!mediaId) return;
+  if (!confirm('مطمئنی؟ این عکس برای همیشه حذف شود؟')) return;
+  const out = await OFN.del('/api/v1/studio/media/' + encodeURIComponent(mediaId));
+  if (!out.ok) { showState('refused', out.error || 'حذف عکس انجام نشد. دوباره امتحان کن.'); return; }
+  if (picked === mediaId) { picked = null; $('tagpanel').hidden = true; }
+  await loadGallery(); drawFront();
+  notice('عکس حذف شد.');
+}
+
+async function deleteAlbumNow() {
+  if (!album) { showState('refused', 'اول یک آلبوم را انتخاب کنید.'); return; }
+  if (!confirm('آلبوم حذف شود؟ عکس‌ها پاک نمی‌شوند، فقط بی‌آلبوم می‌شوند.')) return;
+  const target = album;
+  const out = await OFN.del('/api/v1/studio/albums/' + encodeURIComponent(target));
+  if (!out.ok) { showState('refused', out.error); return; }
+  album = null; picked = null;
+  await loadGallery(); drawFront();
+}
+
+async function normalizeLegacyCategories() {
+  const legacy = (gallery.photos || []).filter(p => p.category);
+  for (const p of legacy) {
+    if (!p.collection_id) {
+      let a = (gallery.albums || []).find(x => x.label === p.category);
+    if (!a) { const made = await OFN.post('/api/v1/studio/albums', { label: p.category }); if (!made.ok) continue; a = made.album; gallery.albums.push(a); }
+      const filed = await OFN.post('/api/v1/studio/media/' + encodeURIComponent(p.media_id) + '/album', { album: a.id });
+      if (filed.ok) p.collection_id = a.id;
+    }
+    const said = await OFN.post('/api/v1/studio/media/' + encodeURIComponent(p.media_id) + '/describe', { category: '' });
+    if (said.ok) p.category = '';
+  }
+}
+
 async function loadGallery() {
   try { gallery = await OFN.get('/api/v1/studio/gallery'); }
   catch (_) { showState('unreachable'); return; }
+  await normalizeLegacyCategories();
   drawAlbums();
   drawGrid();
 }
 
+
 function drawAlbums() {
   const box = $('albums');
   box.textContent = '';
-  const all = [{ id: null, label: 'همه' }].concat(gallery.albums);
+  const all = [{ id: null, label: 'همه' }].concat(gallery.albums || []);
   all.forEach(a => {
     const b = document.createElement('button');
     b.type = 'button';
@@ -1714,7 +1860,17 @@ function drawAlbums() {
     b.onclick = () => { OFN.tap(); album = a.id; drawAlbums(); drawGrid(); };
     box.append(b);
   });
+  if (album !== null) {
+    const d = document.createElement('button');
+    d.type = 'button'; d.className = 'album'; d.textContent = 'حذف آلبوم انتخاب‌شده';
+    d.onclick = () => { OFN.tap(); guard(deleteAlbumNow(), 'آلبوم حذف نشد.'); };
+    box.append(d);
+  }
+
 }
+
+function hidePhotoZoom(){const box=$('photo-lightbox'); if(box) box.hidden=true; const img=$('photo-lightbox-img'); if(img) releasePhoto(img);}
+async function showPhotoZoom(mediaId){const box=$('photo-lightbox'), img=$('photo-lightbox-img'); if(!box||!img)return; box.hidden=false; await paintPhoto(img, mediaId, 1600);}
 
 function drawGrid() {
   const box = $('grid');
@@ -1722,10 +1878,19 @@ function drawGrid() {
      = ''` drops the nodes but not the object URLs they point at, and those
      stay alive in the document until revoked — a leak that grows by one
      photo per redraw and shows up as a tab that dies after a while. */
-  box.querySelectorAll('img').forEach(releasePhoto);
+  photoFetchQueue.splice(0).forEach(q => q.resolve(null));
+  box.querySelectorAll('img').forEach(img => {
+    img.dataset.painting = '';
+    if (nearScreen) nearScreen.unobserve(img);
+    releasePhoto(img);
+  });
   box.textContent = '';
-  const shown = gallery.photos.filter(
-    p => album === null || p.collection_id === album);
+  const shown = gallery.photos.filter(p =>
+    (album === null || p.collection_id === album));
+  if (picked && !shown.some(p => p.media_id === picked)) {
+    picked = null;
+    $('tagpanel').hidden = true;
+  }
   $('gallery-empty').hidden = shown.length > 0;
   if (!shown.length) {
     /* Used to read "this is empty, add a photo from the امروز tab" — an
@@ -1737,7 +1902,7 @@ function drawGrid() {
     box2.textContent = '';
     box2.append(Object.assign(document.createElement('div'), {
       textContent: album === null
-        ? 'هنوز عکسی اینجا نیست. هر عکسی که اضافه کنید همین‌جا می‌ماند — این آرشیو خودتان است.'
+        ? 'هنوز عکسی اینجا نیست. هر عکسی که اضافه کنی همین‌جا می‌مونه و بعد می‌تونی مرتبش کنی.'
         : 'این آلبوم هنوز خالی است.',
     }));
     const add = document.createElement('button');
@@ -1746,6 +1911,12 @@ function drawGrid() {
     add.textContent = 'عکس تازه';
     add.onclick = () => { OFN.tap(); $('pick').click(); };
     box2.append(add);
+    if (album !== null) {
+      const del = document.createElement('button');
+      del.type = 'button'; del.className = 'cta quiet'; del.textContent = 'حذف همین آلبوم';
+      del.onclick = () => { OFN.tap(); guard(deleteAlbumNow(), 'آلبوم حذف نشد.'); };
+      box2.append(del);
+    }
     $('tagpanel').hidden = true;
     return;
   }
@@ -1760,6 +1931,28 @@ function drawGrid() {
     img.alt = '';
     lazyPhoto(img, p.media_id);
     b.append(img);
+    /* The little × on the photo itself. `stopPropagation` on every pointer
+       event it can receive keeps it from starting a long-press zoom, from
+       selecting the photo, or from opening the lightbox — it only deletes. */
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'shot-del';
+    del.setAttribute('aria-label', 'حذف این عکس');
+    del.textContent = '×';
+    del.addEventListener('pointerdown', ev => ev.stopPropagation());
+    del.addEventListener('touchstart', ev => ev.stopPropagation(), { passive: true });
+    del.addEventListener('click', ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      OFN.tap();
+      guard(deletePhotoById(p.media_id), 'عکس حذف نشد.');
+    });
+    b.append(del);
+    if (p.note) {
+      const n = document.createElement('span');
+      n.className = 'note-mark'; n.textContent = 'توضیح';
+      b.append(n);
+    }
     if ((p.labels || []).length) {
       const t = document.createElement('span');
       t.className = 'tagged';
@@ -1770,7 +1963,24 @@ function drawGrid() {
       t.textContent = p.labels.map(l => LABEL_FA[l] || l).join(' · ');
       b.append(t);
     }
-    b.onclick = () => { OFN.tap(); picked = p.media_id; drawGrid(); drawTags(p); };
+    let holdTimer = null, zoomed = false, suppressClick = false;
+    b.oncontextmenu = ev => ev.preventDefault();
+    b.onpointerdown = ev => { holdTimer = setTimeout(() => { zoomed = true; suppressClick = true; guard(showPhotoZoom(p.media_id), 'عکس بزرگ باز نشد.'); }, 420); };
+    b.onpointerup = b.onpointercancel = b.onpointerleave = () => { clearTimeout(holdTimer); if (zoomed) { zoomed = false; hidePhotoZoom(); } };
+    b.onclick = () => {
+      if (suppressClick) { suppressClick = false; hidePhotoZoom(); return; }
+      OFN.tap();
+      if (picked === p.media_id) {
+        picked = null;
+        b.classList.remove('pick');
+        $('tagpanel').hidden = true;
+        return;
+      }
+      picked = p.media_id;
+      box.querySelectorAll('.shot').forEach(x => x.classList.remove('pick'));
+      b.classList.add('pick');
+      drawTags(p);
+    };
     box.append(b);
   });
 }
@@ -1809,7 +2019,22 @@ function drawTags(photo, into) {
   if (!into) {
     $('pairnote').textContent =
       'هر جفت یک محور است. برای مقایسه باید از هر دو طرف چند تا داشته باشید.';
+    drawPhotoExtras(photo);
   }
+}
+
+
+function drawPhotoExtras(photo) {
+  const sel = $('photo-album');
+  if (sel) {
+    sel.dataset.mediaId = photo.media_id; sel.textContent = '';
+    const none = document.createElement('option');
+    none.value = ''; none.textContent = 'بی‌آلبوم'; sel.append(none);
+    (gallery.albums || []).forEach(a => { const o = document.createElement('option'); o.value = a.id; o.textContent = a.label; sel.append(o); });
+    sel.value = photo.collection_id || '';
+  }
+  const note = $('photo-note');
+  if (note) { note.dataset.mediaId = photo.media_id; note.value = photo.note || ''; }
 }
 
 /* Pairs, in the order the pack lists them. Built once from the vocabulary
@@ -2096,28 +2321,85 @@ async function boot() {
   if (sd) sd.addEventListener('click', () => guard(sendToOutbox(), 'ارسال به صف باز نشد.'));
 
   window.show = show;
+  const lb = $('photo-lightbox'); if (lb) lb.addEventListener('click', hidePhotoZoom);
+
+  const as = $('assistant-send'); if (as) as.addEventListener('click', ev => { ev.preventDefault(); OFN.tap(); guard(askAssistant(false), 'دستیار جواب نداد.'); });
+  const ar = $('assistant-random'); if (ar) ar.addEventListener('click', ev => { ev.preventDefault(); OFN.tap(); guard(askAssistant(true), 'دستیار جواب نداد.'); });
+
+async function loadAssistantBoot(){ await loadAssistantHistory(); await loadAssistantSuggestion(); }
+async function loadAssistantHistory() {
+  const log = $('assistant-log'); if (!log) return;
+  try {
+    const out = await OFN.get('/api/v1/studio/assistant/history');
+    log.textContent = '';
+    (out.turns || []).forEach(t => {
+      if (t.user) log.append(Object.assign(document.createElement('div'), { className: 'chatmsg me', textContent: t.user }));
+      log.append(Object.assign(document.createElement('div'), { className: 'chatmsg bot', textContent: t.assistant || '' }));
+    });
+    log.scrollTop = log.scrollHeight;
+  } catch (_) {}
+}
+async function loadAssistantSuggestion(){
+  const log=$('assistant-log'), src=$('assistant-src'); if(!log)return;
+  const out=await OFN.get('/api/v1/studio/assistant/suggest'); if(!out.ok)return;
+  const d=document.createElement('div'); d.className='chatmsg bot'; d.textContent=out.answer||'فعلاً چیزی برای گفتن ندارم؛ یه چیز کوچیک بنویس تا کمکت کنم.'; log.append(d);
+  if(src) src.textContent=(out.sources||[]).length?'یه پیشنهاد کوچیک تازه · '+(out.sources||[]).map(s=>s.title||s.source).join('، '):'یه پیشنهاد کوچیک تازه';
+  log.scrollTop=log.scrollHeight;
+}
+async function askAssistant(random) {
+  const inp = $('assistant-input'), log = $('assistant-log'), src = $('assistant-src');
+  const msg = random ? '' : (inp ? inp.value.trim() : '');
+  if (!random && !msg) return;
+  if (msg && log) log.append(Object.assign(document.createElement('div'), { className: 'chatmsg me', textContent: msg }));
+  if (inp) inp.value = '';
+  const hold = log && Object.assign(document.createElement('div'), { className: 'chatmsg bot', textContent: 'یه لحظه، دارم فکر می‌کنم…' });
+  if (hold) log.append(hold);
+  const out = await OFN.post('/api/v1/studio/assistant/chat', { message: msg });
+  if (hold) hold.textContent = out.answer || 'الان جوابی ندارم؛ یه جور دیگه بپرس تا بهتر کمکت کنم.';
+  if (src) src.textContent = (out.sources || []).length ? 'ذخیره شد · منبع: ' + (out.sources || []).map(s => s.title || s.source).join('، ') : 'ذخیره شد.';
+  if (log) log.scrollTop = log.scrollHeight;
+}
 
   const saveTags = $('save-tags');
-  if (saveTags) saveTags.addEventListener('click', async () => {
-    if (!picked) return;
-    const photo = gallery.photos.find(p => p.media_id === picked);
-    try {
-      const out = await OFN.post(
-        '/api/v1/studio/media/' + encodeURIComponent(picked) + '/labels',
-        { labels: photo.labels || [] });
-      if (!out.ok) { showState('refused', out.error); return; }
-      OFN.tap('medium');
-      await loadGallery();
-    } catch (_) { showState('unreachable'); }
+  if (saveTags) saveTags.addEventListener('click', ev => {
+    ev.preventDefault(); guard(savePickedPhoto(), 'ذخیره نشد.');
   });
 
+
+  const addCat = $('add-photo-category');
+  const newCat = $('new-photo-category');
+  const useNewCat = async () => {
+    if (!picked || !newCat) return;
+    const made = await ensureAlbumByLabel(newCat.value);
+    if (!made) return;
+    newCat.value = '';
+    const sel = $('photo-album'); if (sel) sel.value = made.id;
+    drawAlbums();
+  };
+  if (addCat) addCat.addEventListener('click', ev => { ev.preventDefault(); guard(useNewCat(), 'آلبوم ساخته نشد.'); });
+  if (newCat) newCat.addEventListener('keydown', ev => {
+    if (ev.key === 'Enter') { ev.preventDefault(); guard(useNewCat(), 'آلبوم ساخته نشد.'); }
+  });
+
+  const clearAlbum = $('clear-photo-album');
+  if (clearAlbum) clearAlbum.addEventListener('click', ev => { ev.preventDefault(); const sel=$('photo-album'); if(sel) sel.value=''; guard(savePickedPhoto(), 'آلبوم عکس حذف نشد.'); });
+  const clearNote = $('clear-photo-note');
+  if (clearNote) clearNote.addEventListener('click', ev => { ev.preventDefault(); const n=$('photo-note'); if(n) n.value=''; guard(savePickedPhoto(), 'توضیح حذف نشد.'); });
+  const clearTags = $('clear-photo-tags');
+  if (clearTags) clearTags.addEventListener('click', ev => { ev.preventDefault(); const photo=gallery.photos.find(p=>p.media_id===picked); if(photo){photo.labels=[]; drawTags(photo);} guard(savePickedPhoto(), 'برچسب‌ها حذف نشد.'); });
+  const delPhoto = $('delete-photo');
+  if (delPhoto) delPhoto.addEventListener('click', ev => { ev.preventDefault(); guard(deletePhotoNow(), 'عکس حذف نشد.'); });
+  const delAlbum = $('delete-album');
+  if (delAlbum) delAlbum.addEventListener('click', ev => {
+    ev.preventDefault();
+    guard(deleteAlbumNow(), 'آلبوم حذف نشد.');
+  });
+
+
   const exportBtn = $('export-album');
-  if (exportBtn) exportBtn.addEventListener('click', () => {
-    if (!album) { showState('refused', 'اول یک آلبوم را انتخاب کنید.'); return; }
-    /* A plain navigation rather than fetch-then-blob: the browser writes it
-       straight to storage, so a large album never has to fit in memory. */
-    window.location = '/api/v1/studio/album/' + encodeURIComponent(album)
-                    + '/export';
+  if (exportBtn) exportBtn.addEventListener('click', ev => {
+    ev.preventDefault();
+    guard(exportAlbumNow(), 'خروجی آلبوم ساخته نشد.');
   });
 
   const pick = $('pick');
@@ -2187,6 +2469,7 @@ async function boot() {
     return;
   }
   greet(OFN.who);
+  guard(loadAssistantBoot(), 'چت‌باکس باز نشد.');
 
   let status, qs;
   try {

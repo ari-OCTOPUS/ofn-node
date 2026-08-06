@@ -190,11 +190,39 @@ class Outbox:
             self._conn.execute("ROLLBACK")
             raise
 
-    def held(self, scope: TenantScope) -> Sequence[OutboxItem]:
+    def held(self, scope: TenantScope, limit: int = 50) -> Sequence[OutboxItem]:
+        """Held decisions, oldest first and bounded like the pending queue.
+
+        The owner surface used to read every held row.  A caller cannot choose
+        this limit, but an incident can still produce enough rows to turn one
+        dashboard refresh into an unbounded database read.  The count remains
+        available separately; this method is only the bounded item projection.
+        """
         rows = self._conn.execute(
             "SELECT * FROM outbox WHERE tenant = ? AND status = ?"
-            " ORDER BY created_at ASC", (scope.tenant.value, HELD)).fetchall()
+            " ORDER BY created_at ASC LIMIT ?",
+            (scope.tenant.value, HELD, max(0, int(limit)))).fetchall()
         return [self._to_item(r) for r in rows]
+
+    def actionable_counts(self, scope: TenantScope) -> Mapping[str, object]:
+        """Exact counts for the human-decision queue, without reading payloads.
+
+        `pending()` and `held()` are deliberately bounded lists.  Deriving the
+        summary from those lists would quietly under-count a large incident, so
+        the aggregate is a separate SQL count over the complete queue.
+        """
+        rows = self._conn.execute(
+            "SELECT status, tier, COUNT(*) AS n FROM outbox "
+            "WHERE tenant = ? AND status IN (?, ?) GROUP BY status, tier",
+            (scope.tenant.value, PENDING, HELD),
+        ).fetchall()
+        by_state = {PENDING: 0, HELD: 0}
+        by_tier = {tier.value: 0 for tier in RiskTier}
+        for row in rows:
+            n = int(row["n"])
+            by_state[row["status"]] = by_state.get(row["status"], 0) + n
+            by_tier[row["tier"]] = by_tier.get(row["tier"], 0) + n
+        return {"by_state": by_state, "by_tier": by_tier}
 
     def get(self, scope: TenantScope, idem_key: str) -> OutboxItem | None:
         row = self._conn.execute(

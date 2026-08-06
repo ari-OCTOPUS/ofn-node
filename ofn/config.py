@@ -79,6 +79,11 @@ class Config:
             self.state_dir, "studio.sqlite")
 
     @property
+    def painting_path(self) -> str:
+        return os.environ.get("OFN_PAINTING_DB") or os.path.join(
+            self.state_dir, "painting.sqlite")
+
+    @property
     def marketing_path(self) -> str:
         """The marketing cycle's own record: weeks, observed trends, the
         scout's persisted rejection memory, routed variants, felt-right, and
@@ -90,6 +95,23 @@ class Config:
         """
         return os.environ.get("OFN_MARKETING_DB") or os.path.join(
             self.state_dir, "marketing.sqlite")
+
+    @property
+    def assistant_path(self) -> str:
+        return os.environ.get("OFN_ASSISTANT_DB") or os.path.join(
+            self.state_dir, "assistant.sqlite")
+
+    @property
+    def memory_path(self) -> str:
+        """The shared three-layer memory (`fugu_core.memory`).
+
+        Lives outside the OFN state dir by default because it is shared with
+        the hypno mini app, not owned by OFN. Both services point at the same
+        file so a fact written from one is visible to the other.
+        """
+        return os.environ.get("FUGU_MEMORY_DB") or os.path.join(
+            os.path.expanduser("~"), ".local", "share", "fugu_core",
+            "memory.sqlite")
 
     @property
     def audience_path(self) -> str:
@@ -142,6 +164,8 @@ class Config:
                 "consent": self.consent_path,
                 "studio": self.studio_path,
                 "marketing": self.marketing_path,
+                "painting": self.painting_path,
+                "assistant": self.assistant_path,
                 "audience": self.audience_path}
 
 
@@ -172,6 +196,7 @@ def load() -> Config:
             "ziman": os.environ.get("OFN_BOT_TOKEN_ZIMAN", ""),
             "lead": os.environ.get("OFN_BOT_TOKEN_LEAD", ""),
             "studio": os.environ.get("OFN_BOT_TOKEN_STUDIO", ""),
+            "studio_partner": os.environ.get("OFN_BOT_TOKEN_STUDIO_PARTNER", ""),
             "__owner__": os.environ.get("OFN_BOT_TOKEN_OWNER", ""),
         },
         partner_user_ids={
