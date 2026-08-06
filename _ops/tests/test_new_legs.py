@@ -29,6 +29,12 @@ import accounting_leg  # noqa: E402
 import mining_leg      # noqa: E402
 import knowledge_leg   # noqa: E402
 
+# ایزولاسیونِ سیگنالِ acct-beat از سایدکارِ زندهٔ ارگانیسم (۲۰۲۶-۰۸-۰۷): این فایل فقط
+# مسیرِ xlsx را می‌سنجد؛ سایدکارِ زنده (ORGANISM-STATE.accounting) می‌تواند تازه باشد و
+# live/signal را قلب کند اگر ایزوله نشود — همان الگویِ «هر مسیرِ تحتِ آزمون را ایزوله کن».
+accounting_leg.ACCT_BEAT_SIDECAR = (
+    pathlib.Path(tempfile.mkdtemp(prefix="acctbeat-ghost-")) / "ORGANISM-STATE.accounting")
+
 _CONTRACT_KEYS = {"leg", "live", "signal", "note"}
 _HELPERS = {
     "mining": mining_leg.mining_status,
