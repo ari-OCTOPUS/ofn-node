@@ -176,14 +176,52 @@ projection ِ عمومی هنوز صفر هویت. mutation-test هر ادعا.
   `halted`/`germline_alert` فوری push (bypass cadence). هر دو فایل از قبل محاسبه
   می‌شوند (`CORTEX_SELF_MONITOR`/`OCTOPUS_WIRE_DOCTOR_SELFKNOW` مسلح) — فقط read-side wire.
   **مرز:** `cockpit_brain.py` + تست. shadow/propose-only.
-- **T5 (موازی، فقط تشخیص — کد ننویس) — ریشهٔ `knob_applied:null`.** دو چیز را مستقیم
-  چک کن: (i) ۴۷ RFCِ merged واقعاً `change_level=='tune'`+`knob=='CHRONO_NUDGE_EVERY_N_BEATS'`اند
-  یا همه `'code'` (که `apply_merge` عمداً skip می‌کند)؟ (ii) `OCTOPUS_WIRE_MERGE_APPLIES_KNOB`
-  در `os.environ` ِ پروسهٔ زندهٔ apply_merge هست یا فقط در `.cmd`؟ ریشه را گزارش کن، **بعد** رأی.
-- **T6 (Stage 2 — اول verify، نساز تا رأی).** پیش از هر کد: (a) بدنهٔ `self_insight.py` را
-  بخوان — `model_router` صدا می‌زند (quota-guard لازم) یا static؟ (b) probeهای همیشه-True ِ
-  `self_audit` (`_probe_named_owner`, `_probe_trace_independent`) اگر خام به `self-claims.jsonl`
-  اضافه شوند Brierِ `calibration_probe` را مسموم می‌کنند؟ نتیجه را به معمار برگردان.
+- **T5 ✅ تشخیص شد (کامیت `eda57e7`).** نه فرضِ اول نه دوم — ریشهٔ واقعی:
+  fallback ِ `VQ-RFC-REBUILD-001` در `doctor.py`، `change_level`/`knob` را از دفترِ
+  کارت بازیابی نمی‌کند، پیش‌فرضِ dataclass جایگزین می‌شود (۳۷ از ۴۷ null همین‌جوری‌اند).
+  فیکس هنوز کد نشده — منتظرِ رأیِ مالک.
+- **T6 ✅ verify شد (کامیت `eda57e7`) — امن برای سیم‌کشی.** صفر LLM/شبکه، ورودی‌ها
+  سالم. تنها نکته: `journal=True` بماند وگرنه `score_previous()` هرگز جمع نمی‌شود.
+  کد هنوز نوشته نشده — منتظرِ تصمیمِ سیم‌کشی.
+
+### T7 (نو، ۲۰۲۶-۰۸-۰۷) — پرکردنِ `consent_current` از داده‌ی واقعی
+
+**زمینه:** `consent_gate.py` امشب به مسیرِ ارسال وصل شد (کامیتِ `29a2440`، تأییدِ
+مالک) و عمداً fail-closed است — یعنی الان هر ارسالِ واقعی تا وقتی چیزی
+`consent_store.upsert_current()` را با رکوردِ واقعی صدا نزند، `consent-denied:
+no-record` می‌گیرد.
+
+**این یک تسکِ سیم‌کشیه، نه طراحیِ منطقِ رضایت — منطقِ حقوقیِ کانونیک از قبل هست
+و دست نمی‌خورد.** `_ops/legs/consent_firewall.py` (Spam Act 2003، قراردادِ
+`03 - Projects/Lead-نقاشی/Trust-Engine-v1.1/PHASE-B-CONTRACTS/`، بازبینیِ
+متخاصمِ ۰۷-۲۱، ناوردی‌های R1-R4) از قبل **صداکنندهٔ production** دارد
+(`lead_candidate_inbox.py`، `lead_effect_gate.py`، `lead_email_intake.py`،
+`lead_first_reply.py`، `lead_pipeline.py`، `lead_research.py`،
+`outbound_worker.py`) — `evaluate()`/`may_outreach()`/`classify()` همین الان
+روی هر candidate صدا زده می‌شود. **گپ فقط این است:** هیچ‌کدام از این
+صداکننده‌ها نتیجه را در `consent_store` ماندگار نمی‌کنند — تصمیم فقط
+لحظه‌ای/in-memory است، بعداً (وقتِ draft/release) از صفر پرسیده می‌شود و
+چیزی برای پرسیدن نیست.
+
+**کار:** در `_ops/legs/lead_candidate_inbox.py` (جایی که candidate اول با
+`channel` طبقه‌بندی می‌شود، خطِ ~۱۲۸/۱۵۱) — یا هرجای دیگری که `evaluate()`
+اول روی یک candidate ِ واقعی (نه synthetic) صدا زده می‌شود — بلافاصله بعد از
+آن یک رکورد به `consent_store.ConsentStore().upsert_current()` بنویس، با
+دقیقاً همان field mapping ی که `derive_outreach_allowed()`/تستِ
+`_grant_consent()` (در `_ops/tests/test_lead_outbound_transport.py:103-115`)
+از قبل انتظار دارند (`lead_id`, `candidate_type`, `consent_basis`,
+`consent_evidence`, `consent_state`, `outreach_allowed`, `retention_class`,
+`retention_anchor_at`, `source_channel`) — از خروجیِ `evaluate()` بساز، حدس نزن.
+
+**مرزهای سخت:**
+- `consent_firewall.py` **دست نمی‌خورد** — منطقِ حقوقی/بازبینی‌شده است.
+- فقط یک نقطهٔ نوشتن اضافه کن (idempotent — `upsert` نه `insert`، تکرار مشکلی
+  نسازد)، هیچ فراخوانِ `evaluate()`ِ نو یا مسیرِ دومِ کشف نساز.
+- اگه معلوم شد نقطهٔ درستِ سیم‌کشی مبهم است (چند صداکننده، کدام «authoritative»
+  است؟) — **بایست، گزارش بده، حدس نزن.**
+- تست + mutation-test الزامی: اثباتِ اینکه بعد از یک evaluate ِ واقعی، رکورد در
+  `consent_store` واقعاً می‌نشیند و `may_draft`/`may_release` آن را می‌بینند
+  (end-to-end، نه فقط unit).
 
 ### پاکسازیِ Bucket-2 (dead clutter — انتقال نه حذف)
 
