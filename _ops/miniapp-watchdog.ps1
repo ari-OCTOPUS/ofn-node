@@ -83,6 +83,23 @@ if ($gw.Count -eq 0) {
             }
         }
     }
+    # 2026-08-06 -- this relaunch branch only ever loaded OCTOPUS.env, never
+    # OCTOPUS-flags.cmd. RESTART-PROCESS.ps1's manual "gateway" target got this
+    # exact fix on 2026-08-05 (same pattern below, ported verbatim) but this
+    # scheduled-task path -- the ONLY one that actually fires on an unattended
+    # revival -- never did. Live proof: the 2026-08-06 11:18 auto-revival (this
+    # branch) booted with 8 of 227 flags present (99% missing, alarm=true in
+    # flags-loaded-miniapp-gateway.json) while every other limb, restarted by
+    # hand via RESTART-PROCESS.ps1 the night before, had all 234. Same root
+    # cause as the 08-05 fix; just the wrong file never got read here.
+    $flagsFile = Join-Path $Ops "OCTOPUS-flags.cmd"
+    if (Test-Path $flagsFile) {
+        foreach ($ln in (Get-Content $flagsFile -Encoding utf8)) {
+            if ($ln -match '^\s*set\s+([A-Za-z_][A-Za-z0-9_]*)=(.*)$') {
+                [Environment]::SetEnvironmentVariable($Matches[1], $Matches[2].Trim(), "Process")
+            }
+        }
+    }
     # 2026-08-03 (owner decision, Slice 3 security review): this used to
     # unconditionally overwrite OCTOPUS_TG_MINIAPP with "1" AFTER loading
     # OCTOPUS.env above -- so a "0" placed there to turn the gateway off was
