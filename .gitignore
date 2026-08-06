@@ -29,6 +29,21 @@ _worktrees/
 **/_code/
 .obsidian/workspace*
 *.db
+# ─── Attachments / باینری‌ها (۲۰۲۶-۰۶-۰۶، بهینه‌سازی ابسیدین + سلامت گیت) ───
+# ~۲۱۰۳ فایلِ باینری (~۲۵۰MB)tracked بودنشان `.git` را به ۵.۸GB رسانده.
+# `git rm --cached` فقط untrack می‌کند (فایل روی دیسک می‌ماند)؛ تاریخچه دست‌نخورده.
+# برای نگه‌داشتنِ هر موردِ خاص: `git add -f <path>`.
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.svg
+*.mp4
+*.mov
+*.mp3
+*.wav
+*.pdf
 # init 2026-07-06 (session 17): کش اپ و git خراب قبلی
 .claude/
 # قرنطینه PHASE-0A تا ROTATED شدن ردیف ۶ (توکن‌های تلگرام) — بعد از rotation این ۳ خط حذف شود:
