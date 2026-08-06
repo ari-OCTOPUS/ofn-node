@@ -89,7 +89,13 @@ def align_work_plan(sweep: dict) -> dict:
     if plan.get("schema") != "work-plan.v1" or not plan.get("templates"):
         return {"changed": False, "aligned": False,
                 "reason": "plan غایب — pump هنوز seed نکرده"}
-    defaults = {"health": 21600, "gap_report": 43200}
+    # ۲۰۲۶-۰۸-۰۶ — `web_research` این‌جا نبود، پس خطِ ۱۰۰ برایش
+    # `t.get("every_s", 43200)` می‌خواند — یعنی خودِ مقدارِ **کنونی** (حتی
+    # اگر خراب باشد) را به‌عنوانِ base به کار می‌گرفت و بازهٔ کلمپ را دورِ
+    # همان مقدارِ خراب می‌ساخت (خودتقویت‌کننده، نه خودترمیم). زنده: every_s
+    # به ۵ (ثانیه) رسیده بود — گزارشِ گپ باید هر ۱۲ساعت (۴۳۲۰۰s) بزند،
+    # داشت هر ~۵ ثانیه می‌زد. seed ِ اصلی هم ۴۳۲۰۰ است (heart/work_pump.py:45).
+    defaults = {"health": 21600, "gap_report": 43200, "web_research": 43200}
     free = [t for t in plan["templates"] if not t.get("paid")]
     paid = [t for t in plan["templates"] if t.get("paid")]
     stale = set(sweep.get("stale_members") or [])
