@@ -126,7 +126,9 @@ def t_the_measured_replay_leaves_the_table_non_empty():
 
     اعدادِ حساب‌شده (نه دلبخواه): ۱۶۱ تیکِ سیگنال‌دار ⇒ ۸ پنجرهٔ بسته. انفجارِ
     amber روی مرزِ پنجره می‌افتد پس **دو** پنجره اعتبار می‌گیرند و ۶ پنجرهٔ بعد
-    فقط زوال: ((0.1×0.95)+0.1)×0.95×0.95⁶ ≈ ۰.۱۳۶."""
+    فقط زوال: ((0.1×0.995)+0.1)×0.995×0.995⁶ ≈ ۰.۱۹۳ (بعد از تیونِ ۲۰۲۶-۰۸-۰۴:
+    DECAY_RATE 0.95→0.995، PRUNE_THRESHOLD 0.01→0.005 — این عدد با نرخِ قدیم
+    ۰.۱۳۶ بود)."""
     stack = _fresh_stack(eventclock=True)
     _replay(stack, 200, amber_ticks=set(range(20, 25)))
     tbl = _table()
@@ -135,20 +137,35 @@ def t_the_measured_replay_leaves_the_table_non_empty():
     assert row is not None, f"جفتِ errors_high×rhythm_amber ثبت نشد: {tbl}"
     from hebbian import PRUNE_THRESHOLD
     assert row["strength"] > PRUNE_THRESHOLD, f"جفت زنده نماند: {row}"
-    assert 0.13 < row["strength"] < 0.14, f"حسابِ قدرت drift کرد: {row}"
+    assert 0.19 < row["strength"] < 0.20, f"حسابِ قدرت drift کرد: {row}"
     # گاردِ ضدِ باد: یک انفجارِ ۵تیکی حداکثر دو پنجره را لمس می‌کند، پس ۲ است.
     # نسخهٔ بادکرده اینجا ~۱۰۰ می‌داد (هر تیکِ داخلِ پنجره یک شمارش).
     assert row["co_occurrences"] == 2, f"شمارندهٔ هم‌رخدادی درست نیست: {row}"
 
 
-def t_with_the_event_clock_off_the_same_replay_dies_exactly_as_before():
-    """همان ۲۰۰ تیک، فلگ خاموش → مسیرِ ۲۰۲۶-۰۷-۲۷ → جدول خالی.
-    این هم پینِ سازگاریِ عقب است و هم discriminatorِ فیکس: اگر روزی این تست سبز
-    نماند یعنی مسیرِ قدیمی عوض شده؛ اگر تستِ بالا شبیهِ این شد یعنی فیکس مرده."""
+def t_with_the_event_clock_off_the_same_replay_survives_but_still_overcounts():
+    """همان ۲۰۰ تیک، فلگ خاموش → مسیرِ ۲۰۲۶-۰۷-۲۷.
+
+    فرضِ قدیمِ «جدول خالی» روی DECAY_RATE=0.95 بسته شده بود: با آن نرخ جفت در
+    ۲۰۰ تیک زیرِ PRUNE_THRESHOLD می‌رفت. بعد از تیونِ ۲۰۲۶-۰۸-۰۴
+    (DECAY_RATE 0.95→0.995، PRUNE_THRESHOLD 0.01→0.005) عمرِ جفت خیلی طولانی‌تر
+    شده و ۲۰۰ تیک دیگر کافی نیست — جدول زنده می‌ماند (با این نرخ جفت حدودِ تیکِ
+    ۸۹۷ می‌میرد، نه ۲۰۰؛ محاسبه‌شده با همان روشِ replay).
+
+    discriminatorِ فیکس هنوز اینجاست، فقط جابه‌جا شده: مسیرِ قدیمی decay را
+    **هر تیکِ خام** می‌زند و observe را هر تیکی که دو سیگنال هم‌زمان باشند (نه
+    هر پنجره) — پس در تیک‌های ۲۱،۲۲،۲۳،۲۴ چهار بار observe می‌زند (تیکِ ۲۰
+    خودش errors_high نیست چون i%5==0 ⇒ error_rate=0.17)، نه دو پنجره‌ی
+    ساعتِ رویدادی. اگر روزی co_occurrences اینجا با تستِ eventclock=True یکی
+    شد (هر دو ۴ یا هر دو ۲) یعنی پنجره‌بندی دیگر کار نمی‌کند."""
     stack = _fresh_stack(eventclock=False)
     _replay(stack, 200, amber_ticks=set(range(20, 25)))
     tbl = _table()
-    assert tbl == [], f"مسیرِ قدیمی دیگر جدول را نمی‌کُشد — فرضِ تست کهنه است: {tbl}"
+    row = _pair(tbl)
+    assert row is not None, f"مسیرِ قدیمی دیگر جفت نمی‌سازد — فرضِ تست کهنه است: {tbl}"
+    assert row["co_occurrences"] == 4, \
+        f"شمارندهٔ per-tickِ مسیرِ قدیمی عوض شد: {row}"
+    assert 0.16 < row["strength"] < 0.17, f"حسابِ قدرت drift کرد: {row}"
 
 
 def t_two_deviations_minutes_apart_can_finally_associate():
@@ -228,8 +245,9 @@ def t_one_burst_is_credited_once_per_window_not_once_per_tick():
     row = _pair(_table())
     assert row is not None, f"جفت ثبت نشد: {_table()}"
     assert row["co_occurrences"] == 1, f"شمارنده باد کرده: {row}"
-    # ۳ پنجره: اعتبار در اولی، سپس ۳ زوال ⇒ 0.1×0.95³ ≈ ۰.۰۸۵۷
-    assert 0.08 < row["strength"] < 0.09, f"حسابِ قدرت drift کرد: {row}"
+    # ۳ پنجره: اعتبار در اولی، سپس ۳ زوال ⇒ 0.1×0.995³ ≈ ۰.۰۹۸۵ (با نرخِ قدیم
+    # ۰.۹۵ همین حساب ۰.۰۸۵۷ می‌داد — DECAY_RATE تیون شد ۲۰۲۶-۰۸-۰۴)
+    assert 0.09 < row["strength"] < 0.10, f"حسابِ قدرت drift کرد: {row}"
     assert not heb.strong_associations(0.3), \
         f"قدرتی که رخ نداده «قوی» اعلام شد: {heb.strong_associations(0.3)}"
 
