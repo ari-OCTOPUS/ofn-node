@@ -36,6 +36,20 @@ updated: 2026-08-05
 
 ## وضعِ لحظه‌ای
 
+- 🔍✅ **2026-08-06 (جاروی یافته‌های خودگزارش‌شده — ۴ فیکس + یک تصحیحِ تشخیص).**
+  جزئیاتِ کامل: [[../07 - Knowledge/شناخت-اختاپوس/15-SELF-REPORTED-ISSUES-SWEEP-2026-08-06|15-SELF-REPORTED-ISSUES-SWEEP]].
+  ورک‌فلوی adversarial روی دامپِ خامِ تلگرامِ مالک: ۲۷ کاندیدا → ۲۴ تأیید. چهار فیکس
+  کامیت شد: واچداگِ مینی‌اپ (`6a0ae43`، پیش‌تر ثبت‌شده) · کلمپِ خودتقویت‌کنندهٔ
+  `web_research` در `cortex.align_work_plan` (`fa90a78`) · آلودگیِ self_run در
+  `proposal_accept_rate` (`6ff0535`، الگوی `_verify_p8` پورت شد) · `ui-registry.json`
+  کهنه (`d16fa7b`). **یک تشخیصِ قبلی تصحیح شد:** «`OctopusLiveDataRefresh` خراب ⇒
+  `CURRENT-TRUTH.md` کهنه» پیوندِ غلط بود — آن تسک دیتالِیرِ visualization سه‌بعدیِ
+  «دنیاها» را تغذیه می‌کند (خراب از ۰۷-۱۲/۱۳، سه هفته قبل از اینکه truth-note بایستد)،
+  نه این فایل را؛ نویسندهٔ واقعیِ truth-note (`sync_truth_note`) صفر صداکننده دارد.
+  دو سؤالِ زیرساختی به [[00 - Inbox/AGENT_QUESTIONS|AGENT_QUESTIONS]] اضافه شد، دست
+  نزدم. **کد لمس‌شده:** `_ops/{live_loop.py,cortex/cortex.py,agi2027_runtime/ui-registry.json}`
+  + یک تستِ نو (`test_proposal_counter_durable.py`، mutation-check شد).
+
 - 📋✅ **2026-08-05 (بازبینیِ ایجنتِ ارشد — سندِ ۱۴: گزارشِ یکپارچه + مگاپرامپتِ قطعی).**
   سندِ نو در `07 - Knowledge/شناخت-اختاپوس/14-UNIFIED-REPORT-AND-MASTER-MEGAPROMPT-2026-08-05.md`.
   این سند جایگزینِ ۱۳ است و سه چیز در یک جا دارد: (۱) گزارشِ یکپارچهٔ دو روز (۰۸-۰۳ تا ۰۸-۰۵)

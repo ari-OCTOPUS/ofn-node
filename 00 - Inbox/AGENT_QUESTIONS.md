@@ -635,3 +635,27 @@ test_drawdown_enforcer.py همچنان قرمز و ثبت نشده مانده.
 
 مرتبط: 04 - Architect System/scripts/budget_gate.py ·
 _ops/deploy/DEPLOY-2026-07-21.md · _ops/tests/test_drawdown_enforcer.py
+
+## 2026-08-06 — Claude Code (جاروی یافته‌های خودگزارش‌شده — ادامهٔ برشِ ۱۴/۱۲)
+
+جزئیاتِ کامل: [[07 - Knowledge/شناخت-اختاپوس/15-SELF-REPORTED-ISSUES-SWEEP-2026-08-06|15-SELF-REPORTED-ISSUES-SWEEP]].
+چهار فیکس کامیت شد (`fa90a78`/`6a0ae43`/`6ff0535`/`d16fa7b`). این‌جا فقط دو سؤالی که
+راهم را بست و فیکس نکردم:
+
+1. **`OctopusLiveDataRefresh` (Windows Scheduled Task، از ۲۰۲۶-۰۷-۱۲/۱۳ خراب):**
+   `Execute` روی `C:\Users\Armin\Desktop\پازل` بریده — پوشهٔ `...هشت پا` دیگر
+   روی دسکتاپ نیست. کارش تغذیهٔ `nervous-system/live-data.js` +
+   `nervous-system/ops-data.js` + `OCTOPUS/worlds/graph-data.js` است (دیتالِیرِ
+   visualization سه‌بعدیِ «دنیاها» — طبقِ `agent-prompts/OCTOPUS-DATAFLOW-WIRING-PROMPT.md`)،
+   **نه** `CURRENT-TRUTH.md` (تصحیحِ یک فرضِ غلطِ قبلی — پیوندِ علّی نبود، فقط
+   هم‌زمانیِ تاریخ). اسکریپت‌های extractor سه‌گانه هنوز جایی روی دیسک هستند؟
+   اگر نه، این ویژگی عملاً متروکه است — تسک را غیرفعال کنم یا مسیرِ نو بسازم؟
+2. **`OCTOPUS/CURRENT-TRUTH.md` (زندگیِ آخر: ۲۰۲۶-۰۸-۰۴T۱۳:۳۲Z، از آن‌وقت ایستاده):**
+   نویسندهٔ فرمتش (`intel_spine/obsidian_sync.py::sync_truth_note()`) آماده و
+   تست‌شده است ولی **صفر صداکننده** در کلِ `_ops` دارد — یعنی تا ۰۸-۰۴ یا با
+   اجرای دستیِ یک ایجنت به‌روز می‌شد یا از مسیری که پیدا نشد، و آن مسیر متوقف
+   شده. باید به یک ریتمِ دوره‌ای سیم شود (مثلِ `OCTOPUS-Cockpit-Brain`، هر
+   ۵ دقیقه)، یا دستی/توسطِ ایجنت در پایانِ هر جلسه به‌روز بماند (مثلِ
+   `HANDOFF.md`)؟
+
+هر دو تغییرِ زیرساختِ سیستم‌عامل/معماری‌اند نه فیکسِ نقطه‌ای؛ طبقِ §۰ دست نزدم.
