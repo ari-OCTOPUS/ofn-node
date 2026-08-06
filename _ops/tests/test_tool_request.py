@@ -257,6 +257,24 @@ def t_cards_surface_throttling_and_incompleteness():
     assert "tr:y:" in json.dumps(tr.card_for(thr)[1])
 
 
+def t_a_present_but_short_field_is_not_called_empty():
+    """۲۰۲۶-۰۸-۰۶ زنده: کارت «هزینه: AU$10/ماه» را نشان می‌داد و بلافاصله زیرش
+    می‌گفت «میدان‌های خالی: cost» — چون _precision زیرِ ۱۲ حرف را missing
+    می‌شمارد، نه فقط رشتهٔ خالی. طراحیِ آستانه دست‌نخورده می‌ماند (کوتاه هنوز
+    missing است)، ولی برچسب دیگر نباید ادعا کند مقدار نیست وقتی همان‌جا نشانش
+    می‌دهد."""
+    _fresh()
+    r = tr.request(need="دسترسیِ Shell پایدار POSIX در sandbox پروژه",
+                    why="بدون این نمی‌توانم تست‌ها را با اطمینان اجرا کنم",
+                    cost="AU$10/ماه", alternative="", now=_at(14))
+    assert "cost" in r["missing"], r["missing"]        # هنوز کوتاه‌تر از آستانه -- عمدی
+    body, _ = tr.card_for(r)
+    assert "AU$10" in body, "مقدارِ هزینه باید در کارت دیده شود"
+    assert "میدان‌های خالی: " not in body, \
+        "برچسبِ قدیمی می‌گفت خالی حتی وقتی مقدار در همان کارت دیده می‌شد"
+    assert "کوتاه" in body, "برچسبِ نو باید علتِ واقعی (کوتاهیِ زیرِ آستانه) را بگوید"
+
+
 def t_every_button_fits_the_telegram_64_byte_cap():
     """رد شدن از ۶۴ بایت = تلگرام کلِ پیام را ۴۰۰ می‌کند و کارت بی‌ردّ گم می‌شود."""
     _fresh()
