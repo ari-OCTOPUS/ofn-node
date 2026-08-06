@@ -162,6 +162,39 @@ def t_e_fake_delivery_split_and_old_consumer_preserved():
             st.close()
 
 
+def t_k_self_run_and_non_tg_rows_excluded_from_owner_verdict():
+    """۲۰۲۶-۰۸-۰۶: outcomes/research_loop.py خودآزمونِ فرضیه را با همان event_type
+    (accepted-measurement) و leg_id=research، payload.self_run=True می‌نویسد -- سنجشِ
+    داخلی، نه رأیِ مالک. بدونِ فیلتر owner_verdict/owner_accepted_measurement این
+    ردیف‌ها را می‌شمرد. الگو از live_loop._rehydrate_proposal_counter (همان کامیت)
+    پورت شد: self_run رد می‌شود؛ source باید با tg- شروع شود (کاناری/دستیِ بی‌مهر هم
+    رد می‌شود)."""
+    with _tmp() as td:
+        st = osx.OutcomeStore(path=Path(td) / "o.db")
+        try:
+            st.record({"correlation_id": "c-real", "proposal_id": "P-real", "leg_id": "lead",
+                      "event_type": "accepted-measurement", "value_aud_claimed": 500.0,
+                      "idempotency_key": "acc|P-real",
+                      "payload": {"source": "tg-proposal-button"}})
+            st.record({"correlation_id": "c-research", "proposal_id": "P-research",
+                      "leg_id": "research", "event_type": "accepted-measurement",
+                      "value_aud_claimed": 0.0, "idempotency_key": "acc|P-research",
+                      "payload": {"self_run": True, "measurement_only": True}})
+            st.record({"correlation_id": "c-canary", "proposal_id": "P-canary",
+                      "leg_id": "canary", "event_type": "accepted-measurement",
+                      "value_aud_claimed": 0.0, "idempotency_key": "acc|P-canary",
+                      "payload": {"source": "C1-internal-canary"}})
+            m = ms.from_outcome_store(st)
+            assert m["owner_verdict"] == 1, m
+            assert m["owner_accepted_measurement"] == 1, m
+            assert m["value_aud_claimed_accepted"] == 500.0, m
+            # مصرف‌کنندهٔ قدیمی (compat) عمداً بدونِ فیلتر می‌ماند -- این خودش مستندِ
+            # فرقِ دو معنا است: metrics() خام است، from_outcome_store() رأیِ مالک.
+            assert st.metrics()["accepted_measurement"] == 3, st.metrics()
+        finally:
+            st.close()
+
+
 def t_f_deterministic_rebuild_after_reopen():
     """separated metrics پس از close/reopenِ همان فایل عیناً بازساخته می‌شود."""
     with _tmp() as td:

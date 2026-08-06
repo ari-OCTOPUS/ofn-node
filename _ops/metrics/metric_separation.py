@@ -66,6 +66,20 @@ def is_real_delivery(ev: dict) -> bool:
     return ch not in _FAKE_CHANNELS
 
 
+def is_owner_verdict(ev: dict) -> bool:
+    """رأیِ مالک = payload.self_run نیست و source با «tg-» شروع می‌شود (کارتِ لید/صفِ
+    تأییدِ واقعی). ۲۰۲۶-۰۸-۰۶: بدونِ این، outcomes/research_loop.py سنجشِ خودآزمونِ
+    فرضیه را (leg_id=research، self_run=True، همان event_type) به‌عنوانِ رأیِ owner_*
+    می‌شمرد — الگو از live_loop._rehydrate_proposal_counter و
+    acceptance_journey._verify_p8 (ممیزیِ ۰۷-۳۱) پورت شد. `record_owner_verdict`
+    (نویسندهٔ واحدِ رأیِ واقعیِ مالک) همیشه source را می‌نویسد (پیش‌فرض
+    tg-proposal-button)، پس این فیلتر روی رأیِ واقعی هرگز false-negative نمی‌دهد."""
+    p = _payload(ev)
+    if p.get("self_run"):
+        return False
+    return str(p.get("source") or "").startswith("tg-")
+
+
 def from_outcome_store(store) -> dict:
     """تفکیکِ قطعی از rowsِ durable — پس از close/reopenِ store عیناً بازساخته می‌شود.
     liveness این‌جا همیشه ۰ است (تپش از outcome-store استنتاج نمی‌شود — تپش کار نیست)."""
@@ -76,9 +90,10 @@ def from_outcome_store(store) -> dict:
     delivered_all = [e for e in evs if e.get("event_type") == "delivered"]
     real = [e for e in delivered_all if is_real_delivery(e)]
     failed = [e for e in evs if e.get("event_type") == "failed"]
-    accepted = [e for e in evs if e.get("event_type") == "accepted-measurement"]
-    rejected = [e for e in evs if e.get("event_type") == "rejected"]
-    deferred = [e for e in evs if e.get("event_type") == "deferred"]
+    accepted = [e for e in evs if e.get("event_type") == "accepted-measurement"
+               and is_owner_verdict(e)]
+    rejected = [e for e in evs if e.get("event_type") == "rejected" and is_owner_verdict(e)]
+    deferred = [e for e in evs if e.get("event_type") == "deferred" and is_owner_verdict(e)]
     validated = [e for e in evs if e.get("event_type") in _VALIDATED_EVENTS]
     m.update({
         "work_attempted": len(delivered_all) + len(failed),
