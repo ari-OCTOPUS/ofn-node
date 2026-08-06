@@ -43,6 +43,8 @@ import leg_tasks as lt                 # noqa: E402
 import outbound_worker as ow           # noqa: E402
 import lead_effect_gate as leg         # noqa: E402
 import lead_outbound_transport as lot  # noqa: E402
+import consent_gate as cg              # noqa: E402
+import consent_store as cs             # noqa: E402
 
 NOW = 1_785_400_000.0
 STRATA_SCOPE = ("Remedial works to common property including rendering and "
@@ -97,6 +99,28 @@ def _submit(scope, address=None, email=None, channel="synthetic_test"):
 
 def _inbox() -> Path:
     return opslib.STATE_DIR / "legs" / "lead-inbox"
+
+
+# ── consent_gate D2a wiring (۲۰۲۶-۰۸-۰۷) — کمکِ گرانتِ رضایتِ store-backed ─────────
+# outbound_worker.send_one حالا consent_gate.may_release را **قبل از** release_and_settle
+# صدا می‌زند (لایهٔ سومِ مستقلِ consent، جدا از consent_firewall ِ داخلِ lead_effect_gate
+# که t_f روی آن می‌سنجد). بدونِ این گرانت، consent-denied زودتر از gate_denied می‌رسد و
+# ناوردای موردنظرِ t_f (R1 — market_signal حتی با گیتِ effect هم رد می‌شود) را پنهان
+# می‌کند. هم‌الگوی test_lead_outbound_transport.py::t_ib — رضایتِ صریح می‌گیریم تا
+# دقیقاً همان گیتِ هدف (market_signal_never_sends) سنجیده شود، نه گیتِ زودتر.
+def _grant_consent(lead_id: str, *, channel: str = "telegram_manual") -> None:
+    os.environ[cg.FLAG] = "1"
+    store = cs.ConsentStore()
+    try:
+        store.upsert_current({
+            "lead_id": lead_id, "candidate_type": "consented_inbound",
+            "consent_basis": "explicit", "consent_evidence": "quote_form",
+            "consent_state": "CONSENTED_INBOUND", "compliance_state": "UNREVIEWED",
+            "outreach_allowed": True, "retention_class": "consented_customer",
+            "retention_anchor_at": "2026-07-21T00:00:00+00:00",
+            "source_channel": channel})
+    finally:
+        store.close()
 
 
 def t_a_flag_off_is_absolute_noop():
@@ -209,12 +233,18 @@ def t_f_killer_market_signal_never_reaches_transport_even_all_flags_on():
         # حتی با authorize ِ مستقیم و worker ِ روشن: گیت رد می‌کند، transport صفر
         db = chrono.ChronoDB(ENV["OPS_DIR"] + "/state/killer.db")
         gate = chrono.EffectorGate(db)
-        cand = {"source": {"channel": "facebook_group"},
+        cand = {"lead_id": "evil-ms", "source": {"channel": "facebook_group"},
                 "candidate_type": "market_signal",
                 "consent": {"basis": "none"},
                 "contact": {"email": "victim@example.com"}}
         eid = gate.request("lead_outbound", "evil-ms", beat=1)
         leg.authorize(eid, "evil-ms", "tok-evil")
+        # consent_gate D2a: این تست ناوردای market_signal_never_sends ِ effect gate
+        # را می‌سنجد ("حتی با همهٔ فلگ‌ها روشن")، نه لایهٔ consent_gate را — پس
+        # رضایتِ صریحِ store-backed را هم می‌گیریم («حتی با رضایتِ کامل» — هم‌الگوی
+        # test_lead_outbound_transport.py::t_ib) تا مطمئن شویم گیتِ **هدف** (نه
+        # گیتِ زودترِ consent) واقعاً همان چیزی است که market_signal را رد می‌کند.
+        _grant_consent("evil-ms")
         res = ow.send_one(eid, cand, "draft", gate=gate,
                           now_ms=int((NOW + 600) * 1000))
         assert res["sent"] is False and res["status"] == "gate_denied", res
@@ -224,6 +254,7 @@ def t_f_killer_market_signal_never_reaches_transport_even_all_flags_on():
         assert v["authorized"] is False, v
     finally:
         lot._default_send_impl = _orig
+        os.environ.pop(cg.FLAG, None)
         for k in ("OCTOPUS_WIRE_LEAD_OUTBOUND", "OCTOPUS_SMTP_HOST",
                   "OCTOPUS_SMTP_PORT", "OCTOPUS_SMTP_USER", "OCTOPUS_SMTP_PASS",
                   "OCTOPUS_SMTP_FROM"):

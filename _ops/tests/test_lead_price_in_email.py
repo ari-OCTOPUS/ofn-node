@@ -38,6 +38,8 @@ import outbound_worker as ow           # noqa: E402
 import lead_effect_gate as leg         # noqa: E402
 import lead_outbound_transport as lot  # noqa: E402
 import mail_credentials as mc          # noqa: E402
+import consent_gate as cg              # noqa: E402
+import consent_store as cs             # noqa: E402
 
 # ⚠️ همان تلهٔ ۰۷-۳۱: کلیدهای زندهٔ ماشینِ میزبان (یا `.env` ِ واقعی) می‌توانند
 # transport را بی‌خبر مسلح کنند و ایمیلِ واقعی بفرستند. هر مسیرِ credential
@@ -133,6 +135,27 @@ def _seed_quote(attribution_id, breakdown, scope="Repaint of hallway, two coats.
     return p
 
 
+# ── consent_gate D2a wiring (۲۰۲۶-۰۸-۰۷) — کمکِ گرانتِ رضایتِ store-backed ─────────
+# drive_outbound حالا consent_gate.may_draft را **قبل از** compose (_draft_for)
+# صدا می‌زند (لایهٔ سومِ مستقلِ consent). این فایل منطقِ قیمت را می‌سنجد (GAP-2)،
+# نه consent_gate را — پس هر لیدی که از `_drive()` می‌گذرد باید رضایتِ store-backed
+# داشته باشد، وگرنه هرگز به _draft_for/بررسیِ قیمت نمی‌رسد و consent-denied ِ
+# زودتر منطقِ no-price را می‌پوشاند (هم‌الگوی test_lead_outbound_transport.py).
+def _grant_consent(lead_id: str, *, channel: str = "telegram_manual") -> None:
+    os.environ[cg.FLAG] = "1"
+    store = cs.ConsentStore()
+    try:
+        store.upsert_current({
+            "lead_id": lead_id, "candidate_type": "consented_inbound",
+            "consent_basis": "explicit", "consent_evidence": "quote_form",
+            "consent_state": "CONSENTED_INBOUND", "compliance_state": "UNREVIEWED",
+            "outreach_allowed": True, "retention_class": "consented_customer",
+            "retention_anchor_at": "2026-07-21T00:00:00+00:00",
+            "source_channel": channel})
+    finally:
+        store.close()
+
+
 def _drive(lead_id, attribution_id, breakdown, *,
            scope="Repaint of hallway, two coats.", intake=None):
     """قوسِ تولیدیِ کامل: authorize → drive_outbound → send_one → transport (جاسوس).
@@ -144,6 +167,7 @@ def _drive(lead_id, attribution_id, breakdown, *,
     gate = _gate(lead_id)
     eid = gate.request("lead_outbound", lead_id, beat=1)
     assert leg.authorize(eid, lead_id, f"tok-{lead_id}")["ok"]
+    _grant_consent(lead_id)
     spy = SpyImpl()
     os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND"] = "1"
     os.environ.update(_SMTP_ENV)
@@ -154,6 +178,7 @@ def _drive(lead_id, attribution_id, breakdown, *,
     finally:
         lot._default_send_impl = _orig
         os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
+        os.environ.pop(cg.FLAG, None)
         for k in _CRED_KEYS:
             os.environ.pop(k, None)
     return out, spy, gate, eid

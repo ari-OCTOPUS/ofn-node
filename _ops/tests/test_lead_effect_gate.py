@@ -7,6 +7,7 @@
 - idempotent (double-authorize/settled دوباره release نمی‌شود)
 - outbound_worker همیشه NOT_ARMED (صفر ارسال)، flag خاموش = بی‌اثر
 """
+import os
 import sys
 from pathlib import Path
 
@@ -30,6 +31,8 @@ import lead_effect_gate as leg       # noqa: E402
 importlib.reload(leg)
 import outbound_worker as ow         # noqa: E402
 importlib.reload(ow)
+import consent_gate as cg            # noqa: E402
+import consent_store as cs           # noqa: E402
 
 _H_MS = 3_600_000
 
@@ -46,6 +49,27 @@ def _consented():
             "consent": {"basis": "explicit", "evidence": "quote_form"},
             "contact": {"preferred_channel": "sms"},
             "request": {"scope_text": "repaint hallway"}}
+
+
+# ── consent_gate D2a wiring (۲۰۲۶-۰۸-۰۷) — کمکِ گرانتِ رضایتِ store-backed ─────────
+# outbound_worker.send_one/drive_outbound حالا consent_gate.may_release/may_draft را
+# صدا می‌زنند (لایهٔ سومِ مستقل، جدا از consent_firewallِ داخلِ lead_effect_gate که
+# این فایل روی candidate dict می‌سنجد). هر تستی که از این فایل واقعاً ow.send_one را
+# صدا می‌زند و انتظارِ عبور از گیتِ consent را دارد باید صریحاً یک رکوردِ رضایتِ
+# store-backed برای همان lead_id بگیرد (هم‌الگوی test_lead_outbound_transport.py).
+def _grant_consent(lead_id: str, *, channel: str = "telegram_manual") -> None:
+    os.environ[cg.FLAG] = "1"
+    store = cs.ConsentStore()
+    try:
+        store.upsert_current({
+            "lead_id": lead_id, "candidate_type": "consented_inbound",
+            "consent_basis": "explicit", "consent_evidence": "quote_form",
+            "consent_state": "CONSENTED_INBOUND", "compliance_state": "UNREVIEWED",
+            "outreach_allowed": True, "retention_class": "consented_customer",
+            "retention_anchor_at": "2026-07-21T00:00:00+00:00",
+            "source_channel": channel})
+    finally:
+        store.close()
 
 
 def t_a_batch_release_cannot_release_lead_outbound():
@@ -139,12 +163,18 @@ def t_h_happy_path_settles_but_transport_not_armed():
     # outbound worker: flag روشن هم = NOT_ARMED (صفر ارسال)
     import os
     os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND"] = "1"
+    # consent_gate D2a: این تست رفتارِ transport (NOT_ARMED) را می‌سنجد، نه consent_gate
+    # را — پس رضایتِ store-backed را برای L-ok2 می‌گیریم تا لایهٔ سومِ consent عبور کند
+    # و ناوردای موردنظرِ همین تست (transport بی‌creds) دست‌نخورده سنجیده شود.
+    _grant_consent("L-ok2")
+    cand2 = dict(_consented()); cand2["lead_id"] = "L-ok2"
     try:
         eid2 = gate.request("lead_outbound", "L-ok2", beat=1)
         leg.authorize(eid2, "L-ok2", "tok2")
-        out = ow.send_one(eid2, _consented(), gate=gate, now_ms=now)
+        out = ow.send_one(eid2, cand2, gate=gate, now_ms=now)
     finally:
         os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
+        os.environ.pop(cg.FLAG, None)
     assert out["sent"] is False and out["status"] == "NOT_ARMED", out
 
 
@@ -233,10 +263,15 @@ def t_n_on_lead_verdict_approve_authorizes():
     # مسیرِ کامل: حالا outbound → NOT_ARMED
     import os
     os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND"] = "1"
+    # consent_gate D2a: این تست مسیرِ authorize→send را می‌سنجد، نه consent_gate را —
+    # پس رضایتِ store-backed را برای همان لیدِ effect (lead-approve) می‌گیریم.
+    _grant_consent("lead-approve")
+    cand = dict(_consented()); cand["lead_id"] = "lead-approve"
     try:
-        out = ow.send_one(res["effect_id"], _consented(), gate=gate)
+        out = ow.send_one(res["effect_id"], cand, gate=gate)
     finally:
         os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
+        os.environ.pop(cg.FLAG, None)
     assert out["sent"] is False and out["status"] == "NOT_ARMED", out
 
 

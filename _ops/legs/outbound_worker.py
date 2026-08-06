@@ -23,6 +23,11 @@ fallback ِ Gmail (`GMAIL_ADDRESS`/`GMAIL_APP_PASSWORD` ِ موجود در `.env
     `proposal.payload.price_range_aud`) — بدونِ هیچ re-compute. کوتِ بی‌مبلغ
     ارسال نمی‌شود: skip + رسیدِ `no-price:<دلیل>` + alert به مالک (نه ارسالِ
     بی‌قیمت، نه سکوت). خطِ opt-out (الزامِ انطباق) دست‌نخورده می‌مانَد.
+  · consent_gate D2a (۲۰۲۶-۰۸-۰۷): `consent_gate.may_draft`/`may_release` (store-backed،
+    لایهٔ سومِ مستقلِ consent — جدا از consent_firewall ِ داخلِ lead_effect_gate) حالا
+    دو نقطهٔ اتصالِ تولیدی دارند: may_draft قبلِ compose در `drive_outbound`، may_release
+    قبلِ `release_and_settle` در `send_one`. deny = designed compliance gate، نه شکست:
+    status=`consent-denied` (نه NOT_ARMED/FAILED)، هرگز alert، effect دست‌نخورده می‌مانَد.
 
 stdlib-only در خودِ این ماژول.
 """
@@ -120,6 +125,44 @@ def _receipt(event_type: str, corr: str, payload: dict) -> None:
         pass
 
 
+# ── consent_gate D2a wiring (۲۰۲۶-۰۸-۰۷، رأیِ صریحِ مالک — چت مستقیم) ───────────────
+# تا امشب `consent_gate.may_draft`/`may_release` صفر صداکنندهٔ تولیدی داشتند —
+# تنها چیزی که «امن» نگهشان می‌داشت خاموش‌بودنِ OCTOPUS_WIRE_LEAD_OUTBOUND بود
+# (تصمیمِ جداگانهٔ مالک). این‌جا لایهٔ سومِ مستقلِ consent وصل می‌شود (لایهٔ ۱:
+# CHECK ساختاریِ consent_store؛ لایهٔ ۲: consent_firewall در lead_effect_gate —
+# روی همان candidate dict که producer اعلام کرده؛ لایهٔ ۳ همین‌جا: consent_gate،
+# store-backed، هرگز اعلامِ producer را نمی‌پذیرد، از persisted consent_current
+# دوباره می‌خواند). دو نقطهٔ اتصال:
+#   · may_draft — قبلِ compose در drive_outbound (پیش از _draft_for).
+#   · may_release — قبلِ release_and_settle در send_one (نه بعدش — اگر بعد
+#     چک شود و deny کند، effect برای‌همیشه سوخته می‌شود بدونِ transport؛ همان
+#     دلیلِ historyِ کمربندِ cap_reached در send_one).
+# rejectِ consent_gate «designed compliance gate» است، نه شکست: status ِ
+# اختصاصیِ "consent-denied" (نه NOT_ARMED، نه FAILED) و **هرگز alert** —
+# هم‌الگوی رفتارِ CAP_REACHED در همین فایل.
+def _consent_check(kind: str, lead_id: str, *, effect_kind: str = "") -> tuple[bool, str]:
+    """پوششِ فراخوانیِ consent_gate.may_draft/may_release با store ِ تازه (باز→پرسش→بسته،
+    هم‌الگوی lead_outbound_transport._feed_suppression/_store_suppressed). خطای
+    import/ساختِ store هم fail-closed (consent_gate خودش fail-closed است؛ این‌جا فقط
+    لایهٔ محافظِ import). `kind`: "draft" یا "release"."""
+    store = None
+    try:
+        import consent_store as _cs   # noqa: WPS433 — lazy، هم‌پوشه
+        import consent_gate as _cg    # noqa: WPS433 — lazy، هم‌پوشه
+        store = _cs.ConsentStore()
+        if kind == "release":
+            return _cg.may_release(lead_id, effect_kind, store=store)
+        return _cg.may_draft(lead_id, store=store)
+    except Exception as e:  # noqa: BLE001 — fail-closed حتی اگر import/ساخت بشکند
+        return (False, f"consent-gate-unavailable:{type(e).__name__}")
+    finally:
+        if store is not None:
+            try:
+                store.close()
+            except Exception:  # noqa: BLE001
+                pass
+
+
 # ── transport adapters — email واقعی (Lane G)، بقیه stubِ NOT_ARMED ────────────────
 def _transport_for(channel: str, candidate: dict | None = None, now=None):
     """آداپترِ transport برای کانالِ ترجیحیِ مشتری.
@@ -174,6 +217,18 @@ def send_one(effect_id: str, candidate: dict, draft: str = "", *, gate, now_ms: 
                       "sent_today": sends_today(now=_now_s)})
             return {"ok": False, "sent": False, "status": "CAP_REACHED",
                     "gate_reason": "daily-cap"}
+        # consent_gate D2a wiring — may_release **قبل از** release_and_settle، هم‌جای
+        # کمربندِ cap_reached بالا و به همان دلیل (effect دست‌نخورده/releasable بماند،
+        # نه برای‌همیشه‌سوخته). لایهٔ سومِ مستقلِ consent، جدا از consent_firewall ِ
+        # داخلِ lead_effect_gate — می‌تواند suppression/compliance/synthetic-hard-block
+        # را که آن لایه نمی‌بیند بگیرد. rejectِ آن طراحی‌شده است، نه شکست: هیچ alert.
+        lead_id = str((candidate or {}).get("lead_id") or "")
+        c_ok, c_why = _consent_check("release", lead_id, effect_kind="lead_outbound")
+        if not c_ok:
+            _receipt("send.consent_denied", effect_id,
+                     {"lead_id": lead_id, "reason": c_why})
+            return {"ok": False, "sent": False, "status": "consent-denied",
+                    "gate_reason": c_why}
         res = leg.release_and_settle(effect_id, candidate, gate=gate, now_ms=now_ms)
         if not res.get("settled"):
             # گیت اجازه نداد → هیچ transportی صدا نمی‌شود (هیچ ارسال).
@@ -386,6 +441,16 @@ def drive_outbound(*, gate, now_ms: int | None = None, cap_per_beat: int = 2) ->
             if cand is None:
                 _receipt("send.skipped", eid,
                          {"reason": "no-candidate", "lead_id": lid})
+                out["skipped"] += 1
+                continue
+            # consent_gate D2a wiring — may_draft **قبل از** compose (_draft_for).
+            # draft ساخته نمی‌شود اگر رضایتِ store-backed اجازه نمی‌دهد — حتی اگر
+            # candidateِ inbox چیزِ دیگری اعلام کرده باشد (consent_gate هرگز اعلامِ
+            # producer را نمی‌پذیرد). rejectِ آن طراحی‌شده است: صرفاً skip، هیچ alert.
+            d_ok, d_why = _consent_check("draft", lid)
+            if not d_ok:
+                _receipt("send.skipped", eid,
+                         {"reason": f"consent-denied:{d_why}", "lead_id": lid})
                 out["skipped"] += 1
                 continue
             draft, why = _draft_for(aid)

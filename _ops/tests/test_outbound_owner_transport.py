@@ -35,6 +35,8 @@ import lead_effect_gate as leg            # noqa: E402
 importlib.reload(leg)
 import outbound_worker as ow              # noqa: E402
 importlib.reload(ow)
+import consent_gate as cg                 # noqa: E402
+import consent_store as cs                # noqa: E402
 
 FLAG = ow.FLAG
 
@@ -57,6 +59,27 @@ def _authz_effect(gate, lead_id="L7"):
     eid = gate.request("lead_outbound", lead_id, beat=1)
     leg.authorize(eid, lead_id, "owner-verdict-test")
     return eid
+
+
+# ── consent_gate D2a wiring (۲۰۲۶-۰۸-۰۷) — کمکِ گرانتِ رضایتِ store-backed ─────────
+# send_one حالا consent_gate.may_release را **قبل از** release_and_settle صدا
+# می‌زند (لایهٔ سومِ مستقلِ consent). این تنها تست‌هایی از این فایل را که واقعاً
+# تا لایهٔ گیت/transport می‌رسند (t2، t8 — رفتارِ NOT_ARMED ِ backward-compat) لمس
+# می‌کند؛ t3-t7 (target=owner_chat) از قبلِ امشب هم به همان دلیلِ دیگر (ویژگیِ
+# owner_chat هنوز در outbound_worker پیاده نشده) قرمز بودند و دست‌نخورده می‌مانند.
+def _grant_consent(lead_id: str, *, channel: str = "telegram_manual") -> None:
+    os.environ[cg.FLAG] = "1"
+    store = cs.ConsentStore()
+    try:
+        store.upsert_current({
+            "lead_id": lead_id, "candidate_type": "consented_inbound",
+            "consent_basis": "explicit", "consent_evidence": "quote_form",
+            "consent_state": "CONSENTED_INBOUND", "compliance_state": "UNREVIEWED",
+            "outreach_allowed": True, "retention_class": "consented_customer",
+            "retention_anchor_at": "2026-07-21T00:00:00+00:00",
+            "source_channel": channel})
+    finally:
+        store.close()
 
 
 class _MockResp:
@@ -84,15 +107,21 @@ def t2_default_target_is_stub_not_armed():
     """target پیش‌فرض (خالی) = stubِ NOT_ARMED (backward-compat)."""
     os.environ[FLAG] = "1"
     os.environ.pop("OCTOPUS_LEAD_OUTBOUND_TARGET", None)
+    # consent_gate D2a: این تست رفتارِ NOT_ARMED ِ backward-compat را می‌سنجد، نه
+    # consent_gate را — رضایتِ store-backed را برای L7b می‌گیریم تا لایهٔ سومِ
+    # consent عبور کند و ناوردای موردنظرِ همین تست دست‌نخورده سنجیده شود.
+    _grant_consent("L7b")
+    cand = dict(_consented()); cand["lead_id"] = "L7b"
     try:
         gate, _ = _gate()
         eid = _authz_effect(gate, "L7b")
-        r = ow.send_one(eid, _consented(), gate=gate)
+        r = ow.send_one(eid, cand, gate=gate)
         assert r["ok"] is True   # گیت settle کرد
         assert r["sent"] is False   # ولی transport = NOT_ARMED
         assert r["status"] == "NOT_ARMED"
     finally:
         os.environ.pop(FLAG, None)
+        os.environ.pop(cg.FLAG, None)
 
 
 def t3_owner_chat_token_missing_unarmed():
@@ -251,16 +280,21 @@ def t8_customer_target_not_supported():
     یعنی تا رأیِ صریح، تماسِ واقعی با مشتری فعال نیست."""
     os.environ[FLAG] = "1"
     os.environ["OCTOPUS_LEAD_OUTBOUND_TARGET"] = "customer"
+    # consent_gate D2a: این تست هم رفتارِ NOT_ARMED ِ backward-compat را می‌سنجد،
+    # نه consent_gate را — رضایتِ store-backed برای L7h.
+    _grant_consent("L7h")
+    cand = dict(_consented()); cand["lead_id"] = "L7h"
     try:
         gate, _ = _gate()
         eid = _authz_effect(gate, "L7h")
-        r = ow.send_one(eid, _consented(), gate=gate)
+        r = ow.send_one(eid, cand, gate=gate)
         assert r["ok"] is True
         # customer در فهرستِ پشتیبانی‌شده نیست → fallback به stub NOT_ARMED
         assert r["sent"] is False
         assert r["status"] == "NOT_ARMED"
     finally:
         os.environ.pop(FLAG, None)
+        os.environ.pop(cg.FLAG, None)
         os.environ.pop("OCTOPUS_LEAD_OUTBOUND_TARGET", None)
 
 

@@ -30,6 +30,8 @@ import outbound_worker as ow           # noqa: E402
 import lead_effect_gate as leg         # noqa: E402
 import lead_outbound_transport as lot  # noqa: E402
 import mail_credentials as mc          # noqa: E402
+import consent_gate as cg              # noqa: E402
+import consent_store as cs             # noqa: E402
 
 # ⚠️ از وقتی transport یک fallback ِ Gmail دارد، کلیدهای زندهٔ ماشینِ میزبان
 # می‌توانند این تست را بی‌خبر مسلح کنند. هر مسیرِ credential صریحاً کنترل شود،
@@ -91,6 +93,7 @@ def _arm(spy):
 
 def _disarm():
     os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
+    os.environ.pop(cg.FLAG, None)
     for k in tuple(_SMTP_ENV) + (mc.GMAIL_ADDR_ENV, mc.GMAIL_SECRET_ENV,
                                  mc.GMAIL_FALLBACK_FLAG):
         os.environ.pop(k, None)
@@ -98,11 +101,34 @@ def _disarm():
         lot._default_send_impl = lot._orig_impl
 
 
+# ── consent_gate D2a wiring (۲۰۲۶-۰۸-۰۷) — کمکِ گرانتِ رضایتِ store-backed ─────────
+# send_one حالا consent_gate.may_release را **قبل از** release_and_settle صدا
+# می‌زند (لایهٔ سومِ مستقلِ consent). این فایل منطقِ سقفِ روزانه را می‌سنجد، نه
+# consent_gate را — پس هر لیدی که واقعاً باید بفرستد باید رضایتِ store-backed
+# داشته باشد، وگرنه هرگز به شمارنده/سقف نمی‌رسد (هم‌الگوی test_lead_outbound_transport.py).
+def _grant_consent(lead_id: str, *, channel: str = "telegram_manual") -> None:
+    os.environ[cg.FLAG] = "1"
+    store = cs.ConsentStore()
+    try:
+        store.upsert_current({
+            "lead_id": lead_id, "candidate_type": "consented_inbound",
+            "consent_basis": "explicit", "consent_evidence": "quote_form",
+            "consent_state": "CONSENTED_INBOUND", "compliance_state": "UNREVIEWED",
+            "outreach_allowed": True, "retention_class": "consented_customer",
+            "retention_anchor_at": "2026-07-21T00:00:00+00:00",
+            "source_channel": channel})
+    finally:
+        store.close()
+
+
 def _one_send(gate, i):
-    eid = gate.request("lead_outbound", f"lead-cap-{i}", beat=1)
-    a = leg.authorize(eid, f"lead-cap-{i}", f"tok-{i}")
+    lead_id = f"lead-cap-{i}"
+    eid = gate.request("lead_outbound", lead_id, beat=1)
+    a = leg.authorize(eid, lead_id, f"tok-{i}")
     assert a["ok"], a
-    return ow.send_one(eid, CAND, "draft body", gate=gate, now_ms=NOW_MS + i)
+    _grant_consent(lead_id)
+    cand = dict(CAND); cand["lead_id"] = lead_id
+    return ow.send_one(eid, cand, "draft body", gate=gate, now_ms=NOW_MS + i)
 
 
 def t_a_cap_constant_is_the_owner_vote():

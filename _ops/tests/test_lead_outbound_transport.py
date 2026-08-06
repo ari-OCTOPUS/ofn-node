@@ -29,6 +29,8 @@ import outbound_worker as ow           # noqa: E402
 import lead_outbound_transport as lot  # noqa: E402
 import mail_credentials as mc          # noqa: E402
 import funnel_store as fs              # noqa: E402
+import consent_gate as cg              # noqa: E402
+import consent_store as cs             # noqa: E402
 
 _SMTP_ENV = {"OCTOPUS_SMTP_HOST": "localhost", "OCTOPUS_SMTP_PORT": "2525",
              "OCTOPUS_SMTP_USER": "smtp-test-user",
@@ -85,6 +87,32 @@ def _cand(lead_id: str, email="customer.one@example.com", **extra) -> dict:
          "source": {"channel": "telegram_manual"}}
     c.update(extra)
     return c
+
+
+# ── consent_gate D2a wiring (۲۰۲۶-۰۸-۰۷) — کمکِ گرانتِ رضایتِ store-backed ─────────
+# outbound_worker.send_one/drive_outbound حالا consent_gate.may_release/may_draft را
+# صدا می‌زنند (لایهٔ سومِ مستقل، جدا از consent_firewالِ داخلِ lead_effect_gate که این
+# فایل روی candidate dict می‌سنجد). consent_gate خودش با store لایهٔ **persisted**
+# جداگانه‌ای دارد و **هرگز** اعلامِ producer (candidate dict) را نمی‌پذیرد — پس هر
+# تستی که قبلاً واقعاً می‌فرستاد/settle می‌شد باید صریحاً یک رکوردِ رضایتِ store-backed
+# برای همان lead_id بگیرد، وگرنه flag خاموش/رکورد غایب = deny (قراردادِ خودِ
+# consent_gate: «flag خاموش = رد، نه skip»). این گرانت کاملاً **مستقل** از آنچه
+# candidate dict اعلام می‌کند — دقیقاً چون consent_gate این استقلال را می‌خواهد
+# (defense-in-depth واقعی: حتی اگر لایهٔ ۲ فریب بخورد، لایهٔ ۳ از store ِ خودش
+# می‌پرسد). cg.FLAG را pop نمی‌کند — صداکننده در finally خودش پاک می‌کند.
+def _grant_consent(lead_id: str, *, channel: str = "telegram_manual") -> None:
+    os.environ[cg.FLAG] = "1"
+    store = cs.ConsentStore()
+    try:
+        store.upsert_current({
+            "lead_id": lead_id, "candidate_type": "consented_inbound",
+            "consent_basis": "explicit", "consent_evidence": "quote_form",
+            "consent_state": "CONSENTED_INBOUND", "compliance_state": "UNREVIEWED",
+            "outreach_allowed": True, "retention_class": "consented_customer",
+            "retention_anchor_at": "2026-07-21T00:00:00+00:00",
+            "source_channel": channel})
+    finally:
+        store.close()
 
 
 class SpyImpl:
@@ -212,6 +240,11 @@ def t_ib_market_signal_is_denied_even_with_perfect_consent_on_an_allowed_channel
     eid = gate.request("lead_outbound", "L-sig2", beat=1)
     assert leg.authorize(eid, "L-sig2", "tok-sig2")["ok"]
     os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND"] = "1"
+    # consent_gate D2a: این تست ناوردای consent_firewالِ lead_effect_gate را می‌سنجد
+    # (R1 — market_signal هرگز)، نه consent_gate را. پس رضایتِ store-backed را
+    # می‌گیریم تا لایهٔ consent_gate عبور کند و ناوردای **موردنظرِ همین تست**
+    # (لایهٔ ۲) دست‌نخورده سنجیده شود — نه اینکه لایهٔ ۳ زودتر deny کند.
+    _grant_consent("L-sig2")
     spy = SpyImpl()
     _orig = lot._default_send_impl
     lot._default_send_impl = spy
@@ -221,6 +254,7 @@ def t_ib_market_signal_is_denied_even_with_perfect_consent_on_an_allowed_channel
     finally:
         lot._default_send_impl = _orig
         os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
+        os.environ.pop(cg.FLAG, None)
     assert r["sent"] is False, f"سیگنال فرستاده شد — نقضِ R1: {r}"
     assert r["status"] == "gate_denied", r
     assert not spy.calls, "سیگنال به transport رسید — نقضِ R1"
@@ -398,6 +432,10 @@ def t_h_driver_sends_the_authorized_effect_via_the_spy_transport():
     assert leg.authorize(e1, "L-drv", "tok-drv")["ok"]
     e2 = gate.request("lead_outbound", "L-nodraft", beat=1)
     assert leg.authorize(e2, "L-nodraft", "tok-nod")["ok"]
+    # consent_gate D2a: هر دو لید باید از may_draft عبور کنند تا این تست همان
+    # قراردادِ قبلی‌اش (no-draft از _draft_for، نه از consent_gate) را بسنجد.
+    _grant_consent("L-drv")
+    _grant_consent("L-nodraft")
     os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND"] = "1"
     spy = SpyImpl()
     _orig = lot._default_send_impl
@@ -407,6 +445,7 @@ def t_h_driver_sends_the_authorized_effect_via_the_spy_transport():
     finally:
         lot._default_send_impl = _orig
         os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
+        os.environ.pop(cg.FLAG, None)
     assert out["sent"] == 1 and out["driven"] == 1, out
     assert out["skipped"] == 1, out
     assert len(spy.calls) == 1 and spy.calls[0]["to"] == "drv.customer@example.com", \
@@ -444,6 +483,9 @@ def t_i_driver_never_sends_a_market_signal_even_if_somehow_authorized():
     gate = _drv_gate("sig")
     eid = gate.request("lead_outbound", "L-sig", beat=1)
     assert leg.authorize(eid, "L-sig", "tok-sig")["ok"]   # authorize ِ زوری
+    # consent_gate D2a: این تست ناوردای consent_firewالِ lead_effect_gate را می‌سنجد
+    # (همان دلیلِ t_ib) — رضایتِ store-backed تا لایهٔ consent_gate عبور کند.
+    _grant_consent("L-sig")
     os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND"] = "1"
     spy = SpyImpl()
     _orig = lot._default_send_impl
@@ -453,6 +495,7 @@ def t_i_driver_never_sends_a_market_signal_even_if_somehow_authorized():
     finally:
         lot._default_send_impl = _orig
         os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
+        os.environ.pop(cg.FLAG, None)
     assert out["sent"] == 0, out
     assert not spy.calls, "market_signal به transport رسید — نقضِ R1"
     assert gate.status_of(eid) == "pending", \
@@ -484,6 +527,7 @@ def t_q_a_not_armed_stub_stays_quiet_but_a_real_failure_still_alarms():
         gate = _drv_gate("q-notarmed")
         eid = gate.request("lead_outbound", "L-q1", beat=1)
         assert leg.authorize(eid, "L-q1", "tok-q1")["ok"]
+        _grant_consent("L-q1")   # consent_gate D2a: تا این تست همان NOT_ARMED ِ transport را بسنجد
         os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND"] = "1"
         try:
             cand = {"lead_id": "L-q1", "candidate_type": "consented_inbound",
@@ -493,6 +537,7 @@ def t_q_a_not_armed_stub_stays_quiet_but_a_real_failure_still_alarms():
             r = ow.send_one(eid, cand, "hello", gate=gate, now_ms=int(NOW_S * 1000))
         finally:
             os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
+            os.environ.pop(cg.FLAG, None)
         assert r["sent"] is False and r["status"] == "NOT_ARMED", r
         assert not calls, f"NOT_ARMED ِ طراحی‌شده نباید alert بزند: {calls}"
 
@@ -507,6 +552,7 @@ def t_q_a_not_armed_stub_stays_quiet_but_a_real_failure_still_alarms():
         gate2 = _drv_gate("q-fail")
         eid2 = gate2.request("lead_outbound", "L-q2", beat=1)
         assert leg.authorize(eid2, "L-q2", "tok-q2")["ok"]
+        _grant_consent("L-q2")   # consent_gate D2a: تا این تست همان FAILED ِ SMTP واقعی را بسنجد
         os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND"] = "1"
         spy = SpyImpl(fail=True)
         _orig = lot._default_send_impl
@@ -530,6 +576,133 @@ def t_q_a_not_armed_stub_stays_quiet_but_a_real_failure_still_alarms():
     finally:
         opslib.alert = real_alert
         _set_creds(False)
+        os.environ.pop(cg.FLAG, None)
+
+
+# ── consent_gate D2a wiring — سیمِ جدید در send_one/drive_outbound (۲۰۲۶-۰۸-۰۷) ────
+def t_r_consent_gate_may_draft_denial_blocks_compose_no_alarm():
+    """(الف) may_draft denial در drive_outbound: compose (_draft_for) هرگز صدا زده
+    نمی‌شود، transport هرگز صدا زده نمی‌شود، effect دست‌نخورده (pending) می‌مانَد،
+    و **هیچ alert**ی نمی‌رود — این یک گیتِ طراحی‌شده است، نه شکست."""
+    import lead_effect_gate as leg
+    _set_creds(True)
+    _fresh_counter()
+    try:
+        leg._authz_store().unlink()
+    except OSError:
+        pass
+    os.environ.pop(cg.FLAG, None)   # صریحاً خاموش — consent_gate باید deny کند (نه skip)
+    _seed_inbox("L-cg-draft", email="cgdraft.customer@example.com",
+                attribution_id="AT-CG-DRAFT-001")
+    _seed_draft("AT-CG-DRAFT-001")
+    gate = _drv_gate("cg-draft")
+    eid = gate.request("lead_outbound", "L-cg-draft", beat=1)
+    assert leg.authorize(eid, "L-cg-draft", "tok-cg-draft")["ok"]
+    calls = []
+    real_alert = opslib.alert
+    opslib.alert = lambda items: calls.extend(list(items))
+    os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND"] = "1"
+    spy = SpyImpl()
+    _orig = lot._default_send_impl
+    lot._default_send_impl = spy
+    try:
+        out = ow.drive_outbound(gate=gate, now_ms=int(NOW_S * 1000))
+    finally:
+        lot._default_send_impl = _orig
+        os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
+        opslib.alert = real_alert
+    assert out["driven"] == 0, out
+    assert out["skipped"] == 1, out
+    assert not spy.calls, "transport نباید هیچ تلاشی ببیند — may_draft باید قبل از compose رد کند"
+    assert gate.status_of(eid) == "pending", \
+        f"effectِ رد‌شده‌توسطِ consent_gate نباید release/settle شود: {gate.status_of(eid)!r}"
+    assert not calls, f"denyِ طراحی‌شدهٔ consent_gate نباید alert بزند: {calls}"
+    text = _events_text()
+    assert '"consent-denied:flag-off"' in text, \
+        f"رسیدِ consent-denied:flag-off در events.jsonl نیست: {text[-500:]}"
+    assert ow.sends_today(now=NOW_S) == 0
+
+
+def t_s_consent_gate_may_release_denial_blocks_send_no_alarm():
+    """(ب) may_release denial در send_one: release_and_settle هرگز صدا زده نمی‌شود
+    (effect دست‌نخورده می‌مانَد — نه «برای‌همیشه‌سوخته»)، transport هرگز صدا زده
+    نمی‌شود، status صریحاً "consent-denied" است (نه NOT_ARMED/FAILED)، و هیچ
+    alertی نمی‌رود."""
+    import lead_effect_gate as leg
+    _set_creds(True)
+    _fresh_counter()
+    try:
+        leg._authz_store().unlink()
+    except OSError:
+        pass
+    os.environ.pop(cg.FLAG, None)   # صریحاً خاموش
+    gate = _drv_gate("cg-release")
+    eid = gate.request("lead_outbound", "L-cg-release", beat=1)
+    assert leg.authorize(eid, "L-cg-release", "tok-cg-release")["ok"]
+    status_before = gate.status_of(eid)
+    calls = []
+    real_alert = opslib.alert
+    opslib.alert = lambda items: calls.extend(list(items))
+    os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND"] = "1"
+    spy = SpyImpl()
+    _orig = lot._default_send_impl
+    lot._default_send_impl = spy
+    try:
+        cand = _cand("L-cg-release", email="cgrelease.customer@example.com",
+                     candidate_type="consented_inbound",
+                     consent={"basis": "explicit"},
+                     request={"scope_text": "repaint hallway"})
+        r = ow.send_one(eid, cand, {"subject": "Q", "body": "x"},
+                        gate=gate, now_ms=int(NOW_S * 1000))
+    finally:
+        lot._default_send_impl = _orig
+        os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
+        opslib.alert = real_alert
+    assert r["sent"] is False and r["status"] == "consent-denied", r
+    assert r.get("gate_reason") == "flag-off", r
+    assert not spy.calls, \
+        "transport نباید صدا زده شود — may_release باید قبل از release_and_settle رد کند"
+    assert gate.status_of(eid) == status_before == "pending", \
+        f"effect نباید release/settle شود: before={status_before!r} after={gate.status_of(eid)!r}"
+    assert not calls, f"denyِ طراحی‌شدهٔ consent_gate نباید alert بزند: {calls}"
+    assert ow.sends_today(now=NOW_S) == 0
+
+
+def t_t_consent_gate_granted_matches_prior_send_behavior():
+    """(ج) رگرسیونِ حیاتی: وقتی consent_gate هر دو (may_draft/may_release) اجازه
+    می‌دهد، رفتارِ ارسالِ قبلی (SENT از transportِ واقعی، شمارنده بالا رفت، گیت
+    settled شد) کاملاً دست‌نخورده است — سنجه‌ای که تضمین می‌کند این فیکس هیچ
+    رفتاری را وقتی رضایت داده شده تغییر نمی‌دهد."""
+    import lead_effect_gate as leg
+    _set_creds(True)
+    _fresh_counter()
+    try:
+        leg._authz_store().unlink()
+    except OSError:
+        pass
+    _grant_consent("L-cg-granted")
+    gate = _drv_gate("cg-granted")
+    eid = gate.request("lead_outbound", "L-cg-granted", beat=1)
+    assert leg.authorize(eid, "L-cg-granted", "tok-cg-granted")["ok"]
+    os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND"] = "1"
+    spy = SpyImpl()
+    _orig = lot._default_send_impl
+    lot._default_send_impl = spy
+    try:
+        cand = _cand("L-cg-granted", email="cggranted.customer@example.com",
+                     candidate_type="consented_inbound",
+                     consent={"basis": "explicit"},
+                     request={"scope_text": "repaint hallway"})
+        r = ow.send_one(eid, cand, {"subject": "Quote", "body": "قیمتِ کار"},
+                        gate=gate, now_ms=int(NOW_S * 1000))
+    finally:
+        lot._default_send_impl = _orig
+        os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
+        os.environ.pop(cg.FLAG, None)
+    assert r["sent"] is True and r["status"] == "SENT", r
+    assert len(spy.calls) == 1 and spy.calls[0]["to"] == "cggranted.customer@example.com", spy.calls
+    assert gate.status_of(eid) == "settled", gate.status_of(eid)
+    assert ow.sends_today(now=NOW_S) == 1
 
 
 if __name__ == "__main__":
