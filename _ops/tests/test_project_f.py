@@ -167,7 +167,7 @@ def t_brain_archive_learned_only():
     # پاک‌سازیِ archive persisted برای تستِ ایزوله — فقط sandboxِ ماژول (PF_BRAIN_DIR)،
     # هرگز نسخهٔ داخلِ repo/vault
     import project_f_brain as _pfb
-    arch_path = _pfb._ARCHIVE_PATH
+    arch_path = _pfb._archive_path()
     arch_path.unlink(missing_ok=True)
     brain = ProjectFBrain()
     brain.archive("price", "approved", 10, 15)
