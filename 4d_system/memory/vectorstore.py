@@ -115,7 +115,15 @@ def index_vault(force: bool = False) -> int:
     except Exception:
         pass
 
-    vs.add_documents(chunks, ids=ids)
+    # Chroma rejects a single add/upsert call above its own max batch size
+    # (client.get_max_batch_size(), version-dependent -- 5461 on 1.5.9). A
+    # vault this size (9k+ chunks) blows that in one call; split it up.
+    try:
+        max_batch = vs._client.get_max_batch_size()
+    except Exception:
+        max_batch = 2000
+    for i in range(0, len(chunks), max_batch):
+        vs.add_documents(chunks[i:i + max_batch], ids=ids[i:i + max_batch])
     _indexed = True
     return len(chunks)
 
