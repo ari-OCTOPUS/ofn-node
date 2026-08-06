@@ -37,9 +37,20 @@ def ck(cond, msg):
 
 
 def _fresh_audit(sink: Path):
+    """audit را طوری آماده می‌کند که audit_append واقعاً به sink بنویسد.
+
+    ۲۰۲۶-۰۸-۰۶ fix: از ۲۰۲۶-۰۸-۰۳ به بعد audit.py's `DEFAULT_AUDIT_FILE`
+    module-level constant نیست — `_default_audit_file()` هربار در زمانِ
+    فراخوانی حل می‌شود و audit_append() مستقیم همان تابع را صدا می‌زند، نه
+    attribute ماژول را می‌خواند. پس `_a.DEFAULT_AUDIT_FILE = sink` (روشِ قدیم)
+    بی‌اثر بود و نوشتن بی‌صدا به فایلِ تولیدیِ واقعی می‌ریخت (T6 همین نشت را
+    گرفت). PF_AUDIT_FILE مسیرِ رسمیِ انحراف است — خودِ audit.py._default_audit_file
+    آن را می‌خواند؛ همان مکانیزمی که conftest.py و test_e2e_chain.py هم استفاده
+    می‌کنند.
+    """
     import audit as _a
+    os.environ["PF_AUDIT_FILE"] = str(sink)
     _a = importlib.reload(_a)
-    _a.DEFAULT_AUDIT_FILE = sink
     return _a
 
 
@@ -165,14 +176,24 @@ def t6_production_file_not_grown_by_this_test():
 
 
 def main() -> int:
-    for fn in (t1_origin_always_present, t2_test_context_never_live,
-               t3_garbage_env_fails_safe, t4_explicit_values_respected,
-               t5_conftest_exists_and_redirects,
-               t6_production_file_not_grown_by_this_test):
-        try:
-            fn()
-        except Exception as e:  # noqa: BLE001
-            FAILURES.append(f"{fn.__name__}: EXCEPTION {type(e).__name__}: {e}")
+    old_audit_file = os.environ.get("PF_AUDIT_FILE")
+    try:
+        for fn in (t1_origin_always_present, t2_test_context_never_live,
+                   t3_garbage_env_fails_safe, t4_explicit_values_respected,
+                   t5_conftest_exists_and_redirects,
+                   t6_production_file_not_grown_by_this_test):
+            try:
+                fn()
+            except Exception as e:  # noqa: BLE001
+                FAILURES.append(f"{fn.__name__}: EXCEPTION {type(e).__name__}: {e}")
+    finally:
+        # هر تست بالا PF_AUDIT_FILE را به یک tmp تازه ست می‌کند (_fresh_audit)
+        # ولی هرگز پاک نمی‌کند — این‌جا محیط را به حالتِ قبل از اجرا برمی‌گردانیم
+        # تا این اسکریپت روی محیطِ پروسه‌ی صداکننده اثرِ ماندگار نگذارد.
+        if old_audit_file is not None:
+            os.environ["PF_AUDIT_FILE"] = old_audit_file
+        else:
+            os.environ.pop("PF_AUDIT_FILE", None)
     if FAILURES:
         print(f"FAIL {len(FAILURES)}/{CHECKS} — audit origin guard")
         for f in FAILURES:
