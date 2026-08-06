@@ -39,6 +39,15 @@ RX_ROUTER_BIND = re.compile(r"=\s*model_router\.ask\b")
 RX_LOCAL = re.compile(r"\blocal_llm\.ask\s*\(")
 RX_COMPLETE = re.compile(r"\.complete\s*\(")
 RX_CLIENT_REF = re.compile(r"DeepSeekClient|MultiProviderClient")
+# ۲۰۲۶-۰۸-۰۶ — نقطهٔ کورِ دومِ اسکنر: ذکرِ متنیِ یک الگو داخلِ docstring (نثرِ توضیحی،
+# نه فراخوانِ واقعی) هم مثلِ کدِ واقعی می‌زد. `governor.py` خطِ ۵ دقیقاً همین‌جاست:
+# «`model_router.ask()` است» توی docstringِ ماژول — caller نیست. رشته‌های سه‌کوتیشنی
+# قبل از تطبیقِ الگوها حذف می‌شوند تا نثرِ مستندسازی caller قلمداد نشود.
+RX_TRIPLE_QUOTED = re.compile(r"(\"\"\"|''')[\s\S]*?\1")
+
+
+def _strip_docstrings(src: str) -> str:
+    return RX_TRIPLE_QUOTED.sub("", src)
 
 # ─── inventoryِ مستند (ممیزیِ Wave1-B 2026-07-21) ─────────────────────────────
 ROUTER_FENCED = {
@@ -82,6 +91,10 @@ ROUTER_FENCED = {
     # شناخته‌شده (`ask_fn = model_router.ask`) از همان درِ فنس‌دار می‌رود؛ همین
     # گارد در جاروی ۰۷-۳۱ گرفتش که ثبت نشده بود.
     "tool_request.py",
+    # ۲۰۲۶-۰۸-۰۶ — دیده‌بانِ کاکپیت: تغییرِ وضع را در حداکثر سه جملهٔ فارسی خلاصه
+    # می‌کند. `model_router.ask("summarize", …, tier=BRAIN_TIER)` مستقیم از همان
+    # درِ فنس‌دار می‌رود؛ caller ِ واقعی بود که تا امروز در inventory ثبت نشده بود.
+    "cockpit_brain.py",
 }
 ADAPTER_FENCED = {
     "debate/debate_loop.py",         # _gated_call → DeepSeekClient.complete
@@ -125,6 +138,7 @@ def _iter_prod_sources():
 
 
 def _vectors(src: str) -> set:
+    src = _strip_docstrings(src)
     v = set()
     if (RX_ROUTER_CALL.search(src) or RX_ROUTER_IMP.search(src)
             or RX_ROUTER_BIND.search(src)):
