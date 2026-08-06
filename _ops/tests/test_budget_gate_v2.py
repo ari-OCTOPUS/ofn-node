@@ -2,6 +2,7 @@
 """تست A1 · budget_gate v2 — خواندن سقف‌ها از budgets.yaml (SoT) با کفِ fail-closed.
 اثبات: (۱) SoT-read واقعی · (۲) strictest=min (yaml شل‌تر → کف می‌ماند) ·
 (۳) yaml ناخوانا → کفِ هاردکد (نه crash، نه نامحدود) · (۴) رفتار v1.1 حفظ (non-breaking)."""
+import contextlib
 import os
 import sys
 from pathlib import Path
@@ -32,9 +33,32 @@ def _reset_state() -> None:
             pass
 
 
+@contextlib.contextmanager
+def _closed_spend_window():
+    """پنجرهٔ استثنای زندهٔ مالک (OCTOPUS_SPEND_CAP_USD/UNTIL) را برای طولِ تست می‌بندد.
+    این تست‌ها منطقِ خودِ _caps() (strictest=min + کفِ fail-closed) را می‌سنجند، نه
+    اینکه امروز داخلِ پنجرهٔ استثنا هستیم یا نه. صرفِ pop/خالی‌کردنِ env کافی نیست:
+    budget_gate._knob() وقتی env خالی باشد به owner-verdicts.yaml ِ tracked برمی‌گردد
+    (که رأیِ زندهٔ مالک را نگه می‌دارد و همین پنجره را باز می‌کند) — پس باید صریحاً
+    با یک USD نامعتبر (⇒ shut("bad-value")) بسته شود، نه با غیاب."""
+    names = (budget_gate.SPEND_CAP_USD_ENV, budget_gate.SPEND_CAP_UNTIL_ENV)
+    old = {n: os.environ.get(n) for n in names}
+    os.environ[budget_gate.SPEND_CAP_USD_ENV] = "0"          # usd<=0 → بسته، صرفِ‌نظر از تاریخ
+    os.environ[budget_gate.SPEND_CAP_UNTIL_ENV] = "1900-01-01"
+    try:
+        yield
+    finally:
+        for n in names:
+            if old[n] is None:
+                os.environ.pop(n, None)
+            else:
+                os.environ[n] = old[n]
+
+
 def t_caps_read_from_sot():
     _default_yaml()
-    c = budget_gate._caps()
+    with _closed_spend_window():
+        c = budget_gate._caps()
     # harness yaml cap_monthly=30؛ hardcode-floor=200 → min(30,200)=30 (yaml سخت‌تر، برنده)
     assert c["month_aud"] == 30.0 and c["day_aud"] == 2.0 and c["disaster_aud"] == 500.0, c
     assert c["aud"] == 1.5 and "budgets.yaml" in c["src"], c
@@ -44,27 +68,31 @@ def t_caps_strictest_min():
     # yaml شل‌تر از کف → کف می‌ماند (هرگز looser از hardcode).
     # hardcode-floor=30 (go-live 2026-07-10). yaml=100 > 30 → hardcode برنده (سخت‌تر).
     _write_yaml("global:\n  cap_monthly: 100\n  cap_daily: 9\n  cap_disaster: 9000\nprojects: {}\n")
-    c = budget_gate._caps()
+    with _closed_spend_window():
+        c = budget_gate._caps()
     assert c["month_aud"] == 30.0 and c["day_aud"] == 2.0 and c["disaster_aud"] == 500.0, c
 
 
 def t_caps_hardcode_floor_is_30():
     # کفِ hardcode-floor = 30 (go-live 2026-07-10، رأی مالک «۳۰ بماند»). yaml شل‌تر → کف می‌ماند.
     _write_yaml("global:\n  cap_monthly: 300\n  cap_daily: 9\n  cap_disaster: 9000\nprojects: {}\n")
-    c = budget_gate._caps()
+    with _closed_spend_window():
+        c = budget_gate._caps()
     assert c["month_aud"] == 30.0, f"hardcode-floor باید ۳۰ باشد: {c}"
 
 
 def t_caps_tighten_honored():
     # yaml سخت‌تر از کف → همان اعمال می‌شود (SoT واقعاً می‌راند)
     _write_yaml("global:\n  cap_monthly: 5\n  cap_daily: 1\nprojects: {}\n")
-    c = budget_gate._caps()
+    with _closed_spend_window():
+        c = budget_gate._caps()
     assert c["month_aud"] == 5.0 and c["day_aud"] == 1.0, c
 
 
 def t_caps_failclosed_on_garbage():
     _write_yaml("{{{ this is not yaml ::::")
-    c = budget_gate._caps()
+    with _closed_spend_window():
+        c = budget_gate._caps()
     # yaml ناخوانا → hardcode-floor (month=30, day=2, disaster=500)
     assert c["month_aud"] == 30.0 and c["day_aud"] == 2.0 and c["disaster_aud"] == 500.0, c
     assert c["src"] == "hardcode-floor", c
