@@ -138,12 +138,18 @@ def t_entry_points_are_not_called_orphans():
 
 
 # ─── ۲: پوشش — یتیمِ واقعی جا نیفتد ───────────────────────────────────────
-def t_the_three_independently_confirmed_orphans_are_found():
-    """این سه‌تا را شش ایجنتِ مستقل و راستی‌آزماییِ متخاصم تأیید کردند.
+def t_the_independently_confirmed_orphans_are_found():
+    """شش ایجنتِ مستقل و راستی‌آزماییِ متخاصم سه ماژول را یتیم تأیید کردند.
 
-    اگر اسکنر پیدایشان نکند، پوششش دروغ است."""
+    ۲۰۲۶-۰۸-۰۴: `arm_gate` از این فهرست بیرون رفت — در چارچوبِ کارِ سیم‌کشیِ
+    عمدی صداکنندهٔ واقعی گرفت (`self_patch.py`، `cortex/auto_approve.py`،
+    `vault_updater_apply.py`)، پس اسکنر دیگر درست است که یتیمش نمی‌داند.
+    فهرست به دو موردِ باقی‌مانده افت کرد؛ جایگزینِ اختراعی برایش نگذاشتیم چون
+    ادعای «تأییدِ شش‌ایجنتی» فقط برای همین دو صادق است.
+
+    اگر اسکنر این دو را پیدا نکند، پوششش دروغ است."""
     reported = {Path(o["module"]).stem for o in _R["orphans"]}
-    for known in ("watchdog_extension", "arm_gate", "drawdown_guard"):
+    for known in ("watchdog_extension", "drawdown_guard"):
         assert known in reported, f"«{known}» یتیمِ تأییدشده است ولی پیدا نشد"
 
 
