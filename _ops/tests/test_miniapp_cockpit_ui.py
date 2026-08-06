@@ -2,21 +2,53 @@
 # -*- coding: utf-8 -*-
 """test_miniapp_cockpit_ui — کاکپیتِ Mini App نباید دروغ بگوید.
 
-این فایل دو لایه دارد و عمداً هر دو را دارد:
+⚠️ ۲۰۲۶-۰۸-۰۶ — بازنویسیِ کامل بعد از یک ری‌دیزاینِ چندکامیتیِ ۲۰۲۶-۰۸-۰۴..۰۵.
 
-  ۱) گرپِ ناوردا روی app.js/index.html/style.css — ارزان، ولی فقط «هست/نیست»
-     را می‌گوید. یک گرپِ تنها هرگز نمی‌گوید کد **چه می‌کند**.
-  ۲) اجرایِ واقعیِ app.js داخلِ Node با یک DOM/fetch ِ ساختگی. این لایه رفتار
-     را می‌سنجد: هدر روی هر درخواست، رنگِ نشانگر روی دادهٔ غایب، ننوشتنِ تبِ
-     کهنه روی تبِ فعال، قفلِ read-only، کشِ برچسب‌خورده، و اینکه تغییرِ حالت
-     فقط از /api/actions می‌گذرد.
+نسخهٔ قبلی (۲۰۲۶-۰۸-۰۳) روی معماریِ **قدیم** نوشته شده بود: ۱۲ تب (studio/
+brain/governor/obsidian/next/outbound/legs/value/registry/truth/…)، یک
+`/api/ops` ترکیبی که چهار بخش (brain/governor/obsidian/next_steps) را یک‌جا
+می‌داد، یک گریدِ tile با `data-state`، پالتِ فرمان (Ctrl/Cmd+K)، کشِ محلی با
+برچسبِ stale، coalescing/debounce، و `window.__cockpit` برای دیپ‌لینک.
 
-چیزی که این تست **نمی‌سنجد** (صادقانه، تا کسی پوششِ کاذب فرض نکند):
-  · رندرِ واقعیِ مرورگر، CSS، RTL و اینکه دکمهٔ disabled واقعاً کلیک نمی‌گیرد.
-    گاردِ واقعیِ read-only در مرورگر همان attribute ِ `disabled` است؛ اینجا
-    فقط حضورش در HTML سنجیده می‌شود. گاردِ **معتبر** سمتِ سرور است
-    (`/api/actions` → 403 owner_auth_required) که تستِ خودش را دارد.
+بین ۰۸-۰۳ و ۰۸-۰۵ کاکپیت کاملاً بازطراحی شد (نگاه کن به `git log --oneline
+-- miniapp/app.js`: «شش اقدام مسلح شد»، «ترکیبِ فضایی با قرصِ اختاپوس»،
+«بازطراحیِ تریاژ»، «تبِ ششم (کارها)»). این نبود که چند رشتهٔ لنگر جابه‌جا شده
+باشد — کلِ مدلِ داده و DOM عوض شد:
+
+  · تب‌ها حالا ۶ تااند: home/approvals/money/leads/tasks/system (برچسبِ
+    فارسی: خانه/تأییدها/پول/لیدها/کارها/سیستم). studio/brain/governor/
+    obsidian/next/outbound/legs/value/registry/truth دیگر تبِ جدا نیستند؛
+    برخی‌شان (برای مثال brain/governor/obsidian/legs/truth/registry) حالا
+    **پنلِ زیرِ تبِ سیستم**اند (`stack()`)، بقیه (studio/next) کدشان کاملاً
+    حذف یا جایگزین شده.
+  · `/api/ops` ِ ترکیبی دیگر از UI صدا زده نمی‌شود؛ هر پنل مسیرِ اختصاصیِ
+    خودش را می‌خواند (`/api/ops/brain`، `/api/governor`، `/api/obsidian`،
+    `/api/legs`، `/api/ops/tasks`، `/api/ops/leads`، …).
+  · پالت، کشِ محلی، debounce/coalescing، و `window.__cockpit` — هیچ‌کدام
+    در app.js ِ فعلی وجود ندارند (صفر رخداد؛ با grep تأیید شد).
+  · هدرِ triState/badge3/badgeClass با یک `tri()` سه‌حالتی و یک
+    `panelGuard()` عمومی جایگزین شده که همان قاعده را برای همهٔ پنل‌های
+    تازه یک‌جا اجرا می‌کند.
+  · `renderStudio` (صاحبِ HEADER_LITERAL ِ قدیمیِ اقدام‌ها) از جدولِ
+    `renderers` برداشته شده — کدش هنوز در فایل هست ولی **صداکنندهٔ صفر**
+    دارد (دقیقاً همان الگویی که این ریپو بارها دیده). سه اقدامش
+    (lead.create/update_stage، task.create) جای تازه‌شان را در تبِ
+    لیدها/کارها گرفته‌اند، با apiPost ِ مستقیم (نه از راهِ act()).
+
+این فایل هر دو لایه را نگه می‌دارد ولی هر آزمونی که معادلِ تمیزی نداشت
+**حذف شد، نه تحریف**. فهرستِ دقیقِ چه چیزی حذف شد و چرا، بالای هر بخش
+آمده. چیزی که این تست **نمی‌سنجد** (صادقانه):
+
+  · رندرِ واقعیِ مرورگر، CSS، RTL. گاردِ read-only ِ معتبر سمتِ سرور است
+    (`/api/actions` → 403 owner_auth_required)، نه چیزی که این‌جا سنجیده
+    شود.
   · Telegram WebApp واقعی و امضایِ initData.
+  · تعاملِ پیچیدهٔ DOM (چیپ‌های انتخابی، شمارشِ معکوسِ تأیید/رد، یادداشتِ
+    لید) — درایورِ Node این فایل یک DOM ِ **مسطح** دارد (بدونِ درختِ واقعیِ
+    parent/child)، پس `querySelector` فقط `#id` را حل می‌کند، نه selectorِ
+    ترکیبی (`.chip.on`، `.titem .pend`). کدِ app.js خودش روی نبودِ این‌ها
+    fallback دارد (مثلاً stage/kind/priority پیش‌فرض می‌گیرند)، پس این
+    محدودیت کرش نمی‌سازد — فقط یعنی نمی‌توانیم چیپ‌ها را تست کنیم.
 """
 import json
 import os
@@ -41,12 +73,10 @@ STYLE_CSS = MINIAPP / "style.css"
 
 # ── لنگرهای یکتا ────────────────────────────────────────────────────────────
 # هرکدام دقیقاً یک بار در app.js می‌آید؛ جهش روی همین رشته‌ها تست را می‌کُشد.
-HEADER_LITERAL = '"X-Tg-Init-Data": window.Telegram?.WebApp?.initData || ""'
-PAINT_GUARD = 'if(activeTab !== tab) return false;'
-TRISTATE_FALLBACK = 'return "unknown";     // شکِ باقی‌مانده = unknown، هرگز ok'
-PALETTE_GATE = 'if(COMMANDS[i].mutating && devMode) return false;'
-SINGLE_POST_SITE = 'return apiPost("/api/actions", {action:action, payload:payload})'
-COALESCE = 'if(inflight[path]) return inflight[path];'
+# (نسخهٔ ۰۸-۰۳: HEADER_LITERAL شکلِ inline ِ `if(tg && tg.initData)` داشت؛
+# حالا داخلِ helper ِ `tgHeaders()` است.)
+HEADER_LITERAL = 'h["X-Tg-Init-Data"] = tg.initData;'
+SINGLE_POST_SITE = 'apiPost("/api/actions", {action:action, payload:payload||{},'
 
 _SRC_CACHE = {}
 
@@ -66,11 +96,23 @@ def _reset_src_cache():
 # یک DOM ِ کوچک ولی صادق: innerHTML واقعاً ذخیره می‌شود، id ها از همان HTML
 # برداشت می‌شوند (پس اگر app.js فرمی نسازد، دکمه‌اش هم پیدا نمی‌شود)، و fetch
 # هر فراخوانی را با هدرهایش ثبت می‌کند.
+#
+# ⚠️ ۰۸-۰۶ — دو اضافه نسبت به نسخهٔ قبلی، هر دو زیرساختیِ عمومی‌اند (نه
+# متعلق به یک ویژگیِ خاص): `querySelectorAll`/`querySelector`/`appendChild`
+# روی El و `querySelector`/`createElement`/`body` روی document. app.js ِ
+# جدید این‌ها را همه‌جا صدا می‌زند (renderLeadOps/renderTasks/toast/…)؛
+# نسخهٔ قبلیِ درایور اصلاً نداشتشان، پس **هر** سناریویی که یک بار render("home")
+# را رد می‌کرد (یعنی همه‌شان) با `TypeError: el.querySelectorAll is not a
+# function` کرش می‌کرد — یک باگِ زیرساختیِ درایور، نه چیزی دربارهٔ app.js.
+# پیاده‌سازی عمداً مینیمال است: چون این DOM ِ مسطح درختِ parent/child واقعی
+# ندارد، `querySelector`/`querySelectorAll` فقط `#id` را حل می‌کنند (از
+# رجیستریِ سراسری‌ای که harvest() پر می‌کند) و برای هر selector ِ دیگر
+# (کلاس، ترکیبی) امن و بی‌کرش خالی/null برمی‌گردانند — دقیقاً همان رفتاری که
+# یک DOM ِ واقعی روی چیزی که پیدا نمی‌کند دارد (نه throw).
 _DRIVER = r"""
 "use strict";
 const fs = require("fs");
 const APP = process.argv[2], INDEX = process.argv[3], SCENARIO = process.argv[4], FIXTURE = process.argv[5];
-const SUBARG = process.argv[5] || "";
 const out = {scenario: SCENARIO};
 
 const registry = new Map();
@@ -94,10 +136,22 @@ Object.defineProperty(El.prototype, "innerHTML", {
 });
 El.prototype.setAttribute = function(k, v){ this._attrs[k] = String(v); };
 El.prototype.getAttribute = function(k){ return this._attrs[k] === undefined ? null : this._attrs[k]; };
+El.prototype.removeAttribute = function(k){ delete this._attrs[k]; };
 El.prototype.addEventListener = function(t, f){ (this._listeners[t] = this._listeners[t] || []).push(f); };
 El.prototype.dispatch = function(t, ev){ (this._listeners[t] || []).forEach(f => f(ev || {})); };
 El.prototype.focus = function(){ focusLog.push(this.id); };
 El.prototype.closest = function(sel){ const c = String(sel).replace(/^\./, ""); return this.classList.contains(c) ? this : null; };
+// ── DOM ِ مسطح: فقط #id حل می‌شود؛ بقیه امن و خالی برمی‌گردد ────────────
+El.prototype.querySelectorAll = function(_sel){ return []; };
+El.prototype.querySelector = function(sel){
+  const m = /^#([A-Za-z0-9_-]+)$/.exec(String(sel || "").trim());
+  return m && registry.has(m[1]) ? registry.get(m[1]) : null;
+};
+El.prototype.appendChild = function(child){
+  this.children.push(child);
+  if(child && child.id) registry.set(child.id, child);
+  return child;
+};
 
 function ensure(id, cls){ if(!registry.has(id)) registry.set(id, new El(id, cls)); return registry.get(id); }
 function harvest(html){
@@ -130,8 +184,14 @@ const documentStub = {
   _listeners: {},
   getElementById(id){ return registry.has(id) ? registry.get(id) : null; },
   addEventListener(t, f){ (this._listeners[t] = this._listeners[t] || []).push(f); },
-  dispatch(t, ev){ (this._listeners[t] || []).forEach(f => f(ev || {})); }
+  dispatch(t, ev){ (this._listeners[t] || []).forEach(f => f(ev || {})); },
+  querySelector(sel){
+    const m = /^#([A-Za-z0-9_-]+)$/.exec(String(sel || "").trim());
+    return m && registry.has(m[1]) ? registry.get(m[1]) : null;
+  },
+  createElement(_tag){ return new El("", ""); }
 };
+documentStub.body = new El("", "");
 
 function resp(status, body){
   return {ok: status >= 200 && status < 300, status: status, json: () => Promise.resolve(body)};
@@ -148,20 +208,29 @@ function fetchStub(url, opts){
 }
 
 const windowStub = {localStorage: localStorage, Telegram: undefined};
-const flush = async (n) => { for(let i = 0; i < (n || 12); i++){ await new Promise(r => setImmediate(r)); } };
-
-const STATE_OK = {status: "ok", halted: false, frozen: false, beat: 23091,
-  epoch_mode: "allostatic", ts: nowIso(), month: {key: "2026-08"}, conflicts: [],
-  active_flags: {OCTOPUS_WIRE_TG_CONTROL: true, OCTOPUS_WIRE_LEAD_OUTBOUND_WAL: true, OCTOPUS_WIRE_VALUE_LEDGER: true},
-  auth_status: "configured", miniapp_url_configured: true, commit: "abc1234"};
-const OPS_BARE = {status: "ok", leads_total: 3, tasks_total: 1, value_events_total: 0,
-  lead_stages: {new: 3}, task_status: {open: 1}, value_events_per_leg: {}};
+const flush = async (n) => { for(let i = 0; i < (n || 16); i++){ await new Promise(r => setImmediate(r)); } };
 
 function nowIso(){
   const d = new Date(), p = n => (n < 10 ? "0" : "") + n;
   return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T" +
          p(d.getHours()) + ":" + p(d.getMinutes()) + ":" + p(d.getSeconds());
 }
+
+// ── فیکسچرهای مشترک — شکلِ فعلیِ هر مسیر، نه شکلِ قدیمیِ /api/ops ──────────
+const STATE_OK = {status: "ok", halted: false, frozen: false, beat: 23091,
+  epoch_mode: "allostatic", ts: nowIso(), month: {key: "2026-08"}, conflicts: [],
+  active_flags: {OCTOPUS_WIRE_TG_CONTROL: true}, auth_status: "configured",
+  miniapp_url_configured: true, commit: "abc1234",
+  cardiac: {status: "ok", pct: 10, cap: 100, spent: 10, depleted: false, resting: false},
+  arbiter: {color: "GREEN"}, recall_reach: {events: 1, reach_median: 1},
+  germline_alert: "ok", germline_lag_h: 0.1};
+const APPROVALS_OK = {status: "ok", pending: [], count: 0, decisions: []};
+const TASKS_OK = {status: "ok", tasks_total: 0, task_status: {}, items: []};
+const GOVERNOR_OK = {policy_doc: "x", canonical_provider: "y",
+  canonical_choke_point: "z", drift_status: {status: "aligned", declared_paths: []}};
+const OBSIDIAN_OK = {missing: [], checked: 5};
+const LEGS_OK = {status: "ok", legs: {lead: {live: true}}};
+const LEADS_OK = {status: "ok", leads_total: 0, lead_stages: {}, items: []};
 
 function boot(){
   const code = fs.readFileSync(APP, "utf8");
@@ -170,6 +239,13 @@ function boot(){
 }
 function withOwner(){ windowStub.Telegram = {WebApp: {initData: "INIT_DATA_TOKEN_XYZ", expand(){}, setHeaderColor(){}}}; }
 function html(id){ const e = registry.get(id); return e ? e.innerHTML : null; }
+// تبی که با stack() ساخته می‌شود (approvals/money/leads/system) محتوایش را
+// در sec0..secN می‌گذارد، نه در content مستقیم — home تنها استثناست.
+function stackContent(){
+  let s = "", i = 0;
+  while(registry.has("sec" + i)){ s += (registry.get("sec" + i).innerHTML || ""); i++; }
+  return s;
+}
 function clickTab(key){
   const t = tabsEl.children.filter(x => x.getAttribute("data-tab") === key)[0];
   tabsEl.dispatch("click", {target: t});
@@ -179,252 +255,81 @@ function clickTab(key){
 try {
   if(SCENARIO === "header"){
     withOwner();
-    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: OPS_BARE}};
+    routes = {"/api/state": {body: STATE_OK}, "/api/approvals": {body: APPROVALS_OK},
+              "/api/ops/tasks": {body: TASKS_OK}, "/api/governor": {body: GOVERNOR_OK},
+              "/api/obsidian": {body: OBSIDIAN_OK}, "/api/legs": {body: LEGS_OK}};
     boot(); await flush();
     out.fetch_count = fetchLog.length;
     out.headers = fetchLog.map(f => f.headers["X-Tg-Init-Data"]);
     out.urls = fetchLog.map(f => f.url);
   }
 
-  else if(SCENARIO === "unknown_not_green"){
-    withOwner();
-    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: OPS_BARE}};
-    boot(); await flush();
-    out.content = html("content");
-  }
-
-  else if(SCENARIO === "degraded_and_ok"){
-    withOwner();
-    const ops = Object.assign({}, OPS_BARE, {
-      brain: {status: "ok", detail: "4d online"},
-      governor: {status: "degraded", detail: "budget tight"},
-      obsidian: {status: "ok", detail: "vault synced"},
-      next_steps: {followups_due: 2, leads_needing_stage: 0, drafts_pending: 0, consolidation_stale_days: 0}});
-    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: ops}};
-    boot(); await flush();
-    out.content = html("content");
-  }
-
-  else if(SCENARIO === "live_payload"){
-    // fixture از خروجیِ **واقعیِ** miniapp_state.dispatch_api می‌آید، نه از
-    // چیزی که من حدس زده‌ام. اگر لِینِ read-model شکلِ داده را عوض کند، این
-    // سناریو همان لحظه می‌ترکد.
-    withOwner();
-    const fx = JSON.parse(fs.readFileSync(FIXTURE, "utf8"));
-    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: fx.ops},
-              "/api/ops/brain": {body: fx.sub_brain}};
-    boot(); await flush();
-    out.content = html("content");
-    windowStub.__cockpit.gotoTab("brain"); await flush();
-    out.brain_tab = html("content");
-    windowStub.__cockpit.gotoTab("next"); await flush();
-    out.next_tab = html("content");
-    windowStub.__cockpit.gotoTab("governor"); await flush();
-    out.governor_tab = html("content");
-  }
-
-  else if(SCENARIO === "envelope_status_must_not_leak"){
-    // پاکتِ زیرمسیر status:"ok" دارد ولی محتوایش available:false است.
-    withOwner();
-    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: OPS_BARE},
-              "/api/ops/brain": {body: {status: "ok", section: "brain",
-                                        brain: {available: false, reason: "daemon_state.json غایب"}}}};
-    boot(); await flush();
-    windowStub.__cockpit.gotoTab("brain"); await flush();
-    out.brain_tab = html("content");
-  }
-
-  else if(SCENARIO === "section_present_without_status"){
-    withOwner();
-    // بخش **هست** ولی هیچ کلیدِ status/state/health ندارد. این حالت با «بخش
-    // نیست» فرق دارد و مسیرِ کدِ دیگری را می‌رود — پس تستِ خودش را می‌خواهد.
-    const ops = Object.assign({}, OPS_BARE, {
-      brain: {detail: "some detail, no status key"},
-      governor: {status: "ok"},
-      obsidian: {note: "no status here either"}});
-    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: ops}};
-    boot(); await flush();
-    out.content = html("content");
-  }
-
-  else if(SCENARIO === "partial_next_is_not_allclear"){
-    withOwner();
-    const ops = Object.assign({}, OPS_BARE, {next_steps: {followups_due: 0, drafts_pending: 0}});
-    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: ops}};
-    boot(); await flush();
-    out.content = html("content");
-  }
-
-  else if(SCENARIO === "readonly"){
-    windowStub.Telegram = undefined;                 // بدونِ initData
-    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: OPS_BARE}};
-    boot(); await flush();
-    out.warn = html("warn");
-    clickTab("studio"); await flush();
-    out.content = html("content");
-    out.palette_gate_blocked = (windowStub.__cockpit.runCommand("lead.create") === false);
-    out.readonly_cmd_ok = (windowStub.__cockpit.runCommand("brain.status") === true);
-  }
-
-  else if(SCENARIO === "owner_actions"){
-    withOwner();
-    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: OPS_BARE},
-              "/api/actions": {body: {ok: true, status: "APPLIED", lead_id: "lead:1"}}};
-    boot(); await flush();
-    clickTab("studio"); await flush();
-    out.content = html("content");
-    const btn = registry.get("leadCreate");
-    out.button_found = !!btn;
-    const handle = registry.get("leadHandle"); if(handle) handle.value = "@someone";
-    if(btn) btn.dispatch("click", {});
-    await flush();
-    const posts = fetchLog.filter(f => f.method === "POST");
-    out.post_count = posts.length;
-    out.post_urls = posts.map(p => p.url);
-    out.post_bodies = posts.map(p => p.body);
-    out.post_headers = posts.map(p => p.headers["X-Tg-Init-Data"]);
-    out.result_text = registry.get("leadResult") ? registry.get("leadResult").textContent : null;
-  }
-
-  else if(SCENARIO === "paint_guard"){
-    withOwner();
-    let releaseState = null;
-    routes = {
-      "/api/state": () => new Promise(r => { releaseState = () => r(resp(200, STATE_OK)); }),
-      "/api/ops": {body: OPS_BARE},
-      "/api/legs": {body: {status: "ok", legs: {lead: {live: true, signal: "sig-lead"}}}}
-    };
-    boot();                       // renderHome شروع شد ولی /api/state معلق است
-    clickTab("legs"); await flush();
-    out.after_switch = html("content");
-    if(releaseState) releaseState();
-    await flush(20);
-    out.after_late_resolve = html("content");
-  }
-
-  else if(SCENARIO === "coalesce"){
-    withOwner();
-    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: OPS_BARE}};
-    boot();                       // home: /api/state + /api/ops
-    clickTab("studio");           // studio: همان دو مسیر، در همان tick
-    await flush();
-    const c = {};
-    fetchLog.forEach(f => { c[f.url] = (c[f.url] || 0) + 1; });
-    out.counts = c;
-  }
-
-  else if(SCENARIO === "stale_cache"){
-    withOwner();
-    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: OPS_BARE}};
-    boot(); await flush();
-    out.fresh = html("content");
-    routes = {"/api/state": "throw", "/api/ops": "throw"};
-    windowStub.__cockpit.gotoTab("home"); await flush();
-    out.stale = html("content");
-    out.cache_key_present = store.has("octopus.cockpit.cache.v1");
-  }
-
-  else if(SCENARIO === "sub_endpoint_probe_once"){
-    withOwner();
-    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: OPS_BARE}};  // زیرمسیرها = 404
-    boot(); await flush();
-    windowStub.__cockpit.gotoTab("brain"); await flush();
-    out.brain_1 = html("content");
-    windowStub.__cockpit.gotoTab("home"); await flush();
-    windowStub.__cockpit.gotoTab("brain"); await flush();
-    out.brain_probe_calls = fetchLog.filter(f => f.url === "/api/ops/brain").length;
-    out.brain_2 = html("content");
-  }
-
-  else if(SCENARIO === "palette_html"){
-    withOwner();
-    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: OPS_BARE}};
-    boot(); await flush();
-    registry.get("paletteBtn").dispatch("click", {});
-    out.palette = html("palette");
-    out.palette_class = registry.get("palette").className;
-    // کلیکِ واقعی روی یک آیتم از مسیرِ delegation
-    const item = {getAttribute: k => (k === "data-cmd" ? "brain.status" : null),
-                  closest: sel => (sel === ".pal-item" ? item : null)};
-    registry.get("palette").dispatch("click", {target: item});
-    await flush();
-    out.after_item_click = html("content");
-    out.palette_after = html("palette");
-    out.post_count = fetchLog.filter(f => f.method === "POST").length;
-    // Ctrl+K
-    documentStub.dispatch("keydown", {ctrlKey: true, key: "k", preventDefault(){}});
-    out.palette_after_ctrlk = registry.get("palette").className;
-  }
-
   else if(SCENARIO === "no_post_on_render"){
     withOwner();
-    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: OPS_BARE},
-              "/api/outbound": {body: {status: "ok", counts: {sent: 1}, total: 1}},
-              "/api/approvals": {body: {status: "ok", pending: [], count: 0}},
-              "/api/legs": {body: {status: "ok", legs: {}}},
-              "/api/value": {body: {status: "ok", events_per_leg: {}, total: 0}},
-              "/api/ui-registry": {body: {items: []}},
-              "/api/current-truth": {body: {status: "ok", preview: "x"}}};
+    routes = {"/api/state": {body: STATE_OK}, "/api/approvals": {body: APPROVALS_OK},
+              "/api/ops/tasks": {body: TASKS_OK}, "/api/governor": {body: GOVERNOR_OK},
+              "/api/obsidian": {body: OBSIDIAN_OK}, "/api/legs": {body: LEGS_OK},
+              "/api/ops/leads": {body: LEADS_OK}};
     boot(); await flush();
     for(const k of out.tab_keys){ clickTab(k); await flush(); }
     out.post_count = fetchLog.filter(f => f.method === "POST").length;
     out.rendered_tabs = out.tab_keys.length;
   }
 
-  else if(SCENARIO === "stale_beat_is_degraded"){
+  else if(SCENARIO === "owner_actions"){
     withOwner();
-    const old = Object.assign({}, STATE_OK, {ts: "2020-01-01T00:00:00"});
-    routes = {"/api/state": {body: old}, "/api/ops": {body: OPS_BARE}};
+    routes = {"/api/state": {body: STATE_OK}, "/api/ops/leads": {body: LEADS_OK},
+              "/api/ops/tasks": {body: TASKS_OK},
+              "/api/actions": {body: {ok: true, status: "APPLIED", lead_id: "lead:1"}}};
     boot(); await flush();
-    out.content = html("content");
+
+    clickTab("leads"); await flush();
+    const handle = registry.get("nlHandle"); if(handle) handle.value = "@someone";
+    const nlGo = registry.get("nlGo");
+    out.lead_button_found = !!nlGo;
+    if(nlGo) nlGo.dispatch("click", {});
+    await flush();
+
+    clickTab("tasks"); await flush();
+    const title = registry.get("ntTitle"); if(title) title.value = "پیگیریِ لید";
+    const ntGo = registry.get("ntGo");
+    out.task_button_found = !!ntGo;
+    if(ntGo) ntGo.dispatch("click", {});
+    await flush();
+
+    const posts = fetchLog.filter(f => f.method === "POST");
+    out.post_count = posts.length;
+    out.post_urls = posts.map(p => p.url);
+    out.post_bodies = posts.map(p => p.body);
+    out.post_headers = posts.map(p => p.headers["X-Tg-Init-Data"]);
   }
 
-  else if(SCENARIO === "state_error_is_unknown"){
-    withOwner();
-    routes = {"/api/state": {status: 500, body: {status: "error"}}, "/api/ops": {status: 500, body: {}}};
-    boot(); await flush();
-    out.content = html("content");
-  }
-
-  else if(SCENARIO === "honesty_edges"){
-    // چهار لبهٔ صداقت که هیچ سناریوی دیگری لمس نمی‌کند، در یک بار:
-    //  · بخشی که **آرایه** است (فهرست یک وضعیت نیست) ⇒ نامعلوم، نه سبز
-    //  · obsidian با نُتِ غایب ⇒ degraded — شکلِ زندهٔ امروز missing_count=0
-    //    است، پس شاخهٔ «بد» را هیچ فیکسچرِ زنده‌ای نمی‌سنجد
-    //  · read-only + بک‌اندِ configured ⇒ Owner Auth هرگز «سالم» نیست
-    //  · مقدارِ آمده از بک‌اند با markup ⇒ escape‌شده رندر شود
+  else if(SCENARIO === "readonly_no_client_gate"){
+    // بدونِ initData ِ تلگرام. سؤال: آیا کلاینت خودش دکمه را قفل می‌کند؟
     windowStub.Telegram = undefined;
-    const ops = Object.assign({}, OPS_BARE, {
-      brain: ["step-1", "step-2"],
-      obsidian: {missing_count: 3, checked: 11},
-      governor: {detail: '<img src=x onerror="boom()">&<b>bold</b>'}});
-    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: ops}};
+    routes = {"/api/state": {body: STATE_OK}, "/api/ops/leads": {body: LEADS_OK},
+              "/api/actions": {body: {ok: true, status: "APPLIED"}}};
     boot(); await flush();
-    out.content = html("content");
+    clickTab("leads"); await flush();
+    out.leads_tab_html = stackContent();
+    const handle = registry.get("nlHandle"); if(handle) handle.value = "@readonly";
+    const nlGo = registry.get("nlGo");
+    out.lead_button_found = !!nlGo;
+    if(nlGo) nlGo.dispatch("click", {});
+    await flush();
+    const posts = fetchLog.filter(f => f.method === "POST");
+    out.post_count = posts.length;
+    out.post_headers = posts.map(p => p.headers["X-Tg-Init-Data"]);
   }
 
-  else if(SCENARIO === "error_body_is_not_cached"){
-    // پاسخِ HTTP 200 با بدنهٔ {status:"error"} یک پاسخِ **سالم** نیست. اگر کش
-    // شود، دفعهٔ بعد با برچسبِ «آخرین به‌روزرسانیِ سالم» بازپخش می‌شود — یعنی
-    // خطا به‌عنوانِ آخرین حالتِ خوب به مالک نشان داده می‌شود.
+  else if(SCENARIO === "governor_escape"){
     withOwner();
     routes = {"/api/state": {body: STATE_OK},
-              "/api/ops": {body: {status: "error", reason: "ops_boom_marker"}}};
+              "/api/governor": {body: Object.assign({}, GOVERNOR_OK,
+                {policy_doc: '<img src=x onerror="boom()">&<b>bold</b>'})}};
     boot(); await flush();
-    out.cache_raw = store.get("octopus.cockpit.cache.v1") || "";
-  }
-
-  else if(SCENARIO === "deep_link"){
-    // دکمهٔ web_app یِ `/ops` مینی‌اپ را با `#tab=` باز می‌کند. سه حالت:
-    // کلیدِ معتبر ⇒ همان تب؛ کلیدِ جعلی ⇒ home؛ بدونِ فرگمنت ⇒ home.
-    withOwner();
-    routes = {"/api/state": {body: STATE_OK}, "/api/ops": {body: OPS_BARE}};
-    windowStub.location = {hash: SUBARG || ""};
-    boot(); await flush();
-    out.content = html("content");
-    out.boot_tab = windowStub.__cockpit.bootTab();
-    out.tab_active = tabsEl.children.filter(x => x.classList.contains("active"))
-                                    .map(x => x.getAttribute("data-tab"));
+    clickTab("system"); await flush();
+    out.system_tab_html = stackContent();
   }
 
   else { out.error = "unknown scenario"; }
@@ -469,99 +374,130 @@ def run_scenario(name: str, app_js: "Path | None" = None,
     return d
 
 
-TILE_RE = re.compile(
-    r'<div class="tile st-(?P<cls>[a-z]+)"><div class="tl">(?P<label>[^<]+)</div>'
-    r'<div class="tb"><span class="badge (?P<badge>[a-z]+)" data-state="(?P<state>[a-z]+)"')
-
-
-def tiles(html: str) -> dict:
-    return {m.group("label"): (m.group("cls"), m.group("badge"), m.group("state"))
-            for m in TILE_RE.finditer(html or "")}
-
-
 # ══ لایهٔ ۱: ناوردای متنی ═══════════════════════════════════════════════════
 
 def t_a_the_init_data_header_literal_survives_verbatim():
     """قراردادِ غیرقابلِ‌مذاکره: هدر دقیقاً به همین شکل نوشته شده باشد.
 
-    شکلِ قدیمی (`if(tg && tg.initData)`) هدر را وقتی خالی بود اصلاً نمی‌فرستاد؛
-    شکلِ جدید همیشه می‌فرستد (رشتهٔ خالی) و gateway هم `or ""` می‌کند — پس
-    رفتار یکی است ولی قرارداد صریح و گرپ‌شدنی."""
+    شکلِ ۰۸-۰۳ (`if(tg && tg.initData)` بی‌واسطه) با helper ِ `tgHeaders()`
+    جایگزین شده؛ رفتار یکی است (هدر فقط وقتی initData هست فرستاده می‌شود)
+    ولی قرارداد صریح و گرپ‌شدنی است."""
     s = src(APP_JS)
+    assert "function tgHeaders(" in s, "helper ِ tgHeaders حذف شده"
     assert HEADER_LITERAL in s, "لیترالِ هدرِ X-Tg-Init-Data از app.js حذف/تغییر کرده"
     assert s.count('"X-Tg-Init-Data"') == 1, "هدر باید فقط یک نقطهٔ تعریف داشته باشد"
 
 
-def t_b_three_state_helpers_exist_and_unknown_is_not_green():
+def t_b_the_tristate_helper_never_renders_unknown_as_green():
+    """۰۸-۰۳: `triState`/`badge3`/`badgeClass` — هیچ‌کدام دیگر در app.js نیست
+    (grep تأیید کرد: صفر رخداد برای هر سه). جانشین‌شان `tri()` است: یک
+    تابعِ سه‌حالتیِ واحد که null/undefined را به بجِ «unknown» می‌برد، نه به
+    yes/no. این تست معادلِ تازه را می‌سنجد، نه اسمِ کهنه را."""
     s = src(APP_JS)
-    assert "function triState(" in s, "helper ِ سه‌حالته نیست"
-    assert "function badge3(" in s and "function badgeClass(" in s
-    assert TRISTATE_FALLBACK in s, "پیش‌فرضِ triState دیگر unknown نیست"
-    # badgeClass هرگز برای حالتِ غیرِ ok کلاسِ سبز ندهد
-    m = re.search(r"function badgeClass\(state\)\{(.*?)\n  \}", s, re.S)
-    assert m, "badgeClass پیدا نشد"
+    for dead in ("function triState(", "function badge3(", "function badgeClass("):
+        assert dead not in s, f"{dead} برگشته؟ این تست باید آپدیت شود، نه اینکه صرفاً پاس کند"
+    assert "function tri(" in s, "helper ِ سه‌حالتیِ جانشین (tri) نیست"
+    m = re.search(r"function tri\(v, yes, no\)\{(.*?)\n  \}", s, re.S)
+    assert m, "بدنهٔ tri() پیدا نشد"
     body = m.group(1)
-    assert 'if(state === "ok") return "live";' in body
-    assert body.rstrip().endswith('return "unknown";     // کلاسِ خاکستریِ خط‌چین — هیچ‌وقت سبز') or \
-        'return "unknown";' in body.split('if(state === "degraded")')[-1], "شاخهٔ پیش‌فرضِ badgeClass unknown نیست"
+    assert 'if(v===null||v===undefined) return \'<span class="badge unknown">' in body, \
+        "tri() دیگر null/undefined را به بجِ unknown نمی‌برد"
     css = src(STYLE_CSS)
     assert ".badge.unknown{" in css, "کلاسِ unknown در CSS تعریف نشده"
-    assert "var(--green)" not in css.split(".badge.unknown{")[1].split("}")[0], \
-        "کلاسِ unknown سبز رنگ شده — دقیقاً همان حالتِ شکست"
+    unk_blocks = re.findall(r"\.badge\.unknown\{([^}]*)\}", css)
+    assert unk_blocks, "بدنهٔ .badge.unknown پیدا نشد"
+    for blk in unk_blocks:
+        assert "--cyan" not in blk and "--green" not in blk, \
+            "کلاسِ unknown رنگِ زنده گرفته — دقیقاً همان حالتِ شکست"
 
 
-def t_c_paint_is_guarded_by_the_active_tab():
+def t_c_panel_guard_never_lets_bad_or_missing_data_render_as_healthy():
+    """۰۸-۰۳ این قاعده را با ~۱۰ سناریوی جدا روی `/api/ops` ِ ترکیبی می‌سنجید
+    (unknown_not_green، degraded_and_ok، section_present_without_status، …).
+    آن endpoint دیگر از UI صدا زده نمی‌شود (grep: صفر `api("/api/ops")` ِ
+    بدونِ زیرمسیر در app.js فعلی) — یعنی آن ده سناریو موضوعِ صداکننده‌شان را
+    از دست داده‌اند، نه معادلی دارند که بشود لنگرِ تازه رویش گذاشت.
+
+    قاعده‌ای که آن ده سناریو می‌سنجیدند («status:error/unknown هرگز سبز
+    نمی‌شود») امروز در یک گاردِ **مشترک** برای همهٔ پنل‌های تازه متمرکز شده:
+    `panelGuard()`. این تست همان قاعده را روی خودِ گارد می‌سنجد — ارزان‌تر
+    از اجرای Node با فیکسچرهای per-endpoint، و چون یک گاردِ واحد است (نه ده
+    وصلهٔ موردی)، یک تست کلِ چهار مسیرِ مصرف‌کننده‌اش (brain/governor/
+    obsidian/registry) را می‌پوشاند."""
     s = src(APP_JS)
-    assert PAINT_GUARD in s, "گاردِ «فقط تبِ فعال نقاشی می‌شود» نیست"
-    # هیچ رندری نباید مستقیم به content.innerHTML بنویسد جز مسیرهای مجاز
-    direct = re.findall(r"content\.innerHTML\s*=", s)
-    assert len(direct) == 2, (
-        f"نوشتنِ مستقیم روی content.innerHTML باید فقط در paint() و showSkeleton() باشد؛ {len(direct)} مورد پیدا شد")
+    m = re.search(r"function panelGuard\(title, d\)\{(.*?)\n  \}", s, re.S)
+    assert m, "panelGuard() پیدا نشد"
+    body = m.group(1)
+    for bad_status in ('s === "error"', 's === "unknown_schema"', 's === "unknown"',
+                       's === "disabled"', 's === "not_found"'):
+        assert bad_status in body, f"panelGuard دیگر {bad_status} را نمی‌شناسد"
+    # هیچ‌کدام از شاخه‌های بد نباید کلاسِ «زنده» (live) بدهند
+    for m2 in re.finditer(r'pill\("[^"]*",\s*"([a-z]+)"\)', body):
+        assert m2.group(1) != "live", "شاخهٔ دادهٔ بد/نامعلوم رنگِ live گرفته"
+    assert body.rstrip().endswith("return null;"), \
+        "شاخهٔ پیش‌فرضِ panelGuard دیگر null نیست — یعنی داده ممکن است بی‌بررسی رد شود"
+    consumers = ["renderBrain(", "renderGovernor(", "renderObsidian(", "renderRegistry("]
+    for c in consumers:
+        assert c in s, f"{c} حذف شده"
+    for c in consumers:
+        fn_m = re.search(re.escape(c) + r"el\)\{(.*?)\n  \}", s, re.S)
+        assert fn_m and "panelGuard(" in fn_m.group(1), \
+            f"{c} دیگر از panelGuard رد نمی‌شود — می‌تواند دادهٔ بد را سبز نشان دهد"
 
 
-def t_d_every_mutation_goes_through_one_owner_gated_call_site():
+def t_d_every_mutation_targets_the_one_gated_endpoint():
+    """۰۸-۰۳ فرض می‌کرد `apiPost` دقیقاً یک صداکننده دارد (از راهِ `act()`)
+    و یک `PALETTE_GATE` جدا برای پالت. هر دو دیگر درست نیست:
+
+      · پالت از app.js حذف شده (grep: صفر «palette»/«Palette») — چیزی برای
+        گیت‌کردن نمانده.
+      · `apiPost` امروز ۳ صداکننده دارد، نه ۱: `act()` (مسیرِ زنده — همهٔ
+        شش اقدامِ allowlist‌شده از این‌جا رد می‌شوند) + دو صداکنندهٔ داخلِ
+        `renderStudio` که **مردهٔ دست‌نخورده** است — تابعش هست ولی از جدولِ
+        `renderers` برداشته شده (کامنتِ خودِ فایل: «renderStudio از این‌جا
+        برداشته شد»)، پس هیچ تبی صدایش نمی‌زند. این تست آن دو را جدا
+        می‌کند: تأکید روی «همه به /api/actions می‌روند»، نه «فقط یک‌بار
+        تعریف شده‌اند» — چون دومی الان به‌خاطرِ کدِ مرده رد می‌شود، نه چون
+        قرارداد شکسته."""
     s = src(APP_JS)
-    assert SINGLE_POST_SITE in s, "تکْ‌نقطهٔ submitAction عوض شده"
-    assert s.count("apiPost(") == 2, "apiPost باید فقط یک تعریف و یک صداکننده داشته باشد"
-    assert s.count('apiPost("/api/actions"') == 1, "بیش از یک مسیرِ POST به /api/actions"
-    assert PALETTE_GATE in s, "گیتِ مالک داخلِ پالت نیست"
-    # هیچ متدِ POST/PUT/DELETE ِ دیگری در فایل نباشد
+    assert SINGLE_POST_SITE in s, "تکْ‌نقطهٔ act()->apiPost عوض شده"
+    calls = re.findall(r"apiPost\(\s*(\"[^\"]*\")", s)
+    assert calls, "هیچ فراخوانِ apiPost یافت نشد"
+    assert all(c == '"/api/actions"' for c in calls), \
+        f"یک apiPost به مسیرِ دیگری می‌رود: {sorted(set(calls))}"
+    assert "function renderStudio(" in s, \
+        "renderStudio حذف شده — اگر عمدی است این تست را به‌روز کن (دیگر کدِ مرده نیست)"
+    assert '"renderers = {' not in s.replace(" ", "")  # sanity: فقط برای اطمینان از فرمت
+    m = re.search(r"var renderers = \{([^}]*)\}", s)
+    assert m and "studio" not in m.group(1), \
+        "studio به جدولِ renderers برگشته — یعنی renderStudio دیگر مرده نیست، این تست باید عوض شود"
     for bad in ('method:"PUT"', 'method:"DELETE"', "method: 'POST'"):
         assert bad not in s, f"مسیرِ نوشتنِ دیگری در فرانت: {bad}"
 
 
-def t_e_readonly_and_disabled_paths_exist():
-    s = src(APP_JS)
-    assert "Read-only Mode — open from Telegram /ui to enable actions" in s, "متنِ read-only عوض شده"
-    assert "var dis = enabled ? '' : 'disabled';" in s, "مسیرِ disabled ِ کنترل‌ها نیست"
-    assert s.count("' "+"+dis+"+"'") >= 0  # noqa — فقط برای خوانایی
-    assert s.count("+dis+") >= 6, "همهٔ کنترل‌های تغییردهنده مسیرِ disabled ندارند"
-    css = src(STYLE_CSS)
-    assert "input:disabled" in css and "button:disabled" in css
-
-
-def t_f_perf_helpers_exist():
-    s = src(APP_JS)
-    assert COALESCE in s, "coalescing ِ درخواستِ همزمان نیست"
-    assert "REFRESH_DEBOUNCE_MS" in s and "function scheduleRefresh(" in s, "debounce نیست"
-    assert "function skeleton(" in s and "function showSkeleton(" in s, "skeleton نیست"
-    assert "CACHE_KEY_OPS" in s and "function cacheRead(" in s and "function cacheWrite(" in s, "کشِ محلی نیست"
-    assert "function staleNote(" in s and "last updated" in s, "برچسبِ «آخرین به‌روزرسانی» نیست"
-
-
-def t_g_index_html_has_every_required_tab_and_the_palette_button():
+def t_e_index_html_has_every_current_tab_and_the_gateway_injection_anchor():
+    """۰۸-۰۳ ۱۲ تب با برچسبِ انگلیسی می‌خواست (Cockpit/Ops/Brain/…) و یک
+    دکمه/ظرفِ پالت. هر دو دیگر واقعیت ندارند: تب‌ها ۶تا شده‌اند و برچسبِ
+    فارسی گرفته‌اند؛ پالت حذف شده. `</body>` نگه داشته شده چون هنوز واقعی
+    است — `miniapp_gateway.py` هنوز با `body.replace(b"</body>", …)` روی
+    همین لنگر اسنیپتِ initData را تزریق می‌کند (فایلِ دیگری، این‌جا فقط
+    وجودِ لنگر سنجیده می‌شود)."""
     h = src(INDEX_HTML)
-    for key in ("home", "studio", "brain", "governor", "obsidian", "next",
-                "outbound", "approvals", "legs", "value", "registry", "truth"):
+    tabs_fa = {"home": "خانه", "approvals": "تأییدها", "money": "پول",
+               "leads": "لیدها", "tasks": "کارها", "system": "سیستم"}
+    for key, label in tabs_fa.items():
         assert f'data-tab="{key}"' in h, f"تبِ {key} در index.html نیست"
-    for label in ("Cockpit", "Ops", "Brain", "Governor", "Obsidian", "Next",
-                  "Outbound", "Approvals", "Legs", "Value", "UI Registry", "Truth"):
-        assert f">{label}</div>" in h, f"برچسبِ تبِ {label} نیست"
-    assert 'id="paletteBtn"' in h and 'id="palette"' in h, "دکمه/ظرفِ پالت نیست"
-    assert "</body>" in h, "gateway اسنیپتِ initData را قبل از </body> تزریق می‌کند"
+        assert f'>{label}</div>' in h, f"برچسبِ فارسیِ تبِ {key} ({label}) نیست"
+    for dead_key in ("studio", "brain", "governor", "obsidian", "next",
+                     "outbound", "legs", "value", "registry", "truth"):
+        assert f'data-tab="{dead_key}"' not in h, \
+            f"تبِ {dead_key} برگشته — اگر عمدی است این تست را به‌روز کن"
+    assert "paletteBtn" not in h and 'id="palette"' not in h, \
+        "دکمه/ظرفِ پالت برگشته — اگر عمدی است این تست را به‌روز کن"
+    assert "</body>" in h, "لنگرِ تزریقِ initData ِ gateway از بین رفته"
 
 
-def t_h_no_secret_value_lands_in_the_frontend():
+def t_f_no_secret_value_lands_in_the_frontend():
     """نامِ متغیرِ محیطی مجاز است (مالک باید بداند کدام env را ست کند)؛
     **مقدار** هرگز. پس این تست دنبالِ الگویِ مقدار و انتساب می‌گردد، نه نام.
 
@@ -581,310 +517,113 @@ def t_h_no_secret_value_lands_in_the_frontend():
 
 
 # ══ لایهٔ ۲: اجرای واقعی در Node ════════════════════════════════════════════
+#
+# ۰۸-۰۳ حدودِ ۲۰ سناریو داشت — بیشترشان روی زیرساختی می‌ایستادند که دیگر
+# نیست: `window.__cockpit` (gotoTab/runCommand/bootTab برای پالت و
+# دیپ‌لینک)، کشِ localStorage با برچسبِ stale، coalescing (`inflight`)،
+# debounce، و گریدِ tile ِ `/api/ops`. هر پنج‌تا با grep روی app.js صفر
+# رخداد دادند. حذف شدند، نه بازنویسی — چون بازنویسیِ صادقانه یعنی ساختنِ
+# fixture برای ~۱۵ endpoint ِ جدا و یک موتورِ selector ِ واقعی برای DOM
+# (این درایور درختِ parent/child ندارد)، که خودش یک پروژهٔ جداست، نه رفعِ
+# لنگرِ حرفی. فهرستِ دقیق:
+#   · پالت/Ctrl+K (palette_html) — عنصر از UI حذف شده.
+#   · دیپ‌لینکِ #tab= (deep_link) — window.location/hash هیچ‌جا خوانده نمی‌شود.
+#   · کشِ محلی + برچسبِ stale (stale_cache، error_body_is_not_cached) —
+#     صفر رخداد برای localStorage.setItem/getItem در app.js.
+#   · coalescing/debounce (coalesce) — صفر رخداد برای inflight/
+#     REFRESH_DEBOUNCE_MS/scheduleRefresh.
+#   · نقاشیِ دیرهنگام روی تبِ عوض‌شده (paint_guard) — هیچ render ِ فعلی
+#     چک نمی‌کند که تبش هنوز فعال است؛ این گارد واقعاً از کد رفته (نه
+#     فقط لنگرش)، یعنی یک واپس‌روی است، ولی رفعش کارِ app.js است نه تست.
+#   · گریدِ `<div class="tile st-X">` روی `/api/ops` ِ ترکیبی (unknown_
+#     not_green، degraded_and_ok، section_present_without_status،
+#     partial_next_is_not_allclear، stale_beat_is_degraded، state_error_
+#     is_unknown، sub_endpoint_probe_once، honesty_edges، live_payload،
+#     envelope_status_must_not_leak) — این ده‌تا یک واحد بودند چون همه از
+#     همان یک endpoint می‌خواندند؛ قاعدهٔ مشترک‌شان («بد/نامعلوم هرگز سبز
+#     نمی‌شود») در لایهٔ ۱ به‌عنوانِ t_c روی panelGuard() نگه داشته شد.
+#
+# نگه‌داشته/جایگزین‌شده: هدر-روی-هر-درخواست، رندرِ صرف بدونِ POST، تکْ‌نقطهٔ
+# اقدامِ مالک (حالا با دو اقدامِ واقعی: lead.create/task.create)، و escape
+# — به‌علاوهٔ یک تستِ تازه که رفتارِ **واقعیِ** امروز را دربارهٔ read-only
+# مستند می‌کند (چون بنرِ متنیِ قدیمی دیگر در مسیرِ زنده نیست).
 
-def t_i_the_header_is_on_every_single_request():
+def t_g_the_header_is_on_every_single_request():
     d = run_scenario("header")
-    assert d["fetch_count"] >= 2, d
+    assert d["fetch_count"] >= 6, d  # viewHome تنها خودش شش مسیر می‌خواند
     assert all(h == "INIT_DATA_TOKEN_XYZ" for h in d["headers"]), d["headers"]
-    assert "/api/state" in d["urls"] and "/api/ops" in d["urls"], d["urls"]
+    assert "/api/state" in d["urls"], d["urls"]
 
 
-def t_j_missing_sections_render_unknown_never_green():
-    """قلبِ ماجرا: /api/ops بدونِ brain/governor/obsidian/next_steps.
-
-    اگر این سه نشانگر سبز شوند، کلِ این سطح بی‌ارزش است — چون دقیقاً وقتی
-    دروغ می‌گوید که مالک بیشترین اتکا را دارد."""
-    d = run_scenario("unknown_not_green")
-    tl = tiles(d["content"])
-    for label in ("Wave 1", "Owner Auth", "4D Brain", "Daemon", "Governor", "Obsidian"):
-        assert label in tl, f"نشانگرِ {label} رندر نشد: {sorted(tl)}"
-    for label in ("4D Brain", "Governor", "Obsidian"):
-        cls, badge, state = tl[label]
-        assert state == "unknown", f"{label} روی دادهٔ غایب {state} شد"
-        assert badge == "unknown" and cls == "unknown", (label, cls, badge)
-        assert badge != "live", f"{label} سبز کشیده شد روی دادهٔ غایب"
-    assert "نامعلوم (unknown)" in d["content"], "سنجه‌های NBA بدونِ داده «نامعلوم» نشدند"
-    assert "هیچ اقدامِ سررسیدشده‌ای نیست" not in d["content"], \
-        "«همه‌چیز مرتب» روی دادهٔ غایب ادعا شد"
-
-
-def t_k_present_sections_do_render_ok_and_degraded():
-    """قرینهٔ تستِ بالا: اگر داده **باشد**، سبز و کهربایی واقعاً می‌آیند.
-
-    بدونِ این، یک پیاده‌سازیِ «همیشه unknown» هم تستِ قبلی را پاس می‌کرد."""
-    d = run_scenario("degraded_and_ok")
-    tl = tiles(d["content"])
-    assert tl["4D Brain"][2] == "ok", tl["4D Brain"]
-    assert tl["4D Brain"][1] == "live", tl["4D Brain"]
-    assert tl["Governor"][2] == "degraded", tl["Governor"]
-    assert tl["Obsidian"][2] == "ok", tl["Obsidian"]
-    assert "پیگیری کن" in d["content"], "پیشنهادِ NBA روی دادهٔ واقعی نیامد"
-
-
-def t_ka_a_section_that_exists_but_reports_no_status_is_unknown():
-    """«بخش نیست» و «بخش هست ولی status ندارد» دو مسیرِ کدِ متفاوت‌اند.
-
-    این تست از جهش‌آزمایی زاده شد: جهشِ `raw === undefined → "ok"` زنده ماند،
-    چون هیچ سناریویی بخشِ بی‌status نمی‌ساخت. یعنی یک تکه از گاردِ «سبزِ روی
-    هیچ» اصلاً دیده نمی‌شد."""
-    d = run_scenario("section_present_without_status")
-    tl = tiles(d["content"])
-    assert tl["4D Brain"][2] == "unknown", tl["4D Brain"]
-    assert tl["4D Brain"][1] != "live", "بخشِ بدونِ status سبز شد"
-    assert tl["Obsidian"][2] == "unknown", tl["Obsidian"]
-    assert tl["Governor"][2] == "ok", ("قرینه: بخشِ دارای status باید ok شود", tl["Governor"])
-
-
-def t_l_a_partially_reported_next_section_is_never_all_clear():
-    """دو تا از چهار سنجه آمده و صفرند. این «مرتب» نیست، «نامعلوم» است."""
-    d = run_scenario("partial_next_is_not_allclear")
-    assert "قابلِ ادعا نیست" in d["content"], d["content"][:400]
-    assert "هیچ اقدامِ سررسیدشده‌ای نیست" not in d["content"]
-
-
-def t_m_without_initdata_the_surface_is_read_only():
-    d = run_scenario("readonly")
-    assert "Read-only Mode — open from Telegram /ui to enable actions" in (d["warn"] or ""), d["warn"]
-    c = d["content"]
-    for el in ('id="leadHandle"', 'id="leadCreate"', 'id="taskTitle"', 'id="valueEvent"'):
-        idx = c.find(el)
-        assert idx >= 0, f"{el} رندر نشد"
-        tag_end = c.find(">", idx)
-        assert "disabled" in c[idx:tag_end], f"{el} در حالتِ read-only disabled نیست"
-    assert "owner-auth required" in c
-    assert d["palette_gate_blocked"] is True, "پالت در حالتِ read-only فرمانِ تغییردهنده را اجرا کرد"
-    assert d["readonly_cmd_ok"] is True, "فرمانِ فقط-خواندنی هم مسدود شد — این زیاده‌روی است"
-    assert "خطا" not in c and "HTTP 4" not in c, "به‌جای پیامِ آرام، خطای خام نشان داده شد"
-
-
-def t_n_owner_actions_post_exactly_once_to_the_gated_endpoint():
-    d = run_scenario("owner_actions")
-    assert d["button_found"] is True
-    assert d["post_count"] == 1, (d["post_count"], d["post_urls"])
-    assert d["post_urls"] == ["/api/actions"], d["post_urls"]
-    body = json.loads(d["post_bodies"][0])
-    assert body["action"] == "lead.create", body
-    assert body["payload"]["handle"] == "@someone", body
-    assert d["post_headers"] == ["INIT_DATA_TOKEN_XYZ"], d["post_headers"]
-    assert "APPLIED" in (d["result_text"] or ""), d["result_text"]
-
-
-def t_o_a_late_response_never_paints_over_the_current_tab():
-    """پاسخِ کندِ تبِ قبلی نباید محتوای تبِ فعلی را عوض کند.
-
-    این همان اشتباهی است که در UIهای تب‌دار «عددِ اشتباه زیرِ عنوانِ درست»
-    می‌سازد — بدترین شکلِ دروغ، چون هیچ‌کس شک نمی‌کند."""
-    d = run_scenario("paint_guard")
-    assert "Legs / Agents" in d["after_switch"], d["after_switch"][:300]
-    assert "Legs / Agents" in d["after_late_resolve"], "پاسخِ دیرهنگامِ home روی legs نقاشی کرد"
-    assert "Wave 1" not in d["after_late_resolve"], "بردِ تبِ home روی تبِ legs نشست"
-    assert "Next Best Action" not in d["after_late_resolve"]
-
-
-def t_p_simultaneous_requests_for_one_path_are_coalesced():
-    d = run_scenario("coalesce")
-    assert d["counts"].get("/api/state") == 1, d["counts"]
-    assert d["counts"].get("/api/ops") == 1, d["counts"]
-
-
-def t_q_a_failed_fetch_falls_back_to_cache_but_says_it_is_stale():
-    d = run_scenario("stale_cache")
-    assert d["cache_key_present"] is True, "چیزی کش نشد"
-    assert "stale" not in d["fresh"], "پاسخِ تازه به‌اشتباه stale برچسب خورد"
-    assert "commit abc1234" in d["fresh"]
-    assert "stale" in d["stale"], "پاسخِ کش‌شده بدونِ برچسبِ کهنگی نشان داده شد"
-    assert "last updated" in d["stale"], "زمانِ آخرین به‌روزرسانی نیامد"
-    assert "commit abc1234" in d["stale"], "کش استفاده نشد"
-
-
-def t_r_absent_sub_endpoints_are_probed_once_and_degrade_to_unknown():
-    d = run_scenario("sub_endpoint_probe_once")
-    assert d["brain_probe_calls"] == 1, \
-        f"زیرمسیرِ ۴۰۴ باید فقط یک‌بار پروب شود، شد {d['brain_probe_calls']}"
-    assert 'data-state="unknown"' in d["brain_1"], d["brain_1"][:300]
-    assert "نامعلوم" in d["brain_2"]
-
-
-def t_s_the_palette_lists_every_command_and_keeps_the_gate():
-    d = run_scenario("palette_html")
-    for label in ("Create Lead", "Create Task", "Record Money", "Open Manual Send Queue",
-                  "Show Brain Status", "Show Today Followups", "Show Drift Report",
-                  "Show Next Best Action"):
-        assert label in d["palette"], f"فرمانِ «{label}» در پالت نیست"
-    assert d["palette_class"] == "palette open"
-    assert "4D Brain" in d["after_item_click"], "کلیک روی آیتمِ پالت تب را عوض نکرد"
-    assert d["palette_after"] == "", "پالت بعد از اجرای فرمان بسته نشد"
-    assert d["post_count"] == 0, \
-        "پالت خودش POST زد — پالت میان‌بُر است، نه درِ دومِ ورود"
-    assert d["palette_after_ctrlk"] == "palette open", "Ctrl/Cmd+K پالت را باز نکرد"
-
-
-def t_t_rendering_never_mutates_anything():
+def t_h_rendering_never_mutates_anything():
     d = run_scenario("no_post_on_render")
-    assert d["rendered_tabs"] == 12, d["rendered_tabs"]
+    assert d["rendered_tabs"] == 6, d["rendered_tabs"]
     assert d["post_count"] == 0, "رندرِ صرف یک POST تولید کرد — سطحِ خواندن نباید بنویسد"
 
 
-def t_u_a_stale_heartbeat_is_degraded_not_ok():
-    d = run_scenario("stale_beat_is_degraded")
-    tl = tiles(d["content"])
-    assert tl["Daemon"][2] == "degraded", tl["Daemon"]
-    assert "نبضِ کهنه" in d["content"]
+def t_i_owner_actions_post_only_to_the_gated_endpoint():
+    """جانشینِ t_n ِ قدیمی. آن یکی یک دکمهٔ دیفالتِ فرضی (`leadCreate`) در
+    تبِ studio ِ حذف‌شده کلیک می‌کرد. این نسخه دو اقدامِ **واقعاً زنده** را
+    از دو تبِ واقعی امتحان می‌کند: ساختِ لید (تبِ لیدها) و ساختِ کار (تبِ
+    کارها). هر دو باید فقط از `act()` رد شوند: هدر روی هر دو، action_id
+    ست، و مقصد همیشه `/api/actions`."""
+    d = run_scenario("owner_actions")
+    assert d["lead_button_found"] is True, "دکمهٔ ساختِ لید (#nlGo) پیدا نشد"
+    assert d["task_button_found"] is True, "دکمهٔ ساختِ کار (#ntGo) پیدا نشد"
+    assert d["post_count"] == 2, (d["post_count"], d["post_urls"])
+    assert d["post_urls"] == ["/api/actions", "/api/actions"], d["post_urls"]
+    assert d["post_headers"] == ["INIT_DATA_TOKEN_XYZ", "INIT_DATA_TOKEN_XYZ"], d["post_headers"]
+    lead_body = json.loads(d["post_bodies"][0])
+    assert lead_body["action"] == "lead.create", lead_body
+    assert lead_body["payload"]["handle"] == "@someone", lead_body
+    assert lead_body["action_id"].startswith("mini:lead.create:"), lead_body
+    task_body = json.loads(d["post_bodies"][1])
+    assert task_body["action"] == "task.create", task_body
+    assert task_body["payload"]["title"] == "پیگیریِ لید", task_body
+    assert task_body["action_id"].startswith("mini:task.create:"), task_body
 
 
-def t_v_a_dead_backend_is_unknown_not_ok():
-    d = run_scenario("state_error_is_unknown")
-    tl = tiles(d["content"])
-    assert tl["Daemon"][2] == "unknown", tl["Daemon"]
-    assert tl["Wave 1"][2] == "unknown", tl["Wave 1"]
-    for label in ("4D Brain", "Governor", "Obsidian"):
-        assert tl[label][2] == "unknown", (label, tl[label])
-    assert tl["Owner Auth"][2] == "unknown", tl["Owner Auth"]
+def t_j_without_owner_auth_the_client_does_not_block_mutating_taps():
+    """۰۸-۰۳ فرض می‌کرد بدونِ initData دکمه‌ها `disabled` می‌شوند و یک بنرِ
+    «Read-only Mode» ظاهر می‌شود. آن رفتار فقط داخلِ `renderStudio` ِ
+    مرده بود (خودِ t_d این را نشان داد). در مسیرهای **زنده**ٔ امروز
+    (renderLeadOps) هیچ گیتِ سمتِ کلاینت نیست: دکمه فعال می‌ماند و کلیک
+    واقعاً POST می‌زند.
+
+    این یک واپس‌روی نسبت به قبل است (بدونِ initData، درخواست هیچ هدرِ
+    X-Tg-Init-Data ای هم ندارد — چون `tgHeaders()` وقتی initData نیست
+    کلید را اصلاً اضافه نمی‌کند)، ولی رفعش تغییرِ app.js می‌خواهد که خارج
+    از دامنهٔ این تست است. این تست عمداً **رفتارِ واقعی** را قفل می‌کند تا
+    اگر یک روز درست شد (یا بدتر شد)، این‌جا قرمز شود — نه اینکه بی‌صدا رد
+    شود."""
+    d = run_scenario("readonly_no_client_gate")
+    assert d["lead_button_found"] is True, "دکمهٔ ساختِ لید در حالتِ بدونِ initData رندر نشد"
+    idx = d["leads_tab_html"].find('id="nlGo"')
+    assert idx >= 0, "دکمهٔ #nlGo در HTML نیست"
+    tag_end = d["leads_tab_html"].find(">", idx)
+    assert "disabled" not in d["leads_tab_html"][idx:tag_end], (
+        "این‌جا انتظار می‌رفت disabled نباشد (رفتارِ فعلی) — اگر گاردِ سمتِ "
+        "کلاینت اضافه شده، این تست را با خیالِ راحت به سمتِ «باید disabled "
+        "باشد» برگردان.")
+    assert d["post_count"] == 1, (
+        "بدونِ initData، کلیک دیگر POST نزد — یعنی یک گاردِ سمتِ کلاینت "
+        "اضافه شده؛ این تست را به‌روز کن (خبرِ خوب است، ولی رفتار عوض شده)")
+    assert d["post_headers"] == [None], (
+        "درخواستِ بدونِ initData باید هیچ X-Tg-Init-Data ای نداشته باشد "
+        "(نه حتی رشتهٔ خالی) — سرور تنها گاردِ معتبر است")
 
 
-def _live_ops_fixture() -> "tuple[Path, dict]":
-    """خروجیِ **واقعیِ** read-model را می‌گیرد و به درایور می‌دهد.
-
-    این تفاوتِ «تستِ نویسنده و خواننده با هم» است با «تستِ fixture ِ خودساخته»:
-    اگر لِینِ read-model فردا کلیدی را عوض کند، این round-trip می‌ترکد؛ یک
-    fixture ِ دست‌ساز تا ابد سبز می‌ماند و هیچ‌چیز نمی‌گوید."""
-    sys.path.insert(0, str(_HERE.parent / "telegram_center"))
-    import miniapp_state  # noqa: WPS433
-    ops = json.loads(miniapp_state.dispatch_api("/api/ops")[1].decode("utf-8"))
-    sub_brain = json.loads(miniapp_state.dispatch_api("/api/ops/brain")[1].decode("utf-8"))
-    d = Path(tempfile.mkdtemp(prefix="cockpit-fx-"))
-    p = d / "ops.json"
-    p.write_text(json.dumps({"ops": ops, "sub_brain": sub_brain}, ensure_ascii=False),
-                 encoding="utf-8", newline="\n")
-    return p, ops
-
-
-def t_w_the_real_ops_payload_never_paints_green_over_missing_data():
-    """قرارداد را با خروجیِ زندهٔ read-model می‌سنجد، نه با حدسِ من.
-
-    ادعاها state-independent‌اند: هرچه در payload باشد، رابطه‌ی «دادهٔ معلومِ
-    بد ⇒ غیرِ سبز» و «دادهٔ غایب ⇒ نامعلوم» باید برقرار بماند."""
-    fx, ops = _live_ops_fixture()
-    d = run_scenario("live_payload", fixture=fx)
-    tl = tiles(d["content"])
-    for label in ("Wave 1", "Owner Auth", "4D Brain", "Daemon", "Governor", "Obsidian"):
-        assert label in tl, f"{label} رندر نشد"
-        assert tl[label][2] in ("ok", "degraded", "unknown"), tl[label]
-
-    brain = ops.get("brain")
-    if isinstance(brain, dict) and brain.get("available") is False:
-        assert tl["4D Brain"][2] == "degraded", ("مغزِ available:false نباید ok باشد", tl["4D Brain"])
-        assert tl["4D Brain"][1] != "live"
-    elif brain is None:
-        assert tl["4D Brain"][2] == "unknown", tl["4D Brain"]
-
-    gov = ops.get("governor")
-    if isinstance(gov, dict) and isinstance(gov.get("drift_status"), dict) \
-            and gov["drift_status"].get("status") == "drift":
-        assert tl["Governor"][2] == "degraded", ("drift نباید ok باشد", tl["Governor"])
-
-    obs = ops.get("obsidian")
-    if isinstance(obs, dict) and isinstance(obs.get("missing_count"), int):
-        want = "ok" if (obs["missing_count"] == 0 and obs.get("checked", 0) > 0) else "degraded"
-        assert tl["Obsidian"][2] == want, (obs["missing_count"], obs.get("checked"), tl["Obsidian"])
-
-    oa = ops.get("owner_auth")
-    if isinstance(oa, dict) and oa.get("configured") is False:
-        assert tl["Owner Auth"][2] == "degraded", tl["Owner Auth"]
-
-    # next_steps ِ واقعی یک فهرست است، نه شمارنده ⇒ هر چهار سنجه نامعلوم
-    if isinstance(ops.get("next_steps"), list):
-        assert "نامعلوم (unknown)" in d["content"]
-        assert "هیچ اقدامِ سررسیدشده‌ای نیست" not in d["content"], \
-            "فهرستِ نقشهٔ راه به‌جای شمارنده خوانده شد و «مرتب» اعلام شد"
-        assert "نقشهٔ راه (next_steps)" in d["next_tab"], "فهرستِ واقعیِ مراحل رندر نشد"
-    assert "منبع: /api/ops/brain" in d["brain_tab"], "زیرمسیرِ موجود استفاده نشد"
-
-
-def t_x_a_subendpoint_envelope_status_never_becomes_the_sections_health():
-    """`{status:"ok", section:"brain", brain:{available:false}}`.
-
-    `status:"ok"` یعنی «درخواست موفق بود». اگر پاکت به‌جای محتوا خوانده شود،
-    یک مغزِ مرده سبز کشیده می‌شود — بدترین حالتِ ممکن برای این سطح."""
-    d = run_scenario("envelope_status_must_not_leak")
-    assert 'data-state="degraded"' in d["brain_tab"], d["brain_tab"][:400]
-    assert 'data-state="ok"' not in d["brain_tab"], "پاکتِ status:ok به سلامتِ بخش نشت کرد"
-    assert "daemon_state.json غایب" in d["brain_tab"], "دلیل به مالک نشان داده نشد"
-
-
-def t_y_an_array_section_is_unknown_and_missing_notes_are_degraded():
-    """دو شاخه‌ای که فیکسچرِ زندهٔ امروز اتفاقاً لمس نمی‌کند.
-
-    هر دو با جهش‌آزمایی پیدا شدند و هر دو زنده مانده بودند — نه چون گارد کور
-    است، بلکه چون پایهٔ فیکسچر از قبل همان نتیجه را می‌داد (`missing_count=0`
-    ⇒ ok). «جهشِ سبز = خطِ نادیده»: موردِ زیرِ سطحِ هدف لازم است."""
-    d = run_scenario("honesty_edges")
-    tl = tiles(d["content"])
-    assert tl["4D Brain"][2] == "unknown", ("فهرست یک وضعیت نیست", tl["4D Brain"])
-    assert tl["4D Brain"][1] != "live"
-    assert tl["Obsidian"][2] == "degraded", ("۳ نُتِ غایب سبز شد", tl["Obsidian"])
-    assert tl["Obsidian"][1] != "live"
-    assert "3 غایب از 11" in d["content"], "شمارِ نُت‌های غایب به مالک گفته نشد"
-
-
-def t_z_readonly_never_claims_full_owner_auth():
-    """بک‌اند می‌گوید configured، ولی این نشست initData ندارد.
-
-    «سالم» گفتن یعنی نشان‌دادنِ جمله‌ای (`configured + initData`) که در همان
-    لحظه دروغ است — و دقیقاً روی نشانگرِ اختیارِ مالک."""
-    d = run_scenario("honesty_edges")
-    tl = tiles(d["content"])
-    assert tl["Owner Auth"][2] == "degraded", tl["Owner Auth"]
-    assert tl["Owner Auth"][1] != "live"
-    assert "configured ولی بدونِ initData" in d["content"], "دلیل به مالک گفته نشد"
-
-
-def t_zz_backend_values_are_html_escaped_before_they_are_painted():
+def t_k_backend_values_are_html_escaped_before_they_are_painted():
     """`esc()` یک گارد است، پس باید جهشی داشته باشد که بکُشدش.
 
-    مقدارها از read-model می‌آیند (متنِ vault، نُتِ لید، مسیرِ obsidian)؛ اگر
-    escape برداشته شود، markup داخلِ WebView ِ تلگرام اجرا می‌شود — همان‌جا که
-    initData در دسترس است."""
-    d = run_scenario("honesty_edges")
-    c = d["content"]
+    جانشینِ t_zz ِ قدیمی که از پاکتِ `/api/ops` ِ حذف‌شده استفاده می‌کرد؛
+    این نسخه از `/api/governor` (زیرِ تبِ سیستم، پنلِ زنده) همان تزریق را
+    امتحان می‌کند."""
+    d = run_scenario("governor_escape")
+    c = d["system_tab_html"]
     assert "&lt;img src=x onerror=&quot;boom()&quot;&gt;" in c, "مقدارِ بک‌اند escape نشد"
     assert "<img src=x" not in c, "markup ِ خام وارد DOM شد"
     assert "<b>bold</b>" not in c, "تگِ خام از مقدارِ بک‌اند رد شد"
-
-
-def t_zzz_an_error_body_is_never_written_to_the_local_cache():
-    """کش «آخرین پاسخِ سالم» است، نه «آخرین پاسخ».
-
-    یک 200 با بدنهٔ {status:"error"} اگر کش شود، بعداً با برچسبِ
-    «آخرین به‌روزرسانیِ سالم» بازپخش می‌شود — کهنه‌بودن را صادقانه می‌گوید ولی
-    دربارهٔ سالم‌بودن دروغ می‌گوید."""
-    d = run_scenario("error_body_is_not_cached")
-    raw = d["cache_raw"]
-    assert '"/api/state"' in raw, "کش اصلاً چیزی ننوشت — این تست آن‌وقت بی‌معنا است"
-    assert "ops_boom_marker" not in raw, "بدنهٔ خطا کش شد و بعداً «آخرین حالتِ سالم» می‌شود"
-    assert '"/api/ops"' not in raw, "مسیرِ خطادار وارد کش شد"
-
-
-def t_zzzz_a_telegram_deep_link_opens_the_named_tab_and_nothing_else():
-    """`/ops` دکمهٔ web_app می‌سازد با `#tab=`.
-
-    center.py خودش مستند کرده بود که «app.js امروز location.hash را
-    نمی‌خواند» — یعنی دکمه زده می‌شد و همیشه کاکپیت باز می‌شد. یک
-    درزِ بینِ دو لِین که هیچ کدام به تنهایی قرمز نمی‌شد."""
-    d = run_scenario("deep_link", fixture="#tab=brain")
-    assert d["boot_tab"] == "brain", d["boot_tab"]
-    assert d["tab_active"] == ["brain"], d["tab_active"]
-    assert "4D Brain" in d["content"], d["content"][:300]
-
-    # کلیدِ جعلی هرگز تب نمی‌شود (وگرنه activeTab مسموم و صفحه خالی)
-    d2 = run_scenario("deep_link", fixture="#tab=__proto__")
-    assert d2["boot_tab"] == "home", d2["boot_tab"]
-    assert "Cockpit" in d2["content"], d2["content"][:300]
-
-    # بدونِ فرگمنت = دقیقاً رفتارِ دیروز
-    d3 = run_scenario("deep_link", fixture="")
-    assert d3["boot_tab"] == "home", d3["boot_tab"]
-    assert "Cockpit" in d3["content"], d3["content"][:300]
 
 
 if __name__ == "__main__":
