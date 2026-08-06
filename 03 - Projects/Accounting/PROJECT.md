@@ -8,7 +8,7 @@ risk_level: high
 autonomy_level: read-only
 tags: [accounting, tax, australia]
 created: 2026-07-03
-updated: 2026-08-01
+updated: 2026-08-07
 ---
 
 # پروژه: Accounting
@@ -123,6 +123,6 @@ updated: 2026-08-01
 
 ## 🎛 کابین کنترل (two-brain)
 
-- کابین مشترک: ارتیفکت `fleet-live-dashboard` · نقشه: [[_memory/TWO-BRAIN-CONTROL-BLUEPRINT|TWO-BRAIN]] · نقشهٔ ساخت: [[_memory/FRANKENSTEIN-BUILD-PLAN|FRANKENSTEIN-BUILD-PLAN]]
+- کابین مشترک: ارتیفکت `fleet-live-dashboard` · نقشه (بایگانی‌شده/superseded): [[07 - Knowledge/_memory-blueprints/TWO-BRAIN-CONTROL-BLUEPRINT|TWO-BRAIN]] · نقشهٔ ساخت (بایگانی‌شده/superseded): [[07 - Knowledge/_memory-blueprints/FRANKENSTEIN-BUILD-PLAN|FRANKENSTEIN-BUILD-PLAN]]
 - عملیات استاندارد از کابین (intent → sendPrompt): «تست <پروژه>» = validators + چک کد + تست قرارداد · «بساز» = اسکلت از `_Templates` + ثبت همین‌جا · «آرشیو» = فقط انتقال به `_Archive`/`_Duplicates` (هرگز حذف واقعی).
 - تست قرارداد این پروژه: هنوز تعریف نشده — طبق BUILD-PLAN §۲ تعریف شود.

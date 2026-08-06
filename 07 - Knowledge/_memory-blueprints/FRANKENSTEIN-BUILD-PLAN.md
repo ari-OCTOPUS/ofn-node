@@ -1,14 +1,17 @@
 ---
 type: design
-status: active
+status: superseded
+superseded_by: "[[06 - Architecture Maps/MASTER-ARCHITECTURE-2026-07-29]]"
 created_by: agent
 created: 2026-07-06
-updated: 2026-07-06
+updated: 2026-08-07
 tags: [doctor, two-brain, build-plan, architecture]
 related: "[[_memory/TWO-BRAIN-CONTROL-BLUEPRINT|TWO-BRAIN-CONTROL-BLUEPRINT]] · [[00 - Inbox/2026-07-06 0245 MASTER-ARCHITECTURE-SPEC-v1.4-draft|SPEC v1.4]] · [[00 - Inbox/DOCTOR-SYNTHESIS|DOCTOR-SYNTHESIS]] · [[01 - Dashboard/HANDOFF|HANDOFF]]"
 ---
 
 # FRANKENSTEIN-BUILD-PLAN — زنده‌کردن اندام‌ها (۸۰٪ طراحی، آمادهٔ ساخت با Fable 5)
+
+> **status: superseded (2026-08-07)** — واژگانِ «دو مغز/فرانکنشتاین» جایگزین شده با معماریِ organism/legs/heart/cortex/doctor/cockpit؛ نگاه کن [[06 - Architecture Maps/MASTER-ARCHITECTURE-2026-07-29|MASTER-ARCHITECTURE-2026-07-29]]. این سند فقط برای تاریخچه نگه داشته شده.
 
 > رکن اصلی ساخت: ارتیفکت `fleet-live-dashboard` (کابین مشترک دو مغز). این سند = نقشهٔ بامبو: طراحی هر اندام تا ۸۰٪ اینجا بسته شده؛ ۲۰٪ باقی = اجرای Fable 5 با همین قراردادها. verdictهای پایه در [[_memory/TWO-BRAIN-CONTROL-BLUEPRINT|بلوپرینت §۷]] بسته شد (2026-07-06).
 

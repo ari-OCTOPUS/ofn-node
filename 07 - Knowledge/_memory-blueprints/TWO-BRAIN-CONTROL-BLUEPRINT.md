@@ -1,14 +1,17 @@
 ---
 type: proposal
-status: active
+status: superseded
+superseded_by: "[[06 - Architecture Maps/MASTER-ARCHITECTURE-2026-07-29]]"
 subject: "مدل دو مغز (انسانی + دکتر) و حلقهٔ کنترل مشترکِ مغز دوم"
 tags: [doctor, autonomy, two-brain, control-loop, architecture]
 created: 2026-07-05
-updated: 2026-07-06
+updated: 2026-08-07
 related: "[[00 - Inbox/Prompt - دکتر مغز تکاملی (Evolutionary Doctor) 2026-07-05|دکتر تکاملی]] · [[00 - Inbox/Prompt - منشور استقلال مغز (Autonomy Ladder)|منشور استقلال]] · [[00 - Inbox/Prompt - لایه شناخت زمینه (Ground-Truth Perception Layer)|لایهٔ شناخت]] · [[_memory/LIVING-BRAIN-BLUEPRINT|LIVING-BRAIN-BLUEPRINT]] · [[00 - Inbox/SYSTEM-STATE-2026-07-05|SYSTEM-STATE]]"
 ---
 
 # TWO-BRAIN-CONTROL-BLUEPRINT — دو مغز، یک حلقهٔ کنترل
+
+> **status: superseded (2026-08-07)** — واژگانِ «دو مغز» جایگزین شده با معماریِ organism/legs/heart/cortex/doctor/cockpit؛ نگاه کن [[06 - Architecture Maps/MASTER-ARCHITECTURE-2026-07-29|MASTER-ARCHITECTURE-2026-07-29]]. این سند فقط برای تاریخچه نگه داشته شده.
 
 > نقشهٔ مشترکِ کنترلِ «مغز دوم». سنتزِ سه سندِ موجودِ خودت (دکتر تکاملی + منشور استقلال + لایهٔ شناخت) در یک مدلِ اجراییِ کوچک که روی ارتیفکتِ زندهٔ `fleet-live-dashboard` سوار است.
 > **status: active — مالک 2026-07-06 گفت «پیشنهاد تو پیش برویم» → هر ۴ verdict §۷ با توصیهٔ ایجنت بسته شد.** سند اجراییِ ساخت: [[_memory/FRANKENSTEIN-BUILD-PLAN|FRANKENSTEIN-BUILD-PLAN]].

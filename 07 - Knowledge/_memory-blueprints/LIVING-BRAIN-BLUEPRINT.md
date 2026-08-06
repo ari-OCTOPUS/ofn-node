@@ -2,11 +2,15 @@
 type: proposal
 subject: "ساختار هرمی مغز زنده — مغز مرکزیِ قابل‌گفتگو + مغز مستقل ساختاریافته برای هر پروژه"
 date: 2026-07-04
-status: active
+status: superseded
+superseded_by: "[[06 - Architecture Maps/MASTER-ARCHITECTURE-2026-07-29]]"
+updated: 2026-08-07
 related: "[[CONNECTIONS-MAP]] · [[LINK-DISCOVERY-PROMPT]] · [[REVIEW]] · [[../01 - Dashboard/Brain|Brain]]"
 ---
 
 # LIVING-BRAIN-BLUEPRINT — بله، ساختار هرمی؛ با یک تبصره
+
+> **status: superseded (2026-08-07)** — واژگانِ «هرمِ مغز/مغز مرکزی» جایگزین شده با معماریِ organism/legs/heart/cortex/doctor/cockpit؛ نگاه کن [[06 - Architecture Maps/MASTER-ARCHITECTURE-2026-07-29|MASTER-ARCHITECTURE-2026-07-29]]. این سند فقط برای تاریخچه نگه داشته شده.
 
 هرم برای **کنترل**، شبکه برای **دانش**. سه طبقه + رگ‌های عرضی:
 
