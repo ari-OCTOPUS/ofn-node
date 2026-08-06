@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import os
 import sys
+import tempfile
 from pathlib import Path
 
 _OPS = Path(__file__).resolve().parents[1]
@@ -16,6 +17,20 @@ for p in (str(_OPS), str(_OPS / "legs"), str(_OPS / "budget")):
         sys.path.insert(0, p)
 
 import wiring  # noqa: E402
+
+
+def _isolate_stop_paths(monkeypatch) -> None:
+    """kill-switch را خنثی کن: هیچ STOP/HALT زندهٔ ارگانیسمِ واقعی لمس نشود
+    (همان الگوی test_route_scorer_wire.py::_isolate). cartographer_beat قبل از
+    ساختِ status، opslib.STOP_ORGANISM.exists() و opslib.halted() (که HALT_ALL،
+    STOP_ARCHITECT و STOP_METABOLIC را می‌بیند) را چک می‌کند؛ بی‌ایزوله، یک
+    HALT/restart واقعیِ هم‌پوشان با اجرای این تست، beat را به None می‌کِشد و
+    تستِ محتوا-محورِ زیر بی‌آنکه باگی باشد قرمز چشمک می‌زند."""
+    d = Path(tempfile.mkdtemp(prefix="cartographer-wire-test-"))
+    monkeypatch.setattr(wiring.opslib, "STOP_ORGANISM", d / "STOP-ORGANISM")
+    monkeypatch.setattr(wiring.opslib, "HALT_ALL", d / "HALT-ALL")
+    monkeypatch.setattr(wiring.opslib, "STOP_ARCHITECT", d / "STOP-ARCHITECT")
+    monkeypatch.setattr(wiring.opslib, "STOP_METABOLIC", d / "STOP-METABOLIC")
 
 
 def test_flag_off_returns_none(monkeypatch):
@@ -58,6 +73,7 @@ def test_flag_on_builds_incubating_leg(monkeypatch):
 
 
 def test_beat_returns_contained_status(monkeypatch):
+    _isolate_stop_paths(monkeypatch)
     monkeypatch.setenv("OCTOPUS_WIRE_CARTOGRAPHER", "1")
     leg = wiring.make_cartographer_leg()
     st = wiring.cartographer_beat(leg, beat=3)
@@ -83,6 +99,7 @@ def test_stop_organism_wins(monkeypatch):
 
 def test_beat_includes_real_drift_pulse(monkeypatch):
     # عملکردِ واقعی: beat باید سیگنالِ drift-pulse را از repoِ واقعی برگرداند
+    _isolate_stop_paths(monkeypatch)
     monkeypatch.setenv("OCTOPUS_WIRE_CARTOGRAPHER", "1")
     leg = wiring.make_cartographer_leg()
     st = wiring.cartographer_beat(leg, beat=1)
