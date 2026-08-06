@@ -85,7 +85,7 @@ def t_gap_report_falls_back_to_the_id_when_titles_are_absent():
 
 def t_school_bridge_persists_titles():
     from school_bridge import SchoolBridge
-    sb = SchoolBridge()
+    sb = SchoolBridge(state_path=opslib.STATE_DIR / "school-awareness.json")
     sb._save()
     d = json.loads(sb.state_path.read_text("utf-8"))
     assert "titles" in d and d["titles"], "عنوان‌ها ذخیره نمی‌شوند"
