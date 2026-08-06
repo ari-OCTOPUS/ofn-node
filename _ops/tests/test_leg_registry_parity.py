@@ -16,6 +16,10 @@
 
 اگر روزی عمداً پایی نباید در یک سطح دیده شود، به `_INTENTIONALLY_HIDDEN` اضافه‌اش
 کن — با دلیل. سکوتِ بی‌دلیل ممنوع.
+
+۲۰۲۶-۰۸-۰۶: «یک سطح» یعنی یک سطح — `_INTENTIONALLY_HIDDEN` فقط در چکِ منویِ
+ارگان (`test_every_leg_appears_in_telegram_organ_menu`) اثر دارد. چکِ گزارشِ
+هفتگی مستقل می‌ماند تا دلیلِ پنهان‌کاریِ یک سطح، محافظِ سطحِ دیگر را خاموش نکند.
 """
 from __future__ import annotations
 
@@ -30,7 +34,18 @@ for _p in (str(_OPS), str(_OPS / "budget"), str(_OPS / "telegram_center"), str(_
         sys.path.insert(0, _p)
 
 # پاهایی که عمداً در یک سطح پنهان‌اند (کلید → دلیل). خالی = هیچ استثنایی.
-_INTENTIONALLY_HIDDEN: dict = {}
+# 2026-08-06: `sync_agent` عمداً از منویِ ارگانِ تلگرام (ORGANS) غایب است — نه
+# سهل‌انگاری. اگر این‌جا اضافه شود، `_ops/tests/test_leg_parity.py::t_a` و
+# `t_b` قرمز می‌شوند: sync_agent هنوز اتاقِ گروه/تاپیک ندارد و آن تست، برخلافِ
+# این‌یکی، برای «تاپیک ندارد» هیچ استثنایی نمی‌پذیرد (با دلیلِ فنیِ واقعی:
+# پیامِ اندامِ بی‌تاپیک در General می‌افتد). ساختنِ یک تاپیکِ ساختگی برای
+# سبزکردنِ این تست، دروغِ زیرساختی می‌بود. وقتی لِینِ sync_agent تاپیکِ گروه
+# را ساخت، این ردیف حذف و به ORGANS اضافه شود. weekly_review اما همچنان
+# اضافه شد چون آن سطح به تاپیکِ گروه گره نخورده (بدونِ این استثنا هم سبز است).
+_INTENTIONALLY_HIDDEN: dict = {
+    "sync_agent": ("بدونِ تاپیکِ گروه در center-config.json — افزودن به ORGANS "
+                   "test_leg_parity.t_a/t_b را قرمز می‌کند (نگاه کن آن‌جا)."),
+}
 
 
 def _spec_names() -> set:
@@ -53,8 +68,13 @@ class TestLegRegistryParity(unittest.TestCase):
                          "یا به ORGANS اضافه کن یا با دلیل در _INTENTIONALLY_HIDDEN")
 
     def test_every_leg_appears_in_weekly_review(self):
+        """عمداً `_INTENTIONALLY_HIDDEN` این‌جا کم نمی‌شود: هر پنهان‌کاری یک **سطح**
+        دارد (دلیلِ `sync_agent` مالِ ORGANS/تاپیکِ گروه است، نه گزارشِ هفتگی —
+        آن سطح گره‌ای به تاپیک ندارد). اگر روزی پایی واقعاً باید از خودِ گزارشِ
+        هفتگی هم پنهان بماند، این تابع را — نه لیستِ سراسری را — سرکوب کن، وگرنه
+        یک دلیلِ ORGANS بی‌صدا محافظِ این سطح را هم خاموش می‌کند."""
         import weekly_review  # noqa: WPS433
-        missing = _spec_names() - set(weekly_review.BUSINESS_LEGS) - set(_INTENTIONALLY_HIDDEN)
+        missing = _spec_names() - set(weekly_review.BUSINESS_LEGS)
         self.assertFalse(missing,
                          f"سکوتِ این پاها در گزارشِ هفتگی دیده نمی‌شود: {sorted(missing)}")
 

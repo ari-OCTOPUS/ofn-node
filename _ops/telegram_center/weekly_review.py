@@ -50,11 +50,14 @@ DEMOTE_MIN_N = 3                   # با کمتر از ۳ کارت درصد م�
 # خنثی است: بیرون از پوشهٔ پروژه فقط کدِ «Project-F» (قاعدهٔ قفل‌شدهٔ #۷).
 # گاردِ parity در `_ops/tests/test_leg_registry_parity.py` تضمین می‌کند این فهرست
 # از `wiring._BUSINESS_LEGS_SPEC` عقب نماند (`knowledge` تا امروز جا افتاده بود).
+# 2026-08-06: `sync_agent` هم اضافه شد — از ۰۸-۰۲ در spec بود ولی این‌جا هم مثلِ
+# منویِ ارگانِ تلگرام نامرئی مانده بود (همان گپی که دقیقاً همین گاردِ parity افشا کرد).
 BUSINESS_LEGS = ("lead", "ziman", "mining", "crypto", "accounting",
-                 "knowledge", "studio_pf")
+                 "knowledge", "studio_pf", "sync_agent")
 DISPLAY = {"lead": "🎨 نقاشی", "ziman": "🖼 زیمان", "mining": "⛏ ماینینگ",
            "crypto": "📈 کریپتو", "accounting": "🧾 حسابداری",
-           "knowledge": "📚 دانش", "studio_pf": "🅿️ Project-F"}
+           "knowledge": "📚 دانش", "studio_pf": "🅿️ Project-F",
+           "sync_agent": "🔄 هم‌گام‌ساز"}
 
 _FA = str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")
 
