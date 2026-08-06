@@ -429,7 +429,7 @@ def t_p_the_measured_router_facts_are_still_true():
     saved = (mr._ask_paid, local_llm.ask, mr.keys_present)
     tried = []
     try:
-        mr._ask_paid = lambda t, p, s, m: tried.append(t) or None
+        mr._ask_paid = lambda t, p, s, m, task=None: tried.append(t) or None
         local_llm.ask = lambda p, system="", max_tokens=400, opener=None: \
             {"text": "x" * 200, "tier": "local"}
         mr.keys_present = lambda: {"fugu": True, "glm": True, "deepseek": False}

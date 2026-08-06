@@ -54,7 +54,7 @@ class _Spy:
     def __init__(self) -> None:
         self.calls: list[str] = []
 
-    def __call__(self, tier, prompt, system, max_tokens):
+    def __call__(self, tier, prompt, system, max_tokens, task=None):
         self.calls.append(tier)
         return {"text": f"paid:{tier}", "tier": tier, "model": "spy"}
 
