@@ -161,6 +161,27 @@ def t_e_edit_and_pin_payloads():
     assert c2.edit(9, "x") is False
 
 
+def t_e2_delete_payload_and_failsoft():
+    """۲۰۲۶-۰۸-۰۶: کارتِ رأیِ تأییدشده/ردشده حذف می‌شود، نه ادیت — این تست خودِ
+    متدِ delete() را می‌سنجد؛ رفتارِ سرِ callback در test_tg_center.py."""
+    c, net = _client()
+    assert c.delete(9, chat_id=CENTER) is True
+    m, _, body = net.posts[0]
+    assert m == "deleteMessage"
+    assert body == {"chat_id": CENTER, "message_id": 9}
+    # بدونِ token/chat/id معتبر → False، صفر شبکه
+    c2, net2 = _client(token="")
+    assert c2.delete(9) is False and not net2.posts
+    assert c.delete(None) is False
+    # پاسخِ ok=False از API (مثلِ پیامِ >۴۸ساعته) → False، نه استثنا
+    c3, _ = _client({"deleteMessage": {"ok": False, "error_code": 400}})
+    assert c3.delete(9) is False
+    # خطای شبکه → False، fail-soft
+    c4, net4 = _client()
+    net4.raise_on.add("deleteMessage")
+    assert c4.delete(9) is False
+
+
 def t_f_create_topic():
     c, net = _client({"createForumTopic": {"ok": True,
                                            "result": {"message_thread_id": 88, "name": "n"}}})

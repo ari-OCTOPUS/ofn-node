@@ -3745,8 +3745,16 @@ def brain_digest_beat(channel=None, beat: int = 0) -> dict | None:
             # دکمه‌ای که *در همین بات* واقعاً کار می‌کند می‌ماند؛ راهنماییِ
             # «کدام بات برای رأی» به متنِ کارت منتقل شد (organ_dialogue.py:
             # debate_survivor_card).
-            kb = {"inline_keyboard": [[
-                {"text": "🧠 تبِ مغز", "callback_data": "menu:brain"}]]}
+            #
+            # ۲۰۲۶-۰۸-۰۶ (ادامه — خواستهٔ صریحِ مالک «کار نمی‌کنه»): callback_data
+            # بینِ دو بات نمی‌رسد ولی دکمهٔ `url` چرا — تلگرام آن را در همین بات
+            # می‌سازد و با تپ، چتِ باتِ دیگر را با متنِ کاملِ `/start ap` باز
+            # می‌کند (deep-link رسمیِ Bot API). `center._start_cmd` این payload
+            # را می‌شناسد و مستقیم به صفِ رأی می‌پرد — یک تپ، نه تایپِ دستی.
+            kb = {"inline_keyboard": [
+                [{"text": "📮 برو صفِ رأی (بات دیگر)",
+                  "url": "https://t.me/intergrade2725_Bot?start=ap"}],
+                [{"text": "🧠 تبِ مغز", "callback_data": "menu:brain"}]]}
             head = "🚨 تنشِ مغز 🔴 شد!\n" if red_flip else ""
             sent = bool(_send_stream(channel, head + d["text"], kb,
                 stream="brain"))

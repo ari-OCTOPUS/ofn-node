@@ -3015,7 +3015,11 @@ class Center:
             "/revenue": self._revenue_text,
             "/missions": lambda: self._page("ms"),
             "/menu": lambda: self._page("menu"),
-            "/start": lambda: self._page("menu"),
+            # ۲۰۲۶-۰۸-۰۶: عمقِ لینک — کارتِ آینه/دیگر ربات‌ها فقط می‌توانند دکمهٔ
+            # `url` (نه callback_data) به این بات بدهند؛ `t.me/<bot>?start=ap`
+            # به‌صورتِ متنِ کاملِ «/start ap» می‌رسد. payload اختیاری است — بدونِ
+            # آن رفتارِ قدیمی (منو) بایت‌به‌بایت می‌ماند.
+            "/start": lambda: self._start_cmd(text),
             # 2026-07-25 live path — full text after command is passed through
             "/live": lambda: self._live_cmd(text),
             "/id": lambda: self._live_cmd(text),
@@ -3846,6 +3850,22 @@ class Center:
         except Exception:  # noqa: BLE001
             return None
 
+    _START_PAYLOADS = {"ap": "ap"}   # payloadِ deep-link → نامِ صفحهٔ _page
+
+    def _start_cmd(self, text: str) -> tuple:
+        """`/start` با payloadِ اختیاری (از `t.me/<bot>?start=<payload>`).
+
+        ۲۰۲۶-۰۸-۰۶: کارتِ آینه/دیگر بات‌ها فقط می‌توانند دکمهٔ `url` بدهند
+        (callback_data بینِ دو بات نمی‌رسد — «تلهٔ دو-باتی»). یک deep-link
+        همان جمله را به این بات به شکلِ متنِ کاملِ `/start <payload>` می‌رساند.
+        payloadِ ناشناخته/غایب → رفتارِ قدیمیِ بایت‌به‌بایت (منوی اصلی)."""
+        parts = str(text or "").split(None, 1)
+        payload = parts[1].strip() if len(parts) > 1 else ""
+        page = self._START_PAYLOADS.get(payload)
+        if page:
+            return self._page(page)
+        return self._page("menu")
+
     def _page(self, name: str) -> tuple:
         """(متن، کیبورد)ِ هر صفحهٔ منو — ناوبری با editِ همان پیام.
 
@@ -4656,8 +4676,23 @@ class Center:
             msg = f"خطا: {type(e).__name__}"
 
         self._answer(cbq, msg[:180])
-        # refresh صفحهٔ approvals برای نشان‌دادنِ تغییر
-        self._edit_page(cbq, "ap")
+        if action in ("ok", "no") and ok:
+            # ۲۰۲۶-۰۸-۰۶ (خواستهٔ مالک): کارتِ تأییدشده/ردشده دیگر آویزان
+            # نمی‌ماند — حذف می‌شود، نه رفرش. اگر حذف رد شد (پیامِ >۴۸ساعته،
+            # یا هر خطای شبکه)، fallback به رفتارِ قدیمی تا کارت لااقل
+            # بی‌فایده نماند (بهتر از پیامی که نه حذف شد نه به‌روز).
+            m = cbq.get("message") or {}
+            deleted = False
+            try:
+                deleted = bool(self._client.delete(
+                    m.get("message_id"), chat_id=(m.get("chat") or {}).get("id")))
+            except Exception:  # noqa: BLE001
+                deleted = False
+            if not deleted:
+                self._edit_page(cbq, "ap")
+        else:
+            # refresh صفحهٔ approvals برای نشان‌دادنِ تغییر
+            self._edit_page(cbq, "ap")
         return {"kind": "approval", "action": action, "id": jid, "ok": ok, "verdict": verdict}
 
     def _handle_callback(self, cbq: dict) -> dict:

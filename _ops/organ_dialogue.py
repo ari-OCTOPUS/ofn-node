@@ -273,8 +273,8 @@ def debate_survivor_card(state_dir=None) -> dict:
         # برسد (هر دو bot جدا و هر verb فقط در روترِ فرستندهٔ خودش شناخته
         # می‌شود). @intergrade2725_Bot عمومی است، توکن نیست (نکِ guide.py).
         lines = [f"⚖️ <b>مناظره</b> — {len(open_rows)} ایده منتظرِ رأیِ توست",
-                 "▸ رأی: در @intergrade2725_Bot بزن /menu → 📮 صف تأیید "
-                 "(این دکمه در این بات کار نمی‌کند)"]
+                 "▸ رأی: دکمهٔ «📮 برو صفِ رأی» پایینِ همین پیام — یک تپ به "
+                 "@intergrade2725_Bot می‌برد"]
         for i, r in enumerate(open_rows[:3], 1):
             lines.append(f"<b>{i}.</b> {_esc(r.get('title'), 150)}")
         if len(open_rows) > 3:

@@ -546,6 +546,19 @@ class TgClient:
                          bot_role=self._bot_role(), surface=self._surface_of(cid))
         return ok
 
+    def delete(self, message_id, chat_id=None) -> bool:
+        """deleteMessage. خروجی = موفق شد؟ not wired/نامعتبر → False، صفر شبکه.
+
+        تلگرام حذفِ پیام‌های >۴۸ساعته را رد می‌کند (fail-soft، نه استثنا) —
+        صداکننده باید این را «حذف نشد، مهم نیست» بخواند، نه خطا."""
+        if not self.wired():
+            return False
+        cid = self._resolve_chat(chat_id)
+        mid = _coerce_id(message_id)
+        if cid is None or mid is None:
+            return False
+        return self._call_post("deleteMessage", {"chat_id": cid, "message_id": mid}) is not None
+
     def pin_message(self, message_id, chat_id=None) -> bool:
         """pinChatMessage (بی‌صدا — بدونِ نوتیفِ اضافه). not wired/نامعتبر → False."""
         if not self.wired():

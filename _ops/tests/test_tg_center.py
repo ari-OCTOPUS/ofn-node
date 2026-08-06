@@ -87,6 +87,10 @@ class FakeClient:
         self.calls.append(("edit", {"message_id": message_id, "text": text}))
         return True
 
+    def delete(self, message_id, chat_id=None):
+        self.calls.append(("delete", {"message_id": message_id, "chat_id": chat_id}))
+        return True
+
     def pin_message(self, message_id, chat_id=None):
         self.calls.append(("pin", {"message_id": message_id}))
         return True
@@ -812,6 +816,69 @@ def t_s_ap_ok_approves_job_and_writes_legacy_verdict_e2e():
     assert aps.summary()["approved"] == 1
     # legacy verdict هم نوشته شده
     assert (aps._LEGACY_DIR / f"{jid}.json").exists()
+
+
+def t_s2_ap_ok_deletes_the_card_instead_of_editing_e2e():
+    """۲۰۲۶-۰۸-۰۶ (خواستهٔ صریحِ مالک): کارتِ تأییدشده/ردشده حذف می‌شود،
+    نه ادیت — آویزان نمی‌ماند تا صفحه دوباره باز شود."""
+    _redirect_octopus_paths()
+    jid = aps.add_pending({"type": "metadata_scan", "title": "test", "risk": "read"})
+    fc = FakeClient(owner_id=777)
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render_with_map())
+    u = {"update_id": 17, "callback_query": {"id": "c1", "from": {"id": 777},
+          "data": f"ap:ok:{jid}", "message": {"message_id": 42, "chat": {"id": -1}}}}
+    res = c.handle_update(u)
+    assert res and res["ok"] is True, res
+    deletes = fc.named("delete")
+    assert deletes == [{"message_id": 42, "chat_id": -1}], deletes
+    assert fc.named("edit") == [], "کارتِ تأییدشده هنوز ادیت هم شده -- باید فقط حذف شود"
+
+
+def t_s3_ap_ok_falls_back_to_edit_when_delete_fails_e2e():
+    """اگر حذف رد شد (مثلاً پیامِ >۴۸ساعته)، کارت لااقل رفرش می‌شود — نه بی‌فایده رها."""
+    _redirect_octopus_paths()
+    jid = aps.add_pending({"type": "metadata_scan", "title": "test", "risk": "read"})
+    fc = FakeClient(owner_id=777)
+    fc.delete = lambda message_id, chat_id=None: False
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render_with_map())
+    u = {"update_id": 17, "callback_query": {"id": "c1", "from": {"id": 777},
+          "data": f"ap:ok:{jid}", "message": {"message_id": 42, "chat": {"id": -1}}}}
+    res = c.handle_update(u)
+    assert res and res["ok"] is True, res
+    assert fc.named("edit"), "حذف شکست خورد ولی رفرشِ صفحه هم نیامد -- کارت بی‌فایده رها شد"
+
+
+def t_s4_ap_not_found_still_edits_never_deletes():
+    """job ِ ناموجود (قبلاً تصمیم‌شده/جعلی) نباید کارتِ دیگری را حذف کند -- فقط رفرش."""
+    _redirect_octopus_paths()
+    fc = FakeClient(owner_id=777)
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render_with_map())
+    u = {"update_id": 17, "callback_query": {"id": "c1", "from": {"id": 777},
+          "data": "ap:ok:no-such-job", "message": {"message_id": 42, "chat": {"id": -1}}}}
+    res = c.handle_update(u)
+    assert res and res["ok"] is False, res
+    assert fc.named("delete") == [], "job نامعتبر بود ولی چیزی حذف شد"
+    assert fc.named("edit"), "رفرشِ صفحه نیامد"
+
+
+def t_start_deep_link_routes_to_approvals_queue():
+    """۲۰۲۶-۰۸-۰۶: `/start ap` (از دکمهٔ url ِ کارتِ پوش‌شده در باتِ دیگر، یا
+    دستیِ مالک) مستقیم به صفِ تأیید می‌پرد -- نه منوی عمومی. payloadِ
+    غایب/ناشناخته بایت‌به‌بایتِ قدیمی (منو) می‌ماند."""
+    _redirect_octopus_paths()
+    fc = FakeClient(owner_id=777)
+    c = center.Center(client=fc, clock=Clock(), render_mod=fake_render_with_map())
+    pages = []
+    real_page = c._page
+    c._page = lambda name: (pages.append(name), real_page(name))[1]
+    for text, expect in (("/start ap", "ap"), ("/start", "menu"),
+                         ("/start garbage-payload", "menu")):
+        pages.clear()
+        u = {"update_id": 20, "message": {"from": {"id": 777}, "text": text,
+              "chat": {"id": 777, "type": "private"}}}
+        res = c.handle_update(u)
+        assert res is not None, (text, res)
+        assert pages == [expect], (text, pages)
 
 
 def t_t_ap_detail_shows_content_free_card_e2e():

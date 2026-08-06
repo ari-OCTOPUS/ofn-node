@@ -393,8 +393,19 @@ def t_brain_digest_beat_keyboard_has_no_dead_cross_bot_button():
         assert ch.sent, "کارتِ مغز اصلاً ارسال نشد"
         _text, kb = ch.sent[-1]
         assert kb and kb.get("inline_keyboard"), f"کیبورد خالی است: {kb}"
-        buttons = [b.get("callback_data", "")
-                   for row in kb["inline_keyboard"] for b in row]
+        all_buttons = [b for row in kb["inline_keyboard"] for b in row]
+        # ۲۰۲۶-۰۸-۰۶ (ادامه — deep-link به‌جای دکمهٔ مرده): دکمهٔ `url` اصلاً
+        # از دیسپچرِ callback عبور نمی‌کند — تلگرام خودش، سمتِ کلاینت، چتِ
+        # آن بات را باز می‌کند؛ هیچ POSTی به approval_channel نمی‌رود. پس
+        # فقط دکمه‌های واقعاً callback_data‌دار باید dispatch شوند؛ دکمهٔ
+        # url باید مقصدِ درست (باتِ مرکز + payloadِ ap) داشته باشد، نه
+        # اینکه با رشتهٔ خالی «نادیده» بگیرد.
+        url_buttons = [b for b in all_buttons if b.get("url")]
+        assert url_buttons, "دکمهٔ deep-link (url) از کارت گم شده"
+        assert any("intergrade2725_Bot?start=ap" in b["url"] for b in url_buttons), (
+            f"هیچ‌کدام از دکمه‌های url به صفِ رأیِ باتِ مرکز اشاره نمی‌کنند: {url_buttons}"
+        )
+        buttons = [b.get("callback_data", "") for b in all_buttons if "callback_data" in b]
         assert "mn:ap" not in buttons, (
             "کارتِ پوش‌شدهٔ مغز دوباره یک دکمهٔ mn:ap دارد — این verb فقط در "
             "باتِ مرکز هندلر دارد، نه در باتِ ارگانیسم که این کارت را می‌فرستد "
