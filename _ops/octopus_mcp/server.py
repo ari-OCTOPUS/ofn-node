@@ -18,10 +18,12 @@ import fnmatch
 import hashlib
 import io
 import json
+import os
 import re
 import shutil
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -33,6 +35,15 @@ MAX_SLICE_BYTES = 64 * 1024      # سقفِ هر read_file_slice
 MAX_SEARCH_LINES = 200           # سقفِ خطوطِ خروجیِ جستجو
 MAX_TREE_ENTRIES = 500           # سقفِ ردیف‌های list_tree
 PROTOCOL_VERSION = "2025-06-18"
+
+# fallback ِ جستجوی پایتونی (وقتی rg نیست): سقفِ فایل‌های خوانده‌شده و بودجهٔ
+# زمانِ نرم. هر دو روی cap/timeout نتیجهٔ **جزئی** برمی‌گردانند نه خالی — درسِ
+# empty-on-cap: صفِ ۳۰۰۰ روی ریپوی ~۶.۴k فایل، match های بعد از ۳۰۰۰ را می‌بلعید.
+_PY_SCAN_CAP = 20000
+_PY_TIME_BUDGET_S = 8.0
+# fallback بدونِ rg کنداست (خواندنِ کاملِ ~۶.۴k فایل). md/py را اول اسکن کن تا
+# نتیجهٔ مفیدِ کشف زودتر از فایل‌های حجیمِ state (.json/.jsonl/.log) بیاید.
+_PY_PREF_EXT = (".md", ".py", ".txt", ".yaml", ".yml")
 
 # ---------------------------------------------------------------- path guard
 
@@ -165,8 +176,32 @@ def _git_ls_files() -> list[str]:
         return []
 
 
-def _rg_search(query: str, base: Path, glob: str, cap: int) -> tuple[list[dict], str]:
-    cmd = ["rg", "-n", "--no-heading", "-S", "-m", "5", "--max-columns", "300"]
+def _match_terms(hay: str, terms: list[str]) -> bool:
+    """AND روی همهٔ واژه‌ها — نه substringِ کلِ رشتهٔ کوئری. «beta alpha» باید
+    خطی که «alpha ... beta» دارد را بیابد (مستقل از ترتیب). ریشهٔ باگِ خالی‌برگشتن."""
+    return all(t in hay for t in terms)
+
+
+def _find_rg() -> str | None:
+    """rg را پیدا کن: env `OCTOPUS_RG_PATH` → PATH → محل‌های شناختهٔ ویندوز →
+    `_ops/bin/rg.exe`. نبود = None (سرور می‌افتد رویِ fallback ِ پایتونی).
+    این ماشین rg ِ سیستمی ندارد — پس fallback باید واقعاً کار کند."""
+    env = os.environ.get("OCTOPUS_RG_PATH", "").strip()
+    if env and Path(env).exists():
+        return env
+    w = shutil.which("rg")
+    if w:
+        return w
+    for cand in (ROOT / "_ops" / "bin" / "rg.exe",
+                 Path(r"C:\Program Files\Git\usr\bin\rg.exe"),
+                 Path(r"C:\Program Files\Git\mingw64\bin\rg.exe")):
+        if cand.exists():
+            return str(cand)
+    return None
+
+
+def _rg_search(query: str, base: Path, glob: str, cap: int, rg_path: str) -> tuple[list[dict], str]:
+    cmd = [rg_path, "-n", "--no-heading", "-S", "-m", "5", "--max-columns", "300"]
     if glob:
         cmd += ["-g", glob]
     cmd += ["--", query, str(base)]
@@ -194,13 +229,20 @@ def _rg_search(query: str, base: Path, glob: str, cap: int) -> tuple[list[dict],
 
 
 def _py_search(query: str, base: Path, glob: str, cap: int) -> tuple[list[dict], str]:
-    """fallback بدونِ rg: فقط فایل‌های tracked زیرِ base — هرگز os.walk روی کلِ درخت."""
+    """fallback بدونِ rg: فقط فایل‌های tracked زیرِ base — هرگز os.walk روی کلِ درخت.
+    term-based (AND روی همهٔ واژه‌ها) نه substringِ کلِ رشته — «lead pipeline PROJECT»
+    باید فایلی که هر سه واژه را دارد بیابد. روی cap/بودجهٔ زمان نتیجهٔ **جزئی**
+    برمی‌گرداند نه خالی (درسِ empty-on-cap)."""
     prefix = str(base.relative_to(ROOT)).replace("\\", "/")
     prefix = "" if prefix == "." else prefix + "/"
     smart_ci = query == query.lower()
-    needle = query.lower() if smart_ci else query
-    hits, scanned = [], 0
-    for rel in _git_ls_files():
+    terms = [t for t in (query.lower() if smart_ci else query).split() if t]
+    if not terms:
+        return [], "empty-query"
+    hits, scanned, t0 = [], 0, time.monotonic()
+    ordered = sorted(_git_ls_files(),
+                     key=lambda r: 0 if r.lower().endswith(_PY_PREF_EXT) else 1)
+    for rel in ordered:
         if prefix and not rel.startswith(prefix):
             continue
         if glob and not fnmatch.fnmatch(Path(rel).name, glob):
@@ -212,19 +254,35 @@ def _py_search(query: str, base: Path, glob: str, cap: int) -> tuple[list[dict],
             if p.stat().st_size > 2 * 1024 * 1024:
                 continue
             scanned += 1
-            if scanned > 3000:
-                return hits, "file-scan-cap-3000-reached"
-            per_file = 0
+            if scanned > _PY_SCAN_CAP:
+                return hits, f"file-scan-cap-{_PY_SCAN_CAP}-reached (partial — مسیر/گلاب را باریک کن)"
+            if scanned % 100 == 0 and time.monotonic() - t0 > _PY_TIME_BUDGET_S:
+                return hits, "time-budget-reached (partial — مسیر/گلاب را باریک کن)"
             with open(p, encoding="utf-8", errors="replace") as fh:
-                for no, line in enumerate(fh, 1):
-                    hay = line.lower() if smart_ci else line
-                    if needle in hay:
-                        hits.append({"path": rel, "line": no, "text": line.rstrip()[:300]})
-                        per_file += 1
-                        if len(hits) >= cap:
-                            return hits, ""
-                        if per_file >= 5:
-                            break
+                text = fh.read()
+            low = text.lower() if smart_ci else text
+            # early-out: کلِ فایل باید همهٔ واژه‌ها را داشته باشد (سریع؛ اکثرِ فایل‌ها
+            # همین‌جا skip می‌شوند — این تفاوتِ هنگ با کارکرد است روی ~۶.۴k فایل).
+            if not _match_terms(low, terms):
+                continue
+            per_file, first_any = 0, None
+            for no, line in enumerate(text.splitlines(), 1):
+                hay = line.lower() if smart_ci else line
+                if _match_terms(hay, terms):
+                    hits.append({"path": rel, "line": no, "text": line.rstrip()[:300]})
+                    per_file += 1
+                    if len(hits) >= cap:
+                        return hits, ""
+                    if per_file >= 5:
+                        break
+                elif first_any is None and any(t in hay for t in terms):
+                    first_any = (no, line)
+            # واژه‌ها در فایل هستند ولی روی یک خط نه — فایل را با اولین خطِ مرتبط رو کن
+            if per_file == 0 and first_any is not None:
+                hits.append({"path": rel, "line": first_any[0],
+                             "text": first_any[1].rstrip()[:300]})
+                if len(hits) >= cap:
+                    return hits, ""
         except OSError:
             continue
     return hits, ""
@@ -234,15 +292,17 @@ def t_search_hybrid(query: str, path: str = ".", glob: str = "", max_results: in
     """جستجوی محتوا (rg، وگرنه fallback ِ tracked-only) + نامِ فایل، ممنوعیت‌آگاه."""
     base = _resolve(path)
     cap = max(1, min(int(max_results), MAX_SEARCH_LINES))
-    if shutil.which("rg"):
-        content_hits, err = _rg_search(query, base, glob, cap)
+    rg = _find_rg()
+    if rg:
+        content_hits, err = _rg_search(query, base, glob, cap, rg)
         engine = "rg"
     else:
         content_hits, err = _py_search(query, base, glob, cap)
         engine = "py-tracked-only"
-    ql = query.lower()
+    terms = [t for t in query.lower().split() if t]
     name_hits = [rel for rel in _git_ls_files()
-                 if ql in Path(rel).name.lower() and not _denied(rel)][:20]
+                 if terms and _match_terms(Path(rel).name.lower(), terms)
+                 and not _denied(rel)][:20]
     return {"query": query, "engine": engine, "content": content_hits,
             "filenames": name_hits, "truncated": len(content_hits) >= cap,
             "search_error": err}
