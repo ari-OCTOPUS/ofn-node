@@ -685,6 +685,23 @@ def _lifecycle_stalled_rows(folded: Any, ts_now: float) -> list:
     return out
 
 
+def _lifecycle_public_stalled_rows(folded: Any, ts_now: float) -> list:
+    """نمای **بیرون‌مرزیِ** فهرستِ راکد — بدونِ `rfc_id`.
+
+    ۲۰۲۶-۰۸-۰۶ — رفعِ نشت: `_lifecycle_stalled_rows` عمداً هویتِ کارت را نگه
+    می‌دارد چون مصرف‌کنندهٔ داخلیِ تصمیم‌گیر (`decide_rfc`) به همان شناسهٔ خام
+    نیاز دارد و `LIFECYCLE_KEY_EXCEPTIONS` دقیقاً برای همان مسیر ساخته شد.
+    ولی خودِ `/api/lifecycle` یک تونلِ **خواندنیِ** بیرونی است — قراردادِ
+    صریحِ همین ماژول (بندِ ۲ بالای فایل) می‌گوید «فقط شمارش و timestamp،
+    صفر هویت». یک شناسهٔ RFC خام (`RFC-aa01e8ff`) دقیقاً همان چیزی است که آن
+    قرارداد منع کرده، پس این‌جا — و فقط این‌جا، درست پیش از رفتن به بدنهٔ
+    HTTP — فیلدِ هویت‌دار حذف می‌شود؛ تابعِ داخلی و تست‌های تصمیم‌گیرش
+    دست‌نخورده می‌مانند.
+    """
+    return [{"created_ts": r["created_ts"], "age_days": r["age_days"]}
+            for r in _lifecycle_stalled_rows(folded, ts_now)]
+
+
 def _lifecycle_safe_sources(sources: Any) -> list:
     """فقط مسیرهای اعلام‌شده عبور می‌کنند؛ هر رشتهٔ دیگر `unlisted-source`."""
     out = []
@@ -785,10 +802,15 @@ def get_lifecycle_state(root: "Path | None" = None,
             _lifecycle_count_stamp(total if n_stalled is not None and int(n_stalled) >= 0
                                    else None, src0, ts_now)),
         # ۲۰۲۶-۰۸-۰۵ — رأیِ مالک: «کارت‌های راکد گزینش هست کار نمی‌کند؛ آدم
-        # ببیند و از راکدی درش بیاورد.» تا امروز این نما فقط **عدد** می‌داد،
+        # ببیند و از راکدی درش بیاورد.» تا آن روز این نما فقط **عدد** می‌داد،
         # پس ۲۹ کارتِ راکد (قدیمی‌ترین ~۱۰ روز) هیچ سطحی برای تصمیم نداشتند.
-        # حالا هویتِ بی‌متن‌شان می‌آید تا دکمه بتواند به یک `rfc_id` بچسبد.
-        "stalled_list": _lifecycle_stalled_rows(folded, ts_now),
+        # ۲۰۲۶-۰۸-۰۶ — رفعِ نشت: فهرستِ آن روز مستقیماً `rfc_id` خام را رد
+        # می‌کرد و whitelist ِ سختِ همین نما (بندِ ۲) را دور می‌زد —
+        # `test_miniapp_lifecycle_view` هر دو جهت را می‌گرفت. حالا فقط سن و
+        # timestamp رد می‌شوند؛ کلیدِ تصمیم‌گیر (`rfc_id`) در تابعِ داخلیِ
+        # `_lifecycle_stalled_rows` می‌ماند برای مصرف‌کنندهٔ backend، نه این
+        # تونلِ خواندنیِ بیرونی.
+        "stalled_list": _lifecycle_public_stalled_rows(folded, ts_now),
         "stalled_list_truncated": int(folded.get("stalled_list_truncated") or 0),
     }
     _lifecycle_enforce(out)

@@ -8,16 +8,34 @@
 فرستاده شدند در حالی که handler ِ verbشان روی باتِ دیگری بود — مالک دکمه را
 می‌زد و هیچ اتفاقی نمی‌افتاد. هر بار هم دستی کشف شد، نه با گارد.
 
-قاعدهٔ این فایل: **هر verb ای که در `callback_data` تولید می‌شود باید در
-روترِ همان مسیر شناخته شده باشد.** و چون کارت‌ها از دو مسیر می‌روند
-(`organism` از طریق `approval_channel`، و `telegram_center`)، verbهای مشترک
-باید در **هر دو** روتر باشند — همان درسی که `tr:` بعد از افتادن یاد داد.
+قاعدهٔ این فایل: **هر verb ای که در `callback_data` تولید می‌شود باید روی
+دیسپچرِ همان باتی که کارت را می‌فرستد شناخته باشد.**
 
 روشِ سنجش **نحوی** است نه رشته‌ای: `ast` روی سورس، تا جمله‌ای در یک کامنت که
 اسمِ یک verb را برده به‌عنوان handler شمرده نشود (درسِ «grep کامنت را می‌شمارد»).
-"""
-import ast
-import re
+
+── ۲۰۲۶-۰۸-۰۶ (تعمیم) ──────────────────────────────────────────────────────
+نسخهٔ قبلیِ این فایل فقط ۴ فایلِ hardcode‌شده را می‌دید: center.py،
+approval_channel.py، tool_request.py، test_cycle.py. همان شب، دقیقاً به همین
+دلیل، باگی در wiring.py (تابعِ `brain_digest_beat`) کشف‌نشده ماند: دکمه‌ای با
+`callback_data="mn:ap"` ساخته شد که فقط center.py هندلرش را می‌شناخت، درحالی‌که
+این کارت از کانالِ organism (approval_channel.TelegramApprovalChannel روی
+@Robo2725_bot) می‌رود — تلهٔ دو-باتی، نمونهٔ سوم. اسکنر چون wiring.py را اصلاً
+نمی‌دید، این را رد کرد؛ کشفش دستی و بعد از گزارشِ مالک بود.
+
+فیکسِ واقعیِ آن شب (تبدیلِ دکمه به `url`، نه `callback_data`) در wiring.py
+ماند. فیکسِ این فایل، **تعمیمِ خودِ اسکنر** است: به‌جای ۴ فایل، همهٔ
+`_ops/**/*.py` اسکن می‌شود (موتورِ AST در `tg_callback_scanner.py`، همسایهٔ
+همین فایل) — همراه با تشخیصِ اینکه هر فایل کارتش را از کدام بات می‌فرستد
+(«producing bot»، بر پایهٔ گراف importِ درون‌ـ_ops، نه حدس). جزئیاتِ کاملِ
+مکانیزم و چرا محافظه‌کارانه است: بالای `tg_callback_scanner.py`.
+
+دکمه‌های `url` (نه `callback_data`) عمداً از این چک بیرون‌اند — هرگز به هیچ
+دیسپچرِ باتی نمی‌رسند (خودِ تلگرام سمتِ کلاینت چتِ بات دیگر را باز می‌کند).
+همان نکته‌ای که شبِ ۰۸-۰۶ در fix ِ wiring.py و در
+`test_organ_dialogue.py:t_brain_digest_beat_keyboard_has_no_dead_cross_bot_button`
+مستند شد. `tg_callback_scanner.emitted_verbs` اصلاً دنبالِ کلیدِ `"url"`
+نمی‌گردد — پس فیلترِ صریح لازم نیست، نبودِ کلید یعنی بیرون از دامنه."""
 import sys
 from pathlib import Path
 
@@ -25,9 +43,12 @@ import harness
 
 ENV = harness.setup("tg-emitter-parity")
 
-_OPS = Path(__file__).resolve().parent.parent
-CENTER = _OPS / "telegram_center" / "center.py"
-APPROVAL = _OPS / "budget" / "approval_channel.py"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import tg_callback_scanner as scanner   # noqa: E402 — بعد از sys.path (هم‌پوشه)
+
+_OPS = scanner.OPS
+CENTER = scanner.CENTER
+APPROVAL = scanner.APPROVAL
 TOOL_REQUEST = _OPS / "tool_request.py"
 TEST_CYCLE = _OPS / "test_cycle.py"
 
@@ -37,91 +58,137 @@ KNOWN_HANDLERLESS = {
     "noop",       # دکمهٔ تزئینی/جداکننده
 }
 
-_VERB = re.compile(r"^([A-Za-z][A-Za-z0-9_]{0,15}):")
+# ── شکاف‌های واقعی و کشف‌شده — نه طراحیِ عمدی ────────────────────────────────
+# این با KNOWN_HANDLERLESS فرق دارد: آن‌جا «این verb عمداً بی‌handler است»
+# است (تصمیم)، این‌جا «باگِ واقعیِ تلهٔ دو-باتی، همین تعمیم کشفش کرد، هنوز رفع
+# نشده» است. رفعش دست‌کاریِ approval_channel.py می‌خواهد که خارج از دامنهٔ این
+# جلسه است (فقط ابزارِ دفاعی، نه تغییرِ production). ثبت می‌شود تا اسکنر نه
+# رویش کور بماند و نه بی‌دلیل CI را بشکند — سکوت درباره‌اش دقیقاً همان اشتباهی
+# است که این فایل قرار است جلویش را بگیرد.
+KNOWN_OPEN_GAPS = {
+    ("initiative.py", "mr"): (
+        "۲۰۲۶-۰۸-۰۶ — کشفِ همین تعمیمِ اسکنر. initiative.card() دکمهٔ "
+        "🪞 آینه با callback_data='mr:know' می‌سازد؛ تنها فرستنده‌اش "
+        "organism.py:733-734 (→ _chan.send_text، یعنی approval_channel."
+        "TelegramApprovalChannel روی @Robo2725_bot) است. verb ِ 'mr' فقط "
+        "در telegram_center/center.py هندلر دارد (`verb == \"mr\"`)؛ در "
+        "approval_channel.py هیچ شاخهٔ dispatch ای برایش نیست — "
+        "dispatch_callback با «نادیده» برمی‌گردد (خطِ پایانیِ fallback). "
+        "تلهٔ دو-باتیِ مستندِ همین فایل، نمونهٔ زنده و هنوز رفع‌نشده. "
+        "TODO مالک: یا approval_channel.py هندلرِ mr بگیرد یا دکمه مثلِ "
+        "wiring.py:brain_digest_beat به url تبدیل شود."
+    ),
+}
 
 
-def _emitted_verbs(path: Path) -> set:
-    """verbهایی که در `callback_data` **ساخته** می‌شوند — از AST، نه grep.
-
-    دو شکل پوشش داده می‌شود: رشتهٔ ثابت (`"tr:list"`) و f-string
-    (`f"tr:y:{rid}"`) که در AST یک `JoinedStr` با اولین جزءِ ثابت است."""
+def _apply_known_gaps(path: Path, bot: str, missing: set, used: set) -> set:
+    """missing منهایِ آنچه در KNOWN_OPEN_GAPS برای این (فایل، verb) ثبت شده."""
     out = set()
-    try:
-        tree = ast.parse(path.read_text("utf-8"))
-    except (OSError, SyntaxError):
-        return out
-    for node in ast.walk(tree):
-        # {"callback_data": <expr>}
-        if isinstance(node, ast.Dict):
-            for k, v in zip(node.keys, node.values):
-                if not (isinstance(k, ast.Constant) and k.value == "callback_data"):
-                    continue
-                lit = None
-                if isinstance(v, ast.Constant) and isinstance(v.value, str):
-                    lit = v.value
-                elif isinstance(v, ast.JoinedStr) and v.values:
-                    first = v.values[0]
-                    if isinstance(first, ast.Constant) and isinstance(first.value, str):
-                        lit = first.value
-                if lit:
-                    m = _VERB.match(lit)
-                    if m:
-                        out.add(m.group(1))
+    for v in missing:
+        key = (path.name, v)
+        if key in KNOWN_OPEN_GAPS:
+            used.add(key)
+            continue
+        out.add(v)
     return out
-
-
-def _handled_verbs(path: Path) -> set:
-    """verbهایی که روتر **می‌شناسد** — مقایسه‌های `verb == "x"` / `in {...}` /
-    `parts[0] == "x"`، همه از AST."""
-    out = set()
-    try:
-        tree = ast.parse(path.read_text("utf-8"))
-    except (OSError, SyntaxError):
-        return out
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Compare):
-            left = node.left
-            is_verbish = (
-                (isinstance(left, ast.Name) and left.id in ("verb", "v", "kind"))
-                or (isinstance(left, ast.Subscript)
-                    and isinstance(left.value, ast.Name)
-                    and left.value.id in ("parts", "p"))
-            )
-            if not is_verbish:
-                continue
-            for comp in node.comparators:
-                if isinstance(comp, ast.Constant) and isinstance(comp.value, str):
-                    out.add(comp.value)
-                elif isinstance(comp, (ast.Set, ast.Tuple, ast.List)):
-                    for e in comp.elts:
-                        if isinstance(e, ast.Constant) and isinstance(e.value, str):
-                            out.add(e.value)
-    return out
-    # ⚠️ عمداً مجموعه‌های سطحِ ماژول (مثلِ `_MUTATING = frozenset({"app","tr"})`)
-    # **شمرده نمی‌شوند**. نسخهٔ اول می‌شمرد و گارد بی‌دندان شد: برداشتنِ کاملِ
-    # شاخهٔ `verb == "tr"` از center هیچ تستی را قرمز نکرد، چون نامِ `tr` از
-    # همان مجموعهٔ عضویت برداشته می‌شد. عضویت در یک لیستِ «این verb جهش‌زاست»
-    # یعنی **دسته‌بندی**، نه **رسیدگی**. فقط شاخهٔ dispatch حساب است.
 
 
 # ── سنجه‌ها ────────────────────────────────────────────────────────────────
 def t_the_scanner_actually_finds_something():
     """اگر این بند بشکند بقیه بی‌معنی‌اند — اسکنرِ خالی همیشه سبز است."""
-    emitted = _emitted_verbs(CENTER) | _emitted_verbs(APPROVAL)
+    emitted = scanner.emitted_verbs(CENTER) | scanner.emitted_verbs(APPROVAL)
     assert len(emitted) >= 3, f"اسکنرِ emit چیزی پیدا نکرد: {emitted}"
-    handled = _handled_verbs(CENTER) | _handled_verbs(APPROVAL)
+    handled = scanner.handled_verbs(CENTER) | scanner.handled_verbs(APPROVAL)
     assert len(handled) >= 3, f"اسکنرِ handler چیزی پیدا نکرد: {handled}"
+    # تعمیمِ ۰۸-۰۶: اسکنرِ فایل باید بیش از ۴ فایلِ قدیمی ببیند، وگرنه تعمیم
+    # اسمی است — همان کوریِ wiring.py دوباره رخ می‌دهد.
+    all_emitters = scanner.all_emitters()
+    assert len(all_emitters) >= 15, (
+        f"اسکنرِ عمومی فقط {len(all_emitters)} فایل دید — کمتر از انتظار؛ "
+        "دامنه‌اش دارد به همان محدودیتِ ۴-فایلیِ قدیم برمی‌گردد؟")
+    assert any(f.name == "wiring.py" for f in all_emitters), (
+        "wiring.py دیگر emitter شمرده نمی‌شود — دقیقاً همان فایلی که باگِ "
+        "۰۸-۰۶ در آن بود و این تعمیم قرار بود ببیندش.")
+
+
+def t_every_emitted_verb_is_handled_by_its_producing_bots_own_router():
+    """قاعدهٔ اصلیِ تعمیم‌یافته — جایگزینِ چهار بندِ جداگانهٔ نسخهٔ قبلی.
+
+    برایِ **هر** فایلِ `_ops/**/*.py` که واقعاً یک callback_data می‌سازد
+    (`tg_callback_scanner.all_emitters`): بات(هایی) که این فایل کارتش را
+    ازش می‌فرستد را پیدا کن (`producing_bots` — گراف importِ درون‌ـ_ops، نه
+    حدس)، و verbهای emit‌شده را روی دیسپچرِ **همان** بات(ها) بسنج. اگر
+    فایلی بی‌importer است (کدِ orphan/not-wired — مثلِ approval_channel_merge.py
+    که خودش «Zero live callers» را در docstring دارد)، هیچ باتِ زنده‌ای این
+    کد را اجرا نمی‌کند، پس own-router-check برایش بی‌معناست، رد می‌شود.
+
+    این دقیقاً همان چیزی است که شبِ ۰۸-۰۶ نبود: اسکنری که wiring.py (و هر
+    فایلِ دیگری، نه فقط ۴تای hardcode‌شده) را می‌بیند و می‌فهمد کارتش از
+    کدام بات می‌رود."""
+    stem_map = scanner.build_stem_map()
+    bots_by_file = scanner.producing_bots(stem_map)
+    handled = {
+        "center": scanner.handled_verbs(CENTER),
+        "approval": scanner.handled_verbs(APPROVAL),
+    }
+
+    violations = []
+    used_gaps = set()
+    for path, verbs in scanner.all_emitters().items():
+        if path == CENTER:
+            producing = {"center"}
+        elif path == APPROVAL:
+            producing = {"approval"}
+        else:
+            if not scanner.has_any_importer(path, stem_map):
+                continue   # orphan/not-wired — هیچ باتی این کد را اجرا نمی‌کند
+            producing = set(bots_by_file.get(path, frozenset()))
+            if not producing:
+                # unknown → محافظه‌کارانه یعنی shared: تا وقتی مطمئن نیستیم
+                # کدام بات می‌فرستد، هر دو باید بشناسند (هرگز به‌خاطرِ ابهام
+                # یک verbِ خطرناک را رد نکن).
+                producing = {"center", "approval"}
+
+        verbs_to_check = verbs - KNOWN_HANDLERLESS
+        for bot in sorted(producing):
+            missing = verbs_to_check - handled[bot]
+            missing = _apply_known_gaps(path, bot, missing, used_gaps)
+            for v in sorted(missing):
+                violations.append((str(path.relative_to(_OPS)), bot, v))
+
+    assert not violations, (
+        "کارتِ مرده — verb ای که یک فایل emit می‌کند ولی روترِ باتی که آن را "
+        f"می‌فرستد handler ندارد (فایل، بات، verb): {violations}")
+
+    unused = set(KNOWN_OPEN_GAPS) - used_gaps
+    assert not unused, (
+        f"KNOWN_OPEN_GAPS شاملِ ورودی‌ای است که دیگر بازتولید نمی‌شود "
+        f"(یعنی رفع شده — پاکش کن، وگرنه یک استثنایِ مرده است): {unused}")
+
+
+def t_approval_channel_merge_is_a_known_orphan_not_a_silent_blind_spot():
+    """رگرسیونِ نقطه‌ایِ استثنایِ orphan — اگر approval_channel_merge.py روزی
+    واقعاً wire شود (importer پیدا کند)، این بند باید قرمز شود تا کسی
+    دوباره نگاهش کند؛ استثنا نباید تا ابد بی‌صدا بماند."""
+    stem_map = scanner.build_stem_map()
+    merge = scanner.APPROVAL_MERGE
+    assert merge.exists(), "approval_channel_merge.py دیگر وجود ندارد؟"
+    assert scanner.emitted_verbs(merge), "دیگر callback_data نمی‌سازد؟ استثنا بی‌مصرف شده."
+    is_orphan = not scanner.has_any_importer(merge, stem_map)
+    assert is_orphan, (
+        "approval_channel_merge.py دیگر orphan نیست (importer پیدا کرده) — "
+        "own-router-check رویش دوباره باید اجرا شود؛ از استثنای orphan در "
+        "t_every_emitted_verb_is_handled_by_its_producing_bots_own_router "
+        "خارجش کن و verbهایش (brain/menu) را واقعاً روی دیسپچرِ approval "
+        "بسنج.")
 
 
 def t_every_verb_the_center_emits_is_handled_on_its_own_router():
-    """هر verb ای که CENTER می‌سازد باید در روترِ خودِ CENTER شناخته شود.
-
-    درسِ تاریخیِ `tr:`: کارت از کانالِ ارگانیسم رفت ولی handler فقط در مرکز بود.
-    نسخهٔ قدیمیِ این تست handled را **اجتماعِ** هر دو روتر می‌گرفت — پس verb ای
-    که فقط در روترِ دیگر شناخته می‌شد می‌گذشت، و همین کارتِ مرده می‌ساخت. حالا
-    قانونِ واقعیِ قرارداد را می‌سنجد: **روترِ فرستنده خودش باید handler داشته باشد.**"""
-    emitted = _emitted_verbs(CENTER) - KNOWN_HANDLERLESS
-    handled_by_center = _handled_verbs(CENTER)
+    """رگرسیونِ نقطه‌ایِ باقی‌مانده از نسخهٔ قبلی — تنگ و مستقیم، فقط برایِ
+    خودِ CENTER (زیرمجموعه‌ای از بندِ عمومیِ بالا، ولی خطای دقیق‌تری می‌دهد
+    وقتی خودِ روتر می‌شکند)."""
+    emitted = scanner.emitted_verbs(CENTER) - KNOWN_HANDLERLESS
+    handled_by_center = scanner.handled_verbs(CENTER)
     orphan = sorted(emitted - handled_by_center)
     assert not orphan, (
         f"کارتِ مرده — verb ای که center می‌فرستد ولی روترِ center خودش handler "
@@ -130,8 +197,8 @@ def t_every_verb_the_center_emits_is_handled_on_its_own_router():
 
 def t_every_verb_the_approval_channel_emits_is_handled_on_its_own_router():
     """همان قانون برای approval_channel — روترِ فرستنده باید handler داشته باشد."""
-    emitted = _emitted_verbs(APPROVAL) - KNOWN_HANDLERLESS
-    handled_by_approval = _handled_verbs(APPROVAL)
+    emitted = scanner.emitted_verbs(APPROVAL) - KNOWN_HANDLERLESS
+    handled_by_approval = scanner.handled_verbs(APPROVAL)
     orphan = sorted(emitted - handled_by_approval)
     assert not orphan, (
         f"کارتِ مرده — verb ای که approval_channel می‌فرستد ولی روترِ "
@@ -146,11 +213,11 @@ def t_verbs_emitted_by_shared_modules_are_handled_on_both_routers():
     shared = set()
     for m in (TOOL_REQUEST, TEST_CYCLE):
         if m.exists():
-            shared |= _emitted_verbs(m)
+            shared |= scanner.emitted_verbs(m)
     shared -= KNOWN_HANDLERLESS
     if not shared:
         return                                   # ماژولِ مشترکی کارت نمی‌سازد
-    c_h, a_h = _handled_verbs(CENTER), _handled_verbs(APPROVAL)
+    c_h, a_h = scanner.handled_verbs(CENTER), scanner.handled_verbs(APPROVAL)
     missing = {v: [r for r, h in (("center", c_h), ("approval", a_h)) if v not in h]
                for v in sorted(shared)}
     broken = {v: r for v, r in missing.items() if r}
@@ -159,16 +226,16 @@ def t_verbs_emitted_by_shared_modules_are_handled_on_both_routers():
 
 def t_the_tr_verb_is_present_on_both_routers():
     """رگرسیونِ نقطه‌ایِ همان باگِ تاریخی — تنگ و مستقیم."""
-    assert "tr" in _handled_verbs(CENTER), "tr در center نیست"
-    assert "tr" in _handled_verbs(APPROVAL), "tr در approval_channel نیست"
+    assert "tr" in scanner.handled_verbs(CENTER), "tr در center نیست"
+    assert "tr" in scanner.handled_verbs(APPROVAL), "tr در approval_channel نیست"
 
 
 def t_the_iv_verb_is_present_where_it_is_emitted():
     """دومین کارتِ مرده تاریخی."""
-    emitted_anywhere = _emitted_verbs(CENTER) | _emitted_verbs(APPROVAL)
+    emitted_anywhere = scanner.emitted_verbs(CENTER) | scanner.emitted_verbs(APPROVAL)
     if "iv" not in emitted_anywhere:
         return
-    handled = _handled_verbs(CENTER) | _handled_verbs(APPROVAL)
+    handled = scanner.handled_verbs(CENTER) | scanner.handled_verbs(APPROVAL)
     assert "iv" in handled, "iv فرستاده می‌شود ولی handler ندارد"
 
 
@@ -182,11 +249,9 @@ def t_one_poller_per_token():
     # می‌شمارد»، این‌بار روی گاردِ خودم. حالا AST: فقط **فراخوانیِ واقعی**.
     allowed = {"tg_api.py", "center.py", "organism.py", "approval_channel.py"}
     callers = []
-    for f in sorted(_OPS.rglob("*.py")):
-        if any(p in f.parts for p in ("tests", "__pycache__", "_Archive",
-                                      "_agent_reports")):
-            continue
+    for f in scanner.iter_py_files():
         try:
+            import ast
             tree = ast.parse(f.read_text("utf-8"))
         except (OSError, SyntaxError, UnicodeDecodeError):
             continue

@@ -371,8 +371,14 @@ def t_projection_keys_are_a_closed_whitelist():
     """هر کلیدِ سطحِ بالا باید عمدی باشد؛ کلیدِ تازه بی‌رأی وارد نمی‌شود."""
     state = _make_state_dir()
     out = _armed(lambda: ms.get_lifecycle_state(state_dir=state, now=1785200000.0))
+    # ۲۰۲۶-۰۸-۰۶: `stalled_list`/`stalled_list_truncated` به رأیِ مالکِ
+    # ۰۸-۰۵ اضافه شدند و این whitelist از قلم افتاده بود — همین غفلت باعثِ
+    # نشتِ `rfc_id` شد (رفع‌شده در miniapp_state._lifecycle_public_stalled_rows).
+    # حالا که فیلدها بی‌هویت‌اند (فقط `created_ts`/`age_days`)، عمداً اعلام
+    # می‌شوند: whitelist باید با خودِ نما هم‌قدم بماند، نه یک بار برای همیشه.
     allowed = {"status", "flag", "sources", "readable", "counts", "by_stage",
-               "oldest_stalled_ts", "total_cards"}
+               "oldest_stalled_ts", "total_cards",
+               "stalled_list", "stalled_list_truncated"}
     assert set(out) <= allowed, f"کلیدِ اعلام‌نشده در نما: {sorted(set(out) - allowed)}"
     assert set(out["counts"]) == set(ms.LIFECYCLE_COUNTS), \
         f"مجموعهٔ شمارش‌ها عوض شد: {sorted(out['counts'])}"

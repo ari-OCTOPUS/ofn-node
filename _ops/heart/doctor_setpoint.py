@@ -141,13 +141,30 @@ def run_epoch_setpoint(write: bool = True) -> dict:
     return out
 
 
-_DOCTOR_LLM_ALERTED = False  # module-level dedup: یک warning در عمرِ پروسه، نه هر epoch
+_DOCTOR_LLM_ALERTED = False  # dedup برای خرابیِ *واقعی*: یک warning در عمرِ پروسه
+# dedupِ جدا برای شرطِ *طراحی‌شده* (سقفِ بودجه / قیمتِ قفل‌نشده / سقفِ نرخِ provider).
+# جدا از _DOCTOR_LLM_ALERTED است تا یک خطِ آرامِ «سقف پر شد» هرگز یک آلارمِ خرابیِ
+# واقعیِ بعدی را نپوشاند (و برعکس).
+_DOCTOR_CAP_ALERTED = False
+
+
+def _is_designed_cap(reason: "str | None") -> bool:
+    """آیا ردِ رزروِ organ_gate «سقفِ بودجه/سهمیهٔ طراحی‌شده» است، نه خرابی؟
+
+    مسیرِ bespokeِ دکتر با `organ_gate.reserve` (بودجهٔ AUD) متر می‌شود. رشته‌های
+    reason که «سقفِ بودجه پر شد» را می‌گویند — هر سه از خودِ organ_gate/budget_gate
+    می‌آیند (سنجیده، نه حدس): `organ-monthly: … > cap …` (سقفِ ماهانهٔ ارگان)،
+    `budget_gate:daily` (سقفِ روزانهٔ سراسری)، `budget_gate:monthly-halt` /
+    `budget_gate:halted` (هالتِ ماهانه). بقیهٔ ردها خرابیِ واقعی‌اند."""
+    r = str(reason or "").lower()
+    return ("organ-monthly" in r or "monthly-halt" in r
+            or "budget_gate:daily" in r or "budget_gate:halted" in r)
 
 
 def llm_refine(setpoint: "hi.HeartParams", signals: dict) -> dict | None:
     """مسیرِ چند-ایجنتیِ پولی (الگوی allocate_llm): دوقفله — تاریخ + فایلِ مالک.
     بسته/شکست = None (برگشتِ امن به سیاستِ قطعی). امروز ساختاراً بسته است."""
-    global _DOCTOR_LLM_ALERTED
+    global _DOCTOR_LLM_ALERTED, _DOCTOR_CAP_ALERTED
     ok, why = opslib.live_gate_open(ACT_HEART_DOCTOR)
     if not ok:
         return None
@@ -155,7 +172,7 @@ def llm_refine(setpoint: "hi.HeartParams", signals: dict) -> dict | None:
     try:
         if str(opslib.DEBATE_DIR) not in sys.path:   # WS-2: idempotent — نشتِ sys.path per-epoch
             sys.path.insert(0, str(opslib.DEBATE_DIR))
-        from client import DeepSeekClient  # noqa: E402
+        from client import DeepSeekClient, PriceNotLocked  # noqa: E402
         import organ_gate                  # noqa: E402
         system = ("You are the w-slow modulator of a hybrid heart. Given signals, "
                   "propose ONLY a JSON viable_band {lo,hi} for target velocity. "
@@ -202,6 +219,17 @@ def llm_refine(setpoint: "hi.HeartParams", signals: dict) -> dict | None:
         est = cli.est_worst_case(len(system) + len(user), max_tokens=400)
         r = organ_gate.reserve("ARCHITECT_SYS", est, task="heart-doctor")
         if not r.get("allow"):
+            # این شاخه فقط وقتی گیتِ زندهٔ دکتر باز است می‌رسد (یعنی مالک صریحاً
+            # مسیرِ پولی را روشن کرده). سکوتِ کامل، «چرا هیچ نشد؟» را مبهم می‌گذارد:
+            # سقفِ بودجه پر شده یا اصلاً اجرا نشد؟ پس یک خطِ آرام (dedup، یک‌بار در
+            # عمرِ پروسه) فقط برای سقفِ *طراحی‌شده* — نه یک آلارم. ردِ *غیرِ* سقف
+            # (state ناخوانا و…) همان‌طور بی‌صدا می‌ماند: خودِ organ_gate آن مسیرها
+            # را با FREEZE/آلارمِ خودش پوشش می‌دهد.
+            reason = r.get("reason")
+            if _is_designed_cap(reason) and not _DOCTOR_CAP_ALERTED:
+                _DOCTOR_CAP_ALERTED = True
+                opslib.alert([f"ℹ️ heart-doctor: سقفِ بودجه/سهمیه پر شد (مسیرِ سیاستِ "
+                              f"قطعی) — طراحی‌شده، نه خرابی. ({reason})"])
             return None
         try:
             out = cli.complete(system, user, max_tokens=400)
@@ -211,7 +239,29 @@ def llm_refine(setpoint: "hi.HeartParams", signals: dict) -> dict | None:
         organ_gate.settle("ARCHITECT_SYS", est, out["cost_usd"], task="heart-doctor")
         from client import extract_json  # noqa: E402
         return {"suggestion": extract_json(out["text"]), "cost_usd": out["cost_usd"]}
+    except PriceNotLocked as e:
+        # شرطِ پیکربندیِ طراحی‌شده، نه خرابی: قیمتِ مدل هنوز در budgets.yaml قفل
+        # نشده، پس client قبل از هر بایتِ شبکه امتناع می‌کند (fail-closed درست است).
+        # همان تفکیکِ گاورنر: «خفته/dormant»، لحنِ آرام. dedupِ *سقف* تا آلارمِ
+        # خرابیِ واقعیِ بعدی را نپوشاند.
+        if not _DOCTOR_CAP_ALERTED:
+            _DOCTOR_CAP_ALERTED = True
+            opslib.alert([f"ℹ️ heart-doctor: قیمتِ مدل قفل نشده (خفته/dormant) — "
+                          f"طراحی‌شده، نه خرابی؛ مسیرِ سیاستِ قطعی. ({e})"])
+        return None
     except Exception as e:  # noqa: BLE001 — fail-safe به سیاستِ قطعی
+        # سقفِ نرخ/بودجهٔ خودِ provider هم طراحی‌شده است: DeepSeek روی محدودیتِ نرخ
+        # HTTP 429 و روی اتمامِ اعتبار HTTP 402 می‌دهد، و urllib.error.HTTPError هر
+        # دو را در `.code` حمل می‌کند — تنها سیگنالِ quota/rate ِ صادقانه‌ای که این
+        # مسیر دارد. خطای شبکه/کلید `.code` ندارد یا کدِ دیگری دارد و لحنِ هشداری
+        # می‌ماند (بدونِ حدسِ ساختگیِ تفکیک).
+        code = getattr(e, "code", None)
+        if code in (429, 402):
+            if not _DOCTOR_CAP_ALERTED:
+                _DOCTOR_CAP_ALERTED = True
+                opslib.alert([f"ℹ️ heart-doctor: سقفِ نرخ/بودجهٔ provider (HTTP {code}) "
+                              f"— طراحی‌شده، نه خرابی؛ مسیرِ سیاستِ قطعی."])
+            return None
         # dedup: یک‌بار در عمرِ پروسه (opslib.alert خودش dedup ندارد) تا
         # governor-alerts هر epoch غرق نشود. fail-safe تغییری نمی‌کند.
         if not _DOCTOR_LLM_ALERTED:

@@ -306,6 +306,116 @@ def t_l_cockpit_heart_card_renders_shadow():
     assert "هنوز سایه‌ای ثبت نشده" in txt2
 
 
+# ── P6b: تفکیکِ آلارمِ مسیرِ bespokeِ دکتر (۲۰۲۶-۰۸-۰۶) ───────────────────────────
+# مسیرِ زندهٔ دکتر (OCTOPUS_HEART_DOCTOR_USE_ROUTER خاموش، پیش‌فرض) با organ_gate/AUD
+# و DeepSeekClient مستقیم کار می‌کند، پس فیکسِ model_router به آن نرسید. سه شرطِ
+# «طراحی‌شده» باید از «خرابیِ واقعی» جدا شوند: قیمتِ قفل‌نشده (PriceNotLocked)، سقفِ
+# بودجهٔ گیت، و سقفِ نرخِ provider (HTTP 429/402) → لحنِ آرامِ ℹ️؛ هر خطای دیگر →
+# آلارمِ «heart doctor llm failed». صفر شبکه (client/organ_gate تزریقی).
+
+def _doctor_client(ctor_exc=None, complete_exc=None):
+    class _C:
+        def __init__(self, role="econ", **kw):
+            if ctor_exc is not None:
+                raise ctor_exc
+
+        def est_worst_case(self, chars, max_tokens=400):
+            return 0.001
+
+        def complete(self, system, user, max_tokens=400):
+            if complete_exc is not None:
+                raise complete_exc
+            return {"text": '{"lo": 1.0, "hi": 4.0}', "cost_usd": 0.0, "model": "fugu"}
+    return _C
+
+
+def _drive_bespoke_doctor(reserve, client_cls):
+    """ds.llm_refine را روی مسیرِ bespoke با گیتِ باز می‌راند؛ (out, alerts) را برمی‌گرداند."""
+    import client as C
+    import organ_gate as og
+    sent = []
+    saved = (opslib.alert, opslib.live_gate_open, og.reserve, og.settle,
+             og.release, C.DeepSeekClient)
+    opslib.alert = lambda msgs, **k: sent.extend(list(msgs))
+    opslib.live_gate_open = lambda *a, **k: (True, "test-open")
+    og.reserve = reserve
+    og.settle = lambda *a, **k: {"ok": True}
+    og.release = lambda *a, **k: {"ok": True}
+    C.DeepSeekClient = client_cls
+    os.environ.pop("OCTOPUS_HEART_DOCTOR_USE_ROUTER", None)
+    ds._DOCTOR_LLM_ALERTED = False
+    ds._DOCTOR_CAP_ALERTED = False
+    sp = hi.HeartParams(viable_band_lo=1.0, viable_band_hi=4.0, epoch_seq=2)
+    try:
+        out = ds.llm_refine(sp, {})
+    finally:
+        (opslib.alert, opslib.live_gate_open, og.reserve, og.settle,
+         og.release, C.DeepSeekClient) = saved
+        ds._DOCTOR_LLM_ALERTED = False
+        ds._DOCTOR_CAP_ALERTED = False
+    return out, sent
+
+
+def t_m_doctor_price_not_locked_is_dormant_not_broken():
+    """قیمتِ قفل‌نشده = شرطِ طراحی‌شده (client قبل از شبکه امتناع می‌کند). باید ℹ️/
+    «خفته» بدهد، نه آلارمِ «heart doctor llm failed» — همان کلاسِ باگِ model_router."""
+    import client as C
+    out, sent = _drive_bespoke_doctor(
+        reserve=lambda *a, **k: {"allow": True, "reserved": 0.001},
+        client_cls=_doctor_client(ctor_exc=C.PriceNotLocked("no price")))
+    assert out is None
+    blob = " ".join(sent)
+    assert blob and blob.startswith("ℹ️"), blob
+    assert ("خفته" in blob or "قفل نشده" in blob), blob
+    assert "heart doctor llm failed" not in blob, blob
+
+
+def t_n_doctor_budget_cap_gate_denial_is_calm_info():
+    """گیتِ باز + سقفِ بودجهٔ AUD پر → یک خطِ آرامِ ℹ️. قبلاً کاملاً بی‌صدا بود، پس
+    مالک نمی‌توانست «سکوت به‌خاطرِ سقف» را از «اصلاً اجرا نشد» تشخیص دهد."""
+    out, sent = _drive_bespoke_doctor(
+        reserve=lambda *a, **k: {"allow": False,
+                                 "reason": "organ-monthly: AU$3.0000 > cap AU$2.00"},
+        client_cls=_doctor_client())
+    assert out is None
+    blob = " ".join(sent)
+    assert blob and "ℹ️" in blob and "طراحی‌شده" in blob, blob
+
+
+def t_o_doctor_non_cap_gate_denial_stays_silent():
+    """ردِ گیت که سقفِ بودجه *نیست* (state ناخوانا و…) همان‌طور بی‌صدا می‌ماند —
+    organ_gate خودش آن مسیر را با FREEZE/آلارمِ خودش پوشش می‌دهد."""
+    out, sent = _drive_bespoke_doctor(
+        reserve=lambda *a, **k: {"allow": False, "reason": "organ-state-unreadable:x"},
+        client_cls=_doctor_client())
+    assert out is None
+    assert sent == [], sent
+
+
+def t_p_doctor_genuine_failure_stays_alarming():
+    """complete() خطای واقعیِ transport/provider → لحنِ هشداری حفظ شود."""
+    out, sent = _drive_bespoke_doctor(
+        reserve=lambda *a, **k: {"allow": True, "reserved": 0.001},
+        client_cls=_doctor_client(complete_exc=RuntimeError("network down")))
+    assert out is None
+    blob = " ".join(sent)
+    assert "heart doctor llm failed" in blob, blob
+    assert "ℹ️" not in blob, blob
+
+
+def t_q_doctor_provider_rate_limit_reads_as_designed():
+    """HTTP 429 provider (urllib.error.HTTPError، `.code` واقعی) = سقفِ نرخِ طراحی‌شده."""
+    import urllib.error
+    err = urllib.error.HTTPError("https://api.deepseek.com", 429, "rate", {}, None)
+    out, sent = _drive_bespoke_doctor(
+        reserve=lambda *a, **k: {"allow": True, "reserved": 0.001},
+        client_cls=_doctor_client(complete_exc=err))
+    assert out is None
+    blob = " ".join(sent)
+    assert "ℹ️" in blob and "429" in blob, blob
+    assert "heart doctor llm failed" not in blob, blob
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

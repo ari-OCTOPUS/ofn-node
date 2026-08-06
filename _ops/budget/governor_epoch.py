@@ -56,6 +56,22 @@ def _gov_llm_alert_once(key: str, msg: str) -> None:
     opslib.alert([msg])
 
 
+def _is_designed_cap(reason: "str | None") -> bool:
+    """آیا ردِ رزروِ organ_gate «سقفِ بودجه/سهمیهٔ طراحی‌شده» است، نه خرابی؟
+
+    مسیرِ bespokeِ گاورنر با `organ_gate.reserve` (بودجهٔ AUD) متر می‌شود نه با
+    `fugu_quota` (سقفِ تعدادِ تماس). رشته‌های reason که «سقفِ بودجه پر شد» را
+    یعنی — هر سه از خودِ organ_gate/budget_gate می‌آیند (سنجیده، نه حدس):
+      · `organ-monthly: AU$… > cap AU$…`  → سقفِ ماهانهٔ همین ارگان (organ_gate)
+      · `budget_gate:daily`               → سقفِ روزانهٔ سراسری (budget_gate.reserve)
+      · `budget_gate:monthly-halt` / `budget_gate:halted` → هالتِ ماهانهٔ سراسری
+    اینها محافظتِ طراحی‌شده‌اند؛ بقیهٔ ردها (state ناخوانا، ارگانِ ناشناخته، قفلِ
+    مشغول، frozen) خرابیِ واقعی‌اند و همان لحنِ هشداری را نگه می‌دارند."""
+    r = str(reason or "").lower()
+    return ("organ-monthly" in r or "monthly-halt" in r
+            or "budget_gate:daily" in r or "budget_gate:halted" in r)
+
+
 # ── ددلاینِ گذشته: فوریتِ ابدیِ جعلی (یافتهٔ ممیزی 2026-07-25، عدد-به-عدد تأیید‌شده) ──
 # سیگمویدِ بالا برای «۱۴ روزِ پایانی» طراحی شده، ولی برای days<0 هیچ انقضایی ندارد:
 #   days=-5  → 0.997527      days=-35 → 1.000000      days=-365 → 1.000000
@@ -466,7 +482,20 @@ def allocate_llm(snap: dict, alloc_dry: dict) -> dict | None:
         est = cl.est_worst_case(len(system) + len(user), max_tokens=1200)
         r = organ_gate.reserve("ARCHITECT_SYS", est, task="governor-epoch")
         if not r.get("allow"):
-            opslib.alert([f"governor llm denied by gate: {r.get('reason')}"])
+            # تفکیکِ «سقفِ بودجهٔ طراحی‌شده» از «خرابی» — همان الگوی model_router.
+            # سقفِ AUD پر شدن (`organ-monthly`/`budget_gate:daily`/`…monthly-halt`)
+            # رفتارِ عادیِ محافظتِ بودجه است، نه یک مشکل؛ لحنِ آرام. بقیهٔ ردها
+            # (state ناخوانا، ارگانِ ناشناخته، …) خرابیِ واقعی‌اند و هشداری می‌مانند.
+            reason = r.get("reason")
+            if _is_designed_cap(reason):
+                _gov_llm_alert_once(
+                    "gov-llm-gate-cap",
+                    f"ℹ️ governor: سقفِ بودجه/سهمیه پر شد (dry) — طراحی‌شده، نه "
+                    f"خرابی؛ برمی‌گردد به تخصیصِ قطعی. ({reason})")
+            else:
+                _gov_llm_alert_once(
+                    "gov-llm-gate-denied",
+                    f"governor llm denied by gate: {reason}")
             return None
         try:
             out = cl.complete(system, user, max_tokens=1200)
@@ -485,7 +514,19 @@ def allocate_llm(snap: dict, alloc_dry: dict) -> dict | None:
         _gov_llm_alert_once("gov-llm-dormant", f"governor llm خفته (dry): {e}")
         return None
     except Exception as e:  # noqa: BLE001
-        _gov_llm_alert_once("gov-llm-error", f"governor llm epoch failed (fallback به dry): {e}")
+        # سقفِ نرخ/بودجهٔ خودِ provider هم محافظتِ طراحی‌شده است، نه خرابی: DeepSeek
+        # روی محدودیتِ نرخ HTTP 429 و روی اتمامِ اعتبار HTTP 402 برمی‌گرداند، و
+        # `urllib.error.HTTPError` هر دو را در `.code` حمل می‌کند (تنها سیگنالِ
+        # quota/rate ِ صادقانه‌ای که این مسیر دارد؛ خطای شبکه/کلید `.code` ندارد یا
+        # کدِ دیگری دارد و همان لحنِ هشداری را می‌گیرد — بدونِ حدسِ ساختگی).
+        code = getattr(e, "code", None)
+        if code in (429, 402):
+            _gov_llm_alert_once(
+                "gov-llm-provider-cap",
+                f"ℹ️ governor: سقفِ نرخ/بودجهٔ provider (HTTP {code}) — طراحی‌شده، "
+                f"نه خرابی؛ برمی‌گردد به تخصیصِ قطعی (dry).")
+        else:
+            _gov_llm_alert_once("gov-llm-error", f"governor llm epoch failed (fallback به dry): {e}")
         return None
 
 
