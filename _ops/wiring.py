@@ -3732,8 +3732,14 @@ def brain_digest_beat(channel=None, beat: int = 0) -> dict | None:
             return {"sent": False, "hash": d["hash"], "beat": beat}
         sent = False
         if channel is not None and getattr(channel, "wired", False):
+            # ۲۰۲۶-۰۸-۰۶ — تنها دکمهٔ این کارت به یک نمای وضعیت (menu:brain) می‌رفت،
+            # نه به صفِ رأیِ کارکننده (mn:ap). مالک ۱۴ ایدهٔ مناظره را همین‌جا
+            # می‌دید، تپ می‌زد، به تبِ مغز می‌رسید — نه به دکمهٔ ok/no — و فکر
+            # می‌کرد «کلیک ثبت نمی‌شود». مسیرِ mn:ap خودش سالم است (تستِ
+            # test_debate_card_roundtrip.py)؛ کارت فقط به آن لینک نمی‌داد.
             kb = {"inline_keyboard": [[
-                {"text": "🧠 تبِ مغز", "callback_data": "menu:brain"}]]}
+                {"text": "🧠 تبِ مغز", "callback_data": "menu:brain"},
+                {"text": "📮 صف تأیید", "callback_data": "mn:ap"}]]}
             head = "🚨 تنشِ مغز 🔴 شد!\n" if red_flip else ""
             sent = bool(_send_stream(channel, head + d["text"], kb,
                 stream="brain"))
