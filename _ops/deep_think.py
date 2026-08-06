@@ -341,8 +341,24 @@ def run(*, channel=None, now: "_dt.datetime | None" = None, force: bool = False)
                "tier": r.get("tier"), "fallback_from": r.get("fallback_from"),
                "chars": len(text)}
         _append_ledger(rec)
-        opslib.alert([f"deep_think: جلسهٔ «{topic}» به مغزِ گران نرسید "
-                      f"({r.get('fallback_from') or r.get('tier')}) — کارتی ساخته نشد"])
+        # ۲۰۲۶-۰۸-۰۶: همان کلاسِ آلارمِ گمراه‌کنندهٔ model_router (سقفِ روزانهٔ فوگو
+        # را «خرابی» می‌خواند) اینجا هم بود — `fallback_from` فقط رشتهٔ عامِ
+        # «paid-call-failed» را حمل می‌کند، بدونِ تفکیکِ سقفِ روزانهٔ عادی از
+        # شکستِ واقعی. تشخیص را از fugu_quota.status() می‌گیرد، نه از حدس.
+        _fb = r.get('fallback_from') or r.get('tier')
+        try:
+            import fugu_quota as _fq_dt
+            _fqs_dt = _fq_dt.status()
+            _capped = int(_fqs_dt.get("remaining", 1) or 0) <= 0
+        except Exception:  # noqa: BLE001
+            _capped = False
+        if _capped:
+            opslib.alert([f"ℹ️ deep_think: جلسهٔ «{topic}» امروز به مغزِ گران نرسید "
+                          f"— سقفِ روزانهٔ فوگو پر شد ({_fqs_dt.get('used_total')}/"
+                          f"{_fqs_dt.get('cap')}) — فردا خودکار ریست می‌شود، کارتی ساخته نشد."])
+        else:
+            opslib.alert([f"deep_think: جلسهٔ «{topic}» به مغزِ گران نرسید "
+                          f"({_fb}) — کارتی ساخته نشد"])
         return {"ran": True, "delivered": False, "reason": "not-the-expensive-brain",
                 "slot": slot, "topic": topic, "tier": r.get("tier")}
     rec = {"ts": opslib.now_iso(), "schema": SCHEMA, "slot": slot, "topic": topic,

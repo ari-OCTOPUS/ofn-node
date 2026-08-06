@@ -280,6 +280,53 @@ def t_a_silent_downgrade_to_the_free_brain_produces_no_card():
     _on(False)
 
 
+def _fake_quota(remaining, used_total=60, cap=60):
+    """fugu_quota جعلی — همان الگویِ تزریق ِ _fake_router (deep_think آن را lazy وارد می‌کند)."""
+    import types
+    m = types.ModuleType("fugu_quota")
+    m.status = lambda: {"remaining": remaining, "used_total": used_total, "cap": cap}
+    sys.modules["fugu_quota"] = m
+    return m
+
+
+def t_the_downgrade_alert_tells_the_daily_cap_from_a_real_failure():
+    """۲۰۲۶-۰۸-۰۶ زنده: «deep_think: جلسهٔ «business» به مغزِ گران نرسید
+    (primary: paid-call-failed)» زده شد وقتی علتِ واقعی فقط سقفِ روزانهٔ عادیِ
+    فوگو بود (۶۰/۶۰) — همان کلاسِ آلارمِ گمراه‌کنندهٔ model_router، این‌بار در
+    خودِ deep_think. با سقف: باید ℹ️ و «سقفِ روزانه» بگوید. بدونِ سقف (شکستِ
+    واقعی): باید متنِ قدیمی (بدونِ ℹ️) بماند."""
+    calls = []
+    import opslib as _ops_mod
+    real_alert = _ops_mod.alert
+    _ops_mod.alert = lambda items: calls.append(list(items))
+    try:
+        _on(True)
+        _reset_slots()
+        _fake_quota(remaining=0, used_total=60, cap=60)
+        _fake_router(text="y" * 900, got_tier="local",
+                     fallback_from="primary: paid-call-failed")
+        dt.run(channel=Chan())
+        assert calls, "آلارمی زده نشد"
+        msg = calls[-1][0]
+        assert msg.startswith("ℹ️"), msg
+        assert "سقفِ روزانه" in msg and "60/60" in msg, msg
+
+        calls.clear()
+        _reset_slots()
+        _fake_quota(remaining=57, used_total=3, cap=60)
+        _fake_router(text="y" * 900, got_tier="local",
+                     fallback_from="primary: paid-call-failed")
+        dt.run(channel=Chan())
+        assert calls, "آلارمی زده نشد"
+        msg2 = calls[-1][0]
+        assert not msg2.startswith("ℹ️"), msg2
+        assert "paid-call-failed" in msg2, msg2
+    finally:
+        _ops_mod.alert = real_alert
+        _on(False)
+        sys.modules.pop("fugu_quota", None)
+
+
 def t_the_prompt_actually_carries_numbers_not_just_a_question():
     """درسِ governor: ۱۲٬۲۴۲ توکن برای جوابِ ۵۰ کاراکتری. سؤالِ بدونِ داده = حرفِ کلی."""
     p = dt.build_prompt(dt.TOPIC_SELF)
