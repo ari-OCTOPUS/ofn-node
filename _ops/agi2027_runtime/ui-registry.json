@@ -1,6 +1,6 @@
 {
   "schema": "octopus.ui_registry.v1",
-  "updated_at": "2026-08-06T02:32:24Z",
+  "updated_at": "2026-08-06T03:39:28Z",
   "items": [
     {
       "id": "telegram_ops",
@@ -56,10 +56,10 @@
       "id": "ui_launcher",
       "title": "Telegram /ui launcher",
       "type": "telegram_command",
-      "status": "staged",
+      "status": "live",
       "owner_visible": true,
       "command": "/ui",
-      "notes": "Phase 6; graceful CONFIG_NEEDED when OCTOPUS_MINIAPP_URL unset",
+      "notes": "2026-08-06: relabeled live -- center.py:2916-2919 calls agi2027_control.integration.try_handle_control() on every message (OCTOPUS_WIRE_TG_CONTROL=1 in managed_flags.json), and ControlPlane.handle() explicitly handles /ui and /open. Rides the same wired path as telegram_ops. Graceful CONFIG_NEEDED when OCTOPUS_MINIAPP_URL unset still applies.",
       "risk": "low"
     },
     {
@@ -169,17 +169,17 @@
       "id": "dashboard_legacy",
       "title": "Legacy dashboard/",
       "type": "legacy_dir",
-      "status": "unknown",
-      "owner_visible": "unknown",
+      "status": "live",
+      "owner_visible": true,
       "path": "_ops/dashboard/",
-      "notes": "not audited; do NOT wire before review",
-      "risk": "unknown"
+      "notes": "2026-08-06: relabeled live -- audited and wired, not unreviewed. _ops/dashboard/RUN-DASHBOARD.bat launches server.py on 127.0.0.1:8770; its RESTART-REQUESTED marker is explicitly coupled to organism.py's STOP-ORGANISM restart flow (center.py:65-67, 'owner decision #25'). Not one of the 5 always-on limbs (organism/cortex/center/live/gateway) -- a manually-launched companion process, wired and reviewed rather than experimental.",
+      "risk": "low"
     }
   ],
   "summary": {
-    "live": 13,
-    "staged": 3,
-    "unknown": 1,
+    "live": 15,
+    "staged": 2,
+    "unknown": 0,
     "blocked": 0,
     "total": 17
   }
