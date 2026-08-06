@@ -28,7 +28,12 @@ sys.stdout.reconfigure(encoding="utf-8")
 # قابلِ آزمون است). هیچ رفتارِ پیش‌فرضی عوض نمی‌شود.
 ROOT = Path(os.environ.get("VAULT_LINK_ROOT") or Path(__file__).resolve().parents[2]).resolve()
 # مقصدهای نامعتبر: آرشیو/قرنطینه/کد — لینکِ زنده به این‌ها یعنی نوت باید آپدیت شود
-EXCLUDE = ("_Archive", "_Duplicates", ".git", "_code", ".obsidian", ".claude")
+# ۲۰۲۶-۰۸-۰۶: «4D-Vault» بستهٔ دانشِ خودِ زیرپروژهٔ SOG/Brain-OS است (بازسازی‌شده از
+# ایندکسِ منجمدِ Chroma، ۳۰۵۵ نوت) — قراردادِ ویکی‌لینکِ خودش را دارد (نام‌های مفهومی
+# خودارجاع مثلِ [[Governor]]/[[SOG]]) که داخلِ taxonomy ِ ۰۰-۰۹ ِ vault حل نمی‌شود؛
+# مثلِ OCTOPUS-DOCTOR (validate_frontmatter.py) بستهٔ سندِ داخلیِ خودش است، نه
+# بخشی از vault که این validator پلیس‌اش است. هیچ نوتِ دیگری به آن لینک نمی‌دهد.
+EXCLUDE = ("_Archive", "_Duplicates", ".git", "_code", ".obsidian", ".claude", "4D-Vault")
 # placeholder های عمدی که لینک نیستند + نقل‌قول‌های تاریخی داخل لاگ چت
 IGNORE_TARGETS = {"...", "…", "wikilink", "Atlas/Home MOC"}
 
