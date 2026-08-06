@@ -154,26 +154,45 @@ def t_single_ziman_defs():
 # ════════════════════════════════════════════════════════════════════════════════
 
 def t_business_legs_beat_collects_four():
-    """قرارداد ۲۰۲۶-۰۷-۲۵: **۵** پا، و «lead» اجباری است.
+    """قرارداد ۲۰۲۶-۰۷-۲۵ + بروزرسانیِ ۲۰۲۶-۰۸-۰۶: **۷** پا، و «lead» اجباری است.
 
     قبلاً دقیقاً ۴ پا pin شده بود (mining/crypto/accounting/knowledge) — و هر چهار
     skeleton یا کهنه‌اند. پای درآمدیِ زنده در آگاهیِ ارگانیسم **نبود**، پس خودآگاهی
     پاهای مرده را می‌شمرد و کسب‌وکارِ واقعی را نمی‌دید. حالا حضورِ lead بخشی از قرارداد
-    است تا کسی دوباره بی‌صدا حذفش نکند."""
+    است تا کسی دوباره بی‌صدا حذفش نکند.
+
+    ۲۰۲۶-۰۸-۰۲/۰۳: دو پای دیگر عمداً به _BUSINESS_LEGS_SPEC اضافه شدند —
+    sync_agent (G-02) و studio_pf — و این تست هرگز برایشان بروز نشده بود (۷ صدا
+    ۵ می‌شمرد). حالا هر ۷ پا انتظار می‌رود.
+
+    نکته: sync_agent_status() یک heartbeatِ متفاوت است (ok/component/flag/
+    enabled — برای capability_registry auto-discovery)، نه قراردادِ مشترکِ
+    leg/live/signal/note که بقیهٔ پاها می‌دهند. عمداً از حلقهٔ ژنریکِ زیر جدا و با
+    شکلِ واقعیِ خودش سنجیده می‌شود؛ تحمیلِ قراردادِ اشتباه روی آن یک false-positive
+    تازه می‌ساخت، نه رفعِ باگ. studio_pf قراردادِ leg/live/signal/note را کامل
+    می‌دهد پس نیازی به استثنا ندارد."""
     r = wiring.business_legs_beat(beat=1, write=False)
     assert r is not None and "business_legs" in r
     legs = r["business_legs"]
-    assert set(legs.keys()) == {"lead", "mining", "crypto", "accounting", "knowledge"}, \
-        f"باید هر ۵ پا باشد (lead اجباری)، شد {sorted(legs.keys())}"
+    assert set(legs.keys()) == {
+        "lead", "mining", "crypto", "accounting", "knowledge",
+        "sync_agent", "studio_pf",
+    }, f"باید هر ۷ پا باشد (lead اجباری)، شد {sorted(legs.keys())}"
     _ld = legs["lead"]
     assert _ld.get("money_link") == "active", "lead باید money_link=active بدهد"
     assert "confirmed_revenue_aud" in _ld, \
         "lead باید فیلدِ درآمد را صریح بدهد (None وقتی حساب‌کتاب پارک است، نه صفرِ دروغ)"
     assert isinstance(_ld.get("identity"), dict) and isinstance(_ld.get("inbox"), dict), \
         "lead باید هویتِ فاکتور و وضعیتِ صندوق را گزارش کند"
+    _sa = legs["sync_agent"]
+    assert _sa.get("component") == "sync_agent", "sync_agent باید component=sync_agent بدهد"
+    assert isinstance(_sa.get("enabled"), bool), "sync_agent باید enabled را bool بدهد"
+    assert "flag" in _sa, "sync_agent باید نامِ فلگِ خودش را گزارش کند"
     for name, st in legs.items():
         assert isinstance(st, dict), f"{name} status باید dict باشد"
         assert st.get("leg") == name, f"{name}: کلیدِ leg باید {name} باشد"
+        if name == "sync_agent":
+            continue  # قراردادِ heartbeatِ متفاوت — بالا جداگانه سنجیده شد
         assert "live" in st and "signal" in st and "note" in st, \
             f"{name}: قرارداد leg/live/signal/note ناقص است"
 
@@ -207,7 +226,7 @@ CHECKS = [
     ("LEG-02/03: leg_beat فلگ خاموش → بدون draft", t_leg_beat_flag_off_no_draft),
     ("LEG-02/03: leg_beat فلگ روشن → draft_quote صدا می‌شود", t_leg_beat_flag_on_calls_draft),
     ("LEG-08: فقط یک make_ziman_leg/ziman_beat (نسخهٔ زنده)", t_single_ziman_defs),
-    ("قرارداد: business_legs_beat ۵ پا + lead اجباری", t_business_legs_beat_collects_four),
+    ("قرارداد: business_legs_beat ۷ پا + lead اجباری", t_business_legs_beat_collects_four),
     ("business_legs_beat سایدکار می‌نویسد", t_business_legs_beat_writes_sidecar),
     ("no-op: ingest/email/heartstate با فلگِ خاموش None", t_new_beats_noop_when_flag_off),
 ]
