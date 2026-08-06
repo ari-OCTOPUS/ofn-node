@@ -1,0 +1,16 @@
+[Unit]
+Description=Hypno Fugu Mini Telegram Web App
+After=network-online.target
+Wants=network-online.target
+[Service]
+User=ari
+WorkingDirectory=/home/ari/hypno-fugu-mini
+Environment=HFM_HOST=127.0.0.1
+Environment=HFM_PORT=8895
+ExecStart=/usr/bin/python3 -m hypno.run
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+[Install]
+WantedBy=multi-user.target

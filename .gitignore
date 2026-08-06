@@ -1,0 +1,16 @@
+# state and backups
+backups/
+exports/
+debug/
+.pytest_cache/
+*.pyc
+__pycache__/
+
+# data is state, not code
+data/research/*.sqlite*
+research_import/cleaned/
+
+# env never
+*.env
+*.bak-*
+*.bak
