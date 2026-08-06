@@ -196,7 +196,29 @@ _TIERS = {
     "dark":   ("dark_capabilities", 3600.0),
     "orphan": ("orphan_scan", 3600.0),
     "self":   ("self_scan", 86400.0),
+    # T4 (مگاپرامپتِ GLM ۰۸-۰۶، بخشِ ۶) — واسنجیِ برخط (calibration_probe.py).
+    # ⚠️ برخلافِ سه‌تایِ بالا این تایر subprocess نمی‌دواند: calibration_probe.py
+    # همین حالا هر دور توسطِ مؤلفهٔ دیگری اجرا و state/cortex/calibration-latest.json
+    # نوشته می‌شود (فلگِ CORTEX_SELF_MONITOR مسلح است) — اینجا فقط همان فایل
+    # خوانده می‌شود: بدونِ subprocess، بدونِ LLM، تقریباً رایگان. «mod» پایین
+    # فقط برچسبِ مستند است؛ self_awareness() برایِ کلیدِ "calibration" مسیرِ
+    # _run_scan را دور می‌زند و مستقیم _read_calibration() را صدا می‌زند.
+    "calibration": ("calibration_probe_card", 21600.0),
 }
+#: مسیرِ خروجیِ از-قبل-محاسبه‌شدهٔ calibration_probe.py.
+CALIBRATION_LATEST = STATE / "cortex" / "calibration-latest.json"
+#: نسبتِ ungraded که فوراً هشدار می‌دهد. ⚠️ خودِ فایل چنین آستانه‌ای اعلام
+#: نمی‌کند — verify شد روی calibration_probe.py:probe: فیلدهای واقعیِ خروجی
+#: n/brier/aurc/abstain_below/ungraded/target_acc/window_h/n_claims/
+#: n_truth_keys/ungraded_keys/n_claim_keys/graded (+ چند شمارندهٔ دور-محور)
+#: هستند — هیچ‌کدام "verdict" یا آستانهٔ ungraded نیستند (نمونهٔ زندهٔ
+#: ۲۰۲۶-۰۸-۰۷: schema calibration.v1). پس این عددِ محافظه‌کارانهٔ خودِ این
+#: تایر است: بیش از نیمیِ ادعاهای اخیر بی‌حقیقتِ بیرونی مانده‌اند یعنی خودِ
+#: پوششِ واسنجی شکسته — این را نمی‌شود روی ریتمِ عادی گذاشت.
+CALIBRATION_UNGRADED_ALERT = 0.5
+#: تغییرِ Brier کمتر از این «نوسان» است نه «بدتر/بهترشدن». Brierِ نمونهٔ
+#: زندهٔ ۲۰۲۶-۰۸-۰۷ ~۰.۲۸۶ بود؛ آستانه در همان مقیاس.
+CALIBRATION_BRIER_EPS = 0.03
 
 
 def _run_scan(mod: str, timeout_s: float = 120.0) -> "dict | None":
@@ -270,6 +292,64 @@ def _summarise(name: str, d: dict) -> dict:
             "checks_failed": _num(h.get("checks_failed"))}
 
 
+def _read_calibration(prev: dict) -> dict:
+    """calibration-latest.json را می‌خواند — فقط خواندنِ فایل، بدونِ subprocess/LLM.
+
+    ⚠️ فایل هیچ فیلدِ `verdict` ندارد (تصحیحِ ادعای کارْبرگ با شاهدِ زنده —
+    calibration_probe.py:probe را کامل خواندم). پس «بدتر شد» با مقایسهٔ
+    Brierِ همین خواندن با آخرین Brierِ کش‌شده (`prev["calibration_brier"]`)
+    ساخته می‌شود — Brier پایین‌تر یعنی بهتر (خودِ docstringِ probe). اولین
+    خواندنِ معتبر یا نبودِ Brierِ قبلی ⇒ `"unknown"`، نه حدسِ جهت‌دار.
+
+    fail-soft کامل: فایل نبود/JSON خراب/شکلِ غیرِ dict ⇒ همه چیز None،
+    بدونِ کرش — دقیقاً همان قراردادِ `observe()` («None یعنی نخواندم»).
+    """
+    d = _j(CALIBRATION_LATEST)
+    if not isinstance(d, dict):
+        return {"calibration_brier": None, "calibration_aurc": None,
+                "calibration_ungraded_ratio": None,
+                "calibration_alert": None, "calibration_verdict": None}
+
+    def _num(v):
+        return v if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+
+    brier = _num(d.get("brier"))
+    ungraded = _num(d.get("ungraded"))
+    n_claims = _num(d.get("n_claims"))
+    ratio = None
+    if ungraded is not None and n_claims:
+        try:
+            ratio = round(ungraded / n_claims, 4)
+        except ZeroDivisionError:
+            ratio = None
+
+    prev_brier = prev.get("calibration_brier") if isinstance(prev, dict) else None
+    verdict = None
+    if brier is not None:
+        if isinstance(prev_brier, (int, float)):
+            delta = brier - prev_brier
+            if delta >= CALIBRATION_BRIER_EPS:
+                verdict = "worse"
+            elif delta <= -CALIBRATION_BRIER_EPS:
+                verdict = "better"
+            else:
+                verdict = "stable"
+        else:
+            verdict = "unknown"          # اولین خواندنِ معتبر — چیزی برای مقایسه نیست
+
+    ratio_alert = ratio is not None and ratio >= CALIBRATION_UNGRADED_ALERT
+    # ⚠️ alert باید None بماند (نه False) وقتی هیچ سیگنالی نداریم — صفرِ جعلی
+    # همان دروغِ کاکپیتی است که این فایل کلاً برای رفعش نوشته شده.
+    if verdict is None and ratio is None:
+        alert = None
+    else:
+        alert = bool(verdict == "worse" or ratio_alert)
+
+    return {"calibration_brier": brier, "calibration_aurc": _num(d.get("aurc")),
+            "calibration_ungraded_ratio": ratio,
+            "calibration_alert": alert, "calibration_verdict": verdict}
+
+
 def self_awareness(mem: dict, now: "float | None" = None,
                    force: str = "") -> dict:
     """هر اندام را فقط وقتی می‌دواند که فاصله‌اش گذشته باشد.
@@ -300,6 +380,16 @@ def self_awareness(mem: dict, now: "float | None" = None,
                 out[f"_scan_{key}"] = prev
                 out[f"_scan_{key}_ts"] = last
             continue
+        if key == "calibration":
+            # فقط خواندنِ فایل — نه subprocess (mod برایِ این کلید صرفاً برچسب
+            # است، بالا را ببین)، نه LLM.
+            prev_s = mem.get(f"_scan_{key}") or {}
+            s = _read_calibration(prev_s)
+            out.update(s)
+            out[f"_scan_{key}"] = s
+            out[f"_scan_{key}_ts"] = t
+            ran.append(key)
+            continue
         d = _run_scan(mod, timeout_s=150.0 if key == "self" else 60.0)
         if d is None:
             ran.append(f"{key}:failed")
@@ -324,9 +414,16 @@ _THRESH = {"approvals": 1, "stalled_cards": 3, "paid_calls_today": 40,
            # آستانهٔ ۱ عمدی است — این اعداد آرام حرکت می‌کنند، پس هر
            # حرکتی معنا دارد و رگبار نمی‌سازد.
            "orphans": 1, "weighty": 1, "dark_gates": 1,
-           "read_undefined": 5, "dead_symbols": 10, "unfinished": 2}
+           "read_undefined": 5, "dead_symbols": 10, "unfinished": 2,
+           # T4 — نوسانِ عادیِ واسنجی. وضعِ فوری/بدترشدن از مسیرِ _ALWAYS
+           # (calibration_alert پایین) می‌رود، نه اینجا؛ این دو فقط برای
+           # درشتیِ عادیِ Brier/نسبتِ ungraded روی ریتمِ ۶ساعته‌اند.
+           "calibration_brier": CALIBRATION_BRIER_EPS,
+           "calibration_ungraded_ratio": 0.15}
 #: تغییرِ این‌ها همیشه مهم است، هر قدر کوچک.
-_ALWAYS = ("halted", "germline_alert", "approvals_status")
+_ALWAYS = ("halted", "germline_alert", "approvals_status",
+           # T4 — «بدتر شد» یا پوششِ واسنجی شکست: مثلِ halted، بدونِ آستانه.
+           "calibration_alert")
 
 
 def diff(now: dict, before: "dict | None") -> list:
@@ -538,7 +635,10 @@ _FA = {"orphans": "ماژولِ یتیم", "weighty": "یتیمِ سنگین",
        "approvals_status": "خوانایی صفِ تأیید", "stalled_cards": "کارتِ راکد",
        "paid_calls_today": "تماسِ پولیِ امروز", "month_aud": "خرجِ ماه",
        "beats_spent": "ضربانِ خرج‌شده", "germline_alert": "هشدارِ ژرم‌لاین",
-       "first_run": "اولین بیداری"}
+       "first_run": "اولین بیداری",
+       "calibration_verdict": "حکمِ واسنجی", "calibration_brier": "نمرهٔ Brierِ واسنجی",
+       "calibration_ungraded_ratio": "نسبتِ بی‌حقیقتِ واسنجی",
+       "calibration_alert": "هشدارِ فوریِ واسنجی"}
 
 
 def describe(snap: dict, changes: list) -> str:

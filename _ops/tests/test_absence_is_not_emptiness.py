@@ -200,13 +200,112 @@ def t_brain_keeps_scan_bookkeeping_when_a_tier_is_not_due():
     now = _t.time()
     mem = {"_scan_dark": {"dark_gates": 128}, "_scan_dark_ts": now,
            "_scan_orphan": {"orphans": 60}, "_scan_orphan_ts": now,
-           "_scan_self": {"dead_symbols": 217}, "_scan_self_ts": now}
+           "_scan_self": {"dead_symbols": 217}, "_scan_self_ts": now,
+           # T4 — تایرِ calibration باید همان قاعدهٔ دفترداری را داشته باشد.
+           "_scan_calibration": {"calibration_verdict": "stable", "calibration_alert": False},
+           "_scan_calibration_ts": now}
     out = cb.self_awareness(mem, now=now)
     assert out.get("_scans_ran") == [], f"اسکنی دوید که نوبتش نبود: {out.get('_scans_ran')}"
-    for k in ("dark", "orphan", "self"):
+    for k in ("dark", "orphan", "self", "calibration"):
         assert f"_scan_{k}_ts" in out, f"مهرِ زمانِ {k} گم شد ⇒ selfmap خالی می‌شود"
         assert out.get(f"_scan_{k}") == mem[f"_scan_{k}"], f"مقادیرِ {k} گم شد"
     assert out.get("dark_gates") == 128 and out.get("orphans") == 60
+    assert out.get("calibration_verdict") == "stable", "مقدارِ کش‌شدهٔ calibration گم شد"
+
+
+def t_calibration_tier_is_registered_with_6h_cadence():
+    """T4 — تایرِ calibration با فاصلهٔ ۶ساعته (۲۱۶۰۰ث) در `_TIERS` ثبت شده باشد."""
+    import cockpit_brain as cb
+    assert "calibration" in cb._TIERS, cb._TIERS
+    _mod, every = cb._TIERS["calibration"]
+    assert every == 21600.0, f"فاصلهٔ تایرِ calibration باید ۲۱۶۰۰.۰ ثانیه باشد: {every}"
+
+
+def t_calibration_tier_is_fail_soft_when_absent():
+    """calibration-latest.json نبود ⇒ همه چیز None، بدونِ کرش — نه اسکنِ «شکست‌خورده».
+
+    ⚠️ نبودِ فایل با شکستِ اسکنر فرق دارد: `_run_scan` وقتی subprocess می‌ترکد
+    تایر را `"{key}:failed"` علامت می‌زند، ولی `_read_calibration` هرگز None
+    برنمی‌گرداند — همیشه دیکشنری با فیلدهای None. پس تایر باید در `_scans_ran`
+    عادی («calibration») ظاهر شود، نه در فهرستِ شکست‌خورده‌ها. سه تایرِ دیگر
+    عمداً «نه‌due» نگه داشته می‌شوند تا این تست subprocess ِ واقعی (۴۶ثانیه‌ای
+    self_scan) را صدا نزند.
+    """
+    import time as _t
+    import cockpit_brain as cb
+    now = _t.time()
+    if cb.CALIBRATION_LATEST.exists():
+        cb.CALIBRATION_LATEST.unlink()
+    mem = {"_scan_dark": {}, "_scan_dark_ts": now,
+           "_scan_orphan": {}, "_scan_orphan_ts": now,
+           "_scan_self": {}, "_scan_self_ts": now}
+    out = cb.self_awareness(mem, now=now)
+    assert out.get("_scans_ran") == ["calibration"], (
+        f"فقط calibration باید بدود: {out.get('_scans_ran')}")
+    assert out.get("calibration_alert") is None, out.get("calibration_alert")
+    assert out.get("calibration_verdict") is None, out.get("calibration_verdict")
+    assert out.get("calibration_brier") is None
+    assert out.get("calibration_ungraded_ratio") is None
+
+
+def t_calibration_worse_verdict_triggers_always_notify_like_halted():
+    """verdict=«worse» باید مثلِ halted بدونِ آستانه در diff() ظاهر شود — T4.
+
+    ⚠️ خودِ calibration-latest.json فیلدِ `verdict` ندارد (verify شد روی
+    calibration_probe.py:probe) — پس اینجا با مقایسهٔ Brierِ تازه با Brierِ
+    کش‌شده ساخته می‌شود؛ Brier بالاتر یعنی بدتر.
+    """
+    import cockpit_brain as cb
+    assert "calibration_alert" in cb._ALWAYS, (
+        "calibration_alert از _ALWAYS بیرون رفته — دیگر مثلِ halted فوری نیست")
+
+    cb.CALIBRATION_LATEST.parent.mkdir(parents=True, exist_ok=True)
+    cb.CALIBRATION_LATEST.write_text(json.dumps(
+        {"brier": 0.30, "aurc": 0.4, "ungraded": 5, "n_claims": 55}), encoding="utf-8")
+    s = cb._read_calibration({"calibration_brier": 0.20})
+    assert s["calibration_verdict"] == "worse", s
+    assert s["calibration_alert"] is True, s
+
+    # سطحِ diff(): همان مکانیزمِ halted — بدونِ آستانه، فوری.
+    changes = cb.diff({"halted": False, "calibration_alert": True},
+                      {"halted": False, "calibration_alert": False})
+    keys = {c["key"] for c in changes}
+    assert "calibration_alert" in keys, f"calibration_alert مثلِ halted بایپس نشد: {changes}"
+
+
+def t_calibration_not_worse_follows_normal_threshold_cadence():
+    """verdictِ «stable»/«better» بایپسِ فوری نمی‌سازد — روی همان آستانهٔ عادیِ بقیهٔ تایرها می‌ماند."""
+    import cockpit_brain as cb
+
+    prev = {"calibration_brier": 0.30}
+    cb.CALIBRATION_LATEST.parent.mkdir(parents=True, exist_ok=True)
+
+    # نوسانِ ریز (زیرِ CALIBRATION_BRIER_EPS) ⇒ stable، بدونِ هشدار.
+    cb.CALIBRATION_LATEST.write_text(json.dumps(
+        {"brier": 0.305, "aurc": 0.3, "ungraded": 5, "n_claims": 55}), encoding="utf-8")
+    s_stable = cb._read_calibration(prev)
+    assert s_stable["calibration_verdict"] == "stable", s_stable
+    assert s_stable["calibration_alert"] is False, s_stable
+
+    changes = cb.diff({"calibration_alert": False, "calibration_brier": 0.305},
+                      {"calibration_alert": False, "calibration_brier": 0.30})
+    keys = {c["key"] for c in changes}
+    assert "calibration_alert" not in keys, f"نوسانِ ریز نباید بایپس کند: {changes}"
+    assert "calibration_brier" not in keys, f"نوسانِ زیرِ آستانه باید ساکت بماند: {changes}"
+
+    # بهبودِ بزرگ ⇒ better، هنوز alert=False — فقط «بدترشدن» بایپس می‌کند.
+    cb.CALIBRATION_LATEST.write_text(json.dumps(
+        {"brier": 0.10, "aurc": 0.2, "ungraded": 5, "n_claims": 55}), encoding="utf-8")
+    s_better = cb._read_calibration(prev)
+    assert s_better["calibration_verdict"] == "better", s_better
+    assert s_better["calibration_alert"] is False, s_better
+
+    # ولی جابه‌جاییِ بزرگِ Brier باید از مسیرِ عادیِ آستانه دیده شود، نه _ALWAYS.
+    changes2 = cb.diff({"calibration_alert": False, "calibration_brier": 0.10},
+                       {"calibration_alert": False, "calibration_brier": 0.30})
+    keys2 = {c["key"] for c in changes2}
+    assert "calibration_brier" in keys2, "تغییرِ بزرگِ Brier حتی در بهبود هم باید دیده شود"
+    assert "calibration_alert" not in keys2, "بهبود نباید بایپسِ فوری بسازد"
 
 
 if __name__ == "__main__":
