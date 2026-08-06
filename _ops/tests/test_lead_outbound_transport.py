@@ -461,6 +461,77 @@ def t_i_driver_never_sends_a_market_signal_even_if_somehow_authorized():
     assert res and res[0]["status"] == "gate_denied", out
 
 
+# ── آلارمِ send_one: NOT_ARMED (طراحی) در برابرِ شکستِ واقعی (۲۰۲۶-۰۸-۰۶) ──────
+def t_q_a_not_armed_stub_stays_quiet_but_a_real_failure_still_alarms():
+    """همان کلاسِ آلارمِ گمراه‌کنندهٔ امشب (model_router/deep_think/self_patch —
+    سقفِ روزانهٔ فوگو را «خرابی» می‌خواندند)، این‌بار در send_one: قبلِ فیکس، هر
+    effectِ کانالِ غیرایمیل که به stubِ NOT_ARMED می‌خورد (طراحیِ همیشگی —
+    docstring بالای فایل: «بقیهٔ کانال‌ها stub می‌مانند») همان هشدارِ
+    «transport نفرستاد» ی را می‌گرفت که برای شکستِ واقعیِ SMTP گرفته می‌شود.
+    باید تفکیک شود: NOT_ARMED ساکت بماند؛ شکستِ واقعیِ کانالِ مسلح (email +
+    creds + SMTP ناموفق) همان هشدارِ قدیمی را بدهد."""
+    import lead_effect_gate as leg
+    calls = []
+    real_alert = opslib.alert
+    opslib.alert = lambda items: calls.extend(list(items))
+    try:
+        # (الف) کانالِ غیرایمیل بدونِ contact.email → stubِ NOT_ARMED طراحی‌شده
+        _fresh_counter()
+        try:
+            leg._authz_store().unlink()
+        except OSError:
+            pass
+        gate = _drv_gate("q-notarmed")
+        eid = gate.request("lead_outbound", "L-q1", beat=1)
+        assert leg.authorize(eid, "L-q1", "tok-q1")["ok"]
+        os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND"] = "1"
+        try:
+            cand = {"lead_id": "L-q1", "candidate_type": "consented_inbound",
+                    "consent": {"basis": "explicit"},
+                    "request": {"scope_text": "repaint hallway"},
+                    "contact": {}, "source": {"channel": "telegram_manual"}}
+            r = ow.send_one(eid, cand, "hello", gate=gate, now_ms=int(NOW_S * 1000))
+        finally:
+            os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
+        assert r["sent"] is False and r["status"] == "NOT_ARMED", r
+        assert not calls, f"NOT_ARMED ِ طراحی‌شده نباید alert بزند: {calls}"
+
+        # (ب) کانالِ email مسلح ولی SMTP واقعاً شکست می‌خورد → همان هشدارِ قدیمی
+        calls.clear()
+        _set_creds(True)
+        _fresh_counter()
+        try:
+            leg._authz_store().unlink()
+        except OSError:
+            pass
+        gate2 = _drv_gate("q-fail")
+        eid2 = gate2.request("lead_outbound", "L-q2", beat=1)
+        assert leg.authorize(eid2, "L-q2", "tok-q2")["ok"]
+        os.environ["OCTOPUS_WIRE_LEAD_OUTBOUND"] = "1"
+        spy = SpyImpl(fail=True)
+        _orig = lot._default_send_impl
+        lot._default_send_impl = spy
+        try:
+            # _cand() به‌تنهایی consent ندارد (basis="" → unknown → gate deny
+            # می‌کند قبل از رسیدن به transport) — این‌جا باید مثلِ t_ib/_seed_inbox
+            # رضایتِ صریح داشته باشد تا واقعاً به transport برسد و SMTP شکست بخورد.
+            cand2 = _cand("L-q2", candidate_type="consented_inbound",
+                          consent={"basis": "explicit"},
+                          request={"scope_text": "repaint hallway"})
+            r2 = ow.send_one(eid2, cand2, {"subject": "Q", "body": "x"},
+                             gate=gate2, now_ms=int(NOW_S * 1000))
+        finally:
+            lot._default_send_impl = _orig
+            os.environ.pop("OCTOPUS_WIRE_LEAD_OUTBOUND", None)
+        assert r2["sent"] is False and r2["status"] == "FAILED", r2
+        assert calls, "شکستِ واقعیِ SMTP باید alert بزند"
+        assert "transport نفرستاد" in calls[-1], calls[-1]
+        assert "NOT_ARMED" not in calls[-1], calls[-1]
+    finally:
+        opslib.alert = real_alert
+        _set_creds(False)
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

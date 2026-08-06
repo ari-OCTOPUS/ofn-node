@@ -193,7 +193,15 @@ def send_one(effect_id: str, candidate: dict, draft: str = "", *, gate, now_ms: 
         channel = str(((candidate or {}).get("contact") or {}).get("preferred_channel")
                       or ((candidate or {}).get("source") or {}).get("channel") or "unknown")
         out = _transport_for(channel, candidate, now=_now_s)(candidate, draft)
-        if not out.get("sent"):
+        if not out.get("sent") and str(out.get("status") or "") != "NOT_ARMED":
+            # ۲۰۲۶-۰۸-۰۶: همان کلاسِ آلارمِ گمراه‌کنندهٔ امشب (model_router/
+            # deep_think/self_patch — سقفِ روزانهٔ فوگو را «خرابی» می‌خواندند).
+            # اینجا معادلش NOT_ARMED است: طبق docstring بالای فایل، هر کانالِ
+            # غیرایمیل عمداً stub است («بقیهٔ کانال‌ها stub می‌مانند») — این
+            # حالتِ طراحی‌شده روی **هر** effectِ کانالِ غیرایمیل رخ می‌دهد، نه
+            # یک اتفاقِ نادر، پس alert کردنِ آن فقط نویزِ گرگ‌گرگ می‌سازد (رجوع:
+            # درسِ «گاردِ گرگ‌گرگ خاموش می‌شود»). فقط شکستِ واقعیِ یک کانالِ
+            # مسلح (مثلاً email با creds ولی SMTP ناموفق) alarming باقی می‌مانَد.
             try:
                 opslib.alert([f"lead outbound cleared gate ولی transport نفرستاد "
                               f"(eid={effect_id}, ch={channel}, "
