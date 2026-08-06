@@ -1,6 +1,6 @@
 {
   "schema": "octopus.ui_registry.v1",
-  "updated_at": "2026-08-02T19:00:00Z",
+  "updated_at": "2026-08-06T02:32:24Z",
   "items": [
     {
       "id": "telegram_ops",
@@ -77,20 +77,20 @@
       "id": "miniapp_frontend",
       "title": "MiniApp Frontend",
       "type": "web_frontend",
-      "status": "staged",
+      "status": "live",
       "owner_visible": true,
       "path": "_ops/telegram_center/miniapp/ (index.html/app.js/style.css)",
-      "notes": "Phase 5; read-only dashboard; actions disabled until owner auth",
-      "risk": "low (read-only)"
+      "notes": "2026-08-06: relabeled live -- owner's cockpit, in daily use throughout 08-03..08-06 (six tabs, arm-token flows, /heart /brain /doctor). Actions gated by owner auth, not disabled.",
+      "risk": "low (read-only, auth-gated writes)"
     },
     {
       "id": "miniapp_state_api",
       "title": "MiniApp /api/state",
       "type": "http_endpoint",
-      "status": "staged",
+      "status": "live",
       "owner_visible": false,
       "endpoint": "GET /api/state",
-      "notes": "Phase 4 helper; secret-scrubbed, fail-closed",
+      "notes": "2026-08-06: relabeled live -- backs every miniapp_frontend tab (ops/value/brain/heart/registry/current-truth), confirmed serving throughout this session's work.",
       "risk": "low (read-only, auth-gated)"
     },
     {
@@ -119,8 +119,8 @@
       "type": "obsidian_note",
       "status": "live",
       "owner_visible": true,
-      "path": "OCTOPUS-CURRENT-TRUTH-2026-08-02.md",
-      "notes": "truth snapshot",
+      "path": "OCTOPUS/CURRENT-TRUTH.md",
+      "notes": "2026-08-06: path corrected -- the 08-02-dated file this entry named was moved long ago; miniapp_state.py::_find_truth() resolves the real path dynamically now (env var -> OCTOPUS/CURRENT-TRUTH.md -> legacy undated -> newest dated glob), this entry just followed suit. Separately: the external scheduled task that regenerates this file's CONTENT has a broken target path (see task #51) -- the path is correct, freshness is not guaranteed.",
       "risk": "low"
     },
     {
@@ -177,10 +177,10 @@
     }
   ],
   "summary": {
-    "live": 9,
-    "staged": 6,
+    "live": 13,
+    "staged": 3,
     "unknown": 1,
     "blocked": 0,
-    "total": 16
+    "total": 17
   }
 }
