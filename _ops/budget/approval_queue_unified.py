@@ -2,14 +2,29 @@
 # -*- coding: utf-8 -*-
 """approval_queue_unified.py — صفِ یکپارچهٔ تأییدِ انسانی (HITL) برای OCTOPUS.
 
-این ماژول دو صفِ مجزای تأیید را در یک API واحد ادغام می‌کند:
+⚠️ وضعیتِ واقعی (بازبینی ۲۰۲۶-۰۸-۰۷، grep کاملِ repo): این ماژول **ساخته شده
+ولی به مسیرِ خواندنِ باتِ زندهٔ تلگرام سیم‌کشی نشده**. refresh()/main() صفر
+صداکننده دارند. حتی اگر دستی صدا زده شوند، سمتِ _ops همیشه خالی برمی‌گردد چون
+register_ops_pending()/register_4d_proposal() هم صفر صداکننده دارند و
+pending_snapshot.json / rfc_snapshot.json روی دیسک اصلاً وجود ندارند —
+approval_channel.py هرگز این helperهای static را صدا نمی‌زند.
+
+منبعِ واقعیِ صفِ تأییدِ باتِ زندهٔ تلگرام (center.py، callbackهای ap:ok:<id> /
+ap:no:<id>) این فایل نیست. بات از اینجا می‌خواند:
+  _octopus/state/approvals.json — از راهِ _ops/telegram_center/approval_store.py
+  (در center.py با نامِ aps_mod import می‌شود؛ ر.ک. load_pending()/approve()/reject()).
+اسکیما و مسیرِ approval_store کاملاً جدا از UnifiedQueueItem/UNIFIED_QUEUE_PATH
+همین ماژول است — یکی نیستند، اشتباه نگیرید.
+
+تنها مصرف‌کنندهٔ واقعیِ unified-approval-queue.json (که خودش هم هرگز به‌روز
+نمی‌شود چون refresh() صدا زده نمی‌شود):
+  nervous-system/extract_queue_data.py → queue-data.js → OCTOPUS/admin-telegram
+  (پنلِ Queue در داشبوردِ cockpit — نه alert/inline-keyboard باتِ تلگرام)، و آن
+  هم فقط با اجرای دستیِ refresh-live-data.bat، نه روی هیچ cadence/beat خودکار.
+
+طراحیِ اصلیِ ماژول (هدف، هنوز محقق نشده): یکپارچه‌سازیِ دو صفِ مجزا در یک API:
   ۱. صفِ _ops (approval_channel.py) — تأییدهای پولی/عملیاتی با EffectorGate
   ۲. صفِ 4d_system (self_code.py) — پیشنهادهای تغییرِ کد
-
-قرارداد:
-- refresh() → state/*.json → snapshot → unified-approval-queue.json
-- extract_queue_data.py → queue-data.js → OCTOPUS/worlds/01-cockpit/
-- Telegram bot از همین JSON می‌خواند برای alert + inline keyboard
 
 TINV-7: هیچ اثرِ برگشت‌ناپذیری بدونِ appendِ قبلی settle نمی‌شود.
 EffectorGate همچنان تنها گلوگاهِ settlement است.
