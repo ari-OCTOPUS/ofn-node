@@ -71,8 +71,12 @@ def _drain(timeout_s=8.0):
 
     نسخهٔ اولِ این کمکی `q.empty()` را می‌سنجید و زود برمی‌گشت: صف به‌محضِ
     **برداشتنِ** کار خالی می‌شود، در حالی که کار تازه شروع شده. معیارِ درست
-    `unfinished_tasks` است که فقط با `task_done` صفر می‌شود."""
-    q = center._VOICE_Q
+    `unfinished_tasks` است که فقط با `task_done` صفر می‌شود.
+
+    ۲۰۲۶-۰۸-۰۶: `center._VOICE_Q` با تعمیمِ ۰۸-۰۳ به لِینِ نام‌دار
+    `_BG_LANES["voice"]` رفت (همان الگوی test_brain_lane_async.py)."""
+    lane = center._BG_LANES.get("voice")
+    q = lane[0] if lane else None
     if q is None:
         return
     end = time.time() + timeout_s

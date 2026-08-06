@@ -178,9 +178,14 @@ def _drain_voice(timeout_s=8.0):
     try صدا شود — وگرنه `finally` فیک‌ها را برمی‌گرداند در حالی که کارگر
     هنوز مشغول است و کار به موتورِ واقعی می‌خورد.
     `unfinished_tasks` معیارِ درست است، نه `empty()`: صف به‌محضِ **برداشتنِ**
-    کار خالی می‌شود."""
+    کار خالی می‌شود.
+
+    ۲۰۲۶-۰۸-۰۶: `center._VOICE_Q` با تعمیمِ ۰۸-۰۳ حذف شد و به لِینِ نام‌دار
+    `_BG_LANES["voice"]` رفت — این کمکی همیشه `None` می‌گرفت و بدونِ صبر
+    برمی‌گشت (اسمِ صف عوض شد، خودِ صبرکردن نه — الگوی test_brain_lane_async.py)."""
     import time as _t
-    q = getattr(center, "_VOICE_Q", None)
+    lane = center._BG_LANES.get("voice")
+    q = lane[0] if lane else None
     if q is None:
         return
     end = _t.time() + timeout_s
