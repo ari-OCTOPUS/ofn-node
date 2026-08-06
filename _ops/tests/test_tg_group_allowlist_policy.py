@@ -145,7 +145,7 @@ def t_slash_commands_stay_allowed_in_outer_dm():
 def t_core_callbacks_are_denied_in_group_topics():
     """gap boundary-2: pw:panic از تاپیکِ پا leg_scoped می‌گرفت."""
     for data in ("pw:pn", "pwc:stop", "oc:menu", "map:start", "hm:build",
-                 "mn:x", "mo:1", "m:2", "x:1", "iv:a", "mr:b", "qt:send:1"):
+                 "mn:x", "m:2", "x:1", "iv:a", "mr:b", "qt:send:1"):
         d = _c(_cbq(data=data, thread=22))
         assert d["allow"] is False and d["mode"] == "deny", (data, d)
         assert d["reason"].startswith("callback-dm-only:"), (data, d)
@@ -153,8 +153,11 @@ def t_core_callbacks_are_denied_in_group_topics():
 
 
 def t_leg_card_callbacks_stay_allowed_in_their_topic():
+    """mo (mining sub-UI) از ۱fea349 (۰۸-۰۱) عمداً به GROUP_CALLBACK_VERBS
+    اضافه شد تا دکمه‌های ماینینگ داخلِ تاپیکِ پا کار کنند."""
     for data in ("tk:s:lead:TASK-1", "lg:lead", "ok:VQ-1", "no:VQ-1",
-                 "later:VQ-1", "ap:ok:abc", "ms:1", "tr:x", "dg:e:trace1"):
+                 "later:VQ-1", "ap:ok:abc", "ms:1", "tr:x", "dg:e:trace1",
+                 "mo:1"):
         d = _c(_cbq(data=data, thread=22))
         assert d["allow"] is True and d["mode"] == "leg_scoped", (data, d)
         assert d["leg"] == "lead", (data, d)
