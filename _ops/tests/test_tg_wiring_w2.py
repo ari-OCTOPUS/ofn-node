@@ -488,9 +488,14 @@ def t_g1_boot_receipt_is_one_line_with_pid_and_version_once_per_process():
     rec = [s for s in fc.named("send") if "بیدار شدم" in s["text"]]
     assert rec, "رسیدِ بوت فرستاده نشد"
     txt = rec[0]["text"]
-    assert str(os.getpid()) in txt, f"PID در رسید نیست: {txt!r}"
-    assert "نسخه" in txt, f"نسخه در رسید نیست: {txt!r}"
-    assert "\n" not in txt.strip(), f"رسید باید یک خط باشد: {txt!r}"
+    # ۰۸-۰۴: خطِ دومِ شمارندهٔ ری‌استارتِ روزانه اضافه شد؛ رسید حالا دو خط
+    # است — هر خط را جدا می‌سنجیم، نه کلِ متن را یک‌خطی.
+    lines = txt.strip().split("\n")
+    assert len(lines) == 2, f"رسید باید دقیقاً دو خط باشد: {txt!r}"
+    assert str(os.getpid()) in lines[0], f"PID در خطِ اولِ رسید نیست: {txt!r}"
+    assert "نسخه" in lines[0], f"نسخه در خطِ اولِ رسید نیست: {txt!r}"
+    assert "ری‌استارتِ امروز" in lines[1], \
+        f"شمارندهٔ ری‌استارت در خطِ دومِ رسید نیست: {txt!r}"
     # همان پروسه، بوتِ دوم ⇒ رسیدِ دوم نه (dedupe با pid در config)
     c.ensure_setup()
     assert len([s for s in fc.named("send")
