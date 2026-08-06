@@ -39,6 +39,10 @@ INTENTIONALLY_HIDDEN = {
     "heart": "دستورِ introspection/debug — read-only، پشتِ /menu، نه خودِ منو",
     "brain": "دستورِ introspection/debug — read-only، پشتِ /menu، نه خودِ منو",
     "doctor": "دستورِ introspection/debug — read-only، پشتِ /menu، نه خودِ منو",
+    # ۲۰۲۶-۰۸-۰۴ — درِ شلِ خام (رأیِ صریحِ مالک)، مالکیت را handle_update → _is_owner
+    # از قبل گیت کرده؛ عمداً در منو تبلیغ نمی‌شود چون سلاحِ خام است، نه یک feature معمولی.
+    "sh": "owner-only raw-shell door, deliberately not advertised in the menu",
+    "شل": "owner-only raw-shell door, deliberately not advertised in the menu (نامِ فارسیِ /sh)",
     # ── رأیِ ۴ منشور TG-UI-CHARTER-2026-07-31 («بیزنس هرگز در DM») ───────────
     # این ۱۶ فرمان **کار می‌کنند** و عمداً از منوی DM برداشته شدند تا سقفِ ≤۱۰
     # ِ §۶.۵ رعایت شود. دفترِ حذف با دلیلِ تک‌تک:
@@ -126,7 +130,10 @@ def t_the_hidden_list_stays_small_and_justified():
     # سقف ۲۵ ← ۲۸: ۲۰۲۶-۰۸-۰۵ — نقشهٔ G7، سه فرمانِ introspection ِ نو
     # (heart/brain/doctor) که فقط در باتِ B بودند، دقیقاً هم‌الگوی
     # flags/insight/scan/trace ِ از قبل.
-    assert len(INTENTIONALLY_HIDDEN) <= 28, len(INTENTIONALLY_HIDDEN)
+    # سقف ۲۸ ← ۳۰: ۲۰۲۶-۰۸-۰۶ — sh/شل (درِ شلِ خامِ ۰۸-۰۴) به handlers اضافه شده
+    # بودند ولی هرگز در COMMANDS/INTENTIONALLY_HIDDEN ثبت نشدند؛ census همین
+    # الان صدایشان زد. owner-only، عمداً پنهان، نه یک نشتِ سقف.
+    assert len(INTENTIONALLY_HIDDEN) <= 30, len(INTENTIONALLY_HIDDEN)
     for cmd, why in INTENTIONALLY_HIDDEN.items():
         assert len(why) >= 15, f"«{cmd}» بدونِ دلیلِ واقعی پنهان شده"
 
