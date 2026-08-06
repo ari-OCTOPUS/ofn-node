@@ -683,6 +683,7 @@ class LiveLoop:
         # فلگ **بیرونِ** try یک `NameError` در `__init__` می‌شد و کلِ حلقهٔ
         # زنده بالا نمی‌آمد.
         import os as _os  # noqa: WPS433
+        import json as _json  # noqa: WPS433
         if str(_os.environ.get(self.REHYDRATE_FLAG, "")).strip().lower() not in (
                 "1", "true", "yes", "on"):
             return {"rehydrated": 0, "reason": "flag-off"}
@@ -717,6 +718,24 @@ class LiveLoop:
                     "leg_id": r.get("leg_id"), "_durable": True})
                 n += 1
             elif et in _POS:
+                # ۲۰۲۶-۰۸-۰۶ — outcomes.db یک انبارِ مشترک است؛ outcomes/research_loop.py
+                # خودِ رأیِ اعتبارسنجیِ فرضیه را با همین event_type می‌نویسد (leg_id=research،
+                # payload.self_run=True، value_aud_claimed=0.0 همیشه). بدونِ فیلتر، این ردیف‌ها
+                # وارد accept_rate/decided می‌شدند و سنجشِ داخلی را رأیِ مالک نشان می‌دادند —
+                # زنده: ۹ از ۳۵ ردیفِ accepted-measurement/rejected متعلق به همین خودآزمون بود
+                # (accept_rate=۰.۹۷ی گزارش‌شده توسطِ خودِ ارگانیسم دقیقاً همین آلودگی بود).
+                # الگوی فیلتر از acceptance_journey.py::_verify_p8 (ممیزیِ ۰۷-۳۱، همان تناقض)
+                # عیناً پورت شد: self_run رد می‌شود، و source باید با «tg-» شروع شود (کارتِ
+                # لید/صفِ تأییدِ واقعی) — یک ردیفِ canary ِ دستیِ ۰۷-۲۳ (source=C1-internal-canary)
+                # را هم همین شرطِ دوم رد می‌کند.
+                try:
+                    _pl = _json.loads(r.get("payload_json") or "{}")
+                except (TypeError, ValueError):
+                    _pl = {}
+                if _pl.get("self_run"):
+                    continue
+                if not str(_pl.get("source") or "").startswith("tg-"):
+                    continue
                 self._proposal_outcomes.append({
                     "event": "outcome", "proposal_id": pid,
                     "verdict": _POS[et],

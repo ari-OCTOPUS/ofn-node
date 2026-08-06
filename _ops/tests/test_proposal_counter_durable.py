@@ -78,7 +78,10 @@ def _seed(n_delivered=2, n_outcome=1, with_lead=True, extra=()):
             # نگاشتِ نسخهٔ اولِ کدِ تولیدی را بی‌صدا مرده کرده بود.
             "event_type": "accepted-measurement", "verdict": "approved",
             "value_aud_claimed": 1200.0,
-            "idempotency_key": f"acc|p{i}", "payload": {}})
+            # source=tg-center: شکلِ واقعیِ رأیِ مالک (center.py record_owner_verdict).
+            # ۲۰۲۶-۰۸-۰۶: فیلترِ self_run/source روی همین کلید تکیه می‌کند؛ فیکسچرِ
+            # قدیمی payload خالی می‌داد و به‌اشتباه رد می‌شد.
+            "idempotency_key": f"acc|p{i}", "payload": {"source": "tg-center"}})
     for j, et in enumerate(extra):
         store.record({
             "correlation_id": f"e{j}", "mission_id": "", "proposal_id": f"e{j}",
@@ -225,6 +228,46 @@ def t_g_a_broken_store_never_kills_the_boot():
             assert res["rehydrated"] == 0 and res["reason"] == "error", res
         finally:
             pr._open_store = orig
+    finally:
+        _off()
+
+
+# ── آلودگیِ self_run (۲۰۲۶-۰۸-۰۶) ─────────────────────────────────────────────
+def t_i_self_run_and_non_tg_rows_are_excluded_from_the_vote():
+    """outcomes.db مشترک است؛ outcomes/research_loop.py با همان event_type
+    (accepted-measurement) و leg_id=research، payload.self_run=True می‌نویسد —
+    سنجشِ داخلیِ فرضیه، نه رأیِ مالک. زنده: ۹/۳۵ ردیفِ accepted-measurement
+    دقیقاً همین بود و accept_rate را کاذب بالا می‌برد. الگوی فیلتر عیناً از
+    acceptance_journey.py::_verify_p8 پورت شد: self_run رد می‌شود؛ و
+    source باید با «tg-» شروع شود (یک ردیفِ canaryِ دستی با
+    source=C1-internal-canary هم با همین شرط رد می‌شود)."""
+    _on()
+    try:
+        _wipe()
+        os.environ["OCTOPUS_WIRE_VERDICT_OUTCOME"] = "1"
+        store = pr._open_store(create=True)
+        store.record({
+            "correlation_id": "real1", "proposal_id": "preal", "leg_id": "lead-naghshi",
+            "event_type": "accepted-measurement", "verdict": "approved",
+            "value_aud_claimed": 500.0, "idempotency_key": "acc|preal",
+            "payload": {"source": "tg-proposal-button"}})
+        store.record({
+            "correlation_id": "research1", "proposal_id": "presearch", "leg_id": "research",
+            "event_type": "accepted-measurement", "verdict": "approved",
+            "value_aud_claimed": 0.0, "idempotency_key": "acc|presearch",
+            "payload": {"self_run": True, "measurement_only": True}})
+        store.record({
+            "correlation_id": "canary1", "proposal_id": "pcanary", "leg_id": "canary",
+            "event_type": "accepted-measurement", "verdict": "approved",
+            "value_aud_claimed": 0.0, "idempotency_key": "acc|pcanary",
+            "payload": {"source": "C1-internal-canary"}})
+        store.close()
+        o = _fresh()
+        res = _rehydrate_only(o)
+        assert res["rehydrated"] == 1, res
+        m = ll.LiveLoop.proposal_metrics(o)
+        assert m["proposal_outcomes"] == 1, m
+        assert m["proposal_value_aud"] == 500.0, m
     finally:
         _off()
 
