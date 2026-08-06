@@ -70,8 +70,9 @@
 | `ACTIVATION-GOVERNOR-LLM.flag` | گاورنرِ LLM ِ اپاک بودجه | `budget/opslib.py::ACT_GOV_LLM` | دوقفله `opslib.live_gate_open` | RAISED |
 | `ACTIVATION-HEART-DOCTOR.flag` | setpoint ِ دکترِ قلب | `heart/doctor_setpoint.py::ACT_HEART_DOCTOR` | دوقفله `opslib.live_gate_open` | RAISED |
 | **`ACTIVATION-HEARTSTATE.flag`** | **نوشتنِ `_ops/state/pulse/heartstate-latest.json` هر ضربان** — ↑ هشدارِ بالا | `heart/heartstate.py::_FLAG_FILE` | تک‌قفله `exists()`، **بدونِ سپرِ تاریخ** | RAISED |
-| `ACTIVATION-PULSE-ARBITER.flag` | persist ِ آربیترِ پالس (`arbiter-latest.json` / `arbiter-shadow.jsonl`) | `heart/pulse_arbiter.py::ACT_ARBITER` | دوقفله `opslib.live_gate_open` | CLOSED |
+| `ACTIVATION-PULSE-ARBITER.flag` | persist ِ آربیترِ پالس (`arbiter-latest.json` / `arbiter-shadow.jsonl`) | `heart/pulse_arbiter.py::ACT_ARBITER` | دوقفله `opslib.live_gate_open` | RAISED |
 | `ACTIVATION-PULSE.flag` | سایهٔ قلب (`heart/shadow.py`) | `heart/shadow.py::ACT_PULSE` | دوقفله `opslib.live_gate_open` | RAISED |
+| `ACTIVATION-RAW-SHELL.flag` | اجرای فرمانِ پوستهٔ خام از داخلِ ارگانیسم (`/sh`)، با رسید و deny-list ِ منشور | `shell_capability.py::ACTIVATION` | تک‌قفله `exists()` + نبودِ `STOP-RAW-SHELL`/`STOP-ORGANISM` | RAISED |
 | `ACTIVATION-REPLICATION.flag` | پیشنهاددهیِ زندهٔ replication | `budget/opslib.py::ACT_REPLICATION` | دوقفله `opslib.live_gate_open` | RAISED |
 | `ACTIVATION-RESEARCH-EARLY.flag` | overrideِ زودهنگامِ سپرِ تاریخ برای مسیرِ پژوهشِ پولی | `cortex/model_router.py::ACT_RESEARCH_EARLY` | تک‌قفله `exists()` | RAISED |
 | `ACTIVATION-SELF-IMPROVE-AUTO.flag` | خودبهبودیِ **خودکار** (بدونِ تپِ مالک) | `cortex/improve.py::ACT_AUTO` | تک‌قفله `exists()` | RAISED |
