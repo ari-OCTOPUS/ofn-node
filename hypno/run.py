@@ -89,15 +89,24 @@ class App:
         return q
 
     def panel_note(self, uid, action, extra=None):
-        mem = self.store.memories(uid, 6)
-        passages = retrieve(self.store, action + ' self hypnosis research memory panel', 4)
-        r = self.brain.answer('گزارش کوتاه پنل: ' + action, 'custom', mem, passages, 'safe')
-        self.store.log(uid, 'assistant', r['reply'], {'panel_action': action, 'extra': extra or {}})
-        return {'reply': r['reply'], 'source': r.get('source'), 'citations': r.get('citations', []), 'primed_chunks': len(passages)}
+        """Record a panel action in the message log WITHOUT calling the brain.
+
+        Previously this issued a hidden `brain.answer` on every write path
+        (memory add, research ingest, import, export) — a second brain call
+        the user never asked for, billed against quota, with no user-visible
+        benefit. It is now a plain log row, which is all an audit trail needs.
+        """
+        self.store.log(uid, 'assistant', action, {'panel_action': action, 'extra': extra or {}, 'source': 'panel_note'})
+        return {'reply': action, 'source': 'panel_note', 'citations': [], 'primed_chunks': 0}
 
     def session(self, b):
         uid = self.user(b)
-        s = self.store.session(uid, b.get('mode'), b.get('consent') if 'consent' in b else None)
+        # Accept both the new name and the legacy one so an older client still
+        # works after the rename. The new field is the source of truth.
+        sa = b.get('safety_acknowledged')
+        if sa is None and 'consent' in b:
+            sa = b.get('consent')
+        s = self.store.session(uid, b.get('mode'), sa)
         return {
             'ok': 1, 'version': __version__, 'user_id': uid, 'session': s,
             'research_docs': self.store.count(), 'brain': brain_name(self.cfg),
@@ -109,16 +118,17 @@ class App:
         uid = self.user(b)
         text = (b.get('text') or '').strip()
         mode = b.get('mode') or 'calm'
-        consent = bool(b.get('consent'))
+        # Accept both names (see session() above).
+        ack = bool(b.get('safety_acknowledged', b.get('consent', False)))
         if not text:
             return {'ok': 0, 'error': 'متن خالی است'}
-        self.store.session(uid, mode, consent)
+        self.store.session(uid, mode, ack)
         d = classify(text)
         self.store.log(uid, 'user', text, {'safety': d.level, 'mode': mode})
         if not d.allow:
             return {'ok': 1, 'reply': d.message, 'source': 'safety', 'safety': d.level, 'citations': []}
-        if not consent and self.is_session(text):
-            return {'ok': 1, 'reply': 'قبل از شروع، رضایت و جای امن را تأیید کن. هر لحظه می‌توانی توقف کنی.', 'source': 'safety', 'safety': 'need_consent', 'citations': []}
+        if not ack and self.is_session(text):
+            return {'ok': 1, 'reply': 'قبل از شروع، رضایت و جای امن را تأیید کن. هر لحظه می‌توانی توقف کنی.', 'source': 'safety', 'safety': 'need_acknowledgement', 'citations': []}
         limit = 12 if self.is_session(text) else 5
         passages = retrieve(self.store, self.query(text, mode), limit)
         # وقتی موضوع لبهٔ سیستم است، chunks لبه را اول بگذار تا مغز حتماً مدل را

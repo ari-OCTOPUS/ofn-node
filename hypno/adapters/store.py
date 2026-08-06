@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS messages(id INTEGER PRIMARY KEY,user_id TEXT,role TEX
 CREATE TABLE IF NOT EXISTS research_docs(id INTEGER PRIMARY KEY,title TEXT,source_url TEXT,source_type TEXT,text TEXT,tags TEXT,created_at INT);
 CREATE VIRTUAL TABLE IF NOT EXISTS research_fts USING fts5(title,text,tags,content='research_docs',content_rowid='id');
 CREATE TRIGGER IF NOT EXISTS research_ai AFTER INSERT ON research_docs BEGIN INSERT INTO research_fts(rowid,title,text,tags) VALUES(new.id,new.title,new.text,new.tags); END;
-CREATE TABLE IF NOT EXISTS sessions(user_id TEXT PRIMARY KEY,mode TEXT DEFAULT 'calm',consent INT DEFAULT 0,last_seen INT);
+CREATE TABLE IF NOT EXISTS sessions(user_id TEXT PRIMARY KEY,mode TEXT DEFAULT 'calm',safety_acknowledged INT DEFAULT 0,last_seen INT);
 CREATE TABLE IF NOT EXISTS edge_daily(
   id INTEGER PRIMARY KEY,
   user_id TEXT NOT NULL,
@@ -15,18 +15,41 @@ CREATE TABLE IF NOT EXISTS edge_daily(
   created_at INT NOT NULL,
   UNIQUE(user_id, day)
 );'''
+
+def _migrate_consent_rename(db):
+    """B-3: rename the legacy `consent` column to `safety_acknowledged`.
+
+    The name `consent` collided with OFN's publish-consent (a person's release
+    for a photo), which means something entirely different. hypno's flag is the
+    user acknowledging self-hypnosis safety — renamed so the two never get
+    conflated in shared code.
+
+    Idempotent: if the new column exists, do nothing. If only the old one
+    exists, rename it (data is preserved, not dropped).
+    """
+    cols = {r[1] for r in db.execute("PRAGMA table_info(sessions)").fetchall()}
+    if 'safety_acknowledged' in cols:
+        return  # already migrated
+    if 'consent' in cols:
+        db.execute("ALTER TABLE sessions RENAME COLUMN consent TO safety_acknowledged")
+    else:
+        # brand-new table created before this migration ran: add the column
+        db.execute("ALTER TABLE sessions ADD COLUMN safety_acknowledged INT DEFAULT 0")
+
 class Store:
     def __init__(self,path):
         self.path=path; os.makedirs(os.path.dirname(path),exist_ok=True)
-        with self.conn() as db: db.executescript(SCHEMA)
+        with self.conn() as db:
+            db.executescript(SCHEMA)
+            _migrate_consent_rename(db)
     def conn(self): c=sqlite3.connect(self.path,timeout=20); c.row_factory=sqlite3.Row; return c
     def now(self): return int(time.time())
-    def session(self,user,mode=None,consent=None):
+    def session(self,user,mode=None,safety_acknowledged=None):
         n=self.now()
         with self.conn() as db:
             db.execute("INSERT OR IGNORE INTO sessions(user_id,last_seen) VALUES(?,?)",(user,n))
             if mode is not None: db.execute("UPDATE sessions SET mode=?,last_seen=? WHERE user_id=?",(mode,n,user))
-            if consent is not None: db.execute("UPDATE sessions SET consent=?,last_seen=? WHERE user_id=?",(1 if consent else 0,n,user))
+            if safety_acknowledged is not None: db.execute("UPDATE sessions SET safety_acknowledged=?,last_seen=? WHERE user_id=?",(1 if safety_acknowledged else 0,n,user))
             return dict(db.execute("SELECT * FROM sessions WHERE user_id=?",(user,)).fetchone())
     def add_memory(self,user,kind,content):
         if not content.strip(): raise ValueError('empty memory')

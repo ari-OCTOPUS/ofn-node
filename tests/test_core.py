@@ -43,3 +43,38 @@ class AppFlowTests(unittest.TestCase):
    r=App(cfg).chat({'text':'شروع جلسه، خودمو بکشم','mode':'calm','consent':False})
    self.assertEqual(r['safety'],'crisis')
 if __name__=='__main__': unittest.main()
+
+
+class PanelNoteNoBrainTests(unittest.TestCase):
+ """B-2: panel_note must NOT call the brain. It used to fire a hidden
+ brain.answer on every write path (memory add, research ingest, import,
+ export) — a second brain call the user never asked for."""
+
+ class _SpyBrain:
+  """Records every call to .answer so we can assert panel_note did not."""
+  def __init__(self):
+   self.calls = []
+  def answer(self, *a, **kw):
+   self.calls.append((a, kw))
+   return {'reply': 'should-not-be-called', 'source': 'rules', 'citations': []}
+
+ def test_panel_note_does_not_call_brain(self):
+  import os, tempfile
+  from hypno.config import Config
+  from hypno.adapters.store import Store
+  from hypno.run import App
+  with tempfile.TemporaryDirectory() as d:
+   cfg = Config(root=d, host='127.0.0.1', port=9999,
+                state_dir=d, research_dir=d, bot_token='', owners=('u',),
+                api_key='', base_url='', model='', dev_user='u')
+   app = App(cfg)
+   spy = self._SpyBrain()
+   app.brain = spy  # replace the real brain with the spy
+   out = app.panel_note('u', 'حافظه جدید ذخیره شد')
+   # The note was recorded…
+   self.assertEqual(out['source'], 'panel_note')
+   # …but the brain was never asked anything.
+   self.assertEqual(spy.calls, [])
+
+if __name__ == '__main__':
+ unittest.main()
