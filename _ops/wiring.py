@@ -342,6 +342,70 @@ def make_cartographer_leg():
         return None
 
 
+# ── Mining leg (2026-08-06، رأیِ مالک سندِ ۲۰ §۲.۲: «کد رو ببر سمت factory-function») ──
+# تناقضِ ۲.۲: test_mining_wiring.py انتظارِ make_mining_leg()/mining_beat() داشت ولی Mining
+# واقعاً با `_BUSINESS_LEGS_SPEC` (status فقط‌خواندنی) ساخته می‌شد — ۶ قرمز از ۰۸-۰۱. مهاجرت
+# به factory-function (هم‌الگویِ lead/cartographer) تا leg object قابل‌ساخت/تست‌پذیر بشه.
+# organ="MINING" در budgets نیست → money_link="incubating" (هرگز reserve نمی‌کند).
+# propose-only/read-only مطلق: زیرکلاسِ مستقیمِ Leg، صفر send/publish/pay/trade.
+def make_mining_leg():
+    """ساختِ پای Mining. پشتِ OCTOPUS_WIRE_MINING.
+    ⚠️ عمداً در PAPER_FULL_FLAGS نیست → پیش‌فرض خاموش (incubating) تا verdictِ مالک.
+    skeletonِ صادقانه: read-only floor، propose-only ceiling؛ هیچ send/publish/spend.
+    organ=MINING در budgets نیست → money_link=incubating (INV-14). brains دو-نیمکره‌ی
+    سخت‌افزار/کشف‌سکه (هم‌الگوی mining_leg.py) ولی هرگز اجرا نمی‌شوند (propose-only)."""
+    if not flag("OCTOPUS_WIRE_MINING"):
+        return None
+    try:
+        _syspath(str(_HERE / "legs"))
+        _syspath(str(_HERE / "budget"))
+        from leg import Leg, TaskPacket
+        packet = TaskPacket(
+            leg_id="mining-fleet",
+            organ="MINING",                       # در budgets.yaml نیست → incubating
+            read_allowlist=("03 - Projects/Mining/Mining.md",),
+            tools=("status_snapshot",),           # فقط read-only، صفر اکشنِ خارجی
+            budget_aud=0.0,                       # $0 — read-only، هرگز reserve
+            spawn=0,
+            secrets=(),
+        )
+        return Leg(packet, organ_table=opslib.organ_table())
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"wiring: MiningLeg ساخت نشد: {e}"])
+        return None
+
+
+def mining_beat(mining_leg, beat: int = 0) -> dict | None:
+    """یک ضربانِ سبک برای پای Mining — فقط status (سنتینلِ کهنگیِ سخت‌افزار/سکه).
+    پشتِ OCTOPUS_WIRE_MINING (پیش‌فرض خاموش). STOP/HALT مقدم. content-free.
+    خودِ beat هیچ emit/mutate نمی‌کند؛ هم‌الگویِ cartographer_beat.
+    هیچ Telegram/publish/send/spend از این مسیر نیست. $0 آفلاین."""
+    if not flag("OCTOPUS_WIRE_MINING"):
+        return None
+    if opslib.STOP_ORGANISM.exists() or opslib.halted():
+        return None
+    if leg_paused("mining"):
+        return None   # مکثِ تک‌پا از مرکزِ تلگرام (runtime)
+    if mining_leg is None:
+        return None
+    try:
+        return {
+            "leg_id": mining_leg.packet.leg_id,
+            "organ": "MINING",
+            "money_link": mining_leg.money_link,     # "incubating"
+            "autonomy_floor": "read-only",
+            "read_only": True,
+            "propose_only": True,
+            "outward_execution": False,
+            "beat": beat,
+            # دو مغزِ مفهومیِ Mining (skeleton — هرگز اجرا نمی‌شوند، فقط خودآگاهی):
+            "brains": ["hardware_control", "coin_discovery"],
+            "proposals_total": len(mining_leg._proposals_emitted),
+        }
+    except Exception as e:  # noqa: BLE001 — یک limb نباید ارگانیسم را بکشد
+        opslib.alert([f"wiring: mining_beat خطا: {type(e).__name__}: {e}"])
+        return None
+
 
 # ════════════════════════════════════════════════════════════════════════════════
 # W · spinal cord (نخاع) — organism ↔ LiveLoop/UnifiedBus (P-W1)

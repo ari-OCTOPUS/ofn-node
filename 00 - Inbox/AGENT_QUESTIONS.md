@@ -729,3 +729,35 @@ approval_store، کامیت `2f8e795`). سه مورد هنوز باز است و 
 جمع شدند در:
 [[07 - Knowledge/شناخت-اختاپوس/20-NEXT-AGENT-MEGAPROMPT-QUESTIONS-AND-CONTRADICTIONS-2026-08-06|20-NEXT-AGENT-MEGAPROMPT-QUESTIONS-AND-CONTRADICTIONS]].
 ایجنتِ بعدی قبل از فیکس در این حوزه‌ها، اول آن سند را بخواند.
+
+## 2026-08-06 (دیر وقت) — اجرای سندِ ۲۰، تصمیم‌های مالک ثبت شد
+
+سندِ ۲۰ اجرا شد. هر تصمیمِ مالک پایین ثبت است:
+
+**بسته شدند (دانستیم/فیکس شدند):**
+- ✅ **۲.۱ MINING_OS**: مالک رأی داد «خاموش کن» — `OCTOPUS_WIRE_MINING_OS=0` شد.
+  کامنتِ ۰۸-۰۲ معتبر بود؛ نودِ زنده‌ای نیست.
+- ✅ **۲.۲ Mining factory-function**: مالک رأی داد «کد رو ببر سمت factory-function».
+  `make_mining_leg()`/`mining_beat()` به `wiring.py` اضافه شد (الگوی cartographer).
+  `test_mining_wiring.py`: ۶ قرمز → ۱ قرمز/۹ سبز.
+- ✅ **۲.۳ C6 guard**: مالک رأی داد «همین‌طور بمونه» — نجاتِ ۲۱ RFC مقدم است بر
+  گاردِ «C6 هرگز merge نشه». `reconstruct_rfc_from_card` دست‌نخورده.
+- ✅ **موردِ ۱ retrieval_router**: بررسی شد — واقعاً زنده و veto می‌کند
+  (`goal_action_bridge.py:272` صدا می‌زند، `route()` در `retrieval_router.py:56` veto=true
+  می‌سازد).armed-و-بی‌اثر **نبود**.
+- ✅ **موردِ ۳ miniapp**: بررسی شد — **نشتِ واقعیه، نه تستِ کهنه.**
+  `test_miniapp_lifecycle_view.py` الان ۱۴/۱۶: `t_serialised_body_carries_zero_card_text_or_token_material`
+  و `t_projection_keys_are_a_closed_whitelist` قرمزند چون `rfc_id`/`RFC-0000` در بدنهٔ HTTP
+  نشت می‌کند و `stalled_list` کلیدِ اعلام‌نشده است. مالک فعلاً فقط گفت «بررسی کن» —
+  فیکسش هنوز منتظرِ رأیِ جداگانه است.
+
+**هنوز باز (مالک این جلسه انجام نداد):**
+- ۲.۴ — `doctor_setpoint.py`/`governor_epoch.py` دو مسیرِ پولیِ موازی (env
+  `..._USE_ROUTER` پیش‌فرض خاموش)؛ فیکسِ آلارمِ fugu رویشان اثر ندارد.
+- ۲.۵ — اسکنرِ emitter-parity فقط ۴ فایلِ هاردکد می‌بیند (`center.py`/
+  `approval_channel.py`/`tool_request.py`/`test_cycle.py`)؛ `wiring.py` و هر فایلِ
+  نو را نمی‌بیند. تلهٔ دو-باتی ساختاری بسته نیست.
+- موردِ ۴ — `outbound_worker.py` آلارمِ گمراه‌کننده دارد (فیکس آماده، زیرِ `_ops/legs/**`).
+- ۲.۲ باقیمانده — `test_render_maps_mining_status` هنوز قرمز است (شکاف در
+  `_collect_legs`: ORGANISM-STATE[mining] با `electricity_mood` کلیدها، نه
+  مسیرِ `business_legs`). مهاجرتِ factory-function این یکی را فیکس نکرد — جداگانه.
