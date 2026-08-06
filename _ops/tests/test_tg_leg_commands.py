@@ -10,6 +10,7 @@
 """
 import json
 import sys
+import threading
 import types
 from pathlib import Path
 
@@ -357,6 +358,28 @@ def t_s_kpi_parser_is_full_match_and_clamped():
         assert lc.parse_kpi_set(bad) is None, bad
 
 
+def _wait_for_brain_lane(timeout=5.0):
+    """صبر کن تا کارِ صف‌شدهٔ لِینِ 'brain' واقعاً تمام شود — نه فقط صف شود.
+
+    از ۲۰۲۶-۰۳/۰۴ به بعد `_drive_leg_engine` بدنه‌اش را به `center._BG_LANES`
+    (نخِ پس‌زمینهٔ tg-brain-worker) می‌سپارد و فوراً برمی‌گردد؛ صداکننده اگر
+    بی‌درنگ تکیه‌گاهش (مثلاً fake ask_brain در sys.modules) را جمع کند، کارگر
+    وقتی واقعاً شروع می‌کند ماژولِ واقعی را import می‌کند. الگو از
+    test_brain_lane_async.py: q.join() را در نخِ جدا اجرا کن تا timeout واقعی
+    داشته باشیم (Queue.join خودش پارامترِ timeout ندارد)."""
+    q, _th = center._BG_LANES.get("brain", (None, None))
+    if q is None:
+        return
+    done = threading.Event()
+
+    def _joiner():
+        q.join()
+        done.set()
+
+    threading.Thread(target=_joiner, daemon=True).start()
+    assert done.wait(timeout), "کارِ لِینِ brain در بازهٔ انتظار تمام نشد"
+
+
 def t_t_the_engine_receipt_carries_the_feedback_buttons():
     _reset()
     t = lt.add("lead", "بررسی لید", now=NOW - 100)
@@ -368,6 +391,7 @@ def t_t_the_engine_receipt_carries_the_feedback_buttons():
     sys.modules["ask_brain"] = fake_ab
     try:
         c._drive_leg_engine()
+        _wait_for_brain_lane()
     finally:
         sys.modules.pop("ask_brain", None)
     got = lt.recent_done("lead")
