@@ -3444,6 +3444,17 @@ class Center:
                 mid = None
             return {"kind": "chat-room-dark", "sent": mid is not None,
                     "command": cmd}
+        # ۲۰۲۶-۰۸-۰۶: handoff ِ مستندشدهٔ خودِ mirror_room.py (§«تصمیم دربارهٔ تعاملِ
+        # با chat_room» — این فایل مالکِ سیم‌کشی نیست، فقط اجراش می‌کند): جمله‌ای
+        # که اینجا به یک کارمند مسیر داده شد، آینه فقط **می‌بیند** (observe،
+        # بدونِ جواب/هزینه) تا نوبتِ بعدیِ همین اتاق یتیم نماند. flag دوم
+        # (OCTOPUS_TG_MIRROR_ALLROOMS) خاموش یا هر خطا → observe خودش fail-soft
+        # است (`{"ok": False, "reason": "flag-off"}`)؛ اینجا فقط دفاعِ دوم است.
+        try:
+            import mirror_room as _mr
+            _mr.observe(room, text, by=hit.get("display", ""))
+        except Exception:  # noqa: BLE001 — دیدنِ آینه هرگز مسیرِ کارمند را نمی‌شکند
+            pass
         return {**out, "routed_from": "chat-room", "hits": hit.get("hits", [])}
 
     def _handle_ask(self, msg: dict, text: str) -> dict:

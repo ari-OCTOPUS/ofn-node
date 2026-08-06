@@ -27,6 +27,7 @@ ENV = harness.setup("chat-room")
 sys.path.insert(0, str(_HERE.parent / "telegram_center"))
 import os                       # noqa: E402
 import chat_room as cr          # noqa: E402
+import mirror_room as mr        # noqa: E402
 
 FLAG = cr.FLAG
 
@@ -37,6 +38,19 @@ def _on():
 
 def _off():
     os.environ.pop(FLAG, None)
+
+
+def _mirror_on(all_rooms: bool = True):
+    os.environ[mr.FLAG] = "1"
+    if all_rooms:
+        os.environ[mr.ROOM_FLAG] = "1"
+    else:
+        os.environ.pop(mr.ROOM_FLAG, None)
+
+
+def _mirror_off():
+    os.environ.pop(mr.FLAG, None)
+    os.environ.pop(mr.ROOM_FLAG, None)
 
 
 # ── لایهٔ ۱: خودِ مسیریاب ──────────────────────────────────────────────────
@@ -518,6 +532,88 @@ def t_k_no_match_falls_through_untouched():
         assert f._chat_room({"chat": {"id": 1}}, "سلام") is None
         assert f.replayed == [] and f._client.sent == []
     finally:
+        _off()
+
+
+# ── handoff به mirror_room: observe() روی مسیرِ موفق ─────────────────────────
+#
+# رأیِ ۲۰۲۶-۰۸-۰۶ (خودِ mirror_room.py، §«تصمیمِ chat_room»): جمله‌ای که اینجا
+# به یک کارمند مسیر داده شد، آینه فقط می‌بیند — بدونِ جواب، بدونِ هزینه. این
+# دو تست دقیقاً همان قرارداد را از **مرکز** می‌سنجند، نه از خودِ ماژول (که
+# `test_mirror_rooms_memory.py` قبلاً می‌سنجد).
+
+def t_l_a_routed_room_gets_observed_when_both_mirror_flags_are_on():
+    """هر دو فلگ روشن → observe() یک ردیف در فایلِ **همان اتاق** می‌نویسد."""
+    _on()
+    _mirror_on(all_rooms=True)
+    try:
+        p = mr.history_path("mining")
+        before = len(mr._read_jsonl(p))
+        f = _wire()
+        out = f._chat_room({"chat": {"id": -100}, "_room": "mining"}, "چطوره؟")
+        assert out is not None and out.get("routed_from") == "chat-room", out
+        rows = mr._read_jsonl(p)
+        assert len(rows) == before + 1, rows
+        assert rows[-1]["q"] == "چطوره؟", rows[-1]
+        assert rows[-1].get("by"), "کارمندِ پاسخ‌دهنده باید ثبت شود"
+        # اتاقِ آینهٔ پیش‌فرض دست‌نخورده می‌ماند — نشتی به فایلِ مشترک ممنوع
+        assert p != mr.HISTORY, p
+    finally:
+        _mirror_off()
+        _off()
+
+
+def t_m_allrooms_flag_off_means_no_observe_row_anywhere():
+    """فلگِ دوم خاموش ⇒ observe خودش no-op است؛ سیم‌کشیِ مرکز نباید این را دور بزند."""
+    _on()
+    _mirror_on(all_rooms=False)   # OCTOPUS_TG_MIRROR روشن، ALLROOMS خاموش
+    try:
+        default_before = len(mr._read_jsonl(mr.HISTORY))
+        f = _wire()
+        out = f._chat_room({"chat": {"id": -100}, "_room": "mining"}, "چطوره؟")
+        assert out is not None and out.get("routed_from") == "chat-room", out
+        assert len(mr._read_jsonl(mr.HISTORY)) == default_before, \
+            "فلگِ ALLROOMS خاموش بود؛ نباید حتی در فایلِ پیش‌فرض هم چیزی نوشته شود"
+        assert not mr.history_path("mining").exists() or \
+            mr.history_path("mining") == mr.HISTORY
+    finally:
+        _mirror_off()
+        _off()
+
+
+def t_n_mirror_base_flag_off_also_blocks_observe():
+    """فلگِ پایه (OCTOPUS_TG_MIRROR) خاموش ⇒ observe no-op، حتی اگر ALLROOMS روشن باشد."""
+    _on()
+    os.environ.pop(mr.FLAG, None)
+    os.environ[mr.ROOM_FLAG] = "1"
+    try:
+        p = mr.history_path("mining")
+        before = len(mr._read_jsonl(p))
+        f = _wire()
+        out = f._chat_room({"chat": {"id": -100}, "_room": "mining"}, "چطوره؟")
+        assert out is not None, out
+        assert len(mr._read_jsonl(p)) == before, "فلگِ پایهٔ آینه خاموش بود"
+    finally:
+        _mirror_off()
+        _off()
+
+
+def t_o_observe_never_breaks_the_employees_answer():
+    """اگر خودِ observe() هر خطایی بدهد، جوابِ کارمند باید سالم برگردد — دفاعِ دوم."""
+    _on()
+    _mirror_on(all_rooms=True)
+    try:
+        real = mr.observe
+        mr.observe = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom"))
+        try:
+            f = _wire()
+            out = f._chat_room({"chat": {"id": -100}, "_room": "mining"}, "چطوره؟")
+            assert out is not None and out.get("routed_from") == "chat-room", out
+            assert len(f.replayed) == 1 and f.replayed[0]["text"] == "/mining"
+        finally:
+            mr.observe = real
+    finally:
+        _mirror_off()
         _off()
 
 
