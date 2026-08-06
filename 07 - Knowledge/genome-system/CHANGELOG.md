@@ -3,10 +3,17 @@ type: log
 status: active
 tags: [changelog, genome-system]
 aliases: ["CHANGELOG - genome-system"]
-updated: 2026-07-10
+updated: 2026-08-07
 ---
 
 # CHANGELOG — genome-system
+
+> **بازنشسته ۲۰۲۶-۰۷-۱۷ (فقط اپِ حلقه؛ این فایل مختلط است):** طبق `STATUS.json` —
+> اپِ حلقهٔ خودبهبود (`run.py`/`research_loop.py`/`agents/`) بازنشسته شد. ورودی‌های
+> **v0.1.0 تا v0.4.3** دربارهٔ همان اپِ حلقهٔ بازنشسته‌اند (تاریخی). ورودی‌های
+> **v0.4.4 تا v0.4.7** دربارهٔ `ledger/ledger.py` هستند — که زنده می‌ماند و توسط
+> `_ops/budget/opslib.genome_ledger()` و `_ops/chrono.py` مصرف می‌شود؛ همان ورودی‌ها
+> `status: active` باقی می‌مانند، پس این نوت به‌طورِ کامل archived نشد.
 
 همهٔ نسخه‌ها **propose-only** ساخته و تست شده‌اند. تاریخ: ۲۰۲۶-۰۷-۰۶.
 نقشه: [[07 - Knowledge/genome-system/INDEX|INDEX]] · قواعدِ ایجنت‌ها: [[07 - Knowledge/genome-system/HANDOFF|HANDOFF]].

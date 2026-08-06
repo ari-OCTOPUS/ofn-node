@@ -1,12 +1,17 @@
 ---
 type: moc
-status: active
+status: archived
 tags: [moc, genome-system, agent]
 aliases: [genome-system, "سیستم ژنوم", "MAP - genome-system"]
-updated: 2026-07-06
+updated: 2026-08-07
 ---
 
 # genome-system — MAP (نقشهٔ canonical)
+
+> **بازنشسته ۲۰۲۶-۰۷-۱۷ (فقط اپِ حلقه):** طبق `STATUS.json` — اپِ حلقهٔ خودبهبود
+> (`run.py`/`research_loop.py`/ایجنت‌ها/زمان‌بندیِ ۳بار/روز) بازنشسته شد (صفر
+> importer در `_ops`، بدون scheduled task)؛ بخشِ «عملیات» زیر دیگر معتبر نیست.
+> `ledger/ledger.jsonl` زنده می‌ماند — مصرف‌شونده توسط `_ops/budget/opslib.genome_ledger()`.
 
 > سیستمِ دانشِ خودبهبودِ امنِ **local-first**. هوشِ گران در نقاطِ تصمیمِ نادر؛
 > همه‌چیزِ روزمره ارزان و رویدادمحور؛ و سیستم هرگز نمی‌تواند معیارِ قضاوتِ خودش را

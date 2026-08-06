@@ -1,12 +1,18 @@
 ---
 type: handoff
-status: active
+status: archived
 tags: [handoff, genome-system, propose-only, agent-contract]
 epistemic_status: canonical
-updated: 2026-07-07
+updated: 2026-08-07
 ---
 
 # HANDOFF — genome-system (برای ایجنت‌های دیگر)
+
+> **بازنشسته ۲۰۲۶-۰۷-۱۷ (فقط اپِ حلقه):** طبق `STATUS.json` — اپِ حلقهٔ خودبهبود
+> (`run.py`/`research_loop.py`/`agents/`) بازنشسته شد (صفر importer در `_ops`،
+> بدون scheduled task، آخرین نوشتهٔ ایجنت ۲۰۲۶-۰۷-۰۶)؛ قراردادِ propose-only زیر
+> دیگر در حالِ اجرا نیست. `ledger/ledger.jsonl` زنده می‌ماند — مصرف‌شونده توسط
+> `_ops/budget/opslib.genome_ledger()`.
 
 > اگر ایجنتی هستی که این vault را می‌خوانی یا می‌نویسی، این نوت **قرارداد** است.
 > نقشهٔ کامل: [[07 - Knowledge/genome-system/INDEX|INDEX]] · وضعیتِ ماشین‌خوان: `STATUS.json`.

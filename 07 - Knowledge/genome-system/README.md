@@ -1,12 +1,17 @@
 ---
 type: reference
-status: active
+status: archived
 tags: [genome-system, readme]
 aliases: ["README - genome-system"]
-updated: 2026-07-06
+updated: 2026-08-07
 ---
 
 # genome-system
+
+> **بازنشسته ۲۰۲۶-۰۷-۱۷ (فقط اپِ حلقه):** طبق `STATUS.json` — اپِ حلقهٔ خودبهبودِ
+> زیر (`run.py`/`research_loop.py`/سه ایجنت) بازنشسته شد (صفر importer در `_ops`،
+> بدون scheduled task)؛ دستورهای اجرا دیگر معتبر نیستند. `ledger/ledger.jsonl`
+> زنده می‌ماند — مصرف‌شونده توسط `_ops/budget/opslib.genome_ledger()`.
 
 > نقشهٔ canonical: [[07 - Knowledge/genome-system/INDEX|INDEX]] · قواعدِ ایجنت‌ها: [[07 - Knowledge/genome-system/HANDOFF|HANDOFF]] · تاریخچه: [[07 - Knowledge/genome-system/CHANGELOG|CHANGELOG]]
 
