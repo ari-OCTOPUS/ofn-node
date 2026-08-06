@@ -443,7 +443,13 @@ def persist(cardiac_snapshot: dict | None = None,
                                    "wire_open": snap["wire_open"]})
         snap["written"] = True
     except Exception as e:  # noqa: BLE001 — سایه نباید tick را بکشد
-        opslib.alert([f"pulse-arbiter sink write failed: {e}"])
+        # WinError 5 (os.replace cross-process lock) گذراست و self-healing — تکرارِ
+        # همان پیام هر epoch آلارمِ واقعی (halt/STOP) را زیر نویز می‌برد. throttle:
+        # ۱ alert/saat با همان key؛ پیامِ نو همیشه فوراً عبور می‌کند (alert_throttled
+        # §fail-open). LockedJson قبلاً ۵ retry + receipt زده — این فقط سطحِ نویز است.
+        opslib.alert_throttled(
+            [f"pulse-arbiter sink write failed: {e}"],
+            key="pulse-arbiter-sink-write", window_s=3600.0)
     return snap
 
 

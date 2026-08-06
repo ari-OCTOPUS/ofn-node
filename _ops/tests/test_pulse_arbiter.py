@@ -208,6 +208,48 @@ def t_persist_flag_on_writes_only_own_sink():
         os.environ.pop(pa.FLAG_ENV, None)
 
 
+def t_sink_write_alert_is_throttled():
+    """WinError 5 گذراست و self-healing — آلارمِ تکراری هر epoch آلارمِ واقعی را
+    زیر نویز می‌برد. این تست از طریقِ کدِ واقعی persist() یک شکستِ نوشتن تزریق
+    می‌کند و ثابت می‌کند هشدار از مسیرِ throttle (کلید pulse-arbiter-sink-write)
+    عبور می‌کند، نه alertِ خام. mutation: اگر فیکس برگردانده شود (alert خام)،
+    این کلید در throttle-state نوشته نخواهد شد → تست قرمز."""
+    import json
+    import os
+    os.environ[pa.FLAG_ENV] = "1"
+    tp = opslib.STATE_DIR / "alert-throttle.json"
+    # پیش‌شرط: کلیدِ داور باید غایب باشد تا تست قطعی باشد
+    try:
+        st = json.loads(tp.read_text("utf-8")) if tp.exists() else {}
+    except Exception:
+        st = {}
+    st.pop("pulse-arbiter-sink-write", None)
+    tp.write_text(json.dumps(st, ensure_ascii=False), "utf-8")
+    original_write = opslib.LockedJson.write
+
+    def _boom(self, data):  # noqa: ARG002 — شبیه‌سازیِ WinError 5 روی replace
+        raise OSError("[WinError 5] Access is denied (test-injected)")
+    try:
+        opslib.LockedJson.write = _boom
+        snap = pa.persist(beat=0)
+        assert snap["written"] is False, "با شکستِ تزریق‌شده written باید False باشد"
+        # اثباتِ فیکس: کلیدِ throttle باید در state نوشته شده باشد
+        st2 = json.loads(tp.read_text("utf-8")) if tp.exists() else {}
+        assert "pulse-arbiter-sink-write" in st2, (
+            "فیکسِ throttle فعال نیست — persist باید از alert_throttled با این کلید "
+            "عبور کند (نه alert خام)")
+    finally:
+        opslib.LockedJson.write = original_write
+        os.environ.pop(pa.FLAG_ENV, None)
+        # cleanup: کلیدِ تست را از throttle-state حذف کن
+        try:
+            st = json.loads(tp.read_text("utf-8")) if tp.exists() else {}
+            st.pop("pulse-arbiter-sink-write", None)
+            tp.write_text(json.dumps(st, ensure_ascii=False), "utf-8")
+        except Exception:
+            pass
+
+
 # ════════════════════════════════════════════════════════════════════════════════
 # (ی) wire_open بسته + effective_period_if_open هرگز override نمی‌کند
 # ════════════════════════════════════════════════════════════════════════════════
