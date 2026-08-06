@@ -23,8 +23,12 @@ SGC-14 شکاف را با نام گفته بود: «test_cycle.run() متنِ ر
   · شکستِ نوشتنِ دفترِ mission هرگز موفقیت گزارش نمی‌شود.
   · حافظه فقط از حکمِ مستقل (verdicts.jsonl) پر می‌شود — outcome-bound؛
     authority نیست (قانون: memory مجوز نیست).
-  · فلگ `OCTOPUS_WIRE_ACTION_BRIDGE` عمداً در flags.cmd **غایب** است و عضوِ
-    PAPER_FULL_FLAGS نیست ⇒ غیاب = واقعاً خاموش. مسلح‌کردن = کارتِ رأیِ مالک.
+  · فلگ `OCTOPUS_WIRE_ACTION_BRIDGE` از ۲۰۲۶-۰۷-۳۰ مسلح است (`OWNER_AUTH:
+    VQ-ACTION-BRIDGE-ARM-001`، `OCTOPUS-flags.cmd:805`) — این کامنت تا
+    ۲۰۲۶-۰۸-۰۶ کهنه مانده بود و رأیِ مالک را «معلق» نشان می‌داد. زنده تأیید شد:
+    `state/test_cycle/missions.jsonl` همین امروز `input_refs` با
+    `memory:<id>` از `retrieval_router.route()` دارد — یعنی این پل نه‌فقط
+    مسلح، بلکه واقعاً در حالِ نوشتنِ اثر است.
 
 $0 · stdlib · صفر شبکه/ارسال · بدونِ import از organism/wiring.
 """

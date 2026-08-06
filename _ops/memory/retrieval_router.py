@@ -18,8 +18,11 @@
     نتیجهٔ خالی = هیچ context ِ اضافه‌ای؛ «retrieval که کمکی نمی‌کند اصلاً
     اضافه نمی‌شود».
 
-فلگ: `OCTOPUS_WIRE_MEMORY_DECISION` — پیش‌فرض خاموش، خارج از PAPER_FULL_FLAGS،
-عمداً غایب از flags.cmd؛ مسلح‌کردن = رأیِ مالک. فلگ خاموش = صفر خواندنِ DB.
+فلگ: `OCTOPUS_WIRE_MEMORY_DECISION` — از ۲۰۲۶-۰۷-۳۱ مسلح است
+(`OCTOPUS-flags.cmd:852`؛ رأیِ مالک، بستهٔ TG-UI ۴-موجی «anti-amnesia»).
+این کامنت تا ۲۰۲۶-۰۸-۰۶ کهنه مانده و «غایب/معلق» ادعا می‌کرد؛ زنده تأیید شد:
+`route()` امروز واقعاً اجرا شده و citation در `state/test_cycle/missions.jsonl`
+ثبت کرده (`goal_action_bridge.py` را ببین). فلگ خاموش همچنان = صفر خواندنِ DB.
 
 $0 · stdlib · فقط‌خواندنی روی memory.db · صفر شبکه/نوشتن.
 """
@@ -27,7 +30,7 @@ from __future__ import annotations
 
 import os
 
-FLAG = "OCTOPUS_WIRE_MEMORY_DECISION"   # پیش‌فرض خاموش، خارج از PAPER_FULL_FLAGS
+FLAG = "OCTOPUS_WIRE_MEMORY_DECISION"   # از ۰۷-۳۱ مسلح (OCTOPUS-flags.cmd:852)
 SCHEMA = "memory-retrieval.v1"
 
 
