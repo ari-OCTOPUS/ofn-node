@@ -166,6 +166,44 @@ def _send_card(deps: dict, text: str, keyboard: "dict | None" = None) -> bool:
         return False
 
 
+# ─── VQ-DEAD-LEAD-BUTTONS-001 → سیم‌کشیِ صداکننده (۲۰۲۶-۰۸-۰۷) ──────────────────
+# `legs/lead_card.py` سازنده و تحویل‌دهندهٔ کارتِ تعاملی (📞 lcall / 📤 ldraft) را
+# از ۰۸-۰۱ دارد و `center.py._handle_callback` از ۰۸-۰۴ آن دو فعل را routes می‌کند
+# (regression: test_lead_card_buttons_live.py) — ولی هیچ صداکنندهٔ تولیدی
+# `lead_card.render()`/`deliver()` را صدا نمی‌زد؛ `lead_scorer.ScoredLead.card()`
+# فقط متنِ `lead_card.card_text()` را (بی‌کیبورد) داخلِ کارتِ رأیِ prop:ok/no/later
+# می‌گذاشت. آن دو کارت **مخاطبِ متفاوت** دارند — یکی رأیِ «آیا این لید وارد گیتِ
+# ارسال بشود؟» (`_card_text`/`_ready_keyboard`)، این‌یکی ابزارِ عملیِ «زنگ بزن /
+# پیش‌نویس را مرور کن» برایِ همان لید — پس card_text() جایگزین نمی‌شود، این کارت
+# **علاوه‌بر** آن به‌صورتِ پیامِ نوی جدا می‌رود.
+#
+# صفر اثرِ بیرونیِ نو: `lead_card.deliver()` فقط از همان send_fn ِ تزریقی
+# (approval_channel، stream="lead") استفاده می‌کند — هیچ transport ِ تازه، هیچ
+# ایمیل/SMTP. `has_send_button()` قبل از هر ارسالی داخلِ خودِ `lead_card.deliver`
+# دوباره چک می‌شود (کمربند و بند شلوار). flag: OCTOPUS_WIRE_LEAD_CARD_CONTACT
+# (پیش‌فرض خاموش) — خاموش ⇒ `lead_card.enabled()` False ⇒ این تابع فوراً برمی‌گردد،
+# بدونِ حتی یک import ِ اضافه؛ خروجیِ beat برای هر تستِ امروز بایت‌به‌بایت همان است.
+def _send_contact_card(lead_id: str, lead: dict, sc, deps: dict, out: dict) -> None:
+    """کارتِ تعاملیِ لید (render()+deliver()، دکمه‌های lcall/ldraft) — جدا از
+    کارتِ رأی. هرگز beat را نمی‌کشد؛ هرگز چیزی نمی‌فرستد اگر flag خاموش باشد یا
+    send_fn نباشد."""
+    try:
+        import lead_card as _lc   # noqa: WPS433 — lazy، هم‌پوشه، تا env ِ تست اثر کند
+        if not _lc.enabled():
+            return
+        fn = (deps or {}).get("send_fn")
+        if not callable(fn):
+            return
+        fr = lead.get("first_reply") if isinstance(lead.get("first_reply"), dict) else None
+        payload = _lc.render(lead, scored=sc, lead_id=lead_id, first_reply=fr,
+                              verbs_ready=_lc.SAFE_VERBS)
+        res = _lc.deliver(fn, payload)
+        if res.get("sent"):
+            out["contact_cards_sent"] = out.get("contact_cards_sent", 0) + 1
+    except Exception:  # noqa: BLE001 — کارتِ تعاملی هرگز کارتِ رأی/beat را نمی‌کشد
+        pass
+
+
 def _iso_to_ts(iso: str) -> "float | None":
     import datetime as _dt   # noqa: WPS433
     try:
@@ -251,6 +289,9 @@ def _process_ready(lead_id: str, lead: dict, sc, research: dict, deps: dict,
     if _send_card(deps, text, kb):
         out["cards_sent"] += 1
     out["ready"] += 1
+    # کارتِ تعاملیِ جدا (lcall/ldraft) — همان لید، مخاطبِ متفاوت. پیش‌فرض بی‌اثر
+    # (OCTOPUS_WIRE_LEAD_CARD_CONTACT خاموش).
+    _send_contact_card(lead_id, lead, sc, deps, out)
 
 
 def _process_one(lead_id: str, lead: dict, deps: dict, st: dict, out: dict,
@@ -375,7 +416,8 @@ def beat(*, now=None, deps=None) -> dict:
     now = float(now if now is not None else time.time())
     deps = deps or {}
     out = {"ok": True, "sensed": 0, "ready": 0, "stuck": 0, "cards_sent": 0,
-           "followups": 0, "revived": 0, "signals": 0, "duplicates": 0}
+           "contact_cards_sent": 0, "followups": 0, "revived": 0, "signals": 0,
+           "duplicates": 0}
     st = _load_state()
     try:
         import lead_sense   # noqa: WPS433 — lazy، هم‌پوشه
