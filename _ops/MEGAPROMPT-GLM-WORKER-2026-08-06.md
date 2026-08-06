@@ -104,10 +104,14 @@ projection ِ عمومی هنوز صفر هویت. mutation-test هر ادعا.
 
 ## ۶. کارْبرگ — فاز ۲ (خود-پرورشی + وصلِ لایه‌های حافظه)
 
-> ⏳ **این بخش وقتی پر می‌شود که اسکنِ کاملِ vault (۹ finder + سنتز + نقشهٔ راهِ
-> خودآگاهی) تمام شود.** معمار یافته‌ها را به تصمیم تبدیل می‌کند و هر آیتم را
-> این‌جا با: (الف) هدف/تسک، (ب) رویکردِ دقیق، (ج) مرزِ فایل، (د) سنجهٔ پذیرش +
-> mutation-test — می‌نویسد. تا آن زمان روی این فاز شروع نکن.
+> ✅ **پر شد (۲۰۲۶-۰۸-۰۶).** اسکنِ ۹-finder + سنتز + نقشهٔ راه تمام شد. منبعِ
+> کامل: [[../07 - Knowledge/شناخت-اختاپوس/21-PURPOSEFULNESS-AUDIT-CATALOG-2026-08-06|کاتالوگِ ۲۱]]
+> (ده‌ها بخشِ بی‌هدف + هدفِ پیشنهادیِ هرکدام، ۴ باکت) و
+> [[../07 - Knowledge/شناخت-اختاپوس/22-SELF-AWARENESS-ROADMAP-2026-08-06|نقشه‌راهِ ۲۲]]
+> (Stage 0–4، grounded، خودش چند ادعای کاتالوگ را تصحیح کرد). لایهٔ ممریِ Stage 1
+> (پلِ RAGِ fail-closed + consolidation shadow) را **ایجنتِ حافظه از قبل ساخت**
+> (کامیتِ `91d50ba`, `_ops/memory/vault_bridge.py`) — دوباره‌کاری نکن. تسک‌های
+> تو (پایین) لایهٔ **خودآگاهی** است که ایجنتِ حافظه نساخت.
 
 ### قیدهای الزامیِ فاز ۲ (دستورِ صریحِ مالک، ۲۰۲۶-۰۸-۰۶ — غیرقابلِ‌مذاکره)
 
@@ -131,8 +135,69 @@ projection ِ عمومی هنوز صفر هویت. mutation-test هر ادعا.
    مشاهده/تثبیت. **هر گسترشِ `code_autonomy`/`self_improve_auto` پشتِ
    arm-tokenِ owner-gated می‌ماند — تو هرگز خودمختاری را گسترش نمی‌دهی**، فقط
    ظرفیتِ خودآگاهی/حافظه را می‌سازی و پشتِ فلگِ خاموش می‌گذاری.
+5. **همهٔ والت‌ها/ابسیدین‌ها به اختاپوسِ اصلی وصل شوند** (دستورِ مالک ۰۸-۰۶).
+   سطحِ کشف+حافظه (MCP ِ `octopus-vault` + `_ops/memory/vault_bridge.py` +
+   `retrieval_router`) باید کلِ محتوای **همهٔ** والت‌ها را پوشش دهد — `F:\backup`
+   (canonical)، `4D-Vault/`، `4d_system/`، و هر والتِ ابسیدینِ دیگر روی سیستم.
+   **گپِ مشخصِ امروز:** MCP فقط فایل‌های git-tracked را می‌بیند (`_git_ls_files`)،
+   پس والت‌های untracked مثلِ `4D-Vault/` (الان `?? 4D-Vault/`) در جستجو **نامرئی‌اند**.
+   کار: (الف) همهٔ والت‌ها را برشمار (پوشه‌های `.obsidian` روی سیستم)، (ب) هرکدام
+   را fail-closed به اصلی پل بزن (index/کش)، (ج) `F:\backup` منبعِ حقیقت می‌ماند،
+   هیچ والتی جزیره نماند. propose-only، پشتِ فلگِ خاموش تا رأیِ مالک.
+
+### تسک‌های خودآگاهی (تصمیم‌گرفته، از نقشه‌راهِ ۲۲ — به ترتیب اجرا)
+
+> نقشه‌راه تصحیح کرد: سیلوها ۲ تا نه ۵ — reducerِ جزئیِ `state/cortex/self-claims.jsonl`
+> از قبل کار می‌کند (نویسنده‌ها: `self_model.emit_self_claims`, `goal_directed`,
+> `doctor/self_accuracy`؛ خواننده/گریدر: `cortex/calibration_probe.py`). گپِ واقعی:
+> دو نویسنده هنوز نپیوسته‌اند + `cockpit_brain` هیچ‌کدام را نمی‌خواند.
+
+- **T2 (Stage 0) — confidence با accuracyِ سنجیده کلمپ شود.** `doctor/self_knowledge.py`
+  پیش از emit کردنِ `confidence` رکوردِ understanding، EMA ِ N ردیفِ آخرِ
+  `state/doctor/self-accuracy.jsonl` را بخواند و `confidence = min(stated_default, ema)`.
+  **forward-only** (گریدِ دورِ قبل → دورِ بعد) — ناوردیِ ضدِ خود-گریدینگِ `self_accuracy.py`
+  (خطوط ۳۶-۴۶) دست‌نخورده. فلگِ نو ندارد (`OCTOPUS_SELFKNOW_ACCURACY` مسلح است).
+  **مرز:** فقط `self_knowledge.py` + تست + mutation.
+- **T3 (Stage 0) — کهنگیِ owner-correction.** در همان بلوکی که `self_knowledge.py`
+  (~۲۹۸-۳۱۷) `owner-corrections.jsonl` را می‌خواند، `age_days` جدیدترین ردیف را
+  حساب و surface کن («N روز بی‌تصحیح — تمرکز شاید کهنه»). ~۳ خط، stdlib. **مرز:**
+  فقط `self_knowledge.py` + تست.
+- **T4 (Stage 1) — verdictِ calibration را push کن، فقط ذخیره نکن.** `cockpit_brain._TIERS`
+  را با `("calibration_probe_card", 21600.0)` گسترش بده (۶h، بدون LLM) + در حلقهٔ diff:
+  اگر `verdict` به `"worse"` بچرخد یا نسبتِ ungraded از آستانه رد شود، مثلِ
+  `halted`/`germline_alert` فوری push (bypass cadence). هر دو فایل از قبل محاسبه
+  می‌شوند (`CORTEX_SELF_MONITOR`/`OCTOPUS_WIRE_DOCTOR_SELFKNOW` مسلح) — فقط read-side wire.
+  **مرز:** `cockpit_brain.py` + تست. shadow/propose-only.
+- **T5 (موازی، فقط تشخیص — کد ننویس) — ریشهٔ `knob_applied:null`.** دو چیز را مستقیم
+  چک کن: (i) ۴۷ RFCِ merged واقعاً `change_level=='tune'`+`knob=='CHRONO_NUDGE_EVERY_N_BEATS'`اند
+  یا همه `'code'` (که `apply_merge` عمداً skip می‌کند)؟ (ii) `OCTOPUS_WIRE_MERGE_APPLIES_KNOB`
+  در `os.environ` ِ پروسهٔ زندهٔ apply_merge هست یا فقط در `.cmd`؟ ریشه را گزارش کن، **بعد** رأی.
+- **T6 (Stage 2 — اول verify، نساز تا رأی).** پیش از هر کد: (a) بدنهٔ `self_insight.py` را
+  بخوان — `model_router` صدا می‌زند (quota-guard لازم) یا static؟ (b) probeهای همیشه-True ِ
+  `self_audit` (`_probe_named_owner`, `_probe_trace_independent`) اگر خام به `self-claims.jsonl`
+  اضافه شوند Brierِ `calibration_probe` را مسموم می‌کنند؟ نتیجه را به معمار برگردان.
+
+### پاکسازیِ Bucket-2 (dead clutter — انتقال نه حذف)
+
+موارد byte-clearly مردهٔ نوت ۲۱ باکت ۲ (مثلِ `renderStudio`/`renderNext` مرده،
+`octopus-prime-labs/`+`octopus-ramanujan/` خالی، `leaks.txt`/`mixed_examples.txt`،
+`brain/cockpit.py` بی‌صداکننده) → **از طریقِ `propose_action` به صفِ تأییدِ مالک**،
+هر کدام یک propose، **هرگز حذف/انتقالِ مستقیم**.
+
+## ۷. تصمیم‌های مالک (نساز — رأیِ صریح لازم؛ از نوت ۲۱)
+
+- ⚠️ **امنیتی/فوری:** `legs/consent_gate.py` (فایروالِ رضایتِ lead-outbound) هرگز
+  سیم‌کشی نشده، ولی `OCTOPUS_WIRE_LEAD_OUTBOUND` **مسلح است** (ایمیلِ واقعی به مشتری).
+  پیش از هر ارسال باید تصمیم گرفته شود (نوت ۲۱ §۳.۳).
+- تناقض‌های فلگ (`BUDGET_JUDGE`/`ROMAJAN_PROBES`/`GOVERNOR`/`LEAD_OUTBOUND`): مقدار
+  درست است یا کامنت؟ (نوت ۲۱ §۱.۱)
+- مکانِ canonical SoT معماری (پیشنهاد: `06 - Architecture Maps`) + آرشیوِ
+  `MASTER-ARCHITECTURE`ِ قدیمی‌تر (نوت ۲۱ §۱.۲).
+- verdictِ active/paused: Crypto-etoro، Ziman، Mining، Project-F (نوت ۲۱ §۳.۷-۳.۹, باکت ۲).
+- `world_discovery/`+`action_bridge` جفت: بساز یا آرشیو (یک واحد) (نوت ۲۱ §۳.۲).
+- `NBB-Control-Plane` governance (VQ-ROOT-001) (نوت ۲۱ §۱.۱۳).
 
 ---
 
 **نسخه:** ۲۰۲۶-۰۸-۰۶. منشور (بخش‌های ۰–۴) پایدار و قابلِ‌استفادهٔ مجدد است؛
-کارْبرگ (۵–۶) هر بار توسطِ معمار تازه می‌شود.
+کارْبرگ (۵–۷) هر بار توسطِ معمار تازه می‌شود.
