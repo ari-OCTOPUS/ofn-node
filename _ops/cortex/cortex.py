@@ -412,6 +412,76 @@ def obs_alert_check(sweep: dict) -> None:
         pass
 
 
+_last_truth_sync = 0.0
+
+
+def truth_sync_tick(sweep: dict) -> dict | None:
+    """CORTEX-06 (احیای CURRENT-TRUTH.md، ۲۰۲۶-۰۸-۰۶ — رأیِ مالک «موافقم با تمومِ
+    تصمیماتت، انجامشون بده»): فقط با OCTOPUS_WIRE_TRUTH_SYNC=1، اسنپ‌شاتِ مکانیکیِ
+    وضعِ ارگانیسم را در OCTOPUS/CURRENT-TRUTH.md به‌روز می‌کند.
+
+    چرا این‌جا: نویسندهٔ فرمت (`intel_spine.obsidian_sync.sync_truth_note`) از قبل
+    ساخته/تست‌شده بود ولی صفر صداکننده داشت — فایل از ۲۰۲۶-۰۸-۰۴ ۲۳:۳۲ ایستاده بود
+    (جزئیات: 07 - Knowledge/شناخت-اختاپوس/15-SELF-REPORTED-ISSUES-SWEEP-2026-08-06.md).
+    نوشتن marker-محور است (`safe_update_note`) و **هرگز** محتوای دستی را overwrite
+    نمی‌کند؛ خودِ این فایل تماماً auto-generated است (بلوکِ `OCTOPUS-AUTO-START/END`
+    کلِ بدنه را می‌گیرد)، پس این جایگزینی امن‌ترین نوعِ اثرِ نوشتاری در این فایل است.
+
+    ریتم: هر ≥TRUTH_SYNC_MIN_S (پیش‌فرض ۱۸۰۰ = ۳۰د)، سنجیده روی زمانِ حافظه‌ایِ آخرین
+    تلاش — نه mtime ِ خودِ فایل (نوشتنِ ناموفق/غایب نباید هر چرخه دوباره تلاش کند و
+    نه اینکه هرگز retry نکند). دورهٔ cortex بینِ ۶۰..۶۰۰s شناور است، پس شمارشِ چرخه
+    ریتمِ واقعی‌ای نمی‌داد. flag-off یا هر خطا → skip بی‌صدا (alert-شده)، هرگز چرخه
+    را نمی‌کشد. $0، read-only بجز همین یک نوت — همان چهار فیلد از `sweep` که
+    align_work_plan/obs_alert_check هم می‌خوانند، صفر منبعِ نو."""
+    global _last_truth_sync
+    if os.environ.get("OCTOPUS_WIRE_TRUTH_SYNC", "0") != "1":
+        return None
+    min_s = float(os.environ.get("TRUTH_SYNC_MIN_S", "1800"))
+    now = time.time()
+    if now - _last_truth_sync < min_s:
+        return {"skipped": "cooldown", "next_in_s": round(min_s - (now - _last_truth_sync), 1)}
+    _last_truth_sync = now
+    try:
+        data = {"coherence": round(float(sweep.get("coherence", 0.0)), 3),
+                "members_present": sum(1 for m in (sweep.get("members") or [])
+                                       if m.get("present")),
+                "stale_members": ", ".join(sweep.get("stale_members") or []) or "هیچ"}
+        try:
+            org = _read_json(opslib.STATE_DIR / "ORGANISM-STATE.json")
+            data["beat"] = org.get("beat", "؟")
+            data["halted"] = bool(org.get("halted"))
+        except Exception:  # noqa: BLE001
+            pass
+        try:
+            # ⚠️ عمداً `_read_json` (fail-soft) استفاده نمی‌شود: آن روی هر خطا `{}`
+            # برمی‌گرداند و اینجا با «صفر پیشنهادِ معطلِ واقعی» یکی می‌شد — همان دامِ
+            # «نبودِ داده = حکم» که این جلسه چند بار جایِ دیگر گرفته شده. فایلِ
+            # ناخوانا/غایب ⇒ کلید اصلاً در نوت ظاهر نمی‌شود؛ صفرِ واقعی هم صفر می‌ماند.
+            rfcs_path = opslib.STATE_DIR / "doctor" / "rfcs.json"
+            rf = json.loads(rfcs_path.read_text("utf-8")).get("rfcs") or []
+            data["rfcs_pending"] = sum(1 for r in rf if r.get("status") in ("submitted", "drafted"))
+        except Exception:  # noqa: BLE001
+            pass
+        try:
+            import subprocess
+            head = subprocess.run(
+                ["git", "-C", str(opslib.ORG_ROOT), "rev-parse", "--short", "HEAD"],
+                capture_output=True, text=True, timeout=5).stdout.strip()
+            if head:
+                data["HEAD"] = head
+        except Exception:  # noqa: BLE001
+            pass
+        _ops_dir = str(_HERE.parent)
+        if _ops_dir not in sys.path:
+            sys.path.insert(0, _ops_dir)
+        from intel_spine import obsidian_sync
+        wrote = obsidian_sync.sync_truth_note(opslib.ORG_ROOT, data)
+        return {"wrote": bool(wrote), "keys": list(data.keys())}
+    except Exception as e:  # noqa: BLE001
+        opslib.alert([f"cortex truth_sync error: {type(e).__name__}: {e}"])
+        return None
+
+
 def run_cycle(cycle: int) -> dict:
     # 3b (2026-07-24): steeringِ boundedِ مالک — فقط خواندنِ state-file (این پروسه هرگز
     # bot/poller نمی‌سازد؛ ضدِ 409). directiveهای بسته: focus / think_every_n / paused.
@@ -430,6 +500,7 @@ def run_cycle(cycle: int) -> dict:
     calibration_summary = calibration_tick(cycle)
     consolidate_summary = consolidate_tick(cycle)
     softwta_summary = softwta_tick(cycle)
+    truth_sync_summary = truth_sync_tick(sweep)
     _ten = guid.get("think_every_n")
     _think_now = (cycle % max(1, int(_ten)) == 0) if _ten else _should_think(cycle)
     if guid.get("paused"):
@@ -466,6 +537,7 @@ def run_cycle(cycle: int) -> dict:
         **({"calibration": calibration_summary} if calibration_summary else {}),
         **({"consolidate": consolidate_summary} if consolidate_summary else {}),
         **({"softwta": softwta_summary} if softwta_summary else {}),
+        **({"truth_sync": truth_sync_summary} if truth_sync_summary else {}),
         **({"owner_guidance": guid} if guid else {}),
         "schema": "cortex-state.v1",
     }

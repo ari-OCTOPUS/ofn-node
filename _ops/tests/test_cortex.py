@@ -207,6 +207,84 @@ def t_f_run_cycle_persists_state_and_journal():
     assert "brains" in st and "rhythm" in st
 
 
+def t_i_truth_sync_flag_off_is_noop():
+    """پیش‌فرض خاموش: هیچ فایلی نوشته نمی‌شود، هیچ استثنایی هم بیرون نمی‌آید."""
+    os.environ.pop("OCTOPUS_WIRE_TRUTH_SYNC", None)
+    note = Path(ENV["root"]) / "Octopus" / "CURRENT-TRUTH.md"
+    assert cx.truth_sync_tick({"coherence": 0.9, "members": [], "stale_members": []}) is None
+    assert not note.exists()
+
+
+def t_j_truth_sync_writes_then_cools_down():
+    """روشن: اولین تماس می‌نویسد (marker + کلیدهای مکانیکی)؛ تماسِ فوریِ بعدی cooldown می‌خورد
+    و فایل را دوباره لمس نمی‌کند."""
+    os.environ["OCTOPUS_WIRE_TRUTH_SYNC"] = "1"
+    os.environ["TRUTH_SYNC_MIN_S"] = "1800"
+    cx._last_truth_sync = 0.0
+    try:
+        (STATE / "ORGANISM-STATE.json").write_text(
+            json.dumps({"beat": 12345, "halted": None}), "utf-8")
+        (STATE / "doctor").mkdir(parents=True, exist_ok=True)
+        (STATE / "doctor" / "rfcs.json").write_text(
+            json.dumps({"rfcs": [{"status": "submitted"}, {"status": "applied"}]}), "utf-8")
+        sweep = {"coherence": 0.87, "stale_members": ["school"],
+                "members": [{"id": "organism", "present": True},
+                            {"id": "heart", "present": False}]}
+        out1 = cx.truth_sync_tick(sweep)
+        assert out1 and out1["wrote"] is True, out1
+        note = Path(ENV["root"]) / "Octopus" / "CURRENT-TRUTH.md"
+        assert note.exists()
+        body = note.read_text("utf-8")
+        assert "OCTOPUS-AUTO-START" in body and "OCTOPUS-AUTO-END" in body
+        assert "coherence" in body and "0.87" in body
+        assert "beat" in body and "12345" in body
+        assert "rfcs_pending" in body and "1" in body   # فقط ۱ از ۲ submitted/drafted است
+        mtime1 = note.stat().st_mtime
+        out2 = cx.truth_sync_tick(sweep)
+        assert out2 and out2.get("skipped") == "cooldown", out2
+        assert note.stat().st_mtime == mtime1          # دست‌نخورده ماند
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_TRUTH_SYNC", None)
+        os.environ.pop("TRUTH_SYNC_MIN_S", None)
+        cx._last_truth_sync = 0.0
+
+
+def t_k_truth_sync_fail_soft_on_bad_rfcs():
+    """rfcs.json خراب/غایب → هنوز می‌نویسد، فقط بدونِ کلیدِ rfcs_pending. چرخه هرگز نمی‌میرد."""
+    os.environ["OCTOPUS_WIRE_TRUTH_SYNC"] = "1"
+    os.environ["TRUTH_SYNC_MIN_S"] = "0"
+    cx._last_truth_sync = 0.0
+    try:
+        (STATE / "doctor").mkdir(parents=True, exist_ok=True)
+        (STATE / "doctor" / "rfcs.json").write_text("{not valid json", "utf-8")
+        out = cx.truth_sync_tick({"coherence": 0.5, "members": [], "stale_members": []})
+        assert out and out["wrote"] is True, out
+        assert "rfcs_pending" not in out["keys"], out
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_TRUTH_SYNC", None)
+        os.environ.pop("TRUTH_SYNC_MIN_S", None)
+        cx._last_truth_sync = 0.0
+
+
+def t_l_run_cycle_wires_truth_sync():
+    """نه فقط واحد: خودِ run_cycle واقعی هم صداش می‌زند و هم نتیجه‌اش را در
+    cortex-state.json می‌نویسد -- سیم‌کشیِ سرتاسری، نه فقط تابعِ ایزوله."""
+    os.environ["OCTOPUS_WIRE_TRUTH_SYNC"] = "1"
+    os.environ["TRUTH_SYNC_MIN_S"] = "0"
+    cx._last_truth_sync = 0.0
+    try:
+        note = Path(ENV["root"]) / "Octopus" / "CURRENT-TRUTH.md"
+        st = cx.run_cycle(cycle=99)
+        assert "truth_sync" in st and st["truth_sync"]["wrote"] is True, st.get("truth_sync")
+        assert note.exists()
+        saved = json.loads(cx.STATE_PATH.read_text("utf-8"))
+        assert saved.get("truth_sync", {}).get("wrote") is True
+    finally:
+        os.environ.pop("OCTOPUS_WIRE_TRUTH_SYNC", None)
+        os.environ.pop("TRUTH_SYNC_MIN_S", None)
+        cx._last_truth_sync = 0.0
+
+
 def t_g_rhythm_follows_heart_shadow():
     """ریتمِ مغز = ۲× قلبِ سایه (کران ۶۰..۶۰۰)؛ بدونِ قلب → پیش‌فرض."""
     p, src = cx.heart_rhythm_period()
