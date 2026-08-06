@@ -172,13 +172,39 @@ class Daemon:
         if v.gate == "intent" and m.state == "proposed":
             m.state = "running" if v.approved else "rejected"
             log.append(f"رأیِ نیت روی {m.mission_id}: {'✅' if v.approved else '❌'}")
+            if m.state == "rejected":
+                self._ingest_outcome(m, log)
         elif v.gate == "diff" and m.state == "awaiting-merge":
             if not v.approved:
                 m.state = "rejected"
                 log.append(f"رأیِ دیف روی {m.mission_id}: ❌ — worktree پاک، صفر اثر")
+                self._ingest_outcome(m, log)
             else:
                 m.state = self._merge(m, log)
         return ms
+
+    # ---------------------------------------------------------- procedural
+    def _ingest_outcome(self, m: Mission, log: list[str]) -> None:
+        """۲۰۲۶-۰۸-۰۶ (دیپ‌اسکنِ RAG/حافظه): تا این خط، دکتر «چی خراب بود» را یاد
+        می‌گرفت (ingest.py → یافته‌ها) ولی هرگز «چی امتحان کردیم که درست/غلط شد»
+        را — چون نتیجهٔ نهاییِ ماموریت فقط در `missions.json` زیرِ `90-_meta`
+        می‌ماند، پوشه‌ای که `Vault.load()` عمداً رد می‌کند (vault.py:88-89).
+        این متد وقتی ماموریتی به حالتِ پایانی می‌رسد (merged/rejected/failed) یک
+        نوتِ رویه‌ای می‌نویسد تا `diagnose.bundle()` بعداً آن را ببیند. فقط
+        `daemon.py` تغییر کرد — `vault.py`/`ingest.py`/`propose.py` دست‌نخورده."""
+        try:
+            from vault import Vault  # noqa: PLC0415
+            vault = Vault(self.root)
+            body = ([f"# {m.mission_id} — {m.title} ({m.state})", "",
+                     f"- **ریسک:** {m.risk}", "- **یادداشت‌ها:**"]
+                    + [f"  - {n}" for n in m.notes]
+                    + ["", "---", "[[MOC-اسکن‌ها]]"])
+            vault.write(f"70-نسخه‌ها/{m.mission_id}.md",
+                       {"type": "mission-outcome", "mission_id": m.mission_id,
+                        "state": m.state, "risk": m.risk, "tags": ["ماموریت"]},
+                       "\n".join(body))
+        except Exception as e:  # noqa: BLE001 — ثبتِ رویه‌ای هرگز چرخه را نمی‌کشد
+            log.append(f"ثبتِ رویه‌ایِ {m.mission_id} شکست خورد: {type(e).__name__}")
 
     def _merge(self, m: Mission, log: list[str]) -> str:
         if self.dry_run:
@@ -198,10 +224,14 @@ class Daemon:
                                     files=sorted({p.file for p in ps.patches}))
             m.notes.append(f"commit={(res or {}).get('commit', '?')}")
             log.append(f"🎉 {m.mission_id} merge شد — {(res or {}).get('commit', '?')}")
+            m.state = "merged"
+            self._ingest_outcome(m, log)
             return "merged"
         except Exception as e:                                   # noqa: BLE001
             m.notes.append(f"merge شکست: {type(e).__name__}: {e}")
             log.append(f"⛔ merge شکست خورد: {m.mission_id}")
+            m.state = "failed"
+            self._ingest_outcome(m, log)
             return "failed"
 
     @staticmethod
@@ -226,6 +256,7 @@ class Daemon:
             m.state = "failed"
             m.notes.append(f"{type(e).__name__}: {e}")
             log.append(f"⛔ {m.mission_id} در اجرا شکست خورد: {type(e).__name__}")
+            self._ingest_outcome(m, log)
             return ms
         card_text = res.card()
         if getattr(res, "may_merge", False):
@@ -235,6 +266,7 @@ class Daemon:
         else:
             m.state = "failed"
             m.notes.append("سوئیت سبز نشد یا درختِ زنده تغییر کرد")
+            self._ingest_outcome(m, log)
             log.append(f"⛔ {m.mission_id}: کارتِ قرمز — merge ممنوع")
             self.channel.send(Card(m.mission_id, "diff", card_text, buttons=False))
         return ms

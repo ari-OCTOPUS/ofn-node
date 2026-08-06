@@ -449,6 +449,12 @@ with tempfile.TemporaryDirectory() as td:
     check("با dry_run خاموش + flag + دو رأیِ ✅ ⇒ merge انجام می‌شود",
           r["missions"][0]["state"] == "merged" and d.runner.merged == [("fix-memory", ("_ops/m.py",))])
     os.environ.pop("OCTOPUS_DOCTOR_MAY_MERGE")
+    outcome_note = Path(td) / "vault" / "70-نسخه‌ها" / "fix-memory.md"
+    check("۲۰۲۶-۰۸-۰۶: merge نوتِ رویه‌ای می‌نویسد — دکتر حالا «چی درستش کرد» را هم می‌بیند",
+          outcome_note.exists() and "merged" in outcome_note.read_text("utf-8")
+          and "abc1234" in outcome_note.read_text("utf-8"))
+    check("نوتِ رویه‌ای زیرِ 90-_meta نیست — Vault.load() می‌تواند ببیندش",
+          "90-_meta" not in outcome_note.relative_to(Path(td) / "vault").parts)
 
 with tempfile.TemporaryDirectory() as td:
     d, ch = mk(td, PS, FakeRunner(), dry=False)
@@ -467,6 +473,9 @@ with tempfile.TemporaryDirectory() as td:
     r = d.cycle()
     check("❌ نیت ⇒ ماموریت رد و هرگز اجرا نمی‌شود",
           r["missions"][0]["state"] == "rejected" and d.runner.ran == [])
+    outcome_note = Path(td) / "vault" / "70-نسخه‌ها" / "fix-memory.md"
+    check("۲۰۲۶-۰۸-۰۶: ردِ نیت هم نوتِ رویه‌ای می‌نویسد — نه فقط merge",
+          outcome_note.exists() and "rejected" in outcome_note.read_text("utf-8"))
 
 with tempfile.TemporaryDirectory() as td:
     d, ch = mk(td, PS, FakeRunner(ok=False))
@@ -475,6 +484,9 @@ with tempfile.TemporaryDirectory() as td:
     r = d.cycle()
     check("سوئیتِ قرمز ⇒ failed و کارتِ بی‌دکمه — رأی‌گیری روی چیزِ خراب معنا ندارد",
           r["missions"][0]["state"] == "failed")
+    outcome_note = Path(td) / "vault" / "70-نسخه‌ها" / "fix-memory.md"
+    check("۲۰۲۶-۰۸-۰۶: سوئیتِ قرمز هم نوتِ رویه‌ای می‌نویسد",
+          outcome_note.exists() and "failed" in outcome_note.read_text("utf-8"))
 
 with tempfile.TemporaryDirectory() as td:
     d, ch = mk(td, PatchSet("m-x", "t", "[UNKNOWN] شاهد ندارم", []))
