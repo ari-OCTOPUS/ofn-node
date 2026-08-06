@@ -84,9 +84,25 @@ def route(*, goal_key: str, method_index=None, store=None, k: int = 3,
             recs.extend(pr)
             modes.append("procedural")
 
+        # ۴) vault_rag — شواهدِ semantic از ChromaDB (پلِ ۲۰۲۶-۰۸-۰۶، fail-closed).
+        # **فقط شاهد** — هرگز veto، هرگز مجوز. ابسیدین canonical؛ ChromaDB فقط index.
+        # فلگ خاموش → search_vault_evidence [] برمی‌گرداند (no-op، byte-identical).
+        rag_evidence: list[dict] = []
+        try:
+            import vault_bridge  # noqa: WPS433 — هم‌پوشه، lazy
+            rag_evidence = vault_bridge.search_vault_evidence(gk, k=max(1, int(k)))
+        except Exception:  # noqa: BLE001 — پلِ غایب = بدونِ شاهد، نه crash
+            pass
+        if rag_evidence:
+            modes.append("vault_rag")
+
         out["mode"] = "+".join(modes) if modes else "no-match"
         out["memories_used"] = store.as_memories_used(recs) if recs else []
-        if not recs:
+        # شواهدِ RAG را مستقیم ضمیمه کن (نه از store — آن‌ها کهنه نیست، canonical است).
+        # ساختار همان memories_used است (memory_id/namespace/...)، پس safe-append.
+        if rag_evidence:
+            out["memories_used"].extend(rag_evidence)
+        if not recs and not rag_evidence:
             out["reasons"].append("no-admitted-memory")
         return out
     finally:

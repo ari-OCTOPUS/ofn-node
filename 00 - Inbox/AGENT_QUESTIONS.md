@@ -761,3 +761,36 @@ approval_store، کامیت `2f8e795`). سه مورد هنوز باز است و 
 - ۲.۲ باقیمانده — `test_render_maps_mining_status` هنوز قرمز است (شکاف در
   `_collect_legs`: ORGANISM-STATE[mining] با `electricity_mood` کلیدها، نه
   مسیرِ `business_legs`). مهاجرتِ factory-function این یکی را فیکس نکرد — جداگانه.
+
+## 2026-08-06 (بامداد) — پرورشِ شناختیِ سایه: پلِ RAG ساخته شد، بک‌لاگِ مرحلهٔ ۲
+
+**ساخته شد (این جلسه، همه در shadow، هیچ فلگی آرم نشد):**
+- ✅ **پلِ RAGِ fail-closed** (`_ops/memory/vault_bridge.py`): ChromaDB (4d_system)
+  به `retrieval_router` وصل شد — فقط به‌عنوان **شاهدِ semantic** (نه مجوز).
+  ابسیدین canonical می‌ماند. پشتِ `OCTOPUS_WIRE_VAULT_RAG` (خاموش). مسیرِ چهارم
+  به `route()` اضافه شد. ۷ تست + mutation-test سبز.
+- ✅ **تستِ سایهٔ consolidation** (`_ops/tests/test_consolidate_shadow.py`): ثابت
+  می‌کند وقتی مالک `CORTEX_CONSOLIDATE=1` بزند، تثبیت واقعاً کار می‌کند
+  (salience=recency×importance×relevance، نوتِ سِمانتیک واقعی، آرشیو verbatim).
+  ۵ تست + mutation-test سبز.
+
+**بک‌لاگِ مرحلهٔ ۲ (وابسته به memory.db — پیش‌نیاز روشن):**
+
+- **A — تغذیهٔ BCM + Hebbian.** امروز: BCM ۱۶۴ step ولی starved (memory.db
+  **خالی، صفر جدول!**)؛ Hebbian فقط ۴ جفتِ اشباع. پیش‌نیاز: `memory.db`
+  initialize و پر شود (events → FTS5 admits از طریقِ `learning_gate`).
+  بعد: `OCTOPUS_WIRE_LATENT_PERSIST=1` + `OCTOPUS_WIRE_BCM_FEED=1` (رأیِ مالک)
+  → BCM weights در decisions fold شوند (`OCTOPUS_NEURAL_LEARNED_APPLY`).
+  فعلاً پل ساخته شد ولی خوراک نیازمندِ memory.db پر است.
+
+- **B — RAG-index معادلاتِ ریاضیِ vault.** امروز: ChromaDB فقط `4D-Vault`
+  (ساب‌ستِ تخصصی) را index کرده، نه کلِ vault. نوت‌های حاویِ معادلات
+  (BCM/Hebbian/Thompson در `07-Knowledge/`، `04-Architect/`) هنوز در RAG
+  نیستند. پیش‌نیاز: گسترشِ `vectorstore.index_vault()` به کلِ vault (نه فقط
+  4D-Vault) — **یا** تغذیهٔ معادلاتِ مستقیم به `_ops/memory` (procedural).
+  پلِ ساخته‌شده (`vault_bridge`) آمادهٔ مصرف است به‌محضِ اینکه index غنی‌تر بشود.
+
+**وضعیتِ پرورش (تشخیص):** «خودشو پرورش بده با معادلات» = الگوریتم **هست و live**
+ولی در no-op می‌چرخد چون خوراک نیست. consolidation ۳۴۱ نوت از قبل دارد ولی
+الان هر tick صفر (CORTEX_CONSOLIDATE در پروسهٔ زنده ست نشده). BCM/Hebbian live
+ولی starved. پلِ RAG ساخته شد ولی index محدود است. **فعال‌سازی = رأیِ مالک.**
