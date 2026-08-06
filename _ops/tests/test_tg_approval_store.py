@@ -7,6 +7,8 @@ import json
 import shutil
 import sys
 import tempfile
+import threading
+import time
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
@@ -171,6 +173,64 @@ def t_n_content_not_stored_in_job():
     assert set(job.keys()) <= {"id", "type", "title", "status", "risk", "created_at",
                                "expires_epoch", "requires_confirmation",
                                "dry_run_report", "source"}
+
+
+def t_o_cross_process_lock_serializes_dual_writer_race():
+    """VQ-APPROVAL-DUALWRITE-001 (۲۰۲۶-۰۸-۰۶): یک نویسندهٔ دومِ importlib-loaded
+    — دقیقاً همان شکلی که goal_action_bridge._load_approval_store() از پروسهٔ
+    organism.py ماژول را لود می‌کند — نباید approve ِ هم‌زمانِ نویسندهٔ اول
+    (center، همین ماژول `aps`) را overwrite کند.
+
+    قبل از فیکس: RLock ِ approval_store فقط درون‌پروسه بود؛ نویسندهٔ دوم
+    load→(تأخیر)→save می‌کرد و snapshotِ کهنه (بدونِ approve) را می‌نوشت —
+    تصمیمِ مالک بی‌صدا پاک می‌شد. بعد از فیکس: opslib.LockedJson دو نویسنده
+    را — حتی از دو ماژول/شیِ RLock ِ متفاوت — روی همان approvals.json
+    serialize می‌کند."""
+    setup_paths()
+    jid = aps.add_pending({"type": "debate", "title": "owner-idea", "risk": "medium"})
+
+    # aps2 = ماژولِ دومِ importlib-loaded (goal_action_bridge._load_approval_store
+    # هم دقیقاً همین را می‌کند)، با _STORE_LOCK ِ RLock ِ خودش — کاملاً بی‌ربط به
+    # RLock ِ aps. تنها چیزِ مشترک، مسیرِ approvals.json روی دیسک است.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "_race_approval_store", str(Path(aps.__file__)))
+    aps2 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(aps2)
+    for attr in ("_APPROVALS_JSON", "_AUDIT_PATH", "_LEGACY_DIR", "_ROOT"):
+        setattr(aps2, attr, getattr(aps, attr))
+
+    # پنجرهٔ شکست را عمداً باز نگه می‌داریم: aps2 بعد از خواندنِ snapshot (زیرِ
+    # قفلِ فایل، چون فیکس load را داخلِ `with opslib.LockedJson(...)` برده) کمی
+    # صبر می‌کند — دقیقاً همان بازهٔ T0..T1 ِ گزارش‌شده.
+    orig_load = aps2._load_octopus_approvals
+    def _slow_load():
+        state = orig_load()
+        time.sleep(0.4)
+        return state
+    aps2._load_octopus_approvals = _slow_load
+
+    result: dict = {}
+    def _organism_writer():
+        result["jid2"] = aps2.add_pending({"type": "mission_approval", "title": "z"})
+    th = threading.Thread(target=_organism_writer)
+    th.start()
+    time.sleep(0.1)   # مطمئن شو aps2 اول قفلِ فایل را گرفته و داخلِ تأخیر است
+
+    t0 = time.time()
+    assert aps.approve(jid) is True, "approve نباید به‌خاطرِ نویسندهٔ دوم شکست بخورد"
+    waited = time.time() - t0
+    th.join(timeout=5)
+    assert not th.is_alive(), "نویسندهٔ دوم (organism-شبیه‌سازی‌شده) تمام نشد"
+
+    # اثباتِ mutual exclusion: approve واقعاً منتظرِ آزادشدنِ قفلِ فایل ماند —
+    # اگر قفل بی‌اثر بود، approve بلافاصله (بدونِ صبر) برمی‌گشت.
+    assert waited >= 0.2, f"approve بدونِ صبر برای قفلِ نویسندهٔ دوم رد شد ({waited:.3f}s)"
+
+    final = aps.summary()
+    assert final["approved"] == 1, f"approveِ مالک زیرِ نویسندهٔ دوم گم شد: {final}"
+    assert aps.get(jid)["status"] == "approved"
+    assert aps.get(result["jid2"]) is not None, "نوشتنِ نویسندهٔ دوم هم باید بماند (هیچ‌کدام گم نشود)"
 
 
 if __name__ == "__main__":

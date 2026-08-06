@@ -13,39 +13,65 @@ r"""approval_store.py — پلِ صفِ تأیید بینِ دو دنیا (فا�
 
 قوانین ایمنی (همان ناوردی‌های telegram_center):
   - idها sanitize می‌شوند (ضدِ path-traversal؛ فقط ``[A-Za-z0-9_-.]``).
-  - هر write اتمیک است (tmp + os.replace).
+  - هر write اتمیک است (tmp + os.replace) **و** پشتِ قفلِ فایلِ بین‌پروسه‌ای
+    (opslib.LockedJson — رجوع به VQ-APPROVAL-DUALWRITE-001 پایین‌تر).
   - محتوای کاربر هرگز در job ذخیره نمی‌شود — فقط title/type/risk/content-free.
   - تأیید/رد فقط status را عوض می‌کند؛ اجرای واقعیِ job (اگر risk=high) به power.py
     یا handlerهای مرکز واگذار می‌شود — این لایه فقط state است.
   - fail-soft: هر خطا → پیش‌فرضِ امن (False / [] )، هرگز crashِ صداکننده.
 
-$0 · stdlib-only · import-time خالص. مصرف‌کننده: center.py (callbackهای ap:*).
+$0 · stdlib + opslib · import-time خالص. مصرف‌کننده: center.py (callbackهای ap:*)
+و goal_action_bridge.emit_mission_cards() (پروسهٔ organism.py، از راهِ importlib).
 """
 from __future__ import annotations
 
 import json
 import os
 import re
+import sys
 import threading
 import time
 from pathlib import Path
 
-# P3 (2026-07-20 Stage-1، review-3): قفلِ single-writer روی کلِ read-modify-writeِ صف.
-# _move/add_pending با tmp+os.replace هر write را atomic می‌کنند ولی توالیِ load→pop→save را
-# نه؛ این قفل، مصرفِ concurrentِ درون‌پروسه‌ای را serialize می‌کند → single-use اتمیک.
-#
-# ⚠️ INVARIANT (مستند، نه فرضِ ضمنی): مصرفِ verdictِ `ap:` (approve/reject) فقط در **یک**
-# پروسه رخ می‌دهد — Telegram Center (`center._handle_approval_callback`). کاکپیت/داشبورد/
-# پنل هیچ‌کدام `approve/reject` صف را صدا نمی‌زنند. بنابراین `threading.RLock` (درون‌پروسه)
-# کلِ سطحِ واقعیِ concurrency را می‌پوشاند.
-#   نقضِ این invariant (افزودنِ نویسندهٔ approve/reject در پروسه‌ای دوم) این قفل را بی‌صدا
-#   می‌شکند → آن‌گاه باید به file-lock (opslib.LockedJson) یا SQLite conditional-update ارتقا
-#   یابد. تستِ نگهبان: هیچ ماژولِ غیرِ telegram_center نباید approval_store.approve/reject را
-#   import/صدا کند (رجوع: تستِ import در test_approval_queue_consistency).
-_STORE_LOCK = threading.RLock()
-
 _OPS = Path(__file__).resolve().parent.parent                # _ops
 _ROOT = _OPS.parent                                           # F:\backup
+
+# ── opslib فقط برای LockedJson (قفلِ فایلِ بین‌پروسه‌ای) — بوت‌استرپِ مسیرِ خودِ
+# همین ماژول، مستقل از اینکه صداکننده از قبل _ops/budget را در sys.path گذاشته یا نه
+# (center.py و organism.py هر دو می‌گذارند؛ importlib-loader ِ goal_action_bridge هم
+# چون در پروسهٔ organism اجرا می‌شود، از همان sys.path بهره می‌برد — ولی این بوت‌استرپ
+# محلی تضمین می‌کند صداکنندهٔ تازه/تستِ مستقل هم بی‌نیاز از هماهنگیِ بیرونی کار کند).
+# opslib خودش هم stdlib-only است (فقط datetime/io/json/os/pathlib/sys/time) — ناوردیِ
+# «$0» این ماژول را نمی‌شکند.
+if str(_OPS / "budget") not in sys.path:
+    sys.path.insert(0, str(_OPS / "budget"))
+import opslib  # noqa: E402
+
+# P3 (2026-07-20 Stage-1، review-3): قفلِ single-writer روی کلِ read-modify-writeِ صف.
+# _move/add_pending با tmp+os.replace هر write را atomic می‌کنند ولی توالیِ load→pop→save را
+# نه؛ این قفل، مصرفِ concurrentِ درون‌پروسه‌ای را serialize می‌کند — سریع‌تر از file-lock،
+# پس کنارِ آن نگه داشته شده (belt-and-suspenders، بی‌ضرر).
+_STORE_LOCK = threading.RLock()
+
+# ⚠️ INVARIANT سابق (۲۰۲۶-۰۷-۲۰) اینجا نوشته بود: «مصرفِ verdictِ ap: فقط در یک
+# پروسه (Telegram Center) رخ می‌دهد، پس RLock ِ درون‌پروسه کافی است.» این فرض
+# عملاً نقض شد و کشف شد (۲۰۲۶-۰۸-۰۶، گزارشِ مالک «approve کلیک می‌کنم ثبت
+# نمی‌شود»): goal_action_bridge.emit_mission_cards() از پروسهٔ organism.py
+# (از راهِ test_cycle.beat ← _tcy.beat، هر epoch tick، وقتی هر دو
+# OCTOPUS_WIRE_MISSION_CARD و OCTOPUS_WIRE_MISSION_APPROVAL مسلح‌اند — دقیقاً
+# ترکیبی که کامنتِ خودِ goal_action_bridge.py هشدار داده بود) یک approval_store
+# دومِ importlib-loaded را add_pending می‌زند. RLock بالا این نویسندهٔ دوم را
+# اصلاً نمی‌بیند (RLock فقط threadهای همان پروسه را می‌پوشاند). مکانیزمِ شکست:
+# organism در T0 approvals.json را می‌خواند (snapshot با jobِ owner هنوز pending)،
+# center بینِ T0..T1 approve/reject را ذخیره می‌کند (toast ِ موفقیت را مالک هم
+# می‌بیند)، organism در T1 با همان snapshotِ کهنهٔ T0 کلِ فایل را overwrite
+# می‌کند — تصمیمِ مالک بی‌صدا پاک می‌شود، صفر خطا/toast.
+# رفعِ VQ-APPROVAL-DUALWRITE-001: `opslib.LockedJson(_APPROVALS_JSON)` هر
+# read→modify→save را با یک قفلِ فایلِ **بین‌پروسه‌ای** می‌پوشاند (O_CREAT|O_EXCL
+# روی `<approvals.json>.lock`، همان الگوی legs/raw_store.py و legs/ledger_core.py:
+# «فقط قفلش لازم است»، نه read()/write() خودِ LockedJson — ساختار/اعتبارسنجیِ
+# bucketها همچنان کارِ _load_octopus_approvals/_save_octopus_approvals است).
+# حالا هر تعداد پروسه/نویسنده امن‌اند؛ نیازی به خاموش‌کردنِ دوبارهٔ هیچ فلگی نبود.
 
 # مسیرِ قدیمی (تاریخچهٔ verdict) — قراردادِ center._record_approval
 _LEGACY_DIR = _OPS / "state" / "telegram" / "approvals"
@@ -153,13 +179,19 @@ def add_pending(job: dict) -> str:
         "dry_run_report": str(job.get("dry_run_report") or "")[:500] or None,
         "source": str(job.get("source") or "telegram"),
     }
+    saved = False
     with _STORE_LOCK:
-        state = _load_octopus_approvals()
-        # id تکراری → یکی نشو (جلوگیری از spam)
-        if any(item.get("id") == jid for item in state["pending"]):
+        try:
+            with opslib.LockedJson(_APPROVALS_JSON):
+                state = _load_octopus_approvals()
+                # id تکراری → یکی نشو (جلوگیری از spam)
+                if any(item.get("id") == jid for item in state["pending"]):
+                    return jid
+                state["pending"].append(rec)
+                saved = _save_octopus_approvals(state)
+        except Exception as e:  # noqa: BLE001 — fail-soft: قفلِ شلوغ هم صداکننده را نمی‌کشد
+            _audit("approval.lock_timeout", f"op=add_pending id={jid} err={type(e).__name__}")
             return jid
-        state["pending"].append(rec)
-        saved = _save_octopus_approvals(state)
     if saved:
         _audit("approval.add_pending", f"id={jid} risk={rec['risk']}")
     return jid
@@ -169,21 +201,28 @@ def _move(jid: str, from_list: str, to_list: str) -> bool:
     """انتقالِ یک job از یک bucket به دیگری. کلِ load→pop→save زیرِ یک قفلِ single-writer
     است → single-use اتمیک (دو مصرف‌کنندهٔ همزمان: دقیقاً یکی True، دیگری False)."""
     jid = _sanitize_id(jid)
+    ok = False
     with _STORE_LOCK:
-        state = _load_octopus_approvals()
-        src = state.get(from_list, [])
-        dst = state.get(to_list, [])
-        moved = None
-        for i, item in enumerate(src):
-            if isinstance(item, dict) and item.get("id") == jid:
-                moved = src.pop(i)
-                break
-        if moved is None:
+        try:
+            with opslib.LockedJson(_APPROVALS_JSON):
+                state = _load_octopus_approvals()
+                src = state.get(from_list, [])
+                dst = state.get(to_list, [])
+                moved = None
+                for i, item in enumerate(src):
+                    if isinstance(item, dict) and item.get("id") == jid:
+                        moved = src.pop(i)
+                        break
+                if moved is None:
+                    return False
+                moved["status"] = to_list
+                moved[f"{to_list}_at"] = _now_iso()
+                dst.append(moved)
+                ok = _save_octopus_approvals(state)
+        except Exception as e:  # noqa: BLE001 — fail-soft: قفلِ شلوغ هم صداکننده را نمی‌کشد
+            _audit("approval.lock_timeout",
+                   f"op={to_list} id={jid} from={from_list} err={type(e).__name__}")
             return False
-        moved["status"] = to_list
-        moved[f"{to_list}_at"] = _now_iso()
-        dst.append(moved)
-        ok = _save_octopus_approvals(state)
     if ok:
         _audit(f"approval.{to_list}", f"id={jid} from={from_list}")
     return ok
