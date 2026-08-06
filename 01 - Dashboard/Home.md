@@ -2,14 +2,14 @@
 type: dashboard
 status: active
 tags: [dashboard]
-updated: 2026-07-07
+updated: 2026-08-07
 ---
 
 # خانه — داشبورد اصلی
 
 > نقطه ورود به کل vault. قواعد: [[_PROJECT_INSTRUCTIONS|اینستراکشن پروژه v2.0]] · وضعیت جلسه قبل: [[01 - Dashboard/HANDOFF|HANDOFF]]
 >
-> 🧠 **مغز زندهٔ سیستم:** [[01 - Dashboard/Brain|Brain]] (وضعیت لحظه‌ای همهٔ پروژه‌ها، هر ۳ ساعت زنده) · ناوگان تحقیق: [[05 - Agents/Research Scout Fleet|Fleet]] · اتصالات: [[00 - Inbox/scout-digests/_Mycorrhizal Map|نقشهٔ مایکوریزایی]]
+> 🧠 **مغز:** [[01 - Dashboard/Brain|Brain]] (عکس لحظه‌ای — snapshot ۲۰۲۶-۰۷-۰۶، **زنده نیست**، برنامهٔ بازنویسیِ ۳ساعته هرگز دیپلوی نشد) · ناوگان تحقیق: [[05 - Agents/Research Scout Fleet|Fleet]] · اتصالات: [[00 - Inbox/scout-digests/_Mycorrhizal Map|نقشهٔ مایکوریزایی]]
 >
 > 🏗️ **رکنِ ساختِ سیستم (Build Spine):** [[04 - Architect System/MYCELIAL-MASTER-SPEC|MYCELIAL-MASTER-SPEC]] — spec واحدی که همهٔ ۸ پروژه به آن وصل‌اند؛ چرخهٔ امنِ build/test/delete؛ ۸۰٪ طراحی + handoff به Fable 5. هر ایجنت طبق §۷ آن را نقد و بهتر می‌کند.
 
@@ -28,6 +28,8 @@ updated: 2026-07-07
 - سرمایه‌گذاری و سخت‌افزار: [[03 - Projects/Mining/PROJECT|Mining]]، [[03 - Projects/Crypto - etoro/PROJECT|Crypto - etoro]]
 - زیرساخت مالی: [[03 - Projects/Accounting/PROJECT|Accounting]]
 - دانش شخصی: [[07 - Knowledge/هیپنوتیزم  و خودآگاهی/PROJECT|هیپنوتیزم و خودآگاهی]]، [[07 - Knowledge/Time-Architecture/PROJECT|Time-Architecture (معماری زمان)]]
+- سلامت شخصی: [[03 - Projects/WLOS - Weight Loss OS/PROJECT|WLOS — Weight Loss OS]] (کوچ تلگرامی کاهش وزن، v0.1.1 هنوز live نشده)
+- تحقیق خودترمیم/شناختی (shadow، propose-only): [[03 - Projects/Chord/PROJECT|Chord]] (فیلتر وترِ ریاضی برای دکتر تکاملی) · [[03 - Projects/research-spec-compiler/PROJECT|research-spec-compiler]] (اندام شناختیِ Ring-2)
 - زیرساخت زنده (`_ops` + ژنوم): [[_ops/ORGANISM-SPEC|ORGANISM-SPEC]] (ارگانیسم متابولیسم-مناظره-تکثیر، سایه $0) · پنل مالک `_ops/panel/` (`http://127.0.0.1:8790` — پروفایل/پروژه‌ها/ارگانیسم) · [[07 - Knowledge/genome-system/INDEX|genome-system]] (v0.4.3)
 - لایهٔ تئوری/معماری (agent-ready): [[CHRONOS-FABLE-OS/PROJECT|CHRONOS-FABLE OS]] — سنتزِ ۱۶‌پوشه‌ایِ کورپوسِ OCTOPUS/CHRONOS، تئوریِ همین ارگانیسم زنده · ورود: [[CHRONOS-FABLE-OS/HANDOFF|HANDOFF]] · [[CHRONOS-FABLE-OS/13_MasterPrompts/MasterSystemPrompt.v2|Master Prompt v2]]
 

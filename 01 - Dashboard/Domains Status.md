@@ -3,14 +3,14 @@ type: dashboard
 status: active
 tags: [dashboard, domains]
 created: 2026-07-03
-updated: 2026-07-03
+updated: 2026-08-07
 ---
 
 # Domains Status — وضعیت دامنه‌ها (روی فرانت‌متر PROJECT.md)
 
 ## ویوی زنده (Bases)
 
-> پلاگین core «Bases» هنوز فعال نیست (پیگیری باز HANDOFF). بعد از فعال‌سازی، این بلوک را چک کن `[Unverified — سینتکس با نسخه Bases تطبیق شود]`.
+> ✅ **اصلاح ۲۰۲۶-۰۸-۰۷:** پلاگین core «Bases» **فعال است** — تأیید مستقیم از `.obsidian/core-plugins.json` (`"bases": true`) + سه فایل `.base` موجود در همین پوشه (`Projects.base`، `Inbox.base`، `Scout Digests.base`). ادعای قبلیِ «هنوز فعال نیست» دیگر درست نیست. سینتکسِ بلوکِ زیر با همان فرمتِ `Projects.base` (که خودکار کار می‌کند) هم‌راستاست؛ تأیید نهاییِ رندرِ بصری در اپ Obsidian با مالک.
 
 ```base
 filters:
@@ -28,7 +28,7 @@ views:
       - updated
 ```
 
-## جدول ایستا (تا فعال شدن Bases — دستی sync)
+## جدول ایستا (پشتیبانِ دستی — Bases فعال است، این جدول برای دورانِ گذار نگه داشته شده)
 
 | دامنه | status | risk | autonomy مؤثر | بلاکر اصلی |
 |---|---|---|---|---|
