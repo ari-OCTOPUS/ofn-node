@@ -448,6 +448,174 @@ def t_revenue_survives_a_broken_attribution_block():
             fit.write_text(old, "utf-8")
 
 
+# ═══ ۲۰۲۶-۰۸-۰۶ — confidence سقف‌خورده با EMAِ دقتِ *اندازه‌گیری‌شده* ═══════════
+# پیش از این «confidence» یا ثابتِ هاردکدِ ۰.۴ بود یا خودگزارشِ خامِ LLM بدونِ سقف —
+# هیچ‌کدام با دقتِ واقعاً سنجیده‌شدهٔ خودمدل (self-accuracy.jsonl) تنظیم نمی‌شد.
+# این بلوک سه چیز را قفل می‌کند: (الف) کمی‌بودنِ داده = بدونِ کلمپ، (ب) تاریخچهٔ
+# دقتِ پایین واقعاً confidence را پایین می‌آورد، (ج) ردیفی که خودِ همین چرخه
+# می‌سازد هرگز روی confidenceِ همان چرخه اثر نمی‌گذارد (forward-only).
+
+_ACC_FLAG = "OCTOPUS_SELFKNOW_ACCURACY"
+
+
+def _seed_accuracy_rows(rows):
+    (_SB / "doctor").mkdir(parents=True, exist_ok=True)
+    (_SB / "doctor" / "self-accuracy.jsonl").write_text(
+        "\n".join(json.dumps(r) for r in rows) + "\n", "utf-8")
+
+
+def t_clamp_confidence_pure():
+    assert sk._clamp_confidence(0.9, None) == 0.9, "ema=None یعنی بدونِ تغییر"
+    assert sk._clamp_confidence(None, 0.2) is None, "value=None یعنی چیزی برای کلمپ نیست"
+    assert sk._clamp_confidence(0.9, 0.2) == 0.2, "بالاتر از EMA باید سقف بخورد"
+    assert sk._clamp_confidence(0.1, 0.5) == 0.1, "پایین‌تر از EMA دست‌نخورده می‌ماند"
+    assert sk._clamp_confidence("نامعتبر", 0.2) == "نامعتبر", "غیرعددی دست‌نخورده می‌ماند"
+
+
+# ── (a) کمتر از آستانه یا فلگِ خاموش → بدونِ کلمپ (byte-identical با امروز) ────
+def t_accuracy_ema_none_below_threshold():
+    _sandbox_paths(); _clear_doctor()
+    os.environ[_ACC_FLAG] = "1"
+    try:
+        rows = [{"ts": f"t{i}", "fields_checked": 3, "fields_correct": 0, "accuracy": 0.05}
+                for i in range(sk._ACCURACY_EMA_MIN_ROWS - 1)]
+        _seed_accuracy_rows(rows)
+        assert sk._accuracy_ema() is None, "کمتر از آستانه نباید EMA بدهد"
+        snap = {"money": {"musd": 0}, "revenue": 0.0, "legs": {}, "wire_on": []}
+        u = sk._heuristic(snap, {}, conf_ema=sk._accuracy_ema())
+        assert u["confidence"] == 0.4, f"دادهٔ کم نباید کلمپ کند: {u['confidence']}"
+    finally:
+        os.environ.pop(_ACC_FLAG, None)
+
+
+def t_accuracy_ema_off_flag_is_noop():
+    _sandbox_paths(); _clear_doctor()
+    os.environ.pop(_ACC_FLAG, None)
+    rows = [{"ts": f"t{i}", "accuracy": 0.05} for i in range(10)]
+    _seed_accuracy_rows(rows)
+    assert sk._accuracy_ema() is None, "فلگِ خاموش باید None بدهد صرفِ‌نظر از تاریخچه"
+    snap = {"money": {"musd": 0}, "revenue": 0.0, "legs": {}, "wire_on": []}
+    u = sk._heuristic(snap, {})
+    assert u["confidence"] == 0.4, "فلگِ خاموش = رفتارِ امروز، بدونِ کلمپ"
+
+
+def t_run_confidence_unclamped_without_accuracy_history():
+    """(a) در سطحِ run(): سندباکسِ تازه، فلگ روشن ولی هنوز هیچ ردیفی روی دیسک
+    نیست → confidence باید همان مقدارِ خامِ LLM بماند."""
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    os.environ[_ACC_FLAG] = "1"
+    try:
+        _orig = sk._ask_llm
+        sk._ask_llm = _fake_ask('{"focus":"legs","confidence":0.87,"pathology":[{"severity":"low"}]}')
+        try:
+            r = sk.run(persist=True)
+        finally:
+            sk._ask_llm = _orig
+        assert r["understanding"]["confidence"] == 0.87, r["understanding"]["confidence"]
+    finally:
+        os.environ.pop(_ACC_FLAG, None)
+
+
+# ── (b) تاریخچهٔ دقتِ پایین → confidenceِ بعدی واقعاً پایین‌تر می‌آید ────────────
+def t_heuristic_confidence_clamped_by_low_accuracy_history():
+    _sandbox_paths(); _clear_doctor()
+    os.environ[_ACC_FLAG] = "1"
+    try:
+        rows = [{"ts": f"t{i}", "accuracy": 0.15} for i in range(8)]
+        _seed_accuracy_rows(rows)
+        ema = sk._accuracy_ema()
+        assert ema is not None and ema < 0.4, ema
+        snap = {"money": {"musd": 0}, "revenue": 0.0, "legs": {}, "wire_on": []}
+        u = sk._heuristic(snap, {}, conf_ema=ema)
+        assert u["confidence"] == ema, u["confidence"]
+        assert u["confidence"] < 0.4, "کلمپ باید پایین‌تر از پیش‌فرضِ ۰.۴ برود"
+    finally:
+        os.environ.pop(_ACC_FLAG, None)
+
+
+def t_synthesize_llm_confidence_clamped_by_history():
+    _orig = sk._ask_llm
+    sk._ask_llm = _fake_ask('{"focus":"legs","confidence":0.95}')
+    try:
+        out = sk.synthesize({"legs": {}}, {}, [], conf_ema=0.2)
+        u = out["understanding"]
+        assert u["confidence"] == 0.2, u["confidence"]
+        assert u["confidence"] < 0.95, "خودگزارشِ خامِ LLM باید سقف بخورد"
+    finally:
+        sk._ask_llm = _orig
+
+
+def t_synthesize_llm_confidence_unclamped_when_ema_none():
+    _orig = sk._ask_llm
+    sk._ask_llm = _fake_ask('{"focus":"legs","confidence":0.95}')
+    try:
+        out = sk.synthesize({"legs": {}}, {}, [], conf_ema=None)
+        assert out["understanding"]["confidence"] == 0.95, "ema=None یعنی بدونِ کلمپ"
+    finally:
+        sk._ask_llm = _orig
+
+
+def t_run_end_to_end_confidence_clamped_by_history():
+    """(b) در سطحِ run(): تاریخچهٔ ده‌ردیفیِ دقتِ ۰.۱ باید confidenceِ خامِ ۰.۹۵ی
+    LLM را به‌وضوح پایین بیاورد."""
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    os.environ[_ACC_FLAG] = "1"
+    try:
+        rows = [{"ts": f"t{i}", "accuracy": 0.1} for i in range(10)]
+        _seed_accuracy_rows(rows)
+        _orig = sk._ask_llm
+        sk._ask_llm = _fake_ask('{"focus":"legs","confidence":0.95,"pathology":[{"severity":"low"}]}')
+        try:
+            r = sk.run(persist=True)
+        finally:
+            sk._ask_llm = _orig
+        conf = r["understanding"]["confidence"]
+        assert conf is not None and conf < 0.95, conf
+        assert conf <= 0.2, f"EMAِ رویِ تاریخچهٔ ۰.۱ باید نزدیکِ ۰.۱ بماند، گرفتیم {conf}"
+    finally:
+        os.environ.pop(_ACC_FLAG, None)
+
+
+# ── (c) forward-only: ردیفِ همین چرخه هرگز روی confidenceِ همان چرخه اثر ندارد ──
+def t_run_confidence_never_graded_by_its_own_cycle():
+    """اثباتِ صریحِ ناوردیِ forward-only.
+
+    دقیقاً یکی کمتر از آستانه می‌کاریم. `run()` خودش طیِ همین فراخوانی
+    `_self_accuracy_measure` را صدا می‌زند که (چون فلگ روشن است) یک ردیفِ تازه به
+    self-accuracy.jsonl اضافه می‌کند — یعنی وقتی `_heuristic`/`synthesize` واقعاً
+    اجرا می‌شوند، روی دیسک دیگر به‌اندازهٔ آستانه ردیف هست. اگر پیاده‌سازی EMA را
+    *آن لحظه* (زنده) می‌خواند، آستانه رد می‌شد و کلمپ فعال می‌شد — یعنی
+    confidenceِ این چرخه از ردیفی که خودِ همین چرخه ساخته تغذیه می‌کرد (دورِ
+    ممنوع). پیاده‌سازیِ درست EMA را *پیش از* آن نوشتن می‌خواند، پس کلمپ نباید
+    فعال شود و confidence باید همان مقدارِ خامِ LLM بماند."""
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    os.environ[_ACC_FLAG] = "1"
+    try:
+        n_pre = sk._ACCURACY_EMA_MIN_ROWS - 1
+        rows = [{"ts": f"t{i}", "accuracy": 0.05} for i in range(n_pre)]
+        _seed_accuracy_rows(rows)
+        trail = _SB / "doctor" / "self-accuracy.jsonl"
+        before = len(trail.read_text("utf-8").strip().splitlines())
+        assert before == n_pre
+
+        _orig = sk._ask_llm
+        sk._ask_llm = _fake_ask('{"focus":"legs","confidence":0.9,"pathology":[{"severity":"low"}]}')
+        try:
+            r = sk.run(persist=True)
+        finally:
+            sk._ask_llm = _orig
+
+        after = len(trail.read_text("utf-8").strip().splitlines())
+        assert after > before, (
+            "پیش‌شرطِ تست بی‌معنی می‌شود اگر self_accuracy همین چرخه ردیفِ تازه ننویسد")
+
+        conf = r["understanding"]["confidence"]
+        assert conf == 0.9, (
+            f"confidence نباید از ردیفی که خودِ همین چرخه ساخته کلمپ شود؛ گرفتیم {conf}")
+    finally:
+        os.environ.pop(_ACC_FLAG, None)
+
+
 if __name__ == "__main__":
     failed = harness.run([
         ("snapshotِ غنی", t_snapshot_richer),
@@ -479,5 +647,15 @@ if __name__ == "__main__":
         # یکی نیست: تصحیحِ اول شمارش را به‌جای دلار برداشت.
         ("درآمد دلار است نه شمارش", t_revenue_is_dollars_not_a_count),
         ("بلوکِ خرابِ انتساب crash ندهد", t_revenue_survives_a_broken_attribution_block),
+        # ۲۰۲۶-۰۸-۰۶ — confidence سقف‌خورده با EMAِ دقتِ اندازه‌گیری‌شده
+        ("_clamp_confidence خالص", t_clamp_confidence_pure),
+        ("دادهٔ کم = بدونِ کلمپ", t_accuracy_ema_none_below_threshold),
+        ("فلگِ خاموش = بدونِ کلمپ", t_accuracy_ema_off_flag_is_noop),
+        ("run بدونِ تاریخچه = بدونِ کلمپ", t_run_confidence_unclamped_without_accuracy_history),
+        ("تاریخچهٔ دقتِ پایین heuristic را کلمپ می‌کند", t_heuristic_confidence_clamped_by_low_accuracy_history),
+        ("تاریخچهٔ دقتِ پایین LLM را کلمپ می‌کند", t_synthesize_llm_confidence_clamped_by_history),
+        ("ema=None روی synthesize کلمپ نمی‌کند", t_synthesize_llm_confidence_unclamped_when_ema_none),
+        ("run با تاریخچهٔ ضعیف confidence را پایین می‌آورد", t_run_end_to_end_confidence_clamped_by_history),
+        ("confidence از ردیفِ همین چرخهٔ خودش گریدنمی‌شود", t_run_confidence_never_graded_by_its_own_cycle),
     ])
     sys.exit(1 if failed else 0)
