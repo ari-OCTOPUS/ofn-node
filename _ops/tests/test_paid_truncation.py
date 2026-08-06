@@ -172,6 +172,116 @@ def t_healthy_proposals_do_not_raise_a_false_alarm():
     assert alerts == [], f"آلارمِ کاذب روی نتیجهٔ سالم: {alerts}"
 
 
+# ── لایهٔ ۴ (۲۰۲۶-۰۸-۰۶): آلارمِ «مغزِ پولی شکست خورد» باید سقفِ روزانه را از
+# شکستِ واقعی جدا کند ────────────────────────────────────────────────────────
+class _FakeClient:
+    """جایگزینِ MultiProviderClient که ساخت/est_worst_case را بدونِ کانفیگِ
+    واقعی عبور می‌دهد — تست فقط تا مرزِ fugu_quota.reserve کار دارد، هرگز به
+    complete() نمی‌رسد."""
+    def __init__(self, role=None, **kw):
+        self.provider, self.model = "fake", "fake"
+
+    def est_worst_case(self, n, max_tokens=100):
+        return 0.01
+
+    def complete(self, system, prompt, max_tokens=100):  # pragma: no cover
+        raise AssertionError("این تست نباید تا complete() برسد")
+
+
+def t_quota_denial_now_leaves_a_log_row():
+    """قبل از این فیکس، denyِ سهمیه هیچ ردی در paid-calls.jsonl نمی‌گذاشت —
+    لاگ درست تا آخرین موفقیت پر بود و بعدش هر denyِ پیاپی کاملاً نامرئی."""
+    import fugu_quota as FQ
+    _orig_reserve = FQ.reserve
+    _orig_pg = MR.paid_gate
+    _orig_cli = C.MultiProviderClient
+    FQ.reserve = lambda tier, organ="ARCHITECT_SYS": {
+        "allow": False, "reason": "daily-cap", "used": 60}
+    MR.paid_gate = lambda: (True, "test-open")
+    C.MultiProviderClient = _FakeClient
+    try:
+        import organ_gate
+        _orig_og_reserve = organ_gate.reserve
+        organ_gate.reserve = lambda *a, **k: {"allow": True}
+        try:
+            before = len(MR.PAID_LOG.read_text("utf-8").splitlines()) \
+                if MR.PAID_LOG.exists() else 0
+            out = MR._ask_paid("primary", "sys", "prompt", 100, task="t")
+            assert out is None
+            lines = MR.PAID_LOG.read_text("utf-8").splitlines()
+            assert len(lines) == before + 1, "denyِ سهمیه هنوز لاگ نمی‌شود"
+            import json as _j
+            rec = _j.loads(lines[-1])
+            assert rec["ok"] is False and rec["error"] == "quota_daily-cap", rec
+        finally:
+            organ_gate.reserve = _orig_og_reserve
+    finally:
+        FQ.reserve = _orig_reserve
+        MR.paid_gate = _orig_pg
+        C.MultiProviderClient = _orig_cli
+
+
+def t_cap_reached_gets_an_info_alert_not_a_red_one():
+    """سقفِ روزانهٔ تمام‌شده = بودجه‌محافظتِ طراحی‌شده، نه خرابی. آلارم باید
+    این دو را از هم جدا کند — قبل از فیکس هر دو یک متنِ 🔴 «broken» می‌گرفتند."""
+    import fugu_quota as FQ
+    alerts = []
+    _orig_alert = MR.opslib.alert
+    _orig_ask_paid = MR._ask_paid
+    _orig_pg = MR.paid_gate
+    _orig_kp = MR.keys_present
+    _orig_status = FQ.status
+    MR.opslib.alert = lambda items: alerts.append(items)
+    MR._ask_paid = lambda *a, **k: None          # هر دو رده «شکست» می‌خورند
+    MR.paid_gate = lambda: (True, "test-open")
+    MR.keys_present = lambda: {"fugu": True, "glm": True, "deepseek": False}
+    FQ.status = lambda: {"used_total": 60, "cap": 60, "remaining": 0}
+    try:
+        r = MR.ask("deep", "سوال", opener=lambda *a, **k: None)
+        assert r["ok"] is False and "paid-call-failed" in r["reason"], r
+        assert len(alerts) == 1, alerts
+        body = alerts[0][0]
+        assert body.startswith("ℹ️"), f"باید اطلاعی باشد نه هشدارِ قرمز: {body!r}"
+        assert "سقفِ روزانه" in body and "60/60" in body, body
+        assert "broken" not in body
+    finally:
+        MR.opslib.alert = _orig_alert
+        MR._ask_paid = _orig_ask_paid
+        MR.paid_gate = _orig_pg
+        MR.keys_present = _orig_kp
+        FQ.status = _orig_status
+
+
+def t_a_genuine_failure_still_gets_the_red_alert():
+    """رگرسیون: وقتی سهمیه پر نیست ولی هر دو رده باز هم شکست خوردند (کلید/شبکه
+    واقعاً خراب)، هشدارِ قرمزِ قدیمی باید دست‌نخورده بماند."""
+    import fugu_quota as FQ
+    alerts = []
+    _orig_alert = MR.opslib.alert
+    _orig_ask_paid = MR._ask_paid
+    _orig_pg = MR.paid_gate
+    _orig_kp = MR.keys_present
+    _orig_status = FQ.status
+    MR.opslib.alert = lambda items: alerts.append(items)
+    MR._ask_paid = lambda *a, **k: None
+    MR.paid_gate = lambda: (True, "test-open")
+    MR.keys_present = lambda: {"fugu": True, "glm": True, "deepseek": False}
+    FQ.status = lambda: {"used_total": 3, "cap": 60, "remaining": 57}
+    try:
+        r = MR.ask("deep", "سوال", opener=lambda *a, **k: None)
+        assert r["ok"] is False and "paid-call-failed" in r["reason"], r
+        assert len(alerts) == 1, alerts
+        body = alerts[0][0]
+        assert body.startswith("🔴") and "broken" in body, \
+            f"شکستِ واقعی نباید آرام‌شده باشد: {body!r}"
+    finally:
+        MR.opslib.alert = _orig_alert
+        MR._ask_paid = _orig_ask_paid
+        MR.paid_gate = _orig_pg
+        MR.keys_present = _orig_kp
+        FQ.status = _orig_status
+
+
 if __name__ == "__main__":
     checks = [(n, f) for n, f in sorted(globals().items()) if n.startswith("t_")]
     failed = harness.run(checks)

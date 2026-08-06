@@ -193,6 +193,13 @@ def _ask_paid(tier: str, prompt: str, system: str, max_tokens: int,
         _q = fugu_quota.reserve(tier, "ARCHITECT_SYS")
         if not _q.get("allow"):
             organ_gate.release("ARCHITECT_SYS", est, task=f"cortex-{tier}")
+            # ۲۰۲۶-۰۸-۰۶: قبل از این خط، denyِ سهمیه هیچ ردی در paid-calls.jsonl
+            # نمی‌گذاشت — لاگ درست تا آخرین موفقیت پر بود و بعد از آن، سه بارِ
+            # پیاپیِ deny (سقفِ روزانه) کاملاً نامرئی. الگوی همینِ log از circuit
+            # breaker (بالاتر) عیناً پورت شد.
+            _paid_log(task=task, tier=tier, role=role, ok=False,
+                      error=f"quota_{_q.get('reason')}", ms=0,
+                      quota_used=_q.get("used"))
             return None
         import time as _pt
         _t0 = _pt.time()
@@ -401,8 +408,23 @@ def _ask_impl(task: str, prompt: str, system: str = "", max_tokens: int = 400,
         else:
             fallback_reason = "paid-call-failed"
             try:
-                opslib.alert([f"🔴 cortex: مغزِ پولی روی {tried or order} شکست خورد → "
-                              f"محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)"])
+                # ۲۰۲۶-۰۸-۰۶: این هشدار قبلِ فیکس هر بار «broken (کلید/شبکه/quota؟)»
+                # می‌زد — حتی وقتی علتِ دقیق سقفِ روزانهٔ عادیِ فوگو بود (کد خودش
+                # reason را در fugu_quota.reserve می‌دانست، فقط اینجا خوانده نمی‌شد).
+                # زنده: سه هشدارِ 🔴 در یک ساعت (۱۳:۳۹/۱۳:۴۱/۱۳:۵۰)، هر سه دقیقاً
+                # وقتی quota_used=۶۰=FUGU_DAILY_CALL_CAP — نه شکستِ کلید/شبکه، بودجه‌
+                # محافظتِ طراحی‌شده. تشخیص خودش را از fugu_quota.status() می‌گیرد،
+                # نه از حدسِ درجا — همان الگوی «حدس نزن، بسنج».
+                import fugu_quota as _fq_status
+                _fqs = _fq_status.status()
+                if int(_fqs.get("remaining", 1) or 0) <= 0:
+                    opslib.alert([f"ℹ️ cortex: سقفِ روزانهٔ فوگو پر شد "
+                                  f"({_fqs.get('used_total')}/{_fqs.get('cap')}) → مغز "
+                                  f"موقتاً محلی — فردا خودکار ریست می‌شود (بودجه‌محافظتِ "
+                                  f"طراحی‌شده، نه خرابی)."])
+                else:
+                    opslib.alert([f"🔴 cortex: مغزِ پولی روی {tried or order} شکست خورد → "
+                                  f"محلیِ آشغال. paid brain broken (کلید/شبکه/quota؟)"])
             except Exception:  # noqa: BLE001
                 pass
     else:
