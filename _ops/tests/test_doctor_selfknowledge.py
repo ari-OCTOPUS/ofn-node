@@ -2,6 +2,7 @@
 """تستِ حلقهٔ خودشناسیِ عمیقِ دکتر (2026-07-18): snapshotِ غنی، فهمِ لایه‌ای، کاوشِ
 دو-مرحله‌ای (multi-hop)، trajectory/خود-تصحیح، $0 محلی، fail-soft، غیرمسدودکننده،
 مستقل از ترس. $0 · sandbox · صفر شبکه."""
+import datetime as _dt
 import json
 import os
 import sys
@@ -616,6 +617,71 @@ def t_run_confidence_never_graded_by_its_own_cycle():
         os.environ.pop(_ACC_FLAG, None)
 
 
+# ═══ ۲۰۲۶-۰۸-۰۷ — سنِ تصحیحِ مالک (owner_correction_age_days) ═══════════════════
+# متنِ تصحیح به‌تنهایی «کِی» را نمی‌گفت؛ همان یک تصحیحِ ماه‌ها پیش تا ابد در
+# snapshot تازه به نظر می‌رسید. آستانهٔ کهنگی: sk._CORRECTION_STALE_DAYS (۱۴ روز —
+# کمتر از یک هفته نویزِ سکوتِ عادی است، بیشتر از دو هفته یعنی چرخه‌ها دارند رویِ
+# حرفی می‌چرخند که دیگر تازه نیست).
+
+def _seed_owner_corrections(rows):
+    (_SB / "doctor").mkdir(parents=True, exist_ok=True)
+    (_SB / "doctor" / "owner-corrections.jsonl").write_text(
+        "\n".join(json.dumps(r, ensure_ascii=False) for r in rows) + "\n", "utf-8")
+
+
+def _ts_days_ago(n: float) -> str:
+    return (_dt.datetime.now() - _dt.timedelta(days=n)).isoformat(timespec="seconds")
+
+
+def t_owner_correction_age_days_computed():
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    _seed_owner_corrections([{"ts": _ts_days_ago(5), "text": "تمرکز رو عوض کن"}])
+    snap = sk.snapshot()
+    age = snap.get("owner_correction_age_days")
+    assert age is not None, "سنِ تصحیح باید در snapshot باشد"
+    assert abs(age - 5) < 0.05, f"۵ روز پیش باید ~۵ بدهد؛ گرفتیم {age}"
+    assert "owner_correction_stale" not in snap, "زیرِ آستانه نباید فلگِ کهنگی بزند"
+
+
+def t_owner_correction_stale_flag_fires_past_threshold():
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    over = sk._CORRECTION_STALE_DAYS + 3
+    _seed_owner_corrections([{"ts": _ts_days_ago(over), "text": "قدیمی"}])
+    snap = sk.snapshot()
+    assert snap["owner_correction_age_days"] > sk._CORRECTION_STALE_DAYS
+    flag = snap.get("owner_correction_stale")
+    assert flag, "بالاتر از آستانه باید فلگِ کهنگیِ خوانا بدهد"
+    assert str(int(over)) in flag or str(int(snap["owner_correction_age_days"])) in flag
+
+
+def t_owner_correction_age_uses_newest_row_not_oldest():
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    _seed_owner_corrections([
+        {"ts": _ts_days_ago(30), "text": "قدیمی‌ترین"},
+        {"ts": _ts_days_ago(2), "text": "تازه‌ترین"},
+    ])
+    snap = sk.snapshot()
+    age = snap["owner_correction_age_days"]
+    assert abs(age - 2) < 0.05, f"باید سنِ ردیفِ آخر (۲ روز) را بدهد نه اولی (۳۰)؛ گرفتیم {age}"
+    assert "owner_correction_stale" not in snap
+
+
+def t_owner_correction_malformed_ts_fails_soft():
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    _seed_owner_corrections([{"ts": "نه-یک-تاریخ", "text": "متنِ سالم"}])
+    snap = sk.snapshot()   # نباید crash کند
+    assert snap["owner_corrections"] == ["متنِ سالم"], "خودِ متن باید سالم بماند"
+    assert "owner_correction_age_days" not in snap, "ts خراب نباید عددِ جعلی بسازد"
+    assert "owner_correction_stale" not in snap
+
+
+def t_owner_correction_age_absent_without_file():
+    _sandbox_paths(); _seed_state(); _clear_doctor()
+    snap = sk.snapshot()
+    assert "owner_correction_age_days" not in snap
+    assert "owner_correction_stale" not in snap
+
+
 if __name__ == "__main__":
     failed = harness.run([
         ("snapshotِ غنی", t_snapshot_richer),
@@ -657,5 +723,11 @@ if __name__ == "__main__":
         ("ema=None روی synthesize کلمپ نمی‌کند", t_synthesize_llm_confidence_unclamped_when_ema_none),
         ("run با تاریخچهٔ ضعیف confidence را پایین می‌آورد", t_run_end_to_end_confidence_clamped_by_history),
         ("confidence از ردیفِ همین چرخهٔ خودش گریدنمی‌شود", t_run_confidence_never_graded_by_its_own_cycle),
+        # ۲۰۲۶-۰۸-۰۷ — سنِ تصحیحِ مالک (owner_correction_age_days) + فلگِ کهنگی
+        ("سنِ تصحیح محاسبه می‌شود", t_owner_correction_age_days_computed),
+        ("فلگِ کهنگی بالاتر از آستانه شلیک می‌کند", t_owner_correction_stale_flag_fires_past_threshold),
+        ("سنِ تصحیح از ردیفِ تازه‌ترین نه قدیمی‌ترین", t_owner_correction_age_uses_newest_row_not_oldest),
+        ("ts خراب فیل‌سیف است", t_owner_correction_malformed_ts_fails_soft),
+        ("بدونِ فایل = بدونِ فیلدِ سن", t_owner_correction_age_absent_without_file),
     ])
     sys.exit(1 if failed else 0)

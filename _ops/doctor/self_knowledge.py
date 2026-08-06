@@ -15,6 +15,7 @@ cortisol) → کاوشِ دو-مرحله‌ای روی مهم‌ترین گره 
 """
 from __future__ import annotations
 
+import datetime as _dt
 import json
 import os
 import re
@@ -31,6 +32,9 @@ import opslib  # noqa: E402
 FLAG_NAME = "OCTOPUS_WIRE_DOCTOR_SELFKNOW"
 _PAID_FLAG = "OCTOPUS_DOCTOR_SELFKNOW_PAID"           # =1 → tierِ پولیِ گیت‌دار (cortisol)
 _HISTORY_MAX = 200
+# ۲۰۲۶-۰۸-۰۷ — آستانهٔ کهنگیِ تصحیحِ مالک: کمتر از یک هفته نویز است (سکوتِ عادی)،
+# بیشتر از دو هفته یعنی چرخه‌های خودشناسی دارند رویِ حرفی می‌چرخند که دیگر تازه نیست.
+_CORRECTION_STALE_DAYS = 14
 
 # ── ۲۰۲۶-۰۷-۲۸ · سه فلگِ تازه، هر سه پیش‌فرض خاموش (خاموش = byte-identical با دیروز) ──
 # اندازه‌گیریِ ممیزیِ امشب که این‌ها را ساخت:
@@ -304,6 +308,7 @@ def snapshot() -> dict:
         _cp = opslib.STATE_DIR / "doctor" / "owner-corrections.jsonl"
         if _cp.exists():
             _rows = []
+            _newest_ts = None
             for _line in _cp.read_text("utf-8").splitlines()[-8:]:
                 if not _line.strip():
                     continue
@@ -313,8 +318,21 @@ def snapshot() -> dict:
                     continue          # خطِ خراب کلِ تصحیح‌ها را کور نکند
                 if isinstance(_r, dict) and _r.get("text"):
                     _rows.append(str(_r["text"])[:300])
+                    if _r.get("ts"):
+                        _newest_ts = str(_r["ts"])   # فایل append-only ⇒ خطِ آخر تازه‌ترین است
             if _rows:
                 out["owner_corrections"] = _rows[-5:]
+            # ۲۰۲۶-۰۸-۰۷ — سنِ تصحیح به‌تنهایی از متنش خوانده نمی‌شود: بدونِ این عدد،
+            # تصحیحِ چند هفته پیش هنوز «تازه» به نظر می‌رسد چون همچنان نقل‌قول می‌شود.
+            if _newest_ts:
+                try:
+                    _age = (_dt.datetime.now() - _dt.datetime.fromisoformat(_newest_ts)).total_seconds() / 86400.0
+                    out["owner_correction_age_days"] = round(_age, 2)
+                    if _age > _CORRECTION_STALE_DAYS:
+                        out["owner_correction_stale"] = (
+                            f"بدونِ تصحیحِ مالک برای {int(_age)} روز — تمرکز ممکن است کهنه شده باشد")
+                except (ValueError, TypeError):
+                    pass
     except OSError:
         pass
     # ── صفِ رأیِ مالک (۲۰۲۶-۰۷-۲۷) ─────────────────────────────────────────
