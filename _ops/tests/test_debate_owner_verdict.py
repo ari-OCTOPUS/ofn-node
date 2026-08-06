@@ -318,6 +318,14 @@ def t_brain_digest_flag_on_shows_the_real_ideas():
     d = od.brain_digest(state_dir=sd)
     assert d["debate_open"] == 1, d
     assert MUSE["idea"][:25] in d["text"], "متنِ ایده هنوز به ۱۲۰ کاراکتر بریده می‌شود"
+    # این کارت از باتِ ارگانیسم می‌رود (wiring.brain_digest_beat →
+    # make_telegram_channel روی TELEGRAM_BOT_TOKEN)، ولی صفِ رأیِ واقعی فقط در
+    # باتِ مرکز است. متن باید صریح بگوید کدام بات — چون یک callback_data روی
+    # این کارت هرگز نمی‌تواند به آن بات برسد (تلهٔ دو-باتی، رگرسیونِ ۲۰۲۶-۰۸-۰۶).
+    assert "@intergrade2725_Bot" in d["text"], (
+        "کارتِ مغز نمی‌گوید رأی را در کدام بات بزن — مالک دوباره روی همین "
+        f"بات دنبالِ دکمهٔ کار می‌گردد: {d['text']!r}"
+    )
     h_before = d["hash"]
     # رأیِ مالک باید ایده را از کارتِ مغز هم بردارد (و hash را عوض کند)
     render.ingest_debate_survivors()

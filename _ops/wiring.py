@@ -3732,14 +3732,21 @@ def brain_digest_beat(channel=None, beat: int = 0) -> dict | None:
             return {"sent": False, "hash": d["hash"], "beat": beat}
         sent = False
         if channel is not None and getattr(channel, "wired", False):
-            # ۲۰۲۶-۰۸-۰۶ — تنها دکمهٔ این کارت به یک نمای وضعیت (menu:brain) می‌رفت،
-            # نه به صفِ رأیِ کارکننده (mn:ap). مالک ۱۴ ایدهٔ مناظره را همین‌جا
-            # می‌دید، تپ می‌زد، به تبِ مغز می‌رسید — نه به دکمهٔ ok/no — و فکر
-            # می‌کرد «کلیک ثبت نمی‌شود». مسیرِ mn:ap خودش سالم است (تستِ
-            # test_debate_card_roundtrip.py)؛ کارت فقط به آن لینک نمی‌داد.
+            # ۲۰۲۶-۰۸-۰۶ — تلاشِ اولِ فیکس («📮 صف تأیید» → callback_data="mn:ap")
+            # خودش کارتِ مرده بود: این کارت از کانالِ ارگانیسم می‌رود (چون این‌جا
+            # approval_channel.TelegramApprovalChannel روی TELEGRAM_BOT_TOKEN /
+            # @Robo2725_bot است — همان تلهٔ دو-باتیِ کامنتِ approval_channel.py:
+            # 996-1014)، و روترِ همان بات (`dispatch_callback`) هیچ شاخهٔ
+            # `parts[0] == "mn"` ندارد → کلیک همیشه «نادیده» برمی‌گرداند، دقیقاً
+            # همان چیزی که مالک گزارش داد. verb ِ "mn:ap" فقط در
+            # telegram_center/center.py (باتِ دیگر، @intergrade2725_Bot) هندلر
+            # دارد. راستیِ این ادعا: test_tg_callback_emitter_parity.py.
+            # چون یک callback_data نمی‌تواند از این بات به آن بات برسد، فقط
+            # دکمه‌ای که *در همین بات* واقعاً کار می‌کند می‌ماند؛ راهنماییِ
+            # «کدام بات برای رأی» به متنِ کارت منتقل شد (organ_dialogue.py:
+            # debate_survivor_card).
             kb = {"inline_keyboard": [[
-                {"text": "🧠 تبِ مغز", "callback_data": "menu:brain"},
-                {"text": "📮 صف تأیید", "callback_data": "mn:ap"}]]}
+                {"text": "🧠 تبِ مغز", "callback_data": "menu:brain"}]]}
             head = "🚨 تنشِ مغز 🔴 شد!\n" if red_flip else ""
             sent = bool(_send_stream(channel, head + d["text"], kb,
                 stream="brain"))

@@ -366,14 +366,22 @@ def t_beats_send_then_hash_throttle():
 # نگه می‌دارد، `sent` همیشه False بود ⇒ حالت هرگز جلو نمی‌رفت ⇒ گیت هر تیک
 # عبور می‌داد. هر سه دایجست (دکتر/مغز/قلب) همین را داشتند — یک هلپر، سه قربانی.
 
-def t_brain_digest_beat_keyboard_links_to_the_working_approval_queue():
-    """رگرسیونِ باگِ گزارش‌شده (۲۰۲۶-۰۸-۰۶): مالک ۱۴ ایدهٔ مناظره را در همین کارتِ
-    پوش‌شده می‌بیند، ولی تنها دکمه‌اش («🧠 تبِ مغز» → menu:brain) به یک نمای
-    وضعیت می‌رود، نه به صفِ رأیِ واقعی («📮 صف تأیید» → mn:ap). نتیجه: مالک
-    هرگز روی دکمهٔ رأیِ کارکننده نمی‌رسد و فکر می‌کند «کلیک ثبت نمی‌شود» — درحالی
-    که اصلاً به آن دکمه نرسیده. این تست کیبوردِ همان پیامی را که برای مالک پوش
-    می‌شود می‌سنجد، نه صفِ تأییدِ داخلی (که در test_debate_card_roundtrip.py
-    جداگانه سبز است)."""
+def t_brain_digest_beat_keyboard_has_no_dead_cross_bot_button():
+    """رگرسیونِ باگِ گزارش‌شده (۲۰۲۶-۰۸-۰۶) — و رگرسیونِ فیکسِ **اولِ** همان باگ.
+
+    تلاشِ اولِ فیکس دکمهٔ «📮 صف تأیید» با callback_data="mn:ap" اضافه کرد و با
+    یک تستِ زیررشته‌ای (`"mn:ap" in buttons`) سبز شد — ولی این کارت از کانالِ
+    ارگانیسم می‌رود (`approval_channel.TelegramApprovalChannel` روی
+    TELEGRAM_BOT_TOKEN / @Robo2725_bot)، و روترِ همان بات هیچ شاخهٔ
+    `parts[0]=="mn"` ندارد؛ verb ِ mn:ap فقط در telegram_center/center.py
+    (باتِ دیگر) هندلر دارد. نتیجه: دکمه ساخته می‌شد، فرستاده می‌شد، کلیک
+    می‌شد، و «نادیده» برمی‌گشت — دقیقاً «تلهٔ دو-باتی»یِ مستندشده در
+    approval_channel.py:996-1014 و test_tg_callback_emitter_parity.py.
+
+    این تست به‌جای شمردنِ یک رشتهٔ خاص، **واقعاً** کیبورد را روی یک
+    TelegramApprovalChannel واقعی dispatch می‌کند — همان بررسیِ کورِ اسکنرِ
+    emitter-parity (که wiring.py را اصلاً نمی‌بیند، فقط center.py/
+    approval_channel.py را) را اینجا برای این کارتِ مشخص می‌بندد."""
     _seed_brain_state()
     (opslib.STATE_DIR / "cortex" / "brain-digest-nudge.json").unlink(missing_ok=True)
     os.environ["OCTOPUS_WIRE_BRAIN_DIGEST"] = "1"
@@ -387,11 +395,21 @@ def t_brain_digest_beat_keyboard_links_to_the_working_approval_queue():
         assert kb and kb.get("inline_keyboard"), f"کیبورد خالی است: {kb}"
         buttons = [b.get("callback_data", "")
                    for row in kb["inline_keyboard"] for b in row]
-        assert "mn:ap" in buttons, (
-            "کارتِ پوش‌شدهٔ مغز به صفِ کارکننده (mn:ap) لینک نمی‌دهد — "
-            f"فقط {buttons}. مالک از این کارت هرگز به دکمهٔ رأیِ واقعی نمی‌رسد "
-            "(همان علتِ ریشه‌ایِ ۱۴ ایدهٔ رأی‌نخورده)."
+        assert "mn:ap" not in buttons, (
+            "کارتِ پوش‌شدهٔ مغز دوباره یک دکمهٔ mn:ap دارد — این verb فقط در "
+            "باتِ مرکز هندلر دارد، نه در باتِ ارگانیسم که این کارت را می‌فرستد "
+            "(تلهٔ دو-باتی، دوباره)."
         )
+        # سنجهٔ واقعی: هر callback_data ای که روی این کارت است باید روی همان
+        # باتی که کارت را می‌فرستد (approval_channel) واقعاً جواب بدهد، نه
+        # «نادیده». اینجا real dispatch، نه grep روی یک verb مشخص.
+        real_ch = _mk_channel()
+        for cb in buttons:
+            reply = real_ch.dispatch_callback(cb, from_id=OWNER, external=True)
+            assert reply != "نادیده", (
+                f"دکمهٔ callback_data={cb!r} روی باتِ فرستنده (approval_channel) "
+                f"مرده است — «نادیده» برگشت: {reply!r}"
+            )
     finally:
         os.environ.pop("OCTOPUS_WIRE_BRAIN_DIGEST", None)
         os.environ.pop("CHRONO_BRAIN_DIGEST_MIN_S", None)
@@ -506,8 +524,8 @@ if __name__ == "__main__":
         ("wiring: flag-off = no-op", t_beats_flag_off_noop),
         ("wiring: سه دایجست یک هلپرِ مشترک دارند", t_the_three_digests_share_one_gate),
         ("wiring: ارسال + hash-throttle (ضدِ اسپم)", t_beats_send_then_hash_throttle),
-        ("وایرینگ: کارتِ پوش‌شدهٔ مغز به mn:ap لینک می‌دهد (نه فقط menu:brain)",
-         t_brain_digest_beat_keyboard_links_to_the_working_approval_queue),
+        ("وایرینگ: کارتِ پوش‌شدهٔ مغز دکمهٔ مردهٔ دو-باتی ندارد (real dispatch)",
+         t_brain_digest_beat_keyboard_has_no_dead_cross_bot_button),
         ("hash: شمارندهٔ یک‌طرفه در کلیدِ dedup نباشد", t_no_monotonic_counter_sits_in_a_dedup_key),
         ("hash: قلب با گذشتِ ضربان عوض نشود", t_the_heart_hash_survives_the_passage_of_beats),
         ("hash: مغز و دکتر هم پایدار", t_the_brain_and_doctor_hashes_are_stable_too),

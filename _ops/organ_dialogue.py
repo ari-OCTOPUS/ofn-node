@@ -266,8 +266,15 @@ def debate_survivor_card(state_dir=None) -> dict:
         open_rows = [rows[j] for j in order if not (vdir / f"{j}.json").exists()]
         if not open_rows:
             return {}
-        lines = [f"⚖️ <b>مناظره</b> — {len(open_rows)} ایده منتظرِ رأیِ توست "
-                 "(کارتِ رأی: 📮 صف تأیید)"]
+        # ۲۰۲۶-۰۸-۰۶ (تکرارِ «تلهٔ دو-باتی» — دیدنِ approval_channel.py:996-1002):
+        # این کارت از باتِ ارگانیسم (@Robo2725_bot) می‌رود؛ صفِ رأیِ کارکننده
+        # فقط در باتِ مرکز (@intergrade2725_Bot) هندلر دارد. متن باید صریح
+        # بگوید کدام بات — یک دکمهٔ callback_data اینجا نمی‌تواند به آن بات
+        # برسد (هر دو bot جدا و هر verb فقط در روترِ فرستندهٔ خودش شناخته
+        # می‌شود). @intergrade2725_Bot عمومی است، توکن نیست (نکِ guide.py).
+        lines = [f"⚖️ <b>مناظره</b> — {len(open_rows)} ایده منتظرِ رأیِ توست",
+                 "▸ رأی: در @intergrade2725_Bot بزن /menu → 📮 صف تأیید "
+                 "(این دکمه در این بات کار نمی‌کند)"]
         for i, r in enumerate(open_rows[:3], 1):
             lines.append(f"<b>{i}.</b> {_esc(r.get('title'), 150)}")
         if len(open_rows) > 3:
