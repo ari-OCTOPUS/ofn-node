@@ -1126,6 +1126,68 @@ def epistemics_beat(live_loop=None, beat: int = 0) -> dict | None:
         return None
 
 
+def _real_spectral_sigma() -> float | None:
+    """σِ طیفیِ واقعی — doctor/spectral.py::estimate_sigma روی طیفِ لاپلاسینِ گرافِ
+    خطا (از همان دو فایلِ state که doctor.py::_gather_trace می‌خواند:
+    ORGANISM-STATE.json + telemetry-latest.json). پشتِ OCTOPUS_WIRE_HEBBIAN_SPECTRAL
+    (پیش‌فرض خاموش — همان قلمروی «وقتی قلب به σِ طیفیِ واقعی وصل شد، رأیِ مالک،
+    شادو-اول» که کامنتِ بالادستِ `_hebbian_signals` به آن اشاره می‌کند).
+    read-only، fail-soft، $0. گرافِ بی‌یال (ارگانیسمِ سالم/بی‌خطا) → None، همان گاردِ
+    دژنرهٔ spectral_mine — سلامتِ کامل هرگز σ=1.00ِ ساختگی نمی‌شود."""
+    if not flag("OCTOPUS_WIRE_HEBBIAN_SPECTRAL"):
+        return None   # flag خاموش = no-op (no regression)
+    try:
+        import json as _json
+        _syspath(str(_HERE / "doctor"))
+        from spectral import build_event_graph, laplacian_spectrum, estimate_sigma
+        trace: dict = {"organs": {}, "errors": []}
+        org_p = opslib.STATE_DIR / "ORGANISM-STATE.json"
+        if org_p.exists():
+            org = _json.loads(org_p.read_text("utf-8"))
+            for c in (org.get("conflicts") or []):
+                if isinstance(c, dict):
+                    trace["errors"].append({"organ": c.get("organ", "_global"),
+                                            "msg": str(c.get("msg", c.get("reason", "")))[:200]})
+                elif isinstance(c, str):
+                    trace["errors"].append({"organ": "_global", "msg": c[:200]})
+        tel_p = opslib.STATE_DIR / "telemetry-latest.json"
+        if tel_p.exists():
+            tel = _json.loads(tel_p.read_text("utf-8"))
+            per_organ = tel.get("per_organ_alltime_musd") or {}
+            if isinstance(per_organ, dict):
+                trace["organs"] = {k: {} for k, v in per_organ.items()
+                                   if isinstance(v, (int, float))}
+        edges, n = build_event_graph(trace)
+        if n < 2 or not edges:
+            return None   # گرافِ دژنره — همان گاردِ spectral_mine (سلامتِ کامل ≠ σ=1.00)
+        eigvals, _L = laplacian_spectrum(edges, n)
+        return estimate_sigma(eigvals)
+    except Exception as e:  # noqa: BLE001 — §۴: خطای خاموش ممنون، ولی fail-soft (beat را نمی‌کشد)
+        opslib.alert([f"wiring: real spectral sigma خطا: {type(e).__name__}: {e}"])
+        return None
+
+
+def _real_budget_depleted() -> bool | None:
+    """budget.depleted واقعی — cardiac.py::status_snapshot()['budget']['depleted']
+    (تنها تولیدکنندهٔ واقعیِ این مفهوم؛ خودش پشتِ OCTOPUS_WIRE_BIO دروازه دارد —
+    پیش‌فرض خاموش → status_snapshot همیشه {'enabled': False} → این تابع هم None).
+    فلگِ **جداگانهٔ** OCTOPUS_WIRE_HEBBIAN_CARDIAC (پیش‌فرض خاموش) تا I/Oِ per-tickِ
+    تازه (خواندنِ cardiac-budget.json) فقط با تصمیمِ صریحِ مالک به داغ‌ترین حلقهٔ
+    ارگانیسم اضافه شود — همان نگرانیِ هزینه‌ای که SIGNAL_DORMANT ثبت کرده بود،
+    حالا پشتِ یک کلیدِ روشن/خاموشِ مجزا. read-only، fail-soft."""
+    if not flag("OCTOPUS_WIRE_HEBBIAN_CARDIAC"):
+        return None   # flag خاموش = no-op (no regression)
+    try:
+        import cardiac as _cardiac_mod
+        cs = _cardiac_mod.status_snapshot()
+        if not isinstance(cs, dict) or not cs.get("enabled"):
+            return None   # OCTOPUS_WIRE_BIO خودش خاموش است — چیزی برای گفتن نیست
+        return bool((cs.get("budget") or {}).get("depleted"))
+    except Exception as e:  # noqa: BLE001 — §۴: خطای خاموش ممنون، ولی fail-soft
+        opslib.alert([f"wiring: real budget depleted (cardiac) خطا: {type(e).__name__}: {e}"])
+        return None
+
+
 def _hebbian_signals(inputs: dict) -> list:
     """واژگانِ سیگنالِ Hebbian.
 
@@ -1206,12 +1268,29 @@ def _hebbian_signals(inputs: dict) -> list:
         s = _f(spectral, "sigma")
         if s is not None and s >= 1.2:
             sig.append("sigma_high")
+    else:
+        # مسیرِ نو (۲۰۲۶-۰۸-۰۶، پشتِ OCTOPUS_WIRE_HEBBIAN_SPECTRAL — پیش‌فرض خاموش):
+        # organism.py/brain_worker.py را دور می‌زند (هر دو یا literalِ True هاردکد
+        # می‌کنند یا اصلاً کلید را نمی‌دهند — SIGNAL_DORMANT['sigma_high']) و
+        # مستقیم از doctor/spectral.py::estimate_sigma می‌خواند. با فلگ خاموش
+        # `_real_spectral_sigma` بی‌درنگ None می‌دهد → این else هیچ سیگنالی اضافه
+        # نمی‌کند = رفتارِ قبلی بایت‌به‌بایت.
+        s = _real_spectral_sigma()
+        if s is not None and s >= 1.2:
+            sig.append("sigma_high")
     bp = _f(budget, "pct")
     if bp is None:
         bp = _f(budget, "used_pct")
     if bp is not None and bp > 0.8:
         sig.append("budget_tight")
     if budget.get("depleted"):
+        sig.append("budget_depleted")
+    elif _real_budget_depleted():
+        # مسیرِ نو (۲۰۲۶-۰۸-۰۶، پشتِ OCTOPUS_WIRE_HEBBIAN_CARDIAC — پیش‌فرض خاموش):
+        # payload هرگز `depleted` نمی‌دهد (SIGNAL_DORMANT['budget_depleted'])؛ اینجا
+        # مستقیم از cardiac.py::status_snapshot می‌خواند. با فلگ خاموش
+        # `_real_budget_depleted` همیشه None می‌دهد → این شاخه هرگز true نیست =
+        # رفتارِ قبلی بایت‌به‌بایت.
         sig.append("budget_depleted")
     ar = _f(sensory, "afferent_ratio")
     if ar is not None and ar <= 0.1:
@@ -1267,13 +1346,19 @@ SIGNAL_DORMANT = {
         "همان کلید را literalِ True می‌دهد و brain_worker اصلاً نمی‌دهدش "
         "(None is False → False). σِ طیفیِ واقعی در doctor/spectral.py::"
         "estimate_sigma تولید می‌شود؛ وصل‌کردنش تغییرِ رفتارِ ایمنی است و "
-        "`_hebbian_signals` آن را صریحاً به رأیِ مالک سپرده است.",
+        "`_hebbian_signals` آن را صریحاً به رأیِ مالک سپرده است. ۲۰۲۶-۰۸-۰۶: "
+        "مسیرِ جانبیِ `_real_spectral_sigma` پشتِ فلگِ نوِ "
+        "OCTOPUS_WIRE_HEBBIAN_SPECTRAL (پیش‌فرض خاموش) اضافه شد — این جدول با "
+        "فلگِ خاموش هنوز دقیق است؛ فلگ که روشن شود، مرده نیست.",
     "budget_depleted":
         "`budget.get(\"depleted\")` را می‌خواند ولی payloadِ زنده فقط `pct` دارد "
         "→ همیشه None. تنها تولیدکنندهٔ واقعیِ این مفهوم `cardiac.py::status()` "
         "است که در scopeِ محلِ payload نیست؛ دادنِ `False`ِ ساختگی fabrication "
         "می‌شد، و افزودنِ I/Oِ per-tick به داغ‌ترین حلقهٔ ارگانیسمِ زنده برای "
-        "سیگنالی که با سقفِ ۲۰۰۰ ضربان تقریباً هرگز آتش نمی‌کند صرف ندارد.",
+        "سیگنالی که با سقفِ ۲۰۰۰ ضربان تقریباً هرگز آتش نمی‌کند صرف ندارد. "
+        "۲۰۲۶-۰۸-۰۶: مسیرِ جانبیِ `_real_budget_depleted` پشتِ فلگِ نوِ "
+        "OCTOPUS_WIRE_HEBBIAN_CARDIAC (پیش‌فرض خاموش) اضافه شد — همان هزینه، "
+        "حالا پشتِ یک کلیدِ روشن/خاموشِ مجزا به‌جای پیش‌فرضِ همیشه‌روشن.",
 }
 
 # ── سیگنال‌هایِ «عملاً خاموش» — گزارش، نه گارد (ورودی‌شان زنده است) ─────────────
@@ -2155,6 +2240,69 @@ def make_school_bridge(state_path=None):
         return None
 
 
+def _real_acquisition_data() -> dict | None:
+    """acquisition_data واقعی — درآمدِ CONFIRMED/ATTRIBUTED per-cell از budget/attribution.py
+    (`confirmed_revenue().by_cell`، همان سطحی که fitness.py هم می‌خواند؛ ناوردیِ
+    attribution.py: هرگز چیزی زیرِ CONFIRMED). پشتِ OCTOPUS_WIRE_CONSOLIDATION_ACQUISITION
+    (پیش‌فرض خاموش — سیم‌کشیِ نو، رأیِ مالک لازم). read-only، $0، fail-soft.
+
+    امروز (۲۰۲۶-۰۸-۰۶) `by_cell` روی دادهٔ زندهٔ ledger خالی است — هنوز هیچ درآمدی
+    reconcile نشده تا CONFIRMED برسد. این سیم واقعی است، فقط دادهٔ بالادستش هنوز صفر؛
+    وقتی reconcile.py اولین CONFIRMED را بنویسد، همین‌جا واقعاً جاری می‌شود."""
+    if not flag("OCTOPUS_WIRE_CONSOLIDATION_ACQUISITION"):
+        return None   # flag خاموش = no-op (no regression)
+    try:
+        _syspath(str(_HERE / "budget"))
+        import attribution as _attribution
+        rev = _attribution.confirmed_revenue()
+        by_cell = rev.get("by_cell") if isinstance(rev, dict) else None
+        if not isinstance(by_cell, dict) or not by_cell:
+            return None   # چیزی CONFIRMED نیست — سکوتِ صادق (نه dictِ جعلی)
+        return {k: v for k, v in by_cell.items() if isinstance(v, (int, float))}
+    except Exception as e:  # noqa: BLE001 — §۴: خطای خاموش ممنون، ولی fail-soft (consolidation نباید بشکند)
+        opslib.alert([f"wiring: acquisition_data (attribution) خطا: {type(e).__name__}: {e}"])
+        return None
+
+
+def _real_doctor_archive(max_n: int = 50) -> list | None:
+    """doctor_archive واقعی — تاریخچهٔ verdictِ RFC از chrono.db (doctor/calibration.py::
+    get_verdict_history، جدولِ duration_marker، durable — بر خلافِ self._rfcs که RFCهای
+    terminal را در بوت skip می‌کند). پشتِ OCTOPUS_WIRE_CONSOLIDATION_ARCHIVE (پیش‌فرض
+    خاموش — سیم‌کشیِ نو، رأیِ مالک لازم). read-only، fail-soft.
+
+    ترجمه: calibration ثبت می‌کند verdict∈{merged, rejected, ignored}؛
+    canonical_consolidation فقط outcome∈{approved, rejected, published} را verified
+    می‌شمارد. نگاشتِ صادق: merged→approved، rejected→rejected؛ ignored عمداً بدونِ
+    outcome می‌ماند و با همان گیتِ verification در canonical_consolidation کنار گذاشته
+    می‌شود — نه دادهٔ جعلی، فقط دو واژگانِ متفاوت برای همان رویداد."""
+    if not flag("OCTOPUS_WIRE_CONSOLIDATION_ARCHIVE"):
+        return None   # flag خاموش = no-op (no regression)
+    try:
+        db_path = opslib.STATE_DIR / "chrono.db"
+        if not db_path.exists():
+            return None
+        import chrono as _chrono_mod
+        _syspath(str(_HERE / "doctor"))
+        from calibration import get_verdict_history
+        db = _chrono_mod.ChronoDB(str(db_path))
+        history = get_verdict_history(db)
+        if not history:
+            return None
+        _VERDICT_TO_OUTCOME = {"merged": "approved", "rejected": "rejected"}
+        out = []
+        for h in history[-max_n:]:
+            if not isinstance(h, dict):
+                continue
+            outcome = _VERDICT_TO_OUTCOME.get(h.get("verdict"))
+            if outcome is None:
+                continue   # 'ignored' یا نامعتبر — عمداً بدونِ outcome (verification-gate خودش discard می‌کند)
+            out.append({**h, "outcome": outcome})
+        return out or None
+    except Exception as e:  # noqa: BLE001 — §۴: خطای خاموش ممنون، ولی fail-soft (consolidation نباید بشکند)
+        opslib.alert([f"wiring: doctor_archive (verdict-history) خطا: {type(e).__name__}: {e}"])
+        return None
+
+
 def consolidation_beat(neural_stack, school_bridge=None, beat: int = 0,
                        acquisition_data=None, doctor_archive=None) -> dict | None:
     """هر N beat: canonical_consolidation را در حلقهٔ زنده صدا بزن.
@@ -2203,6 +2351,15 @@ def consolidation_beat(neural_stack, school_bridge=None, beat: int = 0,
                 neural_stack["bcm"] = bcm  # cache
             except Exception:  # noqa: BLE001 — BCM fail-soft
                 bcm = None
+    # Phase M-real (۲۰۲۶-۰۸-۰۶): اگر caller منبعِ صریح نداده (organism.py/brain_worker.py
+    # هیچ‌وقت acquisition_data=/doctor_archive= پاس نمی‌دهند)، دو منبعِ واقعیِ **موجود**
+    # را امتحان کن — هر دو پشتِ فلگِ نو و پیش‌فرض خاموش، پس با فلگ خاموش این بلوک
+    # دقیقاً None برمی‌گرداند و رفتار بایت‌به‌بایت همان قبل می‌ماند. کالر که صریح
+    # چیزی داده (تست‌ها) همیشه برنده است — این‌جا override نمی‌شود.
+    if acquisition_data is None:
+        acquisition_data = _real_acquisition_data()
+    if doctor_archive is None:
+        doctor_archive = _real_doctor_archive()
     # Phase 4: فیلترِ ورودیِ sparse (L1/prediction-error) پشتِ OCTOPUS_WIRE_SPARSE —
     # فقط acquisition فیلتر می‌شود؛ دادهٔ خام جایی حذف نمی‌شود (منابع اصلی دست‌نخورده).
     sparse_report = None
