@@ -351,6 +351,40 @@ class App:
             'streak': streak, 'red_flag': red.verdict,
         }
 
+    def daily_note(self, b):
+        """ثبت یک یادداشت روزانهٔ جدید."""
+        uid = self.user(b)
+        content = (b.get('content') or '').strip()
+        if not content:
+            return {'ok': 0, 'error': 'یادداشت خالی است'}
+        note = self.store.add_daily_note(uid, content)
+        return {'ok': 1, 'note': note, 'message': 'یادداشت ثبت شد'}
+
+    def daily_notes_list(self, b):
+        """لیست یادداشت‌های اخیر."""
+        uid = self.user(b)
+        try:
+            limit = max(1, min(200, int(b.get('limit', 50))))
+        except (TypeError, ValueError):
+            limit = 50
+        notes = self.store.daily_notes(uid, limit=limit)
+        return {'ok': 1, 'notes': notes, 'count': len(notes)}
+
+    def daily_note_delete(self, b):
+        """حذف یک یادداشت با id."""
+        uid = self.user(b)
+        try:
+            note_id = int(b.get('id'))
+        except (TypeError, ValueError):
+            return {'ok': 0, 'error': 'id یادداشت لازم است'}
+        ok = self.store.delete_daily_note(uid, note_id)
+        if not ok:
+            return {'ok': 0, 'error': 'یادداشت پیدا نشد'}
+        # اگر این یادداشت به RAG منتقل شده بود، آن chunk را هم پاک کن
+        src = f'local://daily-note/{note_id}'
+        self.store.delete_research_by_source(src)
+        return {'ok': 1, 'message': 'یادداشت حذف شد'}
+
     def edge_history(self, b):
         uid = self.user(b)
         try:
@@ -439,6 +473,9 @@ def handler(app):
                     '/api/obsidian/export': app.obsidian_export,
                     '/api/edge/decision': app.edge_decision,
                     '/api/edge/daily': app.edge_daily,
+                    '/api/daily-note': app.daily_note,
+                    '/api/daily-notes': app.daily_notes_list,
+                    '/api/daily-note/delete': app.daily_note_delete,
                 }
                 fn = routes.get(urlparse(self.path).path)
                 return self.out(fn(b) if fn else {'ok': 0, 'error': 'not found'}, 200 if fn else 404)

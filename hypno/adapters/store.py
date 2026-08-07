@@ -14,7 +14,15 @@ CREATE TABLE IF NOT EXISTS edge_daily(
   verdict TEXT,
   created_at INT NOT NULL,
   UNIQUE(user_id, day)
-);'''
+);
+CREATE TABLE IF NOT EXISTS daily_notes(
+  id INTEGER PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  day TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at INT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS notes_user_day ON daily_notes(user_id, day);'''
 
 def _migrate_consent_rename(db):
     """B-3: rename the legacy `consent` column to `safety_acknowledged`.
@@ -101,3 +109,64 @@ class Store:
                 (user, int(limit)),
             ).fetchall()
         return [dict(r) for r in reversed(rows)]
+
+    # ── daily notes ──────────────────────────────────────────────────────
+    # A free-text journal the owner keeps through the day. Several entries
+    # per day are allowed (unlike edge_daily's one-row-per-day upsert),
+    # because a note is a moment, not a measurement. The nightly sync job
+    # turns each note into a RAG chunk so the brain can recall them.
+    def add_daily_note(self, user, content):
+        content = (content or '').strip()
+        if not content:
+            raise ValueError('یادداشت خالی است')
+        n = self.now()
+        day = self._today_utc()
+        with self.conn() as db:
+            cur = db.execute(
+                "INSERT INTO daily_notes(user_id,day,content,created_at) VALUES(?,?,?,?)",
+                (user, day, content[:4000], n))
+            nid = cur.lastrowid
+        return {'id': nid, 'day': day, 'content': content[:4000]}
+
+    def daily_notes(self, user, limit=50):
+        limit = max(1, min(200, int(limit)))
+        with self.conn() as db:
+            rows = db.execute(
+                "SELECT id,day,content,created_at FROM daily_notes WHERE user_id=? "
+                "ORDER BY created_at DESC LIMIT ?",
+                (user, limit)).fetchall()
+        return [dict(r) for r in rows]
+
+    def delete_daily_note(self, user, note_id):
+        with self.conn() as db:
+            cur = db.execute(
+                "DELETE FROM daily_notes WHERE id=? AND user_id=?",
+                (int(note_id), user))
+            return cur.rowcount == 1
+
+    def recent_daily_notes(self, days=1):
+        """یادداشت‌های N روز اخیر (برای nightly sync). همهٔ کاربران."""
+        cutoff = self.now() - int(days) * 86400
+        with self.conn() as db:
+            rows = db.execute(
+                "SELECT id,user_id,day,content,created_at FROM daily_notes "
+                "WHERE created_at >= ? ORDER BY created_at",
+                (cutoff,)).fetchall()
+        return [dict(r) for r in rows]
+
+    def has_research_source(self, source_url):
+        """Idempotency check: does a chunk with this source_url exist?"""
+        with self.conn() as db:
+            return db.execute(
+                "SELECT 1 FROM research_docs WHERE source_url=? LIMIT 1",
+                (source_url,)).fetchone() is not None
+
+    def delete_research_by_source(self, source_url):
+        """Remove a research chunk (used when a note is deleted)."""
+        with self.conn() as db:
+            db.execute("DELETE FROM research_docs WHERE source_url=?", (source_url,))
+
+    def rebuild_fts(self):
+        """Rebuild the FTS index from research_docs."""
+        with self.conn() as db:
+            db.execute("INSERT INTO research_fts(research_fts) VALUES('rebuild')")
