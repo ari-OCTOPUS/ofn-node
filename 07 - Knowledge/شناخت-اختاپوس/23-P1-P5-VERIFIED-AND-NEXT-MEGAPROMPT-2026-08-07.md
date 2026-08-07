@@ -128,3 +128,26 @@ merge-sort روی relevance، truncate به k. retrieval_router.py را دست �
 قاعدهٔ همیشگیِ vault به‌روز کن. اگر جایی رأیِ مالک لازم بود، در AGENT_QUESTIONS
 append کن و رد شو — دور نزن.
 ```
+
+---
+
+## تصحیح و اجرا (۲۰۲۶-۰۸-۰۷، کارگرِ بعدی)
+
+**کار ۱ (تحلیلِ آماریِ effect-shadow) — اجرا شد:**
+۱۵٬۸۷۰ ردیف، `applied=0`، `protective_halt=0`، `throttle=0`.
+`learned_pressure_capped` میانگین ۰.۱۷۶، ۳۴.۴٪ در سقفِ ۰.۲۵. خام: max ۰.۷۳۹.
+**تحلیلِ ایمنیِ آرم‌کردن:** با ضریبِ ۰.۵، فشارِ سقف‌خوردهٔ ۰.۲۵ → ۰.۱۲۵ به pain.
+pain بیشینهٔ ثبت‌شده = ۰.۱۵۰ → `۰.۱۵۰+۰.۱۲۵=۰.۲۷۵`. آستانه = ۰.۷۰ (یا ۰.۳۵ کالیبره).
+**۰.۲۷۵ زیرِ هر دو → صفر halt/throttle حتی اگر فلگ آرم شود.** `test_neural_loop_close` ۸/۸ سبز.
+
+**کار ۲ (vault_bridge → vault_whole) — اجرا شد:**
+`vectorstore.py`: تابعِ نو `search_vault_collection()`. `vault_bridge.py`: هر دو کالکشن
+query، dedup روی source، merge-sort بر relevance، truncate به k. فلگ خاموش. ۹/۹ سبز.
+
+**کار ۳ (test_consent_gate b2b) — اجرا شد:** **۱۰/۱۰ سبز** (شاملِ t8 مسیرِ b2b با
+`office_contact_conspicuously_published`). مسیرِ ایمنیِ آرم‌کردنِ `CONSENT_FW`+`LEAD_OUTBOUND`
+تأیید شد.
+
+**کار ۴ (عددِ P5) — تصحیح شد:** شمارشِ نهاییِ `vault_whole` = **۱۰۹٬۲۲۰ chunks**
+(سه نمونهٔ ثابت). گزارش‌های قبلیِ ۱۰٬۹۲۲ و ۷۰٬۹۹۳ هنگامِ ایندکسینگِ ناتمام بودند.
+`vault_whole` ۱۱.۸× غنی‌تر از `4d_vault` (۹٬۲۹۵).

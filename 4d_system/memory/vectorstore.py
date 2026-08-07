@@ -328,6 +328,29 @@ def search_vault(query: str, k: int = 3) -> list[dict]:
     return out
 
 
+def search_vault_collection(query: str, k: int = 3, collection_name: str = "vault_whole") -> list[dict]:
+    """
+    Semantic search over an arbitrary collection (default: vault_whole = whole-vault index).
+    Returns list of {content, source, title, relevance} dicts — same shape as search_vault.
+    Uses get_vectorstore_for() so it never shares the default "4d_vault" singleton.
+    Fails soft: if the collection doesn't exist or the store errors, returns [].
+    """
+    try:
+        vs = get_vectorstore_for(collection_name)
+        results = vs.similarity_search_with_relevance_scores(query, k=k)
+    except Exception:
+        return []
+    out = []
+    for doc, score in results:
+        out.append({
+            "content": doc.page_content[:500],
+            "source": doc.metadata.get("source", "unknown"),
+            "title": doc.metadata.get("title", "unknown"),
+            "relevance": round(score, 3),
+        })
+    return out
+
+
 if __name__ == "__main__":
     print(f"Indexing {VAULT_DIR} ...")
     n = index_vault()

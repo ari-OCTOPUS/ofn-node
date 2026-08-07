@@ -72,8 +72,23 @@ def search_vault_evidence(goal_key: str, k: int = 3) -> list[dict]:
         for _p in (str(_4D_MEMORY), str(_4D_MEMORY.parent)):
             if _p not in sys.path:
                 sys.path.insert(0, _p)
-        from vectorstore import search_vault  # noqa: E402 — 4d_system/memory
-        results = search_vault(gk, k=max(1, int(k)))
+        from vectorstore import search_vault, search_vault_collection  # noqa: E402
+        # ۲۰۲۶-۰۸-۰۷ (نوتِ ۲۳): هر دو کالکشن را query کن، dedup روی source،
+        # merge-sort روی relevance، truncate به k. vault_whole ابرمجموعه است.
+        _kq = max(1, int(k))
+        _res_default = search_vault(gk, k=_kq)
+        _res_whole = search_vault_collection(gk, k=_kq, collection_name="vault_whole")
+        # merge + dedup روی source (vault_whole برنده در تضاد — غنی‌تر)
+        _seen: set[str] = set()
+        _merged: list[dict] = []
+        for r in _res_whole + _res_default:
+            _src = r.get("source", "")
+            if _src in _seen:
+                continue
+            _seen.add(_src)
+            _merged.append(r)
+        _merged.sort(key=lambda x: float(x.get("relevance", 0.0)), reverse=True)
+        results = _merged[:_kq]
     except Exception as e:  # noqa: BLE001 — غیابِ RAG هرگز decision را نمی‌بندد
         # نویزِ تکراریِ import-failure را throttle کن (alert خام هر بار سر و صدا می‌کند)
         try:

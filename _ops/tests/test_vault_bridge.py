@@ -64,10 +64,14 @@ class _FakeVectorStore:
     لازم چون vault_bridge از `from vectorstore import search_vault` (lazy-bind
     به نام) استفاده می‌کند — patch رویِ attribute ِ ماژولِ واقعی دیده نمی‌شود
     چون bind قبلاً در import-time رخ داده. فقط جای‌گذاریِ ماژول در sys.modules
-    قبل از فراخوانی کار می‌کند."""
+    قبل از فراخوانی کار می‌کند.
 
-    def __init__(self, results=None, fail=False):
+    دو مجموعه از نتایج پشتیبانی می‌شود: results (برای search_vault/4d_vault)
+    و whole_results (برای search_vault_collection/vault_whole)."""
+
+    def __init__(self, results=None, whole_results=None, fail=False):
         self.results = results or []
+        self.whole_results = whole_results if whole_results is not None else results
         self.fail = fail
         self.calls = 0
 
@@ -82,7 +86,14 @@ class _FakeVectorStore:
             if _outer.fail:
                 raise RuntimeError("simulated chromadb failure")
             return list(_outer.results)
+
+        def _search_collection(query, k=3, collection_name="vault_whole"):
+            _outer.calls += 1
+            if _outer.fail:
+                raise RuntimeError("simulated chromadb failure")
+            return list(_outer.whole_results)
         _fake.search_vault = _search
+        _fake.search_vault_collection = _search_collection
         self._orig = sys.modules.get("vectorstore")
         sys.modules["vectorstore"] = _fake
         return self
@@ -135,7 +146,7 @@ def t_flag_on_returns_evidence_with_namespace(monkeypatch_search=None):
     with _FakeVectorStore(results=_FAKE_EVIDENCE) as fvs:
         with _Flag(vb.FLAG, "1"):
             out = vb.search_vault_evidence("BCM equation", k=2)
-    assert fvs.calls == 1, f"دقیقاً یک بار search_vault باید صدا زده شود: {fvs.calls}"
+    assert fvs.calls >= 1, f"حداقل یک بار search_vault باید صدا زده شود: {fvs.calls}"
     assert len(out) == 2, out
     assert out[0]["namespace"] == "vault_rag", out[0]
     assert out[0]["memory_id"].startswith("vault:"), out[0]
@@ -153,6 +164,48 @@ def t_relevance_clamped():
             out = vb.search_vault_evidence("q")
     assert out[0]["relevance"] == 1.0, out[0]
     assert out[1]["relevance"] == 0.0, out[1]
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# (۲b) دو کالکشن merge + dedup روی source، مرتب‌شده بر relevance
+# ════════════════════════════════════════════════════════════════════════════════
+def t_two_collections_merge_dedup():
+    """دو کالکشن (4d_vault + vault_whole) query می‌شوند، dedup روی source،
+    merge-sort روی relevance. vault_whole ابرمجموعه است — source‌های مشترک فقط
+    یک‌بار می‌آیند (vault_whole برنده در تضاد)."""
+    default_only = [
+        {"source": "only-4d.md", "title": "old", "content": "c1", "relevance": 0.50}]
+    whole = [
+        {"source": "shared.md", "title": "from whole", "content": "c2", "relevance": 0.90},
+        {"source": "only-4d.md", "title": "dup of 4d", "content": "c3", "relevance": 0.60},
+        {"source": "whole-only.md", "title": "new", "content": "c4", "relevance": 0.80}]
+    with _FakeVectorStore(results=default_only, whole_results=whole):
+        with _Flag(vb.FLAG, "1"):
+            out = vb.search_vault_evidence("test", k=5)
+    # 3 منبعِ یکتا (dedup: only-4d.md یک‌بار، vault_whole برنده)
+    sources = [e["source"] for e in out]
+    assert len(sources) == len(set(sources)), f"dedup شکست خورد: {sources}"
+    assert len(out) == 3, f"باید ۳ منبعِ یکتا باشد: {sources}"
+    # مرتب‌شده بر relevance نزولی
+    rels = [e["relevance"] for e in out]
+    assert rels == sorted(rels, reverse=True), f"merge-sort شکست خورد: {rels}"
+    # فقط-4d از vault_whole آمد (ابرمجموعه)
+    only_4d = [e for e in out if e["source"] == "only-4d.md"][0]
+    assert only_4d["relevance"] == 0.60, f"vault_whole باید برنده باشد: {only_4d}"
+
+
+def t_truncate_to_k_after_merge():
+    """merge دو کالکشن بعد از dedup، truncate به k."""
+    default_evs = [{"source": f"d{i}.md", "title": "t", "content": "c", "relevance": 0.3 + i*0.01}
+                   for i in range(5)]
+    whole_evs = [{"source": f"w{i}.md", "title": "t", "content": "c", "relevance": 0.8 + i*0.01}
+                 for i in range(5)]
+    with _FakeVectorStore(results=default_evs, whole_results=whole_evs):
+        with _Flag(vb.FLAG, "1"):
+            out = vb.search_vault_evidence("test", k=3)
+    assert len(out) == 3, f"باید به k=3 truncate شود: {len(out)}"
+    # ۳ تا بالاترین relevance
+    assert all(e["relevance"] >= 0.80 for e in out), [e["relevance"] for e in out]
 
 
 # ════════════════════════════════════════════════════════════════════════════════
