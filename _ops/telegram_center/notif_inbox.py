@@ -104,8 +104,14 @@ def _gen_id(category: str) -> str:
 
 
 def push(category: str, title: str = "", body: str = "", *, kind: str = "content",
-          meta: "dict | None" = None) -> str:
-    """یک اعلان به صندوق اضافه کن. خروجی = id (رشتهٔ خالی روی شکست، fail-soft).
+          meta: "dict | None" = None) -> "str | None":
+    """یک اعلان به صندوق اضافه کن. خروجی = id، یا `None` روی شکست (fail-soft).
+
+    عمداً `None` نه رشتهٔ خالی: صداکننده‌هایی مثلِ center.py's health-digest که
+    نتیجهٔ ارسال را با `is not None` می‌سنجند (نه فقط truthy) باید شکست را درست
+    ببینند — رشتهٔ خالی از `is not None` رد می‌شد و دایجستِ نرسیده را «رسیده»
+    علامت می‌زد (همان باگی که کامنتِ خودِ center.py دربارهٔ نشانگرِ flush هشدار
+    می‌دهد).
 
     `title` اگر خالی باشد از `_TITLES[category]` پر می‌شود. `meta` برای آیتم‌های
     `kind="pointer"` استفاده می‌شود (مثلاً `{"goto_tab": "system", "rfc_id": "..."}`)."""
@@ -135,9 +141,9 @@ def push(category: str, title: str = "", body: str = "", *, kind: str = "content
                     state["items"][idx] = None
                 state["items"] = [it for it in state["items"] if it is not None]
             if not _save(state):
-                return ""
+                return None
     except Exception:  # noqa: BLE001 — صندوق هرگز صداکننده را نمی‌کشد
-        return ""
+        return None
     return item["id"]
 
 

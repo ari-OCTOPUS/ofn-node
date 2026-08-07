@@ -1295,7 +1295,16 @@ class Center:
                     # جلو می‌رود، دقیقاً مثلِ مسیرِ urgent بالا. تا اینجا flush_digest
                     # خودش نشانگر را قبل از ارسال جلو می‌برد ⇒ یک ارسالِ شکست‌خورده
                     # آن ساعت را برای همیشه گم می‌کرد.
-                    _dmid = self._route_send("center-health-digest", _dg, cfg=cfg)
+                    #
+                    # ۲۰۲۶-۰۸-۰۷ — پشتِ notif_inbox.FLAG (پیش‌فرض خاموش): روشن یعنی
+                    # به‌جای تلگرام، دایجست در صندوقِ مینی‌اپ می‌نشیند. route()
+                    # خروجیِ send_fn (فلگ خاموش) یا idِ صندوق (فلگ روشن، رشتهٔ
+                    # غیرخالی) می‌دهد — چکِ `is not None` زیر بی‌تغییر کار می‌کند.
+                    import notif_inbox as _ni
+                    _dmid = _ni.route(
+                        "health_digest", "", _dg,
+                        send_fn=lambda: self._route_send(
+                            "center-health-digest", _dg, cfg=cfg))
                     if _dmid is not None:
                         _hp.mark_digest_flushed(now=now)
         except Exception:  # noqa: BLE001 — تحویلِ hold-policy هرگز beat را نمی‌کشد

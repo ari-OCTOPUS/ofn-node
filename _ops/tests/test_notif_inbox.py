@@ -101,6 +101,20 @@ def t_flag_on_route_pushes_and_never_calls_send_fn():
 # ════════════════════════════════════════════════════════════════════════════
 # push/list/unread/mark_read
 # ════════════════════════════════════════════════════════════════════════════
+def t_push_returns_none_not_empty_string_on_save_failure():
+    """رگرسیون: center.py's health-digest caller نتیجه را با `is not None` می‌سنجد
+    (نه صرفاً truthy) — رشتهٔ خالی از این چک رد می‌شد و دایجستِ نرسیده را
+    «رسیده» علامت می‌زد. push() باید دقیقاً None بدهد، نه ""."""
+    _reset_store()
+    old_save = ni._save
+    ni._save = lambda state: False
+    try:
+        out = ni.push("needs", "x")
+        assert out is None, f"شکستِ ذخیره باید None بدهد نه {out!r}"
+    finally:
+        ni._save = old_save
+
+
 def t_push_uses_default_title_when_empty():
     _reset_store()
     nid = ni.push("rfc_card")
