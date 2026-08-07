@@ -87,3 +87,16 @@ updated: 2026-08-07
   miniapp_state,miniapp_gateway,miniapp/*}.py`، `_ops/integrations/outbound_https.py`،
   `_ops/{wiring,live_loop}.py`، `_ops/budget/approval_channel.py`،
   `_ops/agi2027_control/ops_actions.py`، ۱۰+ تستِ نو.
+
+- 🧩✅ **2026-08-07 (بعدازظهر — ۵ فلگِ شناختی آرم شدند با رأیِ مالک).**
+  مالک: «موافقم همرو کامل کن.» هر پنج فلگ در `OCTOPUS-flags.cmd` (محلی، gitignored)
+  آرم شدند، بعد از تحلیلِ آماریِ ایجنتِ ارشد (نوت ۲۳) و تستِ ۶ سوییت سبز:
+  - `OCTOPUS_NEURAL_LEARNED_APPLY=1` — effect-shadow اکچوئیتور. ریسک = صفر (pain ۰.۲۷۵ < آستانه ۰.۳۵).
+  - `OCTOPUS_WIRE_CONSENT_FW=1` — consent_gate فقط-رد.
+  - `OCTOPUS_WIRE_LEAD_OUTBOUND=1` — مسیرِ ارسال (ولی credential SMTP لازم برای ایمیلِ واقعی).
+  - `OCTOPUS_WIRE_VAULT_RAG=1` — پلِ RAG (هر دو کالکشن، ۱۰۹٬۲۲۰ chunks).
+  - `OCTOPUS_WIRE_CORTEX_RICH_THINK=1` — مغزِ محلی از چرخش خارج.
+  **نیازِ ری‌استارت:** پروسهٔ زنده این فلگ‌ها را بعد از restart می‌بیند. ۶ سوییت
+  سبز با فلگ‌های روشن: neural_loop_close(۸)، consent_gate(۱۰)، consent_materialize(۴)،
+  vault_bridge(۹)، retrieval_router(۸)، pulse_arbiter(۲۲).
+  **کاوست:** ایمیلِ واقعی هنوز نمی‌رود (SMTP credential جداگانه لازم).

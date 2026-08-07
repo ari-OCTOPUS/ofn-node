@@ -895,3 +895,21 @@ production دارد.** یعنی از الان، هر ارسالِ واقعی (و
 > تصمیمِ آرم‌کردن. بندِ ۴ عددش (P5) هم تصحیح شد: شمارشِ زندهٔ `vault_whole`
 > هنگامِ چک ۷۰٬۹۹۳ بود نه ۱۰۹۲۲، و هنوز ایندکس می‌شد. مگاپرامپتِ آمادهٔ
 > کپی‌پیستِ جلسهٔ بعد در همان نوتِ ۲۳ است — این تسک بسته شد.
+
+## 2026-08-07T15:07:14 — metabolism (خودکار) [CONFLICT-METABOLIC-2026-08-07]
+
+تلمتری متابولیسم با حسابداری/سقف نمی‌خواند؛ grantها FREEZE شدند:
+- budget-state unreadable: Expecting value: line 1 column 1 (char 0)
+رفع: بررسی منابع تلمتری، سپس حذف دستی `_ops/budget/FREEZE.flag` (و `_ops/STOP-METABOLIC` اگر ساخته شده).
+
+## 2026-08-07 (بعدازظهر) — ۵ فلگِ شناختی آرم شدند
+
+✅ مالک رأی داد: «موافقم همرو کامل کن.» هر پنج فلگ آرم شدند در `OCTOPUS-flags.cmd`:
+- `OCTOPUS_NEURAL_LEARNED_APPLY=1` (تحلیل: pain ۰.۲۷۵ < آستانه ۰.۳۵ → صفر ریسک)
+- `OCTOPUS_WIRE_CONSENT_FW=1` (consent_gate فقط-رد)
+- `OCTOPUS_WIRE_LEAD_OUTBOUND=1` (مسیرِ ارسال)
+- `OCTOPUS_WIRE_VAULT_RAG=1` (پلِ RAG، ۱۰۹٬۲۲۰ chunks)
+- `OCTOPUS_WIRE_CORTEX_RICH_THINK=1` (مغز از چرخش خارج)
+
+۶ سوییت سبز. **نیازِ ری‌استارت** برای اثرِ کامل.
+P4 (effect-shadow) که قبلاً «باز» بود — حالا آرم شد، بسته.
