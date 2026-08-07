@@ -159,21 +159,33 @@ def _write_stop(reason: str) -> None:
 # ── I/O-backed API (LockedJson در پروداکشن؛ fallbackِ سادهٔ اتمیک در تست) ─────
 def _mutate(fn):
     """load→roll→fn(state)→persist. خروجیِ fn به فراخوان برمی‌گردد.
-    شکستِ I/O = fail-closed (deny)، هرگز crash کنندهٔ مسیرِ LLM."""
+    شکستِ I/O = fail-closed (deny)، هرگز crash کنندهٔ مسیرِ LLM.
+
+    VQ-FUGU-TOCTOU-001 (۲۰۲۶-۰۸-۰۷): قبلاً `except Exception: pass` هر خطای
+    داخلِ بلوکِ LockedJson را هم می‌بلعید — شاملِ TimeoutError ِ واقعیِ قفلِ
+    مشغول (opslib.LockedJson بعدِ ۵s تلاش raise می‌کند) و شکستِ نوشتنِ اتمیک
+    (VQ-STATE-WRITE-001، دیده‌شده در پروداکشن). یعنی دقیقاً همان لحظه‌ای که
+    پروسهٔ دیگری واقعاً روی این فایل کار می‌کرد، کد به fallbackِ بی‌قفل
+    می‌افتاد — قراردادِ خودِ این تابع («شکستِ I/O = fail-closed») را نقض
+    می‌کرد. حالا فقط نبودِ خودِ ماژول (import واقعاً نشد) به fallbackِ
+    تک‌پروسه می‌افتد؛ هر خطای دیگر (قفلِ مشغول، شکستِ نوشتن، باگِ fn) طبقِ
+    قراردادِ مستندشده fail-closed می‌شود (None، نه نوشتنِ بی‌قفل)."""
     path = _state_path()
     day = _today()
     try:
         import opslib  # type: ignore
-        with opslib.LockedJson(path) as lj:
-            st = Core.roll(lj.read() or {}, day)
-            out = fn(st)
-            lj.write(st)
-            return out
     except ImportError:
         pass
-    except Exception:  # noqa: BLE001 — قفل/opslib در دسترس نبود → مسیرِ سادهٔ زیر
-        pass
-    # fallback ساده (تست/تک‌پروسه): read → mutate → atomic replace
+    else:
+        try:
+            with opslib.LockedJson(path) as lj:
+                st = Core.roll(lj.read() or {}, day)
+                out = fn(st)
+                lj.write(st)
+                return out
+        except Exception:  # noqa: BLE001 — قفل مشغول/شکستِ نوشتن: fail-closed، نه fallbackِ بی‌قفل
+            return None
+    # fallback ساده (تست/تک‌پروسه — فقط وقتی opslib اصلاً import نشد): read → mutate → atomic replace
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
         try:
