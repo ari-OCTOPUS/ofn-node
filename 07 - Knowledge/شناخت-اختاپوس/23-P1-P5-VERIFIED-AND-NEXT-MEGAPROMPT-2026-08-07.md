@@ -1,0 +1,130 @@
+---
+type: knowledge
+project: "[[04 - Architect System/architect/PROJECT]]"
+status: active
+tags: [octopus, cognitive-audit, consent, neural-loop, vault-rag, megaprompt]
+created: 2026-08-07
+updated: 2026-08-07
+created_by: agent
+sources:
+  - "GLM-worker session report, commits f9940e2 + 6faa19a, 2026-08-07"
+  - "independent 5-agent verification workflow (wf_38c7ee63-b0f) against live code, 2026-08-07"
+---
+
+# P1-P5 تأییدشده + مگاپرامپتِ بعدی — ۲۰۲۶-۰۸-۰۷
+
+> کارگرِ GLM یک ممیزیِ شناختیِ ۱۶.۵ساعته انجام داد و P1/P2/P5 را کامیت کرد
+> (`f9940e2`). این نوت آن گزارش را **مستقل، روی کدِ زنده، بازبینی کرده** —
+> نه صرفاً بازنویسیِ ادعا. یک تصحیحِ بزرگ پیدا شد (P4) که مسیرِ جلسهٔ بعد را
+> کاملاً عوض می‌کند. جزئیاتِ اصلیِ P1-P5: [[00-README-START-HERE]] §جلسهٔ ۰۸-۰۷.
+
+## خلاصهٔ ممیزیِ ۱۶.۵ساعته (گزارشِ کارگر، دست‌نخورده)
+
+سه ریشه پیدا شد که چرا مغزها «کامل کار نگذاشتند»:
+1. **مغزِ محلی تشنه:** `qwen2.5:1.5b` یک فکر را ۱۶.۵ ساعت تکرار کرد (۱۰۶ سیکل، ۱ فکرِ یکتا) — prompt ثابت = خروجی ثابت.
+2. **sensor-rich، actuator-poor:** effect-shadow ۱۵۷۷۵ بار `learned_pressure` محاسبه کرد و ۰ بار `applied=true`.
+3. **مسیرِ ارسال بسته بود:** `consent_current` هرگز مادیالایز نمی‌شد.
+
+پنج سیستمِ یادگیری واقعاً پیشرفت کرده بودند: BCM (۷۸ کلید potentiated)، self-model (۱۹× رشد)، semantic memory (+۱۳۶ ورودی)، latent vectors، doctor self-knowledge (نسخهٔ ۱۶۵).
+
+## تأییدِ مستقل — چه واقعاً درست بود
+
+راستی‌آزماییِ ۵-ایجنتهٔ read-only روی کدِ زنده (نه اعتمادِ کور به گزارش):
+
+| بند | ادعا | نتیجهٔ تأیید |
+|---|---|---|
+| **P1** | consent glue در `lead_candidate_inbox.py` | ✅ **تأییدشده.** `verdict = cf.evaluate(candidate)` (خط ۲۴۲) — مقدار از خودِ firewall محاسبه می‌شود، نه از تولیدکننده. `consent_gate.derive_outreach_allowed` مستقل همان سه‌ناوردی را دوباره enforce می‌کند. `market_signal` هنوز رد می‌شود. `test_consent_materialize.py` اجرا شد زنده: **۴/۴ سبز**. |
+| **P2** | `cortex.think()` پشتِ `OCTOPUS_WIRE_CORTEX_RICH_THINK` | ✅ **تأییدشده.** فلگ خاموش = بلوکِ نو کاملاً skip می‌شود، خروجی byte-identical. |
+| **P3** | consolidation از قبل کار می‌کرد | ✅ **تأییدشده با stateِ زنده.** `consolidate-cursor.json` همین الان `n_in:2` نشان می‌دهد؛ `memory.db` ۳۸ ردیف دارد (نه استاب). |
+| **P5** | `vault_whole` — ۱۰۹۲۲ chunk | ⚠️ **نیمه‌تأیید — عددِ اشتباه.** کالکشن جدا از `4d_vault` واقعاً وجود دارد، ولی شمارشِ زندهٔ همین الان **۷۰٬۹۹۳** بود (نه ۱۰۹۲۲) و هنوز داشت رشد می‌کرد (بینِ دو query: ۷۰۹۹۳→۷۱۰۷۴) — ایندکسینگ هنوز کامل نشده بود. **قبل از وصل‌کردنِ vault_bridge، شمارشِ نهایی را دوباره چک کن.** |
+| **ایمنیِ آرم‌کردن** | `CONSENT_FW` + `LEAD_OUTBOUND` | ✅ **امن برای هر دو.** جزئیات پایین. |
+| **P4** | «فقط طرح، shadow ۲۴-۴۸h بعد» | 🔴 **مقدمه غلط بود.** جزئیاتِ کامل پایین — این تصمیم مسیرِ جلسهٔ بعد را عوض می‌کند. |
+
+## ایمنیِ آرم‌کردنِ `CONSENT_FW` + `LEAD_OUTBOUND` — تحلیلِ کامل
+
+**نتیجه: امن برای هر دو.** دلیل، نه صرفِ ادعا:
+
+- `consent_gate.py` یک گیتِ **فقط-رد** است: فلگ خاموش → `may_draft`/`may_release` بلافاصله `False` برمی‌گردانند (قراردادِ fail-soft معکوس). فلگ روشن فقط یک لایهٔ ردِ اضافه می‌افزاید — هیچ مسیری ندارد که چیزی را که سیستم قبلاً اجازه نمی‌داد، اجازه بدهد.
+- `outbound_worker.py`: فلگ خاموش = `send_one`/`drive_outbound` کاملاً no-op. فلگ روشن → پنج چکِ **مستقل** قبل از هر تماسِ transport: `master_halted()` (برترین)، سقفِ روزانهٔ ۱۰ (دو لایه)، `consent_gate.may_release`، بعد `lead_effect_gate.release_and_settle`.
+- **نقطهٔ کلیدی:** `release_and_settle` فقط روی effect_idهایی کار می‌کند که قبلاً `authorize()` شده‌اند — و تنها تولیدکنندهٔ effect ِ مجاز، `on_lead_verdict()` است که یک **تأییدِ صریحِ مالک** («approve») به‌ازای هر لید می‌خواهد. این چک‌پوینتِ انسانی از قبل وجود دارد و مستقل از هر دو فلگ است؛ آرم‌کردن باعث نمی‌شود سیستم خودش لیدِ نو انتخاب کند و پیام بفرستد.
+- **گیتِ سوم که هنوز بسته است:** ارسالِ واقعیِ `smtplib` فقط اگر `mail_credentials.resolve()` موفق شود اجرا می‌شود. چکِ زندهٔ همین امروز: `{ok: False, reason: "gmail-fallback-not-enabled:OCTOPUS_SMTP_USE_GMAIL", secret_present: False}`. یعنی **حتی اگر هر دو فلگ همین امروز آرم شوند، صفر ایمیلِ واقعی ارسال می‌شود** — یک مجموعه فلگ/credential جداگانه لازم است.
+- **کاوستِ باقی‌مانده:** تستِ `test_consent_gate` (مسیرِ b2b با رشتهٔ شاهدِ `office_contact_conspicuously_published`) مستقل بازبینی نشد — فقط `test_consent_materialize.py` تأیید شد. قبل از آرم، این سوییت را هم سبز کن.
+
+**توصیهٔ اجرا:** هر دو فلگ را آرم کن، ولی `OCTOPUS_SMTP_*`/`OCTOPUS_SMTP_USE_GMAIL` خاموش نگه دار. یک روز `events.jsonl`ِ `send.consent_denied`/`send.skipped` را نگاه کن، `test_consent_gate` را سبز کن، بعد جداگانه credential را آرم کن.
+
+## 🔴 تصحیحِ P4 — این کار «طراحی» نیست، یک تصمیمِ آرم‌کردنِ فلگ روی کدِ ازقبل‌ساخته‌شده است
+
+گزارشِ کارگر می‌گفت P4 «فقط طرح» مانده و باید effect-shadow به یک اکچوئیتور طراحی/وصل شود.
+**این مقدمه غلط است.** اکچوئیتور از قبل ساخته و تست شده — فقط هرگز آرم نشده:
+
+- **جای واقعیِ اکچوئیتور:** نه `model_router.ask()` نه `cortex.think()` (هر دو صفر ارجاع به `learned_pressure` دارند) — بلکه `wiring.protective_override()` (`wiring.py:1794-1858`). وقتی `OCTOPUS_NEURAL_LEARNED_APPLY` روشن باشد، `learned_pressure_capped` با ضریبِ ۰.۵ در `pain` fold می‌شود (خط ۱۸۲۲-۱۸۳۳) که می‌تواند `protective_halt` (غیرقابل‌سرکوب) یا `throttle` را trigger کند.
+- **اثرِ نهایی، هر دو جهت، فقط ترمز است:** `protective_halt` یک سیکل را skip می‌کند؛ `throttle` شروعِ سیکلِ بعد را ۶۰۰ ثانیه عقب می‌اندازد. **هیچ‌کدام پول خرج نمی‌کند یا پیام نمی‌فرستد** — جهتِ خطا «کمتر کار کن» است، امن‌ترین جهت.
+- **فلگِ خواهرِ shadow از قبل آرم است:** `OCTOPUS_NEURAL_EFFECT_SHADOW=1` از ۲۰۲۶-۰۷-۲۷ روشن است (`OCTOPUS-flags.cmd:640-645`) و همان الگویِ shadow→arm که این ریپو همیشه استفاده می‌کند (BCM، `vault_bridge` هم همین را دارند).
+- **سقفِ ایمنیِ از قبل کشف‌وفیکس‌شده:** `learned_pressure` خام تا ~۰.۹۹ می‌رسید (که هر تیک را `protective_halt` می‌کرد) — برای همین `learned_pressure_capped` با سقفِ ۰.۲۵ اضافه شد (`wiring.py:1505-1537`، ۲۰۲۶-۰۷-۳۰).
+- **تست از قبل هست:** `test_neural_loop_close.py:164-232` — `t_apply_flag_default_off`، `t_apply_flag_on_combines_learned`، `t_apply_flag_on_low_learned_no_override`.
+
+**کارِ واقعیِ باقی‌مانده برای جلسهٔ بعد (نه کدنویسی):**
+۱) توزیعِ ۱۵٬۸۳۸ ردیفِ shadow log را بکش — چند درصدِ رکوردهایِ **capped** (نه خام) واقعاً از سقف رد می‌شدند؟ (شاهدِ خام: ۸۵۳/۳۷۲۶ = ۲۲.۹٪ بالای سقف بودند، ولی این عددِ خام است نه capped).
+۲) اگر توزیع معقول بود، فقط `set OCTOPUS_NEURAL_LEARNED_APPLY=1` را به `OCTOPUS-flags.cmd` اضافه کن (سبکِ کامنتِ خط ۶۴۰-۶۴۵)، ترجیحاً با یک پنجرهٔ آزمایشیِ زمان‌محدود قبل از دائمی‌شدن.
+
+## طرحِ اتصالِ `vault_bridge.py` به `vault_whole`
+
+- مسیرِ فعلی: `vault_bridge.search_vault_evidence()` → `vectorstore.search_vault()` → هاردکدشده روی کالکشنِ `4d_vault`.
+- **embedding سازگار است، adapter لازم نیست:** هر دو کالکشن با همان مدل (`MiniLM-L12-v2`, dim=384) ساخته شده‌اند؛ metadata schema هم یکسان (`source`/`title`/`path`).
+- **دیفِ حداقلی:** یک تابعِ نو `search_vault_collection(query, k, collection_name)` که از `get_vectorstore_for()` (از قبل موجود) استفاده کند؛ `search_vault_evidence()` هر دو کالکشن را query کند، با `source` dedup کند (`vault_whole` ابرمجموعه است)، merge-sort روی relevance، truncate به k. `retrieval_router.py` صفر تغییر لازم دارد.
+- ⚠️ **قبل از این کار:** شمارشِ `vault_whole` را دوباره چک کن — همین امروز هنوز داشت ایندکس می‌شد (قفلِ دیتابیس فعال بود). عددِ نهایی را بعد از اتمامِ ایندکسینگ بگیر.
+- فلگ (`OCTOPUS_WIRE_VAULT_RAG`) هنوز خاموش است — این کار هم پشتِ همان فلگ shadow می‌ماند.
+
+---
+
+## مگاپرامپتِ آمادهٔ کپی-پیست برای جلسهٔ بعدِ کارگر
+
+```text
+سلام. ادامهٔ کارِ ممیزیِ شناختیِ امروز (commit f9940e2). گزارشِ تو مستقل روی کدِ
+زنده بازبینی شد — نکات زیر را قبل از شروع بخوان، یکی‌شان تصحیحِ مهم دارد:
+
+مرزهای سخت (بدون استثنا):
+- هرگز به .git، هیچ _code، یا فایلِ حاویِ secret دست نزن.
+- _ops/legs/** فقط با تأییدِ جداگانهٔ مالک تغییر کن — همین امروز legs با رأیِ
+  مالک باز شد، ولی این یعنی یک رأی، نه یک مجوزِ دائمی برای هر تغییرِ بعدی آنجا.
+- هر کارِ آرم‌کردنِ فلگ = رأیِ مالک، نه تصمیمِ خودت.
+- قبل از هر batch >۵ فایل: agent-checkpoint commit.
+
+کارِ ۱ — P4 اشتباهِ گزارشِ قبلی را تصحیح کن، فقط یک تصمیم است نه کدنویسی:
+effect-shadow اکچوئیتور از قبل ساخته و تست شده (wiring.protective_override،
+پشتِ OCTOPUS_NEURAL_LEARNED_APPLY، خاموش). یک تحلیلِ آماری کوچک بکش: از
+_ops/state/neural/effect-shadow.jsonl (۱۵٬۸۳۸ ردیف)، توزیعِ
+learned_pressure_capped را حساب کن — چند درصد بالای سقفِ ۰.۲۵ می‌رسند و
+protective_halt/throttle تریگر می‌کنند؟ گزارش کن، بعد اگر معقول بود پیشنهاد بده
+(نه خودت آرم کن) که مالک OCTOPUS_NEURAL_LEARNED_APPLY=1 را با یک پنجرهٔ
+آزمایشیِ کوتاه امتحان کند. تستِ test_neural_loop_close.py را قبلش دوباره سبز
+ببین.
+
+کارِ ۲ — vault_bridge را به vault_whole وصل کن:
+اول چک کن ایندکسینگِ vault_whole تمام شده (شمارشِ ثابت، نه در حالِ رشد — امروز
+هنگامِ چک هنوز فعال بود). بعد در _ops/memory/vectorstore.py یک تابعِ نو
+search_vault_collection(query, k, collection_name) بساز که get_vectorstore_for()
+(از قبل موجود) را صدا بزند. vault_bridge.search_vault_evidence() را طوری عوض
+کن که هر دو کالکشن (4d_vault + vault_whole) را query کند، با source dedup کند،
+merge-sort روی relevance، truncate به k. retrieval_router.py را دست نزن. تست
+بنویس (mock هر دو تابعِ search، assert dedup/merge/flag-off=[]). فلگ
+(OCTOPUS_WIRE_VAULT_RAG) خاموش بماند تا رأیِ مالک.
+
+کارِ ۳ — اگر مالک تأیید کرد، CONSENT_FW + LEAD_OUTBOUND را آرم کن:
+تحلیلِ ایمنیِ کامل در همین نوت (۲۳) هست — خلاصه: امن است چون consent_gate
+فقط-رد است، و release_and_settle از قبل به تأییدِ صریحِ مالک per-lead نیاز
+دارد (مستقل از این دو فلگ)، و credential ِ SMTP هنوز نیست پس صفر ایمیلِ واقعی
+امروز می‌رود حتی با هر دو فلگ روشن. قبل از آرم، test_consent_gate (مسیرِ b2b،
+رشتهٔ office_contact_conspicuously_published) را سبز ببین — این یکی مستقل
+تأیید نشده بود. یک روز events.jsonl را برایِ send.consent_denied/send.skipped
+نگاه کن قبل از این‌که credential را هم آرم کنی.
+
+کارِ ۴ (اختیاری، اگر وقت ماند) — عددِ P5 را تصحیح کن:
+گزارشِ قبلی گفت vault_whole=10922 chunk؛ چکِ زندهٔ امروز ۷۰٬۹۹۳ نشان داد و در
+حالِ رشد بود. بعد از اتمامِ ایندکسینگ، عددِ نهایی را در نوتِ 07 - Knowledge/
+شناخت-اختاپوس/23-... ثبت کن (append، رشته‌های قبلی را پاک نکن).
+
+هر کار را با تست + commit ببند. فایلِ HANDOFF.md و PROJECT.md architect را طبقِ
+قاعدهٔ همیشگیِ vault به‌روز کن. اگر جایی رأیِ مالک لازم بود، در AGENT_QUESTIONS
+append کن و رد شو — دور نزن.
+```
