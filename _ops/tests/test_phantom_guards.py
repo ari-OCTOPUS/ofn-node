@@ -152,6 +152,15 @@ UNDECLARED_FLAGS = (
     "OCTOPUS_LEDGER_PY", "OCTOPUS_LEG_FRESH_SECS",
     "OCTOPUS_LEG_MANIFEST_DIR", "OCTOPUS_LEG_TASKS_DIR",
     "OCTOPUS_MINIAPP_PORT", "OCTOPUS_MINIAPP_URL",
+    # 2026-08-07: OCTOPUS_MINIAPP_ALLOW_UNAUTH_READ_DEV — یک فلگِ dev-only opt-in
+    # است که در commit da9ab3b معرفی شد (miniapp_gateway.py:117::read_gate_enabled).
+    # کامنتِ inline می‌گوید «فقط تست/دیباگ با opt-in توسعه‌دهنده»، پیش‌فرض `"0"`،
+    # و fail-closed است (`!= "1"`). در OCTOPUS-flags.cmd اعلام نمی‌شود چون عمداً
+    # نباید در تولید مسلح شود — declare‌کردنش در پروفایلِ بوت ممکن است روزی
+    # روشنش کند و یک دورزدنیِ امنیتیِ dev-only را به تولید نشت دهد. این‌جا ثبت
+    # می‌شود (نه در flags.cmd) تا «بی‌اعلان» بودنش یک تصمیمِ نوشته‌شده باشد، نه
+    # فراموشی — هم‌سبکِ OCTOPUS_TEST_*های بالا.
+    "OCTOPUS_MINIAPP_ALLOW_UNAUTH_READ_DEV",
     "OCTOPUS_MINING_STOP_INTENT_FILE", "OCTOPUS_MINING_SWAP_DECISION_FILE",
     "OCTOPUS_MINING_SWITCH_RECEIPT_FILE", "OCTOPUS_MODULE_MANIFEST_EVERY_N",
     # 2026-08-07: OCTOPUS_NEURAL_LEARNED_APPLY removed — now `set =1` (armed, note 23).
